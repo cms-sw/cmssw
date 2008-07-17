@@ -20,6 +20,10 @@ class TEveStraightLineSegment;
 class TEveStraightLineSet;
 class DetId;
 class DetIdToMatrix;
+namespace fwlite {
+   class Event;
+}
+
   
 namespace fw {
    std::pair<double,double> getPhiRange( const std::vector<double>& phis,
@@ -63,6 +67,8 @@ namespace fw {
 				  reco::Candidate const * cand,
 				  double scale_factor = 2);
      double estimate_field( const reco::Track& track );
+   
+     std::string getTimeGMT( const fwlite::Event& event );
 }
 
 #endif

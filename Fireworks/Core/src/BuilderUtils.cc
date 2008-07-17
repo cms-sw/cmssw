@@ -18,6 +18,8 @@
 #include "TEveTrans.h"
 #include "TEveGeoNode.h"
 #include "TEveStraightLineSet.h"
+#include <time.h>
+#include "DataFormats/FWLite/interface/Event.h"
 
 std::pair<double,double> fw::getPhiRange( const std::vector<double>& phis, double phi )
 {
@@ -235,4 +237,15 @@ fw::estimate_field( const reco::Track& track )
 				      0);
    double cosAlpha = transverseMomentum.Dot(displacement)/transverseMomentum.r()/displacement.r();
    return 200*sqrt(1-cosAlpha*cosAlpha)/0.2998*transverseMomentum.r()/displacement.r();
+}
+
+std::string
+fw::getTimeGMT( const fwlite::Event& event )
+{
+   time_t t(event.time().value() >> 32);
+   std::string text( asctime( gmtime(&t) ) );
+   size_t pos = text.find('\n');
+   if ( pos != std::string::npos ) text = text.substr(0,pos);
+   text += " GMT";
+   return text;
 }
