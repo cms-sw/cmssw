@@ -14,7 +14,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: TracksProxy3DBuilder.cc,v 1.11 2008/07/07 06:14:02 dmytro Exp $
+// $Id: TracksProxy3DBuilder.cc,v 1.12 2008/07/16 16:09:18 chrjones Exp $
 //
 
 // system include files
@@ -68,11 +68,7 @@ void TracksProxy3DBuilder::build(const FWEventItem* iItem, TEveElementList** pro
     //fwlite::Handle<reco::TrackCollection> tracks;
     //tracks.getByLabel(*iEvent,"ctfWithMaterialTracks");
     
-    if(0 == tracks ) {
-      std::cout <<"failed to get Tracks"<<std::endl;
-      return;
-    }
-   
+    if(0 == tracks ) return;
     
     TEveTrackPropagator* propagator = tlist->GetPropagator();
     

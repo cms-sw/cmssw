@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: MuonDetailView.cc,v 1.3 2008/03/09 19:29:31 dmytro Exp $
+// $Id: MuonDetailView.cc,v 1.4 2008/05/12 15:43:29 dmytro Exp $
 //
 
 // system include files
@@ -127,10 +127,8 @@ void MuonDetailView::build (TEveElementList **product, const FWModelId &id)
    // printf("getting electrons\n");
   m_item->get(muons);
   // printf("got electrons\n");
-  if (muons == 0) {
-    std::cout <<"failed to get muons" << std::endl;
-    return;
-  }
+  if (muons == 0) return;
+
   // printf("%d GSF electrons\n", electrons->size());
   // printf("getting rechits\n");
   const fwlite::Event *ev = m_item->getEvent();

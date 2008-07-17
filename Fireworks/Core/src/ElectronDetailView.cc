@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: ElectronDetailView.cc,v 1.9 2008/05/26 20:29:56 dmytro Exp $
+// $Id: ElectronDetailView.cc,v 1.10 2008/07/01 05:03:25 jmuelmen Exp $
 //
 
 // system include files
@@ -105,12 +105,7 @@ void ElectronDetailView::build_3d (TEveElementList **product, const FWModelId &i
      // printf("getting electrons\n");
      m_item->get(electrons);
      // printf("got electrons\n");
-     if (electrons == 0) {
-	  std::cout <<"failed to get GSF electrons" << std::endl;
-	  return;
-     }
-     // printf("%d GSF electrons\n", electrons->size());
-     // get rechits
+     if (electrons == 0) return;
 /*
      const EcalRecHitCollection *hits = 0;
      const TClass *m_type  = TClass::GetClass("EcalRecHitCollection");
@@ -332,10 +327,7 @@ void ElectronDetailView::build_projected (TEveElementList **product,
      // printf("getting electrons\n");
      m_item->get(electrons);
      // printf("got electrons\n");
-     if (electrons == 0) {
-	  std::cout <<"failed to get GSF electrons" << std::endl;
-	  return;
-     }
+     if (electrons == 0) return;
      // printf("%d GSF electrons\n", electrons->size());
      // get rechits
 /*

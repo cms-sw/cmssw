@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: MuonsProxyEveLegoBuilder.cc,v 1.2 2008/07/08 07:01:44 dmytro Exp $
+// $Id: MuonsProxyEveLegoBuilder.cc,v 1.3 2008/07/16 21:29:22 dmytro Exp $
 //
 
 // system include files
@@ -73,10 +73,7 @@ MuonsProxyEveLegoBuilder::build(const FWEventItem* iItem, TEveElementList** prod
    
    const reco::MuonCollection* muons=0;
    iItem->get(muons);
-   if(0 == muons ) {
-      std::cout <<"failed to get trackerMuons"<<std::endl;
-      return;
-   }
+   if(0 == muons ) return;
    
    fw::NamedCounter counter("moun");
    for ( reco::MuonCollection::const_iterator muon = muons->begin(); 

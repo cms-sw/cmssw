@@ -44,10 +44,7 @@ void ElectronsProxy3DBuilder::build (const FWEventItem* iItem,
      // printf("got electrons\n");
      ElectronsProxy3DBuilder::electrons = electrons;
    
-     if (electrons == 0) {
-	  std::cout <<"failed to get GSF electrons" << std::endl;
-	  return;
-     }
+     if (electrons == 0) return;
      // printf("%d GSF electrons\n", electrons->size());
    
      TEveTrackPropagator *propagator = new TEveTrackPropagator();

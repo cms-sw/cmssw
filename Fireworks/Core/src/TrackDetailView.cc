@@ -52,11 +52,8 @@ void TrackDetailView::build (TEveElementList **product, const FWModelId &id)
      //fwlite::Handle<reco::TrackCollection> tracks;
      //tracks.getByLabel(*iEvent,"ctfWithMaterialTracks");
      
-     if(0 == tracks ) {
-	  std::cout <<"failed to get Tracks"<<std::endl;
-	  return;
-     }
-     
+     if(0 == tracks ) return;
+
      //  Original Commented out here
      //  TEveTrackPropagator* rnrStyle = tList->GetPropagator();
      

@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: ElectronsProxyRhoPhiZ2DBuilder.cc,v 1.11 2008/07/04 01:40:37 dmytro Exp $
+// $Id: ElectronsProxyRhoPhiZ2DBuilder.cc,v 1.12 2008/07/16 13:51:01 dmytro Exp $
 //
 
 // system include files
@@ -82,10 +82,7 @@ ElectronsProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
      // get electrons
      const reco::GsfElectronCollection *electrons = 0;
      iItem->get(electrons);
-     if (electrons == 0) {
-	  std::cout <<"failed to get GSF electrons" << std::endl;
-	  return;
-     }
+     if (electrons == 0) return;
      fw::NamedCounter counter("electron");
      const double r = 122;
      // loop over electrons
@@ -142,10 +139,7 @@ ElectronsProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
      }
      const reco::GsfElectronCollection *electrons = 0;
      iItem->get(electrons);
-     if (electrons == 0) {
-	  std::cout <<"failed to get GSF electrons" << std::endl;
-	  return;
-     }
+     if (electrons == 0) return;
      fw::NamedCounter counter("electron");
      double z_ecal = 302; // ECAL endcap inner surface
      double r_ecal = 122;

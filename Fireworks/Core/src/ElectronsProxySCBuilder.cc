@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: ElectronsProxySCBuilder.cc,v 1.11 2008/03/09 19:10:45 dmytro Exp $
+// $Id: ElectronsProxySCBuilder.cc,v 1.12 2008/05/12 15:43:29 dmytro Exp $
 //
 
 // system include files
@@ -95,12 +95,8 @@ void ElectronsProxySCBuilder::build (TEveElementList **product)
      // printf("getting electrons\n");
      m_item->get(electrons);
      // printf("got electrons\n");
-     if (electrons == 0) {
-	  std::cout <<"failed to get GSF electrons" << std::endl;
-	  return;
-     }
-     // printf("%d GSF electrons\n", electrons->size());
-     // get rechits
+     if (electrons == 0) return;
+
 /*
      const EcalRecHitCollection *hits = 0;
      const TClass *m_type  = TClass::GetClass("EcalRecHitCollection");

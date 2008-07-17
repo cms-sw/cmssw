@@ -14,7 +14,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: ExampleMacroProxy3DBuilder.C,v 1.3 2008/01/07 05:48:45 chrjones Exp $
+// $Id: ExampleMacroProxy3DBuilder.C,v 1.1 2008/01/19 19:03:49 dmytro Exp $
 //
 
 // system include files
@@ -82,11 +82,7 @@ class ExampleMacroProxy3DBuilder : public FWRPZDataProxyBuilder
     //fwlite::Handle<reco::TrackCollection> tracks;
     //tracks.getByLabel(*iEvent,"ctfWithMaterialTracks");
     
-    if(0 == tracks ) {
-      std::cout <<"failed to get Tracks"<<std::endl;
-      return;
-    }
-   
+    if(0 == tracks ) return;
     
     TEveTrackPropagator* rnrStyle = tlist->GetPropagator();
     

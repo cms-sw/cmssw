@@ -14,7 +14,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: GenParticleProxy3DBuilder.cc,v 1.4 2008/07/05 22:56:33 dmytro Exp $
+// $Id: GenParticleProxy3DBuilder.cc,v 1.5 2008/07/16 16:09:17 chrjones Exp $
 //
 
 // system include files
@@ -71,11 +71,7 @@ void GenParticleProxy3DBuilder::build(const FWEventItem* iItem, TEveElementList*
      //fwlite::Handle<reco::TrackCollection> tracks;
      //tracks.getByLabel(*iEvent,"ctfWithMaterialTracks");
      
-     if(0 == genParticles ) {
-	  std::cout <<"failed to get GenParticles"<<std::endl;
-	  return;
-     }
-     
+     if(0 == genParticles ) return;
     
     TEveTrackPropagator* rnrStyle = tlist->GetPropagator();
     
