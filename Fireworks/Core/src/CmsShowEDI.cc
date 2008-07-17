@@ -8,7 +8,7 @@
 //
 // Original Author:  Joshua Berger  
 //         Created:  Mon Jun 23 15:48:11 EDT 2008
-// $Id: CmsShowEDI.cc,v 1.6 2008/07/15 14:57:05 chrjones Exp $
+// $Id: CmsShowEDI.cc,v 1.7 2008/07/16 22:58:38 chrjones Exp $
 //
 
 // system include files
@@ -194,7 +194,19 @@ m_item(0)
    
   ediTabs->AddTab("Data", dataFrame);
   AddFrame(ediTabs, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 0, 0, 0, 0));
-  SetWindowName("Collection Controller");
+
+   m_colorSelectWidget->Connect("ColorSelected(Pixel_t)", "CmsShowEDI", this, "changeItemColor(Pixel_t)");
+   m_isVisibleButton->Connect("Toggled(Bool_t)", "CmsShowEDI", this, "toggleItemVisible(Bool_t)");
+   m_filterExpressionEntry->Connect("ReturnPressed()", "CmsShowEDI", this, "runFilter()");
+   m_filterButton->Connect("Clicked()", "CmsShowEDI", this, "runFilter()");
+   m_selectExpressionEntry->Connect("ReturnPressed()", "CmsShowEDI", this, "runSelection()");
+   m_selectButton->Connect("Clicked()", "CmsShowEDI", this, "runSelection()");
+   m_removeButton->Connect("Clicked()", "CmsShowEDI", this, "removeItem()");
+   m_selectAllButton->Connect("Clicked()", "CmsShowEDI", this, "selectAll()");
+   
+   
+   
+   SetWindowName("Collection Controller");
   Resize(GetDefaultSize());
   MapSubwindows();
   MapWindow();
@@ -209,7 +221,15 @@ m_item(0)
 CmsShowEDI::~CmsShowEDI()
 {
    disconnectAll();
-  //  delete m_objectLabel;
+   m_colorSelectWidget->Disconnect("ColorSelected(Pixel_t)", this, "changeItemColor(Pixel_t)");
+   m_isVisibleButton->Disconnect("Toggled(Bool_t)", this, "toggleItemVisible(Bool_t)");
+   m_filterExpressionEntry->Disconnect("ReturnPressed()", this, "runFilter()");
+   m_selectExpressionEntry->Disconnect("ReturnPressed()", this, "runSelection()");
+   m_filterButton->Disconnect("Clicked()", this, "runFilter()");
+   m_selectButton->Disconnect("Clicked()", this, "runSelection()");
+   m_selectAllButton->Disconnect("Clicked()", this, "selectAll()");
+   m_removeButton->Disconnect("Clicked()", this, "removeItem()");
+   //  delete m_objectLabel;
   //  delete m_colorSelectWidget;
   //  delete m_isVisibleButton;
 }
@@ -235,7 +255,7 @@ CmsShowEDI::fillEDIFrame(FWEventItem* iItem) {
      disconnectAll();
     m_item = iItem;
     m_objectLabel->SetText(iItem->name().c_str());
-    m_colorSelectWidget->SetColor(gVirtualX->GetPixel(iItem->defaultDisplayProperties().color()));
+    m_colorSelectWidget->SetColor(gVirtualX->GetPixel(iItem->defaultDisplayProperties().color()),kFALSE);
     m_isVisibleButton->SetDisabledAndSelected(iItem->defaultDisplayProperties().isVisible());
     m_filterExpressionEntry->SetText(iItem->filterExpression().c_str());
     m_nameEntry->SetText(iItem->name().c_str());
@@ -252,22 +272,6 @@ CmsShowEDI::fillEDIFrame(FWEventItem* iItem) {
     m_selectButton->SetEnabled(kTRUE);
     m_selectAllButton->SetEnabled(kTRUE);
     m_removeButton->SetEnabled(kTRUE);
-    if (!(m_colorSelectWidget->HasConnection("ColorSelected(Pixel_t)")))
-      m_colorSelectWidget->Connect("ColorSelected(Pixel_t)", "CmsShowEDI", this, "changeItemColor(Pixel_t)");
-    if (!(m_isVisibleButton->HasConnection("Toggled(Bool_T)")))
-      m_isVisibleButton->Connect("Toggled(Bool_t)", "CmsShowEDI", this, "toggleItemVisible(Bool_t)");
-    if (!(m_filterExpressionEntry->HasConnection("ReturnPressed()")))
-      m_filterExpressionEntry->Connect("ReturnPressed()", "CmsShowEDI", this, "runFilter()");
-    if (!(m_filterButton->HasConnection("Clicked()")))
-      m_filterButton->Connect("Clicked()", "CmsShowEDI", this, "runFilter()");
-    if (!(m_selectExpressionEntry->HasConnection("ReturnPressed()")))
-      m_selectExpressionEntry->Connect("ReturnPressed()", "CmsShowEDI", this, "runSelection()");
-    if (!(m_selectButton->HasConnection("Clicked()")))
-      m_selectButton->Connect("Clicked()", "CmsShowEDI", this, "runSelection()");
-    if (!(m_removeButton->HasConnection("Clicked()")))
-      m_removeButton->Connect("Clicked()", "CmsShowEDI", this, "removeItem()");
-    if (!(m_selectAllButton->HasConnection("Clicked()")))
-      m_selectAllButton->Connect("Clicked()", "CmsShowEDI", this, "selectAll()");
     m_displayChangedConn = m_item->defaultDisplayPropertiesChanged_.connect(boost::bind(&CmsShowEDI::updateDisplay, this));
     m_modelChangedConn = m_item->changed_.connect(boost::bind(&CmsShowEDI::updateFilter, this));
     //    m_selectionChangedConn = m_selectionManager->selectionChanged_.connect(boost::bind(&CmsShowEDI::updateSelection, this));
@@ -300,7 +304,7 @@ CmsShowEDI::removeItem() {
 void
 CmsShowEDI::updateDisplay() {
   //std::cout<<"Updating display"<<std::endl;
-  m_colorSelectWidget->SetColor(gVirtualX->GetPixel(m_item->defaultDisplayProperties().color()));
+  m_colorSelectWidget->SetColor(gVirtualX->GetPixel(m_item->defaultDisplayProperties().color()),kFALSE);
   m_isVisibleButton->SetState(m_item->defaultDisplayProperties().isVisible() ? kButtonDown : kButtonUp, kFALSE);
 }
 
@@ -315,17 +319,9 @@ CmsShowEDI::disconnectAll() {
       m_displayChangedConn.disconnect();
       m_modelChangedConn.disconnect();
       m_destroyedConn.disconnect();
-      m_colorSelectWidget->Disconnect("ColorSelected(Pixel_t)", this, "changeItemColor(Pixel_t)");
-      m_isVisibleButton->Disconnect("Toggled(Bool_t)", this, "toggleItemVisible(Bool_t)");
-      m_filterExpressionEntry->Disconnect("ReturnPressed()", this, "runFilter()");
-      m_selectExpressionEntry->Disconnect("ReturnPressed()", this, "runSelection()");
-      m_filterButton->Disconnect("Clicked()", this, "runFilter()");
-      m_selectButton->Disconnect("Clicked()", this, "runSelection()");
-      m_selectAllButton->Disconnect("Clicked()", this, "selectAll()");
-      m_removeButton->Disconnect("Clicked()", this, "removeItem()");
       m_item = 0;
       m_objectLabel->SetText("No collection selected");
-      m_colorSelectWidget->SetColor(gVirtualX->GetPixel(kRed));
+      m_colorSelectWidget->SetColor(gVirtualX->GetPixel(kRed),kFALSE);
       m_isVisibleButton->SetDisabledAndSelected(kTRUE);
       m_filterExpressionEntry->SetText(0);
       m_selectExpressionEntry->SetText(0);

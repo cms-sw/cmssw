@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri Jun 27 11:23:08 EDT 2008
-// $Id: CmsShowModelPopup.cc,v 1.9 2008/07/15 14:59:43 chrjones Exp $
+// $Id: CmsShowModelPopup.cc,v 1.10 2008/07/15 15:24:48 chrjones Exp $
 //
 
 // system include file
@@ -111,11 +111,17 @@ m_detailViewManager(iManager)
   m_openDetailedViewButton->SetEnabled(kFALSE);
   AddFrame(m_openDetailedViewButton);
   m_openDetailedViewButton->Connect("Clicked()","CmsShowModelPopup", this, "openDetailedView()");
+
+  m_colorSelectWidget->Connect("ColorSelected(Pixel_t)", "CmsShowModelPopup", this, "changeModelColor(Pixel_t)");
+  m_isVisibleButton->Connect("Toggled(Bool_t)", "CmsShowModelPopup", this, "toggleModelVisible(Bool_t)");
+   
+   
   SetWindowName("Object Display Controller");
   Resize(GetDefaultSize());
   MapSubwindows();
   Layout();
   MapWindow();
+   
   fillModelPopup(*iSelMgr);
 }
 
@@ -127,6 +133,8 @@ m_detailViewManager(iManager)
 CmsShowModelPopup::~CmsShowModelPopup()
 {
    m_changes.disconnect();
+   m_colorSelectWidget->Disconnect("ColorSelected(Pixel_t)", this, "changeModelColor(Pixel_t)");
+   m_isVisibleButton->Disconnect("Toggled(Bool_t)", this, "toggleModelVisible(Bool_t)");
    disconnectAll();
 }
 
@@ -184,14 +192,10 @@ CmsShowModelPopup::fillModelPopup(const FWSelectionManager& iSelMgr) {
        m_modelLabel->SetText(item->modelName(id.index()).c_str());
        m_openDetailedViewButton->SetEnabled(m_detailViewManager->haveDetailViewFor(id));
     }
-    m_colorSelectWidget->SetColor(gVirtualX->GetPixel(item->modelInfo(id.index()).displayProperties().color()));
+    m_colorSelectWidget->SetColor(gVirtualX->GetPixel(item->modelInfo(id.index()).displayProperties().color()), kFALSE);
     m_isVisibleButton->SetDisabledAndSelected(item->modelInfo(id.index()).displayProperties().isVisible());
     m_colorSelectWidget->SetEnabled(kTRUE);
     m_isVisibleButton->SetEnabled(kTRUE);
-    if (!(m_colorSelectWidget->HasConnection("ColorSelected(Pixel_t)")))
-      m_colorSelectWidget->Connect("ColorSelected(Pixel_t)", "CmsShowModelPopup", this, "changeModelColor(Pixel_t)");
-    if (!(m_isVisibleButton->HasConnection("Toggled(Bool_T)")))
-      m_isVisibleButton->Connect("Toggled(Bool_t)", "CmsShowModelPopup", this, "toggleModelVisible(Bool_t)");
     //    m_displayChangedConn = m_item->defaultDisplayPropertiesChanged_.connect(boost::bind(&CmsShowEDI::updateDisplay, this));
     m_modelChangedConn = item->changed_.connect(boost::bind(&CmsShowModelPopup::updateDisplay, this));
     //    m_selectionChangedConn = m_selectionManager->selectionChanged_.connect(boost::bind(&CmsShowEDI::updateSelection, this));
@@ -205,7 +209,7 @@ CmsShowModelPopup::updateDisplay() {
   const FWEventItem* item;
   for (std::set<FWModelId>::iterator it_mod = m_models.begin(); it_mod != m_models.end(); ++it_mod) {
     item = (*it_mod).item();
-    m_colorSelectWidget->SetColor(gVirtualX->GetPixel(item->modelInfo((*it_mod).index()).displayProperties().color()));
+    m_colorSelectWidget->SetColor(gVirtualX->GetPixel(item->modelInfo((*it_mod).index()).displayProperties().color()),kFALSE);
     m_isVisibleButton->SetState(item->modelInfo((*it_mod).index()).displayProperties().isVisible() ? kButtonDown : kButtonUp, kFALSE);
   }
 }
@@ -214,12 +218,10 @@ void
 CmsShowModelPopup::disconnectAll() {
   m_modelChangedConn.disconnect();
   m_destroyedConn.disconnect();
-  m_colorSelectWidget->Disconnect("ColorSelected(Pixel_t)", this, "changeModelColor(Pixel_t)");
-  m_isVisibleButton->Disconnect("Toggled(Bool_t)", this, "toggleModelVisible(Bool_t)");
   //  m_item = 0;
   //  m_model = 0;
   m_modelLabel->SetText("No object selected");
-  m_colorSelectWidget->SetColor(gVirtualX->GetPixel(kRed));
+  m_colorSelectWidget->SetColor(gVirtualX->GetPixel(kRed),kFALSE);
   m_isVisibleButton->SetDisabledAndSelected(kTRUE);
   m_colorSelectWidget->SetEnabled(kFALSE);
   m_isVisibleButton->SetEnabled(kFALSE);
@@ -228,23 +230,29 @@ CmsShowModelPopup::disconnectAll() {
 
 void
 CmsShowModelPopup::changeModelColor(Pixel_t pixel) {
-  Color_t color(TColor::GetColor(pixel));
-  const FWEventItem* item;
-  for (std::set<FWModelId>::iterator it_mod = m_models.begin(); it_mod != m_models.end(); ++it_mod) {
-    item = (*it_mod).item();
-    const FWDisplayProperties changeProperties(color, item->modelInfo((*it_mod).index()).displayProperties().isVisible());
-    item->setDisplayProperties((*it_mod).index(), changeProperties);
-  }
+   Color_t color(TColor::GetColor(pixel));
+   const FWEventItem* item;
+   if(m_models.size()) {
+      FWChangeSentry sentry(*(m_models.begin()->item()->changeManager()));
+      for (std::set<FWModelId>::iterator it_mod = m_models.begin(); it_mod != m_models.end(); ++it_mod) {
+         item = (*it_mod).item();
+         const FWDisplayProperties changeProperties(color, item->modelInfo((*it_mod).index()).displayProperties().isVisible());
+         item->setDisplayProperties((*it_mod).index(), changeProperties);
+      }
+   }
 }
 
 void
 CmsShowModelPopup::toggleModelVisible(Bool_t on) {
-  const FWEventItem* item;
-  for (std::set<FWModelId>::iterator it_mod = m_models.begin(); it_mod != m_models.end(); ++it_mod) {
-    item = (*it_mod).item();
-    const FWDisplayProperties changeProperties(item->modelInfo((*it_mod).index()).displayProperties().color(), on);
-    item->setDisplayProperties((*it_mod).index(), changeProperties);
-  }
+   const FWEventItem* item;
+   if(m_models.size()) {
+      FWChangeSentry sentry(*(m_models.begin()->item()->changeManager()));
+      for (std::set<FWModelId>::iterator it_mod = m_models.begin(); it_mod != m_models.end(); ++it_mod) {
+         item = (*it_mod).item();
+         const FWDisplayProperties changeProperties(item->modelInfo((*it_mod).index()).displayProperties().color(), on);
+         item->setDisplayProperties((*it_mod).index(), changeProperties);
+      }
+   }
   //  const FWDisplayProperties changeProperties(m_item->modelInfo(m_model->index()).displayProperties().color(), on);
   //  m_item->setDisplayProperties(m_model->index(), changeProperties);
 }
