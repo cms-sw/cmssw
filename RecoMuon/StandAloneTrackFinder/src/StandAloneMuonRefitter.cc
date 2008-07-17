@@ -1,8 +1,8 @@
 /** \class StandAloneMuonRefitter
  *  Class ti interface the muon system rechits with the standard KF tools.
  *
- *  $Date: 2008/07/07 17:28:58 $
- *  $Revision: 1.45 $
+ *  $Date: 2008/07/16 10:40:08 $
+ *  $Revision: 1.46 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -44,13 +44,22 @@ StandAloneMuonRefitter::RefitResult StandAloneMuonRefitter::singleRefit(const Tr
 
   vector<Trajectory> refitted;
 
-//   refitted = theFitter->fit(trajectory);                                         // old option 1
+  TrajectoryMeasurement lastTM = trajectory.lastMeasurement();                                      
 
-  TrajectoryMeasurement lastTM = trajectory.lastMeasurement();                                      // old option 3
-  TrajectoryStateOnSurface firstTsos = TrajectoryStateWithArbitraryError()(lastTM.updatedState());  //
-  TransientTrackingRecHit::ConstRecHitContainer trajRH = trajectory.recHits();                      //
-  reverse(trajRH.begin(),trajRH.end());                                                             //
-  refitted = theFitter->fit(trajectory.seed(), trajRH, firstTsos);                                  //
+  //  TrajectoryStateOnSurface firstTsos = TrajectoryStateWithArbitraryError()(lastTM.updatedState());  
+
+  AlgebraicSymMatrix55 newErr = lastTM.updatedState().localError().matrix();
+  newErr *= 100.;
+
+  TrajectoryStateOnSurface firstTsos(lastTM.updatedState().localParameters(), 
+				     LocalTrajectoryError(newErr), 
+				     lastTM.updatedState().surface(),
+				     &lastTM.updatedState().globalParameters().magneticField());
+
+
+  TransientTrackingRecHit::ConstRecHitContainer trajRH = trajectory.recHits();                      
+  reverse(trajRH.begin(),trajRH.end());                                                             
+  refitted = theFitter->fit(trajectory.seed(), trajRH, firstTsos);                                  
 
   if(!refitted.empty()) return RefitResult(true,refitted.front());
   else return RefitResult(false,trajectory);
