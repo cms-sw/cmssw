@@ -21,7 +21,7 @@
 #include "L1Trigger/RPCTrigger/interface/RPCConst.h"
 #include "L1Trigger/RPCTrigger/interface/RPCException.h"
 
-#include "CondFormats/RPCObjects/interface/L1RPCConfig.h"
+#include "CondFormats/L1TObjects/interface/L1RPCConfig.h"
 
 #include <xercesc/util/PlatformUtils.hpp>
 #include <cstdlib>

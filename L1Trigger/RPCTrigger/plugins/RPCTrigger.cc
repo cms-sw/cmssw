@@ -1,14 +1,14 @@
 /** \file RPCTrigger.cc
  *
- *  $Date: 2008/04/09 15:17:35 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/06/03 09:56:21 $
+ *  $Revision: 1.10 $
  *  \author Tomasz Fruboes
  */
 #include "L1Trigger/RPCTrigger/interface/RPCTrigger.h"
 
 // Configuration via eventsetup:
 #include "CondFormats/DataRecord/interface/L1RPCConfigRcd.h"
-#include "CondFormats/RPCObjects/interface/L1RPCConfig.h"
+#include "CondFormats/L1TObjects/interface/L1RPCConfig.h"
 
 #include "CondFormats/DataRecord/interface/L1RPCConeBuilderRcd.h"
 #include "CondFormats/RPCObjects/interface/L1RPCConeBuilder.h"

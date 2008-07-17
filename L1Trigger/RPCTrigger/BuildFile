@@ -13,6 +13,7 @@
 <use name=xerces-c>
 
 <use name=CondFormats/RPCObjects>
+<use name=CondFormats/L1TObjects>
 <use name=CondFormats/DataRecord>
 
 #<flags EDM_PLUGIN=1>
