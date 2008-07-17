@@ -24,11 +24,11 @@ import EventFilter.HcalRawToDigi.HcalRawToDigi_cfi
 isoTrHcalDigis = EventFilter.HcalRawToDigi.HcalRawToDigi_cfi.hcalDigis.clone()
 
 isoTrSiPixelDigis.InputLabel = 'hltSubdetFED'
-isoTrSiStripDigis.ProductLabel = 'hltSiStripFED'
+isoTrSiStripDigis.ProductLabel = 'hltSiStripRegFED'
 isoTrEcalDigis.DoRegional = True
-isoTrEcalDigis.InputLabel = 'hltEcalFED'
-isoTrEcalDigis.FedLabel = 'hltEcalFED'
-isoTrEcalPreshowerDigis.Label = 'hltEcalFED'
+isoTrEcalDigis.InputLabel = 'hltEcalRegFED'
+isoTrEcalDigis.FedLabel = 'hltEcalRegFED'
+isoTrEcalPreshowerDigis.Label = 'hltEcalRegFED'
 isoTrHcalDigis.InputLabel = 'hltSubdetFED'
 
 siPixelClusters.src = 'isoTrSiPixelDigis'
