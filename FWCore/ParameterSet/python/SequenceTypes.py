@@ -4,6 +4,13 @@ from Mixins import _Labelable, _Unlabelable
 from Mixins import _ValidatingParameterListBase
 from ExceptionHandling import *
 
+class _HardDependency(object):
+    """Information relevant for when a hard dependency, 
+       which uses the * operator, is found"""
+    def __init__(self, sequenceName, depSet):
+        self.sequenceName = sequenceName
+        self.depSet = depSet
+
 class _Sequenceable(object):
     """Denotes an object which can be placed in a sequence"""
     def __init__(self):
@@ -35,7 +42,7 @@ class _Sequenceable(object):
     def fillModulesList(self, l):
         # hope everything put into the process has a label
         l.add(self.label())
-    def findHardDependencies(self, dependencyDict):
+    def findHardDependencies(self, sequenceName, dependencyDict):
         pass
 
 class _ModuleSequenceType(_ConfigureComponent, _Labelable):
@@ -138,8 +145,8 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
         self._seq.visitNode(visitor)
     def fillModulesList(self, l):
         self._seq.fillModulesList(l)
-    def findHardDependencies(self, dependencyDict):
-        self._seq.findHardDependencies(dependencyDict)
+    def findHardDependencies(self, sequenceName, dependencyDict):
+        self._seq.findHardDependencies(self.label(), dependencyDict)
 
 
 class _SequenceOperator(_Sequenceable):
@@ -212,18 +219,20 @@ class _SequenceOpAids(_SequenceOperator):
         self._right._findDependencies(knownDeps,presentDeps)
     def _precedence(self):
         return 2
-    def findHardDependencies(self, dependencyDict):
+    def findHardDependencies(self, sequenceName, dependencyDict):
         # everything on the RHS depends on everything on the LHS
         rhs = set()
         self._right.fillModulesList(rhs)
         lhs = set()
         self._left.fillModulesList(lhs)
+        dep = _HardDependency(sequenceName, lhs)
         for rhsmodule in rhs:
             if rhsmodule in dependencyDict:
-                dependencyDict[rhsmodule].extend(lhs)
+                dependencyDict[rhsmodule].extend(dep)
             else:
-                dependencyDict[rhsmodule] = lhs
-
+                dependencyDict[rhsmodule] = dep
+        self._left.findHardDependencies(sequenceName, dependencyDict)
+        self._right.findHardDependencies(sequenceName, dependencyDict)
 
 class _SequenceOpFollows(_SequenceOperator):
     """Used in the expression tree for a sequence as a stand in for the '&' operator"""
@@ -241,9 +250,9 @@ class _SequenceOpFollows(_SequenceOperator):
         presentDeps.update(oldDepsR)
     def _precedence(self):
         return 1
-    def findHardDependencies(self, dependencyDict):
-        self._left.findHardDependencies(dependencyDict)
-        self._right.findHardDependencies(dependencyDict)
+    def findHardDependencies(self, sequenceName, dependencyDict):
+        self._left.findHardDependencies(sequenceName, dependencyDict)
+        self._right.findHardDependencies(sequenceName, dependencyDict)
 
 
 class _UnarySequenceOperator(_Sequenceable):
@@ -272,7 +281,7 @@ class _UnarySequenceOperator(_Sequenceable):
         self._operand.visitNode(visitor)
     def fillModulesList(self, l):
         self._operand.fillModulesList(l)
-    def findHardDependencies(self, dependencyDict):
+    def findHardDependencies(self, sequenceName, dependencyDict):
         pass
 
 
@@ -534,15 +543,21 @@ if __name__=="__main__":
             m5 = DummyModule("m5")
             deps = dict()
             s4 = Sequence(~m1*(m2+m3)+m4)
-            s4.findHardDependencies(deps)
-            self.assertEqual(deps['m2'], set(['m1']))
-            self.assertEqual(deps['m3'], set(['m1']))
+            s4.setLabel('s4')
+            s4.findHardDependencies('top',deps)
+            self.assertEqual(deps['m2'].depSet, set(['m1']))
+            self.assertEqual(deps['m3'].depSet, set(['m1']))
+            self.assertEqual(deps['m2'].sequenceName, 's4')
+            self.assertEqual(deps['m3'].sequenceName, 's4')
             self.failIf(deps.has_key('m4'))
             self.failIf(deps.has_key('m1'))
             deps = dict()
             s5 = Sequence(s4*m5)
-            s5.findHardDependencies(deps)
-            self.assertEqual(len(deps['m5']), 4)
+            s5.setLabel('s5')
+            s5.findHardDependencies('top',deps)
+            self.assertEqual(len(deps['m5'].depSet), 4)
+            self.assertEqual(deps['m5'].sequenceName, 's5')
+            self.assertEqual(deps['m3'].sequenceName, 's4')
 
 
     unittest.main()
