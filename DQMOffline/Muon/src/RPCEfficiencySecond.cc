@@ -189,8 +189,11 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	    p=histoDT->getTH1F()->Integral();
 	    o=histoRPC->getTH1F()->Integral();
 
-	    averageeff = (sumbuffef/float(NumberStripsPointed))*100.;
-	    averageerr = sqrt(sumbuffer/float(NumberStripsPointed))*100.;
+	    if(NumberStripsPointed!=0){
+	      averageeff = (sumbuffef/float(NumberStripsPointed))*100.;
+	      averageerr = sqrt(sumbuffer/float(NumberStripsPointed))*100.;
+	    }
+	    
 	    mybxhisto = 50.+BXDistribution->getMean()*10;
 	    mybxerror = BXDistribution->getRMS()*10;
 	  }
@@ -331,7 +334,6 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 
               NoPredictionWm2->setBinContent(indexWheel[0],nopredictionsratio);
               NoPredictionWm2->setBinLabel(indexWheel[0],camera,1);
-
 
 	    }else if(Ring==-1){
 	      indexWheelf[1]++;  
