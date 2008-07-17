@@ -254,8 +254,8 @@ TrajectorySeed MuonSeedCreator::createSeed(int type, SegmentContainer seg, std::
      segPos = seg[last]->localPosition();
      GlobalVector mom = seg[last]->globalPosition()-GlobalPoint();
      /// get the Global direction
-     //GlobalVector polar(GlobalVector::Spherical(mom.theta(),seg[last]->globalDirection().phi(),1.));
-     GlobalVector polar(GlobalVector::Spherical(seg[last]->globalDirection().theta(),seg[last]->globalDirection().phi(),1.));
+     GlobalVector polar(GlobalVector::Spherical(mom.theta(),seg[last]->globalDirection().phi(),1.));
+     //GlobalVector polar(GlobalVector::Spherical(seg[last]->globalDirection().theta(),seg[last]->globalDirection().phi(),1.));
 
      /// count the energy loss - from parameterization
       
@@ -271,7 +271,7 @@ TrajectorySeed MuonSeedCreator::createSeed(int type, SegmentContainer seg, std::
      param = param1;
      p_err =  (sptmean*sptmean)/(polar.mag()*polar.mag()*ptmean*ptmean) ;
      mat = seg[last]->parametersError().similarityT( seg[last]->projectionMatrix() );  
-     mat[0][0]= p_err;
+     mat[0][0]= 1.44 * p_err;
   }
 
   if ( debug ) {
