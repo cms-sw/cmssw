@@ -15,7 +15,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
-#include "CondFormats/RPCObjects/interface/L1RPCConfig.h"
+#include "CondFormats/L1TObjects/interface/L1RPCConfig.h"
 #include "CondFormats/DataRecord/interface/L1RPCConfigRcd.h"
 #include <FWCore/ParameterSet/interface/FileInPath.h>
 #include "L1Trigger/RPCTrigger/interface/RPCPatternsParser.h"
@@ -37,7 +37,6 @@ namespace popcon
 
 		private:
     L1RPCConfig * patterns;
-//    const edm::EventSetup& esetup;
     std::string m_name;
     int m_validate;
     int m_ppt;

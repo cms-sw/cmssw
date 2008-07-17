@@ -1,4 +1,5 @@
 <use name=CondFormats/RPCObjects>
+<use name=CondFormats/L1TObjects>
 <use name=CondFormats/DataRecord>
 <use name=CondCore/PopCon>
 <use name=OnlineDB/Oracle>
