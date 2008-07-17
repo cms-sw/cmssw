@@ -657,7 +657,7 @@ void HcalNumberingFromDDD::loadGeometry(DDFilteredView fv) {
 	ib[lay]++;
 	rb[lay] += t.Rho();
       }
-      if (lay == 0) {
+      if (lay == 2) {
 	int iz = copy[nsiz-5];
 	int fi = copy[nsiz-4];
 	unsigned int it1 = find(iz, izb);
