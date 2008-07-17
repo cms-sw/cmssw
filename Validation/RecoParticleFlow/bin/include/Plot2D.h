@@ -46,7 +46,7 @@ bool PlotCompareUtility::compare<Plot2D>(HistoData *HD) {
     // for Y: verify projections requested and proper X binning of href2d and hnew2d
     if (axis == axisY && !HD->getDoProjectionsY()) continue;
     if (axis == axisY && href2d->GetNbinsX() != hnew2d->GetNbinsX()) {
-      std::cerr << HD->getName() << " error: incorrect number of bins for X projection tests\n";
+      std::cerr << HD->getName() << " error: incorrect number of bins for Y projection tests\n";
       projectionsPassed = false; continue;
     }
 
@@ -76,8 +76,7 @@ bool PlotCompareUtility::compare<Plot2D>(HistoData *HD) {
     //for (int bin = nBins; bin >= 1; --bin) {
     for (int bin = 1; bin <= nBins; ++bin) {
 
-      //std::cout << "bin " << bin << " of " << nBins << std::endl;
-
+      std::cout << "bin " << bin << " of " << nBins << std::endl;
       // create some unique identifiers for the histogram names
       TString projName = HD->getName() + (axis == axisX ? "_px" : "_py"); projName += bin;
       TString newProjName = "new_"; newProjName += projName;
@@ -134,8 +133,8 @@ void PlotCompareUtility::makePlots<Plot2D>(HistoData *HD) {
 
   // do not make any new plot if empty
   if (HD->getIsEmpty()) { 
-    HD->setResultImage(noDataImage);
-    HD->setResultTarget(noDataImage);
+    HD->setResultImage("NoData_Results.gif");
+    HD->setResultTarget("NoData_Results.gif");
     return;
   }
 
@@ -156,29 +155,22 @@ void PlotCompareUtility::makePlots<Plot2D>(HistoData *HD) {
     TH2F *href2d = (TH2F *)HD->getNewHisto();
 
     // generate a reasonable width for the projections summary
-    unsigned int numHistos = proj->size();
-    unsigned short projectionsBarsThickness = HD->getProjectionsBarsThickness();
-    unsigned short bodyWidth = (unsigned short)(float(numHistos * projectionsBarsThickness) * 1.5);
-    unsigned short projectionsTopMargin = HD->getProjectionsTopMargin();
-    unsigned short projectionsLeftMargin = HD->getProjectionsLeftMargin();
-    unsigned short projectionsRightMargin = HD->getProjectionsRightMargin();
-    unsigned short projectionsBottomMargin = HD->getProjectionsBottomMargin();
-    unsigned short projectionsWidth = projectionsLeftMargin + projectionsRightMargin + bodyWidth;
-    unsigned short projectionsHeight = HD->getProjectionsHeight();
-    HD->setProjectionsWidth(projectionsWidth);
+    int numHistos = proj->size();
+    int bodyWidth = int(float(numHistos * projectionsBarsThickness) * 1.5);
+    projectionsWidth = projectionsLeftMargin + projectionsRightMargin + bodyWidth;
 
     // the canvas is rescaled during gif conversion, so add padding to Canvas dimensions
-    unsigned short projectionsCanvasWidth = projectionsWidth + 4;
-    unsigned short projectionsCanvasHeight = projectionsHeight + 28;
+    int projectionsCanvasWidth = projectionsWidth + 4;
+    int projectionsCanvasHeight = projectionsHeight + 28;
 
     // create and setup projections canvas
     TCanvas projectionsCanvas("projectionsCanvas","projectionsCanvas",projectionsCanvasWidth,projectionsCanvasHeight);
+    projectionsCanvas.SetFrameFillColor(10);
+    projectionsCanvas.SetLogy(1);
     projectionsCanvas.SetTopMargin(float(projectionsTopMargin) / projectionsHeight);
     projectionsCanvas.SetLeftMargin(float(projectionsLeftMargin) / projectionsWidth);
     projectionsCanvas.SetRightMargin(float(projectionsRightMargin) / projectionsWidth);
     projectionsCanvas.SetBottomMargin(float(projectionsBottomMargin) / projectionsHeight);
-    projectionsCanvas.SetFrameFillColor(10);
-    projectionsCanvas.SetLogy(1);
     projectionsCanvas.Draw();
 
     // create and setup the summary histogram
@@ -192,7 +184,7 @@ void PlotCompareUtility::makePlots<Plot2D>(HistoData *HD) {
     // draw X axis
     float xMin = hnew2d->GetXaxis()->GetXmin();
     float xMax = hnew2d->GetXaxis()->GetXmax();
-    int ticksNDiv = numHistos * 20 + bodyWidth / 50;
+    int ticksNDiv = numHistos * 20 + bodyWidth / 50;//formerly *20
     TGaxis *xAxis = new TGaxis(1,0,numHistos + 1,0,xMin,xMax,ticksNDiv,"");
     if (axis == axisX) xAxis->SetTitle(hnew2d->GetYaxis()->GetTitle());
     if (axis == axisY) xAxis->SetTitle(hnew2d->GetXaxis()->GetTitle());
@@ -235,19 +227,18 @@ void PlotCompareUtility::makePlots<Plot2D>(HistoData *HD) {
     // create a new HistoData based on this projection and plot it
     HistoData allBins(projName,Plot1D,0,hnew,href);
     allBins.setIsEmpty(false);
-    allBins.setDoDrawScores(false);
     allBins.setShadedFillColor(HD->getShadedFillColor());
     allBins.setShadedFillStyle(HD->getShadedFillStyle());
     allBins.setShadedLineColor(HD->getShadedLineColor());
     makePlots<Plot1D>(&allBins);
 
     // set the default image (axisY takes priority by default)
-    if (HD->getResultImage() == "" || axis == axisY) HD->setResultImage(projName + ".gif");
+    if (HD->getResultImage() == "" || axis == axisY) HD->setResultImage(projName + "_Results.gif");
 
     // set the default target (in case additional HTML code is/was not produced)
     std::string currentTarget = HD->getResultTarget();
-    std::string xImgTarget = HD->getName() + "_px.gif";
-    if (currentTarget == "" || (axis == axisY && currentTarget == xImgTarget)) HD->setResultTarget(projName + ".gif");
+    std::string xImgTarget = HD->getName() + "_px_Results.gif";
+    if (currentTarget == "" || (axis == axisY && currentTarget == xImgTarget)) HD->setResultTarget(projName + "_Results.gif");
 
   }
 
@@ -344,32 +335,20 @@ void PlotCompareUtility::makeHTML<Plot2D>(HistoData *HD) {
     std::vector<HistoData> *proj = (axis == axisX) ? &projectionsX[HD] : &projectionsY[HD];
     if (proj == NULL || proj->size() == 0) continue; else pfDone[axis] = true;
 
-    // get some dimensional parameters
-    unsigned short plotsWidth = proj->begin()->getPlotsWidth();
-    unsigned short plotsHeight = proj->begin()->getPlotsHeight();
-    unsigned short projectionsBarsThickness = HD->getProjectionsBarsThickness();
-    unsigned short projectionsWidth = HD->getProjectionsWidth();
-    unsigned short projectionsHeight = HD->getProjectionsHeight();
-    unsigned short projectionsTopMargin = HD->getProjectionsTopMargin();
-    unsigned short projectionsLeftMargin = HD->getProjectionsLeftMargin();
-    unsigned short projectionsRightMargin = HD->getProjectionsRightMargin();
-    unsigned short projectionsBottomMargin = HD->getProjectionsBottomMargin();
-
-    // setup some locations to put thumbnails, etc.
-    unsigned short offset = 10;
-    unsigned short thumbWidth = plotsWidth / 4;
-    unsigned short thumbHeight = plotsHeight / 4;
-    unsigned short bodyWidth = projectionsWidth - projectionsLeftMargin - projectionsRightMargin;
-    unsigned short leftThumbPos = offset + projectionsLeftMargin + bodyWidth / 4 - thumbWidth / 2;
-    unsigned short rightThumbPos = leftThumbPos + bodyWidth / 2;
-    unsigned short thumbsLoc = projectionsTopMargin + thumbHeight / 2;
-
     // setup some names, etc. for insertion into the HTML
     std::string gifNameProjections = Name + (axis == axisX ? "_Results_px.gif" : "_Results_py.gif");
-    //std::string gifNameAllProj = Name + (axis == axisX ? "_py_Results.gif" : "_px_Results.gif");
-    std::string gifNameAllProj = Name + (axis == axisX ? "_py.gif" : "_px.gif");
+    std::string gifNameAllProj = Name + (axis == axisX ? "_py_Results.gif" : "_px_Results.gif");
     std::string gifNameProfile = Name + (axis == axisX ? "_pfx.gif" : "_pfy.gif");
     std::string gifBinPrefix = Name + (axis == axisX ? "_px" : "_py");
+
+    // setup some locations to put thumbnails, etc.
+    int offset = 10;
+    int thumbWidth = plotsWidth / 4;
+    int thumbHeight = plotsHeight / 4;
+    int bodyWidth = projectionsWidth - projectionsLeftMargin - projectionsRightMargin;
+    int leftThumbPos = offset + projectionsLeftMargin + bodyWidth / 4 - thumbWidth / 2;
+    int rightThumbPos = leftThumbPos + bodyWidth / 2;
+    int thumbsLoc = projectionsTopMargin + thumbHeight / 2;
 
     // create the profile's HTML document
     std::string htmlNameProfile = Name + (axis == axisX ? "_Results_px.html" : "_Results_py.html");
@@ -379,13 +358,11 @@ void PlotCompareUtility::makeHTML<Plot2D>(HistoData *HD) {
     fout << "<!DOCTYPE gif PUBLIC '-//W3C//DTD HTML 4.01 Transitional//EN'>" << std::endl
          << "<html>" << std::endl
          << "  <head>" << std::endl
-         << "    <title>Compatibility of Projections for " << Name << "</title>" << std::endl
+         << "    <title>Compatibility of Projections for " << HD->getRefHisto()->GetTitle() << "</title>" << std::endl
          << "    <script type='text/javascript'>" << std::endl << std::endl
-         << "      last_class = 'thumb_none'; last_image = 'NoData.gif'; last_target = 'NoData.gif';" << std::endl
          << "      function tn(target,image,class) {" << std::endl
-         << "        clear_thumb()" << std::endl
-         << "        last_class = class; last_image = image; last_target = target;" << std::endl
-				 << "        document.getElementById('thumb_div').setAttribute('class',class)" << std::endl
+         << "        clear()" << std::endl
+	 << "        document.getElementById('thumb_div').setAttribute('class',class)" << std::endl
          << "        document.getElementById('thumb_div').setAttribute('className',class)" << std::endl
          << "        document.getElementById('thumb_link').href = target" << std::endl
          << "        document.getElementById('thumb_img').src = image" << std::endl
@@ -393,16 +370,7 @@ void PlotCompareUtility::makeHTML<Plot2D>(HistoData *HD) {
          << "        document.getElementById('thumb_img').height = '" <<  thumbHeight << "'" << std::endl
          << "        document.getElementById('thumb_img').border = '1'" << std::endl
          << "      }" << std::endl << std::endl
-         << "      function refresh_thumb() {" << std::endl
-				 << "        document.getElementById('thumb_div').setAttribute('class',last_class)" << std::endl
-         << "        document.getElementById('thumb_div').setAttribute('className',last_class)" << std::endl
-         << "        document.getElementById('thumb_link').href = last_target" << std::endl
-         << "        document.getElementById('thumb_img').src = last_image" << std::endl
-         << "        document.getElementById('thumb_img').width = '" << thumbWidth << "'" << std::endl
-         << "        document.getElementById('thumb_img').height = '" <<  thumbHeight << "'" << std::endl
-         << "        document.getElementById('thumb_img').border = '1'" << std::endl
-         << "      }" << std::endl << std::endl
-         << "      function clear_thumb() {" << std::endl
+         << "      function clear() {" << std::endl
          << "        document.getElementById('thumb_link').href = '#'" << std::endl
          << "        document.getElementById('thumb_img').src = ''" << std::endl
          << "        document.getElementById('thumb_img').width = '0'" << std::endl
@@ -411,53 +379,52 @@ void PlotCompareUtility::makeHTML<Plot2D>(HistoData *HD) {
          << "      }" << std::endl << std::endl
          << "    </script>" << std::endl
          << "  </head>" << std::endl
-         << "  <body>" << std::endl
+         << "  <body onClick=\"window.location.href='index.html'\">" << std::endl
+      //         << "<a href='index.html'>"
          << "    <style type='text/css'>" << std::endl
-				 << "      #thumb_div {}" << std::endl
-         << "      div.thumb_left {position: absolute; left: " << leftThumbPos << "px; top: " << thumbsLoc << "px; opacity: 0.9; filter:alpha(opacity=90); }" << std::endl
-         << "      div.thumb_right {position: absolute; left: " << rightThumbPos << "px; top: " << thumbsLoc << "px; opacity: 0.9; filter:alpha(opacity=90); }" << std::endl
-         << "      div.thumb_none {position: absolute; left: -1000px; top: -1000px; }" << std::endl
-				 << "      #main_d {position: absolute; left: " << offset << "px; }" << std::endl
+	 << "      #thumb_div {}" << std::endl
+         << "      div.thumb_left {position: absolute; left: " << leftThumbPos << "px; top: " << thumbsLoc << "px;}" << std::endl
+         << "      div.thumb_right {position: absolute; left: " << rightThumbPos << "px; top: " << thumbsLoc << "px;}" << std::endl
+				 << "      #main_d {position: absolute; left: " << offset << "px;}" << std::endl
          << "      a:link {color: #000000}" << std::endl
          << "      a:visited {color: #000000}" << std::endl
          << "      a:hover {color: #000000}" << std::endl
          << "      a:active {color: #000000}" << std::endl
          << "    </style>" << std::endl
          << "    <div id='main_d'>" << std::endl
+      // << " <p>" <<   HD->getRefHisto()->GetTitle() << "</p>"  //include the Title of the Plot as a title of the page
          << "      <img src='" << gifNameProjections << "' usemap='#results' alt=''"
          << " height=" << projectionsHeight << " width=" << projectionsWidth << " border=0>" << std::endl
-         << "      <map id='#results' name='results' onMouseOut=\"clear_thumb()\">" << std::endl;
+         << "      <map id='#results' name='results' onMouseOut=\"clear()\">" << std::endl;
 
     // loop over projections
     std::vector<HistoData>::iterator pd;
     for (pd = proj->begin(); pd != proj->end(); pd++) {
 
-      // get the name of the target image and/or html
+      // determine map coordinates for this bin (1 pixel offset due to borders?)
+      int bin = pd->getBin();
+      int x1 = projectionsLeftMargin + int(float(bin * 1.5 - 1.25) * projectionsBarsThickness);
+      int x2 = x1 + projectionsBarsThickness;
+      int y1 = projectionsTopMargin + 1;
+      int y2 = projectionsHeight - projectionsBottomMargin;
       std::string image = pd->getResultImage();
       std::string target = pd->getResultTarget();
 
-      // determine map coordinates for this bin (1 pixel offset due to borders?)
-      unsigned short bin = pd->getBin();
-      unsigned short x1 = projectionsLeftMargin + (unsigned short)(float(bin * 1.5 - 1.25) * projectionsBarsThickness);
-      unsigned short x2 = x1 + projectionsBarsThickness;
-      unsigned short y1 = projectionsTopMargin + 1;
-      unsigned short y2 = projectionsHeight - projectionsBottomMargin;
-
-      // add coordinates area to image map if it has a valid target
-      if (image != noDataImage) {
-        std::string tnClass = (bin - 1 >= float(proj->size()) / 2 ? "thumb_left" : "thumb_right");
-        fout << "        <area shape='rect' alt='' coords='" << x1 << "," << y1 << "," << x2 << "," << y2 << "'"
-             << " href='" << target << "' onMouseOver=\"tn('" << target << "','" << image << "','" << tnClass
-             << "')\">" << std::endl;
-      }
+      // add coordinates area to image map
+      std::string tnClass = (bin - 1 >= float(proj->size()) / 2 ? "thumb_left" : "thumb_right");
+      fout << "        <area shape='rect' alt='' coords='" << x1 << "," << y1 << "," << x2 << "," << y2 << "'"
+           << " href='" << target << "' onMouseOver=\"tn('" << target << "','" << image << "','" << tnClass
+           << "')\" "
+           << "onMouseDown=\"window.location.href='" << target << "'\">" << std::endl;
 
     }
 
-    fout << "        <area shape='default' nohref='nohref' alt='' onMouseOver=\"refresh_thumb()\">" << std::endl
+    fout << "        <area shape='default' nohref='nohref' onMouseDown='window.location.reload()' alt=''>" << std::endl
          << "      </map>" << std::endl
          << "      <br><img src=\"" << gifNameAllProj << "\">" << std::endl
          << "    </div>" << std::endl
          << "    <div id='thumb_div'><a href='#' id='thumb_link'><img src='' id='thumb_img' width=0 height=0 border=0></a></div>" << std::endl
+      //         << " </a>"
          << "  </body>" << std::endl
          << "</html>" << std::endl;
 

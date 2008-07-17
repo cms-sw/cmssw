@@ -6,10 +6,12 @@
 #include "include/HistoData.h"
 using namespace std;
 
+
 int main(int argc, char *argv[]) {
 
   // make sure command line arguments were supplied
-  if (argc != 3) { cerr << "Usage: " << argv[0] << " [reference.root] [new-comparison.root]\n"; return 1; }
+  if (argc != 3)
+      { cerr << "Usage: " << argv[0] << " [reference.root] [new-comparison.root} \n"; return 1; }
 
   // initialize plot comparison tool
   PlotCompareUtility *pc = new PlotCompareUtility(argv[1],argv[2],"DQMData/PFTask/Benchmarks/ParticleFlow/Reco");
@@ -20,29 +22,48 @@ int main(int argc, char *argv[]) {
   pc->setKSThreshold(1e-6);
   pc->setChi2Threshold(0);
 
-  // add histogram information for comparison here
-  pc->addHistoData("DeltaEt",Plot1D);
-  pc->addHistoData("DeltaEta",Plot1D);
-  pc->addHistoData("DeltaPhi",Plot1D);
-  pc->addHistoData("DeltaR",Plot1D);
-  pc->addHistoData("DeltaEtvsEt",Plot2D)->setDoAllow2DRebinningY(true);
-  pc->addHistoData("DeltaEtvsEta",Plot2D)->setDoAllow2DRebinningY(true);
-  pc->addHistoData("DeltaEtavsEta",Plot2D);
+  // add histogram information for comparison here --reverse order
+
+  pc->addHistoData("ERneutvsPt", Plot2D)->setDoAllow2DRebinningY(true);
+  pc->addHistoData("ERNEEvsPt", Plot2D)->setDoAllow2DRebinningY(true);
+  pc->addHistoData("ERNHEvsPt", Plot2D)->setDoAllow2DRebinningY(true);
+  pc->addHistoData("ERCHEvsPt", Plot2D)->setDoAllow2DRebinningY(true);
+  pc->addHistoData("ERPtvsPt", Plot2D)->setDoAllow2DRebinningY(true);
+
+  pc->addHistoData("ERneut", Plot1D);
+  pc->addHistoData("ERNEE", Plot1D);
+  pc->addHistoData("ERNHE", Plot1D);
+  pc->addHistoData("ERCHE", Plot1D);
+  pc->addHistoData("ERPt", Plot1D);
+
+  pc->addHistoData("BRneutvsPt", Plot2D)->setDoAllow2DRebinningY(true);
+  pc->addHistoData("BRNEEvsPt", Plot2D)->setDoAllow2DRebinningY(true);
+  pc->addHistoData("BRNHEvsPt", Plot2D)->setDoAllow2DRebinningY(true);
+  pc->addHistoData("BRCHEvsPt", Plot2D)->setDoAllow2DRebinningY(true);
+  pc->addHistoData("BRPtvsPt", Plot2D)->setDoAllow2DRebinningY(true);
+
+  pc->addHistoData("BRneut", Plot1D);
+  pc->addHistoData("BRNEE", Plot1D);
+  pc->addHistoData("BRNHE", Plot1D);
+  pc->addHistoData("BRCHE", Plot1D);
+  pc->addHistoData("BRPt", Plot1D);
+
+  pc->addHistoData("jetsPt", Plot1D);
+  pc->addHistoData("jetsEta", Plot1D);
+  pc->addHistoData("Njets", Plot1D);
+ 
+  pc->addHistoData("DeltaRvsEta",Plot2D)->setDoAllow2DRebinningY(true);
   pc->addHistoData("DeltaPhivsEta",Plot2D);
-  //pc->addHistoData("DeltaEtOverEtvsEt",Plot2D);
-  //pc->addHistoData("DeltaEta",Plot1D);
-  //pc->addHistoData("DeltaPhi",Plot1D);
-  //pc->addHistoData("DeltaPhi",Plot1D);
-  //pc->addHistoData("DeltaPhi",Plot1D);
-  //pc->addHistoData("DeltaEt",Plot1D);
-  //pc->addHistoData("DeltaEt",Plot1D);
-  //pc->addHistoData("DeltaEt",Plot1D);
-  //pc->addHistoData("DeltaPhi",Plot1D);
-  //pc->addHistoData("DeltaEta",Plot1D);
-  //pc->addHistoData("DeltaEta",Plot1D);
-  //pc->addHistoData("DeltaEta",Plot1D);
-  // ...
-  // ...
+  pc->addHistoData("DeltaEtavsEta",Plot2D);
+  pc->addHistoData("DeltaEtvsEta",Plot2D)->setDoAllow2DRebinningY(true);
+  pc->addHistoData("DeltaRvsEt",Plot2D)->setDoAllow2DRebinningY(true);
+  pc->addHistoData("DeltaEtvsEt",Plot2D)->setDoAllow2DRebinningY(true);
+
+  pc->addHistoData("DeltaR",Plot1D);
+  pc->addHistoData("DeltaPhi",Plot1D);
+  pc->addHistoData("DeltaEta",Plot1D);
+  pc->addHistoData("DeltaEt",Plot1D);
+
   // ...
   // ...
 

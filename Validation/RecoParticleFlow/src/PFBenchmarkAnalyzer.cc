@@ -39,6 +39,8 @@ PFBenchmarkAnalyzer::PFBenchmarkAnalyzer(const edm::ParameterSet& iConfig)
   outputFile_                  = iConfig.getUntrackedParameter<std::string>("OutputFile");
   benchmarkLabel_              = iConfig.getParameter<std::string>("BenchmarkLabel"); 
   plotAgainstRecoQuantities_   = iConfig.getParameter<bool>("PlotAgainstRecoQuantities");
+  recPt_cut                    = iConfig.getParameter<double>("recPt");
+  maxEta_cut                    = iConfig.getParameter<double>("maxEta");
 
   if (outputFile_.size() > 0)
     edm::LogInfo("OutputInfo") << " ParticleFLow Task histograms will be saved to '" << outputFile_.c_str() << "'";
@@ -55,11 +57,11 @@ void PFBenchmarkAnalyzer::beginJob(const edm::EventSetup& iSetup)
   dbe_ = edm::Service<DQMStore>().operator->();
   
   if (dbe_) {
-
+    dbe_->setVerbose(1);
     string path = "PFTask/Benchmarks/" + benchmarkLabel_ + "/";
     if (plotAgainstRecoQuantities_) path += "Reco"; else path += "Gen";
     dbe_->setCurrentFolder(path.c_str());
-    setup(dbe_);
+    setup(dbe_, plotAgainstRecoQuantities_);
 
   }
 
@@ -110,7 +112,7 @@ void PFBenchmarkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
   // Analyze!
   // ==========================================================
 
-  fill(reco_candidates,truth_candidates,plotAgainstRecoQuantities_);
+  fill(reco_candidates,truth_candidates,plotAgainstRecoQuantities_, recPt_cut, maxEta_cut);
 
 }
 
