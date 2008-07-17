@@ -1,5 +1,5 @@
 /** \class ThePEGInterface
- *  $Id: ThePEGInterface.cc,v 1.4 2008/07/09 10:00:22 stober Exp $
+ *  $Id: ThePEGInterface.cc,v 1.5 2008/07/09 10:31:52 stober Exp $
  *  
  *  Oliver Oberst <oberst@ekp.uni-karlsruhe.de>
  *  Fred-Markus Stober <stober@ekp.uni-karlsruhe.de>
@@ -40,18 +40,18 @@ ThePEGInterface::ThePEGInterface(const edm::ParameterSet &pset) :
 	dataLocation_(resolveEnvVars(pset.getParameter<string>("dataLocation"))),
 	generator_(pset.getParameter<string>("generatorModule")),
 	run_(pset.getParameter<string>("run")),
-	configDump_(pset.getUntrackedParameter<string>("configDump", "")),
-	skipEvents_(pset.getUntrackedParameter<int>("skipEvents", 0))
+	dumpConfig_(pset.getUntrackedParameter<string>("dumpConfig", "")),
+	skipEvents_(pset.getUntrackedParameter<unsigned int>("skipEvents", 0))
 {
 	// Write events in hepmc ascii format for debugging purposes
-	string eventLog = pset.getUntrackedParameter<string>("printEvents", "");
-	if (!eventLog.empty()) {
-		iobc_.reset(new HepMC::IO_ExtendedAscii(eventLog.c_str(), ios::out));
-		edm::LogInfo("ThePEGSource") << "Event logging switched on (=> " << eventLog << ")";
+	string dumpEvents = pset.getUntrackedParameter<string>("dumpEvents", "");
+	if (!dumpEvents.empty()) {
+		iobc_.reset(new HepMC::IO_ExtendedAscii(dumpEvents.c_str(), ios::out));
+		edm::LogInfo("ThePEGSource") << "Event logging switched on (=> " << dumpEvents << ")";
 	}
-	// Clear configDump target
-	if (!configDump_.empty())
-		ofstream cfgDump(configDump_.c_str(), ios_base::trunc);
+	// Clear dumpConfig target
+	if (!dumpConfig_.empty())
+		ofstream cfgDump(dumpConfig_.c_str(), ios_base::trunc);
 }
 
 ThePEGInterface::~ThePEGInterface()
@@ -104,8 +104,8 @@ void ThePEGInterface::readParameterSet(const edm::ParameterSet &pset, const stri
 {
 	stringstream logstream;
 	ofstream cfgDump;
-	if (!configDump_.empty())
-		cfgDump.open(configDump_.c_str(), ios_base::app);
+	if (!dumpConfig_.empty())
+		cfgDump.open(dumpConfig_.c_str(), ios_base::app);
 
 	// Read CMSSW config file parameter set
 	vector<string> params = pset.getParameter<vector<string> >(paramSet);
@@ -117,14 +117,14 @@ void ThePEGInterface::readParameterSet(const edm::ParameterSet &pset, const stri
 		// Include other parameter sets specified by +psName
 		if (psIter->find_first_of('+') == 0) {
 			edm::LogInfo("ThePEGInterface") << "Loading parameter set (" << psIter->substr(1) << ")";
-			if (!configDump_.empty())
+			if (!dumpConfig_.empty())
 				cfgDump << endl << "####### " << psIter->substr(1) << " #######" << endl;
 			readParameterSet(pset, psIter->substr(1));
 		}
 		// Topmost parameter set is called "parameterSets"
 		else if (paramSet == "parameterSets") {
 			edm::LogInfo("ThePEGInterface") << "Loading parameter set (" << *psIter << ")";
-			if (!configDump_.empty())
+			if (!dumpConfig_.empty())
 				cfgDump << endl << "####### " << *psIter << " #######" << endl;
 			readParameterSet(pset, *psIter);
 		}
@@ -132,7 +132,7 @@ void ThePEGInterface::readParameterSet(const edm::ParameterSet &pset, const stri
 		else {
 			string line = resolveEnvVars(*psIter);
 			string out = ThePEG::Repository::exec(line, logstream);
-			if (!configDump_.empty())
+			if (!dumpConfig_.empty())
 				cfgDump << line << endl;
 			if (out != "")
 				edm::LogInfo("ThePEGInterface") << line << " => " << out;
@@ -210,7 +210,7 @@ void ThePEGInterface::initGenerator()
 			<< "EventGenerator could not be initialized!" << endl;
 
 	// Skip events
-	for (int i = 0; i < skipEvents_; i++) {
+	for (unsigned int i = 0; i < skipEvents_; i++) {
 		eg_->shoot();
 		edm::LogInfo("ThePEGInterface") << "Event discarded";
 	}

@@ -2,7 +2,7 @@
 #define GeneratorInterface_ThePEGInterface_ThePEGInterface_h
 
 /** \class ThePEGInterface
- *  $Id: ThePEGInterface.h,v 1.4 2008/07/09 10:00:22 stober Exp $
+ *  $Id: ThePEGInterface.h,v 1.5 2008/07/10 15:54:19 saout Exp $
  *  
  *  Oliver Oberst <oberst@ekp.uni-karlsruhe.de>
  *  Fred-Markus Stober <stober@ekp.uni-karlsruhe.de>
@@ -53,8 +53,8 @@ class ThePEGInterface {
 	const std::string			dataLocation_;
 	const std::string			generator_;
 	const std::string			run_;
-	const std::string			configDump_;
-	const int				skipEvents_;
+	const std::string			dumpConfig_;
+	const unsigned int			skipEvents_;
 };
 
 #endif // GeneratorInterface_ThePEGInterface_ThePEGInterface_h
