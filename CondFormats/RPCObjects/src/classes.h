@@ -3,7 +3,6 @@
 #include "CondFormats/RPCObjects/interface/ChamberLocationSpec.h"
 
 #include "CondFormats/RPCObjects/interface/FebConnectorSpec.h"
-#include "CondFormats/RPCObjects/interface/L1RPCConfig.h"
 #include "CondFormats/RPCObjects/interface/L1RPCConeBuilder.h"
 #include "CondFormats/RPCObjects/interface/L1RPCHwConfig.h"
 
