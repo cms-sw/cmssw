@@ -53,7 +53,7 @@ struct CSCTMBHeader2007_rev0x50c3 : public CSCVTMBHeaderFormat {
   virtual void print(std::ostream & os) const;
 
   struct {
-// 0
+  // 0
   unsigned b0cline:16; 
   unsigned bxnCount:12, dduCode1:3, flag1:1;
   unsigned l1aNumber:12, dduCode2:3, flag2:1;
@@ -95,7 +95,7 @@ struct CSCTMBHeader2007_rev0x50c3 : public CSCVTMBHeaderFormat {
   unsigned MPC_Muon0_wire_:7, MPC_Muon0_clct_pattern_:4, MPC_Muon0_quality_:4, flag31:1;
   // 32
   unsigned MPC_Muon0_halfstrip_clct_pattern:8, MPC_Muon0_bend_:1, MPC_Muon0_SyncErr_:1, MPC_Muon0_bx_:1, MPC_Muon0_bc0_:1, MPC_Muon0_cscid_low:3, flag32:1;
-  unsigned MPC_Muon1_wire_: 7, MPC_Muon1_clct_pattern_:4, MPC_Muon1_quality_:4, flag33:1;
+  unsigned MPC_Muon1_wire_:7, MPC_Muon1_clct_pattern_:4, MPC_Muon1_quality_:4, flag33:1;
   unsigned MPC_Muon1_halfstrip_clct_pattern:8, MPC_Muon1_bend_:1, MPC_Muon1_SyncErr_:1, MPC_Muon1_bx_:1, MPC_Muon1_bc0_:1, MPC_Muon1_cscid_low:3, flag34:1;
   unsigned MPC_Muon0_vpf_:1, MPC_Muon0_cscid_bit4:1, MPC_Muon1_vpf_:1, MPC_Muon1_cscid_bit4:1, MPCDelay:4, MPCAccept:2, CFEBsEnabled:5, flag35:1;
   // 36
