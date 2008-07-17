@@ -31,8 +31,13 @@ dumpStack = True
 for item in result:
     print  item.line.replace(pattern,Color.hilight+pattern+Color.none)
     print "%s (line: %s)"  %(item.filename, item.number)
-    if dumpStack and hasattr(item, 'stack'):
-       print 'From',' -> '.join(item.stack), '\n'
+    if dumpStack and hasattr(item, 'stacks'):
+       # make a set of strings, so it's unique
+       froms = set()
+       for stack in item.stacks:
+          froms.add('From ' + ' -> '.join(stack))
+       print '\n'.join(froms)
+    print '\n'
                 
 
 
