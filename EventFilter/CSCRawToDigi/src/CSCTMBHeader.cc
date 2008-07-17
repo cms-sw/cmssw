@@ -30,20 +30,20 @@ CSCTMBHeader::CSCTMBHeader(const unsigned short * buf)
   if (buf[0]==0xDB0C) {
     firmwareVersion=2007;
     theHeaderFormat = boost::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2007(buf));
-    if(theHeaderFormat->firmwareRevision() > 0x50c3)
-    {   
-      theHeaderFormat = boost::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2007_rev0x50c3(buf));
-    }
+    if(theHeaderFormat->firmwareRevision() >= 0x50c3)
+      {
+	theHeaderFormat = boost::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2007_rev0x50c3(buf));
+      }
   }
   else if (buf[0]==0x6B0C) {
     firmwareVersion=2006;
     theHeaderFormat = boost::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2006(buf));
-
   }
   else {
     edm::LogError("CSCTMBHeader|CSCRawToDigi") <<"failed to determine TMB firmware version!!";
   }
-}    
+}
+
 /*
 void CSCTMBHeader::swapCLCTs(CSCCLCTDigi& digi1, CSCCLCTDigi& digi2)
 {
@@ -74,7 +74,7 @@ void CSCTMBHeader::swapCLCTs(CSCCLCTDigi& digi1, CSCCLCTDigi& digi2)
     }
   }
 }
-i*/
+*/
 
 
 //FIXME Pick which LCT goes first
