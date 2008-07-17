@@ -361,7 +361,7 @@ MeasurementTracker::idToDet(const DetId& id) const
 
 void MeasurementTracker::initializeStripStatus(const SiStripQuality *quality, int qualityFlags, int qualityDebugFlags) const {
   if ((quality != 0) && (qualityFlags != 0))  {
-    edm::LogWarning("MeasurementTracker") << "qualityFlags = " << qualityFlags;
+    edm::LogInfo("MeasurementTracker") << "qualityFlags = " << qualityFlags;
     unsigned int on = 0, tot = 0; 
     unsigned int foff = 0, ftot = 0, aoff = 0, atot = 0; 
     for (std::vector<TkStripMeasurementDet*>::const_iterator i=theStripDets.begin();
@@ -408,13 +408,13 @@ void MeasurementTracker::initializeStripStatus(const SiStripQuality *quality, in
        }
     }
     if (qualityDebugFlags & BadModules) {
-        edm::LogWarning("MeasurementTracker StripModuleStatus") << 
+        edm::LogInfo("MeasurementTracker StripModuleStatus") << 
             " Total modules: " << tot << ", active " << on <<", inactive " << (tot - on);
     }
     if (qualityDebugFlags & BadAPVFibers) {
-        edm::LogWarning("MeasurementTracker StripAPVStatus") << 
+        edm::LogInfo("MeasurementTracker StripAPVStatus") << 
             " Total APVs: " << atot << ", active " << (atot-aoff) <<", inactive " << (aoff);
-        edm::LogWarning("MeasurementTracker StripFiberStatus") << 
+        edm::LogInfo("MeasurementTracker StripFiberStatus") << 
             " Total Fibers: " << ftot << ", active " << (ftot-foff) <<", inactive " << (foff);
     }
   } else {
