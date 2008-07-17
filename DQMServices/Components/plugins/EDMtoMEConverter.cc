@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2008/07/15 12:58:40 $
- *  $Revision: 1.13 $
+ *  $Date: 2008/07/16 10:02:23 $
+ *  $Revision: 1.14 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -21,6 +21,8 @@ EDMtoMEConverter::EDMtoMEConverter(const edm::ParameterSet & iPSet) :
 
   convertOnEndLumi = iPSet.getUntrackedParameter<bool>("convertOnEndLumi",false);
   convertOnEndRun = iPSet.getUntrackedParameter<bool>("convertOnEndRun",false);
+
+  prescaleFactor = iPSet.getUntrackedParameter<int>("prescaleFactor", 1);
   
   // reset the release tag
   releaseTag = false;
@@ -131,8 +133,11 @@ void EDMtoMEConverter::endLuminosityBlock(const edm::LuminosityBlock& iLumi,
 					  const edm::EventSetup& iSetup)
 {
   if (convertOnEndLumi) {
-    const edm::Run& iRun = iLumi.getRun();
-    convert(iRun);
+    if (prescaleFactor > 0 &&
+        iLumi.id().luminosityBlock() % prescaleFactor == 0) {
+      const edm::Run& iRun = iLumi.getRun();
+      convert(iRun);
+    }
   }
   return;
 }

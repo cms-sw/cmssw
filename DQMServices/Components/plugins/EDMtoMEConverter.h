@@ -6,8 +6,8 @@
  *  Class to take dqm monitor elements and convert into a
  *  ROOT dataformat stored in Run tree of edm file
  *
- *  $Date: 2008/03/29 19:37:13 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/07/15 12:58:40 $
+ *  $Revision: 1.9 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -77,6 +77,8 @@ class EDMtoMEConverter : public edm::EDAnalyzer
 
   bool convertOnEndLumi;
   bool convertOnEndRun;
+
+  int prescaleFactor;
 
   DQMStore *dbe;
   std::vector<MonitorElement*> me1, me2, me3, me4, me5, me6, me7, me8;
