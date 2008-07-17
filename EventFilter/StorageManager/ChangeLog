@@ -1,3 +1,10 @@
+2008-07-17  Harry Cheung <cheung@fnal.gov>
+
+	* tag V03-12-13
+	* Fixes from KB for scalar MEs (ints, floats, strings):  correctly determine ME name;
+	  switched to using first instance when collating rather than last instance.
+	  Fixed bugs in DQM histogram serving and archiving.
+
 2008-07-03  Kurt Biery <biery@fnal.gov>
 
 	* tag V03-12-12
