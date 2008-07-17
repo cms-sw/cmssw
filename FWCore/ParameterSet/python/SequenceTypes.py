@@ -32,6 +32,11 @@ class _Sequenceable(object):
         visitor.enter(self)
         self._visitSubNodes(visitor)
         visitor.leave(self)
+    def fillModulesList(self, l):
+        # hope everything put into the process has a label
+        l.add(self.label())
+    def findHardDependencies(self, dependencyDict):
+        pass
 
 class _ModuleSequenceType(_ConfigureComponent, _Labelable):
     """Base class for classes which define a sequence of modules"""
@@ -131,6 +136,11 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
         item's 'enter' and 'leave' calls.
         """
         self._seq.visitNode(visitor)
+    def fillModulesList(self, l):
+        self._seq.fillModulesList(l)
+    def findHardDependencies(self, dependencyDict):
+        self._seq.findHardDependencies(dependencyDict)
+
 
 class _SequenceOperator(_Sequenceable):
     """Used in the expression tree for a sequence"""
@@ -185,6 +195,10 @@ class _SequenceOperator(_Sequenceable):
         """Precedence order for this operation, the larger the value the higher the precedence"""
         raise RuntimeError("_precedence must be overwritten by inheriting classes")
         return 0
+    def fillModulesList(self, l):
+        self._left.fillModulesList(l)
+        self._right.fillModulesList(l)
+
 
 class _SequenceOpAids(_SequenceOperator):
     """Used in the expression tree for a sequence as a stand in for the ',' operator"""
@@ -198,6 +212,18 @@ class _SequenceOpAids(_SequenceOperator):
         self._right._findDependencies(knownDeps,presentDeps)
     def _precedence(self):
         return 2
+    def findHardDependencies(self, dependencyDict):
+        # everything on the RHS depends on everything on the LHS
+        rhs = set()
+        self._right.fillModulesList(rhs)
+        lhs = set()
+        self._left.fillModulesList(lhs)
+        for rhsmodule in rhs:
+            if rhsmodule in dependencyDict:
+                dependencyDict[rhsmodule].extend(lhs)
+            else:
+                dependencyDict[rhsmodule] = lhs
+
 
 class _SequenceOpFollows(_SequenceOperator):
     """Used in the expression tree for a sequence as a stand in for the '&' operator"""
@@ -215,6 +241,10 @@ class _SequenceOpFollows(_SequenceOperator):
         presentDeps.update(oldDepsR)
     def _precedence(self):
         return 1
+    def findHardDependencies(self, dependencyDict):
+        self._left.findHardDependencies(dependencyDict)
+        self._right.findHardDependencies(dependencyDict)
+
 
 class _UnarySequenceOperator(_Sequenceable):
     """For ~ and - operators"""
@@ -240,6 +270,11 @@ class _UnarySequenceOperator(_Sequenceable):
         return True
     def _visitSubNodes(self,visitor):
         self._operand.visitNode(visitor)
+    def fillModulesList(self, l):
+        self._operand.fillModulesList(l)
+    def findHardDependencies(self, dependencyDict):
+        pass
+
 
 class _SequenceNegation(_UnarySequenceOperator):
     """Used in the expression tree for a sequence as a stand in for the '!' operator"""
@@ -469,6 +504,9 @@ if __name__=="__main__":
             m1 = DummyModule("m1")
             m2 = DummyModule("m2")
             m3 = DummyModule("m3")
+            m4 = DummyModule("m4")
+            m5 = DummyModule("m5")
+ 
             s1 = Sequence(m1*~m2*m1*m2*ignore(m2))
             s2 = Sequence(m1*m2)
             s3 = Sequence(~m1*s2)  
@@ -488,6 +526,24 @@ if __name__=="__main__":
             s3.replace(s2,m1)
             s3.fillNamesList(l,d)
             self.assertEqual(l,['!m1', 'm1'])
+        def testDependencies(self):
+            m1 = DummyModule("m1")
+            m2 = DummyModule("m2")
+            m3 = DummyModule("m3")
+            m4 = DummyModule("m4")
+            m5 = DummyModule("m5")
+            deps = dict()
+            s4 = Sequence(~m1*(m2+m3)+m4)
+            s4.findHardDependencies(deps)
+            self.assertEqual(deps['m2'], set(['m1']))
+            self.assertEqual(deps['m3'], set(['m1']))
+            self.failIf(deps.has_key('m4'))
+            self.failIf(deps.has_key('m1'))
+            deps = dict()
+            s5 = Sequence(s4*m5)
+            s5.findHardDependencies(deps)
+            self.assertEqual(len(deps['m5']), 4)
+
 
     unittest.main()
                           
