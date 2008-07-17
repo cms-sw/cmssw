@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: showtags,v 1.5 2007/11/29 17:12:05 elmer Exp $
+# $Id: showtags,v 1.6 2008/06/12 11:04:46 rahatlou Exp $
 #
 # Created by: Shahram Rahatlou
 #             University of Rome & INFN
@@ -63,21 +63,21 @@ print STDOUT "Your Test release in: $ENV{CMSSW_BASE}\n";
 if(defined $wrtBaseRel) {
 
   if(defined $doCVS) {
-     print STDOUT "checking for differences for each package wrt your test release based on $relver\n";
-  }
-
-  if(defined $doDiff) {
-     print STDOUT "showing changes for all modified files wrt your test release\n";
-  }
-
-} else {
-
-  if(defined $doCVS) {
      print STDOUT "checking for differences for each package wrt base release $relver\n";
   }
 
   if(defined $doDiff) {
      print STDOUT "showing changes for all modified files wrt base release $relver\n";
+  }
+
+} else {
+
+  if(defined $doCVS) {
+     print STDOUT "checking for differences for each package wrt your test release based on $relver\n";
+  }
+
+  if(defined $doDiff) {
+     print STDOUT "showing changes for all modified files wrt your test release\n";
   }
 
 }
@@ -229,7 +229,7 @@ foreach my $ipack (@packages) {
        chomp($l);
        next if($l =~ /cvs update: Updating/);
        print STDOUT "  $l\n";
-       if($l =~ /M (.*)/) { push @filesToDiffBase, $1;}
+       if($l =~ /[MU] (.*)/) { push @filesToDiffBase, $1;}
        if($l =~ /\? (.*)/) { push @newFilesBase, $1;}
      }
      close CL;
