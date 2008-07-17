@@ -274,7 +274,7 @@ EventSetupProvider::finishConfiguration()
       }      
    }
    //we've transfered our ownership so this is no longer needed
-   finders_.release();
+   finders_.reset();
    
    
    //used for the case where no preferred Providers have been specified for the Record
