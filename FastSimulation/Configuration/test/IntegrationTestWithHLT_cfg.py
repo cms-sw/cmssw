@@ -69,8 +69,9 @@ process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
 process.famosPileUp.PileUpSimulator.averageNumber = 0.0
 
 # Get frontier conditions   - not applied in the HCAL, see below
-# Values for globaltag are "STARTUP_V1::All", "1PB::All", "10PB::All", "IDEAL_V2::All"
-process.GlobalTag.globaltag = "STARTUP_V1::All"
+# Values for globaltag are "STARTUP_V3::All", "1PB::All", "10PB::All", "IDEAL_V4::All"
+process.GlobalTag.globaltag = "STARTUP_V3::All"
+
 
 # Apply ECAL and HCAL miscalibration 
 process.caloRecHits.RecHitsFactory.doMiscalib = True
@@ -103,7 +104,7 @@ process.schedule.append(process.outpath)
 
 # Keep the logging output to a nice level #
 # process.Timing =  cms.Service("Timing")
-# process.load("FWCore/MessageService/MessageLogger_cfi")
-# process.MessageLogger.destinations = cms.untracked.vstring("pyDetailedInfo.txt")
+process.load("FWCore/MessageService/MessageLogger_cfi")
+process.MessageLogger.destinations = cms.untracked.vstring("pyDetailedInfo.txt")
 
 
