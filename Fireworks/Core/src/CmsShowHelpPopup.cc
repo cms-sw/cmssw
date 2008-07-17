@@ -13,7 +13,7 @@ CmsShowHelpPopup::CmsShowHelpPopup (const TGWindow* p, UInt_t w, UInt_t h)
 					    kLHintsExpandX | kLHintsExpandY));
      SetWindowName("CmsShow help");
      TGText text;
-     text.Load("random.html");
+     text.Load(helpFileName());
      m_helpHtml->ParseText((char *)text.AsString().Data());
      MapSubwindows();
      m_helpHtml->Layout();
