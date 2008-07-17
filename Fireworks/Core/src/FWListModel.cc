@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar  3 17:20:14 EST 2008
-// $Id: FWListModel.cc,v 1.13 2008/06/29 13:23:48 chrjones Exp $
+// $Id: FWListModel.cc,v 1.14 2008/07/15 14:57:45 chrjones Exp $
 //
 
 // system include files
@@ -42,6 +42,7 @@ FWListModel::FWListModel(const FWModelId& iId,
                          const std::string& iData):
 TEveElement(m_color),
 m_id(iId),
+m_color(0),
  m_detailViewManager(iDVM)
 {
    std::ostringstream s;
