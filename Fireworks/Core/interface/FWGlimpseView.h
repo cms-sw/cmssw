@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FWGlimpseView.h,v 1.3 2008/07/04 23:48:45 chrjones Exp $
+// $Id: FWGlimpseView.h,v 1.4 2008/07/05 14:32:43 chrjones Exp $
 //
 
 // system include files
@@ -26,6 +26,7 @@
 #include "Fireworks/Core/interface/FWViewBase.h"
 #include "Fireworks/Core/interface/FWLongParameter.h"
 #include "Fireworks/Core/interface/FWDoubleParameter.h"
+#include "Fireworks/Core/interface/FWBoolParameter.h"
 #include "TEveCaloData.h"
 
 // forward declarations
@@ -65,6 +66,7 @@ class FWGlimpseView : public FWViewBase
       const FWGlimpseView& operator=(const FWGlimpseView&); // stop default
    
       void updateScale( double scale );
+      void showAxes( );
 
       // ---------- member data --------------------------------
       TEvePad* m_pad;
@@ -74,8 +76,10 @@ class FWGlimpseView : public FWViewBase
       
       TGLMatrix* m_cameraMatrix;
       TGLMatrix* m_cameraMatrixBase;
+      Double_t*  m_cameraFOV;
    
-      FWDoubleParameter m_scaleParam;
+      // FWDoubleParameter m_scaleParam;
+      FWBoolParameter   m_showAxes;
       FWEveValueScaler* m_scaler;
 };
 

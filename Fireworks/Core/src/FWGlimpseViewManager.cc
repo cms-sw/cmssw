@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWGlimpseViewManager.cc,v 1.6 2008/07/07 02:15:46 chrjones Exp $
+// $Id: FWGlimpseViewManager.cc,v 1.7 2008/07/16 03:06:06 chrjones Exp $
 //
 
 // system include files
@@ -50,10 +50,10 @@
 //
 FWGlimpseViewManager::FWGlimpseViewManager(FWGUIManager* iGUIMgr):
 FWViewManagerBase(),
-  m_elements("Glimpse"),
+  m_elements("Energy"),
   m_eveSelection(0),
   m_selectionManager(0),
-  m_scaler(2.0)
+  m_scaler(1.0)
 {
    FWGUIManager::ViewBuildFunctor f;
    f=boost::bind(&FWGlimpseViewManager::buildView,

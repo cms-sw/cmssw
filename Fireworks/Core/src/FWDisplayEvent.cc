@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: FWDisplayEvent.cc,v 1.54 2008/06/23 15:51:58 chrjones Exp $
+// $Id: FWDisplayEvent.cc,v 1.55 2008/07/08 00:29:01 chrjones Exp $
 //
 
 // system include files
@@ -121,7 +121,7 @@ m_viewManager( new FWViewManagerManager(m_changeManager.get())),
      std::cout << "WARNING: no configuration is loaded." << std::endl;
      m_configFileName = "newconfig.fwc";
     m_guiManager->createView("Rho Z");
-    m_guiManager->createView("Glimpse");
+    m_guiManager->createView("Energy");
     m_guiManager->createView("3D Lego");
     m_guiManager->createView("Rho Phi");
   } else {
