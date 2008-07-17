@@ -15,7 +15,7 @@
 //         Created:  Wed Jul 30 11:37:24 CET 2007
 //         Working:  Fri Nov  9 09:39:33 CST 2007
 //
-// $Id: MuonSimHitProducer.cc,v 1.18 2008/07/07 09:26:55 mulders Exp $
+// $Id: MuonSimHitProducer.cc,v 1.19 2008/07/12 13:47:49 mulders Exp $
 //
 //
 
@@ -302,6 +302,7 @@ MuonSimHitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
       std::pair<TrajectoryStateOnSurface,double> next(shsDest.getStateOnSurface(navLayers[ilayer]->surface()),
 						      shsDest.path());
       // No need to continue if there is no valid propagation available.
+      // This happens rarely (~0.1% of ttbar events)
       if ( !next.first.isValid() ) continue; 
       // This is the estimate of the number of radiation lengths traversed, 
       // together with the total path length 
@@ -318,7 +319,12 @@ MuonSimHitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
       double pf = propagatedState.globalMomentum().mag();
 
       // Insert dE/dx fluctuations and multiple scattering
-      if ( theMaterialEffects ) applyMaterialEffects(propagatedState,nextNoMaterial.first,radPath);
+      // Skip this step if nextNoMaterial.first is not valid 
+      // This happens rarely (~0.02% of ttbar events)
+      if ( theMaterialEffects && nextNoMaterial.first.isValid() ) applyMaterialEffects(propagatedState,nextNoMaterial.first,radPath);
+      // Check that the 'shaken' propagatedState is still valid, otherwise continue
+      if ( !propagatedState.isValid() ) continue; 
+      // (No evidence that this ever happens)
 //
 //  Consider this... 1 GeV muon has a velocity that is only 0.5% slower than c...
 //  We probably can safely ignore the mass for anything that makes it out to the
