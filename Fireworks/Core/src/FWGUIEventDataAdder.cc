@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 13 09:58:53 EDT 2008
-// $Id: FWGUIEventDataAdder.cc,v 1.8 2008/07/16 00:00:14 chrjones Exp $
+// $Id: FWGUIEventDataAdder.cc,v 1.9 2008/07/16 23:12:56 chrjones Exp $
 //
 
 // system include files
@@ -273,7 +273,7 @@ FWGUIEventDataAdder::addNewItem()
                             m_productInstanceLabel->GetText(),
                             m_processName->GetText());
    m_manager->add( desc);
-   if (m_frame) m_frame->CloseWindow();
+   if (m_frame) m_frame->UnmapWindow();
 }
 
 void 
