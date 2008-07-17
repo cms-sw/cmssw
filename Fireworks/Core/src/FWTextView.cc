@@ -462,8 +462,8 @@ void FWTextView::update (int tab)
 
 void FWTextView::newEvent (const fwlite::Event &ev, const CmsShowMain *de)
 {
-     TStopwatch stopwatch_read;
-     TStopwatch stopwatch_table;
+     // TStopwatch stopwatch_read;
+     // TStopwatch stopwatch_table;
      //------------------------------------------------------------
      // get event items
      //------------------------------------------------------------
@@ -838,13 +838,13 @@ void FWTextView::newEvent (const fwlite::Event &ev, const CmsShowMain *de)
 //      }
      changesDone(0);
      printf("read: ");
-     stopwatch_read.Stop();
-     stopwatch_read.Print("m");
+     // stopwatch_read.Stop();
+     // stopwatch_read.Print("m");
      for (int i = 0; i < 3; ++i)
 	  pages[i]->update();
-     printf("table: ");
-     stopwatch_table.Stop();
-     stopwatch_table.Print("m");
+     // printf("table: ");
+     // stopwatch_table.Stop();
+     // stopwatch_table.Print("m");
 }
 
 void FWTextView::nextPage ()
