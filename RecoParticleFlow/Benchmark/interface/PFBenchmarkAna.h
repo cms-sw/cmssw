@@ -21,9 +21,9 @@ public:
   PFBenchmarkAna();
   virtual ~PFBenchmarkAna();
 
-  void setup(DQMStore *DQM = NULL); // CMSSW_2_X_X
+  void setup(DQMStore *DQM = NULL, bool PlotAgainstReco_=true); // CMSSW_2_X_X
   //void setup(DaqMonitorBEInterface *DQM = NULL); // CMSSW_1_X_X
-  void fill(const edm::View<reco::Candidate> *RecoCollection, const edm::View<reco::Candidate> *GenCollection, bool PlotAgainstReco =true);
+  void fill(const edm::View<reco::Candidate> *RecoCollection, const edm::View<reco::Candidate> *GenCollection, bool PlotAgainstReco =true, double recPt_cut = -1., double maxEta_cut = -1.);
   void write(std::string Filename);
 
 private:
