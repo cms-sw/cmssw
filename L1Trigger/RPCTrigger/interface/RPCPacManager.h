@@ -121,6 +121,7 @@ public:
       m_SegmentCnt = 4;
     }
 
+    /*
     std::vector<std::vector<std::vector<RPCPattern::RPCPatVec> > > patvec;
     std::vector<std::vector<std::vector<RPCPattern::TQualityVec> > > qualvec;
     for (int tower = 0; tower < RPCConst::m_TOWER_COUNT; ++tower) {
@@ -140,13 +141,26 @@ public:
       patvec[rpcconf->m_pats[ipat].getTower()][rpcconf->m_pats[ipat].getLogSector()][rpcconf->m_pats[ipat].getLogSegment()].push_back(rpcconf->m_pats[ipat]);
     for (unsigned int iqual=0; iqual<rpcconf->m_quals.size(); iqual++)
       qualvec[rpcconf->m_quals[iqual].m_tower][rpcconf->m_quals[iqual].m_logsector][rpcconf->m_quals[iqual].m_logsegment].push_back(rpcconf->m_quals[iqual]);
+    */
+
 
     for (int tower = 0; tower < RPCConst::m_TOWER_COUNT; tower++) {
       m_PacTab.push_back(std::vector<std::vector<TPacType*> >());
       for (int logSector = 0; logSector < m_SectorsCnt; logSector++) {
         m_PacTab[tower].push_back(std::vector<TPacType*>());
         for (int logSegment = 0; logSegment < m_SegmentCnt; logSegment++) {
+<<<<<<< RPCPacManager.h
+          /*L1RPCConfig* rpcconf1=new L1RPCConfig();
+          rpcconf1->setPPT(rpcconf->getPPT());
+          for (unsigned int ipat=0; ipat<patvec[tower][logSector][logSegment].size(); ipat++)
+            rpcconf1->m_pats.push_back(patvec[tower][logSector][logSegment][ipat]);
+          for (unsigned int iqual=0; iqual<qualvec[tower][logSector][logSegment].size(); iqual++)
+            rpcconf1->m_quals.push_back(qualvec[tower][logSector][logSegment][iqual]);
+          //TPacType* pac  = new TPacType(rpcconf1->m_pats,rpcconf1->m_quals);*/
+          TPacType* pac  = new TPacType(rpcconf, tower, logSector, logSegment);
+=======
           TPacType* pac  = new TPacType(patvec[tower][logSector][logSegment],qualvec[tower][logSector][logSegment]);
+>>>>>>> 1.5
           m_PacTab[tower][logSector].push_back(pac);
         }
       } 
