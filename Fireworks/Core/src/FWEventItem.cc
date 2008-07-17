@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu Jan  3 14:59:23 EST 2008
-// $Id: FWEventItem.cc,v 1.20 2008/07/15 14:34:49 chrjones Exp $
+// $Id: FWEventItem.cc,v 1.21 2008/07/15 17:49:18 chrjones Exp $
 //
 
 // system include files
@@ -61,7 +61,8 @@ FWEventItem::FWEventItem(FWModelChangeManager* iCM,
   m_productInstanceLabel(iProductInstanceLabel),
   m_processName(iProcessName),
   m_event(0),
-m_filter("","")
+  m_filter("",""),
+  m_printedNoDataError(false)
 {
   assert(m_type->GetTypeInfo());
   ROOT::Reflex::Type dataType( ROOT::Reflex::Type::ByTypeInfo(*(m_type->GetTypeInfo())));
@@ -94,7 +95,8 @@ m_moduleLabel(iDesc.moduleLabel()),
 m_productInstanceLabel(iDesc.productInstanceLabel()),
 m_processName(iDesc.processName()),
 m_event(0),
-m_filter(iDesc.filterExpression(),"")
+m_filter(iDesc.filterExpression(),""),
+m_printedNoDataError(false)
 {
    assert(m_type->GetTypeInfo());
    ROOT::Reflex::Type dataType( ROOT::Reflex::Type::ByTypeInfo(*(m_type->GetTypeInfo())));
@@ -153,6 +155,7 @@ FWEventItem::~FWEventItem()
 void 
 FWEventItem::setEvent(const fwlite::Event* iEvent) 
 {
+   if ( m_event != iEvent ) m_printedNoDataError = false;
    m_event = iEvent;
    m_data = 0;
    if(m_colProxy.get()) {
@@ -351,7 +354,10 @@ FWEventItem::data(const std::type_info& iInfo) const
                               m_processName.size()?m_processName.c_str():0,
                               temp);
       } catch (std::exception& iException) {
-         std::cerr << "Failed to get "<<name()<<" because \n" <<iException.what()<<std::endl;
+         if ( ! m_printedNoDataError ) {
+	    std::cerr << "Failed to get "<<name()<<" because \n" <<iException.what()<<std::endl;
+	    m_printedNoDataError = true;
+	 }
          return 0;
       }
       if(wrapper==0) {
