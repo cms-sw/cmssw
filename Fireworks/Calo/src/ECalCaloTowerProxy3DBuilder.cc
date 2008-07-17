@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: ECalCaloTowerProxy3DBuilder.cc,v 1.6 2008/07/09 20:04:29 chrjones Exp $
+// $Id: ECalCaloTowerProxy3DBuilder.cc,v 1.7 2008/07/16 13:51:00 dmytro Exp $
 //
 
 // system include files
@@ -74,7 +74,7 @@ void ECalCaloTowerProxy3DBuilder::build(const FWEventItem* iItem, TEveElementLis
       m_calo3d = new TEveCalo3D(m_data);
       m_calo3d->SetBarrelRadius(129);
       m_calo3d->SetEndCapPos(310);
-      //	 m_calo3d->IncDenyDestroy();
+      m_calo3d->IncDenyDestroy(); //Can't allow this to be destroyed
       // gEve->AddElement(m_calo3d);
       //	(*product)->AddElement(m_calo3d);
    }
