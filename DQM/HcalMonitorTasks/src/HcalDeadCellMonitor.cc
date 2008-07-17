@@ -101,7 +101,7 @@ namespace HcalDeadCellCheck
     const HcalQIEShape* shape = cond.getHcalShape();
     const HcalQIECoder* coder = cond.getHcalCoder(digi.id());  
 
-    // Loop over the 10 time slices of the digi to find the time slice with maximum charge deposition
+    // Loop over the  time slices of the digi to find the time slice with maximum charge deposition
     // We'll assume steeply-peaked distribution, so that charge deposit occurs
     // in slices (i-1) -> (i+2) around maximum deposit time i
 
@@ -112,7 +112,7 @@ namespace HcalDeadCellCheck
     float total_pedestal=0;
     float total_pedwidth=0;
 
-    for(int i=0; i<10; ++i)
+    for(int i=0; i<digi.size(); ++i)
       {
 	int thisCapid = digi.sample(i).capid();
 
@@ -129,14 +129,14 @@ namespace HcalDeadCellCheck
 	    maxa=digival ;
 	    maxi=i;
 	  }
-      } // for (int i=0;i<10;++i)	
+      } // for (int i=0;i<digi.size();++i)	
 
     // Now loop over 4 time slices around maximum value
     
-    //for (int i=0;i<digi.size();++i) // old code ran over all 10 slices
+    //for (int i=0;i<digi.size();++i) // old code ran over all time slices
 
     
-    for (int i=max(0,maxi-1);i<=min(9,maxi+2);++i)
+    for (int i=max(0,maxi-1);i<=min(digi.size()-1,maxi+2);++i)
       {
 	ADCsum+=digi.sample(i).adc();
 
