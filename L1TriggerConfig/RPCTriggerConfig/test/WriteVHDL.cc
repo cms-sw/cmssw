@@ -13,7 +13,7 @@
 //
 // Original Author:  Tomasz Maciej Frueboes
 //         Created:  Tue Mar 18 15:15:30 CET 2008
-// $Id: WriteVHDL.cc,v 1.1 2008/04/16 13:38:14 fruboes Exp $
+// $Id: WriteVHDL.cc,v 1.2 2008/04/17 12:17:10 fruboes Exp $
 //
 //
 
@@ -33,7 +33,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "CondFormats/DataRecord/interface/L1RPCConfigRcd.h"
-#include "CondFormats/RPCObjects/interface/L1RPCConfig.h"
+#include "CondFormats/L1TObjects/interface/L1RPCConfig.h"
 #include "CondFormats/RPCObjects/interface/L1RPCHwConfig.h"
 
 #include "CondFormats/DataRecord/interface/L1RPCConeBuilderRcd.h"
