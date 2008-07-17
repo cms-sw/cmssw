@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripRawToDigiModule.cc,v 1.9 2008/07/04 14:07:49 bainbrid Exp $
+// Last commit: $Id: SiStripRawToDigiModule.cc,v 1.10 2008/07/17 11:32:45 bainbrid Exp $
 
 #include "EventFilter/SiStripRawToDigi/plugins/SiStripRawToDigiModule.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
@@ -129,10 +129,9 @@ void SiStripRawToDigiModule::updateCabling( const edm::EventSetup& setup ) {
 
   if ( cacheId_ != cache_id ) {
     
-    if ( cabling_ ) { cabling_ = 0; }
-    edm::ESHandle<SiStripFedCabling> cabling;
-    setup.get<SiStripFedCablingRcd>().get( cabling );
-    cabling_ = cabling.product();
+    edm::ESHandle<SiStripFedCabling> c;
+    setup.get<SiStripFedCablingRcd>().get( c );
+    cabling_ = c.product();
     
     if ( edm::isDebugEnabled() ) {
       if ( !cacheId_ ) {
@@ -151,17 +150,11 @@ void SiStripRawToDigiModule::updateCabling( const edm::EventSetup& setup ) {
       sss << "[SiStripRawToDigiModule::" << __func__ << "]"
 	  << " Summary of FED cabling:" << std::endl;
       cabling_->summary(sss);
-      edm::LogVerbatim(mlRawToDigi_) << sss.str();
+      LogTrace(mlRawToDigi_) << sss.str();
     }
 
     cacheId_ = cache_id;
     
   }
   
-}
-
-// -----------------------------------------------------------------------------
-/** */
-void SiStripRawToDigiModule::deleteCabling() {
-  if ( cabling_ ) { cabling_ = 0; }
 }
