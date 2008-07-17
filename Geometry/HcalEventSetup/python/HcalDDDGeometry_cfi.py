@@ -5,6 +5,8 @@ import FWCore.ParameterSet.Config as cms
 #
 HcalDDDGeometryEP = cms.ESProducer("HcalDDDGeometryEP")
 
-CaloGeometryBuilder = cms.ESProducer("CaloGeometryBuilder")
+CaloGeometryBuilder = cms.ESProducer("CaloGeometryBuilder",
+    SelectedCalos = cms.vstring('HCAL')
+)
 
 
