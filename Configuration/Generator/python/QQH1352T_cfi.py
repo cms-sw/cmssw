@@ -10,6 +10,7 @@ source = cms.Source("PythiaSource",
     UseTauola = cms.untracked.bool(True),
     # put here the efficiency of your filter (1. if no filter)
     filterEfficiency = cms.untracked.double(1.0),
+    comEnergy = cms.untracked.double(10000.0),
     UseTauolaPolarization = cms.untracked.bool(True),
     pythiaHepMCVerbosity = cms.untracked.bool(False),
     GeneratorParameters = cms.PSet(

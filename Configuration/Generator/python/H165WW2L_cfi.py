@@ -17,6 +17,7 @@ source = cms.Source("PythiaSource",
     # put here the cross section of your process (in pb)
     crossSection = cms.untracked.double(0.325),
     maxEventsToPrint = cms.untracked.int32(3),
+    comEnergy = cms.untracked.double(10000.0),
     PythiaParameters = cms.PSet(
         pythiaUESettingsBlock,
         processParameters = cms.vstring('PMAS(25,1)=165.0        !mass of Higgs', 

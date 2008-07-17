@@ -12,6 +12,7 @@ source = cms.Source("PythiaSource",
     pythiaHepMCVerbosity = cms.untracked.bool(False),
     # put here the cross section of your process (in pb)
     crossSection = cms.untracked.double(0.05),
+    comEnergy = cms.untracked.double(10000.0),
     maxEventsToPrint = cms.untracked.int32(3),
     PythiaParameters = cms.PSet(
         pythiaUESettingsBlock,

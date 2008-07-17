@@ -25,6 +25,7 @@ source = cms.Source("PythiaSource",
     pythiaHepMCVerbosity = cms.untracked.bool(False),
     crossSection = cms.untracked.double(54710000000.0),
     maxEventsToPrint = cms.untracked.int32(0),
+    comEnergy = cms.untracked.double(10000.0),
     PythiaParameters = cms.PSet(
         pythiaUESettingsBlock,
         processParameters = cms.vstring('MSEL        = 1        ! user defined subprocess', 

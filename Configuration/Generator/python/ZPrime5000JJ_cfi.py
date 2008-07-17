@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from GeneratorInterface.Pythia6Interface.pythiaDefault_cff import *
 source = cms.Source("PythiaSource",
     pythiaVerbosity = cms.untracked.bool(False),
+    comEnergy = cms.untracked.double(10000.0),
     PythiaParameters = cms.PSet(
         # Default (mostly empty - to keep PYTHIA default) card file
         # Name of the set is "pythiaDefault"
