@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:01:20 EDT 2007
-// $Id: Event.h,v 1.10 2008/06/03 17:36:10 dsr Exp $
+// $Id: Event.h,v 1.11 2008/06/12 22:27:19 dsr Exp $
 //
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
@@ -47,6 +47,7 @@ namespace edm {
   class BranchDescription;
   class EDProductGetter;
   class EventAux;
+  class Timestamp;
 }
 
 namespace fwlite {
@@ -147,7 +148,8 @@ class Event
       Long64_t size() const;
 
       edm::EventID id() const;
-
+      const edm::Timestamp& time() const;
+   
       const std::vector<edm::BranchDescription>& getBranchDescriptions() const { 
         return branchMap_.getBranchDescriptions();
       }

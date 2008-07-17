@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:07:03 EDT 2007
-// $Id: Event.cc,v 1.16 2008/06/03 17:36:10 dsr Exp $
+// $Id: Event.cc,v 1.17 2008/06/12 22:27:19 dsr Exp $
 //
 
 // system include files
@@ -427,6 +427,15 @@ Event::id() const
   return aux_.id();
 }
 
+const edm::Timestamp& 
+Event::time() const
+{
+  Long_t eventIndex = branchMap_.getEventEntry();
+  updateAux(eventIndex);
+  return aux_.time();
+}
+
+   
 void
 Event::updateAux(Long_t eventIndex) const
 {
