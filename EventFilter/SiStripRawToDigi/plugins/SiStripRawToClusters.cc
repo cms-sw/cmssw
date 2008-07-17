@@ -43,16 +43,14 @@ SiStripRawToClusters::~SiStripRawToClusters() {
 }
 
 void SiStripRawToClusters::beginJob( const edm::EventSetup& setup) {
-
   clusterizer_->eventSetup(setup);
 }
 
-void SiStripRawToClusters::endJob() {}
+void SiStripRawToClusters::beginRun( edm::Run&, const edm::EventSetup& setup) {
+  clusterizer_->eventSetup(setup);
+}
 
 void SiStripRawToClusters::produce( edm::Event& event,const edm::EventSetup& setup ) {
-  
-  clusterizer_->eventSetup(setup);
-
   edm::Handle<FEDRawDataCollection> buffers;
   event.getByLabel( productLabel_, productInstance_, buffers ); 
   setup.get<SiStripRegionCablingRcd>().get(cabling_);

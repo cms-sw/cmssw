@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripRawToDigiModule.h,v 1.3 2008/06/09 11:30:18 bainbrid Exp $
+// Last commit: $Id: SiStripRawToDigiModule.h,v 1.4 2008/06/09 18:16:41 bainbrid Exp $
 
 #ifndef EventFilter_SiStripRawToDigi_SiStripRawToDigiModule_H
 #define EventFilter_SiStripRawToDigi_SiStripRawToDigiModule_H
@@ -26,13 +26,9 @@ class SiStripRawToDigiModule : public edm::EDProducer {
   
   SiStripRawToDigiModule( const edm::ParameterSet& );
   ~SiStripRawToDigiModule();
-
-  virtual void beginJob( const edm::EventSetup& );
-  virtual void endJob();
-
-  virtual void beginRun( edm::Run&, const edm::EventSetup& );
-  virtual void endRun( edm::Run&, const edm::EventSetup& ) {;}
   
+  virtual void beginJob( const edm::EventSetup& );
+  virtual void beginRun( edm::Run&, const edm::EventSetup& );
   virtual void produce( edm::Event&, const edm::EventSetup& );
   
  private: 
@@ -45,7 +41,7 @@ class SiStripRawToDigiModule : public edm::EDProducer {
   std::string label_;
   std::string instance_;
 
-  SiStripFedCabling* cabling_;
+  const SiStripFedCabling* cabling_;
   
   uint32_t cacheId_;
 

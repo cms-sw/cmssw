@@ -31,7 +31,7 @@ class SiStripRawToClusters : public edm::EDProducer {
   ~SiStripRawToClusters();
   
   virtual void beginJob( const edm::EventSetup& );
-  virtual void endJob();
+  virtual void beginRun( edm::Run&, const edm::EventSetup& );
   virtual void produce( edm::Event&, const edm::EventSetup& );
   
  private: 
