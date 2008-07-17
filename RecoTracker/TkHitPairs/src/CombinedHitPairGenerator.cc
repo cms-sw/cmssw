@@ -55,7 +55,7 @@ CombinedHitPairGenerator::~CombinedHitPairGenerator()
 
 void CombinedHitPairGenerator::add( const SeedingLayer& inner, const SeedingLayer& outer)
 { 
-  theGenerators.push_back( new HitPairGeneratorFromLayerPair( inner, outer, &theLayerCache));
+  theGenerators.push_back( new HitPairGeneratorFromLayerPair( inner, outer, &theLayerCache, 0));
 }
 
 void CombinedHitPairGenerator::hitPairs(
