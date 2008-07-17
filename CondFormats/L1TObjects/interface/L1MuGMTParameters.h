@@ -148,6 +148,9 @@ public:
   void setVersionSortRankEtaQLUT(const unsigned VersionSortRankEtaQLUT) {m_VersionSortRankEtaQLUT = VersionSortRankEtaQLUT;}
   unsigned getVersionSortRankEtaQLUT() const {return m_VersionSortRankEtaQLUT;}
 
+  void setSubsystemMask(const unsigned SubsystemMask) { m_SubsystemMask = SubsystemMask; }
+  unsigned getSubsystemMask() const { return m_SubsystemMask; }
+
 private:
 
   double m_EtaWeight_barrel;
@@ -191,6 +194,7 @@ private:
   unsigned m_CDLConfigWordbRPCCSC;
   unsigned m_CDLConfigWordfRPCDT;
   unsigned m_VersionSortRankEtaQLUT;
+  unsigned m_SubsystemMask;
 
 };
 
