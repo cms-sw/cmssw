@@ -7,6 +7,10 @@ struct HOCalibVariables {
   int   trig1; //L1/HLT trigger information (not used)
   int   trig2; //Special Trigger information (not used)
   int   nmuon; //number of muons in the event
+
+  float trkdr;  //r-phi coordinate of track wrt vertex
+  float trkdz;  //Z coordinate of track wrt vertex
+
   float trkvx;  //X-Position of fitted track in the inner layer of DT
   float trkvy;  //Y-Position of fitted track in the inner layer of DT
   float trkvz;  //Z-Position of fitted track in the inner layer of DT
