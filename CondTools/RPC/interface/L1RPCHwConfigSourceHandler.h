@@ -1,5 +1,5 @@
-#ifndef RPCEMAPSOURCEHANDLER
-#define RPCEMAPSOURCEHANDLER
+#ifndef L1RPCHWCONFIGSOURCEHANDLER
+#define L1RPCHWCONFIGSOURCEHANDLER
 
 #include <vector>
 #include <string>
@@ -16,18 +16,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
-#include "CondFormats/RPCObjects/interface/RPCEMap.h"
-#include "CondFormats/DataRecord/interface/RPCEMapRcd.h"
-#include "CondFormats/RPCObjects/interface/RPCReadOutMapping.h"
-#include "CondFormats/RPCObjects/interface/DccSpec.h"
-#include "CondFormats/RPCObjects/interface/TriggerBoardSpec.h"
-#include "CondFormats/RPCObjects/interface/LinkConnSpec.h"
-#include "CondFormats/RPCObjects/interface/LinkBoardSpec.h"
-#include "CondFormats/RPCObjects/interface/ChamberLocationSpec.h"
-#include "CondFormats/RPCObjects/interface/FebLocationSpec.h"
-#include "CondFormats/RPCObjects/interface/FebConnectorSpec.h"
-#include "CondFormats/RPCObjects/interface/ChamberStripSpec.h"
-#include "CondFormats/RPCObjects/interface/DBSpecToDetUnit.h"
+#include "CondFormats/RPCObjects/interface/L1RPCHwConfig.h"
+#include "CondFormats/DataRecord/interface/L1RPCHwConfigRcd.h"
 
 #include "CondCore/DBCommon/interface/SessionConfiguration.h"
 #include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
@@ -47,23 +37,23 @@ using namespace oracle::occi;
 
 namespace popcon
 {
-	class RPCEMapSourceHandler : public popcon::PopConSourceHandler<RPCEMap>
-	{
+        class L1RPCHwConfigSourceHandler : public popcon::PopConSourceHandler<L1RPCHwConfig>
+        {
 
-		public:
-    RPCEMapSourceHandler(const edm::ParameterSet& ps);
-    ~RPCEMapSourceHandler();
+                public:
+    L1RPCHwConfigSourceHandler(const edm::ParameterSet& ps);
+    ~L1RPCHwConfigSourceHandler();
     void getNewObjects();
     std::string id() const {return m_name;}
     void ConnectOnlineDB(string connect, string authPath);
     void ConnectOnlineDB(string host, string sid, string user, string pass, int port);
     void DisconnectOnlineDB();
-    void readEMap0();
-    void readEMap1();
-    int Compare2EMaps(Ref map1, RPCEMap* map2);
+    void readHwConfig0();
+    void readHwConfig1();
+    int Compare2Configs(Ref set1, L1RPCHwConfig* set2);
 
-		private:
-    RPCEMap * eMap;
+                private:
+    L1RPCHwConfig * disabledDevs;
     Environment* env;
     Connection* conn;
     cond::DBSession * session;
@@ -79,15 +69,6 @@ namespace popcon
     std::string m_pass;
     int m_port;
 
-  // utilities
-    string IntToString(int num)
-    {
-      stringstream snum;
-      snum << num << flush;
-      return(snum.str());
-    }
-
-    typedef struct{int febId,chamberId,connectorId,lbInputNum,posInLocalEtaPart,posInCmsEtaPart;string localEtaPart,cmsEtaPart;} FEBStruct;
-	};
+        };
 }
 #endif
