@@ -84,7 +84,7 @@ HcalSummaryClient::HcalSummaryClient(const ParameterSet& ps)
   etaBins_=(int)(abs(etaMax_-etaMin_));
 
   // Summary maps
-  meGlobalSummary_=0;
+  //meGlobalSummary_=0;
 
   // All initial status floats set to -1 (uncertain)
   // For the moment, these are just local variables; if we want to keep
@@ -156,13 +156,14 @@ void HcalSummaryClient::setup(void)
   dqmStore_->setCurrentFolder( prefixME_ + "/HcalSummaryClient" );
 
 
-  // This histogram may be redundant?
+  // This histogram may be redundant? -- removed on 17 July 2008
+  /*
   sprintf(histo,"Global Summary");
   meGlobalSummary_ = dqmStore_->book2D(histo, histo, etaBins_,etaMin_,etaMax_,
 					 phiBins_,phiMin_,phiMax_);
   meGlobalSummary_->setAxisTitle("i#eta", 1);
   meGlobalSummary_->setAxisTitle("i#phi", 2);
-
+  */
 
   
   // Monitor Elements in required format, according to https://twiki.cern.ch/twiki/bin/view/CMS/SummaryDisplayProposal
@@ -175,6 +176,7 @@ void HcalSummaryClient::setup(void)
     dqmStore_->removeElement(me->getName());
   }
   me = dqmStore_->bookFloat(histo);
+  me->Fill(1);  // set status = 1 at startup
 
   dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo/reportSummaryContents" );
 
@@ -188,6 +190,7 @@ void HcalSummaryClient::setup(void)
       dqmStore_->removeElement(me->getName());
     }
   me = dqmStore_->bookFloat(histo);
+  me->Fill(1);  // set status = 1 at startup 
 
   sprintf(histo,"Hcal_HE");
   if ( me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + histo) )
@@ -195,6 +198,7 @@ void HcalSummaryClient::setup(void)
       dqmStore_->removeElement(me->getName());
     }
   me = dqmStore_->bookFloat(histo);
+  me->Fill(1);  // set status = 1 at startup 
 
   sprintf(histo,"Hcal_HO");
   if ( me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + histo) )
@@ -202,6 +206,7 @@ void HcalSummaryClient::setup(void)
       dqmStore_->removeElement(me->getName());
     }
   me = dqmStore_->bookFloat(histo);
+  me->Fill(1);  // set status = 1 at startup 
 
   sprintf(histo,"Hcal_HF");
   if ( me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + histo) )
@@ -209,7 +214,7 @@ void HcalSummaryClient::setup(void)
       dqmStore_->removeElement(me->getName());
     }
   me = dqmStore_->bookFloat(histo);
-
+  me->Fill(1);  // set status = 1 at startup 
 
   // Create global summary map
   dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
@@ -225,14 +230,6 @@ void HcalSummaryClient::setup(void)
   me->setAxisTitle("i#eta", 1);
   me->setAxisTitle("i#phi", 2);
  
-
-  // set status words to unknown by default
-  status_HB_=-1;
-  status_HE_=-1;
-  status_HO_=-1;
-  status_HF_=-1;
-
-  
   for (int i=0;i<4;++i)
     {
       // All values set to unknown by default
@@ -289,9 +286,10 @@ void HcalSummaryClient::cleanup(void)
   */  
 
   // redundant?  Handled above?
-  if (meGlobalSummary_) dqmStore_->removeElement(meGlobalSummary_->getName());
-  meGlobalSummary_=0;
-  
+  /*
+    if (meGlobalSummary_) dqmStore_->removeElement(meGlobalSummary_->getName());
+    meGlobalSummary_=0;
+  */
 
 } // void HcalSummaryClient::cleanup(void) 
 
@@ -299,14 +297,13 @@ void HcalSummaryClient::cleanup(void)
 
 void HcalSummaryClient::incrementCounters(void)
 {
-  ievt_++;
-  jevt_++;
+  ++ievt_;
+  ++jevt_;
   return;
 }
 
 void HcalSummaryClient::analyze(void)
 {
-
   if (debug_)
     cout <<"HcalSummaryClient:  Running analyze..."<<endl;
   if ( ievt_ % 10 == 0 ) 
@@ -315,7 +312,7 @@ void HcalSummaryClient::analyze(void)
 	cout << "HcalSummaryClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
     }
 
-  // Reset values to 'unknown' status; they'll be set by analyze_everything routines
+  // Set values to 'unknown' status; they'll be set by analyze_everything routines
   status_global_=-1;
   status_HB_=-1;
   status_HE_=-1;
