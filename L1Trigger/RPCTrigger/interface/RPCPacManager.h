@@ -149,7 +149,6 @@ public:
       for (int logSector = 0; logSector < m_SectorsCnt; logSector++) {
         m_PacTab[tower].push_back(std::vector<TPacType*>());
         for (int logSegment = 0; logSegment < m_SegmentCnt; logSegment++) {
-<<<<<<< RPCPacManager.h
           /*L1RPCConfig* rpcconf1=new L1RPCConfig();
           rpcconf1->setPPT(rpcconf->getPPT());
           for (unsigned int ipat=0; ipat<patvec[tower][logSector][logSegment].size(); ipat++)
@@ -158,9 +157,6 @@ public:
             rpcconf1->m_quals.push_back(qualvec[tower][logSector][logSegment][iqual]);
           //TPacType* pac  = new TPacType(rpcconf1->m_pats,rpcconf1->m_quals);*/
           TPacType* pac  = new TPacType(rpcconf, tower, logSector, logSegment);
-=======
-          TPacType* pac  = new TPacType(patvec[tower][logSector][logSegment],qualvec[tower][logSector][logSegment]);
->>>>>>> 1.5
           m_PacTab[tower][logSector].push_back(pac);
         }
       } 
