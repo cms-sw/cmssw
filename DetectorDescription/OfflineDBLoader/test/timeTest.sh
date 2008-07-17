@@ -1,7 +1,7 @@
 cd workarea/db
 date
-cmsRun ../../testReadDBQuiet.cfg
+cmsRun ../../testreadDBQuiet_cfg.py
 date
-cmsRun ../../testReadXMLQuiet.cfg
+cmsRun ../../testreadXMLQuiet_cfg.py
 date
 

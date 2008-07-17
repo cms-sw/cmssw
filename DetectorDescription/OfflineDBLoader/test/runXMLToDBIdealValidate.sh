@@ -18,7 +18,7 @@ rm dumpSpecsDBIdealRead
 
 echo start write Ideal
 date
-cmsRun ../../testwriteIdeal.cfg >twIdeal.out
+cmsRun ../../testwriteIdeal_cfg.py >twIdeal.out
 echo end write Ideal
 date
 
@@ -29,7 +29,7 @@ echo done with all DB writes.
 echo start all DB reads.
 echo start DB read Ideal
 date
-cmsRun ../../testreadDBIdealOnly.cfg > trIdeal.out
+cmsRun ../../testreadDBIdealOnly_cfg.py > trIdeal.out
 echo done with read DB Ideal
 date
 
@@ -46,7 +46,7 @@ rm diffgeomIdeal.out
 
 echo start XML read both
 date
-cmsRun ../../testreadXMLIdealOnly.cfg > trIdeal.out
+cmsRun ../../testreadXMLIdealOnly_cfg.py > trIdeal.out
 echo end XML read both
 date
 
