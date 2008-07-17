@@ -14,9 +14,9 @@ bool CSCTMBHeader::debug = false;
 short unsigned int CSCTMBHeader::firmwareVersion=2006;
 
 CSCTMBHeader::CSCTMBHeader():
-  theHeaderFormat(new CSCTMBHeader2006())
+  theHeaderFormat(new CSCTMBHeader2007_rev0x50c3())
 {
-  firmwareVersion = 2006;
+  firmwareVersion = 2007;
 }
 
 //CSCTMBHeader::CSCTMBHeader(const CSCTMBStatusDigi & digi) {
@@ -116,7 +116,6 @@ CSCTMBHeader2006 CSCTMBHeader::tmbHeader2006()   const {
 void CSCTMBHeader::selfTest()
 {
   static bool debug = false;
-  const int testversion = 2006; // version to be tested; default is 2006.
 
   // tests packing and unpacking
   for(int station = 1; station <= 4; ++station) {
@@ -137,12 +136,12 @@ void CSCTMBHeader::selfTest()
       CSCCorrelatedLCTDigi lct1(2, 1, 2, 20, 15, 9, 1, 0, 0, 0, 0, 0);
 
       CSCTMBHeader tmbHeader;
-      tmbHeader.firmwareVersion = testversion;
       tmbHeader.addCLCT0(clct0);
       tmbHeader.addCLCT1(clct1);
       tmbHeader.addCorrelatedLCT0(lct0);
       tmbHeader.addCorrelatedLCT1(lct1);
       std::vector<CSCCLCTDigi> clcts = tmbHeader.CLCTDigis(detId.rawId());
+      // guess they got reordered
       assert(cscPackerCompare(clcts[0],clct0));
       assert(cscPackerCompare(clcts[1],clct1));
       if (debug) {
