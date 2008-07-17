@@ -10,7 +10,7 @@ HLTTauCaloDQMOfflineSource::HLTTauCaloDQMOfflineSource(const edm::ParameterSet& 
  met_(iConfig.getParameter<edm::InputTag >("MET")),
  doRef_(iConfig.getParameter<bool>("doReference")),
  matchDeltaRMC_(iConfig.getParameter<double>("MatchDeltaR")),
- triggerTag_((iConfig.getParameter<std::string>("TriggerFolder"))),
+ triggerTag_((iConfig.getParameter<std::string>("DQMFolder"))),
  l2Isolated_(iConfig.getParameter<edm::InputTag>("L2IsolatedJets")),
  outFile_(iConfig.getParameter<std::string>("OutputFileName")),
  EtMin_(iConfig.getParameter<double>("EtMin")),
