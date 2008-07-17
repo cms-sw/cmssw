@@ -31,7 +31,7 @@ TFormula & TauElementsOperators::computeConeSizeTFormula(const string& ConeSizeF
     throw cms::Exception("") << "\n unsupported functional Form for " << errorMessage << " " << ConeSizeFormula << endl
 			     << "Please check that the Definition in \"" << ConeSizeTFormula.GetName() << "\" only contains the variables \"E\" or \"ET\""
 			     << " and Functions that are supported by ROOT's TFormular Class." << endl;
-  }else return ConeSizeTFormula;
+  }else return *(static_cast<TFormula*>((ConeSizeTFormula.Clone())));
 }
 
 
