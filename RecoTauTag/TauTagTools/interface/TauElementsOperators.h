@@ -24,8 +24,7 @@ class TauElementsOperators{
   // compute size of signal cone possibly depending on E(energy) and/or ET(transverse energy) of the tau-jet candidate
   double computeConeSize(const TFormula& ConeSizeTFormula,double ConeSizeMin,double ConeSizeMax);
 
-
-  TFormula computeConeSizeTFormula(const string& ConeSizeFormula,const char* errorMessage);
+  TFormula& computeConeSizeTFormula(const string& ConeSizeFormula,const char* errorMessage);
   void replaceSubStr(string& s,const string& oldSubStr,const string& newSubStr); 
   //return the leading (i.e. highest Pt) Track in a given cone around the jet axis or a given direction
   const TrackRef leadTk(string matchingConeMetric,double matchingConeSize,double ptTrackMin)const;
@@ -49,6 +48,8 @@ class TauElementsOperators{
 				    string signalConeMetric,double signalConeSize,string isolationConeMetric,double isolationConeSize, 
 				    unsigned int isolationAnnulus_Tracksmaxn)const;
  protected:
+    TFormula ConeSizeTFormula;
+
   BaseTau& BaseTau_;
   double AreaMetric_recoElements_maxabsEta_;
   TrackRefVector Tracks_;  // track selection criteria applied

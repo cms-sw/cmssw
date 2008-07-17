@@ -12,7 +12,7 @@ double TauElementsOperators::computeConeSize(const TFormula& ConeSizeTFormula,do
   if (ConeSize>ConeSizeMax)ConeSize=ConeSizeMax;
   return ConeSize;
 }
-TFormula TauElementsOperators::computeConeSizeTFormula(const string& ConeSizeFormula,const char* errorMessage){
+TFormula & TauElementsOperators::computeConeSizeTFormula(const string& ConeSizeFormula,const char* errorMessage){
   //--- check functional form 
   //    given as configuration parameter for matching and signal cone sizes;
   //
@@ -24,7 +24,6 @@ TFormula TauElementsOperators::computeConeSizeTFormula(const string& ConeSizeFor
   string ConeSizeFormulaStr = ConeSizeFormula;
   replaceSubStr(ConeSizeFormulaStr,"ET","y");
   replaceSubStr(ConeSizeFormulaStr,"E","x");
-  TFormula ConeSizeTFormula;
   ConeSizeTFormula.SetName("ConeSize");
   ConeSizeTFormula.SetTitle(ConeSizeFormulaStr.data()); // the function definition is actually stored in the "Title" data-member of the TFormula object
   int errorFlag = ConeSizeTFormula.Compile();
