@@ -70,7 +70,9 @@ XMLIdealGeometryESSource.geomXMLFiles = cms.vstring(
     "Geometry/HcalCommonData/data/hcalforwardfibre.xml",
     "Geometry/HcalCommonData/data/hcalsens.xml",
     "Geometry/HcalSimData/data/CaloUtil.xml",
-    "Geometry/HcalSimData/data/HcalProdCuts.xml")
+    "Geometry/HcalSimData/data/HcalProdCuts.xml",
+    "Geometry/CMSCommonData/data/FieldParameters.xml"
+)
 
 
 CaloGeometryBuilder.SelectedCalos = ['HCAL']

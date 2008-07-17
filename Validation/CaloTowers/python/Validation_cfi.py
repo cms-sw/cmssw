@@ -85,7 +85,9 @@ XMLIdealGeometryESSource.geomXMLFiles = cms.vstring(
     "Geometry/HcalCommonData/data/hcalsens.xml",
     "Geometry/HcalSimData/data/CaloUtil.xml",
     "Geometry/EcalSimData/data/EcalProdCuts.xml",
-    "Geometry/HcalSimData/data/HcalProdCuts.xml")
+    "Geometry/HcalSimData/data/HcalProdCuts.xml",
+    "Geometry/CMSCommonData/data/FieldParameters.xml"	
+)
 
 VtxSmeared.SigmaX = 0.00001
 VtxSmeared.SigmaY = 0.00001
