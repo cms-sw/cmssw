@@ -39,7 +39,7 @@ Ring 0 L0 : Width Tray 6:266.6, 5&4:325.6, 3:330.6, 2:341.6, 1:272.6
 //
 // Original Author:  Gobinda Majumder
 //         Created:  Fri Jul  6 17:17:21 CEST 2007
-// $Id: AlCaHOCalibProducer.cc,v 1.12 2008/05/05 14:44:57 kodolova Exp $
+// $Id$
 //
 //
 
@@ -64,7 +64,7 @@ Ring 0 L0 : Width Tray 6:266.6, 5&4:325.6, 3:330.6, 2:341.6, 1:272.6
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
@@ -77,14 +77,18 @@ Ring 0 L0 : Width Tray 6:266.6, 5&4:325.6, 3:330.6, 2:341.6, 1:272.6
 #include "Geometry/DTGeometry/interface/DTSuperLayer.h"
 #include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
 
+
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 
 #include "CalibCalorimetry/HcalAlgos/interface/HcalAlgoUtils.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
+#include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
+#include "CalibFormats/HcalObjects/interface/HcalCalibrationWidths.h"
+
 //08/07/07 #include "CondTools/Hcal/interface/HcalDbPool.h"
-#include "CondFormats/HcalObjects/interface/HcalPedestals.h"
-#include "CondFormats/HcalObjects/interface/HcalPedestalWidths.h"
+//#include "CondFormats/HcalObjects/interface/HcalPedestals.h"
+//#include "CondFormats/HcalObjects/interface/HcalPedestalWidths.h"
 
 
 // #include "TrackingTools/GeomPropagators/interface/HelixArbitraryPlaneCrossing.h"
@@ -111,9 +115,18 @@ Ring 0 L0 : Width Tray 6:266.6, 5&4:325.6, 3:330.6, 2:341.6, 1:272.6
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
 //#include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixStateInfo.h"
 
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "FWCore/Framework/interface/TriggerNames.h"
+
+
 #include "TFile.h"
 #include "TH1F.h"
 #include "TH2F.h"
+#include "TProfile.h"
 #include "TTree.h"
 /* C++ Headers */
 #include <string>
@@ -126,6 +139,26 @@ Ring 0 L0 : Width Tray 6:266.6, 5&4:325.6, 3:330.6, 2:341.6, 1:272.6
 using namespace std;
 using namespace edm;
 using namespace reco;
+
+const int netabin= 16;  
+const int nphimx = 72;
+const int ndepthmx=4;
+//const int ncapmx = 4;
+const int netamx = 32;
+const int nchnmx = 10;
+const int ncidmx = 5;
+const int nsigpk = 7;
+const int nstrbn = 0; //0 <= nstrbn <= nchnmx-nsigpk
+const int ntrgp = 11;
+
+
+const int netahbmx = 60;
+const int netahb3mx = 32;
+
+static const unsigned int nL1trg = 200;
+
+static const unsigned int nL1mx=140;
+static const unsigned int nHLTmx=140;
 
 class AlCaHOCalibProducer : public edm::EDProducer {
    public:
@@ -156,35 +189,66 @@ class AlCaHOCalibProducer : public edm::EDProducer {
   float  localxhor1; //local x-distance from edege in ring 1
   float  localyhor1; //local y-distance from edege in ring 1
 
+  float pedestal[netamx][nphimx][ncidmx]; 
+  //  float pedestal_lib[netamx][nphimx][ncidmx]; 
+  /*
   float pedestal[32][72][4][4];
   float pedestalHB[32][72][4][4];
-
   static const int netabin= 16;  
   static const int nphimx = 72;
   static const int ndepthmx=4;
   static const int ncapmx = 4;
   static const int netamx = 32;
+  */
+  float ho_time[nchnmx];
 
-  float ho_time[10];
-  float hb_time[10];
+  float hb_time[nchnmx];
   std::string digiLabel;
   
   bool debug;
   std::string theRootFileName;
-  std::string thePedestalFile;
-  TFile* theFile;
-  TH1F* hotime[netamx][nphimx];
-  TH1F* hopedtime[netamx][nphimx];
-  TH1F* crossg[netamx][nphimx];
+  //  std::string thePedestalFile;
+  //  TFile* theFile;
 
-  TH2F* ho_occupency[5];  
+  TH1F* libhoped;
+  TH1F* allhotime; // [netamx][nphimx];
+  TH1F* hotime[ntrgp+1]; // [netamx][nphimx];
+  TH1F* hopedtime; // [netamx][nphimx];
+
+  TProfile* hopedpr;  
+  TH1F* hopedrms;  
+  TH1F* hst_hopedrms;    
+
+  TProfile* hopeak[ntrgp+1];
+  TProfile* horatio;
+
+  TH1F* Nallhotime; // [netamx][nphimx];
+  TH1F* Nhotime[ntrgp+1]; // [netamx][nphimx];
+  TH1F* Nhopedtime; // [netamx][nphimx];
+
+  TH1F* allhb1;
+  TH1F* allhb2;
+  TH1F* allhb3;
+
+  TH1F* Nallhb1;
+  TH1F* Nallhb2;
+  TH1F* Nallhb3;
+
+  TProfile* hb1pedpr;  
+  TH1F* hb1pedrms;  
+  TH1F* hst_hb1pedrms;    
+
+  TH1F* ho_occupency[5];  
 
   bool m_hotime;
 
   edm::InputTag muonTags_;   // cosmicMuons or standAloneMuons
   edm::InputTag hbheLabel_;
   edm::InputTag hoLabel_;
-  
+  edm::InputTag hltLabel_;
+  edm::InputTag l1Label_;  
+  edm::InputTag towerLabel_;    
+
   bool m_digiInput;            // digi (true) or rechit (false)
   bool m_hbinfo;
   int m_startTS;
@@ -195,12 +259,26 @@ class AlCaHOCalibProducer : public edm::EDProducer {
   //  const HcalQIEShape* m_shape;
   //  const HcalQIECoder* m_coder;
 
-  //  edm::ESHandle<HcalDbService> conditions_;
-
   typedef math::Error<5>::type CovarianceMatrix;  
   int Nevents;
+  int Npass;
+  int irunold;
+  int nRuns;
   SteppingHelixPropagator* stepProp;
   FreeTrajectoryState getFreeTrajectoryState( const reco::Track& tk, const MagneticField* field, int itag, bool dir);
+
+  edm::ESHandle<HcalDbService> conditions_;
+  const HcalQIEShape* m_shape;
+  const HcalQIECoder* m_coder;
+
+  HcalCalibrations calibped;
+  HcalCalibrationWidths calibwidth;
+
+  unsigned int Ntp; // # of HLT trigger paths (should be the same for all events!)
+  std::map<std::string, bool> fired; 
+
+  //  std::vector<unsigned int> l1Accepts_; // number of events accepted by each L1 algorithm
+  //  std::vector<std::string> l1Names_;    // name of each L1 algorithm
 
 };
 
@@ -217,7 +295,7 @@ class AlCaHOCalibProducer : public edm::EDProducer {
 //
 AlCaHOCalibProducer::AlCaHOCalibProducer(const edm::ParameterSet& iConfig)
   :  muonTags_(iConfig.getUntrackedParameter<edm::InputTag>("muons"))
-    
+
 {
    //register your products
 /* Examples
@@ -228,7 +306,6 @@ AlCaHOCalibProducer::AlCaHOCalibProducer(const edm::ParameterSet& iConfig)
 */
 
   theRootFileName = iConfig.getUntrackedParameter<string>("RootFileName","tmp.root");
-  thePedestalFile = iConfig.getUntrackedParameter<string>("PedestalFile","pedetal25179_2.txt");
   m_digiInput = iConfig.getUntrackedParameter<bool>("digiInput", true);
   m_hbinfo = iConfig.getUntrackedParameter<bool>("hbinfo", false);
   m_startTS = iConfig.getUntrackedParameter<int>("firstTS", 4);
@@ -239,67 +316,80 @@ AlCaHOCalibProducer::AlCaHOCalibProducer(const edm::ParameterSet& iConfig)
   if (m_endTS >9) m_endTS=9;
   m_magscale = iConfig.getUntrackedParameter<double>("m_scale", 4.0);
   m_sigma = iConfig.getUntrackedParameter<double>("sigma", 1.0);
+
   hoLabel_ = iConfig.getParameter<edm::InputTag>("hoInput");
   hbheLabel_ = iConfig.getParameter<edm::InputTag>("hbheInput");
-  theFile=0;
-//  produces<HOCalibVariableCollection>("HOCalibVariableCollection").setBranchAlias("HOCalibVariableCollection");
-  produces<HOCalibVariableCollection>("HOCalibVariableCollection"); 
+  hltLabel_ = iConfig.getParameter<edm::InputTag>("hltInput");
+  l1Label_ = iConfig.getParameter<edm::InputTag>("l1Input");
+  towerLabel_ = iConfig.getParameter<edm::InputTag>("towerInput");  
 
- //  produces<TrackCollection>("TrackCollection");
+  produces<HOCalibVariableCollection>("HOCalibVariableCollection").setBranchAlias("HOCalibVariableCollection");
+  //  produces<TrackCollection>("TrackCollection");
 
-   //now do what ever other initialization is needed
-  for (int i=0; i<netamx; i++) {
-    for (int j=0; j<nphimx; j++) {
-      for (int k=0; k<ndepthmx; k++) {
-	for (int l=0; l <ncapmx; l++) {
-	  pedestal[i][j][k][l] = 4.0; // 3.2; // 4.2;
-	  pedestalHB[i][j][k][l] = 4.0; //3.2; // 4.2;
-	}
-      }
-    }
-  }
+  
 
-  /*
-  int nphi, neta, ndepth;
-  ifstream file_db;
-  file_db.open(thePedestalFile.c_str());
-  while(!(file_db.eof())){
-    file_db >>neta>>nphi>>ndepth
-	    >>pedestal[(neta<0) ? netabin-1-neta : neta-1][nphi-1][ndepth-1][0]
-	    >>pedestal[(neta<0) ? netabin-1-neta : neta-1][nphi-1][ndepth-1][1]
-	    >>pedestal[(neta<0) ? netabin-1-neta : neta-1][nphi-1][ndepth-1][2]
-	    >>pedestal[(neta<0) ? netabin-1-neta : neta-1][nphi-1][ndepth-1][3];
-  }
-  */
+  edm::Service<TFileService> fs;
 
-  for (int i=0; i<10; i++) {ho_time[i] = hb_time[i] = 0.0;}
+  for (int i=0; i<nchnmx; i++) {ho_time[i] = hb_time[i] = 0.0;}
 
   char title[200];
-  if (m_hotime) {
-    theFile = new TFile(theRootFileName.c_str(), "RECREATE");
-    theFile->cd();
-    for (int j=0; j<netamx; j++) {
-      for (int i=0; i<nphimx; i++) {
-	int ieta = (j<15) ? j+1 : 14-j;
-	sprintf(title, "hotime_eta%i_phi%i", ieta, i+1);
-	hotime[j][i] = new TH1F(title, title, 10, -0.5, 9.5);
-	
-	sprintf(title, "hopedtime_eta%i_phi%i", ieta, i+1);
-	hopedtime[j][i] = new TH1F(title, title, 10, -0.5, 9.5);
-	
-	if (abs(ieta) <=15) { //novGlobal  && ((i >=16 && i<=21) || (i >=52 && i<=69))) {
-	  sprintf(title, "crossg_eta%i_phi%i", ieta, i+1);
+  if (m_hotime && m_digiInput) {
+    //    theFile = new TFile(theRootFileName.c_str(), "RECREATE");
+    //    theFile->cd();
 
-	  crossg[j][i] = new TH1F(title, title, 80, -5., 5.);
-	}
-
-      }
+    libhoped = fs->make<TH1F>("libhoped", "libhoped", ncidmx*netamx*nphimx, -0.5, ncidmx*netamx*nphimx-0.5);
+    
+    allhotime = fs->make<TH1F>("allhotime", "allhotime", nchnmx*netamx*nphimx, -0.5, nchnmx*netamx*nphimx-0.5);
+    
+    for (int ij=0; ij<=ntrgp; ij++) {
+       sprintf(title, "hotime_trgp_%i", ij+1);
+       hotime[ij] = fs->make<TH1F>(title, title, nchnmx*netamx*nphimx, -0.5, nchnmx*netamx*nphimx-0.5);
+       
+       sprintf(title, "hopeak_trgp_%i", ij+1);
+       hopeak[ij] = fs->make<TProfile>(title, title,netamx*nphimx, -0.5, netamx*nphimx-0.5);    
     }
-  }
 
+    horatio = fs->make<TProfile>("horatio", "horatio",netamx*nphimx, -0.5, netamx*nphimx-0.5);    
+
+    hopedtime = fs->make<TH1F>("hopedtime", "hopedtime", nchnmx*netamx*nphimx, -0.5, nchnmx*netamx*nphimx-0.5);
+    
+
+    Nallhotime = fs->make<TH1F>("Nallhotime", "Nallhotime", nchnmx*netamx*nphimx, -0.5, nchnmx*netamx*nphimx-0.5);
+    
+    hopedpr = fs->make<TProfile>("hopedpr", "hopedpr", nchnmx*netamx*nphimx, -0.5, nchnmx*netamx*nphimx-0.5);
+    
+    hopedrms = fs->make<TH1F>("hopedrms", "hopedrms", nchnmx*netamx*nphimx, -0.5, nchnmx*netamx*nphimx-0.5);
+    
+    hst_hopedrms = fs->make<TH1F>("hst_hopedrms", "hst_hopedrms", 100, 0.0, 0.1);
+
+
+    for (int ij=0; ij<=ntrgp; ij++) {
+      sprintf(title, "Nhotime_trgp_%i", ij+1);
+      Nhotime[ij] = fs->make<TH1F>(title, title, nchnmx*netamx*nphimx, -0.5, nchnmx*netamx*nphimx-0.5);
+    }
+    
+    Nhopedtime = fs->make<TH1F>("Nhopedtime", "Nhopedtime", nchnmx*netamx*nphimx, -0.5, nchnmx*netamx*nphimx-0.5);
+    
+    allhb1 = fs->make<TH1F>("allhb1", "allhb1", nchnmx*netahbmx*nphimx, -0.5, nchnmx*netahbmx*nphimx-0.5);
+    
+    allhb2 = fs->make<TH1F>("allhb2", "allhb2", nchnmx*netahb3mx*nphimx, -0.5, nchnmx*netahb3mx*nphimx-0.5); 
+    
+    allhb3 = fs->make<TH1F>("allhb3", "allhb3", nchnmx*netahb3mx*nphimx, -0.5, nchnmx*netahb3mx*nphimx-0.5); 
+    
+    Nallhb1 = fs->make<TH1F>("Nallhb1", "Nallhb1", nchnmx*netahbmx*nphimx, -0.5, nchnmx*netahbmx*nphimx-0.5);
+    
+    Nallhb2 = fs->make<TH1F>("Nallhb2", "Nallhb2", nchnmx*netahb3mx*nphimx, -0.5, nchnmx*netahb3mx*nphimx-0.5);
+    
+    Nallhb3 = fs->make<TH1F>("Nallhb3", "Nallhb3", nchnmx*netahb3mx*nphimx, -0.5, nchnmx*netahb3mx*nphimx-0.5);  
+    hb1pedpr = fs->make<TProfile>("hb1pedpr", "hb1pedpr", nchnmx*netahbmx*nphimx, -0.5, nchnmx*netahbmx*nphimx-0.5);
+    hb1pedrms = fs->make<TH1F>("hb1pedrms", "hb1pedrms", nchnmx*netahbmx*nphimx, -0.5, nchnmx*netahbmx*nphimx-0.5);
+    hst_hb1pedrms = fs->make<TH1F>("hst_hb1pedrms", "hst_hb1pedrms", 100, 0., 0.1);
+    
+  }
+    
   for (int i=0; i<5; i++) {
     sprintf(title, "ho_occupency (>%i #sigma)", i); 
-    ho_occupency[i] = new TH2F(title, title, netamx, -netamx/2, netamx/2, nphimx, 0.5, nphimx+0.5);
+    ho_occupency[i] = fs->make<TH1F>(title, title, netamx*nphimx, -0.5, netamx*nphimx-0.5); 
   }
   
 
@@ -314,17 +404,42 @@ AlCaHOCalibProducer::~AlCaHOCalibProducer()
 
   // Write the histos to file
 
-  if (m_hotime) {
-    theFile->cd();
-    for (int i=0;i<nphimx; i++) {
-      for (int j=0; j<netamx; j++) {
-	hotime[j][i]->Scale(10./max(1.,hotime[j][i]->GetEntries()));
-	hopedtime[j][i]->Scale(10./max(1.,hopedtime[j][i]->GetEntries()));
+  if (m_hotime && m_digiInput) {
+    //    theFile->cd();
+    
+    allhotime->Divide(Nallhotime);
+    for (int ij=0; ij<=ntrgp; ij++) {
+      hotime[ij]->Divide(Nhotime[ij]);
+    }
+
+    hopedtime->Divide(Nhopedtime);
+
+    libhoped->Scale(1./max(1,nRuns));
+
+    for (int i=0; i<nchnmx*netamx*nphimx; i++) {
+      float xx = hopedpr->GetBinError(i+1);
+      if (hopedpr->GetBinEntries(i+1) >0) {
+	hopedrms->Fill(i, xx);
+	hst_hopedrms->Fill(xx);
       }
     }
-    theFile->Write();
-    theFile->Close();
+    
+    allhb1->Divide(Nallhb1);
+    allhb2->Divide(Nallhb2);
+    allhb3->Divide(Nallhb3);
+    
+    for (int i=0; i<nchnmx*netahbmx*nphimx; i++) {
+      float xx = hb1pedpr->GetBinError(i+1);
+      if (hb1pedpr->GetBinEntries(i+1) >0) {
+	hb1pedrms->Fill(i, xx);
+	hst_hb1pedrms->Fill(xx);
+      }
+    }  
+    
   }
+  
+  //  theFile->Write();
+  //  theFile->Close();
 
 }
 
@@ -337,60 +452,212 @@ AlCaHOCalibProducer::~AlCaHOCalibProducer()
 void
 AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-//  cout<<" start to AlCaHOCalibProducer::produce "<<endl; 
 
   using namespace edm;
+  int irun = iEvent.id().run();
+  //31/03/08 move it to ::beginjob()
+  if (m_digiInput) {
+    if (irunold !=irun)  { 
+      iSetup.get<HcalDbRecord>().get(conditions_);
+      m_shape = (*conditions_).getHcalShape();
+    }
+  }
+
+  if (m_hotime && m_digiInput) {
+    if (irunold !=irun) {
+      nRuns++;
+      for (int i =-netabin+1; i<=netabin-1; i++) {
+	if (i==0) continue;
+	int tmpeta1 =  (i>0) ? i -1 : -i +14; 
+	if (tmpeta1 <0 || tmpeta1 >netamx) continue;
+	for (int j=0; j<nphimx; j++) {
+	  
+	  HcalDetId id(HcalOuter, i, j+1, 4);
+	  //	  conditions_->makeHcalCalibration(id,&calibped); //CMSSW_1_8_4
+	  calibped = conditions_->getHcalCalibrations(id);
+
+	  for (int k =0; k<ncidmx-1; k++) {
+	    pedestal[tmpeta1][j][k] = calibped.pedestal(k); // pedm->getValue(k);
+	    pedestal[tmpeta1][j][ncidmx-1] += (1./(ncidmx-1))*pedestal[tmpeta1][j][k];
+	  }
+
+	  for (int k =0; k<ncidmx; k++) {
+	    libhoped->Fill(nphimx*ncidmx*tmpeta1 + ncidmx*j + k, pedestal[tmpeta1][j][k]);
+	    //	    if (k==0) {cout <<"ij "<<nphimx*tmpeta1+j<<" "<<tmpeta1<<" "<<i<<" "<<j+1<<endl;}
+
+	  }
+	}
+      }
+    }
+  }
+
   Nevents++;
+  irunold = irun;
+
   //  int irun = iEvent.id().run();
   //  int ievt = iEvent.id().event();
-  //  cout << endl<<"--- AlCaHOCalibProducer: Event analysed #Run: " << irun << " #Event: " << ievt << endl;
-  //if (Nevents%500==1) cout <<"AlCaHOCalibProducer Processing event # "<<Nevents<<endl;
+  if (Nevents%500==1) 
+  cout <<"AlCaHOCalibProducer Processing event # "<<Nevents<<endl;
   std::auto_ptr<HOCalibVariableCollection> hostore (new HOCalibVariableCollection);
+
+  edm::Handle<HODigiCollection> ho;   
+  bool isHO = true;
   
+  edm::Handle<HBHEDigiCollection> hbhe; 
+  bool isHBHE = true;
+
+  if (m_digiInput) {
+    try {
+      //GMA      iEvent.getByType(ho);
+      iEvent.getByLabel(hoLabel_,ho);
+    } catch ( cms::Exception &iEvent ) { isHO = false; } 
+    
+    try {
+      //GMA      iEvent.getByType(hbhe); 
+      iEvent.getByLabel(hbheLabel_,hbhe);
+    } catch ( cms::Exception &iEvent ) { isHBHE = false; }  
+  }
+
+  if (m_hotime && m_digiInput) {
+    if (isHO && (*ho).size()>0) {
+      for (HODigiCollection::const_iterator j=(*ho).begin(); j!=(*ho).end(); j++){
+	const HODataFrame digi = (const HODataFrame)(*j);
+	HcalDetId id =digi.id();
+	int tmpeta= id.ieta();
+	int tmpphi= id.iphi();
+	m_coder = (*conditions_).getHcalCoder(id);
+
+	float tmpdata[nchnmx];
+	int tmpeta1 = (tmpeta>0) ? tmpeta -1 : -tmpeta +14; 
+	for (int i=0; i<digi.size() && i<nchnmx; i++) {
+	  tmpdata[i] = m_coder->charge(*m_shape,digi.sample(i).adc(),digi.sample(i).capid());
+	  allhotime->Fill(nphimx*nchnmx*tmpeta1 + nchnmx*(tmpphi-1) + i, tmpdata[i]);
+	  Nallhotime->Fill(nphimx*nchnmx*tmpeta1 + nchnmx*(tmpphi-1) + i, 1.);
+	}
+      }
+    }
+    
+    if (isHBHE && (*hbhe).size()>0) {
+      for (HBHEDigiCollection::const_iterator j=(*hbhe).begin(); j!=(*hbhe).end(); j++){
+	const HBHEDataFrame digi = (const HBHEDataFrame)(*j);
+	HcalDetId id =digi.id();
+	int tmpeta= id.ieta();
+	int tmpphi= id.iphi();
+	int tmpdepth =id.depth();
+	m_coder = (*conditions_).getHcalCoder(id);
+
+	int tmpeta1 =  (tmpeta>0) ? tmpeta -15 : -tmpeta + 1; 
+	if (tmpdepth==1) tmpeta1 =  (tmpeta>0) ? tmpeta -1 : -tmpeta +29;  
+	
+	for (int i=0; i<digi.size() && i<nchnmx; i++) {
+	  float signal = m_coder->charge(*m_shape,digi.sample(i).adc(),digi.sample(i).capid());
+
+	  if (tmpdepth==1) { 
+	    allhb1->Fill(nphimx*nchnmx*tmpeta1 + nchnmx*(tmpphi-1) + i, signal);
+	    Nallhb1->Fill(nphimx*nchnmx*tmpeta1 + nchnmx*(tmpphi-1) + i, 1);
+	    hb1pedpr->Fill(nphimx*nchnmx*tmpeta1 + nchnmx*(tmpphi-1) + i, signal);}
+
+	  if (tmpdepth==2) { 
+	    allhb2->Fill(nphimx*nchnmx*tmpeta1 + nchnmx*(tmpphi-1) + i, signal);
+	    Nallhb2->Fill(nphimx*nchnmx*tmpeta1 + nchnmx*(tmpphi-1) + i, 1);}
+	  
+	  if (tmpdepth==3) { 
+	    allhb3->Fill(nphimx*nchnmx*tmpeta1 + nchnmx*(tmpphi-1) + i, signal);
+	    Nallhb3->Fill(nphimx*nchnmx*tmpeta1 + nchnmx*(tmpphi-1) + i, 1);}
+	}
+      }
+    }
+  }
+  //  cout <<"3ng event # "<<Nevents<<endl;
+
   double pival = acos(-1.);
 
   Handle<reco::TrackCollection> cosmicmuon;
   bool isMuon = true;
-//  try {
-    //GM09/10/07 for CSA07 sample 
+  try {
     iEvent.getByLabel(muonTags_, cosmicmuon);
-   if(!cosmicmuon.isValid()){
-     LogDebug("") << "AlCaHOProducer: Error! can't get muontag product!" << std::endl;
-     return ;
-   }
+    //    iEvent.getByLabel("ALCARECOHcalCalZMuMu","StandAlone", cosmicmuon);
 
-//  } catch ( cms::Exception &iEvent ) { isMuon = false; } 
+  } catch ( cms::Exception &iEvent ) { isMuon = false; } 
+    //cout <<"ismuon "<<(int)isMuon<<" "<<cosmicmuon->size()<<endl;
 
   if (isMuon && cosmicmuon->size()>0) { 
+    
+   int l1trg = 0;
+   int hlttr = 0;
+   int ntrgpas[ntrgp]={0,0,0,0,0,0,0,0,0,0};
+   
+   //L1 trigger
+   Handle<L1GlobalTriggerReadoutRecord> L1GTRR;
+   bool isL1Trig=true;
+   try{   
+     iEvent.getByLabel(l1Label_,L1GTRR);  //gtDigis
+   } catch (cms::Exception &iEvent) { isL1Trig=false;}
+   
+   if (isL1Trig && L1GTRR.isValid()) {
+     const unsigned int n(L1GTRR->decisionWord().size());
+     const bool accept(L1GTRR->decision());
+     if (accept) {
+       //       for (unsigned int i=0; i!=n && i<32; ++i) {
+       for (unsigned int i=0; i!=n ; ++i) {
+	 int il1trg = (L1GTRR->decisionWord()[i]) ? 1 : 0;
+	 //	 cout <<"il1trg "<<i<<" "<<il1trg<<" "<<L1GTRR->decisionWord()[i]<<endl;
+	 if (il1trg>0 && i<32) l1trg +=int(pow(2., double(i%32))*il1trg);
+       }
+     }
+     //      tmpHOCalib.trig1 = l1trg;  
+   }// else { return;}
 
-//   cout<<" Start to look over muons "<<endl;
+    //HLT 
 
-  for(reco::TrackCollection::const_iterator ncosm = cosmicmuon->begin();
+   Handle<edm::TriggerResults> trigRes;
+   bool isTrig=true;
+
+   try{
+     //GMA     iEvent.getByType(trigRes);
+     iEvent.getByLabel(hltLabel_, trigRes);; //"TriggerResults" //GMA	iEvent.getByType(trigRes);
+   } catch (cms::Exception &iEvent) { isTrig=false;}
+   if (isTrig) {
+     unsigned int size = trigRes->size();
+     edm::TriggerNames triggerNames(*trigRes);
+     
+     // loop over all paths, get trigger decision
+     for(unsigned i = 0; i != size && i<32; ++i) {
+       std::string name = triggerNames.triggerName(i);
+       fired[name] = trigRes->accept(i);
+       int ihlt =  trigRes->accept(i);
+       if (ihlt >0 && i < (int)ntrgp) { ntrgpas[i] = 1;}
+       
+       //       cout <<"name "<<i<<" "<<name<<" "<<fired[name]<<" "<<ihlt<<" "<<size<<endl;
+       if (i<32 && ihlt>0) hlttr += int(pow(2., double(i%32))*ihlt);
+     }
+     //    tmpHOCalib.trig2 = hlttr;
+   }
+
+   //   cout <<"muon->size() "<<Nevents<<" "<<(int)isMuon <<" "<<cosmicmuon->size()<<" "<<l1trg<<" "<<hlttr<<endl;
+    
+   for(reco::TrackCollection::const_iterator ncosm = cosmicmuon->begin();
       ncosm != cosmicmuon->end();  ++ncosm) {
     
     HOCalibVariables tmpHOCalib;
 
-    tmpHOCalib.trig1 = 0;
-    tmpHOCalib.trig2 = 0;    
-    
+    tmpHOCalib.trig1 = l1trg;
+    tmpHOCalib.trig2 = hlttr;    
 
     int charge = ncosm->charge();  
     
     double innerr = (*ncosm).innerPosition().Perp2();
     double outerr = (*ncosm).outerPosition().Perp2();
     int iiner = (innerr <outerr) ? 1 : 0;
-    //    cout <<"inner outer "<<innerr<<" "<<outerr<<endl;
-    //    if (innery * outery <0) {
-    //      cout <<"Not in same side "<< innery <<" "<<outery<<endl;
-    //      continue;
-    //    } 
+
+    //---------------------------------------------------
     //             in_to_out  Dir         in_to_out  Dir
     //   StandAlone ^         ^     Cosmic    ^    |
     //              |         |               |    v
     //---------------------------------------------------Y=0
     //   StandAlone |         |     Cosmic    ^    |
     //              v         v               |    v
-    //--------------------------------------
+    //----------------------------------------------------
 
     double posx, posy, posz;
     double momx, momy, momz;
@@ -414,69 +681,81 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       momz = (*ncosm).outerMomentum().Z();
     }
 
+
+    //    cout <<"momx "<< posx<<" "<<posy<<" "<<posz<<" "<<momx<<" "<<momy<<" "<<momz<<endl;
     PositionType trkpos(posx, posy, posz);
 
     Hep3Vector tmpmuon3v(posx, posy, posz);
     Hep3Vector tmpmuondir(momx, momy, momz);
     
     bool samedir = (tmpmuon3v.dot(tmpmuondir) >0) ? true : false;
-
+    for (int i=0; i<3; i++) {tmpHOCalib.caloen[i] = 0.0;}
     int inearbymuon = 0;
+    int inearbymuon2 = 0;
     for(reco::TrackCollection::const_iterator ncosmcor = cosmicmuon->begin();
 	ncosmcor != cosmicmuon->end();  ++ncosmcor) {
       if (ncosmcor==ncosm) continue;
+      
       Hep3Vector tmpmuon3vcor;
-    if (iiner==1) {
+      Hep3Vector tmpmom3v;
+      if (iiner==1) {
 	tmpmuon3vcor = Hep3Vector((*ncosmcor).innerPosition().X(),(*ncosmcor).innerPosition().Y(),(*ncosmcor).innerPosition().Z());
+	tmpmom3v = Hep3Vector((*ncosmcor).innerMomentum().X(),(*ncosmcor).innerMomentum().Y(),(*ncosmcor).innerMomentum().Z());
       } else {
 	tmpmuon3vcor = Hep3Vector((*ncosmcor).outerPosition().X(),(*ncosmcor).outerPosition().Y(),(*ncosmcor).outerPosition().Z());
+	tmpmom3v = Hep3Vector((*ncosmcor).outerMomentum().X(),(*ncosmcor).outerMomentum().Y(),(*ncosmcor).outerMomentum().Z());	
+	
       }
+      //      if (tmpmom3v.mag()<1.0) continue;
+      if (tmpmom3v.mag()<0.2 || (*ncosmcor).ndof()<5) continue;
 
-      if (tmpmuon3v.angle(tmpmuon3vcor) < 35*pival/180.) {inearbymuon=1; break;}
+      double angle = tmpmuon3v.angle(tmpmuon3vcor);
+      if (angle < 7.5*pival/180.) {inearbymuon=1;} //  break;}
+      if (angle < 35.0*pival/180.) {inearbymuon2=1;}
+      if (muonTags_.label() =="cosmicMuons") {
+	if (angle <7.5*pival/180.) { tmpHOCalib.caloen[0] +=1.;}
+	if (angle <15.0*pival/180.) { tmpHOCalib.caloen[1] +=1.;}
+	if (angle <35.0*pival/180.) { tmpHOCalib.caloen[2] +=1.;}
+      }
     }
+    
+    //    cout <<"caloen "<<tmpHOCalib.caloen[0]<<" "<<tmpHOCalib.caloen[1]<<" "<<tmpHOCalib.caloen[2]<<endl;
 
     localxhor0 = localyhor0 = 20000;  //GM for 22OCT07 data
     
-    //22OCT07    if (inearbymuon==1) continue;  //Reject muons, where we have another track within 35 degree
-    for (int i=0; i<3; i++) {tmpHOCalib.caloen[i] = 0.0;}
     if (muonTags_.label() =="standAloneMuons") {
 
       Handle<CaloTowerCollection> calotower;
       bool isCaloTower = true;
 
-//      try {
-	iEvent.getByLabel("towerMaker",calotower);
-   if(!calotower.isValid()){
-     LogDebug("") << "AlCaHOProducer: Error! can't get calotower product!" << std::endl;
-     return ;
-   }
-
-//      } catch ( cms::Exception &iEvent ) { isCaloTower = false; }
- 
+      
+      try {
+	//GMA	iEvent.getByLabel("towerMaker",calotower);
+	iEvent.getByLabel(towerLabel_, calotower);
+      } catch ( cms::Exception &iEvent ) { isCaloTower = false; } 
       if (isCaloTower) {
 	for (CaloTowerCollection::const_iterator calt = calotower->begin();
 	     calt !=calotower->end(); calt++) {
+	  //2_0_10	  const math::RhoEtaPhiVector towermom = (*calt).momentum();
 	  const math::XYZVector towermom = (*calt).momentum();
 	  double ith = towermom.theta();
 	  double iph = towermom.phi();
+
 	  Hep3Vector calo3v(sin(ith)*cos(iph), sin(ith)*sin(iph), cos(ith));
 	    
 	  double angle = tmpmuon3v.angle(calo3v);
 
-	  if (angle < 15*pival/180.) {tmpHOCalib.caloen[0] += calt->emEnergy()+calt->hadEnergy();}
-	  if (angle < 25*pival/180.) {tmpHOCalib.caloen[1] += calt->emEnergy()+calt->hadEnergy();}
+	  if (angle < 7.5*pival/180.) {tmpHOCalib.caloen[0] += calt->emEnergy()+calt->hadEnergy();}
+	  if (angle < 15*pival/180.) {tmpHOCalib.caloen[1] += calt->emEnergy()+calt->hadEnergy();}
 	  if (angle < 35*pival/180.) {tmpHOCalib.caloen[2] += calt->emEnergy()+calt->hadEnergy();}
 	}
-      } else { tmpHOCalib.caloen[0] = tmpHOCalib.caloen[1] = tmpHOCalib.caloen[2] = -1000; }
+      } 
+      
     }
-
-
-    
-    if (tmpHOCalib.caloen[0] >6.0) continue;
+    if (tmpHOCalib.caloen[0] >10.0) continue;
     
     GlobalPoint glbpt(posx, posy, posz);
 
-    //    double trkpt = sqrt(momx*momx + momy*momy);
     double mom = sqrt(momx*momx + momy*momy +momz*momz);
 
     momx /= mom;
@@ -484,6 +763,9 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     momz /= mom;
       
     DirectionType trkdir(momx, momy, momz);
+
+    tmpHOCalib.trkdr = (*ncosm).d0();
+    tmpHOCalib.trkdz = (*ncosm).dz();
 
     tmpHOCalib.nmuon = cosmicmuon->size();
     tmpHOCalib.trkvx = glbpt.x();
@@ -493,8 +775,8 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     tmpHOCalib.trkth = trkdir.theta();
     tmpHOCalib.trkph = trkdir.phi();
 
-    tmpHOCalib.nrecht = (inearbymuon ==0) ? (*ncosm).recHitsSize() : -(*ncosm).recHitsSize(); //22OCT07
-    tmpHOCalib.ndof  = (int)(*ncosm).ndof();
+    tmpHOCalib.nrecht = (inearbymuon ==0) ? (int)(*ncosm).recHitsSize() : -(int)(*ncosm).recHitsSize(); //22OCT07
+    tmpHOCalib.ndof  = (inearbymuon2 ==0) ? (int)(*ncosm).ndof() : -(int)(*ncosm).ndof();
     tmpHOCalib.chisq = (*ncosm).normalizedChi2(); // max(1.,tmpHOCalib.ndof);
     tmpHOCalib.therr = 0.;
     tmpHOCalib.pherr = 0.;
@@ -538,11 +820,15 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     FreeTrajectoryState freetrajectorystate_ = getFreeTrajectoryState(*ncosm,&(*theMagField), iiner, samedir);
 
     Surface::RotationType rot(xLocal, yLocal, zLocal);
+
+    
+    //    cout <<"xlocal "<<xLocal<<" "<< yLocal<<" "<< zLocal<<endl;
+
     int ipath = 0;
-    for (int i=0; i<2; i++) { //propagate track in two HO layers
+    for (int ik=0; ik<2; ik++) { //propagate track in two HO layers
 
       double radial = 405.757; // sqrt(405.8**2+33.06**2) if rotation too, not
-      if (i==0) radial = 394.5;
+      if (ik==0) radial = 394.5;
       Surface::PositionType pos(radial*cos(phipos), radial*sin(phipos), 0.);
       PlaneBuilder::ReturnType aPlane = PlaneBuilder().plane(pos,rot);
 
@@ -550,7 +836,7 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       PositionType hotrkpos(0., 0., 0.);
       DirectionType hotrkdir(0., 0., 0.);
-
+      
       
       //      std::pair<bool,double>  pathlength = helixx.pathLength(*aPlane);
       //      if (pathlength.first) {
@@ -559,17 +845,20 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       //      	hotrkpos = helixx.position(pathlength.second);
       //      	hotrkdir = helixx.direction(pathlength.second);
       //      	LocalVector lclvt0 = (*aPlane).toLocal(GlobalVector(hotrkpos.x(),hotrkpos.y(),hotrkpos.z()));
-      
+
+      //      cout <<"xlocal3 "<<ik<<" "<<xLocal<<" "<< yLocal<<" "<< zLocal<<endl;
       SteppingHelixStateInfo steppingHelixstateinfo_ = stepProp->propagate(freetrajectorystate_, (*aPlane2));
+      
+      //      cout <<"xlocal4 "<<ik<<" "<<xLocal<<" "<< yLocal<<" "<< zLocal<<endl;
       if (steppingHelixstateinfo_.isValid()) {
-	if (i==1) ipath = 1;  //Only look for tracks which as hits in layer 1
+	if (ik==1) ipath = 1;  //Only look for tracks which as hits in layer 1
 
 	GlobalVector hotrkpos2(steppingHelixstateinfo_.position().x(), steppingHelixstateinfo_.position().y(), steppingHelixstateinfo_.position().z());
 	Hep3Vector hotrkdir2(steppingHelixstateinfo_.momentum().x(), steppingHelixstateinfo_.momentum().y(),steppingHelixstateinfo_.momentum().z());
 	
 	LocalVector lclvt0 = (*aPlane).toLocal(hotrkpos2);
 
-	switch (i) 
+	switch (ik) 
 	  {
 	  case 0 : 
 	    xhor0 = lclvt0.x();
@@ -586,6 +875,7 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       }
     }
 
+    //    cout <<"ipath "<<ipath<<" "<<xhor0<<" "<<yhor0<<" "<<xhor1<<" "<<yhor1<<endl;
     if (ipath) { //If muon crossed HO laeyrs
 
       int ietaho = 50;
@@ -597,8 +887,12 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       tmpHOCalib.hocro = -100;
       
       int isect = 0;
+      
+
       findHOEtaPhi(iphisect, ietaho, iphiho);
 
+      
+      //      cout <<"etaho "<<iphisect<<" "<<ietaho<<" "<<iphiho<<" "<<iring<<endl;
       if (ietaho !=0 && iphiho !=0 && abs(iring)<=2) { //Muon passed through a tower
 	isect = 100*abs(ietaho+30)+abs(iphiho);
 	if (abs(ietaho) >=netabin || iphiho<0) isect *=-1; //Not extrapolated to any tower
@@ -610,11 +904,8 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	tmpHOCalib.hody = localyhor1;      
 	
 	if (iring==0) {
-	  //	  tmpHOCalib.hocorsig[16] = localxhor0;  //22OCT07 put those in 8 & 9
-	  //	  tmpHOCalib.hocorsig[17] = localyhor0;
 	  tmpHOCalib.hocorsig[8] = localxhor0;
 	  tmpHOCalib.hocorsig[9] = localyhor0;
-
 	}
 	
 	int etamn=-4;
@@ -637,47 +928,27 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	if (phimn <1) phimn += nphimx;
 	if (phimx >72) phimx -= nphimx;
 
-	if (m_digiInput) { 
-	  //	  //	  edm::ESHandle<HcalDbService> conditions;  //Use database for pedestal etc
-	  //	  //	  iSetup.get<HcalDbRecord>().get(conditions);
-
-	  //	  for each id
-	  //	  HcalCalibrations calibrations;
-	  //	  //	  //	  conditions->makeHcalCalibration(cell, &calibrations);
-	  //
-	  //	  calibrations.pedestal(capid)
-	  //      calibrations.gaqin(capid)
-	  //	  // const HcalPedestalWidth* pedw = (*conditions_).getPedestalWidth(id);
-	  //	  // const HcalPedestal* pedm = (*conditions_).getPedestal(id);
-
-	}
-
 	int sigstr = m_startTS; // 5;
 	int sigend = m_endTS; // 8;
+	
+	if (iphiho <=nphimx/2) { //GMA310508
+	  sigstr -=1; //GMA300608
+	  sigend -=1;
+	}
 
 	if (m_hbinfo) {
 	  for (int i=0; i<9; i++) {tmpHOCalib.hbhesig[i]=-100.0;}
-        // cout<<" Start to take HBHE info "<<endl;
+
 	  if (m_digiInput) {
-	    edm::Handle<HBHEDigiCollection> hbhe; iEvent.getByLabel(hbheLabel_,hbhe);
-
-   if(!hbhe.isValid()){
-     LogDebug("") << "AlCaHOProducer: Error! can't get hbhe product!" << std::endl;
-     return ;
-   }
-
-	    
-//	    try{
-	      if(!(*hbhe).size()) throw (int)(*hbhe).size();
-	      
+	    if (isHBHE && (*hbhe).size() >0) {
 	      for (HBHEDigiCollection::const_iterator j=(*hbhe).begin(); j!=(*hbhe).end(); j++){
 		const HBHEDataFrame digi = (const HBHEDataFrame)(*j);
 		
 		HcalDetId id =digi.id();
 		int tmpeta= id.ieta();
 		int tmpphi= id.iphi();
-		int tmpdepth= id.depth();
-		//		const HcalPedestal* pedm = (*conditions_).getPedestal(id);
+		m_coder = (*conditions_).getHcalCoder(id);
+		calibped = conditions_->getHcalCalibrations(id);
 
 		int deta = tmpeta-ietaho;
 		if (tmpeta==-1 && ietaho== 1) deta = -1;
@@ -692,52 +963,43 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		
 		if (ipass2 ==0 ) continue;
 		
-		float tmpdata[10];
-		for (int i=0; i<digi.size() && i<10; i++) {
-		  tmpdata[i] = digi.sample(i).nominal_fC();
+		float tmpdata[nchnmx];
+		for (int i=0; i<digi.size() && i<nchnmx; i++) {
+		  tmpdata[i] = m_coder->charge(*m_shape,digi.sample(i).adc(),digi.sample(i).capid());
 		  if (deta==0 && dphi==0) hb_time[i] +=tmpdata[i];
 		}
 		
 		float signal = 0;
-		for (int i=m_startTS; i<digi.size() && i<=m_endTS; i++) {
-		  signal += tmpdata[i]; 
-		  if (tmpeta !=0 && abs(tmpeta) <=netabin && tmpphi<=nphimx && tmpphi>0 && tmpdepth>0 && tmpdepth<=ndepthmx) { 
-		    //22OCT07		    signal -= 0.8*pedestalHB[(tmpeta<0) ? netabin-1-tmpeta:tmpeta-1][tmpphi-1][tmpdepth-1][digi.sample(i).capid()];
-		    signal -= 0.8*pedestal[(tmpeta<0) ? netabin-1-tmpeta:tmpeta-1][tmpphi-1][tmpdepth-1][digi.sample(i).capid()];//pedm->getValue(digi.sample(i).capid());
-		  } else {
-		    signal =-100;
-		  }
+		//		for (int i=m_startTS; i<digi.size() && i<=m_endTS; i++) { //GMA310508
+		for (int i=1; i<digi.size() && i<=8; i++) {
+		  signal += tmpdata[i] - calibped.pedestal(digi.sample(i).capid());; 
 		}
-
-
 
 		if (ipass2 == 1) {
 		  if (3*(deta+1)+dphi+1<9)  tmpHOCalib.hbhesig[3*(deta+1)+dphi+1] = signal;
 		}
 	      }
-//	    }
-//	    catch (int i ) {
-//	      //    m_logFile << "Event with " << i<<" HBHE Digis passed." << std::endl;
-//	    }
- 
+	    }
+	    
 	  } else {
 	    
-	    edm::Handle<HBHERecHitCollection> hbhe; iEvent.getByLabel(hbheLabel_,hbhe);
-  if(!hbhe.isValid()){
-     LogDebug("") << "AlCaHOProducer: Error! can't get hbhe product!" << std::endl;
-     return ;
-   }
- 
-	  //  try{
-	      if(!(*hbhe).size()) throw (int)(*hbhe).size();
+	    edm::Handle<HBHERecHitCollection> hbheht;// iEvent.getByType(hbheht);
+	    bool isHBHEht = true;
+	    try {
+	      //GMA	      iEvent.getByType(hbheht);   
+	      iEvent.getByLabel(hbheLabel_,hbheht);
+	    } catch ( cms::Exception &iEvent ) { isHBHEht = false; }  
+	    
+	    if (isHBHEht && (*hbheht).size()>0) {
+	      if(!(*hbheht).size()) throw (int)(*hbheht).size();
 	      
-	      for (HBHERecHitCollection::const_iterator j=(*hbhe).begin(); j!=(*hbhe).end(); j++){
-		const HBHERecHit hbherec = (const HBHERecHit)(*j);
+	      for (HBHERecHitCollection::const_iterator j=(*hbheht).begin(); j!=(*hbheht).end(); j++){
+		const HBHERecHit hbhehtrec = (const HBHERecHit)(*j);
 		
-		HcalDetId id =hbherec.id();
+		HcalDetId id =hbhehtrec.id();
 		int tmpeta= id.ieta();
 		int tmpphi= id.iphi();
-		
+
 		int deta = tmpeta-ietaho;
 		if (tmpeta==-1 && ietaho== 1) deta = -1;
 		if (tmpeta== 1 && ietaho==-1) deta =  1;
@@ -750,51 +1012,32 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		int ipass2 = (abs(deta) <=1 && abs(dphi)<=1) ? 1 : 0; //NEED correction in full CMS detector
 		if ( ipass2 ==0 ) continue;
 		
-		float signal = hbherec.energy();
+		float signal = hbhehtrec.energy();
 		
 		if (3*(deta+1)+dphi+1<9)  tmpHOCalib.hbhesig[3*(deta+1)+dphi+1] = signal;
 	      }
-//	    }
-	   // catch (int i ) {
-	      //    m_logFile << "Event with " << i<<" HBHE Rechit passed." << std::endl;
-	   // }  
-
+	    }
+	  
 	  } //else m_digilevel
 
 	} //m_hbinfo #endif
 
-       // cout<<" Start HO info "<<endl;
 
 	if (m_digiInput) {
-        edm::Handle<HODigiCollection> ho;     iEvent.getByLabel(hoLabel_,ho);
-   if(!ho.isValid()){
-     LogDebug("") << "AlCaHOProducer: Error! can't get hodigi product!" << std::endl;
-     return ;
-   }
+	  if (isHO && (*ho).size()>0) {
 
-//	try{
-	  if(!(*ho).size()) throw (int)(*ho).size();
-	  
+	    int isFilled[netamx*nphimx]; 
+	    for (int j=0; j<netamx*nphimx; j++) {isFilled[j]=0;}
+
 	  for (HODigiCollection::const_iterator j=(*ho).begin(); j!=(*ho).end(); j++){
 	  const HODataFrame digi = (const HODataFrame)(*j);
 	    
 	    HcalDetId id =digi.id();
 
-	    //	    //	    const HcalPedestalWidth* pedw = (*conditions_).getPedestalWidth(id);
-	    //	    const HcalPedestal* pedm = (*conditions_).getPedestal(id);
-
 	    int tmpeta= id.ieta();
 	    int tmpphi= id.iphi();
-	    int tmpdepth =id.depth();
-
-	    //	    if (pedm && pedw) {
-	    //	      for (int i=0; i<4; i++) {
-	    //		cout <<"tmpeta "<< tmpeta<<" "<<tmpphi<<" "<<tmpdepth<<" "<<i<<" "<<pedw->getWidth(i)<<" "<<pedw->getSigma(i, (i==3) ? 0 : i+1)<<" "<<pedm->getValue(i)<<endl;
-	    //	      }
-	    //	    } else {
-	    //	      cout <<"==========tmpeta "<< tmpeta<<" "<<tmpphi<<" "<<tmpdepth<<endl; 
-	    //	    }
-
+	    m_coder = (*conditions_).getHcalCoder(id);
+	    
 	    int ipass1 =0;
 	    if (tmpeta >=etamn && tmpeta <=etamx) {
 	      if (phimn < phimx) {
@@ -816,36 +1059,77 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 	    int ipass2 = (abs(deta) <=1 && abs(dphi)<=1) ? 1 : 0;
 	    
-	    //	    if (ipass1 ==0 && ipass2 ==0 ) continue;
-
-	    //	    //	    m_coder = (*conditions).getHcalCoder(digi.id());
-	    
 	    int tmpeta1 = (tmpeta>0) ? tmpeta -1 : -tmpeta +14; 
 
-	    float tmpdata[10]={0,0,0,0,0,0,0,0,0,0};
-	    for (int i=0; i<digi.size() && i<10; i++) {
-	      tmpdata[i] = digi.sample(i).nominal_fC();
+	    float tmpdata[nchnmx]={0,0,0,0,0,0,0,0,0,0};
+	    float sigvall[nsigpk]={0,0,0,0,0,0,0};
+	    
+
+	    for (int i=0; i<digi.size() && i<nchnmx; i++) {
+	      
+	      tmpdata[i] = m_coder->charge(*m_shape,digi.sample(i).adc(),digi.sample(i).capid());
 	      if (deta==0 && dphi==0) { 
 		ho_time[i] +=tmpdata[i];
-		if (m_hotime) { hotime[tmpeta1][tmpphi-1]->Fill(i, tmpdata[i]);}
+		if (m_hotime) { 
+		  //calculate signals in 4 time slices, 0-3,.. 6-9
+		  if (i>=7-nsigpk) {
+		    for (int ncap=0; ncap<nsigpk; ncap++) {
+		      if (i-ncap >= nstrbn && i-ncap <= nstrbn+3) { 
+			sigvall[ncap] +=tmpdata[i];
+		      }
+		    }
+		  }
+		  if (i==digi.size()-1) {
+		    float mxled=-1;
+		    int imxled = 0;
+		    for (int ij=0; ij<nsigpk; ij++) {
+		      if (sigvall[ij] > mxled) {mxled = sigvall[ij]; imxled=ij;}
+		    }
+
+		    double pedx = 0.0;
+		    for (int ij=0; ij<4; ij++) {
+		      pedx +=pedestal[tmpeta1][tmpphi-1][ij];
+		    }
+		    if (mxled-pedx >2 && mxled-pedx <20 ) {
+		      hopeak[ntrgp]->Fill(nphimx*tmpeta1 + tmpphi-1, imxled+nstrbn);
+		      for (int jk=0; jk<ntrgp; jk++) {
+			if (ntrgpas[jk]>0) {
+			  hopeak[jk]->Fill(nphimx*tmpeta1 + tmpphi-1, imxled+nstrbn);
+			}
+		      }
+		      if (tmpdata[5]+tmpdata[6] >1) {
+			horatio->Fill(nphimx*tmpeta1 + tmpphi-1, (tmpdata[5]-tmpdata[6])/(tmpdata[5]+tmpdata[6]));
+		      }
+		      for (int ij=0; ij<digi.size() && ij<nchnmx; ij++) {
+			
+			hotime[ntrgp]->Fill(nphimx*nchnmx*tmpeta1 + nchnmx*(tmpphi-1) + ij, tmpdata[ij]);
+			Nhotime[ntrgp]->Fill(nphimx*nchnmx*tmpeta1 + nchnmx*(tmpphi-1) + ij, 1.);
+			
+			for (int jk=0; jk<ntrgp; jk++) {
+			  if (ntrgpas[jk]>0) {
+			    hotime[jk]->Fill(nphimx*nchnmx*tmpeta1 + nchnmx*(tmpphi-1) + ij, tmpdata[ij]);
+			    Nhotime[jk]->Fill(nphimx*nchnmx*tmpeta1 + nchnmx*(tmpphi-1) + ij, 1.);
+			  }
+			}
+		      }
+		    }
+		  }
+		}
 	      }
 	    }
 	    
-	    
-	    if (abs(tmpeta) <=15) {  //NovGlobal run
+	    if (abs(tmpeta) <=15 && deta==0 && dphi ==0) { 
 	      float signal = 0;
 	      
-	      //	      for (int i =0; i<4; i++) {
 	      int icnt = 0;
-
-	      for (int i =0; i<10 && i< digi.size(); i++) {
+	      
+	      for (int i =0; i<nchnmx && i< digi.size(); i++) {
 		if (i >=sigstr && i<=sigend) continue;
-		signal +=tmpdata[i] -0.8*pedestal[(tmpeta<0)?netabin-1-tmpeta:tmpeta-1][tmpphi-1][tmpdepth-1][digi.sample(i).capid()];// -pedm->getValue(digi.sample(i).capid())
+		signal += tmpdata[i] - pedestal[tmpeta1][tmpphi-1][digi.sample(i).capid()];
 		if (++icnt >=4) break;
 	      }
-
-	      if (m_hotime) crossg[tmpeta1][tmpphi-1]->Fill(signal);
-	      if (deta==0 && dphi ==0) tmpHOCalib.hocro = signal; //22OCT07
+	      
+	      tmpHOCalib.hocro = signal;
 	    }
 
 
@@ -854,9 +1138,14 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		if (abs(ietaho) <=netabin && iphiho >0) {
 		  if ((iphiho >=1 && iphiho<=nphimx/2 && tmpphi >=1 && tmpphi <=nphimx/2) ||
 		      (iphiho >nphimx/2 && iphiho<=nphimx && tmpphi >nphimx/2 && tmpphi <=nphimx)) {
-		    for (int i=0; i<digi.size() && i<10; i++) {
-		      hopedtime[tmpeta1][tmpphi-1]->Fill(i, tmpdata[i]);
-		    }
+		    if (isFilled[nphimx*tmpeta1+tmpphi-1]==0) {
+		      isFilled[nphimx*tmpeta1+tmpphi-1]=1;
+		      for (int i=0; i<digi.size() && i<nchnmx; i++) {
+			hopedtime->Fill(nphimx*nchnmx*tmpeta1 + nchnmx*(tmpphi-1) + i, tmpdata[i]);
+			Nhopedtime->Fill(nphimx*nchnmx*tmpeta1 + nchnmx*(tmpphi-1) + i, 1.); 
+			hopedpr->Fill(nphimx*nchnmx*tmpeta1 + nchnmx*(tmpphi-1) + i, tmpdata[i]);
+		      }
+		    } //isFilled
 		  }
 		}
 	      }
@@ -866,19 +1155,14 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 	    float signal = 0;
 	    for (int i=sigstr; i<digi.size() && i<=sigend; i++) {
-	      signal += tmpdata[i];
-	      if (tmpeta !=0 && abs(tmpeta) <=netabin && tmpphi<=nphimx && tmpphi>0 && tmpdepth>0 && tmpdepth<=ndepthmx) { 
-		signal -= 0.8*pedestal[(tmpeta<0)?netabin-1-tmpeta:tmpeta-1][tmpphi-1][tmpdepth-1][digi.sample(i).capid()]; //22OCT07pedm->getValue(digi.sample(i).capid())
-	      } else {
-		signal =-100;
-	      }
+	      signal += tmpdata[i] - pedestal[tmpeta1][tmpphi-1][digi.sample(i).capid()];
 	    }
 	    if (signal <-100 || signal >100000) signal = -100;
 	    
 	    if (signal >-100) {
 	      for (int i=0; i<5; i++) {
 		if (signal >i*m_sigma) {
-		  ho_occupency[i]->Fill(tmpeta, tmpphi);
+		  ho_occupency[i]->Fill(nphimx*tmpeta1+tmpphi-1);
 		}
 	      }
 	    }
@@ -897,16 +1181,21 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		  ilog = 3*(etamx-tmpeta)+tmpdph; //Again CMS correction
 		}
 	      }
-	      if (ilog>-1 && ilog<18) { // if (ilog>-1 && ((ilog<16) || (ilog<18 && iring !=0)) ) {  //22OCT07
+	      if (ilog>-1 && ilog<18) { 
 		tmpHOCalib.hocorsig[ilog] = signal;
 	      }
 	    }	      
 	    
 	    if (ipass2 ==1) {
-	      
 	      if (3*(deta+1)+dphi+1<9) tmpHOCalib.hosig[3*(deta+1)+dphi+1] = signal; //Again CMS azimuthal near phi 1&72
 	    }
-	    
+
+	    /*	    
+		   // Possibility to store pedestal by shifting phi tower by 6
+		   // But, due to missing tower at +-5, we do not have always proper
+		   // statistics and also in pedestal subtracted data, we do not have
+		   // signal in that tower
+		   // 
 	    if (deta==0 && dphi ==0) {
 	      int crphi = tmpphi + 6;
 	      if (crphi >72) crphi -=72;
@@ -916,41 +1205,37 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		HcalDetId idcr =digicr.id();
 		int etacr= idcr.ieta();
 		int phicr= idcr.iphi();
+		m_coder = (*conditions_).getHcalCoder(idcr);
+
 		if (tmpeta==etacr && crphi ==phicr) {
 		  
-		  float tmpdatacr[10];
-		  for (int i=0; i<digicr.size() && i<10; i++) {
-		    tmpdatacr[i] = digicr.sample(i).nominal_fC();
+		  float tmpdatacr[nchnmx];
+		  for (int i=0; i<digicr.size() && i<nchnmx; i++) {
+		    tmpdatacr[i] = m_coder->charge(*m_shape,digicr.sample(i).adc(),digicr.sample(i).capid());
 		  }
 		}
 	      }
 	    }
+	    */
+
 	  }
-//	} 
-//	catch (int i ) {
-	  //    m_logFile << "Event with " << i<<" HO Digis passed." << std::endl;
-//	}
-
+	} 
       } else {
-
-       // cout<< "start to read HO rechit collection "<<endl;
-
-	edm::Handle<HORecHitCollection> ho;    iEvent.getByLabel(hoLabel_,ho);
-   if(!ho.isValid()){
-     LogDebug("") << "AlCaHOProducer: Error! can't get horechi product!" << std::endl;
-     return ;
-   }
 	
-//	try{
-	  if(!(*ho).size()) throw (int)(*ho).size();
-	  
-	  for (HORecHitCollection::const_iterator j=(*ho).begin(); j!=(*ho).end(); j++){
-	    const HORecHit horec = (const HORecHit)(*j);
+	  edm::Handle<HORecHitCollection> hoht; //   iEvent.getByType(hoht);
+	bool isHOht = true;
+	try {
+	  //GMA	  iEvent.getByType(hoht);
+	  iEvent.getByLabel(hoLabel_,hoht);
+	} catch ( cms::Exception &iEvent ) { isHOht = false; } 
+
+	if (isHOht && (*hoht).size()>0) {
+	  for (HORecHitCollection::const_iterator j=(*hoht).begin(); j!=(*hoht).end(); j++){
+	    const HORecHit hohtrec = (const HORecHit)(*j);
 	    
-	    HcalDetId id =horec.id();
+	    HcalDetId id =hohtrec.id();
 	    int tmpeta= id.ieta();
 	    int tmpphi= id.iphi();
-	    //	    int tmpdepth =id.depth();
 	    
 	    int ipass1 =0;
 	    if (tmpeta >=etamn && tmpeta <=etamx) {
@@ -964,7 +1249,7 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    int deta = tmpeta-ietaho;
 	    if (tmpeta==-1 && ietaho== 1) deta = -1;
 	    if (tmpeta== 1 && ietaho==-1) deta =  1;
-
+	    
 	    int dphi = tmpphi -iphiho;
 	    if (phimn>phimx) {
 	      if (dphi==71) dphi=-1;
@@ -975,7 +1260,7 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    
 	    if (ipass1 ==0 && ipass2 ==0 ) continue;
 
-	    float signal = horec.energy();
+	    float signal = hohtrec.energy();
 
 	    if (ipass1 ==1) {
 	      int tmpdph = tmpphi-phimn;
@@ -989,7 +1274,7 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		  ilog = 3*(etamx-tmpeta)+tmpdph; //Again CMS correction
 		}
 	      }
-	      if (ilog>-1 && ilog<18) { // if (ilog>-1 && ((ilog<16) || (ilog<18 && iring !=0)) ) { //22OCT07  
+	      if (ilog>-1 && ilog<18) {
 		tmpHOCalib.hocorsig[ilog] = signal;
 	      }
 	    }	      
@@ -1005,7 +1290,7 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	      int crphi = tmpphi + 6;
 	      if (crphi >72) crphi -=72;
 	      
-	      for (HORecHitCollection::const_iterator jcr=(*ho).begin(); jcr!=(*ho).end(); jcr++){
+	      for (HORecHitCollection::const_iterator jcr=(*hoht).begin(); jcr!=(*hoht).end(); jcr++){
 		const HORecHit reccr = (const HORecHit)(*jcr);
 		HcalDetId idcr =reccr.id();
 		int etacr= idcr.ieta();
@@ -1018,45 +1303,23 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	      }
 	    }
 	  }
-//	} 
-//	catch (int i ) {
-	  //    m_logFile << "Event with " << i<<" HO RecHit passed." << std::endl;
-//	}
+	} 
 	}
 	
+	Npass++;
+	//	cout <<"event passed "<<Npass<<endl;
 	hostore->push_back(tmpHOCalib);	
 	
       } else {cout <<"ietaho "<<ietaho<<" "<<iphiho<<" "<<iring<<" "<<tmpHOCalib.trkvx<<" "<<tmpHOCalib.trkvy<<" "<<tmpHOCalib.trkvz<<" "<<tmpHOCalib.trkmm<<" "<<tmpHOCalib.trkth<<" "<<tmpHOCalib.trkph<<" "<<xhor0<<" "<<yhor0<<" "<<xhor1<<" "<<yhor1<<endl;}
     } else {cout <<"ipath == 0" <<" "<<tmpHOCalib.trkvy<<" "<<tmpHOCalib.trkvz<<" "<<tmpHOCalib.trkmm<<" "<<tmpHOCalib.trkth<<" "<<tmpHOCalib.trkph<<" "<<xhor0<<" "<<yhor0<<" "<<xhor1<<" "<<yhor1<<endl;} //if (ipath) { //If muon crossed HO laeyrs
 
-
-    //    hostore->push_back(tmpHOCalib);
-    
   } //for(reco::TrackCollection::const_iterator ncosm = cosmicmuon->begin();
-  }// else { cout <<" No muon found " <<endl; }
-  //  cout <<"hostore size "<<hostore->size()<<" "<<iEvent.id().run()<<endl;
-  //  cout <<"AlCaHOCalibProducer event # "<<Nevents<<" Run # "<<iEvent.id().run()<<" Evt # "<<iEvent.id().event()<<" "<<hostore->size()<<endl;
-
- // cout<<" End of HO prodicer "<<hostore->size()<<endl;
+  } 
+  
+  //  cout <<"end of producer "<<hostore->size()<<endl;
   if (hostore->size()>0) iEvent.put(hostore, "HOCalibVariableCollection");
- // cout<<" Final end "<<endl;
 
-/* This is an event example
-   //Read 'ExampleData' from the Event
-   Handle<ExampleData> pIn;
-   iEvent.getByLabel("example",pIn);
-
-   //Use the ExampleData to create an ExampleData2 which 
-   // is put into the Event
-   std::auto_ptr<ExampleData2> pOut(new ExampleData2(*pIn));
-   iEvent.put(pOut);
-*/
-
-/* this is an EventSetup example
-   //Read SetupData from the SetupRecord in the EventSetup
-   ESHandle<SetupData> pSetup;
-   iSetup.get<SetupRecord>().get(pSetup);
-*/
+  
 }
 
 // ------------ method called once each job just before starting event loop  ------------
@@ -1064,24 +1327,47 @@ void
 AlCaHOCalibProducer::beginJob(const edm::EventSetup& iSetup)
 {
   Nevents = 0;
+  Npass = 0;
+  irunold = -1;
+  nRuns = 0;
+  edm::ESHandle<MagneticField> bField;
+  iSetup.get<IdealMagneticFieldRecord>().get(bField);
+  stepProp  = new SteppingHelixPropagator(&*bField,anyDirection);
+  stepProp->setMaterialMode(false);
+  stepProp->applyRadX0Correction(true);
+  
+  //  edm::ESHandle<CaloGeometry>PG;
+  //  EventSetup.get<IdealGeometryRecord>().get(pG);
+  //  geo = pG.product();
+  
+  //  iSetup.get<HcalDbRecord>().get(conditions_);
 
-    edm::ESHandle<MagneticField> bField;
-    iSetup.get<IdealMagneticFieldRecord>().get(bField);
-    stepProp  = new SteppingHelixPropagator(&*bField,anyDirection);
-    stepProp->setMaterialMode(false);
-    stepProp->applyRadX0Correction(true);
+  for (int i=0; i<netamx; i++) {
+    for (int j=0; j<nphimx; j++) {
+      for (int k=0; k<ncidmx; k++) {
+	pedestal[i][j][k]=0.0;
+      }
+    }
+  }
+
+
 
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void AlCaHOCalibProducer::endJob() {
+void 
+AlCaHOCalibProducer::endJob() {
 
-  //cout <<"ho_time ";
-  //for (int i=0; i<10; i++) { cout <<ho_time[i]<<" ";} 
-  //cout<<endl;
-  //cout <<"hb_time ";
-  //for (int i=0; i<10; i++) { cout <<hb_time[i]<<" ";} 
-  //cout<<endl;
+  cout<<"Processed event # "<<Nevents<<" and selected evt # "<<Npass<<endl;
+  if (m_hotime && m_digiInput) {
+    cout <<"ho_time ";
+    for (int i=0; i<nchnmx; i++) { cout <<ho_time[i]<<" ";} 
+    cout<<endl;
+    cout <<"hb_time ";
+    for (int i=0; i<nchnmx; i++) { cout <<hb_time[i]<<" ";} 
+    cout<<endl;
+  }
+
 }
 
 
@@ -1089,18 +1375,24 @@ void AlCaHOCalibProducer::findHOEtaPhi(int iphisect, int& ietaho, int& iphiho) {
   
   //18/12/06 : use only position, not angle phi
 
-  double etalow[netabin]={0.02, 35.42, 70.85, 106.82, 143.33, 182.53, 222, 263.15, 306.29, 351.74, 408.94, 451, 505.56, 563.94, 626.64, 660.25}; //16th(last) entries is arbitray
-  
-  double etahgh[netabin]={35.37, 70.75, 106.72, 125.68, 182.43, 221.9, 263.05, 306.19, 351.64, 394.29, 450.9, 505.46, 563.84, 626.54, 659.94, 700.25};
+  //  double etalow[netabin]={0.02, 35.42, 70.85, 106.82, 143.33, 182.53, 222, 263.15, 306.29, 351.74, 408.94, 451, 505.56, 563.94, 626.64, 660.25}; //16th(last) entries is arbitray
+  //  double etahgh[netabin]={35.37, 70.75, 106.72, 125.68, 182.43, 221.9, 263.05, 306.19, 351.64, 394.29, 450.9, 505.46, 563.84, 626.54, 659.94, 700.25};
+
+  //  23/06/08 : Do not use 13mm shift in HO pannel
+  //  double etalow[netabin]={   0.025,  35.195,  70.625, 106.595, 144.165, 183.365, 222.835, 263.985, 307.125, 352.575, 407.425, 449.485, 504.045, 562.425, 625.125, 660.25};
+  //  double etahgh[netabin]={  35.145,  70.575, 106.545, 125.505, 183.315, 222.785, 263.935, 307.075, 352.525, 395.175, 449.435, 503.995, 562.375, 625.075, 658.475, 700.25};
+
+double etalow[netabin]={   0.025,  35.195,  70.625, 106.595, 141.565, 180.765, 220.235, 261.385, 304.525, 349.975, 410.025, 452.085, 506.645, 565.025, 627.725, 660.25};
+double etahgh[netabin]={  35.145,  70.575, 106.545, 125.505, 180.715, 220.185, 261.335, 304.475, 349.925, 392.575, 452.035, 506.595, 564.975, 627.675, 661.075, 700.25};
 
   double philow[6]={-76.27, -35.11, 0.35, 35.81, 71.77, 108.93};  //Ring+/-1 & 2
   double phihgh[6]={-35.81, -0.35, 35.11, 71.07, 108.23, 140.49};
 
-  double philow00[6]={-60.27, -32.91, 0.35, 33.61, 67.37, 102.23,}; //Ring0 L0
-  double phihgh00[6]={-33.61, -0.35, 32.91, 66.67, 101.53, 129.49,};
+  double philow00[6]={-60.27, -32.91, 0.35, 33.61, 67.37, 102.23}; //Ring0 L0
+  double phihgh00[6]={-33.61, -0.35, 32.91, 66.67, 101.53, 129.49};
 
-  double philow01[6]={-64.67, -34.91, 0.35, 35.61, 71.37, 108.33,}; //Ring0 L1
-  double phihgh01[6]={-35.61, -0.35, 34.91, 70.67, 107.63, 138.19,};
+  double philow01[6]={-64.67, -34.91, 0.35, 35.61, 71.37, 108.33}; //Ring0 L1
+  double phihgh01[6]={-35.61, -0.35, 34.91, 70.67, 107.63, 138.19};
 
 
   iring = -10;
@@ -1212,3 +1504,4 @@ FreeTrajectoryState AlCaHOCalibProducer::getFreeTrajectoryState( const reco::Tra
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(AlCaHOCalibProducer);
+

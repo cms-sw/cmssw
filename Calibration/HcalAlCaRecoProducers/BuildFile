@@ -6,7 +6,8 @@
 <use name=CondFormats/HcalObjects>
 <use name=DataFormats/HcalDigi>
 <use name=DataFormats/MuonReco>
-
+<use name=CalibFormats/HcalObjects>
+<use name=PhysicsTools/UtilAlgos>
 <use name=DataFormats/DetId>
 <use name=DataFormats/HcalCalibObjects>
 <use name=DataFormats/EcalDigi>
@@ -20,7 +21,7 @@
 <use name=RecoEcal/EgammaCoreTools>
 # EgammaClustersProducers is a plugin now remove from here
 # <use name=RecoEcal/EgammaClusterProducers>
-
+<use name=DataFormats/L1GlobalTrigger>
 <use name=DataFormats/RecoCandidate>
 <use name=DataFormats/JetReco>
 <use name=Geometry/CaloTopology>
