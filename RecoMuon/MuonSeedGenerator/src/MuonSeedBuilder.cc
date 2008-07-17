@@ -1093,14 +1093,14 @@ bool MuonSeedBuilder::foundMatchingSegment( int type, SegmentContainer& protoTra
     double deltaEtaTest = fabs( gp2.eta() - eta_temp ); 
     double deltaPhiTest = fabs( gp2.phi() - phi_temp );
 
+    // searching range
     float R = sqrt( deltaEtaTest*deltaEtaTest + deltaPhiTest*deltaPhiTest );
+    bool closed = ( fabs( R - best_R ) < 0.01  && index!=0 ) ? true:false;
     
     // dEta and dPhi should be within certain range
     bool case1 = ( fabs(deltaEtaTest) < maxdEta && fabs(deltaPhiTest)< maxdPhi ) ? true:false ;
     // for DT station 4
     bool case2 = ((*it)->dimension()!= 4) && (fabs(deltaEtaTest)< 0.6) && (fabs(deltaPhiTest)< maxdPhi)? true:false ;
-
-    bool closed = ( fabs( R - best_R ) < 0.01  && index!=0 ) ? true:false;
 
     // reject showering segments which are closed enough but not long enough in CSC...
     if ((type == 1) && closed && ((*it)->recHits().size()) < best_nCSChits) continue;
