@@ -5,7 +5,7 @@
 # creates a complete config file.
 # relval_main + the custom config for it is not needed any more
 
-__version__ = "$Revision: 1.49 $"
+__version__ = "$Revision: 1.50 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -239,21 +239,27 @@ class ConfigBuilder(object):
 
     def prepare_ALCA(self, sequence = None):
         """ Enrich the process with alca streams """
-        alcaConfig = self.loadAndRemember("Configuration/StandardSequences/AlCaRecoStreams_cff")
+        alcaConfig = self.loadAndRemember("Configuration/StandardSequences/AlCaReco_cff")
 
         # decide which ALCA paths to use
         alcaList = sequence.split("+")
         alcaPathList = ["pathALCARECO"+name for name in alcaList]
 
-        for name in alcaConfig.__dict__:
-            alcastream = getattr(alcaConfig,name)
-            if name in alcaList and isinstance(alcastream,alcaConfig.FilteredStream):
-                alcaOutput = cms.OutputModule("PoolOutputModule")
-                alcaOutput.SelectEvents = alcastream.SelectEvents
-                alcaOutput.outputCommands = alcastream.content
-                alcaOutput.dataset  = cms.untracked.PSet( dataTier = alcastream.dataTier)
-                self.additionalOutputs.append(alcaOutput)
-                setattr(self.process,name,alcaOutput) 
+        # put it in the schedule
+        for pathname in alcaConfig.__dict__:
+            if isinstance(getattr(alcaConfig,pathname),cms.Path):
+                self.process.schedule.append(getattr(self.process,pathname))
+            else:
+                self.blacklist_paths.append(pathname)
+        #for name in alcaConfig.__dict__:
+        #    alcastream = getattr(alcaConfig,name)
+        #    if name in alcaList and isinstance(alcastream,alcaConfig.FilteredStream):
+        #        alcaOutput = cms.OutputModule("PoolOutputModule")
+        #        alcaOutput.SelectEvents = alcastream.SelectEvents
+        #        alcaOutput.outputCommands = alcastream.content
+        #        alcaOutput.dataset  = cms.untracked.PSet( dataTier = alcastream.dataTier)
+        #        self.additionalOutputs.append(alcaOutput)
+        #        setattr(self.process,name,alcaOutput) 
 
         # the schedule insertion is missing for now  
 
@@ -368,10 +374,9 @@ class ConfigBuilder(object):
             self.additionalCommands.append("process.famosPileUp.PileUpSimulator.averageNumber = 0.0")
 
             # Apply Tracker misalignment (ideal alignment though)
+            #
             self.additionalCommands.append("process.famosSimHits.ApplyAlignment = True")
             self.additionalCommands.append("process.misalignedTrackerGeometry.applyAlignment = True")
-            self.additionalCommands.append("process.caloRecHits.RecHitsFactory.HCAL.Refactor = 1.0")
-            self.additionalCommands.append("process.caloRecHits.RecHitsFactory.HCAL.Refactor_mean = 1.0")
 
             self.additionalCommands.append("process.simulation = cms.Sequence(process.simulationWithFamos)")
             self.additionalCommands.append("process.HLTEndSequence = cms.Sequence(process.reconstructionWithFamos)")
@@ -391,14 +396,14 @@ class ConfigBuilder(object):
             # now the additional commands we need to make the config work
             self.additionalCommands.append("process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True")
         else:
-             print "FastSim setting",self._options.beamspot, "unknown."
+             print "FastSim setting", sequence, "unknown."
              raise
                   
         
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.49 $"),
+              (version=cms.untracked.string("$Revision: 1.50 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
