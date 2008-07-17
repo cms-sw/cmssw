@@ -62,19 +62,16 @@ void MuonsProxyRhoPhiZ2DBuilder::build(const FWEventItem* iItem,
    //       So here they are recreated for each event.
    TEveTrackPropagator* innerPropagator = new TEveTrackPropagator();
    TEveTrackPropagator* outerPropagator = new TEveTrackPropagator();
-   outerPropagator->SetRnrDaughters(true);
+   /*outerPropagator->SetRnrDaughters(true);
    outerPropagator->RefPMAtt().SetMarkerStyle(3);
    outerPropagator->RefPMAtt().SetMarkerColor(Color_t(kBlue));
-   
+   */
    const reco::MuonCollection* muons=0;
    iItem->get(muons);
    //fwlite::Handle<reco::MuonCollection> muons;
    //muons.getByLabel(*iEvent,"trackerMuons");
    
-   if(0 == muons ) {
-      std::cout <<"failed to get trackerMuons"<<std::endl;
-      return;
-   }
+   if(0 == muons ) return;
    
    // if auto field estimation mode, do extra loop over muons.
    if ( CmsShowMain::isAutoField() )
@@ -235,9 +232,11 @@ void MuonsProxyRhoPhiZ2DBuilder::build(const FWEventItem* iItem,
 	     //	    outerRecTrack.fV.fX, outerRecTrack.fV.fY, outerRecTrack.fV.fZ);
 		      
 	     TEveTrack* outerTrack = new TEveTrack( &outerRecTrack, outerPropagator );
+	     outerTrack->SetMainColor( iItem->defaultDisplayProperties().color() );
+	     /*
 	     outerTrack->SetRnrPoints( true );
 	     outerTrack->SetMarkerSize( 5 );
-	     outerTrack->SetMainColor( iItem->defaultDisplayProperties().color() );
+	     */
 	     
 	     TEvePathMark mark( TEvePathMark::kDaughter );
 	     if (  muon->standAloneMuon()->innerPosition().R() <  muon->standAloneMuon()->outerPosition().R() ) {

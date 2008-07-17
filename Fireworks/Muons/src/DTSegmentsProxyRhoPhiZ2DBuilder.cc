@@ -69,6 +69,8 @@ void DTSegmentsProxyRhoPhiZ2DBuilder::build(const FWEventItem* iItem,
 	s << "chamber" << index;
 	TEveStraightLineSet* segmentSet = new TEveStraightLineSet(s.str().c_str());
 	TEvePointSet* pointSet = new TEvePointSet();
+	pointSet->SetMarkerStyle(2);
+	pointSet->SetMarkerSize(3);
 	segmentSet->SetLineWidth(3);
 	segmentSet->SetMainColor(iItem->defaultDisplayProperties().color());
         segmentSet->SetRnrSelf(iItem->defaultDisplayProperties().isVisible());
