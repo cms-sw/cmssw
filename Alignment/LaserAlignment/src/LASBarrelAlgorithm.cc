@@ -233,9 +233,9 @@ LASBarrelAlignmentParameterSet LASBarrelAlgorithm::CalculateParameters( LASGloba
   // as a reference system (pars 25,27,29 & 30,32,34)
   // note: minuit numbering is fortran style...
   arglist[0] = 26; arglist[1] = 28; arglist[2] = 30;
-  minuit->mnexcm( "FIX", arglist ,3, _ierflg ); // TEC+
+  //  minuit->mnexcm( "FIX", arglist ,3, _ierflg ); // TEC+
   arglist[0] = 31; arglist[1] = 33; arglist[2] = 35;
-  minuit->mnexcm( "FIX", arglist ,3, _ierflg ); // TEC-
+  //  minuit->mnexcm( "FIX", arglist ,3, _ierflg ); // TEC-
 
 
 
@@ -261,8 +261,6 @@ LASBarrelAlignmentParameterSet LASBarrelAlgorithm::CalculateParameters( LASGloba
   arglist[1] = 0.1;
   minuit->mnexcm( "MIGRAD", arglist , 2, _ierflg ); // minimizer
   //  minuit->mnexcm( "MINOS", arglist , 1, _ierflg ); // error recalculation
-
-  Dump();
 
   // now fill the result vector.
   // turned out that the parameter numbering is stupid, change this later..
@@ -372,8 +370,6 @@ void fcn( int &npar, double *gin, double &f, double *par, int iflag )  {
 
   // the z positions of the virtual planes at which the beam parameters are measured
   std::vector<double> disk9EndFaceZPositions( 2, 0. );
-  //   disk9EndFaceZPositions.at( 0 ) = -500.; ////////////////////////////////////////////////////////////////////////////////////////
-  //   disk9EndFaceZPositions.at( 1 ) =  500.;
   disk9EndFaceZPositions.at( 0 ) = -2595.; // TEC- disk9
   disk9EndFaceZPositions.at( 1 ) =  2595.; // TEC+ disk9
   

@@ -4,8 +4,8 @@
 /** \class LaserAlignment
  *  Main reconstruction module for the Laser Alignment System
  *
- *  $Date: 2008/05/10 15:36:26 $
- *  $Revision: 1.15 $
+ *  $Date: 2008/07/09 12:39:05 $
+ *  $Revision: 1.16 $
  *  \author Maarten Thomas
  */
 
@@ -51,6 +51,7 @@
 #include "Alignment/LaserAlignment/src/LASModuleProfile.h"
 #include "Alignment/LaserAlignment/src/LASProfileJudge.h"
 #include "Alignment/LaserAlignment/src/LASBarrelAlgorithm.h"
+#include "Alignment/LaserAlignment/src/LASAlignmentTubeAlgorithm.h"
 #include "Alignment/LaserAlignment/src/LASEndcapAlgorithm.h"
 #include "Alignment/LaserAlignment/src/LASPeakFinder.h"
 #include "Alignment/LaserAlignment/src/LASCoordinateSet.h"
@@ -143,6 +144,9 @@ class LaserAlignment : public edm::EDProducer, public TObject {
 
   // fills a LASGlobalData<LASCoordinateSet> with nominal module positions
   void CalculateNominalCoordinates( void );
+  
+  // for debugging only, wil disappear
+  void DumpPosFileSet( LASGlobalData<LASCoordinateSet>& );
 
 
   int theEvents;
@@ -258,10 +262,6 @@ class LaserAlignment : public edm::EDProducer, public TObject {
   AlignmentAlgorithmBW * theAlignmentAlgorithmBW;
   /// use the BS frame in the alignment algorithm (i.e. BS at z = 0)
   bool theUseBSFrame;
-  // the "barrel" algorithm
-  LASBarrelAlgorithm barrelAlgorithm;
-  // the new endcap algorithm
-  LASEndcapAlgorithm endcapAlgorithm;
 
   // the map to store digis for cluster creation
   std::map<DetId, std::vector<SiStripRawDigi> > theDigiStore;

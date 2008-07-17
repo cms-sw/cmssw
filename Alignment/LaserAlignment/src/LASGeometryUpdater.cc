@@ -83,6 +83,7 @@ void LASGeometryUpdater::TrackerUpdate( LASEndcapAlignmentParameterSet& endcapPa
   // then the TECs and treat them also as half barrels 
   const align::Alignables& theEndcaps = theAlignableTracker.endCaps();
 
+
   // re-arrange to match the structure in LASBarrelAlignmentParameterSet and simplify the loop
   // 2 (TIB+), 3 (TIB-), 4 (TOB+), 5 (TOB-)
   std::vector<Alignable*> theHalfBarrels( 6 );
@@ -96,8 +97,10 @@ void LASGeometryUpdater::TrackerUpdate( LASEndcapAlignmentParameterSet& endcapPa
   // z difference of half barrel end faces (= hb-length) in mm
   // do this more intelligent later..
   std::vector<double> theBarrelLength( 6, 0. );
-  theBarrelLength.at( 0 ) = 1348.65; // TEC
-  theBarrelLength.at( 1 ) = 1348.65;
+  //  theBarrelLength.at( 0 ) = 1348.65; // TEC
+  //  theBarrelLength.at( 1 ) = 1348.65;
+  theBarrelLength.at( 0 ) = 1345.; // TEC
+  theBarrelLength.at( 1 ) = 1345.;
   theBarrelLength.at( 2 ) = 400.;  // TIB
   theBarrelLength.at( 3 ) = 400.;
   theBarrelLength.at( 4 ) = 790.;  // TOB
@@ -148,6 +151,7 @@ void LASGeometryUpdater::TrackerUpdate( LASEndcapAlignmentParameterSet& endcapPa
     wheelZPositions.at( 1 ).at( wheel ) = theEndcaps.at( 1 )->components().at( wheel )->globalPosition().z();
   }
 
+
   // we can do this for both TECs in one go;
   // only real difference is the index change in the second argument to barrelParameters::GetParameter:
   // here the disk index changes from 0(+) to 1(-), since the end faces are sorted according to z (-->side=det)
@@ -178,8 +182,8 @@ void LASGeometryUpdater::TrackerUpdate( LASEndcapAlignmentParameterSet& endcapPa
 				    0. );
     theEndcaps.at( det )->move( -1. * dxy1 );
 
-    std::cout << "KKK: " << ( barrelParameters.GetParameter( det, side, 1 ).first - endcapParameters.GetDiskParameter( det, 0, 1 ).first ) / fromMmToCm
-	       << "  " << ( barrelParameters.GetParameter( det, side, 2 ).first - endcapParameters.GetDiskParameter( det, 0, 2 ).first ) / fromMmToCm << std::endl; //#################3
+    //    std::cout << "KKK: " << ( barrelParameters.GetParameter( det, side, 1 ).first - endcapParameters.GetDiskParameter( det, 0, 1 ).first ) / fromMmToCm
+    //	       << "  " << ( barrelParameters.GetParameter( det, side, 2 ).first - endcapParameters.GetDiskParameter( det, 0, 2 ).first ) / fromMmToCm << std::endl; //#################3
 
     // determine the resulting phi, x, y of disk 9 after step 2
     const align::Scalar resultingPhi9 = endcapParameters.GetDiskParameter( det, 8, 0 ).first + dphi1; // better calculate this rather than use a getter
@@ -187,19 +191,30 @@ void LASGeometryUpdater::TrackerUpdate( LASEndcapAlignmentParameterSet& endcapPa
 					    theEndcaps.at( det )->components().at( 8 )->globalPosition().y(),
 					    0. );
 
-    std::cout << "LLL: " << theEndcaps.at( det )->components().at( 8 )->globalPosition().x() << "  " << theEndcaps.at( det )->components().at( 8 )->globalPosition().y() << std::endl; //################
+    //    std::cout << "LLL: " << theEndcaps.at( det )->components().at( 8 )->globalPosition().x() << "  " << theEndcaps.at( det )->components().at( 8 )->globalPosition().y() << std::endl; //################
     
     
     // step 3: twist and shear back
     
-    // the individual rotation/movement of the wheels is a function of their z-position
-    for( int wheel = 0; wheel < 9; ++wheel ) {
-      const double reducedZ = fabs( wheelZPositions.at( det ).at( wheel ) - wheelZPositions.at( det ).at( 0 ) ) / theBarrelLength.at( det ) * fromMmToCm;
-      theEndcaps.at( det )->components().at( wheel )->rotateAroundLocalZ( -1. * reducedZ * resultingPhi9 ); // twist
-      theEndcaps.at( det )->components().at( wheel )->move( -1. * reducedZ * resultingXY9 ); // shear
-    }
+//     // the individual rotation/movement of the wheels is a function of their z-position
+//     for( int wheel = 0; wheel < 9; ++wheel ) {
+//       const double reducedZ = fabs( wheelZPositions.at( det ).at( wheel ) - wheelZPositions.at( det ).at( 0 ) ) / theBarrelLength.at( det ) * fromMmToCm;
+//       theEndcaps.at( det )->components().at( wheel )->rotateAroundLocalZ( -1. * reducedZ * resultingPhi9 ); // twist
+//       theEndcaps.at( det )->components().at( wheel )->move( -1. * reducedZ * resultingXY9 ); // shear
+//     }
 
   } 
+
+
+
+
+
+
+
+
+
+
+
 
 
 
