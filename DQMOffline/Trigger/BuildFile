@@ -16,6 +16,7 @@
 <use name=DataFormats/L1GlobalTrigger>
 <use name=DataFormats/L1Trigger>
 <use name=DataFormats/EgammaCandidates>
+<use name=DataFormats/BTauReco>
 <use name=DataFormats/TauReco>
 <use name=DataFormats/METReco>
 <use name=DataFormats/JetReco>
