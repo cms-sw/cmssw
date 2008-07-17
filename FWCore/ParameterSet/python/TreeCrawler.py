@@ -67,16 +67,19 @@ class Package(object):
     def search(self,pattern,result):
         """ recursive search for pattern in source files"""
         # first start searching in the package itself / do this only once
-        if self.module and not self.searched:
+        if self.module:
             for number, line in enumerate(inspect.getsource(self.module).splitlines()):
                 if pattern in line:
                      filename = packageNameFromFilename(inspect.getsourcefile(self.module))
-                     hit = SearchHit()
-                     hit.number = number
-                     hit.filename = filename
-                     hit.line = line
-                     hit.stack = copy.copy(_stack)
-                     result.append(hit)
+                     if not self.searched:
+                         # save the hit, so we can add later stacks to it
+                         self.hit = SearchHit()
+                         self.hit.number = number
+                         self.hit.filename = filename
+                         self.hit.line = line
+                         self.hit.stacks = list()
+                         result.append(self.hit)
+                     self.hit.stacks.append(copy.copy(_stack)) 
         # then go on with dependencies
         _stack.append(self.name)
         for package in self.dependencies:
