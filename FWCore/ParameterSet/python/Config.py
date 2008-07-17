@@ -64,6 +64,16 @@ class Process(object):
     def setStrict(self, value):
         self.__isStrict = value
 
+    # some user-friendly methods for command-line browsing
+    def producerNames(self):
+        return ' '.join(self.producers_().keys())
+    def analyzerNames(self):
+        return ' '.join(self.analyzers_().keys())
+    def filterNames(self):
+       return ' '.join(self.filters_().keys())
+    def pathNames(self):
+       return ' '.join(self.paths_().keys())
+
     def __setstate__(self, pkldict):
         """
         Unpickling hook.
@@ -456,7 +466,6 @@ class Process(object):
             raise RuntimeError("circular sequence dependency discovered \n"+
                                ",".join([label for label,junk in dependencies.iteritems()]))
         return returnValue
-                
     def _dumpPython(self, d, options):
         result = ''
         for name, value in d.iteritems():
