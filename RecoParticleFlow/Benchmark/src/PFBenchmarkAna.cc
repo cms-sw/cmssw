@@ -44,7 +44,7 @@ void PFBenchmarkAna::setup(DQMStore *DQM, bool PlotAgainstReco_) {
   // Book Histograms
 
   // delta et quantities
-  BOOK1D(DeltaEt,"#DeltaE_{T}",1000,-100,100);
+  BOOK1D(DeltaEt,"#DeltaE_{T}",1000,-60,40);
   BOOK2D(DeltaEtvsEt,"#DeltaE_{T} vs E_{T}",1000,0,1000,1000,-100,100);
   BOOK2D(DeltaEtOverEtvsEt,"#DeltaE_{T}/E_{T} vsE_{T}",1000,0,1000,100,-1,1);
   BOOK2D(DeltaEtvsEta,"#DeltaE_{T} vs #eta",200,-5,5,1000,-100,100);
@@ -55,7 +55,7 @@ void PFBenchmarkAna::setup(DQMStore *DQM, bool PlotAgainstReco_) {
   BOOK2D(DeltaEtOverEtvsDeltaR,"#DeltaE_{T}/E_{T} vs #DeltaR",100,0,1,100,-1,1);
 
   // delta eta quantities
-  BOOK1D(DeltaEta,"#Delta#eta",100,-3,3);
+  BOOK1D(DeltaEta,"#Delta#eta",100,-0.2,0.2);
   BOOK2D(DeltaEtavsEt,"#Delta#eta vs E_{T}",1000,0,1000,100,-3,3);
   BOOK2D(DeltaEtaOverEtavsEt,"#Delta#eta/#eta vs E_(T}",1000,0,1000,100,-1,1); // ms: propose remove
   BOOK2D(DeltaEtavsEta,"#Delta#eta vs #eta",200,-5,5,100,-3,3);
@@ -64,7 +64,7 @@ void PFBenchmarkAna::setup(DQMStore *DQM, bool PlotAgainstReco_) {
   BOOK2D(DeltaEtaOverEtavsPhi,"#Delta#eta/#eta vs #phi",200,-M_PI,M_PI,100,-1,1); // ms: propose remove
 
   // delta phi quantities
-  BOOK1D(DeltaPhi,"#Delta#phi",100,-M_PI_2,M_PI_2);
+  BOOK1D(DeltaPhi,"#Delta#phi",100,-0.2,0.2);
   BOOK2D(DeltaPhivsEt,"#Delta#phi vs E_{T}",1000,0,1000,100,-M_PI_2,M_PI_2);
   BOOK2D(DeltaPhiOverPhivsEt,"#Delta#phi/#phi vs E_{T}",1000,0,1000,100,-1,1); // ms: propose remove
   BOOK2D(DeltaPhivsEta,"#Delta#phi vs #eta",200,-5,5,100,-M_PI_2,M_PI_2);
@@ -150,7 +150,9 @@ void PFBenchmarkAna::fill(const edm::View<reco::Candidate> *RecoCollection, cons
     double deltaR = algo_->deltaR(particle,gen_particle);
     double deltaEta = algo_->deltaEta(particle,gen_particle);
     double deltaPhi = algo_->deltaPhi(particle,gen_particle);
-    
+   
+    //TODO implement variable Cut:
+    // if (deltaR > 0.5) {
     // fill histograms
     hDeltaEt->Fill(deltaEt);
     hDeltaEtvsEt->Fill(et,deltaEt);
