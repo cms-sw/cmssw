@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 14:08:51 EST 2008
-// $Id: FWRhoPhiZViewManager.cc,v 1.35 2008/07/07 02:15:46 chrjones Exp $
+// $Id: FWRhoPhiZViewManager.cc,v 1.36 2008/07/07 06:15:33 dmytro Exp $
 //
 
 // system include files
@@ -811,6 +811,14 @@ void FWRhoPhiZViewManager::makeTrackerGeometryRhoPhi()
      el->AddLine(r*sin(2*M_PI/nSegments*(i-1)), r*cos(2*M_PI/nSegments*(i-1)), 0,
 		 r*sin(2*M_PI/nSegments*i), r*cos(2*M_PI/nSegments*i), 0);
    float layer = m_rhoPhiGeomProjMgr->GetCurrentDepth();
+   TEvePointSet* ref = new TEvePointSet("reference");
+   ref->SetPickable(kTRUE);
+   ref->SetTitle("(0,0,0)");
+   ref->IncDenyDestroy();
+   ref->SetMarkerStyle(4);
+   ref->SetMarkerColor(kWhite);
+   el->AddElement(ref);
+   ref->SetNextPoint(0.,0.,0.);
    m_rhoPhiGeomProjMgr->SetCurrentDepth(0.);
    m_rhoPhiGeomProjMgr->ImportElements( el );
    m_rhoPhiGeomProjMgr->SetCurrentDepth(layer);
