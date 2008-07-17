@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Thu Apr  6 09:56:23 CEST 2006
-// $Id: JetTagProducer.cc,v 1.8 2008/04/22 12:29:44 saout Exp $
+// $Id: JetTagProducer.cc,v 1.9 2008/07/16 15:14:33 saout Exp $
 //
 //
 
@@ -54,17 +54,10 @@ using namespace edm;
 // constructors and destructor
 //
 JetTagProducer::JetTagProducer(const ParameterSet& iConfig) :
+  m_computer(0),
   m_jetTagComputer(iConfig.getParameter<string>("jetTagComputer")),
   m_tagInfos(iConfig.getParameter< vector<InputTag> >("tagInfos"))
 {
-//  vector<string> inputTags = iConfig.getParameterNamesForType<InputTag>();
-//
-//  for(vector<string>::const_iterator iter = inputTags.begin();
-//      iter != inputTags.end(); iter++) {
-//    InputTag inputTag = iConfig.getParameter<InputTag>(*iter);
-//    m_tagInfoLabels[*iter] = inputTag;
-//  }
-
   produces<JetTagCollection>();
 }
 
@@ -75,9 +68,9 @@ JetTagProducer::~JetTagProducer()
 //
 // member functions
 //
-// ------------ method called once each job just before starting event loop  ------------
-void
-JetTagProducer::setup(const edm::EventSetup& iSetup) {
+// internal method called on first event to locate and setup JetTagComputer
+void JetTagProducer::setup(const edm::EventSetup& iSetup)
+{
   edm::ESHandle<JetTagComputer> computer;
   iSetup.get<JetTagComputerRecord>().get( m_jetTagComputer, computer );
   m_computer = computer.product();
@@ -89,17 +82,6 @@ JetTagProducer::setup(const edm::EventSetup& iSetup) {
   // backward compatible case, use default tagInfo
   if (inputLabels.empty())
     inputLabels.push_back("tagInfo");
-
-//  // collect all TagInfos from the ParameterSet that the JetTagComputer wants
-//  for(vector<string>::const_iterator iter = inputLabels.begin();
-//      iter != inputLabels.end(); iter++) {
-//    map<string, InputTag>::const_iterator pos = m_tagInfoLabels.find(*iter);
-//    if (pos == m_tagInfoLabels.end())
-//      throw cms::Exception("InputTagMissing") << "JetTagProducer is missing "
-//      			"a TagInfo InputTag \"" << *iter << "\"" << endl;
-//
-//    m_tagInfos.push_back(pos->second);
-//  }
 
   if (m_tagInfos.size() != inputLabels.size()) {
     std::string message("VInputTag size mismatch - the following taginfo "
