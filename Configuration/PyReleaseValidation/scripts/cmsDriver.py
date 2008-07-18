@@ -107,8 +107,8 @@ parser.add_option("--beamspot",
 
 
 parser.add_option("--geometry",
-                   help="What geometry to use (from Configuration/StandardSequences)",
-                   default="",
+                   help="What geometry to use (from Configuration/StandardSequences). Default=Pilot2",
+                   default="Pilot2",
                    dest="geometry")
 
 parser.add_option("--magField",
