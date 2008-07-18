@@ -159,7 +159,7 @@ namespace cond {
   }
 
   IOVElement CondDB::payLoad(std::string const & token) const {
-    retun  IOVElement(0,0,token,me->poolTransaction());
+    return IOVElement(0,0,token,me->poolTransaction());
 
   }
 
