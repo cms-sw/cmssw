@@ -86,14 +86,14 @@ HcalSummaryClient::HcalSummaryClient(const ParameterSet& ps)
   // Summary maps
   //meGlobalSummary_=0;
 
-  // All initial status floats set to -1 (uncertain)
+  // All initial status floats set to 1 (good)
   // For the moment, these are just local variables; if we want to keep
   // them in the root file, we need to book them as MonitorElements
-  status_HB_=-1;
-  status_HE_=-1;
-  status_HO_=-1;
-  status_HF_=-1;
-  status_global_=-1;
+  status_HB_=1;
+  status_HE_=1;
+  status_HO_=1;
+  status_HF_=1;
+  status_global_=1;
   
   subdetCells_.insert(make_pair("HB",2592));
   subdetCells_.insert(make_pair("HE",2592));
@@ -312,12 +312,7 @@ void HcalSummaryClient::analyze(void)
 	cout << "HcalSummaryClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
     }
 
-  // Set values to 'unknown' status; they'll be set by analyze_everything routines
-  status_global_=-1;
-  status_HB_=-1;
-  status_HE_=-1;
-  status_HO_=-1;
-  status_HF_=-1;
+
 
   // Reset summary map to 'unknown' status 
   MonitorElement* reportMap = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryMap");
@@ -327,23 +322,77 @@ void HcalSummaryClient::analyze(void)
       return;
     }
 
-  // Set all bins to "empty" to start (change to "unknown" (-1)?)
-  for (int ieta=1;ieta<=etaBins_;++ieta)
-    for (int iphi=1; iphi<=phiBins_;++iphi)
-      reportMap->setBinContent(ieta,iphi,-1);
 
+  // At least one of the clients that produces summary plots is enabled.
+  if (digiClient_ || deadCellClient_ || hotCellClient_)
+    {
+      // Set values to 'unknown' status; they'll be set by analyze_everything routines 
+      status_global_=-1; 
+      status_HB_=-1; 
+      status_HE_=-1; 
+      status_HO_=-1; 
+      status_HF_=-1; 
+      
+      // Set all bins to "unknown" to start
+      for (int ieta=1;ieta<=etaBins_;++ieta)
+	for (int iphi=1; iphi<=phiBins_;++iphi)
+	  reportMap->setBinContent(ieta,iphi,-1);
+      
+      
+      // Now look for problem cells in each Task & Subdetector
+      if (subDetsOn_[0]) analyze_everything("HB",1,status_HB_);
+      if (subDetsOn_[1]) analyze_everything("HE",2,status_HE_);
+      if (subDetsOn_[2]) analyze_everything("HO",3,status_HO_);
+      if (subDetsOn_[3]) analyze_everything("HF",4,status_HF_);
+    } // if (digiClient_ || ...)
 
-  // Now look for problem cells in each Task & Subdetector
-  if (subDetsOn_[0]) analyze_everything("HB",1,status_HB_);
-  if (subDetsOn_[1]) analyze_everything("HE",2,status_HE_);
-  if (subDetsOn_[2]) analyze_everything("HO",3,status_HO_);
-  if (subDetsOn_[3]) analyze_everything("HF",4,status_HF_);
-
+  else // no monitoring client objects found; assume everything is good
+    {
+      // Set values to 'good' status
+      status_global_=1;  
+      status_HB_=1;  
+      status_HE_=1;  
+      status_HO_=1;  
+      status_HF_=1;  
+       
+      // Set all bins to good status (value = +1)
+      for (int ieta=1;ieta<=etaBins_;++ieta) 
+	{
+	  int eta=ieta+int(etaMin_)-1;
+	  // Skip non-physical cells?  Or set their contents to -1 (unknown)?
+	  //if (eta==0) continue;
+	  //if (abs(eta)>41) continue; 
+	  for (int iphi=1; iphi<=phiBins_;++iphi)
+	    {
+	      // Set 
+	      if (eta==0  || abs(eta)>41){
+		reportMap->setBinContent(ieta,iphi,-1);
+		continue;}
+	      int phi=iphi+int(phiMin_)-1; 
+	      // Skip non-physical cells? or set their contents to -1? 
+	      if (phi<1 || phi>72) {
+		reportMap->setBinContent(ieta,iphi,-1);
+		continue;}
+	      if (abs(eta)>20 && phi%2==0) {
+		reportMap->setBinContent(ieta,iphi,-1);
+		continue;}
+	      if (abs(eta)>39 && phi%4!=3){
+		reportMap->setBinContent(ieta,iphi,-1);
+		continue;}
+	      /*
+	      if (phi<1 || phi>72) continue; 
+	      if (abs(eta)>20 && phi%2==0) continue; 
+	      if (abs(eta)>39 && phi%4!=3) continue; 
+	      */
+	      reportMap->setBinContent(ieta,iphi,1); 
+	    }
+	} // for (int ieta=1; ieta<=etaBins_;++ieta)
+    } // else
 
   // Set the status words in the root file
   MonitorElement* me;
   dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
-
+  
   me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummary");
   if (me) me->Fill(status_global_);
 
