@@ -2506,13 +2506,18 @@ PFRootEventManager::printGenParticles(std::ostream& out,
 
     int vertexId1 = 0;
 
-    if ( !p->production_vertex() ) continue;
+    if ( !p->production_vertex() && p->pdg_id() == 2212 ) continue;
 
-    math::XYZVector vertex1 (p->production_vertex()->position().x()/10.,
-                             p->production_vertex()->position().y()/10.,
-                             p->production_vertex()->position().z()/10.);
-    vertexId1 = p->production_vertex()->barcode();
-    
+    math::XYZVector vertex1;
+    vertexId1 = -1;
+
+    if(p->production_vertex() ) {
+      vertex1.SetCoordinates( p->production_vertex()->position().x()/10.,
+			      p->production_vertex()->position().y()/10.,
+			      p->production_vertex()->position().z()/10. );
+      vertexId1 = p->production_vertex()->barcode();
+    }
+
     out.setf(std::ios::fixed, std::ios::floatfield);
     out.setf(std::ios::right, std::ios::adjustfield);
     
@@ -2535,22 +2540,17 @@ PFRootEventManager::printGenParticles(std::ostream& out,
         << std::setw(6) << std::setprecision(1) << vertex1.z() << " ";
 
 
-    p->production_vertex();
-    p->production_vertex()->particles_in_const_begin();
-    *(p->production_vertex()->particles_in_const_begin());
+    if( p->production_vertex() ) {
+      if ( p->production_vertex()->particles_in_size() ) {
+	const HepMC::GenParticle* mother = 
+	  *(p->production_vertex()->particles_in_const_begin());
+	
+	out << std::setw(4) << mother->barcode() << " ";
+      }
+      else 
+	out << "     " ;
+    }    
 
-    //     const HepMC::GenParticle* mother = 
-    //       *(p->production_vertex()->particles_in_const_begin());
-
-    if ( p->production_vertex()->particles_in_size() ) {
-      const HepMC::GenParticle* mother = 
-        *(p->production_vertex()->particles_in_const_begin());
-      
-      out << std::setw(4) << mother->barcode() << " ";
-    }
-    else 
-      out << "     " ;
-    
     if ( p->end_vertex() ) {  
       math::XYZTLorentzVector vertex2(p->end_vertex()->position().x()/10.,
                                       p->end_vertex()->position().y()/10.,

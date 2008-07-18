@@ -65,7 +65,7 @@ void GPFGenParticle::draw()
   SetTextFont(42);
   SetTextSize(0.05);
   TLatex::Draw();
-  line_->Draw();
+  if(line_) line_->Draw();
 }  
 //_________________________________________________________________
 void GPFGenParticle::setColor()
