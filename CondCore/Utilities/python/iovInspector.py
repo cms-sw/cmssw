@@ -13,4 +13,7 @@ class PayLoad :
         exec('import '+db.moduleName(token)+' as Plug')
         self.__me = Plug.Object(db.payLoad(token))
 
+    def print(self) :
+        return self.__me.print()
+
 
