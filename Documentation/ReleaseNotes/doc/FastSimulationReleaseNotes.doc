@@ -20,7 +20,7 @@ Realistic HCAL saturation implementation
 Pile-Up at 10 TeV is available
 Implementation of the multiple scattering for the muons from hits
 The standard collection names are used for the tracks (iterative tracking)
-
+3.8 T magnetic field
 
 - Major bug fixes:
 See the physics validation section of the twiki
