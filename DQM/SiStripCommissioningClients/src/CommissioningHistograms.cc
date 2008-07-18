@@ -425,9 +425,7 @@ void CommissioningHistograms::extractHistograms( const std::vector<std::string>&
     else { path = SiStripKey(); }
     
     // Check path is valid
-    if ( path.granularity() == sistrip::FEC_SYSTEM ||
-	 path.granularity() == sistrip::FED_SYSTEM || 
-	 path.granularity() == sistrip::UNKNOWN_GRAN ||
+    if ( path.granularity() == sistrip::UNKNOWN_GRAN ||
 	 path.granularity() == sistrip::UNDEFINED_GRAN ) { 
       continue; 
     }

@@ -13,7 +13,7 @@
 //
 // Original Author:  Christophe DELAERE
 //         Created:  Fri Nov 17 10:52:42 CET 2006
-// $Id: SiStripFineDelayHit.cc,v 1.7 2008/06/10 14:42:10 delaer Exp $
+// $Id: SiStripFineDelayHit.cc,v 1.8 2008/07/07 16:24:08 delaer Exp $
 //
 //
 
@@ -21,6 +21,8 @@
 // system include files
 #include <memory>
 #include <utility>
+#include <vector>
+#include <algorithm>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -58,6 +60,9 @@
 #include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
 #include <CondFormats/SiStripObjects/interface/SiStripNoises.h>
 #include <CondFormats/DataRecord/interface/SiStripFedCablingRcd.h>
+#include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
+#include <CondFormats/SiStripObjects/interface/SiStripNoises.h>
+
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
@@ -159,6 +164,7 @@ std::vector< std::pair<uint32_t,std::pair<double, double> > > SiStripFineDelayHi
 {
   bool onDisk = ((maskDetId==TIDDetId(3,15,0,0,0,0).rawId())||(maskDetId==TECDetId(3,15,0,0,0,0,0).rawId())) ;
   std::vector< std::pair<uint32_t,std::pair<double, double> > > result;
+  std::vector<uint32_t> usedDetids;
   // now loop on recHits to find the right detId plus the track local angle
   std::vector<std::pair< std::pair<DetId, LocalPoint> ,float> > hitangle;
   if(!cosmic_) {
@@ -204,9 +210,10 @@ std::vector< std::pair<uint32_t,std::pair<double, double> > > SiStripFineDelayHi
                       << " with a mask of "  << maskDetId << std::dec << std::endl;
 
     if(((iter->first.first.rawId() & maskDetId) != rootDetId)) continue;
-    // check the local angle
+    if(std::find(usedDetids.begin(),usedDetids.end(),iter->first.first.rawId())!=usedDetids.end()) continue;
+    // check the local angle (extended to the equivalent angle correction)
     LogDebug("DetId") << "check the angle: " << fabs((iter->second));
-    if(fabs((iter->second))>maxAngle_) continue;
+    if(1-fabs(fabs(iter->second)-1)<cos(maxAngle_/180.*TMath::Pi())) continue;
     // returns the detid + the time of flight to there
     std::pair<uint32_t,std::pair<double, double> > el;
     std::pair<double, double> subel;
@@ -233,6 +240,7 @@ std::vector< std::pair<uint32_t,std::pair<double, double> > > SiStripFineDelayHi
     el.second = subel;
     // returns the detid + TOF
     result.push_back(el);
+    usedDetids.push_back(el.first);
   }
   return result;
 }
@@ -439,13 +447,17 @@ SiStripFineDelayHit::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   	   }
   	 }
   	 edm::DetSet<SiStripRawDigi> newds(connectionMap_[it->first]);
-           LogDebug("produce") << " New Hit...   TOF:" << it->second.first << ", charge: " << int(leadingCharge) << " at " << int(leadingPosition);
-  	 // apply some correction to the leading charge, but only if it has not saturated.
+         LogDebug("produce") << " New Hit...   TOF:" << it->second.first << ", charge: " << int(leadingCharge) 
+                             << " at " << int(leadingPosition) << "." << std::endl
+                             << "Angular correction: " << it->second.second 
+                             << " giving a final value of " << int(leadingCharge*fabs(it->second.second));
+  	 // apply corrections to the leading charge, but only if it has not saturated.
   	 if(leadingCharge<255) {
-  	   // correct the leading charge for the crossing angle (expressed in degrees)
-    	   leadingCharge = uint8_t((leadingCharge*TMath::Cos(it->second.second/180.*TMath::Pi())));
-  	   // correct for modulethickness for TEC
-  	   if(((((it->first)>>25)&0x7f)==0xe)&&((((it->first)>>5)&0x7)>4)) leadingCharge = uint8_t((leadingCharge*0.64));
+  	   // correct the leading charge for the crossing angle
+    	   leadingCharge = uint8_t(leadingCharge*fabs(it->second.second));
+           // correct for module thickness for TEC and TOB
+           if((((((it->first)>>25)&0x7f)==0xd)||((((it->first)>>25)&0x7f)==0xe))&&((((it->first)>>5)&0x7)>4))
+             leadingCharge = uint8_t((leadingCharge*0.64));
   	 }
   	 //code the time of flight in the digi
   	 unsigned int tof = abs(int(round(it->second.first*10)));
@@ -454,7 +466,7 @@ SiStripFineDelayHit::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   	 newds.push_back(newSiStrip);
   	 //store into the detsetvector
   	 output.push_back(newds);
-  	 LogDebug("produce") << "    New edm::DetSet<SiStripRawDigi> added.";
+  	 LogDebug("produce") << "New edm::DetSet<SiStripRawDigi> added.";
          }
          if(homeMadeClusters_) delete candidateCluster.first; // we are owner of home-made clusters
        }
@@ -514,14 +526,14 @@ SiStripFineDelayHit::produceNoTracking(edm::Event& iEvent, const edm::EventSetup
          // 50 > s/n > 10
          edm::ESHandle<SiStripNoises> noiseHandle_;
          iSetup.get<SiStripNoisesRcd>().get(noiseHandle_);
-         SiStripNoises::Range detNoiseRange = noiseHandle_->getRange(DSViter->id());
-         float noise=noiseHandle_->getNoise(leadingPosition, detNoiseRange);
+         SiStripNoises::Range detNoiseRange = noiseHandle_->getRange(DSViter->id());  
+         float noise=noiseHandle_->getNoise(leadingPosition, detNoiseRange);   
          if( noise<1.5 ) continue;
          if( leadingCharge>=250 || noise>=8 || leadingCharge/noise>50 || leadingCharge/noise<10 ) continue;
 	 // apply some correction to the leading charge, but only if it has not saturated.
 	 if(leadingCharge<255) {
 	   // correct for modulethickness for TEC and TOB
-	   if((((((DSViter->id())>>25)&0x7f)==0xd)||((((DSViter->id())>>25)&0x7f)==0xd))&&((((DSViter->id())>>5)&0x7)>4)) 
+	   if((((((DSViter->id())>>25)&0x7f)==0xd)||((((DSViter->id())>>25)&0x7f)==0xe))&&((((DSViter->id())>>5)&0x7)>4)) 
 	      leadingCharge = uint8_t((leadingCharge*0.64));
 	 }
 	 //code the time of flight == 0 in the digi
@@ -530,7 +542,7 @@ SiStripFineDelayHit::produceNoTracking(edm::Event& iEvent, const edm::EventSetup
      }
      //store into the detsetvector
      output.push_back(newds);
-     LogDebug("produce") << "    New edm::DetSet<SiStripRawDigi> added with fedkey = " 
+     LogDebug("produce") << "New edm::DetSet<SiStripRawDigi> added with fedkey = " 
                          << std::hex << std::setfill('0') << std::setw(8) 
                          << connectionMap_[DSViter->id()] << std::dec;
    }

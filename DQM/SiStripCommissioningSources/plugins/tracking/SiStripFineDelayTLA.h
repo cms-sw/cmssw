@@ -9,6 +9,8 @@
 
 #include <DataFormats/TrackingRecHit/interface/TrackingRecHit.h>
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/GeometryVector/interface/LocalVector.h"
+
 
 class SimpleTrackRefitter;
 class TrackerGeometry;
@@ -28,6 +30,10 @@ class SiStripFineDelayTLA
   std::vector<std::pair< std::pair<DetId, LocalPoint> ,float> > findtrackangle(const reco::Track & theT);
   std::vector<std::pair< std::pair<DetId, LocalPoint> ,float> > findtrackangle(const std::vector<Trajectory>& traj);
   std::vector<std::pair< std::pair<DetId, LocalPoint> ,float> > findtrackangle(const Trajectory& traj);
+
+ private:
+
+  double computeAngleCorr(const LocalVector& v, double pitch, double thickness);
 
  private:
   edm::ParameterSet conf_;
