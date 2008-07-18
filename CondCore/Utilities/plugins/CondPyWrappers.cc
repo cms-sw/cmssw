@@ -2,6 +2,8 @@
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/Utilities/interface/CondPyInterface.h"
 #include "CondCore/IOVService/interface/IOVProxy.h"
+#include "CondCore/DBCommon/interface/LogDBEntry.h"
+
 
 #include "CondCore/DBCommon/interface/ClassInfoLoader.h"
 #include "CondCore/DBCommon/interface/ClassID.h"
@@ -47,6 +49,22 @@ namespace {
 
 BOOST_PYTHON_MODULE(pluginCondDBPyInterface) {
   
+
+  class_<LogDBEntry>("LogDBEntry").
+    .def("logId",  LogDBEntry::logId)
+    .def("",  LogDBEntry::destinationDB)   
+    .def("provenance", LogDBEntry::provenance)
+    .def("usertext", LogDBEntry::usertext)
+    .def("iovtag", LogDBEntry::Entryiovtag)
+    .def("iovtimetype",  LogDBEntry::iovtimetype)
+    .def("payloadIdx",  LogDBEntry::payloadIdx)
+    .def("payloadName",  LogDBEntry::payloadName)
+    .def("payloadToken",  LogDBEntry::payloadToken)
+    .def("payloadContainer",  LogDBEntry::payloadContainer)
+    .def("exectime",  LogDBEntry::exectime)
+    .def("execmessage",  LogDBEntry::execmessage)
+    ;
+
   class_<std::vector<float> >("VFloat")
     .def(vector_indexing_suite<std::vector<float> >())
     ;
