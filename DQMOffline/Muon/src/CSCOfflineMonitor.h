@@ -29,6 +29,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include <FWCore/ParameterSet/interface/InputTag.h>
 
 #include "DataFormats/CSCDigi/interface/CSCWireDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
@@ -77,6 +78,9 @@ protected:
 private: 
 
   edm::ParameterSet param;
+  edm::InputTag stripDigiTag_;
+  edm::InputTag wireDigiTag_;
+
 
   // some useful functions
   float      fitX(HepMatrix sp, HepMatrix ep);

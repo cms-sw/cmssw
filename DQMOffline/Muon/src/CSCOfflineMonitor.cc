@@ -18,6 +18,9 @@ CSCOfflineMonitor::CSCOfflineMonitor(const ParameterSet& pset){
 
   param = pset;
 
+  stripDigiTag_  = pset.getParameter<edm::InputTag>("stripDigiTag");
+  wireDigiTag_   = pset.getParameter<edm::InputTag>("wireDigiTag"); 
+
 }
 
 void CSCOfflineMonitor::beginJob(edm::EventSetup const& iSetup){
@@ -445,10 +448,10 @@ void CSCOfflineMonitor::analyze(const Event & event, const EventSetup& eventSetu
   // ==============================================
 
 
-  edm::Handle<CSCWireDigiCollection> wires;
   edm::Handle<CSCStripDigiCollection> strips;
-  event.getByLabel("muonCSCDigis","MuonCSCWireDigi",wires);
-  event.getByLabel("muonCSCDigis","MuonCSCStripDigi",strips);
+  edm::Handle<CSCWireDigiCollection> wires;
+  event.getByLabel( stripDigiTag_, strips);
+  event.getByLabel( wireDigiTag_,  wires);
 
   //
   // WIRE GROUPS
