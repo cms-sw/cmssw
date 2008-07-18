@@ -44,7 +44,7 @@ namespace cond {
 
   template<>
   std::string
-  PayLoadInspector<Pedestals>::print() const {
+  PayLoadInspector<Pedestals>::dump() const {
     Printer p;
     std::for_each(object->m_pedestals.begin(),object->m_pedestals.end(),boost::bind(&Printer::doit,boost::ref(p),_1));
     p.ss << std::endl;

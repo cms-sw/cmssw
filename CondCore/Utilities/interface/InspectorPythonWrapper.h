@@ -16,7 +16,7 @@ namespace {
 
     class_<Wrapper>("Object",init<>()) 
       .def(init<cond::IOVElement>())
-      .def("print",&Wrapper::print)
+      .def("dump",&Wrapper::dump)
       .def("summary",&Wrapper::summary) 
       .def("extract",&Wrapper::extract)
       ; 

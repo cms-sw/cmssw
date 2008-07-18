@@ -75,7 +75,7 @@ namespace cond {
       PoolTransactionSentry(*elem.db()),
       object(*elem.db(),elem.payloadToken()){}
 
-    std::string print() const { return ""; }
+    std::string dump() const { return ""; }
 
     std::string summary() const {return ""; }
 
