@@ -71,6 +71,8 @@ class HLTTauCaloDQMOfflineSource : public edm::EDAnalyzer {
       double EtMax_;
       int NBins_;
 
+      DQMStore* store;
+
       //Monitor elements main
       MonitorElement* jetEt;
       MonitorElement* jetEta;
@@ -86,6 +88,7 @@ class HLTTauCaloDQMOfflineSource : public edm::EDAnalyzer {
       MonitorElement* EtEffDenom;
       //      MonitorElement* EtEff;
       MonitorElement* MET;
+
 
       bool matchJet(const reco::Jet&,const reco::CaloJetCollection&);//See if this Jet Is Matched
       bool match(const reco::Jet&,const LVColl&);//See if this Jet Is Matched

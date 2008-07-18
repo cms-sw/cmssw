@@ -19,7 +19,7 @@ HLTTauCaloDQMOfflineSource::HLTTauCaloDQMOfflineSource(const edm::ParameterSet& 
 
 {
 
-  DQMStore* store = &*edm::Service<DQMStore>();
+   store = &*edm::Service<DQMStore>();
   
   if(store)
     {
@@ -136,7 +136,7 @@ HLTTauCaloDQMOfflineSource::endJob() {
 
   //Write file
   if(outFile_.size()>0)
-    if (&*edm::Service<DQMStore>()) edm::Service<DQMStore>()->save (outFile_);
+    if (store) store->save (outFile_);
 
 }
 

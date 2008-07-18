@@ -56,6 +56,8 @@ class HLTTauTrkDQMOfflineSource : public edm::EDAnalyzer {
      
       //Output file
       std::string tT_;
+      std::string type_;
+
       std::string outFile_;
 
       //Monitor elements main
@@ -72,7 +74,7 @@ class HLTTauTrkDQMOfflineSource : public edm::EDAnalyzer {
       //MonitorElement* l25EtEff;
 
 
-
+      DQMStore* store;
                
       int nTracksInIsolationRing_;
       float rMatch_;

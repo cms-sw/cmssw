@@ -11,25 +11,26 @@ HLTTauTrkDQMOfflineSource::HLTTauTrkDQMOfflineSource(const edm::ParameterSet& iC
    mcMatch_ = iConfig.getParameter<double>("MatchDeltaR");
    match_ = iConfig.getParameter<bool>("doReference");
    tT_ = iConfig.getParameter<std::string>("DQMFolder");
+   type_ = iConfig.getParameter<std::string>("Type");
    outFile_ = iConfig.getParameter<std::string>("OutputFileName");
    EtMin_ = (iConfig.getParameter<double>("EtMin"));
    EtMax_ = (iConfig.getParameter<double>("EtMax"));
    NBins_ = (iConfig.getParameter<int>("NBins"));
 
-   DQMStore* store = &*edm::Service<DQMStore>();
+    store = &*edm::Service<DQMStore>();
   
    if(store){		//Create the histograms
       
       store->setCurrentFolder(tT_);
-      jetEt = store->book1D((tT_+"jetEt").c_str(), "jetEt",NBins_,EtMin_,EtMax_);
-      jetEta = store->book1D((tT_+"jetEta").c_str(), "jetEta", 50, -2.5, 2.5);
-      nL2EcalIsoJets = store->book1D((tT_+"nL2EcalIsoJets").c_str(), "nInputJets", 10, 0, 10);
-      nL25Jets = store->book1D((tT_+"nL25Jets").c_str(), "nIsoJets", 10, 0, 10);
-      nPxlTrksInL25Jet = store->book1D((tT_+"nPxlTrksInJet").c_str(), "nPxlTrksInJet", 30, 0, 30);
-      nQPxlTrksInL25Jet = store->book1D((tT_+"nQPxlTrksInJet").c_str(),"nQPxlTrksInJet", 15, 0, 15);
-      signalLeadTrkPt = store->book1D((tT_+"signalLeadTrkPt").c_str(), "signalLeadTrkPt", 75, 0, 150);
-      l25IsoJetEt = store->book1D((tT_+"IsoJetEt").c_str(), "IsoJetEt", NBins_, EtMin_,EtMax_);
-      l25IsoJetEta = store->book1D((tT_+"IsoJetEta").c_str(), "IsoJetEta", 50, -2.5, 2.5);
+      jetEt = store->book1D((type_+"jetEt").c_str(), "jetEt",NBins_,EtMin_,EtMax_);
+      jetEta = store->book1D((type_+"jetEta").c_str(), "jetEta", 50, -2.5, 2.5);
+      nL2EcalIsoJets = store->book1D((type_+"nL2EcalIsoJets").c_str(), "nInputJets", 10, 0, 10);
+      nL25Jets = store->book1D((type_+"nL25Jets").c_str(), "nIsoJets", 10, 0, 10);
+      nPxlTrksInL25Jet = store->book1D((type_+"nTrksInJet").c_str(), "nPxlTrksInJet", 30, 0, 30);
+      nQPxlTrksInL25Jet = store->book1D((type_+"nQPxlTrksInJet").c_str(),"nQPxlTrksInJet", 15, 0, 15);
+      signalLeadTrkPt = store->book1D((type_+"signalLeadTrkPt").c_str(), "signalLeadTrkPt", 75, 0, 150);
+      l25IsoJetEt = store->book1D((type_+"IsoJetEt").c_str(), "IsoJetEt", NBins_, EtMin_,EtMax_);
+      l25IsoJetEta = store->book1D((type_+"IsoJetEta").c_str(), "IsoJetEta", 50, -2.5, 2.5);
 
    }
 }
@@ -82,7 +83,8 @@ HLTTauTrkDQMOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSet
 		 nL25Jets->Fill(tauTagInfoColl.size());											         
 		 nPxlTrksInL25Jet->Fill(tauTagInfo.allTracks().size());								    
 		 nQPxlTrksInL25Jet->Fill(tauTagInfo.selectedTracks().size());							    
-	     
+		 printf("Plotted stuff\n");
+
 		 const TrackRef leadTrk = tauTagInfo.leadingSignalTrack();
 		 if(!leadTrk) std::cout <<  "No leading track found " << std::endl;
 		 else{
@@ -120,7 +122,7 @@ void HLTTauTrkDQMOfflineSource::endJob() {
 
       
    //Write file
-   if(outFile_.size()>0 &&(&*edm::Service<DQMStore>())) edm::Service<DQMStore>()->save (outFile_);
+   if(outFile_.size()>0 &&(store))  store->save (outFile_);
 
 }
 
