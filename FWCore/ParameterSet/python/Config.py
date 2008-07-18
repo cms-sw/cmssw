@@ -532,7 +532,6 @@ class Process(object):
                 scheduledPaths.append(name)
                 endpaths.append(name)
         else:
-            self.schedule_().enforceDependencies()
             for path in self.schedule_():
                pathname = path.label()
                scheduledPaths.append(pathname)
@@ -553,6 +552,9 @@ class Process(object):
         for endpathname in endpaths:
             #self.endpaths_()[endpathname].insertInto(processPSet, endpathname, self.sequences_())
             self.endpaths_()[endpathname].insertInto(processPSet, endpathname, self.__dict__)
+        # all the placeholders should be resolved now, so...
+        #if self.schedule_() != None:
+        #    self.schedule_().enforceDependencies()
         
     def fillProcessDesc(self, processDesc, processPSet):
         processPSet.addString(True, "@process_name", self.name_())
