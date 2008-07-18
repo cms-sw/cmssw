@@ -158,6 +158,12 @@ namespace cond {
     return IOVProxy(me->poolTransaction(),iovToken(tag),false);
   }
 
+  IOVElement CondDB::payLoad(std::string const & token) const {
+    retun  IOVElement(0,0,token,me->poolTransaction());
+
+  }
+
+
   cond::LogDBEntry CondDB::lastLogEntry(std::string const & tag) const {
     cond::LogDBEntry entry;
     if (logger)

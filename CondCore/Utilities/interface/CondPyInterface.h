@@ -46,6 +46,8 @@ namespace cond {
    IOVProxy iov(std::string const & tag) const;
    IOVProxy iovWithLib(std::string const & tag) const;
 
+   IOVElement payLoad(std::string const & token) const;
+
    std::string iovToken(std::string const & tag) const;
    
    cond::LogDBEntry lastLogEntry(std::string const & tag) const;

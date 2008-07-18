@@ -30,12 +30,23 @@ namespace {
     return boost::shared_ptr<cond::ClassInfo>(cond::ClassInfoFactory::get()->create(pluginName));
   }
   
-  std::string moduleName(cond::CondDB & db, std::string const & tag) {
+  std::string moduleNameByTag(cond::CondDB & db, std::string const & tag) {
     cond::IOVProxy iov = db.iov(tag);
     if (0==iov.size()) return std::string();
     return pyInfo(iov.begin()->payloadToken())->resource();
   }
+
+  std::string moduleNameByToken(std::string const & token) {
+    if (token.empty()) return std::string();
+    return pyInfo(token)->resource();
+  }
   
+  std::string moduleName(cond::CondDB & db, std::string const & ss) {
+    //assume tags never start with '['
+    if (ss[0]=='[') return moduleNameByToken(ss);
+    return  moduleNameByTag(db,ss);
+  }
+
 
 //  exceptionTranslator(const edm::Exception & e)
 //  {
@@ -112,6 +123,7 @@ BOOST_PYTHON_MODULE(pluginCondDBPyInterface) {
     .def("allTags", &cond::CondDB::allTags)
     .def("iov", &cond::CondDB::iov)
     .def("iovWithLib", &cond::CondDB::iovWithLib)
+    .def("payLoad", &cond::CondDB::payLoad)
     .def("moduleName",moduleName)
     .def("lastLogEntry", &cond::CondDB::lastLogEntry)
     .def("lastLogEntryOK", &cond::CondDB::lastLogEntryOK)
