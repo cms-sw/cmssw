@@ -14,42 +14,48 @@ void UEAnalysisAntiKtJets::Begin(TFile * f, string hltBit)
 {
   f->cd( hltBit.c_str() );
 
-  h_pTJet = new TH1D("h_pTJet", "h_pTJet;p_{T}(jet 1) (GeV/c)", 150, 0., 300. );
-  h_nConstituents = new TH1D("h_nConstituents", "h_nConstituents;N(jet constituents)", 30, 0.5, 30.5);
-  h_pTSumConstituents = new TH1D("h_pTSumConstituents", "h_pTSumConstituents;d#Sigmap_{T}(jet constituents) (GeV/c)", 150, 0., 300.);
-  h_pTByNConstituents = new TH1D("h_pTByNConstituents", "h_pTByNConstituents;p_{T}(jet 1)/N(jet constituents) (GeV/c)", 100, 0., 100. );
-  h_areaJet1 = new TH1D("h_areaJet1", "h_areaJet1;area(jet 1) (rad)", 100, 0., 1.5);
-  h_pTConstituent = new TH1D("h_pTConstituent", "h_pTConstituent;p_{T}(jet constituent) (GeV/c)", 100, 0., 100. );
-  h_dphiJC = new TH1D("h_dphiJC", "h_dphiJC;#Delta#phi(jet 1, jet constituent) (rad)", 100, 0., TMath::Pi() );
-  h_dphiEcal = new TH1D("h_dphiEcal", "h_dphiEcal;constituent #Delta#phi(Vtx, ECAL) (rad)", 100, 0., 1.5 );
-  h_pTAllJets = new TH1D("h_pTAllJets", "h_pTAllJets;p_{T}(jet) (GeV/c)", 150, 0., 300.);
-  h_areaAllJets = new TH1D("h_areaAllJets", "h_areaAllJets;area(jet) (rad);", 100, 0., 1.5);
-  h_pTByAreaAllJets = new TH1D("h_pTByAreaAllJets", "h_pTByAreaAllJets", 150, 0., 600.);
+   h_pTJet = new TH1D("h_pTJet", "h_pTJet;p_{T}(jet 1) (GeV/c)", 150, 0., 300. );
+   h_nConstituents = new TH1D("h_nConstituents", "h_nConstituents;N(jet constituents)", 30, 0.5, 30.5);
+   h_pTSumConstituents = new TH1D("h_pTSumConstituents", "h_pTSumConstituents;d#Sigmap_{T}(jet constituents) (GeV/c)", 150, 0., 300.);
+   h_pTByNConstituents = new TH1D("h_pTByNConstituents", "h_pTByNConstituents;p_{T}(jet 1)/N(jet constituents) (GeV/c)", 100, 0., 100. );
+   h_areaJet1 = new TH1D("h_areaJet1", "h_areaJet1;area(jet 1) (rad)", 100, 0., 1.5);
+   h_pTConstituent = new TH1D("h_pTConstituent", "h_pTConstituent;p_{T}(jet constituent) (GeV/c)", 100, 0., 100. );
+   h_dphiJC = new TH1D("h_dphiJC", "h_dphiJC;#Delta#phi(jet 1, jet constituent) (rad)", 100, 0., TMath::Pi() );
+   h_dphiEcal = new TH1D("h_dphiEcal", "h_dphiEcal;constituent #Delta#phi(Vtx, ECAL) (rad)", 100, 0., 1.5 );
+   h_pTAllJets = new TH1D("h_pTAllJets", "h_pTAllJets;p_{T}(jet) (GeV/c)", 150, 0., 300.);
+   h_areaAllJets = new TH1D("h_areaAllJets", "h_areaAllJets;area(jet) (rad);", 100, 0., 1.5);
+   h_pTByAreaAllJets = new TH1D("h_pTByAreaAllJets", "h_pTByAreaAllJets;< p_{T}(jet)/area(jet) > (GeV/c / rad)", 150, 0., 600.);
 
-  h2d_nConstituents_vs_pTJet = new TH2D("h2d_nConstituents_vs_pTJet", "h2d_nConstituents_vs_pTJet;p_{T}(jet 1) (GeV/c);N(jet constituents)",
-					   150, 0., 300., 30, 0.5, 30.5);
-  h2d_pTSumConstituents_vs_pTJet = new TH2D("h2d_pTSumConstituents_vs_pTJet", 
-					    "h2d_pTSumConstituents_vs_pTJet;p_{T}(jet 1) (GeV/c);d#Sigmap_{T}(jet constituents) (GeV/c)",
-					    150, 0., 300., 150, 0., 300.);
-  h2d_pTByNConstituents_vs_pTJet = new TH2D("h2d_pTByNConstituents_vs_pTJet",
-					    "h2d_pTByNConstituents_vs_pTJet;p_{T}(jet 1) (GeV/c);p_{T}(jet 1)/N(jet constituents) (GeV/c)",
-					    150, 0., 300., 100, 0., 100.);
-  h2d_areaJet1_vs_pTJet1 = new TH2D("h2d_areaJet1_vs_pTJet1", "h2d_areaJet1_vs_pTJet1;p_{T}(jet 1) (GeV/c);jet 1 area (rad)",
-				  150, 0., 300., 100, 0., 1.5);
-  h2d_pTConstituent_vs_pTJet = new TH2D("h2d_pTConstituent_vs_pTJet", 
-					"h2d_pTConstituent_vs_pTJet;p_{T}(jet 1) (GeV/c);<p_{T}>(jet constituents) (GeV/c)",
-					150, 0., 300., 100, 0., 100.);
-  h2d_dphiJC_vs_pTConstituent = new TH2D("h2d_dphiJC_vs_pTConstituent", 
-				       "h2d_dphiJC_vs_pTConstituent;p_{T}(jet constituent) (GeV/c);#Delta#phi(jet 1, jet constituent) (rad)",
-				       100, 0., 50., 100, 0., TMath::Pi() );
-  h2d_dphiJC_vs_pTJet = new TH2D("h2d_dphiJC_vs_pTJet", "h2d_dphiJC_vs_pTJet;p_{T}(jet 1) (GeV/c);#Delta#phi(jet 1, jet constituent) (rad)",
-			       150, 0., 300., 100, 0., TMath::Pi() );
-  h2d_dphiEcal_vs_pTConstituent = new TH2D("h2d_dphiEcal_vs_pTConstituent",
-					   "h2d_dphiEcal_vs_pTConstituent;p_{T}(jet constituent) (GeV/c);constituent #Delta#phi(Vtx, ECAL) (rad)",
-					   100, 0., 3., 100, 0., 1.5 );
-  h2d_dphiEcal_vs_pTJet = new TH2D("h2d_dphiEcal_vs_pTJet", "h2d_dphiEcal_vs_pTJet;p_{T}(jet 1) (GeV/c);constituent #Delta#phi(Vtx, ECAL) (rad)",
-				 150, 0., 300., 100, 0., 1.5 );
-  h2d_pTByAreaAllJets_vs_pTJet = new TH2D("h2d_pTByAreaAllJets_vs_pTJet", "h2d_pTByAreaAllJets_vs_pTJet;p_{T}(jet 1) (GeV/c);p_{T}(jet) / area(jet) (GeV/c / rad)", 150, 0., 300., 150, 0., 600.);
+   h2d_nConstituents_vs_pTJet = new TH2D("h2d_nConstituents_vs_pTJet", 
+					 "h2d_nConstituents_vs_pTJet;p_{T}(jet 1) (GeV/c);N(jet constituents)",
+					 150, 0., 300., 30, 0.5, 30.5);
+   h2d_pTSumConstituents_vs_pTJet = new TH2D("h2d_pTSumConstituents_vs_pTJet",
+					     "h2d_pTSumConstituents_vs_pTJet;p_{T}(jet 1) (GeV/c);d#Sigmap_{T}(jet constituents) (GeV/c)",
+					     150, 0., 300., 150, 0., 300.);
+   h2d_pTByNConstituents_vs_pTJet = new TH2D("h2d_pTByNConstituents_vs_pTJet",
+					     "h2d_pTByNConstituents_vs_pTJet;p_{T}(jet 1) (GeV/c);p_{T}(jet 1)/N(jet constituents) (GeV/c)",
+					     150, 0., 300., 100, 0., 100.);
+   h2d_areaJet1_vs_pTJet1 = new TH2D("h2d_areaJet1_vs_pTJet1", 
+				     "h2d_areaJet1_vs_pTJet1;p_{T}(jet 1) (GeV/c);jet 1 area (rad)",
+				     150, 0., 300., 100, 0., 1.5);
+   h2d_pTConstituent_vs_pTJet = new TH2D("h2d_pTConstituent_vs_pTJet",
+					 "h2d_pTConstituent_vs_pTJet;p_{T}(jet 1) (GeV/c);<p_{T}>(jet constituents) (GeV/c)",
+					 150, 0., 300., 100, 0., 100.);
+   h2d_dphiJC_vs_pTConstituent = new TH2D("h2d_dphiJC_vs_pTConstituent",
+					  "h2d_dphiJC_vs_pTConstituent;p_{T}(jet constituent) (GeV/c);#Delta#phi(jet 1, jet constituent) (rad)",
+					  100, 0., 50., 100, 0., TMath::Pi() );
+   h2d_dphiJC_vs_pTJet = new TH2D("h2d_dphiJC_vs_pTJet", 
+				  "h2d_dphiJC_vs_pTJet;p_{T}(jet 1) (GeV/c);#Delta#phi(jet 1, jet constituent) (rad)",
+				  150, 0., 300., 100, 0., TMath::Pi() );
+   h2d_dphiEcal_vs_pTConstituent = new TH2D("h2d_dphiEcal_vs_pTConstituent",
+					    "h2d_dphiEcal_vs_pTConstituent;p_{T}(jet constituent) (GeV/c);constituent #Delta#phi(Vtx, ECAL) (rad)",
+					    100, 0., 3., 100, 0., 1.5 );
+   h2d_dphiEcal_vs_pTJet = new TH2D("h2d_dphiEcal_vs_pTJet", 
+				    "h2d_dphiEcal_vs_pTJet;p_{T}(jet 1) (GeV/c);constituent #Delta#phi(Vtx, ECAL) (rad)",
+				    150, 0., 300., 100, 0., 1.5 );
+   h2d_pTByAreaAllJets_vs_pTJet = new TH2D("h2d_pTByAreaAllJets_vs_pTJet", 
+					   "h2d_pTByAreaAllJets_vs_pTJet;p_{T}(jet 1) (GeV/c);< p_{T}(jet)/area(jet) > (GeV/c / rad)", 
+					   150, 0., 300., 150, 0., 600.);
       
 }
 
@@ -212,17 +218,20 @@ void UEAnalysisAntiKtJets::jetAnalysis(float weight, float etaRegion, float ptTh
   vector<fastjet::PseudoJet>::iterator jetIt   ( sorted_jets.begin() );
   vector<fastjet::PseudoJet>::iterator jetItEnd( sorted_jets.end()   );
 
+  double pTByAreaSum( 0. );
   for ( ; jetIt!=jetItEnd; ++jetIt )
     {
       h_pTAllJets  ->Fill( (*jetIt).perp()                      , weight );
-      h_areaAllJets->Fill( clusterSequenceWithArea->area(*jetIt), weight );      
-      h_pTByAreaAllJets->Fill( (*jetIt).perp()/clusterSequenceWithArea->area(*jetIt), weight );
-      h2d_pTByAreaAllJets_vs_pTJet->Fill( (*jet1It).perp() , (*jetIt).perp()/clusterSequenceWithArea->area(*jetIt), weight );
+      h_areaAllJets->Fill( clusterSequenceWithArea->area(*jetIt), weight );
+
+      pTByAreaSum += (*jetIt).perp()/clusterSequenceWithArea->area(*jetIt);
     }
   
   if ( sorted_jets.size() > 0 )
     {
       fastjet::PseudoJet jet1( sorted_jets[0] );
+      h_pTByAreaAllJets->Fill( pTByAreaSum/sorted_jets.size(), weight );
+      h2d_pTByAreaAllJets_vs_pTJet->Fill( jet1.perp() , pTByAreaSum/sorted_jets.size(), weight );
 
       //std::vector< PseudoJet > constituents (const PseudoJet &jet) const 
       // return a vector of the particles that make up jet 
@@ -249,32 +258,33 @@ void UEAnalysisAntiKtJets::jetAnalysis(float weight, float etaRegion, float ptTh
 
       double pTSumConstituents( 0. );
       for ( ; it!=itEnd; ++it )
-	{
-	  //	  cout << "\tconstituent pT=" << (*it).perp() << endl;
-
-	  h_pTConstituent->Fill( (*it).perp(), weight );
-	  pTSumConstituents += (*it).perp();
-
-	  TVector2* jvec = new TVector2(jet1.px(), jet1.py());
-	  TVector2* cvec = new TVector2((*it).px(), (*it).py());
-	  h_dphiJC                    ->Fill( TMath::Abs(jvec->DeltaPhi(*cvec)), weight );
-	  h2d_dphiJC_vs_pTConstituent ->Fill( (*it).perp(), TMath::Abs(jvec->DeltaPhi(*cvec)), weight );
-	  h2d_dphiJC_vs_pTJet         ->Fill( jet1.perp() , TMath::Abs(jvec->DeltaPhi(*cvec)), weight );
-	  jvec->Delete();
-	  cvec->Delete();
-
-	  //	  cout << "phi=" << (*it).phi() << ", dphi(phi,ecalphi)=" << ecalPhi((*it).perp()) << endl;
-	  h_dphiEcal                   ->Fill( ecalPhi((*it).perp()), weight );
-	  h2d_dphiEcal_vs_pTConstituent->Fill( (*it).perp(), ecalPhi((*it).perp()), weight );
-	  h2d_dphiEcal_vs_pTJet        ->Fill( jet1.perp() , ecalPhi((*it).perp()), weight );
-	}
+	  {
+		  //	  cout << "\tconstituent pT=" << (*it).perp() << endl;
+		  
+		  h_pTConstituent->Fill( (*it).perp(), weight );
+		  pTSumConstituents += (*it).perp();
+		  
+		  TVector2* jvec = new TVector2(jet1.px(), jet1.py());
+		  TVector2* cvec = new TVector2((*it).px(), (*it).py());
+		  h_dphiJC                    ->Fill( TMath::Abs(jvec->DeltaPhi(*cvec)), weight );
+		  h2d_dphiJC_vs_pTConstituent ->Fill( (*it).perp(), TMath::Abs(jvec->DeltaPhi(*cvec)), weight );
+		  h2d_dphiJC_vs_pTJet         ->Fill( jet1.perp() , TMath::Abs(jvec->DeltaPhi(*cvec)), weight );
+		  jvec->Delete();
+		  cvec->Delete();
+		  
+		  //	  cout << "phi=" << (*it).phi() << ", dphi(phi,ecalphi)=" << ecalPhi((*it).perp()) << endl;
+		  h_dphiEcal                   ->Fill( ecalPhi((*it).perp()), weight );
+		  h2d_dphiEcal_vs_pTConstituent->Fill( (*it).perp(), ecalPhi((*it).perp()), weight );
+		  h2d_dphiEcal_vs_pTJet        ->Fill( jet1.perp() , ecalPhi((*it).perp()), weight );
+	  }
       h_pTSumConstituents->Fill( pTSumConstituents, weight );
-
-      h2d_pTConstituent_vs_pTJet->Fill( jet1.perp(), pTSumConstituents/constituents.size(), weight );
       h2d_pTSumConstituents_vs_pTJet->Fill( jet1.perp(), pTSumConstituents, weight );
-    }
-
-
+	  
+      // event average of constituent pT
+      h2d_pTConstituent_vs_pTJet->Fill( jet1.perp(), pTSumConstituents/constituents.size(), weight );
+	}
+  
+  
   iJet = 0;
   int iSavedJet( 0 );
 
