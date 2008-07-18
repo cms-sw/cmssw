@@ -27,7 +27,11 @@ for tag in tags.split() :
                 print v
     except RuntimeError :
         print " no iov?"
-        
+
+
 iov=0
 
+p = db.payLoad(log.payloadToken)
+o = Plug.Object(p)
+o.summary()
 
