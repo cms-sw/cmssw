@@ -68,8 +68,7 @@ void AlignableDetUnit::addAlignmentPositionError(const AlignmentPositionError& a
   if ( !theAlignmentPositionError )
     this->setAlignmentPositionError( ape );
   else 
-    this->setAlignmentPositionError( *theAlignmentPositionError += ape );
-
+    *theAlignmentPositionError += ape;
 }
 
 
