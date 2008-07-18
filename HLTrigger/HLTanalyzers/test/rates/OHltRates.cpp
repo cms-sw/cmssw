@@ -252,7 +252,7 @@ int main(int argc, char *argv[]){
     }
     doMuonCut.push_back(true); doElecCut.push_back(false);
     
-    xsec.push_back(2.5E8); // pp 10 TeV PYTHIA cross-section times filter pp->eleX (5.16E10*0.005)
+    xsec.push_back(3.56E7); // pp 10 TeV PYTHIA cross-section times filter pp->eleX (5.16E10*0.000689)
     skmeff.push_back(1.);  //
 
 
@@ -284,7 +284,7 @@ int main(int argc, char *argv[]){
     }
     doMuonCut.push_back(false); doElecCut.push_back(true);
     
-    xsec.push_back(2.5E7); // pp 10 TeV PYTHIA cross-section times filter pp->muX (5.16E10*0.0005)
+    xsec.push_back(5.15E7); // pp 10 TeV PYTHIA cross-section times filter pp->muX (5.16E10*0.000998)
     skmeff.push_back(1.);  //
 
     // Minbias
