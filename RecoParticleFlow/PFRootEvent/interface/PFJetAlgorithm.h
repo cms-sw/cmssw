@@ -98,7 +98,7 @@ class PFJetAlgorithm {
   void CleanUp();
   void 
     MergeJets(std::map< double, PFJetAlgorithm::Jet, 
-	      std::greater<double> >& etjets);
+              std::greater<double> >& etjets);
 
   double GetConeAngle() const { return fConeAngle;}
   const std::vector< PFJetAlgorithm::Jet >& GetJets() const { return fJets;}

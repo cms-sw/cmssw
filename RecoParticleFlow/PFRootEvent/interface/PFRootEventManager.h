@@ -159,7 +159,7 @@ class PFRootEventManager {
   /// get name of genParticle
   std::string getGenParticleName(int partId,std::string &latexStringName) const;
   
-  			 
+                         
   /// parse option file
   /// if(reconnect), the rootfile will be reopened, and the tree reconnected
   void readOptions(const char* file, 
@@ -229,7 +229,7 @@ class PFRootEventManager {
 
   /// used by the reconstruct*Jets functions
   void reconstructFWLiteJets(const reco::CandidateCollection& Candidates,
-			     std::vector<ProtoJet>& output);
+                             std::vector<ProtoJet>& output);
 
 
   /// performs the tau benchmark 
@@ -280,7 +280,7 @@ class PFRootEventManager {
   /// print the HepMC truth
   void printGenParticles(std::ostream& out = std::cout,
                          int maxNLines = -1) const;
-			 
+                         
   
   /*   /// is inside cut G?  */
   /*   bool   insideGCut(double eta, double phi) const; */

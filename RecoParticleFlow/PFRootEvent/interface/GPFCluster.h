@@ -16,7 +16,7 @@ class GPFCluster : public GPFBase, public TMarker {
  public:
 
   GPFCluster(DisplayManager *dm, int view, int ident, 
-	     const reco::PFCluster* clus,
+             const reco::PFCluster* clus,
              double x,double y,TAttMarker *attm);
   virtual ~GPFCluster() {;}
     

@@ -14,31 +14,31 @@
 #include "TLine.h"
 
 class GPFGenParticle : public GPFBase, public TMarker, public TLatex {
-  public:
-    GPFGenParticle(DisplayManager *dm, int view, int ident,
-                   double eta, double phi, double en, double pt,int barcode,
-		   TAttMarker *attm, std::string name,std::string latexName);
-    GPFGenParticle(DisplayManager *dm, int view, int ident,
-                   double *eta, double *phi, double en, double pt,
-		   int barcode, int barcodeMother,
-		   TAttMarker *attm, std::string name,std::string latexName);
-		   
-		   
-		   
-    virtual ~GPFGenParticle() {;}
+ public:
+  GPFGenParticle(DisplayManager *dm, int view, int ident,
+                 double eta, double phi, double en, double pt,int barcode,
+                 TAttMarker *attm, std::string name,std::string latexName);
+  GPFGenParticle(DisplayManager *dm, int view, int ident,
+                 double *eta, double *phi, double en, double pt,
+                 int barcode, int barcodeMother,
+                 TAttMarker *attm, std::string name,std::string latexName);
+                   
+                   
+                   
+  virtual ~GPFGenParticle() {;}
     
-    double   getEnergy() { return en_;}
-    double   getPt()     { return pt_;}
-    virtual void     draw();
-    void             setColor();
-    void             setColor(int newcol);
-    void             setInitialColor();
-    void             setNewStyle();
-    void             setNewSize(); 
+  double   getEnergy() { return en_;}
+  double   getPt()     { return pt_;}
+  virtual void     draw();
+  void             setColor();
+  void             setColor(int newcol);
+  void             setInitialColor();
+  void             setNewStyle();
+  void             setNewSize(); 
     
   //overridden ROOT method 
-    virtual void     Print();     // *MENU*
-    virtual void     ExecuteEvent(Int_t event, Int_t px, Int_t py);
+  virtual void     Print();     // *MENU*
+  virtual void     ExecuteEvent(Int_t event, Int_t px, Int_t py);
     
     
  private:
@@ -53,4 +53,4 @@ class GPFGenParticle : public GPFBase, public TMarker, public TLatex {
     
 };  
 #endif
-    		    
+                    

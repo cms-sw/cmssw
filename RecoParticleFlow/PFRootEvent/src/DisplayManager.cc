@@ -278,7 +278,7 @@ void DisplayManager::createGCluster(const reco::PFCluster& cluster,
   int clusType=0;
   
   if ( cluster.layer()==PFLayer::PS1 || cluster.layer()==PFLayer::PS2 )
-     clusType=1;  
+    clusType=1;  
 
   const math::XYZPoint& xyzPos = cluster.position();
   GPFCluster *gc;
@@ -288,19 +288,19 @@ void DisplayManager::createGCluster(const reco::PFCluster& cluster,
     switch(viewType) {
     case XY:
       {
-       if (clusType==0) {
+        if (clusType==0) {
           gc = new  GPFCluster(this,
-                                       viewType,ident,
-                                       &cluster,
-                                       xyzPos.X(), xyzPos.Y(), clusPattern_);
-       }
-       else {
+                               viewType,ident,
+                               &cluster,
+                               xyzPos.X(), xyzPos.Y(), clusPattern_);
+        }
+        else {
           gc = new  GPFCluster(this,
-                                       viewType,ident,
-                                       &cluster,
-                                      xyzPos.X(), xyzPos.Y(), clusPSPattern_);
-       }				      
-       graphicMap_.insert(pair<int,GPFBase *> (ident, gc));
+                               viewType,ident,
+                               &cluster,
+                               xyzPos.X(), xyzPos.Y(), clusPSPattern_);
+        }                                     
+        graphicMap_.insert(pair<int,GPFBase *> (ident, gc));
       }
       break;
     case RZ:
@@ -308,64 +308,64 @@ void DisplayManager::createGCluster(const reco::PFCluster& cluster,
         double sign = 1.;
         if (cos(phi0 - phi) < 0.)
           sign = -1.;
-	if ( clusType==0) { 
-	  gc = new  GPFCluster(this,
-	                                 viewType,ident,
-					 &cluster,
-					 xyzPos.z(),sign*xyzPos.Rho(),
-					 clusPattern_);
-	}
-	else {
-	  gc = new  GPFCluster(this,
-	                                 viewType,ident,
-					 &cluster,
-					 xyzPos.z(),sign*xyzPos.Rho(),
-					 clusPattern_);
-	}
-					 
-	graphicMap_.insert(pair<int,GPFBase *>	(ident, gc));			 
+        if ( clusType==0) { 
+          gc = new  GPFCluster(this,
+                               viewType,ident,
+                               &cluster,
+                               xyzPos.z(),sign*xyzPos.Rho(),
+                               clusPattern_);
+        }
+        else {
+          gc = new  GPFCluster(this,
+                               viewType,ident,
+                               &cluster,
+                               xyzPos.z(),sign*xyzPos.Rho(),
+                               clusPattern_);
+        }
+                                         
+        graphicMap_.insert(pair<int,GPFBase *>  (ident, gc));                    
       } 
       break;
     case EPE:
       {
         if( cluster.layer()<0 ) {
-	  if (clusType==0) {
-	     gc = new  GPFCluster(this,
-	                                 viewType,ident,
-					 &cluster,
-					 eta,phi,
-					 clusPattern_);
-	  }
-	  else {
-	     gc = new  GPFCluster(this,
-	                                 viewType,ident,
-					 &cluster,
-					 eta,phi,
-					 clusPSPattern_);
-	  }				 
-					 
-	graphicMap_.insert(pair<int,GPFBase *>	(ident, gc));			 
-       }
+          if (clusType==0) {
+            gc = new  GPFCluster(this,
+                                 viewType,ident,
+                                 &cluster,
+                                 eta,phi,
+                                 clusPattern_);
+          }
+          else {
+            gc = new  GPFCluster(this,
+                                 viewType,ident,
+                                 &cluster,
+                                 eta,phi,
+                                 clusPSPattern_);
+          }                              
+                                         
+          graphicMap_.insert(pair<int,GPFBase *>        (ident, gc));                    
+        }
       } 
       break;
     case EPH:
       {
         if( cluster.layer()>0 ) {
-	  if (clusType==0) {
-	   gc = new  GPFCluster(this,
-	                                 viewType,ident,
-					 &cluster,
-					 eta,phi,clusPattern_);
-	  }
-	  else {
-	    gc = new  GPFCluster(this,
-	                                 viewType,ident,
-					 &cluster,
-					 eta,phi,clusPSPattern_);
-	  }
-	    
-					 
-	  graphicMap_.insert(pair<int,GPFBase *>	(ident, gc));			 
+          if (clusType==0) {
+            gc = new  GPFCluster(this,
+                                 viewType,ident,
+                                 &cluster,
+                                 eta,phi,clusPattern_);
+          }
+          else {
+            gc = new  GPFCluster(this,
+                                 viewType,ident,
+                                 &cluster,
+                                 eta,phi,clusPSPattern_);
+          }
+            
+                                         
+          graphicMap_.insert(pair<int,GPFBase *>        (ident, gc));                    
         }
       } 
       break;
@@ -402,19 +402,19 @@ void DisplayManager::createGPart( const reco::PFSimParticle &ptc,
     
       if( !displayInitial && 
           points[i].layer() == reco::PFTrajectoryPoint::ClosestApproach ) {
-	
-	// but not in the case where 
-	// 1 - displayInitial is false,
-	// which is the case when the particle has no mother. 
-	// 2 - we're considering the first trajectory point.
-	
-	// in this case, eta and phi are set to the eta and phi
-	// of the particle momentum. 
-	
-	// this is done this way because the eta,phi 
-	// coordinates at closest approach are meaningless, 
-	// since the position vector can point anywhere, even
-	// opposite to the direction of the momentum
+        
+        // but not in the case where 
+        // 1 - displayInitial is false,
+        // which is the case when the particle has no mother. 
+        // 2 - we're considering the first trajectory point.
+        
+        // in this case, eta and phi are set to the eta and phi
+        // of the particle momentum. 
+        
+        // this is done this way because the eta,phi 
+        // coordinates at closest approach are meaningless, 
+        // since the position vector can point anywhere, even
+        // opposite to the direction of the momentum
 
         const math::XYZTLorentzVector& mom = points[i].momentum();
         eta = mom.Eta();
@@ -447,14 +447,14 @@ void DisplayManager::createGPart( const reco::PFSimParticle &ptc,
     //int color = 4;
     GPFSimParticle *gc   = new GPFSimParticle(this,
                                               viewType, ident,
-					      &ptc,
-					      xPos.size(),&xPos[0],&yPos[0],
-					      pt,
-					      simPartPatternM_[markerIndex],
-					      simPartPatternL_,
-					      "pl");
-					      
-    graphicMap_.insert(pair<int,GPFBase *>	(ident, gc));				      
+                                              &ptc,
+                                              xPos.size(),&xPos[0],&yPos[0],
+                                              pt,
+                                              simPartPatternM_[markerIndex],
+                                              simPartPatternL_,
+                                              "pl");
+                                              
+    graphicMap_.insert(pair<int,GPFBase *>      (ident, gc));                                 
     //graphicMap_.insert(pair<int,GPFBase *> (ident,new GPFSimParticle(this,viewType,ident,&ptc,xPos.size(),&xPos[0],&yPos[0],pt,simPartPattern_[indexMarker], "pl")));
   }
 }
@@ -503,9 +503,9 @@ void DisplayManager::createGRecHit(reco::PFRecHit& rh,int ident, double maxe, do
   for(int viewType=0;viewType<4;++viewType) {
   
     bool isHCAL = (layer == PFLayer::HCAL_BARREL1 || 
-		   layer == PFLayer::HCAL_BARREL2 || 
-		   layer == PFLayer::HCAL_ENDCAP || 
-		   layer == PFLayer::HCAL_HF);
+                   layer == PFLayer::HCAL_BARREL2 || 
+                   layer == PFLayer::HCAL_ENDCAP || 
+                   layer == PFLayer::HCAL_HF);
     
     if(  viewType == EPH && 
          ! isHCAL) {
@@ -572,8 +572,8 @@ void DisplayManager::createGRecHit(reco::PFRecHit& rh,int ident, double maxe, do
             ( viewType == XY &&  
               ( layer == PFLayer::ECAL_ENDCAP || 
                 layer == PFLayer::HCAL_ENDCAP || 
-		layer == PFLayer::HCAL_HF
-		) ) ) ) {
+                layer == PFLayer::HCAL_HF
+                ) ) ) ) {
       
       
         math::XYZPoint centreXYZrot = rh.position();
@@ -754,7 +754,7 @@ void DisplayManager::createGTrack( reco::PFRecTrack &tr,
                                  viewType,ident,
                                  &tr,
                                  xPos.size(),&xPos[0],&yPos[0],pt,
-				 trackPatternM_,trackPatternL_,"pl");
+                                 trackPatternM_,trackPatternL_,"pl");
     graphicMap_.insert(pair<int,GPFBase *> (ident, gt));
   }   
 }
@@ -779,7 +779,7 @@ void DisplayManager::displayAll(bool noRedraw)
     std::cout<<" no Graphic Objects to draw"<<std::endl;
     return;
   }
-    if (noRedraw) { 
+  if (noRedraw) { 
     for (int viewType=0;viewType<NViews;++viewType) {
       displayView_[viewType]->cd();
       gPad->Clear();
@@ -806,7 +806,7 @@ void DisplayManager::displayAll(bool noRedraw)
       break;
     case RECHITECALID: case  RECHITHCALID: case RECHITPSID:
       {
-       if (!noRedraw) break; 
+        if (!noRedraw) break; 
         if (drawHits_) 
           if(p->second->getEnergy() > hitEnMin_)  {
             displayView_[view]->cd();
@@ -836,12 +836,12 @@ void DisplayManager::displayAll(bool noRedraw)
       {  
         if (drawGenParticles_) 
           if (p->second->getPt() > genParticlePtMin_) 
-	    if (view == EPH || view ==EPE) {
+            if (view == EPH || view ==EPE) {
               displayView_[view]->cd();
               p->second->draw();
-	    }  
+            }  
       } 
-      break;	       
+      break;           
     default : std::cout<<"DisplayManager::displayAll()-- unknown object "<<std::endl;               
     }  //switch end
   }   //for end
@@ -864,7 +864,7 @@ void DisplayManager::drawWithNewGraphicAttributes()
       {
         p->second->setNewStyle();
         p->second->setNewSize();
-        p->second->setColor();	
+        p->second->setColor();  
       }
       break;
     case RECTRACKID:
@@ -1146,103 +1146,103 @@ void DisplayManager::loadGGenParticles()
   const HepMC::GenEvent* myGenEvent = em_->MCTruth_.GetEvent();
   if(!myGenEvent) return;
   for ( HepMC::GenEvent::particle_const_iterator piter  = myGenEvent->particles_begin();
-                                                 piter != myGenEvent->particles_end(); 
-                                                 ++piter ) {
-      HepMC::GenParticle* p = *piter;
-      if ( !p->production_vertex() ) continue;
-      createGGenParticle(p);
- } 
+        piter != myGenEvent->particles_end(); 
+        ++piter ) {
+    HepMC::GenParticle* p = *piter;
+    if ( !p->production_vertex() ) continue;
+    createGGenParticle(p);
+  } 
 }
 //____________________________________________________________________________
 void DisplayManager::createGGenParticle(HepMC::GenParticle* p)
 {
     
-    int partId = p->pdg_id();
-    std::string name;
-    std::string latexStringName;
+  int partId = p->pdg_id();
+  std::string name;
+  std::string latexStringName;
 
-    name = em_->getGenParticleName(partId,latexStringName);
-    int barcode = p->barcode();
-    int genPartId=(GENPARTICLEID<<shiftId_) | barcode;
+  name = em_->getGenParticleName(partId,latexStringName);
+  int barcode = p->barcode();
+  int genPartId=(GENPARTICLEID<<shiftId_) | barcode;
     
     
-    int vertexId1 = 0;
-    vertexId1 = p->production_vertex()->barcode();
+  int vertexId1 = 0;
+  vertexId1 = p->production_vertex()->barcode();
     
-    math::XYZVector vertex1 (p->production_vertex()->position().x()/10.,
-                             p->production_vertex()->position().y()/10.,
-                             p->production_vertex()->position().z()/10.);
-			     
-    math::XYZTLorentzVector momentum1(p->momentum().px(),
-                                      p->momentum().py(),
-                                      p->momentum().pz(),
-                                      p->momentum().e());
-				      
-    double eta = momentum1.eta();
-    if ( eta > +10. ) eta = +10.;
-    if ( eta < -10. ) eta = -10.;
+  math::XYZVector vertex1 (p->production_vertex()->position().x()/10.,
+                           p->production_vertex()->position().y()/10.,
+                           p->production_vertex()->position().z()/10.);
+                             
+  math::XYZTLorentzVector momentum1(p->momentum().px(),
+                                    p->momentum().py(),
+                                    p->momentum().pz(),
+                                    p->momentum().e());
+                                      
+  double eta = momentum1.eta();
+  if ( eta > +10. ) eta = +10.;
+  if ( eta < -10. ) eta = -10.;
     
-    double phi = momentum1.phi();
+  double phi = momentum1.phi();
     
-    double pt = momentum1.pt();
-    double e = momentum1.e();
+  double pt = momentum1.pt();
+  double e = momentum1.e();
     
-    //mother ?    
+  //mother ?    
 
-    // Colin: the following line gives a segmentation fault when there is 
-    // no particles entering the production vertex.
+  // Colin: the following line gives a segmentation fault when there is 
+  // no particles entering the production vertex.
     
-    // const HepMC::GenParticle* mother = 
-    //  *(p->production_vertex()->particles_in_const_begin());
+  // const HepMC::GenParticle* mother = 
+  //  *(p->production_vertex()->particles_in_const_begin());
     
-    // protecting against this in the following way:
-    const HepMC::GenParticle* mother = 0;
-    if( p->production_vertex()->particles_in_size() ) {
-      mother = 
-	*(p->production_vertex()->particles_in_const_begin()); 
-    }
+  // protecting against this in the following way:
+  const HepMC::GenParticle* mother = 0;
+  if( p->production_vertex()->particles_in_size() ) {
+    mother = 
+      *(p->production_vertex()->particles_in_const_begin()); 
+  }
 
-    // Colin: no need to declare this pointer in this context.
-    // the declaration can be more local.
-    // GPFGenParticle *gp; 
+  // Colin: no need to declare this pointer in this context.
+  // the declaration can be more local.
+  // GPFGenParticle *gp; 
 
-    if ( mother ) {
-       int barcodeMother = mother->barcode();
-       math::XYZTLorentzVector momentumMother(mother->momentum().px(),
-                                      mother->momentum().py(),
-                                      mother->momentum().pz(),
-                                      mother->momentum().e());
-       double etaMother = momentumMother.eta();				      
-       if ( etaMother > +10. ) etaMother = +10.;
-       if ( etaMother < -10. ) etaMother = -10.;
-       double phiMother = momentumMother.phi();
+  if ( mother ) {
+    int barcodeMother = mother->barcode();
+    math::XYZTLorentzVector momentumMother(mother->momentum().px(),
+                                           mother->momentum().py(),
+                                           mother->momentum().pz(),
+                                           mother->momentum().e());
+    double etaMother = momentumMother.eta();                                  
+    if ( etaMother > +10. ) etaMother = +10.;
+    if ( etaMother < -10. ) etaMother = -10.;
+    double phiMother = momentumMother.phi();
     
        
-       double x[2],y[2];
-       x[0]=etaMother;x[1]=eta;
-       y[0]=phiMother;y[1]=phi;
+    double x[2],y[2];
+    x[0]=etaMother;x[1]=eta;
+    y[0]=phiMother;y[1]=phi;
        
-       for (int view = 2; view< NViews; view++) {
-         GPFGenParticle* gp   = new GPFGenParticle(this,             
-						   view, genPartId,
-						   x, y,              //double *, double *
-						   e,pt,barcode,barcodeMother,
-						   genPartPattern_, 
-						   name,latexStringName);
-	 graphicMap_.insert(pair<int,GPFBase *>	(genPartId, gp));
-       }
+    for (int view = 2; view< NViews; view++) {
+      GPFGenParticle* gp   = new GPFGenParticle(this,             
+                                                view, genPartId,
+                                                x, y,              //double *, double *
+                                                e,pt,barcode,barcodeMother,
+                                                genPartPattern_, 
+                                                name,latexStringName);
+      graphicMap_.insert(pair<int,GPFBase *>    (genPartId, gp));
     }
-    else {     //no Mother    
-      for (int view = 2; view< NViews; view++) {
-        GPFGenParticle* gp   = new GPFGenParticle(this,
-						  view, genPartId,
-						  eta, phi,                  //double double
-						  e,pt,barcode,
-						  genPartPattern_,
-						  name, latexStringName);
-        graphicMap_.insert(pair<int,GPFBase *>	(genPartId, gp));
-      }					      
-    }
+  }
+  else {     //no Mother    
+    for (int view = 2; view< NViews; view++) {
+      GPFGenParticle* gp   = new GPFGenParticle(this,
+                                                view, genPartId,
+                                                eta, phi,                  //double double
+                                                e,pt,barcode,
+                                                genPartPattern_,
+                                                name, latexStringName);
+      graphicMap_.insert(pair<int,GPFBase *>    (genPartId, gp));
+    }                                         
+  }
 }
 //____________________________________________________________________________  
 void DisplayManager::loadGClusters()
@@ -1287,8 +1287,8 @@ void DisplayManager::loadGPFBlocks()
     edm::OwnVector< reco::PFBlockElement >::const_iterator iter;
     for( iter =((*(em_->pfBlocks_))[ibl].elements()).begin();
          iter != ((*(em_->pfBlocks_))[ibl].elements()).end();iter++) {
-         //std::cout<<"elem index "<<(*iter).index()<<"-type:"
-         //      <<(*iter).type()<<std::flush<<std::endl;
+      //std::cout<<"elem index "<<(*iter).index()<<"-type:"
+      //      <<(*iter).type()<<std::flush<<std::endl;
       int ident=-1;  
        
       reco::PFBlockElement::Type type = (*iter).type();
@@ -1476,18 +1476,18 @@ void DisplayManager::loadGSimParticles()
       ptc.trajectoryPoints();
       
 
-   int markerstyle;
-   int indexMarker;
+    int markerstyle;
+    int indexMarker;
     switch( abs(ptc.pdgCode() ) ) {
-      case 22:   markerstyle = 3 ; indexMarker=0; break; // photons
-      case 11:   markerstyle = 5 ; indexMarker=1;  break; // electrons 
-      case 13:   markerstyle = 2 ; indexMarker=2;  break; // muons 
-      case 130:  
-      case 321:  markerstyle = 24; indexMarker=3; break; // K
-      case 211:  markerstyle = 25; indexMarker=4; break; // pi+/pi-
-      case 2212: markerstyle = 26; indexMarker=5; break; // protons
-      case 2112: markerstyle = 27; indexMarker=6; break; // neutrons  
-      default:   markerstyle = 30; indexMarker=7; break; 
+    case 22:   markerstyle = 3 ; indexMarker=0; break; // photons
+    case 11:   markerstyle = 5 ; indexMarker=1;  break; // electrons 
+    case 13:   markerstyle = 2 ; indexMarker=2;  break; // muons 
+    case 130:  
+    case 321:  markerstyle = 24; indexMarker=3; break; // K
+    case 211:  markerstyle = 25; indexMarker=4; break; // pi+/pi-
+    case 2212: markerstyle = 26; indexMarker=5; break; // protons
+    case 2112: markerstyle = 27; indexMarker=6; break; // neutrons  
+    default:   markerstyle = 30; indexMarker=7; break; 
     }
    
    
@@ -1694,8 +1694,8 @@ void DisplayManager::printGenParticleInfo(std::string name,int barcode,int barco
   std::cout<<"genParticle "<<name<<" with barcode "<<barcode<<std::flush<<std::endl;
   p->print();
   if (barcodeMother) { 
-     HepMC:: GenParticle *mother = myGenEvent->barcode_to_particle(barcodeMother);
-     std::cout<<"mother particle with barcode "<<barcodeMother<<std::flush<<std::endl;
-     mother->print();
+    HepMC:: GenParticle *mother = myGenEvent->barcode_to_particle(barcodeMother);
+    std::cout<<"mother particle with barcode "<<barcodeMother<<std::flush<<std::endl;
+    mother->print();
   }    
 }

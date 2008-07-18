@@ -16,7 +16,7 @@
 class GPFTrack : public GPFBase, public TGraph {
  public:
   GPFTrack(DisplayManager *dm,int view, int ident, 
-	   reco::PFRecTrack *tra, int size, double *x, double *y,
+           reco::PFRecTrack *tra, int size, double *x, double *y,
            double pt,TAttMarker *attm,TAttLine *attl, std::string option);      
 
   virtual ~GPFTrack() {;}

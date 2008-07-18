@@ -65,7 +65,7 @@ void GPFTrack::setColor(int color)
 
 //_____________________________________________________________________________
 void GPFTrack::setInitialColor()
-//redondant avec setColor ???? to check
+  //redondant avec setColor ???? to check
 {
   if (option_=="f") SetFillColor(lineAttr_->GetLineColor());
   else              SetLineColor(lineAttr_->GetLineColor());
@@ -74,11 +74,11 @@ void GPFTrack::setInitialColor()
 //_____________________________________________________________________________
 void GPFTrack::setNewSize()
 {
- SetMarkerSize(markerAttr_->GetMarkerSize());
+  SetMarkerSize(markerAttr_->GetMarkerSize());
 }
 //____________________________________________________________________________
 void GPFTrack::setNewStyle()
 {
- SetMarkerStyle(markerAttr_->GetMarkerStyle());
+  SetMarkerStyle(markerAttr_->GetMarkerStyle());
 }
  
