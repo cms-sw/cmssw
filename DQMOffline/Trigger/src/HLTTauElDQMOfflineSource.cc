@@ -76,10 +76,11 @@ HLTTauElDQMOfflineSource::HLTTauElDQMOfflineSource(const edm::ParameterSet& pset
 void HLTTauElDQMOfflineSource::beginJob(const edm::EventSetup&){
   std::string histoname="total eff";
   DQMStore* store = &*edm::Service<DQMStore>();
+
   if(store){
 
-    std::string fold="ElectronOf"+triggerName_+"DQM";
-    store->setCurrentFolder(fold.c_str());
+
+    store->setCurrentFolder(triggerName_);
     m_total = store->book1D(histoname.c_str(),histoname.c_str(),m_theHLTCollectionLabels.size()+2,0,m_theHLTCollectionLabels.size()+2);
     m_total->setBinLabel(m_theHLTCollectionLabels.size()+1,"Total");
     m_total->setBinLabel(m_theHLTCollectionLabels.size()+2,"Gen");
@@ -239,6 +240,7 @@ template <class T> void HLTTauElDQMOfflineSource::fillHistos(edm::Handle<trigger
 
 void HLTTauElDQMOfflineSource::endJob(){
 
+  if(outputFile_.size()>0)
   if (&*edm::Service<DQMStore>()) edm::Service<DQMStore>()->save (outputFile_);
   //  total->Scale(1./total->GetBinContent(1));
   //for(unsigned int n= m_theHLTCollectionLabels.size()-1 ; n>0;n--){
