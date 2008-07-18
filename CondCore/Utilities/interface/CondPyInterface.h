@@ -48,8 +48,8 @@ namespace cond {
 
    std::string iovToken(std::string const & tag) const;
    
-   cond::LogDBEntry lastEntry(std::string const & tag) const;
-   cond::LogDBEntry lastEntryOK(std::string const & tag) const;
+   cond::LogDBEntry lastLogEntry(std::string const & tag) const;
+   cond::LogDBEntry lastLogEntryOK(std::string const & tag) const;
 
  private:
    mutable Connection * me;

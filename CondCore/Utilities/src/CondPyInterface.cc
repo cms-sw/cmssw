@@ -203,7 +203,7 @@ namespace cond {
     cond::ConnectionHandler::Instance().registerConnection(connstr,*session,-1);
     cond::Connection & conn = *cond::ConnectionHandler::Instance().getConnection(connstr);
     conn.connect(session.get());
-    logger.reset(new cond::Logger(conn));
+    logger.reset(new cond::Logger(&conn));
   }
 
 
