@@ -100,7 +100,7 @@ namespace cond {
 
 
   CondDB::CondDB() : me(0){}
-  CondDB::CondDB(cond::Connection * conn, , boost::shared_ptr<cond::Logger> ilog) :
+  CondDB::CondDB(cond::Connection * conn, boost::shared_ptr<cond::Logger> ilog) :
     me(conn), logger(ilog) {
   }
 
@@ -158,14 +158,14 @@ namespace cond {
     return IOVProxy(me->poolTransaction(),iovToken(tag),false);
   }
 
-  cond::LogDBEntry lastEntry(std::string const & tag) const {
+  cond::LogDBEntry CondDB::lastEntry(std::string const & tag) const {
     cond::LogDBEntry entry;
     if (logger)
       logger->LookupLastEntryByTag(tag,entry,false);
     return entry;
   }
 
-  cond::LogDBEntry lastEntryOK(std::string const & tag) const{
+  cond::LogDBEntry CondDB::lastEntryOK(std::string const & tag) const{
     cond::LogDBEntry entry;
     if (logger)
       logger->LookupLastEntryByTag(tag,entry,true);
