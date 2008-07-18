@@ -51,18 +51,18 @@ BOOST_PYTHON_MODULE(pluginCondDBPyInterface) {
   
 
   class_<cond::LogDBEntry>("LogDBEntry").
-    .def("logId",  &cond::LogDBEntry::logId)
-    .def("destinationDB",   &cond::LogDBEntry::destinationDB)   
-    .def("provenance",  &cond::LogDBEntry::provenance)
-    .def("usertext",  &cond::LogDBEntry::usertext)
-    .def("iovtag",  &cond::LogDBEntry::iovtag)
-    .def("iovtimetype",   &cond::LogDBEntry::iovtimetype)
-    .def("payloadIdx",   &cond::LogDBEntry::payloadIdx)
-    .def("payloadName",   &cond::LogDBEntry::payloadName)
-    .def("payloadToken",   &cond::LogDBEntry::payloadToken)
-    .def("payloadContainer",   &cond::LogDBEntry::payloadContainer)
-    .def("exectime",   &cond::LogDBEntry::exectime)
-    .def("execmessage",  &cond::LogDBEntry::execmessage)
+    .def_readonly("logId",  &cond::LogDBEntry::logId)
+    .def_readonly("destinationDB",   &cond::LogDBEntry::destinationDB)   
+    .def_readonly("provenance",  &cond::LogDBEntry::provenance)
+    .def_readonly("usertext",  &cond::LogDBEntry::usertext)
+    .def_readonly("iovtag",  &cond::LogDBEntry::iovtag)
+    .def_readonly("iovtimetype",   &cond::LogDBEntry::iovtimetype)
+    .def_readonly("payloadIdx",   &cond::LogDBEntry::payloadIdx)
+    .def_readonly("payloadName",   &cond::LogDBEntry::payloadName)
+    .def_readonly("payloadToken",   &cond::LogDBEntry::payloadToken)
+    .def_readonly("payloadContainer",   &cond::LogDBEntry::payloadContainer)
+    .def_readonly("exectime",   &cond::LogDBEntry::exectime)
+    .def_readonly("execmessage",  &cond::LogDBEntry::execmessage)
     ;
 
   class_<std::vector<float> >("VFloat")
