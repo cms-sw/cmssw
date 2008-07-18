@@ -1,10 +1,11 @@
-import DLFCN
+import sys, DLFCN
 sys.setdlopenflags(DLFCN.RTLD_GLOBAL+DLFCN.RTLD_LAZY)
 
 from pluginCondDBPyInterface import *
 a = FWIncantation()
 os.putenv("CORAL_AUTH_PATH","/afs/cern.ch/cms/DB/conddb")
 rdbms = RDBMS()
+rdbms.setLogger("sqlite_file:log.db")
 db = rdbms.getDB("sqlite_file:pop_test.db")
 tags = db.allTags()
 for tag in tags.split() :
