@@ -89,6 +89,14 @@ public:
 					       const unsigned ieta, 
 					       const unsigned iphi);
   
+  /// construct region for use in GCT internal jet-finding
+  static L1CaloRegion makeGctJetRegion(const unsigned et, 
+					    const bool overFlow, 
+					    const bool fineGrain,
+					    const unsigned ieta, 
+					    const unsigned iphi,
+					    const int16_t bx);
+
 
   // get/set methods for the data
 
@@ -100,6 +108,9 @@ public:
 
   /// get Et
   unsigned et() const { return (isHf() ? m_data&0xff : m_data&0x3ff); }
+
+  /// get Et for internal GCT use
+  unsigned etFullScale() const { return m_data&0xfff; }
 
   /// get overflow
   bool overFlow() const { return ((m_data>>10) & 0x1)!=0; }
@@ -178,6 +189,9 @@ public:
 
   /// pack the raw data from arguments (used in constructors)
   void pack(unsigned et, bool overFlow, bool fineGrain, bool mip, bool quiet);
+
+  /// pack the raw data from arguments (used in constructors)
+  void pack12BitsEt(unsigned et, bool overFlow, bool fineGrain, bool mip, bool quiet);
 
   /// region id
   L1CaloRegionDetId m_id;
