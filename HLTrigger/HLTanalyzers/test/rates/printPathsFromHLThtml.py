@@ -27,8 +27,8 @@ def main(argv) :
             row0 = row[0]
             row1 = row[1].replace('OR','OR ')
             print row0+': "'+row1+'"'
-            #print '"'+row1+'"'
-            #for entry in row:
+            #row2 = row1.replace(' OR ',',')
+            #print 'menu->AddHlt("'+row0+'","'+row1+'",1,1,"","");'
 
     #print p.doc # Get to the data
 
