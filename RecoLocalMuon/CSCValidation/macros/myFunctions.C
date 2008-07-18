@@ -596,8 +596,8 @@ void compare1DPlot(std::string histoname, TFile* f1, TFile* f2, std::string hist
 
   // used to compare two of the same histogram from different releases/runs/etc
 
-  TH1F *h1  = (TH1F*)f1->Get(histoname.c_str());
-  TH1F *h2  = (TH1F*)f2->Get(histoname.c_str());
+  TH1F *h2  = (TH1F*)f1->Get(histoname.c_str());
+  TH1F *h1  = (TH1F*)f2->Get(histoname.c_str());
 
   TCanvas *c = new TCanvas("c","my canvas",1);
 
@@ -622,8 +622,13 @@ void compare1DPlot(std::string histoname, TFile* f1, TFile* f2, std::string hist
     h1->GetXaxis()->SetTitleSize(0.06);
     h1->GetXaxis()->SetNdivisions(208,kTRUE);
 
+    TLegend *leg = new TLegend(0.6,0.6,0.8,0.8);
+    leg->AddEntry(h1,"ref","f");
+    leg->AddEntry(h2,"new","l");
+
     h1->Draw();
     h2->Draw("same e");
+    leg->Draw();
 
   }
 
