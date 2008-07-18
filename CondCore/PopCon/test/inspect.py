@@ -12,7 +12,8 @@ for tag in tags.split() :
     try :
         exec('import '+db.moduleName(tag)+' as Plug')   
         iov = db.iov(tag)
-        print tag, iov.size()
+        log = db.lastLogEntry(tag)
+        print tag, iov.size(), log.execmessage, log.exectime, log.payloadIdx 
         vi = VInt()
         vi.append(0)
         vi.append(2)

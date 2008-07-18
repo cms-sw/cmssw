@@ -45,12 +45,35 @@ namespace {
   {
     PyErr_SetString(PyExc_RuntimeError, e.what());
   }
+
+
+    boost::python::tuple
+    getState(cond::LogDBEntry& l)
+    {
+      return boost::python::make_tuple(
+				       l.logId,
+				       l.provenance,
+				       l.usertext,
+				       l.iovtag,
+				       l.iovtimetype,
+				       l.payloadIdx,
+				       l.payloadName,
+				       l.payloadToken,
+				       l.payloadContainer,
+				       l.exectime,
+				       l.execmessage
+				       );
+    }
+ 
+
+
 }
 
 BOOST_PYTHON_MODULE(pluginCondDBPyInterface) {
   
 
   class_<cond::LogDBEntry>("cond::LogDBEntry")
+    .def("getState",getState)
     .def_readonly("logId",  &cond::LogDBEntry::logId)
     .def_readonly("destinationDB",   &cond::LogDBEntry::destinationDB)   
     .def_readonly("provenance",  &cond::LogDBEntry::provenance)
