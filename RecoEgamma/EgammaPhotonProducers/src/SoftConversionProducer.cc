@@ -201,18 +201,17 @@ void SoftConversionProducer::produce(edm::Event& theEvent, const edm::EventSetup
 	  trkPositionAtEcal = theEcalImpactPositionFinder_->find(toBeFitted,clusterEndcapHandle);
 	}
 
-	// @@@ need to check duplicated candidates
-
 	reco::Conversion newCandidate(scRefs, trkRefs, trkPositionAtEcal, theConversionVertex, clusterRefs);
 
-	outputColl->push_back(newCandidate);
+	// Check this candidate is already in the collection.
+	// This is checking that two tracks in a conversion candidate are identicial.
+
+	if(NotAlreadyIn(newCandidate,outputColl)) outputColl->push_back(newCandidate);
 
 	// 	printf("=====> run(%d), event(%d) <=====\n",theEvent.id().run(),theEvent.id().event());
 	//	printf("Found a softConverion with vtxR(%f), vtxEta(%f), pt(%f), pt1(%f), pt2(%f)\n",
 	//      newCandidate.conversionVertex().position().rho(),newCandidate.conversionVertex().position().eta(),
 	//      newCandidate.pairMomentum().perp(),trk1->momentum().rho(),trk2->momentum().rho());
-
-
 
 	clusterRefs.clear();
 	trkRefs.clear();
@@ -233,4 +232,22 @@ void SoftConversionProducer::produce(edm::Event& theEvent, const edm::EventSetup
 
 bool SoftConversionProducer::trackQualityCut(const reco::TrackRef& trk){
   return (trk->numberOfValidHits() >= trackMinHits_ && trk->normalizedChi2() < trackMaxChi2_);
+}
+
+
+bool SoftConversionProducer::NotAlreadyIn(const reco::Conversion& thisConv,
+					  const std::auto_ptr<reco::ConversionCollection>& outputColl) const {
+
+  if(outputColl->size() == 0) return true;
+
+  reco::ConversionCollection::const_iterator it = outputColl->begin();
+  reco::ConversionCollection::const_iterator it_end = outputColl->end();
+  for( ; it != it_end; it++){
+    const reco::Conversion& conv = *it;
+    if((thisConv.tracks()[0] == conv.tracks()[0] && thisConv.tracks()[1] == conv.tracks()[1]) ||
+       (thisConv.tracks()[0] == conv.tracks()[1] && thisConv.tracks()[1] == conv.tracks()[0]))
+      return false;
+  }// for
+  
+  return true;
 }
