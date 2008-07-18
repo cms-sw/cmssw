@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 #
 # producer for photons
-# $Id: photons_cfi.py,v 1.8 2008/06/04 19:25:32 rpw Exp $
+# $Id: photons_cfi.py,v 1.9 2008/06/18 11:00:13 nancy Exp $
 #
 photons = cms.EDProducer("PhotonProducer",
     scHybridBarrelProducer = cms.InputTag("correctedHybridSuperClusters"),
@@ -26,7 +26,7 @@ photons = cms.EDProducer("PhotonProducer",
     barrelEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
     hbheModule = cms.string('hbhereco'),
     endcapEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
-    minSCEt = cms.double(5.0),
+    minSCEt = cms.double(10.0),
     maxHOverE = cms.double(999.),
     hOverEConeSize = cms.double(0.1),
     posCalc_x0 = cms.double(0.89),
