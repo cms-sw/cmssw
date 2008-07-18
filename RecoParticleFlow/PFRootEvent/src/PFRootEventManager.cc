@@ -2365,7 +2365,7 @@ void  PFRootEventManager::print(ostream& out,int maxNLines ) const {
 
 void
 PFRootEventManager::printGenParticles(std::ostream& out,
-                                 int maxNLines) const {
+				      int maxNLines) const {
 				 
 				 
   const HepMC::GenEvent* myGenEvent = MCTruth_.GetEvent();
@@ -2502,7 +2502,7 @@ PFRootEventManager::printGenParticles(std::ostream& out,
     math::XYZTLorentzVector momentum1(p->momentum().px(),
                                       p->momentum().py(),
                                       p->momentum().pz(),
-                                      p->momentum().e());
+                                      p->momentum().e() );
 
     int vertexId1 = 0;
 
@@ -2535,11 +2535,19 @@ PFRootEventManager::printGenParticles(std::ostream& out,
 	<< std::setw(6) << std::setprecision(1) << vertex1.z() << " ";
 
 
-    const HepMC::GenParticle* mother = 
-      *(p->production_vertex()->particles_in_const_begin());
+    p->production_vertex();
+    p->production_vertex()->particles_in_const_begin();
+    *(p->production_vertex()->particles_in_const_begin());
 
-    if ( mother )
+//     const HepMC::GenParticle* mother = 
+//       *(p->production_vertex()->particles_in_const_begin());
+
+    if ( p->production_vertex()->particles_in_size() ) {
+      const HepMC::GenParticle* mother = 
+	*(p->production_vertex()->particles_in_const_begin());
+      
       out << std::setw(4) << mother->barcode() << " ";
+    }
     else 
       out << "     " ;
     
