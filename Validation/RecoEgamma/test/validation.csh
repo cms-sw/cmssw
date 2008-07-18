@@ -19,14 +19,14 @@
 
 #Input root trees for the two cases to be compared 
 
-setenv OLDFILE /data/test/CMSSW_2_1_X_2008-07-02-0000/src/Validation/RecoEgamma/test/PhotonValidationRelVal210_pre6_4.0T.root
-setenv NEWFILE /data/test/CMSSW_2_1_X_2008-07-02-0000/src/Validation/RecoEgamma/test/PhotonValidationRelVal210_pre6_3.8T.root
+setenv OLDFILE /data/test/CMSSW_2_1_0_pre8/src/Validation/RecoEgamma/test/PhotonValidationRelVal210_pre6_4.0T_SingleGammaPt1000.root
+setenv NEWFILE /data/test/CMSSW_2_1_0_pre8/src/Validation/RecoEgamma/test/PhotonValidationRelVal210_pre8_SingleGammaPt1000.root
 
 
-setenv OLDRELEASE 210pre6IDEAL_TestValidation_40T
-setenv NEWRELEASE 210pre6IDEAL_TestValidation_38T
+setenv OLDRELEASE 210pre6IDEAL
+setenv NEWRELEASE 210pre8IDEAL
 #Name of sample (affects output directory name and htmldescription only) 
-setenv SAMPLE SingleGammaPt35
+setenv SAMPLE SingleGammaPt1000
 #TYPE must be one ofPixelMatchGsfElectron, Photon 
 setenv TYPE Photon
 
@@ -399,11 +399,8 @@ if ( $TYPE == PixelMatchGsfElectron ) then
   setenv ANALYZER PixelMatchGsfElectronAnalyzer
   setenv CFG read_gsfElectrons
 else if ( $TYPE == Photon ) then
-  setenv ANALYZER SimplePhotonAnalyzer
-  setenv CFG SimplePhotonAnalyzer
-else if ( $TYPE == Conversion ) then
-  setenv ANALYZER SimpleConvertedPhotonAnalyzer
-  setenv CFG SimpleConvertedPhotonAnalyzer
+  setenv ANALYZER PhotonValidator
+  setenv CFG PhotonValidator_cfg
 endif
 
 if (-e validation.html) rm validation.html
@@ -418,8 +415,14 @@ cat > begin.html <<EOF
 
 <h1>$NEWRELEASE vs $OLDRELEASE $TYPE validation</h1>
 
+<p>The following plots were made using <a href="http://cmslxr.fnal.gov/lxr/source/Validation/RecoEgamma/src/$ANALYZER.cc">Validation/RecoEgamma/src/$ANALYZER</a>, using <a href="http://cmslxr.fnal.gov/lxr/source/Validation/RecoEgamma/test/$CFG.py">Validation/RecoEgamma/test/$CFG.py</a>, using $SAMPLE as input.
+
+<p>The script used to make the plots is <a href="validation.C">here</a>.
+
+
 
 <p>In all plots below, $OLDRELEASE is in blue, $NEWRELEASE in red.
+
 
 EOF
 cat begin.html >>& validation.html
