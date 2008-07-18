@@ -532,6 +532,7 @@ class Process(object):
                 scheduledPaths.append(name)
                 endpaths.append(name)
         else:
+            self.schedule_().enforceDependencies()
             for path in self.schedule_():
                pathname = path.label()
                scheduledPaths.append(pathname)
