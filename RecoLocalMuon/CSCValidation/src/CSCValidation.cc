@@ -48,7 +48,7 @@ CSCValidation::CSCValidation(const ParameterSet& pset){
   theFile = new TFile(rootFileName.c_str(), "RECREATE");
   theFile->cd();
 
-  // Create object of class CSCValidationHistos to manage histograms
+  // Create object of class CSCValHists to manage histograms
   histos = new CSCValHists();
 
   // book histos Eff histos
@@ -100,9 +100,16 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
   edm::Handle<CSCWireDigiCollection> wires;
   edm::Handle<CSCStripDigiCollection> strips;
   edm::Handle<CSCComparatorDigiCollection> compars;
-  event.getByLabel("muonCSCDigis","MuonCSCWireDigi",wires);
-  event.getByLabel("muonCSCDigis","MuonCSCStripDigi",strips);
-  event.getByLabel("muonCSCDigis","MuonCSCComparatorDigi",compars);
+  if (isSimulation){
+    event.getByLabel("simMuonCSCDigis","MuonCSCWireDigi",wires);
+    event.getByLabel("simMuonCSCDigis","MuonCSCStripDigi",strips);
+    event.getByLabel("simMuonCSCDigis","MuonCSCComparatorDigi",compars);
+  }
+  else {
+    event.getByLabel("muonCSCDigis","MuonCSCWireDigi",wires);
+    event.getByLabel("muonCSCDigis","MuonCSCStripDigi",strips);
+    event.getByLabel("muonCSCDigis","MuonCSCComparatorDigi",compars);
+  }
 
   // Get the CSC Geometry :
   ESHandle<CSCGeometry> cscGeom;
@@ -498,6 +505,7 @@ void CSCValidation::doRecHits(edm::Handle<CSCRecHit2DCollection> recHits, edm::H
     //float zreco = rhitlocal.z();
     //float phireco = rhitlocal.phi();
     //LocalError rerrlocal = (*recIt).localPositionError();  
+    //these errors are squared!
     //float xxerr = rerrlocal.xx();
     //float yyerr = rerrlocal.yy();
     //float xyerr = rerrlocal.xy();
@@ -839,11 +847,11 @@ float CSCValidation::getTiming(const CSCStripDigiCollection& stripdigis, CSCDetI
 
   }
 
-  float normADC;
-  for (int i = 0; i < 8; i++){
-    normADC = ADC[i]/ADC[peakTime];
+  //float normADC;
+  //for (int i = 0; i < 8; i++){
+    //normADC = ADC[i]/ADC[peakTime];
     //histos->fillProfileByChamber(i,normADC,"signal_profile","Normalized Signal Profile",idRH,8,-0.5,7.5,-0.1,1.1,"SignalProfile");
-  }
+  //}
 
   //histos->fill1DHistByChamber(ADC[0],"ped_subtracted","ADC in first time bin",idRH,400,-300,100,"FirstTBADC");
   //histos->fill1DHist(ADC[0],"ped_subtracted_all","ADC in first time bin",400,-300,100,"FirstTBADC");
