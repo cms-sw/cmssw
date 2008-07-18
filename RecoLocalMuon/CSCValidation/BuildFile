@@ -12,6 +12,7 @@
 <use name=DataFormats/MuonDetId>
 <use name=CondFormats/CSCObjects>
 <use name=root>
+<use name=rootinteractive>
 
 <flags EDM_PLUGIN=1>
 <export>
