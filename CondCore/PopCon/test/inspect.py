@@ -34,4 +34,8 @@ iov=0
 p = db.payLoad(log.payloadToken)
 o = Plug.Object(p)
 o.summary()
+o.dump()
+o=0
+from CondCore.Utilities import iovInspector
+o = iovInspector.PayLoad(db,log.payloadToken)
 

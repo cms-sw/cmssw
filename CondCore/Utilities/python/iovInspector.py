@@ -13,7 +13,7 @@ class PayLoad :
         exec('import '+db.moduleName(token)+' as Plug')
         self.__me = Plug.Object(db.payLoad(token))
 
-    def ___str__(self) :
+    def __str__(self) :
         return self.__me.dump()
 
 
