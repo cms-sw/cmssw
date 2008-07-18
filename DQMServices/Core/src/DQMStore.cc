@@ -336,6 +336,8 @@ DQMStore::book(const std::string &dir, const std::string &name,
                   << context << ": monitor element '"
                   << path << "' already exists" << std::endl;
       me->Reset();
+      collate(me, h);
+      delete h;
       return me;
     }
   }
