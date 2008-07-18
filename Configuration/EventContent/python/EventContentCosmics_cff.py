@@ -48,7 +48,7 @@ import FWCore.ParameterSet.Config as cms
 #    include reconstruction, simulation and analysis
 #  FEVTSIMDIGIHLTDEBUG FEVTSIMHLTDEBUG
 #
-#  $Id: EventContentCosmics_cff.py,v 1.2 2008/06/19 12:12:27 arizzi Exp $
+#  $Id: EventContentCosmics_cff.py,v 1.3 2008/07/18 13:24:52 jbrooke Exp $
 #
 #
 #
@@ -64,7 +64,7 @@ from RecoLocalCalo.Configuration.RecoLocalCalo_EventContentCosmics_cff import *
 from RecoLocalTracker.Configuration.RecoLocalTracker_Cosmics_EventContent_cff import *
 from RecoJets.Configuration.RecoJets_EventContent_cff import *
 from RecoMET.Configuration.RecoMET_EventContent_cff import *
-from L1Trigger.Configuration.L1Trigger_EventContentCosmics_cff import *
+from L1Trigger.Configuration.L1Trigger_EventContent_Cosmics_cff import *
 from RecoVertex.BeamSpotProducer.BeamSpot_EventContent_cff import *
 from DQMOffline.Configuration.DQMOffline_EventContent_cff import *
 from HLTrigger.Configuration.HLTrigger_EventContent_cff import *
