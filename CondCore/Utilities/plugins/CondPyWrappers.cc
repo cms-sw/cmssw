@@ -90,8 +90,8 @@ BOOST_PYTHON_MODULE(pluginCondDBPyInterface) {
     .def("iov", &cond::CondDB::iov)
     .def("iovWithLib", &cond::CondDB::iovWithLib)
     .def("moduleName",moduleName)
-    .def("lastEntry", &cond::CondDB::lastEntry)
-    .def("lastEntryOK", &cond::CondDB::lastEntryOK)
+    .def("lastLogEntry", &cond::CondDB::lastLogEntry)
+    .def("lastLogEntryOK", &cond::CondDB::lastLogEntryOK)
     ;
   
 

@@ -158,14 +158,14 @@ namespace cond {
     return IOVProxy(me->poolTransaction(),iovToken(tag),false);
   }
 
-  cond::LogDBEntry CondDB::lastEntry(std::string const & tag) const {
+  cond::LogDBEntry CondDB::lastLogEntry(std::string const & tag) const {
     cond::LogDBEntry entry;
     if (logger)
       logger->LookupLastEntryByTag(tag,entry,false);
     return entry;
   }
 
-  cond::LogDBEntry CondDB::lastEntryOK(std::string const & tag) const{
+  cond::LogDBEntry CondDB::lastLogEntryOK(std::string const & tag) const{
     cond::LogDBEntry entry;
     if (logger)
       logger->LookupLastEntryByTag(tag,entry,true);
