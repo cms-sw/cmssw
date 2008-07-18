@@ -5,7 +5,28 @@
 #include <string>
 #include <vector>
 
+// to be moved in src
+#include "CondCore/DBCommon/interface/PoolTransaction.h"
+
+
 namespace cond {
+  // to be moved elsewhere
+  class PoolTransactionSentry {
+  public:
+    PoolTransactionSentry(){}
+    PoolTransactionSentry(cond::PoolTransaction & db) : 
+      elem(new Elem(db)){}      
+  private:
+    struct Elem {
+      Elem(cond::PoolTransaction & db) : pooldb(db){
+	pooldb.start(true);
+      }
+      ~Elem() { pooldb.commit();}
+      cond::PoolTransaction & pooldb;
+    };
+    boost::shared_ptr<Elem> elem;
+      
+  };
 
   template<typename T>
   class BaseValueExtractor {
@@ -44,13 +65,14 @@ namespace cond {
   };
 
   template<typename T>
-  class PayLoadInspector {
+  class PayLoadInspector : PoolTransactionSentry {
   public:
     typedef T Class;
     typedef ValueExtractor<T> Extractor;
         
     PayLoadInspector() {}
     PayLoadInspector(const cond::IOVElement & elem) : 
+      PoolTransactionSentry(*elem.db()),
       object(*elem.db(),elem.payloadToken()){}
 
     std::string print() const { return ""; }
