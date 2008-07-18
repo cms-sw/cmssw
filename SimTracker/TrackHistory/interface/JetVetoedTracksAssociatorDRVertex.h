@@ -10,23 +10,24 @@
 
 #include "SimTracker/TrackHistory/interface/TrackClassifier.h"
 
-class JetVetoedTracksAssociationDRVertex {
+class JetVetoedTracksAssociationDRVertex
+{
 
- public:
+public:
 
-  JetVetoedTracksAssociationDRVertex (double fDr);
-  ~JetVetoedTracksAssociationDRVertex () {}
+    JetVetoedTracksAssociationDRVertex (double fDr);
+    ~JetVetoedTracksAssociationDRVertex () {}
 
-  void produce (
-    reco::JetTracksAssociation::Container* fAssociation,
-    const std::vector<edm::RefToBase<reco::Jet> >& fJets,
-    const std::vector<reco::TrackRef>& fTracks,
-    TrackClassifier & classifier
-  ) const;
+    void produce (
+        reco::JetTracksAssociation::Container* fAssociation,
+        const std::vector<edm::RefToBase<reco::Jet> >& fJets,
+        const std::vector<reco::TrackRef>& fTracks,
+        TrackClassifier & classifier
+    ) const;
 
- private:
-  /// fidutial dR between track in the vertex and jet's reference direction
-  double mDeltaR2Threshold;
+private:
+    /// fidutial dR between track in the vertex and jet's reference direction
+    double mDeltaR2Threshold;
 };
 
 #endif

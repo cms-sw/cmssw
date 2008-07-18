@@ -13,31 +13,36 @@
 #include <string>
 #include <vector>
 
-namespace TrackCategories {
+struct TrackCategories
+{
 
-  enum Category {
-    Fake = 0,
-    Bad,
-    SignalEvent,
-    Bottom,
-    Charm,
-    Light,
-    BWeakDecay,
-    CWeakDecay,
-    TauDecay,
-    KsDecay,
-    LambdaDecay,
-    LongLivedDecay,
-    Conversion,
-    Interaction,
-    PrimaryVertex,
-    SecondaryVertex,
-    TierciaryVertex,
-    Unknown
-  };
+    enum Category
+    {
+        Fake = 0,
+        Bad,
+        SignalEvent,
+        Bottom,
+        Charm,
+        Light,
+        BWeakDecay,
+        CWeakDecay,
+        TauDecay,
+        KsDecay,
+        LambdaDecay,
+        LongLivedDecay,
+        Conversion,
+        Interaction,
+        PrimaryVertex,
+        SecondaryVertex,
+        TierciaryVertex,
+        Unknown
+    };
 
-  typedef std::vector<bool> Flags;
-}
+    static const char * Names[];
+
+    typedef std::vector<bool> Flags;
+
+};
 
 std::ostream & operator<< (std::ostream & os, TrackCategories::Flags const &);
 
