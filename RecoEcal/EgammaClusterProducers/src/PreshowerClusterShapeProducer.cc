@@ -92,6 +92,21 @@ void PreshowerClusterShapeProducer::produce(Event& evt, const EventSetup& es) {
   const CaloSubdetectorGeometry *geometry = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
   const CaloSubdetectorGeometry *& geometry_p = geometry;
 
+
+  // create an auto_ptr to a PreshowerClusterShapeCollection
+  std::auto_ptr< reco::PreshowerClusterShapeCollection > ps_cl_for_pi0_disc_x(new reco::PreshowerClusterShapeCollection);
+  std::auto_ptr< reco::PreshowerClusterShapeCollection > ps_cl_for_pi0_disc_y(new reco::PreshowerClusterShapeCollection);
+
+   // ShR 18Jul2008: check if geometry is NULL. If so we are using
+   // partial CMS gemoetry in Pilot1/2 scenarios which do not include the preshower
+   if( !geometry ) {
+      LogDebug("PreshowerClusterShapeProducer") << "No EcalPreshower geometry available. putting empty collections in event";
+      evt.put(ps_cl_for_pi0_disc_x, PreshowerClusterShapeCollectionX_);
+      evt.put(ps_cl_for_pi0_disc_y, PreshowerClusterShapeCollectionY_);  
+      return;
+   }
+
+
   EcalPreshowerTopology topology(geoHandle);
   CaloSubdetectorTopology * topology_p = &topology;
 
@@ -177,10 +192,9 @@ void PreshowerClusterShapeProducer::produce(Event& evt, const EventSetup& es) {
       }
       SC_index++;
   } // end of cycle over Endcap SC       
-  // create an auto_ptr to a PreshowerClusterShapeProducer, copy the preshower clusters into it and put in the Event:
-  std::auto_ptr< reco::PreshowerClusterShapeCollection > ps_cl_for_pi0_disc_x(new reco::PreshowerClusterShapeCollection);
+
+  // put collection of PreshowerClusterShape in the Event:
   ps_cl_for_pi0_disc_x->assign(ps_cl_x.begin(), ps_cl_x.end());
-  std::auto_ptr< reco::PreshowerClusterShapeCollection > ps_cl_for_pi0_disc_y(new reco::PreshowerClusterShapeCollection);
   ps_cl_for_pi0_disc_y->assign(ps_cl_y.begin(), ps_cl_y.end());
   
   evt.put(ps_cl_for_pi0_disc_x, PreshowerClusterShapeCollectionX_);

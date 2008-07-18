@@ -100,8 +100,28 @@ void PreshowerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& e
   edm::ESHandle<CaloGeometry> geoHandle;
   es.get<CaloGeometryRecord>().get(geoHandle);
 
+
   const CaloSubdetectorGeometry *geometry = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
   const CaloSubdetectorGeometry *& geometry_p = geometry;
+
+   // create auto_ptr to a PreshowerClusterCollection
+   std::auto_ptr< reco::PreshowerClusterCollection > clusters_p1(new reco::PreshowerClusterCollection);
+   std::auto_ptr< reco::PreshowerClusterCollection > clusters_p2(new reco::PreshowerClusterCollection);
+   // create new collection of corrected super clusters
+   std::auto_ptr< reco::SuperClusterCollection > superclusters_p(new reco::SuperClusterCollection);
+
+
+   // ShR 18Jul2008: check if geometry is NULL. If so we are using
+   // partial CMS gemoetry in Pilot1/2 scenarios which do not include the preshower
+   if( !geometry ) {
+      LogDebug("PreshowerClusterProducer") << "No EcalPreshower geometry available. putting empty collections in event";
+
+      // put empty collections in event and return
+      evt.put( clusters_p1, preshClusterCollectionX_ );
+      evt.put( clusters_p2, preshClusterCollectionY_ );
+      evt.put(superclusters_p, assocSClusterCollection_);
+      return;
+   }
 
   EcalPreshowerTopology topology(geoHandle);
   CaloSubdetectorTopology * topology_p = &topology;
@@ -225,18 +245,16 @@ void PreshowerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& e
    } // end of cycle over SCs
   
 
-   // create an auto_ptr to a PreshowerClusterCollection, copy the preshower clusters into it and put in the Event:
-   std::auto_ptr< reco::PreshowerClusterCollection > clusters_p1(new reco::PreshowerClusterCollection);
+
+   // copy the preshower clusters into collections and put in the Event:
    clusters_p1->assign(clusters1.begin(), clusters1.end());
-   std::auto_ptr< reco::PreshowerClusterCollection > clusters_p2(new reco::PreshowerClusterCollection);
    clusters_p2->assign(clusters2.begin(), clusters2.end());
    // put collection of preshower clusters to the event
    evt.put( clusters_p1, preshClusterCollectionX_ );
    evt.put( clusters_p2, preshClusterCollectionY_ );
    if ( debugL <= PreshowerClusterAlgo::pINFO ) std::cout << "Preshower clusters added to the event" << std::endl;
 
-   // put new collection of corrected super clusters to the event
-   std::auto_ptr< reco::SuperClusterCollection > superclusters_p(new reco::SuperClusterCollection);
+   // put collection of corrected super clusters to the event
    superclusters_p->assign(new_SC.begin(), new_SC.end());
    evt.put(superclusters_p, assocSClusterCollection_);
    if ( debugL <= PreshowerClusterAlgo::pINFO ) std::cout << "Corrected SClusters added to the event" << std::endl;
