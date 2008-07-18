@@ -227,10 +227,9 @@ class _SequenceOpAids(_SequenceOperator):
         self._left.fillModulesList(lhs)
         dep = _HardDependency(sequenceName, lhs)
         for rhsmodule in rhs:
-            if rhsmodule in dependencyDict:
-                dependencyDict[rhsmodule].extend(dep)
-            else:
-                dependencyDict[rhsmodule] = dep
+            if not rhsmodule in dependencyDict:
+                dependencyDict[rhsmodule] = list()
+            dependencyDict[rhsmodule].append(dep)
         self._left.findHardDependencies(sequenceName, dependencyDict)
         self._right.findHardDependencies(sequenceName, dependencyDict)
 
@@ -401,6 +400,30 @@ class Schedule(_ValidatingParameterListBase,_ConfigureComponent,_Unlabelable):
     def fillNamesList(self, l, processDict):
         for seq in self:
             seq.fillNamesList(l, processDict)
+    def enforceDependencies(self):
+        # I don't think we need the processDict
+        processDict = dict()
+        dependencyDict = dict()
+        names = list()
+        ok = True
+        errors = list()
+        for seq in self:
+            seq.fillNamesList(names, processDict) 
+            seq.findHardDependencies('schedule', dependencyDict)
+        for label, deps in dependencyDict.iteritems():
+            # see if it's in 
+            try:
+                thisPos = names.index(label)
+                # we had better find all the dependencies
+                for dep in deps.depSet:
+                    if names[0:thisPos].count(dep) == 0:
+                        ok = False 
+                        message = "WARNING:"+label+" depends on "+dep+", as declared in " \
+                                  + deps.sequenceName+", but not found in schedule"
+                        print message
+            except:  
+                # can't find it?  No big deal.
+                pass
 
 
 if __name__=="__main__":
@@ -552,11 +575,11 @@ if __name__=="__main__":
             self.failIf(deps.has_key('m4'))
             self.failIf(deps.has_key('m1'))
             deps = dict()
-            s5 = Sequence(s4*m5)
-            s5.setLabel('s5')
-            s5.findHardDependencies('top',deps)
+            p5 = Path(s4*m5)
+            p5.setLabel('p5')
+            p5.findHardDependencies('top',deps)
             self.assertEqual(len(deps['m5'].depSet), 4)
-            self.assertEqual(deps['m5'].sequenceName, 's5')
+            self.assertEqual(deps['m5'].sequenceName, 'p5')
             self.assertEqual(deps['m3'].sequenceName, 's4')
 
 
