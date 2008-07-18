@@ -173,9 +173,6 @@ namespace cond {
   }
 
 
-}
-
-
 
   RDBMS::RDBMS() : session(new DBSession) {
     session->configuration().setAuthenticationMethod( cond::XML );
