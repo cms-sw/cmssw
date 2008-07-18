@@ -6,6 +6,7 @@
  */
 
 #include "CondCore/IOVService/interface/IOVProxy.h"
+#include "CondCore/DBCommon/interface/LogDBEntry.h"
 
 
 #include<boost/shared_ptr.hpp>
@@ -15,6 +16,7 @@ namespace cond {
 
   class DBSession;
   class Connection;
+  class Logger;
 
   namespace impl {
     struct FWMagic;
@@ -37,7 +39,7 @@ namespace cond {
    CondDB();
    CondDB(const CondDB & other);
    CondDB & operator=(const CondDB & other);
-   CondDB(Connection * conn);
+   CondDB(Connection * conn, boost::shared_ptr<cond::Logger> ilog );
    ~CondDB();
    std::string allTags() const;
 
@@ -46,8 +48,12 @@ namespace cond {
 
    std::string iovToken(std::string const & tag) const;
    
+   cond::LogDBEntry lastEntry(std::string const & tag) const;
+   cond::LogDBEntry lastEntryOK(std::string const & tag) const;
+
  private:
    mutable Connection * me;
+   boost::shared_ptr<cond::Logger> logger;
  };
 
   // initializ cond, coral etc
@@ -57,11 +63,14 @@ namespace cond {
     ~RDBMS();
     explicit RDBMS(std::string const & authPath);
     RDBMS(std::string const & user,std::string const & pass);
+    void setLogger(std::string const & connstr);
 
     CondDB getDB(std::string const & db);
 
   private:
     boost::shared_ptr<DBSession> session;
+   boost::shared_ptr<cond::Logger> logger;
+
   };
 
 

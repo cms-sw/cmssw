@@ -89,13 +89,18 @@ BOOST_PYTHON_MODULE(pluginCondDBPyInterface) {
     .def("allTags", &cond::CondDB::allTags)
     .def("iov", &cond::CondDB::iov)
     .def("iovWithLib", &cond::CondDB::iovWithLib)
-    .def("moduleName",moduleName);
+    .def("moduleName",moduleName)
+    .def("lastEntry", &cond::CondDB::lastEntry)
+    .def("lastEntryOK", &cond::CondDB::lastEntryOK)
+    ;
   
 
   class_<cond::RDBMS>("RDBMS", init<>())
     .def(init<std::string>())
     .def(init<std::string, std::string>())
-    .def("getDB", &cond::RDBMS::getDB);
+    .def("setLogger",&cond::RDBMS::setLogger)
+    .def("getDB", &cond::RDBMS::getDB)
+    ;
 
 
 //  register_exception_translator<edm::Exception>(exceptionTranslator);

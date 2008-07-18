@@ -28,6 +28,8 @@
 #include "CondCore/MetaDataService/interface/MetaData.h"
 #include "CondCore/IOVService/interface/IOVService.h"
 #include "CondCore/IOVService/interface/IOVIterator.h"
+#include "CondCore/DBCommon/interface/Logger.h"
+
 #include <iterator>
 #include <iostream>
 #include <sstream>
@@ -98,12 +100,12 @@ namespace cond {
 
 
   CondDB::CondDB() : me(0){}
-  CondDB::CondDB(cond::Connection * conn) :
-    me(conn) {
+  CondDB::CondDB(cond::Connection * conn, , boost::shared_ptr<cond::Logger> ilog) :
+    me(conn), logger(ilog) {
   }
 
   // move ownership....
-  CondDB::CondDB(const CondDB & other) : me(other.me) {
+  CondDB::CondDB(const CondDB & other) : me(other.me), logger(other.logger) {
     other.me=0;
   }
 
@@ -111,6 +113,7 @@ namespace cond {
     if (me==other.me) return *this; // unless =0 this is an error condition!
     if (me!=0) me->disconnect();
     me = other.me;
+    logger = other.logger;
     other.me=0;
     return *this;
   }
@@ -155,6 +158,23 @@ namespace cond {
     return IOVProxy(me->poolTransaction(),iovToken(tag),false);
   }
 
+  cond::LogDBEntry lastEntry(std::string const & tag) const {
+    cond::LogDBEntry entry;
+    if (logger)
+      logger->LookupLastEntryByTag(tag,entry,false);
+    return entry;
+  }
+
+  cond::LogDBEntry lastEntryOK(std::string const & tag) const{
+    cond::LogDBEntry entry;
+    if (logger)
+      logger->LookupLastEntryByTag(tag,entry,true);
+    return entry;
+  }
+
+
+}
+
 
 
   RDBMS::RDBMS() : session(new DBSession) {
@@ -181,12 +201,20 @@ namespace cond {
     session->configuration().setMessageLevel( cond::Error );
     session->open();
   }
+
+  void RDBMS::setLogger(std::string const & connstr) {
+    cond::ConnectionHandler::Instance().registerConnection(connstr,*session,-1);
+    logger.reset(new cond::Logger(cond::ConnectionHandler::Instance().getConnection("logdb"))
+		 );
+  }
+
+
   
   CondDB RDBMS::getDB(std::string const & db) {
     cond::ConnectionHandler::Instance().registerConnection(db,*session,-1);
     cond::Connection & conn = *cond::ConnectionHandler::Instance().getConnection(db);
     conn.connect(session.get());
-    return CondDB(&conn);
+    return CondDB(&conn,logger);
   }
 
 }
