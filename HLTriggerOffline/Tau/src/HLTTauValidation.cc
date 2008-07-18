@@ -5,7 +5,7 @@ HLTTauValidation::HLTTauValidation(const edm::ParameterSet& ps) :
   triggerEventObject_(ps.getUntrackedParameter<edm::InputTag>("triggerEventObject")),
   refCollection_(ps.getUntrackedParameter<edm::InputTag>("refTauCollection")),
   refLeptonCollection_(ps.getUntrackedParameter<edm::InputTag>("refLeptonCollection")),
-  triggerTag_(ps.getUntrackedParameter<std::string>("TriggerTag","DoubleTau")),
+  triggerTag_(ps.getUntrackedParameter<std::string>("DQMFolder","DoubleTau")),
   l1seedFilter_(ps.getUntrackedParameter<edm::InputTag>("L1SeedFilter")),
   l2filter_(ps.getUntrackedParameter<edm::InputTag>("L2EcalIsolFilter")),
   l25filter_(ps.getUntrackedParameter<edm::InputTag>("L25PixelIsolFilter")),
@@ -41,7 +41,7 @@ HLTTauValidation::HLTTauValidation(const edm::ParameterSet& ps) :
   if(store)
     {
       //Create the histograms
-      store->setCurrentFolder("HLTTau_"+triggerTag_);
+      store->setCurrentFolder(triggerTag_);
       l1eteff = store->book1D("l1eteff","L1 Efficiency vs E_{t}",100,0,200);
       l2eteff = store->book1D("l2eteff","L2 Efficiency vs E_{t}",100,0,200);
       l25eteff = store->book1D("l25eteff","L25 Efficiency vs E_{t}",100,0,200);

@@ -15,6 +15,7 @@
 #include "HLTriggerOffline/Tau/interface/HLTTauValidation.h"
 #include "HLTriggerOffline/Tau/interface/TauJetMCFilter.h"
 #include "HLTriggerOffline/Tau/interface/ElectronOfETauDQM.h"
+#include "HLTriggerOffline/Tau/interface/HLTTauMCProducer.h"
 
 
 DEFINE_SEAL_MODULE();
@@ -32,4 +33,6 @@ DEFINE_ANOTHER_FWK_MODULE(L25TauValidation);
 DEFINE_ANOTHER_FWK_MODULE(HLTTauValidation);
 DEFINE_ANOTHER_FWK_MODULE(TauJetMCFilter);
 DEFINE_ANOTHER_FWK_MODULE(ElectronOfETauDQM);
+DEFINE_ANOTHER_FWK_MODULE(HLTTauMCProducer);
+
 
