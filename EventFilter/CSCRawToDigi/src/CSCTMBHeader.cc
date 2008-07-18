@@ -11,7 +11,7 @@
 #include <string.h> // memcpy
 
 bool CSCTMBHeader::debug = false;
-short unsigned int CSCTMBHeader::firmwareVersion=2006;
+short unsigned int CSCTMBHeader::firmwareVersion=2007;
 
 CSCTMBHeader::CSCTMBHeader():
   theHeaderFormat(new CSCTMBHeader2007_rev0x50c3())
@@ -123,11 +123,11 @@ void CSCTMBHeader::selfTest()
       CSCDetId detId(iendcap, station, 1, 1, 0);
 
       // the next-to-last is the BX, which only gets
-      // saved in two bits... I guess the bxnPreTrigger is involved?
+      // saved in two bits and must be the same for clct0 and clct1.
       //CSCCLCTDigi clct0(1, 1, 4, 0, 0, 30, 3, 0, 1); // valid for 2006
       // In 2007 firmware, there are no distrips, so the 4th argument (strip
       // type) should always be set to 1 (halfstrips).
-      CSCCLCTDigi clct0(1, 1, 4, 1, 0, 30, 3, 0, 1); // valid for 2007
+      CSCCLCTDigi clct0(1, 1, 4, 1, 0, 30, 4, 2, 1); // valid for 2007
       CSCCLCTDigi clct1(1, 1, 2, 1, 1, 31, 1, 2, 2);
 
       // BX of LCT (8th argument) is 1-bit word (the least-significant bit
@@ -142,6 +142,10 @@ void CSCTMBHeader::selfTest()
       tmbHeader.addCorrelatedLCT1(lct1);
       std::vector<CSCCLCTDigi> clcts = tmbHeader.CLCTDigis(detId.rawId());
       // guess they got reordered
+      if (debug) {
+	std::cout << "Closure test for firmware version "
+		  << tmbHeader.firmwareVersion << "\n";
+      }
       assert(cscPackerCompare(clcts[0],clct0));
       assert(cscPackerCompare(clcts[1],clct1));
       if (debug) {

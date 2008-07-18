@@ -429,7 +429,9 @@ void CSCEventData::selfTest() {
   CSCEventData chamberData(5);
   CSCDetId detId(1, 3, 2, 1, 3);
   std::vector<CSCCLCTDigi> clctDigis;
-  clctDigis.push_back(CSCCLCTDigi(1, 1, 4, 1, 0, 30, 3, 0, 1)); // valid for 2007
+  // Both CLCTs are read-out at the same (pre-trigger) bx, so the last-but-one
+  // arguments in both digis must be the same.
+  clctDigis.push_back(CSCCLCTDigi(1, 1, 4, 1, 0, 30, 3, 2, 1)); // valid for 2007
   clctDigis.push_back(CSCCLCTDigi(1, 1, 2, 1, 1, 31, 1, 2, 2));
   
   // BX of LCT (8th argument) is 1-bit word (the least-significant bit
