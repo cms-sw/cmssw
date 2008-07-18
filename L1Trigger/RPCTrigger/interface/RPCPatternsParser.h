@@ -15,7 +15,7 @@
 #include <xercesc/sax2/DefaultHandler.hpp>
 
 #include "L1Trigger/RPCTrigger/interface/RPCConst.h"
-#include "CondFormats/RPCObjects/interface/RPCPattern.h"
+#include "CondFormats/L1TObjects/interface/RPCPattern.h"
 //#include "L1Trigger/RPCTrigger/interface/RPCException.h"
 
 XERCES_CPP_NAMESPACE_USE

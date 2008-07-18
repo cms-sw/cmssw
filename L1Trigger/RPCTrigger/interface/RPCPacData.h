@@ -20,7 +20,7 @@ sprawdzic konwencje znaku mionu !!!!! (takze w L1RpcMuon0)
 #include <map>
 #include <list>
 #include <iostream>
-#include "CondFormats/RPCObjects/interface/RPCPattern.h"
+#include "CondFormats/L1TObjects/interface/RPCPattern.h"
 //#include "L1Trigger/RPCTrigger/interface/RPCPacBase.h"
 #include "L1Trigger/RPCTrigger/interface/RPCPatternsParser.h"
 #include "L1Trigger/RPCTrigger/interface/TPatternsGroup.h"
