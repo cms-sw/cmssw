@@ -7,7 +7,7 @@ std::string JetTableManager::titles[] = {
      " ECAL"	,
      " HCAL"	,
      " emf"	,
-     " chf"
+//      " chf"
 };
 
 std::string JetTableManager::formats[] = {
@@ -17,7 +17,7 @@ std::string JetTableManager::formats[] = {
      " %5.1f"	,
      " %5.1f"	,
      " %6.3f"	,
-     " %6.3f"
+//      " %6.3f"
 };
 
 int JetTableManager::NumberOfRows() const
@@ -95,7 +95,7 @@ const std::vector<std::string> 	&JetRow::str () const
 	  str_.push_back(format_string(JetTableManager::formats[i++], ECAL	));
 	  str_.push_back(format_string(JetTableManager::formats[i++], HCAL	));
 	  str_.push_back(format_string(JetTableManager::formats[i++], emf 	));
-	  str_.push_back(format_string(JetTableManager::formats[i++], chf	));
+// 	  str_.push_back(format_string(JetTableManager::formats[i++], chf	));
      }
      return str_;
 }
@@ -110,7 +110,7 @@ const std::vector<float> 	&JetRow::vec () const
 	  vec_.push_back(ECAL	);
 	  vec_.push_back(HCAL	);
 	  vec_.push_back(emf 	);
-	  vec_.push_back(chf	);
+// 	  vec_.push_back(chf	);
      }
      return vec_;
 }

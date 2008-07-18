@@ -95,8 +95,9 @@ enum { FLAG_NO, FLAG_YES, FLAG_MAYBE };
 
 struct ElectronRowStruct {
      int	index;
-     float 	Et, eta, phi, eop, hoe, fbrem, dei, dpi, see, spp, iso;
-     char 	robust, loose, tight;
+     float 	Et, eta, phi, eop, hoe, fbrem, dei, dpi;
+//      float	see, spp, iso;
+//      char 	robust, loose, tight;
 };
 
 class ElectronRow : public ElectronRowStruct {
@@ -159,8 +160,11 @@ struct MuonRowStruct {
      int	index;
      float 	pt;
      char 	global, tk, SA, calo;
-     float 	iso_3, iso_5, tr_pt, eta, phi, chi2_ndof, matches, d0, sig_d0;
-     char	loose_match, tight_match, loose_depth, tight_depth;
+//      float 	iso_3, iso_5;
+     float	tr_pt, eta, phi;
+//      float	chi2_ndof, matches;
+     float	d0, sig_d0;
+//      char	loose_match, tight_match, loose_depth, tight_depth;
 };
 
 class MuonRow : public MuonRowStruct {
@@ -199,7 +203,8 @@ public:
 
 struct JetRowStruct {
      int	index;
-     float	Et, eta, phi, ECAL, HCAL, emf, chf;
+     float	Et, eta, phi, ECAL, HCAL, emf;
+//      float	chf;
 };
 
 class JetRow : public JetRowStruct {
@@ -248,9 +253,8 @@ struct TrackRowStruct {
 	  vtx_x,
 	  vtx_y,
 	  vtx_z;
-     int 	pix_layers,
-	  strip_layers,
-	  outermost_layer;
+     int 	pix_layers, strip_layers;
+//      int	outermost_layer;
      float chi2;
      float ndof;
 };

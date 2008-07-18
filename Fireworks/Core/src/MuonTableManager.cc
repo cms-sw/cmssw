@@ -6,19 +6,19 @@ std::string MuonTableManager::titles[] = {
      "tk"	,
      "SA"	,
      "calo"	,
-     "iso(3)"	,
-     "iso(5)"	,
+//      "iso(3)"	,
+//      "iso(5)"	,
      "tr pt"	,
      "eta"	,
      " phi"	,
-     "chi^2/ndof"	,
-     "matches"	,
+//      "chi^2/ndof"	,
+//      "matches"	,
      "d0"	,
      "sig(d0)"	,
-     " loose(match)"	,
-     "tight(match)"	,
-     "loose(depth)"	,
-     "tight(depth)"
+//      " loose(match)"	,
+//      "tight(match)"	,
+//      "loose(depth)"	,
+//      "tight(depth)"
 };
 
 std::string MuonTableManager::formats[] = {
@@ -27,19 +27,19 @@ std::string MuonTableManager::formats[] = {
      "%c"	,
      "%c"	,
      "%c"	,
+//      "%6.3f"	,
+//      "%6.3f"	,
      "%6.3f"	,
      "%6.3f"	,
      "%6.3f"	,
-     "%6.3f"	,
-     "%6.3f"	,
-     "%6.3f"	,
-     "%d"	,
+//      "%6.3f"	,
+//      "%d"	,
      "%6.3f"	,
      "%7.3f"	,
-     "%c"	,
-     "%c"	,
-     "%c"	,
-     "%c"
+//      "%c"	,
+//      "%c"	,
+//      "%c"	,
+//      "%c"
 };
 
 int MuonTableManager::NumberOfRows() const
@@ -110,19 +110,19 @@ const std::vector<std::string> 	&MuonRow::str () const
 	  str_.push_back(format_string(MuonTableManager::formats[i++], tk         	));
 	  str_.push_back(format_string(MuonTableManager::formats[i++], SA         	));
 	  str_.push_back(format_string(MuonTableManager::formats[i++], calo       	));
-	  str_.push_back(format_string(MuonTableManager::formats[i++], iso_3      	));
-	  str_.push_back(format_string(MuonTableManager::formats[i++], iso_5      	));
+// 	  str_.push_back(format_string(MuonTableManager::formats[i++], iso_3      	));
+// 	  str_.push_back(format_string(MuonTableManager::formats[i++], iso_5      	));
 	  str_.push_back(format_string(MuonTableManager::formats[i++], tr_pt      	));
 	  str_.push_back(format_string(MuonTableManager::formats[i++], eta        	));
 	  str_.push_back(format_string(MuonTableManager::formats[i++], phi        	));
-	  str_.push_back(format_string(MuonTableManager::formats[i++], chi2_ndof  	));
-	  str_.push_back(format_string(MuonTableManager::formats[i++], matches    	));
+// 	  str_.push_back(format_string(MuonTableManager::formats[i++], chi2_ndof  	));
+// 	  str_.push_back(format_string(MuonTableManager::formats[i++], matches    	));
 	  str_.push_back(format_string(MuonTableManager::formats[i++], d0         	));
 	  str_.push_back(format_string(MuonTableManager::formats[i++], sig_d0     	));
-	  str_.push_back(format_string(MuonTableManager::formats[i++], loose_match	));
-	  str_.push_back(format_string(MuonTableManager::formats[i++], tight_match	));
-	  str_.push_back(format_string(MuonTableManager::formats[i++], loose_depth	));
-	  str_.push_back(format_string(MuonTableManager::formats[i++], tight_depth	));
+// 	  str_.push_back(format_string(MuonTableManager::formats[i++], loose_match	));
+// 	  str_.push_back(format_string(MuonTableManager::formats[i++], tight_match	));
+// 	  str_.push_back(format_string(MuonTableManager::formats[i++], loose_depth	));
+// 	  str_.push_back(format_string(MuonTableManager::formats[i++], tight_depth	));
      }
      return str_;
 }
@@ -136,19 +136,19 @@ const std::vector<float> 	&MuonRow::vec () const
 	  vec_.push_back(tk         	);
 	  vec_.push_back(SA         	);
 	  vec_.push_back(calo       	);
-	  vec_.push_back(iso_3      	);
-	  vec_.push_back(iso_5      	);
+// 	  vec_.push_back(iso_3      	);
+// 	  vec_.push_back(iso_5      	);
 	  vec_.push_back(tr_pt      	);
 	  vec_.push_back(eta        	);
 	  vec_.push_back(phi        	);
-	  vec_.push_back(chi2_ndof  	);
-	  vec_.push_back(matches    	);
+// 	  vec_.push_back(chi2_ndof  	);
+// 	  vec_.push_back(matches    	);
 	  vec_.push_back(d0         	);
 	  vec_.push_back(sig_d0     	);
-	  vec_.push_back(loose_match	);
-	  vec_.push_back(tight_match	);
-	  vec_.push_back(loose_depth	);
-	  vec_.push_back(tight_depth	);
+// 	  vec_.push_back(loose_match	);
+// 	  vec_.push_back(tight_match	);
+// 	  vec_.push_back(loose_depth	);
+// 	  vec_.push_back(tight_depth	);
      }
      return vec_;
 }

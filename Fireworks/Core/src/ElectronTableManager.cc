@@ -9,12 +9,12 @@ std::string ElectronTableManager::titles[] = {
      "fbrem"	,
      "dei"	,
      "dpi"	,
-     "see"	,
-     "spp"	,
-     "iso"	,
-     "robust"	,
-     "loose"	,
-     "tight"
+//      "see"	,
+//      "spp"	,
+//      "iso"	,
+//      "robust"	,
+//      "loose"	,
+//      "tight"
 };
 
 std::string ElectronTableManager::formats[] = {
@@ -26,12 +26,12 @@ std::string ElectronTableManager::formats[] = {
      "%6.3f"	,
      "%6.3f"	,
      "%6.3f"	,
-     "%6.3f"	,
-     "%6.3f"	,
-     "%6.3f"	,
-     "%c"	,
-     "%c"	,
-     "%c"
+//      "%6.3f"	,
+//      "%6.3f"	,
+//      "%6.3f"	,
+//      "%c"	,
+//      "%c"	,
+//      "%c"
 };
 
 int ElectronTableManager::NumberOfRows() const
@@ -105,12 +105,12 @@ const std::vector<std::string> 	&ElectronRow::str () const
 	  str_.push_back(format_string(ElectronTableManager::formats[i++], fbrem 	));
 	  str_.push_back(format_string(ElectronTableManager::formats[i++], dei   	));
 	  str_.push_back(format_string(ElectronTableManager::formats[i++], dpi   	));
-	  str_.push_back(format_string(ElectronTableManager::formats[i++], see   	));
-	  str_.push_back(format_string(ElectronTableManager::formats[i++], spp   	));
-	  str_.push_back(format_string(ElectronTableManager::formats[i++], iso  	));
-	  str_.push_back(format_string(ElectronTableManager::formats[i++], robust	));
-	  str_.push_back(format_string(ElectronTableManager::formats[i++], loose 	));
-	  str_.push_back(format_string(ElectronTableManager::formats[i++], tight	));
+// 	  str_.push_back(format_string(ElectronTableManager::formats[i++], see   	));
+// 	  str_.push_back(format_string(ElectronTableManager::formats[i++], spp   	));
+// 	  str_.push_back(format_string(ElectronTableManager::formats[i++], iso  	));
+// 	  str_.push_back(format_string(ElectronTableManager::formats[i++], robust	));
+// 	  str_.push_back(format_string(ElectronTableManager::formats[i++], loose 	));
+// 	  str_.push_back(format_string(ElectronTableManager::formats[i++], tight	));
      }
      return str_;
 }
@@ -127,12 +127,12 @@ const std::vector<float> 	&ElectronRow::vec () const
 	  vec_.push_back(fbrem 	);
 	  vec_.push_back(dei   	);
 	  vec_.push_back(dpi   	);
-	  vec_.push_back(see   	);
-	  vec_.push_back(spp   	);
-	  vec_.push_back(iso  	);
-	  vec_.push_back(robust	);
-	  vec_.push_back(loose 	);
-	  vec_.push_back(tight	);
+// 	  vec_.push_back(see   	);
+// 	  vec_.push_back(spp   	);
+// 	  vec_.push_back(iso  	);
+// 	  vec_.push_back(robust	);
+// 	  vec_.push_back(loose 	);
+// 	  vec_.push_back(tight	);
      }
      return vec_;
 }

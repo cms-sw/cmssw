@@ -130,12 +130,14 @@ FWTextViewPage::FWTextViewPage (const std::string &title_,
      m_termDumpButton->SetHeight(25);
      m_buttons->AddFrame(m_termDumpButton, new TGLayoutHints);
      m_termDumpButton->Connect("Clicked()", "FWTextViewPage", this, "dumpToTerminal()");
+#if 0
      TGPictureButton *m_copyButton = 
 	  new TGPictureButton(m_buttons, copyIcon());
      m_copyButton->SetToolTipText("Copy tables to X server selection");
      m_copyButton->SetHeight(25);
      m_buttons->AddFrame(m_copyButton, new TGLayoutHints);
      m_copyButton->Connect("Clicked()", "FWTextViewPage", this, "copyToSelection()");
+#endif
      TGTextButton *m_printButton = 
 	  new TGTextButton(m_buttons, "Dump to printer");
      m_printButton->SetToolTipText("Dump tables to printer");
@@ -640,12 +642,12 @@ void FWTextView::newEvent (const fwlite::Event &ev, const CmsShowMain *de)
 		 muon.isTrackerMuon()		? 'y' : 'n', 
 		 muon.isStandAloneMuon()	? 'y' : 'n', 
 		 muon.isCaloMuon()		? 'y' : 'n',
-		 0., 0., // what iso? 
+ 		 0., 0., // what iso? 
 		 trpt, muon.eta(), muon.phi(),
-		 0., // how to get chi^2?
-		 muon.numberOfMatches(Muon::SegmentArbitration), // is this the right arbitration?
+ 		 0., // how to get chi^2?
+ 		 muon.numberOfMatches(Muon::SegmentArbitration), // is this the right arbitration?
 		 trd0, trd0 / trsd0,
-		 'm', 'm', 'm', 'm' // get these flags!
+ 		 'm', 'm', 'm', 'm' // get these flags!
 	       );
 #endif
 	  MuonRowStruct row = {
@@ -655,12 +657,12 @@ void FWTextView::newEvent (const fwlite::Event &ev, const CmsShowMain *de)
 	       muon.isTrackerMuon()		? FLAG_YES : FLAG_NO, 
 	       muon.isStandAloneMuon()	? FLAG_YES : FLAG_NO, 
 	       muon.isCaloMuon()		? FLAG_YES : FLAG_NO,
-	       0., 0., // what iso? 
+// 	       0., 0., // what iso? 
 	       trpt, muon.eta(), muon.phi(),
-	       0., // how to get chi^2?
-	       muon.numberOfMatches(Muon::SegmentArbitration), // is this the right arbitration?
+// 	       0., // how to get chi^2?
+// 	       muon.numberOfMatches(Muon::SegmentArbitration), // is this the right arbitration?
 	       trd0, trd0 / trsd0,
-	       FLAG_MAYBE, FLAG_MAYBE, FLAG_MAYBE, FLAG_MAYBE // get these flags!
+// 	       FLAG_MAYBE, FLAG_MAYBE, FLAG_MAYBE, FLAG_MAYBE // get these flags!
 	  };
 	  mu_manager->rows.push_back(row);
      }
@@ -703,9 +705,9 @@ void FWTextView::newEvent (const fwlite::Event &ev, const CmsShowMain *de)
 	       (pin - pout) / pin,
 	       electron.deltaEtaSuperClusterTrackAtVtx(),
 	       electron.deltaPhiSuperClusterTrackAtVtx(),
-	       0., 0., // can we get the shape?
-	       0., // can we get the iso?
-	       FLAG_MAYBE, FLAG_MAYBE, FLAG_MAYBE // can we get these flags?
+// 	       0., 0., // can we get the shape?
+// 	       0., // can we get the iso?
+// 	       FLAG_MAYBE, FLAG_MAYBE, FLAG_MAYBE // can we get these flags?
 	  };
 	  el_manager->rows.push_back(row);
      }
@@ -740,7 +742,7 @@ void FWTextView::newEvent (const fwlite::Event &ev, const CmsShowMain *de)
 	       jet.p4().E() * jet.emEnergyFraction(),		// this has got
 	       jet.p4().E() * jet.energyFractionHadronic(),	// to be a joke
 	       jet.emEnergyFraction(), 
-	       0.	// how do we get the charge fraction?
+//	       0.	// how do we get the charge fraction?
 	  };
 	  jet_manager->rows.push_back(row);
      }
@@ -760,7 +762,7 @@ void FWTextView::newEvent (const fwlite::Event &ev, const CmsShowMain *de)
 	       tr.vx(), tr.vy(), tr.vz(), 
 	       tr.hitPattern().numberOfValidPixelHits(),
 	       tr.hitPattern().numberOfValidStripHits(),
-	       125,
+// 	       125,
 	       tr.chi2(), tr.ndof()
 	  };
 	  track_manager->rows.push_back(row);
