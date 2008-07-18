@@ -39,6 +39,7 @@ void SamplingAnalysis::reset() {
 // 
 void SamplingAnalysis::print( std::stringstream& ss, uint32_t not_used ) { 
   header( ss );
+  ss << " Granularity: " << SiStripEnumsAndStrings::granularity(granularity_) << std::endl;
   ss << " Delay corresponding to the maximum of the pulse : " << max_ << std::endl
      << " Error on the position (from the fit)            : " << error_ << std::endl;
 }

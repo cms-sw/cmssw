@@ -3,6 +3,7 @@
 
 #include "CondFormats/SiStripObjects/interface/CommissioningAnalysis.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
+#include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
 #include <boost/cstdint.hpp>
 #include <sstream>
 #include <vector>
@@ -41,6 +42,8 @@ class SamplingAnalysis : public CommissioningAnalysis {
 
   float correctMeasurement(float mean, float SoNcut=3.) const;
 
+  sistrip::Granularity granularity() const { return granularity_; }
+
  private:
 
   /** s/n cut to be used */
@@ -54,6 +57,9 @@ class SamplingAnalysis : public CommissioningAnalysis {
 
   /** reconstruction mode */
   sistrip::RunType runType_;
+
+  /** granularity */
+  sistrip::Granularity granularity_;
   
 };
 
