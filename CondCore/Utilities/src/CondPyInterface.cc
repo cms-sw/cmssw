@@ -201,7 +201,7 @@ namespace cond {
 
   void RDBMS::setLogger(std::string const & connstr) {
     cond::ConnectionHandler::Instance().registerConnection(connstr,*session,-1);
-    logger.reset(new cond::Logger(cond::ConnectionHandler::Instance().getConnection("logdb"))
+    logger.reset(new cond::Logger(cond::ConnectionHandler::Instance().getConnection(connstr))
 		 );
   }
 
