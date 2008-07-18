@@ -50,19 +50,19 @@ namespace {
 BOOST_PYTHON_MODULE(pluginCondDBPyInterface) {
   
 
-  class_<LogDBEntry>("LogDBEntry").
-    .def("logId",  LogDBEntry::logId)
-    .def("",  LogDBEntry::destinationDB)   
-    .def("provenance", LogDBEntry::provenance)
-    .def("usertext", LogDBEntry::usertext)
-    .def("iovtag", LogDBEntry::Entryiovtag)
-    .def("iovtimetype",  LogDBEntry::iovtimetype)
-    .def("payloadIdx",  LogDBEntry::payloadIdx)
-    .def("payloadName",  LogDBEntry::payloadName)
-    .def("payloadToken",  LogDBEntry::payloadToken)
-    .def("payloadContainer",  LogDBEntry::payloadContainer)
-    .def("exectime",  LogDBEntry::exectime)
-    .def("execmessage",  LogDBEntry::execmessage)
+  class_<cond::LogDBEntry>("LogDBEntry").
+    .def("logId",  cond::LogDBEntry::logId)
+    .def("",  cond::LogDBEntry::destinationDB)   
+    .def("provenance", cond::LogDBEntry::provenance)
+    .def("usertext", cond::LogDBEntry::usertext)
+    .def("iovtag", cond::LogDBEntry::Entryiovtag)
+    .def("iovtimetype",  cond::LogDBEntry::iovtimetype)
+    .def("payloadIdx",  cond::LogDBEntry::payloadIdx)
+    .def("payloadName",  cond::LogDBEntry::payloadName)
+    .def("payloadToken",  cond::LogDBEntry::payloadToken)
+    .def("payloadContainer",  cond::LogDBEntry::payloadContainer)
+    .def("exectime",  cond::LogDBEntry::exectime)
+    .def("execmessage", cond::LogDBEntry::execmessage)
     ;
 
   class_<std::vector<float> >("VFloat")
