@@ -415,11 +415,9 @@ cat > begin.html <<EOF
 
 <h1>$NEWRELEASE vs $OLDRELEASE $TYPE validation</h1>
 
-<p>The following plots were made using <a href="http://cmslxr.fnal.gov/lxr/source/Validation/RecoEgamma/src/$ANALYZER.cc">Validation/RecoEgamma/src/$ANALYZER</a>, using <a href="http://cmslxr.fnal.gov/lxr/source/Validation/RecoEgamma/test/$CFG.py">Validation/RecoEgamma/test/$CFG.py</a>, using $SAMPLE as input.
-
+<p>The following plots were made using <a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/Validation/RecoEgamma/src/$ANALYZER.cc">Validation/RecoEgamma/src/$ANALYZER</a>, 
+using <a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/Validation/RecoEgamma/test/$CFG.py">Validation/RecoEgamma/test/$CFG.py</a>, using $SAMPLE as input.
 <p>The script used to make the plots is <a href="validation.C">here</a>.
-
-
 
 <p>In all plots below, $OLDRELEASE is in blue, $NEWRELEASE in red.
 
