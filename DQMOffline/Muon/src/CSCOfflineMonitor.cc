@@ -20,6 +20,8 @@ CSCOfflineMonitor::CSCOfflineMonitor(const ParameterSet& pset){
 
   stripDigiTag_  = pset.getParameter<edm::InputTag>("stripDigiTag");
   wireDigiTag_   = pset.getParameter<edm::InputTag>("wireDigiTag"); 
+  cscRecHitTag_  = pset.getParameter<edm::InputTag>("cscRecHitTag");
+  cscSegTag_     = pset.getParameter<edm::InputTag>("cscSegTag");
 
 }
 
@@ -588,7 +590,7 @@ void CSCOfflineMonitor::analyze(const Event & event, const EventSetup& eventSetu
   
   // Get the RecHits collection :
   Handle<CSCRecHit2DCollection> recHits; 
-  event.getByLabel("csc2DRecHits",recHits);  
+  event.getByLabel(cscRecHitTag_,recHits);  
   int nRecHits = recHits->size();
 
  
@@ -681,7 +683,7 @@ void CSCOfflineMonitor::analyze(const Event & event, const EventSetup& eventSetu
 
   // get CSC segment collection
   Handle<CSCSegmentCollection> cscSegments;
-  event.getByLabel("cscSegments", cscSegments);
+  event.getByLabel(cscSegTag_, cscSegments);
   int nSegments = cscSegments->size();
 
   // -----------------------

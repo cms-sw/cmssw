@@ -80,6 +80,8 @@ private:
   edm::ParameterSet param;
   edm::InputTag stripDigiTag_;
   edm::InputTag wireDigiTag_;
+  edm::InputTag cscRecHitTag_;
+  edm::InputTag cscSegTag_; 
 
 
   // some useful functions
