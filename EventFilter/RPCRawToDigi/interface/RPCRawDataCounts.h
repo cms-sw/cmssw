@@ -3,6 +3,8 @@
 
 #include <map>
 #include <vector>
+#include <string>
+#include "TH1D.h"
 
 class RPCRawDataCounts {
 public:
@@ -17,9 +19,12 @@ public:
          InvalidStrip = 8 };
   RPCRawDataCounts() {}
   ~RPCRawDataCounts() { }
-  void addRecordType(int fed, int type);
-  void addReadoutError(int error);
-
+  void addRecordType(int fed, int type, int weight=1);
+  void addReadoutError(int error, int weight=1);
+  void operator+= (const RPCRawDataCounts& );
+  std::string print() const;
+  TH1D recordTypeHisto(int fedid) const;
+  TH1D readoutErrorHisto() const;
 private:
    std::map<int, std::vector<int> > theRecordTypes; 
    std::map<int,int> theReadoutErrors; 
