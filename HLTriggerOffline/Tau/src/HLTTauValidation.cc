@@ -153,7 +153,7 @@ HLTTauValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	  double et=0.;
 	  double eta=0.;
 	  
-	  for(size_t j = 0;j<=refC->size();++j)
+	  for(size_t j = 0;j<refC->size();++j)
 	    {
 	      if((*refC)[j].Et()>et)
 		{
