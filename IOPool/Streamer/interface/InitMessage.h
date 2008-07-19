@@ -15,6 +15,8 @@ code 1 | size 4 | protocol version 1 | pset 16 | run 4 | Init Header Size 4| Eve
 Protocol Version 6:
 code 1 | size 4 | protocol version 1 | pset 16 | run 4 | Init Header Size 4| Event Header Size 4| releaseTagLength 1 | ReleaseTag var| processNameLength 1 | processName var| outputModuleLabelLength 1 | outputModuleLabel var | outputModuleId 4 | HLT Trig count 4| HLT Trig Length 4 | HLT Trig names var | HLT Selection count 4| HLT Selection Length 4 | HLT Selection names var | L1 Trig Count 4| L1 TrigName len 4| L1 Trig Names var |desc legth 4 | description blob var
   
+Protocol Version 7: No change to protocol, only description blob (and event data blob) changed
+code 1 | size 4 | protocol version 1 | pset 16 | run 4 | Init Header Size 4| Event Header Size 4| releaseTagLength 1 | ReleaseTag var| processNameLength 1 | processName var| outputModuleLabelLength 1 | outputModuleLabel var | outputModuleId 4 | HLT Trig count 4| HLT Trig Length 4 | HLT Trig names var | HLT Selection count 4| HLT Selection Length 4 | HLT Selection names var | L1 Trig Count 4| L1 TrigName len 4| L1 Trig Names var |desc legth 4 | description blob var
 
 */
 

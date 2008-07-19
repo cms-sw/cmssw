@@ -12,9 +12,12 @@ EventMsgView::EventMsgView(void* buf):
   // we didn't have an explicit version number in the Event Message before
   // now, we have to limit what we can handle to versions that have the
   // version number included (>= 5).
-  if (protocolVersion() < 5 || protocolVersion() > 6) {
+
+  // 18-Jul-2008, wmtan - payload changed for version 7.
+  // So we no longer support previous formats.
+  if (protocolVersion() != 7) {
     throw cms::Exception("EventMsgView", "Invalid Message Version:")
-      << "Only message versions 5 and 6 are currently supported \n"
+      << "Only message version 7 is currently supported \n"
       << "(invalid value = " << protocolVersion() << ").\n"
       << "We support only reading and converting streamer files\n"
       << "using the same version of CMSSW used to created the\n"

@@ -51,7 +51,6 @@ namespace edm {
     newRun_(true),
     newLumi_(true),
     ep_(),
-    processHistoryID_(),
     tc_(getTClass(typeid(SendEvent))),
     dest_(init_size),
     xbuf_(TBuffer::kRead, init_size),
@@ -82,32 +81,6 @@ namespace edm {
   }
 
   void
-  StreamerInputSource::mergeWithRegistry(SendDescs const& descs) {
-
-    mergeIntoRegistry(descs, productRegistryUpdate());
-
-
-
-    FDEBUG(10) << "StreamerInputSource::mergeWithRegistry :" << processName_ << std::endl; 
-
-    // NOTE: The process history of the events is NOT preserved by the streamer,
-    // except for the process name of the process that created them.
-    // So, we reconstruct a process history from all the branch names.
-
-    ProcessHistory ph;
-    std::set<std::string> processNames;
-    for (SendDescs::const_iterator i = descs.begin(), e = descs.end(); i != e; ++i) {
-      if (processNames.insert(i->processName()).second) { 
-        ProcessConfiguration pc;
-        pc.processName_ = i->processName();
-        ph.push_back(pc);
-      }
-    }
-    ProcessHistoryRegistry::instance()->insertMapped(ph);
-    setProcessHistoryID(ph.id());
-  }
-
-  void
   StreamerInputSource::declareStreamers(SendDescs const& descs) {
     SendDescs::const_iterator i(descs.begin()), e(descs.end());
 
@@ -132,7 +105,7 @@ namespace edm {
     }
   }
 
-  void 
+  void
   StreamerInputSource::saveTriggerNames(InitMsgView const* header) {
 
     ParameterSet trigger_pset;
@@ -235,6 +208,28 @@ namespace edm {
   }
 
   /**
+   * Deserializes the specified init message into a SendJobHeader object
+   * and merges registries.
+   */
+  std::auto_ptr<SendJobHeader>
+  StreamerInputSource::deserializeAndMergeWithRegistry(InitMsgView const& initView)
+  {
+     std::auto_ptr<SendJobHeader> sd = deserializeRegistry(initView);
+     mergeIntoRegistry(sd->descs(), productRegistryUpdate());
+     ModuleDescriptionRegistry & moduleDescriptionRegistry = *ModuleDescriptionRegistry::instance();
+     ModuleDescriptionMap const& mdMap = sd->moduleDescriptionMap();
+     for (ModuleDescriptionMap::const_iterator k = mdMap.begin(), kEnd = mdMap.end(); k != kEnd; ++k) {
+       moduleDescriptionRegistry.insertMapped(k->second);
+     } 
+     SendJobHeader::ParameterSetMap const & psetMap = sd->processParameterSet();
+     pset::Registry& psetRegistry = *pset::Registry::instance();
+     for (SendJobHeader::ParameterSetMap::const_iterator i = psetMap.begin(), iEnd = psetMap.end(); i != iEnd; ++i) {
+       psetRegistry.insertMapped(ParameterSet(i->second.pset_));
+     }
+     return sd;
+  }
+
+  /**
    * Deserializes the specified event message into an EventPrincipal object.
    */
   std::auto_ptr<EventPrincipal>
@@ -286,11 +281,12 @@ namespace edm {
         throw cms::Exception("StreamTranslation","Event deserialization error")
           << "got a null event from input stream\n";
     }
+    ProcessHistoryRegistry::instance()->insertMapped(sd->processHistory());
 
-    FDEBUG(5) << "Got event: " << sd->id_ << " " << sd->prods_.size() << std::endl;
-    if(!runPrincipal() || runPrincipal()->run() != sd->id_.run()) {
+    FDEBUG(5) << "Got event: " << sd->aux().id() << " " << sd->products().size() << std::endl;
+    if(!runPrincipal() || runPrincipal()->run() != sd->aux().run()) {
 	newRun_ = newLumi_ = true;
-	RunAuxiliary runAux(sd->id_.run(), sd->time_, Timestamp::invalidTimestamp());
+	RunAuxiliary runAux(sd->aux().run(), sd->aux().time(), Timestamp::invalidTimestamp());
 	setRunPrincipal(boost::shared_ptr<RunPrincipal>(
           new RunPrincipal(runAux,
 			   productRegistry(),
@@ -299,7 +295,7 @@ namespace edm {
     }
     if(!luminosityBlockPrincipal() || luminosityBlockPrincipal()->luminosityBlock() != eventView.lumi()) {
       
-      LuminosityBlockAuxiliary lumiAux(runPrincipal()->run(), eventView.lumi(), sd->time_, Timestamp::invalidTimestamp());
+      LuminosityBlockAuxiliary lumiAux(runPrincipal()->run(), eventView.lumi(), sd->aux().time(), Timestamp::invalidTimestamp());
       setLuminosityBlockPrincipal(boost::shared_ptr<LuminosityBlockPrincipal>(
         new LuminosityBlockPrincipal(lumiAux,
 				     productRegistry(),
@@ -307,47 +303,44 @@ namespace edm {
       newLumi_ = true;
     }
 
-    EventAuxiliary eventAux(sd->id_,
-      processGUID(), sd->time_, luminosityBlockPrincipal()->luminosityBlock(), true);
+    EventAuxiliary eventAux(sd->aux().id(),
+      processGUID(), sd->aux().time(), luminosityBlockPrincipal()->luminosityBlock(), true);
     std::auto_ptr<EventPrincipal> ep(new EventPrincipal(eventAux,
                                                    productRegistry(),
                                                    processConfiguration(),
-						   processHistoryID_));
+						   sd->processHistory().id()));
     // no process name list handling
 
-    SendProds::iterator spi(sd->prods_.begin()),spe(sd->prods_.end());
-    for(; spi != spe; ++spi) {
+    SendProds const& sps = sd->products();
+    for(SendProds::const_iterator spi = sps.begin(), spe = sps.end(); spi != spe; ++spi) {
         FDEBUG(10) << "check prodpair" << std::endl;
-        if(spi->prov() == 0)
-          throw cms::Exception("StreamTranslation","EmptyProvenance");
         if(spi->desc() == 0)
-          throw cms::Exception("StreamTranslation","EmptyDesc");
+          throw cms::Exception("StreamTranslation","Empty Provenance");
         FDEBUG(5) << "Prov:"
              << " " << spi->desc()->className()
              << " " << spi->desc()->productInstanceName()
              << " " << spi->desc()->branchID()
              << std::endl;
 
-        boost::shared_ptr<EventEntryInfo>
-          aedesc(const_cast<EventEntryInfo*>(spi->prov()));
-        std::auto_ptr<BranchDescription>
-          adesc(const_cast<BranchDescription*>(spi->desc()));
+	ConstBranchDescription branchDesc(*spi->desc());
+	// This EventEntryInfo constructor inserts into the entry description registry
+        boost::shared_ptr<EventEntryInfo> eventEntryDesc(
+	     new EventEntryInfo(spi->branchID(),
+				spi->status(),
+				spi->mod(),
+				spi->productID(),
+				*spi->parents()));
 
-        std::auto_ptr<Provenance> aprov(
-	    new Provenance(*(adesc.get()), aedesc));
-        // EntryDescriptionRegistry::instance()->insertMapped(aprov->event());
         if(spi->prod() != 0) {
-          std::auto_ptr<EDProduct>
-            aprod(const_cast<EDProduct*>(spi->prod()));
-          FDEBUG(10) << "addgroup next " << aprov->productID() << std::endl;
-          ep->addGroup(aprod, aprov->constBranchDescription(), aprov->branchEntryInfoSharedPtr());
+          std::auto_ptr<EDProduct> aprod(const_cast<EDProduct*>(spi->prod()));
+          FDEBUG(10) << "addgroup next " << spi->branchID() << std::endl;
+          ep->addGroup(aprod, branchDesc, eventEntryDesc);
           FDEBUG(10) << "addgroup done" << std::endl;
         } else {
-          FDEBUG(10) << "addgroup empty next " << aprov->productID() << std::endl;
-          ep->addGroup(aprov->constBranchDescription(), aprov->branchEntryInfoSharedPtr());
+          FDEBUG(10) << "addgroup empty next " << spi->branchID() << std::endl;
+          ep->addGroup(branchDesc, eventEntryDesc);
           FDEBUG(10) << "addgroup empty done" << std::endl;
         }
-        spi->clear();
     }
 
     FDEBUG(10) << "Size = " << ep->size() << std::endl;

@@ -31,5 +31,4 @@ process.outp = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('myout2.root')
 )
 
-process.p = cms.Path(process.a1)
-process.e = cms.EndPath(process.out*process.outp)
+process.e = cms.EndPath(process.a1*process.out*process.outp)

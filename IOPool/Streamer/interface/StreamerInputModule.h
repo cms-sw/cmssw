@@ -59,9 +59,8 @@ namespace edm
 	pr_(new Producer(pset)) {
     //Get header/init from Producer
     InitMsgView const* header = pr_->getHeader();
-    std::auto_ptr<SendJobHeader> p = deserializeRegistry(*header); 
-    SendDescs & descs = p->descs_;
-    mergeWithRegistry(descs);
+    std::auto_ptr<SendJobHeader> p = deserializeAndMergeWithRegistry(*header); 
+    SendDescs const& descs = p->descs();
     // jbk - the next line should not be needed
     declareStreamers(descs);
     buildClassCache(descs);
@@ -79,7 +78,7 @@ namespace edm
         // A new file has been opened and we must compare Heraders here !!
         //Get header/init from Producer
         InitMsgView const* header = pr_->getHeader();
-        std::auto_ptr<SendJobHeader> p = deserializeRegistry(*header);
+        std::auto_ptr<SendJobHeader> p = deserializeAndMergeWithRegistry(*header);
         saveTriggerNames(header);
         if (!registryIsSubset(*p, *productRegistry())) {
             std::cout << "\n\nUn matching Init Message Headers found.\n";

@@ -106,7 +106,7 @@ void dumpInitVerbose(const InitMsgView* view)
   }
   else {
     std::cout << "Branch Descriptions:" << std::endl;
-    SendDescs descs = sd->descs_;
+    SendDescs const& descs = sd->descs();
     SendDescs::const_iterator iDesc(descs.begin()), eDesc(descs.end());
     while (iDesc != eDesc) {
       BranchDescription branchDesc = *iDesc;

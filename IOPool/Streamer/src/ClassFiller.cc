@@ -47,8 +47,8 @@ namespace edm {
   void loadExtraClasses() {
     static bool done = false;
     if (done == false) {
-	loadCap(std::string("edm::ProdPair"));
-	loadCap(std::string("std::vector<edm::ProdPair>"));
+	loadCap(std::string("edm::StreamedProduct"));
+	loadCap(std::string("std::vector<edm::StreamedProduct>"));
 	loadCap(std::string("edm::SendEvent"));
 	loadCap(std::string("std::vector<edm::BranchDescription>"));
 	loadCap(std::string("edm::SendJobHeader"));

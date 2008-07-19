@@ -13,66 +13,98 @@
  */
 
 #include <vector>
-
-#include "DataFormats/Provenance/interface/Provenance.h"
-#include "DataFormats/Provenance/interface/Timestamp.h"
-#include "DataFormats/Provenance/interface/EventID.h"
+#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/BranchID.h"
+#include "DataFormats/Provenance/interface/BranchKey.h"
+#include "DataFormats/Provenance/interface/EventAuxiliary.h"
+#include "DataFormats/Provenance/interface/ModuleDescriptionID.h"
+#include "DataFormats/Provenance/interface/ProductID.h"
+#include "DataFormats/Provenance/interface/ParameterSetID.h"
+#include "DataFormats/Provenance/interface/ParameterSetBlob.h"
+#include "DataFormats/Provenance/interface/ProcessHistory.h"
+#include "DataFormats/Provenance/interface/ProductStatus.h"
+#include "DataFormats/Provenance/interface/ProvenanceFwd.h"
 
 namespace edm {
 
+  class EDProduct;
   // ------------------------------------------
 
-  class BranchDescription;
-  class EventEntryInfo;
-  class EDProduct;
-  struct ProdPair
-  {
-    ProdPair():
-      prod_(),prov_(),desc_() { }
-    explicit ProdPair(const EDProduct* p):
-      prod_(p),prov_(),desc_() { }
-    ProdPair(const EDProduct* prod,
-	     const Provenance* prov):
-      prod_(prod),
-      prov_(&prov->branchEntryInfo()),
-      desc_(&prov->product()) { }
+  class StreamedProduct {
+  public:
+    StreamedProduct() :
+      prod_(0), desc_(0), mod_(), productID_(), status_(), parents_(0) {}
+    // explicit StreamedProduct(EDProduct const* p) : prod_(p), desc_(), productID_(), status_(), parents_(0) {}
+    explicit StreamedProduct(BranchDescription const& desc) :
+	prod_(0), desc_(&desc), mod_(), productID_(), status_(productstatus::neverCreated()), parents_(0) {}
 
-    const EventEntryInfo* prov() const { return prov_; }
-    const EDProduct* prod() const { return prod_; }
-    const BranchDescription* desc() const { return desc_; }
+    StreamedProduct(EDProduct const* prod,
+		    BranchDescription const& desc,
+		    ModuleDescriptionID const& mod,
+		    ProductID pid,
+		    ProductStatus status,
+		    std::vector<BranchID> const* parents) :
+      prod_(prod), desc_(&desc), mod_(mod), productID_(pid), status_(status), parents_(parents) {}
 
-    void clear() { prod_=0; prov_=0; desc_=0; }
+    EDProduct const* prod() const {return prod_;}
+    BranchDescription const* desc() const {return desc_;}
+    ModuleDescriptionID const& mod() const {return mod_;}
+    BranchID branchID() const {return desc_->branchID();}
+    ProductID productID() const {return productID_;}
+    ProductStatus status() const {return status_;}
+    std::vector<BranchID> const* parents() const {return parents_;}
 
-    const EDProduct* prod_;
-    const EventEntryInfo* prov_;
-    const BranchDescription* desc_;
+    void clear() {prod_= 0; desc_= 0; productID_ = ProductID(); status_ = 0; parents_ = 0;}
+
+  private:
+    EDProduct const* prod_;
+    BranchDescription const* desc_;
+    ModuleDescriptionID  mod_;
+    ProductID productID_;
+    ProductStatus status_;
+    std::vector<BranchID> const* parents_;
   };
 
   // ------------------------------------------
 
-  typedef std::vector<ProdPair> SendProds;
+  typedef std::vector<StreamedProduct> SendProds;
 
   // ------------------------------------------
 
-  struct SendEvent
-  {
+  class SendEvent {
+  public:
     SendEvent() { }
-    SendEvent(const EventID& id, const Timestamp& t):id_(id),time_(t) { }
-
-    EventID id_;
-    Timestamp time_;
-    SendProds prods_;
+    SendEvent(EventAuxiliary const& aux, ProcessHistory const& processHistory) :
+	aux_(aux), processHistory_(processHistory), products_() {}
+    EventAuxiliary const& aux() const {return aux_;}
+    SendProds const& products() const {return products_;}
+    ProcessHistory const& processHistory() const {return processHistory_;}
+    SendProds & products() {return products_;}
+  private:
+    EventAuxiliary aux_;
+    ProcessHistory processHistory_;
+    SendProds products_;
 
     // other tables necessary for provenance lookup
   };
 
   typedef std::vector<BranchDescription> SendDescs;
 
-  struct SendJobHeader
-  {
+  class SendJobHeader {
+  public:
+    typedef std::map<ParameterSetID, ParameterSetBlob> ParameterSetMap;
     SendJobHeader() { }
+    SendDescs const& descs() const {return descs_;}
+    ParameterSetMap const& processParameterSet() const {return processParameterSet_;}
+    ModuleDescriptionMap const& moduleDescriptionMap() const {return moduleDescriptionMap_;}
+    void push_back(BranchDescription const& bd) {descs_.push_back(bd);}
+    void setModuleDescriptionMap(ModuleDescriptionMap const& mdMap) {moduleDescriptionMap_ = mdMap;}
+    void setParameterSetMap(ParameterSetMap const& psetMap) {processParameterSet_ = psetMap;}
 
+  private:
     SendDescs descs_;
+    ParameterSetMap processParameterSet_;
+    ModuleDescriptionMap moduleDescriptionMap_;
     // trigger bit descriptions will be added here and permanent
     //  provenance values
   };

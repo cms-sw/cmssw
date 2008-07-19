@@ -20,6 +20,13 @@ l1_count 4| l1bits l1_count/8  |
 hlt_count 4| hltbits hlt_count/4 |
 eventdatalength 4 | eventdata blob {variable} 
 
+Protocol Version 7:  // no change here, only data blob changes
+code 1 | size 4 | protocol version 1 |
+run 4 | event 4 | lumi 4 | origDataSize 4 | outModId 4 |
+l1_count 4| l1bits l1_count/8  | 
+hlt_count 4| hltbits hlt_count/4 |
+eventdatalength 4 | eventdata blob {variable} 
+
 */
 
 #ifndef IOPool_Streamer_EventMessage_h

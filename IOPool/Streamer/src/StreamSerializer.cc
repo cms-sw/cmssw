@@ -4,14 +4,17 @@
  * Utility class for serializing framework objects (e.g. ProductRegistry and
  * EventPrincipal) into streamer message objects.
  */
-
 #include "IOPool/Streamer/interface/StreamSerializer.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchID.h"
+#include "DataFormats/Provenance/interface/EntryDescriptionRegistry.h"
+#include "DataFormats/Provenance/interface/EventEntryDescription.h"
+#include "DataFormats/Provenance/interface/ModuleDescriptionRegistry.h"
 #include "TClass.h"
 #include "IOPool/Streamer/interface/ClassFiller.h"
 #include "IOPool/Streamer/interface/InitMsgBuilder.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/Utilities/interface/WrappedClassName.h"
 #include "DataFormats/Streamer/interface/StreamedProducts.h"
 #include "DataFormats/Common/interface/OutputHandle.h"
@@ -46,22 +49,33 @@ namespace edm
    * Serializes the product registry (that was specified to the constructor)
    * into the specified InitMessage.
    */
+
   int StreamSerializer::serializeRegistry(InitMsgBuilder& initMessage)
   {
     FDEBUG(6) << "StreamSerializer::serializeRegistry" << std::endl;
     TClass* prog_reg = getTClass(typeid(SendJobHeader));
     SendJobHeader sd;
 
-    Selections::const_iterator i(selections_->begin()),e(selections_->end());
+    Selections::const_iterator i(selections_->begin()), e(selections_->end());
 
     FDEBUG(9) << "Product List: " << std::endl;
 
-    for(; i != e; ++i)  
-      {
-        sd.descs_.push_back(**i);
+    for(; i != e; ++i)  {
+        sd.push_back(**i);
         FDEBUG(9) << "StreamOutput got product = " << (*i)->className()
                   << std::endl;
+    }
+    sd.setModuleDescriptionMap(ModuleDescriptionRegistry::instance()->data());
+    SendJobHeader::ParameterSetMap psetMap;
+    pset::Registry const* psetRegistry = pset::Registry::instance();
+    for (pset::Registry::const_iterator it = psetRegistry->begin(), itEnd = psetRegistry->end(); it != itEnd; ++it) {
+      // A kludge to avoid a ROOT bug.
+      // An apparent bug in ROOT causes a crash if the string length is greater than about 27500 (experimentally determined).
+      if (it->second.toStringOfTracked().size() < 16384) {
+        psetMap.insert(std::make_pair(it->first, ParameterSetBlob(it->second.toStringOfTracked())));
       }
+    }
+    sd.setParameterSetMap(psetMap);
 
     RootBuffer rootbuf(TBuffer::kWrite,initMessage.bufferSize(),
                     initMessage.dataAddress(),kFALSE);
@@ -71,30 +85,30 @@ namespace edm
     int bres = rootbuf.WriteObjectAny((char*)&sd,prog_reg);
 
     switch(bres)
-      {
+    {
       case 0: // failure
-        {
+      {
           throw cms::Exception("StreamTranslation","Registry serialization failed")
             << "StreamSerializer failed to serialize registry\n";
           break;
-        }
+      }
       case 1: // succcess
         break;
       case 2: // truncated result
-        {
+      {
           throw cms::Exception("StreamTranslation","Registry serialization truncated")
             << "StreamSerializer module attempted to serialize\n"
             << "a registry that is to big for the allocated buffers\n";
           break;
-        }
+      }
       default: // unknown
-        {
+      {
           throw cms::Exception("StreamTranslation","Registry serialization failed")
             << "StreamSerializer module got an unknown error code\n"
             << " while attempting to serialize registry\n";
           break;
-        }
       }
+    }
 
     initMessage.setDescLength(rootbuf.Length());
     return rootbuf.Length();
@@ -125,14 +139,14 @@ namespace edm
 				       int compression_level)
 
   {
-    std::list<Provenance> dummyProvenances;
+    EventEntryDescription entryDesc;
     
-    SendEvent se(eventPrincipal.id(),eventPrincipal.time());
+    SendEvent se(eventPrincipal.aux(), eventPrincipal.processHistory());
 
     Selections::const_iterator i(selections_->begin()),ie(selections_->end());
     // Loop over EDProducts, fill the provenance, and write.
 
-    for(; i != ie; ++i) {
+    for(Selections::const_iterator i = selections_->begin(), iEnd = selections_->end(); i != iEnd; ++i) {
       BranchDescription const& desc = **i;
       BranchID const& id = desc.branchID();
 
@@ -140,14 +154,16 @@ namespace edm
       if (!oh.entryInfo()) {
 	// No product with this ID was put in the event.
 	// Create and write the provenance.
-	boost::shared_ptr<EventEntryDescription> entryDescription(new EventEntryDescription);
-	entryDescription->moduleDescriptionID_ = desc.moduleDescriptionID();
-	boost::shared_ptr<EventEntryInfo> branchEntryInfo(
-	    new EventEntryInfo(desc.branchID(), productstatus::neverCreated(), desc.productIDtoAssign(), entryDescription));
-        dummyProvenances.push_front(Provenance(desc, branchEntryInfo));
-        se.prods_.push_back(ProdPair(0, &*dummyProvenances.begin()));
+        se.products().push_back(StreamedProduct(desc));
       } else {
-        se.prods_.push_back(ProdPair(oh.wrapper(), new Provenance(*oh.desc(), oh.entryInfoSharedPtr())));
+        bool found = EntryDescriptionRegistry::instance()->getMapped(oh.entryInfoSharedPtr()->entryDescriptionID(), entryDesc);
+	assert (found);
+        se.products().push_back(StreamedProduct(oh.wrapper(),
+					       desc,
+					       entryDesc.moduleDescriptionID(),
+					       oh.entryInfoSharedPtr()->productID(),
+					       oh.entryInfoSharedPtr()->productStatus(),
+					       &entryDesc.parents()));
       }
     }
 
@@ -159,7 +175,7 @@ namespace edm
 
     //TClass* tc = getTClass(typeid(SendEvent));
     int bres = rootbuf_.WriteObjectAny(&se,tc_);
-   switch(bres)
+    switch(bres)
       {
       case 0: // failure
         {
