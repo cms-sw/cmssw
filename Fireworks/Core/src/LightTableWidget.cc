@@ -10,7 +10,6 @@
 #include "TGResourcePool.h"
 #include "TGGC.h"
 #include "TROOT.h"
-#include "TableManagers.h"
 
 ClassImp(LightTableWidget)
 
