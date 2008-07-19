@@ -81,14 +81,15 @@ void FWLiteJetProducer::print() {
 
 
 //-----------------------------------------------------------
-void FWLiteJetProducer::applyCuts(const reco::CandidateCollection& Candidates, JetReco::InputCollection* input){
+void FWLiteJetProducer::applyCuts(const reco::CandidatePtrVector& Candidates, 
+				  JetReco::InputCollection* input){
   //!!!!
   //edm::OrphanHandle< reco::CandidateCollection >  CandidateHandle(&(Candidates), edm::ProductID(20001) );
 
   input->reserve ( Candidates.size());  
   //cout<<" Candidate " << CandidateHandle->size()<<Candidates.size() << endl;
   for (unsigned i = 0; i <Candidates.size() ; i++) {
-    const reco::Candidate* constituent = &Candidates[i];        
+    const reco::Candidate* constituent = Candidates[i].get();        
 
     if ((mEtInputCut_ <= 0 || constituent->et() > mEtInputCut_) &&
         (mEInputCut_ <= 0 || constituent->energy() > mEInputCut_)) {                    

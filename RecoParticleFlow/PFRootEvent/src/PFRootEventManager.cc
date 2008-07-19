@@ -2,6 +2,7 @@
 
 #include "DataFormats/Common/interface/OrphanHandle.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
+#include "DataFormats/Common/interface/RefToPtr.h"
 
 #include "DataFormats/Math/interface/Point3D.h"
 
@@ -836,34 +837,18 @@ void PFRootEventManager::connect( const char* infilename ) {
   
   // GenParticlesCand   
   string genParticleCandBranchName;
-  genParticleforJetsBranch_ = 0;
+  genParticlesforJetsBranch_ = 0;
   options_->GetOpt("root","genParticleforJets_branch", 
                    genParticleCandBranchName);
   if(!genParticleCandBranchName.empty() ){  
-    genParticleforJetsBranch_= 
+    genParticlesforJetsBranch_= 
       tree_->GetBranch(genParticleCandBranchName.c_str()); 
-    if(!genParticleforJetsBranch_) {
+    if(!genParticlesforJetsBranch_) {
       cerr<<"PFRootEventanager::ReadOptions : "
-          <<"genParticleBaseCandidates_branch not found : "
+          <<"genParticleforJets_branch not found : "
           <<genParticleCandBranchName<< endl;
     }  
   }
-       
-  // calo tower base candidates 
-  string caloTowerCandBranchName;
-  caloTowerBaseCandidatesBranch_ = 0;
-  options_->GetOpt("root","caloTowerBaseCandidates_branch", 
-                   caloTowerCandBranchName);
-  if(!caloTowerCandBranchName.empty() ){  
-    caloTowerBaseCandidatesBranch_= 
-      tree_->GetBranch(caloTowerCandBranchName.c_str()); 
-    if(!caloTowerBaseCandidatesBranch_) {
-      cerr<<"PFRootEventanager::ReadOptions : "
-          <<"caloTowerBaseCandidates_branch not found : "
-          <<caloTowerCandBranchName<< endl;
-    }  
-  }
-
       
   string genJetBranchName; 
   options_->GetOpt("root","genJetBranchName", genJetBranchName);
@@ -916,11 +901,11 @@ void PFRootEventManager::setAddresses() {
     MCTruthBranch_->SetAddress(&MCTruth_);
   }
   if( caloTowersBranch_ ) caloTowersBranch_->SetAddress(&caloTowers_);
-  if( genParticleforJetsBranch_ ) 
-    genParticleforJetsBranch_->SetAddress(&genParticleRef_);
-  if( caloTowerBaseCandidatesBranch_ ) {
-    caloTowerBaseCandidatesBranch_->SetAddress(&caloTowerBaseCandidates_);
-  }
+  if( genParticlesforJetsBranch_ ) 
+    genParticlesforJetsBranch_->SetAddress(&genParticlesforJets_);
+//   if( caloTowerBaseCandidatesBranch_ ) {
+//     caloTowerBaseCandidatesBranch_->SetAddress(&caloTowerBaseCandidates_);
+//   }
   if (genJetBranch_) genJetBranch_->SetAddress(&genJetsCMSSW_);
   if (recCaloBranch_) recCaloBranch_->SetAddress(&caloJetsCMSSW_);
   if (recPFBranch_) recPFBranch_->SetAddress(&pfJetsCMSSW_); 
@@ -937,16 +922,13 @@ PFRootEventManager::~PFRootEventManager() {
 
 
   delete options_;
-  
-  //   delete energyCalibration_;
-  //   PFBlock::setEnergyCalibration(NULL);
-  //   delete energyResolution_;
-  //   PFBlock::setEnergyResolution(NULL);
 }
 
 
 void PFRootEventManager::write() {
-  // if(doPFJetBenchmark_) PFJetBenchmark_.write();
+
+  if(doPFJetBenchmark_) PFJetBenchmark_.write();
+
   if(!outFile_) return;
   else {
     outFile_->cd(); 
@@ -1107,12 +1089,12 @@ bool PFRootEventManager::readFromSimulation(int entry) {
   if(recTracksBranch_) {
     recTracksBranch_->GetEntry(entry);
   }
-  if(genParticleforJetsBranch_) {
-    genParticleforJetsBranch_->GetEntry(entry);
+  if(genParticlesforJetsBranch_) {
+    genParticlesforJetsBranch_->GetEntry(entry);
   }
-  if(caloTowerBaseCandidatesBranch_) {
-    caloTowerBaseCandidatesBranch_->GetEntry(entry);
-  }
+//   if(caloTowerBaseCandidatesBranch_) {
+//     caloTowerBaseCandidatesBranch_->GetEntry(entry);
+//   }
   if(genJetBranch_) {
     genJetBranch_->GetEntry(entry);
   }
@@ -1681,213 +1663,166 @@ void PFRootEventManager::particleFlow() {
 
 void PFRootEventManager::reconstructGenJets() {
 
-  //   genJets_.clear();
-  //   genParticleBaseCandidates_.clear();
-  //   if (verbosity_ == VERBOSE || jetsDebug_) {
-  //     cout <<"start reconstruct GenJets"<<endl;
-  //    cout << " input gen particles for jet: all muons/neutrinos removed " << endl;
-  //   }
-  //   // need to convert reco::GenParticleRefVector genParticleRef_ 
-  //   // into Candidate Collection input for reconstructFWLiteJets.
-  //   // Warning: the selection of gen particles to be used for jet
-  //   // has changed!!!
-  //   // in 1_6_9  all muons/neutrinos are removed
-  //   // for > 1_8_0  only muons/neutrinos coming from Bosons (pdg id from 23 to 39)
-  //   // are removed. For instance muons/neutrinos from  tau decays are kept.
-  //   // The motivation is: calo jet corrections should include corrections due
-  //   // to muons/neutrinos from heavy flavors (b or c) decays inside jets.
-  //   for(unsigned i=0; i<genParticleRef_.size(); i++) {
-  //   const reco::GenParticle mcpart = *(genParticleRef_[i]);
-  //      // remove all muons/neutrinos for PFJet studies
-  //      if (reco::isNeutrino (mcpart) || reco::isMuon (mcpart)) continue;
-  //       if (jetsDebug_ ) {
-  //       cout << "      #" << i << "  PDG code:" << mcpart.pdgId() 
-  //                << " status " << mcpart.status()
-  //                << ", p/pt/eta/phi: " << mcpart.p() << '/' << mcpart.pt() 
-  //                << '/' << mcpart.eta() << '/' << mcpart.phi() << endl;
-  //       }
-  //   genParticleBaseCandidates_.push_back(mcpart.clone() );
-  //   }
-  
-  //   // convert Candidate Collection to RefTobase  vector GenConstit
-  //   // Jet constituents are stored as CandidateBaseRef(see CandidateFwd.h)
-  //   reco::CandidateBaseRefVector Genconstit;
+  if (verbosity_ == VERBOSE || jetsDebug_) {
+    cout<<endl;
+    cout<<"start reconstruct GenJets  --- "<<endl;
+    cout<< " input gen particles for jet: all muons/neutrinos removed " << endl;
+  }
 
-  
-  //   for(unsigned i=0;i<genParticleRef_.size(); i++) {
-  //      // conversion in two steps: cand->Ref->RefTobase
-  //      // transient Ref:
-  //      // edm::Ref <CandidateCollection> candRef(&genParticleBaseCandidates_, i); does not compile yet
-  //      edm::Ref <CandidateCollection>
-  //      candRef(const_cast<const CandidateCollection*>(&genParticleBaseCandidates_),i); 
-  //      const CandidateBaseRef constit (candRef); 
-  //      // conversion in one step does not compile?
-  //      //      edm::RefToBase <CandidateCollection> constit(pfCandh, i); 
-  //      Genconstit.push_back(constit);
-          
-  //   }
-  
-  
+  genJets_.clear();
+  genParticlesforJetsPtrs_.clear();
 
-  //   vector<ProtoJet> protoJets;
-  //   reconstructFWLiteJets(genParticleBaseCandidates_, protoJets );
+  for(unsigned i=0; i<genParticlesforJets_.size(); i++) {
 
-  //     // Convert Protojets to GenJets
+    const reco::GenParticle&    genPart = *(genParticlesforJets_[i]);
+
+    // remove all muons/neutrinos for PFJet studies
+    if (reco::isNeutrino( genPart ) || reco::isMuon( genPart )) continue;
+    if (jetsDebug_ ) {
+      cout << "      #" << i << "  PDG code:" << genPart.pdgId() 
+	   << " status " << genPart.status()
+	   << ", p/pt/eta/phi: " << genPart.p() << '/' << genPart.pt() 
+	   << '/' << genPart.eta() << '/' << genPart.phi() << endl;
+    }
+    
+    genParticlesforJetsPtrs_.push_back( refToPtr(genParticlesforJets_[i]) );
+  }
   
-  //   // For each Protojet in turn
-  //   int ijet = 0;
-  //   typedef vector <ProtoJet>::const_iterator IPJ;
-  //   for  (IPJ ipj = protoJets.begin(); ipj != protoJets.end (); ipj++) {
-  //      const ProtoJet& protojet = *ipj;
-  //      const ProtoJet::Constituents& constituents = protojet.getTowerList();
+  vector<ProtoJet> protoJets;
+  reconstructFWLiteJets(genParticlesforJetsPtrs_, protoJets );
+
+
+  // Convert Protojets to GenJets
+    int ijet = 0;
+  typedef vector <ProtoJet>::const_iterator IPJ;
+  for  (IPJ ipj = protoJets.begin(); ipj != protoJets.end (); ipj++) {
+    const ProtoJet& protojet = *ipj;
+    const ProtoJet::Constituents& constituents = protojet.getTowerList();
           
-  //      reco::Jet::Point vertex (0,0,0); // do not have true vertex yet, use default
-  //      GenJet::Specific specific;
-  //      JetMaker::makeSpecific(constituents, &specific);
-  //      // constructor without constituents
-  //      GenJet newJet (protojet.p4(), vertex, specific);
+    reco::Jet::Point vertex (0,0,0); // do not have true vertex yet, use default
+    GenJet::Specific specific;
+    JetMaker::makeSpecific(constituents, &specific);
+    // constructor without constituents
+    GenJet newJet (protojet.p4(), vertex, specific);
           
-  //      // last step is to copy the constituents into the jet (new jet definition since 18X)
-  //      // namespace reco {
-  //      //class Jet : public CompositeRefBaseCandidate {
-  //      // public:
-  //      //  typedef reco::CandidateBaseRefVector Constituents;
+    // last step is to copy the constituents into the jet (new jet definition since 18X)
+    // namespace reco {
+    //class Jet : public CompositeRefBaseCandidate {
+    // public:
+    //  typedef reco::CandidateBaseRefVector Constituents;
           
-  //      ProtoJet::Constituents::const_iterator constituent = constituents.begin();
-  //      for (; constituent != constituents.end(); ++constituent) {
-  //              // find index of this ProtoJet constituent in the overall collection PFconstit
-  //              // see class IndexedCandidate in JetRecoTypes.h
-  //              uint index = constituent->index();
-  //              newJet.addDaughter(Genconstit[index]);
-  //      }  // end loop on ProtoJet constituents
-  //             // last step: copy ProtoJet Variables into Jet
-  //      newJet.setJetArea(protojet.jetArea()); 
-  //      newJet.setPileup(protojet.pileup());
-  //      newJet.setNPasses(protojet.nPasses());
-  //      ++ijet;
-  //      if (jetsDebug_ )cout<<ijet<<newJet.print()<<endl;
-  //      genJets_.push_back (newJet);
+    ProtoJet::Constituents::const_iterator constituent = constituents.begin();
+    for (; constituent != constituents.end(); ++constituent) {
+      // find index of this ProtoJet constituent in the overall collection PFconstit
+      // see class IndexedCandidate in JetRecoTypes.h
+      uint index = constituent->index();
+      newJet.addDaughter( genParticlesforJetsPtrs_[index] );
+    }  // end loop on ProtoJet constituents
+    // last step: copy ProtoJet Variables into Jet
+    newJet.setJetArea(protojet.jetArea()); 
+    newJet.setPileup(protojet.pileup());
+    newJet.setNPasses(protojet.nPasses());
+    ++ijet;
+    if (jetsDebug_ ) cout<<" gen jet "<<ijet<<" "<<newJet.print()<<endl;
+    genJets_.push_back (newJet);
           
-  //      } // end loop on protojets iterator IPJ
+  } // end loop on protojets iterator IPJ
   
 }
 
 void PFRootEventManager::reconstructCaloJets() {
 
-  //   caloJets_.clear();
-  //   if (verbosity_ == VERBOSE || jetsDebug_ ) {
-  //     cout <<"start reconstruct CaloJets"<<endl;
-  //   }
+  if (verbosity_ == VERBOSE || jetsDebug_ ) {
+    cout<<endl;
+    cout<<"start reconstruct CaloJets --- "<<endl;
+  }
+  caloJets_.clear();
+  caloTowersPtrs_.clear();
 
-  //   //   reco::CandidateCollection baseCandidates;
-  //   //   for(unsigned i=0; i<caloTowers_.size(); i++) {
-  //   //     baseCandidates.push_back( caloTowers_[i].clone() );
-  //   //   }
+  for( unsigned i=0; i<caloTowers_.size(); i++) {
+    reco::CandidatePtr candPtr( &caloTowers_, i );
+    caloTowersPtrs_.push_back( candPtr );
+  }
  
-  //   reconstructFWLiteJets(caloTowerBaseCandidates_, caloJets_ );
+  reconstructFWLiteJets( caloTowersPtrs_, caloJets_ );
 
-  //   //COLIN: geometry needed to make a calo jet from a proto jet !!
-  //   //   JetMaker mjet;
-  //   //   typedef vector <ProtoJet>::const_iterator IPJ;
-  //   //   for  (IPJ ipj = protoJets.begin(); ipj != protoJets.end (); ipj++) {
-  //   //     caloJets_.push_back(mjet.makeCaloJet(*ipj));  
-  //   //   } 
+  if (jetsDebug_ ) {
+    for(unsigned ipj=0; ipj<caloJets_.size(); ipj++) {
+      const ProtoJet& protojet = caloJets_[ipj];      
+      cout<<" calo jet "<<ipj<<" "<<protojet.pt() <<endl;
+    }
+  }
+
 }
 
 
 void PFRootEventManager::reconstructPFJets() {
 
-  //    pfJets_.clear();
-  //     basePFCandidates_.clear();
-  //    /// basePFCandidates_ to be declared global in PFRootEventManager.h
-  //    //reco::CandidateCollection basePFCandidates_;
-  //     if (verbosity_ == VERBOSE || jetsDebug_) {
-  //            cout <<"start reconstruct PFJets"<<endl;
-  //    }
+  if (verbosity_ == VERBOSE || jetsDebug_) {
+    cout<<endl;
+    cout<<"start reconstruct PF Jets --- "<<endl;
+  }
+  pfJets_.clear();
+  pfCandidatesPtrs_.clear();
         
-  //    // Copy PFCandidates into std::vector<Candidate> format
-  //    // as input for jet algorithms
-  //    // Warning:
-  //    // basePFCandidates_ Collection lifetime ==  pfJets_ Collection lifetime
-  //    // transform PFCandidates to Candidates
-  //    for(unsigned i=0; i<pfCandidates_->size(); i++) { 
-  //            basePFCandidates_.push_back( (*pfCandidates_)[i].clone() );       
-  //    }
-        
-  //    // Jet constituents are stored as CandidateBaseRef(see CandidateFwd.h)
-  //    reco::CandidateBaseRefVector PFconstit;
-                
-  //    // convert Candidate Collection to RefTobase  vector PFConstit
-        
-  //    for(unsigned i=0;i<pfCandidates_->size(); i++) {
-  //            // conversion in two steps: cand->Ref->RefTobase
-  //            // transient Ref:
-  //            // edm::Ref <CandidateCollection> candRef(&basePFCandidates_, i); does not compile yet
-  //            edm::Ref <CandidateCollection> 
-  //            candRef(const_cast<const CandidateCollection*>(&basePFCandidates_),i); 
-  //            const CandidateBaseRef constit (candRef);
-  //            // conversion in one step does not compile?
-  //            //      edm::RefToBase <CandidateCollection> constit(pfCandh, i); 
-  //            PFconstit.push_back(constit);
-                
-  //    }
-        
-  // // Reconstruct ProtoJets from basePFCandidates_
+  for( unsigned i=0; i<pfCandidates_->size(); i++) {
+    reco::CandidatePtr candPtr( pfCandidates_.get(), i );
+    pfCandidatesPtrs_.push_back( candPtr );
+  }
 
-  // vector<ProtoJet> protoJets;
-  // reconstructFWLiteJets(basePFCandidates_, protoJets );
+  vector<ProtoJet> protoJets;
+  reconstructFWLiteJets(pfCandidatesPtrs_, protoJets );
 
-  // // Convert Protojets to PFJets
+  // Convert Protojets to PFJets
 
-  // // For each Protojet in turn
-  // int ijet = 0;
-  // typedef vector <ProtoJet>::const_iterator IPJ;
-  // for  (IPJ ipj = protoJets.begin(); ipj != protoJets.end (); ipj++) {
-  //    const ProtoJet& protojet = *ipj;
-  //    const ProtoJet::Constituents& constituents = protojet.getTowerList();
+  int ijet = 0;
+  typedef vector <ProtoJet>::const_iterator IPJ;
+  for  (IPJ ipj = protoJets.begin(); ipj != protoJets.end (); ipj++) {
+    const ProtoJet& protojet = *ipj;
+    const ProtoJet::Constituents& constituents = protojet.getTowerList();
         
-  //    reco::Jet::Point vertex (0,0,0); // do not have true vertex yet, use default
-  //    PFJet::Specific specific;
-  //    JetMaker::makeSpecific(constituents, &specific);
-  //    // constructor without constituents
-  //    PFJet newJet (protojet.p4(), vertex, specific);
+    reco::Jet::Point vertex (0,0,0); // do not have true vertex yet, use default
+    PFJet::Specific specific;
+    JetMaker::makeSpecific(constituents, &specific);
+    // constructor without constituents
+    PFJet newJet (protojet.p4(), vertex, specific);
         
-  //    // last step is to copy the constituents into the jet (new jet definition since 18X)
-  //    // namespace reco {
-  //    //class Jet : public CompositeRefBaseCandidate {
-  //    // public:
-  //    //  typedef reco::CandidateBaseRefVector Constituents;
+    // last step is to copy the constituents into the jet (new jet definition since 18X)
+    // namespace reco {
+    //class Jet : public CompositeRefBaseCandidate {
+    // public:
+    //  typedef reco::CandidateBaseRefVector Constituents;
         
-  //    ProtoJet::Constituents::const_iterator constituent = constituents.begin();
-  //    for (; constituent != constituents.end(); ++constituent) {
-  //            // find index of this ProtoJet constituent in the overall collection PFconstit
-  //            // see class IndexedCandidate in JetRecoTypes.h
-  //            uint index = constituent->index();
-  //            newJet.addDaughter(PFconstit[index]);
-  //    }  // end loop on ProtoJet constituents
-  //       // last step: copy ProtoJet Variables into Jet
-  //    newJet.setJetArea(protojet.jetArea()); 
-  //    newJet.setPileup(protojet.pileup());
-  //    newJet.setNPasses(protojet.nPasses());
-  //    ++ijet;
-  //    if (jetsDebug_ )cout<<ijet<<newJet.print()<<endl;
-  //    pfJets_.push_back (newJet);
+    ProtoJet::Constituents::const_iterator constituent = constituents.begin();
+    for (; constituent != constituents.end(); ++constituent) {
+      // find index of this ProtoJet constituent in the overall collection PFconstit
+      // see class IndexedCandidate in JetRecoTypes.h
+      uint index = constituent->index();
+      newJet.addDaughter(pfCandidatesPtrs_[index]);
+    }  // end loop on ProtoJet constituents
+    // last step: copy ProtoJet Variables into Jet
+    newJet.setJetArea(protojet.jetArea()); 
+    newJet.setPileup(protojet.pileup());
+    newJet.setNPasses(protojet.nPasses());
+    ++ijet;
+    if (jetsDebug_ )  cout<<" PF jet "<<ijet<<" "<<newJet.print()<<endl;
+    pfJets_.push_back (newJet);
         
-  //    } // end loop on protojets iterator IPJ
+  } // end loop on protojets iterator IPJ
 
 }
 
 
 
-void PFRootEventManager::reconstructFWLiteJets(const reco::CandidateCollection& Candidates, vector<ProtoJet>& output ) {
+void 
+PFRootEventManager::reconstructFWLiteJets(const reco::CandidatePtrVector& Candidates, vector<ProtoJet>& output ) {
 
   // cout<<"!!! Make FWLite Jets  "<<endl;  
   JetReco::InputCollection input;
   // vector<ProtoJet> output;
   jetMaker_.applyCuts (Candidates, &input); 
   if (jetAlgoType_==1) {// ICone 
-    /// Produce jet collection using CMS Iterative Cone Algorithm  
-             
+    /// Produce jet collection using CMS Iterative Cone Algorithm
     jetMaker_.makeIterativeConeJets(input, &output);
   }
   if (jetAlgoType_==2) {// MCone
@@ -1914,51 +1849,80 @@ PFRootEventManager::tauBenchmark( const reco::PFCandidateCollection& candidates)
   //initialize Jets Reconstruction
   jetAlgo_.Clear();
 
+  //COLIN The following comment is not really adequate, 
+  // since partTOTMC is not an action..
+  // one should say what this variable is for.
+  // see my comment later 
   //MAKING TRUE PARTICLE JETS
-  TLorentzVector partTOTMC;
+//   TLorentzVector partTOTMC;
 
   // colin: the following is not necessary
+  // since the lorentz vectors are initialized to 0,0,0,0. 
   // partTOTMC.SetPxPyPzE(0.0, 0.0, 0.0, 0.0);
 
   //MAKING JETS WITH TAU DAUGHTERS
-  vector<reco::PFSimParticle> vectPART;
+  //Colin: this vector vectPART is not necessary !!
+  //it was just an efficient copy of trueparticles_.....
+//   vector<reco::PFSimParticle> vectPART;
+//   for ( unsigned i=0;  i < trueParticles_.size(); i++) {
+//     const reco::PFSimParticle& ptc = trueParticles_[i];
+//     vectPART.push_back(ptc);
+//   }//loop
+
+
+  //COLIN one must not loop on trueParticles_ to find taus. 
+  //the code was giving wrong results on non single tau events. 
+
+  // first check that this is a single tau event. 
+  bool tauFound;
+  bool tooManyTaus;
   for ( unsigned i=0;  i < trueParticles_.size(); i++) {
     const reco::PFSimParticle& ptc = trueParticles_[i];
-    vectPART.push_back(ptc);
-  }//loop
-
-  for ( unsigned i=0;  i < trueParticles_.size(); i++) {
-    const reco::PFSimParticle& ptc = trueParticles_[i];
-    const std::vector<int>& ptcdaughters = ptc.daughterIds();
-
     if (abs(ptc.pdgCode()) == 15) {
-      for ( unsigned int dapt=0; dapt < ptcdaughters.size(); ++dapt) {
+      // this is a tau
+      if( i ) tooManyTaus = true;
+      else tauFound=true;
+    }
+  }
+  
+  if(!tauFound || tooManyTaus ) {
+    cerr<<"PFRootEventManager::tauBenchmark : not a single tau event"<<endl;
+    return -9999;
+  }
 
-        const reco::PFTrajectoryPoint& tpatvtx 
-          = vectPART[ptcdaughters[dapt]].trajectoryPoint(0);
-        TLorentzVector partMC;
-        partMC.SetPxPyPzE(tpatvtx.momentum().Px(),
-                          tpatvtx.momentum().Py(),
-                          tpatvtx.momentum().Pz(),
-                          tpatvtx.momentum().E());
+  // loop on the daugthers of the tau
+  const std::vector<int>& ptcdaughters = trueParticles_[0].daughterIds();
 
-        partTOTMC += partMC;
-        if (tauBenchmarkDebug_) {
-          //pdgcode
-          int pdgcode = vectPART[ptcdaughters[dapt]].pdgCode();
-          cout << pdgcode << endl;
-          cout << tpatvtx << endl;
-          cout << partMC.Px() << " " << partMC.Py() << " " 
-               << partMC.Pz() << " " << partMC.E()
-               << " PT=" 
-               << sqrt(partMC.Px()*partMC.Px()+partMC.Py()*partMC.Py()) 
-               << endl;
-        }//debug
-      }//loop daughter
-    }//tau?
-  }//loop particles
+  // will contain the sum of the lorentz vectors of the visible daughters
+  // of the tau.
+  TLorentzVector partTOTMC;
+
+  for ( unsigned int dapt=0; dapt < ptcdaughters.size(); ++dapt) {
+    
+    const reco::PFTrajectoryPoint& tpatvtx 
+      = trueParticles_[ptcdaughters[dapt]].trajectoryPoint(0);
+    TLorentzVector partMC;
+    partMC.SetPxPyPzE(tpatvtx.momentum().Px(),
+		      tpatvtx.momentum().Py(),
+		      tpatvtx.momentum().Pz(),
+		      tpatvtx.momentum().E());
+    
+    partTOTMC += partMC;
+    if (tauBenchmarkDebug_) {
+      //pdgcode
+      int pdgcode =  trueParticles_[ptcdaughters[dapt]].pdgCode();
+      cout << pdgcode << endl;
+      cout << tpatvtx << endl;
+      cout << partMC.Px() << " " << partMC.Py() << " " 
+	   << partMC.Pz() << " " << partMC.E()
+	   << " PT=" 
+	   << sqrt(partMC.Px()*partMC.Px()+partMC.Py()*partMC.Py()) 
+	   << endl;
+    }//debug
+  }//loop daughter
 
   EventColin::Jet jetmc;
+
   jetmc.eta = partTOTMC.Eta();
   jetmc.phi = partTOTMC.Phi();
   jetmc.et = partTOTMC.Et();

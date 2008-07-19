@@ -228,11 +228,13 @@ class PFRootEventManager {
   
 
   /// used by the reconstruct*Jets functions
-  void reconstructFWLiteJets(const reco::CandidateCollection& Candidates,
+  void reconstructFWLiteJets(const reco::CandidatePtrVector& Candidates,
                              std::vector<ProtoJet>& output);
 
 
   /// performs the tau benchmark 
+  ///TODO move this function and the associated datamembers out of here
+  ///use an official benchmark from RecoParticleFlow/Benchmark
   double tauBenchmark( const reco::PFCandidateCollection& candidates);
 
 
@@ -386,7 +388,7 @@ class PFRootEventManager {
   TBranch*   MCTruthBranch_;          
 
   /// Gen Particles base Candidates branch
-  TBranch*   genParticleforJetsBranch_;
+  TBranch*   genParticlesforJetsBranch_;
 
   /// Calo Tower base Candidates branch
   TBranch*   caloTowerBaseCandidatesBranch_;
@@ -423,7 +425,13 @@ class PFRootEventManager {
   /// clusters ECAL island barrel
   std::vector<reco::BasicCluster>  clustersIslandBarrel_;
   
+  /// input collection of calotowers
   CaloTowerCollection     caloTowers_;
+
+  /// for the reconstruction of jets. The elements will point 
+  /// to the objects in caloTowers_
+  /// has to be global to have a lifetime = lifetime of PFJets
+  reco::CandidatePtrVector caloTowersPtrs_;
 
   /// reconstructed tracks
   reco::PFRecTrackCollection    recTracks_;
@@ -443,18 +451,22 @@ class PFRootEventManager {
   /// reconstructed pfCandidates 
   std::auto_ptr< reco::PFCandidateCollection > pfCandidates_;
   
+  /// for the reconstruction of jets. The elements will point 
+  /// to the objects in pfCandidates_
   /// has to be global to have a lifetime = lifetime of PFJets
-  reco::CandidateCollection basePFCandidates_;
+  ///TODO make the other candidate PtrVectors for jets global as well
+  reco::CandidatePtrVector pfCandidatesPtrs_;
 
-  /// gen particle base candidates (input for gen jets new since 1_8_0)
-  reco::GenParticleRefVector genParticleRef_;
+  /// input collection of gen particles 
+  reco::GenParticleRefVector genParticlesforJets_;
   
   /// gen particle base candidates (input for gen jets new since 1_8_0)
-  reco::CandidateCollection genParticleBaseCandidates_;
+  /// the vector of references to genParticles genParticlesforJets_
+  /// is converted to a PtrVector, which is the input to jet reco
+  reco::CandidatePtrVector genParticlesforJetsPtrs_;
 
-
-  /// calo tower base candidates (input for calo jets)
-  reco::CandidateCollection caloTowerBaseCandidates_;
+/*   /// calo tower base candidates (input for calo jets) */
+/*   reco::CandidateCollection caloTowerBaseCandidates_; */
 
   /// PF Jets
   reco::PFJetCollection pfJets_;
