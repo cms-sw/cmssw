@@ -1874,8 +1874,8 @@ PFRootEventManager::tauBenchmark( const reco::PFCandidateCollection& candidates)
   //the code was giving wrong results on non single tau events. 
 
   // first check that this is a single tau event. 
-  bool tauFound;
-  bool tooManyTaus;
+  bool tauFound = false;
+  bool tooManyTaus = false;
   for ( unsigned i=0;  i < trueParticles_.size(); i++) {
     const reco::PFSimParticle& ptc = trueParticles_[i];
     if (abs(ptc.pdgCode()) == 15) {

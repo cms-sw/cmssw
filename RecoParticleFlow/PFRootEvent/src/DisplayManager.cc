@@ -1457,7 +1457,6 @@ void DisplayManager::loadGRecTracks()
 void DisplayManager::loadGSimParticles()
 {
   double phi0=0;
-  bool debug_loadGSim = false;
   //    bool debug_loadGSim = true;
   unsigned simParticlesVSize = em_->trueParticles_.size();
         
