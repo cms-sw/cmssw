@@ -18,15 +18,9 @@ namespace edm {
   EventEntryDescription::init() const {
     if (moduleDescriptionPtr_.get() == 0) {
       moduleDescriptionPtr_.reset(new ModuleDescription);
-      ModuleDescriptionRegistry::instance()->getMapped(moduleDescriptionID_, *moduleDescriptionPtr_);
+      bool found = ModuleDescriptionRegistry::instance()->getMapped(moduleDescriptionID_, *moduleDescriptionPtr_);
 
-      // Commented out this assert when implementing merging of run products.
-      // When merging run products, it is possible for the ModuleDescriptionIDs to be different,
-      // and then the ModuleDescriptionID will be set to invalid.  Then this assert will fail.
-      // Queries using the pointer will return values from a default constructed ModuleDescription
-      // (empty string and invalid values)
-      // bool found = ModuleDescriptionRegistry::instance()->getMapped(moduleDescriptionID_, *moduleDescriptionPtr_);
-      // assert(found);
+      assert(found);
     }
   }
 
