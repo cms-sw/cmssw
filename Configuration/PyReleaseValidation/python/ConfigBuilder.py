@@ -5,7 +5,7 @@
 # creates a complete config file.
 # relval_main + the custom config for it is not needed any more
 
-__version__ = "$Revision: 1.50 $"
+__version__ = "$Revision: 1.51 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -247,7 +247,7 @@ class ConfigBuilder(object):
 
         # put it in the schedule
         for pathname in alcaConfig.__dict__:
-            if isinstance(getattr(alcaConfig,pathname),cms.Path):
+            if isinstance(getattr(alcaConfig,pathname),cms.Path) and pathname in alcaPathList:
                 self.process.schedule.append(getattr(self.process,pathname))
             else:
                 self.blacklist_paths.append(pathname)
@@ -403,7 +403,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.50 $"),
+              (version=cms.untracked.string("$Revision: 1.51 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
