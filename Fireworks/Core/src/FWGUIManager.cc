@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.63 2008/07/16 13:38:20 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.64 2008/07/16 17:52:46 chrjones Exp $
 //
 
 // system include files
@@ -117,6 +117,7 @@ m_ediFrame(0),
 m_modelPopup(0),
 m_viewPopup(0),
 m_helpPopup(0),
+m_shortcutPopup(0),
 m_tasks(new CmsShowTaskExecutor)
 {
   m_guiManager = this;
@@ -154,6 +155,8 @@ m_tasks(new CmsShowTaskExecutor)
       getAction(cmsshow::sShowAddCollection)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::addData));
       assert(getAction(cmsshow::sHelp) != 0);
       getAction(cmsshow::sHelp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::createHelpPopup));
+      assert(getAction(cmsshow::sKeyboardShort) != 0);
+      getAction(cmsshow::sKeyboardShort)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::createShortcutPopup));
    }
    {
      // createEDIFrame();
@@ -656,8 +659,11 @@ FWGUIManager::resetViewPopup() {
 void FWGUIManager::createHelpPopup ()
 {
      if (m_helpPopup == 0) {
-	  m_helpPopup = new CmsShowHelpPopup(m_cmsShowMainFrame, 800, 600);
-	  m_helpPopup->Connect("CloseWindow()", "FWGUIManager", this, "resetHelpPopup()");
+	  m_helpPopup = new CmsShowHelpPopup("help.html", "CmsShow Help",
+					     m_cmsShowMainFrame, 
+					     800, 600);
+	  m_helpPopup->Connect("CloseWindow()", "FWGUIManager", this, 
+			       "resetHelpPopup()");
 	  m_helpPopup->CenterOnParent(kTRUE,TGTransientFrame::kBottomRight);
      }
      m_helpPopup->MapWindow();
@@ -667,6 +673,25 @@ void FWGUIManager::resetHelpPopup ()
 {
      m_helpPopup->DontCallClose();
      m_helpPopup->UnmapWindow();
+}
+
+void FWGUIManager::createShortcutPopup ()
+{
+     if (m_shortcutPopup == 0) {
+	  m_shortcutPopup = new CmsShowHelpPopup("shortcuts.html", 
+						 "Keyboard Shortcuts",
+						 m_cmsShowMainFrame, 800, 600);
+	  m_shortcutPopup->Connect("CloseWindow()", "FWGUIManager", this, 
+				   "resetShortcutPopup()");
+	  m_shortcutPopup->CenterOnParent(kTRUE,TGTransientFrame::kBottomRight);
+     }
+     m_shortcutPopup->MapWindow();
+}
+
+void FWGUIManager::resetShortcutPopup ()
+{
+     m_shortcutPopup->DontCallClose();
+     m_shortcutPopup->UnmapWindow();
 }
 
 TGMainFrame *FWGUIManager::createTextView (TGTab *p) 

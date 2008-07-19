@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.34 2008/07/16 03:08:27 chrjones Exp $
+// $Id: FWGUIManager.h,v 1.35 2008/07/16 03:56:33 jmuelmen Exp $
 //
 
 // system include files
@@ -118,6 +118,8 @@ class FWGUIManager : public FWConfigurable
      // help
      void createHelpPopup ();
      void resetHelpPopup ();
+     void createShortcutPopup ();
+     void resetShortcutPopup ();
 
       // ---------- const member functions ---------------------
       //      bool waitingForUserAction() const;
@@ -245,8 +247,8 @@ class FWGUIManager : public FWConfigurable
       CmsShowViewPopup* m_viewPopup;
      
      // help
-     CmsShowHelpPopup *m_helpPopup;
-
+     CmsShowHelpPopup *m_helpPopup, *m_shortcutPopup;
+     
       TGTab		*m_textViewTab;
       TGCompositeFrame	*m_textViewFrame[3];
 

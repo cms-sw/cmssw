@@ -16,22 +16,25 @@
 //
 // Original Author:  
 //         Created:  Fri Jun 27 11:23:31 EDT 2008
-// $Id: CmsShowHelpPopup.h,v 1.6 2008/07/08 17:47:00 chrjones Exp $
+// $Id: CmsShowHelpPopup.h,v 1.1 2008/07/16 03:56:33 jmuelmen Exp $
 //
 
 // system include files
 #include "GuiTypes.h"
 #include "TGFrame.h"
+#include <string>
 
 // forward declarations
 class TGHtml;
 
 class CmsShowHelpPopup : public TGTransientFrame {
 public:
-     CmsShowHelpPopup(const TGWindow* p = 0, UInt_t w = 1, UInt_t h = 1);
+     CmsShowHelpPopup (const std::string &filename, 
+		       const std::string &windowname, const TGWindow* p = 0, 
+		       UInt_t w = 1, UInt_t h = 1);
      virtual ~CmsShowHelpPopup();
 
-     static const char *helpFileName ();
+     static std::string helpFileName (const std::string &);
 
 protected:
      TGHtml	*m_helpHtml;
