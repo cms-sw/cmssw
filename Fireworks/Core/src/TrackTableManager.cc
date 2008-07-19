@@ -13,7 +13,7 @@ std::string TrackTableManager::titles[] = {
      "vtx z"	,
      "pix layers"	,
      "strip layers"	,
-     "outermost layer"	,
+//      "outermost layer"	,
      "chi2"	,
      "ndof"	,
 };
@@ -31,7 +31,7 @@ std::string TrackTableManager::formats[] = {
      "%6.3f"	,
      "%d"	,
      "%d"	,
-     "%d"	,
+//      "%d"	,
      "%6.3f"	,
      "%6.3f"	,
 };
@@ -111,7 +111,7 @@ const std::vector<std::string> 	&TrackRow::str () const
 	  str_.push_back(format_string(TrackTableManager::formats[i++], vtx_z              ));
 	  str_.push_back(format_string(TrackTableManager::formats[i++], pix_layers         ));
 	  str_.push_back(format_string(TrackTableManager::formats[i++], strip_layers       ));
-	  str_.push_back(format_string(TrackTableManager::formats[i++], outermost_layer    ));
+// 	  str_.push_back(format_string(TrackTableManager::formats[i++], outermost_layer    ));
 	  str_.push_back(format_string(TrackTableManager::formats[i++], chi2               ));
 	  str_.push_back(format_string(TrackTableManager::formats[i++], ndof               ));
      }
@@ -134,7 +134,7 @@ const std::vector<float> 	&TrackRow::vec () const
 	  vec_.push_back(vtx_z              );
 	  vec_.push_back(pix_layers         );
 	  vec_.push_back(strip_layers       );
-	  vec_.push_back(outermost_layer    );
+// 	  vec_.push_back(outermost_layer    );
 	  vec_.push_back(chi2               );
 	  vec_.push_back(ndof               );
      }
