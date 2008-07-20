@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.13 2008/07/16 17:53:43 chrjones Exp $
+// $Id: CmsShowMainFrame.cc,v 1.14 2008/07/17 10:07:00 dmytro Exp $
 //
 
 // system include files
@@ -397,6 +397,11 @@ void CmsShowMainFrame::loadEvent(const fwlite::Event& event) {
   m_runEntry->setNumber(event.id().run());
   m_eventEntry->setNumber(event.id().event());
   m_timeText->SetText( fw::getTimeGMT( event ).c_str() );
+  // loadEvent gets called before the special cases [at beginning, at end, etc]
+  // so we can enable all our event controls here
+  m_nextEvent->enable();
+  m_previousEvent->enable(); 
+  m_goToFirst->enable();
 }
 
 void CmsShowMainFrame::goForward() {
@@ -453,9 +458,9 @@ CmsShowMainFrame::enableActions(bool enable)
   std::vector<CSGAction*>::iterator it_act;
   for (it_act = m_actionList.begin(); it_act != m_actionList.end(); ++it_act) {
     if (enable) 
-      (*it_act)->enable();
+      (*it_act)->globalEnable();
     else
-      (*it_act)->disable();
+      (*it_act)->globalDisable();
   }
   if (enable) {
     m_runEntry->enable();
