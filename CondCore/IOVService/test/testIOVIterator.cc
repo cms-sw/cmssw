@@ -68,16 +68,16 @@ int main(){
       std::cout << "size " << iov.size()
 		<<", Time Type " << iov.timetype() << std::endl;
       std::for_each(iov.begin(),iov.end(),boost::bind(&print,_1));
-      std::cout << "range 5,45" << std::end;
+      std::cout << "range 5,45" << std::endl;
       iov.setRange(5,45);
       std::for_each(iov.begin(),iov.end(),boost::bind(&print,_1));
-      std::cout << "range 35,45" << std::end;
+      std::cout << "range 35,45" << std::endl;
       iov.setRange(35,45);
       std::for_each(iov.begin(),iov.end(),boost::bind(&print,_1));
-      std::cout << "range 45,70" << std::end;
+      std::cout << "range 45,70" << std::endl;
       iov.setRange(45,70);
       std::for_each(iov.begin(),iov.end(),boost::bind(&print,_1));
-      std::cout << "range 45,47" << std::end;
+      std::cout << "range 45,47" << std::endl;
       iov.setRange(45,47);
       std::for_each(iov.begin(),iov.end(),boost::bind(&print,_1));
     }
