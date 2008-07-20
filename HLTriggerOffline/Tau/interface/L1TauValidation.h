@@ -1,15 +1,5 @@
-// -*- C++ -*-
-//
-// Package:    L1TauValidation
-// Class:      L1TauValidation
-// 
-//
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Fri Feb 22 09:20:55 CST 2008
-// $Id: L1TauValidation.h,v 1.1 2008/02/25 22:01:05 chinhan Exp $
-//
-//
-
 
 // system include files
 #include <memory>
@@ -24,15 +14,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "DataFormats/TauReco/interface/PFTau.h"
-#include "DataFormats/TauReco/interface/PFTauDiscriminatorByIsolation.h"
-
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
-#include <Math/GenVector/VectorUtil.h>
-#include "TLorentzVector.h"
-
-#include "TH1.h"
 
 // L1 Trigger data formats
 #include "DataFormats/L1Trigger/interface/L1EmParticle.h"
@@ -57,6 +38,9 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 //
+typedef math::XYZTLorentzVectorD   LV;
+typedef std::vector<LV>            LVColl;
+
 
 class L1TauValidation : public edm::EDAnalyzer {
    public:
@@ -70,55 +54,29 @@ class L1TauValidation : public edm::EDAnalyzer {
       virtual void endJob() ;
 
 
-  void getGenObjects(const edm::Event&, const edm::EventSetup&);
-  void getPFTauObjects(const edm::Event&, const edm::EventSetup&);
-  void getL1extraObjects(const edm::Event&, const edm::EventSetup&);
+  void getL1extraObjects(const edm::Event&);
+  void evalL1extraDecisions();
+  void evalL1Decisions(const edm::Event& iEvent);
 
   void fillL1Histograms();
-  void fillGenHistograms();
-  void fillPFTauHistograms();
+  void fillL1MCTauMatchedHists(const edm::Event& iEvent);
 
-  void evalL1Decisions(const edm::Event& iEvent);
-  void evalL1extraDecisions();
-
-  void calcL1MCTauMatching();
-  void calcL1MCPFTauMatching();
-
-  void convertToIntegratedEff(TH1*,double);
   void convertToIntegratedEff(MonitorElement*,double);
-  void printTrigReport();
   
   // ----------member data ---------------------------
 
-  edm::InputTag _PFTauSource;
-  edm::InputTag _PFTauDiscriminatorSource;
-  edm::InputTag _GenParticleSource;
-
+  edm::InputTag     _mcColl;         // input products from HLTMcInfo
+  
   edm::InputTag _L1extraTauJetSource;
   edm::InputTag _L1extraCenJetSource;
   edm::InputTag _L1extraForJetSource;
+  edm::InputTag _L1extraMuonSource;
+  edm::InputTag _L1extraMETSource;
   edm::InputTag _L1extraNonIsoEgammaSource;
   edm::InputTag _L1extraIsoEgammaSource;
-  edm::InputTag _L1extraMETSource;
-  edm::InputTag _L1extraMuonSource;
 
   edm::InputTag _L1GtReadoutRecord;
   edm::InputTag _L1GtObjectMap;
-
-  bool _DoMCMatching;
-  bool _DoPFTauMatching;
-
-  // PDG id for 
-  int _BosonPID;
-
-  // Cuts
-  double _L1MCTauMinDeltaR;
-  double _MCTauHadMinEt;
-  double _MCTauHadMaxAbsEta;
-
-  double _PFMCTauMinDeltaR;
-  double _PFTauMinEt;
-  double _PFTauMaxAbsEta;
 
   // Thresholds of L1 menu
   double _SingleTauThreshold;
@@ -134,27 +92,24 @@ class L1TauValidation : public edm::EDAnalyzer {
   std::string _L1MuonTauName;
   std::string _L1IsoEgTauName;
 
-  // Gen Objects
-  std::vector<TLorentzVector> _GenTauMuons;
-  std::vector<TLorentzVector> _GenTauElecs;
-  std::vector<TLorentzVector> _GenTauHads;
-
-  // Tagged PFTau Objects
-  std::vector<TLorentzVector> _PFTaus;
-
-  // L1extra Objects
-  std::vector<TLorentzVector> _L1Taus;
-  std::vector<TLorentzVector> _L1CenJets;
-  std::vector<TLorentzVector> _L1ForJets;
-  std::vector<TLorentzVector> _L1NonIsoEgammas;
-  std::vector<TLorentzVector> _L1IsoEgammas;
-  std::vector<TLorentzVector> _L1METs;
-  std::vector<TLorentzVector> _L1Muons;
-  std::vector<int> _L1MuQuals;
-
+  // Cuts
+  double _L1MCTauMinDeltaR;
+  double _MCTauHadMinEt;
+  double _MCTauHadMaxAbsEta;
 
   //Output file
+  std::string _triggerTag;//tag for dqm flder
   std::string _outFile;
+
+  // L1extra Objects
+  LVColl _L1Taus;
+  LVColl _L1CenJets;
+  LVColl _L1ForJets;
+  LVColl _L1NonIsoEgammas;
+  LVColl _L1IsoEgammas;
+  LVColl _L1METs;
+  LVColl _L1Muons;
+  std::vector<int> _L1MuQuals;
   
   // histograms
   MonitorElement* h_L1TauEt;  
@@ -169,24 +124,18 @@ class L1TauValidation : public edm::EDAnalyzer {
   MonitorElement* h_L1Tau2Eta;
   MonitorElement* h_L1Tau2Phi;
 
-  //
-  MonitorElement* h_GenTauHadEt;
-  MonitorElement* h_GenTauHadEta;
-  MonitorElement* h_GenTauHadPhi;
-
-  //
-  MonitorElement* h_PFTauEt;
-  MonitorElement* h_PFTauEta;
-  MonitorElement* h_PFTauPhi;
-
   // L1 response
   MonitorElement* h_L1MCTauDeltaR;
   MonitorElement* h_L1minusMCTauEt;
   MonitorElement* h_L1minusMCoverMCTauEt;
 
+  // MC w/o cuts
+  MonitorElement* h_GenTauHadEt;
+  MonitorElement* h_GenTauHadEta;
+  MonitorElement* h_GenTauHadPhi;
+
   // MC matching efficiencies
   MonitorElement* h_EffMCTauEt;
-
   MonitorElement* h_EffMCTauEta;
   MonitorElement* h_EffMCTauPhi;
   // Numerators
@@ -197,32 +146,14 @@ class L1TauValidation : public edm::EDAnalyzer {
   MonitorElement* h_MCTauHadEt;
   MonitorElement* h_MCTauHadEta;
   MonitorElement* h_MCTauHadPhi;
-
-  // MCPF matching efficiencies
-  MonitorElement* h_EffMCPFTauEt;
-  MonitorElement* h_EffMCPFTauEta;
-  MonitorElement* h_EffMCPFTauPhi;
-  // Numerators
-  MonitorElement* h_L1MCPFMatchedTauEt;
-  MonitorElement* h_L1MCPFMatchedTauEta;
-  MonitorElement* h_L1MCPFMatchedTauPhi;
-  // Denominators
-  MonitorElement* h_MCPFTauHadEt;
-  MonitorElement* h_MCPFTauHadEta;
-  MonitorElement* h_MCPFTauHadPhi;
-
-  MonitorElement* h_PFMCTauDeltaR;
-
   
   // Event based efficiencies as a function of thresholds
   MonitorElement* h_L1SingleTauEffEt;
   MonitorElement* h_L1DoubleTauEffEt;
   MonitorElement* h_L1SingleTauEffMCMatchEt;
   MonitorElement* h_L1DoubleTauEffMCMatchEt;
-  MonitorElement* h_L1SingleTauEffPFMCMatchEt;
-  MonitorElement* h_L1DoubleTauEffPFMCMatchEt;
 
-// Counters for event based efficiencies
+  // Counters for event based efficiencies
   int _nEvents; // all events processed
 
   int _nEventsGenTauHad; 
@@ -242,23 +173,18 @@ class L1TauValidation : public edm::EDAnalyzer {
 
   int _nEventsL1SingleTauPassed;
   int _nEventsL1SingleTauPassedMCMatched;
-  int _nEventsL1SingleTauPassedPFMCMatched;
 
   int _nEventsL1DoubleTauPassed;
   int _nEventsL1DoubleTauPassedMCMatched;
-  int _nEventsL1DoubleTauPassedPFMCMatched;
 
   int _nEventsL1SingleTauMETPassed;
   int _nEventsL1SingleTauMETPassedMCMatched;
-  int _nEventsL1SingleTauMETPassedPFMCMatched;
 
   int _nEventsL1MuonTauPassed;
   int _nEventsL1MuonTauPassedMCMatched;
-  int _nEventsL1MuonTauPassedPFMCMatched;
 
   int _nEventsL1IsoEgTauPassed;
   int _nEventsL1IsoEgTauPassedMCMatched;
-  int _nEventsL1IsoEgTauPassedPFMCMatched;
 
   // from GT bit info
   int _nEventsL1GTSingleTauPassed;
