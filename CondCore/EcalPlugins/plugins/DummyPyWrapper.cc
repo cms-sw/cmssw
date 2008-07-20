@@ -27,16 +27,33 @@
 
 
 
+namespace { const char * pluginName_ = "pluginEcalDummiesPyInterface"; }
+
+BOOST_PYTHON_MODULE(pluginEcalDummiesPyInterface) {
+    define<cond::PayLoadInspector<EcalWeightXtalGroups>();
+    define<cond::PayLoadInspector<EcalTBWeights>();
+    define<cond::PayLoadInspector<EcalGainRatios>();
+    define<cond::PayLoadInspector<EcalFloatCondObjectContainer>();
+    define<cond::PayLoadInspector<EcalFloatCondObjectContainer>();
+    define<cond::PayLoadInspector<EcalADCToGeVConstant>();
+    define<cond::PayLoadInspector<EcalFloatCondObjectContainer>();
+    define<cond::PayLoadInspector<EcalLaserAPDPNRatios>();
+    define<cond::PayLoadInspector<EcalFloatCondObjectContainer>();
+    define<cond::PayLoadInspector<EcalChannelStatus>();
+    define<cond::PayLoadInspector<EcalMappingElectronics>();
+}
+
+PYTHON_ID(EcalWeightXtalGroups,pluginName_);
+PYTHON_ID(EcalTBWeights,pluginName_);
+PYTHON_ID(EcalGainRatios,pluginName_);
+PYTHON_ID(EcalFloatCondObjectContainer,pluginName_);
+PYTHON_ID(EcalFloatCondObjectContainer,pluginName_);
+PYTHON_ID(EcalADCToGeVConstant,pluginName_);
+PYTHON_ID(EcalFloatCondObjectContainer,pluginName_);
+PYTHON_ID(EcalLaserAPDPNRatios,pluginName_);
+PYTHON_ID(EcalFloatCondObjectContainer,pluginName_);
+PYTHON_ID(EcalChannelStatus,pluginName_);
+PYTHON_ID(EcalMappingElectronics,pluginName_);
 
 
-PYTHON_WRAPPER(EcalWeightXtalGroups,EcalDummies);
-PYTHON_WRAPPER(EcalTBWeights,EcalDummies);
-PYTHON_WRAPPER(EcalGainRatios,EcalDummies);
-PYTHON_WRAPPER(EcalFloatCondObjectContainer,EcalDummies);
-PYTHON_WRAPPER(EcalFloatCondObjectContainer,EcalDummies);
-PYTHON_WRAPPER(EcalADCToGeVConstant,EcalDummies);
-PYTHON_WRAPPER(EcalFloatCondObjectContainer,EcalDummies);
-PYTHON_WRAPPER(EcalLaserAPDPNRatios,EcalDummies);
-PYTHON_WRAPPER(EcalFloatCondObjectContainer,EcalDummies);
-PYTHON_WRAPPER(EcalChannelStatus,EcalDummies);
-PYTHON_WRAPPER(EcalMappingElectronics,EcalDummies);
+
