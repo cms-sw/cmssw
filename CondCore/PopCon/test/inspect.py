@@ -6,10 +6,42 @@ a = FWIncantation()
 os.putenv("CORAL_AUTH_PATH","/afs/cern.ch/cms/DB/conddb")
 rdbms = RDBMS()
 rdbms.setLogger("sqlite_file:log.db")
+from CondCore.Utilities import iovInspector as inspect
+
 db = rdbms.getDB("sqlite_file:pop_test.db")
 tags = db.allTags()
+
+
 for tag in tags.split() :
     try :
+        log = db.lastLogEntry(tag)
+        print log.getState()
+        iov = inspect.Iov(db,tag)
+        print iov.summaries()
+        print iov.trend("",[0,2,12])
+    except RuntimeError :
+        print " no iov? in", tag
+
+
+iov=0
+
+tag = tags.split()[0]
+
+p = db.payLoad(log.payloadToken)
+o = Plug.Object(p)
+o.summary()
+o.dump()
+o=0
+
+tag = tags.split()[0]
+iov = inspect.Iov(db,tag)
+iov.summaries()
+iov.trend("",[0,2,12])
+
+
+
+o = iovInspector.PayLoad(db,log.payloadToken)
+
         exec('import '+db.moduleName(tag)+' as Plug')   
         iov = db.iov(tag)
         log = db.lastLogEntry(tag)
@@ -25,18 +57,3 @@ for tag in tags.split() :
             p.extract(ex)
             for v in ex.values() :
                 print v
-    except RuntimeError :
-        print " no iov?"
-
-
-iov=0
-
-tag = tags.split()[0]
-p = db.payLoad(log.payloadToken)
-o = Plug.Object(p)
-o.summary()
-o.dump()
-o=0
-from CondCore.Utilities import iovInspector
-o = iovInspector.PayLoad(db,log.payloadToken)
-

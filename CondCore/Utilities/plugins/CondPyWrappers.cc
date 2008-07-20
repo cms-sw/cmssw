@@ -63,6 +63,7 @@ namespace {
     {
       return boost::python::make_tuple(
 				       l.logId,
+				       l.destinationDB,
 				       l.provenance,
 				       l.usertext,
 				       l.iovtag,
