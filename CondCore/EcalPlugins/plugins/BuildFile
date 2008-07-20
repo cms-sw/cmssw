@@ -1,0 +1,18 @@
+<library file="PedestalPyWrapper.cc" name=EcalPedestalsPyInterface>
+<use name=CondCore/Utilities>
+<use name=CondFormats/EcalObjects>
+<use name=boost>
+<use name=boost_filesystem>
+<use name=boost_python>
+<use name=boost_regex>
+<flags EDM_PLUGIN=1>
+</library>
+<library file="classes_cids.cc" name=CondCoreDBEcalObjectsCIDS>
+<use name=FWCore/Framework>
+<use name=CondCore/DBCommon>
+<use name=CondFormats/EcalObjects>
+<use name=rootrflx>
+<flags EDM_PLUGIN=1>
+</library>
+
+
