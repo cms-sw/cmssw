@@ -782,12 +782,12 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("1");
+  topaaaa.addValue("0");
   topaaa.addKeyValue("Calo auto scale", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("0.828113");
+  topaaaa.addValue("0.89856");
   topaaa.addKeyValue("cameraZoomRho Z", topaaaa);
 }
 {
@@ -852,7 +852,7 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("1761.83");
+  topaaaa.addValue("1761.85");
   topaaa.addKeyValue("cameraMatrix12Rho Z", topaaaa);
 }
 {
@@ -896,7 +896,7 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("1");
+  topaaaa.addValue("0");
   topaaa.addKeyValue("Calo auto scale", topaaaa);
 }
 {
@@ -976,7 +976,7 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("1199.3");
+  topaaaa.addValue("1199.34");
   topaaa.addKeyValue("cameraMatrix12Rho Phi", topaaaa);
 }
 {
@@ -1430,8 +1430,8 @@ FWConfiguration* fwConfig() {
   FWConfiguration topaa(1);
   topaa.addValue("388");
   topaa.addValue("229");
-  topaa.addValue("308");
-  topaa.addValue("261");
+  topaa.addValue("332");
+  topaa.addValue("237");
   topa.addKeyValue("view area", topaa);
 }
   top.addKeyValue("GUI", topa);
