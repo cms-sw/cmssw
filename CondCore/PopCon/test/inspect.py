@@ -5,10 +5,17 @@ from pluginCondDBPyInterface import *
 a = FWIncantation()
 os.putenv("CORAL_AUTH_PATH","/afs/cern.ch/cms/DB/conddb")
 rdbms = RDBMS()
-rdbms.setLogger("sqlite_file:log.db")
+
+logName = "sqlite_file:log.db"
+dbName = "sqlite_file:pop_test.db"
+
+dbName =  "oracle://cms_orcoff_prod/CMS_COND_20X_ECAL"
+logName = "oracle://cms_orcoff_prod/CMS_COND_21X_POPCONLOG"
+
+rdbms.setLogger(logName)
 from CondCore.Utilities import iovInspector as inspect
 
-db = rdbms.getDB("sqlite_file:pop_test.db")
+db = rdbms.getDB(dbName)
 tags = db.allTags()
 
 
