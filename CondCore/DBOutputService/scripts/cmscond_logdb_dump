@@ -43,6 +43,7 @@ class logDBReader:
         (options, args) = self.__parser.parse_args()
         if len(self.__parser.values.authpath)!=0:
             self.__authpath=self.__parser.values.authpath
+            os.putenv("CORAL_AUTH_PATH",self.__authpath)	
         else:
             self.__user=self.__parser.values.user
             self.__password=self.__parser.values.password
