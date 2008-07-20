@@ -15,7 +15,7 @@
 // Original Author:  
 //         Created:  Thu Dec  6 18:01:21 PST 2007
 // Based on
-// $Id: TracksRecHitsProxy3DBuilder.cc,v 1.4 2008/07/01 04:21:13 chrjones Exp $
+// $Id: TracksRecHitsProxy3DBuilder.cc,v 1.5 2008/07/17 10:04:17 dmytro Exp $
 // New File:
 // $Id: TracksRecHitsProxy3DBuilder.cc,v 1.0 2008/02/22 10:37:00 Tom Danielson
 //
@@ -47,8 +47,6 @@
 
 void TracksRecHitsProxy3DBuilder::build(const FWEventItem* iItem, TEveElementList** product)
 {
-  std::cout <<"build called"<<std::endl;
-  
   //  Original commented out here
   //  TEveTrackList* tList = dynamic_cast<TEveTrackList*>*product;
 

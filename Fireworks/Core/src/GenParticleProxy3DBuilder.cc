@@ -14,7 +14,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: GenParticleProxy3DBuilder.cc,v 1.5 2008/07/16 16:09:17 chrjones Exp $
+// $Id: GenParticleProxy3DBuilder.cc,v 1.6 2008/07/17 10:04:17 dmytro Exp $
 //
 
 // system include files
@@ -40,8 +40,6 @@ GenParticleProxy3DBuilder::GenParticleProxy3DBuilder()
 
 void GenParticleProxy3DBuilder::build(const FWEventItem* iItem, TEveElementList** product)
 {
-    std::cout <<"build called"<<std::endl;
-
     //since we created it, we know the type (would like to do this better)
     TEveTrackList* tlist = dynamic_cast<TEveTrackList*>(*product);
     if ( !tlist && *product ) {

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWEveLegoView.cc,v 1.20 2008/07/07 14:50:48 dmytro Exp $
+// $Id: FWEveLegoView.cc,v 1.21 2008/07/13 21:53:28 chrjones Exp $
 //
 
 // system include files
@@ -189,7 +189,6 @@ FWEveLegoView::setCameras()
       TEveLegoEventHandler* eh = 
 	   dynamic_cast<TEveLegoEventHandler*>(m_viewer->GetGLViewer()->GetEventHandler());
       if ( m_topView && eh ) {
-	 printf("Rotating...\n");
 	 eh->Rotate(0,10000,kFALSE, kFALSE);
       }
    }

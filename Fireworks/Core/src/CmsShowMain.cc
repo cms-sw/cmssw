@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.30 2008/07/17 10:11:32 dmytro Exp $
+// $Id: CmsShowMain.cc,v 1.31 2008/07/17 23:02:41 dmytro Exp $
 //
 
 // system include files
@@ -559,7 +559,7 @@ void CmsShowMain::resetInitialization() {
 
 void CmsShowMain::draw(const fwlite::Event& event) 
 {
-  TStopwatch stopwatch;
+  // TStopwatch stopwatch;
    
   m_guiManager->enableActions(false);
   m_eiManager->setGeom(&m_detIdToGeo);
@@ -567,7 +567,7 @@ void CmsShowMain::draw(const fwlite::Event& event)
   if (m_textView.get() != 0)
        m_textView->newEvent(event, this);
   m_guiManager->enableActions();
-  stopwatch.Stop(); printf("Total event draw time: "); stopwatch.Print("m");
+  // stopwatch.Stop(); printf("Total event draw time: "); stopwatch.Print("m");
 }
 
 void CmsShowMain::openData()

@@ -14,7 +14,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: ExampleMacroProxy3DBuilder.C,v 1.1 2008/01/19 19:03:49 dmytro Exp $
+// $Id: ExampleMacroProxy3DBuilder.C,v 1.2 2008/07/17 10:04:17 dmytro Exp $
 //
 
 // system include files
@@ -52,8 +52,6 @@ class ExampleMacroProxy3DBuilder : public FWRPZDataProxyBuilder
       virtual void build(const FWEventItem* iItem,
 			 TEveElementList** product)
   {
-    std::cout <<"build called"<<std::endl;
-
     //since we created it, we know the type (would like to do this better)
     TEveTrackList* tlist = dynamic_cast<TEveTrackList*>(*product);
     if ( !tlist && *product ) {

@@ -839,7 +839,7 @@ void FWTextView::newEvent (const fwlite::Event &ev, const CmsShowMain *de)
 // 	  page->select();
 //      }
      changesDone(0);
-     printf("read: ");
+     // printf("read: ");
      // stopwatch_read.Stop();
      // stopwatch_read.Print("m");
      for (int i = 0; i < 3; ++i)
