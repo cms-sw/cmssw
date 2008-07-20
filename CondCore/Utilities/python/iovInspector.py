@@ -13,7 +13,7 @@ class Iov :
            try : 
                self.__modName = db.moduleName(tag)
                exec('import '+self.__modName+' as Plug')
-           except RunTimeError :
+           except RuntimeError :
                self.__modName = 0
            self.__me = db.iov(tag)
 
