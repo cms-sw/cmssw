@@ -27,7 +27,7 @@ HLTTauTrkDQMOfflineSource::HLTTauTrkDQMOfflineSource(const edm::ParameterSet& iC
       nL2EcalIsoJets = store->book1D((type_+"nL2EcalIsoJets").c_str(), "nInputJets", 10, 0, 10);
       nL25Jets = store->book1D((type_+"nL25Jets").c_str(), "nIsoJets", 10, 0, 10);
       nPxlTrksInL25Jet = store->book1D((type_+"nTrksInJet").c_str(), "nPxlTrksInJet", 30, 0, 30);
-      nQPxlTrksInL25Jet = store->book1D((type_+"nQPxlTrksInJet").c_str(),"nQPxlTrksInJet", 15, 0, 15);
+      nQPxlTrksInL25Jet = store->book1D((type_+"nQTrksInJet").c_str(),"nQTrksInJet", 15, 0, 15);
       signalLeadTrkPt = store->book1D((type_+"signalLeadTrkPt").c_str(), "signalLeadTrkPt", 75, 0, 150);
       l25IsoJetEt = store->book1D((type_+"IsoJetEt").c_str(), "IsoJetEt", NBins_, EtMin_,EtMax_);
       l25IsoJetEta = store->book1D((type_+"IsoJetEta").c_str(), "IsoJetEta", 50, -2.5, 2.5);
