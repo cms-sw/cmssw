@@ -36,4 +36,11 @@ namespace reco {
 
 }
 
+template<typename T1, typename T2 = T1>
+struct DeltaPhi {
+  double operator()(const T1 & t1, const T2 & t2) const {
+    return reco::deltaPhi(t1, t2);
+  }
+};
+
 #endif
