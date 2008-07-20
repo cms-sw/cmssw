@@ -1091,7 +1091,7 @@ void PixelPortCardConfig::setdeviceValues(std::string settingName, unsigned int 
 
 unsigned int PixelPortCardConfig::getdeviceAddressForSetting(std::string settingName) const
 {
-  std::cout << "[PixelPortCardConfig::getdeviceAddressForSetting()]\t    settingName: " << settingName<< std::endl ;
+  //std::cout << "[PixelPortCardConfig::getdeviceAddressForSetting()]\t    settingName: " << settingName<< std::endl ;
   std::map<std::string, unsigned int>::const_iterator foundName_itr = nameToAddress_.find(settingName);
   assert( foundName_itr != nameToAddress_.end() );
   return foundName_itr->second;
