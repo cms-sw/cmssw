@@ -31,6 +31,7 @@ for tag in tags.split() :
 
 iov=0
 
+tag = tags.split()[0]
 p = db.payLoad(log.payloadToken)
 o = Plug.Object(p)
 o.summary()

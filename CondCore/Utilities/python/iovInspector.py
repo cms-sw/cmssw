@@ -10,16 +10,19 @@ class Iov :
        def __init__(self, db, tag) :
            self.__db = db
            self.__tag = tag
-           exec('import '+db.moduleName(tag)+' as Plug')
+           self.__modName = db.moduleName(tag)
+           exec('import '+self.modName+' as Plug')
            self.__me = db.iov(tag)
 
        def list(self) :
+           exec('import '+self.modName+' as Plug')
            ret = []
            for elem in self.__me.elements :
                ret.append( (elem.payloadToken(), elem.since(), elem.till(),0))
            return ret
 
        def summaries(self) :
+           exec('import '+self.modName+' as Plug')
            ret = []
            for elem in self.__me.elements :
                p = Plug.Object(elem)
@@ -27,6 +30,7 @@ class Iov :
            return ret
 
        def trend(self, s, l) :
+           exec('import '+self.modName+' as Plug')
            ret = []
            vi = CondDB.Vint()
            for i in l:
