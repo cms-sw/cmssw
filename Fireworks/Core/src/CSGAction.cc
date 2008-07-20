@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:11 CDT 2008
-// $Id: CSGAction.cc,v 1.4 2008/07/15 23:38:39 chrjones Exp $
+// $Id: CSGAction.cc,v 1.5 2008/07/16 17:39:48 chrjones Exp $
 //
 
 // system include files
@@ -303,37 +303,64 @@ TGToolBar* CSGAction::getToolBar() const {
 }
 
 void CSGAction::enable() {
-  if (m_menu != 0) m_menu->EnableEntry(m_entry);
-  if (m_textButton != 0) m_textButton->SetEnabled(kTRUE);
-  if (m_picButton != 0) m_picButton->SetEnabled(kTRUE);
-  if (m_toolBar != 0) m_toolBar->GetButton(m_entry)->SetEnabled(kTRUE);
-  if (m_keycode != 0) {
-    int id = m_frame->GetId();
-    gVirtualX->GrabKey(id, m_keycode, m_modcode, kTRUE);
-    gVirtualX->GrabKey(id, m_keycode, m_modcode | kKeyMod2Mask, kTRUE);
-    gVirtualX->GrabKey(id, m_keycode, m_modcode | kKeyLockMask, kTRUE);
-    gVirtualX->GrabKey(id, m_keycode, m_modcode | kKeyMod2Mask | kKeyLockMask, kTRUE);
-  }
   m_enabled = kTRUE;
+   enableImp();
 }
 
 void CSGAction::disable() {
-  if (m_menu != 0) m_menu->DisableEntry(m_entry);
-  if (m_textButton != 0) m_textButton->SetEnabled(kFALSE);
-  if (m_picButton != 0) m_picButton->SetEnabled(kFALSE);
-  if (m_toolBar != 0) m_toolBar->GetButton(m_entry)->SetEnabled(kFALSE);
-  if (m_keycode != 0) {
-    int id = m_frame->GetId();
-    gVirtualX->GrabKey(id, m_keycode, m_modcode, kFALSE);
-    gVirtualX->GrabKey(id, m_keycode, m_modcode | kKeyMod2Mask, kFALSE);
-    gVirtualX->GrabKey(id, m_keycode, m_modcode | kKeyLockMask, kFALSE);
-    gVirtualX->GrabKey(id, m_keycode, m_modcode | kKeyMod2Mask | kKeyLockMask, kFALSE);
-  }
   m_enabled = kFALSE;
+   disableImp();
 }
 
+void 
+CSGAction::globalEnable()
+{
+   m_globalEnabled=true;
+   enableImp();
+}
+
+void 
+CSGAction::globalDisable()
+{
+   m_globalEnabled=false;
+   disableImp();
+}
+
+
 Bool_t CSGAction::isEnabled() const {
-  return m_enabled;
+  return m_enabled && m_globalEnabled;
+}
+
+void CSGAction::enableImp() {
+   if(isEnabled()) {
+      if (m_menu != 0) m_menu->EnableEntry(m_entry);
+      if (m_textButton != 0) m_textButton->SetEnabled(kTRUE);
+      if (m_picButton != 0) m_picButton->SetEnabled(kTRUE);
+      if (m_toolBar != 0) m_toolBar->GetButton(m_entry)->SetEnabled(kTRUE);
+      if (m_keycode != 0) {
+         int id = m_frame->GetId();
+         gVirtualX->GrabKey(id, m_keycode, m_modcode, kTRUE);
+         gVirtualX->GrabKey(id, m_keycode, m_modcode | kKeyMod2Mask, kTRUE);
+         gVirtualX->GrabKey(id, m_keycode, m_modcode | kKeyLockMask, kTRUE);
+         gVirtualX->GrabKey(id, m_keycode, m_modcode | kKeyMod2Mask | kKeyLockMask, kTRUE);
+      }
+   }
+}
+
+void CSGAction::disableImp() {
+   if(!isEnabled()) {
+      if (m_menu != 0) m_menu->DisableEntry(m_entry);
+      if (m_textButton != 0) m_textButton->SetEnabled(kFALSE);
+      if (m_picButton != 0) m_picButton->SetEnabled(kFALSE);
+      if (m_toolBar != 0) m_toolBar->GetButton(m_entry)->SetEnabled(kFALSE);
+      if (m_keycode != 0) {
+         int id = m_frame->GetId();
+         gVirtualX->GrabKey(id, m_keycode, m_modcode, kFALSE);
+         gVirtualX->GrabKey(id, m_keycode, m_modcode | kKeyMod2Mask, kFALSE);
+         gVirtualX->GrabKey(id, m_keycode, m_modcode | kKeyLockMask, kFALSE);
+         gVirtualX->GrabKey(id, m_keycode, m_modcode | kKeyMod2Mask | kKeyLockMask, kFALSE);
+      }
+   }
 }
 
 

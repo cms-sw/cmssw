@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 18:15:56 CDT 2008
-// $Id: CSGAction.h,v 1.1 2008/06/17 00:08:11 chrjones Exp $
+// $Id: CSGAction.h,v 1.2 2008/07/08 02:31:25 dmytro Exp $
 //
 
 // system include files
@@ -72,7 +72,10 @@ public:
 
    void enable();
    void disable();
-   
+
+   void globalEnable();
+   void globalDisable();
+
    void addSCToMenu();
    Bool_t resizeMenuEntry();
    void activate(){ activated.emit(); }
@@ -84,6 +87,8 @@ private:
    
    const CSGAction& operator=(const CSGAction&); // stop default
    
+   void enableImp();
+   void disableImp();
    // ---------- member data --------------------------------
    CmsShowMainFrame *m_frame;
    std::string m_name;
@@ -99,6 +104,7 @@ private:
    ToolBarData_t *m_tools;
    CSGConnector *m_connector;
    Bool_t m_enabled;
+   Bool_t m_globalEnabled;
    TGTextEntry* m_textEntry;
 };
 
