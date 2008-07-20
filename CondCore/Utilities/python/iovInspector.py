@@ -31,10 +31,10 @@ class Iov :
                p = Plug.Object(elem)
                ret.append( (elem.payloadToken(), elem.since(), elem.till(), p.summary()))
            return ret
-
+           
        def trend(self, s, l) :
-          if (self.__modName==0) : return ["no plugin for "  + self.__tag+" no trend"]
-          exec('import '+self.__modName+' as Plug')
+           if (self.__modName==0) : return ["no plugin for "  + self.__tag+" no trend"]
+           exec('import '+self.__modName+' as Plug')
            ret = []
            vi = CondDB.VInt()
            for i in l:
