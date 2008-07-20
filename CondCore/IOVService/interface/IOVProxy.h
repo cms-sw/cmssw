@@ -83,15 +83,17 @@ namespace cond {
 					     IterHelp(*m_iov));
     }
     
-    
+
+    void setRange(cond::Time_t since, cond::Time_t  till) const;
+
     int size() const;
     IOV const & iov() const;
     TimeType timetype() const;
     
   private:
     boost::shared_ptr<impl::IOVImpl> m_iov;
-    int m_low;
-    int m_high;
+    mutable int m_low;
+    mutable int m_high;
     
   };
 }
