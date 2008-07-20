@@ -14,11 +14,32 @@ class Iov :
            self.__me = db.iov(tag)
 
        def list(self) :
+           ret = []
+           for elem in self.__me.elements :
+               ret.append( (elem.payloadToken(), elem.since(), elem.till(),0))
+           return ret
+
+       def summaries(self) :
+           ret = []
            for elem in self.__me.elements :
                p = Plug.Object(elem)
-               print elem.since(), elem.till(),p.summary()
-  
-        
+               ret.append( (elem.payloadToken(), elem.since(), elem.till(), p.summary()))
+           return ret
+
+       def trend(self, s, l) :
+           ret = []
+           vi = CondDB.Vint()
+           for i in l:
+               vi.append(int(i))
+           ex = Plug.Extractor("",vi)
+           for elem in self.__me.elements :
+               p = Plug.Object(elem)
+               p.extract(ex)
+               v = []
+               for i in ex.values() :
+                   v.append(i)
+               ret.append((elem.since(),elem.till(),v))
+
 
 
 class PayLoad :
