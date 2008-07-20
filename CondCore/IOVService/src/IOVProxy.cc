@@ -56,7 +56,7 @@ namespace cond {
     m_iov(new impl::IOVImpl(db,token,nolib)), m_low(0), m_high(size()){}
 
 
-  void setRange(cond::Time_t since, cond::Time_t  till) const {
+  void IOVProxy::setRange(cond::Time_t since, cond::Time_t  till) const {
     m_low=iov().find(since)-iov().iov.begin();
     m_high=iov().find(since)-iov().iov.begin();
     m_high=std::min(m_high+1,size());

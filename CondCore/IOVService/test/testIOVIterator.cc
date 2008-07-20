@@ -68,6 +68,14 @@ int main(){
       std::cout << "size " << iov.size()
 		<<", Time Type " << iov.timetype() << std::endl;
       std::for_each(iov.begin(),iov.end(),boost::bind(&print,_1));
+      iov.setRange(5,45);
+      std::for_each(iov.begin(),iov.end(),boost::bind(&print,_1));
+      iov.setRange(35,45);
+      std::for_each(iov.begin(),iov.end(),boost::bind(&print,_1));
+      iov.setRange(45,70);
+      std::for_each(iov.begin(),iov.end(),boost::bind(&print,_1));
+      iov.setRange(45,47);
+      std::for_each(iov.begin(),iov.end(),boost::bind(&print,_1));
     }
     myconnection.disconnect();
     delete session;
