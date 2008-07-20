@@ -53,15 +53,14 @@ class HLTTauCaloDQMOfflineSource : public edm::EDAnalyzer {
    
       //Parameters to read
       edm::InputTag     l2TauInfoAssoc_; //Path to analyze
-      std::string triggerTag_;//tag for dqm flder
-      edm::InputTag     l2Isolated_; //Path to analyze
       edm::InputTag     mcColl_;         // input products from HLTMcInfo
       edm::InputTag     met_;             //Handle to missing Et 
       bool              doRef_;           //DoReference Analysis
-
       //Select if you want match or not
       double matchDeltaRMC_;
-      
+      std::string triggerTag_;//tag for dqm flder
+      edm::InputTag     l2Isolated_; //Path to analyze
+   
       
       //Output file
       std::string outFile_;
