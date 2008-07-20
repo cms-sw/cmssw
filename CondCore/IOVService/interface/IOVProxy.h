@@ -74,12 +74,12 @@ namespace cond {
     typedef boost::transform_iterator<IterHelp,boost::counting_iterator<int> > const_iterator;
     
     const_iterator begin() const {
-      return  boost::make_transform_iterator(boost::counting_iterator<int>(0),
+      return  boost::make_transform_iterator(boost::counting_iterator<int>(m_low),
 					     IterHelp(*m_iov));
     }
     
     const_iterator end() const {
-      return  boost::make_transform_iterator(boost::counting_iterator<int>(size()),
+      return  boost::make_transform_iterator(boost::counting_iterator<int>(m_high),
 					     IterHelp(*m_iov));
     }
     
@@ -90,6 +90,8 @@ namespace cond {
     
   private:
     boost::shared_ptr<impl::IOVImpl> m_iov;
+    int m_low;
+    int m_high;
     
   };
 }
