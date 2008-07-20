@@ -11,18 +11,18 @@ class Iov :
            self.__db = db
            self.__tag = tag
            self.__modName = db.moduleName(tag)
-           exec('import '+self.modName+' as Plug')
+           exec('import '+self.__modName+' as Plug')
            self.__me = db.iov(tag)
 
        def list(self) :
-           exec('import '+self.modName+' as Plug')
+           exec('import '+self.__modName+' as Plug')
            ret = []
            for elem in self.__me.elements :
                ret.append( (elem.payloadToken(), elem.since(), elem.till(),0))
            return ret
 
        def summaries(self) :
-           exec('import '+self.modName+' as Plug')
+           exec('import '+self.__modName+' as Plug')
            ret = []
            for elem in self.__me.elements :
                p = Plug.Object(elem)
@@ -30,9 +30,9 @@ class Iov :
            return ret
 
        def trend(self, s, l) :
-           exec('import '+self.modName+' as Plug')
+           exec('import '+self.__modName+' as Plug')
            ret = []
-           vi = CondDB.Vint()
+           vi = CondDB.VInt()
            for i in l:
                vi.append(int(i))
            ex = Plug.Extractor("",vi)
@@ -43,7 +43,7 @@ class Iov :
                for i in ex.values() :
                    v.append(i)
                ret.append((elem.since(),elem.till(),v))
-
+           return ret  
 
 
 class PayLoad :
