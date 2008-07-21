@@ -51,7 +51,7 @@ host=os.environ["HOST"]
 user=os.environ["USER"]
 
 #Scripts used by the suite:
-Scripts=["cmsDriver.py","cmsRelvalreport.py","cmsSimPyRelVal.pl","cmsScimark2"]
+Scripts=["cmsDriver.py","cmsRelvalreport.py","cmsRelvalreportInput.py","cmsScimark2"]
 AuxiliaryScripts=["cmsScimarkLaunch.csh","cmsScimarkParser.py","cmsScimarkStop.pl"]
 #Some defaults:
 
