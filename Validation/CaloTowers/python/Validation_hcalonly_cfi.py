@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from Configuration.StandardSequences.SimulationRandomNumberGeneratorSeeds_cff import *
+from Configuration.StandardSequences.Geometry_cff import *
 from Configuration.StandardSequences.VtxSmearedGauss_cff import *
 from SimG4Core.Application.g4SimHits_cfi import *
 from SimCalorimetry.HcalSimProducers.hcalUnsuppressedDigis_cfi import *
