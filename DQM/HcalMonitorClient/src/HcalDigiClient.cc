@@ -39,6 +39,11 @@ void HcalDigiClient::init(const ParameterSet& ps, DQMStore* dbe, string clientNa
     sub_digi_size_[i] = 0;
 
     ProblemDigiCells_DEPTH[i]=0;
+    ProblemDigiCellsHB_DEPTH[i]=0;
+    ProblemDigiCellsHE_DEPTH[i]=0;
+    ProblemDigiCellsHO_DEPTH[i]=0;
+    ProblemDigiCellsHF_DEPTH[i]=0;
+
     RawPedestalMean[i]=0; 
     RawPedestalRMS[i]=0; 
     SubPedestalMean[i]=0;  
@@ -46,6 +51,11 @@ void HcalDigiClient::init(const ParameterSet& ps, DQMStore* dbe, string clientNa
   }
   
   ProblemDigiCells=0;
+  ProblemDigiCellsHB=0;
+  ProblemDigiCellsHE=0;
+  ProblemDigiCellsHO=0;
+  ProblemDigiCellsHF=0;
+
   gl_err_geo_=0;
   gl_occ_eta_ = 0;
   gl_occ_phi_ = 0;
@@ -158,6 +168,10 @@ void HcalDigiClient::cleanup(void) {
       if(sub_digi_shape_[i]) delete sub_digi_shape_[i];           
       if(sub_digi_size_[i]) delete sub_digi_size_[i];
       if (ProblemDigiCells_DEPTH[i]) delete ProblemDigiCells_DEPTH[i];
+      if (ProblemDigiCellsHB_DEPTH[i]) delete ProblemDigiCellsHB_DEPTH[i];
+      if (ProblemDigiCellsHE_DEPTH[i]) delete ProblemDigiCellsHE_DEPTH[i];
+      if (ProblemDigiCellsHO_DEPTH[i]) delete ProblemDigiCellsHO_DEPTH[i];
+      if (ProblemDigiCellsHF_DEPTH[i]) delete ProblemDigiCellsHF_DEPTH[i];
       if (RawPedestalMean[i]) delete RawPedestalMean[i]; 
       if (RawPedestalRMS[i])  delete RawPedestalRMS[i]; 
       if (SubPedestalMean[i]) delete SubPedestalMean[i];  
@@ -185,6 +199,11 @@ void HcalDigiClient::cleanup(void) {
   } // if (cloneME_)
 
   ProblemDigiCells=0;
+  ProblemDigiCellsHB=0;
+  ProblemDigiCellsHE=0;
+  ProblemDigiCellsHO=0;
+  ProblemDigiCellsHF=0;
+
   gl_err_geo_=0;
   gl_occ_eta_ = 0;
   gl_occ_phi_ = 0;
@@ -196,6 +215,11 @@ void HcalDigiClient::cleanup(void) {
 
   for(int i=0; i<4; ++i){
     ProblemDigiCells_DEPTH[i]=0;
+    ProblemDigiCellsHB_DEPTH[i]=0;
+    ProblemDigiCellsHE_DEPTH[i]=0;
+    ProblemDigiCellsHO_DEPTH[i]=0;
+    ProblemDigiCellsHF_DEPTH[i]=0;
+
     RawPedestalMean[i]=0; 
     RawPedestalRMS[i]=0; 
     SubPedestalMean[i]=0;  
@@ -269,12 +293,27 @@ void HcalDigiClient::getHistograms(){
   char name[150];    
   sprintf(name,"DigiMonitor/HCAL/HCALProblemDigiCells");
   ProblemDigiCells=getHisto2(name,process_,dbe_,debug_,cloneME_);
+  sprintf(name,"DigiMonitor/HB/HBProblemDigiCells");
+  ProblemDigiCellsHB=getHisto2(name,process_,dbe_,debug_,cloneME_);
+  sprintf(name,"DigiMonitor/HE/HEProblemDigiCells");
+  ProblemDigiCellsHE=getHisto2(name,process_,dbe_,debug_,cloneME_);
+  sprintf(name,"DigiMonitor/HO/HOProblemDigiCells");
+  ProblemDigiCellsHO=getHisto2(name,process_,dbe_,debug_,cloneME_);
+  sprintf(name,"DigiMonitor/HF/HFProblemDigiCells");
+  ProblemDigiCellsHF=getHisto2(name,process_,dbe_,debug_,cloneME_);
   
   for (int i=0;i<4;++i)
     {
       sprintf(name,"DigiMonitor/HCAL/expertPlots/HCALProblemDigiCells_depth%i",i+1);
       ProblemDigiCells_DEPTH[i]=getHisto2(name,process_,dbe_,debug_,cloneME_);
-      
+      sprintf(name,"DigiMonitor/HB/expertPlots/HBProblemDigiCells_depth%i",i+1);
+      ProblemDigiCellsHB_DEPTH[i]=getHisto2(name,process_,dbe_,debug_,cloneME_);
+      sprintf(name,"DigiMonitor/HE/expertPlots/HEProblemDigiCells_depth%i",i+1);
+      ProblemDigiCellsHE_DEPTH[i]=getHisto2(name,process_,dbe_,debug_,cloneME_);
+      sprintf(name,"DigiMonitor/HO/expertPlots/HOProblemDigiCells_depth%i",i+1);
+      ProblemDigiCellsHO_DEPTH[i]=getHisto2(name,process_,dbe_,debug_,cloneME_);
+      sprintf(name,"DigiMonitor/HF/expertPlots/HFProblemDigiCells_depth%i",i+1);
+      ProblemDigiCellsHF_DEPTH[i]=getHisto2(name,process_,dbe_,debug_,cloneME_);
       sprintf(name,"DigiMonitor/HCAL/RawPedestalMeanDepth%i",i+1);
       RawPedestalMean[i]=getHisto2(name,process_,dbe_,debug_,cloneME_); 
       sprintf(name,"DigiMonitor/HCAL/RawPedestalRMSDepth%i",i+1);
@@ -423,23 +462,40 @@ void HcalDigiClient::resetAllME(){
     {
       sprintf(name,"%sHcal/DigiMonitor/Digi Depth %d Occupancy Map",process_.c_str(),i);
       resetME(name,dbe_);
+
       sprintf(name,"%sHcal/DigiMonitor/HCAL/expertPlots/HCALProblemDigiCells_depth%i",process_.c_str(),i);
       resetME(name,dbe_);
+      sprintf(name,"%sHcal/DigiMonitor/HB/expertPlots/HBProblemDigiCells_depth%i",process_.c_str(),i);
+      resetME(name,dbe_);
+      sprintf(name,"%sHcal/DigiMonitor/HE/expertPlots/HEProblemDigiCells_depth%i",process_.c_str(),i);
+      resetME(name,dbe_);
+      sprintf(name,"%sHcal/DigiMonitor/HO/expertPlots/HOProblemDigiCells_depth%i",process_.c_str(),i);
+      resetME(name,dbe_);
+      sprintf(name,"%sHcal/DigiMonitor/HF/expertPlots/HFProblemDigiCells_depth%i",process_.c_str(),i);
+      resetME(name,dbe_);
       
-      sprintf(name,"DigiMonitor/HCAL/expertPlots/HCALProblemDigiCells_depth%i",i);
+      sprintf(name,"%sHcal/DigiMonitor/HCAL/RawPedestalMeanDepth%i",process_.c_str(),i);
       resetME(name,dbe_);
-      sprintf(name,"DigiMonitor/HCAL/RawPedestalMeanDepth%i",i);
+      sprintf(name,"%sHcal/DigiMonitor/HCAL/RawPedestalRMSDepth%i",process_.c_str(),i);
       resetME(name,dbe_);
-      sprintf(name,"DigiMonitor/HCAL/RawPedestalRMSDepth%i",i);
+      sprintf(name,"%sHcal/DigiMonitor/HCAL/SubPedestalMeanDepth%i",process_.c_str(),i);
       resetME(name,dbe_);
-      sprintf(name,"DigiMonitor/HCAL/SubPedestalMeanDepth%i",i);
-      resetME(name,dbe_);
-      sprintf(name,"DigiMonitor/HCAL/SubPedestalRMSDepth%i",i);
+      sprintf(name,"%sHcal/DigiMonitor/HCAL/SubPedestalRMSDepth%i",process_.c_str(),i);
       resetME(name,dbe_);
   }
 
-  sprintf(name,"%sHcal/DigMonitor/HCAL/HCALProblemDigiCells",process_.c_str());
+  sprintf(name,"%sHcal/DigiMonitor/HCAL/HCALProblemDigiCells",process_.c_str());
   resetME(name,dbe_);
+  sprintf(name,"%sHcal/DigiMonitor/HB/HBProblemDigiCells",process_.c_str());
+  resetME(name,dbe_);
+  sprintf(name,"%sHcal/DigiMonitor/HE/HEProblemDigiCells",process_.c_str());
+  resetME(name,dbe_);
+  sprintf(name,"%sHcal/DigiMonitor/HO/HOProblemDigiCells",process_.c_str());
+  resetME(name,dbe_);
+  sprintf(name,"%sHcal/DigiMonitor/HF/HFProblemDigiCells",process_.c_str());
+  resetME(name,dbe_);
+
+
   sprintf(name,"%sHcal/DigiMonitor/Digi Eta Occupancy Map",process_.c_str());
   resetME(name,dbe_);
   sprintf(name,"%sHcal/DigiMonitor/Digi Phi Occupancy Map",process_.c_str());
@@ -907,6 +963,18 @@ void HcalDigiClient::loadHistograms(TFile* infile){
   
   sprintf(name,"DigiMonitor/Bad Digi Fraction");
   gl_bqdigi_frac_ =  (TH1F*)infile->Get(name);
+
+  sprintf(name,"DigiMonitor/HCAL/HCALProblemDigiCells");
+  ProblemDigiCells=(TH2F*)infile->Get(name);
+  sprintf(name,"DigiMonitor/HB/HBProblemDigiCells");
+  ProblemDigiCellsHB=(TH2F*)infile->Get(name);
+  sprintf(name,"DigiMonitor/HE/HEProblemDigiCells");
+  ProblemDigiCellsHE=(TH2F*)infile->Get(name);
+  sprintf(name,"DigiMonitor/HO/HOProblemDigiCells");
+  ProblemDigiCellsHO=(TH2F*)infile->Get(name);
+  sprintf(name,"DigiMonitor/HF/HFProblemDigiCells");
+  ProblemDigiCellsHF=(TH2F*)infile->Get(name);
+
   
   for(int i=0; i<4; ++i){
     if(!subDetsOn_[i]) continue;
@@ -987,6 +1055,15 @@ void HcalDigiClient::loadHistograms(TFile* infile){
 
     sprintf(name,"DigiMonitor/HCAL/expertPlots/HCALProblemDigiCells_depth%i",i+1);
     ProblemDigiCells_DEPTH[i]=(TH2F*)infile->Get(name);
+
+    sprintf(name,"DigiMonitor/HB/expertPlots/HBProblemDigiCells_depth%i",i+1);
+    ProblemDigiCellsHB_DEPTH[i]=(TH2F*)infile->Get(name);
+    sprintf(name,"DigiMonitor/HE/expertPlots/HEProblemDigiCells_depth%i",i+1);
+    ProblemDigiCellsHE_DEPTH[i]=(TH2F*)infile->Get(name);
+    sprintf(name,"DigiMonitor/HO/expertPlots/HOProblemDigiCells_depth%i",i+1);
+    ProblemDigiCellsHO_DEPTH[i]=(TH2F*)infile->Get(name);
+    sprintf(name,"DigiMonitor/HF/expertPlots/HFProblemDigiCells_depth%i",i+1);
+    ProblemDigiCellsHF_DEPTH[i]=(TH2F*)infile->Get(name);
 
     sprintf(name,"DigiMonitor/HCAL/RawPedestalMeanDepth%i",i+1);
     RawPedestalMean[i]=(TH2F*)infile->Get(name); 
@@ -1081,6 +1158,8 @@ ich cells are bad (%)</td></tr>"<<endl;
   float phiMin=ProblemDigiCells->GetYaxis()->GetXmin(); 
   
   int eta,phi; 
+
+  // HB problem cells
   for (int depth=0;depth<4; ++depth)
     {
       for (int ieta=1;ieta<=etabins;++ieta) 
@@ -1089,16 +1168,57 @@ ich cells are bad (%)</td></tr>"<<endl;
 	    {
 	      eta=ieta+int(etaMin)-1; 
 	      phi=iphi+int(phiMin)-1; 
-	      
-	      //cout <<depth<<"  "<<eta<<"  "<<phi<<endl;
-	      //if (ProblemDigiCells->GetBinContent(ieta,iphi))
-	      //  cout <<eta<<"  "<<phi<<"  "<<ProblemDigiCells->GetBinContent(ieta,iphi)<<endl;
-	      if (ProblemDigiCells_DEPTH[depth]->GetBinContent(ieta,iphi)>errorFrac_)
-		htmlFile<<"<td align=\"center\"> ("<<eta<<", "<<phi<<", "<<depth+1<<") </td><td align=\"center\"> "<<100.*ProblemDigiCells_DEPTH[depth]->GetBinContent(ieta,iphi)/ievt_<<"</td></tr>"<<endl; 
-	      
+	      if (ProblemDigiCellsHB_DEPTH[depth]->GetBinContent(ieta,iphi)>errorFrac_)
+		htmlFile<<"<td align=\"center\">HB ("<<eta<<", "<<phi<<", "<<depth+1<<") </td><td align=\"center\"> "<<100.*ProblemDigiCells_DEPTH[depth]->GetBinContent(ieta,iphi)/ievt_<<"</td></tr>"<<endl; 
 	    } // for (int iphi...)
 	} // for (int ieta...)
     } // for (int depth...)
+
+  // HE problem cells
+  for (int depth=0;depth<4; ++depth)
+    {
+      for (int ieta=1;ieta<=etabins;++ieta) 
+	{ 
+	  for (int iphi=1; iphi<=phibins;++iphi) 
+	    {
+	      eta=ieta+int(etaMin)-1; 
+	      phi=iphi+int(phiMin)-1; 
+	      if (ProblemDigiCellsHE_DEPTH[depth]->GetBinContent(ieta,iphi)>errorFrac_)
+		htmlFile<<"<td align=\"center\">HE ("<<eta<<", "<<phi<<", "<<depth+1<<") </td><td align=\"center\"> "<<100.*ProblemDigiCells_DEPTH[depth]->GetBinContent(ieta,iphi)/ievt_<<"</td></tr>"<<endl; 
+	    } // for (int iphi...)
+	} // for (int ieta...)
+    } // for (int depth...)
+
+  // HO problem cells
+  for (int depth=0;depth<4; ++depth)
+    {
+      for (int ieta=1;ieta<=etabins;++ieta) 
+	{ 
+	  for (int iphi=1; iphi<=phibins;++iphi) 
+	    {
+	      eta=ieta+int(etaMin)-1; 
+	      phi=iphi+int(phiMin)-1; 
+	      if (ProblemDigiCellsHO_DEPTH[depth]->GetBinContent(ieta,iphi)>errorFrac_)
+		htmlFile<<"<td align=\"center\">HO ("<<eta<<", "<<phi<<", "<<depth+1<<") </td><td align=\"center\"> "<<100.*ProblemDigiCells_DEPTH[depth]->GetBinContent(ieta,iphi)/ievt_<<"</td></tr>"<<endl; 
+	    } // for (int iphi...)
+	} // for (int ieta...)
+    } // for (int depth...)
+
+  // HF problem cells
+  for (int depth=0;depth<4; ++depth)
+    {
+      for (int ieta=1;ieta<=etabins;++ieta) 
+	{ 
+	  for (int iphi=1; iphi<=phibins;++iphi) 
+	    {
+	      eta=ieta+int(etaMin)-1; 
+	      phi=iphi+int(phiMin)-1; 
+	      if (ProblemDigiCellsHF_DEPTH[depth]->GetBinContent(ieta,iphi)>errorFrac_)
+		htmlFile<<"<td align=\"center\">HF ("<<eta<<", "<<phi<<", "<<depth+1<<") </td><td align=\"center\"> "<<100.*ProblemDigiCells_DEPTH[depth]->GetBinContent(ieta,iphi)/ievt_<<"</td></tr>"<<endl; 
+	    } // for (int iphi...)
+	} // for (int ieta...)
+    } // for (int depth...)
+
 
   htmlFile << "</table>" <<endl; 
 
