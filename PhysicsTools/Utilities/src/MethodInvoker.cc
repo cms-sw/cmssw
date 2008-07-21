@@ -6,7 +6,7 @@ using namespace reco::parser;
 using namespace ROOT::Reflex;
 using namespace std;
 
-MethodInvoker::MethodInvoker(const Member & method, const vector<int> & ints) :
+MethodInvoker::MethodInvoker(const Member & method, const vector<AnyMethodArgument> & ints) :
   method_(method), ints_(ints) { 
   setArgs();
 }
@@ -24,8 +24,8 @@ MethodInvoker & MethodInvoker::operator=(const MethodInvoker & other) {
 }
 
 void MethodInvoker::setArgs() {
- for(size_t i = 0; i < ints_.size(); ++i) {
-    args_.push_back((void *)(&ints_[i]));
+  for(size_t i = 0; i < ints_.size(); ++i) {
+      args_.push_back( boost::apply_visitor( AnyMethodArgument2VoidPtr(), ints_[i] ) );
   }
 }
 
