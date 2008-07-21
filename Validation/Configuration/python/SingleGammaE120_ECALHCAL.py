@@ -55,6 +55,12 @@ def customise(process):
 
     process.output.outputCommands.append("keep *_simHcalUnsuppressedDigis_*_*")
 
+# drop the plain root file outputs of all analyzers
+    for analyzer in process.analyzers_():
+        if hasattr(analyzer,"outputFile"):
+            print "Silencing %s outputFile of %s analyzer"%(analyzer.outputFile,analyzer)
+            analyzer.outputFile=""
+            
 # user schedule: use only calorimeters digitization and local reconstruction
 
     del process.schedule[:] 

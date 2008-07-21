@@ -1,6 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 def customise(process):
 
+# drop the plain root file outputs of all analyzers
+    for analyzer in process.analyzers_():
+        if hasattr(analyzer,"outputFile"):
+            print "Silencing %s outputFile of %s analyzer"%(analyzer.outputFile,analyzer)
+            analyzer.outputFile=""
+
 # user schedule: 
 
     del process.schedule[:]
