@@ -4,7 +4,7 @@
 /** \class HLTMuonGenericRate
  *  Get L1/HLT efficiency/rate plots
  *
- *  \author  M. Vander Donckt  (copied fromJ. Alcaraz
+ *  \author  M. Vander Donckt, J. Klukas  (copied from J. Alcaraz)
  */
 
 // Base Class Headers
@@ -28,7 +28,7 @@
 class HLTMuonGenericRate {
 public:
   /// Constructor
-  HLTMuonGenericRate(const edm::ParameterSet& pset, int Index);
+  HLTMuonGenericRate(const edm::ParameterSet& pset, int index);
 
   /// Destructor
   virtual ~HLTMuonGenericRate();
@@ -39,8 +39,14 @@ public:
 
   void BookHistograms() ;
   void WriteHistograms() ;
-  MonitorElement* BookIt(char name[], char title[], int bins, float min, float max) ;
+  void SetCurrentFolder( TString folder );
+  MonitorElement* BookIt( char name[], char title[], int bins, float min, 
+			  float max) ;
+  MonitorElement* BookIt( TString name, TString title, 
+					      int Nbins, float Min, float Max);
+
 private:
+
   // Input from cfg file
   edm::InputTag theL1CollectionLabel, theGenLabel, theRecoLabel;
   std::vector<edm::InputTag> theHLTCollectionLabels;
@@ -53,7 +59,8 @@ private:
   double thePtMin;
   double thePtMax;
   unsigned int theNbins;
-  int this_event_weight;
+  int thisEventWeight;
+
   // Histograms
   DQMStore* dbe_;  
   MonitorElement* hL1DR, *hL2DR, *hL3DR;
@@ -82,12 +89,17 @@ private:
   std::vector <MonitorElement*> hHLTphiMC;
   std::vector <MonitorElement*> hHLTetaRECO;
   std::vector <MonitorElement*> hHLTphiRECO;
+
   HepMC::GenEvent::particle_const_iterator theAssociatedGenPart;
   reco::TrackCollection::const_iterator theAssociatedRecoPart;
   const HepMC::GenEvent* evt;
-  std::pair<double,double> getGenAngle(double eta, double phi, HepMC::GenEvent evt, double DR=0.4 );
-  std::pair<double,double> getRecoAngle(double eta, double phi,reco::TrackCollection tracks, double DR=0.4 );
-  MonitorElement *NumberOfEvents,*NumberOfL1Events;
+
+  std::pair<double,double> getGenAngle( double eta, double phi, 
+			   HepMC::GenEvent evt, double DR=0.4 );
+  std::pair<double,double> getRecAngle( double eta, double phi, 
+			   reco::TrackCollection tracks, double DR=0.4 );
+
+  MonitorElement *NumberOfEvents, *NumberOfL1Events;
   int theNumberOfEvents,theNumberOfL1Events;
   std::string theRootFileName;
 
