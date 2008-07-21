@@ -81,6 +81,106 @@ namespace pat {
     PhysVarHisto * h_caloE_    ;   //!<   &&& document this
     PhysVarHisto * h_type_     ;   //!<   &&& document this
     PhysVarHisto * h_nChambers_;   //!<   &&& document this
+
+//muon energy deposit analyzer
+    PhysVarHisto * ecalDepEnergy_;
+    PhysVarHisto * ecalS9DepEnergy_ ;
+    PhysVarHisto * hcalDepEnergy_ ;
+    PhysVarHisto * hcalS9DepEnergy_ ;
+    PhysVarHisto * hoDepEnergy_ ;
+    PhysVarHisto * hoS9DepEnergy_ ;
+/*
+// muon seed analyzer
+    PhysVarHisto * NumberOfRecHitsPerSeed_ ;
+    PhysVarHisto * seedPhi_ ;
+    PhysVarHisto * seedEta_ ;
+    PhysVarHisto * seedTheta_ ;
+    PhysVarHisto * seedPt_ ;
+    PhysVarHisto * seedPx_ ;
+    PhysVarHisto * seedPy_ ;
+    PhysVarHisto * seedPz_ ;
+    PhysVarHisto * seedPtErr_ ;
+    PhysVarHisto * seedPtErrVsPhi_ ;
+    PhysVarHisto * seedPtErrVsEta_ ;
+    PhysVarHisto * seedPtErrVsPt_ ;
+    PhysVarHisto * seedPxErr_ ;
+    PhysVarHisto * seedPyErr_ ;
+    PhysVarHisto * seedPzErr_ ;
+    PhysVarHisto * seedPErr_ ;
+    PhysVarHisto * seedPErrVsPhi_ ;
+    PhysVarHisto * seedPErrVsEta_ ;
+    PhysVarHisto * seedPErrVsPt_ ;
+    PhysVarHisto * seedPhiErr_ ;
+    PhysVarHisto * seedEtaErr_ ;
+*/
+// muon reco analyzer
+    PhysVarHisto * muReco_ ;
+// global muon
+    std::vector<PhysVarHisto *> etaGlbTrack_ ;
+    std::vector<PhysVarHisto *> etaResolution_ ;
+    std::vector<PhysVarHisto *> thetaGlbTrack_ ;
+    std::vector<PhysVarHisto *> thetaResolution_ ;
+    std::vector<PhysVarHisto *> phiGlbTrack_ ;
+    std::vector<PhysVarHisto *> phiResolution_ ;
+    std::vector<PhysVarHisto *> pGlbTrack_ ;
+    std::vector<PhysVarHisto *> ptGlbTrack_ ;
+    std::vector<PhysVarHisto *> qGlbTrack_ ;
+    std::vector<PhysVarHisto *> qOverpResolution_ ;
+    std::vector<PhysVarHisto *> qOverptResolution_ ;
+    std::vector<PhysVarHisto *> oneOverpResolution_ ;
+    std::vector<PhysVarHisto *> oneOverptResolution_ ;
+
+// tracker muon
+    PhysVarHisto * etaTrack_ ;
+    PhysVarHisto * thetaTrack_ ;
+    PhysVarHisto * phiTrack_ ;
+    PhysVarHisto * pTrack_ ;
+    PhysVarHisto * ptTrack_ ;
+    PhysVarHisto * qTrack_ ;
+//sta muon
+    PhysVarHisto * etaStaTrack_ ;
+    PhysVarHisto * thetaStaTrack_ ;
+    PhysVarHisto * phiStaTrack_ ;
+    PhysVarHisto * pStaTrack_ ;
+    PhysVarHisto * ptStaTrack_ ;
+    PhysVarHisto * qStaTrack_ ;
+
+// segment track analyzer
+// GlbTrack
+    PhysVarHisto * GlbhitsNotUsed_ ;
+    PhysVarHisto * GlbhitsNotUsedPercentual_ ;
+    PhysVarHisto * GlbTrackSegm_ ;
+    PhysVarHisto * GlbhitStaProvenance_ ;
+    PhysVarHisto * GlbhitTkrProvenance_ ;
+    PhysVarHisto * GlbtrackHitPercentualVsEta_ ;
+    PhysVarHisto * GlbtrackHitPercentualVsPhi_ ;
+    PhysVarHisto * GlbtrackHitPercentualVsPt_ ;
+    PhysVarHisto * GlbdtTrackHitPercentualVsEta_ ;
+    PhysVarHisto * GlbdtTrackHitPercentualVsPhi_ ;
+    PhysVarHisto * GlbdtTrackHitPercentualVsPt_ ;
+    PhysVarHisto * GlbcscTrackHitPercentualVsEta_ ;
+    PhysVarHisto * GlbcscTrackHitPercentualVsPhi_ ;
+    PhysVarHisto * GlbcscTrackHitPercentualVsPt_ ;
+
+
+// StandAlone Muon
+    PhysVarHisto * StahitsNotUsed_ ;
+    PhysVarHisto * StahitsNotUsedPercentual_ ;
+    PhysVarHisto * StaTrackSegm_ ;
+    PhysVarHisto * StahitStaProvenance_ ;
+    PhysVarHisto * StahitTkrProvenance_ ;
+    PhysVarHisto * StatrackHitPercentualVsEta_ ;
+    PhysVarHisto * StatrackHitPercentualVsPhi_ ;
+    PhysVarHisto * StatrackHitPercentualVsPt_ ;
+    PhysVarHisto * StadtTrackHitPercentualVsEta_ ;
+    PhysVarHisto * StadtTrackHitPercentualVsPhi_ ;
+    PhysVarHisto * StadtTrackHitPercentualVsPt_ ;
+    PhysVarHisto * StacscTrackHitPercentualVsEta_ ;
+    PhysVarHisto * StacscTrackHitPercentualVsPhi_ ;
+    PhysVarHisto * StacscTrackHitPercentualVsPt_ ;
+
+
+
   };
 }
 #endif

@@ -72,8 +72,49 @@ namespace pat {
     void clearVec();
   protected:
 
+    float  phiNormalization( float& a);
+
+
     PhysVarHisto *    h_trackIso_;
     PhysVarHisto *    h_caloIso_;
+
+
+    PhysVarHisto *    p_nTrackIsol_;
+    PhysVarHisto *    p_trackPtSum_;
+    PhysVarHisto *    p_ecalSum_;
+    PhysVarHisto *    p_hcalSum_;
+
+    PhysVarHisto *    h_nPho_[2][3];
+    PhysVarHisto *    h_scEta_[2];
+    PhysVarHisto *    h_scPhi_[2];
+    PhysVarHisto *    h_scEtaPhi_[2];
+
+    PhysVarHisto *    h_scE_[2][3];
+    PhysVarHisto *    h_scEt_[2][3];
+
+    PhysVarHisto *    h_r9_[2][3];
+    PhysVarHisto *    h_phoE_[2][3];
+    PhysVarHisto *    h_phoEt_[2][3];
+    PhysVarHisto *    h_phoEta_[2];
+    PhysVarHisto *    h_phoPhi_[2];
+
+//  conversion infos
+
+    PhysVarHisto *    h_nConv_[2][3];
+    PhysVarHisto *    h_convEta_[2];
+    PhysVarHisto *    h_convPhi_[2];
+    PhysVarHisto *    h_r9VsNofTracks_[2][3];
+    PhysVarHisto *    h_EoverPTracks_[2][3];
+    PhysVarHisto *    p_tk_nHitsVsEta_[2];
+    PhysVarHisto *    h_tkChi2_[2];
+    PhysVarHisto *    h_DPhiTracksAtVtx_[2][3];
+    PhysVarHisto *    h_DCotTracks_[2][3];
+    PhysVarHisto *    h_invMass_[2][3];
+    PhysVarHisto *    h_DPhiTracksAtEcal_[2][3];
+    PhysVarHisto *    h_DEtaTracksAtEcal_[2][3];
+
+    PhysVarHisto *    h_convVtxRvsZ_[2];
+    PhysVarHisto *    h_zPVFromTracks_[2];
 
   };
 

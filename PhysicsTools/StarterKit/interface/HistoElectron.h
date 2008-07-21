@@ -76,6 +76,56 @@ namespace pat {
     PhysVarHisto *    h_caloIso_;
     PhysVarHisto *    h_leptonID_;
 
+    PhysVarHisto *    h_ele_matchingObjectEta_;
+    PhysVarHisto *    h_ele_matchingObjectPt_;
+    PhysVarHisto *    h_ele_matchingObjectPhi_;
+    PhysVarHisto *    h_ele_matchingObjectZ_;
+
+    PhysVarHisto *    h_ele_matchingObjectEta_matched_;
+    PhysVarHisto *    h_ele_matchingObjectPt_matched_;
+    PhysVarHisto *    h_ele_matchingObjectPhi_matched_;
+    PhysVarHisto *    h_ele_matchingObjectZ_matched_;
+
+    // electron basic quantities
+    PhysVarHisto *    h_ele_vertexP_;
+    PhysVarHisto *    h_ele_vertexPt_;
+    PhysVarHisto *    h_ele_vertexEta_;
+    PhysVarHisto *    h_ele_vertexPhi_;
+    PhysVarHisto *    h_ele_vertexX_;
+    PhysVarHisto *    h_ele_vertexY_;
+    PhysVarHisto *    h_ele_vertexZ_;
+    PhysVarHisto *    h_ele_charge_;
+
+    //  electron matching and ID
+    PhysVarHisto *    h_ele_EoP_;
+    PhysVarHisto *    h_ele_EoPout_;
+    PhysVarHisto *    h_ele_dEtaSc_propVtx_;
+    PhysVarHisto *    h_ele_dPhiSc_propVtx_;
+    PhysVarHisto *    h_ele_dPhiCl_propOut_;
+    PhysVarHisto *    h_ele_HoE_;
+    PhysVarHisto *    h_ele_PinMnPout_mode_;
+    PhysVarHisto *    h_ele_classes_;
+    PhysVarHisto *    h_ele_eta_golden_;
+    PhysVarHisto *    h_ele_eta_shower_;
+    PhysVarHisto *    h_ele_eta_goldenFrac_;
+    PhysVarHisto *    h_ele_eta_showerFrac_;
+
+
+    PhysVarHisto *    h_ele_eta_;
+
+
+    //electron track
+    PhysVarHisto *    h_ele_foundHits_;
+    PhysVarHisto *    h_ele_chi2_;
+
+    //efficiencies
+    PhysVarHisto *    h_ele_etaEff_;
+    PhysVarHisto *    h_ele_ptEff_;
+    PhysVarHisto *    h_ele_phiEff_;
+    PhysVarHisto *    h_ele_zEff_;
+
+
+
   };
 
 }

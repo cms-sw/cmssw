@@ -50,6 +50,28 @@ HistoMET::HistoMET( std::string dir, std::string group,std::string pre,
 	    new PhysVarHisto( pre + "EmEtInHF",           "MET emEtInHF",            20, pt1, pt2, currDir_, "", "vD")  );
 
 
+  addHisto( jetME_           =
+            new PhysVarHisto( pre + "caloMETReco", "caloMETReco", 3, 1, 4, currDir_, "", "vD")  );
+/*
+  addHisto( hNevents_           =
+            new PhysVarHisto( pre + "METTaskNevents","METTask_Nevents",1,0,1, currDir_, "", "vD")  );
+*/
+  addHisto( hCaloMEx_           =
+            new PhysVarHisto( pre + "METTaskCaloMEx","METTask_CaloMEx",2001,-500,501, currDir_, "", "vD")  );
+  addHisto( hCaloMEy_           =
+            new PhysVarHisto( pre + "METTaskCaloMEy","METTask_CaloMEy",2001,-500,501, currDir_, "", "vD")  );
+  addHisto( hCaloEz_           =
+            new PhysVarHisto( pre + "METTaskCaloEz","METTask_CaloEz",2001,-500,501, currDir_, "", "vD")  );
+  addHisto( hCaloMET_           =
+            new PhysVarHisto( pre + "METTaskCaloMET","METTask_CaloMET",2001,0,2001, currDir_, "", "vD")  );
+  addHisto( hCaloMETPhi_           =
+            new PhysVarHisto( pre + "METTaskCaloMETPhi","METTask_CaloMETPhi",80,-4,4, currDir_, "", "vD")  );
+/*
+  addHisto( hCaloHadEtInEB_           =
+            new PhysVarHisto( pre + "METTaskCaloHadEtInEB","METTask_CaloHadEtInEB",4001,0,4001, currDir_, "", "vD")  );
+  addHisto( hCaloHadEtInEE_           =
+            new PhysVarHisto( pre + "METTaskCaloHadEtInEE","METTask_CaloHadEtInEE",4001,0,4001, currDir_, "", "vD")  );
+*/
 
 }
 
@@ -80,6 +102,17 @@ void HistoMET::fill( const MET * met, uint iPart, double weight)
   h_emEtInEB_           ->fill( met->emEtInEB()            , iPart , weight );            
   h_emEtInEE_           ->fill( met->emEtInEE()            , iPart , weight );            
   h_emEtInHF_           ->fill( met->emEtInHF()            , iPart , weight );            
+
+  jetME_          ->fill(  1     , iPart , weight );
+//  hNevents_          ->fill( met->      , iPart , weight );
+  hCaloMEx_          ->fill( met->px()      , iPart , weight );
+  hCaloMEy_          ->fill( met->py()      , iPart , weight );
+  hCaloEz_          ->fill(  met->pz()     , iPart , weight );
+  hCaloMET_          ->fill( met->pt()      , iPart , weight );
+  hCaloMETPhi_          ->fill(met->phi()       , iPart , weight );
+//  hCaloHadEtInEB_          ->fill( met->      , iPart , weight );
+//  hCaloHadEtInEE_          ->fill( met->      , iPart , weight );
+
 
 }
 
@@ -117,6 +150,18 @@ void HistoMET::fill( const reco::ShallowClonePtrCandidate * pshallow, uint iPart
   h_emEtInEE_           ->fill( met->emEtInEE()            , iPart , weight );            
   h_emEtInHF_           ->fill( met->emEtInHF()            , iPart , weight );            
 
+
+  jetME_          ->fill(  1     , iPart , weight );
+//  hNevents_          ->fill( met->      , iPart , weight );
+  hCaloMEx_          ->fill( met->px()      , iPart , weight );
+  hCaloMEy_          ->fill( met->py()      , iPart , weight );
+  hCaloEz_          ->fill(  met->pz()     , iPart , weight );
+  hCaloMET_          ->fill( met->pt()      , iPart , weight );
+  hCaloMETPhi_          ->fill(met->phi()       , iPart , weight );
+//  hCaloHadEtInEB_          ->fill( met->      , iPart , weight );
+//  hCaloHadEtInEE_          ->fill( met->      , iPart , weight );
+
+
 }
 
 
@@ -138,4 +183,29 @@ void HistoMET::fillCollection( const std::vector<MET> & coll, double weight )
 void HistoMET::clearVec()
 {
   HistoGroup<MET>::clearVec();
+  h_sumEt_->clearVec();
+  h_mEtSig_->clearVec();
+  h_eLongitudinal_->clearVec();
+
+  h_maxEtInEmTowers_->clearVec();
+  h_maxEtInHadTowers_->clearVec();
+  h_etFractionHadronic_->clearVec();
+  h_emEtFraction_->clearVec();
+  h_hadEtInHB_->clearVec();
+  h_hadEtInHO_->clearVec();
+  h_hadEtInHE_->clearVec();
+  h_hadEtInHF_->clearVec();
+  h_emEtInEB_->clearVec();
+  h_emEtInEE_->clearVec();
+  h_emEtInHF_->clearVec();
+  jetME_->clearVec();
+  hCaloMEx_->clearVec();
+//  hNevents_->clearVec();
+  hCaloMEy_->clearVec();
+  hCaloEz_->clearVec();
+  hCaloMET_->clearVec();
+  hCaloMETPhi_->clearVec();
+//  hCaloHadEtInEB_->clearVec();
+//  hCaloHadEtInEE_->clearVec();
+
 }

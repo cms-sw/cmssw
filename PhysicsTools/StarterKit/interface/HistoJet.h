@@ -77,6 +77,53 @@ namespace pat {
     PhysVarHisto *    h_jetCharge_;
     PhysVarHisto *    h_nTrk_;
 
+    PhysVarHisto *    jetME_;
+
+   // Generic Jet Parameters
+//    PhysVarHisto *    mEta_;
+//    PhysVarHisto *    mPhi_;
+    PhysVarHisto *    mE_;
+    PhysVarHisto *    mP_;
+//    PhysVarHisto *    mPt_;
+    PhysVarHisto *    mPt_1_;
+    PhysVarHisto *    mPt_2_;
+    PhysVarHisto *    mPt_3_;
+//    PhysVarHisto *    mMass_;
+    PhysVarHisto *    mConstituents_;
+
+ // Leading Jet Parameters
+    PhysVarHisto *    mEtaFirst_;
+    PhysVarHisto *    mPhiFirst_;
+    PhysVarHisto *    mEFirst_;
+    PhysVarHisto *    mPtFirst_;
+
+ // CaloJet specific
+    PhysVarHisto *    mMaxEInEmTowers_;
+    PhysVarHisto *    mMaxEInHadTowers_;
+    PhysVarHisto *    mHadEnergyInHO_;
+    PhysVarHisto *    mHadEnergyInHB_;
+    PhysVarHisto *    mHadEnergyInHF_;
+    PhysVarHisto *    mHadEnergyInHE_;
+    PhysVarHisto *    mEmEnergyInEB_;
+    PhysVarHisto *    mEmEnergyInEE_;
+    PhysVarHisto *    mEmEnergyInHF_;
+    PhysVarHisto *    mEnergyFractionHadronic_;
+    PhysVarHisto *    mEnergyFractionEm_;
+    PhysVarHisto *    mN90_;
+/*
+  // PFlowJet specific
+    PhysVarHisto *    mChargedHadronEnergy_;
+    PhysVarHisto *    mNeutralHadronEnergy_;
+    PhysVarHisto *    mChargedEmEnergy_;
+    PhysVarHisto *    mChargedMuEnergy_;
+    PhysVarHisto *    mNeutralEmEnergy_;
+    PhysVarHisto *    mChargedMultiplicity_;
+    PhysVarHisto *    mNeutralMultiplicity_;
+    PhysVarHisto *    mMuonMultiplicity_;
+
+    PhysVarHisto *    mNeutralFraction_;
+*/
+
   };
 
 }
