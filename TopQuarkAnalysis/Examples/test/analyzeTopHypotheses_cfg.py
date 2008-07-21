@@ -44,16 +44,24 @@ process.load("TopQuarkAnalysis.TopObjectProducers.tqafLayer1_full_cff")
 process.p0 = cms.Path(process.tqafLayer1)
 
 #-------------------------------------------------
-# analyze muons
+# to produce TQAF relevant Layer 2 parts if not
+# already place uncomment the following three
+# lines
 #-------------------------------------------------
-from TopQuarkAnalysis.Examples.TopMuonAnalyzer_cfi import analyzeMuon
-process.analyzeMuon = analyzeMuon
+process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttGenEvent_cff")
+process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttSemiEventBuilder_cff")
+process.p1 = cms.Path(process.makeGenEvt * process.makeTtSemiEvent)
+
+#-------------------------------------------------
+# analyze jets
+#-------------------------------------------------
+process.load("TopQuarkAnalysis.Examples.HypothesisAnalyzer_cff")
 
 # register TFileService
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('analyzeTopMuon.root')
+    fileName = cms.string('analyzeHypotheses.root')
 )
 
 ## end path   
-process.p1 = cms.Path(process.analyzeMuon)
+process.p2 = cms.Path(process.analyzeAllHypotheses)
 

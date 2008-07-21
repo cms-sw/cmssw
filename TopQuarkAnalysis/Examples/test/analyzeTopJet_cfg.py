@@ -44,16 +44,16 @@ process.load("TopQuarkAnalysis.TopObjectProducers.tqafLayer1_full_cff")
 process.p0 = cms.Path(process.tqafLayer1)
 
 #-------------------------------------------------
-# analyze muons
+# analyze jets
 #-------------------------------------------------
-from TopQuarkAnalysis.Examples.TopMuonAnalyzer_cfi import analyzeMuon
-process.analyzeMuon = analyzeMuon
+from TopQuarkAnalysis.Examples.TopJetAnalyzer_cfi import analyzeJet
+process.analyzeJet = analyzeJet
 
 # register TFileService
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('analyzeTopMuon.root')
+    fileName = cms.string('analyzeTopJet.root')
 )
 
 ## end path   
-process.p1 = cms.Path(process.analyzeMuon)
+process.p1 = cms.Path(process.analyzeJet)
 
