@@ -21,10 +21,10 @@ if(&GetOptions(
 	       "--dictclasses=s",\$dictclasses,
 	       "--linkdef=s",\$linkdef,
 	       "--iglet=s",\$iglet,
-	       "--tmprelease=s",\$tmprel,
+	       "--tmpdir=s",\$tmpdir,
 	       "--buildfile=s",\$buildfilename,
 	       "--config=s",\$configfile,
-	       "--chksym",\$chksym,
+	       "--jobs=i",\$jobs,
 	       "--help",\$help,
 	       "--plugin",\$plugin,
 	       "--clean",\$clean,
@@ -38,16 +38,17 @@ my $hdext="h|hh|inc|ii|i|icpp|icc";
 my $pwd=`/bin/pwd`; chomp $pwd;
 my $cache={};
 $SCRAMGenUtils::InternalCache=$cache;
+$SCRAMGenUtils::CacheType=1;
 
 if(defined $help){&usage_msg();}
 if(defined $plugin){$plugin=1;}
 else{$plugin=0;}
 if(defined $xml){$xml="--xml";}
 else{$xml="";}
-if(defined $chksym){$chksym=1;}
-else{$chksym=0;}
 if(defined $detail){$detail=1;}
 else{$detail=0;}
+$SCRAMGenUtils::DEBUG=$detail;
+
 if((!defined $prodname) || ($prodname=~/^\s*$/)){$prodname="";}
 else{$prodname=~s/^\s*//;$prodname=~s/\s*$//;}
 if((!defined $dictclasses) || ($dictclasses=~/^\s*$/)){$dictclasses='^.+?\/classes\.h$';}
@@ -60,19 +61,43 @@ if($dir!~/^\//){$dir="${pwd}/${dir}";}
 $dir=&SCRAMGenUtils::fixPath($dir);
 my $release=&SCRAMGenUtils::scramReleaseTop($dir);
 if($release eq ""){print STDERR "ERROR: Directory \"$dir\" does not exist under a SCRAM-based project area.\n";exit 1;}
+my $releasetop=&SCRAMGenUtils::getFromEnvironmentFile("RELEASETOP",$release);
+my $envcache=&SCRAMGenUtils::getEnvironmentFileCache($release);
+&SCRAMGenUtils::init($release);
 
 if((defined $refbf) && ($refbf!~/^\s*$/))
 {if(!-f $refbf){print STDERR "ERROR: Reference BuildFile \"$refbf\" does not exist.\n"; exit 1;}}
 else{$refbf="";}
+if ($refbf eq "")
+{
+  my $bf="${dir}/BuildFile.xml";
+  if(!-f $bf){$bf="${dir}/BuildFile";}
+  if (-f $bf){$refbf=$bf;}
+}
+if ($refbf=~/\.xml$/){$xml="--xml";}
 
-$SCRAMGenUtils::DEBUG=$detail;
+if((!defined $buildfilename) || ($buildfilename=~/^\s*$/)){$buildfilename="";}
+elsif($buildfilename!~/^\//){$buildfilename="${pwd}/${buildfilename}";}
+if($buildfilename)
+{
+  $buildfilename=&SCRAMGenUtils::fixPath($buildfilename);
+  my $d=dirname($buildfilename);
+  if(!-d $d){system("mkdir -p $d");}
+}
+
 my $project=&SCRAMGenUtils::getFromEnvironmentFile("SCRAM_PROJECTNAME","$release");
-my $baserelease=&SCRAMGenUtils::getFromEnvironmentFile("RELEASETOP","$release");
 $project=lc($project);
 
 my $pkgsrcdir=&run_func("pkg_src",$project,$dir);
 if ($pkgsrcdir eq ""){print STDERR "ERROR: Script not ready yet to work for \"$project\" SCRAM-based project.\n"; exit 1;}
 my $pkginterfacedir=&run_func("pkg_interface",$project,$dir);
+
+my $scramarch=&SCRAMGenUtils::getScramArch();
+if((!defined $tmpdir) || ($tmpdir=~/^\s*$/))
+{
+  $tmpdir="${release}/tmp/AutoBuildFile";
+  if($pwd!~/^$release(\/.*|)$/){$tmpdir="${pwd}/AutoBuildFile";}
+}
 
 my $ccfiles=0;
 my $isPackage=0;
@@ -95,7 +120,16 @@ if(scalar(@files)==0)
       elsif($f=~/\.($srcext)$/i){push @files,"${dir}/${pkginterfacedir}/${f}";}
     }
   }
-  if(scalar(@files)==0){exit 0;}
+  if(scalar(@files)==0)
+  {
+    if ($refbf && $buildfilename)
+    {
+      my $bf=basename($refbf);
+      if ($buildfilename=~/\/$bf\.auto$/){system("cp $refbf $buildfilename");}
+      else{&SCRAMGenUtils::convert2XMLBuildFile($refbf,$buildfilename);}
+    }
+    exit 0;
+  }
   else
   {
     $isPackage=1;
@@ -171,16 +205,11 @@ else
 }
 
 my $data={};
-$data->{EXTRA_SYMBOL_TOOLS}{castor}=1;
-$data->{EXTRA_SYMBOL_TOOLS}{herwig}=1;
-$data->{EXTRA_SYMBOL_TOOLS}{lhapdf}=1;
-$data->{EXTRA_SYMBOL_TOOLS}{pythia6}=1;
-$data->{EXTRA_SYMBOL_TOOLS}{pythia}=1;
-$data->{EXTRA_SYMBOL_TOOLS}{jimmy}=1;
-
 $data->{EXTRA_TOOL_INFO}{opengl}{INCLUDE}{"/usr"}=1;
 $data->{EXTRA_TOOL_INFO}{opengl}{INCLUDE}{"/usr/include"}=1;
-$data->{EXTRA_TOOL_INFO}{opengl}{INCLUDE_SEARCH_REGEXP}{"^GL\/.+"}=1;
+$data->{EXTRA_TOOL_INFO}{opengl}{INCLUDE_SEARCH_REGEXP}{'^GL\/.+'}=1;
+
+$data->{EXTRA_TOOL_INFO}{'xerces-c'}{PRETOOL_INCLUDE_SEARCH_REGEXP}{'^xercesc\/.+'}=1;
 
 $data->{EXTRA_TOOL_INFO}{iguana}{FILES_PACKAGE_MAP}{'^classlib\/.+'}="Iguana/Utilities";
 $data->{EXTRA_TOOL_INFO}{iguana}{FILES_PACKAGE_MAP}{'^gl2ps.h$'}="Iguana/GL2PS";
@@ -195,47 +224,29 @@ $data->{EXTRA_TOOL_INFO}{boost}{FILES_PACKAGE_MAP}{'^boost\/program_options(\/|\
 $data->{EXTRA_TOOL_INFO}{boost}{FILES_PACKAGE_MAP}{'^boost\/regex(\/|[\.\_]).+'}="boost_regex";
 $data->{EXTRA_TOOL_INFO}{boost}{FILES_PACKAGE_MAP}{'^boost\/python(\/|\.).+'}="boost_python";
 
-if(($configfile ne "") && (-f "$configfile"))
-{
-  foreach my $line (`cat $configfile`)
-  {
-    chomp $line;
-    if(($line=~/^\s*#/) || ($line=~/^\s*$/)){next;}
-    my @x=split /:/,$line;
-    my $count=scalar(@x);
-    if($count<3){next;}
-    my $c=undef;
-    if($x[0] eq "DATA"){$c=$data;}
-    elsif($x[0] eq "CACHE"){$c=$cache;}
-    if(defined $c)
-    {
-      if($detail){print STDERR "#Configuring=>$line\n";}
-      my $i=0;
-      for($i=1;$i<$count-2;$i++)
-      {
-        my $y=$x[$i];
-	if(!exists $c->{$y}){$c->{$y}={};}
-	$c=$c->{$y};
-      }
-      $c->{$x[$i]}=$x[$i+1];
-    }
-  }
-}
-else{$configfile="";}
+$data->{PRODUCT_SEARCH_PATHS}{PACK}{lib}=1;
+$data->{PRODUCT_SEARCH_PATHS}{PACK}{"test/lib"}=1;
+$data->{PRODUCT_SEARCH_PATHS}{PACK}{"tests/lib"}=1;
+
+$data->{PRODUCT_SEARCH_PATHS}{PROD}{bin}=1;
+$data->{PRODUCT_SEARCH_PATHS}{PROD}{"test/bin"}=1;
+$data->{PRODUCT_SEARCH_PATHS}{PROD}{"tests/bin"}=1;
+$data->{PRODUCT_SEARCH_PATHS}{PROD}{"test"}=1;
+$data->{PRODUCT_SEARCH_PATHS}{PROD}{"tests"}=1;
+
+$data->{REMOVE_TOOLS}{UtilitiesRFIOAdaptorPlugin}{castor}=1;
+
+$data->{EXTRA_TOOLS}{test_RFIOAdaptor_put}{castor}=1;
+$data->{EXTRA_TOOLS}{RFIOCastorPlugin}{castor}=1;
+$data->{EXTRA_TOOLS}{RFIODPMPlugin}{dpm}=1;
+
+$configfile=&SCRAMGenUtils::updateConfigFileData($configfile,$data,$caahe);
 $data->{bfflags}=[];
 foreach my $f (@flags){push @{$data->{bfflags}},$f;}
 
-my $scramarch=&SCRAMGenUtils::getScramArch();
-if((!defined $tmprel) || ($tmprel=~/^\s*$/))
-{
-  $tmprel="${release}/tmp/AutoBuildFile";
-  if($pwd!~/^$release(\/.*|)$/){$tmprel="${pwd}/AutoBuildFile";}
-}
-&SCRAMGenUtils::init($tmprel);
-my $cachedir="${tmprel}/bfcache/${scramarch}";
+my $cachedir="${tmpdir}/${scramarch}";
 if(!-d $cachedir){system("mkdir -p $cachedir");}
 my $cachefile="${cachedir}/toolcache";
-my $symbolfile="${cachedir}/symbols.txt";
 my $inccachefile="${cachedir}/include_chace.txt";
 my $prodfile="${cachedir}/product.cache";
 my $inccache={};
@@ -248,16 +259,6 @@ if((!defined $clean) && (-f "$cachefile"))
   print STDERR "Reading previously save internal cache $cachefile.\n";
   $cache=&SCRAMGenUtils::readHashCache("$cachefile");
   $SCRAMGenUtils::InternalCache=$cache;
-  if($chksym)
-  {
-    if(-f $symbolfile){$data->{symbols}=&SCRAMGenUtils::readHashCache($symbolfile);}
-    else
-    {
-      print STDERR "ERROR: There is no symbols file \"$symbolfile\". May be you have delete it by hand.\n";
-      print STDERR "Please try running with --clean command-line option to regenerate this file.\n";
-      exit 1;
-    }
-  }
 }
 else
 {
@@ -265,25 +266,16 @@ else
   &update_project_cache($cache);
   $cache->{IGNORE_BASETOOLS}{rootrflx}=1;
   $cache->{IGNORE_BASETOOLS}{boost_python}=1;
-  if(exists $cache->{SYMBOLS})
-  {&SCRAMGenUtils::writeHashCache($cache->{SYMBOLS},$symbolfile);}
-  else{system("touch $symbolfile");}
-  if($chksym){$data->{symbols}=$cache->{SYMBOLS};}
-  else{delete $cache->{SYMBOLS};}
   &save_toolcache();
 }
 
 if(-f $inccachefile){$inccache=&SCRAMGenUtils::readHashCache($inccachefile);}
-
-if(exists $cache->{COMPILER}){$data->{compilecmd}=$cache->{COMPILER}." ".$cache->{CXXFLAGS}." ".$cache->{CXXINCLUDE};}
-else{print STDERR "#WARNING: No compiler found. So script is not going to parse the file for seal plugin macros.\n";}
-
-if ($refbf eq "")
+if(exists $cache->{COMPILER})
 {
-  my $bf="${dir}/BuildFile.xml";
-  if(!-f $bf){$bf="${dir}/BuildFile";}
-  if (-f $bf){$refbf=$bf;}
+  $data->{compilecmd}=$cache->{COMPILER};
+  $data->{compileflags}=$cache->{CXXFLAGS}." ".$cache->{CXXINCLUDE};
 }
+else{print STDERR "#WARNING: No compiler found. So script is not going to parse the file for seal plugin macros.\n";}
 
 foreach my $f ("EDM_PLUGIN", "SEALPLUGIN", "SEAL_PLUGIN_NAME", "NO_LIB_CHECKING", "GENREFLEX_FAILES_ON_WARNS", "ROOTMAP", "ADD_SUBDIR", "CODEGENPATH")
 {$data->{sflags}{$f}=1;}
@@ -316,8 +308,9 @@ if($refbf && (-f $refbf))
       foreach my $f1 (keys %{$c->{flags}})
       {
         my $v=$c->{flags}{$f1};
-	if($f1 eq "CPPDEFINES"){foreach my $fv (@$v){$exflags.=" -D".$fv->{v};}}
-	elsif($f1 eq "CXXFLAGS"){foreach my $fv (@$v){$exflags.=" ".$fv->{v};}}
+	if($f1 eq "CPPDEFINES"){foreach my $fv (@$v){$exflags .=" -D".&replaceVariables($fv->{v});}}
+	elsif($f1 eq "CXXFLAGS"){foreach my $fv (@$v){$exflags.="   ".&replaceVariables($fv->{v});}}
+	elsif($f1 eq "CPPFLAGS"){foreach my $fv (@$v){$exflags.="   ".&replaceVariables($fv->{v});}}
 	elsif($f1 eq "LCG_DICT_HEADER")
 	{
 	  my $lcgreg="";
@@ -368,7 +361,9 @@ if($isPackage || ($prodtype eq "library"))
       $f=&SCRAMGenUtils::fixPath("${d}/${f}");
       if($f=~/$dictclasses/)
       {
-        $plugin=-1;$data->{deps}{src}{rootrflx}=1;$data->{deps}{src}{rootrflx}=1;$ccfiles++;
+        $plugin=-1;
+	$data->{deps}{src}{rootrflx}=1;
+	$ccfiles++;
 	my $found=0;
 	foreach my $f1 (@files){if($f1 eq $f){$found=1;last;}}
 	if(!$found){push @files,$f;}
@@ -380,34 +375,44 @@ if($isPackage || ($prodtype eq "library"))
 }
 
 print STDERR "Reading source files\n";
+my $srcfiles=[];
 foreach my $file (@files)
 {
   &process_cxx_file ($file,$data);
-  if($file=~/\.($srcext)$/i)
+  if ($file=~/\.($srcext)$/i)
   {
-    if($file!~/\.(f|f77)$/i)
-    {&SCRAMGenUtils::searchPreprocessedFile($file,$data,$exflags);}
-    else{$fortrancode=1;print "FORTRAN FILE:$file\n";}
-    if((exists $data->{searchPreprocessed}{sealplugin}) && (exists $data->{searchPreprocessed}{sealplugin}{file}))
-    {$srcplugin=$data->{searchPreprocessed}{sealplugin}{file};delete $data->{searchPreprocessed}{sealplugin};}
-    if((exists $data->{searchPreprocessed}{edmplugin}) && (exists $data->{searchPreprocessed}{edmplugin}{file}))
-    {$srcedmplugin=$data->{searchPreprocessed}{edmplugin}{file};delete $data->{searchPreprocessed}{edmplugin};}
-    if((exists $data->{searchPreprocessed}{main}) && (exists $data->{searchPreprocessed}{main}{file}))
-    {
-      my $f=$data->{searchPreprocessed}{main}{file};
-      if(($prodtype ne "") && ($prodtype ne "bin"))
-      {print STDERR "\"$prodname\" seemed like a \"bin\" product because there is \"main()\" exists in \"f\" file.\n";}
-      else{$prodtype="bin";}
-      if($detail){print STDERR "Executable:$prodname:$f\n";}
-      delete $data->{searchPreprocessed}{main};
-    }
-    if((exists $data->{searchPreprocessed}{castor}) && (exists $data->{searchPreprocessed}{castor}{file}))
-    {
-      my $f=$data->{searchPreprocessed}{castor}{file};
-      if($detail){print STDERR "Castor Dependency:$prodname:$f\n";}
-      $castor=1;
-      delete $data->{searchPreprocessed}{castor};
-    }
+    if($file!~/\.(f|f77)$/i){push @$srcfiles,$file;}
+    elsif(!$fortrancode){$fortrancode=1;print STDERR "FORTRAN FILE:$file\n";}
+  }
+}
+if (scalar(@$srcfiles)>0)
+{
+  &SCRAMGenUtils::searchPreprocessedFile($srcfiles,$data,$exflags);
+  if((exists $data->{searchPreprocessed}{sealplugin}) && (exists $data->{searchPreprocessed}{sealplugin}{file}))
+  {
+    $srcplugin=$data->{searchPreprocessed}{sealplugin}{file};
+    delete $data->{searchPreprocessed}{sealplugin};
+  }
+  if((exists $data->{searchPreprocessed}{edmplugin}) && (exists $data->{searchPreprocessed}{edmplugin}{file}))
+  {
+    $srcedmplugin=$data->{searchPreprocessed}{edmplugin}{file};
+    delete $data->{searchPreprocessed}{edmplugin};
+  }
+  if((exists $data->{searchPreprocessed}{main}) && (exists $data->{searchPreprocessed}{main}{file}))
+  {
+    my $f=$data->{searchPreprocessed}{main}{file};
+    if(($prodtype ne "") && ($prodtype ne "bin"))
+    {print STDERR "\"$prodname\" seemed like a \"bin\" product because there is \"main()\" exists in \"f\" file.\n";}
+    else{$prodtype="bin";}
+    if($detail){print STDERR "Executable:$prodname:$f\n";}
+    delete $data->{searchPreprocessed}{main};
+  }
+  if((exists $data->{searchPreprocessed}{castor}) && (exists $data->{searchPreprocessed}{castor}{file}))
+  {
+    my $f=$data->{searchPreprocessed}{castor}{file};
+    if($detail){print STDERR "Castor Dependency:$prodname:$f\n";}
+    $castor=1;
+    delete $data->{searchPreprocessed}{castor};
   }
 }
 print STDERR "....\n";
@@ -420,7 +425,7 @@ $pack=~s/^$release\/src\///;
 if($detail && $srcplugin){print STDERR "SealPlugin:$prodname:$srcplugin\n";}
 if($detail && $srcedmplugin){print STDERR "EDMPlugin:$prodname:$srcedmplugin\n";}
 
-if($fortrancode){$data->{deps}{src}{pythia6}=1;$data->{deps}{src}{genser}=1;}
+if($fortrancode){foreach my $t ("pythia6","genser"){if (exists $cache->{TOOLS}{$t}){$data->{deps}{src}{$t}=1;}}}
 if($plugin==-1)
 {
   my $err=0;
@@ -447,7 +452,11 @@ elsif(($srcplugin ne "") || ($srcedmplugin ne "")){$plugin=1;}
 
 my $defaultplugintype=uc(&run_func("defaultplugin",$project));
 if(($dir=~/\/sealplugins$/) || ($dir=~/\/plugins$/))
-{if($plugin <= 0){push @{$data->{bfflags}},"${defaultplugintype}PLUGIN=0";}}
+{
+  if($plugin <= 0){push @{$data->{bfflags}},"${defaultplugintype}PLUGIN=0";}
+  elsif(($srcplugin ne "") && ($defaultplugintype eq "EDM_")){push @{$data->{bfflags}},"SEALPLUGIN=1";}
+  elsif(($srcedmplugin ne "") && ($defaultplugintype eq "SEAL")){push @{$data->{bfflags}},"EDM_PLUGIN=1";}
+}
 elsif($plugin>0)
 {
   if($srcplugin ne ""){push @{$data->{bfflags}},"SEALPLUGIN=1";}
@@ -482,26 +491,25 @@ foreach my $f (@{$data->{bfflags}})
 }
 
 # Extra tool/package to export
-foreach my $x (&commaSepDeps(\@export,$cache,"${prodname}export"))
-{$data->{deps}{src}{$x}=1;}
+foreach my $x (&commaSepDeps(\@export,$cache,"${prodname}export")){$data->{deps}{src}{$x}=1;}
 
 # Extra tool/package not to export
 foreach my $x (&commaSepDeps(\@nexport,$cache,"${prodname}no-export"))
 {
-  if(exists $data->{deps}{src}{$x})
-  {print STDERR "MSG:Removed dependency on \"$x\" due to no-export arguments.\n";}
+  if(exists $data->{deps}{src}{$x}){print STDERR "MSG:Removed dependency on \"$x\" due to no-export arguments.\n";}
   delete $data->{deps}{src}{$x};
+  $data->{NO_EXPORT}{$x}=1;
 }
 
 # Extra tool/package to use
-foreach my $x (&commaSepDeps(\@use,$cache,"${prodname}use"))
-{$data->{deps}{src}{$x}=1;}
+foreach my $x (&commaSepDeps(\@use,$cache,"${prodname}use")){$data->{deps}{src}{$x}=1;}
 
 # Extra tool/package not to use
 foreach my $x (&commaSepDeps(\@nuse,$cache,"${prodname}no-use"))
 {
   if(exists $data->{deps}{src}{$x}){print STDERR "MSG:Removed dependency on \"$x\" due to no-use arguments.\n";}
   delete $data->{deps}{src}{$x};
+   $data->{NO_USE}{$x}=1;
 }
 
 # Extra tool/package replacement
@@ -532,45 +540,29 @@ if((-f $prodfile) && (!-d STDIN))
     my $u1=&run_func("safename",$project,"${release}/src/${u}");
     if ($u1 ne "")
     {
-      if(exists $c->{$u1})
+      my $rep=&parentCommunication("PRODUCT_INFO:$u1");
+      if ($rep ne "NOT_EXISTS")
       {
-        if ((!exists $c->{$u1}{done}) && (!exists $c->{$u1}{skip}))
-	{
-          print "PLEASE_PROCESS_FIRST:$u\n";
-          my $res=<STDIN>;chomp $res;
-          if($res eq "PROCESSED:$u"){print "OK PROCESSING DONE FOR:$u\n";}
-          else{print "PARENT RESPONCE:$res\n"}
-	}
+        if ($rep eq "PROCESS"){&parentCommunication("PLEASE_PROCESS_FIRST:$u");}
       }
       elsif((-d "${release}/src/${u}/${pkgsrcdir}") || (-d "${release}/src/${u}/${pkginterfacedir}"))
       {
-	my $nsbfile="${tmprel}/src/${u}/BuildFile";
-	if($xml){$nsbfile="${tmprel}/src/${u}/BuildFile.xml";}
-	if(!-f $nsbfile)
+	my $nbfile="${tmpdir}/newBuildFile/src/${u}/BuildFile.auto";
+	if ($xml){$nbfile="${tmpdir}/newBuildFile/src/${u}/BuildFile.xml.auto";}
+	if(!-f $nbfile)
 	{
-	  my $nbfile="${tmprel}/newBuildFile/src/${u}/BuildFile.auto";
-	  if ($xml){$nbfile="${tmprel}/newBuildFile/src/${u}/BuildFile.xml.auto";}
+	  my $cmd="$0 --dir ${release}/src/${u} --buildfile $nbfile $xml ";
+	  if($configfile ne ""){$cmd.=" --config $configfile";}
+	  if($tmpdir ne ""){$cmd.=" --tmpdir $tmpdir";}
+	  if($jobs ne ""){$cmd.=" --jobs $jobs";}
+	  if($detail){$cmd.=" --detail";}
+	  print STDERR "MSG: Running $cmd\n";
+	  system("cd $pwd; $cmd");
 	  if(!-f $nbfile)
 	  {
-	    my $cmd="$0 --dir ${release}/src/${u} --buildfile $nbfile $xml ";
-	    if($configfile ne ""){$cmd.=" --config $configfile";}
-	    if($tmprel ne ""){$cmd.=" --tmprelease $tmprel";}
-	    if($detail){$cmd.=" --detail";}
-	    if($chksym){$cmd.=" --chksym";}
-	    print STDERR "MSG: Running $cmd\n";
-	    system("cd $pwd; $cmd");
-	    if(!-f $nbfile)
-	    {
-	      system("mkdir ${tmprel}/newBuildFile/src/${u}");
-	      if($xml){system("echo \"<export>\n  <flags DummyFlagToAvoidWarning=\"0\">\n</export>\" > $nbfile");}
-	      else{system("echo \"<export>\n  <flags DummyFlagToAvoidWarning=\"0\"/>\n</export>\" > $nbfile");}
-	    }
-	  }
-	  if(!-f $nsbfile)
-	  {
-	    my $nf="BuildFile";
-	    if($xml){$nf="BuildFile.xml";}
-	    system("mkdir ${tmprel}/src/${u}; cp $nbfile ${tmprel}/src/${u}/${nf}");
+	    system("mkdir -p ${tmpdir}/newBuildFile/src/${u}");
+	    if($xml){system("echo \"<export>\n  <flags DummyFlagToAvoidSCRAMWarning=\"0\">\n</export>\" > $nbfile");}
+	    else{system("echo \"<export>\n  <flags DummyFlagToAvoidSCRAMWarning=\"0\"/>\n</export>\" > $nbfile");}
 	  }
 	}
       }
@@ -581,123 +573,99 @@ if((-f $prodfile) && (!-d STDIN))
 if(exists $data->{deps}{src}{castor}){$castor=0;}
 
 my $sbuildfile="";
-if ($chksym)
-{
-  if(!-f "${tmprel}/.SCRAM/Environment")
-  {
-    $tmprel=&SCRAMGenUtils::createTmpReleaseArea($release,1,$tmprel);
-    system("cd $tmprel; $SCRAM_CMD b -r echo_CXX 2>&1 > /dev/null");
-  }
-  my $reldir=$dir; $reldir=~s/^$release\///;
-  my $bdir=dirname($reldir);
-  $bdir="${tmprel}/${bdir}";
-  my $bname=basename($dir);
-  system("rm -rf ${tmprel}/tmp/${scramarch}/${reldir} ${tmprel}/${reldir}; mkdir -p $bdir; cp -rpf $dir ${bdir}/${bname}");
-  my $bfs="";
-  foreach my $bf (`find ${tmprel}/${reldir} -name "BuildFile*" -type f`)
-  {
-    chomp $bf;
-    if($bf=~/\/BuildFile(\.xml|)$/){$bfs.=" $bf";}
-  }
-  system("rm -rf $bfs ${bdir}/${bname}/data");
-  $bdir.="/${bname}";
-  my $bfile="${bdir}/BuildFile";
-  if($xml){$bfile="${bdir}/BuildFile.xml";}
-  $sbuildfile=$bfile;
-  my $pflagval="";
-  if(exists $data->{flags}{NO_LIB_CHECKING}){$pflagval=$data->{flags}{NO_LIB_CHECKING};}
-  $data->{flags}{NO_LIB_CHECKING}=1;
-  my $err=0;
-  if ($isPackage)
-  {
-    &SCRAMGenUtils::printBuildFile($data,$bfile);
-    if($detail){print "#MSG:Going to compile $prodname\n";}
-    system("cd ${bdir}; $SCRAMGenUtils::SCRAM_CMD b -v -r -j 4 $prodname");
-    $err=$?;
-  }
-  if($xtools || $castor)
-  {
-    if (!$isPackage)
-    {
-      &SCRAMGenUtils::printBuildFile($data,$bfile);
-      if($detail){print "#MSG:Going to compile $prodname\n";}
-      system("cd ${bdir}; $SCRAMGenUtils::SCRAM_CMD b -v -r -j 4 $prodname");
-      $err=$?;
-    }
-    
-    my $tmppdir="${tmprel}/tmp/${scramarch}/${reldir}/${prodname}";
-    if($isPackage){$tmppdir="${tmprel}/tmp/${scramarch}/${reldir}/${pkgsrcdir}/${prodname}";}
-    my $tmpprod="${tmppdir}/lib${prodname}.so";
-    if($prodtype eq "bin"){$tmpprod="${tmppdir}/${prodname}";}
-    if(($prodtype ne "bin") && (-f $tmpprod))
-    {
-      my $missing=&SCRAMGenUtils::symbolChecking($tmpprod);
-      if($missing != 0)
-      {
-        my $sym=&SCRAMGenUtils::getLibSymbols($tmpprod);
-        &addToolFromSymbols($data,$sym);
-      }
-    }
-    elsif(($prodtype eq "bin") && ($err!=0))
-    {
-      my $objs=[];
-      foreach my $f (&SCRAMGenUtils::readDir($tmppdir,2))
-      {if($f=~/\.o$/){push @$objs,"${tmppdir}/${f}";}}
-      my $sym=&SCRAMGenUtils::getObjectFileSymbols($objs);
-      &addToolFromSymbols($data,$sym);
-    }
-  }
-  if (!$isPackage){system("rm -rf ${tmprel}/tmp/${scramarch}/${reldir} ${tmprel}/${reldir}");}
-  if($pflagval ne ""){$data->{flags}{NO_LIB_CHECKING}=$pflagval;}
-  else{delete $data->{flags}{NO_LIB_CHECKING};}
-}
-if((!defined $buildfilename) || ($buildfilename=~/^\s*$/)){$buildfilename="";}
-elsif($buildfilename!~/^\//){$buildfilename="${pwd}/${buildfilename}";}
-if($buildfilename)
-{
-  $buildfilename=&SCRAMGenUtils::fixPath($buildfilename);
-  my $d=dirname($buildfilename);
-  if(!-d $d){system("mkdir -p $d");}
-}
+my $prodname1=$prodname;
+if($srcedmplugin ne ""){$prodname1="plugin${prodname}.so";}
+elsif($prodtype eq "bin"){$prodname1=$prodname;}
+else{$prodname1="lib${prodname}.so";}
+&symbolCheck($prodname1);
+&extraProcessing($prodname);
 &SCRAMGenUtils::removeExtraLib ($cache,$data);
 &SCRAMGenUtils::printBuildFile($data, "$buildfilename");
-if ($chksym && $isPackage)
-{
-  if (-f $sbuildfile){system("mv $sbuildfile ${sbuildfile}.orig");}
-  system("cp $buildfilename $sbuildfile");
-  if(-f "${sbuildfile}.orig")
-  {system("touch -r ${sbuildfile}.orig $sbuildfile; rm -f ${sbuildfile}.orig");}
-}
-
 &final_exit("",0);
 #########################################
 #
-sub addToolFromSymbols ()
+sub findProductInRelease ()
 {
-  my $data=shift;
-  my $sym=shift;
-  my %ts=();
-  foreach my $s (keys %$sym)
+  my $prod=shift;
+  my $path="";
+  if ($prod=~/\.so$/)
   {
-    if($sym->{$s} ne "U"){next;}
-    foreach my $f (keys %{$data->{symbols}})
+    foreach my $d (keys %{$data->{PRODUCT_SEARCH_PATHS}{PACK}})
     {
-      my $lib=basename($f);
-      if((exists $data->{symbols}{$f}{sym}{$s}) && ($data->{symbols}{$f}{sym}{$s}=~/^(T|V)$/))
-      {foreach my $t (keys %{$data->{symbols}{$f}{tool}}){$ts{$t}{$s}=$lib;}}
+      foreach my $dir ($release,$releasetop)
+      {
+        if($dir eq ""){next;}
+	if(-f "${dir}/${d}/${scramarch}/${prod}"){$path="${dir}/${d}/${scramarch}/${prod}";last;}
+        elsif(-f "${dir}/${scramarch}/${d}/${prod}"){$path="${dir}/${d}/${scramarch}/${prod}";last;}
+      }
     }
   }
-  foreach my $t (keys %ts)
+  else
   {
-    $data->{deps}{src}{$t}=1;
-    print STDERR "EXTRA TOOL due to missing symbols:$t\n";
-    print "  SYMBOLS FOUND:\n";
-    foreach my $s (keys %{$ts{$t}})
+    foreach my $d (keys %{$data->{PRODUCT_SEARCH_PATHS}{PROD}})
     {
-      my $s1=`c++filt $s`; chomp $s1;
-      print "    $s1 =>$ts{$t}{$s}\n";
+      foreach my $dir ($release,$releasetop)
+      {
+        if($dir eq ""){next;}
+	if(-f "${dir}/${d}/${scramarch}/${prod}"){$path="${dir}/${d}/${scramarch}/${prod}";last;}
+        elsif(-f "${dir}/${scramarch}/${d}/${prod}"){$path="${dir}/${d}/${scramarch}/${prod}";last;}
+      }
     }
   }
+  return $path;
+}
+
+sub extraProcessing ()
+{
+  my $p=shift;
+  foreach my $t (keys %{$data->{EXTRA_TOOLS}{$p}}){$data->{deps}{src}{$t}=1;print STDERR "Added dependency(forced):$t\n";}
+  if (exists $data->{deps}{src})
+  {
+    foreach my $t (keys %{$data->{REMOVE_TOOLS}{$p}})
+    {if(exists $data->{deps}{src}{$t}){delete $data->{deps}{src}{$t};print STDERR "Removed dependency(forced):$t\n";}}
+  }
+}
+
+sub symbolCheck()
+{
+  my $p1=shift;
+  my $p=&findProductInRelease($p1);
+  if ($p eq ""){print STDERR "WARNING: Could not find product:$p1\n";return;}
+  my $res=&parentCommunication("SYMBOL_CHECK_REQUEST:$p:".join(",",keys %{$data->{deps}{src}}));
+  if ($res ne "")
+  {
+    my %tsx=();
+    foreach my $d (split /\s+/,$res)
+    {
+      my @x=split /:/,$d;
+      if(@x==3){$tsx{$x[0]}{$x[1]}=$x[2];}
+    }
+    foreach my $t (keys %tsx)
+    {
+      if (exists $data->{deps}{src}{$t}){next;}
+      elsif(exists $data->{NO_USE}{$t}){next;}
+      elsif(exists $data->{NO_EXPORT}{$t}){next;}
+      $data->{deps}{src}{$t}=1;
+      print STDERR "EXTRA TOOL due to missing symbols:$t\n";
+      print STDERR "  SYMBOLS FOUND:\n";
+      foreach my $s (keys %{$tsx{$t}})
+      {
+        my $s1=&SCRAMGenUtils::cppFilt ($s);
+        print STDERR "    $s1 =>$tsx{$t}{$s}\n";
+      }
+    }
+  }
+}
+
+sub parentCommunication ()
+{
+  my $msg=shift;
+  my $res=$msg;$res=~s/^([^:]+):.*/$1/; $res.="_DONE";
+  print "$msg\n";
+  my $rep=<STDIN>;chomp $rep;
+  if($rep=~/^$res:\s*(.*)$/){$rep=$1;}
+  else{print STDERR "$res FAILED\n$rep\n";$rep="";}
+  return $rep;
 }
 
 ##############################################################
@@ -728,6 +696,7 @@ sub process_cxx_file ()
       elsif(-f "${selfdir}/${inc}"){&process_cxx_file ("${selfdir}/${inc}",$data);}
       else
       {
+	my $id="";
 	my $info = &find_inc_file_path($inc);
 	my $fpath=$info->{fullpath};
 	#print STDERR "MSG:$inc:$fpath:",$info->{pack},"\n";
@@ -779,6 +748,27 @@ sub find_inc_file_path ()
       }
     }
   }
+  foreach my $t (keys %{$data->{EXTRA_TOOL_INFO}})
+  {
+    foreach my $exp (keys %{$data->{EXTRA_TOOL_INFO}{$t}{PRETOOL_INCLUDE_SEARCH_REGEXP}})
+    {
+      if($inc=~/$exp/)
+      {
+        my @incdirs=();
+	if (exists $data->{EXTRA_TOOL_INFO}{$t}{INCLUDE}){@incdirs=keys %{$data->{EXTRA_TOOL_INFO}{$t}{INCLUDE}};}
+	elsif((exists $cache->{TOOLS}{$t}) &&(exists $cache->{TOOLS}{$t}{INCLUDE})){@incdirs=@{$cache->{TOOLS}{$t}{INCLUDE}};}
+        foreach my $d (@incdirs)
+	{
+	  if(-f "${d}/${inc}")
+	  {
+	    $c->{pack}{$t}=1;
+	    $c->{fullpath}="${d}/${inc}";
+	    return $c;
+	  }
+	}
+      }
+    }
+  }
   foreach my $t (@{$cache->{OTOOLS}})
   {
     my $tool=$t;
@@ -811,7 +801,10 @@ sub find_inc_file_path ()
     {
       if($inc=~/$exp/)
       {
-        foreach my $d (keys %{$data->{EXTRA_TOOL_INFO}{$t}{INCLUDE}})
+        my @incdirs=();
+	if (exists $data->{EXTRA_TOOL_INFO}{$t}{INCLUDE}){@incdirs=keys %{$data->{EXTRA_TOOL_INFO}{$t}{INCLUDE}};}
+	elsif((exists $cache->{TOOLS}{$t}) &&(exists $cache->{TOOLS}{$t}{INCLUDE})){@incdirs=@{$cache->{TOOLS}{$t}{INCLUDE}};}
+	foreach my $d (@incdirs)
 	{
 	  if(-f "${d}/${inc}")
 	  {
@@ -832,17 +825,13 @@ sub final_exit()
   my $msg=shift;
   my $code=shift || 0;
   &save_toolcache();
-  print "$msg\n";
+  print STDERR "$msg\n";
   exit $code;
 }
 
 sub save_toolcache()
 {
   my $f=$cache->{dirty};
-  my $sym=undef;
-  if(exists $cache->{SYMBOLS})
-  {$sym=$cache->{SYMBOLS};}
-  delete $cache->{SYMBOLS};
   delete $cache->{dirty};
   if($f)
   {
@@ -852,7 +841,6 @@ sub save_toolcache()
   }
   if($inccache_dirty){&SCRAMGenUtils::writeHashCache($inccache,$inccachefile);}
   $inccache_dirty=0;
-  if(defined $sym){$cache->{SYMBOLS}=$sym;}
 }
 
 sub commaSepDeps ()
@@ -1060,6 +1048,8 @@ sub safename_iguana ()
 {return &safename_cms1(shift);}
 sub safename_cmssw ()
 {return &safename_cms2(shift);}
+sub safename_self ()
+{return &safename_cms2($project);}
 
 sub safename_cms1 ()
 {
@@ -1118,17 +1108,20 @@ sub update_project_cache ()
 {
   my $cache=shift;
   my $cf=&SCRAMGenUtils::fixCacheFileName("${release}/.SCRAM/${scramarch}/ToolCache.db");
-  if (!-f $cf){system("cd $release; $SCRAMGenUtils::SCRAM_CMD build -r echo_CXX 2>&1");}
+  if (!-f $cf){die "Can not find file for reading: $cf\n";}
   my $c=&SCRAMGenUtils::readCache($cf);
   my %allinc=();
   my $allincstr="";
   my $flags="";
-  foreach my $t (keys %{$c->{SETUP}})
+  $cache->{OTOOLS}=[];
+  foreach my $t (&SCRAMGenUtils::getOrderedTools($c))
   {
+    push @{$cache->{OTOOLS}},$t;
     my $bt=uc($t)."_BASE";
-    if($t eq "self"){$bt=uc($project)."_BASE";}
-    if(exists $c->{SETUP}{$t}{$bt})
-    {$cache->{TOOLS}{$t}{BASE}=$c->{SETUP}{$t}{$bt};}
+    my $sproj=$c->{SETUP}{$t}{SCRAM_PROJECT} || 0;
+    $cache->{TOOLS}{$t}{SCRAM_PROJECT}=$sproj;
+    if($t eq "self"){$bt=uc($project)."_BASE";$sproj=1;$bt=$release;}
+    elsif(exists $c->{SETUP}{$t}{$bt}){$cache->{VARS}{$bt}=$c->{SETUP}{$t}{$bt};$bt=$c->{SETUP}{$t}{$bt};$cache->{TOOLS}{$t}{BASE}=$bt;}
     if($t eq $compiler){if((exists $c->{SETUP}{$t}{CXX}) && (-x $c->{SETUP}{$t}{CXX})){$cache->{COMPILER}=$c->{SETUP}{$t}{CXX};}}
     if(exists $c->{SETUP}{$t}{FLAGS})
     {
@@ -1174,53 +1167,24 @@ sub update_project_cache ()
 	    my $file=&SCRAMGenUtils::findActualPath($ts->{$t1});
 	    $cache->{BASETOOLS}{$t}{$t1}=1;
 	    $cache->{XBASETOOLS}{$t1}{$t}=1;
-	    if(!exists $cache->{SYMBOLS}{$file})
-	    {$cache->{SYMBOLS}{$file}{sym}=&SCRAMGenUtils::getLibSymbols($file);}
-	    $cache->{SYMBOLS}{$file}{tool}{$t}=1;
 	  }
         }
-      }
-    }
-    elsif(exists $data->{EXTRA_SYMBOL_TOOLS}{$t})
-    {
-      if((exists $cache->{TOOLS}{$t}) && ($cache->{TOOLS}{$t}{LIBDIR}))
-      {
-        if(exists $cache->{TOOLS}{$t}{LIB})
-	{
-	  foreach my $l (@{$cache->{TOOLS}{$t}{LIB}})
-	  {
-	    foreach my $d (@{$cache->{TOOLS}{$t}{LIBDIR}})
-	    {
-	      my $file="${d}/lib${l}.so";
-	      if(!-f $file){$file="${d}/lib${l}.a";}
-	      if(-f $file)
-	      {
-	        $file=&SCRAMGenUtils::findActualPath($file);
-		if(!exists $cache->{SYMBOLS}{$file})
-		{$cache->{SYMBOLS}{$file}{sym}=&SCRAMGenUtils::getLibSymbols($file);}
-		$cache->{SYMBOLS}{$file}{tool}{$t}=1;
-	      }
-	    }
-	  }
-	}
       }
     }
   }
   $cache->{CXXINCLUDE}=$allincstr;
   $cache->{CXXFLAGS}=$flags;
-  $cache->{OTOOLS}=[];
-  foreach my $t (&SCRAMGenUtils::getOrderedTools($c)){push @{$cache->{OTOOLS}},$t;}
   $cache->{dirty}=1;
 }
 
 sub replaceVariables {
   my $key=shift || return "";
-  my $ecache=&SCRAMGenUtils::getEnvironmentFileCache($release);
   while($key=~/(.*)\$\(([^\$\(\)]*)\)(.*)/){
     my $subkey=$2;
     if("$subkey" ne ""){
       if($subkey eq "LOCALTOP"){$subkey="$release";}
-      elsif(exists $ecache->{$subkey}){$subkey=$ecache->{$subkey};}
+      elsif(exists $envcache->{$subkey}){$subkey=$envcache->{$subkey};}
+      elsif(exists $cache->{VARS}{$subkey}){$subkey=$cache->{VARS}{$subkey};}
       else{$subkey=$ENV{$subkey};}
     }
     $key="${1}${subkey}${3}";
@@ -1270,7 +1234,7 @@ sub usage_msg()
   print "\t[--use <tool/pack>]    [--no-use <tool/pack>]\n";
   print "\t[--export <tool/pack>] [--no-export <tool/pack>] [--flag <flags>]\n";
   print "\t[--replace <oldtool/oldpackage>=<newdtool/newpackage>]\n";
-  print "\t[--ref-bf <BuildFile>] [--tmprelease <release>] [--buildfile <name>]\n";
+  print "\t[--ref-bf <BuildFile>] [--jobs <jobs>] [--tmpdir <dir>] [--buildfile <name>]\n";
   print "\t[--plugin] [--detail] [--help]\n\n";
   print "Where\n";
   print "  --dir <path>         Path of package or other product area area for which you want to\n";
@@ -1297,8 +1261,9 @@ sub usage_msg()
   print "                       You can add this command-line argument multiple times.\n";
   print "  --ref-bf <buildfile> Provide a reference BuildFile to search for extra flags. By default is uses the\n";
   print "                       SubSystem/Package/BuildFile for a package directory.\n";
-  print "  --tmprelease <path>  Path of a temporary release area which this script can re-use to test the newly\n";
-  print "                       generated BuildFile.\n";
+  print "  --jobs <jobs>        Number of parallel processes\n";
+  print "  --tmpdir <path>      Path of a temporary area where this script should save its internal caches and put newly\n";
+  print "                       generated BuildFile(s).\n";
   print "  --buildfile <name>   Path for auto generated BuildFile. By default it will be printed on strandard output.\n";
   print "  --plugin             Generate BuildFile with plugin flag in it.\n";
   print "                       NOTE: If package contains classes.h then this flag will not be added.\n";

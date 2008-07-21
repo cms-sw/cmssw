@@ -1,22 +1,22 @@
 package SCRAMGenUtils;
 use File::Basename;
+use Storable qw(nstore retrieve);
 
-our $SCRAM_CMD="scramv1";
+our $SCRAM_CMD="scram";
 our $SCRAM_VERSION="";
 local $SCRAM_ARCH="";
 local $DEBUG=0;
 local $InternalCache={};
+local $Cache={};
+local $CacheType=1;
 
 sub init ()
 {
   my $dir=shift;
+  $CacheType=1;
   &scramVersion ($dir);
-  my $arch=&getScramArch();
-  if (!-f "${dir}/tmp/${arch}/Makefile"){system("cd ${dir}; $SCRAM_CMD b -r echo_CXX ufast>/dev/null 2>&1");}
-  my $scram_home=dirname(dirname(&SCRAMGenUtils::getBuildVariable($dir,"SCRAM","ufast")));
-  if (!-d "$scram_home"){die "ERROR: Failed to find SCRAM.\n";}
-  $ENV{SCRAM_HOME}=$scram_home;
-  unshift @INC,"${scram_home}/src";
+  &getScramArch();
+  unshift @INC,"$ENV{SCRAM_HOME}/src";
   unshift @INC,"${dir}/config";
 }
 
@@ -93,6 +93,41 @@ sub getTmpDir ()
   return $tmp;
 }
 
+sub updateConfigFileData ()
+{
+  my $file=shift;
+  if (($file eq "") || (!-f "$file")){return "";}
+  my $data=shift || return $file;
+  my $cache=shift || {};
+  my $r;
+  open ($r,$file) || die "Can not open file for reading:$file\n";
+  while(my $line=<$r>)
+  {
+    chomp $line;
+    if(($line=~/^\s*#/) || ($line=~/^\s*$/)){next;}
+    my @x=split /:/,$line;
+    my $count=scalar(@x);
+    if($count<3){next;}
+    my $c=undef;
+    if($x[0] eq "DATA"){$c=$data;}
+    elsif($x[0] eq "CACHE"){$c=$cache;}
+    if(defined $c)
+    {
+      if($detail){print STDERR "#Configuring=>$line\n";}
+      my $i=0;
+      for($i=1;$i<$count-2;$i++)
+      {
+        my $y=$x[$i];
+	if(!exists $c->{$y}){$c->{$y}={};}
+	$c=$c->{$y};
+      }
+      $c->{$x[$i]}=$x[$i+1];
+    }
+  }
+  close($r);
+  return $file;
+}
+
 #########################################################################
 # Reading Project Cache DB
 #########################################################################
@@ -102,12 +137,30 @@ sub scramVersion ()
   my $rel=shift;
   if ($SCRAM_VERSION eq "")
   {
-    my $ref;
-    if(open($ref,"${rel}/config/scram_version"))
+    if (exists $ENV{SCRAM_HOME}){$SCRAM_VERSION=basename($ENV{SCRAM_HOME}); return $SCRAM_VERSION;}
+    my $scram=`which $SCRAM_CMD 2>&1`; chomp $scram;
+    if ($scram!~/\/$SCRAM_CMD\s*$/){die "can not find $SCRAM_CMD command.\n";}
+    my $dir=`cd $rel; sh -v $scram 2>&1 | grep "SCRAMV1_ROOT" | sed 's|^SCRAMV1_ROOT=||'`; chomp $dir;
+    $dir=~s/;.*$//;$dir=~s/"//g;
+    if (!-d $dir){die "Can not find scram installation path.\n";}
+    my $sver=basename($dir);
+    my $sdir=dirname($dir);
+    $sver=~s/^(V\d+_\d+_).+$/$1/;
+    my $dref;
+    if (opendir($dref,$sdir))
     {
-      $SCRAM_VERSION=<$ref>; chomp $SCRAM_VERSION;
-      close($ref);
+      my %vers=();
+      foreach my $ver (readdir($dref)){if($ver=~/^$sver/){push @vers,$ver;}}
+      closedir($dref);
+      my $c=scalar(@vers);
+      if($c)
+      {
+        @vers=sort @vers;
+        $dir="${sdir}/".$vers[$c-1];
+      }
     }
+    $SCRAM_VERSION=basename($dir);
+    $ENV{SCRAM_HOME}=$dir;
   }
   return $SCRAM_VERSION;
 }
@@ -228,69 +281,97 @@ sub getBuildVariable ()
   return $val;
 }
 
-sub getOrderedTools (){
-  my $ver=&scramVersion();
-  if ($ver=~/^V1_/){return &getOrderedToolsV1 (@_);}
-  else { return &getOrderedToolsV2 (@_); }
-}
-
-sub getOrderedToolsV2 ()
-{
-  require BuildSystem::ToolManager;
-  my $cache=shift;
-  my $rev=shift || 0;
-  my $otools = $cache->toolsdata();
-  my $tools  = $cache->setup();
-  if (exists $tools->{'self'}){push @$otools,$tools->{'self'};}
-  my @t =();
-  my @compilertools=();
-  foreach my $tool ( reverse @$otools )
-  {
-    if ($tool->scram_compiler()){push @compilertools,$tool; next;}
-    push @t,$tool->toolname();
-  }
-  foreach my $tool ( @compilertools ){push @t,$tool->toolname();}
-  if ($rev){@t=reverse @t;}
-  return @t;
-}
-
-sub getOrderedToolsV1 ()
+sub getOrderedTools ()
 {
   my $cache=shift;
   my $rev=shift || 0;
-  my $tool=shift || "";
-  my $data=shift || {};
-  if($tool eq "self"){return;}
-  if($tool eq "")
+  my $tools=$cache->{SETUP};
+  my $c={};
+  $c->{done}={};
+  $c->{scram}={};
+  $c->{data}=[];
+  $c->{cache}=$tools;
+  foreach my $t (sort keys %$tools)
   {
-    $data->{tooldone}={}; $data->{orderedtool}=[]; $data->{scrambased}={};
-    foreach my $t (keys %{$cache->{SETUP}}){&getOrderedToolsV1($cache,$rev,$t,$data);}
-    foreach my $stool ("seal","coral","pool","iguana","ignominy","cmssw")
-    {
-      if(exists $data->{scrambased}{$stool})
-      {unshift @{$data->{orderedtool}},$stool;delete $data->{scrambased}{$stool};}
-    }
-    foreach my $stool (keys %{$data->{scrambased}})
-    {unshift @{$data->{orderedtool}},$stool;}
-    unshift @{$data->{orderedtool}},"self";
-    delete $data->{scrambased};
-    delete $data->{tooldone};
-    return @{$data->{orderedtool}};
+    if ($t eq "self"){next;}
+    if ((exists $tools->{$t}{SCRAM_PROJECT}) && ($tools->{$t}{SCRAM_PROJECT}==1)){$c->{scram}{$t}=1;next;}
+    &_getOrderedTools($c,$t);
   }
-  elsif((!exists $data->{tooldone}{$tool}) && (exists $cache->{SETUP}{$tool}))
+  foreach my $t (keys %{$c->{scram}}){&_getOrderedSTools($c,$t);}
+  my @odata=();
+  foreach my $d (@{$c->{data}})
+  {if (ref($d) eq "ARRAY"){foreach my $t (@$d) {push @odata,$t;}}}
+  if (exists $tools->{self}){push @odata,$tools->{self};}
+  my @otools =();
+  my @ctools=();
+  foreach my $t ( reverse @odata )
   {
-    $data->{tooldone}{$tool}=1;
-    if ((exists $cache->{SETUP}{$tool}{SCRAM_PROJECT}) && ($cache->{SETUP}{$tool}{SCRAM_PROJECT} == 1)){$data->{scrambased}{$tool}=1;return;}
-    if(exists $cache->{SETUP}{$tool}{USE})
+    if ((exists $t->{SCRAM_COMPILER}) && ($t->{SCRAM_COMPILER}==1)){push @ctools,$t->{TOOLNAME}; next;}
+    push @otools,$t->{TOOLNAME};
+  }
+  push @otools,@ctools;
+  if ($rev){@otools=reverse @otools;}
+  return @otools;
+}
+
+sub _getOrderedSTools ()
+{
+   my $c=shift;
+   my $tool=shift;
+   my $order=-1;
+   if(exists $c->{done}{$tool}){return $c->{done}{$tool};}
+   $c->{done}{$tool}=$order;
+   if(!exists $c->{scram}{$tool}){return $order;}
+   if(!exists $c->{cache}{$tool}){return $order;}
+   my $base=uc($tool)."_BASE";
+   if(!exists $c->{cache}{$tool}{$base}){return $order;}
+   $base=$c->{cache}{$tool}{$base};
+   if(!-d $base){print STDERR "ERROR: Release area \"$base\" for \"$tool\" is not available.\n"; return $order;}
+   my $cfile=&fixCacheFileName("${base}/.SCRAM/${SCRAM_ARCH}/ToolCache.db");
+   if (!-f $cfile){print STDERR "ERROR: Tools cache file for release area \"$base\" is not available.\n";return $order;}
+   my $cache=&readCache($cfile);
+   my $tools=$cache->{SETUP};
+   my $order=scalar(@{$c->{data}})-1;
+   foreach my $t (keys %$tools)
+   {
+     if($t eq "self"){next;}
+     if((exists $tools->{$t}{SCRAM_PROJECT}) && ($tools->{$t}{SCRAM_PROJECT}==1))
+     {
+       my $o=&_getOrderedSTools($c,$t);
+       if ($o>$order){$order=$o;}
+     }
+   }
+   $order++;
+   $c->{done}{$tool}=$order;
+   if(!defined $c->{data}[$order]){$c->{data}[$order]=[];}
+   push @{$c->{data}[$order]},$c->{cache}{$tool};
+   $c->{done}{$tool}=$order;
+   return $order;
+}
+
+sub _getOrderedTools()
+{
+  my $c    = shift;
+  my $tool = shift;
+  my $order=-1;
+  if(exists $c->{done}{$tool}){return $c->{done}{$tool};}
+  $c->{done}{$tool}=$order;
+  if (exists $c->{cache}{$tool})
+  {
+    if (exists $c->{cache}{$tool}{USE})
     {
-      foreach my $t (@{$cache->{SETUP}{$tool}{USE}})
+      foreach my $use (@{$c->{cache}{$tool}{USE}})
       {
-	$t=lc($t);
-	&getOrderedToolsV1($cache,$rev,$t,$data);
+	my $o=&_getOrderedTools($c,lc($use));
+	if ($o>$order){$order=$o;}
       }
     }
-    unshift @{$data->{orderedtool}},$tool;
+    $order++;
+    if(!defined $c->{data}[$order]){$c->{data}[$order]=[];}
+    push @{$c->{data}[$order]},$c->{cache}{$tool};
+    $c->{done}{$tool}=$order;
   }
+  return $order;
 }
 
 #################################################################
@@ -300,31 +381,49 @@ sub writeHashCache ()
 {
   my $cache=shift;
   my $file=shift;
-  use Data::Dumper;
-  my $cachefh;
-  if (open($cachefh,">$file"))
+  my $binary=shift || $CacheType;
+  if ($binary)
   {
-    $Data::Dumper::Varname='cache';
-    $Data::Dumper::Purity = 1;
-    print $cachefh Dumper($cache);
-    close $cachefh;
+   eval {nstore($cache,$file);};
+   die "Cache write error: ",$EVAL_ERROR,"\n", if ($EVAL_ERROR);
   }
-  else{die "can not open file $file for writing.";}
+  else
+  {
+    use Data::Dumper;
+    my $cachefh;
+    if (open($cachefh,">$file"))
+    {
+      $Data::Dumper::Varname='cache';
+      $Data::Dumper::Purity = 1;
+      print $cachefh Dumper($cache);
+      close $cachefh;
+    }
+    else{die "can not open file $file for writing.";}
+  }
 }
 
 sub readHashCache ()
 {
   my $file=shift;
+  my $binary=shift || $CacheType;
   my $cache=undef;
-  my $cachefh;
-  if (open($cachefh,$file))
+  if ($binary)
   {
-    my @cacheitems = <$cachefh>;
-    close $cachefh;
-    $cache = eval "@cacheitems";
-    die "Cache load error: ",$EVAL_ERROR,"\n", if ($EVAL_ERROR);
+   $cache = eval "retrieve(\"$file\")";
+   die "Cache load error: ",$EVAL_ERROR,"\n", if ($EVAL_ERROR);
   }
-  else{die "can not open file $file for reading.";}
+  else
+  {
+    my $cachefh;
+    if (open($cachefh,$file))
+    {
+      my @cacheitems = <$cachefh>;
+      close $cachefh;
+      $cache = eval "@cacheitems";
+      die "Cache load error: ",$EVAL_ERROR,"\n", if ($EVAL_ERROR);
+    }
+    else{die "can not open file $file for reading.";}
+  }
   return $cache;
 }
 ################################################
@@ -351,51 +450,14 @@ sub getLibSymbols ()
   my $cache={};
   if(($file ne "") && (-f $file))
   {
-    my $islib=`file $file | sed 's|.*:||' | grep -i "shared object"`; chomp $islib;
-    if($islib ne "")
+    foreach my $line (`nm -D $file`)
     {
-      foreach my $line (`nm -D $file`)
-      {
-        chomp $line;
-	if($line=~/^([0-9A-Fa-f]+|)\s+([A-Za-z])\s+([^\s]+)\s*$/)
-	{$cache->{$3}=$2;}
-      }
+      chomp $line;
+      if($line=~/^([0-9A-Fa-f]+|)\s+([A-Za-z])\s+([^\s]+)\s*$/){$cache->{$3}=$2;}
     }
   }
   return $cache;
 }
-
-#################################################
-# Object Files symbols
-#################################################
-
-sub getObjectFileSymbols ()
-{
-  my $files=shift;
-  my $cache={};
-  foreach my $file (@{$files})
-  {
-    if(($file ne "") && (-f $file))
-    {
-      my $isobj=`file $file | sed 's|.*:||' | grep -i "SB relocatable"`; chomp $isobj;
-      if($isobj ne "")
-      {
-        foreach my $line (`nm $file`)
-        {
-          chomp $line;
-	  if($line=~/^([0-9A-Fa-f]+|)\s+([A-Za-z])\s+([^\s]+)\s*$/)
-	  {
-	    my $s=$3; my $t=$2;
-	    if(!exists $cache->{$s}){$cache->{$s}=$t;}
-	    elsif($t eq "T"){$cache->{$s}=$t;}
-	  }
-        }
-      }
-    }
-  }
-  return $cache;
-}
-
 
 ######################################################
 #SCRAM BuildFile
@@ -440,7 +502,7 @@ sub XML2DATA ()
 	my $f=uc($fs[0]);
 	my $v=$c->{attrib}{$fs[0]};
 	if(!exists $data->{$n}{$f}){$data->{$n}{$f}=[];}
-	my $i=scalar(@{$data->{flags}{$n}});
+	my $i=scalar(@{$data->{$n}{$f}});
 	$data->{$n}{$f}[$i]{v}=$v;
       }
       elsif($n=~/^(architecture)$/)
@@ -471,6 +533,7 @@ sub XML2DATA ()
 sub readBuildFile ()
 {
   my $bfile=shift;
+  my $raw=shift || 0;
   my $bfn=basename($bfile);
   eval ("use SCRAM::Plugins::DocParser");
   if($@){die "Can not locate SCRAM/Plugins/DocParser.pm perl module for reading $bfile.\n";}
@@ -478,14 +541,20 @@ sub readBuildFile ()
   if ($bfn!~/BuildFile\.xml/)
   {
     eval ("use SCRAM::Plugins::Doc2XML");
-    if($@){die "Can not locate SCRAM/Plugins/DocParser.pm perl module for reading $bfile.\n";}
+    if($@){die "Can not locate SCRAM/Plugins/Doc2XML.pm perl module for reading $bfile.\n";}
     my $doc2xml = SCRAM::Plugins::Doc2XML->new(0);
     my $xml=$doc2xml->convert($bfile);
     $input = join("",@$xml);
   }
   my $xml = SCRAM::Plugins::DocParser->new();
   $xml->parse($bfile,$input);
+  if ($raw){return $xml->{output};}
   return &XML2DATA($xml->{output});
+}
+
+sub convert2XMLBuildFile ()
+{
+  &dumpXMLBuildFile(&readBuildFile(shift,1),shift);
 }
 
 sub findBuildFileTag ()
@@ -572,6 +641,74 @@ sub _xmlendtag()
   my $xml=shift;
   if($xml){return "/";}
   return "";
+}
+
+sub dumpXMLBuildFile ()
+{
+  my $xml=shift;
+  my $outfile=shift;
+  my $tab=shift || "";
+  my $ref=undef;
+  if (!ref($outfile)){open($ref,">$outfile") || die "CAn not open file for writing:$outfile\n";}
+  else{$ref=$outfile;}
+  foreach my $c (@{$xml->{child}})
+  {
+    if(exists $c->{name})
+    {
+      my $n=$c->{name};
+      if($n=~/^(environment)$/){print $ref "${tab}<$n>\n";&dumpXMLBuildFile($c,$ref,"$tab  ");print $ref "${tab}</$n>\n";}
+      elsif($n=~/^(library|bin)$/)
+      {
+        my $fl=$c->{attrib}{file};
+	my $p=$c->{attrib}{name};
+	my @fs=();
+	foreach my $f (split /\s+/,$fl)
+	{
+	  if($p eq ""){$p=basename($f); $p=~s/\.[^.]+$//;}
+	  push @fs,$f;
+	}
+	if ($p ne "")
+	{
+	  print $ref "${tab}<$n name=\"$p\" file=\"",join(",",@fs),"\">\n";
+	  &dumpXMLBuildFile($c,$ref,"$tab  ");
+	  print $ref "${tab}</$n>\n";
+	}
+      }
+      elsif($n=~/^(use|lib)$/){print $ref "${tab}<$n name=\"",$c->{attrib}{name},"\"/>\n";}
+      elsif($n=~/^(flags)$/)
+      {
+	my @fs=keys %{$c->{attrib}};
+	my $f=uc($fs[0]);
+	my $v=$c->{attrib}{$fs[0]};
+	print $ref "${tab}<$n $f=\"$v\"/>\n";
+      }
+      elsif($n=~/^(architecture)$/)
+      {
+        my $a=$c->{attrib}{name};
+	print $ref "${tab}<$n name=\"",$c->{attrib}{name},"\">\n";
+	&dumpXMLBuildFile($c,$ref,"$tab  ");
+	print $ref "${tab}</$n>\n";
+      }
+      elsif($n=~/^(export)$/)
+      {
+        print $ref "${tab}<$n>\n";
+	&dumpXMLBuildFile($c,$ref,"$tab  ");
+	print $ref "${tab}</$n>\n";
+      }
+      elsif($n=~/^(include_path)$/)
+      {
+	 print $ref "${tab}<$n path=\"",$c->{attrib}{path},"\"/>\n";
+      }
+      elsif($n=~/^(makefile)$/)
+      {
+        print $ref "${tab}<$n>\n";
+	if(!exists $data->{$n}){$data->{$n}=[];}
+	foreach my $d (@{$c->{cdata}}){print $ref "$d\n";}
+	print $ref "${tab}</$n>\n";
+      }
+    }
+  }
+  if (!ref($outfile)){close($ref);}
 }
 
 sub printBuildFile ()
@@ -1022,9 +1159,12 @@ sub searchPreprocessedFile ()
     if($delfile){my $d=dirname($ofile);system("rm -rf $d");}
     exit 0;
   }
+  my $ref=0;
+  if(ref($file) eq "ARRAY"){$ref=1;}
   while(my $line=<OFILE>)
   {
     chomp $line;
+    if ($ref && ($line=~/^CreateBuildFileScriptVariable_$$\.$$\s+VAR=([^;]+);$/)){$file=$1;}
     foreach my $k (keys %search)
     {
       my $f=$data->{searchPreprocessed}{$k}{filter};
@@ -1048,10 +1188,19 @@ sub generatePreprocessedCXX ()
   my $compilecmd=$data->{compilecmd};
   if($compilecmd ne "")
   {
-    $compilecmd.=" $xflags";
+    my $cflags=$data->{compileflags}." ".$xflags;
     my $tmpdir=&getTmpDir();
     my $ofile="${tmpdir}/preprocessed.$$";
-    if(system("$compilecmd -E -o $ofile $file")==0){return $ofile;}
+    my $fname=""; my $xincs=();
+    if (ref($file) eq "ARRAY")
+    {
+      $fname="${tmpdir}/preprocessed.$$.cc";
+      foreach my $f (@$file){$xincs->{dirname($f)}=1;}
+      $xincs=join(" -I",keys %$xincs);
+      system("touch $fname; for f in ".join(" ",@$file)."; do echo \"CreateBuildFileScriptVariable_$$.$$ VAR=\$f;\" >> $fname; cat \$f >> $fname; done");
+    }
+    else{$fname=$file;}
+    if(system("$compilecmd -I$xincs $cflags -E -o $ofile $fname")==0){return $ofile;}
     system("rm -rf $tmpdir");
   }
   return "";
@@ -1093,10 +1242,11 @@ sub symbolChecking ()
   if($ret != 0)
   {
     $ret=0;
+    print @lines;
     foreach my $line (@lines)
     {
       chomp $line;
-      if($line=~/\/lib${l}\.so:\s+undefined reference to\s+/){print "$line\n";$ret=1;}
+      if($line=~/\/lib${l}\.so:\s+undefined reference to\s+/){return 1;}
     }
   }
   return $ret;
@@ -1143,5 +1293,227 @@ sub incData ()
   my $data=shift;
   $$data=$$data+(shift || 1);
 }
+###################################################
+sub startTimer ()
+{
+  my $msg=shift;
+  my $info=shift || 0;
+  my $time=&getTime();
+  my $id=0;
+  while(exists $Cache->{TIMERS}{"${time}.${id}"}){$id++;}
+  $id="${time}.${id}";
+  $Cache->{TIMERS}{$id}{msg}=$msg;
+  $Cache->{TIMERS}{$id}{start}=$time;
+  $Cache->{TIMERS}{$id}{info}=$info;
+  if ($info){print STDERR "TIMER STARTED($id):$msg\n";}
+  return $id;
+}
+
+sub stopTimer()
+{
+  my $id=shift;
+  my $time=undef;
+  if (exists $Cache->{TIMERS}{$id})
+  {
+    my $msg=shift || $Cache->{TIMERS}{$id}{msg};
+    my $info=$Cache->{TIMERS}{$id}{info};
+    $time=&getTime() - $Cache->{TIMERS}{$id}{start};
+    delete $Cache->{TIMERS}{$id};
+    if ($info){print STDERR "TIMER STOPED ($id):$msg:$time\n";}
+  }
+  return $time;
+}
+
+sub timePassed ()
+{
+  my $id=shift;
+  my $time=undef;
+  if (exists $Cache->{TIMERS}{$id}){$time=&getTime() - $Cache->{TIMERS}{$id}{start};}
+  return $time;
+}
+
+sub getTime ()
+{
+  if(!exists $Cache->{HiResLoaded})
+  {
+    eval "require Time::HiRes";
+    if(!$@){$Cache->{HiResLoaded}=1;}
+    else{$Cache->{HiResLoaded}=0;}
+  }
+  my $time=undef;
+  if ($Cache->{HiResLoaded}){$time=Time::HiRes::gettimeofday();}
+  else{$time=`date +\%s.\%N`; chomp $time;}
+  return $time;
+}
+###################################################
+sub toolSymbolCache ()
+{
+  my $cache=shift;
+  my $tool=shift;
+  if (!exists $cache->{SETUP}{$tool}){return;}
+  my $dir=shift;
+  my $jobs=shift || 1;
+  if(exists $cache->{SETUP}{$tool}{LIB})
+  {
+    my $dirs=&searchBaseToolPaths($cache,$tool,"LIBDIR");
+    foreach my $l (@{$cache->{SETUP}{$tool}{LIB}})
+    {
+      foreach my $d (@$dirs)
+      {
+        my $lib="${d}/lib${l}.so";
+        if(!-f $lib){$lib="${d}/lib${l}.a";}
+        if(-f $lib)
+        {
+	  if ($jobs > 1)
+	  {
+	    my $pid=&forkProcess($jobs);
+	    if($pid==0){&symbolCache($lib,$tool,$dir);exit 0;}
+	  }
+	  else{&symbolCache($lib,$tool,$dir);}
+	  last;
+        }
+      }
+    }
+  }
+}
+
+sub scramToolSymbolCache ()
+{
+  my $cache=shift;
+  my $tool=shift;
+  if (!exists $cache->{SETUP}{$tool}){return;}
+  my $dir=shift;
+  my $jobs=shift || 1;
+  my $libmap=shift;
+  foreach my $p (keys %$libmap)
+  {
+    my $l=$libmap->{$p};
+    foreach my $d (@{$cache->{SETUP}{$tool}{LIBDIR}})
+    {
+      my $lib="${d}/lib${l}.so";
+      if(!-f $lib){$lib="${d}/lib${l}.a";}
+      if(-f $lib)
+      {
+	if ($jobs > 1)
+	{
+	  my $pid=&forkProcess($jobs);
+	  if($pid==0){&symbolCache($lib,$p,$dir);exit 0;}
+	}
+	else{&symbolCache($lib,$p,$dir);}
+	last;
+      }
+    }
+  }
+}
+
+sub searchBaseToolPaths ()
+{
+  my $cache=shift;
+  my $tool=shift;
+  my $var=shift;
+  my $paths=shift || [];
+  if(exists $cache->{SETUP}{$tool})
+  {
+    if($cache->{SETUP}{$tool}{$var}){foreach my $d (@{$cache->{SETUP}{$tool}{$var}}){push @$paths,$d;}}
+    if(exists $cache->{SETUP}{$tool}{USE}){foreach my $u (@{$cache->{SETUP}{$tool}{USE}}){&searchBaseToolPaths($cache,lc($u),$var,$paths);}}
+  }
+  return $paths;
+}
+
+sub symbolCache ()
+{
+  my $lib=shift;
+  my $tool=shift;
+  my $cache=shift;
+  if (-f $lib)
+  {
+    my $cfile="${cache}/${lname}.${pk}";
+    my $lname=basename($lib);
+    my $pk=$tool;$pk=~s/\///g;
+    my $shared="";
+    if($lib=~/\.so$/){$shared="-D";}
+    my $c={};
+    foreach my $line (`nm $shared $lib`)
+    {
+      chomp $line;
+      if($line=~/\s+(T|V|W)\s+(.+)$/){$c->{$2}{$tool}=$lname;}
+    }
+    &writeHashCache($c,"${cache}/${lname}.${pk}");
+  }
+}
+
+sub mergeSymbols ()
+{
+  my $dir=shift;
+  if(-d $dir)
+  {
+    my $r;
+    my $cache;
+    opendir($r,$dir) || die "Can not open directory for reading: $dir\n";
+    foreach my $f (readdir($r))
+    {
+      if ($f=~/^\./){next;}
+      my $c=&readHashCache("${dir}/${f}");
+      foreach my $s (keys %$c){foreach my $t (keys %{$c->{$s}}){$cache->{$s}{$t}=$c->{$s}{$t};}}
+    }
+    &writeHashCache($cache,"${dir}/.symbols");
+    return $cache;
+  }
+}
+
+sub cppFilt ()
+{
+  my $s=shift;
+  my $s1=`c++filt $s`; chomp $s1;
+  return $s1;
+}
+
+sub _symDir ()
+{
+  my $sym=shift;
+  my $d="";
+  my $c=1;
+  while($sym=~s/^(.{$c})//){$d.="/$1";if($c<8){$c++;}}
+  return "${d}/${sym}";
+}
+######################################################
+sub forkProcess ()
+{
+  my $limit=shift || 1;
+  &waitForChild($limit-1);
+  my $pid=0;
+  my $err=0;
+  do
+  {
+    $pid = fork ();
+    if (!defined $pid)
+    {
+      $err++;
+       print STDERR "WARNING: Can not fork a new process:$err: $@\n";
+       if ($err > 10 ){die "ERROR: Exiting due to fork() failure.\n";}
+    }
+  } while (!defined $pid);
+  if ($pid>0){$Cache->{FORK}{pids}{$pid}=1;$Cache->{FORK}{running}=$Cache->{FORK}{running}+1;}
+  return $pid;
+}
+
+sub waitForChild ()
+{
+  use POSIX ":sys_wait_h";
+  my $limit=shift || 0;
+  my $running=$Cache->{FORK}{running} || 0;
+  while ($running>$limit)
+  {
+    my $pid=-1;
+    do
+    {
+      $pid = waitpid(-1, WNOHANG);
+      if (exists $Cache->{FORK}{pids}{$pid}) { $running--; delete $Cache->{FORK}{pids}{$pid};}
+    } while ($pid > 0);
+    if ($running>$limit){sleep 1;}
+  }
+  $Cache->{FORK}{running}=$running;
+}
+######################################################
 
 1;
