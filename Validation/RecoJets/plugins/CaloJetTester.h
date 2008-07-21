@@ -3,6 +3,7 @@
 
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
+// Modified by J F Novak July 10, 2008
 // $Id: CaloJetTester.h,v 1.4 2008/02/29 20:49:03 ksmith Exp $
 
 #include <string>
@@ -27,27 +28,46 @@ public:
   virtual void beginJob(const edm::EventSetup&) ;
   virtual void endJob() ;
  
- private:
+private:
   
   void fillMatchHists (const reco::GenJet& fGenJet, const reco::CaloJet& fCaloJet);
 
   edm::InputTag mInputCollection;
   edm::InputTag mInputGenCollection;
   std::string mOutputFile;
+  edm::InputTag inputMETLabel_;
+  std::string METType_;
+  std::string inputGenMETLabel_;
+  std::string inputCaloMETLabel_;
 
   // Generic Jet Parameters
   MonitorElement* mEta;
+  MonitorElement* mEtaFineBin;
   MonitorElement* mPhi;
+  MonitorElement* mPhiFineBin;
   MonitorElement* mE;
+  MonitorElement* mE_80;
+  MonitorElement* mE_3000;
   MonitorElement* mP;
+  MonitorElement* mP_80;
+  MonitorElement* mP_3000;
   MonitorElement* mPt;
+  MonitorElement* mPt_80;
+  MonitorElement* mPt_3000;
   MonitorElement* mMass;
+  MonitorElement* mMass_80;
+  MonitorElement* mMass_3000;
   MonitorElement* mConstituents;
+  MonitorElement* mConstituents_80;
+  MonitorElement* mHadTiming;
+  MonitorElement* mEmTiming;
 
   // Leading Jet Parameters
   MonitorElement* mEtaFirst;
   MonitorElement* mPhiFirst;
   MonitorElement* mEFirst;
+  MonitorElement* mEFirst_80;
+  MonitorElement* mEFirst_3000;
   MonitorElement* mPtFirst;
 
   // CaloJet specific
@@ -62,6 +82,13 @@ public:
   MonitorElement* mEmEnergyInHF;
   MonitorElement* mEnergyFractionHadronic;
   MonitorElement* mEnergyFractionEm;
+  MonitorElement* mHFTotal;
+  MonitorElement* mHFLong;
+  MonitorElement* mHFLong_80;
+  MonitorElement* mHFLong_3000;
+  MonitorElement* mHFShort;
+  MonitorElement* mHFShort_80;
+  MonitorElement* mHFShort_3000;
   MonitorElement* mN90;
 
   // CaloJet<->GenJet matching
@@ -82,6 +109,22 @@ public:
   double mGenEnergyFractionThreshold;
   double mReverseEnergyFractionThreshold;
   double mRThreshold;
-};
 
+  // Energy Profiles
+  MonitorElement* mHadEnergyProfile;
+  MonitorElement* mEmEnergyProfile;
+  MonitorElement* mJetEnergyProfile;
+  MonitorElement* mHadJetEnergyProfile;
+  MonitorElement* mEMJetEnergyProfile;
+
+  // CaloMET
+  MonitorElement* mCaloMEx;
+  MonitorElement* mCaloMEy;
+  MonitorElement* mCaloMET;
+  MonitorElement* mCaloMETPhi;
+  MonitorElement* mCaloSumET;
+  MonitorElement* mCaloMETSig;
+
+
+};
 #endif
