@@ -30,5 +30,8 @@ looper = cms.Looper("TtSemiJetCombMVATrainerLooper",
     ))
 )
 
+## provide a sequence for the training
+## remark: do not use this sequence if you want to call your trainer after an event filter
+##         since the SaveFile module should be called in an unfiltered path!
 makeMVATraining = cms.Sequence(trainTtSemiJetCombMVA*mvaTtSemiJetCombSaveFile)
 
