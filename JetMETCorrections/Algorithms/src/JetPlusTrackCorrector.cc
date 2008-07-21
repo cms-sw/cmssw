@@ -27,7 +27,11 @@ JetPlusTrackCorrector::JetPlusTrackCorrector(const edm::ParameterSet& iConfig)
         //     std::cout<<" Read the second set of parameters "<<std::endl;
 //  Out of cone tracks are added 
 			  theAddOutOfConeTracks = iConfig.getParameter<bool>("AddOutOfConeTracks");
-             std::cout<<" JetPlusTrackCorrector::JetPlusTrackCorrector::response algo "<<theResponseAlgo<<std::endl;			  
+			  
+             std::cout<<" JetPlusTrackCorrector::JetPlusTrackCorrector::response algo "<<theResponseAlgo
+	              <<" TheNonEfficiencyFile "<<theNonEfficiencyFile
+		      <<" TheNonEfficiencyFileResp "<<theNonEfficiencyFileResp<<std::endl;
+		      			  
              std::string file1="JetMETCorrections/Configuration/data/"+theNonEfficiencyFile+".txt";
              std::string file2="JetMETCorrections/Configuration/data/"+theNonEfficiencyFileResp+".txt";
 
@@ -49,6 +53,8 @@ JetPlusTrackCorrector::~JetPlusTrackCorrector()
 void JetPlusTrackCorrector::setParameters(std::string fDataFile1,std::string fDataFile2)
 { 
   bool debug=false;
+//  bool debug=true;
+  
   if(debug) std::cout<<" JetPlusTrackCorrector::setParameters "<<std::endl;
   netabin1 = 0;
   nptbin1 = 0;
@@ -93,25 +99,25 @@ void JetPlusTrackCorrector::setParameters(std::string fDataFile1,std::string fDa
    istringstream linestream(line);
    double eta,pt,eff;
    int ieta,ipt;
-   linestream>>ieta>>eta>>eff;
+   linestream>>ieta>>ipt>>eta>>pt>>eff;
    if(debug) cout <<" ieta = " << ieta <<" ipt "<<ipt<<" eta "<<eta<<" pt "<<pt<<" "<<eff<<endl;
     if(ieta != ietaold)
       {
         etabin2.push_back(eta);
         ietaold = ieta;
         netabin2 = ieta+1;
-        cout <<"   netabin2 = " << netabin2 <<" eta = " << eta << endl;
+       if(debug)  cout <<"   netabin2 = " << netabin2 <<" eta = " << eta << endl;
       }
     if(ietaold == 0)
       {
         ptbin2.push_back(pt);
         nptbin2 = ipt+1;
-        cout <<"   nptbin2 = " << nptbin2 <<" pt = " << pt << endl;
+       if(debug)  cout <<"   nptbin2 = " << nptbin2 <<" pt = " << pt << endl;
       }
 
    trkeff_resp.push_back(eff);  
   }
- cout <<" ====> netabin2 = " << netabin1 <<" nptbin2 = " << nptbin2 << " "<<trkeff_resp.size()<<endl; 
+ if(debug) cout <<" ====> netabin2 = " << netabin1 <<" nptbin2 = " << nptbin2 << " "<<trkeff_resp.size()<<endl; 
   // ==========================================    
    
 }
@@ -299,7 +305,7 @@ double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
             double ee = 0.;
             vector<double> resp=theSingle->response(emean_incone[k],ee,theResponseAlgo);
             corrinef = corrinef + netracks_incone[k]*((1.-trkeff[k])/trkeff[k])*(emean_incone[k] - trkeff_resp[etatr]*(resp.front() + resp.back()));
-             cout <<" k eta/pt index = " << k
+             if(debug) cout <<" k eta/pt index = " << k
                  <<" trkeff[k] = " << trkeff[k]
                  <<" netracks_incone[k] = " <<  netracks_incone[k]
                  <<" emean_incone[k] = " << emean_incone[k]
