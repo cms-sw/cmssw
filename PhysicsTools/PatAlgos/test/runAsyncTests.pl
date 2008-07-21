@@ -103,6 +103,29 @@ print join("\n", @txt), "\n";
 
 sub printDone {
     my $f = shift(@_);
+    my $lines = 0; my $last = 0;
+    my ($excep, $exbody) = (0,"");
+    open LOG, $info{$f}->{'out'};
+    while (<LOG>) { 
+        $lines++; 
+        m/Begin processing the (\d+)\S* record\./ and $last = $1;
+        if (m/---- (.*?) BEGIN/) {
+            my $exname = $1;
+            $excep++; 
+            if ($excep == 1) { $exbody .= "\t" . $_; }
+            while ($_ = <LOG>) { 
+                $lines++; 
+                if ($excep == 1) { $exbody .= "\t" . $_; }
+                last if (m/---- $exname END/);
+            }
+        }
+    };
+    close LOG;
+
+    $info{$f}->{'last'}  = $last;
+    $info{$f}->{'lines'} = $lines;
+    $info{$f}->{'excep'} = $excep;
+    $info{$f}->{'exbody'}= $exbody;
     return "\e[32;1m$f\e[37;0m: \e[;;1mdone\e[m events " . $info{$f}->{'last'} . "/" . $info{$f}->{'max'} .
           ", total time " . ($done{$f} - $info{$f}->{'start'}) . "s, " .
           $info{$f}->{'lines'} . " output lines, " .
