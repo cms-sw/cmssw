@@ -72,3 +72,7 @@ o = iovInspector.PayLoad(db,log.payloadToken)
             p.extract(ex)
             for v in ex.values() :
                 print v
+
+
+token = '[DB=00000000-0000-0000-0000-000000000000][CNT=EcalPedestalsRcd][CLID=75E7B995-8233-097B-FD4A-31AEC6A040C8][TECH=00000B01][OID=0000000C-00000114]'
+p = inspect.PayLoad(db,token)

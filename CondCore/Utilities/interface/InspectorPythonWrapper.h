@@ -17,6 +17,7 @@ namespace {
     class_<Wrapper>("Object",init<>()) 
       .def(init<cond::IOVElement>())
       .def("dump",&Wrapper::dump)
+      .def("plot",&Wrapper::plot)
       .def("summary",&Wrapper::summary) 
       .def("extract",&Wrapper::extract)
       ; 
