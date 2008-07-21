@@ -39,9 +39,9 @@ standAloneMuons = cms.EDProducer("StandAloneMuonProducer",
             BWSeedType = cms.string('fromGenerator'),
             FitDirection = cms.string('outsideIn'),
             DTRecSegmentLabel = cms.InputTag("dt4DSegments"),
-            MaxChi2 = cms.double(25.0),
+            MaxChi2 = cms.double(100.0),
             MuonTrajectoryUpdatorParameters = cms.PSet(
-                MaxChi2 = cms.double(25.0),
+                MaxChi2 = cms.double(100.0),
                 RescaleError = cms.bool(False),
                 RescaleErrorFactor = cms.double(100.0),
                 Granularity = cms.int32(2)
@@ -55,7 +55,9 @@ standAloneMuons = cms.EDProducer("StandAloneMuonProducer",
         ),
         RefitterParameters = cms.PSet(
             FitterName = cms.string('KFFitterSmootherSTA'),
-            Option = cms.int32(1)
+            NumberOfIterations = cms.uint32(3),
+            ForceAllIterations = cms.bool(False),
+            MaxFractionOfLostHits = cms.double(0.05)
         )
     )
 )
