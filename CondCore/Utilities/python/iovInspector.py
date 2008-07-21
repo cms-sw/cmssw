@@ -7,7 +7,7 @@
 import pluginCondDBPyInterface as CondDB
 
 class Iov :
-       def __init__(self, db, tag) :
+       def __init__(self, db, tag, since=0, till=0) :
            self.__db = db
            self.__tag = tag
            try : 
@@ -16,6 +16,7 @@ class Iov :
            except RuntimeError :
                self.__modName = 0
            self.__me = db.iov(tag)
+           if (till) self.__me.setRange(since,till)
 
        def list(self) :
            ret = []

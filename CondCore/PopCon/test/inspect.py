@@ -1,3 +1,6 @@
+#
+# I should write a decent test of the python binding...
+#
 import sys, DLFCN
 sys.setdlopenflags(DLFCN.RTLD_GLOBAL+DLFCN.RTLD_LAZY)
 
