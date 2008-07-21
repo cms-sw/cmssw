@@ -13,12 +13,12 @@ process.load("Geometry.DTGeometryBuilder.dtGeometry_cfi")
 process.load("Geometry.CSCGeometryBuilder.cscGeometry_cfi")
 
 # global tag...
-#process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #... or fake...
 #process.load("Configuration.StandardSequences.FakeConditions_cff")
 #... or specific tracker/muon conditions
-process.load("CalibTracker.Configuration.TrackerAlignment.TrackerAlignment_Frontier_cff")
-process.load("CalibMuon.Configuration.Muon_FrontierAlignment_cff")
+#process.load("CalibTracker.Configuration.TrackerAlignment.TrackerAlignment_Frontier_cff")
+#process.load("CalibMuon.Configuration.Muon_FrontierAlignment_cff")
 #process.load("CalibTracker.Configuration.TrackerAlignment.TrackerAlignment_Frontier_IntDB_cff")
 #process.load("CalibMuon.Configuration.Muon_FrontierAlignment_IntDB_cff")
 
