@@ -72,7 +72,7 @@ namespace cond {
 
   // return the real name of the file including extension...
   template<>
-  std::string PayLoadInspector<EcalPedestals>:plot(std::string const & filename,
+  std::string PayLoadInspector<EcalPedestals>::plot(std::string const & filename,
 						   std::string const &, std::vector<int> const&, std::vector<float> const& ) const {
     std::string fname = filename + ".txt";
     std::ofstream f(fname.c_str());

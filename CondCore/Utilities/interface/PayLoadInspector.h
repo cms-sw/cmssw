@@ -79,6 +79,10 @@ namespace cond {
 
     std::string summary() const {return ""; }
 
+    // return the real name of the file including extension...
+    std::string plot(std::string const & /* filename */,
+	      std::string const &, std::vector<int> const&, std::vector<float> const& ) const {}
+
     void extract(Extractor & extractor) const {extractor.computeW(*object); }
 
   private:
