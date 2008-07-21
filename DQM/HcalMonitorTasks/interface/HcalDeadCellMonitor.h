@@ -8,8 +8,8 @@
 
 /** \class HcalDeadCellMonitor
   *  
-  * $Date: 2008/07/01 00:06:08 $
-  * $Revision: 1.12 $
+  * $Date: 2008/07/07 20:12:16 $
+  * $Revision: 1.13 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -92,6 +92,8 @@ class HcalDeadCellMonitor: public HcalBaseMonitor {
  private:  ///Methods
   
    bool debug_;
+
+   bool checkAbovePed_;
 
    bool doFCpeds_; // true if ped values are in FC; otherwise, assume peds in ADC counts
 

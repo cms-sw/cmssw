@@ -34,7 +34,7 @@ namespace HcalDigiPerChan
     if (_mei!=tool.end()){
       if (_mei->second==0) cout << "HcalDigiMonitor::perChanHists, Found the histo, but it's null??";
       else{
-	for (int i=0; i<digi.size(); i++) tool[digi.id()]->Fill(i,ampl[i]);
+	for (int i=0; i<digi.size(); ++i) tool[digi.id()]->Fill(i,ampl[i]);
       }
     }
     else{
@@ -42,7 +42,7 @@ namespace HcalDigiPerChan
 	char name[1024];
 	sprintf(name,"%s Digi Shape ieta=%d iphi=%d depth=%d",type.c_str(),digi.id().ieta(),digi.id().iphi(),digi.id().depth());
 	tool[digi.id()] =  dbe->book1D(name,name,10,-0.5,9.5); 
-	for (int i=0; i<digi.size(); i++) tool[digi.id()]->Fill(i,ampl[i]);
+	for (int i=0; i<digi.size(); ++i) tool[digi.id()]->Fill(i,ampl[i]);
       } // if (dbe)
     } // else
   } // inline void perChanHists
@@ -99,7 +99,7 @@ namespace HcalDigiMap{
     // Add in for CRUZET 3:  require digi size = 10  (new update:  size>1)
     if (digi.size()<=1) err=true; 
 
-    for (int i=0; i<digi.size(); i++) {
+    for (int i=0; i<digi.size(); ++i) {
       int thisCapid = digi.sample(i).capid();
       if(bitUpset(last,thisCapid)) bitUp=true;
       last = thisCapid;

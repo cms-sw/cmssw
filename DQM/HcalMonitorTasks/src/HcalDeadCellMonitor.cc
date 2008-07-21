@@ -447,6 +447,8 @@ void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
 
   if (fVerbosity) 
     cout << "DeadCell phi min/max set to " << phiMin_ << "/" << phiMax_ << endl;
+
+  checkAbovePed_ = ps.getUntrackedParameter<bool>("DeadCell_checkAbovePed",true);
   doFCpeds_ = ps.getUntrackedParameter<bool>("PedestalsInFC", false);
 
   // if cell energy is less than this fraction of its neighbors, cell is marked as cool:
@@ -771,7 +773,7 @@ void HcalDeadCellMonitor::processEvent(const HBHERecHitCollection& hbHits,
 
   // Look for cells that have been "cool" for (checkNevents_) consecutive events
 
-  if ((ievt_%checkNevents_)==0)
+  if (checkAbovePed_ && (ievt_%checkNevents_)==0)
     {
       reset_Nevents(hbHists);
       reset_Nevents(heHists);
@@ -1105,8 +1107,7 @@ void HcalDeadCellMonitor::fill_Nevents(DeadCellHists& hcal,
 				       DeadCellHists& hb, DeadCellHists& he,
 				       DeadCellHists& ho, DeadCellHists& hf)
 {
-  // JEFF
-  // Idead is to fill overall HcalPlots only ever N events.  However, this seems to take a lot of time, so I'm disabling the hcal fills for now. -- 4 July 2008
+  // Idea is to fill overall HcalPlots only ever N events.  However, this seems to take a lot of time, so I'm disabling the hcal fills for now. -- 4 July 2008
 
   int eta,phi;
   float newval;

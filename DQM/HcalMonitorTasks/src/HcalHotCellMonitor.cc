@@ -30,6 +30,11 @@ namespace HcalHotCellCheck
 		 bool pedsInFC=false)
   {
 
+    /*
+      CheckDigi looks for hot cells by comparing cell energy to pedestal value.
+      A cell is marked hot in an event if > N sigma above pedestal.
+    */
+
     if (!h.check) return;
 
     if (h.fVerbosity) cout <<"Entered CheckDigi for type = "<<h.type<<endl;
@@ -78,6 +83,7 @@ namespace HcalHotCellCheck
     float total_pedwidth=0; 
 
     //for (int i=0;i<digi.size();++i) // old code ran over all 10 slices
+
     for (int i=max(0,maxi-1);i<=min(digi.size()-1,maxi+2);++i)
       {
 	int thisCapid = digi.sample(i).capid();
@@ -151,6 +157,9 @@ namespace HcalHotCellCheck
   template<class Hits>
   void threshCheck(const Hits& hits, HotCellHists& h, HotCellHists& hcal)
   {
+    /*
+      threshChecks looks for cells with rechit energies greater than a given threshold value.
+    */
     if (!h.check) return;
 
     // Initialize values of max-energy cell 
@@ -298,6 +307,10 @@ namespace HcalHotCellCheck
   template<class Hits>
   void nadaCheck(const Hits& hits, HotCellHists& h, HotCellHists& hcal)
   {
+    /*
+      nadaCheck looks for hot cells by comparing cell energies to the
+      energies of neighboring cells.
+    */
     if (!h.check) return;
     h.numhotcells=0;
     h.numnegcells=0;
@@ -580,8 +593,11 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
 
   baseFolder_ = rootFolder_+"HotCellMonitor";
   
-  // Global bool for disabling NADA tests (slow, not very useful in cosmics runs)
-  usenada_=ps.getUntrackedParameter<bool>("useNADA", true);
+  // Global bool for disabling individual hot cell tests
+  checkThreshold_ = ps.getUntrackedParameter<bool>("HotCell_checkThreshold", true);
+  checkNADA_      = ps.getUntrackedParameter<bool>("HotCell_checkNADA", true);
+  checkAbovePed_  = ps.getUntrackedParameter<bool>("HotCell_checkAbovePed", true);
+  cout <<"HOT CHECKS: "<<checkThreshold_<<"  "<<checkNADA_<<"  "<<checkAbovePed_<<"  "<<endl;
 
   // All subdetector values will be set to hcalHists values, unless 
   // explicitly stated otherwise in .cfi file
@@ -1132,7 +1148,8 @@ void HcalHotCellMonitor::processEvent( const HBHERecHitCollection& hbHits,
   meEVT_->Fill(ievt_);
 
   // Loop over digis
-  processEvent_digi(hbhedigi,hodigi,hfdigi,cond); // check for hot digis
+  if (checkAbovePed_)
+    processEvent_digi(hbhedigi,hodigi,hfdigi,cond); // check for hot digis
 
 
   if (fVerbosity) cout <<"HcalHotCellMonitor::processEvent   Starting process"<<endl;
@@ -1144,45 +1161,52 @@ void HcalHotCellMonitor::processEvent( const HBHERecHitCollection& hbHits,
   hcalHists.idS=0;
   hcalHists.numhotcells=0, hcalHists.numnegcells=0;
 
+
+  
   if (showTiming)
     {
       cpu_timer.reset();
       cpu_timer.start();
     }
 
-  HcalHotCellCheck::threshCheck(hbHits, hbHists, hcalHists);
-  if (showTiming)
+  // Threshold checking
+  if (checkThreshold_)
     {
-      cpu_timer.stop();
-      cout <<"TIMER:: HcalHotCell RECHIT Threshold HB -> "<<cpu_timer.cpuTime()<<endl;
-      cpu_timer.reset();cpu_timer.start();
-    }
-
-  HcalHotCellCheck::threshCheck(hbHits, heHists, hcalHists);
-  if (showTiming)
-    {
-      cpu_timer.stop();
-      cout <<"TIMER:: HcalHotCell RECHIT Threshold HE -> "<<cpu_timer.cpuTime()<<endl;
-      cpu_timer.reset(); cpu_timer.start();
-    }
   
-  HcalHotCellCheck::threshCheck(hoHits, hoHists, hcalHists);
-  if (showTiming)
-    {
-      cpu_timer.stop();
-      cout <<"TIMER:: HcalHotCell RECHIT Threshold HO -> "<<cpu_timer.cpuTime()<<endl;
-      cpu_timer.reset(); cpu_timer.start();
-    }
-  HcalHotCellCheck::threshCheck(hfHits, hfHists, hcalHists);
+      HcalHotCellCheck::threshCheck(hbHits, hbHists, hcalHists);
+      if (showTiming)
+	{
+	  cpu_timer.stop();
+	  cout <<"TIMER:: HcalHotCell RECHIT Threshold HB -> "<<cpu_timer.cpuTime()<<endl;
+	  cpu_timer.reset();cpu_timer.start();
+	}
+      
+      HcalHotCellCheck::threshCheck(hbHits, heHists, hcalHists);
+      if (showTiming)
+	{
+	  cpu_timer.stop();
+	  cout <<"TIMER:: HcalHotCell RECHIT Threshold HE -> "<<cpu_timer.cpuTime()<<endl;
+	  cpu_timer.reset(); cpu_timer.start();
+	}
+      
+      HcalHotCellCheck::threshCheck(hoHits, hoHists, hcalHists);
+      if (showTiming)
+	{
+	  cpu_timer.stop();
+	  cout <<"TIMER:: HcalHotCell RECHIT Threshold HO -> "<<cpu_timer.cpuTime()<<endl;
+	  cpu_timer.reset(); cpu_timer.start();
+	}
+      HcalHotCellCheck::threshCheck(hfHits, hfHists, hcalHists);
+      
+      
+      if (showTiming) 
+	{
+	  cpu_timer.stop();
+	  cout <<"TIMER:: HcalHotCell RECHIT Threshold HF -> "<<cpu_timer.cpuTime()<<endl;
+	}
+    } // if (checkThreshold_)
 
-
-  if (showTiming) 
-    {
-      cpu_timer.stop();
-      cout <<"TIMER:: HcalHotCell RECHIT Threshold HF -> "<<cpu_timer.cpuTime()<<endl;
-    }
-
-  if (usenada_)
+  if (checkNADA_)
     {
       if (showTiming) 
 	{

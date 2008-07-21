@@ -11,8 +11,8 @@
 
 /** \class HcalHotCellMonitor
   *  
-  * $Date: 2008/06/26 18:52:28 $
-  * $Revision: 1.18 $
+  * $Date: 2008/07/16 22:07:54 $
+  * $Revision: 1.19 $
   * \author W. Fisher - FNAL
   * \ updated by J. Temple - Univ. of Maryland
   */
@@ -89,6 +89,13 @@ struct HotCellHists{
   int type;
   std::string name;
   bool subdetOn;
+  
+  /*
+    // Not yet used -- eventually allow for turning on/off checks for individual subdetectors?
+  bool checkThreshold_;
+  bool checkNADA_;
+  bool checkAbovePed_;
+  */
 
   double etaMax, etaMin, phiMax, phiMin;
   int etaBins, phiBins;
@@ -128,11 +135,13 @@ public:
 private:  ///Monitoring elements
 
   bool debug_;
-  bool usenada_;
-  
+
   int ievt_;
 
   float HF_offsets[13][36][2];
+  bool checkThreshold_;
+  bool checkNADA_;
+  bool checkAbovePed_;
 
 
   HotCellHists hbHists,heHists,hfHists,hoHists;
