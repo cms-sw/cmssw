@@ -29,7 +29,6 @@
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 
-#include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "PhysicsTools/JetMCUtils/interface/JetMCTag.h"
 #include "PhysicsTools/JetMCUtils/interface/CandMCTag.h"
