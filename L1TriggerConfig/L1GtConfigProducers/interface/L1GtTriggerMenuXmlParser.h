@@ -90,6 +90,13 @@ public:
 
     void setGtNumberPhysTriggers(const unsigned int&);
 
+    /// get / set the number of technical triggers
+    inline const unsigned int gtNumberTechTriggers() const {
+        return m_numberTechTriggers;
+    }
+
+    void setGtNumberTechTriggers(const unsigned int&);
+
     ///  get / set the number of L1 jet counts received by GT
     inline const unsigned int gtNumberL1JetCounts() const {
         return m_numberL1JetCounts;
@@ -194,6 +201,13 @@ public:
 
     void setGtAlgorithmMap(const AlgorithmMap&);
 
+    /// get / set the technical trigger map
+    inline const AlgorithmMap& gtTechnicalTriggerMap() const {
+        return m_technicalTriggerMap;
+    }
+
+    void setGtTechnicalTriggerMap(const AlgorithmMap&);
+
 public:
 
     /// parse def.xml and vme.xml files
@@ -271,6 +285,9 @@ private:
     /// insert an algorithm into algorithm map
     bool insertAlgorithmIntoMap(const L1GtAlgorithm& alg);
 
+    /// insert a technical trigger into technical trigger map
+    bool insertTechTriggerIntoMap(const L1GtAlgorithm& alg);
+
     /// get the type of the condition, as defined in enum, from the condition type
     /// as defined in the XML file
     L1GtConditionType getTypeFromType(const std::string& type);
@@ -331,6 +348,13 @@ private:
     /// parse all algorithms
     bool parseAlgorithms(XERCES_CPP_NAMESPACE::XercesDOMParser* parser);
 
+    /// parse an algorithm and insert it into algorithm map.
+    bool workTechTrigger(XERCES_CPP_NAMESPACE::DOMNode* node,
+            const std::string& name);
+
+    /// parse all algorithms
+    bool parseTechTriggers(XERCES_CPP_NAMESPACE::XercesDOMParser* parser);
+
     /// do all the steps for filling a trigger menu
     bool workXML(XERCES_CPP_NAMESPACE::XercesDOMParser* parser);
 
@@ -353,6 +377,9 @@ private:
 
     /// number of physics trigger algorithms
     unsigned int m_numberPhysTriggers;
+
+    /// number of technical triggers
+    unsigned int m_numberTechTriggers;
 
     /// jet counts
     unsigned int m_numberL1JetCounts;
@@ -380,8 +407,11 @@ private:
     std::vector<std::vector<L1GtCaloTemplate> > m_corCaloTemplate;
     std::vector<std::vector<L1GtEnergySumTemplate> > m_corEnergySumTemplate;
 
-    /// map containing the algorithms (global map)
+    /// map containing the physics algorithms
     AlgorithmMap m_algorithmMap;
+    
+    /// map containing the technical triggers
+    AlgorithmMap m_technicalTriggerMap;
 
 };
 

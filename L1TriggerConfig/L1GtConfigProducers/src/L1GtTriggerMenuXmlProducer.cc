@@ -116,6 +116,7 @@ boost::shared_ptr<L1GtTriggerMenu> L1GtTriggerMenuXmlProducer::produceGtTriggerM
     unsigned int pinsOnConditionChip = stableParameters->gtPinsOnConditionChip();
     std::vector<int> orderConditionChip = stableParameters->gtOrderConditionChip();
     unsigned int numberPhysTriggers = stableParameters->gtNumberPhysTriggers();
+    unsigned int numberTechTriggers = stableParameters->gtNumberTechnicalTriggers();
     unsigned int numberL1JetCounts = stableParameters->gtNumberL1JetCounts();
 
     L1GtTriggerMenuXmlParser gtXmlParser = L1GtTriggerMenuXmlParser();
@@ -124,6 +125,7 @@ boost::shared_ptr<L1GtTriggerMenu> L1GtTriggerMenuXmlProducer::produceGtTriggerM
     gtXmlParser.setGtPinsOnConditionChip(pinsOnConditionChip);
     gtXmlParser.setGtOrderConditionChip(orderConditionChip);
     gtXmlParser.setGtNumberPhysTriggers(numberPhysTriggers);
+    gtXmlParser.setGtNumberTechTriggers(numberTechTriggers);
     gtXmlParser.setGtNumberL1JetCounts(numberL1JetCounts);
 
     gtXmlParser.parseXmlFile(m_defXmlFile, m_vmeXmlFile);
@@ -144,6 +146,7 @@ boost::shared_ptr<L1GtTriggerMenu> L1GtTriggerMenuXmlProducer::produceGtTriggerM
 
 
     pL1GtTriggerMenu->setGtAlgorithmMap(gtXmlParser.gtAlgorithmMap());
+    pL1GtTriggerMenu->setGtTechnicalTriggerMap(gtXmlParser.gtTechnicalTriggerMap());
 
     //LogDebug("L1GtConfigProducers")
     //<< "\n\nReturning L1 Trigger Menu!"

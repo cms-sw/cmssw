@@ -165,6 +165,13 @@ public:
 
     void setGtAlgorithmMap(const AlgorithmMap&);
 
+    /// get / set the technical trigger map
+    inline const AlgorithmMap& gtTechnicalTriggerMap() const {
+        return m_technicalTriggerMap;
+    }
+
+    void setGtTechnicalTriggerMap(const AlgorithmMap&);
+
     /// print the trigger menu
     /// allow various verbosity levels
     void print(std::ostream&, int&) const;
@@ -199,8 +206,12 @@ private:
     std::vector<std::vector<L1GtCaloTemplate> > m_corCaloTemplate;
     std::vector<std::vector<L1GtEnergySumTemplate> > m_corEnergySumTemplate;
 
-    /// map containing the algorithms (global map)
+    /// map containing the physics algorithms
     AlgorithmMap m_algorithmMap;
+    
+    /// map containing the technical triggers
+    AlgorithmMap m_technicalTriggerMap;
+    
 
 };
 

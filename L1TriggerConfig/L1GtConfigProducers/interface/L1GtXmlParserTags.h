@@ -12,8 +12,8 @@
  *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date: 2008/06/26 09:01:07 $
- * $Revision: 1.3 $
+ * $Date: 2008/07/08 18:06:26 $
+ * $Revision: 1.4 $
  *
  */
 
@@ -44,6 +44,7 @@ protected:
     static const std::string m_xmlTagChip;
     static const std::string m_xmlTagConditions;
     static const std::string m_xmlTagAlgorithms;
+    static const std::string m_xmlTagTechTriggers;
 
     static const std::string m_xmlConditionAttrCondition;
     static const std::string m_xmlConditionAttrObject;

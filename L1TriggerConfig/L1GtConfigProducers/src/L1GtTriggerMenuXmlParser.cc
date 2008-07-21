@@ -77,9 +77,18 @@ void L1GtTriggerMenuXmlParser::setGtOrderConditionChip(
 }
 
 // set the number of physics trigger algorithms
-void L1GtTriggerMenuXmlParser::setGtNumberPhysTriggers(const unsigned int& numberPhysTriggersValue) {
+void L1GtTriggerMenuXmlParser::setGtNumberPhysTriggers(
+        const unsigned int& numberPhysTriggersValue) {
 
     m_numberPhysTriggers = numberPhysTriggersValue;
+
+}
+
+// set the number of technical triggers
+void L1GtTriggerMenuXmlParser::setGtNumberTechTriggers(
+        const unsigned int& numberTechTriggersValue) {
+
+    m_numberTechTriggers = numberTechTriggersValue;
 
 }
 
@@ -164,6 +173,11 @@ void L1GtTriggerMenuXmlParser::setCorEnergySumTemplate(
 // set the algorithm map
 void L1GtTriggerMenuXmlParser::setGtAlgorithmMap(const AlgorithmMap& algoMap) {
     m_algorithmMap = algoMap;
+}
+
+// set the technical trigger map
+void L1GtTriggerMenuXmlParser::setGtTechnicalTriggerMap(const AlgorithmMap& ttMap) {
+    m_technicalTriggerMap = ttMap;
 }
 
 //
@@ -1047,6 +1061,73 @@ bool L1GtTriggerMenuXmlParser::insertAlgorithmIntoMap(const L1GtAlgorithm& alg) 
     return true;
 
 }
+
+// insert a technical trigger into technical trigger map
+bool L1GtTriggerMenuXmlParser::insertTechTriggerIntoMap(const L1GtAlgorithm& alg) {
+
+    std::string algName = alg.algoName();
+    //LogTrace("L1GtTriggerMenuXmlParser")
+    //<< "    Trying to insert technical trigger \"" << algName 
+    //<< "\" in the technical trigger map." ;
+
+    // no technical trigger name has to appear twice!
+    if (m_technicalTriggerMap.count(algName) != 0) {
+        LogTrace("L1GtTriggerMenuXmlParser") << "      Technical trigger \""
+                << algName
+                << "\"already exists in the technical trigger map- not inserted!"
+                << std::endl;
+        return false;
+    }
+
+    // bit number less than zero or greater than maximum number of technical triggers 
+    int bitNumber = alg.algoBitNumber();
+    if ((bitNumber < 0)
+            || (bitNumber >= static_cast<int>(m_numberTechTriggers))) {
+        LogTrace("L1GtTriggerMenuXmlParser") << "      Bit number "
+                << bitNumber << " outside allowed range [0, "
+                << m_numberTechTriggers
+                << ") - technical trigger not inserted!" << std::endl;
+        return false;
+    }
+
+    // no two technical triggers can have the same bit number
+    for (CItAlgo itAlgo = m_technicalTriggerMap.begin(); itAlgo
+            != m_technicalTriggerMap.end(); itAlgo++) {
+
+        int iBitNumber = (itAlgo->second).algoBitNumber();
+        std::string iName = itAlgo->first;
+
+        if ((iBitNumber == bitNumber)) {
+            LogTrace("L1GtTriggerMenuXmlParser") << "      Bit number "
+                    << iBitNumber << " is the same as for technical trigger "
+                    << iName << " - technical trigger not inserted!"
+                    << std::endl;
+            return false;
+        }
+
+    }
+
+    // maximum number of technical triggers
+    if (m_technicalTriggerMap.size() >= m_numberTechTriggers) {
+        LogTrace("L1GtTriggerMenuXmlParser")
+                << "      More than maximum allowed " << m_numberTechTriggers
+                << " technical triggers in the technical trigger map - not inserted!"
+                << std::endl;
+        return false;
+    }
+
+    // insert technical trigger
+    m_technicalTriggerMap[algName] = alg;
+
+    //LogTrace("L1GtTriggerMenuXmlParser")
+    //<< "      OK - technical trigger inserted!"
+    //<< std::endl;
+
+    return true;
+
+}
+
+
 
 // get the type of the condition, as defined in enum, from the condition type
 // as defined in the XML file
@@ -2923,6 +3004,151 @@ bool L1GtTriggerMenuXmlParser::parseAlgorithms(XERCES_CPP_NAMESPACE::XercesDOMPa
 }
 
 /**
+ * workTechTrigger - parse the technical trigger and insert it into technical trigger map.
+ *
+ * @param node The corresponding node to the technical trigger.
+ * @param name The name of the technical trigger.
+ *
+ * @return "true" on success, "false" if an error occured.
+ *
+ */
+
+bool L1GtTriggerMenuXmlParser::workTechTrigger(XERCES_CPP_NAMESPACE::DOMNode* node,
+    const std::string& algName) {
+
+    XERCES_CPP_NAMESPACE_USE
+
+    if (node == 0) {
+        LogDebug("L1GtTriggerMenuXmlParser")
+        << "    Node is 0 in " << __PRETTY_FUNCTION__
+        << " can not parse the technical trigger " << algName
+        << std::endl;
+        return false;
+    }
+
+    // get the logical expression from the node
+    std::string logExpression = getXMLTextValue(node);
+
+    //LogTrace("L1GtTriggerMenuXmlParser")
+    //<< "      Logical expression: " << logExpression
+    //<< std::endl;
+
+    // determine bit number (use output pin tag)
+    DOMNode* pinNode = findXMLChild(node->getFirstChild(), m_xmlTagOutput);
+    std::string pinString;
+    int outputPin = 0;
+
+    pinNode = node->getFirstChild();
+    if ( (pinNode = findXMLChild(pinNode, m_xmlTagOutputPin) ) != 0) {
+        pinString = getXMLAttribute(pinNode, m_xmlAttrNr);
+
+        // convert pinString to integer
+        std::istringstream opStream(pinString);
+
+        if ((opStream >> outputPin).fail()) {
+            LogDebug("L1GtTriggerMenuXmlParser")
+                    << "    Unable to convert pin string " << pinString
+                    << " to int for technical trigger : " << algName
+                    << std::endl;
+
+            return false;
+        }
+
+    }
+
+    if (pinNode == 0) {
+        LogTrace("L1GtTriggerMenuXmlParser") 
+            << "    Warning: No pin number found for technical trigger: "
+            << algName << std::endl;
+
+        return false;
+    }
+
+    // set the bit number
+    int bitNumber = outputPin;
+
+    //LogTrace("L1GtTriggerMenuXmlParser")
+    //<< "      Bit number:         " << bitNumber
+    //<< std::endl;
+
+    // create a new technical trigger and insert it into technical trigger map
+    L1GtAlgorithm alg(algName, logExpression, bitNumber);
+
+    if (edm::isDebugEnabled() ) {
+
+        std::ostringstream myCoutStream;
+        alg.print(myCoutStream);
+        LogTrace("L1GtTriggerMenuXmlParser") << myCoutStream.str() << "\n" << std::endl;
+
+    }
+
+    // insert technical trigger into the map
+    if ( !insertTechTriggerIntoMap(alg)) {
+
+        return false;
+    }
+
+    return true;
+
+}
+
+/*
+ * parseTechTriggers Parse the technical triggers
+ * 
+ * @param parser A reference to the XercesDOMParser to use.
+ * 
+ * @return "true" if succeeded, "false" if an error occured.
+ *
+ */
+
+bool L1GtTriggerMenuXmlParser::parseTechTriggers(XERCES_CPP_NAMESPACE::XercesDOMParser* parser) {
+
+    XERCES_CPP_NAMESPACE_USE
+
+    //LogTrace("L1GtTriggerMenuXmlParser") << "\nParsing technical triggers" << std::endl;
+
+    DOMNode* doc = parser->getDocument();
+    DOMNode* node = doc->getFirstChild();
+
+    DOMNode* algNode = node->getFirstChild();
+    if (algNode == 0) {
+        edm::LogError("L1GtTriggerMenuXmlParser")
+                << "  Error: No child found for " << m_xmlTagDef << std::endl;
+        return false;
+    }
+
+    algNode = findXMLChild(algNode, m_xmlTagTechTriggers);
+    if (algNode == 0) {
+        edm::LogError("L1GtTriggerMenuXmlParser") << "    Error: No <"
+                << m_xmlTagTechTriggers << "> child found."
+                << std::endl;
+        return false;
+    }
+
+    // walk through technical triggers
+    DOMNode* algNameNode = algNode->getFirstChild();
+    std::string algNameNodeName;
+    algNameNode = findXMLChild(algNameNode, "", true, &algNameNodeName);
+
+    while (algNameNode != 0) {
+        //LogTrace("L1GtTriggerMenuXmlParser")
+        //<< "    Found an technical trigger with name: " << algNameNodeName
+        //<< std::endl;
+
+        if ( !workTechTrigger(algNameNode, algNameNodeName)) {
+            return false;
+        }
+
+        algNameNode = findXMLChild(algNameNode->getNextSibling(), "", true,
+                &algNameNodeName);
+
+    }
+
+    return true;
+}
+
+
+/**
  * workXML parse the XML-File
  *
  * @param parser The parser to use for parsing the XML-File
@@ -2968,6 +3194,11 @@ bool L1GtTriggerMenuXmlParser::workXML(XERCES_CPP_NAMESPACE::XercesDOMParser* pa
     }
 
     if ( !parseAlgorithms(parser) ) {
+        clearMaps();
+        return false;
+    }
+
+    if ( !parseTechTriggers(parser) ) {
         clearMaps();
         return false;
     }

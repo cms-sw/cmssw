@@ -9,8 +9,8 @@
  *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date: 2008/06/26 09:01:08 $
- * $Revision: 1.3 $
+ * $Date: 2008/07/08 18:06:26 $
+ * $Revision: 1.4 $
  *
  */
 
@@ -43,6 +43,7 @@ const std::string L1GtXmlParserTags::m_xmlTagChip("condition_chip_");
 const std::string L1GtXmlParserTags::m_xmlTagConditions("conditions");
 // see parseAlgorithms note for "prealgos"
 const std::string L1GtXmlParserTags::m_xmlTagAlgorithms("prealgos");
+const std::string L1GtXmlParserTags::m_xmlTagTechTriggers("techtriggers");
 
 const std::string L1GtXmlParserTags::m_xmlConditionAttrCondition("condition");
 const std::string L1GtXmlParserTags::m_xmlConditionAttrObject("particle");

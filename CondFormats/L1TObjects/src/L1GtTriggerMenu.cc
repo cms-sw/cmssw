@@ -256,6 +256,11 @@ void L1GtTriggerMenu::setGtAlgorithmMap(const AlgorithmMap& algoMap) {
     m_algorithmMap = algoMap;
 }
 
+// set the technical trigger map
+void L1GtTriggerMenu::setGtTechnicalTriggerMap(const AlgorithmMap& ttMap) {
+    m_technicalTriggerMap = ttMap;
+}
+
 // print the trigger menu (bit number, algorithm name, logical expression)
 void L1GtTriggerMenu::print(std::ostream& myCout, int& printVerbosity) const {
 
@@ -269,6 +274,22 @@ void L1GtTriggerMenu::print(std::ostream& myCout, int& printVerbosity) const {
         int bitNumber = (itAlgo->second).algoBitNumber();
         algoBitToAlgo[bitNumber] = &(itAlgo->second);
     }
+    
+    size_t nrDefinedAlgo = algoBitToAlgo.size();
+
+    // idem for technical trigger map - only name and bit number are relevant for them
+    std::map<int, const L1GtAlgorithm*> ttBitToTt;
+
+    for (CItAlgo itAlgo = m_technicalTriggerMap.begin(); itAlgo
+            != m_technicalTriggerMap.end(); itAlgo++) {
+
+        int bitNumber = (itAlgo->second).algoBitNumber();
+        ttBitToTt[bitNumber] = &(itAlgo->second);
+    }
+
+    size_t nrDefinedTechTrig = ttBitToTt.size();
+    
+    //
 
     switch (printVerbosity) {
 
@@ -278,6 +299,7 @@ void L1GtTriggerMenu::print(std::ostream& myCout, int& printVerbosity) const {
 
             myCout << "\n   ********** L1 Trigger Menu - printing   ********** \n\n"
             << "L1 Trigger Menu Name: " << m_triggerMenuName << "\n\n"
+            << "\nL1 Physics Algorithms: " << nrDefinedAlgo << " algorithms defined." << "\n\n"
             << "Bit Number " << " Algorithm Name " << std::endl;
 
             for (CItBit itBit = algoBitToAlgo.begin(); itBit != algoBitToAlgo.end(); itBit++) {
@@ -287,6 +309,22 @@ void L1GtTriggerMenu::print(std::ostream& myCout, int& printVerbosity) const {
 
                 myCout << std::setw(6) << bitNumber << "       " << aName << std::endl;
             }
+
+            myCout 
+            << "\nL1 Technical Triggers: " << nrDefinedTechTrig 
+            << " technical triggers defined." << "\n\n" << std::endl;
+            if (nrDefinedTechTrig) {
+                myCout << "Bit Number " << " Technical trigger name " << std::endl;                
+            }
+            
+            for (CItBit itBit = ttBitToTt.begin(); itBit != ttBitToTt.end(); itBit++) {
+
+                int bitNumber = itBit->first;
+                std::string aName = (itBit->second)->algoName();
+
+                myCout << std::setw(6) << bitNumber << "       " << aName << std::endl;
+            }
+            
         }
             break;
 
@@ -296,6 +334,7 @@ void L1GtTriggerMenu::print(std::ostream& myCout, int& printVerbosity) const {
 
             myCout << "\n   ********** L1 Trigger Menu - printing   ********** \n\n"
             << "L1 Trigger Menu Name: " << m_triggerMenuName << "\n\n"
+            << "\nL1 Physics Algorithms: " << nrDefinedAlgo << " algorithms defined." << "\n\n"
             << "Bit Number " << " Algorithm Name " << "\n  Logical Expresssion \n" << std::endl;
 
             for (CItBit itBit = algoBitToAlgo.begin(); itBit != algoBitToAlgo.end(); itBit++) {
@@ -307,6 +346,21 @@ void L1GtTriggerMenu::print(std::ostream& myCout, int& printVerbosity) const {
                 myCout << std::setw(6) << bitNumber << "       " << aName
                     << "\n  Logical expression: " << aLogicalExpression << "\n" << std::endl;
             }
+
+            myCout 
+            << "\nL1 Technical Triggers: " << nrDefinedTechTrig 
+            << " technical triggers defined." << "\n\n" << std::endl;
+            if (nrDefinedTechTrig) {
+                myCout << "Bit Number " << " Technical trigger name " << std::endl;                
+            }
+            
+            for (CItBit itBit = ttBitToTt.begin(); itBit != ttBitToTt.end(); itBit++) {
+
+                int bitNumber = itBit->first;
+                std::string aName = (itBit->second)->algoName();
+
+                myCout << std::setw(6) << bitNumber << "       " << aName << std::endl;
+            }
         }
             break;
 
@@ -316,6 +370,7 @@ void L1GtTriggerMenu::print(std::ostream& myCout, int& printVerbosity) const {
 
             myCout << "\n   ********** L1 Trigger Menu - printing   ********** \n\n"
             << "L1 Trigger Menu Name: " << m_triggerMenuName << "\n\n"
+            << "\nL1 Physics Algorithms: " << nrDefinedAlgo << " algorithms defined." << "\n\n"
             << std::endl;
 
             for (CItBit itBit = algoBitToAlgo.begin(); itBit != algoBitToAlgo.end(); itBit++) {
@@ -355,6 +410,21 @@ void L1GtTriggerMenu::print(std::ostream& myCout, int& printVerbosity) const {
             << totalNrConditions << "\n" 
             << std::endl;
             
+            myCout 
+            << "\nL1 Technical Triggers: " << nrDefinedTechTrig 
+            << " technical triggers defined." << "\n\n" << std::endl;
+            if (nrDefinedTechTrig) {
+                myCout << "Bit Number " << " Technical trigger name " << std::endl;                
+            }
+            
+            for (CItBit itBit = ttBitToTt.begin(); itBit != ttBitToTt.end(); itBit++) {
+
+                int bitNumber = itBit->first;
+                std::string aName = (itBit->second)->algoName();
+
+                myCout << std::setw(6) << bitNumber << "       " << aName << std::endl;
+            }
+
                                 
         }
             break;
