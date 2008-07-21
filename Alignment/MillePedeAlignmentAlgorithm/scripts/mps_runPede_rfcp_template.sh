@@ -55,4 +55,9 @@ echo "\nDirectory content after running cmsRun, zipping log file and merging his
 ls -lh
 # Copy everything you need to MPS directory of your job,
 # but you might want to copy less stuff to save disk space:
-cp -p *.log.gz *.txt.gz *.root millepede.*s *.db $RUNDIR
+# (separate cp's for each item, otherwise you loose all if one file is missing):
+cp -p *.log.gz $RUNDIR
+cp -p *.txt.gz $RUNDIR
+cp -p *.root $RUNDIR
+cp -p millepede.*s $RUNDIR
+cp -p *.db $RUNDIR
