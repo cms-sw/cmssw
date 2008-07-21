@@ -1,0 +1,24 @@
+<?xml version='1.0' encoding="UTF-8"?>
+<!DOCTYPE PoolDatabase SYSTEM "InMemory">
+ <PoolDatabase >
+  <PoolContainer name="SiStripSummary_basic" >
+   <Class table="SISTRIPSUMMARY" id_columns="IOV_VALUE_ID" name="SiStripSummary" mapping_version="SiStripSummary_basic" >
+     <Container table="SISTRIPSUMMARY_REGISTRY" id_columns="IOV_VALUE_ID" name="indexes" position_column="POS" >
+       <Object name="value_type" >
+         <Primitive column="DETID" name="detid" />
+         <Primitive column="IBEGIN" name="ibegin" />
+         <Primitive column="IEND" name="iend" />
+       </Object >
+     </Container >
+     <Primitive column="RUNNR" name="runNr_" />
+     <Primitive column="TAG" name="tag_" />
+     <Primitive column="TIMEVALUE" name="timeValue_" />
+     <Container table="SISTRIPSUMMARY_QUANTITIES" id_columns="ID_VALUE_ID" name="userDBContent_" position_column="POS" >
+       <Primitive column="QUANTITY" name="value_type" />
+     </Container >
+     <Container table="SISTRIPSUMMARY_DATA" id_columns="IOV_VALUE_ID" name="v_sum" position_column="POS" >
+       <Primitive column="DATA" name="value_type" />
+     </Container >
+   </Class >
+  </PoolContainer >
+ </PoolDatabase >
