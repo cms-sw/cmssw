@@ -24,8 +24,9 @@ for tag in tags.split() :
         log = db.lastLogEntry(tag)
         print log.getState()
         iov = inspect.Iov(db,tag)
-        print iov.summaries()
-        print iov.trend("",[0,2,12])
+        print iov.list()
+#        print iov.summaries()
+#        print iov.trend("",[0,2,12])
     except RuntimeError :
         print " no iov? in", tag
 
@@ -34,7 +35,14 @@ iov=0
 
 tag = tags.split()[0]
 
-p = db.payLoad(log.payloadToken)
+token = log.payloadToken
+
+p = inspect.PayLoad(db,token)
+print p
+
+p=0
+
+p = db.payLoad(token)
 o = Plug.Object(p)
 o.summary()
 o.dump()

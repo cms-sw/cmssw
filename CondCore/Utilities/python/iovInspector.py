@@ -60,4 +60,7 @@ class PayLoad :
     def __str__(self) :
         return self.__me.dump()
 
+    def object(self) :
+        return self.__me
+
 
