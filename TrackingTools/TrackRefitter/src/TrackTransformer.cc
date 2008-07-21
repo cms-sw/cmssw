@@ -49,6 +49,7 @@ TrackTransformer::TrackTransformer(const ParameterSet& parameterSet){
   theMuonRecHitBuilderName = parameterSet.getParameter<string>("MuonRecHitBuilder");
 
   theRPCInTheFit = parameterSet.getParameter<bool>("RefitRPCHits");
+  theDoPredictionsOnly = parameterSet.getParameter<bool>("DoPredictionsOnly");
 
   theCacheId_TC = theCacheId_GTG = theCacheId_MG = theCacheId_TRH = 0;
 }
@@ -164,10 +165,50 @@ vector<Trajectory> TrackTransformer::transform(const reco::Track& newTrack,
                                                const reco::TransientTrack track,
                                                TransientTrackingRecHit::ConstRecHitContainer recHitsForReFit) const {
   
+  const std::string metname = "Reco|TrackingTools|TrackTransformer";
+
   if(recHitsForReFit.size() < 2) return vector<Trajectory>();
 
-  const std::string metname = "Reco|TrackingTools|TrackTransformer";
-  
+  if ( theDoPredictionsOnly ) {
+
+    // Fill the starting state
+    TrajectoryStateOnSurface firstTSOS;
+    unsigned int innerId;
+    if(theRefitDirection == insideOut){
+      innerId =   newTrack.innerDetId();
+      firstTSOS = track.innermostMeasurementState();
+    }
+    else{
+      innerId   = newTrack.outerDetId();
+      firstTSOS = track.outermostMeasurementState();
+    }
+
+    if ( !firstTSOS.isValid() ) return vector<Trajectory>();
+
+    if(recHitsForReFit.front()->geographicalId() != DetId(innerId)) {
+        reverse(recHitsForReFit.begin(),recHitsForReFit.end());
+    }
+
+    PTrajectoryStateOnDet garbage1;
+    edm::OwnVector<TrackingRecHit> garbage2;
+    PropagationDirection propDir =
+      (firstTSOS.globalPosition().basicVector().dot(firstTSOS.globalMomentum().basicVector())>0) ? alongMomentum : oppositeToMomentum;
+
+    TrajectorySeed seed(garbage1,garbage2,propDir);
+
+    Trajectory aTraj(seed, propDir);
+
+    TrajectoryStateOnSurface predTSOS = firstTSOS;
+
+    for ( TransientTrackingRecHit::ConstRecHitContainer::const_iterator ihit = recHitsForReFit.begin(); 
+          ihit != recHitsForReFit.end(); ++ihit ) {
+      predTSOS = propagator()->propagate(firstTSOS, (*ihit)->det()->surface());
+      if (predTSOS.isValid()) aTraj.push(TrajectoryMeasurement(predTSOS, *ihit));
+    }
+    return vector<Trajectory>(1, aTraj);
+
+  }
+
   // Check the order of the rechits
   RefitDirection recHitsOrder = checkRecHitsOrdering(recHitsForReFit);
 

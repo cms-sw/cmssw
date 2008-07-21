@@ -10,8 +10,8 @@
  *  pointers to the services, therefore EACH event the setServices(const edm::EventSetup&)
  *  method MUST be called in the code in which the TrackTransformer is used.
  *
- *  $Date: 2007/08/09 14:33:21 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/04/29 13:41:52 $
+ *  $Revision: 1.8 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -88,6 +88,7 @@ public:
   
   bool theRPCInTheFit;
 
+  bool theDoPredictionsOnly;
   RefitDirection theRefitDirection;
 
   edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
