@@ -264,4 +264,3 @@ MessageLogger = cms.Service("MessageLogger",
         'cerr')
 )
 
-

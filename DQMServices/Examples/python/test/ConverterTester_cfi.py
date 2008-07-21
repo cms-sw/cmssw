@@ -6,4 +6,3 @@ convertertester = cms.EDFilter("ConverterTester",
     Name = cms.untracked.string('ConverterTester')
 )
 
-
