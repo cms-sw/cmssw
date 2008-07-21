@@ -139,8 +139,9 @@ class Selection {
 	     <<std::right<<std::setw(10)<<count.nCumulative_<<" passed events. "
 	     <<std::right<<std::setw(10)<<std::setprecision (5)<<(count.nCumulative_/(float)count.nSeen_)*100.<<" [%]";
       if (lastCount!=0)
-	summary<<" (to previous count) "<<std::right<<std::setw(10)<<std::setprecision (5)<<(count.nCumulative_/(float)lastCount)*100.<<" [%]"
-	       <<std::endl;
+	summary<<" (to previous count) "<<std::right<<std::setw(10)<<std::setprecision (5)<<(count.nCumulative_/(float)lastCount)*100.<<" [%]";
+      summary	<<std::endl;
+
       lastCount = count.nCumulative_;
     }
     summary<<"-------------------------------------\n";
