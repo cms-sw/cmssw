@@ -694,10 +694,45 @@ void SiStripRawToDigiUnpacker::locateStartOfFedBuffer( const uint16_t& fed_id,
     uint32_t* input_u32   = reinterpret_cast<uint32_t*>( const_cast<unsigned char*>( input.data() ) + offset );
     uint32_t* fed_trailer = reinterpret_cast<uint32_t*>( const_cast<unsigned char*>( input.data() ) + input.size() - 8 );
 
-    if ( (input_u32[0]    & 0xF0000000) == 0x50000000 &&
-	 (fed_trailer[0]  & 0xF0000000) == 0xA0000000 && 
-	 ((fed_trailer[0] & 0x00FFFFFF) * 0x8) == (input.size() - offset) ) {
+    /*
 
+      Some info on FED buffer 32-bit word swapping. Table below
+      indicates if data are swapped relative to "old" VME format (as
+      orignally expected by Fed9UEvent)
+
+      | SWAPPED?    |         DATA FORMAT       |
+      | (wrt "OLD") | OLD (0xED)  | NEW (0xC5)  |
+      |             | VME | SLINK | VME | SLINK |
+      -------------------------------------------
+      | DAQ HEADER  |  N  |   Y   |  Y  |   Y   |
+      | TRK HEADER  |  N  |   Y   |  N  |   N   |
+      | PAYLOAD     |  N  |   Y   |  N  |   N   |
+      | DAQ TRAILER |  N  |   Y   |  Y  |   Y   |
+
+      So, in code, we check in code order of bytes in DAQ header/trailer only:
+      -> if "old_vme_header",           then old format read out via vme, so do nothing.
+      -> else if "old_slink_header",    then data mapy be wwapped, so check additionally the TRK header:
+      --> if "old_slink_payload",       then old format read out via slink, so swap all data;
+      --> else if "new_buffer_format",  then new format, handled internally by Fed9UEvent, so do nothing.
+
+     */
+    
+    bool old_vme_header = 
+      ( input_u32[0]    & 0xF0000000 ) == 0x50000000 &&
+      ( fed_trailer[0]  & 0xF0000000 ) == 0xA0000000 && 
+      ( (fed_trailer[0] & 0x00FFFFFF)*0x8 ) == (input.size() - offset);
+    
+    bool old_slink_header = 
+      ( input_u32[1]    & 0xF0000000 ) == 0x50000000 &&
+      ( fed_trailer[1]  & 0xF0000000 ) == 0xA0000000 &&
+      ( (fed_trailer[1] & 0x00FFFFFF)*0x8 ) == (input.size() - offset);
+
+    bool old_slink_payload = ( input_u32[3] & 0xFF000000 ) == 0xED000000;
+    
+    bool new_buffer_format = ( input_u32[2] & 0xFF000000 ) == 0xC5000000;
+    
+    if ( old_vme_header )  {
+      
       // Found DAQ header at byte position 'offset'
       found = true;
       output.resize( input.size()-offset );
@@ -715,33 +750,54 @@ void SiStripRawToDigiUnpacker::locateStartOfFedBuffer( const uint16_t& fed_id,
 	  LogTrace(mlRawToDigi_) << ss.str();
 	}
       }
-
-    } else if ( (input_u32[1]    & 0xF0000000) == 0x50000000 &&
-		(fed_trailer[1]  & 0xF0000000) == 0xA0000000 &&
-		((fed_trailer[1] & 0x00FFFFFF) * 0x8) == (input.size() - offset) ) {
-
-      // Found DAQ header (with MSB and LSB 32-bit words swapped) at byte position 'offset' 
-      found = true;
-      output.resize( input.size()-offset );
-      uint32_t* output_u32 = reinterpret_cast<uint32_t*>( const_cast<unsigned char*>( output.data() ) );
-      uint16_t iter = offset; 
-      while ( iter < output.size() / sizeof(uint32_t) ) {
-	output_u32[iter] = input_u32[iter+1];
-	output_u32[iter+1] = input_u32[iter];
-	iter+=2;
-      }
-      if ( headerBytes_ < 0 ) {
-	if ( edm::isDebugEnabled() ) {
-	  std::stringstream ss;
-	  ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]" 
-	     << " Buffer (with MSB and LSB 32-bit words swapped) for FED id " << fed_id 
-	     << " has been found at byte position " << offset
-	     << " with a size of " << output.size() << " bytes."
-	     << " Adjust the configurable 'AppendedBytes' to " << offset;
-	  LogTrace(mlRawToDigi_) << ss.str();
+      
+    } else if ( old_slink_header ) {
+      
+      if ( old_slink_payload ) {
+      
+	// Found DAQ header (with MSB and LSB 32-bit words swapped) at byte position 'offset' 
+	found = true;
+	output.resize( input.size()-offset );
+	uint32_t* output_u32 = reinterpret_cast<uint32_t*>( const_cast<unsigned char*>( output.data() ) );
+	uint16_t iter = offset; 
+	while ( iter < output.size() / sizeof(uint32_t) ) {
+	  output_u32[iter] = input_u32[iter+1];
+	  output_u32[iter+1] = input_u32[iter];
+	  iter+=2;
 	}
-      }
+	if ( headerBytes_ < 0 ) {
+	  if ( edm::isDebugEnabled() ) {
+	    std::stringstream ss;
+	    ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]" 
+	       << " Buffer (with MSB and LSB 32-bit words swapped) for FED id " << fed_id 
+	       << " has been found at byte position " << offset
+	       << " with a size of " << output.size() << " bytes."
+	       << " Adjust the configurable 'AppendedBytes' to " << offset;
+	    LogTrace(mlRawToDigi_) << ss.str();
+	  }
+	}
 
+      } else if ( new_buffer_format ) {
+	
+	// Found DAQ header at byte position 'offset'
+	found = true;
+	output.resize( input.size()-offset );
+	memcpy( output.data(),         // target
+		input.data()+offset,   // source
+		input.size()-offset ); // nbytes
+	if ( headerBytes_ < 0 ) {
+	  if ( edm::isDebugEnabled() ) {
+	    std::stringstream ss;
+	    ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]" 
+	       << " Buffer for FED id " << fed_id 
+	       << " has been found at byte position " << offset
+	       << " with a size of " << input.size()-offset << " bytes."
+	       << " Adjust the configurable 'AppendedBytes' to " << offset;
+	    LogTrace(mlRawToDigi_) << ss.str();
+	  }
+	}
+	
+      } else { headerBytes_ < 0 ? found = false : found = true; }
     } else { headerBytes_ < 0 ? found = false : found = true; }
     ichar++;
   }      
