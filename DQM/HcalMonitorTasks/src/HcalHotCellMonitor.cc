@@ -646,7 +646,7 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
   hcalHists.nadaMaxDeltaPhi = ps.getUntrackedParameter<int>("NADA_maxphi",1);
 
   // If  (digi-pedestal)/ped_Width > hotDigiSigma, cell is considered hot
-  hcalHists.hotDigiSigma=ps.getUntrackedParameter<double>("HotCellDigiSigma",3.);
+  hcalHists.hotDigiSigma=ps.getUntrackedParameter<double>("HotCellDigiSigma",5.);
   hcalHists.makeDiagnostics=ps.getUntrackedParameter<bool>("MakeHotCellDiagnosticPlots",makeDiagnostics);
   
   hcalHists.name="HCAL";
