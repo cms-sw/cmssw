@@ -16,7 +16,7 @@ class Iov :
            except RuntimeError :
                self.__modName = 0
            self.__me = db.iov(tag)
-           if (till) self.__me.setRange(since,till)
+           if (till) : self.__me.setRange(since,till)
 
        def list(self) :
            ret = []
