@@ -16,8 +16,8 @@ std::vector<SeedLayerPairs::LayerPair> CosmicLayerPairs::operator()()
   std::vector<SeedLayerPairs::LayerPair> result;
 
   if (_geometry=="STANDARD"){
-     result.push_back( SeedLayerPairs::LayerPair(&TIBLayerWithHits[1], &TIBLayerWithHits[0]));
-     result.push_back( SeedLayerPairs::LayerPair(&TIBLayerWithHits[2], &TIBLayerWithHits[0]));
+//      result.push_back( SeedLayerPairs::LayerPair(&TIBLayerWithHits[1], &TIBLayerWithHits[0]));
+//      result.push_back( SeedLayerPairs::LayerPair(&TIBLayerWithHits[2], &TIBLayerWithHits[0]));
 
     result.push_back( SeedLayerPairs::LayerPair(&TOBLayerWithHits[3], &TOBLayerWithHits[5]));
     result.push_back( SeedLayerPairs::LayerPair(&TOBLayerWithHits[4], &TOBLayerWithHits[5]));
