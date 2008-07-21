@@ -1141,13 +1141,13 @@ void HcalDigiClient::htmlOutput(int runNo, string htmlDir, string htmlName){
   htmlFile << "<tr align=\"center\">" << endl;
   histoHTML2(runNo,ProblemDigiCells,"iEta","iPhi", 92, htmlFile,htmlDir);
   htmlFile<<"</tr>"<<endl;
-  htmlFile<<"<tr><td> A digi cell is considered bad if there was no digi for that cell in the event, if the digi size was wrong (<>10), if the capid rotation for that digi was incorrect, or if the sum of ADC counts over all time slices for the digi is 0.  <br> If zero-suppression of the HCAL is enabled for a run, this plot may have high occupancy, and you should check the expert plots for more detailed information.</td></tr>"<<endl;
+  htmlFile<<"<tr><td> A digi cell is considered bad if there was no digi for that cell in the event, if the digi size was wrong (<=1), if the capid rotation for that digi was incorrect, or if the sum of ADC counts over all time slices for the digi is 0.  <br> If zero-suppression of the HCAL is enabled for a run, this plot may have high occupancy, and you should check the expert plots for more detailed information.</td></tr>"<<endl;
   htmlFile<<"<tr><td><a href=\"Expert_"<< htmlName<<"\">ExpertPlots </a></br></td>"<<endl;
   htmlFile<<"</tr></table><br>"<<endl;
 
   //ProblemDigiCells->Scale(ievt_); 
   ProblemDigiCells->SetMinimum(0);
-  htmlFile <<"<h2>List of Problem Digi Cells  (Warning:  Cell ID's don't yet include Subdetectors)</h2>"<<endl; 
+  htmlFile <<"<h2>List of Problem Digi Cells</h2>"<<endl;
   htmlFile <<"<table width=75%align = \"center\"><tr align=\"center\">" <<endl; 
   htmlFile <<"<td> Problem Cells</td><td align=\"center\"> Fraction of Events in wh\
 ich cells are bad (%)</td></tr>"<<endl; 
