@@ -8,7 +8,7 @@
 #include "RecoTauTag/TauTagTools/interface/ElementsInAnnulus.h"
 
 #include "PhysicsTools/IsolationUtils/interface/FixedAreaIsolationCone.h"
-#include "PhysicsTools/Utilities/interface/DeltaR.h"
+#include "PhysicsTools/Utilities/interface/deltaR.h"
 #include "PhysicsTools/Utilities/interface/Angle.h"
 
 #include "TFormula.h"
