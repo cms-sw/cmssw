@@ -1,8 +1,8 @@
 #!/usr/local/bin/perl
 #     R. Mankel, DESY Hamburg     08-Oct-2007
 #     A. Parenti, DESY Hamburg    16-Apr-2008
-#     $Revision: 1.5 $
-#     $Date: 2008/05/05 12:14:22 $
+#     $Revision: 1.11 $
+#     $Date: 2008/06/02 22:17:16 $
 #
 #  Setup local mps database
 #  
@@ -144,6 +144,7 @@ if ($mssDir ne "") {
   chomp $testMssDir;
   if ($testMssDir eq "") {
     print "Bad MSS directory name $mssDir\n";
+    exit 1;
   }
 
 }
