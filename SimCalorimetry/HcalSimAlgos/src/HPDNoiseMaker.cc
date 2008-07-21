@@ -2,7 +2,7 @@
 // Engine to store HPD noise events in the library
 // Project: HPD noise library
 // Author: F.Ratnikov UMd, Jan. 15, 2008
-// $Id: HPDNoiseMaker.cc,v 1.2 2008/01/17 23:35:53 fedor Exp $
+// $Id: HPDNoiseMaker.cc,v 1.3 2008/07/15 01:49:03 fedor Exp $
 // --------------------------------------------------------
 
 #include "SimCalorimetry/HcalSimAlgos/interface/HPDNoiseMaker.h"
@@ -36,7 +36,7 @@ HPDNoiseMaker::~HPDNoiseMaker () {
 int HPDNoiseMaker::addHpd (const std::string& fName) {
   TDirectory* currentDirectory = gDirectory;
   mFile->cd();
-  mCatalog->addHpd (fName, 0.);
+  mCatalog->addHpd (fName, 0., 0.,0.,0.);
   mNames.push_back (fName);
   mTrees.push_back (new TTree (fName.c_str(), fName.c_str()));
   HPDNoiseData* addr = 0;
@@ -48,8 +48,9 @@ int HPDNoiseMaker::addHpd (const std::string& fName) {
   return mNames.size();
 }
 
-void HPDNoiseMaker::setRate (const std::string& fName, float fRate) {
-  mCatalog->setRate (fName, fRate);
+void HPDNoiseMaker::setRate (const std::string& fName, float fDischargeRate, 
+                             float fIonFeedbackFirstPeakRate, float fIonFeedbackSecondPeakRate, float fElectronEmissionRate) {
+  mCatalog->setRate (fName, fDischargeRate, fIonFeedbackFirstPeakRate, fIonFeedbackSecondPeakRate, fElectronEmissionRate);
 }
 
 void HPDNoiseMaker::newHpdEvent (const std::string& fName, const HPDNoiseData& fData) {
