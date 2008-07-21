@@ -1,5 +1,5 @@
 //
-// $Id: Jet.cc,v 1.19 2008/06/20 07:46:37 fronga Exp $
+// $Id: Jet.cc,v 1.20 2008/07/08 20:56:48 gpetrucc Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
@@ -356,7 +356,7 @@ void Jet::setBResolutions(float bResEt, float bResEta, float bResPhi, float bRes
 
 
 /// method to add a algolabel-discriminator pair
-void Jet::addBDiscriminatorPair(std::pair<std::string, float> & thePair) {
+void Jet::addBDiscriminatorPair(const std::pair<std::string, float> & thePair) {
   pairDiscriVector_.push_back(thePair);
 }
 
