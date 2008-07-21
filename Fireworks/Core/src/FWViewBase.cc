@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 14:43:19 EST 2008
-// $Id: FWViewBase.cc,v 1.4 2008/07/16 13:32:12 chrjones Exp $
+// $Id: FWViewBase.cc,v 1.5 2008/07/21 00:08:02 jmuelmen Exp $
 //
 
 // system include files
@@ -84,8 +84,13 @@ FWViewBase::promptForSaveImageTo(TGFrame* iParent) const
    new TGFileDialog(gClient->GetDefaultRoot(), iParent,
                     kFDSave,&fi);
    dir = fi.fIniDir;
-   if (fi.fFilename != 0)
-	saveImageTo(fi.fFilename);
+   if (fi.fFilename != 0) {
+	std::string name = fi.fFilename;
+	std::string ext = kImageExportTypes[2 * fi.fFileTypeIdx + 1] + 1;
+	if (name.find(ext) == name.npos)
+	     name += ext;
+	saveImageTo(name);
+   }
 }
 
 //
