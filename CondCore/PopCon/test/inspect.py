@@ -18,6 +18,8 @@ from CondCore.Utilities import iovInspector as inspect
 db = rdbms.getDB(dbName)
 tags = db.allTags()
 
+vi = VInt()
+vf = VFloat()
 
 for tag in tags.split() :
     try :

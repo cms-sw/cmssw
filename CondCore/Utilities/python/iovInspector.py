@@ -63,4 +63,15 @@ class PayLoad :
     def object(self) :
         return self.__me
 
+    def summary(self) :
+        return self.__me.summary()
+
+    def plot(fname, s, is, fs) :
+        vi = CondDB.VInt()
+        vf = CondDB.VFloat()
+        for i in is:
+            vi.append(int(i))
+        for i in fs:
+            vf.append(float(i))
+        return self.__me.plot(fname,s,vi,vf)
 
