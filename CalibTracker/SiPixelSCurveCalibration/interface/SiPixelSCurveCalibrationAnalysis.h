@@ -14,7 +14,7 @@
 //
 // Original Author:  Evan Klose Friis
 //         Created:  Tue Nov 13 13:59:09 CET 2007
-// $Id: SiPixelSCurveCalibrationAnalysis.h,v 1.14 2008/01/29 18:21:26 fblekman Exp $
+// $Id: SiPixelSCurveCalibrationAnalysis.h,v 1.15 2008/04/30 19:22:22 friis Exp $
 //
 //
 
@@ -82,6 +82,9 @@ class SiPixelSCurveCalibrationAnalysis : public SiPixelOfflineCalibAnalysisBase 
       unsigned int              curvesSavedCounter_;
       bool                      write2dHistograms_;
       bool                      write2dFitResult_; 
+      std::vector<std::string>  plaquettesToSave_;
+      bool                      printoutthresholds_;
+      std::string               thresholdfilename_;
       std::map<uint32_t, bool>  detIDsToSave_;      
 
       //parameters that define "bad curves"
@@ -104,9 +107,9 @@ class SiPixelSCurveCalibrationAnalysis : public SiPixelOfflineCalibAnalysisBase 
       virtual void calibrationSetup(const edm::EventSetup& iSetup);
       virtual bool checkCorrectCalibrationType();
       virtual void newDetID(uint32_t detid);
-      //virtual void endJob();  //do nothing
-
-
+      void makeThresholdSummary(void);
+      virtual void calibrationEnd() ;
+      
       // ----------member data ---------------------------
 };
 

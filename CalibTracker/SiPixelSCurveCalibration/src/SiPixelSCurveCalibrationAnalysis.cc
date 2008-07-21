@@ -5,6 +5,36 @@
 std::vector<float> SiPixelSCurveCalibrationAnalysis::efficiencies_(0);
 std::vector<float> SiPixelSCurveCalibrationAnalysis::effErrors_(0);
 
+
+void SiPixelSCurveCalibrationAnalysis::calibrationEnd(){
+  if(printoutthresholds_)
+    makeThresholdSummary();
+}
+
+void SiPixelSCurveCalibrationAnalysis::makeThresholdSummary(void){
+
+  // loop over histograms.
+  // calculate average sigma and threshold (per ROC)
+  // open txt file
+  // put info in txt file
+
+  for(detIDHistogramMap::iterator  thisDetIdHistoGrams= histograms_.begin();  thisDetIdHistoGrams != histograms_.end(); ++thisDetIdHistoGrams){
+  // loop over det id (det id = number (unsigned int) of pixel module
+    const MonitorElement *sigmahist = (*thisDetIdHistoGrams).second[kSigmas];
+    const MonitorElement *thresholdhist = (*thisDetIdHistoGrams).second[kThresholds];
+    
+      for(int irow=0; irow<sigmahist->getNbinsY(); ++irow){
+	for(int icol=0; icol<sigmahist->getNbinsX(); ++icol){
+	  float mysigma = sigmahist->getBinContent(icol, irow);
+	  float mythreshold =thresholdhist->getBinContent(icol, irow);
+	
+	  std::cout << " sigma " << mysigma << " " << mythreshold << std::endl;
+
+      }
+    }
+  }
+}
+
 //used for TMinuit fitting
 void chi2toMinimize(int &npar, double* grad, double &fcnval, double* xval, int iflag)
 {
@@ -35,6 +65,8 @@ SiPixelSCurveCalibrationAnalysis::doSetup(const edm::ParameterSet& iConfig)
    maxCurvesToSave_             = iConfig.getUntrackedParameter<uint32_t>("maxCurvesToSave", 1000);
    write2dHistograms_           = iConfig.getUntrackedParameter<bool>("write2dHistograms", true);
    write2dFitResult_            = iConfig.getUntrackedParameter<bool>("write2dFitResult", true);
+   printoutthresholds_          = iConfig.getUntrackedParameter<bool>("writeOutThresholdSummary",true);
+   thresholdfilename_           = iConfig.getUntrackedParameter<std::string>("threholdOutputFileName","thresholds.txt");  
    minimumChi2prob_             = iConfig.getUntrackedParameter<double>("minimumChi2prob", 0);
    minimumThreshold_            = iConfig.getUntrackedParameter<double>("minimumThreshold", -10);
    maximumThreshold_            = iConfig.getUntrackedParameter<double>("maximumThreshold", 300);
@@ -48,7 +80,6 @@ SiPixelSCurveCalibrationAnalysis::doSetup(const edm::ParameterSet& iConfig)
    // convert the vector into a map for quicker lookups.
    for(unsigned int i = 0; i < detIDsToSaveVector_.size(); i++)
       detIDsToSave_.insert( std::make_pair(detIDsToSaveVector_[i], true) );
-
 }
 
 SiPixelSCurveCalibrationAnalysis::~SiPixelSCurveCalibrationAnalysis()
