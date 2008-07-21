@@ -10,8 +10,8 @@
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
 // $Author: burkett $
-// $Date: 2008/05/20 11:51:02 $
-// $Revision: 1.55 $
+// $Date: 2008/06/13 07:49:38 $
+// $Revision: 1.56 $
 //
 
 #include <vector>
@@ -87,6 +87,7 @@ RoadSearchTrackCandidateMakerAlgorithm::RoadSearchTrackCandidateMakerAlgorithm(c
   
   initialVertexErrorXY_  = conf_.getParameter<double>("InitialVertexErrorXY");
   splitMatchedHits_  = conf_.getParameter<bool>("SplitMatchedHits");
+  cosmicSeedPt_  = conf_.getParameter<double>("CosmicSeedPt");
 
   measurementTrackerName_ = conf_.getParameter<std::string>("MeasurementTrackerName");
   
@@ -1251,7 +1252,9 @@ FreeTrajectoryState RoadSearchTrackCandidateMakerAlgorithm::initialTrajectory(co
 	    double dzdr = -flfit.n1()/flfit.n2();
 	    GlobalPoint XYZ0(x0,y0,z0);
 	    if (debug_) std::cout<<"Initial Point (x0/y0/z0): " << x0 <<'\t'<< y0 <<'\t'<< z0 << std::endl;
-	    GlobalVector PXYZ(cos(phi0),sin(phi0),dzdr);
+	    GlobalVector PXYZ(cosmicSeedPt_*cos(phi0),
+			      cosmicSeedPt_*sin(phi0),
+			      cosmicSeedPt_*dzdr);
 	    GlobalTrajectoryParameters thePars(XYZ0,PXYZ,q,magField);
 	    AlgebraicSymMatrix66 CErr = AlgebraicMatrixID();
 	    // CErr(3,3) = (theInnerHit->localPositionError().yy()*theInnerHit->localPositionError().yy() +
@@ -1626,6 +1629,7 @@ TrackCandidateCollection RoadSearchTrackCandidateMakerAlgorithm::PrepareTrackCan
 	
 	theCollection.push_back(TrackCandidate(goodHits,freshStartTrajectory.seed(),*state));
 	delete state;
+	delete pFirstState;
 	
 	//trajectory usage
 	trajUsed[i]=true;
