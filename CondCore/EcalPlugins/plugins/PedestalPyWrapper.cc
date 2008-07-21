@@ -9,6 +9,7 @@
 #include <iterator>
 #include <boost/ref.hpp>
 #include <boost/bind.hpp>
+#include <fstream>
 
 namespace {
   struct Printer {
@@ -67,6 +68,17 @@ namespace cond {
      ss << std::endl;
      return ss.str();
    }
+
+
+  // return the real name of the file including extension...
+  template<>
+  std::string PayLoadInspector<EcalPedestals>:plot(std::string const & filename,
+						   std::string const &, std::vector<int> const&, std::vector<float> const& ) const {
+    std::string fname = filename + ".txt";
+    std::ofstream f(fname.c_str());
+    f << dump();
+    return fname;
+  }
   
 }
 
