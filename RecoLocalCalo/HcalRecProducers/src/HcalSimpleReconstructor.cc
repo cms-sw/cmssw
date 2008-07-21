@@ -64,6 +64,7 @@ void HcalSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& even
       
       // create empty output
       std::auto_ptr<HBHERecHitCollection> rec(new HBHERecHitCollection);
+      rec->reserve(digi->size());
       // run the algorithm
       HBHEDigiCollection::const_iterator i;
       for (i=digi->begin(); i!=digi->end(); i++) {
@@ -81,6 +82,7 @@ void HcalSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& even
       
       // create empty output
       std::auto_ptr<HORecHitCollection> rec(new HORecHitCollection);
+      rec->reserve(digi->size());
       // run the algorithm
       HODigiCollection::const_iterator i;
       for (i=digi->begin(); i!=digi->end(); i++) {
@@ -98,6 +100,7 @@ void HcalSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& even
       
       // create empty output
       std::auto_ptr<HFRecHitCollection> rec(new HFRecHitCollection);
+      rec->reserve(digi->size());
       // run the algorithm
       HFDigiCollection::const_iterator i;
       for (i=digi->begin(); i!=digi->end(); i++) {
@@ -115,6 +118,7 @@ void HcalSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& even
       
       // create empty output
       std::auto_ptr<HcalCalibRecHitCollection> rec(new HcalCalibRecHitCollection);
+      rec->reserve(digi->size());
       // run the algorithm
       HcalCalibDigiCollection::const_iterator i;
       for (i=digi->begin(); i!=digi->end(); i++) {
@@ -133,6 +137,7 @@ void HcalSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& even
     
     // create empty output
     std::auto_ptr<ZDCRecHitCollection> rec(new ZDCRecHitCollection);
+    rec->reserve(digi->size());
     // run the algorithm
     ZDCDigiCollection::const_iterator i;
     for (i=digi->begin(); i!=digi->end(); i++) {
