@@ -13,6 +13,7 @@
 #include <iostream>
 //#include <stdio.h>
 //#include <time.h>
+#include <unistd.h>
 
 int main(){
   cond::TokenBuilder tk;
@@ -28,10 +29,10 @@ int main(){
 	 "PedestalsRcd",
 	 1);
   std::string tok2=tk.tokenAsString();
-  std::string constr("sqlite_file:mylog.db");
-  //std::string constr("oracle://devdb10/cms_xiezhen_dev");
+  //std::string constr("sqlite_file:mylog.db");
+  std::string constr("oracle://devdb10/cms_xiezhen_dev");
   cond::DBSession* session=new cond::DBSession;
-  session->configuration().setMessageLevel( cond::Debug );
+  session->configuration().setMessageLevel( cond::Error );
   session->configuration().setAuthenticationMethod(cond::XML);
   cond::Connection con(constr,-1);
   session->open();
@@ -39,21 +40,60 @@ int main(){
   //cond::CoralTransaction& coralTransaction=con.coralTransaction();
   // coralTransaction.start(false);
   cond::Logger mylogger(&con);
-  mylogger.getWriteLock();
   cond::UserLogInfo a;
   a.provenance="me";
   mylogger.createLogDBIfNonExist();
-  mylogger.releaseWriteLock();
-  mylogger.getWriteLock();
+  if(mylogger.getWriteLock()){
+    std::cout<<"1. table locked"<<std::endl;
+  }else{
+    std::cout<<"1. table lock failed"<<std::endl;
+  }
   mylogger.logOperationNow(a,constr,tok1,"mytag1","runnumber",0);
-  mylogger.releaseWriteLock();
-  mylogger.getWriteLock();
+  std::cout<<"1. waiting"<<std::endl;
+  sleep(5);
+  std::cout<<"1. stop waiting"<<std::endl;
+  if(mylogger.releaseWriteLock()){
+    std::cout<<"1. table lock released"<<std::endl;
+  }else{
+    std::cout<<"1. failed to release table lock"<<std::endl;
+  }
+  if(mylogger.getWriteLock()){
+    std::cout<<"1. table locked"<<std::endl;
+  }else{
+    std::cout<<"1. table lock failed"<<std::endl;
+  }
+  std::cout<<"1. waiting"<<std::endl;
+  sleep(5);
+  std::cout<<"1. stop waiting"<<std::endl;
   mylogger.logFailedOperationNow(a,constr,tok1,"mytag1","runnumber",1,"EOOROR");
-  mylogger.releaseWriteLock();
-  mylogger.getWriteLock();
+  std::cout<<"1. waiting"<<std::endl;
+  sleep(5);
+  std::cout<<"1. stop waiting"<<std::endl;
+  if(mylogger.releaseWriteLock()){
+    std::cout<<"1. table lock released"<<std::endl;
+  }else{
+    std::cout<<"1. failed to release table lock"<<std::endl;
+  }
+  
+  if(mylogger.getWriteLock()){
+    std::cout<<"1. table locked"<<std::endl;
+  }else{
+    std::cout<<"1. table lock failed"<<std::endl;
+  }
+  
+  std::cout<<"1. waiting"<<std::endl;
+  sleep(5);
+  std::cout<<"1. stop waiting"<<std::endl;
   mylogger.logOperationNow(a,constr,tok2,"mytag","runnumber",1);
-  mylogger.releaseWriteLock();
-  std::cout<<"about to lookup last entry"<<std::endl;
+  std::cout<<"1. waiting"<<std::endl;
+  sleep(5);
+  std::cout<<"1. stop waiting"<<std::endl;
+  if(mylogger.releaseWriteLock()){
+    std::cout<<"1. table lock released"<<std::endl;
+  }else{
+    std::cout<<"1. failed to release table lock"<<std::endl;
+  }   
+  /*std::cout<<"about to lookup last entry"<<std::endl;
   cond::LogDBEntry result;
   mylogger.LookupLastEntryByProvenance("me",result);
   std::cout<<"result \n";
@@ -84,6 +124,7 @@ int main(){
   std::cout<<"payloadContainer "<<result2.payloadContainer<<"\n";
   std::cout<<"exectime "<<result2.exectime<<"\n";
   std::cout<<"execmessage "<<result2.execmessage<<std::endl;
+  */
   //coralTransaction.commit();
   con.disconnect();
   delete session;
