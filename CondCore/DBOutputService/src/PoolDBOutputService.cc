@@ -125,9 +125,9 @@ cond::service::PoolDBOutputService::initDB()
     //init logdb if required
     if(m_logdbOn){
       m_logdb=new cond::Logger(cond::ConnectionHandler::Instance().getConnection("logdb"));
-      m_logdb->getWriteLock();
+      //m_logdb->getWriteLock();
       m_logdb->createLogDBIfNonExist();
-      m_logdb->releaseWriteLock();
+      //m_logdb->releaseWriteLock();
     }
   }catch( const std::exception& er ){
     throw cond::Exception( "PoolDBOutputService::initDB "+std::string(er.what()) );
