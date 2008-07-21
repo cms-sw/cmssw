@@ -1,15 +1,18 @@
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "AnalysisDataFormats/TopObjects/interface/TtSemiEvent.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TopQuarkAnalysis/TopTools/interface/TtSemiEvtPartons.h"
-#include "TopQuarkAnalysis/Examples/plugins/SemiLepHypothesesAnalyzer.h"
+#include "TopQuarkAnalysis/Examples/plugins/HypothesisAnalyzer.h"
 
 
-SemiLepHypothesesAnalyzer::SemiLepHypothesesAnalyzer(const edm::ParameterSet& cfg):
+HypothesisAnalyzer::HypothesisAnalyzer(const edm::ParameterSet& cfg):
   semiEvt_ (cfg.getParameter<edm::InputTag>("semiEvent")),
   hypoKey_ (cfg.getParameter<edm::InputTag>("hypoKey"  ))
 {
 }
 
 void
-SemiLepHypothesesAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
+HypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
 {
   edm::Handle<TtSemiEvent> semiEvt;
   evt.getByLabel(semiEvt_, semiEvt);
@@ -18,11 +21,20 @@ SemiLepHypothesesAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup&
   evt.getByLabel(hypoKey_, hypoKeyHandle);
   TtSemiEvent::HypoKey& hypoKey = (TtSemiEvent::HypoKey&) *hypoKeyHandle;
 
+  if( !semiEvt->isHypoAvailable(hypoKey) ){
+    edm::LogWarning ( "NonValidHyp" ) << "Hypothesis not available for this event";
+    return;
+  }
+  if( !semiEvt->isHypoValid(hypoKey) ){
+    edm::LogWarning ( "NonValidHyp" ) << "Hypothesis not valid for this event";
+    return;
+  }
+  
   const reco::Candidate* hadTop = semiEvt->hadronicTop(hypoKey);
   const reco::Candidate* hadW   = semiEvt->hadronicW  (hypoKey);
   const reco::Candidate* lepTop = semiEvt->leptonicTop(hypoKey);
   const reco::Candidate* lepW   = semiEvt->leptonicW  (hypoKey);
-
+  
   if(hadTop && hadW && lepTop && lepW){
     hadWPt_    ->Fill( hadW->pt()    );
     hadWMass_  ->Fill( hadW->mass()  );
@@ -37,7 +49,7 @@ SemiLepHypothesesAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup&
 }
 
 void 
-SemiLepHypothesesAnalyzer::beginJob(const edm::EventSetup&)
+HypothesisAnalyzer::beginJob(const edm::EventSetup&)
 {
   edm::Service<TFileService> fs;
   if( !fs ) throw edm::Exception( edm::errors::Configuration, "TFile Service is not registered in cfg file" );
@@ -54,6 +66,6 @@ SemiLepHypothesesAnalyzer::beginJob(const edm::EventSetup&)
 }
 
 void
-SemiLepHypothesesAnalyzer::endJob() 
+HypothesisAnalyzer::endJob() 
 {
 }
