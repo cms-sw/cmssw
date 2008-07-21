@@ -8,5 +8,4 @@ ALCARECOMuAlZeroFieldGlobalCosmics = Alignment.CommonAlignmentProducer.ZeroField
 seqALCARECOMuAlZeroFieldGlobalCosmics = cms.Sequence(ALCARECOMuAlZeroFieldGlobalCosmicsHLT+ALCARECOMuAlZeroFieldGlobalCosmics)
 ALCARECOMuAlZeroFieldGlobalCosmicsHLT.andOr = True ## choose logical OR between Triggerbits
 
-ALCARECOMuAlZeroFieldGlobalCosmicsHLT.HLTPaths = ['CandHLTTrackerCosmics', 'CandHLTTrackerCosmicsCoTF', 'HLT_IsoMu11', 'HLT_Mu15_L1Mu7']
-
+ALCARECOMuAlZeroFieldGlobalCosmicsHLT.HLTPaths = ['HLT_TrackerCosmics', 'HLT_TrackerCosmics_CoTF', 'HLT_IsoMu11', 'HLT_Mu15_L1Mu7']

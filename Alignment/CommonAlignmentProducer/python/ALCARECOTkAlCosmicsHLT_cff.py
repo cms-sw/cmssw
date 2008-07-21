@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 import HLTrigger.HLTfilters.hltHighLevel_cfi
-# last update: $Date: 2008/06/19 18:06:49 $ by $Author: flucke $
+# last update: $Date: 2008/06/19 18:25:55 $ by $Author: flucke $
 #_________________________________HLT bits___________________________________________
 ALCARECOTkAlCosmicsCTFHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
 import HLTrigger.HLTfilters.hltHighLevel_cfi
@@ -18,11 +18,11 @@ seqALCARECOTkAlCosmicsCosmicTFHLT = cms.Sequence(ALCARECOTkAlCosmicsCosmicTFHLT+
 seqALCARECOTkAlCosmicsRSHLT = cms.Sequence(ALCARECOTkAlCosmicsRSHLT+seqALCARECOTkAlCosmicsRS)
 ALCARECOTkAlCosmicsCTFHLT.andOr = True ## choose logical OR between Triggerbits
 
-ALCARECOTkAlCosmicsCTFHLT.HLTPaths = ['CandHLTTrackerCosmicsCTF']
+ALCARECOTkAlCosmicsCTFHLT.HLTPaths = ['HLT_TrackerCosmics_CTF']
 ALCARECOTkAlCosmicsCosmicTFHLT.andOr = True ## choose logical OR between Triggerbits
 
-ALCARECOTkAlCosmicsCosmicTFHLT.HLTPaths = ['CandHLTTrackerCosmicsCoTF']
+ALCARECOTkAlCosmicsCosmicTFHLT.HLTPaths = ['HLT_TrackerCosmics_CoTF']
 ALCARECOTkAlCosmicsRSHLT.andOr = True ## choose logical OR between Triggerbits
 
-ALCARECOTkAlCosmicsRSHLT.HLTPaths = ['CandHLTTrackerCosmicsRS']
+ALCARECOTkAlCosmicsRSHLT.HLTPaths = ['HLT_TrackerCosmics_RS']
 
