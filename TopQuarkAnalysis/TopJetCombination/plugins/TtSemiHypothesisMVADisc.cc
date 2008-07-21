@@ -7,7 +7,8 @@ TtSemiHypothesisMVADisc::TtSemiHypothesisMVADisc(const edm::ParameterSet& cfg):
 TtSemiHypothesisMVADisc::~TtSemiHypothesisMVADisc() { }
 
 void
-TtSemiHypothesisMVADisc::buildHypo(const edm::Handle<edm::View<reco::RecoCandidate> >& leps, 
+TtSemiHypothesisMVADisc::buildHypo(edm::Event& evt,
+				   const edm::Handle<edm::View<reco::RecoCandidate> >& leps, 
 				   const edm::Handle<std::vector<pat::MET> >& mets, 
 				   const edm::Handle<std::vector<pat::Jet> >& jets, 
 				   std::vector<int>& match)

@@ -11,7 +11,8 @@ TtSemiHypothesisMaxSumPtWMass::TtSemiHypothesisMaxSumPtWMass(const edm::Paramete
 TtSemiHypothesisMaxSumPtWMass::~TtSemiHypothesisMaxSumPtWMass() { }
 
 void
-TtSemiHypothesisMaxSumPtWMass::buildHypo(const edm::Handle<edm::View<reco::RecoCandidate> >& leps, 
+TtSemiHypothesisMaxSumPtWMass::buildHypo(edm::Event& evt,
+					 const edm::Handle<edm::View<reco::RecoCandidate> >& leps, 
 					 const edm::Handle<std::vector<pat::MET> >& mets, 
 					 const edm::Handle<std::vector<pat::Jet> >& jets, 
 					 std::vector<int>& match)

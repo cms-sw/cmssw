@@ -51,7 +51,7 @@ TtSemiHypothesis::produce(edm::Event& evt, const edm::EventSetup& setup)
 
   // feed out hyp
   std::auto_ptr<reco::CompositeCandidate> pOut(new reco::CompositeCandidate);
-  buildHypo(leps, mets, jets, match);
+  buildHypo(evt, leps, mets, jets, match);
   *pOut=hypo();
   evt.put(pOut);
   
