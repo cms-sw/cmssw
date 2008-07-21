@@ -16,12 +16,18 @@ process.source = cms.Source("EmptyIOVSource",
                             )
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
-                                              process.CondDBCommon,
-                                              toPut = cms.VPSet(cms.PSet(
-            record = cms.string('IdealGeometryRecord'),
-                    tag = cms.string('IdealGeometry01')
-                ))
-                                          )
+                                          DBParameters = cms.PSet(
+                                             messageLevel = cms.untracked.int32(0),
+                                             authenticationPath = cms.untracked.string('.')
+                                          ),
+                                          timetype = cms.untracked.string('runnumber'),
+                                          connect = cms.string('sqlite_file:testIdeal.db'),
+#                                          process.CondDBCommon,
+                                          toPut = cms.VPSet(cms.PSet(
+                                             record = cms.string('IdealGeometryRecord'),
+                                             tag = cms.string('IdealGeometry01')
+                                             ))
+                                       )
 
 process.load = cms.EDFilter("WriteOneGeometryFromXML",
                                 rotNumSeed = cms.int32(0),
