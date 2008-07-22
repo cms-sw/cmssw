@@ -39,7 +39,7 @@ SiStripPartitions = cms.PSet(
         InputModuleXml  = cms.untracked.string('/afs/cern.ch/cms/cmt/onlinedev/data/examples/module.xml'),
         InputDcuInfoXml = cms.untracked.string('/afs/cern.ch/cms/cmt/onlinedev/data/examples/dcuinfo.xml'),
         InputFedXml     = cms.untracked.vstring(''),
-        InputFecXml     = cms.untracked.vstring(''),
+        InputFecXml     = cms.untracked.vstring('')
 
     )
 
