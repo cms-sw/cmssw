@@ -46,8 +46,10 @@ CandIsolatorFromDeposits::SingleDeposit::SingleDeposit(const edm::ParameterSet &
   std::string mode = iConfig.getParameter<std::string>("mode");
   if (mode == "sum") mode_ = Sum; 
   else if (mode == "sumRelative") mode_ = SumRelative; 
-  //else if (mode == "max") mode_ = Max;                  // TODO: on request only
-  //else if (mode == "maxRelative") mode_ = MaxRelative;  // TODO: on request only
+  else if (mode == "sum2") mode_ = Sum2;                  
+  else if (mode == "sum2Relative") mode_ = Sum2Relative;
+  else if (mode == "max") mode_ = Max;                  
+  else if (mode == "maxRelative") mode_ = MaxRelative;
   else if (mode == "count") mode_ = Count;
   else throw cms::Exception("Not Implemented") << "Mode '" << mode << "' not implemented. " <<
     "Supported modes are 'sum', 'sumRelative', 'count'." << 
@@ -87,9 +89,13 @@ double CandIsolatorFromDeposits::SingleDeposit::compute(const reco::CandidateBas
     }
     double weight = (usesFunction_ ? weightExpr_(*cand) : weight_);
     switch (mode_) {
-        case Sum: return weight * dep.depositWithin(deltaR_, vetos_, skipDefaultVeto_);
-        case SumRelative: return weight * dep.depositWithin(deltaR_, vetos_, skipDefaultVeto_) / dep.candEnergy() ;
-        case Count: return weight * dep.depositAndCountWithin(deltaR_, vetos_, skipDefaultVeto_).second ;
+        case Count:        return dep.countWithin(deltaR_, vetos_, skipDefaultVeto_);
+        case Sum:          return dep.sumWithin(deltaR_, vetos_, skipDefaultVeto_);
+        case SumRelative:  return dep.sumWithin(deltaR_, vetos_, skipDefaultVeto_) / dep.candEnergy() ;
+        case Sum2:         return dep.sum2Within(deltaR_, vetos_, skipDefaultVeto_);
+        case Sum2Relative: return dep.sum2Within(deltaR_, vetos_, skipDefaultVeto_) / (dep.candEnergy() * dep.candEnergy()) ;
+        case Max:          return dep.maxWithin(deltaR_, vetos_, skipDefaultVeto_);
+        case MaxRelative:  return dep.maxWithin(deltaR_, vetos_, skipDefaultVeto_) / dep.candEnergy() ;
     }
     throw cms::Exception("Logic error") << "Should not happen at " << __FILE__ << ", line " << __LINE__; // avoid gcc warning
 }
