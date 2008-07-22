@@ -56,7 +56,7 @@ int main()
   crc = crc32(crc, crcbuf, outputModuleLabel.length());
 
   InitMsgBuilder init(&buf[0],buf.size(),12,
-                      Version(6,(const uint8*)psetid),(const char*)reltag,
+                      Version(7,(const uint8*)psetid),(const char*)reltag,
 		      processName.c_str(),outputModuleLabel.c_str(), crc,
                       hlt_names,hlt_names,l1_names);
 

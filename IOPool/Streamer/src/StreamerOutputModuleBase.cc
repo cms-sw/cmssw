@@ -144,7 +144,7 @@ namespace edm {
     //  std::cout << "HEX Representation of Process PSetID: " << hexy << std::endl;  
 
     //Setting protocol version V
-    Version v(6,(uint8*)toplevel.compactForm().c_str());
+    Version v(7,(uint8*)toplevel.compactForm().c_str());
 
     Strings hltTriggerNames = getAllTriggerNames();
     hltsize_ = hltTriggerNames.size();
