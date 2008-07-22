@@ -23,8 +23,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2008/07/01 21:17:13 $ 
- **  $Revision: 1.3 $
+ **  $Date: 2008/07/10 12:09:39 $ 
+ **  $Revision: 1.4 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -122,6 +122,7 @@ class PhotonValidator : public edm::EDAnalyzer
   double mcConvR_;      
   double mcConvZ_;
   double mcConvY_;            
+  double mcConvX_;            
   std::vector<TrackingParticleRef> theConvTP_;
   
   double simMinPt_;
@@ -186,10 +187,19 @@ class PhotonValidator : public edm::EDAnalyzer
   MonitorElement* h_scE_[2][3];
   MonitorElement* h_scEt_[2][3];
 
-  MonitorElement* h_r9_[2][3];  
+  MonitorElement* h_r9_[3][3];  
+  MonitorElement* h2_r9VsEta_[3];
+  MonitorElement* p_r9VsEta_[3];
+  
+ 
   MonitorElement* h_phoE_[2][3];
   MonitorElement* h_phoEt_[2][3];
   MonitorElement* h_phoERes_[3][3];
+
+  MonitorElement* h2_eResVsEta_[3];
+  MonitorElement* p_eResVsEta_[3];
+
+
   MonitorElement* h_phoEta_[2];
   MonitorElement* h_phoPhi_[2];
 
@@ -211,19 +221,52 @@ class PhotonValidator : public edm::EDAnalyzer
 
   MonitorElement* h2_EoverPVsEta_[3];
   MonitorElement* p_EoverPVsEta_[3];
+  MonitorElement* h2_EoverPVsR_[3];
+  MonitorElement* p_EoverPVsR_[3];
 
   MonitorElement* h2_EoverEtrueVsEta_[3];
-  MonitorElement* h2_PoverPtrueVsEta_[3];
   MonitorElement* p_EoverEtrueVsEta_[3];
+  MonitorElement* h2_EoverEtrueVsR_[3];
+  MonitorElement* p_EoverEtrueVsR_[3];
+
+
+  MonitorElement* h2_PoverPtrueVsEta_[3];
   MonitorElement* p_PoverPtrueVsEta_[3];
 
   MonitorElement* h_DPhiTracksAtVtx_[2][3];
+  MonitorElement* h2_DPhiTracksAtVtxVsEta_;
+  MonitorElement* p_DPhiTracksAtVtxVsEta_;
+  MonitorElement* h2_DPhiTracksAtVtxVsR_;
+  MonitorElement* p_DPhiTracksAtVtxVsR_;
+
   MonitorElement* h_DCotTracks_[2][3];
+  MonitorElement* h2_DCotTracksVsEta_;
+  MonitorElement* p_DCotTracksVsEta_;
+  MonitorElement* h2_DCotTracksVsR_;
+  MonitorElement* p_DCotTracksVsR_;
+
+
 
   MonitorElement* h_DPhiTracksAtEcal_[2][3];
+  MonitorElement* h2_DPhiTracksAtEcalVsR_;
+  MonitorElement* p_DPhiTracksAtEcalVsR_;
+  MonitorElement* h2_DPhiTracksAtEcalVsEta_;
+  MonitorElement* p_DPhiTracksAtEcalVsEta_;
+
+
   MonitorElement* h_DEtaTracksAtEcal_[2][3];
 
-  MonitorElement* h_convVtxRvsZ_[2]; 
+  
+
+  MonitorElement* h_convVtxRvsZ_[2];
+  MonitorElement* h_convVtxdX_;
+  MonitorElement* h_convVtxdY_;
+  MonitorElement* h_convVtxdZ_;
+  MonitorElement* h_convVtxdR_;
+  MonitorElement* h2_convVtxdRVsR_;
+  MonitorElement* p_convVtxdRVsR_;
+
+
   MonitorElement* h_zPVFromTracks_[2]; 
   MonitorElement* h_dzPVFromTracks_[2]; 
 
@@ -234,6 +277,11 @@ class PhotonValidator : public edm::EDAnalyzer
   MonitorElement* h_nHitsVsR_[2]; 
   MonitorElement* nHitsVsR_[2]; 
   MonitorElement* h_tkChi2_[2];
+  MonitorElement* h2_Chi2VsEta_[3];
+  MonitorElement* p_Chi2VsEta_[3];
+  MonitorElement* h2_Chi2VsR_[3];
+  MonitorElement* p_Chi2VsR_[3];
+
   MonitorElement* h_TkPtPull_[3];
   MonitorElement* h2_TkPtPull_[3];
   MonitorElement* p_TkPtPull_[3];
