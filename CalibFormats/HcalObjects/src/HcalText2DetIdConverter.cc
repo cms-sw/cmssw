@@ -1,6 +1,6 @@
 /** \class HcalText2DetIdConverter
     \author F.Ratnikov, UMd
-    $Id: HcalText2DetIdConverter.cc,v 1.7 2008/04/18 13:12:36 rofierzy Exp $
+    $Id: HcalText2DetIdConverter.cc,v 1.8 2008/07/07 07:57:17 rofierzy Exp $
 */
 #include <stdlib.h>
 #include <iostream>
@@ -24,24 +24,9 @@ namespace {
     return fString.substr(startIndex, (endIndex-startIndex)+1);
   }
 
-  HcalCalibDetId::SectorId calibSector (const std::string& fName) {
-    return
-      fName == "CALIB_HBP" ? HcalCalibDetId::HBplus :
-      fName == "CALIB_HBM" ? HcalCalibDetId::HBminus :
-      fName == "CALIB_HEP" ? HcalCalibDetId::HEplus :
-      fName == "CALIB_HEM" ? HcalCalibDetId::HEminus :
-      fName == "CALIB_HFP" ? HcalCalibDetId::HFplus :
-      fName == "CALIB_HFM" ? HcalCalibDetId::HFminus :
-      fName == "CALIB_HO2P" ? HcalCalibDetId::HO2plus :
-      fName == "CALIB_HO1P" ? HcalCalibDetId::HO1plus :
-      fName == "CALIB_HO0" ? HcalCalibDetId::HOzero :
-      fName == "CALIB_HO1M" ? HcalCalibDetId::HO1minus :
-      fName == "CALIB_HO2M" ? HcalCalibDetId::HO2minus : 
-      HcalCalibDetId::SectorId (0);
-  }
-
   int calibChannel (const std::string& fName) {
-    return fName == "Mixer-High" ? 1 :
+    return 
+      fName == "Mixer-High" ? 1 :
       fName == "Mixer-Low" ? 2 :
       fName == "Megatile" ? 3 :
       fName == "Mixer-Scintillator" ? 4 :
@@ -128,34 +113,23 @@ bool HcalText2DetIdConverter::init (DetId fId) {
   }
   else if (genId.isHcalCalibDetId ()) {
     HcalCalibDetId calibId (mId);
-    switch (calibId.sector ()) {
-    case HcalCalibDetId::HBplus:  flavorName = "CALIB_HBP"; break;
-    case HcalCalibDetId::HBminus: flavorName = "CALIB_HBM"; break;
-    case HcalCalibDetId::HEplus:  flavorName = "CALIB_HEP"; break;
-    case HcalCalibDetId::HEminus: flavorName = "CALIB_HEM"; break;
-    case HcalCalibDetId::HFplus:  flavorName = "CALIB_HFP"; break;
-    case HcalCalibDetId::HFminus: flavorName = "CALIB_HFM"; break;
-    case HcalCalibDetId::HO2plus: flavorName = "CALIB_HO2P"; break;
-    case HcalCalibDetId::HO1plus: flavorName = "CALIB_HO1P"; break;
-    case HcalCalibDetId::HOzero:  flavorName = "CALIB_HO0"; break;
-    case HcalCalibDetId::HO1minus:flavorName = "CALIB_HO1M"; break;
-    case HcalCalibDetId::HO2minus:flavorName = "CALIB_HO2M"; break;
-    default: result = false;
+    if (calibId.calibFlavor()==HcalCalibDetId::CalibrationBox) {
+      switch (calibId.hcalSubdet()) {
+      case HcalBarrel:  flavorName = "CALIB_HB"; break;
+      case HcalEndcap:  flavorName = "CALIB_HE"; break;
+      case HcalOuter:  flavorName = "CALIB_HO"; break;
+      case HcalForward:  flavorName = "CALIB_HF"; break;
+      default: result = false;
+      }
+      setField (1, calibId.ieta());
+      setField (2, calibId.iphi());
+      setField (3, calibId.cboxChannel() );
+    } else if (calibId.calibFlavor()==HcalCalibDetId::HOCrosstalk) {
+      flavorName="HOX";
+      setField (1, calibId.ieta());
+      setField (2, calibId.iphi());
+      setField (3, -999);
     }
-    setField (1, calibId.rbx());
-    //    switch (calibId.cboxChannel ()) {
-    //    case 1: field2 = "Mixer-High"; break;
-    //    case 2: field2 = "Mixer-Low"; break;
-    //    case 3: field2 = "Megatile"; break;
-    //    case 4: field2 = "Mixer-Scintillator"; break;
-    //    case 5: field2 = "RadDam1"; break;
-    //    case 6: field2 = "RadDam2"; break;
-    //    case 7: field2 = "RadDam3"; break;
-    //    default: result = false;
-    //    }
-    setField (2, calibId.cboxChannel() );
-    setField (3, -99);
-    //    std::cout << "Calib: " << calibId.rbx() << " " <<  calibId.cboxChannel() << " " << field2 << std::endl;
   }
   else {
     flavorName = "UNKNOWN_FLAVOR";
@@ -193,9 +167,21 @@ bool HcalText2DetIdConverter::init (const std::string& fFlavor, const std::strin
     mId = HcalZDCDetId (section, getField (1)>0, getField (2));
   }
   else if (flavorName.find ("CALIB_") == 0) {
-    HcalCalibDetId::SectorId sector = calibSector (flavorName);
-    int channel = calibChannel (field2);
-    mId = HcalCalibDetId (sector, getField (1), channel);
+    HcalSubdetector sd = HcalOther;
+    if (flavorName.find("HB")!=std::string::npos) sd=HcalBarrel;
+    else if (flavorName.find("HE")!=std::string::npos) sd=HcalEndcap;
+    else if (flavorName.find("HO")!=std::string::npos) sd=HcalOuter;
+    else if (flavorName.find("HF")!=std::string::npos) sd=HcalForward;
+    
+    int ieta=getField(1);
+    int iphi=getField(2);
+    int channel = calibChannel (field3);
+    mId = HcalCalibDetId (sd, ieta,iphi,channel);
+  }
+  else if (flavorName=="HOX") {
+    int ieta=getField(1);
+    int iphi=getField(2);
+    mId = HcalCalibDetId (ieta,iphi);
   }
   else if (flavorName == "NA") {
     mId = HcalDetId::Undefined;

@@ -4,7 +4,17 @@
 /** \class HcalText2DetIdConverter
     \author F.Ratnikov, UMd
    Converts any flavour of HcalDetId to/from ascii strings
-   $Id$
+
+
+   For Calibration DetIds:
+
+   Flavor = "CALIB_[HB|HE|HO|HF]" or "HOX"
+
+   fField1 is ieta (-2:2 for CALIB)
+   fField2 is iphi
+   fField3 is ctype (CALIB only)
+
+   $Id: HcalText2DetIdConverter.h,v 1.1 2006/07/31 19:51:49 fedor Exp $
 */
 #include <string>
 #include "DataFormats/DetId/interface/DetId.h"
