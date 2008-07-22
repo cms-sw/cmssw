@@ -13,10 +13,11 @@
 //
 // Original Author:  Muriel Vander Donckt
 //         Created:  Tue Jul 24 12:17:12 CEST 2007
-// $Id: MuonTriggerRateTimeAnalyzer.cc,v 1.1 2007/09/14 09:39:12 muriel Exp $
+// $Id: MuonTriggerRateTimeAnalyzer.cc,v 1.3 2008/06/17 13:16:45 muriel Exp $
 //
 //
 
+//
 
 // system include files
 #include <memory>
