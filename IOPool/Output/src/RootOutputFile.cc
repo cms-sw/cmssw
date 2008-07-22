@@ -312,7 +312,7 @@ namespace edm {
   void RootOutputFile::pruneOutputItemList(BranchType branchType, FileBlock const& inputFile) {
     OutputItemList& items = prunedOutputItemList_[branchType];
     items.clear();
-    items = droppedOutputItemList_[branchType];
+    items = selectedOutputItemList_[branchType];
     MatchItemWithoutPedigree pred(items, inputFile.branchChildren());
     items.erase(std::remove_if(items.begin(), items.end(), pred), items.end());
   }
