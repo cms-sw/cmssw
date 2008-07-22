@@ -32,9 +32,10 @@ CSCDDUEventData::~CSCDDUEventData()
 }
 
 
-void CSCDDUEventData::add(CSCEventData & cscData) 
+void CSCDDUEventData::add(CSCEventData & cscData, int dmbId) 
 {
   ++(theDDUHeader.ncsc_);
+  theDDUHeader.setDMBDAV(dmbId);
   cscData.setEventInformation(theDDUHeader.bxnum(), theDDUHeader.lvl1num());
   theData.push_back(cscData);
 }
