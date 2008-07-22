@@ -7,6 +7,7 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
 #include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
+#include "RecoEcal/EgammaCoreTools/interface/ClusterEtLess.h"
 
 // Return a vector of clusters from a collection of EcalRecHits:
 //
@@ -89,7 +90,7 @@ std::vector<reco::BasicCluster> Multi5x5ClusterAlgo::makeClusters(
    }
 
    mainSearch(hits,geometry_p,topology_p,geometryES_p,ecalPart);
-   sort(clusters_v.rbegin(), clusters_v.rend());
+   sort(clusters_v.rbegin(), clusters_v.rend(), ClusterEtLess());
 
    if (verbosity < pINFO)
    {

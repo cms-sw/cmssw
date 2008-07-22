@@ -8,6 +8,7 @@
 #include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
 
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
+#include "RecoEcal/EgammaCoreTools/interface/ClusterEtLess.h"
 
 //
 
@@ -90,7 +91,7 @@ std::vector<reco::BasicCluster> IslandClusterAlgo::makeClusters(
     }
 
   mainSearch(hits,geometry_p,topology_p,geometryES_p,ecalPart);
-  sort(clusters_v.begin(), clusters_v.end());
+  sort(clusters_v.rbegin(), clusters_v.rend(), ClusterEtLess());
 
   if (verbosity < pINFO)
     {
