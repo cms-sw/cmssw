@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Giovanni FRANZONI
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: TriggerTypeFilter.cc,v 1.3 2008/07/11 14:59:47 mzanetti Exp $
+// $Id: TriggerTypeFilter.cc,v 1.4 2008/07/11 15:03:03 mzanetti Exp $
 //
 //
 
@@ -27,7 +27,7 @@ Implementation:
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <string>
@@ -72,7 +72,6 @@ enum GapFilterConstants{
   H_TTYPE_FROM_TCS       = 20,
   H_TCSBLOCK_SHIFT       = 7,
   H_TTYPE_MASK           = 0xF
-
 
 };
 
@@ -124,15 +123,9 @@ TriggerTypeFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   unsigned short triggerTypeFED       = ((*pData)>>H_TTYPE_B)   & H_TTYPE_MASK;
   unsigned short triggerType       =  (*( pData+H_TCSBLOCK_SHIFT) >> H_TTYPE_FROM_TCS)   & H_TTYPE_MASK;
 
-  if (triggerType != triggerTypeFED) 
-    std::cout<<"Warning!! trigger type mismatch. FED="<<triggerTypeFED<<", TCS="<<triggerType<<std::endl;
-
-//   if (triggerTypeFED != SelectedTriggerType_)
-//     std::cout<<"Warning!! trigger type from FED = "<<triggerTypeFED<<std::endl;
-
-//   if (triggerType != SelectedTriggerType_)
-//     std::cout<<"Warning!! trigger type from TCS = "<<triggerTypeFED<<std::endl;
-
+  if (triggerType != triggerTypeFED)
+    edm::LogVerbatim ("TriggerTypeFilter")<<"[TriggerTypeFilter] trigger type mismatch. FED="<<triggerTypeFED
+					  <<", TCS="<<triggerType;
 
 
   return (triggerType == SelectedTriggerType_) ? true : false;
