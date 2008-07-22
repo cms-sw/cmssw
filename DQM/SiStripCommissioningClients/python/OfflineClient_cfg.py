@@ -9,7 +9,7 @@ process.load("DQM.SiStripCommon.DaqMonitorROOTBackEnd_cfi")
 process.load("IORawData.SiStripInputSources.EmptySource_cff")
 process.maxEvents.input = 2
 
-process.client = cms.EDFilter("SiStripCommissioningOfflineClient",
+process.client = cms.EDAnalyzer("SiStripCommissioningOfflineClient",
     FilePath       = cms.untracked.string('/tmp')
     RunNumber      = cms.untracked.uint32(0),
     UseClientFile  = cms.untracked.bool(False),

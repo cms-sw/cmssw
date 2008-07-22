@@ -1,16 +1,25 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("SiStripCommissioningOfflineDbClient")
+process = cms.Process("SiStripCommissioningOfflineDbClientMP")
 
 process.load("DQM.SiStripCommon.MessageLogger_cfi")
 
 process.load("DQM.SiStripCommon.DaqMonitorROOTBackEnd_cfi")
 
-process.load("OnlineDB.SiStripConfigDb.SiStripConfigDb_cfi")
-process.SiStripConfigDb.UsingDb = True
-process.SiStripConfigDb.ConfDb  = ''
-process.SiStripConfigDb.Partitions.PrimaryPartition.PartitionName = ''
-process.SiStripConfigDb.Partitions.PrimaryPartition.RunNumber     = 0
+process.SiStripConfigDb = cms.Service("SiStripConfigDb",
+    ConfDb  = cms.untracked.string(''),
+    UsingDb = cms.untracked.bool(True),
+    Partitions = cms.untracked.PSet(
+        SecondaryPartition = cms.untracked.PSet(
+            RunNumber     = cms.untracked.uint32(0),
+            PartitionName = cms.untracked.string('')
+        ),
+        PrimaryPartition = cms.untracked.PSet(
+            RunNumber     = cms.untracked.uint32(0),
+            PartitionName = cms.untracked.string('')
+        )
+    )
+)
 
 process.load("IORawData.SiStripInputSources.EmptySource_cff")
 process.maxEvents.input = 2
