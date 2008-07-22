@@ -40,8 +40,6 @@ public:
   void BookHistograms() ;
   void WriteHistograms() ;
   void SetCurrentFolder( TString folder );
-  MonitorElement* BookIt( char name[], char title[], int bins, float min, 
-			  float max) ;
   MonitorElement* BookIt( TString name, TString title, 
 					      int Nbins, float Min, float Max);
 
