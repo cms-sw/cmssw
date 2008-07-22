@@ -1,6 +1,6 @@
+// -*- C++ -*-
 #ifndef Fireworks_Core_CmsShowNavigator_h
 #define Fireworks_Core_CmsShowNavigator_h
-// -*- C++ -*-
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
@@ -16,10 +16,11 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Tue Jun 10 14:56:34 EDT 2008
-// $Id: CmsShowNavigator.h,v 1.5 2008/07/08 02:43:46 dmytro Exp $
+// $Id: CmsShowNavigator.h,v 1.6 2008/07/11 00:04:06 chrjones Exp $
 //
 
 // system include files
+#include <string>
 #include <sigc++/sigc++.h>
 #include "TFile.h"
 
@@ -29,6 +30,7 @@
 // forward declarations
 class TEventList;
 class CSGAction;
+class CmsShowMain;
 
 namespace edm {
   class EventID;
@@ -38,7 +40,7 @@ class CmsShowNavigator
 {
 
    public:
-      CmsShowNavigator();
+      CmsShowNavigator(const CmsShowMain &);
       virtual ~CmsShowNavigator();
       //      void startLoop();
       Int_t realEntry(Int_t rawEntry);
@@ -79,11 +81,12 @@ class CmsShowNavigator
       edm::EventID m_firstID;
       edm::EventID m_lastID;
       TTree *m_eventTree;
-      const char *m_selection;
+     std::string m_selection;
       TEventList *m_eventList;
       int m_currentEntry;
       int m_nEntries;
       int m_currentSelectedEntry;
+     const CmsShowMain 	&m_main;
 };
 
 

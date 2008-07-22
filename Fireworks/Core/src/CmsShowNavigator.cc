@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Tue Jun 10 14:56:46 EDT 2008
-// $Id: CmsShowNavigator.cc,v 1.9 2008/07/11 00:05:00 chrjones Exp $
+// $Id: CmsShowNavigator.cc,v 1.10 2008/07/16 17:53:24 chrjones Exp $
 //
 
 // hacks
@@ -17,6 +17,8 @@
 #undef private
 
 // system include files
+#include <string>
+#include <boost/regex.hpp>
 #include "TTree.h"
 #include "TEventList.h"
 #include "TError.h"
@@ -25,6 +27,11 @@
 // user include files
 #include "Fireworks/Core/interface/CmsShowNavigator.h"
 #include "Fireworks/Core/interface/CSGAction.h"
+#define private public
+#include "CmsShowMain.h"
+#undef private
+#include "Fireworks/Core/interface/FWEventItem.h"
+#include "Fireworks/Core/interface/FWEventItemsManager.h"
 #include "DataFormats/FWLite/interface/Event.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 
@@ -39,7 +46,8 @@
 //
 // constructors and destructor
 //
-CmsShowNavigator::CmsShowNavigator()
+CmsShowNavigator::CmsShowNavigator(const CmsShowMain &main)
+     : m_main(main)
 {
   m_file = 0;
   m_eventTree = 0;
@@ -97,7 +105,7 @@ CmsShowNavigator::loadFile(const std::string& fileName)
    m_eventTree = dynamic_cast<TTree*> (m_file->Get("Events"));
    assert(m_eventTree!=0);
    m_eventList = new TEventList("list","");
-   filterEventsAndReset(m_selection); // first event is loaded at the end
+   filterEventsAndReset(m_selection.c_str()); // first event is loaded at the end
 }
 
 Int_t
@@ -209,22 +217,46 @@ CmsShowNavigator::filterEvents(CSGAction* action)
 }
 
 void
-CmsShowNavigator::filterEventsAndReset(const char* selection)
+CmsShowNavigator::filterEventsAndReset(const char* sel)
 {
-   m_selection = selection;
-   m_eventTree->SetEventList(0);
-   if ( m_selection ) {
+     std::string selection = sel;
+     for (FWEventItemsManager::const_iterator i = m_main.m_eiManager->begin(),
+	       end = m_main.m_eiManager->end();
+	  i != end;
+	  ++i) {
+	  if (*i == 0)
+	       continue;
+	  boost::regex re(std::string("\\$") + (*i)->name());
+	  std::string new_sel = 
+	       boost::regex_replace(selection, re, (*i)->moduleLabel());
+// 	  printf("selection after applying s/%s/%s/: %s\n",
+// 		 (std::string("\\$") + (*i)->name()).c_str(), 
+// 		 (*i)->moduleLabel().c_str(),
+// 		 new_sel.c_str());
+	  selection.swap(new_sel);
+     }
+//      std::string s = selection;
+//      for (boost::sregex_iterator i = boost::sregex_iterator(s.begin(), s.end(), re),
+// 	       end;
+// 	  i != end; 
+// 	  ++i) {
+// 	  printf("%s\n", i->str(0).c_str());
+//      }
+//      return;
+     m_selection = selection;
+     m_eventTree->SetEventList(0);
+     if ( m_selection.length() != 0 ) {
       //std::cout << "Selection requested: " << m_selection << std::endl;
-      m_eventTree->Draw(">>list",m_selection);
-      m_eventTree->SetEventList( m_eventList );
-   }	
-   m_nEntries = m_event->size();
-   if ( m_eventTree->GetEventList() ) m_nEntries = m_eventList->GetN();
-   m_event->to(realEntry(0));
-   m_firstID = m_event->id();
-   m_event->to(realEntry(m_nEntries - 1));
-   m_lastID = m_event->id();
-   firstEvent();
+	  m_eventTree->Draw(">>list",m_selection.c_str());
+	  m_eventTree->SetEventList( m_eventList );
+     }	
+     m_nEntries = m_event->size();
+     if ( m_eventTree->GetEventList() ) m_nEntries = m_eventList->GetN();
+     m_event->to(realEntry(0));
+     m_firstID = m_event->id();
+     m_event->to(realEntry(m_nEntries - 1));
+     m_lastID = m_event->id();
+     firstEvent();
 }
 
 

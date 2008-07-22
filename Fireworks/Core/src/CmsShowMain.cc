@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.31 2008/07/17 23:02:41 dmytro Exp $
+// $Id: CmsShowMain.cc,v 1.32 2008/07/20 18:22:00 dmytro Exp $
 //
 
 // system include files
@@ -873,7 +873,7 @@ CmsShowMain::setupDetailedViewManagers()
 void 
 CmsShowMain::setupDataHandling()
 {
-   m_navigator = new CmsShowNavigator();
+   m_navigator = new CmsShowNavigator(*this);
    m_navigator->oldEvent.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::loadEvent));
    m_navigator->newEvent.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::loadEvent));
    m_navigator->newEvent.connect(sigc::mem_fun(*this, &CmsShowMain::draw));
