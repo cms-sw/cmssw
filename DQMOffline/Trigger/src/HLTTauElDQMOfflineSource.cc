@@ -102,11 +102,11 @@ void HLTTauElDQMOfflineSource::beginJob(const edm::EventSetup&){
       tmphisto =  store->book1D(histoname.c_str(),histoname.c_str(),theNbins_,-2.7,2.7);
       m_etahist.push_back(tmphisto);          
       
-      histoname = m_theHLTCollectionLabels[i].label()+"et MC matched";
+      histoname = m_theHLTCollectionLabels[i].label()+"etMatched";
       tmphisto = store->book1D(histoname.c_str(),histoname.c_str(),theNbins_,thePtMin_,thePtMax_);
       m_ethistmatch.push_back(tmphisto);
       
-      histoname = m_theHLTCollectionLabels[i].label()+"eta MC matched";
+      histoname = m_theHLTCollectionLabels[i].label()+"etaMatched";
       tmphisto =  store->book1D(histoname.c_str(),histoname.c_str(),theNbins_,-2.7,2.7);
       m_etahistmatch.push_back(tmphisto);          
     }
@@ -143,25 +143,17 @@ void HLTTauElDQMOfflineSource::analyze(const edm::Event & event , const edm::Eve
   edm::Handle<LVColl> refC;
   bool ref_ok=false;
   LVColl mcparts;
-  unsigned int ncand = 0;
   if(event.getByLabel(refCollection_,refC)){
     ref_ok=true;
+    if(refC->size())m_total->Fill(m_theHLTCollectionLabels.size()+1.5);
     for (size_t i=0;i<refC->size();++i)
       {
 	double eta=refC->at(i).Eta();double et=refC->at(i).Et();
 	m_etgen->Fill(et);
 	m_etagen->Fill(eta);
-	if(eta<fabs(genEtaAcc_)&&et>genEtAcc_){
-	  mcparts.push_back(refC->at(i));
-	  ncand++;
-	}	
+	mcparts.push_back(refC->at(i));
       }
-    if(ncand==reqNum_)m_total->Fill(m_theHLTCollectionLabels.size()+1.5);
   }
-   
-  // fill generator info
-  //edm::Handle<edm::HepMCProduct> genEvt;
-  //event.getByLabel("source", genEvt);
   
   for(unsigned int n=0; n < m_theHLTCollectionLabels.size() ; n++) { //loop over filter modules
 
@@ -200,9 +192,9 @@ template <class T> void HLTTauElDQMOfflineSource::fillHistos(edm::Handle<trigger
     }
     
     //fill filter objects into histos
-    if (recoecalcands.size()!=0){
+    if (recoecalcands.size()&&mcparts.size()){
 
-      if(recoecalcands.size() >= reqNum_ ) 
+      if(recoecalcands.size() >= reqNum_) 
 	m_total->Fill(n+0.5);
       for (unsigned int i=0; i<recoecalcands.size(); i++) {
 	//unmatched
