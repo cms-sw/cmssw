@@ -1,27 +1,30 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("SiStripCommissioningOfflineDbClient")
+
 process.load("DQM.SiStripCommon.MessageLogger_cfi")
 
 process.load("DQM.SiStripCommon.DaqMonitorROOTBackEnd_cfi")
 
 process.load("OnlineDB.SiStripConfigDb.SiStripConfigDb_cfi")
+process.SiStripConfigDb.UsingDb = True
+process.SiStripConfigDb.ConfDb  = ''
+process.SiStripConfigDb.Partitions.PrimaryPartition.PartitionName = ''
+process.SiStripConfigDb.Partitions.PrimaryPartition.RunNumber     = 0
 
 process.load("IORawData.SiStripInputSources.EmptySource_cff")
+process.maxEvents.input = 2
 
 process.db_client = cms.EDFilter("SiStripCommissioningOfflineDbClient",
+    FilePath       = cms.untracked.string('/tmp'),
+    RunNumber      = cms.untracked.uint32(0),
+    UseClientFile  = cms.untracked.bool(False),
     SummaryXmlFile = cms.untracked.FileInPath('DQM/SiStripCommissioningClients/data/summary.xml'),
-    UploadAnalyses = cms.untracked.bool(False),
-    RunNumber = cms.untracked.uint32(0),
-    UseClientFile = cms.untracked.bool(False),
     UploadHwConfig = cms.untracked.bool(False),
-    FilePath = cms.untracked.string('/tmp')
+    UploadAnalyses = cms.untracked.bool(False),
+    DisableDevices = cms.untracked.bool(False),
+    SaveClientFile = cms.untracked.bool(True)
 )
 
 process.p = cms.Path(process.db_client)
-process.SiStripConfigDb.UsingDb = True
-process.SiStripConfigDb.ConfDb = ''
-process.SiStripConfigDb.Partition = ''
-process.SiStripConfigDb.RunNumber = 0
-process.maxEvents.input = 2
 
