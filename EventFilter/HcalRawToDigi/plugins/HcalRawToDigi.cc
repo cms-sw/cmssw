@@ -43,6 +43,9 @@ HcalRawToDigi::HcalRawToDigi(edm::ParameterSet const& conf):
     produces<HcalCalibDigiCollection>();
   if (unpackZDC_)
     produces<ZDCDigiCollection>();
+
+  memset(&stats_,0,sizeof(stats_));
+
 }
 
 // Virtual destructor needed.
@@ -68,6 +71,17 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
   std::vector<ZDCDataFrame> zdc;
   std::vector<HOTriggerPrimitiveDigi> hotp;
   std::auto_ptr<HcalUnpackerReport> report(new HcalUnpackerReport);
+
+  // Heuristics: use ave+(max-ave)/8
+  if (stats_.max_hbhe>0) hbhe.reserve(stats_.ave_hbhe+(stats_.max_hbhe-stats_.ave_hbhe)/8);
+  if (stats_.max_ho>0) ho.reserve(stats_.ave_ho+(stats_.max_ho-stats_.ave_ho)/8);
+  if (stats_.max_hf>0) hf.reserve(stats_.ave_hf+(stats_.max_hf-stats_.ave_hf)/8);
+  if (stats_.max_calib>0) hc.reserve(stats_.ave_calib+(stats_.max_calib-stats_.ave_calib)/8);
+  if (stats_.max_tp>0) htp.reserve(stats_.ave_tp+(stats_.max_tp-stats_.ave_tp)/8);
+  if (stats_.max_tpho>0) hotp.reserve(stats_.ave_tpho+(stats_.max_tpho-stats_.ave_tpho)/8);
+
+  if (unpackZDC_) zdc.reserve(24);
+
 
   HcalUnpacker::Collections colls;
   colls.hbheCont=&hbhe;
@@ -102,6 +116,24 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
       }
     }
   }
+
+
+  // gather statistics
+  stats_.max_hbhe=std::max(stats_.max_hbhe,(int)hbhe.size());
+  stats_.ave_hbhe=(stats_.ave_hbhe*stats_.n+hbhe.size())/(stats_.n+1);
+  stats_.max_ho=std::max(stats_.max_ho,(int)ho.size());
+  stats_.ave_ho=(stats_.ave_ho*stats_.n+ho.size())/(stats_.n+1);
+  stats_.max_hf=std::max(stats_.max_hf,(int)hf.size());
+  stats_.ave_hf=(stats_.ave_hf*stats_.n+hf.size())/(stats_.n+1);
+  stats_.max_tp=std::max(stats_.max_tp,(int)htp.size());
+  stats_.ave_tp=(stats_.ave_tp*stats_.n+htp.size())/(stats_.n+1);
+  stats_.max_tpho=std::max(stats_.max_tpho,(int)hotp.size());
+  stats_.ave_tpho=(stats_.ave_tpho*stats_.n+hotp.size())/(stats_.n+1);
+  stats_.max_calib=std::max(stats_.max_calib,(int)hc.size());
+  stats_.ave_calib=(stats_.ave_calib*stats_.n+hc.size())/(stats_.n+1);
+
+
+  stats_.n++;
 
   // Step B: encapsulate vectors in actual collections
   std::auto_ptr<HBHEDigiCollection> hbhe_prod(new HBHEDigiCollection()); 
@@ -158,6 +190,8 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
     e.put(prod);
   }
   e.put(report);
+
+
 }
 
 
