@@ -19,7 +19,7 @@ through the MessageLogger.
 
 //
 // Original Author:  Marc Paterno
-// $Id: JobReport.h,v 1.24 2008/04/24 22:28:27 fischler Exp $
+// $Id: JobReport.h,v 1.25 2008/06/20 20:55:46 fischler Exp $
 //
 
 #include <cstddef>
@@ -39,6 +39,27 @@ namespace edm {
       typedef unsigned int RunNumber;
       typedef std::size_t Token;
 
+
+      /**\struct LumiSectionReport
+  
+      Description: Holds information about a Lumi section associated to a
+      file
+  
+      Usage: struct contains parameters describing a Lumi Section, OutputFile
+             object stores a vector of these for each file
+      */
+
+      struct LumiSectionReport {
+	unsigned int runNumber;
+	unsigned int lumiSectionId;
+	/// So far we are proceeding without extra information, but
+	/// this may be added in the future...
+	///unsigned int startEvent;
+	///unsigned int lastEvent;
+	///std::string lumiStartTime;
+	///std::string lumiEndTime;
+	
+      };
       /**\struct InputFile
   
       Description: Holds information about an InputFile.
@@ -61,28 +82,8 @@ namespace edm {
         RunNumberCollection runsSeen;
         size_t          numEventsRead;
         StringVector    branchNames;
+	std::vector<LumiSectionReport> lumiSections;
         bool            fileHasBeenClosed;
-      };
-
-      /**\struct LumiSectionReport
-  
-      Description: Holds information about a Lumi section associated to a
-      file
-  
-      Usage: struct contains parameters describing a Lumi Section, OutputFile
-             object stores a vector of these for each file
-      */
-
-      struct LumiSectionReport {
-	unsigned int runNumber;
-	unsigned int lumiSectionId;
-	/// So far we are proceeding without extra information, but
-	/// this may be added in the future...
-	///unsigned int startEvent;
-	///unsigned int lastEvent;
-	///std::string lumiStartTime;
-	///std::string lumiEndTime;
-	
       };
 
   
@@ -159,6 +160,13 @@ namespace edm {
 	 *
 	 */
 	void associateLumiSection(const LumiSectionReport&  rep);
+
+
+	/*
+	 * Associate a Lumi Section to all open input files
+	 *
+	 */
+	void associateInputLumiSection(const LumiSectionReport& rep);
 
         /*
          * Write an InputFile object to the Logger 
@@ -323,10 +331,16 @@ namespace edm {
 
       ///
       /// API for reporting a Lumi Section to the job report.
-      /// 
-      ///
+      /// for output files, call only if lumi section is written to 
+      /// the output file
       ///
       void reportLumiSection(unsigned int run, unsigned int lumiSectId);
+      ///
+      /// API for reporting a Lumi Section to the job report.
+      /// for input files, call only if lumi section is physically read 
+      /// from the input file
+      ///
+      void reportInputLumiSection(unsigned int run, unsigned int lumiSectId);
 
 
       ///
@@ -354,7 +368,7 @@ namespace edm {
       /// Report Timing statistics
       /// Invoked by the Timing service to send an end of job 
       /// summary about time taken for inclusion in the job report
-      ///
+      /// 
       void reportTimingInfo(std::map<std::string, double> const & timingData);
 
       ///
