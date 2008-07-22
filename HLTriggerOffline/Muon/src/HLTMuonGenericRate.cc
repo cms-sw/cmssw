@@ -540,18 +540,6 @@ void HLTMuonGenericRate::BookHistograms(){
 
 
 
-MonitorElement* HLTMuonGenericRate::BookIt( char* chname, char* chtitle, 
-					    int Nbins, float Min, float Max) {
-  LogDebug("HLTMuonVal") << "Directory " << dbe_->pwd() << " Name " << 
-                            chname << " Title:" << chtitle;
-  TH1F *h = new TH1F( chname, chtitle, Nbins, Min, Max );
-  h->Sumw2();
-  return dbe_->book1D( chname, h );
-  delete h;
-}
-
-
-
 MonitorElement* HLTMuonGenericRate::BookIt( TString name, TString title, 
 					    int Nbins, float Min, float Max) {
   LogDebug("HLTMuonVal") << "Directory " << dbe_->pwd() << " Name " << 
