@@ -17,7 +17,7 @@ process.SiStripConfigDb.Partitions.PrimaryPartition.RunNumber = 0
 process.load("IORawData.SiStripInputSources.EmptySource_cff")
 process.maxEvents.input = 2
 
-process.test = cms.EDFilter("testSiStripConfigDb",
+process.test = cms.EDAnalyzer("testSiStripConfigDb",
     Upload               = cms.untracked.bool(False),
     Download             = cms.untracked.bool(False),
     FedConnections       = cms.untracked.bool(False),

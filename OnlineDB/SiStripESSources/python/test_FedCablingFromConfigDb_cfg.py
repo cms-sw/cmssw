@@ -14,7 +14,7 @@ process.FedCablingFromConfigDb.CablingSource = 'UNDEFINED'
 process.load("IORawData.SiStripInputSources.EmptySource_cff")
 process.maxEvents.input = 2
 
-process.test = cms.EDFilter("test_FedCablingBuilder")
+process.test = cms.EDAnalyzer("test_FedCablingBuilder")
 
 process.p = cms.Path(process.test)
 
