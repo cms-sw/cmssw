@@ -18,8 +18,10 @@ IsoDepositIsolator::IsoDepositIsolator(const edm::ParameterSet &conf, bool withC
         std::string mode = conf.getParameter<std::string>("mode");
         if (mode == "sum") mode_ = Sum;
         else if (mode == "sumRelative") mode_ = SumRelative;
-        //else if (mode == "max") mode_ = Max;                  // TODO: on request only
-        //else if (mode == "maxRelative") mode_ = MaxRelative;  // TODO: on request only
+        else if (mode == "max") mode_ = Max;                  // TODO: on request only
+        else if (mode == "maxRelative") mode_ = MaxRelative;  // TODO: on request only
+        else if (mode == "sum2") mode_ = Sum2;
+        else if (mode == "sum2Relative") mode_ = Sum2Relative;
         else if (mode == "count") mode_ = Count;
         else throw cms::Exception("Not Implemented") << "Mode '" << mode << "' not implemented. " <<
                 "Supported modes are 'sum', 'sumRelative', 'count'." <<
@@ -85,9 +87,13 @@ IsoDepositIsolator::getValue(const edm::ProductID &id, size_t index) const {
         (const_cast<AbsVeto *>(*it))->centerOn(eta, phi); // I need the const_cast to be able to 'move' the veto
     }
     switch (mode_) {
-        case Sum:         return dep.depositWithin(deltaR_, vetos_, skipDefaultVeto_);
-        case SumRelative: return dep.depositWithin(deltaR_, vetos_, skipDefaultVeto_) / dep.candEnergy() ;
-        case Count:       return dep.depositAndCountWithin(deltaR_, vetos_, skipDefaultVeto_).second ;
+        case Count:        return dep.countWithin(deltaR_, vetos_, skipDefaultVeto_);
+        case Sum:          return dep.sumWithin(deltaR_, vetos_, skipDefaultVeto_);
+        case SumRelative:  return dep.sumWithin(deltaR_, vetos_, skipDefaultVeto_) / dep.candEnergy() ;
+        case Sum2:         return dep.sum2Within(deltaR_, vetos_, skipDefaultVeto_);
+        case Sum2Relative: return dep.sum2Within(deltaR_, vetos_, skipDefaultVeto_) / (dep.candEnergy() * dep.candEnergy()) ;
+        case Max:          return dep.maxWithin(deltaR_, vetos_, skipDefaultVeto_);
+        case MaxRelative:  return dep.maxWithin(deltaR_, vetos_, skipDefaultVeto_) / dep.candEnergy() ;
     }
     throw cms::Exception("Logic error") << "Should not happen at " << __FILE__ << ", line " << __LINE__; // avoid gcc warning
 }
