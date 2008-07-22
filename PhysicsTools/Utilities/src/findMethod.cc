@@ -17,11 +17,14 @@ namespace reco {
     if (mem.IsStatic()) return -1;
     if ( ! mem.TypeOf().IsConst() ) return -1;
     if (mem.Name().substr(0, 2) == "__") return -1;
-    if (mem.FunctionParameterSize(true) != args.size()) return -1;
-    if (mem.FunctionParameterSize(true) >= 1) {
+    size_t minArgs = mem.FunctionParameterSize(true), maxArgs = mem.FunctionParameterSize(false);
+    //std::cerr << "\nMETHOD " << mem.Name() << " of " << mem.DeclaringType().Name() 
+    //    << ", min #args = " << minArgs << ", max #args = " << maxArgs 
+    //    << ", args = " << args.size() << std::endl;
+    if ((args.size() < minArgs) || (args.size() > maxArgs)) return -1;
+    if (!args.empty()) {
         Type t = mem.TypeOf();
-        //std::cerr << "\nMETHOD " << mem.Name() << " of " << mem.DeclaringType().Name() << ": size = " << mem.FunctionParameterSize(true) << std::endl;
-        for (size_t i = 0; i < t.FunctionParameterSize(); ++i) { 
+        for (size_t i = 0; i < args.size(); ++i) { 
             std::pair<AnyMethodArgument,int> fixup = boost::apply_visitor( reco::parser::AnyMethodArgumentFixup(t.FunctionParameterAt(i)), args[i] );
             //std::cerr << "\t ARG " << i << " type is " << t.FunctionParameterAt(i).Name() << " conversion = " << fixup.second << std::endl; 
             if (fixup.second >= 0) { 
@@ -33,6 +36,7 @@ namespace reco {
             }
         }
     }
+    //std::cerr << "\nMETHOD " << mem.Name() << " of " << mem.DeclaringType().Name() << " matched with " << casts << " casts" << std::endl;
     return casts;
   }
 

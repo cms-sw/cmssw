@@ -7,7 +7,7 @@
  * \author original version: Chris Jones, Cornell, 
  *         extended by Luca Lista, INFN
  *
- * \version $Revision: 1.12 $
+ * \version $Revision: 1.13 $
  *
  */
 #include "boost/spirit/core.hpp"
@@ -119,7 +119,7 @@ namespace reco {
 	  var = 
 	    (alpha_p >> * alnum_p >> 
 	      ch_p('(') >> metharg >> * (ch_p(',') >> metharg ) >> ch_p(')')) [ method_s ] |
-	    (alpha_p >> * alnum_p) [ method_s ];
+	    ( (alpha_p >> * alnum_p) [ method_s ] >> ! (ch_p('(') >> ch_p(')')) ) ;
 	  method = 
 	    (var >> * ((ch_p('.') >> var))) [ var_s ];
 	  function1 = 
