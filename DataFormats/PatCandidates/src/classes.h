@@ -19,6 +19,8 @@
 #include "DataFormats/PatCandidates/interface/EventHypothesisLooper.h"
 #include "DataFormats/PatCandidates/interface/TriggerPrimitive.h"
 
+#include "DataFormats/PatCandidates/interface/Vertexing.h"
+
 // vvvv Needed to fix dictionaries missing in 169pre2
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/METReco/interface/METCollection.h"
@@ -225,6 +227,8 @@ namespace {
 
     edm::Wrapper<edm::ValueMap<edm::Ptr<reco::BaseTagInfo> > > wbti;
     edm::Wrapper<edm::ValueMap<reco::PhotonID> > VMphId;
+
+    edm::Wrapper<edm::ValueMap<pat::VertexAssociation> > wVMVA;
 
     }
 }

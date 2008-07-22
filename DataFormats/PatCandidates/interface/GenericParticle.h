@@ -1,5 +1,5 @@
 //
-// $Id: GenericParticle.h,v 1.2 2008/06/03 22:28:07 gpetrucc Exp $
+// $Id: GenericParticle.h,v 1.3 2008/07/08 20:56:48 gpetrucc Exp $
 //
 
 #ifndef DataFormats_PatCandidates_GenericParticle_h
@@ -13,7 +13,7 @@
    namespace.
 
   \author   Giovanni Petrucciani
-  \version  $Id: GenericParticle.h,v 1.2 2008/06/03 22:28:07 gpetrucc Exp $
+  \version  $Id: GenericParticle.h,v 1.3 2008/07/08 20:56:48 gpetrucc Exp $
 */
 
 #include "DataFormats/PatCandidates/interface/PATObject.h"
@@ -23,6 +23,7 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/PatCandidates/interface/Isolation.h"
+#include "DataFormats/PatCandidates/interface/Vertexing.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 
@@ -202,6 +203,14 @@ namespace pat {
       void hcalIsoDeposit(const IsoDeposit &dep)    { setIsoDeposit(HCalIso, dep); }
       void userIsoDeposit(const IsoDeposit &dep, uint8_t index=0) { setIsoDeposit(IsolationKeys(UserBaseIso + index), dep); }
 
+      /// Vertex association (or associations, if any). Return null pointer if none has been set
+      const pat::VertexAssociation              * vertexAssociation(size_t index=0) const { return vtxAss_.size() > index ? & vtxAss_[index] : 0; }
+      /// Vertex associations. Can be empty if it was not enabled in the config file
+      const std::vector<pat::VertexAssociation> & vertexAssociations()              const { return vtxAss_; }
+      /// Set a single vertex association
+      void  setVertexAssociation(const pat::VertexAssociation &assoc)  { vtxAss_ = std::vector<pat::VertexAssociation>(1, assoc); }
+      /// Set multiple vertex associations
+      void  setVertexAssociations(const std::vector<pat::VertexAssociation> &assocs) { vtxAss_ = assocs; }
     protected:
       // Any sort of single tracks
       reco::TrackRef           trackRef_, standaloneTrackRef_, combinedTrackRef_; // ref
@@ -231,6 +240,9 @@ namespace pat {
       typedef std::vector<std::pair<IsolationKeys, pat::IsoDeposit> > IsoDepositPairs;
       IsoDepositPairs    isoDeposits_;
       std::vector<float> isolations_;
+
+      // --- Vertexing information
+      std::vector<pat::VertexAssociation> vtxAss_;
 
       void fillInFrom(const reco::Candidate &cand); 
     

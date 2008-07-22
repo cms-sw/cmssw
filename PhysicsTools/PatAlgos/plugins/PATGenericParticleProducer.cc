@@ -1,5 +1,5 @@
 //
-// $Id: PATGenericParticleProducer.cc,v 1.3 2008/06/24 22:58:24 gpetrucc Exp $
+// $Id: PATGenericParticleProducer.cc,v 1.4 2008/07/08 21:24:50 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATGenericParticleProducer.h"
@@ -61,6 +61,10 @@ PATGenericParticleProducer::PATGenericParticleProducer(const edm::ParameterSet &
   if (addEfficiencies_) {
      efficiencyLoader_ = pat::helper::EfficiencyLoader(iConfig.getParameter<edm::ParameterSet>("efficiencies"));
   }
+
+  if (iConfig.exists("vertexing")) {
+     vertexingHelper_ = pat::helper::VertexingHelper(iConfig.getParameter<edm::ParameterSet>("vertexing")); 
+  }
 }
 
 PATGenericParticleProducer::~PATGenericParticleProducer() {
@@ -75,6 +79,7 @@ void PATGenericParticleProducer::produce(edm::Event & iEvent, const edm::EventSe
   if (isolator_.enabled()) isolator_.beginEvent(iEvent);
 
   if (efficiencyLoader_.enabled()) efficiencyLoader_.newEvent(iEvent);
+  if (vertexingHelper_.enabled())  vertexingHelper_.newEvent(iEvent,iSetup);
 
   // prepare IsoDeposits
   std::vector<edm::Handle<edm::ValueMap<IsoDeposit> > > deposits(isoDepositLabels_.size());
@@ -153,6 +158,9 @@ void PATGenericParticleProducer::produce(edm::Event & iEvent, const edm::EventSe
         efficiencyLoader_.setEfficiencies( aGenericParticle, candRef );
     }
 
+    if (vertexingHelper_.enabled()) {
+        aGenericParticle.setVertexAssociation( vertexingHelper_(candRef) );
+    }
     // add the GenericParticle to the vector of GenericParticles
     PATGenericParticles->push_back(aGenericParticle);
   }

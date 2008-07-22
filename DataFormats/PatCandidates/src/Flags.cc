@@ -51,7 +51,7 @@ Flags::Core:: bitToString( Core::Bits bit ) {
     static const std::string STR_All           = "Core/All", 
                              STR_Duplicate     = "Core/Duplicate",
                              STR_Preselection  = "Core/Preselection",
-                             STR_Preselection2 = "Core/Preselection",
+                             STR_Vertexing     = "Core/Vertexing",
                              STR_Overflow      = "Core/Overflow",
                              STR_Undefined     = "Core/Undefined";
                               
@@ -59,7 +59,7 @@ Flags::Core:: bitToString( Core::Bits bit ) {
         case All:           return STR_All;
         case Duplicate:     return STR_Duplicate;
         case Preselection:  return STR_Preselection;
-        case Preselection2: return STR_Preselection2;
+        case Vertexing:     return STR_Vertexing;
         case Overflow:      return STR_Overflow;
         default:            return STR_Undefined;
     }
@@ -72,7 +72,7 @@ Flags::Core::get ( const std::string & instr ) {
     if      (str == "All")           return All;
     else if (str == "Duplicate"    ) return Duplicate;
     else if (str == "Preselection" ) return Preselection;
-    else if (str == "Preselection2") return Preselection2;
+    else if (str == "Vertexing"    ) return Vertexing;
     else if (str == "Overlfow"     ) return Overflow;
     return Undefined;
 }

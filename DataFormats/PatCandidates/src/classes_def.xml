@@ -120,6 +120,11 @@
   <class name="StringMap" />
   <class name="edm::Wrapper<StringMap>" />
 
+  <class name="pat::VertexAssociation" />
+  <class name="std::vector<pat::VertexAssociation>" />
+  <class name="edm::ValueMap<pat::VertexAssociation>" />
+  <class name="edm::Wrapper<edm::ValueMap<pat::VertexAssociation> >" />
+
   <class name="std::pair<std::string,edm::Ptr<reco::Candidate> >" />
   <class name="std::vector<std::pair<std::string,edm::Ptr<reco::Candidate> > >" />
   <class name="pat::EventHypothesis" />

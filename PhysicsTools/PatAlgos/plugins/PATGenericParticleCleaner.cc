@@ -1,5 +1,5 @@
 //
-// $Id: PATGenericParticleCleaner.cc,v 1.3 2008/06/06 14:13:40 gpetrucc Exp $
+// $Id: PATGenericParticleCleaner.cc,v 1.4 2008/06/20 13:15:32 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATGenericParticleCleaner.h"
@@ -17,6 +17,9 @@ pat::PATGenericParticleCleaner::PATGenericParticleCleaner(const edm::ParameterSe
     edm::ParameterSet overlapConf = iConfig.getParameter<edm::ParameterSet>("removeOverlaps");
     overlapHelper_ = pat::helper::OverlapHelper(overlapConf);
   }
+  if (iConfig.exists("vertexing")) {
+     vertexingHelper_ = pat::helper::VertexingHelper(iConfig.getParameter<edm::ParameterSet>("vertexing")); 
+  }
 }
 
 
@@ -28,6 +31,7 @@ void pat::PATGenericParticleCleaner::produce(edm::Event & iEvent, const edm::Eve
   // start a new event
   helper_.newEvent(iEvent);
   if (isolator_.enabled()) isolator_.beginEvent(iEvent);
+  if (vertexingHelper_.enabled()) vertexingHelper_.newEvent(iEvent,iSetup);
 
   for (size_t idx = 0, size = helper_.srcSize(); idx < size; ++idx) {
     // read the source object and clone it
@@ -40,6 +44,12 @@ void pat::PATGenericParticleCleaner::produce(edm::Event & iEvent, const edm::Eve
     if (isolator_.enabled()) {
         uint32_t isolationWord = isolator_.test( helper_.source(), idx );
         helper_.addMark(selIdx, isolationWord);
+    }
+
+    if (vertexingHelper_.enabled()) {
+        if ( vertexingHelper_( helper_.srcRefAt(idx) ).isNull()) {
+            helper_.addMark(selIdx, pat::Flags::Core::Vertexing);
+        } 
     }
   }
 
