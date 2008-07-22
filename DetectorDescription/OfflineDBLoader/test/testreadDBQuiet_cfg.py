@@ -25,6 +25,8 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
 
 process.myprint = cms.OutputModule("AsciiOutputModule")
 
+process.Timing = cms.Service("Timing")
+
 process.prod = cms.EDAnalyzer("PerfectGeometryAnalyzer",
                                   dumpPosInfo = cms.untracked.bool(False),
                                   dumpSpecs = cms.untracked.bool(False),
