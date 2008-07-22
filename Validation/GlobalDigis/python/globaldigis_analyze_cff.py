@@ -9,7 +9,6 @@ from DQMServices.Components.test.dqm_onlineEnv_cfi import *
 from Validation.GlobalDigis.globaldigis_analyze_cfi import *
 DQMStore = cms.Service("DQMStore")
 
-dqmSaver.fileName = 'GlobalDigisAnalyze'
-dqmSaver.saveAtRunEnd = False
-dqmSaver.saveAtJobEnd = True
+dqmSaver.convention = 'RelVal'
+dqmSaver.workflow = 'GlobalValidation/Test/RECO'
 

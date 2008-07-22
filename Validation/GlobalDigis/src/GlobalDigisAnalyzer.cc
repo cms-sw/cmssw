@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2008/04/11 20:09:43 $
- *  $Revision: 1.12 $
+ *  $Date: 2008/05/20 14:32:42 $
+ *  $Revision: 1.13 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -605,113 +605,119 @@ void GlobalDigisAnalyzer::fillECal(const edm::Event& iEvent,
   edm::Handle<EBDigiCollection> EcalDigiEB;  
   const EBDigiCollection *EBdigis = 0;
   iEvent.getByLabel(ECalEBSrc_, EcalDigiEB);
+  bool validDigiEB = true;
   if (!EcalDigiEB.isValid()) {
-    edm::LogWarning(MsgLoggerCat)
+    LogDebug(MsgLoggerCat)
       << "Unable to find EcalDigiEB in event!";
-    return;
+    validDigiEB = false;
   }  
-  EBdigis = EcalDigiEB.product();
-  if ( EcalDigiEB->size() == 0) isBarrel = false;
-  
-  if (isBarrel) {
+  if (validDigiEB) {
+    EBdigis = EcalDigiEB.product();
+    if ( EcalDigiEB->size() == 0) isBarrel = false;
     
-    // loop over simhits
-    const std::string barrelHitsName(hitsProducer+"EcalHitsEB");
-    iEvent.getByLabel("mix",barrelHitsName,crossingFrame);
-    if (!crossingFrame.isValid()) {
-      edm::LogWarning(MsgLoggerCat)
-	<< "Unable to find cal barrel crossingFrame in event!";
-      return;
-    }
-    std::auto_ptr<MixCollection<PCaloHit> >
-      barrelHits(new MixCollection<PCaloHit>(crossingFrame.product()));
-    
-    // keep track of sum of simhit energy in each crystal
-    MapType ebSimMap;
-    for (MixCollection<PCaloHit>::MixItr hitItr 
-	   = barrelHits->begin();
-	 hitItr != barrelHits->end();
-	 ++hitItr) {
+    if (isBarrel) {
       
-      EBDetId ebid = EBDetId(hitItr->id());
-      
-      uint32_t crystid = ebid.rawId();
-      ebSimMap[crystid] += hitItr->energy();
-    }
-    
-    // loop over digis
-    const EBDigiCollection *barrelDigi = EcalDigiEB.product();
-    
-    std::vector<double> ebAnalogSignal;
-    std::vector<double> ebADCCounts;
-    std::vector<double> ebADCGains;
-    ebAnalogSignal.reserve(EBDataFrame::MAXSAMPLES);
-    ebADCCounts.reserve(EBDataFrame::MAXSAMPLES);
-    ebADCGains.reserve(EBDataFrame::MAXSAMPLES);
-    
-    int i = 0;
-    for (unsigned int digis=0; digis<EcalDigiEB->size(); ++digis) {
-      
-      ++i;
-      
-      EBDataFrame ebdf = (*barrelDigi)[digis];
-      int nrSamples = ebdf.size();
-      
-      EBDetId ebid = ebdf.id () ;
-      
-      double Emax = 0;
-      int Pmax = 0;
-      double pedestalPreSample = 0.;
-      double pedestalPreSampleAnalog = 0.;
-      
-      for (int sample = 0 ; sample < nrSamples; ++sample) {
-	ebAnalogSignal[sample] = 0.;
-	ebADCCounts[sample] = 0.;
-	ebADCGains[sample] = -1.;
+      // loop over simhits
+      MapType ebSimMap;
+      const std::string barrelHitsName(hitsProducer+"EcalHitsEB");
+      iEvent.getByLabel("mix",barrelHitsName,crossingFrame);
+      bool validXFrame = true;
+      if (!crossingFrame.isValid()) {
+	LogDebug(MsgLoggerCat)
+	  << "Unable to find cal barrel crossingFrame in event!";
+	validXFrame = false;
       }
-      
-      // calculate maximum energy and pedestal
-      for (int sample = 0 ; sample < nrSamples; ++sample) {
+      if (validXFrame) {
+	std::auto_ptr<MixCollection<PCaloHit> >
+	  barrelHits(new MixCollection<PCaloHit>(crossingFrame.product()));
 	
-	EcalMGPASample thisSample = ebdf[sample];
-	ebADCCounts[sample] = (thisSample.adc());
-	ebADCGains[sample]  = (thisSample.gainId());
-	ebAnalogSignal[sample] = 
-	  (ebADCCounts[sample] * ECalgainConv_[(int)ebADCGains[sample]]
-	   * ECalbarrelADCtoGeV_);
-	if (Emax < ebAnalogSignal[sample]) {
-	  Emax = ebAnalogSignal[sample];
-	  Pmax = sample;
+	// keep track of sum of simhit energy in each crystal
+	for (MixCollection<PCaloHit>::MixItr hitItr 
+	       = barrelHits->begin();
+	     hitItr != barrelHits->end();
+	     ++hitItr) {
+	  
+	  EBDetId ebid = EBDetId(hitItr->id());
+	  
+	  uint32_t crystid = ebid.rawId();
+	  ebSimMap[crystid] += hitItr->energy();
 	}
-	if ( sample < 3 ) {
-	  pedestalPreSample += ebADCCounts[sample] ;
-	  pedestalPreSampleAnalog += 
-	    ebADCCounts[sample] * ECalgainConv_[(int)ebADCGains[sample]]
-	    * ECalbarrelADCtoGeV_ ;
+      }
+
+      // loop over digis
+      const EBDigiCollection *barrelDigi = EcalDigiEB.product();
+      
+      std::vector<double> ebAnalogSignal;
+      std::vector<double> ebADCCounts;
+      std::vector<double> ebADCGains;
+      ebAnalogSignal.reserve(EBDataFrame::MAXSAMPLES);
+      ebADCCounts.reserve(EBDataFrame::MAXSAMPLES);
+      ebADCGains.reserve(EBDataFrame::MAXSAMPLES);
+      
+      int i = 0;
+      for (unsigned int digis=0; digis<EcalDigiEB->size(); ++digis) {
+	
+	++i;
+	
+	EBDataFrame ebdf = (*barrelDigi)[digis];
+	int nrSamples = ebdf.size();
+	
+	EBDetId ebid = ebdf.id () ;
+	
+	double Emax = 0;
+	int Pmax = 0;
+	double pedestalPreSample = 0.;
+	double pedestalPreSampleAnalog = 0.;
+	
+	for (int sample = 0 ; sample < nrSamples; ++sample) {
+	  ebAnalogSignal[sample] = 0.;
+	  ebADCCounts[sample] = 0.;
+	  ebADCGains[sample] = -1.;
 	}
 	
+	// calculate maximum energy and pedestal
+	for (int sample = 0 ; sample < nrSamples; ++sample) {
+	  
+	  EcalMGPASample thisSample = ebdf[sample];
+	  ebADCCounts[sample] = (thisSample.adc());
+	  ebADCGains[sample]  = (thisSample.gainId());
+	  ebAnalogSignal[sample] = 
+	    (ebADCCounts[sample] * ECalgainConv_[(int)ebADCGains[sample]]
+	     * ECalbarrelADCtoGeV_);
+	  if (Emax < ebAnalogSignal[sample]) {
+	    Emax = ebAnalogSignal[sample];
+	    Pmax = sample;
+	  }
+	  if ( sample < 3 ) {
+	    pedestalPreSample += ebADCCounts[sample] ;
+	    pedestalPreSampleAnalog += 
+	      ebADCCounts[sample] * ECalgainConv_[(int)ebADCGains[sample]]
+	      * ECalbarrelADCtoGeV_ ;
+	  }
+	  
+	}
+	pedestalPreSample /= 3. ; 
+	pedestalPreSampleAnalog /= 3. ; 
+	
+	// calculate pedestal subtracted digi energy in the crystal
+	double Erec = Emax - pedestalPreSampleAnalog
+	  * ECalgainConv_[(int)ebADCGains[Pmax]];
+	
+	// gather necessary information
+	mehEcalMaxPos[0]->Fill(Pmax);
+	mehEcalSHE[0]->Fill(ebSimMap[ebid.rawId()]);
+	mehEcalAEE[0]->Fill(Erec);
+	mehEcalSHEvAEESHE[0]->Fill(Erec/ebSimMap[ebid.rawId()],
+				   ebSimMap[ebid.rawId()]);
+	mehEcalMultvAEE[0]->Fill(Pmax,(float)i);
       }
-      pedestalPreSample /= 3. ; 
-      pedestalPreSampleAnalog /= 3. ; 
       
-      // calculate pedestal subtracted digi energy in the crystal
-      double Erec = Emax - pedestalPreSampleAnalog
-	* ECalgainConv_[(int)ebADCGains[Pmax]];
-      
-      // gather necessary information
-      mehEcalMaxPos[0]->Fill(Pmax);
-      mehEcalSHE[0]->Fill(ebSimMap[ebid.rawId()]);
-      mehEcalAEE[0]->Fill(Erec);
-      mehEcalSHEvAEESHE[0]->Fill(Erec/ebSimMap[ebid.rawId()],
-				 ebSimMap[ebid.rawId()]);
-      mehEcalMultvAEE[0]->Fill(Pmax,(float)i);
+      if (verbosity > 1) {
+	eventout += "\n          Number of EBDigis collected:.............. ";
+	eventout += i;
+      }
+      mehEcaln[0]->Fill((float)i);
     }
-    
-    if (verbosity > 1) {
-      eventout += "\n          Number of EBDigis collected:.............. ";
-      eventout += i;
-    }
-    mehEcaln[0]->Fill((float)i);
   }
   
   /////////////////////////
@@ -721,116 +727,122 @@ void GlobalDigisAnalyzer::fillECal(const edm::Event& iEvent,
   edm::Handle<EEDigiCollection> EcalDigiEE;  
   const EEDigiCollection *EEdigis = 0;
   iEvent.getByLabel(ECalEESrc_, EcalDigiEE);
+  bool validDigiEE = true;
   if (!EcalDigiEE.isValid()) {
-    edm::LogWarning(MsgLoggerCat)
+    LogDebug(MsgLoggerCat)
       << "Unable to find EcalDigiEE in event!";
-    return;
+    validDigiEE = false;
   }  
-  EEdigis = EcalDigiEE.product();
-  if (EcalDigiEE->size() == 0) isEndCap = false;
-  
-  if (isEndCap) {
+  if (validDigiEE) {
+    EEdigis = EcalDigiEE.product();
+    if (EcalDigiEE->size() == 0) isEndCap = false;
     
-    // loop over simhits
-    const std::string endcapHitsName(hitsProducer+"EcalHitsEE");
-    iEvent.getByLabel("mix",endcapHitsName,crossingFrame);
-    if (!crossingFrame.isValid()) {
-      edm::LogWarning(MsgLoggerCat)
-	<< "Unable to find cal endcap crossingFrame in event!";
-      return;
-    }
-    std::auto_ptr<MixCollection<PCaloHit> >
-      endcapHits(new MixCollection<PCaloHit>(crossingFrame.product()));
-    
-    // keep track of sum of simhit energy in each crystal
-    MapType eeSimMap;
-    for (MixCollection<PCaloHit>::MixItr hitItr 
-	   = endcapHits->begin();
-	 hitItr != endcapHits->end();
-	 ++hitItr) {
+    if (isEndCap) {
       
-      EEDetId eeid = EEDetId(hitItr->id());
-      
-      uint32_t crystid = eeid.rawId();
-      eeSimMap[crystid] += hitItr->energy();
-    }
-    
-    // loop over digis
-    const EEDigiCollection *endcapDigi = EcalDigiEE.product();
-    
-    std::vector<double> eeAnalogSignal;
-    std::vector<double> eeADCCounts;
-    std::vector<double> eeADCGains;
-    eeAnalogSignal.reserve(EEDataFrame::MAXSAMPLES);
-    eeADCCounts.reserve(EEDataFrame::MAXSAMPLES);
-    eeADCGains.reserve(EEDataFrame::MAXSAMPLES);
-    
-    int inc = 0;
-    for (unsigned int digis=0; digis<EcalDigiEE->size(); ++digis){ 
-      
-      ++inc;
-      
-      EEDataFrame eedf = (*endcapDigi)[digis];
-      int nrSamples = eedf.size();
-      
-      EEDetId eeid = eedf.id () ;
-      
-      double Emax = 0;
-      int Pmax = 0;
-      double pedestalPreSample = 0.;
-      double pedestalPreSampleAnalog = 0.;
-      
-      for (int sample = 0 ; sample < nrSamples; ++sample) {
-	eeAnalogSignal[sample] = 0.;
-	eeADCCounts[sample] = 0.;
-	eeADCGains[sample] = -1.;
+      // loop over simhits
+      MapType eeSimMap;
+      const std::string endcapHitsName(hitsProducer+"EcalHitsEE");
+      iEvent.getByLabel("mix",endcapHitsName,crossingFrame);
+      bool validXFrame = true;
+      if (!crossingFrame.isValid()) {
+	LogDebug(MsgLoggerCat)
+	  << "Unable to find cal endcap crossingFrame in event!";
+	validXFrame = false;
       }
-      
-      // calculate maximum enery and pedestal
-      for (int sample = 0 ; sample < nrSamples; ++sample) {
+      if (validXFrame) {
+	std::auto_ptr<MixCollection<PCaloHit> >
+	  endcapHits(new MixCollection<PCaloHit>(crossingFrame.product()));
 	
-	EcalMGPASample thisSample = eedf[sample];
-	
-	eeADCCounts[sample] = (thisSample.adc());
-	eeADCGains[sample]  = (thisSample.gainId());
-	eeAnalogSignal[sample] = 
-	  (eeADCCounts[sample] * ECalgainConv_[(int)eeADCGains[sample]]
-	   * ECalbarrelADCtoGeV_);
-	if (Emax < eeAnalogSignal[sample]) {
-	  Emax = eeAnalogSignal[sample];
-	  Pmax = sample;
+	// keep track of sum of simhit energy in each crystal
+	for (MixCollection<PCaloHit>::MixItr hitItr 
+	       = endcapHits->begin();
+	     hitItr != endcapHits->end();
+	     ++hitItr) {
+	  
+	  EEDetId eeid = EEDetId(hitItr->id());
+	  
+	  uint32_t crystid = eeid.rawId();
+	  eeSimMap[crystid] += hitItr->energy();
 	}
-	if ( sample < 3 ) {
-	  pedestalPreSample += eeADCCounts[sample] ;
-	  pedestalPreSampleAnalog += 
-	    eeADCCounts[sample] * ECalgainConv_[(int)eeADCGains[sample]]
-	    * ECalbarrelADCtoGeV_ ;
+      }
+
+      // loop over digis
+      const EEDigiCollection *endcapDigi = EcalDigiEE.product();
+      
+      std::vector<double> eeAnalogSignal;
+      std::vector<double> eeADCCounts;
+      std::vector<double> eeADCGains;
+      eeAnalogSignal.reserve(EEDataFrame::MAXSAMPLES);
+      eeADCCounts.reserve(EEDataFrame::MAXSAMPLES);
+      eeADCGains.reserve(EEDataFrame::MAXSAMPLES);
+      
+      int inc = 0;
+      for (unsigned int digis=0; digis<EcalDigiEE->size(); ++digis){ 
+	
+	++inc;
+	
+	EEDataFrame eedf = (*endcapDigi)[digis];
+	int nrSamples = eedf.size();
+	
+	EEDetId eeid = eedf.id () ;
+	
+	double Emax = 0;
+	int Pmax = 0;
+	double pedestalPreSample = 0.;
+	double pedestalPreSampleAnalog = 0.;
+	
+	for (int sample = 0 ; sample < nrSamples; ++sample) {
+	  eeAnalogSignal[sample] = 0.;
+	  eeADCCounts[sample] = 0.;
+	  eeADCGains[sample] = -1.;
 	}
 	
+	// calculate maximum enery and pedestal
+	for (int sample = 0 ; sample < nrSamples; ++sample) {
+	  
+	  EcalMGPASample thisSample = eedf[sample];
+	  
+	  eeADCCounts[sample] = (thisSample.adc());
+	  eeADCGains[sample]  = (thisSample.gainId());
+	  eeAnalogSignal[sample] = 
+	    (eeADCCounts[sample] * ECalgainConv_[(int)eeADCGains[sample]]
+	     * ECalbarrelADCtoGeV_);
+	  if (Emax < eeAnalogSignal[sample]) {
+	    Emax = eeAnalogSignal[sample];
+	    Pmax = sample;
+	  }
+	  if ( sample < 3 ) {
+	    pedestalPreSample += eeADCCounts[sample] ;
+	    pedestalPreSampleAnalog += 
+	      eeADCCounts[sample] * ECalgainConv_[(int)eeADCGains[sample]]
+	      * ECalbarrelADCtoGeV_ ;
+	  }
+	  
+	}
+	pedestalPreSample /= 3. ; 
+	pedestalPreSampleAnalog /= 3. ; 
+	
+	// calculate pedestal subtracted digi energy in the crystal
+	double Erec = Emax - pedestalPreSampleAnalog
+	  * ECalgainConv_[(int)eeADCGains[Pmax]];
+	
+	// gather necessary information
+	mehEcalMaxPos[1]->Fill(Pmax);
+	mehEcalSHE[1]->Fill(eeSimMap[eeid.rawId()]);
+	mehEcalAEE[1]->Fill(Erec);
+	mehEcalSHEvAEESHE[1]->Fill(Erec/eeSimMap[eeid.rawId()],
+				   eeSimMap[eeid.rawId()]);
+	mehEcalMultvAEE[1]->Fill(Pmax,(float)inc);
+	
       }
-      pedestalPreSample /= 3. ; 
-      pedestalPreSampleAnalog /= 3. ; 
       
-      // calculate pedestal subtracted digi energy in the crystal
-      double Erec = Emax - pedestalPreSampleAnalog
-	* ECalgainConv_[(int)eeADCGains[Pmax]];
+      if (verbosity > 1) {
+	eventout += "\n          Number of EEDigis collected:.............. ";
+	eventout += inc;
+      }
       
-      // gather necessary information
-      mehEcalMaxPos[1]->Fill(Pmax);
-      mehEcalSHE[1]->Fill(eeSimMap[eeid.rawId()]);
-      mehEcalAEE[1]->Fill(Erec);
-      mehEcalSHEvAEESHE[1]->Fill(Erec/eeSimMap[eeid.rawId()],
-				 eeSimMap[eeid.rawId()]);
-      mehEcalMultvAEE[1]->Fill(Pmax,(float)inc);
-      
+      mehEcaln[1]->Fill((float)inc);
     }
-    
-    if (verbosity > 1) {
-      eventout += "\n          Number of EEDigis collected:.............. ";
-      eventout += inc;
-    }
-    
-    mehEcaln[1]->Fill((float)inc);
   }
 
   /////////////////////////
@@ -840,81 +852,87 @@ void GlobalDigisAnalyzer::fillECal(const edm::Event& iEvent,
   edm::Handle<ESDigiCollection> EcalDigiES;  
   const ESDigiCollection *ESdigis = 0;
   iEvent.getByLabel(ECalESSrc_, EcalDigiES);
+  bool validDigiES = true;
   if (!EcalDigiES.isValid()) {
-    edm::LogWarning(MsgLoggerCat)
+    LogDebug(MsgLoggerCat)
       << "Unable to find EcalDigiES in event!";
-    return;
+    validDigiES = false;
   }  
-  ESdigis = EcalDigiES.product();
-  if (EcalDigiES->size() == 0) isPreshower = false;
-  
-  if (isPreshower) {
+  if (validDigiES) {
+    ESdigis = EcalDigiES.product();
+    if (EcalDigiES->size() == 0) isPreshower = false;
     
-    // loop over simhits
-    const std::string preshowerHitsName(hitsProducer+"EcalHitsES");
-    iEvent.getByLabel("mix",preshowerHitsName,crossingFrame);
-    if (!crossingFrame.isValid()) {
-      edm::LogWarning(MsgLoggerCat)
-	<< "Unable to find cal preshower crossingFrame in event!";
-      return;
-    }
-    std::auto_ptr<MixCollection<PCaloHit> >
-      preshowerHits(new MixCollection<PCaloHit>(crossingFrame.product()));
-    
-    // keep track of sum of simhit energy in each crystal
-    MapType esSimMap;
-    for (MixCollection<PCaloHit>::MixItr hitItr 
-	   = preshowerHits->begin();
-	 hitItr != preshowerHits->end();
-	 ++hitItr) {
+    if (isPreshower) {
       
-      ESDetId esid = ESDetId(hitItr->id());
-      
-      uint32_t crystid = esid.rawId();
-      esSimMap[crystid] += hitItr->energy();
-    }
-    
-    // loop over digis
-    const ESDigiCollection *preshowerDigi = EcalDigiES.product();
-    
-    std::vector<double> esADCCounts;
-    esADCCounts.reserve(ESDataFrame::MAXSAMPLES);
-    
-    int i = 0;
-    for (unsigned int digis=0; digis<EcalDigiES->size(); ++digis) {
-      
-      ++i;
-      
-      
-      ESDataFrame esdf = (*preshowerDigi)[digis];
-      int nrSamples = esdf.size();
-      
-      ESDetId esid = esdf.id () ;
-      // ESDetId esid = digis->id();
-      
-      for (int sample = 0 ; sample < nrSamples; ++sample) {
-	esADCCounts[sample] = 0.;
+      // loop over simhits
+      const std::string preshowerHitsName(hitsProducer+"EcalHitsES");
+      iEvent.getByLabel("mix",preshowerHitsName,crossingFrame);
+      bool validXFrame = true;
+      if (!crossingFrame.isValid()) {
+	LogDebug(MsgLoggerCat)
+	  << "Unable to find cal preshower crossingFrame in event!";
+	validXFrame = false;
       }
-      
-      // gether ADC counts
-      for (int sample = 0 ; sample < nrSamples; ++sample) {
+      if (validXFrame) {
+	std::auto_ptr<MixCollection<PCaloHit> >
+	  preshowerHits(new MixCollection<PCaloHit>(crossingFrame.product()));
 	
-	ESSample thisSample = esdf[sample];
-	esADCCounts[sample] = (thisSample.adc());
+	// keep track of sum of simhit energy in each crystal
+	MapType esSimMap;
+	for (MixCollection<PCaloHit>::MixItr hitItr 
+	       = preshowerHits->begin();
+	     hitItr != preshowerHits->end();
+	     ++hitItr) {
+	  
+	  ESDetId esid = ESDetId(hitItr->id());
+	  
+	  uint32_t crystid = esid.rawId();
+	  esSimMap[crystid] += hitItr->energy();
+	}
+      }
+
+      // loop over digis
+      const ESDigiCollection *preshowerDigi = EcalDigiES.product();
+      
+      std::vector<double> esADCCounts;
+      esADCCounts.reserve(ESDataFrame::MAXSAMPLES);
+      
+      int i = 0;
+      for (unsigned int digis=0; digis<EcalDigiES->size(); ++digis) {
+	
+	++i;
+	
+	
+	ESDataFrame esdf = (*preshowerDigi)[digis];
+	int nrSamples = esdf.size();
+	
+	ESDetId esid = esdf.id () ;
+	// ESDetId esid = digis->id();
+	
+	for (int sample = 0 ; sample < nrSamples; ++sample) {
+	  esADCCounts[sample] = 0.;
+	}
+	
+	// gether ADC counts
+	for (int sample = 0 ; sample < nrSamples; ++sample) {
+	  
+	  ESSample thisSample = esdf[sample];
+	  esADCCounts[sample] = (thisSample.adc());
+	}
+	
+	mehEScalADC[0]->Fill(esADCCounts[0]);
+	mehEScalADC[1]->Fill(esADCCounts[1]);
+	mehEScalADC[2]->Fill(esADCCounts[2]);
+	
       }
       
-      mehEScalADC[0]->Fill(esADCCounts[0]);
-      mehEScalADC[1]->Fill(esADCCounts[1]);
-      mehEScalADC[2]->Fill(esADCCounts[2]);
+      if (verbosity > 1) {
+	eventout += "\n          Number of ESDigis collected:.............. ";
+	eventout += i;
+      }
       
+      mehEScaln->Fill((float)i);
     }
-    
-    if (verbosity > 1) {
-      eventout += "\n          Number of ESDigis collected:.............. ";
-      eventout += i;
-    }
-    
-    mehEScaln->Fill((float)i);
   }
   if (verbosity > 0)
     edm::LogInfo(MsgLoggerCat) << eventout << "\n";
@@ -949,203 +967,216 @@ void GlobalDigisAnalyzer::fillHCal(const edm::Event& iEvent,
   //////////////////////
   edm::Handle<edm::PCaloHitContainer> hcalHits;
   iEvent.getByLabel(HCalSrc_,hcalHits);
+  bool validhcalHits = true;
   if (!hcalHits.isValid()) {
-    edm::LogWarning(MsgLoggerCat)
+    LogDebug(MsgLoggerCat)
       << "Unable to find hcalHits in event!";
-    return;
+    validhcalHits = false;
   }  
-  const edm::PCaloHitContainer *simhitResult = hcalHits.product();
-  
   MapType fHBEnergySimHits;
   MapType fHEEnergySimHits;
   MapType fHOEnergySimHits;
   MapType fHFEnergySimHits;
-  for (std::vector<PCaloHit>::const_iterator simhits = simhitResult->begin();
-       simhits != simhitResult->end();
-       ++simhits) {
+  if (validhcalHits) {
+    const edm::PCaloHitContainer *simhitResult = hcalHits.product();
     
-    HcalDetId detId(simhits->id());
-    uint32_t cellid = detId.rawId();
-    
-    if (detId.subdet() == sdHcalBrl){  
-      fHBEnergySimHits[cellid] += simhits->energy(); 
-    }
-    if (detId.subdet() == sdHcalEC){  
-      fHEEnergySimHits[cellid] += simhits->energy(); 
-    }    
-    if (detId.subdet() == sdHcalOut){  
-      fHOEnergySimHits[cellid] += simhits->energy(); 
-    }    
-    if (detId.subdet() == sdHcalFwd){  
-      fHFEnergySimHits[cellid] += simhits->energy(); 
-    }    
+    for (std::vector<PCaloHit>::const_iterator simhits = simhitResult->begin();
+	 simhits != simhitResult->end();
+	 ++simhits) {
+      
+      HcalDetId detId(simhits->id());
+      uint32_t cellid = detId.rawId();
+      
+      if (detId.subdet() == sdHcalBrl){  
+	fHBEnergySimHits[cellid] += simhits->energy(); 
+      }
+      if (detId.subdet() == sdHcalEC){  
+	fHEEnergySimHits[cellid] += simhits->energy(); 
+      }    
+      if (detId.subdet() == sdHcalOut){  
+	fHOEnergySimHits[cellid] += simhits->energy(); 
+      }    
+      if (detId.subdet() == sdHcalFwd){  
+	fHFEnergySimHits[cellid] += simhits->energy(); 
+      }    
+    } 
   }
-  
+
   ////////////////////////
   // get HBHE information
   ///////////////////////
   edm::Handle<edm::SortedCollection<HBHEDataFrame> > hbhe;
   iEvent.getByLabel(HCalDigi_,hbhe);
+  bool validHBHE = true;
   if (!hbhe.isValid()) {
-    edm::LogWarning(MsgLoggerCat)
+    LogDebug(MsgLoggerCat)
       << "Unable to find HBHEDataFrame in event!";
-    return;
+    validHBHE = false;
   }    
-  edm::SortedCollection<HBHEDataFrame>::const_iterator ihbhe;
-  
-  int iHB = 0;
-  int iHE = 0; 
-  for (ihbhe = hbhe->begin(); ihbhe != hbhe->end(); ++ihbhe) {
-    HcalDetId cell(ihbhe->id()); 
+
+  if (validHBHE) {
+    edm::SortedCollection<HBHEDataFrame>::const_iterator ihbhe;
     
-    if ((cell.subdet() == sdHcalBrl) || (cell.subdet() == sdHcalEC)) {
+    int iHB = 0;
+    int iHE = 0; 
+    for (ihbhe = hbhe->begin(); ihbhe != hbhe->end(); ++ihbhe) {
+      HcalDetId cell(ihbhe->id()); 
       
-      //HCalconditions->makeHcalCalibration(cell, &calibrations);
-      const HcalCalibrations& calibrations = 
-	HCalconditions->getHcalCalibrations(cell);
-      const HcalQIECoder *channelCoder = HCalconditions->getHcalCoder(cell);
-      HcalCoderDb coder(*channelCoder, *shape);
-      coder.adc2fC(*ihbhe, tool);
-      
-      // get HB info
-      if (cell.subdet() == sdHcalBrl) {
+      if ((cell.subdet() == sdHcalBrl) || (cell.subdet() == sdHcalEC)) {
 	
-	++iHB;
-	float fDigiSum = 0.0;
-	for  (int ii = 0; ii < tool.size(); ++ii) {
-	  // default ped is 4.5
-	  int capid = (*ihbhe)[ii].capid();
-	  fDigiSum += (tool[ii] - calibrations.pedestal(capid));
+	//HCalconditions->makeHcalCalibration(cell, &calibrations);
+	const HcalCalibrations& calibrations = 
+	  HCalconditions->getHcalCalibrations(cell);
+	const HcalQIECoder *channelCoder = HCalconditions->getHcalCoder(cell);
+	HcalCoderDb coder(*channelCoder, *shape);
+	coder.adc2fC(*ihbhe, tool);
+	
+	// get HB info
+	if (cell.subdet() == sdHcalBrl) {
+	  
+	  ++iHB;
+	  float fDigiSum = 0.0;
+	  for  (int ii = 0; ii < tool.size(); ++ii) {
+	    // default ped is 4.5
+	    int capid = (*ihbhe)[ii].capid();
+	    fDigiSum += (tool[ii] - calibrations.pedestal(capid));
+	  }
+	  
+	  mehHcalSHE[0]->Fill(fHFEnergySimHits[cell.rawId()]);
+	  mehHcalAEE[0]->Fill(fDigiSum);
+	  mehHcalAEESHE[0]->Fill(fDigiSum/fHFEnergySimHits[cell.rawId()]);
+	  mehHcalSHEvAEE[0]->Fill(fDigiSum, fHFEnergySimHits[cell.rawId()]);
 	}
 	
-	mehHcalSHE[0]->Fill(fHFEnergySimHits[cell.rawId()]);
-	mehHcalAEE[0]->Fill(fDigiSum);
-	mehHcalAEESHE[0]->Fill(fDigiSum/fHFEnergySimHits[cell.rawId()]);
-	mehHcalSHEvAEE[0]->Fill(fDigiSum, fHFEnergySimHits[cell.rawId()]);
-      }
-      
-      // get HE info
-      if (cell.subdet() == sdHcalEC) {
-	
-	++iHE;
-	float fDigiSum = 0.0;
-	for  (int ii = 0; ii < tool.size(); ++ii) {
-	  int capid = (*ihbhe)[ii].capid();
-	  fDigiSum += (tool[ii]-calibrations.pedestal(capid));
+	// get HE info
+	if (cell.subdet() == sdHcalEC) {
+	  
+	  ++iHE;
+	  float fDigiSum = 0.0;
+	  for  (int ii = 0; ii < tool.size(); ++ii) {
+	    int capid = (*ihbhe)[ii].capid();
+	    fDigiSum += (tool[ii]-calibrations.pedestal(capid));
+	  }
+	  
+	  mehHcalSHE[1]->Fill(fHFEnergySimHits[cell.rawId()]);
+	  mehHcalAEE[1]->Fill(fDigiSum);
+	  mehHcalAEESHE[1]->Fill(fDigiSum/fHFEnergySimHits[cell.rawId()]);
+	  mehHcalSHEvAEE[1]->Fill(fDigiSum, fHFEnergySimHits[cell.rawId()]);
 	}
-	
-	mehHcalSHE[1]->Fill(fHFEnergySimHits[cell.rawId()]);
-	mehHcalAEE[1]->Fill(fDigiSum);
-	mehHcalAEESHE[1]->Fill(fDigiSum/fHFEnergySimHits[cell.rawId()]);
-	mehHcalSHEvAEE[1]->Fill(fDigiSum, fHFEnergySimHits[cell.rawId()]);
       }
     }
-  }
   
-  if (verbosity > 1) {
-    eventout += "\n          Number of HBDigis collected:.............. ";
-    eventout += iHB;
+    if (verbosity > 1) {
+      eventout += "\n          Number of HBDigis collected:.............. ";
+      eventout += iHB;
+    }
+    mehHcaln[0]->Fill((float)iHB);
+    
+    if (verbosity > 1) {
+      eventout += "\n          Number of HEDigis collected:.............. ";
+      eventout += iHE;
+    }
+    mehHcaln[1]->Fill((float)iHE);
   }
-  mehHcaln[0]->Fill((float)iHB);
-  
-  if (verbosity > 1) {
-    eventout += "\n          Number of HEDigis collected:.............. ";
-    eventout += iHE;
-  }
-  mehHcaln[1]->Fill((float)iHE);
 
   ////////////////////////
   // get HO information
   ///////////////////////
   edm::Handle<edm::SortedCollection<HODataFrame> > ho;
   iEvent.getByLabel(HCalDigi_,ho);
+  bool validHO = true;
   if (!ho.isValid()) {
-    edm::LogWarning(MsgLoggerCat)
+    LogDebug(MsgLoggerCat)
       << "Unable to find HODataFrame in event!";
-    return;
+    validHO = false;
   }    
-  edm::SortedCollection<HODataFrame>::const_iterator iho;
-  
-  int iHO = 0; 
-  for (iho = ho->begin(); iho != ho->end(); ++iho) {
-    HcalDetId cell(iho->id()); 
+  if (validHO) {
+    edm::SortedCollection<HODataFrame>::const_iterator iho;
     
-    if (cell.subdet() == sdHcalOut) {
+    int iHO = 0; 
+    for (iho = ho->begin(); iho != ho->end(); ++iho) {
+      HcalDetId cell(iho->id()); 
       
-      //HCalconditions->makeHcalCalibration(cell, &calibrations);
-      const HcalCalibrations& calibrations = 
-	HCalconditions->getHcalCalibrations(cell);
-      const HcalQIECoder *channelCoder = HCalconditions->getHcalCoder(cell);
-      HcalCoderDb coder (*channelCoder, *shape);
-      coder.adc2fC(*iho, tool);
-      
-      ++iHO;
-      float fDigiSum = 0.0;
-      for  (int ii = 0; ii < tool.size(); ++ii) {
-	// default ped is 4.5
-	int capid = (*iho)[ii].capid();
-	fDigiSum += (tool[ii] - calibrations.pedestal(capid));
+      if (cell.subdet() == sdHcalOut) {
+	
+	//HCalconditions->makeHcalCalibration(cell, &calibrations);
+	const HcalCalibrations& calibrations = 
+	  HCalconditions->getHcalCalibrations(cell);
+	const HcalQIECoder *channelCoder = HCalconditions->getHcalCoder(cell);
+	HcalCoderDb coder (*channelCoder, *shape);
+	coder.adc2fC(*iho, tool);
+	
+	++iHO;
+	float fDigiSum = 0.0;
+	for  (int ii = 0; ii < tool.size(); ++ii) {
+	  // default ped is 4.5
+	  int capid = (*iho)[ii].capid();
+	  fDigiSum += (tool[ii] - calibrations.pedestal(capid));
+	}
+	
+	mehHcalSHE[2]->Fill(fHFEnergySimHits[cell.rawId()]);
+	mehHcalAEE[2]->Fill(fDigiSum);
+	mehHcalAEESHE[2]->Fill(fDigiSum/fHFEnergySimHits[cell.rawId()]);
+	mehHcalSHEvAEE[2]->Fill(fDigiSum, fHFEnergySimHits[cell.rawId()]);
       }
-      
-      mehHcalSHE[2]->Fill(fHFEnergySimHits[cell.rawId()]);
-      mehHcalAEE[2]->Fill(fDigiSum);
-      mehHcalAEESHE[2]->Fill(fDigiSum/fHFEnergySimHits[cell.rawId()]);
-      mehHcalSHEvAEE[2]->Fill(fDigiSum, fHFEnergySimHits[cell.rawId()]);
     }
-  }
-  
-  if (verbosity > 1) {
-    eventout += "\n          Number of HODigis collected:.............. ";
-    eventout += iHO;
-  }
-  mehHcaln[2]->Fill((float)iHO);
-  
+    
+    if (verbosity > 1) {
+      eventout += "\n          Number of HODigis collected:.............. ";
+      eventout += iHO;
+    }
+    mehHcaln[2]->Fill((float)iHO);
+  }  
+
   ////////////////////////
   // get HF information
   ///////////////////////
   edm::Handle<edm::SortedCollection<HFDataFrame> > hf;
   iEvent.getByLabel(HCalDigi_,hf);
+  bool validHF = true;
   if (!hf.isValid()) {
-    edm::LogWarning(MsgLoggerCat)
+    LogDebug(MsgLoggerCat)
       << "Unable to find HFDataFrame in event!";
-    return;
+    validHF = false;
   }    
-  edm::SortedCollection<HFDataFrame>::const_iterator ihf;
-  
-  int iHF = 0; 
-  for (ihf = hf->begin(); ihf != hf->end(); ++ihf) {
-    HcalDetId cell(ihf->id()); 
+  if (validHF) {
+    edm::SortedCollection<HFDataFrame>::const_iterator ihf;
     
-    if (cell.subdet() == sdHcalFwd) {
+    int iHF = 0; 
+    for (ihf = hf->begin(); ihf != hf->end(); ++ihf) {
+      HcalDetId cell(ihf->id()); 
       
-      //HCalconditions->makeHcalCalibration(cell, &calibrations);
-      const HcalCalibrations& calibrations = 
-	HCalconditions->getHcalCalibrations(cell);
-      const HcalQIECoder *channelCoder = HCalconditions->getHcalCoder(cell);
-      HcalCoderDb coder (*channelCoder, *shape);
-      coder.adc2fC(*ihf, tool);
-      
-      ++iHF;
-      float fDigiSum = 0.0;
-      for  (int ii = 0; ii < tool.size(); ++ii) {
-	// default ped is 1.73077
-	int capid = (*ihf)[ii].capid();
-	fDigiSum += (tool[ii] - calibrations.pedestal(capid));
+      if (cell.subdet() == sdHcalFwd) {
+	
+	//HCalconditions->makeHcalCalibration(cell, &calibrations);
+	const HcalCalibrations& calibrations = 
+	  HCalconditions->getHcalCalibrations(cell);
+	const HcalQIECoder *channelCoder = HCalconditions->getHcalCoder(cell);
+	HcalCoderDb coder (*channelCoder, *shape);
+	coder.adc2fC(*ihf, tool);
+	
+	++iHF;
+	float fDigiSum = 0.0;
+	for  (int ii = 0; ii < tool.size(); ++ii) {
+	  // default ped is 1.73077
+	  int capid = (*ihf)[ii].capid();
+	  fDigiSum += (tool[ii] - calibrations.pedestal(capid));
+	}
+	
+	mehHcalSHE[3]->Fill(fHFEnergySimHits[cell.rawId()]);
+	mehHcalAEE[3]->Fill(fDigiSum);
+	mehHcalAEESHE[3]->Fill(fDigiSum/fHFEnergySimHits[cell.rawId()]);
+	mehHcalSHEvAEE[3]->Fill(fDigiSum, fHFEnergySimHits[cell.rawId()]);
       }
-      
-      mehHcalSHE[3]->Fill(fHFEnergySimHits[cell.rawId()]);
-      mehHcalAEE[3]->Fill(fDigiSum);
-      mehHcalAEESHE[3]->Fill(fDigiSum/fHFEnergySimHits[cell.rawId()]);
-      mehHcalSHEvAEE[3]->Fill(fDigiSum, fHFEnergySimHits[cell.rawId()]);
     }
-  }
   
-  if (verbosity > 1) {
-    eventout += "\n          Number of HFDigis collected:.............. ";
-    eventout += iHF;
+    if (verbosity > 1) {
+      eventout += "\n          Number of HFDigis collected:.............. ";
+      eventout += iHF;
+    }
+    mehHcaln[3]->Fill((float)iHF);
   }
-  mehHcaln[3]->Fill((float)iHF);
-  
+
   if (verbosity > 0)
     edm::LogInfo(MsgLoggerCat) << eventout << "\n";
   
@@ -1164,240 +1195,245 @@ void GlobalDigisAnalyzer::fillTrk(const edm::Event& iEvent,
   // get strip information
   edm::Handle<edm::DetSetVector<SiStripDigi> > stripDigis;  
   iEvent.getByLabel(SiStripSrc_, stripDigis);
+  bool validstripDigis = true;
   if (!stripDigis.isValid()) {
-    edm::LogWarning(MsgLoggerCat)
+    LogDebug(MsgLoggerCat)
       << "Unable to find stripDigis in event!";
-    return;
+    validstripDigis = false;
   }  
   
-  int nStripBrl = 0, nStripFwd = 0;
-  edm::DetSetVector<SiStripDigi>::const_iterator DSViter;
-  for (DSViter = stripDigis->begin(); DSViter != stripDigis->end(); 
-       ++DSViter) {
-    unsigned int id = DSViter->id;
-    DetId detId(id);
-    edm::DetSet<SiStripDigi>::const_iterator begin = DSViter->data.begin();
-    edm::DetSet<SiStripDigi>::const_iterator end = DSViter->data.end();
-    edm::DetSet<SiStripDigi>::const_iterator iter;
-    
-    // get TIB
-    if (detId.subdetId() == sdSiTIB) {
-      TIBDetId tibid(id);
-      for (iter = begin; iter != end; ++iter) {
-	++nStripBrl;
-	if (tibid.layer() == 1) {
-	  mehSiStripADC[0]->Fill((*iter).adc());
-	  mehSiStripStrip[0]->Fill((*iter).strip());
-	}
-	if (tibid.layer() == 2) {
-	  mehSiStripADC[1]->Fill((*iter).adc());
-	  mehSiStripStrip[1]->Fill((*iter).strip());
-	}	
-	if (tibid.layer() == 3) {
-	  mehSiStripADC[2]->Fill((*iter).adc());
-	  mehSiStripStrip[2]->Fill((*iter).strip());
-	}
-	if (tibid.layer() == 4) {
-	  mehSiStripADC[3]->Fill((*iter).adc());
-	  mehSiStripStrip[3]->Fill((*iter).strip());
+  if (validstripDigis) {
+    int nStripBrl = 0, nStripFwd = 0;
+    edm::DetSetVector<SiStripDigi>::const_iterator DSViter;
+    for (DSViter = stripDigis->begin(); DSViter != stripDigis->end(); 
+	 ++DSViter) {
+      unsigned int id = DSViter->id;
+      DetId detId(id);
+      edm::DetSet<SiStripDigi>::const_iterator begin = DSViter->data.begin();
+      edm::DetSet<SiStripDigi>::const_iterator end = DSViter->data.end();
+      edm::DetSet<SiStripDigi>::const_iterator iter;
+      
+      // get TIB
+      if (detId.subdetId() == sdSiTIB) {
+	TIBDetId tibid(id);
+	for (iter = begin; iter != end; ++iter) {
+	  ++nStripBrl;
+	  if (tibid.layer() == 1) {
+	    mehSiStripADC[0]->Fill((*iter).adc());
+	    mehSiStripStrip[0]->Fill((*iter).strip());
+	  }
+	  if (tibid.layer() == 2) {
+	    mehSiStripADC[1]->Fill((*iter).adc());
+	    mehSiStripStrip[1]->Fill((*iter).strip());
+	  }	
+	  if (tibid.layer() == 3) {
+	    mehSiStripADC[2]->Fill((*iter).adc());
+	    mehSiStripStrip[2]->Fill((*iter).strip());
+	  }
+	  if (tibid.layer() == 4) {
+	    mehSiStripADC[3]->Fill((*iter).adc());
+	    mehSiStripStrip[3]->Fill((*iter).strip());
+	  }
 	}
       }
+      
+      // get TOB
+      if (detId.subdetId() == sdSiTOB) {
+	TOBDetId tobid(id);
+	for (iter = begin; iter != end; ++iter) {
+	  ++nStripBrl;
+	  if (tobid.layer() == 1) {
+	    mehSiStripADC[4]->Fill((*iter).adc());
+	    mehSiStripStrip[4]->Fill((*iter).strip());
+	  }
+	  if (tobid.layer() == 2) {
+	    mehSiStripADC[5]->Fill((*iter).adc());
+	    mehSiStripStrip[5]->Fill((*iter).strip());
+	  }	
+	  if (tobid.layer() == 3) {
+	    mehSiStripADC[6]->Fill((*iter).adc());
+	    mehSiStripStrip[6]->Fill((*iter).strip());
+	  }
+	  if (tobid.layer() == 4) {
+	    mehSiStripADC[7]->Fill((*iter).adc());
+	    mehSiStripStrip[7]->Fill((*iter).strip());
+	  }
+	}
+      }    
+      
+      // get TID
+      if (detId.subdetId() == sdSiTID) {
+	TIDDetId tidid(id);
+	for (iter = begin; iter != end; ++iter) {
+	  ++nStripFwd;
+	  if (tidid.wheel() == 1) {
+	    mehSiStripADC[8]->Fill((*iter).adc());
+	    mehSiStripStrip[8]->Fill((*iter).strip());
+	  }
+	  if (tidid.wheel() == 2) {
+	    mehSiStripADC[9]->Fill((*iter).adc());
+	    mehSiStripStrip[9]->Fill((*iter).strip());
+	  }
+	  if (tidid.wheel() == 3) {
+	    mehSiStripADC[10]->Fill((*iter).adc());
+	    mehSiStripStrip[10]->Fill((*iter).strip());
+	  }
+	}
+      }   
+      
+      // get TEC
+      if (detId.subdetId() == sdSiTEC) {
+	TECDetId tecid(id);
+	for (iter = begin; iter != end; ++iter) {
+	  ++nStripFwd;
+	  if (tecid.wheel() == 1) {
+	    mehSiStripADC[11]->Fill((*iter).adc());
+	    mehSiStripStrip[11]->Fill((*iter).strip());
+	  }
+	  if (tecid.wheel() == 2) {
+	    mehSiStripADC[12]->Fill((*iter).adc());
+	    mehSiStripStrip[12]->Fill((*iter).strip());
+	  }
+	  if (tecid.wheel() == 3) {
+	    mehSiStripADC[13]->Fill((*iter).adc());
+	    mehSiStripStrip[13]->Fill((*iter).strip());
+	  }
+	  if (tecid.wheel() == 4) {
+	    mehSiStripADC[14]->Fill((*iter).adc());
+	    mehSiStripStrip[14]->Fill((*iter).strip());
+	  }
+	  if (tecid.wheel() == 5) {
+	    mehSiStripADC[15]->Fill((*iter).adc());
+	    mehSiStripStrip[15]->Fill((*iter).strip());
+	  }
+	  if (tecid.wheel() == 6) {
+	    mehSiStripADC[16]->Fill((*iter).adc());
+	    mehSiStripStrip[16]->Fill((*iter).strip());
+	  }
+	  if (tecid.wheel() == 7) {
+	    mehSiStripADC[17]->Fill((*iter).adc());
+	    mehSiStripStrip[17]->Fill((*iter).strip());
+	  }
+	  if (tecid.wheel() == 8) {
+	    mehSiStripADC[18]->Fill((*iter).adc());
+	    mehSiStripStrip[18]->Fill((*iter).strip());
+	  }
+	}
+      }     
+    } // end loop over DataSetVector
+    
+    if (verbosity > 1) {
+      eventout += "\n          Number of BrlStripDigis collected:........ ";
+      eventout += nStripBrl;
+    }
+    for(int i = 0; i < 8; ++i) {
+      mehSiStripn[i]->Fill((float)nStripBrl);
     }
     
-    // get TOB
-    if (detId.subdetId() == sdSiTOB) {
-      TOBDetId tobid(id);
-      for (iter = begin; iter != end; ++iter) {
-	++nStripBrl;
-	if (tobid.layer() == 1) {
-	  mehSiStripADC[4]->Fill((*iter).adc());
-	  mehSiStripStrip[4]->Fill((*iter).strip());
-	}
-	if (tobid.layer() == 2) {
-	  mehSiStripADC[5]->Fill((*iter).adc());
-	  mehSiStripStrip[5]->Fill((*iter).strip());
-	}	
-	if (tobid.layer() == 3) {
-	  mehSiStripADC[6]->Fill((*iter).adc());
-	  mehSiStripStrip[6]->Fill((*iter).strip());
-	}
-	if (tobid.layer() == 4) {
-	  mehSiStripADC[7]->Fill((*iter).adc());
-	  mehSiStripStrip[7]->Fill((*iter).strip());
-	}
-      }
-    }    
-    
-    // get TID
-    if (detId.subdetId() == sdSiTID) {
-      TIDDetId tidid(id);
-      for (iter = begin; iter != end; ++iter) {
-	++nStripFwd;
-	if (tidid.wheel() == 1) {
-	  mehSiStripADC[8]->Fill((*iter).adc());
-	  mehSiStripStrip[8]->Fill((*iter).strip());
-	}
-	if (tidid.wheel() == 2) {
-	  mehSiStripADC[9]->Fill((*iter).adc());
-	  mehSiStripStrip[9]->Fill((*iter).strip());
-	}
-	if (tidid.wheel() == 3) {
-	  mehSiStripADC[10]->Fill((*iter).adc());
-	  mehSiStripStrip[10]->Fill((*iter).strip());
-	}
-      }
-    }   
-    
-    // get TEC
-    if (detId.subdetId() == sdSiTEC) {
-      TECDetId tecid(id);
-      for (iter = begin; iter != end; ++iter) {
-	++nStripFwd;
-	if (tecid.wheel() == 1) {
-	  mehSiStripADC[11]->Fill((*iter).adc());
-	  mehSiStripStrip[11]->Fill((*iter).strip());
-	}
-	if (tecid.wheel() == 2) {
-	  mehSiStripADC[12]->Fill((*iter).adc());
-	  mehSiStripStrip[12]->Fill((*iter).strip());
-	}
-	if (tecid.wheel() == 3) {
-	  mehSiStripADC[13]->Fill((*iter).adc());
-	  mehSiStripStrip[13]->Fill((*iter).strip());
-	}
-	if (tecid.wheel() == 4) {
-	  mehSiStripADC[14]->Fill((*iter).adc());
-	  mehSiStripStrip[14]->Fill((*iter).strip());
-	}
-	if (tecid.wheel() == 5) {
-	  mehSiStripADC[15]->Fill((*iter).adc());
-	  mehSiStripStrip[15]->Fill((*iter).strip());
-	}
-	if (tecid.wheel() == 6) {
-	  mehSiStripADC[16]->Fill((*iter).adc());
-	  mehSiStripStrip[16]->Fill((*iter).strip());
-	}
-	if (tecid.wheel() == 7) {
-	  mehSiStripADC[17]->Fill((*iter).adc());
-	  mehSiStripStrip[17]->Fill((*iter).strip());
-	}
-	if (tecid.wheel() == 8) {
-	  mehSiStripADC[18]->Fill((*iter).adc());
-	  mehSiStripStrip[18]->Fill((*iter).strip());
-	}
-      }
-    }     
-  } // end loop over DataSetVector
-  
-  if (verbosity > 1) {
-    eventout += "\n          Number of BrlStripDigis collected:........ ";
-    eventout += nStripBrl;
+    if (verbosity > 1) {
+      eventout += "\n          Number of FrwdStripDigis collected:....... ";
+      eventout += nStripFwd;
+    }
+    for(int i = 8; i < 19; ++i) {
+      mehSiStripn[i]->Fill((float)nStripFwd);
+    }
   }
-  for(int i = 0; i < 8; ++i) {
-    mehSiStripn[i]->Fill((float)nStripBrl);
-  }
-  
-  if (verbosity > 1) {
-    eventout += "\n          Number of FrwdStripDigis collected:....... ";
-    eventout += nStripFwd;
-  }
-  for(int i = 8; i < 19; ++i) {
-    mehSiStripn[i]->Fill((float)nStripFwd);
-  }
-  
+
   // get pixel information
   edm::Handle<edm::DetSetVector<PixelDigi> > pixelDigis;  
   iEvent.getByLabel(SiPxlSrc_, pixelDigis);
+  bool validpixelDigis = true;
   if (!pixelDigis.isValid()) {
-    edm::LogWarning(MsgLoggerCat)
+    LogDebug(MsgLoggerCat)
       << "Unable to find pixelDigis in event!";
-    return;
+    validpixelDigis = false;
   }  
-  
-  int nPxlBrl = 0, nPxlFwd = 0;
-  edm::DetSetVector<PixelDigi>::const_iterator DPViter;
-  for (DPViter = pixelDigis->begin(); DPViter != pixelDigis->end(); 
-       ++DPViter) {
-    unsigned int id = DPViter->id;
-    DetId detId(id);
-    edm::DetSet<PixelDigi>::const_iterator begin = DPViter->data.begin();
-    edm::DetSet<PixelDigi>::const_iterator end = DPViter->data.end();
-    edm::DetSet<PixelDigi>::const_iterator iter;
-    
-    // get Barrel pixels
-    if (detId.subdetId() == sdPxlBrl) {
-      PXBDetId bdetid(id);
-      for (iter = begin; iter != end; ++iter) {
-	++nPxlBrl;
-	if (bdetid.layer() == 1) {
-	  mehSiPixelADC[0]->Fill((*iter).adc());
-	  mehSiPixelRow[0]->Fill((*iter).row());
-	  mehSiPixelCol[0]->Fill((*iter).column());
+  if (validpixelDigis) {
+    int nPxlBrl = 0, nPxlFwd = 0;
+    edm::DetSetVector<PixelDigi>::const_iterator DPViter;
+    for (DPViter = pixelDigis->begin(); DPViter != pixelDigis->end(); 
+	 ++DPViter) {
+      unsigned int id = DPViter->id;
+      DetId detId(id);
+      edm::DetSet<PixelDigi>::const_iterator begin = DPViter->data.begin();
+      edm::DetSet<PixelDigi>::const_iterator end = DPViter->data.end();
+      edm::DetSet<PixelDigi>::const_iterator iter;
+      
+      // get Barrel pixels
+      if (detId.subdetId() == sdPxlBrl) {
+	PXBDetId bdetid(id);
+	for (iter = begin; iter != end; ++iter) {
+	  ++nPxlBrl;
+	  if (bdetid.layer() == 1) {
+	    mehSiPixelADC[0]->Fill((*iter).adc());
+	    mehSiPixelRow[0]->Fill((*iter).row());
+	    mehSiPixelCol[0]->Fill((*iter).column());
+	  }
+	  if (bdetid.layer() == 2) {
+	    mehSiPixelADC[1]->Fill((*iter).adc());
+	    mehSiPixelRow[1]->Fill((*iter).row());
+	    mehSiPixelCol[1]->Fill((*iter).column());
+	  }
+	  if (bdetid.layer() == 3) {
+	    mehSiPixelADC[2]->Fill((*iter).adc());
+	    mehSiPixelRow[2]->Fill((*iter).row());
+	    mehSiPixelCol[2]->Fill((*iter).column());
+	  }
 	}
-	if (bdetid.layer() == 2) {
-	  mehSiPixelADC[1]->Fill((*iter).adc());
-	  mehSiPixelRow[1]->Fill((*iter).row());
-	  mehSiPixelCol[1]->Fill((*iter).column());
-	}
-	if (bdetid.layer() == 3) {
-	  mehSiPixelADC[2]->Fill((*iter).adc());
-	  mehSiPixelRow[2]->Fill((*iter).row());
-	  mehSiPixelCol[2]->Fill((*iter).column());
+      }
+      
+      // get Forward pixels
+      if (detId.subdetId() == sdPxlFwd) {
+	PXFDetId fdetid(id);
+	for (iter = begin; iter != end; ++iter) {
+	  ++nPxlFwd;
+	  if (fdetid.disk() == 1) {
+	    if (fdetid.side() == 1) {
+	      mehSiPixelADC[4]->Fill((*iter).adc());
+	      mehSiPixelRow[4]->Fill((*iter).row());
+	      mehSiPixelCol[4]->Fill((*iter).column());
+	    }
+	    if (fdetid.side() == 2) {
+	      mehSiPixelADC[3]->Fill((*iter).adc());
+	      mehSiPixelRow[3]->Fill((*iter).row());
+	      mehSiPixelCol[3]->Fill((*iter).column());
+	    }
+	  }
+	  if (fdetid.disk() == 2) {
+	    if (fdetid.side() == 1) {
+	      
+	      mehSiPixelADC[6]->Fill((*iter).adc());
+	      mehSiPixelRow[6]->Fill((*iter).row());
+	      mehSiPixelCol[6]->Fill((*iter).column());
+	    }
+	    if (fdetid.side() == 2) {
+	      mehSiPixelADC[5]->Fill((*iter).adc());
+	      mehSiPixelRow[5]->Fill((*iter).row());
+	      mehSiPixelCol[5]->Fill((*iter).column());
+	    }
+	  }
 	}
       }
     }
     
-    // get Forward pixels
-    if (detId.subdetId() == sdPxlFwd) {
-      PXFDetId fdetid(id);
-      for (iter = begin; iter != end; ++iter) {
-	++nPxlFwd;
-	if (fdetid.disk() == 1) {
-	  if (fdetid.side() == 1) {
-	    mehSiPixelADC[4]->Fill((*iter).adc());
-	    mehSiPixelRow[4]->Fill((*iter).row());
-	    mehSiPixelCol[4]->Fill((*iter).column());
-	  }
-	  if (fdetid.side() == 2) {
-	    mehSiPixelADC[3]->Fill((*iter).adc());
-	    mehSiPixelRow[3]->Fill((*iter).row());
-	    mehSiPixelCol[3]->Fill((*iter).column());
-	  }
-	}
-	if (fdetid.disk() == 2) {
-	  if (fdetid.side() == 1) {
+    if (verbosity > 1) {
+      eventout += "\n          Number of BrlPixelDigis collected:........ ";
+      eventout += nPxlBrl;
+    }
+    for(int i = 0; i < 3; ++i) {
+      mehSiPixeln[i]->Fill((float)nPxlBrl);
+    }
+    
+    if (verbosity > 1) {
+      eventout += "\n          Number of FrwdPixelDigis collected:....... ";
+      eventout += nPxlFwd;
+    }
+    
+    for(int i = 3; i < 7; ++i) {
+      mehSiPixeln[i]->Fill((float)nPxlFwd);
+    }
+  }
 
-	    mehSiPixelADC[6]->Fill((*iter).adc());
-	    mehSiPixelRow[6]->Fill((*iter).row());
-	    mehSiPixelCol[6]->Fill((*iter).column());
-	  }
-	  if (fdetid.side() == 2) {
-	    mehSiPixelADC[5]->Fill((*iter).adc());
-	    mehSiPixelRow[5]->Fill((*iter).row());
-	    mehSiPixelCol[5]->Fill((*iter).column());
-	  }
-	}
-      }
-    }
-  }
-  
-  if (verbosity > 1) {
-    eventout += "\n          Number of BrlPixelDigis collected:........ ";
-    eventout += nPxlBrl;
-  }
-  for(int i = 0; i < 3; ++i) {
-    mehSiPixeln[i]->Fill((float)nPxlBrl);
-  }
-  
-  if (verbosity > 1) {
-    eventout += "\n          Number of FrwdPixelDigis collected:....... ";
-    eventout += nPxlFwd;
-  }
-  
-  for(int i = 3; i < 7; ++i) {
-    mehSiPixeln[i]->Fill((float)nPxlFwd);
-  }
-  
   if (verbosity > 0)
     edm::LogInfo(MsgLoggerCat) << eventout << "\n";
   
@@ -1416,132 +1452,141 @@ void GlobalDigisAnalyzer::fillMuon(const edm::Event& iEvent,
   // get DT information
   edm::Handle<DTDigiCollection> dtDigis;  
   iEvent.getByLabel(MuDTSrc_, dtDigis);
+  bool validdtDigis = true;
   if (!dtDigis.isValid()) {
-    edm::LogWarning(MsgLoggerCat)
+    LogDebug(MsgLoggerCat)
       << "Unable to find dtDigis in event!";
-    return;
+    validdtDigis = false;
   }  
-  int nDt0 = 0; int nDt1 = 0; int nDt2 = 0; int nDt3 = 0;
-  int nDt = 0;
-  DTDigiCollection::DigiRangeIterator detUnitIt;
-  for (detUnitIt = dtDigis->begin(); detUnitIt != dtDigis->end(); 
-       ++detUnitIt) {
-    
-    const DTLayerId& id = (*detUnitIt).first;
-    const DTDigiCollection::Range& range = (*detUnitIt).second;
-    for (DTDigiCollection::const_iterator digiIt = range.first;
-	 digiIt != range.second;
-	 ++digiIt) {
+  if (validdtDigis) {
+    int nDt0 = 0; int nDt1 = 0; int nDt2 = 0; int nDt3 = 0;
+    int nDt = 0;
+    DTDigiCollection::DigiRangeIterator detUnitIt;
+    for (detUnitIt = dtDigis->begin(); detUnitIt != dtDigis->end(); 
+	 ++detUnitIt) {
       
-      ++nDt;
-      
-      DTWireId wireId(id,(*digiIt).wire());
-      if (wireId.station() == 1) {
-	mehDtMuonLayer[0]->Fill(id.layer());
-	mehDtMuonTime[0]->Fill((*digiIt).time());
-	mehDtMuonTimevLayer[0]->Fill(id.layer(),(*digiIt).time());
-	++nDt0;
-      }
-      if (wireId.station() == 2) {
-	mehDtMuonLayer[1]->Fill(id.layer());
-	mehDtMuonTime[1]->Fill((*digiIt).time());
-	mehDtMuonTimevLayer[1]->Fill(id.layer(),(*digiIt).time());
-	++nDt1;
-      }
-      if (wireId.station() == 3) {
-	mehDtMuonLayer[2]->Fill(id.layer());
-	mehDtMuonTime[2]->Fill((*digiIt).time());
-	mehDtMuonTimevLayer[2]->Fill(id.layer(),(*digiIt).time());
-	++nDt2;
-      }
-      if (wireId.station() == 4) {
-	mehDtMuonLayer[3]->Fill(id.layer());
-	mehDtMuonTime[3]->Fill((*digiIt).time());
-	mehDtMuonTimevLayer[3]->Fill(id.layer(),(*digiIt).time());
-	++nDt3;
+      const DTLayerId& id = (*detUnitIt).first;
+      const DTDigiCollection::Range& range = (*detUnitIt).second;
+      for (DTDigiCollection::const_iterator digiIt = range.first;
+	   digiIt != range.second;
+	   ++digiIt) {
+	
+	++nDt;
+	
+	DTWireId wireId(id,(*digiIt).wire());
+	if (wireId.station() == 1) {
+	  mehDtMuonLayer[0]->Fill(id.layer());
+	  mehDtMuonTime[0]->Fill((*digiIt).time());
+	  mehDtMuonTimevLayer[0]->Fill(id.layer(),(*digiIt).time());
+	  ++nDt0;
+	}
+	if (wireId.station() == 2) {
+	  mehDtMuonLayer[1]->Fill(id.layer());
+	  mehDtMuonTime[1]->Fill((*digiIt).time());
+	  mehDtMuonTimevLayer[1]->Fill(id.layer(),(*digiIt).time());
+	  ++nDt1;
+	}
+	if (wireId.station() == 3) {
+	  mehDtMuonLayer[2]->Fill(id.layer());
+	  mehDtMuonTime[2]->Fill((*digiIt).time());
+	  mehDtMuonTimevLayer[2]->Fill(id.layer(),(*digiIt).time());
+	  ++nDt2;
+	}
+	if (wireId.station() == 4) {
+	  mehDtMuonLayer[3]->Fill(id.layer());
+	  mehDtMuonTime[3]->Fill((*digiIt).time());
+	  mehDtMuonTimevLayer[3]->Fill(id.layer(),(*digiIt).time());
+	  ++nDt3;
+	}
       }
     }
-  }
-  mehDtMuonn[0]->Fill((float)nDt0);
-  mehDtMuonn[1]->Fill((float)nDt1);
-  mehDtMuonn[2]->Fill((float)nDt2);
-  mehDtMuonn[3]->Fill((float)nDt3);
-  
-  
-  if (verbosity > 1) {
-    eventout += "\n          Number of DtMuonDigis collected:.......... ";
-    eventout += nDt;
+    mehDtMuonn[0]->Fill((float)nDt0);
+    mehDtMuonn[1]->Fill((float)nDt1);
+    mehDtMuonn[2]->Fill((float)nDt2);
+    mehDtMuonn[3]->Fill((float)nDt3);
+    
+    
+    if (verbosity > 1) {
+      eventout += "\n          Number of DtMuonDigis collected:.......... ";
+      eventout += nDt;
+    }
   }
 
   // get CSC Strip information
   edm::Handle<CSCStripDigiCollection> strips;  
   iEvent.getByLabel(MuCSCStripSrc_, strips);
+  bool validstrips = true;
   if (!strips.isValid()) {
-    edm::LogWarning(MsgLoggerCat)
+    LogDebug(MsgLoggerCat)
       << "Unable to find muon strips in event!";
-    return;
+    validstrips = false;
   }
   
-  int nStrips = 0;
-  for (CSCStripDigiCollection::DigiRangeIterator j = strips->begin();
-       j != strips->end();
-       ++j) {
-    
-    std::vector<CSCStripDigi>::const_iterator digiItr = (*j).second.first;
-    std::vector<CSCStripDigi>::const_iterator last = (*j).second.second;
-    
-    for ( ; digiItr != last; ++digiItr) {
-      ++nStrips;
+  if (validstrips) {
+    int nStrips = 0;
+    for (CSCStripDigiCollection::DigiRangeIterator j = strips->begin();
+	 j != strips->end();
+	 ++j) {
       
-      // average pedestals
-      std::vector<int> adcCounts = digiItr->getADCCounts();
-      theCSCStripPedestalSum += adcCounts[0];
-      theCSCStripPedestalSum += adcCounts[1];
-      theCSCStripPedestalCount += 2;
+      std::vector<CSCStripDigi>::const_iterator digiItr = (*j).second.first;
+      std::vector<CSCStripDigi>::const_iterator last = (*j).second.second;
       
-      // if there are enough pedestal statistics
-      if (theCSCStripPedestalCount > 100) {
-	float pedestal = theCSCStripPedestalSum / theCSCStripPedestalCount;
-	if (adcCounts[5] > (pedestal + 100)) 
-	  mehCSCStripADC->Fill(adcCounts[4] - pedestal);
+      for ( ; digiItr != last; ++digiItr) {
+	++nStrips;
+	
+	// average pedestals
+	std::vector<int> adcCounts = digiItr->getADCCounts();
+	theCSCStripPedestalSum += adcCounts[0];
+	theCSCStripPedestalSum += adcCounts[1];
+	theCSCStripPedestalCount += 2;
+	
+	// if there are enough pedestal statistics
+	if (theCSCStripPedestalCount > 100) {
+	  float pedestal = theCSCStripPedestalSum / theCSCStripPedestalCount;
+	  if (adcCounts[5] > (pedestal + 100)) 
+	    mehCSCStripADC->Fill(adcCounts[4] - pedestal);
+	}
       }
     }
+    
+    if (verbosity > 1) {
+      eventout += "\n          Number of CSCStripDigis collected:........ ";
+      eventout += nStrips;
+    }
+    mehCSCStripn->Fill((float)nStrips);
   }
-  
-  if (verbosity > 1) {
-    eventout += "\n          Number of CSCStripDigis collected:........ ";
-    eventout += nStrips;
-  }
-  mehCSCStripn->Fill((float)nStrips);
-  
+
   // get CSC Wire information
   edm::Handle<CSCWireDigiCollection> wires;  
   iEvent.getByLabel(MuCSCWireSrc_, wires);
+  bool validwires = true;
   if (!wires.isValid()) {
-    edm::LogWarning(MsgLoggerCat)
+    LogDebug(MsgLoggerCat)
       << "Unable to find muon wires in event!";
-    return;
+    validwires = false;
   }  
   
-  int nWires = 0;
-  for (CSCWireDigiCollection::DigiRangeIterator j = wires->begin();
-       j != wires->end();
-       ++j) {
-    
-    std::vector<CSCWireDigi>::const_iterator digiItr = (*j).second.first;
-    std::vector<CSCWireDigi>::const_iterator endDigi = (*j).second.second;
-    
-    for ( ; digiItr != endDigi; ++digiItr) {
-      ++nWires;
-      mehCSCWireTime->Fill(digiItr->getTimeBin());
+  if (validwires) {
+    int nWires = 0;
+    for (CSCWireDigiCollection::DigiRangeIterator j = wires->begin();
+	 j != wires->end();
+	 ++j) {
+      
+      std::vector<CSCWireDigi>::const_iterator digiItr = (*j).second.first;
+      std::vector<CSCWireDigi>::const_iterator endDigi = (*j).second.second;
+      
+      for ( ; digiItr != endDigi; ++digiItr) {
+	++nWires;
+	mehCSCWireTime->Fill(digiItr->getTimeBin());
+      }
     }
+    
+    if (verbosity > 1) {
+      eventout += "\n          Number of CSCWireDigis collected:......... ";
+      eventout += nWires;
+    }
+    mehCSCWiren->Fill((float)nWires); 
   }
-  
-  if (verbosity > 1) {
-    eventout += "\n          Number of CSCWireDigis collected:......... ";
-    eventout += nWires;
-  }
-  mehCSCWiren->Fill((float)nWires);
 
   /*
   // get RPC information
