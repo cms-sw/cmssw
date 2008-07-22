@@ -27,7 +27,8 @@ namespace {
   }   
     
   void packIntoString(std::vector<unsigned char> const& source,
-                    std::vector<unsigned char>& package) {   
+                      std::vector<unsigned char>& package) {
+     if (source.size() < 1) {return;}
      unsigned int packInOneByte = 4; 
      unsigned int sizeOfPackage = 1+((source.size()-1)/packInOneByte); //Two bits per HLT
     
