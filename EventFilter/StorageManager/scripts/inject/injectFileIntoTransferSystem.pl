@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: injectFileIntoTransferSystem.pl,v 1.18 2008/07/04 14:39:49 loizides Exp $
+# $Id: injectFileIntoTransferSystem.pl,v 1.19 2008/07/14 08:54:32 loizides Exp $
 
 use strict;
 use DBI;
@@ -48,8 +48,8 @@ sub usage
     - DQM files  require runnumber, lumisection, appname, and appversion.
 
   Hostname is the host on which the file is found. (This should be the name as returned by the
-  `hostname` command. Supported hosts for copies: cmsdisk1, srv-c2c06-02.cms (cmsmon) and
-  the Storage Manager nodes.
+  `hostname` command. Supported hosts for copies: cmsdisk1, srv-c2c06-02 (cmsmon), 
+  vmepcS2B18-39 (tracker node) and the Storage Manager nodes.
 
   Destination determines where file goes on Tier0. It is set to default if not set by user.
 
@@ -293,7 +293,11 @@ unless($pathname) {
     usageShort();
 }
 
-unless($hostname eq 'cmsdisk1' || $hostname eq 'srv-c2c06-02.cms' || $hostname =~ 'srv-c2c07-' || $hostname =~ 'srv-C2C07-') {
+unless($hostname eq 'cmsdisk1'         || 
+       $hostname eq 'srv-c2c06-02.cms' || 
+       $hostname eq 'vmepcS2B18-39'    ||
+       $hostname =~ 'srv-c2c07-'       || 
+       $hostname =~ 'srv-C2C07-') { 
     print "Error: Hostname not valid.  Must be cmsdisk1, srv-c2c06-02.cms, or a Storage Manager node\n";
     usageShort();
 }
