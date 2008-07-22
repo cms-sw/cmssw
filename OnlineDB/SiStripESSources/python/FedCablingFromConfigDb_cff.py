@@ -5,7 +5,3 @@ FedCablingFromConfigDb = cms.ESSource("SiStripFedCablingBuilderFromDb",
     CablingSource = cms.untracked.string('UNDEFINED')
 )
 
-SiStripConfigDb.UsingDb = True
-SiStripConfigDb.ConfDb = ''
-SiStripConfigDb.Partition = ''
-
