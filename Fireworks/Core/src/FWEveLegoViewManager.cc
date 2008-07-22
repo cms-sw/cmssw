@@ -8,13 +8,14 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWEveLegoViewManager.cc,v 1.11 2008/07/08 07:12:00 dmytro Exp $
+// $Id: FWEveLegoViewManager.cc,v 1.12 2008/07/16 03:06:06 chrjones Exp $
 //
 
 // system include files
 #include <iostream>
 #include <boost/bind.hpp>
 #include <algorithm>
+#include "Math/Math.h" //defined M_PI
 #include "THStack.h"
 #include "TCanvas.h"
 #include "TVirtualHistPainter.h"
