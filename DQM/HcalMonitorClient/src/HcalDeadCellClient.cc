@@ -170,6 +170,7 @@ void HcalDeadCellClient::clearHists(DeadCellHists& hist)
   hist.deadADC_map=0;
   hist.deadADC_eta=0;
   hist.ADCdist=0;
+
   hist.NADA_cool_cell_map=0;
   hist.coolcell_below_pedestal=0;
   hist.above_pedestal=0;
@@ -183,6 +184,9 @@ void HcalDeadCellClient::clearHists(DeadCellHists& hist)
       hist.coolcell_below_pedestal_depth[i]=0;
       hist.above_pedestal_depth[i]=0;
     }
+
+  hist.digiCheck=0;
+  hist.cellCheck=0;
   return;
 }
 
@@ -205,6 +209,8 @@ void HcalDeadCellClient::deleteHists(DeadCellHists& hist)
       if (hist.above_pedestal_depth[i]) delete hist.above_pedestal_depth[i];
     }
 
+  if (hist.digiCheck) delete hist.digiCheck;
+  if (hist.cellCheck) delete hist.cellCheck;
   return;
 }
 
@@ -400,87 +406,101 @@ void HcalDeadCellClient::combineSubDetHistograms(DeadCellHists& hcal, DeadCellHi
   // HB
   if (subDetsOn_[0])
     {
-      if (hb.digiCheck!=NULL) hcal.digiCheck->Add(hb.digiCheck);
-      if (hb.ADCdist!=NULL) hcal.ADCdist->Add(hb.ADCdist);
-      if (hb.above_pedestal!=NULL) hcal.above_pedestal->Add(hb.above_pedestal);
-      if (hb.deadADC_map!=NULL) hcal.deadADC_map->Add(hb.deadADC_map);
-      if (hb.deadADC_eta!=NULL) hcal.deadADC_eta->Add(hb.deadADC_eta);
-      if (hb.NADA_cool_cell_map!=NULL) hcal.NADA_cool_cell_map->Add(hb.NADA_cool_cell_map);
-      if (hb.coolcell_below_pedestal!=NULL) hcal.coolcell_below_pedestal->Add(hb.coolcell_below_pedestal);
-      if (hb.above_pedestal!=NULL) hcal.above_pedestal->Add(hb.above_pedestal);
+      if (debug_) cout <<"\t\tHcalDeadCellClient::combineSubDetHistograms>:  Adding HB"<<endl;
+      if (hb.digiCheck!=0) hcal.digiCheck->Add(hb.digiCheck);
+      if (hb.ADCdist!=0) hcal.ADCdist->Add(hb.ADCdist);
+      if (hb.above_pedestal!=0) hcal.above_pedestal->Add(hb.above_pedestal);
+      if (hb.deadADC_map!=0) hcal.deadADC_map->Add(hb.deadADC_map);
+      if (hb.deadADC_eta!=0) hcal.deadADC_eta->Add(hb.deadADC_eta);
+      if (hb.NADA_cool_cell_map!=0) hcal.NADA_cool_cell_map->Add(hb.NADA_cool_cell_map);
+      if (hb.coolcell_below_pedestal!=0) hcal.coolcell_below_pedestal->Add(hb.coolcell_below_pedestal);
+      if (hb.above_pedestal!=0) hcal.above_pedestal->Add(hb.above_pedestal);
       for (int i=0;i<4;++i)
 	{
-	  if (hb.problemDeadCells_DEPTH[i]!=NULL) hcal.problemDeadCells_DEPTH[i]->Add(hb.problemDeadCells_DEPTH[i]);
-	  if (hb.deadADC_map_depth[i]!=NULL) hcal.deadADC_map_depth[i]->Add(hb.deadADC_map_depth[i]);
-	  if (hb.deadcapADC_map[i]!=NULL) hcal.deadcapADC_map[i]->Add(hb.deadcapADC_map[i]);
-	  if (hb.coolcell_below_pedestal_depth[i]!=NULL) hcal.coolcell_below_pedestal_depth[i]->Add(hb.coolcell_below_pedestal_depth[i]);
-	  if (hb.above_pedestal_depth[i]!=NULL) hcal.above_pedestal_depth[i]->Add(hb.above_pedestal_depth[i]);
+	  if (hb.problemDeadCells_DEPTH[i]!=0) hcal.problemDeadCells_DEPTH[i]->Add(hb.problemDeadCells_DEPTH[i]);
+	  if (hb.deadADC_map_depth[i]!=0) hcal.deadADC_map_depth[i]->Add(hb.deadADC_map_depth[i]);
+	  if (hb.deadcapADC_map[i]!=0) hcal.deadcapADC_map[i]->Add(hb.deadcapADC_map[i]);
+	  if (hb.coolcell_below_pedestal_depth[i]!=0) hcal.coolcell_below_pedestal_depth[i]->Add(hb.coolcell_below_pedestal_depth[i]);
+	  if (hb.above_pedestal_depth[i]!=0) hcal.above_pedestal_depth[i]->Add(hb.above_pedestal_depth[i]);
 	}
     } // if (subDetsOn_[0]);
 
   // HE
   if (subDetsOn_[1])
     {
-      if (he.digiCheck!=NULL) hcal.digiCheck->Add(he.digiCheck);
-      if (he.ADCdist!=NULL) hcal.ADCdist->Add(he.ADCdist);
-      if (he.above_pedestal!=NULL) hcal.above_pedestal->Add(he.above_pedestal);
-      if (he.deadADC_map!=NULL) hcal.deadADC_map->Add(he.deadADC_map);
-      if (he.deadADC_eta!=NULL) hcal.deadADC_eta->Add(he.deadADC_eta);
-      if (he.NADA_cool_cell_map!=NULL) hcal.NADA_cool_cell_map->Add(he.NADA_cool_cell_map);
-      if (he.coolcell_below_pedestal!=NULL) hcal.coolcell_below_pedestal->Add(he.coolcell_below_pedestal);
-      if (he.above_pedestal!=NULL) hcal.above_pedestal->Add(he.above_pedestal);
+       if (debug_) cout <<"\t\tHcalDeadCellClient::combineSubDetHistograms>:  Adding HE"<<endl;
+      if (he.digiCheck!=0) hcal.digiCheck->Add(he.digiCheck);
+      if (he.ADCdist!=0) hcal.ADCdist->Add(he.ADCdist);
+      if (he.above_pedestal!=0) hcal.above_pedestal->Add(he.above_pedestal);
+      if (he.deadADC_map!=0) hcal.deadADC_map->Add(he.deadADC_map);
+      if (he.deadADC_eta!=0) hcal.deadADC_eta->Add(he.deadADC_eta);
+      if (he.NADA_cool_cell_map!=0) hcal.NADA_cool_cell_map->Add(he.NADA_cool_cell_map);
+      if (he.coolcell_below_pedestal!=0) hcal.coolcell_below_pedestal->Add(he.coolcell_below_pedestal);
+      if (he.above_pedestal!=0) hcal.above_pedestal->Add(he.above_pedestal);
       for (int i=0;i<4;++i)
 	{
-	  if (he.problemDeadCells_DEPTH[i]!=NULL) hcal.problemDeadCells_DEPTH[i]->Add(he.problemDeadCells_DEPTH[i]);
-	  if (he.deadADC_map_depth[i]!=NULL) hcal.deadADC_map_depth[i]->Add(he.deadADC_map_depth[i]);
-	  if (he.deadcapADC_map[i]!=NULL) hcal.deadcapADC_map[i]->Add(he.deadcapADC_map[i]);
-	  if (he.coolcell_below_pedestal_depth[i]!=NULL) hcal.coolcell_below_pedestal_depth[i]->Add(he.coolcell_below_pedestal_depth[i]);
-	  if (he.above_pedestal_depth[i]!=NULL) hcal.above_pedestal_depth[i]->Add(he.above_pedestal_depth[i]);
+	  if (he.problemDeadCells_DEPTH[i]!=0) hcal.problemDeadCells_DEPTH[i]->Add(he.problemDeadCells_DEPTH[i]);
+	  if (he.deadADC_map_depth[i]!=0) hcal.deadADC_map_depth[i]->Add(he.deadADC_map_depth[i]);
+	  if (he.deadcapADC_map[i]!=0) hcal.deadcapADC_map[i]->Add(he.deadcapADC_map[i]);
+	  if (he.coolcell_below_pedestal_depth[i]!=0) hcal.coolcell_below_pedestal_depth[i]->Add(he.coolcell_below_pedestal_depth[i]);
+	  if (he.above_pedestal_depth[i]!=0) hcal.above_pedestal_depth[i]->Add(he.above_pedestal_depth[i]);
 	}
     } // if (subDetsOn_[1]);
 
   // HO
   if (subDetsOn_[2])
     {
-      if (ho.digiCheck!=NULL) hcal.digiCheck->Add(ho.digiCheck);
-      if (ho.ADCdist!=NULL) hcal.ADCdist->Add(ho.ADCdist);
-      if (ho.above_pedestal!=NULL) hcal.above_pedestal->Add(ho.above_pedestal);
-      if (ho.deadADC_map!=NULL) hcal.deadADC_map->Add(ho.deadADC_map);
-      if (ho.deadADC_eta!=NULL) hcal.deadADC_eta->Add(ho.deadADC_eta);
-      if (ho.NADA_cool_cell_map!=NULL) hcal.NADA_cool_cell_map->Add(ho.NADA_cool_cell_map);
-      if (ho.coolcell_below_pedestal!=NULL) hcal.coolcell_below_pedestal->Add(ho.coolcell_below_pedestal);
-      if (ho.above_pedestal!=NULL) hcal.above_pedestal->Add(ho.above_pedestal);
+      if (debug_) cout <<"\t\tHcalDeadCellClient::combineSubDetHistograms>:  Adding HO"<<endl;
+      if (debug_) cout <<"HCAL DIGICHECK = 0?" <<(hcal.digiCheck==0)<<endl;
+      if (debug_) cout <<"HO DIGICHECK = 0?"  <<(ho.digiCheck==0)<<endl;
+      if (ho.digiCheck!=0) hcal.digiCheck->Add(ho.digiCheck);
+      if (debug_) cout <<"HCAL ADCDIST = 0?" <<(hcal.ADCdist==0)<<endl;
+      if (debug_) cout <<"HO ADCDIST = 0?" <<(ho.ADCdist==0)<<endl;
+      if (ho.ADCdist!=0) hcal.ADCdist->Add(ho.ADCdist);
+      if (debug_) cout <<"\t\t\t Added digiCheck and ADCdist"<<endl;
+      if (ho.above_pedestal!=0) hcal.above_pedestal->Add(ho.above_pedestal);
+      if (ho.deadADC_map!=0) hcal.deadADC_map->Add(ho.deadADC_map);
+      if (ho.deadADC_eta!=0) hcal.deadADC_eta->Add(ho.deadADC_eta);
+      if (debug_) cout <<"\t\t\t Added above_pedestal, deadADC_map, deadADC_eta"<<endl;
+      if (ho.NADA_cool_cell_map!=0) hcal.NADA_cool_cell_map->Add(ho.NADA_cool_cell_map);
+      if (ho.coolcell_below_pedestal!=0) hcal.coolcell_below_pedestal->Add(ho.coolcell_below_pedestal);
+      if (ho.above_pedestal!=0) hcal.above_pedestal->Add(ho.above_pedestal);
       for (int i=0;i<4;++i)
 	{
-	  if (ho.problemDeadCells_DEPTH[i]!=NULL) hcal.problemDeadCells_DEPTH[i]->Add(ho.problemDeadCells_DEPTH[i]);
-	  if (ho.deadADC_map_depth[i]!=NULL) hcal.deadADC_map_depth[i]->Add(ho.deadADC_map_depth[i]);
-	  if (ho.deadcapADC_map[i]!=NULL) hcal.deadcapADC_map[i]->Add(ho.deadcapADC_map[i]);
-	  if (ho.coolcell_below_pedestal_depth[i]!=NULL) hcal.coolcell_below_pedestal_depth[i]->Add(ho.coolcell_below_pedestal_depth[i]);
-	  if (ho.above_pedestal_depth[i]!=NULL) hcal.above_pedestal_depth[i]->Add(ho.above_pedestal_depth[i]);
+	  if (debug_) cout <<"\t\t\t i = "<<i<<endl;
+	  if (ho.problemDeadCells_DEPTH[i]!=0) hcal.problemDeadCells_DEPTH[i]->Add(ho.problemDeadCells_DEPTH[i]);
+	  if (ho.deadADC_map_depth[i]!=0) hcal.deadADC_map_depth[i]->Add(ho.deadADC_map_depth[i]);
+	  if (ho.deadcapADC_map[i]!=0) hcal.deadcapADC_map[i]->Add(ho.deadcapADC_map[i]);
+	  if (debug_) cout <<"\t\t\t Added problemCells, deadADC_map, deadcapADC_map for i= "<<i<<endl; 
+	  if (ho.coolcell_below_pedestal_depth[i]!=0) hcal.coolcell_below_pedestal_depth[i]->Add(ho.coolcell_below_pedestal_depth[i]);
+	  if (ho.above_pedestal_depth[i]!=0) hcal.above_pedestal_depth[i]->Add(ho.above_pedestal_depth[i]);
 	}
     } // if (subDetsOn_[2]);
 
   // HF
   if (subDetsOn_[3])
     {
-      if (hf.digiCheck!=NULL) hcal.digiCheck->Add(hf.digiCheck);
-      if (hf.ADCdist!=NULL) hcal.ADCdist->Add(hf.ADCdist);
-      if (hf.above_pedestal!=NULL) hcal.above_pedestal->Add(hf.above_pedestal);
-      if (hf.deadADC_map!=NULL) hcal.deadADC_map->Add(hf.deadADC_map);
-      if (hf.deadADC_eta!=NULL) hcal.deadADC_eta->Add(hf.deadADC_eta);
-      if (hf.NADA_cool_cell_map!=NULL) hcal.NADA_cool_cell_map->Add(hf.NADA_cool_cell_map);
-      if (hf.coolcell_below_pedestal!=NULL) hcal.coolcell_below_pedestal->Add(hf.coolcell_below_pedestal);
-      if (hf.above_pedestal!=NULL) hcal.above_pedestal->Add(hf.above_pedestal);
+      if (debug_) cout <<"\t\tHcalDeadCellClient::combineSubDetHistograms>:  Adding HF"<<endl;
+      if (hf.digiCheck!=0) hcal.digiCheck->Add(hf.digiCheck);
+      if (hf.ADCdist!=0) hcal.ADCdist->Add(hf.ADCdist);
+      if (hf.above_pedestal!=0) hcal.above_pedestal->Add(hf.above_pedestal);
+      if (hf.deadADC_map!=0) hcal.deadADC_map->Add(hf.deadADC_map);
+      if (hf.deadADC_eta!=0) hcal.deadADC_eta->Add(hf.deadADC_eta);
+      if (hf.NADA_cool_cell_map!=0) hcal.NADA_cool_cell_map->Add(hf.NADA_cool_cell_map);
+      if (hf.coolcell_below_pedestal!=0) hcal.coolcell_below_pedestal->Add(hf.coolcell_below_pedestal);
+      if (hf.above_pedestal!=0) hcal.above_pedestal->Add(hf.above_pedestal);
       for (int i=0;i<4;++i)
 	{
-	  if (hf.problemDeadCells_DEPTH[i]!=NULL) hcal.problemDeadCells_DEPTH[i]->Add(hf.problemDeadCells_DEPTH[i]);
-	  if (hf.deadADC_map_depth[i]!=NULL) hcal.deadADC_map_depth[i]->Add(hf.deadADC_map_depth[i]);
-	  if (hf.deadcapADC_map[i]!=NULL) hcal.deadcapADC_map[i]->Add(hf.deadcapADC_map[i]);
-	  if (hf.coolcell_below_pedestal_depth[i]!=NULL) hcal.coolcell_below_pedestal_depth[i]->Add(hf.coolcell_below_pedestal_depth[i]);
-	  if (hf.above_pedestal_depth[i]!=NULL) hcal.above_pedestal_depth[i]->Add(hf.above_pedestal_depth[i]);
+	  if (hf.problemDeadCells_DEPTH[i]!=0) hcal.problemDeadCells_DEPTH[i]->Add(hf.problemDeadCells_DEPTH[i]);
+	  if (hf.deadADC_map_depth[i]!=0) hcal.deadADC_map_depth[i]->Add(hf.deadADC_map_depth[i]);
+	  if (hf.deadcapADC_map[i]!=0) hcal.deadcapADC_map[i]->Add(hf.deadcapADC_map[i]);
+	  if (hf.coolcell_below_pedestal_depth[i]!=0) hcal.coolcell_below_pedestal_depth[i]->Add(hf.coolcell_below_pedestal_depth[i]);
+	  if (hf.above_pedestal_depth[i]!=0) hcal.above_pedestal_depth[i]->Add(hf.above_pedestal_depth[i]);
 	}
     } // if (subDetsOn_[1]);
-
+  
+   if (debug_) cout <<"\t\tHcalDeadCellClient::combineSubDetHistograms>:  Finished routine"<<endl;
+  return;
 
 } // void HcalDeadCellClient::combineSubDetHistograms(...)
 
@@ -569,11 +589,14 @@ void HcalDeadCellClient::htmlOutput(int runNo, string htmlDir, string htmlName)
 
   // Form hcal hists by adding other subdetector histograms
   // (except for problem cell histogram which is automatically filled by the Task each event)
+  if (debug_) cout <<"\t<HcalDeadCellClient::htmlOutput>:   combining SubDetHistograms"<<endl;
   combineSubDetHistograms(hcalhists, hbhists, hehists, hohists, hfhists);
 
+  if (debug_) cout <<"\t<HcalDeadCellClient::htmlOutput>:   running htmlErrors"<<endl;
   htmlErrors(runNo,htmlDir,client,process_,dbe_,dqmReportMapErr_,dqmReportMapWarn_,dqmReportMapOther_);
   
   //ofstream htmlFile;
+  if (debug_) cout <<"\t<HcalDeadCellClient::htmlOutput>:  Writing html file"<<endl;
   htmlFile.open((htmlDir + htmlName).c_str());
 
   // html page header
@@ -719,22 +742,22 @@ void HcalDeadCellClient::htmlOutput(int runNo, string htmlDir, string htmlName)
 		if (hcalhists.problemDeadCells_DEPTH[depth]->GetBinContent(ieta,iphi)>=errorFrac_)
 		cout<<" HCAL ("<<eta<<", "<<phi<<")  "<<hbhists.problemDeadCells_DEPTH[depth]->GetBinContent(ieta,iphi)<<""<<endl;
 	      */
-	      if (depth<2 && subDetsOn_[0] && hbhists.problemDeadCells_DEPTH[depth]!=NULL && hbhists.problemDeadCells_DEPTH[depth]->GetBinContent(ieta,iphi)>=errorFrac_*ievt_)
+	      if (depth<2 && subDetsOn_[0] && hbhists.problemDeadCells_DEPTH[depth]!=0 && hbhists.problemDeadCells_DEPTH[depth]->GetBinContent(ieta,iphi)>=errorFrac_*ievt_)
 		{
 		  htmlFile<<"<td align=\"center\"> HB ("<<eta<<", "<<phi<<", "<<depth+1<<") </td><td align=\"center\"> "<<100.*hbhists.problemDeadCells_DEPTH[depth]->GetBinContent(ieta,iphi)/ievt_<<"%</td></tr>"<<endl;
 		  deadcellcount[0]++;
 		}
-	      if (depth<3 && subDetsOn_[1] && hehists.problemDeadCells_DEPTH[depth]!=NULL && hehists.problemDeadCells_DEPTH[depth]->GetBinContent(ieta,iphi)>=errorFrac_*ievt_)
+	      if (depth<3 && subDetsOn_[1] && hehists.problemDeadCells_DEPTH[depth]!=0 && hehists.problemDeadCells_DEPTH[depth]->GetBinContent(ieta,iphi)>=errorFrac_*ievt_)
 		{
 		  htmlFile<<"<td align=\"center\"> HE ("<<eta<<", "<<phi<<", "<<depth+1<<") </td><td align=\"center\"> "<<100.*hehists.problemDeadCells_DEPTH[depth]->GetBinContent(ieta,iphi)/ievt_<<"%</td></tr>"<<endl;
 		  deadcellcount[1]++;
 		}
-	      if (depth==3 && subDetsOn_[2] && hohists.problemDeadCells_DEPTH[depth]!=NULL && hohists.problemDeadCells_DEPTH[depth]->GetBinContent(ieta,iphi)>=errorFrac_*ievt_)
+	      if (depth==3 && subDetsOn_[2] && hohists.problemDeadCells_DEPTH[depth]!=0 && hohists.problemDeadCells_DEPTH[depth]->GetBinContent(ieta,iphi)>=errorFrac_*ievt_)
 		{
 		  htmlFile<<"<td align=\"center\"> HO ("<<eta<<", "<<phi<<", "<<depth+1<<") </td><td align=\"center\"> "<<100.*hohists.problemDeadCells_DEPTH[depth]->GetBinContent(ieta,iphi)/ievt_<<"%</td></tr>"<<endl;
 		  deadcellcount[2]++;
 		}
-	      if (depth<2 && subDetsOn_[3] && hfhists.problemDeadCells_DEPTH[depth]!=NULL && hfhists.problemDeadCells_DEPTH[depth]->GetBinContent(ieta,iphi)>=errorFrac_*ievt_)
+	      if (depth<2 && subDetsOn_[3] && hfhists.problemDeadCells_DEPTH[depth]!=0 && hfhists.problemDeadCells_DEPTH[depth]->GetBinContent(ieta,iphi)>=errorFrac_*ievt_)
 		{
 		  htmlFile<<"<td align=\"center\"> HF ("<<eta<<", "<<phi<<", "<<depth+1<<") </td><td align=\"center\"> "<<100.*hfhists.problemDeadCells_DEPTH[depth]->GetBinContent(ieta,iphi)/ievt_<<"%</td></tr>"<<endl;
 		  deadcellcount[3]++;
@@ -774,6 +797,8 @@ void HcalDeadCellClient::htmlOutput(int runNo, string htmlDir, string htmlName)
   htmlFile << "</body> " << endl;
   htmlFile << "</html> " << endl;
   htmlFile.close();
+
+  if (debug_) cout <<"\t<HcalDeadCellClient::htmlOutput>:   Finished htmlOutput subroutine"<<endl;
 
   return;
 } //void HcalDeadCellClient::htmlOutput()
