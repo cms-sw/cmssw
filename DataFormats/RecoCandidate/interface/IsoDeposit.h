@@ -157,6 +157,69 @@ namespace reco {
     };
     const_iterator begin() const { return const_iterator(this, theDeposits.begin()); } 
     const_iterator end() const { return const_iterator(this, theDeposits.end()); } 
+
+    class SumAlgo {
+      public: 
+        SumAlgo() : sum_(0) {}
+        void operator+=(float deposit) { sum_ += deposit; }  
+        double result() const { return sum_; }
+      private:
+        double sum_;
+    };
+    class CountAlgo {
+      public: 
+        CountAlgo() : count_(0) {}
+        void operator+=(double deposit) { count_++; }  
+        double result() const { return count_; }
+      private:
+        size_t count_;
+    };
+    class Sum2Algo {
+      public: 
+        Sum2Algo() : sum2_(0) {}
+        void operator+=(double deposit) { sum2_ += deposit*deposit; }  
+        double result() const { return sum2_; }
+      private:
+        double sum2_;
+    };
+    class MaxAlgo {
+      public: 
+        MaxAlgo() : max_(0) {}
+        void operator+=(double deposit) { if (deposit > max_) max_ = deposit; }  
+        double result() const { return max_; }
+      private:
+        double max_;
+    };
+    //! Get some info about the deposit (e.g. sum, max, sum2, count)
+    template<typename Algo>
+    double algoWithin(   double coneSize,                            //dR in which deposit is computed
+			 const AbsVetos & vetos = AbsVetos(),        //additional vetos 
+			 bool skipDepositVeto = false                //skip exclusion of veto 
+			 ) const;
+    // count of the non-vetoed deposits in the cone
+    double countWithin(  double coneSize,                            //dR in which deposit is computed
+			 const AbsVetos & vetos = AbsVetos(),        //additional vetos 
+			 bool skipDepositVeto = false                //skip exclusion of veto 
+			 ) const;
+    // sum of the non-vetoed deposits in the cone
+    double sumWithin(	 double coneSize,                            //dR in which deposit is computed
+			 const AbsVetos & vetos = AbsVetos(),        //additional vetos 
+			 bool skipDepositVeto = false                //skip exclusion of veto 
+			 ) const;
+    // sum of the squares of the non-vetoed deposits in the cone
+    double sum2Within(	 double coneSize,                            //dR in which deposit is computed
+			 const AbsVetos & vetos = AbsVetos(),        //additional vetos 
+			 bool skipDepositVeto = false                //skip exclusion of veto 
+			 ) const;
+    // maximum value among the non-vetoed deposits in the cone
+    double maxWithin(	 double coneSize,                            //dR in which deposit is computed
+			 const AbsVetos & vetos = AbsVetos(),        //additional vetos 
+			 bool skipDepositVeto = false                //skip exclusion of veto 
+			 ) const;
+
+
+
+
   private:
 
     //! direcion of deposit (center of isolation cone)
@@ -176,6 +239,33 @@ namespace reco {
   };
 
 }
+
+template<typename Algo>
+double reco::IsoDeposit::algoWithin(double coneSize, const AbsVetos& vetos, bool skipDepositVeto) const 
+{
+  using namespace reco::isodeposit;
+  Algo algo;
+  typedef AbsVetos::const_iterator IV;
+  IV ivEnd = vetos.end();
+
+  Distance maxDistance = {coneSize,999.};
+  typedef DepositsMultimap::const_iterator IM;
+  IM imLoc = theDeposits.upper_bound( maxDistance ); 
+  for (IM im = theDeposits.begin(); im != imLoc; ++im) {
+    bool vetoed = false;
+    Direction dirDep = theDirection+im->first;
+    for ( IV iv = vetos.begin(); iv < ivEnd; ++iv) {
+      if ((*iv)->veto(dirDep.eta(), dirDep.phi(), im->second)) { vetoed = true;  break; }
+    }
+    if (!vetoed) {
+       if (skipDepositVeto || (dirDep.deltaR(theVeto.vetoDir) > theVeto.dR)) {
+          algo += im->second;
+        }
+    }
+  }
+  return algo.result();
+}
+
 
 
 #endif
