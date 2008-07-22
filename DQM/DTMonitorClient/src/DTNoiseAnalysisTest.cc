@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/07/09 13:57:01 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/07/09 18:37:02 $
+ *  $Revision: 1.5 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -125,23 +125,21 @@ void DTNoiseAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Eve
 	  
 	  double noise = histo_root->GetBinContent(wire, layer);
 	  // fill the histos
-	  if(noise!=0){
-	    noiseHistos[chID.wheel()]->Fill(noise);
-	    noiseHistos[3]->Fill(noise);
-	    int sector = chID.sector();
-	    if(sector == 13) {
-	      sector = 4;
-	    } else if(sector == 14) {
-	      sector = 10;
-	    }
-	    if(noise>noisyCellDef) {
-	      noisyCellHistos[chID.wheel()]->Fill(sector,chID.station());
-	      summaryNoiseHisto->Fill(sector,chID.wheel());
-	    }
+	  noiseHistos[chID.wheel()]->Fill(noise);
+	  noiseHistos[3]->Fill(noise);
+	  int sector = chID.sector();
+	  if(sector == 13) {
+	    sector = 4;
+	  } else if(sector == 14) {
+	    sector = 10;
+	  }
+	  if(noise>noisyCellDef) {
+	    noisyCellHistos[chID.wheel()]->Fill(sector,chID.station());
+	    summaryNoiseHisto->Fill(sector,chID.wheel());
 	  }
 	}
       }
-
+      
     }
   } // loop over all the chambers
 
