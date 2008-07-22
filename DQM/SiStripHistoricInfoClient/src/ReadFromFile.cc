@@ -26,23 +26,24 @@ void ReadFromFile::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 //-----------------------------------------------------------------------------------------------
 
 
-
 //-----------------------------------------------------------------------------------------------
 void ReadFromFile::endRun(const edm::Run& run , const edm::EventSetup& iSetup)
-  //-----------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------
 {
 
   dqmStore_ = edm::Service<DQMStore>().operator->(); 
   dqmStore_->setVerbose(0); 
+  
 
   //GET Parameters
   ROOTFILE_DIR = iConfig_.getUntrackedParameter<std::string>("ROOTFILE_DIR","");
   FILE_NAME = iConfig_.getUntrackedParameter<std::string>("FILE_NAME","");
   ME_DIR = iConfig_.getUntrackedParameter<std::string>("ME_DIR","DQMData");
 
+
+  // OPEN DQM FILE
   openRequestedFile();
  
-
   std::vector<std::string> userDBContent;
 
   typedef std::vector<edm::ParameterSet> Parameters;
@@ -54,7 +55,6 @@ void ReadFromFile::endRun(const edm::Run& run , const edm::EventSetup& iSetup)
     vSummary.push_back(new SiStripSummary());
     vSummary.back()->setRunNr(getRunNumber());
 
-    
     std::string RecordName = itList->getUntrackedParameter<std::string>("RecordName");
     std::cout << RecordName << " RecordName" <<std::endl;
     vSummary.back()->setTag(RecordName);
@@ -97,7 +97,6 @@ void ReadFromFile::endRun(const edm::Run& run , const edm::EventSetup& iSetup)
   
 }
 
-//void ReadFromFile::endJob() {writeToDB();}
 
 uint32_t ReadFromFile::getRunNumber() const {
 
