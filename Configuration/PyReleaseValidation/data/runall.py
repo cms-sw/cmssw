@@ -43,7 +43,7 @@ def main(argv) :
     import getopt
     
     try:
-        opts, args = getopt.getopt(argv, "", ["nproc=","dohighstat",'hlt','inFile='])
+        opts, args = getopt.getopt(argv, "", ["nproc=","dohighstat",'hlt','inFile=','intbld'])
     except getopt.GetoptError, e:
         print "unknown option", str(e)
         sys.exit(2)
@@ -53,6 +53,7 @@ def main(argv) :
     doHighStat=0
     hlt = False
     inFile = None
+    intBld = False
     for opt, arg in opts :
         if opt == "--inFile" :
             inFile=arg
@@ -62,6 +63,8 @@ def main(argv) :
             doHighStat=1
         if opt in ('--hlt',): # note: trailing comma needed for single arg to indicate tuple
             hlt = True
+        if opt in ('--intbld',): # note: trailing comma needed for single arg to indicate tuple
+            intBld = True
 
     hltSuffix = ''
     if hlt:
@@ -86,16 +89,27 @@ def main(argv) :
             lines=lines+lines_highstat
    
 
+    # for the integration builds, check only these samples:
+    forIB = [ # from the standard_hlt:
+             'SingleMuPt10', 'SinglePiPt1', 'SingleElectronPt10', 'SingleGammaPt10',
+             'MinBias', 'QCD_Pt_80_120', 'ZEE', 'BJets_Pt_50_120','TTbar',
+             # from the highstats_hlt
+             'SinglePiE50HCAL', 'H130GGgluonfusion', 'QQH120Inv', 'bJpsiX', 
+             'JpsiMM', 'BsMM', 'UpsMM', 'CJets_Pt_50_120'
+             ]
+    
     commands=[]
-
     for line in lines:
-        if line[0]!='#' and\
-               line.replace(' ','')!='\n':
-            linecomponents=line.split('@@@')
-            command=linecomponents[1][:-1]
-            commands.append(command)
-            print 'Will do: '+command
+        if ( line[0]!='#' and
+           line.replace(' ','')!='\n' ):
+               linecomponents=line.split('@@@')
+               if intBld and linecomponents[0].strip() not in forIB: continue
+               command=linecomponents[1][:-1]
+               commands.append(command)
+               print 'Will do: '+command
         
+
+    sys.exit(0)
     nfail=0
     npass=0
     report=''
