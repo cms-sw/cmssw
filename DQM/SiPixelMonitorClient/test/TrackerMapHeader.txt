@@ -11,6 +11,9 @@
  	  href = "css_files/svgmap.css"/>
  	  
   <script type = "text/javascript"
+ 	  src  = "js_files/scriptaculous/lib/prototype.js">
+  </script>
+  <script type = "text/javascript"
  	  src  = "js_files/magnifier.js">
   </script>
   <script type = "text/javascript"

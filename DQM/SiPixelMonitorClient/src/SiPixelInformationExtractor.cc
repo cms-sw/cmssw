@@ -147,13 +147,34 @@ void SiPixelInformationExtractor::getTrackerMapHistos(DQMStore* bei,
                                                       const std::multimap<std::string, std::string>& req_map, 
 						      xgi::Output * out) {
 
+//  cout << __LINE__ << ACYellow << ACBold 
+//       << "[SiPixelInformationExtractor::getTrackerMapHistos] " << ACPlain << endl ;
   vector<string> hlist;
   string tkmap_name;
   SiPixelConfigParser config_parser;
   string localPath = string("DQM/SiPixelMonitorClient/test/sipixel_monitorelement_config.xml");
   config_parser.getDocument(edm::FileInPath(localPath).fullPath());
-  if (!config_parser.getMENamesForTrackerMap(tkmap_name, hlist)) return;
-  if (hlist.size() == 0) return;
+//  if (!config_parser.getMENamesForTrackerMap(tkmap_name, hlist)) return;
+//  if (hlist.size() == 0) return;
+  if (!config_parser.getMENamesForTrackerMap(tkmap_name, hlist)) 
+  {
+   cout << __LINE__ << ACYellow << ACBold 
+        << "[SiPixelInformationExtractor::getTrackerMapHistos] " 
+	<< ACPlain << ACRed << ACPlain 
+	<< "getMENamesForTrackerMap return false " 
+        << ACPlain << endl ; assert(0) ;
+   return;
+  }
+  if (hlist.size() == 0) 
+  {
+   cout << __LINE__ << ACYellow << ACBold 
+        << "[SiPixelInformationExtractor::getTrackerMapHistos] " 
+	<< ACPlain << ACRed << ACPlain 
+	<< "hlist.size() == 0 " 
+        << ACPlain << endl ;  assert(0) ;
+   return;
+  }
+
 
   uint32_t detId = atoi(getItemValue(req_map,"ModId").c_str());
  
@@ -165,36 +186,62 @@ void SiPixelInformationExtractor::getTrackerMapHistos(DQMStore* bei,
   SiPixelFolderOrganizer folder_organizer;
   string path;
   folder_organizer.getModuleFolder(detId,path);   
-
+/*
   if((bei->pwd()).find("Module_") == string::npos &&
      (bei->pwd()).find("FED_") == string::npos){
     cout<<"This is not a pixel module or FED!"<<endl;
+   cout << __LINE__ << ACYellow << ACBold 
+        << "[SiPixelInformationExtractor::getTrackerMapHistos] " 
+	<< ACPlain << ACRed << ACPlain 
+	<< "This is not a pixel module or FED!" 
+        << ACPlain << endl ; assert(0) ;
     return;
   }
- 
+*/ 
   vector<MonitorElement*> all_mes = bei->getContents(path);
-  setHTMLHeader(out);
-  *out << path << " ";
+  setXMLHeader(out);
+
+//  cout << __LINE__ << ACCyan << ACBold 
+//       << " [SiPixelInformationExtractor::getTrackerMapHistos()] path "
+//       << ACPlain << path << endl ; 
+//  cout << __LINE__ << ACCyan << ACBold 
+//       << " [SiPixelInformationExtractor::getTrackerMapHistos()] all_mes.size() "
+//       << ACPlain << all_mes.size() << endl ; 
 
   QRegExp rx("(\\w+)_(siPixel|ctfWithMaterialTracks)") ;
   QString theME ;
 
+  *out << "<pathList>" << endl ;
   for (vector<string>::iterator ih = hlist.begin();
        ih != hlist.end(); ih++) {
     for (vector<MonitorElement *>::const_iterator it = all_mes.begin();
 	 it!= all_mes.end(); it++) {
       MonitorElement * me = (*it);
-      if (!me) continue;
+      if (!me) 
+      { 
+//       cout << __LINE__ << ACCyan << ACBold 
+//            << " [SiPixelInformationExtractor::getTrackerMapHistos()] skipping "
+//        	       << ACPlain << *ih << endl ; 
+       continue;
+      }
       theME = me->getName();
       string temp_s ; 
       if( rx.search(theME) != -1 ) { temp_s = rx.cap(1).latin1() ; }
+//      cout << __LINE__ << ACCyan << ACBold 
+//           << " [SiPixelInformationExtractor::getTrackerMapHistos()] temp_s "
+//           << ACPlain << temp_s << " <--> " << *ih << " |" << theME << "|" << endl ; 
       if (temp_s == (*ih)) {
 	string full_path = path + "/" + me->getName();
 	histoPlotter_->setNewPlot(full_path, opt, width, height);
-	*out << me->getName() << " " ;
+//cout << __LINE__ << ACRed << ACBold 
+//     << " [SiPixelInformationExtractor::getTrackerMapHistos()] fullPath: "
+//     << ACPlain << full_path << endl ; 
+	*out << " <pathElement path='" << full_path << "' />" << endl ;
       }      
     }
   }   
+  *out << "</pathList>" << endl ;
+//cout << __LINE__ << " [SiPixelInformationExtractor::getTrackerMapHistos()] endlist: " << endl ;
 }
 
 //============================================================================================================
@@ -741,13 +788,8 @@ void SiPixelInformationExtractor::selectImage(string& name, vector<QReport*>& re
 //
 void SiPixelInformationExtractor::getIMGCImage(const multimap<string, string>& req_map, 
                                                xgi::Output * out){
-//cout<<"Entering SiPixelInformationExtractor::getIMGCImage: "<<endl;
   string path = getItemValue(req_map,"Path");
-  //string plot = getItemValue(req_map,"Plot");
-  //string folder = getItemValue(req_map,"Folder");
-  //string path = folder + "/" + plot;
   string image;
-//  cout<<"... trying to getNamedImageBuffer for path "<<path<<endl;
   histoPlotter_->getNamedImageBuffer(path, image);
 
   out->getHTTPResponseHeader().addHeader("Content-Type", "image/png");
@@ -755,18 +797,13 @@ void SiPixelInformationExtractor::getIMGCImage(const multimap<string, string>& r
   out->getHTTPResponseHeader().addHeader("Cache-Control", "no-store, no-cache, must-revalidate,max-age=0");
   out->getHTTPResponseHeader().addHeader("Expires","Mon, 26 Jul 1997 05:00:00 GMT");
   *out << image;
-//cout<<"... leaving SiPixelInformationExtractor::getIMGCImage!"<<endl;
 }
 
 void SiPixelInformationExtractor::getIMGCImage(multimap<string, string>& req_map, 
                                                xgi::Output * out){
   
   string path = getItemValue(req_map,"Path");
-  //string plot = getItemValue(req_map,"Plot");
-  //string folder = getItemValue(req_map,"Folder");
-  //string path = folder + "/" + plot;
   string image;
-//  cout<<"I am in getIMGCImage now and trying to getNamedImageBuffer for path "<<path<<endl;
   histoPlotter_->getNamedImageBuffer(path, image);
 
   out->getHTTPResponseHeader().addHeader("Content-Type", "image/png");

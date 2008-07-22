@@ -129,7 +129,7 @@ void SiPixelEDAClient::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
 //  -- Analyze 
 //
 void SiPixelEDAClient::analyze(const edm::Event& e, const edm::EventSetup& eSetup){
-//  cout<<"In SiPixelEDAClient::analyze "<<endl;
+//  cout<<"[SiPixelEDAClient::analyze()] "<<endl;
   nEvents_++;  
   if(nEvents_==10){
     //cout << " Setting up QTests " << endl;
