@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: ElectronDetailView.cc,v 1.10 2008/07/01 05:03:25 jmuelmen Exp $
+// $Id: ElectronDetailView.cc,v 1.11 2008/07/17 10:04:17 dmytro Exp $
 //
 
 // system include files
@@ -583,7 +583,7 @@ void ElectronDetailView::build_projected (TEveElementList **product,
 						    i->superCluster()->position().x(), 
 						    i->superCluster()->position().y(),
 						    i->superCluster()->position().z() > 0 ? 1 : -1,
-						    50, 50);
+						    10, 10);
 	  }
 	  if (all_crystals != 0) {
 	       all_crystals->SetMainColor((Color_t)kMagenta);
