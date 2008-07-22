@@ -109,7 +109,6 @@ def main(argv) :
                print 'Will do: '+command
         
 
-    sys.exit(0)
     nfail=0
     npass=0
     report=''
