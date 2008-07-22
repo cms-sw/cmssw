@@ -41,7 +41,7 @@ class _Sequenceable(object):
         visitor.leave(self)
     def fillModulesList(self, l):
         # hope everything put into the process has a label
-        l.add(self.label())
+        l.add(self.label_())
     def findHardDependencies(self, sequenceName, dependencyDict):
         pass
 
@@ -146,7 +146,7 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
     def fillModulesList(self, l):
         self._seq.fillModulesList(l)
     def findHardDependencies(self, sequenceName, dependencyDict):
-        self._seq.findHardDependencies(self.label(), dependencyDict)
+        self._seq.findHardDependencies(self.label_(), dependencyDict)
 
 
 class _SequenceOperator(_Sequenceable):
@@ -410,17 +410,20 @@ class Schedule(_ValidatingParameterListBase,_ConfigureComponent,_Unlabelable):
         for seq in self:
             seq.fillNamesList(names, processDict) 
             seq.findHardDependencies('schedule', dependencyDict)
-        for label, deps in dependencyDict.iteritems():
+        # dependencyDict is (label, list of _HardDependency objects,
+        # where a _HardDependency contains a set of strings from one sequence
+        for label, depList in dependencyDict.iteritems():
             # see if it's in 
             try:
                 thisPos = names.index(label)
                 # we had better find all the dependencies
-                for dep in deps.depSet:
-                    if names[0:thisPos].count(dep) == 0:
-                        ok = False 
-                        message = "WARNING:"+label+" depends on "+dep+", as declared in " \
-                                  + deps.sequenceName+", but not found in schedule"
-                        print message
+                for hardDep in depList:
+                    for dep in hardDep.depsSet:
+                        if names[0:thisPos].count(dep) == 0:
+                            ok = False 
+                            message = "WARNING:"+label+" depends on "+dep+", as declared in " \
+                                      + hardDep.sequenceName+", but not found in schedule"
+                            print message
             except:  
                 # can't find it?  No big deal.
                 pass
@@ -568,19 +571,19 @@ if __name__=="__main__":
             s4 = Sequence(~m1*(m2+m3)+m4)
             s4.setLabel('s4')
             s4.findHardDependencies('top',deps)
-            self.assertEqual(deps['m2'].depSet, set(['m1']))
-            self.assertEqual(deps['m3'].depSet, set(['m1']))
-            self.assertEqual(deps['m2'].sequenceName, 's4')
-            self.assertEqual(deps['m3'].sequenceName, 's4')
+            self.assertEqual(deps['m2'][0].depSet, set(['m1']))
+            self.assertEqual(deps['m3'][0].depSet, set(['m1']))
+            self.assertEqual(deps['m2'][0].sequenceName, 's4')
+            self.assertEqual(deps['m3'][0].sequenceName, 's4')
             self.failIf(deps.has_key('m4'))
             self.failIf(deps.has_key('m1'))
             deps = dict()
             p5 = Path(s4*m5)
             p5.setLabel('p5')
             p5.findHardDependencies('top',deps)
-            self.assertEqual(len(deps['m5'].depSet), 4)
-            self.assertEqual(deps['m5'].sequenceName, 'p5')
-            self.assertEqual(deps['m3'].sequenceName, 's4')
+            self.assertEqual(len(deps['m5'][0].depSet), 4)
+            self.assertEqual(deps['m5'][0].sequenceName, 'p5')
+            self.assertEqual(deps['m3'][0].sequenceName, 's4')
 
 
     unittest.main()
