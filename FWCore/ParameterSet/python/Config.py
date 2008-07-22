@@ -319,7 +319,7 @@ class Process(object):
                 self.__setattr__(name,item)
                 labelled[name]=item
                 try:
-                    item.label()
+                    item.label_()
                 except:
                     item.setLabel(name)
                 continue
@@ -410,7 +410,7 @@ class Process(object):
         for name,item in self.vpsets.iteritems():
             config +=options.indentation()+'VPSet '+name+' = '+item.configValue(options)
         if self.schedule:
-            pathNames = [p.label() for p in self.schedule]
+            pathNames = [p.label_() for p in self.schedule]
             config +=options.indentation()+'schedule = {'+','.join(pathNames)+'}\n'
             
 #        config+=self._dumpConfigNamedList(self.vpsets.iteritems(),
@@ -493,7 +493,7 @@ class Process(object):
         result+=self._dumpPythonList(self.psets, options)
         result+=self._dumpPythonList(self.vpsets, options)
         if self.schedule:
-            pathNames = ['process.'+p.label() for p in self.schedule]
+            pathNames = ['process.'+p.label_() for p in self.schedule]
             result +='process.schedule = cms.Schedule('+','.join(pathNames)+')\n'
         return result
 
@@ -533,7 +533,7 @@ class Process(object):
                 endpaths.append(name)
         else:
             for path in self.schedule_():
-               pathname = path.label()
+               pathname = path.label_()
                scheduledPaths.append(pathname)
                if self.endpaths_().has_key(pathname):
                    endpaths.append(pathname)
@@ -818,7 +818,7 @@ process.schedule = cms.Schedule(process.p2,process.p)
             p.c = EDAnalyzer("OurAnalyzer")
             p.s = Sequence(p.a*p.b)
             self.assertEqual(str(p.s),'a*b')
-            self.assertEqual(p.s.label(),'s')
+            self.assertEqual(p.s.label_(),'s')
             path = Path(p.c+p.s)
             self.assertEqual(str(path),'c+a*b')
 
