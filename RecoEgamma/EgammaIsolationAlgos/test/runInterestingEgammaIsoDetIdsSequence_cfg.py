@@ -5,7 +5,7 @@ process = cms.Process("egamIsoDetIds")
 process.load("Configuration.StandardSequences.Geometry_cff")
 
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:/home/mwlebour/iso/createDetIdVec/src/RecoEgamma/EgammaIsolationAlgos/ttbar.210p9.root')
+    fileNames = cms.untracked.vstring('REPLACE ME')
 )
 
 process.load("Configuration.EventContent.EventContent_cff")
@@ -21,7 +21,7 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
 
-process.Timing = cms.Service("Timing")
+#process.Timing = cms.Service("Timing")
 
 process.load("RecoEgamma.EgammaIsolationAlgos.interestingEgammaIsoDetIdsSequence_cff")
 process.p1 = cms.Path(process.interestingEgammaIsoDetIds)
