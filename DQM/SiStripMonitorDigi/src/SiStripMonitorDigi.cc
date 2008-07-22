@@ -31,7 +31,7 @@
 
 
 //--------------------------------------------------------------------------------------------
-SiStripMonitorDigi::SiStripMonitorDigi(const edm::ParameterSet& iConfig) : dqmStore_(edm::Service<DQMStore>().operator->()), conf_(iConfig), show_mechanical_structure_view(true), show_readout_view(false), show_control_view(false), select_all_detectors(true), calculate_strip_occupancy(false), reset_each_run(false), m_cacheID_(0), folder_organizer() 
+SiStripMonitorDigi::SiStripMonitorDigi(const edm::ParameterSet& iConfig) : dqmStore_(edm::Service<DQMStore>().operator->()), conf_(iConfig), show_mechanical_structure_view(true), show_readout_view(false), show_control_view(false), select_all_detectors(false), calculate_strip_occupancy(false), reset_each_run(false), m_cacheID_(0), folder_organizer() 
 {
   firstEvent = -1;
   eventNb = 0;
@@ -78,6 +78,12 @@ SiStripMonitorDigi::SiStripMonitorDigi(const edm::ParameterSet& iConfig) : dqmSt
   tidon = ParametersDetsOn.getParameter<bool>("tidon");
   tobon = ParametersDetsOn.getParameter<bool>("tobon");
   tecon = ParametersDetsOn.getParameter<bool>("tecon");
+
+  std::cout<<"tibon = "<<tibon<<std::endl;
+  std::cout<<"tidon = "<<tidon<<std::endl;
+  std::cout<<"tobon = "<<tobon<<std::endl;
+  std::cout<<"tecon = "<<tecon<<std::endl;
+
 
 }
 
