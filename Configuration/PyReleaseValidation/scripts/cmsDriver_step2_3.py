@@ -180,8 +180,8 @@ if ( cffCustomise != '' ):
 
     
 if ( typeOfEv == 'RELVAL'):
-    command2=command2+' --oneoutput'
-    command3=command3+' --oneoutput --eventcontent FEVTSIM'
+    command2=command2+' --datatier GEN-SIM-DIGI-RAW-HLTDEBUG-RECO '+' --oneoutput'
+    command3=command3+' --datatier GEN-SIM-DIGI-RAW-HLTDEBUG-RECO '+' --oneoutput --eventcontent FEVTSIM'
 else:
     command3=command3+' --eventcontent none'
 
