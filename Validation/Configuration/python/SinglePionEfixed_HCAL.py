@@ -43,12 +43,6 @@ def customise(process):
 
     process.output.outputCommands.append("keep *_simHcalUnsuppressedDigis_*_*")
 
-# drop the plain root file outputs of all analyzers
-    for analyzer in process.analyzers_():
-        if hasattr(analyzer,"outputFile"):
-            print "Silencing %s outputFile of %s analyzer"%(analyzer.outputFile,analyzer)
-            analyzer.outputFile=""
-
 # user schedule: use only calorimeters digitization and local reconstruction
 
     del process.schedule[:]
@@ -73,5 +67,17 @@ def customise(process):
     process.schedule.append(process.local_validation)
 
     process.schedule.append(process.out_step)
-        
+ 
+# drop the plain root file outputs of all analyzers
+# Note: all the validation "analyzers" are EDFilters!
+    for filter in (getattr(process,f) for f in process.filters_()):
+        print "Found analyzer (EDFilter) ",filter
+        if hasattr(filter,"outputFile"):
+            print "Silencing outputFile %s of %s analyzer"%(filter.outputFile, filter)
+            filter.outputFile=""
+        #Catch the problem with valid_HB.root that uses OutputFile instead of outputFile
+        if hasattr(filter,"OutputFile"):
+            print "Silencing OutputFile %s of %s analyzer"%(filter.OutputFile, filter)
+            filter.OutputFile=""
+       
     return(process)
