@@ -62,3 +62,14 @@ void L1GctInternEtSum::setOflow(uint8_t oflow) {
   data_ &= 0x1<<17;
   data_ |= (oflow & 0x1)<<17;
 }
+
+/// Pretty-print operator for L1GctInternEtSum
+std::ostream& operator<<(std::ostream& s, const L1GctInternEtSum& c) {
+  s << "L1GctInternEtSum : ";
+  s << " mag=" << c.et();
+  if (c.oflow()) { s << "; overflow set"; }
+  s << " cap block=" << c.capBlock(); 
+  s << " index=" << c.capIndex(); 
+  s << " BX=" << c.bx(); 
+  return s;
+}

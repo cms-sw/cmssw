@@ -54,7 +54,7 @@ class L1GctInternEtSum {
   int16_t bx() const { return bx_; }
 
   /// is the sum non-zero
-  bool empty() const { return (data_ != 0); }
+  bool empty() const { return (data_ == 0); }
 
 
   /// get the actual bits
@@ -114,6 +114,6 @@ class L1GctInternEtSum {
 
  };
 
-std::ostream& operator<<(std::ostream& s, const L1GctInternEtSum& cand);
+std::ostream& operator<<(std::ostream& s, const L1GctInternEtSum& c);
 
 #endif
