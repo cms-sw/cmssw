@@ -47,8 +47,8 @@ SingleTauMETL25Val = cms.EDFilter("HLTTauTrkDQMOfflineSource",
     MatchDeltaR            = cms.double(0.3),
     OutputFileName         = cms.string(''),
     EtMin                  = cms.double(0.),
-    EtMax                  = cms.double(60.),
-    NBins                  = cms.int32(30)                            
+    EtMax                  = cms.double(200.),
+    NBins                  = cms.int32(50)                            
 )
 
 
