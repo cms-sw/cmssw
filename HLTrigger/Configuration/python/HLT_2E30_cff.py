@@ -1,4 +1,4 @@
-# /dev/CMSSW_2_1_0_pre7/HLT/V12 (CMSSW_2_1_X_2008-07-17-0200)
+# /dev/CMSSW_2_1_0_pre9/HLT/V2 (CMSSW_2_1_0_pre9)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -4719,7 +4719,8 @@ hltMuonCSCDigis = cms.EDProducer( "CSCDCCUnpacker",
     UseExaminer = cms.untracked.bool( False ),
     ExaminerMask = cms.untracked.uint32( 0x1febf3f6 ),
     ErrorMask = cms.untracked.uint32( 0x0 ),
-    InputObjects = cms.InputTag( "rawDataCollector" )
+    InputObjects = cms.InputTag( "rawDataCollector" ),
+    UseSelectiveUnpacking = cms.untracked.bool( True )
 )
 hltCsc2DRecHits = cms.EDProducer( "CSCRecHitDProducer",
     CSCUseCalibrations = cms.untracked.bool( True ),
