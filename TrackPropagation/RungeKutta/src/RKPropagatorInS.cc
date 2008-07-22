@@ -71,6 +71,15 @@ RKPropagatorInS::propagateParametersOnPlane( const FreeTrajectoryState& ts,
     // avoid confusing gcc (refuses to compile with temporary objects
     // in the constructor).
     //
+    LogDebug("RKPropagatorInS")<<" startZ = "<<startZ;
+
+    if (fabs(startZ) < 1e-5){  
+      LogDebug("RKPropagatorInS")<< "Propagation is not performed: state is already on final surface.";
+      GlobalTrajectoryParameters res( gpos, gmom, ts.charge(), 
+				      theVolume);
+      return GlobalParametersWithPath( res, 0.0);
+    }
+
     StraightLinePlaneCrossing::PositionType pos(gpos);
     StraightLinePlaneCrossing::DirectionType dir(gmom);
     StraightLinePlaneCrossing planeCrossing(pos,dir, propagationDirection());
@@ -85,8 +94,8 @@ RKPropagatorInS::propagateParametersOnPlane( const FreeTrajectoryState& ts,
       GlobalTrajectoryParameters res( x, gmom, ts.charge(), theVolume);
       return GlobalParametersWithPath( res, s);
     } else {
-      //do someting 
-      std::cout << "Straight line propgation to plane failed !!" << std::endl;
+      //do someting
+      edm::LogError("RKPropagatorInS")<< "Straight line propgation to plane failed !!"; 
       return GlobalParametersWithPath( );
     }
   }
