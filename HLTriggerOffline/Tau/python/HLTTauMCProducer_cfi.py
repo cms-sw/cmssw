@@ -1,3 +1,5 @@
+import FWCore.ParameterSet.Config as cms
+
 TauMCProducer  = cms.EDProducer("HLTTauMCProducer",
                               GenParticles  = cms.untracked.InputTag("source"),
                               ptMinTau      = cms.untracked.double(15),
