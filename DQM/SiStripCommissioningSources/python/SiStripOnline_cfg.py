@@ -1,7 +1,3 @@
-# The following comments couldn't be translated into the new config version:
-
-# ----- Services -----
-
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("SiStripOnline")
@@ -17,7 +13,7 @@ process.MessageLogger = cms.Service("MessageLogger",
     suppressInfo = cms.untracked.vstring()
 )
 
-process.DaqMonitorROOTBackEnd = cms.Service("DaqMonitorROOTBackEnd")
+process.DQMStore = cms.Service("DQMStore")
 
 process.FUShmDQMOutputService = cms.Service("FUShmDQMOutputService",
     initialMessageBufferSize = cms.untracked.int32(1000000),
@@ -28,9 +24,9 @@ process.FUShmDQMOutputService = cms.Service("FUShmDQMOutputService",
 )
 
 process.SiStripConfigDb = cms.Service("SiStripConfigDb",
-    ConfDb = cms.untracked.string(''),
-    Partition = cms.untracked.string(''),
-    UsingDb = cms.untracked.bool(True)
+    UsingDbCache = cms.untracked.bool(True),
+    UsingDb = cms.untracked.bool(True),
+    SharedMemory = cms.untracked.string('')
 )
 
 process.FedCablingFromConfigDb = cms.ESSource("SiStripFedCablingBuilderFromDb",
@@ -39,11 +35,10 @@ process.FedCablingFromConfigDb = cms.ESSource("SiStripFedCablingBuilderFromDb",
 
 process.source = cms.Source("DaqSource",
     readerPluginName = cms.untracked.string('FUShmReader'),
-    #PSet pset = { untracked int32 dummy = 0 }
     evtsPerLS = cms.untracked.uint32(50)
 )
 
-process.digis = cms.EDFilter("SiStripRawToDigiModule",
+process.digis = cms.EDProducer("SiStripRawToDigiModule",
     ProductLabel = cms.untracked.string('source'),
     AppendedBytes = cms.untracked.int32(0),
     UseFedKey = cms.untracked.bool(True),
@@ -54,7 +49,7 @@ process.digis = cms.EDFilter("SiStripRawToDigiModule",
     CreateDigis = cms.untracked.bool(True)
 )
 
-process.histos = cms.EDFilter("SiStripCommissioningSource",
+process.histos = cms.EDAnalyzer("SiStripCommissioningSource",
     SummaryInputModuleLabel = cms.string('digis'),
     RootFileName = cms.untracked.string('SiStripCommissioningSource'),
     CommissioningTask = cms.untracked.string('UNDEFINED'),
@@ -62,10 +57,12 @@ process.histos = cms.EDFilter("SiStripCommissioningSource",
     HistoUpdateFreq = cms.untracked.int32(10)
 )
 
-process.consumer = cms.EDFilter("ShmStreamConsumer",
+process.consumer = cms.OutputModule("ShmStreamConsumer",
+    outputCommands = cms.untracked.vstring('drop *', 
+        'keep FEDRawDataCollection_*_*_*'),
     compression_level = cms.untracked.int32(1),
     use_compression = cms.untracked.bool(True),
-    max_event_size = cms.untracked.int32(7000000)
+    max_event_size = cms.untracked.int32(25000000)
 )
 
 process.p1 = cms.Path(process.digis*process.histos)

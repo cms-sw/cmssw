@@ -1,10 +1,7 @@
-# The following comments couldn't be translated into the new config version:
-
-# ----- Services -----
-
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("EventAnalyzer")
+
 process.MLlog4cplus = cms.Service("MLlog4cplus")
 
 process.MessageLogger = cms.Service("MessageLogger",
@@ -17,7 +14,7 @@ process.MessageLogger = cms.Service("MessageLogger",
     suppressInfo = cms.untracked.vstring()
 )
 
-process.DaqMonitorROOTBackEnd = cms.Service("DaqMonitorROOTBackEnd")
+process.DQMStore = cms.Service("DQMStore")
 
 process.FUShmDQMOutputService = cms.Service("FUShmDQMOutputService",
     initialMessageBufferSize = cms.untracked.int32(1000000),
@@ -35,7 +32,7 @@ process.source = cms.Source("DaqSource",
 
 process.anal = cms.EDAnalyzer("EventContentAnalyzer")
 
-process.consumer = cms.EDFilter("ShmStreamConsumer",
+process.consumer = cms.OutputModule("ShmStreamConsumer",
     compression_level = cms.untracked.int32(1),
     use_compression = cms.untracked.bool(True),
     max_event_size = cms.untracked.int32(7000000)

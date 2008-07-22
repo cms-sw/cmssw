@@ -1,6 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("SiStripOnline")
+process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
+
+process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
+
+process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
+
+process.load("RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi")
+
 process.MLlog4cplus = cms.Service("MLlog4cplus")
 
 process.MessageLogger = cms.Service("MessageLogger",
@@ -9,7 +17,7 @@ process.MessageLogger = cms.Service("MessageLogger",
         threshold = cms.untracked.string('DEBUG')
     ),
     suppressDebug = cms.untracked.vstring(),
-    debugModules = cms.untracked.vstring('siStripFineDelayHit'),
+    debugModules = cms.untracked.vstring(),
     suppressInfo = cms.untracked.vstring()
 )
 
@@ -37,6 +45,8 @@ process.FedCablingFromConfigDb = cms.ESSource("SiStripFedCablingBuilderFromDb",
     CablingSource = cms.untracked.string('UNDEFINED')
 )
 
+process.SiStripCondObjBuilderFromDb = cms.Service("SiStripCondObjBuilderFromDb")
+
 process.sistripconn = cms.ESProducer("SiStripConnectivity")
 
 process.idealMagneticFieldRecordSource = cms.ESSource("EmptyESSource",
@@ -50,55 +60,6 @@ process.UniformMagneticFieldESProducer = cms.ESProducer("UniformMagneticFieldESP
 )
 
 process.prefer("UniformMagneticFieldESProducer")
-process.XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
-    geomXMLFiles = cms.vstring('Geometry/CMSCommonData/data/materials.xml', 
-        'Geometry/CMSCommonData/data/rotations.xml', 
-        'Geometry/TrackerCommonData/data/CRack/cms.xml', 
-        'Geometry/TrackerCommonData/data/CRack/tobmaterial.xml', 
-        'Geometry/TrackerCommonData/data/tobmodpar.xml', 
-        'Geometry/TrackerCommonData/data/tobmodule0.xml', 
-        'Geometry/TrackerCommonData/data/tobmodule2.xml', 
-        'Geometry/TrackerCommonData/data/tobmodule4.xml', 
-        'Geometry/TrackerCommonData/data/tobrodpar.xml', 
-        'Geometry/TrackerCommonData/data/tobrod0c.xml', 
-        'Geometry/TrackerCommonData/data/tobrod0l.xml', 
-        'Geometry/TrackerCommonData/data/tobrod0h.xml', 
-        'Geometry/TrackerCommonData/data/tobrod1l.xml', 
-        'Geometry/TrackerCommonData/data/tobrod1h.xml', 
-        'Geometry/TrackerCommonData/data/tobrod2c.xml', 
-        'Geometry/TrackerCommonData/data/tobrod2l.xml', 
-        'Geometry/TrackerCommonData/data/tobrod2h.xml', 
-        'Geometry/TrackerCommonData/data/tobrod4c.xml', 
-        'Geometry/TrackerCommonData/data/tobrod4l.xml', 
-        'Geometry/TrackerCommonData/data/tobrod4h.xml', 
-        'Geometry/TrackerCommonData/data/CRack/tobrod_DSH_L1.xml', 
-        'Geometry/TrackerCommonData/data/CRack/tobrod_DSH_L2.xml', 
-        'Geometry/TrackerCommonData/data/CRack/tobrod_DSL_L1.xml', 
-        'Geometry/TrackerCommonData/data/CRack/tobrod_DSL_L2.xml', 
-        'Geometry/TrackerCommonData/data/CRack/tobrod_SS4H.xml', 
-        'Geometry/TrackerCommonData/data/CRack/tobrod_SS4L.xml', 
-        'Geometry/TrackerCommonData/data/CRack/tobrod_SS6H.xml', 
-        'Geometry/TrackerCommonData/data/CRack/tobrod_SS6L.xml', 
-        'Geometry/TrackerCommonData/data/CRack/tob.xml', 
-        'Geometry/TrackerCommonData/data/CRack/tracker.xml', 
-        'Geometry/TrackerCommonData/data/CRack/trackerStructureTopology.xml', 
-        'Geometry/TrackerCommonData/data/CRack/trackersens_2DS_5SS6_5SS4.xml', 
-        'Geometry/TrackerCommonData/data/CRack/trackerRecoMaterial_2DS_5SS6_5SS4.xml', 
-        'Geometry/TrackerCommonData/data/CRack/trackerProdCuts_2DS_5SS6_5SS4.xml'),
-    rootNodeName = cms.string('cms:OCMS')
-)
-
-process.TrackerDigiGeometryESModule = cms.ESProducer("TrackerDigiGeometryESModule",
-    fromDDD = cms.bool(True),
-    applyAlignment = cms.untracked.bool(False)
-)
-
-process.TrackerGeometricDetESModule = cms.ESProducer("TrackerGeometricDetESModule",
-    fromDDD = cms.bool(True)
-)
-
-process.TrackerRecoGeometryESProducer = cms.ESProducer("TrackerRecoGeometryESProducer")
-
 process.StripCPEfromTrackAngleESProducer = cms.ESProducer("StripCPEfromTrackAngleESProducer",
     ComponentName = cms.string('StripCPEfromTrackAngle')
 )
@@ -138,7 +99,7 @@ process.MeasurementTracker = cms.ESProducer("MeasurementTrackerESProducer",
 
 process.source = cms.Source("DaqSource",
     readerPluginName = cms.untracked.string('FUShmReader'),
-    evtsPerLS = cms.untracked.uint32(500)
+    evtsPerLS = cms.untracked.uint32(200)
 )
 
 process.digis = cms.EDProducer("SiStripRawToDigiModule",
@@ -252,16 +213,20 @@ process.siStripMatchedRecHits = cms.EDProducer("SiStripRecHitConverter",
     rphiRecHits = cms.string('rphiRecHit')
 )
 
-process.cosmicseedfinder = cms.EDProducer("CRackSeedGenerator",
+process.cosmicseedfinder = cms.EDProducer("CosmicSeedGenerator",
     stereorecHits = cms.InputTag("siStripMatchedRecHits","stereoRecHit"),
     originZPosition = cms.double(0.0),
-    GeometricStructure = cms.untracked.string('CRACK'),
+    GeometricStructure = cms.untracked.string('STANDARD'),
     matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
+    MaxNumberOfCosmicClusters = cms.uint32(300),
     SeedPt = cms.double(1.0),
+    HitsForSeeds = cms.untracked.string('pairs'),
     TTRHBuilder = cms.string('WithTrackAngle'),
-    ptMin = cms.double(200000.0),
+    ptMin = cms.double(0.9),
     rphirecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
+    doClusterCheck = cms.bool(True),
     originRadius = cms.double(150.0),
+    ClusterCollectionLabel = cms.InputTag("siStripClusters"),
     originHalfLength = cms.double(90.0)
 )
 
@@ -270,15 +235,16 @@ process.cosmictrackfinder = cms.EDProducer("CosmicTrackFinder",
     stereorecHits = cms.InputTag("siStripMatchedRecHits","stereoRecHit"),
     pixelRecHits = cms.InputTag("dummy","dummy"),
     matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
-    MinHits = cms.int32(3),
-    Chi2Cut = cms.double(10000.0),
+    MinHits = cms.int32(4),
+    Chi2Cut = cms.double(300.0),
     TTRHBuilder = cms.string('WithTrackAngle'),
     rphirecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
+    debug = cms.untracked.bool(True),
     TransientInitialStateEstimatorParameters = cms.PSet(
         propagatorAlongTISE = cms.string('PropagatorWithMaterial'),
         propagatorOppositeTISE = cms.string('PropagatorWithMaterialOpposite')
     ),
-    GeometricStructure = cms.untracked.string('CRACK'),
+    GeometricStructure = cms.untracked.string('STANDARD'),
     cosmicSeeds = cms.InputTag("cosmicseedfinder")
 )
 
@@ -293,6 +259,7 @@ process.siStripFineDelayHit = cms.EDProducer("SiStripFineDelayHit",
     InputModuleLabel = cms.InputTag("digis"),
     DigiLabel = cms.InputTag("siStripZeroSuppression","VirginRaw"),
     ClustersLabel = cms.InputTag("siStripClusters"),
+    mode = cms.string('DelayScan'),
     TTRHBuilder = cms.string('WithTrackAngle'),
     NoClustering = cms.bool(True),
     NoTracking = cms.bool(False),
@@ -322,7 +289,7 @@ process.consumer = cms.OutputModule("ShmStreamConsumer",
         'keep FEDRawDataCollection_*_*_*'),
     compression_level = cms.untracked.int32(1),
     use_compression = cms.untracked.bool(True),
-    max_event_size = cms.untracked.int32(25000000)
+    max_event_size = cms.untracked.int32(7000000)
 )
 
 process.localReco = cms.Sequence(process.siStripZeroSuppression*process.siStripClusters*process.siStripMatchedRecHits)
