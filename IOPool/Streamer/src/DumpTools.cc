@@ -141,7 +141,6 @@ void printBits(unsigned char c){
         }
 }
 
-
 void dumpEventHeader(const EventMsgView* eview)
 {
   std::cout << "code=" << eview->code() << "\n"
@@ -155,28 +154,22 @@ void dumpEventHeader(const EventMsgView* eview)
        << "event length=" << eview->eventLength() << "\n";
 
   std::vector<bool> l1_out;
-  std::vector<unsigned char> hlt_out;
-  hlt_out.resize(1 + (eview->hltCount()-1)/4);
-
-  //uint8 hlt_out[100];
   eview->l1TriggerBits(l1_out);
-  eview->hltTriggerBits(&hlt_out[0]);
-  //printBits(hlt_out[0]);  
 
   std::cout << "\nl1 size= " << l1_out.size() << "\n l1 bits=\n";
   edm::copy_all(l1_out,std::ostream_iterator<bool>(std::cout," "));
-  
-  unsigned int bytesForHLT = eview->hltCount();   
-  std::cout << "\nhlt Count:" << eview->hltCount() << std::endl;
-  if (eview->hltCount() !=0)  bytesForHLT = 1 + (eview->hltCount()-1)/4;
 
+  std::vector<unsigned char> hlt_out;
+  if (eview->hltCount() > 0) {hlt_out.resize(1 + (eview->hltCount()-1)/4);}
+  eview->hltTriggerBits(&hlt_out[0]);
+
+  std::cout << "\nhlt Count:" << eview->hltCount();
   std::cout << "\nhlt bits=\n(";
-  for(int i=(hlt_out.size()-1); i != -1 ; --i) 
+  for(int i=(hlt_out.size()-1); i != -1 ; --i)
     printBits(hlt_out[i]);
-  //std::copy(&hlt_out[0],&hlt_out[0]+bytesForHLT,std::ostream_iterator<char>(std::cout,""));
   std::cout << ")\n";
   std::cout.flush();
- }
+}
 
 void dumpEventView(const EventMsgView* eview)
   {
