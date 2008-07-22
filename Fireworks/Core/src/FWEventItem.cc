@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu Jan  3 14:59:23 EST 2008
-// $Id: FWEventItem.cc,v 1.22 2008/07/17 09:58:24 dmytro Exp $
+// $Id: FWEventItem.cc,v 1.23 2008/07/22 09:29:11 jmuelmen Exp $
 //
 
 // system include files
@@ -295,7 +295,9 @@ FWEventItem::toggleSelect(int iIndex) const
    bool& sel = m_itemInfos.at(iIndex).m_isSelected;
    sel = not sel;
    FWModelId id(this,iIndex);
-   m_selectionManager->select(id);
+   if (sel)
+	m_selectionManager->select(id);
+   else m_selectionManager->unselect(id);
    m_changeManager->changed(id);
 }
 
