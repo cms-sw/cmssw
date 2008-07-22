@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Tue Jun 10 14:56:46 EDT 2008
-// $Id: CmsShowNavigator.cc,v 1.10 2008/07/16 17:53:24 chrjones Exp $
+// $Id: CmsShowNavigator.cc,v 1.11 2008/07/22 04:01:58 jmuelmen Exp $
 //
 
 // hacks
@@ -29,8 +29,8 @@
 #include "Fireworks/Core/interface/CSGAction.h"
 #define private public
 #include "CmsShowMain.h"
-#undef private
 #include "Fireworks/Core/interface/FWEventItem.h"
+#undef private
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
 #include "DataFormats/FWLite/interface/Event.h"
 #include "DataFormats/Provenance/interface/EventID.h"
@@ -228,7 +228,8 @@ CmsShowNavigator::filterEventsAndReset(const char* sel)
 	       continue;
 	  boost::regex re(std::string("\\$") + (*i)->name());
 	  std::string new_sel = 
-	       boost::regex_replace(selection, re, (*i)->moduleLabel());
+	       boost::regex_replace(selection, re, 
+				    (*i)->m_fullBranchName + ".obj");
 // 	  printf("selection after applying s/%s/%s/: %s\n",
 // 		 (std::string("\\$") + (*i)->name()).c_str(), 
 // 		 (*i)->moduleLabel().c_str(),
@@ -246,7 +247,7 @@ CmsShowNavigator::filterEventsAndReset(const char* sel)
      m_selection = selection;
      m_eventTree->SetEventList(0);
      if ( m_selection.length() != 0 ) {
-      //std::cout << "Selection requested: " << m_selection << std::endl;
+// 	  std::cout << "Selection requested: " << m_selection << std::endl;
 	  m_eventTree->Draw(">>list",m_selection.c_str());
 	  m_eventTree->SetEventList( m_eventList );
      }	

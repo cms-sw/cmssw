@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan  3 14:02:21 EST 2008
-// $Id: FWEventItem.h,v 1.23 2008/07/15 17:48:57 chrjones Exp $
+// $Id: FWEventItem.h,v 1.24 2008/07/17 09:58:24 dmytro Exp $
 //
 
 // system include files
@@ -201,6 +201,7 @@ class FWEventItem
       FWModelFilter m_filter;
       sigc::connection m_shouldFilterConnection;
       mutable bool m_printedNoDataError;
+      mutable std::string m_fullBranchName;
 };
 
 
