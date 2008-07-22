@@ -52,7 +52,7 @@ layerInfo = cms.PSet(
     )
 )
 combinatorialcosmicseedfinder = cms.EDFilter("CtfSpecialSeedGenerator",
-    SeedMomentum = cms.double(1.0), ##initial momentum in GeV !!!set to a lower value for slice test data
+    SeedMomentum = cms.double(5.0), ##initial momentum in GeV !!!set to a lower value for slice test data
 
     ErrorRescaling = cms.double(50.0),
     RegionFactoryPSet = cms.PSet(
