@@ -47,12 +47,15 @@ class HLTTauTrkDQMOfflineSource : public edm::EDAnalyzer {
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       bool match(const LV& recoJet, const LVColl& matchingObject);       
+
+      bool matchJet(const reco::Jet& ,const reco::CaloJetCollection&); 
    
       //Parameters to read
       
       edm::InputTag jetTagSrc_;
       edm::InputTag jetMCTagSrc_;
       edm::InputTag caloJets_;
+      edm::InputTag isolJets_;
      
       //Output file
       std::string tT_;

@@ -8,6 +8,7 @@ HLTTauTrkDQMOfflineSource::HLTTauTrkDQMOfflineSource(const edm::ParameterSet& iC
    jetTagSrc_ = iConfig.getParameter<edm::InputTag>("ConeIsolation");
    jetMCTagSrc_ = iConfig.getParameter<edm::InputTag>("refCollection");
    caloJets_ = iConfig.getParameter<edm::InputTag>("InputJets");
+   isolJets_ = iConfig.getParameter<edm::InputTag>("IsolatedJets");
    mcMatch_ = iConfig.getParameter<double>("MatchDeltaR");
    match_ = iConfig.getParameter<bool>("doReference");
    tT_ = iConfig.getParameter<std::string>("DQMFolder");
@@ -54,7 +55,13 @@ HLTTauTrkDQMOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSet
        if(match_){ 								 
 	 iEvent.getByLabel(jetMCTagSrc_, mcInfo);				 
        } 									 
-   
+
+       Handle<CaloJetCollection> isolJets;			   
+       if(iEvent.getByLabel(isolJets_, isolJets))
+	 {  	   
+	   printf("Isoljets found\n");
+	 }
+
        Handle<CaloJetCollection> caloJetHandle;			   
        if(iEvent.getByLabel(caloJets_, caloJetHandle))
 	 {  	   
@@ -90,8 +97,10 @@ HLTTauTrkDQMOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSet
 		 else{
 	       
 		   signalLeadTrkPt->Fill(leadTrk->pt());				 
+  
 
-		   if(tauTagInfo.discriminator()==1){
+
+		   if(matchJet(*tauTagInfo.jet(),*isolJets)){
 		     l25IsoJetEta->Fill(theJet.Eta());
 		     l25IsoJetEt->Fill(theJet.Et());
 		   }
@@ -138,3 +147,27 @@ bool HLTTauTrkDQMOfflineSource::match(const LV& jet, const LVColl& matchingObjec
    return matched;
 }
 
+bool 
+HLTTauTrkDQMOfflineSource::matchJet(const reco::Jet& jet,const reco::CaloJetCollection& McInfo)
+{
+
+  //Loop On the Collection and see if your tau jet is matched to one there
+ //Also find the nearest Matched MC Particle to your Jet (to be complete)
+ 
+ bool matched=false;
+
+ if(McInfo.size()>0)
+  for(reco::CaloJetCollection::const_iterator it = McInfo.begin();it!=McInfo.end();++it)
+   {
+     	  double delta = ROOT::Math::VectorUtil::DeltaR(jet.p4().Vect(),it->p4().Vect());
+	  if(delta<mcMatch_)
+	    {
+	      matched=true;
+	     
+	    }
+   }
+
+
+
+ return matched;
+}
