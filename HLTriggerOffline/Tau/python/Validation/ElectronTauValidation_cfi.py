@@ -107,7 +107,7 @@ ElectronTauElVal = cms.EDFilter("HLTTauElDQMOfflineSource",
     refCollection = cms.untracked.InputTag("TauMCProducer","Electrons")
 )
 
-ElectronTauValidation = cms.Sequence(ElectronTauPathVal + ElectronTauElVal)
+ElectronTauValidation = cms.Sequence(ElectronTauPathVal + ElectronTauL2Val + ElectronTauL25Val + ElectronTauElVal)
 
 
 

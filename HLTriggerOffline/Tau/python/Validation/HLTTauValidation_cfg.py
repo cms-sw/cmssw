@@ -51,7 +51,7 @@ process.DQMStore = cms.Service("DQMStore")
 #Load the Validation
 process.load("HLTriggerOffline.Tau.Validation.HLTTauValidation_cff")
 
-#Pickk your favourite Boson (23 is Z , 25 is H0 , 35 is H+)
+#Pickk your favourite Boson (23 is Z , 25 is H0 , 37 is H+)
 process.TauMCProducer.BosonID = 25
 
 
