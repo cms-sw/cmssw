@@ -56,8 +56,6 @@ class L1TauValidation : public edm::EDAnalyzer {
 
   void getL1extraObjects(const edm::Event&);
   void evalL1extraDecisions();
-  void evalL1Decisions(const edm::Event& iEvent);
-
   void fillL1Histograms();
   void fillL1MCTauMatchedHists(const edm::Event& iEvent);
 
@@ -65,7 +63,9 @@ class L1TauValidation : public edm::EDAnalyzer {
   
   // ----------member data ---------------------------
 
-  edm::InputTag     _mcColl;         // input products from HLTMcInfo
+  edm::InputTag     _refTauColl; 
+  edm::InputTag     _refElecColl; 
+  edm::InputTag     _refMuonColl; 
   
   edm::InputTag _L1extraTauJetSource;
   edm::InputTag _L1extraCenJetSource;
@@ -75,9 +75,6 @@ class L1TauValidation : public edm::EDAnalyzer {
   edm::InputTag _L1extraNonIsoEgammaSource;
   edm::InputTag _L1extraIsoEgammaSource;
 
-  edm::InputTag _L1GtReadoutRecord;
-  edm::InputTag _L1GtObjectMap;
-
   // Thresholds of L1 menu
   double _SingleTauThreshold;
   double _DoubleTauThreshold;
@@ -85,17 +82,18 @@ class L1TauValidation : public edm::EDAnalyzer {
   std::vector<double> _MuTauThresholds;
   std::vector<double> _IsoEgTauThresholds;
 
-  // L1 menu names
-  std::string _L1SingleTauName;
-  std::string _L1DoubleTauName;
-  std::string _L1TauMETName;
-  std::string _L1MuonTauName;
-  std::string _L1IsoEgTauName;
-
   // Cuts
   double _L1MCTauMinDeltaR;
   double _MCTauHadMinEt;
   double _MCTauHadMaxAbsEta;
+
+  double _L1MCElecMinDeltaR;
+  double _MCElecMinEt;
+  double _MCElecMaxAbsEta;
+
+  double _L1MCMuonMinDeltaR;
+  double _MCMuonMinEt;
+  double _MCMuonMaxAbsEta;
 
   //Output file
   std::string _triggerTag;//tag for dqm flder
@@ -124,6 +122,18 @@ class L1TauValidation : public edm::EDAnalyzer {
   MonitorElement* h_L1Tau2Eta;
   MonitorElement* h_L1Tau2Phi;
 
+  MonitorElement* h_L1IsoEg1Et;  
+  MonitorElement* h_L1IsoEg1Eta;
+  MonitorElement* h_L1IsoEg1Phi;
+
+  MonitorElement* h_L1Muon1Et;  
+  MonitorElement* h_L1Muon1Eta;
+  MonitorElement* h_L1Muon1Phi;
+
+  MonitorElement* h_L1Met;  
+  MonitorElement* h_L1MetEta;  
+  MonitorElement* h_L1MetPhi;  
+
   // L1 response
   MonitorElement* h_L1MCTauDeltaR;
   MonitorElement* h_L1minusMCTauEt;
@@ -134,6 +144,43 @@ class L1TauValidation : public edm::EDAnalyzer {
   MonitorElement* h_GenTauHadEta;
   MonitorElement* h_GenTauHadPhi;
 
+  MonitorElement* h_GenTauElecEt;
+  MonitorElement* h_GenTauElecEta;
+  MonitorElement* h_GenTauElecPhi;
+
+  MonitorElement* h_GenTauMuonEt;
+  MonitorElement* h_GenTauMuonEta;
+  MonitorElement* h_GenTauMuonPhi;
+
+  // Tau -> Electron
+  // MC matching efficiencies
+  MonitorElement* h_EffMCTauElecEt;
+  MonitorElement* h_EffMCTauElecEta;
+  MonitorElement* h_EffMCTauElecPhi;
+  // Numerators
+  MonitorElement* h_L1MCMatchedTauElecEt;
+  MonitorElement* h_L1MCMatchedTauElecEta;
+  MonitorElement* h_L1MCMatchedTauElecPhi;
+  // Denominators
+  MonitorElement* h_MCTauElecEt;
+  MonitorElement* h_MCTauElecEta;
+  MonitorElement* h_MCTauElecPhi;
+
+  // Tau -> Muon
+  // MC matching efficiencies
+  MonitorElement* h_EffMCTauMuonEt;
+  MonitorElement* h_EffMCTauMuonEta;
+  MonitorElement* h_EffMCTauMuonPhi;
+  // Numerators
+  MonitorElement* h_L1MCMatchedTauMuonEt;
+  MonitorElement* h_L1MCMatchedTauMuonEta;
+  MonitorElement* h_L1MCMatchedTauMuonPhi;
+  // Denominators
+  MonitorElement* h_MCTauMuonEt;
+  MonitorElement* h_MCTauMuonEta;
+  MonitorElement* h_MCTauMuonPhi;
+
+  // Tau -> Hadr
   // MC matching efficiencies
   MonitorElement* h_EffMCTauEt;
   MonitorElement* h_EffMCTauEta;
@@ -153,45 +200,29 @@ class L1TauValidation : public edm::EDAnalyzer {
   MonitorElement* h_L1SingleTauEffMCMatchEt;
   MonitorElement* h_L1DoubleTauEffMCMatchEt;
 
+  MonitorElement* h_L1TauMETfixEffEt;
+  MonitorElement* h_L1TauMETfixEffMCMatchEt;
+  MonitorElement* h_L1METTaufixEffEt;
+  MonitorElement* h_L1METTaufixEffMCMatchEt;
+
+  MonitorElement* h_L1TauIsoEgfixEffEt;
+  MonitorElement* h_L1TauIsoEgfixEffMCMatchEt;
+  MonitorElement* h_L1IsoEgTaufixEffEt;
+  MonitorElement* h_L1IsoEgTaufixEffMCMatchEt;
+
+  MonitorElement* h_L1TauMuonfixEffEt;
+  MonitorElement* h_L1TauMuonfixEffMCMatchEt;
+  MonitorElement* h_L1MuonTaufixEffEt;
+  MonitorElement* h_L1MuonTaufixEffMCMatchEt;
+
+
   // Counters for event based efficiencies
   int _nEvents; // all events processed
-
-  int _nEventsGenTauHad; 
-  int _nEventsDoubleGenTauHads; 
-  int _nEventsGenTauMuonTauHad; 
-  int _nEventsGenTauElecTauHad;   
 
   int _nfidEventsGenTauHad; 
   int _nfidEventsDoubleGenTauHads; 
   int _nfidEventsGenTauMuonTauHad; 
   int _nfidEventsGenTauElecTauHad;   
-
-  int _nEventsPFMatchGenTauHad; 
-  int _nEventsPFMatchDoubleGenTauHads; 
-  int _nEventsPFMatchGenTauMuonTauHad; 
-  int _nEventsPFMatchGenTauElecTauHad;   
-
-  int _nEventsL1SingleTauPassed;
-  int _nEventsL1SingleTauPassedMCMatched;
-
-  int _nEventsL1DoubleTauPassed;
-  int _nEventsL1DoubleTauPassedMCMatched;
-
-  int _nEventsL1SingleTauMETPassed;
-  int _nEventsL1SingleTauMETPassedMCMatched;
-
-  int _nEventsL1MuonTauPassed;
-  int _nEventsL1MuonTauPassedMCMatched;
-
-  int _nEventsL1IsoEgTauPassed;
-  int _nEventsL1IsoEgTauPassedMCMatched;
-
-  // from GT bit info
-  int _nEventsL1GTSingleTauPassed;
-  int _nEventsL1GTDoubleTauPassed;
-  int _nEventsL1GTSingleTauMETPassed;
-  int _nEventsL1GTMuonTauPassed;
-  int _nEventsL1GTIsoEgTauPassed;
 
 };
 

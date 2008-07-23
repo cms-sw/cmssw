@@ -12,7 +12,9 @@
 //
 L1TauValidation::L1TauValidation(const edm::ParameterSet& iConfig):
 
-  _mcColl(iConfig.getParameter<edm::InputTag>("MatchedCollection")),
+  _refTauColl(iConfig.getUntrackedParameter<edm::InputTag>("RefTauCollection")),
+  _refElecColl(iConfig.getUntrackedParameter<edm::InputTag>("RefElecCollection")),
+  _refMuonColl(iConfig.getUntrackedParameter<edm::InputTag>("RefMuonCollection")),
 
   _L1extraTauJetSource(iConfig.getParameter<edm::InputTag>("L1extraTauJetSource")),
   _L1extraCenJetSource(iConfig.getParameter<edm::InputTag>("L1extraCenJetSource")),
@@ -22,24 +24,23 @@ L1TauValidation::L1TauValidation(const edm::ParameterSet& iConfig):
   _L1extraNonIsoEgammaSource(iConfig.getParameter<edm::InputTag>("L1extraNonIsoEgammaSource")),
   _L1extraIsoEgammaSource(iConfig.getParameter<edm::InputTag>("L1extraIsoEgammaSource")),
 
-  _L1GtReadoutRecord(iConfig.getParameter<edm::InputTag>("L1GtReadoutRecord")),
-  _L1GtObjectMap(iConfig.getParameter<edm::InputTag>("L1GtObjectMap")),
-
   _SingleTauThreshold(iConfig.getParameter<double>("SingleTauThreshold")),
   _DoubleTauThreshold(iConfig.getParameter<double>("DoubleTauThreshold")),
   _SingleTauMETThresholds(iConfig.getParameter< std::vector<double> >("SingleTauMETThresholds")),
   _MuTauThresholds(iConfig.getParameter< std::vector<double> >("MuTauThresholds")),
   _IsoEgTauThresholds(iConfig.getParameter< std::vector<double> >("IsoEgTauThresholds")),
   
-  _L1SingleTauName(iConfig.getParameter<std::string>("L1SingleTauName")),
-  _L1DoubleTauName(iConfig.getParameter<std::string>("L1DoubleTauName")),
-  _L1TauMETName(iConfig.getParameter<std::string>("L1TauMETName")),
-  _L1MuonTauName(iConfig.getParameter<std::string>("L1MuonTauName")),
-  _L1IsoEgTauName(iConfig.getParameter<std::string>("L1IsoEGTauName")),
-
   _L1MCTauMinDeltaR(iConfig.getParameter<double>("L1MCTauMinDeltaR")),
   _MCTauHadMinEt(iConfig.getParameter<double>("MCTauHadMinEt")),
   _MCTauHadMaxAbsEta(iConfig.getParameter<double>("MCTauHadMaxAbsEta")),
+
+  _L1MCElecMinDeltaR(iConfig.getParameter<double>("L1MCElecMinDeltaR")),
+  _MCElecMinEt(iConfig.getParameter<double>("MCElecMinEt")),
+  _MCElecMaxAbsEta(iConfig.getParameter<double>("MCElecMaxAbsEta")),
+  
+  _L1MCMuonMinDeltaR(iConfig.getParameter<double>("L1MCMuonMinDeltaR")),
+  _MCMuonMinEt(iConfig.getParameter<double>("MCMuonMinEt")),
+  _MCMuonMaxAbsEta(iConfig.getParameter<double>("MCMuonMaxAbsEta")),
   
   _triggerTag((iConfig.getParameter<std::string>("TriggerTag"))),
   _outFile(iConfig.getParameter<std::string>("OutputFileName"))
@@ -73,6 +74,28 @@ L1TauValidation::L1TauValidation(const edm::ParameterSet& iConfig):
       h_L1Tau2Phi->getTH1F()->Sumw2();
       
 
+      h_L1IsoEg1Et = store->book1D("L1IsoEg1Et","L1IsoEg1Et",80,0.,80.);
+      h_L1IsoEg1Et->getTH1F()->Sumw2();
+      h_L1IsoEg1Eta = store->book1D("L1IsoEg1Eta","L1IsoEg1Eta",60,-4.,4.);
+      h_L1IsoEg1Eta->getTH1F()->Sumw2();
+      h_L1IsoEg1Phi = store->book1D("L1IsoEg1Phi","L1IsoEg1Phi",50,-3.2,3.2);
+      h_L1IsoEg1Phi->getTH1F()->Sumw2();
+      
+      h_L1Muon1Et = store->book1D("L1Muon1Et","L1Muon1Et",80,0.,80.);
+      h_L1Muon1Et->getTH1F()->Sumw2();
+      h_L1Muon1Eta = store->book1D("L1Muon1Eta","L1Muon1Eta",60,-4.,4.);
+      h_L1Muon1Eta->getTH1F()->Sumw2();
+      h_L1Muon1Phi = store->book1D("L1Muon1Phi","L1Muon1Phi",50,-3.2,3.2);
+      h_L1Muon1Phi->getTH1F()->Sumw2();
+
+      // MET      
+      h_L1Met = store->book1D("L1MetEt","L1MetEt",100,0.,200.);
+      h_L1Met->getTH1F()->Sumw2();
+      h_L1MetEta = store->book1D("L1MetEta","L1MetEta",60,-4.,4.);
+      h_L1MetEta->getTH1F()->Sumw2();
+      h_L1MetPhi = store->book1D("L1MetPhi","L1MetPhi",50,-3.2,3.2);
+      h_L1MetPhi->getTH1F()->Sumw2();
+
       // L1 response
       h_L1MCTauDeltaR = store->book1D("L1MCTauDeltaR","L1MCTauDeltaR",60,0.,6.);
       h_L1MCTauDeltaR->getTH1F()->Sumw2();
@@ -89,6 +112,71 @@ L1TauValidation::L1TauValidation(const edm::ParameterSet& iConfig):
       h_GenTauHadPhi = store->book1D("GenTauHadPhi","GenTauHadPhi",50,-3.2,3.2);
       h_GenTauHadPhi->getTH1F()->Sumw2();
       
+      h_GenTauElecEt = store->book1D("GenTauElecEt","GenTauElecEt",50,0.,100.);
+      h_GenTauElecEt->getTH1F()->Sumw2();
+      h_GenTauElecEta = store->book1D("GenTauElecEta","GenTauElecEt",60,-4.,4.);
+      h_GenTauElecEta->getTH1F()->Sumw2();
+      h_GenTauElecPhi = store->book1D("GenTauElecPhi","GenTauElecPhi",50,-3.2,3.2);
+      h_GenTauElecPhi->getTH1F()->Sumw2();
+      
+      h_GenTauMuonEt = store->book1D("GenTauMuonEt","GenTauMuonEt",50,0.,100.);
+      h_GenTauMuonEt->getTH1F()->Sumw2();
+      h_GenTauMuonEta = store->book1D("GenTauMuonEta","GenTauMuonEt",60,-4.,4.);
+      h_GenTauMuonEta->getTH1F()->Sumw2();
+      h_GenTauMuonPhi = store->book1D("GenTauMuonPhi","GenTauMuonPhi",50,-3.2,3.2);
+      h_GenTauMuonPhi->getTH1F()->Sumw2();
+      
+
+      // Tau -> Electron
+      // MC matching efficiencies
+      h_MCTauElecEt = store->book1D("MCTauElecEt","MCTauElecEt",50,0.,100.);
+      h_MCTauElecEt->getTH1F()->Sumw2();
+      h_MCTauElecEta = store->book1D("MCTauElecEta","MCTauElecEta",60,-4.,4.);
+      h_MCTauElecEta->getTH1F()->Sumw2();
+      h_MCTauElecPhi = store->book1D("MCTauElecPhi","MCTauElecPhi",50,-3.2,3.2);
+      h_MCTauElecPhi->getTH1F()->Sumw2();
+
+      h_L1MCMatchedTauElecEt = store->book1D("L1MCMatchedTauElecEt","L1MCMatchedTauElecEt",50,0.,100.);
+      h_L1MCMatchedTauElecEt->getTH1F()->Sumw2();
+      h_L1MCMatchedTauElecEta = store->book1D("L1MCMatchedTauElecEta","L1MCMatchedTauElecEta",60,-4.,4.);
+      h_L1MCMatchedTauElecEta->getTH1F()->Sumw2();
+      h_L1MCMatchedTauElecPhi = store->book1D("L1MCMatchedTauElecPhi","L1MCMatchedTauElecPhi",50,-3.2,3.2);
+      h_L1MCMatchedTauElecPhi->getTH1F()->Sumw2();
+      
+      h_EffMCTauElecEt = store->book1D("EffMCTauElecEt","EffMCTauElecEt",50,0.,100.);
+      h_EffMCTauElecEt->getTH1F()->Sumw2();
+      h_EffMCTauElecEta = store->book1D("EffMCTauElecEta","EffMCTauElecEta",60,-4.,4.);
+      h_EffMCTauElecEta->getTH1F()->Sumw2();
+      h_EffMCTauElecPhi = store->book1D("EffMCTauElecPhi","EffMCTauElecPhi",50,-3.2,3.2);
+      h_EffMCTauElecPhi->getTH1F()->Sumw2();
+
+
+
+      // Tau -> Muon
+      // MC matching efficiencies
+      h_MCTauMuonEt = store->book1D("MCTauMuonEt","MCTauMuonEt",50,0.,100.);
+      h_MCTauMuonEt->getTH1F()->Sumw2();
+      h_MCTauMuonEta = store->book1D("MCTauMuonEta","MCTauMuonEta",60,-4.,4.);
+      h_MCTauMuonEta->getTH1F()->Sumw2();
+      h_MCTauMuonPhi = store->book1D("MCTauMuonPhi","MCTauMuonPhi",50,-3.2,3.2);
+      h_MCTauMuonPhi->getTH1F()->Sumw2();
+      
+      h_L1MCMatchedTauMuonEt = store->book1D("L1MCMatchedTauMuonEt","L1MCMatchedTauMuonEt",50,0.,100.);
+      h_L1MCMatchedTauMuonEt->getTH1F()->Sumw2();
+      h_L1MCMatchedTauMuonEta = store->book1D("L1MCMatchedTauMuonEta","L1MCMatchedTauMuonEta",60,-4.,4.);
+      h_L1MCMatchedTauMuonEta->getTH1F()->Sumw2();
+      h_L1MCMatchedTauMuonPhi = store->book1D("L1MCMatchedTauMuonPhi","L1MCMatchedTauMuonPhi",50,-3.2,3.2);
+      h_L1MCMatchedTauMuonPhi->getTH1F()->Sumw2();
+      
+      h_EffMCTauMuonEt = store->book1D("EffMCTauMuonEt","EffMCTauMuonEt",50,0.,100.);
+      h_EffMCTauMuonEt->getTH1F()->Sumw2();
+      h_EffMCTauMuonEta = store->book1D("EffMCTauMuonEta","EffMCTauMuonEta",60,-4.,4.);
+      h_EffMCTauMuonEta->getTH1F()->Sumw2();
+      h_EffMCTauMuonPhi = store->book1D("EffMCTauMuonPhi","EffMCTauMuonPhi",50,-3.2,3.2);
+      h_EffMCTauMuonPhi->getTH1F()->Sumw2();
+
+
+      // Tau -> Hadr
       // MC matching efficiencies
       h_MCTauHadEt = store->book1D("MCTauHadEt","MCTauHadEt",50,0.,100.);
       h_MCTauHadEt->getTH1F()->Sumw2();
@@ -123,6 +211,49 @@ L1TauValidation::L1TauValidation(const edm::ParameterSet& iConfig):
       h_L1DoubleTauEffMCMatchEt = store->book1D("L1DoubleTauEffMCMatchEt","L1DoubleTauEffMCMatchEt",
 						40,0.,80.);
       h_L1DoubleTauEffMCMatchEt->getTH1F()->Sumw2();
+
+      h_L1TauMETfixEffEt = store->book1D("L1TauMETfixEffEt","L1TauMETfixEffEt",
+					 50,0.,100.);
+      h_L1TauMETfixEffEt->getTH1F()->Sumw2();
+      h_L1TauMETfixEffMCMatchEt = store->book1D("L1TauMETfixEffMCMatchEt","L1TauMETfixEffMCMatchEt",
+					 50,0.,100.);
+      h_L1TauMETfixEffMCMatchEt->getTH1F()->Sumw2();
+
+      h_L1METTaufixEffEt = store->book1D("L1METTaufixEffEt","L1METTaufixEffEt",
+					 50,0.,100.);
+      h_L1METTaufixEffEt->getTH1F()->Sumw2();
+      h_L1METTaufixEffMCMatchEt = store->book1D("L1METTaufixEffMCMatchEt","L1METTaufixEffMCMatchEt",
+					 50,0.,100.);
+      h_L1METTaufixEffMCMatchEt->getTH1F()->Sumw2();
+
+      h_L1TauIsoEgfixEffEt = store->book1D("L1TauIsoEgfixEffEt","L1TauIsoEgfixEffEt",
+					 50,0.,100.);
+      h_L1TauIsoEgfixEffEt->getTH1F()->Sumw2();
+      h_L1TauIsoEgfixEffMCMatchEt = store->book1D("L1TauIsoEgfixEffMCMatchEt","L1TauIsoEgfixEffMCMatchEt",
+					 50,0.,100.);
+      h_L1TauIsoEgfixEffMCMatchEt->getTH1F()->Sumw2();
+
+      h_L1IsoEgTaufixEffEt = store->book1D("L1IsoEgTaufixEffEt","L1IsoEgTaufixEffEt",
+					 50,0.,100.);
+      h_L1IsoEgTaufixEffEt->getTH1F()->Sumw2();
+      h_L1IsoEgTaufixEffMCMatchEt = store->book1D("L1IsoEgTaufixEffMCMatchEt","L1IsoEgTaufixEffMCMatchEt",
+					 50,0.,100.);
+      h_L1IsoEgTaufixEffMCMatchEt->getTH1F()->Sumw2();
+
+      h_L1TauMuonfixEffEt = store->book1D("L1TauMuonfixEffEt","L1TauMuonfixEffEt",
+					 50,0.,100.);
+      h_L1TauMuonfixEffEt->getTH1F()->Sumw2();
+      h_L1TauMuonfixEffMCMatchEt = store->book1D("L1TauMuonfixEffMCMatchEt","L1TauMuonfixEffMCMatchEt",
+					 50,0.,100.);
+      h_L1TauMuonfixEffMCMatchEt->getTH1F()->Sumw2();
+
+      h_L1MuonTaufixEffEt = store->book1D("L1MuonTaufixEffEt","L1MuonTaufixEffEt",
+					 50,0.,100.);
+      h_L1MuonTaufixEffEt->getTH1F()->Sumw2();
+      h_L1MuonTaufixEffMCMatchEt = store->book1D("L1MuonTaufixEffMCMatchEt","L1MuonTaufixEffMCMatchEt",
+					 50,0.,100.);
+      h_L1MuonTaufixEffMCMatchEt->getTH1F()->Sumw2();
+
     }
 }
 
@@ -133,42 +264,11 @@ L1TauValidation::beginJob(const edm::EventSetup&)
   // Init counters for event based efficiencies
   _nEvents = 0; // all events processed
 
-  _nEventsGenTauHad = 0; 
-  _nEventsDoubleGenTauHads = 0; 
-  _nEventsGenTauMuonTauHad = 0; 
-  _nEventsGenTauElecTauHad = 0;   
-
   _nfidEventsGenTauHad = 0; 
   _nfidEventsDoubleGenTauHads = 0; 
   _nfidEventsGenTauMuonTauHad = 0; 
   _nfidEventsGenTauElecTauHad = 0;   
 
-  _nEventsPFMatchGenTauHad = 0; 
-  _nEventsPFMatchDoubleGenTauHads = 0; 
-  _nEventsPFMatchGenTauMuonTauHad = 0; 
-  _nEventsPFMatchGenTauElecTauHad = 0;   
-
-  _nEventsL1SingleTauPassed = 0;
-  _nEventsL1SingleTauPassedMCMatched = 0;
-
-  _nEventsL1DoubleTauPassed = 0;
-  _nEventsL1DoubleTauPassedMCMatched = 0;
-
-  _nEventsL1SingleTauMETPassed = 0;
-  _nEventsL1SingleTauMETPassedMCMatched = 0;
-
-  _nEventsL1MuonTauPassed = 0;
-  _nEventsL1MuonTauPassedMCMatched = 0;
-
-  _nEventsL1IsoEgTauPassed = 0;
-  _nEventsL1IsoEgTauPassedMCMatched = 0;
-
-  // from GT bit info
-  _nEventsL1GTSingleTauPassed = 0;
-  _nEventsL1GTDoubleTauPassed = 0;
-  _nEventsL1GTSingleTauMETPassed = 0;
-  _nEventsL1GTMuonTauPassed = 0;
-  _nEventsL1GTIsoEgTauPassed = 0;
 
 }
 
@@ -186,9 +286,8 @@ L1TauValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
    _nEvents++;
 
-  // get object
+   // get object
    getL1extraObjects(iEvent);
-   evalL1Decisions(iEvent);
    evalL1extraDecisions();
    
    // fill simple histograms
@@ -204,18 +303,42 @@ void
 L1TauValidation::endJob() {
 
 
-  if (&*edm::Service<DQMStore>()) edm::Service<DQMStore>()->save ("test.root");
+  if (&*edm::Service<DQMStore>()) edm::Service<DQMStore>()->save ("l1tauval.root");
 
   // MC matching efficiencies
   h_EffMCTauEt->getTH1F()->Divide(h_EffMCTauEt->getTH1F(),h_MCTauHadEt->getTH1F(),1.,1.,"b");
   h_EffMCTauEta->getTH1F()->Divide(h_EffMCTauEta->getTH1F(),h_MCTauHadEta->getTH1F(),1.,1.,"b");
   h_EffMCTauPhi->getTH1F()->Divide(h_EffMCTauPhi->getTH1F(),h_MCTauHadPhi->getTH1F(),1.,1.,"b");
 
+  h_EffMCTauElecEt->getTH1F()->Divide(h_EffMCTauElecEt->getTH1F(),h_MCTauElecEt->getTH1F(),1.,1.,"b");
+  h_EffMCTauElecEta->getTH1F()->Divide(h_EffMCTauElecEta->getTH1F(),h_MCTauElecEta->getTH1F(),1.,1.,"b");
+  h_EffMCTauElecPhi->getTH1F()->Divide(h_EffMCTauElecPhi->getTH1F(),h_MCTauElecPhi->getTH1F(),1.,1.,"b");
+
+  h_EffMCTauMuonEt->getTH1F()->Divide(h_EffMCTauMuonEt->getTH1F(),h_MCTauMuonEt->getTH1F(),1.,1.,"b");
+  h_EffMCTauMuonEta->getTH1F()->Divide(h_EffMCTauMuonEta->getTH1F(),h_MCTauMuonEta->getTH1F(),1.,1.,"b");
+  h_EffMCTauMuonPhi->getTH1F()->Divide(h_EffMCTauMuonPhi->getTH1F(),h_MCTauMuonPhi->getTH1F(),1.,1.,"b");
+
   //
   convertToIntegratedEff(h_L1SingleTauEffEt,(double)_nEvents);
   convertToIntegratedEff(h_L1DoubleTauEffEt,(double)_nEvents);
   convertToIntegratedEff(h_L1SingleTauEffMCMatchEt,(double)_nfidEventsGenTauHad);
   convertToIntegratedEff(h_L1DoubleTauEffMCMatchEt,(double)_nfidEventsDoubleGenTauHads);
+
+  convertToIntegratedEff(h_L1TauMETfixEffEt,(double)_nEvents);
+  convertToIntegratedEff(h_L1METTaufixEffEt,(double)_nEvents);
+  convertToIntegratedEff(h_L1TauMETfixEffMCMatchEt,(double)_nfidEventsGenTauHad);
+  convertToIntegratedEff(h_L1METTaufixEffMCMatchEt,(double)_nfidEventsGenTauHad);
+
+  convertToIntegratedEff(h_L1TauIsoEgfixEffEt,(double)_nEvents);
+  convertToIntegratedEff(h_L1IsoEgTaufixEffEt,(double)_nEvents);
+  convertToIntegratedEff(h_L1TauIsoEgfixEffMCMatchEt,(double)_nfidEventsGenTauElecTauHad);
+  convertToIntegratedEff(h_L1IsoEgTaufixEffMCMatchEt,(double)_nfidEventsGenTauElecTauHad);
+
+  convertToIntegratedEff(h_L1TauMuonfixEffEt,(double)_nEvents);
+  convertToIntegratedEff(h_L1MuonTaufixEffEt,(double)_nEvents);
+  convertToIntegratedEff(h_L1TauMuonfixEffMCMatchEt,(double)_nfidEventsGenTauMuonTauHad);
+  convertToIntegratedEff(h_L1MuonTaufixEffMCMatchEt,(double)_nfidEventsGenTauMuonTauHad);
+
 
   //Write file
   if(_outFile.size()>0)
@@ -321,159 +444,61 @@ L1TauValidation::fillL1Histograms() {
     h_L1TauEt->Fill(_L1Taus[i].Et());
     h_L1TauEta->Fill(_L1Taus[i].Eta());
     h_L1TauPhi->Fill(_L1Taus[i].Phi());
-    if (i==1) {
+    if (i==0) {
       h_L1Tau1Et->Fill(_L1Taus[i].Et());
       h_L1Tau1Eta->Fill(_L1Taus[i].Eta());
       h_L1Tau1Phi->Fill(_L1Taus[i].Phi());
     }
-    if (i==2) {
+    if (i==1) {
       h_L1Tau2Et->Fill(_L1Taus[i].Et());
       h_L1Tau2Eta->Fill(_L1Taus[i].Eta());
       h_L1Tau2Phi->Fill(_L1Taus[i].Phi());
     }    
   }
+  for (int i=0; i<(int)_L1IsoEgammas.size(); i++) {
+    if (i==0) {
+      h_L1IsoEg1Et->Fill(_L1IsoEgammas[i].Et());
+      h_L1IsoEg1Eta->Fill(_L1IsoEgammas[i].Eta());
+      h_L1IsoEg1Phi->Fill(_L1IsoEgammas[i].Phi());
+    }
+  }
+  for (int i=0; i<(int)_L1Muons.size(); i++) {
+    if (i==0) {
+      h_L1Muon1Et->Fill(_L1Muons[i].Et());
+      h_L1Muon1Eta->Fill(_L1Muons[i].Eta());
+      h_L1Muon1Phi->Fill(_L1Muons[i].Phi());
+    }
+  }
+  for (int i=0; i<1; i++) {
+    h_L1Met->Fill(_L1METs[i].Et());
+    h_L1MetEta->Fill(_L1METs[i].Eta());
+    h_L1MetPhi->Fill(_L1METs[i].Phi());
+  }
 
 }
-
-
-
-void
-L1TauValidation::evalL1Decisions(const edm::Event& iEvent) {
-  using namespace edm;
-  using namespace std;
-
-  Handle<L1GlobalTriggerReadoutRecord> l1GtRR;
-  iEvent.getByLabel(_L1GtReadoutRecord,l1GtRR);
-  Handle<L1GlobalTriggerObjectMapRecord> l1GtOMRec;
-  iEvent.getByLabel(_L1GtObjectMap,l1GtOMRec);
-
-  L1GlobalTriggerReadoutRecord L1GTRR = *l1GtRR.product();		
-  L1GlobalTriggerObjectMapRecord L1GTOMRec = *l1GtOMRec.product();
-
-  DecisionWord gtDecisionWord = L1GTRR.decisionWord();
-  string l1BitName;
-  int l1Accept;
-  // get ObjectMaps from ObjectMapRecord
-  const vector<L1GlobalTriggerObjectMap>& objMapVec =  L1GTOMRec.gtObjectMap();
-  for (vector<L1GlobalTriggerObjectMap>::const_iterator itMap = objMapVec.begin();
-       itMap != objMapVec.end(); ++itMap) {
-    int iBit = (*itMap).algoBitNumber();
-    l1BitName = string( (*itMap).algoName() );
-    l1Accept = gtDecisionWord[iBit];
-    //cout<<l1BitName<<" "<<l1Accept<<endl;
-    if (l1BitName.compare(_L1SingleTauName)==0) {
-      //cout<<l1BitName<<" "<<l1Accept<<endl;
-      if (l1Accept) _nEventsL1GTSingleTauPassed++;
-    }
-    if (l1BitName.compare(_L1DoubleTauName)==0) {
-      if (l1Accept) _nEventsL1GTDoubleTauPassed++;
-    }
-    if (l1BitName.compare(_L1TauMETName)==0) {
-      if (l1Accept) _nEventsL1GTSingleTauMETPassed++;
-    }
-    if (l1BitName.compare(_L1MuonTauName)==0) {
-      if (l1Accept) _nEventsL1GTMuonTauPassed++;
-    }
-    if (l1BitName.compare(_L1IsoEgTauName)==0) {
-      if (l1Accept) _nEventsL1GTIsoEgTauPassed++;
-    }
-  }
-}
-
-void
-L1TauValidation::evalL1extraDecisions() {
-  bool singleTauPassed = false;
-  bool doubleTauPassed = false;
-  bool muTauPassed = false;
-  bool isoEgTauPassed = false;
-  bool singleTauMETPassed = false;
-  
-  int nL1Taus = _L1Taus.size();
-  int nL1Muons = _L1Muons.size();
-  int nL1IsoEgammas = _L1IsoEgammas.size();
-
-
-  if (nL1Taus>=1) {
-    h_L1SingleTauEffEt->Fill(_L1Taus[0].Et());
-    if (_L1Taus[0].Et()>=_SingleTauThreshold)
-      singleTauPassed = true;
-  }
-  if (nL1Taus>=2 ) {
-    h_L1DoubleTauEffEt->Fill(_L1Taus[1].Et());
-    if (_L1Taus[1].Et()>=_DoubleTauThreshold)
-      doubleTauPassed = true;
-  }
-
-  if (nL1Taus>=1 && _L1Taus[0].Et()>=_SingleTauMETThresholds[0] &&
-      _L1METs[0].Et()>=_SingleTauMETThresholds[1])
-    singleTauMETPassed = true;
-
-  if (nL1Taus>=1 && _L1Taus[0].Et()>=_MuTauThresholds[1] &&
-      nL1Muons>=1 && _L1Muons[0].Pt()>=_MuTauThresholds[0]) {
-    //if ( _L1MuQuals[0]==4 || _L1MuQuals[0]==5 || _L1MuQuals[0]==6 || _L1MuQuals[0]==7 ) {
-    if ( _L1MuQuals[0]==3 || _L1MuQuals[0]==5 || _L1MuQuals[0]==6 || _L1MuQuals[0]==7 ) {
-    //if ( _L1MuQuals[0]>=0) {
-      muTauPassed = true;
-    }
-  }
-    
-  for (int i=0;i<nL1Taus;i++) {
-    for (int j=0;j<nL1IsoEgammas;j++) {
-      if (_L1Taus[i].Et()>=_IsoEgTauThresholds[1] &&
-	  _L1IsoEgammas[j].Et()>=_IsoEgTauThresholds[0]) {
-	//double deltaR = ROOT::Math::VectorUtil::DeltaR(_L1Taus[i],_GenTauHads[j]);
-	//double deltaPhi = ROOT::Math::VectorUtil::DeltaPhi(_L1Taus[i],_L1IsoEgammas[j]);
-	//double deltaEta = std::abs(_L1Taus[i].Eta()-_L1IsoEgammas[j].Eta());
-	// Non-collinearity check
-	//if (deltaPhi>0.348 && deltaEta>0.348) {
-	  isoEgTauPassed = true;
-	  break;
-	//}
-      }
-    }
-  }
-
-  if (singleTauPassed) _nEventsL1SingleTauPassed++;
-  if (doubleTauPassed) _nEventsL1DoubleTauPassed++;
-  if (singleTauMETPassed) _nEventsL1SingleTauMETPassed++;
-  if (muTauPassed) _nEventsL1MuonTauPassed++;
-  if (isoEgTauPassed) _nEventsL1IsoEgTauPassed++;
-}
-
 
 
 void
 L1TauValidation::fillL1MCTauMatchedHists(const edm::Event& iEvent) {
   using namespace edm;
 
-  Handle<LVColl> McInfoH; //Handle To The Truth!!!!
-  iEvent.getByLabel(_mcColl,McInfoH);
-  LVColl McInfo = *McInfoH;
-
-  bool singleTauPassed = false;
-  bool doubleTauPassed = false;
-  //bool muTauPassed = false;
-  //bool isoEgTauPassed = false;
-  bool singleTauMETPassed = false;
-
-  bool singleMatch = false; // for doubletau match
-  bool doubleMatch = false; 
-  int iSingle = -1;
-  int iDouble = -1;
+  Handle<LVColl> RefTauH; //Handle To The Truth!!!!
+  iEvent.getByLabel(_refTauColl,RefTauH);
+  LVColl RefTau = *RefTauH;
 
   int nfidTauHads = 0; // count in fiducial region
-  for (int i=0; i<(int)McInfo.size(); i++) {
+  for (int i=0; i<(int)RefTau.size(); i++) {
     // w/o further cuts
-    h_GenTauHadEt->Fill(McInfo[i].Et());
-    h_GenTauHadEta->Fill(McInfo[i].Eta());
-    h_GenTauHadPhi->Fill(McInfo[i].Phi());
+    h_GenTauHadEt->Fill(RefTau[i].Et());
+    h_GenTauHadEta->Fill(RefTau[i].Eta());
+    h_GenTauHadPhi->Fill(RefTau[i].Phi());
     // Denominators for MC matching efficiencies
-    if (std::abs(McInfo[i].Eta())<=_MCTauHadMaxAbsEta)
-      h_MCTauHadEt->Fill(McInfo[i].Et());
-    if (McInfo[i].Et()>=_MCTauHadMinEt)
-      h_MCTauHadEta->Fill(McInfo[i].Eta());
-    if (McInfo[i].Et()>=_MCTauHadMinEt && std::abs(McInfo[i].Eta())<=_MCTauHadMaxAbsEta) {
-      h_MCTauHadPhi->Fill(McInfo[i].Phi());
+    if (std::abs(RefTau[i].Eta())<=_MCTauHadMaxAbsEta)
+      h_MCTauHadEt->Fill(RefTau[i].Et());
+    if (RefTau[i].Et()>=_MCTauHadMinEt)
+      h_MCTauHadEta->Fill(RefTau[i].Eta());
+    if (RefTau[i].Et()>=_MCTauHadMinEt && std::abs(RefTau[i].Eta())<=_MCTauHadMaxAbsEta) {
+      h_MCTauHadPhi->Fill(RefTau[i].Phi());
       nfidTauHads++;
     }
   }
@@ -481,61 +506,244 @@ L1TauValidation::fillL1MCTauMatchedHists(const edm::Event& iEvent) {
   if (nfidTauHads >= 1) _nfidEventsGenTauHad++; 
   if (nfidTauHads >= 2) _nfidEventsDoubleGenTauHads++; 
 
+  bool singleMatch = false; // for doubletau match
+  bool doubleMatch = false; 
+  int iSingle = -1;
+  int iDouble = -1;
   for (unsigned int i = 0; i<_L1Taus.size();i++) {
-    for (unsigned int j = 0; j<McInfo.size();j++) {
-      double deltaR = ROOT::Math::VectorUtil::DeltaR(_L1Taus[i],McInfo[j]);
+    for (unsigned int j = 0; j<RefTau.size();j++) {
+      double deltaR = ROOT::Math::VectorUtil::DeltaR(_L1Taus[i],RefTau[j]);
       h_L1MCTauDeltaR->Fill(deltaR);
       if (deltaR < _L1MCTauMinDeltaR) {
-	if (McInfo[j].Et()>=_MCTauHadMinEt && std::abs(McInfo[j].Eta())<=_MCTauHadMaxAbsEta) {
-	  h_L1minusMCTauEt->Fill(_L1Taus[i].Et() - McInfo[j].Et());
-	  h_L1minusMCoverMCTauEt->Fill( (_L1Taus[i].Et() - McInfo[j].Et()) / McInfo[j].Et());
+	if (RefTau[j].Et()>=_MCTauHadMinEt && std::abs(RefTau[j].Eta())<=_MCTauHadMaxAbsEta) {
+	  h_L1minusMCTauEt->Fill(_L1Taus[i].Et() - RefTau[j].Et());
+	  h_L1minusMCoverMCTauEt->Fill( (_L1Taus[i].Et() - RefTau[j].Et()) / RefTau[j].Et());
 	  // For event efficiencies	
 	  if (singleMatch) {
-	    doubleMatch = true;	iDouble = i;
+	    doubleMatch = true;
+	    iDouble = i;
 	  }
 	  singleMatch = true;
 	  if (singleMatch && !doubleMatch)
 	    iSingle = i;
 	}	
 	// Numerators for MC matching efficiencies
-	if (std::abs(McInfo[j].Eta())<=_MCTauHadMaxAbsEta) {	
-	  h_L1MCMatchedTauEt->Fill(McInfo[j].Et());
-	  h_EffMCTauEt->Fill(McInfo[j].Et());
+	if (std::abs(RefTau[j].Eta())<=_MCTauHadMaxAbsEta) {	
+	  h_L1MCMatchedTauEt->Fill(RefTau[j].Et());
+	  h_EffMCTauEt->Fill(RefTau[j].Et());
 	}
-	if (McInfo[j].Et()>=_MCTauHadMinEt) {
-	  h_L1MCMatchedTauEta->Fill(McInfo[j].Eta());
-	  h_EffMCTauEta->Fill(McInfo[j].Eta());
+	if (RefTau[j].Et()>=_MCTauHadMinEt) {
+	  h_L1MCMatchedTauEta->Fill(RefTau[j].Eta());
+	  h_EffMCTauEta->Fill(RefTau[j].Eta());
 	}
-	if (McInfo[j].Et()>=_MCTauHadMinEt && std::abs(McInfo[j].Eta())<=_MCTauHadMaxAbsEta) {
-	  h_L1MCMatchedTauPhi->Fill(McInfo[j].Phi());
-	  h_EffMCTauPhi->Fill(McInfo[j].Phi());
+	if (RefTau[j].Et()>=_MCTauHadMinEt && std::abs(RefTau[j].Eta())<=_MCTauHadMaxAbsEta) {
+	  h_L1MCMatchedTauPhi->Fill(RefTau[j].Phi());
+	  h_EffMCTauPhi->Fill(RefTau[j].Phi());
 	}
       }           
     }
   }
   
-  // For event efficiencies	
+  // Now Electrons and Muons
+  Handle<LVColl> RefElecH; //Handle To The Truth!!!!
+  iEvent.getByLabel(_refElecColl,RefElecH);
+  LVColl RefElec = *RefElecH;
+
+  Handle<LVColl> RefMuonH; //Handle To The Truth!!!!
+  iEvent.getByLabel(_refMuonColl,RefMuonH);
+  LVColl RefMuon = *RefMuonH;
+
+  int nfidTauElecs = 0; // count in fiducial region
+  for (int i=0; i<(int)RefElec.size(); i++) {
+    // w/o further cuts
+    h_GenTauElecEt->Fill(RefElec[i].Et());
+    h_GenTauElecEta->Fill(RefElec[i].Eta());
+    h_GenTauElecPhi->Fill(RefElec[i].Phi());
+    // Denominators for MC matching efficiencies
+    if (std::abs(RefElec[i].Eta())<=_MCElecMaxAbsEta)
+      h_MCTauElecEt->Fill(RefElec[i].Et());
+    if (RefElec[i].Et()>=_MCElecMinEt)
+      h_MCTauElecEta->Fill(RefElec[i].Eta());
+    if (RefElec[i].Et()>=_MCElecMinEt && std::abs(RefElec[i].Eta())<=_MCElecMaxAbsEta) {
+      h_MCTauElecPhi->Fill(RefElec[i].Phi());
+      nfidTauElecs++;
+    }
+  }
+
+  int nfidTauMuons = 0; // count in fiducial region
+  for (int i=0; i<(int)RefMuon.size(); i++) {
+    // w/o further cuts
+    h_GenTauMuonEt->Fill(RefMuon[i].Et());
+    h_GenTauMuonEta->Fill(RefMuon[i].Eta());
+    h_GenTauMuonPhi->Fill(RefMuon[i].Phi());
+    // Denominators for MC matching efficiencies
+    if (std::abs(RefMuon[i].Eta())<=_MCMuonMaxAbsEta)
+      h_MCTauMuonEt->Fill(RefMuon[i].Et());
+    if (RefMuon[i].Et()>=_MCMuonMinEt)
+      h_MCTauMuonEta->Fill(RefMuon[i].Eta());
+    if (RefMuon[i].Et()>=_MCMuonMinEt && std::abs(RefMuon[i].Eta())<=_MCMuonMaxAbsEta) {
+      h_MCTauMuonPhi->Fill(RefMuon[i].Phi());
+      nfidTauMuons++;
+    }
+  }
+
+  for (unsigned int i = 0; i<_L1IsoEgammas.size();i++) {
+    for (unsigned int j = 0; j<RefElec.size();j++) {
+      double deltaR = ROOT::Math::VectorUtil::DeltaR(_L1IsoEgammas[i],RefElec[j]);
+      if (deltaR < _L1MCElecMinDeltaR) {
+	// Numerators for MC matching efficiencies
+	if (std::abs(RefElec[j].Eta())<=_MCElecMaxAbsEta) {	
+	  h_L1MCMatchedTauElecEt->Fill(RefElec[j].Et());
+	  h_EffMCTauElecEt->Fill(RefElec[j].Et());
+	}
+	if (RefElec[j].Et()>=_MCElecMinEt) {
+	  h_L1MCMatchedTauElecEta->Fill(RefElec[j].Eta());
+	  h_EffMCTauElecEta->Fill(RefElec[j].Eta());
+	}
+	if (RefElec[j].Et()>=_MCElecMinEt && std::abs(RefElec[j].Eta())<=_MCElecMaxAbsEta) {
+	  h_L1MCMatchedTauElecPhi->Fill(RefElec[j].Phi());
+	  h_EffMCTauElecPhi->Fill(RefElec[j].Phi());
+	}
+      }           
+    }
+  }
+
+  for (unsigned int i = 0; i<_L1Muons.size();i++) {
+    for (unsigned int j = 0; j<RefMuon.size();j++) {
+      double deltaR = ROOT::Math::VectorUtil::DeltaR(_L1IsoEgammas[i],RefMuon[j]);
+      if (deltaR < _L1MCMuonMinDeltaR) {
+	// Numerators for MC matching efficiencies
+	if (std::abs(RefMuon[j].Eta())<=_MCMuonMaxAbsEta) {	
+	  h_L1MCMatchedTauMuonEt->Fill(RefMuon[j].Et());
+	  h_EffMCTauMuonEt->Fill(RefMuon[j].Et());
+	}
+	if (RefMuon[j].Et()>=_MCMuonMinEt) {
+	  h_L1MCMatchedTauMuonEta->Fill(RefMuon[j].Eta());
+	  h_EffMCTauMuonEta->Fill(RefMuon[j].Eta());
+	}
+	if (RefMuon[j].Et()>=_MCMuonMinEt && std::abs(RefMuon[j].Eta())<=_MCMuonMaxAbsEta) {
+	  h_L1MCMatchedTauMuonPhi->Fill(RefMuon[j].Phi());
+	  h_EffMCTauMuonPhi->Fill(RefMuon[j].Phi());
+	}
+      }           
+    }
+  }
+  ////
+
+
+
+
+  // Now Event efficiencies
   if (singleMatch && iSingle>=0) {
-    h_L1SingleTauEffMCMatchEt->Fill(_L1Taus[iSingle].Et());
-    if (_L1Taus[iSingle].Et()>=_SingleTauThreshold)
-      singleTauPassed = true;
+    h_L1SingleTauEffMCMatchEt->Fill(_L1Taus[iSingle].Et()); 
+   
+    if (_L1Taus[iSingle].Et()>=_SingleTauMETThresholds[0])
+      h_L1METTaufixEffMCMatchEt->Fill(_L1METs[0].Et());    
+    if (_L1METs[0].Et()>=_SingleTauMETThresholds[1])
+      h_L1TauMETfixEffMCMatchEt->Fill(_L1Taus[iSingle].Et());
 
-    if (_L1Taus[iSingle].Et()>=_SingleTauMETThresholds[0] &&
-	_L1METs[0].Et()>=_SingleTauMETThresholds[1])
-      singleTauMETPassed = true;
+    
+    if (_L1Taus[iSingle].Et()>=_MuTauThresholds[1]) {
+      for (int i=0;i<(int)_L1Muons.size();i++) {
+	if (_L1Muons[i].Pt()>=_MuTauThresholds[0]) {
+	  //if ( _L1MuQuals[0]==4 || _L1MuQuals[0]==5 || _L1MuQuals[0]==6 || _L1MuQuals[0]==7 ) {
+	  if ( _L1MuQuals[0]==3 || _L1MuQuals[0]==5 || _L1MuQuals[0]==6 || _L1MuQuals[0]==7 ) {
+	  //if ( _L1MuQuals[i]>=0) {
+	    for (int j=0;j<(int)RefMuon.size();j++) {
+	      double deltaR = ROOT::Math::VectorUtil::DeltaR(RefMuon[j],_L1Muons[i]);
+	      if (deltaR<_L1MCMuonMinDeltaR) {
 
+		if (_L1Taus[iSingle].Et()>=_MuTauThresholds[1]) 
+		  h_L1MuonTaufixEffEt->Fill(_L1Muons[i].Et());    
+		if (_L1Muons[i].Et()>=_MuTauThresholds[0])
+		  h_L1TauMuonfixEffEt->Fill(_L1Taus[iSingle].Et());
+
+	      }
+	    }
+	  }
+	}
+      }
+    }
+    
+    for (int j=0;j<(int)_L1IsoEgammas.size();j++) {
+      if (_L1Taus[iSingle].Et()>=_IsoEgTauThresholds[1] &&
+	  _L1IsoEgammas[j].Et()>=_IsoEgTauThresholds[0]) {
+	//double deltaPhi = ROOT::Math::VectorUtil::DeltaPhi(_L1Taus[iSingle],_L1IsoEgammas[j]);
+	//double deltaEta = std::abs(_L1Taus[iSingle].Eta()-_L1IsoEgammas[j].Eta());
+	// Non-collinearity check
+	//if (deltaPhi>0.348 && deltaEta>0.348) {
+	  for (int k=0;k<(int)RefElec.size();k++) {
+	    double deltaR = ROOT::Math::VectorUtil::DeltaR(RefElec[k],_L1IsoEgammas[j]);
+	    if (deltaR<_L1MCElecMinDeltaR) {
+	      if (_L1Taus[iSingle].Et()>=_IsoEgTauThresholds[1]) 
+		h_L1IsoEgTaufixEffEt->Fill(_L1IsoEgammas[j].Et());    
+	      if (_L1IsoEgammas[j].Et()>=_IsoEgTauThresholds[0])
+		h_L1TauIsoEgfixEffEt->Fill(_L1Taus[iSingle].Et());    
+	      break; 
+	    }
+	  }
+	//}
+      }
+    }
   }
 
   if (doubleMatch && iDouble>=0) {
     h_L1DoubleTauEffMCMatchEt->Fill(_L1Taus[iDouble].Et());
     if (_L1Taus[iDouble].Et()>=_DoubleTauThreshold)
-      doubleTauPassed = true;
+      ;
+    for (int j=0;j<(int)_L1IsoEgammas.size();j++) {
+      if (_L1Taus[iDouble].Et()>=_IsoEgTauThresholds[1] &&
+	  _L1IsoEgammas[j].Et()>=_IsoEgTauThresholds[0]) {
+	//double deltaPhi = ROOT::Math::VectorUtil::DeltaPhi(_L1Taus[iDouble],_L1IsoEgammas[j]);
+	//double deltaEta = std::abs(_L1Taus[iDouble].Eta()-_L1IsoEgammas[j].Eta());
+	// Non-collinearity check
+	//if (deltaPhi>0.348 && deltaEta>0.348) {
+	  for (int k=0;k<(int)RefElec.size();k++) {
+	    double deltaR = ROOT::Math::VectorUtil::DeltaR(RefElec[k],_L1IsoEgammas[j]);
+	    if (deltaR<_L1MCElecMinDeltaR) {
+	      ;
+	      break;
+	    }
+	//}
+	}
+      }
+    }
   }
-  
-  if (singleTauPassed) _nEventsL1SingleTauPassedMCMatched++;
-  if (doubleTauPassed) _nEventsL1DoubleTauPassedMCMatched++;
-  if (singleTauMETPassed) _nEventsL1SingleTauMETPassedMCMatched++;
 
+  //////// Counters after fiducial cuts!
+  if (nfidTauHads >= 1 && nfidTauMuons >= 1) _nfidEventsGenTauMuonTauHad++; 
+  if (nfidTauHads >= 1 && nfidTauElecs >= 1) _nfidEventsGenTauElecTauHad++; 
+
+
+
+  
+}
+
+void
+L1TauValidation::evalL1extraDecisions() {
+  if (_L1Taus.size()>=1) {
+    h_L1SingleTauEffEt->Fill(_L1Taus[0].Et());
+    if (_L1Taus[0].Et()>=_SingleTauMETThresholds[0]) 
+      h_L1METTaufixEffEt->Fill(_L1METs[0].Et());    
+    if (_L1METs[0].Et()>=_SingleTauMETThresholds[1])
+      h_L1TauMETfixEffEt->Fill(_L1Taus[0].Et());
+
+    if (_L1Muons.size()>=1) {
+      if (_L1Taus[0].Et()>=_MuTauThresholds[1]) 
+	h_L1MuonTaufixEffEt->Fill(_L1Muons[0].Et());    
+      if (_L1Muons[0].Et()>=_MuTauThresholds[0])
+	h_L1TauMuonfixEffEt->Fill(_L1Taus[0].Et());
+    }
+    if (_L1IsoEgammas.size()>=1) {
+      if (_L1Taus[0].Et()>=_IsoEgTauThresholds[1]) 
+	h_L1IsoEgTaufixEffEt->Fill(_L1IsoEgammas[0].Et());    
+      if (_L1IsoEgammas[0].Et()>=_IsoEgTauThresholds[0])
+	h_L1TauIsoEgfixEffEt->Fill(_L1Taus[0].Et());    
+    }
+  }
+  if (_L1Taus.size()>=2 ) {
+    h_L1DoubleTauEffEt->Fill(_L1Taus[1].Et());
+  }
 }
 
 
