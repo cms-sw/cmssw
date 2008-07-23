@@ -1,11 +1,11 @@
 #!/bin/sh
-# $Id: cleanupEmu.sh,v 1.4 2008/07/07 08:00:30 loizides Exp $
+# $Id: cleanupEmu.sh,v 1.5 2008/07/21 19:22:36 loizides Exp $
 
 if test -e "/etc/profile.d/sm_env.sh"; then 
     source /etc/profile.d/sm_env.sh
 fi
 
-if test "`ps ax | grep cleanupEmu.sh | grep -v grep | wc -l`" != "2"; then
+if test "`ps ax | grep cleanupEmu.sh | grep -v cron | grep -v grep | wc -l`" != "2"; then
     echo "Another instance running, exiting cleanly."
     exit 0;
 fi
