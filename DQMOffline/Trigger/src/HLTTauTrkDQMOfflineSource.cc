@@ -57,10 +57,6 @@ HLTTauTrkDQMOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSet
        } 									 
 
        Handle<CaloJetCollection> isolJets;			   
-       if(iEvent.getByLabel(isolJets_, isolJets))
-	 {  	   
-	   printf("Isoljets found\n");
-	 }
 
        Handle<CaloJetCollection> caloJetHandle;			   
        if(iEvent.getByLabel(caloJets_, caloJetHandle))
@@ -99,11 +95,12 @@ HLTTauTrkDQMOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSet
 		   signalLeadTrkPt->Fill(leadTrk->pt());				 
   
 
-
-		   if(matchJet(*tauTagInfo.jet(),*isolJets)){
-		     l25IsoJetEta->Fill(theJet.Eta());
-		     l25IsoJetEt->Fill(theJet.Et());
-		   }
+	          if(iEvent.getByLabel(isolJets_, isolJets))
+		    if(matchJet(*tauTagInfo.jet(),*isolJets))
+		      {
+			l25IsoJetEta->Fill(theJet.Eta());
+			l25IsoJetEt->Fill(theJet.Et());
+		      }
 		 }
 	       }
 	     }
