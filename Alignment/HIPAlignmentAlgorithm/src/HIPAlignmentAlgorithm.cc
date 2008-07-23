@@ -46,15 +46,17 @@ HIPAlignmentAlgorithm::HIPAlignmentAlgorithm(const edm::ParameterSet& cfg):
   siterationfile = cfg.getParameter<string>("iterationFile");
   suvarfile = cfg.getParameter<string>("uvarFile");
   sparameterfile = cfg.getParameter<string>("parameterFile");
+  ssurveyfile = cfg.getParameter<string>("surveyFile");
 
-  outfile        =outpath+outfile;
-  outfile2       =outpath+outfile2;
+  outfile        =outpath+outfile;//Eventwise tree
+  outfile2       =outpath+outfile2;//Alignablewise tree
   struefile      =outpath+struefile;
   smisalignedfile=outpath+smisalignedfile;
   salignedfile   =outpath+salignedfile;
   siterationfile =outpath+siterationfile;
   suvarfile      =outpath+suvarfile;
   sparameterfile =outpath+sparameterfile;
+  ssurveyfile    =outpath+ssurveyfile;
 
   // parameters for APE
   theApplyAPE = cfg.getParameter<bool>("applyAPE");
@@ -68,6 +70,8 @@ HIPAlignmentAlgorithm::HIPAlignmentAlgorithm(const edm::ParameterSet& cfg):
   isCollector=cfg.getParameter<bool>("collectorActive");
   theCollectorNJobs=cfg.getParameter<int>("collectorNJobs");
   theCollectorPath=cfg.getParameter<string>("collectorPath");
+  fillTrackMonitoring=cfg.getParameter<bool>("fillTrackMonitoring");
+
   if (isCollector) edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm] Collector mode";
 
   theEventPrescale = cfg.getParameter<int>("eventPrescale");
@@ -113,45 +117,43 @@ HIPAlignmentAlgorithm::initialize( const edm::EventSetup& setup,
   theAPEParameters.clear();
 
   // get APE parameters
-  if (theApplyAPE) {
-     AlignmentParameterSelector selector(tracker, muon);
-     for (std::vector<edm::ParameterSet>::const_iterator setiter = theAPEParameterSet.begin();  setiter != theAPEParameterSet.end();  ++setiter) {
-	std::vector<Alignable*> alignables;
+  AlignmentParameterSelector selector(tracker, muon);
+  for (std::vector<edm::ParameterSet>::const_iterator setiter = theAPEParameterSet.begin();  setiter != theAPEParameterSet.end();  ++setiter) {
+     std::vector<Alignable*> alignables;
 
-	selector.clear();
-	edm::ParameterSet selectorPSet = setiter->getParameter<edm::ParameterSet>("Selector");
-	std::vector<std::string> alignParams = selectorPSet.getParameter<std::vector<std::string> >("alignParams");
-	if (alignParams.size() == 1  &&  alignParams[0] == std::string("selected")) {
-	   alignables = theAlignables;
-	}
-	else {
-	   selector.addSelections(selectorPSet);
-	   alignables = selector.selectedAlignables();
-	}
-
-	std::vector<double> apeSPar = setiter->getParameter<std::vector<double> >("apeSPar");
-	std::vector<double> apeRPar = setiter->getParameter<std::vector<double> >("apeRPar");
-	std::string function = setiter->getParameter<std::string>("function");
-
-	if (apeSPar.size() != 3  ||  apeRPar.size() != 3)
-	   throw cms::Exception("BadConfig") << "apeSPar and apeRPar must have 3 values each" << std::endl;
-
-	for (std::vector<double>::const_iterator i = apeRPar.begin();  i != apeRPar.end();  ++i) {
-	   apeSPar.push_back(*i);
-	}
-
-	if (function == std::string("linear")) {
-	   apeSPar.push_back(0.); // c.f. note in calcAPE
-	}
-	else if (function == std::string("exponential")) {
-	   apeSPar.push_back(1.); // c.f. note in calcAPE
-	}
-	else {
-	   throw cms::Exception("BadConfig") << "APE function must be \"linear\" or \"exponential\"." << std::endl;
-	}
-
-	theAPEParameters.push_back(std::pair<std::vector<Alignable*>, std::vector<double> >(alignables, apeSPar));
+     selector.clear();
+     edm::ParameterSet selectorPSet = setiter->getParameter<edm::ParameterSet>("Selector");
+     std::vector<std::string> alignParams = selectorPSet.getParameter<std::vector<std::string> >("alignParams");
+     if (alignParams.size() == 1  &&  alignParams[0] == std::string("selected")) {
+	alignables = theAlignables;
      }
+     else {
+	selector.addSelections(selectorPSet);
+	alignables = selector.selectedAlignables();
+     }
+
+     std::vector<double> apeSPar = setiter->getParameter<std::vector<double> >("apeSPar");
+     std::vector<double> apeRPar = setiter->getParameter<std::vector<double> >("apeRPar");
+     std::string function = setiter->getParameter<std::string>("function");
+
+     if (apeSPar.size() != 3  ||  apeRPar.size() != 3)
+	throw cms::Exception("BadConfig") << "apeSPar and apeRPar must have 3 values each" << std::endl;
+
+     for (std::vector<double>::const_iterator i = apeRPar.begin();  i != apeRPar.end();  ++i) {
+	apeSPar.push_back(*i);
+     }
+
+     if (function == std::string("linear")) {
+	apeSPar.push_back(0.); // c.f. note in calcAPE
+     }
+     else if (function == std::string("exponential")) {
+	apeSPar.push_back(1.); // c.f. note in calcAPE
+     }
+     else {
+	throw cms::Exception("BadConfig") << "APE function must be \"linear\" or \"exponential\"." << std::endl;
+     }
+
+     theAPEParameters.push_back(std::pair<std::vector<Alignable*>, std::vector<double> >(alignables, apeSPar));
   }
 }
 
@@ -217,6 +219,10 @@ void HIPAlignmentAlgorithm::startNewLoop( void )
   edm::LogWarning("Alignment") <<"[HIPAlignmentAlgorithm] Current Iteration number: " 
     << theIteration;
 
+	
+  // book root trees
+  bookRoot();
+
   if (theLevels.size() > 0)
   {
     edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm] Using survey constraint";
@@ -239,9 +245,18 @@ void HIPAlignmentAlgorithm::startNewLoop( void )
 	if ( res.valid() )
 	{
 	  AlgebraicSymMatrix invCov = res.inverseCovariance();
-
+	  
+	  // variable for tree
+	  AlgebraicVector sensResid = res.sensorResidual();
+	  m3_Id = ali->id();
+	  m3_ObjId = theLevels[l];
+	  m3_par[0] = sensResid[0]; m3_par[1] = sensResid[1]; m3_par[2] = sensResid[2];
+	  m3_par[3] = sensResid[3]; m3_par[4] = sensResid[4]; m3_par[5] = sensResid[5];
+	  
 	  uservar->jtvj += invCov;
-	  uservar->jtve += invCov * res.sensorResidual();
+	  uservar->jtve += invCov * sensResid;
+	  
+	  theTree3->Fill();
 	}
       }
 
@@ -267,9 +282,6 @@ void HIPAlignmentAlgorithm::startNewLoop( void )
 
   // set alignment position error 
   setAlignmentPositionError();
-
-  // book root trees
-  bookRoot();
 
   // run collector job if we are in parallel mode
   if (isCollector) collector();
@@ -327,7 +339,6 @@ void HIPAlignmentAlgorithm::terminate(void)
   // write iteration number to file
   writeIterationFile(siterationfile,theIteration);
 
-
   // write out trees and close root file
 
   // eventwise tree
@@ -335,6 +346,13 @@ void HIPAlignmentAlgorithm::terminate(void)
   theTree->Write();
   theFile->Close();
   delete theFile;
+
+  if (theLevels.size() > 0){
+    theFile3->cd();
+    theTree3->Write();
+    theFile3->Close();
+    delete theFile3;
+  }
 
   // alignable-wise tree is only filled once
   //if ((!isCollector && theIteration==1)||
@@ -359,6 +377,15 @@ void HIPAlignmentAlgorithm::run( const edm::EventSetup& setup,
 
   int itr=0;
   m_Ntracks=0;
+  for(itr=0;itr<MAXREC;++itr){
+      m_Nhits[itr]=0;
+      m_Pt[itr]=-5.0;
+      m_Eta[itr]=-99.0;
+      m_Phi[itr]=-4.0;
+      m_Chi2n[itr]=-11.0;
+  }
+  itr=0;
+
 
   theFile->cd();
 
@@ -375,7 +402,8 @@ void HIPAlignmentAlgorithm::run( const edm::EventSetup& setup,
     float chi2n = track->normalizedChi2();
     int   nhit  = track->numberOfValidHits();
 
-    if (verbose) edm::LogInfo("Alignment") << "New track pt,eta,phi,chi2n,hits: " << pt <<","<< eta <<","<< phi <<","<< chi2n << ","<<nhit;
+      if (verbose) edm::LogInfo("Alignment") << "New track pt,eta,phi,chi2n,hits: " << pt <<","<< eta <<","<< phi <<","<< chi2n << ","<<nhit;
+      //edm::LogWarning("Alignment") << "New track pt,eta,phi,chi2n,hits: " << pt <<","<< eta <<","<< phi <<","<< chi2n << ","<<nhit;
 
     // fill track parameters in root tree
     if (itr<MAXREC) {
@@ -402,14 +430,12 @@ void HIPAlignmentAlgorithm::run( const edm::EventSetup& setup,
         //TrajectoryStateOnSurface tsos=meas.updatedState();
         // combine fwd and bwd predicted state to get state 
         // which excludes current hit
-        TrajectoryStateOnSurface tsos =
-          tsoscomb.combine(meas.forwardPredictedState(),
-                           meas.backwardPredictedState());
-        if (tsos.isValid())
-        {
-          hitvec.push_back(hit);
-          tsosvec.push_back(tsos);
-        }
+        TrajectoryStateOnSurface tsosc = tsoscomb.combine(
+                                                          meas.forwardPredictedState(),
+                                                          meas.backwardPredictedState());
+        hitvec.push_back(hit);
+        //tsosvec.push_back(tsos);
+        tsosvec.push_back(tsosc);
       }
     }
     
@@ -447,7 +473,7 @@ void HIPAlignmentAlgorithm::run( const edm::EventSetup& setup,
 	ipcovmat[0][0] = (*itsos).localError().positionError().xx();
 	ipcovmat[1][1] = (*itsos).localError().positionError().yy();
 	ipcovmat[0][1] = (*itsos).localError().positionError().xy();
-   
+
 	// get hit local position and covariance
 	AlgebraicVector coor(2);
 	coor[0] = (*ihit)->localPosition().x();
@@ -472,18 +498,23 @@ void HIPAlignmentAlgorithm::run( const edm::EventSetup& setup,
         // get derivatives
         AlgebraicMatrix derivs=params->selectedDerivatives(*itsos,alidet);
 
-        // invert covariance matrix
+
+       // invert covariance matrix
         int ierr; 
-        covmat.invert(ierr);
-        if (ierr != 0) { 
-          edm::LogError("Alignment") << "Matrix inversion failed!"; 
-          return; 
-        }
+	int nhitDim=(*ihit)->dimension();
+	//if(covmat[1][1]>4.0)nhitDim=2;
+ 
+
+	covmat.invert(ierr);
+	if (ierr != 0) { 
+	  edm::LogError("Alignment") << "Matrix inversion failed!"; 
+	  return; 
+	}
 
 	bool useThisHit = (theMaxAllowedHitPull <= 0.);
 
 	// ignore track minus center-of-chamber "residual" from 1d hits (only muon drift tubes)
-	if ((*ihit)->dimension() == 1) {
+	if (nhitDim == 1) {
 	   covmat[1][1] = 0.;
 	   covmat[0][1] = 0.;
 
@@ -501,14 +532,34 @@ void HIPAlignmentAlgorithm::run( const edm::EventSetup& setup,
 	   thisjtvj=covmat.similarity(derivs);
 	   thisjtve=derivs * covmat * (pos-coor);
 
+	   AlgebraicVector hitresidual(2);
+	   hitresidual[0] = (pos[0] - coor[0]);
+	   hitresidual[1] = (pos[1] - coor[1]);
+	   // if(nhitDim>1)  {
+	   //  hitresidual[1] =0.0;
+	   //  nhitDim=1;
+	   //}
+	   AlgebraicMatrix hitresidualT;
+	   hitresidualT = hitresidual.T();
+
 	   // access user variables (via AlignmentParameters)
 	   HIPUserVariables* uservar =
 	      dynamic_cast<HIPUserVariables*>(params->userVariables());
 	   uservar->jtvj += thisjtvj;
 	   uservar->jtve += thisjtve;
 	   uservar->nhit ++;
-	}
-      }
+	   //for alignable chi squared
+	   AlgebraicVector thischi2(1);
+	   thischi2 = hitresidualT *covmat *hitresidual; 
+	  
+	   if( verbose &&(((float)thischi2[0]/ (float)uservar->nhit) >10.0) ){
+	     edm::LogWarning("Alignment") << "Added to Chi2 the number "<<thischi2[0]<<" having "<<uservar->nhit<<"  dof  " <<endl << "X-resid "<< hitresidual[0]<<"  Y-resid "<< hitresidual[1]<<endl<<"  Cov^-1 matr (covmat): [0][0]= "<<covmat[0][0]<<" [0][1]= "<<covmat[0][1]<<" [1][0]= "<<covmat[1][0]<<" [1][1]= "<<covmat[1][1]<<endl;
+	   }
+
+	   uservar->alichi2 +=(float)thischi2[0];  // a bit weird, but vector.transposed * matrix * vector doesn't give a double in CMSSW's opinion
+	   uservar->alindof += (uint32_t)1*nhitDim;// 2D hits contribute twice to the ndofs
+	}//end if usethishit
+      }//end if ali!=0
 
       itsos++;
       ihit++;
@@ -517,11 +568,14 @@ void HIPAlignmentAlgorithm::run( const edm::EventSetup& setup,
   } // end of track loop
 
   // fill eventwise root tree (with prescale defined in pset)
-  theCurrentPrescale--;
-  if (theCurrentPrescale<=0) {
-    theTree->Fill();
-    theCurrentPrescale=theEventPrescale;
+  if(fillTrackMonitoring){
+    theCurrentPrescale--;
+    if (theCurrentPrescale<=0) {
+      theTree->Fill();
+      theCurrentPrescale=theEventPrescale;
+    }
   }
+
 
 }
 
@@ -683,6 +737,18 @@ void HIPAlignmentAlgorithm::bookRoot(void)
   theTree2->Branch("Phi",    &m2_Phi,     "Phi/F");
   theTree2->Branch("Id",     &m2_Id,      "Id/i");
   theTree2->Branch("ObjId",  &m2_ObjId,   "ObjId/I");
+
+  // book survey-wise ROOT Tree only if survey is enabled
+  if (theLevels.size() > 0){
+    
+    edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm::bookRoot] Survey trees booked.";
+    theFile3 = new TFile(ssurveyfile.c_str(),"update");
+    theFile3->cd();
+    theTree3 = new TTree(tname, "Survey Tree");
+    theTree3->Branch("Id", &m3_Id, "Id/i");
+    theTree3->Branch("ObjId", &m3_ObjId, "ObjId/I");
+    theTree3->Branch("Par", &m3_par, "Par[6]/F");
+  }
 
   edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm::bookRoot] Root trees booked.";
 
@@ -863,6 +929,8 @@ void HIPAlignmentAlgorithm::collector(void)
        uvar->nhit=(uvarold->nhit)+(uvarnew->nhit);
        uvar->jtvj=(uvarold->jtvj)+(uvarnew->jtvj);
        uvar->jtve=(uvarold->jtve)+(uvarnew->jtve);
+       uvar->alichi2=(uvarold->alichi2)+(uvarnew->alichi2);
+       uvar->alindof=(uvarold->alindof)+(uvarnew->alindof);
        delete uvarnew;
      }
 
@@ -873,7 +941,69 @@ void HIPAlignmentAlgorithm::collector(void)
    theAlignmentParameterStore->attachUserVariables(theAlignables,
       uvarvecadd,ioerr);
 
-  }
+   //fill Eventwise Tree
+   if(fillTrackMonitoring){
+     uvfile= theCollectorPath+"/job"+str+"/HIPAlignmentEvents.root";
+     edm::LogWarning("Alignment") <<"Added to the tree "<<fillEventwiseTree((char*)uvfile.c_str(),theIteration,ioerr)<< "tracks";
+   }
+
+  }//end loop on jobs
 
 }
 
+//------------------------------------------------------------------------------------
+
+int HIPAlignmentAlgorithm::fillEventwiseTree(char* filename,int iter,int ierr){
+
+  int totntrk=0;
+  char treeName[64];
+  sprintf(treeName,"T1_%d",iter);
+  //open the file "HIPAlignmentEvents.root" in the job directory
+  TFile *jobfile=new TFile(filename,"READ");
+  //grab the tree corresponding to this iteration
+  TTree *jobtree=(TTree*)jobfile->Get(treeName);
+  //address and read the variables 
+  static const int nmaxtrackperevent=1000;
+  int jobNtracks, jobNhitspertrack[nmaxtrackperevent];
+  float jobPt[nmaxtrackperevent], jobEta[nmaxtrackperevent] , jobPhi[nmaxtrackperevent] , jobChi2n[nmaxtrackperevent];
+
+  jobtree->SetBranchAddress("Ntracks",&jobNtracks);
+  jobtree->SetBranchAddress("Nhits",  jobNhitspertrack);
+  jobtree->SetBranchAddress("Pt",     jobPt);
+  jobtree->SetBranchAddress("Eta",    jobEta);
+  jobtree->SetBranchAddress("Phi",    jobPhi);
+  jobtree->SetBranchAddress("Chi2n",  jobChi2n);
+  int ievent=0;
+  for(ievent =0;ievent<jobtree->GetEntries();++ievent){
+    jobtree->GetEntry(ievent);
+
+    //fill the collector tree with them
+   
+    //  TO BE IMPLEMENTED: a prescale factor like in run()
+    m_Ntracks=jobNtracks;
+    int ntrk=0;
+    while(ntrk<m_Ntracks){
+      if(ntrk<MAXREC){
+	totntrk=ntrk+1;
+	m_Nhits[ntrk]=jobNhitspertrack[ntrk];
+	m_Pt[ntrk]=jobPt[ntrk];
+	m_Eta[ntrk]=jobEta[ntrk];
+	m_Phi[ntrk]=jobPhi[ntrk];
+	m_Chi2n[ntrk]=jobChi2n[ntrk];
+      }//end if j<MAXREC
+      else{
+	edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm::fillEventwiseTree] Number of tracks in Eventwise tree exceeds MAXREC: "<<m_Ntracks<<"  Skipping exceeding tracks.";
+	ntrk=m_Ntracks+1;
+      }
+      ++ntrk;
+    }//end while loop
+    theTree->Fill();
+  }//end loop on i - entries in the job tree
+
+
+  //clean up
+  delete jobtree;
+  delete jobfile;
+
+  return totntrk;
+}//end fillEventwiseTree
