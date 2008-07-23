@@ -1,59 +1,142 @@
-Making SimG4CMS/EcalTestBeam/test/python
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("Sim")
+process = cms.Process("ECALTBH4-GEN-SIM-DIGI")
+
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
-process.load("SimG4CMS.EcalTestBeam.test.crystal248_cff")
+process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
-#
-#Geometry
-#   
-process.load("Geometry.EcalTestBeam.TBH4GeometryXML_cfi")
+process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
+    saveFileName = cms.untracked.string(''),
+    theSource = cms.PSet(
+        initialSeed = cms.untracked.uint32(123456789),
+        engineName = cms.untracked.string('HepJamesRandom')
+    ),
+    VtxSmeared = cms.PSet(
+        initialSeed = cms.untracked.uint32(98765432),
+        engineName = cms.untracked.string('HepJamesRandom')
+    ),
+    g4SimHits = cms.PSet(
+        initialSeed = cms.untracked.uint32(11),
+        engineName = cms.untracked.string('HepJamesRandom')
+    ),
+    SimEcalTBG4Object = cms.PSet(
+        initialSeed = cms.untracked.uint32(12),
+        engineName = cms.untracked.string('HepJamesRandom')
+    ),
+    mix = cms.PSet(
+        initialSeed = cms.untracked.uint32(12345),
+        engineName = cms.untracked.string('HepJamesRandom')
+    ),
+    simEcalUnsuppressedDigis = cms.PSet(
+        initialSeed = cms.untracked.uint32(1234567),
+        engineName = cms.untracked.string('HepJamesRandom')
+    ),
+)
 
-#
-# SIM : simulated hits + additional H4 TB objects 
-#
-process.load("Configuration.EcalTB.simulation_tbsim_cff")
-
-#
-# DIGI : H4 TB digitization 
-#
-process.load("Configuration.EcalTB.digitization_tbsim_cff")
+process.randomEngineStateProducer = cms.EDProducer("RandomEngineStateProducer")
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(10)
 )
-process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-    moduleSeeds = cms.PSet(
-        g4SimHits = cms.untracked.uint32(9876),
-        simEcalUnsuppressedDigis = cms.untracked.uint32(54321),
-        SimEcalTBG4Object = cms.untracked.uint32(5432),
-        VtxSmeared = cms.untracked.uint32(12345)
-    ),
-    sourceSeed = cms.untracked.uint32(98765)
-)
+
+#Geometry
+
+process.load("SimG4CMS.EcalTestBeam.crystal248_cff")
+process.load("Geometry.EcalTestBeam.TBH4GeometryXML_cfi")
+
+process.load("Geometry.CaloEventSetup.CaloGeometry_cff")
+process.load("Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi")
+process.CaloGeometryBuilder.SelectedCalos = ['EcalBarrel']
+
+# No magnetic field
+
+process.load("MagneticField.Engine.uniformMagneticField_cfi")
 
 process.source = cms.Source("FlatRandomEGunSource",
     PGunParameters = cms.untracked.PSet(
         process.common_beam_direction_parameters,
         MaxE = cms.untracked.double(120.0),
         MinE = cms.untracked.double(120.0),
-        # you can request more than 1 particle
         PartID = cms.untracked.vint32(11)
     ),
     Verbosity = cms.untracked.int32(0) ## set to 1 (or greater)  for printouts
 
 )
 
+from IOMC.EventVertexGenerators.VtxSmearedParameters_cfi import *
+
+#
+# this module takes input in the units of *cm* and *radian*!!!
+#
+
 process.VtxSmeared = cms.EDFilter("BeamProfileVtxGenerator",
     process.common_beam_direction_parameters,
+    VtxSmearedCommon,
     BeamSigmaX = cms.untracked.double(2.4),
     BeamSigmaY = cms.untracked.double(2.4),
-    GaussianProfile = cms.untracked.bool(False)
+    GaussianProfile = cms.untracked.bool(False),
+    TimeOffset = cms.double(0.)                      
 )
 
-process.o1 = cms.OutputModule("PoolOutputModule",
+# Geant4, ECAL test beam specific OscarProducer configuration
+
+process.load("SimG4Core.Application.g4SimHits_cfi")
+
+process.g4SimHits.UseMagneticField = cms.bool(False)
+process.g4SimHits.Physics.DefaultCutValue = 1.
+process.g4SimHits.NonBeamEvent = cms.bool(True)
+process.g4SimHits.Generator.ApplyPCuts = cms.bool(False)
+process.g4SimHits.Generator.ApplyEtaCuts = cms.bool(True)
+process.g4SimHits.Generator.ApplyPhiCuts = cms.bool(False)
+process.g4SimHits.Generator.MaxEtaCut = cms.double(1.5)
+process.g4SimHits.Generator.MinEtaCut = cms.double(0.0)
+process.g4SimHits.CaloSD.CorrectTOFBeam = cms.untracked.bool(True)
+process.g4SimHits.CaloSD.BeamPosition = cms.untracked.double(-26733.5)
+process.g4SimHits.CaloTrkProcessing.TestBeam = cms.bool(True)
+process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
+    type = cms.string('EcalTBH4Trigger'),
+    verbose = cms.untracked.bool(False),
+    #IMPORTANT    #    #    #    #    #    #    #    # NUMBER OF EVENTS TO BE TRIGGERED 
+    trigEvents = cms.untracked.int32(5)
+))
+
+
+# Test Beam ECAL specific MC info
+
+process.SimEcalTBG4Object = cms.EDProducer("EcalTBMCInfoProducer",
+    process.common_beam_direction_parameters,
+    CrystalMapFile = cms.FileInPath('Geometry/EcalTestBeam/data/BarrelSM1CrystalCenterElectron120GeV.dat'),
+    moduleLabelVtx = cms.untracked.string('source')
+)
+
+# Test Beam ECAL hodoscope raw data simulation
+
+process.SimEcalTBHodoscope = cms.EDProducer("TBHodoActiveVolumeRawInfoProducer")
+
+# Test Beam ECAL Event header filling
+
+process.SimEcalEventHeader = cms.EDProducer("FakeTBEventHeaderProducer",
+    EcalTBInfoLabel = cms.untracked.string('SimEcalTBG4Object')
+)
+
+# Digitization
+
+# no pileup
+
+process.load("SimGeneral.MixingModule.mixNoPU_cfi")
+
+# fake TB conditions
+
+process.load("CalibCalorimetry.EcalTrivialCondModules.EcalTrivialCondRetrieverTB_cfi")
+
+# Test beam unsuppressed digis
+
+process.load("SimCalorimetry.EcalTestBeam.ecaldigi_testbeam_cfi")
+
+# Output
+
+process.output = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring('keep *', 
         'drop PSimHits_g4SimHits_*_Sim', 
         'keep PCaloHits_g4SimHits_EcalHitsEB_Sim', 
@@ -62,17 +145,62 @@ process.o1 = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('ECALH4TB_detsim_digi.root')
 )
 
+# sequences
+
 process.doSimHits = cms.Sequence(process.VtxSmeared*process.g4SimHits)
 process.doSimTB = cms.Sequence(process.SimEcalTBG4Object*process.SimEcalTBHodoscope*process.SimEcalEventHeader)
 process.doEcalDigis = cms.Sequence(process.mix*process.simEcalUnsuppressedDigis)
 process.p1 = cms.Path(process.doSimHits*process.doSimTB*process.doEcalDigis)
-process.outpath = cms.EndPath(process.o1)
-process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
-    type = cms.string('EcalTBH4Trigger'),
-    verbose = cms.untracked.bool(False),
-    #IMPORTANT    #    #    #    #    #    #    #    # NUMBER OF EVENTS TO BE TRIGGERED 
-    trigEvents = cms.untracked.int32(5)
-))
-process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_EMV'
+process.outpath = cms.EndPath(process.output)
 
+
+# modify the default behavior of the MessageLogger
+    
+process.MessageLogger.destinations=cms.untracked.vstring('cout'
+                                                         ,'cerr'
+                                                         ,'G4msg'
+                                                         )
+process.MessageLogger.categories=cms.untracked.vstring('FwkJob'
+                                                       ,'FwkReport'
+                                                       ,'FwkSummary'
+                                                       ,'Root_NoDictionary'
+                                                       ,'TimeReport'
+                                                       ,'TimeModule'
+                                                       ,'TimeEvent'
+                                                       ,'MemoryCheck'
+                                                       ,'PhysicsList'
+                                                       ,'G4cout'
+                                                       ,'G4cerr'
+                                                       ,'BeamProfileVtxGenerator'
+                                                       )
+#Configuring the G4msg.log output
+process.MessageLogger.G4msg =  cms.untracked.PSet(
+    noTimeStamps = cms.untracked.bool(True)
+    #First eliminate unneeded output
+    ,threshold = cms.untracked.string('INFO')
+    ,INFO = cms.untracked.PSet(limit = cms.untracked.int32(0))
+    ,FwkReport = cms.untracked.PSet(limit = cms.untracked.int32(0))
+    ,FwkSummary = cms.untracked.PSet(limit = cms.untracked.int32(0))
+    ,Root_NoDictionary = cms.untracked.PSet(limit = cms.untracked.int32(0))
+    ,FwkJob = cms.untracked.PSet(limit = cms.untracked.int32(0))
+    ,TimeReport = cms.untracked.PSet(limit = cms.untracked.int32(0))
+    ,TimeModule = cms.untracked.PSet(limit = cms.untracked.int32(0))
+    ,TimeEvent = cms.untracked.PSet(limit = cms.untracked.int32(0))
+    ,MemoryCheck = cms.untracked.PSet(limit = cms.untracked.int32(0))
+    #TimeModule, TimeEvent, TimeReport are written to LogAsbolute instead of LogInfo with a category
+    #so they cannot be eliminated from any destination (!) unless one uses the summaryOnly option
+    #in the Timing Service... at the price of silencing the output needed for the TimingReport profiling
+    #
+    #Then add the wanted ones:
+    ,PhysicsList = cms.untracked.PSet(limit = cms.untracked.int32(-1))
+    ,G4cout = cms.untracked.PSet(limit = cms.untracked.int32(-1))
+    ,G4cerr = cms.untracked.PSet(limit = cms.untracked.int32(-1))
+    ,BeamProfileVtxGenerator = cms.untracked.PSet(limit = cms.untracked.int32(-1))
+    )
+
+#Add these 3 lines to put back the summary for timing information at the end of the logfile
+#(needed for TimeReport report)
+process.options = cms.untracked.PSet(
+    wantSummary = cms.untracked.bool(True)
+)
 
