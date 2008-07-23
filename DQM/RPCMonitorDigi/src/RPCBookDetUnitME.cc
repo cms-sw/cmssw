@@ -26,9 +26,6 @@ map<string, MonitorElement*> RPCMonitorDigi::bookDetUnitME(RPCDetId & detId, con
   RPCBookFolderStructure *  folderStr = new RPCBookFolderStructure();
   string folder = "RPC/RecHits/" +  folderStr->folderStructure(detId);
 
-
-  //  SectorSummaryFolder="RPC/RecHits/SectorSummary";
-
   dbe->setCurrentFolder(folder);
   
   //get number of strips in current roll
