@@ -14,61 +14,73 @@
 #include "DataFormats/Common/interface/RefItem.h"
 
 template <typename Collection, TrackCategories::Category Category>
-class TrackParticleSelector {
+class TrackParticleSelector
+{
 
- public:
-  
-  // input collection type  typedef Collection collection;  
-  // type of the collection elements
-  typedef typename Collection::value_type type;
-   
-  // output collection type
-  typedef std::vector<const type *> container;
+public:
 
-  // iterator over result collection type. 
-  typedef typename container::const_iterator const_iterator;
+    // input collection type
+    typedef Collection collection;
 
-  // constructor from parameter set configurability
-  TrackParticleSelector( const edm::ParameterSet & pset ) : classifier_(pset) {}
+    // type of the collection elements
+    typedef typename Collection::value_type type;
 
-  // select object from a collection and 
-  // possibly event content
-  void select( const edm::Handle<collection> & TPCH, const edm::Event & iEvent, const edm::EventSetup &iSetup)
-  {
-    selected_.clear();
+    // output collection type
+    typedef std::vector<const type *> container;
 
-    const collection & tpc = *(TPCH.product());
+    // iterator over result collection type.
+    typedef typename container::const_iterator const_iterator;
 
-    classifier_.newEvent(iEvent, iSetup);
-            
-    for(typename collection::size_type i=0; i<tpc.size(); i++)
-    {  
-      edm::Ref<Collection> tp(TPCH, i);
+    // constructor from parameter set configurability
+    TrackParticleSelector( const edm::ParameterSet & pset ) : classifier_(pset) {}
 
-      if( classifier_.evaluate(tp).is(Category) )
-      {
-        const type * trap = &(tpc[i]);
-        selected_.push_back(trap);
-      }  	    	
+    // select object from a collection and
+    // possibly event content
+    void select( const edm::Handle<collection> & TPCH, const edm::Event & iEvent, const edm::EventSetup &iSetup)
+    {
+        selected_.clear();
+
+        const collection & tpc = *(TPCH.product());
+
+        classifier_.newEvent(iEvent, iSetup);
+
+        for (typename collection::size_type i=0; i<tpc.size(); i++)
+        {
+            edm::Ref<Collection> tp(TPCH, i);
+
+            if ( classifier_.evaluate(tp).is(Category) )
+            {
+                const type * trap = &(tpc[i]);
+                selected_.push_back(trap);
+            }
+        }
     }
-  }
 
-  // iterators over selected objects: collection begin
-  const_iterator begin() const {return selected_.begin();}
+    // iterators over selected objects: collection begin
+    const_iterator begin() const
+    {
+        return selected_.begin();
+    }
 
-  // iterators over selected objects: collection end
-  const_iterator end() const {return selected_.end();}
+    // iterators over selected objects: collection end
+    const_iterator end() const
+    {
+        return selected_.end();
+    }
 
-  // true if no object has been selected
-  size_t size() const {return selected_.size();}
+    // true if no object has been selected
+    size_t size() const
+    {
+        return selected_.size();
+    }
 
-  //private:
+    //private:
 
-  container selected_;
+    container selected_;
 
- private:
+private:
 
-  TrackClassifier classifier_;
+    TrackClassifier classifier_;
 
 };
 

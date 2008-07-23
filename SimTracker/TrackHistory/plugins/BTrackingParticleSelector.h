@@ -10,55 +10,65 @@
  Selector to select only tracking particles originating from a B-hadron decay.
 */
 
-class BTrackingParticleSelector {
+class BTrackingParticleSelector
+{
 
- public:
-  // input collection type
-  typedef TrackingParticleCollection collection;
-  
+public:
+    // input collection type
+    typedef TrackingParticleCollection collection;
 
-  // output collection type
-  typedef std::vector<const TrackingParticle*> container;
 
-  // iterator over result collection type. 
-  typedef container::const_iterator const_iterator;
+    // output collection type
+    typedef std::vector<const TrackingParticle*> container;
 
-  // constructor from parameter set configurability
-  BTrackingParticleSelector( const edm::ParameterSet & iConfig) : classifier_(iConfig) {};
+    // iterator over result collection type.
+    typedef container::const_iterator const_iterator;
 
-  // select object from a collection and 
-  // possibly event content
-  void select( const edm::Handle<collection> & TPCH, const edm::Event & iEvent, const edm::EventSetup & iSetup)
-  {
-    selected_.clear();
+    // constructor from parameter set configurability
+    BTrackingParticleSelector( const edm::ParameterSet & iConfig) : classifier_(iConfig) {};
 
-    const collection & tpc = *(TPCH.product());
-        
-    for(TrackingParticleCollection::size_type i=0; i<tpc.size(); i++)
-    {  
-      TrackingParticleRef tp(TPCH, i);
+    // select object from a collection and
+    // possibly event content
+    void select( const edm::Handle<collection> & TPCH, const edm::Event & iEvent, const edm::EventSetup & iSetup)
+    {
+        selected_.clear();
 
-      if( classifier_.evaluate(tp).is(TrackCategories::BWeakDecay) )
-      {
-        const TrackingParticle * trap = &(tpc[i]);
-        selected_.push_back(trap);
-      }  	    	
+        const collection & tpc = *(TPCH.product());
+
+        for (TrackingParticleCollection::size_type i=0; i<tpc.size(); i++)
+        {
+            TrackingParticleRef tp(TPCH, i);
+
+            if ( classifier_.evaluate(tp).is(TrackCategories::BWeakDecay) )
+            {
+                const TrackingParticle * trap = &(tpc[i]);
+                selected_.push_back(trap);
+            }
+        }
     }
-  }
 
-  // iterators over selected objects: collection begin
-  const_iterator begin() const {return selected_.begin();}
+    // iterators over selected objects: collection begin
+    const_iterator begin() const
+    {
+        return selected_.begin();
+    }
 
-  // iterators over selected objects: collection end
-  const_iterator end() const {return selected_.end();}
+    // iterators over selected objects: collection end
+    const_iterator end() const
+    {
+        return selected_.end();
+    }
 
-  // true if no object has been selected
-  size_t size() const {return selected_.size();}
+    // true if no object has been selected
+    size_t size() const
+    {
+        return selected_.size();
+    }
 
-  //private:
+    //private:
 
-  container selected_;
-  TrackClassifier classifier_;
+    container selected_;
+    TrackClassifier classifier_;
 
 };
 
