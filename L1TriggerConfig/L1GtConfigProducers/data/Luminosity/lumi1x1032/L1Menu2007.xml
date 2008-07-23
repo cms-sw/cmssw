@@ -5655,4 +5655,7 @@ l1extraParticleMap.cfi Revision 1.23</designer_comments>
       </SingleNoIsoEG12_2>
     </conditions>
   </condition_chip_2>
+  <techtriggers>
+  </techtriggers>
+  
 </def>
