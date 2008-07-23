@@ -41,6 +41,7 @@ ecalEndcapMonitorClient = cms.EDFilter("EcalEndcapMonitorClient",
         11, 12, 13, 14, 15, 
         16, 17, 18),
     verbose = cms.untracked.bool(True),
-    debug = cms.untracked.bool(False)
+    debug = cms.untracked.bool(False),
+    prescaleFactor = cms.untracked.int32(1)
 )
 

@@ -44,6 +44,7 @@ ecalBarrelMonitorClient = cms.EDFilter("EcalBarrelMonitorClient",
         31, 32, 33, 34, 35, 
         36),
     verbose = cms.untracked.bool(True),
-    debug = cms.untracked.bool(False)
+    debug = cms.untracked.bool(False),
+    prescaleFactor = cms.untracked.int32(1)
 )
 

@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2008/07/12 09:02:10 $
- * $Revision: 1.434 $
+ * $Date: 2008/07/12 09:38:16 $
+ * $Revision: 1.435 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -207,6 +207,14 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const ParameterSet& ps) : Modul
     } else {
       cout << " debug switch is OFF" << endl;
     }
+  }
+
+  // prescaleFactor
+
+  prescaleFactor_ = ps.getUntrackedParameter<int>("prescaleFactor", 1);
+
+  if ( verbose_ ) {
+    cout << " prescaleFactor = " << prescaleFactor_ << endl;
   }
 
   // enableMonitorDaemon switch
@@ -1670,7 +1678,9 @@ void EcalBarrelMonitorClient::analyze(const Event &e, const EventSetup &c) {
   run_ = e.id().run();
   evt_ = e.id().event();
 
-  this->analyze();
+  if ( prescaleFactor_ > 0 ) {
+    if ( jevt_ % prescaleFactor_ == 0 ) this->analyze();
+  }
 
 }
 
