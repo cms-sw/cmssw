@@ -28,6 +28,12 @@ class _Sequenceable(object):
             raise KeyError("no "+str(type(self))+" with id "+str(id(self))+" found")
     def _replace(self, original, replacement):
         pass
+    def _remove(self, original):
+        """Remove 'original'. Return can be
+             (_Sequenceable, True ): module was found and removed, this is the new non-empty sequence.
+             (_Sequenceable, False): module was not found, this is the original sequence (that is, 'self')
+             (None,          True ): the module was found and removed, the result is an empty sequence."""
+        return (self, False)
     def resolve(self, processDict):
         return self
     def isOperation(self):
@@ -107,6 +113,18 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
             self._seq = replacement
         else:
             self._seq._replace(original,replacement)
+    def remove(self, something):
+        """Remove the leftmost occurrence of 'something' (a sequence or a module)
+           It will give an error if removing 'something' leaves a cms.Sequence empty.
+           Returns 'True' if the module has been removed, False if it was not found"""
+        (seq, found) = self._remove(something)
+        if seq != self:
+            raise RuntimeError("After removing " + something + " the sequence is empty!")
+        return found
+    def _remove(self, original):
+        if (self._seq == original): return (None, True)
+        (self._seq, found) = self._seq._remove(original);
+        return (self, found)
     def resolve(self, processDict):
         self._seq = self._seq.resolve(processDict)
         return self
@@ -186,6 +204,15 @@ class _SequenceOperator(_Sequenceable):
             self._right = replacement
         else:
             self._right._replace(original, replacement)                    
+    def _remove(self, original):
+        if self._left == original:  return (self._right, True) # left IS what we want to remove
+        (self._left, found) = self._left._remove(original)     # otherwise clean left
+        if (self._left == None):    return (self._right, True) # left is empty after cleaning
+        if found:                   return (self, True)        # found on left, don't clean right
+        if self._right == original: return (self._left, True)  # right IS what we want to remove
+        (self._right, found) = self._right._remove(original)   # otherwise clean right
+        if (self._right == None):   return (self._left, True)  # right is empty after cleaning
+        return (self,found)                                    # return what we found
     def resolve(self, processDict):
         self._left = self._left.resolve(processDict)
         self._right = self._right.resolve(processDict)
@@ -271,6 +298,11 @@ class _UnarySequenceOperator(_Sequenceable):
             self._operand = replacement
         else:
             self._operand._replace(original, replacement)
+    def _remove(self, original):
+        if (self._operand == original): return (None, True)
+        (self._operand, found) = self._operand._remove(original)
+        if self._operand == None: return (None, True)
+        return (self, found)
     def resolve(self, processDict):
         self._operand = self._operand.resolve(processDict)
         return self
@@ -305,6 +337,29 @@ class _SequenceIgnore(_UnarySequenceOperator):
         return '-%s' %self._operand.dumpSequenceConfig()
     def dumpSequencePython(self):
         return 'cms.ignore(%s)' %self._operand.dumpSequencePython()
+    def _findDependencies(self,knownDeps, presentDeps):
+        self._operand._findDependencies(knownDeps, presentDeps)
+    def fillNamesList(self, l, processDict):
+        l.append(self.dumpSequenceConfig())
+    def _clonesequence(self, lookuptable):
+        return type(self)(self._operand._clonesequence(lookuptable))
+    def _replace(self, original, replacement):
+        if self._operand == original:
+            self._operand = replacement
+        else:
+            self._operand._replace(original, replacement)
+    def _remove(self, original):
+        if (self._operand == original): return (None, True)
+        (self._operand, found) = self._operand._remove(original)
+        if self._operand == None: return (None, True)
+        return (self, found)
+    def resolve(self, processDict):
+        self._operand = self._operand.resolve(processDict)
+        return self
+    def isOperation(self):
+        return True
+    def _visitSubNodes(self,visitor):
+        self._operand.visitNode(visitor)
 
 def ignore(seq):
     """The EDFilter passed as an argument will be run but its filter value will be ignored
@@ -317,13 +372,11 @@ class Path(_ModuleSequenceType):
     def _placeImpl(self,name,proc):
         proc._placePath(name,self)
 
-
 class EndPath(_ModuleSequenceType):
     def __init__(self,*arg,**argv):
         super(EndPath,self).__init__(*arg,**argv)
     def _placeImpl(self,name,proc):
         proc._placeEndPath(name,self)
-
 
 class Sequence(_ModuleSequenceType,_Sequenceable):
     def __init__(self,*arg,**argv):
@@ -561,6 +614,32 @@ if __name__=="__main__":
             s3.replace(s2,m1)
             s3.fillNamesList(l,d)
             self.assertEqual(l,['!m1', 'm1'])
+        def testRemove(self):
+            m1 = DummyModule("m1")
+            m2 = DummyModule("m2")
+            m3 = DummyModule("m3")
+            s1 = Sequence(m1*m2+~m3)
+            s2 = Sequence(m1*s1)
+            d = {'m1':m1 ,'m2':m2, 'm3':m3,'s1':s1, 's2':s2}  
+            l = []; s1.fillNamesList(l,d) ; self.assertEqual(l,['m1', 'm2', '!m3'])
+            l = []; s2.fillNamesList(l,d) ; self.assertEqual(l,['m1', 'm1', 'm2', '!m3'])
+            s1.remove(m2)
+            l = []; s1.fillNamesList(l,d) ; self.assertEqual(l,['m1', '!m3'])
+            l = []; s2.fillNamesList(l,d) ; self.assertEqual(l,['m1', 'm1', '!m3'])
+            s2.remove(m3)
+            l = []; s1.fillNamesList(l,d) ; self.assertEqual(l,['m1'])
+            l = []; s2.fillNamesList(l,d) ; self.assertEqual(l,['m1', 'm1'])
+            s1 = Sequence( m1 + m2 + m1 + m2 )
+            l = []; s1.fillNamesList(l,d) ; self.assertEqual(l,['m1', 'm2', 'm1', 'm2'])
+            s1.remove(m2) 
+            l = []; s1.fillNamesList(l,d) ; self.assertEqual(l,['m1', 'm1', 'm2'])
+            s1 = Sequence( m1 + m3 )
+            s2 = Sequence( m2 + ignore(m3) + s1 + m3 )
+            l = []; s2.fillNamesList(l,d) ; self.assertEqual(l,['m2', '-m3', 'm1', 'm3', 'm3'])
+            s2.remove(s1)
+            l = []; s2.fillNamesList(l,d) ; self.assertEqual(l,['m2', '-m3', 'm3'])
+            s2.remove(m3)
+            l = []; s2.fillNamesList(l,d) ; self.assertEqual(l,['m2', 'm3'])
         def testDependencies(self):
             m1 = DummyModule("m1")
             m2 = DummyModule("m2")
@@ -584,8 +663,6 @@ if __name__=="__main__":
             self.assertEqual(len(deps['m5'][0].depSet), 4)
             self.assertEqual(deps['m5'][0].sequenceName, 'p5')
             self.assertEqual(deps['m3'][0].sequenceName, 's4')
-
-
     unittest.main()
                           
 
