@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2008/05/20 14:32:42 $
- *  $Revision: 1.13 $
+ *  $Date: 2008/07/22 17:12:28 $
+ *  $Revision: 1.14 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -857,7 +857,11 @@ void GlobalDigisAnalyzer::fillECal(const edm::Event& iEvent,
     LogDebug(MsgLoggerCat)
       << "Unable to find EcalDigiES in event!";
     validDigiES = false;
-  }  
+  } 
+  
+  // ONLY WHILE GEOMETRY IS REMOVED
+  validDigiES = false;
+ 
   if (validDigiES) {
     ESdigis = EcalDigiES.product();
     if (EcalDigiES->size() == 0) isPreshower = false;
@@ -1588,7 +1592,6 @@ void GlobalDigisAnalyzer::fillMuon(const edm::Event& iEvent,
     mehCSCWiren->Fill((float)nWires); 
   }
 
-  /*
   // get RPC information
   // Get the RPC Geometry
   edm::ESHandle<RPCGeometry> rpcGeom;
@@ -1601,90 +1604,98 @@ void GlobalDigisAnalyzer::fillMuon(const edm::Event& iEvent,
   
   edm::Handle<edm::PSimHitContainer> rpcsimHit;
   iEvent.getByLabel("g4SimHits", "MuonRPCHits", rpcsimHit);
+  bool validrpcsim = true;
   if (!rpcsimHit.isValid()) {
-    edm::LogWarning(MsgLoggerCat)
+    LogDebug(MsgLoggerCat)
       << "Unable to find rpcsimHit in event!";
-    return;
+    validrpcsim = false;
   }   
-
+  
   edm::Handle<RPCDigiCollection> rpcDigis;  
   iEvent.getByLabel(MuRPCSrc_, rpcDigis);
+  bool validrpcdigi = true;
   if (!rpcDigis.isValid()) {
-    edm::LogWarning(MsgLoggerCat)
+    LogDebug(MsgLoggerCat)
       << "Unable to find rpcDigis in event!";
-    return;
+    validrpcdigi = false;
   } 
+
+  // ONLY UNTIL PROBLEM WITH RPC DIGIS IS FIGURED OUT
+  validrpcdigi = false;
 
   // Loop on simhits
   edm::PSimHitContainer::const_iterator rpcsimIt;
   std::map<RPCDetId, std::vector<double> > allsims;
 
-  for (rpcsimIt = rpcsimHit->begin(); rpcsimIt != rpcsimHit->end(); 
-       rpcsimIt++) {
-    RPCDetId Rsid = (RPCDetId)(*rpcsimIt).detUnitId();
-    int ptype = rpcsimIt->particleType();
-
-    if (ptype == 13 || ptype == -13) {
-      std::vector<double> buff;
-      if (allsims.find(Rsid) != allsims.end() ){
-	buff= allsims[Rsid];
+  if (validrpcsim) {
+    for (rpcsimIt = rpcsimHit->begin(); rpcsimIt != rpcsimHit->end(); 
+	 rpcsimIt++) {
+      RPCDetId Rsid = (RPCDetId)(*rpcsimIt).detUnitId();
+      int ptype = rpcsimIt->particleType();
+      
+      if (ptype == 13 || ptype == -13) {
+	std::vector<double> buff;
+	if (allsims.find(Rsid) != allsims.end() ){
+	  buff= allsims[Rsid];
+	}
+	buff.push_back(rpcsimIt->localPosition().x());
+	allsims[Rsid]=buff;
       }
-      buff.push_back(rpcsimIt->localPosition().x());
-      allsims[Rsid]=buff;
     }
   }
 
   // CRASH HAPPENS SOMEWHERE HERE IN FOR DECLARATION
   // WHAT IS WRONG WITH rpcDigis?????
-  int nRPC = 0;
-  RPCDigiCollection::DigiRangeIterator rpcdetUnitIt;
-  for (rpcdetUnitIt = rpcDigis->begin(); rpcdetUnitIt != rpcDigis->end(); 
-       ++rpcdetUnitIt) {
-
-    const RPCDetId Rsid = (*rpcdetUnitIt).first;      
-    const RPCRoll* roll = 
-      dynamic_cast<const RPCRoll* >( rpcGeom->roll(Rsid));   
-    const RPCDigiCollection::Range& range = (*rpcdetUnitIt).second;
-
-    std::vector<double> sims;
-    if (allsims.find(Rsid) != allsims.end() ){
-      sims = allsims[Rsid];
-    }
-
-    int ndigi = 0;
-    for (RPCDigiCollection::const_iterator rpcdigiIt = range.first;
-	 rpcdigiIt != range.second;
-	 ++rpcdigiIt) {
+  if (validrpcdigi) {
+    int nRPC = 0;
+    RPCDigiCollection::DigiRangeIterator rpcdetUnitIt;
+    for (rpcdetUnitIt = rpcDigis->begin(); rpcdetUnitIt != rpcDigis->end(); 
+	 ++rpcdetUnitIt) {
       
-      ++ndigi;
-      ++nRPC;
-    }
-
-    if (sims.size() == 1 && ndigi == 1){
-      double dis = roll->centreOfStrip(range.first->strip()).x()-sims[0];
+      const RPCDetId Rsid = (*rpcdetUnitIt).first;      
+      const RPCRoll* roll = 
+	dynamic_cast<const RPCRoll* >( rpcGeom->roll(Rsid));   
+      const RPCDigiCollection::Range& range = (*rpcdetUnitIt).second;
       
-      if (Rsid.region() == 0 ){
-	if (Rsid.ring() == -2)
-	  mehRPCRes[0]->Fill((float)dis);
-	else if (Rsid.ring() == -1)
-	  mehRPCRes[1]->Fill((float)dis);
-	else if (Rsid.ring() == 0)
-	  mehRPCRes[2]->Fill((float)dis);
-	else if (Rsid.ring() == 1)
-	  mehRPCRes[3]->Fill((float)dis);
-	else if (Rsid.ring() == 2)
-	  mehRPCRes[4]->Fill((float)dis);
-      }  
+      std::vector<double> sims;
+      if (allsims.find(Rsid) != allsims.end() ){
+	sims = allsims[Rsid];
+      }
+      
+      int ndigi = 0;
+      for (RPCDigiCollection::const_iterator rpcdigiIt = range.first;
+	   rpcdigiIt != range.second;
+	   ++rpcdigiIt) {
+	
+	++ndigi;
+	++nRPC;
+      }
+      
+      if (sims.size() == 1 && ndigi == 1){
+	double dis = roll->centreOfStrip(range.first->strip()).x()-sims[0];
+	
+	if (Rsid.region() == 0 ){
+	  if (Rsid.ring() == -2)
+	    mehRPCRes[0]->Fill((float)dis);
+	  else if (Rsid.ring() == -1)
+	    mehRPCRes[1]->Fill((float)dis);
+	  else if (Rsid.ring() == 0)
+	    mehRPCRes[2]->Fill((float)dis);
+	  else if (Rsid.ring() == 1)
+	    mehRPCRes[3]->Fill((float)dis);
+	  else if (Rsid.ring() == 2)
+	    mehRPCRes[4]->Fill((float)dis);
+	}  
+      }
     }
+    
+    if (verbosity > 1) {
+      eventout += "\n          Number of RPCDigis collected:.............. ";
+      eventout += nRPC;
+    }
+    mehRPCMuonn->Fill(float(nRPC));
   }
-
-  if (verbosity > 1) {
-    eventout += "\n          Number of RPCDigis collected:.............. ";
-    eventout += nRPC;
-  }
-  mehRPCMuonn->Fill(float(nRPC));
-  */
-
+  
   if (verbosity > 0)
     edm::LogInfo(MsgLoggerCat) << eventout << "\n";
   

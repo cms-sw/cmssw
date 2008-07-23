@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2008/05/20 14:32:44 $
- *  $Revision: 1.11 $
+ *  $Date: 2008/07/22 17:13:22 $
+ *  $Revision: 1.12 $
  *  \author M. Strang SUNY-Buffalo
  *  Testing by Ken Smith
  */
@@ -572,6 +572,9 @@ void GlobalRecHitsAnalyzer::fillECal(const edm::Event& iEvent,
       << "Unable to find EcalRecHitES in event!";
     validRecHitES = false;
   }  
+
+  // UNTIL GEOMETRY IS RETURNED
+  validRecHitES = false;
   
   // loop over simhits
   const std::string preshowerHitsName(hitsProducer+"EcalHitsES");

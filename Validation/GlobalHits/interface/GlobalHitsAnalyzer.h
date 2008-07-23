@@ -5,8 +5,8 @@
  *  
  *  Class to fill dqm monitor elements from existing EDM file
  *
- *  $Date: 2008/03/27 20:22:18 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/05/15 17:44:39 $
+ *  $Revision: 1.7 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -104,6 +104,29 @@ class GlobalHitsAnalyzer : public edm::EDAnalyzer
   std::string label;
   bool getAllProvenances;
   bool printProvenanceInfo;
+
+  bool validHepMCevt;
+  bool validG4VtxContainer;
+  bool validG4trkContainer;
+  bool validPxlBrlLow;
+  bool validPxlBrlHigh;
+  bool validPxlFwdLow;
+  bool validPxlFwdHigh;
+  bool validSiTIBLow;
+  bool validSiTIBHigh;
+  bool validSiTOBLow;
+  bool validSiTOBHigh;
+  bool validSiTIDLow;
+  bool validSiTIDHigh;
+  bool validSiTECLow;
+  bool validSiTECHigh;
+  bool validMuonCSC;
+  bool validMuonDt;
+  bool validMuonRPC;
+  bool validEB;
+  bool validEE;
+  bool validPresh;
+  bool validHcal;
 
   DQMStore *dbe;
 

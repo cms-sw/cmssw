@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2008/05/15 17:44:39 $
- *  $Revision: 1.13 $
+ *  $Date: 2008/07/22 17:12:55 $
+ *  $Revision: 1.14 $
  *  \author M. Strang SUNY-Buffalo
  */
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
@@ -54,62 +54,130 @@ GlobalHitsAnalyzer::GlobalHitsAnalyzer(const edm::ParameterSet& iPSet) :
 
   HCalSrc_ = iPSet.getParameter<edm::InputTag>("HCalSrc");
 
+  // determine whether to process subdetector or not
+  validHepMCevt = iPSet.getUntrackedParameter<bool>("validHepMCevt");
+  validG4VtxContainer = 
+    iPSet.getUntrackedParameter<bool>("validG4VtxContainer");
+  validG4trkContainer = 
+    iPSet.getUntrackedParameter<bool>("validG4trkContainer");
+  validPxlBrlLow = iPSet.getUntrackedParameter<bool>("validPxlBrlLow",true);
+  validPxlBrlHigh = iPSet.getUntrackedParameter<bool>("validPxlBrlHigh",true);
+  validPxlFwdLow = iPSet.getUntrackedParameter<bool>("validPxlFwdLow",true);
+  validPxlFwdHigh = iPSet.getUntrackedParameter<bool>("validPxlFwdHigh",true);
+  validSiTIBLow = iPSet.getUntrackedParameter<bool>("validSiTIBLow",true);
+  validSiTIBHigh = iPSet.getUntrackedParameter<bool>("validSiTIBHigh",true);
+  validSiTOBLow = iPSet.getUntrackedParameter<bool>("validSiTOBLow",true);
+  validSiTOBHigh = iPSet.getUntrackedParameter<bool>("validSiTOBHigh",true);
+  validSiTIDLow = iPSet.getUntrackedParameter<bool>("validSiTIDLow",true);
+  validSiTIDHigh = iPSet.getUntrackedParameter<bool>("validSiTIDHigh",true);
+  validSiTECLow = iPSet.getUntrackedParameter<bool>("validSiTECLow",true);
+  validSiTECHigh = iPSet.getUntrackedParameter<bool>("validSiTECHigh",true);
+  validMuonCSC = iPSet.getUntrackedParameter<bool>("validMuonCSC",true);
+  validMuonDt = iPSet.getUntrackedParameter<bool>("validMuonDt",true);
+  validMuonRPC = iPSet.getUntrackedParameter<bool>("validMuonRPC",true);
+  validEB = iPSet.getUntrackedParameter<bool>("validEB",true);
+  validEE = iPSet.getUntrackedParameter<bool>("validEE",true);
+  validPresh = iPSet.getUntrackedParameter<bool>("validPresh",true);
+  validHcal = iPSet.getUntrackedParameter<bool>("validHcal",true);  
+
   // use value of first digit to determine default output level (inclusive)
   // 0 is none, 1 is basic, 2 is fill output, 3 is gather output
   verbosity %= 10;
-
-  // create persistent object
-  //produces<PGlobalSimHit>(label);
 
   // print out Parameter Set information being used
   if (verbosity >= 0) {
     edm::LogInfo(MsgLoggerCat) 
       << "\n===============================\n"
       << "Initialized as EDAnalyzer with parameter values:\n"
-      << "    Name          = " << fName << "\n"
-      << "    Verbosity     = " << verbosity << "\n"
-      << "    Frequency     = " << frequency << "\n"
-      << "    VtxUnit       = " << vtxunit << "\n"
-      << "    GetProv       = " << getAllProvenances << "\n"
-      << "    PrintProv     = " << printProvenanceInfo << "\n"
-      << "    PxlBrlLowSrc  = " << PxlBrlLowSrc_.label() 
+      << "    Name                  = " << fName << "\n"
+      << "    Verbosity             = " << verbosity << "\n"
+      << "    Frequency             = " << frequency << "\n"
+      << "    VtxUnit               = " << vtxunit << "\n"
+      << "    GetProv               = " << getAllProvenances << "\n"
+      << "    PrintProv             = " << printProvenanceInfo << "\n"
+      << "    PxlBrlLowSrc          = " << PxlBrlLowSrc_.label() 
       << ":" << PxlBrlLowSrc_.instance() << "\n"
-      << "    PxlBrlHighSrc = " << PxlBrlHighSrc_.label() 
+      << "    PxlBrlHighSrc         = " << PxlBrlHighSrc_.label() 
       << ":" << PxlBrlHighSrc_.instance() << "\n"
-      << "    PxlFwdLowSrc  = " << PxlFwdLowSrc_.label() 
+      << "    PxlFwdLowSrc          = " << PxlFwdLowSrc_.label() 
       << ":" << PxlBrlLowSrc_.instance() << "\n"
-      << "    PxlFwdHighSrc = " << PxlFwdHighSrc_.label() 
+      << "    PxlFwdHighSrc         = " << PxlFwdHighSrc_.label() 
       << ":" << PxlBrlHighSrc_.instance() << "\n"
-      << "    SiTIBLowSrc   = " << SiTIBLowSrc_.label() 
+      << "    SiTIBLowSrc           = " << SiTIBLowSrc_.label() 
       << ":" << SiTIBLowSrc_.instance() << "\n"
-      << "    SiTIBHighSrc  = " << SiTIBHighSrc_.label() 
+      << "    SiTIBHighSrc          = " << SiTIBHighSrc_.label() 
       << ":" << SiTIBHighSrc_.instance() << "\n"
-      << "    SiTOBLowSrc   = " << SiTOBLowSrc_.label() 
+      << "    SiTOBLowSrc           = " << SiTOBLowSrc_.label() 
       << ":" << SiTOBLowSrc_.instance() << "\n"
-      << "    SiTOBHighSrc  = " << SiTOBHighSrc_.label() 
+      << "    SiTOBHighSrc          = " << SiTOBHighSrc_.label() 
       << ":" << SiTOBHighSrc_.instance() << "\n"
-      << "    SiTIDLowSrc   = " << SiTIDLowSrc_.label() 
+      << "    SiTIDLowSrc           = " << SiTIDLowSrc_.label() 
       << ":" << SiTIDLowSrc_.instance() << "\n"
-      << "    SiTIDHighSrc  = " << SiTIDHighSrc_.label() 
+      << "    SiTIDHighSrc          = " << SiTIDHighSrc_.label() 
       << ":" << SiTIDHighSrc_.instance() << "\n"
-      << "    SiTECLowSrc   = " << SiTECLowSrc_.label() 
+      << "    SiTECLowSrc           = " << SiTECLowSrc_.label() 
       << ":" << SiTECLowSrc_.instance() << "\n"
-      << "    SiTECHighSrc  = " << SiTECHighSrc_.label() 
+      << "    SiTECHighSrc          = " << SiTECHighSrc_.label() 
       << ":" << SiTECHighSrc_.instance() << "\n"
-      << "    MuonCscSrc    = " << MuonCscSrc_.label() 
+      << "    MuonCscSrc            = " << MuonCscSrc_.label() 
       << ":" << MuonCscSrc_.instance() << "\n"
-      << "    MuonDtSrc     = " << MuonDtSrc_.label() 
+      << "    MuonDtSrc             = " << MuonDtSrc_.label() 
       << ":" << MuonDtSrc_.instance() << "\n"
-      << "    MuonRpcSrc    = " << MuonRpcSrc_.label() 
+      << "    MuonRpcSrc            = " << MuonRpcSrc_.label() 
       << ":" << MuonRpcSrc_.instance() << "\n"
-      << "    ECalEBSrc     = " << ECalEBSrc_.label() 
+      << "    ECalEBSrc             = " << ECalEBSrc_.label() 
       << ":" << ECalEBSrc_.instance() << "\n"
-      << "    ECalEESrc     = " << ECalEESrc_.label() 
+      << "    ECalEESrc             = " << ECalEESrc_.label() 
       << ":" << ECalEESrc_.instance() << "\n"
-      << "    ECalESSrc     = " << ECalESSrc_.label() 
+      << "    ECalESSrc             = " << ECalESSrc_.label() 
       << ":" << ECalESSrc_.instance() << "\n"
-      << "    HCalSrc       = " << HCalSrc_.label() 
+      << "    HCalSrc               = " << HCalSrc_.label() 
       << ":" << HCalSrc_.instance() << "\n"
+      << "\n"
+      << "    validHepMCevt         = "
+      << ":" <<  validHepMCevt << "\n"
+      << "    validG4VtxContainer   = "
+      << ":" <<  validG4VtxContainer << "\n"
+      << "    validG4trkContainer   = "
+      << ":" <<  validG4trkContainer << "\n"
+      << "    validPxlBrlLow        = "
+      << ":" <<  validPxlBrlLow << "\n"
+      << "    validPxlBrlHigh       = "
+      << ":" <<  validPxlBrlHigh << "\n"
+      << "    validPxlFwdLow        = "
+      << ":" <<  validPxlFwdLow << "\n"
+      << "    validPxlFwdHigh       = "
+      << ":" <<  validPxlFwdHigh << "\n"
+      << "    validSiTIBLow         = "
+      << ":" <<  validSiTIBLow << "\n"
+      << "    validSiTIBHigh        = "
+      << ":" <<  validSiTIBHigh << "\n"
+      << "    validSiTOBLow         = "
+      << ":" <<  validSiTOBLow << "\n"
+      << "    validSiTOBHigh        = "
+      << ":" <<  validSiTOBHigh << "\n"
+      << "    validSiTIDLow         = "
+      << ":" <<  validSiTIDLow << "\n"
+      << "    validSiTIDHigh        = "
+      << ":" <<  validSiTIDHigh << "\n"
+      << "    validSiTECLow         = "
+      << ":" <<  validSiTECLow << "\n"
+      << "    validSiTECHigh        = "
+      << ":" <<  validSiTECHigh << "\n"
+      << "    validMuonCSC          = "
+      << ":" <<  validMuonCSC << "\n"
+      << "    validMuonDt           = "
+      << ":" <<  validMuonDt << "\n"
+      << "    validMuonRPC          = "
+      << ":" <<  validMuonRPC << "\n"
+      << "    validEB               = "
+      << ":" <<  validEB << "\n"
+      << "    validEE               = "
+      << ":" <<  validEE << "\n"
+      << "    validPresh            = "
+      << ":" <<  validPresh << "\n"
+      << "    validHcal             = "
+      << ":" <<  validHcal << "\n"
       << "===============================\n";
   }
 
@@ -683,7 +751,6 @@ void GlobalHitsAnalyzer::fillG4MC(const edm::Event& iEvent)
       break;
   }
 
-  bool validHepMCevt = true;
   if (!HepMCEvt.isValid()) {
     LogDebug(MsgLoggerCat)
       << "Unable to find HepMCProduct in event!";
@@ -717,7 +784,6 @@ void GlobalHitsAnalyzer::fillG4MC(const edm::Event& iEvent)
 
   edm::Handle<edm::SimVertexContainer> G4VtxContainer;
   iEvent.getByType(G4VtxContainer);
-  bool validG4VtxContainer = true;
   if (!G4VtxContainer.isValid()) {
     LogDebug(MsgLoggerCat)
       << "Unable to find SimVertex in event!";
@@ -764,7 +830,6 @@ void GlobalHitsAnalyzer::fillG4MC(const edm::Event& iEvent)
   ///////////////////////////
   edm::Handle<edm::SimTrackContainer> G4TrkContainer;
   iEvent.getByType(G4TrkContainer);
-  bool validG4trkContainer = true;
   if (!G4TrkContainer.isValid()) {
     LogDebug(MsgLoggerCat)
       << "Unable to find SimTrack in event!";
@@ -836,7 +901,6 @@ void GlobalHitsAnalyzer::fillTrk(const edm::Event& iEvent,
   // extract low container
   edm::Handle<edm::PSimHitContainer> PxlBrlLowContainer;
   iEvent.getByLabel(PxlBrlLowSrc_,PxlBrlLowContainer);
-  bool validPxlBrlLow = true;
   if (!PxlBrlLowContainer.isValid()) {
     LogDebug(MsgLoggerCat)
       << "Unable to find TrackerHitsPixelBarrelLowTof in event!";
@@ -845,7 +909,6 @@ void GlobalHitsAnalyzer::fillTrk(const edm::Event& iEvent,
   // extract high container
   edm::Handle<edm::PSimHitContainer> PxlBrlHighContainer;
   iEvent.getByLabel(PxlBrlHighSrc_,PxlBrlHighContainer);
-  bool validPxlBrlHigh = true;
   if (!PxlBrlHighContainer.isValid()) {
     LogDebug(MsgLoggerCat)
       << "Unable to find TrackerHitsPixelBarrelHighTof in event!";
@@ -920,7 +983,6 @@ void GlobalHitsAnalyzer::fillTrk(const edm::Event& iEvent,
   // extract low container
   edm::Handle<edm::PSimHitContainer> PxlFwdLowContainer;
   iEvent.getByLabel(PxlFwdLowSrc_,PxlFwdLowContainer);
-  bool validPxlFwdLow = true;
   if (!PxlFwdLowContainer.isValid()) {
     LogDebug(MsgLoggerCat)
       << "Unable to find TrackerHitsPixelEndcapLowTof in event!";
@@ -929,7 +991,6 @@ void GlobalHitsAnalyzer::fillTrk(const edm::Event& iEvent,
   // extract high container
   edm::Handle<edm::PSimHitContainer> PxlFwdHighContainer;
   iEvent.getByLabel(PxlFwdHighSrc_,PxlFwdHighContainer);
-  bool validPxlFwdHigh = true;
   if (!PxlFwdHighContainer.isValid()) {
     LogDebug("GlobalHitsAnalyzer_fillTrk")
       << "Unable to find TrackerHitsPixelEndcapHighTof in event!";
@@ -1008,7 +1069,6 @@ void GlobalHitsAnalyzer::fillTrk(const edm::Event& iEvent,
   // extract TIB low container
   edm::Handle<edm::PSimHitContainer> SiTIBLowContainer;
   iEvent.getByLabel(SiTIBLowSrc_,SiTIBLowContainer);
-  bool validSiTIBLow = true;
   if (!SiTIBLowContainer.isValid()) {
     LogDebug(MsgLoggerCat)
       << "Unable to find TrackerHitsTIBLowTof in event!";
@@ -1017,7 +1077,6 @@ void GlobalHitsAnalyzer::fillTrk(const edm::Event& iEvent,
   // extract TIB high container
   edm::Handle<edm::PSimHitContainer> SiTIBHighContainer;
   iEvent.getByLabel(SiTIBHighSrc_,SiTIBHighContainer);
-  bool validSiTIBHigh = true;
   if (!SiTIBHighContainer.isValid()) {
     LogDebug(MsgLoggerCat)
       << "Unable to find TrackerHitsTIBHighTof in event!";
@@ -1026,7 +1085,6 @@ void GlobalHitsAnalyzer::fillTrk(const edm::Event& iEvent,
   // extract TOB low container
   edm::Handle<edm::PSimHitContainer> SiTOBLowContainer;
   iEvent.getByLabel(SiTOBLowSrc_,SiTOBLowContainer);
-  bool validSiTOBLow = true;
   if (!SiTOBLowContainer.isValid()) {
     LogDebug(MsgLoggerCat)
       << "Unable to find TrackerHitsTOBLowTof in event!";
@@ -1035,7 +1093,6 @@ void GlobalHitsAnalyzer::fillTrk(const edm::Event& iEvent,
   // extract TOB high container
   edm::Handle<edm::PSimHitContainer> SiTOBHighContainer;
   iEvent.getByLabel(SiTOBHighSrc_,SiTOBHighContainer);
-  bool validSiTOBHigh = true;
   if (!SiTOBHighContainer.isValid()) {
     LogDebug(MsgLoggerCat)
       << "Unable to find TrackerHitsTOBHighTof in event!";
@@ -1118,7 +1175,6 @@ void GlobalHitsAnalyzer::fillTrk(const edm::Event& iEvent,
   // extract TID low container
   edm::Handle<edm::PSimHitContainer> SiTIDLowContainer;
   iEvent.getByLabel(SiTIDLowSrc_,SiTIDLowContainer);
-  bool validSiTIDLow = true;
   if (!SiTIDLowContainer.isValid()) {
     LogDebug(MsgLoggerCat)
       << "Unable to find TrackerHitsTIDLowTof in event!";
@@ -1127,7 +1183,6 @@ void GlobalHitsAnalyzer::fillTrk(const edm::Event& iEvent,
   // extract TID high container
   edm::Handle<edm::PSimHitContainer> SiTIDHighContainer;
   iEvent.getByLabel(SiTIDHighSrc_,SiTIDHighContainer);
-  bool validSiTIDHigh = true;
   if (!SiTIDHighContainer.isValid()) {
     LogDebug("GlobalHitsAnalyzer_fillTrk")
       << "Unable to find TrackerHitsTIDHighTof in event!";
@@ -1136,7 +1191,6 @@ void GlobalHitsAnalyzer::fillTrk(const edm::Event& iEvent,
   // extract TEC low container
   edm::Handle<edm::PSimHitContainer> SiTECLowContainer;
   iEvent.getByLabel(SiTECLowSrc_,SiTECLowContainer);
-  bool validSiTECLow = true;
   if (!SiTECLowContainer.isValid()) {
     LogDebug(MsgLoggerCat)
       << "Unable to find TrackerHitsTECLowTof in event!";
@@ -1145,7 +1199,6 @@ void GlobalHitsAnalyzer::fillTrk(const edm::Event& iEvent,
   // extract TEC high container
   edm::Handle<edm::PSimHitContainer> SiTECHighContainer;
   iEvent.getByLabel(SiTECHighSrc_,SiTECHighContainer);
-  bool validSiTECHigh = true;
   if (!SiTECHighContainer.isValid()) {
     LogDebug(MsgLoggerCat)
       << "Unable to find TrackerHitsTECHighTof in event!";
@@ -1259,7 +1312,6 @@ void GlobalHitsAnalyzer::fillMuon(const edm::Event& iEvent,
   // get Muon CSC information
   edm::Handle<edm::PSimHitContainer> MuonCSCContainer;
   iEvent.getByLabel(MuonCscSrc_,MuonCSCContainer);
-  bool validMuonCSC = true;
   if (!MuonCSCContainer.isValid()) {
     LogDebug(MsgLoggerCat)
       << "Unable to find MuonCSCHits in event!";
@@ -1341,7 +1393,6 @@ void GlobalHitsAnalyzer::fillMuon(const edm::Event& iEvent,
   // get Muon DT information
   edm::Handle<edm::PSimHitContainer> MuonDtContainer;
   iEvent.getByLabel(MuonDtSrc_,MuonDtContainer);
-  bool validMuonDt = true;
   if (!MuonDtContainer.isValid()) {
     LogDebug(MsgLoggerCat)
       << "Unable to find MuonDTHits in event!";
@@ -1428,7 +1479,6 @@ void GlobalHitsAnalyzer::fillMuon(const edm::Event& iEvent,
   // get Muon RPC information
   edm::Handle<edm::PSimHitContainer> MuonRPCContainer;
   iEvent.getByLabel(MuonRpcSrc_,MuonRPCContainer);
-  bool validMuonRPC = true;
   if (!MuonRPCContainer.isValid()) {
     LogDebug(MsgLoggerCat)
       << "Unable to find MuonRPCHits in event!";
@@ -1564,8 +1614,7 @@ void GlobalHitsAnalyzer::fillECal(const edm::Event& iEvent,
   edm::PCaloHitContainer theECalHits;
   // extract EB container
   edm::Handle<edm::PCaloHitContainer> EBContainer;
-  iEvent.getByLabel(ECalEBSrc_,EBContainer);
-  bool validEB = true;				     
+  iEvent.getByLabel(ECalEBSrc_,EBContainer);			     
   if (!EBContainer.isValid()) {
     LogDebug(MsgLoggerCat)
       << "Unable to find EcalHitsEB in event!";
@@ -1574,7 +1623,6 @@ void GlobalHitsAnalyzer::fillECal(const edm::Event& iEvent,
   // extract EE container
   edm::Handle<edm::PCaloHitContainer> EEContainer;
   iEvent.getByLabel(ECalEESrc_,EEContainer);
-  bool validEE = true;
   if (!EEContainer.isValid()) {
     LogDebug(MsgLoggerCat)
       << "Unable to find EcalHitsEE in event!";
@@ -1651,7 +1699,6 @@ void GlobalHitsAnalyzer::fillECal(const edm::Event& iEvent,
   // extract PreShower container
   edm::Handle<edm::PCaloHitContainer> PreShContainer;
   iEvent.getByLabel(ECalESSrc_,PreShContainer);
-  bool validPresh = true;
   if (!PreShContainer.isValid()) {
     LogDebug(MsgLoggerCat)
       << "Unable to find EcalHitsES in event!";
@@ -1752,7 +1799,6 @@ void GlobalHitsAnalyzer::fillHCal(const edm::Event& iEvent,
   // extract HCal container
   edm::Handle<edm::PCaloHitContainer> HCalContainer;
   iEvent.getByLabel(HCalSrc_,HCalContainer);
-  bool validHcal = true;
   if (!HCalContainer.isValid()) {
     LogDebug(MsgLoggerCat)
       << "Unable to find HCalHits in event!";
