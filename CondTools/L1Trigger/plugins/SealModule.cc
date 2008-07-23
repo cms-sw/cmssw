@@ -127,10 +127,10 @@ REGISTER_PLUGIN(L1MuCSCPtLutRcd, L1MuCSCPtLut);
 REGISTER_L1_WRITER(L1MuCSCPtLutRcd, L1MuCSCPtLut);
 
 // RPC records
-#include "CondFormats/RPCObjects/interface/L1RPCConfig.h"
+#include "CondFormats/L1TObjects/interface/L1RPCConfig.h"
 #include "CondFormats/DataRecord/interface/L1RPCConfigRcd.h"
 
-// REGISTER_PLUGIN(L1RPCConfigRcd, L1RPCConfig);
+REGISTER_PLUGIN(L1RPCConfigRcd, L1RPCConfig);
 REGISTER_L1_WRITER(L1RPCConfigRcd, L1RPCConfig);
 
 // GMT records

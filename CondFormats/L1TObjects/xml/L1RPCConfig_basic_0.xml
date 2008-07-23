@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding="UTF-8"?>
+<!DOCTYPE PoolDatabase SYSTEM "InMemory">
+ <PoolDatabase >
+  <PoolContainer name="L1RPCConfigRcd" >
+   <Class table="L1RPCCONFIG" id_columns="ID" name="L1RPCConfig" mapping_version="L1RPCConfig_basic" >
+     <Blob column="L1RPCCONFIG_M_PATS_BLOB" name="m_pats" />
+     <Primitive column="M_PPT" name="m_ppt" />
+     <Blob column="L1RPCCONFIG_M_QUALS_BLOB" name="m_quals" />
+   </Class >
+  </PoolContainer >
+ </PoolDatabase >

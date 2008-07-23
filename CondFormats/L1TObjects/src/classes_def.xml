@@ -37,6 +37,12 @@
   <class name="L1MuCSCTFConfiguration"/>
   <class name="L1MuCSCTFAlignment"/>
   <class name="L1MuCSCPtLut"/>
+  <class name="L1RPCConfig"/>
+  <class name="RPCPattern"/>
+  <class name="RPCPattern::RPCLogicalStrip"/>
+  <class name="RPCPattern::TQuality"/>
+  <class name="std::vector<RPCPattern::TQuality>"/>
+  <class name="std::vector<RPCPattern>"/>
   <class name="EcalTPParameters"/>
   <class name="L1TriggerKey"/>
   <class name="std::map<std::string, std::string>"/>

@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sat Mar  1 05:06:43 CET 2008
-// $Id: L1TriggerConfigOnlineProd.h,v 1.3 2008/05/29 21:50:33 wsun Exp $
+// $Id: L1TriggerConfigOnlineProd.h,v 1.4 2008/07/08 14:42:40 wsun Exp $
 //
 
 // system include files
@@ -38,7 +38,7 @@
 
 #include "CondFormats/L1TObjects/interface/L1RCTParameters.h"
 #include "CondFormats/DataRecord/interface/L1RCTParametersRcd.h"
-#include "CondFormats/RPCObjects/interface/L1RPCConfig.h"
+#include "CondFormats/L1TObjects/interface/L1RPCConfig.h"
 #include "CondFormats/DataRecord/interface/L1RPCConfigRcd.h"
 #include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
 #include "CondFormats/DataRecord/interface/L1JetEtScaleRcd.h"
