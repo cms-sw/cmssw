@@ -303,8 +303,6 @@ void
 HLTTauL1DQMOfflineSource::endJob() {
 
 
-  if (&*edm::Service<DQMStore>()) edm::Service<DQMStore>()->save ("l1tauval.root");
-
   // MC matching efficiencies
   h_EffMCTauEt->getTH1F()->Divide(h_EffMCTauEt->getTH1F(),h_MCTauHadEt->getTH1F(),1.,1.,"b");
   h_EffMCTauEta->getTH1F()->Divide(h_EffMCTauEta->getTH1F(),h_MCTauHadEta->getTH1F(),1.,1.,"b");
