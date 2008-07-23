@@ -26,6 +26,9 @@ map<string, MonitorElement*> RPCMonitorDigi::bookDetUnitME(RPCDetId & detId, con
   RPCBookFolderStructure *  folderStr = new RPCBookFolderStructure();
   string folder = "RPC/RecHits/" +  folderStr->folderStructure(detId);
 
+
+  //  SectorSummaryFolder="RPC/RecHits/SectorSummary";
+
   dbe->setCurrentFolder(folder);
   
   //get number of strips in current roll
@@ -118,8 +121,14 @@ map<string, MonitorElement*> RPCMonitorDigi::bookDetUnitME(RPCDetId & detId, con
   MonitorElement * myMe;
 
   os.str("");
+  os<<"RPC/RecHits/Barrel/Wheel_"<<ring<<"/SummaryBySectors/";
+  string WheelSummary = os.str();
+  dbe->setCurrentFolder(WheelSummary);
+  
+  os.str("");
   os<<"Occupancy_"<<ringType<<"_"<<ring<<"_Sector_"<<detId.sector();
-  myMe = dbe->get(folder+"/"+os.str());
+  myMe = dbe->get(WheelSummary+"/"+os.str());
+  
   //check if ME for this sector have already been booked
   if(myMe)  meMap[os.str()]=myMe;
   else {
@@ -132,7 +141,7 @@ map<string, MonitorElement*> RPCMonitorDigi::bookDetUnitME(RPCDetId & detId, con
 	meMap[os.str()] = dbe->book2D(os.str(), os.str(), 96, 0.5,  96.5, 17, 0.5, 17.5);
     }
   }
-
+  
   os.str("");
   os<<"BxDistribution_"<<ringType<<"_"<<ring<<"_Sector_"<<detId.sector();
   myMe = dbe->get(folder+"/"+os.str());

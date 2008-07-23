@@ -69,8 +69,8 @@ void RPCMonitorDigi::beginJob(EventSetup const&){
     BarrelOccupancy -> setBinLabel(i, binLabel.str(), 1);
     if(i<6){
       binLabel.str("");
-      binLabel<<"Wheel"<<i;
-      BarrelOccupancy -> setBinLabel(i+3, binLabel.str(), 2);
+      binLabel<<"Wheel"<<i-3;
+      BarrelOccupancy -> setBinLabel(i, binLabel.str(), 2);
     }
   }
 }
@@ -231,11 +231,10 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
       os<<"1DOccupancy_"<<ringType<<"_"<<ring;
       string meId = os.str();
       meRingMap[meId]->Fill(detId.sector());
-      //Set X bin labels
       os.str("");
       os<<"Sec"<<detId.sector();
       meRingMap[meId] -> setBinLabel(detId.sector(), os.str(), 1);
-      
+
       os.str("");
       os<<"BxDistribution_"<<ringType<<"_"<<ring<<"_Sector_"<<detId.sector();
       meMap[os.str()]->Fill(bx);
@@ -245,7 +244,7 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
       meRingMap[os.str()]->Fill(bx);
       
       BarrelOccupancy -> Fill(detId.sector(), ring);
-     
+      
       os.str("");
       os<<"Occupancy_"<<ringType<<"_"<<ring<<"_Sector_"<<detId.sector();
       meMap[os.str()]->Fill(strip, nr);
@@ -255,7 +254,7 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
       Yaxis.replace(Yaxis.find("S"),4,"");
       Yaxis.erase(Yaxis.find("_")+2,8);
       meMap[os.str()]->setBinLabel(nr, Yaxis, 2);
-    
+      
       os.str("");
       os<<"Occupancy_"<<nameRoll;
       meMap[os.str()]->Fill(strip);
