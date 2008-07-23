@@ -52,12 +52,12 @@ InitMsgBuilder::InitMsgBuilder(void* buf, uint32 size,
   pos = MsgTools::fillNames(hlt_selections,pos);
   pos = MsgTools::fillNames(l1_names,pos);
 
-  desc_addr_ = pos + sizeof(char_uint32);
-  setDescLength(0);
+  data_addr_ = pos + sizeof(char_uint32);
+  setDataLength(0);
 
   // Two news fileds added to InitMsg in Proto V3 init_header_size, and event_header_size.
   //Set the size of Init Header Start of buf to Start of desc.
-  convert((uint32)(desc_addr_-buf_), h->init_header_size_);
+  convert((uint32)(data_addr_ - buf_), h->init_header_size_);
 
   // 18-Apr-2008, KAB:  create a dummy event message so that we can
   // determine the expected event header size.  (Previously, the event
@@ -75,11 +75,11 @@ InitMsgBuilder::InitMsgBuilder(void* buf, uint32 size,
   convert(eventHeaderSize, h->event_header_size_);
 }
 
-void InitMsgBuilder::setDescLength(uint32 len)
+void InitMsgBuilder::setDataLength(uint32 len)
 {
-  convert(len,desc_addr_-sizeof(char_uint32));
+  convert(len,data_addr_-sizeof(char_uint32));
   InitHeader* h = (InitHeader*)buf_;
-  new (&h->header_) Header(Header::INIT,desc_addr_-buf_+len);
+  new (&h->header_) Header(Header::INIT, data_addr_ - buf_ + len);
 }
 
 

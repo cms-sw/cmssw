@@ -39,7 +39,7 @@ namespace edm {
   private:
     Selections const* selections_;
 
-    SBuffer prod_reg_buf_;
+    SBuffer header_buf_;
     SBuffer bufs_;
 
     int maxEventSize_;

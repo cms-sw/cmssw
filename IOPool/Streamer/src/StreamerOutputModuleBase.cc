@@ -51,7 +51,8 @@ namespace edm {
   StreamerOutputModuleBase::StreamerOutputModuleBase(ParameterSet const& ps) :
     OutputModule(ps),
     selections_(&keptProducts()[InEvent]),
-    prod_reg_buf_(1000 * 1000),
+    header_buf_(),
+    bufs_(),
     maxEventSize_(ps.getUntrackedParameter<int>("max_event_size", 7000000)),
     useCompression_(ps.getUntrackedParameter<bool>("use_compression", true)),
     compressionLevel_(ps.getUntrackedParameter<int>("compression_level", 1)),
@@ -128,6 +129,15 @@ namespace edm {
 
   std::auto_ptr<InitMsgBuilder>
   StreamerOutputModuleBase::serializeRegistry() {
+
+    serializer_.serializeRegistry();
+
+    // resize bufs_ to reflect space used in serializer_ + header
+    // I just added an overhead for header of 50000 for now
+    unsigned int src_size = serializer_.currentSpaceUsed();
+    unsigned int new_size = src_size + 50000;
+    if(header_buf_.size() < new_size) header_buf_.resize(new_size);
+
     //Build the INIT Message
     //Following values are strictly DUMMY and will be replaced
     // once available with Utility function etc.
@@ -165,14 +175,17 @@ namespace edm {
     outputModuleId_ = static_cast<uint32>(crc);
 
     std::auto_ptr<InitMsgBuilder> init_message(
-        new InitMsgBuilder(&prod_reg_buf_[0], prod_reg_buf_.size(),
+        new InitMsgBuilder(&header_buf_[0], header_buf_.size(),
                            run, v, getReleaseVersion().c_str() , processName.c_str(),
                            moduleLabel.c_str(), outputModuleId_,
                            hltTriggerNames, hltTriggerSelections_, l1_names));
 
-    // the translator already has the product registry (selections_),
-    // so it just needs to serialize it to the init message.
-    serializer_.serializeRegistry(*init_message);
+
+    // copy data into the destination message
+
+    unsigned char* src = serializer_.bufferPointer();
+    std::copy(src, src + src_size, init_message->dataAddress());
+    init_message->setDataLength(src_size);
 
     return init_message;
   }

@@ -50,15 +50,15 @@ namespace edm
    * into the specified InitMessage.
    */
 
-  int StreamSerializer::serializeRegistry(InitMsgBuilder& initMessage)
+  int StreamSerializer::serializeRegistry()
   {
     FDEBUG(6) << "StreamSerializer::serializeRegistry" << std::endl;
-    TClass* prog_reg = getTClass(typeid(SendJobHeader));
     SendJobHeader sd;
 
     Selections::const_iterator i(selections_->begin()), e(selections_->end());
 
     FDEBUG(9) << "Product List: " << std::endl;
+
 
     for(; i != e; ++i)  {
         sd.push_back(**i);
@@ -67,22 +67,19 @@ namespace edm
     }
     sd.setModuleDescriptionMap(ModuleDescriptionRegistry::instance()->data());
     SendJobHeader::ParameterSetMap psetMap;
+
     pset::Registry const* psetRegistry = pset::Registry::instance();
     for (pset::Registry::const_iterator it = psetRegistry->begin(), itEnd = psetRegistry->end(); it != itEnd; ++it) {
-      // A kludge to avoid a ROOT bug.
-      // An apparent bug in ROOT causes a crash if the string length is greater than about 27500 (experimentally determined).
-      if (it->second.toStringOfTracked().size() < 16384) {
-        psetMap.insert(std::make_pair(it->first, ParameterSetBlob(it->second.toStringOfTracked())));
-      }
+      psetMap.insert(std::make_pair(it->first, ParameterSetBlob(it->second.toStringOfTracked())));
     }
     sd.setParameterSetMap(psetMap);
 
-    RootBuffer rootbuf(TBuffer::kWrite,initMessage.bufferSize(),
-                    initMessage.dataAddress(),kFALSE);
+    rootbuf_.Reset();
 
     RootDebug tracer(10,10);
 
-    int bres = rootbuf.WriteObjectAny((char*)&sd,prog_reg);
+    TClass* tc = getTClass(typeid(SendJobHeader));
+    int bres = rootbuf_.WriteObjectAny((char*)&sd, tc);
 
     switch(bres)
     {
@@ -110,8 +107,10 @@ namespace edm
       }
     }
 
-    initMessage.setDescLength(rootbuf.Length());
-    return rootbuf.Length();
+   curr_event_size_ = rootbuf_.Length();
+   curr_space_used_ = curr_event_size_;
+   ptr_ = (unsigned char*)rootbuf_.Buffer();
+   return curr_space_used_;
   }
 
   /**

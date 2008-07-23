@@ -68,7 +68,7 @@ int main()
                       outputModuleLabel.c_str(), crc,
                       hlt_names,hlt_names,l1_names);
 
-  init.setDescLength(sizeof(test_value));
+  init.setDataLength(sizeof(test_value));
   std::copy(&test_value[0],&test_value[0]+sizeof(test_value),
             init.dataAddress());
 

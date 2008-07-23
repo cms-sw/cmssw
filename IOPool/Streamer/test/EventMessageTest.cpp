@@ -61,7 +61,7 @@ int main()
                       hlt_names,hlt_names,l1_names);
 
 
-  init.setDescLength(sizeof(test_value));
+  init.setDataLength(sizeof(test_value));
   std::copy(&test_value[0],&test_value[0]+sizeof(test_value),
             init.dataAddress());
 
@@ -81,7 +81,7 @@ int main()
                        processName.c_str(),outputModuleLabel.c_str(), crc,
                        hlt2,hlt2,l12);
 
-  init2.setDescLength(view.descLength());
+  init2.setDataLength(view.descLength());
   std::copy(view.descData(),view.descData()+view.size(),
             init2.dataAddress());
 
