@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Thu May 29 23:36:18 CEST 2008
-// $Id: produceL1RCTParameters.cc,v 1.2 2008/07/04 23:26:14 wsun Exp $
+// $Id: produceL1RCTParameters.cc,v 1.3 2008/07/10 20:58:02 wsun Exp $
 //
 //
 
@@ -46,9 +46,12 @@ L1TriggerConfigOnlineProd::produceL1RCTParameters( const L1RCTParametersRcd& iRe
 
      // ~~~~~~~~~ Get rct_parameter from rct_key ~~~~~~~~~
 
+     std::string rctSchema = "CMS_RCT" ;
+
      // SELECT RCT_PARAMETER FROM RCT_CONF WHERE RCT_CONF.RCT_KEY = key
      l1t::OMDSReader::QueryResults paremKeyResults =
        m_omdsReader.basicQuery( "RCT_PARAMETER",
+				rctSchema,
 				"RCT_CONF",
 				"RCT_CONF.RCT_KEY",
 				m_omdsReader.singleAttribute( key ) );
@@ -77,6 +80,7 @@ L1TriggerConfigOnlineProd::produceL1RCTParameters( const L1RCTParametersRcd& iRe
 
      l1t::OMDSReader::QueryResults results2 =
        m_omdsReader.basicQuery( queryStrings,
+				rctSchema,
 				"PAREM_CONF",
 				"PAREM_CONF.PAREM_KEY",
 				paremKeyResults ) ;
@@ -130,9 +134,11 @@ L1TriggerConfigOnlineProd::produceL1RCTParameters( const L1RCTParametersRcd& iRe
      l1t::OMDSReader::QueryResults egammaEcalResults =
        m_omdsReader.basicQuery(
 	 scaleFactorQueryStrings,
+	 rctSchema,
 	 "EGAMMA_ECAL_SCALEFACTOR",
 	 "EGAMMA_ECAL_SCALEFACTOR.FK_VERSION",
 	 m_omdsReader.basicQuery( "EGAMMA_ECAL",
+				  rctSchema,
 				  "PAREM_CONF",
 				  "PAREM_CONF.PAREM_KEY",
 				  paremKeyResults ) ) ;
@@ -181,9 +187,11 @@ L1TriggerConfigOnlineProd::produceL1RCTParameters( const L1RCTParametersRcd& iRe
      l1t::OMDSReader::QueryResults egammaHcalResults =
        m_omdsReader.basicQuery(
 	 scaleFactorQueryStrings,
+	 rctSchema,
 	 "EGAMMA_HCAL_SCALEFACTOR",
 	 "EGAMMA_HCAL_SCALEFACTOR.FK_VERSION",
 	 m_omdsReader.basicQuery( "EGAMMA_HCAL",
+				  rctSchema,
 				  "PAREM_CONF",
 				  "PAREM_CONF.PAREM_KEY",
 				  paremKeyResults ) ) ;
@@ -226,9 +234,11 @@ L1TriggerConfigOnlineProd::produceL1RCTParameters( const L1RCTParametersRcd& iRe
      l1t::OMDSReader::QueryResults jetmetEcalResults =
        m_omdsReader.basicQuery(
 	 scaleFactorQueryStrings,
+	 rctSchema,
 	 "JETMET_ECAL_SCALEFACTOR",
 	 "JETMET_ECAL_SCALEFACTOR.FK_VERSION",
 	 m_omdsReader.basicQuery( "JETMET_ECAL",
+				  rctSchema,
 				  "PAREM_CONF",
 				  "PAREM_CONF.PAREM_KEY",
 				  paremKeyResults ) ) ;
@@ -271,9 +281,11 @@ L1TriggerConfigOnlineProd::produceL1RCTParameters( const L1RCTParametersRcd& iRe
      l1t::OMDSReader::QueryResults jetmetHcalResults =
        m_omdsReader.basicQuery(
 	 scaleFactorQueryStrings,
+	 rctSchema,
 	 "JETMET_HCAL_SCALEFACTOR",
 	 "JETMET_HCAL_SCALEFACTOR.FK_VERSION",
 	 m_omdsReader.basicQuery( "JETMET_HCAL",
+				  rctSchema,
 				  "PAREM_CONF",
 				  "PAREM_CONF.PAREM_KEY",
 				  paremKeyResults ) ) ;

@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Sun Mar  2 03:03:32 CET 2008
-// $Id: L1TriggerKeyOnlineProd.cc,v 1.5 2008/07/04 23:26:14 wsun Exp $
+// $Id: L1TriggerKeyOnlineProd.cc,v 1.6 2008/07/10 20:58:02 wsun Exp $
 //
 //
 
@@ -115,6 +115,7 @@ L1TriggerKeyOnlineProd::produce(const L1TriggerKeyRcd& iRecord)
 
 	  l1t::OMDSReader::QueryResults subkeyResults =
 	    m_omdsReader.basicQuery( queryStrings,
+				     "CMS_TRG_L1_CONF",
 				     "TRIGGERSUP_CONF",
 				     "TRIGGERSUP_CONF.TS_KEY",
 				     m_omdsReader.singleAttribute(m_tscKey) ) ;
@@ -170,9 +171,11 @@ L1TriggerKeyOnlineProd::produce(const L1TriggerKeyRcd& iRecord)
 	  l1t::OMDSReader::QueryResults gmtSWKeyResults =
 	    m_omdsReader.basicQuery(
 	      "GMT_SOFTWARE_CONFIG",
+	      "CMS_GMT",
 	      "GMT_LUTS",
 	      "GMT_LUTS.KEY",
 	      m_omdsReader.basicQuery( "LUT_KEY",
+				       "CMS_GMT",
 				       "GMT_CONFIG",
 				       "GMT_CONFIG.KEY",
 				       subkeyResults, "GMT_KEY" ) ) ;
@@ -208,6 +211,7 @@ L1TriggerKeyOnlineProd::produce(const L1TriggerKeyRcd& iRecord)
 
 	  l1t::OMDSReader::QueryResults gtPartitionKeyResults =
 	    m_omdsReader.basicQuery( "PARTITION0_SETUP_FK",
+				     "CMS_GT",
 				     "GT_SETUP",
 				     "GT_SETUP.ID",
 				     subkeyResults, "GT_KEY" ) ;
@@ -259,14 +263,17 @@ L1TriggerKeyOnlineProd::produce(const L1TriggerKeyRcd& iRecord)
 	  l1t::OMDSReader::QueryResults muonScaleKeyResults =
 	    m_omdsReader.basicQuery(
 	      gtQueryStrings,
+	      "CMS_GT",
 	      "L1T_SCALES",
 	      "L1T_SCALES.ID",
 	      m_omdsReader.basicQuery(
 		"SCALES_FK",
+		"CMS_GT",
 		"L1T_MENU",
 		"L1T_MENU.ID",
 		m_omdsReader.basicQuery(
 		  "L1T_MENU_FK",
+		  "CMS_GT",
 		  "GT_SETUP",
 		  "GT_SETUP.ID",
 		  subkeyResults, "GT_KEY" ) ) ) ;

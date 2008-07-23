@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Mar  2 01:46:46 CET 2008
-// $Id: OMDSReader.cc,v 1.2 2008/05/28 17:52:55 wsun Exp $
+// $Id: OMDSReader.cc,v 1.3 2008/07/10 20:58:02 wsun Exp $
 //
 
 // system include files
@@ -17,6 +17,7 @@
 #include "CondTools/L1Trigger/interface/OMDSReader.h"
 #include "RelationalAccess/ITable.h"
 #include "RelationalAccess/ISchema.h"
+#include "RelationalAccess/ISessionProxy.h"
 #include "RelationalAccess/ICursor.h"
 
 //
@@ -73,13 +74,17 @@ OMDSReader::~OMDSReader()
   const OMDSReader::QueryResults
   OMDSReader::basicQuery(
     const std::vector< std::string >& columnNames,
+    const std::string& schemaName,
     const std::string& tableName,
     const std::string& conditionLHS,
     const QueryResults conditionRHS,
     const std::string& conditionRHSName ) const
   {
-    coral::ITable& table =
-      m_coralTransaction->nominalSchema().tableHandle( tableName ) ;
+    coral::ISchema& schema = schemaName.empty() ?
+      m_coralTransaction->nominalSchema() :
+      m_coralTransaction->coralSessionProxy().schema( schemaName ) ;
+
+    coral::ITable& table = schema.tableHandle( tableName ) ;
 
     // Pointer is deleted automatically at end of function.
     boost::shared_ptr< coral::IQuery > query( table.newQuery() ) ;
@@ -124,6 +129,7 @@ OMDSReader::~OMDSReader()
   const OMDSReader::QueryResults
   OMDSReader::basicQuery(
     const std::string& columnName,
+    const std::string& schemaName,
     const std::string& tableName,
     const std::string& conditionLHS,
     const QueryResults conditionRHS,
@@ -131,7 +137,7 @@ OMDSReader::~OMDSReader()
   {
     std::vector< std::string > columnNames ;
     columnNames.push_back( columnName ) ;
-    return basicQuery( columnNames, tableName,
+    return basicQuery( columnNames, schemaName, tableName,
 			conditionLHS, conditionRHS, conditionRHSName ) ;
   }
 

@@ -16,7 +16,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Sun Mar  2 01:36:06 CET 2008
-// $Id: OMDSReader.h,v 1.2 2008/05/28 17:52:46 wsun Exp $
+// $Id: OMDSReader.h,v 1.3 2008/07/10 20:58:01 wsun Exp $
 //
 
 // system include files
@@ -59,7 +59,7 @@ namespace l1t
 
       // These functions encapsulate basic SQL queries of the form
       //
-      // SELECT <columns> FROM <table> WHERE <conditionLHS> = <conditionRHS>
+      // SELECT <columns> FROM <schema.table> WHERE <conditionLHS> = <conditionRHS>
       //
       // where
       //
@@ -68,6 +68,7 @@ namespace l1t
 
       const QueryResults basicQuery(
 	const std::vector< std::string >& columnNames,
+	const std::string& schemaName, // for nominal schema, use ""
 	const std::string& tableName,
 	const std::string& conditionLHS = "",
 	const QueryResults conditionRHS = QueryResults(),
@@ -78,6 +79,7 @@ namespace l1t
 
       const QueryResults basicQuery(
 	const std::string& columnName,
+	const std::string& schemaName, // for nominal schema, use ""
 	const std::string& tableName,
 	const std::string& conditionLHS = "",
 	const QueryResults conditionRHS = QueryResults(),
