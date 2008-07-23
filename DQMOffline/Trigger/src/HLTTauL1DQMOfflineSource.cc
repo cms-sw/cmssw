@@ -30,17 +30,17 @@ HLTTauL1DQMOfflineSource::HLTTauL1DQMOfflineSource(const edm::ParameterSet& iCon
   _MuTauThresholds(iConfig.getParameter< std::vector<double> >("MuTauThresholds")),
   _IsoEgTauThresholds(iConfig.getParameter< std::vector<double> >("IsoEgTauThresholds")),
   
-  _L1MCTauMinDeltaR(iConfig.getParameter<double>("L1MCTauMinDeltaR")),
-  _MCTauHadMinEt(iConfig.getParameter<double>("MCTauHadMinEt")),
-  _MCTauHadMaxAbsEta(iConfig.getParameter<double>("MCTauHadMaxAbsEta")),
+  _L1MCTauMinDeltaR(iConfig.getParameter<double>("L1RefTauMinDeltaR")),
+  _MCTauHadMinEt(iConfig.getParameter<double>("RefTauHadMinEt")),
+  _MCTauHadMaxAbsEta(iConfig.getParameter<double>("RefTauHadMaxAbsEta")),
 
-  _L1MCElecMinDeltaR(iConfig.getParameter<double>("L1MCElecMinDeltaR")),
-  _MCElecMinEt(iConfig.getParameter<double>("MCElecMinEt")),
-  _MCElecMaxAbsEta(iConfig.getParameter<double>("MCElecMaxAbsEta")),
+  _L1MCElecMinDeltaR(iConfig.getParameter<double>("RefMCElecMinDeltaR")),
+  _MCElecMinEt(iConfig.getParameter<double>("RefElecMinEt")),
+  _MCElecMaxAbsEta(iConfig.getParameter<double>("RefElecMaxAbsEta")),
   
-  _L1MCMuonMinDeltaR(iConfig.getParameter<double>("L1MCMuonMinDeltaR")),
-  _MCMuonMinEt(iConfig.getParameter<double>("MCMuonMinEt")),
-  _MCMuonMaxAbsEta(iConfig.getParameter<double>("MCMuonMaxAbsEta")),
+  _L1MCMuonMinDeltaR(iConfig.getParameter<double>("L1RefMuonMinDeltaR")),
+  _MCMuonMinEt(iConfig.getParameter<double>("RefMuonMinEt")),
+  _MCMuonMaxAbsEta(iConfig.getParameter<double>("RefMuonMaxAbsEta")),
   
   _triggerTag((iConfig.getParameter<std::string>("TriggerTag"))),
   _outFile(iConfig.getParameter<std::string>("OutputFileName"))
@@ -97,11 +97,11 @@ HLTTauL1DQMOfflineSource::HLTTauL1DQMOfflineSource(const edm::ParameterSet& iCon
       h_L1MetPhi->getTH1F()->Sumw2();
 
       // L1 response
-      h_L1MCTauDeltaR = store->book1D("L1MCTauDeltaR","L1MCTauDeltaR",60,0.,6.);
+      h_L1MCTauDeltaR = store->book1D("L1RefTauDeltaR","L1RefTauDeltaR",60,0.,6.);
       h_L1MCTauDeltaR->getTH1F()->Sumw2();
-      h_L1minusMCTauEt = store->book1D("L1minusMCTauEt","L1minusMCTauEt",50,-50.,50.);
+      h_L1minusMCTauEt = store->book1D("L1minusRefTauEt","L1minusRefTauEt",50,-50.,50.);
       h_L1minusMCTauEt->getTH1F()->Sumw2();
-      h_L1minusMCoverMCTauEt = store->book1D("L1minusMCoverMCTauEt","L1minusMCoverMCTauEt",40,-1.2,1.2);
+      h_L1minusMCoverMCTauEt = store->book1D("L1minusMCoverRefTauEt","L1minusRefoverMCTauEt",40,-1.2,1.2);
       h_L1minusMCoverMCTauEt->getTH1F()->Sumw2();
       
       // MC w/o cuts
@@ -129,74 +129,74 @@ HLTTauL1DQMOfflineSource::HLTTauL1DQMOfflineSource(const edm::ParameterSet& iCon
 
       // Tau -> Electron
       // MC matching efficiencies
-      h_MCTauElecEt = store->book1D("MCTauElecEt","MCTauElecEt",50,0.,100.);
+      h_MCTauElecEt = store->book1D("RefTauElecEt","RefTauElecEt",50,0.,100.);
       h_MCTauElecEt->getTH1F()->Sumw2();
-      h_MCTauElecEta = store->book1D("MCTauElecEta","MCTauElecEta",60,-4.,4.);
+      h_MCTauElecEta = store->book1D("RefTauElecEta","RefTauElecEta",60,-4.,4.);
       h_MCTauElecEta->getTH1F()->Sumw2();
-      h_MCTauElecPhi = store->book1D("MCTauElecPhi","MCTauElecPhi",50,-3.2,3.2);
+      h_MCTauElecPhi = store->book1D("RefTauElecPhi","RefTauElecPhi",50,-3.2,3.2);
       h_MCTauElecPhi->getTH1F()->Sumw2();
 
-      h_L1MCMatchedTauElecEt = store->book1D("L1MCMatchedTauElecEt","L1MCMatchedTauElecEt",50,0.,100.);
+      h_L1MCMatchedTauElecEt = store->book1D("L1RefMatchedTauElecEt","L1RefMatchedTauElecEt",50,0.,100.);
       h_L1MCMatchedTauElecEt->getTH1F()->Sumw2();
-      h_L1MCMatchedTauElecEta = store->book1D("L1MCMatchedTauElecEta","L1MCMatchedTauElecEta",60,-4.,4.);
+      h_L1MCMatchedTauElecEta = store->book1D("L1RefMatchedTauElecEta","L1RefMatchedTauElecEta",60,-4.,4.);
       h_L1MCMatchedTauElecEta->getTH1F()->Sumw2();
-      h_L1MCMatchedTauElecPhi = store->book1D("L1MCMatchedTauElecPhi","L1MCMatchedTauElecPhi",50,-3.2,3.2);
+      h_L1MCMatchedTauElecPhi = store->book1D("L1RefMatchedTauElecPhi","L1RefMatchedTauElecPhi",50,-3.2,3.2);
       h_L1MCMatchedTauElecPhi->getTH1F()->Sumw2();
       
-      h_EffMCTauElecEt = store->book1D("EffMCTauElecEt","EffMCTauElecEt",50,0.,100.);
+      h_EffMCTauElecEt = store->book1D("EffRefTauElecEt","EffRefTauElecEt",50,0.,100.);
       h_EffMCTauElecEt->getTH1F()->Sumw2();
-      h_EffMCTauElecEta = store->book1D("EffMCTauElecEta","EffMCTauElecEta",60,-4.,4.);
+      h_EffMCTauElecEta = store->book1D("EffRefTauElecEta","EffRefTauElecEta",60,-4.,4.);
       h_EffMCTauElecEta->getTH1F()->Sumw2();
-      h_EffMCTauElecPhi = store->book1D("EffMCTauElecPhi","EffMCTauElecPhi",50,-3.2,3.2);
+      h_EffMCTauElecPhi = store->book1D("EffRefTauElecPhi","EffRefTauElecPhi",50,-3.2,3.2);
       h_EffMCTauElecPhi->getTH1F()->Sumw2();
 
 
 
       // Tau -> Muon
       // MC matching efficiencies
-      h_MCTauMuonEt = store->book1D("MCTauMuonEt","MCTauMuonEt",50,0.,100.);
+      h_MCTauMuonEt = store->book1D("RefTauMuonEt","RefTauMuonEt",50,0.,100.);
       h_MCTauMuonEt->getTH1F()->Sumw2();
-      h_MCTauMuonEta = store->book1D("MCTauMuonEta","MCTauMuonEta",60,-4.,4.);
+      h_MCTauMuonEta = store->book1D("RefTauMuonEta","RefTauMuonEta",60,-4.,4.);
       h_MCTauMuonEta->getTH1F()->Sumw2();
-      h_MCTauMuonPhi = store->book1D("MCTauMuonPhi","MCTauMuonPhi",50,-3.2,3.2);
+      h_MCTauMuonPhi = store->book1D("RefTauMuonPhi","RefTauMuonPhi",50,-3.2,3.2);
       h_MCTauMuonPhi->getTH1F()->Sumw2();
       
-      h_L1MCMatchedTauMuonEt = store->book1D("L1MCMatchedTauMuonEt","L1MCMatchedTauMuonEt",50,0.,100.);
+      h_L1MCMatchedTauMuonEt = store->book1D("L1RefMatchedTauMuonEt","L1RefMatchedTauMuonEt",50,0.,100.);
       h_L1MCMatchedTauMuonEt->getTH1F()->Sumw2();
-      h_L1MCMatchedTauMuonEta = store->book1D("L1MCMatchedTauMuonEta","L1MCMatchedTauMuonEta",60,-4.,4.);
+      h_L1MCMatchedTauMuonEta = store->book1D("L1RefMatchedTauMuonEta","L1RefMatchedTauMuonEta",60,-4.,4.);
       h_L1MCMatchedTauMuonEta->getTH1F()->Sumw2();
-      h_L1MCMatchedTauMuonPhi = store->book1D("L1MCMatchedTauMuonPhi","L1MCMatchedTauMuonPhi",50,-3.2,3.2);
+      h_L1MCMatchedTauMuonPhi = store->book1D("L1RefMatchedTauMuonPhi","L1RefMatchedTauMuonPhi",50,-3.2,3.2);
       h_L1MCMatchedTauMuonPhi->getTH1F()->Sumw2();
       
-      h_EffMCTauMuonEt = store->book1D("EffMCTauMuonEt","EffMCTauMuonEt",50,0.,100.);
+      h_EffMCTauMuonEt = store->book1D("EffRefTauMuonEt","EffRefTauMuonEt",50,0.,100.);
       h_EffMCTauMuonEt->getTH1F()->Sumw2();
-      h_EffMCTauMuonEta = store->book1D("EffMCTauMuonEta","EffMCTauMuonEta",60,-4.,4.);
+      h_EffMCTauMuonEta = store->book1D("EffRefTauMuonEta","EffRefTauMuonEta",60,-4.,4.);
       h_EffMCTauMuonEta->getTH1F()->Sumw2();
-      h_EffMCTauMuonPhi = store->book1D("EffMCTauMuonPhi","EffMCTauMuonPhi",50,-3.2,3.2);
+      h_EffMCTauMuonPhi = store->book1D("EffRefTauMuonPhi","EffRefTauMuonPhi",50,-3.2,3.2);
       h_EffMCTauMuonPhi->getTH1F()->Sumw2();
 
 
       // Tau -> Hadr
       // MC matching efficiencies
-      h_MCTauHadEt = store->book1D("MCTauHadEt","MCTauHadEt",50,0.,100.);
+      h_MCTauHadEt = store->book1D("RefTauHadEt","RefTauHadEt",50,0.,100.);
       h_MCTauHadEt->getTH1F()->Sumw2();
-      h_MCTauHadEta = store->book1D("MCTauHadEta","MCTauHadEta",60,-4.,4.);
+      h_MCTauHadEta = store->book1D("RefTauHadEta","RefTauHadEta",60,-4.,4.);
       h_MCTauHadEta->getTH1F()->Sumw2();
-      h_MCTauHadPhi = store->book1D("MCTauHadPhi","MCTauHadPhi",50,-3.2,3.2);
+      h_MCTauHadPhi = store->book1D("RefTauHadPhi","RefTauHadPhi",50,-3.2,3.2);
       h_MCTauHadPhi->getTH1F()->Sumw2();
       
-      h_L1MCMatchedTauEt = store->book1D("L1MCMatchedTauEt","L1MCMatchedTauEt",50,0.,100.);
+      h_L1MCMatchedTauEt = store->book1D("L1RefMatchedTauEt","L1RefMatchedTauEt",50,0.,100.);
       h_L1MCMatchedTauEt->getTH1F()->Sumw2();
-      h_L1MCMatchedTauEta = store->book1D("L1MCMatchedTauEta","L1MCMatchedTauEta",60,-4.,4.);
+      h_L1MCMatchedTauEta = store->book1D("L1RefMatchedTauEta","L1RefMatchedTauEta",60,-4.,4.);
       h_L1MCMatchedTauEta->getTH1F()->Sumw2();
-      h_L1MCMatchedTauPhi = store->book1D("L1MCMatchedTauPhi","L1MCMatchedTauPhi",50,-3.2,3.2);
+      h_L1MCMatchedTauPhi = store->book1D("L1RefMatchedTauPhi","L1RefMatchedTauPhi",50,-3.2,3.2);
       h_L1MCMatchedTauPhi->getTH1F()->Sumw2();
       
-      h_EffMCTauEt = store->book1D("EffMCTauEt","EffMCTauEt",50,0.,100.);
+      h_EffMCTauEt = store->book1D("EffRefTauEt","EffRefTauEt",50,0.,100.);
       h_EffMCTauEt->getTH1F()->Sumw2();
-      h_EffMCTauEta = store->book1D("EffMCTauEta","EffMCTauEta",60,-4.,4.);
+      h_EffMCTauEta = store->book1D("EffRefTauEta","EffRefTauEta",60,-4.,4.);
       h_EffMCTauEta->getTH1F()->Sumw2();
-      h_EffMCTauPhi = store->book1D("EffMCTauPhi","EffMCTauPhi",50,-3.2,3.2);
+      h_EffMCTauPhi = store->book1D("EffRefTauPhi","EffRefTauPhi",50,-3.2,3.2);
       h_EffMCTauPhi->getTH1F()->Sumw2();
       
       h_L1SingleTauEffEt = store->book1D("L1SingleTauEffEt","L1SingleTauEffEt",
@@ -205,52 +205,52 @@ HLTTauL1DQMOfflineSource::HLTTauL1DQMOfflineSource(const edm::ParameterSet& iCon
       h_L1DoubleTauEffEt = store->book1D("L1DoubleTauEffEt","L1DoubleTauEffEt",
 					 40,0.,80.);
       h_L1DoubleTauEffEt->getTH1F()->Sumw2();
-      h_L1SingleTauEffMCMatchEt = store->book1D("L1SingleTauEffMCMatchEt","L1SingleTauEffMCMatchEt",
+      h_L1SingleTauEffMCMatchEt = store->book1D("L1SingleTauEffRefMatchEt","L1SingleTauEffRefMatchEt",
 						50,0.,100.);
       h_L1SingleTauEffMCMatchEt->getTH1F()->Sumw2();
-      h_L1DoubleTauEffMCMatchEt = store->book1D("L1DoubleTauEffMCMatchEt","L1DoubleTauEffMCMatchEt",
+      h_L1DoubleTauEffMCMatchEt = store->book1D("L1DoubleTauEffRefMatchEt","L1DoubleTauEffRefMatchEt",
 						40,0.,80.);
       h_L1DoubleTauEffMCMatchEt->getTH1F()->Sumw2();
 
       h_L1TauMETfixEffEt = store->book1D("L1TauMETfixEffEt","L1TauMETfixEffEt",
 					 50,0.,100.);
       h_L1TauMETfixEffEt->getTH1F()->Sumw2();
-      h_L1TauMETfixEffMCMatchEt = store->book1D("L1TauMETfixEffMCMatchEt","L1TauMETfixEffMCMatchEt",
+      h_L1TauMETfixEffMCMatchEt = store->book1D("L1TauMETfixEffRefMatchEt","L1TauMETfixEffRefMatchEt",
 					 50,0.,100.);
       h_L1TauMETfixEffMCMatchEt->getTH1F()->Sumw2();
 
       h_L1METTaufixEffEt = store->book1D("L1METTaufixEffEt","L1METTaufixEffEt",
 					 50,0.,100.);
       h_L1METTaufixEffEt->getTH1F()->Sumw2();
-      h_L1METTaufixEffMCMatchEt = store->book1D("L1METTaufixEffMCMatchEt","L1METTaufixEffMCMatchEt",
+      h_L1METTaufixEffMCMatchEt = store->book1D("L1METTaufixEffRefMatchEt","L1METTaufixEffRefMatchEt",
 					 50,0.,100.);
       h_L1METTaufixEffMCMatchEt->getTH1F()->Sumw2();
 
       h_L1TauIsoEgfixEffEt = store->book1D("L1TauIsoEgfixEffEt","L1TauIsoEgfixEffEt",
 					 50,0.,100.);
       h_L1TauIsoEgfixEffEt->getTH1F()->Sumw2();
-      h_L1TauIsoEgfixEffMCMatchEt = store->book1D("L1TauIsoEgfixEffMCMatchEt","L1TauIsoEgfixEffMCMatchEt",
+      h_L1TauIsoEgfixEffMCMatchEt = store->book1D("L1TauIsoEgfixEffRefMatchEt","L1TauIsoEgfixEffRefMatchEt",
 					 50,0.,100.);
       h_L1TauIsoEgfixEffMCMatchEt->getTH1F()->Sumw2();
 
       h_L1IsoEgTaufixEffEt = store->book1D("L1IsoEgTaufixEffEt","L1IsoEgTaufixEffEt",
 					 50,0.,100.);
       h_L1IsoEgTaufixEffEt->getTH1F()->Sumw2();
-      h_L1IsoEgTaufixEffMCMatchEt = store->book1D("L1IsoEgTaufixEffMCMatchEt","L1IsoEgTaufixEffMCMatchEt",
+      h_L1IsoEgTaufixEffMCMatchEt = store->book1D("L1IsoEgTaufixEffRefMatchEt","L1IsoEgTaufixEffRefMatchEt",
 					 50,0.,100.);
       h_L1IsoEgTaufixEffMCMatchEt->getTH1F()->Sumw2();
 
       h_L1TauMuonfixEffEt = store->book1D("L1TauMuonfixEffEt","L1TauMuonfixEffEt",
 					 50,0.,100.);
       h_L1TauMuonfixEffEt->getTH1F()->Sumw2();
-      h_L1TauMuonfixEffMCMatchEt = store->book1D("L1TauMuonfixEffMCMatchEt","L1TauMuonfixEffMCMatchEt",
+      h_L1TauMuonfixEffMCMatchEt = store->book1D("L1TauMuonfixEffRefMatchEt","L1TauMuonfixEffRefMatchEt",
 					 50,0.,100.);
       h_L1TauMuonfixEffMCMatchEt->getTH1F()->Sumw2();
 
       h_L1MuonTaufixEffEt = store->book1D("L1MuonTaufixEffEt","L1MuonTaufixEffEt",
 					 50,0.,100.);
       h_L1MuonTaufixEffEt->getTH1F()->Sumw2();
-      h_L1MuonTaufixEffMCMatchEt = store->book1D("L1MuonTaufixEffMCMatchEt","L1MuonTaufixEffMCMatchEt",
+      h_L1MuonTaufixEffMCMatchEt = store->book1D("L1MuonTaufixEffRefMatchEt","L1MuonTaufixEffRefMatchEt",
 					 50,0.,100.);
       h_L1MuonTaufixEffMCMatchEt->getTH1F()->Sumw2();
 
