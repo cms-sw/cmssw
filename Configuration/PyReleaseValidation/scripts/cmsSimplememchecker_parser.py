@@ -82,6 +82,11 @@ def manipulate_log(outdir,logfile_name,startevt):
     ROOT.gROOT.SetStyle("Plain") # style paranoia
     sys.argv=__argv
 
+    #Cannot use this option when the logfile includes
+    #a large number of events... PyRoot seg-faults.
+    #Set ROOT in batch mode to avoid canvases popping up!
+    ROOT.gROOT.SetBatch(1)
+
     # Save in file
     rootfilename='%s/graphs.root' %outdir
     myfile=ROOT.TFile(rootfilename,'RECREATE')    
@@ -135,8 +140,14 @@ def manipulate_log(outdir,logfile_name,startevt):
     
     titlestring='<b>Report executed with release %s on %s.</b>\n<br>\n<hr>\n'\
                                    %(os.environ['CMSSW_VERSION'],time.asctime())
-        
-    html_file_name='%s/%s.html' %(outdir,logfile_name[:-4])# a way to say the string until its last but 4th char
+    #Introducing this if to catch the cmsRelvalreport.py use case of "reuse" of TimingReport
+    #profile when doing the SimpleMemReport... otherwise the filename for the html
+    #would be misleadingly TimingReport...
+    if len(logfile_name)>16 and 'TimingReport.log' in logfile_name[-16:]:
+        file_name=logfile_name[:-16]+"_SimpleMemReport"
+    else:
+        file_name=logfile_name[:-4]+"_SimpleMemReport"
+    html_file_name='%s/%s.html' %(outdir,file_name)
     html_file=open(html_file_name,'w')
     html_file.write('<html>\n<body>\n'+\
                     titlestring)
