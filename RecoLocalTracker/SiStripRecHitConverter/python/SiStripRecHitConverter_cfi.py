@@ -10,7 +10,9 @@ siStripMatchedRecHits = cms.EDFilter("SiStripRecHitConverter",
     LazyGetterProducer = cms.string('SiStripRawToClustersFacility'),
     ClusterProducer = cms.string('siStripClusters'),
     VerbosityLevel = cms.untracked.int32(1),
-    rphiRecHits = cms.string('rphiRecHit')
+    rphiRecHits = cms.string('rphiRecHit'),
+    useSiStripQuality = cms.bool(False),
+    siStripQualityLabel = cms.string('')
 )
 
 

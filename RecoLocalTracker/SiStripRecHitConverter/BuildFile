@@ -14,6 +14,7 @@
 <use name=RecoLocalTracker/Records>
 <use name=RecoLocalTracker/ClusterParameterEstimator>
 <use name=CondFormats/SiStripObjects>
+<use name=CalibFormats/SiStripObjects>
 <export>
 <lib name=RecoLocalTrackerSiStripRecHitConverter>
 <use name=DataFormats/Common>
@@ -32,4 +33,5 @@
 <use name=MagneticField/Engine>
 <use name=RecoLocalTracker/Records>
 <use name=CondFormats/SiStripObjects>
+<use name=CalibFormats/SiStripObjects>
 </export>
