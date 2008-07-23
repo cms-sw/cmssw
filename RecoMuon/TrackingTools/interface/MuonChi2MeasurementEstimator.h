@@ -7,8 +7,8 @@
  *  Starts from a transientTrack recHit.
  *  The Chi2 can have different values associated to different muon subdetectors.
  *
- *  $Date: 2007/05/09 14:05:13 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/07/22 09:57:27 $
+ *  $Revision: 1.1 $
  *  \author Giorgia Mila - INFN Torino
  */
 
@@ -27,7 +27,8 @@ class MuonChi2MeasurementEstimator : public Chi2MeasurementEstimatorBase {
   MuonChi2MeasurementEstimator(double dtMaxChi2, double cscMaxChi2, double rpcMaxChi2, double nSigma);
   
   /// Chi2 asociator
-  Chi2MeasurementEstimator estimate(const TransientTrackingRecHit&) const;
+  std::pair<bool,double> estimate(const TrajectoryStateOnSurface&,
+				  const TransientTrackingRecHit&) const;
 
 
  private:

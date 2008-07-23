@@ -2,17 +2,19 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/07/16 10:38:25 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/07/22 09:57:10 $
+ *  $Revision: 1.1 $
  *  \author G. Mila - INFN Torino
  */
 
 #include "RecoMuon/TrackingTools/interface/MuonChi2MeasurementEstimator.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/Common/interface/getRef.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
 
 MuonChi2MeasurementEstimator::MuonChi2MeasurementEstimator(double maxChi2, double nSigma = 3.)
@@ -23,31 +25,33 @@ MuonChi2MeasurementEstimator::MuonChi2MeasurementEstimator(double maxChi2, doubl
 
 
 MuonChi2MeasurementEstimator::MuonChi2MeasurementEstimator(double dtMaxChi2, double cscMaxChi2, double rpcMaxChi2, double nSigma = 3.)
-  :Chi2MeasurementEstimatorBase(dtMaxChi2,nSigma) , // to fix
+  :Chi2MeasurementEstimatorBase(dtMaxChi2,nSigma) , // fake value for maxChi2
    theDtChi2Estimator(dtMaxChi2, nSigma) , 
    theCscChi2Estimator(cscMaxChi2, nSigma) ,
    theRpcChi2Estimator(rpcMaxChi2, nSigma) {}
 
 
-Chi2MeasurementEstimator
-MuonChi2MeasurementEstimator::estimate(const TransientTrackingRecHit& recHit) const {
+std::pair<bool,double> 
+MuonChi2MeasurementEstimator::estimate(const TrajectoryStateOnSurface& tsos,
+				       const TransientTrackingRecHit& recHit) const {
   
    DetId id = recHit.geographicalId();
-   Chi2MeasurementEstimator* theChi2Estimator=0;
+   std::pair<bool,double> result;
 
    // chi2 choise based on recHit provenance
    if(id.det() == DetId::Muon &&
       (id.subdetId() == MuonSubdetId::DT || id.subdetId() == MuonSubdetId::CSC || id.subdetId() == MuonSubdetId::RPC)){
      if (id.det() == DetId::Muon && id.subdetId() == MuonSubdetId::DT )
-       (*theChi2Estimator)=theDtChi2Estimator;
+       result=theDtChi2Estimator.estimate(tsos,recHit);
      if (id.det() == DetId::Muon && id.subdetId() == MuonSubdetId::CSC )
-       (*theChi2Estimator)=theCscChi2Estimator;
+       result=theCscChi2Estimator.estimate(tsos,recHit);
      if (id.det() == DetId::Muon && id.subdetId() == MuonSubdetId::RPC ) 
-       (*theChi2Estimator)=theRpcChi2Estimator;
+       result=theRpcChi2Estimator.estimate(tsos,recHit);
    }
    else
-     cms::Exception("RecHit of invalid id (not dt,csc,rpc");
+     edm::LogError("invalidRecHitId")
+       <<"RecHit with MuonId but not SubDetId from dt or csc or rpc!";
 
-   return (*theChi2Estimator);
+   return result;
 
 }
