@@ -34,7 +34,7 @@ HLTTauL1DQMOfflineSource::HLTTauL1DQMOfflineSource(const edm::ParameterSet& iCon
   _MCTauHadMinEt(iConfig.getParameter<double>("RefTauHadMinEt")),
   _MCTauHadMaxAbsEta(iConfig.getParameter<double>("RefTauHadMaxAbsEta")),
 
-  _L1MCElecMinDeltaR(iConfig.getParameter<double>("RefMCElecMinDeltaR")),
+  _L1MCElecMinDeltaR(iConfig.getParameter<double>("RefElecMinDeltaR")),
   _MCElecMinEt(iConfig.getParameter<double>("RefElecMinEt")),
   _MCElecMaxAbsEta(iConfig.getParameter<double>("RefElecMaxAbsEta")),
   
