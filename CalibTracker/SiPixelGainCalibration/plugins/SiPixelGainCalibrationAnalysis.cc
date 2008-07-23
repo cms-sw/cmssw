@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Nov 14 15:02:06 CET 2007
-// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.20 2008/04/21 12:39:04 fblekman Exp $
+// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.21 2008/04/21 18:32:08 fblekman Exp $
 //
 //
 
@@ -36,6 +36,8 @@ SiPixelGainCalibrationAnalysis::SiPixelGainCalibrationAnalysis(const edm::Parame
   fitfunction_(iConfig.getUntrackedParameter<std::string>("fitFunctionRootFormula","pol1")),
   reject_plateaupoints_(iConfig.getUntrackedParameter<bool>("suppressPlateauInFit",true)),
   reject_single_entries_(iConfig.getUntrackedParameter<bool>("suppressPointsWithOneEntryOrLess",true)),
+  plateau_max_slope_(iConfig.getUntrackedParameter<double>("plateauSlopeMax",1.0)),
+  reject_first_point_(iConfig.getUntrackedParameter<bool>("rejectVCalZero",true)),
   reject_badpoints_frac_(iConfig.getUntrackedParameter<double>("suppressZeroAndPlateausInFitFrac",0)),
   bookBIGCalibPayload_(iConfig.getUntrackedParameter<bool>("saveFullPayloads",false)),
   savePixelHists_(iConfig.getUntrackedParameter<bool>("savePixelLevelHists",false)),
@@ -53,6 +55,10 @@ SiPixelGainCalibrationAnalysis::SiPixelGainCalibrationAnalysis(const edm::Parame
   theGainCalibrationDbInputService_(iConfig),
   gainlow_(10.),gainhi_(0.),pedlow_(255.),pedhi_(0.)
 {
+  if(reject_single_entries_)
+    min_nentries_=1;
+  else
+    min_nentries_=0;
   ::putenv("CORAL_AUTH_USER=me");
   ::putenv("CORAL_AUTH_PASSWORD=test");   
   edm::LogInfo("SiPixelGainCalibrationAnalysis") << "now using fit function " << fitfunction_ << ", which has " << nfitparameters_ << " free parameters. " << std::endl;
@@ -143,7 +149,7 @@ SiPixelGainCalibrationAnalysis::calibrationEnd() {
 }
 //-----------method to fill the database
 void SiPixelGainCalibrationAnalysis::fillDatabase(){
-  // only create when necessary.
+ // only create when necessary.
   // process the minimum and maximum gain & ped values...
 
 
@@ -173,63 +179,43 @@ void SiPixelGainCalibrationAnalysis::fillDatabase(){
     edm::LogInfo("SiPixelGainCalibrationAnalysis") << "now creating database object for detid " << detid << std::endl;
     // Get the module sizes.
 
-    size_t nrows = bookkeeper_[detid]["gain_2d"]->getNbinsY();
-    size_t ncols = bookkeeper_[detid]["gain_2d"]->getNbinsX();   
-    size_t nrowsrocsplit = theGainCalibrationDbInputHLT_->getNumberOfRowsToAverageOver();
-    if(theGainCalibrationDbInputOffline_->getNumberOfRowsToAverageOver()!=nrowsrocsplit)
-      throw  cms::Exception("GainCalibration Payload configuration error")
-	<< "[SiPixelGainCalibrationAnalysis::fillDatabase] ERROR the SiPixelGainCalibrationOffline and SiPixelGainCalibrationForHLT database payloads have different settings for the number of rows per roc: " << theGainCalibrationDbInputHLT_->getNumberOfRowsToAverageOver() << "(HLT), " << theGainCalibrationDbInputOffline_->getNumberOfRowsToAverageOver() << "(offline)";
+    int nrows = bookkeeper_[detid]["gain_2d"]->getNbinsY();
+    int ncols = bookkeeper_[detid]["gain_2d"]->getNbinsX();   
+
     std::vector<char> theSiPixelGainCalibrationPerPixel;
     std::vector<char> theSiPixelGainCalibrationPerColumn;
     std::vector<char> theSiPixelGainCalibrationGainPerColPedPerPixel;
     
     // Loop over columns and rows of this DetID
     //    std::cout <<" now starting loop over pixels..." << std::endl;
-    
-    for(size_t i=1; i<=ncols; i++) {
-      float pedforthiscol[2]={0,0};
-      float gainforthiscol[2]={0,0};
-      int nusedrows[2]={0,0};
+    for(int i=1; i<=ncols; i++) {
+      float pedforthiscol=0;
+      float gainforthiscol=0;
+      int nusedrows=0;
       //      std::cout << "now lookign at col " << i << std::endl;
-      for(size_t j=1; j<=nrows; j++) {
+      for(int j=1; j<=nrows; j++) {
 	nchannels++;
-	int iglobalrow=0;
-	if(nrows>nrowsrocsplit)
-	  iglobalrow=1;
 	float ped = bookkeeper_[detid]["ped_2d"]->getBinContent(i,j);
 	float gain = bookkeeper_[detid]["gain_2d"]->getBinContent(i,j);
 	
-	//	std::cout << "detid: "<< detid << ", looking at pixel row,col " << j << ","<<i << " gain,ped=" <<gain << "," << ped << std::endl;
-	if(ped==0 && gain==0){// dead pixel
-	  //	  std::cout << "dead!" << std::endl;
-	  theGainCalibrationDbInput_->setDeadPixel(theSiPixelGainCalibrationPerPixel);
-	  theGainCalibrationDbInputOffline_->setDeadPixel(theSiPixelGainCalibrationGainPerColPedPerPixel);
-	}
-	else{// pixel not dead
-	  theGainCalibrationDbInput_->setData(ped,gain,theSiPixelGainCalibrationPerPixel);
-	  theGainCalibrationDbInputOffline_->setDataPedestal(ped, theSiPixelGainCalibrationGainPerColPedPerPixel);
-	
+	//	std::cout << "looking at pixel row,col " << j << ","<<i << " gain,ped=" <<gain << "," << ped << std::endl;
+	// and fill and convert in the SiPixelGainCalibration object:
+	theGainCalibrationDbInput_->setData(ped,gain,theSiPixelGainCalibrationPerPixel);
+	theGainCalibrationDbInputOffline_->setDataPedestal(ped, theSiPixelGainCalibrationGainPerColPedPerPixel);
 	//	std::cout <<"done with database filling..." << std::endl;
 
-	  pedforthiscol[iglobalrow]+=ped;
-	  gainforthiscol[iglobalrow]+=gain;
-	  nusedrows[iglobalrow]++;
-	}
-	if(j%nrowsrocsplit==nrowsrocsplit){  
-	  if(nusedrows[iglobalrow]>0){// good column
-	    pedforthiscol[iglobalrow]/=(float)nusedrows[iglobalrow];
-	    gainforthiscol[iglobalrow]/=(float)nusedrows[iglobalrow];
-	    //	    std::cout << "good column ave gain,ped " << gainforthiscol[iglobalrow] << "," <<  pedforthiscol[iglobalrow] << std::endl;
-	    theGainCalibrationDbInputOffline_->setDataGain(gainforthiscol[iglobalrow],nrowsrocsplit,theSiPixelGainCalibrationGainPerColPedPerPixel);
-	    theGainCalibrationDbInputHLT_->setData(pedforthiscol[iglobalrow],gainforthiscol[iglobalrow],theSiPixelGainCalibrationPerColumn);
-	  }
-	  else if(nusedrows[iglobalrow]=0){// dead column!
-	    //	    std::cout << "dead column!" << std::endl;
-	    theGainCalibrationDbInputOffline_->setDeadColumn(nrowsrocsplit,theSiPixelGainCalibrationGainPerColPedPerPixel);
-	    theGainCalibrationDbInputHLT_->setDeadColumn(nrowsrocsplit,theSiPixelGainCalibrationPerColumn);
-	  }
-	}
+	pedforthiscol+=ped;
+	gainforthiscol+=gain;
+	nusedrows++;
       }
+      if(nusedrows>0){
+	pedforthiscol/=nusedrows;
+	gainforthiscol/=nusedrows;
+      }
+      //      std::cout << "filling objects..." << std::endl;
+      theGainCalibrationDbInputOffline_->setDataGain(gainforthiscol,nrows,theSiPixelGainCalibrationGainPerColPedPerPixel);
+      theGainCalibrationDbInputHLT_->setData(pedforthiscol,gainforthiscol,theSiPixelGainCalibrationPerColumn);
+	
     }
 
     //    std::cout << "setting range..." << std::endl;
@@ -239,12 +225,11 @@ void SiPixelGainCalibrationAnalysis::fillDatabase(){
     
     //    std::cout <<"putting things in db..." << std::endl;
     // now start creating the various database objects
-    if( bookBIGCalibPayload_)
-      if( !theGainCalibrationDbInput_->put(detid,range,ncols) )
-	edm::LogError("SiPixelGainCalibrationAnalysis")<<"warning: detid already exists for Pixel-level calibration database"<<std::endl;
+    if( !theGainCalibrationDbInput_->put(detid,range,ncols) )
+      edm::LogError("SiPixelGainCalibrationAnalysis")<<"warning: detid already exists for Pixel-level calibration database"<<std::endl;
     if( !theGainCalibrationDbInputOffline_->put(detid,offlinerange,ncols) )
       edm::LogError("SiPixelGainCalibrationAnalysis")<<"warning: detid already exists for Offline (gain per col, ped per pixel) calibration database"<<std::endl;
-    if(!theGainCalibrationDbInputHLT_->put(detid,hltrange, ncols) )
+    if(!theGainCalibrationDbInputHLT_->put(detid,hltrange) )
       edm::LogError("SiPixelGainCalibrationAnalysis")<<"warning: detid already exists for HLT (pedestal and gain per column) calibration database"<<std::endl;
   }
   
@@ -257,12 +242,12 @@ void SiPixelGainCalibrationAnalysis::fillDatabase(){
     edm::LogError("db service unavailable");
     return;
     if( mydbservice->isNewTagRequest(recordName_) ){
-      if( bookBIGCalibPayload_)
-	mydbservice->createNewIOV<SiPixelGainCalibration>(
-							  theGainCalibrationDbInput_, 
-							  mydbservice->beginOfTime(),
-							  mydbservice->endOfTime(),
-							  recordName_);
+      
+      mydbservice->createNewIOV<SiPixelGainCalibration>(
+							theGainCalibrationDbInput_, 
+							mydbservice->beginOfTime(),
+							mydbservice->endOfTime(),
+							recordName_);
       
       mydbservice->createNewIOV<SiPixelGainCalibrationForHLT>(
 							   theGainCalibrationDbInputHLT_,
@@ -278,21 +263,21 @@ void SiPixelGainCalibrationAnalysis::fillDatabase(){
       
     } 
     else {
-      if( bookBIGCalibPayload_)
-	mydbservice->appendSinceTime<SiPixelGainCalibration>(
-							     theGainCalibrationDbInput_, 
-							     mydbservice->currentTime(),
-							     recordName_);
+      
+      mydbservice->appendSinceTime<SiPixelGainCalibration>(
+							   theGainCalibrationDbInput_, 
+							   mydbservice->currentTime(),
+							   recordName_);
       
       mydbservice->appendSinceTime<SiPixelGainCalibrationForHLT>(
-								 theGainCalibrationDbInputHLT_, 
-								 mydbservice->currentTime(),
-								 recordName_);
+							   theGainCalibrationDbInputHLT_, 
+							   mydbservice->currentTime(),
+							   recordName_);
       
       mydbservice->appendSinceTime<SiPixelGainCalibrationOffline>(
-								  theGainCalibrationDbInputOffline_, 
-								  mydbservice->currentTime(),
-								  recordName_);
+							   theGainCalibrationDbInputOffline_, 
+							   mydbservice->currentTime(),
+							   recordName_);
     }
     edm::LogInfo(" --- all OK");
   } 
@@ -318,17 +303,17 @@ SiPixelGainCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixelCalibD
     use_point=true;
     xvalsasfloatsforDQM[ii]=xvalsall[ii]=vCalValues_[ii];
     yerrvalsall[ii]=yvalsall[ii]=0;
-    if(ipix->getnentries(ii)>0){
+    if(ipix->getnentries(ii)>min_nentries_){
       yvalsall[ii]=ipix->getsum(ii)/(float)ipix->getnentries(ii);
-      yerrvalsall[ii]=ipix->getsumsquares(ii)/(float)ipix->getnentries(ii);
+      yerrvalsall[ii]=ipix->getsumsquares(ii)/(float)(ipix->getnentries(ii));
       yerrvalsall[ii]-=pow(yvalsall[ii],2);
-      yerrvalsall[ii]=sqrt(yerrvalsall[ii]);
+      yerrvalsall[ii]=sqrt(yerrvalsall[ii])*sqrt(ipix->getnentries(ii));
     }
   }
   
   // calculate plateau value from last 3 full entries
   double plateauval=0;
-  for(int ii=nallpoints-1; ii>=0 && npoints<3; --ii){
+  for(int ii=nallpoints-1; ii>=0 && npoints<10; --ii){
     if(yvalsall[ii]>0 && yerrvalsall[ii]>0){
       plateauval+=yvalsall[ii];
       npoints++;
@@ -342,11 +327,15 @@ SiPixelGainCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixelCalibD
   for(int ii=0; ii<nallpoints; ++ii){
     // now selecting the appropriate points for the fit.
     use_point=true;
-    if(ipix->getnentries(ii)<=1 && reject_single_entries_)
+    if(reject_first_point_ && xvalsall[ii]<0.1)
+      use_point=false;
+    if(ipix->getnentries(ii)<=min_nentries_ && reject_single_entries_)
       use_point=false;
     if(ipix->getnentries(ii)==0 && reject_badpoints_)
       use_point=false;
     if(yvalsall[ii]>maxgoodvalinfit)
+      use_point=false;
+    if(ii>1 && fabs(yvalsall[ii]-yvalsall[ii-1])<1. && yvalsall[ii]>0.8*maxgoodvalinfit && reject_plateaupoints_)
       use_point=false;
     
     if(use_point){
