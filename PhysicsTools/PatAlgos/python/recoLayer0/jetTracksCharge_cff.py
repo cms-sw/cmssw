@@ -24,3 +24,16 @@ layer0JetCharge = cms.EDFilter("JetChargeValueMap",
 
 patLayer0JetTracksCharge = cms.Sequence(patAODJetTracksAssociator * layer0JetTracksAssociator * layer0JetCharge)
 
+
+
+## Compute JET Charge on the AOD
+
+AODJetCharge = cms.EDFilter("JetChargeValueMap",
+    src                  = cms.InputTag("iterativeCone5CaloJets"),             ## The Jets
+    jetTracksAssociation = cms.InputTag("patAODJetTracksAssociator"), ## NOTE: must be something from JetTracksAssociationValueMap
+    # -- JetCharge parameters --
+    var = cms.string('Pt'),
+    exp = cms.double(1.0)
+)
+
+patAODJetTracksCharge = cms.Sequence(patAODJetTracksAssociator * AODJetCharge)
