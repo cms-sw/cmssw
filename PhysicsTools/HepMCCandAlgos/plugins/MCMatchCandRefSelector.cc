@@ -17,7 +17,7 @@ namespace reco {
     
     class MCMatchCandRefSelector {
     public:
-      explicit MCMatchCandRefSelector(const string& src) : 
+      explicit MCMatchCandRefSelector(const InputTag& src) : 
 	src_(src) { }
       void newEvent(const Event& evt, const EventSetup&); 
       bool operator()(const CandidateBaseRef &) const;
@@ -40,7 +40,7 @@ namespace reco {
     template<>
     struct ParameterAdapter<MCMatchCandRefSelector> {
       static MCMatchCandRefSelector make(const ParameterSet & cfg) {
-	return MCMatchCandRefSelector(cfg.getParameter<string>("match"));
+	return MCMatchCandRefSelector(cfg.getParameter<InputTag>("match"));
       }
     };
     
