@@ -8,7 +8,9 @@
 */
 // Original Author:  Dorian Kcira
 //         Created:  Wed Apr 25 05:10:12 CEST 2007
-// $Id: HistoricOfflineClient.h,v 1.2 2008/02/15 15:05:36 dutta Exp $
+//        Modified:  Anne-Catherine Le Bihan 06/2008
+// $Id: HistoricOfflineClient.h,v 1.3 2008/03/02 00:07:41 dutta Exp $
+
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -16,7 +18,7 @@
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CondFormats/SiStripObjects/interface/SiStripPerformanceSummary.h"
+#include "CondFormats/SiStripObjects/interface/SiStripSummary.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
@@ -41,16 +43,20 @@ class HistoricOfflineClient : public edm::EDAnalyzer {
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       void retrievePointersToModuleMEs(const edm::EventSetup&);
-      void fillSummaryObjects(const edm::Run& run) const;
-      void writeToDB(edm::EventID evid, edm::Timestamp evtime) const;
-      void writeToDB(const edm::Run& run) const;
-      float CalculatePercentOver(MonitorElement * me) const;
-   private:
+      void fillSummaryObjects(SiStripSummary* summary,std::string& histoName, std::vector<std::string>& Quantities);
+      void writeToDB() const;
+      uint32_t returnDetComponent(std::string histoName);
+
       int nevents;
       bool firstEventInRun;
-      edm::ParameterSet parameters;
+     
       DQMStore* dqmStore_;
+       
       std::map<uint32_t, std::vector<MonitorElement *> > ClientPointersToModuleMEs;
-      SiStripPerformanceSummary* pSummary_;
+      
+      std::vector<SiStripSummary *> vSummary;
+     
+      edm::ParameterSet iConfig_;
+      
 };
 

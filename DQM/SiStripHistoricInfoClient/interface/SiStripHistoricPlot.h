@@ -4,11 +4,11 @@
 // Package:     SiStripHistoricInfoClient
 // Class  :     SiStripHistoricPlot
 /**\class SiStripHistoricPlot SiStripHistoricPlot.h DQM/SiStripHistoricInfoClient/interface/SiStripHistoricPlot.h
-Analyzer that produces the long-term detector performance (historic plot) for the silicon strip tracker.
+Analyzer that produces the long-term detector  (historic plot) for the silicon strip tracker.
 */
 // Original Author:  dkcira
 //         Created:  Wed May 9 17:08:21 CEST 2007
-// $Id: SiStripHistoricInfoClient.h,v 1.0 2007/05/9 17:08:21 dkcira Exp $
+// $Id: SiStripHistoricPlot.h,v 1.1 2007/05/16 07:42:04 dkcira Exp $
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -31,7 +31,7 @@ namespace cms{
     virtual void analyze( const edm::Event&, const edm::EventSetup& );
     virtual void endRun(const edm::Run&, const edm::EventSetup&) ;
     virtual void endJob();
-    void fillHistograms(edm::ESHandle<SiStripPerformanceSummary> pS);
+    void fillHistograms(edm::ESHandle<SiStripSummary> pS);
     TString detHistoTitle(uint32_t detid, std::string);
   private:
     bool printdebug_;

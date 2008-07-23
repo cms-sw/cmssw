@@ -8,9 +8,6 @@
 #include "CondFormats/SiStripObjects/interface/SiStripSummary.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-
-
-
 #include "TROOT.h"
 #include "TPad.h"
 #include "TSystem.h"
@@ -27,6 +24,12 @@
 #include "TStyle.h"
 #include "TRFIOFile.h"
 #include "TImageDump.h"
+
+/**
+  @class ReadFromFile
+  @author D. Giordano, A.-C. Le Bihan
+  @EDAnalyzer to read DQM root file & insert summary informations to DB 
+*/
 
 namespace edm {
     class ParameterSet;
@@ -57,16 +60,8 @@ class ReadFromFile : public edm::EDAnalyzer {
       std::string ROOTFILE_DIR;  
       std::string FILE_NAME;  
       std::string ME_DIR;  
-      
-      bool doTracks;
-      bool doNumberOfClusters;
-      bool doClusterWidth;
-      bool doClusterCharge;
-      bool doClusterNoise;
-      bool doClusterStoN;
    
       std::vector<SiStripSummary *> vSummary;
-      std::vector<int> vReg;
       
       edm::ParameterSet iConfig_;
 };

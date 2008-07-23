@@ -1,7 +1,6 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DQM/SiStripHistoricInfoClient/interface/HistoricOfflineClient.h"
-#include "DQM/SiStripHistoricInfoClient/interface/CopyPerformanceSummary.h"
 #include "DQM/SiStripHistoricInfoClient/interface/SiStripHistoricPlot.h"
 #include "DQM/SiStripHistoricInfoClient/interface/ReadFromFile.h"
 
