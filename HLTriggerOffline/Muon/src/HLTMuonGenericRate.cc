@@ -1,13 +1,10 @@
-/** \class HLTMuonGenericRate
+ /** \class HLTMuonGenericRate
  *  Get L1/HLT efficiency/rate plots
  *
- *  \author M. Vander Donckt, J. Klukas  (copied from J. Alcaraz)
+ *  \author M. Vander Donckt  (copied from J. Alcaraz)
  */
 
 #include "HLTriggerOffline/Muon/interface/HLTMuonGenericRate.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-
-#include "FWCore/ServiceRegistry/interface/Service.h"
 
 // Collaborating Class Header
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -40,520 +37,616 @@ using namespace l1extra;
 typedef std::vector< edm::ParameterSet > Parameters;
 
 /// Constructor
-HLTMuonGenericRate::HLTMuonGenericRate(const ParameterSet& pset, int index)
+HLTMuonGenericRate::HLTMuonGenericRate(const ParameterSet& pset, int Index)
 {
   useMuonFromGenerator = pset.getParameter<bool>("UseMuonFromGenerator");
   useMuonFromReco = pset.getParameter<bool>("UseMuonFromReco");
-  if ( useMuonFromGenerator ) 
-    theGenLabel = pset.getUntrackedParameter<InputTag>("GenLabel");
-  if ( useMuonFromReco )
-    theRecoLabel = pset.getUntrackedParameter<InputTag>("RecoLabel");
-  
-  Parameters TriggerLists = pset.getParameter<Parameters>("TriggerCollection");
-  ParameterSet thisTrigger = TriggerLists[index];
-  theL1CollectionLabel = 
-    thisTrigger.getParameter<InputTag>("L1CollectionLabel");
-  theHLTCollectionLabels = 
-    thisTrigger.getParameter<std::vector<InputTag> >("HLTCollectionLabels");
-  theL1ReferenceThreshold = 
-    thisTrigger.getParameter<double>("L1ReferenceThreshold");    
-  theHLTReferenceThreshold = 
-    thisTrigger.getParameter<double>("HLTReferenceThreshold");    
-  theNumberOfObjects = 
-    thisTrigger.getParameter<unsigned int>("NumberOfObjects");
-
+  if(useMuonFromGenerator)theGenLabel = pset.getUntrackedParameter<InputTag>("GenLabel");
+  if(useMuonFromReco)theRecoLabel = pset.getUntrackedParameter<InputTag>("RecoLabel");
+  Parameters TriggerLists=pset.getParameter<Parameters>("TriggerCollection");
+  int i=0;
+  for(Parameters::iterator itTrigger = TriggerLists.begin(); itTrigger != TriggerLists.end(); ++itTrigger) {
+    if ( i == Index ) { 
+      theL1CollectionLabel = itTrigger->getParameter<InputTag>("L1CollectionLabel");
+      theHLTCollectionLabels = itTrigger->getParameter<std::vector<InputTag> >("HLTCollectionLabels");
+      theL1ReferenceThreshold = itTrigger->getParameter<double>("L1ReferenceThreshold");    
+      theHLTReferenceThreshold = itTrigger->getParameter<double>("HLTReferenceThreshold");    
+      theNumberOfObjects = itTrigger->getParameter<unsigned int>("NumberOfObjects");
+      break;
+    }
+    ++i;
+  }
   theNSigmas = pset.getUntrackedParameter<std::vector<double> >("NSigmas90");
-  theCrossSection = pset.getParameter<double>("CrossSection");
 
-  // Convert it already into /nb/s
+  theCrossSection = pset.getParameter<double>("CrossSection");
+ // Convert it already into /nb/s)
   theLuminosity = pset.getUntrackedParameter<double>("Luminosity",1.e+32)*1.e-33;
 
   thePtMin = pset.getUntrackedParameter<double>("PtMin",0.);
   thePtMax = pset.getUntrackedParameter<double>("PtMax",40.);
   theNbins = pset.getUntrackedParameter<unsigned int>("Nbins",40);
-  
-  theNumberOfEvents = 0;
-  theNumberOfL1Events = 0;
-
-  dbe_ = 0 ;
-  if (pset.getUntrackedParameter<bool>("DQMStore", false)) {
-    dbe_ = Service<DQMStore>().operator->();
-    dbe_->setVerbose(0);
-  }
-
-  if ( pset.getUntrackedParameter<bool>("disableROOToutput", false) ) 
-    theRootFileName="";
-  else 
-    theRootFileName = pset.getUntrackedParameter<std::string>("RootFileName");
-
-  if ( dbe_ != NULL ) {
-    dbe_->cd();
-    dbe_->setCurrentFolder("HLT/Muon");
-    dbe_->setCurrentFolder("HLT/Muon/RateEfficiencies");
-    dbe_->setCurrentFolder("HLT/Muon/Distributions");
-  }
+  theNumberOfEvents = 0.;
+  theNumberOfL1Events = 0.;
 }
-
-
 
 /// Destructor
 HLTMuonGenericRate::~HLTMuonGenericRate(){
 }
 
-
-
 void HLTMuonGenericRate::analyze(const Event & event ){
-  thisEventWeight = 1;
-  NumberOfEvents->Fill(++theNumberOfEvents); // Sets ME<int> NumberOfEvents
-  LogTrace( "HLTMuonVal" ) << "In analyze for L1 trigger " << 
-    theL1CollectionLabel << " Event:" << theNumberOfEvents;  
-
-  // Get the muon with maximum pt at both generator and reconstruction levels 
-
-  bool foundRefGenMuon = false;
-  bool foundRefRecMuon = false;
-
-  double genMuonPt = -1;
-  double recMuonPt = -1;
-
+  this_event_weight=1;
+  ++theNumberOfEvents;
+  LogTrace("HLTMuonVal")<<"In analyze for L1 trigger "<<theL1CollectionLabel<<" Event:"<<theNumberOfEvents;  
+  // Get the muon with maximum pt at generator level or reconstruction, depending on the choice
+  bool refmuon_found = false;
+  bool refrecomuon_found = false;
+  double ptuse = -1;
+  double recoptuse = -1;
   if (useMuonFromGenerator) {
     Handle<HepMCProduct> genProduct;
-    event.getByLabel(theGenLabel, genProduct);
-    if ( genProduct.failedToGet() ){
-      LogWarning("HLTMuonVal") << "No generator input to compare to";
-      useMuonFromGenerator = false;
+    event.getByLabel(theGenLabel,genProduct);
+    if (genProduct.failedToGet()){
+      LogWarning("HLTMuonVal")<<"No generator input to compare to";
+      useMuonFromGenerator=false;
     } else {
-      evt = genProduct->GetEvent();
-      for ( HepMC::GenEvent::particle_const_iterator iParticle = 
-	    evt->particles_begin(); 
-	    iParticle != evt->particles_end(); ++iParticle ) {
-	if ( abs((*iParticle)->pdg_id()) == 13 && 
-	     (*iParticle)->status() == 1 ) {
-	  float pt = (*iParticle)->momentum().perp();
-	  hMCetanor->Fill((*iParticle)->momentum().eta());
-	  hMCphinor->Fill((*iParticle)->momentum().phi());
-	  if ( pt > genMuonPt) {
-	    foundRefGenMuon = true;
-	    genMuonPt = pt;
+      evt= genProduct->GetEvent();
+      HepMC::GenEvent::particle_const_iterator part;
+      for (part = evt->particles_begin(); part != evt->particles_end(); ++part ) {
+	int id1 = (*part)->pdg_id();
+	if (abs(id1)==13 && (*part)->status() == 1  ){
+	  float pt1 = (*part)->momentum().perp();
+	  hMCetanor->Fill((*part)->momentum().eta());
+	  hMCphinor->Fill((*part)->momentum().phi());
+	  if (pt1>ptuse) {
+	    refmuon_found = true;
+	    ptuse = pt1;
 	  }
 	}
       }
     } 
   }
-
   Handle<reco::TrackCollection> muTracks;
   if (useMuonFromReco) {
-    reco::TrackCollection::const_iterator muon;
-    event.getByLabel(theRecoLabel.label(), muTracks);    
-    if  ( muTracks.failedToGet() ) {
-      LogWarning("HLTMuonVal") << "No reco tracks to compare to";
-      useMuonFromReco = false;
-    } else {
-      for ( muon = muTracks->begin(); muon != muTracks->end(); ++muon ) {
-	float pt = muon->pt();
-	hRECOetanor->Fill( muon->eta() );
-	hRECOphinor->Fill( muon->phi() );
-	if ( pt > recMuonPt ) {
-	  foundRefRecMuon = true;
-	  recMuonPt = pt;
+      // Get the muon track collection from the event
+      reco::TrackCollection::const_iterator muon;
+      event.getByLabel(theRecoLabel.label(), muTracks);    
+      if  ( muTracks.failedToGet() ) {
+	LogWarning("HLTMuonVal")<<"No reco tracks to compare to";
+	useMuonFromReco=false;
+	return;
+      } else {
+	for ( muon = muTracks->begin(); muon != muTracks->end(); ++muon ) {
+	  float pt1 = muon->pt();
+	  hRECOetanor->Fill(muon->eta());
+	  hRECOphinor->Fill(muon->phi());
+	  if (pt1>recoptuse) {
+	    refrecomuon_found = true;
+	    recoptuse = pt1;
+	  }
 	}
       }
-    }
   } 
+
+
   
-  if ( foundRefGenMuon ) hMCptnor->Fill(genMuonPt, thisEventWeight);
-  if ( foundRefRecMuon ) hRECOptnor->Fill(recMuonPt, thisEventWeight);
+  if (ptuse > 0 ) hMCptnor->Fill(ptuse,this_event_weight);
+  if (recoptuse > 0 ) hRECOptnor->Fill(recoptuse,this_event_weight);
 
   // Get the Trigger collection
   edm::Handle<trigger::TriggerEventWithRefs> triggerObj;
-  event.getByLabel("hltTriggerSummaryRAW", triggerObj); 
-
+  event.getByLabel("hltTriggerSummaryRAW",triggerObj); 
   if(!triggerObj.isValid()) { 
-    edm::LogWarning("HLTMuonVal") << 
-      "RAW-type HLT results not found, skipping event";
+    edm::LogWarning("HLTMuonVal") << "RAW-type HLT results not found, skipping event";
     return;
-  } else {
-     const size_type numFilterObjects(triggerObj->size());
-     LogTrace("HLTMuonVal") << 
-       "Used Processname: " << triggerObj->usedProcessName();
-     LogTrace("HLTMuonVal") << 
-       "Number of TriggerFilterObjects: " << numFilterObjects;
-     LogTrace("HLTMuonVal") << "The TriggerFilterObjects: #, tag" ;
-     for ( size_type i = 0; i != numFilterObjects; ++i )
-      LogTrace("HLTMuonVal") << i << " " << triggerObj->filterTag(i).encode();
   }
 
-  vector<L1MuonParticleRef> l1Cands;
-  LogTrace("HLTMuonVal")<<"TriggerObject Size="<<triggerObj->size();
+  vector<L1MuonParticleRef> l1cands;
   if ( triggerObj->filterIndex(theL1CollectionLabel)>=triggerObj->size() ){
-    LogTrace("HLTMuonVal") << "No L1 Collection with label "  
-                           << theL1CollectionLabel;
+    LogTrace("HLTMuonVal")<<"No L1 Collection with label "<<theL1CollectionLabel;
     return;
   }
-  triggerObj->getObjects(triggerObj->filterIndex(theL1CollectionLabel), 
-			 81, l1Cands);
-  NumberOfL1Events->Fill(++theNumberOfL1Events);
-
-  // Get the HLT collections
-  unsigned hltsize = theHLTCollectionLabels.size();
-  vector< vector<RecoChargedCandidateRef> > hltCands(hltsize);
-  unsigned int modulesInThisEvent = 0;
-  for (unsigned int i=0; i<theHLTCollectionLabels.size(); i++) {
-    if ( triggerObj->filterIndex(theHLTCollectionLabels[i]) >= 
-	 triggerObj->size() )
-      LogTrace("HLTMuonVal") << "No HLT Collection with label " << 
-	                        theHLTCollectionLabels[i].label();
-    else {
-      triggerObj->getObjects( 
-	triggerObj->filterIndex(theHLTCollectionLabels[i] ), 93, hltCands[i]);
-    modulesInThisEvent++;
+  triggerObj->getObjects(triggerObj->filterIndex(theL1CollectionLabel),81,l1cands);
+  ++theNumberOfL1Events;
+ // Get the HLT collections
+  unsigned hltsize=theHLTCollectionLabels.size();
+  vector<vector<RecoChargedCandidateRef> > hltcands(hltsize);
+  unsigned int modules_in_this_event = 0;
+  LogTrace("HLTMuonVal")<<"Number of HLT filters "<<hltsize;
+  for (unsigned int i=0; i<hltsize; i++) {
+    if ( triggerObj->filterIndex(theHLTCollectionLabels[i])>=triggerObj->size() ) {
+      LogTrace("HLTMuonVal")<<"No HLT Collection with label "<<theHLTCollectionLabels[i];
+      break ;
     }
+    triggerObj->getObjects(triggerObj->filterIndex(theHLTCollectionLabels[i]),93, hltcands[i]);
+    modules_in_this_event++;
   }
 
-  if ( useMuonFromGenerator ) theAssociatedGenPart = evt->particles_end(); 
-  if ( useMuonFromReco ) theAssociatedRecoPart = muTracks->end(); 
+
+  if (useMuonFromGenerator) theAssociatedGenPart=evt->particles_end(); 
+  if (useMuonFromReco) theAssociatedRecoPart=muTracks->end(); 
 
   // Fix L1 thresholds to obtain HLT plots
   unsigned int nL1FoundRef = 0;
   double epsilon = 0.001;
-  for ( unsigned int k = 0; k < l1Cands.size(); k++ ) {
-    L1MuonParticleRef candRef = L1MuonParticleRef(l1Cands[k]);
-    double ptLUT = candRef->pt();
-
-    // Add "epsilon" to avoid rounding errors when ptLUT == L1Threshold
-    if ( ptLUT + epsilon > theL1ReferenceThreshold ) {
-      nL1FoundRef++;
-      hL1pt->Fill(ptLUT);
-      if ( useMuonFromGenerator ){
-	pair<double,double> angularInfo = 
-	  getGenAngle( candRef->eta(), candRef->phi(), *evt );
-	LogTrace("HLTMuonVal") << "Filling L1 histos....";
-	if ( angularInfo.first < 999.){
-	  hL1etaMC->Fill(angularInfo.first);
-	  hL1phiMC->Fill(angularInfo.second);
-          float dPhi = angularInfo.second - candRef->phi();
-          float dEta = angularInfo.first - candRef->eta();
-          hL1DR->Fill(sqrt(dPhi*dPhi+dEta*dEta));
-	  LogTrace("HLTMuonVal") << "Filling done";
+  for (unsigned int k=0; k<l1cands.size(); k++) {
+    L1MuonParticleRef candref = L1MuonParticleRef(l1cands[k]);
+    double ptLUT = candref->pt();
+    // Add "epsilon" to avoid rounding errors when ptLUT==L1Threshold
+    if (ptLUT+epsilon>theL1ReferenceThreshold) {
+	nL1FoundRef++;
+	hL1pt->Fill(ptLUT);
+	if (useMuonFromGenerator){
+	  pair<double,double> angularInfo=getGenAngle(candref->eta(),candref->phi(), *evt );
+	  LogTrace("HLTMuonVal")<<"Filling L1 histos....";
+	  if ( angularInfo.first < 999.){
+	    hL1etaMC->Fill(angularInfo.first);
+	    hL1phiMC->Fill(angularInfo.second);
+	    LogTrace("HLTMuonVal")<<"Filling done";
+	  }
 	}
-      }
-      if ( useMuonFromReco ){
-	pair<double,double> angularInfo = getRecAngle( candRef->eta(),
-                            candRef->phi(), *muTracks );
-	LogTrace("HLTMuonVal") << "Filling L1 histos....";
-	if ( angularInfo.first < 999. ){
-	  hL1etaRECO->Fill(angularInfo.first);
-	  hL1phiRECO->Fill(angularInfo.second);
-	  LogTrace("HLTMuonVal") << "Filling done";
+	if (useMuonFromReco){
+	  pair<double,double> angularInfo=getRecoAngle(candref->eta(),candref->phi(), *muTracks );
+	  LogTrace("HLTMuonVal")<<"Filling L1 histos....";
+	  if ( angularInfo.first < 999.){
+	    hL1etaRECO->Fill(angularInfo.first);
+	    hL1phiRECO->Fill(angularInfo.second);
+	    LogTrace("HLTMuonVal")<<"Filling done";
+	  }
 	}
-      }
     }
   }
-  if ( nL1FoundRef >= theNumberOfObjects ){
-    if ( genMuonPt > 0 ) hL1MCeff->Fill(genMuonPt, thisEventWeight);
-    if ( recMuonPt > 0 ) hL1RECOeff->Fill(recMuonPt, thisEventWeight);
+  if (nL1FoundRef>=theNumberOfObjects){
+    LogTrace("HLTMuonVal")<<"Found enough L1 objects";
+    if(ptuse>0) hL1MCeff->Fill(ptuse,this_event_weight);
+    if(recoptuse>0) hL1RECOeff->Fill(recoptuse,this_event_weight);
     hSteps->Fill(1.);  
   }
 
-  if ( genMuonPt > 0 ){
-    int last_module = modulesInThisEvent - 1;
-    for ( int moduleNum = 0; moduleNum <= last_module; moduleNum++) {
-      double ptCut = theHLTReferenceThreshold;
+  if (ptuse>0){
+    int last_module = modules_in_this_event - 1;
+    LogTrace("HLTMuonVal")<<"ptuse > 0, last_module="<<last_module;
+    for (int i=0; i<=last_module; i++) {
+      double ptcut = theHLTReferenceThreshold;
       unsigned nFound = 0;
-      for ( unsigned int candNum = 0; candNum < hltCands[moduleNum].size(); 
-	    candNum++ ) {
-	RecoChargedCandidateRef candRef = 
-                   RecoChargedCandidateRef(hltCands[moduleNum][candNum]);
-	TrackRef track = candRef->get<TrackRef>();
-	double pt = track->pt();
-	if ( pt > ptCut ) nFound++;
+      LogTrace("HLTMuonVal")<<" module "<<i<<" label "<<theHLTCollectionLabels[i].label();
+      LogTrace("HLTMuonVal")<<" module "<<i<<" size "<<hltcands[i].size();
+      for (unsigned int k=0; k<hltcands[i].size(); k++) {
+	LogTrace("HLTMuonVal")<<" in hltcand loop";
+	RecoChargedCandidateRef candref = RecoChargedCandidateRef(hltcands[i][k]);
+	TrackRef tk = candref->get<TrackRef>();
+	double pt = tk->pt();
+        LogTrace("HLTMuonVal")<<" track pt="<<pt;
+	if (pt>ptcut) nFound++;
       }
-      if ( nFound >= theNumberOfObjects ){
-	if ( genMuonPt > 0 ) hHLTMCeff[moduleNum]->Fill( 
-						   genMuonPt, thisEventWeight );
-	if ( recMuonPt > 0 ) hHLTRECOeff[moduleNum]->Fill( 
-						   recMuonPt, thisEventWeight );
-	hSteps->Fill( 2 + moduleNum ); 
+      if (nFound>=theNumberOfObjects){
+	LogTrace("HLTMuonVal")<<"Found enough HLT objects, module :"<<i;
+	if(ptuse>0) hHLTMCeff[i]->Fill(ptuse,this_event_weight);
+	if(recoptuse>0 ) hHLTRECOeff[i]->Fill(recoptuse,this_event_weight);
+	hSteps->Fill(2+i); 
       }
     }
   }
 
-  for ( unsigned int j = 0; j < theNbins; j++ ) {
-    double ptCut = thePtMin + j * (thePtMax - thePtMin) / theNbins;
+  for (unsigned int j=0; j<theNbins; j++) {
+      double ptcut = thePtMin + j*(thePtMax-thePtMin)/theNbins;
 
-    // L1 filling
-    unsigned int nFound = 0;
-    for ( unsigned int candNum = 0; candNum < l1Cands.size(); candNum++) {
-      L1MuonParticleRef candRef = L1MuonParticleRef(l1Cands[candNum]);
-      double pt = candRef->pt();
-      if ( pt > ptCut ) nFound++;
-    }
-    if ( nFound >= theNumberOfObjects ) hL1eff->Fill(ptCut, thisEventWeight);
-
-    // Stop here if L1 reference cuts were not satisfied
-    if ( nL1FoundRef < theNumberOfObjects ) continue;
-
-    // HLT filling
-    for ( unsigned int i = 0; i < modulesInThisEvent; i++ ) {
-      unsigned nFound = 0;
-      for ( unsigned int candNum = 0; candNum < hltCands[i].size(); candNum++) {
-	RecoChargedCandidateRef candRef = 
-	                        RecoChargedCandidateRef(hltCands[i][candNum]);
-	TrackRef track = candRef->get<TrackRef>();
-	double pt = track->pt();
-	if ( ptCut == thePtMin ) {
-	  hHLTpt[i]->Fill(pt);
-	  if ( useMuonFromGenerator ){
-	    pair<double,double> angularInfo = 
-	                getGenAngle( candRef->eta(), candRef->phi(), *evt );
-	    if ( angularInfo.first < 999. ) {
-	      LogTrace("HLTMuonVal") << "Filling HLT histos for MC [" << 
-		                        i << "]........";
-	      hHLTetaMC[i]->Fill(angularInfo.first);
-	      hHLTphiMC[i]->Fill(angularInfo.second);
-	      float dPhi = angularInfo.second - candRef->phi();
-	      float dEta = angularInfo.first  - candRef->eta();
-	      float dR = sqrt( dPhi*dPhi + dEta*dEta );
-	      if ( i == 0 ) hL2DR->Fill(dR);
-	      if ( (modulesInThisEvent == 2 && i == 1) || i == 2 ) 
-		hL3DR->Fill(dR);
-	      LogTrace("HLTMuonVal") << "Filling done";
-	    }
-	  }
-	  if (useMuonFromReco){
-	    pair<double, double> angularInfo = getRecAngle( candRef->eta(), 
-							     candRef->phi(), 
-							     *muTracks );
-	    if ( angularInfo.first < 999. ){
-	      LogTrace("HLTMuonVal") << "Filling HLT histos for RECO....[" << 
-		                        i << "]........";
-	      hHLTetaRECO[i]->Fill(angularInfo.first);
-	      hHLTphiRECO[i]->Fill(angularInfo.second);
-	      LogTrace("HLTMuonVal") << "Filling done";
-	    }
-	  }
-	}
-	double err0 = track->error(0);
-	double abspar0 = fabs( track->parameter(0) );
-	// convert to 90% efficiency threshold
-	if ( abspar0 > 0 ) pt += theNSigmas[i] * err0 / abspar0 * pt;
-	if ( pt > ptCut ) nFound++;
+      // L1 filling
+      unsigned int nFound = 0;
+      for (unsigned int k=0; k<l1cands.size(); k++) {
+            L1MuonParticleRef candref = L1MuonParticleRef(l1cands[k]);
+            double pt = candref->pt();
+            if (pt>ptcut) nFound++;
       }
-      if ( nFound >= theNumberOfObjects )
-	hHLTeff[i]->Fill(ptCut, thisEventWeight);
-    }
+      if (nFound>=theNumberOfObjects) hL1eff->Fill(ptcut,this_event_weight);
+
+      // Stop here if L1 reference cuts were not satisfied
+      if (nL1FoundRef<theNumberOfObjects) continue;
+      LogTrace("HLTMuonVal")<<"Passed L1, HLT modules_in_this_event="<<modules_in_this_event;
+
+      // HLT filling
+      for (unsigned int i=0; i<modules_in_this_event; i++) {
+            unsigned nFound = 0;
+	    double DR = 0;
+	    if ( i < ( modules_in_this_event / 2 ) ) {
+	      DR = 0.050; 
+	    } else {
+	      DR = 0.015;
+	    }
+            for (unsigned int k=0; k<hltcands[i].size(); k++) {
+                  RecoChargedCandidateRef candref = RecoChargedCandidateRef(hltcands[i][k]);
+                  TrackRef tk = candref->get<TrackRef>();
+                  double pt = tk->pt();
+                  if ( ptcut == thePtMin ) {
+		    hHLTpt[i]->Fill(pt);
+		    if (useMuonFromGenerator){
+		      pair<double,double> angularInfo=getGenAngle(candref->eta(),candref->phi(), *evt,DR );
+		      if ( angularInfo.first < 999.){
+			LogTrace("HLTMuonVal")<<"Filling HLT histos for MC ["<<i<<"]........";
+			hHLTetaMC[i]->Fill(angularInfo.first);
+			hHLTphiMC[i]->Fill(angularInfo.second);
+			LogTrace("HLTMuonVal")<<"Filling done";
+		      }
+		    }
+		    if (useMuonFromReco){
+		      pair<double,double> angularInfo=getRecoAngle(candref->eta(),candref->phi(), *muTracks,DR );
+		      if ( angularInfo.first < 999.){
+			LogTrace("HLTMuonVal")<<"Filling HLT histos for RECO....["<<i<<"]........";
+			hHLTetaRECO[i]->Fill(angularInfo.first);
+			hHLTphiRECO[i]->Fill(angularInfo.second);
+			LogTrace("HLTMuonVal")<<"Filling done";
+		      }
+		    }
+		  }
+                  double err0 = tk->error(0);
+                  double abspar0 = fabs(tk->parameter(0));
+                  // convert to 90% efficiency threshold
+                  if (abspar0>0) pt += theNSigmas[i]*err0/abspar0*pt;
+                  if (pt>ptcut) nFound++;
+            }
+            if (nFound>=theNumberOfObjects) {
+                  hHLTeff[i]->Fill(ptcut,this_event_weight);
+            } else {
+                  break;
+            }
+      }
   }
 
 }
 
-
-
-pair<double,double> HLTMuonGenericRate::getGenAngle( double eta, double phi, 
-                    HepMC::GenEvent evt, double candDeltaR )
+pair<double,double> HLTMuonGenericRate::getGenAngle(double eta, double phi, HepMC::GenEvent evt,double candDeltaR  )
 {
+
   LogTrace("HLTMuonVal")<< "in getGenAngle";
   HepMC::GenEvent::particle_const_iterator part;
-  HepMC::GenEvent::particle_const_iterator theAssociatedpart = 
-                                           evt.particles_end();
-  pair<double,double> angle( 999., 999. );
-  LogTrace("HLTMuonVal") << " candidate eta = " << eta << " and phi = "<< phi;
+  HepMC::GenEvent::particle_const_iterator theAssociatedpart=evt.particles_end();
+  pair<double,double> angle(999.,999.);
+  LogTrace("HLTMuonVal")<< " candidate eta="<<eta<<" and phi="<<phi;
   for (part = evt.particles_begin(); part != evt.particles_end(); ++part ) {
     int id = abs((*part)->pdg_id());
     if ( id == 13 && (*part)->status() == 1 ) {
-      double dEta = eta - (*part)->momentum().eta();
-      double dPhi = phi-(*part)->momentum().phi();
-      double deltaR = sqrt( dEta * dEta + dPhi * dPhi );
+      double Deta=eta-(*part)->momentum().eta();
+      double Dphi=phi-(*part)->momentum().phi();
+      double deltaR = sqrt(Deta*Deta+Dphi*Dphi);
       if ( deltaR < candDeltaR ) {
-	candDeltaR = deltaR;
-	theAssociatedpart = part;
-        angle.first  = (*part)->momentum().eta();
-        angle.second = (*part)->momentum().phi();
+	candDeltaR=deltaR;
+	theAssociatedpart=part;
+        angle.first=(*part)->momentum().eta();
+        angle.second=(*part)->momentum().phi();
       }
     }
   }
-  LogTrace("HLTMuonVal") << "Best deltaR = " << candDeltaR;
+  LogTrace("HLTMuonVal")<< "Best deltaR="<<candDeltaR;
   return angle;
+
 }
-
-
-
-pair<double,double> HLTMuonGenericRate::getRecAngle( double eta, double phi, 
-                    reco::TrackCollection muTracks,  double candDeltaR )
+pair<double,double> HLTMuonGenericRate::getRecoAngle(double eta, double phi, reco::TrackCollection muTracks,  double candDeltaR)
 {
-  LogTrace("HLTMuonVal") << "in getRecAngle";
+
+  LogTrace("HLTMuonVal")<< "in getRecoAngle";
   reco::TrackCollection::const_iterator muon;
-  reco::TrackCollection::const_iterator theAssociatedpart = muTracks.end();
-  pair<double,double> angle( 999., 999. );
-  LogTrace("HLTMuonVal") << " candidate eta = " << eta << " and phi = " << phi;
-  for ( muon = muTracks.begin(); muon != muTracks.end(); ++muon ) {
-    double dEta = eta - muon->eta();
-    double dPhi = phi - muon->phi();
-    double deltaR = sqrt( dEta * dEta + dPhi * dPhi );
-    if ( deltaR < candDeltaR ) {
-      candDeltaR = deltaR;
-      theAssociatedpart = muon;
-      angle.first  = muon->eta();
-      angle.second = muon->phi();
-    }
+  reco::TrackCollection::const_iterator theAssociatedpart=muTracks.end();
+  pair<double,double> angle(999.,999.);
+  LogTrace("HLTMuonVal")<< " candidate eta="<<eta<<" and phi="<<phi;
+  for (muon = muTracks.begin(); muon != muTracks.end(); ++muon ) {
+      double Deta=eta-muon->eta();
+      double Dphi=phi-muon->phi();
+      double deltaR = sqrt(Deta*Deta+Dphi*Dphi);
+      if ( deltaR < candDeltaR ) {
+	candDeltaR=deltaR;
+	theAssociatedpart=muon;
+        angle.first=muon->eta();
+        angle.second=muon->phi();
+      }
   }
-  LogTrace("HLTMuonVal") << "Best deltaR = " << candDeltaR;
+  LogTrace("HLTMuonVal")<< "Best deltaR="<<candDeltaR;
   return angle;
+
 }
-
-
-
-void HLTMuonGenericRate::BookHistograms(){
-  TString dirLabel, myLabel, newFolder, histName, histTitle;
-  vector<TH1F*> h;
-  if (dbe_) {
-    dbe_->cd();
-    dbe_->setCurrentFolder("HLT/Muon");
-
-    TString theL1CollectionString( theL1CollectionLabel.encode().c_str() );
-
-    dirLabel = theL1CollectionString;
-    dirLabel.Resize( dirLabel.Index("L1") ); // Truncate starting at "L1"
-    myLabel = theL1CollectionString;
-    myLabel.Resize( myLabel.Index(":") );
-
-    newFolder = "HLT/Muon/RateEfficiencies/" + dirLabel;
-    dbe_->setCurrentFolder( newFolder.Data() );
-
-    NumberOfEvents   = dbe_->bookInt("NumberOfEvents");
-    NumberOfL1Events = dbe_->bookInt("NumberOfL1Events");
-
-    hL1DR   = BookIt( "L1DR_" + myLabel, "L1 Gen association #DR, label = " + myLabel,  theNbins, 0., 0.5);
-    hL2DR   = BookIt( "L2DR_" + myLabel, "L2 Gen association #DR, label=" + myLabel, theNbins, 0., 0.5);
-    hL3DR   = BookIt( "L3DR_" + myLabel, "L3 Gen association #DR, label=" + myLabel, theNbins, 0., 0.5);
-    hSteps  = BookIt( "HLTSteps_" + myLabel, "Events passing the HLT filters, label=" + myLabel, 5, 0.5, 5.5);
-    hL1eff  = BookIt( "eff_" + myLabel, "Efficiency (%%) vs L1 Pt threshold (GeV), label=" + myLabel,  theNbins, thePtMin, thePtMax);
-    hL1rate = BookIt( "rate_" + myLabel, "Rate (Hz) vs L1 Pt threshold (GeV), label=" + myLabel,  theNbins, thePtMin, thePtMax);
-
-    dbe_->cd();
-    newFolder = "HLT/Muon/Distributions/" + dirLabel;
-    dbe_->setCurrentFolder( newFolder.Data() );
-    hL1pt = BookIt( "pt_" + myLabel, "L1 Pt distribution label=" + myLabel,  theNbins, thePtMin, thePtMax);
+void HLTMuonGenericRate::WriteHistograms(){
+  // Write the histos to file
+  ratedir->cd();
+  hSteps->GetXaxis()->SetTitle("Trigger Filtering Step");
+  hSteps->GetYaxis()->SetTitle("Events passing Trigger Step (%)");
+  hSteps->Write();
+  hL1eff->GetXaxis()->SetTitle("90% Muon Pt threshold (GeV)");
+  hL1eff->Write();
+  hL1rate->Write();
+  hL1rate->SetMarkerStyle(20);
+  hL1rate->GetXaxis()->SetTitle("90% Muon Pt threshold (GeV)");
+  hL1rate->GetYaxis()->SetTitle("Rate (Hz)");
+  if (useMuonFromGenerator){ 
+    hL1MCeff->GetXaxis()->SetTitle("Generated Muon PtMax (GeV)");
+    hL1MCeff->GetYaxis()->SetTitle("L1 trigger Efficiency (%)");
+    hL1MCeff->Write();
+  }
+  if (useMuonFromReco){
+    hL1RECOeff->GetXaxis()->SetTitle("Reconstructed Muon PtMax (GeV)");
+    hL1RECOeff->GetYaxis()->SetTitle("L1 trigger Efficiency (%)");
+    hL1RECOeff->Write();
+  }
+  distribdir->cd();
+  hL1pt->GetXaxis()->SetTitle("Muon Pt (GeV)");
+  hL1pt->Write();
+  if (useMuonFromGenerator){
+    hL1etaMC->GetXaxis()->SetTitle("Muon #eta");
+    hL1etaMC->Write();
+    hL1phiMC->GetXaxis()->SetTitle("Muon #phi");
+    hL1phiMC->Write();
+    hMCetanor->GetXaxis()->SetTitle("Gen Muon #eta");
+    hMCetanor->Write();
+    hMCphinor->GetXaxis()->SetTitle("Gen Muon #phi ");
+    hMCphinor->Write();
+  }
+  if (useMuonFromReco){
+    hL1etaRECO->GetXaxis()->SetTitle("Muon #eta");
+    hL1etaRECO->Write();
+    hL1phiRECO->GetXaxis()->SetTitle("Muon #phi");
+    hL1phiRECO->Write();
+    hRECOetanor->GetXaxis()->SetTitle("Reco Muon #eta");
+    hRECOetanor->Write();
+    hRECOphinor->GetXaxis()->SetTitle("Reco Muon #phi ");
+    hRECOphinor->Write();
+  }
+  for (unsigned int i=0; i<theHLTCollectionLabels.size(); i++) {
+    ratedir->cd();
+    hHLTeff[i]->GetXaxis()->SetTitle("90% Muon Pt threshold (GeV)");
+    hHLTeff[i]->Write();
+    hHLTeff[i]->SetMarkerStyle(20);
+    hHLTeff[i]->SetMarkerColor(i+2);
+    hHLTeff[i]->SetLineColor(i+2);
+    hHLTrate[i]->GetYaxis()->SetTitle("Rate (Hz)");
+    hHLTrate[i]->SetMarkerStyle(20);
+    hHLTrate[i]->SetMarkerColor(i+2);
+    hHLTrate[i]->SetLineColor(i+2);
+    hHLTrate[i]->GetXaxis()->SetTitle("90% Muon Pt threshold (GeV)");
+    hHLTrate[i]->Write();
+    distribdir->cd();
+    hHLTpt[i]->GetXaxis()->SetTitle("HLT Muon Pt (GeV)");
+    hHLTpt[i]->Write();
     if (useMuonFromGenerator){
-      hL1MCeff  = BookIt( "MCTurnOn_" + myLabel, "L1 max ref pt efficiency label=" + myLabel,  theNbins, thePtMin, thePtMax);
-      hMCptnor  = BookIt( "MCptNorm_" + myLabel, "L1 max ref pt distribution label=" + myLabel,  theNbins, thePtMin, thePtMax);
-      hMCetanor = BookIt( "MCetaNorm_" + myLabel, "Norm  MC Eta ",  50, -2.1, 2.1);
-      hMCphinor = BookIt( "MCphiNorm_" + myLabel, "Norm  MC #Phi",  50, -3.15, 3.15);
-      hL1etaMC  = BookIt( "MCeta_" + myLabel, "L1 Eta distribution label=" + myLabel,  50, -2.1, 2.1);
-      hL1phiMC  = BookIt( "MCphi_" + myLabel, "L1 Phi distribution label=" + myLabel,  50, -3.15, 3.15);
+      hHLTMCeff[i]->GetXaxis()->SetTitle("Generated Muon PtMax (GeV)");
+      hHLTMCeff[i]->GetYaxis()->SetTitle("Trigger Efficiency (%)");
+      hHLTMCeff[i]->Write();
+      hHLTetaMC[i]->GetXaxis()->SetTitle("Gen Muon #eta");
+      hHLTetaMC[i]->Write();
+      hHLTphiMC[i]->GetXaxis()->SetTitle("Gen Muon #phi");
+      hHLTphiMC[i]->Write();
     }
     if (useMuonFromReco){
-      hL1RECOeff  = BookIt( "RECOTurnOn_" + myLabel, "L1 max ref pt efficiency label=" + myLabel,  theNbins, thePtMin, thePtMax);
-      hRECOptnor  = BookIt( "RECOptNorm_" + myLabel, "L1 max reco ref pt distribution label=" + myLabel,  theNbins, thePtMin, thePtMax);
-      hRECOetanor = BookIt( "RECOetaNorm_" + myLabel, "Norm  RECO Eta ",  50, -2.1, 2.1);
-      hRECOphinor = BookIt( "RECOphiNorm_" + myLabel, "Norm  RECO #Phi",  50, -3.15, 3.15);
-      hL1etaRECO  = BookIt( "RECOeta_" + myLabel, "L1 Eta distribution label=" + myLabel,  50, -2.1, 2.1);
-      hL1phiRECO  = BookIt( "RECOphi_" + myLabel, "L1 Phi distribution label=" + myLabel,  50, -3.15, 3.15);
-    }
-
-    for (unsigned int i=0; i<theHLTCollectionLabels.size(); i++) {
-      dbe_->cd();
-      newFolder = "HLT/Muon/RateEfficiencies/" + dirLabel;
-      dbe_->setCurrentFolder( newFolder.Data() );
-
-      TString theHLTCollectionString = theHLTCollectionLabels[i].encode().c_str();
-      myLabel = theHLTCollectionString;
-      myLabel.Resize( myLabel.Index(":") );
-
-      hHLTeff.push_back(BookIt( "eff_" + myLabel, "Efficiency (%%) vs HLT Pt threshold (GeV), label=" + myLabel,  theNbins, thePtMin, thePtMax));
-      hHLTrate.push_back(BookIt( "rate_" + myLabel, "Rate (Hz) vs HLT Pt threshold (GeV), label=" + myLabel,  theNbins, thePtMin, thePtMax));
-
-      dbe_->cd();
-      newFolder = "HLT/Muon/Distributions/" + dirLabel;
-      dbe_->setCurrentFolder( newFolder.Data() );
-      hHLTpt.push_back(BookIt( "pt_" + myLabel, "Pt distribution label=" + myLabel,  theNbins, thePtMin, thePtMax));
-      if (useMuonFromGenerator){
-	// histTitle = "Turn On curve, label=" + myLabel + ",  L=" + theLuminosity*1.e33 + " (cm^{-2} s^{-1})");
-	hHLTMCeff.push_back(BookIt( "MCTurnOn_" + myLabel, "Turn On curve, label=" + myLabel, theNbins, thePtMin, thePtMax));   
-	hHLTetaMC.push_back(BookIt( "MCeta_" + myLabel, "Gen Eta Efficiency label=" + myLabel,  50, -2.1, 2.1));
-	hHLTphiMC.push_back(BookIt( "MCphi_" + myLabel, "Gen Phi Efficiency label=" + myLabel,  50, -3.15, 3.15));
-      }
-      if (useMuonFromReco){
-	// histTitle = "Turn On curve, label=, L=%.2E (cm^{-2} s^{-1})", myLabel, theLuminosity*1.e33);
-	histName = "RECOTurnOn_" + myLabel;
-	hHLTRECOeff.push_back(BookIt( "RECOTurnOn_" + myLabel, "Turn On curve, label=" + myLabel, theNbins, thePtMin, thePtMax));     
-	hHLTetaRECO.push_back(BookIt( "RECOeta_" + myLabel, "Reco Eta Efficiency label=" + myLabel,  50, -2.1, 2.1));
-	hHLTphiRECO.push_back(BookIt( "RECOphi_" + myLabel, "Reco Phi Efficiency label=" + myLabel,  50, -3.15, 3.15));
-      }
-    }
-
-    hSteps->setAxisTitle("Trigger Filtering Step");
-    hSteps->setAxisTitle("Events passing Trigger Step",2);
-    hL1eff->setAxisTitle("90% Muon Pt threshold (GeV)");
-    hL1rate->setAxisTitle("90% Muon Pt threshold (GeV)");
-    hL1rate->setAxisTitle("Rate (Hz)",2);
-    if (useMuonFromGenerator){ 
-      hL1MCeff->setAxisTitle("Generated Muon PtMax (GeV)");
-      hL1MCeff->setAxisTitle("Events Passing L1",2);
-    }
-    if (useMuonFromReco){
-      hL1RECOeff->setAxisTitle("Reconstructed Muon PtMax (GeV)");
-      hL1RECOeff->setAxisTitle("Events Passing L1",2);
-    }
-
-    hL1pt->setAxisTitle("Muon Pt (GeV)");
-    if (useMuonFromGenerator){
-      hL1etaMC->setAxisTitle("Muon #eta");
-      hL1etaMC->setAxisTitle("Events Passing L1",2);
-      hL1phiMC->setAxisTitle("Muon #phi");
-      hL1phiMC->setAxisTitle("Events Passing L1",2);
-      hMCetanor->setAxisTitle("Gen Muon #eta");
-      hMCphinor->setAxisTitle("Gen Muon #phi ");
-    }
-    if (useMuonFromReco){
-      hL1etaRECO->setAxisTitle("Muon #eta");
-      hL1etaRECO->setAxisTitle("Events Passing L1",2);
-      hL1phiRECO->setAxisTitle("Muon #phi");
-      hL1phiRECO->setAxisTitle("Events Passing L1",2);
-      hRECOetanor->setAxisTitle("Reco Muon #eta");
-      hRECOphinor->setAxisTitle("Reco Muon #phi ");
-    }
-
-    for (unsigned int i=0; i<theHLTCollectionLabels.size(); i++) {
-      hHLTeff[i]->setAxisTitle("90% Muon Pt threshold (GeV)");
-      hHLTrate[i]->setAxisTitle("Rate (Hz)",2);
-      hHLTrate[i]->setAxisTitle("90% Muon Pt threshold (GeV)",1);
-      hHLTpt[i]->setAxisTitle("HLT Muon Pt (GeV)",1);
-      if (useMuonFromGenerator){
-	hHLTMCeff[i]->setAxisTitle("Generated Muon PtMax (GeV)",1);
-	hHLTMCeff[i]->setAxisTitle("Events Passing Trigger",2);
-	hHLTetaMC[i]->setAxisTitle("Gen Muon #eta",1);
-	hHLTetaMC[i]->setAxisTitle("Events Passing Trigger",2);
-	hHLTphiMC[i]->setAxisTitle("Gen Muon #phi",1);
-	hHLTphiMC[i]->setAxisTitle("Events Passing Trigger",2);
-      }
-      if (useMuonFromReco){
-	hHLTRECOeff[i]->setAxisTitle("Reconstructed Muon PtMax (GeV)",1);
-	hHLTRECOeff[i]->setAxisTitle("Events Passing Trigger",2);
-	hHLTetaRECO[i]->setAxisTitle("Reco Muon #eta",1);	
-	hHLTetaRECO[i]->setAxisTitle("Events Passing Trigger",2);
-	hHLTphiRECO[i]->setAxisTitle("Reco Muon #phi",1);
-	hHLTphiRECO[i]->setAxisTitle("Events Passing Trigger",2);
-      }
+      hHLTRECOeff[i]->GetXaxis()->SetTitle("Reconstructed Muon PtMax (GeV)");
+      hHLTRECOeff[i]->GetYaxis()->SetTitle("Trigger Efficiency (%)");
+      hHLTRECOeff[i]->Write();
+      hHLTetaRECO[i]->GetXaxis()->SetTitle("Reco Muon #eta");
+      hHLTetaRECO[i]->Write();
+      hHLTphiRECO[i]->GetXaxis()->SetTitle("Reco Muon #phi");
+      hHLTphiRECO[i]->Write();
     }
   }
+  top->cd();
+}
+void HLTMuonGenericRate::BookHistograms(){
+  char chname[256];
+  char chtitle[256];
+  char * mylabel ;
+  char * mydirlabel ;
+  char str[100],str2[100];
+  TH1F *h;
+  top=gDirectory;
+  top->cd("RateEfficiencies");
+  ratedir=gDirectory;
+  snprintf(str2, 99, "%s",theL1CollectionLabel.encode().c_str() );
+  mydirlabel = strtok(str2,"L1");
+  ratedir->mkdir(mydirlabel);
+  ratedir->cd(mydirlabel);
+  ratedir=gDirectory;
+  
+  snprintf(str, 99, "%s",theL1CollectionLabel.encode().c_str() );
+  mylabel = strtok(str,":");
+  snprintf(chname, 255, "HLTSteps_%s", mylabel);
+  snprintf(chtitle, 255, "Events passing the HLT filters, label=%s", mylabel);
+  hSteps= new TH1F(chname, chtitle, 5, 0.5, 5.5);
+  snprintf(chname, 255, "eff_%s", mylabel);
+  snprintf(chtitle, 255, "Efficiency (%%) vs L1 Pt threshold (GeV), label=%s", mylabel);
+  hL1eff = new TH1F(chname, chtitle, theNbins, thePtMin, thePtMax);
+  hL1eff->Sumw2();
+  snprintf(chname, 255, "rate_%s", mylabel);
+  snprintf(chtitle, 255, "Rate (Hz) vs L1 Pt threshold (GeV), label=%s, L=%.2E (cm^{-2} s^{-1})", mylabel, theLuminosity*1.e33);
+  hL1rate = new TH1F(chname, chtitle, theNbins, thePtMin, thePtMax);
+  hL1rate->Sumw2();
+  top->cd("Distributions");
+  distribdir=gDirectory;
+  distribdir->mkdir(mydirlabel);
+  distribdir->cd(mydirlabel);
+  distribdir=gDirectory;
+  snprintf(chname, 255, "pt_%s", mylabel);
+  snprintf(chtitle, 255, "L1 Pt distribution label=%s", mylabel);
+  hL1pt = new TH1F(chname, chtitle, theNbins, thePtMin, thePtMax);
+  hL1pt->Sumw2();
+  if (useMuonFromGenerator){
+    snprintf(chtitle, 255, "L1 max ref pt efficiency label=%s", mylabel);
+    snprintf(chname, 255, "MCTurnOn_%s", mylabel);
+    hL1MCeff = new TH1F(chname, chtitle, theNbins, thePtMin, thePtMax);
+    hL1MCeff->Sumw2();
+    snprintf(chtitle, 255, "L1 max ref pt distribution label=%s", mylabel);
+    snprintf(chname, 255, "MCptNorm_%s", mylabel);
+    hMCptnor = new TH1F(chname, chtitle, theNbins, thePtMin, thePtMax);
+    hMCptnor->Sumw2();
+    snprintf(chname, 255, "MCetaNorm_%s",mylabel);
+    snprintf(chtitle, 255, "Norm  MC Eta ");
+    hMCetanor = new TH1F(chname, chtitle, 50, -2.1, 2.1);
+    hMCetanor->Sumw2();
+    snprintf(chname, 255, "MCphiNorm_%s",mylabel);
+    snprintf(chtitle, 255, "Norm  MC #Phi");
+    hMCphinor = new TH1F(chname, chtitle, 50, -3.15, 3.15);
+    hMCphinor->Sumw2();
+    snprintf(chname, 255, "MCeta_%s", mylabel);
+    snprintf(chtitle, 255, "L1 Eta distribution label=%s", mylabel);
+    hL1etaMC = new TH1F(chname, chtitle, 50, -2.1, 2.1);
+    hL1etaMC->Sumw2();
+    snprintf(chname, 255, "MCphi_%s", mylabel);
+    snprintf(chtitle, 255, "L1 Phi distribution label=%s", mylabel);
+    hL1phiMC = new TH1F(chname, chtitle, 50, -3.15, 3.15);
+    hL1phiMC->Sumw2();
+  }
+  if (useMuonFromReco){
+    snprintf(chtitle, 255, "L1 max ref pt efficiency label=%s", mylabel);
+    snprintf(chname, 255, "RECOTurnOn_%s", mylabel);
+    hL1RECOeff = new TH1F(chname, chtitle, theNbins, thePtMin, thePtMax);
+    hL1RECOeff->Sumw2();
+    snprintf(chtitle, 255, "L1 max reco ref pt distribution label=%s", mylabel);
+    snprintf(chname, 255, "RECOptNorm_%s", mylabel);  
+    hRECOptnor = new TH1F(chname, chtitle, theNbins, thePtMin, thePtMax);
+    hRECOptnor->Sumw2();
+    snprintf(chname, 255, "RECOetaNorm_%s",mylabel);
+    snprintf(chtitle, 255, "Norm  RECO Eta ");
+    hRECOetanor = new TH1F(chname, chtitle, 50, -2.1, 2.1);
+    hRECOetanor->Sumw2();
+    snprintf(chname, 255, "RECOphiNorm_%s",mylabel);
+    snprintf(chtitle, 255, "Norm  RECO #Phi");
+    hRECOphinor = new TH1F(chname, chtitle, 50, -3.15, 3.15);
+    hRECOphinor->Sumw2();
+    snprintf(chname, 255, "RECOeta_%s", mylabel);
+    snprintf(chtitle, 255, "L1 Eta distribution label=%s", mylabel);
+    hL1etaRECO = new TH1F(chname, chtitle, 50, -2.1, 2.1);
+    hL1etaRECO->Sumw2();
+    snprintf(chname, 255, "RECOphi_%s", mylabel);
+    snprintf(chtitle, 255, "L1 Phi distribution label=%s", mylabel);
+    hL1phiRECO = new TH1F(chname, chtitle, 50, -3.15, 3.15);
+    hL1phiRECO->Sumw2();
+  }
+  for (unsigned int i=0; i<theHLTCollectionLabels.size(); i++) {
+    ratedir->cd();
+    snprintf(str, 99, "%s",theHLTCollectionLabels[i].encode().c_str() );
+    mylabel = strtok(str,":");
+    snprintf(chname, 255, "eff_%s",mylabel );
+    snprintf(chtitle, 255, "Efficiency (%%) vs HLT Pt threshold (GeV), label=%s", mylabel);
+    h=new TH1F(chname, chtitle, theNbins, thePtMin, thePtMax);
+    h->Sumw2();
+    hHLTeff.push_back(h);
+    snprintf(chname, 255, "rate_%s", mylabel);
+    snprintf(chtitle, 255, "Rate (Hz) vs HLT Pt threshold (GeV), label=%s, L=%.2E (cm^{-2} s^{-1})", mylabel, theLuminosity*1.e33);
+    h=new TH1F(chname, chtitle, theNbins, thePtMin, thePtMax);
+    h->Sumw2();
+    hHLTrate.push_back(h);
+    distribdir->cd();
+    snprintf(chname, 255, "pt_%s",mylabel );
+    snprintf(chtitle, 255, "Pt distribution label=%s", mylabel); 
+    h=new TH1F(chname, chtitle, theNbins, thePtMin, thePtMax);
+    h->Sumw2();
+    hHLTpt.push_back(h);
+    if (useMuonFromGenerator){
+      snprintf(chtitle, 255, "Turn On curve, label=%s, L=%.2E (cm^{-2} s^{-1})", mylabel, theLuminosity*1.e33);
+      snprintf(chname, 255, "MCTurnOn_%s", mylabel);
+      h=new TH1F(chname, chtitle, theNbins, thePtMin, thePtMax);
+      hHLTMCeff.push_back(h);   
+      h->Sumw2();      
+      snprintf(chname, 255, "MCeta_%s",mylabel );
+      snprintf(chtitle, 255, "Gen Eta Efficiency label=%s", mylabel);
+      h=new TH1F(chname, chtitle, 50, -2.1, 2.1);
+      h->Sumw2();
+      hHLTetaMC.push_back(h);
+      snprintf(chname, 255, "MCphi_%s",mylabel );
+      snprintf(chtitle, 255, "Gen Phi Efficiency label=%s", mylabel);
+      h=new TH1F(chname, chtitle, 50, -3.15, 3.15);
+      h->Sumw2();
+      hHLTphiMC.push_back(h);
+    }
+    if (useMuonFromReco){
+      snprintf(chtitle, 255, "Turn On curve, label=%s, L=%.2E (cm^{-2} s^{-1})", mylabel, theLuminosity*1.e33);
+      snprintf(chname, 255, "RECOTurnOn_%s", mylabel);
+      h=new TH1F(chname, chtitle, theNbins, thePtMin, thePtMax);
+      h->Sumw2();      
+      hHLTRECOeff.push_back(h);   
+      snprintf(chname, 255, "RECOeta_%s",mylabel );
+      snprintf(chtitle, 255, "Reco Eta Efficiency label=%s", mylabel);
+      h=new TH1F(chname, chtitle, 50, -2.1, 2.1);
+      h->Sumw2();      
+      hHLTetaRECO.push_back(h);
+      snprintf(chname, 255, "RECOphi_%s",mylabel );
+      snprintf(chtitle, 255, "Reco Phi Efficiency label=%s", mylabel);
+      h=new TH1F(chname, chtitle, 50, -3.15, 3.15);
+      h->Sumw2();
+      hHLTphiRECO.push_back(h);
+    }
+  }
+  top->cd();
 }
 
 
+void HLTMuonGenericRate::FillHistograms(){
+  // L1 operations
+  for (unsigned int k=0; k<=theNbins+1; k++) {
+      double this_eff = hL1eff->GetBinContent(k)/theNumberOfEvents;
+      double this_eff_error = hL1eff->GetBinError(k)/theNumberOfEvents*sqrt(1-this_eff);
+      double this_rate = theLuminosity*theCrossSection*this_eff;
+      double this_rate_error = theLuminosity*theCrossSection*this_eff_error;
+      hL1eff->SetBinContent(k,this_eff);
+      hL1eff->SetBinError(k,this_eff_error);
+      hL1rate->SetBinContent(k,this_rate);
+      hL1rate->SetBinError(k,this_rate_error);
+  }
+  hL1eff->Scale(100.);
+  hSteps->Scale(1./theNumberOfEvents);
+  
+  // HLT operations
+  for (unsigned int i=0; i<theHLTCollectionLabels.size(); i++) {
+      for (unsigned int k=0; k<=theNbins+1; k++) {
+            double this_eff = hHLTeff[i]->GetBinContent(k)/theNumberOfL1Events;
+            double this_eff_error = hHLTeff[i]->GetBinError(k)/theNumberOfL1Events;
+            double this_rate = theLuminosity*theCrossSection*this_eff;
+            double this_rate_error = theLuminosity*theCrossSection*this_eff_error;
+            hHLTeff[i]->SetBinContent(k,this_eff);
+            hHLTeff[i]->SetBinError(k,this_eff_error);
+            hHLTrate[i]->SetBinContent(k,this_rate);
+            hHLTrate[i]->SetBinError(k,this_rate_error);
+      }
+      hHLTeff[i]->Scale(100.);
+      if (useMuonFromGenerator){
+        TH1F *num=(TH1F*) hHLTMCeff[i]->Clone();
+	hHLTMCeff[i]->Divide(num,hL1MCeff,1.,1.,"B");
+	hHLTMCeff[i]->Scale(100.);
+        num=(TH1F*) hHLTetaMC[i]->Clone();
+	hHLTetaMC[i]->Divide(num,hL1etaMC,1.,1.,"B");
+	hHLTetaMC[i]->Scale(100.);
+        num=(TH1F*) hHLTphiMC[i]->Clone();
+	hHLTphiMC[i]->Divide(num,hL1phiMC,1.,1.,"B");
+	hHLTphiMC[i]->Scale(100.);
+      }
+      if (useMuonFromReco){
+	TH1F *num=(TH1F*) hHLTRECOeff[i]->Clone();
+	hHLTRECOeff[i]->Divide(num,hL1RECOeff,1.,1.,"B");
+	hHLTRECOeff[i]->Scale(100.);
+	num=(TH1F*) hHLTetaRECO[i]->Clone();
+	hHLTetaRECO[i]->Divide(num,hL1etaRECO,1.,1.,"B");
+	hHLTetaRECO[i]->Scale(100.);
+	num=(TH1F*) hHLTphiRECO[i]->Clone();
+	hHLTphiRECO[i]->Divide(num,hL1phiRECO,1.,1.,"B");
+	hHLTphiRECO[i]->Scale(100.);
+      }
 
-MonitorElement* HLTMuonGenericRate::BookIt( TString name, TString title, 
-					    int Nbins, float Min, float Max) {
-  LogDebug("HLTMuonVal") << "Directory " << dbe_->pwd() << " Name " << 
-                            name << " Title:" << title;
-  TH1F *h = new TH1F( name, title, Nbins, Min, Max );
-  h->Sumw2();
-  return dbe_->book1D( name.Data(), h );
-  delete h;
-}
+  }
+  if (useMuonFromGenerator){
+    TH1F *num=(TH1F*) hL1MCeff->Clone();
+    hL1MCeff->Divide(num,hMCptnor,1.,1.,"B");
+    hL1MCeff->Scale(100.);
+    num=(TH1F*) hL1etaMC->Clone();
+    hL1etaMC->Divide(num,hMCetanor,1.,1.,"B");
+    hL1etaMC->Scale(100.);
+    num=(TH1F*) hL1phiMC->Clone();
+    hL1phiMC->Divide(num,hMCphinor,1.,1.,"B");
+    hL1phiMC->Scale(100.);
+    }
+  if (useMuonFromReco){
+    TH1F *num=(TH1F*) hL1RECOeff->Clone();
+    hL1RECOeff->Divide(num,hRECOptnor,1.,1.,"B");
+    hL1RECOeff->Scale(100.);
+    num=(TH1F*) hL1etaRECO->Clone();
+    hL1etaRECO->Divide(num,hRECOetanor,1.,1.,"B");
+    hL1etaRECO->Scale(100.);
+    num=(TH1F*) hL1phiRECO->Clone();
+    hL1phiRECO->Divide(num,hRECOphinor,1.,1.,"B");
+    hL1phiRECO->Scale(100.);
+  }
 
-
-
-void HLTMuonGenericRate::WriteHistograms() {
-  if ( theRootFileName.size() != 0 && dbe_ ) dbe_->save(theRootFileName);
-   return;
 }
 
