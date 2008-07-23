@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: setup_sm.sh,v 1.9 2008/05/16 12:45:28 loizides Exp $
+# $Id: setup_sm.sh,v 1.10 2008/06/12 12:27:02 loizides Exp $
 
 if test -e "/etc/profile.d/sm_env.sh"; then 
     source /etc/profile.d/sm_env.sh;
@@ -70,4 +70,5 @@ fi
 su - cmsprod -c "~cmsprod/$nname/t0_control.sh stop" >/dev/null 2>&1
 su - cmsprod -c "~cmsprod/$nname/t0_control.sh start"
 su - smpro -c "~smpro/scripts/t0inject.sh stop" >/dev/null 2>&1
+rm -f /tmp/.20*-${hname}-*.log.lock
 su - smpro -c "~smpro/scripts/t0inject.sh start"
