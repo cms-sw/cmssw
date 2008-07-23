@@ -5,7 +5,7 @@ rsTrackCandidates = cms.EDFilter("RoadSearchTrackCandidateMaker",
     # Initial Error on vertex in cm
     InitialVertexErrorXY = cms.double(0.2),
     # Initial Error on vertex in cm
-    CosmicSeedPt = cms.double(1.0),
+    CosmicSeedPt = cms.double(5.0),
     HitChi2Cut = cms.double(30.0),
     StraightLineNoBeamSpotCloud = cms.bool(False),
     MeasurementTrackerName = cms.string(''),
