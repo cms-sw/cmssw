@@ -5,7 +5,6 @@
 CSCTMBTrailer::CSCTMBTrailer(int wordCount, int firmwareVersion) 
 : theFirmwareVersion(firmwareVersion)
 {
-std::cout << "TRAILER WC " << wordCount << std::endl;
   //FIXME do firmware version
   theData[0] = 0x6e0c;
   // all the necessary lines from this thing first
@@ -20,18 +19,14 @@ std::cout << "TRAILER WC " << wordCount << std::endl;
       thePadding = 2;
       wordCount += thePadding;
     }
-  //int crcOffset = ((firmwareVersion == 2006) ? 1 : 3) + thePadding;
-  int de0fOffset = ((firmwareVersion == 2006) ? 3 : 1) + thePadding;
-
   // the next four words start with 11011, or a D
   for(int i = 1; i < 5; ++i) 
     {
       theData[i+thePadding] = (0x1B << 11);
     }
-  theData[de0fOffset] = 0xde0f;
+  theData[de0fOffset()] = 0xde0f;
   // word count excludes the trailer
   theData[4+thePadding] |= wordCount;
-std::cout << "TRAIL FINA " << sizeInWords() << std::endl;
 }
 
 
@@ -56,7 +51,7 @@ CSCTMBTrailer::CSCTMBTrailer(unsigned short * buf, unsigned short int firmwareVe
   }
 }
 
-int CSCTMBTrailer::crc22() const {return theData[1+thePadding] & 0x7fff + ((theData[2+thePadding] & 0x7fff) << 11);}
+int CSCTMBTrailer::crc22() const {return theData[crcOffset()] & 0x7fff + ((theData[crcOffset()+1] & 0x7fff) << 11);}
 
 int CSCTMBTrailer::wordCount() const {return theData[4+thePadding] & 0x7ff;}
 

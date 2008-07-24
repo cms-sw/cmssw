@@ -47,6 +47,9 @@ public:
 
   int wordCount() const;
 private:
+  int crcOffset() const  {return (theFirmwareVersion == 2006 ? 1 : 3) + thePadding;}
+  int de0fOffset() const {return (theFirmwareVersion == 2006 ? 3 : 1) + thePadding;}
+
   unsigned short theData[7];
   int thePadding;
   unsigned short int theFirmwareVersion;
