@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/05/30 13:37:24 $
- *  $Revision: 1.13 $
+ *  $Date: 2008/07/02 14:14:38 $
+ *  $Revision: 1.14 $
  *  \author G. Cerminara - INFN Torino
  *  revised by G. Mila - INFN Torino
  */
@@ -80,7 +80,6 @@ void DTSegmentAnalysisTask::endJob(){
  
   edm::LogVerbatim ("segment") <<"[DTSegmentAnalysisTask] endjob called!";
 
-  theDbe->save("prova.root");
   theDbe->rmdir("DT/02-Segments");
 }
   
