@@ -100,7 +100,10 @@ process.caloRecHits.RecHitsFactory.HCAL.Refactor_mean = 1.0
 process.load("FastSimulation.Configuration.EventContent_cff")
 process.o1 = cms.OutputModule("PoolOutputModule",
     process.FEVTDEBUGHLTEventContent,
-    fileName = cms.untracked.string('Output.root')
+    fileName = cms.untracked.string('Output.root'),
+    dataset = cms.untracked.PSet(
+    dataTier = cms.untracked.string('GEN-SIM-DIGI-HLTDEBUG-RECO')
+    ) 
 )
 process.outpath = cms.EndPath(process.o1)
 
@@ -108,14 +111,14 @@ process.outpath = cms.EndPath(process.o1)
 process.schedule.append(process.outpath)
 
 process.configurationMetadata = cms.untracked.PSet(
-       version = cms.untracked.string('$Revision: 1.1 $'),
-          name = cms.untracked.string('$Source: Template_cfg.py $'),
+       version = cms.untracked.string('$Revision: 1.2 $'),
+          name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/FastSimulation/Validation/test/Template_cfg.py,v $'),
           annotation = cms.untracked.string('RelVal Fast Sim ==SAMPLE==')
        ) 
 
 # Keep the logging output to a nice level #
 # process.Timing =  cms.Service("Timing")
-process.load("FWCore/MessageService/MessageLogger_cfi")
-process.MessageLogger.destinations = cms.untracked.vstring("pyDetailedInfo.txt")
+# process.load("FWCore/MessageService/MessageLogger_cfi")
+# process.MessageLogger.destinations = cms.untracked.vstring("pyDetailedInfo.txt")
 
 
