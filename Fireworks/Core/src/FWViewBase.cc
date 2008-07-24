@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 14:43:19 EST 2008
-// $Id: FWViewBase.cc,v 1.6 2008/07/21 00:59:11 jmuelmen Exp $
+// $Id: FWViewBase.cc,v 1.7 2008/07/24 15:02:03 jmuelmen Exp $
 //
 
 // system include files
@@ -86,6 +86,9 @@ FWViewBase::promptForSaveImageTo(TGFrame* iParent) const
    dir = fi.fIniDir;
    if (fi.fFilename != 0) {
 	std::string name = fi.fFilename;
+	// fi.fFileTypeIdx points to the name of the file type
+	// selected in the drop-down menu, so fi.fFileTypeIdx gives us
+	// the extension
 	std::string ext = kImageExportTypes[fi.fFileTypeIdx + 1] + 1;
 	if (name.find(ext) == name.npos)
 	     name += ext;
