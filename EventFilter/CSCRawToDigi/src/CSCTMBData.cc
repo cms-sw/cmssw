@@ -1,7 +1,7 @@
 /** \class CSCTMBData
  *
- *  $Date: 2008/06/24 15:51:50 $
- *  $Revision: 1.20 $
+ *  $Date: 2008/06/27 03:26:42 $
+ *  $Revision: 1.21 $
  *  \author A. Tumanov - Rice
  */
 
@@ -17,12 +17,27 @@
 bool CSCTMBData::debug =false;
 
 CSCTMBData::CSCTMBData() 
-  : theOriginalBuffer(0), theTMBScopeIsPresent(false), theTMBScope(0),
-theRPCDataIsPresent(false) {}
+  : theOriginalBuffer(0), 
+    theTMBHeader(),
+    theCLCTData(),
+    theTMBScopeIsPresent(false), 
+    theTMBScope(0),
+    theTMBTrailer(theTMBHeader.sizeInWords()+theCLCTData.sizeInWords(), 2007),
+    theRPCDataIsPresent(false)
+{
+
+
+}
 
 
 CSCTMBData::CSCTMBData(unsigned short *buf) 
-  : theOriginalBuffer(buf), theTMBScopeIsPresent(false), theTMBScope(0), theRPCDataIsPresent(false){
+  : theOriginalBuffer(buf), 
+    theTMBHeader(),
+    theCLCTData(),
+    theTMBScopeIsPresent(false), 
+    theTMBScope(0), 
+    theTMBTrailer(theTMBHeader.sizeInWords()+theCLCTData.sizeInWords(), 2007),
+    theRPCDataIsPresent(false){
   size_ = UnpackTMB(buf);
 } 
 
@@ -280,9 +295,7 @@ boost::dynamic_bitset<> CSCTMBData::pack()
   boost::dynamic_bitset<> clctData =  bitset_utilities::ushortToBitset(theCLCTData.sizeInWords()*16,
 								       theCLCTData.data());
   result = bitset_utilities::append(result,clctData);
-  int finalSize = result.size()/16 + theTMBTrailer.sizeInWords(); //size() returns # of bits 
-                                                                
-  theTMBTrailer.setWordCount(finalSize);
+
   boost::dynamic_bitset<> tmbTrailer =  bitset_utilities::ushortToBitset( theTMBTrailer.sizeInWords()*16,
 									  theTMBTrailer.data());
   result = bitset_utilities::append(result,tmbTrailer);
