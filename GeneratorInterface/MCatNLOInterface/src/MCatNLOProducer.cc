@@ -1,7 +1,6 @@
 /*
  *  Fabian Stoeckli
  *  Feb. 2007
- * 
  */
 
 
