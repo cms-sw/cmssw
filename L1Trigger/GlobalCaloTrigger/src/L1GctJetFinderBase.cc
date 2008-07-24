@@ -176,7 +176,8 @@ void L1GctJetFinderBase::setInputRegion(const L1CaloRegion& region)
     // Now check we are in the right wheel (positive or negative eta)
     if ( (crate/N_JF_PER_WHEEL) == (m_id/N_JF_PER_WHEEL) ) {
       unsigned i = colRelative*COL_OFFSET + region.rctEta() + 1;
-      m_inputRegions.at(i) = region;
+      L1GctRegion temp(region);
+      m_inputRegions.at(i) = temp;
     } else {
       // Accept neighbouring regions from the other wheel
       if (region.rctEta() == 0) {
