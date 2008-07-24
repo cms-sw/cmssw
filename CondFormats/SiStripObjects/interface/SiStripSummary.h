@@ -7,6 +7,12 @@
 #include<boost/cstdint.hpp>
 #include "FWCore/Utilities/interface/Exception.h"
 
+/**
+ @class SiStripSummary
+ @author D. Giordano, A.-C. Le Bihan
+ @class to hold historic DQM summary informations
+*/
+
 
 class SiStripSummary {
 
@@ -15,7 +21,6 @@ class SiStripSummary {
 		struct DetRegistry{
 			uint32_t detid;
 			uint32_t ibegin;
-			uint32_t iend;
 		};
                 
 		enum TrackerRegion { TRACKER = 0, TIB = 1, TOB = 2, TID = 3, TEC = 4, 
@@ -31,12 +36,12 @@ class SiStripSummary {
 		};
 
 
-		typedef std::vector<float>::const_iterator               ContainerIterator;  
-		typedef std::pair<ContainerIterator, ContainerIterator>  Range; 
-		     
+                // SOME DEFINITIONS
+                //
+	        typedef std::vector<float>::const_iterator               ContainerIterator;  
+		typedef std::pair<ContainerIterator, ContainerIterator>  Range; 		     
 		typedef std::vector<DetRegistry>                         Registry;
 		typedef Registry::const_iterator                         RegistryIterator;
-		
 		typedef std::vector<float>		                 InputVector;
                 
 		
@@ -44,34 +49,31 @@ class SiStripSummary {
 		SiStripSummary(const SiStripSummary& input);
 		SiStripSummary(){};
 		~SiStripSummary(){};
-
 		
+
+                // RETURNS POSITION OF DETID IN v_sum_
+		//
 		const Range getRange(const uint32_t& detID) const;
+		
+		
+		// RETURNS LIST OF DETIDS 
+		//
 		std::vector<uint32_t> getDetIds() const;
                 
-		ContainerIterator getDataVectorBegin()     const {return v_sum.begin();  }
-		ContainerIterator getDataVectorEnd()       const {return v_sum.end();    } 
-		RegistryIterator  getRegistryVectorBegin() const {return indexes.begin();}
-		RegistryIterator  getRegistryVectorEnd()   const {return indexes.end();  }
-                
 		
-		// insert summary objects
+		// INSERT SUMMARY OBJECTS...
 		//
 		bool put(const uint32_t& detID, InputVector &input, std::vector<std::string>& userContent );
-		bool put(const uint32_t& detID, InputVector &input);
-		bool put(const uint32_t& detID, float input);
-		bool put(TrackerRegion region, InputVector &input);
 		bool put(TrackerRegion region, InputVector &input, std::vector<std::string>& userContent );
-		void setSummaryObj(const uint32_t& detID, std::vector<float>& SummaryObj);	       
 		void setObj(const uint32_t& detID, std::string elementName, float value);
 		
 		
-		// retrieve summary objects
+		// RETRIEVE SUMMARY OBJECTS...
 		//
-		// returns one info for one detId
+		// returns info "elementName" for a given detId
 		float getSummaryObj(uint32_t& detID, std::string elementName) const;	
 		
-		// returns a vector of selected infos related to one detId 
+		// returns a vector of selected infos related to a given detId 
 		std::vector<float> getSummaryObj(uint32_t& detID, std::vector<std::string> list) const; 
 		 
 		// returns a vector filled with "info elementName" for each detId 
@@ -85,34 +87,38 @@ class SiStripSummary {
 		std::vector<float> getSummaryObj() const;		      
 		
 	
-		void setData(float summaryInfo, std::vector<float>& v); // to be kept ?
-                
-                inline void  setUserDBContent(std::vector<std::string> userDBContent)  { userDBContent_=userDBContent;    }
-
-		// inline methods about run, time value ...
+		// INLINE METHODS ABOUT RUN, TIME VALUE...
 		//
-	        inline void setRunNr(int inputRunNr)              { runNr_ = inputRunNr;      }
+                inline void setUserDBContent(std::vector<std::string> userDBContent)  { userDBContent_ = userDBContent;}
+	        inline void setRunNr(int inputRunNr)                       { runNr_ = inputRunNr;      }
                 inline void setTimeValue(unsigned long long inputTimeValue){ timeValue_=inputTimeValue;}
                 inline void setTag(std::string tag)                        { tag_ = tag;               }
                 
 		inline unsigned long long getTimeValue() const             { return timeValue_;        }
                 inline std::vector<std::string>  getUserDBContent() const  { return userDBContent_;    }
                 inline std::string  getTag() const                         { return tag_;              }
-                inline int getRunNr() const                       { return runNr_;            }
+                inline int getRunNr() const                                { return runNr_;            }
                
+	       
+	        // PRINT METHOD...
+		//
                 void print();
-
-		std::vector<std::string>        userDBContent_;
-                std::vector<float> 	        v_sum; 
-		std::vector<DetRegistry> 	indexes;
+                
 		
-	        int runNr_;
+		// SISTRIPSUMMARY MEMBERS...
+		//
+		std::vector<std::string>        userDBContent_;
+                std::vector<float> 	        v_sum_; 
+		std::vector<DetRegistry> 	indexes_;
+		
+	        int runNr_; 
                 unsigned long long timeValue_;
 		std::string tag_;
 		
 		
         protected:	
 	
+	        // RETURNS POSITION OF ELEMENTNAME IN userDBContent_
 	        const size_t getPosition(std::string elementName) const;
 	
 	

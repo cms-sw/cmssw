@@ -9,68 +9,46 @@ SiStripSummary::SiStripSummary(std::vector<std::string>& userDBContent, std::str
   timeValue_ = 0;
 }
 
+
 SiStripSummary::SiStripSummary(const SiStripSummary& input)
 {
-
   userDBContent_ = input.getUserDBContent();
   runNr_ = input.getTimeValue();
   timeValue_ = input.getRunNr();
-  v_sum.clear();
-  indexes.clear();
-  v_sum.insert(v_sum.end(),input.v_sum.begin(),input.v_sum.end());
-  indexes.insert(indexes.end(),input.indexes.begin(),input.indexes.end());
+  v_sum_.clear();
+  indexes_.clear();
+  v_sum_.insert(v_sum_.end(),input.v_sum_.begin(),input.v_sum_.end());
+  indexes_.insert(indexes_.end(),input.indexes_.begin(),input.indexes_.end());
 }
 
 
-
-bool SiStripSummary::put(const uint32_t& DetId,InputVector& input) {
-
-  Registry::iterator p 	= 	std::lower_bound(indexes.begin(),indexes.end(),DetId,SiStripSummary::StrictWeakOrdering());
-  if (p!=indexes.end() 	&& 	p->detid==DetId) return false;
-
-  if (input.size() != userDBContent_.size())  throw cms::Exception("")<< "[SiStripSummary::put] : size of db object doesn't match the declared content"; 
-	
-  DetRegistry detregistry;
-  detregistry.detid  = DetId;
-  detregistry.ibegin = v_sum.size();
-  detregistry.iend   = v_sum.size()+input.size();
-  indexes.insert(p,detregistry);
-  v_sum.insert(v_sum.begin()+v_sum.size(),input.begin(),input.end());
-	
-  return true;
-}
-
-bool SiStripSummary::put(const uint32_t& DetId, InputVector &input, std::vector<std::string>& userContent ) {
-
-  Registry::iterator p 	= 	std::lower_bound(indexes.begin(),indexes.end(),DetId,SiStripSummary::StrictWeakOrdering());
+bool SiStripSummary::put(const uint32_t& DetId, InputVector &input, std::vector<std::string>& userContent ) 
+{
+  Registry::iterator p 	= std::lower_bound(indexes_.begin(),indexes_.end(),DetId,SiStripSummary::StrictWeakOrdering());
   
-  if(p==indexes.end() || p->detid!=DetId){
+  if(p==indexes_.end() || p->detid!=DetId){
     //First request for the given DetID
     //Create entries for all the declared userDBContent
     //and fill for the provided userContent
  
-    std::cout << "test Summary : first entry for detid " << DetId << std::endl;
     DetRegistry detregistry;
     detregistry.detid  = DetId;
-    detregistry.ibegin = v_sum.size();
-    detregistry.iend   = v_sum.size()+userDBContent_.size();
-    indexes.insert(p,detregistry);
+    detregistry.ibegin = v_sum_.size();
+    indexes_.insert(p,detregistry);
     InputVector tmp(userDBContent_.size(),-9999);
 
     for(size_t i=0;i<userContent.size();++i)
       tmp[getPosition(userContent[i])]=input[i];
     
-    v_sum.insert(v_sum.end(),tmp.begin(),tmp.end());
+    v_sum_.insert(v_sum_.end(),tmp.begin(),tmp.end());
   } else {
 
     if (p->detid==DetId){
-      // I should already find the entries 
+      //I should already find the entries 
       //fill for the provided userContent
 
-      std::cout << "test Summary : another entry for detid " << DetId << std::endl;
-
       for(size_t i=0;i<userContent.size();++i)
-	v_sum[p->ibegin+getPosition(userContent[i])]=input[i];
+	v_sum_[p->ibegin+getPosition(userContent[i])]=input[i];
     }
   }
 	
@@ -78,52 +56,30 @@ bool SiStripSummary::put(const uint32_t& DetId, InputVector &input, std::vector<
 }
 
 
-bool SiStripSummary::put(TrackerRegion region, InputVector &input) {
-
-  uint32_t fakeDet = region;
-  return put(fakeDet, input);
-}
-
 bool SiStripSummary::put(TrackerRegion region, InputVector &input, std::vector<std::string>& userContent ) {
 
   uint32_t fakeDet = region;
-  return put(fakeDet, input,userContent);
+  return put(fakeDet, input, userContent);
 }
 
 
+const SiStripSummary::Range SiStripSummary::getRange(const uint32_t& DetId) const 
+{
 
-bool SiStripSummary::put(const uint32_t& DetId, float input) {
-
-  Registry::iterator p 	= 	std::lower_bound(indexes.begin(),indexes.end(),DetId,SiStripSummary::StrictWeakOrdering());
-  if (p!=indexes.end() 	&& 	p->detid==DetId) return false;
-	
-  DetRegistry detregistry;
-  detregistry.detid  = DetId;
-  detregistry.ibegin = v_sum.size();
-  detregistry.iend   = v_sum.size()+1;
-  indexes.insert(p,detregistry);
-  v_sum.insert(v_sum.end(),input);
-  return true;
-}
-
-
-
-
-const SiStripSummary::Range SiStripSummary::getRange(const uint32_t& DetId) const {
-
-  RegistryIterator p = std::lower_bound(indexes.begin(),indexes.end(),DetId,SiStripSummary::StrictWeakOrdering());
-  if (p==indexes.end()|| p->detid!=DetId) 
-    return SiStripSummary::Range(v_sum.end(),v_sum.end()); 
+  RegistryIterator p = std::lower_bound(indexes_.begin(),indexes_.end(),DetId,SiStripSummary::StrictWeakOrdering());
+  if (p==indexes_.end()|| p->detid!=DetId) 
+    return SiStripSummary::Range(v_sum_.end(),v_sum_.end()); 
   else 
-    return SiStripSummary::Range(v_sum.begin()+p->ibegin,v_sum.begin()+p->iend);
+    return SiStripSummary::Range(v_sum_.begin()+p->ibegin,v_sum_.begin()+userDBContent_.size());
 }
 
 
-std::vector<uint32_t> SiStripSummary::getDetIds() const {
+std::vector<uint32_t> SiStripSummary::getDetIds() const 
+{
   // returns vector of DetIds in map
   std::vector<uint32_t> DetIds_;
-  SiStripSummary::RegistryIterator begin = indexes.begin();
-  SiStripSummary::RegistryIterator end   = indexes.end();
+  SiStripSummary::RegistryIterator begin = indexes_.begin();
+  SiStripSummary::RegistryIterator end   = indexes_.end();
   for (SiStripSummary::RegistryIterator p=begin; p != end; ++p) {
     DetIds_.push_back(p->detid);
   }
@@ -131,18 +87,13 @@ std::vector<uint32_t> SiStripSummary::getDetIds() const {
 }
 
 
-void SiStripSummary::setData(float summaryInfo, std::vector<float>& v){
-  v.push_back(summaryInfo) ;
-}
-
 
 const size_t SiStripSummary::getPosition(std::string elementName) const
 {
+  // returns position of elementName in UserDBContent_
   std::vector<std::string>::const_iterator it = find(userDBContent_.begin(),userDBContent_.end(),elementName);  
   std::vector<std::string>::difference_type pos = -1;
   if (it != userDBContent_.end()) pos = it - userDBContent_.begin();
-  //else  throw cms::Exception("[SiStripSummary::getPosition]")
-  //	  << " attempting to retrieve non existing historic DB object : "<< elementName;
   else std::cout << "attempting to retrieve non existing historic DB object : "<< elementName <<std::endl;
   return pos;  
 }   
@@ -151,8 +102,10 @@ const size_t SiStripSummary::getPosition(std::string elementName) const
 
 void  SiStripSummary::setObj(const uint32_t& detID, std::string elementName, float value) 
 {
-  RegistryIterator p = std::lower_bound(indexes.begin(),indexes.end(),detID,SiStripSummary::StrictWeakOrdering());
-  if (p==indexes.end()|| p->detid!=detID) 
+  // modifies value of info "elementName" for the given detID
+  // requires that an entry has be defined beforehand for detId in DB
+  RegistryIterator p = std::lower_bound(indexes_.begin(),indexes_.end(),detID,SiStripSummary::StrictWeakOrdering());
+  if (p==indexes_.end()|| p->detid!=detID) 
     {
       throw cms::Exception("")
 	<<"not allowed to modify "<< elementName << " in historic DB - SummaryObj needs to be available first !";
@@ -162,28 +115,10 @@ void  SiStripSummary::setObj(const uint32_t& detID, std::string elementName, flo
    
   std::vector<float>::const_iterator it = range.first+getPosition(elementName);
   std::vector<float>::difference_type pos = -1;
-  if (it != v_sum.end()){ 
-    pos = it - v_sum.begin();
-    v_sum.at(pos) = value; }  
+  if (it != v_sum_.end()){ 
+    pos = it - v_sum_.begin();
+    v_sum_.at(pos) = value; }  
 }
-
-
-void  SiStripSummary::print() 
-{
-  std::cout << "Nr. of detector elements in SiStripSummary object is " << indexes.size() 
-	    << " RunNr= " << runNr_ 
-	    << " timeValue= " << timeValue_ 
-	    << std::endl;
-}
-
-
-
-void SiStripSummary::setSummaryObj(const uint32_t& detID, std::vector<float>& SummaryObj)
-{
-  put(detID, SummaryObj);
-}
-
-
 
 
 float SiStripSummary::getSummaryObj(uint32_t& detID, std::string elementName) const
@@ -219,7 +154,7 @@ std::vector<float> SiStripSummary::getSummaryObj(uint32_t& detID) const
 
 std::vector<float> SiStripSummary::getSummaryObj() const
 {
-  return v_sum;
+  return v_sum_;
 }
 
 
@@ -240,4 +175,11 @@ std::vector<float> SiStripSummary::getSummaryObj(std::string elementName) const
 }
 
 
+void  SiStripSummary::print() 
+{
+  std::cout << "Nr. of detector elements in SiStripSummary object is " << indexes_.size() 
+	    << " RunNr= " << runNr_ 
+	    << " timeValue= " << timeValue_ 
+	    << std::endl;
+}
 
