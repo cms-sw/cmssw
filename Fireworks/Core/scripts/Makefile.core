@@ -6,13 +6,19 @@ ifndef VERBOSE
   QUIET := @
 endif
 
+ifeq ($(shell uname), Linux)
+	SO_EXT := so
+else ifeq ($(shell uname), Darwin)
+	SO_EXT := dylib
+endif
+
 include core.mk
 include project.mk
 
 # 
 # common compiler flags
-COMPILERFLAGS := -Wall -O2 -m32
-# COMPILERFLAGS := -Wall -O0 -g
+#COMPILERFLAGS := -Wall -O2 -m32
+ COMPILERFLAGS := -Wall -O0 -g
 # common includes
 INCLUDE := -I./ -I$(FWROOTSYS)/include -Icms $(addprefix -I,$(CoreIncludes))
 # compiler
@@ -24,7 +30,12 @@ CFLAGS := $(COMPILERFLAGS) $(INCLUDE)  $(EXTRACFLAGS)
 LINKER = c++
 # linker flags
 CoreMissingFlags = -lEG
-CoreLinkerFlags = -shared -m32 -Lexternal/lib -L$(FWROOTSYS)/lib -Lexternal/lib $(addprefix -l,$(CoreLibs)) $(CoreMissingFlags)
+#CoreLinkerFlags = -shared -m32 -Lexternal/lib -L$(FWROOTSYS)/lib -Lexternal/lib $(addprefix -l,$(CoreLibs)) $(CoreMissingFlags)
+ifeq ($(shell uname), Linux)
+	CoreLinkerFlags = -shared -m32 -Lexternal/lib -L$(FWROOTSYS)/lib -Lexternal/lib $(addprefix -l,$(CoreLibs)) $(CoreMissingFlags)
+else ifeq ($(shell uname), Darwin)
+	CoreLinkerFlags = -dynamiclib -m32 -Lexternal/lib -L$(FWROOTSYS)/lib -Lexternal/lib $(addprefix -l,$(CoreLibs)) $(CoreMissingFlags)
+endif
 
 # cms data format source files and their object files
 CoreSources = $(wildcard cms/*/*/src/*.cc)
@@ -60,15 +71,17 @@ install:
 	echo "export ROOTSYS" >> root.sh; \
 	echo "LD_LIBRARY_PATH="`pwd`:`pwd`/external/lib:'$$ROOTSYS/lib' >> root.sh; \
 	echo "export LD_LIBRARY_PATH" >> root.sh; \
+	echo "DYLD_LIBRARY_PATH="`pwd`:`pwd`/external/lib:'$$ROOTSYS/lib' >> root.sh; \
+	echo "export DYLD_LIBRARY_PATH" >> root.sh; \
 	echo '$$ROOTSYS/bin/root.exe $$*' >> root.sh; \
 	chmod u+x root.sh
 #	$(QUIET) find tmp -name "*.d" -exec rm {} \;
 
-core:   lib$(LibCore).so tmp/lib$(LibCore).so.out
-	
-lib$(LibCore).so: $(CoreObjects) $(CoreObjectsC) $(CoreRootDicObjects) $(CoreDictionaryObjects)
+core:   lib$(LibCore).$(SO_EXT) tmp/lib$(LibCore).$(SO_EXT).out
+
+lib$(LibCore).$(SO_EXT): $(CoreObjects) $(CoreObjectsC) $(CoreRootDicObjects) $(CoreDictionaryObjects)
 	$(QUIET) echo "linking core library $(LibCore)"; \
-	$(LINKER) $(CoreLinkerFlags) -o lib$(LibCore).so \
+	$(LINKER) $(CoreLinkerFlags) -o lib$(LibCore).$(SO_EXT) \
 	$(CoreObjects) $(CoreObjectsC) $(CoreRootDicObjects) $(CoreDictionaryObjects)
 
 ######################################################################################

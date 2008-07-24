@@ -15,11 +15,18 @@ tmp/%.co:   %.c
 	mkdir -p $(dir $@); \
 	$(CC) $(CFLAGS) $< -c -o $@
 
-# dictionary creation
+ifeq ($(shell uname), Linux)
 tmp/%.cpp:  %.h %_def.xml
 	$(QUIET) echo "generating dictionaries based on $*_def.xml"; \
 	mkdir -p $(dir $@); \
-	$(FWROOTSYS)/bin/genreflex $*.h -s $*_def.xml -o $@ $(INCLUDE) --gccxmlpath=external/gccxml/bin --gccxmlopt="--gccxml-compiler $(CC)"
+	$(FWROOTSYS)/bin/genreflex $*.h -s $*_def.xml -o $@ $(INCLUDE) --gccxmlpath=external/gccxml/bin --gccxmlopt="--gccxml-compiler $(CC)" 
+else ifeq ($(shell uname), Darwin)
+tmp/%.cpp:  %.h %_def.xml
+	$(QUIET) echo "generating dictionaries based on $*_def.xml"; \
+	mkdir -p $(dir $@); \
+	$(FWROOTSYS)/bin/genreflex $*.h -s $*_def.xml -o $@ $(INCLUDE) --debug --gccxmlpath=/Users/cdj/src/cms/software/EventDisplay/external/bin/ --gccxmlopt="--gccxml-compiler $(CC)"
+endif
+# dictionary creation
 
 # dictionary creation
 # NOTE: for some reason I needed to add the original
@@ -29,6 +36,7 @@ tmp/%LinkDef.cc:  %LinkDef.h
 	$(QUIET) echo "generating ROOT dictionaries based on $<"; \
 	mkdir -p $(dir $@); \
 	LD_LIBRARY_PATH=$(FWROOTSYS)/lib; export LD_LIBRARY_PATH; \
+	DYLD_LIBRARY_PATH=$(FWROOTSYS)/lib; export DYLD_LIBRARY_PATH; \
 	ROOTSYS=$(FWROOTSYS); export ROOTSYS; \
 	$(FWROOTSYS)/bin/rootcint -f $@.tmp -c -p $(INCLUDE) $<; \
 	cat $< $@.tmp > $@
