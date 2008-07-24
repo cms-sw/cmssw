@@ -103,7 +103,7 @@ process.outpath = cms.EndPath(process.o1)
 process.schedule.append(process.outpath)
 
 # Keep the logging output to a nice level #
-# process.Timing =  cms.Service("Timing")
+#process.Timing =  cms.Service("Timing")
 #process.load("FWCore/MessageService/MessageLogger_cfi")
 #process.MessageLogger.destinations = cms.untracked.vstring("pyDetailedInfo.txt")
 
