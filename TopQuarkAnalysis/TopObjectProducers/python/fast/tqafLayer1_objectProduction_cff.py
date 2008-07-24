@@ -26,19 +26,19 @@ allLayer1Electrons.isolation.tracker = cms.PSet(
     )
 ## isolation for ecal
 allLayer1Electrons.isolation.ecal = cms.PSet(
-    src    = cms.InputTag("layer0ElectronIsolations", "eleIsoDepositEcalFromHits"),
+    src    = cms.InputTag("layer0ElectronIsolations", "eleIsoDepositEcalFromClusts"),
     deltaR = cms.double(0.4)
     )
 ## isolation for hcal
 allLayer1Electrons.isolation.hcal = cms.PSet(
-    src    = cms.InputTag("layer0ElectronIsolations", "eleIsoDepositHcalFromHits"),
+    src    = cms.InputTag("layer0ElectronIsolations", "eleIsoDepositHcalFromTowers"),
     deltaR = cms.double(0.4)
     )
 ##store deposits
 allLayer1Electrons.isoDeposits = cms.PSet(
     tracker= cms.InputTag("layer0ElectronIsolations", "eleIsoDepositTk"),
-    ecal   = cms.InputTag("layer0ElectronIsolations", "eleIsoDepositEcalFromHits"),
-    hcal   = cms.InputTag("layer0ElectronIsolations", "eleIsoDepositHcalFromHits")
+    ecal   = cms.InputTag("layer0ElectronIsolations", "eleIsoDepositEcalFromClusts"),
+    hcal   = cms.InputTag("layer0ElectronIsolations", "eleIsoDepositHcalFromTowers")
     )
 
 
