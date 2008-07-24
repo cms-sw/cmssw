@@ -40,6 +40,7 @@ public:
 
   uint16_t sizeInBytes() const {return 16;}
   int crc22() const;
+  void setCRC(int crc);
   bool check() const {return theData[0]==0x6e0c;}
   /// in 16-bit frames
   int sizeInWords() const {return 5+thePadding;}

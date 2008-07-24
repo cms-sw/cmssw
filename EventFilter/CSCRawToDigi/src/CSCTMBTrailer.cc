@@ -51,7 +51,19 @@ CSCTMBTrailer::CSCTMBTrailer(unsigned short * buf, unsigned short int firmwareVe
   }
 }
 
-int CSCTMBTrailer::crc22() const {return theData[crcOffset()] & 0x7fff + ((theData[crcOffset()+1] & 0x7fff) << 11);}
+int CSCTMBTrailer::crc22() const 
+{  return theData[crcOffset()] & 0x7fff +
+            ((theData[crcOffset()+1] & 0x7fff) << 11);
+}
+
+
+void CSCTMBTrailer::setCRC(int crc) 
+{
+std::cout << "SETCRC" << crcOffset() << std::endl;
+  theData[crcOffset()] = crc & 0x7fff;
+  theData[crcOffset()+1] = (crc>>11) & 0x7fff;
+}
+
 
 int CSCTMBTrailer::wordCount() const {return theData[4+thePadding] & 0x7ff;}
 
