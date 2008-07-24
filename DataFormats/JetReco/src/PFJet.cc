@@ -1,6 +1,6 @@
 // PFJet.cc
 // Fedor Ratnikov UMd
-// $Id: PFJet.cc,v 1.11 2008/05/26 11:22:12 arizzi Exp $
+// $Id: PFJet.cc,v 1.12 2008/07/24 14:51:23 cbern Exp $
 #include <sstream>
 #include <typeinfo>
 
@@ -61,17 +61,14 @@ reco::TrackRefVector PFJet::getTrackRefs() const {
   // result will contain chargedMultiplicity() elements
   reco::TrackRefVector result;
   result.reserve( chargedMultiplicity() );
-  unsigned nCharged = 0;
   for (unsigned i = 0;  i <  numberOfDaughters (); i++) {
     const reco::PFCandidate* pfcand = getPFConstituent (i);
     reco::TrackRef trackref = pfcand->trackRef();
     if( trackref.isNonnull() ) {
       result.push_back( trackref );
-      nCharged++;
     }
   }
 
-  assert( nCharged= chargedMultiplicity() );
   return result;
 }
 
