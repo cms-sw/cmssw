@@ -1,4 +1,4 @@
-# /dev/CMSSW_2_1_0_pre9/HLT/V2 (CMSSW_2_1_0_pre9)
+# /dev/CMSSW_2_1_0_pre9/HLT/V4 (CMSSW_2_1_0_pre9)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -7218,11 +7218,11 @@ hltL2SingleTauIsolationProducer = cms.EDProducer( "L2TauIsolationProducer",
       outerCone = cms.double( 0.5 )
     ),
     ECALClustering = cms.PSet( 
-      runAlgorithm = cms.bool( False ),
+      runAlgorithm = cms.bool( True ),
       clusterRadius = cms.double( 0.08 )
     ),
     TowerIsolation = cms.PSet( 
-      runAlgorithm = cms.bool( False ),
+      runAlgorithm = cms.bool( True ),
       innerCone = cms.double( 0.2 ),
       outerCone = cms.double( 0.5 )
     )
@@ -7407,11 +7407,11 @@ hltL2SingleTauMETIsolationProducer = cms.EDProducer( "L2TauIsolationProducer",
       outerCone = cms.double( 0.5 )
     ),
     ECALClustering = cms.PSet( 
-      runAlgorithm = cms.bool( False ),
+      runAlgorithm = cms.bool( True ),
       clusterRadius = cms.double( 0.08 )
     ),
     TowerIsolation = cms.PSet( 
-      runAlgorithm = cms.bool( False ),
+      runAlgorithm = cms.bool( True ),
       innerCone = cms.double( 0.2 ),
       outerCone = cms.double( 0.5 )
     )
@@ -7798,11 +7798,11 @@ hltL2DoubleTauIsolationProducer = cms.EDProducer( "L2TauIsolationProducer",
       outerCone = cms.double( 0.5 )
     ),
     ECALClustering = cms.PSet( 
-      runAlgorithm = cms.bool( False ),
+      runAlgorithm = cms.bool( True ),
       clusterRadius = cms.double( 0.08 )
     ),
     TowerIsolation = cms.PSet( 
-      runAlgorithm = cms.bool( False ),
+      runAlgorithm = cms.bool( True ),
       innerCone = cms.double( 0.2 ),
       outerCone = cms.double( 0.5 )
     )
@@ -7905,11 +7905,11 @@ hltL2DoubleTauIsolationProducerRelaxed = cms.EDProducer( "L2TauIsolationProducer
       outerCone = cms.double( 0.5 )
     ),
     ECALClustering = cms.PSet( 
-      runAlgorithm = cms.bool( False ),
+      runAlgorithm = cms.bool( True ),
       clusterRadius = cms.double( 0.08 )
     ),
     TowerIsolation = cms.PSet( 
-      runAlgorithm = cms.bool( False ),
+      runAlgorithm = cms.bool( True ),
       innerCone = cms.double( 0.2 ),
       outerCone = cms.double( 0.5 )
     )
@@ -8247,11 +8247,11 @@ hltL2ElectronTauIsolationProducer = cms.EDProducer( "L2TauIsolationProducer",
       outerCone = cms.double( 0.5 )
     ),
     ECALClustering = cms.PSet( 
-      runAlgorithm = cms.bool( False ),
+      runAlgorithm = cms.bool( True ),
       clusterRadius = cms.double( 0.08 )
     ),
     TowerIsolation = cms.PSet( 
-      runAlgorithm = cms.bool( False ),
+      runAlgorithm = cms.bool( True ),
       innerCone = cms.double( 0.2 ),
       outerCone = cms.double( 0.5 )
     )
@@ -8650,11 +8650,11 @@ hltL2MuonTauIsolationProducer = cms.EDProducer( "L2TauIsolationProducer",
       outerCone = cms.double( 0.5 )
     ),
     ECALClustering = cms.PSet( 
-      runAlgorithm = cms.bool( False ),
+      runAlgorithm = cms.bool( True ),
       clusterRadius = cms.double( 0.08 )
     ),
     TowerIsolation = cms.PSet( 
-      runAlgorithm = cms.bool( False ),
+      runAlgorithm = cms.bool( True ),
       innerCone = cms.double( 0.2 ),
       outerCone = cms.double( 0.5 )
     )
