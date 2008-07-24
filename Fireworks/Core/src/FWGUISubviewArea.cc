@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 15 14:13:33 EST 2008
-// $Id: FWGUISubviewArea.cc,v 1.9 2008/07/15 20:27:32 chrjones Exp $
+// $Id: FWGUISubviewArea.cc,v 1.10 2008/07/16 03:08:54 chrjones Exp $
 //
 
 // system include files
@@ -61,8 +61,11 @@ FWGUISubviewArea::FWGUISubviewArea(unsigned int iIndex, const TGSplitFrame *iPar
    m_undockButton->SetHeight(kIconHeight);
    m_buttons->AddFrame(m_undockButton, new TGLayoutHints(kLHintsTop|kLHintsLeft|kLHintsExpandY));
    m_undockButton->Connect("Clicked()", "FWGUISubviewArea",this,"undock()");
-   
-   
+
+#if defined(__APPLE__)
+   //There is a problem with undocking on OS X
+   m_undockButton->SetEnabled(kFALSE);
+#endif
    m_label = new TGTextButton(m_buttons,"");
    TGFont* defaultFont = gClient->GetFontPool()->GetFont(m_label->GetDefaultFontStruct());
    m_label->SetFont(gClient->GetFontPool()->GetFont(
