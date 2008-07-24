@@ -429,9 +429,9 @@ class SequencePlaceholder(_Sequenceable):
         returnValue.__init__(self._name)
         return returnValue
     def dumpSequenceConfig(self):
-        return self._name
+        return 'cms.SequencePlaceholder("%s")' %self._name
     def dumpSequencePython(self):
-        return "process."+self._name
+        return 'cms.SequencePlaceholder("%s")'%self._name
     def dumpPython(self, options):
         result = 'cms.SequencePlaceholder(\"'
         if options.isCfg:
@@ -640,6 +640,23 @@ if __name__=="__main__":
             l = []; s2.fillNamesList(l,d) ; self.assertEqual(l,['m2', '-m3', 'm3'])
             s2.remove(m3)
             l = []; s2.fillNamesList(l,d) ; self.assertEqual(l,['m2', 'm3'])
+            s1 = Sequence(m1*m2*m3)
+            self.assertEqual(s1.dumpPython(None), "cms.Sequence(process.m1*process.m2*process.m3)\n")
+            s1.remove(m2)
+            self.assertEqual(s1.dumpPython(None), "cms.Sequence(process.m1*process.m3)\n")
+            s1 = Sequence(m1+m2+m3)
+            self.assertEqual(s1.dumpPython(None), "cms.Sequence(process.m1+process.m2+process.m3)\n")
+            s1.remove(m2)
+            self.assertEqual(s1.dumpPython(None), "cms.Sequence(process.m1+process.m3)\n")
+            s1 = Sequence(m1*m2+m3)
+            self.assertEqual(s1.dumpPython(None), "cms.Sequence(process.m1*process.m2+process.m3)\n")
+            s1.remove(m2)
+            self.assertEqual(s1.dumpPython(None), "cms.Sequence(process.m1+process.m3)\n")
+            s1 = Sequence(m1+m2*m3)
+            self.assertEqual(s1.dumpPython(None), "cms.Sequence(process.m1+process.m2*process.m3)\n")
+            s1.remove(m2)
+            self.assertEqual(s1.dumpPython(None), "cms.Sequence(process.m1+process.m3)\n")
+
         def testDependencies(self):
             m1 = DummyModule("m1")
             m2 = DummyModule("m2")
