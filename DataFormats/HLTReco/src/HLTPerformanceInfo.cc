@@ -1,4 +1,4 @@
-// $Id: HLTPerformanceInfo.cc,v 1.12 2008/07/24 16:22:58 wittich Exp $
+// $Id: HLTPerformanceInfo.cc,v 1.13 2008/07/24 17:40:19 wittich Exp $
 
 #include "DataFormats/Common/interface/HLTenums.h"
 #include "DataFormats/HLTReco/interface/HLTPerformanceInfo.h"
@@ -150,4 +150,15 @@ bool HLTPerformanceInfo::uniqueModule(const char *mod) const {
 
   if (mCtr == 0) return false ;
   return true ;
+}
+
+int HLTPerformanceInfo::moduleIndexInPath(const char *mod, const char *path)
+{
+  PathList::iterator p = findPath(path);
+  if ( p == endPaths() ) return -1; // Path doesn't exist
+  for ( ModulesInPath::const_iterator j = p->begin(); j != p->end(); ++j ) {
+    if ( modules_.at(p->getModuleIndex(*j)) == mod ) 
+      return *j;
+  }
+  return -2; // module not found on path
 }
