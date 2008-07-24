@@ -1,4 +1,4 @@
-// $Id$
+// $Id: HLTPerformanceInfo.cc,v 1.12 2008/07/24 16:22:58 wittich Exp $
 
 #include "DataFormats/Common/interface/HLTenums.h"
 #include "DataFormats/HLTReco/interface/HLTPerformanceInfo.h"
@@ -41,8 +41,11 @@ double HLTPerformanceInfo::totalCPUTime() const {
 double HLTPerformanceInfo::totalPathTime(const size_t pathnumber)
 {
   double t = 0;
+  unsigned int cnt = 0;
   ModulesInPath::const_iterator i = paths_[pathnumber].begin();
   for ( ; i != paths_[pathnumber].end(); ++i ) {
+    if ( cnt > paths_[pathnumber].status().index()) break;
+    ++cnt;
     t += modules_[*i].time();
   }
   return t;
@@ -51,8 +54,11 @@ double HLTPerformanceInfo::totalPathTime(const size_t pathnumber)
 double HLTPerformanceInfo::totalPathCPUTime(const size_t pathnumber)
 {
   double t = 0;
+  unsigned int cnt = 0;
   ModulesInPath::const_iterator i = paths_[pathnumber].begin();
   for ( ; i != paths_[pathnumber].end(); ++i ) {
+    if ( cnt > paths_[pathnumber].status().index()) break;
+    ++cnt;
     t += modules_[*i].cputime();
   }
   return t;
