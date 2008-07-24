@@ -5,7 +5,7 @@
 # creates a complete config file.
 # relval_main + the custom config for it is not needed any more
 
-__version__ = "$Revision: 1.51 $"
+__version__ = "$Revision: 1.52 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -403,7 +403,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.51 $"),
+              (version=cms.untracked.string("$Revision: 1.52 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
@@ -486,7 +486,7 @@ class ConfigBuilder(object):
 
         # dump the schedule
         self.pythonCfgCode += "\n# Schedule definition\n"
-        pathNames = ['process.'+p.label() for p in self.process.schedule]
+        pathNames = ['process.'+p.label_() for p in self.process.schedule]
         result ='process.schedule = cms.Schedule('+','.join(pathNames)+')\n'
         self.pythonCfgCode += result
 
