@@ -6,6 +6,8 @@ from HLTriggerOffline.Tau.Validation.SingleTauValidation_cfi import *
 from HLTriggerOffline.Tau.Validation.SingleTauMETValidation_cfi import *
 from HLTriggerOffline.Tau.Validation.ElectronTauValidation_cfi import *
 from HLTriggerOffline.Tau.Validation.MuonTauValidation_cfi import *
+from HLTriggerOffline.Tau.Validation.L1TauValidation_cfi import *
 
-HLTTauVal    = cms.Path(HLTTauRef+DoubleTauValidation+SingleTauValidation+SingleTauMETValidation+ElectronTauValidation+MuonTauValidation)
+HLTTauVal    = cms.Path(HLTTauRef+DoubleTauValidation+SingleTauValidation+SingleTauMETValidation+ElectronTauValidation+MuonTauValidation+L1TauVal)
+
 

@@ -1,7 +1,7 @@
 
 import FWCore.ParameterSet.Config as cms
 
-L1TauVal = cms.EDAnalyzer("L1TauValidation",
+L1TauVal = cms.EDAnalyzer("HLTTauL1DQMOfflineSource",
     RefTauCollection      = cms.untracked.InputTag("TauMCProducer","Taus"),
     RefElecCollection   = cms.untracked.InputTag("TauMCProducer","Electrons"),
     RefMuonCollection   = cms.untracked.InputTag("TauMCProducer","Muons"),
@@ -20,20 +20,20 @@ L1TauVal = cms.EDAnalyzer("L1TauValidation",
     MuTauThresholds = cms.vdouble(5.0, 20.0),
     IsoEgTauThresholds = cms.vdouble(10.0, 20.0),                       
                                               
-    L1MCTauMinDeltaR = cms.double(0.5),
-    MCTauHadMinEt = cms.double(15.0),
-    MCTauHadMaxAbsEta = cms.double(2.5),
+    L1RefTauMinDeltaR = cms.double(0.5),
+    RefTauHadMinEt = cms.double(15.0),
+    RefTauHadMaxAbsEta = cms.double(2.5),
 
-    L1MCElecMinDeltaR = cms.double(0.2),
-    MCElecMinEt = cms.double(10.0),
-    MCElecMaxAbsEta = cms.double(2.5),
+    L1RefElecMinDeltaR = cms.double(0.2),
+    RefElecMinEt = cms.double(10.0),
+    RefElecMaxAbsEta = cms.double(2.5),
 
-    L1MCMuonMinDeltaR = cms.double(0.2),
-    MCMuonMinEt = cms.double(5.0),
-    MCMuonMaxAbsEta = cms.double(2.5),
+    L1RefMuonMinDeltaR = cms.double(0.2),
+    RefMuonMinEt = cms.double(5.0),
+    RefMuonMaxAbsEta = cms.double(2.5),
 
-    TriggerTag = cms.string("L1Plots"),
-    OutputFileName = cms.string("L1Validation.root")
+    TriggerTag = cms.string("HLT/HLTTAU/L1"),
+    OutputFileName = cms.string("")
 )
 
 
