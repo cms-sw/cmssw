@@ -19,13 +19,13 @@ allLayer0Electrons.isolation.tracker = cms.PSet(
     )
 ## configure isolation for ecal
 allLayer0Electrons.isolation.ecal = cms.PSet(
-    src       = cms.InputTag("patAODElectronIsolations", "eleIsoDepositEcalFromHits"),
+    src       = cms.InputTag("patAODElectronIsolations", "eleIsoDepositEcalFromClusts"),
     deltaR    = cms.double(0.4),                                     ## POG suggestion
     cut       = cms.double(5.0)                                      ## isolation cut (as educated guess)
     )
 ## configure isolation for hcal
 allLayer0Electrons.isolation.hcal = cms.PSet(
-    src       = cms.InputTag("patAODElectronIsolations", "eleIsoDepositHcalFromHits"),
+    src       = cms.InputTag("patAODElectronIsolations", "eleIsoDepositHcalFromTowers"),
     deltaR    = cms.double(0.4),                                     ## POG suggestion
     cut       = cms.double(5.0)                                      ## isolation cut (as educated guess)
     )

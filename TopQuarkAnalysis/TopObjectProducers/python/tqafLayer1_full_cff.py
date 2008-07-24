@@ -27,5 +27,5 @@ from TopQuarkAnalysis.TopObjectProducers.full.tqafLayer1_objectSelection_cff imp
 tqafLayer1 = cms.Sequence(patLayer0*patLayer1)
 
 ## std sequence for tqafLayer1 production (w/o trigger)
-#tqafLayer1_withoutTrigMatch = cms.Sequence(patLayer0_withoutTrigMatch*patLayer1)
+tqafLayer1_withoutTrigMatch = cms.Sequence(patLayer0_withoutTrigMatch*patLayer1)
 
