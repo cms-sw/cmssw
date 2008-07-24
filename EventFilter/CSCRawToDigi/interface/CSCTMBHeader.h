@@ -19,7 +19,7 @@ class CSCTMBHeader2007;
 class CSCTMBHeader {
 
  public:
-  CSCTMBHeader();
+  CSCTMBHeader(int firmwareVersion, int firmwareRevision);
   CSCTMBHeader(const CSCTMBStatusDigi & digi);
   CSCTMBHeader(const unsigned short * buf);
 
@@ -29,7 +29,7 @@ class CSCTMBHeader {
     theHeaderFormat->setEventInformation(dmbHeader);
   }
 
-  int FirmwareVersion() const {return firmwareVersion;}
+  int FirmwareVersion() const {return theFirmwareVersion;}
   
 
   uint16_t BXNCount() const {
@@ -136,9 +136,10 @@ private:
   //void swapCLCTs(CSCCLCTDigi& digi1, CSCCLCTDigi& digi2);
 
   static bool debug;
-  static unsigned short int firmwareVersion;
 
   boost::shared_ptr<CSCVTMBHeaderFormat> theHeaderFormat;
+  int theFirmwareVersion;
+
 };
 
 #endif

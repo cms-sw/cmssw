@@ -11,12 +11,30 @@
 #include <string.h> // memcpy
 
 bool CSCTMBHeader::debug = false;
-short unsigned int CSCTMBHeader::firmwareVersion=2007;
 
-CSCTMBHeader::CSCTMBHeader():
-  theHeaderFormat(new CSCTMBHeader2007_rev0x50c3())
+CSCTMBHeader::CSCTMBHeader(int firmwareVersion, int firmwareRevision):
+ theHeaderFormat(),
+ theFirmwareVersion(firmwareVersion)
 {
-  firmwareVersion = 2007;
+  if(firmwareVersion == 2006)
+  {
+    theHeaderFormat = boost::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2006());
+  }
+  else if(firmwareVersion == 2007)
+  {
+    if(firmwareRevision >= 0x50c3) 
+    {
+      theHeaderFormat = boost::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2007_rev0x50c3());
+    }
+    else
+    {
+      theHeaderFormat = boost::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2007());
+    }
+  }
+  else
+  {
+    edm::LogError("CSCTMBHeader|CSCRawToDigi") <<"failed to determine TMB firmware version!!";
+  }
 }
 
 //CSCTMBHeader::CSCTMBHeader(const CSCTMBStatusDigi & digi) {
@@ -28,7 +46,7 @@ CSCTMBHeader::CSCTMBHeader(const unsigned short * buf)
 {
   ///first determine the format
   if (buf[0]==0xDB0C) {
-    firmwareVersion=2007;
+    theFirmwareVersion=2007;
     theHeaderFormat = boost::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2007(buf));
     if(theHeaderFormat->firmwareRevision() >= 0x50c3)
       {
@@ -36,7 +54,7 @@ CSCTMBHeader::CSCTMBHeader(const unsigned short * buf)
       }
   }
   else if (buf[0]==0x6B0C) {
-    firmwareVersion=2006;
+    theFirmwareVersion=2006;
     theHeaderFormat = boost::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2006(buf));
   }
   else {
@@ -135,17 +153,13 @@ void CSCTMBHeader::selfTest()
       CSCCorrelatedLCTDigi lct0(1, 1, 2, 10, 98, 5, 0, 1, 0, 0, 0, 0);
       CSCCorrelatedLCTDigi lct1(2, 1, 2, 20, 15, 9, 1, 0, 0, 0, 0, 0);
 
-      CSCTMBHeader tmbHeader;
+      CSCTMBHeader tmbHeader(2007, 0x50c3);
       tmbHeader.addCLCT0(clct0);
       tmbHeader.addCLCT1(clct1);
       tmbHeader.addCorrelatedLCT0(lct0);
       tmbHeader.addCorrelatedLCT1(lct1);
       std::vector<CSCCLCTDigi> clcts = tmbHeader.CLCTDigis(detId.rawId());
       // guess they got reordered
-      if (debug) {
-	std::cout << "Closure test for firmware version "
-		  << tmbHeader.firmwareVersion << "\n";
-      }
       assert(cscPackerCompare(clcts[0],clct0));
       assert(cscPackerCompare(clcts[1],clct1));
       if (debug) {
