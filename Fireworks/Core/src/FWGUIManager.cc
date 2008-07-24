@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.64 2008/07/16 17:52:46 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.65 2008/07/19 06:40:31 jmuelmen Exp $
 //
 
 // system include files
@@ -36,6 +36,7 @@
 #include "TGFileDialog.h"
 #include "TStopwatch.h"
 #include "TColor.h"
+#include "TVirtualX.h"
 
 // user include files
 #include "DataFormats/FWLite/interface/Event.h"
@@ -784,12 +785,15 @@ FWGUIManager::exportImageOfMainView()
 static const std::string kMainWindow("main window");
 static const std::string kViews("views");
 static const std::string kViewArea("view area");
+static const std::string kUndocked("undocked views");
 
 namespace {
    template<class Op>
    void recursivelyApplyToFrame(TGSplitFrame* iParent, Op& iOp) {
       if(0==iParent) { return;}
-      if(iParent->GetFrame()) {
+      //if it holds something OR is completely empty (because of undocking)
+      if(iParent->GetFrame() || 
+         (!iParent->GetFirst() && !iParent->GetSecond()) ) {
          iOp(iParent);
       } else {
          recursivelyApplyToFrame(iParent->GetFirst(),iOp);
@@ -843,6 +847,40 @@ namespace {
    };
 }
 
+static
+void
+addWindowInfoTo(const TGFrame* iMain,
+                FWConfiguration& oTo)
+{
+   Window_t wdummy;
+   Int_t ax,ay;
+   gVirtualX->TranslateCoordinates(iMain->GetId(),
+                                   gClient->GetDefaultRoot()->GetId(),
+                                   0,0, //0,0 in local coordinates
+                                   ax,ay, //coordinates of screen
+                                   wdummy);
+   {
+      std::stringstream s;
+      s<<ax;
+      oTo.addKeyValue("x",FWConfiguration(s.str()));
+   }
+   {
+      std::stringstream s;
+      s<<ay;
+      oTo.addKeyValue("y",FWConfiguration(s.str()));
+   }
+   {
+      std::stringstream s;
+      s<<iMain->GetWidth();
+      oTo.addKeyValue("width",FWConfiguration(s.str()));
+   }
+   {
+      std::stringstream s;
+      s<<iMain->GetHeight();
+      oTo.addKeyValue("height",FWConfiguration(s.str()));
+   }
+}
+
 void 
 FWGUIManager::addTo(FWConfiguration& oTo) const
 {
@@ -876,6 +914,33 @@ FWGUIManager::addTo(FWConfiguration& oTo) const
    FrameAddTo frameAddTo(viewArea);
    recursivelyApplyToFrame(m_splitFrame,frameAddTo);
    oTo.addKeyValue(kViewArea,viewArea,true);
+   
+   //remember if any views have been undocked and if so where they are
+   FWConfiguration undocked(1);
+   {
+      for(std::vector<FWGUISubviewArea*>::const_iterator it = m_viewFrames.begin(), itEnd=m_viewFrames.end();
+      it != itEnd; ++it) {
+         std::string name;
+         if(! (*it)->isDocked()) {
+            FWConfiguration temp(1);
+            {
+               std::stringstream s;
+               s<< (*it)->index();
+               name = s.str();
+               temp.addKeyValue("index",FWConfiguration(s.str()));
+            }
+            {
+               const TGWindow* mainWindowFrame = (*it)->GetMainFrame();
+               assert(0!=mainWindowFrame);
+               const TGFrame* mainFrame= dynamic_cast<const TGFrame*> (mainWindowFrame);
+               assert(0!=mainFrame);
+               addWindowInfoTo(mainFrame,temp);
+            }
+            undocked.addKeyValue(name,temp,true);
+         }
+      }
+   }
+   oTo.addKeyValue(kUndocked,undocked,true);
 }
 
 void 
@@ -932,6 +997,27 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom)
       ((TGCompositeFrame *)m_splitFrame->GetParent()->GetParent())->Resize(width, height);
    }
    m_cmsShowMainFrame->Layout();
+   
+   //now handle undocked case
+   const FWConfiguration* undocked = iFrom.valueForKey(kUndocked);
+   if(0!=undocked) {
+      const FWConfiguration::KeyValues* keyVals = undocked->keyValues();
+      if(0!=keyVals) {
+         //we have undocked views
+         for(FWConfiguration::KeyValues::const_iterator it = keyVals->begin(),
+             itEnd = keyVals->end();
+             it!=itEnd;
+             ++it) {
+            int index = atoi(it->first.c_str());
+            int x = atoi(it->second.valueForKey("x")->value().c_str());
+            int y = atoi(it->second.valueForKey("y")->value().c_str());
+            int width = atoi(it->second.valueForKey("width")->value().c_str());
+            int height = atoi(it->second.valueForKey("height")->value().c_str());
+            assert(static_cast<unsigned int>(index) <m_viewFrames.size());
+            m_viewFrames[index]->undockTo(x,y,width,height);
+         }
+      }
+   }
 }
 
 void 
