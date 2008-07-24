@@ -1,9 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("PROD")
-process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 
-process.load("IOMC.EventVertexGenerators.VtxSmearedBeamProfile_cfi")
+process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 
 process.load("SimG4CMS.HcalTestBeam.TB2006GeometryXML_cfi")
 
@@ -78,18 +77,18 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
 )
 
 process.common_beam_direction_parameters = cms.PSet(
-    MaxEta = cms.untracked.double(0.5655),
-    MaxPhi = cms.untracked.double(-0.1309),
     MinEta = cms.untracked.double(0.5655),
+    MaxEta = cms.untracked.double(0.5655),
     MinPhi = cms.untracked.double(-0.1309),
+    MaxPhi = cms.untracked.double(-0.1309),
     BeamPosition = cms.untracked.double(-800.0)
 )
 
 process.source = cms.Source("FlatRandomEGunSource",
     PGunParameters = cms.untracked.PSet(
         process.common_beam_direction_parameters,
-        MaxE = cms.untracked.double(50.01),
         MinE = cms.untracked.double(49.99),
+        MaxE = cms.untracked.double(50.01),
         PartID = cms.untracked.vint32(211)
     ),
     Verbosity = cms.untracked.int32(0)
@@ -112,9 +111,24 @@ process.common_heavy_suppression1 = cms.PSet(
 
 process.Timing = cms.Service("Timing")
 
+from IOMC.EventVertexGenerators.VtxSmearedParameters_cfi import *
+process.VtxSmeared = cms.EDFilter("BeamProfileVtxGenerator",
+    process.common_beam_direction_parameters,
+    VtxSmearedCommon,
+    BeamMeanX = cms.untracked.double(0.0),
+    BeamMeanY = cms.untracked.double(0.0),
+    BeamSigmaX = cms.untracked.double(0.0001),
+    BeamSigmaY = cms.untracked.double(0.0001),
+    GaussianProfile = cms.untracked.bool(False),
+    BinX = cms.untracked.int32(50),
+    BinY = cms.untracked.int32(50),
+    File = cms.untracked.string('beam.profile'),
+    UseFile = cms.untracked.bool(False),
+    TimeOffset = cms.double(0.)
+)
+
 process.p1 = cms.Path(process.VtxSmeared*process.g4SimHits)
 process.outpath = cms.EndPath(process.o1)
-process.VtxSmeared.common_beam_direction_parameters = process.common_beam_direction_parameters
 process.g4SimHits.UseMagneticField = False
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/FTF_BIC'
 process.g4SimHits.ECalSD.UseBirkLaw = False
@@ -137,23 +151,23 @@ process.g4SimHits.StackingAction = cms.PSet(
 process.g4SimHits.CaloSD = cms.PSet(
     process.common_beam_direction_parameters,
     process.common_heavy_suppression1,
+    EminTrack      = cms.double(1.0),
     SuppressHeavy  = cms.bool(False),
     TmaxHit        = cms.double(1000.0),
     DetailedTiming = cms.untracked.bool(False),
     Verbosity      = cms.untracked.int32(0),
     CheckHits      = cms.untracked.int32(25),
     CorrectTOFBeam = cms.untracked.bool(False),
-    UseMap         = cms.untracked.bool(True),
-    EminTrack      = cms.double(1.0)
+    UseMap         = cms.untracked.bool(True)
 )
 process.g4SimHits.CaloTrkProcessing.TestBeam = True
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     HcalTB06Analysis = cms.PSet(
         process.common_beam_direction_parameters,
+        Names    = cms.vstring('HcalHits', 'EcalHitsEB'),
         EHCalMax = cms.untracked.double(2.0),
         ETtotMax = cms.untracked.double(20.0),
-        Verbose = cms.untracked.bool(True),
-        Names = cms.vstring('HcalHits', 'EcalHitsEB')
+        Verbose  = cms.untracked.bool(True)
     ),
     type = cms.string('HcalTB06Analysis')
 ))

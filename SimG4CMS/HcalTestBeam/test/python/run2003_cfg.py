@@ -3,14 +3,14 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("PROD")
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 
-process.load("SimG4CMS.HcalTestBeam.TB2007GeometryXML_cfi")
+process.load("SimG4CMS.HcalTestBeam.TB2003GeometryXML_cfi")
 
 process.load("Configuration.EventContent.EventContent_cff")
 
 process.load("SimG4Core.Application.g4SimHits_cfi")
 
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('hcaltb07.root')
+    fileName = cms.string('hcaltb03.root')
 )
 
 process.MessageLogger = cms.Service("MessageLogger",
@@ -22,14 +22,11 @@ process.MessageLogger = cms.Service("MessageLogger",
         'HcalSim', 
         'HcalTBSim', 
         'SimHCalData', 
-        'SimG4CoreGeometry', 
-        'SimG4CoreApplication', 
         'VertexGenerator'),
-    debugModules = cms.untracked.vstring('*'),
     cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('DEBUG'),
+        threshold = cms.untracked.string('INFO'),
         INFO = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
+            limit = cms.untracked.int32(0)
         ),
         DEBUG = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
@@ -37,14 +34,8 @@ process.MessageLogger = cms.Service("MessageLogger",
         VertexGenerator = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
-        SimG4CoreApplication = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        SimG4CoreGeometry = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
         EcalGeom = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
+            limit = cms.untracked.int32(0)
         ),
         HCalGeom = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
@@ -53,7 +44,7 @@ process.MessageLogger = cms.Service("MessageLogger",
             limit = cms.untracked.int32(0)
         ),
         EcalSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
+            limit = cms.untracked.int32(0)
         ),
         HcalSim = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
@@ -75,22 +66,16 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
     sourceSeed = cms.untracked.uint32(135799753)
 )
 
-process.common_beam_direction_parameters = cms.PSet(
-    MinEta = cms.untracked.double(1.562),
-    MaxEta = cms.untracked.double(1.562),
-    MinPhi = cms.untracked.double(0.0436),
-    MaxPhi = cms.untracked.double(0.0436),
-    BeamPosition = cms.untracked.double(-800.0)
+process.maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32(100)
 )
 
-process.source = cms.Source("FlatRandomEGunSource",
-    PGunParameters = cms.untracked.PSet(
-        process.common_beam_direction_parameters,
-        MinE = cms.untracked.double(9.99),
-        MaxE = cms.untracked.double(10.01),
-        PartID = cms.untracked.vint32(11)
-    ),
-    Verbosity = cms.untracked.int32(0)
+process.common_beam_direction_parameters = cms.PSet(
+    MinEta = cms.untracked.double(0.5655),
+    MaxEta = cms.untracked.double(0.5655),
+    MinPhi = cms.untracked.double(0.1309),
+    MaxPhi = cms.untracked.double(0.1309),
+    BeamPosition = cms.untracked.double(-408.50)
 )
 
 from IOMC.EventVertexGenerators.VtxSmearedParameters_cfi import *
@@ -109,35 +94,30 @@ process.VtxSmeared = cms.EDFilter("BeamProfileVtxGenerator",
     TimeOffset = cms.double(0.)
 )
 
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(5)
+process.source = cms.Source("FlatRandomEGunSource",
+    PGunParameters = cms.untracked.PSet(
+        process.common_beam_direction_parameters,
+        MinE = cms.untracked.double(9.99),
+        MaxE = cms.untracked.double(10.01),
+        PartID = cms.untracked.vint32(211)
+    ),
+    Verbosity = cms.untracked.int32(0)
 )
 
 process.o1 = cms.OutputModule("PoolOutputModule",
     process.FEVTSIMEventContent,
-    fileName = cms.untracked.string('sim2007.root')
+    fileName = cms.untracked.string('sim2003.root')
 )
 
-process.common_heavy_suppression1 = cms.PSet(
-    NeutronThreshold = cms.double(30.0),
-    ProtonThreshold = cms.double(30.0),
-    IonThreshold = cms.double(30.0)
-)
 process.Timing = cms.Service("Timing")
 
 process.p1 = cms.Path(process.VtxSmeared*process.g4SimHits)
 process.outpath = cms.EndPath(process.o1)
 process.g4SimHits.UseMagneticField = False
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP'
-process.g4SimHits.StackingAction = cms.PSet(
-    process.common_heavy_suppression1,
-    TrackNeutrino = cms.bool(False),
-    KillHeavy = cms.bool(False),
-    SavePrimaryDecayProductsAndConversions = cms.untracked.bool(False)
-)
 process.g4SimHits.CaloSD = cms.PSet(
     process.common_beam_direction_parameters,
-    process.common_heavy_suppression1,
+    process.common_heavy_suppression,
     EminTrack      = cms.double(1.0),
     SuppressHeavy  = cms.bool(False),
     TmaxHit        = cms.double(1000.0),
@@ -147,11 +127,6 @@ process.g4SimHits.CaloSD = cms.PSet(
     CorrectTOFBeam = cms.untracked.bool(False),
     UseMap         = cms.untracked.bool(True)
 )
-process.g4SimHits.ECalSD.UseBirkLaw = False
-process.g4SimHits.ECalSD.BirkC1 = 0.013
-process.g4SimHits.ECalSD.BirkC2 = '9.6e-6'
-process.g4SimHits.ECalSD.SlopeLightYield = 0.02
-process.g4SimHits.ECalSD.TestBeam = True
 process.g4SimHits.HCalSD.UseBirkLaw = False
 process.g4SimHits.HCalSD.BirkC1 = 0.013
 process.g4SimHits.HCalSD.BirkC2 = '9.6e-6'
@@ -161,13 +136,32 @@ process.g4SimHits.HCalSD.UseHF = False
 process.g4SimHits.HCalSD.ForTBH2 = True
 process.g4SimHits.CaloTrkProcessing.TestBeam = True
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
-    HcalTB06Analysis = cms.PSet(
+    HcalTB04Analysis = cms.PSet(
         process.common_beam_direction_parameters,
-        Names    = cms.vstring('HcalHits', 'EcalHitsEB'),
-        EHCalMax = cms.untracked.double(2.0),
-        ETtotMax = cms.untracked.double(20.0),
-        Verbose  = cms.untracked.bool(True)
+        HcalOnly  = cms.bool(False),
+        Type      = cms.int32(2),
+        Mode      = cms.int32(1),
+        ScaleHB0  = cms.double(0.5),
+        ScaleHB16 = cms.double(0.5),
+        ScaleHE0  = cms.double(0.5),
+        ScaleHO   = cms.double(0.4),
+        EcalNoise = cms.double(0.13),
+        Names     = cms.vstring('HcalHits', 'EcalHitsEB'),
+        Verbose   = cms.untracked.bool(True),
+        FileName  = cms.untracked.string('HcalTB04.root'),
+        ETtotMax  = cms.untracked.double(20.0),
+        EHCalMax  = cms.untracked.double(2.0)
     ),
-    type = cms.string('HcalTB06Analysis')
+    HcalQie = cms.PSet(
+        NumOfBuckets  = cms.int32(10),
+        BaseLine      = cms.int32(4),
+        BinOfMax      = cms.int32(6),
+        PreSamples    = cms.int32(0),
+        EDepPerPE     = cms.double(0.0005),
+        SignalBuckets = cms.int32(2),
+        SigmaNoise    = cms.double(0.5),
+        qToPE         = cms.double(4.0)
+    ),
+    type = cms.string('HcalTB04Analysis')
 ))
 

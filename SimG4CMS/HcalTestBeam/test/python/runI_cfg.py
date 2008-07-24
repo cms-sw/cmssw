@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("GEOM")
-process.load("SimG4CMS.HcalTestBeam.test.TB2004GeometryXML_cfi")
+process.load("SimG4CMS.HcalTestBeam.TB2004GeometryXML_cfi")
 
 process.VisConfigurationService = cms.Service("VisConfigurationService",
     Views = cms.untracked.vstring('3D Window'),
