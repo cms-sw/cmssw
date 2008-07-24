@@ -22,10 +22,6 @@
   <class name="std::vector<HLTPerformanceInfo::Path>"/>
   <class name="std::vector<HLTPerformanceInfo::Path>::const_iterator"/>
 
-  <class name="HLTPerformanceInfo::Path::Adapter"/>
-  <class pattern="std::unary_function<*HLTPerformanceInfo::Module*>"/>
-  <class name="boost::transform_iterator<HLTPerformanceInfo::Path::Adapter,__gnu_cxx::__normal_iterator<const unsigned int*,std::vector<unsigned int> >,boost::use_default,boost::use_default>" />
-  <class name="boost::transform_iterator<HLTPerformanceInfo::Path::Adapter,__gnu_cxx::__normal_iterator<const unsigned long*,std::vector<unsigned long> >,boost::use_default,boost::use_default>" />
 
   <class name="std::vector<edm::Ref<std::vector<reco::RecoEcalCandidate>,reco::RecoEcalCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoEcalCandidate>,reco::RecoEcalCandidate> > >"/>
   <class name="std::vector<edm::Ref<std::vector<reco::Electron>,reco::Electron,edm::refhelper::FindUsingAdvance<std::vector<reco::Electron>,reco::Electron> > >"/>

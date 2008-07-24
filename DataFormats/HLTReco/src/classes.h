@@ -14,12 +14,6 @@
 
 #include "DataFormats/Common/interface/Ref.h"
 
-namespace {
-  namespace {
-    boost::transform_iterator<HLTPerformanceInfo::Path::Adapter,__gnu_cxx::__normal_iterator<const unsigned int*,std::vector<unsigned int> >,boost::use_default,boost::use_default> hltfubar1;
-    boost::transform_iterator<HLTPerformanceInfo::Path::Adapter,__gnu_cxx::__normal_iterator<const unsigned long*,std::vector<unsigned long> >,boost::use_default,boost::use_default> hltfubar2;
-  }
-}
 
 namespace {
   namespace {
@@ -48,8 +42,7 @@ namespace {
     std::vector<HLTPerformanceInfo::Module>::const_iterator pw9;
     std::vector<HLTPerformanceInfo::Path> pw10;
     std::vector<HLTPerformanceInfo::Path>::const_iterator pw11;
-    HLTPerformanceInfo::Path::Adapter pw12;
-    HLTPerformanceInfo::Path::const_iterator pw13;
+    //HLTPerformanceInfo::Path::const_iterator pw13;
 
     edm::Ref<reco::CompositeCandidateCollection> rccc;
     edm::Ref<reco::IsolatedPixelTrackCandidateCollection> riptc;
