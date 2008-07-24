@@ -10,12 +10,14 @@
  * in addition to generic Jet parameters
  *
  * \author Fedor Ratnikov, UMd, Apr 24, 2007
-  * \version   $Id: PFJet.h,v 1.14 2008/01/25 05:06:06 fedor Exp $
+  * \version   $Id: PFJet.h,v 1.15 2008/05/26 11:22:12 arizzi Exp $
  ************************************************************/
 
 
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 namespace reco {
 class PFJet : public Jet {
@@ -78,19 +80,26 @@ class PFJet : public Jet {
   /// neutralEmEnergyFraction
   float neutralEmEnergyFraction () const {return neutralEmEnergy () / energy ();}
   /// chargedMultiplicity
-  float chargedMultiplicity () const {return m_specific.mChargedMultiplicity;}
+  int chargedMultiplicity () const {return m_specific.mChargedMultiplicity;}
   /// neutralMultiplicity
-  float neutralMultiplicity () const {return m_specific.mNeutralMultiplicity;}
+  int neutralMultiplicity () const {return m_specific.mNeutralMultiplicity;}
   /// muonMultiplicity
-  float muonMultiplicity () const {return m_specific.mMuonMultiplicity;}
+  int muonMultiplicity () const {return m_specific.mMuonMultiplicity;}
 
  
   /// convert generic constituent to specific type
   static const reco::PFCandidate* getPFCandidate (const reco::Candidate* fConstituent);
+
   /// get specific constituent
   virtual const reco::PFCandidate* getPFConstituent (unsigned fIndex) const;
+
   /// get all constituents
   virtual std::vector <const reco::PFCandidate*> getPFConstituents () const;
+
+  /// \ brief get all tracks in the jets
+  /// All PFCandidates hold a reference to a track. All the non-null
+  /// references are added to the returned TrackRefVector
+  reco::TrackRefVector getTrackRefs() const; 
   
   // block accessors
   
