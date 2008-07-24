@@ -29,7 +29,7 @@ D8+WordCount
 class CSCTMBTrailer {
 public:
   /// don't forget to pass in the size of the tmb header + clct data
-  CSCTMBTrailer(int wordCount=0);
+  CSCTMBTrailer(int wordCount, int firmwareVersion);
 
   CSCTMBTrailer(unsigned short * buf, unsigned short int firmwareVersion);
 
@@ -46,10 +46,10 @@ public:
   unsigned short * data() {return theData;}
 
   int wordCount() const;
-  void setWordCount(int words);
 private:
   unsigned short theData[7];
   int thePadding;
+  unsigned short int theFirmwareVersion;
 };
 
 #endif

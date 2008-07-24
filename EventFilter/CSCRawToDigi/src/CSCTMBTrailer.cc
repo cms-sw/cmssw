@@ -1,10 +1,13 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCTMBTrailer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include <iostream>
 
-
-CSCTMBTrailer::CSCTMBTrailer(int wordCount) 
+CSCTMBTrailer::CSCTMBTrailer(int wordCount, int firmwareVersion) 
 {
+  //FIXME do firmware version
   theData[0] = 0x6e0c;
+  // all the necessary lines from this thing first
+  wordCount += 5;
   // see if we need thePadding to make a multiple of 4
   thePadding = 0;
   if(wordCount%4==2) 
@@ -12,6 +15,7 @@ CSCTMBTrailer::CSCTMBTrailer(int wordCount)
       theData[1] = 0x2AAA;
       theData[2] = 0x5555;
       thePadding = 2;
+      wordCount += thePadding;
     }
   // the next four words start with 11011, or a D
   for(int i = 1; i < 5; ++i) 
@@ -19,7 +23,9 @@ CSCTMBTrailer::CSCTMBTrailer(int wordCount)
       theData[i+thePadding] = (0x1B << 11);
     }
   theData[3+thePadding] = 0xde0f;
-  theData[4+thePadding] |= wordCount+ thePadding;
+  // word count excludes the trailer
+  theData[4+thePadding] |= wordCount;
+
 }
 
 
@@ -46,5 +52,4 @@ CSCTMBTrailer::CSCTMBTrailer(unsigned short * buf, unsigned short int firmwareVe
 int CSCTMBTrailer::crc22() const {return theData[1+thePadding] & 0x7fff + ((theData[2+thePadding] & 0x7fff) << 11);}
 
 int CSCTMBTrailer::wordCount() const {return theData[4+thePadding] & 0x7ff;}
-void CSCTMBTrailer::setWordCount(int words) {theData[4+thePadding] |= (words&0x7ff);}
 
