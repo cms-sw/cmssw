@@ -3,13 +3,16 @@
 #include <iostream>
 
 CSCTMBTrailer::CSCTMBTrailer(int wordCount, int firmwareVersion) 
+: theFirmwareVersion(firmwareVersion)
 {
+std::cout << "TRAILER WC " << wordCount << std::endl;
   //FIXME do firmware version
   theData[0] = 0x6e0c;
   // all the necessary lines from this thing first
   wordCount += 5;
   // see if we need thePadding to make a multiple of 4
   thePadding = 0;
+
   if(wordCount%4==2) 
     {
       theData[1] = 0x2AAA;
@@ -17,19 +20,23 @@ CSCTMBTrailer::CSCTMBTrailer(int wordCount, int firmwareVersion)
       thePadding = 2;
       wordCount += thePadding;
     }
+  //int crcOffset = ((firmwareVersion == 2006) ? 1 : 3) + thePadding;
+  int de0fOffset = ((firmwareVersion == 2006) ? 3 : 1) + thePadding;
+
   // the next four words start with 11011, or a D
   for(int i = 1; i < 5; ++i) 
     {
       theData[i+thePadding] = (0x1B << 11);
     }
-  theData[3+thePadding] = 0xde0f;
+  theData[de0fOffset] = 0xde0f;
   // word count excludes the trailer
   theData[4+thePadding] |= wordCount;
-
+std::cout << "TRAIL FINA " << sizeInWords() << std::endl;
 }
 
 
 CSCTMBTrailer::CSCTMBTrailer(unsigned short * buf, unsigned short int firmwareVersion) 
+: theFirmwareVersion(firmwareVersion)
 {
   // take a little too much, maybe
   memcpy(theData, buf, 14);
