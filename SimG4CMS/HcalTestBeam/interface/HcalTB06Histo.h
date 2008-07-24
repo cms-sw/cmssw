@@ -24,8 +24,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include <TH1D.h>
+#include <TH2D.h>
 
 class HcalTB06Histo {
    
@@ -42,12 +42,11 @@ public:
 private:
 
   // ---------- Private Data members -----------------------
-  std::string           fileName;
   bool                  verbose;
 
-  DQMStore              *dbe_;
-  MonitorElement        *iniE,  *iEta,  *iPhi;
-  MonitorElement        *edepS, *edecS, *edhcS, *edehS;
+  TH1D                  *iniE,  *iEta,  *iPhi;
+  TH1D                  *edepS, *edecS, *edhcS;
+  TH2D                  *edehS;
 };
  
 #endif
