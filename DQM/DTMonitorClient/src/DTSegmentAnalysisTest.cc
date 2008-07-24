@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/06/03 16:44:59 $
- *  $Revision: 1.12 $
+ *  $Date: 2008/07/02 14:34:22 $
+ *  $Revision: 1.13 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -15,7 +15,6 @@
 #include <FWCore/Framework/interface/Event.h>
 #include "DataFormats/Common/interface/Handle.h" 
 #include <FWCore/Framework/interface/ESHandle.h>
-#include <FWCore/Framework/interface/MakerMacros.h>
 #include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 
