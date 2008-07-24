@@ -1,14 +1,13 @@
-#ifndef MuonChi2MeasurementEstimator_H
-#define MuonChi2MeasurementEstimator_H
-
+#ifndef RecoMuon_TrackingTools_MuonChi2MeasurementEstimator_H
+#define RecoMuon_TrackingTools_MuonChi2MeasurementEstimator_H
 
 /** \class MuonChi2MeasurementEstimator
- *  A Chi2 Measurement Estimator.
- *  Starts from a transientTrack recHit.
- *  The Chi2 can have different values associated to different muon subdetectors.
+ *  Class to handle different chi2 cut parameters for each muon sub-system.
+ *  MuonChi2MeasurementEstimator inherits from the Chi2MeasurementEstimatorBase class and uses
+ *  3 different estimators.
  *
- *  $Date: 2008/07/22 09:57:27 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/07/23 11:27:13 $
+ *  $Revision: 1.2 $
  *  \author Giorgia Mila - INFN Torino
  */
 
@@ -21,21 +20,21 @@ class MuonChi2MeasurementEstimator : public Chi2MeasurementEstimatorBase {
  public:
   
   /// Constructor detector indipendent
-  MuonChi2MeasurementEstimator(double maxChi2, double nSigma);
+  MuonChi2MeasurementEstimator(double maxChi2, double nSigma = 3.);
   
   /// Constructor detector dependent
   MuonChi2MeasurementEstimator(double dtMaxChi2, double cscMaxChi2, double rpcMaxChi2, double nSigma);
   
-  /// Chi2 asociator
-  std::pair<bool,double> estimate(const TrajectoryStateOnSurface&,
-				  const TransientTrackingRecHit&) const;
+  /// Chi2 estimator
+  virtual std::pair<bool,double> estimate(const TrajectoryStateOnSurface&,
+					  const TransientTrackingRecHit&) const;
 
 
  private:
   
-  Chi2MeasurementEstimator theDtChi2Estimator;
-  Chi2MeasurementEstimator theCscChi2Estimator;
-  Chi2MeasurementEstimator theRpcChi2Estimator;
+  Chi2MeasurementEstimator theDTChi2Estimator;
+  Chi2MeasurementEstimator theCSCChi2Estimator;
+  Chi2MeasurementEstimator theRPCChi2Estimator;
 
 
 };
