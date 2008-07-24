@@ -1,7 +1,7 @@
 /** \class CSCTMBData
  *
- *  $Date: 2008/06/27 03:26:42 $
- *  $Revision: 1.21 $
+ *  $Date: 2008/07/24 06:24:03 $
+ *  $Revision: 1.22 $
  *  \author A. Tumanov - Rice
  */
 
@@ -18,7 +18,7 @@ bool CSCTMBData::debug =false;
 
 CSCTMBData::CSCTMBData() 
   : theOriginalBuffer(0), 
-    theTMBHeader(),
+    theTMBHeader(2007, 0x50c3),
     theCLCTData(),
     theTMBScopeIsPresent(false), 
     theTMBScope(0),
@@ -32,7 +32,7 @@ CSCTMBData::CSCTMBData()
 
 CSCTMBData::CSCTMBData(unsigned short *buf) 
   : theOriginalBuffer(buf), 
-    theTMBHeader(),
+    theTMBHeader(2007, 0x50c3),
     theCLCTData(),
     theTMBScopeIsPresent(false), 
     theTMBScope(0), 
