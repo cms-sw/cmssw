@@ -5,6 +5,8 @@
 #include <iostream>
 using std::cout;
 using std::endl;
+#include <iomanip>
+using std::setprecision;
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -47,7 +49,7 @@ L1CaloInputScaleTester::L1CaloInputScaleTester(const edm::ParameterSet& iConfig)
 L1CaloInputScaleTester::~L1CaloInputScaleTester()
 {
  
-   // do anything here that needs to be done at desctruction time
+   // do anything here that needs to be done at destruction time
    // (e.g. close files, deallocate resources etc.)
 
 }
@@ -86,15 +88,15 @@ L1CaloInputScaleTester::analyze(const edm::Event& iEvent, const edm::EventSetup&
    bool ecalIsConsistent = true;
    bool hcalIsConsistent = true;
 
-   float ecal1; 
-   float ecal2;
-   float hcal1;
-   float hcal2;
+   double ecal1; 
+   double ecal2;
+   double hcal1;
+   double hcal2;
 
    // compare the ecal scales
 
    // 8 bits of input energy
-   for (unsigned short input = 0; input < 0xFF; input++)
+   for (unsigned short input = 0; input <= 0xFF; input++)
      {
        // loop over ietas, barrel first
        for (unsigned short absIeta = 1; absIeta <= 17; absIeta++)
@@ -105,23 +107,35 @@ L1CaloInputScaleTester::analyze(const edm::Event& iEvent, const edm::EventSetup&
 					      EcalTrigTowerDetId(1, EcalBarrel,
 								 absIeta, 1));
 	   ecal2 = caloEcalScale->et(input, absIeta, 1);
+
 	   if ( !(ecal1 == ecal2) )
 	     {
 	       ecalIsConsistent = false;
+	       /*LogWarning("InconsistentData") 
+		 << "ECAL scales not consistent! (pos eta barrel)"
+		 << "old ECAL is " << setprecision (8) << ecal1
+		 << " new ECAL is " << setprecision (8) << ecal2 
+		 << " difference is " << (ecal1 - ecal2) ; */
 	     }
 
 	   // negative eta
 	   ecal1 = ecalTPGScale->
 	     getTPGInGeV( (uint) input, EcalTrigTowerDetId(-1, EcalBarrel,
-							   absIeta, 1));
+							   absIeta, 2));
 	   ecal2 = caloEcalScale->et(input, absIeta, -1);
+
 	   if ( !(ecal1 == ecal2) )
 	     {
 	       ecalIsConsistent = false;
+	       /*LogWarning("InconsistentData") 
+		 << "ECAL scales not consistent! (neg eta barrel)"
+		 << "old ECAL is " << setprecision (8) << ecal1
+		 << " new ECAL is " << setprecision (8) << ecal2 	       
+		 << " difference is " << (ecal1 - ecal2) ; */       
 	     }
 	 }
        // now loop over endcap ietas
-       for (unsigned short absIeta = 18; absIeta < 29; absIeta++)
+       for (unsigned short absIeta = 18; absIeta <= 28; absIeta++)
 	 {
 
 	   // positive eta
@@ -129,19 +143,31 @@ L1CaloInputScaleTester::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	     getTPGInGeV( (uint) input, EcalTrigTowerDetId(1, EcalEndcap,
 							   absIeta, 1));
 	   ecal2 = caloEcalScale->et(input, absIeta, 1);
+
 	   if ( !(ecal1 == ecal2) )
 	     {
 	       ecalIsConsistent = false;
+	       /*LogWarning("InconsistentData") 
+		 << "ECAL scales not consistent! (pos eta endcap)"
+		 << "old ECAL is " << setprecision (8) << ecal1
+		 << " new ECAL is " << setprecision (8) << ecal2 
+		 << " difference is " << (ecal1 - ecal2) ; */
 	     }
 	   
 	   // negative eta
 	   ecal1 = ecalTPGScale->
 	     getTPGInGeV( (uint) input, EcalTrigTowerDetId(-1, EcalEndcap,
-							   absIeta, 1));
+							   absIeta, 2));
 	   ecal2 = caloEcalScale->et(input, absIeta, -1);
+
 	   if ( !(ecal1 == ecal2) )
 	     {
 	       ecalIsConsistent = false;
+	       /*LogWarning("InconsistentData") 
+		 << "ECAL scales not consistent! (neg eta endcap)"
+		 << "old ECAL is " << setprecision (8) << ecal1
+		 << " new ECAL is " << setprecision (8) << ecal2 
+		 << " difference is " << (ecal1 - ecal2) ; */
 	     }
 	 }
      }
@@ -160,16 +186,20 @@ L1CaloInputScaleTester::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
    // compare the hcal scales
 
-   for (unsigned short input = 0; input < 0xFF; input++)
+   for (unsigned short input = 0; input <= 0xFF; input++)
      {
        // loop over ietas
-       for (unsigned short absIeta = 1; absIeta < 33; absIeta++)
+       for (unsigned short absIeta = 1; absIeta <= 32; absIeta++)
 	 {
 	   hcal1 = caloTPGTranscoder->hcaletValue(absIeta, input); // no eta-
 	   hcal2 = caloHcalScale->et(input, absIeta, 1); // sign in transcoder
 	   if ( !(hcal1 == hcal2) )
 	     {
 	       hcalIsConsistent = false;
+	       /*LogWarning("InconsistentData") 
+		 << "HCAL scales not consistent!"
+		 << "old HCAL is " << hcal1
+		 << " new HCAL is " << hcal2 ; */
 	     }
 	 }
      }
@@ -198,5 +228,3 @@ void
 L1CaloInputScaleTester::endJob() {
 }
 
-//define this as a plug-in
-DEFINE_FWK_MODULE(L1CaloInputScaleTester);

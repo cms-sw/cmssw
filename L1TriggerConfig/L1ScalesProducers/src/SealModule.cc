@@ -8,6 +8,8 @@
 #include "L1TriggerConfig/L1ScalesProducers/interface/L1MuGMTScalesProducer.h"
 #include "L1TriggerConfig/L1ScalesProducers/interface/L1ScalesTester.h"
 #include "L1TriggerConfig/L1ScalesProducers/interface/L1MuScalesTester.h"
+#include "L1TriggerConfig/L1ScalesProducers/interface/L1CaloInputScaleTester.h"
+#include "L1TriggerConfig/L1ScalesProducers/interface/L1CaloInputScalesGenerator.h"
 
 DEFINE_FWK_EVENTSETUP_MODULE(L1ScalesTrivialProducer);
 DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(L1CaloInputScalesProducer);
@@ -17,3 +19,5 @@ DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(L1MuGMTScalesProducer);
 
 DEFINE_ANOTHER_FWK_MODULE(L1ScalesTester);
 DEFINE_ANOTHER_FWK_MODULE(L1MuScalesTester);
+DEFINE_ANOTHER_FWK_MODULE(L1CaloInputScaleTester);
+DEFINE_ANOTHER_FWK_MODULE(L1CaloInputScalesGenerator);
