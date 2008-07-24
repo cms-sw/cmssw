@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 15 14:13:33 EST 2008
-// $Id: FWGUISubviewArea.cc,v 1.10 2008/07/16 03:08:54 chrjones Exp $
+// $Id: FWGUISubviewArea.cc,v 1.11 2008/07/24 13:38:22 chrjones Exp $
 //
 
 // system include files
@@ -213,6 +213,17 @@ FWGUISubviewArea::undock()
    p->ExtractFrame();
 
 }   
+
+void 
+FWGUISubviewArea::undockTo(Int_t x, Int_t y,
+                           UInt_t width, UInt_t height)
+{
+   undock();
+   //NOTE: this seems evil but I can do the exact same thing by calling 'GetId' on the MainFrame
+   // and then use gVirtualX to do the work
+   const_cast<TGWindow*>(GetMainFrame())->MoveResize(x,y,width,height);
+}
+
 
 void 
 FWGUISubviewArea::beingDocked(TGFrame*)

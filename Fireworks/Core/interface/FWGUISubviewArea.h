@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 15 14:13:29 EST 2008
-// $Id: FWGUISubviewArea.h,v 1.6 2008/07/15 20:27:32 chrjones Exp $
+// $Id: FWGUISubviewArea.h,v 1.7 2008/07/16 03:08:54 chrjones Exp $
 //
 
 // system include files
@@ -59,6 +59,9 @@ class FWGUISubviewArea : public TGVerticalFrame
       void swapToBigView();
       void destroy();
       void undock();
+   
+      void undockTo(Int_t x, Int_t y,
+                    UInt_t width, UInt_t height);
    
       void beingDocked(TGFrame*);
    
