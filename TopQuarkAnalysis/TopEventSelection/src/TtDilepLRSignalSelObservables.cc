@@ -1,5 +1,5 @@
 #include "TopQuarkAnalysis/TopEventSelection/interface/TtDilepLRSignalSelObservables.h"
-#include "PhysicsTools/Utilities/interface/DeltaR.h"
+#include "PhysicsTools/Utilities/interface/deltaR.h"
 // #include "PhysicsTools/Utilities/interface/DeltaPhi.h"
 // #include "PhysicsTools/Utilities/interface/DeltaTheta.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
@@ -227,7 +227,7 @@ TtDilepLRSignalSelObservables::operator() (TtDilepEvtSolution &solution,
   evtselectVarMatch.push_back(IntBoolPair(13, matchLeptNeg&&matchLeptPos));
 
   vector <pat::Jet> jet3;
-for (int i=0;i<jets->size();++i) {
+  for (int i=0;i<(int)jets->size();++i) {
 if  ( ((*jets)[i].et()<solution.getJetB().et()) && ((*jets)[i].et()<solution.getJetBbar().et())) {jet3.push_back((*jets)[i]);
 // cout << "jet " << i << " " << jet3.back().partonFlavour()<< " " << jet3.back().pt() << " " << jet3.back().eta()<<endl;
 }}

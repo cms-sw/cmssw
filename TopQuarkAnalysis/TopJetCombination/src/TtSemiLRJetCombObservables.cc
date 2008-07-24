@@ -2,10 +2,10 @@
 // Author:  Jan Heyninck
 // Created: Tue Apr  3 17:33:23 PDT 2007
 //
-// $Id: TtSemiLRJetCombObservables.cc,v 1.8 2008/04/15 10:13:44 rwolf Exp $
+// $Id: TtSemiLRJetCombObservables.cc,v 1.9 2008/04/29 18:08:39 srappocc Exp $
 //
 #include "TopQuarkAnalysis/TopJetCombination/interface/TtSemiLRJetCombObservables.h"
-#include "PhysicsTools/Utilities/interface/DeltaR.h"
+#include "PhysicsTools/Utilities/interface/deltaR.h"
 // #include "PhysicsTools/Utilities/interface/DeltaPhi.h"
 // #include "PhysicsTools/Utilities/interface/DeltaTheta.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"

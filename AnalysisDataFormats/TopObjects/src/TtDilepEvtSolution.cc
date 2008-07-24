@@ -1,8 +1,8 @@
 //
-// $Id: TtDilepEvtSolution.cc,v 1.17 2008/03/16 17:11:28 delaer Exp $
+// $Id: TtDilepEvtSolution.cc,v 1.18 2008/06/20 13:18:54 rwolf Exp $
 //
 
-#include "PhysicsTools/Utilities/interface/DeltaR.h"
+#include "PhysicsTools/Utilities/interface/deltaR.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtDilepEvtSolution.h"
 

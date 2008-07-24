@@ -1,8 +1,8 @@
 //
-// $Id: TtDilepEvtSolutionMaker.cc,v 1.18 2008/03/16 17:14:34 delaer Exp $
+// $Id: TtDilepEvtSolutionMaker.cc,v 1.19 2008/06/20 15:58:42 rwolf Exp $
 //
 
-#include "PhysicsTools/Utilities/interface/DeltaR.h"
+#include "PhysicsTools/Utilities/interface/deltaR.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "TopQuarkAnalysis/TopKinFitter/interface/TtDilepKinSolver.h"
