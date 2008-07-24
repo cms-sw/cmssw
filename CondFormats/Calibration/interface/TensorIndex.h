@@ -1,5 +1,17 @@
 #ifndef TensorIndex_h
 #define TensorIndex_h
+///
+///Credit: 
+///Utility class from 
+///
+///http://www.sitmo.com/doc/A_Simple_and_Extremely_Fast_CPP_Template_for_Matrices_and_Tensors
+///
+///Usage:
+///
+///The template below offers a simple and efficient solution for handling matrices and tensors in C++. The idea is to store the matrix (or tensor) in a standard vector by translating the multidimensional index to a one dimensional index.
+///
+///The only thing we need to do is to convert two dimensional indices (r,c) into a one dimensional index. Using template we can do this very efficiently compile time, minimizing the runtime overhead.
+///
 template <int d1,int d2=1,int d3=1,int d4=1>
 class TensorIndex {
   public:
