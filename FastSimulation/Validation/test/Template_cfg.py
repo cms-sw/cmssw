@@ -108,8 +108,8 @@ process.outpath = cms.EndPath(process.o1)
 process.schedule.append(process.outpath)
 
 process.configurationMetadata = cms.untracked.PSet(
-       version = cms.untracked.string('$Revision: 0.00 $'),
-          name = cms.untracked.string('$Source $'),
+       version = cms.untracked.string('$Revision: 1.1 $'),
+          name = cms.untracked.string('$Source: Template_cfg.py $'),
           annotation = cms.untracked.string('RelVal Fast Sim ==SAMPLE==')
        ) 
 
