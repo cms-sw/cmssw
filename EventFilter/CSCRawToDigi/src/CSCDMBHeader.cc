@@ -114,7 +114,7 @@ void CSCDMBHeader::addCFEB(int icfeb)
 
 void CSCDMBHeader::addNCLCT() 
 {
-  tmb_dav_1 = 1;
+  tmb_dav_1 =  tmb_dav_2 =  tmb_dav_4 = 1;
 }
 
 void CSCDMBHeader::addNALCT() 
