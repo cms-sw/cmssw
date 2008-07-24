@@ -102,53 +102,45 @@ FWTextViewPage::FWTextViewPage (const std::string &title_,
 {
      const int width=frame->GetWidth();
      const int height=frame->GetHeight();
-     TGHorizontalFrame *m_buttons = new TGHorizontalFrame(frame, width, 25);
+     TGHorizontalFrame *m_buttons = new TGHorizontalFrame(frame, width, 25, kFixedHeight);
      TGPictureButton *m_undockButton = 
 	  new TGPictureButton(m_buttons, FWGUISubviewArea::undockIcon());
      m_undockButton->SetToolTipText("Undock view to own window");
-     m_undockButton->SetHeight(25);
-     m_buttons->AddFrame(m_undockButton, new TGLayoutHints);
+     m_buttons->AddFrame(m_undockButton, new TGLayoutHints(kLHintsExpandY));
      m_undockButton->Connect("Clicked()", "FWTextViewPage", this, "undock()");
      TGTextButton *m_dumpButton = 
 	  new TGTextButton(m_buttons, "Dump to file");
      m_dumpButton->SetToolTipText("Dump tables to file");
-     m_dumpButton->SetHeight(25);
-     m_buttons->AddFrame(m_dumpButton, new TGLayoutHints);
+     m_buttons->AddFrame(m_dumpButton, new TGLayoutHints(kLHintsExpandY));
      m_dumpButton->Connect("Clicked()", "FWTextViewPage", this, "dumpToFile()");
      file_name = new TGTextEntry(m_buttons, "event_dump.txt");
      file_name->SetToolTipText("File name for dump (- for stdout)");
-     file_name->SetHeight(25);
      file_name->Connect("ReturnPressed()", "FWTextViewPage", this, "dumpToFile()");
-     m_buttons->AddFrame(file_name, new TGLayoutHints(kLHintsExpandX));
+     m_buttons->AddFrame(file_name, new TGLayoutHints(kLHintsExpandY | kLHintsExpandX));
      append_button = new TGCheckButton(m_buttons, "append to file");
      append_button->SetToolTipText("Append to dump file");
-     append_button->SetHeight(25);
-     m_buttons->AddFrame(append_button, new TGLayoutHints());
+     m_buttons->AddFrame(append_button, new TGLayoutHints(kLHintsExpandY));
      TGTextButton *m_termDumpButton = 
 	  new TGTextButton(m_buttons, "Dump to terminal");
      m_termDumpButton->SetToolTipText("Dump tables to terminal");
-     m_termDumpButton->SetHeight(25);
-     m_buttons->AddFrame(m_termDumpButton, new TGLayoutHints);
+     m_buttons->AddFrame(m_termDumpButton, new TGLayoutHints(kLHintsExpandY));
      m_termDumpButton->Connect("Clicked()", "FWTextViewPage", this, "dumpToTerminal()");
 #if 0
      TGPictureButton *m_copyButton = 
 	  new TGPictureButton(m_buttons, copyIcon());
      m_copyButton->SetToolTipText("Copy tables to X server selection");
-     m_copyButton->SetHeight(25);
-     m_buttons->AddFrame(m_copyButton, new TGLayoutHints);
+     m_buttons->AddFrame(m_copyButton, new TGLayoutHints(kLHintsExpandY));
      m_copyButton->Connect("Clicked()", "FWTextViewPage", this, "copyToSelection()");
 #endif
      TGTextButton *m_printButton = 
 	  new TGTextButton(m_buttons, "Dump to printer");
      m_printButton->SetToolTipText("Dump tables to printer");
-     m_printButton->SetHeight(25);
-     m_buttons->AddFrame(m_printButton, new TGLayoutHints());
+     m_buttons->AddFrame(m_printButton, new TGLayoutHints(kLHintsExpandY));
      m_printButton->Connect("Clicked()", "FWTextViewPage", this, "dumpToPrinter()");
      print_command = new TGTextEntry(m_buttons, "enscript -r -f Courier7");
      print_command->SetToolTipText("Print command");
-     print_command->SetHeight(25);
      print_command->Connect("ReturnPressed()", "FWTextViewPage", this, "dumpToPrinter()");
-     m_buttons->AddFrame(print_command, new TGLayoutHints(kLHintsExpandX));
+     m_buttons->AddFrame(print_command, new TGLayoutHints(kLHintsExpandY | kLHintsExpandX));
      frame->AddFrame(m_buttons, new TGLayoutHints(kLHintsTop | kLHintsExpandX));
      header_view = new TGTextView(frame, width, 70);
      frame->AddFrame(header_view, new TGLayoutHints(kLHintsTop | kLHintsExpandX));
@@ -344,6 +336,7 @@ FWTextView::FWTextView (CmsShowMain *de, FWSelectionManager *sel,
        seleman		(sel),
        changeman	(chg),
        parent_tab	(gui->m_textViewTab)
+//        main		(de)
 {      
      // stick managers in a vector for easier collective operations
      FWTableManager *managers_retreat[] = {
@@ -869,6 +862,7 @@ void FWTextView::prevPage ()
 
 void FWTextView::selectionChanged (const FWSelectionManager &m)
 {
+//      printf("selectionChanged\n");
      // clear old selection
      for (std::vector<FWTableManager *>::iterator 
 	       i = managers.begin(), end = managers.end();
@@ -894,6 +888,8 @@ void FWTextView::selectionChanged (const FWSelectionManager &m)
 
 void FWTextView::changesDone (const CmsShowMain *)
 {
+//      printf("changesDone\n");
+//      selectionChanged(*main->m_selectionManager);
      for (std::vector<FWTableManager *>::iterator 
 	       i = managers.begin(), end = managers.end();
 	  i != end; ++i) {
