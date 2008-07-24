@@ -8,7 +8,7 @@
 */
 // Original Author:  dkcira
 //         Created:  Sat Feb  4 20:49:51 CET 2006
-// $Id: SiStripMonitorDigi.h,v 1.7 2008/03/01 00:37:46 dutta Exp $
+// $Id: SiStripMonitorDigi.h,v 1.8 2008/07/21 16:44:38 charaf Exp $
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -76,6 +76,8 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
       inline void fillME(MonitorElement* ME,float value1,float value2,float value3){if (ME!=0)ME->Fill(value1,value2,value3);}
       inline void fillME(MonitorElement* ME,float value1,float value2,float value3,float value4){if (ME!=0)ME->Fill(value1,value2,value3,value4);}
       bool AllDigis( const edm::EventSetup& es);
+      bool fillLayerHistos();
+
       
    private:
        DQMStore* dqmStore_;
@@ -118,6 +120,7 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
        bool tobon;
        bool tecon;
 
+       bool createTrendMEs;
 };
 #endif
 

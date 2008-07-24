@@ -3,7 +3,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorDigi.cc,v 1.25 2008/04/28 19:46:32 dutta Exp $
+// $Id: SiStripMonitorDigi.cc,v 1.26 2008/07/21 16:44:38 charaf Exp $
 #include<fstream>
 #include "TNamed.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -31,7 +31,7 @@
 
 
 //--------------------------------------------------------------------------------------------
-SiStripMonitorDigi::SiStripMonitorDigi(const edm::ParameterSet& iConfig) : dqmStore_(edm::Service<DQMStore>().operator->()), conf_(iConfig), show_mechanical_structure_view(true), show_readout_view(false), show_control_view(false), select_all_detectors(false), calculate_strip_occupancy(false), reset_each_run(false), m_cacheID_(0), folder_organizer() 
+SiStripMonitorDigi::SiStripMonitorDigi(const edm::ParameterSet& iConfig) : dqmStore_(edm::Service<DQMStore>().operator->()), conf_(iConfig), show_mechanical_structure_view(true), show_readout_view(false), show_control_view(false), select_all_detectors(true), calculate_strip_occupancy(false), reset_each_run(false), m_cacheID_(0), folder_organizer() 
 {
   firstEvent = -1;
   eventNb = 0;
@@ -79,12 +79,7 @@ SiStripMonitorDigi::SiStripMonitorDigi(const edm::ParameterSet& iConfig) : dqmSt
   tobon = ParametersDetsOn.getParameter<bool>("tobon");
   tecon = ParametersDetsOn.getParameter<bool>("tecon");
 
-  std::cout<<"tibon = "<<tibon<<std::endl;
-  std::cout<<"tidon = "<<tidon<<std::endl;
-  std::cout<<"tobon = "<<tobon<<std::endl;
-  std::cout<<"tecon = "<<tecon<<std::endl;
-
-
+  createTrendMEs = conf_.getParameter<bool>("CreateTrendMEs");
 }
 
 
@@ -183,28 +178,34 @@ void SiStripMonitorDigi::createMEs(const edm::EventSetup& es){
       if(moduleswitchnumdigison) {
 	// create Digis per detector - not too useful - maybe can remove later
 	hid = hidmanager.createHistoId("NumberOfDigis","det",*detid_iterator);
-	local_modmes.NumberOfDigis = dqmStore_->book1D(hid, hid, 21, -0.5, 20.5); dqmStore_->tag(local_modmes.NumberOfDigis, *detid_iterator);
+	local_modmes.NumberOfDigis = dqmStore_->book1D(hid, hid, 21, -0.5, 20.5);
+        dqmStore_->tag(local_modmes.NumberOfDigis, *detid_iterator);
 	local_modmes.NumberOfDigis->setAxisTitle("number of digis in one detector module");
+	if (local_modmes.NumberOfDigis->kind() == MonitorElement::DQM_KIND_TH1F)
+	  local_modmes.NumberOfDigis->getTH1()->StatOverflows(kTRUE);  // over/underflows in Mean calculation
       }
 
       if(moduleswitchadchotteston) {
 	// create ADCs per "hottest" strip
 	hid = hidmanager.createHistoId("ADCsHottestStrip","det",*detid_iterator);
-	local_modmes.ADCsHottestStrip = dqmStore_->book1D(hid, hid, 21, -0.5, 50.); dqmStore_->tag(local_modmes.ADCsHottestStrip, *detid_iterator);
+	local_modmes.ADCsHottestStrip = bookME1D("TH1ADCsHottestStrip", hid.c_str());
+        dqmStore_->tag(local_modmes.ADCsHottestStrip, *detid_iterator);
 	local_modmes.ADCsHottestStrip->setAxisTitle("number of ADCs in strip with most of them");
       }
 
       if(moduleswitchadccooleston) {
 	// create ADCs per "coolest" strip
 	hid = hidmanager.createHistoId("ADCsCoolestStrip","det",*detid_iterator);
-	local_modmes.ADCsCoolestStrip = dqmStore_->book1D(hid, hid, 21, -0.5, 50.); dqmStore_->tag(local_modmes.ADCsCoolestStrip, *detid_iterator);
+	local_modmes.ADCsCoolestStrip = bookME1D("TH1ADCsCoolestStrip", hid.c_str());
+        dqmStore_->tag(local_modmes.ADCsCoolestStrip, *detid_iterator);
 	local_modmes.ADCsCoolestStrip->setAxisTitle("number of ADCs in strip with less of them");
       }
 
       if(moduleswitchdigiadcson) {
 	// create Digi ADC count distribution
 	hid = hidmanager.createHistoId("DigiADCs","det",*detid_iterator);
-	local_modmes.DigiADCs = dqmStore_->book1D(hid, hid, 21, -0.5, 50.); dqmStore_->tag(local_modmes.DigiADCs, *detid_iterator);
+	local_modmes.DigiADCs = bookME1D("TH1DigiADCs", hid.c_str());
+        dqmStore_->tag(local_modmes.DigiADCs, *detid_iterator);
 	local_modmes.DigiADCs->setAxisTitle("ADCs");
       }
 
@@ -285,6 +286,8 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
     
     if (!digi_detsetvektor.isValid()) continue; 
     
+    AllDigis(iSetup);
+
     // loop over all MEs
     for (std::map<uint32_t, ModMEs >::const_iterator iterMEs = DigiMEs.begin() ; iterMEs!=DigiMEs.end() ; iterMEs++) {
     
@@ -387,7 +390,9 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
 
   }//end of loop over digi producers (ZeroSuppressed, VirginRaw, ProcessedRaw, ScopeMode)
 
-  AllDigis(iSetup);
+  //AllDigis(iSetup);
+  //now we shall fill the histos
+  fillLayerHistos();
 
 }//end of method analyze
 
@@ -426,10 +431,11 @@ void SiStripMonitorDigi::endJob(void){
 
     monitor_summary<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<std::endl;
     
+    // save histograms in a file
+    dqmStore_->save(outputFileName);
+
   }//end of if
 
-  // save histograms in a file
-  dqmStore_->save(outputFileName);
   
 }//end of method
 
@@ -461,62 +467,6 @@ void SiStripMonitorDigi::ResetModuleMEs(uint32_t idet){
   //mod_me.StripOccupancy->Reset();
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 //------------------------------------------------------------------------  
 void SiStripMonitorDigi::bookLayer() 
 {
@@ -566,13 +516,6 @@ void SiStripMonitorDigi::bookLayer()
   }//end loop on detector
 
 }
-  
-
-
-
-
-
-
 void SiStripMonitorDigi::bookTrendMEs(TString name,int32_t layer,uint32_t id,std::string flag)//Histograms and Trends at LAYER LEVEL
 {
   char rest[1024];
@@ -610,10 +553,10 @@ void SiStripMonitorDigi::bookTrendMEs(TString name,int32_t layer,uint32_t id,std
     //MonitorElement* LayerNumberOfDigis;
 
     if(layerswitchnumdigison) {
-      theModMEs.LayerNumberOfDigis=bookME1D("TH1NumberOfDigis", hidmanager.createHistoLayer("Summary_numDigis",name.Data(),rest,flag).c_str()); 
-      dqmStore_->tag(theModMEs.LayerNumberOfDigis,layer); 
-      theModMEs.LayerNumberOfDigisTrend=bookMETrend("TH1NumberOfDigis", hidmanager.createHistoLayer("Trend_numDigis",name.Data(),rest,flag).c_str()); 
-      dqmStore_->tag(theModMEs.LayerNumberOfDigisTrend,layer); 
+      theModMEs.LayerNumberOfDigis=bookME1D("TH1NumberOfDigis", hidmanager.createHistoLayer("Summary_TotalDigis",name.Data(),rest,flag).c_str()); 
+      if (createTrendMEs) {
+	theModMEs.LayerNumberOfDigisTrend=bookMETrend("TH1NumberOfDigis", hidmanager.createHistoLayer("Trend_TotalDigis",name.Data(),rest,flag).c_str()); 
+      }
     }
 
     //Number of Digis for hottest strip
@@ -621,9 +564,9 @@ void SiStripMonitorDigi::bookTrendMEs(TString name,int32_t layer,uint32_t id,std
 
     if(layerswitchadchotteston) {
       theModMEs.LayerADCsHottestStrip=bookME1D("TH1ADCsHottestStrip", hidmanager.createHistoLayer("Summary_ADCsHottestStrip",name.Data(),rest,flag).c_str()); 
-      dqmStore_->tag(theModMEs.LayerADCsHottestStrip,layer); 
-      theModMEs.LayerADCsHottestStripTrend=bookMETrend("TH1ADCsHottestStrip", hidmanager.createHistoLayer("Trend_ADCsHottestStrip",name.Data(),rest,flag).c_str()); 
-      dqmStore_->tag(theModMEs.LayerADCsHottestStripTrend,layer); 
+      if (createTrendMEs) {      
+	theModMEs.LayerADCsHottestStripTrend=bookMETrend("TH1ADCsHottestStrip", hidmanager.createHistoLayer("Trend_ADCsHottestStrip",name.Data(),rest,flag).c_str()); 
+      }
     }
 
     //Number of Digis for coolest strip
@@ -631,9 +574,9 @@ void SiStripMonitorDigi::bookTrendMEs(TString name,int32_t layer,uint32_t id,std
 
     if(layerswitchadccooleston) {
       theModMEs.LayerADCsCoolestStrip=bookME1D("TH1ADCsCoolestStrip", hidmanager.createHistoLayer("Summary_ADCsCoolestStrip",name.Data(),rest,flag).c_str()); 
-      dqmStore_->tag(theModMEs.LayerADCsCoolestStrip,layer); 
-      theModMEs.LayerADCsCoolestStripTrend=bookMETrend("TH1ADCsCoolestStrip", hidmanager.createHistoLayer("Trend_ADCsCoolestStrip",name.Data(),rest,flag).c_str()); 
-      dqmStore_->tag(theModMEs.LayerADCsCoolestStripTrend,layer); 
+      if (createTrendMEs) {
+	theModMEs.LayerADCsCoolestStripTrend=bookMETrend("TH1ADCsCoolestStrip", hidmanager.createHistoLayer("Trend_ADCsCoolestStrip",name.Data(),rest,flag).c_str()); 
+      }
     }
 
     //ADCs per Digi
@@ -641,9 +584,9 @@ void SiStripMonitorDigi::bookTrendMEs(TString name,int32_t layer,uint32_t id,std
 
     if(layerswitchdigiadcson) {
       theModMEs.LayerDigiADCs=bookME1D("TH1DigiADCs", hidmanager.createHistoLayer("Summary_DigiADCs",name.Data(),rest,flag).c_str()); 
-      dqmStore_->tag(theModMEs.LayerDigiADCs,layer); 
-      theModMEs.LayerDigiADCsTrend=bookMETrend("TH1DigiADCs", hidmanager.createHistoLayer("Trend_DigiADCs",name.Data(),rest,flag).c_str()); 
-      dqmStore_->tag(theModMEs.LayerDigiADCsTrend,layer); 
+      if (createTrendMEs) {
+	theModMEs.LayerDigiADCsTrend=bookMETrend("TH1DigiADCs", hidmanager.createHistoLayer("Trend_DigiADCs",name.Data(),rest,flag).c_str()); 
+      }
     }
 
     //     //SiStrip Occupancy
@@ -660,12 +603,6 @@ void SiStripMonitorDigi::bookTrendMEs(TString name,int32_t layer,uint32_t id,std
   }
 
 }
-
-
-
-
-
-
 MonitorElement* SiStripMonitorDigi::bookMETrend(const char* ParameterSetLabel, const char* HistoName)
 {
   Parameters =  conf_.getParameter<edm::ParameterSet>(ParameterSetLabel);
@@ -717,15 +654,15 @@ void SiStripMonitorDigi::fillTrendMEs(int subdetid, int subsubdetid, std::string
     
     if(layerswitchnumdigison) {
       fillME(iModME->second.LayerNumberOfDigis  ,NDigi[(subdetid)][subsubdetid]);
-      fillTrend(iModME->second.LayerNumberOfDigisTrend,NDigi[(subdetid)][subsubdetid]);
+      if (createTrendMEs) fillTrend(iModME->second.LayerNumberOfDigisTrend,NDigi[(subdetid)][subsubdetid]);
     }
     if(layerswitchadchotteston) {
       fillME(iModME->second.LayerADCsHottestStrip,ADCHottest[(subdetid)][subsubdetid]);
-      fillTrend(iModME->second.LayerADCsHottestStripTrend,ADCHottest[(subdetid)][subsubdetid]);
+      if (createTrendMEs) fillTrend(iModME->second.LayerADCsHottestStripTrend,ADCHottest[(subdetid)][subsubdetid]);
     }
     if(layerswitchadccooleston) {
       fillME(iModME->second.LayerADCsCoolestStrip ,ADCCoolest[(subdetid)][subsubdetid]);
-      fillTrend(iModME->second.LayerADCsCoolestStripTrend,ADCCoolest[(subdetid)][subsubdetid]);
+      if (createTrendMEs) fillTrend(iModME->second.LayerADCsCoolestStripTrend,ADCCoolest[(subdetid)][subsubdetid]);
     }
 
   }
@@ -746,7 +683,7 @@ void SiStripMonitorDigi::fillDigiADCsMEs(int value, std::string name)
 
     if(layerswitchdigiadcson) {
       fillME(iModME->second.LayerDigiADCs , value);
-      fillTrend(iModME->second.LayerDigiADCsTrend, value);
+      if (createTrendMEs) fillTrend(iModME->second.LayerDigiADCsTrend, value);
     }
 
   }
@@ -909,13 +846,19 @@ bool SiStripMonitorDigi::AllDigis( const edm::EventSetup& es)
 
   }//end of loop on detsetvectors
 
+  
+}
+
+bool SiStripMonitorDigi::fillLayerHistos()
+{
+
 
   //Here we should make sure everything is ok
 
   std::string name;
   char rest[1024];
   std::string flag = "";
-
+  
   for(int i=0;i<4;i++) 
     {
       switch(i) {
@@ -977,11 +920,12 @@ bool SiStripMonitorDigi::AllDigis( const edm::EventSetup& es)
 	}
       }
     }
+  return 1;
 
- 
+
+
+
 }
-
-
 
 
 
