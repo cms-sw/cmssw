@@ -26,7 +26,7 @@ sprawdzic konwencje znaku mionu !!!!! (takze w L1RpcMuon0)
 #include "L1Trigger/RPCTrigger/interface/TPatternsGroup.h"
 #include "L1Trigger/RPCTrigger/interface/TEPatternsGroup.h"
 #include "L1Trigger/RPCTrigger/interface/TTPatternsGroup.h"
-#include "CondFormats/RPCObjects/interface/L1RPCConfig.h"
+#include "CondFormats/L1TObjects/interface/L1RPCConfig.h"
 //------------------------------------------------------------------------------
 
 //class RPCPacData: public RPCPacBase {
