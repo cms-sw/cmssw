@@ -21,7 +21,7 @@ process.load("Configuration.EventContent.EventContentCosmics_cff")
 process.FEVT = cms.OutputModule("PoolOutputModule",
     process.FEVTEventContent,
     dataset = cms.untracked.PSet(dataTier = cms.untracked.string('RECO')),
-    fileName = cms.untracked.string('reco.root')
+    fileName = cms.untracked.string('reco2.root')
 )
 
 process.FEVT.outputCommands.append('keep CaloTowersSorted_calotoweroptmaker_*_*')
@@ -45,7 +45,7 @@ process.FEVT.outputCommands.append('keep recoCandidatesOwned_caloTowersOpt_*_*')
 process.FEVT.outputCommands.append('keep RPCDetIdRPCDigiMuonDigiCollection_muonRPCDigis_*_*')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.2 $'),
+    version = cms.untracked.string('$Revision: 1.3 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/GlobalRuns/python/recoT0DQM_EvContent_cfg.py,v $'),
     annotation = cms.untracked.string('CRUZET Prompt Reco with DQM')
 )
@@ -54,7 +54,6 @@ process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) ) #
 
 # Conditions (Global Tag is used here):
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.connect = 'sqlite_file:/afs/cern.ch/user/m/malgeri/public/globtag/CRUZET.db'
 process.GlobalTag.globaltag = 'CRZT210_DRV::All'
 process.prefer("GlobalTag")
 
@@ -108,9 +107,9 @@ process.combinatorialcosmicseedfinderP5.SeedMomentum = 5
 process.load("DQMOffline.Muon.muonCosmicMonitors_cff")
 process.muonTrackAnalyzers = cms.Sequence(process.muonTrackCosmicAnalyzers)
 #process.DQMOffline_fixed   = cms.Sequence(process.SiStripDQMTier0*process.ecal_dqm_source_offline7*process.muonCosmicMonitors*process.jetMETAnalyzer*process.hcalOfflineDQMSource*process.siPixelOfflineDQM_source*process.l1tmonitor )
-#process.DQMOffline_fixed   = cms.Sequence(process.SiStripDQMTier0*process.ecal_dqm_source_offline7*process.muonCosmicMonitors*process.jetMETAnalyzer*process.hcalOfflineDQMSource*process.l1tmonitor )
+process.DQMOffline_fixed   = cms.Sequence(process.SiStripDQMTier0*process.ecal_dqm_source_offline7*process.muonCosmicMonitors*process.jetMETAnalyzer*process.hcalOfflineDQMSource )
 
-#process.allPath = cms.Path( process.RawToDigi * process.reconstructionCosmics *  process.DQMOffline_fixed * process.MEtoEDMConverter)
-process.allPath = cms.Path( process.RawToDigi * process.reconstructionCosmics )
+process.allPath = cms.Path( process.RawToDigi * process.reconstructionCosmics *  process.DQMOffline_fixed * process.MEtoEDMConverter)
+#process.allPath = cms.Path( process.RawToDigi * process.reconstructionCosmics )
 
 process.outpath = cms.EndPath(process.FEVT)
