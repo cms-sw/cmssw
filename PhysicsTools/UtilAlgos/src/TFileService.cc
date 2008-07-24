@@ -24,7 +24,7 @@ TFileService::TFileService(const ParameterSet & cfg, ActivityRegistry & r) :
 
 TFileService::~TFileService() {
   file_->Write();
-  gROOT->GetListOfFiles()->Remove(file_); 
+  if(closeFileFast_) gROOT->GetListOfFiles()->Remove(file_); 
   file_->Close();
   delete file_;
 }
