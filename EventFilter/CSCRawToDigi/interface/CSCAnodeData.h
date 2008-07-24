@@ -10,7 +10,7 @@ class CSCAnodeDataFrame {
 public:
   CSCAnodeDataFrame() {}
   CSCAnodeDataFrame(unsigned chip, unsigned tbin, unsigned data) 
-  :  data_(data), tbin_(tbin),
+  :  data_(data&0x3), tbin_(tbin),
   // do we have 2 bits for this, or 3? 
   // chip_( chip&1 + 2*(chip&2 | chip&4) ) 
   chip_(chip) {}
@@ -35,8 +35,8 @@ public:
 private:
   unsigned short data_ : 8;
   unsigned short tbin_ : 5;
-  unsigned short chip_ : 3;
-  //unsigned short ddu_code_ : 1;
+  unsigned short chip_ : 2;
+  unsigned short ddu_code_ : 1;
 };
 
 class CSCAnodeDataFrame2007 {
