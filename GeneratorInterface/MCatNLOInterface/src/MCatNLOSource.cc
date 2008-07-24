@@ -500,6 +500,9 @@ MCatNLOSource::MCatNLOSource( const ParameterSet & pset, InputSourceDescription 
   header2_str << "   NRN(2) = "<<hwevnt.NRN[1]<<"\n";
 
   hwuinc();
+
+  // *** commented out the seeting stables for PI0 and B hadrons
+  /*
   hwusta("PI0     ",1);
   if(jpr == 20) {
     hwusta("B+      ",1);
@@ -524,6 +527,7 @@ MCatNLOSource::MCatNLOSource( const ParameterSet & pset, InputSourceDescription 
     hwusta("OMG_BBR+",1);
     hwusta("B_C+    ",1);
   }
+  */
 
   hweini();
 
@@ -620,7 +624,7 @@ bool MCatNLOSource::produce(Event & e) {
   hwepro();
   hwbgen();
   
-  if(useJimmy_ && doMPInteraction_ && hwevnt.IERROR != 0) {
+  if(useJimmy_ && doMPInteraction_ && hwevnt.IERROR == 0) {
     double eventok = 0.0;
     eventok=hwmsct_dummy(&eventok);
     if(eventok > 0.5) 
