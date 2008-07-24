@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.32 2008/07/20 18:22:00 dmytro Exp $
+// $Id: CmsShowMain.cc,v 1.33 2008/07/22 04:01:58 jmuelmen Exp $
 //
 
 // system include files
@@ -172,9 +172,11 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       if (vm.count(kInputFileOpt)) {
          m_inputFileName = vm[kInputFileOpt].as<std::string>();
       } else {
+#if !defined(__APPLE__)
          printf("No data file name.\n");
          std::cout << desc <<std::endl;
          exit(0);
+#endif
       }
       if (vm.count(kConfigFileOpt)) {
          m_configFileName = vm[kConfigFileOpt].as<std::string>();
@@ -186,11 +188,17 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
             m_configFileName = "src/Fireworks/Core/macros/default.fwc";
          }
       }
+      const char* cmspath = gSystem->Getenv("CMSSW_BASE");
+      if(0 == cmspath) {
+         throw std::runtime_error("CMSSW_BASE environment variable not set");
+      }
+      
       if (vm.count(kGeomFileOpt)) {
          m_geomFileName = vm[kGeomFileOpt].as<std::string>();
       } else {
          printf("No geom file name.  Choosing default.\n");
-         m_geomFileName = "cmsGeom10.root";
+         m_geomFileName =cmspath;
+         m_geomFileName.append("/cmsGeom10.root");
       }
       bool debugMode = vm.count(kDebugOpt);
       
@@ -227,10 +235,6 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
                                                                   m_configurationManager.get(),_1));
       //m_selectionManager->selectionChanged_.connect(boost::bind(&CmsShowMain::selectionChanged,this,_1));
       //figure out where to find macros
-      const char* cmspath = gSystem->Getenv("CMSSW_BASE");
-      if(0 == cmspath) {
-         throw std::runtime_error("CMSSW_BASE environment variable not set");
-      }
       //tell ROOT where to find our macros
       std::string macPath(cmspath);
       macPath += "/src/Fireworks/Core/macros";
