@@ -1,5 +1,5 @@
 // -*-c++-*-
-// $Id$
+// $Id: HLTPerformanceInfo.h,v 1.11 2008/07/24 16:22:58 wittich Exp $
 #ifndef HLTPERFORMANCEINFO_H
 #define HLTPERFORMANCEINFO_H
 
@@ -124,6 +124,14 @@ public:
   } 
   // by name
    void addModuleToPath(const char *mod, const char *path) {
+     // first make sure module exists
+     Modules::iterator m = findModule(mod);
+     if ( m == endModules() ) {
+       // new module - create it and stick it on the end
+       Module newMod(mod, 0, 0); // time (wall and cpu) = 0 since it wasn't run	 
+       modules_.push_back(newMod);
+     }
+
      for ( size_t i = 0; i < paths_.size(); ++i ) {
        if ( !( paths_[i] == path ) ) continue;
        // we found the path, add module to the end
@@ -137,7 +145,7 @@ public:
    }
   // by index
   void addModuleToPath(const size_t mod, const size_t path) {
-    if ( path >= paths_.size() ) return; // how to denote error?
+    assert(( path <paths_.size()) && (mod < modules_.size()) );
     paths_[path].addModuleRef(mod);
   }
 
@@ -160,6 +168,8 @@ public:
   // returns endModules() on failure
   Modules::iterator findModule(const char* moduleInstanceName) ;
   PathList::iterator findPath(const char* pathName) ;
+
+  int moduleIndexInPath(const char *mod, const char *path);
 
   size_t numberOfPaths() const {
     return paths_.size();
