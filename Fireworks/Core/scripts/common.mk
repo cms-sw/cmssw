@@ -59,6 +59,7 @@ tmp/%.d:   %.cc
 	$(CC) -M -MT $@ -MT ${@:.d=.o} $(CFLAGS) $< > $@; \
                      [ -s $@ ] || rm -f $@
 -include /dev/null $(ProjectObjects:.o=.d)
+-include /dev/null $(CoreObjects:.o=.d)
 
 tmp/%LinkDef.d:  %LinkDef.h
 	$(QUIET) echo "dependencies for ROOT dictionaries based on $<"; \
@@ -66,6 +67,7 @@ tmp/%LinkDef.d:  %LinkDef.h
 	$(CXX) -M -MT $@ -MT ${@:.d=.ro} -MT ${@:.d=.cc} $(CFLAGS) $(INCLUDE) $< > $@; \
                      [ -s $@ ] || rm -f $@
 -include /dev/null $(ProjectRootDicSources:.cc=.d)
+-include /dev/null $(CoreRootDicSources:.cc=.d)
 
 tmp/%classes.d : %classes.h
 	$(QUIET) echo "dependencies for dictionaries based on $*classes_def.xml"; \
@@ -74,3 +76,4 @@ tmp/%classes.d : %classes.h
                      [ -s $@ ] || rm -f $@
 
 -include /dev/null $(ProjectDictionarySources:.cpp=.d)
+-include /dev/null $(CoreDictionarySources:.cpp=.d)
