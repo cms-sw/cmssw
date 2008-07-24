@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/07/07 20:43:11 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/07/09 18:36:21 $
+ *  $Revision: 1.6 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -13,9 +13,6 @@
 
 // Framework
 #include <FWCore/Framework/interface/Event.h>
-#include "DataFormats/Common/interface/Handle.h" 
-#include <FWCore/Framework/interface/ESHandle.h>
-#include <FWCore/Framework/interface/MakerMacros.h>
 #include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 
@@ -24,7 +21,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
-#include <stdio.h>
+// #include <stdio.h>
 #include <string>
 
 using namespace edm;
