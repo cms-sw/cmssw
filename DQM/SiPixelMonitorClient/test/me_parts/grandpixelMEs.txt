@@ -1,0 +1,2 @@
+     <MonElement name="pixelAliveSummary_mean">      </MonElement> 
+     <MonElement name="pixelAliveSummary_FracOfPerfectPix"></MonElement> 
