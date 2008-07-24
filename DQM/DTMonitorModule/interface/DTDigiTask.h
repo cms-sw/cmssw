@@ -4,8 +4,8 @@
 /*
  * \file DTDigiTask.h
  *
- * $Date: 2008/05/22 07:00:39 $
- * $Revision: 1.19 $
+ * $Date: 2008/07/02 14:14:13 $
+ * $Revision: 1.20 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -54,6 +54,8 @@ protected:
 
   /// BeginJob
   void beginJob(const edm::EventSetup& c);
+
+  void beginRun(const edm::Run&, const edm::EventSetup&);
 
   /// Book the ME
   void bookHistos(const DTSuperLayerId& dtSL, std::string folder, std::string histoTag);

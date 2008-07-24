@@ -5,8 +5,8 @@
 /*
  * \file DTAlbertoBenvenutiTask.h
  *
- * $Date: 2007/03/22 18:52:01 $
- * $Revision: 1.11 $
+ * $Date: 2007/08/24 08:56:46 $
+ * $Revision: 1.1 $
  * \author G. Mila - INFN Torino
  *
 */
@@ -50,6 +50,8 @@ protected:
 
   /// BeginJob
   void beginJob(const edm::EventSetup& c);
+
+  void beginRun(const edm::Run&, const edm::EventSetup&);
 
   /// Book the ME
   void bookHistos(const DTWireId dtWire);

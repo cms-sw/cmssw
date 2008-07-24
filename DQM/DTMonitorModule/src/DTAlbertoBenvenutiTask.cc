@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/09/03 16:30:53 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/01/22 18:46:59 $
+ *  $Revision: 1.4 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -55,6 +55,9 @@ DTAlbertoBenvenutiTask::DTAlbertoBenvenutiTask(const edm::ParameterSet& ps){
   outputFile = ps.getUntrackedParameter<string>("outputFile", "DTDigiSources.root");
   maxTDCHits = ps.getUntrackedParameter<int>("maxTDCHits",1000);
   
+  // tMax (not yet from the DB)
+  tMax = parameters.getParameter<int>("defaultTmax");
+
   parameters = ps; 
 
 }
@@ -134,7 +137,11 @@ void DTAlbertoBenvenutiTask::beginJob(const edm::EventSetup& context){
 
   // Get the geometry
   context.get<MuonGeometryRecord>().get(muonGeom);
-  
+}
+
+
+
+void DTAlbertoBenvenutiTask::beginRun(const edm::Run&, const edm::EventSetup& context) {
   // tTrig 
   if (parameters.getUntrackedParameter<bool>("readDB", true)) 
     context.get<DTTtrigRcd>().get(tTrigMap);
@@ -143,8 +150,6 @@ void DTAlbertoBenvenutiTask::beginJob(const edm::EventSetup& context){
   if (parameters.getParameter<bool>("performPerWireT0Calibration")) 
     context.get<DTT0Rcd>().get(t0Map);
 
-  // tMax (not yet from the DB)
-  tMax = parameters.getParameter<int>("defaultTmax");
 
 }
 

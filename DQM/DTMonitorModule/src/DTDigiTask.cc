@@ -1,8 +1,8 @@
  /*
  * \file DTDigiTask.cc
  * 
- * $Date: 2008/06/05 12:49:36 $
- * $Revision: 1.44 $
+ * $Date: 2008/07/02 14:14:14 $
+ * $Revision: 1.45 $
  * \author M. Zanetti - INFN Padova
  *
  */
@@ -114,6 +114,11 @@ void DTDigiTask::beginJob(const edm::EventSetup& context){
 
   // Get the geometry
   context.get<MuonGeometryRecord>().get(muonGeom);
+}
+
+
+void DTDigiTask::beginRun(const edm::Run& run, const edm::EventSetup& context) {
+  if(debug) cout<<"[DTDigiTask]: begin run"<<endl;
 
   // tTrig 
   if (readTTrigDB) 
