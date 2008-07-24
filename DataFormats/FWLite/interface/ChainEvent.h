@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:01:20 EDT 2007
-// $Id: ChainEvent.h,v 1.1 2007/06/18 16:21:57 chrjones Exp $
+// $Id: ChainEvent.h,v 1.2 2007/08/06 15:01:53 chrjones Exp $
 //
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
@@ -48,11 +48,17 @@ class ChainEvent
 
       ///Go to the event at index iIndex
       const ChainEvent& to(Long64_t iIndex);
-      
+
+      //Go to event by Run & Event number
+//      bool to(edm::EventID id);
+//      bool to(edm::RunNumber_t run, edm::EventNumber_t event);
+
       /** Go to the very first Event*/
       const ChainEvent& toBegin();
       
       // ---------- const member functions ---------------------
+      const std::string getBranchNameFor(const std::type_info&, const char*, const char*, const char*) const;
+
       /** This function should only be called by fwlite::Handle<>*/
       void getByLabel(const std::type_info&, const char*, const char*, const char*, void*) const;
       //void getByBranchName(const std::type_info&, const char*, void*&) const;
@@ -62,6 +68,13 @@ class ChainEvent
       bool atEnd() const;
       
       Long64_t size() const;
+
+      edm::EventID id() const;
+      const edm::Timestamp& time() const;
+
+      const std::vector<edm::BranchDescription>& getBranchDescriptions() const;
+      const std::vector<std::string>& getProcessHistory() const;
+
       // ---------- static member functions --------------------
       static void throwProductNotFoundException(const std::type_info&, const char*, const char*, const char*);
 

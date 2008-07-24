@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:01:20 EDT 2007
-// $Id: Event.h,v 1.11 2008/06/12 22:27:19 dsr Exp $
+// $Id: Event.h,v 1.12 2008/07/17 13:32:08 chrjones Exp $
 //
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
@@ -137,6 +137,8 @@ class Event
       const Event& toBegin();
       
       // ---------- const member functions ---------------------
+      const std::string getBranchNameFor(const std::type_info&, const char*, const char*, const char*) const;
+
       /** This function should only be called by fwlite::Handle<>*/
       void getByLabel(const std::type_info&, const char*, const char*, const char*, void*) const;
       //void getByBranchName(const std::type_info&, const char*, void*&) const;
@@ -153,6 +155,7 @@ class Event
       const std::vector<edm::BranchDescription>& getBranchDescriptions() const { 
         return branchMap_.getBranchDescriptions();
       }
+      const std::vector<std::string>& getProcessHistory() const;
 
       // ---------- static member functions --------------------
       static void throwProductNotFoundException(const std::type_info&, const char*, const char*, const char*);
@@ -169,6 +172,8 @@ class Event
       const edm::ProcessHistory& history() const;
       void updateAux(Long_t eventIndex) const;
       void fillFileIndex() const;
+
+      internal::Data& getBranchDataFor(const std::type_info&, const char*, const char*, const char*) const;
       
       edm::EDProduct const* getByProductID(edm::ProductID const&) const;
       // ---------- member data --------------------------------
@@ -185,6 +190,7 @@ class Event
       mutable std::vector<const char*> labels_;
       mutable edm::ProcessHistoryMap historyMap_;
       mutable std::vector<edm::EventProcessHistoryID> eventProcessHistoryIDs_;
+      mutable std::vector<std::string> procHistory_;
       mutable edm::EventAuxiliary aux_;
       mutable edm::FileIndex fileIndex_;
       edm::EventAuxiliary* pAux_;

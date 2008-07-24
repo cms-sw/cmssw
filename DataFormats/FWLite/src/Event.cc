@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:07:03 EDT 2007
-// $Id: Event.cc,v 1.17 2008/06/12 22:27:19 dsr Exp $
+// $Id: Event.cc,v 1.18 2008/07/17 13:32:08 chrjones Exp $
 //
 
 // system include files
@@ -282,21 +282,26 @@ void getBranchData(edm::EDProductGetter* iGetter,
   iData.lastEvent_=iEventIndex;  
 }
 
-void 
-Event::getByLabel(const std::type_info& iInfo,
+const std::vector<std::string>&
+Event::getProcessHistory() const
+{
+  procHistory_.clear();
+  const edm::ProcessHistory& h = history();
+  for (edm::ProcessHistory::const_iterator iproc = h.begin(), eproc = h.end();
+       iproc != eproc; ++iproc) {
+    procHistory_.push_back(iproc->processName());
+  }
+  return procHistory_;
+}
+
+internal::Data&
+Event::getBranchDataFor(const std::type_info& iInfo,
                   const char* iModuleLabel,
                   const char* iProductInstanceLabel,
-                  const char* iProcessLabel,
-                  void* oData) const 
+                  const char* iProcessLabel) const
 {
-  if(atEnd()) {
-    throw cms::Exception("OffEnd")<<"You have requested to get data after having gone passed the last event";
-  }
-  
   //std::cout <<iInfo.name()<<" '"<<iModuleLabel<<"' '"<< (( 0!=iProductInstanceLabel)?iProductInstanceLabel:"")<<"' '"
   //<<((0!=iProcessLabel)?iProcessLabel:"")<<"'"<<std::endl;
-  void** pOData = reinterpret_cast<void**>(oData);
-  *pOData = 0;
   //std::cout <<iInfo.name()<<std::endl;
   edm::TypeID type(iInfo);
   internal::DataKey key(type, iModuleLabel, iProductInstanceLabel, iProcessLabel);
@@ -322,8 +327,7 @@ Event::getByLabel(const std::type_info& iInfo,
       const std::string* lastLabel=0;
       //have to search in reverse order since newest are on the bottom
       const edm::ProcessHistory& h = history();
-      for (edm::ProcessHistory::const_reverse_iterator iproc = h.rbegin(),
-	   eproc = h.rend();
+      for (edm::ProcessHistory::const_reverse_iterator iproc = h.rbegin(), eproc = h.rend();
            iproc != eproc;
            ++iproc) {
         lastLabel = &(iproc->processName());
@@ -375,7 +379,7 @@ Event::getByLabel(const std::type_info& iInfo,
     }
     internal::DataKey newKey(edm::TypeID(iInfo),newModule,newProduct,newProcess);
     
-    if(0== theData.get() ) {
+    if(0 == theData.get() ) {
       //We do not already have this data as another key
       
       //Use Reflex to create an instance of the object to be used as a buffer
@@ -393,7 +397,7 @@ Event::getByLabel(const std::type_info& iInfo,
       newData->obj_ = obj;
       newData->lastEvent_=-1;
       newData->pObj_ = obj.Address();
-      newData->pProd_=0;
+      newData->pProd_ = 0;
       branch->SetAddress(&(newData->pObj_));
       theData = newData;
     }
@@ -409,14 +413,44 @@ Event::getByLabel(const std::type_info& iInfo,
       data_.insert(std::make_pair(newKey,theData));
     }
   }
+  return *(itFind->second);
+}
+
+const std::string 
+Event::getBranchNameFor(const std::type_info& iInfo,
+                  const char* iModuleLabel,
+                  const char* iProductInstanceLabel,
+                  const char* iProcessLabel) const
+{
+  internal::Data& theData = 
+    Event::getBranchDataFor(iInfo, iModuleLabel, iProductInstanceLabel, iProcessLabel);
+
+  return std::string(theData.branch_->GetName());
+}
+
+void 
+Event::getByLabel(const std::type_info& iInfo,
+                  const char* iModuleLabel,
+                  const char* iProductInstanceLabel,
+                  const char* iProcessLabel,
+                  void* oData) const 
+{
+  if(atEnd()) {
+    throw cms::Exception("OffEnd")<<"You have requested data past the last event";
+  }
+  void** pOData = reinterpret_cast<void**>(oData);
+  *pOData = 0;
+
+  internal::Data& theData = 
+    Event::getBranchDataFor(iInfo, iModuleLabel, iProductInstanceLabel, iProcessLabel);
+                      
   Long_t eventIndex = branchMap_.getEventEntry();
-  if(eventIndex != itFind->second->lastEvent_) {
+  if(eventIndex != theData.lastEvent_) {
     //haven't gotten the data for this event
     //std::cout <<" getByLabel getting data"<<std::endl;
-    getBranchData(getter_.get(), eventIndex, *(itFind->second));
+    getBranchData(getter_.get(), eventIndex, theData);
   }
-  *pOData = itFind->second->obj_.Address();
-
+  *pOData = theData.obj_.Address();
 }
 
 edm::EventID

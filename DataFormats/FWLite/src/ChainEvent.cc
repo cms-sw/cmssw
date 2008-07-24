@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jun 16 06:48:39 EDT 2007
-// $Id: ChainEvent.cc,v 1.3 2007/10/30 14:23:17 chrjones Exp $
+// $Id: ChainEvent.cc,v 1.4 2007/12/15 00:20:43 wmtan Exp $
 //
 
 // system include files
@@ -144,6 +144,39 @@ ChainEvent::switchToFile(Long64_t iIndex)
 //
 // const member functions
 //
+const std::string 
+ChainEvent::getBranchNameFor(const std::type_info& iType, 
+                             const char* iModule, 
+                             const char* iInstance, 
+                             const char* iProcess) const
+{
+  return event_->getBranchNameFor(iType,iModule,iInstance,iProcess);
+}
+
+const std::vector<edm::BranchDescription>&
+ChainEvent::getBranchDescriptions() const
+{
+  return event_->getBranchDescriptions();
+}
+
+const std::vector<std::string>&
+ChainEvent::getProcessHistory() const
+{
+  return event_->getProcessHistory();
+}
+
+edm::EventID
+ChainEvent::id() const
+{
+  return event_->id();
+}
+
+const edm::Timestamp&
+ChainEvent::time() const
+{
+  return event_->time();
+}
+
 void 
 ChainEvent::getByLabel(const std::type_info& iType, 
                        const char* iModule, 

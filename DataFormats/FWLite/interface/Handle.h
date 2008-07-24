@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:01:26 EDT 2007
-// $Id: Handle.h,v 1.6 2007/08/06 15:01:55 chrjones Exp $
+// $Id: Handle.h,v 1.7 2008/04/09 19:44:06 dsr Exp $
 //
 
 // system include files
@@ -68,7 +68,7 @@ class Handle
       void getByLabel(const fwlite::Event& iEvent, 
                       const char* iModuleLabel,
                       const char* iProductInstanceLabel = 0,
-                      const char* iProcessLabel=0) {
+                      const char* iProcessLabel = 0) {
         TempWrapT* temp;
         void* pTemp = &temp;
         iEvent.getByLabel(TempWrapT::typeInfo(),
@@ -76,7 +76,7 @@ class Handle
                           iProductInstanceLabel,
                           iProcessLabel,
                           pTemp);
-data_ = temp->product();
+        data_ = temp->product();
         if(data_==0) {
           iEvent.throwProductNotFoundException(TempWrapT::typeInfo(),
                                                iModuleLabel,
@@ -85,26 +85,46 @@ data_ = temp->product();
         }
       }
 
-  void getByLabel(const fwlite::ChainEvent& iEvent, 
-                  const char* iModuleLabel,
-                  const char* iProductInstanceLabel = 0,
-                  const char* iProcessLabel=0) {
-    TempWrapT* temp;
-    void* pTemp = &temp;
-    iEvent.getByLabel(TempWrapT::typeInfo(),
-                      iModuleLabel,
-                      iProductInstanceLabel,
-                      iProcessLabel,
-                      pTemp);
-    data_ = temp->product();
-    if(data_==0) {
-      iEvent.throwProductNotFoundException(TempWrapT::typeInfo(),
-                                           iModuleLabel,
-                                           iProductInstanceLabel,
-                                           iProcessLabel);
+      void getByLabel(const fwlite::ChainEvent& iEvent, 
+                      const char* iModuleLabel,
+                      const char* iProductInstanceLabel = 0,
+                      const char* iProcessLabel = 0) {
+      TempWrapT* temp;
+      void* pTemp = &temp;
+      iEvent.getByLabel(TempWrapT::typeInfo(),
+                        iModuleLabel,
+                        iProductInstanceLabel,
+                        iProcessLabel,
+                        pTemp);
+      data_ = temp->product();
+      if(data_==0) {
+        iEvent.throwProductNotFoundException(TempWrapT::typeInfo(),
+                                             iModuleLabel,
+                                             iProductInstanceLabel,
+                                             iProcessLabel);
+      }
     }
-  }
-  
+
+    const std::string getBranchNameFor(const fwlite::Event& iEvent, 
+                                       const char* iModuleLabel,
+                                       const char* iProductInstanceLabel = 0,
+                                       const char* iProcessLabel = 0) {
+      return iEvent.getBranchNameFor(TempWrapT::typeInfo(),
+                                     iModuleLabel,
+                                     iProductInstanceLabel,
+                                     iProcessLabel);
+    }
+
+    const std::string getBranchNameFor(const fwlite::ChainEvent& iEvent, 
+                                       const char* iModuleLabel,
+                                       const char* iProductInstanceLabel = 0,
+                                       const char* iProcessLabel = 0) {
+      return iEvent.getBranchNameFor(TempWrapT::typeInfo(),
+                                     iModuleLabel,
+                                     iProductInstanceLabel,
+                                     iProcessLabel);
+    }
+
    private:
       //Handle(const Handle&); // stop default
 
