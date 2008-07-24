@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/07/02 16:32:48 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/07/02 16:50:28 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -72,6 +72,7 @@ double DTOccupancyPoint::deltaRMS(const DTOccupancyPoint& anotherPoint) const {
 
 
 bool DTOccupancyPoint::operator==(const DTOccupancyPoint& other) const {
+  // FIXME: should add the layer ID? not clear
   if(theMean == other.mean() && theRMS == other.rms()) return true;
   return false;
 }
@@ -86,6 +87,7 @@ bool DTOccupancyPoint::operator!=(const DTOccupancyPoint& other) const {
 
 
 bool DTOccupancyPoint::operator<(const DTOccupancyPoint& other) const {
+  if(theMean == other.mean() && theRMS == other.rms()) return false;
   if(distance(DTOccupancyPoint()) < other.distance(DTOccupancyPoint())) return true;
   return false;
 }
