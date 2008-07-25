@@ -111,8 +111,8 @@ void HLTMuonGenericRate::analyze( const Event & event )
   // Get all generated and reconstructed muons, fill eta and phi histograms,
   // and save the highest pt from each collection
 
-  bool foundRefGenMuon = false;
-  bool foundRefRecMuon = false;
+  bool foundGenMuon = false;
+  bool foundRecMuon  = false;
 
   double genMuonPt = -1;
   double recMuonPt = -1;
@@ -135,7 +135,7 @@ void HLTMuonGenericRate::analyze( const Event & event )
 	  hMCetanor->Fill((*genIterator)->momentum().eta());
 	  hMCphinor->Fill((*genIterator)->momentum().phi());
 	  if ( pt > genMuonPt) {
-	    foundRefGenMuon = true;
+	    foundGenMuon = true;
 	    genMuonPt = pt;
 	  }
 	}
@@ -156,15 +156,15 @@ void HLTMuonGenericRate::analyze( const Event & event )
 	hRECOetanor->Fill( muon->eta() );
 	hRECOphinor->Fill( muon->phi() );
 	if ( pt > recMuonPt ) {
-	  foundRefRecMuon = true;
+	  foundRecMuon  = true;
 	  recMuonPt = pt;
 	}
       }
     }
   } 
   
-  if ( foundRefGenMuon ) hMCptnor->Fill(genMuonPt, thisEventWeight);
-  if ( foundRefRecMuon ) hRECOptnor->Fill(recMuonPt, thisEventWeight);
+  if ( foundGenMuon ) hMCMaxPt->Fill(genMuonPt, thisEventWeight);
+  if ( foundRecMuon ) hRECOMaxPt->Fill(recMuonPt, thisEventWeight);
 
 
   //////////////////////////////////////////////////////////////////////////
@@ -253,12 +253,12 @@ void HLTMuonGenericRate::analyze( const Event & event )
       }
     }
 
-    if ( nL1FoundRef >= theNumberOfObjects ){
-      if ( genMuonPt > 0 ) hL1MCeff->Fill(genMuonPt, thisEventWeight);
-      if ( recMuonPt > 0 ) hL1RECOeff->Fill(recMuonPt, thisEventWeight);
-      hSteps->Fill(1.);  
-    }
+  }
 
+  if ( nL1FoundRef >= theNumberOfObjects ){
+    if ( foundGenMuon ) hMCMaxPtPassL1->Fill(genMuonPt, thisEventWeight);
+    if ( foundRecMuon ) hRECOMaxPtPassL1->Fill(recMuonPt, thisEventWeight);
+    hSteps->Fill(1.);  
   }
 
 
@@ -279,8 +279,8 @@ void HLTMuonGenericRate::analyze( const Event & event )
       }
 
       if ( nFound >= theNumberOfObjects ){
-	if ( genMuonPt > 0 ) hHLTMCeff[moduleNum]->Fill( genMuonPt, thisEventWeight );
-	if ( recMuonPt > 0 ) hHLTRECOeff[moduleNum]->Fill( recMuonPt, thisEventWeight );
+	if ( genMuonPt > 0 ) hHLTMCMaxPtPass[moduleNum]->Fill( genMuonPt, thisEventWeight );
+	if ( recMuonPt > 0 ) hHLTRECOMaxPtPass[moduleNum]->Fill( recMuonPt, thisEventWeight );
 	hSteps->Fill( 2 + moduleNum ); 
       }
 
@@ -465,16 +465,16 @@ void HLTMuonGenericRate::BookHistograms(){
     dbe_->setCurrentFolder( newFolder.Data() );
     hL1pt = BookIt( "pt_" + myLabel, "L1 Pt distribution label=" + myLabel,  theNbins, thePtMin, thePtMax);
     if (useMuonFromGenerator){
-      hL1MCeff  = BookIt( "MCNumTurnOn_" + myLabel, "L1 max ref pt efficiency label=" + myLabel,  theNbins, thePtMin, thePtMax);
-      hMCptnor  = BookIt( "MCptNorm_" + myLabel, "L1 max ref pt distribution label=" + myLabel,  theNbins, thePtMin, thePtMax);
+      hMCMaxPtPassL1  = BookIt( "MCMaxPtPass_" + myLabel, "L1 max ref pt efficiency label=" + myLabel,  theNbins, thePtMin, thePtMax);
+      hMCMaxPt  = BookIt( "MCMaxPt_" + myLabel, "L1 max ref pt distribution label=" + myLabel,  theNbins, thePtMin, thePtMax);
       hMCetanor = BookIt( "MCetaNorm_" + myLabel, "Norm  MC Eta ",  50, -2.1, 2.1);
       hMCphinor = BookIt( "MCphiNorm_" + myLabel, "Norm  MC #Phi",  50, -3.15, 3.15);
       hL1etaMC  = BookIt( "MCNumeta_" + myLabel, "L1 Eta distribution label=" + myLabel,  50, -2.1, 2.1);
       hL1phiMC  = BookIt( "MCNumphi_" + myLabel, "L1 Phi distribution label=" + myLabel,  50, -3.15, 3.15);
     }
     if (useMuonFromReco){
-      hL1RECOeff  = BookIt( "RECONumTurnOn_" + myLabel, "L1 max ref pt efficiency label=" + myLabel,  theNbins, thePtMin, thePtMax);
-      hRECOptnor  = BookIt( "RECOptNorm_" + myLabel, "L1 max reco ref pt distribution label=" + myLabel,  theNbins, thePtMin, thePtMax);
+      hRECOMaxPtPassL1  = BookIt( "RECOMaxPtPass_" + myLabel, "L1 max ref pt efficiency label=" + myLabel,  theNbins, thePtMin, thePtMax);
+      hRECOMaxPt  = BookIt( "RECOMaxPt_" + myLabel, "L1 max reco ref pt distribution label=" + myLabel,  theNbins, thePtMin, thePtMax);
       hRECOetanor = BookIt( "RECOetaNorm_" + myLabel, "Norm  RECO Eta ",  50, -2.1, 2.1);
       hRECOphinor = BookIt( "RECOphiNorm_" + myLabel, "Norm  RECO #Phi",  50, -3.15, 3.15);
       hL1etaRECO  = BookIt( "RECONumeta_" + myLabel, "L1 Eta distribution label=" + myLabel,  50, -2.1, 2.1);
@@ -499,14 +499,14 @@ void HLTMuonGenericRate::BookHistograms(){
       hHLTpt.push_back(BookIt( "pt_" + myLabel, "Pt distribution label=" + myLabel,  theNbins, thePtMin, thePtMax));
       if (useMuonFromGenerator){
 	// histTitle = "Turn On curve, label=" + myLabel + ",  L=" + theLuminosity*1.e33 + " (cm^{-2} s^{-1})");
-	hHLTMCeff.push_back(BookIt( "MCNumTurnOn_" + myLabel, "Turn On curve, label=" + myLabel, theNbins, thePtMin, thePtMax));   
+	hHLTMCMaxPtPass.push_back(BookIt( "MCMaxPtPass_" + myLabel, "Turn On curve, label=" + myLabel, theNbins, thePtMin, thePtMax));   
 	hHLTetaMC.push_back(BookIt( "MCNumeta_" + myLabel, "Gen Eta Efficiency label=" + myLabel,  50, -2.1, 2.1));
 	hHLTphiMC.push_back(BookIt( "MCNumphi_" + myLabel, "Gen Phi Efficiency label=" + myLabel,  50, -3.15, 3.15));
       }
       if (useMuonFromReco){
 	// histTitle = "Turn On curve, label=, L=%.2E (cm^{-2} s^{-1})", myLabel, theLuminosity*1.e33);
 	histName = "RECOTurnOn_" + myLabel;
-	hHLTRECOeff.push_back(BookIt( "RECONumTurnOn_" + myLabel, "Turn On curve, label=" + myLabel, theNbins, thePtMin, thePtMax));     
+	hHLTRECOMaxPtPass.push_back(BookIt( "RECOMaxPtPass_" + myLabel, "Turn On curve, label=" + myLabel, theNbins, thePtMin, thePtMax));     
 	hHLTetaRECO.push_back(BookIt( "RECONumeta_" + myLabel, "Reco Eta Efficiency label=" + myLabel,  50, -2.1, 2.1));
 	hHLTphiRECO.push_back(BookIt( "RECONumphi_" + myLabel, "Reco Phi Efficiency label=" + myLabel,  50, -3.15, 3.15));
       }
@@ -518,12 +518,12 @@ void HLTMuonGenericRate::BookHistograms(){
     hL1rate->setAxisTitle("90% Muon Pt threshold (GeV)");
     hL1rate->setAxisTitle("Rate (Hz)",2);
     if (useMuonFromGenerator){ 
-      hL1MCeff->setAxisTitle("Generated Muon PtMax (GeV)");
-      hL1MCeff->setAxisTitle("Events Passing L1",2);
+      hMCMaxPtPassL1->setAxisTitle("Generated Muon p_{T}^{Max} (GeV)");
+      hMCMaxPtPassL1->setAxisTitle("Events Passing L1",2);
     }
     if (useMuonFromReco){
-      hL1RECOeff->setAxisTitle("Reconstructed Muon PtMax (GeV)");
-      hL1RECOeff->setAxisTitle("Events Passing L1",2);
+      hRECOMaxPtPassL1->setAxisTitle("Reconstructed Muon p_{T}^{Max} (GeV)");
+      hRECOMaxPtPassL1->setAxisTitle("Events Passing L1",2);
     }
 
     hL1pt->setAxisTitle("Muon Pt (GeV)");
@@ -550,16 +550,16 @@ void HLTMuonGenericRate::BookHistograms(){
       hHLTrate[i]->setAxisTitle("90% Muon Pt threshold (GeV)",1);
       hHLTpt[i]->setAxisTitle("HLT Muon Pt (GeV)",1);
       if (useMuonFromGenerator){
-	hHLTMCeff[i]->setAxisTitle("Generated Muon PtMax (GeV)",1);
-	hHLTMCeff[i]->setAxisTitle("Events Passing Trigger",2);
+	hHLTMCMaxPtPass[i]->setAxisTitle("Generated Muon PtMax (GeV)",1);
+	hHLTMCMaxPtPass[i]->setAxisTitle("Events Passing Trigger",2);
 	hHLTetaMC[i]->setAxisTitle("Gen Muon #eta",1);
 	hHLTetaMC[i]->setAxisTitle("Events Passing Trigger",2);
 	hHLTphiMC[i]->setAxisTitle("Gen Muon #phi",1);
 	hHLTphiMC[i]->setAxisTitle("Events Passing Trigger",2);
       }
       if (useMuonFromReco){
-	hHLTRECOeff[i]->setAxisTitle("Reconstructed Muon PtMax (GeV)",1);
-	hHLTRECOeff[i]->setAxisTitle("Events Passing Trigger",2);
+	hHLTRECOMaxPtPass[i]->setAxisTitle("Reconstructed Muon PtMax (GeV)",1);
+	hHLTRECOMaxPtPass[i]->setAxisTitle("Events Passing Trigger",2);
 	hHLTetaRECO[i]->setAxisTitle("Reco Muon #eta",1);	
 	hHLTetaRECO[i]->setAxisTitle("Events Passing Trigger",2);
 	hHLTphiRECO[i]->setAxisTitle("Reco Muon #phi",1);
