@@ -6,7 +6,8 @@ MeasurementTracker = cms.ESProducer("MeasurementTrackerESProducer",
 
     OnDemand = cms.bool(False),
     UseStripAPVFiberQualityDB = cms.bool(True), ## read APV and Fiber status from SiStripQuality
-
+    MaskBadAPVFibers          = cms.bool(False),## if set to true, clusters entirely on bad APV and Fibers are ignored
+                                                ## (UseStripAPVFiberQualityDB must also be true for this to work)
     DebugStripModuleQualityDB = cms.untracked.bool(False), ## dump out info om module status
 
     ComponentName = cms.string(''),

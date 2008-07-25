@@ -74,6 +74,9 @@ MeasurementTrackerESProducer::produce(const CkfComponentsRecord& iRecord)
     if (pset_.getUntrackedParameter<bool>("DebugStripAPVFiberQualityDB")) {
         qualityDebugFlags += MeasurementTracker::BadAPVFibers;
     }
+    if (pset_.existsAs<bool>("MaskBadAPVFibers") && pset_.getParameter<bool>("MaskBadAPVFibers")) {
+        qualityFlags += MeasurementTracker::MaskBad128StripBlocks;
+    }
   }
   if (pset_.getParameter<bool>("UseStripStripQualityDB")) {
     qualityFlags += MeasurementTracker::BadStrips;

@@ -397,6 +397,7 @@ void MeasurementTracker::initializeStripStatus(const SiStripQuality *quality, in
                 foff++;
              }
           }
+          (*i)->setMaskBad128StripBlocks(qualityFlags & MaskBad128StripBlocks != 0);
        } 
        std::vector<TkStripMeasurementDet::BadStripBlock> &badStrips = (*i)->getBadStripBlocks();
        badStrips.clear();
