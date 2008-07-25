@@ -24,6 +24,61 @@ draw(string fname1,string fname2,string v1,string v2,string path)
 }
 
 
+
+
+L1Draw(string fname1,string fname2,string v1,string v2,string folder)
+{
+  TCanvas *l1 = new TCanvas;
+  l1->Divide(4,5);
+  l1->cd(1);
+  DrawHistos(fname1,fname2,v1,v2,folder,"L1TauEt","L1 E_{t}","n #tau cands","L1 Tau inclusive E_{t}",0,false);
+  l1->cd(2);
+  DrawHistos(fname1,fname2,v1,v2,folder,"L1TauEta","L1 #eta","n #tau cands","L1 Tau inclusive #eta",0,false);
+  l1->cd(3);
+  DrawHistos(fname1,fname2,v1, v2,folder,"L1TauPhi","L1 #phi","n #tau cands","L1 Tau inclusive #phi",0,false);
+  l1->cd(4);
+  DrawHistos(fname1,fname2, v1, v2,folder,"L1Tau1Et","L1 E_{t}","n #tau cands","LeadingL1 Tau  E_{t}",0,false);
+  l1->cd(5);
+  DrawHistos(fname1,fname2, v1, v2,folder,"L1Tau1Eta","L1 #eta","n #tau cands","Leading L1 Tau  #eta",0,false);
+  l1->cd(6);
+  DrawHistos(fname1,fname2, v1, v2,folder,"L1Tau1Phi","L1 #phi","n #tau cands","Leading L1Tau  #phi",0,false);
+  l1->cd(7);
+  DrawHistos(fname1,fname2, v1, v2,folder,"L1Tau2Et","L1 E_{t}","n #tau cands","2nd L1 Tau  E_{t}",0,false);
+  l1->cd(8);
+  DrawHistos(fname1,fname2, v1, v2,folder,"L1Tau2Eta","L1 #eta","n #tau cands","2nd  L1 Tau  #eta",0,false);
+  l1->cd(9);
+  DrawHistos(fname1,fname2, v1, v2,folder,"L1Tau2Phi","L1 #phi","n #tau cands","2nd  L1Tau  #phi",0,false);
+  l1->cd(10);
+  DrawHistos(fname1,fname2, v1, v2,folder,"L1minusRefTauEt","#Delta E_{t}","n #tau cands","L1 Tau E_{t} - Ref E_{t}",0,false);
+  l1->cd(11);
+  DrawHistos(fname1,fname2, v1, v2,folder,"L1minusMCoverRefTauEt","#Delta E_{t}/E_{t}","n #tau cands","(L1 Tau E_{t} - Ref E_{t})/RefE_{t}",0,false);
+  l1->cd(12);
+  //Single Object Efficiency
+
+  DrawEffHistos(fname1,fname2, v1, v2,folder,"L1RefMatchedTauEt","RefTauHadEt","Ref E_{t}","Efficiency","Regional Tau Efficiency vs E_{t}");
+  l1->cd(13);
+  DrawEffHistos(fname1,fname2, v1, v2,folder,"L1RefMatchedTauEta","RefTauHadEta","Ref #eta","Efficiency","Regional Tau Efficiency vs #eta");
+  l1->cd(14);
+  DrawEffHistos(fname1,fname2, v1, v2,folder,"L1RefMatchedTauPhi","RefTauHadPhi","Ref #phi","Efficiency","Regional Tau Efficiency vs #phi");
+  l1->cd(15);
+  DrawEffHistos(fname1,fname2, v1, v2,folder,"L1RefMatchedTauMuonEt","RefTauMuonEt","Ref E_{t}","Efficiency","Regional Muon Efficiency vs E_{t}");
+  l1->cd(16);
+  DrawEffHistos(fname1,fname2, v1, v2,folder,"L1RefMatchedTauMuonEta","RefTauMuonEta","Ref #eta","Efficiency","Regional Muon Efficiency vs #eta");
+  l1->cd(17);
+  DrawEffHistos(fname1,fname2, v1, v2,folder,"L1RefMatchedTauMuonPhi","RefTauMuonPhi","Ref #phi","Efficiency","Regional Muon Efficiency vs #phi");
+  l1->cd(18);
+  DrawEffHistos(fname1,fname2, v1, v2,folder,"L1RefMatchedTauElecEt","RefTauElecEt","Ref E_{t}","Efficiency","Regional Eg Efficiency vs E_{t}");
+  l1->cd(19);
+  DrawEffHistos(fname1,fname2, v1, v2,folder,"L1RefMatchedTauElecEta","RefTauElecEta","Ref #eta","Efficiency","Regional Eg Efficiency vs #eta");
+  l1->cd(20);
+  DrawEffHistos(fname1,fname2, v1, v2,folder,"EffRefMatchedTauElecPhi","RefTauElecPhi","Ref #phi","Efficiency","Regional Eg Efficiency vs #phi");
+
+  //Path Threshold Efficiency
+
+
+
+}
+
 L2Val(string fname1,string fname2,string v1,string v2,string folder)
 {
 
@@ -65,6 +120,7 @@ L3Val(string fname1,string fname2,string v1,string v2,string folder)
   GetHistos(fname1,fname2,v1,v2,folder,"L3jetEta","L3 Jet #eta","n. #tau cands.","L3 Jet #eta",0,false );
   // GetHistos(fname1,fname2,v1,v2,folder,"L3EtEff","L3 Jet E_{t} [GeV]","Efficiency","L3 Efficiency vs E_{t}",0,true );
   // GetHistos(fname1,fname2,v1,v2,folder,"L3EtaEff","L3 Efficiency vs #eta","n. #tau cands.","Reco Jet #eta",0,true );
+
   GetHistos(fname1,fname2,v1,v2,folder,"L3nTrksInJet","L3 Number of  Silicon Tracks","n. #tau cands.","# Si Tracks in L3 Jet",0,false );
   GetHistos(fname1,fname2,v1,v2,folder,"L3nQTrksInJet","L3 Number of Quality Si Tracks","n. #tau cands.","# Quality Si. Tracks in L3 Jet",0,false );
   GetHistos(fname1,fname2,v1,v2,folder,"L3signalLeadTrkPt","L3 Lead Track P_{t}[GeV]","n. #tau cands.","Lead Track P_{t} [GeV]",0,false );
