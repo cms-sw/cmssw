@@ -30,6 +30,7 @@ L1GctInternHFData L1GctInternHFData::fromConcBitCounts(const uint16_t capBlock,
   }
 }
 
+
 /// get the et sums
 uint16_t L1GctInternHFData::et(unsigned const i) {
   return (data_<<(i*8)) & 0xff;

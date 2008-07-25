@@ -18,9 +18,7 @@ class L1GctInternHFData {
 
   /// et sum type - not clear this is required
   enum L1GctInternHFDataType { conc_hf_ring_et_sums,
-			       conc_hf_bit_counts,
-			       gt_hf_et_sums,
-			       gt_hf_bit_counts
+			       conc_hf_bit_counts
   };
   
   /// default constructor (for vector initialisation etc.)
@@ -60,7 +58,7 @@ class L1GctInternHFData {
   /// get the actual data
 
   /// is this ring sums or bit counts?
-  bool isRingSums() const { return (type_ == conc_hf_ring_et_sums || type_ == gt_hf_et_sums); }
+  bool isRingSums() const { return (type_ == conc_hf_ring_et_sums); }
 
   /// get the raw data
   uint32_t raw() const { return data_; }
