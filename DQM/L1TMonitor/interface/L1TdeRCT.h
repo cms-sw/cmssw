@@ -7,11 +7,14 @@
  *
  * Version 0.0. A.Savin 2008/04/26
  *
- * $Date: 2008/05/06 18:04:02 $
- * $Revision: 1.4 $
+ * $Date: 2008/06/30 07:34:36 $
+ * $Revision: 1.5 $
  * \author P. Wittich
- * $Id: L1TdeRCT.h,v 1.4 2008/05/06 18:04:02 nuno Exp $
+ * $Id: L1TdeRCT.h,v 1.5 2008/06/30 07:34:36 asavin Exp $
  * $Log: L1TdeRCT.h,v $
+ * Revision 1.5  2008/06/30 07:34:36  asavin
+ * TPGs inculded in the RCT code
+ *
  * Revision 1.4  2008/05/06 18:04:02  nuno
  * cruzet update
  *
@@ -96,6 +99,75 @@ private:
   // ----------member data ---------------------------
   DQMStore * dbe;
 
+  // begin region information
+  MonitorElement *rctRegEmulOcc1D_;
+  MonitorElement *rctRegMatchedOcc1D_;
+  MonitorElement *rctRegUnmatchedDataOcc1D_;
+  MonitorElement *rctRegUnmatchedEmulOcc1D_;
+
+  MonitorElement *rctRegEff1D_;
+  MonitorElement *rctRegIneff1D_;
+  MonitorElement *rctRegOvereff1D_;
+
+  MonitorElement *rctRegDataOcc2D_;
+  MonitorElement *rctRegEmulOcc2D_;
+  MonitorElement *rctRegMatchedOcc2D_;
+  MonitorElement *rctRegUnmatchedDataOcc2D_;
+  MonitorElement *rctRegUnmatchedEmulOcc2D_;
+  MonitorElement *rctRegDeltaEt2D_;
+  MonitorElement *rctRegDeltaEtOcc2D_;
+
+  MonitorElement *rctRegEff2D_;
+  MonitorElement *rctRegIneff2D_;
+  MonitorElement *rctRegOvereff2D_;
+  MonitorElement *rctRegSpEff2D_;
+
+  // end region information
+
+  // begin bit information
+  MonitorElement *rctBitEmulOverFlow2D_;
+  MonitorElement *rctBitDataOverFlow2D_;
+  MonitorElement *rctBitMatchedOverFlow2D_;
+  MonitorElement *rctBitUnmatchedEmulOverFlow2D_;
+  MonitorElement *rctBitUnmatchedDataOverFlow2D_;
+  MonitorElement *rctBitOverFlowEff2D_;
+  MonitorElement *rctBitOverFlowIneff2D_;
+  MonitorElement *rctBitOverFlowOvereff2D_;
+  MonitorElement *rctBitEmulTauVeto2D_;
+  MonitorElement *rctBitDataTauVeto2D_;
+  MonitorElement *rctBitMatchedTauVeto2D_;
+  MonitorElement *rctBitUnmatchedEmulTauVeto2D_;
+  MonitorElement *rctBitUnmatchedDataTauVeto2D_;
+  MonitorElement *rctBitTauVetoEff2D_;
+  MonitorElement *rctBitTauVetoIneff2D_;
+  MonitorElement *rctBitTauVetoOvereff2D_;
+  MonitorElement *rctBitEmulMip2D_;
+  MonitorElement *rctBitDataMip2D_;
+  MonitorElement *rctBitMatchedMip2D_;
+  MonitorElement *rctBitUnmatchedEmulMip2D_;
+  MonitorElement *rctBitUnmatchedDataMip2D_;
+  MonitorElement *rctBitMipEff2D_;
+  MonitorElement *rctBitMipIneff2D_;
+  MonitorElement *rctBitMipOvereff2D_;
+  MonitorElement *rctBitEmulQuiet2D_;
+  MonitorElement *rctBitDataQuiet2D_;
+  MonitorElement *rctBitMatchedQuiet2D_;
+  MonitorElement *rctBitUnmatchedEmulQuiet2D_;
+  MonitorElement *rctBitUnmatchedDataQuiet2D_;
+  MonitorElement *rctBitQuietEff2D_;
+  MonitorElement *rctBitQuietIneff2D_;
+  MonitorElement *rctBitQuietOvereff2D_;
+  MonitorElement *rctBitEmulFineGrain2D_;
+  MonitorElement *rctBitDataFineGrain2D_;
+  MonitorElement *rctBitMatchedFineGrain2D_;
+  MonitorElement *rctBitUnmatchedEmulFineGrain2D_;
+  MonitorElement *rctBitUnmatchedDataFineGrain2D_;
+  MonitorElement *rctBitFineGrainEff2D_;
+  MonitorElement *rctBitFineGrainIneff2D_;
+  MonitorElement *rctBitFineGrainOvereff2D_;
+
+  // end bit information
+
   MonitorElement* rctInputTPGEcalOcc_ ;
   MonitorElement* rctInputTPGHcalOcc_ ;
   MonitorElement* rctInputTPGHcalSample_ ;
@@ -152,6 +224,12 @@ private:
   MonitorElement*  rctNisoIneffChannel_[396] ;
   MonitorElement*  rctNisoOvereffChannel_[396] ;
 
+  // begin region channel information
+  MonitorElement* rctRegEffChannel_[396];
+  MonitorElement* rctRegIneffChannel_[396];
+  MonitorElement* rctRegOvereffChannel_[396];
+  
+  // end region channel information
 
   int nev_; // Number of events processed
   std::string outputFile_; //file name for ROOT ouput
