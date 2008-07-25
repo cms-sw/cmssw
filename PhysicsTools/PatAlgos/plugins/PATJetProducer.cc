@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.cc,v 1.20 2008/06/24 22:58:24 gpetrucc Exp $
+// $Id: PATJetProducer.cc,v 1.21 2008/07/08 21:24:50 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATJetProducer.h"
@@ -247,11 +247,15 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
         if (addDiscriminators_) {
             for (size_t k=0; k<jetDiscriminators.size(); ++k) {
                 const edm::Handle<edm::ValueMap<float> > & jetDiscHandle = jetDiscriminators[k];
-                const std::string & label = jetDiscHandle.provenance()->productInstanceName();
+                std::pair<std::string,float> pairDiscri(jetDiscHandle.provenance()->productInstanceName(), -1000.0);
+                std::string::size_type pos = pairDiscri.first.find("JetTags"); 
+                if ((pos !=  std::string::npos) && (pos != pairDiscri.first.length() - 7)) {
+                    pairDiscri.first.erase(pos+7); // trim a tail after "JetTags"
+                }
                 if ( discriminatorNames_.empty() || 
-                        (discriminatorNames_.find(label) != discriminatorNames_.end()) ) {
+                        (discriminatorNames_.find(pairDiscri.first) != discriminatorNames_.end()) ) {
                     if (jetDiscHandle->contains(jetRef.id())) {
-                        std::pair<std::string,float> pairDiscri(label, (*jetDiscHandle)[jetRef]);
+                        pairDiscri.second = (*jetDiscHandle)[jetRef];
                         ajet.addBDiscriminatorPair(pairDiscri);
                     }
                 }
@@ -260,7 +264,11 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
         if (addTagInfoRefs_) {
             for (size_t k=0; k<jetTagInfos.size(); ++k) {
                 const edm::Handle<edm::ValueMap<edm::Ptr<reco::BaseTagInfo> > > & jetTagInfoHandle = jetTagInfos[k];
-                const std::string & label = jetTagInfoHandle.provenance()->productInstanceName();
+                std::string label = jetTagInfoHandle.provenance()->productInstanceName();
+                std::string::size_type pos = label.find("TagInfos");
+                if ((pos !=  std::string::npos) && (pos != label.length() - 8)) {
+                    label.erase(pos+8); // trim a tail after "TagInfos"
+                }
                 if ( tagInfoNames_.empty() || 
                         (tagInfoNames_.find(label) != tagInfoNames_.end()) ) {
                     if (jetTagInfoHandle->contains(jetRef.id())) {
