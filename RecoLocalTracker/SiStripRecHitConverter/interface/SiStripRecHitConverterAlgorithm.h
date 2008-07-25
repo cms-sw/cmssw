@@ -54,6 +54,13 @@ class SiStripRecHitConverterAlgorithm
     void match(SiStripMatchedRecHit2DCollection & outmatched,SiStripRecHit2DCollection & outrphi, SiStripRecHit2DCollection & outstereo,const TrackerGeometry& tracker, const SiStripRecHitMatcher & matcher,LocalVector trackdirection) const;
       
   edm::ParameterSet conf_;
+
+    inline bool isMasked(const SiStripCluster &cluster, bool bad128StripBlocks[6]) const {
+        return bad128StripBlocks[cluster.firstStrip() >> 7] ||
+               bad128StripBlocks[(cluster.firstStrip()+cluster.amplitudes().size()) >> 7];
+    }
+    void   fillBad128StripBlocks(const SiStripQuality &quality, const uint32_t &detid, bool bad128StripBlocks[6]) const ;
+    
 };
 
 #endif

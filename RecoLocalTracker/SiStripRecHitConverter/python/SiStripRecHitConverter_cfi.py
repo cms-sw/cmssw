@@ -12,7 +12,8 @@ siStripMatchedRecHits = cms.EDFilter("SiStripRecHitConverter",
     VerbosityLevel = cms.untracked.int32(1),
     rphiRecHits = cms.string('rphiRecHit'),
     useSiStripQuality = cms.bool(False),
-    siStripQualityLabel = cms.string('')
+    siStripQualityLabel = cms.string(''),
+    MaskBadAPVFibers = cms.bool(False),
 )
 
 

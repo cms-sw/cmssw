@@ -46,6 +46,8 @@ void SiStripRecHitConverterAlgorithm::run(edm::Handle<edmNew::DetSetVector<SiStr
 
   int nmono=0;
   int nstereo=0;
+  bool maskBad128StripBlocks, bad128StripBlocks[6];
+  maskBad128StripBlocks = ((quality != 0) && conf_.existsAs<bool>("MaskBadAPVFibers") && conf_.getParameter<bool>("MaskBadAPVFibers"));
 
   std::vector<SiStripRecHit2D> collectorrphi, collectorstereo; 
   for (edmNew::DetSetVector<SiStripCluster>::const_iterator DSViter=inputhandle->begin(); DSViter!=inputhandle->end();DSViter++ ) {//loop over detectors
@@ -59,11 +61,14 @@ void SiStripRecHitConverterAlgorithm::run(edm::Handle<edmNew::DetSetVector<SiStr
       const StripGeomDetUnit * stripdet=(const StripGeomDetUnit*)tracker.idToDetUnit(detId);
       if(stripdet==0)edm::LogWarning("SiStripRecHitConverter")<<"Detid="<<id<<" not found, trying next one";
       else if ((quality == 0) || quality->IsModuleUsable(detId)) { 
+        if (maskBad128StripBlocks) fillBad128StripBlocks(*quality, detId, bad128StripBlocks);
         edmNew::DetSet<SiStripCluster>::const_iterator begin=DSViter->begin();
         edmNew::DetSet<SiStripCluster>::const_iterator end  =DSViter->end();
         
         StripSubdetector specDetId=StripSubdetector(id);
         for(edmNew::DetSet<SiStripCluster>::const_iterator iter=begin;iter!=end;++iter){//loop over the clusters of the detector
+          // if masking is on, check that the cluster is not masked
+          if (maskBad128StripBlocks && isMasked(*iter, bad128StripBlocks)) continue;
 
           //calculate the position and error in local coordinates
           StripClusterParameterEstimator::LocalValues parameters=parameterestimator.localParameters(*iter,*stripdet);
@@ -111,8 +116,13 @@ void SiStripRecHitConverterAlgorithm::run(edm::Handle<edm::RefGetter<SiStripClus
  
   int nmono=0;
   int nstereo=0;
+  bool maskBad128StripBlocks, bad128StripBlocks[6];
+  maskBad128StripBlocks = ((quality != 0) && conf_.existsAs<bool>("MaskBadAPVFibers") && conf_.getParameter<bool>("MaskBadAPVFibers"));
+
   edm::OwnVector<SiStripRecHit2D> collectorrphi; 
   edm::OwnVector<SiStripRecHit2D> collectorstereo;
+
+  DetId lastId; bool goodDet = true;
  
   edm::RefGetter<SiStripCluster>::const_iterator iregion = refGetterhandle->begin();
   for(;iregion!=refGetterhandle->end();++iregion) {
@@ -129,8 +139,18 @@ void SiStripRecHitConverterAlgorithm::run(edm::Handle<edm::RefGetter<SiStripClus
 	  <<"Detid="
 	  <<icluster->geographicalId()
 	  <<" not found";
-      else if ((quality == 0) || quality->IsModuleUsable(detId)) { 
-        
+       else {
+        if (quality != 0) {
+          if (detId != lastId) {
+                lastId = detId;
+                goodDet = quality->IsModuleUsable(detId);
+                if (goodDet) fillBad128StripBlocks(*quality, detId, bad128StripBlocks);
+          }
+          if (!goodDet) continue;
+          // if masking is on, check that the cluster is not masked
+          if (maskBad128StripBlocks && isMasked(*icluster, bad128StripBlocks)) continue;
+        } 
+
         StripSubdetector specDetId=StripSubdetector(icluster->geographicalId());
 	StripClusterParameterEstimator::LocalValues parameters=parameterestimator.localParameters(*icluster,*stripdet);
 	edm::Ref< edm::LazyGetter<SiStripCluster>, SiStripCluster, edm::FindValue<SiStripCluster> > cluster =
@@ -236,4 +256,17 @@ void SiStripRecHitConverterAlgorithm::match(SiStripMatchedRecHit2DCollection & o
     << "found\n"	 
     << nmatch 
     << "  matched RecHits\n";
+}
+void SiStripRecHitConverterAlgorithm::fillBad128StripBlocks(const SiStripQuality &quality, const uint32_t &detid, bool bad128StripBlocks[6]) const {
+    short badApvs   = quality.getBadApvs(detid);
+    short badFibers = quality.getBadFibers(detid);
+    for (int j = 0; j < 6; j++) {
+        bad128StripBlocks[j] = (badApvs & (1 << j));
+    }
+    for (int j = 0; j < 3; j++) {
+        if (badFibers & (1 << j)) {
+            bad128StripBlocks[2*j+0] = true;
+            bad128StripBlocks[2*j+1] = true;
+        }
+    }
 }
