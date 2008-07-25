@@ -16,16 +16,18 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jul 11 12:09:38 EDT 2008
-// $Id: CmsShowTaskExecutorBase.h,v 1.1 2008/07/12 00:32:58 chrjones Exp $
+// $Id: CmsShowTaskExecutorBase.h,v 1.2 2008/07/13 21:56:08 chrjones Exp $
 //
 
 // system include files
 #include <RQ_OBJECT.h>
+#include <sigc++/signal.h>
 
 // user include files
 
 // forward declarations
 class TTimer;
+class CmsShowTaskTimer;
 
 class CmsShowTaskExecutorBase : public TQObject {
    RQ_OBJECT("CmsShowTaskExecutorBase");
@@ -44,6 +46,8 @@ public:
    
    virtual void startDoingTasks()=0;
 
+   sigc::signal<void> tasksCompleted_;
+
 protected:
    virtual void doNextTaskImp() = 0;
    virtual bool moreTasksAvailable() = 0;
@@ -54,7 +58,7 @@ private:
    
    // ---------- member data --------------------------------
    //TTimer* m_timer;
-   
+   CmsShowTaskTimer* m_taskTimer;
 };
 
 

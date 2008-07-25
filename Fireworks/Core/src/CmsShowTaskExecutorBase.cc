@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jul 11 12:09:41 EDT 2008
-// $Id: CmsShowTaskExecutorBase.cc,v 1.2 2008/07/13 15:35:51 chrjones Exp $
+// $Id: CmsShowTaskExecutorBase.cc,v 1.3 2008/07/13 21:56:08 chrjones Exp $
 //
 
 // system include files
@@ -17,7 +17,7 @@
 
 // user include files
 #include "Fireworks/Core/src/CmsShowTaskExecutorBase.h"
-
+#include "Fireworks/Core/src/CmsShowTaskTimer.h"
 
 //
 // constants, enums and typedefs
@@ -34,6 +34,7 @@ CmsShowTaskExecutorBase::CmsShowTaskExecutorBase()
 //:m_timer( new TTimer(1) )
 {
    //m_timer->Connect("Timeout()","CmsShowTaskExecutorBase",this,"doNextTask()");
+   m_taskTimer = new CmsShowTaskTimer(this, 10);
 }
 
 // CmsShowTaskExecutorBase::CmsShowTaskExecutorBase(const CmsShowTaskExecutorBase& rhs)
@@ -70,15 +71,19 @@ CmsShowTaskExecutorBase::requestNextTask()
    //Emit("requestNextTask()");
    //m_timer->Start(1,kTRUE);
    //std::cout <<"requestNextTask"<<std::endl;
-   TTimer::SingleShot(10,"CmsShowTaskExecutorBase",this,"doNextTask()");
+   m_taskTimer->TurnOn();
 }
 
 void 
 CmsShowTaskExecutorBase::doNextTask()
 {
+   m_taskTimer->TurnOff();
    doNextTaskImp();
    if(moreTasksAvailable()) {
       requestNextTask();
+   }
+   else {
+     tasksCompleted_.emit();
    }
 }
 
