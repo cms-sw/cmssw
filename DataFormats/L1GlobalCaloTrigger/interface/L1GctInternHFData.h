@@ -10,6 +10,8 @@
 /// \author Jim Brooke
 /// \date June 2008
 ///
+/// Will store 4 sums/counts of up to 8 bits each
+/// 
 
 
 class L1GctInternHFData {
@@ -17,7 +19,8 @@ class L1GctInternHFData {
  public:
 
   /// et sum type - not clear this is required
-  enum L1GctInternHFDataType { conc_hf_ring_et_sums,
+  enum L1GctInternHFDataType { null,
+			       conc_hf_ring_et_sums,
 			       conc_hf_bit_counts
   };
   

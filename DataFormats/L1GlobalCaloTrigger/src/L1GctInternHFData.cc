@@ -1,10 +1,16 @@
 
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctInternHFData.h"
 
-L1GctInternHFData::L1GctInternHFData() { } 
+L1GctInternHFData::L1GctInternHFData() :
+  type_(null),
+  capBlock_(0),
+  capIndex_(0),
+  bx_(0),
+  data_(0)
+{ } 
 
 /// destructor
-L1GctInternHFData::~L1GctInternHFData() { }
+L1GctInternHFData::~L1GctInternHFData() :
 
 L1GctInternHFData L1GctInternHFData::fromConcRingSums(const uint16_t capBlock,
 						      const uint16_t capIndex,
