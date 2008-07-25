@@ -59,7 +59,6 @@ int CSCTMBTrailer::crc22() const
 
 void CSCTMBTrailer::setCRC(int crc) 
 {
-std::cout << "SETCRC" << crcOffset() << std::endl;
   theData[crcOffset()] = crc & 0x7fff;
   theData[crcOffset()+1] = (crc>>11) & 0x7fff;
 }
