@@ -13,7 +13,7 @@
 //
 // Original Author:  Domenico GIORDANO
 //         Created:  Wed Oct  3 12:11:10 CEST 2007
-// $Id: SiStripQualityESProducer.cc,v 1.4 2007/11/19 15:41:06 giordano Exp $
+// $Id: SiStripQualityESProducer.cc,v 1.1 2008/02/06 17:04:19 bainbrid Exp $
 //
 //
 
@@ -71,7 +71,14 @@ boost::shared_ptr<SiStripQuality> SiStripQualityESProducer::produce(const SiStri
       continue;
     }
   }
+  
   quality->cleanUp();
+
+  if(pset_.getUntrackedParameter<bool>("ReduceGranularity",false)){
+      quality->ReduceGranularity(pset_.getUntrackedParameter<double>("ThresholdForReducedGranularity",0.3));
+      quality->cleanUp(true);
+  }
+
   quality->fillBadComponents();
   
   return quality;
