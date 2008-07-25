@@ -2,8 +2,8 @@
  *  Class:PostProcessor 
  *
  *
- *  $Date: 2008/07/16 20:23:58 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/07/25 10:39:48 $
+ *  $Revision: 1.1 $
  * 
  *  \author Junghwan Goh - SungKyunKwan University
  */
@@ -12,7 +12,6 @@
 
 #include "HLTriggerOffline/Muon/interface/PostProcessor.h"
 
-#include "Validation/Tools/interface/FitSlicesYTool.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -135,17 +134,17 @@ void PostProcessor::computeResolution(const string& startDir, const string& name
 
   theDQM->setCurrentFolder(startDir);
 
-  const int nBin = hSrc->GetNbinsX();
-  const double xMin = hSrc->GetXaxis()->GetXmin();
-  const double xMax = hSrc->GetXaxis()->GetXmax();
+//   const int nBin = hSrc->GetNbinsX();
+//   const double xMin = hSrc->GetXaxis()->GetXmin();
+//   const double xMax = hSrc->GetXaxis()->GetXmax();
 
-  ME* meanME = theDQM->book1D(namePrefix+"_Mean", titlePrefix+" Mean", nBin, xMin, xMax);
-  ME* sigmaME = theDQM->book1D(namePrefix+"_Sigma", titlePrefix+" Sigma", nBin, xMin, xMax);
+  //  ME* meanME = theDQM->book1D(namePrefix+"_Mean", titlePrefix+" Mean", nBin, xMin, xMax);
+  //  ME* sigmaME = theDQM->book1D(namePrefix+"_Sigma", titlePrefix+" Sigma", nBin, xMin, xMax);
 //  ME* chi2ME  = theDQM->book1D(namePrefix+"_Chi2" , titlePrefix+" #Chi^{2}", nBin, xMin, xMax); // N/A
 
-  FitSlicesYTool fitTool(srcME);
-  fitTool.getFittedMeanWithError(meanME);
-  fitTool.getFittedSigmaWithError(sigmaME);
+//  FitSlicesYTool fitTool(srcME);
+//  fitTool.getFittedMeanWithError(meanME);
+//  fitTool.getFittedSigmaWithError(sigmaME);
 //  fitTool.getFittedChisqWithError(chi2ME); // N/A
 
 }
