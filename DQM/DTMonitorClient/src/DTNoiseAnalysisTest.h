@@ -6,8 +6,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2008/05/28 09:14:35 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/07/04 10:14:27 $
+ *  $Revision: 1.1 $
  *  \author  G. Mila - INFN Torino
  *   
  */
@@ -15,28 +15,21 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include <FWCore/Framework/interface/EDAnalyzer.h>
-#include "DataFormats/Common/interface/Handle.h"
 #include <FWCore/Framework/interface/ESHandle.h>
-#include <FWCore/Framework/interface/Event.h>
-#include <FWCore/Framework/interface/MakerMacros.h>
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include <FWCore/Framework/interface/LuminosityBlock.h>
-
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 
 
-#include <memory>
 #include <iostream>
-#include <fstream>
 #include <string>
-#include <vector>
 #include <map>
+
+
+
 
 class DTGeometry;
 class DTChamberId;
 class DTSuperLayerId;
+class DQMStore;
+class MonitorElement;
 
 class DTNoiseAnalysisTest: public edm::EDAnalyzer{
 
