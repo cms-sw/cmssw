@@ -12,6 +12,7 @@ namespace {
     L1GctInternEmCandCollection internEmColl;
     L1GctInternJetDataCollection internJetDataColl;
     L1GctInternEtSumCollection internEtSumColl;
+    L1GctInternHFDataCollection internHFDataColl;
     L1GctFibreCollection fibreWordColl;
 
     // output collections
@@ -30,6 +31,7 @@ namespace {
     edm::Wrapper<L1GctInternEmCandCollection> w_internEmCandColl;
     edm::Wrapper<L1GctInternJetDataCollection> w_internJetDataColl;
     edm::Wrapper<L1GctInternEtSumCollection> w_internEtSumColl;
+    edm::Wrapper<L1GctInternHFDataCollection> w_internHFDataColl;
     edm::Wrapper<L1GctFibreCollection> w_fibreWordColl;
 
     // wrapped output collections
