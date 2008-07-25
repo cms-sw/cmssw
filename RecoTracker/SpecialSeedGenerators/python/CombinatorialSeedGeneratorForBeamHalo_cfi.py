@@ -77,6 +77,8 @@ combinatorialbeamhaloseedfinder = cms.EDFilter("CtfSpecialSeedGenerator",
     TTRHBuilder = cms.string('WithTrackAngle'),
     SeedsFromPositiveY = cms.bool(False),
     doClusterCheck = cms.bool(False),
+    ClusterCollectionLabel = cms.InputTag("siStripClusters"),
+    MaxNumberOfCosmicClusters = cms.uint32(300),
     CheckHitsAreOnDifferentLayers = cms.bool(False),
     SetMomentum = cms.bool(True)
 )
