@@ -8,8 +8,10 @@ endif
 
 ifeq ($(shell uname), Linux)
 	SO_EXT := so
-else ifeq ($(shell uname), Darwin)
+else 
+   ifeq ($(shell uname), Darwin)
 	SO_EXT := dylib
+   endif     
 endif
 
 include core.mk
@@ -31,11 +33,25 @@ LINKER = c++
 # linker flags
 ProjectMissingFlags = -lGeom -lGuiHtml
 #ProjectLinkerFlags = -shared -m32 -Lexternal/lib -L$(FWROOTSYS)/lib $(addprefix -l,$(ProjectLibs)) $(ProjectMissingFlags)
+
 ifeq ($(shell uname), Linux)
-	ProjectLinkerFlags = -shared -m32 -Lexternal/lib -L$(FWROOTSYS)/lib $(addprefix -l,$(ProjectLibs)) $(ProjectMissingFlags)
-else ifeq ($(shell uname), Darwin)
-	ProjectLinkerFlags = -dynamiclib -m32 -Lexternal/lib -L$(FWROOTSYS)/lib $(addprefix -l,$(ProjectLibs)) $(ProjectMissingFlags)
+        MAKESHAREDLIB := -shared
+        ExecLibs = -lRIO -lNet -L./ -l$(LibProject)
+        ExtraProjectLibs = -L./ -l$(LibCore) 
+else 
+   ifeq ($(shell uname), Darwin)
+      MAKESHAREDLIB := -dynamiclib
+      ExecLibs = -lCore -lGUI -lRIO -lNet -L./ -l$(LibProject) -l$(LibCore) -lCore
+      ExtraProjectLibs = -lEve -lGeom -lGeomPainter -lGraf3d \
+		 -lGui -lGpad -lGraf -lHist -lPhysics -lGed -lEG -lTree \
+		-lTreePlayer -lRGL -lFTGL -lRIO -lRint -lRGL -lGui -lCore \
+		-lCintex -lCint -lReflex -lMathMore -lMathCore \
+		-lboost_filesystem-gcc-mt -lboost_program_options-gcc-mt \
+		-lboost_regex-gcc-mt -lsigc-2.0 -L./ -l$(LibCore)
+   endif
 endif
+
+ProjectLinkerFlags = $(MAKESHAREDLIB) -m32 -Lexternal/lib -L$(FWROOTSYS)/lib $(addprefix -l,$(ProjectLibs)) $(ProjectMissingFlags)
 
 # cmsShow source code and its object files
 ProjectSources = $(wildcard src/*/*/src/*.cc)
@@ -68,36 +84,16 @@ display: lib$(LibProject).$(SO_EXT) tmp/lib$(LibProject).$(SO_EXT).out cmsShow.e
 #	$(QUIET) echo "linking cmsShow.exe"; \
 #	$(CC) $(CFLAGS) -Wl,-rpath -Wl,./ -L$(FWROOTSYS)/lib $(addprefix $(LinkerOptions),$(LDLIBRARYPATH)) \
 #	  -lGui -lGpad -lGraf -lRIO -lNet -o cmsShow.exe libCMSShow.$(SO_EXT) -L./ -l$(LibCore) -lCore src/Fireworks/Core/test/cmsShow.cc
-ifeq ($(shell uname), Linux)
-cmsShow.exe: lib$(LibProject).so lib$(LibCore).so src/Fireworks/Core/test/cmsShow.cc
-	$(QUIET) echo "linking cmsShow.exe"; \
-	$(CC) $(CFLAGS) -Wl,-rpath -Wl,./ -L$(FWROOTSYS)/lib $(addprefix $(LinkerOptions),$(LDLIBRARYPATH)) \
-	  -lRIO -lNet -o cmsShow.exe libCMSShow.so src/Fireworks/Core/test/cmsShow.cc
-else ifeq ($(shell uname), Darwin)
 cmsShow.exe: lib$(LibProject).$(SO_EXT) lib$(LibCore).$(SO_EXT) src/Fireworks/Core/test/cmsShow.cc
 	$(QUIET) echo "linking cmsShow.exe"; \
 	$(CC) $(CFLAGS) -Wl,-rpath -Wl,./ -L$(FWROOTSYS)/lib $(addprefix $(LinkerOptions),$(LDLIBRARYPATH)) \
-	  -lCore -lGUI -lRIO -lNet -o cmsShow.exe libCMSShow.$(SO_EXT) -L./ -l$(LibCore) -lCore src/Fireworks/Core/test/cmsShow.cc
-endif
+	$(ExecLibs) -o cmsShow.exe src/Fireworks/Core/test/cmsShow.cc
 
 
-ifeq ($(shell uname), Linux)
-lib$(LibProject).so: $(ProjectObjects) $(ProjectRootDicObjects) $(ProjectDictionaryObjects) lib$(LibCore).so
-	$(QUIET) echo "linking core library $(LibProject)"; \
-	$(LINKER) $(ProjectLinkerFlags) -L./ -l$(LibCore) -o lib$(LibProject).so \
-	       $(ProjectObjects) $(ProjectRootDicObjects) $(ProjectDictionaryObjects)
-else ifeq ($(shell uname), Darwin)
 lib$(LibProject).$(SO_EXT): $(ProjectObjects) $(ProjectRootDicObjects) $(ProjectDictionaryObjects) lib$(LibCore).$(SO_EXT)
 	$(QUIET) echo "linking core library $(LibProject)"; \
-	$(LINKER) $(ProjectLinkerFlags) -lEve -lGeom -lGeomPainter -lGraf3d \
-		 -lGui -lGpad -lGraf -lHist -lPhysics -lGed -lEG -lTree \
-		-lTreePlayer -lRGL -lFTGL -lRIO -lRint -lRGL -lGui -lCore \
-		-lCintex -lCint -lReflex -lMathMore -lMathCore \
-		-lboost_filesystem-gcc-mt -lboost_program_options-gcc-mt \
-		-lboost_regex-gcc-mt -lsigc-2.0 -L./ -l$(LibCore) \
-		-o lib$(LibProject).$(SO_EXT) \
-		$(ProjectObjects) $(ProjectRootDicObjects) $(ProjectDictionaryObjects)
-endif
+	$(LINKER) $(ProjectLinkerFlags) $(ExtraProjectLibs) \
+	-o lib$(LibProject).$(SO_EXT) $(ProjectObjects) $(ProjectRootDicObjects) $(ProjectDictionaryObjects)
 
 ######################################################################################
 # 

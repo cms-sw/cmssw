@@ -8,8 +8,10 @@ endif
 
 ifeq ($(shell uname), Linux)
 	SO_EXT := so
-else ifeq ($(shell uname), Darwin)
-	SO_EXT := dylib
+else 
+	ifeq ($(shell uname), Darwin)
+		SO_EXT := dylib
+	endif
 endif
 
 export FWROOTSYS = external/root
