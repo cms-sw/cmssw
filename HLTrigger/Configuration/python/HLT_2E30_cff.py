@@ -1,4 +1,4 @@
-# /dev/CMSSW_2_1_0_pre9/HLT/V5 (CMSSW_2_1_0_pre9)
+# /dev/CMSSW_2_1_0_pre9/HLT/V6 (CMSSW_2_1_0_pre9)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -12,6 +12,11 @@ MCJetCorrectorIcone5 = cms.ESSource( "MCJetCorrectionService",
   label = cms.string( "MCJetCorrectorIcone5" )
 )
 
+ParametrizedMagneticFieldProducer = cms.ESProducer( "ParametrizedMagneticFieldProducer",
+  label = cms.untracked.string( "parametrizedField" ),
+  version = cms.string( "OAE_1103l_071212" ),
+  parameters = cms.PSet(  BValue = cms.string( "3_8T" ) )
+)
 CaloTopologyBuilder = cms.ESProducer( "CaloTopologyBuilder" )
 Chi2EstimatorForL2Refit = cms.ESProducer( "Chi2MeasurementEstimatorESProducer",
   ComponentName = cms.string( "Chi2EstimatorForL2Refit" ),
