@@ -111,9 +111,9 @@ process.outpath = cms.EndPath(process.o1)
 process.schedule.append(process.outpath)
 
 process.configurationMetadata = cms.untracked.PSet(
-       version = cms.untracked.string('$Revision: 1.2 $'),
+       version = cms.untracked.string('$Revision: 1.3 $'),
           name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/FastSimulation/Validation/test/Template_cfg.py,v $'),
-          annotation = cms.untracked.string('RelVal Fast Sim ==SAMPLE==')
+          annotation = cms.untracked.string('RelVal Fast Sim ==SAMPLE== IDEAL')
        ) 
 
 # Keep the logging output to a nice level #
