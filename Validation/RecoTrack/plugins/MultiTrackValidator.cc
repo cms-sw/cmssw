@@ -66,8 +66,8 @@ void MultiTrackValidator::beginRun(Run const&, EventSetup const& setup) {
       h_tracks.push_back( dbe_->book1D("tracks","number of reconstructed tracks",20,-0.5,19.5) );
       h_fakes.push_back( dbe_->book1D("fakes","number of fake reco tracks",20,-0.5,19.5) );
       h_charge.push_back( dbe_->book1D("charge","charge",3,-1.5,1.5) );
-      h_hits.push_back( dbe_->book1D("hits", "number of hits per track", 35, -0.5, 34.5 ) );
-      h_losthits.push_back( dbe_->book1D("losthits", "number of lost hits per track", 35, -0.5, 34.5 ) );
+      h_hits.push_back( dbe_->book1D("hits", "number of hits per track", nintHit,minHit,maxHit ) );
+      h_losthits.push_back( dbe_->book1D("losthits", "number of lost hits per track", nintHit,minHit,maxHit) );
       h_nchi2.push_back( dbe_->book1D("chi2", "normalized #chi^{2}", 200, 0, 20 ) );
       h_nchi2_prob.push_back( dbe_->book1D("chi2_prob", "normalized #chi^{2} probability",100,0,1));
 
