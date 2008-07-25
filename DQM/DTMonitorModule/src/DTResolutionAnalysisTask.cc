@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/05/06 23:23:39 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/07/25 14:15:43 $
+ *  $Revision: 1.10 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -173,7 +173,7 @@ void DTResolutionAnalysisTask::analyze(const edm::Event& event, const edm::Event
 	}
 	copy(phiRecHits.begin(), phiRecHits.end(), back_inserter(recHits1D_S3));
       } else {
-	cout << "[DTResolutionAnalysisTask] 4D segment has not phi component!" << endl;
+	if(debug) cout << "[DTResolutionAnalysisTask] 4D segment has not phi component!" << endl;
       }
 
       if((*segment4D).hasZed()) {
