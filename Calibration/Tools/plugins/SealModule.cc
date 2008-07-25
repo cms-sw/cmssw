@@ -14,6 +14,7 @@
 #include "PhysicsTools/RecoAlgos/interface/GsfElectronSelector.h"
 
 //#include "Calibration/Tools/plugins/SelectorWithEventSetup.h"
+#include "Calibration/Tools/plugins/ElectronSqPtTkIsolationProducer.h"
 
 DEFINE_SEAL_MODULE();
 
@@ -31,6 +32,8 @@ namespace reco {
   }
 }
 
+
+DEFINE_ANOTHER_FWK_MODULE( ElectronSqPtTkIsolationProducer );
 
 // typedef SelectorWithEventSetup<SingleEleCalibSelector> SingleElectronCalibrationSelector;
 // DEFINE_ANOTHER_FWK_MODULE( SingleElectronCalibrationSelector );
