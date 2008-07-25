@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:11 CDT 2008
-// $Id: CSGAction.cc,v 1.5 2008/07/16 17:39:48 chrjones Exp $
+// $Id: CSGAction.cc,v 1.6 2008/07/20 17:51:28 chrjones Exp $
 //
 
 // system include files
@@ -37,6 +37,7 @@
 //
 CSGAction::CSGAction(CmsShowMainFrame *frame, const char *name) {
    m_enabled = kTRUE;
+   m_globalEnabled = kTRUE;
    m_frame = frame;
    m_name = name;
    m_toolTip = "";
