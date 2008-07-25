@@ -186,7 +186,7 @@
 </LINK>
 
 <LINK name="*hResDist_*">
-        <TestName activate="true">ResidualsDistributionGaussianTest</TestName>
+        <TestName activate="false">ResidualsDistributionGaussianTest</TestName>
 </LINK>
 
 <LINK name="*MeanTest*">
