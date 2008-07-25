@@ -31,7 +31,7 @@ using namespace edm;
 
 
 
-PFTrackTransformer::PFTrackTransformer(){
+PFTrackTransformer::PFTrackTransformer(math::XYZVector B):B_(B){
   LogInfo("PFTrackTransformer")<<"PFTrackTransformer built";
 
   PFGeometry pfGeometry;
@@ -66,7 +66,8 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
 							 track.vertex().y(),
 							 track.vertex().z(),
 							 0.)),
-			   0.,0.,4.);
+			   0.,0.,B_.z());
+
   theParticle.setCharge(track.charge());
   float pfoutenergy=sqrt((pfmass*pfmass)+track.outerMomentum().Mag2());
   BaseParticlePropagator theOutParticle = 
@@ -79,7 +80,7 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
 							 track.outerPosition().y(),
 							 track.outerPosition().z(),
 							 0.)),
-			   0.,0.,4.);
+			   0.,0.,B_.z());
   theOutParticle.setCharge(track.charge());
   
   
@@ -255,7 +256,7 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 							     track.vertex().y(),
 							     track.vertex().z(),
 							     0.)),  //DANIELE Same thing v.x(),v.y(),v.()? 
-			       0.,0.,4.);
+			       0.,0.,B_.z());
       theInnerParticle.setCharge(track.charge());  
 
       //BEAMPIPE
@@ -305,7 +306,7 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 							     v.y(),
 							     v.z(),
 							     0.)), 
-			       0.,0.,4.);
+			       0.,0.,B_.z());
       theOutParticle.setCharge(track.charge());  
       bool isBelowPS=false; 
       theOutParticle.propagateToPreshowerLayer1(false);
@@ -405,7 +406,7 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 							   v.y(),
 							   v.z(),
 							   0.)),
-			     0.,0.,4.);
+			     0.,0.,B_.z());
     int gamma_charge = 0;
     theBremParticle.setCharge(gamma_charge);  
 
@@ -492,7 +493,7 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
    else{
      PFTrajectoryPoint dummyHCALexit;
      pftrack.addPoint(dummyHCALexit); 
-   }  
+   }
 
    pftrack.addBrem(brem);
    iTrajPos++;
