@@ -29,6 +29,7 @@ DAFTrackProducer::DAFTrackProducer(const edm::ParameterSet& iConfig):
   produces<reco::TrackExtraCollection>().setBranchAlias( alias_ + "TrackExtras" );
   produces<TrackingRecHitCollection>().setBranchAlias( alias_ + "RecHits" );
   produces<std::vector<Trajectory> >() ;
+  produces<TrajTrackAssociationCollection>();
 }
 
 
