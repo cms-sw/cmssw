@@ -1,7 +1,7 @@
 /** \class CSCTMBData
  *
- *  $Date: 2008/07/24 06:24:03 $
- *  $Revision: 1.22 $
+ *  $Date: 2008/07/24 07:05:42 $
+ *  $Revision: 1.23 $
  *  \author A. Tumanov - Rice
  */
 
@@ -295,10 +295,29 @@ boost::dynamic_bitset<> CSCTMBData::pack()
   boost::dynamic_bitset<> clctData =  bitset_utilities::ushortToBitset(theCLCTData.sizeInWords()*16,
 								       theCLCTData.data());
   result = bitset_utilities::append(result,clctData);
+  boost::dynamic_bitset<> newResult = result;
+//  theTMBTrailer.setCRC(TMBCRCcalc());
 
   boost::dynamic_bitset<> tmbTrailer =  bitset_utilities::ushortToBitset( theTMBTrailer.sizeInWords()*16,
 									  theTMBTrailer.data());
   result = bitset_utilities::append(result,tmbTrailer);
+  
+  // now convert to a vector<bitset<16>>, so we can calculate the crc
+  std::vector<std::bitset<16> > wordVector;
+  for(unsigned pos = 0; pos < result.size(); pos += 16)
+  {
+    std::bitset<16> word;
+    for(int i = 0; i < 16; ++i)
+    {
+      word[i] = result[pos+i];
+    }
+    wordVector.push_back(word);
+  }
+  theTMBTrailer.setCRC(calCRC22(wordVector).to_ulong());
+  tmbTrailer =  bitset_utilities::ushortToBitset( theTMBTrailer.sizeInWords()*16,
+                                                  theTMBTrailer.data());
+  newResult = bitset_utilities::append(newResult, tmbTrailer);
+
   return result;
 }
 
