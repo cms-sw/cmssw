@@ -32,10 +32,8 @@ TtSemiHypothesisMaxSumPtWMass::buildHypo(edm::Event& evt,
   double maxPt=-1.;
   std::vector<unsigned> maxPtIndices;
   for(unsigned idx=0; idx<maxNJets_; ++idx){
-    for(unsigned jdx=0; jdx<maxNJets_; ++jdx){
-      if( jdx==idx ) continue;
-      for(unsigned kdx=0; kdx<maxNJets_; ++kdx){
-	if( kdx==jdx || kdx==idx ) continue;
+    for(unsigned jdx=(idx+1); jdx<maxNJets_; ++jdx){
+      for(unsigned kdx=(jdx+1); kdx<maxNJets_; ++kdx){
 	reco::Particle::LorentzVector sum = 
 	  (*jets)[idx].p4()+
 	  (*jets)[jdx].p4()+
@@ -60,12 +58,12 @@ TtSemiHypothesisMaxSumPtWMass::buildHypo(edm::Event& evt,
   std::vector<unsigned> closestToWMassIndices;
   for(unsigned idx=0; idx<maxPtIndices.size(); ++idx){  
     for(unsigned jdx=0; jdx<maxPtIndices.size(); ++jdx){  
-      if( jdx==idx ) continue;
+      if( jdx==idx || maxPtIndices[idx]>maxPtIndices[jdx] ) continue;
       reco::Particle::LorentzVector sum = 
 	(*jets)[idx].p4()+
 	(*jets)[jdx].p4();
-      if( wDist<0. || wDist<(sum.mass()-wMass) ){
-	wDist=sum.mass()-wMass;
+      if( wDist<0. || wDist>fabs(sum.mass()-wMass) ){
+	wDist=fabs(sum.mass()-wMass);
 	closestToWMassIndices.clear();
 	closestToWMassIndices.push_back(maxPtIndices[idx]);
 	closestToWMassIndices.push_back(maxPtIndices[jdx]);
@@ -81,16 +79,13 @@ TtSemiHypothesisMaxSumPtWMass::buildHypo(edm::Event& evt,
   maxPt=-1.;
   unsigned lepB=0;
   for(unsigned idx=0; idx<maxNJets_; ++idx){
-    for(unsigned jdx=0; jdx<maxPtIndices.size(); ++jdx){
-      // make sure it's not used up already from  
-      // the hadronic decay chain
-      if(idx != maxPtIndices[jdx] ){
-	reco::Particle::LorentzVector sum = 
-	  (*jets)[idx].p4()+(*leps)[ 0 ].p4();
-	if( maxPt<0. || maxPt<sum.pt() ){
-	  maxPt=sum.pt();
-	  lepB=idx;
-	}
+    // make sure it's not used up already from the hadronic decay chain
+    if( std::find(maxPtIndices.begin(), maxPtIndices.end(), idx) == maxPtIndices.end() ){
+      reco::Particle::LorentzVector sum = 
+	(*jets)[idx].p4()+(*leps)[ 0 ].p4();
+      if( maxPt<0. || maxPt<sum.pt() ){
+	maxPt=sum.pt();
+	lepB=idx;
       }
     }
   }
