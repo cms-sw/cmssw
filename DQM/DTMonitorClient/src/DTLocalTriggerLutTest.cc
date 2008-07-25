@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/06/05 08:00:50 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/07/02 15:14:02 $
+ *  $Revision: 1.4 $
  *  \author C. Battilana S. Marcellini - INFN Bologna
  */
 
@@ -72,6 +72,10 @@ void DTLocalTriggerLutTest::beginJob(const edm::EventSetup& c){
 	    bookSectorHistos(wh,sect,"","PhibTkvsTrigIntercept");  
 	    bookSectorHistos(wh,sect,"","PhibTkvsTrigCorr");  
 	  }
+	  bookWheelHistos(wh,"","PhiResidualMean");  
+	  bookWheelHistos(wh,"","PhiResidualRMS");
+	  bookWheelHistos(wh,"","PhibResidualMean");  
+	  bookWheelHistos(wh,"","PhibResidualRMS");  
 	  bookWheelHistos(wh,"","PhiTkvsTrigSlope");  
 	  bookWheelHistos(wh,"","PhiTkvsTrigIntercept");  
 	  bookWheelHistos(wh,"","PhiTkvsTrigCorr");  
@@ -195,6 +199,56 @@ void DTLocalTriggerLutTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, E
 	      innerME->find(fullName("PhibTkvsTrigSlope"))->second->setBinContent(sect,stat,phibSlope);
 	      innerME->find(fullName("PhibTkvsTrigIntercept"))->second->setBinContent(sect,stat,phibInt);
 	      innerME->find(fullName("PhibTkvsTrigCorr"))->second->setBinContent(sect,stat,phibCorr);
+	  
+	    }
+
+	    // Make Phi Residual Summary
+	    TH1F * PhiResidual = getHisto<TH1F>(dbe->get(getMEName("PhiResidual","Segment", chId)));
+	    
+	    if (PhiResidual && PhiResidual->GetEffectiveEntries()>10) {// station 3 has no meaningful MB3 phi bending information
+	      
+	      // Fill client histos
+	      if( whME[wh].find(fullName("PhiResidualMean")) == whME[wh].end() ){
+ 		bookWheelHistos(wh,"","PhiResidualMean");  
+		bookWheelHistos(wh,"","PhiResidualRMS");  
+	      }
+
+	      double peak = PhiResidual->GetBinCenter(PhiResidual->GetMaximumBin());
+	      PhiResidual->Fit("gaus","CQO","",peak-5,peak+5);
+	      TF1 *ffPhi = PhiResidual->GetFunction("gaus");
+	      if ( ffPhi ) {
+		double phiMean = ffPhi->GetParameter(1);
+		double phiRMS  = ffPhi->GetParameter(2);
+		
+		std::map<std::string,MonitorElement*> *innerME = &(whME[wh]);
+		innerME->find(fullName("PhiResidualMean"))->second->setBinContent(sect,stat,phiMean);
+		innerME->find(fullName("PhiResidualRMS"))->second->setBinContent(sect,stat,phiRMS);
+	      }
+	  
+	    }
+
+	    // Make Phib Residual Summary
+	    TH1F * PhibResidual = getHisto<TH1F>(dbe->get(getMEName("PhibResidual","Segment", chId)));
+	    
+	    if (stat != 3 && PhibResidual && PhibResidual->GetEffectiveEntries()>10) {// station 3 has no meaningful MB3 phi bending information
+	      
+	      // Fill client histos
+	      if( whME[wh].find(fullName("PhibResidualMean")) == whME[wh].end() ){
+ 		bookWheelHistos(wh,"","PhibResidualMean");  
+		bookWheelHistos(wh,"","PhibResidualRMS");  
+	      }
+
+	      double peak = PhibResidual->GetBinCenter(PhibResidual->GetMaximumBin());
+	      PhibResidual->Fit("gaus","CQO","",peak-5,peak+5);
+	      TF1 *ffPhib = PhibResidual->GetFunction("gaus");
+	      if ( ffPhib ) {
+		double phibMean = ffPhib->GetParameter(1);
+		double phibRMS  = ffPhib->GetParameter(2);
+
+		std::map<std::string,MonitorElement*> *innerME = &(whME[wh]);
+		innerME->find(fullName("PhibResidualMean"))->second->setBinContent(sect,stat,phibMean);
+		innerME->find(fullName("PhibResidualRMS"))->second->setBinContent(sect,stat,phibRMS);
+	      }
 	  
 	    }
 
