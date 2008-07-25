@@ -24,24 +24,67 @@ L1GctInternEtSum::L1GctInternEtSum(uint16_t capBlock,
 }
 
 
-/// construct from individual quantities
-L1GctInternEtSum::L1GctInternEtSum(uint16_t capBlock,
-				   uint16_t capIndex,
-				   int16_t bx,
-				   uint32_t data) :
-  type_(null),
-  capBlock_(capBlock),
-  capIndex_(capIndex),
-  bx_(bx),
-  data_(data)
-{
-
-}
-
-
 /// destructor
 L1GctInternEtSum::~L1GctInternEtSum() {
 
+}
+
+L1GctInternEtSum L1GctInternEtSum::fromWheelHfRingSum(const uint16_t capBlock,
+							     const uint16_t capIndex,
+							     const int16_t bx,
+							     const uint16_t data) {
+  L1GctInternEtSum s;
+  s.setEt(data & 0xff);
+  s.setOflow(0);
+  s.setType(wheel_hf_ring_et_sum);
+  return s;
+}
+
+L1GctInternEtSum L1GctInternEtSum::fromWheelHfBitCount(const uint16_t capBlock,
+							      const uint16_t capIndex,
+							      const int16_t bx,
+							      const uint16_t data) {
+  L1GctInternEtSum s;
+  s.setEt(data & 0x3f);
+  s.setOflow(0);
+  s.setType(wheel_hf_ring_bit_count);
+  return s;
+}
+
+
+L1GctInternEtSum L1GctInternEtSum::fromJetTotEt(const uint16_t capBlock,
+						       const uint16_t capIndex,
+						       const int16_t bx,
+						       const uint16_t data) {
+  L1GctInternEtSum s;
+  s.setEt(data & 0xfff);
+  s.setOflow((data>>12)&0x1);
+  s.setType(jet_tot_et);
+  return s;
+}
+
+
+L1GctInternEtSum L1GctInternEtSum::fromJetMissEt(const uint16_t capBlock,
+							const uint16_t capIndex,
+							const int16_t bx,
+							const uint32_t data) {
+  L1GctInternEtSum s;
+  s.setEt(data & 0xffff);
+  s.setOflow((data>>17) & 0x1);
+  s.setType(jet_miss_et);
+  return s;
+}
+
+
+L1GctInternEtSum L1GctInternEtSum::fromTotalEt(const uint16_t capBlock,
+						      const uint16_t capIndex,
+						      const int16_t bx,
+						      const uint32_t data) {
+  L1GctInternEtSum s;
+  s.setEt(data & 0xffff);
+  s.setOflow((data>>17) & 0x1);
+  s.setType(total_et);
+  return s;
 }
 
 
@@ -53,14 +96,14 @@ bool L1GctInternEtSum::operator==(const L1GctInternEtSum& c) const {
 
 /// set Et sum
 void L1GctInternEtSum::setEt(uint32_t et) {
-  data_ &= 0xfffe0000;
-  data_ |= et & 0x1ffff;
+  data_ &= 0x80000000;
+  data_ |= et & 0x7ffffff;
 }
 
 /// set overflow bit
 void L1GctInternEtSum::setOflow(uint8_t oflow) {
-  data_ &= 0x1<<17;
-  data_ |= (oflow & 0x1)<<17;
+  data_ &= 0x7ffffff;
+  data_ |= (oflow & 0x1)<<31;
 }
 
 /// Pretty-print operator for L1GctInternEtSum

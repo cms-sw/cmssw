@@ -17,7 +17,13 @@ class L1GctInternEtSum {
  public:
 
   /// et sum type - not clear this is required
-  enum L1GctInternEtSumType { null };
+  enum L1GctInternEtSumType { null,
+			      wheel_hf_ring_et_sum,
+			      wheel_hf_ring_bit_count,  // aka wheel_hf_ring_jets_above_threshold
+			      jet_tot_et,  // from jet_tot_et_and_ht
+			      jet_miss_et,
+			      total_et  // from total_et_or_ht
+  };
 
   /// default constructor (for vector initialisation etc.)
   L1GctInternEtSum();
@@ -29,15 +35,38 @@ class L1GctInternEtSum {
 		   uint32_t et,
 		   uint8_t oflow);
 
-  /// construct from individual quantities
-  L1GctInternEtSum(uint16_t capBlock,
-		   uint16_t capIndex,
-		   int16_t bx,
-		   uint32_t data);
-
   /// destructor
   ~L1GctInternEtSum();
 
+  // named ctors
+  /// use this for wheel_hf_et_sum
+  static L1GctInternEtSum fromWheelHfRingSum(uint16_t capBlock,
+					     uint16_t capIndex,
+					     int16_t bx,
+					     uint16_t data);
+  
+  static L1GctInternEtSum fromWheelHfBitCount(uint16_t capBlock,
+					      uint16_t capIndex,
+					      int16_t bx,
+					      uint16_t data);
+  
+
+  static L1GctInternEtSum fromJetTotEt(uint16_t capBlock,
+				       uint16_t capIndex,
+				       int16_t bx,
+				       uint16_t data);
+  
+
+  static L1GctInternEtSum fromJetMissEt(uint16_t capBlock,
+					uint16_t capIndex,
+					int16_t bx,
+					uint32_t data);
+  
+
+  static L1GctInternEtSum fromTotalEt(uint16_t capBlock,
+				      uint16_t capIndex,
+				      int16_t bx,
+				      uint32_t data);
 
   /// metadata
 
@@ -63,10 +92,13 @@ class L1GctInternEtSum {
   uint32_t raw() const { return data_; }
   
   /// get et
-  uint32_t et() const { return data_ & 0x1ffff; }
+  uint32_t et() const { return data_ & 0x7fffffff; }
+
+  /// get count
+  uint32_t count() const { return data_ & 0x7fffffff; }
 
   /// get oflow
-  uint8_t oflow() const { return (data_>>16) & 0x1; }
+  uint8_t oflow() const { return (data_>>31) & 0x1; }
 
 
   /// operators
