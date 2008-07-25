@@ -28,7 +28,7 @@
 class HLTMuonGenericRate {
 public:
   /// Constructor
-  HLTMuonGenericRate(const edm::ParameterSet& pset, int index);
+  HLTMuonGenericRate(const edm::ParameterSet& pset, int triggerIndex);
 
   /// Destructor
   virtual ~HLTMuonGenericRate();
@@ -41,7 +41,7 @@ public:
   void WriteHistograms() ;
   void SetCurrentFolder( TString folder );
   MonitorElement* BookIt( TString name, TString title, 
-					      int Nbins, float Min, float Max);
+			  int Nbins, float Min, float Max);
 
 private:
 
@@ -92,10 +92,10 @@ private:
   reco::TrackCollection::const_iterator theAssociatedRecoPart;
   const HepMC::GenEvent* evt;
 
-  std::pair<double,double> getGenAngle( double eta, double phi, 
-			   HepMC::GenEvent evt, double DR=0.4 );
-  std::pair<double,double> getRecAngle( double eta, double phi, 
-			   reco::TrackCollection tracks, double DR=0.4 );
+  std::pair<double,double> getAngles( double eta, double phi, 
+			   HepMC::GenEvent evt, double maxDeltaR );
+  std::pair<double,double> getAngles( double eta, double phi, 
+			   reco::TrackCollection tracks, double maxDeltaR );
 
   MonitorElement *NumberOfEvents, *NumberOfL1Events;
   int theNumberOfEvents,theNumberOfL1Events;
