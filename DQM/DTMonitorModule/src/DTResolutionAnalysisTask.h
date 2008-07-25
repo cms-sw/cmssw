@@ -10,16 +10,16 @@
  *  All histos are produce per Chamber
  *
  *
- *  $Date: 2007/11/06 17:36:09 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/03/01 00:39:55 $
+ *  $Revision: 1.4 $
  *  \author G. Cerminara - INFN Torino
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/LuminosityBlock.h>
+#include "FWCore/Framework/interface/ESHandle.h"
+
 
 #include <string>
 #include <map>
@@ -27,7 +27,7 @@
 
 class DQMStore;
 class MonitorElement;
-
+class DTGeometry;
 
 class DTResolutionAnalysisTask: public edm::EDAnalyzer{
 public:
@@ -54,16 +54,20 @@ protected:
 private:
   DQMStore* theDbe;
 
+  edm::ESHandle<DTGeometry> dtGeom;
+  
+
   // Switch for verbosity
   bool debug;
+
+  
+  int resetCycle;
 
   // Lable of 4D segments in the event
   std::string theRecHits4DLabel;
   // Lable of 1D rechits in the event
   std::string theRecHitLabel;
   
-  edm::ParameterSet parameters;
-
   // Book a set of histograms for a give chamber
   void bookHistos(DTSuperLayerId slId);
   // Fill a set of histograms for a give chamber 
