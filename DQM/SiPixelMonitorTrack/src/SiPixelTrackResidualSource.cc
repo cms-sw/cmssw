@@ -67,12 +67,12 @@ SiPixelTrackResidualSource::~SiPixelTrackResidualSource() {
 void SiPixelTrackResidualSource::beginJob(edm::EventSetup const& iSetup) {
   LogInfo("PixelDQM") << "SiPixelTrackResidualSource beginJob()" << endl;
 
-  // retrieve the TrackerGeometry for pixel dets...
+  // retrieve TrackerGeometry for pixel dets
   edm::ESHandle<TrackerGeometry> TG;
   iSetup.get<TrackerDigiGeometryRecord>().get(TG);
   if (debug_) LogVerbatim("PixelDQM") << "TrackerGeometry "<< &(*TG) <<" size is "<< TG->dets().size() << endl;
  
-  // build theSiPixelStructure with the pixel barrel and endcap dets in the TrackerGeometry...
+  // build theSiPixelStructure with the pixel barrel and endcap dets from TrackerGeometry
   for (TrackerGeometry::DetContainer::const_iterator pxb = TG->detsPXB().begin();  
        pxb!=TG->detsPXB().end(); pxb++) {
     if (dynamic_cast<PixelGeomDetUnit*>((*pxb))!=0) {
@@ -91,7 +91,7 @@ void SiPixelTrackResidualSource::beginJob(edm::EventSetup const& iSetup) {
 
   dbe_->setVerbose(0);
 
-  // book residual histograms in theSiPixelFolder - 1 (x,y)-pair of histograms per det...
+  // book residual histograms in theSiPixelFolder - one (x,y) pair of histograms per det
   SiPixelFolderOrganizer theSiPixelFolder;
   for (std::map<uint32_t, SiPixelTrackResidualModule*>::iterator pxd = theSiPixelStructure.begin(); 
        pxd!=theSiPixelStructure.end(); pxd++) {
@@ -99,7 +99,7 @@ void SiPixelTrackResidualSource::beginJob(edm::EventSetup const& iSetup) {
     else throw cms::Exception("LogicError") << "SiPixelTrackResidualSource Folder Creation Failed! "; 
   }
   if (debug_) {
-    // book summary residual histograms in a debugging folder - 1 (x,y)-pair of histograms per subdetector... 
+    // book summary residual histograms in a debugging folder - one (x,y) pair of histograms per subdetector 
     dbe_->setCurrentFolder("debugging"); 
     char hisID[80]; 
     for (int s=0; s<3; s++) {
@@ -116,7 +116,7 @@ void SiPixelTrackResidualSource::beginJob(edm::EventSetup const& iSetup) {
 void SiPixelTrackResidualSource::endJob(void) {
   LogInfo("PixelDQM") << "SiPixelTrackResidualSource endJob()";
 
-  // save the residual histograms to an output root file...
+  // save the residual histograms to an output root file
   bool saveFile = pSet_.getUntrackedParameter<bool>("saveFile", true);
   if (saveFile) { 
     std::string outputFilename = pSet_.getParameter<std::string>("outputFilename");
@@ -128,8 +128,8 @@ void SiPixelTrackResidualSource::endJob(void) {
 
 
 void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  // retrieve the TrackerGeometry again and the (Ideal)MagneticField 
-  // for use in transforming a TrackCandidate's P(ersistent)TrajectoryStateoOnDet (PTSoD) to a TrajectoryStateOnSurface (TSoS)
+  // retrieve TrackerGeometry again and MagneticField for use in transforming 
+  // a TrackCandidate's P(ersistent)TrajectoryStateoOnDet (PTSoD) to a TrajectoryStateOnSurface (TSoS)
   ESHandle<TrackerGeometry> TG;
   iSetup.get<TrackerDigiGeometryRecord>().get(TG);
   const TrackerGeometry* theTrackerGeometry = TG.product();
@@ -138,7 +138,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
   iSetup.get<IdealMagneticFieldRecord>().get(MF);
   const MagneticField* theMagneticField = MF.product();
   
-  // retrieve the TransientTrackingRecHitBuilder to build TTRHs with TrackCandidate's TrackingRecHits for theFitter 
+  // retrieve TransientTrackingRecHitBuilder to build TTRHs with TrackCandidate's TrackingRecHits for refitting 
   std::string TTRHBuilder = pSet_.getParameter<std::string>("TTRHBuilder"); 
   ESHandle<TransientTrackingRecHitBuilder> TTRHB; 
   iSetup.get<TransientRecHitRecord>().get(TTRHBuilder, TTRHB);
@@ -150,7 +150,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
   iSetup.get<TrackingComponentsRecord>().get(Fitter, TF);
   const TrajectoryFitter* theFitter = TF.product();
 
-  // get the TrackCandidateCollection... matching theFitter in the cfi, i.e. rs-RS, ckf-KF... 
+  // get TrackCandidateCollection in accordance with the fitter, i.e. rs-RS, ckf-KF... 
   std::string TrackCandidateLabel = pSet_.getParameter<std::string>("TrackCandidateLabel");
   std::string TrackCandidateProducer = pSet_.getParameter<std::string>("TrackCandidateProducer");  
   Handle<TrackCandidateCollection> trackCandidateCollection;
@@ -174,16 +174,16 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
       
       tcTTRHs.push_back(theTTRHBuilder->build(&(*tcRecHit)));
     } 
-    // note a TrackCandidate keeps only the PTSoD of the first hit as well as the seed and the hits. 
-    // To 99.99%-recover all the hit's TSoSes, do a refit with the seed, the hits and an initial TSoS from the PTSoD 
-    // and get a Trajectory that consists of all the hit's TrajectoryMeasurements (TMs). 
+    // note a TrackCandidate keeps only the PTSoD of the first hit as well as the seed and all the hits; 
+    // to 99.9%-recover all the hit's TSoS's, refit with the seed, the hits and an initial TSoS from the PTSoD 
+    // to get a Trajectory of all the hit's TrajectoryMeasurements (TMs) 
     std::vector<Trajectory> refitTrajectoryCollection = theFitter->fit(tcSeed, tcTTRHs, tcTSoS);	    
     if (debug_) cout << "refitTrajectoryCollection size is "<< refitTrajectoryCollection.size() << endl;
 
-    if (refitTrajectoryCollection.size()>0) { // either 0 or 1... 
+    if (refitTrajectoryCollection.size()>0) { // should be either 0 or 1 
       const Trajectory& refitTrajectory = refitTrajectoryCollection.front();
 
-      // retrieve and loop over all the TMs... 
+      // retrieve and loop over all the TMs 
       Trajectory::DataContainer refitTMs = refitTrajectory.measurements();								
       if (debug_) cout << "refitTrajectory has "<< refitTMs.size() <<" hits with ID "; 
 
@@ -192,7 +192,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
     	TransientTrackingRecHit::ConstRecHitPointer refitTTRH = refitTM->recHit();
         if (debug_) cout << refitTTRH->geographicalId().rawId() <<" "; 
 	
-	// only analyze the most individual pixel hit's TMs to calculate residuals... 
+	// only analyze the most elemental pixel hit's TMs to calculate residuals 
 	const GeomDet* ttrhDet = refitTTRH->det(); 
 	if (ttrhDet->components().empty() && (ttrhDet->subDetector()==GeomDetEnumerators::PixelBarrel ||				
     					      ttrhDet->subDetector()==GeomDetEnumerators::PixelEndcap)) {				
@@ -202,7 +202,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
 	  TrajectoryStateOnSurface combinedTSoS = TrajectoryStateCombiner().combine(refitTM->forwardPredictedState(),        
     					        				    refitTM->backwardPredictedState());      
 	  if (refitTTRH->isValid() && combinedTSoS.isValid()) { 
-	    // calculate the distance between the hit location and the track-crossing point predicted by the combined state... 
+	    // calculate the distance between the hit location and the track-crossing point predicted by the combined state 
             const GeomDetUnit* GDU = dynamic_cast<const GeomDetUnit*>(ttrhDet);
 	    const Topology* theTopology = &(GDU->topology()); 									
     	    
@@ -211,7 +211,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
     	    
 	    Measurement2DVector residual = hitPosition - combinedTSoSPosition;  						
     																
-    	    // fill the residual histograms... 
+    	    // fill the residual histograms 
 	    std::map<uint32_t, SiPixelTrackResidualModule*>::iterator pxd = theSiPixelStructure.find(refitTTRH->geographicalId().rawId());	
     	    if (pxd!=theSiPixelStructure.end()) (*pxd).second->fill(residual); 				
     																
