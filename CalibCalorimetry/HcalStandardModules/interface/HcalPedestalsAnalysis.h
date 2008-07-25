@@ -93,6 +93,7 @@ class HcalPedestalsAnalysis : public edm::EDAnalyzer
    std::string widthsfCfilename;
    std::string XMLfilename;
    std::string XMLtag;
+   std::string ZSfilename;
 
    TH1F *HBMeans;
    TH1F *HBWidths;
