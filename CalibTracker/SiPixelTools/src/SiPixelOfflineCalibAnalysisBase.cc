@@ -14,7 +14,7 @@
 // Original Author:  Evan Klose Friis
 //    additions by:  Freya Blekman
 //         Created:  Tue Nov  6 17:27:19 CET 2007
-// $Id: SiPixelOfflineCalibAnalysisBase.cc,v 1.11 2008/03/03 09:52:59 chiochia Exp $
+// $Id: SiPixelOfflineCalibAnalysisBase.cc,v 1.12 2008/07/04 12:42:50 fblekman Exp $
 //
 //
 
@@ -33,7 +33,7 @@ TF1* SiPixelOfflineCalibAnalysisBase::fitFunction_ = NULL;
 std::vector<short>  SiPixelOfflineCalibAnalysisBase::vCalValues_(0);
 // constructors and destructor
 //
-SiPixelOfflineCalibAnalysisBase::SiPixelOfflineCalibAnalysisBase(const edm::ParameterSet& iConfig)
+SiPixelOfflineCalibAnalysisBase::SiPixelOfflineCalibAnalysisBase(const edm::ParameterSet& iConfig):runnumbers_(0)
 {
    siPixelCalibDigiProducer_ = iConfig.getParameter<edm::InputTag>("DetSetVectorSiPixelCalibDigiTag");
    createOutputFile_ = iConfig.getUntrackedParameter<bool>("saveFile",false);
@@ -66,7 +66,22 @@ SiPixelOfflineCalibAnalysisBase::analyze(const edm::Event& iEvent, const edm::Ev
    // check first if you're analyzing the right type of calibration
    if(!checkCorrectCalibrationType())
      return;
-
+   
+   uint32_t runnumber=iEvent.id().run();
+   if(runnumbers_.size()==0)
+     runnumbers_.push_back(runnumber);
+   else{
+     bool foundnumber=false;
+     for(size_t iter=0; iter<runnumbers_.size() && !foundnumber; ++ iter){
+       if(runnumbers_[iter]==runnumber){
+	 foundnumber=true;
+	 continue;
+       }
+     }
+     if(!foundnumber)
+       runnumbers_.push_back(runnumber);
+   }
+    
    Handle<DetSetVector<SiPixelCalibDigi> > thePlaquettes;
    iEvent.getByLabel(siPixelCalibDigiProducer_, thePlaquettes);
 
