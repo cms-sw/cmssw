@@ -63,12 +63,12 @@ private:
   DQMStore* dbe_;  
   MonitorElement* hL1DR, *hL2DR, *hL3DR;
   MonitorElement* hL1eff;
-  MonitorElement* hL1MCeff;
-  MonitorElement* hL1RECOeff;
-  MonitorElement* hMCptnor;
+  MonitorElement* hMCMaxPtPassL1;
+  MonitorElement* hRECOMaxPtPassL1;
+  MonitorElement* hMCMaxPt;
   MonitorElement* hMCphinor;
   MonitorElement* hMCetanor;
-  MonitorElement* hRECOptnor;
+  MonitorElement* hRECOMaxPt;
   MonitorElement* hRECOphinor;
   MonitorElement* hRECOetanor;
   MonitorElement* hL1rate;
@@ -79,8 +79,8 @@ private:
   MonitorElement* hL1phiRECO;
   MonitorElement* hSteps;
   std::vector <MonitorElement*> hHLTeff;
-  std::vector <MonitorElement*> hHLTMCeff;
-  std::vector <MonitorElement*> hHLTRECOeff;
+  std::vector <MonitorElement*> hHLTMCMaxPtPass;
+  std::vector <MonitorElement*> hHLTRECOMaxPtPass;
   std::vector <MonitorElement*> hHLTrate;
   std::vector <MonitorElement*> hHLTpt;
   std::vector <MonitorElement*> hHLTetaMC;
