@@ -1,7 +1,7 @@
 //
 // Author:      Domenico Giordano
 // Created:     Wed Sep 26 17:42:12 CEST 2007
-// $Id: SiStripQuality.cc,v 1.9 2008/02/06 16:40:42 bainbrid Exp $
+// $Id: SiStripQuality.cc,v 1.10 2008/07/25 16:07:19 giordano Exp $
 //
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
@@ -255,7 +255,7 @@ void SiStripQuality::ReduceGranularity(double threshold){
       }
     }
 
-    edm::LogInfo("SiStripQuality") << "[SiStripQuality::ReduceGranularity] Total for detid " << detid << " values " << BadStripPerApv[0] << " " << BadStripPerApv[1] << " " << BadStripPerApv[2] << " " <<BadStripPerApv[3] << " " <<BadStripPerApv[4] << " " << BadStripPerApv[5];
+    LogTrace("SiStripQuality") << "[SiStripQuality::ReduceGranularity] Total for detid " << detid << " values " << BadStripPerApv[0] << " " << BadStripPerApv[1] << " " << BadStripPerApv[2] << " " <<BadStripPerApv[3] << " " <<BadStripPerApv[4] << " " << BadStripPerApv[5];
     
     
     vect.clear();
