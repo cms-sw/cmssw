@@ -324,10 +324,10 @@ if options.dump_python:
     execfile(python_config_filename, result)
     process = result["process"]
     expanded = process.dumpPython()
-    expandedFile = file(python_config_filename.rstrip('.py')+'_expanded.py',"w")
+    expandedFile = file(python_config_filename,"w")
     expandedFile.write(expanded)
     expandedFile.close()
-    print "Config file "+python_config_filename.rstrip('.py')+'_expanded.py'+ " created"
+    print "Expanded config file", python_config_filename, "created"
     sys.exit(0)           
   
 if options.no_exec_flag:
