@@ -1,8 +1,8 @@
 /*
  * \file DTLocalTriggerTask.cc
  * 
- * $Date: 2008/07/02 15:05:45 $
- * $Revision: 1.27 $
+ * $Date: 2008/07/11 09:56:03 $
+ * $Revision: 1.28 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -112,6 +112,8 @@ void DTLocalTriggerTask::beginJob(const edm::EventSetup& context){
 	     if (parameters.getUntrackedParameter<bool>("process_seg", true)){ // DCC + Segemnt
 	       bookHistos(dtChId,"Segment","DCC_PhitkvsPhitrig"+(*trigSrcIt));
 	       bookHistos(dtChId,"Segment","DCC_PhibtkvsPhibtrig"+(*trigSrcIt));
+	       bookHistos(dtChId,"Segment","DCC_PhiResidual"+(*trigSrcIt));
+	       bookHistos(dtChId,"Segment","DCC_PhibResidual"+(*trigSrcIt));
 	       bookHistos(dtChId,"Segment","DCC_HitstkvsQualtrig"+(*trigSrcIt));
 	       bookHistos(dtChId,"Segment","DCC_TrackPosvsAngle"+(*trigSrcIt));
 	       bookHistos(dtChId,"Segment","DCC_TrackPosvsAngleandTrig"+(*trigSrcIt));
@@ -394,6 +396,16 @@ void DTLocalTriggerTask::bookHistos(const DTChamberId& dtCh, string folder, stri
     if( histoType == "PhibtkvsPhibtrig" ){ 
       (digiHistos[dtCh.rawId()])[histoTag] = 
 	dbe->book2D(histoName,"Local direction : segment vs trigger",200,-40.,40.,200,-40.,40.);
+      return ;
+    }
+    if( histoType == "PhiResidual" ){ 
+      (digiHistos[dtCh.rawId()])[histoTag] = 
+	dbe->book1D(histoName,"Trigger local position - Segment local position (correlated triggers)",400,-10.,10.);
+      return ;
+    }
+    if( histoType == "PhibResidual" ){ 
+      (digiHistos[dtCh.rawId()])[histoTag] = 
+	dbe->book1D(histoName,"Trigger local direction - Segment local direction (correlated triggers)",500,-10.,10.);
       return ;
     }
     if( histoType == "HitstkvsQualtrig" ){ 
@@ -706,6 +718,8 @@ void DTLocalTriggerTask::runSegmentAnalysis(Handle<DTRecSegment4DCollection>& se
 	float angle_trigger = phib2Ang(dtChId,iphbest[wheel+3][station][scsector]->phiB(),phphi);
 	    
 	if (innerME.find("DCC_HitstkvsQualtrig"+trigsrc) == innerME.end()){
+	  bookHistos(dtChId,"Segment","DCC_PhiResidual"+trigsrc);
+	  bookHistos(dtChId,"Segment","DCC_PhibResidual"+trigsrc);
 	  bookHistos(dtChId,"Segment","DCC_PhitkvsPhitrig"+trigsrc);
 	  bookHistos(dtChId,"Segment","DCC_PhibtkvsPhibtrig"+trigsrc);
 	  bookHistos(dtChId,"Segment","DCC_HitstkvsQualtrig"+trigsrc);
@@ -713,6 +727,12 @@ void DTLocalTriggerTask::runSegmentAnalysis(Handle<DTRecSegment4DCollection>& se
 
 	innerME.find("DCC_PhitkvsPhitrig"+trigsrc)->second->Fill(x_trigger,x_track);
 	innerME.find("DCC_PhibtkvsPhibtrig"+trigsrc)->second->Fill(angle_trigger,x_angle);
+	
+	if (phcode_best[wheel+3][station][scsector]> 3){
+	  innerME.find("DCC_PhiResidual"+trigsrc)->second->Fill(x_trigger-x_track);
+	  innerME.find("DCC_PhibResidual"+trigsrc)->second->Fill(angle_trigger-x_angle);
+	}
+
 	innerME.find("DCC_HitstkvsQualtrig"+trigsrc)->second->Fill(iphbest[wheel+3][station][scsector]->code(),nHitsPhi);
 
       }
