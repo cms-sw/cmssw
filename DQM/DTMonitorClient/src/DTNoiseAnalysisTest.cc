@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/07/09 18:37:02 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/07/22 10:23:26 $
+ *  $Revision: 1.6 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -12,10 +12,7 @@
 #include <DQM/DTMonitorClient/src/DTNoiseAnalysisTest.h>
 
 // Framework
-#include <FWCore/Framework/interface/Event.h>
-#include "DataFormats/Common/interface/Handle.h" 
-#include <FWCore/Framework/interface/ESHandle.h>
-#include <FWCore/Framework/interface/MakerMacros.h>
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 
@@ -25,16 +22,15 @@
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "Geometry/DTGeometry/interface/DTTopology.h"
+#include <DataFormats/MuonDetId/interface/DTLayerId.h>
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
-#include <stdio.h>
-#include <string>
 #include <sstream>
-#include <math.h>
+
 
 
 using namespace edm;
@@ -67,16 +63,15 @@ void DTNoiseAnalysisTest::beginJob(const edm::EventSetup& context){
   // Get the geometry
   context.get<MuonGeometryRecord>().get(muonGeom);
 
+  // book the histos
+  bookHistos();  
+
 }
 
 
 void DTNoiseAnalysisTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
 
   edm::LogVerbatim ("noise") <<"[DTNoiseAnalysisTest]: Begin of LS transition";
-
-  // book the histos
-  bookHistos();  
-
 }
 
 
@@ -88,7 +83,6 @@ void DTNoiseAnalysisTest::analyze(const edm::Event& e, const edm::EventSetup& co
 }
 
 void DTNoiseAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
-  
   edm::LogVerbatim ("noise") <<"[DTNoiseAnalysisTest]: End of LS transition, performing the DQM client operation";
 
   // Reset the summary plots
@@ -111,38 +105,52 @@ void DTNoiseAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Eve
   
   edm::LogVerbatim ("noise") <<"[DTNoiseAnalysisTest]: Fill the summary histos";
 
-  for (; ch_it != ch_end; ++ch_it) {
+  for (; ch_it != ch_end; ++ch_it) { // loop over chambers
     DTChamberId chID = (*ch_it)->id();
     
     MonitorElement * histo = dbe->get(getMEName(chID));
     
-    if(histo){
+    if(histo){ // check the pointer
       
       TH2F * histo_root = histo->getTH2F();
+      
+      for(int sl = 1; sl != 4; ++sl) { // loop over SLs
+	// skip theta SL in MB4 chambers
+	if(chID.station() == 4 && sl == 2) continue;
 
-      for(int wire=1; wire<histo_root->GetXaxis()->GetXmax(); wire++){
-	for(int layer=1; layer<13; layer++){
+	int binYlow = ((sl-1)*4)+1;
+
+	for(int layer = 1; layer <= 4; ++layer) { // loop over layers
 	  
-	  double noise = histo_root->GetBinContent(wire, layer);
-	  // fill the histos
-	  noiseHistos[chID.wheel()]->Fill(noise);
-	  noiseHistos[3]->Fill(noise);
-	  int sector = chID.sector();
-	  if(sector == 13) {
-	    sector = 4;
-	  } else if(sector == 14) {
-	    sector = 10;
-	  }
-	  if(noise>noisyCellDef) {
-	    noisyCellHistos[chID.wheel()]->Fill(sector,chID.station());
-	    summaryNoiseHisto->Fill(sector,chID.wheel());
+	  // Get the layer ID
+	  DTLayerId layID(chID,sl,layer);
+
+	  int nWires = muonGeom->layer(layID)->specificTopology().channels();
+	  int firstWire = muonGeom->layer(layID)->specificTopology().firstChannel();
+
+	  int binY = binYlow+(layer-1);
+
+	  for(int wire = firstWire; wire != (nWires+firstWire); wire++){ // loop over wires
+
+	    double noise = histo_root->GetBinContent(wire, binY);
+	    // fill the histos
+	    noiseHistos[chID.wheel()]->Fill(noise);
+	    noiseHistos[3]->Fill(noise);
+	    int sector = chID.sector();
+	    if(noise>noisyCellDef) {
+	      if(sector == 13) {
+		sector = 4;
+	      } else if(sector == 14) {
+		sector = 10;
+	      }
+	      noisyCellHistos[chID.wheel()]->Fill(sector,chID.station());
+	      summaryNoiseHisto->Fill(sector,chID.wheel());
+	    }
 	  }
 	}
       }
-      
     }
-  } // loop over all the chambers
-
+  }
 }	       
 
 
@@ -154,7 +162,7 @@ string DTNoiseAnalysisTest::getMEName(const DTChamberId & chID) {
   
   string folderName = 
     "DT/04-Noise/Wheel" +  wheel.str() +
-    "/Station" + station.str() +
+//     "/Station" + station.str() +
     "/Sector" + sector.str() + "/";
 
   string histoname = folderName + string("NoiseRate")  
@@ -188,7 +196,7 @@ void DTNoiseAnalysisTest::bookHistos() {
   for(int wh=-2; wh<=2; wh++){
     stringstream wheel; wheel << wh;
     histoName =  "NoiseSummary_W" + wheel.str();
-    noisyCellHistos[wh] = dbe->book2D(histoName.c_str(),histoName.c_str(),12,1,13,4,1,5);
+    noisyCellHistos[wh] = dbe->book2D(histoName.c_str(),"# of noisy channels",12,1,13,4,1,5);
     noisyCellHistos[wh]->setBinLabel(1,"MB1",2);
     noisyCellHistos[wh]->setBinLabel(2,"MB2",2);
     noisyCellHistos[wh]->setBinLabel(3,"MB3",2);
@@ -197,7 +205,7 @@ void DTNoiseAnalysisTest::bookHistos() {
   }
 
   histoName =  "NoiseSummary";
-  summaryNoiseHisto =  dbe->book2D(histoName.c_str(),histoName.c_str(),12,1,13,5,-2,3);
+  summaryNoiseHisto =  dbe->book2D(histoName.c_str(),"# of noisy channels",12,1,13,5,-2,3);
   summaryNoiseHisto->setAxisTitle("Sector",1);
   summaryNoiseHisto->setAxisTitle("Wheel",2);
 
