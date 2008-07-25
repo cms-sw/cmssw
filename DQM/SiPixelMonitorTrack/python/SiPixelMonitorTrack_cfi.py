@@ -7,6 +7,6 @@ SiPixelMonitorTrackResiduals = cms.EDFilter("SiPixelMonitorTrackResiduals",
     outputFilename = cms.string('Pixel_DQM_TrackResidual.root'),
     TrackCandidateProducer = cms.string('newTrackCandidateMaker'),
     TrackCandidateLabel = cms.string(''),
-    TTRHBuilder = cms.string('WithTrackAngle')
-    Fitter = cms.string('FittingSmootherWithOutlierRejection'),
+    TTRHBuilder = cms.string('WithTrackAngle'),
+    Fitter = cms.string('FittingSmootherWithOutlierRejection')
 )
