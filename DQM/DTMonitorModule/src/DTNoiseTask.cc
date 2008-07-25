@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/07/09 14:13:08 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/07/09 18:34:59 $
+ *  $Revision: 1.10 $
  *  \authors G. Mila , G. Cerminara - INFN Torino
  */
 
@@ -173,7 +173,7 @@ void DTNoiseTask::bookHistos(DTChamberId chId) {
   stringstream station; station << chId.station();	
   stringstream sector; sector << chId.sector();	
   dbe->setCurrentFolder("DT/04-Noise/Wheel" + wheel.str() +
-			"/Station" + station.str() +
+// 			"/Station" + station.str() +
 			"/Sector" + sector.str());
 
   // Build the histo name
@@ -183,8 +183,8 @@ void DTNoiseTask::bookHistos(DTChamberId chId) {
     + "_Sec" + sector.str() ;
   
    LogVerbatim("DTNoiseTask") << "[DTNoiseTask]: booking chamber histo:"<<endl;
-   LogVerbatim("DTNoiseTask") << "              folder "<< "DT/01-Noise/Wheel" + wheel.str() +
-    "/Station" + station.str() +
+   LogVerbatim("DTNoiseTask") << "              folder "<< "DT/04-Noise/Wheel" + wheel.str() +
+//     "/Station" + station.str() +
     "/Sector" + sector.str() + "/"<<endl; 
    LogVerbatim("DTNoiseTask") << "              histoName "<<histoName<<endl;
 
