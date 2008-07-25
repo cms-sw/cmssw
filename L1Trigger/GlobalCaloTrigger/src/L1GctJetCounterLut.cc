@@ -95,7 +95,7 @@ std::ostream& operator << (std::ostream& os, const L1GctJetCounterLut& lut)
 	break;
       }
   }
-  os << "===Lookup table contents" << std::endl;
+  os << "\n===Lookup table contents===\n" << std::endl;
   const L1GctLut<L1GctJetCounterLut::NAddress,1>* temp=&lut;
   os << *temp;
   return os;
