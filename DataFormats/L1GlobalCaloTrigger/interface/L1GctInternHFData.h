@@ -101,6 +101,8 @@ class L1GctInternHFData {
   /// set the count
   void setCount(unsigned i, uint16_t count);
 
+  void setData(uint32_t data) { data_ = data; }
+
 
   // private data
  private:
