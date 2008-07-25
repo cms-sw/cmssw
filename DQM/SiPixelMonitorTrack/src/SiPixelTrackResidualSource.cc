@@ -9,7 +9,7 @@
 //
 // Original Author: Shan-Huei Chuang
 //         Created: Fri Mar 23 18:41:42 CET 2007
-// $Id: SiPixelTrackResidualSource.cc,v 1.8 2008/03/01 20:19:52 lat Exp $
+// $Id: SiPixelTrackResidualSource.cc,v 1.2 2008/07/25 21:22:59 schuang Exp $
 
 
 #include <iostream>
@@ -119,9 +119,9 @@ void SiPixelTrackResidualSource::endJob(void) {
   // save the residual histograms to an output root file
   bool saveFile = pSet_.getUntrackedParameter<bool>("saveFile", true);
   if (saveFile) { 
-    std::string outputFilename = pSet_.getParameter<std::string>("outputFilename");
-    LogInfo("PixelDQM") << " - saving histograms to "<< outputFilename.data();
-    dbe_->save(outputFilename);
+    std::string outputFile = pSet_.getParameter<std::string>("outputFile");
+    LogInfo("PixelDQM") << " - saving histograms to "<< outputFile.data();
+    dbe_->save(outputFile);
   } 
   LogInfo("PixelDQM") << endl; // dbe_->showDirStructure();
 }
