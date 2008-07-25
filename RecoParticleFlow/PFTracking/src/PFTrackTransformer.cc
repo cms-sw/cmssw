@@ -31,7 +31,7 @@ using namespace edm;
 
 
 
-PFTrackTransformer::PFTrackTransformer(math::XYZVector B):B_(B){
+PFTrackTransformer::PFTrackTransformer(){
   LogInfo("PFTrackTransformer")<<"PFTrackTransformer built";
 
   PFGeometry pfGeometry;
@@ -66,8 +66,7 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
 							 track.vertex().y(),
 							 track.vertex().z(),
 							 0.)),
-			   0.,0.,B_.z());
-
+			   0.,0.,4.);
   theParticle.setCharge(track.charge());
   float pfoutenergy=sqrt((pfmass*pfmass)+track.outerMomentum().Mag2());
   BaseParticlePropagator theOutParticle = 
@@ -80,7 +79,7 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
 							 track.outerPosition().y(),
 							 track.outerPosition().z(),
 							 0.)),
-			   0.,0.,B_.z());
+			   0.,0.,4.);
   theOutParticle.setCharge(track.charge());
   
   
@@ -256,7 +255,7 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 							     track.vertex().y(),
 							     track.vertex().z(),
 							     0.)),  //DANIELE Same thing v.x(),v.y(),v.()? 
-			       0.,0.,B_.z());
+			       0.,0.,4.);
       theInnerParticle.setCharge(track.charge());  
 
       //BEAMPIPE
@@ -306,7 +305,7 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 							     v.y(),
 							     v.z(),
 							     0.)), 
-			       0.,0.,B_.z());
+			       0.,0.,4.);
       theOutParticle.setCharge(track.charge());  
       bool isBelowPS=false; 
       theOutParticle.propagateToPreshowerLayer1(false);
@@ -406,7 +405,7 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 							   v.y(),
 							   v.z(),
 							   0.)),
-			     0.,0.,B_.z());
+			     0.,0.,4.);
     int gamma_charge = 0;
     theBremParticle.setCharge(gamma_charge);  
 
@@ -480,8 +479,8 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 					math::XYZPoint(theBremParticle.vertex()),
 					math::XYZTLorentzVector(theBremParticle.momentum())));
    else{
-     PFTrajectoryPoint dummyHCALexit;
-     pftrack.addPoint(dummyHCALexit); 
+     PFTrajectoryPoint dummyHCALentrance;
+     pftrack.addPoint(dummyHCALentrance); 
    }  
 
    //HCAL exit
@@ -493,7 +492,7 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
    else{
      PFTrajectoryPoint dummyHCALexit;
      pftrack.addPoint(dummyHCALexit); 
-   }
+   }  
 
    pftrack.addBrem(brem);
    iTrajPos++;
