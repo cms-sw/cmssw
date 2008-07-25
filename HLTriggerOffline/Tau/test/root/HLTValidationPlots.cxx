@@ -1,5 +1,6 @@
 run(string fname1,string fname2,string v1,string v2,string path)
 {
+  L1Val(fname1,fname2,v1,v2,"DQMData/HLT/HLTTAU/L1");
   L2Val(fname1,fname2,v1,v2,"DQMData/HLT/HLTTAU/"+path+"/L2");
   L25Val(fname1,fname2,v1,v2,"DQMData/HLT/HLTTAU/"+path+"/L25");
   if(path=="SingleTau"||path=="SingleTauMET")
@@ -12,6 +13,7 @@ run(string fname1,string fname2,string v1,string v2,string path)
 
 draw(string fname1,string fname2,string v1,string v2,string path)
 {
+  L1Draw(fname1,fname2,v1,v2,"DQMData/HLT/HLTTAU/L1");
   L2Draw(fname1,fname2,v1,v2,"DQMData/HLT/HLTTAU/"+path+"/L2");
   L25Draw(fname1,fname2,v1,v2,"DQMData/HLT/HLTTAU/"+path+"/L25");
 
