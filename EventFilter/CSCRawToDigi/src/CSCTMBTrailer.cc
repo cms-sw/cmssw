@@ -50,7 +50,7 @@ CSCTMBTrailer::CSCTMBTrailer(unsigned short * buf, unsigned short int firmwareVe
       <<"failed to contruct: firmware version is bad/not defined!";
   }
 }
-
+// RPW if these are 1  bits, shouldn't the mask be 0x07FF?
 int CSCTMBTrailer::crc22() const 
 {  return theData[crcOffset()] & 0x7fff +
             ((theData[crcOffset()+1] & 0x7fff) << 11);
@@ -59,8 +59,8 @@ int CSCTMBTrailer::crc22() const
 
 void CSCTMBTrailer::setCRC(int crc) 
 {
-  theData[crcOffset()] = crc & 0x7fff;
-  theData[crcOffset()+1] = (crc>>11) & 0x7fff;
+  theData[crcOffset()] |= (crc & 0x07ff);
+  theData[crcOffset()+1] |= ((crc>>11) & 0x07ff);
 }
 
 
