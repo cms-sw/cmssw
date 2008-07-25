@@ -42,7 +42,7 @@ L1MuGMTParameters = cms.ESProducer("L1MuGMTParametersProducer",
     MergeMethodMIPSpecialUseANDBrl = cms.bool(False),
     SortRankOffsetFwd = cms.uint32(10),
     VersionSortRankEtaQLUT = cms.uint32(2),
-    SubsystemMask = cms.uint(0)
+    SubsystemMask = cms.uint32(0)
 )
 
 
