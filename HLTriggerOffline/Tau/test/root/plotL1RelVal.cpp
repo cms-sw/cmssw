@@ -655,6 +655,7 @@ void plotL1RelVal(bool printCanvas = false, bool printIndividual = false, bool n
   hl1->GetXaxis()->SetTitle("L1 Single #tau E_{T} threshold (GeV)");
   hl1->GetYaxis()->SetTitle("Integrated Global Efficiency");
   hl1->SetLineColor(kBlue);
+
   TH1* hl2 = (TH1F *) (f2->Get(l1str));
   hl2->SetMarkerColor(kBlack);
   hl2->SetMarkerSize(1.);
