@@ -54,7 +54,7 @@ class L1GctInternHFData {
   int16_t bx() const { return bx_; }
 
   /// is the sum non-zero
-  bool empty() const { return (data_ != 0); }
+  bool empty() const { return (data_ == 0); }
 
 
   /// get the actual data
