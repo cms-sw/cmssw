@@ -51,7 +51,7 @@ void SiStripHistoricPlot::endRun(const edm::Run& run, const edm::EventSetup& iSe
 void SiStripHistoricPlot::fillHistograms(edm::ESHandle<SiStripSummary> pS){
   std::vector<unsigned int> vdetids; vdetids.clear();
   vdetids = pS->getDetIds(); //  vdetids = activeDets;
-  for(int i =0; i < vdetids.size(); i++){
+  for(unsigned int i =0; i < vdetids.size(); i++){
  
       std::string mean = "ClusterWidth@mean";
       std::string rms = "ClusterWidth@rms";

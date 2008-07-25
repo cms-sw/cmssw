@@ -1,16 +1,17 @@
 #include "DQM/SiStripHistoricInfoClient/interface/ReadFromFile.h"
+#include "DQM/SiStripHistoricInfoClient/interface/fitME.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondFormats/DataRecord/interface/SiStripPerformanceSummaryRcd.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/DQMStore.h"
 #include <string>
 #include <cctype>
 #include <time.h>
 #include <boost/cstdint.hpp>
+#
+
 //-----------------------------------------------------------------------------------------------
 ReadFromFile::ReadFromFile(const edm::ParameterSet& iConfig):iConfig_(iConfig){}
 //-----------------------------------------------------------------------------------------------
@@ -69,7 +70,19 @@ void ReadFromFile::endRun(const edm::Run& run , const edm::EventSetup& iSetup)
        std::string histoName = ithistoList->getUntrackedParameter<std::string>("Name");
        std::vector<std::string> Quantities = ithistoList->getUntrackedParameter<std::vector<std::string> >("quantitiesToExtract"); 
        for (size_t i=0;i<Quantities.size();++i){
+	if ( Quantities[i].find("landau") == std::string::npos && Quantities[i].find("noise") == std::string::npos ) 
 	 userDBContent.push_back(histoName+std::string("@")+Quantities[i]);
+	 else if  ( Quantities[i].find("landau") != std::string::npos)
+	 { 
+	   userDBContent.push_back(histoName+std::string("@")+std::string("landauPeak"));
+	   userDBContent.push_back(histoName+std::string("@")+std::string("landauPeakErr"));
+	   userDBContent.push_back(histoName+std::string("@")+std::string("landauSFWHM"));
+	  }
+	 else if  ( Quantities[i].find("noise")  != std::string::npos)
+	 { 
+	   userDBContent.push_back(histoName+std::string("@")+std::string("noiseMean"));
+	   userDBContent.push_back(histoName+std::string("@")+std::string("noiseRms"));
+	 }	
        }
     }
     vSummary.back()->setUserDBContent(userDBContent);
@@ -131,14 +144,39 @@ void ReadFromFile::scanTreeAndFillSummary(std::string top_dir, SiStripSummary* s
       
       for(size_t i=0;i<Quantities.size();++i){
 	
+	if ( Quantities[i].find("landau") == std::string::npos && Quantities[i].find("noise") == std::string::npos ) 
 	userDBContent.push_back(histoName+std::string("@")+Quantities[i]);
+	
 	if(Quantities[i] =="mean") 
 	  values.push_back( (*iterMes)->getMean());
 	else if(Quantities[i]  =="rms")  
 	  values.push_back( (*iterMes)->getRMS());
-	 else if(Quantities[i]  =="entries")  
+	else if(Quantities[i]  =="entries")  
 	   values.push_back( (*iterMes)->getEntries());
-      }
+	else if(Quantities[i]  =="landau")  
+	{  
+	   userDBContent.push_back(histoName+std::string("@")+std::string("landauPeak"));
+	   userDBContent.push_back(histoName+std::string("@")+std::string("landauPeakErr"));
+	   //userDBContent.push_back(histoName+std::string("@")+std::string("landauSFWHM"));
+	  
+	   fitME pfitME((*iterMes));
+	   pfitME.doFit(); 
+	   values.push_back( pfitME.getFitPar()[1]); 
+	   values.push_back( pfitME.getFitParErr()[1]); 
+	   //values.push_back( pfitME.pLanConv[1]);
+	   }
+	else if(Quantities[i]  =="noise")  
+	{  
+	   userDBContent.push_back(histoName+std::string("@")+std::string("noiseMean"));
+	   userDBContent.push_back(histoName+std::string("@")+std::string("noiseRms"));
+	  
+	   fitME pfitME((*iterMes));
+	   pfitME.doNoiseFit();
+	   values.push_back( pfitME.getNoisePar()[1]);
+	   values.push_back( pfitME.getNoiseParErr()[1]);
+	   }
+       }
+     
       
       for(size_t i=0;i<values.size();++i)
       std::cout << "Quantity " << userDBContent[i] << " value " << values[i] << std::endl;

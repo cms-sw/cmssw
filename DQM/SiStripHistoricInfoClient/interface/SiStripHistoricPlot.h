@@ -8,7 +8,7 @@ Analyzer that produces the long-term detector  (historic plot) for the silicon s
 */
 // Original Author:  dkcira
 //         Created:  Wed May 9 17:08:21 CEST 2007
-// $Id: SiStripHistoricPlot.h,v 1.1 2007/05/16 07:42:04 dkcira Exp $
+// $Id: SiStripHistoricPlot.h,v 1.2 2008/07/23 08:56:57 alebihan Exp $
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -35,7 +35,7 @@ namespace cms{
     TString detHistoTitle(uint32_t detid, std::string);
   private:
     bool printdebug_;
-    unsigned int presentRunNr_;
+    int presentRunNr_;
     TH1F *ClusterSizesAllDets;
     TH1F *ClusterChargeAllDets;
     TH1F *OccupancyAllDets;
