@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/07/02 16:32:48 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/07/02 16:50:29 $
+ *  $Revision: 1.7 $
  *  \author G. Cerminara - University and INFN Torino
  */
 
@@ -339,9 +339,9 @@ int DTOccupancyTest::runOccupancyTest(TH2F *histo, const DTChamberId& chId) {
 
   if(writeRootFile) ntuple->Fill(values);
 
-  double averageLayerOcc = totalChamberOccupp/(nSL*4);
-  double averageSquaredLayeroccup = squaredLayerOccupSum/(nSL*4);
-  double layerOccupRMS = sqrt(averageSquaredLayeroccup - averageLayerOcc*averageLayerOcc);
+//   double averageLayerOcc = totalChamberOccupp/(nSL*4);
+//   double averageSquaredLayeroccup = squaredLayerOccupSum/(nSL*4);
+//   double layerOccupRMS = sqrt(averageSquaredLayeroccup - averageLayerOcc*averageLayerOcc);
 
   double minCellRMS = 99999999;
   double referenceCellOccup = -1;
