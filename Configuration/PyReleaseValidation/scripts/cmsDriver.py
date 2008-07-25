@@ -112,8 +112,8 @@ parser.add_option("--geometry",
                    dest="geometry")
 
 parser.add_option("--magField",
-                   help="What magnetic field to use (from Configuration/StandardSequences). Default=3.8T",
-                   default="3.8T",
+                   help="What magnetic field to use (from Configuration/StandardSequences).",
+                   default="",
                    dest="magField")
 
 parser.add_option("--altcffs",
