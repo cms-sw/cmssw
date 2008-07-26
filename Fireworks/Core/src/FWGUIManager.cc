@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.65 2008/07/19 06:40:31 jmuelmen Exp $
+// $Id: FWGUIManager.cc,v 1.66 2008/07/24 23:11:49 chrjones Exp $
 //
 
 // system include files
@@ -341,6 +341,17 @@ void
 FWGUIManager::disableNext()
 {
   m_cmsShowMainFrame->enableNext(false);
+}
+
+void
+FWGUIManager::updateStatus(const char* status) {
+  m_cmsShowMainFrame->updateStatusBar(status);
+}
+
+void
+FWGUIManager::clearStatus()
+{
+   m_cmsShowMainFrame->clearStatusBar();
 }
 
 void 
