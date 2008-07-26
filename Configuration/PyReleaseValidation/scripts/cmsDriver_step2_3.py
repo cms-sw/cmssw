@@ -52,7 +52,7 @@ alcaDict3={'MinBias':'TkAlMuonIsolated+TkAlJpsiMuMu+TkAlMinBias+SiPixelLorentzAn
            'ZW':'TkAlZMuMu+TkAlMuonIsolated+SiPixelLorentzAngle+EcalCalElectron+HcalCalHO+MuAlOverlaps+DQM',
            'HCALNZS':'', # 'HcalCalMinBias+DQM',
            'HCALIST':'', #'HcalCalIsoTrkNoHLT+DQM',
-           'RELVAL':'TkAlZMuMu+TkAlMuonIsolated+TkAlJpsiMuMu+TkAlUpsilonMuMu+TkAlMinBias+SiPixelLorentzAngle+SiStripCalMinBias+EcalCalElectron+EcalCalPhiSym+EcalCalPi0Calib+HcalCalDijets+HcalCalGammaJet+HcalCalIsoTrkNoHLT+HcalCalHO+MuAlOverlaps+DQM',
+           'RELVAL':'TkAlZMuMu+TkAlMuonIsolated+TkAlJpsiMuMu+TkAlUpsilonMuMu+TkAlMinBias+SiPixelLorentzAngle+SiStripCalMinBias+EcalCalElectron+EcalCalPhiSym+EcalCalPi0Calib+HcalCalDijets+HcalCalGammaJet+HcalCalIsoTrkNoHLT+MuAlOverlaps+DQM',
            'TrackerHaloMuon':'', #'TkAlBeamHalo',
            'TrackerCosBON':'', # 'TkAlCosmics',
            'TrackerCosBOFF':'', # 'TkAlCosmics',
