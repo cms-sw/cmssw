@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.33 2008/07/22 04:01:58 jmuelmen Exp $
+// $Id: CmsShowMain.cc,v 1.34 2008/07/24 14:42:22 chrjones Exp $
 //
 
 // system include files
@@ -244,6 +244,8 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       TEveTrackProjected::SetBreakTracks(kFALSE);
 
       m_startupTasks = std::auto_ptr<CmsShowTaskExecutor>(new CmsShowTaskExecutor);
+      m_startupTasks->tasksCompleted_.connect(boost::bind(&FWGUIManager::clearStatus,
+                                                m_guiManager.get()) );
       CmsShowTaskExecutor::TaskFunctor f;
       f=boost::bind(&CmsShowMain::loadGeometry,this);
       m_startupTasks->addTask(f);
@@ -564,7 +566,7 @@ void CmsShowMain::resetInitialization() {
 void CmsShowMain::draw(const fwlite::Event& event) 
 {
   // TStopwatch stopwatch;
-   
+  m_guiManager->updateStatus("loading event ...");
   m_guiManager->enableActions(false);
   m_eiManager->setGeom(&m_detIdToGeo);
   m_eiManager->newEvent(&event);
@@ -572,6 +574,7 @@ void CmsShowMain::draw(const fwlite::Event& event)
        m_textView->newEvent(event, this);
   m_guiManager->enableActions();
   // stopwatch.Stop(); printf("Total event draw time: "); stopwatch.Print("m");
+  m_guiManager->clearStatus();
 }
 
 void CmsShowMain::openData()
@@ -587,7 +590,9 @@ void CmsShowMain::openData()
   fi.fIniDir = new char[10];
   strcpy(fi.fIniDir, ".");
   new TGFileDialog(gClient->GetDefaultRoot(), gClient->GetDefaultRoot(), kFDOpen, &fi);
+   m_guiManager->updateStatus("loading file ...");
   if (fi.fFilename) m_navigator->loadFile(fi.fFilename);
+   m_guiManager->clearStatus();
 }
 
 void CmsShowMain::quit() 
@@ -643,13 +648,15 @@ void
 CmsShowMain::loadGeometry()
 {      // prepare geometry service
    // ATTN: this should be made configurable
+   m_guiManager->updateStatus("Loading geometry...");
    m_detIdToGeo.loadGeometry( m_geomFileName.c_str() );
    m_detIdToGeo.loadMap( m_geomFileName.c_str() );
-   
 }
+
 void 
 CmsShowMain::setupViewManagers()
 {
+  m_guiManager->updateStatus("Setting up view manager...");
    boost::shared_ptr<FWViewManagerBase> rpzViewManager( new FWRhoPhiZViewManager(m_guiManager.get()) );
    rpzViewManager->setGeom(&m_detIdToGeo);
    m_viewManager->add(rpzViewManager);
@@ -663,6 +670,7 @@ CmsShowMain::setupViewManagers()
 void 
 CmsShowMain::setupConfiguration()
 {
+  m_guiManager->updateStatus("Setting up configuration...");
    if(m_configFileName.empty() ) {
       std::cout << "WARNING: no configuration is loaded." << std::endl;
       m_configFileName = "newconfig.fwc";
@@ -861,12 +869,12 @@ CmsShowMain::setupConfiguration()
                                                                          m_configurationManager.get(),
                                                                          m_configFileName));
    }
-   
 }
 
 void 
 CmsShowMain::setupDetailedViewManagers()
 {
+  m_guiManager->updateStatus("Setting up detailed views...");
    // register detail viewers
    registerDetailView("Electrons", new ElectronDetailView);
    registerDetailView("Muons", new MuonDetailView);
@@ -877,6 +885,7 @@ CmsShowMain::setupDetailedViewManagers()
 void 
 CmsShowMain::setupDataHandling()
 {
+   m_guiManager->updateStatus("Setting up data handling...");
    m_navigator = new CmsShowNavigator(*this);
    m_navigator->oldEvent.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::loadEvent));
    m_navigator->newEvent.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::loadEvent));
@@ -897,12 +906,14 @@ CmsShowMain::setupDataHandling()
    else
       printf("Why?\n\n\n\n\n\n");
    if(m_inputFileName.size()) {
+      m_guiManager->updateStatus("loading data file...");
       m_navigator->loadFile(m_inputFileName);
    }   
 }
 void 
 CmsShowMain::setupDebugSupport()
 {
+   m_guiManager->updateStatus("Setting up debug support...");
    m_guiManager->openEveBrowserForDebugging();
 }
 
