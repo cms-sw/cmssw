@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 18:11:16 CDT 2008
-// $Id: CmsShowMainFrame.h,v 1.5 2008/07/14 14:05:52 chrjones Exp $
+// $Id: CmsShowMainFrame.h,v 1.6 2008/07/17 10:07:00 dmytro Exp $
 //
 
 // system include files
@@ -33,6 +33,7 @@ class TGWindow;
 class TGTextButton;
 class TGPictureButton;
 class TGPopupMenu;
+class TGStatusBar;
 class TTimer;
 class CSGAction;
 class CSGNumAction;
@@ -80,6 +81,8 @@ public:
    void enableNext(bool enable = true);
    bool previousIsEnabled();
    bool nextIsEnabled();
+   void updateStatusBar(const char* status);
+   void clearStatusBar();
    void resizeMenu(TGPopupMenu *menu);
    void HandleMenu(Int_t id);
    Bool_t HandleKey(Event_t *event);
@@ -105,6 +108,7 @@ private:
    Int_t m_playBackRate;
    TTimer *m_playTimer;
    TTimer *m_playBackTimer;   
+   TGStatusBar* m_statBar;
    
    TGPopupMenu *m_newViewerMenu;
 };

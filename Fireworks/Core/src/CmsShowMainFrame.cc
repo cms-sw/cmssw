@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.14 2008/07/17 10:07:00 dmytro Exp $
+// $Id: CmsShowMainFrame.cc,v 1.15 2008/07/20 17:51:57 chrjones Exp $
 //
 
 // system include files
@@ -26,6 +26,7 @@
 #include <TGMenu.h>
 #include <TGLabel.h>
 #include <TGTab.h>
+#include <TGStatusBar.h>
 #include <TGNumberEntry.h>
 #include <TTimer.h>
 #include <KeySymbols.h>
@@ -218,6 +219,11 @@ TGMainFrame(p, w, h)
    */
 
    TGHorizontalFrame *fullbar = new TGHorizontalFrame(this, this->GetWidth(), 30);
+   m_statBar = new TGStatusBar(this, this->GetWidth(), 12);
+   AddFrame(m_statBar, new TGLayoutHints(kLHintsBottom | kLHintsExpandX));
+   MapSubwindows();
+   Layout();
+   MapWindow();   
    //printf("this->GetWidth(): %d\n", this->GetWidth());
    TGToolBar *tools = new TGToolBar(fullbar, 400, 30);
    TString coreIcondir(Form("%s/src/Fireworks/Core/icons/",gSystem->Getenv("CMSSW_BASE")));
@@ -294,6 +300,9 @@ TGMainFrame(p, w, h)
    //   csArea->GetSecond()->AddFrame(csDisplay,new TGLayoutHints(kLHintsRight|kLHintsExpandX|kLHintsExpandY));
    //   csArea->Resize(csArea->GetDefaultSize()); 
    AddFrame(csArea,new TGLayoutHints(kLHintsTop | kLHintsExpandX | kLHintsExpandY,2,2,0,2));
+   //   csArea->MapSubwindows();
+   //   csArea->Layout();
+   //   csArea->MapWindow();
    SetWindowName("cmsShow");
    MapSubwindows();
    //   printf("Default main frame size: %d, %d\n", this->GetDefaultSize().fWidth, this->GetDefaultSize().fHeight);
@@ -312,6 +321,7 @@ CmsShowMainFrame::~CmsShowMainFrame() {
    Cleanup();
    delete m_playTimer;
    delete m_playBackTimer;
+   delete m_statBar;
 }
 
 //
@@ -510,6 +520,19 @@ bool
 CmsShowMainFrame::previousIsEnabled()
 {
   return m_previousEvent->isEnabled();
+}
+
+void CmsShowMainFrame::updateStatusBar(const char* status) {
+  m_statBar->SetText(status, 0);
+  //force the status bar to update its image
+  gClient->ProcessEventsFor(m_statBar);
+}
+
+void CmsShowMainFrame::clearStatusBar()
+{
+   m_statBar->SetText("", 0);
+   //don't process immediately since we want this on the event queue
+   // since results of the last action may still be happening
 }
 
 void CmsShowMainFrame::HandleMenu(Int_t id) {
