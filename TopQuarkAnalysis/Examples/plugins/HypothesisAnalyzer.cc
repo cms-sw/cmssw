@@ -39,12 +39,12 @@ HypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
     hadWPt_    ->Fill( hadW->pt()    );
     hadWMass_  ->Fill( hadW->mass()  );
     hadTopPt_  ->Fill( hadTop->pt()  );
-    hadTopMass_->Fill( hadTop->eta() );
+    hadTopMass_->Fill( hadTop->mass());
     
     lepWPt_    ->Fill( lepW->pt()    );
     lepWMass_  ->Fill( lepW->mass()  );
     lepTopPt_  ->Fill( lepTop->pt()  );
-    lepTopMass_->Fill( lepTop->eta() );
+    lepTopMass_->Fill( lepTop->mass());
   }
 }
 

@@ -19,10 +19,10 @@ class TtSemiEvtPartons {
   std::vector<const reco::Candidate*> vec(const TtGenEvent& genEvt)
   {
     std::vector<const reco::Candidate*> vec;
-    vec.push_back( genEvt.hadronicDecayQuark()    ? genEvt.hadronicDecayQuark()    : new reco::GenParticle() );
-    vec.push_back( genEvt.hadronicDecayQuarkBar() ? genEvt.hadronicDecayQuarkBar() : new reco::GenParticle() );
-    vec.push_back( genEvt.hadronicDecayB()        ? genEvt.hadronicDecayB()        : new reco::GenParticle() );
-    vec.push_back( genEvt.leptonicDecayB()        ? genEvt.leptonicDecayB()        : new reco::GenParticle() );
+    vec.push_back( (genEvt.isSemiLeptonic() && genEvt.hadronicDecayQuark()   ) ? genEvt.hadronicDecayQuark()    : new reco::GenParticle(0, reco::Particle::LorentzVector(), reco::Particle::Point(), 0, 0, false) );
+    vec.push_back( (genEvt.isSemiLeptonic() && genEvt.hadronicDecayQuarkBar()) ? genEvt.hadronicDecayQuarkBar() : new reco::GenParticle(0, reco::Particle::LorentzVector(), reco::Particle::Point(), 0, 0, false));
+    vec.push_back( (genEvt.isSemiLeptonic() && genEvt.hadronicDecayB()       ) ? genEvt.hadronicDecayB()        : new reco::GenParticle(0, reco::Particle::LorentzVector(), reco::Particle::Point(), 0, 0, false) );
+    vec.push_back( (genEvt.isSemiLeptonic() && genEvt.leptonicDecayB()       ) ? genEvt.leptonicDecayB()        : new reco::GenParticle(0, reco::Particle::LorentzVector(), reco::Particle::Point(), 0, 0, false) );
     return vec;
   }
 };

@@ -16,9 +16,9 @@ class TtGenEvent: public TopGenEvent {
   virtual ~TtGenEvent();
 
   bool isTtBar() const {return (top() && topBar());}
-  bool isFullHadronic() const { return (isTtBar() && numberOfLeptons()==0);}
-  bool isSemiLeptonic() const { return (isTtBar() && numberOfLeptons()==1);}
-  bool isFullLeptonic() const { return (isTtBar() && numberOfLeptons()==2);}
+  bool isFullHadronic() const { return isTtBar() ? numberOfLeptons()==0 : false;}
+  bool isSemiLeptonic() const { return isTtBar() ? numberOfLeptons()==1 : false;}
+  bool isFullLeptonic() const { return isTtBar() ? numberOfLeptons()==2 : false;}
   
   //semi-leptonic getters
   LeptonType semiLeptonicChannel() const;
