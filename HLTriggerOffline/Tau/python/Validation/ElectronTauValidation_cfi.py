@@ -1,16 +1,16 @@
 import FWCore.ParameterSet.Config as cms
 
 ElectronTauPathVal = cms.EDFilter("HLTTauValidation",
-    triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","","TEST"),
+    triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","","HLT"),
     refTauCollection      = cms.untracked.InputTag("TauMCProducer","Taus"),
     refLeptonCollection   = cms.untracked.InputTag("TauMCProducer","Electrons"),
     DQMFolder             = cms.untracked.string('HLT/HLTTAU/ElectronTau/Path'),
-    L1SeedFilter          = cms.untracked.InputTag("hltLevel1GTSeedElectronTau","","TEST"),
-    L2EcalIsolFilter      = cms.untracked.InputTag("hltFilterEcalIsolatedTauJetsElectronTau","","TEST"),
-    L25PixelIsolFilter    = cms.untracked.InputTag("hltFilterIsolatedTauJetsL25ElectronTau","","TEST"),
+    L1SeedFilter          = cms.untracked.InputTag("hltLevel1GTSeedElectronTau","","HLT"),
+    L2EcalIsolFilter      = cms.untracked.InputTag("hltFilterEcalIsolatedTauJetsElectronTau","","HLT"),
+    L25PixelIsolFilter    = cms.untracked.InputTag("hltFilterIsolatedTauJetsL25ElectronTau","","HLT"),
     L3SiliconIsolFilter   = cms.untracked.InputTag("DUMMY"),
     MuonFilter            = cms.untracked.InputTag("DUMMY"),
-    ElectronFilter        = cms.untracked.InputTag("hltElectronTrackIsolFilterHOneOEMinusOneOPFilterElectronTau","","TEST"),
+    ElectronFilter        = cms.untracked.InputTag("hltElectronTrackIsolFilterHOneOEMinusOneOPFilterElectronTau","","HLT"),
     NTriggeredTaus        = cms.untracked.uint32(1),
     NTriggeredLeptons     = cms.untracked.uint32(1),
     DoReferenceAnalysis   = cms.untracked.bool(True),
@@ -31,8 +31,8 @@ ElectronTauL2Val = cms.EDFilter("HLTTauCaloDQMOfflineSource",
     OutputFileName         = cms.string(''),
     L2IsolatedJets         = cms.InputTag("hltL2ElectronTauIsolationSelector","Isolated"),
     EtMin                  = cms.double(0.),
-    EtMax                  = cms.double(60.),
-    NBins                  = cms.int32(30)                            
+    EtMax                  = cms.double(100.),
+    NBins                  = cms.int32(50)                            
 )
 
 
@@ -47,8 +47,8 @@ ElectronTauL25Val = cms.EDFilter("HLTTauTrkDQMOfflineSource",
     MatchDeltaR            = cms.double(0.3),
     OutputFileName         = cms.string(''),
     EtMin                  = cms.double(0.),
-    EtMax                  = cms.double(60.),
-    NBins                  = cms.int32(30)                            
+    EtMax                  = cms.double(100.),
+    NBins                  = cms.int32(50)                            
 )
 
 
@@ -59,44 +59,44 @@ ElectronTauElVal = cms.EDFilter("HLTTauElDQMOfflineSource",
 
     filters = cms.VPSet(cms.PSet(
         PlotBounds = cms.vdouble(0.0, 0.0),
-        HLTCollectionLabels = cms.InputTag("hltLevel1GTSeedElectronTau","","TEST"),
+        HLTCollectionLabels = cms.InputTag("hltLevel1GTSeedElectronTau","","HLT"),
         IsoCollections = cms.VInputTag(cms.InputTag("none")),
         theHLTOutputTypes = cms.uint32(83)
     ), 
         cms.PSet(
             PlotBounds = cms.vdouble(0.0, 0.0),
-            HLTCollectionLabels = cms.InputTag("hltEgammaL1MatchFilterRegionalElectronTau","","TEST"),
+            HLTCollectionLabels = cms.InputTag("hltEgammaL1MatchFilterRegionalElectronTau","","HLT"),
             IsoCollections = cms.VInputTag(cms.InputTag("none")),
             theHLTOutputTypes = cms.uint32(100)
         ), 
         cms.PSet(
             PlotBounds = cms.vdouble(0.0, 0.0),
-            HLTCollectionLabels = cms.InputTag("hltEgammaEtFilterElectronTau","","TEST"),
+            HLTCollectionLabels = cms.InputTag("hltEgammaEtFilterElectronTau","","HLT"),
             IsoCollections = cms.VInputTag(cms.InputTag("none")),
             theHLTOutputTypes = cms.uint32(100)
         ), 
         cms.PSet(
             PlotBounds = cms.vdouble(0.0, 10.0),
-            HLTCollectionLabels = cms.InputTag("hltEgammaHcalIsolFilterElectronTau","","TEST"),
-            IsoCollections = cms.VInputTag(cms.InputTag("l1IsolatedElectronHcalIsol","","TEST")),
+            HLTCollectionLabels = cms.InputTag("hltEgammaHcalIsolFilterElectronTau","","HLT"),
+            IsoCollections = cms.VInputTag(cms.InputTag("l1IsolatedElectronHcalIsol","","HLT")),
             theHLTOutputTypes = cms.uint32(100)
         ), 
         cms.PSet(
             PlotBounds = cms.vdouble(0.0, 0.0),
-            HLTCollectionLabels = cms.InputTag("hltElectronPixelMatchFilterElectronTau","","TEST"),
+            HLTCollectionLabels = cms.InputTag("hltElectronPixelMatchFilterElectronTau","","HLT"),
             IsoCollections = cms.VInputTag(cms.InputTag("none")),
             theHLTOutputTypes = cms.uint32(100)
         ), 
         cms.PSet(
             PlotBounds = cms.vdouble(0.0, 0.0),
-            HLTCollectionLabels = cms.InputTag("hltElectronOneOEMinusOneOPFilterElectronTau","","TEST"),
+            HLTCollectionLabels = cms.InputTag("hltElectronOneOEMinusOneOPFilterElectronTau","","HLT"),
             IsoCollections = cms.VInputTag(cms.InputTag("none")),
             theHLTOutputTypes = cms.uint32(92)
         ), 
         cms.PSet(
             PlotBounds = cms.vdouble(0.0, 10.0),
-            HLTCollectionLabels = cms.InputTag("hltElectronTrackIsolFilterHOneOEMinusOneOPFilterElectronTau","","TEST"),
-            IsoCollections = cms.VInputTag(cms.InputTag("l1IsoElectronTrackIsol","","TEST")),
+            HLTCollectionLabels = cms.InputTag("hltElectronTrackIsolFilterHOneOEMinusOneOPFilterElectronTau","","HLT"),
+            IsoCollections = cms.VInputTag(cms.InputTag("l1IsoElectronTrackIsol","","HLT")),
             theHLTOutputTypes = cms.uint32(92)
         )),
     genEtAcc = cms.double(10.0),

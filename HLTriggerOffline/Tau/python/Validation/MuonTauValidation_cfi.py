@@ -1,15 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 
 MuonTauPathVal = cms.EDFilter("HLTTauValidation",
-    triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","","TEST"),
+    triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","","HLT"),
     refTauCollection      = cms.untracked.InputTag("TauMCProducer","Taus"),
     refLeptonCollection   = cms.untracked.InputTag("TauMCProducer","Muons"),
     DQMFolder             = cms.untracked.string('HLT/HLTTAU/MuonTau/Path'),
-    L1SeedFilter          = cms.untracked.InputTag("hltLevel1GTSeedMuonTau","","TEST"),
-    L2EcalIsolFilter      = cms.untracked.InputTag("hltFilterEcalIsolatedTauJetsMuonTau","","TEST"),
-    L25PixelIsolFilter    = cms.untracked.InputTag("hltFilterPixelTrackIsolatedTauJetsMuonTau","","TEST"),
+    L1SeedFilter          = cms.untracked.InputTag("hltLevel1GTSeedMuonTau","","HLT"),
+    L2EcalIsolFilter      = cms.untracked.InputTag("hltFilterEcalIsolatedTauJetsMuonTau","","HLT"),
+    L25PixelIsolFilter    = cms.untracked.InputTag("hltFilterPixelTrackIsolatedTauJetsMuonTau","","HLT"),
     L3SiliconIsolFilter   = cms.untracked.InputTag("DUMMY"),
-    MuonFilter            = cms.untracked.InputTag("hltMuonTauIsoL3IsoFiltered","","TEST"),
+    MuonFilter            = cms.untracked.InputTag("hltMuonTauIsoL3IsoFiltered","","HLT"),
     ElectronFilter        = cms.untracked.InputTag("DUMMY"),
     NTriggeredTaus        = cms.untracked.uint32(1),
     NTriggeredLeptons     = cms.untracked.uint32(1),
@@ -31,8 +31,8 @@ MuonTauL2Val = cms.EDFilter("HLTTauCaloDQMOfflineSource",
     OutputFileName         = cms.string(''),
     L2IsolatedJets         = cms.InputTag("hltL2MuonTauIsolationSelector","Isolated"),
     EtMin                  = cms.double(0.),
-    EtMax                  = cms.double(60.),
-    NBins                  = cms.int32(30)                            
+    EtMax                  = cms.double(100.),
+    NBins                  = cms.int32(50)                            
 )
 
 
@@ -47,8 +47,8 @@ MuonTauL25Val = cms.EDFilter("HLTTauTrkDQMOfflineSource",
     MatchDeltaR            = cms.double(0.3),
     OutputFileName         = cms.string(''),
     EtMin                  = cms.double(0.),
-    EtMax                  = cms.double(60.),
-    NBins                  = cms.int32(30)                            
+    EtMax                  = cms.double(100.),
+    NBins                  = cms.int32(50)                            
 )
 
 
