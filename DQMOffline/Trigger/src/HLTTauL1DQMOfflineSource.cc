@@ -143,12 +143,12 @@ HLTTauL1DQMOfflineSource::HLTTauL1DQMOfflineSource(const edm::ParameterSet& iCon
       h_L1MCMatchedTauElecPhi = store->book1D("L1RefMatchedTauElecPhi","L1RefMatchedTauElecPhi",50,-3.2,3.2);
       h_L1MCMatchedTauElecPhi->getTH1F()->Sumw2();
       
-      h_EffMCTauElecEt = store->book1D("EffRefTauElecEt","EffRefTauElecEt",50,0.,100.);
-      h_EffMCTauElecEt->getTH1F()->Sumw2();
-      h_EffMCTauElecEta = store->book1D("EffRefTauElecEta","EffRefTauElecEta",60,-4.,4.);
-      h_EffMCTauElecEta->getTH1F()->Sumw2();
-      h_EffMCTauElecPhi = store->book1D("EffRefTauElecPhi","EffRefTauElecPhi",50,-3.2,3.2);
-      h_EffMCTauElecPhi->getTH1F()->Sumw2();
+      //      h_EffMCTauElecEt = store->book1D("EffRefTauElecEt","EffRefTauElecEt",50,0.,100.);
+      // h_EffMCTauElecEt->getTH1F()->Sumw2();
+      //h_EffMCTauElecEta = store->book1D("EffRefTauElecEta","EffRefTauElecEta",60,-4.,4.);
+      //h_EffMCTauElecEta->getTH1F()->Sumw2();
+      //h_EffMCTauElecPhi = store->book1D("EffRefTauElecPhi","EffRefTauElecPhi",50,-3.2,3.2);
+      //h_EffMCTauElecPhi->getTH1F()->Sumw2();
 
 
 
@@ -168,12 +168,12 @@ HLTTauL1DQMOfflineSource::HLTTauL1DQMOfflineSource(const edm::ParameterSet& iCon
       h_L1MCMatchedTauMuonPhi = store->book1D("L1RefMatchedTauMuonPhi","L1RefMatchedTauMuonPhi",50,-3.2,3.2);
       h_L1MCMatchedTauMuonPhi->getTH1F()->Sumw2();
       
-      h_EffMCTauMuonEt = store->book1D("EffRefTauMuonEt","EffRefTauMuonEt",50,0.,100.);
-      h_EffMCTauMuonEt->getTH1F()->Sumw2();
-      h_EffMCTauMuonEta = store->book1D("EffRefTauMuonEta","EffRefTauMuonEta",60,-4.,4.);
-      h_EffMCTauMuonEta->getTH1F()->Sumw2();
-      h_EffMCTauMuonPhi = store->book1D("EffRefTauMuonPhi","EffRefTauMuonPhi",50,-3.2,3.2);
-      h_EffMCTauMuonPhi->getTH1F()->Sumw2();
+      // h_EffMCTauMuonEt = store->book1D("EffRefTauMuonEt","EffRefTauMuonEt",50,0.,100.);
+      //h_EffMCTauMuonEt->getTH1F()->Sumw2();
+      //h_EffMCTauMuonEta = store->book1D("EffRefTauMuonEta","EffRefTauMuonEta",60,-4.,4.);
+      //h_EffMCTauMuonEta->getTH1F()->Sumw2();
+      //h_EffMCTauMuonPhi = store->book1D("EffRefTauMuonPhi","EffRefTauMuonPhi",50,-3.2,3.2);
+      //h_EffMCTauMuonPhi->getTH1F()->Sumw2();
 
 
       // Tau -> Hadr
@@ -192,12 +192,12 @@ HLTTauL1DQMOfflineSource::HLTTauL1DQMOfflineSource(const edm::ParameterSet& iCon
       h_L1MCMatchedTauPhi = store->book1D("L1RefMatchedTauPhi","L1RefMatchedTauPhi",50,-3.2,3.2);
       h_L1MCMatchedTauPhi->getTH1F()->Sumw2();
       
-      h_EffMCTauEt = store->book1D("EffRefTauEt","EffRefTauEt",50,0.,100.);
-      h_EffMCTauEt->getTH1F()->Sumw2();
-      h_EffMCTauEta = store->book1D("EffRefTauEta","EffRefTauEta",60,-4.,4.);
-      h_EffMCTauEta->getTH1F()->Sumw2();
-      h_EffMCTauPhi = store->book1D("EffRefTauPhi","EffRefTauPhi",50,-3.2,3.2);
-      h_EffMCTauPhi->getTH1F()->Sumw2();
+      // h_EffMCTauEt = store->book1D("EffRefTauEt","EffRefTauEt",50,0.,100.);
+      //h_EffMCTauEt->getTH1F()->Sumw2();
+      //h_EffMCTauEta = store->book1D("EffRefTauEta","EffRefTauEta",60,-4.,4.);
+      //h_EffMCTauEta->getTH1F()->Sumw2();
+      //h_EffMCTauPhi = store->book1D("EffRefTauPhi","EffRefTauPhi",50,-3.2,3.2);
+      //h_EffMCTauPhi->getTH1F()->Sumw2();
       
       h_L1SingleTauEffEt = store->book1D("L1SingleTauEffEt","L1SingleTauEffEt",
 					 50,0.,100.);
@@ -254,6 +254,8 @@ HLTTauL1DQMOfflineSource::HLTTauL1DQMOfflineSource(const edm::ParameterSet& iCon
 					 50,0.,100.);
       h_L1MuonTaufixEffMCMatchEt->getTH1F()->Sumw2();
 
+      h_nfidCounter = store->book1D("nfidCounter","NFID COUNTER",5,0.,5.);
+
     }
 }
 
@@ -285,6 +287,7 @@ HLTTauL1DQMOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetu
    using namespace edm;
 
    _nEvents++;
+   h_nfidCounter->Fill(0.5);
 
    // get object
    getL1extraObjects(iEvent);
@@ -304,38 +307,38 @@ HLTTauL1DQMOfflineSource::endJob() {
 
 
   // MC matching efficiencies
-  h_EffMCTauEt->getTH1F()->Divide(h_EffMCTauEt->getTH1F(),h_MCTauHadEt->getTH1F(),1.,1.,"b");
-  h_EffMCTauEta->getTH1F()->Divide(h_EffMCTauEta->getTH1F(),h_MCTauHadEta->getTH1F(),1.,1.,"b");
-  h_EffMCTauPhi->getTH1F()->Divide(h_EffMCTauPhi->getTH1F(),h_MCTauHadPhi->getTH1F(),1.,1.,"b");
+  //  h_EffMCTauEt->getTH1F()->Divide(h_EffMCTauEt->getTH1F(),h_MCTauHadEt->getTH1F(),1.,1.,"b");
+  //h_EffMCTauEta->getTH1F()->Divide(h_EffMCTauEta->getTH1F(),h_MCTauHadEta->getTH1F(),1.,1.,"b");
+  //h_EffMCTauPhi->getTH1F()->Divide(h_EffMCTauPhi->getTH1F(),h_MCTauHadPhi->getTH1F(),1.,1.,"b");
 
-  h_EffMCTauElecEt->getTH1F()->Divide(h_EffMCTauElecEt->getTH1F(),h_MCTauElecEt->getTH1F(),1.,1.,"b");
-  h_EffMCTauElecEta->getTH1F()->Divide(h_EffMCTauElecEta->getTH1F(),h_MCTauElecEta->getTH1F(),1.,1.,"b");
-  h_EffMCTauElecPhi->getTH1F()->Divide(h_EffMCTauElecPhi->getTH1F(),h_MCTauElecPhi->getTH1F(),1.,1.,"b");
+  //  h_EffMCTauElecEt->getTH1F()->Divide(h_EffMCTauElecEt->getTH1F(),h_MCTauElecEt->getTH1F(),1.,1.,"b");
+  // h_EffMCTauElecEta->getTH1F()->Divide(h_EffMCTauElecEta->getTH1F(),h_MCTauElecEta->getTH1F(),1.,1.,"b");
+  //h_EffMCTauElecPhi->getTH1F()->Divide(h_EffMCTauElecPhi->getTH1F(),h_MCTauElecPhi->getTH1F(),1.,1.,"b");
 
-  h_EffMCTauMuonEt->getTH1F()->Divide(h_EffMCTauMuonEt->getTH1F(),h_MCTauMuonEt->getTH1F(),1.,1.,"b");
-  h_EffMCTauMuonEta->getTH1F()->Divide(h_EffMCTauMuonEta->getTH1F(),h_MCTauMuonEta->getTH1F(),1.,1.,"b");
-  h_EffMCTauMuonPhi->getTH1F()->Divide(h_EffMCTauMuonPhi->getTH1F(),h_MCTauMuonPhi->getTH1F(),1.,1.,"b");
+  //h_EffMCTauMuonEt->getTH1F()->Divide(h_EffMCTauMuonEt->getTH1F(),h_MCTauMuonEt->getTH1F(),1.,1.,"b");
+  //h_EffMCTauMuonEta->getTH1F()->Divide(h_EffMCTauMuonEta->getTH1F(),h_MCTauMuonEta->getTH1F(),1.,1.,"b");
+  //h_EffMCTauMuonPhi->getTH1F()->Divide(h_EffMCTauMuonPhi->getTH1F(),h_MCTauMuonPhi->getTH1F(),1.,1.,"b");
 
   //
-  convertToIntegratedEff(h_L1SingleTauEffEt,(double)_nEvents);
-  convertToIntegratedEff(h_L1DoubleTauEffEt,(double)_nEvents);
-  convertToIntegratedEff(h_L1SingleTauEffMCMatchEt,(double)_nfidEventsGenTauHad);
-  convertToIntegratedEff(h_L1DoubleTauEffMCMatchEt,(double)_nfidEventsDoubleGenTauHads);
+  //convertToIntegratedEff(h_L1SingleTauEffEt,(double)_nEvents);
+  //convertToIntegratedEff(h_L1DoubleTauEffEt,(double)_nEvents);
+  //convertToIntegratedEff(h_L1SingleTauEffMCMatchEt,(double)_nfidEventsGenTauHad);
+  //convertToIntegratedEff(h_L1DoubleTauEffMCMatchEt,(double)_nfidEventsDoubleGenTauHads);
 
-  convertToIntegratedEff(h_L1TauMETfixEffEt,(double)_nEvents);
-  convertToIntegratedEff(h_L1METTaufixEffEt,(double)_nEvents);
-  convertToIntegratedEff(h_L1TauMETfixEffMCMatchEt,(double)_nfidEventsGenTauHad);
-  convertToIntegratedEff(h_L1METTaufixEffMCMatchEt,(double)_nfidEventsGenTauHad);
+  //convertToIntegratedEff(h_L1TauMETfixEffEt,(double)_nEvents);
+  //convertToIntegratedEff(h_L1METTaufixEffEt,(double)_nEvents);
+  //convertToIntegratedEff(h_L1TauMETfixEffMCMatchEt,(double)_nfidEventsGenTauHad);
+  //convertToIntegratedEff(h_L1METTaufixEffMCMatchEt,(double)_nfidEventsGenTauHad);
 
-  convertToIntegratedEff(h_L1TauIsoEgfixEffEt,(double)_nEvents);
-  convertToIntegratedEff(h_L1IsoEgTaufixEffEt,(double)_nEvents);
-  convertToIntegratedEff(h_L1TauIsoEgfixEffMCMatchEt,(double)_nfidEventsGenTauElecTauHad);
-  convertToIntegratedEff(h_L1IsoEgTaufixEffMCMatchEt,(double)_nfidEventsGenTauElecTauHad);
+  //convertToIntegratedEff(h_L1TauIsoEgfixEffEt,(double)_nEvents);
+  //convertToIntegratedEff(h_L1IsoEgTaufixEffEt,(double)_nEvents);
+  //convertToIntegratedEff(h_L1TauIsoEgfixEffMCMatchEt,(double)_nfidEventsGenTauElecTauHad);
+  //convertToIntegratedEff(h_L1IsoEgTaufixEffMCMatchEt,(double)_nfidEventsGenTauElecTauHad);
 
-  convertToIntegratedEff(h_L1TauMuonfixEffEt,(double)_nEvents);
-  convertToIntegratedEff(h_L1MuonTaufixEffEt,(double)_nEvents);
-  convertToIntegratedEff(h_L1TauMuonfixEffMCMatchEt,(double)_nfidEventsGenTauMuonTauHad);
-  convertToIntegratedEff(h_L1MuonTaufixEffMCMatchEt,(double)_nfidEventsGenTauMuonTauHad);
+  //convertToIntegratedEff(h_L1TauMuonfixEffEt,(double)_nEvents);
+  //convertToIntegratedEff(h_L1MuonTaufixEffEt,(double)_nEvents);
+  //convertToIntegratedEff(h_L1TauMuonfixEffMCMatchEt,(double)_nfidEventsGenTauMuonTauHad);
+  //convertToIntegratedEff(h_L1MuonTaufixEffMCMatchEt,(double)_nfidEventsGenTauMuonTauHad);
 
 
   //Write file
@@ -501,8 +504,8 @@ HLTTauL1DQMOfflineSource::fillL1MCTauMatchedHists(const edm::Event& iEvent) {
     }
   }
   //////// Counters after fiducial cuts!
-  if (nfidTauHads >= 1) _nfidEventsGenTauHad++; 
-  if (nfidTauHads >= 2) _nfidEventsDoubleGenTauHads++; 
+  if (nfidTauHads >= 1) { _nfidEventsGenTauHad++;  h_nfidCounter->Fill(1.5); } 
+  if (nfidTauHads >= 2) {_nfidEventsDoubleGenTauHads++; h_nfidCounter->Fill(2.5);} 
 
   bool singleMatch = false; // for doubletau match
   bool doubleMatch = false; 
@@ -528,15 +531,15 @@ HLTTauL1DQMOfflineSource::fillL1MCTauMatchedHists(const edm::Event& iEvent) {
 	// Numerators for MC matching efficiencies
 	if (std::abs(RefTau[j].Eta())<=_MCTauHadMaxAbsEta) {	
 	  h_L1MCMatchedTauEt->Fill(RefTau[j].Et());
-	  h_EffMCTauEt->Fill(RefTau[j].Et());
+	  //  h_EffMCTauEt->Fill(RefTau[j].Et());
 	}
 	if (RefTau[j].Et()>=_MCTauHadMinEt) {
 	  h_L1MCMatchedTauEta->Fill(RefTau[j].Eta());
-	  h_EffMCTauEta->Fill(RefTau[j].Eta());
+	  // h_EffMCTauEta->Fill(RefTau[j].Eta());
 	}
 	if (RefTau[j].Et()>=_MCTauHadMinEt && std::abs(RefTau[j].Eta())<=_MCTauHadMaxAbsEta) {
 	  h_L1MCMatchedTauPhi->Fill(RefTau[j].Phi());
-	  h_EffMCTauPhi->Fill(RefTau[j].Phi());
+	  // h_EffMCTauPhi->Fill(RefTau[j].Phi());
 	}
       }           
     }
@@ -581,7 +584,7 @@ HLTTauL1DQMOfflineSource::fillL1MCTauMatchedHists(const edm::Event& iEvent) {
       h_MCTauMuonEta->Fill(RefMuon[i].Eta());
     if (RefMuon[i].Et()>=_MCMuonMinEt && std::abs(RefMuon[i].Eta())<=_MCMuonMaxAbsEta) {
       h_MCTauMuonPhi->Fill(RefMuon[i].Phi());
-      nfidTauMuons++;
+	nfidTauMuons++;
     }
   }
 
@@ -592,15 +595,15 @@ HLTTauL1DQMOfflineSource::fillL1MCTauMatchedHists(const edm::Event& iEvent) {
 	// Numerators for MC matching efficiencies
 	if (std::abs(RefElec[j].Eta())<=_MCElecMaxAbsEta) {	
 	  h_L1MCMatchedTauElecEt->Fill(RefElec[j].Et());
-	  h_EffMCTauElecEt->Fill(RefElec[j].Et());
+	  // h_EffMCTauElecEt->Fill(RefElec[j].Et());
 	}
 	if (RefElec[j].Et()>=_MCElecMinEt) {
 	  h_L1MCMatchedTauElecEta->Fill(RefElec[j].Eta());
-	  h_EffMCTauElecEta->Fill(RefElec[j].Eta());
+	  //h_EffMCTauElecEta->Fill(RefElec[j].Eta());
 	}
 	if (RefElec[j].Et()>=_MCElecMinEt && std::abs(RefElec[j].Eta())<=_MCElecMaxAbsEta) {
 	  h_L1MCMatchedTauElecPhi->Fill(RefElec[j].Phi());
-	  h_EffMCTauElecPhi->Fill(RefElec[j].Phi());
+	  //h_EffMCTauElecPhi->Fill(RefElec[j].Phi());
 	}
       }           
     }
@@ -613,15 +616,15 @@ HLTTauL1DQMOfflineSource::fillL1MCTauMatchedHists(const edm::Event& iEvent) {
 	// Numerators for MC matching efficiencies
 	if (std::abs(RefMuon[j].Eta())<=_MCMuonMaxAbsEta) {	
 	  h_L1MCMatchedTauMuonEt->Fill(RefMuon[j].Et());
-	  h_EffMCTauMuonEt->Fill(RefMuon[j].Et());
+	  //h_EffMCTauMuonEt->Fill(RefMuon[j].Et());
 	}
 	if (RefMuon[j].Et()>=_MCMuonMinEt) {
 	  h_L1MCMatchedTauMuonEta->Fill(RefMuon[j].Eta());
-	  h_EffMCTauMuonEta->Fill(RefMuon[j].Eta());
+	  //h_EffMCTauMuonEta->Fill(RefMuon[j].Eta());
 	}
 	if (RefMuon[j].Et()>=_MCMuonMinEt && std::abs(RefMuon[j].Eta())<=_MCMuonMaxAbsEta) {
 	  h_L1MCMatchedTauMuonPhi->Fill(RefMuon[j].Phi());
-	  h_EffMCTauMuonPhi->Fill(RefMuon[j].Phi());
+	  //h_EffMCTauMuonPhi->Fill(RefMuon[j].Phi());
 	}
       }           
     }
@@ -709,10 +712,8 @@ HLTTauL1DQMOfflineSource::fillL1MCTauMatchedHists(const edm::Event& iEvent) {
   }
 
   //////// Counters after fiducial cuts!
-  if (nfidTauHads >= 1 && nfidTauMuons >= 1) _nfidEventsGenTauMuonTauHad++; 
-  if (nfidTauHads >= 1 && nfidTauElecs >= 1) _nfidEventsGenTauElecTauHad++; 
-
-
+  if (nfidTauHads >= 1 && nfidTauMuons >= 1) {_nfidEventsGenTauMuonTauHad++; h_nfidCounter->Fill(3.5);} 
+  if (nfidTauHads >= 1 && nfidTauElecs >= 1) {_nfidEventsGenTauElecTauHad++; h_nfidCounter->Fill(4.5);} 
 
   
 }
@@ -745,33 +746,32 @@ HLTTauL1DQMOfflineSource::evalL1extraDecisions() {
 }
 
 
-void
-HLTTauL1DQMOfflineSource::convertToIntegratedEff(MonitorElement* histo, double nGenerated)
-{
+//void
+//HLTTauL1DQMOfflineSource::convertToIntegratedEff(MonitorElement* histo, double nGenerated)
+//{
   // Convert the histogram to efficiency
   // Assuming that the histogram is incremented with weight=1 for each event
   // this function integrates the histogram contents above every bin and stores it
   // in that bin.  The result is plot of integral rate versus threshold plot.
-  int nbins = histo->getNbinsX();
-  double integral = histo->getBinContent(nbins+1);  // Initialize to overflow
-  if (nGenerated<=0)  {
-    std::cerr << "***** HLTTauL1DQMOfflineSource::convertToIntegratedEff() Error: nGenerated = " << nGenerated << std::endl;
-    //nGenerated=1;
-    return;
-  }
-  for(int i = nbins; i >= 1; i--)
-    {
-      double thisBin = histo->getBinContent(i);
-      integral += thisBin;
-      double integralEff;
-      double integralError;
-      integralEff = (integral / nGenerated);
-      histo->setBinContent(i, integralEff);
-      // error
-      integralError = (sqrt(integral) / nGenerated);
-      histo->setBinError(i, integralError);
-    }
-}
-
+//  int nbins = histo->getNbinsX();
+//  double integral = histo->getBinContent(nbins+1);  // Initialize to overflow
+//  if (nGenerated<=0)  {
+//    std::cerr << "***** HLTTauL1DQMOfflineSource::convertToIntegratedEff() Error: nGenerated = " << nGenerated << std::endl;
+//    //nGenerated=1;
+//    return;
+//  }
+//  for(int i = nbins; i >= 1; i--)
+//    {
+//      double thisBin = histo->getBinContent(i);
+//      integral += thisBin;
+//      double integralEff;
+//      double integralError;
+//     integralEff = (integral / nGenerated);
+//      histo->setBinContent(i, integralEff);
+//      // error
+//      integralError = (sqrt(integral) / nGenerated);
+//      histo->setBinError(i, integralError);
+//    }
+//}
 //define this as a plug-in
 //DEFINE_FWK_MODULE(HLTTauL1DQMOfflineSource);

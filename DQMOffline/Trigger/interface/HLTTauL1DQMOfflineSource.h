@@ -59,7 +59,7 @@ class HLTTauL1DQMOfflineSource : public edm::EDAnalyzer {
   void fillL1Histograms();
   void fillL1MCTauMatchedHists(const edm::Event& iEvent);
 
-  void convertToIntegratedEff(MonitorElement*,double);
+  //  void convertToIntegratedEff(MonitorElement*,double);
   
   // ----------member data ---------------------------
 
@@ -154,9 +154,9 @@ class HLTTauL1DQMOfflineSource : public edm::EDAnalyzer {
 
   // Tau -> Electron
   // MC matching efficiencies
-  MonitorElement* h_EffMCTauElecEt;
-  MonitorElement* h_EffMCTauElecEta;
-  MonitorElement* h_EffMCTauElecPhi;
+  //  MonitorElement* h_EffMCTauElecEt;
+  //MonitorElement* h_EffMCTauElecEta;
+  //MonitorElement* h_EffMCTauElecPhi;
   // Numerators
   MonitorElement* h_L1MCMatchedTauElecEt;
   MonitorElement* h_L1MCMatchedTauElecEta;
@@ -168,9 +168,9 @@ class HLTTauL1DQMOfflineSource : public edm::EDAnalyzer {
 
   // Tau -> Muon
   // MC matching efficiencies
-  MonitorElement* h_EffMCTauMuonEt;
-  MonitorElement* h_EffMCTauMuonEta;
-  MonitorElement* h_EffMCTauMuonPhi;
+  //MonitorElement* h_EffMCTauMuonEt;
+  //MonitorElement* h_EffMCTauMuonEta;
+  //MonitorElement* h_EffMCTauMuonPhi;
   // Numerators
   MonitorElement* h_L1MCMatchedTauMuonEt;
   MonitorElement* h_L1MCMatchedTauMuonEta;
@@ -182,9 +182,9 @@ class HLTTauL1DQMOfflineSource : public edm::EDAnalyzer {
 
   // Tau -> Hadr
   // MC matching efficiencies
-  MonitorElement* h_EffMCTauEt;
-  MonitorElement* h_EffMCTauEta;
-  MonitorElement* h_EffMCTauPhi;
+  //MonitorElement* h_EffMCTauEt;
+  //MonitorElement* h_EffMCTauEta;
+  //MonitorElement* h_EffMCTauPhi;
   // Numerators
   MonitorElement* h_L1MCMatchedTauEt;
   MonitorElement* h_L1MCMatchedTauEta;
@@ -215,6 +215,9 @@ class HLTTauL1DQMOfflineSource : public edm::EDAnalyzer {
   MonitorElement* h_L1MuonTaufixEffEt;
   MonitorElement* h_L1MuonTaufixEffMCMatchEt;
 
+
+  //Counter Histogram
+  MonitorElement* h_nfidCounter;
 
   // Counters for event based efficiencies
   int _nEvents; // all events processed
