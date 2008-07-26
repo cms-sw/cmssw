@@ -93,7 +93,7 @@ L1Draw(string fname1,string fname2,string v1,string v2,string folder)
   l1->cd(27);
   DrawIntHistos(fname1,fname2,v1,v2,folder,"L1TauIsoEgfixEffEt","nfidCounter",1,"E_{t} Threshold","Efficiency","EGamma+ Tau Efficiency Vs Threshold");
   l1->cd(28);  
-  DrawIntHistos(fname1,fname2,v1,v2,folder,"L1TauIsoEgfixEffRefMatchEt","nfidCounter",4,"E_{t} Threshold","Efficiency","EGamma+ Tau (Matched)Efficiency Vs Threshold");
+  DrawIntHistos(fname1,fname2,v1,v2,folder,"L1TauIsoEgfixEffRefMatchEt","nfidCounter",5,"E_{t} Threshold","Efficiency","EGamma+ Tau (Matched)Efficiency Vs Threshold");
   l1->cd(29);
   DrawIntHistos(fname1,fname2,v1,v2,folder,"L1TauMuonfixEffEt","nfidCounter",1,"E_{t} Threshold","Efficiency","Muon+ Tau Efficiency Vs Threshold");
   l1->cd(30);  
@@ -138,7 +138,7 @@ L1Val(string fname1,string fname2,string v1,string v2,string folder)
   GetIntHistos(fname1,fname2,v1,v2,folder,"L1DoubleTauEffEt","nfidCounter",1,"E_{t} Threshold","Efficiency","Double Tau Efficiency Vs Threshold");
   GetIntHistos(fname1,fname2,v1,v2,folder,"L1DoubleTauEffRefMatchEt","nfidCounter",3,"E_{t} Threshold","Efficiency","Double Tau Matched Efficiency Vs Threshold");
   GetIntHistos(fname1,fname2,v1,v2,folder,"L1TauIsoEgfixEffEt","nfidCounter",1,"E_{t} Threshold","Efficiency","EGamma+ Tau Efficiency Vs Threshold");
-  GetIntHistos(fname1,fname2,v1,v2,folder,"L1TauIsoEgfixEffRefMatchEt","nfidCounter",4,"E_{t} Threshold","Efficiency","EGamma+ Tau (Matched)Efficiency Vs Threshold");
+  GetIntHistos(fname1,fname2,v1,v2,folder,"L1TauIsoEgfixEffRefMatchEt","nfidCounter",5,"E_{t} Threshold","Efficiency","EGamma+ Tau (Matched)Efficiency Vs Threshold");
   GetIntHistos(fname1,fname2,v1,v2,folder,"L1TauMuonfixEffEt","nfidCounter",1,"E_{t} Threshold","Efficiency","Muon+ Tau Efficiency Vs Threshold");
   GetIntHistos(fname1,fname2,v1,v2,folder,"L1TauIsoEgfixEffRefMatchEt","nfidCounter",4,"E_{t} Threshold","Efficiency","Muon+ Tau (Matched)Efficiency Vs Threshold");
 
