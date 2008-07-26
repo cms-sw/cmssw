@@ -3,19 +3,28 @@
 
 - General:
  - Migration to python configurations (common throughout CMSSW)
- - use of Geant4.9.p02 version, which contains a number of important bug fixes; additional fixes 
-   (from Geant4 repository, will become official soon) are being tested
+ - use of Geant4.9.1.p02 version, which contains a number of important bug fixes:
+   addition of Coulomb barrier effect in Bertini cascade model
+   fix of the quasi-elastic scattering in QGS model
+ - additional fixes 
+   (from Geant4 repository, added as patches, will become official soon) for:
+   strange baryons interaction with matter
+   G4Tubs 
+   memory cleaning and handling in the destruction of volumes
 
 - Main changes and new features:
  - Physics processes modeling: new physics list QGSP_BERT_EMV (per tests/conclusions of the  Calo
-   Task Force), application of the Birks' law in ECAL crystals (L3 parameterization)
- - Updates in GFlash, ongoing tuning of parametrized Hadronic showers
+   Task Force), application of the Birks' law in HCAL and ECAL crystals (L3 parameterization)
+ - Updates in GFlash, ongoing tuning of parametrized Electromagnetic showers using TB data
  - Geometry: Ideal geometry is replaced by Pilot2 geometry ((e.g. no ECAL preshower) for the 2_1_0 
    production
+ - Geometry: initialization of geometry is located in a single fragment, all the steps are clean from 
+   multiple definitions 
  - Magnetic field: 3.8T field will be used at the LHC startup (instead of 4T), after extesive
-   validation
+   validation; the initialization is located in a single fragment, all the steps are clean from
+   multiple definitions
  - MixingModule: better handling of memory by loading only needed branches
- - Data Mixer: validation and debugging of tracker ongoing, calorimteres are combined at digi level, 
+ - Data Mixer: validation and debugging of tracker ongoing, calorimeters are combined at digi level, 
    HCAL has started its checks 
  - TrackingParticle: all particles are stored in one container, additional methods provided
    to access separately hits in the Tracker or in the Muon system 
