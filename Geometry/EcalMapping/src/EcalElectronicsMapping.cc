@@ -342,8 +342,8 @@ EcalElectronicsId EcalElectronicsMapping::getElectronicsId(const DetId& id) cons
 
 	int ieta = EBDetId(id).ietaAbs();
 	int iphi = EBDetId(id).iphi();
-	int strip;
-	int channel;
+	int strip(0);
+	int channel(0);
 	bool RightTower = rightTower(tower);
  	if (RightTower) {
 		strip = (ieta-1)%5;
