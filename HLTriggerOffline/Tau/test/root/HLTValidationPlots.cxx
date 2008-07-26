@@ -1,5 +1,6 @@
 run(string fname1,string fname2,string v1,string v2,string path)
 {
+  gStyle->SetOptTitle(1);
   L1Val(fname1,fname2,v1,v2,"DQMData/HLT/HLTTAU/L1");
   L2Val(fname1,fname2,v1,v2,"DQMData/HLT/HLTTAU/"+path+"/L2");
   L25Val(fname1,fname2,v1,v2,"DQMData/HLT/HLTTAU/"+path+"/L25");
@@ -13,6 +14,8 @@ run(string fname1,string fname2,string v1,string v2,string path)
 
 draw(string fname1,string fname2,string v1,string v2,string path)
 {
+ gStyle->SetOptTitle(1);
+ 
   L1Draw(fname1,fname2,v1,v2,"DQMData/HLT/HLTTAU/L1");
   L2Draw(fname1,fname2,v1,v2,"DQMData/HLT/HLTTAU/"+path+"/L2");
   L25Draw(fname1,fname2,v1,v2,"DQMData/HLT/HLTTAU/"+path+"/L25");
@@ -31,7 +34,7 @@ draw(string fname1,string fname2,string v1,string v2,string path)
 L1Draw(string fname1,string fname2,string v1,string v2,string folder)
 {
   TCanvas *l1 = new TCanvas;
-  l1->Divide(4,5);
+  l1->Divide(5,6);
   l1->cd(1);
   DrawHistos(fname1,fname2,v1,v2,folder,"L1TauEt","L1 E_{t}","n #tau cands","L1 Tau inclusive E_{t}",0,false);
   l1->cd(2);
@@ -73,9 +76,32 @@ L1Draw(string fname1,string fname2,string v1,string v2,string folder)
   l1->cd(19);
   DrawEffHistos(fname1,fname2, v1, v2,folder,"L1RefMatchedTauElecEta","RefTauElecEta","Ref #eta","Efficiency","Regional Eg Efficiency vs #eta");
   l1->cd(20);
-  DrawEffHistos(fname1,fname2, v1, v2,folder,"EffRefMatchedTauElecPhi","RefTauElecPhi","Ref #phi","Efficiency","Regional Eg Efficiency vs #phi");
-
+  DrawEffHistos(fname1,fname2, v1, v2,folder,"L1RefMatchedTauElecPhi","RefTauElecPhi","Ref #phi","Efficiency","Regional Eg Efficiency vs #phi");
   //Path Threshold Efficiency
+  l1->cd(21);
+  DrawIntHistos(fname1,fname2,v1,v2,folder,"L1SingleTauEffEt","nfidCounter",1,"E_{t} Threshold","Efficiency","Single Tau Efficiency Vs Threshold");
+  l1->cd(22);  
+  DrawIntHistos(fname1,fname2,v1,v2,folder,"L1SingleTauEffRefMatchEt","nfidCounter",2,"E_{t} Threshold","Efficiency","Single Tau Matched Efficiency Vs Threshold");
+  l1->cd(23);
+  DrawIntHistos(fname1,fname2,v1,v2,folder,"L1TauMETfixEffEt","nfidCounter",1,"E_{t} Threshold","Efficiency","Single Tau +MET Efficiency Vs Threshold");
+  l1->cd(24);  
+  DrawIntHistos(fname1,fname2,v1,v2,folder,"L1TauMETfixEffRefMatchEt","nfidCounter",2,"E_{t} Threshold","Efficiency","Single Tau +MET Matched Efficiency Vs Threshold");
+  l1->cd(25);
+  DrawIntHistos(fname1,fname2,v1,v2,folder,"L1DoubleTauEffEt","nfidCounter",1,"E_{t} Threshold","Efficiency","Double Tau Efficiency Vs Threshold");
+  l1->cd(26);  
+  DrawIntHistos(fname1,fname2,v1,v2,folder,"L1DoubleTauEffRefMatchEt","nfidCounter",3,"E_{t} Threshold","Efficiency","Double Tau Matched Efficiency Vs Threshold");
+  l1->cd(27);
+  DrawIntHistos(fname1,fname2,v1,v2,folder,"L1TauIsoEgfixEffEt","nfidCounter",1,"E_{t} Threshold","Efficiency","EGamma+ Tau Efficiency Vs Threshold");
+  l1->cd(28);  
+  DrawIntHistos(fname1,fname2,v1,v2,folder,"L1TauIsoEgfixEffRefMatchEt","nfidCounter",4,"E_{t} Threshold","Efficiency","EGamma+ Tau (Matched)Efficiency Vs Threshold");
+  l1->cd(29);
+  DrawIntHistos(fname1,fname2,v1,v2,folder,"L1TauMuonfixEffEt","nfidCounter",1,"E_{t} Threshold","Efficiency","Muon+ Tau Efficiency Vs Threshold");
+  l1->cd(30);  
+  DrawIntHistos(fname1,fname2,v1,v2,folder,"L1TauIsoEgfixEffRefMatchEt","nfidCounter",4,"E_{t} Threshold","Efficiency","Muon+ Tau (Matched)Efficiency Vs Threshold");
+
+
+
+    
 
 
 
@@ -84,7 +110,6 @@ L1Draw(string fname1,string fname2,string v1,string v2,string folder)
 
 L1Val(string fname1,string fname2,string v1,string v2,string folder)
 {
-  TCanvas *l1 = new TCanvas;
 
   GetHistos(fname1,fname2,v1,v2,folder,"L1TauEt","L1 E_{t}","n #tau cands","L1 Tau inclusive E_{t}",0,false);
   GetHistos(fname1,fname2,v1,v2,folder,"L1TauEta","L1 #eta","n #tau cands","L1 Tau inclusive #eta",0,false);
@@ -105,9 +130,19 @@ L1Val(string fname1,string fname2,string v1,string v2,string folder)
   GetEffHistos(fname1,fname2, v1, v2,folder,"L1RefMatchedTauMuonPhi","RefTauMuonPhi","Ref #phi","Efficiency","Regional Muon Efficiency vs #phi");
   GetEffHistos(fname1,fname2, v1, v2,folder,"L1RefMatchedTauElecEt","RefTauElecEt","Ref E_{t}","Efficiency","Regional Eg Efficiency vs E_{t}");
   GetEffHistos(fname1,fname2, v1, v2,folder,"L1RefMatchedTauElecEta","RefTauElecEta","Ref #eta","Efficiency","Regional Eg Efficiency vs #eta");
-  GetEffHistos(fname1,fname2, v1, v2,folder,"EffRefMatchedTauElecPhi","RefTauElecPhi","Ref #phi","Efficiency","Regional Eg Efficiency vs #phi");
+  GetEffHistos(fname1,fname2, v1, v2,folder,"L1RefMatchedTauElecPhi","RefTauElecPhi","Ref #phi","Efficiency","Regional Eg Efficiency vs #phi");
+  GetIntHistos(fname1,fname2,v1,v2,folder,"L1SingleTauEffEt","nfidCounter",1,"E_{t} Threshold","Efficiency","Single Tau Efficiency Vs Threshold");
+  GetIntHistos(fname1,fname2,v1,v2,folder,"L1SingleTauEffRefMatchEt","nfidCounter",2,"E_{t} Threshold","Efficiency","Single Tau Matched Efficiency Vs Threshold");
+  GetIntHistos(fname1,fname2,v1,v2,folder,"L1TauMETfixEffEt","nfidCounter",1,"E_{t} Threshold","Efficiency","Single Tau +MET Efficiency Vs Threshold");
+  GetIntHistos(fname1,fname2,v1,v2,folder,"L1TauMETfixEffRefMatchEt","nfidCounter",2,"E_{t} Threshold","Efficiency","Single Tau +MET Matched Efficiency Vs Threshold");
+  GetIntHistos(fname1,fname2,v1,v2,folder,"L1DoubleTauEffEt","nfidCounter",1,"E_{t} Threshold","Efficiency","Double Tau Efficiency Vs Threshold");
+  GetIntHistos(fname1,fname2,v1,v2,folder,"L1DoubleTauEffRefMatchEt","nfidCounter",3,"E_{t} Threshold","Efficiency","Double Tau Matched Efficiency Vs Threshold");
+  GetIntHistos(fname1,fname2,v1,v2,folder,"L1TauIsoEgfixEffEt","nfidCounter",1,"E_{t} Threshold","Efficiency","EGamma+ Tau Efficiency Vs Threshold");
+  GetIntHistos(fname1,fname2,v1,v2,folder,"L1TauIsoEgfixEffRefMatchEt","nfidCounter",4,"E_{t} Threshold","Efficiency","EGamma+ Tau (Matched)Efficiency Vs Threshold");
+  GetIntHistos(fname1,fname2,v1,v2,folder,"L1TauMuonfixEffEt","nfidCounter",1,"E_{t} Threshold","Efficiency","Muon+ Tau Efficiency Vs Threshold");
+  GetIntHistos(fname1,fname2,v1,v2,folder,"L1TauIsoEgfixEffRefMatchEt","nfidCounter",4,"E_{t} Threshold","Efficiency","Muon+ Tau (Matched)Efficiency Vs Threshold");
 
-  //Path Threshold Efficiency
+
 
 
 
@@ -413,6 +448,8 @@ GetEffHistos(string f1,string f2,string v1,string v2,string modName,string histo
   h->GetXaxis()->SetTitleSize(0.06);
   h->GetYaxis()->SetTitleSize(0.06);
   h->GetYaxis()->SetTitleOffset(1.25);
+  h->GetYaxis()->SetRangeUser(0.,1.01);
+
 
    h->SetMarkerColor(kYellow);
   h->SetMarkerStyle(20);
@@ -463,6 +500,7 @@ DrawHistos(string f1,string f2,string v1,string v2,string modName,string histo,c
   h->GetYaxis()->SetLabelSize(0.06);
   h->GetXaxis()->SetTitleSize(0.06);
   h->GetYaxis()->SetTitleSize(0.06);
+
   h->GetYaxis()->SetTitleOffset(1.25);
   h->SetMarkerColor(kYellow);
   h->SetMarkerStyle(20);
@@ -579,3 +617,149 @@ DrawEffHistos(string f1,string f2,string v1,string v2,string modName,string hist
   l->Draw();
 }
 
+
+
+
+DrawIntHistos(string f1,string f2,string v1,string v2,string modName,string histo,string nfid,int dBin,char* xlabel = "",char *ylabel = "",char *title = "")
+{
+
+  TFile *f = new TFile(f1.c_str());
+  TFile *ff = new TFile(f2.c_str());
+  
+  TH1F *h = ((TH1F*)f->Get((modName+"/"+histo).c_str()))->Clone();
+  TH1F *hh = ((TH1F*)ff->Get((modName+"/"+histo).c_str()))->Clone();
+  TH1F *nfid1 = ((TH1F*)f->Get((modName+"/"+nfid).c_str()))->Clone();
+  TH1F *nfid2 = ((TH1F*)ff->Get((modName+"/"+nfid).c_str()))->Clone();
+
+  double denom1 = nfid1->GetBinContent(dBin);
+  double denom2 = nfid2->GetBinContent(dBin);
+
+
+  convertToIntegratedEff(h,denom1);
+  convertToIntegratedEff(hh,denom2);
+
+
+  h->GetXaxis()->SetLabelSize(0.06);
+  h->GetXaxis()->SetNdivisions(509);
+  h->GetYaxis()->SetNdivisions(509);
+  h->GetYaxis()->SetLabelSize(0.06);
+  h->GetXaxis()->SetTitleSize(0.06);
+  h->GetYaxis()->SetTitleSize(0.06);
+
+  h->GetYaxis()->SetTitleOffset(1.25);
+  h->SetMarkerColor(kYellow);
+  h->SetMarkerStyle(20);
+  h->SetFillColor(kYellow);
+  h->GetXaxis()->SetTitle(xlabel);
+  h->GetYaxis()->SetTitle(ylabel);
+  h->SetTitle(title);
+  hh->GetXaxis()->SetLabelSize(0.06);
+  hh->GetYaxis()->SetLabelSize(0.06);
+  hh->GetXaxis()->SetTitleSize(0.06);
+  hh->GetYaxis()->SetTitleSize(0.06);
+  hh->SetLineColor(kRed);
+  hh->SetMarkerColor(kRed);
+  hh->SetMarkerStyle(20);
+  hh->GetXaxis()->SetTitle(xlabel);
+  hh->GetYaxis()->SetTitle(ylabel);
+  hh->SetTitle(title);
+
+  h->Draw("HIST");
+  hh->Draw("SAME");
+  TLegend *l = new TLegend(0.7,0.5,0.9,0.7);
+  l->AddEntry(h,v1.c_str());
+  l->AddEntry(hh,v2.c_str());
+  l->Draw();
+
+}
+
+
+GetIntHistos(string f1,string f2,string v1,string v2,string modName,string histo,string nfid,int dBin,char* xlabel = "",char *ylabel = "",char *title = "")
+{
+  TCanvas *c = new TCanvas;
+  c->cd();
+
+  TFile *f = new TFile(f1.c_str());
+  TFile *ff = new TFile(f2.c_str());
+  
+  TH1F *h = ((TH1F*)f->Get((modName+"/"+histo).c_str()))->Clone();
+  TH1F *hh = ((TH1F*)ff->Get((modName+"/"+histo).c_str()))->Clone();
+  TH1F *nfid1 = ((TH1F*)f->Get((modName+"/"+nfid).c_str()))->Clone();
+  TH1F *nfid2 = ((TH1F*)ff->Get((modName+"/"+nfid).c_str()))->Clone();
+
+  double denom1 = nfid1->GetBinContent(dBin);
+  double denom2 = nfid2->GetBinContent(dBin);
+
+
+  convertToIntegratedEff(h,denom1);
+  convertToIntegratedEff(hh,denom2);
+
+
+  h->GetXaxis()->SetLabelSize(0.06);
+  h->GetXaxis()->SetNdivisions(509);
+  h->GetYaxis()->SetNdivisions(509);
+  h->GetYaxis()->SetLabelSize(0.06);
+  h->GetXaxis()->SetTitleSize(0.06);
+  h->GetYaxis()->SetTitleSize(0.06);
+
+  h->GetYaxis()->SetTitleOffset(1.25);
+  h->SetMarkerColor(kYellow);
+  h->SetMarkerStyle(20);
+  h->SetFillColor(kYellow);
+  h->GetXaxis()->SetTitle(xlabel);
+  h->GetYaxis()->SetTitle(ylabel);
+  h->SetTitle(title);
+  hh->GetXaxis()->SetLabelSize(0.06);
+  hh->GetYaxis()->SetLabelSize(0.06);
+  hh->GetXaxis()->SetTitleSize(0.06);
+  hh->GetYaxis()->SetTitleSize(0.06);
+  hh->SetLineColor(kRed);
+  hh->SetMarkerColor(kRed);
+  hh->SetMarkerStyle(20);
+  hh->GetXaxis()->SetTitle(xlabel);
+  hh->GetYaxis()->SetTitle(ylabel);
+  hh->SetTitle(title);
+
+  h->Draw("HIST");
+  hh->Draw("SAME");
+  TLegend *l = new TLegend(0.7,0.5,0.9,0.7);
+  l->AddEntry(h,v1.c_str());
+  l->AddEntry(hh,v2.c_str());
+  l->Draw();
+
+  c->SaveAs((histo+"IntEff.gif").c_str());
+  delete c;
+   f->Close();
+   ff->Close();
+
+
+}
+
+
+
+
+
+void 
+convertToIntegratedEff(TH1F* histo, double nGenerated)
+{
+  // Convert the histogram to efficiency
+  // Assuming that the histogram is incremented with weight=1 for each event
+  // this function integrates the histogram contents above every bin and stores it
+  // in that bin.  The result is plot of integral rate versus threshold plot.
+  int nbins = histo->GetNbinsX();
+  double integral = histo->GetBinContent(nbins+1);  // Initialize to overflow
+  if (nGenerated<=0)  {
+    return;
+  }
+  for(int i = nbins; i >= 1; i--)
+    {
+      double thisBin = histo->GetBinContent(i);
+      integral += thisBin;
+      double integralEff;
+      double integralError;
+      integralEff = (integral / nGenerated);
+      histo->SetBinContent(i, integralEff);
+      integralError = (sqrt(integral) / nGenerated);
+      histo->SetBinError(i, integralError);
+    }
+}
