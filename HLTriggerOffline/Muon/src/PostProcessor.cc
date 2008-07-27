@@ -2,8 +2,8 @@
  *  Class:PostProcessor 
  *
  *
- *  $Date: 2008/07/25 10:39:48 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/07/25 12:01:52 $
+ *  $Revision: 1.2 $
  * 
  *  \author Junghwan Goh - SungKyunKwan University
  */
@@ -37,8 +37,6 @@ void PostProcessor::endJob()
 {
   DQMStore * dqm = 0;
   dqm = Service<DQMStore>().operator->();
-
-  std::cout << "Hola!\n";
 
   if ( ! dqm ) {
     LogInfo("PostProcessor") << "Cannot create DQMStore instance\n";

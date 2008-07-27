@@ -166,6 +166,8 @@ void HLTMuonGenericRate::analyze( const Event & event )
   if ( foundGenMuon ) hMCMaxPt->Fill(genMuonPt, thisEventWeight);
   if ( foundRecMuon ) hRECOMaxPt->Fill(recMuonPt, thisEventWeight);
 
+  LogTrace("HLTMuonVal") << "genMuonPt: " << genMuonPt
+                         << "recMuonPt: " << recMuonPt;
 
   //////////////////////////////////////////////////////////////////////////
   // Get the L1 and HLT trigger collections
@@ -266,7 +268,7 @@ void HLTMuonGenericRate::analyze( const Event & event )
   // Count the number of candidates for each HLT module that pass a pt 
   // threshold, and fill efficiency numerator histograms
 
-  if ( genMuonPt > 0 ){
+  if ( foundGenMuon ){
     for ( size_t moduleNum = 0; moduleNum < numHltModules; moduleNum++) {
 
       double ptCut = theHLTReferenceThreshold;
@@ -279,8 +281,8 @@ void HLTMuonGenericRate::analyze( const Event & event )
       }
 
       if ( nFound >= theNumberOfObjects ){
-	if ( genMuonPt > 0 ) hHLTMCMaxPtPass[moduleNum]->Fill( genMuonPt, thisEventWeight );
-	if ( recMuonPt > 0 ) hHLTRECOMaxPtPass[moduleNum]->Fill( recMuonPt, thisEventWeight );
+	if ( foundGenMuon ) hHLTMCMaxPtPass[moduleNum]->Fill( genMuonPt, thisEventWeight );
+	if ( foundRecMuon ) hHLTRECOMaxPtPass[moduleNum]->Fill( recMuonPt, thisEventWeight );
 	hSteps->Fill( 2 + moduleNum ); 
       }
 
