@@ -10,6 +10,9 @@
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauFwd.h"
 
+//TODO just for testing, remove this
+#include "DataFormats/TrackReco/interface/Track.h"
+
 #include "FWCore/Framework/interface/ESHandle.h"
 
 // #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -83,7 +86,7 @@ void PFTopProjector::produce(Event& iEvent,
 			     const EventSetup& iSetup) {
   
  
-  
+  cout<<"Event -------------------- "<<iEvent.id().event()<<endl;
   
   // get the various collections
 
