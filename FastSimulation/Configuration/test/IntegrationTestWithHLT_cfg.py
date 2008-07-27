@@ -70,7 +70,7 @@ process.famosPileUp.PileUpSimulator.averageNumber = 0.0
 
 # Get frontier conditions   - not applied in the HCAL, see below
 # Values for globaltag are "STARTUP_V3::All", "1PB::All", "10PB::All", "IDEAL_V4::All"
-process.GlobalTag.globaltag = "STARTUP_V3::All"
+process.GlobalTag.globaltag = "STARTUP_V4::All"
 
 
 # Apply ECAL and HCAL miscalibration 
