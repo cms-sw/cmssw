@@ -1,7 +1,7 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: CaloJetTester.cc,v 1.2 2008/06/10 21:03:41 rwolf Exp $
+// $Id: CaloJetTester.cc,v 1.3 2008/07/21 21:57:26 chlebana Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -30,6 +30,8 @@
 #include "RecoJets/JetAlgorithms/interface/JetMatchingTools.h"
 
 #include "CaloJetTester.h"
+
+#include <cmath>
 
 using namespace edm;
 using namespace reco;
@@ -71,17 +73,17 @@ CaloJetTester::CaloJetTester(const edm::ParameterSet& iConfig)
   if (dbe) {
     dbe->setCurrentFolder("RecoJetsV/CaloJetTask_" + mInputCollection.label());
     mEta = dbe->book1D("Eta", "Eta", 100, -5, 5); 
-    mEtaFineBin = dbe->book1D("EtaFineBin", "EtaFineBin", 500, -5, 5); 
+    mEtaFineBin = dbe->book1D("EtaFineBin_Pt30", "EtaFineBin_Pt30", 500, -5, 5); 
     mPhi = dbe->book1D("Phi", "Phi", 70, -3.5, 3.5); 
-    mPhiFineBin = dbe->book1D("PhiFineBin", "PhiFineBin", 350, -3.5, 3.5); 
+    mPhiFineBin = dbe->book1D("PhiFineBin_Pt30", "PhiFineBin_Pt30", 350, -3.5, 3.5); 
     mE = dbe->book1D("E", "E", 100, 0, 500); 
-    mE_80 = dbe->book1D("E_80", "E_80", 100, 0, 190); 
-    mE_3000 = dbe->book1D("E_3000", "E_3000", 100, 0, 4500); 
+    mE_80 = dbe->book1D("E_80", "E_80", 100, 0, 4500); 
+    mE_3000 = dbe->book1D("E_3000", "E_3000", 100, 0, 6000); 
     mP = dbe->book1D("P", "P", 100, 0, 500); 
-    mP_80 = dbe->book1D("P_80", "P_80", 100, 0, 120); 
-    mP_3000 = dbe->book1D("P_3000", "P_3000", 100, 0, 4500); 
+    mP_80 = dbe->book1D("P_80", "P_80", 100, 0, 4500); 
+    mP_3000 = dbe->book1D("P_3000", "P_3000", 100, 0, 6000); 
     mPt = dbe->book1D("Pt", "Pt", 100, 0, 50); 
-    mPt_80   = dbe->book1D("Pt_80", "Pt_80", 100, 0, 120); 
+    mPt_80   = dbe->book1D("Pt_80", "Pt_80", 100, 0, 140); 
     mPt_3000 = dbe->book1D("Pt_3000", "Pt_3000", 100, 0, 4000); 
     mMass = dbe->book1D("Mass", "Mass", 100, 0, 25); 
     mMass_80 = dbe->book1D("Mass_80", "Mass_80", 100, 0, 120); 
@@ -96,6 +98,8 @@ CaloJetTester::CaloJetTester(const edm::ParameterSet& iConfig)
     mEFirst_3000 = dbe->book1D("EFirst_3000", "EFirst_3000", 100, 0, 4000); 
     mPtFirst = dbe->book1D("PtFirst", "PtFirst", 100, 0, 500); 
     //
+    mMjj = dbe->book1D("Mjj", "Mjj", 100, 0, 200); 
+    //
     mMaxEInEmTowers = dbe->book1D("MaxEInEmTowers", "MaxEInEmTowers", 100, 0, 100); 
     mMaxEInHadTowers = dbe->book1D("MaxEInHadTowers", "MaxEInHadTowers", 100, 0, 100); 
     mHadEnergyInHO = dbe->book1D("HadEnergyInHO", "HadEnergyInHO", 100, 0, 10); 
@@ -108,6 +112,8 @@ CaloJetTester::CaloJetTester(const edm::ParameterSet& iConfig)
     mEnergyFractionHadronic = dbe->book1D("EnergyFractionHadronic", "EnergyFractionHadronic", 120, -0.1, 1.1); 
     mEnergyFractionEm = dbe->book1D("EnergyFractionEm", "EnergyFractionEm", 120, -0.1, 1.1); 
     mHFTotal = dbe->book1D("HFTotal", "HFTotal", 100, 0, 500);
+    mHFTotal_80 = dbe->book1D("HFTotal_80", "HFTotal_80", 100, 0, 3000);
+    mHFTotal_3000 = dbe->book1D("HFTotal_3000", "HFTotal_3000", 100, 0, 6000);
     mHFLong = dbe->book1D("HFLong", "HFLong", 100, 0, 500);
     mHFLong_80 = dbe->book1D("HFLong_80", "HFLong_80", 100, 0, 200);
     mHFLong_3000 = dbe->book1D("HFLong_3000", "HFLong_3000", 100, 0, 1500);
@@ -116,12 +122,12 @@ CaloJetTester::CaloJetTester(const edm::ParameterSet& iConfig)
     mHFShort_3000 = dbe->book1D("HFShort_3000", "HFShort_3000", 100, 0, 1500);
     mN90 = dbe->book1D("N90", "N90", 50, 0, 50); 
     //
-    mCaloMEx = dbe->book1D("CaloMEx","CaloMEx",4001,-1000,1001);
-    mCaloMEy = dbe->book1D("CaloMEy","CaloMEy",4001,-1000,1001);
-    mCaloMETSig = dbe->book1D("CaloMETSig","CaloMETSig",51,0,51);
-    mCaloMET = dbe->book1D("CaloMET","CaloMET",2001,0,2001);
-    mCaloMETPhi = dbe->book1D("CaloMETPhi","CaloMETPhi",80,-4,4);
-    mCaloSumET = dbe->book1D("CaloSumET","CaloSumET",10001,0,10001);
+    mCaloMEx = dbe->book1D("CaloMEx","CaloMEx",200,-150,150);
+    mCaloMEy = dbe->book1D("CaloMEy","CaloMEy",200,-150,150);
+    mCaloMETSig = dbe->book1D("CaloMETSig","CaloMETSig",100,0,20);
+    mCaloMET = dbe->book1D("CaloMET","CaloMET",100,0,200);
+    mCaloMETPhi = dbe->book1D("CaloMETPhi","CaloMETPhi",70, 3.5, 3.5);
+    mCaloSumET = dbe->book1D("CaloSumET","CaloSumET",100,0,1000);
     //
     mHadTiming = dbe->book1D("HadTiming", "HadTiming", 25, 0, 25);
     mEmTiming = dbe->book1D("EMTiming", "EMTiming", 15, 0 , 15);
@@ -235,15 +241,21 @@ void CaloJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSe
     
   }
 
+
+  math::XYZTLorentzVector p4tmp[2];
+
   Handle<CaloJetCollection> caloJets;
   mEvent.getByLabel(mInputCollection, caloJets);
   CaloJetCollection::const_iterator jet = caloJets->begin ();
   int jetIndex = 0;
+  int nJet = 0;
   for (; jet != caloJets->end (); jet++, jetIndex++) {
     if (mEta) mEta->Fill (jet->eta());
-    if (mEtaFineBin) mEtaFineBin->Fill (jet->eta());
+    if (jet->pt() > 30.) {
+      if (mEtaFineBin) mEtaFineBin->Fill (jet->eta());
+      if (mPhiFineBin) mPhiFineBin->Fill (jet->phi());
+    }
     if (mPhi) mPhi->Fill (jet->phi());
-    if (mPhiFineBin) mPhiFineBin->Fill (jet->phi());
     if (mE) mE->Fill (jet->energy());
     if (mE_80) mE_80->Fill (jet->energy());
     if (mE_3000) mE_3000->Fill (jet->energy());
@@ -266,6 +278,15 @@ void CaloJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSe
       if (mEFirst_3000) mEFirst_3000->Fill (jet->energy());
       if (mPtFirst) mPtFirst->Fill (jet->pt());
     }
+    if (jetIndex == 0) {
+      nJet++;
+      p4tmp[0] = jet->p4();     
+    }
+    if (jetIndex == 1) {
+      nJet++;
+      p4tmp[1] = jet->p4();     
+    }
+
     if (mMaxEInEmTowers) mMaxEInEmTowers->Fill (jet->maxEInEmTowers());
     if (mMaxEInHadTowers) mMaxEInHadTowers->Fill (jet->maxEInHadTowers());
     if (mHadEnergyInHO) mHadEnergyInHO->Fill (jet->hadEnergyInHO());
@@ -277,18 +298,26 @@ void CaloJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSe
     if (mEmEnergyInHF) mEmEnergyInHF->Fill (jet->emEnergyInHF());
     if (mEnergyFractionHadronic) mEnergyFractionHadronic->Fill (jet->energyFractionHadronic());
     if (mEnergyFractionEm) mEnergyFractionEm->Fill (jet->emEnergyFraction());
-    if (mHFTotal) mHFTotal->Fill (jet->hadEnergyInHF()+jet->emEnergyInHF());
-    if (mHFLong) mHFLong->Fill (jet->hadEnergyInHF()*0.5+jet->emEnergyInHF());
-    if (mHFLong_80) mHFLong_80->Fill (jet->hadEnergyInHF()*0.5+jet->emEnergyInHF());
-    if (mHFLong_3000) mHFLong_3000->Fill (jet->hadEnergyInHF()*0.5+jet->emEnergyInHF());
-    if (mHFShort) mHFShort->Fill (jet->hadEnergyInHF()*0.5);
-    if (mHFShort_80) mHFShort_80->Fill (jet->hadEnergyInHF()*0.5);
+
+    if (mHFTotal)      mHFTotal->Fill (jet->hadEnergyInHF()+jet->emEnergyInHF());
+    if (mHFTotal_80)   mHFTotal_80->Fill (jet->hadEnergyInHF()+jet->emEnergyInHF());
+    if (mHFTotal_3000) mHFTotal_3000->Fill (jet->hadEnergyInHF()+jet->emEnergyInHF());
+    if (mHFLong)       mHFLong->Fill (jet->hadEnergyInHF()*0.5+jet->emEnergyInHF());
+    if (mHFLong_80)    mHFLong_80->Fill (jet->hadEnergyInHF()*0.5+jet->emEnergyInHF());
+    if (mHFLong_3000)  mHFLong_3000->Fill (jet->hadEnergyInHF()*0.5+jet->emEnergyInHF());
+    if (mHFShort)      mHFShort->Fill (jet->hadEnergyInHF()*0.5);
+    if (mHFShort_80)   mHFShort_80->Fill (jet->hadEnergyInHF()*0.5);
     if (mHFShort_3000) mHFShort_3000->Fill (jet->hadEnergyInHF()*0.5);
+
     if (mN90) mN90->Fill (jet->n90());
     mJetEnergyProfile->Fill (jet->eta(), jet->phi(), jet->energy());
     mHadJetEnergyProfile->Fill (jet->eta(), jet->phi(), jet->hadEnergyInHO()+jet->hadEnergyInHB()+jet->hadEnergyInHF()+jet->hadEnergyInHE());
     mEMJetEnergyProfile->Fill (jet->eta(), jet->phi(), jet->emEnergyInEB()+jet->emEnergyInEE()+jet->emEnergyInHF());
   }
+  if (nJet == 2) {
+    if (mMjj) mMjj->Fill( (p4tmp[0]+p4tmp[1]).mass() );
+  }
+
 
   // now match CaloJets to GenJets
   JetMatchingTools jetMatching (mEvent);

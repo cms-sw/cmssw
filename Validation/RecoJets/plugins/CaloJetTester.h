@@ -4,7 +4,7 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: CaloJetTester.h,v 1.4 2008/02/29 20:49:03 ksmith Exp $
+// $Id: CaloJetTester.h,v 1.3 2008/07/21 21:57:26 chlebana Exp $
 
 #include <string>
 
@@ -59,6 +59,7 @@ private:
   MonitorElement* mMass_3000;
   MonitorElement* mConstituents;
   MonitorElement* mConstituents_80;
+  MonitorElement* mConstituents_3000;
   MonitorElement* mHadTiming;
   MonitorElement* mEmTiming;
 
@@ -69,6 +70,11 @@ private:
   MonitorElement* mEFirst_80;
   MonitorElement* mEFirst_3000;
   MonitorElement* mPtFirst;
+  MonitorElement* mPtFirst_80;
+  MonitorElement* mPtFirst_3000;
+
+  // DiJet Parameters
+  MonitorElement* mMjj;
 
   // CaloJet specific
   MonitorElement* mMaxEInEmTowers;
@@ -83,6 +89,8 @@ private:
   MonitorElement* mEnergyFractionHadronic;
   MonitorElement* mEnergyFractionEm;
   MonitorElement* mHFTotal;
+  MonitorElement* mHFTotal_80;
+  MonitorElement* mHFTotal_3000;
   MonitorElement* mHFLong;
   MonitorElement* mHFLong_80;
   MonitorElement* mHFLong_3000;
