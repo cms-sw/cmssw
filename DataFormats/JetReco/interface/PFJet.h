@@ -10,7 +10,7 @@
  * in addition to generic Jet parameters
  *
  * \author Fedor Ratnikov, UMd, Apr 24, 2007
-  * \version   $Id: PFJet.h,v 1.15 2008/05/26 11:22:12 arizzi Exp $
+  * \version   $Id: PFJet.h,v 1.16 2008/07/24 14:51:23 cbern Exp $
  ************************************************************/
 
 
@@ -110,6 +110,8 @@ class PFJet : public Jet {
 
   /// Print object
   virtual std::string print () const;
+
+  friend std::ostream& operator<<(std::ostream& out, const reco::PFJet& jet);
 
  private:
   /// Polymorphic overlap
