@@ -202,7 +202,7 @@ std::ostream& operator<<(std::ostream& out, const reco::PFTau& tau) {
 
   if(!out) return out;
 
-  out<<"pf tau "
+  out<<"PFTau "
      <<tau.pt()<<","
      <<tau.eta()<<","
      <<tau.phi()<<"  "    
