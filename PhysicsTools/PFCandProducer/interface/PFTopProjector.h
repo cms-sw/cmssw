@@ -60,15 +60,16 @@ class PFTopProjector : public edm::EDProducer {
   void maskAncestors( const reco::CandidatePtrVector& ancestors,
 		      std::vector<bool>& masked ) const;
     
-  void printAncestors( const reco::CandidatePtrVector& ancestors,
-		       const edm::Handle<reco::PFCandidateCollection>& allPFCandidates ) const;
 
-
-  template< class T > 
+  template< class T, class U> 
     void processCollection( const edm::Handle< std::vector<T> >& handle,
-			    const edm::Handle<reco::PFCandidateCollection>& allPFCandidates ,
+			    const edm::Handle< std::vector<U> >& allPFCandidates ,
 			    std::vector<bool>& masked,
 			    const char* objectName  ) const; 
+
+  template< class T >
+    void  printAncestors( const reco::CandidatePtrVector& ancestors,
+			  const edm::Handle< std::vector<T> >& allPFCandidates ) const;
 
   /// ancestor PFCandidates
   edm::InputTag   inputTagPFCandidates_;
@@ -93,16 +94,17 @@ class PFTopProjector : public edm::EDProducer {
 
 };
 
-template< class T > 
+template< class T, class U > 
 void PFTopProjector::processCollection( const edm::Handle< std::vector<T> >& handle,
-					const edm::Handle<reco::PFCandidateCollection>& allPFCandidates ,
+					const edm::Handle< std::vector<U> >& allPFCandidates ,
 					std::vector<bool>& masked,
 					const char* objectName) const {
-  if( handle.isValid() ) {
+
+  if( handle.isValid() && allPFCandidates.isValid() ) {
     const std::vector<T>& collection = *handle;
     
     if(verbose_) 
-      std::cout<<" Collection: "<<objectName<<"s"
+      std::cout<<" Collection: "<<objectName
 	       <<" size = "<<collection.size()<<std::endl;
     
     for(unsigned i=0; i<collection.size(); i++) {
@@ -118,11 +120,13 @@ void PFTopProjector::processCollection( const edm::Handle< std::vector<T> >& han
 		     allPFCandidates.id() );
       
       if(verbose_) {
-	std::cout<<"\t"<<objectName<<" "<<i
-		 <<" pt,eta,phi = "
-		 <<basePtr->pt()<<","
-		 <<basePtr->eta()<<","
-		 <<basePtr->phi()<<std::endl;
+/* 	std::cout<<"\t"<<objectName<<" "<<i */
+/* 		 <<" pt,eta,phi = " */
+/* 		 <<basePtr->pt()<<"," */
+/* 		 <<basePtr->eta()<<"," */
+/* 		 <<basePtr->phi()<<std::endl; */
+	
+	std::cout<<"\t"<<collection[i]<<std::endl;
 	printAncestors( ancestors, allPFCandidates );
       }
   
@@ -130,6 +134,25 @@ void PFTopProjector::processCollection( const edm::Handle< std::vector<T> >& han
     }
   }
 
+}
+
+
+template< class T >
+void  PFTopProjector::printAncestors( const reco::CandidatePtrVector& ancestors,
+				      const edm::Handle< std::vector<T> >& allPFCandidates ) const {
+  
+  std::vector<T> pfs = *allPFCandidates;
+
+  for(unsigned i=0; i<ancestors.size(); i++) {
+
+    edm::ProductID id = ancestors[i].id();
+    assert( id == allPFCandidates.id() );
+ 
+    unsigned index = ancestors[i].key();
+    assert( index < pfs.size() );
+    
+    std::cout<<"\t\t"<<pfs[index]<<std::endl;
+  }
 }
 
 

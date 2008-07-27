@@ -85,8 +85,9 @@ void PFTopProjector::beginJob(const edm::EventSetup & es) { }
 void PFTopProjector::produce(Event& iEvent, 
 			     const EventSetup& iSetup) {
   
- 
-  cout<<"Event -------------------- "<<iEvent.id().event()<<endl;
+  
+  if( verbose_)
+    cout<<"Event -------------------- "<<iEvent.id().event()<<endl;
   
   // get the various collections
 
@@ -168,10 +169,11 @@ void PFTopProjector::produce(Event& iEvent,
   processCollection( pfIsolatedMuons, pfCandidates, masked, 
 		     "IsoMuon");
 
+
   const PFCandidateCollection& inCands = *pfCandidates;
 
   if(verbose_) 
-    cout<<" Remaining ------ "<<endl;
+    cout<<" Remaining PFCandidates ------ "<<endl;
   
   for(unsigned i=0; i<inCands.size(); i++) {
     
@@ -188,9 +190,39 @@ void PFTopProjector::produce(Event& iEvent,
       pPFCandidateOutput->back().setSourcePtr(motherPtr);
     }
   }
-  
 
   iEvent.put( pPFCandidateOutput );
+
+
+  // now mask the jets with the taus (if the jet collection has been provided)
+  
+  if( pfJets.isValid() ) {
+    vector<bool> maskedJets( pfJets->size(), false);
+    processCollection( pfTaus, pfJets, maskedJets, 
+		       "PFTau masking PFJets");
+
+    const PFJetCollection& inJets = *pfJets;
+    
+    if(verbose_) 
+      cout<<" Remaining PFJets ------ "<<endl;
+    
+    for(unsigned i=0; i<inJets.size(); i++) {
+      
+      if(maskedJets[i]) {
+	if(verbose_)
+	  cout<<"X "<<i<<" "<<inJets[i]<<endl;
+	continue;
+      }
+      else {
+	if(verbose_)
+	  cout<<"O "<<i<<" "<<inJets[i]<<endl;
+	pPFJetOutput->push_back( inJets[i] );
+      }
+    }
+  }
+
+
+
   iEvent.put( pPFJetOutput );
   
   //   LogDebug("PFTopProjector")<<"STOP event: "<<iEvent.id().event()
@@ -246,20 +278,20 @@ void PFTopProjector::maskAncestors( const reco::CandidatePtrVector& ancestors,
 
 
 
-void  PFTopProjector::printAncestors( const reco::CandidatePtrVector& ancestors,
-				      const edm::Handle<reco::PFCandidateCollection>& allPFCandidates ) const {
+// void  PFTopProjector::printAncestors( const reco::CandidatePtrVector& ancestors,
+// 				      const edm::Handle<reco::PFCandidateCollection>& allPFCandidates ) const {
   
-  PFCandidateCollection pfs = *allPFCandidates;
+//   PFCandidateCollection pfs = *allPFCandidates;
 
-  for(unsigned i=0; i<ancestors.size(); i++) {
+//   for(unsigned i=0; i<ancestors.size(); i++) {
 
-    ProductID id = ancestors[i].id();
-    assert( id == allPFCandidates.id() );
+//     ProductID id = ancestors[i].id();
+//     assert( id == allPFCandidates.id() );
  
-    unsigned index = ancestors[i].key();
-    assert( index < pfs.size() );
+//     unsigned index = ancestors[i].key();
+//     assert( index < pfs.size() );
     
-    cout<<"\t\t"<<pfs[index]<<endl;
-  }
-}
+//     cout<<"\t\t"<<pfs[index]<<endl;
+//   }
+// }
 
