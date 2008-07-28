@@ -61,6 +61,7 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("DAQEcalTBInputService",
 #---
     fileNames = cms.untracked.vstring('/store/users/dellaric/data/H4-000017188-SM5-COSMIC-STD'),
+    runNumber = cms.untracked.int32(17188),
     isBinary = cms.untracked.bool(True)
 #---
 )
