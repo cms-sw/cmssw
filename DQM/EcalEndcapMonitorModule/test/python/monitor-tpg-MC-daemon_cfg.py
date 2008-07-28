@@ -25,6 +25,8 @@ process.load("DQM.EcalEndcapMonitorTasks.EcalEndcapMonitorTasks_cfi")
 
 process.load("DQM.EcalEndcapMonitorTasks.mergeRuns_cff")
 
+process.load("Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi")
+
 process.load("SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cff")
 
 import SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cfi
