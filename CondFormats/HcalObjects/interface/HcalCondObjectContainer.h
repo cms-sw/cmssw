@@ -34,6 +34,8 @@ class HcalCondObjectContainer
  private:
   void initContainer(int container, bool h2mode_ = false);
 
+  bool m_h2mode;
+
   std::vector<Item> HBcontainer;
   std::vector<Item> HEcontainer;
   std::vector<Item> HOcontainer;
@@ -46,7 +48,7 @@ class HcalCondObjectContainer
 
 
 template<class Item>
-HcalCondObjectContainer<Item>::HcalCondObjectContainer()
+HcalCondObjectContainer<Item>::HcalCondObjectContainer(): m_h2mode(false)
 {
 }
 
@@ -58,6 +60,8 @@ HcalCondObjectContainer<Item>::~HcalCondObjectContainer()
 template<class Item> void
 HcalCondObjectContainer<Item>::initContainer(int container, bool h2mode_)
 {
+  m_h2mode = h2mode_;
+
   Item emptyItem;
 
   switch (container) 
@@ -82,7 +86,7 @@ template<class Item> const Item*
 HcalCondObjectContainer<Item>::getValues(DetId fId) const
 {
   HcalGenericDetId myId(fId);
-  int index = myId.hashedId();
+  int index = myId.hashedId(m_h2mode);
   //  std::cout << "::::: getting values at index " << index  << ", DetId " << myId << std::endl;
   unsigned int index1 = abs(index); // b/c I'm fed up with compiler warnings about comparison betw. signed and unsigned int
 
@@ -136,7 +140,7 @@ template<class Item> const bool
 HcalCondObjectContainer<Item>::exists(DetId fId) const
 {
   HcalGenericDetId myId(fId);
-  int index = myId.hashedId();
+  int index = myId.hashedId(m_h2mode);
   if (index < 0) return false;
   unsigned int index1 = abs(index); // b/c I'm fed up with compiler warnings about comparison betw. signed and unsigned int
   const Item* cell = NULL;
