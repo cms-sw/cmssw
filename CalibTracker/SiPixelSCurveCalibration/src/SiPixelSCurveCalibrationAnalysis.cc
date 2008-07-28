@@ -1,6 +1,17 @@
 #include "CalibTracker/SiPixelSCurveCalibration/interface/SiPixelSCurveCalibrationAnalysis.h"
 #include "TMath.h"
 
+#include <iostream>
+#include <fstream>
+
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "DataFormats/SiPixelDigi/interface/SiPixelCalibDigiError.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelFrameConverter.h"
+#include "CondFormats/SiPixelObjects/interface/ElectronicIndex.h"
+#include "CondFormats/SiPixelObjects/interface/DetectorIndex.h"
+#include "CondFormats/SiPixelObjects/interface/LocalPixel.h"
+#include <sstream>
+
 //initialize static members
 std::vector<float> SiPixelSCurveCalibrationAnalysis::efficiencies_(0);
 std::vector<float> SiPixelSCurveCalibrationAnalysis::effErrors_(0);
@@ -12,27 +23,56 @@ void SiPixelSCurveCalibrationAnalysis::calibrationEnd(){
 }
 
 void SiPixelSCurveCalibrationAnalysis::makeThresholdSummary(void){
-
-  // loop over histograms.
-  // calculate average sigma and threshold (per ROC)
-  // open txt file
-  // put info in txt file
-
+ //write run number in file
+  ofstream myfile;
+  myfile.open (thresholdfilename_.c_str());
   for(detIDHistogramMap::iterator  thisDetIdHistoGrams= histograms_.begin();  thisDetIdHistoGrams != histograms_.end(); ++thisDetIdHistoGrams){
-  // loop over det id (det id = number (unsigned int) of pixel module
+   // loop over det id (det id = number (unsigned int) of pixel module 
     const MonitorElement *sigmahist = (*thisDetIdHistoGrams).second[kSigmas];
-    const MonitorElement *thresholdhist = (*thisDetIdHistoGrams).second[kThresholds];
-    
-      for(int irow=0; irow<sigmahist->getNbinsY(); ++irow){
-	for(int icol=0; icol<sigmahist->getNbinsX(); ++icol){
-	  float mysigma = sigmahist->getBinContent(icol, irow);
-	  float mythreshold =thresholdhist->getBinContent(icol, irow);
-	
-	  std::cout << " sigma " << mysigma << " " << mythreshold << std::endl;
-
+    const MonitorElement *thresholdhist = (*thisDetIdHistoGrams).second[kThresholds];  
+    uint32_t detid = (*thisDetIdHistoGrams).first;
+    std::string name = sigmahist->getTitle();
+    std::string rocname = name.substr(0,name.size()-7);
+    rocname+="_ROC";
+    int total_rows = sigmahist ->getNbinsY();
+    int total_columns = sigmahist->getNbinsX();
+    for (int irow=0; irow<total_rows; ++irow){
+      for (int icol=0; icol<total_columns; ++icol){
+	float threshold_error = sigmahist->getBinContent(icol,irow);
+       	if(WriteZeroes_ ||(!WriteZeroes_ && threshold_error>0)){	     
+	  //changing from offline to online numbers
+	  int realfedID=-1;
+	  for(int fedid=0; fedid<=40; ++fedid){
+	    SiPixelFrameConverter converter(theCablingMap_.product(),fedid);
+	    if(converter.hasDetUnit(detid)){
+	      realfedID=fedid;
+	      break;   
+	    }
+	  }
+	  if (realfedID==-1){
+	    std::cout<<"error: could not obtain real fed ID"<<std::endl;
+	    break;
+	  }
+	  sipixelobjects::DetectorIndex detector ={detid,irow,icol};
+	  sipixelobjects::ElectronicIndex cabling; 
+	  SiPixelFrameConverter formatter(theCablingMap_.product(),realfedID);
+	  formatter.toCabling(cabling,detector);
+	  // cabling should now contain cabling.roc and cabling.dcol  and cabling.pxid
+	  // however, the coordinates now need to be converted from dcl,pxid to the row,col coordinates used in the calibration info 
+	  sipixelobjects::LocalPixel::DcolPxid loc;
+	  loc.dcol = cabling.dcol;
+	  loc.pxid = cabling.pxid;
+	  sipixelobjects::LocalPixel locpixel(loc);
+	  int newrow= locpixel.rocRow();
+	  int newcol = locpixel.rocCol();
+	  int newroc= cabling.roc;
+	  myfile<<rocname<<newroc<<" "<<newcol<<" "<<newrow<<" "<<thresholdhist->getBinContent(icol, irow)<<" "<<threshold_error;
+	  myfile<<"\n";
+	}
       }
     }
   }
+  myfile.close();
 }
 
 //used for TMinuit fitting
@@ -66,7 +106,7 @@ SiPixelSCurveCalibrationAnalysis::doSetup(const edm::ParameterSet& iConfig)
    write2dHistograms_           = iConfig.getUntrackedParameter<bool>("write2dHistograms", true);
    write2dFitResult_            = iConfig.getUntrackedParameter<bool>("write2dFitResult", true);
    printoutthresholds_          = iConfig.getUntrackedParameter<bool>("writeOutThresholdSummary",true);
-   thresholdfilename_           = iConfig.getUntrackedParameter<std::string>("threholdOutputFileName","thresholds.txt");  
+   thresholdfilename_           = iConfig.getUntrackedParameter<std::string>("thresholdOutputFileName","thresholds.txt");  
    minimumChi2prob_             = iConfig.getUntrackedParameter<double>("minimumChi2prob", 0);
    minimumThreshold_            = iConfig.getUntrackedParameter<double>("minimumThreshold", -10);
    maximumThreshold_            = iConfig.getUntrackedParameter<double>("maximumThreshold", 300);
@@ -76,6 +116,8 @@ SiPixelSCurveCalibrationAnalysis::doSetup(const edm::ParameterSet& iConfig)
    maximumEffAsymptote_         = iConfig.getUntrackedParameter<double>("maximumEffAsymptote", 1000);
    maximumSigmaBin_             = iConfig.getUntrackedParameter<double>("maximumSigmaBin", 10);
    maximumThresholdBin_         = iConfig.getUntrackedParameter<double>("maximumThresholdBin", 255);
+
+   WriteZeroes_= iConfig.getUntrackedParameter<bool>("WriteZeroes", false);
 
    // convert the vector into a map for quicker lookups.
    for(unsigned int i = 0; i < detIDsToSaveVector_.size(); i++)
