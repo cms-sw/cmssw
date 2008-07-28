@@ -33,7 +33,6 @@ process.load("DQM.EcalBarrelMonitorTasks.EcalBarrelMonitorTasks_cfi")
 process.load("SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cff")
 
 import SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cfi
-
 process.simEcalTriggerPrimitiveDigis2 = SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cfi.simEcalTriggerPrimitiveDigis.clone()
 
 process.load("DQM.EcalBarrelMonitorClient.EcalBarrelMonitorClient_cfi")
