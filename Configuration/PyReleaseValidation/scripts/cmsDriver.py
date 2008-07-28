@@ -12,11 +12,9 @@ from Configuration.PyReleaseValidation.ConfigBuilder import ConfigBuilder
 usage=\
 """%prog <TYPE> [options].
 Examples:
-%prog QCD
-%prog 10MU+ -e 45 -n 100 --no_output
-%prog B_JETS -s DIGI -e 40_130 -n 50 --filein MYSIMJETS --fileout MYDIGIJETS
-%prog GAMMA -s DIGI --filein file:myGAMMA.root --dirout rfio:$CASTOR_HOME/test/
-%prog GAMMA -s RECO --dirin rfio:$CASTOR_HOME/test/ --fileout file:myGAMMAreco.root
+%prog SingleMuPt10_cfi -n 100 --no_output
+%prog QCD_Pt_15_20_cfi -s GEN,SIM,DIGI,L1,DQM,DIGI2RAW,HLT -n 10
+%prog QCD_Pt_15_20_cfi -s RAW2DIGI,RECO -n 10 --filein file:myQCD.root --dirout rfio:$CASTOR_HOME/test/
 """
 parser = optparse.OptionParser(usage)
 
@@ -24,12 +22,10 @@ parser.add_option("-s", "--step",
                    help="The desired step. The possible values are: "+\
                         "GEN (Generation),"+\
                         "SIM (Simulation), "+\
-                        "GENSIM (Generation+Simulation)"+\
                         "DIGI (Digitisation), "+\
                         "RECO (Reconstruction), "+\
                         "ALCA (alignment/calibration), "+\
                         "DIGIRECO (DigitisationReconstruction), "+\
-                        "DIGIPURECO (DigitisationReconstruction+ Pileup at low lumi), "+\
                         "ALL (Simulation-Reconstruction-Digitisation).",
                    default="ALL",
                    dest="step")
