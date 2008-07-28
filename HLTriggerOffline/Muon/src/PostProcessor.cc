@@ -2,8 +2,8 @@
  *  Class:PostProcessor 
  *
  *
- *  $Date: 2008/07/25 12:01:52 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/07/27 10:23:00 $
+ *  $Revision: 1.3 $
  * 
  *  \author Junghwan Goh - SungKyunKwan University
  */
@@ -71,7 +71,8 @@ void PostProcessor::endJob()
 }
 
 void PostProcessor::computeEfficiency(const string& startDir, const string& efficMEName, const string& efficMETitle,
-                                      const string& recoMEName, const string& simMEName)
+                                      const string& recoMEName, const string& simMEName,
+				      const string& xTitle, const string& yTitle )
 {
   theDQM->cd(startDir);
   ME* simME  = theDQM->get(simMEName);
@@ -111,6 +112,8 @@ void PostProcessor::computeEfficiency(const string& startDir, const string& effi
     const float err = nSim && eff <= 1 ? sqrt(eff*(1-eff)/nSim) : 0.;
     efficME->setBinContent(bin, eff * 100.);
     efficME->setBinError(bin, err * 100.);
+    efficME->setAxisTitle(xTitle);
+    efficME->setAxisTitle(yTitle,2);
   }
 }
 
@@ -194,7 +197,7 @@ void PostProcessor::processLoop( const std::string& startDir, vector<boost::toke
     // Efficiency plots
   case 'E':
   case 'e':
-    if ( args.size() != 6 ) break;;
+    if ( args.size() != 8 ) break;;
     path1.clear();
     path1 += startDir;
     path1 += "/";
@@ -203,7 +206,7 @@ void PostProcessor::processLoop( const std::string& startDir, vector<boost::toke
     path2 += startDir;
     path2 += "/";
     path2 += args[5];
-    computeEfficiency(startDir,args[2], args[3], path1, path2);
+    computeEfficiency(startDir,args[2],args[3], path1, path2, args[6], args[7]);
     break;
     // Resolution plots
   case 'R':
