@@ -20,6 +20,12 @@
 
 #include <cmath>
 
+SiStripClusterInfo::SiStripClusterInfo(const SiStripCluster&  cluster, 
+                                       const edm::EventSetup&      es,
+				       std::string CMNSubtractionMode): es_(es) {
+  SiStripClusterInfo(cluster.geographicalId(),cluster,es,CMNSubtractionMode);
+}
+
 SiStripClusterInfo::SiStripClusterInfo(const uint32_t  cluster_detId,
                                        const SiStripCluster&  cluster, 
                                        const edm::EventSetup&      es,
@@ -62,7 +68,7 @@ SiStripClusterInfo::SiStripClusterInfo(const uint32_t  cluster_detId,
 SiStripClusterInfo::~SiStripClusterInfo(){}
 
 
-float SiStripClusterInfo::getCharge() {
+float SiStripClusterInfo::getCharge() const {
   
   float charge_=0;
   const std::vector<uint8_t>& amplitudes_ =  cluster_->amplitudes();
@@ -78,10 +84,14 @@ float SiStripClusterInfo::getCharge() {
 }
 
 
-uint16_t SiStripClusterInfo::getMaxPosition() {
+uint16_t SiStripClusterInfo::getMaxPosition() const {
+  return getMaxPosition(cluster_);
+}
+
+uint16_t SiStripClusterInfo::getMaxPosition(const SiStripCluster *cluster) const {
   
   uint16_t maxPosition_=0;
-  const std::vector<uint8_t>& amplitudes_ =  cluster_->amplitudes();  
+  const std::vector<uint8_t>& amplitudes_ =  cluster->amplitudes();  
   float maxCharge_=0;
   
   for(size_t i=0; i< amplitudes_.size();i++){
@@ -92,14 +102,14 @@ uint16_t SiStripClusterInfo::getMaxPosition() {
       }
     } 
   } 
-  maxPosition_+=cluster_->firstStrip();
+  maxPosition_+=cluster->firstStrip();
   
   return maxPosition_;
   
 }
 
 
-float SiStripClusterInfo::getMaxCharge() {
+float SiStripClusterInfo::getMaxCharge() const {
   
   const std::vector<uint8_t>& amplitudes_ =  cluster_->amplitudes();  
   float maxCharge_=0;
@@ -115,7 +125,40 @@ float SiStripClusterInfo::getMaxCharge() {
 }
 
 
-std::pair<float,float> SiStripClusterInfo::getChargeLR() {
+std::vector<float> SiStripClusterInfo::getRawChargeCLR( const edm::DetSet<SiStripRawDigi>&    ds_SiStripRawDigi,
+							      edmNew::DetSet<SiStripCluster>& ds_SiStripCluster,
+							std::string                           rawDigiLabel ) {
+  std::vector<float> adcCLR(3*0);
+  
+  // Get First Left and First Right
+  uint32_t neighbourStrips = 1;
+  std::pair< std::vector<float>,std::vector<float> > rawChargesLR =
+    this->getRawDigiAmplitudesLR(neighbourStrips, ds_SiStripRawDigi, ds_SiStripCluster, std::string(rawDigiLabel));
+  
+  if (edm::isDebugEnabled()){
+    std::stringstream sssL;
+    std::stringstream sssR;
+    // Left
+    for(std::vector<float>::const_iterator digi_adc_iter=rawChargesLR.first.begin();
+	digi_adc_iter!=rawChargesLR.first.end();digi_adc_iter++)
+      sssL << "\n digi adc " << *digi_adc_iter;
+    LogDebug("SiStripClusterInfo") << " detid " << cluster_detId_  << "\n Max Left RawDigis \n " << sssL.str();
+    // Right
+    for(std::vector<float>::const_iterator digi_adc_iter=rawChargesLR.second.begin();
+	digi_adc_iter!=rawChargesLR.second.end();digi_adc_iter++)
+      sssR << "\n digi adc " << *digi_adc_iter;
+    LogDebug("SiStripClusterInfo") << " detid " << cluster_detId_  << "\n Max Right RawDigis \n " << sssR.str();
+  }
+  
+  adcCLR[0] = amplitudeC_;
+  adcCLR[1] = rawChargesLR.first[0];
+  adcCLR[2] = rawChargesLR.second[0];
+  
+  return adcCLR;
+}
+
+
+std::pair<float,float> SiStripClusterInfo::getChargeLR() const {
   
   float chargeL_=0;
   float chargeR_=0; 
@@ -123,11 +166,27 @@ std::pair<float,float> SiStripClusterInfo::getChargeLR() {
   const std::vector<uint8_t>& amplitudes_ =  cluster_->amplitudes();
   
   for(size_t i=0; i<amplitudes_.size();i++){
-    if ((cluster_->firstStrip())+i < maxPosition_) chargeL_+=amplitudes_[i]; 	  
-    if ((cluster_->firstStrip())+i > maxPosition_) chargeR_+=amplitudes_[i]; 	  
+    if ((cluster_->firstStrip())+i < maxPosition_) chargeL_+=(float)amplitudes_[i]; 	  
+    if ((cluster_->firstStrip())+i > maxPosition_) chargeR_+=(float)amplitudes_[i]; 	  
   }
   
   return std::pair<float,float>(chargeL_,chargeR_);
+  
+}
+
+
+std::pair<float,float> SiStripClusterInfo::getChargeLRFirstNeighbour() const {
+  
+  uint16_t maxPosition = this->getMaxPosition();
+  uint16_t firstStrip  = this->getFirstStrip();
+  const std::vector<uint8_t>& amplitudes =  cluster_->amplitudes();
+  
+  float chargeL = ( maxPosition > firstStrip                           ? (float)amplitudes[maxPosition-firstStrip-1] : 0. );
+  float chargeR = ( maxPosition < firstStrip + (amplitudes.size() - 1) ? (float)amplitudes[maxPosition-firstStrip+1] : 0. );
+  
+  //  std::cout << this->getDetId() << ": " << chargeL << " " << chargeR << " width " << amplitudes.size() << std::endl;
+  
+  return std::pair<float,float>(chargeL,chargeR);
   
 }
 
@@ -285,13 +344,14 @@ float SiStripClusterInfo::getSignalOverNoiseRescaledByGain() {
 }
 
 
-std::pair< std::vector<float>,std::vector<float> > SiStripClusterInfo::getRawDigiAmplitudesLR(      uint32_t&                       neighbourStripNr, 
-                                                                                              const edm::DetSetVector<SiStripRawDigi>& rawDigis_dsv_, 
-                                                                                                    edm::DetSetVector<SiStripCluster>& clusters_dsv_,
-                                                                                                    std::string                         rawDigiLabel) {
- 
-  const edm::DetSet<SiStripRawDigi> rawDigis_ds_= rawDigis_dsv_[cluster_detId_];
-  edm::DetSet<SiStripCluster>       clusters_ds_= clusters_dsv_[cluster_detId_];
+std::pair< std::vector<float>,std::vector<float> > SiStripClusterInfo::getRawDigiAmplitudesLR(      uint32_t&                          neighbourStripNr, 
+                                                                                              const edm::DetSetVector<SiStripRawDigi>&    rawDigis_dsv_, 
+                                                                                                    edmNew::DetSetVector<SiStripCluster>& clusters_dsv_,
+                                                                                                    std::string                            rawDigiLabel ) {
+  neighbourStripNr_ = neighbourStripNr;
+  
+  const edm::DetSet<SiStripRawDigi> rawDigis_ds_ = rawDigis_dsv_[cluster_detId_];
+  edmNew::DetSet<SiStripCluster>    clusters_ds_ = clusters_dsv_[cluster_detId_];
  
   if (rawDigis_dsv_.find(cluster_detId_)!=rawDigis_dsv_.end()){
   
@@ -306,10 +366,12 @@ std::pair< std::vector<float>,std::vector<float> > SiStripClusterInfo::getRawDig
 }
 
 
-std::pair< std::vector<float>,std::vector<float> > SiStripClusterInfo::getRawDigiAmplitudesLR(      uint32_t&                neighbourStripNr, 
-                                                                                              const edm::DetSet<SiStripRawDigi>& rawDigis_ds_, 
-                                                                                                    edm::DetSet<SiStripCluster>& clusters_ds_,
-                                                                                                    std::string                  rawDigiLabel) {
+std::pair< std::vector<float>,std::vector<float> > SiStripClusterInfo::getRawDigiAmplitudesLR(      uint32_t&                   neighbourStripNr, 
+                                                                                              const edm::DetSet<SiStripRawDigi>&    rawDigis_ds_, 
+                                                                                                    edmNew::DetSet<SiStripCluster>& clusters_ds_,
+                                                                                                    std::string                     rawDigiLabel ) {
+  neighbourStripNr_ = neighbourStripNr;
+  
   //QUESTION: here no test?
   rawdigi_algorithm(rawDigis_ds_,clusters_ds_,rawDigiLabel);
   
@@ -318,13 +380,14 @@ std::pair< std::vector<float>,std::vector<float> > SiStripClusterInfo::getRawDig
 
 
 
-std::pair< std::vector<float>,std::vector<float> > SiStripClusterInfo::getDigiAmplitudesLR(      uint32_t&                       neighbourStripNr,
-                                                                                           const edm::DetSetVector<SiStripDigi>&       digis_dsv_,
-                                                                                                 edm::DetSetVector<SiStripCluster>& clusters_dsv_){
+std::pair< std::vector<float>,std::vector<float> > SiStripClusterInfo::getDigiAmplitudesLR(      uint32_t&                          neighbourStripNr,
+                                                                                           const edm::DetSetVector<SiStripDigi>&          digis_dsv_,
+                                                                                                 edmNew::DetSetVector<SiStripCluster>& clusters_dsv_ ){
   
+  neighbourStripNr_ = neighbourStripNr;
   
-  const edm::DetSet<SiStripDigi>  digis_ds_=   digis_dsv_[cluster_detId_];
-  edm::DetSet<SiStripCluster> clusters_ds_= clusters_dsv_[cluster_detId_];
+  const edm::DetSet<SiStripDigi>    digis_ds_ =   digis_dsv_[cluster_detId_];
+  edmNew::DetSet<SiStripCluster> clusters_ds_ = clusters_dsv_[cluster_detId_];
 
   if (digis_dsv_.find(cluster_detId_)!=digis_dsv_.end()){
   
@@ -339,18 +402,20 @@ std::pair< std::vector<float>,std::vector<float> > SiStripClusterInfo::getDigiAm
  
 }
 
-std::pair< std::vector<float>,std::vector<float> > SiStripClusterInfo::getDigiAmplitudesLR(       uint32_t&               neighbourStripNr, 
-                                                                                           const edm::DetSet<SiStripDigi>&       digis_ds_, 
-                                                                                                 edm::DetSet<SiStripCluster>& clusters_ds_) {
+std::pair< std::vector<float>,std::vector<float> > SiStripClusterInfo::getDigiAmplitudesLR(      uint32_t&                  neighbourStripNr, 
+                                                                                           const edm::DetSet<SiStripDigi>&          digis_ds_, 
+                                                                                                 edmNew::DetSet<SiStripCluster>& clusters_ds_ ) {
+  neighbourStripNr_ = neighbourStripNr;
+  
   digi_algorithm(digis_ds_,clusters_ds_);
   
   return std::pair< std::vector<float>,std::vector<float> > (amplitudesL_, amplitudesR_);
 }
 
 
-void SiStripClusterInfo::rawdigi_algorithm(const edm::DetSet<SiStripRawDigi>  rawDigis_ds_,
-				                 edm::DetSet<SiStripCluster>  clusters_ds_,
-		              		         std::                 string rawDigiLabel){
+void SiStripClusterInfo::rawdigi_algorithm(const edm::DetSet<SiStripRawDigi>     rawDigis_ds_,
+				                 edmNew::DetSet<SiStripCluster>  clusters_ds_,
+		              		         std::string                     rawDigiLabel ){
   
   std::vector<int16_t> vssRd(rawDigis_ds_.size());
   
@@ -367,7 +432,7 @@ void SiStripClusterInfo::rawdigi_algorithm(const edm::DetSet<SiStripRawDigi>  ra
 	for(std::vector<int16_t>::const_iterator digi_adc_iter=vssRd.begin();
 	                                        digi_adc_iter!=vssRd.end();digi_adc_iter++)
 	  sss << "\n digi strip " << idig++ << " digi adc " << *digi_adc_iter;
-	LogTrace("SiStripClusterInfo") << " detid " << cluster_detId_  << " Pedestal subtracted digis \n" << sss.str();	
+	LogDebug("SiStripClusterInfo") << " detid " << cluster_detId_  << " Pedestal subtracted digis \n" << sss.str();	
       }	    
     }
   } else if ( rawDigiLabel == "VirginRaw" ) {
@@ -379,7 +444,7 @@ void SiStripClusterInfo::rawdigi_algorithm(const edm::DetSet<SiStripRawDigi>  ra
       for(edm::DetSet<SiStripRawDigi>::const_iterator digis_iter=rawDigis_ds_.data.begin();
                                                      digis_iter!=rawDigis_ds_.data.end();digis_iter++)
 	sss << "\n digi strip " << idig++ << " digi adc " << digis_iter->adc();
-      LogTrace("SiStripClusterInfo") << " detid " << cluster_detId_  << " RawDigis \n" << sss.str();
+      LogDebug("SiStripClusterInfo") << " detid " << cluster_detId_  << "\n RawDigis \n" << sss.str();
     }
     
     //Subtract Pedestals
@@ -393,7 +458,7 @@ void SiStripClusterInfo::rawdigi_algorithm(const edm::DetSet<SiStripRawDigi>  ra
       for(std::vector<int16_t>::const_iterator digi_adc_iter=vssRd.begin();
                                               digi_adc_iter!=vssRd.end();digi_adc_iter++)
 	sss << "\n digi strip " << idig++ << " digi adc " << *digi_adc_iter;
-      LogTrace("SiStripClusterInfo") << " detid " << cluster_detId_  << " Pedestal subtracted digis \n" << sss.str();	
+      LogDebug("SiStripClusterInfo") << " detid " << cluster_detId_  << "\n Pedestal subtracted digis \n " << sss.str();	
     }
     
     //Subtract CMN
@@ -408,11 +473,13 @@ void SiStripClusterInfo::rawdigi_algorithm(const edm::DetSet<SiStripRawDigi>  ra
 	for(std::vector<int16_t>::const_iterator digi_adc_iter=vssRd.begin();
 	                                        digi_adc_iter!=vssRd.end();digi_adc_iter++)
 	  sss << "\n digi strip " << idig++ << " digi adc " << *digi_adc_iter;
-	LogTrace("SiStripClusterInfo") << " detid " << cluster_detId_  << " CMN subtracted digis \n" << sss.str();	
+	LogDebug("SiStripClusterInfo") << " detid " << cluster_detId_  << "\n CMN subtracted digis \n " << sss.str();	
       }
       
     }else{
-      throw cms::Exception("") <<"[" << __PRETTY_FUNCTION__<<"] No valid CommonModeNoiseSubtraction Mode selected, possible CMNSubtractionMode: Median or TT6" << std::endl;
+      throw cms::Exception("") 
+	<< "[" << __PRETTY_FUNCTION__<< "] No valid CommonModeNoiseSubtraction Mode selected, possible CMNSubtractionMode: Median or TT6"
+	<< std::endl;
     }
   } else {
     return;
@@ -421,8 +488,8 @@ void SiStripClusterInfo::rawdigi_algorithm(const edm::DetSet<SiStripRawDigi>  ra
 }
 
 
-void SiStripClusterInfo::digi_algorithm(const edm::DetSet<SiStripDigi>       digis_ds_,
-                                              edm::DetSet<SiStripCluster> clusters_ds_){
+void SiStripClusterInfo::digi_algorithm(const edm::DetSet<SiStripDigi>          digis_ds_,
+                                              edmNew::DetSet<SiStripCluster> clusters_ds_ ){
   
   std::vector<int16_t> vstrip;
   std::vector<int16_t> vadc;
@@ -441,42 +508,61 @@ void SiStripClusterInfo::digi_algorithm(const edm::DetSet<SiStripDigi>       dig
 
 
 
-void SiStripClusterInfo::findNeigh(char*                                               mode,
-                                   edm::DetSet<SiStripCluster>                 clusters_ds_,
-				   std::vector<int16_t>&                               vadc,
-				   std::vector<int16_t>&                             vstrip){
+void SiStripClusterInfo::findNeigh(char*                                  mode,
+                                   edmNew::DetSet<SiStripCluster> clusters_ds_,
+				   std::vector<int16_t>&                  vadc,
+				   std::vector<int16_t>&                vstrip ){
   
-  //Find Digi adiacent to the clusters of this detid
+  // clean the private members
+  //  before filling with the neighbours
+  amplitudeC_ = 0;
+  amplitudesL_.clear();
+  amplitudesR_.clear();
+  //
+  
+  // Find Digi adiacent to the clusters of this detid
   int16_t lastStrip_previousCluster=-1;
   int16_t firstStrip_nextCluster=10000;
   
-  for (edm::DetSet<SiStripCluster>::iterator clusters_iter=clusters_ds_.begin(); 
-                                            clusters_iter!=clusters_ds_.end(); clusters_iter++){	
+  for (edmNew::DetSet<SiStripCluster>::const_iterator clusters_iter=clusters_ds_.begin(); 
+       clusters_iter!=clusters_ds_.end(); clusters_iter++){	
     
-    //Avoid overlapping with neighbour clusters
+    // Avoid overlapping with neighbour clusters
     if (clusters_iter!=clusters_ds_.begin())
       lastStrip_previousCluster=(clusters_iter-1)->firstStrip()+(clusters_iter-1)->amplitudes().size() -1;	  
     if (clusters_iter!=clusters_ds_.end()-1)
       firstStrip_nextCluster=(clusters_iter+1)->firstStrip();
     
     
-    //Get Gain Range
-    SiStripApvGain::Range detGainRange = gainHandle_->getRange(clusters_ds_.id);
+    // Get Gain Range
+    SiStripApvGain::Range detGainRange = gainHandle_->getRange(clusters_ds_.id());
     
-    int16_t firstStrip=clusters_iter->firstStrip();
-    int16_t lastStrip=firstStrip + clusters_iter->amplitudes().size() -1;
-    std::vector<int16_t>::iterator   ptr;
+    // Left or Right with respect to the Central Strip (Cluster Seed)
+    //    int16_t firstStrip=clusters_iter->firstStrip();
+    //    int16_t lastStrip=firstStrip + clusters_iter->amplitudes().size() -1;
+    int16_t firstStrip=getMaxPosition(clusters_iter);
+    int16_t lastStrip=firstStrip;
+    //    std::cout << "firstStrip = " << firstStrip << " lastStrip = " << lastStrip << std::endl;
+    std::vector<int16_t>::iterator ptr;
     if (mode=="digi"){
       ptr=std::find(vstrip.begin(),vstrip.end(),firstStrip); 
       if (ptr==vstrip.end())
-	throw cms::Exception("") << "\n Expected Digi not found in detid " << clusters_ds_.id << " strip " << firstStrip << std::endl;
+	throw cms::Exception("") << "\n Expected Digi not found in detid " << clusters_ds_.id() << " strip " << firstStrip << std::endl;
     }
     else{ 
-      ptr=vstrip.begin()+firstStrip; //For raw mode vstrip==vadc==vector of digis for all strips in the det
+      ptr=vstrip.begin()+firstStrip; // For raw mode vstrip==vadc==vector of digis for all strips in the det
     }
     
-    //Looking at digis before firstStrip	  
-    for (uint16_t istrip=1;istrip<neighbourStripNr+1;istrip++){
+    // Central Digi from the ptr to the central strip
+    int centralPos = ptr-vstrip.begin();
+    if (mode=="digi")
+      centralPos=*(vstrip.begin()+centralPos);
+    //    std::cout << "centralPos = " << centralPos << std::endl;
+    float gain=gainHandle_->getStripGain(centralPos,detGainRange);
+    amplitudeC_ = ( (*(vadc.begin()+(ptr-vstrip.begin()))) / gain );
+    
+    // Looking at digis before firstStrip	  
+    for (uint16_t istrip=1;istrip<neighbourStripNr_+1;istrip++){
       if (istrip>ptr-vstrip.begin()) //avoid underflow
 	{break;}
       if (mode=="digi")
@@ -487,14 +573,15 @@ void SiStripClusterInfo::findNeigh(char*                                        
       int stripPos=ptr-vstrip.begin()-istrip;
       if (mode=="digi")
 	stripPos=*(vstrip.begin()+stripPos);
+      //      std::cout << "stripPos = " << stripPos << std::endl;
       float gain=gainHandle_->getStripGain(stripPos,detGainRange);
       amplitudesL_.push_back( (*(vadc.begin()+(ptr-vstrip.begin())-istrip)) / gain );
     }
     
     ptr+=lastStrip-firstStrip;
     
-    //Looking at digis after LastStrip
-    for (uint16_t istrip=1;istrip<neighbourStripNr+1;istrip++){
+    // Looking at digis after LastStrip
+    for (uint16_t istrip=1;istrip<neighbourStripNr_+1;istrip++){
       if (istrip>vstrip.end()-ptr-1) //avoid overflow
 	{break;}
       if (mode=="digi")
@@ -505,6 +592,7 @@ void SiStripClusterInfo::findNeigh(char*                                        
       int stripPos=ptr-vstrip.begin()+istrip;
       if (mode=="digi")
 	stripPos=*(vstrip.begin()+stripPos);
+      //      std::cout << "stripPos = " << stripPos << std::endl;
       float gain=gainHandle_->getStripGain(stripPos,detGainRange);
       amplitudesR_.push_back( (*(vadc.begin()+(ptr-vstrip.begin())+istrip)) / gain );
     }   
