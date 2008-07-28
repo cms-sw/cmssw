@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.67 2008/07/26 00:03:03 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.68 2008/07/28 15:50:31 chrjones Exp $
 //
 
 // system include files
@@ -140,9 +140,20 @@ m_tasks(new CmsShowTaskExecutor)
 
 
    {
+     //NOTE: by making sure we defaultly open to a fraction of the full screen size we avoid
+     // causing the program to go into full screen mode under default SL4 window manager
+     UInt_t width = gClient->GetDisplayWidth();
+     UInt_t height = static_cast<UInt_t>(gClient->GetDisplayHeight()*.8);
+     //try to deal with multiple horizontally placed monitors.  Since present monitors usually
+     // have less than 2000 pixels horizontally, when we see more it is a good indicator that
+     // we are dealing with more than one monitor.
+     while(width > 2000) {
+        width /= 2;
+     }
+     width = static_cast<UInt_t>(width*.8);
      m_cmsShowMainFrame = new CmsShowMainFrame(gClient->GetRoot(),
-					       1000,
-					       740,
+					       width,
+					       height,
 					       this);
      m_cmsShowMainFrame->SetWindowName("CmsShow");
      m_cmsShowMainFrame->SetCleanup(kDeepCleanup);
