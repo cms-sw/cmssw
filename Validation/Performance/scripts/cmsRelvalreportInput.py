@@ -33,6 +33,7 @@ import optparse as opt
 THIS_PROG_NAME = os.path.basename(sys.argv[0])
 cmsDriver = 'cmsDriver.py'                    #cmsDriver.py path
 hypreg = re.compile('-')
+debug = False
 
 def getFstOccur(str, list):
     for elem in list:
@@ -133,6 +134,7 @@ def optionparse():
 
     (options, args) = parser.parse_args()
 
+    debug = options.debug
     numofargs = len(args) 
 
     if not numofargs == 3:
@@ -184,7 +186,7 @@ def setupProgramParameters(options,args):
         print 'The default steps will be run:'
         steps = ('GEN,SIM', 'DIGI')
     else:
-        print 'The default steps will be run:'
+        print "You defined your own steps to run:"
 
     for astep in steps:
         print astep
@@ -269,6 +271,125 @@ def getProfileArray(ProfileCode):
                 
     return Profile
 
+
+def writeStepHead(simcandles,FileName,acandle,step):
+    simcandles.write('#%s\n' % FileName[acandle])
+    simcandles.write('#Step %s\n' % step)
+    print step
+
+def determineNewProfile(step,Profile):
+    if 'DIGI2RAW' in step:
+        SavedProfile = Profile
+                # print "DIGI2RAW"
+                # print "$step;
+    
+        Profile = 'None'
+    if 'HLT' in step:
+        Profile = SavedProfile
+
+    return Profile
+
+def pythonFragment(CustomiseFragment,step):
+    if not CustomiseFragment.has_key(step):
+
+        # Temporary hack to have potentially added steps use the default Simulation.py fragment
+        # This should change once each group customises its customise python fragments.
+
+        return CustomiseFragment['DIGI']
+    else:
+        return CustomiseFragment[step]
+
+def writeCommand(simcandles,
+                 CustomiseFragment,
+                 qcd,
+                 Profiler,
+                 prof,
+                 OutputStep,
+                 step,
+                 FileName,
+                 acandle,
+                 steps,
+                 stepIndex,
+                 KeywordToCfi,
+                 NumberOfEvents,
+                 cmsDriverOptions):
+
+    if 'EdmSize' in prof:
+
+            # if ("GEN,SIM" in step): #Hack since we use SIM and not GEN,SIM extension (to facilitate DIGI)
+
+        Command = "%s_%s" % (FileName[acandle],step)
+        if qcd:
+            Command += "_PILEUP"
+        Command += ".root "
+    else:
+        CustomisePythonFragment = pythonFragment(CustomiseFragment, step)
+
+            # Adding a fileout option too to avoid dependence on future convention changes in cmsDriver.py:
+    
+        OutputFileOption = "--fileout=%s_%s.root" % ( FileName[acandle],step)
+        OutputStep = step
+
+            # Use --filein (have to for L1, DIGI2RAW, HLT) to add robustness
+
+        InputFileOption = "--filein file:%s_%s" % ( FileName[acandle],steps[stepIndex - 1] )
+
+        if qcd:
+            OutputStep      += "_PILEUP"
+            InputFileOption += "_PILEUP"
+            #InputFileOption += ".root "
+        else :
+            if 'GEN,SIM' in step:  # there is no input file for GEN,SIM!
+                InputFileOption = ''
+            elif 'HLT' in steps[stepIndex - 1]:
+
+                # Special hand skipping of HLT since it is not stable enough, so it will not prevent
+                # RAW2DIGI,RECO from running
+
+                InputFileOption = "--filein file:%s_%s"  % ( FileName[acandle],steps[stepIndex - 2] )
+
+        if not InputFileOption == "" :
+            InputFileOption += ".root "
+
+        Command = ("%s %s -n %s --step=%s %s %s --customise=%s %s" % (
+                   cmsDriver,
+                   KeywordToCfi[acandle],
+                   NumberOfEvents,
+                   step,
+                   InputFileOption,
+                   OutputFileOption,
+                   CustomisePythonFragment,
+                   cmsDriverOptions
+               ))
+
+    simcandles.write("%s @@@ %s @@@ %s_%s_%s\n" % (Command,
+                                                   Profiler[prof],
+                                                   FileName[acandle],
+                                                   OutputStep,
+                                                   prof))
+
+    if debug:
+        print InputFileOption, step, 'GEN,SIM' in step, 'HTL' in steps[stepIndex - 1], steps
+        print "cmsDriveroptions : " + cmsDriverOptions
+    
+    return OutputStep
+
+def prepareQcdCommand(FileName,thecandle,KeywordToCfi,NumberOfEvents,cmsDriverOptions):
+
+    InputFileOption  = "--filein file:%s_GEN,SIM.root " % (FileName[thecandle])
+    OutputFileOption = "--fileout=%s_DIGI_PILEUP.root"  % (FileName[thecandle] )
+
+    return (
+        "%s %s -n %s --step=DIGI %s %s --PU --customise=Configuration/PyReleaseValidation/MixingModule.py %s"
+         % (
+        cmsDriver,
+        KeywordToCfi[thecandle],
+        NumberOfEvents,
+        InputFileOption,
+        OutputFileOption,
+        cmsDriverOptions,
+                    ))
+
 def writeCommandsToReport(simcandles,Candle,Profile,debug,NumberOfEvents,cmsDriverOptions,steps):
 
     OutputStep = ''
@@ -333,84 +454,23 @@ def writeCommandsToReport(simcandles,Candle,Profile,debug,NumberOfEvents,cmsDriv
         print '*Candle ' + acandle
         stepIndex = 0
         for step in steps:
-            simcandles.write('#%s\n' % FileName[acandle])
-            simcandles.write('#Step %s\n' % step)
-            print step
-            if 'DIGI2RAW' in step:
-
-            # print "DIGI2RAW"
-            # print "$step;
-
-                SavedProfile = Profile
-                Profile = 'None'
-            if 'HLT' in step:
-                Profile = SavedProfile
+            writeStepHead(simcandles,FileName, acandle, step)
+            Profile = determineNewProfile(step,Profile)
             for prof in Profile:
-                if 'EdmSize' in prof:
-
-                    # if ("GEN,SIM" in step): #Hack since we use SIM and not GEN,SIM extension (to facilitate DIGI)
-
-                    Command = "%s_%s.root " % (FileName[acandle],step)
-                else:
-
-                    # step ="GEN\,SIM"
-                    # print "GEN\,SIM here"
-
-                    if not CustomiseFragment.has_key(step):
-
-                    # Temporary hack to have potentially added steps use the default Simulation.py fragment
-                    # This should change once each group customises its customise python fragments.
-
-                        CustomisePythonFragment = CustomiseFragment['DIGI']
-                    else:
-                        CustomisePythonFragment = CustomiseFragment[step]
-
-                    # Adding a fileout option too to avoid dependence on future convention changes in cmsDriver.py:
-
-                    OutputFileOption = "--fileout=%s_%s.root" % ( FileName[acandle],step)
-                    OutputStep = step
-
-                    # Use --filein (have to for L1, DIGI2RAW, HLT) to add robustness
-
-                    if 'GEN,SIM' in step:  # there is no input file for GEN,SIM!
-                        InputFileOption = ''
-                    elif 'HLT' in steps[stepIndex - 1]:
-
-                    # Special hand skipping of HLT since it is not stable enough, so it will not prevent
-                    # RAW2DIGI,RECO from running
-
-                        InputFileOption = "--filein file:%s_%s.root"  % ( FileName[acandle],steps[stepIndex - 2] )
-                    else:
-                        InputFileOption = "--filein file:%s_%s.root " % ( FileName[acandle],steps[stepIndex - 1] )
-
-                    if debug:
-                        print InputFileOption, step, 'GEN,SIM' in step, 'HTL' in steps[stepIndex - 1], steps
-
-                    # Adding .cfi to use new method of using cmsDriver.py
-                    # $Command="$cmsDriver $candle -n $NumberOfEvents --step=$step $FileIn{$step}$InputFile
-                    # --customise=$CustomiseFragment{$step} ";
-                    # $Command="$cmsDriver $KeywordToCfi{$candle} -n $NumberOfEvents --step=$step
-                    # $InputFileOption $OutputFileOption --eventcontent=$EventContent{$step}
-                    # --customise=$CustomiseFragment{$step} $cmsDriverOptions";
-
-                    if debug :
-                        print "cmsDriveroptions : " + cmsDriverOptions
-
-                    Command = ("%s %s -n %s --step=%s %s %s --customise=%s %s" % (
-                        cmsDriver,
-                        KeywordToCfi[acandle],
-                        NumberOfEvents,
-                        step,
-                        InputFileOption,
-                        OutputFileOption,
-                        CustomisePythonFragment,
-                        cmsDriverOptions
-                        ))
-                simcandles.write("%s @@@ %s @@@ %s_%s_%s\n" % (Command,
-                                                               Profiler[prof],
-                                                               FileName[acandle],
-                                                               OutputStep,
-                                                               prof))
+                OutputStep = writeCommand(simcandles,
+                             CustomiseFragment,
+                             False,
+                             Profiler,
+                             prof,
+                             OutputStep,
+                             step,
+                             FileName,
+                             acandle,
+                             steps,
+                             stepIndex,
+                             KeywordToCfi,
+                             NumberOfEvents,
+                             cmsDriverOptions)
             stepIndex += 1
 
     # Add the extra "step" DIGI with PILE UP only for QCD_80_120:
@@ -426,33 +486,14 @@ def writeCommandsToReport(simcandles,Candle,Profile,debug,NumberOfEvents,cmsDriv
         # First run the DIGI with PILEUP (using the MixingModule.py)
         # Hardcode stuff for this special step
 
-        simcandles.write('#' + FileName[qcdStr] + "\n")
-        simcandles.write('#DIGI PILE-UP STEP\n')
-        print 'DIGI PILEUP'
+        writeStepHead(simcandles,FileName,thecandle,"DIGI PILE-UP")
+        
         for prof in Profile:
             if 'EdmSize' in prof:
-                Command = FileName[thecandle] + '_DIGI_PILEUP.root '
+                Command = "%s_%s.root " % (FileName[thecandle],step)
             else:
-                InputFileOption  = "--filein file:%s_GEN,SIM.root " % (FileName[thecandle])
-                OutputFileOption = "--fileout=%s_DIGI_PILEUP.root"  % (FileName[thecandle] )
+                Command = prepareQcdCommand(FileName,thecandle,KeywordToCfi,NumberOfEvents,cmsDriverOptions)
 
-            # Adding .cfi to use new method of using cmsDriver.py
-            # $Command="$cmsDriver $candle -n $NumberOfEvents --step=$step $FileIn{$step}$InputFile
-            # --customise=$CustomiseFragment{$step} ";
-            # $Command="$cmsDriver $KeywordToCfi{$candle} -n $NumberOfEvents --step=DIGI $InputFileOption
-            # $OutputFileOption --PU --eventcontent=FEVTSIMDIGI
-            # --customise=Configuration/PyReleaseValidation/MixingModule.py $cmsDriverOptions";
-
-                Command = (
-                    "%s %s -n %s --step=DIGI %s %s --PU --customise=Configuration/PyReleaseValidation/MixingModule.py %s"
-                     % (
-                    cmsDriver,
-                    KeywordToCfi[thecandle],
-                    NumberOfEvents,
-                    InputFileOption,
-                    OutputFileOption,
-                    cmsDriverOptions,
-                    ))
             simcandles.write('%s @@@ %s @@@ %s_DIGI_PILEUP_%s\n' % (Command, Profiler[prof], FileName[thecandle], prof))
 
             # Very messy solution for now:
@@ -462,50 +503,25 @@ def writeCommandsToReport(simcandles,Candle,Profile,debug,NumberOfEvents,cmsDriv
             FileIn = {}
             FileIn['RECO'] = '--filein file:'
             for step in AfterPileUpSteps:
-                simcandles.write('#' + FileName[thecandle] + "\n")
-                simcandles.write('#Step %s PILEUP\n' % step)
-                print step + ' PILEUP'
-                if 'DIGI2RAW' in step:
-                    SavedProfile = Profile
-                    Profile = 'None'
-                if 'HLT' in step:
-                    Profile = SavedProfile
+                
+                writeStepHead(simcandles,FileName,thecandle,"PILE-UP")
+                Profile = determineNewProfile(step,Profile)
 
                 for prof in Profile:
-                    if 'EdmSize' in prof:
-                        Command = '%s_%s_PILEUP.root '% (FileName[thecandle], step)
-                    else:
-                        if CustomiseFragment.has_key(step):
-
-                        # Temporary hack to have potentially added steps use the default Simulation.py fragment
-                        # This should change once each group customises its customise python fragments.
-
-                            CustomisePythonFragment = CustomiseFragment['DIGI']
-                        else:
-                            CustomisePythonFragment = CustomiseFragment[step]
-                        OutputStep       = step + '_PILEUP'
-                        InputFileOption  = '%s_%s_PILEUP.root ' % (FileName[thecandle], Steps[stepIndex - 1])
-                        OutputFileOption = '--fileout=%s_%s_PILEUP.root'% (FileName[candle], step)
-
-                        # Adding .cfi to use new method of using cmsDriver.py
-                        # $Command="$cmsDriver $candle -n $NumberOfEvents --step=$step $FileIn{$step}$InputFile
-                        #--customise=$CustomiseFragment{$step} ";
-                        # $Command="$cmsDriver $KeywordToCfi{$candle} -n $NumberOfEvents --step=$step $InputFileOption
-                        #$OutputFileOption --eventcontent=$EventContent{$step} --customise=$CustomiseFragment{$step} $cmsDriverOptions";
-
-                        Command = (
-                            '%s %s -n %s --step=%s %s %s --customise=%s %s'
-                             % (
-                            cmsDriver,
-                            KeywordToCfi[Candle],
-                            NumberOfEvents,
-                            step,
-                            InputFileOption,
-                            OutputFileOption,
-                            CustomisePythonFragment,
-                            cmsDriverOptions,
-                            ))
-                    simcandles.write('%s @@@ %s @@@ %s_%s_%s\n' % (Command, Profiler[prof], FileName[Candle], OutputStep, prof))
+                    OutputStep = writeCommand(simcandles,
+                                 customiseFragment,
+                                 True,
+                                 Profiler,
+                                 prof,
+                                 OutputStep,
+                                 step,
+                                 FileName,
+                                 acandle,
+                                 steps,
+                                 stepIndex,
+                                 KeywordToCfi,
+                                 NumberOfEvents,
+                                 cmsDriverOptions)
                 stepIndex += 1
 
 def main(argv=sys.argv):
@@ -515,7 +531,6 @@ def main(argv=sys.argv):
     #
 
     (options, args) = optionparse()
-    debug = options.debug
 
     #####################
     # Set up arguments and option handling
@@ -535,11 +550,15 @@ def main(argv=sys.argv):
 
     simcandles = writeReportFileHeader(CMSSW_VERSION,CMSSW_RELEASE_BASE,CMSSW_BASE)
 
+    ##################
     # Based on the profile code create the array of profiles to run:
+    #
 
     Profile = getProfileArray(ProfileCode)
 
+    ##################
     # Write the commands for the report to the file
+    #
 
     writeCommandsToReport(simcandles,Candle,Profile,debug,NumberOfEvents,cmsDriverOptions,steps)
                 
