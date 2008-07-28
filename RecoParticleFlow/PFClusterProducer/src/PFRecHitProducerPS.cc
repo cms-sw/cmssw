@@ -61,6 +61,15 @@ void PFRecHitProducerPS::createRecHits(vector<reco::PFRecHit>& rechits,
   const CaloSubdetectorGeometry *psGeometry = 
     geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
     
+
+  // ShR 28 Jul 2008: check if geometry is NULL. If so we are using
+  // partial CMS gemoetry in Pilot1/2 scenarios which do not include the preshower
+  if(!psGeometry) {
+    LogDebug("PFRecHitProducerPS") << "No EcalPreshower geometry available. putting empty PS rechits collection in event";
+    return;
+  }
+
+
   // get the ps topology
   EcalPreshowerTopology psTopology(geoHandle);
 
