@@ -113,22 +113,22 @@ process.q = cms.EndPath(process.ecalBarrelDefaultTasksSequence*process.ecalBarre
 
 process.ecalUncalibHit.MinAmplBarrel = 12.
 process.ecalUncalibHit.MinAmplEndcap = 16.
-process.ecalUncalibHit.EBdigiCollection = cms.InputTag("simEcalDigis","ebDigis")
-process.ecalUncalibHit.EEdigiCollection = cms.InputTag("simEcalDigis","eeDigis")
+process.ecalUncalibHit.EBdigiCollection = cms.InputTag("ecalDigis","ebDigis")
+process.ecalUncalibHit.EEdigiCollection = cms.InputTag("ecalDigis","eeDigis")
 
 process.ecalRecHit.EBuncalibRecHitCollection = cms.InputTag("ecalUncalibHit","EcalUncalibRecHitsEB")
 process.ecalRecHit.EEuncalibRecHitCollection = cms.InputTag("ecalUncalibHit","EcalUncalibRecHitsEE")
 
 process.ecalBarrelMonitorModule.mergeRuns = True
-process.ecalBarrelMonitorModule.EBDigiCollection = cms.InputTag("simEcalDigis","ebDigis")
+process.ecalBarrelMonitorModule.EBDigiCollection = cms.InputTag("ecalDigis","ebDigis")
 process.ecalBarrelMonitorModule.runType = 3 # MTCC/PHYSICS
 
-process.simEcalTriggerPrimitiveDigis.Label = 'simEcalDigis'
+process.simEcalTriggerPrimitiveDigis.Label = 'ecalDigis'
 process.simEcalTriggerPrimitiveDigis.InstanceEB = 'ebDigis'
 process.simEcalTriggerPrimitiveDigis.InstanceEE = 'eeDigis'
 process.simEcalTriggerPrimitiveDigis.BarrelOnly = True
 
-process.simEcalTriggerPrimitiveDigis2.Label = 'simEcalDigis'
+process.simEcalTriggerPrimitiveDigis2.Label = 'ecalDigis'
 process.simEcalTriggerPrimitiveDigis2.InstanceEB = 'ebDigis'
 process.simEcalTriggerPrimitiveDigis2.InstanceEE = 'eeDigis'
 process.simEcalTriggerPrimitiveDigis2.BarrelOnly = True
@@ -137,10 +137,10 @@ process.ecalBarrelTriggerTowerTask.EcalTrigPrimDigiCollectionReal = 'simEcalTrig
 
 process.ecalBarrelMonitorModule.EcalTrigPrimDigiCollection = 'simEcalTriggerPrimitiveDigis2'
 
-process.ecalBarrelOccupancyTask.EBDigiCollection = cms.InputTag("simEcalDigis","ebDigis")
+process.ecalBarrelOccupancyTask.EBDigiCollection = cms.InputTag("ecalDigis","ebDigis")
 process.ecalBarrelOccupancyTask.EcalTrigPrimDigiCollection = 'simEcalTriggerPrimitiveDigis'
 
-process.ecalBarrelPedestalOnlineTask.EBDigiCollection = cms.InputTag("simEcalDigis","ebDigis")
+process.ecalBarrelPedestalOnlineTask.EBDigiCollection = cms.InputTag("ecalDigis","ebDigis")
 
 process.ecalBarrelMonitorClient.maskFile = 'maskfile-EB.dat'
 process.ecalBarrelMonitorClient.mergeRuns = True
