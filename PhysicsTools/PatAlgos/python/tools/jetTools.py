@@ -156,14 +156,9 @@ def switchJetCollection(process,jetCollection,layers=[0,1],runCleaner="CaloJet",
               process.layer0TagInfos.associations         = btagLabels['tagInfos']
               process.layer0BTags.associations            = btagLabels['jetTags']
           else:
-              oldJTA = process.layer0JetTracksAssociator; oldBT = process.layer0BTags; oldTI = process.layer0TagInfos
-              process.layer0JetTracksAssociator = process.patAODJetTracksAssociator.clone()
-              process.layer0JetCharge.src       = jetCollection
-              process.layer0TagInfos = process.patAODTagInfos.clone()
-              process.layer0BTags = process.patAODBTags.clone()
-              process.patLayer0.replace(oldJTA, process.layer0JetTracksAssociator)
-              process.patLayer0.replace(oldBT , process.layer0BTags)
-              process.patLayer0.replace(oldTI , process.layer0TagInfos)
+              process.globalReplace('layer0JetTracksAssociator', process.patAODJetTracksAssociator.clone())
+              process.globalReplace('layer0TagInfos',            process.patAODTagInfos.clone())
+              process.globalReplace('layer0BTags',               process.patAODBTags.clone())
               process.patLayer0.remove(process.patAODJetTracksAssociator)
               process.patLayer0.remove(process.patAODBTags)
               process.patLayer0.remove(process.patAODTagInfos)
@@ -180,9 +175,7 @@ def switchJetCollection(process,jetCollection,layers=[0,1],runCleaner="CaloJet",
             process.patAODJetTracksAssociator.src       = jetCollection
             process.patAODJetTracksAssociator.tracks    = 'jetTracksAssociatorAtVertex'
             if runCleaner == None:
-                oldJTA = process.layer0JetTracksAssociator
-                process.layer0JetTracksAssociator = process.patAODJetTracksAssociator.clone()
-                process.patLayer0.replace(oldJTA, process.layer0JetTracksAssociator)
+                process.globalReplace('layer0JetTracksAssociator', process.patAODJetTracksAssociator.clone())
                 process.layer0JetCharge.src       = jetCollection
                 process.patLayer0.remove(process.patAODJetTracksAssociator)
     else: ## no JTA
@@ -208,10 +201,8 @@ def switchJetCollection(process,jetCollection,layers=[0,1],runCleaner="CaloJet",
             process.corMetType1Icone5.inputUncorJetsLabel = jetCollection
             process.corMetType1Icone5.corrector           = 'L2L3JetCorrector' + jetCorrLabel
         if runCleaner == None:
-            process.patLayer0.remove(process.layer0JetCorrFactors)
-            process.layer0JetCorrFactors = process.jetCorrFactors.copy()
-            process.layer0JetCorrFactors.setLabel('layer0JetCorrFactors')
-            process.patLayer0.replace(process.jetCorrFactors, process.layer0JetCorrFactors)
+            process.globalReplace('layer0JetCorrFactors', process.jetCorrFactors.copy())
+            process.patLayer0.remove(process.jetCorrFactors)
     else:
         process.patLayer0.remove(process.jetCorrFactors)
         process.patLayer0.remove(process.layer0JetCorrFactors)
