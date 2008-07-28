@@ -6,7 +6,7 @@
 // Implementation:
 //
 // Original Author:  Jim Kowalkowski
-// $Id: PathTimerService.cc,v 1.11 2008/01/22 18:54:37 muzaffar Exp $
+// $Id: PathTimerService.cc,v 1.12 2008/07/24 16:18:13 wittich Exp $
 //
 
 #include "DQM/HLTEvF/interface/PathTimerService.h"
@@ -150,11 +150,11 @@ namespace edm {
 	    iMod->setTime(tWall) ;
 	    iMod->setCPUTime(tCPU) ;
           }
+
       }
 
       void PathTimerService::postPathProcessing(const std::string &name, 
                                                 const HLTPathStatus &status) {
-
           HLTPerformanceInfo::PathList::iterator iPath=_perfInfo->beginPaths();
           int ctr = 0 ; 
           while ( iPath != _perfInfo->endPaths() ) {
@@ -166,10 +166,12 @@ namespace edm {
 // 		iMod->setStatusByPath(path) ;
 //               }
 
-              iPath++;
-              ctr++; 
 	    }
+	    iPath++;
+	    ctr++; 
+
 	  }
+
       }
   }
 }
