@@ -3,12 +3,13 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("ECALDQM")
 
 import RecoLocalCalo.EcalRecProducers.ecalFixedAlphaBetaFitUncalibRecHit_cfi
-
 process.ecalUncalibHit = RecoLocalCalo.EcalRecProducers.ecalFixedAlphaBetaFitUncalibRecHit_cfi.ecalFixedAlphaBetaFitUncalibRecHit.clone()
 process.load("RecoLocalCalo.EcalRecProducers.ecalRecHit_cfi")
 
 #import RecoLocalCalo.EcalRecProducers.ecalWeightUncalibRecHit_cfi
 #process.ecalUncalibHit = RecoLocalCalo.EcalRecProducers.ecalWeightUncalibRecHit_cfi.ecalWeightUncalibRecHit.clone()
+
+process.load("RecoLocalCalo.EcalRecProducers.ecalRecHit_cfi")
 
 process.load("Geometry.CaloEventSetup.CaloGeometry_cfi")
 
