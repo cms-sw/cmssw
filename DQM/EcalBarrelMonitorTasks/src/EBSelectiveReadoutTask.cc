@@ -1,8 +1,8 @@
 /*
  * \file EBSelectiveReadoutTask.cc
  *
- * $Date: 2008/07/28 12:48:35 $
- * $Revision: 1.10 $
+ * $Date: 2008/07/28 13:42:22 $
+ * $Revision: 1.11 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -15,12 +15,10 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-
-#include "DataFormats/EcalDetId/interface/EcalScDetId.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
+
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
@@ -28,8 +26,6 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include <DQM/EcalCommon/interface/Numbers.h>
 #include <DQM/EcalBarrelMonitorTasks/interface/EBSelectiveReadoutTask.h>
-
-#include "TLorentzVector.h"
 
 using namespace cms;
 using namespace edm;
@@ -80,11 +76,6 @@ void EBSelectiveReadoutTask::beginJob(const EventSetup& c) {
   }
 
   Numbers::initGeometry(c, false);
-
-  // endcap mapping
-  edm::ESHandle<EcalTrigTowerConstituentsMap> hTriggerTowerMap;
-  c.get<IdealGeometryRecord>().get(hTriggerTowerMap);
-  triggerTowerMap_ = hTriggerTowerMap.product();
 
 }
 
@@ -362,7 +353,7 @@ void EBSelectiveReadoutTask::anaDigiInit(){
 
 EcalTrigTowerDetId
 EBSelectiveReadoutTask::readOutUnitOf(const EBDetId& xtalId) const{
-  return triggerTowerMap_->towerOf(xtalId);
+  return xtalId.tower();
 }
 
 unsigned EBSelectiveReadoutTask::dccNum(const DetId& xtalId) const{

@@ -4,8 +4,8 @@
 /*
  * \file EBSelectiveReadoutTask.h
  *
- * $Date: 2008/07/12 21:02:56 $
- * $Revision: 1.5 $
+ * $Date: 2008/07/28 13:10:17 $
+ * $Revision: 1.6 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -14,8 +14,6 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
 
 class MonitorElement;
 class DQMStore;
@@ -229,10 +227,6 @@ int nRuPerDcc_[nECALDcc];
 /** For book keeping of RU actually read out (not fully zero suppressed)
  */
 bool ebRuActive_[nEbEta/ebTtEdge][nEbPhi/ebTtEdge];
-
-/** ECAL trigger tower mapping
- */
-const EcalTrigTowerConstituentsMap * triggerTowerMap_;
 
 int ievt_;
 

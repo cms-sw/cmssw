@@ -1,8 +1,8 @@
 /*
  * \file EESelectiveReadoutTask.cc
  *
- * $Date: 2008/07/28 12:37:25 $
- * $Revision: 1.6 $
+ * $Date: 2008/07/28 14:53:43 $
+ * $Revision: 1.7 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -15,10 +15,10 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DataFormats/EcalDetId/interface/EcalScDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
+
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
@@ -26,8 +26,6 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include <DQM/EcalCommon/interface/Numbers.h>
 #include <DQM/EcalEndcapMonitorTasks/interface/EESelectiveReadoutTask.h>
-
-#include "TLorentzVector.h"
 
 using namespace cms;
 using namespace edm;
