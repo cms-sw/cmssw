@@ -1,8 +1,8 @@
 /*
  * \file EBSelectiveReadoutTask.cc
  *
- * $Date: 2008/07/28 12:39:04 $
- * $Revision: 1.9 $
+ * $Date: 2008/07/28 12:48:35 $
+ * $Revision: 1.10 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -17,7 +17,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "DataFormats/EcalDetId/interface/EcalScDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
@@ -83,7 +83,7 @@ void EBSelectiveReadoutTask::beginJob(const EventSetup& c) {
 
   // endcap mapping
   edm::ESHandle<EcalTrigTowerConstituentsMap> hTriggerTowerMap;
-  c.get<CaloGeometryRecord>().get(hTriggerTowerMap);
+  c.get<IdealGeometryRecord>().get(hTriggerTowerMap);
   triggerTowerMap_ = hTriggerTowerMap.product();
 
 }
