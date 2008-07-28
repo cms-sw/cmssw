@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# GBenelli Dec 21 and JNicolson July 23
+# GBenelli Dec 21, 2007 and JNicolson July 23, 2008
 # This script is designed to run on a local directory
 # after the user has created a local CMSSW release,
 # initialized its environment variables by executing
@@ -36,9 +36,7 @@ hypreg = re.compile('-')
 debug = False
 
 def getFstOccur(str, list):
-    for elem in list:
-        if str == elem:
-            return elem
+    return filter(str.__eq__,list)[0]
 
 def getSteps(userSteps, steps):
 
@@ -290,14 +288,14 @@ def determineNewProfile(step,Profile):
     return Profile
 
 def pythonFragment(CustomiseFragment,step):
-    if not CustomiseFragment.has_key(step):
+    if CustomiseFragment.has_key(step):
+        return CustomiseFragment[step]
+    else:
 
         # Temporary hack to have potentially added steps use the default Simulation.py fragment
         # This should change once each group customises its customise python fragments.
 
         return CustomiseFragment['DIGI']
-    else:
-        return CustomiseFragment[step]
 
 def writeCommands(simcandles,
                  Profiler,
