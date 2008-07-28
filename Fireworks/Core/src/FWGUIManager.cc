@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.66 2008/07/24 23:11:49 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.67 2008/07/26 00:03:03 chrjones Exp $
 //
 
 // system include files
@@ -141,8 +141,8 @@ m_tasks(new CmsShowTaskExecutor)
 
    {
      m_cmsShowMainFrame = new CmsShowMainFrame(gClient->GetRoot(),
-					       1024,
-					       768,
+					       1000,
+					       740,
 					       this);
      m_cmsShowMainFrame->SetWindowName("CmsShow");
      m_cmsShowMainFrame->SetCleanup(kDeepCleanup);
@@ -906,6 +906,24 @@ FWGUIManager::addTo(FWConfiguration& oTo) const
       s << static_cast<int>(m_cmsShowMainFrame->GetHeight());
       mainWindow.addKeyValue("height",FWConfiguration(s.str()));
    }
+   Window_t wdummy;
+   Int_t ax,ay;
+   gVirtualX->TranslateCoordinates(m_cmsShowMainFrame->GetId(),
+                                   gClient->GetDefaultRoot()->GetId(),
+                                   0,0, //0,0 in local coordinates
+                                   ax,ay, //coordinates of screen
+                                   wdummy);
+   {
+      std::stringstream s;
+      s<<ax;
+      mainWindow.addKeyValue("x",FWConfiguration(s.str()));
+   }
+   {
+      std::stringstream s;
+      s<<ay;
+      mainWindow.addKeyValue("y",FWConfiguration(s.str()));
+   }
+   
    oTo.addKeyValue(kMainWindow,mainWindow,true);
    
    FWConfiguration views(1);
@@ -974,6 +992,25 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom)
       s >> height;
    }
    m_cmsShowMainFrame->Resize(width,height);
+   {
+      int x=0;
+      int y=0;
+      {
+         const FWConfiguration* cX = mw->valueForKey("x");
+         if( 0!=cX ) {
+            std::stringstream s(cX->value());
+            s >> x;
+         }
+      }
+      {
+         const FWConfiguration* cY = mw->valueForKey("y");
+         if(0 != cY) {
+            std::stringstream s(cY->value());
+            s >> y;
+         }
+      }
+      m_cmsShowMainFrame->Move(x,y);
+   }
    
    //now configure the views
    const FWConfiguration* views = iFrom.valueForKey(kViews);
