@@ -86,9 +86,13 @@ process.MessageLogger = cms.Service("MessageLogger",
         EcalBarrelMonitorModule = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
+        EcalEndcapMonitorModule = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
         noLineBreaks = cms.untracked.bool(True)
     ),
     categories = cms.untracked.vstring('EcalBarrelMonitorModule'),
+    categories = cms.untracked.vstring('EcalEndcapMonitorModule'),
     destinations = cms.untracked.vstring('cout')
 )
 
