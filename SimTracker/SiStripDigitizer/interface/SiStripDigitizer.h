@@ -1,14 +1,12 @@
+/** \class SiStripDigitizer
+ *
+ * SiStripDigitizer to convert hits to digis
+ *
+ ************************************************************/
+
 #ifndef SiStripDigitizer_h
 #define SiStripDigitizer_h
 
-/** \class SiStripDigitizer
- *
- *
- * \author Andrea Giammanco
- *
-
- *
- ************************************************************/
 #include "boost/shared_ptr.hpp"
 
 #include "FWCore/Framework/interface/EDProducer.h"

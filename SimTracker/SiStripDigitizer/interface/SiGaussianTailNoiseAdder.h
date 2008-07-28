@@ -18,10 +18,11 @@ class SiGaussianTailNoiseAdder : public SiNoiseAdder{
   SiGaussianTailNoiseAdder(float,CLHEP::HepRandomEngine&);
   ~SiGaussianTailNoiseAdder();
   void addNoise(std::vector<double>&, unsigned int&, unsigned int&, int, float);
-  void createRaw(std::vector<double>&, unsigned int&, unsigned int&, int, float);
+  void createRaw(std::vector<double>&, unsigned int&, unsigned int&, int, float, float);
  private:
   int numStrips;
   float noiseRMS;
+  float pedValue;
   float threshold;
   CLHEP::HepRandomEngine& rndEngine;
   CLHEP::RandGaussQ* gaussDistribution;

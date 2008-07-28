@@ -1,22 +1,5 @@
-// -*- C++ -*-
-//
-// Package:    SiStripDigitizer
-// Class:      SiStripDigitizer
-// 
-/**\class SiStripDigitizer SiStripDigitizer.cc SimTracker/SiStripDigitizer/src/SiStripDigitizer.cc
-
- Description: <one line class summary>
-
- Implementation:
-     <Notes on implementation>
-*/
-//
-// Original Author:  Andrea GIAMMANCO
-//         Created:  Thu Sep 22 14:23:22 CEST 2005
-// $Id: SiStripDigitizer.cc,v 1.15 2008/07/03 12:38:04 vciulli Exp $
-//
-//
-
+// File: SiStripDigitizerAlgorithm.cc
+// Description:  Class for digitization.
 
 // system include files
 #include <memory>
@@ -162,6 +145,7 @@ void SiStripDigitizer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   edm::ESHandle<SiStripGain> gainHandle;
   edm::ESHandle<SiStripNoises> noiseHandle;
   edm::ESHandle<SiStripThreshold> thresholdHandle;
+  edm::ESHandle<SiStripPedestals> pedestalHandle;
   std::string LAname = conf_.getParameter<std::string>("LorentzAngle");
   //iSetup.get<SiStripLorentzAngleRcd>().get(LAname,lorentzAngleHandle);
   iSetup.get<SiStripLorentzAngleRcd>().get(lorentzAngleHandle);
@@ -170,6 +154,7 @@ void SiStripDigitizer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   iSetup.get<SiStripGainRcd>().get(gainHandle);
   iSetup.get<SiStripNoisesRcd>().get(noiseHandle);
   iSetup.get<SiStripThresholdRcd>().get(thresholdHandle);
+  iSetup.get<SiStripPedestalsRcd>().get(pedestalHandle);
 
 
   theDigiAlgo->setParticleDataTable(&*pdt);
@@ -199,7 +184,8 @@ void SiStripDigitizer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       
       float langle=0.;
       if(lorentzAngleHandle.isValid())langle=lorentzAngleHandle->getLorentzAngle((*iu)->geographicalId().rawId());
-      theDigiAlgo->run(collectorZS,collectorRaw,SimHitMap[(*iu)->geographicalId().rawId()],sgd,bfield,langle,gainHandle,thresholdHandle,noiseHandle);
+      theDigiAlgo->run(collectorZS,collectorRaw,SimHitMap[(*iu)->geographicalId().rawId()],sgd,bfield,langle,
+		       gainHandle,thresholdHandle,noiseHandle,pedestalHandle);
       
       if(zeroSuppression){
         if(collectorZS.data.size()>0){
