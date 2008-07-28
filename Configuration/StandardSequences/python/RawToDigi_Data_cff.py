@@ -58,5 +58,4 @@ gtDigis.DaqGtInputTag = 'source'
 siPixelDigis.InputLabel = 'source'
 siStripDigis.ProductLabel = 'source'
 ecalDigis.DoRegional = False
-muonCSCDigis.UseExaminer = False
 
