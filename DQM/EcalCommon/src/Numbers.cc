@@ -1,11 +1,11 @@
-// $Id: Numbers.cc,v 1.58 2008/06/05 06:41:35 dellaric Exp $
+// $Id: Numbers.cc,v 1.59 2008/06/05 17:27:20 dellaric Exp $
 
 /*!
   \file Numbers.cc
   \brief Some "id" conversions
   \author B. Gobbo
-  \version $Revision: 1.58 $
-  \date $Date: 2008/06/05 06:41:35 $
+  \version $Revision: 1.59 $
+  \date $Date: 2008/06/05 17:27:20 $
 */
 
 #include <sstream>
@@ -33,8 +33,6 @@ const EcalElectronicsMapping* Numbers::map = 0;
 
 bool Numbers::init = false;
 
-#define USEMAP false
-
 //-------------------------------------------------------------------------
 
 void Numbers::initGeometry( const edm::EventSetup& setup, bool verbose ) {
@@ -45,21 +43,11 @@ void Numbers::initGeometry( const edm::EventSetup& setup, bool verbose ) {
 
   Numbers::init = true;
 
-  try {
+  edm::ESHandle< EcalElectronicsMapping > handle;
+  setup.get< EcalMappingRcd >().get(handle);
+  Numbers::map = handle.product();
 
-    edm::ESHandle< EcalElectronicsMapping > handle;
-    setup.get< EcalMappingRcd >().get(handle);
-    Numbers::map = handle.product();
-
-    if ( verbose ) std::cout << "done." << std::endl;
-
-  } catch ( edm::eventsetup::NoRecordException< EcalMappingRcd >& e ) {
-
-    if ( verbose ) std::cout << "NOT done." << std::endl;
-
-  }
-
-  if ( verbose ) std::cout << std::endl;
+  if ( verbose ) std::cout << "done." << std::endl;
 
 }
 
@@ -248,7 +236,7 @@ int Numbers::iSM( const int ism, const EcalSubdetector subdet ) throw( std::runt
 
 int Numbers::iSM( const EBDetId& id ) throw( std::runtime_error ) {
 
-  if( Numbers::map && USEMAP ) {
+  if( Numbers::map ) {
 
     EcalElectronicsId eid = Numbers::map->getElectronicsId(id);
     int idcc = eid.dccId();
@@ -262,7 +250,9 @@ int Numbers::iSM( const EBDetId& id ) throw( std::runtime_error ) {
 
   } else {
 
-    return( Numbers::iSM( id.ism(), EcalBarrel ) );
+    std::ostringstream s;
+    s << "ECAL Geometry not available";
+    throw( std::runtime_error( s.str() ) );
 
   }
 
@@ -305,7 +295,7 @@ int Numbers::iSM( const EcalTrigTowerDetId& id ) throw( std::runtime_error ) {
 
   if( subdet == EcalBarrel ) {
 
-    if( Numbers::map && USEMAP ) {
+    if( Numbers::map ) {
 
       int idcc = Numbers::map->DCCid(id);
 
@@ -318,7 +308,9 @@ int Numbers::iSM( const EcalTrigTowerDetId& id ) throw( std::runtime_error ) {
 
     } else {
 
-      return( Numbers::iSM( id.iDCC(), EcalBarrel ) );
+      std::ostringstream s;
+      s << "ECAL Geometry not available";
+      throw( std::runtime_error( s.str() ) );
 
     }
 
@@ -481,13 +473,15 @@ int Numbers::iTT( const EcalTrigTowerDetId& id ) throw( std::runtime_error ) {
 
   if( subdet == EcalBarrel ) {
 
-    if( Numbers::map && USEMAP ) {
+    if( Numbers::map ) {
 
       return( Numbers::map->iTT(id) );
 
     } else {
 
-      return( id.iTT() );
+      std::ostringstream s;
+      s << "ECAL Geometry not available";
+      throw( std::runtime_error( s.str() ) );
 
     }
 
