@@ -5,7 +5,7 @@
 # creates a complete config file.
 # relval_main + the custom config for it is not needed any more
 
-__version__ = "$Revision: 1.54 $"
+__version__ = "$Revision: 1.55 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -400,7 +400,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.54 $"),
+              (version=cms.untracked.string("$Revision: 1.55 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
@@ -427,16 +427,6 @@ class ConfigBuilder(object):
         for module in self.imports:
             self.pythonCfgCode += ("process.load('"+module+"')\n")
 
-        # dump ReleaseValidation PSet
-        totnumevts = int(self._options.relval.split(",")[0])
-        evtsperjob = int(self._options.relval.split(",")[1])
-        dsetname="RelVal"+self._options.evt_type.replace(".","_").rstrip("_cfi")
-
-        self.process.ReleaseValidation=cms.untracked.PSet(totalNumberOfEvents=cms.untracked.int32(totnumevts),
-                                                     eventsPerJob=cms.untracked.int32(evtsperjob),
-                                                     primaryDatasetName=cms.untracked.string(dsetname))
-        self.pythonCfgCode += "\nprocess.ReleaseValidation = "+self.process.ReleaseValidation.dumpPython()
- 
         # dump production info
         if not hasattr(self.process,"configurationMetadata"):
             self.process.configurationMetadata=self.build_production_info(self._options.evt_type, self._options.number)
