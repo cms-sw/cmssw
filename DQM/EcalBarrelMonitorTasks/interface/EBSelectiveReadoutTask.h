@@ -4,8 +4,8 @@
 /*
  * \file EBSelectiveReadoutTask.h
  *
- * $Date: 2008/07/12 08:37:23 $
- * $Revision: 1.4 $
+ * $Date: 2008/07/12 21:02:56 $
+ * $Revision: 1.5 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -16,8 +16,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
-#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
-#include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
 
 class MonitorElement;
 class DQMStore;

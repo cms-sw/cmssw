@@ -4,8 +4,8 @@
 /*
  * \file EESelectiveReadoutTask.h
  *
- * $Date: 2008/07/12 08:37:24 $
- * $Revision: 1.2 $
+ * $Date: 2008/07/12 21:02:59 $
+ * $Revision: 1.3 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -14,10 +14,6 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
-#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
-#include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
 
 class MonitorElement;
 class DQMStore;
@@ -186,7 +182,6 @@ double getDccEventSize(int iDcc0, double nReadXtals) const{
   return getDccOverhead(subdet)+nReadXtals*bytesPerCrystal+nRuPerDcc_[iDcc0]*8;
 }
 
-
 /** Gets the phi index of the DCC reading a RU (SC or TT)
  * @param i iX
  * @param j iY
@@ -202,7 +197,6 @@ int dccPhiIndexOfRU(int i, int j) const;
 inline int dccPhiIndex(int i, int j) const {
   return dccPhiIndexOfRU(i/5, j/5);
 }
-
 
 /** Gets the index of the DCC reading a crystal
  * @param i iX
@@ -252,13 +246,13 @@ edm::InputTag EESRFlagCollection_;
 edm::InputTag EcalTrigPrimDigiCollection_;
 edm::InputTag EcalFEDRawCollection_;
 
-MonitorElement *EEReadoutUnitForcedBitMap_;
-MonitorElement *EEFullReadoutSRFlagMap_;
-MonitorElement *EEHighInterestTriggerTowerFlagMap_;
-MonitorElement *EELowInterestTriggerTowerFlagMap_;
-MonitorElement *EEEventSize_;
-MonitorElement *EEHighInterestPayload_;
-MonitorElement *EELowInterestPayload_;
+MonitorElement* EEReadoutUnitForcedBitMap_;
+MonitorElement* EEFullReadoutSRFlagMap_;
+MonitorElement* EEHighInterestTriggerTowerFlagMap_;
+MonitorElement* EELowInterestTriggerTowerFlagMap_;
+MonitorElement* EEEventSize_;
+MonitorElement* EEHighInterestPayload_;
+MonitorElement* EELowInterestPayload_;
 
 bool init_;
 
