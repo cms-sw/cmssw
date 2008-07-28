@@ -632,8 +632,6 @@ HLTTauL1DQMOfflineSource::fillL1MCTauMatchedHists(const edm::Event& iEvent) {
   ////
 
 
-
-
   // Now Event efficiencies
   if (singleMatch && iSingle>=0) {
     h_L1SingleTauEffMCMatchEt->Fill(_L1Taus[iSingle].Et()); 
@@ -644,48 +642,47 @@ HLTTauL1DQMOfflineSource::fillL1MCTauMatchedHists(const edm::Event& iEvent) {
       h_L1TauMETfixEffMCMatchEt->Fill(_L1Taus[iSingle].Et());
 
     
-    if (_L1Taus[iSingle].Et()>=_MuTauThresholds[1]) {
-      for (int i=0;i<(int)_L1Muons.size();i++) {
-	if (_L1Muons[i].Pt()>=_MuTauThresholds[0]) {
-	  //if ( _L1MuQuals[0]==4 || _L1MuQuals[0]==5 || _L1MuQuals[0]==6 || _L1MuQuals[0]==7 ) {
-	  if ( _L1MuQuals[0]==3 || _L1MuQuals[0]==5 || _L1MuQuals[0]==6 || _L1MuQuals[0]==7 ) {
+    for (int i=0;i<(int)_L1Muons.size();i++) {
+      //if (_L1Muons[i].Et()>=_MuTauThresholds[0]) {
+	//if ( _L1MuQuals[0]==4 || _L1MuQuals[0]==5 || _L1MuQuals[0]==6 || _L1MuQuals[0]==7 ) {
+	if ( _L1MuQuals[0]==3 || _L1MuQuals[0]==5 || _L1MuQuals[0]==6 || _L1MuQuals[0]==7 ) {
 	  //if ( _L1MuQuals[i]>=0) {
-	    for (int j=0;j<(int)RefMuon.size();j++) {
-	      double deltaR = ROOT::Math::VectorUtil::DeltaR(RefMuon[j],_L1Muons[i]);
-	      if (deltaR<_L1MCMuonMinDeltaR) {
-
-		if (_L1Taus[iSingle].Et()>=_MuTauThresholds[1]) 
-		  h_L1MuonTaufixEffEt->Fill(_L1Muons[i].Et());    
-		if (_L1Muons[i].Et()>=_MuTauThresholds[0])
-		  h_L1TauMuonfixEffEt->Fill(_L1Taus[iSingle].Et());
-
-	      }
+	  for (int j=0;j<(int)RefMuon.size();j++) {
+	    double deltaR = ROOT::Math::VectorUtil::DeltaR(RefMuon[j],_L1Muons[i]);
+	    if (deltaR < _L1MCMuonMinDeltaR) {	      
+	      if (_L1Taus[iSingle].Et()>=_MuTauThresholds[1]) 
+		h_L1MuonTaufixEffMCMatchEt->Fill(_L1Muons[i].Et());    
+	      if (_L1Muons[i].Et()>=_MuTauThresholds[0])
+		h_L1TauMuonfixEffMCMatchEt->Fill(_L1Taus[iSingle].Et());
+	      break;
 	    }
 	  }
+	  //}
 	}
-      }
     }
     
+    // No collinearity check yet!
     for (int j=0;j<(int)_L1IsoEgammas.size();j++) {
-      if (_L1Taus[iSingle].Et()>=_IsoEgTauThresholds[1] &&
-	  _L1IsoEgammas[j].Et()>=_IsoEgTauThresholds[0]) {
-	//double deltaPhi = ROOT::Math::VectorUtil::DeltaPhi(_L1Taus[iSingle],_L1IsoEgammas[j]);
-	//double deltaEta = std::abs(_L1Taus[iSingle].Eta()-_L1IsoEgammas[j].Eta());
-	// Non-collinearity check
+      //if (_L1Taus[iSingle].Et()>=_IsoEgTauThresholds[1] &&
+      //    _L1IsoEgammas[j].Et()>=_IsoEgTauThresholds[0]) {
+      //double deltaPhi = ROOT::Math::VectorUtil::DeltaPhi(_L1Taus[iSingle],_L1IsoEgammas[j]);
+      //double deltaEta = std::abs(_L1Taus[iSingle].Eta()-_L1IsoEgammas[j].Eta());
+      // Non-collinearity check
 	//if (deltaPhi>0.348 && deltaEta>0.348) {
-	  for (int k=0;k<(int)RefElec.size();k++) {
-	    double deltaR = ROOT::Math::VectorUtil::DeltaR(RefElec[k],_L1IsoEgammas[j]);
-	    if (deltaR<_L1MCElecMinDeltaR) {
-	      if (_L1Taus[iSingle].Et()>=_IsoEgTauThresholds[1]) 
-		h_L1IsoEgTaufixEffEt->Fill(_L1IsoEgammas[j].Et());    
-	      if (_L1IsoEgammas[j].Et()>=_IsoEgTauThresholds[0])
-		h_L1TauIsoEgfixEffEt->Fill(_L1Taus[iSingle].Et());    
-	      break; 
-	    }
-	  }
-	//}
+      for (int k=0;k<(int)RefElec.size();k++) {
+	double deltaR = ROOT::Math::VectorUtil::DeltaR(RefElec[k],_L1IsoEgammas[j]);
+	if (deltaR < _L1MCElecMinDeltaR) {
+	  if (_L1Taus[iSingle].Et()>=_IsoEgTauThresholds[1]) 
+	    h_L1IsoEgTaufixEffMCMatchEt->Fill(_L1IsoEgammas[j].Et());    
+	  if (_L1IsoEgammas[j].Et()>=_IsoEgTauThresholds[0])
+	    h_L1TauIsoEgfixEffMCMatchEt->Fill(_L1Taus[iSingle].Et());    
+	  break; 
+	}
       }
+      //}
+      //}
     }
+
   }
 
   if (doubleMatch && iDouble>=0) {
