@@ -1,8 +1,8 @@
 /*
  * \file EERawDataTask.cc
  *
- * $Date: 2008/07/12 08:26:48 $
- * $Revision: 1.2 $
+ * $Date: 2008/07/12 13:04:10 $
+ * $Revision: 1.3 $
  * \author E. Di Marco
  *
 */
@@ -104,37 +104,37 @@ void EERawDataTask::setup(void){
     sprintf(histo, "EERDT CRC errors");
     meEECRCErrors_ = dqmStore_->book1D(histo, histo, 18, 1, 19);
     for (int i = 0; i < 18; i++) {
-      meEECRCErrors_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+      meEECRCErrors_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
     }
 
     sprintf(histo, "EERDT run number errors");
     meEERunNumberErrors_ = dqmStore_->book1D(histo, histo, 18, 1, 19); 
     for (int i = 0; i < 18; i++) {
-      meEERunNumberErrors_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+      meEERunNumberErrors_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
     }
 
     sprintf(histo, "EERDT L1A errors");
     meEEL1AErrors_ = dqmStore_->book1D(histo, histo, 18, 1, 19); 
     for (int i = 0; i < 18; i++) {
-      meEEL1AErrors_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+      meEEL1AErrors_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
     }
 
     sprintf(histo, "EERDT orbit number errors");
     meEEOrbitNumberErrors_ = dqmStore_->book1D(histo, histo, 18, 1, 19); 
     for (int i = 0; i < 18; i++) {
-      meEEOrbitNumberErrors_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+      meEEOrbitNumberErrors_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
     }
 
     sprintf(histo, "EERDT bunch crossing errors");
     meEEBunchCrossingErrors_ = dqmStore_->book1D(histo, histo, 18, 1, 19); 
     for (int i = 0; i < 18; i++) {
-      meEEBunchCrossingErrors_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+      meEEBunchCrossingErrors_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
     }
 
     sprintf(histo, "EERDT trigger type errors");
     meEETriggerTypeErrors_ = dqmStore_->book1D(histo, histo, 18, 1, 19); 
     for (int i = 0; i < 18; i++) {
-      meEETriggerTypeErrors_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+      meEETriggerTypeErrors_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
     }
   }
 
@@ -189,16 +189,23 @@ void EERawDataTask::analyze(const Event& e, const EventSetup& c){
 
   edm::Handle<FEDRawDataCollection> allFedRawData;
 
+  int gtFedDataSize = 0;
+
+  int ECALDCC_L1A_MostFreqId = -1;
+  int ECALDCC_OrbitNumber_MostFreqId = -1;
+  int ECALDCC_BunchCrossing_MostFreqId = -1;
+  int ECALDCC_TriggerType_MostFreqId = -1;
+
   if ( e.getByLabel(FEDRawDataCollection_, allFedRawData) ) {
 
     // GT FED data
     const FEDRawData& gtFedData = allFedRawData->FEDData(812);
     
-    int length = gtFedData.size()/sizeof(uint64_t);
+    gtFedDataSize = gtFedData.size()/sizeof(uint64_t);
     
     // std::cout << "GT FED length = " << length << endl;
     
-    if ( length > 0 ) {
+    if ( gtFedDataSize > 0 ) {
       
       FEDHeader header(gtFedData.data());
       
@@ -209,6 +216,70 @@ void EERawDataTask::analyze(const Event& e, const EventSetup& c){
       //      uint64_t * pData = (uint64_t *)(gtFedData.data());
       /// FIXME: how to get the orbit from the GT?
       GT_OrbitNumber = 0;
+
+    }  else {
+      
+      // use the most frequent among the ECAL FEDs
+      
+      std::map<int,int> ECALDCC_L1A_FreqMap;
+      std::map<int,int> ECALDCC_OrbitNumber_FreqMap;
+      std::map<int,int> ECALDCC_BunchCrossing_FreqMap;
+      std::map<int,int> ECALDCC_TriggerType_FreqMap;
+
+      int ECALDCC_L1A_MostFreqCounts = 0;
+      int ECALDCC_OrbitNumber_MostFreqCounts = 0;
+      int ECALDCC_BunchCrossing_MostFreqCounts = 0;
+      int ECALDCC_TriggerType_MostFreqCounts = 0;
+      
+      Handle<EcalRawDataCollection> dcchs;
+      
+      if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
+	
+	if ( dcchs.isValid() ) {
+	  
+	  for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
+	    
+	    EcalDCCHeaderBlock dcch = (*dcchItr);
+	
+	    if ( Numbers::subDet( dcch ) != EcalEndcap ) continue;
+	    
+	    int ECALDCC_L1A = dcch.getLV1();
+	    int ECALDCC_OrbitNumber = dcch.getOrbit();
+	    int ECALDCC_BunchCrossing = dcch.getBX();
+	    int ECALDCC_TriggerType = dcch.getBasicTriggerType();
+	    
+	    ++ECALDCC_L1A_FreqMap[ECALDCC_L1A];
+	    ++ECALDCC_OrbitNumber_FreqMap[ECALDCC_OrbitNumber];
+	    ++ECALDCC_BunchCrossing_FreqMap[ECALDCC_BunchCrossing];
+	    ++ECALDCC_TriggerType_FreqMap[ECALDCC_TriggerType];
+      
+	    if ( ECALDCC_L1A_FreqMap[ECALDCC_L1A] > ECALDCC_L1A_MostFreqCounts ) {
+	      ECALDCC_L1A_MostFreqCounts = ECALDCC_L1A_FreqMap[ECALDCC_L1A];
+	      ECALDCC_L1A_MostFreqId = ECALDCC_L1A;
+	    }
+	    
+	    if ( ECALDCC_OrbitNumber_FreqMap[ECALDCC_OrbitNumber] > ECALDCC_OrbitNumber_MostFreqCounts ) {
+	      ECALDCC_OrbitNumber_MostFreqCounts = ECALDCC_OrbitNumber_FreqMap[ECALDCC_OrbitNumber];
+	      ECALDCC_OrbitNumber_MostFreqId = ECALDCC_OrbitNumber;
+	    }
+	    
+	    if ( ECALDCC_BunchCrossing_FreqMap[ECALDCC_BunchCrossing] > ECALDCC_BunchCrossing_MostFreqCounts ) {
+	      ECALDCC_BunchCrossing_MostFreqCounts = ECALDCC_BunchCrossing_FreqMap[ECALDCC_BunchCrossing];
+	      ECALDCC_BunchCrossing_MostFreqId = ECALDCC_BunchCrossing;
+	    }
+	    
+	    if ( ECALDCC_TriggerType_FreqMap[ECALDCC_TriggerType] > ECALDCC_TriggerType_MostFreqCounts ) {
+	      ECALDCC_TriggerType_MostFreqCounts = ECALDCC_TriggerType_FreqMap[ECALDCC_TriggerType];
+	      ECALDCC_TriggerType_MostFreqId = ECALDCC_TriggerType;
+	    }
+
+	  }
+	  
+	}
+	
+      } else {
+	LogWarning("EERawDataTask") << EcalRawDataCollection_ << " not available";
+      }
 
     }
 
@@ -265,13 +336,27 @@ void EERawDataTask::analyze(const Event& e, const EventSetup& c){
 	int ECALDCC_BunchCrossing = dcch.getBX();
 	int ECALDCC_TriggerType = dcch.getBasicTriggerType();
 
-	if ( GT_L1A != ECALDCC_L1A ) meEEL1AErrors_->Fill( xism );
+        if ( gtFedDataSize > 0 ) {
+	  
+	  if ( GT_L1A != ECALDCC_L1A ) meEEL1AErrors_->Fill( xism );
+	  
+	  if ( GT_OrbitNumber != ECALDCC_OrbitNumber ) meEEOrbitNumberErrors_->Fill ( xism );
+	  
+	  if ( GT_BunchCrossing != ECALDCC_BunchCrossing ) meEEBunchCrossingErrors_->Fill( xism );
 
-	if ( GT_OrbitNumber != ECALDCC_OrbitNumber ) meEEOrbitNumberErrors_->Fill ( xism );
-	
-	if ( GT_BunchCrossing != ECALDCC_BunchCrossing ) meEEBunchCrossingErrors_->Fill( xism );
+	  if ( GT_TriggerType != ECALDCC_TriggerType ) meEETriggerTypeErrors_->Fill ( xism );
 
-	if ( GT_TriggerType != ECALDCC_TriggerType ) meEETriggerTypeErrors_->Fill ( xism );
+	} else {
+	  
+	  if ( ECALDCC_L1A_MostFreqId != ECALDCC_L1A ) meEEL1AErrors_->Fill( xism );
+	  
+	  if ( ECALDCC_OrbitNumber_MostFreqId != ECALDCC_OrbitNumber ) meEEOrbitNumberErrors_->Fill ( xism );
+	  
+	  if ( ECALDCC_BunchCrossing_MostFreqId != ECALDCC_BunchCrossing ) meEEBunchCrossingErrors_->Fill( xism );
+	  
+	  if ( ECALDCC_TriggerType_MostFreqId != ECALDCC_TriggerType ) meEETriggerTypeErrors_->Fill ( xism );
+
+	}
 
       }
       
