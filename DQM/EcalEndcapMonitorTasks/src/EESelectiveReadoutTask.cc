@@ -1,8 +1,8 @@
 /*
  * \file EESelectiveReadoutTask.cc
  *
- * $Date: 2008/07/12 21:03:00 $
- * $Revision: 1.5 $
+ * $Date: 2008/07/28 12:37:25 $
+ * $Revision: 1.6 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -349,17 +349,11 @@ void EESelectiveReadoutTask::anaDigiInit(){
 }
 
 EcalScDetId
-EESelectiveReadoutTask::superCrystalOf(const EEDetId& xtalId) const
-{
+EESelectiveReadoutTask::readOutUnitOf(const EEDetId& xtalId) const{
   const int scEdge = 5;
   return EcalScDetId((xtalId.ix()-1)/scEdge+1,
                      (xtalId.iy()-1)/scEdge+1,
                      xtalId.zside());
-}
-
-EcalScDetId
-EESelectiveReadoutTask::readOutUnitOf(const EEDetId& xtalId) const{
-  return superCrystalOf(xtalId);
 }
 
 unsigned EESelectiveReadoutTask::dccNum(const DetId& xtalId) const{

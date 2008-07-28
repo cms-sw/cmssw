@@ -4,8 +4,8 @@
 /*
  * \file EESelectiveReadoutTask.h
  *
- * $Date: 2008/07/12 21:02:59 $
- * $Revision: 1.3 $
+ * $Date: 2008/07/28 13:07:20 $
+ * $Revision: 1.4 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -126,12 +126,6 @@ void anaDigiInit();
  * @return the DCC logical number starting from 1.
  */
 unsigned dccNum(const DetId& xtalId) const;
-
-/** Retrieves the endcap supercrystal containing a given crysal
- * @param xtalId identifier of the crystal
- * @return the identifier of the supercrystal
- */
-EcalScDetId superCrystalOf(const EEDetId& xtalId) const;
 
 /** Retrives the readout unit, a trigger tower in the barrel case,
  * and a supercrystal in the endcap case, a given crystal belongs to.
