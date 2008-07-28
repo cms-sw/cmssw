@@ -1,8 +1,8 @@
 /*
  * \file EBSelectiveReadoutTask.cc
  *
- * $Date: 2008/07/12 13:04:09 $
- * $Revision: 1.6 $
+ * $Date: 2008/07/12 21:02:58 $
+ * $Revision: 1.7 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -82,6 +82,11 @@ void EBSelectiveReadoutTask::beginJob(const EventSetup& c) {
   }
 
   Numbers::initGeometry(c, false);
+
+  // endcap mapping
+  edm::ESHandle<EcalTrigTowerConstituentsMap> hTriggerTowerMap;
+  c.get<IdealGeometryRecord>().get(hTriggerTowerMap);
+  triggerTowerMap_ = hTriggerTowerMap.product();
 
 }
 
