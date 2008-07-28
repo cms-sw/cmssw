@@ -296,15 +296,15 @@ void CleanerHelper<T,T2,Collection,Comparator>::configure(const edm::ParameterSe
 
 template<typename T, typename T2, typename Collection, typename Comparator>
 void CleanerHelper<T,T2,Collection,Comparator>::registerProducts(edm::ProducerBase &producer) {
+    producer.produces<CandPtrValueMap>(label_).setBranchAlias(moduleLabel_+label_+"BackRefs");
     producer.produces<Collection>(label_).setBranchAlias(moduleLabel_+label_);
-    producer.produces<CandPtrValueMap>(label_);
     if (saveRejected_) {
+        producer.produces<CandPtrValueMap>(labelRejected_).setBranchAlias(moduleLabel_+labelRejected_+"BackRefs"); 
         producer.produces<Collection>(labelRejected_).setBranchAlias(moduleLabel_+labelRejected_);
-        producer.produces<CandPtrValueMap>(labelRejected_); 
     }
     if (saveAll_) {
+        producer.produces<CandPtrValueMap>(labelAll_).setBranchAlias(moduleLabel_+labelAll_+"BackRefs"); 
         producer.produces<Collection>(labelAll_).setBranchAlias(moduleLabel_+labelAll_);
-        producer.produces<CandPtrValueMap>(labelAll_); 
     }
 }
     
