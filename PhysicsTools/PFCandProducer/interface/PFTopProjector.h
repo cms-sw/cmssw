@@ -92,6 +92,13 @@ class PFTopProjector : public edm::EDProducer {
   /// verbose ?
   bool   verbose_;
 
+  /// label for output PFJet collection
+  static const char* pfJetsOutLabel_;
+
+  /// label for output PFCandidates collection
+  static const char* pfCandidatesOutLabel_;
+  
+
 };
 
 template< class T, class U > 

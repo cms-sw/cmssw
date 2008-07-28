@@ -25,6 +25,9 @@ using namespace std;
 using namespace edm;
 using namespace reco;
 
+const char* PFTopProjector::pfJetsOutLabel_ = "PFJets";
+const char* PFTopProjector::pfCandidatesOutLabel_ = "PFCandidates";
+
 PFTopProjector::PFTopProjector(const edm::ParameterSet& iConfig) {
   
   inputTagPFCandidates_ 
@@ -49,10 +52,11 @@ PFTopProjector::PFTopProjector(const edm::ParameterSet& iConfig) {
     iConfig.getUntrackedParameter<bool>("verbose",false);
 
 
-  produces<reco::PFCandidateCollection>();
-  produces<reco::PFJetCollection>();
-  
+  // produces<reco::PFCandidateCollection>("PFCandidates");
+  //  produces<reco::PFJetCollection>("PFJets");
 
+  produces<reco::PFCandidateCollection>(pfCandidatesOutLabel_); 
+  produces<reco::PFJetCollection>(pfJetsOutLabel_);
   
   if(verbose_) {    
     ostringstream  msg;
@@ -191,7 +195,7 @@ void PFTopProjector::produce(Event& iEvent,
     }
   }
 
-  iEvent.put( pPFCandidateOutput );
+  iEvent.put( pPFCandidateOutput, pfCandidatesOutLabel_ );
 
 
   // now mask the jets with the taus (if the jet collection has been provided)
@@ -223,7 +227,7 @@ void PFTopProjector::produce(Event& iEvent,
 
 
 
-  iEvent.put( pPFJetOutput );
+  iEvent.put( pPFJetOutput, pfJetsOutLabel_);
   
   //   LogDebug("PFTopProjector")<<"STOP event: "<<iEvent.id().event()
   //  			 <<" in run "<<iEvent.id().run()<<endl;
