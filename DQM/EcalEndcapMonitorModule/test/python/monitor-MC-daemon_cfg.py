@@ -62,20 +62,20 @@ process.maxEvents = cms.untracked.PSet(
 
 process.source = cms.Source("PoolSource",
 #---
-#   fileNames = cms.untracked.vstring('/store/users/dellaric/data/5E883D60-4B98-DC11-BD17-000423D6A6F4.root')
+#   fileNames = cms.untracked.vstring('/store/users/dellaric/data/cosmics_ZS_noSR_RAW.root')
 #---
-    fileNames = cms.untracked.vstring('/store/users/dellaric/data/5E883D60-4B98-DC11-BD17-000423D6A6F4.root', 
-        '/store/users/dellaric/data/5E883D60-4B98-DC11-BD17-000423D6A6F4.root', 
-        '/store/users/dellaric/data/5E883D60-4B98-DC11-BD17-000423D6A6F4.root', 
-        '/store/users/dellaric/data/5E883D60-4B98-DC11-BD17-000423D6A6F4.root', 
-        '/store/users/dellaric/data/5E883D60-4B98-DC11-BD17-000423D6A6F4.root', 
-        '/store/users/dellaric/data/5E883D60-4B98-DC11-BD17-000423D6A6F4.root', 
-        '/store/users/dellaric/data/5E883D60-4B98-DC11-BD17-000423D6A6F4.root', 
-        '/store/users/dellaric/data/5E883D60-4B98-DC11-BD17-000423D6A6F4.root', 
-        '/store/users/dellaric/data/5E883D60-4B98-DC11-BD17-000423D6A6F4.root', 
-        '/store/users/dellaric/data/5E883D60-4B98-DC11-BD17-000423D6A6F4.root', 
-        '/store/users/dellaric/data/5E883D60-4B98-DC11-BD17-000423D6A6F4.root', 
-        '/store/users/dellaric/data/5E883D60-4B98-DC11-BD17-000423D6A6F4.root')
+    fileNames = cms.untracked.vstring('/store/users/dellaric/data/cosmics_ZS_noSR_RAW.root', 
+        '/store/users/dellaric/data/cosmics_ZS_noSR_RAW.root', 
+        '/store/users/dellaric/data/cosmics_ZS_noSR_RAW.root', 
+        '/store/users/dellaric/data/cosmics_ZS_noSR_RAW.root', 
+        '/store/users/dellaric/data/cosmics_ZS_noSR_RAW.root', 
+        '/store/users/dellaric/data/cosmics_ZS_noSR_RAW.root', 
+        '/store/users/dellaric/data/cosmics_ZS_noSR_RAW.root', 
+        '/store/users/dellaric/data/cosmics_ZS_noSR_RAW.root', 
+        '/store/users/dellaric/data/cosmics_ZS_noSR_RAW.root', 
+        '/store/users/dellaric/data/cosmics_ZS_noSR_RAW.root', 
+        '/store/users/dellaric/data/cosmics_ZS_noSR_RAW.root', 
+        '/store/users/dellaric/data/cosmics_ZS_noSR_RAW.root')
 #---
 )
 
