@@ -10,6 +10,16 @@ process.ecalUncalibHit = RecoLocalCalo.EcalRecProducers.ecalFixedAlphaBetaFitUnc
 
 process.load("RecoLocalCalo.EcalRecProducers.ecalRecHit_cfi")
 
+process.load("Geometry.CaloEventSetup.CaloGeometry_cfi")
+
+process.load("Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi")
+
+process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
+
+process.load("Geometry.EcalMapping.EcalMapping_cfi")
+
+process.load("Geometry.EcalMapping.EcalMappingRecord_cfi")
+
 process.load("DQM.EcalBarrelMonitorModule.EcalBarrelMonitorModule_cfi")
 
 process.load("DQM.EcalBarrelMonitorTasks.EcalBarrelMonitorTasks_cfi")

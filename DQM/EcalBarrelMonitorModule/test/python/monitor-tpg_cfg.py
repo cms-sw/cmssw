@@ -16,19 +16,26 @@ process.ecalUncalibHit = RecoLocalCalo.EcalRecProducers.ecalFixedAlphaBetaFitUnc
 
 process.load("RecoLocalCalo.EcalRecProducers.ecalRecHit_cfi")
 
+process.load("Geometry.CaloEventSetup.CaloGeometry_cfi")
+
+process.load("Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi")
+
+process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
+
+process.load("Geometry.EcalMapping.EcalMapping_cfi")
+
+process.load("Geometry.EcalMapping.EcalMappingRecord_cfi")
+
 process.load("DQM.EcalBarrelMonitorModule.EcalBarrelMonitorModule_cfi")
 
 process.load("DQM.EcalBarrelMonitorTasks.EcalBarrelMonitorTasks_cfi")
 
 process.load("SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cff")
 
-process.load("Geometry.EcalMapping.EcalMapping_cfi")
-
-process.load("Geometry.EcalMapping.EcalMappingRecord_cfi")
-
 import SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cfi
 
 process.simEcalTriggerPrimitiveDigis2 = SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cfi.simEcalTriggerPrimitiveDigis.clone()
+
 process.load("DQM.EcalBarrelMonitorClient.EcalBarrelMonitorClient_cfi")
 
 process.load("CalibCalorimetry.EcalLaserCorrection.ecalLaserCorrectionService_cfi")
