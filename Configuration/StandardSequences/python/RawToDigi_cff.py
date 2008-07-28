@@ -50,6 +50,6 @@ ecalPreshowerDigis.Label = 'rawDataCollector'
 hcalDigis.InputLabel = 'rawDataCollector'
 muonCSCDigis.InputObjects = 'rawDataCollector'
 muonCSCDigis.UseExaminer = False
-muonDTDigis.fedColl = 'rawDataCollector'
+muonDTDigis.inputLabel = 'rawDataCollector'
 muonRPCDigis.InputLabel = 'rawDataCollector'
 gtEvmDigis.EvmGtInputTag = 'rawDataCollector'
