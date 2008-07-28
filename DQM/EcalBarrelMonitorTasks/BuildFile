@@ -11,7 +11,6 @@
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/ServiceRegistry>
-<use name=Geometry/CaloEventSetup>
 <use name=TBDataFormats/EcalTBObjects>
 <use name=rootphysics>
 <export>
@@ -28,7 +27,6 @@
   <use name=FWCore/MessageLogger>
   <use name=FWCore/ParameterSet>
   <use name=FWCore/ServiceRegistry>
-  <use name=Geometry/CaloEventSetup>
   <use name=TBDataFormats/EcalTBObjects>
   <use name=rootphysics>
   <lib name=DQMEcalBarrelMonitorTasks>
