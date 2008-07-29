@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.56 $"
+__version__ = "$Revision: 1.57 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -20,7 +20,7 @@ def findName(object,dictionary):
         if item == object:
             return name
 
-             
+
 class ConfigBuilder(object):
     """The main building routines """
     
@@ -164,7 +164,7 @@ class ConfigBuilder(object):
                                                         
 
         # what steps are provided by this class?
-        stepList = [methodName.lstrip("prepare_") for methodName in self.__class__.__dict__ if methodName.startswith('prepare_')]
+        stepList = [methodName.lstrip("prepare_") for methodName in ConfigBuilder.__dict__ if methodName.startswith('prepare_')]
 
         # look which steps are requested and invoke the corresponding method
         for step in self._options.step.split(","):
@@ -398,7 +398,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.56 $"),
+              (version=cms.untracked.string("$Revision: 1.57 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
@@ -481,7 +481,38 @@ class ConfigBuilder(object):
          
         return
       
-      
+class struct:
+    pass 
+
+
+class PAWorkflowBuilder(ConfigBuilder):
+    """Building workflows for the PA"""
+
+    def __init__(self, process):
+        self._options = struct()
+        self._options.pileup = 'NoPileUp'
+        self._options.geometry = 'Pilot2'
+        self._options.geometry = 'Pilot2'
+        self._options.beamspot = 'Early10TeVCollision'
+        self._options.magField = ''
+        self._options.conditions = 'FrontierConditions_GlobalTag,DOESNTMATTER::All'
+        self.process = process
+        self.process.schedule = cms.Schedule()
+        self.imports = []
+        self.additionalCommands = []
+        self.blacklist_paths = []
+        self.additionalObjects = []
+        self.additionalOutputs = []
+        self.productionFilterSequence = None
+
+
+def loadReco(process):
+    wb = PAWorkflowBuilder(process)
+    wb._options.step = 'RECO'
+    wb.addStandardSequences()
+    wb.addConditions()
+    return process
+                    
       
         
         
