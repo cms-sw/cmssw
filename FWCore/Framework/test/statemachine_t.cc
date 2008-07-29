@@ -2,7 +2,7 @@
 
 Test of the statemachine classes.
 
-$Id: statemachine_t.cc,v 1.3 2008/03/18 18:41:29 wdd Exp $
+$Id: statemachine_t.cc,v 1.4 2008/07/29 02:17:36 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 
@@ -15,23 +15,24 @@ $Id: statemachine_t.cc,v 1.3 2008/03/18 18:41:29 wdd Exp $
 #include <string>
 #include <iostream>
 #include <fstream>
-using namespace statemachine;
-namespace po = boost::program_options;
+
 
 int main(int argc, char* argv[]) {
+  using namespace statemachine;
   std::cout << "Running test in statemachine_t.cc\n";
 
   // Handle the command line arguments
   std::string inputFile;
   std::string outputFile;
-  po::options_description desc("Allowed options");
+  boost::program_options::options_description desc("Allowed options");
   desc.add_options()
     ("help,h", "produce help message")
-    ("inputFile,i", po::value<std::string>(&inputFile)->default_value(""))
-    ("outputFile,o", po::value<std::string>(&outputFile)->default_value("statemachine_test_output.txt"));
-  po::variables_map vm;
-  po::store(po::parse_command_line(argc, argv, desc), vm);
-  po::notify(vm);
+    ("inputFile,i", boost::program_options::value<std::string>(&inputFile)->default_value(""))
+    ("outputFile,o", boost::program_options::value<std::string>(&outputFile)->default_value("statemachine_test_output.txt"))
+    ("skipmodes,s", "NOMERGE and FULLMERGE only");
+  boost::program_options::variables_map vm;
+  boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), vm);
+  boost::program_options::notify(vm);
   if (vm.count("help")) {
     std::cout << desc << "\n";
     return 1;
@@ -61,10 +62,16 @@ int main(int argc, char* argv[]) {
 
   std::ofstream output(outputFile.c_str());
 
-  // Run 12 times to exercise all 12 possible settings
-  // of the three parameters.
-  FileMode fileModes[] = { NOMERGE, MERGE, FULLLUMIMERGE, FULLMERGE };
-  for (int k = 0; k < 4; ++k) {
+  std::vector<FileMode> fileModes;
+  fileModes.reserve(4);
+  fileModes.push_back(NOMERGE);
+  if (!vm.count("skipmodes")) {
+    fileModes.push_back(MERGE);
+    fileModes.push_back(FULLLUMIMERGE);
+  }
+  fileModes.push_back(FULLMERGE);
+
+  for (size_t k = 0; k < fileModes.size(); ++k) {
     FileMode fileMode = fileModes[k];
     for (int i = 0; i < 2; ++i) {
       bool handleEmptyRuns = i;

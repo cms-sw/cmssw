@@ -24,6 +24,14 @@ pushd ${LOCAL_TMP_DIR}
 
   done
 
+  for i in 3 4
+  do
+
+    ${exe} -s -i ${input}${i}.txt -o ${output}${i}.txt || die "TestFWCoreFrameworkStatemachine with input ${i}" $?
+    diff ${reference_output}${i}.txt ${output}${i}.txt || die "comparing ${output}${i}.txt" $?  
+
+  done
+
 popd
 
 exit 0
