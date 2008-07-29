@@ -10,7 +10,7 @@ L1GctInternHFData::L1GctInternHFData() :
 { } 
 
 /// destructor
-L1GctInternHFData::~L1GctInternHFData() :
+L1GctInternHFData::~L1GctInternHFData() { }
 
 L1GctInternHFData L1GctInternHFData::fromConcRingSums(const uint16_t capBlock,
 						      const uint16_t capIndex,
