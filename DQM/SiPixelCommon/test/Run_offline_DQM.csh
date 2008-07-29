@@ -104,6 +104,18 @@ else if($#argv > 1) then
 	    endif
 		@ i = $i + 1
     end
+
+    if( $var_flag[6] == 1 ) then
+	set calib_use = 1
+    else
+	set calib_use = 0
+    endif
+    sed "s/CALIBUSE/$calib_use/" < sipixel_monitorelement_skeleton.xml > temp.xml
+    cp temp.xml sipixel_monitorelement_skeleton.xml
+    rm temp.xml
+
+
+
     if ($all_flag == "false") then
        cp sipixel_monitorelement_skeleton.xml sipixel_monitorelement_config.xml
        foreach me_name (RAWDATA DIGIS CLUSTERS GRANDTRACKS RECHITS GRANDGAIN GRANDSCURVE GRANDPIXEL REGTRACKS REGGAIN REGSCURVE REGPIXEL)
@@ -119,9 +131,10 @@ else if($#argv > 1) then
 
 else
 
-    echo "No monitor elements specified.  Using default configuration (Digis/Clusters/RecHits)"
+    echo "No monitor elements specified.  Using default configuration (RawData/Digis/Calibrations)"
     set default_flag = "true"
 endif
+
 
     set xx = 2
     set depth = 0
@@ -135,8 +148,12 @@ endif
     set runscript = "runme.csh"
     set filelist = $argv[1]
     set file_counter = 1
-    rm Run_offline_DQM_*
     foreach filename ( `more $filelist` )
+
+    	if(-e Run_offline_DQM_${file_counter}.cfg) then
+		    rm Run_offline_DQM_${file_counter}.cfg
+    	endif
+
 	set rsys = "rfio:"
 	set osys = "file:"
 	set iscastor = `echo $filename | grep -o castor`
@@ -167,7 +184,7 @@ endif
 	else
 	sed "s#FILENAME#$filetorun#" < client_template_default.cfg > Run_offline_DQM_${file_counter}.cfg
 	endif
-
+	
 	if( $all_flag == "true" ) then
 	    rm Run_offline_DQM_${file_counter}.cfg
 	sed "s#FILENAME#$filetorun#" < client_template_all.cfg > Run_offline_DQM_${file_counter}.cfg
@@ -286,10 +303,12 @@ endif
 	endif
 
 
-	if( $var_flag[6] == 1 && $has_calibdigis != "true" ) then
-	    sed "s/CDSPOT,/siPixelCalibDigis,/" < Run_offline_DQM_${file_counter}.cfg > temp.xml
-	    cp temp.xml Run_offline_DQM_${file_counter}.cfg 
-	    rm temp.xml
+	if( $var_flag[6] == 1) then
+		if( $has_calibdigis != "true" ) then
+	    		sed "s/CDSPOT,/siPixelCalibDigis,/" < Run_offline_DQM_${file_counter}.cfg > temp.xml
+	    		cp temp.xml Run_offline_DQM_${file_counter}.cfg 
+	    		rm temp.xml
+		endif
 	endif
 
 	if( $var_flag[1] == 1 ) then
@@ -348,7 +367,11 @@ endif
 	sed "s/TWOPARAM/$second_param/" < Run_offline_DQM_${file_counter}.cfg > temp.xml
 	cp temp.xml Run_offline_DQM_${file_counter}.cfg 
 	rm temp.xml
-       
+	set logname = "DQM_text_output_"
+	set logfile = $logname$file_counter
+	sed "s/TEXTFILE/$logfile/" < Run_offline_DQM_${file_counter}.cfg > temp.xml
+	cp temp.xml Run_offline_DQM_${file_counter}.cfg
+	rm temp.xml       
 	@ file_counter = $file_counter + 1
 	
     end
