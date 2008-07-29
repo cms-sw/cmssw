@@ -52,8 +52,8 @@ GsfTrackProducerBase::putInEvt(edm::Event& evt,
       selTrajectories->push_back(*theTraj);
 //       iTjRef++;
     }
-    const TrajectoryFitter::RecHitContainer& transHits = theTraj->recHits(useSplitting);
-
+    // const TrajectoryFitter::RecHitContainer& transHits = theTraj->recHits(useSplitting);  // NO: the return type in Trajectory is by VALUE
+    TrajectoryFitter::RecHitContainer transHits = theTraj->recHits(useSplitting);
     reco::GsfTrack * theTrack = (*i).second.first;
     PropagationDirection seedDir = (*i).second.second;  
     
