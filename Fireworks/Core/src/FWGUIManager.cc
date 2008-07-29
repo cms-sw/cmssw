@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.68 2008/07/28 15:50:31 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.69 2008/07/28 19:04:21 chrjones Exp $
 //
 
 // system include files
@@ -808,6 +808,10 @@ static const std::string kMainWindow("main window");
 static const std::string kViews("views");
 static const std::string kViewArea("view area");
 static const std::string kUndocked("undocked views");
+static const std::string kControllers("controllers");
+static const std::string kCollectionController("collection");
+static const std::string kViewController("view");
+static const std::string kObjectController("object");
 
 namespace {
    template<class Op>
@@ -981,6 +985,39 @@ FWGUIManager::addTo(FWConfiguration& oTo) const
       }
    }
    oTo.addKeyValue(kUndocked,undocked,true);
+   
+   //Remember where controllers were placed if they are open
+   FWConfiguration controllers(1);
+   {
+      if(0!=m_ediFrame && m_ediFrame->IsMapped()) {
+         FWConfiguration temp(1);
+         addWindowInfoTo(m_ediFrame, temp);
+         controllers.addKeyValue(kCollectionController,temp,true);
+      }      
+      if(0!=m_viewPopup && m_viewPopup->IsMapped()) {
+         FWConfiguration temp(1);
+         addWindowInfoTo(m_viewPopup, temp);
+         controllers.addKeyValue(kViewController,temp,true);
+      }
+      if(0!=m_modelPopup && m_modelPopup->IsMapped()) {
+         FWConfiguration temp(1);
+         addWindowInfoTo(m_modelPopup, temp);
+         controllers.addKeyValue(kObjectController,temp,true);
+      }      
+   }
+   oTo.addKeyValue(kControllers,controllers,true);
+}
+
+static
+void
+setWindowInfoFrom(const FWConfiguration& iFrom,
+                  TGFrame* iFrame)
+{
+   int x = atoi(iFrom.valueForKey("x")->value().c_str());
+   int y = atoi(iFrom.valueForKey("y")->value().c_str());
+   int width = atoi(iFrom.valueForKey("width")->value().c_str());
+   int height = atoi(iFrom.valueForKey("height")->value().c_str());
+   iFrame->MoveResize(x,y,width,height);
 }
 
 void 
@@ -1074,6 +1111,32 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom)
             int height = atoi(it->second.valueForKey("height")->value().c_str());
             assert(static_cast<unsigned int>(index) <m_viewFrames.size());
             m_viewFrames[index]->undockTo(x,y,width,height);
+         }
+      }
+   }
+   
+   //handle controllers
+   const FWConfiguration* controllers = iFrom.valueForKey(kControllers);
+   if(0!=controllers) {
+      const FWConfiguration::KeyValues* keyVals = controllers->keyValues();
+      if(0!=keyVals) {
+         //we have open controllers
+         for(FWConfiguration::KeyValues::const_iterator it = keyVals->begin(),
+             itEnd = keyVals->end();
+             it!=itEnd;
+             ++it) {
+            const std::string& controllerName = it->first;
+            std::cout <<"found controller "<<controllerName<<std::endl;
+            if(controllerName == kCollectionController) {
+               createEDIFrame();
+               setWindowInfoFrom(it->second,m_ediFrame);               
+            } else if (controllerName == kViewController) {
+               createViewPopup();
+               setWindowInfoFrom(it->second, m_viewPopup);
+            } else if (controllerName == kObjectController) {
+               createModelPopup();
+               setWindowInfoFrom(it->second, m_modelPopup);
+            }
          }
       }
    }
