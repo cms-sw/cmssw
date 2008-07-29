@@ -39,7 +39,7 @@ void SiPixelSCurveCalibrationAnalysis::makeThresholdSummary(void){
     for (int irow=0; irow<total_rows; ++irow){
       for (int icol=0; icol<total_columns; ++icol){
 	float threshold_error = sigmahist->getBinContent(icol,irow);
-       	if(WriteZeroes_ ||(!WriteZeroes_ && threshold_error>0)){	     
+       	if(writeZeroes_ ||(!writeZeroes_ && threshold_error>0)){	     
 	  //changing from offline to online numbers
 	  int realfedID=-1;
 	  for(int fedid=0; fedid<=40; ++fedid){
@@ -117,7 +117,7 @@ SiPixelSCurveCalibrationAnalysis::doSetup(const edm::ParameterSet& iConfig)
    maximumSigmaBin_             = iConfig.getUntrackedParameter<double>("maximumSigmaBin", 10);
    maximumThresholdBin_         = iConfig.getUntrackedParameter<double>("maximumThresholdBin", 255);
 
-   WriteZeroes_= iConfig.getUntrackedParameter<bool>("alsoWriteZeroThresholds", false);
+   writeZeroes_= iConfig.getUntrackedParameter<bool>("alsoWriteZeroThresholds", false);
 
    // convert the vector into a map for quicker lookups.
    for(unsigned int i = 0; i < detIDsToSaveVector_.size(); i++)
