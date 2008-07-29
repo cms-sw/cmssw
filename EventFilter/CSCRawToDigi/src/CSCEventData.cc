@@ -391,8 +391,7 @@ boost::dynamic_bitset<> CSCEventData::pack() {
 								     theDMBHeader.data());
 
   if(theALCTHeader != NULL)     {
-    boost::dynamic_bitset<> alctHeader = bitset_utilities::ushortToBitset(theALCTHeader->sizeInWords()*16,
-									  theALCTHeader->data());
+    boost::dynamic_bitset<> alctHeader = theALCTHeader->pack();
     result = bitset_utilities::append(result, alctHeader);
   }
   if(theAnodeData != NULL) {
