@@ -77,5 +77,11 @@ void CSCTMBTrailer::selfTest()
   unsigned int crc = 0xb00b1;
   trailer.setCRC(crc);
   assert(trailer.crc22() == 0xb00b1);
+
+  CSCTMBTrailer trailer(104, 2007);
+  unsigned int crc = 0xb00b1;
+  trailer.setCRC(crc);
+  assert(trailer.crc22() == 0xb00b1);
+
 }
 
