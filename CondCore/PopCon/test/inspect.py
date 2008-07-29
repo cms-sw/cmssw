@@ -38,7 +38,15 @@ for tag in tags.split() :
 
 iov=0
 
-tag = tags.split()[0]
+tag='EcalPedestals_online'
+what = inspect.extractorWhat(db,tag)
+ans = {}
+for key in what.keys():
+    ans[key]=what[key][1]
+iov = inspect.Iov(db,tag)
+print iov.trend(ans,[0,2,12])
+
+# tag = tags.split()[0]
 
 token = log.payloadToken
 
