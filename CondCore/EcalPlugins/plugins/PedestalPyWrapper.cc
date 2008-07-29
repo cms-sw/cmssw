@@ -115,8 +115,8 @@ namespace condPython {
 
     typedef cond::ExtractWhat<EcalPedestals> What;
     class_<What>("What",init<>())
-      .def_readonly("quantity",&What::quantity)
-      .def_readonly("how",&What::how)
+      .def_readwrite("quantity",&What::quantity)
+      .def_readwrite("how",&What::how)
       ;
   }
 }
