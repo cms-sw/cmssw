@@ -40,8 +40,8 @@ parser.add_option("--eventcontent",
                   dest="eventcontent")
 
 parser.add_option("--filein",
-                   help="The infile name. If absent the default is 'input.root'",
-                   default="input.root",#to be changed in the default form later
+                   help="The infile name.",
+                   default="",#to be changed in the default form later
                    dest="filein")
 
 parser.add_option("--fileout",
