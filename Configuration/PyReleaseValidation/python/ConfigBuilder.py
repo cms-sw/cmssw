@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.58 $"
+__version__ = "$Revision: 1.59 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -36,10 +36,13 @@ def findName(object,dictionary):
 class ConfigBuilder(object):
     """The main building routines """
     
-    def __init__(self,options):
+    def __init__(self,options, process = None ):
         """options taken from old cmsDriver and optparse """
         self._options = options
-        self.process = cms.Process(self._options.name)
+	if process == None:
+            self.process = cms.Process(self._options.name)
+        else:
+            self.process = process 		
         self.process.schedule = cms.Schedule()        
         # we are doing three things here:
         # creating a process to catch errors
@@ -410,7 +413,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.58 $"),
+              (version=cms.untracked.string("$Revision: 1.59 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
@@ -490,30 +493,11 @@ class ConfigBuilder(object):
         # dump customise fragment
         if self._options.customisation_file:
             self.pythonCfgCode += self.addCustomise()
-         
         return
       
-class struct:
-    pass 
-
-
-class PAWorkflowBuilder(ConfigBuilder):
-    """Building workflows for the PA"""
-
-    def __init__(self, process):
-        self._options = defaultOptions
-        self.process = process
-        self.process.schedule = cms.Schedule()
-        self.imports = []
-        self.additionalCommands = []
-        self.blacklist_paths = []
-        self.additionalObjects = []
-        self.additionalOutputs = []
-        self.productionFilterSequence = None
-
 
 def loadReco(process):
-    wb = PAWorkflowBuilder(process)
+    wb = ConfigBuilder(defaultOptions, process = process)
     wb._options.step = 'RECO'
     wb.addStandardSequences()
     wb.addConditions()
