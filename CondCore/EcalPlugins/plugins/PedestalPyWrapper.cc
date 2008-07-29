@@ -103,14 +103,14 @@ namespace condPython {
   template<>
   void defineWhat<EcalPedestals>() {
     enum_<cond::ecalped::Quantity>("Quantity")
-      .value("mean_x12", mean_x12)
-      .value("mean_x6",  mean_x6)
-      .value("mean_x3", mean_x3)
+      .value("mean_x12",cond::ecalped::mean_x12)
+      .value("mean_x6",  cond::ecalped::mean_x6)
+      .value("mean_x3", cond::ecalped::mean_x3)
       ;
     enum_<cond::ecalped::How>("How")
-      .value("singleChannel",singleChannel)
-      .value("bySuperModule",bySuperModule) 
-      .value("all",all)
+      .value("singleChannel",cond::ecalped::singleChannel)
+      .value("bySuperModule",cond::ecalped::bySuperModule) 
+      .value("all",cond::ecalped::all)
       ;
 
     typedef cond::ExtractWhat<EcalPedestals> What;
