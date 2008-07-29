@@ -4,8 +4,8 @@ import RecoJets.JetProducers.CaloTowerSchemeB_cfi
 towerMakerPF = RecoJets.JetProducers.CaloTowerSchemeB_cfi.towerMaker.clone()
 # replace towerMakerPF.HBThreshold = 0.
 towerMakerPF.HOThreshold = 999999
-towerMakerPF.HESThreshold = 0.
-towerMakerPF.HEDThreshold = 0.
+#towerMakerPF.HESThreshold = 0.
+#towerMakerPF.HEDThreshold = 0.
 #replace towerMakerPF.HF1Threshold = 0
 #replace towerMakerPF.HF2Threshold = 0
 towerMakerPF.EBThreshold = 999999
