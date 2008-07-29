@@ -27,6 +27,7 @@ CSCTMBTrailer::CSCTMBTrailer(int wordCount, int firmwareVersion)
   theData[de0fOffset()] = 0xde0f;
   // word count excludes the trailer
   theData[4+thePadding] |= wordCount;
+
 }
 
 
@@ -61,8 +62,8 @@ unsigned int CSCTMBTrailer::crc22() const
 
 void CSCTMBTrailer::setCRC(int crc) 
 {
-  theData[crcOffset()] = (crc & 0x07ff);
-  theData[crcOffset()+1] = ((crc>>11) & 0x07ff);
+  theData[crcOffset()] |= (crc & 0x07ff);
+  theData[crcOffset()+1] |= ((crc>>11) & 0x07ff);
 }
 
 
