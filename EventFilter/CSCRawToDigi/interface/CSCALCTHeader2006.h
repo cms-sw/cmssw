@@ -3,6 +3,7 @@
 
 #include <vector>
 #include "DataFormats/CSCDigi/interface/CSCALCTDigi.h"
+class CSCDMBHeader;
 
 ///ALCT Header consists of several modular units that are defined as structs below
 struct CSCALCTHeader2006 { ///this struct contains all 2006 ALCT Header words except ALCTs
@@ -19,11 +20,12 @@ struct CSCALCTHeader2006 { ///this struct contains all 2006 ALCT Header words ex
   short unsigned int sizeInWords() const { ///size of ALCT Header
     return 4;
   }
-  short unsigned int sizeForPacking() const { ///returns size of 2006 alct header+alct bits
-    return 16; ///in bytes
-  }
 
   unsigned short int BXNCount() const { return bxnCount;}
+
+  unsigned short nLCTChipRead() const;
+
+  void setEventInformation(const CSCDMBHeader &);///for packing
 
   /// l1 accept counter
   unsigned l1Acc         : 4;
@@ -64,12 +66,6 @@ struct CSCALCTHeader2006 { ///this struct contains all 2006 ALCT Header words ex
   unsigned activeFEBs : 7;
   ///  DDU+LCT special word flags
   unsigned flag_3 : 2;
-
-  ///below are ALCT filler words needed only for digi->raw packing and not used in unpacking
-  unsigned alct0_dummy_low  : 16;
-  unsigned alct0_dummy_high : 16;
-  unsigned alct1_dummy_low  : 16;
-  unsigned alct1_dummy_high : 16;
 
 };
 

@@ -1,4 +1,6 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCALCTHeader2006.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCDMBHeader.h"
+
 static int activeFEBsForChamberType[11] = {0,7,7,0xf,7,0x7f, 0xf,0x3f,0xf,0x3f,0xf};
 static int nTBinsForChamberType[11] = {7,7,7,7,7,7,7,7,7,7,7};
 
@@ -16,6 +18,25 @@ CSCALCTHeader2006::CSCALCTHeader2006(int chamberType) { //constructor for digi->
   //memcpy(theOriginalBuffer, &header2006, header2006.sizeForPacking());
 
 }
+
+
+void CSCALCTHeader2006::setEventInformation(const CSCDMBHeader & dmb)
+{
+ l1Acc = dmb.l1a();
+ cscID = dmb.dmbID();
+ nTBins = 16;
+ bxnCount = dmb.bxn();
+}
+
+
+unsigned short CSCALCTHeader2006::nLCTChipRead() const {///header2006 method
+  int count = 0;
+  for(int i=0; i<7; ++i) {
+    if( (lctChipRead>>i) & 1) ++count;
+  }
+  return count;
+}
+
 
 
 std::vector<CSCALCTDigi> CSCALCTs2006::ALCTDigis() const
