@@ -205,6 +205,13 @@ class SiPixelDigitizerAlgorithm  {
     float Sigma0; //=0.0007  // Charge diffusion in microns for 300 micron Si
     float Dist300;  //=0.0300  // Define 300microns for normalization 
     bool alpha2Order;          // Switch on/off of E.B effect 
+    float dir_x;
+    float dir_y;
+    float dir_z;
+    float scale;
+    LocalVector theDriftDirection;
+
+
  
     //-- induce_signal
     float ClusterWidth;       // Gaussian charge cutoff width in sigma units
@@ -218,7 +225,11 @@ class SiPixelDigitizerAlgorithm  {
     float thePixelThresholdInE;  // Pixel noise in electrons.
     float theTofLowerCut;             // Cut on the particle TOF
     float theTofUpperCut;             // Cut on the particle TOF
-    float tanLorentzAnglePerTesla;   //Lorentz angle tangent per Tesla
+    float tanLorentzAnglePerTesla_FPix;   //FPix Lorentz angle tangent per Tesla
+    float tanLorentzAnglePerTesla_BPix;   //BPix Lorentz angle tangent per Tesla
+
+
+
     //-- add_noise
     bool addNoise;
     bool addNoisyPixels;

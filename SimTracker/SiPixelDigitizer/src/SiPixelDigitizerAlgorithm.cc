@@ -20,6 +20,8 @@
 // Modify to the new random number services. d.k. 5/07
 // Protect against sigma=0 (delta tracks on the surface). d.k.5/07
 // Change the TOF cut to lower and upper limit. d.k. 7/07
+// Split Lorentz Angle configuration in BPix/FPix: V. Cuplov, Rice University 7/08
+// tanLorentzAngleperTesla_FPix=0.0912 and tanLorentzAngleperTesla_BPix=0.106
  
 #include <vector>
 #include <iostream>
@@ -111,8 +113,11 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
   theTofLowerCut=conf_.getParameter<double>("TofLowerCut");
   theTofUpperCut=conf_.getParameter<double>("TofUpperCut");
 
-  //Lorentz angle tangent per Tesla
-  tanLorentzAnglePerTesla=conf_.getParameter<double>("TanLorentzAnglePerTesla");
+  //FPix Lorentz angle tangent per Tesla
+  tanLorentzAnglePerTesla_FPix=conf_.getParameter<double>("TanLorentzAnglePerTesla_FPix");
+
+  //BPix Lorentz angle tangent per Tesla
+  tanLorentzAnglePerTesla_BPix=conf_.getParameter<double>("TanLorentzAnglePerTesla_BPix");
 
 
   // Fluctuate charge in track subsegments
@@ -1234,29 +1239,47 @@ float SiPixelDigitizerAlgorithm::missCalibrate(int col,int row,
 // Set the drift direction accoring to the Bfield in local det-unit frame
 // Works for both barrel and forward pixels.
 // Replace the sign convention to fit M.Swartz's formulaes.
+// Configurations for barrel and foward pixels possess different tanLorentzAngleperTesla 
+// parameter value
+
 LocalVector SiPixelDigitizerAlgorithm::DriftDirection(){
   Frame detFrame(_detp->surface().position(),_detp->surface().rotation());
   LocalVector Bfield=detFrame.toLocal(_bfield);
 
-  float alpha2;
+  float alpha2_FPix;
+  float alpha2_BPix;
+
   if ( alpha2Order) {
-     alpha2 = tanLorentzAnglePerTesla*tanLorentzAnglePerTesla;
+    alpha2_FPix = tanLorentzAnglePerTesla_FPix*tanLorentzAnglePerTesla_FPix;
+    alpha2_BPix = tanLorentzAnglePerTesla_BPix*tanLorentzAnglePerTesla_BPix;
   }else {
-     alpha2 = 0.0;
+    alpha2_FPix = 0.0;
+    alpha2_BPix = 0.0;
   }
 
-  
+
   //float dir_x = -tanLorentzAnglePerTesla * Bfield.y();
   //float dir_y = +tanLorentzAnglePerTesla * Bfield.x();
   //float dir_z = -1.; // E field always in z direction, so electrons go to -z
   // The dir_z has to be +/- 1. !
   // LocalVector theDriftDirection = LocalVector(dir_x,dir_y,dir_z);
 
-  float dir_x = -( tanLorentzAnglePerTesla * Bfield.y() + alpha2* Bfield.z()* Bfield.x() );
-  float dir_y = +( tanLorentzAnglePerTesla * Bfield.x() - alpha2* Bfield.z()* Bfield.y() );
-  float dir_z = -(1 + alpha2* Bfield.z()*Bfield.z() );
-  float scale = (1 + alpha2* Bfield.z()*Bfield.z() );
-  LocalVector theDriftDirection = LocalVector(dir_x/scale, dir_y/scale, dir_z/scale );
+  
+  unsigned int Sub_detid=DetId(detID).subdetId();
+  if    (Sub_detid==  PixelSubdetector::PixelBarrel){// barrel layers
+    float dir_x = -( tanLorentzAnglePerTesla_BPix * Bfield.y() + alpha2_BPix* Bfield.z()* Bfield.x() );
+    float dir_y = +( tanLorentzAnglePerTesla_BPix * Bfield.x() - alpha2_BPix* Bfield.z()* Bfield.y() );
+    float dir_z = -(1 + alpha2_BPix* Bfield.z()*Bfield.z() );
+    float scale = (1 + alpha2_BPix* Bfield.z()*Bfield.z() );
+    LocalVector theDriftDirection = LocalVector(dir_x/scale, dir_y/scale, dir_z/scale );
+    
+  } else {                // forward disks
+    float dir_x = -( tanLorentzAnglePerTesla_FPix * Bfield.y() + alpha2_FPix* Bfield.z()* Bfield.x() );
+    float dir_y = +( tanLorentzAnglePerTesla_FPix * Bfield.x() - alpha2_FPix* Bfield.z()* Bfield.y() );
+    float dir_z = -(1 + alpha2_FPix* Bfield.z()*Bfield.z() );
+    float scale = (1 + alpha2_FPix* Bfield.z()*Bfield.z() );
+    LocalVector theDriftDirection = LocalVector(dir_x/scale, dir_y/scale, dir_z/scale );     
+  }
 
 #ifdef TP_DEBUG
   LogDebug ("Pixel Digitizer") << " The drift direction in local coordinate is "   
