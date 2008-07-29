@@ -11,7 +11,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: CaloMatchingExample.cc,v 1.7 2007/05/07 20:51:01 jribnik Exp $
+// $Id: CaloMatchingExample.cc,v 1.8 2008/05/15 17:04:50 heltsley Exp $
 //
 //
 
@@ -50,7 +50,7 @@
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 
 // calorimeter info
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
@@ -224,8 +224,8 @@ void CaloMatchingExample::analyze( const edm::Event& iEvent, const edm::EventSet
    
    // calo geometry
    edm::ESHandle<CaloGeometry> geometry;
-   iSetup.get<CaloGeometryRecord>().get(geometry);
-   if (! geometry.isValid()) throw cms::Exception("FatalError") << "Unable to find CaloGeometryRecord in event!\n";
+   iSetup.get<IdealGeometryRecord>().get(geometry);
+   if (! geometry.isValid()) throw cms::Exception("FatalError") << "Unable to find IdealGeometryRecord in event!\n";
 
    nTracks_ = 0;
    
