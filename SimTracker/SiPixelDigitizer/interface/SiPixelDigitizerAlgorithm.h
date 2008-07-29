@@ -205,11 +205,6 @@ class SiPixelDigitizerAlgorithm  {
     float Sigma0; //=0.0007  // Charge diffusion in microns for 300 micron Si
     float Dist300;  //=0.0300  // Define 300microns for normalization 
     bool alpha2Order;          // Switch on/off of E.B effect 
-    float dir_x;
-    float dir_y;
-    float dir_z;
-    float scale;
-    LocalVector theDriftDirection;
 
 
  

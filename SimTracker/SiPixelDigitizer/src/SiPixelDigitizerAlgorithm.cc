@@ -1264,22 +1264,26 @@ LocalVector SiPixelDigitizerAlgorithm::DriftDirection(){
   // The dir_z has to be +/- 1. !
   // LocalVector theDriftDirection = LocalVector(dir_x,dir_y,dir_z);
 
+  float dir_x = 0.0;
+  float dir_y = 0.0;
+  float dir_z = 0.0;
+  float scale = 0.0;
   
   unsigned int Sub_detid=DetId(detID).subdetId();
   if    (Sub_detid==  PixelSubdetector::PixelBarrel){// barrel layers
-    float dir_x = -( tanLorentzAnglePerTesla_BPix * Bfield.y() + alpha2_BPix* Bfield.z()* Bfield.x() );
-    float dir_y = +( tanLorentzAnglePerTesla_BPix * Bfield.x() - alpha2_BPix* Bfield.z()* Bfield.y() );
-    float dir_z = -(1 + alpha2_BPix* Bfield.z()*Bfield.z() );
-    float scale = (1 + alpha2_BPix* Bfield.z()*Bfield.z() );
-    LocalVector theDriftDirection = LocalVector(dir_x/scale, dir_y/scale, dir_z/scale );
+    dir_x = -( tanLorentzAnglePerTesla_BPix * Bfield.y() + alpha2_BPix* Bfield.z()* Bfield.x() );
+    dir_y = +( tanLorentzAnglePerTesla_BPix * Bfield.x() - alpha2_BPix* Bfield.z()* Bfield.y() );
+    dir_z = -(1 + alpha2_BPix* Bfield.z()*Bfield.z() );
+    scale = (1 + alpha2_BPix* Bfield.z()*Bfield.z() );
     
   } else {                // forward disks
-    float dir_x = -( tanLorentzAnglePerTesla_FPix * Bfield.y() + alpha2_FPix* Bfield.z()* Bfield.x() );
-    float dir_y = +( tanLorentzAnglePerTesla_FPix * Bfield.x() - alpha2_FPix* Bfield.z()* Bfield.y() );
-    float dir_z = -(1 + alpha2_FPix* Bfield.z()*Bfield.z() );
-    float scale = (1 + alpha2_FPix* Bfield.z()*Bfield.z() );
-    LocalVector theDriftDirection = LocalVector(dir_x/scale, dir_y/scale, dir_z/scale );     
+    dir_x = -( tanLorentzAnglePerTesla_FPix * Bfield.y() + alpha2_FPix* Bfield.z()* Bfield.x() );
+    dir_y = +( tanLorentzAnglePerTesla_FPix * Bfield.x() - alpha2_FPix* Bfield.z()* Bfield.y() );
+    dir_z = -(1 + alpha2_FPix* Bfield.z()*Bfield.z() );
+    scale = (1 + alpha2_FPix* Bfield.z()*Bfield.z() );
   }
+  
+  LocalVector theDriftDirection = LocalVector(dir_x/scale, dir_y/scale, dir_z/scale );  
 
 #ifdef TP_DEBUG
   LogDebug ("Pixel Digitizer") << " The drift direction in local coordinate is "   
