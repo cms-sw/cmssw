@@ -85,11 +85,7 @@ namespace edm {
 
   void PoolOutputModule::writeRun(RunPrincipal const& r) {
       if (hasNewlyDroppedBranch()[InRun]) r.addToProcessHistory();
-      if (rootOutputFile_->writeRun(r)) {
-	// maybeEndFile should be called from the framework, not internally
-	// rootOutputFile_->endFile();
-	// rootOutputFile_.reset();
-      }
+      rootOutputFile_->writeRun(r);
   }
 
   // At some later date, we may move functionality from finishEndFile() to here.
@@ -109,8 +105,7 @@ namespace edm {
   void PoolOutputModule::writeEntryDescriptions() { rootOutputFile_->writeEntryDescriptions(); }
   void PoolOutputModule::finishEndFile() { rootOutputFile_->finishEndFile(); rootOutputFile_.reset(); }
   bool PoolOutputModule::isFileOpen() const { return rootOutputFile_.get() != 0; }
-
-  bool PoolOutputModule::isFileFull() const { return rootOutputFile_->isFileFull(); }
+  bool PoolOutputModule::shouldWeCloseFile() const { return rootOutputFile_->shouldWeCloseFile(); }
 
   void PoolOutputModule::doOpenFile() {
       if (fileBlock_ == 0) {

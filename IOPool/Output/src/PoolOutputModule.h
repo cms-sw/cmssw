@@ -42,7 +42,7 @@ namespace edm {
     virtual void writeRun(RunPrincipal const& r);
 
     virtual bool isFileOpen() const;
-    virtual bool isFileFull() const;
+    virtual bool shouldWeCloseFile() const;
     virtual void doOpenFile();
 
 

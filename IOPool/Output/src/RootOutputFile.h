@@ -46,7 +46,7 @@ namespace edm {
     void writeOne(EventPrincipal const& e);
     //void endFile();
     void writeLuminosityBlock(LuminosityBlockPrincipal const& lb);
-    bool writeRun(RunPrincipal const& r);
+    void writeRun(RunPrincipal const& r);
     void writeEntryDescriptions();
     void writeFileFormatVersion();
     void writeFileIdentifier();
@@ -62,9 +62,7 @@ namespace edm {
     void finishEndFile();
     void beginInputFile(FileBlock const& fb, bool fastClone);
     void respondToCloseInputFile(FileBlock const& fb);
-
-    bool isFileFull() const {return newFileAtEndOfRun_;}
-
+    bool shouldWeCloseFile() const;
 
     struct OutputItem {
       class Sorter {
@@ -125,8 +123,6 @@ namespace edm {
     std::string file_;
     std::string logicalFile_;
     JobReport::Token reportToken_;
-    unsigned int eventCount_;
-    unsigned int fileSizeCheckEvent_;
     PoolOutputModule const* om_;
     bool currentlyFastCloning_;
     boost::shared_ptr<TFile> filePtr_;
@@ -152,7 +148,6 @@ namespace edm {
     RootOutputTree lumiTree_;
     RootOutputTree runTree_;
     RootOutputTreePtrArray treePointers_;
-    mutable bool newFileAtEndOfRun_;
     bool dataTypeReported_;
   };
 

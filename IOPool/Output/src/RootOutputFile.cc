@@ -105,8 +105,6 @@ namespace edm {
       file_(fileName),
       logicalFile_(logicalFileName),
       reportToken_(0),
-      eventCount_(0),
-      fileSizeCheckEvent_(100),
       om_(om),
       currentlyFastCloning_(),
       filePtr_(TFile::Open(file_.c_str(), "recreate", "", om_->compressionLevel())),
@@ -138,7 +136,6 @@ namespace edm {
                filePtr_, InRun, pRunAux_, pRunEntryInfoVector_,
                om_->basketSize(), om_->splitLevel(), om_->treeMaxVirtualSize()),
       treePointers_(),
-      newFileAtEndOfRun_(false), 
       dataTypeReported_(false) {
     treePointers_[InEvent] = &eventTree_;
     treePointers_[InLumi]  = &lumiTree_;
@@ -335,9 +332,13 @@ namespace edm {
     runTree_.setEntries();
   }
 
-  void RootOutputFile::writeOne(EventPrincipal const& e) {
-    ++eventCount_;
+  bool RootOutputFile::shouldWeCloseFile() const {
+    unsigned int const oneK = 1024;
+    Long64_t size = filePtr_->GetSize()/oneK;
+    return(size >= om_->maxFileSize_);
+  }
 
+  void RootOutputFile::writeOne(EventPrincipal const& e) {
     // Auxiliary branch
     pEventAux_ = &e.aux();
 
@@ -375,19 +376,6 @@ namespace edm {
     // Report event written 
     Service<JobReport> reportSvc;
     reportSvc->eventWrittenToFile(reportToken_, e.id().run(), e.id().event());
-
-    if (eventCount_ >= fileSizeCheckEvent_) {
-	unsigned int const oneK = 1024;
-	Long64_t size = filePtr_->GetSize()/oneK;
-	unsigned int eventSize = std::max(size/eventCount_, 1LL);
-	if (size + 2*eventSize >= om_->maxFileSize_) {
-	  newFileAtEndOfRun_ = true;
-	} else {
-	  unsigned int increment = (om_->maxFileSize_ - size)/eventSize;
-	  increment -= increment/8;	// Prevents overshoot
-	  fileSizeCheckEvent_ = eventCount_ + increment;
-	}
-    }
   }
 
   void RootOutputFile::writeLuminosityBlock(LuminosityBlockPrincipal const& lb) {
@@ -399,14 +387,13 @@ namespace edm {
     fillBranches(InLumi, lb, pLumiEntryInfoVector_);
   }
 
-  bool RootOutputFile::writeRun(RunPrincipal const& r) {
+  void RootOutputFile::writeRun(RunPrincipal const& r) {
     // Auxiliary branch
     pRunAux_ = &r.aux();
     // Add run to index.
     fileIndex_.addEntry(pRunAux_->run(), 0U, 0U, runEntryNumber_);
     ++runEntryNumber_;
     fillBranches(InRun, r, pRunEntryInfoVector_);
-    return newFileAtEndOfRun_;
   }
 
   void RootOutputFile::writeEntryDescriptions() {
