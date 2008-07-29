@@ -22,12 +22,11 @@ CSCTMBTrailer::CSCTMBTrailer(int wordCount, int firmwareVersion)
   // the next four words start with 11011, or a D
   for(int i = 1; i < 5; ++i) 
     {
-      theData[i+thePadding] = (0x1B << 11);
+      theData[i+thePadding] = 0xD800;
     }
   theData[de0fOffset()] = 0xde0f;
   // word count excludes the trailer
   theData[4+thePadding] |= wordCount;
-
 }
 
 
@@ -54,7 +53,6 @@ CSCTMBTrailer::CSCTMBTrailer(unsigned short * buf, unsigned short int firmwareVe
 
 unsigned int CSCTMBTrailer::crc22() const 
 {  
-
   return (theData[crcOffset()] & 0x07ff) +
             ((theData[crcOffset()+1] & 0x07ff) << 11);
 }
@@ -78,10 +76,10 @@ void CSCTMBTrailer::selfTest()
   trailer.setCRC(crc);
   assert(trailer.crc22() == 0xb00b1);
 
-  CSCTMBTrailer trailer(104, 2007);
-  unsigned int crc = 0xb00b1;
-  trailer.setCRC(crc);
-  assert(trailer.crc22() == 0xb00b1);
+  CSCTMBTrailer trailer2(104, 2007);
+  crc = 0xb00b1;
+  trailer2.setCRC(crc);
+  assert(trailer2.crc22() == 0xb00b1);
 
 }
 
