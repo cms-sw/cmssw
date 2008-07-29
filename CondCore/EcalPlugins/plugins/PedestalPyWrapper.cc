@@ -38,6 +38,9 @@ namespace cond {
 
     ecalped::Quantity const & quantity() const { return m_quantity;}
     ecalped::How const & how() const { return m_how;}
+ 
+    void set_quantity( ecalped::Quantity i) { m_quantity=i;}
+    void set_how(ecalped::How i) {m_how=i;}
   };
 
 
@@ -119,6 +122,8 @@ namespace condPython {
 
     typedef cond::ExtractWhat<EcalPedestals> What;
     class_<What>("What",init<>())
+      .def("set_quantity",&What::set_quantity)
+      .def("set_how",&What::set_how)
       .def("quantity",&What::quantity, return_value_policy<copy_const_reference>())
       .def("how",&What::how, return_value_policy<copy_const_reference>())
       ;
