@@ -2,7 +2,7 @@
 
 Test of the statemachine classes.
 
-$Id: statemachine_t.cc,v 1.4 2008/07/29 02:17:36 wmtan Exp $
+$Id: statemachine_t.cc,v 1.5 2008/07/29 03:00:19 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 
@@ -29,6 +29,7 @@ int main(int argc, char* argv[]) {
     ("help,h", "produce help message")
     ("inputFile,i", boost::program_options::value<std::string>(&inputFile)->default_value(""))
     ("outputFile,o", boost::program_options::value<std::string>(&outputFile)->default_value("statemachine_test_output.txt"))
+    ("skipmode,m", "NOMERGE, FULLLUMIMERGE and FULLMERGE only")
     ("skipmodes,s", "NOMERGE and FULLMERGE only");
   boost::program_options::variables_map vm;
   boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), vm);
@@ -65,8 +66,10 @@ int main(int argc, char* argv[]) {
   std::vector<FileMode> fileModes;
   fileModes.reserve(4);
   fileModes.push_back(NOMERGE);
-  if (!vm.count("skipmodes")) {
+  if (!vm.count("skipmode") && !vm.count("skipmodes")) {
     fileModes.push_back(MERGE);
+  }
+  if (!vm.count("skipmodes")) {
     fileModes.push_back(FULLLUMIMERGE);
   }
   fileModes.push_back(FULLMERGE);
