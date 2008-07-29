@@ -1,5 +1,5 @@
 
-Machine parameters:  mode = SPARSE  handleEmptyRuns = 0  handleEmptyLumis = 0
+Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptyLumis = 0
     *** nextItemType: File 1 ***
 	startingNewLoop
  	readFile
@@ -25,7 +25,8 @@ Machine parameters:  mode = SPARSE  handleEmptyRuns = 0  handleEmptyLumis = 0
 	deleteRunFromCache 1
 	respondToCloseInputFile
 	closeInputFile
-	writeCache
+	writeLumiCache
+	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
  	readFile
@@ -51,7 +52,8 @@ Machine parameters:  mode = SPARSE  handleEmptyRuns = 0  handleEmptyLumis = 0
 	deleteRunFromCache 2
 	respondToCloseInputFile
 	closeInputFile
-	writeCache
+	writeLumiCache
+	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
  	readFile
@@ -77,13 +79,14 @@ Machine parameters:  mode = SPARSE  handleEmptyRuns = 0  handleEmptyLumis = 0
 	deleteRunFromCache 1
 	respondToCloseInputFile
 	closeInputFile
-	writeCache
+	writeLumiCache
+	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	endOfLoop
 The state machine reports it has been terminated
 
-Machine parameters:  mode = SPARSE  handleEmptyRuns = 0  handleEmptyLumis = 1
+Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptyLumis = 1
     *** nextItemType: File 1 ***
 	startingNewLoop
  	readFile
@@ -109,7 +112,8 @@ Machine parameters:  mode = SPARSE  handleEmptyRuns = 0  handleEmptyLumis = 1
 	deleteRunFromCache 1
 	respondToCloseInputFile
 	closeInputFile
-	writeCache
+	writeLumiCache
+	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
  	readFile
@@ -135,7 +139,8 @@ Machine parameters:  mode = SPARSE  handleEmptyRuns = 0  handleEmptyLumis = 1
 	deleteRunFromCache 2
 	respondToCloseInputFile
 	closeInputFile
-	writeCache
+	writeLumiCache
+	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
  	readFile
@@ -161,13 +166,14 @@ Machine parameters:  mode = SPARSE  handleEmptyRuns = 0  handleEmptyLumis = 1
 	deleteRunFromCache 1
 	respondToCloseInputFile
 	closeInputFile
-	writeCache
+	writeLumiCache
+	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	endOfLoop
 The state machine reports it has been terminated
 
-Machine parameters:  mode = SPARSE  handleEmptyRuns = 1  handleEmptyLumis = 0
+Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptyLumis = 0
     *** nextItemType: File 1 ***
 	startingNewLoop
  	readFile
@@ -193,7 +199,8 @@ Machine parameters:  mode = SPARSE  handleEmptyRuns = 1  handleEmptyLumis = 0
 	deleteRunFromCache 1
 	respondToCloseInputFile
 	closeInputFile
-	writeCache
+	writeLumiCache
+	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
  	readFile
@@ -219,7 +226,8 @@ Machine parameters:  mode = SPARSE  handleEmptyRuns = 1  handleEmptyLumis = 0
 	deleteRunFromCache 2
 	respondToCloseInputFile
 	closeInputFile
-	writeCache
+	writeLumiCache
+	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
  	readFile
@@ -245,13 +253,14 @@ Machine parameters:  mode = SPARSE  handleEmptyRuns = 1  handleEmptyLumis = 0
 	deleteRunFromCache 1
 	respondToCloseInputFile
 	closeInputFile
-	writeCache
+	writeLumiCache
+	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	endOfLoop
 The state machine reports it has been terminated
 
-Machine parameters:  mode = SPARSE  handleEmptyRuns = 1  handleEmptyLumis = 1
+Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptyLumis = 1
     *** nextItemType: File 1 ***
 	startingNewLoop
  	readFile
@@ -277,7 +286,8 @@ Machine parameters:  mode = SPARSE  handleEmptyRuns = 1  handleEmptyLumis = 1
 	deleteRunFromCache 1
 	respondToCloseInputFile
 	closeInputFile
-	writeCache
+	writeLumiCache
+	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
  	readFile
@@ -303,7 +313,8 @@ Machine parameters:  mode = SPARSE  handleEmptyRuns = 1  handleEmptyLumis = 1
 	deleteRunFromCache 2
 	respondToCloseInputFile
 	closeInputFile
-	writeCache
+	writeLumiCache
+	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
  	readFile
@@ -329,13 +340,14 @@ Machine parameters:  mode = SPARSE  handleEmptyRuns = 1  handleEmptyLumis = 1
 	deleteRunFromCache 1
 	respondToCloseInputFile
 	closeInputFile
-	writeCache
+	writeLumiCache
+	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	endOfLoop
 The state machine reports it has been terminated
 
-Machine parameters:  mode = DENSE  handleEmptyRuns = 0  handleEmptyLumis = 0
+Machine parameters:  mode = FULLMERGE  handleEmptyRuns = 0  handleEmptyLumis = 0
     *** nextItemType: File 1 ***
 	startingNewLoop
  	readFile
@@ -393,13 +405,14 @@ Machine parameters:  mode = DENSE  handleEmptyRuns = 0  handleEmptyLumis = 0
 	endRun 1
 	respondToCloseInputFile
 	closeInputFile
-	writeCache
+	writeLumiCache
+	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	endOfLoop
 The state machine reports it has been terminated
 
-Machine parameters:  mode = DENSE  handleEmptyRuns = 0  handleEmptyLumis = 1
+Machine parameters:  mode = FULLMERGE  handleEmptyRuns = 0  handleEmptyLumis = 1
     *** nextItemType: File 1 ***
 	startingNewLoop
  	readFile
@@ -457,13 +470,14 @@ Machine parameters:  mode = DENSE  handleEmptyRuns = 0  handleEmptyLumis = 1
 	endRun 1
 	respondToCloseInputFile
 	closeInputFile
-	writeCache
+	writeLumiCache
+	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	endOfLoop
 The state machine reports it has been terminated
 
-Machine parameters:  mode = DENSE  handleEmptyRuns = 1  handleEmptyLumis = 0
+Machine parameters:  mode = FULLMERGE  handleEmptyRuns = 1  handleEmptyLumis = 0
     *** nextItemType: File 1 ***
 	startingNewLoop
  	readFile
@@ -521,13 +535,14 @@ Machine parameters:  mode = DENSE  handleEmptyRuns = 1  handleEmptyLumis = 0
 	endRun 1
 	respondToCloseInputFile
 	closeInputFile
-	writeCache
+	writeLumiCache
+	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	endOfLoop
 The state machine reports it has been terminated
 
-Machine parameters:  mode = DENSE  handleEmptyRuns = 1  handleEmptyLumis = 1
+Machine parameters:  mode = FULLMERGE  handleEmptyRuns = 1  handleEmptyLumis = 1
     *** nextItemType: File 1 ***
 	startingNewLoop
  	readFile
@@ -585,7 +600,8 @@ Machine parameters:  mode = DENSE  handleEmptyRuns = 1  handleEmptyLumis = 1
 	endRun 1
 	respondToCloseInputFile
 	closeInputFile
-	writeCache
+	writeLumiCache
+	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
 	endOfLoop

@@ -786,10 +786,6 @@ namespace edm {
     LogVerbatim("FwkSummary") << "";
   }
 
-  void Schedule::maybeEndFile() {
-    for_all(all_output_workers_, boost::bind(&OutputWorker::maybeEndFile, _1));
-  }
-
   void Schedule::closeOutputFiles() {
     for_all(all_output_workers_, boost::bind(&OutputWorker::closeFile, _1));
   }
@@ -808,6 +804,13 @@ namespace edm {
 
   void Schedule::writeLumi(LuminosityBlockPrincipal const& lbp) {
     for_all(all_output_workers_, boost::bind(&OutputWorker::writeLumi, _1, boost::cref(lbp)));
+  }
+
+  bool Schedule::shouldWeCloseOutput() const {
+    // Return true iff at least one output module returns true.
+    return (std::find_if(all_output_workers_.begin(), all_output_workers_.end(),
+		     boost::bind(&OutputWorker::shouldWeCloseFile, _1))
+		     != all_output_workers_.end());
   }
 
   void Schedule::respondToOpenInputFile(FileBlock const& fb) {

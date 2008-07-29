@@ -9,7 +9,7 @@ this object is to call the output module.
 According to our current definition, a single output module can only
 appear in one worker.
 
-$Id: OutputWorker.h,v 1.33 2008/01/13 01:12:34 wmtan Exp $
+$Id: OutputWorker.h,v 1.34 2008/01/15 06:51:58 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -29,11 +29,11 @@ namespace edm {
 
     virtual ~OutputWorker();
 
-    // Call maybeEndFile() on the controlled OutputModule.
-    void maybeEndFile();
-
     // Call closeFile() on the controlled OutputModule.
     void closeFile();
+
+    // Call shouldWeCloseFile() on the controlled OutputModule.
+    bool shouldWeCloseFile() const;
 
     void openNewFileIfNeeded();
 

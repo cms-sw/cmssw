@@ -2,7 +2,7 @@
 
 Test of the statemachine classes.
 
-$Id: statemachine_t.cc,v 1.2 2008/02/27 20:11:06 wmtan Exp $
+$Id: statemachine_t.cc,v 1.3 2008/03/18 18:41:29 wdd Exp $
 
 ----------------------------------------------------------------------*/  
 
@@ -61,18 +61,20 @@ int main(int argc, char* argv[]) {
 
   std::ofstream output(outputFile.c_str());
 
-  // Run 8 times to exercise all 8 possible settings
+  // Run 12 times to exercise all 12 possible settings
   // of the three parameters.
-  FileMode fileModes[] = { SPARSE, DENSE };
-  for (int k = 0; k < 2; ++k) {
+  FileMode fileModes[] = { NOMERGE, MERGE, FULLLUMIMERGE, FULLMERGE };
+  for (int k = 0; k < 4; ++k) {
     FileMode fileMode = fileModes[k];
     for (int i = 0; i < 2; ++i) {
       bool handleEmptyRuns = i;
       for (int j = 0; j < 2; ++j) {
         bool handleEmptyLumis = j;
         output << "\nMachine parameters:  ";
-        if (fileMode == SPARSE) output << "mode = SPARSE";
-        else output << "mode = DENSE";
+        if (fileMode == NOMERGE) output << "mode = NOMERGE";
+        else if (fileMode == MERGE) output << "mode = MERGE";
+        else if (fileMode == FULLLUMIMERGE) output << "mode = FULLLUMIMERGE";
+        else output << "mode = FULLMERGE";
 	output << "  handleEmptyRuns = " << handleEmptyRuns;
 	output << "  handleEmptyLumis = " << handleEmptyLumis << "\n";
 

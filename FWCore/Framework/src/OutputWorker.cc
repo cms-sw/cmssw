@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: OutputWorker.cc,v 1.36 2008/01/13 01:12:33 wmtan Exp $
+$Id: OutputWorker.cc,v 1.37 2008/01/15 06:51:58 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/OutputModule.h"
@@ -19,13 +19,13 @@ namespace edm {
   }
 
   void
-  OutputWorker::maybeEndFile() {
-    module().maybeEndFile();
-  }
-
-  void
   OutputWorker::closeFile() {
     module().doCloseFile();
+  }
+
+  bool
+  OutputWorker::shouldWeCloseFile() const {
+    return module().shouldWeCloseFile();
   }
 
   void

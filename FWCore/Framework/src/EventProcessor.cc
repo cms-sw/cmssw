@@ -10,6 +10,7 @@
 #include "boost/thread/xtime.hpp"
 
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
+#include "DataFormats/Provenance/interface/BranchType.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/GetReleaseVersion.h"
@@ -584,7 +585,7 @@ namespace edm {
     shared_ptr<ParameterSet> parameterSet = processDesc->getProcessPSet();
 
     ParameterSet optionsPset(parameterSet->getUntrackedParameter<ParameterSet>("options", ParameterSet()));
-    fileMode_ = optionsPset.getUntrackedParameter<std::string>("fileMode", "DENSE");
+    fileMode_ = optionsPset.getUntrackedParameter<std::string>("fileMode", "");
     handleEmptyRuns_ = optionsPset.getUntrackedParameter<bool>("handleEmptyRuns", true);
     handleEmptyLumis_ = optionsPset.getUntrackedParameter<bool>("handleEmptyLumis", true);
 
@@ -640,7 +641,7 @@ namespace edm {
     looper_ = fillLooper(*esp_, *parameterSet, common);
     if (looper_) looper_->setActionTable(&act_table_);
     
-    input_= makeInput(*parameterSet, common, preg_,*actReg_);
+    input_= makeInput(*parameterSet, common, preg_, *actReg_);
     schedule_ = std::auto_ptr<Schedule>
       (new Schedule(*parameterSet,
 		    ServiceRegistry::instance().get<TNS>(),
@@ -1277,8 +1278,32 @@ namespace edm {
 
     if (machine_.get() == 0) {
  
-      statemachine::FileMode fileMode = statemachine::DENSE;
-      if (fileMode_ == std::string("SPARSE")) fileMode = statemachine::SPARSE;
+      statemachine::FileMode fileMode = statemachine::FULLMERGE;
+
+      if (fileMode_.empty()) {
+	// The file mode was not explicitly specified.
+	if (!anyOutputModules()) {
+	  // If there are no output modules, the mode should be NOMERGE.
+          fileMode = statemachine::NOMERGE;
+	} else if (preg_.anyProducts(InLumi)) {
+	  // Otherwise, if there are any per lumi products, the mode should be MERGE.
+          fileMode = statemachine::MERGE;
+	} else if (preg_.anyProducts(InRun)) {
+	  // Otherwise, if there are any per run products, the mode should be FULLLUMIMERGE.
+          fileMode = statemachine::FULLLUMIMERGE;
+	}
+	// Otherwise, the mode should be FULLMERGE.
+	
+      }
+      else if (fileMode_ == std::string("MERGE")) fileMode = statemachine::MERGE;
+      else if (fileMode_ == std::string("NOMERGE")) fileMode = statemachine::NOMERGE;
+      else if (fileMode_ == std::string("FULLMERGE")) fileMode = statemachine::FULLMERGE;
+      else if (fileMode_ == std::string("FULLLUMIMERGE")) fileMode = statemachine::FULLLUMIMERGE;
+      else {
+ 	throw edm::Exception(errors::Configuration, "Illegal fileMode parameter value: ")
+	    << fileMode_ << ".\n"
+	    << "Legal values are 'MERGE', 'NOMERGE', 'FULLMERGE', and 'FULLLUMIMERGE'.\n";
+      }
 
       machine_.reset(new statemachine::Machine(this,
                                                fileMode,
@@ -1524,22 +1549,30 @@ namespace edm {
     FDEBUG(1) << "\tprepareForNextLoop\n";
   }
 
-  void EventProcessor::writeCache() {
-    while (!principalCache_.noMoreRuns()) {
-      schedule_->writeRun(principalCache_.lowestRun());
-      principalCache_.deleteLowestRun();      
-    }
+  void EventProcessor::writeLumiCache() {
     while (!principalCache_.noMoreLumis()) {
       schedule_->writeLumi(principalCache_.lowestLumi());
       principalCache_.deleteLowestLumi();      
     }
-    FDEBUG(1) << "\twriteCache\n";
+    FDEBUG(1) << "\twriteLumiCache\n";
   }
 
-  bool EventProcessor::shouldWeCloseOutput() {
-    // NOT IMPLEMENTED YET
+  void EventProcessor::writeRunCache() {
+    while (!principalCache_.noMoreRuns()) {
+      schedule_->writeRun(principalCache_.lowestRun());
+      principalCache_.deleteLowestRun();      
+    }
+    FDEBUG(1) << "\twriteRunCache\n";
+  }
+
+  bool EventProcessor::shouldWeCloseOutput() const {
     FDEBUG(1) << "\tshouldWeCloseOutput\n";
-    return false;
+    return schedule_->shouldWeCloseOutput();
+  }
+
+  bool EventProcessor::anyOutputModules() const {
+    FDEBUG(1) << "\tanyOutputModules\n";
+    return schedule_->anyOutputModules();
   }
 
   void EventProcessor::doErrorStuff() {
@@ -1643,7 +1676,7 @@ namespace edm {
     FDEBUG(1) << "\tprocessEvent\n";
   }
 
-  bool EventProcessor::shouldWeStop() {
+  bool EventProcessor::shouldWeStop() const {
     FDEBUG(1) << "\tshouldWeStop\n";
     if (shouldWeStop_) return true;
     return schedule_->terminate();

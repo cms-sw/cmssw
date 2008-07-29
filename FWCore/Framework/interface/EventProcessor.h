@@ -6,7 +6,7 @@
 EventProcessor: This defines the 'framework application' object. It is
 configured in the user's main() function, and is set running.
 
-$Id: EventProcessor.h,v 1.64 2008/04/22 22:31:41 wdd Exp $
+$Id: EventProcessor.h,v 1.65 2008/06/28 01:23:05 rpw Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -314,8 +314,10 @@ namespace edm {
     virtual bool endOfLoop();
     virtual void rewindInput();
     virtual void prepareForNextLoop();
-    virtual void writeCache();
-    virtual bool shouldWeCloseOutput();
+    virtual void writeLumiCache();
+    virtual void writeRunCache();
+    virtual bool shouldWeCloseOutput() const;
+    virtual bool anyOutputModules() const;
 
     virtual void doErrorStuff();
 
@@ -334,7 +336,7 @@ namespace edm {
 
     virtual void readEvent();
     virtual void processEvent();
-    virtual bool shouldWeStop();
+    virtual bool shouldWeStop() const;
 
     virtual void setExceptionMessageFiles(std::string& message);
     virtual void setExceptionMessageRuns(std::string& message);

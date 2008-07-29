@@ -1,6 +1,6 @@
 
 /*
-$Id: MockEventProcessor.cc,v 1.10 2008/04/15 19:20:50 wdd Exp $
+$Id: MockEventProcessor.cc,v 1.11 2008/04/22 22:31:42 wdd Exp $
 */
 
 #include "FWCore/Framework/test/MockEventProcessor.h"
@@ -159,13 +159,21 @@ namespace edm {
     output_ << "\tprepareForNextLoop\n";
   }
 
-  void MockEventProcessor::writeCache() {
-    output_ << "\twriteCache\n";
+  void MockEventProcessor::writeLumiCache() {
+    output_ << "\twriteLumiCache\n";
   }
 
-  bool MockEventProcessor::shouldWeCloseOutput() {
+  void MockEventProcessor::writeRunCache() {
+    output_ << "\twriteRunCache\n";
+  }
+
+  bool MockEventProcessor::shouldWeCloseOutput() const {
     output_ << "\tshouldWeCloseOutput\n";
     return shouldWeCloseOutput_;
+  }
+
+  bool MockEventProcessor::anyOutputModules() const {
+    return true;
   }
 
   void MockEventProcessor::doErrorStuff() {
@@ -222,7 +230,7 @@ namespace edm {
     output_ << "\tprocessEvent\n";
   }
 
-  bool MockEventProcessor::shouldWeStop() {
+  bool MockEventProcessor::shouldWeStop() const {
     output_ << "\tshouldWeStop\n";
     return shouldWeStop_;
   }

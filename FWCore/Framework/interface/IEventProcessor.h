@@ -2,7 +2,7 @@
 #define FWCore_Framework_IEventProcessor_h
 
 /*
-$Id: IEventProcessor.h,v 1.7 2008/04/15 19:20:49 wdd Exp $
+$Id: IEventProcessor.h,v 1.8 2008/04/22 22:31:41 wdd Exp $
 
 Abstract base class for Event Processors
 
@@ -54,8 +54,10 @@ namespace edm
     virtual bool endOfLoop() = 0;
     virtual void rewindInput() = 0;
     virtual void prepareForNextLoop() = 0;
-    virtual void writeCache() = 0;
-    virtual bool shouldWeCloseOutput() = 0;
+    virtual void writeLumiCache() = 0;
+    virtual void writeRunCache() = 0;
+    virtual bool shouldWeCloseOutput() const = 0;
+    virtual bool anyOutputModules() const = 0;
 
     virtual void doErrorStuff() = 0;
 
@@ -74,7 +76,7 @@ namespace edm
 
     virtual void readEvent() = 0;
     virtual void processEvent() = 0;
-    virtual bool shouldWeStop() = 0;
+    virtual bool shouldWeStop() const = 0;
 
     virtual void setExceptionMessageFiles(std::string& message) = 0;
     virtual void setExceptionMessageRuns(std::string& message) = 0;

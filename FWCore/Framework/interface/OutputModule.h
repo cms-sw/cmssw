@@ -183,10 +183,6 @@ namespace edm {
 
     std::string workerType() const {return "OutputWorker";}
 
-    /// Tell the OutputModule this is a convenient time to end the
-    /// current file, in case it wants to do so.
-    void maybeEndFile();
-
     /// Tell the OutputModule that is must end the current file.
     void doCloseFile();
 
@@ -200,6 +196,9 @@ namespace edm {
     void reallyCloseFile();
 
     void registerAnyProducts(boost::shared_ptr<OutputModule>const&, ProductRegistry const*) {}
+
+    /// Ask the OutputModule if we should end the current file.
+    virtual bool shouldWeCloseFile() const {return false;}
 
     virtual void write(EventPrincipal const& e) = 0;
     virtual void beginJob(EventSetup const&){}
@@ -217,7 +216,6 @@ namespace edm {
     virtual void respondToCloseOutputFiles(FileBlock const& fb) {}
 
     virtual bool isFileOpen() const { return true; }
-    virtual bool isFileFull() const { return false; }
 
     virtual void doOpenFile() { }
 
