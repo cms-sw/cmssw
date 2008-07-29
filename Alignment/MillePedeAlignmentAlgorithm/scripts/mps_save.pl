@@ -1,8 +1,8 @@
 #!/usr/local/bin/perl
 #     R. Mankel, DESY Hamburg     11-Oct-2007
 #     A. Parenti, DESY Hamburg    16-Apr-2008
-#     $Revision: 1.5 $
-#     $Date: 2008/05/05 10:26:55 $
+#     $Revision: 1.6 $
+#     $Date: 2008/07/23 12:08:22 $
 #
 #  Save output from jobs that have FETCH status
 #  
@@ -70,7 +70,7 @@ if (@JOBSTATUS[$i] eq "FETCH"
 
   $dirPrefix = "jobData/@JOBDIR[$i]/";
 
-  @FILENAMES = ("treeFile_merge.root","histograms_merge.root",
+  @FILENAMES = ("treeFile_merge.root","histograms_merge.root","millePedeMonitor_merge.root",
 		"alignment_merge.cfg","alignment.log",
 		"alignment.log.gz","millepede.log","millepede.log.gz",
 		"millepede.res","millepede.his","pede.dump",
@@ -79,8 +79,8 @@ if (@JOBSTATUS[$i] eq "FETCH"
   while ($theFile = shift @FILENAMES) {
     $copyFile = $dirPrefix.$theFile;
     if (-r $copyFile) {
-      print "cp $copyFile $saveDir/\n";
-      system "cp $copyFile $saveDir/";
+      print "cp -p $copyFile $saveDir/\n";
+      system "cp -p $copyFile $saveDir/";
       $retcode = $? >> 8;
       if ($retcode) {
 	print "Copy of $copyFile failed, retcode=$retcode\n";
@@ -102,8 +102,8 @@ if (@JOBSTATUS[$i] eq "FETCH"
   while ($theFile = shift @FILENAMES) {
     $copyFile = "jobData/".$theFile;
     if (-r $copyFile) {
-      print "cp $copyFile $saveDir/\n";
-      system "cp $copyFile $saveDir/";
+      print "cp -p $copyFile $saveDir/\n";
+      system "cp -p $copyFile $saveDir/";
       $retcode = $? >> 8;
       if ($retcode) {
 	print "Copy of $copyFile failed, retcode=$retcode\n";
