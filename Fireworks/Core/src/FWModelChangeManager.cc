@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan 17 19:13:46 EST 2008
-// $Id: FWModelChangeManager.cc,v 1.5 2008/03/05 16:43:44 chrjones Exp $
+// $Id: FWModelChangeManager.cc,v 1.6 2008/07/22 15:31:15 chrjones Exp $
 //
 
 // system include files
@@ -84,6 +84,14 @@ FWModelChangeManager::changed(const FWEventItem* iItem)
    m_changes[iItem->id()].clear();
 }
 
+static
+void sendChangeSignalsAreDone(FWModelChangeManager* iCM)
+{
+   //since this can cause other changes, we might as well aggregate them
+   FWChangeSentry sentry(*iCM);
+   iCM->changeSignalsAreDone_();
+}
+
 void 
 FWModelChangeManager::endChanges()
 {
@@ -95,8 +103,8 @@ FWModelChangeManager::endChanges()
           itChanges != m_itemChanges.end();
           ++itChanges) {
          if(0 == guard.get()) {
-            boost::shared_ptr<sigc::signal<void> > done(&changeSignalsAreDone_,
-                                                        boost::mem_fn(&sigc::signal<void>::operator()));
+            boost::shared_ptr<FWModelChangeManager> done(this,
+                                                           &sendChangeSignalsAreDone);
             guard = done;
             changeSignalsAreComing_();
          }
@@ -110,8 +118,8 @@ FWModelChangeManager::endChanges()
           ++itChanges,++itSignal) {
          if(not itChanges->empty()) {
             if(0 == guard.get()) {
-               boost::shared_ptr<sigc::signal<void> > done(&changeSignalsAreDone_,
-                                                            boost::mem_fn(&sigc::signal<void>::operator()));
+               boost::shared_ptr<FWModelChangeManager> done(this,
+                                                              &sendChangeSignalsAreDone);
                guard = done;
                changeSignalsAreComing_();
             }
