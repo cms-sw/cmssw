@@ -100,10 +100,8 @@ void PreshowerClusterShapeProducer::produce(Event& evt, const EventSetup& es) {
 
   CaloSubdetectorTopology* topology_p=0;
   if (geometry)
-    {
-      EcalPreshowerTopology topology(geoHandle);
-      topology_p = &topology;
-    }
+      topology_p = new EcalPreshowerTopology(geoHandle);
+
   
   // fetch the Preshower product (RecHits)
   evt.getByLabel( preshHitProducer_, pRecHits);
@@ -202,6 +200,9 @@ void PreshowerClusterShapeProducer::produce(Event& evt, const EventSetup& es) {
   evt.put(ps_cl_for_pi0_disc_y, PreshowerClusterShapeCollectionY_);  
   
   if ( debugL_pi0 <= EndcapPiZeroDiscriminatorAlgo::pDEBUG ) cout << "PreshowerClusterShapeCollection added to the event" << endl;
+
+  if (topology_p)
+    delete topology_p;
 
   nEvt_++;
 

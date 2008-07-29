@@ -112,10 +112,8 @@ void PreshowerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& e
 
    CaloSubdetectorTopology * topology_p=0;
    if (geometry)
-     {
-       EcalPreshowerTopology topology(geoHandle);
-       topology_p  = &topology;
-     }
+     topology_p  = new EcalPreshowerTopology(geoHandle);
+
    // fetch the product (pSuperClusters)
    evt.getByLabel(endcapSClusterProducer_, pSuperClusters);   
    const reco::SuperClusterCollection* SClusts = pSuperClusters.product();
@@ -247,6 +245,9 @@ void PreshowerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& e
    superclusters_p->assign(new_SC.begin(), new_SC.end());
    evt.put(superclusters_p, assocSClusterCollection_);
    if ( debugL <= PreshowerClusterAlgo::pINFO ) std::cout << "Corrected SClusters added to the event" << std::endl;
+
+   if (topology_p)
+     delete topology_p;
 
    nEvt_++;
 
