@@ -11,7 +11,18 @@ process.load("Configuration.StandardSequences.DigiToRaw_cff")
 process.load("Configuration.StandardSequences.RawToDigi_cff")
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("Configuration.StandardSequences.FakeConditions_cff")
+
+# For only regular objects
 process.load("HeavyIonsAnalysis.Configuration.Reconstruction_PbPb_cff")
+
+# For including Heavy Ion Objects
+# Don't forget to do first:
+#
+# cvs co RecoHI
+# cvs co DataFormats/HevayIonEvent
+#
+#process.load("HeavyIonsAnalysis.Configuration.Reconstruction_HI_cff")
+
 process.load("HeavyIonsAnalysis.Configuration.HIAnalysisEventContent_cff")
 
 process.maxEvents = cms.untracked.PSet(
