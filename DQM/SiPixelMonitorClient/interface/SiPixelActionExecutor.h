@@ -32,7 +32,8 @@ class SiPixelActionExecutor {
 				    int 			 & sum_grandbarrel_freq, 
 				    int 			 & sum_grandendcap_freq,
 				    int 			 & message_limit,
-                                    int                          & source_type);
+                                    int                          & source_type,
+				    int                          & calib_type);
  bool readConfiguration(	    int 			 & tkmap_freq, 
                         	    int 			 & summary_freq);
  void readConfiguration(	    );
@@ -78,7 +79,7 @@ private:
   
   int message_limit_;
   int source_type_;
-  
+  int calib_type_;  
   int ndet_;
   
   QTestHandle* qtHandler_;

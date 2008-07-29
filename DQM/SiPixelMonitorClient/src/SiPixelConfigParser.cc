@@ -470,6 +470,24 @@ bool SiPixelConfigParser::getSourceType(int& u_freq) {
   return true;
 }
 
+bool SiPixelConfigParser::getCalibType(int& u_freq) {
+  if (!doc) {
+    cout << " SiPixelConfigParser::Configuration File is not set!!! " << endl;
+    return false;
+  }
+  unsigned int structureNodes = doc->getElementsByTagName(qtxml::_toDOMS("CalibType"))->getLength();
+  if (structureNodes == 0) return false;
+  /// Get Node
+  DOMNode* structureNode = doc->getElementsByTagName(qtxml::_toDOMS("CalibType"))->item(0);
+ //Get Node name
+  if (! structureNode) return false;
+  DOMElement* structureElement = static_cast<DOMElement *>(structureNode);          
+  if (! structureElement) return false;
+		
+  u_freq = atoi(qtxml::_toString(structureElement->getAttribute(qtxml::_toDOMS("value"))).c_str());
+  return true;
+}
+
 
 
 

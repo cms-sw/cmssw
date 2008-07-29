@@ -176,4 +176,10 @@
 </SourceType>
 </Source>
 
+<Calib>
+<CalibType name="use" value="1">
+</CalibType>
+</Calib>
+
+
 </MonElementConfiguration> 

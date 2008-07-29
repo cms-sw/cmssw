@@ -155,10 +155,7 @@ void SiPixelEDAClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
 
   nLumiSecs_++;
 
-  cout << "====================================================== " << endl;
-  cout << " ===> Iteration # " << nLumiSecs_ << " " 
-                               << lumiSeg.luminosityBlock() << endl;
-  cout << "====================================================== " << endl;
+  edm::LogInfo("SiPixelEDAClient") << "====================================================== " << endl << " ===> Iteration # " << nLumiSecs_ << " " << lumiSeg.luminosityBlock() << endl  << "====================================================== " << endl;
 
 
   // -- Create summary monitor elements according to the frequency
