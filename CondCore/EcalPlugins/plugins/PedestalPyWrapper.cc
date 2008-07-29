@@ -36,7 +36,7 @@ namespace cond {
     ecalped::Quantity m_quantity;
     ecalped::How m_how;
 
-    ecalped::Quantity & quantity)_ { return m_quantity;}
+    ecalped::Quantity & quantity() { return m_quantity;}
     ecalped::How & how() { return m_how;}
   };
 

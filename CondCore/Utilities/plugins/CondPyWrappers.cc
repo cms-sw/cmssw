@@ -84,7 +84,7 @@ namespace {
 BOOST_PYTHON_MODULE(pluginCondDBPyInterface) {
   
 
-  class_<cond::LogDBEntry>("cond::LogDBEntry")
+  class_<cond::LogDBEntry>("LogDBEntry")
     .def("getState",getState)
     .def_readonly("logId",  &cond::LogDBEntry::logId)
     .def_readonly("destinationDB",   &cond::LogDBEntry::destinationDB)   
