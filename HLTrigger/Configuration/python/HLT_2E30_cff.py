@@ -1,4 +1,4 @@
-# /dev/CMSSW_2_1_0_pre10/HLT/V1 (CMSSW_2_1_0_pre10)
+# /dev/CMSSW_2_1_0_pre10/HLT/V5 (CMSSW_2_1_X_2008-07-29-0800_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -173,6 +173,7 @@ MeasurementTracker = cms.ESProducer( "MeasurementTrackerESProducer",
   DebugStripModuleQualityDB = cms.untracked.bool( False ),
   UseStripAPVFiberQualityDB = cms.bool( False ),
   DebugStripAPVFiberQualityDB = cms.untracked.bool( False ),
+  MaskBadAPVFibers = cms.bool( False ),
   UseStripStripQualityDB = cms.bool( False ),
   DebugStripStripQualityDB = cms.untracked.bool( False ),
   pixelClusterProducer = cms.string( "hltSiPixelClusters" ),
@@ -632,8 +633,7 @@ hltL1s1jet30 = cms.EDFilter( "HLTLevel1GTSeed",
 )
 hltPre1jet30 = cms.EDFilter( "HLTPrescaler" )
 hltEcalPreshowerDigis = cms.EDProducer( "ESRawToDigi",
-    Label = cms.string( "rawDataCollector" ),
-    InstanceES = cms.string( "" ),
+    sourceTag = cms.InputTag( "rawDataCollector" ),
     ESdigiCollection = cms.string( "" )
 )
 hltEcalRegionalRestFEDs = cms.EDProducer( "EcalListOfFEDSProducer",
@@ -4619,7 +4619,7 @@ hltSingleMuNoIsoL1Filtered = cms.EDFilter( "HLTMuonL1Filter",
 hltMuonDTDigis = cms.EDProducer( "DTUnpackingModule",
     dataType = cms.string( "DDU" ),
     fedbyType = cms.untracked.bool( False ),
-    fedColl = cms.untracked.string( "rawDataCollector" ),
+    inputLabel = cms.untracked.InputTag( "rawDataCollector" ),
     readOutParameters = cms.PSet( 
       localDAQ = cms.untracked.bool( False ),
       performDataIntegrityMonitor = cms.untracked.bool( False ),
@@ -5505,7 +5505,7 @@ hltL3MuonIsolations = cms.EDProducer( "L3MuonIsolationProducer",
     OutputMuIsoDeposits = cms.bool( True ),
     TrackPt_Min = cms.double( -1.0 ),
     ExtractorPSet = cms.PSet( 
-      ComponentName = cms.string( "TrackExtractor" ),
+      ComponentName = cms.string( "PixelTrackExtractor" ),
       inputTrackCollection = cms.InputTag( "hltPixelTracks" ),
       DepositLabel = cms.untracked.string( "PXLS" ),
       Diff_r = cms.double( 0.1 ),
