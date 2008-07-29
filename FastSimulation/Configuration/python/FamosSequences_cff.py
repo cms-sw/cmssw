@@ -21,7 +21,6 @@ from FastSimulation.TrackingRecHitProducer.SiTrackerGaussianSmearingRecHitConver
 # Rec Hit Tranlator to the Full map with DeTId'
 from FastSimulation.TrackingRecHitProducer.TrackingRecHitTranslator_cfi import *
 
-
 # CTF and Iterative tracking (contains pixelTracks and pixelVertices)
 
 # 1) Common algorithms and configuration taken from full reconstruction
