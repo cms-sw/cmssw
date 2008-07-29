@@ -13,8 +13,8 @@
  * in ORCA).
  * Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch), May 2006.
  *
- * $Date: 2008/07/06 05:17:00 $
- * $Revision: 1.12 $
+ * $Date: 2008/07/14 14:30:26 $
+ * $Revision: 1.13 $
  *
  */
 
@@ -70,12 +70,6 @@ class CSCAnodeLCTProcessor
   /** Returns vector of found ALCTs, if any. */
   std::vector<CSCALCTDigi> getALCTs();
 
-  /** Access to times on wires on any layer. */
-  std::vector<int> wireHits(const int layer) const;
-
-  /** Access to time on single wire on any layer. */
-  int wireHit(const int layer, const int wire) const;
-
   /** Pre-defined patterns. */
   enum {NUM_PATTERN_WIRES = 14};
   static const int pattern_envelope[CSCConstants::NUM_ALCT_PATTERNS][NUM_PATTERN_WIRES];
@@ -104,8 +98,6 @@ class CSCAnodeLCTProcessor
   std::vector<CSCWireDigi> digiV[CSCConstants::NUM_LAYERS];
   unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES];
 
-  std::vector<int> theWireHits[CSCConstants::NUM_LAYERS];
-
   /** Flag for MTCC data. */
   bool isMTCC;
 
@@ -117,6 +109,13 @@ class CSCAnodeLCTProcessor
   unsigned int nph_thresh, nph_pattern, acc_thresh, acc_pattern;
   unsigned int trig_mode, alct_amode, l1a_window;
 
+  /** Default values of configuration parameters. */
+  static const unsigned int def_fifo_tbins, def_fifo_pretrig;
+  static const unsigned int def_bx_width,   def_drift_delay;
+  static const unsigned int def_nph_thresh, def_nph_pattern;
+  static const unsigned int def_acc_thresh, def_acc_pattern;
+  static const unsigned int def_trig_mode, def_alct_amode, def_l1a_window;
+
   /** Chosen pattern mask. */
   int pattern_mask[CSCConstants::NUM_ALCT_PATTERNS][NUM_PATTERN_WIRES];
 
@@ -124,7 +123,7 @@ class CSCAnodeLCTProcessor
   void setDefaultConfigParameters();
 
   /** Make sure that the parameter values are within the allowed range. */
-  void checkConfigParameters() const;
+  void checkConfigParameters();
 
   /** Clears the quality for a given wire and pattern if it is a ghost. */
   void clear(const int wire, const int pattern);
@@ -148,15 +147,6 @@ class CSCAnodeLCTProcessor
 
   /** Dump digis on wire groups. */
   void dumpDigis(const int wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]) const;
-
-  /** Set times on all layers for all wires. */
-  void saveAllHits(const int wires[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]);
-
-  /** Set times on wires on any layer. */
-  void setWireHits(const int layer, const std::vector<int>& wireHits);
-
-  /** Set time on single wire on any layer. */
-  void setWireHit(const int layer, const int wire, const int hit);
 
   void showPatterns(const int key_wire);
 };

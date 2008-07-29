@@ -22,8 +22,8 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Date: 2008/05/09 16:39:12 $
-//   $Revision: 1.26 $
+//   $Date: 2008/07/06 05:17:00 $
+//   $Revision: 1.27 $
 //
 //   Modifications: 
 //
@@ -218,6 +218,19 @@ const int CSCCathodeLCTProcessor::pattern2007[CSCConstants::NUM_CLCT_PATTERNS][N
     999, 999, 999, 999,   5,   5,   5, 999, 999, 999, 999,  0}
 };
 
+// Default values of configuration parameters.
+const unsigned int CSCCathodeLCTProcessor::def_bx_width     =  6;
+const unsigned int CSCCathodeLCTProcessor::def_drift_delay  =  2;
+const unsigned int CSCCathodeLCTProcessor::def_hs_thresh    =  2;
+const unsigned int CSCCathodeLCTProcessor::def_ds_thresh    =  2;
+const unsigned int CSCCathodeLCTProcessor::def_nph_pattern  =  4;
+const unsigned int CSCCathodeLCTProcessor::def_fifo_tbins   = 12;
+const unsigned int CSCCathodeLCTProcessor::def_fifo_pretrig =  7;
+const unsigned int CSCCathodeLCTProcessor::def_hit_thresh   =  2;
+const unsigned int CSCCathodeLCTProcessor::def_pid_thresh   =  2;
+const unsigned int CSCCathodeLCTProcessor::def_sep_src      =  1;
+const unsigned int CSCCathodeLCTProcessor::def_sep_vme      = 10;
+
 // Number of di-strips/half-strips per CFEB.
 const int CSCCathodeLCTProcessor::cfeb_strips[2] = { 8, 32};
 
@@ -319,21 +332,21 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor() :
 
 void CSCCathodeLCTProcessor::setDefaultConfigParameters() {
   // Set default values for configuration parameters.
-  fifo_tbins   = 12;
-  fifo_pretrig =  7;
-  bx_width     =  6;
-  drift_delay  =  2;
-  hs_thresh    =  2;
-  ds_thresh    =  2;
-  nph_pattern  =  4;
+  fifo_tbins   = def_fifo_tbins;
+  fifo_pretrig = def_fifo_pretrig;
+  bx_width     = def_bx_width;
+  drift_delay  = def_drift_delay;
+  hs_thresh    = def_hs_thresh;
+  ds_thresh    = def_ds_thresh;
+  nph_pattern  = def_nph_pattern;
 
   // New TMB07 parameters.
-  isTMB07      = false;
+  isTMB07      = true;
   if (isTMB07) {
-    hit_thresh =  2;
-    pid_thresh =  2;
-    sep_src    =  1;
-    sep_vme    = 10;
+    hit_thresh = def_hit_thresh;
+    pid_thresh = def_pid_thresh;
+    sep_src    = def_sep_src;
+    sep_vme    = def_sep_vme;
   }
 
   isMTCC       = false;
@@ -367,7 +380,7 @@ void CSCCathodeLCTProcessor::setConfigParameters(const CSCL1TPParameters* conf) 
   }
 }
 
-void CSCCathodeLCTProcessor::checkConfigParameters() const {
+void CSCCathodeLCTProcessor::checkConfigParameters() {
   // Make sure that the parameter values are within the allowed range.
 
   // Max expected values.
@@ -386,61 +399,94 @@ void CSCCathodeLCTProcessor::checkConfigParameters() const {
 
   // Checks.
   if (fifo_tbins >= max_fifo_tbins) {
-    throw cms::Exception("CSCCathodeLCTProcessor")
+    edm::LogError("CSCCathodeLCTProcessor")
       << "+++ Value of fifo_tbins, " << fifo_tbins
-      << ", exceeds max allowed, " << max_fifo_tbins-1 << " +++\n";
+      << ", exceeds max allowed, " << max_fifo_tbins-1 << " +++\n"
+      << "+++ Try to proceed with the default value, fifo_tbins="
+      << def_fifo_tbins << " +++\n";
+    fifo_tbins = def_fifo_tbins;
   }
   if (fifo_pretrig >= max_fifo_pretrig) {
-    throw cms::Exception("CSCCathodeLCTProcessor")
+    edm::LogError("CSCCathodeLCTProcessor")
       << "+++ Value of fifo_pretrig, " << fifo_pretrig
-      << ", exceeds max allowed, " << max_fifo_pretrig-1 << " +++\n";
+      << ", exceeds max allowed, " << max_fifo_pretrig-1 << " +++\n"
+      << "+++ Try to proceed with the default value, fifo_pretrig="
+      << def_fifo_pretrig << " +++\n";
+    fifo_pretrig = def_fifo_pretrig;
   }
   if (bx_width >= max_bx_width) {
-    throw cms::Exception("CSCCathodeLCTProcessor")
+    edm::LogError("CSCCathodeLCTProcessor")
       << "+++ Value of bx_width, " << bx_width
-      << ", exceeds max allowed, " << max_bx_width-1 << " +++\n";
+      << ", exceeds max allowed, " << max_bx_width-1 << " +++\n"
+      << "+++ Try to proceed with the default value, bx_width="
+      << def_bx_width << " +++\n";
+    bx_width = def_bx_width;
   }
   if (drift_delay >= max_drift_delay) {
-    throw cms::Exception("CSCCathodeLCTProcessor")
+    edm::LogError("CSCCathodeLCTProcessor")
       << "+++ Value of drift_delay, " << drift_delay
-      << ", exceeds max allowed, " << max_drift_delay-1 << " +++\n";
+      << ", exceeds max allowed, " << max_drift_delay-1 << " +++\n"
+      << "+++ Try to proceed with the default value, drift_delay="
+      << def_drift_delay << " +++\n";
+    drift_delay = def_drift_delay;
   }
   if (hs_thresh >= max_hs_thresh) {
-    throw cms::Exception("CSCCathodeLCTProcessor")
+    edm::LogError("CSCCathodeLCTProcessor")
       << "+++ Value of hs_thresh, " << hs_thresh
-      << ", exceeds max allowed, " << max_hs_thresh-1 << " +++\n";
+      << ", exceeds max allowed, " << max_hs_thresh-1 << " +++\n"
+      << "+++ Try to proceed with the default value, hs_thresh="
+      << def_hs_thresh << " +++\n";
+    hs_thresh = def_hs_thresh;
   }
   if (ds_thresh >= max_ds_thresh) {
-    throw cms::Exception("CSCCathodeLCTProcessor")
+    edm::LogError("CSCCathodeLCTProcessor")
       << "+++ Value of ds_thresh, " << ds_thresh
-      << ", exceeds max allowed, " << max_ds_thresh-1 << " +++\n";
+      << ", exceeds max allowed, " << max_ds_thresh-1 << " +++\n"
+      << "+++ Try to proceed with the default value, ds_thresh="
+      << def_ds_thresh << " +++\n";
+    ds_thresh = def_ds_thresh;
   }
   if (nph_pattern >= max_nph_pattern) {
-    throw cms::Exception("CSCCathodeLCTProcessor")
+    edm::LogError("CSCCathodeLCTProcessor")
       << "+++ Value of nph_pattern, " << nph_pattern
-      << ", exceeds max allowed, " << max_nph_pattern-1 << " +++\n";
+      << ", exceeds max allowed, " << max_nph_pattern-1 << " +++\n"
+      << "+++ Try to proceed with the default value, nph_pattern="
+      << def_nph_pattern << " +++\n";
+    nph_pattern = def_nph_pattern;
   }
 
   if (isTMB07) {
     if (hit_thresh >= max_hit_thresh) {
-      throw cms::Exception("CSCCathodeLCTProcessor")
+      edm::LogError("CSCCathodeLCTProcessor")
 	<< "+++ Value of hit_thresh, " << hit_thresh
-	<< ", exceeds max allowed, " << max_hit_thresh-1 << " +++\n";
+	<< ", exceeds max allowed, " << max_hit_thresh-1 << " +++\n"
+	<< "+++ Try to proceed with the default value, hit_thresh="
+	<< def_hit_thresh << " +++\n";
+      hit_thresh = def_hit_thresh;
     }
     if (pid_thresh >= max_pid_thresh) {
-      throw cms::Exception("CSCCathodeLCTProcessor")
+      edm::LogError("CSCCathodeLCTProcessor")
 	<< "+++ Value of pid_thresh, " << pid_thresh
-	<< ", exceeds max allowed, " << max_pid_thresh-1 << " +++\n";
+	<< ", exceeds max allowed, " << max_pid_thresh-1 << " +++\n"
+	<< "+++ Try to proceed with the default value, pid_thresh="
+	<< def_pid_thresh << " +++\n";
+      pid_thresh = def_pid_thresh;
     }
     if (sep_src >= max_sep_src) {
-      throw cms::Exception("CSCCathodeLCTProcessor")
+      edm::LogError("CSCCathodeLCTProcessor")
 	<< "+++ Value of sep_src, " << sep_src
-	<< ", exceeds max allowed, " << max_sep_src-1 << " +++\n";
+	<< ", exceeds max allowed, " << max_sep_src-1 << " +++\n"
+	<< "+++ Try to proceed with the default value, sep_src="
+	<< def_sep_src << " +++\n";
+      sep_src = def_sep_src;
     }
     if (sep_vme >= max_sep_vme) {
-      throw cms::Exception("CSCCathodeLCTProcessor")
+      edm::LogError("CSCCathodeLCTProcessor")
 	<< "+++ Value of sep_vme, " << sep_vme
-	<< ", exceeds max allowed, " << max_sep_vme-1 << " +++\n";
+	<< ", exceeds max allowed, " << max_sep_vme-1 << " +++\n"
+	<< "+++ Try to proceed with the default value, sep_vme="
+	<< def_sep_vme << " +++\n";
+      sep_vme = def_sep_vme;
     }
   }    
 }
@@ -478,10 +524,16 @@ CSCCathodeLCTProcessor::run(const CSCComparatorDigiCollection* compdc) {
       }
 
       if (numStrips > CSCConstants::MAX_NUM_STRIPS) {
-	throw cms::Exception("CSCCathodeLCTProcessor")
+	edm::LogWarning("CSCCathodeLCTProcessor")
 	  << "+++ Number of strips, " << numStrips
-	  << ", exceeds max expected, " << CSCConstants::MAX_NUM_STRIPS
-	  << " +++" << std::endl;
+	  << ", in CSC [endcap = " << theEndcap
+	  << " station = " << theStation << " sector = " << theSector
+	  << " subsector = " << theSubsector
+	  << " trig. id = " << theTrigChamber
+	  << "] exceeds max expected, " << CSCConstants::MAX_NUM_STRIPS
+	  << " +++\n" 
+	  << "+++ CSC geometry looks garbled; no emulation possible +++\n";
+	numStrips = -1;
       }
       // The strips for a given layer may be offset from the adjacent layers.
       // This was done in order to improve resolution.  We need to find the
@@ -503,13 +555,24 @@ CSCCathodeLCTProcessor::run(const CSCComparatorDigiCollection* compdc) {
     }
     else {
       edm::LogWarning("CSCCathodeLCTProcessor")
-	<< "+++ CSC chamber (endcap = " << theEndcap
+	<< "+++ CSC chamber [endcap = " << theEndcap
 	<< " station = " << theStation << " sector = " << theSector
 	<< " subsector = " << theSubsector << " trig. id = " << theTrigChamber
-	<< ") is not defined in current geometry!"
-	<< " Set numStrips to zero +++" << "\n";
-      numStrips = 0;
+	<< "] is not defined in current geometry! +++\n"
+	<< "+++ CSC geometry looks garbled; no emulation possible +++\n";
+      numStrips = -1;
     }
+  }
+
+  if (numStrips < 0) {
+    LogTrace("CSCCathodeLCTProcessor")
+      << "+++ CSC [endcap = " << theEndcap << " station = " << theStation
+      << " sector = " << theSector << " subsector = " << theSubsector
+      << " trig. id = " << theTrigChamber << "]:"
+      << " numStrips = " << numStrips
+      << "; CLCT emulation skipped! +++";
+    std::vector<CSCCLCTDigi> emptyV;
+    return emptyV;
   }
 
   // Get comparator digis in this chamber.
@@ -545,18 +608,20 @@ CSCCathodeLCTProcessor::run(const CSCComparatorDigiCollection* compdc) {
 	// that fired.
 	int thisComparator = thisDigi.getComparator();
 	if (thisComparator != 0 && thisComparator != 1) {
-	  throw cms::Exception("CSCCathodeLCTProcessor")
+	  edm::LogWarning("CSCCathodeLCTProcessor")
 	    << "+++ Comparator digi with wrong comparator value: digi #" << j
-	    << ", comparator = " << thisComparator << " +++" << std::endl;
+	    << ", comparator = " << thisComparator << "; skipping it... +++\n";
+	  continue;
 	}
 
 	// Get strip number.
 	int thisStrip = thisDigi.getStrip() - 1; // count from 0
 	if (thisStrip < 0 || thisStrip >= numStrips) {
-	  throw cms::Exception("CSCCathodeLCTProcessor")
+	  edm::LogWarning("CSCCathodeLCTProcessor")
 	    << "+++ Comparator digi with wrong strip number: digi #" << j
 	    << ", strip = " << thisStrip
-	    << ", max strips = " << numStrips << " +++" << std::endl;
+	    << ", max strips = " << numStrips << "; skipping it... +++\n";
+	  continue;
 	}
 	int diStrip = thisStrip/2; // [0-39]
 
@@ -590,7 +655,8 @@ CSCCathodeLCTProcessor::run(const CSCComparatorDigiCollection* compdc) {
 	else {
 	  edm::LogWarning("CSCCathodeLCTProcessor")
 	    << "Unexpected BX time of comparator digi: strip = " << thisStrip
-	    << ", layer = " << i << ", bx = " << thisDigiBx << " +++\n";
+	    << ", layer = " << i << ", bx = " << thisDigiBx
+	    << "; skipping it... +++\n";
 	}
       }
     }
@@ -639,9 +705,10 @@ void CSCCathodeLCTProcessor::run(int triad[CSCConstants::NUM_LAYERS][CSCConstant
 	// triad  : comparator output
 	// stagger: stagger for this layer
 	if (i_halfstrip >= 2*numStrips + 1) {
-	  throw cms::Exception("CSCCathodeLCTProcessor")
-	    << "+++ Found wrong halfstrip number = " << i_halfstrip << " +++"
-	    << std::endl;
+	  edm::LogWarning("CSCCathodeLCTProcessor")
+	    << "+++ Found wrong halfstrip number = " << i_halfstrip
+	    << "; skipping this digi... +++\n";
+	  continue;
 	}
 	halfstrip[i][i_halfstrip] = time[i][j];
       }
@@ -670,9 +737,10 @@ void CSCCathodeLCTProcessor::run(int triad[CSCConstants::NUM_LAYERS][CSCConstant
 	    test_iteration++;
 	  }
 	  if (i_distrip >= numStrips/2 + 1) {
-	    throw cms::Exception("CSCCathodeLCTProcessor")
-	      << "+++ Found wrong distrip number = " << i_distrip << " +++"
-	      << std::endl;
+	    edm::LogWarning("CSCCathodeLCTProcessor")
+	      << "+++ Found wrong distrip number = " << i_distrip
+	      << "; skipping this digi... +++\n";
+	    continue;
 	  }
 	  distrip[i][i_distrip] = time[i][j];
 	}
@@ -680,9 +748,6 @@ void CSCCathodeLCTProcessor::run(int triad[CSCConstants::NUM_LAYERS][CSCConstant
     }
   }
   
-  // Save all hits into vectors if needed.
-  // saveAllHits(distrip, halfstrip);
-
   // Now to do the real work of the CathodeProcessor: make a vector of the
   // possible halfstrip LCT candidates and a vector of the distrip LCT 
   // candidates.  Subtract 1 to account for staggering.
@@ -818,8 +883,10 @@ void CSCCathodeLCTProcessor::distripStagger(int stag_triad[CSCConstants::MAX_NUM
   // to the one strip over.
 
   if (i_strip >= CSCConstants::MAX_NUM_STRIPS) {
-    throw cms::Exception("CSCCathodeLCTProcessor")
-      << "+++ Found wrong strip number = " << i_strip << " +++" << std::endl;
+    edm::LogWarning("CSCCathodeLCTProcessor")
+      << "+++ Found wrong strip number = " << i_strip
+      << "; cannot apply distrip staggering... +++\n";
+    return;
   }
 
   if (debug)
@@ -1376,9 +1443,10 @@ bool CSCCathodeLCTProcessor::preTrigLookUp(
   const int pre_trigger_layer_min = (stripType == 1) ? hs_thresh : ds_thresh;
 
   if (stripType != 0 && stripType != 1) {
-    throw cms::Exception("CSCCathodeLCTProcessor")
+    edm::LogWarning("CSCCathodeLCTProcessor")
       << "+++ preTrigLookUp: stripType = " << stripType
       << " does not correspond to half-strip/di-strip patterns! +++\n";
+    return false;
   }
 
   for (int icfeb = 0; icfeb < MAX_CFEBS; icfeb++) { // loop over cfebs
@@ -1430,16 +1498,20 @@ void CSCCathodeLCTProcessor::latchLCTs(
   int key_strip, this_layer, this_strip;
   int layers_hit, prev_hits;
 
+  for (int icfeb = 0; icfeb < MAX_CFEBS; icfeb++) {
+    keyStrip[icfeb] = -1;
+    nhits[icfeb]    =  0;
+  }
+
   if (stripType != 0 && stripType != 1) {
-    throw cms::Exception("CSCCathodeLCTProcessor")
+    edm::LogWarning("CSCCathodeLCTProcessor")
       << "+++ latchLCTs: stripType = " << stripType
       << " does not correspond to half-strip/di-strip patterns! +++\n";
+    return;
   }
 
   for (int icfeb = 0; icfeb < MAX_CFEBS; icfeb++) { // loop over CFEBs
     prev_hits = 0;
-    keyStrip[icfeb] = -1;
-    nhits[icfeb]    =  0;
     // Loop over (di-/half-)strips in CFEB.
     for (int istrip = 0; istrip < cfeb_strips[stripType]; istrip++) {
       // Calculate candidate key.
@@ -2105,127 +2177,6 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::getCLCTs() {
   if (secondCLCT.isValid()) tmpV.push_back(secondCLCT);
   return tmpV;
 }
-
-void CSCCathodeLCTProcessor::saveAllHits(
- const int distrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
- const int halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS]){
-
-  for (int i = 0; i < CSCConstants::NUM_LAYERS; i++){
-    theDiStripHits[i].clear();
-    theHalfStripHits[i].clear();
-  }
-
-  // Routine which stores time hits on strips so that this information
-  // can be accessed by routines outside of this class.
-  for (int i = 0; i < CSCConstants::NUM_LAYERS; i++){
-    for (int j = 0; j < CSCConstants::NUM_DI_STRIPS; j++){
-      theDiStripHits[i].push_back(distrip[i][j]);
-    }
-    for (int j = 0; j < CSCConstants::NUM_HALF_STRIPS; j++){
-      theHalfStripHits[i].push_back(halfstrip[i][j]);
-    }
-  }
-}
-
-void CSCCathodeLCTProcessor::setHalfStripHits(const int layer, 
-				          const std::vector<int>& hStripHits) {
-  if (layer >= 0 && layer < CSCConstants::NUM_LAYERS &&
-      int(hStripHits.size()) <= CSCConstants::NUM_HALF_STRIPS) {
-    theHalfStripHits[layer] = hStripHits;
-  }
-  else {
-    throw cms::Exception("CSCCathodeLCTProcessor")
-      << "setHalfStripHits out of bounds!!! layer = " << layer
-      << ", hStripHits.size = " << hStripHits.size() << "!" << std::endl;
-  }
-}
-
-std::vector<int> CSCCathodeLCTProcessor::halfStripHits(const int layer) const {
-  if (layer >= 0 && layer < CSCConstants::NUM_LAYERS) {
-    return theHalfStripHits[layer];
-  }
-  else {
-    throw cms::Exception("CSCCathodeLCTProcessor")
-      << "halfStripHits called with wrong layer = " << layer << "!"
-      << std::endl;
-  }
-}
-
-void CSCCathodeLCTProcessor::setHalfStripHit(const int layer, const int strip,
-					     const int hit) {
-  if ((layer >= 0 && layer < CSCConstants::NUM_LAYERS) &&
-      (strip >= 0 && strip < CSCConstants::NUM_HALF_STRIPS)) {
-    theHalfStripHits[layer][strip] = hit;
-  }
-  else {
-    throw cms::Exception("CSCCathodeLCTProcessor")
-      << "setHalfStripHit called with wrong parameter(s): layer = " << layer
-      << ", strip = " << strip << "!" << std::endl;
-  }
-}
-
-int CSCCathodeLCTProcessor::halfStripHit(const int layer,
-					 const int strip) const {
-  if ((layer >= 0 && layer < CSCConstants::NUM_LAYERS) &&
-      (strip >= 0 && strip < CSCConstants::NUM_HALF_STRIPS)) {
-    return theHalfStripHits[layer][strip];
-  }
-  else {
-    throw cms::Exception("CSCCathodeLCTProcessor")
-      << "halfStripHit called with wrong parameter(s): layer = " << layer
-      << ", strip = " << strip << "!" << std::endl;
-  }
-}
-
-void CSCCathodeLCTProcessor::setDiStripHits(const int layer, 
-					  const std::vector<int>& dStripHits) {
-  if (layer >= 0 && layer < CSCConstants::NUM_LAYERS &&
-      int(dStripHits.size()) <= CSCConstants::NUM_DI_STRIPS) {
-    theDiStripHits[layer] = dStripHits;
-  }
-  else {
-    throw cms::Exception("CSCCathodeLCTProcessor")
-      << "setDiStripHits out of bounds!!! layer = " << layer
-      << ", dStripHits.size = " << dStripHits.size() << "!" << std::endl;
-  }
-}
-
-std::vector<int> CSCCathodeLCTProcessor::diStripHits(const int layer) const {
-  if (layer >= 0 && layer < CSCConstants::NUM_LAYERS) {
-    return theDiStripHits[layer];
-  }
-  else {
-    throw cms::Exception("CSCCathodeLCTProcessor")
-      << "diStripHits called with wrong layer = " << layer << "!" << std::endl;
-  }
-}
-
-void CSCCathodeLCTProcessor::setDiStripHit(const int layer, const int strip,
-					   const int hit) {
-  if ((layer >= 0 && layer < CSCConstants::NUM_LAYERS) &&
-      (strip >= 0 && strip < CSCConstants::NUM_DI_STRIPS)) {
-    theDiStripHits[layer][strip] = hit;
-  }
-  else {
-    throw cms::Exception("CSCCathodeLCTProcessor")
-      << "setDiStripHit called with wrong parameter(s): layer = " << layer
-      << ", strip = " << strip << "!" << std::endl;
-  }
-}
-
-int CSCCathodeLCTProcessor::diStripHit(const int layer,
-				       const int strip) const {
-  if ((layer >= 0 && layer < CSCConstants::NUM_LAYERS) &&
-      (strip >= 0 && strip < CSCConstants::NUM_DI_STRIPS)) {
-    return theDiStripHits[layer][strip];
-  }
-  else {
-    throw cms::Exception("CSCCathodeLCTProcessor")
-      << "diStripHit called with wrong parameter(s): layer = " << layer
-      << ", strip = " << strip << "!" << std::endl;
-  }
-}
-
 
 ////////////////////////////////////////////////////////////////////////
 ////////////////////////////Test Routines///////////////////////////////

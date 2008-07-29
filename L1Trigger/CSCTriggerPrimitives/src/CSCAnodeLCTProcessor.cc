@@ -20,8 +20,8 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Date: 2008/07/06 05:17:00 $
-//   $Revision: 1.24 $
+//   $Date: 2008/07/14 14:30:26 $
+//   $Revision: 1.25 $
 //
 //   Modifications: 
 //
@@ -124,6 +124,19 @@ const int CSCAnodeLCTProcessor::pattern_mask_MTCC[CSCConstants::NUM_ALCT_PATTERN
            1,  1,  1}
 };
 
+// Default values of configuration parameters.
+const unsigned int CSCAnodeLCTProcessor::def_fifo_tbins   = 16;
+const unsigned int CSCAnodeLCTProcessor::def_fifo_pretrig = 10;
+const unsigned int CSCAnodeLCTProcessor::def_bx_width     =  6;
+const unsigned int CSCAnodeLCTProcessor::def_drift_delay  =  2;
+const unsigned int CSCAnodeLCTProcessor::def_nph_thresh   =  2;
+const unsigned int CSCAnodeLCTProcessor::def_nph_pattern  =  4;
+const unsigned int CSCAnodeLCTProcessor::def_acc_thresh   =  2;
+const unsigned int CSCAnodeLCTProcessor::def_acc_pattern  =  4;
+const unsigned int CSCAnodeLCTProcessor::def_trig_mode    =  2;  // 3?
+const unsigned int CSCAnodeLCTProcessor::def_alct_amode   =  0;  // 1?
+const unsigned int CSCAnodeLCTProcessor::def_l1a_window   =  7;  // 5?
+
 //----------------
 // Constructors --
 //----------------
@@ -138,17 +151,17 @@ CSCAnodeLCTProcessor::CSCAnodeLCTProcessor(unsigned endcap, unsigned station,
   static bool config_dumped = false;
 
   // ALCT configuration parameters.
-  fifo_tbins   = conf.getParameter<unsigned int>("alctFifoTbins");  // def = 16
-  fifo_pretrig = conf.getParameter<unsigned int>("alctFifoPretrig");// def = 10
-  bx_width     = conf.getParameter<unsigned int>("alctBxWidth");    // def = 6
-  drift_delay  = conf.getParameter<unsigned int>("alctDriftDelay"); // def = 3
-  nph_thresh   = conf.getParameter<unsigned int>("alctNphThresh");  // def = 2
-  nph_pattern  = conf.getParameter<unsigned int>("alctNphPattern"); // def = 4
-  acc_thresh   = conf.getParameter<unsigned int>("alctAccThresh");  // def = 2
-  acc_pattern  = conf.getParameter<unsigned int>("alctAccPattern"); // def = 4
-  trig_mode    = conf.getParameter<unsigned int>("alctTrigMode");   // def = 3
-  alct_amode   = conf.getParameter<unsigned int>("alctMode");       // def = 1
-  l1a_window   = conf.getParameter<unsigned int>("alctL1aWindow");  // def = 5
+  fifo_tbins   = conf.getParameter<unsigned int>("alctFifoTbins");
+  fifo_pretrig = conf.getParameter<unsigned int>("alctFifoPretrig");
+  bx_width     = conf.getParameter<unsigned int>("alctBxWidth");
+  drift_delay  = conf.getParameter<unsigned int>("alctDriftDelay");
+  nph_thresh   = conf.getParameter<unsigned int>("alctNphThresh");
+  nph_pattern  = conf.getParameter<unsigned int>("alctNphPattern");
+  acc_thresh   = conf.getParameter<unsigned int>("alctAccThresh");
+  acc_pattern  = conf.getParameter<unsigned int>("alctAccPattern");
+  trig_mode    = conf.getParameter<unsigned int>("alctTrigMode");
+  alct_amode   = conf.getParameter<unsigned int>("alctMode");
+  l1a_window   = conf.getParameter<unsigned int>("alctL1aWindow");
 
   // Verbosity level, set to 0 (no print) by default.
   infoV        = conf.getUntrackedParameter<int>("verbosity", 0);
@@ -206,17 +219,17 @@ CSCAnodeLCTProcessor::CSCAnodeLCTProcessor() :
 
 void CSCAnodeLCTProcessor::setDefaultConfigParameters() {
   // Set default values for configuration parameters.
-  fifo_tbins   = 16;
-  fifo_pretrig = 10;
-  bx_width     =  6;
-  drift_delay  =  3;
-  nph_thresh   =  2;
-  nph_pattern  =  4;
-  acc_thresh   =  2;
-  acc_pattern  =  4;
-  trig_mode    =  3;
-  alct_amode   =  1;
-  l1a_window   =  5;  
+  fifo_tbins   = def_fifo_tbins;
+  fifo_pretrig = def_fifo_pretrig;
+  bx_width     = def_bx_width;
+  drift_delay  = def_drift_delay;
+  nph_thresh   = def_nph_thresh;
+  nph_pattern  = def_nph_pattern;
+  acc_thresh   = def_acc_thresh;
+  acc_pattern  = def_acc_pattern;
+  trig_mode    = def_trig_mode;
+  alct_amode   = def_alct_amode;
+  l1a_window   = def_l1a_window;
 }
 
 // Set configuration parameters obtained via EventSetup mechanism.
@@ -243,7 +256,7 @@ void CSCAnodeLCTProcessor::setConfigParameters(const CSCL1TPParameters* conf) {
   }
 }
 
-void CSCAnodeLCTProcessor::checkConfigParameters() const {
+void CSCAnodeLCTProcessor::checkConfigParameters() {
   // Make sure that the parameter values are within the allowed range.
 
   // Max expected values.
@@ -261,59 +274,92 @@ void CSCAnodeLCTProcessor::checkConfigParameters() const {
 
   // Checks.
   if (fifo_tbins >= max_fifo_tbins) {
-    throw cms::Exception("CSCAnodeLCTProcessor")
+    edm::LogError("CSCAnodeLCTProcessor")
       << "+++ Value of fifo_tbins, " << fifo_tbins
-      << ", exceeds max allowed, " << max_fifo_tbins-1 << " +++\n";
+      << ", exceeds max allowed, " << max_fifo_tbins-1 << " +++\n"
+      << "+++ Try to proceed with the default value, fifo_tbins="
+      << def_fifo_tbins << " +++\n";
+    fifo_tbins = def_fifo_tbins;
   }
   if (fifo_pretrig >= max_fifo_pretrig) {
-    throw cms::Exception("CSCAnodeLCTProcessor")
+    edm::LogError("CSCAnodeLCTProcessor")
       << "+++ Value of fifo_pretrig, " << fifo_pretrig
-      << ", exceeds max allowed, " << max_fifo_pretrig-1 << " +++\n";
+      << ", exceeds max allowed, " << max_fifo_pretrig-1 << " +++\n"
+      << "+++ Try to proceed with the default value, fifo_pretrig="
+      << def_fifo_pretrig << " +++\n";
+    fifo_pretrig = def_fifo_pretrig;
   }
   if (bx_width >= max_bx_width) {
-    throw cms::Exception("CSCAnodeLCTProcessor")
+    edm::LogError("CSCAnodeLCTProcessor")
       << "+++ Value of bx_width, " << bx_width
-      << ", exceeds max allowed, " << max_bx_width-1 << " +++\n";
+      << ", exceeds max allowed, " << max_bx_width-1 << " +++\n"
+      << "+++ Try to proceed with the default value, bx_width="
+      << def_bx_width << " +++\n";
+    bx_width = def_bx_width;
   }
   if (drift_delay >= max_drift_delay) {
-    throw cms::Exception("CSCAnodeLCTProcessor")
+    edm::LogError("CSCAnodeLCTProcessor")
       << "+++ Value of drift_delay, " << drift_delay
-      << ", exceeds max allowed, " << max_drift_delay-1 << " +++\n";
+      << ", exceeds max allowed, " << max_drift_delay-1 << " +++\n"
+      << "+++ Try to proceed with the default value, drift_delay="
+      << def_drift_delay << " +++\n";
+    drift_delay = def_drift_delay;
   }
   if (nph_thresh >= max_nph_thresh) {
-    throw cms::Exception("CSCAnodeLCTProcessor")
+    edm::LogError("CSCAnodeLCTProcessor")
       << "+++ Value of nph_thresh, " << nph_thresh
-      << ", exceeds max allowed, " << max_nph_thresh-1 << " +++\n";
+      << ", exceeds max allowed, " << max_nph_thresh-1 << " +++\n"
+      << "+++ Try to proceed with the default value, nph_thresh="
+      << nph_thresh << " +++\n";
+    nph_thresh = def_nph_thresh;
   }
   if (nph_pattern >= max_nph_pattern) {
-    throw cms::Exception("CSCAnodeLCTProcessor")
+    edm::LogError("CSCAnodeLCTProcessor")
       << "+++ Value of nph_pattern, " << nph_pattern
-      << ", exceeds max allowed, " << max_nph_pattern-1 << " +++\n";
+      << ", exceeds max allowed, " << max_nph_pattern-1 << " +++\n"
+      << "+++ Try to proceed with the default value, nph_pattern="
+      << nph_pattern << " +++\n";
+    nph_pattern = def_nph_pattern;
   }
   if (acc_thresh >= max_acc_thresh) {
-    throw cms::Exception("CSCAnodeLCTProcessor")
+    edm::LogError("CSCAnodeLCTProcessor")
       << "+++ Value of acc_thresh, " << acc_thresh
-      << ", exceeds max allowed, " << max_acc_thresh-1 << " +++\n";
+      << ", exceeds max allowed, " << max_acc_thresh-1 << " +++\n"
+      << "+++ Try to proceed with the default value, acc_thresh="
+      << acc_thresh << " +++\n";
+    acc_thresh = def_acc_thresh;
   }
   if (acc_pattern >= max_acc_pattern) {
-    throw cms::Exception("CSCAnodeLCTProcessor")
+    edm::LogError("CSCAnodeLCTProcessor")
       << "+++ Value of acc_pattern, " << acc_pattern
-      << ", exceeds max allowed, " << max_acc_pattern-1 << " +++\n";
+      << ", exceeds max allowed, " << max_acc_pattern-1 << " +++\n"
+      << "+++ Try to proceed with the default value, acc_pattern="
+      << acc_pattern << " +++\n";
+    acc_pattern = def_acc_pattern;
   }
   if (trig_mode >= max_trig_mode) {
-    throw cms::Exception("CSCAnodeLCTProcessor")
+    edm::LogError("CSCAnodeLCTProcessor")
       << "+++ Value of trig_mode, " << trig_mode
-      << ", exceeds max allowed, " << max_trig_mode-1 << " +++\n";
+      << ", exceeds max allowed, " << max_trig_mode-1 << " +++\n"
+      << "+++ Try to proceed with the default value, trig_mode="
+      << trig_mode << " +++\n";
+    trig_mode = def_trig_mode;
   }
   if (alct_amode >= max_alct_amode) {
-    throw cms::Exception("CSCAnodeLCTProcessor")
+    edm::LogError("CSCAnodeLCTProcessor")
       << "+++ Value of alct_amode, " << alct_amode
-      << ", exceeds max allowed, " << max_alct_amode-1 << " +++\n";
+      << ", exceeds max allowed, " << max_alct_amode-1 << " +++\n"
+      << "+++ Try to proceed with the default value, alct_amode="
+      << alct_amode << " +++\n";
+    alct_amode = def_alct_amode;
   }
   if (l1a_window >= max_l1a_window) {
-    throw cms::Exception("CSCAnodeLCTProcessor")
+    edm::LogError("CSCAnodeLCTProcessor")
       << "+++ Value of l1a_window, " << l1a_window
-      << ", exceeds max allowed, " << max_l1a_window-1 << " +++\n";
+      << ", exceeds max allowed, " << max_l1a_window-1 << " +++\n"
+      << "+++ Try to proceed with the default value, l1a_window="
+      << l1a_window << " +++\n";
+    l1a_window = def_l1a_window;
   }
 }
 
@@ -349,21 +395,38 @@ CSCAnodeLCTProcessor::run(const CSCWireDigiCollection* wiredc) {
     if (theChamber) {
       numWireGroups = theChamber->layer(1)->geometry()->numberOfWireGroups();
       if (numWireGroups > CSCConstants::MAX_NUM_WIRES) {
-	throw cms::Exception("CSCAnodeLCTProcessor")
+	edm::LogWarning("CSCAnodeLCTProcessor")
 	  << "+++ Number of wire groups, " << numWireGroups
-	  << ", exceeds max expected, " << CSCConstants::MAX_NUM_WIRES
-	  << " +++" << std::endl;
+	  << ", in CSC [endcap = " << theEndcap
+	  << " station = " << theStation << " sector = " << theSector
+	  << " subsector = " << theSubsector
+	  << " trig. id = " << theTrigChamber
+	  << "] exceeds max expected, " << CSCConstants::MAX_NUM_WIRES
+	  << " +++\n" 
+	  << "+++ CSC geometry looks garbled; no emulation possible +++\n";
+	numWireGroups = -1;
       }
     }
     else {
       edm::LogWarning("CSCAnodeLCTProcessor")
-	<< "+++ CSC chamber (endcap = " << theEndcap
+	<< "+++ CSC chamber [endcap = " << theEndcap
 	<< " station = " << theStation << " sector = " << theSector
 	<< " subsector = " << theSubsector << " trig. id = " << theTrigChamber
-	<< ") is not defined in current geometry!"
-	<< " Set numWireGroups to zero +++" << "\n";
-      numWireGroups = 0;
+	<< "] is not defined in current geometry! +++\n"
+	<< "+++ CSC geometry looks garbled; no emulation possible +++\n";
+      numWireGroups = -1;
     }
+  }
+
+  if (numWireGroups < 0) {
+    LogTrace("CSCAnodeLCTProcessor")
+      << "+++ CSC [endcap = " << theEndcap << " station = " << theStation
+      << " sector = " << theSector << " subsector = " << theSubsector
+      << " trig. id = " << theTrigChamber << "]:"
+      << " numWireGroups = " << numWireGroups
+      << "; ALCT emulation skipped! +++";
+    std::vector<CSCALCTDigi> emptyV;
+    return emptyV;
   }
 
   // Get wire digis in this chamber from wire digi collection.
@@ -377,9 +440,6 @@ CSCAnodeLCTProcessor::run(const CSCWireDigiCollection* wiredc) {
 	wire[i_layer][i_wire] = -999;
 
     readWireDigis(wire);
-
-    // Save all hits into vectors if needed.
-    // saveAllHits(wire);
 
     // Then pass an array of wire times on to another run() doing the LCT
     // search.
@@ -477,9 +537,10 @@ void CSCAnodeLCTProcessor::readWireDigis(int wire[CSCConstants::NUM_LAYERS][CSCC
 
       // Check that the wires and times are appropriate.
       if (i_wire < 0 || i_wire >= numWireGroups) {
-	throw cms::Exception("CSCAnodeLCTProcessor")
+	edm::LogWarning("CSCAnodeLCTProcessor")
 	  << "+++ Found wire digi with wrong wire number = " << i_wire
-	  << ", max wires = " << numWireGroups << " +++" << std::endl;
+	  << "( max wires = " << numWireGroups << "); skipping it... +++\n";
+	continue;
       }
       // Accept digis in expected time window.  Total number of time
       // bins in DAQ readout is given by fifo_tbins, which thus
@@ -502,7 +563,8 @@ void CSCAnodeLCTProcessor::readWireDigis(int wire[CSCConstants::NUM_LAYERS][CSCC
       else {
 	edm::LogWarning("CSCAnodeLCTProcessor")
 	  << "+++ Unexpected BX time of wire digi: wire = " << i_wire
-	  << " layer = " << i_layer << ", bx = " << bx_time << " +++\n";
+	  << " layer = " << i_layer << ", bx = " << bx_time
+	  << "; skipping it... +++\n";
       }
     }
   }
@@ -855,9 +917,11 @@ void CSCAnodeLCTProcessor::lctSearch() {
 
     int bx = plct->getBX();
     if (bx >= MAX_ALCT_BINS) {
-      throw cms::Exception("CSCAnodeLCTProcessor")
-	<< "+++ Value of bx, " << bx
-	<< ", exceeds max allowed, " << MAX_ALCT_BINS-1 << " +++\n";
+      edm::LogWarning("CSCAnodeLCTProcessor")
+	<< "+++ Bx of ALCT candidate, " << bx
+	<< ", exceeds max allowed, " << MAX_ALCT_BINS-1
+	<< "; skipping it... +++\n";
+      continue;
     }
 
     if (isBetterALCT(*plct, bestALCT[bx])) {
@@ -944,9 +1008,11 @@ std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::bestTrackSelector(
     }
 
     if (late_tbins > MAX_ALCT_BINS-1) {
-      throw cms::Exception("CSCAnodeLCTProcessor")
+      edm::LogWarning("CSCAnodeLCTProcessor")
 	<< "+++ Allowed range of time bins, [0-" << late_tbins
-	<< "] exceeds max allowed, " << MAX_ALCT_BINS-1 << " +++\n";
+	<< "] exceeds max allowed, " << MAX_ALCT_BINS-1 << " +++\n"
+	<< "+++ Set late_tbins to max allowed +++\n";
+      late_tbins = MAX_ALCT_BINS-1;
     }
     ifois = 1;
   }
@@ -1253,66 +1319,6 @@ std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::getALCTs() {
     if (secondALCT[bx].isValid()) tmpV.push_back(secondALCT[bx]);
   }
   return tmpV;
-}
-
-void CSCAnodeLCTProcessor::saveAllHits(const int wires[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]){
-  // Small routine which saves hits on all wires and stores for access to 
-  // outside classes.
-  for (int i = 0; i < CSCConstants::NUM_LAYERS; i++) {
-    theWireHits[i].clear();
-  }
-
-  for (int i = 0; i < CSCConstants::NUM_LAYERS; i++) {
-    for (int j = 0; j < CSCConstants::MAX_NUM_WIRES; j++) {
-      theWireHits[i].push_back(wires[i][j]);
-    }
-  }
-}
-
-void CSCAnodeLCTProcessor::setWireHits(const int layer,
-				       const std::vector<int>& wireHits) {
-  if (layer >= 0 && layer < CSCConstants::NUM_LAYERS) {
-    theWireHits[layer] = wireHits;
-  }
-  else {
-    throw cms::Exception("CSCAnodeLCTProcessor")
-      << "setWireHits called with wrong layer = " << layer << "!" << std::endl;
-  }
-}
-
-std::vector<int> CSCAnodeLCTProcessor::wireHits(const int layer) const {
-  if (layer >= 0 && layer < CSCConstants::NUM_LAYERS) {
-    return theWireHits[layer];
-  }
-  else {
-    throw cms::Exception("CSCAnodeLCTProcessor")
-      << "wireHits called with wrong layer = " << layer << "!" << std::endl;
-  }
-}
-
-void CSCAnodeLCTProcessor::setWireHit(const int layer, const int wire,
-				      const int hit) {
-  if ((layer >= 0 && layer < CSCConstants::NUM_LAYERS) &&
-      (wire  >= 0 && wire  < CSCConstants::MAX_NUM_WIRES)) {
-    theWireHits[layer][wire] = hit;
-  }
-  else {
-    throw cms::Exception("CSCAnodeLCTProcessor")
-      << "setWireHit called with wrong parameter(s): layer = " << layer
-      << ", wire = " << wire << "!" << std::endl;
-  }
-}
- 
-int CSCAnodeLCTProcessor::wireHit(const int layer, const int wire) const {
-  if ((layer >= 0 && layer < CSCConstants::NUM_LAYERS) &&
-      (wire  >= 0 && wire  < CSCConstants::MAX_NUM_WIRES)) {
-    return theWireHits[layer][wire];
-  }
-  else {
-    throw cms::Exception("CSCAnodeLCTProcessor")
-      << "wireHit called with wrong parameter(s): layer = " << layer
-      << ", wire = " << wire << "!" << std::endl;
-  }
 }
 
 ////////////////////////////////////////////////////////////////////////
