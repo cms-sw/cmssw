@@ -117,7 +117,7 @@ SiPixelSCurveCalibrationAnalysis::doSetup(const edm::ParameterSet& iConfig)
    maximumSigmaBin_             = iConfig.getUntrackedParameter<double>("maximumSigmaBin", 10);
    maximumThresholdBin_         = iConfig.getUntrackedParameter<double>("maximumThresholdBin", 255);
 
-   WriteZeroes_= iConfig.getUntrackedParameter<bool>("WriteZeroes", false);
+   WriteZeroes_= iConfig.getUntrackedParameter<bool>("alsoWriteZeroThresholds", false);
 
    // convert the vector into a map for quicker lookups.
    for(unsigned int i = 0; i < detIDsToSaveVector_.size(); i++)
