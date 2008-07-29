@@ -15,6 +15,7 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCALCTHeader2006.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include <boost/dynamic_bitset.hpp>
 
 class CSCDMBHeader;
 
@@ -273,6 +274,8 @@ class CSCALCTHeader {
   }
  
   void add(const std::vector<CSCALCTDigi> & digis);
+
+  boost::dynamic_bitset<> pack();
 
   /// tests that we unpack what we packed
   static void selfTest();  

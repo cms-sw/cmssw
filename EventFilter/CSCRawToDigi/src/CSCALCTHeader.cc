@@ -1,6 +1,8 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCALCTHeader.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDMBHeader.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
+#include "EventFilter/CSCRawToDigi/src/bitset_append.h"
+#include "EventFilter/CSCRawToDigi/src/cscPackerCompare.h"
 #include <iomanip>
 
 bool CSCALCTHeader::debug=false;
@@ -9,7 +11,7 @@ short unsigned int CSCALCTHeader::firmwareVersion=2006;
 CSCALCTHeader::CSCALCTHeader(int chamberType)
 : header2006(chamberType)
 { //constructor for digi->raw packing based on header2006 
-  memcpy(theOriginalBuffer, &header2006, header2006.sizeForPacking());
+  memcpy(theOriginalBuffer, &header2006, header2006.sizeInWords()*2);
 
 }
 
@@ -98,20 +100,19 @@ CSCALCTHeader::CSCALCTHeader(const CSCALCTStatusDigi & digi){
 }
 
 void CSCALCTHeader::setEventInformation(const CSCDMBHeader & dmb) {
- header2006.l1Acc = dmb.l1a();
- header2006.cscID = dmb.dmbID();
- header2006.nTBins = 16;
- header2006.bxnCount = dmb.bxn();
- ///have to re-copy header into original buffer to update the data
- memcpy(theOriginalBuffer, &header2006, header2006.sizeForPacking());
+  header2006.setEventInformation(dmb);
 }
 
+
 unsigned short CSCALCTHeader::nLCTChipRead() const {///header2006 method
-int count = 0;
- for(int i=0; i<7; ++i) {
-   if( (header2006.lctChipRead>>i) & 1) ++count;
- }
- return count;
+  if(firmwareVersion == 2006) {
+    return header2006.nLCTChipRead();
+  }
+  else {
+    edm::LogError("CSCALCTHeader|CSCRawToDigi")
+      <<"How is nLCTChipRead() supposed to work for ALCTHeader2007?";
+  }
+  return 0;
 }
 
 
@@ -156,6 +157,25 @@ void CSCALCTHeader::add(const std::vector<CSCALCTDigi> & digis)
 }
 
 
+boost::dynamic_bitset<> CSCALCTHeader::pack()
+{
+  boost::dynamic_bitset<> result;
+  if(firmwareVersion == 2006)
+  {
+     boost::dynamic_bitset<> header
+       = bitset_utilities::ushortToBitset(header2006.sizeInWords()*16,
+                                          (unsigned short *) &header2006);
+     boost::dynamic_bitset<> alcts 
+       = bitset_utilities::ushortToBitset(alcts2006.sizeInWords()*16,
+                                          (unsigned short *) &alcts2006);
+     result = bitset_utilities::append(header, alcts);
+
+  }
+  return result;
+}
+    
+
+
 void CSCALCTHeader::selfTest()
 {
   // tests packing and unpacking
@@ -175,6 +195,9 @@ void CSCALCTHeader::selfTest()
     std::vector<CSCALCTDigi> alcts = alctHeader.ALCTDigis();
     assert(alcts[0] == alct0);
     assert(alcts[1] == alct1);
+
+    cscClassPackerCompare(alctHeader);
+
   }
 }
 
