@@ -10,4 +10,9 @@ l1RPCHwConfig = cms.ESProducer("RPCTriggerHwConfig",
     disableTowers = cms.vint32()
 )
 
+rpchwconfsrc = cms.ESSource("EmptyESSource",
+    recordName = cms.string('L1RPCHwConfigRcd'),
+    iovIsRunNotTime = cms.bool(True),
+    firstValid = cms.vuint32(1)
+)
 
