@@ -6,7 +6,7 @@ import optparse
 import sys
 import os
 import Configuration.PyReleaseValidation
-from Configuration.PyReleaseValidation.ConfigBuilder import ConfigBuilder
+from Configuration.PyReleaseValidation.ConfigBuilder import ConfigBuilder, defaultOptions
 
 # Prepare a parser to read the options
 usage=\
@@ -31,7 +31,7 @@ parser.add_option("-s", "--step",
 
 parser.add_option("--conditions",
                   help="What conditions to use. Default are frontier conditions 'STARTUP_V4::All'",
-                  default="FrontierConditions_GlobalTag,STARTUP_V4::All",
+                  default=defaultOptions.conditions,
                   dest="conditions")
 
 parser.add_option("--eventcontent",
@@ -57,7 +57,7 @@ parser.add_option("-n", "--number",
 # expert settings
 expertSettings.add_option("--beamspot",
                           help="What beam spot to use (from Configuration/StandardSequences). Default=Early10TeVCollision",
-                          default="Early10TeVCollision",
+                          default=defaultOptions.beamspot,
                           dest="beamspot")
 
 expertSettings.add_option("--customise",
@@ -87,12 +87,12 @@ expertSettings.add_option("--filtername",
 
 expertSettings.add_option("--geometry",
                           help="What geometry to use (from Configuration/StandardSequences). Default=Pilot2",
-                          default="Pilot2",
+                          default=defaultOptions.geometry,
                           dest="geometry")
 
 expertSettings.add_option("--magField",
                           help="What magnetic field to use (from Configuration/StandardSequences).",
-                          default="",
+                          default=defaultOptions.magField,
                           dest="magField")
 
 expertSettings.add_option("--no_output",
@@ -133,7 +133,7 @@ expertSettings.add_option("--dump_DSetName",
 
 expertSettings.add_option("--pileup",
                   help="What pileup config to use. Default=NoPileUp.",
-                  default='NoPileUp',
+                  default=defaultOptions.pileup,
                   dest="pileup")
 
                                                     

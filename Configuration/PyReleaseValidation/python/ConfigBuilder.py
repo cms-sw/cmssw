@@ -1,10 +1,22 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.57 $"
+__version__ = "$Revision: 1.58 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.Modules import _Module 
+
+class Options:
+        pass
+
+# the canonical defaults
+defaultOptions = Options()
+defaultOptions.pileup = 'NoPileUp'
+defaultOptions.geometry = 'Pilot2'
+defaultOptions.beamspot = 'Early10TeVCollision'
+defaultOptions.magField = ''
+defaultOptions.conditions = 'FrontierConditions_GlobalTag,STARTUP_V4::All'
+    
 
 # some helper routines
 def dumpPython(process,name):
@@ -398,7 +410,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.57 $"),
+              (version=cms.untracked.string("$Revision: 1.58 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
@@ -489,13 +501,7 @@ class PAWorkflowBuilder(ConfigBuilder):
     """Building workflows for the PA"""
 
     def __init__(self, process):
-        self._options = struct()
-        self._options.pileup = 'NoPileUp'
-        self._options.geometry = 'Pilot2'
-        self._options.geometry = 'Pilot2'
-        self._options.beamspot = 'Early10TeVCollision'
-        self._options.magField = ''
-        self._options.conditions = 'FrontierConditions_GlobalTag,DOESNTMATTER::All'
+        self._options = defaultOptions
         self.process = process
         self.process.schedule = cms.Schedule()
         self.imports = []
