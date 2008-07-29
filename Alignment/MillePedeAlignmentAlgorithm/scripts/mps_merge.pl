@@ -2,8 +2,8 @@
 #     R. Mankel, DESY Hamburg     03-Jul-2007
 #     A. Parenti, DESY Hamburg    24-Apr-2008
 #
-#     $Revision: 1.13 $
-#     $Date: 2008/07/21 20:07:27 $
+#     $Revision: 1.14 $
+#     $Date: 2008/07/29 17:10:40 $
 #
 #  produce cfg file for merging run
 #
@@ -100,9 +100,9 @@ $replaceBlock = "";
 ## print "alignment.log nn= $nn\n";
 
 # replace "save to DB" directives
-$saveAlignmentConstants = "process.load(\"CondCore.DBCommon.CondDBSetup_cfi\")\n"
+$saveAlignmentConstants = "from CondCore.DBCommon.CondDBSetup_cfi import *\n"
                         . "process.PoolDBOutputService = cms.Service(\"PoolDBOutputService\",\n"
-                        . "    process.CondDBSetup,\n"
+                        . "    CondDBSetup,\n"
                         . "    timetype = cms.untracked.string('runnumber'),\n"
                         . "    connect = cms.string('sqlite_file:alignments_MP.db'),\n"
                         . "    toPut = cms.VPSet(cms.PSet(\n"
@@ -124,15 +124,15 @@ if ($nn != 1) {
 # change mode to pede
 $nn = ($body =~ s/mode \= \'mille\'/mode \= \'pede\'/);
 if ($nn != 1) {
-  $replaceBlock = "$replaceBlock\nprocess.MillePedeAlignmentAlgorithm.mode = 'pede'";
-  print "No MillePedeAlignmentAlgorithm.mode directive found, adding one to replace block\n";
+  $replaceBlock = "$replaceBlock\nprocess.AlignmentProducer.algoConfig.mode = 'pede'";
+  print "No AlignmentProducer.algoConfig.mode directive found, adding one to replace block\n";
 }
 
 # blank binary output file string
 $nn = ($body =~ s/binaryFile \= \'.+?\'/binaryFile \= \'\'/);
 if ($nn != 1) {
-  $replaceBlock = "$replaceBlock\nprocess.MillePedeAlignmentAlgorithm.binaryFile = \'\'\n";
-  print "No MillePedeAlignmentAlgorithm.binaryFile directive found, adding one to replace block\n";
+  $replaceBlock = "$replaceBlock\nprocess.AlignmentProducer.algoConfig.binaryFile = \'\'\n";
+  print "No AlignmentProducer.algoConfig.binaryFile directive found, adding one to replace block\n";
 }
 
 # build list of binary files
@@ -155,15 +155,15 @@ for ($i=1; $i<=$nJobs; ++$i) {
 $nn = ($body =~ s/mergeBinaryFiles = \[(.|\n)*?\]/mergeBinaryFiles = \[$binaryList\]/);
 
 if ($nn != 1) {
-  $replaceBlock = "$replaceBlock\nprocess.MillePedeAlignmentAlgorithm.mergeBinaryFiles = \[$binaryList\]";
-  print "No MillePedeAlignmentAlgorithm.mergeBinaryFiles directive found, adding one to replace block\n";
+  $replaceBlock = "$replaceBlock\nprocess.AlignmentProducer.algoConfig.mergeBinaryFiles = \[$binaryList\]";
+  print "No AlignmentProducer.algoConfig.mergeBinaryFiles directive found, adding one to replace block\n";
 }
 
 # set merging of tree files
-$nn = ($body =~ s/process.MillePedeAlignmentAlgorithm.treeFile = \'.+?\'/process.MillePedeAlignmentAlgorithm.treeFile = \'treeFile_merge.root\'/);
+$nn = ($body =~ s/process.AlignmentProducer.algoConfig.treeFile = \'.+?\'/process.AlignmentProducer.algoConfig.treeFile = \'treeFile_merge.root\'/);
 if ($nn != 1) {
-  $replaceBlock = "$replaceBlock\nprocess.MillePedeAlignmentAlgorithm.treeFile = \'treeFile_merge.root\'";
-  print "No MillePedeAlignmentAlgorithm.treeFile directive found, adding one to replace block\n";
+  $replaceBlock = "$replaceBlock\nprocess.AlignmentProducer.algoConfig.treeFile = \'treeFile_merge.root\'";
+  print "No AlignmentProducer.algoConfig.treeFile directive found, adding one to replace block\n";
 }
 
 # build list of tree files
@@ -184,15 +184,15 @@ for ($i=1; $i<=$nJobs; ++$i) {
 # replace list of tree files
 $nn = ($body =~ s/mergeTreeFiles = \[(.|\n)*?\]/mergeTreeFiles = \[$treeList\]/);
 if ($nn != 1) {
-  $replaceBlock = "$replaceBlock\nprocess.MillePedeAlignmentAlgorithm.mergeTreeFiles = \[$treeList\]";
-  print "No MillePedeAlignmentAlgorithm.mergeTreeFiles directive found, adding one to replace block\n";
+  $replaceBlock = "$replaceBlock\nprocess.AlignmentProducer.algoConfig.mergeTreeFiles = \[$treeList\]";
+  print "No AlignmentProducer.algoConfig.mergeTreeFiles directive found, adding one to replace block\n";
 }
 
 # replace name of monitor file
 $nn = ($body =~ s/monitorFile \= \'.+?\'/monitorFile \= \'millePedeMonitor\_merge\.root\'/);
 if ($nn != 1) {
-  $replaceBlock = "$replaceBlock\nprocess.MillePedeAlignmentAlgorithm.monitorFile = \'millePedeMonitor_merge.root\'";
-  print "No MillePedeAlignmentAlgorithm.monitorFile directive found, adding one to replace block\n";
+  $replaceBlock = "$replaceBlock\nprocess.AlignmentProducer.algoConfig.monitorFile = \'millePedeMonitor_merge.root\'";
+  print "No AlignmentProducer.algoConfig.monitorFile directive found, adding one to replace block\n";
 }
 
 
@@ -212,8 +212,8 @@ if ($nn != 1) {
 
 # Remove any existing maxEvents directive...
 $nn = ($body =~ s/process.maxEvents = cms.untracked.PSet\(\n.+?\n\)//);
-
-$nn = ($body =~ s/process.source = cms.Source\(.+?\n\)/process.source = cms.Source\(\"EmptySource\"\)/s);
+# Then make source an EmptySource and set maxevents to zero
+$nn = ($body =~ s/process.source = cms.Source\(.+?\n\)/process.source = cms.Source\(\"EmptySource\"\)\nprocess.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(0))/s);
 
 if ($nn != 1) {
     print "No source directive found, use default\n";
