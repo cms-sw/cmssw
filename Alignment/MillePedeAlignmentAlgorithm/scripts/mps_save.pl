@@ -1,8 +1,8 @@
 #!/usr/local/bin/perl
 #     R. Mankel, DESY Hamburg     11-Oct-2007
 #     A. Parenti, DESY Hamburg    16-Apr-2008
-#     $Revision: 1.6 $
-#     $Date: 2008/07/23 12:08:22 $
+#     $Revision: 1.7 $
+#     $Date: 2008/07/29 15:37:46 $
 #
 #  Save output from jobs that have FETCH status
 #  
@@ -71,7 +71,7 @@ if (@JOBSTATUS[$i] eq "FETCH"
   $dirPrefix = "jobData/@JOBDIR[$i]/";
 
   @FILENAMES = ("treeFile_merge.root","histograms_merge.root","millePedeMonitor_merge.root",
-		"alignment_merge.cfg","alignment.log",
+		"alignment_merge.py","alignment.log",
 		"alignment.log.gz","millepede.log","millepede.log.gz",
 		"millepede.res","millepede.his","pede.dump",
 		"alignments_MP.db");
@@ -91,7 +91,7 @@ if (@JOBSTATUS[$i] eq "FETCH"
     }
   }
 
-# Now copy the backup of original scripts and cfg's
+# Now copy the backup of original scripts, cfg and infiList
   $ScriptCfg = `ls jobData/ScriptsAndCfg???.tar`;
   chomp($ScriptCfg);
   $ScriptCfg =~ s/\n/ /g;

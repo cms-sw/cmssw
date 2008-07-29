@@ -1,8 +1,8 @@
 #!/usr/local/bin/perl
 #     R. Mankel, DESY Hamburg     03-Jul-2007
 #     A. Parenti, DESY Hamburg    27-Mar-2008
-#     $Revision: 1.14 $
-#     $Date: 2008/03/25 16:15:57 $
+#     $Revision: 1.1 $
+#     $Date: 2008/04/10 16:10:12 $
 #
 #  Take card file, blank all INFI directives and insert
 #  the INFI directives from the modifier file instead.
@@ -71,7 +71,7 @@ $/ = "\n"; # back to normal
 chomp $mods;
 
 # look for the fileNames directive
-$nfileNames = ($body =~ m/fileNames = \{.*?\}/s);
+$nfileNames = ($body =~ m/fileNames = cms.untracked.vstring\(.*?\)/s);
 # prepare the new filenames directive
 @FILENAMES = split "\n",$mods;
 # GF
@@ -79,20 +79,20 @@ if ($FILENAMES[0] =~ /^CastorPool=/) { # starts with CastorPool
   @FILENAMES = @FILENAMES[1..$#FILENAMES]; # remove that line
 }
 # end GF
-$newFileNames = "";
+$newFileNames = "\n";
 while (@FILENAMES) {
   $theFile = shift(@FILENAMES);
   chomp $theFile;
-  $newFileNames = "$newFileNames\"$theFile\"";
+  $newFileNames = "$newFileNames        \'$theFile\'";
   if (@FILENAMES) {
     $newFileNames = "$newFileNames,\n";
   }
 }
 
 # insert fileNames directive
-$nrep = ($body =~ s/fileNames = \{.*?\}/fileNames = \{ $newFileNames\n   \} /s);
+$nrep = ($body =~ s/fileNames = cms.untracked.vstring\(.*?\)/fileNames = cms.untracked.vstring\($newFileNames\) /s);
 # print "The new body is:\n$body\n";
-$nfileNames = ($body =~ m/fileNames = \{.*?\}/s);
+$nfileNames = ($body =~ m/fileNames = cms.untracked.vstring\(.*?\)/s);
 
 # replace ISN for the root output file
 $nrep = ($body =~ s/ISN/$isn/gm);
