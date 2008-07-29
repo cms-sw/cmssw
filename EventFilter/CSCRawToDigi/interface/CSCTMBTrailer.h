@@ -49,7 +49,7 @@ public:
   int wordCount() const;
   static void selfTest();
 private:
-  int crcOffset() const  {return (theFirmwareVersion == 2006 ? 1 : 3) + thePadding;}
+  int crcOffset() const  {return (theFirmwareVersion == 2006 ? 1 : 2) + thePadding;}
   int de0fOffset() const {return (theFirmwareVersion == 2006 ? 3 : 1) + thePadding;}
 
   unsigned short theData[7];
