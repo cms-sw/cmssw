@@ -19,7 +19,7 @@ namespace {
   template<typename Wrapper>
   void define() {
     typedef typename Wrapper::Extractor Extractor;
-    typedef cond::ExtractWhat<T> What;
+    typedef typename Extractor::What What;
 
     condPython::defineWhat<typename Extractor::Class>();
 

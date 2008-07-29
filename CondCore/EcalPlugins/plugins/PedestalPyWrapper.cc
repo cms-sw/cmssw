@@ -100,8 +100,8 @@ namespace cond {
 
 
 namespace condPython {
-  template<typename EcalPedestals>
-  void defineWhat() {
+  template<>
+  void defineWhat<EcalPedestals>() {
     enum_<cond::ecalped::Quantity>("Quantity")
       .value("mean_x12", mean_x12)
       .value("mean_x6",  mean_x6)
