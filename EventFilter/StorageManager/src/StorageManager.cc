@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.64 2008/06/25 18:03:22 biery Exp $
+// $Id: StorageManager.cc,v 1.65 2008/07/08 18:32:21 biery Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -709,8 +709,8 @@ void StorageManager::receiveErrorDataMessage(toolbox::mem::Reference *ref)
   if(fsm_.stateName()->toString() != "Enabled")
   {
     LOG4CPLUS_ERROR(this->getApplicationLogger(),
-                       "Received EVENT message but not in Enabled state! Current state = "
-                       << fsm_.stateName()->toString() << " EVENT from" << msg->hltURL
+                       "Received ERROR message but not in Enabled state! Current state = "
+                       << fsm_.stateName()->toString() << " ERROR from" << msg->hltURL
                        << " application " << msg->hltClassName);
     // just release the memory at least - is that what we want to do?
     ref->release();
@@ -779,7 +779,7 @@ void StorageManager::receiveErrorDataMessage(toolbox::mem::Reference *ref)
          // msg->frameCount start from 0, but in EventMsg header it starts from 1!
          bool isLocal = true;
 
-         //update last event seen
+         //update last error event seen
          lastErrorEventSeen_ = msg->eventID;
 
          // TODO need to fix this as the outModId is not valid for error events
@@ -830,12 +830,12 @@ void StorageManager::receiveErrorDataMessage(toolbox::mem::Reference *ref)
     // this->runNumber_ comes from the RunBase class that StorageManager inherits from
     if(msg->runID != runNumber_)
     {
-      LOG4CPLUS_ERROR(this->getApplicationLogger(),"Run Number from event stream = " << msg->runID
+      LOG4CPLUS_ERROR(this->getApplicationLogger(),"Run Number from error event stream = " << msg->runID
                       << " From " << msg->hltURL
                       << " Different from Run Number from configuration = " << runNumber_);
     }
 
-    //update last event seen
+    //update last error event seen
     lastErrorEventSeen_ = msg->eventID;
 
     // for FU sender list update
