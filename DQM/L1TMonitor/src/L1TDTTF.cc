@@ -168,7 +168,28 @@ void L1TDTTF::beginJob(const EventSetup& c)
 {
 
   nev_ = 0;
+  nev_dttf = 0;
+  nev_dttf_track2 = 0;
+//   //testing purposes
+//   bx0=0; bxp1=0; bxn1=0;
+ 
+  for(int m=0; m<6; m++)
+    for(int n=0; n<12; n++)
+      { nHighQual[m][n] = 0; nHighQual_2ndTrack[m][n] = 0;  n2ndTrack[m][n] = 0; 
+      nOccupancy_integ[m][n]=0; nOccupancy_integ_2ndTrack[m][n]=0;}
   
+  for(int m=0; m<6; m++)
+    for(int n=0; n<3; n++)
+      {nBx[m][n] = 0; nBx_2ndTrack[m][n] = 0;}
+
+  for(int m=0; m<64; m++)
+    for(int n=0; n<144; n++){
+      nOccupancy_integ_phi_eta[m][n] = 0;
+      nOccupancy_integ_phi_eta_2ndTrack[m][n] = 0;
+      for(int k=0; k<6; k++)
+	nOccupancy_wheel_phi_eta[m][n][k] = 0;
+    }
+
   // get hold of back-end interface
   DQMStore* dbe = 0;
   dbe = Service<DQMStore>().operator->();
@@ -181,6 +202,12 @@ void L1TDTTF::beginJob(const EventSetup& c)
   if ( dbe ) 
     {
 
+      // use this to read in reference histograms from file
+      //dbe->readReferenceME("DQM_L1T_R000050658.root");
+      //dbe->open("DQM_L1T_R000050658.root",false,"","prep");
+      //dbe->showDirStructure();
+      
+      
       /*
       //  error summary histograms
       dbe->setCurrentFolder(l1tinfofolder);
@@ -197,7 +224,8 @@ void L1TDTTF::beginJob(const EventSetup& c)
 
       string dttf_trk_folder = l1tsubsystemfolder+"/DTTF_TRACKS";
 
-      char hname[40];
+      char hname[40];//histo name
+      char mename[40];//ME name
 
       /*
 
@@ -418,9 +446,7 @@ void L1TDTTF::beginJob(const EventSetup& c)
 
       */
       
-//DTTF Output (6 wheels)
-      
-     
+//DTTF Output (6 wheels)     
       
       dbe->setCurrentFolder(dttf_trk_folder);
       
@@ -442,18 +468,40 @@ void L1TDTTF::beginJob(const EventSetup& c)
 	case 5:  whn = "P2";  break;   
 	}
 	
+	const char *c_whn = whn.c_str();
+
 	string dttf_trk_folder_wheel = dttf_trk_folder + "/WHEEL_" + whn;
 	dbe->setCurrentFolder(dttf_trk_folder_wheel);
 	
 	
+	sprintf(hname,"dttf_nTracks_wh%s",c_whn);
+	sprintf(mename,"Wheel %s - Number of Tracks",c_whn);
+	dttf_nTracks_wheel[iwh] = dbe->book1D(mename,hname,12,0.5,12.5);
+	dttf_nTracks_wheel[iwh]->setAxisTitle("sector",1);
+
+	sprintf(hname,"dttf_nTracksPerEvent_wh%s",c_whn);
+	sprintf(mename,"Wheel %s - Num Tracks Per Event",c_whn);
+	dttf_nTracksPerEvent_wheel[iwh] = dbe->book1D(mename,hname,11,-0.5,10.5);
+	dttf_nTracksPerEvent_wheel[iwh]->setAxisTitle("number of tracks",1);
+
+	
 	for(int ibx=0;ibx<3;ibx++){
 	  int tbx=ibx-1; 
 	  
-	  ostringstream bxnum;
-	  bxnum << ibx;
-	  string bxn = bxnum.str();
-	  string dttf_trk_folder_bx = dttf_trk_folder_wheel + "/BX_" + bxn;
+	  //ostringstream bxnum;
+	  //bxnum << tbx;
+	  //string bxn = bxnum.str();
+
+	  string bxn;
+	  //whn = whnum.str();
 	  
+	  switch(ibx){
+	  case 0:  bxn = "N1";  break;
+	  case 1:  bxn = "0";  break;
+	  case 2:  bxn = "P1";  break;   
+	  }
+	  
+	  string dttf_trk_folder_bx = dttf_trk_folder_wheel + "/BX_" + bxn;
 	  dbe->setCurrentFolder(dttf_trk_folder_bx);
 	  
 	  //QUALITY folder
@@ -461,8 +509,9 @@ void L1TDTTF::beginJob(const EventSetup& c)
 	  dbe->setCurrentFolder(dttf_trk_folder_quality);
 
 	  for(int ise=0;ise<12;ise++){
-	    sprintf(hname,"dttf_p_qual_bx%d_wh%d_se%d",tbx,twh,ise);
-	    dttf_p_qual[ibx][iwh][ise] = dbe->book1D(hname,hname,8,-0.5,7.5);	  
+	    sprintf(hname,"dttf_p_qual_bx%d_wh%s_se%d",tbx,c_whn,ise+1);
+	    sprintf(mename,"Packed Quality bx%d wh%s se%d",tbx,c_whn,ise+1);
+	    dttf_p_qual[ibx][iwh][ise] = dbe->book1D(mename,hname,8,-0.5,7.5);	  
 	  }
 
 	  //PHI folder
@@ -470,8 +519,9 @@ void L1TDTTF::beginJob(const EventSetup& c)
 	  dbe->setCurrentFolder(dttf_trk_folder_phi);
 
 	  for(int ise=0;ise<12;ise++){
-	    sprintf(hname,"dttf_p_phi_bx%d_wh%d_se%d",tbx,twh,ise);
-	    dttf_p_phi[ibx][iwh][ise] = dbe->book1D(hname,hname,144,-0.5,144.5);
+	    sprintf(hname,"dttf_p_phi_bx%d_wh%s_se%d",tbx,c_whn,ise+1);
+	    sprintf(mename,"Packed Phi bx%d wh%s se%d",tbx,c_whn,ise+1);
+	    dttf_p_phi[ibx][iwh][ise] = dbe->book1D(mename,hname,144,-0.5,144.5);
 	    //dttf_p_phi[ibx][iwh][ise] = dbe->book1D(hname,hname, 32,-16.5, 15.5);
 	  }
 
@@ -480,8 +530,9 @@ void L1TDTTF::beginJob(const EventSetup& c)
 	  dbe->setCurrentFolder(dttf_trk_folder_eta);
 
 	  for(int ise=0;ise<12;ise++){
-	    sprintf(hname,"dttf_p_eta_bx%d_wh%d_se%d",tbx,twh,ise);
-	    dttf_p_eta[ibx][iwh][ise] = dbe->book1D(hname,hname,64,-32.5,32.5);//fix range and bin size!
+	    sprintf(hname,"dttf_p_eta_bx%d_wh%s_se%d",tbx,c_whn,ise+1);
+	    sprintf(mename,"Packed Eta bx%d wh%s se%d",tbx,c_whn,ise+1);
+	    dttf_p_eta[ibx][iwh][ise] = dbe->book1D(mename,hname,64,-32.5,32.5);//fix range and bin size!
 	  }
 	  
 	  //PT folder
@@ -489,8 +540,9 @@ void L1TDTTF::beginJob(const EventSetup& c)
 	  dbe->setCurrentFolder(dttf_trk_folder_pt);
 
 	  for(int ise=0;ise<12;ise++){
-	    sprintf(hname,"dttf_p_pt_bx%d_wh%d_se%d",tbx,twh,ise);
-	    dttf_p_pt[ibx][iwh][ise]= dbe->book1D(hname,hname,32,-0.5,31.5);
+	    sprintf(hname,"dttf_p_pt_bx%d_wh%s_se%d",tbx,c_whn,ise+1);
+	    sprintf(mename,"Packed PT bx%d wh%s se%d",tbx,c_whn,ise+1);
+	    dttf_p_pt[ibx][iwh][ise]= dbe->book1D(mename,hname,32,-0.5,31.5);
 	  }
 
 	  //CHARGE folder
@@ -498,17 +550,77 @@ void L1TDTTF::beginJob(const EventSetup& c)
 	  dbe->setCurrentFolder(dttf_trk_folder_charge);
 	  
 	  for(int ise=0;ise<12;ise++){
-	    sprintf(hname,"dttf_p_q_bx%d_wh%d_se%d",tbx,twh,ise);
-	    dttf_p_q[ibx][iwh][ise] = dbe->book1D(hname,hname,2,-0.5,1.5);
+	    sprintf(hname,"dttf_p_q_bx%d_wh%s_se%d",tbx,c_whn,ise+1);
+	    sprintf(mename,"Packed Charge  bx%d wh%s se%d",tbx,c_whn,ise+1);
+	    dttf_p_q[ibx][iwh][ise] = dbe->book1D(mename,hname,2,-0.5,1.5);
+	  }
+
+	  //number of tracks per event folder
+	  string dttf_trk_folder_nTracksPerEvent = dttf_trk_folder_bx+"/TracksPerEvent";
+	  dbe->setCurrentFolder(dttf_trk_folder_nTracksPerEvent);
+
+	  for(int ise=0;ise<12;ise++){	  
+	    sprintf(hname,"dttf_nTrksPerEv_bx%d_wh%s_se%d",tbx,c_whn,ise+1);
+	    sprintf(mename,"Num Tracks Per Event bx%d wh%s se%d",tbx,c_whn,ise+1);
+	    dttf_nTrksPerEv[ibx][iwh][ise] = dbe->book1D(mename,hname,2,0.5,2.5);
+	    dttf_nTrksPerEv[ibx][iwh][ise]->setAxisTitle("number of tracks",1);
 	  }
 
 	}
 	
 	//track occupancy info - for each wheel
 	dbe->setCurrentFolder(dttf_trk_folder_wheel);
-	sprintf(hname,"dttf_p_phi_eta_wh%d",twh);
-	dttf_p_phi_eta[iwh] = dbe->book2D(hname,hname,144,-0.5,143.5,64,-0.5,64.5);
+	sprintf(hname,"dttf_p_phi_eta_wh%s",c_whn);
+	sprintf(mename, "Wheel %s - Packed Phi vs Eta",c_whn);
+	dttf_p_phi_eta_wheel[iwh] = dbe->book2D(mename,hname,64,-0.5,64.5,144,-0.5,143.5);
+
+
+	sprintf(hname,"dttf_n2ndTracks_wh%s",c_whn);
+	sprintf(mename, "Wheel %s - 2nd Tracks",c_whn);
+	dttf_n2ndTracks_wheel[iwh] = dbe->book1D(mename,hname,12,0.5,12.5);
+
+	sprintf(hname,"dttf_bx_wh%s",c_whn);
+	sprintf(mename, "Wheel %s - BX",c_whn);
+	dttf_bx_wheel[iwh] = dbe->book1D(mename,hname,3,-1.5,1.5);
+	
+ 
+	//BX_SECTORS for each wheel
+ 	string dttf_trk_folder_wh_bxsec_all = dttf_trk_folder_wheel + "/BX_SECTORS/ALL";
+ 	dbe->setCurrentFolder(dttf_trk_folder_wh_bxsec_all);
+
+	for(int ise=0;ise<12;ise++){	  
+	  sprintf(hname,"dttf_bx_wh%s_se%d",c_whn,ise+1);
+	  sprintf(mename, "BX - wh%s se%d",c_whn,ise+1);
+	  dttf_bx[iwh][ise] = dbe->book1D(mename,hname,3,-1.5,1.5);
+	}
+
+	string dttf_trk_folder_wh_bxsec_trk2 = dttf_trk_folder_wheel + "/BX_SECTORS/TRACK_2_ONLY";
+ 	dbe->setCurrentFolder(dttf_trk_folder_wh_bxsec_trk2);
+
+	for(int ise=0;ise<12;ise++){	  
+	  sprintf(hname,"dttf_bx_2ndTrack_wh%s_se%d",c_whn,ise+1);
+	  sprintf(mename, "BX - 2nd Tracks only - wh%s se%d",c_whn,ise+1);
+	  dttf_bx_2ndTrack[iwh][ise] = dbe->book1D(mename,hname,3,-1.5,1.5);
+	}
+
+// 	sprintf(hname,"dttf_bx_wh%s_2ndTrack",c_whn);
+// 	sprintf(mename, "Wheel %s - BX",c_whn);
+// 	dttf_bx_wheel_2ndTrack[iwh] = dbe->book1D(mename,hname,3,-1.5,1.5);
+
+
+// 	sprintf(hname,"dttf_nTracks_wh%s_2ndTracks",c_whn);
+// 	sprintf(mename,"Wheel %s - Number of Tracks",c_whn);
+// 	dttf_nTracks_wheel_2ndTrack[iwh] = dbe->book1D(mename,hname,12,0.5,12.5);
+// 	dttf_nTracks_wheel_2ndTrack[iwh]->setAxisTitle("sector",1);
+
+	//sprintf(hname,"dttf_nTracksPerEvent_wh%s_2ndTracks",c_whn);
+	//sprintf(mename,"Wheel %s - Num Tracks Per Event",c_whn);
+	//dttf_nTracksPerEvent_wheel_2ndTrack[iwh] = dbe->book1D(mename,hname,11,-0.5,10.5);
+	//dttf_nTracksPerEvent_wheel_2ndTrack[iwh]->setAxisTitle("number of tracks",1);
+	  
+	
       }	
+      
 
       //integrated values
       string dttf_trk_folder_integrated = dttf_trk_folder + "/INTEG";
@@ -516,45 +628,155 @@ void L1TDTTF::beginJob(const EventSetup& c)
 
       //packed values
       sprintf(hname,"dttf_p_phi_integ");
-      dttf_p_phi_integ = dbe->book1D(hname,hname,144,-0.5,143.5);
+      sprintf(mename,"Integrated Packed Phi");
+      dttf_p_phi_integ = dbe->book1D(mename,hname,144,-0.5,143.5);
 	    
+
+      //MonitorElement* rh1 = dbe->getReferenceME(dttf_p_phi_integ);
+      //if(rh1){
+      //	cout << rh1->getPathname() << endl;
+      //	//dbe->deleteME(rh1);
+      //	cout << dttf_p_phi_integ->getPathname() << endl;
+      //      }
+
       sprintf(hname,"dttf_p_eta_integ");
-      dttf_p_eta_integ = dbe->book1D(hname,hname,64,-32.5,32.5);
+      sprintf(mename,"Integrated Packed Eta");
+      dttf_p_eta_integ = dbe->book1D(mename,hname,64,-0.5,64.5);
 	    
       sprintf(hname,"dttf_p_pt_integ");
-      dttf_p_pt_integ  = dbe->book1D(hname,hname,32,-0.5,31.5);
+      sprintf(mename,"Integrated Packed Pt");
+      dttf_p_pt_integ  = dbe->book1D(mename,hname,32,-0.5,31.5);
 
       sprintf(hname,"dttf_p_qual_integ");
-      dttf_p_qual_integ  = dbe->book1D(hname,hname,8,-0.5,7.5);
+      sprintf(mename,"Integrated Packed Quality");
+      dttf_p_qual_integ  = dbe->book1D(mename,hname,8,-0.5,7.5);
 
+      sprintf(hname,"dttf_p_q_integ");
+      sprintf(mename,"Integrated Packed Charge");
+      dttf_p_q_integ = dbe->book1D(mename,hname,2,-0.5,1.5);
 
-      //physical values
-      sprintf(hname,"dttf_phys_phi_integ");
-      dttf_phys_phi_integ = dbe->book1D(hname,hname,144,-0.5,360.5);
+      sprintf(hname,"dttf_bx_integ");
+      sprintf(mename,"Integrated BX");
+      dttf_bx_integ = dbe->book1D(mename,hname,3,-1.5,1.5);
+
+      //sprintf(hname,"dttf_nTracks_integ");
+      //sprintf(mename,"Integrated Num Tracks");
+      //dttf_nTracks_integ = dbe->book1D(mename,hname,6,0,6);
+//       dttf_nTracks_integ->setAxisTitle("wheel",1);
+//       dttf_nTracks_integ->setBinLabel(1,"N2",1);
+//       dttf_nTracks_integ->setBinLabel(2,"N1",1);
+//       dttf_nTracks_integ->setBinLabel(3,"N0",1);
+//       dttf_nTracks_integ->setBinLabel(4,"P0",1);
+//       dttf_nTracks_integ->setBinLabel(5,"P1",1);
+//       dttf_nTracks_integ->setBinLabel(6,"P2",1);
+
+      sprintf(hname,"dttf_nTracksPerEvent_integ");
+      sprintf(mename,"Num Tracks Per Event");
+      dttf_nTracksPerEvent_integ = dbe->book1D(mename,hname,21,-0.5,20.5);
+      dttf_nTracksPerEvent_integ->setAxisTitle("number of tracks",1);
+
+//       //physical values
+//       sprintf(hname,"dttf_phys_phi_integ");
+//       dttf_phys_phi_integ = dbe->book1D(hname,hname,144,-0.5,360.5);
 	    
-      sprintf(hname,"dttf_phys_eta_integ");
-      dttf_phys_eta_integ = dbe->book1D(hname,hname,64,-1.2,1.2);//eta range (-1.2,1.2)
+//       sprintf(hname,"dttf_phys_eta_integ");
+//       dttf_phys_eta_integ = dbe->book1D(hname,hname,64,-1.2,1.2);//eta range (-1.2,1.2)
 	    
-      sprintf(hname,"dttf_phys_pt_integ");
-      dttf_phys_pt_integ  = dbe->book1D(hname,hname,100,-0.5,99.5);//what is max pt value?
+//       sprintf(hname,"dttf_phys_pt_integ");
+//       dttf_phys_pt_integ  = dbe->book1D(hname,hname,100,-0.5,99.5);//what is max pt value?
 
       //track occupancy info - everything
-      sprintf(hname,"dttf_p_phi_eta");
-      dttf_p_phi_eta_integ = dbe->book2D(hname,hname,144,-0.5,360.5,64,-1.2,1.2);
+      sprintf(hname,"dttf_p_phi_eta_integ");
+      sprintf(mename,"Occupancy Phi vs Eta");
+      dttf_p_phi_eta_integ = dbe->book2D(mename,hname,64,-0.5,64.5,144,-0.5,143.5);      
 
+      //bunch crossing summary
+      sprintf(hname,"bx_Summary");
+      sprintf(mename,"BX Summary");
+      dttf_bx_Summary = dbe->book2D(mename,hname,6,0,6,3,-1,2);
+      
+      //occupancy summary
       sprintf(hname,"Occupancy_Summary");
-      //dttf_occupancySummary = dbe->book2D(hname,hname,12,1,13,6,0,6);
-      //dttf_occupancySummary->setAxisTitle("sector",1);
-      //dttf_occupancySummary->setAxisTitle("wheel",2);
-      dttf_occupancySummary = dbe->book2D(hname,hname,6,0,6,12,1,13);
-      dttf_occupancySummary->setAxisTitle("wheel",1);
-      dttf_occupancySummary->setAxisTitle("sector",2);
-      dttf_occupancySummary->setBinLabel(1,"N2",1);
-      dttf_occupancySummary->setBinLabel(2,"N1",1);
-      dttf_occupancySummary->setBinLabel(3,"N0",1);
-      dttf_occupancySummary->setBinLabel(4,"P0",1);
-      dttf_occupancySummary->setBinLabel(5,"P1",1);
-      dttf_occupancySummary->setBinLabel(6,"P2",1);
+      sprintf(mename,"Occupancy Summary");
+      dttf_occupancySummary = dbe->book2D(mename,hname,6,0,6,12,1,13);
+
+      //occupancy summary - reset
+      sprintf(hname,"Occupancy_Summary_r");
+      sprintf(mename,"Occupancy Summary - Reset");
+      dttf_occupancySummary_r = dbe->book2D(mename,hname,6,0,6,12,1,13);
+      dttf_occupancySummary_r->setResetMe(true);
+
+      //high quality fraction (q>3)
+      sprintf(hname,"highQual_Summary");
+      sprintf(mename,"Fractional High Quality Summary");
+      dttf_highQual_Summary = dbe->book2D(mename,hname,6,0,6,12,1,13);
+
+
+      //second track fraction
+      sprintf(hname,"dttf_2ndTrack_Summary");
+      sprintf(mename,"2nd Track Summary");
+      dttf_2ndTrack_Summary = dbe->book2D(mename,hname,6,0,6,12,1,13);
+
+
+      //integrated values - 2nd track only
+      string dttf_trk_folder_integrated_2ndtrack = dttf_trk_folder_integrated + "/2ND_TRACK_ONLY";
+      dbe->setCurrentFolder(dttf_trk_folder_integrated_2ndtrack);
+
+      //packed values
+      sprintf(hname,"dttf_p_phi_integ_2ndTrack");
+      sprintf(mename,"Integrated Packed Phi");
+      dttf_p_phi_integ_2ndTrack = dbe->book1D(mename,hname,144,-0.5,143.5);
+	    
+      sprintf(hname,"dttf_p_eta_integ_2ndTrack");
+      sprintf(mename,"Integrated Packed Eta");
+      dttf_p_eta_integ_2ndTrack = dbe->book1D(mename,hname,64,-0.5,64.5);
+	    
+      sprintf(hname,"dttf_p_pt_integ_2ndTrack");
+      sprintf(mename,"Integrated Packed Pt");
+      dttf_p_pt_integ_2ndTrack  = dbe->book1D(mename,hname,32,-0.5,31.5);
+
+      sprintf(hname,"dttf_p_qual_integ_2ndTrack");
+      sprintf(mename,"Integrated Packed Quality");
+      dttf_p_qual_integ_2ndTrack  = dbe->book1D(mename,hname,8,-0.5,7.5);
+
+      sprintf(hname,"dttf_p_q_integ_2ndTrack");
+      sprintf(mename,"Integrated Packed Charge");
+      dttf_p_q_integ_2ndTrack = dbe->book1D(mename,hname,2,-0.5,1.5);
+
+      sprintf(hname,"dttf_bx_integ_2ndTrack");
+      sprintf(mename,"Integrated BX");
+      dttf_bx_integ_2ndTrack = dbe->book1D(mename,hname,3,-1.5,1.5);
+      
+      sprintf(hname,"dttf_nTracks_integ_2ndTrack");
+      sprintf(mename,"Integrated Num Tracks");
+      dttf_nTracks_integ_2ndTrack = dbe->book1D(mename,hname,6,0,6);
+      
+       //      sprintf(hname,"dttf_nTracksPerEvent_integ_2ndTrack");
+//       sprintf(mename,"Tracks Per Event");
+//       dttf_nTracksPerEvent_integ_2ndTrack = dbe->book1D(mename,hname,21,-0.5,20.5);
+//       dttf_nTracksPerEvent_integ_2ndTrack->setAxisTitle("number of tracks",1);
+
+      //track occupancy info - everything
+      sprintf(hname,"dttf_p_phi_eta_integ_2ndTrack");
+      sprintf(mename,"Occupancy Phi vs Eta");
+      dttf_p_phi_eta_integ_2ndTrack = dbe->book2D(mename,hname,64,-0.5,64.5,144,-0.5,143.5);      
+
+      //bunch crossing summary
+      sprintf(hname,"bx_Summary_2ndTrack");
+      sprintf(mename,"BX Summary");
+      dttf_bx_Summary_2ndTrack = dbe->book2D(mename,hname,6,0,6,3,-1,2);
+      
+      //occupancy summary
+      sprintf(hname,"Occupancy_Summary_2ndTrack");
+      sprintf(mename,"Occupancy Summary");
+      dttf_occupancySummary_2ndTrack = dbe->book2D(mename,hname,6,0,6,12,1,13);
+
+      //high quality fraction (q>4)
+      sprintf(hname,"highQual_Summary_2ndTrack");
+      sprintf(mename,"Fractional High Quality Summary");
+      dttf_highQual_Summary_2ndTrack = dbe->book2D(mename,hname,6,0,6,12,1,13);
+
+
 
 
       /*
@@ -631,13 +853,22 @@ void L1TDTTF::endJob(void)
 
   if ( outputFile_.size() != 0  && dbe ) dbe->save(outputFile_);
 
+
+  //  std::cout << "nev_: " << nev_ << std::endl;
+  //std::cout << "nev_dttf: " << nev_dttf << std::endl;
+  //std::cout << "nev_dttf_track2: " << nev_dttf_track2 << std::endl;
+
   return;
 }
 
 void L1TDTTF::analyze(const Event& e, const EventSetup& c)
 {
   nev_++; 
+  dttf_track = false;
+  dttf_track_2 = false;
   if(verbose_) cout << "L1TDTTF: analyze...." << endl;
+
+
 
 
   /*
@@ -942,7 +1173,24 @@ void L1TDTTF::analyze(const Event& e, const EventSetup& c)
   }
 
   L1MuDTTrackContainer::TrackContainer *t =  myL1MuDTTrackContainer->getContainer();
-  //int count = 0;
+
+  int numTracks[3][6][12];
+  for(int k=0; k<3; k++)
+    for(int l=0; l<6; l++)
+      for(int m=0; m<12; m++)
+	numTracks[k][l][m] = 0;
+
+  int numTracks_wh[6];
+  //int numTracks_wh_2ndTrack[6];
+  for(int k=0; k<6; k++) {
+    numTracks_wh[k]=0; 
+    //numTracks_wh_2ndTrack[k]=0;
+  }
+
+
+
+  int numTracks_integ = 0;
+  int numTracks_integ_2ndTrack = 0;
 
   /*
 ///
@@ -999,8 +1247,15 @@ void L1TDTTF::analyze(const Event& e, const EventSetup& c)
 */
 
 
-
-
+  //check if DTTF track exists for this event
+  for ( L1MuDTTrackContainer::TrackContainer::const_iterator i 
+ 	  = t->begin(); i != t->end(); ++i ) {
+    dttf_track = true;
+    if(i->TrkTag() == 1)
+      dttf_track_2 = true;
+  }
+  if(dttf_track == true) nev_dttf++;
+  if(dttf_track_2 == true) nev_dttf_track2++;
 
   for ( L1MuDTTrackContainer::TrackContainer::const_iterator i 
  	  = t->begin(); i != t->end(); ++i ) {
@@ -1016,23 +1271,33 @@ void L1TDTTF::analyze(const Event& e, const EventSetup& c)
       std::cout << "charge  (packed) = " << i->charge_packed() 
  		<< std::endl;
     }
-    //count++;
+
     int bxindex = i->bx() + 1;
     int wh = i->whNum();//wh has possible values {-3,-2,-1,1,2,3}
     int se = i->scNum();
-    
+
+    //testing purposes
+//     switch(i->bx()){
+//     case 0 : bx0++;  break;
+//     case 1 : bxp1++; break;
+//     case -1: bxn1++; break;
+//     }
+
+   
     int wh2;//make wh2 go from 0 to 5
     if(wh<0)wh2=wh+3;
     else wh2=wh+2;
-    
-    //cout << "bxindex " << bxindex << endl;
-    //std::cout << "whNum = " << wh << "  bxindex = " << bxindex << std::endl;
-    //std::cout << "wh2 = " << wh2 << std::endl;
-    //std::cout << "se = " << se << std::endl;
-    //std::cout << "eta_packed = " << i->eta_packed() << std::endl;
-    //std::cout << "count = " << count << std::endl;
+   
+    numTracks[bxindex][wh2][se]++; 
+    nBx[wh2][bxindex]++;
 
 
+    dttf_bx[wh2][se]->Fill(i->bx());
+
+    if(i->TrkTag() == 1) {
+      nBx_2ndTrack[wh2][bxindex]++;
+      dttf_bx_2ndTrack[wh2][se]->Fill(i->bx());
+    }
     int phi_local = i->phi_packed();//range: 0 < phi_local < 31 
     if(phi_local > 15) phi_local -= 32; //range: -16 < phi_local < 15
     
@@ -1040,7 +1305,7 @@ void L1TDTTF::analyze(const Event& e, const EventSetup& c)
     if(phi_global < 0) phi_global = 144; //range: 0 < phi_global < 147
     if(phi_global > 143) phi_global -= 144; //range: 0 < phi_global < 143
 
-    float phi_phys = phi_global * 2.5;  
+    //float phi_phys = phi_global * 2.5;  
 
     dttf_p_phi[bxindex][wh2][se]->Fill(phi_global);
 
@@ -1048,32 +1313,140 @@ void L1TDTTF::analyze(const Event& e, const EventSetup& c)
     dttf_p_pt[bxindex][wh2][se]->Fill(i->pt_packed());
     dttf_p_q[bxindex][wh2][se]->Fill(i->charge_packed());
 
-    int eta_global = i->eta_packed() - 32;
+    int eta_global = i->eta_packed();
+    //int eta_global = i->eta_packed() - 32;
     dttf_p_eta[bxindex][wh2][se]->Fill(eta_global);
-
-    float eta_phys = eta_global / 2.4 ;
+    //float eta_phys = eta_global / 2.4 ;
 
     if(bxindex==1){
+     
+      nOccupancy_integ[wh2][se]++;
+      nOccupancy_integ_phi_eta[eta_global][phi_global]++;
+      nOccupancy_wheel_phi_eta[eta_global][phi_global][wh2]++;
+
+      numTracks_integ++;
+      numTracks_wh[wh2]++;
+
       //dttf_p_phi_integ->Fill(i->phi_packed());
       dttf_p_phi_integ->Fill(phi_global);
       dttf_p_pt_integ->Fill(i->pt_packed());
-      dttf_p_eta_integ->Fill(eta_global);
+      dttf_p_eta_integ->Fill(i->eta_packed());
+      //dttf_p_eta_integ->Fill(eta_global);
       dttf_p_qual_integ->Fill(i->quality_packed());
+      dttf_p_q_integ->Fill(i->charge_packed());
+      
+//       //dttf_phys_phi_integ->Fill(i->phiValue());
+//       dttf_phys_phi_integ->Fill(phi_phys);
+//       dttf_phys_pt_integ->Fill(i->ptValue());
+//       //dttf_phys_eta_integ->Fill(i->etaValue());
+//       dttf_phys_eta_integ->Fill(eta_phys);
+      
+      //dttf_p_phi_eta_wheel[wh2]->Fill(i->eta_packed(),phi_global);
+      if(nev_dttf) dttf_p_phi_eta_wheel[wh2]->setBinContent(eta_global+1,phi_global+1,nOccupancy_wheel_phi_eta[eta_global][phi_global][wh2]/(float)nev_dttf);
+      
+      //dttf_p_phi_eta_integ->Fill(i->eta_packed(),phi_global);
+      if(nev_dttf) dttf_p_phi_eta_integ->setBinContent(eta_global+1,phi_global+1,nOccupancy_integ_phi_eta[eta_global][phi_global]/(float)nev_dttf);
+      
+      
+      //proportionate to number of events with at least one DTTF track
+      if(nev_dttf){
+	dttf_occupancySummary->setBinContent(wh2+1,se+1, nOccupancy_integ[wh2][se]/(float)nev_dttf);
+	dttf_occupancySummary_r->setBinContent(wh2+1,se+1, nOccupancy_integ[wh2][se]/(float)nev_dttf);
+	//	dttf_occupancySummary_r->Fill(wh2,se+1);
+      }
+
+      dttf_nTracks_wheel[wh2]->Fill(se+1);
+      //dttf_nTracks_integ->Fill(wh2);
+
+      if(i->quality_packed()>3)
+	nHighQual[wh2][se]++;
+      
+      if(i->TrkTag()== 1){
+	nOccupancy_integ_2ndTrack[wh2][se]++;
+	nOccupancy_integ_phi_eta_2ndTrack[eta_global][phi_global]++;
+	//numTracks_wh_2ndTrack[wh2]++;
+	//dttf_nTracks_wheel_2ndTrack[wh2]->Fill(se+1);
+	numTracks_integ_2ndTrack++;
+	dttf_p_phi_integ_2ndTrack->Fill(phi_global);
+	dttf_p_eta_integ_2ndTrack->Fill(i->eta_packed());
+	dttf_p_pt_integ_2ndTrack->Fill(i->pt_packed());
+	dttf_p_qual_integ_2ndTrack->Fill(i->quality_packed());
+	dttf_p_q_integ_2ndTrack->Fill(i->charge_packed());
+
+	//dttf_p_phi_eta_integ_2ndTrack->Fill(i->eta_packed(),phi_global);
+	if(nev_dttf_track2) dttf_p_phi_eta_integ_2ndTrack->setBinContent(eta_global+1,phi_global+1,nOccupancy_integ_phi_eta_2ndTrack[eta_global][phi_global]/(float)nev_dttf_track2);	
 
 
-      //dttf_phys_phi_integ->Fill(i->phiValue());
-      dttf_phys_phi_integ->Fill(phi_phys);
-      dttf_phys_pt_integ->Fill(i->ptValue());
-      //dttf_phys_eta_integ->Fill(i->etaValue());
-      dttf_phys_eta_integ->Fill(eta_phys);
-      
-      dttf_p_phi_eta[wh2]->Fill(i->phi_packed(),i->eta_packed());
-      dttf_p_phi_eta_integ->Fill(i->phi_packed(),i->eta_packed());
-      
-      //dttf_occupancySummary->Fill(se+1,wh2);
-      dttf_occupancySummary->Fill(wh2,se+1);
+	if(nev_dttf_track2){
+	  //dttf_occupancySummary_2ndTrack->Fill(wh2,se+1);
+	  dttf_occupancySummary_2ndTrack->setBinContent(wh2+1,se+1, nOccupancy_integ_2ndTrack[wh2][se]/(float)nev_dttf_track2);
+	}
+
+	n2ndTrack[wh2][se]++;
+	dttf_n2ndTracks_wheel[wh2]->Fill(se+1);
+	dttf_nTracks_integ_2ndTrack->Fill(wh2);
+	if(i->quality_packed()>3)
+	  nHighQual_2ndTrack[wh2][se]++;
+      }   
+	
+
+    }
+
+    dttf_bx_wheel[wh2]->Fill(i->bx());
+    dttf_bx_integ->Fill(i->bx());
+    //dttf_bx_Summary->Fill(wh2,i->bx());   
+    if(nev_dttf) dttf_bx_Summary->setBinContent(wh2+1,bxindex+1,nBx[wh2][bxindex]/(float)nev_dttf);
+
+
+    if(i->TrkTag() == 1){
+      //dttf_bx_wheel_2ndTrack[wh2]->Fill(i->bx());
+      dttf_bx_integ_2ndTrack->Fill(i->bx());
+      if(nev_dttf_track2)
+	//dttf_bx_Summary_2ndTrack->Fill(wh2,i->bx());
+	dttf_bx_Summary_2ndTrack->setBinContent(wh2+1,bxindex+1,nBx_2ndTrack[wh2][bxindex]/(float)nev_dttf_track2);
+	
+    }
+    
+    if(nOccupancy_integ[wh2][se]){
+      double highQualFraction = (double)nHighQual[wh2][se] / (double)nOccupancy_integ[wh2][se];
+      if(highQualFraction == 0)
+	dttf_highQual_Summary->setBinContent(wh2+1, se+1, 0.01);
+      else dttf_highQual_Summary->setBinContent(wh2+1,se+1,highQualFraction);
+    }
+
+    if(nOccupancy_integ_2ndTrack[wh2][se]){
+      double highQualFraction2 = (double) nHighQual_2ndTrack[wh2][se] / (double)nOccupancy_integ_2ndTrack[wh2][se];
+
+      //differentiate between empty bins and bins that have 0 high fractional quality
+      if(highQualFraction2 == 0)
+	dttf_highQual_Summary_2ndTrack->setBinContent(wh2+1,se+1, 0.01);
+      else dttf_highQual_Summary_2ndTrack->setBinContent(wh2+1,se+1,highQualFraction2);
+    }
+
+      //dttf_2ndTrack_Summary->setBinContent(wh2+1,se+1,n2ndTrack[wh2][se] / dttf_occupancySummary->getBinContent(wh2+1,se+1));
+    if(nev_dttf) dttf_2ndTrack_Summary->setBinContent(wh2+1, se+1, n2ndTrack[wh2][se]/(float)nev_dttf);
+
+    
+
+  }
+
+  for(int l=0; l<6; l++){
+    if(numTracks_wh[l])
+      dttf_nTracksPerEvent_wheel[l]->Fill(numTracks_wh[l]);
+    // if(numTracks_wh_2ndTrack[l])
+    //  dttf_nTracksPerEvent_wheel_2ndTrack[l]->Fill(numTracks_wh_2ndTrack[l]);
+    for(int k=0; k<3; k++){
+      for(int m=0; m<12; m++){
+	if(numTracks[k][l][m])
+	  dttf_nTrksPerEv[k][l][m]->Fill(numTracks[k][l][m]);
+      }
     }
   }
+
+  dttf_nTracksPerEvent_integ->Fill(numTracks_integ);
+
+//   //CHECK IF THIS IS WHAT WE WANT!!
+//   dttf_nTracksPerEvent_integ_2ndTrack->Fill(numTracks_integ_2ndTrack);
 }
 
 void L1TDTTF::setMapPhLabel(MonitorElement *me)
