@@ -32,8 +32,12 @@ namespace cond {
 
   template<>
   struct ExtractWhat<EcalPedestals> {
-    ecalped::Quantity quantity;
-    ecalped::How how;
+
+    ecalped::Quantity m_quantity;
+    ecalped::How m_how;
+
+    ecalped::Quantity & quantity)_ { return m_quantity;}
+    ecalped::How & how() { return m_how;}
   };
 
 
@@ -115,8 +119,8 @@ namespace condPython {
 
     typedef cond::ExtractWhat<EcalPedestals> What;
     class_<What>("What",init<>())
-      .def_readwrite("quantity",&What::quantity)
-      .def_readwrite("how",&What::how)
+      .def("quantity",&What::quantity, return_internal_reference<>())
+      .def("how",&What::how, return_internal_reference<>())
       ;
   }
 }
