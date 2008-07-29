@@ -1,7 +1,7 @@
 /** \class CSCTMBData
  *
- *  $Date: 2008/07/25 21:51:24 $
- *  $Revision: 1.24 $
+ *  $Date: 2008/07/29 20:47:04 $
+ *  $Revision: 1.25 $
  *  \author A. Tumanov - Rice
  */
 
@@ -313,7 +313,7 @@ boost::dynamic_bitset<> CSCTMBData::pack()
                                                   theTMBTrailer.data());
   newResult = bitset_utilities::append(newResult, tmbTrailer);
 
-  return result;
+  return newResult;
 }
 
 
