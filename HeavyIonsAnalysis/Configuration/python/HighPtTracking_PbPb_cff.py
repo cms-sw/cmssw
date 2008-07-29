@@ -6,19 +6,17 @@ from RecoLocalTracker.Configuration.RecoLocalTracker_cff import *
 from RecoTracker.TkSeedingLayers.TTRHBuilderWithoutAngle4PixelTriplets_cfi import *
 from RecoLocalTracker.SiPixelRecHits.PixelCPEESProducers_cff import *
 from RecoVertex.BeamSpotProducer.BeamSpot_cfi import *
-from RecoPixelVertexing.PixelLowPtUtilities.PixelLowPtTracksWithZPos_cff import *
-import RecoPixelVertexing.PixelLowPtUtilities.PixelLowPtTracksWithZPos_cfi
-pixel3ProtoTracks = RecoPixelVertexing.PixelLowPtUtilities.PixelLowPtTracksWithZPos_cfi.pixelLowPtTracksWithZPos.clone()
-from RecoPixelVertexing.PixelLowPtUtilities.PixelVertices_cfi import *
-import RecoPixelVertexing.PixelLowPtUtilities.PixelLowPtTracksWithZPos_cfi
-pixel3PrimTracks = RecoPixelVertexing.PixelLowPtUtilities.PixelLowPtTracksWithZPos_cfi.pixelLowPtTracksWithZPos.clone()
-import RecoPixelVertexing.PixelLowPtUtilities.PixelTrackSeeds_cfi
-primSeeds = RecoPixelVertexing.PixelLowPtUtilities.PixelTrackSeeds_cfi.pixelTrackSeeds.clone()
+from RecoHI.HiTracking.PixelLowPtTracksWithZPos_cff import *
+pixel3ProtoTracks = pixelLowPtTracksWithZPos.clone()
+from RecoHI.HiTracking.PixelVertices_cfi import *
+pixel3PrimTracks = pixelLowPtTracksWithZPos.clone()
+from RecoHI.HiTracking.PixelTrackSeeds_cff import *
+primSeeds = pixelTrackSeeds.clone()
 from RecoTracker.CkfPattern.CkfTrackCandidates_cff import *
 from TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cff import *
 import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
 ckfBaseTrajectoryFilterForMinBias = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone()
-from RecoPixelVertexing.PixelLowPtUtilities.TrajectoryCleanerBySharedSeeds_cfi import *
+from RecoHI.HiTracking.TrajectoryCleanerBySharedSeeds_cfi import *
 from RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cff import *
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 primTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone()

@@ -19,8 +19,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 process.source = cms.Source("PoolSource",
 #    fileNames = cms.untracked.vstring('rfio:/castor/cern.ch/cms/store/cmshi/mc/sim/pgun_jpsi2muons_d20080423/pgun_jpsi2muons_d20080423_r000001.root')
-fileNames = cms.untracked.vstring(           "rfio:/castor/cern.ch/cms/store/cmshi/mc/sim/hydjet_sim_x2_c1_d20080425/hydjet_sim_x2_c1_d20080425_r000002.root"
-                                             )
+fileNames = cms.untracked.vstring(           "rfio:/castor/cern.ch/cms/store/cmshi/mc/sim/hydjet_sim_x2_c5_d20080425/hydjet_sim_x2_c5_d20080425_r000002.root")
 
 )
 
@@ -75,8 +74,8 @@ process.output = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('jpsi2muons_PbPb_RECO.root')
 )
 
-#process.p = cms.Path(process.mix*process.doAllDigi*process.L1Emulator*process.DigiToRaw*process.RawToDigi*process.reconstruct_PbPb)
-process.p = cms.Path(process.mix*process.doAllDigi*process.L1Emulator*process.DigiToRaw*process.RawToDigi*process.hiTrackingWithOfflineBeamSpot)
+process.p = cms.Path(process.mix*process.doAllDigi*process.L1Emulator*process.DigiToRaw*process.RawToDigi*process.reconstruct_PbPb)
+#process.p = cms.Path(process.mix*process.doAllDigi*process.L1Emulator*process.DigiToRaw*process.RawToDigi*process.hiTrackingWithOfflineBeamSpot)
 process.outpath = cms.EndPath(process.output)
 process.output.outputCommands.append('keep *_*_*_RECO')
 
