@@ -376,6 +376,7 @@ void HFLightCalRand::analyze(const edm::Event& fEvent, const edm::EventSetup& fS
   edm::Handle<HcalCalibDigiCollection> calib;  
   fEvent.getByType(calib);
   if (verbose) std::cout<<"Analysis-> total CAL digis= "<<calib->size()<<std::endl;
+  /* COMMENTED OUT by J. Mans (7-28-2008) as major changes needed with new Calib DetId 
 
   for (unsigned j = 0; j < calib->size (); ++j) {
     const HcalCalibDataFrame digi = (*calib)[j];
@@ -426,7 +427,7 @@ void HFLightCalRand::analyze(const edm::Event& fEvent, const edm::EventSetup& fS
       htsmpin[isector+iside][ipin]->Fill(meant);
     }
   }
-  
+  */  
   // HF
   edm::Handle<HFDigiCollection> hf_digi;
   fEvent.getByType(hf_digi);
