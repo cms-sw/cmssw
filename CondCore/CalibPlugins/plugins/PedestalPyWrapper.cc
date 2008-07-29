@@ -25,8 +25,11 @@ namespace cond {
   public:
 
     typedef Pedestals Class;
+    typedef ExtractWhat<Class> What;
+    static What what() { return What();}
+
     ValueExtractor(){}
-    ValueExtractor(std::string const & what, std::vector<int> const& which)
+    ValueExtractor(What const & what, std::vector<int> const& which)
       : m_which(which)
     {
       // here one can make stuff really complicated...

@@ -19,11 +19,12 @@ namespace {
   template<typename Wrapper>
   void define() {
     typedef typename Wrapper::Extractor Extractor;
+    typedef cond::ExtractWhat<T> What;
 
     condPython::defineWhat<typename Extractor::Class>();
 
     class_<Extractor>("Extractor", init<>())
-      .def(init<std::string, std::vector<int> >())
+      .def(init<What, std::vector<int> >())
       .def("what",Extractor::what)
       .def("values",&Extractor::values, return_value_policy<copy_const_reference>())
       ;
