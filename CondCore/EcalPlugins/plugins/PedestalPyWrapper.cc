@@ -24,13 +24,29 @@ namespace {
 
 namespace cond {
 
+  namespace ecalped {
+    enum Quantity { mean_x12, mean_x6, mean_x3 };
+    enum How { singleChannel, bySuperModule, all};
+
+  }
+
+  template<>
+  struct ExtractWhat<EcalPedestals> {
+    Quantity quantity;
+    How how;
+  };
+
+
   template<>
   class ValueExtractor<EcalPedestals>: public  BaseValueExtractor<EcalPedestals> {
   public:
 
     typedef EcalPedestals Class;
+    typedef ExtractWhat<Class> What;
+    static What what() { return What();}
+
     ValueExtractor(){}
-    ValueExtractor(std::string const & what, std::vector<int> const& which)
+    ValueExtractor(What const & what, std::vector<int> const& which)
       : m_which(which)
     {
       // here one can make stuff really complicated... (select mean rms, 12,6,1)
@@ -81,5 +97,30 @@ namespace cond {
   }
   
 }
+
+
+namespace condPython {
+  template<typename EcalPedestals>
+  void defineWhat() {
+    enum_<cond::ecalped::Quantity>("Quantity")
+      .value("mean_x12", mean_x12)
+      .value("mean_x6",  mean_x6)
+      .value("mean_x3", mean_x3)
+      ;
+    enum_<cond::ecalped::How>("How")
+      .value("singleChannel",singleChannel)
+      .value("bySuperModule",bySuperModule) 
+      .value("all",all)
+      ;
+
+    typedef cond::ExtractWhat<EcalPedestals> What;
+    class_<What>("What",init<>())
+      .def_readonly("quantity",&What::quantity)
+      .def_readonly("how",&What::how)
+      ;
+  }
+}
+
+
 
 PYTHON_WRAPPER(EcalPedestals,EcalPedestals);

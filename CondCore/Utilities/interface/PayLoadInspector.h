@@ -53,12 +53,22 @@ namespace cond {
   };
 
 
+  // a collection of enumerators...
+  template<typename T>
+  struct ExtractWhat {
+
+  };
+
+
+
   template<typename T>
   class ValueExtractor : public  BaseValueExtractor<T> {
   public:
     typedef T Class;
+    typedef ExtractWhat<Class> What;
     ValueExtractor(){}
-    ValueExtractor(std::string const &, std::vector<int> const&){}
+    ValueExtractor(What const &, std::vector<int> const&){}
+    static What what() { return What();}
   private:
     void compute(Class const &){}
   private:

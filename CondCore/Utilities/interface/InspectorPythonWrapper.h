@@ -5,12 +5,26 @@
 
 using namespace boost::python;
 
+namespace condPython {
+  template<typename T>
+  void defineWhat() {
+    typedef cond::ExtractWhat<T> What;
+    class_<What>("What",init<>());
+  }
+
+}
+
 namespace {
+  
   template<typename Wrapper>
   void define() {
     typedef typename Wrapper::Extractor Extractor;
+
+    condPython::defineWhat<typename Extractor::Class>();
+
     class_<Extractor>("Extractor", init<>())
       .def(init<std::string, std::vector<int> >())
+      .def("what",Extractor::what)
       .def("values",&Extractor::values, return_value_policy<copy_const_reference>())
       ;
 
