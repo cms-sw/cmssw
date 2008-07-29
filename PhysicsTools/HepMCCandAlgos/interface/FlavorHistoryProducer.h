@@ -30,6 +30,9 @@
 #include <fstream>
 
 
+std::ostream & operator<<( std::ostream & out, reco::Candidate const & cand) ;
+
+std::ostream & operator<<( std::ostream & out, reco::FlavorHistory const & cand);
 
 class FlavorHistoryProducer : public edm::EDProducer {
  public:

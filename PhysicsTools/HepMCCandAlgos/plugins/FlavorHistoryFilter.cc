@@ -2,6 +2,7 @@
 // This comment is to restore it. 
 
 #include "PhysicsTools/HepMCCandAlgos/interface/FlavorHistoryFilter.h"
+#include "PhysicsTools/HepMCCandAlgos/interface/FlavorHistoryProducer.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -31,7 +32,8 @@ FlavorHistoryFilter::FlavorHistoryFilter(const edm::ParameterSet& iConfig) :
   type_   ( iConfig.getParameter<int> ("type" ) ),
   minPt_  ( iConfig.getParameter<double> ("minPt") ),
   minDR_  ( iConfig.getParameter<double> ("minDR") ),
-  scheme_ ( iConfig.getParameter<string> ("scheme") )
+  scheme_ ( iConfig.getParameter<string> ("scheme") ),
+  verbose_( iConfig.getParameter<bool>   ("verbose") )
 {
    //now do what ever initialization is needed
 }
@@ -73,6 +75,15 @@ FlavorHistoryFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   Handle<GenJetCollection> pJets;
   iEvent.getByLabel(jets_, pJets );
 
+  GenJetCollection::const_iterator ijetBegin = pJets->begin(),
+    ijetEnd = pJets->end(),
+    ijet = ijetBegin;
+  
+  if ( verbose_) cout << "Looking at GenJetCollection:" << endl;
+  for ( ; ijet != ijetEnd; ++ijet ) {
+    if ( verbose_) cout << *ijet << endl;
+  }
+
   // boolean to decide to pass this event or not
   bool pass = false;
 
@@ -80,6 +91,10 @@ FlavorHistoryFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   vector<FlavorHistory>::const_iterator i = pFlavorHistory->begin(),
     iend = pFlavorHistory->end();
   for ( ; i != iend && !pass; ++i ) {
+
+    if ( verbose_) cout << "Looking at flavor history object: " << endl;
+    if ( verbose_) cout << *i << endl;
+    
 
     // Make sure to consider only flavorSources of "type"
     if ( i->flavorSource() == type_ ) {
@@ -93,6 +108,8 @@ FlavorHistoryFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       // Check to see if we got any matches
       if ( bestJet != pJets->end() ) {
 
+	if ( verbose_) cout << "Found best jet: " << *bestJet << endl;
+
 	// Have at least one jet within minDR_ of the parton, make decision:
 	if ( scheme_ == "deltaR" ) {
 	
@@ -103,22 +120,30 @@ FlavorHistoryFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 	  // No sisters, pass event
 	  if ( ! i->hasSister() ) {
+	    if ( verbose_) cout << "There is no sister, pass" << endl;
 	    pass = true;
 	  } 
 	  // Has a sister
 	  else {
+	    if ( verbose_) cout << "Found a sister" << endl;
 	    // Find jet closest to sister
 	    reco::CandidatePtr sister = i->sister();
+	    if ( verbose_) cout << *sister << endl;
 	    GenJetCollection::const_iterator sisterJet = getClosestJet( pJets, sister );
 	    // Here we found a sister jet
 	    if ( sisterJet != pJets->end() ) {
+	      if ( verbose_) cout << "sister jet = " << *sisterJet << endl;
 
 	      // If this jet is far enough away from the first jet, pass the event
+	      if ( verbose_) cout << "deltaR = " << deltaR( sisterJet->p4(), bestJet->p4() ) << endl;
+	      if ( verbose_) cout << "minDR  = " << minDR_ << endl;
 	      if ( deltaR( sisterJet->p4(), bestJet->p4() ) > minDR_ ) {
+		if ( verbose_) cout << "Pass is true" << endl;
 		pass = true;
 	      }
 	      // Otherwise, fail the event
 	      else {
+		if ( verbose_) cout << "Pass is false" << endl;
 		pass = false;
 	      }
 
@@ -126,6 +151,7 @@ FlavorHistoryFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 	    // Here there is no sister jet, pass event
 	    else {
+	      if ( verbose_) cout << "No sister jet, pass" << endl;
 	      pass = true;
 	    }// end if has no sister jet
 	  }// end if has sister
@@ -144,6 +170,8 @@ FlavorHistoryFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
   }
 
+
+  if ( verbose_) cout << "About to return pass = " << pass << endl;
   return pass;
 
 }
