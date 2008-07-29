@@ -32,8 +32,8 @@ namespace cond {
 
   template<>
   struct ExtractWhat<EcalPedestals> {
-    Quantity quantity;
-    How how;
+    ecalped::Quantity quantity;
+    ecalped::How how;
   };
 
 
