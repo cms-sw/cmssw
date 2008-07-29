@@ -39,7 +39,7 @@ public:
     }
 
   uint16_t sizeInBytes() const {return 16;}
-  int crc22() const;
+  unsigned int crc22() const;
   void setCRC(int crc);
   bool check() const {return theData[0]==0x6e0c;}
   /// in 16-bit frames
@@ -47,6 +47,7 @@ public:
   unsigned short * data() {return theData;}
 
   int wordCount() const;
+  static void selfTest();
 private:
   int crcOffset() const  {return (theFirmwareVersion == 2006 ? 1 : 3) + thePadding;}
   int de0fOffset() const {return (theFirmwareVersion == 2006 ? 3 : 1) + thePadding;}
