@@ -9,6 +9,7 @@
 
 
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
+#include "DataFormats/Provenance/interface/BranchType.h"
 #include "FWCore/Utilities/interface/ReflexTools.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/TypeID.h"
@@ -92,6 +93,18 @@ namespace edm {
 	++it;
       }
     }
+  }
+
+  bool
+  ProductRegistry::anyProducts(BranchType brType) const {
+    throwIfNotFrozen();
+    for (ProductList::const_iterator it = productList_.begin(), itEnd = productList_.end();
+        it != itEnd; ++it) {
+      if (it->second.branchType() == brType) {
+	return true;
+      }
+    }
+    return false;
   }
   
   void

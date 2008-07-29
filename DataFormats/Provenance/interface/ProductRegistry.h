@@ -116,6 +116,8 @@ namespace edm {
 
     void deleteDroppedProducts();
 
+    bool anyProducts(BranchType const brType) const;
+
   private:
     
     void initializeTransients() const;
