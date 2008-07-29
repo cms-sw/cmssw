@@ -1,7 +1,7 @@
 /** \class CSCTMBData
  *
- *  $Date: 2008/07/24 07:05:42 $
- *  $Revision: 1.23 $
+ *  $Date: 2008/07/25 21:51:24 $
+ *  $Revision: 1.24 $
  *  \author A. Tumanov - Rice
  */
 
@@ -197,12 +197,6 @@ int CSCTMBData::UnpackTMB(unsigned short *buf) {
   theB0CLine = b0cLine;
   theE0FLine = maxLine;
 
-  int CRClow  = buf[maxLine-2] & 0x7ff;
-  int CRChigh = buf[maxLine-1] & 0x7ff;
-
-  
-  CRCCnt = (CRChigh<<11) | (CRClow);
-  
   // finally, the trailer
   int e0cLine = findLine(buf, 0x6e0c, currentPosition, maxLine);
   if (e0cLine == -1)
@@ -304,7 +298,8 @@ boost::dynamic_bitset<> CSCTMBData::pack()
   
   // now convert to a vector<bitset<16>>, so we can calculate the crc
   std::vector<std::bitset<16> > wordVector;
-  for(unsigned pos = 0; pos < result.size(); pos += 16)
+  // try to tune so it stops before the e0f line
+  for(unsigned pos = 0; pos < result.size()-16; pos += 16)
   {
     std::bitset<16> word;
     for(int i = 0; i < 16; ++i)
