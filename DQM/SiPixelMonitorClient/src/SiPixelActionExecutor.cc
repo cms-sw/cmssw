@@ -991,7 +991,7 @@ void SiPixelActionExecutor::checkQTestResults(DQMStore * bei) {
   vector<string> contentVec;
   bei->getContents(contentVec);
   configParser_->getCalibType(calib_type_);
-  cout << calib_type_ << endl;
+//  cout << calib_type_ << endl;
   configParser_->getMessageLimitForQTests(message_limit_);
   for (vector<string>::iterator it = contentVec.begin();
        it != contentVec.end(); it++) {
