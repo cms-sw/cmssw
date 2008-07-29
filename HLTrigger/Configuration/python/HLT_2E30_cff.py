@@ -632,7 +632,7 @@ hltL1s1jet30 = cms.EDFilter( "HLTLevel1GTSeed",
 )
 hltPre1jet30 = cms.EDFilter( "HLTPrescaler" )
 hltEcalPreshowerDigis = cms.EDProducer( "ESRawToDigi",
-    sourceTag = cms.InputTag( "rawDataCollector" ),
+    Label = cms.string( "rawDataCollector" ),
     InstanceES = cms.string( "" ),
     ESdigiCollection = cms.string( "" )
 )
@@ -4619,7 +4619,7 @@ hltSingleMuNoIsoL1Filtered = cms.EDFilter( "HLTMuonL1Filter",
 hltMuonDTDigis = cms.EDProducer( "DTUnpackingModule",
     dataType = cms.string( "DDU" ),
     fedbyType = cms.untracked.bool( False ),
-    inputLabel = cms.untracked.InputTag( "rawDataCollector" ),
+    fedColl = cms.untracked.string( "rawDataCollector" ),
     readOutParameters = cms.PSet( 
       localDAQ = cms.untracked.bool( False ),
       performDataIntegrityMonitor = cms.untracked.bool( False ),
