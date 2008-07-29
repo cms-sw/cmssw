@@ -20,6 +20,7 @@ Examples:
 parser = optparse.OptionParser(usage)
 
 expertSettings = optparse.OptionGroup(parser, '===============\n  Expert Options', 'Caution: please use only if you know what you are doing.')
+famosSettings = optparse.OptionGroup(parser, '===============\n  FastSimulation options', '')
 parser.add_option_group(expertSettings)
 
 parser.add_option("-s", "--step",
