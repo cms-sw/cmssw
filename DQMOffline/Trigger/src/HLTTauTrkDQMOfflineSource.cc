@@ -86,10 +86,9 @@ HLTTauTrkDQMOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSet
 		 nL25Jets->Fill(tauTagInfoColl.size());											         
 		 nPxlTrksInL25Jet->Fill(tauTagInfo.allTracks().size());								    
 		 nQPxlTrksInL25Jet->Fill(tauTagInfo.selectedTracks().size());							    
-		 printf("Plotted stuff\n");
-
+		
 		 const TrackRef leadTrk = tauTagInfo.leadingSignalTrack();
-		 if(!leadTrk) std::cout <<  "No leading track found " << std::endl;
+		 if(!leadTrk) ;
 		 else{
 	       
 		   signalLeadTrkPt->Fill(leadTrk->pt());				 
