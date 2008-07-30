@@ -23,8 +23,8 @@
  * in ORCA).
  * Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch), May 2006.
  *
- * $Date: 2008/07/06 05:17:00 $
- * $Revision: 1.16 $
+ * $Date: 2008/07/29 10:56:05 $
+ * $Revision: 1.17 $
  *
  */
 
@@ -133,18 +133,17 @@ class CSCCathodeLCTProcessor
   bool isMTCC; 
 
   /** Configuration parameters. */
-  unsigned int bx_width, drift_delay, hs_thresh, ds_thresh, nph_pattern;
-  unsigned int fifo_tbins, fifo_pretrig; // only for test beam mode.
-  unsigned int hit_thresh, pid_thresh;   // new TMB-07 parameters
-  unsigned int sep_src, sep_vme;
+  unsigned int fifo_tbins,  fifo_pretrig; // only for test beam mode.
+  unsigned int hit_persist, drift_delay;
+  unsigned int nplanes_hit_pretrig, nplanes_hit_pattern;
+  unsigned int pid_thresh_pretrig,  min_separation;
 
   /** Default values of configuration parameters. */
-  static const unsigned int def_bx_width,   def_drift_delay;
-  static const unsigned int def_hs_thresh,  def_ds_thresh;
-  static const unsigned int def_nph_pattern;
-  static const unsigned int def_fifo_tbins, def_fifo_pretrig;
-  static const unsigned int def_hit_thresh, def_pid_thresh;
-  static const unsigned int def_sep_src,    def_sep_vme;
+  static const unsigned int def_fifo_tbins,  def_fifo_pretrig;
+  static const unsigned int def_hit_persist, def_drift_delay;
+  static const unsigned int def_nplanes_hit_pretrig;
+  static const unsigned int def_nplanes_hit_pattern;
+  static const unsigned int def_pid_thresh_pretrig, def_min_separation;
 
   /** Set default values for configuration parameters. */
   void setDefaultConfigParameters();

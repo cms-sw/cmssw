@@ -13,8 +13,8 @@
  * in ORCA).
  * Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch), May 2006.
  *
- * $Date: 2008/07/14 14:30:26 $
- * $Revision: 1.13 $
+ * $Date: 2008/07/29 10:56:05 $
+ * $Revision: 1.14 $
  *
  */
 
@@ -105,16 +105,19 @@ class CSCAnodeLCTProcessor
   bool isTMB07;
 
   /** Configuration parameters. */
-  unsigned int fifo_tbins, fifo_pretrig, bx_width, drift_delay;
-  unsigned int nph_thresh, nph_pattern, acc_thresh, acc_pattern;
-  unsigned int trig_mode, alct_amode, l1a_window;
+  unsigned int fifo_tbins, fifo_pretrig, drift_delay;
+  unsigned int nplanes_hit_pretrig, nplanes_hit_accel_pretrig;
+  unsigned int nplanes_hit_pattern, nplanes_hit_accel_pattern;
+  unsigned int trig_mode, accel_mode, l1a_window_width;
 
   /** Default values of configuration parameters. */
   static const unsigned int def_fifo_tbins, def_fifo_pretrig;
-  static const unsigned int def_bx_width,   def_drift_delay;
-  static const unsigned int def_nph_thresh, def_nph_pattern;
-  static const unsigned int def_acc_thresh, def_acc_pattern;
-  static const unsigned int def_trig_mode, def_alct_amode, def_l1a_window;
+  static const unsigned int def_drift_delay;
+  static const unsigned int def_nplanes_hit_pretrig, def_nplanes_hit_pattern;
+  static const unsigned int def_nplanes_hit_accel_pretrig;
+  static const unsigned int def_nplanes_hit_accel_pattern;
+  static const unsigned int def_trig_mode, def_accel_mode;
+  static const unsigned int def_l1a_window_width;
 
   /** Chosen pattern mask. */
   int pattern_mask[CSCConstants::NUM_ALCT_PATTERNS][NUM_PATTERN_WIRES];
@@ -136,7 +139,7 @@ class CSCAnodeLCTProcessor
   void ghostCancellationLogic();
   void lctSearch();
   void trigMode(const int key_wire);
-  void alctAmode(const int key_wire);
+  void accelMode(const int key_wire);
 
   std::vector<CSCALCTDigi>
     bestTrackSelector(const std::vector<CSCALCTDigi>& all_alcts);

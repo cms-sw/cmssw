@@ -22,8 +22,8 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Date: 2008/07/06 05:17:00 $
-//   $Revision: 1.27 $
+//   $Date: 2008/07/29 10:56:05 $
+//   $Revision: 1.28 $
 //
 //   Modifications: 
 //
@@ -219,17 +219,14 @@ const int CSCCathodeLCTProcessor::pattern2007[CSCConstants::NUM_CLCT_PATTERNS][N
 };
 
 // Default values of configuration parameters.
-const unsigned int CSCCathodeLCTProcessor::def_bx_width     =  6;
-const unsigned int CSCCathodeLCTProcessor::def_drift_delay  =  2;
-const unsigned int CSCCathodeLCTProcessor::def_hs_thresh    =  2;
-const unsigned int CSCCathodeLCTProcessor::def_ds_thresh    =  2;
-const unsigned int CSCCathodeLCTProcessor::def_nph_pattern  =  4;
 const unsigned int CSCCathodeLCTProcessor::def_fifo_tbins   = 12;
 const unsigned int CSCCathodeLCTProcessor::def_fifo_pretrig =  7;
-const unsigned int CSCCathodeLCTProcessor::def_hit_thresh   =  2;
-const unsigned int CSCCathodeLCTProcessor::def_pid_thresh   =  2;
-const unsigned int CSCCathodeLCTProcessor::def_sep_src      =  1;
-const unsigned int CSCCathodeLCTProcessor::def_sep_vme      = 10;
+const unsigned int CSCCathodeLCTProcessor::def_hit_persist  =  6;
+const unsigned int CSCCathodeLCTProcessor::def_drift_delay  =  2;
+const unsigned int CSCCathodeLCTProcessor::def_nplanes_hit_pretrig =  2;
+const unsigned int CSCCathodeLCTProcessor::def_nplanes_hit_pattern =  4;
+const unsigned int CSCCathodeLCTProcessor::def_pid_thresh_pretrig  =  2;
+const unsigned int CSCCathodeLCTProcessor::def_min_separation      = 10;
 
 // Number of di-strips/half-strips per CFEB.
 const int CSCCathodeLCTProcessor::cfeb_strips[2] = { 8, 32};
@@ -250,25 +247,26 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor(unsigned endcap,
   static bool config_dumped = false;
 
   // CLCT configuration parameters.
-  bx_width     = conf.getParameter<unsigned int>("clctBxWidth");    // def = 6
-  drift_delay  = conf.getParameter<unsigned int>("clctDriftDelay"); // def = 2
-  hs_thresh    = conf.getParameter<unsigned int>("clctHsThresh");   // def = 2
-  ds_thresh    = conf.getParameter<unsigned int>("clctDsThresh");   // def = 2
-  nph_pattern  = conf.getParameter<unsigned int>("clctNphPattern"); // def = 4
+  hit_persist  = conf.getParameter<unsigned int>("clctHitPersist");
+  drift_delay  = conf.getParameter<unsigned int>("clctDriftDelay");
+  nplanes_hit_pretrig =
+    conf.getParameter<unsigned int>("clctNplanesHitPretrig");
+  nplanes_hit_pattern =
+    conf.getParameter<unsigned int>("clctNplanesHitPattern");
 
   // Currently used only in the test-beam mode.
-  fifo_tbins   = conf.getParameter<unsigned int>("clctFifoTbins");  // def = 12
+  fifo_tbins   = conf.getParameter<unsigned int>("clctFifoTbins");
 
   // Not used yet.
-  fifo_pretrig = conf.getParameter<unsigned int>("clctFifoPretrig");// def = 7
+  fifo_pretrig = conf.getParameter<unsigned int>("clctFifoPretrig");
 
   // TMB07 firmware: switch and config. parameters.
   isTMB07      = comm.getParameter<bool>("isTMB07");
   if (isTMB07) {
-    hit_thresh = conf.getParameter<unsigned int>("clctHitThresh");  // def = 2
-    pid_thresh = conf.getParameter<unsigned int>("clctPidThresh");  // def = 2
-    sep_src    = conf.getParameter<unsigned int>("clctSepSrc");     // def = 1
-    sep_vme    = conf.getParameter<unsigned int>("clctSepVme");     // def = 10
+    pid_thresh_pretrig =
+      conf.getParameter<unsigned int>("clctPidThreshPretrig");
+    min_separation    =
+      conf.getParameter<unsigned int>("clctMinSeparation");
   }
 
   // Verbosity level, set to 0 (no print) by default.
@@ -334,19 +332,16 @@ void CSCCathodeLCTProcessor::setDefaultConfigParameters() {
   // Set default values for configuration parameters.
   fifo_tbins   = def_fifo_tbins;
   fifo_pretrig = def_fifo_pretrig;
-  bx_width     = def_bx_width;
+  hit_persist  = def_hit_persist;
   drift_delay  = def_drift_delay;
-  hs_thresh    = def_hs_thresh;
-  ds_thresh    = def_ds_thresh;
-  nph_pattern  = def_nph_pattern;
+  nplanes_hit_pretrig = def_nplanes_hit_pretrig;
+  nplanes_hit_pattern = def_nplanes_hit_pattern;
 
   // New TMB07 parameters.
   isTMB07      = true;
   if (isTMB07) {
-    hit_thresh = def_hit_thresh;
-    pid_thresh = def_pid_thresh;
-    sep_src    = def_sep_src;
-    sep_vme    = def_sep_vme;
+    pid_thresh_pretrig = def_pid_thresh_pretrig;
+    min_separation     = def_min_separation;
   }
 
   isMTCC       = false;
@@ -358,18 +353,15 @@ void CSCCathodeLCTProcessor::setConfigParameters(const CSCL1TPParameters* conf) 
 
   fifo_tbins   = conf->clctFifoTbins();
   fifo_pretrig = conf->clctFifoPretrig();
-  bx_width     = conf->clctBxWidth();
+  hit_persist  = conf->clctHitPersist();
   drift_delay  = conf->clctDriftDelay();
-  nph_pattern  = conf->clctNphPattern();
-  hs_thresh    = conf->clctHsThresh();
-  ds_thresh    = conf->clctDsThresh();
+  nplanes_hit_pretrig = conf->clctNplanesHitPretrig();
+  nplanes_hit_pattern = conf->clctNplanesHitPattern();
 
   // TMB07 parameters.
   if (isTMB07) {
-    hit_thresh = conf->clctHitThresh();
-    pid_thresh = conf->clctPidThresh();
-    sep_src    = conf->clctSepSrc();
-    sep_vme    = conf->clctSepVme();
+    pid_thresh_pretrig = conf->clctPidThreshPretrig();
+    min_separation     = conf->clctMinSeparation();
   }
 
   // Check and print configuration parameters.
@@ -386,16 +378,12 @@ void CSCCathodeLCTProcessor::checkConfigParameters() {
   // Max expected values.
   static const unsigned int max_fifo_tbins   = 1 << 5;
   static const unsigned int max_fifo_pretrig = 1 << 5;
-  static const unsigned int max_bx_width     = 1 << 4;
+  static const unsigned int max_hit_persist  = 1 << 4;
   static const unsigned int max_drift_delay  = 1 << 2;
-  static const unsigned int max_hs_thresh    = 1 << 3;
-  static const unsigned int max_ds_thresh    = 1 << 3;
-  static const unsigned int max_nph_pattern  = 1 << 3;
-
-  static const unsigned int max_hit_thresh   = 1 << 3;
-  static const unsigned int max_pid_thresh   = 1 << 4;
-  static const unsigned int max_sep_src      = 1 << 1;
-  static const unsigned int max_sep_vme      = CSCConstants::NUM_HALF_STRIPS;
+  static const unsigned int max_nplanes_hit_pretrig = 1 << 3;
+  static const unsigned int max_nplanes_hit_pattern = 1 << 3;
+  static const unsigned int max_pid_thresh_pretrig  = 1 << 4;
+  static const unsigned int max_min_separation = CSCConstants::NUM_HALF_STRIPS;
 
   // Checks.
   if (fifo_tbins >= max_fifo_tbins) {
@@ -414,13 +402,13 @@ void CSCCathodeLCTProcessor::checkConfigParameters() {
       << def_fifo_pretrig << " +++\n";
     fifo_pretrig = def_fifo_pretrig;
   }
-  if (bx_width >= max_bx_width) {
+  if (hit_persist >= max_hit_persist) {
     edm::LogError("CSCCathodeLCTProcessor")
-      << "+++ Value of bx_width, " << bx_width
-      << ", exceeds max allowed, " << max_bx_width-1 << " +++\n"
-      << "+++ Try to proceed with the default value, bx_width="
-      << def_bx_width << " +++\n";
-    bx_width = def_bx_width;
+      << "+++ Value of hit_persist, " << hit_persist
+      << ", exceeds max allowed, " << max_hit_persist-1 << " +++\n"
+      << "+++ Try to proceed with the default value, hit_persist="
+      << def_hit_persist << " +++\n";
+    hit_persist = def_hit_persist;
   }
   if (drift_delay >= max_drift_delay) {
     edm::LogError("CSCCathodeLCTProcessor")
@@ -430,63 +418,39 @@ void CSCCathodeLCTProcessor::checkConfigParameters() {
       << def_drift_delay << " +++\n";
     drift_delay = def_drift_delay;
   }
-  if (hs_thresh >= max_hs_thresh) {
+  if (nplanes_hit_pretrig >= max_nplanes_hit_pretrig) {
     edm::LogError("CSCCathodeLCTProcessor")
-      << "+++ Value of hs_thresh, " << hs_thresh
-      << ", exceeds max allowed, " << max_hs_thresh-1 << " +++\n"
-      << "+++ Try to proceed with the default value, hs_thresh="
-      << def_hs_thresh << " +++\n";
-    hs_thresh = def_hs_thresh;
+      << "+++ Value of nplanes_hit_pretrig, " << nplanes_hit_pretrig
+      << ", exceeds max allowed, " << max_nplanes_hit_pretrig-1 << " +++\n"
+      << "+++ Try to proceed with the default value, nplanes_hit_pretrig="
+      << def_nplanes_hit_pretrig << " +++\n";
+    nplanes_hit_pretrig = def_nplanes_hit_pretrig;
   }
-  if (ds_thresh >= max_ds_thresh) {
+  if (nplanes_hit_pattern >= max_nplanes_hit_pattern) {
     edm::LogError("CSCCathodeLCTProcessor")
-      << "+++ Value of ds_thresh, " << ds_thresh
-      << ", exceeds max allowed, " << max_ds_thresh-1 << " +++\n"
-      << "+++ Try to proceed with the default value, ds_thresh="
-      << def_ds_thresh << " +++\n";
-    ds_thresh = def_ds_thresh;
-  }
-  if (nph_pattern >= max_nph_pattern) {
-    edm::LogError("CSCCathodeLCTProcessor")
-      << "+++ Value of nph_pattern, " << nph_pattern
-      << ", exceeds max allowed, " << max_nph_pattern-1 << " +++\n"
-      << "+++ Try to proceed with the default value, nph_pattern="
-      << def_nph_pattern << " +++\n";
-    nph_pattern = def_nph_pattern;
+      << "+++ Value of nplanes_hit_pattern, " << nplanes_hit_pattern
+      << ", exceeds max allowed, " << max_nplanes_hit_pattern-1 << " +++\n"
+      << "+++ Try to proceed with the default value, nplanes_hit_pattern="
+      << def_nplanes_hit_pattern << " +++\n";
+    nplanes_hit_pattern = def_nplanes_hit_pattern;
   }
 
   if (isTMB07) {
-    if (hit_thresh >= max_hit_thresh) {
+    if (pid_thresh_pretrig >= max_pid_thresh_pretrig) {
       edm::LogError("CSCCathodeLCTProcessor")
-	<< "+++ Value of hit_thresh, " << hit_thresh
-	<< ", exceeds max allowed, " << max_hit_thresh-1 << " +++\n"
-	<< "+++ Try to proceed with the default value, hit_thresh="
-	<< def_hit_thresh << " +++\n";
-      hit_thresh = def_hit_thresh;
+	<< "+++ Value of pid_thresh_pretrig, " << pid_thresh_pretrig
+	<< ", exceeds max allowed, " << max_pid_thresh_pretrig-1 << " +++\n"
+	<< "+++ Try to proceed with the default value, pid_thresh_pretrig="
+	<< def_pid_thresh_pretrig << " +++\n";
+      pid_thresh_pretrig = def_pid_thresh_pretrig;
     }
-    if (pid_thresh >= max_pid_thresh) {
+    if (min_separation >= max_min_separation) {
       edm::LogError("CSCCathodeLCTProcessor")
-	<< "+++ Value of pid_thresh, " << pid_thresh
-	<< ", exceeds max allowed, " << max_pid_thresh-1 << " +++\n"
-	<< "+++ Try to proceed with the default value, pid_thresh="
-	<< def_pid_thresh << " +++\n";
-      pid_thresh = def_pid_thresh;
-    }
-    if (sep_src >= max_sep_src) {
-      edm::LogError("CSCCathodeLCTProcessor")
-	<< "+++ Value of sep_src, " << sep_src
-	<< ", exceeds max allowed, " << max_sep_src-1 << " +++\n"
-	<< "+++ Try to proceed with the default value, sep_src="
-	<< def_sep_src << " +++\n";
-      sep_src = def_sep_src;
-    }
-    if (sep_vme >= max_sep_vme) {
-      edm::LogError("CSCCathodeLCTProcessor")
-	<< "+++ Value of sep_vme, " << sep_vme
-	<< ", exceeds max allowed, " << max_sep_vme-1 << " +++\n"
-	<< "+++ Try to proceed with the default value, sep_vme="
-	<< def_sep_vme << " +++\n";
-      sep_vme = def_sep_vme;
+	<< "+++ Value of min_separation, " << min_separation
+	<< ", exceeds max allowed, " << max_min_separation-1 << " +++\n"
+	<< "+++ Try to proceed with the default value, min_separation="
+	<< def_min_separation << " +++\n";
+      min_separation = def_min_separation;
     }
   }    
 }
@@ -668,7 +632,7 @@ CSCCathodeLCTProcessor::run(const CSCComparatorDigiCollection* compdc) {
 	if (time[i][j] >= 0) {layersHit++; break;}
       }
     }
-    // Replace by ">= nph_pattern" once in a stable running.
+    // Replace by ">= nplanes_hit_pattern" once in a stable running.
     if (layersHit > 3) run(triad, time, digiNum);
   }
 
@@ -946,7 +910,7 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(const int strip[CSCCon
   const int max_lct_num = 2;
   const int adjacent_strips = 2;
   // Distrip, halfstrip pattern threshold.
-  const int ptrn_thrsh[2] = {nph_pattern, nph_pattern};
+  const int ptrn_thrsh[2] = {nplanes_hit_pattern, nplanes_hit_pattern};
   int highest_quality = 0;
 
   int keystrip_data[CSCConstants::NUM_HALF_STRIPS][7];
@@ -1037,6 +1001,9 @@ bool CSCCathodeLCTProcessor::preTrigger(const int strip[CSCConstants::NUM_LAYERS
 					const int stripType, const int nStrips,
 					int& first_bx)
 {
+  static const int hs_thresh = nplanes_hit_pretrig;
+  static const int ds_thresh = nplanes_hit_pretrig;
+
   unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS];
   int i_layer, i_strip, this_layer, this_strip;
   int hits, layers_hit;
@@ -1048,22 +1015,22 @@ bool CSCCathodeLCTProcessor::preTrigger(const int strip[CSCConstants::NUM_LAYERS
   // hit times.  For example: if strip[1][2] has a value of 3, then 1 shifted
   // left 3 will be bit pattern of pulse[1][2].  This would make the pattern
   // look like 0000000000001000.  Later we add on additional bits to signify
-  // the duration of a signal (bx_width).  So for the same pulse[1][2] with
-  // a bx_width of 3 would look like 0000000000111000.
+  // the duration of a signal (hit_persist, formerly bx_width).  So for the
+  // same pulse[1][2] with a hit_persist of 3 would look like 0000000000111000.
   for (i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++)
     for (i_strip = 0; i_strip < nStrips; i_strip++)
       pulse[i_layer][i_strip] = 0;
 
-  // The triad decoders output a pulse bx_width wide (150 ns by default)
+  // The triad decoders output a pulse hit_persist wide (150 ns by default)
   // for each half-strip that the CFEB comparators saw a hit on.
   for (i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++){
     // Loop over all strips (depending on half strip or di-strip count)
     for (i_strip = 0; i_strip < nStrips; i_strip++){
       // If no hit time, no need to add a pulse width.
       if (strip[i_layer][i_strip] >= 0){
-	// Add on bx_width for a pulse time envelope.  See above...
+	// Add on hit_persist for a pulse time envelope.  See above...
 	for (unsigned int bx = strip[i_layer][i_strip];
-	     bx < strip[i_layer][i_strip] + bx_width; bx++) {
+	     bx < strip[i_layer][i_strip] + hit_persist; bx++) {
 	  pulse[i_layer][i_strip] = pulse[i_layer][i_strip] | (1 << bx);
 	}
       }
@@ -1224,9 +1191,9 @@ void CSCCathodeLCTProcessor::getPattern(int pattern_num,
 
 bool CSCCathodeLCTProcessor::hitIsGood(int hitTime, int BX) {
   // Find out if hit time is good.  Hit should have occurred no more than
-  // bx_width clocks before the latching time.
+  // hit_persist clocks before the latching time.
   int dt = BX - hitTime;
-  if (dt >= 0 && dt <= static_cast<int>(bx_width)) {return true;}
+  if (dt >= 0 && dt <= static_cast<int>(hit_persist)) {return true;}
   else {return false;}
 }
 
@@ -1368,9 +1335,10 @@ bool CSCCathodeLCTProcessor::preTrigger(const int strip[CSCConstants::NUM_LAYERS
     // hit times.  For example: if strip[1][2] has a value of 3, then 1 shifted
     // left 3 will be bit pattern of pulse[1][2].  This would make the pattern
     // look like 0000000000001000.  Then add on additional bits to signify
-    // the duration of a signal (bx_width) to simulate the TMB's drift delay.
-    // So for the same pulse[1][2] with a bx_width of 3 would look like 
-    // 0000000000111000. This is similating the digital one-shot in the TMB.
+    // the duration of a signal (hit_persist, formerly bx_width) to simulate
+    // the TMB's drift delay.  So for the same pulse[1][2] with a hit_persist
+    // of 3 would look like 0000000000111000.  This is similating the digital
+    // one-shot in the TMB.
     for (int ilayer = 0; ilayer < CSCConstants::NUM_LAYERS; ilayer++)
       for (int istrip = 0; istrip < nStrips; istrip++)
 	pulse[ilayer][istrip] = 0;
@@ -1382,7 +1350,7 @@ bool CSCCathodeLCTProcessor::preTrigger(const int strip[CSCConstants::NUM_LAYERS
 	// in the bx of the initial hit.  Fill this into pulse[][].
 	if (strip[ilayer][istrip] >= 0) {
 	  for (unsigned int bx = strip[ilayer][istrip];
-	       bx < strip[ilayer][istrip] + bx_width; bx++)
+	       bx < strip[ilayer][istrip] + hit_persist; bx++)
 	    pulse[ilayer][istrip] = pulse[ilayer][istrip] | (1 << bx);
 	}
       }
@@ -1412,7 +1380,8 @@ bool CSCCathodeLCTProcessor::preTrigger(const int strip[CSCConstants::NUM_LAYERS
 	      << " nhits = "     << nhits[hstrip];
 	  }
 	}
-	if (nhits[hstrip] >= hit_thresh && best_pid[hstrip] >= pid_thresh) {
+	if (nhits[hstrip]    >= nplanes_hit_pretrig &&
+	    best_pid[hstrip] >= pid_thresh_pretrig) {
 	  pre_trig = true;
 	}
       }
@@ -1435,6 +1404,8 @@ bool CSCCathodeLCTProcessor::preTrigLookUp(
 	   const unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
 	   const int stripType, const int nStrips,
 	   const unsigned int bx_time) {
+  static const int hs_thresh = nplanes_hit_pretrig;
+  static const int ds_thresh = nplanes_hit_pretrig;
 
   bool hit_layer[CSCConstants::NUM_LAYERS];
   int key_strip, this_layer, this_strip, layers_hit;
@@ -1557,6 +1528,8 @@ void CSCCathodeLCTProcessor::priorityEncode(
         const int h_keyStrip[MAX_CFEBS], const unsigned int h_nhits[MAX_CFEBS],
 	const int d_keyStrip[MAX_CFEBS], const unsigned int d_nhits[MAX_CFEBS],
 	int keystrip_data[2][7]) {
+  static const unsigned int hs_thresh = nplanes_hit_pretrig;
+  //static const unsigned int ds_thresh = nplanes_hit_pretrig;
 
   int ihits[2]; // hold hits for sorting
   int cfebs[2]; // holds CFEB numbers corresponding to highest hits
@@ -1796,16 +1769,16 @@ void CSCCathodeLCTProcessor::getKeyStripData(
 	  << "pattern " << pattern_num << " quality " << quality
 	  << " bend " << bend;
       // Number of layers hit matching a pattern template is compared
-      // to nph_pattern.  The threshold is the same for both half- and
+      // to nplanes_hit_pattern.  The threshold is the same for both half- and
       // di-strip patterns.
-      if (quality >= nph_pattern) {
+      if (quality >= nplanes_hit_pattern) {
 	// If the number of matches is the same for two pattern templates,
 	// the higher pattern-template number is selected.
 	if ((quality == best_quality && pattern_num > best_pattern) ||
 	    (quality >  best_quality)) {
 	  if (infoV > 1) LogTrace("CSCCathodeLCTProcessor")
 	    << "valid = true at quality " << quality
-	    << "  thresh " << nph_pattern;
+	    << "  thresh " << nplanes_hit_pattern;
 	  valid[ilct] = true;
 	  keystrip_data[ilct][CLCT_PATTERN]    = pattern_num;
 	  keystrip_data[ilct][CLCT_BEND]       = bend;
@@ -1980,7 +1953,7 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs2007(const int halfstri
 
 	for (int ilct = 0; ilct < max_lcts; ilct++) {
 	  int best_hs = best_halfstrip[ilct];
-	  if (best_hs >= 0 && nhits[best_hs] >= nph_pattern) {
+	  if (best_hs >= 0 && nhits[best_hs] >= nplanes_hit_pattern) {
 	    keystrip_data[ilct][CLCT_PATTERN]    = best_pid[best_hs];
 	    keystrip_data[ilct][CLCT_BEND]       =
 	      pattern2007[best_pid[best_hs]][NUM_PATTERN_HALFSTRIPS];
@@ -2038,7 +2011,7 @@ void CSCCathodeLCTProcessor::ptnFinding2007(
 
     // Loop over patterns and look for hits matching each pattern.
     for (unsigned int pid = CSCConstants::NUM_CLCT_PATTERNS-1;
-	 pid >= pid_thresh; pid--) {
+	 pid >= pid_thresh_pretrig; pid--) {
       layers_hit = 0;
       for (int ilayer = 0; ilayer < CSCConstants::NUM_LAYERS; ilayer++)
 	hit_layer[ilayer] = false;
@@ -2078,15 +2051,8 @@ void CSCCathodeLCTProcessor::ptnFinding2007(
 void CSCCathodeLCTProcessor::markBusyKeys(const int best_hstrip,
 					  const int best_pid,
                                 int quality[CSCConstants::NUM_HALF_STRIPS]) {
-  int nspan, pspan;
-  if (sep_src == 1) {
-    nspan = sep_vme;
-    pspan = sep_vme;
-  }
-  else { // depend on pattern ID; not yet fully defined.
-    nspan = sep_vme;
-    pspan = sep_vme;
-  }
+  int nspan = min_separation;
+  int pspan = min_separation;
 
   for (int hstrip = best_hstrip-nspan; hstrip <= best_hstrip+pspan; hstrip++) {
     if (hstrip >= 0 && hstrip < CSCConstants::NUM_HALF_STRIPS) {
@@ -2102,29 +2068,23 @@ void CSCCathodeLCTProcessor::dumpConfigParams() const {
   strm << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
   strm << "+                  CLCT configuration parameters:                  +\n";
   strm << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
-  strm << " bx_width     [duration of signal pulse, in 25 ns bins] = "
-       << bx_width << "\n";
-  strm << " drift_delay  [time after pre-trigger before TMB latches LCTs] = "
-       << drift_delay << "\n";
-  strm << " hs_thresh    [min. number of layers hit for pre-trigger] = "
-       << hs_thresh << "\n";
-  strm << " ds_thresh    [min. number of layers hit for pre-trigger] = "
-       << ds_thresh << "\n";
-  strm << " nph_pattern  [min. number of layers hit for trigger] = "
-       << nph_pattern << "\n";
   strm << " fifo_tbins   [total number of time bins in DAQ readout] = "
        << fifo_tbins << "\n";
   strm << " fifo_pretrig [start time of cathode raw hits in DAQ readout] = "
        << fifo_pretrig << "\n";
+  strm << " hit_persist  [duration of signal pulse, in 25 ns bins] = "
+       << hit_persist << "\n";
+  strm << " drift_delay  [time after pre-trigger before TMB latches LCTs] = "
+       << drift_delay << "\n";
+  strm << " nplanes_hit_pretrig [min. number of layers hit for pre-trigger] = "
+       << nplanes_hit_pretrig << "\n";
+  strm << " nplanes_hit_pattern [min. number of layers hit for trigger] = "
+       << nplanes_hit_pattern << "\n";
   if (isTMB07) {
-    strm << " hit_thresh   [min. number of layers hit for pre-trigger] = "
-	 << hit_thresh << "\n";
-    strm << " pid_thresh   [lower threshold on pattern id] = "
-	 << pid_thresh << "\n";
-    strm << " sep_src      [mode in constructing list of busy key strips] = "
-	 << sep_src << "\n";
-    strm << " sep_vme      [region of busy key strips] = "
-	 << sep_vme << "\n";
+    strm << " pid_thresh_pretrig [lower threshold on pattern id] = "
+	 << pid_thresh_pretrig << "\n";
+    strm << " min_separation     [region of busy key strips] = "
+	 << min_separation << "\n";
   }
   strm << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
   LogDebug("CSCCathodeLCTProcessor") << strm.str();
