@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-gtDigis = cms.EDProducer("L1GlobalTrigger",
+gtDigis = cms.EDFilter("L1GlobalTrigger",
     
     # input tag for GMT readout collection: 
     #     gmtDigis = GMT emulator
@@ -12,10 +12,6 @@ gtDigis = cms.EDProducer("L1GlobalTrigger",
     #     l1GctUnpack    = GCT unpacker 
     GctInputTag = cms.InputTag("gctDigis"),
     
-    # input tag for CASTOR record 
-    #     castorL1Digis =  CASTOR
-    CastorInputTag = cms.InputTag("castorL1Digis"),
-    
     # input tag for technical triggers: 
     #     techTrigDigis = technical trigger emulator 
     TechnicalTriggersInputTag = cms.InputTag("techTrigDigis"),
@@ -26,8 +22,8 @@ gtDigis = cms.EDProducer("L1GlobalTrigger",
     
     # logical flag to produce the L1 GT EVM readout record
     #     if true, produce the record
-    ProduceL1GtEvmRecord = cms.bool(True),
-    
+    ProduceL1GtEvmRecord = cms.bool(False),
+    #
     # logical flag to produce the L1 GT object map record
     #     if true, produce the record
     ProduceL1GtObjectMapRecord = cms.bool(True),
@@ -45,12 +41,6 @@ gtDigis = cms.EDProducer("L1GlobalTrigger",
     #    1 (BxInEvent = 0); 3 (F 0 1) (standard record); 5 (E F 0 1 2) (debug record)
     # even numbers (except 0) "rounded" to the nearest lower odd number
     # negative value: emulate TotalBxInEvent as given in EventSetup  
-    EmulateBxInEvent = cms.int32(3),   
-    
-    # length of BST record (in bytes) from parameter set
-    # negative value: take the value from EventSetup      
-    BstLengthBytes = cms.int32(-1)
+    EmulateBxInEvent = cms.int32(3)
     
 )
-
-
