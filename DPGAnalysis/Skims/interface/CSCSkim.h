@@ -1,5 +1,5 @@
-#ifndef RecoLocalMuon_CSCSkim_H
-#define RecoLocalMuon_CSCSkim_H
+#ifndef DPGAnalysisSkims_CSCSkim_H
+#define DPGAnalysisSkims_CSCSkim_H
 
 /** \class CSCSkim
  *
