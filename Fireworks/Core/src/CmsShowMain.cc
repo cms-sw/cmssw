@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.34 2008/07/24 14:42:22 chrjones Exp $
+// $Id: CmsShowMain.cc,v 1.35 2008/07/26 00:03:58 chrjones Exp $
 //
 
 // system include files
@@ -67,6 +67,7 @@
 #include "Fireworks/Core/interface/CmsShowNavigator.h"
 #include "Fireworks/Core/interface/CSGAction.h"
 #include "Fireworks/Core/interface/CSGNumAction.h"
+#include "Fireworks/Core/interface/CSGContinuousAction.h"
 
 #include "Fireworks/Core/interface/ActionsList.h"
 
@@ -134,7 +135,11 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
   m_eiManager(new FWEventItemsManager(m_changeManager.get(),
                                       m_selectionManager.get())),
   m_viewManager( new FWViewManagerManager(m_changeManager.get())),
-  m_textView(0)
+  m_textView(0),
+  m_playTimer(0),
+  m_playBackTimer(0),
+  m_isPlaying(false),
+  m_playDelay(3000)
   //  m_configFileName(iConfigFileName)
 {
    try {
@@ -572,9 +577,17 @@ void CmsShowMain::draw(const fwlite::Event& event)
   m_eiManager->newEvent(&event);
   if (m_textView.get() != 0)
        m_textView->newEvent(event, this);
-  m_guiManager->enableActions();
   // stopwatch.Stop(); printf("Total event draw time: "); stopwatch.Print("m");
   m_guiManager->clearStatus();
+   if(m_isPlaying) {
+      if(m_forward) {
+         m_playTimer->Start(m_playDelay,kFALSE);
+      } else {
+         m_playBackTimer->Start(m_playDelay,kFALSE);
+      }
+   } else {
+      m_guiManager->enableActions();
+   }
 }
 
 void CmsShowMain::openData()
@@ -882,6 +895,19 @@ CmsShowMain::setupDetailedViewManagers()
    registerDetailView("GenParticles", new GenParticleDetailView);
    
 }
+
+namespace {
+   class SignalTimer : public TTimer {
+   public:
+      Bool_t Notify() {
+         TurnOff();
+         timeout_();
+         return true;
+      }
+      sigc::signal<void> timeout_;
+   };
+}
+
 void 
 CmsShowMain::setupDataHandling()
 {
@@ -893,7 +919,9 @@ CmsShowMain::setupDataHandling()
    m_navigator->newFileLoaded.connect(boost::bind(&CmsShowMain::resetInitialization,this));
    m_navigator->newFileLoaded.connect(sigc::mem_fun(*m_guiManager,&FWGUIManager::newFile));
    m_navigator->atBeginning.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::disablePrevious));
+   m_navigator->atBeginning.connect(sigc::mem_fun(*this, &CmsShowMain::reachedEnd));
    m_navigator->atEnd.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::disableNext));
+   m_navigator->atEnd.connect(sigc::mem_fun(*this, &CmsShowMain::reachedEnd));
    if (m_guiManager->getAction(cmsshow::sOpenData) != 0) m_guiManager->getAction(cmsshow::sOpenData)->activated.connect(sigc::mem_fun(*this, &CmsShowMain::openData));
    if (m_guiManager->getAction(cmsshow::sNextEvent) != 0) m_guiManager->getAction(cmsshow::sNextEvent)->activated.connect(sigc::mem_fun(*m_navigator, &CmsShowNavigator::nextEvent));
    if (m_guiManager->getAction(cmsshow::sPreviousEvent) != 0) m_guiManager->getAction(cmsshow::sPreviousEvent)->activated.connect(sigc::mem_fun(*m_navigator, &CmsShowNavigator::previousEvent));
@@ -901,10 +929,22 @@ CmsShowMain::setupDataHandling()
    if (m_guiManager->getAction(cmsshow::sQuit) != 0) m_guiManager->getAction(cmsshow::sQuit)->activated.connect(sigc::mem_fun(*this, &CmsShowMain::quit));
    if (m_guiManager->getRunEntry() != 0) m_guiManager->getRunEntry()->activated.connect(sigc::mem_fun(*m_navigator, &CmsShowNavigator::goToRun));
    if (m_guiManager->getEventEntry() != 0) m_guiManager->getEventEntry()->activated.connect(sigc::mem_fun(*m_navigator, &CmsShowNavigator::goToEvent));
+   m_guiManager->playEventsAction()->started_.connect(sigc::mem_fun(*this,&CmsShowMain::playForward));
+   m_guiManager->playEventsAction()->stopped_.connect(sigc::mem_fun(*this,&CmsShowMain::stopPlaying));
+   m_guiManager->playEventsBackwardsAction()->started_.connect(sigc::mem_fun(*this,&CmsShowMain::playBackward));
+   m_guiManager->playEventsBackwardsAction()->stopped_.connect(sigc::mem_fun(*this,&CmsShowMain::stopPlaying));
    if (CSGAction* action = m_guiManager->getAction("Event Filter")) 
       action->activated.connect(boost::bind(&CmsShowNavigator::filterEvents,m_navigator,action));
    else
       printf("Why?\n\n\n\n\n\n");
+   {
+      SignalTimer* timer = new SignalTimer();
+      timer->timeout_.connect(m_guiManager->getAction(cmsshow::sNextEvent)->activated);
+      m_playTimer=timer;
+      timer = new SignalTimer();
+      timer->timeout_.connect(m_guiManager->getAction(cmsshow::sPreviousEvent)->activated);
+      m_playBackTimer=timer;
+   }
    if(m_inputFileName.size()) {
       m_guiManager->updateStatus("loading data file...");
       m_navigator->loadFile(m_inputFileName);
@@ -917,6 +957,46 @@ CmsShowMain::setupDebugSupport()
    m_guiManager->openEveBrowserForDebugging();
 }
 
+void
+CmsShowMain::playForward()
+{
+   m_isPlaying=true;
+   m_forward=true;
+   m_guiManager->getAction(cmsshow::sNextEvent)->activated();
+}
+
+void
+CmsShowMain::playBackward()
+{
+   m_isPlaying=true;
+   m_forward=false;
+   m_guiManager->getAction(cmsshow::sPreviousEvent)->activated();
+}
+
+void
+CmsShowMain::stopPlaying()
+{
+   if(m_isPlaying) {
+      m_isPlaying=false;
+      if(m_forward) {
+         m_playTimer->TurnOff();
+      } else {
+         m_playBackTimer->TurnOff();
+      }
+      m_guiManager->enableActions();
+   }
+}
+
+void 
+CmsShowMain::reachedEnd()
+{
+   stopPlaying();
+   if(m_forward) {
+      m_guiManager->playEventsAction()->stop();
+   } else {
+      m_guiManager->playEventsBackwardsAction()->stop();
+   }
+}
 
 //
 // static member functions

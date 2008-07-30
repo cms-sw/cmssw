@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: CmsShowMain.h,v 1.3 2008/07/08 00:29:01 chrjones Exp $
+// $Id: CmsShowMain.h,v 1.4 2008/07/12 00:34:13 chrjones Exp $
 //
 
 // system include files
@@ -43,6 +43,7 @@ class FWEventItem;
 class FWPhysicsObjectDesc;
 class FWConfigurationManager;
 class FWTextView;
+class TTimer;
 
 class CmsShowNavigator;
 class CmsShowTaskExecutor;
@@ -94,6 +95,10 @@ private:
    void setupDataHandling();
    void setupDebugSupport();
   
+   void playForward();
+   void playBackward();
+   void stopPlaying();
+   void reachedEnd();
   // ---------- member data --------------------------------
   std::auto_ptr<FWConfigurationManager> m_configurationManager;
   std::auto_ptr<FWModelChangeManager> m_changeManager;
@@ -116,6 +121,12 @@ private:
   static double m_caloScale;
    
    std::auto_ptr<CmsShowTaskExecutor> m_startupTasks;
+   
+   TTimer* m_playTimer;
+   TTimer* m_playBackTimer;
+   bool m_isPlaying;
+   bool m_forward;
+   Long_t m_playDelay;
 };
 
 
