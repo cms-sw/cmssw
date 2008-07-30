@@ -4,8 +4,8 @@
 /*
  * \file EESelectiveReadoutTask.h
  *
- * $Date: 2008/07/28 13:07:20 $
- * $Revision: 1.4 $
+ * $Date: 2008/07/28 14:53:43 $
+ * $Revision: 1.5 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -201,15 +201,15 @@ int dccIndex(int iDet, int i, int j) const;
 
 /** ECAL endcap read channel count
  */
-int nEe_;
+int nEe_[2];
 
 /** ECAL endcap low interest read channel count
  */
-int nEeLI_;
+int nEeLI_[2];
 
 /** ECAL endcap high interest read channel count
  */
-int nEeHI_;
+int nEeHI_[2];
 
 /** ECAL read channel count for each DCC:
  */
@@ -240,13 +240,14 @@ edm::InputTag EESRFlagCollection_;
 edm::InputTag EcalTrigPrimDigiCollection_;
 edm::InputTag EcalFEDRawCollection_;
 
-MonitorElement* EEReadoutUnitForcedBitMap_;
-MonitorElement* EEFullReadoutSRFlagMap_;
-MonitorElement* EEHighInterestTriggerTowerFlagMap_;
-MonitorElement* EELowInterestTriggerTowerFlagMap_;
-MonitorElement* EEEventSize_;
-MonitorElement* EEHighInterestPayload_;
-MonitorElement* EELowInterestPayload_;
+MonitorElement* EEDccEventSize_;
+MonitorElement* EEReadoutUnitForcedBitMap_[2];
+MonitorElement* EEFullReadoutSRFlagMap_[2];
+MonitorElement* EEHighInterestTriggerTowerFlagMap_[2];
+MonitorElement* EELowInterestTriggerTowerFlagMap_[2];
+MonitorElement* EEEventSize_[2];
+MonitorElement* EEHighInterestPayload_[2];
+MonitorElement* EELowInterestPayload_[2];
 
 bool init_;
 

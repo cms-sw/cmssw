@@ -1,8 +1,8 @@
 /*
  * \file EESelectiveReadoutTask.cc
  *
- * $Date: 2008/07/28 14:53:43 $
- * $Revision: 1.7 $
+ * $Date: 2008/07/28 14:59:51 $
+ * $Revision: 1.8 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -51,13 +51,23 @@ EESelectiveReadoutTask::EESelectiveReadoutTask(const ParameterSet& ps){
   EcalFEDRawCollection_ = ps.getParameter<edm::InputTag>("EcalFEDRawCollection");
 
   // histograms...
-  EEReadoutUnitForcedBitMap_ = 0;
-  EEFullReadoutSRFlagMap_ = 0;
-  EEHighInterestTriggerTowerFlagMap_ = 0;
-  EELowInterestTriggerTowerFlagMap_ = 0;
-  EEEventSize_ = 0;
-  EEHighInterestPayload_ = 0;
-  EELowInterestPayload_ = 0;
+  EEDccEventSize_ = 0;
+
+  EEReadoutUnitForcedBitMap_[0] = 0;
+  EEFullReadoutSRFlagMap_[0] = 0;
+  EEHighInterestTriggerTowerFlagMap_[0] = 0;
+  EELowInterestTriggerTowerFlagMap_[0] = 0;
+  EEEventSize_[0] = 0;
+  EEHighInterestPayload_[0] = 0;
+  EELowInterestPayload_[0] = 0;
+
+  EEReadoutUnitForcedBitMap_[1] = 0;
+  EEFullReadoutSRFlagMap_[1] = 0;
+  EEHighInterestTriggerTowerFlagMap_[1] = 0;
+  EELowInterestTriggerTowerFlagMap_[1] = 0;
+  EEEventSize_[1] = 0;
+  EEHighInterestPayload_[1] = 0;
+  EELowInterestPayload_[1] = 0;
 
 }
 
@@ -87,37 +97,75 @@ void EESelectiveReadoutTask::setup(void) {
   if ( dqmStore_ ) {
     dqmStore_->setCurrentFolder(prefixME_ + "/EESelectiveReadoutTask");
 
-    sprintf(histo, "EESRT EE readout unit with SR forced");
-    EEReadoutUnitForcedBitMap_ = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-    EEReadoutUnitForcedBitMap_->setAxisTitle("jx", 1);
-    EEReadoutUnitForcedBitMap_->setAxisTitle("jy", 2);
+    sprintf(histo, "EBSRT DCC event size EE");
+    EEDccEventSize_ = dqmStore_->bookProfile(histo, histo, 18, 1, 19, 100, 0., 200., "s");
+    for (int i = 0; i < 18; i++) {
+      EEDccEventSize_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+    }
 
-    sprintf(histo, "EESRT EE full readout SR flags");
-    EEFullReadoutSRFlagMap_ = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-    EEFullReadoutSRFlagMap_->setAxisTitle("jx", 1);
-    EEFullReadoutSRFlagMap_->setAxisTitle("jy", 2);
+    sprintf(histo, "EESRT readout unit with SR forced EE -");
+    EEReadoutUnitForcedBitMap_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    EEReadoutUnitForcedBitMap_[0]->setAxisTitle("jx", 1);
+    EEReadoutUnitForcedBitMap_[0]->setAxisTitle("jy", 2);
 
-    sprintf(histo, "EESRT EE high interest TT Flags");
-    EEHighInterestTriggerTowerFlagMap_ = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-    EEHighInterestTriggerTowerFlagMap_->setAxisTitle("jx", 1);
-    EEHighInterestTriggerTowerFlagMap_->setAxisTitle("jy", 2);
+    sprintf(histo, "EESRT readout unit with SR forced EE +");
+    EEReadoutUnitForcedBitMap_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    EEReadoutUnitForcedBitMap_[1]->setAxisTitle("jx", 1);
+    EEReadoutUnitForcedBitMap_[1]->setAxisTitle("jy", 2);
 
-    sprintf(histo, "EESRT EE low interest TT Flags");
-    EELowInterestTriggerTowerFlagMap_ = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-    EELowInterestTriggerTowerFlagMap_->setAxisTitle("jx", 1);
-    EELowInterestTriggerTowerFlagMap_->setAxisTitle("jy", 2);
+    sprintf(histo, "EESRT full readout SR flags EE -");
+    EEFullReadoutSRFlagMap_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    EEFullReadoutSRFlagMap_[0]->setAxisTitle("jx", 1);
+    EEFullReadoutSRFlagMap_[0]->setAxisTitle("jy", 2);
 
-    sprintf(histo, "EESRT EE event size");
-    EEEventSize_ = dqmStore_->book1D(histo, histo, 100, 0, 200);
-    EEEventSize_->setAxisTitle("event size (kB)",1);
+    sprintf(histo, "EESRT full readout SR flags EE +");
+    EEFullReadoutSRFlagMap_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    EEFullReadoutSRFlagMap_[1]->setAxisTitle("jx", 1);
+    EEFullReadoutSRFlagMap_[1]->setAxisTitle("jy", 2);
 
-    sprintf(histo, "EESRT EE high interest payload");
-    EEHighInterestPayload_ =  dqmStore_->book1D(histo, histo, 100, 0, 200);
-    EEHighInterestPayload_->setAxisTitle("event size (kB)",1);
+    sprintf(histo, "EESRT high interest TT Flags EE -");
+    EEHighInterestTriggerTowerFlagMap_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    EEHighInterestTriggerTowerFlagMap_[0]->setAxisTitle("jx", 1);
+    EEHighInterestTriggerTowerFlagMap_[0]->setAxisTitle("jy", 2);
 
-    sprintf(histo, "EESRT EE low interest payload");
-    EELowInterestPayload_ =  dqmStore_->book1D(histo, histo, 100, 0, 200);
-    EELowInterestPayload_->setAxisTitle("event size (kB)",1);
+    sprintf(histo, "EESRT high interest TT Flags EE +");
+    EEHighInterestTriggerTowerFlagMap_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    EEHighInterestTriggerTowerFlagMap_[1]->setAxisTitle("jx", 1);
+    EEHighInterestTriggerTowerFlagMap_[1]->setAxisTitle("jy", 2);
+
+    sprintf(histo, "EESRT low interest TT Flags EE -");
+    EELowInterestTriggerTowerFlagMap_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    EELowInterestTriggerTowerFlagMap_[0]->setAxisTitle("jx", 1);
+    EELowInterestTriggerTowerFlagMap_[0]->setAxisTitle("jy", 2);
+
+    sprintf(histo, "EESRT low interest TT Flags EE +");
+    EELowInterestTriggerTowerFlagMap_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    EELowInterestTriggerTowerFlagMap_[1]->setAxisTitle("jx", 1);
+    EELowInterestTriggerTowerFlagMap_[1]->setAxisTitle("jy", 2);
+
+    sprintf(histo, "EESRT event size EE -");
+    EEEventSize_[0] = dqmStore_->book1D(histo, histo, 100, 0, 200);
+    EEEventSize_[0]->setAxisTitle("event size (kB)",1);
+
+    sprintf(histo, "EESRT event size EE +");
+    EEEventSize_[1] = dqmStore_->book1D(histo, histo, 100, 0, 200);
+    EEEventSize_[1]->setAxisTitle("event size (kB)",1);
+
+    sprintf(histo, "EESRT high interest payload EE -");
+    EEHighInterestPayload_[0] =  dqmStore_->book1D(histo, histo, 100, 0, 200);
+    EEHighInterestPayload_[0]->setAxisTitle("event size (kB)",1);
+
+    sprintf(histo, "EESRT high interest payload EE +");
+    EEHighInterestPayload_[1] =  dqmStore_->book1D(histo, histo, 100, 0, 200);
+    EEHighInterestPayload_[1]->setAxisTitle("event size (kB)",1);
+
+    sprintf(histo, "EESRT low interest payload EE -");
+    EELowInterestPayload_[0] =  dqmStore_->book1D(histo, histo, 100, 0, 200);
+    EELowInterestPayload_[0]->setAxisTitle("event size (kB)",1);
+
+    sprintf(histo, "EESRT low interest payload EE +");
+    EELowInterestPayload_[1] =  dqmStore_->book1D(histo, histo, 100, 0, 200);
+    EELowInterestPayload_[1]->setAxisTitle("event size (kB)",1);
 
   }
 
@@ -130,26 +178,50 @@ void EESelectiveReadoutTask::cleanup(void){
   if ( dqmStore_ ) {
     dqmStore_->setCurrentFolder(prefixME_ + "/EESelectiveReadoutTask");
 
-    if ( EEReadoutUnitForcedBitMap_ ) dqmStore_->removeElement( EEReadoutUnitForcedBitMap_->getName() );
-    EEReadoutUnitForcedBitMap_ = 0;
+    if ( EEDccEventSize_ ) dqmStore_->removeElement( EEDccEventSize_->getName() );
+    EEDccEventSize_ = 0;
+    
+    if ( EEReadoutUnitForcedBitMap_[0] ) dqmStore_->removeElement( EEReadoutUnitForcedBitMap_[0]->getName() );
+    EEReadoutUnitForcedBitMap_[0] = 0;
 
-    if ( EEFullReadoutSRFlagMap_ ) dqmStore_->removeElement( EEFullReadoutSRFlagMap_->getName() );
-    EEFullReadoutSRFlagMap_ = 0;
+    if ( EEReadoutUnitForcedBitMap_[1] ) dqmStore_->removeElement( EEReadoutUnitForcedBitMap_[1]->getName() );
+    EEReadoutUnitForcedBitMap_[1] = 0;
 
-    if ( EEHighInterestTriggerTowerFlagMap_ ) dqmStore_->removeElement( EEHighInterestTriggerTowerFlagMap_->getName() );
-    EEHighInterestTriggerTowerFlagMap_ = 0;
+    if ( EEFullReadoutSRFlagMap_[0] ) dqmStore_->removeElement( EEFullReadoutSRFlagMap_[0]->getName() );
+    EEFullReadoutSRFlagMap_[0] = 0;
 
-    if ( EELowInterestTriggerTowerFlagMap_ ) dqmStore_->removeElement( EELowInterestTriggerTowerFlagMap_->getName() );
-    EELowInterestTriggerTowerFlagMap_ = 0;
+    if ( EEFullReadoutSRFlagMap_[1] ) dqmStore_->removeElement( EEFullReadoutSRFlagMap_[1]->getName() );
+    EEFullReadoutSRFlagMap_[1] = 0;
 
-    if ( EEEventSize_ ) dqmStore_->removeElement( EEEventSize_->getName() );
-    EEEventSize_ = 0;
+    if ( EEHighInterestTriggerTowerFlagMap_[0] ) dqmStore_->removeElement( EEHighInterestTriggerTowerFlagMap_[0]->getName() );
+    EEHighInterestTriggerTowerFlagMap_[0] = 0;
 
-    if ( EEHighInterestPayload_ ) dqmStore_->removeElement( EEHighInterestPayload_->getName() );
-    EEHighInterestPayload_ = 0;
+    if ( EEHighInterestTriggerTowerFlagMap_[1] ) dqmStore_->removeElement( EEHighInterestTriggerTowerFlagMap_[1]->getName() );
+    EEHighInterestTriggerTowerFlagMap_[1] = 0;
 
-    if ( EELowInterestPayload_ ) dqmStore_->removeElement( EELowInterestPayload_->getName() );
-    EELowInterestPayload_ = 0;
+    if ( EELowInterestTriggerTowerFlagMap_[0] ) dqmStore_->removeElement( EELowInterestTriggerTowerFlagMap_[0]->getName() );
+    EELowInterestTriggerTowerFlagMap_[0] = 0;
+
+    if ( EELowInterestTriggerTowerFlagMap_[1] ) dqmStore_->removeElement( EELowInterestTriggerTowerFlagMap_[1]->getName() );
+    EELowInterestTriggerTowerFlagMap_[1] = 0;
+
+    if ( EEEventSize_[0] ) dqmStore_->removeElement( EEEventSize_[0]->getName() );
+    EEEventSize_[0] = 0;
+
+    if ( EEEventSize_[1] ) dqmStore_->removeElement( EEEventSize_[1]->getName() );
+    EEEventSize_[1] = 0;
+
+    if ( EEHighInterestPayload_[0] ) dqmStore_->removeElement( EEHighInterestPayload_[0]->getName() );
+    EEHighInterestPayload_[0] = 0;
+
+    if ( EEHighInterestPayload_[1] ) dqmStore_->removeElement( EEHighInterestPayload_[1]->getName() );
+    EEHighInterestPayload_[1] = 0;
+
+    if ( EELowInterestPayload_[0] ) dqmStore_->removeElement( EELowInterestPayload_[0]->getName() );
+    EELowInterestPayload_[0] = 0;
+
+    if ( EELowInterestPayload_[1] ) dqmStore_->removeElement( EELowInterestPayload_[1]->getName() );
+    EELowInterestPayload_[1] = 0;
 
   }
 
@@ -177,19 +249,28 @@ void EESelectiveReadoutTask::endRun(const Run& r, const EventSetup& c) {
 
 void EESelectiveReadoutTask::reset(void) {
 
-  if ( EEReadoutUnitForcedBitMap_ ) EEReadoutUnitForcedBitMap_->Reset();
+  if ( EEDccEventSize_ ) EEDccEventSize_->Reset();
 
-  if ( EEFullReadoutSRFlagMap_ ) EEFullReadoutSRFlagMap_->Reset();
+  if ( EEReadoutUnitForcedBitMap_[0] ) EEReadoutUnitForcedBitMap_[0]->Reset();
+  if ( EEReadoutUnitForcedBitMap_[1] ) EEReadoutUnitForcedBitMap_[1]->Reset();
 
-  if ( EEHighInterestTriggerTowerFlagMap_ ) EEHighInterestTriggerTowerFlagMap_->Reset();
+  if ( EEFullReadoutSRFlagMap_[0] ) EEFullReadoutSRFlagMap_[0]->Reset();
+  if ( EEFullReadoutSRFlagMap_[1] ) EEFullReadoutSRFlagMap_[1]->Reset();
 
-  if ( EELowInterestTriggerTowerFlagMap_ ) EELowInterestTriggerTowerFlagMap_->Reset();
+  if ( EEHighInterestTriggerTowerFlagMap_[0] ) EEHighInterestTriggerTowerFlagMap_[0]->Reset();
+  if ( EEHighInterestTriggerTowerFlagMap_[1] ) EEHighInterestTriggerTowerFlagMap_[1]->Reset();
 
-  if ( EEEventSize_ ) EEEventSize_->Reset();
+  if ( EELowInterestTriggerTowerFlagMap_[0] ) EELowInterestTriggerTowerFlagMap_[0]->Reset();
+  if ( EELowInterestTriggerTowerFlagMap_[1] ) EELowInterestTriggerTowerFlagMap_[1]->Reset();
 
-  if ( EEHighInterestPayload_ ) EEHighInterestPayload_->Reset();
+  if ( EEEventSize_[0] ) EEEventSize_[0]->Reset();
+  if ( EEEventSize_[1] ) EEEventSize_[1]->Reset();
 
-  if ( EELowInterestPayload_ ) EELowInterestPayload_->Reset();
+  if ( EEHighInterestPayload_[0] ) EEHighInterestPayload_[0]->Reset();
+  if ( EEHighInterestPayload_[1] ) EEHighInterestPayload_[1]->Reset();
+
+  if ( EELowInterestPayload_[0] ) EELowInterestPayload_[0]->Reset();
+  if ( EELowInterestPayload_[1] ) EELowInterestPayload_[1]->Reset();
 
 }
 
@@ -198,6 +279,31 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
   if ( ! init_ ) this->setup();
 
   ievt_++;
+
+  Handle<FEDRawDataCollection> raw;
+  if ( e.getByLabel(EcalFEDRawCollection_, raw) ) {
+
+    int EEFirstFED[2];
+    EEFirstFED[0] = 601; // EE-
+    EEFirstFED[1] = 646; // EE+
+    for(int zside=0; zside<2; zside++) {
+      
+      int firstFedOnSide=EEFirstFED[zside];
+      
+      for ( int iDcc = 0; iDcc < 9; ++iDcc ) {
+
+	int ism = 0;
+	if ( zside == 0 ) ism = iDcc+1;
+	else ism = 10+iDcc;
+	
+	EEDccEventSize_->Fill(ism, ((double)raw->FEDData(firstFedOnSide+iDcc).size())/kByte );
+	
+      }
+    }
+
+  } else {
+    LogWarning("EESelectiveReadoutTask") << EcalFEDRawCollection_ << " not available";
+  }
 
   // Selective Readout Flags
   Handle<EESrFlagCollection> eeSrFlags;
@@ -219,10 +325,20 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 
       int flag = srf.value() & ~EcalSrFlag::SRF_FORCED_MASK;
       if(flag == EcalSrFlag::SRF_FULL){
-        EEFullReadoutSRFlagMap_->Fill(xix,xiy);
+	if( zside < 0 ) {
+	  EEFullReadoutSRFlagMap_[0]->Fill(xix,xiy);
+	}
+	else {
+	  EEFullReadoutSRFlagMap_[1]->Fill(xix,xiy);
+	}
       }
       if(srf.value() & EcalSrFlag::SRF_FORCED_MASK){
-        EEReadoutUnitForcedBitMap_->Fill(xix,xiy);
+	if( zside < 0 ) {
+	  EEReadoutUnitForcedBitMap_[0]->Fill(xix,xiy);
+	}
+	else {
+	  EEReadoutUnitForcedBitMap_[1]->Fill(xix,xiy);
+	}
       }
     }
   } else {
@@ -239,10 +355,12 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
       EcalTriggerPrimitiveDigi data = (*TPdigi);
       EcalTrigTowerDetId idt = data.id();
 
+      if ( Numbers::subDet( idt ) != EcalEndcap ) continue;
+
       int ismt = Numbers::iSM( idt );
 
       vector<DetId> crystals = Numbers::crystals( idt );
-
+      
       for ( unsigned int i=0; i<crystals.size(); i++ ) {
 
         EEDetId id = crystals[i];
@@ -256,12 +374,23 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
         float xiy = iy-0.5;
 
         if ( (TPdigi->ttFlag() & 0x3) == 0 ) {
-          EELowInterestTriggerTowerFlagMap_->Fill(xix,xiy);
+	  if ( ismt >= 1 && ismt <= 9 ) {
+	    EELowInterestTriggerTowerFlagMap_[0]->Fill(xix,xiy);
+	  }
+	  else {
+	    EELowInterestTriggerTowerFlagMap_[1]->Fill(xix,xiy);
+	  }
         }
 
         if ( (TPdigi->ttFlag() & 0x3) == 3 ) {
-          EEHighInterestTriggerTowerFlagMap_->Fill(xix,xiy);
+          if ( ismt >= 1 && ismt <= 9 ) {
+	    EEHighInterestTriggerTowerFlagMap_[0]->Fill(xix,xiy);
+	  }
+	  else {
+	    EEHighInterestTriggerTowerFlagMap_[1]->Fill(xix,xiy);
+	  }
         }
+
       }
 
     }
@@ -270,9 +399,17 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
   }
 
   // Data Volume
-  double aLowInterest=0;
-  double aHighInterest=0;
-  double aAnyInterest=0;
+  
+  double aLowInterest[2];
+  double aHighInterest[2];
+  double aAnyInterest[2];
+
+  aLowInterest[0]=0;
+  aHighInterest[0]=0;
+  aAnyInterest[0]=0;
+  aLowInterest[1]=0;
+  aHighInterest[1]=0;
+  aAnyInterest[1]=0;
 
   Handle<EEDigiCollection> eeDigis;
   if ( e.getByLabel(EEDigiCollection_ , eeDigis) ) {
@@ -285,16 +422,22 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
     }
 
     //low interesest channels:
-    aLowInterest = nEeLI_*bytesPerCrystal/kByte;
-    EELowInterestPayload_->Fill(aLowInterest);
+    aLowInterest[0] = nEeLI_[0]*bytesPerCrystal/kByte;
+    EELowInterestPayload_[0]->Fill(aLowInterest[0]);
+    aLowInterest[1] = nEeLI_[1]*bytesPerCrystal/kByte;
+    EELowInterestPayload_[1]->Fill(aLowInterest[1]);
 
     //low interesest channels:
-    aHighInterest = nEeHI_*bytesPerCrystal/kByte;
-    EEHighInterestPayload_->Fill(aHighInterest);
+    aHighInterest[0] = nEeHI_[0]*bytesPerCrystal/kByte;
+    EEHighInterestPayload_[0]->Fill(aHighInterest[0]);
+    aHighInterest[1] = nEeHI_[1]*bytesPerCrystal/kByte;
+    EEHighInterestPayload_[1]->Fill(aHighInterest[1]);
 
     //any-interest channels:
-    aAnyInterest = getEeEventSize(nEe_)/kByte;
-    EEEventSize_->Fill(aAnyInterest);
+    aAnyInterest[0] = getEeEventSize(nEe_[0])/kByte;
+    EEEventSize_[0]->Fill(aAnyInterest[0]);
+    aAnyInterest[1] = getEeEventSize(nEe_[1])/kByte;
+    EEEventSize_[1]->Fill(aAnyInterest[1]);
 
   } else {
     LogWarning("EESelectiveReadoutTask") << EEDigiCollection_ << " not available";
@@ -304,6 +447,10 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 
 void EESelectiveReadoutTask::anaDigi(const EEDataFrame& frame, const EESrFlagCollection& srFlagColl){
 
+
+  EEDetId id = frame.id();
+  int ism = Numbers::iSM( id );
+
   EESrFlagCollection::const_iterator srf = srFlagColl.find(readOutUnitOf(frame.id()));
 
   if(srf == srFlagColl.end()){
@@ -312,18 +459,29 @@ void EESelectiveReadoutTask::anaDigi(const EEDataFrame& frame, const EESrFlagCol
   }
 
   const DetId& xtalId = frame.id();
+
   bool highInterest = ((srf->value() & ~EcalSrFlag::SRF_FORCED_MASK)
                        == EcalSrFlag::SRF_FULL);
 
   bool endcap = (xtalId.subdetId()==EcalEndcap);
 
   if(endcap){
-    ++nEe_;
-    if(highInterest){
-      ++nEeHI_;
-    } else{//low interest
-      ++nEeLI_;
+    if ( ism >= 1 && ism <= 9 ) {
+      ++nEe_[0];
+      if(highInterest){
+	++nEeHI_[0];
+      } else{//low interest
+	++nEeLI_[0];
+      }
+    } else {
+      ++nEe_[1];
+      if(highInterest){
+	++nEeHI_[1];
+      } else{//low interest
+	++nEeLI_[1];
+      }
     }
+
     int iX0 = iXY2cIndex(static_cast<const EEDetId&>(frame.id()).ix());
     int iY0 = iXY2cIndex(static_cast<const EEDetId&>(frame.id()).iy());
     int iZ0 = static_cast<const EEDetId&>(frame.id()).zside()>0?1:0;
@@ -338,9 +496,12 @@ void EESelectiveReadoutTask::anaDigi(const EEDataFrame& frame, const EESrFlagCol
 }
 
 void EESelectiveReadoutTask::anaDigiInit(){
-  nEe_ = 0;
-  nEeLI_ = 0;
-  nEeHI_ = 0;
+  nEe_[0] = 0;
+  nEeLI_[0] = 0;
+  nEeHI_[0] = 0;
+  nEe_[1] = 0;
+  nEeLI_[1] = 0;
+  nEeHI_[1] = 0;
   bzero(nPerDcc_, sizeof(nPerDcc_));
   bzero(nRuPerDcc_, sizeof(nRuPerDcc_));
   bzero(eeRuActive_, sizeof(eeRuActive_));
