@@ -466,9 +466,9 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
       
       if(imc != 0) {
 	sprintf (histo, "HcalRecHitTask_energy_rechits_vs_simhits_HE");
-	meRecHitSimHitHE = dbe_->book2D(histo, histo, 100, 0., 1.0,  300, 0., 150.);
+	meRecHitSimHitHE = dbe_->book2D(histo, histo, 120, 0., 0.6,  300, 0., 150.);
 	sprintf (histo, "HcalRecHitTask_energy_rechits_vs_simhits_profile_HE");
-	meRecHitSimHitProfileHE = dbe_->bookProfile(histo, histo, 100, 0., 1.0, 500, 0., 500.);  
+	meRecHitSimHitProfileHE = dbe_->bookProfile(histo, histo, 120, 0., 0.6, 500, 0., 500.);  
       }
       
     }
@@ -482,14 +482,14 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
 	  meNumRecHitsConeHO    = dbe_->book1D(histo, histo, 100, 0 , 100.);
 	  
 	  sprintf (histo, "HcalRecHitTask_sum_of_rechits_energy_in_cone_HO" ) ;
-	  meSumRecHitsEnergyConeHO = dbe_->book1D(histo,histo, 60 ,-20., 280.);
+	  meSumRecHitsEnergyConeHO = dbe_->book1D(histo,histo, 80 ,-20., 380.);
 	}
 
 	sprintf (histo, "HcalRecHitTask_number_of_rechits_above_1GeV_HO");
 	meNumRecHitsThreshHO = dbe_->book1D(histo, histo,   30, 0., 30.);   
 	
 	sprintf (histo, "HcalRecHitTask_sum_of_rechits_energy_HO" ) ;
-	meSumRecHitsEnergyHO = dbe_->book1D(histo,histo, 60 , -20., 280.);
+	meSumRecHitsEnergyHO = dbe_->book1D(histo,histo, 80 , -20., 380.);
 	
       }      
 
@@ -500,16 +500,16 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
       meTimeHO = dbe_->book1D(histo, histo, 2000 , -100., 100.); 
       
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_HO" ) ;
-      meTE_HO= dbe_->book2D(histo, histo, 200, -5., 95., 220, -10., 100.);
+      meTE_HO= dbe_->book2D(histo, histo, 300, -5., 295., 110, -10., 100.);
       
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_profile_HO" ) ;
-      meTEprofileHO = dbe_->bookProfile(histo, histo, 100, -5., 95.,  110, -10., 100.); 
+      meTEprofileHO = dbe_->bookProfile(histo, histo, 300, -5., 295.,  110, -10., 100.); 
       
       if(imc != 0) {
 	sprintf (histo, "HcalRecHitTask_energy_rechits_vs_simhits_HO");
-	meRecHitSimHitHO = dbe_->book2D(histo, histo, 120, 0., 1.2,  300, 0., 300.);
+	meRecHitSimHitHO = dbe_->book2D(histo, histo, 150, 0., 1.5,  350, 0., 350.);
 	sprintf (histo, "HcalRecHitTask_energy_rechits_vs_simhits_profile_HO");
-	meRecHitSimHitProfileHO = dbe_->bookProfile(histo, histo, 120, 0., 1.2, 500, 0., 500.);  
+	meRecHitSimHitProfileHO = dbe_->bookProfile(histo, histo, 150, 0., 1.5, 500, 0., 500.);  
       }
     }   
   
@@ -520,20 +520,20 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
 
         if(imc != 0) {
 	  sprintf (histo, "HcalRecHitTask_number_of_rechits_in_cone_HF" ) ;
-	  meNumRecHitsConeHF    = dbe_->book1D(histo, histo, 100, 0 , 100.);
+	  meNumRecHitsConeHF    = dbe_->book1D(histo, histo, 30, 0 , 30.);
 	
 	  sprintf (histo, "HcalRecHitTask_sum_of_rechits_energy_in_cone_HF" ) ;
-	  meSumRecHitsEnergyConeHF = dbe_->book1D(histo,histo, 60, -20., 280.);
+	  meSumRecHitsEnergyConeHF = dbe_->book1D(histo,histo,100, -20., 180.);
 
 	  sprintf (histo, "HcalRecHitTask_sum_of_rechits_energy_in_cone_HFL" );
-	  meSumRecHitsEnergyConeHFL = dbe_->book1D(histo,histo, 60,-20., 280.);
+	  meSumRecHitsEnergyConeHFL = dbe_->book1D(histo,histo,100,-20., 180.);
 
 	  sprintf (histo, "HcalRecHitTask_sum_of_rechits_energy_in_cone_HFS");
-	  meSumRecHitsEnergyConeHFS = dbe_->book1D(histo,histo, 60,-20., 280.);
+	  meSumRecHitsEnergyConeHFS = dbe_->book1D(histo,histo,100,-20., 180.);
 	}
 
 	sprintf (histo, "HcalRecHitTask_sum_of_rechits_energy_HF" ) ;
-	meSumRecHitsEnergyHF = dbe_->book1D(histo,histo, 60 , -20., 280.);  
+	meSumRecHitsEnergyHF = dbe_->book1D(histo,histo, 80 , -20., 380.);  
 
       }
 
@@ -557,17 +557,17 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
             
       if(imc != 0) {
 	sprintf (histo, "HcalRecHitTask_energy_rechits_vs_simhits_HF");
-	meRecHitSimHitHF  = dbe_->book2D(histo, histo, 120, 0., 60., 200, 0., 200.);      
+	meRecHitSimHitHF  = dbe_->book2D(histo, histo, 30, 0., 30., 200, 0., 200.);      
 	sprintf (histo, "HcalRecHitTask_energy_rechits_vs_simhits_HFL");
-	meRecHitSimHitHFL = dbe_->book2D(histo, histo, 120, 0., 60., 200, 0., 200.);      
+	meRecHitSimHitHFL = dbe_->book2D(histo, histo, 30, 0., 30., 200, 0., 200.);      
 	sprintf (histo, "HcalRecHitTask_energy_rechits_vs_simhits_HFS");
-	meRecHitSimHitHFS = dbe_->book2D(histo, histo, 120, 0., 60., 200, 0., 200.);
+	meRecHitSimHitHFS = dbe_->book2D(histo, histo, 30, 0., 30., 200, 0., 200.);
 	sprintf (histo, "HcalRecHitTask_energy_rechits_vs_simhits_profile_HF");
-	meRecHitSimHitProfileHF  = dbe_->bookProfile(histo, histo, 60, 0., 60., 500, 0., 500.);  
+	meRecHitSimHitProfileHF  = dbe_->bookProfile(histo, histo, 30, 0., 30., 500, 0., 500.);  
 	sprintf (histo, "HcalRecHitTask_energy_rechits_vs_simhits_profile_HFL");
-	meRecHitSimHitProfileHFL = dbe_->bookProfile(histo, histo, 60, 0., 60., 500, 0., 500.);  
+	meRecHitSimHitProfileHFL = dbe_->bookProfile(histo, histo, 30, 0., 30., 500, 0., 500.);  
 	sprintf (histo, "HcalRecHitTask_energy_rechits_vs_simhits_profile_HFS");
-	meRecHitSimHitProfileHFS = dbe_->bookProfile(histo, histo, 60, 0., 60., 500, 0., 500.);  
+	meRecHitSimHitProfileHFS = dbe_->bookProfile(histo, histo, 30, 0., 30., 500, 0., 500.);  
       }
     }
   }  //end-of if(_dbe) 
