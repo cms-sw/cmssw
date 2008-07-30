@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: injectFileIntoTransferSystem.pl,v 1.19 2008/07/14 08:54:32 loizides Exp $
+# $Id: injectFileIntoTransferSystem.pl,v 1.20 2008/07/22 16:23:42 loizides Exp $
 
 use strict;
 use DBI;
@@ -253,6 +253,10 @@ if($check) {
         "left outer join CMS_STOMGR.FILES_DELETED ".
         "on CMS_STOMGR.FILES_CREATED.FILENAME=CMS_STOMGR.FILES_DELETED.FILENAME " .
         "where CMS_STOMGR.FILES_CREATED.FILENAME='$filename'";
+
+    #
+    sleep(1);
+    #
 
     # setup DB connection
     my $dbi    = "DBI:Oracle:cms_rcms";
