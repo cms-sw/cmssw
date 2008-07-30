@@ -1,8 +1,8 @@
 #!/usr/local/bin/perl
 #     R. Mankel, DESY Hamburg     03-Jul-2007
 #     A. Parenti, DESY Hamburg    27-Mar-2008
-#     $Revision: 1.1 $
-#     $Date: 2008/04/10 16:10:12 $
+#     $Revision: 1.2 $
+#     $Date: 2008/07/29 17:10:40 $
 #
 #  Take card file, blank all INFI directives and insert
 #  the INFI directives from the modifier file instead.
@@ -50,7 +50,7 @@ while (@ARGV) {
 }
 
 if ($outCfg eq "undefined") {
-  print "Insufficient information given\n";
+  print "mps_splice.pl: Insufficient information given\n";
   exit 1;
 }
 
@@ -69,6 +69,12 @@ $mods = <MODFILE>;  # read whole file
 close MODFILE;
 $/ = "\n"; # back to normal
 chomp $mods;
+
+$nn = ($body =~ s/mode \= \'full\'/mode \= \'mille\'/);
+if ($nn != 1) {
+  print "Replaced mode from 'full' to 'mille'.\n";
+}
+
 
 # look for the fileNames directive
 $nfileNames = ($body =~ m/fileNames = cms.untracked.vstring\(.*?\)/s);
