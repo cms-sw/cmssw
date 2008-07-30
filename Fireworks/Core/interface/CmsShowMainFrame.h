@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 18:11:16 CDT 2008
-// $Id: CmsShowMainFrame.h,v 1.6 2008/07/17 10:07:00 dmytro Exp $
+// $Id: CmsShowMainFrame.h,v 1.7 2008/07/26 00:01:26 chrjones Exp $
 //
 
 // system include files
@@ -36,6 +36,7 @@ class TGPopupMenu;
 class TGStatusBar;
 class TTimer;
 class CSGAction;
+class CSGContinuousAction;
 class CSGNumAction;
 class FWGUIManager;
 class TGPopupMenu;
@@ -56,6 +57,7 @@ public:
    const std::vector<CSGAction*>& getListOfActions() const;
    CSGNumAction* getRunEntry() const;
    CSGNumAction* getEventEntry() const;
+   //delay for tooltips
    Long_t getDelay() const;
    
    // ---------- static member functions --------------------
@@ -68,12 +70,6 @@ public:
    Bool_t activateToolBarEntry(int entry);
    void defaultAction();
    void loadEvent(const fwlite::Event& event);
-   void goForward();
-   void goBackward();
-   void goToFirst();
-   void playEvents();
-   void playEventsBack();
-   void pause();
    void quit();
    CSGAction* getAction(const std::string& name);
    void enableActions(bool enable = true);
@@ -86,7 +82,8 @@ public:
    void resizeMenu(TGPopupMenu *menu);
    void HandleMenu(Int_t id);
    Bool_t HandleKey(Event_t *event);
-   //   Bool_t HandleTimer(TTimer *timer);
+   CSGContinuousAction* playEventsAction() const { return m_playEvents;}
+   CSGContinuousAction* playEventsBackwardsAction() const { return m_playEventsBack;}
    
    CSGAction* createNewViewerAction(const std::string& iActionName);
 private:
@@ -104,10 +101,8 @@ private:
    CSGAction *m_nextEvent;
    CSGAction *m_previousEvent;
    CSGAction *m_goToFirst;
-   Int_t m_playRate;
-   Int_t m_playBackRate;
-   TTimer *m_playTimer;
-   TTimer *m_playBackTimer;   
+   CSGContinuousAction *m_playEvents;
+   CSGContinuousAction *m_playEventsBack;
    TGStatusBar* m_statBar;
    
    TGPopupMenu *m_newViewerMenu;
