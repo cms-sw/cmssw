@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.2 $
- *  $Date: 2008/02/15 14:37:34 $
+ *  $Revision: 1.3 $
+ *  $Date: 2008/02/15 16:06:13 $
  *  (last update by $Author: flucke $)
  */
 
@@ -52,7 +52,7 @@ unsigned int PedeLabeler::alignableLabel(Alignable *alignable) const
   if (position != myAlignableToIdMap.end()) {
     return position->second;
   } else {
-    const DetId detId(alignable->geomDetId());
+    const DetId detId(alignable->id());
     //throw cms::Exception("LogicError") 
     edm::LogError("LogicError")
       << "@SUB=PedeLabeler::alignableLabel" << "Alignable "
