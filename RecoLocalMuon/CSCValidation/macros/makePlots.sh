@@ -46,6 +46,12 @@ cat > ${MACRO}<<EOF
   GlobalPosfromTree("Global Segment positions ME-3", f1, 2, 3, "segment", "Sglobal_station_-3.gif");
   GlobalPosfromTree("Global Segment positions ME-4", f1, 2, 4, "segment", "Sglobal_station_-4.gif");
 
+  //Nikolai's plots
+  NikolaiPlots(f1,1);
+  NikolaiPlots(f1,2);
+  NikolaiPlots(f1,3);
+  NikolaiPlots(f1,4);
+
   //produce number of X per event plots
   make1DPlot("Digis/hStripNFired",f1,"Fired Strips per Event", 1110, "Digis_hStripNFired.gif");
   make1DPlot("Digis/hWirenGroupsTotal",f1,"Fired Wires per Event", 1110, "Digis_hWirenGroupsTotal.gif");

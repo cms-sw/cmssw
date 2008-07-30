@@ -746,7 +746,6 @@ void GlobalPosfromTreeCompare(std::string graphname, TFile* f1, TFile* f2, int e
   const int nevents1 = n1;
   const int nevents2 = n2;
 
-  //cout << n1 << " " << n2 << " " << nevents1 << " " << nevents2 << endl;
 
   float globx1[nevents1];
   float globy1[nevents1];
@@ -806,4 +805,274 @@ void GlobalPosfromTreeCompare(std::string graphname, TFile* f1, TFile* f2, int e
 
 }
 
+
+void NikolaiPlots(TFile *f_in, int flag){
+ 
+gROOT->SetStyle("Plain"); // to get rid of gray color of pad and have it white
+gStyle->SetPalette(1,0); // 
+
+std::ostringstream ss,ss1;
+
+
+if(flag==1) {  // gas gain results
+  std::string folder="GasGain/";
+
+  std::string input_histName = "gas_gain_rechit_adc_3_3_sum_location_ME_";
+  std::string input_title_X="Location=(layer-1)*nsegm+segm";
+  std::string input_title_Y="3X3 ADC Sum";
+
+  std::string slice_title_X="3X3 ADC Sum Location";
+
+  Int_t ny=30;
+  Float_t ylow=1.0, yhigh=31.0;
+  std::string result_histName = "mean_gas_gain_vs_location_csc_ME_";
+  std::string result_histTitle="Mean 3X3 ADC Sum";
+  std::string result_title_Y="Location=(layer-1)*nsegm+segm";
+
+  std::string result_histNameEntries = "entries_gas_gain_vs_location_csc_ME_";
+  std::string result_histTitleEntries="Entries 3X3 ADC Sum";
+}
+
+if(flag==2) {  // AFEB timing results
+  std::string folder="AFEBTiming/";
+
+  std::string input_histName = "afeb_time_bin_vs_afeb_occupancy_ME_";
+  std::string input_title_X="AFEB";
+  std::string input_title_Y="Time Bin";
+
+  std::string slice_title_X="AFEB";
+
+  Int_t ny=42;
+  Float_t ylow=1.0, yhigh=42.0;
+  std::string result_histName = "mean_afeb_time_bin_vs_afeb_csc_ME_";
+  std::string result_histTitle="AFEB Mean Time Bin";
+  std::string result_title_Y="AFEB";
+
+  std::string result_histNameEntries = "entries_afeb_time_bin_vs_afeb_csc_ME_";
+  std::string result_histTitleEntries="Entries AFEB Time Bin";
+}
+
+if(flag==3) {  // Comparator timing results
+  std::string folder="CompTiming/";
+
+  std::string input_histName = "comp_time_bin_vs_cfeb_occupancy_ME_";
+  std::string input_title_X="CFEB";
+  std::string input_title_Y="Time Bin";
+
+  std::string slice_title_X="CFEB";
+
+  Int_t ny=5;
+  Float_t ylow=1.0, yhigh=6.0;
+  std::string result_histName = "mean_comp_time_bin_vs_cfeb_csc_ME_";
+  std::string result_histTitle="Comparator Mean Time Bin";
+  std::string result_title_Y="CFEB";
+
+  std::string result_histNameEntries = "entries_comp_time_bin_vs_cfeb_csc_ME_";
+  std::string result_histTitleEntries="Entries Comparator Time Bin";
+}
+
+if(flag==4) {  // Strip ADC timing results
+  std::string folder="ADCTiming/";
+
+  std::string input_histName = "adc_3_3_weight_time_bin_vs_cfeb_occupancy_ME_";
+  std::string input_title_X="CFEB";
+  std::string input_title_Y="Time Bin";
+
+  std::string slice_title_X="CFEB";
+
+  Int_t ny=5;
+  Float_t ylow=1.0, yhigh=6.0;
+  std::string result_histName = "mean_adc_time_bin_vs_cfeb_csc_ME_";
+  std::string result_histTitle="ADC 3X3 Mean Time Bin";
+  std::string result_title_Y="CFEB";
+
+  std::string result_histNameEntries = "entries_adc_time_bin_vs_cfeb_csc_ME_";
+  std::string result_histTitleEntries="Entries ADC 3X3 Time Bin";
+}
+
+
+std::vector<std::string> xTitle;
+xTitle.push_back("ME+1/1 CSC"); xTitle.push_back("ME+1/2 CSC");
+xTitle.push_back("ME+1/3 CSC"); 
+xTitle.push_back("ME+2/1 CSC"); xTitle.push_back("ME+2/2 CSC");
+xTitle.push_back("ME+3/1 CSC"); xTitle.push_back("ME+3/2 CSC");
+xTitle.push_back("ME+4/1 CSC"); xTitle.push_back("ME+4/2 CSC");
+xTitle.push_back("ME-1/1 CSC"); xTitle.push_back("ME-1/2 CSC");
+xTitle.push_back("ME-1/3 CSC");
+xTitle.push_back("ME-2/1 CSC"); xTitle.push_back("ME-2/2 CSC");
+xTitle.push_back("ME-3/1 CSC"); xTitle.push_back("ME-3/2 CSC");
+xTitle.push_back("ME-4/1 CSC"); xTitle.push_back("ME-4/2 CSC");
+
+TH2F *h2[500];
+TH2F *h;
+Int_t esr[18]={111,112,113,121,122,131,132,141,142,
+               211,212,213,221,222,231,232,241,242};
+Int_t entries[18]={0,0,0,0,0,0,0,0,0,
+                   0,0,0,0,0,0,0,0,0};
+Int_t k=0;
+TCanvas *c1=new TCanvas("c1","canvas");
+c1->cd();
+
+//if(flag==2) { // adding special case for AFEB timing
+  ss.str("");
+  ss<<"mean_afeb_time_bin_vs_csc_ME";
+       ss1.str("");
+       ss1<<"Mean AFEB time bin vs CSC and ME";
+       gStyle->SetOptStat(0);
+ TH2F *hb=new TH2F(ss.str().c_str(),ss1.str().c_str(),36,1.0,37.0,18,1.0,19.0);
+       hb->SetStats(kFALSE);
+       hb->GetXaxis()->SetTitle("CSC #");
+       hb->GetZaxis()->SetLabelSize(0.03);
+       hb->SetOption("COLZ");
+
+  hb->GetYaxis()->SetBinLabel(1, "ME- 4/2");
+  hb->GetYaxis()->SetBinLabel(2, "ME- 4/1");
+  hb->GetYaxis()->SetBinLabel(3, "ME- 3/2");
+  hb->GetYaxis()->SetBinLabel(4, "ME- 3/1");
+  hb->GetYaxis()->SetBinLabel(5, "ME- 2/2");
+  hb->GetYaxis()->SetBinLabel(6, "ME- 2/1");
+  hb->GetYaxis()->SetBinLabel(7, "ME- 1/3");
+  hb->GetYaxis()->SetBinLabel(8, "ME- 1/2");
+  hb->GetYaxis()->SetBinLabel(9, "ME- 1/1");
+  hb->GetYaxis()->SetBinLabel(10,"ME+ 1/1");
+  hb->GetYaxis()->SetBinLabel(11,"ME+ 1/2");
+  hb->GetYaxis()->SetBinLabel(12,"ME+ 1/3");
+  hb->GetYaxis()->SetBinLabel(13,"ME+ 2/1");
+  hb->GetYaxis()->SetBinLabel(14,"ME+ 2/2");
+  hb->GetYaxis()->SetBinLabel(15,"ME+ 3/1");
+  hb->GetYaxis()->SetBinLabel(16,"ME+ 3/2");
+  hb->GetYaxis()->SetBinLabel(17,"ME+ 4/1");
+  hb->GetYaxis()->SetBinLabel(18,"ME+ 4/2");
+//}
+
+for(Int_t jesr=0;jesr<18;jesr++) { 
+     ss.str("");
+     ss<<result_histName.c_str()<<esr[jesr];
+     ss1.str("");
+     ss1<<result_histTitle;
+     TH2F *h=new TH2F(ss.str().c_str(),ss1.str().c_str(),40,0.0,40.0,ny,ylow,yhigh);
+     h->SetStats(kFALSE);
+     h->GetXaxis()->SetTitle(xTitle[jesr].c_str());
+     h->GetYaxis()->SetTitle(result_title_Y.c_str());
+     h->GetZaxis()->SetLabelSize(0.03);
+     h->SetOption("COLZ");
+
+     ss.str("");
+     ss<<result_histNameEntries.c_str()<<esr[jesr];
+     ss1.str("");
+     ss1<<result_histTitleEntries;
+     TH2F *hentr=new TH2F(ss.str().c_str(),ss1.str().c_str(),40,0.0,40.0,ny,ylow,yhigh);
+     hentr->SetStats(kFALSE);
+     hentr->GetXaxis()->SetTitle(xTitle[jesr].c_str());
+     hentr->GetYaxis()->SetTitle(result_title_Y.c_str());
+     hentr->GetZaxis()->SetLabelSize(0.03);
+     hentr->SetOption("COLZ");
+
+     if(flag==2) { // adding special cases for AFEB timing
+       ss.str("");
+       ss<<"normal_afeb_time_bin_vs_csc_ME_"<<esr[jesr];
+       ss1.str("");
+       ss1<<"Normalized AFEB time bin, %";
+       TH2F *ha=new TH2F(ss.str().c_str(),ss1.str().c_str(),40,0.0,40.0,16,0.0,16.0);
+       ha->SetStats(kFALSE);
+       ha->GetXaxis()->SetTitle(xTitle[jesr].c_str());
+       ha->GetYaxis()->SetTitle("Time Bin");
+       ha->GetZaxis()->SetLabelSize(0.03);
+       ha->SetOption("COLZ");
+     }
+
+   for(Int_t csc=1;csc<37;csc++) {
+     Int_t idchamber=esr[jesr]*100+csc;
+     ss.str("");
+     ss<<folder.c_str()<<input_histName.c_str()<<idchamber;
+     f_in->cd();
+     TH2F *h2[1];
+     h2[k] = (TH2F*)f_in->Get(ss.str().c_str());
+   if(h2[k] != NULL) {
+
+     // saving original, adding X,Y titles, color and "BOX" option
+     h2[k]->GetXaxis()->SetTitle(input_title_X.c_str());
+     h2[k]->GetYaxis()->SetTitle(input_title_Y.c_str());
+     h2[k]->GetYaxis()->SetTitleOffset(1.2);
+     h2[k]->SetFillColor(4);
+     h2[k]->SetOption("BOX");
+     gStyle->SetOptStat(1001111);
+
+     // saving Y projection of the whole 2D hist for given chamber
+     ss.str("");
+     ss<<input_histName.c_str()<<idchamber<<"_Y_all";
+     TH1D *h1d = h2[k]->ProjectionY(ss.str().c_str(),1,h2[k]->GetNbinsX(),"");
+     h1d->GetYaxis()->SetTitle("Entries");
+     h1d->GetYaxis()->SetTitleOffset(1.2);
+     gStyle->SetOptStat(1001111);
+
+     if(flag==2 && h1d->GetEntries() > 0) {// adding spec. case for afeb timing
+       Float_t entr=h1d->GetEntries();
+       for(Int_t m=1; m<h1d->GetNbinsX();m++) {
+	 Float_t w=h1d->GetBinContent(m);
+         w=100.0*w/entr;
+         ha->SetBinContent(csc+1,m,w);
+       }
+       Float_t mean=h1d->GetMean();
+       Int_t me;
+       if(jesr<9) me=10+jesr;
+       if(jesr>8) me=18-jesr;
+       hb->SetBinContent(csc,me,mean);
+     }
+     delete h1d;   
+
+     // saving slices, finding MEAN in each slice, fill 2D hist
+     for(Int_t j=1;j<=h2[k]->GetNbinsX();j++) {
+        Int_t n=j;
+        ss.str("");
+        ss<<input_histName.c_str()<<idchamber<<"_Y_"<<n;
+        TH1D *h1d = h2[k]->ProjectionY(ss.str().c_str(),j,j,"");
+        if(h1d->GetEntries() > 0) {
+          Float_t mean=h1d->GetMean();
+          Float_t entr=h1d->GetEntries();
+          entries[jesr]=entries[jesr]+1;
+          h->SetBinContent(csc+1,j,mean);
+          hentr->SetBinContent(csc+1,j,entr);
+          ss.str("");
+          ss<<slice_title_X<<" "<<n;
+          h1d->GetXaxis()->SetTitle(ss.str().c_str());
+          h1d->GetYaxis()->SetTitle("Entries");
+          h1d->GetYaxis()->SetTitleOffset(1.2);
+          gStyle->SetOptStat(1001111);
+	}
+        delete h1d;
+     }
+   }
+   }
+   if(entries[jesr]>0) {
+     h->SetStats(kFALSE);
+     hentr->SetStats(kFALSE);
+     c1->Update();
+
+     // printing
+     
+     h->Draw();
+     ss.str("");
+     ss<<result_histName.c_str()<<esr[jesr]<<".gif";
+     c1->Print(ss.str().c_str(),"gif");
+     
+     hentr->Draw();
+     ss.str("");
+     ss<<result_histNameEntries.c_str()<<esr[jesr]<<".gif";
+     c1->Print(ss.str().c_str(),"gif");
+   }
+   delete h;
+   delete hentr;
+   if(flag==2) delete ha;
+}
+   if(flag==2) {
+   hb->Draw();      
+   ss.str("");
+   ss<<"mean_afeb_time_bin_vs_csc_ME"<<".gif";      
+   c1->Print(ss.str().c_str(),"gif");
+
+   c1->Update();
+   delete hb;    
+   }
+}
 
