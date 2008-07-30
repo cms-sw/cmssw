@@ -23,7 +23,7 @@ HcalSubdetDigiMonitor::HcalSubdetDigiMonitor(DQMStore* dbe,
   HistLim ndigis(50, 0., 50.);
   HistLim sime(120, 0., 0.6);
   HistLim digiAmp(350, -100., 600.);
-  HistLim ratio(200, 0., 2000.);
+  HistLim ratio(250, 0., 2500.);
   HistLim sumAmp(100, -500., 1500.);
 
   HistLim nbin(10,0.,10.);
