@@ -24,6 +24,7 @@
 //
 HLTMuonL1Filter::HLTMuonL1Filter(const edm::ParameterSet& iConfig) :
    candTag_   (iConfig.getParameter< edm::InputTag > ("CandTag")),
+   previousCandTag_   (iConfig.getParameter< edm::InputTag > ("PreviousCandTag")),
    max_Eta_   (iConfig.getParameter<double> ("MaxEta")),
    min_Pt_ (iConfig.getParameter<double> ("MinPt")),
    min_Quality_    (iConfig.getParameter<int> ("MinQuality")),
@@ -69,21 +70,18 @@ HLTMuonL1Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      filterproduct (new TriggerFilterObjectWithRefs(path(),module()));
 
    // get hold of muons
-   Handle<TriggerFilterObjectWithRefs> mucands;
-   iEvent.getByLabel (candTag_,mucands);
+   Handle<L1MuonParticleCollection> mucands;
+   iEvent.getByLabel (candTag_, mucands);
 
+   Handle<TriggerFilterObjectWithRefs> previousLevelCands;
+   iEvent.getByLabel (previousCandTag_ ,previousLevelCands);
+   vector<L1MuonParticleRef> l1mu;
+   previousLevelCands->getObjects(TriggerL1Mu,l1mu);
+   
    // look at all mucands,  check cuts and add to filter object
    int n = 0;
-   vector<L1MuonParticleRef> l1mu;
-   mucands->getObjects(TriggerL1Mu,l1mu);
-   InputTag saveThisTag;
-   const Provenance * prov=0;
-   for (unsigned int i=0; i<l1mu.size(); i++) {
-      L1MuonParticleRef muon = L1MuonParticleRef(l1mu[i]);
-      if (!prov && saveTag_){
-	prov=&iEvent.getProvenance(muon.id());
-	saveThisTag = InputTag(prov->moduleLabel(), prov->productInstanceName(), prov->processName());
-      }
+   for (unsigned int i=0; i<mucands->size(); i++) {
+     L1MuonParticleRef muon(mucands,i);
       LogDebug("HLTMuonL1Filter") 
             << " Muon in loop: q*pt= " << muon->charge()*muon->pt() 
             << ", eta= " << muon->eta();
@@ -103,7 +101,7 @@ HLTMuonL1Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       n++;
       filterproduct->addObject(TriggerL1Mu,muon);
    }
-   if(saveTag_)filterproduct->addCollectionTag(saveThisTag);
+   if(saveTag_)filterproduct->addCollectionTag(candTag_);
 
    vector<L1MuonParticleRef> vref;
    filterproduct->getObjects(TriggerL1Mu,vref);
@@ -123,4 +121,14 @@ HLTMuonL1Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    LogDebug("HLTMuonL1Filter") << " >>>>> Result of HLTMuonL1Filter is " << accept << ", number of muons passing thresholds= " << n; 
 
    return accept;
+}
+
+bool HLTMuonL1Filter::triggerByPreviousLevel(const l1extra::L1MuonParticleRef & muon, const std::vector<l1extra::L1MuonParticleRef> & vcands){
+  bool ok=false;
+  uint i=0;
+  uint i_max=vcands.size();
+  for (;i!=i_max;++i){
+    if (muon == vcands[i]){ ok=true; break;}
+  }
+  return ok;
 }

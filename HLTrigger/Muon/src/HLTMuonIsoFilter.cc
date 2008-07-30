@@ -26,6 +26,7 @@
 //
 HLTMuonIsoFilter::HLTMuonIsoFilter(const edm::ParameterSet& iConfig) :
    candTag_ (iConfig.getParameter< edm::InputTag > ("CandTag") ),
+   previousCandTag_ (iConfig.getParameter<edm::InputTag > ("PreviousCandTag")),
    isoTag_  (iConfig.getParameter< edm::InputTag > ("IsoTag" ) ),
    min_N_   (iConfig.getParameter<int> ("MinN")),
    saveTag_  (iConfig.getUntrackedParameter<bool> ("SaveTag",false)) 
@@ -62,26 +63,28 @@ HLTMuonIsoFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // The filter object
    auto_ptr<TriggerFilterObjectWithRefs>
      filterproduct (new TriggerFilterObjectWithRefs(path(),module()));
-   // Ref to Candidate object to be recorded in filter object
-   RecoChargedCandidateRef ref;
-
 
    // get hold of trks
-   Handle<TriggerFilterObjectWithRefs> mucands;
-   if(saveTag_) {
-     filterproduct->addCollectionTag(candTag_);
-   }
+   Handle<RecoChargedCandidateCollection> mucands;
+   if(saveTag_)filterproduct->addCollectionTag(candTag_);
    iEvent.getByLabel (candTag_,mucands);
-
+   Handle<TriggerFilterObjectWithRefs> previousLevelCands;
+   iEvent.getByLabel (previousCandTag_,previousLevelCands);
+   vector<RecoChargedCandidateRef> vcands;
+   previousLevelCands->getObjects(TriggerMuon,vcands);
+   
+   //get hold of energy deposition
    Handle<edm::ValueMap<bool> > depMap;
    iEvent.getByLabel (isoTag_,depMap);
-
+   
    // look at all mucands,  check cuts and add to filter object
    int n = 0;
-   vector<RecoChargedCandidateRef> vcands;
-   mucands->getObjects(TriggerMuon,vcands);
-   for (unsigned int i=0; i<vcands.size(); i++) {
-     RecoChargedCandidateRef candref =  RecoChargedCandidateRef(vcands[i]);
+   for (unsigned int i=0; i<mucands->size(); i++) {
+     RecoChargedCandidateRef candref(mucands,i);
+     
+     //did this candidate triggered at previous stage.
+     if (!triggerdByPreviousLevel(candref,vcands)) continue;
+   
      TrackRef tk = candref->get<TrackRef>();
      edm::ValueMap<bool> ::value_type muonIsIsolated = (*depMap)[tk];
      LogDebug("HLTMuonIsoFilter") << " Muon with q*pt= " << tk->charge()*tk->pt() << ", eta= " << tk->eta() << "; Is Muon isolated? " << muonIsIsolated;
@@ -102,3 +105,15 @@ HLTMuonIsoFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    return accept;
 }
+
+bool HLTMuonIsoFilter::triggerdByPreviousLevel(const reco::RecoChargedCandidateRef & candref, const std::vector<reco::RecoChargedCandidateRef>& vcands){
+  bool ok=false;
+  uint i=0;
+  uint i_max=vcands.size();
+  for (;i!=i_max;++i){
+    if (candref == vcands[i]) { ok=true; break;}
+  }
+
+  return ok;
+}
+																						       
