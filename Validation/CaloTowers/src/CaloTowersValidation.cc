@@ -10,8 +10,8 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf):
   hcalselector_ = conf.getUntrackedParameter<std::string>("hcalselector", "all");
 
   etaMin = 0.;
-  etaMax = 2.95;
-  if(hcalselector_ == "HF" || hcalselector_ == "all") {
+  etaMax = 5.2;
+  if(hcalselector_ == "HF") {
     etaMin = 2.93;
     etaMax = 5.2;
   } 
@@ -42,28 +42,28 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf):
     dbe_->setCurrentFolder("CaloTowersV/CaloTowersTask");
   
     sprintf (histo, "CaloTowersTask_sum_of_energy_HCAL_vs_ECAL" ) ;
-    meEnergyHcalvsEcal    = dbe_->book2D(histo, histo, 220, -20 , 200., 220, -20., 200.);
+    meEnergyHcalvsEcal    = dbe_->book2D(histo, histo, 120, 0., 100., 100, 0., 200.);
 
     sprintf (histo, "CaloTowersTask_energy_OUTER" ) ;
-    meEnergyHO    = dbe_->book1D(histo, histo, 15, 0 , 30);   
+    meEnergyHO    = dbe_->book1D(histo, histo, 30, 0, 30);   
 
     sprintf (histo, "CaloTowersTask_energy_HCAL" ) ;
-    meEnergyHcal    = dbe_->book1D(histo, histo, 75, 0 , 150);  
+    meEnergyHcal    = dbe_->book1D(histo, histo, 100, 0, 100);  
 
     sprintf (histo, "CaloTowersTask_energy_ECAL" ) ;
-    meEnergyEcal    = dbe_->book1D(histo, histo, 75, 0 , 150); 
+    meEnergyEcal    = dbe_->book1D(histo, histo, 100, -20, 80); 
 
     sprintf (histo, "CaloTowersTask_number_of_fired_towers" ) ;
-    meNumFiredTowers = dbe_->book1D(histo, histo, 75, 0 , 150); 
+    meNumFiredTowers = dbe_->book1D(histo, histo, 100, 0, 100); 
 
     sprintf (histo, "CaloTowersTask_energy_of_ECAL_component_of_tower" ) ;
-    meEnergyEcalTower = dbe_->book1D(histo, histo, 240 , -20 , 100); 
+    meEnergyEcalTower = dbe_->book1D(histo, histo, 120 , -20, 100); 
   
     sprintf (histo, "CaloTowersTask_energy_of_HCAL_component_of_tower" ) ;
-    meEnergyHcalTower = dbe_->book1D(histo, histo, 240 , -20 , 100); 
+    meEnergyHcalTower = dbe_->book1D(histo, histo, 120 , -20 , 100); 
 
     sprintf  (histo, "CaloTowersTask_energy_HcalPlusEcalPlusHO" ) ;
-    meTotEnergy = dbe_->book1D(histo, histo,100, 0. , 200. ) ;
+    meTotEnergy = dbe_->book1D(histo, histo,100, 0., 100.) ;
     
     sprintf  (histo, "CaloTowersTask_map_energy" );
     mapEnergy = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
@@ -73,10 +73,10 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf):
     mapEnergyEcal = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
 
     sprintf  (histo, "CaloTowersTask_MET" ) ;
-    MET = dbe_->book1D(histo, histo, 100, 0. , 200. ) ;
+    MET = dbe_->book1D(histo, histo, 100, 0. , 100. ) ;
     
     sprintf  (histo, "CaloTowersTask_SET" ) ;
-    SET = dbe_->book1D(histo, histo, 100, 0. , 200. ) ;
+    SET = dbe_->book1D(histo, histo, 200, 0. , 200. ) ;
     
     sprintf  (histo, "CaloTowersTask_phi_MET" ) ;
     phiMET = dbe_->book1D(histo, histo, 72, -3.1415926535898, 3.1415926535898 ) ;
