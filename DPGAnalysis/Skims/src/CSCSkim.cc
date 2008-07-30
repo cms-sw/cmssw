@@ -13,7 +13,7 @@
 //
 // Original Author:  Michael Schmitt
 //         Created:  Sat Jul 12 17:43:33 CEST 2008
-// $Id$
+// $Id: CSCSkim.cc,v 1.1 2008/07/30 15:32:49 schmittm Exp $
 //
 //
 //======================================================================
@@ -34,7 +34,7 @@
 //
 //
 //======================================================================
-#include "RecoLocalMuon/CSCSkim/interface/CSCSkim.h"
+#include "DPGAnalysis/Skims/interface/CSCSkim.h"
 
 using namespace std;
 using namespace edm;
