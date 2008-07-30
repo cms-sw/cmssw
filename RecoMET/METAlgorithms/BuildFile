@@ -1,6 +1,7 @@
 <use name=DataFormats/METReco>
 <use name=DataFormats/CaloTowers>
 <use name=DataFormats/Common>
+<use name=FWCore/ParameterSet>
 <export>
  <lib name=RecoMETMETAlgorithms>
  <use name=DataFormats/METReco>
