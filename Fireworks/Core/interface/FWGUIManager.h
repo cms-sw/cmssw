@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.36 2008/07/19 06:40:30 jmuelmen Exp $
+// $Id: FWGUIManager.h,v 1.37 2008/07/26 00:03:02 chrjones Exp $
 //
 
 // system include files
@@ -69,6 +69,7 @@ class FWModelChangeManager;
 class  TGPopupMenu;
 class CSGAction;
 class CSGNumAction;
+class CSGContinuousAction;
 
 class TFile;
 
@@ -125,6 +126,9 @@ class FWGUIManager : public FWConfigurable
       //      bool waitingForUserAction() const;
       CSGNumAction* getRunEntry();
       CSGNumAction* getEventEntry();
+
+      CSGContinuousAction* playEventsAction();
+      CSGContinuousAction* playEventsBackwardsAction();
 
       // ---------- static member functions --------------------
       static FWGUIManager* getGUIManager();

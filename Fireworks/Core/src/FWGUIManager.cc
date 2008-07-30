@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.69 2008/07/28 19:04:21 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.70 2008/07/29 13:56:05 chrjones Exp $
 //
 
 // system include files
@@ -341,6 +341,18 @@ FWGUIManager::getEventEntry()
 {
   return m_cmsShowMainFrame->getEventEntry();
 }
+
+CSGContinuousAction* 
+FWGUIManager::playEventsAction()
+{
+   return m_cmsShowMainFrame->playEventsAction();
+}
+CSGContinuousAction* 
+FWGUIManager::playEventsBackwardsAction()
+{
+   return m_cmsShowMainFrame->playEventsBackwardsAction();
+}
+
 
 void
 FWGUIManager::disablePrevious()
