@@ -1,8 +1,8 @@
 /*
  * \file EBSelectiveReadoutTask.cc
  *
- * $Date: 2008/07/28 13:42:22 $
- * $Revision: 1.11 $
+ * $Date: 2008/07/28 14:59:51 $
+ * $Revision: 1.12 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -51,7 +51,7 @@ EBSelectiveReadoutTask::EBSelectiveReadoutTask(const ParameterSet& ps){
   EcalFEDRawCollection_ = ps.getParameter<edm::InputTag>("EcalFEDRawCollection");
 
   // histograms...
-  EcalDccEventSize_ = 0;
+  EBDccEventSize_ = 0;
   EBReadoutUnitForcedBitMap_ = 0;
   EBFullReadoutSRFlagMap_ = 0;
   EBHighInterestTriggerTowerFlagMap_ = 0;
@@ -88,39 +88,41 @@ void EBSelectiveReadoutTask::setup(void) {
   if ( dqmStore_ ) {
     dqmStore_->setCurrentFolder(prefixME_ + "/EBSelectiveReadoutTask");
 
-    sprintf(histo, "EBSRT Ecal DCC event size");
-    EcalDccEventSize_ = dqmStore_->bookProfile(histo, histo, nECALDcc, 0, nECALDcc, 100, 0., 200., "s");
-    EcalDccEventSize_->setAxisTitle("Event size (kB)",1);
+    sprintf(histo, "EBSRT DCC event size");
+    EBDccEventSize_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 100, 0., 200., "s");
+    for (int i = 0; i < 36; i++) {
+      EBDccEventSize_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+    }
 
-    sprintf(histo, "EBSRT EB readout unit with SR forced");
+    sprintf(histo, "EBSRT readout unit with SR forced");
     EBReadoutUnitForcedBitMap_ = dqmStore_->book2D(histo, histo, 72, 0, 72, 34, -17, 17);
     EBReadoutUnitForcedBitMap_->setAxisTitle("jphi", 1);
     EBReadoutUnitForcedBitMap_->setAxisTitle("jeta", 2);
 
-    sprintf(histo, "EBSRT EB full readout SR flags");
+    sprintf(histo, "EBSRT full readout SR flags");
     EBFullReadoutSRFlagMap_ = dqmStore_->book2D(histo, histo, 72, 0, 72, 34, -17, 17);
     EBFullReadoutSRFlagMap_->setAxisTitle("jphi", 1);
     EBFullReadoutSRFlagMap_->setAxisTitle("jeta", 2);
 
-    sprintf(histo, "EBSRT EB high interest TT Flags");
+    sprintf(histo, "EBSRT high interest TT Flags");
     EBHighInterestTriggerTowerFlagMap_ = dqmStore_->book2D(histo, histo, 72, 0, 72, 34, -17, 17);
     EBHighInterestTriggerTowerFlagMap_->setAxisTitle("jphi", 1);
     EBHighInterestTriggerTowerFlagMap_->setAxisTitle("jeta", 2);
 
-    sprintf(histo, "EBSRT EB low interest TT Flags");
+    sprintf(histo, "EBSRT low interest TT Flags");
     EBLowInterestTriggerTowerFlagMap_ = dqmStore_->book2D(histo, histo, 72, 0, 72, 34, -17, 17);
     EBLowInterestTriggerTowerFlagMap_->setAxisTitle("jphi", 1);
     EBLowInterestTriggerTowerFlagMap_->setAxisTitle("jeta", 2);
 
-    sprintf(histo, "EBSRT EB event size");
+    sprintf(histo, "EBSRT event size");
     EBEventSize_ = dqmStore_->book1D(histo, histo, 100, 0, 200);
     EBEventSize_->setAxisTitle("event size (kB)",1);
 
-    sprintf(histo, "EBSRT EB high interest payload");
+    sprintf(histo, "EBSRT high interest payload");
     EBHighInterestPayload_ =  dqmStore_->book1D(histo, histo, 100, 0, 200);
     EBHighInterestPayload_->setAxisTitle("event size (kB)",1);
 
-    sprintf(histo, "EBSRT EB low interest payload");
+    sprintf(histo, "EBSRT low interest payload");
     EBLowInterestPayload_ =  dqmStore_->book1D(histo, histo, 100, 0, 200);
     EBLowInterestPayload_->setAxisTitle("event size (kB)",1);
 
@@ -135,8 +137,8 @@ void EBSelectiveReadoutTask::cleanup(void){
   if ( dqmStore_ ) {
     dqmStore_->setCurrentFolder(prefixME_ + "/EBSelectiveReadoutTask");
 
-    if ( EcalDccEventSize_ ) dqmStore_->removeElement( EcalDccEventSize_->getName() );
-    EcalDccEventSize_ = 0;
+    if ( EBDccEventSize_ ) dqmStore_->removeElement( EBDccEventSize_->getName() );
+    EBDccEventSize_ = 0;
 
     if ( EBReadoutUnitForcedBitMap_ ) dqmStore_->removeElement( EBReadoutUnitForcedBitMap_->getName() );
     EBReadoutUnitForcedBitMap_ = 0;
@@ -185,7 +187,7 @@ void EBSelectiveReadoutTask::endRun(const Run& r, const EventSetup& c) {
 
 void EBSelectiveReadoutTask::reset(void) {
 
-  if ( EcalDccEventSize_ ) EcalDccEventSize_->Reset();
+  if ( EBDccEventSize_ ) EBDccEventSize_->Reset();
 
   if ( EBReadoutUnitForcedBitMap_ ) EBReadoutUnitForcedBitMap_->Reset();
 
@@ -212,9 +214,9 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
   Handle<FEDRawDataCollection> raw;
   if ( e.getByLabel(EcalFEDRawCollection_, raw) ) {
 
-    for ( int iDcc = 0; iDcc < nECALDcc; ++iDcc ) {
+    for ( int iDcc = 0; iDcc < nEBDcc; ++iDcc ) {
 
-      EcalDccEventSize_->Fill(iDcc+1, ((double)raw->FEDData(601+iDcc).size())/kByte );
+      EBDccEventSize_->Fill(iDcc+1, ((double)raw->FEDData(610+iDcc).size())/kByte );
 
     }
   } else {
@@ -256,6 +258,8 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 
       EcalTriggerPrimitiveDigi data = (*TPdigi);
       EcalTrigTowerDetId idt = data.id();
+
+      if ( Numbers::subDet( idt ) != EcalBarrel ) continue;
 
       int iet = idt.ieta();
       int ipt = idt.iphi();
