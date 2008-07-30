@@ -5,7 +5,7 @@ iterativeSecondTracksWithTriplets = RecoTracker.TrackProducer.CTFFinalFitWithMat
 iterativeSecondTracks = cms.Sequence(iterativeSecondTracksWithTriplets)
 iterativeSecondTracksWithTriplets.src = 'iterativeSecondTrackCandidatesWithTriplets'
 iterativeSecondTracksWithTriplets.TTRHBuilder = 'WithoutRefit'
-iterativeSecondTracksWithTriplets.Fitter = 'KFFittingSmoother'
+iterativeSecondTracksWithTriplets.Fitter = 'KFFittingSmootherWithOutlierRejection'
 iterativeSecondTracksWithTriplets.Propagator = 'PropagatorWithMaterial'
 
 

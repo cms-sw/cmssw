@@ -28,11 +28,11 @@ from FastSimulation.TrackingRecHitProducer.TrackingRecHitTranslator_cfi import *
 # (because no magnetic field inhomogeneities are simulated between layers)
 from FastSimulation.Tracking.GSTrackFinalFitCommon_cff import *
 
-# 2) Specific cuts
+# 2) Specific cuts - not needed anymore, as a specific KFFittingSmoother deals with that.
 # Add a chi**2 cut to retain/reject hits
-KFFittingSmoother.EstimateCut = 15.0
+# KFFittingSmoother.EstimateCut = 15.0
 # Request three hits to make a track
-KFFittingSmoother.MinNumberOfHits = 3
+# KFFittingSmoother.MinNumberOfHits = 3
 
 # 3) Fast Simulation tracking sequences
 from FastSimulation.Tracking.GlobalPixelTracking_cff import *

@@ -7,11 +7,11 @@ iterativeFirstTracksWithPairs = RecoTracker.TrackProducer.CTFFinalFitWithMateria
 iterativeFirstTracks = cms.Sequence(iterativeFirstTracksWithTriplets+iterativeFirstTracksWithPairs)
 iterativeFirstTracksWithTriplets.src = 'iterativeFirstTrackCandidatesWithTriplets'
 iterativeFirstTracksWithTriplets.TTRHBuilder = 'WithoutRefit'
-iterativeFirstTracksWithTriplets.Fitter = 'KFFittingSmoother'
+iterativeFirstTracksWithTriplets.Fitter = 'KFFittingSmootherWithOutlierRejection'
 iterativeFirstTracksWithTriplets.Propagator = 'PropagatorWithMaterial'
 iterativeFirstTracksWithPairs.src = 'iterativeFirstTrackCandidatesWithPairs'
 iterativeFirstTracksWithPairs.TTRHBuilder = 'WithoutRefit'
-iterativeFirstTracksWithPairs.Fitter = 'KFFittingSmootherWithOutliersRejectionAndRK'
+iterativeFirstTracksWithPairs.Fitter = 'KFFittingSmootherWithOutlierRejection'
 iterativeFirstTracksWithPairs.Propagator = 'PropagatorWithMaterial'
 
 
