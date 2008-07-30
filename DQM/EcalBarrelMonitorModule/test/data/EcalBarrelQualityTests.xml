@@ -886,4 +886,37 @@
         <TestName activate="true">EB_SuperClusters_Occupancy_Comp2RefKolmogorov</TestName>
 </LINK>
 
+<QTEST name="EB_RawData_Errors_ContentsYRange">
+        <TYPE>ContentsYRange</TYPE>
+        <PARAM name="ymin">0</PARAM>
+        <PARAM name="ymax">0</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
+        <PARAM name="error">1.00</PARAM>
+        <PARAM name="warning">1.00</PARAM>
+</QTEST>
+
+<LINK name="*EcalBarrel/EBRawDataTask/EBRDT CRC errors">
+        <TestName activate="true">EB_RawData_Errors_ContentsYRange</TestName>
+</LINK>
+
+<LINK name="*EcalBarrel/EBRawDataTask/EBRDT run number errors">
+        <TestName activate="true">EB_RawData_Errors_ContentsYRange</TestName>
+</LINK>
+
+<LINK name="*EcalBarrel/EBRawDataTask/EBRDT L1A errors">
+        <TestName activate="true">EB_RawData_Errors_ContentsYRange</TestName>
+</LINK>
+
+<LINK name="*EcalBarrel/EBRawDataTask/EBRDT orbit number errors">
+        <TestName activate="true">EB_RawData_Errors_ContentsYRange</TestName>
+</LINK>
+
+<LINK name="*EcalBarrel/EBRawDataTask/EBRDT bunch crossing errors">
+        <TestName activate="true">EB_RawData_Errors_ContentsYRange</TestName>
+</LINK>
+
+<LINK name="*EcalBarrel/EBRawDataTask/EBRDT trigger type errors">
+        <TestName activate="true">EB_RawData_Errors_ContentsYRange</TestName>
+</LINK>
+
 </TESTSCONFIGURATION>
