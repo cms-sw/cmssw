@@ -6,7 +6,6 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/TrajectoryState/interface/LocalTrajectoryParameters.h"
  
 // Framework
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -17,15 +16,19 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "TrackingTools/TrajectoryParametrization/interface/LocalTrajectoryError.h"
+
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "SimDataFormats/Vertex/interface/SimVertex.h"
+#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
+
+
 
 DEFINE_FWK_MODULE(MCMuonSeedGenerator);
 
@@ -49,6 +52,12 @@ MCMuonSeedGenerator::MCMuonSeedGenerator(const edm::ParameterSet& parameterSet){
   // Error Scale
   theErrorScale =  parameterSet.getParameter<double>("ErrorScale");
 
+  string seedType = parameterSet.getParameter<string>("SeedType");
+
+  if(seedType == "FromHits") theSeedType = FromHits;
+  else if(seedType == "FromTracks") theSeedType = FromTracks;
+  else LogError("Muon|RecoMuon|MCMuonSeedGenerator") << "Wrong seed type!!! "<<seedType;
+  
   produces<TrajectorySeedCollection>(); 
 }
 
@@ -79,6 +88,11 @@ void MCMuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& setu
   Handle<SimTrackContainer> simTracks;
   event.getByLabel(theSimTrackLabel.label(),simTracks);
 
+  Handle<SimVertexContainer> simVertices;
+  event.getByType<SimVertexContainer>(simVertices);
+
+
+
   map<unsigned int, vector<const PSimHit*> > mapOfMuonSimHits;
   
   for(PSimHitContainer::const_iterator simhit = dtSimHits->begin();
@@ -99,6 +113,7 @@ void MCMuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& setu
     mapOfMuonSimHits[simhit->trackId()].push_back(&*simhit);
   }
 
+
   for (SimTrackContainer::const_iterator simTrack = simTracks->begin(); 
        simTrack != simTracks->end(); ++simTrack){
 
@@ -115,13 +130,24 @@ void MCMuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& setu
     
     vector<const PSimHit*> muonSimHits = mapIterator->second;
 
-    if(muonSimHits.size() <= 1) continue;
+    if(muonSimHits.size() < 1) continue;
     
     stable_sort(muonSimHits.begin(),muonSimHits.end(),RadiusComparatorInOut(theService->trackingGeometry()));
     
     const PSimHit* innerSimHit = muonSimHits.front();
 
-    TrajectorySeed* seed = createSeed(innerSimHit);
+    TrajectorySeed* seed = 0;
+
+    switch(theSeedType){
+
+    case FromHits:{
+      seed = createSeedFromHit(innerSimHit);
+      break;}
+      
+    case FromTracks:{
+      seed = createSeedFromTrack(*simTrack, (*simVertices)[simTrack->vertIndex()], DetId(innerSimHit->detUnitId()));
+      break;}
+    }
     
     output->push_back(*seed);
   }
@@ -131,7 +157,7 @@ void MCMuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& setu
 
 
 
-TrajectorySeed* MCMuonSeedGenerator::createSeed(const PSimHit* innerSimHit){
+TrajectorySeed* MCMuonSeedGenerator::createSeedFromHit(const PSimHit* innerSimHit){
   
   const std::string metname = "Muon|RecoMuon|MCMuonSeedGenerator";
   MuonPatternRecoDumper debug;
@@ -147,8 +173,7 @@ TrajectorySeed* MCMuonSeedGenerator::createSeed(const PSimHit* innerSimHit){
 						    -innerSimHit->particleType()/ abs(innerSimHit->particleType()),
 						    &*theService->magneticField());
   
-  AlgebraicSymMatrix covarianceMatrix(6,1);
-  
+  AlgebraicSymMatrix66 covarianceMatrix = AlgebraicMatrixID();
   covarianceMatrix *= theErrorScale;
   
   const CartesianTrajectoryError cartesianErrors(covarianceMatrix);
@@ -170,5 +195,50 @@ TrajectorySeed* MCMuonSeedGenerator::createSeed(const PSimHit* innerSimHit){
 
   return seed;  
 }
+
+
+
+TrajectorySeed* MCMuonSeedGenerator::createSeedFromTrack(const SimTrack &simTrack, const SimVertex &simVertex, DetId detId){
+  
+   const std::string metname = "Muon|RecoMuon|MCMuonSeedGenerator";
+  MuonPatternRecoDumper debug;
+
+  const GeomDet *geomDet = theService->trackingGeometry()->idToDet(detId);  
+  LogTrace(metname) << "Seed geom det: "<<debug.dumpMuonId(geomDet->geographicalId());
+
+    
+  GlobalVector simMomentum(simTrack.momentum().x(),simTrack.momentum().y(),simTrack.momentum().z());
+  
+  
+  GlobalPoint simPosition(0.,0.,0.);
+  if (simTrack.vertIndex() >= 0)
+    simPosition = GlobalPoint(simVertex.position().x(),
+			      simVertex.position().y(),
+			      simVertex.position().z());
+  
+  
+  AlgebraicSymMatrix66 matI = AlgebraicMatrixID(); 
+  matI *= 1e-20;
+  CartesianTrajectoryError simCov(matI);
+
+  GlobalTrajectoryParameters parameters( simPosition, simMomentum, int(simTrack.charge()), &*theService->magneticField());
+  FreeTrajectoryState simFTS(parameters, simCov);
+
+
+
+
+
+  TrajectoryStateOnSurface simSeedTSOS =  theService->propagator("SteppingHelixPropagatorAlong")->propagate(simFTS,geomDet->surface());
+  
+  // convert the TSOS into a PTSOD
+  TrajectoryStateTransform tsTransform;
+  PTrajectoryStateOnDet *seedTSOS = tsTransform.persistentState(simSeedTSOS,geomDet->geographicalId().rawId());
+  
+  edm::OwnVector<TrackingRecHit> container;
+  TrajectorySeed* seed = new TrajectorySeed(*seedTSOS,container,alongMomentum);
+  
+  return seed;  
+}
+
 
 
