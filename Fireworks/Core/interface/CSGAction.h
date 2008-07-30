@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 18:15:56 CDT 2008
-// $Id: CSGAction.h,v 1.2 2008/07/08 02:31:25 dmytro Exp $
+// $Id: CSGAction.h,v 1.3 2008/07/20 17:51:28 chrjones Exp $
 //
 
 // system include files
@@ -55,7 +55,7 @@ public:
    int getMenuEntry() const;
    ToolBarData_t *getToolBarData() const;
    TGToolBar *getToolBar() const;
-   Bool_t isEnabled() const;
+   virtual Bool_t isEnabled() const;
    
    // ---------- static member functions --------------------
    static TString keycodeToString(Int_t keycode);
@@ -73,8 +73,8 @@ public:
    void enable();
    void disable();
 
-   void globalEnable();
-   void globalDisable();
+   virtual void globalEnable();
+   virtual void globalDisable();
 
    void addSCToMenu();
    Bool_t resizeMenuEntry();
