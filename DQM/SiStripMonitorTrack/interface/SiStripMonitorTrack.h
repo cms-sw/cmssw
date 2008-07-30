@@ -48,7 +48,7 @@
 //
 
 class SiStripMonitorTrack : public edm::EDAnalyzer {
- public:
+public:
   typedef TransientTrackingRecHit::ConstRecHitPointer ConstRecHitPointer;
   enum RecHitType { Single=0, Matched=1, Projected=2, Null=3};
   explicit SiStripMonitorTrack(const edm::ParameterSet&);
@@ -58,7 +58,7 @@ class SiStripMonitorTrack : public edm::EDAnalyzer {
   virtual void endJob(void);
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
- private:
+private:
   //booking
   void book();
   void bookModMEs(TString, uint32_t);
@@ -73,80 +73,88 @@ class SiStripMonitorTrack : public edm::EDAnalyzer {
   void AllClusters(const edm::EventSetup& es);
   void trackStudy(const edm::EventSetup& es);
   //  LocalPoint project(const GeomDet *det,const GeomDet* projdet,LocalPoint position,LocalVector trackdirection)const;
-  bool clusterInfos(const SiStripCluster* cluster, const uint32_t& detid,std::string flag, LocalVector LV);
+  bool clusterInfos(SiStripClusterInfo* cluster, const uint32_t& detid,std::string flag, LocalVector LV);	
+  float SymEta( float clusterCentralCharge, float clusterLeftCharge, float clusterRightCharge);
   void RecHitInfo(const SiStripRecHit2D* tkrecHit, LocalVector LV,reco::TrackRef track_ref, const edm::EventSetup&);
   // fill monitorables 
-  void fillModMEs(const SiStripCluster*,float,float,float,float,TString,float);
-  void fillTrendMEs(float,float,float,float,std::string,float,std::string);
+  void fillModMEs(SiStripClusterInfo*,TString,float);
+  void fillCapacitiveCouplingMEs(SiStripClusterInfo*,std::string,float,std::string);
+  void fillTrendMEs(SiStripClusterInfo*,std::string,float,std::string);
   void fillTrend(MonitorElement* ME,float value1);
   inline void fillME(MonitorElement* ME,float value1){if (ME!=0)ME->Fill(value1);}
   inline void fillME(MonitorElement* ME,float value1,float value2){if (ME!=0)ME->Fill(value1,value2);}
   inline void fillME(MonitorElement* ME,float value1,float value2,float value3){if (ME!=0)ME->Fill(value1,value2,value3);}
   inline void fillME(MonitorElement* ME,float value1,float value2,float value3,float value4){if (ME!=0)ME->Fill(value1,value2,value3,value4);}
-
+  
   // ----------member data ---------------------------
-      
- private:
+  
+private:
   DQMStore * dbe;
   edm::ParameterSet conf_;
   std::string histname; 
   TString name;
   LocalVector LV;
-
+  
   struct ModMEs{
-	  ModMEs():    
-          nClusters(0),
-          nClustersTrend(0),
-          ClusterStoN(0),
-          ClusterStoNCorr(0),
-          ClusterStoNTrend(0),
-          ClusterStoNCorrTrend(0),
-          ClusterCharge(0),
-          ClusterChargeCorr(0),
-          ClusterChargeTrend(0),
-          ClusterChargeCorrTrend(0),
-          ClusterNoise(0),
-          ClusterNoiseTrend(0),
-          ClusterWidth(0),
-          ClusterWidthTrend(0),
-          ClusterPos(0),
-          ClusterPGV(0){};
-          MonitorElement* nClusters;
-          MonitorElement* nClustersTrend;
-          MonitorElement* ClusterStoN;
-          MonitorElement* ClusterStoNCorr;
-          MonitorElement* ClusterStoNTrend;
-          MonitorElement* ClusterStoNCorrTrend;
-          MonitorElement* ClusterCharge;
-          MonitorElement* ClusterChargeCorr; 
-          MonitorElement* ClusterChargeTrend;
-          MonitorElement* ClusterChargeCorrTrend;
-          MonitorElement* ClusterNoise;
-          MonitorElement* ClusterNoiseTrend;
-          MonitorElement* ClusterWidth;
-          MonitorElement* ClusterWidthTrend;
-          MonitorElement* ClusterPos;
-          MonitorElement* ClusterPGV;
-      };
-
+    ModMEs():    
+      nClusters(0),
+      nClustersTrend(0),
+      ClusterStoN(0),
+      ClusterStoNCorr(0),
+      ClusterStoNTrend(0),
+      ClusterStoNCorrTrend(0),
+      ClusterCharge(0),
+      ClusterChargeCorr(0),
+      ClusterChargeTrend(0),
+      ClusterChargeCorrTrend(0),
+      ClusterNoise(0),
+      ClusterNoiseTrend(0),
+      ClusterWidth(0),
+      ClusterWidthTrend(0),
+      ClusterSymmEtaCC(0),
+      ClusterSymmEtaCCTrend(0),
+      ClusterPos(0),
+      ClusterPGV(0){};
+    MonitorElement* nClusters;
+    MonitorElement* nClustersTrend;
+    MonitorElement* ClusterStoN;
+    MonitorElement* ClusterStoNCorr;
+    MonitorElement* ClusterStoNTrend;
+    MonitorElement* ClusterStoNCorrTrend;
+    MonitorElement* ClusterCharge;
+    MonitorElement* ClusterChargeCorr; 
+    MonitorElement* ClusterChargeTrend;
+    MonitorElement* ClusterChargeCorrTrend;
+    MonitorElement* ClusterNoise;
+    MonitorElement* ClusterNoiseTrend;
+    MonitorElement* ClusterWidth;
+    MonitorElement* ClusterWidthTrend;
+    MonitorElement* ClusterSymmEtaCC;
+    MonitorElement* ClusterSymmEtaCCTrend;
+    MonitorElement* ClusterPos;
+    MonitorElement* ClusterPGV;
+  };
+  
   std::map<TString, ModMEs> ModMEsMap;
   std::map<TString, MonitorElement*> MEMap;
-
-  edm::Handle< edmNew::DetSetVector<SiStripCluster> >  dsv_SiStripCluster;
-
+  
+  edm::Handle< edm::DetSetVector<SiStripRawDigi> >    dsv_SiStripRawDigi;
+  edm::Handle< edmNew::DetSetVector<SiStripCluster> > dsv_SiStripCluster;
+  
   edm::Handle<std::vector<Trajectory> > TrajectoryCollection;
   edm::Handle<reco::TrackCollection > trackCollection;
   edm::Handle<TrajTrackAssociationCollection> TItkAssociatorCollection;
   
   edm::ESHandle<TrackerGeometry> tkgeom;
   edm::ESHandle<SiStripDetCabling> SiStripDetCabling_;
-
+  
   edm::ParameterSet Parameters;
   edm::InputTag Cluster_src_;
-
-  bool Trend_On_;
+  
   bool Mod_On_;
+  bool Trend_On_;
   bool OffHisto_On_;
+  bool RawDigis_On_;
   int off_Flag;
   std::vector<uint32_t> ModulesToBeExcluded_;
   std::vector<const SiStripCluster*> vPSiStripCluster;
@@ -154,14 +162,8 @@ class SiStripMonitorTrack : public edm::EDAnalyzer {
   SiStripFolderOrganizer folder_organizer;
   bool tracksCollection_in_EventTree;
   bool trackAssociatorCollection_in_EventTree;
-  edm::ESHandle<SiStripNoises> noiseHandle_;
   int runNb, eventNb;
   int firstEvent;
   int countOn, countOff, countAll, NClus[4][3];
-  float charge_;
-  float noise_;
-  float width_;
-  float position_;
-  uint32_t neighbourStripNumber;
 };
 #endif
