@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.65 2008/07/08 18:32:21 biery Exp $
+// $Id: StorageManager.cc,v 1.66 2008/07/29 18:42:25 biery Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -1777,7 +1777,7 @@ void StorageManager::fusenderWebPage(xgi::Input *in, xgi::Output *out)
         if((*pos)->connectStatus_ > 1) {
           *out << "<tr>" << endl;
             *out << "<td >" << endl;
-            *out << "Time since last data frame (us)" << endl;
+            *out << "Time since last data frame (ms)" << endl;
             *out << "</td>" << endl;
             *out << "<td align=right>" << endl;
             *out << (*pos)->timeWaited_ << endl;
