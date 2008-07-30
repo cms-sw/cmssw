@@ -1,4 +1,4 @@
-// $Id: HLTPerformanceInfo.cc,v 1.13 2008/07/24 17:40:19 wittich Exp $
+// $Id: HLTPerformanceInfo.cc,v 1.14 2008/07/24 19:32:30 wittich Exp $
 
 #include "DataFormats/Common/interface/HLTenums.h"
 #include "DataFormats/HLTReco/interface/HLTPerformanceInfo.h"
@@ -161,4 +161,40 @@ int HLTPerformanceInfo::moduleIndexInPath(const char *mod, const char *path)
       return *j;
   }
   return -2; // module not found on path
+}
+
+
+// Set the status of the module based on the path's status
+// make sure not to wipe out ones that come after the last 
+// module run on the particular path
+void HLTPerformanceInfo::setStatusOfModulesFromPath(const char *pathName)
+{
+  PathList::iterator p = findPath(pathName);
+  if ( p == endPaths() ) {
+    return; // do nothing
+  }
+  unsigned int ctr = 0;
+  for ( ModulesInPath::const_iterator j = p->begin(); j != p->end(); ++j ) {
+    edm::hlt::HLTState modState = edm::hlt::Ready ; 
+    unsigned int modIndex = 0 ; 
+
+    // get module in the master list
+    Module & mod = modules_.at(p->getModuleIndex(*j));
+    // we have already set this in a previous pass
+    if ( ! mod.status().wasrun()  ) 
+      continue;
+
+    if (p->status().accept()) {
+      modState = edm::hlt::Pass ;
+    } else {
+      if ( p->status().index() > ctr ) {
+	modState = edm::hlt::Pass ; 
+      } else if ( p->status().index() == ctr ) {
+	modState = p->status().state() ; 
+      }
+    }
+    mod.setStatus(edm::HLTPathStatus(modState,modIndex)) ;
+
+  }
+  
 }

@@ -1,5 +1,5 @@
 // -*-c++-*-
-// $Id: HLTPerformanceInfo.h,v 1.11 2008/07/24 16:22:58 wittich Exp $
+// $Id: HLTPerformanceInfo.h,v 1.12 2008/07/24 19:32:56 wittich Exp $
 #ifndef HLTPERFORMANCEINFO_H
 #define HLTPERFORMANCEINFO_H
 
@@ -202,6 +202,9 @@ public:
 
   double totalPathTime(const size_t path);
   double totalPathCPUTime(const size_t path);
+
+  
+  void setStatusOfModulesFromPath(const char* pathName);
     
 //   double lastModuleOnPathTime(const size_t pathnumber);
 //   double lastModuleOnPathCPUTime(const size_t pathnumber);

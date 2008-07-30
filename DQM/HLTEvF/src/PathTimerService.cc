@@ -6,7 +6,7 @@
 // Implementation:
 //
 // Original Author:  Jim Kowalkowski
-// $Id: PathTimerService.cc,v 1.12 2008/07/24 16:18:13 wittich Exp $
+// $Id: PathTimerService.cc,v 1.13 2008/07/28 19:55:55 wittich Exp $
 //
 
 #include "DQM/HLTEvF/interface/PathTimerService.h"
@@ -161,11 +161,7 @@ namespace edm {
 	    if ( iPath->name() == name) { 
 	      unsigned int pIndex = _newPathIndex.at(ctr).at(status.index()) ;
 	      iPath->setStatus(HLTPathStatus(status.state(),pIndex)) ; 
-// 	      for (HLTPerformanceInfo::Path::iterator iMod=iPath->begin();
-// 		   iMod!=iPath->end(); iMod++) {
-// 		iMod->setStatusByPath(path) ;
-//               }
-
+	      _perfInfo->setStatusOfModulesFromPath(name.c_str());
 	    }
 	    iPath++;
 	    ctr++; 
