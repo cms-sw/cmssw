@@ -44,7 +44,7 @@ following now available however not enabled by default:
        - File access adaptors for storm / gpfs (at cnaf).
        - Added I/O adaptor for xrootd (inactive within cmssw).
 
-For more details see the https://twiki.cern.ch/twiki/bin/view/CMS/StorageStats and https://twiki.cern.ch/twiki/bin/view/CMS/TFileAdaptor twiki pages
+For more details see the https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideStorageStats and https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideTFileAdaptor twiki pages
 
    - Minor features:
      - There is a new job mode command line parameter for cmsRun :
