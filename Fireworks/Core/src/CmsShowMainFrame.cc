@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.15 2008/07/20 17:51:57 chrjones Exp $
+// $Id: CmsShowMainFrame.cc,v 1.16 2008/07/26 00:01:28 chrjones Exp $
 //
 
 // system include files
@@ -36,6 +36,7 @@
 #include "DataFormats/FWLite/interface/Event.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "Fireworks/Core/interface/CSGAction.h"
+#include "Fireworks/Core/interface/CSGContinuousAction.h"
 #include "Fireworks/Core/interface/CSGNumAction.h"
 #include "Fireworks/Core/interface/CmsShowMainFrame.h"
 #include "Fireworks/Core/interface/ActionsList.h"
@@ -51,25 +52,16 @@
 // static data member definitions
 //
 
+
 //
 // constructors and destructor
 //
 CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIManager *m) : 
-TGMainFrame(p, w, h) 
+TGMainFrame(p, w, h)
 {
    Connect("CloseWindow()","CmsShowMainFrame",this,"quit()");
    
    m_manager = m;
-   m_delay = 250;
-   m_playRate = 1000;
-   m_playBackRate = 1000;
-   m_playTimer = new TTimer(m_playRate);
-   m_playBackTimer = new TTimer(m_playBackRate);
-   m_playTimer->SetObject(this);
-   m_playBackTimer->SetObject(this);
-   //CSGAction *addRhoPhi = new CSGAction(this, cmsshow::sAddRhoPhi.c_str());
-   //CSGAction *addRhoZ = new CSGAction(this, cmsshow::sAddRhoZ.c_str());
-   //CSGAction *addLego = new CSGAction(this, cmsshow::sAddLego.c_str());
    CSGAction *openData = new CSGAction(this, cmsshow::sOpenData.c_str());
    CSGAction *loadConfig = new CSGAction(this, cmsshow::sLoadConfig.c_str());
    CSGAction *saveConfig = new CSGAction(this, cmsshow::sSaveConfig.c_str());
@@ -89,9 +81,8 @@ TGMainFrame(p, w, h)
    CSGAction *goToFirst = new CSGAction(this, cmsshow::sGotoFirstEvent.c_str());
    CSGAction *nextEvent = new CSGAction(this, cmsshow::sNextEvent.c_str());
    CSGAction *previousEvent = new CSGAction(this, cmsshow::sPreviousEvent.c_str());
-   CSGAction *playEvents = new CSGAction(this, cmsshow::sPlayEvents.c_str());
-   CSGAction *playEventsBack = new CSGAction(this, cmsshow::sPlayEventsBack.c_str());
-   CSGAction *pause = new CSGAction(this, cmsshow::sPause.c_str());
+   CSGContinuousAction *playEvents = new CSGContinuousAction(this, cmsshow::sPlayEvents.c_str());
+   CSGContinuousAction *playEventsBack = new CSGContinuousAction(this, cmsshow::sPlayEventsBack.c_str());
    CSGAction *showObjInsp = new CSGAction(this, cmsshow::sShowObjInsp.c_str());
    CSGAction *showEventDisplayInsp = new CSGAction(this, cmsshow::sShowEventDisplayInsp.c_str());
    CSGAction *showMainViewCtl = new CSGAction(this, cmsshow::sShowMainViewCtl.c_str());
@@ -102,35 +93,24 @@ TGMainFrame(p, w, h)
    m_eventEntry = new CSGNumAction(this, "Event Entry");
    CSGAction *eventFilter = new CSGAction(this, "Event Filter");
    addToActionMap(eventFilter);
-   //   saveConfigAs->activated.connect(sigc::mem_fun(*m_manager, &FWGUIManager::saveConfigAs));
-   //   saveConfig->activated.connect(sigc::mem_fun(*m_manager, &FWGUIManager::saveConfig));
-   //   goToFirst->activated.connect(sigc::mem_fun(*m_manager, &FWGUIManager::goToFirst));
-   //   nextEvent->activated.connect(sigc::mem_fun(*m_manager, &FWGUIManager::goForward));
-   //   previousEvent->activated.connect(sigc::mem_fun(*m_manager, &FWGUIManager::goBack));
    m_nextEvent = nextEvent;
    m_previousEvent = previousEvent;
    m_goToFirst = goToFirst; 
-   //   playEvents->activated.connect(sigc::mem_fun(*this, &CmsShowMainFrame::playEvents));
-   //   playEventsBack->activated.connect(sigc::mem_fun(*this, &CmsShowMainFrame::playEventsBack));
-   //   pause->activated.connect(sigc::mem_fun(*m_manager, &FWGUIManager::stop));
-   //   quit->activated.connect(sigc::mem_fun(*m_manager, &FWGUIManager::quit));
-   //    enableNext->activated.connect(sigc::mem_fun(*nextEvent, &CSGAction::enable));
+   m_playEvents = playEvents;
+   m_playEventsBack = playEventsBack;
 
    goToFirst->setToolTip("Goto first event");
    previousEvent->setToolTip("Goto previous event");
    nextEvent->setToolTip("Goto next event");
-
+   playEvents->setToolTip("Play events");
+   playEventsBack->setToolTip("Play events backwards");
+   
    TGMenuBar *menuBar = new TGMenuBar(this, this->GetWidth(), 12);
 
    TGPopupMenu *fileMenu = new TGPopupMenu(gClient->GetRoot());
    menuBar->AddPopup("File", fileMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));
    m_newViewerMenu = new TGPopupMenu(gClient->GetRoot());
-   /*
-   addRhoPhi->createMenuEntry(newViewerMenu);
-   addRhoZ->createMenuEntry(newViewerMenu);
-   addLego->createMenuEntry(newViewerMenu);
-   addLego->disable();
-    */
+
    fileMenu->AddPopup("New Viewer", m_newViewerMenu);
    fileMenu->AddSeparator();
    
@@ -174,11 +154,10 @@ TGMainFrame(p, w, h)
    previousEvent->createMenuEntry(viewMenu);
    previousEvent->createShortcut(kKey_Left, "CTRL");
    goToFirst->createMenuEntry(viewMenu);
-   //playEvents->createMenuEntry(viewMenu);
-   //playEvents->createShortcut(kKey_Right, "CTRL+SHIFT");
-   //playEventsBack->createMenuEntry(viewMenu);
-   //playEventsBack->createShortcut(kKey_Left, "CTRL+SHIFT");
-   //pause->createMenuEntry(viewMenu);
+   playEvents->createMenuEntry(viewMenu);
+   playEvents->createShortcut(kKey_Right, "CTRL+SHIFT");
+   playEventsBack->createMenuEntry(viewMenu);
+   playEventsBack->createShortcut(kKey_Left, "CTRL+SHIFT");
 
    TGPopupMenu* windowMenu = new TGPopupMenu(gClient->GetRoot());
    menuBar->AddPopup("Window", windowMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));
@@ -194,8 +173,6 @@ TGMainFrame(p, w, h)
    help->createMenuEntry(helpMenu);
    keyboardShort->createMenuEntry(helpMenu);
 
-   //   enableNext->createShortcut(kKey_M, "CTRL");
-   
    AddFrame(menuBar, new TGLayoutHints(kLHintsExpandX,2,2,2,2));
 
    /*DEBUGGING menu
@@ -228,13 +205,11 @@ TGMainFrame(p, w, h)
    TGToolBar *tools = new TGToolBar(fullbar, 400, 30);
    TString coreIcondir(Form("%s/src/Fireworks/Core/icons/",gSystem->Getenv("CMSSW_BASE")));
 
-   //goToFirst->createToolBarEntry(tools, "first_t.xpm");
-   //previousEvent->createToolBarEntry(tools, "previous_t.xpm");
-   //nextEvent->createToolBarEntry(tools, "next_t.xpm");
    goToFirst->createToolBarEntry(tools, coreIcondir+"First.gif");
+   playEventsBack->createToolBarEntry(tools, coreIcondir+"RPlay.gif", coreIcondir+"Pause.gif");
    previousEvent->createToolBarEntry(tools, coreIcondir+"Back.gif");
    nextEvent->createToolBarEntry(tools, coreIcondir+"Forward.gif");
-   //pause->createToolBarEntry(tools, "stop_t.xpm");
+   playEvents->createToolBarEntry(tools, coreIcondir+"Play.gif", coreIcondir+"Pause.gif");
    fullbar->AddFrame(tools, new TGLayoutHints(kLHintsLeft,2,2,2,2));
    // TGHorizontalFrame *texts = new TGHorizontalFrame(fullbar, fullbar->GetWidth() - tools->GetWidth(), 60);
    TGVerticalFrame *texts   = new TGVerticalFrame(fullbar, fullbar->GetWidth() - tools->GetWidth(), 60);
@@ -250,11 +225,9 @@ TGMainFrame(p, w, h)
    //printf("text width: %d\n", this->GetWidth()-tools->GetWidth());
    TGLabel *runText = new TGLabel(runInfo, "Run:  ");
    runInfo->AddFrame(runText, new TGLayoutHints(kLHintsCenterY|kLHintsLeft,1,1,1,1));
-   //   m_runEntry = new TGNumberEntryField(texts, -1, 1);
    m_runEntry->createNumberEntry(runInfo, new TGLayoutHints(kLHintsCenterY|kLHintsLeft,10,1,1,1));
    TGLabel *eventText = new TGLabel(runInfo, "Event:  ");
    runInfo->AddFrame(eventText, new TGLayoutHints(kLHintsCenterY|kLHintsLeft,20,1,1,1));
-   //   m_eventEntry = new TGNumberEntryField(texts, -1, 1);
    m_eventEntry->createNumberEntry(runInfo, new TGLayoutHints(kLHintsCenterY|kLHintsLeft,10,1,1,1));
    m_timeText = new TGLabel(runInfo, "Time:  Tue Jul  8 19:10:59 2008");
    runInfo->AddFrame(m_timeText, new TGLayoutHints(kLHintsCenterY|kLHintsLeft,20,1,1,1));
@@ -267,42 +240,17 @@ TGMainFrame(p, w, h)
    goToFirst->disable();
    previousEvent->disable();
    nextEvent->disable();
-   pause->disable();
+   playEvents->disable();
+   playEventsBack->disable();
    
    TGSplitFrame *csArea = new TGSplitFrame(this, this->GetWidth(), this->GetHeight()-42);
-   //   TGGroupFrame *csList = m_manager->createList(csArea);
-   //   TGVerticalFrame *csList = new TGVerticalFrame(csArea, 10, 10);
-   //   TGVerticalFrame *csDisplay = new TGVerticalFrame(csArea, 10, 10);
-   //   TGCompositeFrame *fFleft = new TGCompositeFrame(csList, 10, 10, kSunkenFrame);
-   //   TGCompositeFrame *fFright = new TGCompositeFrame(csDisplay, 10, 10, kSunkenFrame);
-
-   //   TGLabel *fLleft = new TGLabel(fFleft, "List");
-   //   TGLabel *fLright = new TGLabel(fFright, "Display");
-   //   fFleft->AddFrame(fLleft,new TGLayoutHints(kLHintsLeft | kLHintsCenterY,3,0,0,0));
-   //   fFright->AddFrame(fLright,new TGLayoutHints(kLHintsLeft | kLHintsCenterY,
-   //                                               3,0,0,0));
-   //   csList->AddFrame(fFleft,new TGLayoutHints(kLHintsTop | kLHintsExpandX |
-   //                                                kLHintsExpandY,0,0,0,0));
-   //   csDisplay->AddFrame(fFright,new TGLayoutHints(kLHintsTop | kLHintsExpandX |
-   //						 kLHintsExpandY,0,0,0,0));
-
-   //   csList->Resize(0.2*this->GetWidth(), this->GetHeight()-12);
    csArea->VSplit(200);
    csArea->GetFirst()->AddFrame(m_manager->createList(csArea->GetFirst()), new TGLayoutHints(kLHintsLeft | kLHintsExpandX | kLHintsExpandY));
    TGTab *tabFrame = new TGTab(csArea->GetSecond(), csArea->GetSecond()->GetWidth(), csArea->GetSecond()->GetHeight());
    tabFrame->AddTab("Views", m_manager->createViews(tabFrame));
    csArea->GetSecond()->AddFrame(tabFrame, new TGLayoutHints(kLHintsLeft | kLHintsExpandX | kLHintsExpandY));
    m_manager->createTextView(tabFrame);
-   //   csArea->GetFirst()->AddFrame(csList,new TGLayoutHints(kLHintsLeft | kLHintsExpandY));
-   //   TGVSplitter *splitter = new TGVSplitter(csArea,2,584);
-   //   splitter->SetFrame(csList, kTRUE);
-   //   csArea->AddFrame(splitter,new TGLayoutHints(kLHintsLeft | kLHintsExpandY));
-   //   csArea->GetSecond()->AddFrame(csDisplay,new TGLayoutHints(kLHintsRight|kLHintsExpandX|kLHintsExpandY));
-   //   csArea->Resize(csArea->GetDefaultSize()); 
    AddFrame(csArea,new TGLayoutHints(kLHintsTop | kLHintsExpandX | kLHintsExpandY,2,2,0,2));
-   //   csArea->MapSubwindows();
-   //   csArea->Layout();
-   //   csArea->MapWindow();
    SetWindowName("cmsShow");
    MapSubwindows();
    //   printf("Default main frame size: %d, %d\n", this->GetDefaultSize().fWidth, this->GetDefaultSize().fHeight);
@@ -319,8 +267,6 @@ TGMainFrame(p, w, h)
 
 CmsShowMainFrame::~CmsShowMainFrame() {
    Cleanup();
-   delete m_playTimer;
-   delete m_playBackTimer;
    delete m_statBar;
 }
 
@@ -396,7 +342,7 @@ Bool_t CmsShowMainFrame::activateToolBarEntry(int entry) {
 }
 
 Long_t CmsShowMainFrame::getDelay() const {
-  return m_delay;
+   return m_delay;
 }
 
 void CmsShowMainFrame::defaultAction() {
@@ -412,38 +358,8 @@ void CmsShowMainFrame::loadEvent(const fwlite::Event& event) {
   m_nextEvent->enable();
   m_previousEvent->enable(); 
   m_goToFirst->enable();
-}
-
-void CmsShowMainFrame::goForward() {
-  m_eventEntry->setNumber(m_eventEntry->getNumber()+1);
-}
-
-void CmsShowMainFrame::goBackward() {
-   if (m_eventEntry->getNumber() > 1) {
-      m_eventEntry->setNumber(m_eventEntry->getNumber()-1);
-   }
-   else {
-      m_playBackTimer->TurnOff();
-   }
-}
-
-void CmsShowMainFrame::goToFirst() {
-  m_eventEntry->setNumber(1);
-}
-
-void CmsShowMainFrame::playEvents() {
-   m_playBackTimer->TurnOff();
-   m_playTimer->TurnOn();
-}
-
-void CmsShowMainFrame::playEventsBack() {
-   m_playTimer->TurnOff();
-   m_playBackTimer->TurnOn();
-}
-
-void CmsShowMainFrame::pause() {
-   m_playTimer->TurnOff();
-   m_playBackTimer->TurnOff();
+  m_playEvents->enable();
+  m_playEventsBack->enable();
 }
 
 void CmsShowMainFrame::quit() {
@@ -465,6 +381,7 @@ CmsShowMainFrame::getAction(const std::string& name)
 void
 CmsShowMainFrame::enableActions(bool enable)
 {
+   
   std::vector<CSGAction*>::iterator it_act;
   for (it_act = m_actionList.begin(); it_act != m_actionList.end(); ++it_act) {
     if (enable) 
@@ -486,10 +403,14 @@ void
 CmsShowMainFrame::enablePrevious(bool enable)
 {
   if (m_previousEvent != 0) {
-    if (enable)
-      m_previousEvent->enable();
-    else
-      m_previousEvent->disable();
+     if (enable) {
+        m_previousEvent->enable();
+        m_playEventsBack->enable();
+     } else {
+        m_previousEvent->disable();
+        m_playEventsBack->disable();
+        m_playEventsBack->stop();
+     }
   }
   if (m_goToFirst != 0) {
     if (enable)
@@ -503,10 +424,14 @@ void
 CmsShowMainFrame::enableNext(bool enable)
 { 
   if (m_nextEvent != 0) {
-    if (enable)
-      m_nextEvent->enable();
-    else
-      m_nextEvent->disable();
+     if (enable) {
+        m_nextEvent->enable();
+        m_playEvents->enable();
+     } else {
+        m_nextEvent->disable();
+        m_playEvents->disable();
+        m_playEvents->stop();
+     }
   }
 }
 
@@ -591,10 +516,3 @@ CSGNumAction*
 CmsShowMainFrame::getEventEntry() const {
   return m_eventEntry;
 }
-
-/*
-Bool_t CmsShowMainFrame::HandleTimer(TTimer *timer) {
-   m_manager->goForward();
-   return kTRUE;
-}
-*/
