@@ -22,7 +22,7 @@
 #include "EventFilter/RPCRawToDigi/interface/DataRecord.h"
 #include "EventFilter/RPCRawToDigi/interface/EventRecords.h"
 #include "EventFilter/RPCRawToDigi/interface/DebugDigisPrintout.h"
-#include "DataFormats/SiPixelRawData/interface/SiPixelRawDataError.h"
+#include "EventFilter/RPCRawToDigi/interface/RPCRawSynchro.h"
 
 #include <iostream>
 #include <bitset>
@@ -36,11 +36,13 @@ typedef uint64_t Word64;
 
 RPCUnpackingModule::RPCUnpackingModule(const edm::ParameterSet& pset) 
   : dataLabel_(pset.getUntrackedParameter<edm::InputTag>("InputLabel",edm::InputTag("source"))),
-    eventCounter_(0)
+    doSynchro_(pset.getParameter<bool>("doSynchro")),
+    eventCounter_(0),
+    theCabling(0)
 {
-  theCabling = new RPCReadOutMapping("");
   produces<RPCDigiCollection>();
   produces<RPCRawDataCounts>();
+  if (doSynchro_) produces<RPCRawSynchro::ProdItem>();
 }
 
 RPCUnpackingModule::~RPCUnpackingModule()
@@ -49,10 +51,11 @@ RPCUnpackingModule::~RPCUnpackingModule()
 }
 
 
-void RPCUnpackingModule::produce(Event & ev, const EventSetup& es){
-
+void RPCUnpackingModule::produce(Event & ev, const EventSetup& es)
+{
   static bool debug = edm::MessageDrop::instance()->debugEnabled;
-  if (debug) LogDebug ("RPCUnpacker") <<"+++\nEntering RPCUnpackingModule::produce";
+  eventCounter_++; 
+  if (debug) LogDebug ("RPCUnpacker::produce") <<"Beginning To Unpack Event: "<<eventCounter_;
  
   Handle<FEDRawDataCollection> allFEDRawData; 
   ev.getByLabel(dataLabel_,allFEDRawData); 
@@ -61,7 +64,7 @@ void RPCUnpackingModule::produce(Event & ev, const EventSetup& es){
   static RPCReadOutMappingWithFastSearch readoutMappingSearch;
 
   if (recordWatcher.check(es)) {  
-    delete theCabling;
+    delete theCabling; 
     ESHandle<RPCEMap> readoutMapping;
     if (debug) LogTrace("") << "record has CHANGED!!, initialise readout map!";
     es.get<RPCEMapRcd>().get(readoutMapping);
@@ -71,20 +74,20 @@ void RPCUnpackingModule::produce(Event & ev, const EventSetup& es){
   }
 
   std::auto_ptr<RPCDigiCollection> producedRPCDigis(new RPCDigiCollection);
-  std::auto_ptr<RPCRawDataCounts> producedRawDataCounts( new RPCRawDataCounts);
+  std::auto_ptr<RPCRawDataCounts> producedRawDataCounts(new RPCRawDataCounts);
+  std::auto_ptr<RPCRawSynchro::ProdItem> producedRawSynchoCounts;
+  if (doSynchro_) producedRawSynchoCounts.reset(new RPCRawSynchro::ProdItem);
 
   std::pair<int,int> rpcFEDS=FEDNumbering::getRPCFEDIds();
  
-  eventCounter_++; 
- 
-  if (debug) LogTrace ("") <<"Beginning To Unpack Event: "<<eventCounter_;
 
   int status = 0;
   for (int fedId= rpcFEDS.first; fedId<=rpcFEDS.second; ++fedId){  
 
     const FEDRawData & rawData = allFEDRawData->FEDData(fedId);
-    RPCRecordFormatter interpreter(fedId, &readoutMappingSearch) ;
-    int currentBX =0;
+    RPCRecordFormatter interpreter = 
+        theCabling ? RPCRecordFormatter(fedId,&readoutMappingSearch) : RPCRecordFormatter(fedId,0);
+    int triggerBX =0;
     int nWords = rawData.size()/sizeof(Word64);
     if (nWords==0) continue;
 
@@ -106,7 +109,7 @@ void RPCUnpackingModule::produce(Event & ev, const EventSetup& es){
         if (debug) LogTrace ("") <<" ** PROBLEM **, fedHeader.sourceID() != fedId"
             << "fedId = " << fedId<<" sourceID="<<fedHeader.sourceID(); 
       }
-      currentBX = fedHeader.bxID();
+      triggerBX = fedHeader.bxID();
       moreHeaders = fedHeader.moreHeaders();
       if (debug) {
         ostringstream str;
@@ -160,18 +163,32 @@ void RPCUnpackingModule::produce(Event & ev, const EventSetup& es){
       }
       LogTrace("") << str.str();
     }
-    EventRecords event(currentBX);
+    EventRecords event(triggerBX);
     for (const Word64* word = header+1; word != trailer; word++) {
       for( int iRecord=1; iRecord<=4; iRecord++){
         typedef DataRecord::RecordType Record;
         const Record* pRecord = reinterpret_cast<const Record* >(word+1)-iRecord;
         DataRecord data(*pRecord);
-        if (debug) LogTrace("")<<"record: " <<data.print()<<" record type:"<<data.type(); 
         event.add(data);
+        if (debug) {
+          std::ostringstream str;
+          str <<"record: "<<data.print()<<" hex: "<<hex<<*pRecord<<dec;
+          str <<" type:"<<data.type()<<DataRecord::print(data);
+          if (event.complete()) {
+            str<< " --> dccId: "<<fedId
+               << " dccInputChannelNum: " <<event.recordSLD().rmb()
+               << " tbLinkInputNum: "<<event.recordSLD().tbLinkInputNumber()
+               << " lbNumInLink: "<<event.recordCD().lbInLink()
+               << " partition "<<event.recordCD().partitionNumber()
+               << " cdData "<<event.recordCD().partitionData();
+          }
+          LogTrace("") << str.str();
+        }
         producedRawDataCounts->addRecordType(fedId, data.type());
         int statusTMP = 0;
         if (event.complete()) statusTMP= 
-            interpreter.recordUnpack(event, producedRPCDigis, producedRawDataCounts); 
+            interpreter.recordUnpack( event, 
+            producedRPCDigis.get(), producedRawDataCounts.get(), producedRawSynchoCounts.get()); 
         if (statusTMP != 0) status = statusTMP;
       }
     }
@@ -180,4 +197,5 @@ void RPCUnpackingModule::produce(Event & ev, const EventSetup& es){
   if (debug) LogTrace("") << DebugDigisPrintout()(producedRPCDigis.get()) << endl;
   ev.put(producedRPCDigis);  
   ev.put(producedRawDataCounts);
+  if (doSynchro_) ev.put(producedRawSynchoCounts);
 }

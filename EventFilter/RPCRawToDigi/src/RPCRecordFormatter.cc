@@ -1,8 +1,8 @@
 /** \file
  * Implementation of class RPCRecordFormatter
  *
- *  $Date: 2008/07/04 20:38:52 $
- *  $Revision: 1.37 $
+ *  $Date: 2008/07/08 06:57:03 $
+ *  $Revision: 1.38 $
  *
  * \author Ilaria Segoni
  */
@@ -17,6 +17,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
+
 
 
 #include <bitset>
@@ -85,8 +86,10 @@ std::vector<EventRecords> RPCRecordFormatter::recordPack(
 }
 
 int RPCRecordFormatter::recordUnpack(
-    const EventRecords & event, std::auto_ptr<RPCDigiCollection> & prod, std::auto_ptr<RPCRawDataCounts> & counter)
+    const EventRecords & event, 
+    RPCDigiCollection * prod, RPCRawDataCounts * counter, RPCRawSynchro::ProdItem * synchro)
 {
+
   static bool debug = edm::MessageDrop::instance()->debugEnabled;
   int status = 0;
   int triggerBX = event.triggerBx();
@@ -100,6 +103,8 @@ int RPCRecordFormatter::recordUnpack(
   eleIndex.tbLinkInputNum = currentTbLinkInputNumber;
   eleIndex.lbNumInLink = event.recordCD().lbInLink();
 
+  if(synchro) synchro->push_back( make_pair(eleIndex,RPCRawSynchro::bxDifference(event)));
+
   if(readoutMapping == 0) return status;
   const LinkBoardSpec* linkBoard = readoutMapping->location(eleIndex);
   if (!linkBoard) {
@@ -109,14 +114,14 @@ int RPCRecordFormatter::recordUnpack(
               << " tbLinkInputNum: "<<eleIndex.tbLinkInputNum
               << " lbNumInLink: "<<eleIndex.lbNumInLink;
     status = RPCRawDataCounts::InvalidLB;
-    counter->addReadoutError(status);
+    if(counter) counter->addReadoutError(status);
     return status;
   }
 
   std::vector<int> packStrips = event.recordCD().packedStrips();
   if (packStrips.size() ==0) {
     status = RPCRawDataCounts::EmptyPackedStrips;
-    counter->addReadoutError(status);
+    if(counter) counter->addReadoutError(status);
     return status;
   }
   for(std::vector<int>::iterator is = packStrips.begin(); is != packStrips.end(); ++is) {
@@ -129,13 +134,13 @@ int RPCRecordFormatter::recordUnpack(
     if (!rawDetId) {
       if (debug) LogTrace("") << " ** PROBLEM ** no rawDetId, skip at least part of CD data";
       status = RPCRawDataCounts::InvalidDetId;
-      counter->addReadoutError(status);
+      if (counter) counter->addReadoutError(status);
       continue;
     }
     if (geomStrip==0) {
       if(debug) LogTrace("") <<" ** PROBLEM ** no strip found";
       status = RPCRawDataCounts::InvalidStrip;
-      counter->addReadoutError(status);
+      if (counter) counter->addReadoutError(status);
       continue;
     }
 
@@ -144,10 +149,10 @@ int RPCRecordFormatter::recordUnpack(
 
     /// Committing digi to the product
     if (debug) {
-      LogTrace("") << " LinkBoardElectronicIndex: " << eleIndex.print(); 
+      //LogTrace("") << " LinkBoardElectronicIndex: " << eleIndex.print(); 
       LogTrace("")<<" DIGI;  det: "<<rawDetId<<", strip: "<<digi.strip()<<", bx: "<<digi.bx();
     }
-    prod->insertDigi(RPCDetId(rawDetId),digi);
+    if (prod) prod->insertDigi(RPCDetId(rawDetId),digi);
   }
   return status;
 }
