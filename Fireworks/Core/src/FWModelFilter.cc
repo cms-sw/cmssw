@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 29 13:39:56 PST 2008
-// $Id: FWModelFilter.cc,v 1.1 2008/03/01 02:14:08 chrjones Exp $
+// $Id: FWModelFilter.cc,v 1.2 2008/06/12 20:14:55 chrjones Exp $
 //
 
 // system include files
@@ -70,10 +70,10 @@ void
 FWModelFilter::setExpression(const std::string& iExpression)
 {
    m_expression = iExpression;
-   const std::string variable(std::string("(*((const ")+m_className+"*)(fwGetObjectPtr())))");
+   const std::string variable(std::string("(*((")+m_className+"*)(fwGetObjectPtr())))");
    static boost::regex const reVarName("\\$");
 
-   std::string temp(std::string("fwSetInCint((long)(")+iExpression+"))");
+   std::string temp(std::string("(long)(")+iExpression+")");
 
    temp = boost::regex_replace(temp,reVarName,variable);
    m_fullExpression.swap(temp);
@@ -108,8 +108,10 @@ FWModelFilter::passesFilter(const void* iObject) const
    fwSetObjectPtr(iObject);
    fwCintReturnType()=kFWCintReturnNoReturn;
    Int_t error = 0;
+   /*
    Long_t value = gROOT->ProcessLineFast(m_fullExpression.c_str(),
-                                         &error);
+                                         &error);*/
+   gInterpreter->Execute("fwSetInCint",m_fullExpression.c_str(),&error);
    if(TInterpreter::kNoError != error || fwCintReturnType() == kFWCintReturnNoReturn) {
       returnValue = true;
    } else {
