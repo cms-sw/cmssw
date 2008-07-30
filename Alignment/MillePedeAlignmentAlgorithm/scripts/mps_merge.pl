@@ -2,8 +2,8 @@
 #     R. Mankel, DESY Hamburg     03-Jul-2007
 #     A. Parenti, DESY Hamburg    24-Apr-2008
 #
-#     $Revision: 1.14 $
-#     $Date: 2008/07/29 17:10:40 $
+#     $Revision: 1.15 $
+#     $Date: 2008/07/29 17:48:24 $
 #
 #  produce cfg file for merging run
 #
@@ -123,9 +123,12 @@ if ($nn != 1) {
 
 # change mode to pede
 $nn = ($body =~ s/mode \= \'mille\'/mode \= \'pede\'/);
-if ($nn != 1) {
-  $replaceBlock = "$replaceBlock\nprocess.AlignmentProducer.algoConfig.mode = 'pede'";
-  print "No AlignmentProducer.algoConfig.mode directive found, adding one to replace block\n";
+if ($nn != 1) { # 
+  $nn = ($body =~ s/mode \= \'full\'/mode \= \'pede\'/); # maybe it was set to full mode in template...
+  if ($nn != 1) {
+    $replaceBlock = "$replaceBlock\nprocess.AlignmentProducer.algoConfig.mode = 'pede'";
+    print "No AlignmentProducer.algoConfig.mode directive found, adding one to replace block\n";
+  }
 }
 
 # blank binary output file string
@@ -138,8 +141,8 @@ if ($nn != 1) {
 # build list of binary files
 $binaryList = "";
 for ($i=1; $i<=$nJobs; ++$i) {
-  $sep = ", ";
-  if ($i == 1) { $sep = "" ;}
+  $sep = ",\n  ";
+  if ($i == 1) { $sep = "\n  " ;}
 
   if ($checkok==1 && @JOBSTATUS[$i-1] ne "OK") {next;}
 
@@ -169,8 +172,8 @@ if ($nn != 1) {
 # build list of tree files
 $treeList = "";
 for ($i=1; $i<=$nJobs; ++$i) {
-  $sep = ", ";
-  if ($i == 1) { $sep = "" ;}
+  $sep = ",\n  ";
+  if ($i == 1) { $sep = "\n  " ;}
 
   if ($checkok==1 && @JOBSTATUS[$i-1] ne "OK") {next;}
 
