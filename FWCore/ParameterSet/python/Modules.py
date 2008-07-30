@@ -88,8 +88,11 @@ class ESPrefer(_ConfigureComponent,_TypedParameterizable,_Unlabelable,_Labelable
 
 class _Module(_ConfigureComponent,_TypedParameterizable,_Labelable,_Sequenceable):
     """base class for classes which denote framework event based 'modules'"""
+    __isStrict__ = False  
     def __init__(self,type_,*arg,**kargs):
         super(_Module,self).__init__(type_,*arg,**kargs)
+        if _Module.__isStrict__:
+            self.setIsFrozen()            
     def _clonesequence(self, lookuptable):
         try:
             return lookuptable[id(self)]

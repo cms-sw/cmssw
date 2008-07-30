@@ -132,7 +132,7 @@ class _Parameterizable(object):
     def __setattr__(self,name,value):
         #since labels are not supposed to have underscores at the beginning
         # I will assume that if we have such then we are setting an internal variable
-        if self.isFrozen() and name not in ["_Labelable__label","_isFrozen"]: 
+        if self.isFrozen() and not (name in ["_Labelable__label","_isFrozen"] or name.startswith('_')): 
             message = "Object already added to a process. It is read only now\n"
             message +=  "    %s = %s" %(name, value)
             message += "\nThe original parameters are:\n"
