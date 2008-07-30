@@ -36,10 +36,10 @@ HcalSubdetDigiMonitor::HcalSubdetDigiMonitor(DQMStore* dbe,
 
   HistLim frac(52, -0.02, 1.02);
 
-  HistLim pedLim(200, 0., 20.); 
+  HistLim pedLim(80, 0., 8.); 
   HistLim pedWidthLim(100, 0., 2.); 
 
-  HistLim gainLim(100, 0.,0.3); 
+  HistLim gainLim(120, 0.,0.6); 
   HistLim gainWidthLim(100, 0.,0.3); 
 
   HistLim ietaLim( 82, -41., 41.);
@@ -51,11 +51,14 @@ HcalSubdetDigiMonitor::HcalSubdetDigiMonitor(DQMStore* dbe,
     }
   else if(subdet_ == "HF")
     {
-      ndigis    = HistLim(20, 0., 20.);
-      digiAmp   = HistLim(550, -100., 1000.);
-      ratio     = HistLim(50, 0., 50.);
-      sime      = HistLim(40, 0., 40.);
-      signalAmp = HistLim(101, -10., 1000.);  
+      ndigis      = HistLim(20, 0., 20.);
+      digiAmp     = HistLim(550, -100., 1000.);
+      ratio       = HistLim(50, 0., 50.);
+      sime        = HistLim(40, 0., 40.);
+      signalAmp   = HistLim(101, -10., 1000.);  
+      pedLim      = HistLim(100, 0., 20.); 
+      pedWidthLim = HistLim(100, 0., 5.); 
+
     }
   else if(subdet_ == "HO")
     {
@@ -169,42 +172,162 @@ HcalSubdetDigiMonitor::HcalSubdetDigiMonitor(DQMStore* dbe,
     
     // EVENT "1" distributions of all cells properties 
     
-    sprintf (histo, "HcalDigiTask_pedestal_capId0_%s", sub);
-    mePedCapId0 = book1D(histo,pedLim);
-    sprintf (histo, "HcalDigiTask_pedestal_capId1_%s", sub);
-    mePedCapId1 = book1D(histo,pedLim);
-    sprintf (histo, "HcalDigiTask_pedestal_capId2_%s", sub);
-    mePedCapId2 = book1D(histo,pedLim);
-    sprintf (histo, "HcalDigiTask_pedestal_capId3_%s", sub);
-    mePedCapId3 = book1D(histo,pedLim);
+         
+    if(subdet_ == "HB" || subdet_ == "HE" || subdet_ == "HF") {
+      sprintf (histo, "HcalDigiTask_gain_capId0_Depth1_%s", sub);
+      meGain0Depth1 = book1D(histo,gainLim);
+      sprintf (histo, "HcalDigiTask_gain_capId1_Depth1_%s", sub);
+      meGain1Depth1 = book1D(histo,gainLim);
+      sprintf (histo, "HcalDigiTask_gain_capId2_Depth1_%s", sub);
+      meGain2Depth1 = book1D(histo,gainLim);
+      sprintf (histo, "HcalDigiTask_gain_capId3_Depth1_%s", sub);
+      meGain3Depth1 = book1D(histo,gainLim);
+
+      sprintf (histo, "HcalDigiTask_gain_capId0_Depth2_%s", sub);
+      meGain0Depth2 = book1D(histo,gainLim);
+      sprintf (histo, "HcalDigiTask_gain_capId1_Depth2_%s", sub);
+      meGain1Depth2 = book1D(histo,gainLim);
+      sprintf (histo, "HcalDigiTask_gain_capId2_Depth2_%s", sub);
+      meGain2Depth2 = book1D(histo,gainLim);
+      sprintf (histo, "HcalDigiTask_gain_capId3_Depth2_%s", sub);
+      meGain3Depth2 = book1D(histo,gainLim);
+
+      sprintf (histo, "HcalDigiTask_gainWidth_capId0_Depth1_%s", sub);
+      meGainWidth0Depth1 = book1D(histo,gainWidthLim);
+      sprintf (histo, "HcalDigiTask_gainWidth_capId1_Depth1_%s", sub);
+      meGainWidth1Depth1 = book1D(histo,gainWidthLim);
+      sprintf (histo, "HcalDigiTask_gainWidth_capId2_Depth1_%s", sub);
+      meGainWidth2Depth1 = book1D(histo,gainWidthLim);    
+      sprintf (histo, "HcalDigiTask_gainWidth_capId3_Depth1_%s", sub);
+      meGainWidth3Depth1 = book1D(histo,gainWidthLim);
     
-    sprintf (histo, "HcalDigiTask_pedestal_width_capId0_%s", sub);
-    mePedWidthCapId0 = book1D(histo,pedWidthLim);
-    sprintf (histo, "HcalDigiTask_pedestal_width_capId1_%s", sub);
-    mePedWidthCapId1 = book1D(histo,pedWidthLim);
-    sprintf (histo, "HcalDigiTask_pedestal_width_capId2_%s", sub);
-    mePedWidthCapId2 = book1D(histo,pedWidthLim);
-    sprintf (histo, "HcalDigiTask_pedestal_width_capId3_%s", sub);
-    mePedWidthCapId3 = book1D(histo,pedWidthLim);
-     
-    sprintf (histo, "HcalDigiTask_gain_Depth1_%s", sub);
-    meGainDepth1 = book1D(histo,gainLim);
-    sprintf (histo, "HcalDigiTask_gain_Depth2_%s", sub);
-    meGainDepth2 = book1D(histo,gainLim);
-    sprintf (histo, "HcalDigiTask_gain_Depth3_%s", sub);
-    meGainDepth3 = book1D(histo,gainLim);
-    sprintf (histo, "HcalDigiTask_gain_Depth4_%s", sub);
-    meGainDepth4 = book1D(histo,gainLim);
+      sprintf (histo, "HcalDigiTask_gainWidth_capId0_Depth2_%s", sub);
+      meGainWidth0Depth2 = book1D(histo,gainWidthLim);
+      sprintf (histo, "HcalDigiTask_gainWidth_capId1_Depth2_%s", sub);
+      meGainWidth1Depth2 = book1D(histo,gainWidthLim);
+      sprintf (histo, "HcalDigiTask_gainWidth_capId2_Depth2_%s", sub);
+      meGainWidth2Depth2 = book1D(histo,gainWidthLim);    
+      sprintf (histo, "HcalDigiTask_gainWidth_capId3_Depth2_%s", sub);
+      meGainWidth3Depth2 = book1D(histo,gainWidthLim);
     
-    sprintf (histo, "HcalDigiTask_gainWidth_Depth1_%s", sub);
-    meGainWidthDepth1 = book1D(histo,gainWidthLim);
-    sprintf (histo, "HcalDigiTask_gainWidth_Depth2_%s", sub);
-    meGainWidthDepth2 = book1D(histo,gainWidthLim);
-    sprintf (histo, "HcalDigiTask_gainWidth_Depth3_%s", sub);
-    meGainWidthDepth3 = book1D(histo,gainWidthLim);
-    sprintf (histo, "HcalDigiTask_gainWidth_Depth4_%s", sub);
-    meGainWidthDepth4 = book1D(histo,gainWidthLim);
+      sprintf (histo, "HcalDigiTask_pedestal_capId0_Depth1_%s", sub);
+      mePed0Depth1 = book1D(histo,pedLim);
+      sprintf (histo, "HcalDigiTask_pedestal_capId1_Depth1_%s", sub);
+      mePed1Depth1 = book1D(histo,pedLim);
+      sprintf (histo, "HcalDigiTask_pedestal_capId2_Depth1_%s", sub);
+      mePed2Depth1 = book1D(histo,pedLim);
+      sprintf (histo, "HcalDigiTask_pedestal_capId3_Depth1_%s", sub);
+      mePed3Depth1 = book1D(histo,pedLim);
+
+      sprintf (histo, "HcalDigiTask_pedestal_capId0_Depth2_%s", sub);
+      mePed0Depth2 = book1D(histo,pedLim);
+      sprintf (histo, "HcalDigiTask_pedestal_capId1_Depth2_%s", sub);
+      mePed1Depth2 = book1D(histo,pedLim);
+      sprintf (histo, "HcalDigiTask_pedestal_capId2_Depth2_%s", sub);
+      mePed2Depth2 = book1D(histo,pedLim);
+      sprintf (histo, "HcalDigiTask_pedestal_capId3_Depth2_%s", sub);
+      mePed3Depth2 = book1D(histo,pedLim);
+
+      sprintf (histo, "HcalDigiTask_pedestal_width_capId0_Depth1_%s", sub);
+      mePedWidth0Depth1 = book1D(histo,pedWidthLim);
+      sprintf (histo, "HcalDigiTask_pedestal_width_capId1_Depth1_%s", sub);
+      mePedWidth1Depth1 = book1D(histo,pedWidthLim);
+      sprintf (histo, "HcalDigiTask_pedestal_width_capId2_Depth1_%s", sub);
+      mePedWidth2Depth1 = book1D(histo,pedWidthLim);
+      sprintf (histo, "HcalDigiTask_pedestal_width_capId3_Depth1_%s", sub);
+      mePedWidth3Depth1 = book1D(histo,pedWidthLim);
+
+      sprintf (histo, "HcalDigiTask_pedestal_width_capId0_Depth2_%s", sub);
+      mePedWidth0Depth2 = book1D(histo,pedWidthLim);
+      sprintf (histo, "HcalDigiTask_pedestal_width_capId1_Depth2_%s", sub);
+      mePedWidth1Depth2 = book1D(histo,pedWidthLim);
+      sprintf (histo, "HcalDigiTask_pedestal_width_capId2_Depth2_%s", sub);
+      mePedWidth2Depth2 = book1D(histo,pedWidthLim);
+      sprintf (histo, "HcalDigiTask_pedestal_width_capId3_Depth2_%s", sub);
+      mePedWidth3Depth2 = book1D(histo,pedWidthLim);
+
+
+    }
+
+    if(subdet_ == "HE") {
+      sprintf (histo, "HcalDigiTask_gain_capId0_Depth3_%s", sub);
+      meGain0Depth3 = book1D(histo,gainLim);
+      sprintf (histo, "HcalDigiTask_gain_capId1_Depth3_%s", sub);
+      meGain1Depth3 = book1D(histo,gainLim);
+      sprintf (histo, "HcalDigiTask_gain_capId2_Depth3_%s", sub);
+      meGain2Depth3 = book1D(histo,gainLim);
+      sprintf (histo, "HcalDigiTask_gain_capId3_Depth3_%s", sub);
+      meGain3Depth3 = book1D(histo,gainLim);
+
+      sprintf (histo, "HcalDigiTask_gainWidth_capId0_Depth3_%s", sub);
+      meGainWidth0Depth3 = book1D(histo,gainWidthLim);
+      sprintf (histo, "HcalDigiTask_gainWidth_capId1_Depth3_%s", sub);
+      meGainWidth1Depth3 = book1D(histo,gainWidthLim);
+      sprintf (histo, "HcalDigiTask_gainWidth_capId2_Depth3_%s", sub);
+      meGainWidth2Depth3 = book1D(histo,gainWidthLim);    
+      sprintf (histo, "HcalDigiTask_gainWidth_capId3_Depth3_%s", sub);
+      meGainWidth3Depth3 = book1D(histo,gainWidthLim);
     
+      sprintf (histo, "HcalDigiTask_pedestal_capId0_Depth3_%s", sub);
+      mePed0Depth3 = book1D(histo,pedLim);
+      sprintf (histo, "HcalDigiTask_pedestal_capId1_Depth3_%s", sub);
+      mePed1Depth3 = book1D(histo,pedLim);
+      sprintf (histo, "HcalDigiTask_pedestal_capId2_Depth3_%s", sub);
+      mePed2Depth3 = book1D(histo,pedLim);
+      sprintf (histo, "HcalDigiTask_pedestal_capId3_Depth3_%s", sub);
+      mePed3Depth3 = book1D(histo,pedLim);
+
+      sprintf (histo, "HcalDigiTask_pedestal_width_capId0_Depth3_%s", sub);
+      mePedWidth0Depth3 = book1D(histo,pedWidthLim);
+      sprintf (histo, "HcalDigiTask_pedestal_width_capId1_Depth3_%s", sub);
+      mePedWidth1Depth3 = book1D(histo,pedWidthLim);
+      sprintf (histo, "HcalDigiTask_pedestal_width_capId2_Depth3_%s", sub);
+      mePedWidth2Depth3 = book1D(histo,pedWidthLim);
+      sprintf (histo, "HcalDigiTask_pedestal_width_capId3_Depth3_%s", sub);
+      mePedWidth3Depth3 = book1D(histo,pedWidthLim);
+
+    }
+
+    if(subdet_ == "HO") {
+      sprintf (histo, "HcalDigiTask_gain_capId0_Depth4_%s", sub);
+      meGain0Depth4 = book1D(histo,gainLim);
+      sprintf (histo, "HcalDigiTask_gain_capId1_Depth4_%s", sub);
+      meGain1Depth4 = book1D(histo,gainLim);
+      sprintf (histo, "HcalDigiTask_gain_capId2_Depth4_%s", sub);
+      meGain2Depth4 = book1D(histo,gainLim);
+      sprintf (histo, "HcalDigiTask_gain_capId3_Depth4_%s", sub);
+      meGain3Depth4 = book1D(histo,gainLim);
+
+      sprintf (histo, "HcalDigiTask_gainWidth_capId0_Depth4_%s", sub);
+      meGainWidth0Depth4 = book1D(histo,gainWidthLim);
+      sprintf (histo, "HcalDigiTask_gainWidth_capId1_Depth4_%s", sub);
+      meGainWidth1Depth4 = book1D(histo,gainWidthLim);
+      sprintf (histo, "HcalDigiTask_gainWidth_capId2_Depth4_%s", sub);
+      meGainWidth2Depth4 = book1D(histo,gainWidthLim);    
+      sprintf (histo, "HcalDigiTask_gainWidth_capId3_Depth4_%s", sub);
+      meGainWidth3Depth4 = book1D(histo,gainWidthLim);
+
+    
+      sprintf (histo, "HcalDigiTask_pedestal_capId0_Depth4_%s", sub);
+      mePed0Depth4 = book1D(histo,pedLim);
+      sprintf (histo, "HcalDigiTask_pedestal_capId1_Depth4_%s", sub);
+      mePed1Depth4 = book1D(histo,pedLim);
+      sprintf (histo, "HcalDigiTask_pedestal_capId2_Depth4_%s", sub);
+      mePed2Depth4 = book1D(histo,pedLim);
+      sprintf (histo, "HcalDigiTask_pedestal_capId3_Depth4_%s", sub);
+      mePed3Depth4 = book1D(histo,pedLim);
+
+      sprintf (histo, "HcalDigiTask_pedestal_width_capId0_Depth4_%s", sub);
+      mePedWidth0Depth4 = book1D(histo,pedWidthLim);
+      sprintf (histo, "HcalDigiTask_pedestal_width_capId1_Depth4_%s", sub);
+      mePedWidth1Depth4 = book1D(histo,pedWidthLim);
+      sprintf (histo, "HcalDigiTask_pedestal_width_capId2_Depth4_%s", sub);
+      mePedWidth2Depth4 = book1D(histo,pedWidthLim);
+      sprintf (histo, "HcalDigiTask_pedestal_width_capId3_Depth4_%s", sub);
+      mePedWidth3Depth4 = book1D(histo,pedWidthLim);
+
+    }
+
     sprintf (histo, "HcalDigiTask_gainMap_Depth1_%s", sub);
     meGainMap1 = book2D(histo, ietaLim, iphiLim);
     sprintf (histo, "HcalDigiTask_gainMap_Depth2_%s", sub);

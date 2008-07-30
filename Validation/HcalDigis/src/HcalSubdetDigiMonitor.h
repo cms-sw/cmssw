@@ -92,41 +92,141 @@ public:
   void fillmeRatioDigiSimhit4(double v1)
   {fillElement(meRatioDigiSimhit4, v1);}
 
-  void fillmePedCapId0(double v1)
-  {fillElement(mePedCapId0, v1);}
-  void fillmePedCapId1(double v1)
-  {fillElement(mePedCapId1, v1);}
-  void fillmePedCapId2(double v1)
-  {fillElement(mePedCapId2, v1);}
-  void fillmePedCapId3(double v1)
-  {fillElement(mePedCapId3, v1);}
 
-  void fillmePedWidthCapId0(double v1)
-  {fillElement(mePedWidthCapId0, v1);}
-  void fillmePedWidthCapId1(double v1)
-  {fillElement(mePedWidthCapId1, v1);}
-  void fillmePedWidthCapId2(double v1)
-  {fillElement(mePedWidthCapId2, v1);}
-  void fillmePedWidthCapId3(double v1)
-  {fillElement(mePedWidthCapId3, v1);}
+  // DB constants 
 
-  void fillmeGainDepth1(double v1)
-  {fillElement(meGainDepth1, v1);}
-  void fillmeGainDepth2(double v1)
-  {fillElement(meGainDepth2, v1);}
-  void fillmeGainDepth3(double v1)
-  {fillElement(meGainDepth3, v1);}
-  void fillmeGainDepth4(double v1)
-  {fillElement(meGainDepth4, v1);}
+  void fillmeGain0Depth1(double v1)
+  {fillElement(meGain0Depth1, v1);}
+  void fillmeGain1Depth1(double v1)
+  {fillElement(meGain1Depth1, v1);}
+  void fillmeGain2Depth1(double v1)
+  {fillElement(meGain2Depth1, v1);}
+  void fillmeGain3Depth1(double v1)
+  {fillElement(meGain3Depth1, v1);}
+  void fillmeGain0Depth2(double v1)
+  {fillElement(meGain0Depth2, v1);}
+  void fillmeGain1Depth2(double v1)
+  {fillElement(meGain1Depth2, v1);}
+  void fillmeGain2Depth2(double v1)
+  {fillElement(meGain2Depth2, v1);}
+  void fillmeGain3Depth2(double v1)
+  {fillElement(meGain3Depth2, v1);}
+  void fillmeGain0Depth3(double v1)
+  {fillElement(meGain0Depth3, v1);}
+  void fillmeGain1Depth3(double v1)
+  {fillElement(meGain1Depth3, v1);}
+  void fillmeGain2Depth3(double v1)
+  {fillElement(meGain2Depth3, v1);}
+  void fillmeGain3Depth3(double v1)
+  {fillElement(meGain3Depth3, v1);}
+  void fillmeGain0Depth4(double v1)
+  {fillElement(meGain0Depth4, v1);}
+  void fillmeGain1Depth4(double v1)
+  {fillElement(meGain1Depth4, v1);}
+  void fillmeGain2Depth4(double v1)
+  {fillElement(meGain2Depth4, v1);}
+  void fillmeGain3Depth4(double v1)
+  {fillElement(meGain3Depth4, v1);}
 
-  void fillmeGainWidthDepth1(double v1)
-  {fillElement(meGainWidthDepth1, v1);}
-  void fillmeGainWidthDepth2(double v1)
-  {fillElement(meGainWidthDepth2, v1);}
-  void fillmeGainWidthDepth3(double v1)
-  {fillElement(meGainWidthDepth3, v1);}
-  void fillmeGainWidthDepth4(double v1)
-  {fillElement(meGainWidthDepth4, v1);}
+  void fillmeGainWidth0Depth1(double v1)
+  {fillElement(meGainWidth0Depth1, v1);}
+  void fillmeGainWidth1Depth1(double v1)
+  {fillElement(meGainWidth1Depth1, v1);}
+  void fillmeGainWidth2Depth1(double v1)
+  {fillElement(meGainWidth2Depth1, v1);}
+  void fillmeGainWidth3Depth1(double v1)
+  {fillElement(meGainWidth3Depth1, v1);}
+  void fillmeGainWidth0Depth2(double v1)
+  {fillElement(meGainWidth0Depth2, v1);}
+  void fillmeGainWidth1Depth2(double v1)
+  {fillElement(meGainWidth1Depth2, v1);}
+  void fillmeGainWidth2Depth2(double v1)
+  {fillElement(meGainWidth2Depth2, v1);}
+  void fillmeGainWidth3Depth2(double v1)
+  {fillElement(meGainWidth3Depth2, v1);}
+  void fillmeGainWidth0Depth3(double v1)
+  {fillElement(meGainWidth0Depth3, v1);}
+  void fillmeGainWidth1Depth3(double v1)
+  {fillElement(meGainWidth1Depth3, v1);}
+  void fillmeGainWidth2Depth3(double v1)
+  {fillElement(meGainWidth2Depth3, v1);}
+  void fillmeGainWidth3Depth3(double v1)
+  {fillElement(meGainWidth3Depth3, v1);}
+  void fillmeGainWidth0Depth4(double v1)
+  {fillElement(meGainWidth0Depth4, v1);}
+  void fillmeGainWidth1Depth4(double v1)
+  {fillElement(meGainWidth1Depth4, v1);}
+  void fillmeGainWidth2Depth4(double v1)
+  {fillElement(meGainWidth2Depth4, v1);}
+  void fillmeGainWidth3Depth4(double v1)
+  {fillElement(meGainWidth3Depth4, v1);}
+
+  void fillmePed0Depth1(double v1)
+  {fillElement(mePed0Depth1, v1);}
+  void fillmePed1Depth1(double v1)
+  {fillElement(mePed1Depth1, v1);}
+  void fillmePed2Depth1(double v1)
+  {fillElement(mePed2Depth1, v1);}
+  void fillmePed3Depth1(double v1)
+  {fillElement(mePed3Depth1, v1);}
+  void fillmePed0Depth2(double v1)
+  {fillElement(mePed0Depth2, v1);}
+  void fillmePed1Depth2(double v1)
+  {fillElement(mePed1Depth2, v1);}
+  void fillmePed2Depth2(double v1)
+  {fillElement(mePed2Depth2, v1);}
+  void fillmePed3Depth2(double v1)
+  {fillElement(mePed3Depth2, v1);}
+  void fillmePed0Depth3(double v1)
+  {fillElement(mePed0Depth3, v1);}
+  void fillmePed1Depth3(double v1)
+  {fillElement(mePed1Depth3, v1);}
+  void fillmePed2Depth3(double v1)
+  {fillElement(mePed2Depth3, v1);}
+  void fillmePed3Depth3(double v1)
+  {fillElement(mePed3Depth3, v1);}
+  void fillmePed0Depth4(double v1)
+  {fillElement(mePed0Depth4, v1);}
+  void fillmePed1Depth4(double v1)
+  {fillElement(mePed1Depth4, v1);}
+  void fillmePed2Depth4(double v1)
+  {fillElement(mePed2Depth4, v1);}
+  void fillmePed3Depth4(double v1)
+  {fillElement(mePed3Depth4, v1);}
+
+
+  void fillmePedWidth0Depth1(double v1)
+  {fillElement(mePedWidth0Depth1, v1);}
+  void fillmePedWidth1Depth1(double v1)
+  {fillElement(mePedWidth1Depth1, v1);}
+  void fillmePedWidth2Depth1(double v1)
+  {fillElement(mePedWidth2Depth1, v1);}
+  void fillmePedWidth3Depth1(double v1)
+  {fillElement(mePedWidth3Depth1, v1);}
+  void fillmePedWidth0Depth2(double v1)
+  {fillElement(mePedWidth0Depth2, v1);}
+  void fillmePedWidth1Depth2(double v1)
+  {fillElement(mePedWidth1Depth2, v1);}
+  void fillmePedWidth2Depth2(double v1)
+  {fillElement(mePedWidth2Depth2, v1);}
+  void fillmePedWidth3Depth2(double v1)
+  {fillElement(mePedWidth3Depth2, v1);}
+  void fillmePedWidth0Depth3(double v1)
+  {fillElement(mePedWidth0Depth3, v1);}
+  void fillmePedWidth1Depth3(double v1)
+  {fillElement(mePedWidth1Depth3, v1);}
+  void fillmePedWidth2Depth3(double v1)
+  {fillElement(mePedWidth2Depth3, v1);}
+  void fillmePedWidth3Depth3(double v1)
+  {fillElement(mePedWidth3Depth3, v1);}
+  void fillmePedWidth0Depth4(double v1)
+  {fillElement(mePedWidth0Depth4, v1);}
+  void fillmePedWidth1Depth4(double v1)
+  {fillElement(mePedWidth1Depth4, v1);}
+  void fillmePedWidth2Depth4(double v1)
+  {fillElement(mePedWidth2Depth4, v1);}
+  void fillmePedWidth3Depth4(double v1)
+  {fillElement(mePedWidth3Depth4, v1);}
 
   void fillmeGainMap1(double v1, double v2, double v3)
   {fillElements(meGainMap1, v1, v2, v3);}
@@ -224,29 +324,82 @@ private:
   MonitorElement* meDigiSimhitProfile3;
   MonitorElement* meDigiSimhitProfile4;
 
-  MonitorElement* mePedCapId0;
-  MonitorElement* mePedCapId1;
-  MonitorElement* mePedCapId2;
-  MonitorElement* mePedCapId3;
-  MonitorElement* mePedWidthCapId0;
-  MonitorElement* mePedWidthCapId1;
-  MonitorElement* mePedWidthCapId2;
-  MonitorElement* mePedWidthCapId3;
+  // DB constants 
 
-  MonitorElement* meGainDepth1;
-  MonitorElement* meGainDepth2;
-  MonitorElement* meGainDepth3;
-  MonitorElement* meGainDepth4;
-  MonitorElement* meGainWidthDepth1;
-  MonitorElement* meGainWidthDepth2;
-  MonitorElement* meGainWidthDepth3;
-  MonitorElement* meGainWidthDepth4;
+  MonitorElement* meGain0Depth1;
+  MonitorElement* meGain1Depth1;
+  MonitorElement* meGain2Depth1;
+  MonitorElement* meGain3Depth1;
+  MonitorElement* meGain0Depth2;
+  MonitorElement* meGain1Depth2;
+  MonitorElement* meGain2Depth2;
+  MonitorElement* meGain3Depth2;
+  MonitorElement* meGain0Depth3;
+  MonitorElement* meGain1Depth3;
+  MonitorElement* meGain2Depth3;
+  MonitorElement* meGain3Depth3;
+  MonitorElement* meGain0Depth4;
+  MonitorElement* meGain1Depth4;
+  MonitorElement* meGain2Depth4;
+  MonitorElement* meGain3Depth4;
 
+  MonitorElement* meGainWidth0Depth1;
+  MonitorElement* meGainWidth1Depth1;
+  MonitorElement* meGainWidth2Depth1;
+  MonitorElement* meGainWidth3Depth1;
+  MonitorElement* meGainWidth0Depth2;
+  MonitorElement* meGainWidth1Depth2;
+  MonitorElement* meGainWidth2Depth2;
+  MonitorElement* meGainWidth3Depth2;
+  MonitorElement* meGainWidth0Depth3;
+  MonitorElement* meGainWidth1Depth3;
+  MonitorElement* meGainWidth2Depth3;
+  MonitorElement* meGainWidth3Depth3;
+  MonitorElement* meGainWidth0Depth4;
+  MonitorElement* meGainWidth1Depth4;
+  MonitorElement* meGainWidth2Depth4;
+  MonitorElement* meGainWidth3Depth4;
+
+  MonitorElement* mePed0Depth1;
+  MonitorElement* mePed1Depth1;
+  MonitorElement* mePed2Depth1;
+  MonitorElement* mePed3Depth1;
+  MonitorElement* mePed0Depth2;
+  MonitorElement* mePed1Depth2;
+  MonitorElement* mePed2Depth2;
+  MonitorElement* mePed3Depth2;
+  MonitorElement* mePed0Depth3;
+  MonitorElement* mePed1Depth3;
+  MonitorElement* mePed2Depth3;
+  MonitorElement* mePed3Depth3;
+  MonitorElement* mePed0Depth4;
+  MonitorElement* mePed1Depth4;
+  MonitorElement* mePed2Depth4;
+  MonitorElement* mePed3Depth4;
+
+  MonitorElement* mePedWidth0Depth1;
+  MonitorElement* mePedWidth1Depth1;
+  MonitorElement* mePedWidth2Depth1;
+  MonitorElement* mePedWidth3Depth1;
+  MonitorElement* mePedWidth0Depth2;
+  MonitorElement* mePedWidth1Depth2;
+  MonitorElement* mePedWidth2Depth2;
+  MonitorElement* mePedWidth3Depth2;
+  MonitorElement* mePedWidth0Depth3;
+  MonitorElement* mePedWidth1Depth3;
+  MonitorElement* mePedWidth2Depth3;
+  MonitorElement* mePedWidth3Depth3;
+  MonitorElement* mePedWidth0Depth4;
+  MonitorElement* mePedWidth1Depth4;
+  MonitorElement* mePedWidth2Depth4;
+  MonitorElement* mePedWidth3Depth4;
+
+
+  // CapID-0 only 
   MonitorElement* meGainMap1;
   MonitorElement* meGainMap2;
   MonitorElement* meGainMap3;
   MonitorElement* meGainMap4;
-
   MonitorElement* mePwidthMap1;
   MonitorElement* mePwidthMap2; 
   MonitorElement* mePwidthMap3; 

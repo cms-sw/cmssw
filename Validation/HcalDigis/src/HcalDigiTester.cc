@@ -113,13 +113,14 @@ void HcalDigiTester::reco(const edm::Event& iEvent, const edm::EventSetup& iSetu
     int depth = cell.depth();
     int iphi  = cell.iphi()-1;
     int ieta  = cell.ieta();
+    int sub   = cell.subdet();
     if(ieta > 0) ieta--;
     
     // Gains, pedestals (once !) and only for "noise" case  
     if ( ((nevent1 == 1 && subdet == 1) || 
 	  (nevent2 == 1 && subdet == 2) ||
 	  (nevent3 == 1 && subdet == 3) ||
-	  (nevent4 == 1 && subdet == 4)) && noise_ == 1) { 
+	  (nevent4 == 1 && subdet == 4)) && noise_ == 1 && sub == subdet) { 
 
       HcalGenericDetId hcalGenDetId(digiItr->id());
       const HcalPedestal* pedestal = conditions->getPedestal(hcalGenDetId);
@@ -129,13 +130,20 @@ void HcalDigiTester::reco(const edm::Event& iEvent, const edm::EventSetup& iSetu
       const HcalPedestalWidth* pedWidth =
 	conditions-> getPedestalWidth(hcalGenDetId);  
       
-      double gainValue = gain->getValue(0);
-      double gainWidthValue = gainWidth->getValue(0);
+      double gainValue0 = gain->getValue(0);
+      double gainValue1 = gain->getValue(1);
+      double gainValue2 = gain->getValue(2);
+      double gainValue3 = gain->getValue(3);
+
+      double gainWidthValue0 = gainWidth->getValue(0);
+      double gainWidthValue1 = gainWidth->getValue(1);
+      double gainWidthValue2 = gainWidth->getValue(2);
+      double gainWidthValue3 = gainWidth->getValue(3);
       
       /*     
 	std::cout << " ieta, iphi, depth : " 
 	<< ieta << " " << iphi << " " << depth 
-	<< "  gain " << gainValue << "  gainWidth " << gainWidthValue
+	<< "  gain0 " << gainValue0 << "  gainWidth0 " << gainWidthValue0
 	<< std::endl;
       */
       
@@ -144,50 +152,116 @@ void HcalDigiTester::reco(const edm::Event& iEvent, const edm::EventSetup& iSetu
       double pedValue2 = pedestal->getValue(2);
       double pedValue3 = pedestal->getValue(3);
       
-      monitor()->fillmePedCapId0(pedValue0);
-      monitor()->fillmePedCapId1(pedValue1);
-      monitor()->fillmePedCapId2(pedValue2);
-      monitor()->fillmePedCapId3(pedValue3);
-      
       double pedWidth0 = pedWidth->getWidth(0);
       double pedWidth1 = pedWidth->getWidth(1);
       double pedWidth2 = pedWidth->getWidth(2);
       double pedWidth3 = pedWidth->getWidth(3);
       
-      monitor()->fillmePedWidthCapId0(pedWidth0);
-      monitor()->fillmePedWidthCapId1(pedWidth1);
-      monitor()->fillmePedWidthCapId2(pedWidth2);
-      monitor()->fillmePedWidthCapId3(pedWidth3);
-      
       if (depth == 1) {
-	monitor()->fillmeGainDepth1     (gainValue);
-	monitor()->fillmeGainWidthDepth1(gainWidthValue);
-	monitor()->fillmeGainMap1 (double(ieta), double(iphi), gainValue);
+	monitor()->fillmeGain0Depth1(gainValue0);
+	monitor()->fillmeGain1Depth1(gainValue1);
+	monitor()->fillmeGain2Depth1(gainValue2);
+	monitor()->fillmeGain3Depth1(gainValue3);
+
+	monitor()->fillmeGainWidth0Depth1(gainWidthValue0);
+	monitor()->fillmeGainWidth1Depth1(gainWidthValue1);
+	monitor()->fillmeGainWidth2Depth1(gainWidthValue2);
+	monitor()->fillmeGainWidth3Depth1(gainWidthValue3);
+
+	monitor()->fillmePed0Depth1(pedValue0);
+	monitor()->fillmePed1Depth1(pedValue1);
+	monitor()->fillmePed2Depth1(pedValue2);
+	monitor()->fillmePed3Depth1(pedValue3);
+
+        monitor()->fillmePedWidth0Depth1(pedWidth0);
+        monitor()->fillmePedWidth1Depth1(pedWidth1);
+        monitor()->fillmePedWidth2Depth1(pedWidth2);
+        monitor()->fillmePedWidth3Depth1(pedWidth3);
+
+	monitor()->fillmeGainMap1  (double(ieta), double(iphi), gainValue0);
 	monitor()->fillmePwidthMap1(double(ieta), double(iphi), pedWidth0) ;  
       }
+
       if (depth == 2) {
-	monitor()->fillmeGainDepth2     (gainValue);
-	monitor()->fillmeGainWidthDepth2(gainWidthValue);
-	monitor()->fillmeGainMap2 (double(ieta), double(iphi), gainValue);
-	monitor()->fillmePwidthMap2(double(ieta), double(iphi), pedWidth0) ;  
+	monitor()->fillmeGain0Depth2(gainValue0);
+	monitor()->fillmeGain1Depth2(gainValue1);
+	monitor()->fillmeGain2Depth2(gainValue2);
+	monitor()->fillmeGain3Depth2(gainValue3);
+
+	monitor()->fillmeGainWidth0Depth2(gainWidthValue0);
+	monitor()->fillmeGainWidth1Depth2(gainWidthValue1);
+	monitor()->fillmeGainWidth2Depth2(gainWidthValue2);
+	monitor()->fillmeGainWidth3Depth2(gainWidthValue3);
+
+	monitor()->fillmePed0Depth2(pedValue0);
+	monitor()->fillmePed1Depth2(pedValue1);
+	monitor()->fillmePed2Depth2(pedValue2);
+	monitor()->fillmePed3Depth2(pedValue3);
+
+        monitor()->fillmePedWidth0Depth2(pedWidth0);
+        monitor()->fillmePedWidth1Depth2(pedWidth1);
+        monitor()->fillmePedWidth2Depth2(pedWidth2);
+        monitor()->fillmePedWidth3Depth2(pedWidth3);
+
+	monitor()->fillmeGainMap1  (double(ieta), double(iphi), gainValue0);
+	monitor()->fillmePwidthMap1(double(ieta), double(iphi), pedWidth0) ;  
       }
+
       if (depth == 3) {
-	monitor()->fillmeGainDepth3     (gainValue);
-	monitor()->fillmeGainWidthDepth3(gainWidthValue);
-	monitor()->fillmeGainMap3 (double(ieta), double(iphi), gainValue);
-	monitor()->fillmePwidthMap3(double(ieta), double(iphi), pedWidth0) ;  
+	monitor()->fillmeGain0Depth3(gainValue0);
+	monitor()->fillmeGain1Depth3(gainValue1);
+	monitor()->fillmeGain2Depth3(gainValue2);
+	monitor()->fillmeGain3Depth3(gainValue3);
+
+	monitor()->fillmeGainWidth0Depth3(gainWidthValue0);
+	monitor()->fillmeGainWidth1Depth3(gainWidthValue1);
+	monitor()->fillmeGainWidth2Depth3(gainWidthValue2);
+	monitor()->fillmeGainWidth3Depth3(gainWidthValue3);
+
+	monitor()->fillmePed0Depth3(pedValue0);
+	monitor()->fillmePed1Depth3(pedValue1);
+	monitor()->fillmePed2Depth3(pedValue2);
+	monitor()->fillmePed3Depth3(pedValue3);
+
+        monitor()->fillmePedWidth0Depth3(pedWidth0);
+        monitor()->fillmePedWidth1Depth3(pedWidth1);
+        monitor()->fillmePedWidth2Depth3(pedWidth2);
+        monitor()->fillmePedWidth3Depth3(pedWidth3);
+
+	monitor()->fillmeGainMap1  (double(ieta), double(iphi), gainValue0);
+	monitor()->fillmePwidthMap1(double(ieta), double(iphi), pedWidth0) ;  
       }
+
       if (depth == 4) {
-	monitor()->fillmeGainDepth4     (gainValue);
-	monitor()->fillmeGainWidthDepth4(gainWidthValue);
-	monitor()->fillmeGainMap4 (double(ieta), double(iphi), gainValue);
-	monitor()->fillmePwidthMap4(double(ieta), double(iphi), pedWidth0) ;  
+	monitor()->fillmeGain0Depth4(gainValue0);
+	monitor()->fillmeGain1Depth4(gainValue1);
+	monitor()->fillmeGain2Depth4(gainValue2);
+	monitor()->fillmeGain3Depth4(gainValue3);
+
+	monitor()->fillmeGainWidth0Depth4(gainWidthValue0);
+	monitor()->fillmeGainWidth1Depth4(gainWidthValue1);
+	monitor()->fillmeGainWidth2Depth4(gainWidthValue2);
+	monitor()->fillmeGainWidth3Depth4(gainWidthValue3);
+
+	monitor()->fillmePed0Depth4(pedValue0);
+	monitor()->fillmePed1Depth4(pedValue1);
+	monitor()->fillmePed2Depth4(pedValue2);
+	monitor()->fillmePed3Depth4(pedValue3);
+
+        monitor()->fillmePedWidth0Depth4(pedWidth0);
+        monitor()->fillmePedWidth1Depth4(pedWidth1);
+        monitor()->fillmePedWidth2Depth4(pedWidth2);
+        monitor()->fillmePedWidth3Depth4(pedWidth3);
+
+	monitor()->fillmeGainMap1  (double(ieta), double(iphi), gainValue0);
+	monitor()->fillmePwidthMap1(double(ieta), double(iphi), pedWidth0) ;  
+
       }
     }     // end of event #1 
     
     
     // No-noise case, only subdet selected  =================================
-    if ( cell.subdet() == subdet && noise_ == 0 ) {   
+    if ( sub == subdet && noise_ == 0 ) {   
       
       const CaloCellGeometry* cellGeometry =
 	geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
@@ -419,25 +493,25 @@ HcalDigiTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   iSetup.get<CaloGeometryRecord>().get (geometry);
   iSetup.get<HcalDbRecord>().get(conditions);
 
+  noise_ = 0;
+                                                          
   if (hcalselector_ == "HB" ) reco<HBHEDataFrame>(iEvent,iSetup);
   if (hcalselector_ == "HE" ) reco<HBHEDataFrame>(iEvent,iSetup);
   if (hcalselector_ == "HO" ) reco<HODataFrame>(iEvent,iSetup);
   if (hcalselector_ == "HF" ) reco<HFDataFrame>(iEvent,iSetup);  
 
-  noise_ = 0;                                                          
-  if (hcalselector_ == "noise") 
-    {
-      noise_ = 1;
-      hcalselector_ = "HB";
-      reco<HBHEDataFrame>(iEvent,iSetup);
-      hcalselector_ = "HE";
-      reco<HBHEDataFrame>(iEvent,iSetup);
-      hcalselector_ = "HO";
-      reco<HODataFrame>(iEvent,iSetup);
-      hcalselector_ = "HF";
-      reco<HFDataFrame>(iEvent,iSetup);
-      hcalselector_ = "noise";
-    }
+  if (hcalselector_ == "noise") {
+    noise_ = 1;
+    
+    hcalselector_ = "HB";
+    reco<HBHEDataFrame>(iEvent,iSetup);
+    hcalselector_ = "HE";
+    reco<HBHEDataFrame>(iEvent,iSetup);
+    hcalselector_ = "HO";
+    reco<HODataFrame>(iEvent,iSetup);
+    hcalselector_ = "HF";
+    reco<HFDataFrame>(iEvent,iSetup);
+  }
 
 }
 double HcalDigiTester::dR(double eta1, double phi1, double eta2, double phi2) { 
