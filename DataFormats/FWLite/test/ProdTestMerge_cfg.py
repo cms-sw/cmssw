@@ -6,6 +6,15 @@ process = cms.Process("MERGE")
 
 process.load("FWCore.Framework.test.cmsExceptionsFatal_cff")
 
+process.Thing = cms.EDProducer("ThingProducer",
+    offsetDelta = cms.untracked.int32(10),
+    debugLevel = cms.untracked.int32(1)
+)
+
+process.OtherThing = cms.EDProducer("OtherThingProducer",
+    debugLevel = cms.untracked.int32(1)
+)
+
 process.source = cms.Source("PoolSource",
     # hack until metadata pruning is implemented
     dropMetaData = cms.untracked.bool(True),
@@ -17,4 +26,5 @@ process.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('prodmerge.root')
 )
 
+process.p = cms.Path(process.Thing*process.OtherThing)
 process.outp = cms.EndPath(process.out)
