@@ -1,8 +1,8 @@
 /*
  * \file EBClusterTask.cc
  *
- * $Date: 2008/02/29 15:04:10 $
- * $Revision: 1.51 $
+ * $Date: 2008/04/08 15:35:11 $
+ * $Revision: 1.57 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -42,10 +42,13 @@ EBClusterTask::EBClusterTask(const ParameterSet& ps){
 
   init_ = false;
 
-  // get hold of back-end interface
-  dbe_ = Service<DQMStore>().operator->();
+  dqmStore_ = Service<DQMStore>().operator->();
+
+  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
+
+  mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
 
   // parameters...
   BasicClusterCollection_ = ps.getParameter<edm::InputTag>("BasicClusterCollection");
@@ -90,12 +93,12 @@ void EBClusterTask::beginJob(const EventSetup& c){
 
   ievt_ = 0;
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalBarrel/EBClusterTask");
-    dbe_->rmdir("EcalBarrel/EBClusterTask");
+  if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBClusterTask");
+    dqmStore_->rmdir(prefixME_ + "/EBClusterTask");
   }
 
-  Numbers::initGeometry(c);
+  Numbers::initGeometry(c, false);
 
 }
 
@@ -105,103 +108,103 @@ void EBClusterTask::setup(void){
 
   char histo[200];
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalBarrel/EBClusterTask");
+  if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBClusterTask");
 
     sprintf(histo, "EBCLT BC energy");
-    meBCEne_ = dbe_->book1D(histo, histo, 100, 0., 150.);
+    meBCEne_ = dqmStore_->book1D(histo, histo, 100, 0., 150.);
     meBCEne_->setAxisTitle("energy (GeV)", 1);
 
     sprintf(histo, "EBCLT BC number");
-    meBCNum_ = dbe_->book1D(histo, histo, 100, 0., 100.);
+    meBCNum_ = dqmStore_->book1D(histo, histo, 100, 0., 100.);
     meBCNum_->setAxisTitle("number of clusters", 1);
 
     sprintf(histo, "EBCLT BC size");
-    meBCSiz_ = dbe_->book1D(histo, histo, 100, 0., 100.);
+    meBCSiz_ = dqmStore_->book1D(histo, histo, 100, 0., 100.);
     meBCSiz_->setAxisTitle("cluster size", 1);
 
     sprintf(histo, "EBCLT BC energy map");
-    meBCEneMap_ = dbe_->bookProfile2D(histo, histo, 72, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9, 34, -1.479, 1.479, 100, 0., 500., "s");
+    meBCEneMap_ = dqmStore_->bookProfile2D(histo, histo, 72, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9, 34, -1.479, 1.479, 100, 0., 500., "s");
     meBCEneMap_->setAxisTitle("phi", 1);
     meBCEneMap_->setAxisTitle("eta", 2);
 
     sprintf(histo, "EBCLT BC number map");
-    meBCNumMap_ = dbe_->book2D(histo, histo, 72, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9, 34, -1.479, 1.479);
+    meBCNumMap_ = dqmStore_->book2D(histo, histo, 72, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9, 34, -1.479, 1.479);
     meBCNumMap_->setAxisTitle("phi", 1);
     meBCNumMap_->setAxisTitle("eta", 2);
 
     sprintf(histo, "EBCLT BC ET map");
-    meBCETMap_ = dbe_->bookProfile2D(histo, histo, 72, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9, 34, -1.479, 1.479, 100, 0., 500., "s");
+    meBCETMap_ = dqmStore_->bookProfile2D(histo, histo, 72, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9, 34, -1.479, 1.479, 100, 0., 500., "s");
     meBCETMap_->setAxisTitle("phi", 1);
     meBCETMap_->setAxisTitle("eta", 2);
 
     sprintf(histo, "EBCLT BC size map");
-    meBCSizMap_ = dbe_->bookProfile2D(histo, histo, 72, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9, 34, -1.479, 1.479, 100, 0., 100., "s");
+    meBCSizMap_ = dqmStore_->bookProfile2D(histo, histo, 72, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9, 34, -1.479, 1.479, 100, 0., 100., "s");
     meBCSizMap_->setAxisTitle("phi", 1);
     meBCSizMap_->setAxisTitle("eta", 2);
 
     sprintf(histo, "EBCLT BC energy projection eta");
-    meBCEneMapProjEta_ = dbe_->bookProfile(histo, histo, 34, -1.479, 1.479, 100, 0., 500., "s");
+    meBCEneMapProjEta_ = dqmStore_->bookProfile(histo, histo, 34, -1.479, 1.479, 100, 0., 500., "s");
     meBCEneMapProjEta_->setAxisTitle("eta", 1);
     meBCEneMapProjEta_->setAxisTitle("energy (GeV)", 2);
 
     sprintf(histo, "EBCLT BC energy projection phi");
-    meBCEneMapProjPhi_ = dbe_->bookProfile(histo, histo, 72, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9, 100, 0., 500., "s");
+    meBCEneMapProjPhi_ = dqmStore_->bookProfile(histo, histo, 72, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9, 100, 0., 500., "s");
     meBCEneMapProjPhi_->setAxisTitle("phi", 1);
     meBCEneMapProjPhi_->setAxisTitle("energy (GeV)", 2);
 
     sprintf(histo, "EBCLT BC number projection eta");
-    meBCNumMapProjEta_ = dbe_->book1D(histo, histo, 34, -1.479, 1.479);
+    meBCNumMapProjEta_ = dqmStore_->book1D(histo, histo, 34, -1.479, 1.479);
     meBCNumMapProjEta_->setAxisTitle("eta", 1);
     meBCNumMapProjEta_->setAxisTitle("number of clusters", 2);
 
     sprintf(histo, "EBCLT BC number projection phi");
-    meBCNumMapProjPhi_ = dbe_->book1D(histo, histo, 72, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9);
+    meBCNumMapProjPhi_ = dqmStore_->book1D(histo, histo, 72, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9);
     meBCNumMapProjPhi_->setAxisTitle("phi", 1);
     meBCNumMapProjPhi_->setAxisTitle("number of clusters", 2);
 
     sprintf(histo, "EBCLT BC ET projection eta");
-    meBCETMapProjEta_ = dbe_->bookProfile(histo, histo, 34, -1.479, 1.479, 100, 0., 500., "s");
+    meBCETMapProjEta_ = dqmStore_->bookProfile(histo, histo, 34, -1.479, 1.479, 100, 0., 500., "s");
     meBCETMapProjEta_->setAxisTitle("eta", 1);
     meBCETMapProjEta_->setAxisTitle("transverse energy (GeV)", 2);
 
     sprintf(histo, "EBCLT BC ET projection phi");
-    meBCETMapProjPhi_ = dbe_->bookProfile(histo, histo, 72, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9, 100, 0., 500., "s");
+    meBCETMapProjPhi_ = dqmStore_->bookProfile(histo, histo, 72, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9, 100, 0., 500., "s");
     meBCETMapProjPhi_->setAxisTitle("phi", 1);
     meBCETMapProjPhi_->setAxisTitle("transverse energy (GeV)", 2);
 
     sprintf(histo, "EBCLT BC size projection eta");
-    meBCSizMapProjEta_ = dbe_->bookProfile(histo, histo, 34, -1.479, 1.479, 100, 0., 100., "s");
+    meBCSizMapProjEta_ = dqmStore_->bookProfile(histo, histo, 34, -1.479, 1.479, 100, 0., 100., "s");
     meBCSizMapProjEta_->setAxisTitle("eta", 1);
     meBCSizMapProjEta_->setAxisTitle("cluster size", 2);
 
     sprintf(histo, "EBCLT BC size projection phi");
-    meBCSizMapProjPhi_ = dbe_->bookProfile(histo, histo, 72, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9, 100, 0., 100., "s");
+    meBCSizMapProjPhi_ = dqmStore_->bookProfile(histo, histo, 72, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9, 100, 0., 100., "s");
     meBCSizMapProjPhi_->setAxisTitle("phi", 1);
     meBCSizMapProjPhi_->setAxisTitle("cluster size", 2);
 
     sprintf(histo, "EBCLT SC energy");
-    meSCEne_ = dbe_->book1D(histo, histo, 100, 0., 150.);
+    meSCEne_ = dqmStore_->book1D(histo, histo, 100, 0., 150.);
     meSCEne_->setAxisTitle("energy (GeV)", 1);
 
     sprintf(histo, "EBCLT SC number");
-    meSCNum_ = dbe_->book1D(histo, histo, 50, 0., 50.);
+    meSCNum_ = dqmStore_->book1D(histo, histo, 50, 0., 50.);
     meSCNum_->setAxisTitle("number of clusters", 1);
 
     sprintf(histo, "EBCLT SC size");
-    meSCSiz_ = dbe_->book1D(histo, histo, 50, 0., 50.);
+    meSCSiz_ = dqmStore_->book1D(histo, histo, 50, 0., 50.);
     meSCSiz_->setAxisTitle("cluster size", 1);
 
     sprintf(histo, "EBCLT s1s9");
-    mes1s9_ = dbe_->book1D(histo, histo, 50, 0., 1.5);
+    mes1s9_ = dqmStore_->book1D(histo, histo, 50, 0., 1.5);
     mes1s9_->setAxisTitle("s1/s9", 1);
 
     sprintf(histo, "EBCLT s9s25");
-    mes9s25_ = dbe_->book1D(histo, histo, 75, 0., 1.5);
+    mes9s25_ = dqmStore_->book1D(histo, histo, 75, 0., 1.5);
     mes9s25_->setAxisTitle("s9/s25", 1);
 
     sprintf(histo, "EBCLT dicluster invariant mass");
-    meInvMass_ = dbe_->book1D(histo, histo, 100, 0., 200.);
+    meInvMass_ = dqmStore_->book1D(histo, histo, 100, 0., 200.);
     meInvMass_->setAxisTitle("mass (GeV)", 1);
 
   }
@@ -210,72 +213,72 @@ void EBClusterTask::setup(void){
 
 void EBClusterTask::cleanup(void){
 
-  if ( ! enableCleanup_ ) return;
+  if ( ! init_ ) return;
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalBarrel/EBClusterTask");
+  if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBClusterTask");
 
-    if ( meBCEne_ ) dbe_->removeElement( meBCEne_->getName() );
+    if ( meBCEne_ ) dqmStore_->removeElement( meBCEne_->getName() );
     meBCEne_ = 0;
 
-    if ( meBCNum_ ) dbe_->removeElement( meBCNum_->getName() );
+    if ( meBCNum_ ) dqmStore_->removeElement( meBCNum_->getName() );
     meBCNum_ = 0;
 
-    if ( meBCSiz_ ) dbe_->removeElement( meBCSiz_->getName() );
+    if ( meBCSiz_ ) dqmStore_->removeElement( meBCSiz_->getName() );
     meBCSiz_ = 0;
 
-    if ( meBCEneMap_ ) dbe_->removeElement( meBCEneMap_->getName() );
+    if ( meBCEneMap_ ) dqmStore_->removeElement( meBCEneMap_->getName() );
     meBCEneMap_ = 0;
 
-    if ( meBCNumMap_ ) dbe_->removeElement( meBCNumMap_->getName() );
+    if ( meBCNumMap_ ) dqmStore_->removeElement( meBCNumMap_->getName() );
     meBCNumMap_ = 0;
 
-    if ( meBCETMap_ ) dbe_->removeElement( meBCETMap_->getName() );
+    if ( meBCETMap_ ) dqmStore_->removeElement( meBCETMap_->getName() );
     meBCETMap_ = 0;
 
-    if ( meBCSizMap_ ) dbe_->removeElement( meBCSizMap_->getName() );
+    if ( meBCSizMap_ ) dqmStore_->removeElement( meBCSizMap_->getName() );
     meBCSizMap_ = 0;
 
-    if ( meBCEneMapProjEta_ ) dbe_->removeElement( meBCEneMapProjEta_->getName() );
+    if ( meBCEneMapProjEta_ ) dqmStore_->removeElement( meBCEneMapProjEta_->getName() );
     meBCEneMapProjEta_ = 0;
 
-    if ( meBCEneMapProjPhi_ ) dbe_->removeElement( meBCEneMapProjPhi_->getName() );
+    if ( meBCEneMapProjPhi_ ) dqmStore_->removeElement( meBCEneMapProjPhi_->getName() );
     meBCEneMapProjPhi_ = 0;
 
-    if ( meBCNumMapProjEta_ ) dbe_->removeElement( meBCNumMapProjEta_->getName() );
+    if ( meBCNumMapProjEta_ ) dqmStore_->removeElement( meBCNumMapProjEta_->getName() );
     meBCNumMapProjEta_ = 0;
 
-    if ( meBCNumMapProjPhi_ ) dbe_->removeElement( meBCNumMapProjPhi_->getName() );
+    if ( meBCNumMapProjPhi_ ) dqmStore_->removeElement( meBCNumMapProjPhi_->getName() );
     meBCNumMapProjPhi_ = 0;
 
-    if ( meBCETMapProjEta_ ) dbe_->removeElement( meBCETMapProjEta_->getName() );
+    if ( meBCETMapProjEta_ ) dqmStore_->removeElement( meBCETMapProjEta_->getName() );
     meBCETMapProjEta_ = 0;
 
-    if ( meBCETMapProjPhi_ ) dbe_->removeElement( meBCETMapProjPhi_->getName() );
+    if ( meBCETMapProjPhi_ ) dqmStore_->removeElement( meBCETMapProjPhi_->getName() );
     meBCETMapProjPhi_ = 0;
 
-    if ( meBCSizMapProjEta_ ) dbe_->removeElement( meBCSizMapProjEta_->getName() );
+    if ( meBCSizMapProjEta_ ) dqmStore_->removeElement( meBCSizMapProjEta_->getName() );
     meBCSizMapProjEta_ = 0;
 
-    if ( meBCSizMapProjPhi_ ) dbe_->removeElement( meBCSizMapProjPhi_->getName() );
+    if ( meBCSizMapProjPhi_ ) dqmStore_->removeElement( meBCSizMapProjPhi_->getName() );
     meBCSizMapProjPhi_ = 0;
 
-    if ( meSCEne_ ) dbe_->removeElement( meSCEne_->getName() );
+    if ( meSCEne_ ) dqmStore_->removeElement( meSCEne_->getName() );
     meSCEne_ = 0;
 
-    if ( meSCNum_ ) dbe_->removeElement( meSCNum_->getName() );
+    if ( meSCNum_ ) dqmStore_->removeElement( meSCNum_->getName() );
     meSCNum_ = 0;
 
-    if ( meSCSiz_ ) dbe_->removeElement( meSCSiz_->getName() );
+    if ( meSCSiz_ ) dqmStore_->removeElement( meSCSiz_->getName() );
     meSCSiz_ = 0;
 
-    if ( mes1s9_ ) dbe_->removeElement( mes1s9_->getName() );
+    if ( mes1s9_ ) dqmStore_->removeElement( mes1s9_->getName() );
     mes1s9_ = 0;
 
-    if ( mes9s25_ ) dbe_->removeElement( mes9s25_->getName() );
+    if ( mes9s25_ ) dqmStore_->removeElement( mes9s25_->getName() );
     mes9s25_ = 0;
 
-    if ( meInvMass_ ) dbe_->removeElement( meInvMass_->getName() );
+    if ( meInvMass_ ) dqmStore_->removeElement( meInvMass_->getName() );
     meInvMass_ = 0;
 
   }
@@ -288,7 +291,63 @@ void EBClusterTask::endJob(void){
 
   LogInfo("EBClusterTask") << "analyzed " << ievt_ << " events";
 
-  if ( init_ ) this->cleanup();
+  if ( enableCleanup_ ) this->cleanup();
+
+}
+
+void EBClusterTask::beginRun(const Run& r, const EventSetup& c) {
+
+  if ( ! mergeRuns_ ) this->reset();
+
+}
+
+void EBClusterTask::endRun(const Run& r, const EventSetup& c) {
+
+}
+
+void EBClusterTask::reset(void) {
+
+  if ( meBCEne_ ) meBCEne_->Reset();
+
+  if ( meBCNum_ ) meBCNum_->Reset();
+
+  if ( meBCSiz_ ) meBCSiz_->Reset();
+
+  if ( meBCEneMap_ ) meBCEneMap_->Reset();
+
+  if ( meBCNumMap_ ) meBCNumMap_->Reset();
+
+  if ( meBCETMap_ ) meBCETMap_->Reset();
+
+  if ( meBCSizMap_ ) meBCSizMap_->Reset();
+
+  if ( meBCEneMapProjEta_ ) meBCEneMapProjEta_->Reset();
+
+  if ( meBCEneMapProjPhi_ ) meBCEneMapProjPhi_->Reset();
+
+  if ( meBCNumMapProjEta_ ) meBCNumMapProjEta_->Reset();
+
+  if ( meBCNumMapProjPhi_ ) meBCNumMapProjPhi_->Reset();
+
+  if ( meBCETMapProjEta_ ) meBCETMapProjEta_->Reset();
+
+  if ( meBCETMapProjPhi_ ) meBCETMapProjPhi_->Reset();
+
+  if ( meBCSizMapProjEta_ ) meBCSizMapProjEta_->Reset();
+
+  if ( meBCSizMapProjPhi_ ) meBCSizMapProjPhi_->Reset();
+
+  if ( meSCEne_ ) meSCEne_->Reset();
+
+  if ( meSCNum_ ) meSCNum_->Reset();
+
+  if ( meSCSiz_ ) meSCSiz_->Reset();
+
+  if ( mes1s9_ ) mes1s9_->Reset();
+
+  if ( mes9s25_ ) mes9s25_->Reset();
+
+  if ( meInvMass_ ) meInvMass_->Reset();
 
 }
 
@@ -334,7 +393,9 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
     }
 
   } else {
-    LogWarning("EBClusterTask") << " BasicClusterCollection: " << BasicClusterCollection_ << " not in event.";
+
+    LogWarning("EBClusterTask") << BasicClusterCollection_ << " not available";
+
   }
 
 
@@ -388,7 +449,9 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
     }
 
   } else {
-    LogWarning("EBClusterTask") << " SuperClusterCollection: not in event.";
+
+    LogWarning("EBClusterTask") << SuperClusterCollection_ << " not available";
+
   }
 
 }

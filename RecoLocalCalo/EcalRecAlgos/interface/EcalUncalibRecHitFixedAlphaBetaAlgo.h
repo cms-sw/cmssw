@@ -308,6 +308,14 @@ template<class C> float EcalUncalibRecHitFixedAlphaBetaAlgo<C>::PerformAnalyticF
     //! compute variations of parameters fAmp_max and fTim_max 
     HepVector PROD = DM1_*temp_ ;
     //    std::cout<<"vector PROD: "<< PROD[0]<<" "<<PROD[1]<<" "<<PROD[2]<<std::endl;
+
+    // Probably the fastest way to protect against
+    // +-inf value in the matrix DM1_ after inversion
+    // (which is nevertheless flagged as successfull...)
+    if ( isnan( PROD[0] ) ) {
+            return -103 ;
+    }
+
     variation_func_max = PROD[0] ;
     variation_tim_max = PROD[1] ;
     variation_ped_max = PROD[2] ;

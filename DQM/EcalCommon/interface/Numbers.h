@@ -1,11 +1,11 @@
-// $Id: Numbers.h,v 1.21 2008/01/05 09:18:35 dellaric Exp $
+// $Id: Numbers.h,v 1.22 2008/01/28 15:41:14 dellaric Exp $
 
 /*!
   \file Numbers.h
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.21 $
-  \date $Date: 2008/01/05 09:18:35 $
+  \version $Revision: 1.22 $
+  \date $Date: 2008/01/28 15:41:14 $
 */
 
 #ifndef Numbers_H
@@ -35,7 +35,7 @@ class Numbers {
 
  public:
 
-  static void initGeometry( const edm::EventSetup& setup );
+  static void initGeometry( const edm::EventSetup& setup, bool verbose = false );
 
   static int iEB( const int ism ) throw( std::runtime_error );
 

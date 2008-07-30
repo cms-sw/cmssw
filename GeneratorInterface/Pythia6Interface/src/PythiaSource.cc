@@ -1,6 +1,6 @@
 /*
- *  $Date: 2008/02/08 00:09:05 $
- *  $Revision: 1.19 $
+ *  $Date: 2008/04/09 21:04:04 $
+ *  $Revision: 1.23 $
  *  
  *  Filip Moorgat & Hector Naves 
  *  26/10/05
@@ -80,6 +80,25 @@ extern "C" {
    void SLHA_INIT();
 }
 
+#define PYGLFR pyglfr_
+  extern "C" {
+    void PYGLFR();
+}
+
+#define PYGLRHAD pyglrhad_
+  extern "C" {
+    void PYGLRHAD();
+}
+
+#define PYSTFR pyglfr_
+  extern "C" {
+    void PYSTLFR();
+}
+
+#define PYSTRHAD pystrhad_
+  extern "C" {
+    void PYSTRHAD();
+}
 
 HepMC::IO_HEPEVT conv;
 
@@ -92,10 +111,12 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
   GeneratedInputSource(pset, desc), evt(0), 
   pythiaPylistVerbosity_ (pset.getUntrackedParameter<int>("pythiaPylistVerbosity",0)),
   pythiaHepMCVerbosity_ (pset.getUntrackedParameter<bool>("pythiaHepMCVerbosity",false)),
+  imposeProperTimes_ (pset.getUntrackedParameter<bool>("imposeProperTimes",false)),
   maxEventsToPrint_ (pset.getUntrackedParameter<int>("maxEventsToPrint",1)),
   comenergy(pset.getUntrackedParameter<double>("comEnergy",14000.)),
   extCrossSect(pset.getUntrackedParameter<double>("crossSection", -1.)),
   extFilterEff(pset.getUntrackedParameter<double>("filterEfficiency", -1.)),
+  stopHadronsEnabled(false), gluinoHadronsEnabled(false),
   useExternalGenerators_(false),
   useTauola_(false),
   useTauolaPolarization_(false)
@@ -113,6 +134,21 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
   maxEventsToPrint_ = pset.getUntrackedParameter<int>("maxEventsToPrint",0);
   
   particleID = pset.getUntrackedParameter<int>("ParticleID", 0);
+  
+  // handle rndm seed, etc.
+  //
+  edm::Service<RandomNumberGenerator> rng;
+  uint32_t seed = rng->mySeed();
+  //
+  // special arrangements (will change starting 21x...)
+  //
+  if (particleID || imposeProperTimes_) {
+    long rseed = (long)(rng->mySeed());
+    cout << " seed= " << rseed << endl ;
+    fRandomEngine = new CLHEP::HepJamesRandom(rseed) ;
+    fRandomGenerator = new CLHEP::RandFlat(fRandomEngine) ;
+  }
+  
   if(particleID) {
 
     cout <<" Particle ID = " << particleID << endl; 
@@ -146,13 +182,7 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
     phimax = pset.getUntrackedParameter<double>("Phimax",360.);
     cout <<" phimin = " << phimin <<" phimax = " << phimax << endl;
 
-    Service<RandomNumberGenerator> rng;
-    long seed = (long)(rng->mySeed());
-    cout << " seed= " << seed << endl ;
-    fRandomEngine = new CLHEP::HepJamesRandom(seed) ;
-    fRandomGenerator = new CLHEP::RandFlat(fRandomEngine) ;
-
-    if(kinedata.size() > 0)
+    if(kinedata.size() > 0 && fRandomEngine)
        fPtYGenerator = new PtYDistributor(kinedata, *fRandomEngine); 
 
   }
@@ -222,10 +252,24 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
   
   }
   }
+
+   stopHadronsEnabled = pset.getUntrackedParameter<bool>("stopHadrons",false);
+   gluinoHadronsEnabled = pset.getUntrackedParameter<bool>("gluinoHadrons",false);
+
+  //Init names and pdg code of r-hadrons
+   if(stopHadronsEnabled)  PYSTRHAD();
+   if(gluinoHadronsEnabled)  PYGLRHAD();
+
   //In the future, we will get the random number seed on each event and tell 
   // pythia to use that new seed
-  edm::Service<RandomNumberGenerator> rng;
-  uint32_t seed = rng->mySeed();
+  //
+  // these two lines below have moved upstream
+  //
+  // edm::Service<RandomNumberGenerator> rng;
+  // uint32_t seed = rng->mySeed();
+  //
+  // here just pass it to pythia
+  //
   ostringstream sRandomSet;
   sRandomSet <<"MRPY(1)="<<seed;
   call_pygive(sRandomSet.str());
@@ -302,11 +346,6 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
 
 
 PythiaSource::~PythiaSource(){
-  call_pystat(1);
-  if ( useTauola_ ) {
-    tauola_.print();
-    //call_pretauola(1); // print TAUOLA decay statistics output
-  }
   clear(); 
 }
 
@@ -322,6 +361,12 @@ void PythiaSource::endRun(Run & r) {
  giprod->set_external_cross_section(extCrossSect);
  giprod->set_filter_efficiency(extFilterEff);
  r.put(giprod);
+
+  call_pystat(1);
+  if ( useTauola_ ) {
+    tauola_.print();
+    //call_pretauola(1); // print TAUOLA decay statistics output
+  }
 
 }
 
@@ -390,7 +435,19 @@ bool PythiaSource::produce(Event & e) {
 	  }
 	PYEXEC();
       } else {
-	call_pyevnt();      // generate one event with Pythia
+          if(!gluinoHadronsEnabled && !stopHadronsEnabled)
+	  {
+	     call_pyevnt();      // generate one event with Pythia
+	  }
+	  else
+          {
+             call_pygive("MSTJ(14)=-1");
+             call_pyevnt();      // generate one event with Pythia
+	     call_pygive("MSTJ(14)=1");
+             if(gluinoHadronsEnabled)  PYGLFR();
+             if(stopHadronsEnabled)  PYSTFR();
+          }
+	  
       }
 
     if ( useTauola_ ) {
@@ -430,6 +487,40 @@ bool PythiaSource::produce(Event & e) {
     evt->set_pdf_info( HepMC::PdfInfo(id1,id2,x1,x2,Q,pdf1,pdf2) ) ;
     
     evt->weights().push_back( pyint1.vint[96] );
+
+    if (imposeProperTimes_) {
+      HepMC::GenEvent::vertex_const_iterator vbegin = evt->vertices_begin();
+      HepMC::GenEvent::vertex_const_iterator vend = evt->vertices_end();
+      HepMC::GenEvent::vertex_const_iterator vitr = vbegin;
+      for (; vitr != vend; ++vitr ) {
+            HepMC::GenVertex::particle_iterator pbegin = (*vitr)->particles_begin(HepMC::children);
+            HepMC::GenVertex::particle_iterator pend = (*vitr)->particles_end(HepMC::children);
+            HepMC::GenVertex::particle_iterator pitr = pbegin;
+            for (; pitr != pend; ++pitr) {
+                  if ((*pitr)->end_vertex()) continue;
+                  if ((*pitr)->status()!=1) continue;
+                  int pdgcode= abs((*pitr)->pdg_id());
+                  if (pdgcode!=211 && pdgcode!=321) continue;
+                  double ctau = pydat2.pmas[3][PYCOMP(pdgcode)-1];
+
+                  double unif_rand = fRandomGenerator->fire(0., 1.);
+
+                  // Value of 0 is excluded, so log(unif_rand) should be OK
+                  double proper_length = - ctau * log(unif_rand);
+                  HepMC::FourVector mom = (*pitr)->momentum();
+                  double factor = proper_length/mom.m();
+                  HepMC::FourVector vin = (*vitr)->position();
+                  double x = vin.x() + factor * mom.px();
+                  double y = vin.y() + factor * mom.py();
+                  double z = vin.z() + factor * mom.pz();
+                  double t = vin.t() + factor * mom.e();
+                  
+                  HepMC::GenVertex* vdec = new HepMC::GenVertex(HepMC::FourVector(x,y,z,t));
+                  evt->add_vertex(vdec);
+                  vdec->add_particle_in((*pitr));
+            }
+      }
+    }
 
     //******** Verbosity ********
     

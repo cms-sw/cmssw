@@ -25,7 +25,6 @@ const unsigned int L1GctWheelJetFpga::N_JET_COUNTERS = std::min(L1GctJetCounterS
 
 L1GctWheelJetFpga::L1GctWheelJetFpga(int id,
 				     std::vector<L1GctJetLeafCard*> inputLeafCards) :
-  L1GctProcessor(),
   m_id(id),
   m_inputLeafCards(inputLeafCards),
   m_jetCounters(N_JET_COUNTERS),
@@ -50,7 +49,7 @@ L1GctWheelJetFpga::L1GctWheelJetFpga(int id,
 
 void L1GctWheelJetFpga::checkSetup()
 {
-  setupJetsVectors(0);  //Initialises all the jet vectors with jets of the correct type.
+  setupJetsVectors();  //Initialises all the jet vectors with jets of the correct type.
   
   //Check object construction is ok
   if(m_id < 0 || m_id > 1)
@@ -150,34 +149,10 @@ std::ostream& operator << (std::ostream& os, const L1GctWheelJetFpga& fpga)
   return os;
 }	
 
-/// clear buffers
-void L1GctWheelJetFpga::reset() {
-  L1GctProcessor::reset();
-  for (unsigned int i=0; i<N_JET_COUNTERS; ++i)
-  {
-    m_jetCounters.at(i)->reset();
-  }
-}
-
-/// partially clear buffers
-void L1GctWheelJetFpga::setBxRange(const int firstBx, const int numberOfBx) {
-  L1GctProcessor::setBxRange(firstBx, numberOfBx);
-  for (unsigned int i=0; i<N_JET_COUNTERS; ++i)
-  {
-    m_jetCounters.at(i)->setBxRange(firstBx, numberOfBx);
-  }
-}
-
-void L1GctWheelJetFpga::setNextBx(const int bx) {
-  L1GctProcessor::setNextBx(bx);
-  for (unsigned int i=0; i<N_JET_COUNTERS; ++i)
-  {
-    m_jetCounters.at(i)->setNextBx(bx);
-  }
-}
-
-void L1GctWheelJetFpga::resetProcessor()
+void L1GctWheelJetFpga::reset()
 {
+  setupJetsVectors();
+
   for (unsigned int i=0; i<MAX_LEAF_CARDS; ++i)
   {
     m_inputHt.at(i).reset();
@@ -187,13 +162,9 @@ void L1GctWheelJetFpga::resetProcessor()
   m_outputHfSums.reset();
   for (unsigned int i=0; i<N_JET_COUNTERS; ++i)
   {
+    m_jetCounters.at(i)->reset();
     m_outputJc.at(i).reset();
   }
-}
-
-void L1GctWheelJetFpga::setupObjects()
-{
-  setupJetsVectors(static_cast<int16_t>(bxAbs()));
 }
 
 void L1GctWheelJetFpga::fetchInput()
@@ -229,7 +200,7 @@ void L1GctWheelJetFpga::fetchInput()
 
 void L1GctWheelJetFpga::process()
 {
-  //setupJetsVectors();
+  setupJetsVectors();
   classifyJets();
 
   sort(m_rawCentralJets.begin(), m_rawCentralJets.end(), L1GctJetFinderBase::rankGreaterThan());
@@ -336,13 +307,13 @@ void L1GctWheelJetFpga::classifyJets()
   }
 }
 
-void L1GctWheelJetFpga::setupJetsVectors(const int16_t bx)
+void L1GctWheelJetFpga::setupJetsVectors()
 {
   // Create empty jet candidates with the three different combinations
   // of flags, corresponding to central, forward and tau jets
-  L1GctJetCand tempCen(0, 0, 0, false, false, (uint16_t) 0, (uint16_t) 0, bx);
-  L1GctJetCand tempTau(0, 0, 0, true,  false, (uint16_t) 0, (uint16_t) 0, bx);
-  L1GctJetCand tempFwd(0, 0, 0, false, true,  (uint16_t) 0, (uint16_t) 0, bx);
+  L1GctJetCand tempCen(0, 0, 0, false, false);
+  L1GctJetCand tempTau(0, 0, 0, true,  false);
+  L1GctJetCand tempFwd(0, 0, 0, false, true);
 
   // Initialize the jet vectors with copies of the appropriate empty jet type
   m_rawCentralJets.assign(MAX_RAW_CJETS, tempCen);

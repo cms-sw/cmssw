@@ -26,8 +26,6 @@
 // l1 dataformats, d|e record includes
 #include "L1Trigger/HardwareValidation/interface/DEtrait.h"
 
-using dedefs::DEnsys;
-
 class L1TdeECAL : public edm::EDAnalyzer {
 
  public:

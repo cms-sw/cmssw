@@ -4,7 +4,6 @@
 namespace funct {
 
   struct Number {
-    static const unsigned int arguments = 1;
     Number(double value) : value_(value) { }
     double operator()(double x) const { return value_; }
   private:

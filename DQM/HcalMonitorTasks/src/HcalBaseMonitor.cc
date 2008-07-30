@@ -20,7 +20,8 @@ void HcalBaseMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
   string subsystemname = ps.getUntrackedParameter<string>("subSystemFolder", "Hcal") ;
   rootFolder_ = subsystemname + "/";
   
-  fVerbosity = ps.getUntrackedParameter<bool>("debug","false");
+  fVerbosity = ps.getUntrackedParameter<bool>("debug",0); // shouldn't fVerbosity be an int32?
+  makeDiagnostics=ps.getUntrackedParameter<bool>("makeDiagnosticPlots",false);
 
   return;
 }

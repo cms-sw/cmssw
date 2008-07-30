@@ -55,6 +55,13 @@ EcalDigiProducer::EcalDigiProducer(const edm::ParameterSet& params)
   theEcalResponse = new CaloHitResponse(theParameterMap, theEcalShape);
   theESResponse = new CaloHitResponse(theParameterMap, theESShape);
 
+  // further phase for cosmics studies
+  cosmicsPhase = params.getParameter<bool>("cosmicsPhase");
+  cosmicsShift = params.getParameter<double>("cosmicsShift");
+  if (cosmicsPhase) {
+    theEcalResponse->setPhaseShift(1.+cosmicsShift);
+  }
+  
   EcalCorrMatrix thisMatrix;
 
   std::vector<double> corrNoiseMatrix = params.getParameter< std::vector<double> >("CorrelatedNoiseMatrix");

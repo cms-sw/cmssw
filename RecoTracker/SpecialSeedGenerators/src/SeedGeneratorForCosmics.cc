@@ -74,6 +74,10 @@ SeedGeneratorForCosmics::SeedGeneratorForCosmics(edm::ParameterSet const& conf):
 void SeedGeneratorForCosmics::run(TrajectorySeedCollection &output,const edm::EventSetup& iSetup){
   seeds(output,iSetup,region);
   delete thePairGenerator;
+  delete theTripletGenerator;
+  delete thePropagatorAl;
+  delete thePropagatorOp;
+  delete theUpdator;
 }
 void SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
 				    const edm::EventSetup& iSetup,
@@ -134,9 +138,9 @@ void SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
 	  
 	  PTrajectoryStateOnDet *PTraj=  
 	    transformer.persistentState(outerUpdated,(*(HitTriplets[it].outer())).geographicalId().rawId());
-	  
-	  TrajectorySeed *trSeed=new TrajectorySeed(*PTraj,hits,alongMomentum);
-	  output.push_back(*trSeed);
+	  output.push_back(TrajectorySeed(*PTraj,hits,alongMomentum));
+
+	  delete PTraj;
 	}
       }
     } else {
@@ -151,9 +155,8 @@ void SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
 	  
 	  PTrajectoryStateOnDet *PTraj=  
 	    transformer.persistentState(outerUpdated, (*(HitTriplets[it].outer())).geographicalId().rawId());
-	  
-	  TrajectorySeed *trSeed=new TrajectorySeed(*PTraj,hits,oppositeToMomentum);
-	  output.push_back(*trSeed);
+	  output.push_back(TrajectorySeed(*PTraj,hits,oppositeToMomentum));
+	  delete PTraj;
 	}
       }
     }
@@ -202,8 +205,8 @@ void SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
 	    PTrajectoryStateOnDet *PTraj=  
 	      transformer.persistentState(outerUpdated, (*(HitPairs[is].outer())).geographicalId().rawId());
 	    
-	    TrajectorySeed *trSeed=new TrajectorySeed(*PTraj,hits,alongMomentum);
-	    output.push_back(*trSeed);
+	    output.push_back( TrajectorySeed(*PTraj,hits,alongMomentum));
+	    delete PTraj;
 	    
 	  }else      edm::LogWarning("CosmicSeedFinder") << " SeedForCosmics first update failed ";
 	}else      edm::LogWarning("CosmicSeedFinder") << " SeedForCosmics first propagation failed ";
@@ -231,9 +234,9 @@ void SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
 	  PTrajectoryStateOnDet *PTraj=  
 	    transformer.persistentState(outerUpdated,(*(HitPairs[is].outer())).geographicalId().rawId());
 	  
-	  TrajectorySeed *trSeed=new TrajectorySeed(*PTraj,hits,oppositeToMomentum);
-	  output.push_back(*trSeed);
-	
+	  output.push_back(TrajectorySeed(*PTraj,hits,oppositeToMomentum));
+	  delete PTraj;
+
 	  }else      edm::LogWarning("CosmicSeedFinder") << " SeedForCosmics first update failed ";
 	}else      edm::LogWarning("CosmicSeedFinder") << " SeedForCosmics first propagation failed ";
       }

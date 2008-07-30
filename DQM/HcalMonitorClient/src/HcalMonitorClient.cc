@@ -12,7 +12,7 @@ HcalMonitorClient::HcalMonitorClient(){}
 HcalMonitorClient::~HcalMonitorClient(){
 
   cout << "HcalMonitorClient: Exit ..." << endl;
-
+  if( summary_client_ )    delete summary_client_;
   if( dataformat_client_ ) delete dataformat_client_;
   if( digi_client_ )       delete digi_client_;
   if( rechit_client_ )     delete rechit_client_;
@@ -23,6 +23,8 @@ HcalMonitorClient::~HcalMonitorClient(){
   if( tp_client_ )         delete tp_client_;
   if (ct_client_ )         delete ct_client_;
   if( mui_ )               delete mui_;
+ 
+  if (debug_) cout <<"HcalMonitorClient: Finished destructor..."<<endl;
 }
 
 //--------------------------------------------------------
@@ -33,8 +35,12 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
   cout << endl;
 
   irun_=0; ilumisec_=0; ievent_=0; itime_=0;
+
+  maxlumisec_=0; minlumisec_=0;
+
   actonLS_=false;
 
+  summary_client_ = 0;
   dataformat_client_ = 0; digi_client_ = 0;
   rechit_client_ = 0; pedestal_client_ = 0;
   led_client_ = 0; hot_client_ = 0; dead_client_=0;
@@ -103,6 +109,13 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
   gStyle->SetPalette(1);
 
   // clients' constructors
+  if( ps.getUntrackedParameter<bool>("SummaryClient", true) ){
+    if(debug_) {;}
+    cout << "===>DQM Summary Client is ON" << endl;
+    summary_client_   = new HcalSummaryClient(ps);
+    ///> No init() exists, and we may not need one....
+    //summary_client_->init(ps, dbe_,"DataFormatClient");
+  }
   if( ps.getUntrackedParameter<bool>("DataFormatClient", false) ){
     if(debug_)   cout << "===>DQM DataFormat Client is ON" << endl;
     dataformat_client_   = new HcalDataFormatClient();
@@ -220,7 +233,7 @@ void HcalMonitorClient::beginJob(const EventSetup& c){
   if( debug_ ) cout << "HcalMonitorClient: beginJob" << endl;
   
   ievt_ = 0;
-
+  if( summary_client_ )    summary_client_->beginJob(dbe_);
   if( dataformat_client_ ) dataformat_client_->beginJob();
   if( digi_client_ )       digi_client_->beginJob();
   if( rechit_client_ )     rechit_client_->beginJob();
@@ -239,6 +252,7 @@ void HcalMonitorClient::beginRun(const Run& r, const EventSetup& c) {
   cout << endl;
   cout << "HcalMonitorClient: Standard beginRun() for run " << r.id().run() << endl;
   cout << endl;
+  if( summary_client_ )    summary_client_->beginRun();
   if( dataformat_client_ ) dataformat_client_->beginRun();
   if( digi_client_ )       digi_client_->beginRun();
   if( rechit_client_ )     rechit_client_->beginRun();
@@ -256,6 +270,7 @@ void HcalMonitorClient::endJob(void) {
 
   if( debug_ ) cout << "HcalMonitorClient: endJob, ievt = " << ievt_ << endl;
 
+  if (summary_client_)         summary_client_->endJob();
   if( dataformat_client_ )     dataformat_client_->endJob();
   if( digi_client_ )           digi_client_->endJob();
   if( rechit_client_ )         rechit_client_->endJob();
@@ -342,6 +357,7 @@ void HcalMonitorClient::endRun(const Run& r, const EventSetup& c) {
     else report(false);
   }
 
+  if( summary_client_)      summary_client_->endRun();
   if( hot_client_ )         hot_client_->endRun();
   if( dead_client_ )        dead_client_->endRun(); 
   if( dataformat_client_ )  dataformat_client_->endRun();
@@ -401,10 +417,18 @@ void HcalMonitorClient::analyze(const Event& e, const edm::EventSetup& eventSetu
   ilumisec_ = e.luminosityBlock();
   ievent_   = e.id().event();
   itime_    = e.time().value();
+  mytime_   = (e.time().value())>>32;
+
+  if (minlumisec_==0)
+    minlumisec_=ilumisec_;
+  minlumisec_=min(minlumisec_,ilumisec_);
+  maxlumisec_=max(maxlumisec_,ilumisec_);
 
   if (debug_) cout << "HcalMonitorClient: evts: "<< ievt_ << ", run: " << irun_ << ", LS: " << ilumisec_ << ", evt: " << ievent_ << ", time: " << itime_ << endl; 
 
   ievt_++; //I think we want our web pages, etc. to display this counter (the number of events used in the task) rather than nevt_ (the number of times the MonitorClient analyze function below is called) -- Jeff, 1/22/08
+
+  if( summary_client_ )    summary_client_->incrementCounters(); 	// all this does is increment a counter
   if ( runningStandalone_ || prescale()) return;
 
   else analyze();
@@ -422,6 +446,7 @@ void HcalMonitorClient::analyze(){
   mui_->doMonitoring();
   dbe_->runQTests();
 
+  // summary_client_ analyze performed separately, at end of run before htmlOutput of summary generated
   if( dataformat_client_ ) dataformat_client_->analyze(); 	
   if( digi_client_ )       digi_client_->analyze(); 
   if( rechit_client_ )     rechit_client_->analyze(); 
@@ -480,7 +505,6 @@ void HcalMonitorClient::report(bool doUpdate) {
 
   //create html output if specified...
   if( baseHtmlDir_.size() != 0 && ievt_>0) htmlOutput();
-
   return;
 }
 
@@ -650,6 +674,21 @@ void HcalMonitorClient::htmlOutput(void){
     htmlFile << "</tr></table>" << endl;
   }
   
+  if( summary_client_) {
+    summary_client_->analyze();  // Do analyze just before making html (which relies on analyze results)
+    htmlName = "HcalSummaryCellClient.html";
+    // summary client html output function called separately within HcalSummaryClient, after analyze function
+    summary_client_->htmlOutput(irun_, mytime_, minlumisec_, maxlumisec_, htmlDir, htmlName);
+    htmlFile << "<table border=0 WIDTH=\"50%\"><tr>" << endl;
+    htmlFile << "<td WIDTH=\"35%\"><a href=\"" << htmlName << "\">Summary Monitor</a></td>" << endl;
+    //if(summary_client_->hasErrors()) htmlFile << "<td bgcolor=red align=center>This monitor task has errors.</td>" << endl;
+    //else if(summary_client_->hasWarnings()) htmlFile << "<td bgcolor=yellow align=center>This monitor task has warnings.</td>" << endl;
+    //else if(summary_client_->hasOther()) htmlFile << "<td bgcolor=aqua align=center>This monitor task has messages.</td>" << endl;
+    //else
+      htmlFile << "<td bgcolor=lime align=center>This monitor task has no problems</td>" << endl;
+    htmlFile << "</tr></table>" << endl;
+  }
+
   htmlFile << "</ul>" << endl;
 
 

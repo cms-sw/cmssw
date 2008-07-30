@@ -34,6 +34,7 @@ process Alignment =
       { string record = "TrackerSurveyErrorRcd" string tag = "errorTag" }
     }
   }
+  replace survey.catalog = "file:/afs/cern.ch/user/n/ntran/public/HIPAlignment/measurementSurvey_StripsIdeal.xml"	
   
   replace AlignmentProducer.useSurvey = true
 

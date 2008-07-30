@@ -4,8 +4,8 @@
 /*
  * \file EBBeamHodoTask.h
  *
- * $Date: 2007/11/27 10:43:22 $
- * $Revision: 1.16 $
+ * $Date: 2008/04/08 15:32:08 $
+ * $Revision: 1.19 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -39,6 +39,15 @@ void beginJob(const edm::EventSetup& c);
 /// EndJob
 void endJob(void);
 
+/// BeginRun
+void beginRun(const edm::Run & r, const edm::EventSetup & c);
+
+/// EndRun
+void endRun(const edm::Run & r, const edm::EventSetup & c);
+
+/// Reset
+void reset(void);
+
 /// Setup
 void setup(void);
 
@@ -49,9 +58,13 @@ private:
 
 int ievt_;
 
-DQMStore* dbe_;
+DQMStore* dqmStore_;
+
+std::string prefixME_;
 
 bool enableCleanup_;
+
+bool mergeRuns_;
 
 edm::InputTag EcalTBEventHeader_;
 edm::InputTag EcalRawDataCollection_;

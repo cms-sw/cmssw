@@ -52,14 +52,22 @@ namespace pat {
   class HistoMuon : public HistoGroup<Muon> {
 
   public:
-    HistoMuon(std::string dir = "muon",
+    HistoMuon(std::string dir = "muon", std::string group = "Muon",
+	      std::string pre ="mu",
 		   double pt1=0, double pt2=200, double m1=0, double m2=200 );
     virtual ~HistoMuon() { } ;
 
-    virtual void fill( const Muon *muon, uint iPart = 0 );
-    virtual void fill( const Muon &muon, uint iPart = 0 ) { fill(&muon, iPart); }
+    // fill a plain ol' muon:
+    virtual void fill( const Muon *muon, uint iPart = 1, double weight = 1.0 );
+    virtual void fill( const Muon &muon, uint iPart = 1, double weight = 1.0 ) { fill(&muon, iPart,weight); }
 
-    virtual void fillCollection( const std::vector<Muon> & coll );
+    // fill a muon that is a shallow clone, and take kinematics from 
+    // shallow clone but detector plots from the muon itself
+    virtual void fill( const reco::ShallowClonePtrCandidate *muon, uint iPart = 1, double weight = 1.0 );
+    virtual void fill( const reco::ShallowClonePtrCandidate &muon, uint iPart = 1, double weight = 1.0 )
+    { fill(&muon, iPart,weight); }
+
+    virtual void fillCollection( const std::vector<Muon> & coll, double weight = 1.0 );
 
     // Clear ntuple cache
     void clearVec();

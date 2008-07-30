@@ -24,11 +24,7 @@ public:
   
      /param[in] pset with the consfiguration values
   */
-  TrackOrigin(const edm::ParameterSet & iConfig) : TrackHistory(iConfig) 
-  {
-    // Set the history depth upto status 1 particles
-    depth(-1);
-  }
+  TrackOrigin(const edm::ParameterSet & iConfig) : TrackHistory(iConfig) {}
   
   //! Returns a pointer to most primitive status 1 or 2 particle.
   const HepMC::GenParticle * particle() const

@@ -15,7 +15,7 @@ int main(){
   try{
     cond::DBSession* session=new cond::DBSession;
     session->configuration().setMessageLevel(cond::Error);
-    cond::Connection myconnection("sqlite_file:test.db",0);
+    cond::Connection myconnection("oracle://cms_orcoff_prep/CMS_COND_PRESH",0);
     session->open();
     myconnection.connect(session);
     cond::PoolTransaction& pooldb=myconnection.poolTransaction();

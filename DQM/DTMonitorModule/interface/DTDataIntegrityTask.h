@@ -5,8 +5,8 @@
  *
  * Class for DT Data Integrity.
  *  
- *  $Date: 2008/04/03 09:33:01 $
- *  $Revision: 1.16 $
+ *  $Date: 2008/05/31 15:26:10 $
+ *  $Revision: 1.20 $
  *
  * \author Marco Zanetti  - INFN Padova
  *
@@ -49,19 +49,22 @@ public:
   void processROS25(DTROS25Data & data, int dduID, int ros);
   void processFED(DTDDUData & dduData, const std::vector<DTROS25Data> & rosData, int dduID);
 
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
-
+  bool eventHasErrors() const;
   void postEndJob();
-  std::multimap<std::string, std::string> names;
-  std::multimap<std::string, std::string>::iterator it;
   
 private:
+
+  std::multimap<std::string, std::string> names;
+  std::multimap<std::string, std::string>::iterator it;
+
 
   bool debug;
   edm::ParameterSet parameters;
 
   //If you want info VS time histos
   bool doTimeHisto;
+  // Plot quantities about SC
+  bool getSCInfo;
 
   // back-end interface
   DQMStore * dbe;
@@ -72,7 +75,7 @@ private:
   // <histoType, <index , histo> >    
   std::map<std::string, std::map<int, MonitorElement*> > dduHistos;
   // <histoType, histo> >    
-  std::map<std::string, MonitorElement*> rosSHistos;
+  std::map<std::string, std::map<int, MonitorElement*> > rosSHistos;
   // <histoType, <index , histo> >    
   std::map<std::string, std::map<int, MonitorElement*> > rosHistos;
   // <histoType, <tdcID, histo> >   
@@ -82,7 +85,7 @@ private:
   int neventsROS25;
   float trigger_counter;
   std::string outputFile;
-  double rob_max[25],frequency;
+  double rob_max[25];
 
   
   //Event counter for the graphs VS time
@@ -97,6 +100,10 @@ private:
   std::list<std::pair<int,int> > rosVSTime;
   std::list<std::pair<int,int*> > fifoVSTime;
  
+  // event error flag: true when errors are detected
+  // can be used for the selection of the debug stream
+  bool eventErrorFlag;
+
 };
 
 

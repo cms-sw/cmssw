@@ -2,7 +2,7 @@
  *  An input source for DQM consumers run in cmsRun that connect to
  *  the StorageManager or SMProxyServer to get DQM data.
  *
- *  $Id: DQMHttpSource.cc,v 1.10 2008/02/11 15:10:19 biery Exp $
+ *  $Id: DQMHttpSource.cc,v 1.11 2008/03/04 17:12:38 hcheung Exp $
  */
 
 #include "EventFilter/StorageManager/src/DQMHttpSource.h"
@@ -10,6 +10,7 @@
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/UnixSignalHandlers.h"
 
 #include "IOPool/Streamer/interface/OtherMessage.h"
 #include "IOPool/Streamer/interface/ConsRegMessage.h"
@@ -70,6 +71,11 @@ namespace edm
     registerWithDQMEventServer();
     // when running Async it seems bei_ is not NULL at the start after default ctor
     bei_ = NULL;
+
+    // 30-May-2008, KAB - fake the run number and lumi block until we find
+    // a reasonable way to set them
+    setRunNumber(999);
+    setLuminosityBlockNumber_t(1);
   }
 
 
@@ -84,7 +90,7 @@ namespace edm
 
     bool gotEvent = false;
     std::auto_ptr<Event> result(0);
-    while (!gotEvent)
+    while ((!gotEvent) && (!edm::shutdown_flag))
     { 
        result = getOneDQMEvent();
        if(result.get() != NULL) gotEvent = true;
@@ -178,7 +184,10 @@ namespace edm
         // sleep for the standard request interval
         usleep(static_cast<int>(1000000 * minDQMEventRequestInterval_));
       }
-    } while (data.d_.length() == 0);
+    } while (data.d_.length() == 0 && !edm::shutdown_flag);
+    if (edm::shutdown_flag) {
+      return std::auto_ptr<edm::Event>();
+    }
 
     int len = data.d_.length();
     FDEBUG(9) << "DQMHttpSource received len = " << len << std::endl;
@@ -188,6 +197,7 @@ namespace edm
     OtherMessageView msgView(&buf_[0]);
 
     RunNumber_t iRun = 0;
+    LuminosityBlockNumber_t iLumi = 0;
     EventNumber_t iEvent = 0;
     TimeValue_t tStamp = 1;
     Timestamp timeStamp (tStamp);
@@ -206,6 +216,7 @@ namespace edm
       ++events_read_;
       DQMEventMsgView dqmEventView(&buf_[0]);
       iRun = dqmEventView.runNumber();
+      iLumi = dqmEventView.lumiSection();
       iEvent = dqmEventView.eventNumberAtUpdate();
       timeStamp = dqmEventView.timeStamp();
 
@@ -255,6 +266,7 @@ namespace edm
         std::string subFolderName = toIter->first;
         std::vector<TObject *> toList = toIter->second;
         bei_->makeDirectory(subFolderName);  // fetch or create
+        bei_->setCurrentFolder(subFolderName);
         for (int tdx = 0; tdx < (int) toList.size(); tdx++) {
           TObject *toPtr = toList[tdx];
           std::string cls = toPtr->IsA()->GetName();
@@ -275,18 +287,34 @@ namespace edm
       // change map to use std::vector< boost::shared_ptr<TObject> >
       DQMEvent::TObjectTable::iterator ti(toTablePtr->begin()), te(toTablePtr->end());
       for ( ; ti != te; ++ti) {
+        std::string subFolderName = ti->first;
         std::vector<TObject *>::iterator vi(ti->second.begin()), ve(ti->second.end());
-        for ( ; vi != ve; ++vi) delete *vi;
+        for ( ; vi != ve; ++vi) {
+          std::string histoName = (*vi)->GetName();
+          std::string fullName = subFolderName + "/" + histoName;
+          std::vector<std::string>::iterator entryFound;
+          entryFound = std::find(firstHistoExtractDone_.begin(),
+                                 firstHistoExtractDone_.end(),
+                                 fullName);
+          // 30-May-2008, KAB - skip over deleting the memory of the first
+          // ME passed to bei_->extract() until we check into having that
+          // code copy the ME instead of using it directly.
+          if (entryFound == firstHistoExtractDone_.end()) {
+            firstHistoExtractDone_.push_back(fullName);
+          }
+          else {
+            delete *vi;
+          }
+        }
       }
     }
 
-    setRunNumber(iRun);
     EventID eventId(iRun,iEvent);
 
     // make a fake event containing no data but the evId and runId from DQMEvent
     // and the time stamp from the event at update
     std::auto_ptr<Event> e = makeEvent(eventId,timeStamp);
-  
+
     return e;
   }
 
@@ -377,7 +405,8 @@ namespace edm
         // sleep for desired amount of time
         sleep(headerRetryInterval_);
       }
-    } while (registrationStatus == ConsRegResponseBuilder::ES_NOT_READY);
+    } while (registrationStatus == ConsRegResponseBuilder::ES_NOT_READY &&
+             !edm::shutdown_flag);
 
     FDEBUG(9) << "Consumer ID = " << DQMconsumerId_ << endl;
   }

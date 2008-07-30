@@ -10,8 +10,8 @@
 
 /** \class Hcaldataformatmonitor
  *
- * $Date: 2008/03/01 00:39:58 $
- * $Revision: 1.21 $
+ * $Date: 2008/04/22 15:48:08 $
+ * $Revision: 1.24 $
  * \author W. Fisher - FNAL
  */
 class HcalDataFormatMonitor: public HcalBaseMonitor {
@@ -59,22 +59,28 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
    MonitorElement* meEvtNumberSynch_;
    MonitorElement* meBCNSynch_;
    MonitorElement* meBCN_;
+   MonitorElement* medccBCN_;
 
+   MonitorElement* meInvHTRData_;
    MonitorElement* meBCNCheck_; // htr BCN compared to dcc BCN
    MonitorElement* meEvtNCheck_; // htr Evt # compared to dcc Evt #
    MonitorElement* meFibBCN_;
 
    MonitorElement* meFWVersion_;
+   MonitorElement* meEvFragSize_;
+   MonitorElement* meEvFragSize2_;
+
    MonitorElement* meErrWdCrate_;  //HTR error bits by crate
 
    // The following MEs map specific conditons from the EventFragment headers as specified in
    //   http://cmsdoc.cern.ch/cms/HCAL/document/CountingHouse/DCC/DCC_1Jul06.pdf
 
-   MonitorElement* meFEDId_;               //All of them, no matter how crazy.
+   MonitorElement* meFEDId_;               //All of HCAL, as a stupidcheck.
    MonitorElement* meCDFErrorFound_;       //Summary histo of Common Data Format violations by FED ID
    MonitorElement* meDCCEventFormatError_; //Summary histo of DCC Event Format violations by FED ID 
    //Summary histo for HTR Status bits, DCC Error&Warn Counters Flagged Nonzero
    MonitorElement* meDCCErrorAndWarnConditions_;  
+   MonitorElement* meDCCStatusFlags_;
    MonitorElement* meDCCSummariesOfHTRs_;  //Summary histo of HTR Summaries from DCC
 
    // The following MEs map specific conditons from the HTR/DCC headers as specified in

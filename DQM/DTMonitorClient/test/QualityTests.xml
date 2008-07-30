@@ -6,6 +6,20 @@
 	<PARAM name="ymax">10</PARAM>
 	<PARAM name="error">0.30</PARAM>
 	<PARAM name="warning">0.70</PARAM>
+	<PARAM name="useEmptyBins">1</PARAM>
+</QTEST>
+
+
+<QTEST name="ResidualsDistributionGaussianTest">
+        <TYPE>MeanWithinExpected</TYPE>
+        <PARAM name="error">0.05</PARAM>
+        <PARAM name="warning">0.5</PARAM>
+        <PARAM name="mean">0.0</PARAM>
+        <PARAM name="useRMS">0</PARAM>
+        <PARAM name="useSigma">0</PARAM>
+        <PARAM name="useRange">1</PARAM>
+        <PARAM name="xmin">-0.001</PARAM>
+        <PARAM name="xmax">0.001</PARAM>
 </QTEST>
 
 
@@ -15,6 +29,7 @@
 	<PARAM name="ymax">0.015</PARAM>
 	<PARAM name="error">0.30</PARAM>
 	<PARAM name="warning">0.70</PARAM>
+	<PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 
@@ -24,6 +39,7 @@
 	<PARAM name="ymax">0.07</PARAM>
 	<PARAM name="error">0.30</PARAM>
 	<PARAM name="warning">0.70</PARAM>
+	<PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 
@@ -33,6 +49,7 @@
 	<PARAM name="ymax">0</PARAM>
 	<PARAM name="error">0.30</PARAM>
 	<PARAM name="warning">0.70</PARAM>
+	<PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 
@@ -42,6 +59,7 @@
 	<PARAM name="ymax">1.00</PARAM>
 	<PARAM name="error">0.30</PARAM>
 	<PARAM name="warning">0.70</PARAM>
+	<PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 
@@ -51,6 +69,7 @@
 	<PARAM name="ymax">1.00</PARAM>
 	<PARAM name="error">0.30</PARAM>
 	<PARAM name="warning">0.70</PARAM>
+	<PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 
@@ -68,6 +87,7 @@
 	<PARAM name="ymax">1.00</PARAM>
 	<PARAM name="error">0.03</PARAM>
 	<PARAM name="warning">0.70</PARAM>
+	<PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 
@@ -77,6 +97,7 @@
 	<PARAM name="ymax">1.00</PARAM>
 	<PARAM name="error">0.30</PARAM>
 	<PARAM name="warning">0.70</PARAM>
+	<PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 
@@ -86,69 +107,77 @@
 	<PARAM name="ymax">0.02</PARAM>
 	<PARAM name="error">0.30</PARAM>
 	<PARAM name="warning">0.70</PARAM>
+	<PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 
-<QTEST name="SectorTrigEffPhiInRange">
-	<TYPE>ContentsYRange</TYPE>	
-	<PARAM name="ymin">0.5</PARAM>
-	<PARAM name="ymax">1.00</PARAM>
-	<PARAM name="error">0.95</PARAM>
-	<PARAM name="warning">0.95</PARAM>
-</QTEST>
-
-
-<QTEST name="SectorCorrFractionInRange">
+<QTEST name="TrigCorrFracInRange">
 	<TYPE>ContentsYRange</TYPE>	
 	<PARAM name="ymin">0.50</PARAM>
 	<PARAM name="ymax">1.00</PARAM>
 	<PARAM name="error">0.80</PARAM>
 	<PARAM name="warning">0.90</PARAM>
+	<PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 
-<QTEST name="SectorTrigPhiSlopeInRange">
+<QTEST name="Trig2ndFracInRange">
 	<TYPE>ContentsYRange</TYPE>	
-	<PARAM name="ymin">0.80</PARAM>
-	<PARAM name="ymax">1.20</PARAM>
-	<PARAM name="error">0.80</PARAM>
-	<PARAM name="warning">0.90</PARAM>
+	<PARAM name="ymin">0.0</PARAM>
+	<PARAM name="ymax">0.25</PARAM>
+	<PARAM name="error">0.90</PARAM>
+	<PARAM name="warning">0.95</PARAM>
+	<PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 
-<QTEST name="SectorTrigPhibSlopeInRange">
-	<TYPE>ContentsYRange</TYPE>	
-	<PARAM name="ymin">0.80</PARAM>
-	<PARAM name="ymax">1.20</PARAM>
-	<PARAM name="error">0.55</PARAM>
-	<PARAM name="warning">0.70</PARAM>
-</QTEST>
-
-
-<QTEST name="SectorTrigPhiInterceptInRange">
-	<TYPE>ContentsYRange</TYPE>	
-	<PARAM name="ymin">-25</PARAM>
-	<PARAM name="ymax">25</PARAM>
-	<PARAM name="error">0.80</PARAM>
-	<PARAM name="warning">0.90</PARAM>
-</QTEST>
-
-
-<QTEST name="SectorTrigPhibInterceptInRange">
-	<TYPE>ContentsYRange</TYPE>	
-	<PARAM name="ymin">-25</PARAM>
-	<PARAM name="ymax">25</PARAM>
-	<PARAM name="error">0.80</PARAM>
-	<PARAM name="warning">0.90</PARAM>
-</QTEST>
-
-
-<QTEST name="SectorTrigEffThetaInRange">
+<QTEST name="TrigPhiEfficiencyInRange">
 	<TYPE>ContentsYRange</TYPE>	
 	<PARAM name="ymin">0.5</PARAM>
 	<PARAM name="ymax">1.00</PARAM>
 	<PARAM name="error">0.95</PARAM>
 	<PARAM name="warning">0.95</PARAM>
+	<PARAM name="useEmptyBins">1</PARAM>
+</QTEST>
+
+
+<QTEST name="TrigPhiSlopeInRange">
+	<TYPE>ContentsYRange</TYPE>	
+	<PARAM name="ymin">0.80</PARAM>
+	<PARAM name="ymax">1.20</PARAM>
+	<PARAM name="error">0.80</PARAM>
+	<PARAM name="warning">0.90</PARAM>
+	<PARAM name="useEmptyBins">1</PARAM>
+</QTEST>
+
+
+<QTEST name="TrigPhibSlopeInRange">
+	<TYPE>ContentsYRange</TYPE>	
+	<PARAM name="ymin">0.80</PARAM>
+	<PARAM name="ymax">1.20</PARAM>
+	<PARAM name="error">0.55</PARAM>
+	<PARAM name="warning">0.70</PARAM>
+	<PARAM name="useEmptyBins">1</PARAM>
+</QTEST>
+
+
+<QTEST name="TrigPhiInterceptInRange">
+	<TYPE>ContentsYRange</TYPE>	
+	<PARAM name="ymin">-15</PARAM>
+	<PARAM name="ymax">15</PARAM>
+	<PARAM name="error">0.80</PARAM>
+	<PARAM name="warning">0.90</PARAM>
+	<PARAM name="useEmptyBins">1</PARAM>
+</QTEST>
+
+
+<QTEST name="TrigPhibInterceptInRange">
+	<TYPE>ContentsYRange</TYPE>	
+	<PARAM name="ymin">-15</PARAM>
+	<PARAM name="ymax">15</PARAM>
+	<PARAM name="error">0.80</PARAM>
+	<PARAM name="warning">0.90</PARAM>
+	<PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 
@@ -156,7 +185,7 @@
 	<TestName activate="true">tTrigOffSet</TestName>
 </LINK>
 
-<LINK name="*hResDist_W*">
+<LINK name="*hResDist_*">
         <TestName activate="true">ResidualsDistributionGaussianTest</TestName>
 </LINK>
 
@@ -196,32 +225,32 @@
 	<TestName activate="true">NoiseMeanInRange</TestName>
 </LINK>
 
-<LINK name="*TrigEffSec_Phi_*">
-	<TestName activate="true">SectorTrigEffPhiInRange</TestName>
+<LINK name="*CorrFractionPhi_W*_Sec*">
+	<TestName activate="true">TrigCorrFracInRange</TestName>
 </LINK>
 
-<LINK name="*TrigEffSec_Theta_*">
-	<TestName activate="true">SectorTrigEffThetaInRange</TestName>
+<LINK name="*2ndFractionPhi_W*_Sec*">
+	<TestName activate="true">Trig2ndFracInRange</TestName>
 </LINK>
 
-<LINK name="*CorrFractionSec_Phi_*">
-	<TestName activate="true">SectorCorrFractionInRange</TestName>
+<LINK name="*TrigEffPhi_W*_Sec*">
+	<TestName activate="true">TrigPhiEfficiencyInRange</TestName>
 </LINK>
 
-<LINK name="*PhiTkvsTrigSlope*">
-	<TestName activate="true">SectorTrigPhiSlopeInRange</TestName>
+<LINK name="*PhiTkvsTrigSlope_W*_Sec*">
+	<TestName activate="true">TrigPhiSlopeInRange</TestName>
 </LINK>
 
-<LINK name="*PhibTkvsTrigSlope*">
-	<TestName activate="true">SectorTrigPhibSlopeInRange</TestName>
+<LINK name="*PhibTkvsTrigSlope_W*_Sec*">
+	<TestName activate="true">TrigPhibSlopeInRange</TestName>
 </LINK>
 
-<LINK name="*PhiTkvsTrigIntercept*">
-	<TestName activate="true">SectorTrigPhiInterceptInRange</TestName>
+<LINK name="*PhiTkvsTrigIntercept_W*_Sec*">
+	<TestName activate="true">TrigPhiInterceptInRange</TestName>
 </LINK>
 
-<LINK name="*PhibTkvsTrigIntercept*">
-	<TestName activate="true">SectorTrigPhibInterceptInRange</TestName>
+<LINK name="*PhibTkvsTrigIntercept_W*_Sec*">
+	<TestName activate="true">TrigPhibInterceptInRange</TestName>
 </LINK>
 
 

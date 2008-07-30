@@ -2,8 +2,6 @@
 #define EventFilter_SiStripRawToDigi_SiStripRawToClusters_H
 
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripRegionCabling.h"
-#include "CalibTracker/Records/interface/SiStripRegionCablingRcd.h"
 #include "DataFormats/SiStripCommon/interface/SiStripLazyGetter.h"
 #include "DataFormats/SiStripCommon/interface/SiStripRefGetter.h"
 #include "EventFilter/SiStripRawToDigi/interface/SiStripRawToClustersLazyUnpacker.h"
@@ -12,6 +10,7 @@
 #include "boost/bind.hpp"
 
 class SiStripClusterizerFactory;
+class SiStripRegionCabling;
 
 /**
    @file EventFilter/SiStripRawToDigi/interface/SiStripRawToClusters.h
@@ -31,20 +30,22 @@ class SiStripRawToClusters : public edm::EDProducer {
   ~SiStripRawToClusters();
   
   virtual void beginJob( const edm::EventSetup& );
-  virtual void endJob();
+  virtual void beginRun( edm::Run&, const edm::EventSetup& );
   virtual void produce( edm::Event&, const edm::EventSetup& );
   
  private: 
 
-  /** Raw data labels */
+  void updateCabling( const edm::EventSetup& setup );
+  
   std::string productLabel_;
   std::string productInstance_;
 
-  /** Cabling */
-  edm::ESHandle<SiStripRegionCabling> cabling_;
+  const SiStripRegionCabling* cabling_;
+  
+  uint32_t cacheId_;
 
-  /** Clusterizer Factory */
   SiStripClusterizerFactory* clusterizer_;
+
 };
 
 #endif //  EventFilter_SiStripRawToDigi_SiStripRawToClusters_H

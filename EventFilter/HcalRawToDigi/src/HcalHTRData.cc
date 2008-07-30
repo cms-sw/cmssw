@@ -1,7 +1,7 @@
 //#include "Utilities/Configuration/interface/Architecture.h"
 /*  
- *  $Date: 2007/02/19 23:38:03 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/04/22 17:17:25 $
+ *  $Revision: 1.8 $
  *  \author J. Mans -- UMD
  */
 #ifndef HTBDAQ_DATA_STANDALONE
@@ -72,12 +72,16 @@ bool HcalHTRData::check() const {
     // length checks
     //  minimum length
     if (m_rawLength<8+4) return false;
-    //  matches wordcount
-    if (m_rawLength!=m_rawConst[m_rawLength-3]) {
-      if (isHistogramEvent() && m_rawConst[m_rawLength-3]==786) {
-	// known bug!
-      } else
-	return false;
+    if (m_formatVersion<=3) {
+      //  matches wordcount
+      if (m_rawLength!=m_rawConst[m_rawLength-3]) {
+	if (isHistogramEvent() && m_rawConst[m_rawLength-3]==786) {
+	  // known bug!
+	} else
+	  return false;
+      }
+    } else { 
+      // eventually add CRC check
     }
     // empty event check (redundant...)
     if (m_rawConst[2]&0x4) return false;
@@ -318,6 +322,9 @@ unsigned int HcalHTRData::getPipelineLength() const {
 }
 unsigned int HcalHTRData::getFirmwareRevision() const {
   return (m_formatVersion==-1)?(0):((m_rawConst[6]&0x1FFF)+((m_rawConst[6]&0xE000)<<3));
+}
+int HcalHTRData::getFirmwareFlavor() const {
+  return (m_formatVersion<2)?(-1):((m_rawConst[7]>>8)&0xFF);
 }
 
 void HcalHTRData::getHistogramFibers(int& a, int& b) const {

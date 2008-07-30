@@ -8,8 +8,8 @@
  *  Since this class requires external specification of the length of the data, it is implemented
  *  as an interpreter, rather than a cast-able header class.
  *
- *  $Date: 2007/08/27 21:24:03 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/04/22 17:17:24 $
+ *  $Revision: 1.10 $
  *  \author J. Mans - UMD
  */
 
@@ -123,6 +123,8 @@ class HcalHTRData {
   unsigned int getPipelineLength() const;
   /** \brief Get the HTR firmware version */
   unsigned int getFirmwareRevision() const;
+  /** \brief Get the HTR firmware flavor */
+  int getFirmwareFlavor() const;
   /** \brief Get the errors word */
   inline unsigned int getErrorsWord() const { 
     return m_rawConst[2]&0xFFFF; }
@@ -206,7 +208,7 @@ class HcalHTRData {
       in histogram mode!) */
   bool wasHistogramError(int ifiber) const;
   
- private:
+protected:
   void determineSectionLengths(int& tpWords, int& daqWords, int&
 			       headerWords, int& trailerWords) const;
   void determineStaticLengths(int& headerWords, int& trailerWords) const;

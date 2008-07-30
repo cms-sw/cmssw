@@ -101,6 +101,8 @@ public:
   };
   std::vector<BadStripBlock> &getBadStripBlocks() { return badStripBlocks_; }
 
+  void setMaskBad128StripBlocks(bool maskThem) { maskBad128StripBlocks_ = maskThem; }
+
 private:
 
   const StripGeomDetUnit*               theStripGDU;
@@ -112,7 +114,7 @@ private:
 
   bool active_;
   bool bad128Strip_[6];
-  bool hasAny128StripBad_;
+  bool hasAny128StripBad_, maskBad128StripBlocks_;
   std::vector<BadStripBlock> badStripBlocks_;  
   int totalStrips_;
 
@@ -122,6 +124,12 @@ private:
   std::vector<SiStripCluster>::const_iterator beginCluster;
   std::vector<SiStripCluster>::const_iterator endCluster;
   // regional unpacking ---
+
+  inline bool isMasked(const SiStripCluster &cluster) const {
+    return maskBad128StripBlocks_ && 
+            ( bad128Strip_[cluster.firstStrip() >> 7] ||
+            bad128Strip_[(cluster.firstStrip()+cluster.amplitudes().size()) >> 7] );
+  }
 };
 
 #endif

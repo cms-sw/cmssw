@@ -169,19 +169,23 @@ void make(TDirectory & out, TObject * o) {
     }
   } else if((th1f = dynamic_cast<TH1F*>(o)) != 0) {
     TH1F *h = (TH1F*) th1f->Clone();
-    h->Reset();   
+    h->Reset();
+    h->Sumw2();
     h->SetDirectory(&out);
   } else if((th1d = dynamic_cast<TH1D*>(o)) != 0) {
     TH1D *h = (TH1D*) th1d->Clone();
     h->Reset();
+    h->Sumw2();
     h->SetDirectory(&out);
   } else if((th2f = dynamic_cast<TH2F*>(o)) != 0) {
     TH2F *h = (TH2F*) th2f->Clone();
     h->Reset();   
+    h->Sumw2();
     h->SetDirectory(&out);
   } else if((th2d = dynamic_cast<TH2D*>(o)) != 0) {
     TH2D *h = (TH2D*) th2d->Clone();
     h->Reset();   
+    h->Sumw2();
     h->SetDirectory(&out);
   }
 }

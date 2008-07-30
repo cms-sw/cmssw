@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/02/15 18:14:33 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/01/28 13:44:36 $
+ *  $Revision: 1.4 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -54,7 +54,6 @@ DTCCBConfigHandler::DTCCBConfigHandler( const edm::ParameterSet& ps ):
  offlineAuthentication( ps.getParameter<edm::ParameterSet>( "DBParameters" )
                           .getUntrackedParameter<std::string> (
                         "authenticationPath" ) ),
- offlineConnect(        ps.getParameter<std::string> ( "offlineDB" ) ),
 // catalog(               ps.getParameter<std::string> ( "catalog" ) ),
  listToken(             ps.getParameter<std::string> ( "token" ) ) {
   std::cout <<  onlineAuthentication << " "

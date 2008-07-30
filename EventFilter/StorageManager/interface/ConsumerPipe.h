@@ -23,7 +23,7 @@
  *   isIdle() will return false since the consumer has moved from the idle
  *   to the disconnected state.)
  *
- * $Id: ConsumerPipe.h,v 1.11 2008/02/11 15:06:22 biery Exp $
+ * $Id: ConsumerPipe.h,v 1.12 2008/03/03 20:09:36 biery Exp $
  */
 
 #include <string>
@@ -33,6 +33,9 @@
 #include "FWCore/Framework/interface/EventSelector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "EventFilter/StorageManager/interface/SMCurlInterface.h"
+#include "EventFilter/StorageManager/interface/ForeverCounter.h"
+#include "EventFilter/StorageManager/interface/RollingIntervalCounter.h"
+#include "EventFilter/StorageManager/interface/RollingSampleCounter.h"
 #include "boost/shared_ptr.hpp"
 #include "boost/thread/mutex.hpp"
 #include "curl/curl.h"
@@ -46,21 +49,27 @@ namespace stor
   class ConsumerPipe
   {
   public:
+    enum STATS_TIME_FRAME { SHORT_TERM = 0, LONG_TERM = 1 };
+    enum STATS_SAMPLE_TYPE { QUEUED_EVENTS = 10, SERVED_EVENTS = 11,
+                             DESIRED_EVENTS = 12 };
+
     ConsumerPipe(std::string name, std::string priority,
                  int activeTimeout, int idleTimeout,
-                 Strings triggerSelection,
+                 Strings triggerSelection, double rateRequest,
                  std::string hostName, int queueSize);
 
     ~ConsumerPipe();
 
     uint32 getConsumerId() const;
     void initializeSelection(Strings const& fullTriggerList);
+    bool isActive() const;
     bool isIdle() const;
     bool isDisconnected() const;
-    bool isReadyForEvent() const;
+    bool isReadyForEvent(double currentTime = BaseCounter::getCurrentTime()) const;
     bool isProxyServer() const { return consumerIsProxyServer_; }
     bool hasRegistryWarning() const { return registryWarningWasReported_; }
     bool wantsEvent(EventMsgView const& eventView) const;
+    void wasConsidered(double currentTime = BaseCounter::getCurrentTime());
     void putEvent(boost::shared_ptr< std::vector<char> > bufPtr);
     boost::shared_ptr< std::vector<char> > getEvent();
     void setPushMode(bool mode) { pushMode_ = mode; }
@@ -76,7 +85,27 @@ namespace stor
     std::vector<char> getRegistryWarning() { return registryWarningMessage_; }
     void clearRegistryWarning() { registryWarningWasReported_ = false; }
 
+    long long getEventCount(STATS_TIME_FRAME timeFrame = SHORT_TERM,
+                            STATS_SAMPLE_TYPE sampleType = QUEUED_EVENTS,
+                            double currentTime = BaseCounter::getCurrentTime());
+    double getEventRate(STATS_TIME_FRAME timeFrame = SHORT_TERM,
+                        STATS_SAMPLE_TYPE sampleType = QUEUED_EVENTS,
+                        double currentTime = BaseCounter::getCurrentTime());
+    double getDataRate(STATS_TIME_FRAME timeFrame = SHORT_TERM,
+                       STATS_SAMPLE_TYPE sampleType = QUEUED_EVENTS,
+                       double currentTime = BaseCounter::getCurrentTime());
+    double getDuration(STATS_TIME_FRAME timeFrame = SHORT_TERM,
+                       STATS_SAMPLE_TYPE sampleType = QUEUED_EVENTS,
+                       double currentTime = BaseCounter::getCurrentTime());
+    double getAverageQueueSize(STATS_TIME_FRAME timeFrame = SHORT_TERM,
+                               STATS_SAMPLE_TYPE sampleType = QUEUED_EVENTS,
+                               double currentTime = BaseCounter::getCurrentTime());
+    Strings getTriggerSelection() const { return triggerSelection_; }
+    double getRateRequest() const { return rateRequest_; }
+
   private:
+
+    static const double MAX_ACCEPT_INTERVAL;
 
     CURL* han_;
     struct curl_slist *headers_;
@@ -86,6 +115,10 @@ namespace stor
     std::string consumerPriority_;
     int events_;
     Strings triggerSelection_;
+    double rateRequest_;
+    boost::shared_ptr<RollingSampleCounter> rateRequestCounter_;
+    double minTimeBetweenEvents_;
+    double lastConsideredEventTime_;
     std::string hostName_;
     bool consumerIsProxyServer_;
 
@@ -119,6 +152,19 @@ namespace stor
     // class data members used for creating unique consumer IDs
     static uint32 rootId_;
     static boost::mutex rootIdLock_;
+
+    // statistics
+    boost::shared_ptr<ForeverCounter> longTermDesiredCounter_;
+    boost::shared_ptr<RollingIntervalCounter> shortTermDesiredCounter_;
+    boost::shared_ptr<ForeverCounter> longTermQueuedCounter_;
+    boost::shared_ptr<RollingIntervalCounter> shortTermQueuedCounter_;
+    boost::shared_ptr<ForeverCounter> longTermServedCounter_;
+    boost::shared_ptr<RollingIntervalCounter> shortTermServedCounter_;
+
+    boost::shared_ptr<ForeverCounter> ltQueueSizeWhenDesiredCounter_;
+    boost::shared_ptr<RollingIntervalCounter> stQueueSizeWhenDesiredCounter_;
+    boost::shared_ptr<ForeverCounter> ltQueueSizeWhenQueuedCounter_;
+    boost::shared_ptr<RollingIntervalCounter> stQueueSizeWhenQueuedCounter_;
   };
 }
 

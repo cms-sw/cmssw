@@ -23,8 +23,6 @@ void testEcalTPGScale::analyze(const edm::Event& evt, const edm::EventSetup& evt
   using namespace std;
 
   EcalTPGScale ecalScale ;
-  ecalScale.setEventSetup(evtSetup) ;
-
   bool error(false) ;
   vector<DetId>::const_iterator it ;
 
@@ -35,13 +33,13 @@ void testEcalTPGScale::analyze(const edm::Event& evt, const edm::EventSetup& evt
   const EcalTrigTowerDetId towidEB = idEB.tower();
   int RCT_LUT_EB[256] ;
   for (uint ADC=0 ; ADC<256 ; ADC++) {
-    double gev = ecalScale.getTPGInGeV(ADC, towidEB) ;
-    uint tpgADC = ecalScale.getTPGInADC(gev, towidEB) ;
+    double gev = ecalScale.getTPGInGeV(evtSetup, ADC, towidEB) ;
+    uint tpgADC = ecalScale.getTPGInADC(evtSetup, gev, towidEB) ;
     if (tpgADC != ADC) {
       error = true ;
       cout<<" ERROR : with ADC = "<<ADC<<" getTPGInGeV = "<<gev<<" getTPGInADC = "<<tpgADC<<endl ;
     }
-    RCT_LUT_EB[ADC] = ecalScale.getLinearizedTPG(ADC, towidEB) ;
+    RCT_LUT_EB[ADC] = ecalScale.getLinearizedTPG(evtSetup, ADC, towidEB) ;
   }
 
   // EE
@@ -51,13 +49,13 @@ void testEcalTPGScale::analyze(const edm::Event& evt, const edm::EventSetup& evt
   const EcalTrigTowerDetId towidEE = (*eTTmap_).towerOf(idEE) ;
   int RCT_LUT_EE[256] ;
   for (uint ADC=0 ; ADC<256 ; ADC++) {
-    double gev = ecalScale.getTPGInGeV(ADC, towidEE) ;
-    uint tpgADC = ecalScale.getTPGInADC(gev, towidEE) ;
+    double gev = ecalScale.getTPGInGeV(evtSetup, ADC, towidEE) ;
+    uint tpgADC = ecalScale.getTPGInADC(evtSetup, gev, towidEE) ;
     if (tpgADC != ADC) {
       error = true ;
       cout<<" ERROR : with ADC = "<<ADC<<" getTPGInGeV = "<<gev<<" getTPGInADC = "<<tpgADC<<endl ;
     }
-    RCT_LUT_EE[ADC] = ecalScale.getLinearizedTPG(ADC, towidEE) ;
+    RCT_LUT_EE[ADC] = ecalScale.getLinearizedTPG(evtSetup, ADC, towidEE) ;
   }
 
 

@@ -39,7 +39,7 @@ class ESUnpackerCT {
   void word2CTS(const vector<Word64> & word);
   void word2Crepe(const vector<Word64> & word);
   void word2TLS(const vector<Word64> & word);
-  void word2digi(int fiber, const vector<Word16> & word, ESLocalRawDataCollection & kchips, ESDigiCollection & digis);
+  void word2digi(int kchip, const vector<Word16> & word, ESLocalRawDataCollection & kchips, ESDigiCollection & digis);
 
   void setRunNumber(int i) {run_number_ = i;};
   void setOrbitNumber(int i) {orbit_number_ = i;};

@@ -76,7 +76,7 @@ class TIDDetId : public SiStripDetId {
   
   /** Returns true if the module is in TID- (z<0 side) */
   bool isZMinusSide() const
-  { return (side()==0);}
+  { return (side()==1);}
   
   /** Returns true if the ring is mounted on the disk back (not facing impact point) */
   bool isBackRing() const

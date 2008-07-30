@@ -44,6 +44,7 @@ CSCDetId::CSCDetId( int iendcap, int istation, int iring, int ichamber,
   id_ |= init(iendcap, istation, iring, ichamber, ilayer);
 }
 
+
 int CSCDetId::triggerSector() const
 {
   // UPDATED TO OCT 2005 - LGRAY Feb 2006
@@ -95,15 +96,6 @@ int CSCDetId::triggerCscId() const
     }
   }
   return result;
-}
-
-unsigned short CSCDetId::iChamberType( unsigned short istation, unsigned short iring ) {
-  int i = 2 * istation + iring; // i=2S+R ok for S=2, 3, 4
-  if ( istation == 1 ) {
-    --i;                       // ring 1R -> i=1+R (2S+R-1=1+R for S=1)
-    if ( i > 4 ) i = 1;        // But ring 1A (R=4) -> i=1
-  }   
-  return i;
 }
 
 

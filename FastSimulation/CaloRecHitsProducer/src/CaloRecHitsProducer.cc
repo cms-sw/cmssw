@@ -16,7 +16,6 @@
 
 // Random engine
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
-#include <TRandom3.h>
 
 #include <iostream>
 
@@ -34,14 +33,7 @@ CaloRecHitsProducer::CaloRecHitsProducer(edm::ParameterSet const & p)
          "or remove the module that requires it";
   }
 
-  bool useTRandom = p.getParameter<bool>("UseTRandomEngine");
-  if ( !useTRandom ) { 
-    random = new RandomEngine(&(*rng));
-  } else {
-    TRandom3* anEngine = new TRandom3();
-    anEngine->SetSeed(rng->mySeed());
-    random = new RandomEngine(anEngine);
-  }
+  random = new RandomEngine(&(*rng));
 
   edm::ParameterSet RecHitsParameters = p.getParameter<edm::ParameterSet>("RecHitsFactory");
   edm::ParameterSet CalibParameters = p.getParameter<edm::ParameterSet>("ContFact"); 
@@ -84,7 +76,6 @@ CaloRecHitsProducer::~CaloRecHitsProducer()
   std::cout << " Destructor CaloRecHitsProducer " << std::endl;
 
   if ( random ) { 
-    if ( random->theRootEngine() ) delete random->theRootEngine();
     delete random;
   }
 

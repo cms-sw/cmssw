@@ -31,7 +31,9 @@ public:
   virtual LocalPoint localPosition() const {return theHitData.localPosition();}
   virtual LocalError localPositionError() const {return theHitData.localPositionError();}
 
-  virtual void getKfComponents( KfComponentsHolder & holder ) const { theHitData.getKfComponents(holder); }
+  virtual void getKfComponents( KfComponentsHolder & holder ) const {
+      HelpertRecHit2DLocalPos().getKfComponents(holder, theHitData, *det()); 
+  }
 
   virtual const TrackingRecHit * hit() const {return &theHitData;};
   

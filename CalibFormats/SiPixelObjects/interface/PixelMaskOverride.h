@@ -1,25 +1,21 @@
 #ifndef PixelMaskOverride_h
 #define PixelMaskOverride_h
-/**
-* \file CalibFormats/SiPixelObjects/interface/PixelMaskOverride.h
-* \brief This class implements..
-*
-*   A longer explanation will be placed here later
-*
-*/
+//
+// This class provide a base class for the
+// pixel mask data for the pixel FEC configuration
+// This is a pure interface (abstract class) that
+// needs to have an implementation.
+//
+// All applications should just use this 
+// interface and not care about the specific
+// implementation
+//
+//
 
 #include <string>
 #include "PixelROCMaskBits.h"
 
 namespace pos{
-/*!  \ingroup ConfigurationObjects "Configuration Objects"
-*    
-*  @{
-*
-*  \class PixelMaskOverride PixelMaskOverride.h
-*  \brief This is the documentation about PixelMaskOverride...
-*
-*/
   class PixelMaskOverride: public PixelMaskOverrideBase {
 
   public:
@@ -34,5 +30,4 @@ namespace pos{
 
   };
 }
-/* @} */
 #endif

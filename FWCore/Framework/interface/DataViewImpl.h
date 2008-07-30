@@ -81,12 +81,13 @@ edm::Ref<AppleCollection> ref(refApples, index);
 */
 /*----------------------------------------------------------------------
 
-$Id: DataViewImpl.h,v 1.36 2008/03/03 19:11:42 wmtan Exp $
+$Id: DataViewImpl.h,v 1.37 2008/03/31 21:13:27 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <cassert>
 #include <memory>
 #include <typeinfo>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -210,7 +211,7 @@ namespace edm {
     
   private:
 
-    typedef std::vector<ProductID>       ProductIDVec;
+    typedef std::set<ProductID>       ProductIDSet;
     typedef std::vector<std::pair<EDProduct*, ConstBranchDescription const *> >  ProductPtrVec;
     typedef std::vector<BasicHandle>  BasicHandleVec;
 
@@ -314,7 +315,7 @@ namespace edm {
     // which do not logically modify the DataViewImpl. gotProductIDs_ is
     // merely a cache reflecting what has been retreived from the
     // Principal class.
-    mutable ProductIDVec gotProductIDs_;
+    mutable ProductIDSet gotProductIDs_;
 
     // Each DataViewImpl must have an associated Principal, used as the
     // source of all 'gets' and the target of 'puts'.
@@ -451,7 +452,7 @@ namespace edm {
     BasicHandle bh = this->get_(oid);
     convert_handle(bh, result);  // throws on conversion error
     if(!bh.failedToGet()) {
-      gotProductIDs_.push_back(bh.id());
+      gotProductIDs_.insert(bh.id());
       return true;
     }
     return false;
@@ -466,7 +467,7 @@ namespace edm {
     BasicHandle bh = this->get_(TypeID(typeid(PROD)),sel);
     convert_handle(bh, result);  // throws on conversion error
     if(!bh.failedToGet()) {
-      gotProductIDs_.push_back(bh.id());
+      gotProductIDs_.insert(bh.id());
       return true;
     }
     return false;
@@ -493,7 +494,7 @@ namespace edm {
       BasicHandle bh = this->getByLabel_(TypeID(typeid(PROD)), tag.label(), tag.instance(),tag.process());
       convert_handle(bh, result);  // throws on conversion error
       if(!bh.failedToGet()) {
-        gotProductIDs_.push_back(bh.id());
+        gotProductIDs_.insert(bh.id());
         return true;
       }
     }
@@ -510,7 +511,7 @@ namespace edm {
     BasicHandle bh = this->getByLabel_(TypeID(typeid(PROD)), label, productInstanceName);
     convert_handle(bh, result);  // throws on conversion error
     if(!bh.failedToGet()) {
-      gotProductIDs_.push_back(bh.id());
+      gotProductIDs_.insert(bh.id());
       return true;
     }
     return false;
@@ -646,7 +647,7 @@ namespace edm {
     boost::shared_ptr<View<ELEMENT> > 
       newview(new View<ELEMENT>(pointersToElements, helpers));
     
-    gotProductIDs_.push_back(bh.id());
+    gotProductIDs_.insert(bh.id());
     gotViews_.push_back(newview);
     Handle<View<ELEMENT> > h(&*newview, bh.provenance());
     result.swap(h);
@@ -679,7 +680,7 @@ namespace edm {
     BasicHandleVec::const_iterator end = bhv.end();
 
     while (it != end) {
-      gotProductIDs_.push_back((*it).id());
+      gotProductIDs_.insert((*it).id());
       Handle<PROD> result;
       convert_handle(*it, result);  // throws on conversion error
       products.push_back(result);
@@ -696,7 +697,7 @@ namespace edm {
     BasicHandle bh = this->getByType_(TypeID(typeid(PROD)));
     convert_handle(bh, result);  // throws on conversion error
     if(!bh.failedToGet()) {
-      gotProductIDs_.push_back(bh.id());
+      gotProductIDs_.insert(bh.id());
       return true;
     }
     return false;
@@ -728,7 +729,7 @@ namespace edm {
     BasicHandleVec::const_iterator end = bhv.end();
 
     while (it != end) {
-      gotProductIDs_.push_back((*it).id());
+      gotProductIDs_.insert((*it).id());
       Handle<PROD> result;
       convert_handle(*it, result);  // throws on conversion error
       products.push_back(result);

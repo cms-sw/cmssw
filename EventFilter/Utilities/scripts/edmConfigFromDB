@@ -32,6 +32,8 @@ my $usage =
     "\t--noservices                (exclude all services)\n" .
     "\t--nooutput                  (exclude all output modules)\n" .
     "\t--nopaths                   (exclude all paths [+=referenced seqs&mods])\n" .
+    "\t--nosequences               (don't define sequences [+=referenced s&m])\n" .
+    "\t--nomodules                 (don't define modules)\n" .
     "\t--psets <pset1[,pset2]>     (include only specified global psets)\n" .
     "\t--psets <-pset1[,-pset2]>   (include all global psets but the specified)\n" .
     "\t--essources <ess1[,ess2]>   (include only specified essources)\n" .
@@ -44,6 +46,7 @@ my $usage =
     "\t--paths <-p1[,-p2]>         (include all paths but the specified)\n" .
     "\t--sequences <s1[,s2]>       (include sequences, referenced or not!)\n" .
     "\t--modules <p1[,p2]>         (include modules, referenced or not!)\n" .
+    "\t--blocks <m1::p1[,p2][,m2]> (generate parameter blocks\n" .
     "\t--logfile <filename>        (specify alternative to default /dev/null)\n" .
     "\n";
 
@@ -67,7 +70,9 @@ my %bool_options = ('--cff',1,
 		    '--noesmodules',1,
 		    '--noservices',1,
 		    '--nooutput',1,
-		    '--nopaths',1
+		    '--nopaths',1,
+		    '--nosequences',1,
+		    '--nomodules',1
 		    );
 my %options      = ('--format',1,
 		    '--input',1,
@@ -78,7 +83,8 @@ my %options      = ('--format',1,
 		    '--services',1,
 		    '--paths',1,
 		    '--sequences',1,
-		    '--modules',1
+		    '--modules',1,
+		    '--blocks',1
 		    );
 
 

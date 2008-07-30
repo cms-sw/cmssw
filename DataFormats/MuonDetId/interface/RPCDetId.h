@@ -5,9 +5,9 @@
  * 
  *  DetUnit identifier for RPCs
  *
- *  $Date: 2007/07/26 07:20:15 $
- *  \version $Id: RPCDetId.h,v 1.20 2007/07/26 07:20:15 innocent Exp $
- *  $Revision: 1.20 $
+ *  $Date: 2007/08/07 22:41:15 $
+ *  \version $Id: RPCDetId.h,v 1.21 2007/08/07 22:41:15 ratnik Exp $
+ *  $Revision: 1.21 $
  *  \author Ilaria Segoni
  */
 
@@ -52,6 +52,11 @@ class RPCDetId :public DetId {
       return this->station() < r.station();
     }
   }
+
+  void buildfromDB(int region, int ring, int layer, int sector, 
+		   const std::string& subsector,
+		   const std::string& roll,
+		   const std::string& dbname);
 
   /// Built from the trigger det Index
   void buildfromTrIndex(int trIndex);

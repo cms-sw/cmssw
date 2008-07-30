@@ -1,5 +1,4 @@
 #include "EventFilter/ESRawToDigi/interface/ESUnpackerTB.h"
-#include "EventFilter/ESRawToDigi/interface/ESCrcKchipFast.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
 #include "DataFormats/FEDRawData/interface/FEDHeader.h"
@@ -58,7 +57,6 @@ void ESUnpackerTB::interpretRawData(int fedId, const FEDRawData & rawData, ESRaw
     FEDTrailer ESTrailer(reinterpret_cast<const unsigned char*>(trailer));
     if ( !ESTrailer.check()) { ++trailer; break; } // throw exception?
     if ( ESTrailer.lenght()!= nWords) throw cms::Exception("PROBLEM in ESUnpackerTB !!");
-    evtLen_ = ESTrailer.lenght();
 
     if (debug_)  {
       cout<<"[ESUnpackerTB]: FED Trailer candidate. Is trailer? "<<ESTrailer.check();
@@ -77,7 +75,7 @@ void ESUnpackerTB::interpretRawData(int fedId, const FEDRawData & rawData, ESRaw
     DCCHeader.push_back(*word);
   }
   word2DCCHeader(DCCHeader);
-
+  
   ESDCCHeader.setEventLength(evtLen_);
   ESDCCHeader.setDCCErrors(DCCErr_);
   ESDCCHeader.setRunNumber(runNum_);
@@ -90,25 +88,20 @@ void ESUnpackerTB::interpretRawData(int fedId, const FEDRawData & rawData, ESRaw
   ESDCCHeader.setOptoRX0(optoRX0_);
   ESDCCHeader.setOptoRX1(optoRX1_);
   ESDCCHeader.setOptoRX2(optoRX2_);
-  vector<int> enabledFiber;
   vector<int> FEch_status;
   for (unsigned int i=0; i<36; ++i) {
-    enabledFiber.push_back(i);
     FEch_status.push_back(FEch_[i]);
   }
   ESDCCHeader.setFEChannelStatus(FEch_status);
   
   dccs.push_back(ESDCCHeader);  
-
-  if (evtLen_ != 1204) return;
-
+  
   // Event data
   map<int, vector<Word8> > map_data;
   Word8 word8;
   int count = 0;
   int kchip;
   for (const Word64* word=(header+dccWords+1); word!=trailer; ++word) {
-
     if (debug_) cout<<"Event : "<<print(*word)<<endl;
 
     if ((count%2) == 0) {
@@ -137,12 +130,6 @@ void ESUnpackerTB::interpretRawData(int fedId, const FEDRawData & rawData, ESRaw
       kchip = 7;
       word8 = ((*word) >> 8) & 0xff;
       map_data[kchip].push_back(word8);
-      kchip = 8;
-      word8 = ((*word) >> 16) & 0xff;
-      map_data[kchip].push_back(word8);
-      kchip = 9;
-      word8 = ((*word) >> 24) & 0xff;
-      map_data[kchip].push_back(word8);
     }
 
     count++;
@@ -152,7 +139,7 @@ void ESUnpackerTB::interpretRawData(int fedId, const FEDRawData & rawData, ESRaw
   vector<Word8> words8;
   Word16 word16;
   vector<Word16> words;
-  for (int i=0; i<10; i++) {
+  for (int i=0; i<8; i++) {
     words.clear();
     for (int j=0; j<598; j+=2) {
       words8 = map_data[i];
@@ -166,7 +153,7 @@ void ESUnpackerTB::interpretRawData(int fedId, const FEDRawData & rawData, ESRaw
 
 void ESUnpackerTB::word2DCCHeader(const vector<Word64> & word) {
 
-  //evtLen_   = (word[0])       & 0xffffff;
+  evtLen_   = (word[0])       & 0xffffff;
   DCCErr_   = (word[0] >> 24) & 0x00ff;
   runNum_   = (word[0] >> 32) & 0xffffff;
 
@@ -190,107 +177,77 @@ void ESUnpackerTB::word2DCCHeader(const vector<Word64> & word) {
 
 }
 
-void ESUnpackerTB::word2digi(int fiber, const vector<Word16> & word, ESLocalRawDataCollection & kchips, ESDigiCollection & digis) 
+void ESUnpackerTB::word2digi(int kchip, const vector<Word16> & word, ESLocalRawDataCollection & kchips, ESDigiCollection & digis) 
 {                
 
-  //for (int i=0; i<word.size(); ++i) cout<<"Fiber : "<<fiber<<" "<<print(word[i])<<endl;
+  //for (int i=0; i<word.size(); ++i) cout<<"KCHIP : "<<kchip<<" "<<print(word[i])<<endl;
 
   if (word.size() != 299) {
-    cout<<"KChip data length is not 299 for fiber : "<<fiber<<endl;
+    cout<<"KChip data length is not 299 for kchip : "<<kchip<<endl;
     return;
   }
 
   int kBC = word[1] & 0x0fff; 
   int kEC = word[2] & 0x00ff;
-  int kID = (word[3] >> 8) & 0x00ff; 
+  int kID = word[3] & 0xffff; 
   int kFlag1 = (word[1] >> 12) & 0x000f;
   int kFlag2 = (word[2] >>  8) & 0x00ff; 
   int chksum = word[298] & 0xffff;
-  if (debug_) cout<<"Fiber : "<<fiber<<" BC : "<<kBC<<" EC : "<<kEC<<" KID : "<<kID<<" F1 : "<<kFlag1<<" F2 : "<<kFlag2<<" Chksum : "<<chksum<<endl;
-
-  ESCrcKchipFast crcChecker;
-
-  uint32_t packet_length = (kFlag1 & 0x07) ? 5 : 299 ; 
-
-  for(uint32_t kk=1; kk < packet_length; ++kk) crcChecker.add((unsigned int) word[kk]); 
+  if (debug_) cout<<"KCHIP : "<<kchip<<" BC : "<<kBC<<" EC : "<<kEC<<" KID : "<<kID<<" F1 : "<<kFlag1<<" F2 : "<<kFlag2<<" Chksum : "<<chksum<<endl;
 
   ESKCHIPBlock ESKCHIP;
-  ESKCHIP.setId(kID);
-  ESKCHIP.setFiberId(fiber);
+  ESKCHIP.setId(kchip);
   ESKCHIP.setBC(kBC);
   ESKCHIP.setEC(kEC);
   ESKCHIP.setFlag1(kFlag1);
   ESKCHIP.setFlag2(kFlag2);
+  kchips.push_back(ESKCHIP);
 
-  if (crcChecker.isCrcOk()) { 
-     ESKCHIP.setCRC(1);
-     kchips.push_back(ESKCHIP);
-  } else { 
-     ESKCHIP.setCRC(0);
-     kchips.push_back(ESKCHIP);
-     return ; 
-  }
-
-  int col[4],ix[4],iy[4],adc[4][3],plane;
   for (int i=0; i<3; ++i) {
 
-    col[0] = (word[i*98+4] >> 8) & 0x00ff;
-    col[1] = (word[i*98+4])      & 0x00ff;
-    col[2] = (word[i*98+5] >> 8) & 0x00ff;
-    col[3] = (word[i*98+5])      & 0x00ff;
-    if (debug_) cout<<"Column : "<<col[0]<<" "<<col[1]<<" "<<col[2]<<" "<<col[3]<<endl;
+    int colA = (word[i*98+4] >> 8) & 0x00ff;
+    int colB = (word[i*98+4])      & 0x00ff;
+    int colC = (word[i*98+5] >> 8) & 0x00ff;
+    int colD = (word[i*98+5])      & 0x00ff;
+    if (debug_) cout<<"Column : "<<colA<<" "<<colB<<" "<<colC<<" "<<colD<<endl;
   }
 
-  if (kID<=6) plane = 2;
-  else if (kID>6) plane = 1;
-  
+  int ix[4],iy[4],adc[4][3],plane;
   for (int j=0; j<32; ++j) {    
 
     for (int i=0; i<3; ++i) {
 
       adc[0][i] = (word[i*98+6+j*3] >> 4) & 0x0fff;
-      if (kID==2) { ix[0] = 2; iy[0] = 2; }
-      else if (kID==8)  { ix[0] = 3; iy[0] = 1; }
-      else if (kID==5)  { ix[0] = 2; iy[0] = 4; }
-      else if (kID==7)  { ix[0] = 3; iy[0] = 3; }
-      else if (kID==1)  { ix[0] = 4; iy[0] = 2; }
-      else if (kID==11) { ix[0] = 1; iy[0] = 1; }
-      else if (kID==3)  { ix[0] = 1; iy[0] = 2; }
-      else if (kID==6)  { ix[0] = 1; iy[0] = 4; }
-      else if (kID==4)  { ix[0] = 4; iy[0] = 4; }
-      else if (kID==10) { ix[0] = 1; iy[0] = 3; }
+      if (kID==1 || kID==5) { ix[0] = 30; iy[0] = 19; }
+      else if (kID==2 || kID==6) { ix[0] = 30; iy[0] = 21; }
+      else if (kID==3 || kID==7) { ix[0] = 32; iy[0] = 21; }
+      else if (kID==4 || kID==8) { ix[0] = 32; iy[0] = 19; }            
 
       adc[1][i] = ((word[i*98+6+j*3] & 0x000f) << 8) ;
       adc[1][i] |= ((word[i*98+7+j*3] >> 8) & 0x00ff);  
-      if (kID==3) { ix[1] = 1; iy[1] = 1; }
-      else if (kID==2 || kID==8) { ix[1] = 3; iy[1] = 2; }
-      else if (kID==6) { ix[1] = 1; iy[1] = 3; }
-      else if (kID==5 || kID==7) { ix[1] = 3; iy[1] = 4; }
-      else if (kID==11) { ix[1] = 1; iy[1] = 2; }
-      else if (kID==1 || kID==4 || kID==10) { ix[1] = 0; iy[1] = 0; }
+      if (kID==1 || kID==5) { ix[1] = 30; iy[1] = 20; }
+      else if (kID==2 || kID==6) { ix[1] = 30; iy[1] = 22; }
+      else if (kID==3 || kID==7) { ix[1] = 32; iy[1] = 22; }
+      else if (kID==4 || kID==8) { ix[1] = 32; iy[1] = 20; } 
 
       adc[2][i] = ((word[i*98+7+j*3] & 0x00ff) << 4);
       adc[2][i] |= ((word[i*98+8+j*3] >> 12) & 0x000f);  
-      if (kID==3 || kID==6) { ix[2] = 0; iy[2] = 0; }
-      else if (kID==2 || kID==11) { ix[2] = 2; iy[2] = 1; }
-      else if (kID==5 || kID==10) { ix[2] = 2; iy[2] = 3; }
-      else if (kID==1 || kID==8)  { ix[2] = 4; iy[2] = 1; }
-      else if (kID==4 || kID==7)  { ix[2] = 4; iy[2] = 3; }
+      if (kID==1 || kID==5) { ix[2] = 31; iy[2] = 20; }
+      else if (kID==2 || kID==6) { ix[2] = 31; iy[2] = 22; }
+      else if (kID==3 || kID==7) { ix[2] = 33; iy[2] = 22; }
+      else if (kID==4 || kID==8) { ix[2] = 33; iy[2] = 20; } 
 
       adc[3][i] = (word[i*98+8+j*3])      & 0x0fff;
-      if (kID==1 || kID==3 || kID==4 || kID==6 || kID==7) { ix[3] = 0; iy[3] = 0; }
-      else if (kID==2)  { ix[3] = 3; iy[3] = 1; }
-      else if (kID==11) { ix[3] = 2; iy[3] = 2; }
-      else if (kID==8)  { ix[3] = 4; iy[3] = 2; }
-      else if (kID==5)  { ix[3] = 3; iy[3] = 3; }
-      else if (kID==10) { ix[3] = 2; iy[3] = 4; }
+      if (kID==1 || kID==5) { ix[3] = 31; iy[3] = 19; }
+      else if (kID==2 || kID==6) { ix[3] = 31; iy[3] = 21; }
+      else if (kID==3 || kID==7) { ix[3] = 33; iy[3] = 21; }
+      else if (kID==4 || kID==8) { ix[3] = 33; iy[3] = 19; } 
 
     }
 
     for (int k=0; k<4; ++k) {
-
-      if (ix[k]==0 || iy[k]==0) continue;
-      
+      if (kID<=4) plane = 1;
+      else if (kID>4) plane = 2;
       ESDetId detId(j+1, ix[k], iy[k], plane, 1);
       ESDataFrame df(detId);
       df.setSize(3);
@@ -304,7 +261,7 @@ void ESUnpackerTB::word2digi(int fiber, const vector<Word16> & word, ESLocalRawD
     }
 
   }
-  
+
 }
 
 string ESUnpackerTB::print(const  Word64 & word) const

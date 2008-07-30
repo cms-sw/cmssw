@@ -1,4 +1,4 @@
-// Last commit: $Id: ConstantsForMonitorable.h,v 1.8 2008/01/15 16:29:37 bainbrid Exp $
+// Last commit: $Id: ConstantsForMonitorable.h,v 1.7 2007/09/06 21:38:13 delaer Exp $
 
 #ifndef DataFormats_SiStripCommon_ConstantsForMonitorable_H
 #define DataFormats_SiStripCommon_ConstantsForMonitorable_H
@@ -100,24 +100,6 @@ namespace sistrip {
   static const std::string calibrationTimeConstant_ = "CalibrationTimeConstant";
   static const std::string calibrationSmearing_     = "CalibrationSmearing";
   static const std::string calibrationChi2_         = "CalibrationChi2";
-  static const std::string calibrationAmplitudeAS_    = "StripCalibrationAmplitude";
-  static const std::string calibrationTailAS_         = "StripCalibrationTail";
-  static const std::string calibrationRiseTimeAS_     = "StripCalibrationRiseTime";
-  static const std::string calibrationTimeConstantAS_ = "StripCalibrationTimeConstant";
-  static const std::string calibrationSmearingAS_     = "StripCalibrationSmearing";
-  static const std::string calibrationChi2AS_         = "StripCalibrationChi2";
-  static const std::string calibrationAmplitudeMin_    = "MinCalibrationAmplitude";
-  static const std::string calibrationTailMin_         = "MinCalibrationTail";
-  static const std::string calibrationRiseTimeMin_     = "MinCalibrationRiseTime";
-  static const std::string calibrationTimeConstantMin_ = "MinCalibrationTimeConstant";
-  static const std::string calibrationSmearingMin_     = "MinCalibrationSmearing";
-  static const std::string calibrationChi2Min_         = "MinCalibrationChi2";
-  static const std::string calibrationAmplitudeMax_    = "MaxCalibrationAmplitude";
-  static const std::string calibrationTailMax_         = "MaxCalibrationTail";
-  static const std::string calibrationRiseTimeMax_     = "MaxCalibrationRiseTime";
-  static const std::string calibrationTimeConstantMax_ = "MaxCalibrationTimeConstant";
-  static const std::string calibrationSmearingMax_     = "MaxCalibrationSmearing";
-  static const std::string calibrationChi2Max_         = "MaxCalibrationChi2";
 
   // daq scope mode
   static const std::string daqScopeModeMeanSignal_ = "DaqScopeMode_MeanSignal";
@@ -197,24 +179,6 @@ namespace sistrip {
 		     CALIBRATION_TIMECONSTANT = 704,
 		     CALIBRATION_SMEARING     = 705,
 		     CALIBRATION_CHI2         = 706,
-		     CALIBRATION_AMPLITUDE_ALLSTRIPS    = 707,
-		     CALIBRATION_TAIL_ALLSTRIPS         = 708,
-		     CALIBRATION_RISETIME_ALLSTRIPS     = 709,
-		     CALIBRATION_TIMECONSTANT_ALLSTRIPS = 710,
-		     CALIBRATION_SMEARING_ALLSTRIPS     = 711,
-		     CALIBRATION_CHI2_ALLSTRIPS         = 712,
-		     CALIBRATION_AMPLITUDE_MIN    = 713,
-		     CALIBRATION_TAIL_MIN         = 714,
-		     CALIBRATION_RISETIME_MIN     = 715,
-		     CALIBRATION_TIMECONSTANT_MIN = 716,
-		     CALIBRATION_SMEARING_MIN     = 717,
-		     CALIBRATION_CHI2_MIN         = 718,
-		     CALIBRATION_AMPLITUDE_MAX    = 719,
-		     CALIBRATION_TAIL_MAX         = 720,
-		     CALIBRATION_RISETIME_MAX     = 721,
-		     CALIBRATION_TIMECONSTANT_MAX = 722,
-		     CALIBRATION_SMEARING_MAX     = 723,
-		     CALIBRATION_CHI2_MAX         = 724,
 
 		     DAQ_SCOPE_MODE_MEAN_SIGNAL = 1501
   };

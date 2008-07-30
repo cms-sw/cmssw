@@ -1,14 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
 # magnetic field
-from Geometry.CMSCommonData.cmsMagneticFieldXML_cfi import *
 from MagneticField.Engine.uniformMagneticField_cfi import *
 # geometry
-from Geometry.CMSCommonData.cmsIdealGeometryXML_cfi import *
 # tracker geometry
-from Geometry.TrackerGeometryBuilder.trackerGeometry_cfi import *
 # tracker numbering
-from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *
 # tracker reco geometry builder
 from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *
 # stripCPE
@@ -27,7 +23,7 @@ from RecoTracker.RoadSearchTrackCandidateMaker.RoadSearchTrackCandidates_cfi imp
 # RoadSearchTrackCandidateMaker
 rsTrackCandidatesP5 = copy.deepcopy(rsTrackCandidates)
 RS_P5_MeasurementTracker.ComponentName = 'RS_P5'
-RS_P5_MeasurementTracker.pixelClusterProducer = ''
+
 rsTrackCandidatesP5.CloudProducer = 'roadSearchCloudsP5'
 rsTrackCandidatesP5.MeasurementTrackerName = 'RS_P5'
 rsTrackCandidatesP5.StraightLineNoBeamSpotCloud = True

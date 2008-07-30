@@ -364,7 +364,7 @@ void HcalLEDClient::getHistograms(){
 	      meRMSshapeElec[eid.dccid()+700]->Fill(eid.htrChanId(), eid.spigot(), me->getRMS());
 	      meMEANshapeElec[eid.dccid()+700]->Fill(eid.htrChanId(), eid.spigot(), me->getMean());
 	    }
-	    else printf("HcalLEDClient:  we should have had a histo for DCC %d!!\n",eid.dccid()+700);
+	    //else printf("HcalLEDClient:  we should have had a histo for DCC %d!!\n",eid.dccid()+700);
 	    
 
 	    if(me->getRMS()<rms_thresh_ || me->getMean()>mean_thresh_){
@@ -390,9 +390,9 @@ void HcalLEDClient::getHistograms(){
 	      meRMStimeElec[eid.dccid()+700]->Fill(eid.htrChanId(), eid.spigot(), timeRMSVal);
 	      meMEANtimeElec[eid.dccid()+700]->Fill(eid.htrChanId(), eid.spigot(), timeMeanVal);
 	    }
-	    else{
-	      printf("HcalLEDClient:  we should had had a histo for DCC %d!!\n",eid.dccid()+700);
-	    }
+	    //else{
+	    // printf("HcalLEDClient:  we should had had a histo for DCC %d!!\n",eid.dccid()+700);
+	    //}
 	  }
 
 	  sprintf(name,"%sHcal/LEDMonitor/%s/%s LED Energy ieta=%d iphi=%d depth=%d",process_.c_str(),
@@ -409,9 +409,9 @@ void HcalLEDClient::getHistograms(){
 	      meRMSenergyElec[eid.dccid()+700]->Fill(eid.htrChanId(), eid.spigot(), enRMSVal);
 	      meMEANenergyElec[eid.dccid()+700]->Fill(eid.htrChanId(), eid.spigot(), enMeanVal);
 	    }	    
-	    else{
-	      printf("HcalLEDClient:  we should had had a histo for DCC %d!!\n",eid.dccid()+700);
-	    }
+	    //else{
+	    //  printf("HcalLEDClient:  we should had had a histo for DCC %d!!\n",eid.dccid()+700);
+	    //}
 
 	    if(depth==1 || depth==2)
 	      m_outTextFile<<"HF\t"<<ieta<<"\t"<<iphi<<"\t"<<depth<<"\t"<<enMeanVal<<"\t"<<"\t"<<enRMSVal<<"\t"<<"\t"<<timeMeanVal<<"\t"<<"\t"<<timeRMSVal<<std::endl;
@@ -918,3 +918,4 @@ void HcalLEDClient::loadHistograms(TFile* infile){
 
   return;
 }
+

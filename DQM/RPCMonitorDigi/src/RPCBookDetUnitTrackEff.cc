@@ -15,13 +15,14 @@
 #include <string>
 #include <map>
 
-
 #include <DataFormats/MuonDetId/interface/RPCDetId.h>
 #include "DQM/RPCMonitorDigi/interface/RPCEfficiencyFromTrack.h"
 #include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include <Geometry/RPCGeometry/interface/RPCGeometry.h>
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
-std::map<std::string, MonitorElement*> RPCEfficiencyFromTrack::bookDetUnitTrackEff(RPCDetId & detId) {
+std::map<std::string, MonitorElement*> RPCEfficiencyFromTrack::bookDetUnitTrackEff(RPCDetId & detId, const edm::EventSetup & iSetup) {
   
   std::map<std::string, MonitorElement*> meMap;
   std::string regionName;
@@ -42,19 +43,25 @@ std::map<std::string, MonitorElement*> RPCEfficiencyFromTrack::bookDetUnitTrackE
 
   dbe->setCurrentFolder(folder);
 
+
+  int strips = 0; double lastvalue = 0.;
+
+
+
+
+  edm::ESHandle<RPCGeometry> rpcgeo;
+  iSetup.get<MuonGeometryRecord>().get(rpcgeo);
+
+  const RPCRoll * rpcRoll = rpcgeo->roll(detId);
+  strips = rpcRoll->nstrips();
+
+  if(strips == 0 ) strips = 1;
+  lastvalue=(double)strips+0.5;
+
+
   RPCGeomServ RPCname(detId);
   std::string nameRoll = RPCname.name();
-  if(detId.region()==0){
-    int first = nameRoll.find("W");
-    int second = nameRoll.substr(first,nameRoll.npos).find("/");
-    std::string wheel=nameRoll.substr(first,second);		
-    first = nameRoll.find("/");
-    second = nameRoll.substr(first,nameRoll.npos).rfind("/");
-    std::string rpc=nameRoll.substr(first+1,second-1);		
-    first = nameRoll.rfind("/");
-    std::string partition=nameRoll.substr(first+1);
-    nameRoll=wheel+"_"+rpc+"_"+partition;
-  }
+
 
   char detUnitLabel[128];
   char layerLabel[128];
@@ -68,39 +75,19 @@ std::map<std::string, MonitorElement*> RPCEfficiencyFromTrack::bookDetUnitTrackE
   //Begin booking
   sprintf(meId,"ExpectedOccupancyFromTrack_%s",detUnitLabel);
   sprintf(meTitle,"ExpectedOccupancyFromTrack_for_%s",layerLabel);
-  meMap[meId] = dbe->book1D(meId, meTitle, 100, 0.5, 100.5);
-
-  sprintf(meId,"RealDetectedOccupancy_%s",detUnitLabel);
-  sprintf(meTitle,"RealDetectedOccupancy_for_%s",layerLabel);
-  meMap[meId] = dbe->book1D(meId, meTitle, 100, 0.5, 100.5);
+  meMap[meId] = dbe->book1D(meId, meTitle, strips, 0.5, lastvalue);
 
   sprintf(meId,"RPCDataOccupancy_%s",detUnitLabel);
   sprintf(meTitle,"RPCDataOccupancy_for_%s",layerLabel);
-  meMap[meId] = dbe->book1D(meId, meTitle, 100, 0.5, 100.5);
+  meMap[meId] = dbe->book1D(meId, meTitle, strips, 0.5, lastvalue);
   
   sprintf(meId,"Residuals_%s",detUnitLabel);
   sprintf(meTitle,"Residuals_for_%s",layerLabel);
-  meMap[meId] = dbe->book1D(meId, meTitle, 100,-49.5, 49.);
-
-  sprintf(meId,"LocalPull_%s",detUnitLabel);
-  sprintf(meTitle,"LocalPull_for_%s",layerLabel);
-  meMap[meId] = dbe->book1D(meId, meTitle, 100,-49.5, 49.);
-
-  sprintf(meId,"Residuals_VS_RecPt_%s",detUnitLabel);
-  sprintf(meTitle,"Residuals_VS_RecPt_for_%s",layerLabel);
-  meMap[meId] = dbe->book2D(meId, meTitle, 100, 0.5, 100.5,100,-49.5,49.5);
+  meMap[meId] = dbe->book1D(meId, meTitle, 150,-49.5, 49.);
 
   sprintf(meId,"EfficienyFromTrackExtrapolation_%s",detUnitLabel);
   sprintf(meTitle,"EfficienyFromTrackExtrapolation_for_%s",layerLabel);
-  meMap[meId] = dbe->book1D(meId, meTitle, 100, 0.5, 100.5);
-
-  sprintf(meId,"2DExtrapolation_%s",detUnitLabel);
-  sprintf(meTitle,"2DExtrapolation_for_%s",layerLabel);
-  meMap[meId] = dbe->book2D(meId, meTitle, 401, -200.5, 200.5,201,-100.5,100.5);
-
-  sprintf(meId,"PredictedImpactPoint_%s",detUnitLabel);
-  sprintf(meTitle,"PredictedImpactPoint_for_%s",layerLabel);
-  meMap[meId] = dbe->book2D(meId, meTitle, 401, -200.5, 200.5,201,-100.5,100.5);
+  meMap[meId] = dbe->book1D(meId, meTitle, strips, 0.5, lastvalue);
 
   sprintf(meId,"ClusterSize_%s",detUnitLabel);
   sprintf(meTitle,"ClusterSize_for_%s",layerLabel);
@@ -109,10 +96,6 @@ std::map<std::string, MonitorElement*> RPCEfficiencyFromTrack::bookDetUnitTrackE
   sprintf(meId,"BunchX_%s",detUnitLabel);
   sprintf(meTitle,"BunchX_for_%s",layerLabel);
   meMap[meId] = dbe->book1D(meId, meTitle,13,-6.5,6.5);
-
-  sprintf(meId,"Residuals_VS_CLsize_%s",detUnitLabel);
-  sprintf(meTitle,"Residuals_CLsize_for_%s",layerLabel);
-  meMap[meId] = dbe->book2D(meId, meTitle, 10, 0.5, 10.5,100,-49.5,49.5);
 
   return meMap;
 }

@@ -8,7 +8,7 @@
 //
 // Original Author:  dkcira
 //         Created:  Wed Feb 22 16:07:58 CET 2006
-// $Id: SiStripHistoId.cc,v 1.6 2008/01/22 19:16:55 muzaffar Exp $
+// $Id: SiStripHistoId.cc,v 1.7 2008/03/03 11:50:42 maborgia Exp $
 //
 
 #include<iostream>
@@ -60,7 +60,12 @@ std::string SiStripHistoId::createHistoLayer(std::string description, std::strin
   if ( pos1 == std::string::npos && pos2 == std::string::npos ){ // ok, not found either separator
     if(id_type=="fed" || id_type=="det" || id_type=="fec"  || id_type=="layer"){ // ok! is one of the accepted id_type-s
       std::ostringstream compid; compid<<path; // use std::ostringstream for casting integer to std::string
-      std::string local_histo_id = description + separator2 + path + separator1 +flag;
+      std::string local_histo_id;
+      if(flag.size() > 0)
+	local_histo_id = description + separator1 + flag + separator2 + path;
+      else 
+	local_histo_id = description + separator2 + path;
+
       LogTrace("SiStripHistoId") << "Local_histo_ID " << local_histo_id << std::endl;
       return local_histo_id;
     }else{

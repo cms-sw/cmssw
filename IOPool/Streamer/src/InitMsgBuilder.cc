@@ -1,4 +1,5 @@
 #include "IOPool/Streamer/interface/InitMsgBuilder.h"
+#include "IOPool/Streamer/interface/EventMsgBuilder.h"
 #include "IOPool/Streamer/interface/MsgHeader.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include <cassert>
@@ -53,14 +54,19 @@ InitMsgBuilder::InitMsgBuilder(void* buf, uint32 size,
   //Set the size of Init Header Start of buf to Start of desc.
   convert((uint32)(desc_addr_-buf_), h->init_header_size_);
 
-  uint32 hlt_sz = hlt_names.size();
-  if (hlt_sz != 0) hlt_sz = 1+ ((hlt_sz-1)/4);
-
-  uint32 l1_sz = l1_names.size();
-  if (l1_sz != 0) l1_sz = 1 + ((l1_sz-1)/8);
+  // 18-Apr-2008, KAB:  create a dummy event message so that we can
+  // determine the expected event header size.  (Previously, the event
+  // header size was hard-coded.)
+  std::vector<bool> dummyL1Bits(l1_names.size());
+  std::vector<char> dummyHLTBits(hlt_names.size());
+  const uint32 TEMP_BUFFER_SIZE = 256;
+  char msgBuff[TEMP_BUFFER_SIZE];  // not large enough for a real event!
+  EventMsgBuilder dummyMsg(&msgBuff[0], TEMP_BUFFER_SIZE, 0, 0, 0, 0,
+                           dummyL1Bits, (uint8*) &dummyHLTBits[0],
+                           hlt_names.size());
 
   //Size of Event Header
-  uint32 eventHeaderSize = 2 + (9*4) + hlt_sz + l1_sz;
+  uint32 eventHeaderSize = dummyMsg.headerSize();
   convert(eventHeaderSize, h->event_header_size_);
 }
 

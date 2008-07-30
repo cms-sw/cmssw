@@ -8,8 +8,8 @@
 
 /** \class HcalDigiMonitor
   *  
-  * $Date: 2008/03/06 21:19:54 $
-  * $Revision: 1.17 $
+  * $Date: 2008/06/12 01:35:01 $
+  * $Revision: 1.24 $
   * \author W. Fisher - FNAL
   */
 class HcalDigiMonitor: public HcalBaseMonitor {
@@ -18,7 +18,6 @@ public:
   ~HcalDigiMonitor(); 
 
   void setup(const edm::ParameterSet& ps, DQMStore* dbe);
-
   void processEvent(const HBHEDigiCollection& hbhe,
 		    const HODigiCollection& ho,
 		    const HFDigiCollection& hf,
@@ -32,6 +31,8 @@ private:  ///Methods
   void fillErrors(const HBHEDataFrame& hb);
   void fillErrors(const HODataFrame& ho);
   void fillErrors(const HFDataFrame& hf);
+  void EmptyDigiFill();
+  void reset_Nevents(void);
 
   int ievt_;
   double etaMax_, etaMin_, phiMax_, phiMin_;
@@ -39,6 +40,7 @@ private:  ///Methods
   bool doPerChannel_;
   int occThresh_;
   HcalCalibrations calibs_;
+  int checkNevents_;
 
 private:  ///Monitoring elements
   MonitorElement* meEVT_;
@@ -62,6 +64,18 @@ private:  ///Monitoring elements
   MonitorElement* BQDIGI_FRAC;
 
   struct{
+    // check whether to create histograms for each subdetector
+    bool check;
+
+    bool makeDiagnostics; // determine whether or not to make diagnostic plots
+
+    // Problem cells will be those cells with an error or with low occupancy
+    MonitorElement* PROBLEMDIGICELLS;
+    std::vector<MonitorElement*> PROBLEMDIGICELLS_DEPTH;
+
+    TH2F* PROBLEMDIGICELLS_TEMP;
+    std::vector<TH2F*> PROBLEMDIGICELLS_TEMP_DEPTH;
+
     MonitorElement* DIGI_NUM;
     MonitorElement* DIGI_SIZE;
     MonitorElement* DIGI_PRESAMPLE;
@@ -88,8 +102,13 @@ private:  ///Monitoring elements
     MonitorElement* BQDIGI_NUM;
     MonitorElement* BQDIGI_FRAC;
 
+    std::vector<MonitorElement*> TS_SUM_P, TS_SUM_M;
+
+    MonitorElement* diagnostic_BeforeBadDigi;
+    MonitorElement* diagnostic_AfterBadDigi;
+
     std::map<HcalDetId, MonitorElement*> SHAPE;
-  } hbHists, heHists, hfHists, hoHists;
+  } hbHists, heHists, hfHists, hoHists, hcalHists;
 
 };
 

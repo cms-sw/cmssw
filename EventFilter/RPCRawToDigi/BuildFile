@@ -6,7 +6,10 @@
 <use name=CondFormats/DataRecord>
 <use name=CondFormats/RPCObjects>
 <use name=FWCore/MessageLogger>
+<use name=rootrflx>
 <use name=boost>
+<use name=root>
+
 <export>
  <lib name=EventFilterRPCRawToDigi>
  <use name=FWCore/Framework>
@@ -17,4 +20,5 @@
  <use name=CondFormats/DataRecord>
  <use name=FWCore/MessageLogger>
  <use name=boost>	
+ <use name=root>
 </export>

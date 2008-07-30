@@ -17,7 +17,7 @@ def analyse_prof_sim(profile_name,outdir):
     
     # A way of formatting strings similar to the c++ one                 
     outfile1='%s/mem_live.res' %outdir
-    outfile2='%s/doProduce_output.txt' %outdir
+    outfile2='%s/doEvent_output.txt' %outdir
     outfile3='%s/doBeginJob_output.txt' %outdir    
     dummyfile='%s/IgProf-Analyse_output.txt' %outdir
     
@@ -28,7 +28,7 @@ def analyse_prof_sim(profile_name,outdir):
     
     # now let's execute the segment and analyse commands                                                                
     commands_list=(\
-    'igprof-segment edm::EDProducer::doProduce < %s |tee  -a %s' %(dummyfile,outfile2),
+    'igprof-segment edm::EDProducer::doEvent < %s |tee  -a %s' %(dummyfile,outfile2),
     
     'igprof-segment edm::EDProducer::doBeginJob < %s |tee -a %s' %(dummyfile,outfile3),
     

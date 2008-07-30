@@ -45,17 +45,17 @@ class ParticleListDrawer : public edm::EDAnalyzer {
     edm::InputTag src_;
     edm::ESHandle<ParticleDataTable> pdt_;
     unsigned int maxEventsToPrint_; 
-    unsigned int nEventAnalyzed_;	
+    unsigned int nEventAnalyzed_;
+    bool printOnlyHardInteraction_;
+    bool useMessageLogger_;
 };
 
 ParticleListDrawer::ParticleListDrawer(const edm::ParameterSet & pset) :
   src_(pset.getParameter<InputTag>("src")),
   maxEventsToPrint_ (pset.getUntrackedParameter<int>("maxEventsToPrint",1)),
-  nEventAnalyzed_(0) {
-
-  //Max number of events printed on verbosity level 
-  //maxEventsToPrint_ = pset.getUntrackedParameter<int>("maxEventsToPrint",0);
-
+  nEventAnalyzed_(0),
+  printOnlyHardInteraction_(pset.getUntrackedParameter<bool>("printOnlyHardInteraction", false)),
+  useMessageLogger_(pset.getUntrackedParameter<bool>("useMessageLogger", false)) {
 }
 
 void ParticleListDrawer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {  
@@ -68,16 +68,20 @@ void ParticleListDrawer::analyze(const edm::Event& iEvent, const edm::EventSetup
     iSetup.getData( pdt_ );
   }
 
-  if(nEventAnalyzed_ < maxEventsToPrint_) {
+  if(maxEventsToPrint_ < 0 || nEventAnalyzed_ < maxEventsToPrint_) {
+    ostringstream out;
+    char buf[256];
 
-    cout << "[ParticleListDrawer] analysing event " << iEvent.id() << endl;
+    out << "[ParticleListDrawer] analysing event " << iEvent.id() << endl;
 
-    cout << endl;
-    cout << "**********************" << endl;
-    cout << "* GenEvent           *" << endl;
-    cout << "**********************" << endl;
+    out << endl;
+    out << "**********************" << endl;
+    out << "* GenEvent           *" << endl;
+    out << "**********************" << endl;
 
-    printf(" idx  |    ID -       Name |Stat|  Mo1  Mo2  Da1  Da2 |nMo nDa|    pt       eta     phi   |     px         py         pz        m     |\n");
+    snprintf(buf, 256, " idx  |    ID -       Name |Stat|  Mo1  Mo2  Da1  Da2 |nMo nDa|    pt       eta     phi   |     px         py         pz        m     |\n");
+    out << buf;
+
     int idx  = -1;
     int iMo1 = -1;
     int iMo2 = -1;
@@ -93,6 +97,8 @@ void ParticleListDrawer::analyze(const edm::Event& iEvent, const edm::EventSetup
     for(CandidateView::const_iterator p  = particles->begin();
 	p != particles->end(); 
 	p ++) {
+      if (printOnlyHardInteraction_ && p->status() != 3) continue;
+
       // Particle Name
       int id = p->pdgId();
       const ParticleData * pd = pdt_->particle(id);
@@ -121,7 +127,9 @@ void ParticleListDrawer::analyze(const edm::Event& iEvent, const edm::EventSetup
       found = find(cands.begin(), cands.end(), p->daughter(nDa-1));
       if(found != cands.end()) iDa2 = found - cands.begin() ;
 
-      printf(" %4d | %5d - %10s | %2d | %4d %4d %4d %4d | %2d %2d | %7.3f %10.3f %6.3f | %10.3f %10.3f %10.3f %8.3f |\n",
+      char buf[256];
+      snprintf(buf, 256,
+	     " %4d | %5d - %10s | %2d | %4d %4d %4d %4d | %2d %2d | %7.3f %10.3f %6.3f | %10.3f %10.3f %10.3f %8.3f |\n",
              idx,
              p->pdgId(),
              particleName.c_str(),
@@ -135,8 +143,14 @@ void ParticleListDrawer::analyze(const edm::Event& iEvent, const edm::EventSetup
              p->pz(),
              p->mass()
             );
+      out << buf;
     }
-  nEventAnalyzed_++;
+    nEventAnalyzed_++;
+
+    if (useMessageLogger_)
+      LogVerbatim("ParticleListDrawer") << out.str();
+    else
+      cout << out.str();
   }
 }
 

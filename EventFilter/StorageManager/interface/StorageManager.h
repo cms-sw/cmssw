@@ -10,7 +10,7 @@
 
      See CMS EventFilter wiki page for further notes.
 
-   $Id: StorageManager.h,v 1.23.2.1 2008/03/07 20:36:41 biery Exp $
+   $Id: StorageManager.h,v 1.28.2.2 2008/06/03 23:00:45 hcheung Exp $
 */
 
 #include <string>
@@ -100,7 +100,7 @@ namespace stor {
     void stopAction();
     void haltAction();
 
-    void checkDirectoryOK(std::string dir);
+    void checkDirectoryOK(const std::string dir) const;
 
     void defaultWebPage
       (xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception);
@@ -118,15 +118,17 @@ namespace stor {
       (xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception);
     void consumerListWebPage
       (xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception);
+    void eventServerWebPage
+      (xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception);
     void DQMeventdataWebPage
       (xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception);
     void DQMconsumerWebPage
       (xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception);
 
 
-    void parseFileEntry(std::string in, std::string &out, unsigned int &nev, unsigned long long &sz);
+    void parseFileEntry(const std::string &in, std::string &out, unsigned int &nev, unsigned long long &sz) const;
 
-    std::string findStreamName(std::string &in);
+    std::string findStreamName(const std::string &in) const;
 	
     // *** state machine related
     evf::StateMachine fsm_;
@@ -161,6 +163,7 @@ namespace stor {
 
     xdata::Boolean collateDQM_;
     xdata::Boolean archiveDQM_;
+    xdata::Integer archiveIntervalDQM_;
     xdata::String  filePrefixDQM_;
     xdata::Integer purgeTimeDQM_;
     xdata::Integer readyTimeDQM_;
@@ -175,6 +178,7 @@ namespace stor {
     // added for Event Server
     std::vector<unsigned char> mybuffer_; //temporary buffer instead of using stack
     xdata::Double maxESEventRate_;  // hertz
+    xdata::Double maxESDataRate_;  // MB/sec
     xdata::Integer activeConsumerTimeout_;  // seconds
     xdata::Integer idleConsumerTimeout_;  // seconds
     xdata::Integer consumerQueueSize_;
@@ -183,6 +187,7 @@ namespace stor {
     xdata::Integer DQMidleConsumerTimeout_;  // seconds
     xdata::Integer DQMconsumerQueueSize_;
     boost::mutex consumerInitMsgLock_;
+    xdata::String esSelectedHLTOutputModule_;
 
     SMFUSenderList smfusenders_;
     xdata::UnsignedInteger32 connectedFUs_;
@@ -228,22 +233,25 @@ namespace stor {
 
     // @@EM parameters monitored by workloop (not in flashlist just yet) 
     struct streammon{
-    int		nclosedfiles_;
-    int		nevents_;
-    int		totSizeInkBytes_;
+      int		nclosedfiles_;
+      int		nevents_;
+      int		totSizeInkBytes_;
     };
+
     typedef std::map<std::string,streammon> smap;
     typedef std::map<std::string,streammon>::iterator ismap;
-    smap	streams_;
+    smap	 streams_;
+
+    unsigned int lastEventSeen_; // report last seen event id
+    boost::mutex fulist_lock_;  // quick (temporary) fix for registration problem
 
     enum
     {
       DEFAULT_PURGE_TIME = 120,
-      DEFAULT_READY_TIME = 10
+      DEFAULT_READY_TIME = 30
     };
 
   }; 
 } 
-
 
 #endif

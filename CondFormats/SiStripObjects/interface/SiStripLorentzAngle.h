@@ -9,20 +9,20 @@
 
 class SiStripLorentzAngle {
 
-	public:
+ public:
+ 
+  SiStripLorentzAngle(){};
+  ~SiStripLorentzAngle(){};
 
-		SiStripLorentzAngle(){};
-		~SiStripLorentzAngle(){};
+  inline void putLorentsAngles(std::map<unsigned int,float>& LA){m_LA=LA;}   
+  inline const std::map<unsigned int,float>&  getLorentzAngles () const {return m_LA;}
 
-		inline void putLorentsAngles(std::map<unsigned int,float>& LA){m_LA=LA;}   
-		inline const std::map<unsigned int,float>&  getLorentzAngles () const {return m_LA;}
-
-		bool   putLorentzAngle(const uint32_t&, float&);
-		const float&  getLorentzAngle (const uint32_t&) const;
+  bool   putLorentzAngle(const uint32_t&, float&);
+  const float&  getLorentzAngle (const uint32_t&) const;
 
 
-	private:
-		std::map<unsigned int,float> m_LA; 
+ private:
+  std::map<unsigned int,float> m_LA; 
 };
 
 #endif

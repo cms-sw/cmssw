@@ -14,7 +14,7 @@
 #include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
 
 // DQM headers as well as the service header
-#include"DQMServices/Core/interface/DaqMonitorBEInterface.h"
+//#include"DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include"DQMServices/Core/interface/MonitorElement.h"
 #include"FWCore/ServiceRegistry/interface/Service.h"
 
@@ -28,6 +28,7 @@
 #include "DQM/SiStripMonitorHardware/interface/BinCounters.h"
 
 using namespace std;
+class DQMStore;
 
 class CnBAnalyzer : public edm::EDAnalyzer {
  public:
@@ -40,13 +41,19 @@ class CnBAnalyzer : public edm::EDAnalyzer {
   void analyze(const edm::Event&, const edm::EventSetup&);
   void endJob();
 
+  // Access the cabling database or not
+  bool useCablingDb_;
+
   // A data structure to record
   // the found FEDs
   // It is set to true as soon as its plots are created
   std::map<uint16_t, bool> foundFeds_;
 
   // back-end interface
-  DaqMonitorBEInterface* dbe;
+  //  DaqMonitorBEInterface* dbe;
+  DQMStore* const dqm( std::string method = "" ) const;
+
+  DQMStore* dqm_;
 
   // ME for % of FEs in synch globally over event number (Mersi Plot 2)
   MonitorElement* AddConstPerEvent;
@@ -57,15 +64,24 @@ class CnBAnalyzer : public edm::EDAnalyzer {
   MonitorElement* BadHead;
   MonitorElement* NoSynch;
 
-  // Set to 0 for buffer and non zero for FRL - SLINK readout - compensates for additional DQA headers, etc.
+  // Set to false for buffer and non zero for FRL - SLINK readout - compensates for additional DQA headers, etc.
   // (K. Hahn request)
-  int swapOn_;
+  bool swapOn_;
+  // Brute hack in case we have a mismatch between firmware and software versions
+  bool preSwapOn_; 
+
+  // Debugging flag: if active we will build all histograms also for perfectly working FEDs
+  // You can remove this functionality by #defining or not CNBANALYZER_BUILD_ALL_HISTOS
+#define CNBANALYZER_BUILD_ALL_HISTOS
+#ifdef CNBANALYZER_BUILD_ALL_HISTOS
+  bool buildAllHistograms_;
+#endif
 
   // Number for event info for plots
-  int runNumber_;
 
   // Name of output file
-  string outputFileName_;
+  std::string outputFileName_;
+  std::string outputFileDir_;
 
   // vector of addresses to get median value for "golden address" which should match the apve address
   // TODO: add median calculation in wrong apv addresses
@@ -77,8 +93,8 @@ class CnBAnalyzer : public edm::EDAnalyzer {
   std::vector<uint16_t> fedIds_;
 
   // Functions to book histograms in the output
-  void createRootFedHistograms( const int& runNumber );
-  void createDetailedFedHistograms( const uint16_t& fed_id, const int& runNumber );
+  void createRootFedHistograms();
+  void createDetailedFedHistograms( const uint16_t& fed_id );
 
   // The first and last valid FedID for the Tracker
   std::pair<int,int> fedIdBoundaries_;
@@ -101,3 +117,5 @@ class CnBAnalyzer : public edm::EDAnalyzer {
   std::map<int, MonitorElement* > badApv_;
 
 };
+
+

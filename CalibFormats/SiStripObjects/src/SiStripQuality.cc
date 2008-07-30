@@ -1,11 +1,10 @@
- //
+//
 // Author:      Domenico Giordano
 // Created:     Wed Sep 26 17:42:12 CEST 2007
-// $Id: SiStripQuality.cc,v 1.8 2007/11/19 15:36:11 giordano Exp $
+// $Id: SiStripQuality.cc,v 1.9 2008/02/06 16:40:42 bainbrid Exp $
 //
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
-
  
 SiStripQuality::SiStripQuality():
   toCleanUp(false),
@@ -222,6 +221,57 @@ bool SiStripQuality::put_replace(const uint32_t& DetId, Range input) {
   return true;
 }
 
+/*
+Method to reduce the granularity of badcomponents:
+if in an apv there are more than ratio*128 bad strips,
+the full apv is declared as bad.
+Method needed to help the 
+ */
+void SiStripQuality::ReduceGranularity(double threshold){
+
+  SiStripBadStrip::RegistryIterator rp = getRegistryVectorBegin();
+  SiStripBadStrip::RegistryIterator rend   = getRegistryVectorEnd();
+  SiStripBadStrip::data data_;
+  uint16_t BadStripPerApv[6], ipos;
+  std::vector<unsigned int> vect;
+
+  for (; rp != rend; ++rp) {
+    uint32_t detid=rp->detid;
+
+    BadStripPerApv[0]=0;    BadStripPerApv[1]=0;    BadStripPerApv[2]=0;    BadStripPerApv[3]=0;    BadStripPerApv[4]=0;    BadStripPerApv[5]=0;
+    ipos=0;
+
+    SiStripBadStrip::Range sqrange = SiStripBadStrip::Range( getDataVectorBegin()+rp->ibegin , getDataVectorBegin()+rp->iend );
+    
+    for(int it=0;it<sqrange.second-sqrange.first;it++){
+
+      data_=decode( *(sqrange.first+it) );
+      LogTrace("SiStripQuality") << "[SiStripQuality::ReduceGranularity] detid " << detid << " first strip " << data_.firstStrip << " lastStrip " << data_.firstStrip+data_.range-1  << " range " << data_.range;
+      ipos= data_.firstStrip/128;
+      while (ipos<=(data_.firstStrip+data_.range-1)/128){
+	BadStripPerApv[ipos]+=std::min(data_.firstStrip+data_.range,(ipos+1)*128)-std::max(data_.firstStrip*1,ipos*128);
+	LogTrace("SiStripQuality") << "[SiStripQuality::ReduceGranularity] ipos " << ipos << " Counter " << BadStripPerApv[ipos] << " min " << std::min(data_.firstStrip+data_.range,(ipos+1)*128) << " max " << std::max(data_.firstStrip*1,ipos*128) << " added " << std::min(data_.firstStrip+data_.range,(ipos+1)*128)-std::max(data_.firstStrip*1,ipos*128);
+	ipos++;
+      }
+    }
+
+    edm::LogInfo("SiStripQuality") << "[SiStripQuality::ReduceGranularity] Total for detid " << detid << " values " << BadStripPerApv[0] << " " << BadStripPerApv[1] << " " << BadStripPerApv[2] << " " <<BadStripPerApv[3] << " " <<BadStripPerApv[4] << " " << BadStripPerApv[5];
+    
+    
+    vect.clear();
+    for(size_t i=0;i<6;++i){
+      if (BadStripPerApv[i]>=threshold*128){
+	vect.push_back(encode(i*128,128));
+      }
+    }
+    if(!vect.empty()){
+      SiStripBadStrip::Range Range(vect.begin(),vect.end());
+      add(detid,Range);
+    }
+  }
+}
+
+
 void SiStripQuality::compact(std::vector<unsigned int>& tmp,std::vector<unsigned int>& vect,unsigned short& Nstrips){
   SiStripBadStrip::data fs_0, fs_1;
   vect.clear();
@@ -299,9 +349,9 @@ void SiStripQuality::subtraction(std::vector<unsigned int>& A,const unsigned int
   A=tmp;
 }
 
-bool SiStripQuality::cleanUp(){
+bool SiStripQuality::cleanUp(bool force){
 
-  if (!toCleanUp)
+  if (!toCleanUp && !force)
     return false;
 
   toCleanUp=false;

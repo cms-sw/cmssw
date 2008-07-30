@@ -7,6 +7,20 @@
 
 #include "DataFormats/L1CSCTrackFinder/interface/L1CSCTrackCollection.h"
 
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
+#include "DataFormats/FEDRawData/interface/FEDRawData.h"
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
+#include "DataFormats/FEDRawData/interface/FEDHeader.h"
+#include "DataFormats/FEDRawData/interface/FEDTrailer.h"
+#include "EventFilter/Utilities/interface/Crc.h"
+
+
 CSCTFPacker::CSCTFPacker(const edm::ParameterSet &conf):edm::EDProducer(){
 	// "Readout" configuration
 	zeroSuppression = conf.getParameter<bool>("zeroSuppression");
@@ -271,6 +285,10 @@ void CSCTFPacker::produce(edm::Event& e, const edm::EventSetup& c){
 		FEDRawData& fedRawData = data->FEDData((unsigned int)FEDNumbering::getCSCTFFEDIds().first);
 		fedRawData.resize((pos-spDDUrecord)*sizeof(unsigned short));
 		std::copy((unsigned char*)spDDUrecord,(unsigned char*)pos,fedRawData.data());
+		FEDHeader  csctfFEDHeader (fedRawData.data());
+		csctfFEDHeader.set(fedRawData.data(), 0, e.id().event(), 0, FEDNumbering::getCSCTFFEDIds().first);
+		FEDTrailer csctfFEDTrailer(fedRawData.data()+(fedRawData.size()-8));
+		csctfFEDTrailer.set(fedRawData.data()+(fedRawData.size()-8), fedRawData.size()/8, evf::compute_crc(fedRawData.data(),fedRawData.size()), 0, 0);
 		e.put(data,"CSCTFRawData");
 	}
 

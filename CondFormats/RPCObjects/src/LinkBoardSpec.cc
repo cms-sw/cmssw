@@ -35,4 +35,3 @@ std::string LinkBoardSpec::print(int depth ) const
   return str.str();
 }
 
-

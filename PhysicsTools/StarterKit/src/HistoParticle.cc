@@ -19,11 +19,11 @@ HistoParticle::~HistoParticle()
 }
 
 
-void HistoParticle::fill( const Particle * particle )
+void HistoParticle::fill( const Particle * particle, double weight )
 {
 
   // First fill common 4-vector histograms
-  HistoGroup<Particle>::fill( particle );
+  HistoGroup<Particle>::fill( particle, 1, weight );
 
   // fill relevant particle histograms
 }

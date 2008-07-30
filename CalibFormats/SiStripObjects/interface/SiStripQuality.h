@@ -17,7 +17,7 @@
 //
 // Author:      Domenico Giordano
 // Created:     Wed Sep 26 17:42:12 CEST 2007
-// $Id: SiStripQuality.h,v 1.6 2007/11/04 22:29:15 giordano Exp $
+// $Id: SiStripQuality.h,v 1.7 2007/11/19 15:36:10 giordano Exp $
 //
 
 
@@ -65,9 +65,11 @@ class SiStripQuality: public SiStripBadStrip {
   void add(const SiStripDetCabling*);
   void addInvalidConnectionFromCabling();
 
-  bool cleanUp();
+  bool cleanUp(bool force=false);
 
   void fillBadComponents();
+
+  void ReduceGranularity(double); 
 
   SiStripQuality& operator +=(const SiStripQuality&); 
   SiStripQuality& operator -=(const SiStripQuality&);

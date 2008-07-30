@@ -1,13 +1,19 @@
 #ifndef PIXELFECCONFIGINTERFACE_H
 #define PIXELFECCONFIGINTERFACE_H
-/**
-*   \file CalibFormats/SiPixelObjects/interface/PixelFECConfigInterface.h
-*   \brief This class intends to define an abstract interface for the commands to talk to the PixelFEC.
-*
-*   ******THIS SHOULD REALLY BE IN A SEPARATE PACKAGE*****
-*
-*   A longer explanation will be placed here later
-*/
+//
+// This class intends to define an abstract interface for the
+// commands to talk to the PixelFEC.
+//
+//  ******THIS SHOULD REALLY BE IN A SEPARATE PACKAGE*****
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 #include <vector>
 #include <string>
@@ -15,11 +21,6 @@
 
 
 namespace pos{
-/*! \class PixelFECConfigInterface PixelFECConfigInterface.h "interface/PixelFECConfigInterface.h"
-*   \brief This class implements..
-*
-*   A longer explanation will be placed here later
-*/
   class PixelFECConfigInterface{
 
   public:

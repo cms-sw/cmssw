@@ -1,6 +1,7 @@
 #include "DQM/HcalMonitorTasks/interface/HcalDigiMonitor.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQM/HcalMonitorTasks/interface/HcalLEDMonitor.h"
 
 HcalDigiMonitor::HcalDigiMonitor() {
   doPerChannel_ = false;
@@ -10,16 +11,19 @@ HcalDigiMonitor::HcalDigiMonitor() {
 
 HcalDigiMonitor::~HcalDigiMonitor() {}
 
-namespace HcalDigiPerChan{
+namespace HcalDigiPerChan
+{
+  
   template<class Digi>
   inline void perChanHists(int id, const Digi& digi, float* ampl,std::map<HcalDetId, MonitorElement*> &tool, DQMStore* dbe, string baseFolder) {
     
     std::map<HcalDetId,MonitorElement*>::iterator _mei;
 
-    string type = "HB";
-    if(id==1) type = "HE"; 
-    else if(id==2) type = "HO"; 
-    else if(id==3) type = "HF"; 
+    string type;
+    if (id==1) type = "HB";
+    else if(id==2) type = "HE"; 
+    else if(id==3) type = "HO"; 
+    else if(id==4) type = "HF"; 
     
     if(dbe) dbe->setCurrentFolder(baseFolder+"/"+type);
     
@@ -35,12 +39,15 @@ namespace HcalDigiPerChan{
       if(dbe){
 	char name[1024];
 	sprintf(name,"%s Digi Shape ieta=%d iphi=%d depth=%d",type.c_str(),digi.id().ieta(),digi.id().iphi(),digi.id().depth());
-	tool[digi.id()] =  dbe->book1D(name,name,11,-0.5,10.5); 
+	tool[digi.id()] =  dbe->book1D(name,name,10,-0.5,9.5); 
 	for (int i=0; i<digi.size(); i++) tool[digi.id()]->Fill(i,ampl[i]);
-      }
-    }
-  }
-}
+      } // if (dbe)
+    } // else
+  } // inline void perChanHists
+
+} // namespace HcalDigiPerChan
+
+
 
 void HcalDigiMonitor::reset(){}
 
@@ -87,15 +94,23 @@ namespace HcalDigiMap{
     int last = -1; float pval = -1;
     bitUp=false; err=false; occ=false;
     
+    //if (digi.size()!=10) err=true; 
+
     for (int i=0; i<digi.size(); i++) {
       int thisCapid = digi.sample(i).capid();
       if(bitUpset(last,thisCapid)) bitUp=true;
       last = thisCapid;
       if(digi.sample(i).er()) err=true;
       if(!digi.sample(i).dv()) err=true;
-      pval = digi.sample(i).adc()-calibs.pedestal(thisCapid);
+
+
+      //pval = digi.sample(i).adc()-calibs.pedestal(thisCapid);
+
+      // Occupancy was set true if ADC count above pedestal for at least one time slice
+      pval = digi.sample(i).adc(); // Just want to know it's alive. //-calibs.pedestal(thisCapid);
       vals[i] = pval;
-      if(pval>occThr) occ=true;
+      //      if(pval>occThr) occ=true;
+      if(digi.sample(i).adc()) occ=true;
     }
     if(bitUp) err=true;
     
@@ -109,8 +124,15 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
   HcalBaseMonitor::setup(ps,dbe);
   baseFolder_ = rootFolder_+"DigiMonitor";
 
-  occThresh_ = ps.getUntrackedParameter<int>("DigiOccThresh", 10);
+  occThresh_ = ps.getUntrackedParameter<int>("DigiOccThresh", -9999);
   cout << "Digi occupancy threshold set to " << occThresh_ << endl;
+
+  // Allow for diagnostic plots to be made if user wishes
+  hcalHists.makeDiagnostics=ps.getUntrackedParameter<bool>("MakeDigiDiagnosticPlots",false);
+  hbHists.makeDiagnostics=hcalHists.makeDiagnostics;
+  heHists.makeDiagnostics=hcalHists.makeDiagnostics;
+  hoHists.makeDiagnostics=hcalHists.makeDiagnostics;
+  hfHists.makeDiagnostics=hcalHists.makeDiagnostics;
 
   if ( ps.getUntrackedParameter<bool>("DigisPerChannel", false) ) doPerChannel_ = true;  
 
@@ -123,6 +145,10 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
   phiMin_ = ps.getUntrackedParameter<double>("MinPhi", -0.5);
   phiBins_ = (int)(phiMax_ - phiMin_);
   cout << "Digi phi min/max set to " << phiMin_ << "/" <<phiMax_ << endl;
+
+   // The number of consecutive events for which a cell must not have a digi in order to be considered dead
+
+  checkNevents_ = ps.getUntrackedParameter<int>("checkNevents",100); 
 
   ievt_=0;
   
@@ -193,8 +219,10 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
     BQDIGI_FRAC -> setAxisTitle("# of Events",2);
 
     m_dbe->setCurrentFolder(baseFolder_+"/HB");
-    hbHists.SHAPE_tot =  m_dbe->book1D("HB Digi Shape","HB Digi Shape",11,-0.5,10.5);
-    hbHists.SHAPE_THR_tot =  m_dbe->book1D("HB Digi Shape - over thresh","HB Digi Shape - over thresh",11,-0.5,10.5);
+
+    hbHists.check=ps.getUntrackedParameter<bool>("checkHB","true");
+    hbHists.SHAPE_tot =  m_dbe->book1D("HB Digi Shape","HB Digi Shape",10,-0.5,9.5);
+    hbHists.SHAPE_THR_tot =  m_dbe->book1D("HB Digi Shape - over thresh","HB Digi Shape - over thresh",10,-0.5,9.5);
 
     hbHists.DIGI_NUM =  m_dbe->book1D("HB # of Digis","HB # of Digis",2700,-0.5,2699.5);
     hbHists.DIGI_NUM -> setAxisTitle("# of Digis",1);  
@@ -272,9 +300,23 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
     hbHists.OCC_MAP_DCC -> setAxisTitle("Spigot",1);  
     hbHists.OCC_MAP_DCC -> setAxisTitle("DCC Id",2);
 
+    hbHists.TS_SUM_P.push_back( m_dbe->book1D("HBP Timeslices 2 and 3", "HBP Timeslices 2 and 3", 50, -5, 45) );
+    hbHists.TS_SUM_P.back()->setAxisTitle("Sum of ADC counts", 1);
+    hbHists.TS_SUM_P.push_back( m_dbe->book1D("HBP Timeslices 3 and 4", "HBP Timeslices 3 and 4", 50, -5, 45) );
+    hbHists.TS_SUM_P.back()->setAxisTitle("Sum of ADC counts", 1);
+    hbHists.TS_SUM_P.push_back( m_dbe->book1D("HBP Timeslices 4 and 5", "HBP Timeslices 4 and 5", 50, -5, 45) );
+    hbHists.TS_SUM_P.back()->setAxisTitle("Sum of ADC counts", 1);
+    hbHists.TS_SUM_M.push_back( m_dbe->book1D("HBM Timeslices 2 and 3", "HBM Timeslices 2 and 3", 50, -5, 45) );
+    hbHists.TS_SUM_M.back()->setAxisTitle("Sum of ADC counts", 1);
+    hbHists.TS_SUM_M.push_back( m_dbe->book1D("HBM Timeslices 3 and 4", "HBM Timeslices 3 and 4", 50, -5, 45) );
+    hbHists.TS_SUM_M.back()->setAxisTitle("Sum of ADC counts", 1);
+    hbHists.TS_SUM_M.push_back( m_dbe->book1D("HBM Timeslices 4 and 5", "HBM Timeslices 4 and 5", 50, -5, 45) );
+    hbHists.TS_SUM_M.back()->setAxisTitle("Sum of ADC counts", 1);
+
     m_dbe->setCurrentFolder(baseFolder_+"/HE");
-    heHists.SHAPE_tot =  m_dbe->book1D("HE Digi Shape","HE Digi Shape",11,-0.5,10.5);
-    heHists.SHAPE_THR_tot =  m_dbe->book1D("HE Digi Shape - over thresh","HE Digi Shape - over thresh",11,-0.5,10.5);
+    heHists.check=ps.getUntrackedParameter<bool>("checkHE","true");
+    heHists.SHAPE_tot =  m_dbe->book1D("HE Digi Shape","HE Digi Shape",10,-0.5,9.5);
+    heHists.SHAPE_THR_tot =  m_dbe->book1D("HE Digi Shape - over thresh","HE Digi Shape - over thresh",10,-0.5,9.5);
     heHists.DIGI_NUM =  m_dbe->book1D("HE # of Digis","HE # of Digis",2700,-0.5,2699.5);
     heHists.DIGI_NUM -> setAxisTitle("# of Digis",1);  
     heHists.DIGI_NUM -> setAxisTitle("# of Events",2);
@@ -349,9 +391,23 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
     heHists.OCC_MAP_DCC -> setAxisTitle("Spigot",1);  
     heHists.OCC_MAP_DCC -> setAxisTitle("DCC Id",2);
 
+    heHists.TS_SUM_P.push_back( m_dbe->book1D("HEP Timeslices 2 and 3", "HEP Timeslices 2 and 3", 50, -5, 45) );
+    heHists.TS_SUM_P.back()->setAxisTitle("Sum of ADC counts", 1);
+    heHists.TS_SUM_P.push_back( m_dbe->book1D("HEP Timeslices 3 and 4", "HEP Timeslices 3 and 4", 50, -5, 45) );
+    heHists.TS_SUM_P.back()->setAxisTitle("Sum of ADC counts", 1);
+    heHists.TS_SUM_P.push_back( m_dbe->book1D("HEP Timeslices 4 and 5", "HEP Timeslices 4 and 5", 50, -5, 45) );
+    heHists.TS_SUM_P.back()->setAxisTitle("Sum of ADC counts", 1);
+    heHists.TS_SUM_M.push_back( m_dbe->book1D("HEM Timeslices 2 and 3", "HEM Timeslices 2 and 3", 50, -5, 45) );
+    heHists.TS_SUM_M.back()->setAxisTitle("Sum of ADC counts", 1);
+    heHists.TS_SUM_M.push_back( m_dbe->book1D("HEM Timeslices 3 and 4", "HEM Timeslices 3 and 4", 50, -5, 45) );
+    heHists.TS_SUM_M.back()->setAxisTitle("Sum of ADC counts", 1);
+    heHists.TS_SUM_M.push_back( m_dbe->book1D("HEM Timeslices 4 and 5", "HEM Timeslices 4 and 5", 50, -5, 45) );
+    heHists.TS_SUM_M.back()->setAxisTitle("Sum of ADC counts", 1);
+
     m_dbe->setCurrentFolder(baseFolder_+"/HF");
-    hfHists.SHAPE_tot =  m_dbe->book1D("HF Digi Shape","HF Digi Shape",11,-0.5,10.5);
-    hfHists.SHAPE_THR_tot =  m_dbe->book1D("HF Digi Shape - over thresh","HF Digi Shape - over thresh",11,-0.5,10.5);
+    hfHists.check=ps.getUntrackedParameter<bool>("checkHF","true");
+    hfHists.SHAPE_tot =  m_dbe->book1D("HF Digi Shape","HF Digi Shape",10,-0.5,9.5);
+    hfHists.SHAPE_THR_tot =  m_dbe->book1D("HF Digi Shape - over thresh","HF Digi Shape - over thresh",10,-0.5,9.5);
     hfHists.DIGI_NUM =  m_dbe->book1D("HF # of Digis","HF # of Digis",1800,-0.5,1799.5);
     hfHists.DIGI_NUM -> setAxisTitle("# of Digis",1);  
     hfHists.DIGI_NUM -> setAxisTitle("# of Events",2);
@@ -428,9 +484,23 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
     hfHists.OCC_MAP_DCC -> setAxisTitle("Spigot",1);  
     hfHists.OCC_MAP_DCC -> setAxisTitle("DCC Id",2);
 
+    hfHists.TS_SUM_P.push_back( m_dbe->book1D("HFP Timeslices 2 and 3", "HFP Timeslices 2 and 3", 50, -5, 45) );
+    hfHists.TS_SUM_P.back()->setAxisTitle("Sum of ADC counts", 1);
+    hfHists.TS_SUM_P.push_back( m_dbe->book1D("HFP Timeslices 3 and 4", "HFP Timeslices 3 and 4", 50, -5, 45) );
+    hfHists.TS_SUM_P.back()->setAxisTitle("Sum of ADC counts", 1);
+    hfHists.TS_SUM_P.push_back( m_dbe->book1D("HFP Timeslices 4 and 5", "HFP Timeslices 4 and 5", 50, -5, 45) );
+    hfHists.TS_SUM_P.back()->setAxisTitle("Sum of ADC counts", 1);
+    hfHists.TS_SUM_M.push_back( m_dbe->book1D("HFM Timeslices 2 and 3", "HFM Timeslices 2 and 3", 50, -5, 45) );
+    hfHists.TS_SUM_M.back()->setAxisTitle("Sum of ADC counts", 1);
+    hfHists.TS_SUM_M.push_back( m_dbe->book1D("HFM Timeslices 3 and 4", "HFM Timeslices 3 and 4", 50, -5, 45) );
+    hfHists.TS_SUM_M.back()->setAxisTitle("Sum of ADC counts", 1);
+    hfHists.TS_SUM_M.push_back( m_dbe->book1D("HFM Timeslices 4 and 5", "HFM Timeslices 4 and 5", 50, -5, 45) );
+    hfHists.TS_SUM_M.back()->setAxisTitle("Sum of ADC counts", 1);
+
     m_dbe->setCurrentFolder(baseFolder_+"/HO");
-    hoHists.SHAPE_tot =  m_dbe->book1D("HO Digi Shape","HO Digi Shape",11,-0.5,10.5);
-    hoHists.SHAPE_THR_tot =  m_dbe->book1D("HO Digi Shape - over thresh","HO Digi Shape - over thresh",11,-0.5,10.5);
+    hoHists.check=ps.getUntrackedParameter<bool>("checkHO","true");
+    hoHists.SHAPE_tot =  m_dbe->book1D("HO Digi Shape","HO Digi Shape",10,-0.5,9.5);
+    hoHists.SHAPE_THR_tot =  m_dbe->book1D("HO Digi Shape - over thresh","HO Digi Shape - over thresh",10,-0.5,9.5);
     hoHists.DIGI_NUM =  m_dbe->book1D("HO # of Digis","HO # of Digis",2200,-0.5,2199.5);
     hoHists.DIGI_NUM -> setAxisTitle("# of Digis",1);  
     hoHists.DIGI_NUM -> setAxisTitle("# of Events",2);
@@ -505,8 +575,236 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
 					36,-0.5,35.5);
     hoHists.OCC_MAP_DCC -> setAxisTitle("Spigot",1);  
     hoHists.OCC_MAP_DCC -> setAxisTitle("DCC Id",2);
+
+    hoHists.TS_SUM_P.push_back( m_dbe->book1D("HOP Timeslices 2 and 3", "HOP Timeslices 2 and 3", 50, -5, 45) );
+    hoHists.TS_SUM_P.back()->setAxisTitle("Sum of ADC counts", 1);
+    hoHists.TS_SUM_P.push_back( m_dbe->book1D("HOP Timeslices 3 and 4", "HOP Timeslices 3 and 4", 50, -5, 45) );
+    hoHists.TS_SUM_P.back()->setAxisTitle("Sum of ADC counts", 1);
+    hoHists.TS_SUM_P.push_back( m_dbe->book1D("HOP Timeslices 4 and 5", "HOP Timeslices 4 and 5", 50, -5, 45) );
+    hoHists.TS_SUM_P.back()->setAxisTitle("Sum of ADC counts", 1);
+    hoHists.TS_SUM_M.push_back( m_dbe->book1D("HOM Timeslices 2 and 3", "HOM Timeslices 2 and 3", 50, -5, 45) );
+    hoHists.TS_SUM_M.back()->setAxisTitle("Sum of ADC counts", 1);
+    hoHists.TS_SUM_M.push_back( m_dbe->book1D("HOM Timeslices 3 and 4", "HOM Timeslices 3 and 4", 50, -5, 45) );
+    hoHists.TS_SUM_M.back()->setAxisTitle("Sum of ADC counts", 1);
+    hoHists.TS_SUM_M.push_back( m_dbe->book1D("HOM Timeslices 4 and 5", "HOM Timeslices 4 and 5", 50, -5, 45) );
+    hoHists.TS_SUM_M.back()->setAxisTitle("Sum of ADC counts", 1);
+
+    // Summary histograms for storing problem info (cells with either a digi error or with low digi occupancy)
+    m_dbe->setCurrentFolder(baseFolder_+"/HCAL");
+
+    hcalHists.check=true;
+    hcalHists.PROBLEMDIGICELLS=m_dbe->book2D("HCALProblemDigiCells", 
+					  "HCAL Bad Digi rate for potentially bad cells", 
+					  etaBins_, etaMin_, etaMax_, 
+					  phiBins_, phiMin_, phiMax_); 
+
+    std::stringstream histname; 
+    std::stringstream histtitle; 
+
+    for (int d=0;d<4;++d)
+      {
+	m_dbe->setCurrentFolder(baseFolder_+"/HCAL/expertPlots"); 
+	histname.str(""); 
+	histtitle.str(""); 
+	histname<<"HCALProblemDigiCells_depth"<<d+1; 
+	histtitle<<"HCAL Bad Digi rate for potentially bad cells (depth "<<d+1<<")"; 
+	hcalHists.PROBLEMDIGICELLS_DEPTH.push_back(m_dbe->book2D(histname.str().c_str(),histtitle.str().c_str(), 
+								 etaBins_,etaMin_,etaMax_, 
+								 phiBins_,phiMin_,phiMax_)); 
+      }
+
+    //HB 
+    m_dbe->setCurrentFolder(baseFolder_+"/HB");
+    hbHists.PROBLEMDIGICELLS=m_dbe->book2D("HBProblemDigiCells", 
+					  "HB Bad Digi rate for potentially bad cells", 
+					  etaBins_, etaMin_, etaMax_, 
+					  phiBins_, phiMin_, phiMax_); 
+    for (int d=0;d<4;++d)
+      {
+	m_dbe->setCurrentFolder(baseFolder_+"/HB/expertPlots"); 
+	histname.str(""); 
+	histtitle.str(""); 
+	histname<<"HBProblemDigiCells_depth"<<d+1; 
+	histtitle<<"HB Bad Digi rate for potentially bad cells (depth "<<d+1<<")"; 
+	hbHists.PROBLEMDIGICELLS_DEPTH.push_back(m_dbe->book2D(histname.str().c_str(),histtitle.str().c_str(), 
+							       etaBins_,etaMin_,etaMax_, 
+							       phiBins_,phiMin_,phiMax_)); 
+      }
+
+   //HE 
+    m_dbe->setCurrentFolder(baseFolder_+"/HE");
+    heHists.PROBLEMDIGICELLS=m_dbe->book2D("HEProblemDigiCells", 
+					  "HE Bad Digi rate for potentially bad cells", 
+					  etaBins_, etaMin_, etaMax_, 
+					  phiBins_, phiMin_, phiMax_); 
+    for (int d=0;d<4;++d)
+      {
+	m_dbe->setCurrentFolder(baseFolder_+"/HE/expertPlots"); 
+	histname.str(""); 
+	histtitle.str(""); 
+	histname<<"HEProblemDigiCells_depth"<<d+1; 
+	histtitle<<"HE Bad Digi rate for potentially bad cells (depth "<<d+1<<")"; 
+	heHists.PROBLEMDIGICELLS_DEPTH.push_back(m_dbe->book2D(histname.str().c_str(),histtitle.str().c_str(), 
+							       etaBins_,etaMin_,etaMax_, 
+							       phiBins_,phiMin_,phiMax_)); 
+      }
+
+    //HO 
+    m_dbe->setCurrentFolder(baseFolder_+"/HO");
+    hoHists.PROBLEMDIGICELLS=m_dbe->book2D("HOProblemDigiCells", 
+					  "HO Bad Digi rate for potentially bad cells", 
+					  etaBins_, etaMin_, etaMax_, 
+					  phiBins_, phiMin_, phiMax_); 
+    for (int d=0;d<4;++d)
+      {
+	m_dbe->setCurrentFolder(baseFolder_+"/HO/expertPlots"); 
+	histname.str(""); 
+	histtitle.str(""); 
+	histname<<"HOProblemDigiCells_depth"<<d+1; 
+	histtitle<<"HO Bad Digi rate for potentially bad cells (depth "<<d+1<<")"; 
+	hoHists.PROBLEMDIGICELLS_DEPTH.push_back(m_dbe->book2D(histname.str().c_str(),histtitle.str().c_str(), 
+							       etaBins_,etaMin_,etaMax_, 
+							       phiBins_,phiMin_,phiMax_)); 
+      }
+
+   //HF 
+    m_dbe->setCurrentFolder(baseFolder_+"/HF");
+    hfHists.PROBLEMDIGICELLS=m_dbe->book2D("HFProblemDigiCells", 
+					  "HF Bad Digi rate for potentially bad cells", 
+					  etaBins_, etaMin_, etaMax_, 
+					  phiBins_, phiMin_, phiMax_); 
+    for (int d=0;d<4;++d)
+      {
+	m_dbe->setCurrentFolder(baseFolder_+"/HF/expertPlots"); 
+	histname.str(""); 
+	histtitle.str(""); 
+	histname<<"HFProblemDigiCells_depth"<<d+1; 
+	histtitle<<"HF Bad Digi rate for potentially bad cells (depth "<<d+1<<")"; 
+	hfHists.PROBLEMDIGICELLS_DEPTH.push_back(m_dbe->book2D(histname.str().c_str(),histtitle.str().c_str(), 
+							       etaBins_,etaMin_,etaMax_, 
+							       phiBins_,phiMin_,phiMax_)); 
+      }
+
+
+    // Form temp histograms
+    // HCAL
+    hcalHists.PROBLEMDIGICELLS_TEMP=new TH2F("HCALProblemDigiCells_temp", 
+					"HCAL Bad Digi rate for potentially bad cells", 
+					etaBins_, etaMin_, etaMax_, 
+					phiBins_, phiMin_, phiMax_); 
+
+    for (int d=0;d<4;++d)
+      {
+	m_dbe->setCurrentFolder(baseFolder_+"/HCAL/expertPlots"); 
+	histname.str(""); 
+	histtitle.str(""); 
+	histname<<"tempHCALProblemDigiCells_depth"<<d+1; 
+	histtitle<<"HCAL Bad Digi rate for potentially bad cells (depth "<<d+1<<")"; 
+	hcalHists.PROBLEMDIGICELLS_TEMP_DEPTH.push_back(new TH2F(histname.str().c_str(),histtitle.str().c_str(), 
+								 etaBins_,etaMin_,etaMax_, 
+								 phiBins_,phiMin_,phiMax_)); 
+      }
+
+    // HB
+    hbHists.PROBLEMDIGICELLS_TEMP=new TH2F("HBProblemDigiCells_temp", 
+					"HB Bad Digi rate for potentially bad cells", 
+					etaBins_, etaMin_, etaMax_, 
+					phiBins_, phiMin_, phiMax_); 
+
+    for (int d=0;d<4;++d)
+      {
+	m_dbe->setCurrentFolder(baseFolder_+"/HB/expertPlots"); 
+	histname.str(""); 
+	histtitle.str(""); 
+	histname<<"tempHBProblemDigiCells_depth"<<d+1; 
+	histtitle<<"HB Bad Digi rate for potentially bad cells (depth "<<d+1<<")"; 
+	hbHists.PROBLEMDIGICELLS_TEMP_DEPTH.push_back(new TH2F(histname.str().c_str(),histtitle.str().c_str(), 
+								      etaBins_,etaMin_,etaMax_, 
+								      phiBins_,phiMin_,phiMax_)); 
+      }
+
+    // HE
+    heHists.PROBLEMDIGICELLS_TEMP=new TH2F("HEProblemDigiCells_temp", 
+					"HE Bad Digi rate for potentially bad cells", 
+					etaBins_, etaMin_, etaMax_, 
+					phiBins_, phiMin_, phiMax_); 
+
+    for (int d=0;d<4;++d)
+      {
+	m_dbe->setCurrentFolder(baseFolder_+"/HE/expertPlots"); 
+	histname.str(""); 
+	histtitle.str(""); 
+	histname<<"tempHEProblemDigiCells_depth"<<d+1; 
+	histtitle<<"HE Bad Digi rate for potentially bad cells (depth "<<d+1<<")"; 
+	heHists.PROBLEMDIGICELLS_TEMP_DEPTH.push_back(new TH2F(histname.str().c_str(),histtitle.str().c_str(), 
+								      etaBins_,etaMin_,etaMax_, 
+								      phiBins_,phiMin_,phiMax_)); 
+      }
+
+    // HO
+    hoHists.PROBLEMDIGICELLS_TEMP=new TH2F("HOProblemDigiCells_temp", 
+					"HO Bad Digi rate for potentially bad cells", 
+					etaBins_, etaMin_, etaMax_, 
+					phiBins_, phiMin_, phiMax_); 
+
+    for (int d=0;d<4;++d)
+      {
+	m_dbe->setCurrentFolder(baseFolder_+"/HO/expertPlots"); 
+	histname.str(""); 
+	histtitle.str(""); 
+	histname<<"tempHOProblemDigiCells_depth"<<d+1; 
+	histtitle<<"HO Bad Digi rate for potentially bad cells (depth "<<d+1<<")"; 
+	hoHists.PROBLEMDIGICELLS_TEMP_DEPTH.push_back(new TH2F(histname.str().c_str(),histtitle.str().c_str(), 
+								      etaBins_,etaMin_,etaMax_, 
+								      phiBins_,phiMin_,phiMax_)); 
+      }
+
+    // HF
+    hfHists.PROBLEMDIGICELLS_TEMP=new TH2F("HFProblemDigiCells_temp", 
+					"HF Bad Digi rate for potentially bad cells", 
+					etaBins_, etaMin_, etaMax_, 
+					phiBins_, phiMin_, phiMax_); 
+
+    for (int d=0;d<4;++d)
+      {
+	m_dbe->setCurrentFolder(baseFolder_+"/HF/expertPlots"); 
+	histname.str(""); 
+	histtitle.str(""); 
+	histname<<"tempHFProblemDigiCells_depth"<<d+1; 
+	histtitle<<"HF Bad Digi rate for potentially bad cells (depth "<<d+1<<")"; 
+	hfHists.PROBLEMDIGICELLS_TEMP_DEPTH.push_back(new TH2F(histname.str().c_str(),histtitle.str().c_str(), 
+								      etaBins_,etaMin_,etaMax_, 
+								      phiBins_,phiMin_,phiMax_)); 
+      }
+
+
+    hcalHists.PROBLEMDIGICELLS -> setAxisTitle("ieta",1);  
+    hcalHists.PROBLEMDIGICELLS -> setAxisTitle("iphi",2);
+    hbHists.PROBLEMDIGICELLS -> setAxisTitle("ieta",1);  
+    hbHists.PROBLEMDIGICELLS -> setAxisTitle("iphi",2);
+    heHists.PROBLEMDIGICELLS -> setAxisTitle("ieta",1);  
+    heHists.PROBLEMDIGICELLS -> setAxisTitle("iphi",2);
+    hoHists.PROBLEMDIGICELLS -> setAxisTitle("ieta",1);  
+    hoHists.PROBLEMDIGICELLS -> setAxisTitle("iphi",2);
+    hfHists.PROBLEMDIGICELLS -> setAxisTitle("ieta",1);  
+    hfHists.PROBLEMDIGICELLS -> setAxisTitle("iphi",2);
     
-}
+    for (int d=0;d<4;++d)
+      {
+	hcalHists.PROBLEMDIGICELLS_DEPTH[d] -> setAxisTitle("ieta",1);  
+	hcalHists.PROBLEMDIGICELLS_DEPTH[d] -> setAxisTitle("iphi",2);
+	hbHists.PROBLEMDIGICELLS_DEPTH[d] -> setAxisTitle("ieta",1);  
+	hbHists.PROBLEMDIGICELLS_DEPTH[d] -> setAxisTitle("iphi",2);
+	heHists.PROBLEMDIGICELLS_DEPTH[d] -> setAxisTitle("ieta",1);  
+	heHists.PROBLEMDIGICELLS_DEPTH[d] -> setAxisTitle("iphi",2);
+	hoHists.PROBLEMDIGICELLS_DEPTH[d] -> setAxisTitle("ieta",1);  
+	hoHists.PROBLEMDIGICELLS_DEPTH[d] -> setAxisTitle("iphi",2);
+	hfHists.PROBLEMDIGICELLS_DEPTH[d] -> setAxisTitle("ieta",1);  
+	hfHists.PROBLEMDIGICELLS_DEPTH[d] -> setAxisTitle("iphi",2);
+      }
+
+  
+  }// if (m_dbe)
 
   return;
 }
@@ -515,7 +813,8 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 				   const HODigiCollection& ho,
 				   const HFDigiCollection& hf,
 				   const HcalDbService& cond,
-				   const HcalUnpackerReport& report){
+				   const HcalUnpackerReport& report)
+{
   
   if(!m_dbe) { 
     if(fVerbosity) printf("HcalDigiMonitor::processEvent   DQMStore not instantiated!!!\n");  
@@ -524,6 +823,9 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
   
   ievt_++;
   meEVT_->Fill(ievt_);
+  
+  //EmptyDigiFill(); // fill all cells as being empty; "unfill" for all digis that are found -- not used at the moment
+
 
   int nbqdigi_report = report.badQualityDigis();
   if (nbqdigi_report != 0)BQDIGI_NUM->Fill(nbqdigi_report);
@@ -538,18 +840,37 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
     int firsthbcap = -1; int firsthecap = -1;
     for (HBHEDigiCollection::const_iterator j=hbhe.begin(); j!=hbhe.end(); j++){
       const HBHEDataFrame digi = (const HBHEDataFrame)(*j);
+      
+
+      
       calibs_= cond.getHcalCalibrations(digi.id());  // Old method was made private. 
 
       HcalDigiMap::digiStats(digi, calibs_, occThresh_, normVals, digiErr, digiOcc, digiUpset);      
       if((HcalSubdetector)(digi.id().subdet())==HcalBarrel){	
+	if (!hbHists.check) continue;
+
 	nhbdigi++;  ndigi++;
+	// Digi found; "unfill it" so that it doesn't appear empty:
+	if ( digiOcc) // require digi to have a value (don't know if this is the best way to proceed?)
+	  {
+	    hbHists.PROBLEMDIGICELLS_TEMP->Fill(digi.id().ieta(),digi.id().iphi(),1);
+	    hbHists.PROBLEMDIGICELLS_TEMP_DEPTH[digi.id().depth()-1]->Fill(digi.id().ieta(),digi.id().iphi(),1);
 	
+	    hcalHists.PROBLEMDIGICELLS_TEMP->Fill(digi.id().ieta(),digi.id().iphi(),1);
+	    hcalHists.PROBLEMDIGICELLS_TEMP_DEPTH[digi.id().depth()-1]->Fill(digi.id().ieta(),digi.id().iphi(),1);
+	  }
 	if(digiErr){
 	  nhbbqdigi++; nbqdigi++;
+
+	  hbHists.PROBLEMDIGICELLS->Fill(digi.id().ieta(),digi.id().iphi());
+	  hbHists.PROBLEMDIGICELLS_DEPTH[digi.id().depth()-1]->Fill(digi.id().ieta(),digi.id().iphi());
+	  hcalHists.PROBLEMDIGICELLS->Fill(digi.id().ieta(),digi.id().iphi());
+	  hcalHists.PROBLEMDIGICELLS_DEPTH[digi.id().depth()-1]->Fill(digi.id().ieta(),digi.id().iphi());
+
 	  HcalDigiMap::fillErrors<HBHEDataFrame>(digi,normVals,
 						 hbHists.ERR_MAP_GEO,hbHists.ERR_MAP_VME,
 						 hbHists.ERR_MAP_DCC);	  
-
+	  
 	  HcalDigiMap::fillErrors<HBHEDataFrame>(digi,normVals,
 						 ERR_MAP_GEO,ERR_MAP_VME,
 						 ERR_MAP_DCC);	  
@@ -574,29 +895,67 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 
 	if (firsthbcap == -1) firsthbcap = digi.sample(0).capid();
 	int capdif = digi.sample(0).capid() - firsthbcap;
+	capdif = capdif%3 - capdif/3;
 	hbHists.CAPID_T0->Fill(capdif);
 	CAPID_T0->Fill(capdif);
+
+	//for timing plot, find max-TS
+	int maxadc=0;
+	for (int j=0; j<digi.size(); j++){     
+	  if (digi.sample(j).adc() > maxadc) maxadc = digi.sample(j).adc();
+	}
 
 	for (int i=0; i<digi.size(); i++) {	    
 	  hbHists.QIE_CAPID->Fill(digi.sample(i).capid());
 	  hbHists.QIE_ADC->Fill(digi.sample(i).adc());
-	  hbHists.SHAPE_tot->Fill(i,normVals[i]);
+	  //Timing plot: skipping ped. subtraction and fC conversion, just lin.adc counts
+	  //   hbHists.SHAPE_tot->Fill(i,normVals[i]);
+	  int jadc=digi.sample(i).adc();
+	  float tmp = (LedMonAdc2fc[jadc]+0.5);
+	  hbHists.SHAPE_tot->Fill(i,tmp);
 	  
-	  if(digiOcc) hbHists.SHAPE_THR_tot->Fill(i,normVals[i]);
+	  //Timing plot: skipping ped. subtraction and fC conversion, just lin.adc counts
+	  //and introducing threshold able to find muons
+	  //   if(digiOcc) hbHists.SHAPE_THR_tot->Fill(i,normVals[i]);
+	  if(maxadc>10) hbHists.SHAPE_THR_tot->Fill(i,tmp);	  
 	  if(digiUpset) hbHists.QIE_CAPID->Fill(5);
 	  int dver = 2*digi.sample(i).er() + digi.sample(i).dv();
 	  hbHists.QIE_DV->Fill(dver);
 	}    
 	
 	if(doPerChannel_)	  
-	  HcalDigiPerChan::perChanHists<HBHEDataFrame>(0,digi,normVals,hbHists.SHAPE,m_dbe,baseFolder_);
+	    HcalDigiPerChan::perChanHists<HBHEDataFrame>(1,digi,normVals,hbHists.SHAPE,m_dbe,baseFolder_);
 
+
+	if (digi.id().ieta() > 0) {
+	  hbHists.TS_SUM_P[0]->Fill(digi.sample(2).adc() + digi.sample(3).adc());
+	  hbHists.TS_SUM_P[1]->Fill(digi.sample(3).adc() + digi.sample(4).adc());
+	  hbHists.TS_SUM_P[2]->Fill(digi.sample(4).adc() + digi.sample(5).adc());	  
+	}
+	else if (digi.id().ieta() < 0) {
+	  hbHists.TS_SUM_M[0]->Fill(digi.sample(2).adc() + digi.sample(3).adc());
+	  hbHists.TS_SUM_M[1]->Fill(digi.sample(3).adc() + digi.sample(4).adc());
+	  hbHists.TS_SUM_M[2]->Fill(digi.sample(4).adc() + digi.sample(5).adc());	  
+	}
       }
-      else if((HcalSubdetector)(digi.id().subdet())==HcalEndcap){	
+      else if((HcalSubdetector)(digi.id().subdet())==HcalEndcap){
+	if (!heHists.check) continue;
 	nhedigi++;  ndigi++;
+
+ 	if ( digiOcc)
+	  {
+	    heHists.PROBLEMDIGICELLS_TEMP->Fill(digi.id().ieta(),digi.id().iphi(),1);
+	    heHists.PROBLEMDIGICELLS_TEMP_DEPTH[digi.id().depth()-1]->Fill(digi.id().ieta(),digi.id().iphi(),1);
+	    hcalHists.PROBLEMDIGICELLS_TEMP->Fill(digi.id().ieta(),digi.id().iphi(),1);
+	    hcalHists.PROBLEMDIGICELLS_TEMP_DEPTH[digi.id().depth()-1]->Fill(digi.id().ieta(),digi.id().iphi(),1);
+	  }
 
 	if(digiErr){
 	  nhebqdigi++; nbqdigi++;
+	  heHists.PROBLEMDIGICELLS->Fill(digi.id().ieta(),digi.id().iphi());
+	  heHists.PROBLEMDIGICELLS_DEPTH[digi.id().depth()-1]->Fill(digi.id().ieta(),digi.id().iphi());
+	  hcalHists.PROBLEMDIGICELLS->Fill(digi.id().ieta(),digi.id().iphi());
+	  hcalHists.PROBLEMDIGICELLS_DEPTH[digi.id().depth()-1]->Fill(digi.id().ieta(),digi.id().iphi());
 	  HcalDigiMap::fillErrors<HBHEDataFrame>(digi,normVals,
 						 heHists.ERR_MAP_GEO,heHists.ERR_MAP_VME,
 						 heHists.ERR_MAP_DCC);	  
@@ -625,22 +984,49 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 
 	if (firsthecap == -1) firsthecap = digi.sample(0).capid();
 	int capdif = digi.sample(0).capid() - firsthecap;
+	capdif = capdif%3 - capdif/3;
 	heHists.CAPID_T0->Fill(capdif);
 	CAPID_T0->Fill(capdif);
+
+
+	//for timing plot, find max-TS
+	int maxadc=0;
+	for (int j=0; j<digi.size(); j++){     
+	  if (digi.sample(j).adc() > maxadc) maxadc = digi.sample(j).adc();
+	}
 
 	for (int i=0; i<digi.size(); i++) {	    
 	  heHists.QIE_CAPID->Fill(digi.sample(i).capid());
 	  heHists.QIE_ADC->Fill(digi.sample(i).adc());
-	  heHists.SHAPE_tot->Fill(i,normVals[i]);
+	  //Timing plot: skipping ped. subtraction and fC conversion, just lin.adc counts
+	  //   heHists.SHAPE_tot->Fill(i,normVals[i]);
+	  int jadc=digi.sample(i).adc();
+	  float tmp = (LedMonAdc2fc[jadc]+0.5);
+	  heHists.SHAPE_tot->Fill(i,tmp);
 	  
-	  if(digiOcc) heHists.SHAPE_THR_tot->Fill(i,normVals[i]);
+	  //Timing plot: skipping ped. subtraction and fC conversion, just lin.adc counts
+	  //and introducing threshold able to find muons
+	  //   if(digiOcc) heHists.SHAPE_THR_tot->Fill(i,normVals[i]);
+	  if(maxadc>10) heHists.SHAPE_THR_tot->Fill(i,tmp);
 	  if(digiUpset) heHists.QIE_CAPID->Fill(5);
 	  int dver = 2*digi.sample(i).er() + digi.sample(i).dv();
 	  heHists.QIE_DV->Fill(dver);
 	}    
 	
 	if(doPerChannel_)
-	  HcalDigiPerChan::perChanHists<HBHEDataFrame>(1,digi,normVals,heHists.SHAPE,m_dbe,baseFolder_);
+	  HcalDigiPerChan::perChanHists<HBHEDataFrame>(2,digi,normVals,heHists.SHAPE,m_dbe,baseFolder_);
+
+
+	if (digi.id().ieta() > 0) {
+	  heHists.TS_SUM_P[0]->Fill(digi.sample(2).adc() + digi.sample(3).adc());
+	  heHists.TS_SUM_P[1]->Fill(digi.sample(3).adc() + digi.sample(4).adc());
+	  heHists.TS_SUM_P[2]->Fill(digi.sample(4).adc() + digi.sample(5).adc());	  
+	}
+	else if (digi.id().ieta() < 0) {
+	  heHists.TS_SUM_M[0]->Fill(digi.sample(2).adc() + digi.sample(3).adc());
+	  heHists.TS_SUM_M[1]->Fill(digi.sample(3).adc() + digi.sample(4).adc());
+	  heHists.TS_SUM_M[2]->Fill(digi.sample(4).adc() + digi.sample(5).adc());	  
+	}
 
       }
     }
@@ -662,10 +1048,24 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
     int nhodigi = ho.size();
     //    hoHists.DIGI_NUM->Fill(ho.size());
     for (HODigiCollection::const_iterator j=ho.begin(); j!=ho.end(); j++){
+      if (!hoHists.check) continue;
       const HODataFrame digi = (const HODataFrame)(*j);	
       HcalDigiMap::digiStats(digi, calibs_, occThresh_, normVals, digiErr, digiOcc, digiUpset);      
-	
+
+
+      if ( digiOcc)
+	{
+	  hoHists.PROBLEMDIGICELLS_TEMP->Fill(digi.id().ieta(),digi.id().iphi(),1);
+	  hoHists.PROBLEMDIGICELLS_TEMP_DEPTH[digi.id().depth()-1]->Fill(digi.id().ieta(),digi.id().iphi(),1);
+	  hcalHists.PROBLEMDIGICELLS_TEMP->Fill(digi.id().ieta(),digi.id().iphi(),1);
+	  hcalHists.PROBLEMDIGICELLS_TEMP_DEPTH[digi.id().depth()-1]->Fill(digi.id().ieta(),digi.id().iphi(),1);
+	}
       if(digiErr){
+	hoHists.PROBLEMDIGICELLS->Fill(digi.id().ieta(),digi.id().iphi());
+	hoHists.PROBLEMDIGICELLS_DEPTH[digi.id().depth()-1]->Fill(digi.id().ieta(),digi.id().iphi());
+	hcalHists.PROBLEMDIGICELLS->Fill(digi.id().ieta(),digi.id().iphi());
+	hcalHists.PROBLEMDIGICELLS_DEPTH[digi.id().depth()-1]->Fill(digi.id().ieta(),digi.id().iphi());
+
 	nhobqdigi++; nbqdigi++;
 	HcalDigiMap::fillErrors<HODataFrame>(digi,normVals,
 					       hoHists.ERR_MAP_GEO,hoHists.ERR_MAP_VME,
@@ -695,22 +1095,49 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 
       if (firsthocap == -1) firsthocap = digi.sample(0).capid();
       int capdif = digi.sample(0).capid() - firsthocap;
+      capdif = capdif%3 - capdif/3;
       hoHists.CAPID_T0->Fill(capdif);
       CAPID_T0->Fill(capdif);
       
+      //for timing plot, find max-TS
+      int maxadc=0;
+      for (int j=0; j<digi.size(); j++){     
+	if (digi.sample(j).adc() > maxadc) maxadc = digi.sample(j).adc();
+      }
+
       for (int i=0; i<digi.size(); i++) {	    
 	hoHists.QIE_CAPID->Fill(digi.sample(i).capid());
 	hoHists.QIE_ADC->Fill(digi.sample(i).adc());
-	hoHists.SHAPE_tot->Fill(i,normVals[i]);
+	//Timing plot: skipping ped. subtraction and fC conversion, just lin.adc counts
+	//  hoHists.SHAPE_tot->Fill(i,normVals[i]);
+	int jadc=digi.sample(i).adc();
+	float tmp = (LedMonAdc2fc[jadc]+0.5);
+	hoHists.SHAPE_tot->Fill(i,tmp);
 	
-	if(digiOcc) hoHists.SHAPE_THR_tot->Fill(i,normVals[i]);
+	//Timing plot: skipping ped. subtraction and fC conversion, just lin.adc counts
+	//and introducing threshold able to find muons
+	//   if(digiOcc) hoHists.SHAPE_THR_tot->Fill(i,normVals[i]);
+	if(maxadc>10) hoHists.SHAPE_THR_tot->Fill(i,tmp);
 	if(digiUpset) hoHists.QIE_CAPID->Fill(5);
 	int dver = 2*digi.sample(i).er() + digi.sample(i).dv();
 	hoHists.QIE_DV->Fill(dver);
       }    
       
       if(doPerChannel_)	  
-	HcalDigiPerChan::perChanHists<HODataFrame>(2,digi,normVals,hoHists.SHAPE,m_dbe, baseFolder_);
+	HcalDigiPerChan::perChanHists<HODataFrame>(3,digi,normVals,hoHists.SHAPE,m_dbe, baseFolder_);
+
+
+	if (digi.id().ieta() > 0) {
+	  hoHists.TS_SUM_P[0]->Fill(digi.sample(2).adc() + digi.sample(3).adc());
+	  hoHists.TS_SUM_P[1]->Fill(digi.sample(3).adc() + digi.sample(4).adc());
+	  hoHists.TS_SUM_P[2]->Fill(digi.sample(4).adc() + digi.sample(5).adc());	  
+	}
+	else if (digi.id().ieta() < 0) {
+	  hoHists.TS_SUM_M[0]->Fill(digi.sample(2).adc() + digi.sample(3).adc());
+	  hoHists.TS_SUM_M[1]->Fill(digi.sample(3).adc() + digi.sample(4).adc());
+	  hoHists.TS_SUM_M[2]->Fill(digi.sample(4).adc() + digi.sample(5).adc());	  
+	}
+
     }
     hoHists.DIGI_NUM->Fill(nhodigi);
     hoHists.BQDIGI_NUM->Fill(nhobqdigi);
@@ -726,10 +1153,24 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
     int nhfdigi = hf.size();
     //    hfHists.DIGI_NUM->Fill(hf.size());
     for (HFDigiCollection::const_iterator j=hf.begin(); j!=hf.end(); j++){
-      const HFDataFrame digi = (const HFDataFrame)(*j);	
+      if (!hfHists.check) continue;
+      const HFDataFrame digi = (const HFDataFrame)(*j);
+ 
+      if ( digiOcc)
+	{
+	  hfHists.PROBLEMDIGICELLS_TEMP->Fill(digi.id().ieta(),digi.id().iphi(),1);
+	  hfHists.PROBLEMDIGICELLS_TEMP_DEPTH[digi.id().depth()-1]->Fill(digi.id().ieta(),digi.id().iphi(),1);
+	  hcalHists.PROBLEMDIGICELLS_TEMP->Fill(digi.id().ieta(),digi.id().iphi(),1);
+	  hcalHists.PROBLEMDIGICELLS_TEMP_DEPTH[digi.id().depth()-1]->Fill(digi.id().ieta(),digi.id().iphi(),1);
+	}
+
       HcalDigiMap::digiStats(digi, calibs_, occThresh_, normVals, digiErr, digiOcc, digiUpset);      
 	
       if(digiErr){
+	hfHists.PROBLEMDIGICELLS->Fill(digi.id().ieta(),digi.id().iphi());
+	hfHists.PROBLEMDIGICELLS_DEPTH[digi.id().depth()-1]->Fill(digi.id().ieta(),digi.id().iphi());
+	hcalHists.PROBLEMDIGICELLS->Fill(digi.id().ieta(),digi.id().iphi());
+	hcalHists.PROBLEMDIGICELLS_DEPTH[digi.id().depth()-1]->Fill(digi.id().ieta(),digi.id().iphi());
 	nhfbqdigi++;  nbqdigi++;
 	HcalDigiMap::fillErrors<HFDataFrame>(digi,normVals,
 					       hfHists.ERR_MAP_GEO,hfHists.ERR_MAP_VME,
@@ -759,22 +1200,49 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 
       if (firsthfcap == -1) firsthfcap = digi.sample(0).capid();
       int capdif = digi.sample(0).capid() - firsthfcap;
+      capdif = capdif%3 - capdif/3;
       hfHists.CAPID_T0->Fill(capdif);
       CAPID_T0->Fill(capdif);
       
+      //for timing plot, find max-TS
+      int maxadc=0;
+      for (int j=0; j<digi.size(); j++){     
+	if (digi.sample(j).adc() > maxadc) maxadc = digi.sample(j).adc();
+      }
+   
       for (int i=0; i<digi.size(); i++) {	    
 	hfHists.QIE_CAPID->Fill(digi.sample(i).capid());
 	hfHists.QIE_ADC->Fill(digi.sample(i).adc());
-	hfHists.SHAPE_tot->Fill(i,normVals[i]);
+	//Timing plot: skipping ped. subtraction and fC conversion, just lin.adc counts
+	//  hfHists.SHAPE_tot->Fill(i,normVals[i]);
+	int jadc=digi.sample(i).adc();
+	float tmp = (LedMonAdc2fc[jadc]+0.5);
+	hfHists.SHAPE_tot->Fill(i,tmp);
 	
-	if(digiOcc) hfHists.SHAPE_THR_tot->Fill(i,normVals[i]);
+	//Timing plot: skipping ped. subtraction and fC conversion, just lin.adc counts
+	//and introducing threshold able to find muons
+	//  if(digiOcc) hfHists.SHAPE_THR_tot->Fill(i,normVals[i]);
+        if(maxadc>10) hfHists.SHAPE_THR_tot->Fill(i,tmp);
 	if(digiUpset) hfHists.QIE_CAPID->Fill(5);
 	int dver = 2*digi.sample(i).er() + digi.sample(i).dv();
 	hfHists.QIE_DV->Fill(dver);
       }    
-      
+
+
       if(doPerChannel_)	  
-	HcalDigiPerChan::perChanHists<HFDataFrame>(3,digi,normVals,hfHists.SHAPE,m_dbe, baseFolder_);
+	HcalDigiPerChan::perChanHists<HFDataFrame>(4,digi,normVals,hfHists.SHAPE,m_dbe, baseFolder_);
+
+
+      if (digi.id().ieta() > 0) {
+	hfHists.TS_SUM_P[0]->Fill(digi.sample(2).adc() + digi.sample(3).adc());
+	hfHists.TS_SUM_P[1]->Fill(digi.sample(3).adc() + digi.sample(4).adc());
+	hfHists.TS_SUM_P[2]->Fill(digi.sample(4).adc() + digi.sample(5).adc());	  
+      }
+      else if (digi.id().ieta() < 0) {
+	hfHists.TS_SUM_M[0]->Fill(digi.sample(2).adc() + digi.sample(3).adc());
+	hfHists.TS_SUM_M[1]->Fill(digi.sample(3).adc() + digi.sample(4).adc());
+	hfHists.TS_SUM_M[2]->Fill(digi.sample(4).adc() + digi.sample(5).adc());	  
+      }
 
     }
     hfHists.DIGI_NUM->Fill(nhfdigi);
@@ -790,13 +1258,340 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
     double bqfrac;
     if (nbqdigi == 0){
       bqfrac = (1.0*nbqdigi_report)/(1.0*(ndigi+nbqdigi_report));
-      cout << "Bad Digis from report, bqfrac:  " << nbqdigi_report << "  "<< bqfrac<< endl; 
+      //      cout << "Bad Digis from report, bqfrac:  " << nbqdigi_report << "  "<< bqfrac<< endl; 
     }
     else{
       bqfrac = (1.0*nbqdigi)/(1.0*ndigi);
-      cout << "Bad Digis counted, bqfrac:  " << nbqdigi << "  "<< bqfrac<< endl;
+      //      cout << "Bad Digis counted, bqfrac:  " << nbqdigi << "  "<< bqfrac<< endl;
     }
     BQDIGI_FRAC->Fill(bqfrac);
   }
+
+  // Check for consistently missing digis
+  if (ievt_>0 && ievt_%(checkNevents_)==0)
+    {
+      reset_Nevents();
+    }
+
   return;
-}
+} // void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,...)
+
+
+void HcalDigiMonitor::EmptyDigiFill()
+{
+  int eta, phi;
+
+  // Fill all digi values with -1 every event
+  // Digis that are found will then fill a 1, cancelling this out
+  // (so that histogram should be filled with 0's if all digis are in every event)
+
+  // In the case of no digis seen, this will
+  for (int ieta=1;ieta<=etaBins_;++ieta)
+    {
+      for (int iphi=1; iphi<=phiBins_;++iphi)
+	{
+	  eta=ieta+int(etaMin_)-1;
+	  phi=iphi+int(phiMin_)-1;
+
+	  // ignore unphysical values
+	  if (phi==0) continue; 
+	  if (phi>72) continue;
+	  if (eta==0) continue; 
+	  if (abs(eta)>41) continue;
+
+	  // HB first
+	  if (abs(eta)<17)
+	    {
+	      hbHists.PROBLEMDIGICELLS_TEMP->Fill(eta,phi,-1);
+	      hbHists.PROBLEMDIGICELLS_TEMP_DEPTH[0]->Fill(eta,phi,-1);
+	      hcalHists.PROBLEMDIGICELLS_TEMP->Fill(eta,phi,-1);
+	      hcalHists.PROBLEMDIGICELLS_TEMP_DEPTH[0]->Fill(eta,phi,-1);
+	    
+	  
+	      if (abs(eta)>14) // last two rows of HB have two depths
+		{
+		  hbHists.PROBLEMDIGICELLS_TEMP->Fill(eta,phi,-1);
+		  hbHists.PROBLEMDIGICELLS_TEMP_DEPTH[1]->Fill(eta,phi,-1);
+		  hcalHists.PROBLEMDIGICELLS_TEMP->Fill(eta,phi,-1);
+		  hcalHists.PROBLEMDIGICELLS_TEMP_DEPTH[1]->Fill(eta,phi,-1);
+		}
+	    } // if (abs(eta)<17)  // HB Block
+
+	  // HO loop -- depth = 4
+	  if (abs(eta)<16)
+	    {
+	      hoHists.PROBLEMDIGICELLS_TEMP->Fill(eta,phi,-1);
+	      hoHists.PROBLEMDIGICELLS_TEMP_DEPTH[3]->Fill(eta,phi,-1);
+	      hcalHists.PROBLEMDIGICELLS_TEMP->Fill(eta,phi,-1);
+	      hcalHists.PROBLEMDIGICELLS_TEMP_DEPTH[3]->Fill(eta,phi,-1);
+	    } // if (abs(eta)<16)
+	  
+	  // HE loop (careful; phi values are odd only for eta>20)
+
+	  if (abs(eta)==16) // at eta=16, HE depth=3
+	    {
+	      heHists.PROBLEMDIGICELLS_TEMP->Fill(eta,phi,-1);
+	      heHists.PROBLEMDIGICELLS_TEMP_DEPTH[2]->Fill(eta,phi,-1);
+	      hcalHists.PROBLEMDIGICELLS_TEMP->Fill(eta,phi,-1);
+	      hcalHists.PROBLEMDIGICELLS_TEMP_DEPTH[2]->Fill(eta,phi,-1);
+	    }
+
+	  if (abs(eta)>16 && abs(eta)<30) // HE has depth = 1-2 for eta=18-29; 27-28 also depth=3
+	    // This differs from documentation, which claimed that depth=3 for eta=28-29
+	    {
+	      if (abs(eta)<21 ||(abs(eta)>20 && (phi%2)==1)) // decreased phi segementation above eta=20
+		{
+		  heHists.PROBLEMDIGICELLS_TEMP->Fill(eta,phi,-1);
+		  heHists.PROBLEMDIGICELLS_TEMP_DEPTH[0]->Fill(eta,phi,-1);
+		  hcalHists.PROBLEMDIGICELLS_TEMP->Fill(eta,phi,-1);
+		  hcalHists.PROBLEMDIGICELLS_TEMP_DEPTH[0]->Fill(eta,phi,-1);
+		}  
+	      if (abs(eta)>17) // only one layer for HE in eta=17 -- skip it when filling depth=2
+		{
+		  if (abs(eta)>20 && (phi%2)==0)
+		    continue;
+		  heHists.PROBLEMDIGICELLS_TEMP->Fill(eta,phi,-1);
+		  heHists.PROBLEMDIGICELLS_TEMP_DEPTH[1]->Fill(eta,phi,-1);
+		  hcalHists.PROBLEMDIGICELLS_TEMP->Fill(eta,phi,-1);
+		  hcalHists.PROBLEMDIGICELLS_TEMP_DEPTH[1]->Fill(eta,phi,-1);
+		}
+
+	      if (abs(eta)>26 && abs(eta)<29 && (phi%2)==1) // depth 3
+		{
+		  heHists.PROBLEMDIGICELLS_TEMP->Fill(eta,phi,-1);
+		  heHists.PROBLEMDIGICELLS_TEMP_DEPTH[2]->Fill(eta,phi,-1);
+		  hcalHists.PROBLEMDIGICELLS_TEMP->Fill(eta,phi,-1);
+		  hcalHists.PROBLEMDIGICELLS_TEMP_DEPTH[2]->Fill(eta,phi,-1);
+		} // if (abs(eta)>26 && abs(eta)<29 ...)
+	    } //  if (abs(eta)>15 && abs(eta)<30) // ends HE loop
+	  
+
+
+	  // HF Loop
+	  if (abs(eta)>28 && abs(eta)<40 && (phi%2)==1)
+	    {
+	      //depth1
+	      hfHists.PROBLEMDIGICELLS_TEMP->Fill(eta,phi,-1);
+	      hfHists.PROBLEMDIGICELLS_TEMP_DEPTH[0]->Fill(eta,phi,-1);
+	      hcalHists.PROBLEMDIGICELLS_TEMP->Fill(eta,phi,-1);
+	      hcalHists.PROBLEMDIGICELLS_TEMP_DEPTH[0]->Fill(eta,phi,-1);
+
+	      //depth2
+	      hfHists.PROBLEMDIGICELLS_TEMP->Fill(eta,phi,-1);
+	      hfHists.PROBLEMDIGICELLS_TEMP_DEPTH[1]->Fill(eta,phi,-1);
+	      hcalHists.PROBLEMDIGICELLS_TEMP->Fill(eta,phi,-1);
+	      hcalHists.PROBLEMDIGICELLS_TEMP_DEPTH[1]->Fill(eta,phi,-1);
+
+	    }
+	  else if (abs(eta)>39 && (phi%4)==3)
+	    {
+	      //depth1
+	      hfHists.PROBLEMDIGICELLS_TEMP->Fill(eta,phi,-1);
+	      hfHists.PROBLEMDIGICELLS_TEMP_DEPTH[0]->Fill(eta,phi,-1);
+	      hcalHists.PROBLEMDIGICELLS_TEMP->Fill(eta,phi,-1);
+	      hcalHists.PROBLEMDIGICELLS_TEMP_DEPTH[0]->Fill(eta,phi,-1);
+	      
+	      //depth2
+	      hfHists.PROBLEMDIGICELLS_TEMP->Fill(eta,phi,-1);
+	      hfHists.PROBLEMDIGICELLS_TEMP_DEPTH[1]->Fill(eta,phi,-1);
+	      hcalHists.PROBLEMDIGICELLS_TEMP->Fill(eta,phi,-1);
+	      hcalHists.PROBLEMDIGICELLS_TEMP_DEPTH[1]->Fill(eta,phi,-1);
+
+	    } // end HF loop
+
+	} //for (int iphi=1; ...)
+    } // for (int ieta=1; ...)
+} // void HcalDigiMonitor::EmptyDigiFill()
+
+
+void HcalDigiMonitor::reset_Nevents(void)
+{
+  if (fVerbosity)
+    cout <<"<HcalDigiMonitor> Entered reset_Nevents routine"<<endl;
+
+  double temp;
+  int eta,phi;
+
+  for (int ieta=1;ieta<=etaBins_;++ieta)
+    {
+      for (int iphi=1; iphi<=phiBins_;++iphi)
+	{
+	  eta=ieta+int(etaMin_)-1;
+	  phi=iphi+int(phiMin_)-1;
+
+	  // ignore unphysical values
+	  if (phi==0) continue; 
+	  if (phi>72) continue;
+	  if (eta==0) continue; 
+	  if (abs(eta)>41) continue;
+
+	  // HB first
+	  if (abs(eta)<17)
+	    {
+
+	      if (hbHists.check)
+		temp=hbHists.PROBLEMDIGICELLS_TEMP_DEPTH[0]->GetBinContent(ieta,iphi);
+	      if (hbHists.check && temp==0) // no digis found
+		{
+		  hbHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
+		  hbHists.PROBLEMDIGICELLS_DEPTH[0]->Fill(eta,phi,checkNevents_);
+		  hcalHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
+		  hcalHists.PROBLEMDIGICELLS_DEPTH[0]->Fill(eta,phi,checkNevents_);
+		}
+
+	      if (abs(eta)>14) // last two rows of HB have two depths
+		{
+		  if (hbHists.check) temp=hbHists.PROBLEMDIGICELLS_TEMP_DEPTH[1]->GetBinContent(ieta,iphi);
+		  if (hbHists.check && temp==0)
+		    {
+		      hbHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
+		      hbHists.PROBLEMDIGICELLS_DEPTH[1]->Fill(eta,phi,checkNevents_);
+		      hcalHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
+		      hcalHists.PROBLEMDIGICELLS_DEPTH[1]->Fill(eta,phi,checkNevents_);
+		    }
+		}
+	    } // if (abs(eta)<17)  // HB Block
+
+	  // HO loop -- depth = 4
+	  if (abs(eta)<16)
+	    {
+	      if (hoHists.check) temp=hoHists.PROBLEMDIGICELLS_TEMP_DEPTH[3]->GetBinContent(ieta,iphi);
+	      if (hoHists.check && temp==0)
+		{
+		  hoHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
+		  hoHists.PROBLEMDIGICELLS_DEPTH[3]->Fill(eta,phi,checkNevents_);
+		  hcalHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
+		  hcalHists.PROBLEMDIGICELLS_DEPTH[3]->Fill(eta,phi,checkNevents_);
+		}
+	    } // if (abs(eta)<16)
+	  
+	  // HE loop (careful; phi values are odd only for eta>20)
+
+	  if (abs(eta)==16) // at eta=16, HE depth=3
+	    {
+	      if (heHists.check) temp=heHists.PROBLEMDIGICELLS_TEMP_DEPTH[2]->GetBinContent(ieta,iphi);
+	      if (heHists.check && temp==0)
+		{
+		  heHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
+		  heHists.PROBLEMDIGICELLS_DEPTH[2]->Fill(eta,phi,checkNevents_);
+		  hcalHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
+		  hcalHists.PROBLEMDIGICELLS_DEPTH[2]->Fill(eta,phi,checkNevents_);
+		}
+	    }
+
+	  if (abs(eta)>16 && abs(eta)<30) // HE has depth = 1-2 for eta=18-29; 27-28 also depth=3
+	    // This differs from documentation, which claimed that depth=3 for eta=28-29
+	    {
+	      if (abs(eta)<21 ||(abs(eta)>20 && (phi%2)==1)) // decreased phi segementation above eta=20
+		{
+		  if ( heHists.check) temp=heHists.PROBLEMDIGICELLS_TEMP_DEPTH[0]->GetBinContent(ieta,iphi);
+		  if (heHists.check && temp==0)
+		    {
+		      heHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
+		      heHists.PROBLEMDIGICELLS_DEPTH[0]->Fill(eta,phi,checkNevents_);
+		      hcalHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
+		      hcalHists.PROBLEMDIGICELLS_DEPTH[0]->Fill(eta,phi,checkNevents_);
+		    }
+		}  
+	      if (abs(eta)>17) // only one layer for HE in eta=17 -- skip it when filling depth=2
+		{
+		  if (abs(eta)>20 && (phi%2)==0)
+		    continue;
+		  if (heHists.check) temp=heHists.PROBLEMDIGICELLS_TEMP_DEPTH[1]->GetBinContent(ieta,iphi);
+	
+		  if (heHists.check && temp==0)
+		    {
+		      heHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
+		      heHists.PROBLEMDIGICELLS_DEPTH[1]->Fill(eta,phi,checkNevents_);
+		      hcalHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
+		      hcalHists.PROBLEMDIGICELLS_DEPTH[1]->Fill(eta,phi,checkNevents_);
+		    }
+		}
+
+	      if (abs(eta)>26 && abs(eta)<29 && (phi%2)==1) // depth 3
+		{
+		  if (heHists.check) temp=heHists.PROBLEMDIGICELLS_TEMP_DEPTH[2]->GetBinContent(ieta,iphi);
+		  
+		  if (heHists.check && temp==0)
+		    {
+		      heHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
+		      heHists.PROBLEMDIGICELLS_DEPTH[2]->Fill(eta,phi,checkNevents_);
+		      hcalHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
+		      hcalHists.PROBLEMDIGICELLS_DEPTH[2]->Fill(eta,phi,checkNevents_);
+		    }
+		} // if (abs(eta)>26 && abs(eta)<29 ...)
+	    } //  if (abs(eta)>15 && abs(eta)<30) // ends HE loop
+	  
+
+
+	  // HF Loop
+	  if (abs(eta)>28 && abs(eta)<40 && (phi%2)==1)
+	    {
+	      // depth 1
+	      if (hfHists.check) temp=hfHists.PROBLEMDIGICELLS_TEMP_DEPTH[0]->GetBinContent(ieta,iphi);
+	
+	      if (hfHists.check && temp==0)
+		{
+		  hfHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
+		  hfHists.PROBLEMDIGICELLS_DEPTH[0]->Fill(eta,phi,checkNevents_);
+		  hcalHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
+		  hcalHists.PROBLEMDIGICELLS_DEPTH[0]->Fill(eta,phi,checkNevents_);
+		}
+	      //depth2
+	      if (hfHists.check) temp=hfHists.PROBLEMDIGICELLS_TEMP_DEPTH[1]->GetBinContent(ieta,iphi);
+	
+	      if (hfHists.check && temp==0)
+		{
+		  hfHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
+		  hfHists.PROBLEMDIGICELLS_DEPTH[1]->Fill(eta,phi,checkNevents_);
+		  hcalHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
+		  hcalHists.PROBLEMDIGICELLS_DEPTH[1]->Fill(eta,phi,checkNevents_);
+		}
+	    }
+
+	  else if (abs(eta)>39 && (phi%4)==3)
+	    {
+	      // depth 1
+	      if (hfHists.check) temp=hfHists.PROBLEMDIGICELLS_TEMP_DEPTH[0]->GetBinContent(ieta,iphi);
+	      
+	      if (hfHists.check && temp==0)
+		{
+
+		  hfHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
+		  hfHists.PROBLEMDIGICELLS_DEPTH[0]->Fill(eta,phi,checkNevents_);
+		  hcalHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
+		  hcalHists.PROBLEMDIGICELLS_DEPTH[0]->Fill(eta,phi,checkNevents_);
+		}
+	      
+	      //depth2
+	      if (hfHists.check) temp=hfHists.PROBLEMDIGICELLS_TEMP_DEPTH[1]->GetBinContent(ieta,iphi);
+	      
+	      if (hfHists.check && temp==0)
+		{
+	      hfHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
+	      hfHists.PROBLEMDIGICELLS_DEPTH[1]->Fill(eta,phi,checkNevents_);
+	      hcalHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
+	      hcalHists.PROBLEMDIGICELLS_DEPTH[1]->Fill(eta,phi,checkNevents_);
+		}
+	    } // end HF loop
+
+	} //for (int iphi=1; ...)
+    } // for (int ieta=1; ...)
+  
+  // Reset temporary histograms
+  hcalHists.PROBLEMDIGICELLS_TEMP->Reset();
+  if (hbHists.check) hbHists.PROBLEMDIGICELLS_TEMP->Reset();
+  if (heHists.check) heHists.PROBLEMDIGICELLS_TEMP->Reset();
+  if (hoHists.check) hoHists.PROBLEMDIGICELLS_TEMP->Reset();
+  if (hfHists.check) hfHists.PROBLEMDIGICELLS_TEMP->Reset();
+  
+  for (int d=0;d<4;++d)
+    {
+      hcalHists.PROBLEMDIGICELLS_TEMP_DEPTH[d]->Reset();
+      if (hbHists.check) hbHists.PROBLEMDIGICELLS_TEMP_DEPTH[d]->Reset();
+      if (heHists.check) heHists.PROBLEMDIGICELLS_TEMP_DEPTH[d]->Reset();
+      if (hoHists.check) hoHists.PROBLEMDIGICELLS_TEMP_DEPTH[d]->Reset();
+      if (hfHists.check) hfHists.PROBLEMDIGICELLS_TEMP_DEPTH[d]->Reset();
+    }
+
+} //void HcalDigiMonitor::CheckNevents(void)

@@ -168,7 +168,8 @@ RecoToSimCollection TrackAssociatorByChi2::associateRecoToSim(edm::RefToBaseVect
   RecoToSimCollection  outputCollection;
   double chi2;
 
-  const TrackingParticleCollection tPC = *tPCH.product();
+  TrackingParticleCollection tPC;
+  if (tPCH.size()!=0)  tPC = *tPCH.product();
 
   int tindex=0;
   for (RefToBaseVector<reco::Track>::const_iterator rt=tC.begin(); rt!=tC.end(); rt++, tindex++){
@@ -246,7 +247,8 @@ SimToRecoCollection TrackAssociatorByChi2::associateSimToReco(edm::RefToBaseVect
   SimToRecoCollection  outputCollection;
   double chi2;
 
-  const TrackingParticleCollection tPC= *(tPCH.product());
+  TrackingParticleCollection tPC;
+  if (tPCH.size()!=0)  tPC = *tPCH.product();
 
   int tpindex =0;
   for (TrackingParticleCollection::const_iterator tp=tPC.begin(); tp!=tPC.end(); tp++, ++tpindex){

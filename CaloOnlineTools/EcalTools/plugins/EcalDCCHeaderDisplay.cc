@@ -42,7 +42,6 @@ void EcalDCCHeaderDisplay::analyze( const edm::Event & e, const  edm::EventSetup
       
     std::cout<<"RUNTYPE: "<< headerItr->getRunType()<<"\n";
     std::cout<<"Half: "<<headerItr->getRtHalf()<<"\n";
-    std::cout<<"DCCIdInTCCCommand: "<<headerItr->getDccInTCCCommand()<<"\n";
     std::cout<<"MGPA gain: "<<headerItr->getMgpaGain()<<"\n";
     std::cout<<"MEM gain: "<<headerItr->getMemGain()<<"\n";
     EcalDCCHeaderBlock::EcalDCCEventSettings settings = headerItr->getEventSettings();

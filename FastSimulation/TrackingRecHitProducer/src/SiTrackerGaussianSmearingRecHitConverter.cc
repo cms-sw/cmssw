@@ -61,7 +61,6 @@
 // ROOT
 #include <TFile.h>
 #include <TH1F.h>
-#include <TRandom3.h>
 
 //#define FAMOS_DEBUG
 
@@ -82,14 +81,7 @@ SiTrackerGaussianSmearingRecHitConverter::SiTrackerGaussianSmearingRecHitConvert
          "or remove the module that requires it";
   }
 
-  bool useTRandom = conf.getParameter<bool>("UseTRandomEngine");
-  if ( !useTRandom ) { 
-    random = new RandomEngine(&(*rng));
-  } else {
-    TRandom3* anEngine = new TRandom3();
-    anEngine->SetSeed(rng->mySeed());
-    random = new RandomEngine(anEngine);
-  }
+  random = new RandomEngine(&(*rng));
 
   produces<SiTrackerGSRecHit2DCollection>("TrackerGSRecHits");
   produces<SiTrackerGSMatchedRecHit2DCollection>("TrackerGSMatchedRecHits");
@@ -527,7 +519,6 @@ SiTrackerGaussianSmearingRecHitConverter::~SiTrackerGaussianSmearingRecHitConver
   delete thePixelEndcapParametrization;
   delete theSiStripErrorParametrization;
 
-  if ( random->theRootEngine() ) delete random->theRootEngine();
   delete random;
 
 }  

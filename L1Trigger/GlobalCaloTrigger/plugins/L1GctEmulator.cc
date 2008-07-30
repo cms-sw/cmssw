@@ -3,6 +3,7 @@
 // system includes
 #include <memory>
 #include <vector>
+#include <iostream>
 
 // EDM includes
 #include "FWCore/PluginManager/interface/ModuleDef.h"
@@ -51,18 +52,14 @@ L1GctEmulator::L1GctEmulator(const edm::ParameterSet& ps) :
   produces<L1GctJetCandCollection>("cenJets");
   produces<L1GctJetCandCollection>("forJets");
   produces<L1GctJetCandCollection>("tauJets");
-  produces<L1GctEtTotalCollection>();
-  produces<L1GctEtHadCollection>();
-  produces<L1GctEtMissCollection>();
-  produces<L1GctJetCountsCollection>();
+  produces<L1GctEtTotal>();
+  produces<L1GctEtHad>();
+  produces<L1GctEtMiss>();
+  produces<L1GctJetCounts>();
 
   // get the input label
   edm::InputTag inputTag  = ps.getParameter<edm::InputTag>("inputLabel");
   m_inputLabel = inputTag.label();
-
-  // Get the number of bunch crossings to be processed
-  int firstBx = -ps.getParameter<unsigned>("preSamples");
-  int  lastBx =  ps.getParameter<unsigned>("postSamples");
 
   // instantiate the GCT. Argument selects the type of jetFinder to be used.
   L1GctJetLeafCard::jetFinderType jfType=L1GctJetLeafCard::hardwareJetFinder;
@@ -73,7 +70,6 @@ L1GctEmulator::L1GctEmulator(const edm::ParameterSet& ps) :
                                            << "\nHardware jetFinder will be used";
   }
   m_gct = new L1GlobalCaloTrigger(jfType);
-  m_gct->setBxRange(firstBx, lastBx);
 
   // set verbosity (not implemented yet!)
   //  m_gct->setVerbose(m_verbose);
@@ -150,7 +146,7 @@ void L1GctEmulator::produce(edm::Event& e, const edm::EventSetup& c) {
 
   // reset the GCT internal buffers
   m_gct->reset();
-
+  
   // fill the GCT source cards
   m_gct->fillEmCands(*em);
   m_gct->fillRegions(*rgn);
@@ -159,19 +155,29 @@ void L1GctEmulator::produce(edm::Event& e, const edm::EventSetup& c) {
   m_gct->process();
 
   // create the em and jet collections
-  std::auto_ptr<L1GctEmCandCollection> isoEmResult   (new L1GctEmCandCollection(m_gct->getIsoElectrons() ) );
-  std::auto_ptr<L1GctEmCandCollection> nonIsoEmResult(new L1GctEmCandCollection(m_gct->getNonIsoElectrons() ) );
-  std::auto_ptr<L1GctJetCandCollection> cenJetResult(new L1GctJetCandCollection(m_gct->getCentralJets() ) );
-  std::auto_ptr<L1GctJetCandCollection> forJetResult(new L1GctJetCandCollection(m_gct->getForwardJets() ) );
-  std::auto_ptr<L1GctJetCandCollection> tauJetResult(new L1GctJetCandCollection(m_gct->getTauJets() ) );
+  std::auto_ptr<L1GctEmCandCollection> isoEmResult(new L1GctEmCandCollection);
+  std::auto_ptr<L1GctEmCandCollection> nonIsoEmResult(new L1GctEmCandCollection);
+  std::auto_ptr<L1GctJetCandCollection> cenJetResult(new L1GctJetCandCollection);
+  std::auto_ptr<L1GctJetCandCollection> forJetResult(new L1GctJetCandCollection);
+  std::auto_ptr<L1GctJetCandCollection> tauJetResult(new L1GctJetCandCollection);
+
+  // fill the em and jet collections with digis
+  for (int i=0; i<4; i++) {
+    isoEmResult->push_back(m_gct->getIsoElectrons().at(i));
+    nonIsoEmResult->push_back(m_gct->getNonIsoElectrons().at(i));
+    cenJetResult->push_back(m_gct->getCentralJets().at(i));
+    forJetResult->push_back(m_gct->getForwardJets().at(i));
+    tauJetResult->push_back(m_gct->getTauJets().at(i));
+  }
 
   // create the energy sum digis
-  std::auto_ptr<L1GctEtTotalCollection> etTotResult (new L1GctEtTotalCollection(m_gct->getEtSumCollection() ) );
-  std::auto_ptr<L1GctEtHadCollection>   etHadResult (new L1GctEtHadCollection  (m_gct->getEtHadCollection() ) );
-  std::auto_ptr<L1GctEtMissCollection>  etMissResult(new L1GctEtMissCollection (m_gct->getEtMissCollection() ) );
+  std::auto_ptr<L1GctEtTotal> etTotResult(new L1GctEtTotal(m_gct->getEtSum().value(), m_gct->getEtSum().overFlow() ) );
+  std::auto_ptr<L1GctEtHad> etHadResult(new L1GctEtHad(m_gct->getEtHad().value(), m_gct->getEtHad().overFlow() ) );
+  std::auto_ptr<L1GctEtMiss> etMissResult(new L1GctEtMiss(m_gct->getEtMiss().value(),
+                           m_gct->getEtMissPhi().value(), m_gct->getEtMiss().overFlow() ) );
 
   // create the jet counts digis
-  std::auto_ptr<L1GctJetCountsCollection> jetCountResult(new L1GctJetCountsCollection(m_gct->getJetCountsCollection() ) );
+  std::auto_ptr<L1GctJetCounts> jetCountResult(new L1GctJetCounts(m_gct->getJetCountValues() ) );
 
   // put the collections into the event
   e.put(isoEmResult,"isoEm");
@@ -183,6 +189,7 @@ void L1GctEmulator::produce(edm::Event& e, const edm::EventSetup& c) {
   e.put(etHadResult);
   e.put(etMissResult);
   e.put(jetCountResult);
+
 }
 
 DEFINE_FWK_MODULE(L1GctEmulator);

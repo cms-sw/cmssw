@@ -36,7 +36,7 @@ class GluedGeomDet;
 
 class MeasurementTracker : public MeasurementDetSystem {
 public:
-   enum QualityFlags { BadModules=1, BadAPVFibers=2, BadStrips=4 };
+   enum QualityFlags { BadModules=1, BadAPVFibers=2, BadStrips=4, MaskBad128StripBlocks=8 };
 
   MeasurementTracker(const edm::ParameterSet&              conf,
 		     const PixelClusterParameterEstimator* pixelCPE,
@@ -73,6 +73,12 @@ public:
 
  protected:
   const edm::ParameterSet& pset_;
+
+  mutable unsigned int lastEventNumberPixels;
+  mutable unsigned int lastEventNumberStrips;
+  mutable unsigned int lastRunNumberPixels;
+  mutable unsigned int lastRunNumberStrips;
+
 
   mutable DetContainer                        theDetMap;
   mutable std::vector<TkStripMeasurementDet*> theStripDets;

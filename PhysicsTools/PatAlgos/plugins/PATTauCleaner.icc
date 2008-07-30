@@ -35,14 +35,16 @@ void pat::PATTauCleaner<TauIn,TauOut,TauTag>::produce(edm::Event & iEvent, const
     const TauIn & srcTau = helper_.srcAt(idx);
     TauInRef      srcRef = helper_.srcRefAt(idx).template castTo<TauInRef>();
 
-    // perform the selection
-    if (!(*TauIsolator)[srcRef]) continue; // simple selection
-
     // clone the tau and convert it to the new type
     TauOut ourTau = static_cast<TauOut>(srcTau);
 
     // write the tau
-    helper_.addItem(idx, ourTau);
+    size_t selIdx = helper_.addItem(idx, ourTau);
+
+    // perform the selection
+    if (!(*TauIsolator)[srcRef]) {
+        helper_.addMark(selIdx, pat::Flags::Core::Preselection); 
+    }
   }
 
   if (overlapHelper_.enabled()) {

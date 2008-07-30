@@ -22,7 +22,11 @@
 #include <iomanip>
 
 enum ntcastors_elements {
-  ntcastors_evt, ntcastors_trackid, ntcastors_charge, ntcastors_pdgcode, ntcastors_x, ntcastors_y, ntcastors_z, ntcastors_stepl, ntcastors_stepe, ntcastors_eta, ntcastors_phi, ntcastors_vpx, ntcastors_vpy, ntcastors_vpz
+ // ntzdcs_evt, ntzdcs_nprim, ntzdcs_parttype, ntzdcs_einit, ntzdcs_eta, ntzdcs_phi,
+ // ntzdcs_eentry, ntzdcs_etot, ntzdcs_etotn, ntzdcs_nunit, ntzdcs_ntimesli
+  ntcastors_evt, ntcastors_trackid, ntcastors_charge, ntcastors_pdgcode, 
+ntcastors_x, ntcastors_y, ntcastors_z, ntcastors_stepl, 
+  ntcastors_stepe, ntcastors_eta, ntcastors_phi, ntcastors_vpx, ntcastors_vpy, ntcastors_vpz
 };
 
 enum ntcastore_elements {
@@ -106,8 +110,6 @@ void CastorTestAnalysis::update(const BeginOfEvent * evt) {
 }
 
 
-
-
 void CastorTestAnalysis::update(const G4Step * aStep) {
   stepIndex++;
   
@@ -118,6 +120,7 @@ void CastorTestAnalysis::update(const G4Step * aStep) {
 //  G4StepPoint * postStepPoint= aStep->GetPostStepPoint();
   G4double stepL = aStep->GetStepLength();
   G4double stepE = aStep->GetTotalEnergyDeposit();
+
   
   if (verbosity >= 2) 
     std::cout << "Step " << stepL << ", " << stepE << std::endl;
@@ -142,7 +145,7 @@ void CastorTestAnalysis::update(const G4Step * aStep) {
   castorsteparray[ntcastors_evt] = (float)eventIndex;
   castorsteparray[ntcastors_trackid] = (float)theTrackID;
   castorsteparray[ntcastors_charge] = theCharge;
-  castorsteparray[ntcastors_pdgcode] = pdgcode;
+  castorsteparray[ntcastors_pdgcode] = (float)pdgcode;
   castorsteparray[ntcastors_x] = hitPoint.x();
   castorsteparray[ntcastors_y] = hitPoint.y();
   castorsteparray[ntcastors_z] = hitPoint.z();
@@ -153,36 +156,9 @@ void CastorTestAnalysis::update(const G4Step * aStep) {
   castorsteparray[ntcastors_vpx] = vpx;
   castorsteparray[ntcastors_vpy] = vpy;
   castorsteparray[ntcastors_vpz] = vpz;
-
-  /*
-  std::cout<<"TrackID: "<< theTrackID<<std::endl;
-  std::cout<<"   StepN: "<< theTrack->GetCurrentStepNumber() <<std::endl;
-  std::cout<<"      ParentID: "<< aStep->GetTrack()->GetParentID() <<std::endl;
-  std::cout<<"      PDG: "<< pdgcode <<std::endl;
-  std::cout<<"      X,Y,Z (mm): "<< theTrack->GetPosition().x() <<","<< theTrack->GetPosition().y() <<","<< theTrack->GetPosition().z() <<std::endl;
-  std::cout<<"      KE (MeV): "<< theTrack->GetKineticEnergy() <<std::endl;
-  std::cout<<"      Total EDep (MeV): "<< aStep->GetTotalEnergyDeposit() <<std::endl;
-  std::cout<<"      StepLength (mm): "<< aStep->GetStepLength() <<std::endl;
-  std::cout<<"      TrackLength (mm): "<< theTrack->GetTrackLength() <<std::endl;
-
-  if ( theTrack->GetNextVolume() != 0 )
-      std::cout<<"      NextVolume: "<< theTrack->GetNextVolume()->GetName() <<std::endl;
-  else 
-      std::cout<<"      NextVolume: OutOfWorld"<<std::endl;
-  
-  if(aStep->GetPostStepPoint()->GetProcessDefinedStep() != NULL)
-      std::cout<<"      ProcessName: "<< aStep->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName() <<std::endl;
-  else
-      std::cout<<"      ProcessName: UserLimit"<<std::endl;
-  
-
-   std::cout<<std::endl;
-  */
-
-
  
 //fill ntuple with step level information
-  castorstepntuple->Fill(castorsteparray);
+//  castorstepntuple->Fill(castorsteparray);
   }
 }
 
@@ -233,16 +209,12 @@ void CastorTestAnalysis::update(const EndOfEvent * evt) {
 	en_in_fi += aHit->getEnergyDeposit();
 //	double enEm = aHit->getEM();
 //	double enHad = aHit->getHadr();
-	
-	// TPM: this doesn't compile for me
-	//math::XYZPoint hitPoint = aHit->getEntry();
+	math::XYZPoint hitPoint = aHit->getEntry();
 
 	themap[volumeID] += aHit->getEnergyDeposit();
     int det, zside, sector, zmodule;
 
-    //    theCastorNumScheme->unpackIndex(volumeID, det, zside, sector,zmodule);
-
-theCastorNumScheme->unpackIndex(volumeID, zside, sector,zmodule);
+    theCastorNumScheme->unpackIndex(volumeID, det, zside, sector,zmodule);
 
 //    int index = CaloNumberingPacker::packCastorIndex(det,zside,sector,zmodule);
 //     float theTotalEnergy = themap[index];
@@ -255,9 +227,9 @@ theCastorNumScheme->unpackIndex(volumeID, zside, sector,zmodule);
       castoreventarray[ntcastore_enem] = en_in_fi;
       castoreventarray[ntcastore_enhad] = totalEnergy;
       castoreventarray[ntcastore_hitenergy] = hitEnergy;
-      castoreventarray[ntcastore_x] = aHit->getEntry().x();
-      castoreventarray[ntcastore_y] = aHit->getEntry().y();
-      castoreventarray[ntcastore_z] = aHit->getEntry().z();
+      castoreventarray[ntcastore_x] = hitPoint.x();
+      castoreventarray[ntcastore_y] = hitPoint.y();
+      castoreventarray[ntcastore_z] = hitPoint.z();
 
       castoreventntuple->Fill(castoreventarray);
     }

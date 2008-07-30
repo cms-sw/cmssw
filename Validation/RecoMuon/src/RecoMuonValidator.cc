@@ -1,374 +1,430 @@
 #include "Validation/RecoMuon/src/RecoMuonValidator.h"
 
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
-#include "TrackingTools/DetLayers/interface/DetLayer.h"
-#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
-#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
+#include "DataFormats/Common/interface/View.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/Math/interface/deltaR.h"
-#include "TMath.h"
 
-using namespace reco;
-using namespace edm;
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+
+#include "Validation/RecoMuon/src/MuonSimRecoMatching.h"
+
+#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+
+#include <TH1F.h>
+#include <TH2F.h>
+
+#include <memory>
+#include <algorithm>
+#include <cmath>
+
 using namespace std;
+using namespace edm;
+using namespace reco;
 
 typedef TrajectoryStateOnSurface TSOS;
+typedef TrackingParticleCollection TPColl;
+typedef TPColl::const_iterator TPCIter;
+typedef MuonCollection MuColl;
+typedef MuColl::const_iterator MuCIter;
+
+class MuonHisto
+{
+public:
+  typedef map<string, TH1*> HistMap;
+
+  MuonHisto():isParamsSet_(false), isBooked_(false) {};
+
+  MuonHisto(const ParameterSet& pset)
+  {
+    theDQMService   = 0;
+    theTFileService = 0;
+
+    isParamsSet_ = false;
+    isBooked_ = false;
+
+    subDir_ = pset.getUntrackedParameter<string>("subDir");
+
+    nBinPt_  = pset.getUntrackedParameter<unsigned int>("nBinPt" );
+    nBinEta_ = pset.getUntrackedParameter<unsigned int>("nBinEta");
+    nBinPhi_ = pset.getUntrackedParameter<unsigned int>("nBinPhi");
+
+    nBinPull_ = pset.getUntrackedParameter<unsigned int>("nBinPull");
+    nBinErrPt_ = pset.getUntrackedParameter<unsigned int>("nBinErrPt");
+    nBinErrQOverPt_ = pset.getUntrackedParameter<unsigned int>("nBinErrQOverPt");
+    doAbsEta_ = pset.getUntrackedParameter<bool>("doAbsEta");
+
+    minPt_  = pset.getUntrackedParameter<double>("minPt" );
+    maxPt_  = pset.getUntrackedParameter<double>("maxPt" );
+    minEta_ = pset.getUntrackedParameter<double>("minEta");
+    maxEta_ = pset.getUntrackedParameter<double>("maxEta");
+    minPhi_ = pset.getUntrackedParameter<double>("minPhi", -TMath::Pi());
+    maxPhi_ = pset.getUntrackedParameter<double>("maxPhi",  TMath::Pi());
+
+    wPull_ = pset.getUntrackedParameter<double>("wPull");
+    wErrPt_ = pset.getUntrackedParameter<double>("wErrPt");
+    wErrQOverPt_ = pset.getUntrackedParameter<double>("wErrQOverPt");
+
+    isParamsSet_ = true;
+  };
+
+  bool isValid() { return isParamsSet() && isBooked(); };
+  bool isParamsSet() { return isParamsSet_; };
+  bool isBooked() { return isBooked_; };
+
+  void bookHistograms(DQMStore * dqm)
+  {
+    if ( ! dqm ) return;
+    if ( theDQMService || theTFileService ) return;
+
+    theDQMService = dqm;
+    dqm->setCurrentFolder(subDir_.c_str());
+    bookHistograms();
+  };
+
+  void bookHistograms(TFileService* fs)
+  {
+    if ( ! fs ) return;
+    if ( theDQMService || theTFileService ) return;
+
+    theTFileService = fs;
+    theTFileDirectory = new TFileDirectory(fs->mkdir(subDir_));
+    bookHistograms();
+  };
+
+  ~MuonHisto() {};
+
+  // run this for unmatched sim particles
+  void operator()(const TPCIter& iSimPtcl)
+  {
+    if ( ! isValid() ) return;
+
+    const double simPt  = iSimPtcl->pt() ;
+    if ( isnan(simPt)  || isinf(simPt)  ) return;
+
+    const double simEta = doAbsEta_ ? fabs(iSimPtcl->eta()) : iSimPtcl->eta();
+    if ( isnan(simEta) || isinf(simEta) ) return;
+
+    const double simPhi = iSimPtcl->phi();
+    if ( isnan(simPhi) || isinf(simPhi) ) return;
+
+    if ( simPt < minPt_ ) return;
+    if ( simEta < minEta_ || simEta > maxEta_ ) return;
+    if ( simPhi < minPhi_ || simPhi > maxPhi_ ) return;
+
+    TH1F * h1;
+
+    if ( h1 = (TH1F*)(theHistMap["SimPt" ]) ) h1->Fill(simPt );
+    if ( h1 = (TH1F*)(theHistMap["SimEta"]) ) h1->Fill(simEta);
+    if ( h1 = (TH1F*)(theHistMap["SimPhi"]) ) h1->Fill(simPhi);
+  };
+
+  // run this for matched sim-reco pairs
+  void operator()(const std::pair<TPCIter, MuCIter>& matchedPair)
+  {
+    if ( ! isValid() ) return;
+
+    TPCIter iSimPtcl  = matchedPair.first;
+    MuCIter iRecoMuon = matchedPair.second;
+
+    // all variables to be compared
+    const double simPt  = iSimPtcl->pt() ;
+    if ( isnan(simPt)  || isinf(simPt)  ) return;
+
+    const double simEta = doAbsEta_ ? fabs(iSimPtcl->eta()) : iSimPtcl->eta();
+    if ( isnan(simEta) || isinf(simEta) ) return;
+
+    const double simPhi = iSimPtcl->phi();
+    if ( isnan(simPhi) || isinf(simPhi) ) return;
+
+    const TrackCharge simQ = iSimPtcl->charge();
+    const double simQOverPt = simQ/simPt;
+    if ( isnan(simQOverPt) || isinf(simQOverPt) ) return;
+
+    if ( simPt < minPt_ ) return;
+    if ( simEta < minEta_ || simEta > maxEta_ ) return;
+    if ( simPhi < minPhi_ || simPhi > maxPhi_ ) return;
+
+    this->operator()(iSimPtcl);
+
+    const double recoPt  = iRecoMuon->pt() ;
+    if ( isnan(recoPt)  || isinf(recoPt)  ) return;
+    if ( recoPt <= 0.0 ) return;
+
+    const double recoEta = iRecoMuon->eta();
+    if ( isnan(recoEta) || isinf(recoEta) ) return;
+
+    const double recoPhi = iRecoMuon->phi();
+    if ( isnan(recoPhi) || isinf(recoPhi) ) return;
+
+    const TrackCharge recoQ = iRecoMuon->charge();
+    const double recoQOverPt = recoQ/recoPt;
+    if ( isnan(recoQOverPt) || isinf(recoQOverPt) ) return;
+
+    TH1F * h1;
+    TH2F * h2;
+
+    if ( h1 = (TH1F*)(theHistMap["RecoPt" ]) ) h1->Fill(simPt );
+    if ( h1 = (TH1F*)(theHistMap["RecoEta"]) ) h1->Fill(simEta);
+    if ( h1 = (TH1F*)(theHistMap["RecoPhi"]) ) h1->Fill(simPhi);
+
+    if ( h2 = (TH2F*)(theHistMap["ErrPtVsEta"]) ) h2->Fill(simEta, (recoPt-simPt)/simPt);
+    if ( h2 = (TH2F*)(theHistMap["ErrQOverPtVsEta"]) ) h2->Fill(simEta, (recoQOverPt-simQOverPt)/simQOverPt);
+  };
+
+protected:
+  void bookHistograms()
+  {
+    if ( ! isParamsSet() ) return;
+    if ( isBooked() ) return;
+
+    book1D("SimPt", "Sim p_{T}", nBinPt_, minPt_, maxPt_);
+    book1D("RecoPt" , "Reco p_{T}", nBinPt_ , minPt_ , maxPt_ );
+    book1D("SimEta" , "Sim #eta"  , nBinEta_, minEta_, maxEta_);
+    book1D("RecoEta", "Reco #eta" , nBinEta_, minEta_, maxEta_);
+    book1D("SimPhi" , "Sim #phi"  , nBinPhi_, minPhi_, maxPhi_);
+    book1D("RecoPhi", "Reco #phi" , nBinPhi_, minPhi_, maxPhi_);
+    book2D("ErrPtVsEta", "#Delta{}p_{T}/p_{T} vs #eta",
+           nBinEta_, minEta_, maxEta_, nBinErrPt_, -wErrPt_, wErrPt_);
+    book2D("ErrQOverPtVsEta", "(#Delta{}q/p_{T})/(q/p_{T}) vs #eta",
+           nBinEta_, minEta_, maxEta_, nBinErrQOverPt_, -wErrQOverPt_, wErrQOverPt_);
+
+    // p_T pulls
+    book2D("PullPtVsPt" , "Pull p_{T} vs p_{T}",
+           nBinPt_ , minPt_ , maxPt_ , nBinPull_, -wPull_, wPull_);
+    book2D("PullPtVsEta", "Pull p_{T} vs #eta",
+           nBinEta_, minEta_, maxEta_, nBinPull_, -wPull_, wPull_);
+    book2D("PullPtVsPhi", "Pull p_{T} vs #phi",
+           nBinPhi_, minPhi_, maxPhi_, nBinPull_, -wPull_, wPull_);
+
+    // eta pulls
+    book2D("PullEtaVsPt" , "Pull #eta vs p_{T}",
+           nBinPt_ , minPt_ , maxPt_ , nBinPull_, -wPull_, wPull_);
+    book2D("PullEtaVsEta", "Pull #eta vs #eta",
+           nBinEta_, minEta_, maxEta_, nBinPull_, -wPull_, wPull_);
+    book2D("PullEtaVsPhi", "Pull #eta vs #phi",
+           nBinPhi_, minPhi_, maxPhi_, nBinPull_, -wPull_, wPull_);
+
+    // phi pulls
+    book2D("PullPhiVsPt" , "Pull #phi vs #pt",
+           nBinPt_ , minPt_ , maxPt_ , nBinPull_, -wPull_, wPull_);
+    book2D("PullPhiVsEta", "Pull #phi vs #eta",
+           nBinEta_, minEta_, maxEta_, nBinPull_, -wPull_, wPull_);
+    book2D("PullPhiVsPhi", "Pull #phi vs #phi",
+           nBinPhi_, minPhi_, maxPhi_, nBinPull_, -wPull_, wPull_);
+
+    isBooked_ = true;
+  };
+
+  void book1D(string name, string title, int nBin, double min, double max)
+  {
+    TH1F * histo = 0;
+    if ( theDQMService ) {
+      histo = (TH1F*)(theDQMService->book1D(name, title, nBin, min, max));
+    }
+    else if ( theTFileService ) {
+      histo = theTFileDirectory->make<TH1F>(name.c_str(), title.c_str(), nBin, min, max);
+    }
+    theHistMap.insert(HistMap::value_type(name, histo));
+  };
+
+  void book2D(string name, string title,
+              int nBinX, double minX, double maxX,
+              int nBinY, double minY, double maxY)
+  {
+    TH2F * histo = 0;
+    if ( theDQMService ) {
+      histo = (TH2F*)(theDQMService->book2D(name, title, nBinX, minX, maxX, nBinY, minY, maxY));
+    }
+    else if ( theTFileService ) {
+      histo = theTFileDirectory->make<TH2F>(name.c_str(), title.c_str(), nBinX, minX, maxX, nBinY, minY, maxY);
+    }
+    theHistMap.insert(HistMap::value_type(name,histo));
+  };
+
+protected:
+  bool isParamsSet_, isBooked_;
+
+  string subDir_;
+  unsigned int nBinPt_, nBinEta_, nBinPhi_;
+  unsigned int nBinPull_, nBinErrPt_, nBinErrQOverPt_;
+  double minPt_, maxPt_, minEta_, maxEta_, minPhi_, maxPhi_;
+  double wPull_, wErrPt_, wErrQOverPt_;
+
+  bool doAbsEta_;
+
+  DQMStore * theDQMService;
+  TFileService * theTFileService;
+  TFileDirectory * theTFileDirectory;
+
+  HistMap theHistMap;
+};
 
 RecoMuonValidator::RecoMuonValidator(const ParameterSet& pset)
 {
+  histoManager_ = pset.getUntrackedParameter<string>("histoManager", "DQM");
   outputFileName_ = pset.getUntrackedParameter<string>("outputFileName");
 
-  minPt_ = pset.getUntrackedParameter<double>("minPt");
-  maxPt_ = pset.getUntrackedParameter<double>("maxPt");
-
-  nBinEta_ = pset.getUntrackedParameter<unsigned int>("nBinEta");
-  minEta_  = pset.getUntrackedParameter<double>("minEta");
-  maxEta_  = pset.getUntrackedParameter<double>("maxEta");
-
-  nBinPhi_ = pset.getUntrackedParameter<unsigned int>("nBinPhi");
-  minPhi_  = pset.getUntrackedParameter<double>("minPhi", -TMath::Pi());
-  maxPhi_  = pset.getUntrackedParameter<double>("maxPhi",  TMath::Pi());
-
-  // (recQ/recPt-simQ/simPt)/(simQ/simPt)
-  nBinErrQPt_      = pset.getUntrackedParameter<unsigned int>("nBinErrQPt"); 
-  widthStaErrQPt_  = pset.getUntrackedParameter<double>("widthStaErrQPt");
-  widthGlbErrQPt_  = pset.getUntrackedParameter<double>("widthGlbErrQPt");
-  widthSeedErrQPt_ = pset.getUntrackedParameter<double>("widthSeedErrQPt");
-
-  nBinPull_ = pset.getUntrackedParameter<unsigned int>("nBinPull");
-  widthPull_ = pset.getUntrackedParameter<double>("widthPull");
-
-  nHits_ = pset.getUntrackedParameter<unsigned int>("nHits");
- 
   // Track Labels
-  simTrackLabel_ = pset.getParameter<InputTag>("SimTrack");
-  staTrackLabel_ = pset.getParameter<InputTag>("StaTrack");
-  glbTrackLabel_ = pset.getParameter<InputTag>("GlbTrack");
-  tkTrackLabel_  = pset.getParameter<InputTag>("TkTrack");
-  seedLabel_     = pset.getParameter<InputTag>("Seed");
-
-  // Track Cuts
-  staMinPt_  = pset.getParameter<double>("staMinPt");
-  staMinRho_ = pset.getParameter<double>("staMinRho");
-  staMinR_   = pset.getParameter<double>("staMinR");
-
-  tkMinPt_ = pset.getParameter<double>("tkMinPt");
-  tkMinP_  = pset.getParameter<double>("tkMinP");
-
-  // Matching criteria
-  maxDeltaR_ = pset.getUntrackedParameter<double>("maxDeltaR", -999.);
-
-  seedPropagatorName_ = pset.getParameter<string>("SeedPropagator");
+  simPtclLabel_ = pset.getParameter<InputTag>("SimPtcl");
+  recoMuonLabel_ = pset.getParameter<InputTag>("RecoMuon");
+//  staMuonLabel_ = pset.getParameter<InputTag>("StaMuon");
+//  glbMuonLabel_ = pset.getParameter<InputTag>("GlbMuon");
 
   // the service parameters
-  ParameterSet serviceParameters 
+  ParameterSet serviceParameters
     = pset.getParameter<ParameterSet>("ServiceParameters");
-  theMuonService_ = new MuonServiceProxy(serviceParameters);
+  theMuonService = new MuonServiceProxy(serviceParameters);
 
-  theDQMService_ = 0;
-  theDQMService_ = Service<DQMStore>().operator->();
+  // Set histogram manager
+  theDQMService   = 0;
+  theTFileService = 0;
 
-  subDir_ = pset.getParameter<string>("subDir");
+  if ( histoManager_ == "DQM" ) {
+    theDQMService = Service<DQMStore>().operator->();
+  }
+  else if ( histoManager_ == "TFileService" ) {
+    theTFileService = Service<TFileService>().operator->();
+  }
+
+  MuonHisto staMuonDeltaRHisto(pset.getParameter<ParameterSet>("StaMuonHistoParameters"));
+  fillHisto_.insert(map<string, MuonHisto>::value_type("StaMuonDeltaR", staMuonDeltaRHisto));
+
+  MuonHisto glbMuonDeltaRHisto(pset.getParameter<ParameterSet>("GlbMuonHistoParameters"));
+  fillHisto_.insert(map<string, MuonHisto>::value_type("GlbMuonDeltaR", glbMuonDeltaRHisto));
+
 }
 
 RecoMuonValidator::~RecoMuonValidator()
 {
-  delete theMuonService_;
-
-  delete hStaResol_ ;
-  delete hGlbResol_ ;
-  delete hSeedResol_;
+  if ( theMuonService ) delete theMuonService;
 }
-
 void RecoMuonValidator::beginJob(const EventSetup& eventSetup)
 {
-  if ( theDQMService_ ) {
-    theDQMService_->cd();
+  if ( ! theMuonService ) return;
+  if ( ! theDQMService && ! theTFileService  ) return;
 
-    string dir = "RecoMuonTask/";
-    dir+=subDir_;
+  if ( theDQMService ) {
+    LogDebug("RecoMuonValidator::beginJob") << "Booking DQM histograms" << endl;
 
-    theDQMService_->setCurrentFolder(dir.c_str());
+    fillHisto_["StaMuonDeltaR"].bookHistograms(theDQMService);
+    fillHisto_["GlbMuonDeltaR"].bookHistograms(theDQMService);
+  }
+  else if ( theTFileService ) {
+    LogDebug("RecoMuonValidator::beginJob") << "Booking TFileService histograms" << endl;
 
-    hSimEtaVsPhi_  = theDQMService_->book2D("SimEtaVsPhi", "Sim #eta vs #phi",
-                                      nBinEta_, minEta_, maxEta_, nBinPhi_, minPhi_, maxPhi_);
-    hStaEtaVsPhi_  = theDQMService_->book2D("StaEtaVsPhi", "Sta #eta vs #phi",
-                                      nBinEta_, minEta_, maxEta_, nBinPhi_, minPhi_, maxPhi_);
-    hGlbEtaVsPhi_  = theDQMService_->book2D("GlbEtaVsPhi", "Glb #eta vs #phi",
-                                      nBinEta_, minEta_, maxEta_, nBinPhi_, minPhi_, maxPhi_);
-    hTkEtaVsPhi_   = theDQMService_->book2D("TkEtaVsPhi" , "Tk #eta vs #phi",
-                                      nBinEta_, minEta_, maxEta_, nBinPhi_, minPhi_, maxPhi_);
-    hSeedEtaVsPhi_ = theDQMService_->book2D("SeedEtaVsPhi", "Seed #eta vs #phi",
-                                      nBinEta_, minEta_, maxEta_, nBinPhi_, minPhi_, maxPhi_);
-
-    hSeedSim_effEta = theDQMService_->book1D("SeedSim_effEta","SeedSim Efficiency",nBinEta_,minEta_,maxEta_);
-    hStaSim_effEta = theDQMService_->book1D("StaSim_effEta","StaSim Efficiency",nBinEta_,minEta_,maxEta_);
-    hStaSeed_effEta = theDQMService_->book1D("StaSeed_effEta","StaSeed Efficiency",nBinEta_,minEta_,maxEta_);
-    hGlbSim_effEta = theDQMService_->book1D("GlbSim_effEta","GlbSim Efficiency",nBinEta_,minEta_,maxEta_);
-    hGlbTk_effEta = theDQMService_->book1D("GlbTk_effEta","GlbTk Efficiency",nBinEta_,minEta_,maxEta_);
-    hGlbSta_effEta = theDQMService_->book1D("GlbSta_effEta","GlbSta Efficiency",nBinEta_,minEta_,maxEta_);
-    hGlbSeed_effEta = theDQMService_->book1D("GlbSeed_effEta","GlbSeed Efficiency",nBinEta_,minEta_,maxEta_);
- 
-    hEtaVsNDtSimHits_  = theDQMService_->book2D("SimEtaVsNDtHits", "Sim #eta vs number of DT SimHits",
-                                          nBinEta_, minEta_, maxEta_, nHits_, 0, static_cast<float>(nHits_));
-    hEtaVsNCSCSimHits_ = theDQMService_->book2D("SimEtaVsNCSCHits", "Sim #eta vs number of CSC SimHits",
-                                          nBinEta_, minEta_, maxEta_, nHits_, 0, static_cast<float>(nHits_));
-    hEtaVsNRPCSimHits_ = theDQMService_->book2D("SimEtaVsNRPCHits", "Sim #eta vs number of RPC SimHits",
-                                          nBinEta_, minEta_, maxEta_, nHits_, 0, static_cast<float>(nHits_));
-    hEtaVsNSimHits_    = theDQMService_->book2D("SimEtaVsNHits", "Sim #eta vs number of Hits",
-                                          nBinEta_, minEta_, maxEta_, nHits_, 0, static_cast<float>(nHits_));
- 
-    hSeedEtaVsNHits_ = theDQMService_->book2D("SeedEtaVsNHits", "Seed #eta vs NHits",
-                                        nBinEta_, minEta_, maxEta_, nHits_, 0, static_cast<float>(nHits_));
-    hStaEtaVsNHits_  = theDQMService_->book2D("StaEtaVsNHits", "Sta #eta vs NHits",
-                                        nBinEta_, minEta_, maxEta_, nHits_, 0, static_cast<float>(nHits_));
-    hGlbEtaVsNHits_  = theDQMService_->book2D("GlbEtaVsNHits", "Glb #eta vs NHits",
-                                        nBinEta_, minEta_, maxEta_, nHits_, 0, static_cast<float>(nHits_));
- 
-    hStaResol_  = new HResolution(theDQMService_, "Sta", 
-                                   nBinErrQPt_, widthStaErrQPt_, nBinPull_, widthPull_, 
-                                   nBinEta_, minEta_, maxEta_, nBinPhi_, minPhi_, maxPhi_);
-    hGlbResol_  = new HResolution(theDQMService_, "Glb", 
-                                   nBinErrQPt_, widthGlbErrQPt_, nBinPull_, widthPull_, 
-                                   nBinEta_, minEta_, maxEta_, nBinPhi_, minPhi_, maxPhi_);
-    hSeedResol_ = new HResolution(theDQMService_, "Seed", 
-                                   nBinErrQPt_, widthSeedErrQPt_, nBinPull_, widthPull_, 
-                                   nBinEta_, minEta_, maxEta_, nBinPhi_, minPhi_, maxPhi_);
+    fillHisto_["StaMuonDeltaR"].bookHistograms(theTFileService);
+    fillHisto_["GlbMuonDeltaR"].bookHistograms(theTFileService);
   }
 }
 
 void RecoMuonValidator::endJob()
 {
-
-  computeEfficiency(hSeedSim_effEta,hSeedEtaVsPhi_,hSimEtaVsPhi_);
-  computeEfficiency(hStaSim_effEta,hStaEtaVsPhi_,hSimEtaVsPhi_);
-  computeEfficiency(hStaSeed_effEta,hStaEtaVsPhi_,hSeedEtaVsPhi_);
-  computeEfficiency(hGlbSim_effEta,hGlbEtaVsPhi_,hSimEtaVsPhi_);
-  computeEfficiency(hGlbTk_effEta,hGlbEtaVsPhi_,hTkEtaVsPhi_);
-  computeEfficiency(hGlbSta_effEta,hGlbEtaVsPhi_,hStaEtaVsPhi_);
-  computeEfficiency(hGlbSeed_effEta,hGlbEtaVsPhi_,hSeedEtaVsPhi_);
-
-  hStaResol_->doFits();
-  hGlbResol_->doFits();
-  hSeedResol_->doFits();
-
-  if ( theDQMService_ ) theDQMService_->save(outputFileName_);
+  if ( theDQMService && ! outputFileName_.empty() ) { 
+    LogDebug("RecoMuonValidator::endJob") << "Saving DQM histograms to file " << outputFileName_ << endl;
+    theDQMService->save(outputFileName_);
+  }
 }
+
+class StaMuonDeltaR : public MuonDeltaR
+{
+ public:
+  StaMuonDeltaR(const double maxDeltaR):
+    MuonDeltaR::MuonDeltaR(maxDeltaR) {};
+
+  bool operator()(const Muon& recoMuon) const
+  {
+    return recoMuon.isStandAloneMuon();
+  };
+
+  bool operator()(const TrackingParticle& simPtcl) const
+  {
+    return MuonDeltaR::operator()(simPtcl);
+  };
+
+  bool operator()(const TrackingParticle& simPtcl,
+                  const Muon& recoMuon,
+                  double& quality) const
+  {
+    return MuonDeltaR::operator()(simPtcl, recoMuon, quality);
+  };
+};
+
+class GlbMuonDeltaR : public MuonDeltaR
+{
+ public:
+  GlbMuonDeltaR(const double maxDeltaR):
+    MuonDeltaR::MuonDeltaR(maxDeltaR) {};
+
+  bool operator()(const Muon& recoMuon) const
+  {
+    return recoMuon.isGlobalMuon();
+  };
+
+  bool operator()(const TrackingParticle& simPtcl) const
+  {
+    return MuonDeltaR::operator()(simPtcl);
+  };
+
+  bool operator()(const TrackingParticle& simPtcl,
+                  const Muon& recoMuon,
+                  double& quality) const
+  {
+    return MuonDeltaR::operator()(simPtcl, recoMuon, quality);
+  };
+};
 
 void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup)
 {
-  theMuonService_->update(eventSetup);
-    
-  // get a SimMuon Track from the event.
-  Handle<SimTrackContainer> simTracks;
-  event.getByLabel(simTrackLabel_, simTracks);
-  SimTrackContainer::const_iterator candSimMuon = simTracks->end();
-  for ( SimTrackContainer::const_iterator iSimTrack = simTracks->begin();
-        iSimTrack!=simTracks->end(); iSimTrack++ ) {
-    if ( abs(iSimTrack->type()) != 13 ) continue;
+  if ( ! theMuonService ) return;
+  if ( ! theDQMService  && ! theTFileService ) return;
 
-    const SimTrack& simTrack = *iSimTrack;
-    const double simPt  = simTrack.momentum().pt();
-    const double simEta = simTrack.momentum().eta();
-    const double simPhi = simTrack.momentum().phi();
-    if ( simPt  < minPt_  || simPt  > maxPt_  ) return;
-    if ( simEta < minEta_ || simEta > maxEta_ ) return;
-    if ( simPhi < minPhi_ || simPhi > maxPhi_ ) return;
+  theMuonService->update(eventSetup);
 
-    hSimEtaVsPhi_->Fill(simEta, simPhi);
-    
-    // Get and fill Number of Hits
-    int nDtSimHits  = getNSimHits(event, "MuonDTHits" , simTrack.trackId());
-    int nCSCSimHits = getNSimHits(event, "MuonCSCHits", simTrack.trackId()); 
-    int nRPCSimHits = getNSimHits(event, "MuonRPCHits", simTrack.trackId());
-    int nSimHits = nDtSimHits+nCSCSimHits+nRPCSimHits;
+  // Retrieve sim particles, reco muons, etc.
+  Handle<TPColl> simPtcls;
+  Handle<MuColl> recoMuons;
 
-    hEtaVsNDtSimHits_ ->Fill(simEta, nDtSimHits );
-    hEtaVsNCSCSimHits_->Fill(simEta, nCSCSimHits);
-    hEtaVsNRPCSimHits_->Fill(simEta, nRPCSimHits);
-    hEtaVsNSimHits_->Fill(simEta, nSimHits);
+  // Retrieve sim, reco objects from event handler
+  event.getByLabel(simPtclLabel_, simPtcls);
+  event.getByLabel(recoMuonLabel_, recoMuons);
 
-    Handle<TrajectorySeedCollection> seeds;
-    event.getByLabel(seedLabel_, seeds);
-    if ( seeds->size() > 0 ) {
-      pair<TSOS, TrajectorySeed> seedInfo = matchTrack(simTrack, seeds, maxDeltaR_);
-      hSeedEtaVsPhi_->Fill(simEta, simPhi);
-      hSeedEtaVsNHits_->Fill(simEta, seedInfo.second.nHits());
-      hSeedResol_->fillInfo(simTrack, seedInfo.first);
-    }
+  // Create Sim to Reco Table
+  LogDebug("RecoMuonValidator::analyze") << "Building Sim to Reco matching table" << endl; 
 
-    Handle<TrackCollection> staTracks;
-    event.getByLabel(staTrackLabel_, staTracks);
-    if ( staTracks->size() > 0 ) {
-      pair<TSOS, TransientTrack> staInfo = matchTrack(simTrack, staTracks, maxDeltaR_);
-      hStaEtaVsPhi_->Fill(simEta, simPhi);
-      hStaEtaVsNHits_->Fill(simEta, staInfo.second.numberOfValidHits());
-      hStaResol_->fillInfo(simTrack, staInfo.first);
+  SimRecoTable<StaMuonDeltaR> staMuonDeltaRTable(simPtcls, recoMuons, StaMuonDeltaR(1.));
+  SimRecoTable<GlbMuonDeltaR> glbMuonDeltaRTable(simPtcls, recoMuons, GlbMuonDeltaR(1.));
 
-      Handle<TrackCollection> tkTracks;
-      event.getByLabel(tkTrackLabel_, tkTracks);
-      if ( tkTracks->size() > 0 
-           && staInfo.second.track().pt() > staMinPt_
-           && staInfo.second.track().innerMomentum().Rho() > staMinRho_
-           && staInfo.second.track().innerMomentum().R() > staMinR_ ) {  
-        pair<TSOS, TransientTrack> tkInfo = matchTrack(simTrack, tkTracks, maxDeltaR_);
-        if ( tkInfo.second.track().p() > tkMinP_ && tkInfo.second.track().pt() > tkMinPt_ ) {
-          hTkEtaVsPhi_->Fill(simEta, simPhi);
-        }
-      }
-    }
+  // Get best matched pairs
+  LogDebug("RecoMuonValidator::analyze") << "Get matching pairs from the table" << endl; 
 
-    Handle<TrackCollection> glbTracks;
-    event.getByLabel(glbTrackLabel_, glbTracks);
-    if ( glbTracks->size() > 0 ) {
-      pair<TSOS, TransientTrack> glbInfo = matchTrack(simTrack, glbTracks, maxDeltaR_);
-      hGlbEtaVsPhi_->Fill(simEta, simPhi);
-      hGlbEtaVsNHits_->Fill(simEta, glbInfo.second.numberOfValidHits());
-      hGlbResol_->fillInfo(simTrack, glbInfo.first);
-    }  
-  }
-}
+  SimRecoTable<StaMuonDeltaR>::Pairs staMuonPairsByDeltaR;
+  staMuonDeltaRTable.getBestMatched(staMuonPairsByDeltaR);
 
-pair<TSOS, TransientTrack> RecoMuonValidator::matchTrack(const SimTrack& simTrack, 
-                                                         Handle<TrackCollection> recTracks,
-                                                         const double maxDeltaR)
-{
-  double candDeltaR = maxDeltaR;
+  SimRecoTable<GlbMuonDeltaR>::Pairs glbMuonPairsByDeltaR;
+  glbMuonDeltaRTable.getBestMatched(glbMuonPairsByDeltaR);
 
-  TransientTrack candTrack;
-  TSOS candTSOS;
+  // Get un-matched pairs
+  LogDebug("RecoMuonValidator::analyze") << "Get un-matched simulated muons" << endl; 
 
-  for ( TrackCollection::const_iterator recTrack = recTracks->begin();
-        recTrack != recTracks->end(); recTrack++ ) { 
-    TransientTrack track(*recTrack, &*theMuonService_->magneticField(), 
-                         theMuonService_->trackingGeometry());
-    TSOS tsos = track.impactPointState();
+  SimRecoTable<StaMuonDeltaR>::SimPtcls unmatchStaMuonDeltaR;
+  staMuonDeltaRTable.getUnmatched(unmatchStaMuonDeltaR);
 
-    GlobalVector tsosVect = tsos.globalMomentum();
-    Hep3Vector trackVect = Hep3Vector(tsosVect.x(), tsosVect.y(), tsosVect.z());
-    double deltaRVal = deltaR<double>(trackVect.eta(),trackVect.phi(),
-				      simTrack.momentum().eta(),simTrack.momentum().phi());
+  SimRecoTable<GlbMuonDeltaR>::SimPtcls unmatchGlbMuonDeltaR;
+  glbMuonDeltaRTable.getUnmatched(unmatchGlbMuonDeltaR);
 
-    if ( candDeltaR < 0 || deltaRVal < candDeltaR  ) {
-      LogDebug("RecoMuonValidator") << "Matching Track with DeltaR = " << deltaRVal;
-      candDeltaR = deltaRVal;
-      candTrack  = track;
-      candTSOS   = tsos;
-    }
-  }
-  pair<TSOS, TransientTrack> retVal(candTSOS, candTrack);
-  return retVal;
-}
+  // Calculate difference bet'n sim-reco objects, fill histograms.
+  LogDebug("RecoMuonValidator::analyze") << "Calculate diffrences between sim-reco pairs and fill histograms" << endl; 
 
-pair<TSOS, TrajectorySeed> RecoMuonValidator::matchTrack(const SimTrack& simTrack,
-                                                         Handle<TrajectorySeedCollection> seeds,
-                                                         const double maxDeltaR)
-{
-  double candDeltaR = maxDeltaR;
+  for_each(unmatchStaMuonDeltaR.begin(), unmatchStaMuonDeltaR.end(), fillHisto_["StaMuonDeltaR"]);
+  for_each(staMuonPairsByDeltaR.begin(), staMuonPairsByDeltaR.end(), fillHisto_["StaMuonDeltaR"]);
 
-  TrajectorySeed candSeed;
-  TSOS candTSOS;
+  for_each(unmatchGlbMuonDeltaR.begin(), unmatchGlbMuonDeltaR.end(), fillHisto_["GlbMuonDeltaR"]);
+  for_each(glbMuonPairsByDeltaR.begin(), glbMuonPairsByDeltaR.end(), fillHisto_["GlbMuonDeltaR"]);
 
-  for ( TrajectorySeedCollection::const_iterator iSeed = seeds->begin();
-        iSeed != seeds->end(); iSeed++ ) {
-    TSOS tsos = getSeedTSOS(*iSeed);
-
-    GlobalVector tsosVect = tsos.globalMomentum();
-    Hep3Vector seedVect(tsosVect.x(), tsosVect.y(), tsosVect.z());
-    double deltaRVal = deltaR<double>(seedVect.eta(),seedVect.phi(),
-				      simTrack.momentum().eta(),simTrack.momentum().phi());
-
-    if ( candDeltaR < 0 || deltaRVal < candDeltaR ) {
-      LogDebug("RecoMuonValidator") << "Matching Track with DeltaR = " << deltaRVal;
-      candDeltaR = deltaRVal;
-      candSeed   = *iSeed;
-      candTSOS   = tsos;
-    }
-  }
-  return pair<TSOS, TrajectorySeed>(candTSOS, candSeed);
-}
-
-TSOS RecoMuonValidator::getSeedTSOS(const TrajectorySeed& seed)
-{
-  // Get the Trajectory State on Det (persistent version of a TSOS) from the seed
-  PTrajectoryStateOnDet pTSOD = seed.startingState();
-
-  // Transform it in a TrajectoryStateOnSurface
-  TrajectoryStateTransform tsTransform;
-
-  DetId seedDetId(pTSOD.detId());
-
-  const GeomDet* gdet = theMuonService_->trackingGeometry()->idToDet( seedDetId );
-
-  TSOS initialState = tsTransform.transientState(pTSOD, &(gdet->surface()), &*theMuonService_->magneticField());
-
-  // Get the layer on which the seed relies
-  const DetLayer *initialLayer = theMuonService_->detLayerGeometry()->idToLayer( seedDetId );
-
-  PropagationDirection detLayerOrder = oppositeToMomentum;
-
-  // ask for compatible layers
-  vector<const DetLayer*> detLayers;
-  //  if(theNavigationType == "Standard")
-    detLayers = initialLayer->compatibleLayers( *initialState.freeState(),detLayerOrder);
-    //   else if (theNavigationType == "Direct"){
-    //     DirectMuonNavigation navigation( &*theMuonService_->detLayerGeometry() );
-    //     detLayers = navigation.compatibleLayers( *initialState.freeState(),detLayerOrder);
-    //   }
-    //   else
-    //     edm::LogError(metname) << "No Properly Navigation Selected!!"<<endl;
-  TSOS result = initialState;
-  if(detLayers.size()){
-    const DetLayer* finalLayer = detLayers.back();
-    const TSOS propagatedState = theMuonService_->propagator(seedPropagatorName_)->propagate(initialState, finalLayer->surface());
-    if(propagatedState.isValid())
-      result = propagatedState;
-  }
-
-  return result;
-}
-
-int RecoMuonValidator::getNSimHits(const Event& event, string simHitLabel, unsigned int trackId)
-{
-  int nSimHits = 0;
-  Handle<PSimHitContainer> simHits;
-  event.getByLabel("g4SimHits", simHitLabel.c_str(), simHits);
-  for ( PSimHitContainer::const_iterator iSimHit = simHits->begin();
-        iSimHit != simHits->end(); iSimHit++ ) {
-    if ( iSimHit->trackId() == trackId ) {
-      nSimHits++;
-    }
-  }
-  return nSimHits;
-}
-
-
-void RecoMuonValidator::computeEfficiency(MonitorElement *effHist, MonitorElement *recoTH2, MonitorElement *simTH2){
-  TH2F * h1 = recoTH2->getTH2F();
-  TH1D* reco = h1->ProjectionX();
-
-  TH2F * h2 = simTH2->getTH2F();
-  TH1D* sim  = h2 ->ProjectionX();
-
-    
-  TH1F *hEff = (TH1F*) reco->Clone();  
-  
-  hEff->Divide(sim);
-  
-  hEff->SetName("tmp_"+TString(reco->GetName()));
-  
-  // Set the error accordingly to binomial statistics
-  int nBinsEta = hEff->GetNbinsX();
-  for(int bin = 1; bin <=  nBinsEta; bin++) {
-    float nSimHit = sim->GetBinContent(bin);
-    float eff = hEff->GetBinContent(bin);
-    float error = 0;
-    if(nSimHit != 0 && eff <= 1) {
-      error = sqrt(eff*(1-eff)/nSimHit);
-    }
-    hEff->SetBinError(bin, error);
-    effHist->setBinContent(bin,eff);
-    effHist->setBinError(bin,error);
-  }
-  
 }

@@ -9,7 +9,7 @@
 
 class SiStripApvGain {
 
-	public:
+ public:
 
   typedef std::vector<float>::const_iterator               ContainerIterator;  
   typedef std::pair<ContainerIterator, ContainerIterator>  Range;      
@@ -28,7 +28,6 @@ class SiStripApvGain {
   float   getApvGain  (const uint16_t& apv, const Range& range) const;
 
  private:
-
   std::vector<float> v_gains; 
   std::vector<unsigned int>   v_detids;
   std::vector<unsigned int>   v_ibegin;

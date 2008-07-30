@@ -2,12 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 # Trigger Primitive Producer
 from SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cfi import *
-# ecal mapping
-from Geometry.EcalMapping.EcalMappingRecord_cfi import *
 # esmodule creating  all the records
 EcalTrigPrimESProducer = cms.ESProducer("EcalTrigPrimESProducer",
-    DatabaseFileEE = cms.untracked.string('TPG_EE.txt'),
-    DatabaseFileEB = cms.untracked.string('TPG_EB.txt')
+    DatabaseFile = cms.untracked.string('TPG.txt')
 )
 
 # corresponding es_sources
@@ -77,5 +74,6 @@ tpparams11 = cms.ESSource("EmptyESSource",
     firstValid = cms.vuint32(1)
 )
 
-ecalTriggerPrimitiveDigis.BarrelOnly = True
+simEcalTriggerPrimitiveDigis.BarrelOnly = True
+
 

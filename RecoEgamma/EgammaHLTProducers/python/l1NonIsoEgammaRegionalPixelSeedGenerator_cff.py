@@ -1,8 +1,0 @@
-import FWCore.ParameterSet.Config as cms
-
-from RecoEgamma.EgammaHLTProducers.hltEgammaRegionalPixelSeedGenerator_cfi import *
-import copy
-from RecoEgamma.EgammaHLTProducers.hltEgammaRegionalPixelSeedGenerator_cfi import *
-l1NonIsoEgammaRegionalPixelSeedGenerator = copy.deepcopy(hltEgammaRegionalPixelSeedGenerator)
-l1NonIsoEgammaRegionalPixelSeedGenerator.candTag = 'l1NonIsoRecoEcalCandidate'
-

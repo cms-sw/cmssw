@@ -13,8 +13,8 @@
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
 // $Author: burkett $
-// $Date: 2008/01/10 19:28:10 $
-// $Revision: 1.16 $
+// $Date: 2008/04/11 15:11:45 $
+// $Revision: 1.19 $
 //
 
 #include <string>
@@ -115,7 +115,10 @@ class RoadSearchTrackCandidateMakerAlgorithm
   int nFoundMin_;
 
   double initialVertexErrorXY_;
+  bool splitMatchedHits_;
+  double cosmicSeedPt_;
 
+  double maxPropagationDistance;
 
   std::string measurementTrackerName_;
   

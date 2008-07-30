@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2008/03/13 21:17:08 $
- *  $Revision: 1.10 $
+ *  $Date: 2008/03/27 20:22:18 $
+ *  $Revision: 1.11 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -240,7 +240,8 @@ GlobalHitsAnalyzer::GlobalHitsAnalyzer(const edm::ParameterSet& iPSet) :
     sprintf(htitle,"Geant vertex z/millimeter");
     meGeantVtxZ[0] = dbe->book1D(hname,htitle,100,-11000.,11000.);
     sprintf(hname,"hGeantVtxZ2");
-    meGeantVtxZ[1] = dbe->book1D(hname,htitle,100,-250.,250.);
+    meGeantVtxZ[1] = dbe->book1D(hname,htitle,200,-500.,500.);
+    //meGeantVtxZ[1] = dbe->book1D(hname,htitle,100,-250.,250.);
     for (Int_t i = 0; i < 2; ++i) {
       meGeantVtxZ[i]->setAxisTitle("z of Vertex (mm)",1);
       meGeantVtxZ[i]->setAxisTitle("Count",2);

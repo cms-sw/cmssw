@@ -28,11 +28,12 @@
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
+#include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 
-#include "AnalysisDataFormats/SiStripClusterInfo/interface/SiStripClusterInfo.h"
-#include "AnalysisDataFormats/TrackInfo/interface/TrackInfo.h"
-#include "AnalysisDataFormats/TrackInfo/interface/TrackInfoTrackAssociation.h"
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
+#include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 //#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
@@ -47,6 +48,8 @@
 
 class SiStripMonitorTrack : public edm::EDAnalyzer {
  public:
+  typedef TransientTrackingRecHit::ConstRecHitPointer ConstRecHitPointer;
+  enum RecHitType { Single=0, Matched=1, Projected=2, Null=3};
   explicit SiStripMonitorTrack(const edm::ParameterSet&);
   ~SiStripMonitorTrack();
   virtual void beginRun(const edm::Run& run, const edm::EventSetup& c);
@@ -67,12 +70,14 @@ class SiStripMonitorTrack : public edm::EDAnalyzer {
   // internal evaluation of monitorables
   void AllClusters(const edm::EventSetup& es);
   void trackStudy(const edm::EventSetup& es);
-  bool clusterInfos(SiStripClusterInfo* cluster, const uint32_t& detid,std::string flag, LocalVector LV);	
-  std::pair<std::string,int32_t> GetSubDetAndLayer(const uint32_t& detid);
+  //  LocalPoint project(const GeomDet *det,const GeomDet* projdet,LocalPoint position,LocalVector trackdirection)const;
+  bool clusterInfos(const SiStripCluster* cluster, const uint32_t& detid,std::string flag, LocalVector LV);	
+  float SymEta( float clusterCentralCharge, float clusterLeftCharge, float clusterRightCharge);
   void RecHitInfo(const SiStripRecHit2D* tkrecHit, LocalVector LV,reco::TrackRef track_ref, const edm::EventSetup&);
   // fill monitorables 
-  void fillModMEs(SiStripClusterInfo*,TString,float);
-  void fillTrendMEs(SiStripClusterInfo*,std::string,float,std::string);
+  void fillModMEs(TString,float);
+  void fillTrendMEs(std::string,float,std::string);
+  void fillCapacitiveCouplingMEs(std::string,float,std::string);
   void fillTrend(MonitorElement* ME,float value1);
   inline void fillME(MonitorElement* ME,float value1){if (ME!=0)ME->Fill(value1);}
   inline void fillME(MonitorElement* ME,float value1,float value2){if (ME!=0)ME->Fill(value1,value2);}
@@ -103,34 +108,40 @@ class SiStripMonitorTrack : public edm::EDAnalyzer {
           ClusterNoise(0),
           ClusterNoiseTrend(0),
           ClusterWidth(0),
+	  ClusterSymmEtaCC(0),
           ClusterWidthTrend(0),
+	  ClusterSymmEtaCCTrend(0),
           ClusterPos(0),
           ClusterPGV(0){};
-          MonitorElement* nClusters;
-          MonitorElement* nClustersTrend;
-          MonitorElement* ClusterStoN;
-          MonitorElement* ClusterStoNCorr;
-          MonitorElement* ClusterStoNTrend;
-          MonitorElement* ClusterStoNCorrTrend;
-          MonitorElement* ClusterCharge;
-          MonitorElement* ClusterChargeCorr; 
-          MonitorElement* ClusterChargeTrend;
-          MonitorElement* ClusterChargeCorrTrend;
-          MonitorElement* ClusterNoise;
-          MonitorElement* ClusterNoiseTrend;
-          MonitorElement* ClusterWidth;
-          MonitorElement* ClusterWidthTrend;
-          MonitorElement* ClusterPos;
-          MonitorElement* ClusterPGV;
-      };
-
+    MonitorElement* nClusters;
+    MonitorElement* nClustersTrend;
+    MonitorElement* ClusterStoN;
+    MonitorElement* ClusterStoNCorr;
+    MonitorElement* ClusterStoNTrend;
+    MonitorElement* ClusterStoNCorrTrend;
+    MonitorElement* ClusterCharge;
+    MonitorElement* ClusterChargeCorr; 
+    MonitorElement* ClusterChargeTrend;
+    MonitorElement* ClusterChargeCorrTrend;
+    MonitorElement* ClusterNoise;
+    MonitorElement* ClusterNoiseTrend;
+    MonitorElement* ClusterWidth;
+    MonitorElement* ClusterSymmEtaCC;
+    MonitorElement* ClusterWidthTrend;
+    MonitorElement* ClusterSymmEtaCCTrend;
+    MonitorElement* ClusterPos;
+    MonitorElement* ClusterPGV;
+  };
+  
   std::map<TString, ModMEs> ModMEsMap;
   std::map<TString, MonitorElement*> MEMap;
-
-  edm::Handle< edm::DetSetVector<SiStripCluster> >  dsv_SiStripCluster;
-
-  edm::Handle<reco::TrackCollection> trackCollection;
-  edm::Handle<reco::TrackInfoTrackAssociationCollection> TItkAssociatorCollection;
+  
+  edm::Handle< edm::DetSetVector<SiStripRawDigi> > dsv_SiStripRawDigi;
+  edm::Handle< edm::DetSetVector<SiStripCluster> > dsv_SiStripCluster;
+  
+  edm::Handle<std::vector<Trajectory> > TrajectoryCollection;
+  edm::Handle<reco::TrackCollection > trackCollection;
+  edm::Handle<TrajTrackAssociationCollection> TItkAssociatorCollection;
   
   edm::ESHandle<TrackerGeometry> tkgeom;
   edm::ESHandle<SiStripDetCabling> SiStripDetCabling_;
@@ -139,15 +150,36 @@ class SiStripMonitorTrack : public edm::EDAnalyzer {
   edm::InputTag Cluster_src_;
 
   bool Mod_On_;
+  bool Trend_On_;
+  bool OffHisto_On_;
+  int off_Flag;
   std::vector<uint32_t> ModulesToBeExcluded_;
   std::vector<const SiStripCluster*> vPSiStripCluster;
   std::map<std::pair<std::string,int32_t>,bool> DetectedLayers;
   SiStripFolderOrganizer folder_organizer;
   bool tracksCollection_in_EventTree;
   bool trackAssociatorCollection_in_EventTree;
+  edm::ESHandle<SiStripNoises> noiseHandle_;
   int runNb, eventNb;
   int firstEvent;
   int countOn, countOff, countAll, NClus[4][3];
   uint32_t neighbourStripNumber;
+  // Cluster Properties
+  void loadCluster(const SiStripCluster*);
+  float                 cluster_charge_;
+  float                 cluster_noise_;
+  float                 cluster_signal2noise_;
+  unsigned int          cluster_width_;
+  float                 cluster_position_;
+  uint32_t              cluster_detid_;
+  float                 cluster_maxCharge_;
+  uint16_t              cluster_maxStrip_;
+  uint16_t              cluster_firstStrip_;
+  float                 cluster_chargeLeft_;
+  float                 cluster_chargeRight_;
+  float                 cluster_chargeRawCentral_;
+  float                 cluster_chargeRawLeft_;
+  float                 cluster_chargeRawRight_;
+  std::vector<uint16_t> cluster_amplitudes_;
 };
 #endif

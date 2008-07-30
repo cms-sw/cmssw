@@ -2,7 +2,6 @@
 #include "EventFilter/EcalRawToDigiDev/interface/EcalElectronicsMapper.h"
 #include "EventFilter/EcalRawToDigiDev/interface/DCCDataUnpacker.h"
 
-
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
@@ -10,6 +9,9 @@
 
 #include "DataFormats/EcalRawData/interface/EcalListOfFEDS.h"
 
+
+
+bool DCCDataUnpacker::silentMode_ = false;
 
 EcalRawToDigiDev::EcalRawToDigiDev(edm::ParameterSet const& conf):
 
@@ -53,7 +55,7 @@ EcalRawToDigiDev::EcalRawToDigiDev(edm::ParameterSet const& conf):
 
   REGIONAL_(conf.getUntrackedParameter<bool>("DoRegional",false)),
 
-  fedsLabel_(conf.getUntrackedParameter<edm::InputTag>("FedLabel",edm::InputTag(":listfeds"))),
+  fedsLabel_(conf.getUntrackedParameter<std::string>("FedLabel","listfeds")),
 
   myMap_(0),
   
@@ -63,7 +65,7 @@ EcalRawToDigiDev::EcalRawToDigiDev(edm::ParameterSet const& conf):
   
   first_ = true;
   mmm_ = new EcalElectronicsMapping();
-
+  DCCDataUnpacker::silentMode_ = conf.getUntrackedParameter<bool>("silentMode",false) ;
   
   if( numbXtalTSamples_ <6 || numbXtalTSamples_>64 || (numbXtalTSamples_-2)%4 ){
     std::ostringstream output;
@@ -293,14 +295,14 @@ void EcalRawToDigiDev::produce(edm::Event& e, const edm::EventSetup& es) {
     const FEDRawData & fedData = rawdata->FEDData(*i);
     int length = fedData.size();
 
-    edm::LogInfo("EcalRawToDigiDev") << "raw data lenght: " << length ;
+    LogDebug("EcalRawToDigiDev") << "raw data lenght: " << length ;
     //if data size is not null interpret data
     if ( length >= EMPTYEVENTSIZE ){
       
       if(myMap_->setActiveDCC(*i)){
 
 	int smId = myMap_->getActiveSM();
-	edm::LogInfo("EcalRawToDigiDev") << "Getting FED = " << *i <<"(SM = "<<smId<<")"<<" data size is: " << length;
+	LogDebug("EcalRawToDigiDev") << "Getting FED = " << *i <<"(SM = "<<smId<<")"<<" data size is: " << length;
 
 	uint64_t * pData = (uint64_t *)(fedData.data());
 	theUnpacker_->unpack( pData, static_cast<uint>(length),smId,*i);

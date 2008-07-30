@@ -6,6 +6,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "Utilities/General/interface/FileInPath.h"
 
 //#include "CLHEP/Random/JamesRandom.h"
 //#include "CLHEP/Random/RandFlat.h"

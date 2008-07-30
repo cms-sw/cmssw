@@ -14,18 +14,13 @@ import FWCore.ParameterSet.Config as cms
 #--- Allow for multiple calls to the database ---#
 from CondCore.DBCommon.CondDBSetup_cfi import *
 #--- Geometry Setup ---#
-from Geometry.CMSCommonData.cmsIdealGeometryXML_cfi import *
-from MagneticField.Engine.volumeBasedMagneticField_cfi import *
-from Geometry.TrackerGeometryBuilder.trackerGeometry_cfi import *
-from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *
 from HLTrigger.Configuration.rawToDigi.EcalGeometrySetup_cff import *
-from Geometry.DTGeometry.dtGeometry_cfi import *
-from Geometry.RPCGeometry.rpcGeometry_cfi import *
 #-------------------------#
 #--- RawToDigi modules ---#
 #-------------------------#
 #--- L1 Setup ---#
 from L1TriggerConfig.L1ScalesProducers.L1MuTriggerScalesConfig_cff import *
+from L1TriggerConfig.L1ScalesProducers.L1MuTriggerPtScaleConfig_cff import *
 from L1TriggerConfig.L1ScalesProducers.L1MuGMTScalesConfig_cff import *
 from L1TriggerConfig.GctConfigProducers.L1GctConfig_cff import *
 from L1TriggerConfig.L1GtConfigProducers.L1GtConfig_cff import *
@@ -77,7 +72,7 @@ muonRPCDigis = copy.deepcopy(rpcunpacker)
 RawToDigi = cms.Sequence(l1CscTfEmulDigis+l1DttfEmulDigis+l1GmtEmulDigis+ecalDigis+ecalPreshowerDigis+hcalDigis+muonCSCDigis+muonDTDigis+muonRPCDigis)
 l1GmtEmulDigis.DaqGtInputTag = 'source'
 siPixelDigis.InputLabel = 'source'
-SiStripDigis.ProductLabel = 'source'
+siStripDigis.ProductLabel = 'source'
 ecalDigis.DoRegional = False
 muonCSCDigis.UseExaminer = False
 

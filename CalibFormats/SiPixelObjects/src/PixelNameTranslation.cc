@@ -116,11 +116,11 @@ PixelNameTranslation::PixelNameTranslation(std::string filename):
   std::ifstream in(filename.c_str());
   
   if (!in.good()){
-    std::cout << "[PixelNameTranslation::PixelNameTranslation()]\t\tCould not open: " << filename <<std::endl;
+    std::cout << "[PixelNameTranslation::PixelNameTranslation()]\tCould not open: " << filename <<std::endl;
     assert(0);
   }
   else {
-    std::cout << "[PixelNameTranslation::PixelNameTranslation()]\t\tReading from: "   << filename <<std::endl;
+    std::cout << "[PixelNameTranslation::PixelNameTranslation()]\tReading from: "   << filename <<std::endl;
   }
   
   std::string dummy;

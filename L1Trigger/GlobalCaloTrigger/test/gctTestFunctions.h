@@ -43,9 +43,9 @@ public:
   void reset();
 
   /// Load another event into the gct. Overloaded for the various ways of doing this.
-  void loadNextEvent(L1GlobalCaloTrigger* &gct, const bool simpleEvent, const int16_t bx);
-  void loadNextEvent(L1GlobalCaloTrigger* &gct, const std::string fileName, bool &endOfFile, const int16_t bx);
-  void loadNextEvent(L1GlobalCaloTrigger* &gct, const std::string fileName, const int16_t bx);
+  void loadNextEvent(L1GlobalCaloTrigger* &gct, const bool simpleEvent);
+  void loadNextEvent(L1GlobalCaloTrigger* &gct, const std::string fileName, bool &endOfFile);
+  void loadNextEvent(L1GlobalCaloTrigger* &gct, const std::string fileName);
 
   /// Read the input electron data (after GCT processing).
   void fillElectronData(const L1GlobalCaloTrigger* gct);
@@ -74,6 +74,9 @@ public:
   /// Check the Hf Et sums
   bool checkHfEtSums(const L1GlobalCaloTrigger* gct) const;
 
+  /// Analyse calculation of energy sums in firmware
+  bool checkEnergySumsFromFirmware(const L1GlobalCaloTrigger* gct, const std::string &fileName) const;
+
 private:
 
   gctTestElectrons*      theElectronsTester;
@@ -82,13 +85,8 @@ private:
   gctTestHtAndJetCounts* theHtAndJetCountsTester;
   gctTestHfEtSums*       theHfEtSumsTester;
 
-  std::vector< std::vector<L1CaloEmCand> > m_inputEmCands;
-  std::vector< std::vector<L1CaloRegion> > m_inputRegions;
-
-  int m_bxStart;
-  int m_numOfBx;
-
-  void bxRangeUpdate(const int16_t bx);
+  std::vector<L1CaloEmCand> m_inputEmCands;
+  std::vector<L1CaloRegion> m_inputRegions;
 
 };
 

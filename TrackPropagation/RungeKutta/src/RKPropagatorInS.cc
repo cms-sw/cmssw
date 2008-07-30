@@ -10,12 +10,14 @@
 #include "TrackPropagation/RungeKutta/interface/PathToPlane2Order.h"
 #include "TrackPropagation/RungeKutta/interface/CartesianStateAdaptor.h"
 #include "TrackingTools/GeomPropagators/interface/StraightLineCylinderCrossing.h"
+#include "TrackingTools/GeomPropagators/interface/StraightLineBarrelCylinderCrossing.h"
 #include "MagneticField/VolumeGeometry/interface/MagVolume.h"
 #include "TrackingTools/GeomPropagators/interface/PropagationDirectionFromPath.h"
 #include "TrackPropagation/RungeKutta/interface/FrameChanger.h"
 #include "TrackingTools/GeomPropagators/interface/StraightLinePlaneCrossing.h"
 #include "TrackPropagation/RungeKutta/interface/AnalyticalErrorPropagation.h"
 #include "TrackPropagation/RungeKutta/interface/GlobalParametersWithPath.h"
+#include "TrackingTools/GeomPropagators/interface/PropagationExceptions.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -27,8 +29,8 @@ RKPropagatorInS::propagateWithPath(const FreeTrajectoryState& fts,
   GlobalParametersWithPath gp =  propagateParametersOnPlane( fts, plane);
   if (!gp) return TsosWP(TrajectoryStateOnSurface(),0.);
   else {
-    SurfaceSide side = PropagationDirectionFromPath()(gp.s(),propagationDirection())==alongMomentum 
-      ? beforeSurface : afterSurface;
+    SurfaceSideDefinition::SurfaceSide side = PropagationDirectionFromPath()(gp.s(),propagationDirection())==alongMomentum 
+      ? SurfaceSideDefinition::beforeSurface : SurfaceSideDefinition::afterSurface;
     AnalyticalErrorPropagation errorprop;
     return errorprop( fts, plane, side, gp.parameters(),gp.s());
   }
@@ -40,8 +42,8 @@ RKPropagatorInS::propagateWithPath (const FreeTrajectoryState& fts, const Cylind
   GlobalParametersWithPath gp =  propagateParametersOnCylinder( fts, cyl);
   if (!gp) return TsosWP(TrajectoryStateOnSurface(),0.);
   else {
-    SurfaceSide side = PropagationDirectionFromPath()(gp.s(),propagationDirection())==alongMomentum 
-      ? beforeSurface : afterSurface;
+    SurfaceSideDefinition::SurfaceSide side = PropagationDirectionFromPath()(gp.s(),propagationDirection())==alongMomentum 
+      ? SurfaceSideDefinition::beforeSurface : SurfaceSideDefinition::afterSurface;
     AnalyticalErrorPropagation errorprop;
     return errorprop( fts, cyl, side, gp.parameters(),gp.s());
   }
@@ -52,6 +54,52 @@ GlobalParametersWithPath
 RKPropagatorInS::propagateParametersOnPlane( const FreeTrajectoryState& ts, 
 					     const Plane& plane) const
 {
+
+  GlobalPoint gpos( ts.position());
+  GlobalVector gmom( ts.momentum());
+  double startZ = plane.localZ(gpos);
+  // (transverse) curvature
+  double rho = ts.transverseCurvature();
+  //
+  // Straight line approximation? |rho|<1.e-10 equivalent to ~ 1um 
+  // difference in transversal position at 10m.
+  //
+  if( fabs(rho)<1.e-10 ) {
+    //
+    // Instantiate auxiliary object for finding intersection.
+    // Frame-independant point and vector are created explicitely to 
+    // avoid confusing gcc (refuses to compile with temporary objects
+    // in the constructor).
+    //
+    LogDebug("RKPropagatorInS")<<" startZ = "<<startZ;
+
+    if (fabs(startZ) < 1e-5){  
+      LogDebug("RKPropagatorInS")<< "Propagation is not performed: state is already on final surface.";
+      GlobalTrajectoryParameters res( gpos, gmom, ts.charge(), 
+				      theVolume);
+      return GlobalParametersWithPath( res, 0.0);
+    }
+
+    StraightLinePlaneCrossing::PositionType pos(gpos);
+    StraightLinePlaneCrossing::DirectionType dir(gmom);
+    StraightLinePlaneCrossing planeCrossing(pos,dir, propagationDirection());
+    //
+    // get solution
+    //
+    std::pair<bool,double> propResult = planeCrossing.pathLength(plane);
+    if ( propResult.first && theVolume !=0) {
+      double s = propResult.second;
+      // point (reconverted to GlobalPoint)
+      GlobalPoint x (planeCrossing.position(s));
+      GlobalTrajectoryParameters res( x, gmom, ts.charge(), theVolume);
+      return GlobalParametersWithPath( res, s);
+    } else {
+      //do someting
+      edm::LogError("RKPropagatorInS")<< "Straight line propgation to plane failed !!"; 
+      return GlobalParametersWithPath( );
+    }
+  }
+
   if (theVolume != 0) {
     LogDebug("RKPropagatorInS")  << "RKPropagatorInS: starting prop to plane in volume with pos " << theVolume->position()
 	      << " Z axis " << theVolume->toGlobal( LocalVector(0,0,1)) ;
@@ -72,11 +120,7 @@ RKPropagatorInS::propagateParametersOnPlane( const FreeTrajectoryState& ts,
 
   typedef RKAdaptiveSolver<double,RKOneCashKarpStep, 6>   Solver;
   typedef Solver::Vector                                  RKVector;
-
-  GlobalPoint gpos( ts.position());
-  GlobalVector gmom( ts.momentum());
-  double startZ = plane.localZ(gpos);
-
+  
   RKLocalFieldProvider field( fieldProvider());
   PathToPlane2Order pathLength( field, &field.frame());
   CartesianLorentzForce deriv(field, ts.charge());
@@ -150,6 +194,12 @@ RKPropagatorInS::propagateParametersOnCylinder( const FreeTrajectoryState& ts,
     typedef RKAdaptiveSolver<double,RKOneCashKarpStep, 6>   Solver;
     typedef Solver::Vector                                  RKVector;
 
+    
+    GlobalPoint sp = cyl.toGlobal(LocalPoint(0.,0.));
+    if (sp.x()!=0. || sp.y()!=0.) {
+      throw PropagationException("Cannot propagate to an arbitrary cylinder");
+    }
+
     GlobalPoint gpos( ts.position());
     GlobalVector gmom( ts.momentum());
     LocalPoint pos(cyl.toLocal(gpos));
@@ -157,6 +207,42 @@ RKPropagatorInS::propagateParametersOnCylinder( const FreeTrajectoryState& ts,
     double startR = cyl.radius() - pos.perp();
 
     // LogDebug("RKPropagatorInS")  << "RKPropagatorInS: starting from FTS " << ts ;
+
+
+    // (transverse) curvature
+    double rho = ts.transverseCurvature();
+    //
+    // Straight line approximation? |rho|<1.e-10 equivalent to ~ 1um 
+    // difference in transversal position at 10m.
+    //
+    if( fabs(rho)<1.e-10 ) {
+      //
+      // Instantiate auxiliary object for finding intersection.
+      // Frame-independant point and vector are created explicitely to 
+      // avoid confusing gcc (refuses to compile with temporary objects
+      // in the constructor).
+      //
+      
+      StraightLineBarrelCylinderCrossing cylCrossing(gpos,gmom,propagationDirection());
+
+      //
+      // get solution
+      //
+      std::pair<bool,double> propResult = cylCrossing.pathLength(cyl);
+      if ( propResult.first && theVolume !=0) {
+	double s = propResult.second;
+	// point (reconverted to GlobalPoint)
+	GlobalPoint x (cylCrossing.position(s));
+	GlobalTrajectoryParameters res( x, gmom, ts.charge(), theVolume);
+	std::cout << "Straight line propagation to cylinder succeeded !!" << std::endl; 
+	return GlobalParametersWithPath( res, s);
+      } else {
+	//do someting 
+	std::cout << "Straight line propagation to cylinder failed !!" << std::endl;
+	return GlobalParametersWithPath( );
+      }
+    }
+    
 
     RKLocalFieldProvider field( fieldProvider(cyl));
     // StraightLineCylinderCrossing pathLength( pos, mom, propagationDirection());

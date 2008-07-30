@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/03/26 18:10:20 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/03/26 17:43:18 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane - CERN
  */
 
@@ -60,20 +60,15 @@ void MagGeometryAnalyzer::analyze(const edm::Event & event, const edm::EventSetu
   
   // Test that findVolume succeeds for random points
   MagGeometryExerciser exe(field);
-//   exe.testFindVolume(100000);
+  exe.testFindVolume(100000);
 
   // Test that random points are inside one and only one volume
-  // exe.testInside(100000,0.03); 
+  // exe.testInside(100000);
 
-  
   // Test that each grid point is inside its own volume
-  if (true) {
-    cout << "***TEST GRIDS: barrel volumes: " << field->barrelVolumes().size() << endl;
-    testGrids( field->barrelVolumes());
-    
-    cout << "***TEST GRIDS: endcap volumes: " << field->endcapVolumes().size() << endl;
-    testGrids( field->endcapVolumes());
-  }
+  cout << "***TEST GRIDS:" << endl;
+  testGrids( field->barrelVolumes());
+  testGrids( field->endcapVolumes());
 }
 
 
@@ -87,15 +82,11 @@ void MagGeometryAnalyzer::testGrids(const vector<MagVolume6Faces*>& bvol) {
   for (vector<MagVolume6Faces*>::const_iterator i=bvol.begin();
        i!=bvol.end(); i++) {
     if (++nameCalls[(*i)->name] > 1) {
-      cout << (*i)->name << " already checked"<< endl; 
+      //      cout << (*i)->name << " already checked, skipping... "; 
       continue;
     }
 
     const MagProviderInterpol* prov = (**i).provider();
-    if (prov == 0) {
-      cout << (*i)->name << " No interpolator; skipping " <<  endl;
-      continue;
-    }
     VolumeGridTester tester(*i, prov);
     if (tester.testInside()) cout << "testGrids: success: " << (**i).name << endl;
     else cout << "testGrids: ERROR: " << (**i).name << endl;

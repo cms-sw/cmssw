@@ -30,7 +30,8 @@ namespace evf {
     unsigned char* payloadAddr() const;
     unsigned int   eventSize()   const { return eventSize_; }
     
-    void           writeInitMsg(unsigned char *data,
+    void           writeInitMsg(unsigned int   outModId,
+				unsigned char *data,
 				unsigned int   dataSize);
     
     void           writeEventData(unsigned int   rawCellIndex,

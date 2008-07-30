@@ -24,6 +24,7 @@
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/SiStripRecHitMatcher.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
 #include "RecoLocalTracker/Records/interface/TkStripCPERecord.h"
+#include "CalibTracker/Records/interface/SiStripQualityRcd.h"
 
 
 
@@ -66,7 +67,16 @@ namespace cms
     edm::ESHandle<SiStripRecHitMatcher> rechitmatcher;
     es.get<TkStripCPERecord>().get(matcher, rechitmatcher); 
     const SiStripRecHitMatcher &rhmatcher(*rechitmatcher);
-    
+
+    //maybe get the SiStripQuality
+    const SiStripQuality *ptr_stripQuality = 0;
+    edm::ESHandle<SiStripQuality>   stripQuality;
+    if (conf_.existsAs<bool>("useSiStripQuality") && conf_.getParameter<bool>("useSiStripQuality")) {
+        std::string qualityLabel = conf_.getParameter<std::string>("siStripQualityLabel");
+        es.get<SiStripQualityRcd>().get(stripQuality);
+        ptr_stripQuality = stripQuality.product();
+    }
+
     // Step A: Get Inputs 
     std::string clusterProducer = conf_.getParameter<std::string>("ClusterProducer");
     bool regional = conf_.getParameter<bool>("Regional");
@@ -87,8 +97,8 @@ namespace cms
     std::auto_ptr<SiStripRecHit2DCollection> outputstereo(new SiStripRecHit2DCollection);
 
     // Step C: Invoke the seed finding algorithm
-    if (regional) recHitConverterAlgorithm_.run(refclusters,lazygetter,*outputmatched,*outputrphi,*outputstereo,tracker,stripcpe,rhmatcher);
-    else recHitConverterAlgorithm_.run(clusters,*outputmatched,*outputrphi,*outputstereo,tracker,stripcpe,rhmatcher);
+    if (regional) recHitConverterAlgorithm_.run(refclusters,lazygetter,*outputmatched,*outputrphi,*outputstereo,tracker,stripcpe,rhmatcher,ptr_stripQuality);
+    else recHitConverterAlgorithm_.run(clusters,*outputmatched,*outputrphi,*outputstereo,tracker,stripcpe,rhmatcher,ptr_stripQuality);
 
     // Step D: write output to file
     e.put(outputmatched, matchedRecHitsTag_ );

@@ -98,8 +98,10 @@ process.MonitorDaemon = cms.Service("MonitorDaemon",
 
 process.MessageLogger = cms.Service("MessageLogger",
     testGt_Unpacker = cms.untracked.PSet(
-        threshold = cms.untracked.string('DEBUG'),
-        DEBUG = cms.untracked.PSet(
+        threshold = cms.untracked.string('DEBUG'), ## DEBUG mode 
+
+        DEBUG = cms.untracked.PSet( ## DEBUG mode, all messages  
+
             limit = cms.untracked.int32(-1)
         ),
         #        untracked PSet DEBUG = { untracked int32 limit = 10}  // DEBUG mode, max 10 messages  

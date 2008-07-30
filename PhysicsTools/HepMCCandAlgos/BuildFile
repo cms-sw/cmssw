@@ -1,7 +1,8 @@
 <use name=DataFormats/HepMCCandidate>
 <use name=PhysicsTools/UtilAlgos>
-<use name=
+<use name=FWCore/ParameterSet>
 <export>
   <use name=DataFormats/HepMCCandidate>
   <use name=PhysicsTools/UtilAlgos>
+  <use name=FWCore/ParameterSet>
 </export>

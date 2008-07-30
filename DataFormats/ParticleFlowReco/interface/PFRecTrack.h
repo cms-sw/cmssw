@@ -4,7 +4,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFTrack.h"
 /* #include "DataFormats/Common/interface/RefToBase.h" */
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-
+#include "DataFormats/ParticleFlowReco/interface/PFBrem.h"
 #include <iostream>
 
 namespace reco {
@@ -32,7 +32,7 @@ namespace reco {
     };
 
     PFRecTrack();
-    ~PFRecTrack(){};  
+  
     PFRecTrack(double charge, 
                AlgoType_t algoType, 
                int trackId,
@@ -53,6 +53,11 @@ namespace reco {
     const reco::TrackRef& 
       trackRef() const {return trackRef_;}
 
+    /// add a Bremsstrahlung photon
+    void addBrem( const reco::PFBrem& brem);
+
+    /// \return the vector of PFBrem
+    const std::vector<reco::PFBrem>& PFRecBrem()const {return pfBremVec_;}
 
   
     friend  std::ostream& operator<<(std::ostream& out, 
@@ -69,6 +74,8 @@ namespace reco {
     /// reference to corresponding track
     reco::TrackRef        trackRef_;
 
+    /// vector of PFBrem (empty for KF tracks)
+    std::vector<reco::PFBrem> pfBremVec_;
 
   };
 

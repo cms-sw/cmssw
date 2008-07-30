@@ -1,5 +1,5 @@
 //
-// $Id: PATTauProducer.cc,v 1.1 2008/03/06 09:23:11 llista Exp $
+// $Id: PATTauProducer.cc,v 1.5.2.1 2008/05/31 19:33:38 lowette Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATTauProducer.h"
@@ -22,7 +22,6 @@
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 
 #include "PhysicsTools/PatUtils/interface/ObjectResolutionCalc.h"
-#include "PhysicsTools/PatUtils/interface/LeptonLRCalc.h"
 
 #include <vector>
 #include <memory>
@@ -33,14 +32,17 @@ using namespace pat;
 
 PATTauProducer::PATTauProducer(const edm::ParameterSet & iConfig) {
   // initialize the configurables
-  tauSrc_         = iConfig.getParameter<edm::InputTag>( "tauSource" );
-  addGenMatch_    = iConfig.getParameter<bool>         ( "addGenMatch" );
-  addResolutions_ = iConfig.getParameter<bool>         ( "addResolutions" );
-  useNNReso_      = iConfig.getParameter<bool>         ( "useNNResolutions" );
-  addLRValues_    = iConfig.getParameter<bool>         ( "addLRValues" );
-  genPartSrc_     = iConfig.getParameter<edm::InputTag>( "genParticleMatch" );
-  tauResoFile_    = iConfig.getParameter<std::string>  ( "tauResoFile" );
-  tauLRFile_      = iConfig.getParameter<std::string>  ( "tauLRFile" ); 
+  tauSrc_               = iConfig.getParameter<edm::InputTag>( "tauSource" );
+  embedIsolationTracks_ = iConfig.getParameter<bool>         ( "embedIsolationTracks" );
+  embedLeadTrack_       = iConfig.getParameter<bool>         ( "embedLeadTrack" );
+  embedSignalTracks_    = iConfig.getParameter<bool>         ( "embedSignalTracks" );
+  addGenMatch_    = iConfig.getParameter<bool>               ( "addGenMatch" );
+  genMatchSrc_    = iConfig.getParameter<edm::InputTag>      ( "genParticleMatch" );
+  addTrigMatch_   = iConfig.getParameter<bool>               ( "addTrigMatch" );
+  trigMatchSrc_   = iConfig.getParameter<std::vector<edm::InputTag> >( "trigPrimMatch" );
+  addResolutions_ = iConfig.getParameter<bool>               ( "addResolutions" );
+  useNNReso_      = iConfig.getParameter<bool>               ( "useNNResolutions" );
+  tauResoFile_    = iConfig.getParameter<std::string>        ( "tauResoFile" );
 
   // construct resolution calculator
   if (addResolutions_) {
@@ -60,7 +62,7 @@ PATTauProducer::~PATTauProducer() {
 void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {     
   std::auto_ptr<std::vector<Tau> > patTaus(new std::vector<Tau>()); 
 
-  edm::Handle<View<TauType> > anyTaus;
+  edm::Handle<edm::View<TauType> > anyTaus;
   try {
     iEvent.getByLabel(tauSrc_, anyTaus);
   } catch (const edm::Exception &e) {
@@ -70,18 +72,16 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   }
    
   edm::Handle<edm::Association<reco::GenParticleCollection> > genMatch;
-  if (addGenMatch_) iEvent.getByLabel(genPartSrc_, genMatch); 
-
-  // prepare LR calculation if required
-  if (addLRValues_) {
-    theLeptonLRCalc_ = new LeptonLRCalc(iSetup, "", "", edm::FileInPath(tauLRFile_).fullPath());
-  }
+  if (addGenMatch_) iEvent.getByLabel(genMatchSrc_, genMatch); 
 
   for (size_t idx = 0, ntaus = anyTaus->size(); idx < ntaus; ++idx) {
     edm::RefToBase<TauType> tausRef = anyTaus->refAt(idx);
     const TauType * originalTau = tausRef.get();
 
     Tau aTau(tausRef);
+    if (embedIsolationTracks_) aTau.embedIsolationTracks();
+    if (embedLeadTrack_) aTau.embedLeadTrack();
+    if (embedSignalTracks_) aTau.embedSignalTracks();
 
     if (typeid(originalTau) == typeid(const reco::PFTau *)) {
       const reco::PFTau *thePFTau = dynamic_cast<const reco::PFTau*>(originalTau);
@@ -90,28 +90,28 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
         float ECALenergy=0.;
         float HCALenergy=0.;
         float leadEnergy=0.;
-        std::list<const PFBlockElement*> elements;
-        PFCandidateRefVector myPFCands=thePFTau->pfTauTagInfoRef()->PFCands();
+        std::list<const reco::PFBlockElement*> elements;
+        reco::PFCandidateRefVector myPFCands=thePFTau->pfTauTagInfoRef()->PFCands();
         for(int i=0;i<(int)myPFCands.size();i++){
-          const PFCandidate::ElementsInBlocks& eib = myPFCands[i]->elementsInBlocks();
-          for(PFCandidate::ElementsInBlocks::const_iterator iPFBlockElement=eib.begin();
+          const reco::PFCandidate::ElementsInBlocks& eib = myPFCands[i]->elementsInBlocks();
+          for(reco::PFCandidate::ElementsInBlocks::const_iterator iPFBlockElement=eib.begin();
                                                             iPFBlockElement!=eib.end();++iPFBlockElement) {
             elements.push_back(&(iPFBlockElement->first->elements()[iPFBlockElement->second]));
           }
         }
         elements.sort();
         elements.unique();
-        const PFCandidate::ElementsInBlocks& eib = thePFTau->leadPFChargedHadrCand()->elementsInBlocks();
-        for(PFCandidate::ElementsInBlocks::const_iterator iPFBlockElement=eib.begin();
+        const reco::PFCandidate::ElementsInBlocks& eib = thePFTau->leadPFChargedHadrCand()->elementsInBlocks();
+        for(reco::PFCandidate::ElementsInBlocks::const_iterator iPFBlockElement=eib.begin();
                                                           iPFBlockElement!=eib.end();++iPFBlockElement) {
-          if((iPFBlockElement->first->elements()[iPFBlockElement->second].type()==PFBlockElement::HCAL)||
-             (iPFBlockElement->first->elements()[iPFBlockElement->second].type()==PFBlockElement::ECAL)  )
+          if((iPFBlockElement->first->elements()[iPFBlockElement->second].type()==reco::PFBlockElement::HCAL)||
+             (iPFBlockElement->first->elements()[iPFBlockElement->second].type()==reco::PFBlockElement::ECAL)  )
             leadEnergy += iPFBlockElement->first->elements()[iPFBlockElement->second].clusterRef()->energy();
         }
-        for(std::list<const PFBlockElement*>::const_iterator ielements = elements.begin();ielements!=elements.end();++ielements) {
-          if((*ielements)->type()==PFBlockElement::HCAL)
+        for(std::list<const reco::PFBlockElement*>::const_iterator ielements = elements.begin();ielements!=elements.end();++ielements) {
+          if((*ielements)->type()==reco::PFBlockElement::HCAL)
             HCALenergy += (*ielements)->clusterRef()->energy();
-          else if((*ielements)->type()==PFBlockElement::ECAL)
+          else if((*ielements)->type()==reco::PFBlockElement::ECAL)
             ECALenergy += (*ielements)->clusterRef()->energy();
         }
 	aTau.setEmEnergyFraction(ECALenergy/(ECALenergy+HCALenergy));
@@ -132,23 +132,29 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
       }
     }
 
-    // add MC match if demanded
+    // store the match to the generated final state taus
     if (addGenMatch_) {
       reco::GenParticleRef genTau = (*genMatch)[tausRef];
       if (genTau.isNonnull() && genTau.isAvailable() ) {
         aTau.setGenLepton(*genTau);
-      } else {
-        aTau.setGenLepton(reco::Particle(0, reco::Particle::LorentzVector(0,0,0,0))); // TQAF way of setting "null"
+      } // leave empty if no match found
+    }
+    
+    // matches to trigger primitives
+    if ( addTrigMatch_ ) {
+      for ( size_t i = 0; i < trigMatchSrc_.size(); ++i ) {
+        edm::Handle<edm::Association<TriggerPrimitiveCollection> > trigMatch;
+        iEvent.getByLabel(trigMatchSrc_[i], trigMatch);
+        TriggerPrimitiveRef trigPrim = (*trigMatch)[tausRef];
+        if ( trigPrim.isNonnull() && trigPrim.isAvailable() ) {
+          aTau.addTriggerMatch(*trigPrim);
+        }
       }
     }
 
     // add resolution info if demanded
     if (addResolutions_) {
       (*theResoCalc_)(aTau);
-    }
-    // add lepton LR info if requested
-    if (addLRValues_) {
-      theLeptonLRCalc_->calcLikelihood(aTau, iEvent);
     }
 
     patTaus->push_back(aTau);
@@ -159,9 +165,6 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 
   // put genEvt object in Event
   iEvent.put(patTaus);
-
-  // destroy the lepton LR calculator
-  if (addLRValues_) delete theLeptonLRCalc_;
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

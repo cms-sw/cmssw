@@ -28,4 +28,3 @@ mumufilter = cms.EDFilter("MCParticlePairFilter",
 )
 
 
-

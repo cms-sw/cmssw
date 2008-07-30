@@ -4,8 +4,8 @@
 /*
  * \file EcalEndcapMonitorModule.h
  *
- * $Date: 2008/02/15 10:40:30 $
- * $Revision: 1.12 $
+ * $Date: 2008/04/08 18:09:43 $
+ * $Revision: 1.18 $
  * \author G. Della Ricca
  *
 */
@@ -42,6 +42,15 @@ void endJob(void);
 /// Setup
 void setup(void);
 
+/// BeginRun
+void beginRun(const edm::Run & r, const edm::EventSetup & c);
+
+/// EndRun
+void endRun(const edm::Run & r, const edm::EventSetup & c);
+
+/// Reset
+void reset(void);
+
 /// Cleanup
 void cleanup(void);
 
@@ -59,19 +68,23 @@ bool fixedRunType_;
 
 int ievt_;
 
-edm::InputTag EcalTBEventHeader_;
 edm::InputTag EcalRawDataCollection_;
 edm::InputTag EEDigiCollection_;
 edm::InputTag EcalRecHitCollection_;
 edm::InputTag EcalTrigPrimDigiCollection_;
 
 bool verbose_;
+bool debug_;
 
 bool enableEventDisplay_;
 
-DQMStore* dbe_;
+DQMStore* dqmStore_;
+
+std::string prefixME_;
 
 bool enableCleanup_;
+
+bool mergeRuns_;
 
 MonitorElement* meStatus_;
 

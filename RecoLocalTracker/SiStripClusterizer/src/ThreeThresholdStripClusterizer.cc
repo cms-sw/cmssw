@@ -1,5 +1,4 @@
 #include "RecoLocalTracker/SiStripClusterizer/interface/ThreeThresholdStripClusterizer.h"
-#include "sstream"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
@@ -15,7 +14,9 @@ void ThreeThresholdStripClusterizer::clusterizeDetUnit(
   es.get<SiStripGainRcd>().get(gainHandle);
   es.get<SiStripNoisesRcd>().get(noiseHandle);
   es.get<SiStripQualityRcd>().get(qualityLabel_,qualityHandle);
-  
+
+  bool printPatchError=false;
+  int countErrors=0;
   const uint32_t& detID = input.id;
   
   if (!qualityHandle->IsModuleUsable(detID)){
@@ -42,7 +43,7 @@ void ThreeThresholdStripClusterizer::clusterizeDetUnit(
   AboveSeed predicate(seedThresholdInNoiseSigma(), noiseHandle, detNoiseRange, qualityHandle, detQualityRange);
 
   std::stringstream ss;
-
+  
   while ( ibeg != end &&
           (ihigh = find_if( ibeg, end, predicate)) != end) {
 
@@ -57,6 +58,7 @@ void ThreeThresholdStripClusterizer::clusterizeDetUnit(
     // to iend, and itest is the strip under study, not yet accepted.
     iend = ihigh;
     itest = iend + 1;
+
     while ( itest != end && (itest->strip() - iend->strip() <= max_holes_ + 1 )) {
       float channelNoise = noiseHandle->getNoise(itest->strip(),detNoiseRange);
       bool IsBadChannel = qualityHandle->IsStripBad(detQualityRange,itest->strip());
@@ -111,9 +113,26 @@ void ThreeThresholdStripClusterizer::clusterizeDetUnit(
     float sigmaNoise2=0;
     //int counts=0;
     cluster_digis.clear();
+
+    //PATCH for 20X CRUZET 
+    bool isDigiListBad=false;
+    int16_t oldStrip=-1;
+    //PATCH for 20X CRUZET 
+    
     for (itest=ibeg; itest<=iend; itest++) {
       float channelNoise = noiseHandle->getNoise(itest->strip(),detNoiseRange);
       bool IsBadChannel = qualityHandle->IsStripBad(detQualityRange,itest->strip());
+    
+      //PATCH for 20X CRUZET 
+      if(itest->strip()==oldStrip){
+	isDigiListBad=true;
+	printPatchError=true;
+	countErrors++;
+	break;
+      }
+      oldStrip=itest->strip();
+      //PATCH for 20X CRUZET 
+      
 
       if(edm::isDebugEnabled())
 	ss << "\nLooking at cluster digis:\n\t\t detID " << detID << " digis " << itest->strip()  
@@ -151,10 +170,10 @@ void ThreeThresholdStripClusterizer::clusterizeDetUnit(
     }
     float sigmaNoise = sqrt(sigmaNoise2);
     
-    if (charge >= clusterThresholdInNoiseSigma()*sigmaNoise) {
+    if (charge >= clusterThresholdInNoiseSigma()*sigmaNoise && !isDigiListBad) {
        if(edm::isDebugEnabled())
 	 ss << "\n\t\tCluster accepted :)";
-      output.data.push_back( SiStripCluster( detID, SiStripCluster::SiStripDigiRange( cluster_digis.begin(),
+       output.data.push_back( SiStripCluster( detID, SiStripCluster::SiStripDigiRange( cluster_digis.begin(),
 										      cluster_digis.end())));
     } else {
       if(edm::isDebugEnabled())
@@ -162,7 +181,9 @@ void ThreeThresholdStripClusterizer::clusterizeDetUnit(
     }
     ibeg = iend+1;
   }
-
+  
+  if(printPatchError)
+    edm::LogError("SiStripClusterizer") << "[ThreeThresholdStripClusterizer::clusterizeDetUnit] \n There are errors in " << countErrors << "  clusters due to not unique digis "; 
   
   LogDebug("SiStripClusterizer") << "[ThreeThresholdStripClusterizer::clusterizeDetUnit] \n" << ss.str();
 }

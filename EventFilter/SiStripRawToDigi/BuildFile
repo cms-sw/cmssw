@@ -7,10 +7,8 @@
 <use name=EventFilter/Utilities>
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
-<use name=TkOnlineSw>
+<use name=tkonlinesw>
 <use name=boost>
-<use name=xdaq>
-<use name=clhep>
 
 <export>
   <lib name=EventFilterSiStripRawToDigi>
@@ -21,9 +19,7 @@
   <use name=DataFormats/SiStripCluster>
   <use name=FWCore/Framework> 
   <use name=FWCore/MessageLogger>
-  <use name=TkOnlineSw>
+  <use name=tkonlinesw>
   <use name=boost>
-  <use name=xdaq>
-  <use name=clhep>
 </export>
 

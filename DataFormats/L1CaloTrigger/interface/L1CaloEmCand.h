@@ -59,7 +59,7 @@ public:
   unsigned index() const { return m_index; }
 
   /// get bunch-crossing index
-  int16_t bx() const { return m_bx; }
+  int bx() const { return m_bx; }
 
   /// get DetID object
   L1CaloRegionDetId regionId() const { return L1CaloRegionDetId(rctCrate(),rctCard(),rctRegion()); }

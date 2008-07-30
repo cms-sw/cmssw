@@ -3,8 +3,8 @@
 
 /** \file CosmicMuonSmoother
  *
- *  $Date: 2007/08/16 20:02:22 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/12/16 07:33:25 $
+ *  $Revision: 1.4 $
  *  \author Chang Liu  -  Purdue University
  */
 
@@ -63,12 +63,12 @@ public:
 
   Chi2MeasurementEstimator* estimator() const {return theEstimator;}
 
-private:
-
   std::vector<Trajectory> fit(const Trajectory&) const;
   std::vector<Trajectory> fit(const TrajectorySeed& seed,
                               const ConstRecHitContainer& hits,
                               const TrajectoryStateOnSurface& firstPredTsos) const;
+
+private:
   std::vector<Trajectory> smooth(const std::vector<Trajectory>& ) const;
   std::vector<Trajectory> smooth(const Trajectory&) const;
 

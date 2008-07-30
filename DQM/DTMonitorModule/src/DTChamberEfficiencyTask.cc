@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/01/22 18:46:59 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/03/01 00:39:53 $
+ *  $Revision: 1.8 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -40,7 +40,7 @@ DTChamberEfficiencyTask::DTChamberEfficiencyTask(const ParameterSet& pset) {
 
   // Get the DQM needed services
   theDbe = edm::Service<DQMStore>().operator->();
-  theDbe->setVerbose(1);
+
   theDbe->setCurrentFolder("DT/DTChamberEfficiencyTask");
 
   parameters = pset;

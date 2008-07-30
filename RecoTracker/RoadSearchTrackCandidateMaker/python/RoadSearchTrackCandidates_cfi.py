@@ -4,6 +4,8 @@ rsTrackCandidates = cms.EDFilter("RoadSearchTrackCandidateMaker",
     NumHitCut = cms.int32(5),
     # Initial Error on vertex in cm
     InitialVertexErrorXY = cms.double(0.2),
+    # Initial Error on vertex in cm
+    CosmicSeedPt = cms.double(5.0),
     HitChi2Cut = cms.double(30.0),
     StraightLineNoBeamSpotCloud = cms.bool(False),
     MeasurementTrackerName = cms.string(''),
@@ -12,7 +14,8 @@ rsTrackCandidates = cms.EDFilter("RoadSearchTrackCandidateMaker",
     CosmicTrackMerging = cms.bool(False),
     nFoundMin = cms.int32(4),
     # cloud module label
-    CloudProducer = cms.InputTag("roadSearchClouds")
+    CloudProducer = cms.InputTag("roadSearchClouds"),
+    SplitMatchedHits = cms.bool(False)
 )
 
 

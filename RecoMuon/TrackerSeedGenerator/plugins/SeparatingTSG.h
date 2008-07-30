@@ -1,14 +1,6 @@
 #ifndef RecoMuon_TrackerSeedGenerator_SeparatingTSG_H
 #define RecoMuon_TrackerSeedGenerator_SeparatingTSG_H
 
-/** \class SeparatingTSG
- * Description:
- * composite TrackerSeedGenerator, which uses different TSG in different phase space of the track provided
- * concrete class must be implelemented (DualByEta ,...) to provide the TSG selection.
- *
- * \author Jean-Roch Vlimant
- */
-
 #include "RecoMuon/TrackerSeedGenerator/plugins/CompositeTSG.h"
 
 class SeparatingTSG : public CompositeTSG {

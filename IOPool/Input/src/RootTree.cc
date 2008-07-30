@@ -5,6 +5,7 @@
 #include "DataFormats/Provenance/interface/BranchKey.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/ConstBranchDescription.h"
+#include "Rtypes.h"
 #include "TTree.h"
 #include "TFile.h"
 #include "TVirtualIndex.h"
@@ -101,6 +102,11 @@ namespace edm {
     } else {
       for (; pit != pitEnd; ++pit) {
         ConstBranchDescription const& bd = pit->second.branchDescription_;
+	if (bd.productID().id() == 1U &&
+	   productstatus::invalid(productStatuses_[0]) &&
+	   bd.friendlyClassName() == std::string("FEDRawDataCollection")) {
+	  productStatuses_[0] = productstatus::present();
+	}
         item.addGroup(bd, productStatuses_[bd.productID().id() - 1]);
       }
     }
@@ -110,5 +116,15 @@ namespace edm {
   RootTree::makeDelayedReader(FileFormatVersion const& fileFormatVersion) const {
     boost::shared_ptr<DelayedReader> store(new RootDelayedReader(entryNumber_, branches_, filePtr_, fileFormatVersion));
     return store;
+  }
+
+  void
+  RootTree::setCacheSize(unsigned int cacheSize) const {
+    tree_->SetCacheSize(static_cast<Long64_t>(cacheSize));
+  }
+
+  void
+  RootTree::setTreeMaxVirtualSize(int treeMaxVirtualSize) {
+    if (treeMaxVirtualSize >= 0) tree_->SetMaxVirtualSize(static_cast<Long64_t>(treeMaxVirtualSize));
   }
 }

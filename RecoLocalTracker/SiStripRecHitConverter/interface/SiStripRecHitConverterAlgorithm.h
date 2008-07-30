@@ -30,6 +30,7 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 
 #include "DataFormats/Common/interface/Handle.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 
 class SiStripRecHitConverterAlgorithm 
 {
@@ -41,9 +42,9 @@ class SiStripRecHitConverterAlgorithm
 
   /// Runs the algorithm
 
-    void run(edm::Handle<edm::DetSetVector<SiStripCluster> >  input,SiStripMatchedRecHit2DCollection & outmatched,SiStripRecHit2DCollection & outrphi, SiStripRecHit2DCollection & outstereo,const TrackerGeometry& tracker,const StripClusterParameterEstimator &stripcpe, const SiStripRecHitMatcher &clustermatch_);
-    void run(edm::Handle<edm::DetSetVector<SiStripCluster> >  input, SiStripMatchedRecHit2DCollection&  output, SiStripRecHit2DCollection&  outrphi,SiStripRecHit2DCollection&  outstereo,const TrackerGeometry & tracker,const StripClusterParameterEstimator &stripcpe ,const SiStripRecHitMatcher &clustermatch_, LocalVector trackdirection);
-    void run(edm::Handle<edm::SiStripRefGetter<SiStripCluster> >  input1, edm::Handle<edm::SiStripLazyGetter<SiStripCluster> > input2, SiStripMatchedRecHit2DCollection & outmatched,SiStripRecHit2DCollection & outrphi, SiStripRecHit2DCollection & outstereo,const TrackerGeometry& tracker,const StripClusterParameterEstimator &parameterestimator, const SiStripRecHitMatcher & matcher);
+    void run(edm::Handle<edm::DetSetVector<SiStripCluster> >  input,SiStripMatchedRecHit2DCollection & outmatched,SiStripRecHit2DCollection & outrphi, SiStripRecHit2DCollection & outstereo,const TrackerGeometry& tracker,const StripClusterParameterEstimator &stripcpe, const SiStripRecHitMatcher &clustermatch_, const SiStripQuality *quality = 0);
+    void run(edm::Handle<edm::DetSetVector<SiStripCluster> >  input, SiStripMatchedRecHit2DCollection&  output, SiStripRecHit2DCollection&  outrphi,SiStripRecHit2DCollection&  outstereo,const TrackerGeometry & tracker,const StripClusterParameterEstimator &stripcpe ,const SiStripRecHitMatcher &clustermatch_, LocalVector trackdirection, const SiStripQuality *quality = 0);
+    void run(edm::Handle<edm::SiStripRefGetter<SiStripCluster> >  input1, edm::Handle<edm::SiStripLazyGetter<SiStripCluster> > input2, SiStripMatchedRecHit2DCollection & outmatched,SiStripRecHit2DCollection & outrphi, SiStripRecHit2DCollection & outstereo,const TrackerGeometry& tracker,const StripClusterParameterEstimator &parameterestimator, const SiStripRecHitMatcher & matcher, const SiStripQuality *quality = 0);
 
  private:
 
@@ -52,6 +53,13 @@ class SiStripRecHitConverterAlgorithm
     void match(SiStripMatchedRecHit2DCollection & outmatched,SiStripRecHit2DCollection & outrphi, SiStripRecHit2DCollection & outstereo,const TrackerGeometry& tracker, const SiStripRecHitMatcher & matcher,LocalVector trackdirection) const;
       
   edm::ParameterSet conf_;
+
+    inline bool isMasked(const SiStripCluster &cluster, bool bad128StripBlocks[6]) const {
+        return bad128StripBlocks[cluster.firstStrip() >> 7] ||
+               bad128StripBlocks[(cluster.firstStrip()+cluster.amplitudes().size()) >> 7];
+    }
+    void   fillBad128StripBlocks(const SiStripQuality &quality, const uint32_t &detid, bool bad128StripBlocks[6]) const ;
+    
 };
 
 #endif

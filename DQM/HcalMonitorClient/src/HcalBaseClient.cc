@@ -9,7 +9,8 @@ HcalBaseClient::HcalBaseClient(){
 
 HcalBaseClient::~HcalBaseClient(){}
 
-void HcalBaseClient::init(const ParameterSet& ps, DQMStore* dbe, string clientName){
+void HcalBaseClient::init(const ParameterSet& ps, DQMStore* dbe, string clientName)
+{
   dqmReportMapErr_.clear(); dqmReportMapWarn_.clear(); dqmReportMapOther_.clear();
   dqmQtests_.clear();
   
@@ -28,15 +29,22 @@ void HcalBaseClient::init(const ParameterSet& ps, DQMStore* dbe, string clientNa
   process_ = ps.getUntrackedParameter<string>("processName", "Hcal/");
   
   vector<string> subdets = ps.getUntrackedParameter<vector<string> >("subDetsOn");
-  for(int i=0; i<4; i++) subDetsOn_[i] = false;
+  for(int i=0; i<4; i++)
+    {
+      subDetsOn_[i] = false;
+    }
+
+  for(unsigned int i=0; i<subdets.size(); i++)
+    {
+      if(subdets[i]=="HB") subDetsOn_[0] = true;
+      else if(subdets[i]=="HE") subDetsOn_[1] = true;
+      else if(subdets[i]=="HF") subDetsOn_[2] = true;
+      else if(subdets[i]=="HO") subDetsOn_[3] = true;
+    }
   
-  for(unsigned int i=0; i<subdets.size(); i++){
-    if(subdets[i]=="HB") subDetsOn_[0] = true;
-    else if(subdets[i]=="HE") subDetsOn_[1] = true;
-    else if(subdets[i]=="HF") subDetsOn_[2] = true;
-    else if(subdets[i]=="HO") subDetsOn_[3] = true;
-  }
-}
+  return; 
+} // void HcalBaseClient::init(const ParameterSet& ps, DQMStore* dbe, string clientName)
+
 
 void HcalBaseClient::errorOutput(){
   

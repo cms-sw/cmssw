@@ -1,21 +1,25 @@
 /*!
-\page DQMReleaseNotes DQM Release Notes - CMSSW_1_8_x
+\page DQMReleaseNotes DQM Release Notes - CMSSW_2_0_x
 
 
 - General:
-  - Very few changes w.r.t release 1_7_5.
-  - Development stopped on request by SiStripCommissioning
-  - Backporting from 20x to be decided in Feb. 08
+ - Major rewrite of Core code and histogram transport
+   - Migration from DaqMonitorBEInterface to DQMStore
+   - MEtoEDMConverters for storage of histograms in EDM files
+   - New subsystem DQMOffline for use with data in Tier-0 and CAF
 
 - Main changes and new features:
-  - Some of the developments made during GREN went into 18x.
-
+  - All core code in 2 packages, 
+    - DQMServices/Core
+    - DQMServices/Components    
+  - ~10 packages phased out
+  - Further details at https://twiki.cern.ch/twiki/bin/view/CMS/DQMInfrastructure
+    
 - Major bug fixes:
-  - none
 
 - Known issues:
 
 <hr>
-Last updated: @22 Jan 2008@ Andreas Meyer
+Last updated: 28 April 2008 Andreas Meyer
  
 */

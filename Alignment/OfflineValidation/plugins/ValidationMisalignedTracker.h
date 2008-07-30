@@ -26,10 +26,6 @@
 #include <cmath>
 #include "TStyle.h"
 
-using namespace edm;
-using namespace std;
-using namespace reco;
-
 //
 // class decleration
 //
@@ -47,9 +43,9 @@ private:
   
   // ----------member data ---------------------------
   
-  string simobject,trackassociator;
+  std::string simobject,trackassociator;
   bool selection_eff,selection_fake,ZmassSelection_;
-  string rootfile_;
+  std::string rootfile_;
   
   bool skip;
   int eventCount_;
@@ -90,8 +86,6 @@ private:
   float fakerecchiq;
   float fakereseta, fakerespt, fakeresd0, fakeresz0, fakeresphi,fakerescottheta,fake;
   
-  HepLorentzVector vertexPosition;
-
   double chi2tmp;
   float fractiontmp;
   bool onlyDiag;
@@ -104,7 +98,7 @@ private:
   edm::InputTag label_tp_fake;
 
   GlobalVector magField;
-  vector<float> ptused;
+  std::vector<float> ptused;
 
 
 

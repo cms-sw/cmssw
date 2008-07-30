@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2008/03/13 21:15:53 $
- *  $Revision: 1.10 $
+ *  $Date: 2008/03/27 20:21:30 $
+ *  $Revision: 1.11 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -119,7 +119,7 @@ GlobalDigisAnalyzer::GlobalDigisAnalyzer(const edm::ParameterSet& iPSet) :
       hchartitle= SiStripString[amend]+"  Digis";
       sprintf(hname, hcharname.c_str());
       sprintf(htitle, hchartitle.c_str());
-      mehSiStripn[amend] = dbe->book1D(hname,htitle,500,0.,1000.);
+      mehSiStripn[amend] = dbe->book1D(hname,htitle,5000,0.,10000.);
       mehSiStripn[amend]->setAxisTitle("Number of Digis",1);
       mehSiStripn[amend]->setAxisTitle("Count",2);
       
@@ -142,13 +142,13 @@ GlobalDigisAnalyzer::GlobalDigisAnalyzer(const edm::ParameterSet& iPSet) :
     
     //HCal
     std::string HCalString[4] = {"HB", "HE", "HO","HF"}; 
-    float calnUpper[4] = {3000.,3000.,3000.,2000.}; 
-    float calnLower[4]={2000.,2000.,2000.,1000.}; 
-    float SHEUpper[4]={0.05,.05,0.05,20};
-    float SHEvAEEUpper[4] = {5000, 5000, 5000, 20}; 
-    float SHEvAEELower[4] = {-5000, -5000, -5000, -20}; 
-    int SHEvAEEnBins[4] = {200,200,200,40};
-    double ProfileUpper[4] = {1.,1.,1.,20.};  
+    float calnUpper[4] = {30000.,30000.,30000.,20000.}; 
+    float calnLower[4]={0.,0.,0.,0.}; 
+    float SHEUpper[4]={1.,1.,1.,1.};
+    float SHEvAEEUpper[4] = {5000, 5000, 5000, 5000}; 
+    float SHEvAEELower[4] = {-5000, -5000, -5000, -5000}; 
+    int SHEvAEEnBins[4] = {200,200,200,200};
+    double ProfileUpper[4] = {1.,1.,1.,1.};  
     
     for(int i =0; i<4; ++i) {
       mehHcaln[i]=0;
@@ -164,7 +164,7 @@ GlobalDigisAnalyzer::GlobalDigisAnalyzer(const edm::ParameterSet& iPSet) :
       hchartitle= HCalString[amend]+"  digis";
       sprintf(hname, hcharname.c_str());
       sprintf(htitle, hchartitle.c_str());
-      mehHcaln[amend] = dbe->book1D(hname,htitle, 1000, calnLower[amend], 
+      mehHcaln[amend] = dbe->book1D(hname,htitle, 10000, calnLower[amend], 
 				    calnUpper[amend]);
       mehHcaln[amend]->setAxisTitle("Number of Digis",1);
       mehHcaln[amend]->setAxisTitle("Count",2);
@@ -181,7 +181,8 @@ GlobalDigisAnalyzer::GlobalDigisAnalyzer(const edm::ParameterSet& iPSet) :
       hchartitle= HCalString[amend]+"Cal SHE";
       sprintf(hname, hcharname.c_str());
       sprintf(htitle, hchartitle.c_str());
-      mehHcalSHE[amend] = dbe->book1D(hname,htitle, 100, 0.0, SHEUpper[amend]);
+      mehHcalSHE[amend] = dbe->book1D(hname,htitle, 1000, 0.0, 
+				      SHEUpper[amend]);
       mehHcalSHE[amend]->setAxisTitle("Simulated Hit Energy",1);
       mehHcalSHE[amend]->setAxisTitle("Count",2);
 
@@ -225,7 +226,7 @@ GlobalDigisAnalyzer::GlobalDigisAnalyzer(const edm::ParameterSet& iPSet) :
       hchartitle= ECalString[amend]+"  digis";
       sprintf(hname, hcharname.c_str());
       sprintf(htitle, hchartitle.c_str());
-      mehEcaln[amend] = dbe->book1D(hname,htitle, 300, 1000., 4000.);
+      mehEcaln[amend] = dbe->book1D(hname,htitle, 3000, 0., 40000.);
       mehEcaln[amend]->setAxisTitle("Number of Digis",1);
       mehEcaln[amend]->setAxisTitle("Count",2);
 
@@ -233,7 +234,7 @@ GlobalDigisAnalyzer::GlobalDigisAnalyzer(const edm::ParameterSet& iPSet) :
       hchartitle= ECalString[amend]+"Cal AEE";
       sprintf(hname, hcharname.c_str());
       sprintf(htitle, hchartitle.c_str());
-      mehEcalAEE[amend] = dbe->book1D(hname,htitle, 100, 0., 1.);
+      mehEcalAEE[amend] = dbe->book1D(hname,htitle, 1000, 0., 100.);
       mehEcalAEE[amend]->setAxisTitle("Analog Equivalent Energy",1);
       mehEcalAEE[amend]->setAxisTitle("Count",2);
 
@@ -241,7 +242,7 @@ GlobalDigisAnalyzer::GlobalDigisAnalyzer(const edm::ParameterSet& iPSet) :
       hchartitle= ECalString[amend]+"Cal SHE";
       sprintf(hname, hcharname.c_str());
       sprintf(htitle, hchartitle.c_str());
-      mehEcalSHE[amend] = dbe->book1D(hname,htitle, 50, 0., 5.);
+      mehEcalSHE[amend] = dbe->book1D(hname,htitle, 500, 0., 50.);
       mehEcalSHE[amend]->setAxisTitle("Simulated Hit Energy",1);
       mehEcalSHE[amend]->setAxisTitle("Count",2);
 
@@ -257,8 +258,8 @@ GlobalDigisAnalyzer::GlobalDigisAnalyzer(const edm::ParameterSet& iPSet) :
       hchartitle= ECalString[amend]+"Cal SHE vs. AEE/SHE";
       sprintf(hname, hcharname.c_str());
       sprintf(htitle, hchartitle.c_str());
-      mehEcalSHEvAEESHE[amend] = dbe->bookProfile(hname,htitle,100, 0., 10., 
-						  50, 0., 5.,"");
+      mehEcalSHEvAEESHE[amend] = dbe->bookProfile(hname,htitle,1000, 0., 100., 
+						  500, 0., 50.,"");
       mehEcalSHEvAEESHE[amend]->setAxisTitle("AEE / SHE",1);
       mehEcalSHEvAEESHE[amend]->setAxisTitle("SHE",2);
 
@@ -266,8 +267,8 @@ GlobalDigisAnalyzer::GlobalDigisAnalyzer(const edm::ParameterSet& iPSet) :
       hchartitle= ECalString[amend]+"Cal Multi vs. AEE";
       sprintf(hname, hcharname.c_str());
       sprintf(htitle, hchartitle.c_str());
-      mehEcalMultvAEE[amend] = dbe->bookProfile(hname,htitle, 100, 0., 10., 
-						400, 0., 4000.,"");
+      mehEcalMultvAEE[amend] = dbe->bookProfile(hname,htitle, 1000, 0., 100., 
+						4000, 0., 40000.,"");
       mehEcalMultvAEE[amend]->setAxisTitle("Analog Equivalent Energy",1);
       mehEcalMultvAEE[amend]->setAxisTitle("Number of Digis",2);      
     }
@@ -277,7 +278,7 @@ GlobalDigisAnalyzer::GlobalDigisAnalyzer(const edm::ParameterSet& iPSet) :
     hchartitle= "ESCAL  digis";
     sprintf(hname, hcharname.c_str());
     sprintf(htitle, hchartitle.c_str());
-    mehEScaln = dbe->book1D(hname,htitle, 100, 0., 500.);
+    mehEScaln = dbe->book1D(hname,htitle, 1000, 0., 5000.);
     mehEScaln->setAxisTitle("Number of Digis",1);
     mehEScaln->setAxisTitle("Count",2);
 
@@ -288,7 +289,7 @@ GlobalDigisAnalyzer::GlobalDigisAnalyzer(const edm::ParameterSet& iPSet) :
       hchartitle= "ESCAL  ADC"+ADCNumber[i];
       sprintf(hname, hcharname.c_str());
       sprintf(htitle, hchartitle.c_str());
-      mehEScalADC[i] = dbe->book1D(hname,htitle, 150, 950., 1500.);
+      mehEScalADC[i] = dbe->book1D(hname,htitle, 1500, 0., 1500.);
       mehEScalADC[i]->setAxisTitle("ADC"+ADCNumber[i],1);
       mehEScalADC[i]->setAxisTitle("Count",2);
     }
@@ -309,8 +310,8 @@ GlobalDigisAnalyzer::GlobalDigisAnalyzer(const edm::ParameterSet& iPSet) :
       hchartitle= SiPixelString[amend]+" Digis";
       sprintf(hname, hcharname.c_str());
       sprintf(htitle, hchartitle.c_str());
-      if(amend<3) mehSiPixeln[amend] = dbe->book1D(hname,htitle,50,0.,100.);
-      else mehSiPixeln[amend] = dbe->book1D(hname,htitle,25,0.,50.);
+      if(amend<3) mehSiPixeln[amend] = dbe->book1D(hname,htitle,500,0.,1000.);
+      else mehSiPixeln[amend] = dbe->book1D(hname,htitle,500,0.,1000.);
       mehSiPixeln[amend]->setAxisTitle("Number of Digis",1);
       mehSiPixeln[amend]->setAxisTitle("Count",2);
       
@@ -357,7 +358,7 @@ GlobalDigisAnalyzer::GlobalDigisAnalyzer(const edm::ParameterSet& iPSet) :
       hchartitle= MuonString[j]+"  digis";
       sprintf(hname,hcharname.c_str());
       sprintf(htitle,hchartitle.c_str());
-      mehDtMuonn[j] = dbe->book1D(hname,htitle,25, 0., 50.);
+      mehDtMuonn[j] = dbe->book1D(hname,htitle,250, 0., 500.);
       mehDtMuonn[j]->setAxisTitle("Number of Digis",1);
       mehDtMuonn[j]->setAxisTitle("Count",2);
 
@@ -393,7 +394,7 @@ GlobalDigisAnalyzer::GlobalDigisAnalyzer(const edm::ParameterSet& iPSet) :
     hchartitle = "CSC Strip digis";
     sprintf(hname,hcharname.c_str());
     sprintf(htitle,hchartitle.c_str());
-    mehCSCStripn = dbe->book1D(hname,htitle,25, 0., 50.);
+    mehCSCStripn = dbe->book1D(hname,htitle,250, 0., 500.);
     mehCSCStripn->setAxisTitle("Number of Digis",1);
     mehCSCStripn->setAxisTitle("Count",2);
     
@@ -411,7 +412,7 @@ GlobalDigisAnalyzer::GlobalDigisAnalyzer(const edm::ParameterSet& iPSet) :
     hchartitle = "CSC Wire digis";
     sprintf(hname,hcharname.c_str());
     sprintf(htitle,hchartitle.c_str());
-    mehCSCWiren = dbe->book1D(hname,htitle,25, 0., 50.);
+    mehCSCWiren = dbe->book1D(hname,htitle,250, 0., 500.);
     mehCSCWiren->setAxisTitle("Number of Digis",1);
     mehCSCWiren->setAxisTitle("Count",2);
     
@@ -430,7 +431,7 @@ GlobalDigisAnalyzer::GlobalDigisAnalyzer(const edm::ParameterSet& iPSet) :
     hchartitle = "RPC digis";
     sprintf(hname,hcharname.c_str());
     sprintf(htitle,hchartitle.c_str());
-    mehCSCStripn = dbe->book1D(hname,htitle,25, 0., 50.);
+    mehCSCStripn = dbe->book1D(hname,htitle,250, 0., 500.);
     mehCSCStripn->setAxisTitle("Number of Digis",1);
     mehCSCStripn->setAxisTitle("Count",2);
 

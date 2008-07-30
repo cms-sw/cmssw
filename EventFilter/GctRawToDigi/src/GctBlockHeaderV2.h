@@ -8,12 +8,11 @@
 * \class GctBlockHeaderV2
 * \brief Version 2 of the pipeline block header, as specified by Greg Iles on the 11-1-2008:
 * 
-*  Block Header Version 2... complies with Pipeline Formats v20 and
-*  is up to date with the hardware as of 19th March 2008.
+*  Block Header Version 2... For use with Pipeline Formats v20 and above.
 * 
 * \author Robert Frazier
-* $Revision: $
-* $Date: $
+* $Revision: 1.7 $
+* $Date: 2008/03/19 13:35:34 $
 */ 
 
 

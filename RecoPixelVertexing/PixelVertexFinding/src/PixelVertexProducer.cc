@@ -91,7 +91,14 @@ void PixelVertexProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       double z=(*vertexes)[i].z();
       double x=bs.x0()+bs.dxdz()*(z-bs.z0());
       double y=bs.y0()+bs.dydz()*(z-bs.z0()); 
-      (*vertexes)[i]=reco::Vertex( reco::Vertex::Point(x,y,z), (*vertexes)[i].error(),(*vertexes)[i].chi2() , (*vertexes)[i].ndof() , (*vertexes)[i].tracksSize());
+      reco::Vertex v( reco::Vertex::Point(x,y,z), (*vertexes)[i].error(),(*vertexes)[i].chi2() , (*vertexes)[i].ndof() , (*vertexes)[i].tracksSize());
+       //Copy also the tracks 
+       for (std::vector<reco::TrackBaseRef >::const_iterator it = (*vertexes)[i].tracks_begin();
+            it !=(*vertexes)[i].tracks_end(); it++) {
+            v.add( *it );
+       }
+      (*vertexes)[i]=v;
+
     }
   }
    else

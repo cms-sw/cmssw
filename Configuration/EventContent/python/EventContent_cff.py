@@ -14,8 +14,9 @@ import FWCore.ParameterSet.Config as cms
 #
 #  FEVTSIMANA, RECOSIMANA, AODSIMANA: 
 #    include reconstruction, simulation and analysis
+#  FEVTSIMDIGIHLTDEBUG FEVTSIMHLTDEBUG
 #
-#  $Id: EventContent.cff,v 1.27 2008/03/23 21:37:39 dlange Exp $
+#  $Id: EventContent.cff,v 1.28 2008/04/18 04:18:44 dlange Exp $
 #
 #
 #
@@ -40,7 +41,6 @@ from RecoPixelVertexing.Configuration.RecoPixelVertexing_EventContent_cff import
 from RecoEgamma.Configuration.RecoEgamma_EventContent_cff import *
 from RecoParticleFlow.Configuration.RecoParticleFlow_EventContent_cff import *
 from L1Trigger.Configuration.L1Trigger_EventContent_cff import *
-from HLTrigger.Configuration.HLTrigger_EventContent_cff import *
 from RecoVertex.BeamSpotProducer.BeamSpot_EventContent_cff import *
 #DigiToRaw content
 from EventFilter.Configuration.DigiToRaw_EventContent_cff import *
@@ -55,6 +55,13 @@ from SimTracker.Configuration.SimTracker_EventContent_cff import *
 from SimMuon.Configuration.SimMuon_EventContent_cff import *
 from SimCalorimetry.Configuration.SimCalorimetry_EventContent_cff import *
 from SimGeneral.Configuration.SimGeneral_EventContent_cff import *
+from IOMC.RandomEngine.IOMC_EventContent_cff import *
+#
+#
+# HLT
+#
+#
+from HLTrigger.Configuration.HLTrigger_EventContent_cff import *
 #
 #
 # Analysis Systems
@@ -158,7 +165,15 @@ AODSIMANAEventContent = cms.PSet(
 )
 # RAW only data tier
 RAWEventContent = cms.PSet(
-    outputCommands = cms.untracked.vstring('drop *', 'keep  FEDRawDataCollection_rawDataCollector_*_*')
+    outputCommands = cms.untracked.vstring('drop *', 
+        'keep  FEDRawDataCollection_rawDataCollector_*_*')
+)
+# 
+FEVTSIMHLTDEBUGEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *')
+)
+FEVTSIMDIGIHLTDEBUGEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *')
 )
 FEVTEventContent.outputCommands.extend(RecoLocalTrackerFEVT.outputCommands)
 FEVTEventContent.outputCommands.extend(RecoLocalMuonFEVT.outputCommands)
@@ -230,6 +245,7 @@ FEVTSIMEventContent.outputCommands.extend(SimGeneralFEVT.outputCommands)
 FEVTSIMEventContent.outputCommands.extend(RecoGenMETFEVT.outputCommands)
 FEVTSIMEventContent.outputCommands.extend(DigiToRawFEVT.outputCommands)
 FEVTSIMEventContent.outputCommands.extend(MEtoEDMConverterFEVT.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(IOMCFEVT.outputCommands)
 FEVTSIMDIGIEventContent.outputCommands.extend(FEVTEventContent.outputCommands)
 FEVTSIMDIGIEventContent.outputCommands.extend(GeneratorInterfaceFEVT.outputCommands)
 FEVTSIMDIGIEventContent.outputCommands.extend(SimG4CoreFEVT.outputCommands)
@@ -242,6 +258,7 @@ FEVTSIMDIGIEventContent.outputCommands.extend(SimCalorimetryFEVTDIGI.outputComma
 FEVTSIMDIGIEventContent.outputCommands.extend(L1TriggerFEVTDIGI.outputCommands)
 FEVTSIMDIGIEventContent.outputCommands.extend(DigiToRawFEVT.outputCommands)
 FEVTSIMDIGIEventContent.outputCommands.extend(MEtoEDMConverterFEVT.outputCommands)
+FEVTSIMDIGIEventContent.outputCommands.extend(IOMCFEVT.outputCommands)
 RECOSIMEventContent.outputCommands.extend(RECOEventContent.outputCommands)
 RECOSIMEventContent.outputCommands.extend(GeneratorInterfaceRECO.outputCommands)
 RECOSIMEventContent.outputCommands.extend(SimG4CoreRECO.outputCommands)
@@ -278,4 +295,8 @@ AODSIMANAEventContent.outputCommands.extend(AODSIMEventContent.outputCommands)
 AODSIMANAEventContent.outputCommands.extend(ElectroWeakAnalysisEventContent.outputCommands)
 AODSIMANAEventContent.outputCommands.extend(HiggsAnalysisEventContent.outputCommands)
 AODSIMANAEventContent.outputCommands.extend(TopQuarkAnalysisEventContent.outputCommands)
+FEVTSIMHLTDEBUGEventContent.outputCommands.extend(FEVTSIMEventContent.outputCommands)
+FEVTSIMHLTDEBUGEventContent.outputCommands.extend(HLTDebugFEVT.outputCommands)
+FEVTSIMDIGIHLTDEBUGEventContent.outputCommands.extend(FEVTSIMDIGIEventContent.outputCommands)
+FEVTSIMDIGIHLTDEBUGEventContent.outputCommands.extend(HLTDebugFEVT.outputCommands)
 

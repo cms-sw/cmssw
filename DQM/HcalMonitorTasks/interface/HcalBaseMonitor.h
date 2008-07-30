@@ -21,11 +21,14 @@
 
 #include <iostream>
 
+// Temporary fix:  Add this into base class until I figure why multiple inclusions are a problem -- Jeff, 23 May 2008
+#include "CalibFormats/HcalObjects/interface/HcalCalibrationWidths.h"
+
 using namespace std;
 /** \class HcalBaseMonitor
   *  
-  * $Date: 2007/12/01 09:55:42 $
-  * $Revision: 1.8 $
+  * $Date: 2008/05/27 03:08:57 $
+  * $Revision: 1.10 $
   * \author W. Fisher - FNAL
   */
 class HcalBaseMonitor {
@@ -39,11 +42,17 @@ public:
 
   void setVerbosity(int verb) { fVerbosity = verb; }
   int getVerbosity() const { return fVerbosity; }
+  
+  void setDiagnostics(bool myval) { makeDiagnostics=myval;}
+  bool getDiagnostics() const { return makeDiagnostics;}
+
   bool vetoCell(HcalDetId id);
 
 protected:
   
   int fVerbosity;
+  bool makeDiagnostics; // controls whether to make diagnostic plots
+
   DQMStore* m_dbe;
   vector<string> hotCells_;
   string rootFolder_;

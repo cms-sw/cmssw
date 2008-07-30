@@ -6,7 +6,9 @@ using pat::helper::OverlapHelper;
 
 pat::helper::OverlapHelper::Worker::Worker(const edm::ParameterSet &pset) : 
     tag_(pset.getParameter<edm::InputTag>("collection")),
+    byComponent_(pset.exists("checkRecoComponents") ? pset.getParameter<bool>("checkRecoComponents") : false),
     finder_(pset.getParameter<double>("deltaR")),
+    finderReco_(pset.getParameter<double>("deltaR")),
     cut_()
 {
     if (pset.exists("cut")) {
@@ -14,6 +16,12 @@ pat::helper::OverlapHelper::Worker::Worker(const edm::ParameterSet &pset) :
         if (!cut.empty()) {
             typedef StringCutObjectSelector<reco::Candidate> CutObj;
             cut_ = boost::shared_ptr<CutObj>( new CutObj(cut) );
+        }
+    }
+    if (pset.exists("flags")) {
+        std::vector<std::string> flags = pset.getParameter<std::vector<std::string> >("flags");
+        if (!flags.empty()) {
+            flags_ = boost::shared_ptr<pat::SelectorByFlags>( new pat::SelectorByFlags(flags) );
         }
     }
 }

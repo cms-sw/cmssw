@@ -8,7 +8,6 @@
 #include "DetectorDescription/Core/interface/DDRoot.h"
 
 #include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <memory>
 
@@ -49,15 +48,8 @@ XMLIdealGeometryESSource::XMLIdealGeometryESSource(const edm::ParameterSet & p):
 }
 
 XMLIdealGeometryESSource::~XMLIdealGeometryESSource() {
-  LogTrace ("XMLIdealGeometryESSource") 
-    << "destructing XMLIdealGeometryESSource, about to clear parser "
-    << "files and compact view.  "
-    << "rootNodeName_ = " << rootNodeName_
-    << "  this = " << this << std::endl;
-  DDLParser::instance()->clearFiles();
   DDCompactView cpv;
   cpv.clear();
-
 }
 
 std::auto_ptr<DDCompactView>

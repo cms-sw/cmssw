@@ -149,7 +149,7 @@ namespace cms
 
 	edm::OrphanHandle <TrackingRecHitCollection> ohRH  = e.put( outputRHColl );
 
-	int cc = 0;	
+
 	TSOS UpState;
 	TSOS LowState;
 	unsigned int outerId, innerId;
@@ -208,11 +208,19 @@ namespace cms
 	reco::TrackExtra *theTrackExtra = new reco::TrackExtra(outpos, outmom, true, inpos, inmom, true,
 							       UpState.curvilinearError(), outerId,
 							       LowState.curvilinearError(), innerId,seedDir);
-	//RC for(edm::OwnVector<const TransientTrackingRecHit>::const_iterator j=transHits.begin();
-	for(Trajectory::RecHitContainer::const_iterator j=transHits.begin();
-	    j!=transHits.end(); j++){
-	  theTrackExtra->add(TrackingRecHitRef(ohRH,cc));
-	  cc++;
+
+
+	//HIT CORRECTLY ORDERED
+	//IN SUCH A WAY THAT ALSO THE REFITTER CAN BE USED 
+	if (seedplus){
+	  for (uint cc=transHits.size();cc>0;cc--){
+	    theTrackExtra->add(TrackingRecHitRef(ohRH,cc-1));
+	  }
+	}
+	else{
+	  for (uint cc=0;cc<transHits.size();cc++){
+	    theTrackExtra->add(TrackingRecHitRef(ohRH,cc));
+	  }
 	}
 
 	outputTEColl->push_back(*theTrackExtra);

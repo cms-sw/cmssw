@@ -74,6 +74,8 @@ std::vector<std::pair<SiPixelRecHit*,TrackLocalAngle::Trackhit> > TrackLocalAngl
 	std::vector<std::pair<SiPixelRecHit*,Trackhit> >hitangleassociation;
 	Trajectory * theTraj; 
 	trajVec = buildTrajectory(theT);
+	
+// 	if (trajVec == 0) return hitangleassociation;
 	LogDebug("TrackProducer") <<" FITTER FOUND "<< trajVec.size() << " TRAJECTORIES" <<"\n";
 
 	TrajectoryStateOnSurface innertsos;
@@ -92,10 +94,17 @@ std::vector<std::pair<SiPixelRecHit*,TrackLocalAngle::Trackhit> > TrackLocalAngl
 		vector<TrajectoryMeasurement>::iterator itm;
 		int i=0;
 		LogDebug("TrackLocalAngle::findtrackangle")<<"Loop on rechit and TSOS";
+		if (TMeas.size() == 0){
+			cout << "TMeas is empty" << endl;
+		}
 		for (itm=TMeas.begin();itm!=TMeas.end();itm++){
 			TrajectoryStateOnSurface tsos=itm->updatedState();
 			const TransientTrackingRecHit::ConstRecHitPointer thit=itm->recHit();
 			const SiPixelRecHit * rechit = dynamic_cast<const SiPixelRecHit *>((*thit).hit());
+			if(!tsos.isValid()){
+			 	cout << "tsos not valid" << endl;
+				continue;	
+			}	
 			LocalVector trackdirection=tsos.localDirection();
 			LocalPoint trackposition=tsos.localPosition();
 			if(rechit){
@@ -126,20 +135,24 @@ std::vector<Trajectory> TrackLocalAngle::buildTrajectory(const reco::Track& theT
 	TransientTrackingRecHit::RecHitContainer tmp;
 	TransientTrackingRecHit::RecHitContainer hits;
 	float ndof=0;
-  
+	cout << "hits in the track" << theT.recHitsSize() << endl;
+	
 	for (trackingRecHit_iterator i=theT.recHitsBegin(); i!=theT.recHitsEnd(); i++){
-// 		cout << "detid: " << (**i).geographicalId().det() << endl;
 		if((**i).geographicalId().det() == DetId::Tracker) { 
-		tmp.push_back(RHBuilder->build(&**i ));
-// 		cout << "after builder" << endl;
-		if ((*i)->isValid()) ndof = ndof + ((*i)->dimension())*((*i)->weight());
+			tmp.push_back(RHBuilder->build(&**i ));
+			if ((*i)->isValid()) ndof = ndof + ((*i)->dimension())*((*i)->weight());
 		}
 	}	
-
+// 	cout << "found " << tmp.size() << " rechits" << endl;
+	if(tmp.size() < 1){
+		LogDebug("TrackLocalAngle") << "No transient rechits found" << "\n";
+		std::vector<Trajectory> zeroTracks;
+		return zeroTracks;
+	}
+	
 	LogDebug("TrackLocalAngle") << "Transient rechit filled" << "\n";
   
 	ndof = ndof - 5;
-  
   //SORT RECHITS ALONGMOMENTUM
 	const TransientTrackingRecHit::ConstRecHitPointer *firstHit = 0;
 	for (TransientTrackingRecHit::RecHitContainer::const_iterator it=tmp.begin(); it!=tmp.end();it++){
@@ -149,25 +162,34 @@ std::vector<Trajectory> TrackLocalAngle::buildTrajectory(const reco::Track& theT
 		}
 	}
 	const TransientTrackingRecHit::ConstRecHitPointer *lastHit = 0;
-	for (TransientTrackingRecHit::RecHitContainer::const_iterator it=tmp.end()-1; it!=tmp.begin()-1;it--){
+	for (TransientTrackingRecHit::RecHitContainer::const_iterator it=tmp.end()-1; it!=tmp.begin()-1;it--){	  
 		if ((**it).isValid()) {
 			lastHit= &(*it);
 			break;
 		}
-	}
-	if ((*firstHit)->globalPosition().mag2() > ((*lastHit)->globalPosition().mag2()) ){
+	}	  
+		
+	if ((*firstHit)->globalPosition().mag2() > ((*lastHit)->globalPosition().mag2()) ){	  
     //FIXME temporary should use reverse
 		for (TransientTrackingRecHit::RecHitContainer::const_iterator it=tmp.end()-1;it!=tmp.begin()-1;it--){
 			hits.push_back(*it);
 		}
 	} else hits=tmp;
-
 	reco::TransientTrack theTT(theT, thePropagator->magneticField() );
   
 	TrajectoryStateOnSurface firstState=thePropagator->propagate(theTT.impactPointState(), hits.front()->det()->surface());
 	AlgebraicSymMatrix C(5,1);
 	C *= 100.;
-	TrajectoryStateOnSurface theTSOS( firstState.localParameters(), LocalTrajectoryError(C), firstState.surface(), thePropagator->magneticField()); 
+	if(!firstState.isValid()){
+		LogDebug("TrackLocalAngle") << " firstState not Valid" << endl;
+		std::vector<Trajectory> a;
+		return a;
+	}
+	TrajectoryStateOnSurface theTSOS( firstState.localParameters(), LocalTrajectoryError(C), firstState.surface(), thePropagator->magneticField()); if(!theTSOS.isValid()){
+		LogDebug("TrackLocalAngle") << " theTSOS not Valid" << endl;
+		std::vector<Trajectory> a;
+		return a;
+	}
 //   PTrajectoryStateOnDet psod;
 	LogDebug("TrackLocalAngle") << "Initial TSOS\n" << theTSOS << "\n";
 	PTrajectoryStateOnDet ptsod;

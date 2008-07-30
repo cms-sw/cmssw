@@ -10,14 +10,11 @@ using namespace reco;
 using namespace std;
 
 
-PFBlockElementTrack::PFBlockElementTrack(const PFRecTrackRef& ref) : 
+PFBlockElementTrack::PFBlockElementTrack(const PFRecTrackRef& ref, TrackType tracktype ) : 
   PFBlockElement( TRACK ),
   trackRefPF_( ref ), 
-  trackRef_( ref->trackRef() ),
-  trackType_(0) {
-      nuclInterRef_ = NuclearInteractionRef();
-      setTrackType( DEFAULT, true );      
-} 
+  trackRef_( ref->trackRef() ), 
+  trackType_( tracktype ) {}
 
 
 void PFBlockElementTrack::Dump(ostream& out, 

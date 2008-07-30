@@ -123,7 +123,7 @@ void HtrXmlPatternTool::writeXML() {
 
   if (m_params->m_single_XML_file) {
     singleMode=true;
-    std::string name=m_params->m_output_directory+(m_params->m_file_tag)+"_all.xml";
+    std::string name=m_params->m_output_directory+(m_params->m_file_tag)+"-all.xml";
     of=new std::ofstream(name.c_str(),std::ios_base::out|std::ios_base::trunc);
     if (!of->good()) {
       std::cerr << "XML output file " << name << " is bad." << std::endl;
@@ -135,40 +135,36 @@ void HtrXmlPatternTool::writeXML() {
   for (int crate=0; crate<ChannelPattern::NUM_CRATES; crate++) {
     CrateData* cd=m_patternSet->getCrate(crate);
     if (cd==0) continue;
-
-    if (!singleMode) {
-      std::string name=m_params->m_output_directory+(m_params->m_file_tag);
-      char cr_name[256];
-      snprintf(cr_name,256,"_crate_%d.xml",crate);
-      name += cr_name;
-      of=new std::ofstream(name.c_str(),std::ios_base::out|std::ios_base::trunc);
-      if (!of->good()) {
-	std::cerr << "XML output file " << name << " is bad." << std::endl;
-	return;
-      }
-      (*of) << "<?xml version='1.0' encoding='UTF-8'?>" << std::endl;
-      (*of) << "<CFGBrickSet name='" << m_params->m_file_tag << "'>" << std::endl;
-    }
-
     for (int slot=0; slot<ChannelPattern::NUM_SLOTS; slot++) {
       for (int tb=0; tb<=1; tb++) {
 	HalfHtrData* hd=cd->getHalfHtrData(slot,tb);
 	if (hd==0) continue;
+       
 	for (int fiber=1; fiber<=8; fiber++) {
-	  m_xmlWriter.writePattern(hd,fiber,*of,1);
+
+	  if (!singleMode) {
+	    char fname[1024];
+	    snprintf(fname,1024,"%s/%s_%d_%d_%d_%d.xml",m_params->m_output_directory.c_str(),
+		     m_params->m_file_tag.c_str(),
+		     hd->getCrate(),hd->getSlot(),hd->getTB(),fiber);
+	    of=new std::ofstream(fname,std::ios_base::out|std::ios_base::trunc);
+	    if (!of->good()) {
+	      std::cerr << "XML output file " << fname << " is bad." << std::endl;
+	      return;
+	    }
+	    (*of) << "<?xml version='1.0' encoding='UTF-8'?>" << std::endl;
+	  }
+
+	  m_xmlWriter.writePattern(hd,fiber,*of,(singleMode)?(1):(0));
+
+	  if (!singleMode) {
+	    of->close();
+	    delete of; of=0;
+	  }
 	}
       }
-    } //end slot loop
-    
-    if (!singleMode) {
-      (*of) << "</CFGBrickSet>" << std::endl;
-      of->close();
-      delete of;
-      of=0;
     }
-    
-  } //end crate loop
-  
+  }
   if (singleMode) {
     (*of) << "</CFGBrickSet>" << std::endl;
     of->close();

@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 15:43:14 EDT 2006
-// $Id: SiStripElectron.h,v 1.11 2007/03/16 13:59:37 llista Exp $
+// $Id: SiStripElectron.h,v 1.12 2007/07/31 15:20:03 ratnik Exp $
 //
 
 // system include files
@@ -129,6 +129,7 @@ namespace reco {
     /// returns number of endcap zphi hits in phi band
     unsigned int numberOfEndcapZphiHits() const { return numberOfEndcapZphiHits_; }
 
+    bool isElectron() const;
   private:
     /// check overlap with another candidate
     virtual bool overlap( const Candidate & ) const;

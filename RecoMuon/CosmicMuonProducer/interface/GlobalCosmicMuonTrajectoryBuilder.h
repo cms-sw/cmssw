@@ -4,8 +4,8 @@
 /** \file GlobalCosmicMuonTrajectoryBuilder
  *  class to build combined trajectory from cosmic tracks in tk and mu
  *
- *  $Date: 2007/03/21 18:21:32 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/12/16 07:32:59 $
+ *  $Revision: 1.7 $
  *  \author Chang Liu  -  Purdue University
  */
 
@@ -28,6 +28,7 @@ namespace edm {class ParameterSet; class Event; class EventSetup;}
 
 class Trajectory;
 class TrajectoryMeasurement;
+class CosmicMuonUtilities;
 
 class GlobalCosmicMuonTrajectoryBuilder : public MuonTrajectoryBuilder{
 
@@ -65,6 +66,10 @@ private:
   void sortHits(ConstRecHitContainer&, ConstRecHitContainer&, ConstRecHitContainer&);
 
   ConstRecHitContainer getTransientRecHits(const reco::Track&) const;
+
+  CosmicMuonSmoother* smoother() const {return theSmoother;}
+
+  CosmicMuonUtilities* utilities() const {return smoother()->utilities();}
 
   const MuonServiceProxy *theService;
 

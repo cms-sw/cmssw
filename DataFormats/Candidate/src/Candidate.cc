@@ -1,4 +1,4 @@
-// $Id: Candidate.cc,v 1.12 2007/09/21 14:13:05 llista Exp $
+// $Id: Candidate.cc,v 1.14 2008/04/21 14:04:28 llista Exp $
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 using namespace reco;
@@ -12,6 +12,16 @@ const CandidateBaseRef & Candidate::masterClone() const {
 }
 
 bool Candidate::hasMasterClone() const { 
+  return false;
+}
+
+const CandidatePtr & Candidate::masterClonePtr() const {
+  throw cms::Exception("Invalid Reference") 
+    << "this Candidate has no master clone ptr."
+    << "Can't call masterClonePtr() method.\n";
+}
+
+bool Candidate::hasMasterClonePtr() const { 
   return false;
 }
 
@@ -36,3 +46,21 @@ void Candidate::fillVertexCovariance(CovarianceMatrix & err) const {
   throw edm::Exception(edm::errors::UnimplementedFeature) 
     << "reco::Candidate does not implement vertex covariant matrix.\n";
 }
+
+bool Candidate::isElectron() const { return false; }
+ 
+bool Candidate::isMuon() const { return false; }
+
+bool Candidate::isGlobalMuon() const { return false; }
+
+bool Candidate::isStandAloneMuon() const { return false; }
+
+bool Candidate::isTrackerMuon() const { return false; }
+
+bool Candidate::isCaloMuon() const { return false; }
+
+bool Candidate::isPhoton() const { return false; }
+
+bool Candidate::isConvertedPhoton() const { return false; }
+
+bool Candidate::isJet() const { return false; }

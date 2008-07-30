@@ -1,9 +1,9 @@
 <Layouts>
 <layout name="GlobalTracks">
-  <monitorable name="Track/GlobalParameters/NumberOfTracks_GenTk"></monitorable>
-  <monitorable name="Track/GlobalParameters/NumberOfRecHitsPerTrack_GenTk"></monitorable>
-  <monitorable name="Track/GlobalParameters/TrackPhi_GenTk"></monitorable>
-  <monitorable name="Track/GlobalParameters/TrackEta_GenTk"></monitorable>
+  <monitorable name="SiStrip/Tracks/NumberOfTracks_GenTk"></monitorable>
+  <monitorable name="SiStrip/Tracks/NumberOfRecHitsPerTrack_GenTk"></monitorable>
+  <monitorable name="SiStrip/Tracks/TrackPhi_GenTk"></monitorable>
+  <monitorable name="SiStrip/Tracks/TrackEta_GenTk"></monitorable>
 </layout>
 <layout name="OnTrackCluster">
   <monitorable name="SiStrip/MechanicalView/TOB/Summary_cStoNCorr_OnTrack_in_TOB"></monitorable>
@@ -18,43 +18,31 @@
   <monitorable name="SiStrip/MechanicalView/TID/Summary_cStoN_OffTrack_in_TID"></monitorable>
 </layout>
 <layout name="TOBSummary">
-  <monitorable name="SiStrip/MechanicalView/TOB/Summary_CMSubNoiseProfile_in_TOB"></monitorable>
-  <monitorable name="SiStrip/MechanicalView/TOB/Summary_NoisyStrips_in_TOB"></monitorable>
   <monitorable name="SiStrip/MechanicalView/TOB/Summary_NumberOfDigis_in_TOB"></monitorable>
   <monitorable name="SiStrip/MechanicalView/TOB/Summary_NumberOfClusters_in_TOB"></monitorable>
   <monitorable name="SiStrip/MechanicalView/TOB/Summary_ClusterWidth_in_TOB"></monitorable>
 </layout>
 <layout name="TIBSummary">
-  <monitorable name="SiStrip/MechanicalView/TIB/Summary_CMSubNoiseProfile_in_TIB"></monitorable>
-  <monitorable name="SiStrip/MechanicalView/TIB/Summary_NoisyStrips_in_TIB"></monitorable>
   <monitorable name="SiStrip/MechanicalView/TIB/Summary_NumberOfDigis_in_TIB"></monitorable>
   <monitorable name="SiStrip/MechanicalView/TIB/Summary_NumberOfClusters_in_TIB"></monitorable>
   <monitorable name="SiStrip/MechanicalView/TIB/Summary_ClusterWidth_in_TIB"></monitorable>
 </layout>
 <layout name="TECFSummary">
-  <monitorable name="SiStrip/MechanicalView/TEC/side_2/Summary_CMSubNoiseProfile_in_side_2"></monitorable>
-  <monitorable name="SiStrip/MechanicalView/TEC/side_2/Summary_NoisyStrips_in_side_2"></monitorable>
   <monitorable name="SiStrip/MechanicalView/TEC/side_2/Summary_NumberOfDigis_in_side_2"></monitorable>
   <monitorable name="SiStrip/MechanicalView/TEC/side_2/Summary_NumberOfClusters_in_side_2"></monitorable>
   <monitorable name="SiStrip/MechanicalView/TEC/side_2/Summary_ClusterWidth_in_side_2"></monitorable>
 </layout>
 <layout name="TECBSummary">
-  <monitorable name="SiStrip/MechanicalView/TEC/side_1/Summary_CMSubNoiseProfile_in_side_1"></monitorable>
-  <monitorable name="SiStrip/MechanicalView/TEC/side_1/Summary_NoisyStrips_in_side_1"></monitorable>
   <monitorable name="SiStrip/MechanicalView/TEC/side_1/Summary_NumberOfDigis_in_side_1"></monitorable>
   <monitorable name="SiStrip/MechanicalView/TEC/side_1/Summary_NumberOfClusters_in_side_1"></monitorable>
   <monitorable name="SiStrip/MechanicalView/TEC/side_1/Summary_ClusterWidth_in_side_1"></monitorable>
 </layout>
 <layout name="TIDFSummary">
-  <monitorable name="SiStrip/MechanicalView/TID/side_2/Summary_CMSubNoiseProfile_in_side_2"></monitorable>
-  <monitorable name="SiStrip/MechanicalView/TID/side_2/Summary_NoisyStrips_in_side_2"></monitorable>
   <monitorable name="SiStrip/MechanicalView/TID/side_2/Summary_NumberOfDigis_in_side_2"></monitorable>
   <monitorable name="SiStrip/MechanicalView/TID/side_2/Summary_NumberOfClusters_in_side_2"></monitorable>
   <monitorable name="SiStrip/MechanicalView/TID/side_2/Summary_ClusterWidth_in_side_2"></monitorable>
 </layout>
 <layout name="TIDBSummary">
-  <monitorable name="SiStrip/MechanicalView/TID/side_1/Summary_CMSubNoiseProfile_in_side_1"></monitorable>
-  <monitorable name="SiStrip/MechanicalView/TID/side_1/Summary_NoisyStrips_in_side_1"></monitorable>
   <monitorable name="SiStrip/MechanicalView/TID/side_1/Summary_NumberOfDigis_in_side_1"></monitorable>
   <monitorable name="SiStrip/MechanicalView/TID/side_1/Summary_NumberOfClusters_in_side_1"></monitorable>
   <monitorable name="SiStrip/MechanicalView/TID/side_1/Summary_ClusterWidth_in_side_1"></monitorable>

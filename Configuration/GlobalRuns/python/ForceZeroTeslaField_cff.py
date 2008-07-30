@@ -6,11 +6,11 @@ localUniform = cms.ESProducer("UniformMagneticFieldESProducer",
 
 es_prefer_localUniform = cms.ESPrefer("UniformMagneticFieldESProducer","localUniform")
 #   es_prefer magfield = XMLIdealGeometryESSource{}
-SteppingHelixPropagatorAny.useInTeslaFromMagField = True
-SteppingHelixPropagatorAlong.useInTeslaFromMagField = True
-SteppingHelixPropagatorOpposite.useInTeslaFromMagField = True
-SteppingHelixPropagatorAny.SetVBFPointer = True
-SteppingHelixPropagatorAlong.SetVBFPointer = True
-SteppingHelixPropagatorOpposite.SetVBFPointer = True
-VolumeBasedMagneticFieldESProducer.label = 'VolumeBasedMagneticField'
+#SteppingHelixPropagatorAny.useInTeslaFromMagField = True
+#SteppingHelixPropagatorAlong.useInTeslaFromMagField = True
+#SteppingHelixPropagatorOpposite.useInTeslaFromMagField = True
+#SteppingHelixPropagatorAny.SetVBFPointer = True
+#SteppingHelixPropagatorAlong.SetVBFPointer = True
+#SteppingHelixPropagatorOpposite.SetVBFPointer = True
+#VolumeBasedMagneticFieldESProducer.label = 'VolumeBasedMagneticField'
 

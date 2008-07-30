@@ -3,7 +3,7 @@
 
 // CMSSW Headers
 #include "DataFormats/Provenance/interface/EventID.h"
-#include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
@@ -45,8 +45,8 @@ public:
   /// fill the FBaseSimEvent from the current HepMC::GenEvent
   void fill(const HepMC::GenEvent & hev, edm::EventID & Id);
 
-  /// fill the FBaseSimEvent from the current reco::CandidateCollection
-  void fill(const reco::CandidateCollection & parts, edm::EventID & Id);
+  /// fill the FBaseSimEvent from the current reco::GenParticleCollection
+  void fill(const reco::GenParticleCollection & parts, edm::EventID & Id);
 
   /// fill the FBaseSimEvent from the SimTrack's and SimVert'ices
   void fill(const std::vector<SimTrack>& simTracks, 

@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.129 2008/04/02 02:57:06 wmtan Exp $
+$Id: RootFile.cc,v 1.133.4.3 2008/05/15 18:35:06 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "RootFile.h"
@@ -49,9 +49,12 @@ namespace edm {
 		     unsigned int eventsToSkip,
 		     std::vector<LuminosityBlockID> const& whichLumisToSkip,
 		     int remainingEvents,
+		     unsigned int treeCacheSize,
+                     int treeMaxVirtualSize,
 		     int forcedRunOffset,
 		     std::vector<EventID> const& whichEventsToProcess,
-		     bool dropMetaData) :
+		     bool dropMetaData,
+                     bool csa08Kludge) :
       file_(fileName),
       logicalFile_(logicalFileName),
       catalog_(catalogName),
@@ -89,6 +92,12 @@ namespace edm {
       sortedNewBranchNames_(),
       oldBranchNames_(),
       eventHistoryTree_(0) {
+    eventTree_.setCacheSize(treeCacheSize);
+
+    eventTree_.setTreeMaxVirtualSize(treeMaxVirtualSize);
+    lumiTree_.setTreeMaxVirtualSize(treeMaxVirtualSize);
+    runTree_.setTreeMaxVirtualSize(treeMaxVirtualSize);
+
     treePointers_[InEvent] = &eventTree_;
     treePointers_[InLumi]  = &lumiTree_;
     treePointers_[InRun]   = &runTree_;
@@ -133,7 +142,9 @@ namespace edm {
 
     metaDataTree->GetEntry(0);
 
-    readEventDescriptionTree();
+    if (!csa08Kludge) { 
+      readEventDescriptionTree();
+    }
 
     validateFile();
     fileIndexIter_ = fileIndexBegin_ = fileIndex_.begin();
@@ -148,6 +159,13 @@ namespace edm {
     for (ProductRegistry::ProductList::const_iterator it = pList.begin(), itEnd = pList.end();
         it != itEnd; ++it) {
       BranchDescription const& prod = it->second;
+      // This is a KLUDGE for 2_0_X only to facilitate merging.
+      if (fileFormatVersion_.value_ == 7 &&
+          prod.friendlyClassName() == std::string("FEDRawDataCollection") &&
+          prod.moduleLabel() == std::string("source")) {
+	BranchDescription *p = const_cast<BranchDescription *>(&it->second);
+	p->productID_.id_ = 1U;
+      }
       treePointers_[prod.branchType()]->setPresence(prod);
     }
 
@@ -640,6 +658,9 @@ namespace edm {
       if (fileIndexIter_->getEntryType() == FileIndex::kEvent) {
         ++offset;
       }
+    }
+    while (fileIndexIter_ != fileIndexEnd_ && fileIndexIter_->getEntryType() != FileIndex::kEvent) {
+      ++fileIndexIter_;
     }
     return offset;
   }

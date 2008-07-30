@@ -1,7 +1,7 @@
 //
 // F.Ratnikov (UMd), Aug. 9, 2005
 //
-// $Id: HcalDbService.cc,v 1.20 2008/03/08 13:58:20 rofierzy Exp $
+// $Id: HcalDbService.cc,v 1.22 2008/03/09 18:22:05 rofierzy Exp $
 
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 
@@ -80,6 +80,7 @@ void HcalDbService::buildCalibrations() {
     if (ok) mCalibSet.setCalibrations(*id,tool);
     //    std::cout << "Hcal calibrations built... detid no. " << HcalGenericDetId(*id) << std::endl;
   }
+  mCalibSet.sort();
 }
 
 bool HcalDbService::makeHcalCalibrationWidth (const HcalGenericDetId& fId, HcalCalibrationWidths* fObject) const {

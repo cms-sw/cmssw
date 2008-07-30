@@ -4,8 +4,8 @@
 /*
  * \file EEOccupancyTask.h
  *
- * $Date: 2008/02/20 13:05:29 $
- * $Revision: 1.15 $
+ * $Date: 2008/04/08 15:32:09 $
+ * $Revision: 1.19 $
  * \author G. Della Ricca
  *
 */
@@ -38,6 +38,15 @@ void beginJob(const edm::EventSetup& c);
 /// EndJob
 void endJob(void);
 
+/// BeginRun
+void beginRun(const edm::Run & r, const edm::EventSetup & c);
+
+/// EndRun
+void endRun(const edm::Run & r, const edm::EventSetup & c);
+
+/// Reset
+void reset(void);
+
 /// Setup
 void setup(void);
 
@@ -48,15 +57,19 @@ private:
 
 int ievt_;
 
-DQMStore* dbe_;
+DQMStore* dqmStore_;
+
+std::string prefixME_;
 
 bool enableCleanup_;
 
+bool mergeRuns_;
+
+edm::InputTag EcalRawDataCollection_;
 edm::InputTag EEDigiCollection_;
 edm::InputTag EcalPnDiodeDigiCollection_;
 edm::InputTag EcalRecHitCollection_;
 edm::InputTag EcalTrigPrimDigiCollection_;
-edm::InputTag EcalRawDataCollection_;
 
 MonitorElement* meEvent_[18];
 MonitorElement* meOccupancy_[18];

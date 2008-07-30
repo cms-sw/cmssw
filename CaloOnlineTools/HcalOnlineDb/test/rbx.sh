@@ -17,12 +17,12 @@
 pathname=$1
 tag=$2
 
-ls $pathname/*.xml > rbx_brick_files.list
+ls $pathname/rbx_*.xml > rbx_brick_files.list
 
 ./xmlToolsRun --rbx=pedestals --filename=rbx_brick_files.list --tag=$tag
 
 #mv $tag\_Loader.xml $pathname/
 
-zip -j ./$tag.zip $pathname/*.oracle.xml
+zip -j $pathname/$tag.zip $pathname/*.oracle.xml
 
 rm rbx_brick_files.list

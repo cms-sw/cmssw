@@ -1,6 +1,4 @@
 #include "RecoParticleFlow/PFProducer/interface/PFProducer.h"
-#include "RecoParticleFlow/PFAlgo/interface/PFAlgo.h"
-#include "RecoParticleFlow/PFAlgo/interface/PFAlgoTestBenchElectrons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
 
@@ -52,7 +50,7 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
   double h_damping 
     = iConfig.getParameter<double>("pf_calib_HCAL_damping");
   
-  
+ 
 
   shared_ptr<PFEnergyCalibration> 
     calibration( new PFEnergyCalibration( e_slope,
@@ -73,21 +71,10 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
   edm::FileInPath path_mvaWeightFile( mvaWeightFile.c_str() );
   double PSCut = iConfig.getParameter<double>("pf_mergedPhotons_PSCut");
   
-  int algoType 
-    = iConfig.getParameter<unsigned>("algoType");
-  
-  switch(algoType) {
-  case 0:
-    pfAlgo_.reset( new PFAlgo);
-    break;
-  case 1:
-    pfAlgo_.reset( new PFAlgoTestBenchElectrons);
-    break;
-  default:
-    assert(0);
-  }
 
-  pfAlgo_->setParameters( nSigmaECAL, 
+  
+
+  pfAlgo_.setParameters( nSigmaECAL, 
 			 nSigmaHCAL,
 			 calibration,
 			 clusterRecovery,
@@ -101,7 +88,7 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
   bool debug_ = 
     iConfig.getUntrackedParameter<bool>("debug",false);
 
-  pfAlgo_->setDebug( debug_ );
+  pfAlgo_.setDebug( debug_ );
 
 }
 
@@ -142,17 +129,17 @@ void PFProducer::produce(Event& iEvent,
 
   assert( blocks.isValid() );
  
-  pfAlgo_->reconstructParticles( blocks );
+  pfAlgo_.reconstructParticles( blocks );
 
 
   if(verbose_) {
     ostringstream  str;
-    str<<(*pfAlgo_)<<endl;
+    str<<pfAlgo_<<endl;
     LogInfo("PFProducer") <<str.str()<<endl;
   }  
 
   auto_ptr< reco::PFCandidateCollection > 
-    pOutputCandidateCollection( pfAlgo_->transferCandidates() ); 
+    pOutputCandidateCollection( pfAlgo_.transferCandidates() ); 
   
   LogDebug("PFProducer")<<"particle flow: putting products in the event"<<endl;
   

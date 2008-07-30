@@ -1,116 +1,56 @@
-# CSC Trigger
+# Trigger configuration data
+# please include 'replace' statements 
+# as appropriate for the subsystem
 
-### emulator
+#TP
+replace l1csctpconf.alctParamMTCC2.alctL1aWindow = 7
 
-include "L1TriggerConfig/L1CSCTPConfigProducers/data/L1CSCTriggerPrimitivesConfig.cff"
-include "Geometry/CMSCommonData/data/cmsIdealGeometryXML.cfi"
-#include "Geometry/MuonCommonData/data/muonIdealGeometryXML.cfi"
-include "Geometry/MuonNumbering/data/muonNumberingInitialization.cfi"
-include "Geometry/CSCGeometry/data/cscGeometry.cfi"
-include "L1Trigger/CSCCommonTrigger/data/CSCCommonTrigger.cfi"
+#TF
+#replace l1CSCTFConfig.ptLUT_path = ""
+#replace l1CSCTFConfig.dt1LUT_path = ""
+#replace l1CSCTFConfig.dt2LUT_path = ""
+#replace l1CSCTFConfig.localPhiLUT_path = ""
+#replace l1CSCTFConfig.globalPhi1LUT_path = ""
+#replace l1CSCTFConfig.globalPhi2LUT_path = ""
+#replace l1CSCTFConfig.globalPhi3LUT_path = ""
+#replace l1CSCTFConfig.globalPhi4LUT_path = ""
+#replace l1CSCTFConfig.globalPhi5LUT_path = ""
+#replace l1CSCTFConfig.globalEta1LUT_path = ""
+#replace l1CSCTFConfig.globalEta2LUT_path = ""
+#replace l1CSCTFConfig.globalEta3LUT_path = ""
+#replace l1CSCTFConfig.globalEta4LUT_path = ""
+#replace l1CSCTFConfig.globalEta5LUT_path = ""
+#replace l1CSCTFConfig.registers  = {
+#"CSR_REQ SP MA 0x801F # Triggering on singles and running the core",
+#"DAT_FTR SP MA 0xFF   # Charge Quality and Rank of fake track, produced from singles",
+#"CSR_SFC SP MA 0x1000 # Output muon pT to spy on",
+#"CSR_SCC SP MA 0x2030 # Core settings (i.e. [0:1] BXA_depth=0, [4:5] Q=3,4, [8] MB, [13:12] Pretrigger=2)",
+#"CNT_ETA SP MA 0x0    # Reset ETA counter to set EtaMin, EtaMax, and EtaWin",
+#"DAT_ETA SP MA 0x0    # EtaMin[0] = 0",
+#"DAT_ETA SP MA 0x0    # EtaMin[1] = 0",
+#"DAT_ETA SP MA 0x0    # EtaMin[2] = 0",
+#"DAT_ETA SP MA 0x0    # EtaMin[3] = 0",
+#"DAT_ETA SP MA 0x0    # EtaMin[4] = 0",
+#"DAT_ETA SP MA 0x0    # EtaMin[5] = 0",
+#"DAT_ETA SP MA 0x0    # EtaMin[6] = 0",
+#"DAT_ETA SP MA 0x0    # EtaMin[7] = 0",
+#"DAT_ETA SP MA 0x7F   # EtaMax[0] = 127",
+#"DAT_ETA SP MA 0x7F   # EtaMax[1] = 127",
+#"DAT_ETA SP MA 0x7F   # EtaMax[2] = 127",
+#"DAT_ETA SP MA 0x7F   # EtaMax[3] = 127",
+#"DAT_ETA SP MA 0x7F   # EtaMax[4] = 127",
+#"DAT_ETA SP MA 0x7F   # EtaMax[5] = 127",
+#"DAT_ETA SP MA 0x7F   # EtaMax[6] = 127",
+#"DAT_ETA SP MA 0x7F   # EtaMax[7] = 127",
+#"DAT_ETA SP MA 0x5    # EtaWin[0] = 5",
+#"DAT_ETA SP MA 0x5    # EtaWin[1] = 5",
+#"DAT_ETA SP MA 0x5    # EtaWin[2] = 5",
+#"DAT_ETA SP MA 0x5    # EtaWin[3] = 5",
+#"DAT_ETA SP MA 0x5    # EtaWin[4] = 5",
+#"DAT_ETA SP MA 0x5    # EtaWin[5] = 5",
+#"DAT_ETA SP MA 0x2    # mindphip     = 2",
+#"DAT_ETA SP MA 0x4    # mindeta_accp = 4",
+#"DAT_ETA SP MA 0x10   # maxdeta_accp = 16",
+#"DAT_ETA SP MA 0x40   # maxdphi_accp = 128"
+#}
 
-include "L1Trigger/CSCTriggerPrimitives/data/cscTriggerPrimitiveDigis.cfi"
-replace cscTriggerPrimitiveDigis.CSCComparatorDigiProducer 
-= muonCSCDigis:MuonCSCComparatorDigi
-replace cscTriggerPrimitiveDigis.CSCWireDigiProducer       
-= muonCSCDigis:MuonCSCWireDigi
-
-include "L1Trigger/CSCTrackFinder/data/csctfDigis.cfi"
-replace csctfDigis.CSCTrackProducer = csctfunpacker //l1CscTfTrackEmulDigis
-
-include "L1Trigger/CSCTrackFinder/data/l1CscTfTrackEmulDigis.cfi"
-replace l1CscTfTrackEmulDigis.SectorReceiverInput = csctfunpacker::demon
-
-### unpacking
-
-include "EventFilter/CSCRawToDigi/data/cscUnpacker.cfi"
-replace muonCSCDigis.InputObjects = source
-replace muonCSCDigis.UnpackStatusDigis = false
-
-include "EventFilter/CSCTFRawToDigi/data/csctfunpacker.cfi"
-replace csctfunpacker.producer  = source
-
-// required by CSCDCCUnpacker/muonCSCDigis
-es_source cscConditions = PoolDBESSource {
-    string timetype = "runnumber"
-    string connect = "frontier://(serverurl=http://frontier1.cms:8000/FrontierOn)(serverurl=http://frontier2.cms:8000/FrontierOn)(retrieve-ziplevel=0)/CMS_COND_ON_170_CSC"
-    PSet DBParameters = {
-	untracked int32 messageLevel = 0
-	
-    }
-    VPSet toGet = {
-	{ string record = "CSCDBGainsRcd"
-	    string tag = "CSCDBGains_ideal" },
-	{ string record = "CSCDBCrosstalkRcd"
-	    string tag = "CSCDBCrosstalk_ideal" },
-	{ string record = "CSCDBNoiseMatrixRcd"
-	    string tag = "CSCDBNoiseMatrix_ideal" },
-	{ string record = "CSCDBPedestalsRcd"
-	    string tag = "CSCDBPedestals_ideal" },
-	{ string record = "CSCChamberIndexRcd"
-	    string tag = "CSCChamberIndex" },
-	{ string record = "CSCChamberMapRcd"
-	    string tag = "CSCChamberMap" },
-	{ string record = "CSCCrateMapRcd"
-	    string tag = "CSCCrateMap" },
-	{ string record = "CSCDDUMapRcd"
-	    string tag = "CSCDDUMap" }
-    }
-    untracked bool siteLocalConfig = false
-}
-
-/*
-NOTES
-
-CTP:
-module muonCSCDigis   = CSCDCCUnpacker 
-produces<CSCWireDigiCollection>("MuonCSCWireDigi");
-produces<CSCStripDigiCollection>("MuonCSCStripDigi");
-produces<CSCComparatorDigiCollection>("MuonCSCComparatorDigi");
-produces<CSCALCTDigiCollection>("MuonCSCALCTDigi");
-produces<CSCCLCTDigiCollection>("MuonCSCCLCTDigi");
-produces<CSCRPCDigiCollection>("MuonCSCRPCDigi");
-produces<CSCCorrelatedLCTDigiCollection>("MuonCSCCorrelatedLCTDigi");
-if(unpackStatusDigis): 
-produces<CSCCFEBStatusDigiCollection>("MuonCSCCFEBStatusDigi");
-produces<CSCTMBStatusDigiCollection>("MuonCSCTMBStatusDigi");
-produces<CSCDMBStatusDigiCollection>("MuonCSCDMBStatusDigi");
-produces<CSCALCTStatusDigiCollection>("MuonCSCALCTStatusDigi");
-produces<CSCDDUStatusDigiCollection>("MuonCSCDDUStatusDigi");
-produces<CSCDCCStatusDigiCollection>("MuonCSCDCCStatusDigi");
-
-CTF:
-module csctfunpacker = CSCTFUnpacker
-produces<CSCCorrelatedLCTDigiCollection>();
-produces<L1CSCTrackCollection>();
-produces<L1CSCStatusDigiCollection>();
-
-CTP:
-
-module cscTriggerPrimitiveDigis = CSCTriggerPrimitivesProducer
-produces<CSCALCTDigiCollection>();
-produces<CSCCLCTDigiCollection>();
-produces<CSCCorrelatedLCTDigiCollection>();
-produces<CSCCorrelatedLCTDigiCollection>("MPCSORTED");
-edm::Handle<CSCComparatorDigiCollection> compDigis;
-edm::Handle<CSCWireDigiCollection>       wireDigis;
-ev.getByLabel(compDigiProducer_.label(), compDigiProducer_.instance(), compDigis);
-ev.getByLabel(wireDigiProducer_.label(), wireDigiProducer_.instance(), wireDigis);
-
-CTF:
-
-module l1CscTfTrackEmulDigis = CSCTFTrackProducer
-produces<L1CSCTrackCollection>();
-produces<CSCTriggerContainer<csctf::TrackStub> >();
-L1Trigger/CSCTrackFinder/plugins/CSCTFTrackProducer.cc
-edm::Handle<CSCCorrelatedLCTDigiCollection> LCTs;
-edm::Handle<L1MuDTChambPhContainer> dttrig;
-e.getByLabel(input_module.label(),input_module.instance(), LCTs);
-e.getByType(dttrig);
-
-module csctfDigis = CSCTFCandidateProducer
-produces<std::vector<L1MuRegionalCand> >("CSC");
-edm::Handle<L1CSCTrackCollection> tracks;
-e.getByLabel(input_module.label(),input_module.instance(), tracks);
-
-*/

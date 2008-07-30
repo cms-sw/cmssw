@@ -14,8 +14,8 @@
  *   path p = { comparator }
  *
  *
- *  $Date: 2007/12/06 01:46:42 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/05/04 17:04:35 $
+ *  $Revision: 1.4 $
  *  \author Nhan Tran
  */
 
@@ -24,6 +24,8 @@
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 #include "CondFormats/Alignment/interface/SurveyErrors.h"
 #include "Alignment/CommonAlignment/interface/StructureType.h"
+
+#include "Alignment/CommonAlignment/interface/AlignTools.h"
 
 #include <algorithm>
 #include "TTree.h"
@@ -57,20 +59,27 @@ private:
 
 
 	//parameters
-  edm::ParameterSet m_params;
-  std::vector<align::StructureType> theLevels;
-  std::vector<int> theSubDets;
+	edm::ParameterSet m_params;
+	std::vector<align::StructureType> theLevels;
+	//std::vector<int> theSubDets;
 	
 	//compares two geometries
 	void compareGeometries(Alignable* refAli, Alignable* curAli);
 	//filling the ROOT file
 	void fillTree(Alignable *refAli, AlgebraicVector diff);
+	//for filling identifiers
+	void fillIdentifiers( int subdetlevel, int rawid );
 	//converts surveyRcd into alignmentRcd
 	void surveyToTracker(AlignableTracker* ali, Alignments* alignVals, AlignmentErrors* alignErrors);
 	//need for conversion for surveyToTracker
 	void addSurveyInfo(Alignable* ali);
-	void createDBGeometry(const edm::EventSetup& iSetup);
+	//void createDBGeometry(const edm::EventSetup& iSetup);
 	void createROOTGeometry(const edm::EventSetup& iSetup);
+	
+	// for common tracker system
+	void setCommonTrackerSystem();
+	void diffCommonTrackerSystem(Alignable* refAli, Alignable* curAli);
+	bool passIdCut( uint32_t );
 	
 	AlignableTracker* referenceTracker;
 	AlignableTracker* dummyTracker;
@@ -80,12 +89,24 @@ private:
 	const Alignments* theSurveyValues;
 	const SurveyErrors* theSurveyErrors;
 	
-
-	std::string _inputType;
-	std::string _inputFileType;
+	// configurables
 	std::string _inputFilename1;
 	std::string _inputFilename2;
 	std::string _inputTreename;
+	bool _writeToDB; 
+	std::string _weightBy;
+	std::string _setCommonTrackerSystem;
+	bool _detIdFlag;
+	std::string _detIdFlagFile;
+	bool _weightById;
+	std::string _weightByIdFile;
+	std::vector< unsigned int > _weightByIdVector;
+	
+	std::vector< uint32_t > _detIdFlagVector;
+	align::StructureType _commonTrackerLevel;
+	align::GlobalVector _TrackerCommonT;
+	align::EulerAngles _TrackerCommonR;
+	align::PositionType _TrackerCommonCM;
 	
 	//root configuration
 	std::string _filename;
@@ -96,9 +117,12 @@ private:
 	TTree* _inputTree1;
 	TTree* _inputTree2;
 	
-	int _id, _level, _mid, _mlevel, _sublevel;
-	float _xVal, _yVal, _zVal, _rVal, _phiVal, _alphaVal, _betaVal, _gammaVal;
+	int _id, _level, _mid, _mlevel, _sublevel, _useDetId, _detDim;
+	float _xVal, _yVal, _zVal, _rVal, _phiVal, _alphaVal, _betaVal, _gammaVal, _etaVal;
 	float _dxVal, _dyVal, _dzVal, _drVal, _dphiVal, _dalphaVal, _dbetaVal, _dgammaVal;
+	float _surWidth, _surLength;
+	uint32_t _identifiers[6];
+	double _surRot[9];
 	
 
 	

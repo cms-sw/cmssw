@@ -1,22 +1,22 @@
 #ifndef EventFilter_SiStripRawToDigi_SiStripRawToClustersRoI_H
 #define EventFilter_SiStripRawToDigi_SiStripRawToClustersRoI_H
 
-#include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripRegionCabling.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/SiStripCommon/interface/SiStripRefGetter.h"
-#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripRegionCabling.h"
+#include "DataFormats/SiStripCommon/interface/SiStripRefGetter.h"
+#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <string>
 #include <memory>
 #include "boost/bind.hpp"
@@ -40,13 +40,15 @@ class SiStripRawToClustersRoI : public edm::EDProducer {
   ~SiStripRawToClustersRoI();
   
   virtual void beginJob( const edm::EventSetup& );
-  virtual void endJob();
+  virtual void beginRun( edm::Run&, const edm::EventSetup& );
   virtual void produce( edm::Event&, const edm::EventSetup& );
   
  private: 
 
+  void updateCabling( const edm::EventSetup& setup );
+
   /** Defines allowed physical layer numbers */
-  bool physicalLayer(SubDet&, uint32_t&) const;
+  bool physicalLayer( SubDet&, uint32_t& ) const;
 
   /** Defines regions of interest randomly */
   void random(RefGetter&, edm::Handle<LazyGetter>&) const;
@@ -64,8 +66,10 @@ class SiStripRawToClustersRoI : public edm::EDProducer {
   void bjets(const reco::CaloJetCollection&, RefGetter&, edm::Handle<LazyGetter>&) const;
 
   /** Cabling */
-  edm::ESHandle<SiStripRegionCabling> cabling_;
-
+  const SiStripRegionCabling* cabling_;
+  
+  uint32_t cacheId_;
+  
   /** Record of all region numbers */
   std::vector<uint32_t> allregions_;
 

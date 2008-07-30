@@ -3,11 +3,8 @@
 
 #include "L1TriggerConfig/GctConfigProducers/interface/L1GctCalibFunConfigurer.h"
 
-#include "L1TriggerConfig/L1Geometry/interface/L1CaloGeometry.h"
-
 #include <string>
 #include <math.h>
-#include <iostream>
 
 //
 // constants, enums and typedefs
@@ -23,7 +20,6 @@
 L1GctCalibFunConfigurer::L1GctCalibFunConfigurer(const edm::ParameterSet& iConfig) :
   m_htScaleLSB(iConfig.getParameter<double>("L1CaloHtScaleLsbInGeV")), // get the CalibrationFunction parameters
   m_threshold (iConfig.getParameter<double>("L1CaloJetZeroSuppressionThresholdInGeV")),
-  m_convertToEnergy (iConfig.getParameter<bool>("ConvertEtValuesToEnergy")),
   m_jetCalibFunc(), m_tauCalibFunc(),
   m_corrFunType(L1GctJetEtCalibrationFunction::POWER_SERIES_CORRECTION)
 {
@@ -118,10 +114,6 @@ L1GctCalibFunConfigurer::produceCalibFun()
 					     m_tauCalibFunc);
 
    pL1GctJetEtCalibrationFunction->setCorrectionFunctionType(m_corrFunType);
-
-   if (m_convertToEnergy) {
-     pL1GctJetEtCalibrationFunction->setConversionToEnergyOn(etToEnergyConversion());
-   }
 
    return pL1GctJetEtCalibrationFunction ;
 }
@@ -275,23 +267,4 @@ void L1GctCalibFunConfigurer::setPiecewiseCubicParamsForBin(std::vector<double>&
                                   << "The number of parameters is "
                                   << numberOfPars << ", but we need five parameters per piece, plus one";
   }
-}
-
-/// Calculate Et-to-energy conversion factors for eta bins
-std::vector<double> L1GctCalibFunConfigurer::etToEnergyConversion() const {
-  L1CaloGeometry* geom = new L1CaloGeometry();
-  std::vector<double> result;
-  // Factors for central eta bins
-  for (unsigned ieta=0; ieta<7; ieta++) {
-    double bineta = geom->etaBinCenter(ieta, true);
-    double factor = 0.5*(exp(bineta)+exp(-bineta)); // Conversion from eta to cosec(theta)
-    result.push_back(factor);
-  }
-  // Factors for forward eta bins
-  for (unsigned ieta=0; ieta<4; ieta++) {
-    double bineta = geom->etaBinCenter(ieta, false);
-    double factor = 0.5*(exp(bineta)+exp(-bineta)); // Conversion from eta to cosec(theta)
-    result.push_back(factor);
-  }
-  return result;
 }

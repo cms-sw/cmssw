@@ -67,7 +67,6 @@ void CosmicHitPairGeneratorFromLayerPair::hitPairs(
   
 
 
-
   std::vector<const TrackingRecHit*>::const_iterator ohh;
   for(ohh=theOuterLayer->recHits().begin();ohh!=theOuterLayer->recHits().end();ohh++){
     const TkHitPairsCachedHit * oh=new TkHitPairsCachedHit(*ohh,iSetup);
@@ -83,7 +82,7 @@ void CosmicHitPairGeneratorFromLayerPair::hitPairs(
       float dxdy=abs((outx-innx)/(outy-inny));
       float DeltaR=oh->r()-ih->r();
       
-      if( InTheBarrel && (abs(z_diff)<30)  && (outy > 0.) && (inny > 0.)
+      if( InTheBarrel && (abs(z_diff)<30) // && (outy > 0.) && (inny > 0.)
 	  //&&((abs(inny-outy))<30) 
 	  &&(dxdy<2)
 	  &&(inny*outy>0)
@@ -107,8 +106,9 @@ void CosmicHitPairGeneratorFromLayerPair::hitPairs(
 	//	cout << " ******** sono dentro intheforward *********** " << endl;
 	result.push_back( OrderedHitPair(*ih, *oh));
       }
+delete ih;
     }
-    
+delete oh;
   }
 
  

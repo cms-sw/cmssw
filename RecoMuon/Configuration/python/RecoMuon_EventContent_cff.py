@@ -16,15 +16,24 @@ import FWCore.ParameterSet.Config as cms
 from RecoMuon.MuonIsolationProducers.muIsolation_EventContent_cff import *
 # AOD content
 RecoMuonAOD = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep recoTracks_standAloneMuons_*_*', 'keep recoTrackExtras_standAloneMuons_*_*', 'keep TrackingRecHitsOwned_standAloneMuons_*_*', 'keep recoTracks_globalMuons_*_*', 'keep recoTrackExtras_globalMuons_*_*', 'keep TrackingRecHitsOwned_globalMuons_*_*', 'keep recoTracks_generalTracks_*_*', 'keep recoMuons_trackerMuons_*_*', 'keep recoMuons_muons_*_*', 'keep recoCaloMuons_calomuons_*_*')
+    outputCommands = cms.untracked.vstring('keep recoTracks_standAloneMuons_*_*', 
+        'keep recoTrackExtras_standAloneMuons_*_*', 
+        'keep TrackingRecHitsOwned_standAloneMuons_*_*', 
+        'keep recoTracks_globalMuons_*_*', 
+        'keep recoTrackExtras_globalMuons_*_*', 
+        'keep TrackingRecHitsOwned_globalMuons_*_*', 
+        'keep recoTracks_generalTracks_*_*', 
+        'keep recoMuons_trackerMuons_*_*', 
+        'keep recoMuons_muons_*_*', 
+        'keep recoCaloMuons_calomuons_*_*')
 )
 # RECO content
 RecoMuonRECO = cms.PSet(
-    outputCommands = cms.untracked.vstring()
+    outputCommands = cms.untracked.vstring('keep *_MuonSeed_*_*')
 )
 # Full Event content 
 RecoMuonFEVT = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep *_MuonSeed_*_*')
+    outputCommands = cms.untracked.vstring()
 )
 RecoMuonRECO.outputCommands.extend(RecoMuonAOD.outputCommands)
 RecoMuonFEVT.outputCommands.extend(RecoMuonRECO.outputCommands)

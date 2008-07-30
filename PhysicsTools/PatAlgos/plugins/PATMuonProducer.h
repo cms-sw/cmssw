@@ -1,5 +1,5 @@
 //
-// $Id: PATMuonProducer.h,v 1.1.2.1 2008/04/03 13:34:22 gpetrucc Exp $
+// $Id: PATMuonProducer.h,v 1.5.2.1 2008/05/31 19:32:57 lowette Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATMuonProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of MuonType.
 
   \author   Steven Lowette, Roger Wolf
-  \version  $Id: PATMuonProducer.h,v 1.1.2.1 2008/04/03 13:34:22 gpetrucc Exp $
+  \version  $Id: PATMuonProducer.h,v 1.5.2.1 2008/05/31 19:32:57 lowette Exp $
 */
 
 
@@ -52,21 +52,20 @@ namespace pat {
 
       // configurables
       edm::InputTag muonSrc_;
+      bool          embedTrack_;
+      bool          embedStandAloneMuon_;
+      bool          embedCombinedMuon_;
       bool          addGenMatch_;
-      edm::InputTag genPartSrc_;
-      float         maxDeltaR_;
-      float         minRecoOnGenEt_;
-      float         maxRecoOnGenEt_;
+      edm::InputTag genMatchSrc_;
+      bool          addTrigMatch_;
+      std::vector<edm::InputTag> trigMatchSrc_;
       bool          addResolutions_;
       bool          useNNReso_;
       std::string   muonResoFile_;
       bool          addMuonID_;
       bool          addLRValues_;
-      edm::InputTag tracksSrc_;
-      std::string   muonLRFile_;
       // tools
       ObjectResolutionCalc * theResoCalc_;
-      LeptonLRCalc         * theLeptonLRCalc_;
       GreaterByPt<Muon>      pTComparator_;
 
       pat::helper::MultiIsolator isolator_; 

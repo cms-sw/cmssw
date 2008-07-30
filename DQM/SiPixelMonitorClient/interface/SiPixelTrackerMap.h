@@ -15,19 +15,17 @@
 //
 // Original Author:  Dario Menasce
 //         Created:  
-// $Id: SiPixelTrackerMap.h,v 1.2 2007/06/06 14:26:48 menasce Exp $
+// $Id: SiPixelTrackerMap.h,v 1.3 2007/07/25 11:38:43 menasce Exp $
 //
 //
 
 #include "CommonTools/TrackerMap/interface/TrackerMap.h"
 
-using namespace std ;
-
 class SiPixelTrackerMap : public TrackerMap
 {
  public :
  
-          SiPixelTrackerMap(string     s           = " ",
+          SiPixelTrackerMap(std::string     s           = " ",
 	                    int        xsize1      = 340,
 			    int        ysize1      = 200  ) ;
          ~SiPixelTrackerMap(void) {;} 
@@ -44,5 +42,5 @@ class SiPixelTrackerMap : public TrackerMap
  private :
  
           int    dummy ;
-	  string title ;
+	  std::string title ;
 } ;

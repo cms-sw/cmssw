@@ -40,18 +40,22 @@ SiStripRawToDigiUnpacker::SiStripRawToDigiUnpacker( int16_t appended_bytes,
   first_(true),
   quiet_(true)
 {
-  LogTrace(mlRawToDigi_)
-    << "[SiStripRawToDigiUnpacker::"<<__func__<<"]"
-    <<" Constructing object...";
+  if ( edm::isDebugEnabled() ) {
+    LogTrace(mlRawToDigi_)
+      << "[SiStripRawToDigiUnpacker::"<<__func__<<"]"
+      <<" Constructing object...";
+  }
   fedEvent_ = new Fed9U::Fed9UEvent();
 }
 
 // -----------------------------------------------------------------------------
 /** */
 SiStripRawToDigiUnpacker::~SiStripRawToDigiUnpacker() {
-  LogTrace(mlRawToDigi_)
-    << "[SiStripRawToDigiUnpacker::"<<__func__<<"]"
-    << " Destructing object...";
+  if ( edm::isDebugEnabled() ) {
+    LogTrace(mlRawToDigi_)
+      << "[SiStripRawToDigiUnpacker::"<<__func__<<"]"
+      << " Destructing object...";
+  }
   if ( fedEvent_ ) { delete fedEvent_; }
 }
 
@@ -65,34 +69,29 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 					    RawDigis& proc_raw,
 					    Digis& zero_suppr ) {
 
-  // Create temp container for ZS data
-  typedef std::vector< edm::DetSet<SiStripDigi> > digi_work_vector;
+  typedef std::vector<edm::DetSet<SiStripDigi> > digi_work_vector;
   digi_work_vector zero_suppr_vector;
 
-  // Create temp containers for raw data
-  typedef std::vector< edm::DetSet<SiStripRawDigi> > raw_digi_work_vector;
-  raw_digi_work_vector virgin_raw_vector;
-  raw_digi_work_vector proc_raw_vector;
-  raw_digi_work_vector scope_mode_vector;
-
   // Check if FEDs found in cabling map and event data
-  if ( cabling.feds().empty() ) {
-    edm::LogWarning(mlRawToDigi_)
-      << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
-      << " No FEDs found in cabling map!";
-    // Check which FED ids have non-zero size buffers
-    std::pair<int,int> fed_range = FEDNumbering::getSiStripFEDIds();
-    std::vector<uint16_t> feds;
-    for ( uint16_t ifed = static_cast<uint16_t>(fed_range.first);
-	  ifed < static_cast<uint16_t>(fed_range.second); ifed++ ) {
-      if ( ifed != triggerFedId_ && 
-	   buffers.FEDData( static_cast<int>(ifed) ).size() ) {
-	feds.push_back(ifed);
+  if ( edm::isDebugEnabled() ) {
+    if ( cabling.feds().empty() ) {
+      edm::LogWarning(mlRawToDigi_)
+	<< "[SiStripRawToDigiUnpacker::" << __func__ << "]"
+	<< " No FEDs found in cabling map!";
+      // Check which FED ids have non-zero size buffers
+      std::pair<int,int> fed_range = FEDNumbering::getSiStripFEDIds();
+      std::vector<uint16_t> feds;
+      for ( uint16_t ifed = static_cast<uint16_t>(fed_range.first);
+	    ifed < static_cast<uint16_t>(fed_range.second); ifed++ ) {
+	if ( ifed != triggerFedId_ && 
+	     buffers.FEDData( static_cast<int>(ifed) ).size() ) {
+	  feds.push_back(ifed);
+	}
       }
+      LogTrace(mlRawToDigi_)
+	<< "[SiStripRawToDigiUnpacker::" << __func__ << "]"
+	<< " Found " << feds.size() << " FED buffers with non-zero size!";
     }
-    LogTrace(mlRawToDigi_)
-      << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
-      << " Found " << feds.size() << " FED buffers with non-zero size!";
   }
 
   // Flag for EventSummary update using DAQ register  
@@ -108,28 +107,32 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
     const FEDRawData& input = buffers.FEDData( static_cast<int>(*ifed) );
     
     // Some debug on FED buffer size
-    if ( first_ && input.data() ) {
-      std::stringstream ss;
-      ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
-	 << " Found FED id " 
-	 << std::setw(4) << std::setfill(' ') << *ifed 
-	 << " in FEDRawDataCollection"
-	 << " with non-zero pointer 0x" 
-	 << std::hex
-	 << std::setw(8) << std::setfill('0') 
-	 << reinterpret_cast<uint32_t*>( const_cast<uint8_t*>(input.data()))
-	 << std::dec
-	 << " and size " 
-	 << std::setw(5) << std::setfill(' ') << input.size()
-	 << " chars";
-      LogTrace(mlRawToDigi_) << ss.str();
-    }	
+    if ( edm::isDebugEnabled() ) {
+      if ( first_ && input.data() ) {
+	std::stringstream ss;
+	ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
+	   << " Found FED id " 
+	   << std::setw(4) << std::setfill(' ') << *ifed 
+	   << " in FEDRawDataCollection"
+	   << " with non-zero pointer 0x" 
+	   << std::hex
+	   << std::setw(8) << std::setfill('0') 
+	   << reinterpret_cast<uint32_t*>( const_cast<uint8_t*>(input.data()))
+	   << std::dec
+	   << " and size " 
+	   << std::setw(5) << std::setfill(' ') << input.size()
+	   << " chars";
+	LogTrace(mlRawToDigi_) << ss.str();
+      }	
+    }
     
     // Dump of FEDRawData to stdout
-    if ( fedBufferDumpFreq_ && !(event_%fedBufferDumpFreq_) ) {
-      std::stringstream ss;
-      dumpRawData( *ifed, input, ss );
-      edm::LogVerbatim(mlRawToDigi_) << ss.str();
+    if ( edm::isDebugEnabled() ) {
+      if ( fedBufferDumpFreq_ && !(event_%fedBufferDumpFreq_) ) {
+	std::stringstream ss;
+	dumpRawData( *ifed, input, ss );
+	edm::LogVerbatim(mlRawToDigi_) << ss.str();
+      }
     }
     
     // Handle 32-bit swapped data (and locate start of FED buffer within raw data)
@@ -142,17 +145,21 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 
     // Check on FEDRawData pointer
     if ( !data_u32 ) {
-      edm::LogWarning(mlRawToDigi_)
-	<< "[SiStripRawToDigiUnpacker::" << __func__ << "]"
-	<< " NULL pointer to FEDRawData for FED id " << *ifed;
+      if ( edm::isDebugEnabled() ) {
+	edm::LogWarning(mlRawToDigi_)
+	  << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
+	  << " NULL pointer to FEDRawData for FED id " << *ifed;
+      }
       continue;
     }	
     
     // Check on FEDRawData size
     if ( !size_u32 ) {
-      edm::LogWarning(mlRawToDigi_)
-	<< "[SiStripRawToDigiUnpacker::" << __func__ << "]"
-	<< " FEDRawData has zero size for FED id " << *ifed;
+      if ( edm::isDebugEnabled() ) {
+	edm::LogWarning(mlRawToDigi_)
+	  << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
+	  << " FEDRawData has zero size for FED id " << *ifed;
+      }
       continue;
     }
     
@@ -172,19 +179,23 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
     }
     
     // Check to see if EventSummary info is set
-    if ( !quiet_ && !summary.isSet() ) {
-      std::stringstream ss;
-      ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
-	 << " EventSummary is not set correctly!"
-	 << " Missing information from both \"trigger FED\" and \"DAQ registers\"!";
-      edm::LogWarning(mlRawToDigi_) << ss.str();
+    if ( edm::isDebugEnabled() ) {
+      if ( !quiet_ && !summary.isSet() ) {
+	std::stringstream ss;
+	ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
+	   << " EventSummary is not set correctly!"
+	   << " Missing information from both \"trigger FED\" and \"DAQ registers\"!";
+	edm::LogWarning(mlRawToDigi_) << ss.str();
+      }
     }
     
     // Check to see if event is to be analyzed according to EventSummary
     if ( !summary.valid() ) { 
-      LogTrace(mlRawToDigi_)
-	<< "[SiStripRawToDigiUnpacker::" << __func__ << "]"
-	<< " EventSummary is not valid: skipping...";
+      if ( edm::isDebugEnabled() ) {
+	LogTrace(mlRawToDigi_)
+	  << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
+	  << " EventSummary is not valid: skipping...";
+      }
       continue; 
     }
     
@@ -199,10 +210,12 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
     if(runType_ == sistrip::APV_LATENCY || runType_ == sistrip::FINE_DELAY ) useFedKey_ = false;
      
     // Dump of FED buffer
-    if ( fedEventDumpFreq_ && !(event_%fedEventDumpFreq_) ) {
-      std::stringstream ss;
-      fedEvent_->dump( ss );
-      edm::LogVerbatim(mlRawToDigi_) << ss.str();
+    if ( edm::isDebugEnabled() ) {
+      if ( fedEventDumpFreq_ && !(event_%fedEventDumpFreq_) ) {
+	std::stringstream ss;
+	fedEvent_->dump( ss );
+	edm::LogVerbatim(mlRawToDigi_) << ss.str();
+      }
     }
     
     // Iterate through FED channels, extract payload and create Digis
@@ -231,6 +244,20 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 	handleException( __func__, "Problem using Fed9UAddress" ); 
       } 
       
+      //       // Determine whether FED key is inferred from cabling or channel loop
+      //       uint32_t fed_key = 0;
+      //       SiStripFedKey fed_path;
+      //       if ( summary.runType() == sistrip::FED_CABLING ) {
+      // 	fed_path = SiStripFedKey( *ifed, 
+      // 				  SiStripFedKey::feUnit(chan),
+      // 				  SiStripFedKey::feChan(chan) );
+      //       } else { 
+      // 	fed_path = SiStripFedKey( iconn->fedId(), 
+      // 				  SiStripFedKey::feUnit(iconn->fedCh()),
+      // 				  SiStripFedKey::feChan(iconn->fedCh()) );
+      //       }
+      //       fed_key = fed_path.key();
+      
       // Determine whether FED key is inferred from cabling or channel loop
       uint32_t fed_key = 0;
       if ( summary.runType() == sistrip::FED_CABLING ) {
@@ -246,13 +273,9 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
       uint16_t ipair = ( useFedKey_ || mode == sistrip::FED_SCOPE_MODE ) ? 0 : iconn->apvPairNumber();
 
       if ( mode == sistrip::FED_SCOPE_MODE ) {
+	edm::DetSet<SiStripRawDigi>& sm = scope_mode.find_or_insert(key);
+	std::vector<uint16_t> samples; samples.reserve( 1024 ); // theoretical maximum for scope mode length
 
-        if ( scope_mode_vector.empty() ) { scope_mode_vector.reserve(40000); }
-        scope_mode_vector.push_back( edm::DetSet<SiStripRawDigi>(key) );
-	edm::DetSet<SiStripRawDigi>& sm = scope_mode_vector.back();
-	
-	std::vector<uint16_t> samples; 
-	samples.reserve( 1024 ); // theoretical maximum for scope mode length
 	try { 
    	  samples = fedEvent_->feUnit( iunit ).channel( ichan ).getSamples();
 	} catch(...) { 
@@ -261,26 +284,17 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 	      << *ifed << "/" << iunit << "/" << ichan;
 	  handleException( __func__, sss.str() ); 
 	} 
-	
 	if ( !samples.empty() ) { 
-	  sm.data.clear(); 
-	  sm.data.resize( samples.size() ); 
-	  int physical = 0;
+	  sm.data.clear(); sm.data.reserve( samples.size() ); sm.data.resize( samples.size() ); 
 	  for ( uint16_t i = 0; i < samples.size(); i++ ) {
-	    physical = i%128; 
-	    (i/128) ? physical=physical*2+1 : physical=physical*2; // multiplexed data
-	    sm.data[i] = SiStripRawDigi( samples[physical] ); 
+	    sm.data[i] = SiStripRawDigi( samples[i] ); 
 	  }
 	}
-
       } else if ( mode == sistrip::FED_VIRGIN_RAW ) {
-	
-        if ( virgin_raw_vector.empty() ) { virgin_raw_vector.reserve(40000); }
-        virgin_raw_vector.push_back( edm::DetSet<SiStripRawDigi>(key) );
-	edm::DetSet<SiStripRawDigi>& vr = virgin_raw_vector.back();
-	
-	std::vector<uint16_t> samples; 
-	samples.reserve(256);
+
+	edm::DetSet<SiStripRawDigi>& vr = virgin_raw.find_or_insert(key);
+	std::vector<uint16_t> samples; samples.reserve(256); 
+
 	try {
    	  samples = fedEvent_->channel( iunit, ichan ).getSamples();
 	} catch(...) { 
@@ -289,27 +303,26 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 	      << *ifed << "/" << ichan;
 	  handleException( __func__, sss.str() ); 
 	} 
-	
+	//@@ NEED FIX BELOW: vr.data.size() should be 256 * iconn->nApvPairs()
 	if ( !samples.empty() ) { 
-	  if ( vr.data.size() < static_cast<uint16_t>(256*(ipair+1)) ) { vr.data.resize( 256*(ipair+1) ); }
+	  if ( vr.data.size() < static_cast<uint16_t>(256*(ipair+1)) ) { 
+	    vr.data.reserve( 256*(ipair+1) ); vr.data.resize( 256*(ipair+1) ); 
+	  }
 	  uint16_t physical;
 	  uint16_t readout; 
 	  for ( uint16_t i = 0; i < samples.size(); i++ ) {
 	    physical = i%128;
-	    readoutOrder( physical, readout );                 // convert index from physical to readout order
-	    (i/128) ? readout=readout*2+1 : readout=readout*2; // un-multiplex data
+	    readoutOrder( physical, readout ); // convert from physical to readout order
+	    (i/128) ? readout=readout*2+1 : readout=readout*2; // multiplexed data
 	    vr.data[ipair*256+i] = SiStripRawDigi( samples[readout] ); 
 	  }
 	}
-
+	
       } else if ( mode == sistrip::FED_PROC_RAW ) {
 
-        if ( proc_raw_vector.empty() ) { proc_raw_vector.reserve(40000); }
-        proc_raw_vector.push_back( edm::DetSet<SiStripRawDigi>(key) );
-	edm::DetSet<SiStripRawDigi>& pr = proc_raw_vector.back();
+	edm::DetSet<SiStripRawDigi>& pr = proc_raw.find_or_insert(key);
+	std::vector<uint16_t> samples; samples.reserve(256);
 
-	std::vector<uint16_t> samples; 
-	samples.reserve(256);
 	try {
    	  samples = fedEvent_->channel( iunit, ichan ).getSamples();
 	} catch(...) { 
@@ -318,21 +331,26 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 	      << *ifed << "/" << ichan;
 	  handleException( __func__, sss.str() ); 
 	} 
-
+	//@@ NEED FIX BELOW: pr.data.size() should be 256 * iconn->nApvPairs()
 	if ( !samples.empty() ) { 
-	  if ( pr.data.size() < static_cast<uint16_t>(256*(ipair+1)) ) { pr.data.resize( 256*(ipair+1) ); }
+	  if ( pr.data.size() < static_cast<uint16_t>(256*(ipair+1)) ) { 
+	    pr.data.reserve( 256*(ipair+1) ); pr.data.resize( 256*(ipair+1) ); 
+	  }
+	  int physical;
 	  for ( uint16_t i = 0; i < samples.size(); i++ ) {
-	    pr.data[ipair*256+i] = SiStripRawDigi( samples[i] ); 
+	    physical = i%128; 
+	    (i/128) ? physical=physical*2+1 : physical=physical*2; // multiplexed data
+	    pr.data[ipair*256+i] = SiStripRawDigi( samples[physical] ); 
 	  } 
 	}
 
       } else if ( mode == sistrip::FED_ZERO_SUPPR ) { 
 
-        if ( zero_suppr_vector.empty() ) { zero_suppr_vector.reserve(40000); }
-        zero_suppr_vector.push_back( edm::DetSet<SiStripDigi>(key) );
+        if (zero_suppr_vector.empty()) { zero_suppr_vector.reserve(1000); }
+        zero_suppr_vector.push_back(edm::DetSet<SiStripDigi>(key));
 	edm::DetSet<SiStripDigi>& zs = zero_suppr_vector.back();
-	
-	zs.data.reserve(768);
+
+	zs.data.reserve(256); // theoretical maximum (768/3, ie, clusters separated by at least 2 strips)
 	try{ 
 	  Fed9U::Fed9UEventIterator fed_iter = const_cast<Fed9U::Fed9UEventChannel&>(fedEvent_->channel( iunit, ichan )).getIterator();
 	  for (Fed9U::Fed9UEventIterator i = fed_iter+7; i.size() > 0; /**/) {
@@ -353,11 +371,11 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 
       } else if ( mode == sistrip::FED_ZERO_SUPPR_LITE ) { 
 	
-        if (zero_suppr_vector.empty()) { zero_suppr_vector.reserve(40000); }
+        if (zero_suppr_vector.empty()) { zero_suppr_vector.reserve(1000); }
         zero_suppr_vector.push_back(edm::DetSet<SiStripDigi>(key));
 	edm::DetSet<SiStripDigi>& zs = zero_suppr_vector.back();
 
-	zs.data.reserve(768); 
+	zs.data.reserve(256); // theoretical maximum (768/3, ie, clusters separated by at least 2 strips)
 	try {
 	  Fed9U::Fed9UEventIterator fed_iter = const_cast<Fed9U::Fed9UEventChannel&>(fedEvent_->channel( iunit, ichan )).getIterator();
 	  for (Fed9U::Fed9UEventIterator i = fed_iter+2; i.size() > 0; /**/) {
@@ -378,18 +396,16 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 	
       } else { // Unknown readout mode! => assume scope mode
 	
-	std::stringstream ss;
-	ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
-	   << " Unknown FED readout mode (" << mode
-	   << ")! Assuming SCOPE MODE..."; 
-  	edm::LogWarning(mlRawToDigi_) << ss.str();
+	if ( edm::isDebugEnabled() ) {
+	  std::stringstream ss;
+	  ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
+	     << " Unknown FED readout mode (" << mode
+	     << ")! Assuming SCOPE MODE..."; 
+	  edm::LogWarning(mlRawToDigi_) << ss.str();
+	}
 
-        if ( scope_mode_vector.empty() ) { scope_mode_vector.reserve(40000); }
-        scope_mode_vector.push_back( edm::DetSet<SiStripRawDigi>(key) );
-	edm::DetSet<SiStripRawDigi>& sm = scope_mode_vector.back();
-	
-	std::vector<uint16_t> samples; 
-	samples.reserve( 1024 ); // theoretical maximum
+	edm::DetSet<SiStripRawDigi>& sm = scope_mode.find_or_insert(key);
+	std::vector<uint16_t> samples; samples.reserve( 1024 ); // theoretical maximum
 	try {
    	  samples = fedEvent_->feUnit( iunit ).channel( ichan ).getSamples();
 	} catch(...) { 
@@ -398,144 +414,66 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 	      << *ifed << "/" << ichan;
 	  handleException( __func__, sss.str() ); 
 	} 
-
-	if ( !samples.empty() ) { 
-	  sm.data.clear(); 
-	  sm.data.resize( samples.size() ); 
-	  for ( uint16_t i = 0; i < samples.size(); i++ ) {
-	    sm.data[i] = SiStripRawDigi( samples[i] ); 
-	  }
- 	  std::stringstream ss;
- 	  ss << "Extracted " << samples.size() 
- 	     << " SCOPE MODE digis (samples[0] = " << samples[0] 
- 	     << ") from FED id/ch " 
- 	     << iconn->fedId() << "/" << iconn->fedCh();
- 	  //LogTrace(mlRawToDigi_) << ss.str();
-	} else {
+	if ( samples.empty() ) { 
  	  edm::LogWarning(mlRawToDigi_)
  	    << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
  	    << " No SM digis found!"; 
+	} else {
+	  sm.data.clear(); sm.data.reserve( samples.size() ); sm.data.resize( samples.size() ); 
+	  for ( uint16_t i = 0; i < samples.size(); i++ ) {
+	    sm.data[i] = SiStripRawDigi( samples[i] ); 
+	  }
+
+	  if ( edm::isDebugEnabled() ) {
+	    std::stringstream ss;
+	    ss << "Extracted " << samples.size() 
+	       << " SCOPE MODE digis (samples[0] = " << samples[0] 
+	       << ") from FED id/ch " 
+	       << iconn->fedId() << "/" << iconn->fedCh();
+	    //LogTrace(mlRawToDigi_) << ss.str();
+	  }
+
 	}
 
       }
 
     } // channel loop
   } // fed loop
-
-  // Populate final DetSetVector container with ZS data 
-  if ( !zero_suppr_vector.empty() ) {
-    
-    std::sort( zero_suppr_vector.begin(), zero_suppr_vector.end() );
-    std::vector< edm::DetSet<SiStripDigi> > sorted_and_merged;
-    sorted_and_merged.reserve( zero_suppr_vector.size() );
-    
-    edm::det_id_type old_id = 0;
-    std::vector< edm::DetSet<SiStripDigi> >::iterator ii = zero_suppr_vector.begin();
-    std::vector< edm::DetSet<SiStripDigi> >::iterator jj = zero_suppr_vector.end(); 
-    for ( ; ii != jj; ++ii ) {
-      if ( old_id == ii->detId() ) {
-	sorted_and_merged.back().data.insert( sorted_and_merged.back().end(), ii->begin(), ii->end() );
-      } else {
-	sorted_and_merged.push_back( *ii );
-	old_id = ii->detId();
-      }
-    }
-    
-    std::vector< edm::DetSet<SiStripDigi> >::iterator iii = sorted_and_merged.begin();
-    std::vector< edm::DetSet<SiStripDigi> >::iterator jjj = sorted_and_merged.end(); 
-    for ( ; iii != jjj; ++iii ) { std::sort( iii->begin(), iii->end() ); }
-    
-    edm::DetSetVector<SiStripDigi> zero_suppr_dsv( sorted_and_merged, true ); 
-    zero_suppr.swap( zero_suppr_dsv );
-    
-  } 
   
-  // Populate final DetSetVector container with VR data 
-  if ( !virgin_raw_vector.empty() ) {
-    
-    std::sort( virgin_raw_vector.begin(), virgin_raw_vector.end() );
-    std::vector< edm::DetSet<SiStripRawDigi> > sorted_and_merged;
-    sorted_and_merged.reserve( virgin_raw_vector.size() );
-    
-    edm::det_id_type old_id = 0;
-    std::vector< edm::DetSet<SiStripRawDigi> >::iterator ii = virgin_raw_vector.begin();
-    std::vector< edm::DetSet<SiStripRawDigi> >::iterator jj = virgin_raw_vector.end(); 
-    for ( ; ii != jj; ++ii ) {
-      if ( old_id == ii->detId() ) {
-	if ( ii->data.size() > sorted_and_merged.back().data.size() ) { sorted_and_merged.back().data.resize( ii->data.size() ); }
-	copy( ii->begin() + ii->data.size() - 256, 
-	      ii->begin() + ii->data.size(), 
-	      sorted_and_merged.back().data.begin() + ii->data.size() - 256 );
-      } else {
-	sorted_and_merged.push_back( *ii );
-	old_id = ii->detId();
-      }
-    }
-
-    edm::DetSetVector<SiStripRawDigi> virgin_raw_dsv( sorted_and_merged, true ); 
-    virgin_raw.swap( virgin_raw_dsv );
-
-  } 
-  
-  // Populate final DetSetVector container with PR data 
-  if ( !proc_raw_vector.empty() ) {
-    
-    std::sort( proc_raw_vector.begin(), proc_raw_vector.end() );
-    std::vector< edm::DetSet<SiStripRawDigi> > sorted_and_merged;
-    sorted_and_merged.reserve( proc_raw_vector.size() );
-    
-    edm::det_id_type old_id = 0;
-    std::vector< edm::DetSet<SiStripRawDigi> >::iterator ii = proc_raw_vector.begin();
-    std::vector< edm::DetSet<SiStripRawDigi> >::iterator jj = proc_raw_vector.end(); 
-    for ( ; ii != jj; ++ii ) {
-      if ( old_id == ii->detId() ) {
-	if ( ii->data.size() > sorted_and_merged.back().data.size() ) { sorted_and_merged.back().data.resize( ii->data.size() ); }
-	copy( ii->begin() + ii->data.size() - 256, 
-	      ii->begin() + ii->data.size(), 
-	      sorted_and_merged.back().data.begin() + ii->data.size() - 256 );
-      } else {
-	sorted_and_merged.push_back( *ii );
-	old_id = ii->detId();
-      }
-    }
-
-    edm::DetSetVector<SiStripRawDigi> proc_raw_dsv( sorted_and_merged, true ); 
-    proc_raw.swap( proc_raw_dsv );
-
-  } 
-  
-  // Populate final DetSetVector container with SM data 
-  if ( !scope_mode_vector.empty() ) {
-    
-    std::sort( scope_mode_vector.begin(), scope_mode_vector.end() );
-    std::vector< edm::DetSet<SiStripRawDigi> > sorted_and_merged;
-    sorted_and_merged.reserve( scope_mode_vector.size() );
-    
-    edm::det_id_type old_id = 0;
-    std::vector< edm::DetSet<SiStripRawDigi> >::iterator ii = scope_mode_vector.begin();
-    std::vector< edm::DetSet<SiStripRawDigi> >::iterator jj = scope_mode_vector.end(); 
-    for ( ; ii != jj; ++ii ) {
-      if ( old_id == ii->detId() ) {
-	if ( ii->data.size() > sorted_and_merged.back().data.size() ) { sorted_and_merged.back().data.resize( ii->data.size() ); }
-	copy( ii->begin() + ii->data.size() - 256, 
-	      ii->begin() + ii->data.size(), 
-	      sorted_and_merged.back().data.begin() + ii->data.size() - 256 );
-      } else {
-	sorted_and_merged.push_back( *ii );
-	old_id = ii->detId();
-      }
-    }
-
-    edm::DetSetVector<SiStripRawDigi> scope_mode_dsv( sorted_and_merged, true ); 
-    scope_mode.swap( scope_mode_dsv );
-
-  } 
-
   // Incrememt event counter
   event_++;
   
   if ( first_ ) { first_ = false; }
+ 
+  if (!zero_suppr_vector.empty()) {
+    // step 1: sort
+    std::sort(zero_suppr_vector.begin(), zero_suppr_vector.end());
+    // step 2: build output & merge
+    std::vector<edm::DetSet<SiStripDigi> >::iterator it = zero_suppr_vector.begin(), end = zero_suppr_vector.end();
+    
+    std::vector<edm::DetSet<SiStripDigi> > sorted_and_merged;
+    sorted_and_merged.reserve(zero_suppr_vector.size());
 
+    edm::det_id_type detid, oldid = 0;
+    for (std::vector<edm::DetSet<SiStripDigi> >::iterator it = zero_suppr_vector.begin(), end = zero_suppr_vector.end(); 
+            it != end; ++it) {
+        detid = it->detId();
+        if (oldid == detid) {
+            sorted_and_merged.back().data.insert(sorted_and_merged.back().end(), it->begin(), it->end());
+        } else {
+            sorted_and_merged.push_back(edm::DetSet<SiStripDigi>(detid));
+            sorted_and_merged.back().swap(*it);
+            oldid = detid;
+        }
+    }
+    
+    for (std::vector<edm::DetSet<SiStripDigi> >::iterator it = sorted_and_merged.begin(), end = sorted_and_merged.end(); 
+            it != end; ++it) {
+        std::sort(it->begin(), it->end());
+    }
+    edm::DetSetVector<SiStripDigi> zero_suppr_dsv(sorted_and_merged, true); 
+    zero_suppr.swap(zero_suppr_dsv);
+  } 
 }
 
 // -----------------------------------------------------------------------------
@@ -561,22 +499,26 @@ void SiStripRawToDigiUnpacker::triggerFed( const FEDRawDataCollection& buffers,
 	fedt_t* fed_trailer = reinterpret_cast<fedt_t*>( temp + trigger_fed.size() - sizeof(fedt_t) );
 	if ( fed_trailer->conscheck == 0xDEADFACE ) { 
 	  triggerFedId_ = ifed; 
-	  std::stringstream ss;
-	  ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
-	     << " Search mode for 'trigger FED' activated!"
-	     << " Found 'trigger FED' info with id " << triggerFedId_;
-	  LogTrace(mlRawToDigi_) << ss.str();
+	  if ( edm::isDebugEnabled() ) {
+	    std::stringstream ss;
+	    ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
+	       << " Search mode for 'trigger FED' activated!"
+	       << " Found 'trigger FED' info with id " << triggerFedId_;
+	    LogTrace(mlRawToDigi_) << ss.str();
+	  }
 	}
       }
       ifed++;
     }
     if ( triggerFedId_ < 0 ) {
       triggerFedId_ = 0;
-      std::stringstream ss;
-      ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
-	 << " Search mode for 'trigger FED' activated!"
-	 << " 'Trigger FED' info not found!";
-      edm::LogWarning(mlRawToDigi_) << ss.str();
+      if ( edm::isDebugEnabled() ) {
+	std::stringstream ss;
+	ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
+	   << " Search mode for 'trigger FED' activated!"
+	   << " 'Trigger FED' info not found!";
+	edm::LogWarning(mlRawToDigi_) << ss.str();
+      }
     }
     
   } else if ( triggerFedId_ > 0 ) { // "Trigger FED" id given in .cfg file
@@ -588,10 +530,12 @@ void SiStripRawToDigiUnpacker::triggerFed( const FEDRawDataCollection& buffers,
       size_u32 = trigger_fed.size()/sizeof(uint32_t) - sizeof(fedh_t)/sizeof(uint32_t) - 1;
       fedt_t* fed_trailer = reinterpret_cast<fedt_t*>( temp + trigger_fed.size() - sizeof(fedt_t) );
       if ( fed_trailer->conscheck != 0xDEADFACE ) { 
-	edm::LogWarning(mlRawToDigi_) 
-	  << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
-	  << " Unexpected stamp found in DAQ trailer (ie, not 0xDEADFACE)!"
-	  << " Buffer appears not to contain 'trigger FED' data!";
+	if ( edm::isDebugEnabled() ) {
+	  edm::LogWarning(mlRawToDigi_) 
+	    << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
+	    << " Unexpected stamp found in DAQ trailer (ie, not 0xDEADFACE)!"
+	    << " Buffer appears not to contain 'trigger FED' data!";
+	}
 	triggerFedId_ = 0; 
       }
     }
@@ -607,17 +551,21 @@ void SiStripRawToDigiUnpacker::triggerFed( const FEDRawDataCollection& buffers,
 
     // Some checks
     if ( !data_u32 ) {
-      std::stringstream ss;
-      ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
-	 << " NULL pointer to 'trigger FED' data";
-      edm::LogWarning(mlRawToDigi_) << ss.str();
+      if ( edm::isDebugEnabled() ) {
+	std::stringstream ss;
+	ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
+	   << " NULL pointer to 'trigger FED' data";
+	edm::LogWarning(mlRawToDigi_) << ss.str();
+      }
       return;
     } 
     if ( size_u32 < sizeof(TFHeaderDescription)/sizeof(uint32_t) ) {
-      std::stringstream ss;
-      ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
-	 << " Unexpected 'Trigger FED' data size [32-bit words]: " << size_u32;
-      edm::LogWarning(mlRawToDigi_) << ss.str();
+      if ( edm::isDebugEnabled() ) {
+	std::stringstream ss;
+	ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
+	   << " Unexpected 'Trigger FED' data size [32-bit words]: " << size_u32;
+	edm::LogWarning(mlRawToDigi_) << ss.str();
+      }
       return;
     }
     
@@ -636,11 +584,13 @@ void SiStripRawToDigiUnpacker::triggerFed( const FEDRawDataCollection& buffers,
 
   // Some debug
   if ( summary.isSet() && once_ ) {
-    std::stringstream ss;
-    ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
-       << " EventSummary built from \"trigger FED\":" 
-       << std::endl << summary;
-    LogTrace(mlRawToDigi_) << ss.str();
+    if ( edm::isDebugEnabled() ) {
+      std::stringstream ss;
+      ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
+	 << " EventSummary built from \"trigger FED\":" 
+	 << std::endl << summary;
+      LogTrace(mlRawToDigi_) << ss.str();
+    }
     once_ = false;
   }
   
@@ -662,11 +612,13 @@ void SiStripRawToDigiUnpacker::locateStartOfFedBuffer( const uint16_t& fed_id,
   if ( input.size() < 24 ) { 
     output.resize( input.size() ); // Return UNadjusted buffer start position and size
     memcpy( output.data(), input.data(), input.size() );
-    std::stringstream ss; 
-    ss << "[SiStripRawToDigiUnpacker::" << __func__ << "] "
-       << "Input FEDRawData with FED id " << fed_id 
-       << " has size " << input.size();
-    edm::LogWarning(mlRawToDigi_) << ss.str();
+    if ( edm::isDebugEnabled() ) {
+      std::stringstream ss; 
+      ss << "[SiStripRawToDigiUnpacker::" << __func__ << "] "
+	 << "Input FEDRawData with FED id " << fed_id 
+	 << " has size " << input.size();
+      edm::LogWarning(mlRawToDigi_) << ss.str();
+    }
     return;
   } 
   
@@ -678,10 +630,45 @@ void SiStripRawToDigiUnpacker::locateStartOfFedBuffer( const uint16_t& fed_id,
     uint32_t* input_u32   = reinterpret_cast<uint32_t*>( const_cast<unsigned char*>( input.data() ) + offset );
     uint32_t* fed_trailer = reinterpret_cast<uint32_t*>( const_cast<unsigned char*>( input.data() ) + input.size() - 8 );
 
-    if ( (input_u32[0]    & 0xF0000000) == 0x50000000 &&
-	 (fed_trailer[0]  & 0xF0000000) == 0xA0000000 && 
-	 ((fed_trailer[0] & 0x00FFFFFF) * 0x8) == (input.size() - offset) ) {
+    /*
 
+      Some info on FED buffer 32-bit word swapping. Table below
+      indicates if data are swapped relative to "old" VME format (as
+      orignally expected by Fed9UEvent)
+
+      | SWAPPED?    |         DATA FORMAT       |
+      | (wrt "OLD") | OLD (0xED)  | NEW (0xC5)  |
+      |             | VME | SLINK | VME | SLINK |
+      -------------------------------------------
+      | DAQ HEADER  |  N  |   Y   |  Y  |   Y   |
+      | TRK HEADER  |  N  |   Y   |  N  |   N   |
+      | PAYLOAD     |  N  |   Y   |  N  |   N   |
+      | DAQ TRAILER |  N  |   Y   |  Y  |   Y   |
+
+      So, in code, we check in code order of bytes in DAQ header/trailer only:
+      -> if "old_vme_header",           then old format read out via vme, so do nothing.
+      -> else if "old_slink_header",    then data mapy be wwapped, so check additionally the TRK header:
+      --> if "old_slink_payload",       then old format read out via slink, so swap all data;
+      --> else if "new_buffer_format",  then new format, handled internally by Fed9UEvent, so do nothing.
+
+     */
+    
+    bool old_vme_header = 
+      ( input_u32[0]    & 0xF0000000 ) == 0x50000000 &&
+      ( fed_trailer[0]  & 0xF0000000 ) == 0xA0000000 && 
+      ( (fed_trailer[0] & 0x00FFFFFF)*0x8 ) == (input.size() - offset);
+    
+    bool old_slink_header = 
+      ( input_u32[1]    & 0xF0000000 ) == 0x50000000 &&
+      ( fed_trailer[1]  & 0xF0000000 ) == 0xA0000000 &&
+      ( (fed_trailer[1] & 0x00FFFFFF)*0x8 ) == (input.size() - offset);
+
+    bool old_slink_payload = ( input_u32[3] & 0xFF000000 ) == 0xED000000;
+    
+    bool new_buffer_format = ( input_u32[2] & 0xFF000000 ) == 0xC5000000;
+    
+    if ( old_vme_header )  {
+      
       // Found DAQ header at byte position 'offset'
       found = true;
       output.resize( input.size()-offset );
@@ -689,39 +676,64 @@ void SiStripRawToDigiUnpacker::locateStartOfFedBuffer( const uint16_t& fed_id,
 	      input.data()+offset,   // source
 	      input.size()-offset ); // nbytes
       if ( headerBytes_ < 0 ) {
-	std::stringstream ss;
-	ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]" 
-	   << " Buffer for FED id " << fed_id 
-	   << " has been found at byte position " << offset
-	   << " with a size of " << input.size()-offset << " bytes."
-	   << " Adjust the configurable 'AppendedBytes' to " << offset;
-	LogTrace(mlRawToDigi_) << ss.str();
+	if ( edm::isDebugEnabled() ) {
+	  std::stringstream ss;
+	  ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]" 
+	     << " Buffer for FED id " << fed_id 
+	     << " has been found at byte position " << offset
+	     << " with a size of " << input.size()-offset << " bytes."
+	     << " Adjust the configurable 'AppendedBytes' to " << offset;
+	  LogTrace(mlRawToDigi_) << ss.str();
+	}
       }
+      
+    } else if ( old_slink_header ) {
+      
+      if ( old_slink_payload ) {
+      
+	// Found DAQ header (with MSB and LSB 32-bit words swapped) at byte position 'offset' 
+	found = true;
+	output.resize( input.size()-offset );
+	uint32_t* output_u32 = reinterpret_cast<uint32_t*>( const_cast<unsigned char*>( output.data() ) );
+	uint16_t iter = offset; 
+	while ( iter < output.size() / sizeof(uint32_t) ) {
+	  output_u32[iter] = input_u32[iter+1];
+	  output_u32[iter+1] = input_u32[iter];
+	  iter+=2;
+	}
+	if ( headerBytes_ < 0 ) {
+	  if ( edm::isDebugEnabled() ) {
+	    std::stringstream ss;
+	    ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]" 
+	       << " Buffer (with MSB and LSB 32-bit words swapped) for FED id " << fed_id 
+	       << " has been found at byte position " << offset
+	       << " with a size of " << output.size() << " bytes."
+	       << " Adjust the configurable 'AppendedBytes' to " << offset;
+	    LogTrace(mlRawToDigi_) << ss.str();
+	  }
+	}
 
-    } else if ( (input_u32[1]    & 0xF0000000) == 0x50000000 &&
-		(fed_trailer[1]  & 0xF0000000) == 0xA0000000 &&
-		((fed_trailer[1] & 0x00FFFFFF) * 0x8) == (input.size() - offset) ) {
-
-      // Found DAQ header (with MSB and LSB 32-bit words swapped) at byte position 'offset' 
-      found = true;
-      output.resize( input.size()-offset );
-      uint32_t* output_u32 = reinterpret_cast<uint32_t*>( const_cast<unsigned char*>( output.data() ) );
-      uint16_t iter = offset; 
-      while ( iter < output.size() / sizeof(uint32_t) ) {
-	output_u32[iter] = input_u32[iter+1];
-	output_u32[iter+1] = input_u32[iter];
-	iter+=2;
-      }
-      if ( headerBytes_ < 0 ) {
-	std::stringstream ss;
-	ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]" 
-	   << " Buffer (with MSB and LSB 32-bit words swapped) for FED id " << fed_id 
-	   << " has been found at byte position " << offset
-	   << " with a size of " << output.size() << " bytes."
-	   << " Adjust the configurable 'AppendedBytes' to " << offset;
-	LogTrace(mlRawToDigi_) << ss.str();
-      }
-
+      } else if ( new_buffer_format ) {
+	
+	// Found DAQ header at byte position 'offset'
+	found = true;
+	output.resize( input.size()-offset );
+	memcpy( output.data(),         // target
+		input.data()+offset,   // source
+		input.size()-offset ); // nbytes
+	if ( headerBytes_ < 0 ) {
+	  if ( edm::isDebugEnabled() ) {
+	    std::stringstream ss;
+	    ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]" 
+	       << " Buffer for FED id " << fed_id 
+	       << " has been found at byte position " << offset
+	       << " with a size of " << input.size()-offset << " bytes."
+	       << " Adjust the configurable 'AppendedBytes' to " << offset;
+	    LogTrace(mlRawToDigi_) << ss.str();
+	  }
+	}
+	
+      } else { headerBytes_ < 0 ? found = false : found = true; }
     } else { headerBytes_ < 0 ? found = false : found = true; }
     ichar++;
   }      
@@ -732,30 +744,34 @@ void SiStripRawToDigiUnpacker::locateStartOfFedBuffer( const uint16_t& fed_id,
     // Did not find DAQ header after search => return UNadjusted buffer start position and size
     output.resize( input.size() ); 
     memcpy( output.data(), input.data(), input.size() );
-    std::stringstream ss;
-    if ( headerBytes_ < 0 ) {
-      ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
-	 << " DAQ header not found within buffer for FED id: " << fed_id;
-    } else {
-      uint32_t* input_u32 = reinterpret_cast<uint32_t*>( const_cast<unsigned char*>( input.data() ) );
-      ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
-	 << " DAQ header not found at expected location for FED id: " << fed_id << std::endl
-	 << " First 64-bit word of buffer is 0x"
-	 << std::hex 
-	 << std::setfill('0') << std::setw(8) << input_u32[0] 
-	 << std::setfill('0') << std::setw(8) << input_u32[1] 
-	 << std::dec << std::endl
-	 << " Adjust 'AppendedBytes' configurable to '-1' to activate 'search mode'";
+    if ( edm::isDebugEnabled() ) {
+      std::stringstream ss;
+      if ( headerBytes_ < 0 ) {
+	ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
+	   << " DAQ header not found within buffer for FED id: " << fed_id;
+      } else {
+	uint32_t* input_u32 = reinterpret_cast<uint32_t*>( const_cast<unsigned char*>( input.data() ) );
+	ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
+	   << " DAQ header not found at expected location for FED id: " << fed_id << std::endl
+	   << " First 64-bit word of buffer is 0x"
+	   << std::hex 
+	   << std::setfill('0') << std::setw(8) << input_u32[0] 
+	   << std::setfill('0') << std::setw(8) << input_u32[1] 
+	   << std::dec << std::endl
+	   << " Adjust 'AppendedBytes' configurable to '-1' to activate 'search mode'";
+      }
+      edm::LogWarning(mlRawToDigi_) << ss.str();
     }
-    edm::LogWarning(mlRawToDigi_) << ss.str();
-
+    
   } else if ( output.size() < 24 ) { // Found DAQ header after search, but too few words
     
-    std::stringstream ss; 
-    ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
-       << " Unexpected buffer size! FEDRawData with FED id " << fed_id 
-       << " has size " << output.size();
-    edm::LogWarning(mlRawToDigi_) << ss.str();
+    if ( edm::isDebugEnabled() ) {
+      std::stringstream ss; 
+      ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
+	 << " Unexpected buffer size! FEDRawData with FED id " << fed_id 
+	 << " has size " << output.size();
+      edm::LogWarning(mlRawToDigi_) << ss.str();
+    }
 
   } 
   
@@ -787,11 +803,13 @@ void SiStripRawToDigiUnpacker::updateEventSummary( const Fed9U::Fed9UEvent* cons
     summary.commissioningInfo( daq1, daq2 );
     
     if ( summary.isSet() && once_ ) {
-      std::stringstream ss;
-      ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
-	 << " EventSummary built from FED DAQ registers:"
-	 << std::endl << summary;
-      LogTrace(mlRawToDigi_) << ss.str();
+      if ( edm::isDebugEnabled() ) {
+	std::stringstream ss;
+	ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
+	   << " EventSummary built from FED DAQ registers:"
+	   << std::endl << summary;
+	LogTrace(mlRawToDigi_) << ss.str();
+      }
       once_ = false;
     }
   }
@@ -902,41 +920,47 @@ void SiStripRawToDigiUnpacker::handleException( std::string method_name,
     //throw e; // rethrow cms::Exception to be caught by framework
   }
   catch ( const ICUtils::ICException& e ) {
-    std::stringstream ss;
-    ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
-       << " Caught ICUtils::ICException exception!" << std::endl;
-    if ( extra_info != "" ) { 
-      ss << " Information: " << extra_info << std::endl;
+    if ( edm::isDebugEnabled() ) {
+      std::stringstream ss;
+      ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
+	 << " Caught ICUtils::ICException exception!" << std::endl;
+      if ( extra_info != "" ) { 
+	ss << " Information: " << extra_info << std::endl;
+      }
+      ss << " Caught ICUtils::ICException in ["
+	 << method_name << "] with message:" << std::endl 
+	 << e.what();
+      edm::LogWarning(mlRawToDigi_) << ss.str();
     }
-    ss << " Caught ICUtils::ICException in ["
-       << method_name << "] with message:" << std::endl 
-       << e.what();
-    edm::LogWarning(mlRawToDigi_) << ss.str();
     //throw cms::Exception(mlRawToDigi_) << ss.str();
   }
   catch ( const std::exception& e ) {
-    std::stringstream ss;
-    ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
-       << " Caught std::exception!" << std::endl;
-    if ( extra_info != "" ) { 
-      ss << " Information: " << extra_info << std::endl;
+    if ( edm::isDebugEnabled() ) {
+      std::stringstream ss;
+      ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
+	 << " Caught std::exception!" << std::endl;
+      if ( extra_info != "" ) { 
+	ss << " Information: " << extra_info << std::endl;
+      }
+      ss << " Caught std::exception in ["
+	 << method_name << "] with message:" << std::endl 
+	 << e.what();
+      edm::LogWarning(mlRawToDigi_) << ss.str();
     }
-    ss << " Caught std::exception in ["
-       << method_name << "] with message:" << std::endl 
-       << e.what();
-    edm::LogWarning(mlRawToDigi_) << ss.str();
     //throw cms::Exception(mlRawToDigi_) << ss.str();
   }
   catch (...) {
-    std::stringstream ss;
-    ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
-       << " Caught unknown exception!" << std::endl;
-    if ( extra_info != "" ) { 
-      ss << " Information: " << extra_info << std::endl;
+    if ( edm::isDebugEnabled() ) {
+      std::stringstream ss;
+      ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
+	 << " Caught unknown exception!" << std::endl;
+      if ( extra_info != "" ) { 
+	ss << " Information: " << extra_info << std::endl;
+      }
+      ss << "Caught unknown exception in ["
+	 << method_name << "]" << std::endl;
+      edm::LogWarning(mlRawToDigi_) << ss.str();
     }
-    ss << "Caught unknown exception in ["
-       << method_name << "]" << std::endl;
-    edm::LogWarning(mlRawToDigi_) << ss.str();
     //throw cms::Exception(mlRawToDigi_) << ss.str();
   }
 }

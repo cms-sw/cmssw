@@ -1,2 +1,0 @@
-StripFedCabling_20X_mc
-SiStripNoise_Fake_PeakMode_20X_mc

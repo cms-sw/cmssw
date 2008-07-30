@@ -20,8 +20,13 @@ namespace evf
       virtual ~ModuleWeb(){}
       virtual void defaultWebPage(xgi::Input *in, xgi::Output *out); 
       virtual void publish(xdata::InfoSpace *) = 0;
+      virtual void publishToXmas(xdata::InfoSpace *){};
     protected:
       std::string moduleName_;
+    private:
+      virtual void openBackDoor(){};
+      virtual void closeBackDoor(){};
+      friend class ModuleWebRegistry;
     };
 }
 #endif

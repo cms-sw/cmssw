@@ -22,8 +22,7 @@ class TreeTrainer {
 	TreeTrainer(TTree *signal, TTree *background);
 	~TreeTrainer();
 
-	Calibration::MVAComputer *train(const std::string &trainDescription,
-	                                double crossValidation = 0.0);
+	Calibration::MVAComputer *train(const std::string &trainDescription);
 
 	// more precise control
 

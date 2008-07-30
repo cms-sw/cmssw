@@ -4,9 +4,11 @@
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h" 
 #include "DataFormats/TrajectoryState/interface/LocalTrajectoryParameters.h"
 
+#include "TrackingTools/TrajectoryState/interface/SurfaceSideDefinition.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
+using namespace SurfaceSideDefinition; // for beforeSurface etc.
 
 BzeroReferenceTrajectory::BzeroReferenceTrajectory(const TrajectoryStateOnSurface &refTsos,
 						   const TransientTrackingRecHit::ConstRecHitContainer

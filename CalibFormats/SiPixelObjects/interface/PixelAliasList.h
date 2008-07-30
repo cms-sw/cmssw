@@ -1,20 +1,11 @@
 #ifndef PixelAliasList_h
 #define PixelAliasList_h
-/*! \file CalibFormats/SiPixelObjects/interface/PixelAliasList.h
-*   \brief The class to handle 'aliases.txt'
-*
-*   A longer explanation will be placed here later
-*/
 
 #include "CalibFormats/SiPixelObjects/interface/PixelConfigAlias.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelVersionAlias.h"
 
 
 namespace pos{
-/*! \class PixelAliasList PixelAliasList.h "interface/PixelAliasList.h"
-*
-*   A longer explanation will be placed here later
-*/
   class PixelAliasList {
 
   public:
@@ -136,7 +127,6 @@ namespace pos{
       in.close();
     }
 
-
     void insertAlias(PixelConfigAlias& anAlias){
       for(unsigned int i=0;i<pixelConfigAliases_.size();i++){
 	if (pixelConfigAliases_[i].name()==anAlias.name()){
@@ -179,18 +169,6 @@ namespace pos{
       }
     }
 
-    std::vector<std::string> getVersionAliases(std::string path){
-      std::vector<std::string> tmp;
-      for(unsigned int i=0;i<pixelVersionAliases_.size();i++){
-	std::cout << "path alias:"<<pixelVersionAliases_[i].path()
-		  << pixelVersionAliases_[i].alias() << std::endl;
-	if (pixelVersionAliases_[i].path()==path){
-	  tmp.push_back(pixelVersionAliases_[i].alias());
-	}
-      }
-      return tmp;
-    }
-
 
     unsigned int getVersion(std::string path, std::string alias){
       for(unsigned int i=0;i<pixelVersionAliases_.size();i++){
@@ -214,5 +192,4 @@ namespace pos{
 
   };
 }
-
 #endif
