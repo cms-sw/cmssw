@@ -39,7 +39,7 @@ Ring 0 L0 : Width Tray 6:266.6, 5&4:325.6, 3:330.6, 2:341.6, 1:272.6
 //
 // Original Author:  Gobinda Majumder
 //         Created:  Fri Jul  6 17:17:21 CEST 2007
-// $Id$
+// $Id: AlCaHOCalibProducer.cc,v 1.14 2008/07/17 12:10:09 kodolova Exp $
 //
 //
 
@@ -206,10 +206,12 @@ class AlCaHOCalibProducer : public edm::EDProducer {
   std::string digiLabel;
   
   bool debug;
+  
+
   std::string theRootFileName;
   //  std::string thePedestalFile;
   //  TFile* theFile;
-
+#ifdef __DO_HISTOGRAMMING__
   TH1F* libhoped;
   TH1F* allhotime; // [netamx][nphimx];
   TH1F* hotime[ntrgp+1]; // [netamx][nphimx];
@@ -239,6 +241,7 @@ class AlCaHOCalibProducer : public edm::EDProducer {
   TH1F* hst_hb1pedrms;    
 
   TH1F* ho_occupency[5];  
+#endif 
 
   bool m_hotime;
 
@@ -327,7 +330,8 @@ AlCaHOCalibProducer::AlCaHOCalibProducer(const edm::ParameterSet& iConfig)
   //  produces<TrackCollection>("TrackCollection");
 
   
-
+#ifdef __DO_HISTOGRAMMING_
+_ 
   edm::Service<TFileService> fs;
 
   for (int i=0; i<nchnmx; i++) {ho_time[i] = hb_time[i] = 0.0;}
@@ -392,6 +396,7 @@ AlCaHOCalibProducer::AlCaHOCalibProducer(const edm::ParameterSet& iConfig)
     ho_occupency[i] = fs->make<TH1F>(title, title, netamx*nphimx, -0.5, netamx*nphimx-0.5); 
   }
   
+#endif
 
 }
 
@@ -403,6 +408,8 @@ AlCaHOCalibProducer::~AlCaHOCalibProducer()
    // (e.g. close files, deallocate resources etc.)
 
   // Write the histos to file
+
+#ifdef __DO_HISTOGRAMMING__
 
   if (m_hotime && m_digiInput) {
     //    theFile->cd();
@@ -440,7 +447,7 @@ AlCaHOCalibProducer::~AlCaHOCalibProducer()
   
   //  theFile->Write();
   //  theFile->Close();
-
+#endif
 }
 
 
@@ -480,12 +487,13 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    pedestal[tmpeta1][j][k] = calibped.pedestal(k); // pedm->getValue(k);
 	    pedestal[tmpeta1][j][ncidmx-1] += (1./(ncidmx-1))*pedestal[tmpeta1][j][k];
 	  }
-
+#ifdef __DO_HISTOGRAMMING__
 	  for (int k =0; k<ncidmx; k++) {
 	    libhoped->Fill(nphimx*ncidmx*tmpeta1 + ncidmx*j + k, pedestal[tmpeta1][j][k]);
 	    //	    if (k==0) {cout <<"ij "<<nphimx*tmpeta1+j<<" "<<tmpeta1<<" "<<i<<" "<<j+1<<endl;}
 
 	  }
+#endif
 	}
       }
     }
@@ -531,8 +539,10 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	int tmpeta1 = (tmpeta>0) ? tmpeta -1 : -tmpeta +14; 
 	for (int i=0; i<digi.size() && i<nchnmx; i++) {
 	  tmpdata[i] = m_coder->charge(*m_shape,digi.sample(i).adc(),digi.sample(i).capid());
+#ifdef __DO_HISTOGRAMMING__
 	  allhotime->Fill(nphimx*nchnmx*tmpeta1 + nchnmx*(tmpphi-1) + i, tmpdata[i]);
 	  Nallhotime->Fill(nphimx*nchnmx*tmpeta1 + nchnmx*(tmpphi-1) + i, 1.);
+#endif
 	}
       }
     }
@@ -552,6 +562,7 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	for (int i=0; i<digi.size() && i<nchnmx; i++) {
 	  float signal = m_coder->charge(*m_shape,digi.sample(i).adc(),digi.sample(i).capid());
 
+#ifdef __DO_HISTOGRAMMING__
 	  if (tmpdepth==1) { 
 	    allhb1->Fill(nphimx*nchnmx*tmpeta1 + nchnmx*(tmpphi-1) + i, signal);
 	    Nallhb1->Fill(nphimx*nchnmx*tmpeta1 + nchnmx*(tmpphi-1) + i, 1);
@@ -564,6 +575,7 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  if (tmpdepth==3) { 
 	    allhb3->Fill(nphimx*nchnmx*tmpeta1 + nchnmx*(tmpphi-1) + i, signal);
 	    Nallhb3->Fill(nphimx*nchnmx*tmpeta1 + nchnmx*(tmpphi-1) + i, 1);}
+#endif
 	}
       }
     }
@@ -1090,6 +1102,7 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		    for (int ij=0; ij<4; ij++) {
 		      pedx +=pedestal[tmpeta1][tmpphi-1][ij];
 		    }
+#ifdef __DO_HISTOGRAMMING__
 		    if (mxled-pedx >2 && mxled-pedx <20 ) {
 		      hopeak[ntrgp]->Fill(nphimx*tmpeta1 + tmpphi-1, imxled+nstrbn);
 		      for (int jk=0; jk<ntrgp; jk++) {
@@ -1113,6 +1126,7 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 			}
 		      }
 		    }
+#endif
 		  }
 		}
 	      }
@@ -1138,6 +1152,7 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		if (abs(ietaho) <=netabin && iphiho >0) {
 		  if ((iphiho >=1 && iphiho<=nphimx/2 && tmpphi >=1 && tmpphi <=nphimx/2) ||
 		      (iphiho >nphimx/2 && iphiho<=nphimx && tmpphi >nphimx/2 && tmpphi <=nphimx)) {
+#ifdef __DO_HISTOGRAMMING__
 		    if (isFilled[nphimx*tmpeta1+tmpphi-1]==0) {
 		      isFilled[nphimx*tmpeta1+tmpphi-1]=1;
 		      for (int i=0; i<digi.size() && i<nchnmx; i++) {
@@ -1146,6 +1161,7 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 			hopedpr->Fill(nphimx*nchnmx*tmpeta1 + nchnmx*(tmpphi-1) + i, tmpdata[i]);
 		      }
 		    } //isFilled
+#endif
 		  }
 		}
 	      }
@@ -1158,14 +1174,17 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	      signal += tmpdata[i] - pedestal[tmpeta1][tmpphi-1][digi.sample(i).capid()];
 	    }
 	    if (signal <-100 || signal >100000) signal = -100;
-	    
+
+#ifdef __DO_HISTOGRAMMING__	    
 	    if (signal >-100) {
 	      for (int i=0; i<5; i++) {
+
 		if (signal >i*m_sigma) {
 		  ho_occupency[i]->Fill(nphimx*tmpeta1+tmpphi-1);
 		}
 	      }
 	    }
+#endif
 	    
 	    if (ipass1 ==0 && ipass2 ==0 ) continue;
 
