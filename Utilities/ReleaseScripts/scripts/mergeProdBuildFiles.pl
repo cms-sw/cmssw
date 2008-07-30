@@ -7,16 +7,19 @@ use SCRAMGenUtils;
 $|=1;
 if(&GetOptions(
 	       "--dir=s",\$dir,
+	       "--release=s",\$rel,
 	       "--common",\$common,
 	       "--help",\$help,
 	      ) eq ""){print STDERR "#Wrong arguments.\n"; &usage_msg();}
 if(defined $help){&usage_msg();}
 if((!defined $dir) || ($dir=~/^\s*$/) || (!-d $dir)){print STDERR "Missing directory path where the newly auto generated BuildFiles exist.\n"; &usage_msg();}
+if((!defined $rel) || ($rel=~/^\s*$/) || (!-d $rel)){print STDERR "Missing Project release base.\n"; &usage_msg();}
 if(defined $common){$common=1;}
 else{$common=0;}
 $dir=&SCRAMGenUtils::fixPath($dir);
-my $release=&SCRAMGenUtils::scramReleaseTop($dir);
-if(!-d "${release}/.SCRAM"){print STDERR "ERROR: $dir is not under a SCRAM-based project.\n"; exit 1;}
+my $release=&SCRAMGenUtils::scramReleaseTop(&SCRAMGenUtils::fixPath($rel));
+if(!-d "${release}/.SCRAM"){print STDERR "ERROR: $rel is not under a SCRAM-based project.\n"; exit 1;}
+&SCRAMGenUtils::init ($release);
 my $scram_ver=&SCRAMGenUtils::scramVersion($release);
 if($scram_ver=~/^V1_0_/)
 {
@@ -24,7 +27,6 @@ if($scram_ver=~/^V1_0_/)
   print STDERR "\"$release\" is based on SCRAM version $scram_ver.\n";
   exit 1;
 }
-&SCRAMGenUtils::init ($release);
 &process($dir);
 exit 0;
 
@@ -128,9 +130,10 @@ sub process ()
 sub usage_msg() 
 {
   my $script=basename($0);
-  print "Usage: $script --dir <dir> [--common]\n\n";
-  print "  --dir    <dir>  Path of the directory where the newly generated BuildFile.auto files exist.\n";
-  print "  --common        To Search for common tools used by different products (library/bin) in a\n";
-  print "                  test/bin area and add those tools once in the BuildFile.\n";
+  print "Usage: $script --dir <dir> --release <path> [--common]\n\n";
+  print "  --dir     <dir>   Path of the directory where the newly generated BuildFile.auto files exist.\n";
+  print "  --release <path>  Path of SCRAM-based project release area.\n";
+  print "  --common          To Search for common tools used by different products (library/bin) in a\n";
+  print "                    test/bin area and add those tools once in the BuildFile.\n";
   exit 0;
 }

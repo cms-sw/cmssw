@@ -2,7 +2,10 @@
 use File::Basename;
 use lib dirname($0);
 use Getopt::Long;
+use File::Path;
 use SCRAMGenUtils;
+
+if(-t STDIN){die "Please run createBuildFile.pl script. $0 is not suppose to run directly.\n";}
 
 $|=1;
 #get the command-line options
@@ -101,6 +104,7 @@ if((!defined $tmpdir) || ($tmpdir=~/^\s*$/))
 
 my $ccfiles=0;
 my $isPackage=0;
+my $PackageName="";
 my $filestr="";
 if(scalar(@files)==0)
 {
@@ -133,7 +137,8 @@ if(scalar(@files)==0)
   else
   {
     $isPackage=1;
-    $prodname=&run_func("safename",$project,$dir);
+    $PackageName=$dir; $PackageName=~s/^$release\/src\///;
+    if ($prodname eq ""){$prodname=&run_func("safename",$project,$dir);}
   }
 }
 else
@@ -205,55 +210,20 @@ else
 }
 
 my $data={};
-$data->{EXTRA_TOOL_INFO}{opengl}{INCLUDE}{"/usr"}=1;
-$data->{EXTRA_TOOL_INFO}{opengl}{INCLUDE}{"/usr/include"}=1;
-$data->{EXTRA_TOOL_INFO}{opengl}{INCLUDE_SEARCH_REGEXP}{'^GL\/.+'}=1;
+$data->{files}={};
+$data->{filter}=$dir;
 
-$data->{EXTRA_TOOL_INFO}{'xerces-c'}{PRETOOL_INCLUDE_SEARCH_REGEXP}{'^xercesc\/.+'}=1;
+foreach my $f ("EDM_PLUGIN", "SEALPLUGIN", "SEAL_PLUGIN_NAME", "NO_LIB_CHECKING", "GENREFLEX_FAILES_ON_WARNS", "ROOTMAP", "ADD_SUBDIR", "CODEGENPATH"){$data->{sflags}{$f}=1;}
+foreach my $f ("CPPDEFINES"){$data->{keyflags}{$f}=1;}
 
-$data->{EXTRA_TOOL_INFO}{iguana}{FILES_PACKAGE_MAP}{'^classlib\/.+'}="Iguana/Utilities";
-$data->{EXTRA_TOOL_INFO}{iguana}{FILES_PACKAGE_MAP}{'^gl2ps.h$'}="Iguana/GL2PS";
-$data->{EXTRA_TOOL_INFO}{cmssw}{FILES_PACKAGE_MAP}{'^classlib\/.+'}="Iguana/Utilities";
-$data->{EXTRA_TOOL_INFO}{cmssw}{FILES_PACKAGE_MAP}{'^gl2ps.h$'}="Iguana/GL2PS";
-$data->{EXTRA_TOOL_INFO}{rootcore}{FILES_PACKAGE_MAP}{'^Reflex\/'}="rootrflx";
-$data->{EXTRA_TOOL_INFO}{rootcore}{FILES_PACKAGE_MAP}{'Math\/'}="rootmath";
-$data->{EXTRA_TOOL_INFO}{rootcore}{FILES_PACKAGE_MAP}{'^Minuit2\/'}="rootminuit2";
-$data->{EXTRA_TOOL_INFO}{rootcore}{FILES_PACKAGE_MAP}{'^Cintex\/'}="rootcintex";
-$data->{EXTRA_TOOL_INFO}{boost}{FILES_PACKAGE_MAP}{'^boost\/filesystem(\/|\.).+'}="boost_filesystem";
-$data->{EXTRA_TOOL_INFO}{boost}{FILES_PACKAGE_MAP}{'^boost\/program_options(\/|\.).+'}="boost_program_options";
-$data->{EXTRA_TOOL_INFO}{boost}{FILES_PACKAGE_MAP}{'^boost\/regex(\/|[\.\_]).+'}="boost_regex";
-$data->{EXTRA_TOOL_INFO}{boost}{FILES_PACKAGE_MAP}{'^boost\/python(\/|\.).+'}="boost_python";
-
-$data->{PRODUCT_SEARCH_PATHS}{PACK}{lib}=1;
-$data->{PRODUCT_SEARCH_PATHS}{PACK}{"test/lib"}=1;
-$data->{PRODUCT_SEARCH_PATHS}{PACK}{"tests/lib"}=1;
-
-$data->{PRODUCT_SEARCH_PATHS}{PROD}{bin}=1;
-$data->{PRODUCT_SEARCH_PATHS}{PROD}{"test/bin"}=1;
-$data->{PRODUCT_SEARCH_PATHS}{PROD}{"tests/bin"}=1;
-$data->{PRODUCT_SEARCH_PATHS}{PROD}{"test"}=1;
-$data->{PRODUCT_SEARCH_PATHS}{PROD}{"tests"}=1;
-
-$data->{REMOVE_TOOLS}{UtilitiesRFIOAdaptorPlugin}{castor}=1;
-
-$data->{EXTRA_TOOLS}{test_RFIOAdaptor_put}{castor}=1;
-$data->{EXTRA_TOOLS}{RFIOCastorPlugin}{castor}=1;
-$data->{EXTRA_TOOLS}{RFIODPMPlugin}{dpm}=1;
-
-$configfile=&SCRAMGenUtils::updateConfigFileData($configfile,$data,$caahe);
 $data->{bfflags}=[];
 foreach my $f (@flags){push @{$data->{bfflags}},$f;}
 
 my $cachedir="${tmpdir}/${scramarch}";
-if(!-d $cachedir){system("mkdir -p $cachedir");}
+my $incdir="${cachedir}/includes";
+if(!-d $incdir){system("mkdir -p $incdir");}
 my $cachefile="${cachedir}/toolcache";
-my $inccachefile="${cachedir}/include_chace.txt";
-my $prodfile="${cachedir}/product.cache";
 my $inccache={};
-$inccache->{INC}={};
-$inccache->{UNKNOWN}={};
-$inccache->{MSG}={};
-my $inccache_dirty=0;
 if((!defined $clean) && (-f "$cachefile"))
 {
   print STDERR "Reading previously save internal cache $cachefile.\n";
@@ -269,7 +239,6 @@ else
   &save_toolcache();
 }
 
-if(-f $inccachefile){$inccache=&SCRAMGenUtils::readHashCache($inccachefile);}
 if(exists $cache->{COMPILER})
 {
   $data->{compilecmd}=$cache->{COMPILER};
@@ -277,16 +246,8 @@ if(exists $cache->{COMPILER})
 }
 else{print STDERR "#WARNING: No compiler found. So script is not going to parse the file for seal plugin macros.\n";}
 
-foreach my $f ("EDM_PLUGIN", "SEALPLUGIN", "SEAL_PLUGIN_NAME", "NO_LIB_CHECKING", "GENREFLEX_FAILES_ON_WARNS", "ROOTMAP", "ADD_SUBDIR", "CODEGENPATH")
-{$data->{sflags}{$f}=1;}
-foreach my $f ("CPPDEFINES")
-{$data->{keyflags}{$f}=1;}
-$data->{filter}=$dir;
-$data->{files}={};
-$data->{searchPreprocessed}{sealplugin}{filter}='\s+seal\:\:ModuleDef\s+\*SEAL_MODULE\s+';
-$data->{searchPreprocessed}{edmplugin}{filter}='^\s*static\s+.+?\:\:PMaker\<.+\>\s+s_maker\d+\s+\(';
-$data->{searchPreprocessed}{main}{filter}='\bmain\s*\(';
-$data->{searchPreprocessed}{castor}{filter}='\brfio_[a-z]+';
+$configfile=&SCRAMGenUtils::updateConfigFileData($configfile,$data,$caahe);
+
 my $igletfile="";
 my $srcplugin="";
 my $srcedmplugin="";
@@ -346,7 +307,7 @@ if($refbf && (-f $refbf))
 if($isPackage){$prodtype="";}
 if($isPackage || ($prodtype eq "library"))
 {
-  delete $data->{searchPreprocessed}{main};
+  delete $data->{PROD_TYPE_SEARCH_RULES}{main};
   my $d=$dir;
   if($isPackage){$d="${dir}/${pkgsrcdir}";}
   elsif(scalar(@files)>0)
@@ -378,7 +339,6 @@ print STDERR "Reading source files\n";
 my $srcfiles=[];
 foreach my $file (@files)
 {
-  &process_cxx_file ($file,$data);
   if ($file=~/\.($srcext)$/i)
   {
     if($file!~/\.(f|f77)$/i){push @$srcfiles,$file;}
@@ -387,32 +347,48 @@ foreach my $file (@files)
 }
 if (scalar(@$srcfiles)>0)
 {
-  &SCRAMGenUtils::searchPreprocessedFile($srcfiles,$data,$exflags);
-  if((exists $data->{searchPreprocessed}{sealplugin}) && (exists $data->{searchPreprocessed}{sealplugin}{file}))
+  unlink "${cachedir}/searchPreprocessedInfo";
+  my $pid=fork();
+  if($pid==0)
   {
-    $srcplugin=$data->{searchPreprocessed}{sealplugin}{file};
-    delete $data->{searchPreprocessed}{sealplugin};
+    &SCRAMGenUtils::searchPreprocessedFile($srcfiles,$data,$exflags);
+    &SCRAMGenUtils::writeHashCache($data->{PROD_TYPE_SEARCH_RULES},"${cachedir}/searchPreprocessedInfo");
+    exit 0;
   }
-  if((exists $data->{searchPreprocessed}{edmplugin}) && (exists $data->{searchPreprocessed}{edmplugin}{file}))
+}
+foreach my $file (@files){&process_cxx_file ($file,$data);}
+my $bindeps=&getBinaryDependency($prodname);
+my $tid=&SCRAMGenUtils::startTimer ();
+wait();
+print STDERR "WAIT TIME:",&SCRAMGenUtils::stopTimer($tid),"\n";
+if ((scalar(@$srcfiles)>0) && (-f "${cachedir}/searchPreprocessedInfo"))
+{
+  $data->{PROD_TYPE_SEARCH_RULES}=&SCRAMGenUtils::readHashCache("${cachedir}/searchPreprocessedInfo");
+  if((exists $data->{PROD_TYPE_SEARCH_RULES}{sealplugin}) && (exists $data->{PROD_TYPE_SEARCH_RULES}{sealplugin}{file}))
   {
-    $srcedmplugin=$data->{searchPreprocessed}{edmplugin}{file};
-    delete $data->{searchPreprocessed}{edmplugin};
+    $srcplugin=$data->{PROD_TYPE_SEARCH_RULES}{sealplugin}{file};
+    delete $data->{PROD_TYPE_SEARCH_RULES}{sealplugin};
   }
-  if((exists $data->{searchPreprocessed}{main}) && (exists $data->{searchPreprocessed}{main}{file}))
+  if((exists $data->{PROD_TYPE_SEARCH_RULES}{edmplugin}) && (exists $data->{PROD_TYPE_SEARCH_RULES}{edmplugin}{file}))
   {
-    my $f=$data->{searchPreprocessed}{main}{file};
+    $srcedmplugin=$data->{PROD_TYPE_SEARCH_RULES}{edmplugin}{file};
+    delete $data->{PROD_TYPE_SEARCH_RULES}{edmplugin};
+  }
+  if((exists $data->{PROD_TYPE_SEARCH_RULES}{main}) && (exists $data->{PROD_TYPE_SEARCH_RULES}{main}{file}))
+  {
+    my $f=$data->{PROD_TYPE_SEARCH_RULES}{main}{file};
     if(($prodtype ne "") && ($prodtype ne "bin"))
     {print STDERR "\"$prodname\" seemed like a \"bin\" product because there is \"main()\" exists in \"f\" file.\n";}
     else{$prodtype="bin";}
     if($detail){print STDERR "Executable:$prodname:$f\n";}
-    delete $data->{searchPreprocessed}{main};
+    delete $data->{PROD_TYPE_SEARCH_RULES}{main};
   }
-  if((exists $data->{searchPreprocessed}{castor}) && (exists $data->{searchPreprocessed}{castor}{file}))
+  if((exists $data->{PROD_TYPE_SEARCH_RULES}{castor}) && (exists $data->{PROD_TYPE_SEARCH_RULES}{castor}{file}))
   {
-    my $f=$data->{searchPreprocessed}{castor}{file};
+    my $f=$data->{PROD_TYPE_SEARCH_RULES}{castor}{file};
     if($detail){print STDERR "Castor Dependency:$prodname:$f\n";}
     $castor=1;
-    delete $data->{searchPreprocessed}{castor};
+    delete $data->{PROD_TYPE_SEARCH_RULES}{castor};
   }
 }
 print STDERR "....\n";
@@ -454,8 +430,8 @@ my $defaultplugintype=uc(&run_func("defaultplugin",$project));
 if(($dir=~/\/sealplugins$/) || ($dir=~/\/plugins$/))
 {
   if($plugin <= 0){push @{$data->{bfflags}},"${defaultplugintype}PLUGIN=0";}
-  elsif(($srcplugin ne "") && ($defaultplugintype eq "EDM_")){push @{$data->{bfflags}},"SEALPLUGIN=1";}
-  elsif(($srcedmplugin ne "") && ($defaultplugintype eq "SEAL")){push @{$data->{bfflags}},"EDM_PLUGIN=1";}
+  elsif($srcedmplugin ne ""){push @{$data->{bfflags}},"EDM_PLUGIN=1";}
+  elsif($srcplugin ne ""){push @{$data->{bfflags}},"SEALPLUGIN=1";}
 }
 elsif($plugin>0)
 {
@@ -525,60 +501,27 @@ foreach my $x (keys %replace)
 foreach my $dep (keys %{$data->{deps}{src}})
 {if(exists $data->{replace}{$dep}){delete $data->{deps}{src}{$dep}; $data->{deps}{src}{$data->{replace}{$dep}}=1;}}
 
-my $xtools=0;
-foreach my $bt (keys %{$cache->{XBASETOOLS}})
+foreach my $u (keys %{$data->{deps}{src}})
 {
-  if(exists $data->{deps}{src}{$bt})
-  {foreach my $bt1 (keys %{$cache->{XBASETOOLS}{$bt}}){if(!exists $data->{deps}{src}{$bt1}){$xtools++;}}}
-}
-
-if((-f $prodfile) && (!-d STDIN))
-{
-  my $c=&SCRAMGenUtils::readHashCache($prodfile);
-  foreach my $u (keys %{$data->{deps}{src}})
+  my $rep=&parentCommunication("PRODUCT_INFO",$u);
+  my $exprocess=0;
+  if ($rep ne "NOT_EXISTS") 
   {
-    my $u1=&run_func("safename",$project,"${release}/src/${u}");
-    if ($u1 ne "")
-    {
-      my $rep=&parentCommunication("PRODUCT_INFO:$u1");
-      if ($rep ne "NOT_EXISTS")
-      {
-        if ($rep eq "PROCESS"){&parentCommunication("PLEASE_PROCESS_FIRST:$u");}
-      }
-      elsif((-d "${release}/src/${u}/${pkgsrcdir}") || (-d "${release}/src/${u}/${pkginterfacedir}"))
-      {
-	my $nbfile="${tmpdir}/newBuildFile/src/${u}/BuildFile.auto";
-	if ($xml){$nbfile="${tmpdir}/newBuildFile/src/${u}/BuildFile.xml.auto";}
-	if(!-f $nbfile)
-	{
-	  my $cmd="$0 --dir ${release}/src/${u} --buildfile $nbfile $xml ";
-	  if($configfile ne ""){$cmd.=" --config $configfile";}
-	  if($tmpdir ne ""){$cmd.=" --tmpdir $tmpdir";}
-	  if($jobs ne ""){$cmd.=" --jobs $jobs";}
-	  if($detail){$cmd.=" --detail";}
-	  print STDERR "MSG: Running $cmd\n";
-	  system("cd $pwd; $cmd");
-	  if(!-f $nbfile)
-	  {
-	    system("mkdir -p ${tmpdir}/newBuildFile/src/${u}");
-	    if($xml){system("echo \"<export>\n  <flags DummyFlagToAvoidSCRAMWarning=\"0\">\n</export>\" > $nbfile");}
-	    else{system("echo \"<export>\n  <flags DummyFlagToAvoidSCRAMWarning=\"0\"/>\n</export>\" > $nbfile");}
-	  }
-	}
-      }
-    }
+    if ($rep eq "PROCESS"){&parentCommunication("PLEASE_PROCESS_FIRST",$u);$exprocess=1;}
+  }
+  elsif((-d "${release}/src/${u}/${pkgsrcdir}") || (-d "${release}/src/${u}/${pkginterfacedir}")){&parentCommunication("PLEASE_PROCESS_FIRST",$u);$exprocess=1;}
+  if($detail && $exprocess){print STDERR "###### Back to processing of $prodname  #######\n";}
+  my $rep=&parentCommunication("PACKAGE_TYPE",$u);
+  if ($rep!~/^(TOOL|PACK)$/)
+  {
+    delete $data->{deps}{src}{$u};
+    if ($detail){print STDERR "Deleting dependency \"$u\" due to its type \"$rep\"\n";}
   }
 }
 
 if(exists $data->{deps}{src}{castor}){$castor=0;}
-
-my $sbuildfile="";
-my $prodname1=$prodname;
-if($srcedmplugin ne ""){$prodname1="plugin${prodname}.so";}
-elsif($prodtype eq "bin"){$prodname1=$prodname;}
-else{$prodname1="lib${prodname}.so";}
-&symbolCheck($prodname1);
-&extraProcessing($prodname);
+&symbolCheck($bindeps);
+&extraProcessing($prodname,$dir);
 &SCRAMGenUtils::removeExtraLib ($cache,$data);
 &SCRAMGenUtils::printBuildFile($data, "$buildfilename");
 &final_exit("",0);
@@ -587,84 +530,225 @@ else{$prodname1="lib${prodname}.so";}
 sub findProductInRelease ()
 {
   my $prod=shift;
-  my $path="";
-  if ($prod=~/\.so$/)
+  foreach my $dir ($release,$releasetop)
   {
-    foreach my $d (keys %{$data->{PRODUCT_SEARCH_PATHS}{PACK}})
+    if($dir eq ""){next;}
+    foreach my $xd (keys %{$data->{PRODUCT_SEARCH_PATHS}{PACK}})
     {
-      foreach my $dir ($release,$releasetop)
+      foreach my $d ("${xd}/${scramarch}","${scramarch}/${xd}")
       {
-        if($dir eq ""){next;}
-	if(-f "${dir}/${d}/${scramarch}/${prod}"){$path="${dir}/${d}/${scramarch}/${prod}";last;}
-        elsif(-f "${dir}/${scramarch}/${d}/${prod}"){$path="${dir}/${d}/${scramarch}/${prod}";last;}
+        if (!-d "${dir}/${d}"){next;}
+	if(-f "${dir}/${d}/lib${prod}.so"){return "${dir}/${d}/lib${prod}.so";}
+        elsif(-f "${dir}/${d}/plugin${prod}.so"){return "${dir}/${d}/plugin${prod}.so";}
+      }
+    }
+    foreach my $xd (keys %{$data->{PRODUCT_SEARCH_PATHS}{PROD}})
+    {
+      foreach my $d ("${xd}/${scramarch}","${scramarch}/${xd}")
+      {
+        if (!-d "${dir}/${d}"){next;}
+	if(-f "${dir}/${d}/${prod}"){return "${dir}/${d}/${prod}";}
       }
     }
   }
-  else
-  {
-    foreach my $d (keys %{$data->{PRODUCT_SEARCH_PATHS}{PROD}})
-    {
-      foreach my $dir ($release,$releasetop)
-      {
-        if($dir eq ""){next;}
-	if(-f "${dir}/${d}/${scramarch}/${prod}"){$path="${dir}/${d}/${scramarch}/${prod}";last;}
-        elsif(-f "${dir}/${scramarch}/${d}/${prod}"){$path="${dir}/${d}/${scramarch}/${prod}";last;}
-      }
-    }
-  }
-  return $path;
+  return "";
 }
 
 sub extraProcessing ()
 {
   my $p=shift;
-  foreach my $t (keys %{$data->{EXTRA_TOOLS}{$p}}){$data->{deps}{src}{$t}=1;print STDERR "Added dependency(forced):$t\n";}
+  my $dir=shift;
+  if (exists $data->{EXTRA_TOOLS}{PRODUCTS})
+  {
+    my $c=$data->{EXTRA_TOOLS}{PRODUCTS};
+    foreach my $exp (keys %$c)
+    {if ($p=~/$exp/){foreach my $t (keys %{$c->{$exp}}){if (!exists $data->{deps}{src}{$t}){$data->{deps}{src}{$t}=1;print STDERR "Added dependency(forced):$t\n";}}}}
+  }
+  if (exists $data->{EXTRA_TOOLS}{PATHS})
+  {
+    my $c=$data->{EXTRA_TOOLS}{PATHS};
+    foreach my $exp (keys %$c)
+    {if ($dir=~/$exp/){foreach my $t (keys %{$c->{$exp}}){if (!exists $data->{deps}{src}{$t}){$data->{deps}{src}{$t}=1;print STDERR "Added dependency(forced):$t\n";}}}}
+  }
   if (exists $data->{deps}{src})
   {
-    foreach my $t (keys %{$data->{REMOVE_TOOLS}{$p}})
-    {if(exists $data->{deps}{src}{$t}){delete $data->{deps}{src}{$t};print STDERR "Removed dependency(forced):$t\n";}}
+    if (exists $data->{EXTRA_TOOLS}{HASDEPS})
+    {
+      my $c=$data->{EXTRA_TOOLS}{HASDEPS};
+      foreach my $t (keys %$c)
+      {
+        if(exists $data->{deps}{src}{$t})
+	{
+	  foreach my $d (keys %{$c->{$t}})
+	  {
+	    if((!exists $data->{deps}{src}{$d}) && (!$isPackage || ($PackageName ne $d))){$data->{deps}{src}{$d}=1;print STDERR "Added dependency(forced):$d (due to $t)\n";}
+	  }
+	}
+      }	
+    }
+    if (exists $data->{REMOVE_TOOLS}{PRODUCTS})
+    {
+      my $c=$data->{REMOVE_TOOLS}{PRODUCTS};
+      foreach my $exp (keys %$c)
+      {if ($p=~/$exp/){foreach my $t (keys %{$c->{$exp}}){if (exists $data->{deps}{src}{$t}){delete $data->{deps}{src}{$t};print STDERR "Removed dependency(forced):$t\n";}}}}
+    }
+    if (exists $data->{REMOVE_TOOLS}{PATHS})
+    {
+      my $c=$data->{REMOVE_TOOLS}{PATHS};
+      foreach my $exp (keys %$c)
+      {if ($dir=~/$exp/){foreach my $t (keys %{$c->{$exp}}){if (exists $data->{deps}{src}{$t}){delete $data->{deps}{src}{$t};print STDERR "Removed dependency(forced):$t\n";}}}}
+    }
   }
+  if(exists $data->{flags})
+  {
+    if (exists $data->{REMOVE_FLAGS}{PRODUCTS})
+    {
+      my $c=$data->{REMOVE_FLAGS}{PRODUCTS};
+      foreach my $exp (keys %$c)
+      {if ($p=~/$exp/){foreach my $f (keys %{$c->{$exp}}){if (exists $data->{flags}{$f}){delete $data->{flags}{$f};print STDERR "Removed flag(forced):$f\n";}}}}
+    }
+    if (exists $data->{REMOVE_FLAGS}{PATHS})
+    {
+      my $c=$data->{REMOVE_FLAGS}{PATHS};
+      foreach my $exp (keys %$c)
+      {if ($dir=~/$exp/){foreach my $f (keys %{$c->{$exp}}){if (exists $data->{flags}{$f}){delete $data->{flags}{$f};print STDERR "Removed flag(forced):$f\n";}}}}
+    }
+  }
+}
+
+sub getBinaryDependency()
+{
+  my $p1=shift;
+  my $ts={};
+  my $p=&findProductInRelease($p1);
+  if ($p eq ""){print STDERR "WARNING: Could not find product:$p1\n";return $ts;}
+  my $res=&parentCommunication("SYMBOL_CHECK_REQUEST",$p);
+  if ($res ne "")
+  {
+    $ts=&SCRAMGenUtils::readHashCache($res);
+    unlink $res;
+  }
+  return $ts;
+}
+
+sub processBinaryDeps ()
+{
+  my $ts=shift;
+  my $depstr=join(",",keys %{$data->{deps}{src}});
+  my %done=();
+  my %btools=();
+  foreach my $s (keys %$ts)
+  {
+    foreach my $t (keys %{$ts->{$s}})
+    {
+      if (exists $done{$t}){if ($done{$t}==1){delete $ts->{$s};last;}}
+      my $d=0;
+      if ((exists $data->{deps}{src}{$t}) || (exists $data->{IGNORE_SYMBOL_TOOLS}{$t})){$d=1;}
+      else
+      {
+        my $skip=0;
+	if (exists $cache->{BASETOOLS}{$t})
+	{
+	  foreach my $t1 (keys %{$cache->{BASETOOLS}{$t}})
+	  {
+	    if(exists $data->{deps}{src}{$t1}){$skip=1;$btools{$t1}=1;last;}
+	  }
+	}
+	if(!$skip)
+	{
+	  my $res=&parentCommunication("HAVE_DEPS","$depstr:$t");
+          if ($res=~/^YES:(.+)/){print "DELETING Indirectly exists via:$t ($1)\n";$d=1;}
+	}
+      }
+      $done{$t}=$d;
+      if($d){delete $ts->{$s};last;}
+    }
+  }
+  foreach my $t (keys %btools){delete $data->{deps}{src}{$t};print STDERR "DELETED BASE TOOL:$t\n";}
+  my $symcount=keys %$ts;
+  my $tsx={};
+  foreach my $s (keys %$ts)
+  {
+    my @t=keys %{$ts->{$s}};
+    if(scalar(@t)==1)
+    {
+      $tsx->{$t[0]}{$s}=$ts->{$s}{$t[0]};
+      delete $ts->{$s};
+      $symcount--;
+    }
+  }
+  if ($symcount)
+  {
+    foreach my $t (keys %$tsx){foreach my $s (keys %$ts){if(exists $ts->{$s}{$t}){delete $ts->{$s};$symcount--;}}}
+    if ($symcount)
+    {
+      foreach my $s (keys %$ts)
+      {
+        foreach my $t (keys %{$data->{SAME_LIB_TOOL}})
+	{
+	  if(exists $ts->{$s}{$t})
+	  {
+	    foreach my $t1 (keys %{$data->{SAME_LIB_TOOL}{$t}}){if(exists $ts->{$s}{$t1}){delete $ts->{$s}{$t1};}}
+	    if(scalar(keys %{$ts->{$s}})==1){$tsx->{$t}{$s}=$ts->{$s}{$t};delete $ts->{$s};$symcount--;last;}
+	  }
+	}
+      }
+    }
+    if ($symcount && (defined $cacherefbf) && (exists $cacherefbf->{use}))
+    {
+      foreach my $s (keys %$ts)
+      {
+        foreach my $t (keys %{$ts->{$s}}){if(exists $cacherefbf->{use}{$t}){$tsx->{$t}{$s}=$ts->{$s}{$t};delete $ts->{$s};$symcount--;last;}}
+      }
+    }
+  }
+  my $depstr=join(",",keys %$tsx);
+  foreach my $t (keys %$tsx)
+  {
+    my $res=&parentCommunication("HAVE_DEPS","$depstr:$t");
+    if ($res=~/^YES:(.+)/){delete $tsx->{$t};print STDERR "1:DELETING Indirectly exists via:$t ($1)\n";}
+  }
+  if ($symcount)
+  {
+    print STDERR "WARNING: Following symbols are defined in multiple tools/packages\n";
+    foreach my $s (keys %$ts)
+    {
+      my $s1=&SCRAMGenUtils::cppFilt ($s);
+      print STDERR "  Symbol:$s1\n";
+      foreach my $t (keys %{$ts->{$s}}){print STDERR "    Tool:$t\n";}
+    }
+  }
+  return $tsx;
 }
 
 sub symbolCheck()
 {
-  my $p1=shift;
-  my $p=&findProductInRelease($p1);
-  if ($p eq ""){print STDERR "WARNING: Could not find product:$p1\n";return;}
-  my $res=&parentCommunication("SYMBOL_CHECK_REQUEST:$p:".join(",",keys %{$data->{deps}{src}}));
-  if ($res ne "")
+  my $tsx=&processBinaryDeps(shift);
+  foreach my $t (keys %$tsx)
   {
-    my %tsx=();
-    foreach my $d (split /\s+/,$res)
+    if (exists $data->{deps}{src}{$t}){next;}
+    elsif(exists $data->{NO_USE}{$t}){next;}
+    elsif(exists $data->{NO_EXPORT}{$t}){next;}
+    $data->{deps}{src}{$t}=1;
+    print STDERR "EXTRA TOOL due to missing symbols:$t\n";
+    print STDERR "  SYMBOLS FOUND:\n";
+    foreach my $s (keys %{$tsx->{$t}})
     {
-      my @x=split /:/,$d;
-      if(@x==3){$tsx{$x[0]}{$x[1]}=$x[2];}
-    }
-    foreach my $t (keys %tsx)
-    {
-      if (exists $data->{deps}{src}{$t}){next;}
-      elsif(exists $data->{NO_USE}{$t}){next;}
-      elsif(exists $data->{NO_EXPORT}{$t}){next;}
-      $data->{deps}{src}{$t}=1;
-      print STDERR "EXTRA TOOL due to missing symbols:$t\n";
-      print STDERR "  SYMBOLS FOUND:\n";
-      foreach my $s (keys %{$tsx{$t}})
-      {
-        my $s1=&SCRAMGenUtils::cppFilt ($s);
-        print STDERR "    $s1 =>$tsx{$t}{$s}\n";
-      }
+      my $s1=&SCRAMGenUtils::cppFilt ($s);
+      print STDERR "    $s1 =>$tsx->{$t}{$s}\n";
     }
   }
 }
 
 sub parentCommunication ()
 {
+  my $req=shift;
   my $msg=shift;
-  my $res=$msg;$res=~s/^([^:]+):.*/$1/; $res.="_DONE";
-  print "$msg\n";
+  print "$req:$msg\n";
+  $req.="_DONE";
   my $rep=<STDIN>;chomp $rep;
-  if($rep=~/^$res:\s*(.*)$/){$rep=$1;}
-  else{print STDERR "$res FAILED\n$rep\n";$rep="";}
+  if($rep=~/^$req:\s*(.*)$/){$rep=$1;}
+  else{print STDERR "$req FAILED\n$rep\n";$rep="";}
   return $rep;
 }
 
@@ -699,7 +783,6 @@ sub process_cxx_file ()
 	my $id="";
 	my $info = &find_inc_file_path($inc);
 	my $fpath=$info->{fullpath};
-	#print STDERR "MSG:$inc:$fpath:",$info->{pack},"\n";
 	if($fpath ne "")
 	{
 	  if ($fpath=~/^${filter}\/.+$/){&process_cxx_file ($fpath,$data);}
@@ -707,7 +790,6 @@ sub process_cxx_file ()
 	  {
 	    foreach my $pack (keys %{$info->{pack}})
 	    {
-	      #print STDERR "#$inc:$fpath:$pack\n";
 	      if(("$pack" ne "$project") && ("$pack" ne "self"))
 	      {
 	        if($isPackage)
@@ -717,22 +799,52 @@ sub process_cxx_file ()
 	        }
 	        else{$data->{deps}{src}{$pack}=1;}
 	      }
-	      if($detail && (!exists $inccache->{MSG}{$inc})){$inccache->{MSG}{$inc}=1;print STDERR "#$ainc=>$pack\n";}
+	      if($detail && ($info->{new}==1)){$info->{new}=2;print STDERR "#$ainc=>$pack\n";}
 	    }
 	  }
 	}
-	elsif($detail && (!exists $inccache->{MSG}{$inc})){$inccache->{MSG}{$inc}=1;print STDERR "#$ainc:UNKNOWN (might be from system directories)\n";}
+	elsif($detail && ($info->{new}==1)){$info->{new}=2;print STDERR "#$ainc:UNKNOWN (might be from system directories)\n";}
       }
     }
   }
+}
+
+sub read_inc_cache()
+{
+  my $inc=shift;
+  if (-z "${incdir}/${inc}/.info"){$inccache->{UNKNOWN}{$inc}=1;$inccache->{INC}{$inc}={};}
+  else
+  {
+    my $ref;
+    open($ref,"${incdir}/${inc}/.info") || die "Can not open file for reading:${incdir}/${inc}/.info\n";
+    my $line=<$ref>; chomp $line;
+    foreach my $p (split /:/,$line){$inccache->{INC}{$inc}{pack}{$p}=1;}
+    $line=<$ref>; chomp $line;
+    $inccache->{INC}{$inc}{fullpath}=$line;
+    close($ref);
+  }
+  return $inccache->{INC}{$inc};
+}
+
+sub write_inc_cache()
+{
+  my $inc=shift;
+  my $ref;
+  open($ref,">${incdir}/${inc}/.info") || die "Can not open file for writing:${incdir}/${inc}/.info\n";
+  if (!exists $inccache->{UNKNOWN}{$inc})
+  {
+    print $ref "",join(":",keys %{$inccache->{INC}{$inc}{pack}}),"\n";
+    print $ref "",$inccache->{INC}{$inc}{fullpath},"\n";
+  }
+  close($ref);
 }
 
 sub find_inc_file_path ()
 {
   my $inc=shift;
   if (exists $inccache->{INC}{$inc}){return $inccache->{INC}{$inc};}
-  $inccache->{INC}{$inc}={};
-  $inccache_dirty=1;
+  elsif(-f "${incdir}/${inc}/.info"){return &read_inc_cache($inc);}
+  $inccache->{INC}{$inc}{new}=1;
   my $c=$inccache->{INC}{$inc};
   if(exists $data->{extra_include_path})
   {
@@ -810,6 +922,7 @@ sub find_inc_file_path ()
 	  {
 	    $c->{pack}{$t}=1;
 	    $c->{fullpath}="${d}/${inc}";
+	    $c->{new}=1;
 	    return $c;
 	  }
 	}
@@ -839,8 +952,26 @@ sub save_toolcache()
     system("mkdir -p $dir");
     &SCRAMGenUtils::writeHashCache($cache,"$cachefile");
   }
-  if($inccache_dirty){&SCRAMGenUtils::writeHashCache($inccache,$inccachefile);}
-  $inccache_dirty=0;
+  my %dirs=();
+  my %newinc=();
+  my $ndir=0;
+  foreach my $inc (keys %{$inccache->{INC}})
+  {
+    if (exists $inccache->{INC}{$inc}{new})
+    {
+      $newinc{$inc}=1;
+      my $d=\%dirs;
+      $ndir=1;
+      foreach my $x (split /\//,$inc)
+      {
+	if($x eq ""){next;}
+	$d->{$x} ||={};
+	$d=$d->{$x};
+      }
+    }
+  }
+  if ($ndir){mkpath(&SCRAMGenUtils::findUniqDirs(\%dirs,$incdir),0,0755);}
+  foreach my $inc (keys %newinc){&write_inc_cache($inc);}
 }
 
 sub commaSepDeps ()

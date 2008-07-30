@@ -17,8 +17,13 @@ if(&GetOptions(
 	       "--jobs=i",\$jobs,
 	       "--detail",\$detail,
 	       "--xml",\$xml,
+	       "--merge",\$merge,
 	       "--help",\$help,
               ) eq ""){print STDERR "#Wrong arguments.\n"; &usage_msg();}
+
+my $sdir=dirname($0);
+my $pwd=`/bin/pwd`; chomp $pwd; $pwd=&SCRAMGenUtils::fixPath($pwd);
+if ($sdir!~/^\//){$sdir=&SCRAMGenUtils::fixPath("${pwd}/${sdir}");}
 
 my $xconfig="";
 my $xjobs=10;
@@ -27,10 +32,8 @@ if(defined $detail){$detail="--detail";}
 if(defined $xml){$xml=1;}
 else{$xml=0;}
 if(defined $jobs){$xjobs=$jobs; $jobs="--jobs $jobs";}
-if(defined $configfile){$xconfig=$configfile;$configfile="--config $configfile";}
-
-my $sdir=dirname($0);
-my $pwd=`/bin/pwd`; chomp $pwd; $pwd=&SCRAMGenUtils::fixPath($pwd);
+if(defined $configfile){$xconfig=$configfile;$configfile="--config $xconfig";}
+elsif(-f "${sdir}/createBuildFile.conf"){$xconfig="${sdir}/createBuildFile.conf";$configfile="--config $xconfig";}
 
 if((!defined $dir) || ($dir=~/^\s*$/)){print "ERROR: Missing SCRAM-based project release path.\n"; exit 1;}
 if($dir!~/^\//){$dir="${pwd}/${dir}";}
@@ -53,29 +56,22 @@ my $tmpdir="${release}/tmp/AutoBuildFile";
 if($pwd!~/^$release(\/.*|)$/){$tmpdir="${pwd}/AutoBuildFile";}
 
 my $scramarch=&SCRAMGenUtils::getScramArch();
+my $data={};
 my $cache={};
 my $pcache={};
 my $projcache={};
 my $locprojcache={};
 my $cachedir="${tmpdir}/${scramarch}";
+my $depsdir="${cachedir}/new_pack_deps";
 my $symboldir="${cachedir}/symbols";
 my $bferrordir="${cachedir}/bferrordir";
 my $cfile="${cachedir}/product.cache";
 my $pcfile="${cachedir}/project.cache";
-my $inccachefile="${cachedir}/include_chace.txt";
 my $xmlbf="BuildFile.xml";
-
-my $data={};
-$data->{IGNORE_SYMBOL_TOOLS}{tcmalloc}=1;
-$data->{IGNORE_SYMBOL_TOOLS}{tcmalloc_minimal}=1;
-$data->{SAME_LIB_TOOL}{roothistmatrix}{rootgraphics}=1;
-$data->{SAME_LIB_TOOL}{rootphysics}{rootgraphics}=1;
-
 
 &SCRAMGenUtils::updateConfigFileData ($xconfig,$data);
 
-if(!-d "$symboldir"){system("mkdir -p $symboldir");}
-system("rm -f $inccachefile");
+if(!-d "$symboldir"){system("mkdir -p $symboldir $depsdir");}
 &initCache($dir);
 
 foreach my $p (@prod)
@@ -104,13 +100,38 @@ foreach my $p (@packs)
 {
   foreach my $p1 (split /\s*,\s*/,$p)
   {
-    $p1=&run_func("safename",$project,"${release}/src/${p1}");
-    if($p1){print "Working on $p1\n";&processProd($p1);}
+    if (exists $pcache->{packmap}{$p1}){$p1=$pcache->{packmap}{$p1};}
+    else{$p1=&run_func("safename",$project,"${release}/src/${p1}");}
+    if($p1){&processProd($p1);}
   }
 }
 if(scalar(@prod)==0){foreach my $f (keys %$cache){&processProd($f);}}
 else{foreach my $p (@prod){&processProd($p);}}
+if(!defined $merge){system("${sdir}/mergeProdBuildFiles.pl --release $release --dir ${tmpdir}/newBuildFile/src");}
 exit 0;
+
+sub updateRevDeps ()
+{
+  my $pack=shift;
+  if (!defined $pack)
+  {
+    foreach my $dir (keys %{$pcache->{dir}}){&updateRevDeps($dir);}
+    foreach my $dir (keys %{$pcache->{dir}}){delete $pcache->{dir}{$dir}{rdepsdone};delete $pcache->{dir}{$dir}{first};}
+  }
+  elsif ((!exists $pcache->{dir}{$pack}{rdepsdone}) && (-d "${release}/src/${pack}"))
+  {
+    $pcache->{dir}{$pack}{rdeps}={};
+    $pcache->{dir}{$pack}{rdepsdone}=1;
+    if (exists $pcache->{dir}{$pack}{deps})
+    {
+      foreach my $dep (keys %{$pcache->{dir}{$pack}{deps}})
+      {
+        &updateRevDeps($dep);
+	if (exists $pcache->{dir}{$dep}{rdeps}){$pcache->{dir}{$dep}{rdeps}{$pack}=1;}
+      }
+    }
+  }
+}
 
 sub initCache ()
 {
@@ -119,6 +140,38 @@ sub initCache ()
   {
     $cache=&SCRAMGenUtils::readHashCache($cfile);
     $pcache=&SCRAMGenUtils::readHashCache($pcfile);
+    if (-d $depsdir)
+    {
+      my $ref;
+      my $dirty=0;
+      opendir ($ref,$depsdir) || die "Can not open directory for reading:$depsdir\n";
+      foreach my $prod (readdir($ref))
+      {
+        if (($prod=~/^\./) || (!exists $pcache->{prod}{$prod})){next;}
+	my $pk=$pcache->{prod}{$prod}{dir};
+	$prod="${depsdir}/${prod}";
+	my $c=&SCRAMGenUtils::readHashCache($prod);
+	delete $c->{rdeps};delete $c->{rdepsdone};delete $c->{first};
+	if (!exists $pcache->{dir}{$pk}{first}){$pcache->{dir}{$pk}=$c;$pcache->{dir}{$pk}{first}=1;}
+	else
+	{
+	  foreach my $k (keys %$c)
+	  {
+	    my $v=$c->{$k};
+	    if (ref($v) eq "HASH"){foreach my $k1 (keys %$v){$pcache->{dir}{$pk}{$k}{$k1}=$v->{$k1};}}
+	    else{$pcache->{dir}{$pk}{$k}=$v;}
+	  }
+	}
+	$dirty=1;
+	unlink $prod;
+      }
+      closedir($ref);
+      if($dirty)
+      {
+        &updateRevDeps();
+	&SCRAMGenUtils::writeHashCache($pcache,$pcfile);
+      }
+    }
     $data->{ALL_SYMBOLS}=&SCRAMGenUtils::readHashCache("${symboldir}/.symbols");
     foreach my $p (keys %$cache){if((exists $cache->{$p}{done}) && ($cache->{$p}{done}==0)){delete $cache->{$p}{done};}}
   }
@@ -145,6 +198,7 @@ sub initCache ()
     $locprojcache=&SCRAMGenUtils::readCache($cf);
     foreach my $d (keys %{$locprojcache->{BUILDTREE}}){$projcache->{BUILDTREE}{$d}=$locprojcache->{BUILDTREE}{$d};}
     &addPackDep ($projcache);
+    &updateRevDeps();
     
     &SCRAMGenUtils::scramToolSymbolCache($tcache,"self",$symboldir,$xjobs,$pcache->{packmap});
     &SCRAMGenUtils::waitForChild();
@@ -315,13 +369,7 @@ sub addPackDep ()
       if (exists $cache->{BUILDTREE}{"${u}/src"}){&addPackDep($cache,$cache->{BUILDTREE}{"${u}/src"},$u);}
       elsif(exists $cache->{BUILDTREE}{$u}){&addPackDep($cache,$cache->{BUILDTREE}{$u},$u);}
       $c->{$u}=1;
-      my $rdep=0;
-      if (exists $projcache->{BUILDTREE}{$u}){$rdep=1;$pcache->{dir}{$u}{rdeps}{$n}=1;}
-      foreach my $k (keys %{$pcache->{dir}{$u}{deps}})
-      {
-        $c->{$k}=1;
-	if ($rdep){$pcache->{dir}{$u}{rdeps}{$n}=1;}
-      }
+      foreach my $k (keys %{$pcache->{dir}{$u}{deps}}){$c->{$k}=1;}
     }
   }
 }
@@ -341,7 +389,9 @@ sub processProd ()
     {
       if(exists $pcache->{dir}{$u})
       {
-        my $u1=&run_func("safename",$project,"${release}/src/${u}");
+        my $u1="";
+	if (exists $pcache->{packmap}{$u}){$u1=$pcache->{packmap}{$u};}
+	else{$u1=&run_func("safename",$project,"${release}/src/${u}");}
         if($u1 ne ""){&processProd($u1);}
       }
     }
@@ -373,15 +423,65 @@ sub processProd ()
     $nfile="${bfdir}/${prod}${bfn}.auto";
     if ($xml){$nfile="${bfdir}/${prod}${xmlbf}.auto";}
   }
+  else{$pname="--prodname $prod";}
   my $cmd="${sdir}/_createBuildFile.pl $xargs $configfile --dir ${release}/src/${pack} --tmpdir $tmpdir $jobs --buildfile $nfile $ptype $pname $pfiles $detail";
   &processCMD($pack,$cmd);
   if(-f $nfile)
   {
     $cache->{$prod}{done}=1;
+    &updateActualPackDeps($prod,$pack,$nfile);
     &SCRAMGenUtils::writeHashCache($cache,$cfile);
   }
   if(-f "$nexport"){system("rm -f $nexport");}
   print "##########################################################################\n";
+}
+
+sub updateActualPackDeps ()
+{
+  my $prod=shift;
+  my $pack=shift;
+  my $d={};
+  $d->{prodname}=$prod;
+  if ((exists $pcache->{prod}{$prod}) && (exists $pcache->{prod}{$prod}{type})){$d->{prodtype}=$pcache->{prod}{$prod}{type};}
+  my $prev="";
+  if (!exists $pcache->{dir}{$pack}{first})
+  {
+    $pcache->{dir}{$pack}{deps}={};
+    delete $pcache->{dir}{$pack}{rdeps};
+  }
+  else{$prev=$pcache->{dir}{$pack}{first};}
+  my $bf=&SCRAMGenUtils::readBuildFile(shift);
+  my $flags=&SCRAMGenUtils::findBuildFileTag($d,$bf,"flags");
+  my $edm="";
+  foreach my $a (keys %$flags)
+  {
+    foreach my $c (@{$flags->{$a}})
+    {
+      if (exists $c->{flags}{EDM_PLUGIN}){foreach my $v (@{$c->{flags}{EDM_PLUGIN}}){if($v->{v}==1){$edm="edm";last;}}}
+      if ($edm){last;}
+    }
+    if ($edm){last;}
+  }
+  if ($edm){$pcache->{dir}{$pack}{plugin}=$edm;}
+  my $use=&SCRAMGenUtils::findBuildFileTag($d,$bf,"use");
+  foreach my $a (keys %$use)
+  {
+    foreach my $c (@{$use->{$a}})
+    {
+      foreach my $d (keys %{$c->{use}})
+      { 
+        $pcache->{dir}{$pack}{deps}{$d}=1;
+	if((exists $pcache->{tools}{$d}) && (exists $pcache->{tools}{$d}{deps}))
+	{foreach my $d1 (keys %{$pcache->{tools}{$d}{deps}}){$pcache->{dir}{$pack}{deps}{$d1}=1;}}
+	elsif((exists $pcache->{dir}{$d}) && (exists $pcache->{dir}{$d}{deps}))
+	{foreach my $d1 (keys %{$pcache->{dir}{$d}{deps}}){$pcache->{dir}{$pack}{deps}{$d1}=1;}}
+      }
+    }
+  }
+  delete $pcache->{dir}{$pack}{first};
+  &SCRAMGenUtils::writeHashCache($pcache->{dir}{$pack},"${depsdir}/${prod}");
+  if (($prev) && (-f "${depsdir}/${prev}")){unlink "${depsdir}/${prev}";}
+  $pcache->{dir}{$pack}{first}=$prod;
 }
 
 sub processCMD ()
@@ -421,7 +521,6 @@ sub processRequest_HAVE_DEPS ()
   if($line=~/^([^:]+):(.+)$/)
   {
     my $packs=$1; my $tool=$2;
-    print STDERR "REQUEST: Indirect dependency check requested for $tool\n";
     my %tools=();
     foreach my $pack (split /,/,$packs)
     {
@@ -442,7 +541,11 @@ sub hasDependency ()
   {
     if ($d eq $tool){next;}
     if((exists $pcache->{tools}{$d}) && (exists $pcache->{tools}{$d}{deps}{$tool})){return $d;}
-    elsif((exists $pcache->{dir}{$d}) && (exists $pcache->{dir}{$d}{deps}{$tool})){return $d;}
+    elsif(exists $pcache->{dir}{$d})
+    {
+      if((exists $pcache->{dir}{$d}{plugin}) && ($pcache->{dir}{$d}{plugin} eq "edm")){next;}
+      elsif(exists $pcache->{dir}{$d}{deps}{$tool}){return $d;}
+    }
   }
   return "";
 }
@@ -452,10 +555,23 @@ sub processRequest_PLEASE_PROCESS_FIRST ()
   my $u=shift;
   print STDERR "REQUEST: Process package $u\n";
   my $pack=shift;
-  my $pc=$pcache->{dir}{$pack};
-  my $u1=&run_func("safename",$project,"${release}/src/${u}");
+  my $u1="";
+  if (exists $pcache->{packmap}{$u}){$u1=$pcache->{packmap}{$u};}
+  else{$u1=&run_func("safename",$project,"${release}/src/${u}");}
+  if ($u1 ne "")
+  {
+    if ((!exists $cache->{$u1}) && (-d "${release}/src/${u}"))
+    {
+      $cache->{$u1}={};
+      $pcache->{prod}{$u1}{dir}=$u;
+      my $bf="BuildFile";
+      if (-f "${release}/src/${u}/${bf}.xml"){$bf="BuildFile.xml";}
+      $pcache->{dir}{$u}{bf}=$bf;
+    }
+  }
   if(($u1 ne "") && (exists $cache->{$u1}))
   {
+    my $pc=$pcache->{dir}{$pack};
     print "New Dependency added: $pack => $u\n";
     $pc->{deps}{$u}=1;
     $pcache->{dir}{$u}{rdeps}{$pack}=1;
@@ -467,92 +583,51 @@ sub processRequest_PLEASE_PROCESS_FIRST ()
 
 sub processRequest_PRODUCT_INFO ()
 {
-  my $prod=shift;
+  my $pack=shift;
   my $rep="PROCESS";
-  if(!exists $cache->{$prod}){$rep="NOT_EXISTS";}
-  elsif(exists $cache->{$prod}{done}){$rep="DONE";}
-  elsif(exists $cache->{$prod}{skip}){$rep="SKIP";}
+  if (exists $pcache->{tools}{$pack}){$rep="NOT_EXISTS";}
+  elsif (exists $pcache->{packmap}{$pack})
+  {
+    my $prod=$pcache->{packmap}{$pack};
+    if(!exists $cache->{$prod}){$rep="NOT_EXISTS";}
+    elsif(exists $cache->{$prod}{done}){$rep="DONE";}
+    elsif(exists $cache->{$prod}{skip}){$rep="SKIP";}
+  }
   return $rep;
 }
 
 sub processRequest_SYMBOL_CHECK_REQUEST ()
 {
   my $prod=shift;
-  my %deps=();
-  if ($prod=~/^([^:]+):(.*)$/)
-  {
-    $prod=$1;
-    foreach my $d (split /,/,$2){$deps{$d}=1;}
-  
-  }
-  else{return "";}
   print STDERR "REQUEST: Symbol check $prod\n";
   my $sym=&SCRAMGenUtils::getLibSymbols($prod);
   my %ts=();
   my $allsyms=$data->{ALL_SYMBOLS};
-  my $symcount=0;
   foreach my $s (keys %$sym)
   {
     if($sym->{$s} ne "U"){next;}
     if (exists $allsyms->{$s})
     {
       my $s1=$allsyms->{$s};
-      foreach my $t (keys %$s1)
-      {
-	if ((exists $deps{$t}) || (&hasDependency($t,\%deps))){delete $ts{$s}; last;}
-	if (exists $data->{IGNORE_SYMBOL_TOOLS}{$t}){next;}
-	$ts{$s}{$t}=$s1->{$t};
-      }
+      foreach my $t (keys %$s1){$ts{$s}{$t}=$s1->{$t};}
     }
   }
-  my $symcount=scalar(keys %ts);
-  my %tsx=();
-  foreach my $s (keys %ts)
+  my $tmpfile=&SCRAMGenUtils::getTmpFile ($cachedir);
+  &SCRAMGenUtils::writeHashCache(\%ts,$tmpfile);
+  return $tmpfile;
+}
+
+sub processRequest_PACKAGE_TYPE ()
+{
+  my $pack=shift;
+  my $reply="UNKNOWN";
+  if (exists $pcache->{tools}{$pack}){$reply="TOOL";}
+  elsif (exists $pcache->{dir}{$pack})
   {
-    my @t=keys %{$ts{$s}};
-    if(scalar(@t)==1)
-    {
-      $tsx{$t[0]}{$s}=$ts{$s}{$t[0]};
-      delete $ts{$s};
-      $symcount--;
-    }
+    if(exists $pcache->{dir}{$pack}{plugin}){$reply=uc($pcache->{dir}{$pack}{plugin});}
+    else{$reply="PACK";}
   }
-  if ($symcount)
-  {
-    foreach my $t (keys %tsx){foreach my $s (keys %ts){if(exists $ts{$s}{$t}){delete $ts{$s};$symcount--;}}}
-    if ($symcount)
-    {
-      foreach my $s (keys %ts)
-      {
-        foreach my $t (keys %{$data->{SAME_LIB_TOOL}})
-	{
-	  if(exists $ts{$s}{$t})
-	  {
-	    foreach my $t1 (keys %{$data->{SAME_LIB_TOOL}{$t}}){if(exists $ts{$s}{$t1}){delete $ts{$s}{$t1};}}
-	    if(scalar(keys %{$ts{$s}})==1){$tsx{$t}{$s}=$ts{$s}{$t};delete $ts{$s};$symcount--;last;}
-	  }
-	}
-      }
-    }
-  }
-  foreach my $t (keys %tsx)
-  {
-    my $x=&hasDependency($t,\%tsx);
-    if ($x){delete $tsx{$t};print STDERR "DELETED $t as already used by $x\n";}
-  }
-  if ($symcount)
-  {
-    print STDERR "WARNING: Following symbols are defined in multiple tools/packages\n";
-    foreach my $s (keys %ts)
-    {
-      my $s1=&SCRAMGenUtils::cppFilt ($s);
-      print STDERR "  Symbol:$s1\n";
-      foreach my $t (keys %{$ts{$s}}){print STDERR "    Tool:$t\n";}
-    }
-  }
-  my $str="";
-  foreach my $t (keys %tsx){foreach my $s (keys %{$tsx{$t}}){$str.="$t:$s:".$tsx{$t}{$s}." ";}}
-  return $str;
+  return $reply;
 }
 
 #####################################
@@ -601,7 +676,7 @@ sub safename_cms2 ()
 sub usage_msg()
 {
   my $script=basename($0);
-  print "Usage: $script --dir <path> [--xml] [--order <pack>[--order <pack> [...]]] [--detail]\n",
+  print "Usage: $script --dir <path> [--xml] [--order <pack>[--order <pack> [...]]] [--detail] [--merge]\n",
         "        [--redo <prod|all> [--redo <prod> [...]]] [--jobs <jobs>] [--config <file>]\n\n",
         "e.g.\n",
         "  $script --dir /path/to/a/project/release/area\n\n",
@@ -611,7 +686,8 @@ sub usage_msg()
 	"--config <file> Extra configuration file\n",
 	"--jobs <jobs>   Number of parallel jobs\n",
         "--detail        To get a detail processing log info\n",
-	"--xml           To generate xml BuildFiles i.e. BuildFile.xml.auto\n\n",
+	"--xml           To generate xml BuildFiles i.e. BuildFile.xml.auto\n",
+	"--merge         Do not merge generated BuildFiles at the end\n\n",
         "This script will generate all the BuildFile(s) for your <path>. Generated BuildFile.auto will be available under\n",
 	"AutoBuildFile/newBuildFile if you are not in a dev area otherwise in <devarea>/tmp/AutoBuildFile/newBuildFile.\n",
 	"Do not forget to run \"mergeProdBuildFiles.pl --dir <dir>/AutoBuildFile/newBuildFile\n",

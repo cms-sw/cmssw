@@ -68,9 +68,9 @@ sub getTmpFile ()
 {
   my $dir=shift || &getTmpDir ();
   my $index=0;
-  my $tmp="${dir}/f${index}";
+  my $tmp="${dir}/f${index}.$$";
   while(-f $tmp)
-  {$index++;$tmp="${dir}/f${index}";}
+  {$index++;$tmp="${dir}/f${index}.$$";}
   system("touch $tmp");
   return $tmp;
 }
@@ -107,13 +107,29 @@ sub updateConfigFileData ()
     if(($line=~/^\s*#/) || ($line=~/^\s*$/)){next;}
     my @x=split /:/,$line;
     my $count=scalar(@x);
-    if($count<3){next;}
+    for(my $i=1;$i<$count;$i++)
+    {
+      my $y=$x[$i];
+      if ($y=~/^\s*$/)
+      {
+        for(my $j=$i;$j<$count-1;$j++){$x[$j]=$x[$j+1];}
+	pop @x;
+	$count--;
+	$i--;
+	next;
+      }
+      my $py=$x[$i-1];
+      if ($py=~/\\$/){$x[$i-1]="$py:$y";$x[$i]="";$i--;}
+    }
     my $c=undef;
-    if($x[0] eq "DATA"){$c=$data;}
-    elsif($x[0] eq "CACHE"){$c=$cache;}
+    my $remove="";
+    if($x[0]=~/^(X|)DATA$/){$c=$data;$remove=$1;}
+    elsif($x[0]=~/^(X|)CACHE$/){$c=$cache;$remove=$1;}
+    if ($remove){$count++;}
+    if($count<3){next;}
     if(defined $c)
     {
-      if($detail){print STDERR "#Configuring=>$line\n";}
+      #if($DEBUG){print STDERR "#Configuring=>$line\n";}
       my $i=0;
       for($i=1;$i<$count-2;$i++)
       {
@@ -121,11 +137,23 @@ sub updateConfigFileData ()
 	if(!exists $c->{$y}){$c->{$y}={};}
 	$c=$c->{$y};
       }
-      $c->{$x[$i]}=$x[$i+1];
+      if ($remove){delete $c->{$x[$i]};}
+      else{$c->{$x[$i]}=$x[$i+1];}
     }
   }
   close($r);
   return $file;
+}
+
+sub findUniqDirs ()
+{
+  my $dirs=shift;
+  my $dir=shift;
+  my $uniq = shift || [];
+  my $c=0;
+  foreach my $d (keys %$dirs){&findUniqDirs($dirs->{$d},"${dir}/${d}",$uniq);$c++;}
+  if ($c == 0){push @$uniq,$dir;}
+  return $uniq;
 }
 
 #########################################################################
@@ -436,7 +464,7 @@ sub checkWhileSubdirFound()
 {
   my $dir=shift;
   my $subdir=shift;
-  while((!-d "${dir}/${subdir}") && ($dir ne "/")){$dir=dirname($dir);}
+  while((!-d "${dir}/${subdir}") && ($dir!~/^[\.\/]$/)){$dir=dirname($dir);}
   if(-d "${dir}/${subdir}"){return $dir;}
   return "";
 }
@@ -538,7 +566,7 @@ sub readBuildFile ()
   eval ("use SCRAM::Plugins::DocParser");
   if($@){die "Can not locate SCRAM/Plugins/DocParser.pm perl module for reading $bfile.\n";}
   my $input=undef;
-  if ($bfn!~/BuildFile\.xml/)
+  if ($bfn!~/BuildFile\.xml(.auto|)/)
   {
     eval ("use SCRAM::Plugins::Doc2XML");
     if($@){die "Can not locate SCRAM/Plugins/Doc2XML.pm perl module for reading $bfile.\n";}
@@ -1148,8 +1176,8 @@ sub searchPreprocessedFile ()
   my %search=();
   my $hasfilter=0;
   my $delfile=0;
-  foreach my $k (keys %{$data->{searchPreprocessed}})
-  {if(!exists $data->{searchPreprocessed}{$k}{file}){$search{$k}=1;$hasfilter=1;}}
+  foreach my $k (keys %{$data->{PROD_TYPE_SEARCH_RULES}})
+  {if(!exists $data->{PROD_TYPE_SEARCH_RULES}{$k}{file}){$search{$k}=1;$hasfilter=1;}}
   if(!$hasfilter){return;}
   if($ofile eq ""){$ofile=&generatePreprocessedCXX($file,$data,$xflags);$delfile=1;}
   if($ofile eq ""){return;}
@@ -1164,13 +1192,13 @@ sub searchPreprocessedFile ()
   while(my $line=<OFILE>)
   {
     chomp $line;
-    if ($ref && ($line=~/^CreateBuildFileScriptVariable_$$\.$$\s+VAR=([^;]+);$/)){$file=$1;}
+    if ($ref && ($line=~/^CreateBuildFileScriptVariable_$$\.$$\s+VAR=([^;]+);$/)){$file=$1;next;}
     foreach my $k (keys %search)
     {
-      my $f=$data->{searchPreprocessed}{$k}{filter};
+      my $f=$data->{PROD_TYPE_SEARCH_RULES}{$k}{filter};
       if($line=~/$f/)
       {
-	$data->{searchPreprocessed}{$k}{file}=$file;
+	$data->{PROD_TYPE_SEARCH_RULES}{$k}{file}=$file;
 	delete $search{$k};
       }
     }
@@ -1300,12 +1328,15 @@ sub startTimer ()
   my $info=shift || 0;
   my $time=&getTime();
   my $id=0;
-  while(exists $Cache->{TIMERS}{"${time}.${id}"}){$id++;}
-  $id="${time}.${id}";
-  $Cache->{TIMERS}{$id}{msg}=$msg;
+  while(exists $Cache->{TIMERS}{"${time}.$$.${id}"}){$id++;}
+  $id="${time}.$$.${id}";
   $Cache->{TIMERS}{$id}{start}=$time;
   $Cache->{TIMERS}{$id}{info}=$info;
-  if ($info){print STDERR "TIMER STARTED($id):$msg\n";}
+  if($info)
+  {
+    $Cache->{TIMERS}{$id}{msg}=$msg;
+    print STDERR "TIMER STARTED($id):$msg\n";
+  }
   return $id;
 }
 
@@ -1315,11 +1346,13 @@ sub stopTimer()
   my $time=undef;
   if (exists $Cache->{TIMERS}{$id})
   {
-    my $msg=shift || $Cache->{TIMERS}{$id}{msg};
-    my $info=$Cache->{TIMERS}{$id}{info};
     $time=&getTime() - $Cache->{TIMERS}{$id}{start};
+    if ($Cache->{TIMERS}{$id}{info})
+    {
+      my $msg=shift || $Cache->{TIMERS}{$id}{msg};
+      print STDERR "TIMER STOPED ($id):$msg:$time\n";
+    }
     delete $Cache->{TIMERS}{$id};
-    if ($info){print STDERR "TIMER STOPED ($id):$msg:$time\n";}
   }
   return $time;
 }
@@ -1414,8 +1447,11 @@ sub searchBaseToolPaths ()
   my $paths=shift || [];
   if(exists $cache->{SETUP}{$tool})
   {
-    if($cache->{SETUP}{$tool}{$var}){foreach my $d (@{$cache->{SETUP}{$tool}{$var}}){push @$paths,$d;}}
-    if(exists $cache->{SETUP}{$tool}{USE}){foreach my $u (@{$cache->{SETUP}{$tool}{USE}}){&searchBaseToolPaths($cache,lc($u),$var,$paths);}}
+    my $c=$cache->{SETUP}{$tool};
+    if($c->{$var}){foreach my $d (@{$c->{$var}}){push @$paths,$d;}}
+    if(exists $c->{USE}){foreach my $u (@{$c->{USE}}){&searchBaseToolPaths($cache,lc($u),$var,$paths);}}
+    if (($var eq "LIBDIR") && (scalar(@$paths)==0) && ((!exists $c->{SCRAM_COMPILER}) || ($c->{SCRAM_COMPILER}==0)))
+    {push @$paths,"/lib64","/usr/lib64","/lib","/usr/lib";}
   }
   return $paths;
 }
@@ -1436,7 +1472,7 @@ sub symbolCache ()
     foreach my $line (`nm $shared $lib`)
     {
       chomp $line;
-      if($line=~/\s+(T|V|W)\s+(.+)$/){$c->{$2}{$tool}=$lname;}
+      if($line=~/\s+(T|V|W|B|D)\s+(.+)$/){$c->{$2}{$tool}=$lname;}
     }
     &writeHashCache($c,"${cache}/${lname}.${pk}");
   }
@@ -1515,5 +1551,56 @@ sub waitForChild ()
   $Cache->{FORK}{running}=$running;
 }
 ######################################################
+sub makeRequest ()
+{
+  my $dir=shift;
+  my $msg=shift;
+  my $file=&getTmpFile($dir);
+  unlink $file;
+  &writeMsg("${file}.REQUEST",$msg);
+  my $reply="";
+  while (1)
+  {
+    if (!-f "${file}.REPLY.DONE"){next;}
+    $reply=&readMsg("${file}.REPLY");
+    last;
+  }
+  return $reply;
+}
+
+sub readRequests()
+{
+  my $dir=shift;
+  my $req={};
+  my $ref;
+  opendir ($ref,$dir) || die "Can not open directory for reading: $dir\n";
+  foreach my $f (readdir($ref)){if ($f=~/^((.+)\.REQUEST)\.DONE$/){$req->{"${dir}/${2}.REPLY"}=&readMsg("${dir}/${1}");}}
+  closedir($ref);
+  return $req;
+}
+
+sub readMsg ()
+{
+  my $file=shift;
+  my $ref;
+  open($ref,$file) || die "Can not open file for reading:$file\n";
+  my $input=<$ref>; chomp $input;
+  close($ref);
+  unlink $file;
+  unlink "$file.DONE";
+  return $input;
+}
+
+sub writeMsg ()
+{
+  my $file=shift;
+  my $msg=shift;
+  my $ref;
+  open($ref,">$file") || die "Can not open file for writing:$file\n";
+  print $ref "$msg\n";
+  close($ref);
+  open($ref,">$file.DONE") || die "Can not open file for writing:$file.DONE\n";
+  close($ref);
+}
 
 1;
