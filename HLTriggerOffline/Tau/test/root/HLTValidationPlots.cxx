@@ -357,6 +357,7 @@ GetHistos(string f1,string f2,string v1,string v2,string modName,string histo,ch
   TH1F *h = ((TH1F*)f->Get((modName+"/"+histo).c_str()))->Clone();
   TH1F *hh = ((TH1F*)ff->Get((modName+"/"+histo).c_str()))->Clone();
 
+
   if(!eff)
     h->Sumw2();
 
@@ -368,7 +369,7 @@ GetHistos(string f1,string f2,string v1,string v2,string modName,string histo,ch
   h->GetYaxis()->SetTitleSize(0.06);
   h->GetYaxis()->SetTitleOffset(1.25);
 
-   h->SetMarkerColor(kYellow);
+  h->SetMarkerColor(kYellow);
   h->SetMarkerStyle(20);
   h->SetFillColor(kYellow);
   h->GetXaxis()->SetTitle(xlabel);
@@ -403,8 +404,19 @@ GetHistos(string f1,string f2,string v1,string v2,string modName,string histo,ch
 	
     }
 
+
+
+  double max = h->GetMaximum();
+  if(hh->GetMaximum() > max)
+    max==hh->getMaximum();
+
+  h->GetYaxis()->SetRangeUser(0,max);
+
   h->Draw("HIST");
   hh->Draw("SAME");
+
+  
+
   TLegend *l = new TLegend(0.7,0.5,0.9,0.7);
   l->AddEntry(h,v1.c_str());
   l->AddEntry(hh,v2.c_str());
@@ -537,6 +549,14 @@ DrawHistos(string f1,string f2,string v1,string v2,string modName,string histo,c
       
 	
     }
+
+
+  double max = h->GetMaximum();
+  if(hh->GetMaximum() > max)
+    max==hh->getMaximum();
+
+  h->GetYaxis()->SetRangeUser(0,max);
+
 
   h->Draw("HIST");
   hh->Draw("SAME");
