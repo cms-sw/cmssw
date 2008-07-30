@@ -21,15 +21,12 @@ HcalSubdetDigiMonitor::HcalSubdetDigiMonitor(DQMStore* dbe,
   // defaults are for HB
 
   HistLim ndigis(50, 0., 50.);
-  HistLim sime(150, 0., 1.5);
-  HistLim digiAmp(650,-100., 1200.);
+  HistLim sime(120, 0., 0.6);
+  HistLim digiAmp(350, -100., 600.);
   HistLim ratio(200, 0., 2000.);
   HistLim sumAmp(100, -500., 1500.);
 
-  HistLim signalAmp(151, -10., 1500.);  
-
   HistLim nbin(10,0.,10.);
-  HistLim signal(160,-100., 1500.);
 
   HistLim pedestal(75, 0., 15.);
   HistLim pedestalfC(400,-10.,30.);
@@ -47,23 +44,23 @@ HcalSubdetDigiMonitor::HcalSubdetDigiMonitor(DQMStore* dbe,
 
   if(subdet_ == "HE")
     {
-      sime    = HistLim(100, 0., 1.);
+      sime        = HistLim(100, 0., 0.4);
+      digiAmp     = HistLim(250, -100., 400.);
     }
   else if(subdet_ == "HF")
     {
       ndigis      = HistLim(20, 0., 20.);
-      digiAmp     = HistLim(550, -100., 1000.);
+      sime        = HistLim(30, 0., 30.);
+      digiAmp     = HistLim(300, -100., 500.);
       ratio       = HistLim(50, 0., 50.);
-      sime        = HistLim(40, 0., 40.);
-      signalAmp   = HistLim(101, -10., 1000.);  
       pedLim      = HistLim(100, 0., 20.); 
       pedWidthLim = HistLim(100, 0., 5.); 
 
     }
   else if(subdet_ == "HO")
     {
-      digiAmp = HistLim(300, 0., 150.);
       sime    = HistLim(100, 0., 0.2);
+      digiAmp = HistLim(300, 0., 300.);
     }
   
   Char_t histo[100];
@@ -111,22 +108,22 @@ HcalSubdetDigiMonitor::HcalSubdetDigiMonitor(DQMStore* dbe,
     meADC0fC_depth4 = book1D(histo, pedestalfC);
 
     sprintf (histo, "HcalDigiTask_signal_amplitude_%s", sub);
-    meSignalAmp = book1D(histo, signalAmp );
+    meSignalAmp  = book1D(histo, digiAmp );
     sprintf (histo, "HcalDigiTask_signal_amplitude_depth1_%s", sub);
-    meSignalAmp1 = book1D(histo, signalAmp );
+    meSignalAmp1 = book1D(histo, digiAmp );
     sprintf (histo, "HcalDigiTask_signal_amplitude_depth2_%s", sub);
-    meSignalAmp2 = book1D(histo, signalAmp );
+    meSignalAmp2 = book1D(histo, digiAmp );
     sprintf (histo, "HcalDigiTask_signal_amplitude_depth3_%s", sub);
-    meSignalAmp3 = book1D(histo, signalAmp );
+    meSignalAmp3 = book1D(histo, digiAmp );
     sprintf (histo, "HcalDigiTask_signal_amplitude_depth4_%s", sub);
-    meSignalAmp4 = book1D(histo, signalAmp );
+    meSignalAmp4 = book1D(histo, digiAmp );
 
   
     sprintf (histo, "HcalDigiTask_signal_amplitude_vs_bin_all_depths_%s", sub);
-    meSignalTimeSlice = book2D(histo, nbin, signal);
+    meSignalTimeSlice = book2D(histo, nbin, digiAmp);
 
     sprintf (histo, "HcalDigiTask_all_amplitudes_vs_bin_%s", sub);
-    meAll10slices = book2D(histo, nbin, signal);
+    meAll10slices = book2D(histo, nbin, digiAmp);
 
     sprintf (histo, "HcalDigiTask_bin_5_frac_%s", sub);
     meBin5Frac = book1D(histo, frac);
