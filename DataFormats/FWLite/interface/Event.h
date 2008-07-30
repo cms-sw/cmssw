@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:01:20 EDT 2007
-// $Id: Event.h,v 1.12 2008/07/17 13:32:08 chrjones Exp $
+// $Id: Event.h,v 1.13 2008/07/24 20:38:45 dsr Exp $
 //
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
@@ -190,7 +190,7 @@ class Event
       mutable std::vector<const char*> labels_;
       mutable edm::ProcessHistoryMap historyMap_;
       mutable std::vector<edm::EventProcessHistoryID> eventProcessHistoryIDs_;
-      mutable std::vector<std::string> procHistory_;
+      mutable std::vector<std::string> procHistoryNames_;
       mutable edm::EventAuxiliary aux_;
       mutable edm::FileIndex fileIndex_;
       edm::EventAuxiliary* pAux_;

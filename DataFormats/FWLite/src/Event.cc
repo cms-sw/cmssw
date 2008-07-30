@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:07:03 EDT 2007
-// $Id: Event.cc,v 1.18 2008/07/17 13:32:08 chrjones Exp $
+// $Id: Event.cc,v 1.19 2008/07/24 20:38:44 dsr Exp $
 //
 
 // system include files
@@ -166,7 +166,7 @@ Event::fillFileIndex() const
   if (fileIndex_.empty()) {
     TTree* meta = dynamic_cast<TTree*>(branchMap_.getFile()->Get(edm::poolNames::metaDataTreeName().c_str()));
     if (0==meta) {
-      throw cms::Exception("NoMetaTree")<<"The TFile does not appear to contain a TTree named "
+      throw cms::Exception("NoMetaTree")<<"The TFile does not contain a TTree named "
         <<edm::poolNames::metaDataTreeName();
     }
     if (meta->FindBranch(edm::poolNames::fileIndexBranchName().c_str()) != 0) {
@@ -175,8 +175,8 @@ Event::fillFileIndex() const
       b->SetAddress(&findexPtr);
       b->GetEntry(0);
     } else {
-      // TBD: fill the FileIndex for old file formats
-      throw cms::Exception("NoFileIndexTree")<<"The TFile does not appear to contain a TTree named "
+      // TBD: fill the FileIndex for old file formats (prior to CMSSW 2_0_0)
+      throw cms::Exception("NoFileIndexTree")<<"The TFile does not contain a TTree named "
         <<edm::poolNames::fileIndexBranchName();
     }
   }      
@@ -285,13 +285,16 @@ void getBranchData(edm::EDProductGetter* iGetter,
 const std::vector<std::string>&
 Event::getProcessHistory() const
 {
-  procHistory_.clear();
-  const edm::ProcessHistory& h = history();
-  for (edm::ProcessHistory::const_iterator iproc = h.begin(), eproc = h.end();
-       iproc != eproc; ++iproc) {
-    procHistory_.push_back(iproc->processName());
+  if (procHistoryNames_.empty()) {
+    // std::cout << "Getting new process history" << std::endl;
+    const edm::ProcessHistory& h = history();
+    for (edm::ProcessHistory::const_iterator iproc = h.begin(), eproc = h.end();
+         iproc != eproc; ++iproc) {
+      procHistoryNames_.push_back(iproc->processName());
+      // std::cout << iproc->processName() << std::endl;
+    }
   }
-  return procHistory_;
+  return procHistoryNames_;
 }
 
 internal::Data&
@@ -495,6 +498,7 @@ Event::history() const
     processHistoryID = aux_.processHistoryID();
   }
   if(historyMap_.empty() || newFormat) {
+    procHistoryNames_.clear();
     TTree *meta = dynamic_cast<TTree*>(branchMap_.getFile()->Get(edm::poolNames::metaDataTreeName().c_str()));
     if(0==meta) {
       throw cms::Exception("NoMetaTree")<<"The TFile does not appear to contain a TTree named "
