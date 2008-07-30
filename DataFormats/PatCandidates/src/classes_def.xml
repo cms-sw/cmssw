@@ -14,6 +14,7 @@
   <class name="std::vector<std::pair<unsigned int, float> >" />
   <class name="std::pair<unsigned int, float>" />
 
+  <class name="std::vector<reco::GenParticleRef>" />
   <class name="pat::PATObject<pat::ElectronType>" />
   <class name="pat::PATObject<pat::MuonType>" />
   <class name="pat::PATObject<pat::TauType>" />

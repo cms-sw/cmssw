@@ -9,7 +9,7 @@
  *
  *  \author   Steven Lowette
  *
- *  \version  $Id: PATObject.h,v 1.11 2008/06/24 22:33:12 gpetrucc Exp $
+ *  \version  $Id: PATObject.h,v 1.12 2008/07/08 20:56:48 gpetrucc Exp $
  *
  */
 
@@ -103,14 +103,39 @@ namespace pat {
       void setEfficiency(const std::string &name, const Measurement1DFloat & value) ;
      
       /// Get generator level particle reference (might be a transient ref if the genParticle was embedded)
-      reco::GenParticleRef      genParticleRef() const { return genParticleEmbedded_.empty() ? genParticleRef_ : reco::GenParticleRef(&genParticleEmbedded_, 0); }
+      /// If you stored multiple GenParticles, you can specify which one you want.
+      reco::GenParticleRef      genParticleRef(size_t idx=0) const { 
+            if (idx >= genParticlesSize()) return reco::GenParticleRef();
+            return genParticleEmbedded_.empty() ? genParticleRef_[idx] : reco::GenParticleRef(&genParticleEmbedded_, idx); 
+      }
+      /// Get a generator level particle reference with a given pdg id and status
+      /// If there is no MC match with that pdgId and status, it will return a null ref
+      /// Note: this might be a transient ref if the genParticle was embedded
+      reco::GenParticleRef      genParticleById(int pdgId, int status) const ;
+
       /// Get generator level particle, as C++ pointer (might be 0 if the ref was null)
-      const reco::GenParticle * genParticle()    const { reco::GenParticleRef ref = genParticleRef(); return ref.isNonnull() ? ref.get() : 0; }
+      /// If you stored multiple GenParticles, you can specify which one you want.
+      const reco::GenParticle * genParticle(size_t idx=0)    const { 
+            reco::GenParticleRef ref = genParticleRef(idx); 
+            return ref.isNonnull() ? ref.get() : 0; 
+      }
+      /// Number of generator level particles stored as ref or embedded
+      size_t genParticlesSize() const { 
+            return genParticleEmbedded_.empty() ? genParticleRef_.size() : genParticleEmbedded_.size(); 
+      }
+      /// Return the list of generator level particles.
+      /// Note that the refs can be transient refs to embedded GenParticles
+      std::vector<reco::GenParticleRef> genParticleRefs() const ;
+
       /// Set the generator level particle reference
       void setGenParticleRef(const reco::GenParticleRef &ref, bool embed=false) ; 
+      /// Add a generator level particle reference
+      /// If there is already an embedded particle, this ref will be embedded too
+      void addGenParticleRef(const reco::GenParticleRef &ref) ; 
       /// Set the generator level particle from a particle not in the Event (embedding it, of course)
       void setGenParticle( const reco::GenParticle &particle ) ; 
-      /// Embed the generator level particle in this PATObject
+      /// Embed the generator level particle(s) in this PATObject
+      /// Note that generator level particles can only be all embedded or all not embedded.
       void embedGenParticle() ;
  
     protected:
@@ -143,9 +168,9 @@ namespace pat {
       std::vector<std::string> efficiencyNames_;
 
       /// Reference to a generator level particle
-      reco::GenParticleRef genParticleRef_;
+      std::vector<reco::GenParticleRef> genParticleRef_;
       /// vector to hold an embedded generator level particle
-      std::vector<reco::GenParticle> genParticleEmbedded_; 
+      std::vector<reco::GenParticle>    genParticleEmbedded_; 
    
   };
 
@@ -304,25 +329,54 @@ namespace pat {
 
   template <class ObjectType>
   void PATObject<ObjectType>::setGenParticleRef(const reco::GenParticleRef &ref, bool embed) {
-          genParticleRef_ = ref;
+          genParticleRef_ = std::vector<reco::GenParticleRef>(1,ref);
           genParticleEmbedded_.clear(); 
           if (embed) embedGenParticle();
+  }
+
+  template <class ObjectType>
+  void PATObject<ObjectType>::addGenParticleRef(const reco::GenParticleRef &ref) {
+      if (!genParticleEmbedded_.empty()) { // we're embedding
+          if (ref.isNonnull()) genParticleEmbedded_.push_back(*ref);
+      } else {
+          genParticleRef_.push_back(ref);
+      }
   }
   
   template <class ObjectType>
   void PATObject<ObjectType>::setGenParticle( const reco::GenParticle &particle ) {
-        genParticleEmbedded_.clear(); 
-        genParticleEmbedded_.push_back(particle);
-        genParticleRef_ = reco::GenParticleRef();
+      genParticleEmbedded_.clear(); 
+      genParticleEmbedded_.push_back(particle);
+      genParticleRef_.clear();
   }
 
   template <class ObjectType>
   void PATObject<ObjectType>::embedGenParticle() {
-      if (genParticleRef_.isNonnull()) {
-            genParticleEmbedded_.clear(); 
-            genParticleEmbedded_.push_back(*genParticleRef_); 
+      genParticleEmbedded_.clear(); 
+      for (std::vector<reco::GenParticleRef>::const_iterator it = genParticleRef_.begin(); it != genParticleRef_.end(); ++it) {
+          if (it->isNonnull()) genParticleEmbedded_.push_back(**it); 
       }
-      genParticleRef_ = reco::GenParticleRef();
+      genParticleRef_.clear();
+  }
+
+  template <class ObjectType>
+  std::vector<reco::GenParticleRef> PATObject<ObjectType>::genParticleRefs() const {
+        if (genParticleEmbedded_.empty()) return genParticleRef_;
+        std::vector<reco::GenParticleRef> ret(genParticleEmbedded_.size());
+        for (size_t i = 0, n = ret.size(); i < n; ++i) {
+            ret[i] = reco::GenParticleRef(&genParticleEmbedded_, i);
+        }
+        return ret;
+  }
+
+  template <class ObjectType>
+  reco::GenParticleRef PATObject<ObjectType>::genParticleById(int pdgId, int status) const {
+        // get a vector, avoiding an unneeded copy if there is no embedding
+        const std::vector<reco::GenParticleRef> & vec = (genParticleEmbedded_.empty() ? genParticleRef_ : genParticleRefs());
+        for (std::vector<reco::GenParticleRef>::const_iterator ref = vec.begin(), end = vec.end(); ref != end; ++ref) {
+            if (ref->isNonnull() && ((*ref)->pdgId() == pdgId) && ((*ref)->status() == status)) return *ref;
+        }
+        return reco::GenParticleRef();
   }
 
 }
