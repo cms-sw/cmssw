@@ -8,8 +8,8 @@
  *
  * \author    : Gero Flucke
  * date       : October 2006
- * $Date: 2008/02/15 14:42:27 $
- * $Revision: 1.15 $
+ * $Date: 2008/07/31 15:44:00 $
+ * $Revision: 1.16 $
  * (last update by $Author: flucke $)
  */
 
@@ -114,6 +114,7 @@ class PedeSteerer
   edm::ParameterSet myConfig;
   std::string myDirectory; /// directory of all files
   bool myNoSteerFiles; /// flag to write steering files to /dev/null
+  bool myIsSteerFileDebug; /// whether or not to fill pede steering files with debug info
   int myParameterSign; /// old pede versions (before May '07) need a sign flip...
 
   std::vector<std::string> mySteeringFiles; /// keeps track of created 'secondary' steering files

@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.23 $
- *  $Date: 2008/02/27 08:20:05 $
+ *  $Revision: 1.24 $
+ *  $Date: 2008/07/31 15:49:18 $
  *  (last update by $Author: flucke $)
  */
 
@@ -51,6 +51,7 @@ PedeSteerer::PedeSteerer(AlignableTracker *aliTracker, AlignableMuon *aliMuon,
   myParameterStore(store), myLabels(labels), myConfig(config),
   myDirectory(myConfig.getUntrackedParameter<std::string>("fileDir")),
   myNoSteerFiles(noSteerFiles),
+  myIsSteerFileDebug(myConfig.getUntrackedParameter<bool>("steerFileDebug")),
   myParameterSign(myConfig.getUntrackedParameter<int>("parameterSign")),
   theCoordMaster(0)
 {
@@ -261,9 +262,9 @@ int PedeSteerer::fixParameter(Alignable *ali, unsigned int iParam, char selector
     const unsigned int aliLabel = myLabels->alignableLabel(ali);
     file << myLabels->parameterLabel(aliLabel, iParam) << "  " 
          << fixAt * this->cmsToPedeFactor(iParam) << " -1.0";
-    if (0) { // debug
+    if (myIsSteerFileDebug) { // debug
       const GlobalPoint position(ali->globalPosition());
-      file << "* eta " << position.eta() << ", z " << position.z()
+      file << "  * id " << ali->id() << ", eta " << position.eta() << ", z " << position.z()
            << ", r " << position.perp() << ", phi " << position.phi();
     }
     file << "\n";
@@ -324,6 +325,10 @@ void PedeSteerer::defineCoordinates(const std::vector<Alignable*> &alis, Alignab
   if (!aliMaster || aliMaster->alignmentParameters()) {
     throw cms::Exception("BadConfig")
       << "[PedeSteerer::defineCoordinates] " << "No master alignable or it has parameters!";
+  }
+  if (myIsSteerFileDebug) { // See constructor comments about hack:
+    edm::LogError("Alignment") << "@SUB=PedeSteerer::defineCoordinates"
+			       << "Ignore following LogicErrors from PedeLabeler.";
   }
   AlignmentParameters *par = new RigidBodyAlignmentParameters(aliMaster, false);
   aliMaster->setAlignmentParameters(par); // hierarchyConstraint needs parameters
@@ -450,8 +455,6 @@ void PedeSteerer::hierarchyConstraint(const Alignable *ali,
                                       const std::vector<Alignable*> &components,
 				      std::ofstream &file) const
 {
-  static AlignableObjectId objId; // static since costly constructor FIXME?
-
   typedef AlignmentParameterStore::ParameterId ParameterId;
   typedef std::vector<Alignable*>::size_type IndexType;
 
@@ -486,11 +489,9 @@ void PedeSteerer::hierarchyConstraint(const Alignable *ali,
       const unsigned int paramLabel = myLabels->parameterLabel(aliLabel, compParNum);
       // FIXME: multiply by cmsToPedeFactor(subcomponent)/cmsToPedeFactor(mother) (or vice a versa?)
       aConstr << paramLabel << "    " << factors[iParam];
-      if (true) { // debug
-	const TrackerAlignableId aliId;
-
+      if (myIsSteerFileDebug) { // debug
+	AlignableObjectId objId; // costly constructor, but only debug here...
 	aConstr << "   ! for param " << compParNum << " of a " 
-// 		<< aliId.alignableTypeName(aliSubComp) 
 		<< objId.typeToName(aliSubComp->alignableObjectId())
 		<< " (label " << aliLabel << ")";
       }
@@ -498,13 +499,12 @@ void PedeSteerer::hierarchyConstraint(const Alignable *ali,
     } // end loop on params
 
     if (!aConstr.str().empty()) {
-      if (true) { //debug
-	const TrackerAlignableId aliId;
+      if (myIsSteerFileDebug) { //debug
+	AlignableObjectId objId; // costly constructor, but only debug here...
 	file << "\n* Nr. " << iConstr << " of a '"
 	     << objId.typeToName(ali->alignableObjectId()) << "' (label "
 	     << myLabels->alignableLabel(const_cast<Alignable*>(ali)) // ugly cast: FIXME!
-	     << "), layer " << aliId.typeAndLayerFromDetId(ali->id()).second
-	     << ", position " << ali->globalPosition()
+	     << "), position " << ali->globalPosition()
 	     << ", r = " << ali->globalPosition().perp();
       }
       file << "\nConstraint   0.\n" << aConstr.str(); // in future 'Wconstraint'?
@@ -593,8 +593,12 @@ unsigned int PedeSteerer::presigmasFile(const std::string &fileName,
       }
       const unsigned int aliLabel = myLabels->alignableLabel(*iAli);
       (*filePtr) << myLabels->parameterLabel(aliLabel, iParam) << "   0.   " 
-                 << presigmas[iParam] * fabs(this->cmsToPedeFactor(iParam)) 
-		 << "  ! for a " << aliObjId.typeToName((*iAli)->alignableObjectId()) << '\n';
+                 << presigmas[iParam] * fabs(this->cmsToPedeFactor(iParam));
+      if (myIsSteerFileDebug) {
+	(*filePtr) << "  ! for a " << aliObjId.typeToName((*iAli)->alignableObjectId());
+      }
+      (*filePtr) << '\n';
+
       ++nPresiParam;
     } // end loop on parameters for alignables with chosen presigmas
   } // end loop on alignables
