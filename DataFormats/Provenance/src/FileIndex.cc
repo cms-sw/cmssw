@@ -79,6 +79,16 @@ namespace edm {
     return it;
   }
 
+  FileIndex::const_iterator
+  FileIndex::findLumiOrRunPosition(RunNumber_t run, LuminosityBlockNumber_t lumi) const {
+    const_iterator it = findPosition(run, lumi, 0U);
+    const_iterator itEnd = entries_.end();
+    while (it != itEnd && it->getEntryType() != FileIndex::kLumi && it->getEntryType() != FileIndex::kRun) {
+      ++it;
+    }
+    return it;
+  }
+
   bool operator<(FileIndex::Element const& lh, FileIndex::Element const& rh) {
     if(lh.run_ == rh.run_) {
       if(lh.lumi_ == rh.lumi_) {
