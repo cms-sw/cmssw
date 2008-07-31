@@ -6,7 +6,6 @@ process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 #Geometry
 #
 process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
-
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 
 #Magnetic Field
@@ -42,11 +41,11 @@ process.MessageLogger = cms.Service("MessageLogger",
 process.source = cms.Source("FlatRandomEGunSource",
     PGunParameters = cms.untracked.PSet(
         PartID = cms.untracked.vint32(14),
-        MaxEta = cms.untracked.double(3.0),
-        MaxPhi = cms.untracked.double(3.14159265359),
         MinEta = cms.untracked.double(2.65),
-        MinE = cms.untracked.double(9.99),
+        MaxEta = cms.untracked.double(3.0),
         MinPhi = cms.untracked.double(-3.14159265359),
+        MaxPhi = cms.untracked.double(3.14159265359),
+        MinE = cms.untracked.double(9.99),
         MaxE = cms.untracked.double(10.01)
     ),
     Verbosity = cms.untracked.int32(0),
@@ -57,6 +56,11 @@ process.source = cms.Source("FlatRandomEGunSource",
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(10)
 )
+
+process.TFileService = cms.Service("TFileService",
+    fileName = cms.string('matbdg_HCAL1.root')
+)
+
 process.p1 = cms.Path(process.g4SimHits)
 process.g4SimHits.Generator.HepMCProductLabel = 'source'
 process.g4SimHits.UseMagneticField = False
@@ -65,14 +69,13 @@ process.g4SimHits.Physics.DummyEMPhysics = True
 process.g4SimHits.Physics.CutsPerRegion = False
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     MaterialBudgetHcal = cms.PSet(
+        NbinPhi = cms.untracked.int32(180),
         NbinEta = cms.untracked.int32(260),
+        MaxEta = cms.untracked.double(5.2),
         etaLow = cms.untracked.double(-3.0),
         etaHigh = cms.untracked.double(3.0),
-        ZMax = cms.untracked.double(14.0),
-        MaxEta = cms.untracked.double(5.2),
         RMax = cms.untracked.double(5.0),
-        NbinPhi = cms.untracked.int32(180),
-        HistoFile = cms.untracked.string('matbdg_HCAL.root')
+        ZMax = cms.untracked.double(14.0)
     ),
     type = cms.string('MaterialBudgetHcal')
 ))

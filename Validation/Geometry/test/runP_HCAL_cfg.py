@@ -4,7 +4,6 @@ process = cms.Process("PROD")
 #Geometry
 #
 process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
-
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 
 #Magnetic Field
@@ -42,6 +41,11 @@ process.source = cms.Source("MCFileSource",
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
+
+process.TFileService = cms.Service("TFileService",
+    fileName = cms.string('matbdg_HCAL2.root')
+)
+
 process.p1 = cms.Path(process.g4SimHits)
 process.g4SimHits.Generator.HepMCProductLabel = 'source'
 process.g4SimHits.UseMagneticField = False
@@ -50,14 +54,13 @@ process.g4SimHits.Physics.DummyEMPhysics = True
 process.g4SimHits.Physics.CutsPerRegion = False
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     MaterialBudgetHcal = cms.PSet(
-        NbinEta = cms.untracked.int32(260),
+        NbinPhi = cms.untracked.int32(180),
+        NbinEta = cms.untracked.int32(100),
+        MaxEta = cms.untracked.double(2.5),
         etaLow = cms.untracked.double(-3.0),
         etaHigh = cms.untracked.double(3.0),
-        ZMax = cms.untracked.double(14.0),
-        MaxEta = cms.untracked.double(5.2),
         RMax = cms.untracked.double(5.0),
-        NbinPhi = cms.untracked.int32(180),
-        HistoFile = cms.untracked.string('matbdg_HCAL.root')
+        ZMax = cms.untracked.double(14.0)
     ),
     type = cms.string('MaterialBudgetHcal')
 ))

@@ -6,23 +6,23 @@
 #include "DetectorDescription/Core/interface/DDValue.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
-MaterialBudgetHcalHistos::MaterialBudgetHcalHistos(const edm::ParameterSet &p,
-						   TestHistoMgr* mgr) : hmgr(mgr) {
-  theFileName = p.getUntrackedParameter<std::string>("HistoFile","MBHC.root");
+MaterialBudgetHcalHistos::MaterialBudgetHcalHistos(const edm::ParameterSet &p){
+
   binEta      = p.getUntrackedParameter<int>("NBinEta", 260);
   binPhi      = p.getUntrackedParameter<int>("NBinPhi", 180);
   maxEta      = p.getUntrackedParameter<double>("MaxEta", 5.2);
   etaLow      = p.getUntrackedParameter<double>("EtaLow", -5.2);
   etaHigh     = p.getUntrackedParameter<double>("EtaHigh", 5.2);
-  edm::LogInfo("MaterialBudget") << "MaterialBudgetHcalHistos: Output file "
-				 << theFileName << "\n         Eta plot: NX "
+  edm::LogInfo("MaterialBudget") << "MaterialBudgetHcalHistos: Eta plot: NX "
 				 << binEta << " Range " << -maxEta << ":"
 				 << maxEta << " Phi plot: NX " << binPhi
-				 << " Range " << -pi << ":" << pi << "( Eta "
+				 << " Range " << -pi << ":" << pi << " (Eta "
 				 << "limit " << etaLow << ":" << etaHigh <<")";
   book();
 
@@ -140,18 +140,22 @@ void MaterialBudgetHcalHistos::fillPerStep(const G4Step* aStep) {
   if (isItEC(name)) {
     det = 1;
     lay = 1;
-    if (layer != lay) {
-      id++;
-      layer = lay;
-    }
   } else {
     if (isSensitive(name)) {
       if (isItHF(touch)) {
 	det = 5;
-	lay = 22;
+	lay = 21;
       } else {
 	det   = (touch->GetReplicaNumber(1))/1000;
 	lay   = (touch->GetReplicaNumber(0)/10)%100 + 3;
+	if (det == 4) {
+	  double abeta = std::abs(eta);
+	  if (abeta < 1.479) lay = layer + 1;
+	  else               lay--;
+	  if (lay < 3) lay = 3;
+	  if (lay == layer) lay++;
+	  if (lay > 20) lay = 20;
+	}
       }
       LogDebug("MaterialBudget") << "MaterialBudgetHcalHistos: Det " << det
 				 << " Layer " << lay << " Eta " << eta 
@@ -160,23 +164,23 @@ void MaterialBudgetHcalHistos::fillPerStep(const G4Step* aStep) {
       det = -1;
       lay = 2;
     }
-    if (det != 0) {
-      if (layer != lay) {
-	id++;
-	layer = lay;
-      }
+  }
+  if (det != 0) {
+    if (lay != layer) {
+      id    = lay;
+      layer = lay;
     }
   }
 
-  if (id != idOld) {
-    fillHisto(idOld);
-    idOld = id;
+  if (id > idOld) {
+    //    edm::LogInfo("MaterialBudget") << "MaterialBudgetHcalHistos: Step at " << name;
+    fillHisto(id-1);
   }
 
   stepLen += step;
   radLen  += step/radl;
   intLen  += step/intl;
-  if (layer == 22) {
+  if (layer == 21 && det == 5) {
     if (!isItHF(aStep->GetPostStepPoint()->GetTouchable())) {
       LogDebug("MaterialBudget") << "MaterialBudgetHcalHistos: After HF in " 
 				 << aStep->GetPostStepPoint()->GetTouchable()->GetVolume(0)->GetName();
@@ -189,12 +193,18 @@ void MaterialBudgetHcalHistos::fillPerStep(const G4Step* aStep) {
 
 
 void MaterialBudgetHcalHistos::fillEndTrack() {
-
   fillHisto(maxSet-1);
 }
 
 void MaterialBudgetHcalHistos::book() {
+
+  // Book histograms
+  edm::Service<TFileService> tfile;
   
+  if ( !tfile.isAvailable() )
+    throw cms::Exception("BadConfig") << "TFileService unavailable: "
+                                      << "please add it to config file";
+
   double maxPhi=pi;
   edm::LogInfo("MaterialBudget") << "MaterialBudgetHcalHistos: Booking user "
 				 << "histos === with " << binEta << " bins "
@@ -208,44 +218,44 @@ void MaterialBudgetHcalHistos::book() {
   for (int i=0; i<maxSet; i++) {
     sprintf(name, "%d", i+100);
     sprintf(title, "MB(X0) prof Eta in region %d", i);
-    hmgr->addHistoProf1( new TProfile(name, title, binEta, -maxEta, maxEta) );
+    me100[i] =  tfile->make<TProfile>(name, title, binEta, -maxEta, maxEta);
     sprintf(name, "%d", i+200);
     sprintf(title, "MB(L0) prof Eta in region %d", i);
-    hmgr->addHistoProf1( new TProfile(name, title, binEta, -maxEta, maxEta) );
+    me200[i] = tfile->make<TProfile>(name, title, binEta, -maxEta, maxEta);
     sprintf(name, "%d", i+300);
     sprintf(title, "MB(Step) prof Eta in region %d", i);
-    hmgr->addHistoProf1( new TProfile(name, title, binEta, -maxEta, maxEta) );
+    me300[i] = tfile->make<TProfile>(name, title, binEta, -maxEta, maxEta);
     sprintf(name, "%d", i+400);
     sprintf(title, "Eta in region %d", i);
-    hmgr->addHisto1( new TH1F(name, title, binEta, -maxEta, maxEta) );
+    me400[i] = tfile->make<TH1F>(name, title, binEta, -maxEta, maxEta);
     sprintf(name, "%d", i+500);
     sprintf(title, "MB(X0) prof Ph in region %d", i);
-    hmgr->addHistoProf1( new TProfile(name, title, binPhi, -maxPhi, maxPhi) );
+    me500[i] = tfile->make<TProfile>(name, title, binPhi, -maxPhi, maxPhi);
     sprintf(name, "%d", i+600);
     sprintf(title, "MB(L0) prof Ph in region %d", i);
-    hmgr->addHistoProf1( new TProfile(name, title, binPhi, -maxPhi, maxPhi) );
+    me600[i] = tfile->make<TProfile>(name, title, binPhi, -maxPhi, maxPhi);
     sprintf(name, "%d", i+700);
     sprintf(title, "MB(Step) prof Ph in region %d", i);
-    hmgr->addHistoProf1( new TProfile(name, title, binPhi, -maxPhi, maxPhi) );
+    me700[i] = tfile->make<TProfile>(name, title, binPhi, -maxPhi, maxPhi);
     sprintf(name, "%d", i+800);
     sprintf(title, "Phi in region %d", i);
-    hmgr->addHisto1( new TH1F(name, title, binPhi, -maxPhi, maxPhi) );
+    me800[i] = tfile->make<TH1F>(name, title, binPhi, -maxPhi, maxPhi);
     sprintf(name, "%d", i+900);
     sprintf(title, "MB(X0) prof Eta Phi in region %d", i);
-    hmgr->addHistoProf2( new TProfile2D(name, title, binEta/2, -maxEta, maxEta,
-					binPhi/2, -maxPhi, maxPhi) );
+    me900[i] = tfile->make<TProfile2D>(name, title, binEta/2, -maxEta, maxEta,
+				       binPhi/2, -maxPhi, maxPhi);
     sprintf(name, "%d", i+1000);
     sprintf(title, "MB(L0) prof Eta Phi in region %d", i);
-    hmgr->addHistoProf2( new TProfile2D(name, title, binEta/2, -maxEta, maxEta,
-					binPhi/2, -maxPhi, maxPhi) );
+    me1000[i]= tfile->make<TProfile2D>(name, title, binEta/2, -maxEta, maxEta,
+				       binPhi/2, -maxPhi, maxPhi);
     sprintf(name, "%d", i+1100);
     sprintf(title, "MB(Step) prof Eta Phi in region %d", i);
-    hmgr->addHistoProf2( new TProfile2D(name, title, binEta/2, -maxEta, maxEta,
-					binPhi/2, -maxPhi, maxPhi) );
+    me1100[i]= tfile->make<TProfile2D>(name, title, binEta/2, -maxEta, maxEta,
+				       binPhi/2, -maxPhi, maxPhi);
     sprintf(name, "%d", i+1200);
     sprintf(title, "Eta vs Phi in region %d", i);
-    hmgr->addHisto2( new TH2F(name, title, binEta/2, -maxEta, maxEta, 
-			      binPhi/2, -maxPhi, maxPhi) );
+    me1200[i]= tfile->make<TH2F>(name, title, binEta/2, -maxEta, maxEta, 
+				 binPhi/2, -maxPhi, maxPhi);
   }
 
   edm::LogInfo("MaterialBudget") << "MaterialBudgetHcalHistos: Booking user "
@@ -261,31 +271,29 @@ void MaterialBudgetHcalHistos::fillHisto(int ii) {
 			     << intLen;
   
   if (ii >=0 && ii < maxSet) {
-    hmgr->getHistoProf1(100+ii)->Fill(eta, radLen);
-    hmgr->getHistoProf1(200+ii)->Fill(eta, intLen);
-    hmgr->getHistoProf1(300+ii)->Fill(eta, stepLen);
-    hmgr->getHisto1(400+ii)->Fill(eta);
+    me100[ii]->Fill(eta, radLen);
+    me200[ii]->Fill(eta, intLen);
+    me300[ii]->Fill(eta, stepLen);
+    me400[ii]->Fill(eta);
 
     if (eta >= etaLow && eta <= etaHigh) {
-      hmgr->getHistoProf1(500+ii)->Fill(phi, radLen);
-      hmgr->getHistoProf1(600+ii)->Fill(phi, intLen);
-      hmgr->getHistoProf1(700+ii)->Fill(phi, stepLen);
-      hmgr->getHisto1(800+ii)->Fill(phi);
+      me500[ii]->Fill(phi, radLen);
+      me600[ii]->Fill(phi, intLen);
+      me700[ii]->Fill(phi, stepLen);
+      me800[ii]->Fill(phi);
     }
 
-    hmgr->getHistoProf2(900+ii)->Fill(eta, phi, radLen);
-    hmgr->getHistoProf2(1000+ii)->Fill(eta, phi, intLen);
-    hmgr->getHistoProf2(1100+ii)->Fill(eta, phi, stepLen);
-    hmgr->getHisto2(1200+ii)->Fill(eta, phi);
-  
+    me900[ii]->Fill(eta, phi, radLen);
+    me1000[ii]->Fill(eta, phi, intLen);
+    me1100[ii]->Fill(eta, phi, stepLen);
+    me1200[ii]->Fill(eta, phi);
+    
   }
 }
 
 void MaterialBudgetHcalHistos::hend() {
   edm::LogInfo("MaterialBudget") << "MaterialBudgetHcalHistos: Save user "
 				 << "histos ===";
-  hmgr->save( theFileName );
-
 }
 
 std::vector<std::string> MaterialBudgetHcalHistos::getNames(DDFilteredView& fv) {

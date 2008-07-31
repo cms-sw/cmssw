@@ -28,39 +28,113 @@ double towHigh[41]   = { 0.087,  0.174,  0.261,  0.348,  0.435,
 			 4.191,  4.363,  4.538,  4.716,  4.889,
 			 5.191};
 
-int colorLayer[25] = {152, 107,   9,  30,  34,  38,  14,  40,  41,  42,
-		       45,  46,  48,  49,  37,  28,   4, 154, 104,  50,
-		        3,   5,   6, 156, 159};
+int colorLayer[25] = {  2,   7,   9,  30,  34,  38,  14,  40,  41,  42,
+		       45,  46,   8,  49,  37,  28,   4,   1,  48,  50,
+		        3,   6,   5, 156, 159};
 
 void standardPlot (TString fileName="matbdg_HCAL.root", 
 		   TString outputFileName="hcal.txt") {
 
-  etaPhiPlot (fileName, "IntLen", 0, 19, 1, true,  4.8);
-  etaPhiPlot (fileName, "IntLen", 0, 17, 1, false, -1.);
-  etaPhiPlot (fileName, "RadLen", 0, 19, 1, true,  4.8);
-  etaPhiPlot (fileName, "RadLen", 0, 17, 1, false, -1);
-  etaPhiPlot (fileName, "StepLen",0, 19, 1, true,  -1);
-  etaPhiPlot (fileName, "StepLen",0, 18, 1, false, -1);
+  etaPhiPlot (fileName, "IntLen", 0, 21, 1, true,  4.8);
+  etaPhiPlot (fileName, "IntLen", 0, 20, 1, false, -1.);
+  etaPhiPlot (fileName, "RadLen", 0, 21, 1, true,  4.8);
+  etaPhiPlot (fileName, "RadLen", 0, 20, 1, false, -1);
+  etaPhiPlot (fileName, "StepLen",0, 21, 1, true,  -1);
+  etaPhiPlot (fileName, "StepLen",0, 20, 1, false, -1);
+  etaPhiPlotHO(fileName, "IntLen", 1, true, 2.5);
   plotDiff   (fileName, "IntLen");
   plotDiff   (fileName, "RadLen");
   printTable (fileName, outputFileName);
-  etaPhi2DPlot(fileName, "IntLen", 0, 19, 1)
-  etaPhi2DPlot(fileName, "RadLen", 0, 19, 1)
+  etaPhi2DPlot(fileName, "IntLen", 0, 21, 1);
+  etaPhi2DPlot(fileName, "RadLen", 0, 21, 1);
 }
 
 void etaPhiPlot(TString fileName="matbdg_HCAL.root", TString plot="IntLen", 
-		int ifirst=0, int ilast=19, int drawLeg=1, bool ifEta=true,
+		int ifirst=0, int ilast=20, int drawLeg=1, bool ifEta=true,
 		double maxEta=-1) {
 
   TFile* hcalFile = new TFile(fileName);
+  hcalFile->cd("g4SimHits");
   setStyle();
 
   TString xtit = TString("#eta");
   TString ytit = "none";
   int ymin = 0, ymax = 20, istart = 200;
-  double xl = 0.74;
+  double xh = 0.90;
   if (plot.CompareTo("RadLen") == 0) {
-    ytit = TString("HCal Material Budget X_{0}");
+    ytit = TString("HCal Material Budget (X_{0})");
+    ymin = 0;  ymax = 200; istart = 100;
+  } else if (plot.CompareTo("StepLen") == 0) {
+    ytit = TString("HCal Material Budget (Step Length)");
+    ymin = 0;  ymax = 15000; istart = 300; xh = 0.70;
+  } else {
+    ytit = TString("HCal Material Budget (#lambda)");
+    ymin = 0;  ymax = 20; istart = 200;
+  }
+  if (!ifEta) {
+    istart += 400;
+    xtit    = TString("#phi"); 
+  }
+  
+  TLegend *leg = new TLegend(xh-0.13, 0.60, xh, 0.90);
+  leg->SetBorderSize(1); leg->SetFillColor(10); leg->SetMargin(0.25);
+  leg->SetTextSize(0.018);
+
+  int nplots=0;
+  TProfile *prof[nlaymax];
+  for (int ii=ilast; ii>=ifirst; ii--) {
+    char hname[10], title[50];
+    sprintf(hname, "%i", istart+ii);
+    gDirectory->GetObject(hname,prof[nplots]);
+    prof[nplots]->GetXaxis()->SetTitle(xtit);
+    prof[nplots]->GetYaxis()->SetTitle(ytit);
+    prof[nplots]->GetYaxis()->SetRangeUser(ymin, ymax);
+    prof[nplots]->SetLineColor(colorLayer[ii]);
+    prof[nplots]->SetFillColor(colorLayer[ii]);
+    if (ifEta && maxEta > 0) 
+      prof[nplots]->GetXaxis()->SetRangeUser(-maxEta,maxEta);
+    if (xh < 0.8) 
+      prof[nplots]->GetYaxis()->SetTitleOffset(1.7);
+    int lay = ii - 1;
+    if (lay > 0 && lay < 20) {
+      sprintf(title, "Layer %d", lay);
+    } else if (lay == 0) {
+      sprintf(title, "After Crystal");
+    } else if (lay >= 20 ) {
+      sprintf(title, "After HF");
+    } else {
+      sprintf(title, "Before Crystal");
+    }
+    leg->AddEntry(prof[nplots], title, "lf");
+    nplots++;
+  }
+
+  TString cname = "c_" + plot + xtit;
+  TCanvas *cc1 = new TCanvas(cname, cname, 700, 600);
+  if (xh < 0.8) {
+    cc1->SetLeftMargin(0.15); cc1->SetRightMargin(0.05);
+  }
+
+  prof[0]->Draw("h");
+  for(int i=1; i<nplots; i++)
+    prof[i]->Draw("h sames");
+  if (drawLeg > 0) leg->Draw("sames");
+}
+
+void etaPhiPlotHO(TString fileName="matbdg_HCAL.root", TString plot="IntLen", 
+		  int drawLeg=1, bool ifEta=true, double maxEta=-1) {
+
+  TFile* hcalFile = new TFile(fileName);
+  hcalFile->cd("g4SimHits");
+  setStyle();
+
+  int ihid[3] = {1, 18, 20};
+  TString xtit = TString("#eta");
+  TString ytit = "none";
+  int ymin = 0, ymax = 20, istart = 200;
+  double xh = 0.90;
+  if (plot.CompareTo("RadLen") == 0) {
+    ytit = TString("HCal Material Budget (X_{0})");
     ymin = 0;  ymax = 200; istart = 100;
   } else if (plot.CompareTo("StepLen") == 0) {
     ytit = TString("HCal Material Budget (Step Length)");
@@ -74,28 +148,55 @@ void etaPhiPlot(TString fileName="matbdg_HCAL.root", TString plot="IntLen",
     xtit    = TString("#phi"); 
   }
   
-  TLegend *leg = new TLegend(xl, 0.60, xl+0.09, 0.90);
-  leg->SetBorderSize(1); leg->SetFillColor(10); leg->SetMargin(0.6);
-  
+  TLegend *leg = new TLegend(xh-0.25, 0.60, xh, 0.90);
+  leg->SetBorderSize(1); leg->SetFillColor(10); leg->SetMargin(0.45);
+  leg->SetTextSize(0.04);
   int nplots=0;
   TProfile *prof[nlaymax];
-  for (int ii=ilast; ii>=ifirst; ii--) {
+  for (int ii=2; ii>=0; ii--) {
     char hname[10], title[50];
-    sprintf(hname, "%i", istart+ii);
-    prof[nplots] = (TProfile*)hcalFile->Get(hname);
+    int idpl = istart+ihid[ii];
+    sprintf(hname, "%i", idpl);
+    gDirectory->GetObject(hname,prof[nplots]);
     prof[nplots]->GetXaxis()->SetTitle(xtit);
     prof[nplots]->GetYaxis()->SetTitle(ytit);
+    prof[nplots]->GetXaxis()->SetLabelSize(0.05);
+    prof[nplots]->GetYaxis()->SetLabelSize(0.05);
+    prof[nplots]->GetXaxis()->SetTitleSize(0.05);
+    prof[nplots]->GetYaxis()->SetTitleSize(0.05);
+    prof[nplots]->GetYaxis()->SetTitleOffset(0.8);
     prof[nplots]->GetYaxis()->SetRangeUser(ymin, ymax);
     prof[nplots]->SetLineColor(colorLayer[ii]);
     prof[nplots]->SetFillColor(colorLayer[ii]);
     if (ifEta && maxEta > 0) 
-      prof[nplots]->GetXaxis()->SetRangeUser(-maxEta,maxEta);
-    sprintf(title, "Layer %d", ii+1);
+      prof[nplots]->GetXaxis()->SetRangeUser(0.0,maxEta);
+    if (ii >= 2) {
+      sprintf(title, "With HO");
+    } else if (ii == 1) {
+      sprintf(title, "Without HO");
+    } else {
+      sprintf(title, "Before HCAL");
+    }
     leg->AddEntry(prof[nplots], title, "lf");
     nplots++;
+    if (ii == 1) {
+      for (int kk=0; kk<7; kk++) {
+	idpl--;
+	sprintf(hname, "%i", idpl);
+	gDirectory->GetObject(hname,prof[nplots]);
+	prof[nplots]->GetXaxis()->SetTitle(xtit);
+	prof[nplots]->GetYaxis()->SetTitle(ytit);
+	prof[nplots]->GetYaxis()->SetRangeUser(ymin, ymax);
+	prof[nplots]->SetLineColor(colorLayer[ii]);
+	prof[nplots]->SetFillColor(colorLayer[ii]);
+	if (ifEta && maxEta > 0) 
+	  prof[nplots]->GetXaxis()->SetRangeUser(0.0,maxEta);
+	nplots++;
+      }
+    }
   }
 
-  TString cname = "c_" + plot + xtit;
+  TString cname = "c_HO" + plot + xtit;
   TCanvas *cc1 = new TCanvas(cname, cname, 700, 400);
 
   prof[0]->Draw("h");
@@ -108,43 +209,56 @@ void etaPhi2DPlot(TString fileName="matbdg_HCAL.root", TString plot="IntLen",
 		  int ifirst=0, int ilast=19, int drawLeg=1) {
 
   TFile* hcalFile = new TFile(fileName);
+  hcalFile->cd("g4SimHits");
   setStyle();
 
   TString xtit = TString("#eta");
   TString ytit = TString("#phi");
   TString ztit = TString("HCal Material Budget (#lambda)");
   int ymin = 0, ymax = 20, istart = 1000;
-  double xl = 0.81;
+  double xh=0.95, yh=0.95;
   if (plot.CompareTo("RadLen") == 0) {
-    ztit = TString("HCal Material Budget X_{0}");
+    ztit = TString("HCal Material Budget (X_{0})");
     ymin = 0;  ymax = 200; istart = 900;
   } else if (plot.CompareTo("StepLen") == 0) {
     ytit = TString("HCal Material Budget (Step Length)");
     ymin = 0;  ymax = 15000; istart = 1100; 
   }
   
-  TLegend *leg = new TLegend(xl, 0.60, xl+0.09, 0.90);
-  leg->SetBorderSize(1); leg->SetFillColor(10); leg->SetMargin(0.6);
-  
+  TLegend *leg = new TLegend(xh-0.13, yh-0.30, xh, yh);
+  leg->SetBorderSize(1); leg->SetFillColor(10); leg->SetMargin(0.25);
+  leg->SetTextSize(0.018);
+
   int nplots=0;
   TProfile2D *prof[nlaymax];
   for (int ii=ilast; ii>=ifirst; ii--) {
     char hname[10], title[50];
     sprintf(hname, "%i", istart+ii);
-    prof[nplots] = (TProfile2D*)hcalFile->Get(hname);
+    gDirectory->GetObject(hname,prof[nplots]);
     prof[nplots]->GetXaxis()->SetTitle(xtit);
     prof[nplots]->GetYaxis()->SetTitle(ytit);
     prof[nplots]->GetZaxis()->SetTitle(ztit);
     prof[nplots]->GetZaxis()->SetRangeUser(ymin, ymax);
     prof[nplots]->SetLineColor(colorLayer[ii]);
     prof[nplots]->SetFillColor(colorLayer[ii]);
-    sprintf(title, "Layer %d", ii+1);
+    prof[nplots]->GetZaxis()->SetTitleOffset(1.4);
+    int lay = ii - 1;
+    if (lay > 0 && lay < 20) {
+      sprintf(title, "Layer %d", lay);
+    } else if (lay == 0) {
+      sprintf(title, "After Crystal");
+    } else if (lay >= 20 ) {
+      sprintf(title, "After HF");
+    } else {
+      sprintf(title, "Before Crystal");
+    }
     leg->AddEntry(prof[nplots], title, "lf");
     nplots++;
   }
 
   TString cname = "c_" + plot + xtit + ytit;
-  TCanvas *cc1 = new TCanvas(cname, cname, 700, 400);
+  TCanvas *cc1 = new TCanvas(cname, cname, 700, 600);
+  cc1->SetLeftMargin(0.15); cc1->SetRightMargin(0.05);
 
   prof[0]->Draw("lego fb bb");
   for(int i=1; i<nplots; i++)
@@ -169,9 +283,9 @@ void printTable (TString fileName="matbdg_HCAL.root",
 	inp >> line;
       for (int itow=0; itow<nbinmax; itow++) {
 	inp >> tower >> eta;
-	int laymax=18;
-	if (itow > 27)     laymax = 2;
-	else if (itow > 3) laymax = 17;
+	int laymax=19;
+	if (itow > 29)     laymax = 2;
+	else if (itow > 3) laymax = 18;
 	for (int ilay=0; ilay<laymax; ilay++)
 	  inp >> intl[ilay][tower];
       }
@@ -179,9 +293,9 @@ void printTable (TString fileName="matbdg_HCAL.root",
 	inp >> line;
       for (int itow=0; itow<nbinmax; itow++) {
 	inp >> tower >> eta;
-	int laymax=18;
-	if (itow > 27)     laymax = 2;
-	else if (itow > 3) laymax = 17;
+	int laymax=19;
+	if (itow > 29)     laymax = 2;
+	else if (itow > 3) laymax = 18;
 	for (int ilay=0; ilay<laymax; ilay++)
 	  inp >> radl[ilay][tower];
       }
@@ -201,9 +315,9 @@ void printTable (TString fileName="matbdg_HCAL.root",
   for (int itow=0; itow<nbinmax; itow++) {
     os << setw(3)<< itow << setw(7) << setprecision(3) 
        << 0.5*(towLow[itow]+towHigh[itow]);
-    int laymax=18;
-    if (itow > 27)     laymax = 2;
-    else if (itow > 3) laymax = 17;
+    int laymax=19;
+    if (itow > 29)     laymax = 2;
+    else if (itow > 3) laymax = 18;
     for (int ilay=0; ilay<laymax; ilay++) {
       os << setw(8) << setprecision(4) <<  diff[ilay][itow];
       if (compare) {
@@ -232,9 +346,9 @@ void printTable (TString fileName="matbdg_HCAL.root",
   for (int itow=0; itow<nbinmax; itow++) {
     os << setw(3)<< itow << setw(7) << setprecision(3) 
        << 0.5*(towLow[itow]+towHigh[itow]);
-    int laymax=18;
-    if (itow > 27)     laymax = 2;
-    else if (itow > 3) laymax = 17;
+    int laymax=19;
+    if (itow > 29)     laymax = 2;
+    else if (itow > 3) laymax = 18;
     for (int ilay=0; ilay<laymax; ilay++) {
       os << setw(8) << setprecision(4) <<  diff[ilay][itow];
       if (compare) {
@@ -266,17 +380,18 @@ void plotDiff (TString fileName="matbdg_HCAL.root", TString plot="IntLen") {
   TString xtit = TString("Layer Number");
   TString ytit = TString("HCal Material Budget (#lambda)");
   if (plot.CompareTo("RadLen") == 0) 
-    ytit = TString("HCal Material Budget X_{0}");
+    ytit = TString("HCal Material Budget (X_{0})");
 
   TMultiGraph *mg = new TMultiGraph();
-  TLegend *leg_mg = new TLegend(.5,.5,.67,.73);
-  leg_mg->SetFillColor(10);
-  leg_mg->SetBorderSize(1);
+  TLegend *leg_mg = new TLegend(.5,.5,.75,.80);
+  leg_mg->SetFillColor(10);  leg_mg->SetBorderSize(1);
+  leg_mg->SetMargin(0.25);   leg_mg->SetTextSize(0.04);
+  leg_mg->SetHeader(ytit);
 
   double diff_lay[18],  idx[18];
   for (int ilay=1; ilay<19; ilay++) {
-     diff_lay[ilay-1] = diff[ilay][0];
-     idx[ilay-1] = ilay;
+    diff_lay[ilay-1] = diff[ilay][0];
+    idx[ilay-1] = ilay;
   }
   TGraph *gr_eta1 = new TGraph(18, idx, diff_lay);
   gr_eta1->SetMarkerStyle(20);
@@ -293,33 +408,33 @@ void plotDiff (TString fileName="matbdg_HCAL.root", TString plot="IntLen") {
   gr_eta7->SetLineColor(4);
   mg->Add(gr_eta7,  "pc");
   leg_mg->AddEntry(gr_eta7, "HB #eta = 7");
-
+  
   for (int ilay=1; ilay<19; ilay++) 
     diff_lay[ilay-1] = diff[ilay][12];
   TGraph *gr_eta13 = new TGraph(17, idx, diff_lay);
   gr_eta13->SetMarkerStyle(29);
-  gr_eta13->SetMarkerColor(kGreen+100);
-  gr_eta13->SetLineColor(kGreen+100);
+  gr_eta13->SetMarkerColor(kGreen);
+  gr_eta13->SetLineColor(kGreen);
   mg->Add(gr_eta13, "pc");
   leg_mg->AddEntry(gr_eta13,"HB #eta = 13");
 
-  for (int ilay=1; ilay<19; ilay++)
+  for (int ilay=1; ilay<19; ilay++) 
     diff_lay[ilay-1] = diff[ilay][19];
   TGraph *gr_eta19 = new TGraph(17, idx, diff_lay);
   gr_eta19->SetMarkerStyle(24);
-  gr_eta19->SetMarkerColor(kCyan+100);
-  gr_eta19->SetLineColor(kCyan+100);
+  gr_eta19->SetMarkerColor(kCyan);
+  gr_eta19->SetLineColor(kCyan);
   mg->Add(gr_eta19, "pc");
-  leg_mg->AddEntry(gr_eta19,"HE #eta = 19");
+  leg_mg->AddEntry(gr_eta19,"HE #eta = 20");
 
   for(int ilay=1; ilay<19; ilay++) 
     diff_lay[ilay-1] = diff[ilay][25];
   TGraph *gr_eta25 = new TGraph(17, idx, diff_lay);
   gr_eta25->SetMarkerStyle(26);
-  gr_eta25->SetMarkerColor(kCyan+100);
-  gr_eta25->SetLineColor(kCyan+100);
+  gr_eta25->SetMarkerColor(kCyan);
+  gr_eta25->SetLineColor(kCyan);
   mg->Add(gr_eta25, "pc");
-  leg_mg->AddEntry(gr_eta25,"HE #eta = 25");
+  leg_mg->AddEntry(gr_eta25,"HE #eta = 26");
 
   TString cname = "c_diff_" + plot;
   TCanvas *cc2  = new TCanvas(cname, cname, 700, 400);
@@ -332,6 +447,7 @@ void plotDiff (TString fileName="matbdg_HCAL.root", TString plot="IntLen") {
 void getDiff (TString fileName="matbdg_HCAL.root", TString plot="IntLen") {
 
   TFile* hcalFile = new TFile(fileName);
+  hcalFile->cd("g4SimHits");
 
   int    istart = 200;
   if (plot.CompareTo("RadLen") == 0) {
@@ -340,10 +456,11 @@ void getDiff (TString fileName="matbdg_HCAL.root", TString plot="IntLen") {
     istart = 300; 
   }
 
-  for (int ilay=0; ilay<19; ilay++) {
+  for (int ilay=0; ilay<21; ilay++) {
     char hname[10];
-    sprintf(hname, "%i", istart+ilay);
-    TProfile *prof = (TProfile*)hcalFile->Get(hname);
+    sprintf(hname, "%i", istart+ilay+2);
+    TProfile *prof;
+    gDirectory->GetObject(hname,prof);
     int      nbins = prof->GetNbinsX();
     for (int itow=0; itow<nbinmax; itow++) {
       double ent = 0, value = 0;
@@ -370,21 +487,60 @@ void getDiff (TString fileName="matbdg_HCAL.root", TString plot="IntLen") {
       else         mean[ilay][itow] = 0.;
     }
   }
+
+  for (int itow=30; itow<nbinmax; itow++) {
+    mean[0][itow] = mean[18][itow];
+    mean[1][itow] = mean[19][itow];
+    mean[18][itow] = 0;
+    mean[19][itow] = 0;
+  }
+
+  mean[0][15] = 0.5*(mean[0][14] + mean[0][17]);
+  mean[1][15] = 0.5*(mean[1][14] + mean[1][17]);
+  /*
   for (int itow=0; itow<nbinmax; itow++) {
-    if (itow > 4) mean[18][itow] = 0;
+    std::cout << "Tower " << itow;
+    for (int ilay=0; ilay<21; ilay++) 
+      cout << " " << ilay << " " << mean[ilay][itow];
+    std::cout << "\n";
+  }
+  */
+  for (int itow=0; itow<30; itow++) {
+    for (int ilay=19; ilay>0; ilay--) {
+      if (mean[ilay-1][itow] <= 0) {
+	mean[ilay-1][itow] = mean[ilay][itow];
+      }
+    }
+  }
+
+  for (int itow=0; itow<nbinmax; itow++) {
+    if (itow > 4 && itow < 26) mean[18][itow] = 0;
     diff[0][itow] = mean[0][itow];
   }
-  for (int ilay=1; ilay<19; ilay++) {
+
+  for (int itow=15; itow<17; itow++) {
+    for (int ilay=1; ilay<21; ilay++) {
+      if (mean[ilay][itow] > mean[ilay+1][itow]) {
+	for (int jlay=ilay+1; jlay<21; jlay++)
+	  mean[jlay][itow] = 0;
+	break;
+      }
+    }
+  }
+
+  for (int ilay=1; ilay<21; ilay++) {
     for (int itow=0; itow<nbinmax; itow++) {
       diff[ilay][itow] = mean[ilay][itow]-mean[ilay-1][itow];
       if (diff[ilay][itow] < 0) diff[ilay][itow] = 0;
     }
   }
   /*
-  for (int ilay=17; ilay<19; ilay++) {
-    for (int itow=0; itow<nbinmax; itow++) {
-      cout << ilay << " " << itow << " " << mean[ilay][itow] << " " << diff[ilay][itow] << "\n";
+  for (int itow=0; itow<nbinmax; itow++) {
+    std::cout << "Tower " << itow;
+    for (int ilay=0; ilay<21; ilay++) {
+      cout << " " << ilay << " " << mean[ilay][itow] << " " << diff[ilay][itow];
     }
+    std::cout << "\n";
   }
   */
 }

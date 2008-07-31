@@ -24,14 +24,12 @@ MaterialBudgetHcal::MaterialBudgetHcal(const edm::ParameterSet& p) {
   zMax = m_p.getUntrackedParameter<double>("ZMax", 13.0)*m;
   edm::LogInfo("MaterialBudget") << "MaterialBudgetHcal initialized with rMax "
 				 << rMax << " mm and zMax " << zMax << " mm";
-  theHistoMgr = new TestHistoMgr();
-  theHistos   = new MaterialBudgetHcalHistos(m_p, theHistoMgr);
+  theHistos   = new MaterialBudgetHcalHistos(m_p);
 
 }
 
 MaterialBudgetHcal::~MaterialBudgetHcal() {
   delete theHistos;
-  delete theHistoMgr;
 }
 
 void MaterialBudgetHcal::update(const BeginOfJob* job)
