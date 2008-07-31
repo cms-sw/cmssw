@@ -5,15 +5,15 @@
  *  to MC and (eventually) data. 
  *  Implementation file contents follow.
  *
- *  $Date: 2008/06/27 15:56:49 $
- *  $Revision: 1.53 $
+ *  $Date: 2008/07/21 20:09:35 $
+ *  $Revision: 1.54 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.cc,v 1.53 2008/06/27 15:56:49 slava77 Exp $
+// $Id: SteppingHelixPropagator.cc,v 1.54 2008/07/21 20:09:35 slava77 Exp $
 //
 //
 
@@ -56,7 +56,7 @@ SteppingHelixPropagator::SteppingHelixPropagator(const MagneticField* field,
   debug_ = false;
   noMaterialMode_ = false;
   noErrorPropagation_ = false;
-  applyRadX0Correction_ = false;
+  applyRadX0Correction_ = true;
   useMagVolumes_ = true;
   useIsYokeFlag_ = true;
   useMatVolumes_ = true;
@@ -100,6 +100,13 @@ SteppingHelixPropagator::propagate(const FreeTrajectoryState& ftsStart,
 				   const GlobalPoint& pDest1, const GlobalPoint& pDest2) const
 {
   return propagateWithPath(ftsStart, pDest1, pDest2).first;
+}
+
+FreeTrajectoryState
+SteppingHelixPropagator::propagate(const FreeTrajectoryState& ftsStart, 
+				   const reco::BeamSpot& beamSpot) const
+{
+  return propagateWithPath(ftsStart, beamSpot).first;
 }
 
 
@@ -160,6 +167,16 @@ SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart,
   return FtsPP(ftsDest, svCurrent.path());
 }
 
+
+std::pair<FreeTrajectoryState, double>  
+SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart,  
+                                           const reco::BeamSpot& beamSpot) const {
+  GlobalPoint pDest1(beamSpot.x0(), beamSpot.y0(), beamSpot.z0());
+  GlobalPoint pDest2(pDest1.x() + beamSpot.dxdz()*1e3, 
+		     pDest1.y() + beamSpot.dydz()*1e3,
+		     pDest1.z() + 1e3);
+  return propagateWithPath(ftsStart, pDest1, pDest2);
+}
 
 const SteppingHelixStateInfo&
 SteppingHelixPropagator::propagate(const SteppingHelixStateInfo& sStart, 
@@ -382,7 +399,12 @@ SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type,
       dir = refDirection;
     } else {
       dir = propagationDirection();
-    }
+      if (fabs(tanDist)<0.1 && refDirection != dir){
+	nOsc++;
+	dir = refDirection;
+	if (debug_) LogTrace(metname)<<"NOTE: overstepped last time: switch direction (can do it if within 1 mm)"<<std::endl;
+      }
+    }    
 
     if (useMagVolumes_ && ! (fabs(dist) < fabs(epsilon))){//need to know the general direction
       if (tanDistMagNextCheck < 0){

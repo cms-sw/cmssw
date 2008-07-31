@@ -9,15 +9,15 @@
  *  Material effects (multiple scattering and energy loss) are based on tuning
  *  to MC and (eventually) data. 
  *
- *  $Date: 2008/06/16 04:54:41 $
- *  $Revision: 1.24.2.1 $
+ *  $Date: 2008/06/27 15:56:49 $
+ *  $Revision: 1.25 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.h,v 1.24.2.1 2008/06/16 04:54:41 slava77 Exp $
+// $Id: SteppingHelixPropagator.h,v 1.25 2008/06/27 15:56:49 slava77 Exp $
 //
 //
 
@@ -28,6 +28,7 @@
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 #include "CLHEP/Matrix/SymMatrix.h"
 #include "CLHEP/Matrix/Matrix.h"
@@ -104,6 +105,10 @@ class SteppingHelixPropagator : public Propagator {
   virtual FreeTrajectoryState 
     propagate(const FreeTrajectoryState& ftsStart, 
 	      const GlobalPoint& pDest1, const GlobalPoint& pDest2) const;
+  //! Propagate to PCA to a line determined by BeamSpot position and slope given a starting point 
+  virtual FreeTrajectoryState 
+    propagate(const FreeTrajectoryState& ftsStart, 
+	      const reco::BeamSpot& beamSpot) const;
 
   //! Propagate to Plane given a starting point: return final 
   //! TrajectoryState and path length from start to this point
@@ -120,6 +125,10 @@ class SteppingHelixPropagator : public Propagator {
   virtual std::pair<FreeTrajectoryState, double> 
     propagateWithPath(const FreeTrajectoryState& ftsStart, 
 		      const GlobalPoint& pDest1, const GlobalPoint& pDest2) const;
+  //! Propagate to PCA to a line (given by beamSpot position and slope) given a starting point 
+  virtual std::pair<FreeTrajectoryState, double> 
+    propagateWithPath(const FreeTrajectoryState& ftsStart, 
+		      const reco::BeamSpot& beamSpot) const;
     
     
   //! Propagate to Plane given a starting point
