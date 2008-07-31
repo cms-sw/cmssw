@@ -10,6 +10,7 @@
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorByHits.h"
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 //reco track
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -38,7 +39,7 @@ using namespace std;
 TrackAssociatorByHits::TrackAssociatorByHits (const edm::ParameterSet& conf) :  
   conf_(conf),
   AbsoluteNumberOfHits(conf_.getParameter<bool>("AbsoluteNumberOfHits")),
-  SimToRecoDenominator(conf_.getParameter<string>("SimToRecoDenominator")),
+  SimToRecoDenominator(denomnone),
   quality_SimToReco(conf_.getParameter<double>("Quality_SimToReco")),
   purity_SimToReco(conf_.getParameter<double>("Purity_SimToReco")),
   cut_RecoToSim(conf_.getParameter<double>("Cut_RecoToSim")),
@@ -47,6 +48,17 @@ TrackAssociatorByHits::TrackAssociatorByHits (const edm::ParameterSet& conf) :
   UseSplitting(conf_.getParameter<bool>("UseSplitting")),
   ThreeHitTracksAreSpecial(conf_.getParameter<bool>("ThreeHitTracksAreSpecial"))
 {
+  std::string tmp = conf_.getParameter<string>("SimToRecoDenominator");
+  if (tmp=="sim") {
+    SimToRecoDenominator = denomsim;
+  } else if (tmp == "reco") {
+    SimToRecoDenominator = denomreco;
+  } 
+
+  if (SimToRecoDenominator == denomnone) {
+    throw cms::Exception("TrackAssociatorByHits") << "SimToRecoDenominator not specified as sim or reco";
+  }
+
 }
 
 
@@ -240,8 +252,8 @@ TrackAssociatorByHits::associateSimToReco(edm::RefToBaseVector<reco::Track>& tC,
 	}
 
 	if (AbsoluteNumberOfHits) quality = static_cast<double>(nshared);
-	else if(SimToRecoDenominator == "sim" && totsimhit!=0) quality = ((double) nshared)/((double)totsimhit);
-	else if(SimToRecoDenominator == "reco" && ri!=0) quality = ((double) nshared)/((double)ri);
+	else if(SimToRecoDenominator == denomsim && totsimhit!=0) quality = ((double) nshared)/((double)totsimhit);
+	else if(SimToRecoDenominator == denomreco && ri!=0) quality = ((double) nshared)/((double)ri);
 	else quality = 0;
 	//LogTrace("TrackAssociator") << "Final count: nhit(TP) = " << nsimhit << " re-counted = " << totsimhit 
 	//<< " nshared = " << nshared << " nrechit = " << ri;
