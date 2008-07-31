@@ -42,3 +42,6 @@ DEFINE_ANOTHER_FWK_MODULE(SiStripPerformanceSummaryBuilder);
 
 #include "CondTools/SiStrip/plugins/SiStripPerformanceSummaryReader.h"
 DEFINE_ANOTHER_FWK_MODULE(SiStripPerformanceSummaryReader);
+
+#include "CondTools/SiStrip/plugins/SiStripCablingTrackerMap.h"
+DEFINE_ANOTHER_FWK_MODULE(SiStripCablingTrackerMap);

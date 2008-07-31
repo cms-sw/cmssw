@@ -8,6 +8,9 @@
 <use name=Geometry/Records>
 <use name=Geometry/TrackerGeometryBuilder>
 
+<use name=CommonTools/TrackerMap>
+<use name=CalibTracker/Records>
+
 <use name=CondCore/DBOutputService>
 <use name=CondCore/DBCommon>
 
