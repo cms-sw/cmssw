@@ -10,7 +10,7 @@
 
      See CMS EventFilter wiki page for further notes.
 
-   $Id: StorageManager.h,v 1.34 2008/06/12 16:02:38 biery Exp $
+   $Id: StorageManager.h,v 1.35 2008/06/25 18:03:22 biery Exp $
 */
 
 #include <string>
@@ -107,7 +107,7 @@ namespace stor {
       (xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception);
     void css(xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception)
       {css_.css(in,out);}
-    void fusenderWebPage
+    void rbsenderWebPage
       (xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception);
     void streamerOutputWebPage
       (xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception);
@@ -186,8 +186,8 @@ namespace stor {
     boost::mutex consumerInitMsgLock_;
     xdata::String esSelectedHLTOutputModule_;
 
-    SMFUSenderList smfusenders_;
-    xdata::UnsignedInteger32 connectedFUs_;
+    SMFUSenderList smrbsenders_;
+    xdata::UnsignedInteger32 connectedRBs_;
 
     xdata::UnsignedInteger32 storedEvents_;
     xdata::UnsignedInteger32 receivedEvents_;
@@ -254,7 +254,7 @@ namespace stor {
 
     unsigned int lastEventSeen_; // report last seen event id
     unsigned int lastErrorEventSeen_; // report last error event id seen
-    boost::mutex fulist_lock_;  // quick (temporary) fix for registration problem
+    boost::mutex rblist_lock_;  // quick (temporary) fix for registration problem
 
     enum
     {

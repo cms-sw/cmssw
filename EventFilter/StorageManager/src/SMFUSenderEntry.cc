@@ -1,7 +1,7 @@
 /*
         For saving the FU sender list
 
- $Id: SMFUSenderEntry.cc,v 1.5 2008/05/15 13:57:43 hcheung Exp $
+ $Id: SMFUSenderEntry.cc,v 1.6 2008/07/30 19:19:55 biery Exp $
 */
 
 #include "EventFilter/StorageManager/interface/SMFUSenderEntry.h"
@@ -72,7 +72,7 @@ SMFUSenderEntry::SMFUSenderEntry(const char* hltURL,
             << hltURL_ << " class " << hltClassName_  << " instance "
             << hltInstance_ << " Tid " << hltTid_ << std::endl;
   // test if this single registry frame is the only one
-  testCompleteFUReg(outModName);
+  testCompleteRegistry(outModName);
 }
 
 bool SMFUSenderEntry::sameURL(const char* hltURL)
@@ -111,7 +111,7 @@ bool SMFUSenderEntry::addFrame(const unsigned int frameCount, const unsigned int
    boost::mutex::scoped_lock sl(entry_lock_);
    ++(registryCollection_.currFramesMap_[outModName]);
    registryCollection_.frameRefsMap_[outModName][frameCount] = ref;
-   bool copyOK = testCompleteFUReg(outModName);
+   bool copyOK = testCompleteRegistry(outModName);
    return(copyOK);
 }
 
@@ -271,7 +271,7 @@ bool SMFUSenderEntry::match(const char* hltURL, const char* hltClassName,
    }
 }
 
-bool SMFUSenderEntry::testCompleteFUReg(const std::string outModName)
+bool SMFUSenderEntry::testCompleteRegistry(const std::string outModName)
 {
 // 
 // Check that a given FU Sender has sent all frames for a registry
@@ -282,7 +282,7 @@ bool SMFUSenderEntry::testCompleteFUReg(const std::string outModName)
     // chain is complete as there is only one frame
     toolbox::mem::Reference *head = 0;
     head = registryCollection_.frameRefsMap_[outModName][0];
-    FDEBUG(10) << "testCompleteFUReg: No chain as only one frame" << std::endl;
+    FDEBUG(10) << "testCompleteRegistry: No chain as only one frame" << std::endl;
     // copy the whole registry for each FU sender and
     // test the registry against the one being used in Storage Manager
     registryCollection_.regAllReceivedMap_[outModName] = true;
@@ -295,7 +295,7 @@ bool SMFUSenderEntry::testCompleteFUReg(const std::string outModName)
   {
     if(registryCollection_.currFramesMap_[outModName] == registryCollection_.totFramesMap_[outModName])
     {
-      FDEBUG(10) << "testCompleteFUReg: Received fragment completes a chain that has " 
+      FDEBUG(10) << "testCompleteRegistry: Received fragment completes a chain that has " 
                  << registryCollection_.totFramesMap_[outModName]
                  << " frames " << std::endl;
       registryCollection_.regAllReceivedMap_[outModName] = true;
@@ -303,17 +303,17 @@ bool SMFUSenderEntry::testCompleteFUReg(const std::string outModName)
       toolbox::mem::Reference *tail = 0;
       if(registryCollection_.totFramesMap_[outModName] > 1)
       {
-        FDEBUG(10) << "testCompleteFUReg: Remaking the chain" << std::endl;
+        FDEBUG(10) << "testCompleteRegistry: Remaking the chain" << std::endl;
         for(int i=0; i < (int)(registryCollection_.totFramesMap_[outModName])-1 ; ++i)
         {
-          FDEBUG(10) << "testCompleteFUReg: setting next reference for frame " << i << std::endl;
+          FDEBUG(10) << "testCompleteRegistry: setting next reference for frame " << i << std::endl;
           head = registryCollection_.frameRefsMap_[outModName][i];
           tail = registryCollection_.frameRefsMap_[outModName][i+1];
           head->setNextReference(tail);
         }
       }
       head = registryCollection_.frameRefsMap_[outModName][0];
-      FDEBUG(10) << "testCompleteFUReg: Original chain remade" << std::endl;
+      FDEBUG(10) << "testCompleteRegistry: Original chain remade" << std::endl;
       // Deal with the chain
       bool copyOK = copyRegistry(outModName, head);
       // free the complete chain buffer by freeing the head
@@ -333,7 +333,7 @@ bool SMFUSenderEntry::testCompleteFUReg(const std::string outModName)
         unsigned int tested_frames = 1;
         next = head;
         while((next=next->getNextReference())!=0) ++tested_frames;
-        FDEBUG(10) << "testCompleteFUReg: Head frame has " << tested_frames-1
+        FDEBUG(10) << "testCompleteRegistry: Head frame has " << tested_frames-1
           << " linked frames out of " << registryCollection_.totFramesMap_[outModName]-1 << std::endl;
         if(registryCollection_.totFramesMap_[outModName] == tested_frames)
         {
@@ -479,7 +479,7 @@ void SMFUSenderEntry::addReg2Entry( const unsigned int frameCount, const unsigne
             << hltURL_ << " class " << hltClassName_  << " instance "
             << hltInstance_ << " Tid " << hltTid_ << std::endl;
   // test if this single registry frame is the only one
-  testCompleteFUReg(outModName);
+  testCompleteRegistry(outModName);
 }
 
 bool SMFUSenderEntry::sameOutMod(const std::string outModName)

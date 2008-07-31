@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.67 2008/07/30 19:19:55 biery Exp $
+// $Id: StorageManager.cc,v 1.68 2008/07/31 13:47:14 biery Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -104,7 +104,7 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   compressionLevelDQM_(1),
   mybuffer_(7000000),
   fairShareES_(false),
-  connectedFUs_(0), 
+  connectedRBs_(0), 
   storedEvents_(0), 
   receivedEvents_(0), 
   receivedErrorEvents_(0), 
@@ -129,7 +129,7 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   ispace->fireItemAvailable("STparameterSet",&offConfig_);
   ispace->fireItemAvailable("runNumber",     &runNumber_);
   ispace->fireItemAvailable("stateName",     fsm_.stateName());
-  ispace->fireItemAvailable("connectedFUs",  &connectedFUs_);
+  ispace->fireItemAvailable("connectedRBs",  &connectedRBs_);
   ispace->fireItemAvailable("storedEvents",  &storedEvents_);
   ispace->fireItemAvailable("receivedEvents",&receivedEvents_);
   ispace->fireItemAvailable("receivedErrorEvents",&receivedErrorEvents_);
@@ -169,7 +169,7 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   // Bind web interface
   xgi::bind(this,&StorageManager::defaultWebPage,       "Default");
   xgi::bind(this,&StorageManager::css,                  "styles.css");
-  xgi::bind(this,&StorageManager::fusenderWebPage,      "fusenderlist");
+  xgi::bind(this,&StorageManager::rbsenderWebPage,      "rbsenderlist");
   xgi::bind(this,&StorageManager::streamerOutputWebPage,"streameroutput");
   xgi::bind(this,&StorageManager::eventdataWebPage,     "geteventdata");
   xgi::bind(this,&StorageManager::headerdataWebPage,    "getregdata");
@@ -289,7 +289,7 @@ xoap::MessageReference
 StorageManager::ParameterGet(xoap::MessageReference message)
   throw (xoap::exception::Exception)
 {
-  connectedFUs_.value_ = smfusenders_.size();
+  connectedRBs_.value_ = smrbsenders_.size();
   return Application::ParameterGet(message);
 }
 
@@ -329,7 +329,7 @@ void StorageManager::receiveRegistryMessage(toolbox::mem::Reference *ref)
   unsigned long actualFrameSize = (unsigned long)sizeof(I2O_SM_PREAMBLE_MESSAGE_FRAME)
                                   + msg->dataSize;
   addMeasurement(actualFrameSize);
-  // register this FU sender into the list to keep its status
+  // register this data sender into the list to keep its status
   // need output module name and Id which is not available in the I2O header!!
   // We must assume the registry is in a single frame! So in this case
   // we extract the information from the INIT message header
@@ -343,19 +343,19 @@ void StorageManager::receiveRegistryMessage(toolbox::mem::Reference *ref)
 
   {
   // a quick fix for registration problem TODO find real problem and fix!
-  boost::mutex::scoped_lock sl(fulist_lock_);
+  boost::mutex::scoped_lock sl(rblist_lock_);
 
-  int status = smfusenders_.registerFUSender(&msg->hltURL[0], &msg->hltClassName[0],
+  int status = smrbsenders_.registerDataSender(&msg->hltURL[0], &msg->hltClassName[0],
                  msg->hltLocalId, msg->hltInstance, msg->hltTid,
                  msg->frameCount, msg->numFrames, ref, dmoduleLabel, dmoduleId);
-  // see if this completes the registry data for this FU
+  // see if this completes the registry data for this data sender
   // if so then: if first copy it, if subsequent test it (mark which is first?)
   // should test on -1 as problems
   if(status == 1)
   {
-    char* regPtr = smfusenders_.getRegistryData(&msg->hltURL[0], &msg->hltClassName[0],
+    char* regPtr = smrbsenders_.getRegistryData(&msg->hltURL[0], &msg->hltClassName[0],
                  msg->hltLocalId, msg->hltInstance, msg->hltTid, dmoduleLabel);
-    unsigned int regSz = smfusenders_.getRegistrySize(&msg->hltURL[0], &msg->hltClassName[0],
+    unsigned int regSz = smrbsenders_.getRegistrySize(&msg->hltURL[0], &msg->hltClassName[0],
                  msg->hltLocalId, msg->hltInstance, msg->hltTid, dmoduleLabel);
 
     // attempt to add the INIT message to our collection
@@ -388,7 +388,7 @@ void StorageManager::receiveRegistryMessage(toolbox::mem::Reference *ref)
                                          1, 1, Header::INIT, 0, 0, 0); // use fixed 0 as ID
         b.commit(sizeof(stor::FragEntry));
         // this is checked ok by default
-        smfusenders_.setRegCheckedOK(&msg->hltURL[0], &msg->hltClassName[0],
+        smrbsenders_.setRegCheckedOK(&msg->hltURL[0], &msg->hltClassName[0],
                                      msg->hltLocalId, msg->hltInstance, msg->hltTid, dmoduleLabel);
 
         // add this output module to the monitoring
@@ -454,7 +454,7 @@ void StorageManager::receiveRegistryMessage(toolbox::mem::Reference *ref)
         // it was still verified to be "OK" by virtue of the fact that
         // there was no exception.
         FDEBUG(9) << "copyAndTestRegistry: Duplicate registry is okay" << std::endl;
-        smfusenders_.setRegCheckedOK(&msg->hltURL[0], &msg->hltClassName[0],
+        smrbsenders_.setRegCheckedOK(&msg->hltURL[0], &msg->hltClassName[0],
                                      msg->hltLocalId, msg->hltInstance, msg->hltTid, dmoduleLabel);
       }
     }
@@ -482,7 +482,7 @@ void StorageManager::receiveRegistryMessage(toolbox::mem::Reference *ref)
                        msg->hltInstance, 
                        I2O_FU_DATA_DISCARD,
                        hltClassName);
-  } // end of test on if registryFUSender returned that registry is complete
+  } // end of test on if registerDataSender returned that registry is complete
   } // end of scope for mutex to protect registration
 }
 
@@ -579,7 +579,7 @@ void StorageManager::receiveDataMessage(toolbox::mem::Reference *ref)
                            << " From " << msg->hltURL
                            << " Different from Run Number from configuration = " << runNumber_);
          }
-         // for FU sender list update
+         // for data sender list update
          // msg->frameCount start from 0, but in EventMsg header it starts from 1!
          bool isLocal = true;
 
@@ -587,7 +587,7 @@ void StorageManager::receiveDataMessage(toolbox::mem::Reference *ref)
          lastEventSeen_ = msg->eventID;
 
          int status = 
-	   smfusenders_.updateFUSender4data(&msg->hltURL[0], &msg->hltClassName[0],
+	   smrbsenders_.updateSender4data(&msg->hltURL[0], &msg->hltClassName[0],
 					    msg->hltLocalId, msg->hltInstance, msg->hltTid,
 					    msg->runID, msg->eventID, msg->frameCount+1, msg->numFrames,
 					    msg->originalSize, isLocal, msg->outModID);
@@ -603,7 +603,7 @@ void StorageManager::receiveDataMessage(toolbox::mem::Reference *ref)
 
          if(status == -1) {
            LOG4CPLUS_ERROR(this->getApplicationLogger(),
-                    "updateFUSender4data: Cannot find FU in FU Sender list!"
+                    "updateSender4data: Cannot find RB in Data Sender list!"
                     << " With URL "
                     << msg->hltURL << " class " << msg->hltClassName  << " instance "
                     << msg->hltInstance << " Tid " << msg->hltTid);
@@ -646,11 +646,11 @@ void StorageManager::receiveDataMessage(toolbox::mem::Reference *ref)
     //update last event seen
     lastEventSeen_ = msg->eventID;
 
-    // for FU sender list update
+    // for data sender list update
     // msg->frameCount start from 0, but in EventMsg header it starts from 1!
     bool isLocal = false;
     int status = 
-      smfusenders_.updateFUSender4data(&msg->hltURL[0], &msg->hltClassName[0],
+      smrbsenders_.updateSender4data(&msg->hltURL[0], &msg->hltClassName[0],
 				       msg->hltLocalId, msg->hltInstance, msg->hltTid,
 				       msg->runID, msg->eventID, msg->frameCount+1, msg->numFrames,
 				       msg->originalSize, isLocal, msg->outModID);
@@ -665,7 +665,7 @@ void StorageManager::receiveDataMessage(toolbox::mem::Reference *ref)
     }
     if(status == -1) {
       LOG4CPLUS_ERROR(this->getApplicationLogger(),
-		      "updateFUSender4data: Cannot find FU in FU Sender list!"
+		      "updateSender4data: Cannot find RB in Data Sender list!"
 		      << " With URL "
 		      << msg->hltURL << " class " << msg->hltClassName  << " instance "
 		      << msg->hltInstance << " Tid " << msg->hltTid);
@@ -775,7 +775,7 @@ void StorageManager::receiveErrorDataMessage(toolbox::mem::Reference *ref)
                            << " From " << msg->hltURL
                            << " Different from Run Number from configuration = " << runNumber_);
          }
-         // for FU sender list update
+         // for data sender list update
          // msg->frameCount start from 0, but in EventMsg header it starts from 1!
          bool isLocal = true;
 
@@ -784,7 +784,7 @@ void StorageManager::receiveErrorDataMessage(toolbox::mem::Reference *ref)
 
          // TODO need to fix this as the outModId is not valid for error events
          int status = 
-	   smfusenders_.updateFUSender4data(&msg->hltURL[0], &msg->hltClassName[0],
+	   smrbsenders_.updateSender4data(&msg->hltURL[0], &msg->hltClassName[0],
 					    msg->hltLocalId, msg->hltInstance, msg->hltTid,
 					    msg->runID, msg->eventID, msg->frameCount+1, msg->numFrames,
 					    msg->originalSize, isLocal, msg->outModID);
@@ -795,7 +795,7 @@ void StorageManager::receiveErrorDataMessage(toolbox::mem::Reference *ref)
 
          if(status == -1) {
            LOG4CPLUS_ERROR(this->getApplicationLogger(),
-                    "updateFUSender4data: Cannot find FU in FU Sender list!"
+                    "updateSender4data: Cannot find RB in Data Sender list!"
                     << " For Error Event With URL "
                     << msg->hltURL << " class " << msg->hltClassName  << " instance "
                     << msg->hltInstance << " Tid " << msg->hltTid);
@@ -838,12 +838,12 @@ void StorageManager::receiveErrorDataMessage(toolbox::mem::Reference *ref)
     //update last error event seen
     lastErrorEventSeen_ = msg->eventID;
 
-    // for FU sender list update
+    // for data sender list update
     // msg->frameCount start from 0, but in EventMsg header it starts from 1!
     bool isLocal = false;
     // TODO need to fix this as the outModId is not valid for error events
     int status = 
-      smfusenders_.updateFUSender4data(&msg->hltURL[0], &msg->hltClassName[0],
+      smrbsenders_.updateSender4data(&msg->hltURL[0], &msg->hltClassName[0],
 				       msg->hltLocalId, msg->hltInstance, msg->hltTid,
 				       msg->runID, msg->eventID, msg->frameCount+1, msg->numFrames,
 				       msg->originalSize, isLocal, msg->outModID);
@@ -853,7 +853,7 @@ void StorageManager::receiveErrorDataMessage(toolbox::mem::Reference *ref)
     }
     if(status == -1) {
       LOG4CPLUS_ERROR(this->getApplicationLogger(),
-		      "updateFUSender4data: Cannot find FU in FU Sender list!"
+		      "updateSender4data: Cannot find RB in Data Sender list!"
 		      << " For Error Event With URL "
 		      << msg->hltURL << " class " << msg->hltClassName  << " instance "
 		      << msg->hltInstance << " Tid " << msg->hltTid);
@@ -902,13 +902,13 @@ void StorageManager::receiveOtherMessage(toolbox::mem::Reference *ref)
     return;
   }
   
-  LOG4CPLUS_INFO(this->getApplicationLogger(),"removing FU sender at " << msg->hltURL);
-  bool didErase = smfusenders_.removeFUSender(&msg->hltURL[0], &msg->hltClassName[0],
+  LOG4CPLUS_INFO(this->getApplicationLogger(),"removing data sender at " << msg->hltURL);
+  bool didErase = smrbsenders_.removeDataSender(&msg->hltURL[0], &msg->hltClassName[0],
 		 msg->hltLocalId, msg->hltInstance, msg->hltTid);
   if(!didErase)
   {
     LOG4CPLUS_ERROR(this->getApplicationLogger(),
-                    "Spurious end-of-run received for FU not in Sender list!"
+                    "Spurious end-of-run received for RB not in Sender list!"
                     << " With URL "
                     << msg->hltURL << " class " << msg->hltClassName  << " instance "
                     << msg->hltInstance << " Tid " << msg->hltTid);
@@ -1012,7 +1012,7 @@ void StorageManager::receiveDQMMessage(toolbox::mem::Reference *ref)
                                          +thislen;
          addMeasurement(actualFrameSize);
 
-         // no FU sender list update yet for DQM data, should add it here
+         // no data sender list update yet for DQM data, should add it here
       }
 
     } else {
@@ -1040,7 +1040,7 @@ void StorageManager::receiveDQMMessage(toolbox::mem::Reference *ref)
                                     + len;
     addMeasurement(actualFrameSize);
 
-    // no FU sender list update yet for DQM data, should add it here
+    // no data sender list update yet for DQM data, should add it here
   }
 
   if (  msg->frameCount == msg->numFrames-1 )
@@ -1514,7 +1514,7 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
           *out << "Number of RB Senders" << endl;
           *out << "</td>" << endl;
           *out << "<td>" << endl;
-          *out << smfusenders_.size() << endl;
+          *out << smrbsenders_.size() << endl;
           *out << "</td>" << endl;
         *out << "  </tr>" << endl;
 
@@ -1526,7 +1526,7 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
   *out << "<hr/>"                                                 << endl;
   std::string url = getApplicationDescriptor()->getContextDescriptor()->getURL();
   std::string urn = getApplicationDescriptor()->getURN();
-  *out << "<a href=\"" << url << "/" << urn << "/fusenderlist" << "\">" 
+  *out << "<a href=\"" << url << "/" << urn << "/rbsenderlist" << "\">" 
        << "RB Sender list web page" << "</a>" << endl;
   *out << "<hr/>"                                                 << endl;
   *out << "<a href=\"" << url << "/" << urn << "/streameroutput" << "\">" 
@@ -1547,8 +1547,8 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
 }
 
 
-//////////// *** fusender web page //////////////////////////////////////////////////////////
-void StorageManager::fusenderWebPage(xgi::Input *in, xgi::Output *out)
+//////////// *** rbsender web page //////////////////////////////////////////////////////////
+void StorageManager::rbsenderWebPage(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
   *out << "<html>"                                                   << endl;
@@ -1643,13 +1643,13 @@ void StorageManager::fusenderWebPage(xgi::Input *in, xgi::Output *out)
           *out << "Number of RB Senders" << endl;
           *out << "</td>" << endl;
           *out << "<td align=right>" << endl;
-          *out << smfusenders_.size() << endl;
+          *out << smrbsenders_.size() << endl;
           *out << "</td>" << endl;
         *out << "  </tr>" << endl;
-    std::vector<boost::shared_ptr<SMFUSenderStats> > vfustats = smfusenders_.getFUSenderStats();
-    if(!vfustats.empty()) {
-      for(vector<boost::shared_ptr<SMFUSenderStats> >::iterator pos = vfustats.begin();
-          pos != vfustats.end(); ++pos)
+    std::vector<boost::shared_ptr<SMFUSenderStats> > vrbstats = smrbsenders_.getSenderStats();
+    if(!vrbstats.empty()) {
+      for(vector<boost::shared_ptr<SMFUSenderStats> >::iterator pos = vrbstats.begin();
+          pos != vrbstats.end(); ++pos)
       {
         *out << "<tr>" << endl;
           *out << "<td >" << endl;
@@ -3901,7 +3901,7 @@ void StorageManager::setupFlashList()
   is->fireItemAvailable("STparameterSet",       &offConfig_);
   is->fireItemAvailable("stateName",            fsm_.stateName());
   is->fireItemAvailable("progressMarker",       &progressMarker_);
-  is->fireItemAvailable("connectedFUs",         &connectedFUs_);
+  is->fireItemAvailable("connectedRBs",         &connectedRBs_);
   is->fireItemAvailable("pushMode2Proxy",       &pushmode2proxy_);
   is->fireItemAvailable("collateDQM",           &collateDQM_);
   is->fireItemAvailable("archiveDQM",           &archiveDQM_);
@@ -3957,7 +3957,7 @@ void StorageManager::setupFlashList()
   is->addItemRetrieveListener("STparameterSet",       this);
   is->addItemRetrieveListener("stateName",            this);
   is->addItemRetrieveListener("progressMarker",       this);
-  is->addItemRetrieveListener("connectedFUs",         this);
+  is->addItemRetrieveListener("connectedRBs",         this);
   is->addItemRetrieveListener("pushMode2Proxy",       this);
   is->addItemRetrieveListener("collateDQM",           this);
   is->addItemRetrieveListener("archiveDQM",           this);
@@ -3996,8 +3996,8 @@ void StorageManager::actionPerformed(xdata::Event& e)
     is->lock();
     std::string item = dynamic_cast<xdata::ItemRetrieveEvent&>(e).itemName();
     // Only update those locations which are not always up to date
-    if      (item == "connectedFUs")
-      connectedFUs_   = smfusenders_.size();
+    if      (item == "connectedRBs")
+      connectedRBs_   = smrbsenders_.size();
     else if (item == "memoryUsed")
       memoryUsed_     = pool_->getMemoryUsage().getUsed();
     else if (item == "storedVolume")
@@ -4517,12 +4517,12 @@ void StorageManager::sendDiscardMessage(unsigned int    fuID,
 	    << hltClassName   << std::endl;
   */
     
-  set<xdaq::ApplicationDescriptor*> setOfFUs=
+  set<xdaq::ApplicationDescriptor*> setOfRBs=
     getApplicationContext()->getDefaultZone()->
     getApplicationDescriptors(hltClassName.c_str());
   
   for (set<xdaq::ApplicationDescriptor*>::iterator 
-	 it=setOfFUs.begin();it!=setOfFUs.end();++it)
+	 it=setOfRBs.begin();it!=setOfRBs.end();++it)
     {
       if ((*it)->getInstance()==hltInstance)
 	{

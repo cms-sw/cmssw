@@ -1,7 +1,7 @@
 #ifndef _smfusenderstats_h_
 #define _smfusenderstats_h_
 
-// $Id: SMFUSenderStats.h,v 1.1 2007/02/04 06:25:52 hcheung Exp $ 
+// $Id: SMFUSenderStats.h,v 1.2 2008/05/15 13:57:43 hcheung Exp $ 
 
 #include <vector>
 
@@ -10,7 +10,7 @@
 
 namespace stor {
 
-struct SMFUSenderStats // for FU sender statistics (from SMFUSenderEntry)
+struct SMFUSenderStats // for data sender statistics (from SMFUSenderEntry)
 {
   SMFUSenderStats(boost::shared_ptr<std::vector<char> > hltURL,
                   boost::shared_ptr<std::vector<char> >  hltClassName,
