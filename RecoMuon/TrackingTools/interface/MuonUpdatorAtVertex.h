@@ -21,8 +21,8 @@
  *  BeamSpotPositionErrors[2] = sigma(z)
  *
  *
- *  $Date: 2007/04/13 09:05:34 $
- *  $Revision: 1.15 $
+ *  $Date: 2008/02/20 08:48:25 $
+ *  $Revision: 1.16 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -56,26 +56,26 @@ public:
   
   /// Propagate the state to the 2D-PCA
   std::pair<bool,FreeTrajectoryState>
-    propagate(const TrajectoryStateOnSurface &tsos);
+    propagate(const TrajectoryStateOnSurface &tsos, const reco::BeamSpot & beamSpot);
 
   /// Applies the vertex constraint
   std::pair<bool,FreeTrajectoryState> 
-    update(const reco::TransientTrack &track, edm::Event &event);
+    update(const reco::TransientTrack &track, const reco::BeamSpot & beamSpot);
   
   /// Applies the vertex constraint
   std::pair<bool,FreeTrajectoryState>
-    update(const FreeTrajectoryState& ftsAtVtx, edm::Event &event);
+    update(const FreeTrajectoryState& ftsAtVtx, const reco::BeamSpot & beamSpot);
 
   /// Propagate to the 3D-PCA and apply the vertex constraint
   std::pair<bool,FreeTrajectoryState>
     propagateWithUpdate(const TrajectoryStateOnSurface &tsos, 
 			const GlobalPoint &vtxPosition,
-			edm::Event &event);
+			const reco::BeamSpot & beamSpot);
   
   /// Propagate to the 2D-PCA and apply the vertex constraint
   std::pair<bool,FreeTrajectoryState>
     propagateWithUpdate(const TrajectoryStateOnSurface &tsos,
-			edm::Event &event);
+			const reco::BeamSpot & beamSpot);
 
 protected:
 

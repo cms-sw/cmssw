@@ -3,8 +3,8 @@
  *  Class to load the product in the event
  *
 
- *  $Date: 2008/05/07 21:44:06 $
- *  $Revision: 1.65 $
+ *  $Date: 2008/05/09 19:42:01 $
+ *  $Revision: 1.66 $
 
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -120,6 +120,9 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
     return event.put(trackCollection,instance);
   }
   
+  edm::Handle<reco::BeamSpot> beamSpot;
+  event.getByType(beamSpot);
+
   LogTrace(metname) << "Create the collection of Tracks";
   
   reco::TrackRef::key_type trackIndex = 0;
@@ -166,7 +169,7 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
     
     // build the "bare" track from the trajectory.
     // This track has the parameters defined at PCA (no update)
-    pair<bool,reco::Track> resultOfTrackExtrapAtPCA = buildTrackAtPCA(trajectory);
+    pair<bool,reco::Track> resultOfTrackExtrapAtPCA = buildTrackAtPCA(trajectory, *beamSpot);
     
     // Check if the extrapolation went well    
     if(!resultOfTrackExtrapAtPCA.first) {
@@ -191,7 +194,7 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
     
     if(theUpdatingAtVtx){
       // build the "bare" track UPDATED at vtx
-      updateResult = buildTrackUpdatedAtPCA(track,event);
+      updateResult = buildTrackUpdatedAtPCA(track, *beamSpot);
 
       if(!updateResult.first) ++trackIndex;
       else{
@@ -396,6 +399,9 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
   
   LogTrace(metname) << "Create the collection of Tracks";
   
+  edm::Handle<reco::BeamSpot> beamSpot;
+  event.getByType(beamSpot);
+
   reco::TrackRef::key_type trackIndex = 0;
   //  reco::TrackRef::key_type trackUpdatedIndex = 0;
   
@@ -445,7 +451,7 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
     
     // build the "bare" track from the trajectory.
     // This track has the parameters defined at PCA (no update)
-    pair<bool,reco::Track> resultOfTrackExtrapAtPCA = buildTrackAtPCA(trajectory);
+    pair<bool,reco::Track> resultOfTrackExtrapAtPCA = buildTrackAtPCA(trajectory, *beamSpot);
     
     // Check if the extrapolation went well    
     if(!resultOfTrackExtrapAtPCA.first) {
@@ -535,7 +541,7 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
 }
 
 
-pair<bool,reco::Track> MuonTrackLoader::buildTrackAtPCA(const Trajectory& trajectory) const {
+pair<bool,reco::Track> MuonTrackLoader::buildTrackAtPCA(const Trajectory& trajectory, const reco::BeamSpot &beamSpot) const {
 
   const string metname = "Muon|RecoMuon|MuonTrackLoader";
 
@@ -566,7 +572,7 @@ pair<bool,reco::Track> MuonTrackLoader::buildTrackAtPCA(const Trajectory& trajec
   // This is needed to extrapolate the tsos at vertex
   LogTrace(metname) << "Propagate to PCA...";
   pair<bool,FreeTrajectoryState> 
-    extrapolationResult = theUpdatorAtVtx->propagate(innerTSOS);  
+    extrapolationResult = theUpdatorAtVtx->propagate(innerTSOS, beamSpot);  
   FreeTrajectoryState ftsAtVtx;
   
   if(extrapolationResult.first)
@@ -609,7 +615,7 @@ pair<bool,reco::Track> MuonTrackLoader::buildTrackAtPCA(const Trajectory& trajec
 }
 
 
-pair<bool,reco::Track> MuonTrackLoader::buildTrackUpdatedAtPCA(const reco::Track &track,edm::Event &event) const {
+pair<bool,reco::Track> MuonTrackLoader::buildTrackUpdatedAtPCA(const reco::Track &track, const reco::BeamSpot &beamSpot) const {
 
   const string metname = "Muon|RecoMuon|MuonTrackLoader";
   MuonPatternRecoDumper debug;
@@ -620,7 +626,7 @@ pair<bool,reco::Track> MuonTrackLoader::buildTrackUpdatedAtPCA(const reco::Track
 				      theService->trackingGeometry());
 
   LogTrace(metname) << "Apply the vertex constraint";
-  pair<bool,FreeTrajectoryState> updateResult = theUpdatorAtVtx->update(transientTrack,event);
+  pair<bool,FreeTrajectoryState> updateResult = theUpdatorAtVtx->update(transientTrack,beamSpot);
 
   if(!updateResult.first){
     return pair<bool,reco::Track>(false,reco::Track());
