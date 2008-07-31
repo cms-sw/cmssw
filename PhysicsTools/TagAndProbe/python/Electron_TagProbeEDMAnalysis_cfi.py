@@ -27,7 +27,7 @@ demo = cms.EDFilter("TagProbeEDMAnalysis",
     BkgPeak = cms.untracked.vdouble(91.1876),
     # Binning for the above plots 
     XBins = cms.untracked.vuint32(100),
-    SignalWidth = cms.untracked.vdouble(2.8, 1.0, 4.0),
+    SignalWidth = cms.untracked.vdouble(2.8),
     MassLow = cms.untracked.double(80.0),
     SBSStanDev = cms.untracked.double(2.0), ## SD from peak for subtraction
 
@@ -36,21 +36,21 @@ demo = cms.EDFilter("TagProbeEDMAnalysis",
     # untracked double MassLow            = 60.0
     # untracked double MassHigh           = 120.0
     NumBinsMass = cms.untracked.int32(20),
-    logY = cms.untracked.vuint32(0),
+    logY = cms.untracked.vuint32(1),
     # Efficiency variables
     Efficiency = cms.untracked.vdouble(0.9, 0.0, 1.0),
     BkgGamma = cms.untracked.vdouble(0.05, 0.0, 0.1),
     Do2DFit = cms.untracked.bool(True),
     XMax = cms.untracked.vdouble(120.0),
     outputFileNames = cms.untracked.vstring('Zmass_pass.eps'),
-    CalculateEffFitter = cms.untracked.bool(False), ## effs from Roofit
+    CalculateEffFitter = cms.untracked.bool(True), ## effs from Roofit
 
     SignalSigma = cms.untracked.vdouble(1.1, 0.5, 4.0),
     # Make some plots of tree variables ...
     quantities = cms.untracked.vstring('TPmass'),
     Var2High = cms.untracked.double(3.0),
     MassHigh = cms.untracked.double(100.0),
-    BifurGaussFrac = cms.untracked.vdouble(0.87),
+    BifurGaussFrac = cms.untracked.vdouble(0.2, 0.01, 0.99),
     useRecoVarsForTruthMatchedCands = cms.untracked.bool(False),
     # Type of Efficiency : 0 => SC-->GsfElectron
     # 1 ==> GsfElectron-->isolation
@@ -62,7 +62,7 @@ demo = cms.EDFilter("TagProbeEDMAnalysis",
     # three array elements {default, range_low, range_high}
     # If the variable should be fixed, fill one element {value}
     # Signal variables
-    SignalMean = cms.untracked.vdouble(91.1876, 90.0, 92.0),
+    SignalMean = cms.untracked.vdouble(91.1876),
     XMin = cms.untracked.vdouble(50.0),
     Var1High = cms.untracked.double(3.5),
     NumBkgFail = cms.untracked.vdouble(10.0, 0.0, 10000.0),
@@ -72,7 +72,7 @@ demo = cms.EDFilter("TagProbeEDMAnalysis",
     SignalWidthR = cms.untracked.vdouble(0.52, 0.0, 10.0),
     Var2Low = cms.untracked.double(-3.0),
     Var1Low = cms.untracked.double(-3.5),
-    CalculateEffTruth = cms.untracked.bool(True), ## true effs
+    CalculateEffTruth = cms.untracked.bool(False), ## true effs
 
     NumSignal = cms.untracked.vdouble(4000.0, 0.0, 100000.0)
 )

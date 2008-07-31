@@ -20,12 +20,12 @@ cutbasedRobustElectron = EgammaAnalysis.ElectronIDProducers.electronId_cfi.elect
 # 
 #  SuperClusters  ################
 # 
-HybridSuperClusters = cms.EDProducer("EcalCandidateProducer",
+HybridSuperClusters = cms.EDProducer("ConcreteEcalCandidateProducer",
     src = cms.InputTag("correctedHybridSuperClusters"),
     particleType = cms.string('gamma')
 )
 
-EndcapSuperClusters = cms.EDProducer("EcalCandidateProducer",
+EndcapSuperClusters = cms.EDProducer("ConcreteEcalCandidateProducer",
     src = cms.InputTag("correctedEndcapSuperClustersWithPreshower"),
     particleType = cms.string('gamma')
 )
@@ -93,7 +93,7 @@ theSuperClusters = cms.EDFilter("CandViewSelector",
 )
 
 #  GsfElectron
-gsfSelection = cms.EDFilter("PixelMatchGsfElectronSelector",
+gsfSelection = cms.EDFilter("GsfElectronSelector",
     src = cms.InputTag("gsfElectrons"),
     cut = cms.string('et > 0.0')
 )
@@ -103,7 +103,7 @@ theGsfElectrons = cms.EDProducer("GsfElectronShallowCloneProducer",
 )
 
 #  isolation
-isoSelection = cms.EDFilter("PixelMatchGsfElectronSelector",
+isoSelection = cms.EDFilter("GsfElectronSelector",
     src = cms.InputTag("isolatedElectronCands"),
     cut = cms.string('et > 0.0')
 )
@@ -113,7 +113,7 @@ theIsolation = cms.EDProducer("GsfElectronShallowCloneProducer",
 )
 
 #  id 
-idSelection = cms.EDFilter("PixelMatchGsfElectronSelector",
+idSelection = cms.EDFilter("GsfElectronSelector",
     src = cms.InputTag("cutbasedRobustElectronCands"),
     cut = cms.string('et > 0.0')
 )
@@ -123,7 +123,7 @@ theId = cms.EDProducer("GsfElectronShallowCloneProducer",
 )
 
 #  trigger
-hltSelection = cms.EDFilter("PixelMatchGsfElectronSelector",
+hltSelection = cms.EDFilter("GsfElectronSelector",
     src = cms.InputTag("HLTRobustElectronCands"),
     cut = cms.string('et > 0.0')
 )
