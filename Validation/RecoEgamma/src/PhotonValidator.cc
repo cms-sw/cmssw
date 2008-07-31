@@ -67,8 +67,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2008/07/10 12:11:57 $ 
- **  $Revision: 1.4 $
+ **  $Date: 2008/07/22 12:12:42 $ 
+ **  $Revision: 1.5 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -174,7 +174,10 @@ void PhotonValidator::initVectors() {
       double d=etaMin+k*step;
       etaintervalslarge_.push_back(d);
       totSimConvEta_.push_back(0);     
-      totMatchedSimConvEtaTwoTracks_.push_back(0);     
+      totMatchedSimConvEtaTwoTracks_.push_back(0); 
+      totMatchedRecConvEtaTwoTracks_.push_back(0);     
+      totRecAssConvEtaTwoTracks_.push_back(0);     
+     
     }   
 
 
@@ -189,6 +192,8 @@ void PhotonValidator::initVectors() {
       //
       totSimConvPhi_.push_back(0);     
       totMatchedSimConvPhiTwoTracks_.push_back(0);     
+      totMatchedRecConvPhiTwoTracks_.push_back(0);     
+      totRecAssConvPhiTwoTracks_.push_back(0);     
     }   
     step=(rMax-rMin)/rBin;
     rintervals_.push_back(rMin);
@@ -196,7 +201,10 @@ void PhotonValidator::initVectors() {
       double d=rMin+k*step;
       rintervals_.push_back(d);
       totSimConvR_.push_back(0);     
-      totMatchedSimConvRTwoTracks_.push_back(0);     
+      totMatchedSimConvRTwoTracks_.push_back(0);    
+      totMatchedRecConvRTwoTracks_.push_back(0);     
+      totRecAssConvRTwoTracks_.push_back(0);     
+  
     }   
     step=(zMax-zMin)/zBin;
     zintervals_.push_back(zMin);
@@ -204,7 +212,10 @@ void PhotonValidator::initVectors() {
       double d=zMin+k*step;
       zintervals_.push_back(d);
       totSimConvZ_.push_back(0);     
-      totMatchedSimConvZTwoTracks_.push_back(0);     
+      totMatchedSimConvZTwoTracks_.push_back(0);  
+      totMatchedRecConvZTwoTracks_.push_back(0);     
+      totRecAssConvZTwoTracks_.push_back(0);     
+    
     }   
 
 
@@ -454,6 +465,18 @@ void PhotonValidator::beginJob( const edm::EventSetup& setup)
     histname = "convEffVsZTwoTracks";
     convEffZTwoTracks_ =  dbe_->book1D(histname,histname,zBin,zMin,zMax);
 
+
+    histname = "convFakeRateVsEtaTwoTracks";
+    convFakeRateEtaTwoTracks_ =  dbe_->book1D(histname,histname,etaBin2,etaMin, etaMax);
+    histname = "convFakeRateVsPhiTwoTracks";
+    convFakeRatePhiTwoTracks_ =  dbe_->book1D(histname,histname,phiBin,phiMin,phiMax);
+    histname = "convFakeRateVsRTwoTracks";
+    convFakeRateRTwoTracks_ =  dbe_->book1D(histname,histname,rBin,rMin, rMax);
+    histname = "convFakeRateVsZTwoTracks";
+    convFakeRateZTwoTracks_ =  dbe_->book1D(histname,histname,zBin,zMin,zMax);
+
+
+
     histname="nConv";
     h_nConv_[0][0] = dbe_->book1D(histname+"All","Number Of Conversions per isolated candidates per events: All Ecal  ",10,-0.5, 9.5);
     h_nConv_[0][1] = dbe_->book1D(histname+"Barrel","Number Of Conversions per isolated candidates per events: Ecal Barrel  ",10,-0.5, 9.5);
@@ -608,6 +631,9 @@ void PhotonValidator::beginJob( const edm::EventSetup& setup)
 
     h_zPVFromTracks_[1] =  dbe_->book1D("zPVFromTracks"," Photons: PV z from conversion tracks",100, -25., 25.);
     h_dzPVFromTracks_[1] =  dbe_->book1D("dzPVFromTracks"," Photons: PV Z_rec - Z_true from conversion tracks",100, -5., 5.);
+    h2_dzPVVsR_ =  dbe_->book2D("h2dzPVVsR","Photon Reco conversions: dz(PV) vs R" ,rBin,rMin, rMax,100, -3.,3.);
+    p_dzPVVsR_ =  dbe_->book1D("pdzPVVsR","Photon Reco conversions: dz(PV) vs R" ,rBin,rMin, rMax);
+
 
 
     //////////////////// plots per track
@@ -818,6 +844,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
 
     ////////////////////////////////// extract info about simulated conversions 
+    
     bool goodSimConversion=false;
     bool visibleConversion=false;
     bool visibleConversionsWithTwoSimTracks=false;
@@ -1022,6 +1049,16 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
     h_phoERes_[0][0]->Fill( photonE / (*mcPho).fourMomentum().e() );
     h2_eResVsEta_[0]->Fill (mcEta_, photonE/(*mcPho).fourMomentum().e()  ) ;
+
+    if (  (*mcPho).isAConversion() == 0 ) {
+      h2_eResVsEta_[1]->Fill (mcEta_, photonE/ (*mcPho).fourMomentum().e()  ) ;
+      h2_r9VsEta_[1] -> Fill (mcEta_, r9);      
+    } 
+
+
+
+
+
  
     if ( photonE/(*mcPho).fourMomentum().e()  < 0.3 &&   photonE/(*mcPho).fourMomentum().e() > 0.1 ) {
       std::cout << " Eta sim " << mcEta_ << " sc eta " << matchingPho.superCluster()->eta() << " pho eta " << matchingPho.eta() << std::endl;
@@ -1067,11 +1104,10 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
     }
       
 
-    if ( ! (visibleConversion &&  visibleConversionsWithTwoSimTracks ) ) {
-      h2_eResVsEta_[1]->Fill (mcEta_, photonE/ (*mcPho).fourMomentum().e()  ) ;
-      h2_r9VsEta_[1] -> Fill (mcEta_, r9);      
-      continue;
-    }
+
+
+
+    if ( ! (visibleConversion &&  visibleConversionsWithTwoSimTracks ) ) continue;
     h_r9_[1][0]->Fill( r9 );
     if ( phoIsInBarrel ) h_r9_[1][1]->Fill( r9 );
     if ( phoIsInEndcap ) h_r9_[1][2]->Fill( r9 );
@@ -1090,10 +1126,6 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       reco::ConversionRef aConv=conversions[iConv];
       std::vector<reco::TrackRef> tracks = aConv->tracks();
       if (tracks.size() < 2 ) continue;
-
-      h_r9_[2][0]->Fill( r9 );
-      if ( phoIsInBarrel ) h_r9_[2][1]->Fill( r9 );
-      if ( phoIsInEndcap ) h_r9_[2][2]->Fill( r9 );
 
       nRecConv_++;
 
@@ -1182,6 +1214,12 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
       ////////// Numerators for conversion efficiencies: both tracks are associated
       if ( nAssT2 ==2 ) {
+
+
+      h_r9_[2][0]->Fill( r9 );
+      if ( phoIsInBarrel ) h_r9_[2][1]->Fill( r9 );
+      if ( phoIsInEndcap ) h_r9_[2][2]->Fill( r9 );
+
 
         nRecConvAss_++;
 
@@ -1293,7 +1331,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
 	h_zPVFromTracks_[type]->Fill ( aConv->zOfPrimaryVertexFromTracks() );
 	h_dzPVFromTracks_[type]->Fill ( aConv->zOfPrimaryVertexFromTracks() - (*mcPho).primaryVertex().z() );
-
+	h2_dzPVVsR_ ->Fill(mcConvR_, aConv->zOfPrimaryVertexFromTracks() - (*mcPho).primaryVertex().z() );
 
 
 	float  dPhiTracksAtEcal=-99;
@@ -1396,6 +1434,109 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
   h_nSimConv_[1]->Fill(float(nSimConv_[1]));
   
 
+
+  ///////////////////  Measure fake rate
+  for( reco::PhotonCollection::const_iterator  iPho = photonCollection.begin(); iPho != photonCollection.end(); iPho++) {
+    reco::Photon aPho = reco::Photon(*iPho);
+    
+    std::vector<reco::ConversionRef> conversions = aPho.conversions();
+    for (unsigned int iConv=0; iConv<conversions.size(); iConv++) {
+      
+      reco::ConversionRef aConv=conversions[iConv];
+      std::vector<reco::TrackRef> tracks = aConv->tracks();
+      if (tracks.size() < 2 ) continue;
+
+
+      
+      for (unsigned int f=0; f<etaintervalslarge_.size()-1; f++){
+	if (aPho.eta()>etaintervalslarge_[f]&&
+	    aPho.eta()<etaintervalslarge_[f+1]) {
+	  totMatchedRecConvEtaTwoTracks_[f]++;
+ 	}
+
+      }
+      for (unsigned int f=0; f<phiintervals_.size()-1; f++){
+	if (aPho.phi()>phiintervals_[f]&&
+	    aPho.phi()<phiintervals_[f+1]) {
+	  totMatchedRecConvPhiTwoTracks_[f]++;
+	}
+      }
+
+      for (unsigned int f=0; f<rintervals_.size()-1; f++){
+	if (mcConvR_>rintervals_[f]&&
+	    mcConvR_<rintervals_[f+1]) {
+	  totMatchedRecConvRTwoTracks_[f]++;
+	}
+      }
+      for (unsigned int f=0; f<zintervals_.size()-1; f++){
+	if (mcConvZ_>zintervals_[f]&&
+	    mcConvZ_<zintervals_[f+1]) {
+	  totMatchedRecConvZTwoTracks_[f]++;
+	}
+      }
+
+      
+      int  nAssT2=0;
+
+      std::map<reco::TrackRef,TrackingParticleRef> myAss;
+      for (unsigned int i=0; i<tracks.size(); i++) {
+	
+	TrackingParticleRef myTP;
+	for (size_t j = 0; j < RtoSCollPtrs.size(); j++) {          
+	  reco::RecoToSimCollection q = *(RtoSCollPtrs[j]);
+	  
+	  RefToBase<reco::Track> myTk( aConv->tracks()[i] );
+	  
+	  if( q.find(myTk ) != q.end() ) {
+	    std::vector<std::pair<TrackingParticleRef, double> > tp = q[myTk];
+	    for (int itp=0; itp<tp.size(); itp++) {
+	      myTP=tp[itp].first;
+	      std::cout << " associated with TP " << myTP->pdgId() << " pt " << sqrt(myTP->momentum().perp2()) << std::endl;
+	      myAss.insert( std::make_pair ( aConv->tracks()[i]  , myTP) );
+	      nAssT2++;
+	    }
+	  }
+	}
+	
+	if ( nAssT2 == 2) {
+	  
+	  for (unsigned int f=0; f<etaintervalslarge_.size()-1; f++){
+	    if (aPho.eta()>etaintervalslarge_[f]&&
+		aPho.eta()<etaintervalslarge_[f+1]) {
+	      totRecAssConvEtaTwoTracks_[f]++;
+	    }
+
+	  }
+	  for (unsigned int f=0; f<phiintervals_.size()-1; f++){
+	    if (aPho.phi()>phiintervals_[f]&&
+		aPho.phi()<phiintervals_[f+1]) {
+	      totRecAssConvPhiTwoTracks_[f]++;
+	    }
+	  }
+	  
+	  for (unsigned int f=0; f<rintervals_.size()-1; f++){
+	    if (mcConvR_>rintervals_[f]&&
+		mcConvR_<rintervals_[f+1]) {
+	      totRecAssConvRTwoTracks_[f]++;
+	    }
+	  }
+	  for (unsigned int f=0; f<zintervals_.size()-1; f++){
+	    if (mcConvZ_>zintervals_[f]&&
+		mcConvZ_<zintervals_[f+1]) {
+	      totRecAssConvZTwoTracks_[f]++;
+	    }
+	  }
+	  
+	  
+	}
+      }
+    }
+  }
+  
+
+
+
+
 }
 
 
@@ -1457,6 +1598,8 @@ void PhotonValidator::endJob()
   doProfileX( h2_DPhiTracksAtEcalVsEta_, p_DPhiTracksAtEcalVsEta_);
 
   doProfileX( h2_convVtxdRVsR_,  p_convVtxdRVsR_);
+  doProfileX( h2_dzPVVsR_, p_dzPVVsR_); 
+
 
  
   fillPlotFromVectors(phoEffEta_,totMatchedSimPhoEta_,totSimPhoEta_,"effic");
@@ -1467,6 +1610,11 @@ void PhotonValidator::endJob()
   fillPlotFromVectors(convEffRTwoTracks_,totMatchedSimConvRTwoTracks_,totSimConvR_,"effic");
   fillPlotFromVectors(convEffZTwoTracks_,totMatchedSimConvZTwoTracks_,totSimConvZ_,"effic");
   
+  fillPlotFromVectors(convFakeRateEtaTwoTracks_,totRecAssConvEtaTwoTracks_,totMatchedRecConvEtaTwoTracks_,"fakerate");
+  fillPlotFromVectors(convFakeRatePhiTwoTracks_,totRecAssConvPhiTwoTracks_,totMatchedRecConvPhiTwoTracks_,"fakerate");
+  fillPlotFromVectors(convFakeRateRTwoTracks_, totRecAssConvRTwoTracks_,totMatchedRecConvRTwoTracks_,"fakerate");
+  fillPlotFromVectors(convFakeRateZTwoTracks_,totRecAssConvZTwoTracks_,totMatchedRecConvZTwoTracks_,"fakerate");
+
 
 
 

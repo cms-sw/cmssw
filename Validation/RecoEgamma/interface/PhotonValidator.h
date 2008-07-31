@@ -23,8 +23,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2008/07/10 12:09:39 $ 
- **  $Revision: 1.4 $
+ **  $Date: 2008/07/22 12:11:20 $ 
+ **  $Revision: 1.5 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -138,6 +138,9 @@ class PhotonValidator : public edm::EDAnalyzer
   std::vector<int> totSimConvEta_, totSimConvPhi_, totSimConvR_, totSimConvZ_;
   std::vector<int> totMatchedSimConvEtaTwoTracks_,totMatchedSimConvPhiTwoTracks_, totMatchedSimConvRTwoTracks_, totMatchedSimConvZTwoTracks_;
   std::vector<int> totMatchedSimConvEtaOneTrack_, totMatchedSimConvPhiOneTrack_,  totMatchedSimConvROneTrack_, totMatchedSimConvZOneTrack_;
+  std::vector<int> totMatchedRecConvEtaTwoTracks_,totMatchedRecConvPhiTwoTracks_, totMatchedRecConvRTwoTracks_, totMatchedRecConvZTwoTracks_;
+  std::vector<int> totRecAssConvEtaTwoTracks_,totRecAssConvPhiTwoTracks_, totRecAssConvRTwoTracks_, totRecAssConvZTwoTracks_;
+
 
   MonitorElement* h_nSimPho_;
   MonitorElement* h_SimPhoE_;
@@ -168,10 +171,19 @@ class PhotonValidator : public edm::EDAnalyzer
   MonitorElement*  convEffRTwoTracks_;
   MonitorElement*  convEffZTwoTracks_;
 
+  MonitorElement*  convFakeRateEtaTwoTracks_;
+  MonitorElement*  convFakeRatePhiTwoTracks_;
+  MonitorElement*  convFakeRateRTwoTracks_;
+  MonitorElement*  convFakeRateZTwoTracks_;
+
+
+
   MonitorElement*  convEffEtaOneTrack_;
   MonitorElement*  convEffPhiOneTrack_;
   MonitorElement*  convEffROneTrack_;
   MonitorElement*  convEffZOneTrack_;
+
+
 
 
 
@@ -269,6 +281,8 @@ class PhotonValidator : public edm::EDAnalyzer
 
   MonitorElement* h_zPVFromTracks_[2]; 
   MonitorElement* h_dzPVFromTracks_[2]; 
+  MonitorElement* h2_dzPVVsR_;
+  MonitorElement* p_dzPVVsR_;
 
 
   //////////// info per track
