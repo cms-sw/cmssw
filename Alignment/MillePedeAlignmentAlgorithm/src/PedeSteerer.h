@@ -8,8 +8,8 @@
  *
  * \author    : Gero Flucke
  * date       : October 2006
- * $Date: 2007/12/17 18:59:52 $
- * $Revision: 1.14 $
+ * $Date: 2008/02/15 14:42:27 $
+ * $Revision: 1.15 $
  * (last update by $Author: flucke $)
  */
 
@@ -53,6 +53,8 @@ class PedeSteerer
   /// If reference alignables have been configured, shift everything such that mean
   /// position and orientation of dets in these alignables are zero.
   void correctToReferenceSystem();
+  bool isCorrectToRefSystem(const std::vector<Alignable*> &coordDefiners) const;
+
 
   double cmsToPedeFactor(unsigned int parNum) const;
   /// results from pede (and start values for pede) might need a sign flip
