@@ -362,6 +362,7 @@ bool muon::isGoodMuon( const reco::Muon& muon, reco::Muon::SelectionType type )
 	break;
       case reco::Muon::GlobalMuonPromptTight:
 	return 
+     muon.isGlobalMuon() &&
 	  muon.globalTrack()->normalizedChi2()<5 &&
 	  fabs(muon.innerTrack()->d0()) < 0.25 &&
 	  muon.innerTrack()->numberOfValidHits() >= 7;
