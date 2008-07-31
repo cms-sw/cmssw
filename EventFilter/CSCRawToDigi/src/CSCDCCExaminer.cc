@@ -178,25 +178,13 @@ CSCDCCExaminer::CSCDCCExaminer(unsigned long mask):nERRORS(29),nWARNINGS(5),nPAY
   DAV_CFEB = 0;
   DMB_Active  = 0;
   nDMBs = 0;
-
   DDU_WordsSinceLastHeader     = 0;
   DDU_WordCount                = 0;
   DDU_WordMismatch_Occurrences = 0;
   DDU_WordsSinceLastTrailer    = 0;
 
-  ALCT_WordsSinceLastHeader    = 0;
-  ALCT_WordCount               = 0;
-  ALCT_WordsExpected           = 0;
-
-  TMB_WordsSinceLastHeader     = 0;
-  TMB_WordCount                = 0;
-  TMB_WordsExpected            = 0;
-  TMB_Tbins                    = 0;
   TMB_WordsExpectedCorrection  = 0;
-
-  CFEB_SampleWordCount         = 0;
-  CFEB_SampleCount             = 0;
-  CFEB_BSampleCount            = 0;
+  zeroCounts();
 
   checkCrcALCT = false; ALCT_CRC=0;
   checkCrcTMB  = false; TMB_CRC=0;
@@ -208,30 +196,7 @@ CSCDCCExaminer::CSCDCCExaminer(unsigned long mask):nERRORS(29),nWARNINGS(5),nPAY
 
   //headerDAV_Active = -1; // Trailer vs. Header check // Obsolete since 16.09.05
 
-
-  bERROR   = 0;
-  bWARNING = 0;
-  bzero(fERROR,  sizeof(fERROR));
-  bzero(fWARNING,sizeof(fWARNING));
-
-  bCHAMB_ERR.clear();
-  bCHAMB_WRN.clear();
-  bCHAMB_PAYLOAD.clear();
-  bCHAMB_STATUS.clear();
-
-  for(int err=0; err<nERRORS;   ++err) fCHAMB_ERR[err].clear();
-  for(int wrn=0; wrn<nWARNINGS; ++wrn) fCHAMB_WRN[wrn].clear();
-
-  bDDU_ERR.clear();
-  bDDU_WRN.clear();
-
-  dduBuffers.clear();
-  dmbBuffers.clear();
-  dduOffsets.clear();
-  dmbOffsets.clear();
-  dduSize.clear();
-  dmbSize.clear();
-
+  clear();
   buf_1 = &(tmpbuf[0]);
   buf0  = &(tmpbuf[4]);
   buf1  = &(tmpbuf[8]);
@@ -308,25 +273,8 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 	  return length+12;
 	}
 
-    dduBuffers.clear();
-    dmbBuffers.clear();
-    dduOffsets.clear();
-    dmbOffsets.clear();
-    dduSize.clear();
-    dmbSize.clear();
-
     fDCC_Header  = true;
-    bzero(fERROR,   sizeof(bool)*nERRORS);
-    bzero(fWARNING, sizeof(bool)*nWARNINGS);
-    bERROR = 0; bWARNING = 0;
-    for(int err=0; err<nERRORS;   ++err) fCHAMB_ERR[err].clear();
-    for(int wrn=0; wrn<nWARNINGS; ++wrn) fCHAMB_WRN[wrn].clear();
-    bCHAMB_ERR.clear();
-    bCHAMB_WRN.clear();
-    bCHAMB_PAYLOAD.clear();
-    bCHAMB_STATUS.clear();
-    bDDU_ERR.clear();
-    bDDU_WRN.clear();
+    clear();
 	  }
 	}
     // == Check for Format Control Words, set proper flags, perform self-consistency checks
@@ -436,36 +384,11 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
       fTMB_Format2007= false;
       uniqueALCT    = true;
       uniqueTMB     = true;
-      ALCT_WordsSinceLastHeader = 0;
-      ALCT_WordCount            = 0;
-      ALCT_WordsExpected        = 0;
-      TMB_WordsSinceLastHeader  = 0;
-      TMB_WordCount             = 0;
-      TMB_WordsExpected         = 0;
-      TMB_Tbins                 = 0;
-      CFEB_SampleWordCount      = 0;
-      CFEB_SampleCount          = 0;
-      CFEB_BSampleCount         = 0;
+      zeroCounts();
 
       if (modeDDUonly) {
          fDCC_Header  = true;
-         bzero(fERROR,   sizeof(bool)*nERRORS);
-         bzero(fWARNING, sizeof(bool)*nWARNINGS);
-         bERROR = 0; bWARNING = 0;
-         for(int err=0; err<nERRORS;   ++err) fCHAMB_ERR[err].clear();
-         for(int wrn=0; wrn<nWARNINGS; ++wrn) fCHAMB_WRN[wrn].clear();
-         bCHAMB_ERR.clear();
-         bCHAMB_WRN.clear();
-         bCHAMB_PAYLOAD.clear();
-         bCHAMB_STATUS.clear();
-         bDDU_ERR.clear();
-         bDDU_WRN.clear();
-         dduBuffers.clear();
-         dduOffsets.clear();
-         dmbBuffers.clear();
-         dmbOffsets.clear();
-         dduSize.clear();
-         dmbSize.clear();
+         clear();
       }
 
 	  dduBuffers[sourceID] = buf_1;
@@ -554,16 +477,7 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
       fTMB_Format2007= false;
       uniqueALCT   = true;
       uniqueTMB    = true;
-      ALCT_WordsSinceLastHeader = 0;
-      ALCT_WordCount            = 0;
-      ALCT_WordsExpected        = 0;
-      TMB_WordsSinceLastHeader  = 0;
-      TMB_WordCount             = 0;
-      TMB_WordsExpected         = 0;
-      TMB_Tbins                 = 0;
-      CFEB_SampleWordCount      = 0;
-      CFEB_SampleCount          = 0;
-      CFEB_BSampleCount         = 0;
+      zeroCounts();
       CFEB_CRC                  = 0;
 
       nDMBs++;
@@ -842,7 +756,8 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
       //    	2) for extra 4 frames in the new RPC-aware format and
       //         for RPC raw hit data, if present
       if( buf_1[1]==0x6E0C ) {
-	TMB_WordsExpected = TMB_WordsExpected + 2;	//
+        // RPW add 4 for TMB trailer
+	TMB_WordsExpected = TMB_WordsExpected + 4+ 2;	//
 	if( buf_1[0]==0x6E04 )
 	  TMB_WordsExpected = TMB_WordsExpected + 4 + TMB_WordsExpectedCorrection;
       }
@@ -943,17 +858,17 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
     // == DMB F-Trailer found
     if( (buf0[0]&0xF000)==0xF000 && (buf0[1]&0xF000)==0xF000 && (buf0[2]&0xF000)==0xF000 && (buf0[3]&0xF000)==0xF000 ){
       if(!fDMB_Header){
-    currentChamber = buf0[3]&0x0FFF;
+        currentChamber = buf0[3]&0x0FFF;
 	fERROR[6] = true;
 	bERROR   |= 0x40;
 	fCHAMB_ERR[6].insert(currentChamber);
 	bCHAMB_ERR[currentChamber] |= 0x40;
-    nDMBs++;
-      // Set variables if we are waiting ALCT, TMB and CFEB records to be present in event
-      if( buf0[0]&0x0400 ) bCHAMB_PAYLOAD[currentChamber] |= 0x20;
-      if( buf0[0]&0x0800 ) bCHAMB_PAYLOAD[currentChamber] |= 0x40;
-      bCHAMB_PAYLOAD[currentChamber] |= (buf0[0]&0x001f)<<7;
-      bCHAMB_PAYLOAD[currentChamber] |=((buf0[0]>>5)&0x1f);
+        nDMBs++;
+        // Set variables if we are waiting ALCT, TMB and CFEB records to be present in event
+        if( buf0[0]&0x0400 ) bCHAMB_PAYLOAD[currentChamber] |= 0x20;
+        if( buf0[0]&0x0800 ) bCHAMB_PAYLOAD[currentChamber] |= 0x40;
+        bCHAMB_PAYLOAD[currentChamber] |= (buf0[0]&0x001f)<<7;
+        bCHAMB_PAYLOAD[currentChamber] |=((buf0[0]>>5)&0x1f);
 
       } // DMB Header is missing
       fDMB_Header  = false;
@@ -1227,6 +1142,43 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
   memcpy((void*)tmpbuf,(void*)(buffer-16),sizeof(short)*16);
 
   return -1;
+}
+
+
+void CSCDCCExaminer::clear()
+{
+  bzero(fERROR,   sizeof(bool)*nERRORS);
+  bzero(fWARNING, sizeof(bool)*nWARNINGS);
+  bERROR = 0; bWARNING = 0;
+  for(int err=0; err<nERRORS;   ++err) fCHAMB_ERR[err].clear();
+  for(int wrn=0; wrn<nWARNINGS; ++wrn) fCHAMB_WRN[wrn].clear();
+  bCHAMB_ERR.clear();
+  bCHAMB_WRN.clear();
+  bCHAMB_PAYLOAD.clear();
+  bCHAMB_STATUS.clear();
+  bDDU_ERR.clear();
+  bDDU_WRN.clear();
+  dduBuffers.clear();
+  dduOffsets.clear();
+  dmbBuffers.clear();
+  dmbOffsets.clear();
+  dduSize.clear();
+  dmbSize.clear();
+}
+
+
+void CSCDCCExaminer::zeroCounts()
+{
+  ALCT_WordsSinceLastHeader = 0;
+  ALCT_WordCount            = 0;
+  ALCT_WordsExpected        = 0;
+  TMB_WordsSinceLastHeader  = 0;
+  TMB_WordCount             = 0;
+  TMB_WordsExpected         = 0;
+  TMB_Tbins                 = 0;
+  CFEB_SampleWordCount      = 0;
+  CFEB_SampleCount          = 0;
+  CFEB_BSampleCount         = 0;
 }
 
 
