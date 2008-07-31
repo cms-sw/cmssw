@@ -42,7 +42,8 @@ RCTConfigProducers = cms.ESProducer("RCTConfigProducers",
     eGammaLSB = cms.double(0.5),
     jscQuietThresholdEndcap = cms.uint32(3),
     hMinForHoECut = cms.double(3.0),
-    noiseVetoHEminus = cms.bool(False)
+    noiseVetoHEminus = cms.bool(False),
+    useCorrectionsLindsey = cms.bool(False)                                
 )
 
 
