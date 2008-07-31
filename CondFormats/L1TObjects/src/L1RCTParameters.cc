@@ -1,7 +1,7 @@
 /**
  * Author: Sridhara Dasu
  * Created: 04 July 2007
- * $Id: L1RCTParameters.cc,v 1.13 2008/05/02 16:46:36 jleonard Exp $
+ * $Id: L1RCTParameters.cc,v 1.15 2008/07/31 14:18:01 lgray Exp $
  **/
 
 #include <iostream>
@@ -225,7 +225,7 @@ float L1RCTParameters::EGammaTPGSum(const float& ecal, const float& hcal, const 
 }
 
 // index = iAbsEta - 1... make sure you call the function like so: "correctedTPGSum_Lindsey(ecal,hcal, iAbsEta - 1)"
-float L1RCTParameters::correctedTPGSum_Lindsey(const float& ecal, const float& hcal, const int& index) const
+float L1RCTParameters::correctedTPGSum_Lindsey(const float& ecal, const float& hcal, const unsigned& index) const
 {
   if(ecal > 110 && hcal > 80) return (ecal + hcal); // 110 and 80 GeV are high end of the ranges over which calibration was made.
                                                     // They correspond to 100 GeV photons and charged pions.

@@ -204,7 +204,7 @@ class L1RCTParameters {
 
   // Applies Lindsey's calibration to HCAL and ECAL (ECAL must corrected by eGamma scale factors)
   // Provides corrected Et sum.
-  float correctedTPGSum_Lindsey(const float& ecal, const float& hcal, const int& index) const;
+  float correctedTPGSum_Lindsey(const float& ecal, const float& hcal, const unsigned& index) const;
 
   // Lindsey's Calibration Coefficients
   // Basically a higher order approximation of the energy response of the calorimeters.
