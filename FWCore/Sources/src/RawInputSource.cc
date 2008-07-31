@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RawInputSource.cc,v 1.19 2008/01/31 04:58:08 wmtan Exp $
+$Id: RawInputSource.cc,v 1.21 2008/07/03 04:07:10 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Sources/interface/RawInputSource.h"
@@ -48,7 +48,7 @@ namespace edm {
   }
 
   std::auto_ptr<EventPrincipal>
-  RawInputSource::readEvent_(boost::shared_ptr<LuminosityBlockPrincipal>) {
+  RawInputSource::readEvent_() {
     assert(ep_.get() != 0);
     return ep_;
   }

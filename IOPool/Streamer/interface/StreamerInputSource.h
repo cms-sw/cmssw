@@ -74,9 +74,9 @@ namespace edm {
     virtual boost::shared_ptr<LuminosityBlockPrincipal> readLuminosityBlock_();
 
     virtual std::auto_ptr<EventPrincipal>
-    readEvent_(boost::shared_ptr<LuminosityBlockPrincipal> lbp);
+    readEvent_();
 
-    virtual InputSource::ItemType getNextItemType();
+    virtual ItemType getNextItemType();
 
     virtual void setRun(RunNumber_t r);
 

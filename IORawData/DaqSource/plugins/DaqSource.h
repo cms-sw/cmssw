@@ -5,8 +5,8 @@
  *  An input service for raw data. 
  *  The actual source can be the real DAQ, a file, a random generator, etc.
  *
- *  $Date: 2007/12/11 00:32:37 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/06/03 15:20:32 $
+ *  $Revision: 1.8 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -39,14 +39,14 @@ namespace edm {
     
    private:
   
-    virtual std::auto_ptr<EventPrincipal> readEvent_(boost::shared_ptr<LuminosityBlockPrincipal>);
+    virtual std::auto_ptr<EventPrincipal> readEvent_();
     virtual boost::shared_ptr<LuminosityBlockPrincipal> readLuminosityBlock_();
     virtual boost::shared_ptr<RunPrincipal> readRun_();
     virtual std::auto_ptr<EventPrincipal> readIt(EventID const& eventID);
     virtual void skip(int offset);
     virtual void setLumi(LuminosityBlockNumber_t lb);
     virtual void setRun(RunNumber_t r);
-    virtual InputSource::ItemType getNextItemType();
+    virtual ItemType getNextItemType();
   
 
     virtual void publish(xdata::InfoSpace *);

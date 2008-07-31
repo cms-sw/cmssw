@@ -134,7 +134,7 @@ namespace edm {
   }
 
   std::auto_ptr<EventPrincipal>
-  StreamerInputSource::readEvent_(boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
+  StreamerInputSource::readEvent_() {
     assert(!newRun_);
     assert(!newLumi_);
     assert(ep_.get() != 0);

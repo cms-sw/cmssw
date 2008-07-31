@@ -1,7 +1,7 @@
 /** \file 
  *
- *  $Date: 2008/06/19 09:39:47 $
- *  $Revision: 1.23 $
+ *  $Date: 2008/07/03 05:21:03 $
+ *  $Revision: 1.25 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -254,11 +254,10 @@ namespace edm {
   }
 
   std::auto_ptr<EventPrincipal>
-  DaqSource::readEvent_(boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
+  DaqSource::readEvent_() {
     assert(!newRun_);
     assert(!newLumi_);
     assert(!noMoreEvents_);
-    assert(lbp);
     assert(ep_.get() != 0);
     std::auto_ptr<EventPrincipal> result = ep_;
     return result;

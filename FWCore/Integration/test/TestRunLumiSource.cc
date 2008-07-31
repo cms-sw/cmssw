@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: TestRunLumiSource.cc,v 1.7 2008/01/31 04:56:16 wmtan Exp $
+$Id: TestRunLumiSource.cc,v 1.8 2008/07/03 04:19:52 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Integration/test/TestRunLumiSource.h"
@@ -60,7 +60,7 @@ namespace edm {
   }
 
   std::auto_ptr<EventPrincipal>
-  TestRunLumiSource::readEvent_(boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
+  TestRunLumiSource::readEvent_() {
     unsigned int run = runLumiEvent_[currentIndex_];
     unsigned int lumi = runLumiEvent_[currentIndex_ + 1];
     unsigned int event = runLumiEvent_[currentIndex_ + 2];
