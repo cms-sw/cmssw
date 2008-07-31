@@ -1549,85 +1549,85 @@ RE4/1 staged volumes -->
    <rParent name="mf:ME12"/>
    <rChild name="mf:AlgPinNarrowEnd"/>
   <rRotation name="RotYZaroundX90"/>
-  <Translation x="0*fm " y="-9.4034*cm " z="-90.260*cm " />
+  <Translation x="0*fm " y="-9.4034*cm " z="-912.1*mm" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mf:ME12"/>
    <rChild name="mf:AlgPinWideEnd"/>
   <rRotation name="RotYZaroundX90"/>
-  <Translation x="0*fm " y="-9.4034*cm " z="90.260*cm " />
+  <Translation x="0*fm " y="-9.4034*cm " z="893.1*mm" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mf:ME13"/>
    <rChild name="mf:AlgPinNarrowEnd"/>
   <rRotation name="RotYZaroundX90"/>
-  <Translation x="0*fm " y="-9.4034*cm " z="-85.205*cm " />
+  <Translation x="0*fm " y="-9.4034*cm " z="-861.6*mm" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mf:ME13"/>
    <rChild name="mf:AlgPinWideEnd"/>
   <rRotation name="RotYZaroundX90"/>
-  <Translation x="0*fm " y="-9.4034*cm " z="85.205*cm " />
+  <Translation x="0*fm " y="-9.4034*cm " z="842.5*mm" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mf:ME21"/>
    <rChild name="mf:AlgPinNarrowEnd"/>
   <rRotation name="RotYZaroundX90"/>
-  <Translation x="0*fm " y="-9.4034*cm " z="-97.855*cm " />
+  <Translation x="0*fm " y="-9.4034*cm " z="-988.05*mm" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mf:ME21"/>
    <rChild name="mf:AlgPinWideEnd"/>
   <rRotation name="RotYZaroundX90"/>
-  <Translation x="0*fm " y="-9.4034*cm " z="97.855*cm " />
+  <Translation x="0*fm " y="-9.4034*cm " z="969.05*mm" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mf:ME22"/>
    <rChild name="mf:AlgPinNarrowEnd"/>
   <rRotation name="RotYZaroundX90"/>
-  <Translation x="0*fm " y="-9.4034*cm " z="-164.555*cm " />
+  <Translation x="0*fm " y="-9.4034*cm " z="-1655.05*mm" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mf:ME22"/>
    <rChild name="mf:AlgPinWideEnd"/>
   <rRotation name="RotYZaroundX90"/>
-  <Translation x="0*fm " y="-9.4034*cm " z="164.555*cm " />
+  <Translation x="0*fm " y="-9.4034*cm " z="1636.05*mm" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mf:ME31"/>
    <rChild name="mf:AlgPinNarrowEnd"/>
   <rRotation name="RotYZaroundX90"/>
-  <Translation x="0*fm " y="-9.4034*cm " z="-87.870*cm " />
+  <Translation x="0*fm " y="-9.4034*cm " z="-888.2*mm" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mf:ME31"/>
    <rChild name="mf:AlgPinWideEnd"/>
   <rRotation name="RotYZaroundX90"/>
-  <Translation x="0*fm " y="-9.4034*cm " z="87.870*cm " />
+  <Translation x="0*fm " y="-9.4034*cm " z="869.2*mm" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mf:ME32"/>
    <rChild name="mf:AlgPinNarrowEnd"/>
   <rRotation name="RotYZaroundX90"/>
-  <Translation x="0*fm " y="-9.4034*cm " z="-164.555*cm " />
+  <Translation x="0*fm " y="-9.4034*cm " z="-1655.05*mm" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mf:ME32"/>
    <rChild name="mf:AlgPinWideEnd"/>
   <rRotation name="RotYZaroundX90"/>
-  <Translation x="0*fm " y="-9.4034*cm " z="164.555*cm " />
+  <Translation x="0*fm " y="-9.4034*cm " z="1636.05*mm" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mf:ME41"/>
    <rChild name="mf:AlgPinNarrowEnd"/>
   <rRotation name="RotYZaroundX90"/>
-  <Translation x="0*fm " y="-9.4034*cm " z="-77.890*cm " />
+  <Translation x="0*fm " y="-9.4034*cm " z="-788.4*mm" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mf:ME41"/>
    <rChild name="mf:AlgPinWideEnd"/>
   <rRotation name="RotYZaroundX90"/>
-  <Translation x="0*fm " y="-9.4034*cm " z="77.890*cm " />
+  <Translation x="0*fm " y="-9.4034*cm " z="769.4*mm" />
  </PosPart>
 
 <!-- Remove this line and comment ending line below to restore ME42
@@ -1635,13 +1635,13 @@ RE4/1 staged volumes -->
    <rParent name="mf:ME42"/>
    <rChild name="mf:AlgPinNarrowEnd"/>
   <rRotation name="RotYZaroundX90"/>
-  <Translation x="0*fm " y="-9.4034*cm " z="-164.555*cm " />
+  <Translation x="0*fm " y="-9.4034*cm " z="-1655.05*mm" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mf:ME42"/>
    <rChild name="mf:AlgPinWideEnd"/>
   <rRotation name="RotYZaroundX90"/>
-  <Translation x="0*fm " y="-9.4034*cm " z="164.555*cm " />
+  <Translation x="0*fm " y="-9.4034*cm " z="1636.05*mm" />
  </PosPart>
 -->
 
@@ -3375,7 +3375,7 @@ RE4 stage volumes -->
    <rParent name="mf:ME22SpaceDivision"/>
    <rChild name="mf:ME22"/>
   <rRotation name="rotations:90XD"/>
-  <Translation x="5.2625*m  " y="0*fm " z="0*fm " />
+  <Translation x="5265.0*mm" y="0*fm " z="0*fm " />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mf:ME22"/>
@@ -3726,7 +3726,7 @@ RE3/1 staged volumes -->
    <rParent name="mf:ME32SpaceDivision"/>
    <rChild name="mf:ME32"/>
   <rRotation name="rotations:90DX"/>
-  <Translation x="5.2625*m  " y="0*fm " z="0*fm " />
+  <Translation x="5265.0*mm" y="0*fm " z="0*fm " />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mf:ME32"/>
