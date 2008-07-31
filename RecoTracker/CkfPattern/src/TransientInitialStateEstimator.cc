@@ -39,15 +39,36 @@ TransientInitialStateEstimator::innerState( const Trajectory& traj) const
 {
   int lastFitted = 4;
   int nhits = traj.foundHits();
-  if (nhits < lastFitted+1) lastFitted = nhits-1;
+  if (nhits-1 < lastFitted) lastFitted = nhits-1;
 
   std::vector<TrajectoryMeasurement> measvec = traj.measurements();
   TransientTrackingRecHit::ConstRecHitContainer firstHits;
 
   bool foundLast = false;
   int actualLast = -99;
+  //cout << "=== lastFitted, nhits: " << lastFitted << " , " << nhits << endl;
+  //cout << "=== start loop in TISE" << endl;
+
+  for (int i=nhits-1; i >= 0; i--) {
+    if(measvec[i].recHit()->det()){
+      /*
+      cout << " bis measvec[i].recHit()->det()->surface()->position().perp(),valid: " 
+	   << measvec[i].recHit()->det()->surface().position().perp() << " , "
+	   << measvec[i].recHit()->isValid() << endl;
+      */
+    }
+  }
+
   for (int i=lastFitted; i >= 0; i--) {
-    if(measvec[i].recHit()->isValid()){
+    if(measvec[i].recHit()->det()){
+      /*
+      cout << " measvec[i].recHit()->det()->surface()->position().perp(),valid: " 
+	   << measvec[i].recHit()->det()->surface().position().perp() << " , "
+	   << measvec[i].recHit()->isValid() << endl;
+      */
+    }
+    //if(measvec[i].recHit()->isValid()){
+    if(measvec[i].recHit()->det()){
       if(!foundLast){
 	actualLast = i; 
 	foundLast = true;
@@ -68,7 +89,8 @@ TransientInitialStateEstimator::innerState( const Trajectory& traj) const
 
   KFTrajectoryFitter backFitter( *thePropagatorAlong,
 				 KFUpdator(),
-				 Chi2MeasurementEstimator( 100., 3));
+				 Chi2MeasurementEstimator( 100., 3),
+				 firstHits.size());
 
   PropagationDirection backFitDirection = traj.direction() == alongMomentum ? oppositeToMomentum: alongMomentum;
 
@@ -89,6 +111,9 @@ TransientInitialStateEstimator::innerState( const Trajectory& traj) const
 
   //  cout << "FitTester: Fitted first state " << firstState << endl;
   //cout << "FitTester: chi2 = " << fitres[0].chiSquared() << endl;
+
+  
+
 
   TSOS initialState( firstState.localParameters(), LocalTrajectoryError(C),
 		     firstState.surface(),
