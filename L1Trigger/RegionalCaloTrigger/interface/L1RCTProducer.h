@@ -38,5 +38,6 @@ class L1RCTProducer : public edm::EDProducer
   bool useEcalCosmicTiming;
   unsigned preSamples;
   unsigned postSamples;
+  bool useCorrectionsLindsey;
 };
 #endif
