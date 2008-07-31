@@ -87,9 +87,13 @@ namespace edm {
   RunPrincipal::getAllProvenance(std::vector<Provenance const*> & provenances) const {
     provenances.clear();
     for (Base::const_iterator i = begin(), iEnd = end(); i != iEnd; ++i) {
-      resolveProvenance(*i->second);
-      if (i->second->provenanceAvailable() && i->second->provenance()->isPresent() && i->second->provenance()->product().present())
-	 provenances.push_back(i->second->provenance());
+      if (i->second->provenanceAvailable()) {
+        resolveProvenance(*i->second);
+        if (i->second->provenance()->branchEntryInfoSharedPtr() &&
+            i->second->provenance()->isPresent() &&
+            i->second->provenance()->product().present())
+           provenances.push_back(i->second->provenance());
+        }
     }
   }
 
