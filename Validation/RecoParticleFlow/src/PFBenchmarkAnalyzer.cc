@@ -41,6 +41,7 @@ PFBenchmarkAnalyzer::PFBenchmarkAnalyzer(const edm::ParameterSet& iConfig)
   plotAgainstRecoQuantities_   = iConfig.getParameter<bool>("PlotAgainstRecoQuantities");
   recPt_cut                    = iConfig.getParameter<double>("recPt");
   maxEta_cut                    = iConfig.getParameter<double>("maxEta");
+  deltaR_cut                    = iConfig.getParameter<double>("deltaRMax");
 
   if (outputFile_.size() > 0)
     edm::LogInfo("OutputInfo") << " ParticleFLow Task histograms will be saved to '" << outputFile_.c_str() << "'";
@@ -57,7 +58,7 @@ void PFBenchmarkAnalyzer::beginJob(const edm::EventSetup& iSetup)
   dbe_ = edm::Service<DQMStore>().operator->();
   
   if (dbe_) {
-    dbe_->setVerbose(1);
+    //dbe_->setVerbose(1);
     string path = "PFTask/Benchmarks/" + benchmarkLabel_ + "/";
     if (plotAgainstRecoQuantities_) path += "Reco"; else path += "Gen";
     dbe_->setCurrentFolder(path.c_str());
@@ -82,7 +83,6 @@ void PFBenchmarkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
   // ==========================================================
 
   { 
-
     // Get Truth Candidates (GenCandidates, GenJets, etc.)
     Handle<candidateCollection> truth_hnd;
     iEvent.getByLabel(inputTruthLabel_, truth_hnd);
@@ -99,7 +99,6 @@ void PFBenchmarkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
     //reco_candidates = &reco_storage;
 
   }
-
   if (!truth_candidates || !reco_candidates) {
 
     edm::LogInfo("OutputInfo") << " failed to retrieve data required by ParticleFlow Task";
@@ -112,7 +111,7 @@ void PFBenchmarkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
   // Analyze!
   // ==========================================================
 
-  fill(reco_candidates,truth_candidates,plotAgainstRecoQuantities_, recPt_cut, maxEta_cut);
+  fill(reco_candidates,truth_candidates,plotAgainstRecoQuantities_, recPt_cut, maxEta_cut, deltaR_cut);
 
 }
 

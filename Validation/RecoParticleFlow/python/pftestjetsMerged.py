@@ -16,7 +16,8 @@ process.load("PhysicsTools.HepMCCandAlgos.genParticles_cfi")
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:MyFirstFamosFile.root')
+    fileNames = cms.untracked.vstring('file:/data11/Higgs08/Pflow/singletau_fevtfull50GeV_200.root')
+# fileNames = cms.untracked.vstring('file:/home/xv/neuhaus/ValidationTest/TauSample210pre9.root')
 )
 
 process.options = cms.untracked.PSet(
@@ -48,25 +49,26 @@ process.pfAnalyzer = cms.EDAnalyzer("PFBenchmarkAnalyzer",
     OutputFile = cms.untracked.string('PFJetTester_data.root'),
     InputTruthLabel = cms.string('iterativeCone5GenJets'),
     maxEta = cms.double(2.0),
-    recPt = cms.double(20.0),
+    recPt = cms.double(-1.0),
+    deltaRMax = cms.double(0.2),
     PlotAgainstRecoQuantities = cms.bool(True),
     BenchmarkLabel = cms.string('ParticleFlow'),
     InputRecoLabel = cms.string('iterativeCone5PFJets')
 )
 
-process.pfTester = cms.EDFilter("PFTester",
-    InputPFlowLabel = cms.string('particleFlow'),
-    OutputFile = cms.untracked.string('PFTester_data.root')
-)
+#process.pfTester = cms.EDFilter("PFTester",
+#    InputPFlowLabel = cms.string('particleFlow'),
+#    OutputFile = cms.untracked.string('PFTester_data.root')
+#)
 
-process.pfJetAnalyzer = cms.EDFilter("JetAna",
+process.pfJetAnalyzer = cms.EDAnalyzer("JetAna",
     OutputFile = cms.untracked.string('PFJetTester_data.root'),
     InputTruthLabel = cms.string('iterativeCone5GenJets'),
-    maxEta = cms.double(3.0),
-    recPt = cms.double(20.0),
+    maxEta = cms.double(2.0),
+    recPt = cms.double(-1.0),
     PlotAgainstRecoQuantities = cms.bool(True),
     pfjBenchmarkDebug = cms.bool(False),
-    deltaRMax = cms.double(0.1),
+    deltaRMax = cms.double(0.2),
     BenchmarkLabel = cms.string('ParticleFlow'),
     InputRecoLabel = cms.string('iterativeCone5PFJets')
 )
@@ -78,10 +80,13 @@ process.o = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('test.root')
 )
 
-process.p = cms.Path(process.genParticles*process.genJetParticles*process.recoGenJets*process.pfAnalyzer*process.pfJetAnalyzer)
+#process.p =cms.Path(process.genParticles*process.genJetParticles*process.recoGenJets*process.pfAnalyzer*process.pfJetAnalyzer)
+
+process.p =cms.Path(process.genParticles*process.genJetParticles*process.recoGenJets*process.recoPFJets*process.pfAnalyzer)
+
 process.schedule = cms.Schedule(process.p)
 
-process.MessageLogger.cerr.FwkReport.reportEvery = 100
+process.MessageLogger.cerr.FwkReport.reportEvery = 50
 process.genParticlesForJets.ignoreParticleIDs.append(14)
 process.genParticlesForJets.ignoreParticleIDs.append(12)
 process.genParticlesForJets.ignoreParticleIDs.append(16)

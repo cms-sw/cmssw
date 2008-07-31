@@ -99,11 +99,12 @@ bool PlotCompareUtility::compare<Plot2D>(HistoData *HD) {
         : addProjectionYData(HD,projName.Data(),Plot1D,bin,hnew,href);
 
       // ignore empty bins
-      if (hnew->Integral() == 0 || href->Integral() == 0) continue;
-
+      //if (hnew->Integral() == 0 || href->Integral() == 0) continue;
+      if (hnew->GetEntries() <= 1 || href->GetEntries() <= 1||hnew->Integral() == 0 || href->Integral() == 0) continue;
+      
       // run this new HistoData through compare<Plot1D>
       projectionsPassed &= compare<Plot1D>(proj);
-
+           
       // get the high and low scores from this comparison
       float lowScore = proj->getLowScore(); float highScore = proj->getHighScore();
       if (lowScore < HD->getLowScore()) HD->setLowScore(lowScore);
@@ -152,7 +153,7 @@ void PlotCompareUtility::makePlots<Plot2D>(HistoData *HD) {
 
     // get the 2d histograms
     TH2F *hnew2d = (TH2F *)HD->getNewHisto();
-    TH2F *href2d = (TH2F *)HD->getNewHisto();
+    TH2F *href2d = (TH2F *)HD->getRefHisto();
 
     // generate a reasonable width for the projections summary
     int numHistos = proj->size();

@@ -50,7 +50,7 @@ bool PlotCompareUtility::compare<Plot1D>(HistoData *HD) {
   // check overall result
   bool passed = (ksScore >= ksThreshold && chi2Score >= chi2Threshold);
   HD->setResult(passed);
-
+//  if (!passed) std::cout << "NOTPASSED!!!!"; else std::cout << "YESPASSED!";
   // returns true on test passed and false on test failed
   HD->setIsEmpty(false);
   return passed;

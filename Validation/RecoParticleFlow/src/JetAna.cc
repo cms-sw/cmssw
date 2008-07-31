@@ -27,7 +27,7 @@ module pfJetAnalyzer = JetAna
 //
 // Original Author:  Michel Della Negra
 //         Created:  Wed Jan 23 10:11:13 CET 2008
-// $Id$
+// $Id: JetAna.cc,v 1.1 2008/07/17 13:21:20 weng Exp $
 //
 //
 
@@ -51,7 +51,7 @@ module pfJetAnalyzer = JetAna
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "RecoParticleFlow/Benchmark/interface/PFJetBenchmark.h"
-
+#include "FWCore/ServiceRegistry/interface/Service.h" 
 
 using namespace edm;
 using namespace reco;
@@ -87,6 +87,7 @@ double deltaRMax=0.1;
 string benchmarkLabel_;
 double recPt;
 double maxEta;
+DQMStore * dbe_;
 //
 // constants, enums and typedefs
 //
@@ -121,6 +122,8 @@ JetAna::JetAna(const edm::ParameterSet& iConfig)
   maxEta = 
     iConfig.getParameter<double>("maxEta"); 
   
+  dbe_ = edm::Service<DQMStore>().operator->();
+
   PFJetBenchmark_.setup(
 			outjetfilename, 
 			pfjBenchmarkDebug,
@@ -128,7 +131,8 @@ JetAna::JetAna(const edm::ParameterSet& iConfig)
 			deltaRMax,
 			benchmarkLabel_, 
 			recPt, 
-			maxEta);
+			maxEta, 
+			dbe_);
 }
 
 
@@ -168,7 +172,8 @@ JetAna::beginJob(const edm::EventSetup&)
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 JetAna::endJob() {
-  PFJetBenchmark_.save();
+//  PFJetBenchmark_.save();
+  PFJetBenchmark_.write();
 }
 
 //define this as a plug-in

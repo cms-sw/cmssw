@@ -9,12 +9,23 @@ using namespace std;
 
 int main(int argc, char *argv[]) {
 
+  std::string branch("DQMData/PFTask/Benchmarks/ParticleFlow/");
   // make sure command line arguments were supplied
   if (argc != 3)
-      { cerr << "Usage: " << argv[0] << " [reference.root] [new-comparison.root} \n"; return 1; }
-
+      { 
+      if (argc != 4)
+      	{
+      	cerr << "Usage: " << argv[0] << " [reference.root] [new-comparison.root} \n"; return 1; 
+	}
+      else
+	{
+	branch.append(argv[3]);
+	}
+      }
+      else branch="DQMData/PFTask/Benchmarks/ParticleFlow/Reco";
+  
   // initialize plot comparison tool
-  PlotCompareUtility *pc = new PlotCompareUtility(argv[1],argv[2],"DQMData/PFTask/Benchmarks/ParticleFlow/Reco");
+  PlotCompareUtility *pc = new PlotCompareUtility(argv[1],argv[2],branch.c_str());
 
   // set thresholds for tests (set to zero or negative to ignore results)
   //pc->setKSThreshold(1e-6);
