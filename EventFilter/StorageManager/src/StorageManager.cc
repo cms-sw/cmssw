@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.66 2008/07/29 18:42:25 biery Exp $
+// $Id: StorageManager.cc,v 1.67 2008/07/30 19:19:55 biery Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -1487,7 +1487,7 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
 
   *out << "  </td>"                                                  << endl;
   *out << "</table>"                                                 << endl;
-// now for FU sender list statistics
+// now for RB sender list statistics
   *out << "<hr/>"                                                    << endl;
   *out << "<table>"                                                  << endl;
   *out << "<tr valign=\"top\">"                                      << endl;
@@ -1497,7 +1497,7 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
   *out << "<colgroup> <colgroup align=\"rigth\">"                    << endl;
     *out << "  <tr>"                                                   << endl;
     *out << "    <th colspan=2>"                                       << endl;
-    *out << "      " << "FU Sender Information"                            << endl;
+    *out << "      " << "RB Sender Information"                            << endl;
     *out << "    </th>"                                                << endl;
     *out << "  </tr>"                                                  << endl;
 
@@ -1511,7 +1511,7 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
     *out << "</tr>" << endl;
         *out << "<tr>" << endl;
           *out << "<td >" << endl;
-          *out << "Number of FU Senders" << endl;
+          *out << "Number of RB Senders" << endl;
           *out << "</td>" << endl;
           *out << "<td>" << endl;
           *out << smfusenders_.size() << endl;
@@ -1522,12 +1522,12 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
 
   *out << "  </td>"                                                  << endl;
   *out << "</table>"                                                 << endl;
-  //---- separate pages for FU senders and Streamer Output
+  //---- separate pages for RB senders and Streamer Output
   *out << "<hr/>"                                                 << endl;
   std::string url = getApplicationDescriptor()->getContextDescriptor()->getURL();
   std::string urn = getApplicationDescriptor()->getURN();
   *out << "<a href=\"" << url << "/" << urn << "/fusenderlist" << "\">" 
-       << "FU Sender list web page" << "</a>" << endl;
+       << "RB Sender list web page" << "</a>" << endl;
   *out << "<hr/>"                                                 << endl;
   *out << "<a href=\"" << url << "/" << urn << "/streameroutput" << "\">" 
        << "Streamer Output Status web page" << "</a>" << endl;
@@ -1617,7 +1617,7 @@ void StorageManager::fusenderWebPage(xgi::Input *in, xgi::Output *out)
 
   *out << "<hr/>"                                                    << endl;
 
-// now for FU sender list statistics
+// now for RB sender list statistics
   *out << "<table>"                                                  << endl;
   *out << "<tr valign=\"top\">"                                      << endl;
   *out << "  <td>"                                                   << endl;
@@ -1626,7 +1626,7 @@ void StorageManager::fusenderWebPage(xgi::Input *in, xgi::Output *out)
   *out << "<colgroup> <colgroup align=\"rigth\">"                    << endl;
     *out << "  <tr>"                                                   << endl;
     *out << "    <th colspan=2>"                                       << endl;
-    *out << "      " << "FU Sender List"                            << endl;
+    *out << "      " << "RB Sender List"                            << endl;
     *out << "    </th>"                                                << endl;
     *out << "  </tr>"                                                  << endl;
 
@@ -1640,7 +1640,7 @@ void StorageManager::fusenderWebPage(xgi::Input *in, xgi::Output *out)
     *out << "</tr>" << endl;
         *out << "<tr>" << endl;
           *out << "<td >" << endl;
-          *out << "Number of FU Senders" << endl;
+          *out << "Number of RB Senders" << endl;
           *out << "</td>" << endl;
           *out << "<td align=right>" << endl;
           *out << smfusenders_.size() << endl;
@@ -1653,7 +1653,7 @@ void StorageManager::fusenderWebPage(xgi::Input *in, xgi::Output *out)
       {
         *out << "<tr>" << endl;
           *out << "<td >" << endl;
-          *out << "FU Sender URL" << endl;
+          *out << "RB Sender URL" << endl;
           *out << "</td>" << endl;
           *out << "<td align=right>" << endl;
           char hlturl[MAX_I2O_SM_URLCHARS];
@@ -1666,7 +1666,7 @@ void StorageManager::fusenderWebPage(xgi::Input *in, xgi::Output *out)
         *out << "  </tr>" << endl;
         *out << "<tr>" << endl;
           *out << "<td >" << endl;
-          *out << "FU Sender Class Name" << endl;
+          *out << "RB Sender Class Name" << endl;
           *out << "</td>" << endl;
           *out << "<td align=right>" << endl;
           char hltclass[MAX_I2O_SM_URLCHARS];
@@ -1679,7 +1679,7 @@ void StorageManager::fusenderWebPage(xgi::Input *in, xgi::Output *out)
         *out << "  </tr>" << endl;
         *out << "<tr>" << endl;
           *out << "<td >" << endl;
-          *out << "FU Sender Instance" << endl;
+          *out << "RB Sender Instance" << endl;
           *out << "</td>" << endl;
           *out << "<td align=right>" << endl;
           *out << (*pos)->hltInstance_ << endl;
@@ -1687,7 +1687,7 @@ void StorageManager::fusenderWebPage(xgi::Input *in, xgi::Output *out)
         *out << "  </tr>" << endl;
         *out << "<tr>" << endl;
           *out << "<td >" << endl;
-          *out << "FU Sender Local ID" << endl;
+          *out << "RB Sender Local ID" << endl;
           *out << "</td>" << endl;
           *out << "<td align=right>" << endl;
           *out << (*pos)->hltLocalId_ << endl;
@@ -1695,7 +1695,7 @@ void StorageManager::fusenderWebPage(xgi::Input *in, xgi::Output *out)
         *out << "  </tr>" << endl;
         *out << "<tr>" << endl;
           *out << "<td >" << endl;
-          *out << "FU Sender Tid" << endl;
+          *out << "RB Sender Tid" << endl;
           *out << "</td>" << endl;
           *out << "<td align=right>" << endl;
           *out << (*pos)->hltTid_ << endl;
