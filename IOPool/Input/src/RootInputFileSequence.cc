@@ -153,6 +153,7 @@ namespace edm {
 	  processConfiguration(), fileIter_->logicalFileName(), filePtr,
 	  startAtRun_, startAtLumi_, startAtEvent_, eventsToSkip_, whichLumisToSkip_,
 	  remainingEvents(), remainingLuminosityBlocks(), treeCacheSize_, treeMaxVirtualSize_,
+	  input_.processingMode(),
 	  forcedRunOffset_, eventsToProcess_,
 	  dropMetaData_, groupSelectorRules_));
       fileIndexes_[fileIter_ - fileIterBegin_] = rootFile_->fileIndexSharedPtr();
@@ -255,22 +256,20 @@ namespace edm {
   //
 
   std::auto_ptr<EventPrincipal>
-  RootInputFileSequence::readEvent_(boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
+  RootInputFileSequence::readEvent_() {
     if (randomAccess_) {
       return rootFile_->readEvent(primarySequence_ ?
 				  productRegistry() :
-			          rootFile_->productRegistry(),
-				  boost::shared_ptr<LuminosityBlockPrincipal>()); 
+			          rootFile_->productRegistry()); 
     }
-    return rootFile_->readEvent(primarySequence_ ? productRegistry() : rootFile_->productRegistry(), lbp); 
+    return rootFile_->readEvent(primarySequence_ ? productRegistry() : rootFile_->productRegistry()); 
   }
 
   std::auto_ptr<EventPrincipal>
   RootInputFileSequence::readCurrentEvent() {
     return rootFile_->readCurrentEvent(primarySequence_ ?
 				       productRegistry() :
-				       rootFile_->productRegistry(),
-				       boost::shared_ptr<LuminosityBlockPrincipal>()); 
+				       rootFile_->productRegistry()); 
   }
 
   std::auto_ptr<EventPrincipal>

@@ -51,6 +51,7 @@ namespace edm {
       maxLumis_(desc.maxLumis_),
       remainingLumis_(maxLumis_),
       readCount_(0),
+      processingMode_(RunsLumisAndEvents),
       moduleDescription_(desc.moduleDescription_),
       productRegistry_(createSharedPtrToStatic<ProductRegistry const>(desc.productRegistry_)),
       primary_(pset.getParameter<std::string>("@module_label") == std::string("@main_input")),
@@ -72,9 +73,45 @@ namespace edm {
         << "Please use instead the process level parameter set\n"
         << "'untracked PSet maxEvents = {untracked int32 input = " << maxEventsOldStyle << "}'\n";
     }
+    std::string const defaultMode("RunsLumisAndEvents");
+    std::string const runMode("Runs");
+    std::string const runLumiMode("RunsAndLumis");
+    std::string processingMode = pset.getUntrackedParameter<std::string>("processingMode", defaultMode);
+    if (processingMode == runMode) {
+      processingMode_ = Runs;
+    } else if (processingMode == runLumiMode) {
+      processingMode_ = RunsAndLumis;
+    } else if (processingMode != defaultMode) {
+      throw edm::Exception(edm::errors::Configuration)
+        << "InputSource::InputSource()\n"
+	<< "The 'processingMode' parameter for sources has an illegal value '" << processingMode << "'\n"
+        << "Legal values are '" << defaultMode << "', '" << runLumiMode << "', or '" << runMode << "'.\n";
+    }
   }
 
   InputSource::~InputSource() {}
+
+  // This next function is to guarantee that "runs only" mode does not return events or lumis,
+  // and that "runs and lumis only" mode does not return events.
+  // For input sources that are not random access (e.g. you need to read through the events
+  // to get to the lumis and runs), this is all that is involved to implement these modes.
+  // For input sources where events or lumis can be skipped, getNextItemType() should
+  // implement the skipping internally, so that the performance gain is realized.
+  // If this is done for a source, the 'if' blocks in this function will never be entered
+  // for that source.
+  InputSource::ItemType
+  InputSource::nextItemType_() {
+    ItemType itemType = getNextItemType();
+    if (itemType == IsEvent && processingMode() != RunsLumisAndEvents) {
+      readEvent_();
+      return nextItemType_();
+    }
+    if (itemType == IsLumi && processingMode() == Runs) {
+      readLuminosityBlock_();
+      return nextItemType_();
+    }
+    return itemType;
+  }
 
   InputSource::ItemType
   InputSource::nextItemType() {
@@ -89,18 +126,19 @@ namespace edm {
     } else if (lumiLimitReached()) {
       // If the maximum lumi limit has been reached, stop
       // when reaching a new file, run, or lumi.
-      if (oldState == IsInvalid || oldState == IsFile || oldState == IsRun) {
+      if (oldState == IsInvalid || oldState == IsFile || oldState == IsRun || processingMode() != RunsLumisAndEvents) {
         state_ = IsStop;
       } else {
-        ItemType newState = getNextItemType();
+        ItemType newState = nextItemType_();
 	if (newState == IsEvent) {
+	  assert (processingMode() == RunsLumisAndEvents);
           state_ = IsEvent;
 	} else {
           state_ = IsStop;
 	}
       }
     } else {
-      ItemType newState = getNextItemType();
+      ItemType newState = nextItemType_();
       if (newState == IsStop) {
         state_ = IsStop;
       } else if (newState == IsFile || oldState == IsInvalid) {
@@ -109,9 +147,11 @@ namespace edm {
         setRunPrincipal(readRun_());
         state_ = IsRun;
       } else if (newState == IsLumi || oldState == IsRun) {
+        assert (processingMode() != Runs);
         setLuminosityBlockPrincipal(readLuminosityBlock_());
         state_ = IsLumi;
       } else {
+	assert (processingMode() == RunsLumisAndEvents);
         state_ = IsEvent;
       }
     }
@@ -200,7 +240,7 @@ namespace edm {
     doneReadAhead_ = false;
 
     preRead();
-    std::auto_ptr<EventPrincipal> result = readEvent_(lbp);
+    std::auto_ptr<EventPrincipal> result = readEvent_();
     assert(lbp->run() == result->run());
     assert(lbp->luminosityBlock() == result->luminosityBlock());
     result->setLuminosityBlockPrincipal(lbp);

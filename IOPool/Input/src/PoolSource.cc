@@ -92,9 +92,9 @@ namespace edm {
   }
 
   std::auto_ptr<EventPrincipal>
-  PoolSource::readEvent_(boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
+  PoolSource::readEvent_() {
     if (secondaryFileSequence_) {
-      std::auto_ptr<EventPrincipal> primaryPrincipal = primaryFileSequence_->readEvent_(lbp);
+      std::auto_ptr<EventPrincipal> primaryPrincipal = primaryFileSequence_->readEvent_();
       std::auto_ptr<EventPrincipal> secondaryPrincipal = secondaryFileSequence_->readIt(primaryPrincipal->id(), primaryPrincipal->luminosityBlock(), true);
       if (secondaryPrincipal.get() != 0) {
         checkConsistency(*primaryPrincipal, *secondaryPrincipal);      
@@ -102,7 +102,7 @@ namespace edm {
       }
       return primaryPrincipal;
     }
-    return primaryFileSequence_->readEvent_(lbp);
+    return primaryFileSequence_->readEvent_();
   }
 
   std::auto_ptr<EventPrincipal>

@@ -5,7 +5,7 @@
 
 RootInputFileSequence: This is an InputSource
 
-$Id: RootInputFileSequence.h,v 1.15 2008/06/19 19:12:52 wdd Exp $
+$Id: RootInputFileSequence.h,v 1.16 2008/06/20 05:12:08 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -45,7 +45,7 @@ namespace edm {
     typedef VectorInputSource::EventPrincipalVector EventPrincipalVector;
     typedef boost::shared_ptr<RootFile> RootFileSharedPtr;
     typedef input::EntryNumber EntryNumber;
-    std::auto_ptr<EventPrincipal> readEvent_(boost::shared_ptr<LuminosityBlockPrincipal> lbp);
+    std::auto_ptr<EventPrincipal> readEvent_();
     boost::shared_ptr<LuminosityBlockPrincipal> readLuminosityBlock_();
     boost::shared_ptr<RunPrincipal> readRun_();
     boost::shared_ptr<FileBlock> readFile_();

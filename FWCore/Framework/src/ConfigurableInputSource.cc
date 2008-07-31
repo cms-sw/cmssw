@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: ConfigurableInputSource.cc,v 1.37 2008/04/03 21:59:55 wmtan Exp $
+$Id: ConfigurableInputSource.cc,v 1.38 2008/07/03 04:32:54 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
@@ -67,6 +67,7 @@ namespace edm {
 
   boost::shared_ptr<LuminosityBlockPrincipal>
   ConfigurableInputSource::readLuminosityBlock_() {
+    if (processingMode() == Runs) return boost::shared_ptr<LuminosityBlockPrincipal>();
     Timestamp ts = Timestamp(presentTime_);
     LuminosityBlockAuxiliary lumiAux(runPrincipal()->run(), luminosityBlock_, ts, Timestamp::invalidTimestamp());
     boost::shared_ptr<LuminosityBlockPrincipal> lumiPrincipal(
@@ -80,15 +81,16 @@ namespace edm {
   }
 
   std::auto_ptr<EventPrincipal>
-  ConfigurableInputSource::readEvent_(boost::shared_ptr<LuminosityBlockPrincipal>) {
-    assert(ep_.get() != 0);
+  ConfigurableInputSource::readEvent_() {
+    assert(ep_.get() != 0 || processingMode() != RunsLumisAndEvents);
     return ep_;
   }
 
   void
-  ConfigurableInputSource::reallyReadEvent(boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
+  ConfigurableInputSource::reallyReadEvent(LuminosityBlockNumber_t lumi) {
+    if (processingMode() != RunsLumisAndEvents) return;
     EventAuxiliary eventAux(eventID_,
-      processGUID(), Timestamp(presentTime_), lbp->luminosityBlock(), isRealData_, eType_);
+      processGUID(), Timestamp(presentTime_), lumi, isRealData_, eType_);
     std::auto_ptr<EventPrincipal> result(
 	new EventPrincipal(eventAux, productRegistry(), processConfiguration()));
     Event e(*result, moduleDescription());
@@ -171,7 +173,6 @@ namespace edm {
     resetRunPrincipal();
   }
     
-
   InputSource::ItemType 
   ConfigurableInputSource::getNextItemType() {
     if (newRun_) {
@@ -217,11 +218,13 @@ namespace edm {
       numberEventsInThisLumi_ = 0;
       newLumi_ = true;
       resetLuminosityBlockPrincipal();
-      return IsLumi;
+      if (processingMode() != Runs) {
+        return IsLumi;
+      }
     }
     ++numberEventsInThisRun_;
     ++numberEventsInThisLumi_;
-    reallyReadEvent(luminosityBlockPrincipal());
+    reallyReadEvent(luminosityBlock_);
     if (ep_.get() == 0) {
       return IsStop;
     }

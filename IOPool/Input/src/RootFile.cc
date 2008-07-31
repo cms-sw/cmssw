@@ -53,6 +53,7 @@ namespace edm {
 		     int remainingLumis,
 		     unsigned int treeCacheSize,
                      int treeMaxVirtualSize,
+		     InputSource::ProcessingMode processingMode,
 		     int forcedRunOffset,
 		     std::vector<EventID> const& whichEventsToProcess,
 		     bool dropMetaData,
@@ -96,6 +97,7 @@ namespace edm {
       runTree_(filePtr_, InRun),
       treePointers_(),
       productRegistry_(),
+      processingMode_(processingMode),
       forcedRunOffset_(forcedRunOffset),
       newBranchToOldBranch_(),
       sortedNewBranchNames_(),
@@ -336,6 +338,7 @@ namespace edm {
     if (eventsToSkip_ != 0) return false; 
     if (remainingEvents >= 0 && eventTree_.entries() > remainingEvents) return false;
     if (remainingLumis >= 0 && lumiTree_.entries() > remainingLumis) return false;
+    if (processingMode_ != InputSource::RunsLumisAndEvents) return false; 
     if (forcedRunOffset_ != 0) return false; 
     // Find entry for first event in file
     FileIndex::const_iterator it = fileIndexBegin_;
@@ -454,7 +457,10 @@ namespace edm {
 	return getNextEntryTypeWanted();
       }
       return FileIndex::kRun;
-    } 
+    } else if (processingMode_ == InputSource::Runs) {
+      fileIndexIter_ = fileIndex_.findRunPosition(currentRun + 1, false);      
+      return getNextEntryTypeWanted();
+    }
     LuminosityBlockNumber_t const& currentLumi = fileIndexIter_->lumi_;
     if (specifiedEvents) {
       // We are processing specified events.
@@ -485,6 +491,9 @@ namespace edm {
 	return getNextEntryTypeWanted();
       }
       return FileIndex::kLumi;
+    } else if (processingMode_ == InputSource::RunsAndLumis) {
+      fileIndexIter_ = fileIndex_.findLumiOrRunPosition(currentRun, currentLumi + 1);      
+      return getNextEntryTypeWanted();
     }
     assert (entryType == FileIndex::kEvent);
     // Skip any events before the first event specified, startAtEvent_.
@@ -735,7 +744,7 @@ namespace edm {
   //  when it is asked to do so.
   //
   std::auto_ptr<EventPrincipal>
-  RootFile::readEvent(boost::shared_ptr<ProductRegistry const> pReg, boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
+  RootFile::readEvent(boost::shared_ptr<ProductRegistry const> pReg) {
     assert(fileIndexIter_ != fileIndexEnd_);
     assert(fileIndexIter_->getEntryType() == FileIndex::kEvent);
     RunNumber_t currentRun = (fileIndexIter_->run_ ? fileIndexIter_->run_ : 1U);
@@ -745,7 +754,7 @@ namespace edm {
 	 fileIndexIter_->event_ >= startAtEvent_);
     // Set the entry in the tree, and read the event at that entry.
     eventTree_.setEntryNumber(fileIndexIter_->entry_); 
-    std::auto_ptr<EventPrincipal> ep = readCurrentEvent(pReg, lbp);
+    std::auto_ptr<EventPrincipal> ep = readCurrentEvent(pReg);
 
     assert(ep.get() != 0);
     assert(eventAux_.run() == fileIndexIter_->run_ + forcedRunOffset_);
@@ -761,26 +770,13 @@ namespace edm {
   // Reads event at the current entry in the tree.
   // Note: This function neither uses nor sets fileIndexIter_.
   std::auto_ptr<EventPrincipal>
-  RootFile::readCurrentEvent(boost::shared_ptr<ProductRegistry const> pReg, boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
+  RootFile::readCurrentEvent(boost::shared_ptr<ProductRegistry const> pReg) {
     if (!eventTree_.current()) {
       return std::auto_ptr<EventPrincipal>(0);
     }
     fillEventAuxiliary();
     fillHistory();
     overrideRunNumber(eventAux_.id_, eventAux_.isRealData());
-    if (lbp.get() == 0) {
-	RunAuxiliary runAux(eventAux_.run(), eventAux_.time(), eventAux_.time());
-	boost::shared_ptr<RunPrincipal> rp(
-	  new RunPrincipal(runAux, pReg, processConfiguration_));
-	LuminosityBlockAuxiliary lumiAux(rp->run(), eventAux_.luminosityBlock(), eventAux_.time(), eventAux_.time());
-	lbp.reset(
-	  new LuminosityBlockPrincipal(lumiAux,
-				       pReg,
-				       processConfiguration_));
-	  lbp->setRunPrincipal(rp);
-    }
-    assert(eventAux_.run() == lbp->run());
-    assert(eventAux_.luminosityBlock() == lbp->luminosityBlock());
 
     // We're not done ... so prepare the EventPrincipal
     std::auto_ptr<EventPrincipal> thisEvent(new EventPrincipal(

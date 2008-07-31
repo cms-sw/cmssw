@@ -34,13 +34,13 @@ namespace edm {
   private:
     typedef boost::shared_ptr<RootFile> RootFileSharedPtr;
     typedef input::EntryNumber EntryNumber;
-    virtual std::auto_ptr<EventPrincipal> readEvent_(boost::shared_ptr<LuminosityBlockPrincipal> lbp);
+    virtual std::auto_ptr<EventPrincipal> readEvent_();
     virtual boost::shared_ptr<LuminosityBlockPrincipal> readLuminosityBlock_();
     virtual boost::shared_ptr<RunPrincipal> readRun_();
     virtual boost::shared_ptr<FileBlock> readFile_();
     virtual void closeFile_();
     virtual void endJob();
-    virtual InputSource::ItemType getNextItemType();
+    virtual ItemType getNextItemType();
     virtual std::auto_ptr<EventPrincipal> readIt(EventID const& id);
     virtual void skip(int offset);
     virtual void rewind_();

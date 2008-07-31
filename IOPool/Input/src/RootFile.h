@@ -18,6 +18,7 @@ RootFile.h // used by ROOT input sources
 #include "RootTree.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/GroupSelector.h"
+#include "FWCore/Framework/interface/InputSource.h"
 #include "DataFormats/Provenance/interface/BranchChildren.h"
 #include "DataFormats/Provenance/interface/BranchMapper.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
@@ -62,6 +63,7 @@ namespace edm {
 	     int remainingLumis,
 	     unsigned int treeCacheSize,
              int treeMaxVirtualSize,
+	     InputSource::ProcessingMode processingMode,
 	     int forcedRunOffset,
 	     std::vector<EventID> const& whichEventsToProcess,
              bool dropMetaData,
@@ -69,11 +71,9 @@ namespace edm {
     void reportOpened();
     void close(bool reallyClose);
     std::auto_ptr<EventPrincipal> readCurrentEvent(
-	boost::shared_ptr<ProductRegistry const> pReg,
-	boost::shared_ptr<LuminosityBlockPrincipal> lbp);
+	boost::shared_ptr<ProductRegistry const> pReg);
     std::auto_ptr<EventPrincipal> readEvent(
-	boost::shared_ptr<ProductRegistry const> pReg,
-	boost::shared_ptr<LuminosityBlockPrincipal> lbp);
+	boost::shared_ptr<ProductRegistry const> pReg);
     boost::shared_ptr<LuminosityBlockPrincipal> readLumi(
 	boost::shared_ptr<ProductRegistry const> pReg,
 	boost::shared_ptr<RunPrincipal> rp);
@@ -173,6 +173,7 @@ namespace edm {
     RootTree runTree_;
     RootTreePtrArray treePointers_;
     boost::shared_ptr<ProductRegistry const> productRegistry_;
+    InputSource::ProcessingMode processingMode_;
     int forcedRunOffset_;
     std::map<std::string, std::string> newBranchToOldBranch_;
     std::vector<std::string> sortedNewBranchNames_;
