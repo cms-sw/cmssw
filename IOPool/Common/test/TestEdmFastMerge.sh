@@ -26,3 +26,14 @@ egrep -v "<GUID>|<PFN>" $LOCAL_TEST_DIR/proper_fjr_output > $LOCAL_TMP_DIR/prope
 egrep -v "<GUID>|<PFN>" $LOCAL_TMP_DIR/TestFastMergeFJR.xml  > $LOCAL_TMP_DIR/TestFastMergeFJR_filtered.xml
 diff $LOCAL_TMP_DIR/proper_fjr_output_filtered $LOCAL_TMP_DIR/TestFastMergeFJR_filtered.xml || die 'output framework job report is wrong' $?
 
+cmsRun -j ${LOCAL_TMP_DIR}/TestFastMergeRLFJR.xml --parameter-set ${LOCAL_TEST_DIR}/FastMergeTestRL_cfg.py || die 'Failure using FastMergeTestRL_cfg.py' $?
+#need to filter items in job report which always change
+egrep -v "<GUID>|<PFN>" $LOCAL_TEST_DIR/proper_RLfjr_output > $LOCAL_TMP_DIR/proper_RLfjr_output_filtered
+egrep -v "<GUID>|<PFN>" $LOCAL_TMP_DIR/TestFastMergeRLFJR.xml  > $LOCAL_TMP_DIR/TestFastMergeRLFJR_filtered.xml
+diff $LOCAL_TMP_DIR/proper_RLfjr_output_filtered $LOCAL_TMP_DIR/TestFastMergeRLFJR_filtered.xml || die 'output run lumi framework job report is wrong' $?
+
+cmsRun -j ${LOCAL_TMP_DIR}/TestFastMergeRFJR.xml --parameter-set ${LOCAL_TEST_DIR}/FastMergeTestR_cfg.py || die 'Failure using FastMergeTestR_cfg.py' $?
+#need to filter items in job report which always change
+egrep -v "<GUID>|<PFN>" $LOCAL_TEST_DIR/proper_Rfjr_output > $LOCAL_TMP_DIR/proper_Rfjr_output_filtered
+egrep -v "<GUID>|<PFN>" $LOCAL_TMP_DIR/TestFastMergeRFJR.xml  > $LOCAL_TMP_DIR/TestFastMergeRFJR_filtered.xml
+diff $LOCAL_TMP_DIR/proper_Rfjr_output_filtered $LOCAL_TMP_DIR/TestFastMergeRFJR_filtered.xml || die 'output run framework job report is wrong' $?
