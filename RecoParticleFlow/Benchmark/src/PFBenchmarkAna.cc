@@ -121,7 +121,7 @@ void PFBenchmarkAna::setup(DQMStore *DQM, bool PlotAgainstReco_) {
 }
 
 
-void PFBenchmarkAna::fill(const edm::View<reco::Candidate> *RecoCollection, const edm::View<reco::Candidate> *GenCollection, bool PlotAgainstReco, double recPt_cut, double maxEta_cut) {
+void PFBenchmarkAna::fill(const edm::View<reco::Candidate> *RecoCollection, const edm::View<reco::Candidate> *GenCollection, bool PlotAgainstReco, double recPt_cut, double maxEta_cut, double deltaR_cut) {
 
   // loop over reco particles
   for (unsigned int i = 0; i < RecoCollection->size(); i++) {
@@ -152,7 +152,9 @@ void PFBenchmarkAna::fill(const edm::View<reco::Candidate> *RecoCollection, cons
     double deltaPhi = algo_->deltaPhi(particle,gen_particle);
    
     //TODO implement variable Cut:
-    // if (deltaR > 0.5) {
+     if (fabs(deltaR)>deltaR_cut and deltaR_cut != -1.)
+       continue;
+
     // fill histograms
     hDeltaEt->Fill(deltaEt);
     hDeltaEtvsEt->Fill(et,deltaEt);

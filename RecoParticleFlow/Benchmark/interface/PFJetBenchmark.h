@@ -19,8 +19,12 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
+//#include "FWCore/ServiceRegistry/interface/Service.h" 
+#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "TH1F.h"
+#include "TH2F.h"
+#include <string>
 #include <TFile.h>
-#include <string.h>
 
 
 class PFJetBenchmark;
@@ -42,9 +46,10 @@ class PFJetBenchmark {
 	     bool debug, 
 	     bool PlotAgainstReco=0, 
 	     double deltaRMax=0.1,
-             std::string benchmarkLabel_ = "defaultBenchmark", 
-	     double recPt = 20, 
-	     double maxEta = -1
+             std::string benchmarkLabel_ = "ParticleFlow", 
+	     double recPt = -1, 
+	     double maxEta = -1,
+	     DQMStore * dbe_store = NULL
 	     );
   void process(const reco::PFJetCollection& , const reco::GenJetCollection& );
   void gettrue (const reco::GenJet* truth, double& true_ChargedHadEnergy, 
@@ -55,7 +60,8 @@ class PFJetBenchmark {
   double resChargedHadEnergyMax() const {return resChargedHadEnergyMax_;};
   double resNeutralHadEnergyMax() const {return resNeutralHadEnergyMax_;};
   double resNeutralEmEnergyMax() const {return resNeutralEmEnergyMax_;};
-  void save();	
+//  void save();	
+  void write();
 	
  private:
 		

@@ -1,9 +1,4 @@
 #include "RecoParticleFlow/Benchmark/interface/PFJetBenchmark.h"
-#include "FWCore/ServiceRegistry/interface/Service.h" 
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
-#include "TH1F.h"
-#include "TH2F.h"
-#include <string>
 
 
 // preprocessor macro for booking 1d histos with DQMStore -or- bare Root
@@ -45,17 +40,22 @@ PFJetBenchmark::PFJetBenchmark() {}
 
 PFJetBenchmark::~PFJetBenchmark() {}
 
-void PFJetBenchmark::save() {
+void PFJetBenchmark::write() {
    // Store the DAQ Histograms 
   if (outputFile_.size() != 0) {
     if (dbe_)
           dbe_->save(outputFile_.c_str());
     // use bare Root if no DQM (FWLite applications)
-    else if (file_)
-      file_->Write(outputFile_.c_str());
+    else if (file_) {
+       file_->Write(outputFile_.c_str());
+       cout << "Benchmark output written to file " << outputFile_.c_str() << endl;
+       file_->Close();
+       }
   }
   else 
-    cout << "No output file specified ("<<outputFile_<<"). Results will not be saved!" << endl;} 
+    cout << "No output file specified ("<<outputFile_<<"). Results will not be saved!" << endl;
+    
+} 
 
 void PFJetBenchmark::setup(
 			   string Filename,
@@ -64,7 +64,8 @@ void PFJetBenchmark::setup(
 			   double deltaRMax, 
 			   string benchmarkLabel_, 
 			   double recPt, 
-			   double maxEta) {
+			   double maxEta, 
+			   DQMStore * dbe_store) {
   debug_ = debug; 
   PlotAgainstReco_ = PlotAgainstReco; 
   deltaRMax_ = deltaRMax;
@@ -72,25 +73,30 @@ void PFJetBenchmark::setup(
   recPt_cut = recPt;
   maxEta_cut= maxEta;
   file_ = NULL;
-  dbe_ = NULL;
+  dbe_ = dbe_store;
   // print parameters
   cout<< "PFJetBenchmark Setup parameters =============================================="<<endl;
-  cout << "Filename ot write histograms " << Filename<<endl;
+  cout << "Filename to write histograms " << Filename<<endl;
   cout << "PFJetBenchmark debug " << debug_<< endl;
   cout << "PlotAgainstReco " << PlotAgainstReco_ << endl;
   cout << "deltaRMax " << deltaRMax << endl;
+  cout << "benchmarkLabel " << benchmarkLabel_ << endl;
+  cout << "recPt_cut " << recPt_cut << endl;
+  cout << "maxEta_cut " << maxEta_cut << endl;
+  
   // Book histogram
 
   // Establish DQM Store
-  dbe_ = edm::Service<DQMStore>().operator->();
   string path = "PFTask/Benchmarks/"+ benchmarkLabel_ + "/";
   if (PlotAgainstReco) path += "Reco"; else path += "Gen";
   if (dbe_) {
     dbe_->setCurrentFolder(path.c_str());
   }
   else {
-    file_ = new TFile();
-    cout << "Warning: DQM is not available to support data storage service. Errors in saving might occur. "<<endl;
+    file_ = new TFile(outputFile_.c_str(), "recreate");
+//    TTree * tr = new TTree("PFTast");
+//    tr->Branch("Benchmarks/ParticleFlow")
+    cout << "Info: DQM is not available to provide data storage service. Using TFile to save histograms. "<<endl;
   }
   // Jets inclusive  distributions  (Pt > 20 or specified recPt GeV)
   char cutString[35];
@@ -329,22 +335,27 @@ void PFJetBenchmark::printPFJet(const reco::PFJet* pfj){
   cout<<setiosflags(ios::right);
   cout<<setiosflags(ios::fixed);
   cout<<setprecision(3);
-  std::vector <const PFCandidate*> pfCandidates = pfj->getPFConstituents ();
-  cout << "PFJet  p/px/py/pz/pt: " << pfj->p() << '/' << pfj->px () 
-       << '/' << pfj->py() << '/' << pfj->pz() << '/' << pfj->pt() << endl
-       << "    eta/phi: " << pfj->eta () << '/' << pfj->phi () << endl   		
+
+//formerly read out all the constituents, but now there is an error ??????
+//std::vector <const reco::PFCandidate*> pfCandidates = pfj->getPFConstituents ();
+
+  cout << "PFJet  p/px/py/pz/pt: " << pfj->p() << "/" << pfj->px () 
+       << "/" << pfj->py() << "/" << pfj->pz() << "/" << pfj->pt() << endl
+       << "    eta/phi: " << pfj->eta () << "/" << pfj->phi () << endl   		
        << "    PFJet specific:" << std::endl
        << "      charged/neutral hadrons energy: " << pfj->chargedHadronEnergy () << '/' << pfj->neutralHadronEnergy () << endl
        << "      charged/neutral em energy: " << pfj->chargedEmEnergy () << '/' << pfj->neutralEmEnergy () << endl
        << "      charged muon energy: " << pfj->chargedMuEnergy () << '/' << endl
-       << "      charged/neutral multiplicity: " << pfj->chargedMultiplicity () << '/' << pfj->neutralMultiplicity () << endl
-       << "    # of pfCandidates: " << pfCandidates.size() << endl;
-  vector <PFBlockRef> PFBRef;
-  // print PFCandidates constituents of the jet
+       << "      charged/neutral multiplicity: " << pfj->chargedMultiplicity () << '/' << pfj->neutralMultiplicity () << endl;
+/* cout  << "    # of pfCandidates: " << pfCandidates.size() << endl;
+
+//  vector <PFBlockRef> PFBRef;
+// print PFCandidates constituents of the jet
   for(unsigned i=0; i<pfCandidates.size(); i++) {
     const PFCandidate* pfCand = pfCandidates[i];
     cout<<i <<" " << *pfCand << endl;
   } // end loop on i (PFCandidates)
+*/
   // print blocks associated to the jet (to be done with new format PFCandiates)
 	
   cout<<resetiosflags(ios::right|ios::fixed);
