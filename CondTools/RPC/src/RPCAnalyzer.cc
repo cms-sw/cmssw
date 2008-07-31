@@ -1,5 +1,5 @@
 #include "CondCore/PopCon/interface/PopConAnalyzer.h"
-#include "RPCSourceHandler.h"
+#include "CondTools/RPC/interface/RPCSourceHandler.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 
