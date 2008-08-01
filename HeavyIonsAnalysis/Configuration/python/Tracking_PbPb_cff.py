@@ -6,8 +6,7 @@ from RecoVertex.BeamSpotProducer.BeamSpot_cfi import *
 
 from RecoPixelVertexing.PixelLowPtUtilities.common_cff import *
 from RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi import *
-import RecoPixelVertexing.PixelLowPtUtilities.AllPixelTracks_cfi
-pixel3ProtoTracks = RecoPixelVertexing.PixelLowPtUtilities.AllPixelTracks_cfi.allPixelTracks.clone()
+from RecoHI.HiTracking.PixelProtoTracks_cfi import *
 import RecoPixelVertexing.PixelLowPtUtilities.AllPixelTracks_cfi
 pixel3PrimTracks = RecoPixelVertexing.PixelLowPtUtilities.AllPixelTracks_cfi.allPixelTracks.clone()
 import RecoPixelVertexing.PixelLowPtUtilities.TrackSeeds_cfi
@@ -26,6 +25,7 @@ heavyIonTracking = cms.Sequence(firstStep)
 
 esprefRHProd = cms.ESPrefer("TkTransientTrackingRecHitBuilderESProducer","myBuilder")
 
+pixel3ProtoTracks.RegionFactoryPSet.ComponentName = "HITrackingRegionProducer"
 pixel3ProtoTracks.passLabel = 'Pixel triplet tracks for vertexing'
 pixel3ProtoTracks.RegionFactoryPSet.RegionPSet.ptMin = 0.5
 pixel3ProtoTracks.RegionFactoryPSet.RegionPSet.originRadius = 0.1
