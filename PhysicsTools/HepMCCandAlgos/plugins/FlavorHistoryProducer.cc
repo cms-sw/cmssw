@@ -8,6 +8,32 @@
 // #include "DataFormats/Common/interface/ValueMap.h"
 // #include <iterators>
 
+
+// -------------------------------------------------------------
+// Identify the ancestry of the Quark
+// 
+// 
+// Matrix Element:
+//    Status 3 parent with precisely 2 "grandparents" that
+//    is outside of the "initial" section (0-5) that has the
+//    same ID as the status 2 parton in question. 
+//    NOTE: This is not the actual ultimate progenitor,
+//    but this is the signature of matrix element decays.
+//    The ultimate progenitor is the parent of the status 3
+//    parton.
+//
+// Flavor excitation:
+//    Almost the same as the matrix element classification,
+//    but has only one outgoing parton product instead of two.
+//
+// Gluon splitting:
+//    Parent is a quark of a different flavor than the parton
+//    in question, or a gluon. Can come from either ISR or FSR.
+//
+// True decay:
+//    Decays from a resonance like top, Higgs, etc.
+// -------------------------------------------------------------
+
 using namespace std;
 using namespace reco;
 using namespace edm;
@@ -66,12 +92,12 @@ void FlavorHistoryProducer::beginJob( const EventSetup & es ) {
 
 void FlavorHistoryProducer::produce( Event& evt, const EventSetup& ) 
 {
+
+  if ( verbose_ ) cout << "Producing flavor history" << endl;
   
   // Get a handle to the particle collection (OwnVector)
   Handle<CandidateView > particlesViewH;
   evt.getByLabel( src_, particlesViewH );
-
-//   const vector<Candidate const *> & particles = *particlesViewH;
 
   // Copy the View to an vector for easier iterator manipulation convenience
   vector<const Candidate* > particles;
@@ -89,6 +115,8 @@ void FlavorHistoryProducer::produce( Event& evt, const EventSetup& )
   vector<const Candidate* >::size_type j_max = particles.size();
   for( j=0; j<j_max; ++j ) {
 
+    if ( verbose_ ) cout << "Processing particle " << j << endl;
+
     // Get the candidate
     const Candidate *p = particles[j];
     // Set up indices that we'll need for the flavor history
@@ -103,18 +131,14 @@ void FlavorHistoryProducer::produce( Event& evt, const EventSetup& )
     int idabs = abs( (p)->pdgId() );
     int nDa = (p)->numberOfDaughters();
 
-    // Check if we have a status 2 or 3 particle, which is a parton before the string
-    if ( p->status() == 2 ) {
-//       if(verbose_) cout << "--------------------------" << endl;
-//       if(verbose_) cout << "Processing particle " << j  << " = " << *p << endl;
+    // Check if we have a status 2 or 3 particle, which is a parton before the string.
+    // Only consider quarks. 
+    if ( idabs <= FlavorHistory::tQuarkId && p->status() == 2 ) {
       // Ensure the parton in question has daughters 
-      //       if ( nDa > 0 && ( (p)->daughter(0)->pdgId() == 91 || (p)->daughter(0)->pdgId() == 92 ||
-      // 			(p)->daughter(0)->pdgId() == 93) ) {
       if ( nDa > 0 ) {
-// 	if(verbose_) cout << "Has daughters" << endl;
 	// Ensure the parton passes some minimum kinematic cuts
 	if((p)->pt() > ptMinShower_ && fabs((p)->eta())<etaMaxShower_) {
-// 	  if(verbose_) cout << "Passes kin cuts" << endl;
+
 
  	  if(verbose_) cout << "--------------------------" << endl;
  	  if(verbose_) cout << "Processing particle " << j  << " = " << *p << endl;
@@ -132,31 +156,38 @@ void FlavorHistoryProducer::produce( Event& evt, const EventSetup& )
 	      cout << **iprint << endl;
 	  }
 	  
-	  // ------------------------------------------------------------
-	  // Now identify the flavor and ancestry of the HF Quark
-	  // Mother               Origin
-	  // ======               =======
-	  // incoming quarks      ISR, likely gluon splitting
-	  //   light flavor
-	  // incoming partons     ISR, likely flavor excitation
-	  //   heavy flavor           
-	  // outgoing quark       FSR
-	  //   light flavor
-	  // outgoing quark       Matrix Element b       
-	  //   heavy flavor
-	  //     no mother
-	  // outgoing quark       Resonance b (e.g. top quark decay)
-	  //   heavy flavor
-	  //     mother
-	  // outgoing resonance   Resonance b (e.g. Higgs decay)
-	  // ------------------------------------------------------------
+
+	  // -------------------------------------------------------------
+	  // Identify the ancestry of the Quark
+	  // 
+	  // 
+	  // Matrix Element:
+	  //    Status 3 parent with precisely 2 "grandparents" that
+	  //    is outside of the "initial" section (0-5) that has the
+	  //    same ID as the status 2 parton in question. 
+	  //    NOTE: This is not the actual ultimate progenitor,
+	  //    but this is the signature of matrix element decays.
+	  //    The ultimate progenitor is the parent of the status 3
+	  //    parton.
+	  //
+	  // Flavor excitation:
+	  //    Almost the same as the matrix element classification,
+	  //    but has only one outgoing parton product instead of two.
+	  //
+	  // Gluon splitting:
+	  //    Parent is a quark of a different flavor than the parton
+	  //    in question, or a gluon. Can come from either ISR or FSR.
+	  //
+	  // True decay:
+	  //    Decays from a resonance like top, Higgs, etc.
+	  // -------------------------------------------------------------
 	  vector<Candidate const *>::size_type a_size = allParents.size();
 	  int parentIndex=0;
 
 	  // 
 	  // Loop over all the ancestors of this parton and find the progenitor.
 	  // 
-	  for( vector<Candidate const *>::size_type i=0 ; i < a_size && !foundProgenitor; ++i,++parentIndex ) {
+ 	  for( vector<Candidate const *>::size_type i=0 ; i < a_size && !foundProgenitor; ++i,++parentIndex ) {
 	    const Candidate * aParent=allParents[i];
 	    vector<Candidate const *>::const_iterator found = find(particles.begin(),particles.end(),aParent);
 
@@ -166,7 +197,9 @@ void FlavorHistoryProducer::produce( Event& evt, const EventSetup& )
 
 	    int aParentId = abs(aParent->pdgId());
 
+	    // -----------------------------------------------------------------------
 	    // Here we examine particles that were produced after the collision
+	    // -----------------------------------------------------------------------
  	    if( aParent->numberOfMothers() == 2 && progenitorIndex > 5 ) {
 	      // Here is where we have a matrix element process.
 	      // The signature is to have a status 3 parent with precisely 2 parents
@@ -175,6 +208,12 @@ void FlavorHistoryProducer::produce( Event& evt, const EventSetup& )
 	      // NOTE: This is not the actual ultimate progenitor, but this is
 	      // the signature of matrix element decays. The ultimate progentitor
 	      // is the parent of the status 3 parton. 
+	      // ALSO NOTE: If this parton has no sister, then this will be classified as
+	      // a flavor excitation. The only difference, since the initial states are
+	      // mostly gluons, is that the matrix element cases have a sister,
+	      // while the flavor excitation cases do not. 
+	      // If we do not find a sister below, this will be classified as a flavor
+	      // excitation. 
 	      if( aParentId == pdgIdToSelect_ ) {
 		if(verbose_) cout << "Matrix Element progenitor" << endl;
 		flavorSource = FlavorHistory::FLAVOR_ME;
@@ -188,6 +227,7 @@ void FlavorHistoryProducer::produce( Event& evt, const EventSetup& )
 									       progenitorCand );
 		  progenitorIndex = foundAgain - particles.begin();
 		  foundProgenitor = true;
+
 		} else {
 		  edm::LogWarning("UnexpectedFormat") << "Error! Parentage information in FlavorHistoryProducer is not what is expected";
 		  
@@ -202,13 +242,15 @@ void FlavorHistoryProducer::produce( Event& evt, const EventSetup& )
 
 		}
 	      } 
-	      // Here we have a gluon splitting from final state radiation
+	      // Here we have a gluon splitting from final state radiation. 
+	      // The parent is a quark of a different flavor, or a gluon, in the
+	      // final state. 
 	      else if( (aParentId > 0 && aParentId < FlavorHistory::tQuarkId ) || aParentId==FlavorHistory::gluonId ) {
 		if(verbose_) cout << "Gluon splitting progenitor" << endl;
 		flavorSource = FlavorHistory::FLAVOR_GS;
 		foundProgenitor = true;
 	      }
-	      // Here we have a true decay
+	      // Here we have a true decay. Parent is not a quark or a gluon.
 	      else if( (aParentId>pdgIdToSelect_ && aParentId<FlavorHistory::gluonId) || aParentId > FlavorHistory::gluonId ) {
 		if(verbose_) cout << "Flavor decay progenitor" << endl;
 		flavorSource = FlavorHistory::FLAVOR_DECAY;
@@ -216,21 +258,22 @@ void FlavorHistoryProducer::produce( Event& evt, const EventSetup& )
 	      }
 	    }
 
+	    // -----------------------------------------------------------------------
 	    // Here we examine particles that were produced before the collision
-	    else if( progenitorIndex==2 || progenitorIndex==3 ) {
- 	      // Here is a flavor excitation
-	      flavorSource = FlavorHistory::FLAVOR_EXC;
-
-	      // Parent has a quark daughter equal and opposite to this
+	    // -----------------------------------------------------------------------
+	    else if( progenitorIndex <= 5 ) {
+	      // Parent has a quark daughter equal and opposite to this: ISR
 	      if( aParent->numberOfDaughters() > 0 && 
 		  aParent->daughter(0)->pdgId() == -1 * p->pdgId()  ) {
-		if(verbose_) cout << "Flavor excitation progenitor" << endl;
-		flavorSource = FlavorHistory::FLAVOR_EXC;
-	      }
-	      // Here is gluon splitting from initial state radiation
-	      else {		  
 		if(verbose_) cout << "Gluon splitting progenitor" << endl;
 		flavorSource = FlavorHistory::FLAVOR_GS;
+	      }
+	      // Otherwise, this is flavor excitation. Rarely happens because
+	      // mostly the initial state is gluons which will be caught by the
+	      // "matrix element" version above. 
+	      else {		  
+		if(verbose_) cout << "Flavor excitation progenitor" << endl;
+		flavorSource = FlavorHistory::FLAVOR_EXC;
 	      }
 	      foundProgenitor = true;
 	    }
@@ -307,6 +350,14 @@ void FlavorHistoryProducer::produce( Event& evt, const EventSetup& )
 	    } // End if we have to look at parents of progenitor to find sister
 
 	  } // end if found progenitor
+
+	  // ------
+	  // Here, we change the type from matrix element to flavor excitation
+	  // if there are no sisters present. 
+	  // ------
+	  if ( flavorSource == FlavorHistory::FLAVOR_ME && !foundSister ) {
+	    flavorSource = FlavorHistory::FLAVOR_EXC;
+	  }
 	  
 	}// End if this parton passes some minimal kinematic cuts
       }// End if this particle has strings as daughters
