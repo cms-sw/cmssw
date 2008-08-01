@@ -344,7 +344,7 @@ def determineNewProfile(step,Profile,SavedProfile):
     if 'HLT' in step:
         Profile = SavedProfile
 
-    return (Profile , SavedProfile)
+    return (Profile, SavedProfile)
 
 def pythonFragment(step):
     # Convenient dictionary to map the correct Simulation Python fragment:
@@ -464,11 +464,11 @@ def writeCommands(simcandles,
                     EdmFile += ".root "
                     
                     if prof == Profile[0] and not os.path.exists("./" + EdmFile):
-                    # insert command to generate required state ( need to run one more step
-                    # so that EDM can actually check the size of the root file
-                    # If the first step to be profiled is something later on in the steps such
-                    # as HLT then writePrerequisteSteps() should have got you to the step prior to
-                    # HLT, therefore the only thing left to run to profile EDMSIZE is HLT itself
+                        # insert command to generate required state ( need to run one more step
+                        # so that EDM can actually check the size of the root file
+                        # If the first step to be profiled is something later on in the steps such
+                        # as HLT then writePrerequisteSteps() should have got you to the step prior to
+                        # HLT, therefore the only thing left to run to profile EDMSIZE is HLT itself
                         OutputFileOption = "--fileout=%s_%s.root" % ( FileName[acandle],step)
 
                         InputFileOption = setInputFile(steps,step,acandle,stepIndex)
@@ -528,15 +528,13 @@ def prepareQcdCommand(thecandle,NumberOfEvents,cmsDriverOptions):
     OutputFileOption = "--fileout=%s_DIGI_PILEUP.root"  % (FileName[thecandle] )
 
     return (
-        "%s %s -n %s --step=DIGI %s %s --PU --customise=Configuration/PyReleaseValidation/MixingModule.py %s"
-         % (
-        cmsDriver,
-        KeywordToCfi[thecandle],
-        NumberOfEvents,
-        InputFileOption,
-        OutputFileOption,
-        cmsDriverOptions,
-                    ))
+        "%s %s -n %s --step=DIGI %s %s --pileup=LowLumiPileUp --customise=Configuration/PyReleaseValidation/MixingModule.py %s" %
+        (cmsDriver,
+         KeywordToCfi[thecandle],
+         NumberOfEvents,
+         InputFileOption,
+         OutputFileOption,
+         cmsDriverOptions))
 
 def writeCommandsToReport(simcandles,Candle,Profile,debug,NumberOfEvents,cmsDriverOptions,steps):
 
@@ -578,7 +576,7 @@ def writeCommandsToReport(simcandles,Candle,Profile,debug,NumberOfEvents,cmsDriv
         
         for prof in Profile:
             if 'EdmSize' in prof:
-                Command = "%s_%s.root " % (FileName[thecandle],step)
+                Command = "%s_DIGI_PILEUP.root " % (FileName[thecandle])
             else:
                 Command = prepareQcdCommand(thecandle,NumberOfEvents,cmsDriverOptions)
 
