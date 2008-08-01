@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 # Magnetic Field
 # Geometry
-from Geometry.CMSCommonData.cmsIdealGeometryXML_cff import *
 # DT Geometry
 # CSC Geometry
 # RPC Geometry

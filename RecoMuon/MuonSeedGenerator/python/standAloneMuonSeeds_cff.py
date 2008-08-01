@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 # Geometries
-from Geometry.CMSCommonData.cmsIdealGeometryXML_cff import *
 from Geometry.CommonDetUnit.bareGlobalTrackingGeometry_cfi import *
 from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *
 
