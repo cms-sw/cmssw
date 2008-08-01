@@ -7,12 +7,13 @@
  * \author original version: Chris Jones, Cornell, 
  *         adapted to Reflex by Luca Lista, INFN
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
  */
 #include "PhysicsTools/Utilities/src/ComparisonStack.h"
 #include "PhysicsTools/Utilities/src/Comparison.h"
 #ifdef BOOST_SPIRIT_DEBUG 
+#include <iostream>
 #include <string>
 #endif
 

@@ -13,6 +13,9 @@
 #include "PhysicsTools/Utilities/src/ExpressionBinaryOperator.h"
 #include "PhysicsTools/Utilities/src/ExpressionStack.h"
 #include <cmath>
+#ifdef BOOST_SPIRIT_DEBUG 
+#include <iostream>
+#endif
 
 namespace reco {
   namespace parser {

@@ -14,6 +14,7 @@
 #include "PhysicsTools/Utilities/src/ExpressionStack.h"
 #ifdef BOOST_SPIRIT_DEBUG 
 #include <string>
+#include <iostream>
 #endif
 namespace reco {
   namespace parser {
