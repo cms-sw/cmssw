@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 29 13:39:56 PST 2008
-// $Id: FWModelFilter.cc,v 1.3 2008/07/30 20:49:06 chrjones Exp $
+// $Id: FWModelFilter.cc,v 1.4 2008/08/01 13:43:15 chrjones Exp $
 //
 
 // system include files
@@ -75,11 +75,13 @@ FWModelFilter::setExpression(const std::string& iExpression)
 {
    if(m_type != ROOT::Reflex::Type() && iExpression.size()) {
       
+      //Backwards compatibility with old format: If find a $. or a () just remove them
       const std::string variable;
       static boost::regex const reVarName("(\\$\\.)|(\\(\\))");
       
       std::string temp = boost::regex_replace(iExpression,reVarName,variable);
       
+      //now setup the parser
       using namespace boost::spirit;
       reco::parser::SelectorPtr tmpPtr;
       reco::parser::Grammar grammar(tmpPtr,m_type);
@@ -101,6 +103,10 @@ FWModelFilter::setExpression(const std::string& iExpression)
 void 
 FWModelFilter::setClassName(const std::string& iClassName)
 {
+   //NOTE: How do we handle the case where the filter was created before
+   // the library for the class was loaded and therefore we don't have
+   // a Reflex dictionary for it?
+   
    m_className = iClassName;
    m_type = ROOT::Reflex::Type::ByName(iClassName);
    setExpression(m_expression);
