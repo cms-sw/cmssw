@@ -54,6 +54,9 @@ import EventFilter.RPCRawToDigi.rpcUnpacker_cfi
 #--- RPC ---#
 muonRPCDigis = EventFilter.RPCRawToDigi.rpcUnpacker_cfi.rpcunpacker.clone()
 RawToDigi = cms.Sequence(csctfDigis+dttfDigis+gctDigis+gtDigis+siPixelDigis+siStripDigis+ecalDigis+ecalPreshowerDigis+hcalDigis+muonCSCDigis+muonDTDigis+muonRPCDigis)
+
+RawToDigi_woGCT = cms.Sequence(csctfDigis+dttfDigis+gtDigis+siPixelDigis+siStripDigis+ecalDigis+ecalPreshowerDigis+hcalDigis+muonCSCDigis+muonDTDigis+muonRPCDigis)
+
 gtDigis.DaqGtInputTag = 'source'
 siPixelDigis.InputLabel = 'source'
 siStripDigis.ProductLabel = 'source'
