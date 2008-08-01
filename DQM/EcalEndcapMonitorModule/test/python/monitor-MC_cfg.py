@@ -52,8 +52,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 process.source = cms.Source("PoolSource",
 #---
-#    fileNames = cms.untracked.vstring('/store/users/dellaric/data/cosmics_ZS_noSR_RAW.root')
-    fileNames = cms.untracked.vstring('/store/unmerged/relval/2008/7/9/RelVal-RelValSingleMuPt10-1215646486/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V5/0000/FEB7BCD4-124E-DD11-8E40-001D09F2B30B.root')
+    fileNames = cms.untracked.vstring('/store/users/dellaric/data/cosmics_ZS_noSR_RAW.root')
 #---
 )
 
