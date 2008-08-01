@@ -11,7 +11,7 @@ Description: Analyse the timing of all of the GCT pipelines
 //
 // Original Author:  Alex Tapper
 //         Created:  Mon Apr 21 14:21:06 CEST 2008
-// $Id: GctTimingAnalyzer.cc,v 1.4 2008/05/22 15:07:30 tapper Exp $
+// $Id: GctTimingAnalyzer.cc,v 1.5 2008/07/14 12:40:01 tapper Exp $
 //
 //
 
@@ -43,6 +43,7 @@ GctTimingAnalyzer::~GctTimingAnalyzer()
 void GctTimingAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
+  using namespace std;
 
   // Isolated EM cands in GCT output
   Handle<L1GctEmCandCollection> isoEm; 
@@ -50,7 +51,7 @@ void GctTimingAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
   for (L1GctEmCandCollection::const_iterator em=isoEm->begin(); em!=isoEm->end(); em++){
     if (em->rank()>0) {
-      m_outputFile << "BX = " << m_evtNum << " " << (*em) << std::endl; 
+      m_outputFile << "BX = " << dec << m_evtNum << " " << (*em) << std::endl; 
     }
   }
   
@@ -60,7 +61,7 @@ void GctTimingAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
   for (L1GctEmCandCollection::const_iterator em=nonIsoEm->begin(); em!=nonIsoEm->end(); em++){
     if (em->rank()>0) {
-      m_outputFile << "BX = " << m_evtNum << " " << (*em) << std::endl; 
+      m_outputFile << "BX = " << dec << m_evtNum << " " << (*em) << std::endl; 
     }
   }
 
@@ -70,7 +71,7 @@ void GctTimingAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
   for (L1GctInternEmCandCollection::const_iterator em=internEm->begin(); em!=internEm->end(); em++){
     if (em->rank()>0) {
-      m_outputFile << "BX = " << m_evtNum << " " << (*em) << std::endl; 
+      m_outputFile << "BX = " << dec << m_evtNum << " " << (*em) << std::endl; 
     }
   }
 
@@ -80,7 +81,7 @@ void GctTimingAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
   for (L1CaloEmCollection::const_iterator em=rctEm->begin(); em!=rctEm->end(); em++){
     if (em->rank()>0) {
-      m_outputFile << "BX = " << m_evtNum << " " << (*em) << std::endl; 
+      m_outputFile << "BX = " << dec << m_evtNum << " " << (*em) << std::endl; 
     }
   }
 
@@ -90,7 +91,7 @@ void GctTimingAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
   for (L1GctJetCandCollection::const_iterator cj=cenJets->begin(); cj!=cenJets->end(); cj++){
     if (cj->rank()>0) {
-      m_outputFile << "BX = " << m_evtNum << " " << (*cj) << std::endl; 
+      m_outputFile << "BX = " << dec << m_evtNum << " " << (*cj) << std::endl; 
     }
   }
 
@@ -100,7 +101,7 @@ void GctTimingAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
   for (L1GctJetCandCollection::const_iterator fj=forJets->begin(); fj!=forJets->end(); fj++){
     if (fj->rank()>0) {
-      m_outputFile << "BX = " << m_evtNum << " " << (*fj) << std::endl; 
+      m_outputFile << "BX = " << dec << m_evtNum << " " << (*fj) << std::endl; 
     }
   }
 
@@ -110,7 +111,7 @@ void GctTimingAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
   for (L1GctJetCandCollection::const_iterator tj=tauJets->begin(); tj!=tauJets->end(); tj++){
     if (tj->rank()>0) {
-      m_outputFile << "BX = " << m_evtNum << " " << (*tj) << std::endl; 
+      m_outputFile << "BX = " << dec << m_evtNum << " " << (*tj) << std::endl; 
     }
   }
 
@@ -120,7 +121,7 @@ void GctTimingAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
   for (L1GctEtMissCollection::const_iterator met=missEt->begin(); met!=missEt->end(); met++){
     if (met->et()>0){
-      m_outputFile << "BX = " << m_evtNum << " " << (*met) << std::endl; 
+      m_outputFile << "BX = " << dec << m_evtNum << " " << (*met) << std::endl; 
     }
   }
 
@@ -130,7 +131,7 @@ void GctTimingAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
   for (L1GctEtTotalCollection::const_iterator tet=totEt->begin(); tet!=totEt->end(); tet++){
     if (tet->et()>0){
-      m_outputFile << "BX = " << m_evtNum << " " << (*tet) << std::endl; 
+      m_outputFile << "BX = " << dec << m_evtNum << " " << (*tet) << std::endl; 
     }
   }
 
@@ -140,7 +141,7 @@ void GctTimingAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
   for (L1GctEtHadCollection::const_iterator ht=hadEt->begin(); ht!=hadEt->end(); ht++){
     if (ht->et()>0){
-      m_outputFile << "BX = " << m_evtNum << " " << (*ht) << std::endl; 
+      //      m_outputFile << "BX = " << dec << m_evtNum << " " << (*ht) << std::endl; 
     }
   }
 
@@ -150,7 +151,7 @@ void GctTimingAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
   for (L1GctJetCountsCollection::const_iterator jc=jetCnts->begin(); jc!=jetCnts->end(); jc++){
     if (jc->raw0() || jc->raw1()){
-      m_outputFile << "BX = " << m_evtNum << " " << (*jc) << std::endl; 
+      m_outputFile << "BX = " << dec << m_evtNum << " " << (*jc) << std::endl; 
     }
   }
 
@@ -160,7 +161,7 @@ void GctTimingAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
   for (L1CaloRegionCollection::const_iterator rn=rctRn->begin(); rn!=rctRn->end(); rn++){
     if (rn->et()>0) {
-      m_outputFile << "BX = " << m_evtNum << " " << (*rn) << std::endl; 
+      m_outputFile << "BX = " << dec << m_evtNum << " " << (*rn) << std::endl; 
     }
   }
 
@@ -169,8 +170,8 @@ void GctTimingAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
   iEvent.getByLabel(m_internJetSource,internJets);    
 
   for (L1GctInternJetDataCollection::const_iterator j=internJets->begin(); j!=internJets->end(); j++){
-    if ( (j->et()>0) || (j->rank()>0) )  {
-      m_outputFile << "BX = " << m_evtNum << " " << (*j) << std::endl; 
+    if ((j->et()>0) || (j->rank()>0)) {
+      m_outputFile << "BX = " << dec << m_evtNum << " " << (*j) << std::endl; 
     }
   }
 
@@ -180,7 +181,7 @@ void GctTimingAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
   for (L1GctInternEtSumCollection::const_iterator e=Et->begin(); e!=Et->end(); e++){
     if (e->et()>0){
-      m_outputFile << "BX = " << m_evtNum << " " << (*e) << std::endl;
+      m_outputFile << "BX = " << dec << m_evtNum << " " << (*e) << std::endl;
     }
   }
 
