@@ -64,7 +64,12 @@ ecalBarrelTimingTask.EcalRawDataCollection = cms.InputTag("ecalDigis")
 ecalBarrelTimingTask.EcalUncalibratedRecHitCollection = cms.InputTag("ecalFixedAlphaBetaFitUncalibRecHit","EcalUncalibRecHitsEB")
 
 ecalBarrelTriggerTowerTask.EcalTrigPrimDigiCollectionReal = cms.InputTag("ecalDigis","EcalTriggerPrimitives")
-ecalBarrelTriggerTowerTask.EcalTrigPrimDigiCollectionEmul = 'valEcalTriggerPrimitiveDigis'
+
+# to be used if the TP emulator _is_not_ in the path
+#ecalBarrelTriggerTowerTask.EcalTrigPrimDigiCollectionEmul = cms.InputTag("ecalDigis","EcalTriggerPrimitives")
+
+# to be used if the TP emulator _is_ in the path
+ecalBarrelTriggerTowerTask.EcalTrigPrimDigiCollectionEmul = cms.InputTag("valEcalTriggerPrimitiveDigis")
 
 ecalBarrelClusterTask.BasicClusterCollection = cms.InputTag("cosmicBasicClusters","CosmicBarrelBasicClusters")
 
