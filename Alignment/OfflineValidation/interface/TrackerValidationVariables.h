@@ -1,3 +1,4 @@
+
 #ifndef TrackerTrackerValidationVariables_h
 #define TrackerTrackerValidationVariables_h
 // system include files
@@ -7,20 +8,22 @@
 
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"  
-
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h"
+
+class MagneticField;
+class TrackerGeometry;
 
 class TrackerValidationVariables  {
  public:  
   struct AVHitStruct{
-    AVHitStruct() : resX(-999.), resY(-999.), resErrX(-999.), resErrY(-999.), resXprime(-999.), 
+    AVHitStruct() : resX(-999.), resY(-999.), resErrX(-999.), resErrY(-999.), resXprime(-999.), resXprimeErr(-999.), 
 	 phi(-999.), eta(-999.), rawDetId(0), overlapres(std::make_pair(0,-999.)) {}
     float resX;
     float resY;
     float resErrX;
     float resErrY;
     float resXprime;
+    float resXprimeErr;
     float phi;
     float eta;
     uint32_t rawDetId;
@@ -51,7 +54,8 @@ class TrackerValidationVariables  {
   void fillTrackQuantities(const edm::Event&, std::vector<AVTrackStruct> & v_avtrackout );
  private:  
   const edm::ParameterSet conf_;
-  edm::ESHandle<TrackerGeometry> tkgeom;
+  edm::ESHandle<TrackerGeometry> tkGeom_;
+  edm::ESHandle<MagneticField> magneticField_;
   //edm::ESHandle<SiStripDetCabling> SiStripDetCabling_;
   double fBfield;
 };
