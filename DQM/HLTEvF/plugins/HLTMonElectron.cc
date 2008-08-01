@@ -52,7 +52,7 @@ HLTMonElectron::HLTMonElectron(const edm::ParameterSet& iConfig)
     outputFile_ = "";
   }
   
-  dirname_="HLT/HLTMonElectron"+iConfig.getParameter<std::string>("@module_label");
+  dirname_="HLT/HLTMonElectron/"+iConfig.getParameter<std::string>("@module_label");
   
   if (dbe != NULL) {
     dbe->setCurrentFolder(dirname_);
