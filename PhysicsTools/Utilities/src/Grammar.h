@@ -7,7 +7,7 @@
  * \author original version: Chris Jones, Cornell, 
  *         extended by Luca Lista, INFN
  *
- * \version $Revision: 1.13 $
+ * \version $Revision: 1.14 $
  *
  */
 #include "boost/spirit/core.hpp"
@@ -31,6 +31,7 @@
 #include "PhysicsTools/Utilities/src/ExpressionSetter.h"
 #include "PhysicsTools/Utilities/src/ExpressionBinaryOperatorSetter.h"
 #include "PhysicsTools/Utilities/src/ExpressionUnaryOperatorSetter.h"
+#include "PhysicsTools/Utilities/src/ExpressionSelectorSetter.h"
 #include "PhysicsTools/Utilities/src/MethodSetter.h"
 #include "PhysicsTools/Utilities/src/MethodArgumentSetter.h"
 // #include "PhysicsTools/Utilities/src/Abort.h"
@@ -61,6 +62,15 @@ namespace reco {
 	sel_(& dummySel_), expr_(& expr) { 
 	typeStack.push_back(ROOT::Reflex::Type::ByTypeInfo(typeid(T)));
       }
+      Grammar(SelectorPtr & sel, const ROOT::Reflex::Type& iType) : 
+   	sel_(& sel), expr_(& dummyExpr_) { 
+   	typeStack.push_back(iType);
+         }
+         template<typename T>
+         Grammar(ExpressionPtr & expr, const ROOT::Reflex::Type& iType) : 
+   	sel_(& dummySel_), expr_(& expr) { 
+   	typeStack.push_back(iType);
+         }
       template <typename ScannerT>
       struct definition : 
 	public boost::spirit::grammar_def<boost::spirit::rule<ScannerT>, 
@@ -99,6 +109,7 @@ namespace reco {
 	    tanh_s(kTanh, self.funStack);
 	  TrinarySelectorSetter trinary_s(self.selStack, self.cmpStack, self.exprStack);
 	  BinarySelectorSetter binary_s(self.selStack, self.cmpStack, self.exprStack);
+     ExpressionSelectorSetter expr_sel_s(self.selStack, self.exprStack);
 	  CutSetter cut_s(* self.sel_, self.selStack, self.cmbStack);
 	  ExpressionSetter expr_s(* self.expr_, self.exprStack);
 	  ExpressionBinaryOperatorSetter<plus<double> > plus_s(self.exprStack);
@@ -109,6 +120,23 @@ namespace reco {
 	  ExpressionUnaryOperatorSetter<negate<double> > negate_s(self.exprStack);
 	  ExpressionFunctionSetter fun_s(self.exprStack, self.funStack);
 	  //	  Abort abort_s;
+     BOOST_SPIRIT_DEBUG_RULE(var);
+     BOOST_SPIRIT_DEBUG_RULE(method);
+     BOOST_SPIRIT_DEBUG_RULE(logical_expression);
+     BOOST_SPIRIT_DEBUG_RULE(logical_term);
+     BOOST_SPIRIT_DEBUG_RULE(logical_factor);
+     BOOST_SPIRIT_DEBUG_RULE(number);
+     BOOST_SPIRIT_DEBUG_RULE(metharg);
+     BOOST_SPIRIT_DEBUG_RULE(function1);
+     BOOST_SPIRIT_DEBUG_RULE(function2);
+     BOOST_SPIRIT_DEBUG_RULE(expression);
+     BOOST_SPIRIT_DEBUG_RULE(term);
+     BOOST_SPIRIT_DEBUG_RULE(power);
+     BOOST_SPIRIT_DEBUG_RULE(factor);
+     BOOST_SPIRIT_DEBUG_RULE(comparison_op);
+     BOOST_SPIRIT_DEBUG_RULE(binary_comp);
+     BOOST_SPIRIT_DEBUG_RULE(trinary_comp);
+  
   
 	  number = 
 	    real_p [ number_s ];
@@ -170,9 +198,8 @@ namespace reco {
 	  logical_factor =
 	    (trinary_comp [ trinary_s ] | 
 	     binary_comp [ binary_s ] |
-	     (ch_p('!') [ not_s ] >> logical_factor)) [ cut_s ] |
-	    '(' >> logical_expression >> ')' |
-	    logical_expression;
+	     (ch_p('!') [ not_s ] >> logical_factor) |  expression [expr_sel_s] ) [ cut_s ] |
+	    '(' >> logical_expression >> ')' ;
 	  cut = logical_expression;
 	  fun = expression [ expr_s ];
 	  start_parsers(cut, fun);
