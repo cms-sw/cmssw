@@ -1,6 +1,11 @@
-// $Id: HLTScalers.cc,v 1.8 2008/03/01 00:40:16 lat Exp $
+// $Id: HLTScalers.cc,v 1.9 2008/07/04 15:57:18 wittich Exp $
 // 
 // $Log: HLTScalers.cc,v $
+// Revision 1.9  2008/07/04 15:57:18  wittich
+// - move histograms to HLT directory (was in L1T)
+// - add counter for number of lumi sections
+// - attempt to hlt label histo axes locally; disabled (it's illegible)
+//
 // Revision 1.8  2008/03/01 00:40:16  lat
 // DQM core migration.
 //
@@ -72,10 +77,15 @@ HLTScalers::HLTScalers(const edm::ParameterSet &ps):
   resetMe_(true),
   verbose_(ps.getUntrackedParameter < bool > ("verbose", false)),
   monitorDaemon_(ps.getUntrackedParameter<bool>("MonitorDaemon", false)),
+  specifyPaths_(ps.getUntrackedParameter<bool>("specifyPaths", false)),
   nev_(0), 
   nLumi_(0),
   currentRun_(-1)
 {
+  if(specifyPaths_)
+  {
+     pathNames_ = ps.getUntrackedParameter<std::vector<std::string> >("pathNames");
+  }
   if ( verbose_ ) {
     std::cout << "HLTScalers::HLTScalers(ParameterSet) called...." 
 	      << std::endl;
@@ -136,6 +146,7 @@ void HLTScalers::analyze(const edm::Event &e, const edm::EventSetup &c)
 			       << " with label " << trigResultsSource_;
     return;
   }
+  TriggerNames names(*hltResults);
   
   
   int npath = hltResults->size();
@@ -164,15 +175,19 @@ void HLTScalers::analyze(const edm::Event &e, const edm::EventSetup &c)
     scalersException_ = dbe_->book1D("hltExceptions", "HLT Exception scalers",
 			    npaths, -0.5, npaths-0.5);
 
+    if(specifyPaths_)
+    {
+	npaths = pathNames_.size();
+    }
+
     hltCorrelations_ = dbe_->book2D("hltCorrelations", "HLT Scalers", 
-				    npaths, -0.5, npaths-0.5,
-				    npaths, -0.5, npaths-0.5);
+		         	npaths, -0.5, npaths-0.5,
+				npaths, -0.5, npaths-0.5);
 
     l1scalers_->Reset(); // should never have any effect?
     l1Correlations_->Reset(); // should never have any effect?
     resetMe_ = false;
     // save path names in DQM-accessible format
-    TriggerNames names(*hltResults);
     int q =0;
     for ( TriggerNames::Strings::const_iterator 
 	    j = names.triggerNames().begin();
@@ -188,12 +203,23 @@ void HLTScalers::analyze(const edm::Event &e, const edm::EventSetup &c)
       hltPathNames_.push_back(e);  // I don't ever use these....
     }
   } // end resetme_ - pseudo-end-run record
-
-  for ( int i = 0; i < npath; ++i ) {
+   
+   unsigned int n;
+   if(specifyPaths_)
+   {
+	n = pathNames_.size();
+   	for (unsigned int i=0; i!=n; i++) {
+     	pathNamesIndex_.push_back(names.triggerIndex(pathNames_[i]));
+   	}
+   }
+  std::cout << "A_1" << std::endl;
+  unsigned int npathTest = hltResults->size();
+  for ( unsigned int i = 0; i < npathTest; ++i ) {
+    std::cout << "A" << std::endl;
     if ( verbose_ ) {
       // state returns 0 on ready, 1 on accept, 2 on fail, 3 on exception.
       // these are defined in HLTEnums.h
-      std::cout << "i = " << i << ", result = " << hltResults->state(i)
+      std::cout << "i = " << i << ", result = " << hltResults->accept(i)
 		<< ", index = " << hltResults->index(i) << std::endl;
     }
     for ( unsigned int j = 0; j < hltResults->index(i); ++j ) {
@@ -202,12 +228,15 @@ void HLTScalers::analyze(const edm::Event &e, const edm::EventSetup &c)
     if ( hltResults->state(i) == hlt::Pass) {
       scalers_->Fill(i);
       // correlations
-      for ( int j = i + 1; j < npath; ++j ) {
-	if ( hltResults->state(j) == hlt::Pass ) {
-	  hltCorrelations_->Fill(i,j); // fill 
-	  hltCorrelations_->Fill(j,i);
-	}
-      }
+      if(!specifyPaths_)
+      {
+      	for ( int j = i + 1; j < npath; ++j ) {
+		if ( hltResults->state(j) == hlt::Pass) {
+		  hltCorrelations_->Fill(i,j); // fill 
+		  hltCorrelations_->Fill(j,i);
+		}
+	      }
+       }
     }
     else if ( hltResults->state(i) == hlt::Exception) {
       scalersException_->Fill(i);
@@ -240,7 +269,24 @@ void HLTScalers::analyze(const edm::Event &e, const edm::EventSetup &c)
       }
     }
   }
-
+  
+  if(specifyPaths_)
+  {
+    for(uint i=0; i < n; ++i){
+    	if ( hltResults->accept(pathNamesIndex_[i])){
+		for ( unsigned int j = i + 1; j < n; ++j ) {
+			if ( hltResults->accept(pathNamesIndex_[j])) {
+			  hltCorrelations_->Fill(i,j); // fill 
+			  hltCorrelations_->Fill(j,i);
+			}
+	      	}
+	}
+    }
+    for (uint i=0; i < n; ++i){
+      hltCorrelations_->setBinLabel(i+1,pathNames_[i], 1);
+      hltCorrelations_->setBinLabel(i+1,pathNames_[i], 2);
+    }
+  }
 }
 
 
