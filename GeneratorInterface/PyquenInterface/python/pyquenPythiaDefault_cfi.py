@@ -42,5 +42,8 @@ pyquenPythiaDefaultBlock = cms.PSet(
     'MSTJ(22)=2',
     'PARJ(71)=40.'
     ),
+    myParameters = cms.vstring(
+    )
+
     )
 
