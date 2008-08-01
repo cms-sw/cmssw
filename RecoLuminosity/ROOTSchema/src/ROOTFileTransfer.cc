@@ -26,4 +26,6 @@ int HCAL_HLX::ROOTFileTransfer::TransferFile(){
     // Transfer File
     std::system("/cms/mon/data/dqm/lumi/root/X-Fer/store/lumi/200805/sendNotification-20080508.sh"); 
   }
+  return 0;
+
 }
