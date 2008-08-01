@@ -24,7 +24,7 @@ ecalBarrelMonitorModule.EcalTrigPrimDigiCollection = cms.InputTag("ecalDigis","E
 ecalBarrelMonitorModule.verbose = False
 
 ecalBarrelCosmicTask.EcalRawDataCollection = cms.InputTag("ecalDigis")
-ecalBarrelCosmicTask.EcalUncalibratedRecHitCollection = cms.InputTag("ecalWeightUncalibRecHit","EcalUncalibRecHitsEB")
+ecalBarrelCosmicTask.EcalUncalibratedRecHitCollection = cms.InputTag("ecalFixedAlphaBetaFitUncalibRecHit","EcalUncalibRecHitsEB")
 
 ecalBarrelIntegrityTask.EBDetIdCollection0 = cms.InputTag("ecalDigis","EcalIntegrityDCCSizeErrors")
 ecalBarrelIntegrityTask.EBDetIdCollection1 = cms.InputTag("ecalDigis","EcalIntegrityGainErrors")
@@ -40,7 +40,7 @@ ecalBarrelIntegrityTask.EcalElectronicsIdCollection6 = cms.InputTag("ecalDigis",
 ecalBarrelLaserTask.EcalRawDataCollection = cms.InputTag("ecalDigis")
 ecalBarrelLaserTask.EBDigiCollection = cms.InputTag("ecalDigis","ebDigis")
 ecalBarrelLaserTask.EcalPnDiodeDigiCollection = cms.InputTag("ecalDigis")
-ecalBarrelLaserTask.EcalUncalibratedRecHitCollection = cms.InputTag("ecalWeightUncalibRecHit","EcalUncalibRecHitsEB")
+ecalBarrelLaserTask.EcalUncalibratedRecHitCollection = cms.InputTag("ecalFixedAlphaBetaFitUncalibRecHit","EcalUncalibRecHitsEB")
 
 ecalBarrelOccupancyTask.EcalRawDataCollection = cms.InputTag("ecalDigis")
 ecalBarrelOccupancyTask.EBDigiCollection = cms.InputTag("ecalDigis","ebDigis")
@@ -58,7 +58,7 @@ ecalBarrelStatusFlagsTask.EcalRawDataCollection = cms.InputTag("ecalDigis")
 ecalBarrelTestPulseTask.EcalRawDataCollection = cms.InputTag("ecalDigis")
 ecalBarrelTestPulseTask.EBDigiCollection = cms.InputTag("ecalDigis","ebDigis")
 ecalBarrelTestPulseTask.EcalPnDiodeDigiCollection = cms.InputTag("ecalDigis")
-ecalBarrelTestPulseTask.EcalUncalibratedRecHitCollection = cms.InputTag("ecalWeightUncalibRecHit","EcalUncalibRecHitsEB")
+ecalBarrelTestPulseTask.EcalUncalibratedRecHitCollection = cms.InputTag("ecalFixedAlphaBetaFitUncalibRecHit","EcalUncalibRecHitsEB")
 
 ecalBarrelTimingTask.EcalRawDataCollection = cms.InputTag("ecalDigis")
 ecalBarrelTimingTask.EcalUncalibratedRecHitCollection = cms.InputTag("ecalFixedAlphaBetaFitUncalibRecHit","EcalUncalibRecHitsEB")
