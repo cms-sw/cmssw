@@ -7,12 +7,16 @@ import FWCore.ParameterSet.Config as cms
 # (Remember that filenames are case sensitive.)
 TrackerOfflineValidation = cms.EDFilter("TrackerOfflineValidation",
     Tracks = cms.InputTag("TrackRefitter"),
-    TH1NormResModules = cms.PSet(
+    trajectoryInput           = cms.string('TrackRefitter'),
+    localCoorHistosOn         = cms.bool(False),
+    moduleLevelHistsTransient = cms.bool(False),
+    overlappOn                = cms.bool(False),                                      
+        TH1NormResModules = cms.PSet(
         xmin = cms.double(-3.0),
         Nbinx = cms.int32(90),
         xmax = cms.double(3.0)
     ),
-    trajectoryInput = cms.string('TrackRefitter'),
+
     TH1ResModules = cms.PSet(
         xmin = cms.double(-3.0),
         Nbinx = cms.int32(1000),
