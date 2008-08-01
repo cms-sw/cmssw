@@ -16,13 +16,17 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 29 13:39:51 PST 2008
-// $Id: FWModelFilter.h,v 1.1 2008/03/01 02:14:18 chrjones Exp $
+// $Id: FWModelFilter.h,v 1.2 2008/06/12 20:14:55 chrjones Exp $
 //
 
 // system include files
+#include <string>
+#include <Reflex/Type.h>
 
 // user include files
-#include <string>
+#include "PhysicsTools/Utilities/src/SelectorPtr.h"
+#include "PhysicsTools/Utilities/src/SelectorBase.h"
+
 
 // forward declarations
 
@@ -54,7 +58,8 @@ class FWModelFilter
       // ---------- member data --------------------------------
       std::string m_expression;
       std::string m_className;   
-      std::string m_fullExpression;
+      reco::parser::SelectorPtr m_selector;
+      ROOT::Reflex::Type m_type;
 };
 
 

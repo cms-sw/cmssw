@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 29 13:39:56 PST 2008
-// $Id: FWModelFilter.cc,v 1.2 2008/06/12 20:14:55 chrjones Exp $
+// $Id: FWModelFilter.cc,v 1.3 2008/07/30 20:49:06 chrjones Exp $
 //
 
 // system include files
@@ -18,11 +18,14 @@
 #include "TROOT.h"
 #include "TClass.h"
 #include "TInterpreter.h"
+#include "Reflex/Object.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWModelFilter.h"
 #include "Fireworks/Core/src/fwCintInterfaces.h"
 
+#include "FWCore/Utilities/interface/EDMException.h"
+#include "PhysicsTools/Utilities/src/Grammar.h"
 
 //
 // constants, enums and typedefs
@@ -37,7 +40,8 @@
 //
 FWModelFilter::FWModelFilter(const std::string& iExpression,
                            const std::string& iClassName):
-m_className(iClassName)
+m_className(iClassName),
+m_type(ROOT::Reflex::Type::ByName(iClassName))
 {
    setExpression(iExpression);
 }
@@ -69,23 +73,37 @@ FWModelFilter::~FWModelFilter()
 void 
 FWModelFilter::setExpression(const std::string& iExpression)
 {
-   m_expression = iExpression;
-   const std::string variable(std::string("(*((")+m_className+"*)(fwGetObjectPtr())))");
-   static boost::regex const reVarName("\\$");
-
-   std::string temp(std::string("(long)(")+iExpression+")");
-
-   temp = boost::regex_replace(temp,reVarName,variable);
-   m_fullExpression.swap(temp);
+   if(m_type != ROOT::Reflex::Type() && iExpression.size()) {
+      
+      const std::string variable;
+      static boost::regex const reVarName("(\\$\\.)|(\\(\\))");
+      
+      std::string temp = boost::regex_replace(iExpression,reVarName,variable);
+      
+      using namespace boost::spirit;
+      reco::parser::SelectorPtr tmpPtr;
+      reco::parser::Grammar grammar(tmpPtr,m_type);
+      try {
+         if(parse(temp.c_str(), grammar.use_parser<0>() >> end_p, space_p).full) {
+            m_selector = tmpPtr;
+            m_expression = iExpression;
+         } else {
+            std::cout <<"failed to parse "<<iExpression<<std::endl;
+         }
+      }catch(const edm::Exception& e) {
+         std::cout <<"failed to parse "<<iExpression<<" because "<<e.what()<<std::endl;
+      }
+   }else {
+      m_expression=iExpression;
+   }
 }
 
 void 
 FWModelFilter::setClassName(const std::string& iClassName)
 {
    m_className = iClassName;
+   m_type = ROOT::Reflex::Type::ByName(iClassName);
    setExpression(m_expression);
-   //std::string temp(std::string("(*((const ")+iClassName+"*)(");
-   //m_prefix.swap(temp);
 }
 
 //
@@ -100,24 +118,12 @@ FWModelFilter::expression() const
 bool 
 FWModelFilter::passesFilter(const void* iObject) const
 {
-   bool returnValue=true;
-   if(m_expression.empty()) {
+   if(m_expression.empty() || !m_selector.get()) {
       return true;
    }
    
-   fwSetObjectPtr(iObject);
-   fwCintReturnType()=kFWCintReturnNoReturn;
-   Int_t error = 0;
-   /*
-   Long_t value = gROOT->ProcessLineFast(m_fullExpression.c_str(),
-                                         &error);*/
-   gInterpreter->Execute("fwSetInCint",m_fullExpression.c_str(),&error);
-   if(TInterpreter::kNoError != error || fwCintReturnType() == kFWCintReturnNoReturn) {
-      returnValue = true;
-   } else {
-      returnValue = fwGetFromCintLong();
-   }
-   return returnValue;
+   ROOT::Reflex::Object o(m_type, const_cast<void *>(iObject));
+   return (*m_selector)(o);  
 }
 
 const bool 
