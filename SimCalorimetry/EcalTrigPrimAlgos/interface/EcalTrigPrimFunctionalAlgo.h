@@ -255,7 +255,7 @@ void EcalTrigPrimFunctionalAlgo::fillMap(Coll const * col,
       //FIXME: temporary protection
       int ncryst=towerMap[index][stripnr-1].first;
       if (ncryst>=nbMaxXtals_ ) {
-        std::cout <<" !!!!!!!!!!!!! Too many xtals for TT "<<coarser<<" stripnr "<<stripnr<<" xtalid "<<samples.id()<<std::endl;
+        edm::LogError("EcalTrigPrimFunctionAlgo")<<"! Too many xtals for TT "<<coarser<<" stripnr "<<stripnr<<" xtalid "<<samples.id() ;
 	continue;
       }
       ((towerMap[index])[stripnr-1].second)[ncryst]=samples;
