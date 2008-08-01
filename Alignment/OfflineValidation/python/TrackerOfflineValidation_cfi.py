@@ -13,13 +13,13 @@ TrackerOfflineValidation = cms.EDFilter("TrackerOfflineValidation",
     overlappOn                = cms.bool(False),                                      
         TH1NormResModules = cms.PSet(
         xmin = cms.double(-3.0),
-        Nbinx = cms.int32(90),
+        Nbinx = cms.int32(300),
         xmax = cms.double(3.0)
     ),
 
     TH1ResModules = cms.PSet(
         xmin = cms.double(-3.0),
-        Nbinx = cms.int32(1000),
+        Nbinx = cms.int32(300),
         xmax = cms.double(3.0)
     )
 )
