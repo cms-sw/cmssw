@@ -8,16 +8,18 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Jan 23 10:37:22 EST 2008
-// $Id: FWModelExpressionSelector.cc,v 1.1 2008/01/24 00:30:30 chrjones Exp $
+// $Id: FWModelExpressionSelector.cc,v 1.2 2008/06/12 20:29:59 chrjones Exp $
 //
 
 // system include files
 #include <sstream>
 #include <boost/regex.hpp>
-
-#include "TROOT.h"
 #include "TClass.h"
-#include "TInterpreter.h"
+#include "Reflex/Object.h"
+#include "Reflex/Type.h"
+
+#include "PhysicsTools/Utilities/src/Grammar.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWModelExpressionSelector.h"
@@ -73,52 +75,42 @@ FWModelExpressionSelector::FWModelExpressionSelector()
 bool 
 FWModelExpressionSelector::select(FWEventItem* iItem, const std::string& iExpression) const
 {
-   const std::string variable(std::string("(*((const ")+iItem->modelType()->GetName()+"*)(fwGetObjectPtr())))");
-   static boost::regex const reVarName("\\$");
-   
-   std::string fullExpression(std::string("fwSetInCint((long)(")+iExpression+"))");
-   
-   fullExpression = boost::regex_replace(fullExpression,reVarName,variable);
-   
-   
-   /*
-   const std::string modelPrefix= std::string("(*((const ")+iItem->modelType()->GetName()+"*)(";
-   const std::string modelPostfix(")))");
-   
-   const std::string expression(std::string("(Long_t)(")+iExpression+")");
-   
-   static boost::regex const reVarName("\\$");
-    */
-   bool returnValue = true;
+   ROOT::Reflex::Type type= ROOT::Reflex::Type::ByName(iItem->modelType()->GetName());
+   assert(type != ROOT::Reflex::Type());
 
-   //we are probably making many changes
+   //Backwards compatibility with old format: If find a $. or a () just remove them
+   const std::string variable;
+   static boost::regex const reVarName("(\\$\\.)|(\\(\\))");
+   
+   std::string temp = boost::regex_replace(iExpression,reVarName,variable);
+
+   //now setup the parser
+   using namespace boost::spirit;
+   reco::parser::SelectorPtr selectorPtr;
+   reco::parser::Grammar grammar(selectorPtr,type);
+   bool succeeded=true;
+   try {
+      if(!parse(temp.c_str(), grammar.use_parser<0>() >> end_p, space_p).full) {
+         std::cout <<"failed to parse "<<iExpression<<std::endl;
+         succeeded=false;
+      }
+   }catch(const edm::Exception& e) {
+      std::cout <<"failed to parse "<<iExpression<<" because "<<e.what()<<std::endl;
+      succeeded=false;
+   }
+   if(!succeeded) { return false;}
+   
+   
    FWChangeSentry sentry(*(iItem->changeManager()));
    for( unsigned int index = 0; index < iItem->size(); ++index ) {
-      fwSetObjectPtr(iItem->modelData(index));
-      fwCintReturnType()=kFWCintReturnNoReturn;
-      Int_t error = 0;
-      gROOT->ProcessLineFast(fullExpression.c_str(),
-                             &error);
+      ROOT::Reflex::Object o(type, const_cast<void *>(iItem->modelData(index)));
       
-      /*
-      std::stringstream fullVariable;
-      fullVariable <<modelPrefix<<iItem->modelData(index)<<modelPostfix;
-      Int_t error = 0;
-      Long_t value = gROOT->ProcessLineFast(boost::regex_replace(expression,reVarName,fullVariable.str()).c_str(),
-                                            &error);
-       */
-      if(TInterpreter::kNoError != error || fwCintReturnType() == kFWCintReturnNoReturn) {
-         if(index==0) {
-            return false;
-         }
-         returnValue = false;
-      } else {
-         if(fwGetFromCintLong()) {
-            iItem->select(index);
-         }
+      if((*selectorPtr)(o)) {
+         iItem->select(index);
       }
    }
-   return returnValue;
+   
+   return true;
 }
 
 //
