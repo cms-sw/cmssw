@@ -46,7 +46,7 @@ namespace HCAL_HLX {
       _env = Environment::createEnvironment (Environment::DEFAULT);
       _conn = _env->createConnection (user, passwd, db);
       _dbOwner = dbOwner;
-    } catch (SQLException aExc) {
+    } catch (SQLException & aExc) {
       OracleDBException lExc(aExc.getMessage());
       RAISE(lExc);
     }
@@ -54,220 +54,254 @@ namespace HCAL_HLX {
   
   DBWriter::~DBWriter () {
     try {
+      cout << "In " << __PRETTY_FUNCTION__ << endl;
       if ( _conn ) {
+	cout << "Inccc " << __PRETTY_FUNCTION__ << endl;
 	_env->terminateConnection (_conn);
 	_conn = 0;
       }
       if ( _env ) {
+	cout << "Ineee " << __PRETTY_FUNCTION__ << endl;
 	Environment::terminateEnvironment (_env);
 	_env = 0;
       }
-    } catch (SQLException aExc) {
+    } catch (SQLException & aExc) {
+      cout << "Exception raised" << endl;
       OracleDBException lExc(aExc.getMessage());
       RAISE(lExc);
     }
   }
+  
+  void DBWriter::save() {
+    string sqlStmt = "commit";
+    try {
+      _stmt=_conn->createStatement (sqlStmt);
+      _stmt->executeUpdate ();
+      _conn->terminateStatement (_stmt);
+    } catch(SQLException & aExc) {
+      //_conn->terminateStatement (_stmt);
+      //throw ex;
+      OracleDBException lExc(aExc.getMessage());
+      RAISE(lExc);      
+    }
+  }
+
   
   /**
    *Get the Max run number
    *Y. Guo April 20, 2007
    **/
-  int DBWriter::maxRunNumber() {
-    string sqlStmt = "select max(run_number) from "+  _dbOwner + ".lumi_sections";
-    int maxRun;
+  unsigned int DBWriter::maxRunNumber() {
+    string sqlStmt = "select max(run_number) from "+  _dbOwner + ".CMS_RUNS";
+    unsigned int maxRun;
     try {
       _stmt = _conn->createStatement (sqlStmt);
       ResultSet *rset = _stmt->executeQuery ();
       rset->next ();
-      maxRun = (int)rset->getInt(1);
+      maxRun = rset->getUInt(1);
       _stmt->closeResultSet (rset);
       _conn->terminateStatement(_stmt);
-    } catch(SQLException aExc) {
+    } catch(SQLException & aExc) {
+      //_stmt->closeResultSet (rset);
+      //_conn->terminateStatement(_stmt);
+      //throw ex;
       OracleDBException lExc(aExc.getMessage());
       RAISE(lExc);
-    }
-    return maxRun;
-  }
-  
-  /**
-   * Get next sequence value from THRESHOLD_BITMASK_SEQ.
-   **/
-  long DBWriter::getThresholdConfigMId() {
-    long retVal;
-    try {
-      retVal = getLumiSequence("LUMI_THSH_BMSK_SEQ");
-    } catch (OracleDBException aExc) {
-      RETHROW(aExc);
-    }
-    return retVal;
-  }
-  
-  /**
-   * Get next sequence value from TRG_DTIME_DEF_SEQ.
-   **/
-  long DBWriter::getTrgDefSeq() {
-    long retVal;
-    try {
-      retVal = getLumiSequence("TRG_DTIME_DEF_SEQ");
-    } catch (OracleDBException aExc) {
-      RETHROW(aExc);
-    }
-    return retVal;
-  }
-  
-  /**
-   * Get next sequence value from L1_HLT_TRG_SEQ.
-   **/
-  long DBWriter::getTrgSeq() {
-    long retVal;
-    try {
-      retVal = getLumiSequence("L1_HLT_TRG_SEQ");
-    } catch (OracleDBException aExc) {
-      RETHROW(aExc);
-    }
-    return retVal;
-  }
-  
-  /**
-   * Get next sequence value from TRG_DTIME_SEQ.
-   **/
-  long DBWriter::getTrgDtimeSeq() {
-    long retVal;
-    try {
-      retVal = getLumiSequence("TRG_DTIME_SEQ");
-    } catch (OracleDBException aExc) {
-      RETHROW(aExc);
-    }
-    return retVal;
+   }
+   return maxRun;
   }
   
   /* 
    * June 11, 2007  Y Guo
    **/
-  long DBWriter::getLumiSequence( const string& seqName) {
+  unsigned long DBWriter::getLumiSequence( const string& seqName) {
     string sel= "select " +  _dbOwner + "."+ seqName + ".nextval from dual";
-    long seq_id;
+    unsigned long seq_id;
     try {
       _stmt = _conn->createStatement (sel);
       ResultSet *rset = _stmt->executeQuery ();
       rset->next ();
-      seq_id = (long)rset->getInt(1);
+      seq_id = (unsigned long)rset->getUInt(1);
       _stmt->closeResultSet (rset);
       _conn->terminateStatement(_stmt);
-    } catch (SQLException aExc) {
-      OracleDBException lExc(aExc.getMessage());
+    } catch(SQLException & aExc) {
+      //_stmt->closeResultSet (rset);
+      //_conn->terminateStatement(_stmt);
+      //throw ex;
+      std::string msg = seqName + "\n";
+      msg += aExc.getMessage();
+      OracleDBException lExc(msg);
       RAISE(lExc);
     }
     return seq_id;
   }
-  
-  long DBWriter::getLumiSectionSeq() {
-    long retVal;
+
+  /**
+   * Get next sequence value from THRESHOLD_BITMASK_SEQ.
+   **/
+  unsigned long DBWriter::getThresholdConfigMId() {
+    unsigned long ret;
     try {
-      retVal = getLumiSequence("lumi_section_seq");
-    } catch (OracleDBException aExc) {
+      ret = getLumiSequence("LUMI_THSH_BMSK_SEQ");
+    } catch (OracleDBException & aExc) {
       RETHROW(aExc);
     }
-    return retVal;
+    return ret;
+  }
+
+  /**
+   * Get the sequence for lumi_tags table.
+   **/ 
+  unsigned long DBWriter::getLumiTagSeq() {
+    unsigned long ret;
+    try {
+      ret = getLumiSequence("LUMI_TAG_SEQ");
+    } catch (OracleDBException & aExc) {
+      RETHROW(aExc);
+    }
+    return ret;
   }
   
-  /*
-   * Fill _triggerDefinitionMap and _deadtimeDefinitionMap
-   *
-   * Y. Guo  July 23, 07
-   *
-   */
-  /*void DBWriter::putTriggerDeadtimeDefinitionMap(int isDeadtime) {
-    string sel = "select trigger_def_name, trigger_def_id from "
-      + _dbOwner
-      + ".trg_and_deadtime_definitions where is_deadtime = :ist";
-    ResultSet *rset; 
+  /**
+   * Get next sequence value from TRG_DTIME_DEF_SEQ.
+   **/
+  unsigned long DBWriter::getTrgDefSeq() {
+    unsigned long ret;
     try {
-      _stmt = _conn->createStatement (sel);
-      _stmt->setInt(1, isDeadtime);
-      rset = _stmt->executeQuery ();
-      while(rset->next()) {
-	if(isDeadtime==0)_triggerDefinitionMap[rset->getString(1)]=rset->getInt(2);
-	if(isDeadtime==1)_deadtimeDefinitionMap[rset->getString(1)]=rset->getInt(2);
-      }
-      _stmt->closeResultSet (rset);
-      _conn->terminateStatement(_stmt);
-    } catch (SQLException aExc) {
-      OracleDBException lExc(aExc.getMessage());
-      RAISE(lExc);
+      ret = getLumiSequence("TRG_DTIME_DEF_SEQ");
+    } catch (OracleDBException & aExc) {
+      RETHROW(aExc);
     }
-    }*/
+    return ret;
+  }
   
-  /*
-   * Fill _triggerDefinitionMap
-   * 
-   * Y. Guo  July 23, 07
-   *
-   */
-  void DBWriter::putTriggerDefinitionMap() {
-    string sel = "select trigger_def_name, trigger_def_id from "
-      + _dbOwner
-      + ".trg_and_deadtime_definitions where is_deadtime = :ist";
-    ResultSet *rset; 
+  /**
+   * Get next sequence value from L1_HLT_TRG_SEQ.
+   **/
+  unsigned long DBWriter::getL1TrgSeq() {
+    unsigned long ret;
     try {
-      _stmt = _conn->createStatement (sel);
-      _stmt->setInt(1, 0);  // 0 means is_deadtime == 0
-      rset = _stmt->executeQuery ();
-      while(rset->next()) {
-	_triggerDefinitionMap[rset->getString(1)]=rset->getInt(2);
-      }
-      _stmt->closeResultSet (rset);
-      _conn->terminateStatement(_stmt);
-    } catch (SQLException aExc) {
+      ret = getLumiSequence("L1_TRG_SEQ");
+    } catch (OracleDBException & aExc) {
+      RETHROW(aExc);
+    }
+    return ret;
+  }
+
+  /**
+   * Get next sequence value from TRG_DTIME_SEQ.
+   **/
+  unsigned long DBWriter::getTrgDtimeSeq() {
+    unsigned long ret;
+    try {
+      ret = getLumiSequence("TRG_DTIME_SEQ");
+    } catch (OracleDBException & aExc) {
+      RETHROW(aExc);
+    }
+    return ret;
+  }
+  
+  unsigned long DBWriter::getLumiSectionSeq() {
+    unsigned long ret;
+    try {
+      ret = getLumiSequence("LUMI_SECTION_SEQ");
+    } catch (OracleDBException & aExc) {
+      RETHROW(aExc);
+    }
+    return ret;
+  }
+
+  unsigned long DBWriter::getCRunSeq() {
+    unsigned long ret;
+    try {
+      ret = getLumiSequence("CRUN_SEQ");
+    } catch (OracleDBException & aExc) {
+      RETHROW(aExc);
+    }
+    return ret;
+  }
+  
+  void DBWriter::insertCmsRuns(unsigned int runNum) {
+    string sqlStmt = "insert into " + _dbOwner + ".cms_runs(Run_number) "
+      + "VALUES (:runNum)";
+    try {
+      _stmt=_conn->createStatement (sqlStmt);
+      _stmt->setUInt (1, runNum);
+      _stmt->executeUpdate ();
+      _conn->terminateStatement (_stmt);
+    } catch(SQLException & aExc) {
+      //_conn->terminateStatement (_stmt);
+      //throw ex;
       OracleDBException lExc(aExc.getMessage());
       RAISE(lExc);
     }
   }
 
-  /*
-   * Fill _deadtimeDefinitionMap
-   *
-   * Y. Guo  July 23, 07
-   *
-   */
-  void DBWriter::putDeadtimeDefinitionMap() {
-    string sel = "select trigger_def_name, trigger_def_id from "
-      + _dbOwner
-      + ".trg_and_deadtime_definitions where is_deadtime = :ist";
-    ResultSet *rset; 
+  unsigned long DBWriter::getHFRingSetId(unsigned int setVrsnNum) {
+    string sel = "select ring_set_id from "+  _dbOwner + ".LUMI_HF_RING_SETS "
+      "where set_version_number = :vNum ";
+    unsigned long sdVrsid;
+    ResultSet *rset;
     try {
-      _stmt = _conn->createStatement (sel);
-      _stmt->setInt(1, 0);  // 1 means is_deadtime == 1
+      _stmt = _conn->createStatement(sel);
+      _stmt->setUInt(1, setVrsnNum);   
       rset = _stmt->executeQuery ();
-      while(rset->next()) {
-	_deadtimeDefinitionMap[rset->getString(1)]=rset->getInt(2);
+      while(rset->next ()) {
+	sdVrsid = (unsigned long)rset->getUInt(1);
       }
       _stmt->closeResultSet (rset);
       _conn->terminateStatement(_stmt);
-    } catch (SQLException aExc) {
+    } catch(SQLException & aExc) {
+      //_stmt->closeResultSet (rset);
+      //_conn->terminateStatement(_stmt);
+      //throw ex;
       OracleDBException lExc(aExc.getMessage());
       RAISE(lExc);
     }
+    return sdVrsid;
   }
   
-  const std::map<std::string, int> & DBWriter::getDeadtimeDefinitionMap()
-  {
+  void DBWriter::putTrgDeadtimeDefMap() {
+    /*
+     * Fill _deadtimeDefinitionMap
+     *
+     * Y. Guo  July 23, 07
+     * Vervised Feb. 12, 08  Y.Guo
+     *
+     */
+    string sel = "select trg_deadtime_name, trg_deadtime_def_id from "
+      + _dbOwner
+      + ".trigger_deadtime_defs";
+    _stmt = _conn->createStatement (sel);
+    
+    ResultSet *rset; 
+    try {
+      rset = _stmt->executeQuery ();
+      while(rset->next()) {
+	//cout<<"Name, Val:"<<rset->getString(1)<<"; "<<rset->getUInt(2)<<endl;
+	_deadtimeDefinitionMap[rset->getString(1)]=(unsigned long)(rset->getUInt(2));
+      }
+      _stmt->closeResultSet (rset);
+      _conn->terminateStatement(_stmt);
+    } catch(SQLException & aExc) {
+      //cout<<"Exception thrown for putTriggerDefinitionMap "<<endl;
+      //cout<<"Error number: "<<  ex.getErrorCode() << endl;
+      //cout<<ex.getMessage() << endl;
+      //_stmt->closeResultSet (rset);
+      //_conn->terminateStatement(_stmt);
+      //throw ex;
+      OracleDBException lExc(aExc.getMessage());
+      RAISE(lExc);
+    }
+  } //end putTrgDeadtimeDefMap()
+  
+  std::map<std::string, unsigned long> & DBWriter::getTrgDTDefMap() {
     /*
      * Return the _deadtimeDefinitionMap
      *
      * Y. Guo July 25, 07
      */
     return _deadtimeDefinitionMap;
-  }
-  
-  const std::map<std::string, int> & DBWriter::getTriggerDefinitionMap()
-  {
-    /*
-     * Return the _triggerDefinitionMap
-     *
-     * Y. Guo July 25, 07
-     */
-    return _triggerDefinitionMap;
   }
 
   /**
@@ -276,13 +310,15 @@ namespace HCAL_HLX {
    * Author Y. Guo July 25, 2007
    *
    */
-  void DBWriter::insertArray_trigger(long lsId, int* aTrgDefId, int* aTrgBitNum,
-				    int* aTrgVal, unsigned int aLen) {
+  void DBWriter::insertArray_L1_trigger(unsigned long lsId,
+					unsigned int* aL1LnNum, unsigned int* aL1Scl,
+					unsigned int* aL1RtCnt, unsigned int* aHLTInt,
+					unsigned int aLen) {
     int ntriger = 0;
-    unsigned int NSEQ = 600; //this is the increment of the sequence. 
+    unsigned int NSEQ = 130; //this is the increament of the sequence. 
     int nseqFetch = 0;
     int nrem = 0;
-    vector<long> seqSeed;
+    vector<unsigned long> seqSeed;
     if(aLen > NSEQ) {   
       ldiv_t q = div((long)aLen, (long)NSEQ);
       nrem = q.rem; //the remainder
@@ -290,288 +326,795 @@ namespace HCAL_HLX {
     } else {
       nrem = aLen;
     }
-
-    // Total number of times to get sequqnce
-    nseqFetch = ntriger + 1;
-    for(int i = 0; i < nseqFetch; i++) {
-      //get all the sequence seeds we need. The sequence is incremented by 600 
-      //long mysqc = getTrgSeq();
-      //cout << mysqc <<endl; 
-      seqSeed.push_back(getTrgSeq());
-    }
-    
-    // Construct the sql
-    string sql = "insert into "+ _dbOwner +"." + "LEVEL1_HLT_TRIGGERS" +
-      "(TRIGGER_ID, SECTION_ID, TRIGGER_DEF_ID,TRIGGER_VALUE,"
-      "TRIGGER_BIT_NUMBER)"
-      "VALUES (:tId, :lsId, :TDId, :TVal, :TBNum)";
-
-    // Fill Section ID
-    ub2 aSecLen[aLen];
-    long aSec[aLen];
-    
-    cout << "section id = " << lsId << endl;
-    for(unsigned int i = 0; i < aLen; i++) {
-      aSec[i]=lsId;   //all data in this set has the same section_id
-      aSecLen[i]=sizeof(lsId);
-    }
-    
-    // Fill trigger_id/sequence_id
-    ub2 aSeqLen[aLen];
-    long aSeq[aLen];
-    unsigned int extra=NSEQ;
-    for( vector<long>::size_type j=0; j < abs(nseqFetch); j++ ) {
-      if ( j == abs(nseqFetch - 1) ) extra = nrem;
-      for( unsigned int i = j * NSEQ ; i < (j * NSEQ + extra) ; i++ ) {
-	aSeq[i] = seqSeed[j] + (i - j * NSEQ);
-	aSeqLen[i] = sizeof(aSeq[i]);
-      }
-    }
-
-    // Fill for data
-    ub2 aTrgDefIdLen[aLen], aTrgBitNumLen[aLen], aTrgValLen[aLen];
-    for(unsigned int i = 0; i < aLen; i++) {
-	aTrgDefIdLen[i]=sizeof(aTrgDefId[i]);
-	aTrgBitNumLen[i]=sizeof(aTrgBitNum[i]);
-	aTrgValLen[i]=sizeof(aTrgVal[i]); 
-    }     
-
-    try {
-      _stmt=_conn->createStatement (sql);
-      _stmt->setDataBuffer(1,(void*)aSeq, OCCIINT, sizeof(aSeq[0]),
-			   (unsigned short *)aSeqLen);
-      _stmt->setDataBuffer(2,(void*)aSec, OCCIINT, sizeof(aSec[0]),
-			   (unsigned short *)aSecLen);
-      _stmt->setDataBuffer(3,(void*)aTrgDefId,  OCCIINT, sizeof(aTrgDefId[0]),
-			   (unsigned short *)aTrgDefIdLen);
-      _stmt->setDataBuffer(4, (void*)aTrgVal, OCCIINT, sizeof(aTrgVal[0]),
-			   (unsigned short *)aTrgValLen);
-      _stmt->setDataBuffer(5, (void*)aTrgBitNum, OCCIINT, sizeof(aTrgBitNum[0]),
-			   (unsigned short *)aTrgBitNumLen);  
-      // data insert for aLen rows
-      _stmt->executeArrayUpdate(aLen);
-      _conn->terminateStatement (_stmt);
-    } catch (SQLException aExc) {
-      OracleDBException lExc(aExc.getMessage());
-      RAISE(lExc);
-    }
-  }
-  
-  /**
-   * Another function for bulk inseration to LEVEL1_HLT_TRIGGERS table
-   *
-   * Author Y. Guo July 25, 2007
-   *
-   */
-  void DBWriter::insertArray_trigger(long lsId,
-				    int *aTrgDefId, 
-				    int *aTrgVal,
-				    unsigned int aLen) {
-    int ntriger = 0;
-    unsigned int NSEQ = 600; //this is the increament of the sequence.
-    int nseqFetch = 0;
-    int nrem = 0;
-    vector<long> seqSeed;
-    if(aLen > NSEQ) {
-      ldiv_t q = div((long)aLen, (long)NSEQ);
-      nrem = q.rem; //the remainder
-      ntriger = q.quot;
-    } else {
-      nrem = aLen;
-    }
-
-    // total number of times to get sequqnce
-    nseqFetch = ntriger + 1;
-    for(int i = 0 ; i < nseqFetch ; i++) {
-      // get all the sequence seeds we need. The sequence is incremented by 600
-      seqSeed.push_back(getTrgSeq());
-    }
-
-    // construct the sql
-    string sql = "insert into "+ _dbOwner +"." + "LEVEL1_HLT_TRIGGERS" +
-      "(TRIGGER_ID, SECTION_ID, TRIGGER_DEF_ID,TRIGGER_VALUE)"+
-      "VALUES (:tId, :lsId, :TDId, :TVal)";
-    // Fill Section ID
-    ub2 aSecLen[aLen];
-    long aSec[aLen];
-    for(unsigned int i = 0; i < aLen; i++) {
-      aSec[i]=lsId;   //all data in this set has the same section_id
-      aSecLen[i]=sizeof(lsId);
-    }
-    
-    // Fill trigger_id/sequence_id
-    ub2 aSeqLen[aLen];
-    long aSeq[aLen];
-    unsigned int extra=NSEQ;
-    for(vector<long>::size_type j=0; j < abs(nseqFetch); j++) {
-      if(j==abs(nseqFetch-1))extra=nrem;
-      for(unsigned int i=j*NSEQ; i<(j*NSEQ+extra); i++) {
-	aSeq[i]=seqSeed[j]+(i - j*NSEQ);
-	aSeqLen[i]=sizeof(aSeq[i]);
-      }
-    }
-
-    // Fill for data
-    ub2 aTrgDefIdLen[aLen], aTrgValLen[aLen];
-    for(unsigned int i=0; i<aLen; i++) {
-      aTrgDefIdLen[i]=sizeof(aTrgDefId[i]);
-      aTrgValLen[i]=sizeof(aTrgVal[i]);
-    }
-
-    try {
-	_stmt=_conn->createStatement (sql);
-	_stmt->setDataBuffer(1,(void*)aSeq, OCCIINT, sizeof(aSeq[0]),
-			     (unsigned short *)aSeqLen);
-	_stmt->setDataBuffer(2,(void*)aSec, OCCIINT, sizeof(aSec[0]),
-			     (unsigned short *)aSecLen);
-	_stmt->setDataBuffer(3,(void*)aTrgDefId,  OCCIINT, sizeof(aTrgDefId[0]), 
-                             (unsigned short *)aTrgDefIdLen);
-	_stmt->setDataBuffer(4, (void*)aTrgVal, OCCIINT, sizeof(aTrgVal[0]),
-                             (unsigned short *)aTrgValLen);
-	// data insert for aLen rows
-	_stmt->executeArrayUpdate(aLen);
-	_conn->terminateStatement (_stmt);
-    } catch (SQLException aExc) {
-      OracleDBException lExc(aExc.getMessage());
-      RAISE(lExc);
-    }
-  }
-  
-  /**
-   * Funtion to insert array of deadtime to table _dbOwner.trigger_deadtimes
-   * Author: Y. Guo  July 25, 2007
-   *
-   **/ 
-  void DBWriter::insertArray_deadtime(long lsId,
-				     int * aDeadtimeDef, 
-				     long * aDeadtime,
-				     unsigned int aLen ) {
-    int ntriger = 0;
-    unsigned int NSEQ = 14; //this is the increament of the sequence.
-    int nseqFetch = 0;
-    int nrem = 0;
-    vector<long> seqSeed;
-
-    if(aLen > NSEQ) {
-      ldiv_t q = div((long)aLen, (long)NSEQ);
-      nrem = q.rem; //the remainder
-      ntriger = q.quot;
-    } else {
-      nrem = aLen;
-    }
-    
-    // total number of times to get sequqnce
+    //total number of times to get sequqnce
     nseqFetch = ntriger + 1;
     for(int i=0; i<nseqFetch; i++) {
-      // get all the sequence seeds we need. The sequence is incremented by 600
-      seqSeed.push_back(getTrgSeq());
+      //get all the sequence seeds we need. The sequence is incremented by 600 
+      seqSeed.push_back(getL1TrgSeq());
     }
-
-    // construct the sql
-    string sql = "insert into "+ _dbOwner +"." + "TRIGGER_DEADTIMES" +
-      "(TRG_DEADTIME_ID, SECTION_ID, TRIGGER_DEF_ID,TRG_DEADTIME)"+
-      "VALUES (:tId, :lsId, :TDId, :TDeadtime)";
-
-    // Fill Section ID
-    ub2 aSecLen[aLen];
-    long aSec[aLen];
     
+    //construct the sql
+    string sql = "insert into "+ _dbOwner +"." + "LEVEL1_TRIGGERS"
+      "(L1_TRG_ID, SECTION_ID, L1_LINE_NUMBER,"
+      "L1_SCALER, L1_RATE_COUNTER,HLT_INPUT)"
+      "VALUES (:tId, :lsId, :LNum, :LScl, :LRt,:HLTIPT)";
+    //cout <<sql<<endl;
+    //Fill Section ID
+    ub2 aSecLen[aLen];
+    unsigned long aSec[aLen];
+    
+    cout<<"section id = "<<lsId <<endl;
     for(unsigned int i=0; i<aLen; i++) {
       aSec[i]=lsId;   //all data in this set has the same section_id
       aSecLen[i]=sizeof(lsId);
     }
 
-    // Fill trg__deadtime_id/sequence_id
+    //Fill trigger_id/sequence_id
     ub2 aSeqLen[aLen];
-    long aSeq[aLen];
+    unsigned long aSeq[aLen];
     unsigned int extra=NSEQ;
+    for(vector<unsigned long>::size_type j=0; j < abs(nseqFetch); j++) {
+      if(j==abs(nseqFetch-1))extra=nrem;
+      for(unsigned int i=j*NSEQ; i<(j*NSEQ+extra); i++) {
+	aSeq[i]=(unsigned long)(seqSeed[j]+(i - j*NSEQ));
+	aSeqLen[i]=sizeof(aSeq[i]);
+      }
+    }//end j loop
+    //Fill for data
+    ub2 aL1LnNumLen[aLen], aL1SclLen[aLen], aL1RtCntLen[aLen], aHLTIntLen[aLen];
+    for(unsigned int i=0; i<aLen; i++) {
+      aL1LnNumLen[i]=sizeof(aL1LnNum[i]);
+      aL1SclLen[i]=sizeof(aL1Scl[i]);
+      aL1RtCntLen[i]=sizeof(aL1RtCnt[i]);
+      aHLTIntLen[i]=sizeof(aHLTInt[i]); 
+    }
+    _stmt=_conn->createStatement (sql);
+    try {
+      _stmt->setDataBuffer(1,(void*)aSeq, OCCIUNSIGNED_INT, sizeof(aSeq[0]),
+			   (unsigned short *)aSeqLen);
+      _stmt->setDataBuffer(2,(void*)aSec, OCCIUNSIGNED_INT, sizeof(aSec[0]),
+			   (unsigned short *)aSecLen);
+      _stmt->setDataBuffer(3,(void*)aL1LnNum,  OCCIUNSIGNED_INT, sizeof(aL1LnNum[0]),
+			   (unsigned short *)aL1LnNumLen);
+      _stmt->setDataBuffer(4, (void*)aL1Scl, OCCIUNSIGNED_INT, sizeof(aL1Scl[0]),
+                             (unsigned short *)aL1SclLen);
+      _stmt->setDataBuffer(5, (void*)aL1RtCnt, OCCIUNSIGNED_INT, sizeof(aL1RtCnt[0]),
+			   (unsigned short *)aL1RtCntLen);
+      _stmt->setDataBuffer(6, (void*)aHLTInt, OCCIUNSIGNED_INT, sizeof(aHLTInt[0]),
+			   (unsigned short *)aHLTIntLen);  
+      //data insert for aLen rows
+      _stmt->executeArrayUpdate(aLen);
+      _conn->terminateStatement (_stmt);
+    } catch(SQLException & aExc) {
+      //cout<<"Exception thrown for insertArray_L1HltTrg "<<endl;
+      //cout<<sql<<endl;
+      //cout<<ex.getMessage() << endl;
+      //_conn->terminateStatement (_stmt);
+      //throw ex;
+      OracleDBException lExc(aExc.getMessage());
+      RAISE(lExc);
+    }
+  } //end DBWriter::insertArray_Trigger
 
-    for(vector<long>::size_type j=0; j < abs(nseqFetch); j++) {
+  /**
+   * The function for bulk inseration to TRIGGER_DEADTIMES table
+   *
+   * Original: Feb.12, 2008  Y. Guo
+   *
+   */
+  void DBWriter::insertArray_deadtime(unsigned long lsId,
+				      unsigned long* aDeadtimeDefId, 
+				      unsigned int* aDeadtime,
+				      unsigned int aLen) {
+    int ntriger = 0;
+    unsigned int NSEQ = 6; //this is the increament of the sequence.
+    int nseqFetch = 0;
+    int nrem = 0;
+    vector<unsigned long> seqSeed;
+    if(aLen > NSEQ) {
+      ldiv_t q = div((long)aLen, (long)NSEQ);
+      nrem = q.rem; //the remainder
+      ntriger = q.quot;
+    } else {
+      nrem = aLen;
+    }
+    //total number of times to get sequqnce
+    nseqFetch = ntriger + 1;
+    for(int i=0; i<nseqFetch; i++) {
+      //get all the sequence seeds we need. The sequence is incremented by 600
+      seqSeed.push_back(getTrgDtimeSeq());
+    }
+    //construct the sql
+    string sql = "insert into "+ _dbOwner +"." + "TRIGGER_DEADTIMES"
+      "(TRG_DEADTIME_ID, SECTION_ID, TRG_DEADTIME_DEF_ID,TRG_DEADTIME)"+
+      "VALUES (:tId, :lsId, :TDId, :TVal)";
+    //Fill Section ID
+    ub2 aSecLen[aLen];
+    unsigned long  aSec[aLen];
+    for(unsigned int i=0; i<aLen; i++) {
+      aSec[i]=lsId;   //all data in this set has the same section_id
+      aSecLen[i]=sizeof(lsId);
+    }
+    
+    //Fill trigger_id/sequence_id
+    ub2 aSeqLen[aLen];
+    unsigned long aSeq[aLen];
+    unsigned int extra=NSEQ;
+    for(vector<unsigned long>::size_type j=0; j < abs(nseqFetch); j++) {
       if(j==abs(nseqFetch-1))extra=nrem;
       for(unsigned int i=j*NSEQ; i<(j*NSEQ+extra); i++) {
 	aSeq[i]=seqSeed[j]+(i - j*NSEQ);
 	aSeqLen[i]=sizeof(aSeq[i]);
       }
+    }//end j loop
+    //Fill for data
+    ub2 aTrgDefIdLen[aLen], aTrgValLen[aLen];
+    for(unsigned int i=0; i<aLen; i++) {
+      aTrgDefIdLen[i]=sizeof(aDeadtimeDefId[i]);
+      aTrgValLen[i]=sizeof(aDeadtime[i]);
+    }
+    try {
+      _stmt=_conn->createStatement (sql);
+      _stmt->setDataBuffer(1,(void*)aSeq, OCCIUNSIGNED_INT, sizeof(aSeq[0]),
+			   (unsigned short *)aSeqLen);
+      _stmt->setDataBuffer(2,(void*)aSec, OCCIUNSIGNED_INT, sizeof(aSec[0]),
+			   (unsigned short *)aSecLen);
+      _stmt->setDataBuffer(3,(void*)aDeadtimeDefId,  OCCIUNSIGNED_INT, sizeof(aDeadtimeDefId[0]), 
+			   (unsigned short *)aTrgDefIdLen);
+      _stmt->setDataBuffer(4, (void*)aDeadtime, OCCIINT, sizeof(aDeadtime[0]),
+			   (unsigned short *)aTrgValLen);
+      //data insert for aLen rows
+      _stmt->executeArrayUpdate(aLen);
+      _conn->terminateStatement (_stmt);
+    } catch(SQLException & aExc) {
+      //cout<<"Exception thrown for insertArray_L1HltTrg "<<endl;
+      //cout<<sql<<endl;
+      //cout<<"Error number: "<<  ex.getErrorCode() << endl;
+      //cout<<ex.getMessage() << endl;
+      //_conn->terminateStatement (_stmt);
+      //throw ex;
+      OracleDBException lExc(aExc.getMessage());
+      RAISE(lExc);
+    }
+  }//end DBWriter::insertArray_Deadtime       
+  
+  /*********************************************************************
+   * Get section_id of a pair of run_number and lumi_section_number from 
+   * lumi_sections table.  
+   *
+   * Y Guo September 10, 2007
+   *
+   *********************************************************************/ 
+  unsigned long DBWriter::getLumiSecId(unsigned int runNum, unsigned int lsNum) {
+    string sqlStmt = "select section_id  from "+ _dbOwner + ".lumi_sections where "
+      "run_number=:rn and lumi_section_number=:ln";  
+    ResultSet *rset;
+    unsigned long lsId=0;
+    try {
+      _stmt = _conn->createStatement (sqlStmt);
+      _stmt->setUInt(1, runNum);
+      _stmt->setUInt(2, lsNum);
+      rset = _stmt->executeQuery ();
+      while(rset->next()) {
+	lsId=rset->getUInt(1);
+      }
+      _stmt->closeResultSet (rset);
+      _conn->terminateStatement(_stmt);
+    } catch(SQLException & aExc) {
+      //_stmt->closeResultSet (rset);
+      //_conn->terminateStatement(_stmt);
+      //throw ex;
+      OracleDBException lExc(aExc.getMessage());
+      RAISE(lExc);
+    }
+    return lsId;
+  }
+
+  /*********************************************************************
+   * New signature for lumiSection table inseration. In the new db schema
+   * threshod and bit mask are no longer required.
+   *
+   * Y Guo July 19, 2007
+   *
+   **********************************************************************/
+  void DBWriter::insertBind_LumiSec(unsigned long lsId,
+				    int HFRngStId,
+				    int dataTaking,
+				    unsigned int beginObt,
+				    unsigned int totalObt,
+				    unsigned int runNum,  
+				    unsigned int lsNum,
+				    unsigned int fillNum,
+				    unsigned long lsStartT,
+				    unsigned long lsStopT, 
+				    const string & comment) {
+    string sqlStmt = "insert into " + _dbOwner + ".lumi_sections(SECTION_ID,"
+      "RING_SET_ID, IS_DATA_TAKING, BEGIN_ORBIT_NUMBER,"
+      "NUMBER_ORBITS, RUN_NUMBER, LUMI_SECTION_NUMBER,"
+      "FILL_NUMBER, SEC_START_TIME, SEC_STOP_TIME, COMMENTS)"
+      "VALUES (:sid, :setVnum, :dataTk, :bO, :eO,:run, :lsNum,"
+      ":fNum,:secStratT,:secStopT,:comm )";
+
+    try {
+      _stmt=_conn->createStatement (sqlStmt);
+      _stmt->setUInt (1, lsId);
+      _stmt->setInt (2, HFRngStId);
+      _stmt->setInt (3, dataTaking);
+      _stmt->setUInt (4, beginObt);
+      _stmt->setUInt (5, totalObt);
+      _stmt->setUInt (6, runNum);
+      _stmt->setUInt (7, lsNum);
+      _stmt->setUInt (8, fillNum);
+      _stmt->setUInt (9, lsStartT);
+      _stmt->setUInt (10, lsStopT);
+      _stmt->setString (11, comment);
+      _stmt->executeUpdate ();
+      _conn->terminateStatement (_stmt);
+    } catch(SQLException & aExc) {
+      //_conn->terminateStatement (_stmt);
+      //throw ex;
+      OracleDBException lExc(aExc.getMessage());
+      RAISE(lExc);
+    }
+  }
+  
+  /***********************************************************
+   *
+   * Insert into lumi_sections table with bare minimum info. 
+   * Y. Guo Aug. 21 2007
+   *
+   ************************************************************/
+  void DBWriter::insertBind_LumiSec(unsigned long lsId,
+				    const DBWriter::DBLumiSection & summary) {
+    //string sqlStmt = "insert into " + _dbOwner + ".lumi_sections(SECTION_ID,"
+    //"RING_SET_ID, IS_DATA_TAKING, BEGIN_ORBIT_NUMBER,"
+    //"NUMBER_ORBITS, RUN_NUMBER, LUMI_SECTION_NUMBER)"
+    //"VALUES (:sid, :stId, :dataTk, :bO, :eO,:run, :lsNum)";
+    string sqlStmt = "insert into " + _dbOwner + ".lumi_sections(SECTION_ID,"
+      "IS_DATA_TAKING, BEGIN_ORBIT_NUMBER,"
+      "NUMBER_ORBITS, RUN_NUMBER, LUMI_SECTION_NUMBER, RING_SET_ID)"
+      "VALUES (:sid, :dataTk, :bO, :eO,:run, :lsNum, :rId)";
+    try {
+      _stmt=_conn->createStatement (sqlStmt);
+      _stmt->setUInt (1, lsId);
+      _stmt->setUInt (2, summary.dataTaking);
+      _stmt->setUInt (3, summary.beginObt);
+      _stmt->setUInt (4, summary.totalObts);
+      _stmt->setUInt (5, summary.runNum);
+      _stmt->setUInt (6, summary.lsNum);
+      _stmt->setUInt (7, summary.HFringStId);
+      _stmt->executeUpdate ();
+      _conn->terminateStatement (_stmt);
+    } catch(SQLException & aExc) {
+      //_conn->terminateStatement (_stmt);
+      //throw ex;
+      OracleDBException lExc(aExc.getMessage());
+      RAISE(lExc);
+    }
+  }
+  
+  /***********************************************************
+   *
+   * Insert into lumi_sections table with bare minimum info
+   * + HF_RING_SET_ID that indicates what HF configuration 
+   * was used for this lumi section.
+   * 
+   * Y. Guo Feb. 2008
+   *
+   ************************************************************/
+  /*
+  void DBWriter::insertBind_LumiSec(unsigned long lsId, unsigned long HFRngStId,
+				    unsigned int dataTaking, unsigned int beginObt,
+				    unsigned int totalObts,  unsigned int runNum,
+				    unsigned int lsNum) {
+    string sqlStmt = "insert into " + _dbOwner + ".lumi_sections(SECTION_ID,"
+      "RING_SET_ID, IS_DATA_TAKING, BEGIN_ORBIT_NUMBER,"
+      "NUMBER_ORBITS, RUN_NUMBER, LUMI_SECTION_NUMBER)"
+      "VALUES (:sid, :stId, :dataTk, :bO, :eO,:run, :lsNum)";
+    try {
+      _stmt=_conn->createStatement (sqlStmt);
+      _stmt->setUInt (1, lsId);
+      _stmt->setUInt (2, HFRngStId);
+      _stmt->setUInt (3, dataTaking);
+      _stmt->setUInt (4, beginObt);
+      _stmt->setUInt (5, totalObts);
+      _stmt->setUInt (6, runNum);
+      _stmt->setUInt (7, lsNum);
+      _stmt->executeUpdate ();
+      _conn->terminateStatement (_stmt);
+    } catch(SQLException & aExc) {
+      //_conn->terminateStatement (_stmt);
+      //throw ex;
+      OracleDBException lExc(aExc.getMessage());
+      RAISE(lExc);
+    }
+    }*/
+
+  /**********************************************************
+   * Another signature for lumiSection table inseration
+   * 
+   * Y Guo April 18, 2007
+   *
+   **********************************************************/ 
+  void DBWriter::insertBind_LumiSec(unsigned long lsId,
+				    unsigned long thId,
+				    unsigned long bitmId, 
+				    int setVrsNum,
+				    int dataTaking,
+				    unsigned int beginObt, 
+				    int unsigned totalObt,
+				    unsigned int runNum,
+				    unsigned int lsNum,
+				    unsigned int fillNum,
+				    unsigned long lsStartT,
+				    unsigned long lsStopT, 
+				    const string & comment) {
+    string sqlStmt = "insert into " + _dbOwner + ".lumi_sections(SECTION_ID, BITMASK_ID," 
+      "THRESHOLD_ID,RING_SET_ID, IS_DATA_TAKING, BEGIN_ORBIT_NUMBER," 
+      "NUMBER_ORBITS, RUN_NUMBER, LUMI_SECTION_NUMBER," 
+      "FILL_NUMBER, SEC_START_TIME, SEC_STOP_TIME, COMMENTS)"
+      "VALUES (:sid, :bit ,:th,:setVnum, :dataTk, :bO, :eO,:run, :lsNum," 
+      ":fNum,:secStratT,:secStopT,:comm )";
+    try {
+      _stmt=_conn->createStatement (sqlStmt);
+      _stmt->setUInt (1, lsId);
+      _stmt->setUInt (2, thId);
+      _stmt->setUInt (3, bitmId);
+      _stmt->setInt (4, setVrsNum);
+      _stmt->setInt (5, dataTaking);
+      _stmt->setUInt (6, beginObt);
+      _stmt->setUInt (7, totalObt);
+      _stmt->setUInt (8, runNum);
+      _stmt->setUInt (9, lsNum);
+      _stmt->setUInt (10, fillNum);
+      _stmt->setUInt (11, lsStartT);
+      _stmt->setUInt (12, lsStopT);
+      _stmt->setString (13, comment);
+      _stmt->executeUpdate ();
+      _conn->terminateStatement (_stmt);
+    } catch(SQLException & aExc) {
+      //_conn->terminateStatement (_stmt);
+      //throw ex;
+      OracleDBException lExc(aExc.getMessage());
+      RAISE(lExc);
+    }
+  }
+  
+  /*********************************************************************************
+   * Insert into LUMI_DETAILS Table, that replace the old LUMI_ TABLE.
+   *
+   * January, 08  Y. Guo
+   *
+   *********************************************************************************/
+  void DBWriter::insertArray_LumiDetails(unsigned long lsId,
+					 const DBWriter::DBLumiDetails & details) {
+    int Occ_len=0;
+    int ntriger = 0;
+    unsigned int NSEQ = 1000;
+    int nseqFetch = 0;
+    vector<unsigned long> seqSeed;
+    
+    if(details.aLen >NSEQ) {
+      div_t q = div(details.aLen, (int)NSEQ);
+      Occ_len = q.rem; //the remainder
+      ntriger = q.quot;
+    } else {
+      Occ_len = details.aLen;
+    }
+    
+    //total number of times to get sequqnce
+    nseqFetch = ntriger + 1;
+    for(int i=0; i<nseqFetch; i++) {
+      //get all the sequence seeds we need
+      seqSeed.push_back(getLumiSequence("LUMI_DTLS_SEQ"));
+    }
+    //construct the sql
+    string sqlStmt = "insert into " + _dbOwner + ".lumi_details(RECORD_ID,"
+      "SECTION_ID, BUNCH_X_NUMBER, "
+      "NORMALIZATION_ET, ET_LUMI, ET_LUMI_ERR, ET_LUMI_QLTY,"
+      "NORMALIZATION_OCC_D1, OCC_LUMI_D1, OCC_LUMI_D1_ERR, OCC_LUMI_D1_QLTY,"
+      "NORMALIZATION_OCC_D2, OCC_LUMI_D2, OCC_LUMI_D2_ERR, OCC_LUMI_D2_QLTY)"
+      "VALUES(:rId, :sId, :bxNum, :NorEt, :etL, :etLE, :etLQ," 
+      ":norOccD1, :occLD1, :occLD1E, :occLD1Q,"
+      ":norOccD2, :occLD2, :occLD2E, :occLD2Q)";
+    //Fill lumi section ID
+    ub2 aSecLen[details.aLen];
+    unsigned int aSec[details.aLen];
+    for(unsigned int i=0; i<details.aLen; i++) {
+      aSec[i]=lsId;   //all data in this set has the same section_id
+      aSecLen[i]=sizeof(lsId);
+    }
+    
+    //Fill record_id/sequence_id
+    ub2 aSeqLen[details.aLen];
+    unsigned long aSeq[details.aLen];
+    int extra=NSEQ;
+    for(vector<int>::size_type j=0; j < abs(nseqFetch); j++) {
+      if(j==abs(nseqFetch-1))extra=Occ_len;
+      for(unsigned int i=j*NSEQ; i<(j*NSEQ+extra); i++) {
+	aSeq[i]=seqSeed[j]+(i - j*NSEQ);
+	aSeqLen[i]=sizeof(aSeq[i]);
+      }
+    }//end j loop
+    
+    //Fill for data
+    ub2 aBxLen[details.aLen], aNorEtLumiLen[details.aLen], aEtLumiLen[details.aLen], aEtErrLen[details.aLen], aEtQLen[details.aLen];
+    ub2 aNorOccLumiD1Len[details.aLen], aOccLumiD1Len[details.aLen];
+    ub2 aOccLumiD1ErrLen[details.aLen], aOccLumiD1QLen[details.aLen];
+    ub2 aNorOccLumiD2Len[details.aLen], aOccLumiD2Len[details.aLen];
+    ub2 aOccLumiD2ErrLen[details.aLen], aOccLumiD2QLen[details.aLen];
+
+    for(unsigned int i=0; i<details.aLen; i++) {
+      aBxLen[i]=sizeof(details.aBX[i]);
+      aNorEtLumiLen[i]=sizeof(details.aNorEtLumi[i]);
+      aEtLumiLen[i]=sizeof(details.aEtLumi[i]);
+      aEtErrLen[i]=sizeof(details.aEtLumiErr[i]);
+      aEtQLen[i]=sizeof(details.aEtLumiQ[i]);
+      aNorOccLumiD1Len[i]=sizeof(details.aNorOccLumiD1[i]);
+      aOccLumiD1Len[i]=sizeof(details.aOccLumiLumiD1[i]);
+      aOccLumiD1ErrLen[i]=sizeof(details.aOccLumiD1Err[i]);
+      aOccLumiD1QLen[i]=sizeof(details.aOccLumiD1Q[i]);
+      aNorOccLumiD2Len[i]=sizeof(details.aNorOccLumiD2[i]);
+      aOccLumiD2Len[i]=sizeof(details.aOccLumiLumiD2[i]);
+      aOccLumiD2ErrLen[i]=sizeof(details.aOccLumiD2Err[i]);
+      aOccLumiD2QLen[i]=sizeof(details.aOccLumiD2Q[i]);
+    }
+    
+    try {
+      _stmt=_conn->createStatement (sqlStmt);
+      _stmt->setDataBuffer(1,(void*)aSeq, OCCIUNSIGNED_INT, sizeof(aSeq[0]),(unsigned short *)aSeqLen);
+      _stmt->setDataBuffer(2,(void*)aSec, OCCIUNSIGNED_INT, sizeof(aSec[0]), (unsigned short *)aSecLen);
+      _stmt->setDataBuffer(3,(void*)details.aBX, OCCIUNSIGNED_INT, sizeof(details.aBX[0]), (unsigned short *)aBxLen);
+      _stmt->setDataBuffer(4,(void*)details.aNorEtLumi, OCCIFLOAT, sizeof(details.aNorEtLumi[0]),
+			   (unsigned short *)aNorEtLumiLen);
+      _stmt->setDataBuffer(5,(void*)details.aEtLumi, OCCIFLOAT, sizeof(details.aEtLumi[0]),
+			   (unsigned short *)aEtLumiLen);
+      _stmt->setDataBuffer(6,(void*)details.aEtLumiErr, OCCIFLOAT, sizeof(details.aEtLumiErr[0]),
+			   (unsigned short *)aEtErrLen);
+      _stmt->setDataBuffer(7,(void*)details.aEtLumiQ, OCCIUNSIGNED_INT, sizeof(details.aEtLumiQ[0]),
+			   (unsigned short *)aEtQLen);
+      _stmt->setDataBuffer(8,(void*)details.aNorOccLumiD1, OCCIFLOAT, sizeof(details.aNorOccLumiD1[0]),
+			   (unsigned short *)aNorOccLumiD1Len);
+      _stmt->setDataBuffer(9,(void*)details.aOccLumiLumiD1, OCCIFLOAT, sizeof(details.aOccLumiLumiD1[0]),
+			   (unsigned short *)aOccLumiD1Len);
+      _stmt->setDataBuffer(10,(void*)details.aOccLumiD1Err, OCCIFLOAT, sizeof(details.aOccLumiD1Err[0]),
+			   (unsigned short *)aOccLumiD1ErrLen);
+      _stmt->setDataBuffer(11,(void*)details.aOccLumiD1Q, OCCIUNSIGNED_INT, sizeof(details.aOccLumiD1Q[0]),
+			   (unsigned short *)aOccLumiD1QLen);
+      _stmt->setDataBuffer(12,(void*)details.aNorOccLumiD2, OCCIFLOAT, sizeof(details.aNorOccLumiD2[0]),
+			   (unsigned short *)aNorOccLumiD2Len);
+      _stmt->setDataBuffer(13,(void*)details.aOccLumiLumiD2, OCCIFLOAT, sizeof(details.aOccLumiLumiD2[0]),
+			   (unsigned short *)aOccLumiD2Len);
+      _stmt->setDataBuffer(14,(void*)details.aOccLumiD2Err, OCCIFLOAT, sizeof(details.aOccLumiD2Err[0]),
+			   (unsigned short *)aOccLumiD2ErrLen);
+      _stmt->setDataBuffer(15,(void*)details.aOccLumiD2Q, OCCIUNSIGNED_INT, sizeof(details.aOccLumiD2Q[0]),
+			   (unsigned short *)aOccLumiD2QLen);
+      
+      //data insert for aLen rows
+      _stmt->executeArrayUpdate(details.aLen);
+      _conn->terminateStatement(_stmt); 
+    } catch(SQLException & aExc) {
+      //cout<<sqlStmt<<endl;
+      //cout<<ex.getMessage() << endl;
+      //_conn->terminateStatement (_stmt);
+      //throw ex
+      OracleDBException lExc(aExc.getMessage());
+      RAISE(lExc);
+    }
+  }
+
+  /**************************************************************************
+   *
+   * Insert into Lumi_Summary Table. 
+   *
+   * January 09, 08   Y. Guo
+   *
+   **************************************************************************/
+  void DBWriter::insertBind_LumiSummary(unsigned long lsId,
+					const DBWriter::DBLumiSummary & summary) {
+    string sqlStmt = "insert into "+ _dbOwner + ".LUMI_SUMMARIES(SECTION_ID,"
+      "DEADTIME_NORMALIZATION,"
+      "NORMALIZATION, INSTANT_LUMI, INSTANT_LUMI_ERR, INSTANT_LUMI_QLTY,"
+      "NORMALIZATION_ET, INSTANT_ET_LUMI, INSTANT_ET_LUMI_ERR,"
+      "INSTANT_ET_LUMI_QLTY, NORMALIZATION_OCC_D1, INSTANT_OCC_LUMI_D1," 
+      "INSTANT_OCC_LUMI_D1_ERR,INSTANT_OCC_LUMI_D1_QLTY,"
+      "NORMALIZATION_OCC_D2, INSTANT_OCC_LUMI_D2, INSTANT_OCC_LUMI_D2_ERR,"
+      "INSTANT_OCC_LUMI_D2_QLTY) VALUES(:sId, :deadT, :nor, :Lumi,"
+      ":LumiErr, :LumiQ, :norEt, :EtLumi, :EtErr, :EtQ, :norOccD1,:OccLumiD1, "
+      ":OccD1Err, :OccD1Q, :norOccD2, :OccLumiD2, :OccD2Err, :OccD2Q)";
+    
+    _stmt=_conn->createStatement (sqlStmt);
+    try {
+      _stmt->setUInt(1, lsId);
+      _stmt->setFloat(2, summary.dTimeNorm);
+      _stmt->setFloat(3, summary.norm);
+      _stmt->setFloat(4, summary.instLumi);
+      _stmt->setFloat(5, summary.instLumiErr);
+      _stmt->setUInt(6, summary.instLumiQ);
+      _stmt->setFloat(7, summary.norEt);
+      _stmt->setFloat(8,summary.instEtLumi );
+      _stmt->setFloat(9,summary.instEtLumiErr );
+      _stmt->setUInt(10, summary.instEtLumiQ);
+      _stmt->setFloat(11,summary.norOccLumiD1);
+      _stmt->setFloat(12,summary.instOccLumiD1);
+      _stmt->setFloat(13,summary.instOccLumiD1Err);
+      _stmt->setUInt(14, summary.instOccLumiD1Q);
+      _stmt->setFloat(15,summary.norOccLumiD2);
+      _stmt->setFloat(16,summary.instOccLumiD2);
+      _stmt->setFloat(17,summary.instOccLumiD2Err);
+      _stmt->setUInt(18, summary.instOccLumiD2Q);
+      _stmt->executeUpdate ();
+      _conn->terminateStatement (_stmt);
+    } catch(SQLException & aExc) {
+      //_conn->terminateStatement (_stmt);
+      //throw ex;
+      OracleDBException lExc(aExc.getMessage());
+      RAISE(lExc);
+    }
+  }
+  
+  /****************************************************************************************
+   * Get lumi_summary_id from lumi_summarys table.
+   *
+   * Y. Guo September 11 2007
+   *
+   **/
+  unsigned long DBWriter::getLumiSummaryId(unsigned long lsId, int lumiVer) {
+    string sqlStmt = "select lumi_summary_id from " + _dbOwner + ".lumi_summaries where "
+      "section_id=:sId and lumi_version=:lv";
+    ResultSet *rset;
+    unsigned long smId=0;
+    try {
+      _stmt = _conn->createStatement (sqlStmt);
+      _stmt->setUInt(1, lsId);
+      _stmt->setInt(2, lumiVer);
+      rset = _stmt->executeQuery ();
+      while(rset->next()) {
+	smId=(unsigned long)rset->getUInt(1);
+      }
+      _stmt->closeResultSet (rset);
+      _conn->terminateStatement(_stmt);
+    } catch(SQLException & aExc) {
+      //_stmt->closeResultSet (rset);
+      //_conn->terminateStatement(_stmt);
+      //throw ex;
+      OracleDBException lExc(aExc.getMessage());
+      RAISE(lExc);
+    }
+    //_stmt->closeResultSet (rset);
+    //_conn->terminateStatement(_stmt);
+    return smId;
+  }
+  
+  /**********************************************************************************
+   * Create a lumi tag named tName.
+   *
+   * Y Guo September 17, 07
+   *
+   **/
+  unsigned long DBWriter::insertLumiTag(std::string& tName) {
+    string sqlStmt = "insert into " + _dbOwner + ".lumi_tags(lumi_tag_id, tag_name) "
+      "values (:tId, :tN)";
+    unsigned long id;
+    try {
+      id = getLumiTagSeq();
+      _stmt=_conn->createStatement (sqlStmt);
+      _stmt->setUInt(1, id);
+      _stmt->setString(2, tName);
+      _stmt->executeUpdate ();
+      _conn->terminateStatement(_stmt);
+    } catch(SQLException & aExc) {
+      //_conn->terminateStatement(_stmt);
+      //throw ex;
+      OracleDBException lExc(aExc.getMessage());
+      RAISE(lExc);
+    }
+    return id;
+  }
+
+  /***********************************************************************************
+   *Get lumi_tag_id of TAG_NAME tName from lumi_tags table.
+   * 
+   * Y Guo September 10, 07
+   *
+   **/
+  unsigned long DBWriter::getLumiTagId(std::string& tName) {
+    string sqlStmt = "select lumi_tag_id  from " + _dbOwner + ".lumi_tags where "
+      "tag_name=:tn";
+    ResultSet *rset;
+    unsigned long lsId=0;
+    try {
+      _stmt = _conn->createStatement (sqlStmt);
+      _stmt->setString(1, tName);
+      rset = _stmt->executeQuery ();
+      while(rset->next()) {
+	lsId=rset->getUInt(1);
+      }
+      _stmt->closeResultSet (rset);
+      _conn->terminateStatement(_stmt);
+    } catch(SQLException & aExc) {
+      //_stmt->closeResultSet (rset);
+      //_conn->terminateStatement(_stmt);
+      //throw ex;
+      OracleDBException lExc(aExc.getMessage());
+      RAISE(lExc);
+    }
+    return lsId;
+  }
+  
+  /*************************************************************************************
+   *
+   * insert into lumi_version_tag_maps table. The API finds out the lumi_summary_id that 
+   * assocats with the lumi_section and lumi_version, lumi_tag_id accocated with the 
+   * tag_name then inserts them into the map.
+   *
+   * Y. Guo September 11 07
+   *
+   **************************************************************************************/
+  void DBWriter::insertLumiVerTagMap(unsigned int lsNum, unsigned int runNum, 
+				     int lumiVer, string& tName) {
+    unsigned long lsId, tagId, summaryId;
+    try {
+      lsId = getLumiSecId(runNum, lsNum);
+      tagId = getLumiTagId(tName);
+      summaryId = getLumiSummaryId(lsId, lumiVer);
+      string sqlStmt = "insert into " + _dbOwner + ".lumi_version_tag_maps(lumi_tag_id, "
+	"lumi_summary_id) values (:tId, :sId)"; 
+      _stmt=_conn->createStatement (sqlStmt);
+      _stmt->setUInt(1, tagId);
+      _stmt->setUInt(2, summaryId);
+      _stmt->executeUpdate ();
+      _conn->terminateStatement (_stmt);
+    } catch(SQLException & aExc) {
+      //_conn->terminateStatement (_stmt);
+      //throw ex;
+      OracleDBException lExc(aExc.getMessage());
+      RAISE(lExc);
+    }
+  }
+  
+  /**
+   * Insert into HLT table.
+   *
+   * Y. Guo Feb.22 2008
+   *
+   **/
+  //This API still under develoment. YG
+  void DBWriter::insertArray_HLTs(unsigned long lsId, char* aTrgPth,
+                          unsigned long* aInptCnt, unsigned long* aAccptCnt,
+                          unsigned int* aPreSclFct, unsigned int aLen) {
+    int hlt_len=0;
+    int ntriger = 0;
+    unsigned int NSEQ = 20;  //sequence increase step 
+    int nseqFetch = 0;
+    vector<unsigned long> seqSeed;
+    if(aLen > NSEQ) {
+      div_t q = div(aLen, (int)NSEQ);
+      hlt_len = q.rem; //the remainder
+      ntriger = q.quot; 
+    } else {
+      hlt_len = aLen; 
     }
 
-    // Fill for data
-    ub2 aDeadtimeDefLen[aLen], aDeadtimeLen[aLen];
+    //total number of times to get sequqnce
+    nseqFetch = ntriger + 1;
+    for(int i=0; i<nseqFetch; i++) {
+      //get all the sequence seeds we need
+      seqSeed.push_back(getLumiSequence("HLT_SEQ" ));
+    }
+    
+    // construct the sql
+    string sqlStmt = "insert into " + _dbOwner + ".HLTS(HLT_ID,"
+      "SECTION_ID, TRIGGER_PATH, "
+      "INPUT_COUNT, ACCEPT_COUNT, PRESCALE_FACTOR)"
+      "VALUES(:rId, :sId, :tPath, :iCnt, :aCnt, :pFct)";
+
+    // Fill lumi section ID
+    ub2 aSecLen[aLen];
+    unsigned int aSec[aLen];
     for(unsigned int i=0; i<aLen; i++) {
-      aDeadtimeDefLen[i]=sizeof(aDeadtimeDef[i]);
-      aDeadtimeLen[i]=sizeof(aDeadtime[i]);
+      aSec[i]=lsId;   //all data in this set has the same section_id
+      aSecLen[i]=sizeof(lsId);
+    }
+    
+    //Fill record_id/sequence_id
+    ub2 aSeqLen[aLen];
+    unsigned long aSeq[aLen];
+    int extra=NSEQ;
+    for(vector<int>::size_type j=0; j < abs(nseqFetch); j++) {
+      if(j==abs(nseqFetch-1))extra=hlt_len;
+      for(unsigned int i=j*NSEQ; i<(j*NSEQ+extra); i++) {
+	aSeq[i]=seqSeed[j]+(i - j*NSEQ);
+	aSeqLen[i]=sizeof(aSeq[i]);
+      }
+    } // end j loop
+
+    // Fill for data
+    ub2  aInptCntLen[aLen], aTrgPthLen[aLen], aAccptCntLen[aLen],  aPreSclFctLen[aLen]; 
+    for(unsigned int i=0; i<aLen; i++) {
+      aInptCntLen[i]=sizeof(aInptCnt[i]);
+      aTrgPthLen[i]=3;
+      aAccptCntLen[i]=sizeof(aAccptCnt[i]);
+      aPreSclFctLen[i]=sizeof(aPreSclFct[i]);
     }
 
     try {
-	_stmt=_conn->createStatement (sql);
-	_stmt->setDataBuffer(1,(void*)aSeq, OCCIINT, sizeof(aSeq[0]),
-			     (unsigned short *)aSeqLen);
-	_stmt->setDataBuffer(2,(void*)aSec, OCCIINT, sizeof(aSec[0]),
-			     (unsigned short *)aSecLen);
-	_stmt->setDataBuffer(3,(void*)aDeadtimeDef,  OCCIINT, sizeof(aDeadtimeDef[0]),
-                             (unsigned short *)aDeadtimeDefLen);
-	_stmt->setDataBuffer(4, (void*)aDeadtime, OCCIINT, sizeof(aDeadtime[0]),
-                             (unsigned short *)aDeadtimeLen);
-	// data insert for aLen rows
-	_stmt->executeArrayUpdate(aLen);
-	_conn->terminateStatement (_stmt);   
-    } catch (SQLException aExc) {
+      _stmt=_conn->createStatement (sqlStmt);
+      _stmt->setDataBuffer(1,(void*)aSeq, OCCIUNSIGNED_INT, sizeof(aSeq[0]),(unsigned short *)aSeqLen);
+      _stmt->setDataBuffer(2,(void*)aSec, OCCIUNSIGNED_INT, sizeof(aSec[0]), (unsigned short *)aSecLen);
+      _stmt->setDataBuffer(3,(void*)aTrgPth, OCCI_SQLT_STR, 3, (unsigned short *)aTrgPthLen);
+      _stmt->setDataBuffer(4,(void*)aInptCnt, OCCIUNSIGNED_INT, sizeof(aInptCnt[0]),
+			   (unsigned short *)aInptCntLen);
+      _stmt->setDataBuffer(5,(void*)aAccptCnt, OCCIUNSIGNED_INT, sizeof(aAccptCnt[0]),
+			   (unsigned short *)aAccptCntLen);
+      _stmt->setDataBuffer(6,(void*)aPreSclFct, OCCIUNSIGNED_INT, sizeof(aPreSclFct[0]),
+			   (unsigned short *)aPreSclFctLen);
+      //data insert for aLen rows
+      //cout << "insert now . "<<endl;
+      _stmt->executeArrayUpdate(aLen);
+      _conn->terminateStatement (_stmt);
+    } catch(SQLException & aExc) {
+      //cout<<"Exception thrown for insertArray_HLTS"<<endl;
+      //cout<<ex.getMessage() << endl;
+      //_conn->terminateStatement (_stmt);
+      //throw ex;
       OracleDBException lExc(aExc.getMessage());
       RAISE(lExc);
-    }    
+    }
   }
-  
+
   /**
    * Insertion into _dbOwner.lumi_thresholds table. 
    * Db Trigger for threshold_id is not used since we need the id for lumi_ssection
    * table right way.
    * Y. Guo June 8 2007
-   **/  
-  void DBWriter::insertBind_threshold (long thId,
-				      int th1Set1,
-				      int th1Set2,
-				      int th2Set1, 
-				      int th2Set2,
-				      int thEt) {
-    string sqlStmt = "insert into " + _dbOwner +".lumi_thresholds(THRESHOLD_ID," 
-      " THRESHOLD1_SET1, THRESHOLD1_SET2, THRESHOLD2_SET1,"  
-      " THRESHOLD2_SET2, ET_THRESHOLD)VALUES (:tId, :t1S1, :t1S2,"  
+   **/
+  void DBWriter::insertBind_threshold (unsigned long thId, int th1Set1, int th1Set2, int th2Set1,
+				       int th2Set2, int thEt) {
+    string sqlStmt = "insert into " + _dbOwner +".lumi_thresholds(THRESHOLD_ID,"
+      " THRESHOLD1_SET1, THRESHOLD1_SET2, THRESHOLD2_SET1,"
+      " THRESHOLD2_SET2, ET_THRESHOLD)VALUES (:tId, :t1S1, :t1S2,"
       " :t2S1, :t2S2, :te)";
     try {
-	_stmt=_conn->createStatement(sqlStmt);
-        _stmt->setInt(1, thId);
-        _stmt->setInt(2, th1Set1);
-        _stmt->setInt(3, th1Set2);
-        _stmt->setInt(4, th2Set1);
-        _stmt->setInt(5, th2Set2);
-        _stmt->setInt(6, thEt);
-        _stmt->executeUpdate();
-	_conn->terminateStatement(_stmt);
-    } catch (SQLException aExc) {
+      _stmt=_conn->createStatement (sqlStmt);
+      _stmt->setUInt (1, thId);
+      _stmt->setInt (2, th1Set1);
+      _stmt->setInt (3, th1Set2);
+      _stmt->setInt (4, th2Set1);
+      _stmt->setInt (5, th2Set2);
+      _stmt->setInt (6, thEt);
+      _stmt->executeUpdate ();
+      _conn->terminateStatement (_stmt);
+    } catch(SQLException & aExc) {
+      //cout<<"Exception thrown for insertBind"<<endl;
+      //cout<<"Error number: "<<  ex.getErrorCode() << endl;
+      //cout<<ex.getMessage() << endl;
+      // _conn->terminateStatement (_stmt);
+      //throw ex;
       OracleDBException lExc(aExc.getMessage());
       RAISE(lExc);
     }
+    //_conn->terminateStatement (_stmt);
   }
   
   /**
    * Insert Configuration_BITMASKS table. Trigger is not used for BOTMASK_ID because  
    * we will need the id to fill the lumi_section table.
    * June 8, 2007  Y. Guo
-   * Aug 22, 2007 J. Jones - changed to pass array pointers rather than by value
    **/
   void DBWriter::insertBind_ConfigBitMask (const long bitMskId,
-					  const int mskPlus[18],
-					  const int mskMinus[18])
-  {
+					   const int mskForward[18],
+					   const int mskBackward[18]) {
     string sqlStmt = "insert into "+ _dbOwner +".configuration_bitmasks(BITMASK_ID,"
-      "FORWARD_BITMASK1, FORWARD_BITMASK2, FORWARD_BITMASK3," 
-      "FORWARD_BITMASK4, FORWARD_BITMASK5, FORWARD_BITMASK6," 
-      "FORWARD_BITMASK7, FORWARD_BITMASK8, FORWARD_BITMASK9," 
-      "FORWARD_BITMASK10, FORWARD_BITMASK11, FORWARD_BITMASK12," 
-      "FORWARD_BITMASK13, FORWARD_BITMASK14, FORWARD_BITMASK15," 
-      "FORWARD_BITMASK16, FORWARD_BITMASK17, FORWARD_BITMASK18," 
-      "BACKWARD_BITMASK1, BACKWARD_BITMASK2, BACKWARD_BITMASK3," 
-      "BACKWARD_BITMASK4, BACKWARD_BITMASK5, BACKWARD_BITMASK6," 
-      "BACKWARD_BITMASK7, BACKWARD_BITMASK8, BACKWARD_BITMASK9," 
+      "FORWARD_BITMASK1, FORWARD_BITMASK2, FORWARD_BITMASK3,"
+      "FORWARD_BITMASK4, FORWARD_BITMASK5, FORWARD_BITMASK6,"
+      "FORWARD_BITMASK7, FORWARD_BITMASK8, FORWARD_BITMASK9,"
+      "FORWARD_BITMASK10, FORWARD_BITMASK11, FORWARD_BITMASK12,"
+      "FORWARD_BITMASK13, FORWARD_BITMASK14, FORWARD_BITMASK15,"
+      "FORWARD_BITMASK16, FORWARD_BITMASK17, FORWARD_BITMASK18,"
+      "BACKWARD_BITMASK1, BACKWARD_BITMASK2, BACKWARD_BITMASK3,"
+      "BACKWARD_BITMASK4, BACKWARD_BITMASK5, BACKWARD_BITMASK6,"
+      "BACKWARD_BITMASK7, BACKWARD_BITMASK8, BACKWARD_BITMASK9,"
       "BACKWARD_BITMASK10, BACKWARD_BITMASK11, BACKWARD_BITMASK12,"
       "BACKWARD_BITMASK13, BACKWARD_BITMASK14, BACKWARD_BITMASK15,"
       "BACKWARD_BITMASK16, BACKWARD_BITMASK17, BACKWARD_BITMASK18)"
@@ -582,33 +1125,39 @@ namespace HCAL_HLX {
       ":bBM17, :bBM18)";
     try {
       _stmt=_conn->createStatement (sqlStmt);
-      _stmt->setInt (1, bitMskId);
-      _stmt->setInt (2, mskPlus[0]);      _stmt->setInt (20, mskMinus[0]);
-      _stmt->setInt (3, mskPlus[1]);      _stmt->setInt (21, mskMinus[1]);
-      _stmt->setInt (4, mskPlus[2]);      _stmt->setInt (22, mskMinus[2]);
-      _stmt->setInt (5, mskPlus[3]);      _stmt->setInt (23, mskMinus[3]);
-      _stmt->setInt (6, mskPlus[4]);      _stmt->setInt (24, mskMinus[4]);
-      _stmt->setInt (7, mskPlus[5]);      _stmt->setInt (25, mskMinus[5]);
-      _stmt->setInt (8, mskPlus[6]);      _stmt->setInt (26, mskMinus[6]);
-      _stmt->setInt (9, mskPlus[7]);      _stmt->setInt (27, mskMinus[7]);
-      _stmt->setInt (10, mskPlus[8]);     _stmt->setInt (28, mskMinus[8]);
-      _stmt->setInt (11, mskPlus[9]);     _stmt->setInt (29, mskMinus[9]);
-      _stmt->setInt (12, mskPlus[10]);    _stmt->setInt (30, mskMinus[10]);
-      _stmt->setInt (13, mskPlus[11]);    _stmt->setInt (31, mskMinus[11]);
-      _stmt->setInt (14, mskPlus[12]);    _stmt->setInt (32, mskMinus[12]);
-      _stmt->setInt (15, mskPlus[13]);    _stmt->setInt (33, mskMinus[13]);
-      _stmt->setInt (16, mskPlus[14]);    _stmt->setInt (34, mskMinus[14]);
-      _stmt->setInt (17, mskPlus[15]);    _stmt->setInt (35, mskMinus[15]);
-      _stmt->setInt (18, mskPlus[16]);    _stmt->setInt (36, mskMinus[16]);
-      _stmt->setInt (19, mskPlus[17]);    _stmt->setInt (37, mskMinus[17]);
-      _stmt->executeUpdate();   
-      _conn->terminateStatement(_stmt);
-    } catch (SQLException aExc) {
+      _stmt->setUInt (1, bitMskId);
+      _stmt->setInt (2, mskForward[0]);      _stmt->setInt (20, mskBackward[0]);
+      _stmt->setInt (3, mskForward[1]);      _stmt->setInt (21, mskBackward[1]);
+      _stmt->setInt (4, mskForward[2]);      _stmt->setInt (22, mskBackward[2]);
+      _stmt->setInt (5, mskForward[3]);      _stmt->setInt (23, mskBackward[3]);
+      _stmt->setInt (6, mskForward[4]);      _stmt->setInt (24, mskBackward[4]);
+      _stmt->setInt (7, mskForward[5]);      _stmt->setInt (25, mskBackward[5]);
+      _stmt->setInt (8, mskForward[6]);      _stmt->setInt (26, mskBackward[6]);
+      _stmt->setInt (9, mskForward[7]);      _stmt->setInt (27, mskBackward[7]);
+      _stmt->setInt (10, mskForward[8]);     _stmt->setInt (28, mskBackward[8]);
+      _stmt->setInt (11, mskForward[9]);    _stmt->setInt (29, mskBackward[9]);
+      _stmt->setInt (12, mskForward[10]);    _stmt->setInt (30, mskBackward[10]);
+      _stmt->setInt (13, mskForward[11]);    _stmt->setInt (31, mskBackward[11]);
+      _stmt->setInt (14, mskForward[12]);    _stmt->setInt (32, mskBackward[12]);
+      _stmt->setInt (15, mskForward[13]);    _stmt->setInt (33, mskBackward[13]);
+      _stmt->setInt (16, mskForward[14]);    _stmt->setInt (34, mskBackward[14]);
+      _stmt->setInt (17, mskForward[15]);    _stmt->setInt (35, mskBackward[15]);
+      _stmt->setInt (18, mskForward[16]);    _stmt->setInt (36, mskBackward[16]);
+      _stmt->setInt (19, mskForward[17]);    _stmt->setInt (37, mskBackward[17]);
+      _stmt->executeUpdate ();
+      _conn->terminateStatement (_stmt);
+    } catch(SQLException & aExc) {
+      //cout<<"Exception thrown for inserting configuration_bitmask table. "<<endl;
+      //cout<<"Error number: "<<  ex.getErrorCode() << endl;
+      //cout<<ex.getMessage() << endl;
+      //_conn->terminateStatement (_stmt);
+      //throw ex;
       OracleDBException lExc(aExc.getMessage());
       RAISE(lExc);
     }
-  } 
-  
+    //_conn->terminateStatement (_stmt);
+  }
+
   /**
    * Function for  bulk bind inseration to all the OCC histogram tables 
    * 
@@ -616,20 +1165,16 @@ namespace HCAL_HLX {
    *
    */
   
-  void DBWriter::insertArray_allOccHist(long lsId,
-				       int * aBX,
-				       unsigned long * aOcc,
-				       unsigned long * aLostLnb,
-				       int * aHlxNum,
-				       int * aRingSetNum,
-				       unsigned long aLen,
-				       const string & tableName) {
+  void DBWriter::insertArray_allOccHist(unsigned long lsId, int* aBX, unsigned long* aOcc,
+					unsigned long* aLostLnb,int* aHlxNum,
+					int* aRingSetNum, unsigned long aLen,
+					const string& tableName) {
     int Occ_len=0;
     int ntriger = 0;
     int NSEQ = 1000;
     int nseqFetch = 0;
-    vector<long> seqSeed;
-    
+    vector<unsigned long> seqSeed;
+
     if(aLen > abs(NSEQ)) {
       ldiv_t q = div(aLen, (long)NSEQ);
       Occ_len = q.rem; //the remainder
@@ -638,10 +1183,10 @@ namespace HCAL_HLX {
       Occ_len = (int)aLen;
     }
     
-    // total number of times to get sequqnce
+    //total number of times to get sequqnce
     nseqFetch = ntriger + 1;
     for(int i=0; i<nseqFetch; i++) {
-      // get all the sequence seeds we need. The sequence is incremented by 4000
+      //get all the sequence seeds we need. The sequence is incremented by 4000
       seqSeed.push_back(getLumiSequence("lumi_all_histgram_seq"));
     }
     
@@ -650,11 +1195,9 @@ namespace HCAL_HLX {
       "(RECORD_ID, SECTION_ID, BUNCH_X_NUMBER,TOTAL_OCCUPANCIES,"
       "HLX_NUMBER, RING_SET_NUMBER, LOST_LNB_COUNT)"
       "VALUES (:rId, :lsId, :bxNum, :occ ,:hlxNum, :rSetNum, :lstLnbCnt)";
-
     // Fill Section ID
     ub2 aSecLen[aLen];
-    long aSec[aLen];
-
+    unsigned long aSec[aLen];
     for(unsigned long i=0; i<aLen; i++) {
       aSec[i]=lsId;   //all data in this set has the same section_id
       aSecLen[i]=sizeof(lsId);
@@ -662,17 +1205,17 @@ namespace HCAL_HLX {
     
     // Fill record_id/sequence_id
     ub2 aSeqLen[aLen];
-    long aSeq[aLen];
+    unsigned long aSeq[aLen];
     int extra=NSEQ;
-    for(vector<long>::size_type j=0; j < abs(nseqFetch); j++) {
+    for(vector<unsigned long>::size_type j=0; j < abs(nseqFetch); j++) {
       if(j==abs(nseqFetch-1))extra=Occ_len;
       for(unsigned int i=j*NSEQ; i<(j*NSEQ+extra); i++) {
 	aSeq[i]=seqSeed[j]+(i - j*NSEQ);
 	aSeqLen[i]=sizeof(aSeq[i]);
       }
-    }    
+    } // end j loop
     
-    // Fill for data
+    //Fill for data
     ub2 aBxLen[aLen], aOccLen[aLen], aLostLnbLen[aLen], aHlxNumLen[aLen];
     ub2 aRingSetNumLen[aLen];
     for(unsigned long i=0; i<aLen; i++) {
@@ -682,82 +1225,87 @@ namespace HCAL_HLX {
       aHlxNumLen[i]=sizeof(aHlxNum[i]);
       aRingSetNumLen[i]=sizeof(aRingSetNum[i]);
     }
-
+    
     try {
-	_stmt=_conn->createStatement (sqlStmt);
-        _stmt->setDataBuffer(1,(void*)aSeq, OCCIINT, sizeof(aSeq[0]),
-			     (unsigned short *)aSeqLen);
-        _stmt->setDataBuffer(2,(void*)aSec, OCCIINT, sizeof(aSec[0]),
-			     (unsigned short *)aSecLen);
-        _stmt->setDataBuffer(3,(void*)(aBX),  OCCIINT, sizeof(aBX[0]),
-			     (unsigned short *)aBxLen);
-        _stmt->setDataBuffer(4,(void*)(aOcc), OCCIINT, sizeof(aOcc[0]),
-			     (unsigned short *)aOccLen);
-        _stmt->setDataBuffer(7,(void*)(aLostLnb), OCCIINT, sizeof(aLostLnb[0]),
-			     (unsigned short *)aLostLnbLen);
-        _stmt->setDataBuffer(5,(void*)(aHlxNum), OCCIINT, sizeof(aHlxNum[0]),
-			     (unsigned short *)aHlxNumLen);
-        _stmt->setDataBuffer(6,(void*)(aRingSetNum), OCCIINT, sizeof(aRingSetNum[0]),
-			     (unsigned short *)aRingSetNumLen);
-	_stmt->executeArrayUpdate(aLen);
-	_conn->terminateStatement (_stmt);
-    } catch (SQLException aExc) {
+      _stmt=_conn->createStatement (sqlStmt);
+      _stmt->setDataBuffer(1,(void*)aSeq, OCCIUNSIGNED_INT, sizeof(aSeq[0]),
+			   (unsigned short *)aSeqLen);
+      _stmt->setDataBuffer(2,(void*)aSec, OCCIUNSIGNED_INT, sizeof(aSec[0]),
+			   (unsigned short *)aSecLen);
+      _stmt->setDataBuffer(3,(void*)(aBX),  OCCIINT, sizeof(aBX[0]),
+			   (unsigned short *)aBxLen);
+      _stmt->setDataBuffer(4,(void*)(aOcc), OCCIINT, sizeof(aOcc[0]),
+			   (unsigned short *)aOccLen);
+      _stmt->setDataBuffer(7,(void*)(aLostLnb), OCCIINT, sizeof(aLostLnb[0]),
+			   (unsigned short *)aLostLnbLen);
+      _stmt->setDataBuffer(5,(void*)(aHlxNum), OCCIINT, sizeof(aHlxNum[0]),
+			   (unsigned short *)aHlxNumLen);
+      _stmt->setDataBuffer(6,(void*)(aRingSetNum), OCCIINT, sizeof(aRingSetNum[0]),
+			   (unsigned short *)aRingSetNumLen);
+      // data insert for aLen rows
+      _stmt->executeArrayUpdate(aLen);
+      _conn->terminateStatement (_stmt);
+    } catch(SQLException & aExc) {
+      //cout<<"Exception thrown for insertArray_allOccHist "<<endl;
+      //cout<<sqlStmt<<endl;
+      //cout<<"Error number: "<<  ex.getErrorCode() << endl;
+      //cout<<ex.getMessage() << endl;
+      //_conn->terminateStatement (_stmt);
+      //throw ex;
       OracleDBException lExc(aExc.getMessage());
       RAISE(lExc);
     }
-  }
-  
+    // _conn->terminateStatement (_stmt);
+  } // done insertArray_allHist  
+
   /***********************************************************
    * 
    * Insert into ET_SUM table
    * Y. Guo    June 8, 2007
    *
    **********************************************************/
-  void DBWriter::insertArray_EtSum(long secid,
-				  int *aBX,
-				  double *aEt, 
-				  int *aHlxNum,
-				  long *aLostLnbCt,
-				  unsigned long aLen) {
+  void DBWriter::insertArray_EtSum(unsigned long secid, int* aBX, double* aEt,
+				   int* aHlxNum, long* aLostLnbCt,
+				   unsigned long aLen) {
     int Occ_len=0;
     int ntriger = 0;
     int NSEQ = 1000;
     int nseqFetch = 0;
-    vector<long> seqSeed;
-
-    if (aLen >abs(NSEQ)) {
+    vector<unsigned long> seqSeed;
+    
+    if(aLen >abs(NSEQ)) {
       ldiv_t q = div(aLen, (long)NSEQ);
       Occ_len = q.rem; //the remainder
       ntriger = q.quot;
     } else {
       Occ_len = (int)aLen;
     }
-
-    // total number of times to get sequqnce
+    
+    //total number of times to get sequqnce
     nseqFetch = ntriger + 1;
-    for(int i = 0; i < nseqFetch; i++) {
-      // get all the sequence seeds we need
+    for(int i=0; i<nseqFetch; i++) {
+      //get all the sequence seeds we need
       long myrecord = getLumiSequence("lumi_all_histgram_seq");
+      //cout << "ET_SUM record : " <<myrecord<<endl;
       seqSeed.push_back(myrecord);
     }
-
-    // construct the sql
-    string sqlStmt = "insert into "+ _dbOwner+ ".ET_SUMS" 
-                     "(record_id, section_id,bunch_x_number,"
-                     " ET, HLX_NUMBER, LOST_LNB_COUNT)"
-                     " VALUES (:rId, :lsId, :bxnum, :et, :hlxNum, :lstLnbCt)";
-
-    // Fill Section ID
+    //construct the sql
+    
+    string sqlStmt = "insert into "+ _dbOwner+ ".ET_SUMS"
+      "(record_id, section_id,bunch_x_number,"
+      " ET, HLX_NUMBER, LOST_LNB_COUNT)"
+      " VALUES (:rId, :lsId, :bxnum, :et, :hlxNum, :lstLnbCt)";
+    //Fill Section ID
     ub2 aSecLen[aLen];
-    long aSec[aLen];
-    for(unsigned long i=0; i < aLen; i++) {
-        aSec[i]=secid;   // all data in this set has the same section_id
-        aSecLen[i]=sizeof(secid);
+    unsigned long aSec[aLen];
+    for(unsigned long i=0; i<aLen; i++) {
+      aSec[i]=secid;   //all data in this set has the same section_id
+      aSecLen[i]=sizeof(secid);
     }
-
-    // Fill record_id/sequence_id
+    
+    //Fill record_id/sequence_id
     ub2 aSeqLen[aLen];
-    int aSeq[aLen];
+    unsigned long aSeq[aLen];
     int extra=NSEQ;
     for(vector<int>::size_type j=0; j < abs(nseqFetch); j++) {
       if(j==abs(nseqFetch-1))extra=Occ_len;
@@ -765,7 +1313,7 @@ namespace HCAL_HLX {
 	aSeq[i]=seqSeed[j]+(i - j*NSEQ);
 	aSeqLen[i]=sizeof(aSeq[i]);
       }
-    }
+    } // end j loop
     
     // Fill for data
     ub2 aBxLen[aLen], aEtLen[aLen], aLostLnbCtLen[aLen], aHlxNumLen[aLen];
@@ -775,356 +1323,33 @@ namespace HCAL_HLX {
       aLostLnbCtLen[i]=sizeof(aLostLnbCt[i]);
       aHlxNumLen[i]=sizeof(aHlxNum[i]);
     }
-        
-    try{
+    
+    try {
       _stmt=_conn->createStatement (sqlStmt);
-      _stmt->setDataBuffer(1,(void*)aSeq, OCCIINT, sizeof(aSeq[0]),(unsigned short *)aSeqLen);
-      _stmt->setDataBuffer(2,(void*)aSec, OCCIINT, sizeof(aSec[0]), (unsigned short *)aSecLen);
+      _stmt->setDataBuffer(1,(void*)aSeq, OCCIUNSIGNED_INT, sizeof(aSeq[0]),(unsigned short *)aSeqLen);
+      _stmt->setDataBuffer(2,(void*)aSec, OCCIUNSIGNED_INT, sizeof(aSec[0]), (unsigned short *)aSecLen);
       _stmt->setDataBuffer(3,(void*)(aBX),  OCCIINT, sizeof(aBX[0]),  (unsigned short *)aBxLen);
       _stmt->setDataBuffer(4,(void*)(aEt), OCCIFLOAT, sizeof(aEt[0]), (unsigned short *)aEtLen);
-      _stmt->setDataBuffer(5,(void*)(aHlxNum), OCCIINT, sizeof(aHlxNum[0]), 
+      _stmt->setDataBuffer(5,(void*)(aHlxNum), OCCIINT, sizeof(aHlxNum[0]),
 			   (unsigned short *)aHlxNumLen);
-      _stmt->setDataBuffer(6,(void*)(aLostLnbCt), OCCIINT, sizeof(aLostLnbCt[0]), 
-			   (unsigned short *)aLostLnbCtLen);      
+      _stmt->setDataBuffer(6,(void*)(aLostLnbCt), OCCIINT, sizeof(aLostLnbCt[0]),
+			   (unsigned short *)aLostLnbCtLen);
+      
+      //data insert for aLen rows
       _stmt->executeArrayUpdate(aLen);
       _conn->terminateStatement (_stmt);
-    } catch (SQLException aExc) {
+      //cout << "insert - Success" << endl;
+    }catch(SQLException & aExc){
+      //cout<<"Exception thrown for insertion for ET_SUM "<<endl;
+      //cout<<sqlStmt<<endl;
+      //cout<<"Error number: "<<  ex.getErrorCode() << endl;
+      //cout<<ex.getMessage() << endl;
+      //_conn->terminateStatement (_stmt);
+      //throw ex;
       OracleDBException lExc(aExc.getMessage());
       RAISE(lExc);
     }
-  }
+    //_conn->terminateStatement (_stmt);
+  }// insertArray_allHist
   
-  /*********************************************************************
-   * New signature for lumiSection table inseration. In the new db schema
-   * threshod and bit mask are no longer required.
-   *
-   * Y Guo July 19, 2007
-   *
-   **********************************************************************/
-  void DBWriter::insertBind_LumiSec(long lsId,
-				   int setVrsNum,
-				   int dataTaking,
-				   int beginObt,
-				   int totalObt,
-				   int runNum,
-				   int lsNum,
-				   int fillNum,
-				   int lsStartT,
-				   int lsStopT,
-				   const string& comment) {
-    string sqlStmt = "insert into " + _dbOwner + ".lumi_sections(SECTION_ID,"
-      "SET_VERSION_NUMBER, IS_DATA_TAKING, BEGIN_ORBIT_NUMBER,"
-      "NUMBER_ORBITS, RUN_NUMBER, LUMI_SECTION_NUMBER,"
-      "FILL_NUMBER, SEC_START_TIME, SEC_STOP_TIME, COMMENTS)"
-      "VALUES (:sid, :setVnum, :dataTk, :bO, :eO,:run, :lsNum,"
-      ":fNum,:secStratT,:secStopT,:comm )";
-    
-    try {
-      _stmt=_conn->createStatement (sqlStmt);
-      _stmt->setInt (1, lsId);
-      _stmt->setInt (2, setVrsNum);
-      _stmt->setInt (3, dataTaking);
-      _stmt->setInt (4, beginObt);
-      _stmt->setInt (5, totalObt);
-      _stmt->setInt (6, runNum);
-      _stmt->setInt (7, lsNum);
-      _stmt->setInt (8, fillNum);
-      _stmt->setInt (9, lsStartT);
-      _stmt->setInt (10, lsStopT);
-      _stmt->setString (11, comment);
-      _stmt->executeUpdate ();
-      _conn->terminateStatement (_stmt);
-    } catch (SQLException aExc) {
-      OracleDBException lExc(aExc.getMessage());
-      RAISE(lExc);
-    }
-  }
-
-  /***********************************************************
-   *
-   * Insert into lumi_sections table with bare minimum info. 
-   * Y. Guo Aug. 21 2007
-   *
-   ************************************************************/
-  void DBWriter::insertBind_LumiSec(long lsId,
-				    const DBWriter::DBLumiSection & sectionData) {
-    string sqlStmt = "insert into " + _dbOwner + ".lumi_sections(SECTION_ID,"
-      "IS_DATA_TAKING, BEGIN_ORBIT_NUMBER,"
-      "NUMBER_ORBITS, RUN_NUMBER, LUMI_SECTION_NUMBER)"
-      "VALUES (:sid, :dataTk, :bO, :eO,:run, :lsNum)";
-
-    try {
-      _stmt=_conn->createStatement (sqlStmt);
-      _stmt->setInt (1, lsId);
-      _stmt->setInt (2, sectionData.dataTaking);
-      _stmt->setInt (3, sectionData.beginObt);
-      _stmt->setInt (4, sectionData.totalObts);
-      _stmt->setInt (5, sectionData.runNum);
-      _stmt->setInt (6, sectionData.lsNum);        
-      _stmt->executeUpdate ();
-      _conn->terminateStatement (_stmt);
-    } catch (SQLException aExc) {
-      OracleDBException lExc(aExc.getMessage());
-      RAISE(lExc);
-    }
-  }
-  
-  /**********************************************************
-   * Another signature for lumiSection table inseration
-   * 
-   * Y Guo April 18, 2007
-   *
-   **********************************************************/ 
-  void DBWriter::insertBind_LumiSec(long lsId,
-				   long thId,
-				   long bitmId, 
-				   int setVrsNum,
-				   int dataTaking,
-				   int beginObt, 
-				   int totalObt,
-				   int runNum,
-				   int lsNum,
-				   int fillNum,
-				   int lsStartT,
-				   int lsStopT,
-				   const string& comment) {
-    string sqlStmt = "insert into " + _dbOwner + ".lumi_sections(SECTION_ID, BITMASK_ID," 
-      "THRESHOLD_ID,SET_VERSION_NUMBER, IS_DATA_TAKING, BEGIN_ORBIT_NUMBER," 
-      "NUMBER_ORBITS, RUN_NUMBER, LUMI_SECTION_NUMBER," 
-      "FILL_NUMBER, SEC_START_TIME, SEC_STOP_TIME, COMMENTS)"
-      "VALUES (:sid, :bit ,:th,:setVnum, :dataTk, :bO, :eO,:run, :lsNum," 
-      ":fNum,:secStratT,:secStopT,:comm )";
-    
-    try {
-      _stmt=_conn->createStatement (sqlStmt);
-      _stmt->setInt (1, lsId);
-      _stmt->setInt (2, thId);
-      _stmt->setInt (3, bitmId);
-      _stmt->setInt (4, setVrsNum);
-      _stmt->setInt (5, dataTaking);
-      _stmt->setInt (6, beginObt);
-      _stmt->setInt (7, totalObt);
-      _stmt->setInt (8, runNum);
-      _stmt->setInt (9, lsNum);
-      _stmt->setInt (10, fillNum);
-      _stmt->setInt (11, lsStartT);
-      _stmt->setInt (12, lsStopT);
-      _stmt->setString (13, comment);      
-      _stmt->executeUpdate ();
-      _conn->terminateStatement (_stmt);
-    } catch (SQLException aExc) {
-      OracleDBException lExc(aExc.getMessage());
-      RAISE(lExc);
-    }
-  }
-  
-  /************************************************************************ 
-   * Insert into LUMI_BUNCH_CROSSING Table
-   *
-   * June 11, 07  Y. Guo
-   *
-   **********************************************************************/
-  void DBWriter::insertArray_LumiBX(long lsId,
-				    const DBWriter::DBLumiBX & bxData) {
-    int Occ_len=0;
-    int ntriger = 0; 
-    int NSEQ = 1000;
-    int nseqFetch = 0;
-    vector<int> seqSeed;
-    
-    if(bxData.aLen >NSEQ) {
-      div_t q = div(bxData.aLen, NSEQ);
-      Occ_len = q.rem; //the remainder
-      ntriger = q.quot;
-    } else {
-      Occ_len = bxData.aLen;
-    }
-    
-    // total number of times to get sequqnce
-    nseqFetch = ntriger + 1;
-    for(int i = 0 ; i < nseqFetch ; i++) {
-      // get all the sequence seeds we need
-      seqSeed.push_back(getLumiSequence("LUMI_BNCH_X_SEQ" ));
-    }
-
-    // construct the sql
-    string sqlStmt = "insert into " + _dbOwner + ".lumi_bunch_crossings(RECORD_ID,"
-      "SECTION_ID, BUNCH_X_NUMBER, ET_LUMI, ET_LUMI_ERR, ET_LUMI_QLTY," 
-      "OCC_LUMI, OCC_LUMI_ERR, OCC_LUMI_QLTY)"
-      "VALUES(:rId, :sId, :bxNum, :etL, :etLE, :etLQ, :occL, :occLE," 
-      " :occLQ)";
-
-    // Fill lumi section ID
-    ub2 aSecLen[bxData.aLen];
-    long aSec[bxData.aLen];
-    for(int i = 0; i < bxData.aLen; i++) {
-      aSec[i] = lsId;   //all data in this set has the same section_id
-      aSecLen[i] = sizeof(lsId);
-    }
-    
-    // Fill record_id/sequence_id
-    ub2 aSeqLen[bxData.aLen];
-    int aSeq[bxData.aLen];
-    int extra=NSEQ;
-    for(vector<int>::size_type j=0; j < abs(nseqFetch); j++) {
-      if(j==abs(nseqFetch-1))extra=Occ_len;
-      for(unsigned int i=j*NSEQ; i<(j*NSEQ+extra); i++) {
-	aSeq[i]=seqSeed[j]+(i - j*NSEQ);
-	aSeqLen[i]=sizeof(aSeq[i]);
-      }
-    }
-
-    // Fill for data
-    ub2 aBxLen[bxData.aLen], aEtLumiLen[bxData.aLen], aEtErrLen[bxData.aLen], aEtQLen[bxData.aLen];
-    ub2 aOccLumiLen[bxData.aLen], aOccErrLen[bxData.aLen], aOccQLen[bxData.aLen];
-    for(int i=0; i < bxData.aLen; i++) {
-      aBxLen[i]=sizeof(bxData.aBX[i]);
-      aEtLumiLen[i]=sizeof(bxData.aEtLumi[i]);
-      aEtErrLen[i]=sizeof(bxData.aEtErr[i]);
-      aEtQLen[i]=sizeof(bxData.aEtQ[i]);
-      aOccLumiLen[i]=sizeof(bxData.aOccLumi[i]);
-      aOccErrLen[i]=sizeof(bxData.aOccErr[i]);
-      aOccQLen[i]=sizeof(bxData.aOccQ[i]);
-      /**
-	 cout << "i=" <<i <<": "<<aBxLen[i] <<","<<aEtLumiLen[i]<<","<<aEtErrLen[i]<<",";
-	 cout << aEtQLen[i] <<","<< aOccLumiLen[i] <<","<< aOccErrLen[i] <<",";
-	 cout << aOccQLen[i] <<endl;
-	 cout << aBX[i] <<"," << aEtLumi[i] <<"," <<aEtErr[i] <<",";
-	 cout << aEtQ[i] <<"," << aOccLumi[i] << "," << aOccErr[i] <<","<<aOccQ[i]<<endl;
-      **/ 
-    }
-    
-    try{
-      _stmt=_conn->createStatement (sqlStmt);
-      _stmt->setDataBuffer(1,
-			   (void*)aSeq,
-			   OCCIINT,
-			   sizeof(aSeq[0]),
-			   (unsigned short *)aSeqLen);
-      _stmt->setDataBuffer(2,
-			   (void*)aSec,
-			   OCCIINT,
-			   sizeof(aSec[0]),
-			   (unsigned short *)aSecLen);    
-      _stmt->setDataBuffer(3,
-			   (void*)bxData.aBX,
-			   OCCIINT,
-			   sizeof(bxData.aBX[0]),
-			   (unsigned short *)aBxLen);
-      _stmt->setDataBuffer(4,
-			   (void*)bxData.aEtLumi,
-			   OCCIFLOAT,
-			   sizeof(bxData.aEtLumi[0]), 
-			   (unsigned short *)aEtLumiLen);
-      _stmt->setDataBuffer(5,
-			   (void*)bxData.aEtErr,
-			   OCCIFLOAT,
-			   sizeof(bxData.aEtErr[0]), 
-			   (unsigned short *)aEtErrLen);
-      _stmt->setDataBuffer(6,
-			   (void*)bxData.aEtQ,
-			   OCCIINT,
-			   sizeof(bxData.aEtQ[0]), 
-			   (unsigned short *)aEtQLen);
-      _stmt->setDataBuffer(7,
-			   (void*)bxData.aOccLumi,
-			   OCCIFLOAT,
-			   sizeof(bxData.aOccLumi[0]),
-			   (unsigned short *)aOccLumiLen);
-      _stmt->setDataBuffer(8,
-			   (void*)bxData.aOccErr,
-			   OCCIFLOAT,
-			   sizeof(bxData.aOccErr[0]),
-			   (unsigned short *)aOccErrLen);
-      _stmt->setDataBuffer(9,
-			   (void*)bxData.aOccQ,
-			   OCCIINT,
-			   sizeof(bxData.aOccQ[0]),
-			   (unsigned short *)aOccQLen);
-      _stmt->executeArrayUpdate(bxData.aLen);
-      _conn->terminateStatement (_stmt);
-    } catch (SQLException aExc) {
-      OracleDBException lExc(aExc.getMessage());
-      RAISE(lExc);
-    }
-  }
-
-  /**************************************************************************
-   *
-   * Insert into Lumi_Summary Table.
-   *
-   * June 11, 07   Y. Guo
-   *
-   **************************************************************************/
-  void DBWriter::insertBind_LumiSummary(long lsId,
-					const DBWriter::DBLumiSummary & summary) {
-    string sqlStmt = "insert into "+ _dbOwner + ".LUMI_SUMMARIES(SECTION_ID,"
-      "DEADTIME_NORMALIZATION,"
-      "NORMALIZATION, INSTANT_LUMI, INSTANT_LUMI_ERR," 
-      "INSTANT_LUMI_QLTY, INSTANT_ET_LUMI, INSTANT_ET_LUMI_ERR," 
-      "INSTANT_ET_LUMI_QLTY, INSTANT_OCC_LUMI, INSTANT_OCC_LUMI_ERR," 
-      "INSTANT_OCC_LUMI_QLTY) VALUES(:sId, :deadT, :nor, :dLumi,"
-      ":dLumiErr, :dLumiQ, :dEtLumi, :dEtErr, :dEtQ, :dOccLumi, :dOccErr,"
-      ":dOccQ)";
-
-    try {
-      _stmt=_conn->createStatement (sqlStmt);
-      _stmt->setInt(1, lsId);
-      _stmt->setDouble(2, summary.dTimeNorm);
-      _stmt->setDouble(3, summary.norm);
-      _stmt->setDouble(4, summary.instLumi);
-      _stmt->setDouble(5, summary.instLumiErr);
-      _stmt->setInt(6, summary.instLumiQ);
-      _stmt->setDouble(7, summary.instEtLumi);
-      _stmt->setDouble(8, summary.instEtLumiErr);
-      _stmt->setInt(9, summary.instEtLumiQ);
-      _stmt->setDouble(10, summary.instOccLumi);
-      _stmt->setDouble(11, summary.instOccLumiErr);
-      _stmt->setInt(12, summary.instOccLumiQ);
-      _stmt->executeUpdate();
-      _conn->terminateStatement(_stmt);
-    } catch (SQLException aExc) {
-      OracleDBException lExc(aExc.getMessage());
-      RAISE(lExc);      
-    }
-  }
-  
-  void DBWriter::DisplayDisTableBX(int secid){
-    string  sqlQuery = "SELECT  BUNCH_X_NUMBER, DISABLE_OCCUPANCIES, "
-      "LOST_PKT_NUMBER FROM CMS_LUMI_HF_OWNER.DISABLE_OCCUPANCIES " 
-      "where SECTION_ID = :y order by BUNCH_X_NUMBER"; 
-    
-    try {
-      _stmt = _conn->createStatement (sqlQuery);    
-      _stmt->setInt (1, secid);   
-      ResultSet *rset = _stmt->executeQuery ();
-
-      // cout what we're doing
-      cout << "Displaying Disable Table" << endl;
-      cout << "sectionId"
-	   << setw(10)
-	   << "BX"
-	   << setw(15)
-	   << "disOccupancy"
-	   << setw(10)
-	   << "lostpkts"
-	   << endl;
-      
-      while (rset->next()){
-	cout << (int)rset->getInt(1)
-	     << setw(5)
-	     << (int)rset->getInt(2)
-	     << setw(5)
-	     << (int)rset->getInt(3)
-	     << endl;
-      }
-
-      _stmt->closeResultSet (rset);
-      _conn->terminateStatement(_stmt);      
-    } catch (SQLException aExc) {
-      OracleDBException lExc(aExc.getMessage());
-      RAISE(lExc);
-    }
-  }
-
 }

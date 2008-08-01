@@ -5,7 +5,7 @@ Package=LumiDB
 IncludeDirs = \
 	$(BUILD_HOME)/$(Project)/$(Package)/include \
 	$(BUILD_HOME)/$(Project)/HLXReadOut/CoreUtils/include \
-	$(ORACLE_HOME)/include
+	/opt/oracle/current/sdk/include
 
 Sources = \
 	DBWriter.cc
@@ -15,11 +15,11 @@ include $(XDAQ_ROOT)/config/mfAutoconf.rules
 include $(XDAQ_ROOT)/config/mfDefs.$(XDAQ_OS)
 
 LibraryDirs = \
-	$(ORACLE_HOME)/lib/
+	/opt/oracle/current/lib/
 
 # compiler flags
 UserCFlags =
-UserCCFlags = 
+UserCCFlags = -D_REENTRANT
 UserDynamicLinkFlags =
 UserStaticLinkFlags =
 UserExecutableLinkFlags =
@@ -28,8 +28,8 @@ ExternalObjects =
 
 DynamicLibrary= LumiDB
 StaticLibrary=
-Executables= clntsh occi10 nnz10 n10
-Libraries= 
+Executables= 
+Libraries= clntsh occi10 nnz10 n10
 TestExecutables= 
 TestLibraries= 
 
