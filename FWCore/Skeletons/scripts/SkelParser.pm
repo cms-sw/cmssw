@@ -12,7 +12,7 @@ package SkelParser;
 #                               producername_DONT_TOUCH.cc
 #                         doc/
 #                         test/
-#                         data/
+#                         python/
 #  required input:
 # 
 #  producername = name of the producer
@@ -31,7 +31,7 @@ package SkelParser;
 #                               src/MyProducer.cc
 #                               doc/
 #                               test/
-#                               data/  
+#                               python/  
 #                              
 #   the script tries to read in
 #   a filename .tmpl in users HOME directory which contains the following lines
@@ -64,7 +64,7 @@ BEGIN {
     # set the version for version checking
     $VERSION     = 1.00;
     # if using RCS/CVS, this may be preferred
-    $VERSION = sprintf "%d.%03d", q$Revision: 1.5 $ =~ /(\d+)/g;
+    $VERSION = sprintf "%d.%03d", q$Revision: 1.6 $ =~ /(\d+)/g;
     
     @ISA         = qw(Exporter);
     @EXPORT      = qw(&copy_file &make_file &grandparent_parent_dir &mk_package_structure &find_mkTemplate_dir);
@@ -136,7 +136,7 @@ sub mk_package_structure {
     mkdir("$name/src", 0777) || die "can not make dir $name/src";
     mkdir("$name/test", 0777) || die "can not make dir $name/test";
     mkdir("$name/doc", 0777) || die "can not make dir $name/doc";
-    mkdir("$name/data",0777) || die "can not make dir $name/data";
+    mkdir("$name/python",0777) || die "can not make dir $name/python";
 }
 
 sub grandparent_parent_dir {
@@ -188,6 +188,9 @@ if (exists $_[3] ) {
   $magic_tokens = $_[3];
 }
 
+my $author1 = $_[4];
+my $author2 = $_[5];
+
 if (-s "$outfile") {
     print "  W: $outfile FILE ALREADY EXISTS WILL NOT OVERWRITE!!\n";
     print "  W: *****************************************************\n";
@@ -199,6 +202,10 @@ if (-s "$outfile") {
 # get authors name from $HOME/.tmpl file
 
     $afrom = "command line";
+    $author = "$author1 $author2";
+
+    $home = $ENV{"HOME"};
+
     if ($author1 eq "" && -s "$home/.tmpl") {
        open(IN,"$home/.tmpl");
        $afrom = "users .tmpl file";

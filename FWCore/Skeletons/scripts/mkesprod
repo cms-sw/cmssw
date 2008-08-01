@@ -100,7 +100,7 @@ if ( ! $do_list )
     # make the source files from the skeletons
     foreach $skeleton_key ( keys(%skeletons) )
     {
-	&make_file($skeleton_key, $skeletons{$skeleton_key}, \@subs );
+	&make_file($skeleton_key, $skeletons{$skeleton_key}, \@subs, \@magic_tokens, $author1, $author2 );
     }
 }
 else
@@ -197,7 +197,7 @@ mkesprod  h: datatype     = a list of the types of data created by the producer
 mkesprod  h:
 mkesprod  h: optional input:
 mkesprod  h:
-mkesprod  h: none
+mkesprod  h:   -author firstname lastname
 mkesprod  h:
 mkesprod  h: example:
 mkesprod  h: mkesprod MyProducer MyRcd MyData 

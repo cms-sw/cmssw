@@ -109,7 +109,7 @@ if ( ! $do_list )
     # make the source files from the skeletons
     foreach $skeleton_key ( keys(%skeletons) )
     {
-	&make_file($skeleton_key, $skeletons{$skeleton_key}, \@subs, \@magic_tokens );
+	&make_file($skeleton_key, $skeletons{$skeleton_key}, \@subs, \@magic_tokens, $author1, $author2 );
     }
 }
 else
@@ -207,6 +207,8 @@ mktsel  h:
 mktsel  h:   -<example type> = generate example code for a specific type
 mktsel  h:                     of data
 mktsel  h:   -list = list the example types currently known
+mktsel  h:
+mktsel  h:   -author firstname lastname
 mktsel  h:
 mktsel  h: example:
 mktsel  h: mktsel MyAnalyzer

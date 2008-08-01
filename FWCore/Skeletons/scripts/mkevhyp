@@ -166,7 +166,7 @@ if ( ! $do_list )
     # make the source files from the skeletons
     foreach $skeleton_key ( keys(%skeletons) )
     {
-	&make_file($skeleton_key, $skeletons{$skeleton_key}, \@subs );
+	&make_file($skeleton_key, $skeletons{$skeleton_key}, \@subs, \@magic_tokens, $author1, $author2 );
     }
 
     # Now define modification rule.
@@ -303,7 +303,7 @@ mkevhyp  h: H = Z1 + Z2
 mkevhyp  h:
 mkevhyp  h: optional input:
 mkevhyp  h:
-mkevhyp  h: none
+mkevhyp  h:   -author firstname lastname
 mkevhyp  h:
 mkevhyp  h: example:
 mkevhyp  h: mkevhyp MyEventHypothesis

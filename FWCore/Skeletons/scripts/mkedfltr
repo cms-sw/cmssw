@@ -96,7 +96,7 @@ if ( ! $do_list )
     # make the source files from the skeletons
     foreach $skeleton_key ( keys(%skeletons) )
     {
-	&make_file($skeleton_key, $skeletons{$skeleton_key}, \@subs );
+	&make_file($skeleton_key, $skeletons{$skeleton_key}, \@subs, \@magic_tokens, $author1, $author2 );
     }
 }
 else
@@ -187,7 +187,7 @@ mkedfltr  h: filtername = name of the filter
 mkedfltr  h:
 mkedfltr  h: optional input:
 mkedfltr  h:
-mkedfltr  h: none
+mkedfltr  h:   -author firstname lastname
 mkedfltr  h:
 mkedfltr  h: example:
 mkedfltr  h: mkedfltr MyFilter

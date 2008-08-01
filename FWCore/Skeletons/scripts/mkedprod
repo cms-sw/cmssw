@@ -2,18 +2,18 @@
 #
 # $Id $
 ###########################################################################
-#  simple little script to make event setup producer skeletons
+#  simple little script to make EDProducer skeletons
 # 
-#  execution:  mkesprod producername
+#  execution:  mkedprod producername
 # 
 #  output:  producername/
 #                         Buildfile
-#                         producername.cfg
+#                         producername_cfg.py
 #                         interface/
 #                         src/producername.cc
 #                         doc/
 #                         test/
-#                         data/poducername.cfi
+#                         python/producername_cfi.py
 #  required input:
 # 
 #  producername = name of the producer
@@ -23,15 +23,15 @@
 #  none
 # 
 #  example:
-#  mkedprod MyProducer 
+#  mkedprod MyProducer
 #        --> write  MyProducer/
 #                               Buildfile
-#                               myproducer.cfg 
+#                               myproducer_cfg.py
 #                               interface/
 #                               src/MyProducer.cc
 #                               doc/
 #                               test/
-#                               data/myproducer.cfi
+#                               python/myproducer_cfi.py
 #  
 #   the script tries to read in
 #   a filename .tmpl in users HOME directory which contains the following lines
@@ -82,10 +82,10 @@ $skeletons{"$skel_dir/EDProducer/edproducer.cc"} =
     "$name/src/" . $name . '.cc';
 $skeletons{"$skel_dir/EDProducer/BuildFile.temp"} =
     "$name/BuildFile";
-$skeletons{"$skel_dir/EDProducer/ConfFile.cfg"} =
-    "$name/" . lc($name) . '.cfg';
-$skeletons{"$skel_dir/EDProducer/CfiFile.cfi"} =
-    "$name/data/" . lc($name) . '.cfi';
+$skeletons{"$skel_dir/EDProducer/ConfFile_cfg.py"} =
+    "$name/" . lc($name) . '_cfg.py';
+$skeletons{"$skel_dir/EDProducer/CfiFile_cfi.py"} =
+    "$name/python/" . lc($name) . '_cfi.py';
 
 
 if ( ! $do_list )
@@ -106,7 +106,7 @@ if ( ! $do_list )
     # make the source files from the skeletons
     foreach $skeleton_key ( keys(%skeletons) )
     {
-	&make_file($skeleton_key, $skeletons{$skeleton_key}, \@subs, \@magic_tokens );
+	&make_file($skeleton_key, $skeletons{$skeleton_key}, \@subs, \@magic_tokens, $author1, $author2 );
     }
 }
 else
@@ -186,12 +186,12 @@ mkedprod  h: execution:  mkedprod producername
 mkedprod  h:
 mkedprod  h: output:  producername/
 mkedprod  h:                       BuildFile
-mkedprod  h:                       producername.cfg
+mkedprod  h:                       producername_cfg.py
 mkedprod  h:                       interface/
 mkedprod  h:                       src/producername.cc
 mkedprod  h:                       doc/
 mkedprod  h:                       test/
-mkedprod  h:                       data/poducername.cfi
+mkedprod  h:                       python/poducername_cfi.py
 mkedprod  h:
 mkedprod  h: required input:
 mkedprod  h:
@@ -199,18 +199,18 @@ mkedprod  h: producername = name of the producer
 mkedprod  h:
 mkedprod  h: optional input:
 mkedprod  h:
-mkedprod  h: none
+mkedprod  h:   -author firstname lastname
 mkedprod  h:
 mkedprod  h: example:
 mkedprod  h: mkedprod MyProducer
 mkedprod  h:       --> write  MyProducer/
 mkedprod  h:                              BuildFile
-mkedprod  h:                              myproducer.cfg 
+mkedprod  h:                              myproducer_cfg.py
 mkedprod  h:                              interface/
 mkedprod  h:                              src/MyProducer.cc
 mkedprod  h:                              doc/
 mkedprod  h:                              test/
-mkedprod  h:                              data/myproducer.cfi
+mkedprod  h:                              python/myproducer_cfi.py
 ENDHELP
 
     print "mkedprod  Q: Please enter producer name: ";

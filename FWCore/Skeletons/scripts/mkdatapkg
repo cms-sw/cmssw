@@ -99,7 +99,7 @@ if ( ! $do_list )
     # make the source files from the skeletons
     foreach $skeleton_key ( keys(%skeletons) )
     {
-	&make_file($skeleton_key, $skeletons{$skeleton_key}, \@subs );
+	&make_file($skeleton_key, $skeletons{$skeleton_key}, \@subs, \@magic_tokens, $author1, $author2 );
     }
 }
 else
@@ -190,7 +190,7 @@ mkdatapkg  h: packagename = name of the package
 mkdatapkg  h:
 mkdatapkg  h: optional input:
 mkdatapkg  h:
-mkdatapkg  h: none
+mkdatapkg  h:   -author firstname lastname
 mkdatapkg  h:
 mkdatapkg  h: example:
 mkdatapkg  h: mkdatapkg MyPackage

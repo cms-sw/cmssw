@@ -2,18 +2,18 @@
 #
 # $Id $
 ###########################################################################
-#  simple little script to make event setup analyzer skeletons
+#  simple little script to make EDAnalyzer skeletons
 # 
-#  execution:  mkesprod analyzername
+#  execution:  mkedanlzr analyzername
 # 
 #  output:  analyzername/
 #                         Buildfile
-#                         analyzername.cfg
+#                         analyzername_cfg.py
 #                         interface/
 #                         src/analyzername.cc
 #                         doc/
 #                         test/
-#                         data/analyzername.cfi
+#                         python/analyzername_cfi.py
 #  required input:
 # 
 #  analyzername = name of the analyzer
@@ -26,12 +26,12 @@
 #  mkedanlzr MyAnalyzer 
 #        --> write  MyAnalyzer/
 #                               Buildfile
-#                               myanalyzer.cfg
+#                               myanalyzer_cfg.py
 #                               interface/
 #                               src/MyAnalyzer.cc
 #                               doc/
 #                               test/
-#                               data/myanalyzer.cfi
+#                               python/myanalyzer_cfi.py
 #  
 #   the script tries to read in
 #   a filename .tmpl in users HOME directory which contains the following lines
@@ -82,10 +82,10 @@ $skeletons{"$skel_dir/EDAnalyzer/edanalyzer.cc"} =
     "$name/src/" . $name . '.cc';
 $skeletons{"$skel_dir/EDAnalyzer/BuildFile.temp"} =
     "$name/BuildFile";
-$skeletons{"$skel_dir/EDAnalyzer/ConfFile.cfg"} =
-        " $name/" . lc($name) . '.cfg';
-$skeletons{"$skel_dir/EDAnalyzer/CfiFile.cfi"} =
-        "$name/data/" . lc($name) . '.cfi';
+$skeletons{"$skel_dir/EDAnalyzer/ConfFile_cfg.py"} =
+        " $name/" . lc($name) . '_cfg.py';
+$skeletons{"$skel_dir/EDAnalyzer/CfiFile_cfi.py"} =
+        "$name/python/" . lc($name) . '_cfi.py';
 
 if ( ! $do_list )
 {
@@ -105,7 +105,7 @@ if ( ! $do_list )
     # make the source files from the skeletons
     foreach $skeleton_key ( keys(%skeletons) )
     {
-	&make_file($skeleton_key, $skeletons{$skeleton_key}, \@subs, \@magic_tokens );
+	&make_file($skeleton_key, $skeletons{$skeleton_key}, \@subs, \@magic_tokens, $author1, $author2 );
     }
 }
 else
@@ -189,12 +189,12 @@ mkedanlzr  h: execution:  mkedanlzr analyzername [options]
 mkedanlzr  h:
 mkedanlzr  h: output:  analyzername/
 mkedanlzr  h:                       BuildFile
-mkedanlzr  h:                       analyzername.cfg
+mkedanlzr  h:                       analyzername_cfg.py
 mkedanlzr  h:                       interface/
 mkedanlzr  h:                       src/analyzername.cc
 mkedanlzr  h:                       doc/
 mkedanlzr  h:                       test/
-mkedanlzr  h:                       data/analyzername.cfi
+mkedanlzr  h:                       python/analyzername_cfi.py
 mkedanlzr  h:
 mkedanlzr  h: required input:
 mkedanlzr  h:
@@ -206,16 +206,18 @@ mkedanlzr  h:   -<example type> = generate example code for a specific type
 mkedanlzr  h:                     of data
 mkedanlzr  h:   -list = list the example types currently known
 mkedanlzr  h:
+mkedanlzr  h:   -author firstname lastname
+mkedanlzr  h:
 mkedanlzr  h: example:
 mkedanlzr  h: mkedanlzr MyAnalyzer
 mkedanlzr  h:       --> write  MyAnalyzer/
 mkedanlzr  h:                              BuildFile
-mkedanlzr  h:                              myanalyzer.cfg
+mkedanlzr  h:                              myanalyzer_cfg.py
 mkedanlzr  h:                              interface/
 mkedanlzr  h:                              src/MyAnalyzer.cc
 mkedanlzr  h:                              doc/
 mkedanlzr  h:                              test/
-mkedanlzr  h:                              data/myanalyzer.cfi
+mkedanlzr  h:                              python/myanalyzer_cfi.py
 ENDHELP
 
     print "mkedanlzr  Q: Please enter analyzer name [<return> exits]: ";
