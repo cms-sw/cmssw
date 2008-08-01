@@ -33,7 +33,7 @@ using namespace std;
 //
 // Original Author:  Kyle Story, Freya Blekman (Cornell University)
 //         Created:  Fri Apr 18 11:58:33 CEST 2008
-// $Id$
+// $Id: SignCaloSpecificAlgo.cc,v 1.1 2008/04/18 10:12:55 fblekman Exp $
 //
 //
 reco::CaloMET SignCaloSpecificAlgo::addInfo(edm::Handle<edm::View<Candidate> > towers, CommonMETData met, const metsig::SignAlgoResolutions & resolutions, bool noHF, double globalThreshold)
@@ -72,6 +72,7 @@ reco::CaloMET SignCaloSpecificAlgo::addInfo(edm::Handle<edm::View<Candidate> > t
   double MExInmHF = 0.0;
   double MEyInmHF = 0.0;
 
+  //  std::cout << "number of towers = " << towers->size() << std::endl;
   if( towers->size() == 0 )  // if there are no towers, return specific = 0
     {
       cout << "[CaloMET] Number of Candidate CaloTowers is zero : Unable to calculate calo specific info. " << endl;
@@ -80,111 +81,111 @@ reco::CaloMET SignCaloSpecificAlgo::addInfo(edm::Handle<edm::View<Candidate> > t
       CaloMET specificmet( specific, met.sumet, p4, vtx );
       return specificmet;
     }
-  /*
   //retreive calo tower information from candidates
   //start with the first element of the candidate list
-  CandidateCollection::const_iterator tower = towers->begin();
-  //get the EDM references to the CaloTowers from the candidate list
-  edm::Ref<CaloTowerCollection> towerRef = tower->get<CaloTowerRef>();
-  */
-  edm::Ref<CaloTowerCollection> towerRef = towers->begin()->get<CaloTowerRef>();
-  //finally instantiate now, a list of pointers to the CaloTowers
-  const CaloTowerCollection *towerCollection = towerRef.product();
+
+  edm::View<Candidate>::const_iterator towerCand = towers->begin();
 
   // use this container to calculate the significance. SigInputObj are objects that contain both directional and uncertainty information and are used as input to the significance calculation
+
   std::vector<metsig::SigInputObj> signInputVec;
   
+  //  std::cout << "starting loop over towers..." << std::endl;
   //iterate over all CaloTowers and record information
-  CaloTowerCollection::const_iterator calotower = towerCollection->begin();
-  for( ; calotower != towerCollection->end(); calotower++ ) 
-    {
-      if(calotower->et()<globalThreshold)
-	continue;
-      totalEt  += calotower->et();
-      totalEm  += calotower->emEt();
-      totalHad += calotower->hadEt();
-      bool wasused=false;
-      double sign_tower_et = calotower->et();
-      double sign_tower_phi = calotower->phi();
-      double sign_tower_sigma_et = 0;
-      double sign_tower_sigma_phi = 0;
-      std::string sign_tower_type = "";
-    
-      bool hadIsDone = false;
-      bool emIsDone = false;
-      int cell = calotower->constituentsSize();
-      while ( --cell >= 0 && (!hadIsDone || !emIsDone) ) 
-	{
-	  
-	  DetId id = calotower->constituent( cell );
-	  if( !hadIsDone && id.det() == DetId::Hcal ) 
-	    {
-	      
-	      HcalSubdetector subdet = HcalDetId(id).subdet();
-	      if(subdet == HcalBarrel){
-		sign_tower_type = "hadcalotower";
-		sign_tower_et = calotower->hadEt();
-		sign_tower_sigma_et = resolutions.eval(metsig::caloHB,metsig::ET,calotower->hadEt(),calotower->phi(),calotower->eta());
-		sign_tower_sigma_phi = resolutions.eval(metsig::caloHB,metsig::PHI,calotower->hadEt(),calotower->phi(),calotower->eta());
+  for( ; towerCand != towers->end(); towerCand++ )  {
+    const Candidate *candidate = &(*towerCand);
+    if(candidate){
+      const CaloTower * calotower = dynamic_cast<const CaloTower*> (candidate);
+      if(calotower){
+	if(calotower->et()<globalThreshold)
+	  continue;
+	totalEt  += calotower->et();
+	totalEm  += calotower->emEt();
+	totalHad += calotower->hadEt();
+	bool wasused=false;
+	double sign_tower_et = calotower->et();
+	double sign_tower_phi = calotower->phi();
+	double sign_tower_sigma_et = 0;
+	double sign_tower_sigma_phi = 0;
+	std::string sign_tower_type = "";
+	
+	bool hadIsDone = false;
+	bool emIsDone = false;
+	int cell = calotower->constituentsSize();
+	while ( --cell >= 0 && (!hadIsDone || !emIsDone) ) 
+	  {
+	    
+	    DetId id = calotower->constituent( cell );
+	    if( !hadIsDone && id.det() == DetId::Hcal ) 
+	      {
+		
+		HcalSubdetector subdet = HcalDetId(id).subdet();
+		if(subdet == HcalBarrel){
+		  sign_tower_type = "hadcalotower";
+		  sign_tower_et = calotower->hadEt();
+		  sign_tower_sigma_et = resolutions.eval(metsig::caloHB,metsig::ET,calotower->hadEt(),calotower->phi(),calotower->eta());
+		  sign_tower_sigma_phi = resolutions.eval(metsig::caloHB,metsig::PHI,calotower->hadEt(),calotower->phi(),calotower->eta());
+		}
+		else if(subdet==HcalOuter){
+		  sign_tower_type = "hadcalotower";
+		  sign_tower_et = calotower->outerEt();
+		  sign_tower_sigma_et = resolutions.eval(metsig::caloHO,metsig::ET,calotower->outerEt(),calotower->phi(),calotower->eta());
+		  sign_tower_sigma_phi = resolutions.eval(metsig::caloHO,metsig::PHI,calotower->outerEt(),calotower->phi(),calotower->eta());
+		}
+		else if(subdet==HcalEndcap){
+		  sign_tower_type = "hadcalotower";
+		  sign_tower_et = calotower->hadEt();
+		  sign_tower_sigma_et = resolutions.eval(metsig::caloHE,metsig::ET,calotower->hadEt(),calotower->phi(),calotower->eta());
+		  sign_tower_sigma_phi = resolutions.eval(metsig::caloHE,metsig::PHI,calotower->hadEt(),calotower->phi(),calotower->eta());
+		}
+		else if(subdet == HcalForward){
+		  sign_tower_type = "hadcalotower";
+		  sign_tower_et = calotower->et();
+		  sign_tower_sigma_et = resolutions.eval(metsig::caloHF,metsig::ET,calotower->et(),calotower->phi(),calotower->eta());
+		  sign_tower_sigma_phi = resolutions.eval(metsig::caloHF,metsig::PHI,calotower->et(),calotower->phi(),calotower->eta());
+		}
+		else{
+		  std::cerr << " HCAL tower cell not assigned to an HCAL subdetector!!!" << std::endl;
+		}
+		// and book!
+		metsig::SigInputObj temp(sign_tower_type,sign_tower_et,sign_tower_phi,sign_tower_sigma_et,sign_tower_sigma_phi);
+		if(!noHF || subdet !=HcalForward)
+		  signInputVec.push_back(temp);
+		
+		wasused=1;
+		hadIsDone = true;
 	      }
-	      else if(subdet==HcalOuter){
-		sign_tower_type = "hadcalotower";
-		sign_tower_et = calotower->outerEt();
-		sign_tower_sigma_et = resolutions.eval(metsig::caloHO,metsig::ET,calotower->outerEt(),calotower->phi(),calotower->eta());
-		sign_tower_sigma_phi = resolutions.eval(metsig::caloHO,metsig::PHI,calotower->outerEt(),calotower->phi(),calotower->eta());
-	      }
-	      else if(subdet==HcalEndcap){
-		sign_tower_type = "hadcalotower";
-		sign_tower_et = calotower->hadEt();
-		sign_tower_sigma_et = resolutions.eval(metsig::caloHE,metsig::ET,calotower->hadEt(),calotower->phi(),calotower->eta());
-		sign_tower_sigma_phi = resolutions.eval(metsig::caloHE,metsig::PHI,calotower->hadEt(),calotower->phi(),calotower->eta());
-	      }
-	      else if(subdet == HcalForward){
-		sign_tower_type = "hadcalotower";
-		sign_tower_et = calotower->et();
-		sign_tower_sigma_et = resolutions.eval(metsig::caloHF,metsig::ET,calotower->et(),calotower->phi(),calotower->eta());
-		sign_tower_sigma_phi = resolutions.eval(metsig::caloHF,metsig::PHI,calotower->et(),calotower->phi(),calotower->eta());
-	      }
-	      else{
-		std::cerr << " HCAL tower cell not assigned to an HCAL subdetector!!!" << std::endl;
-	      }
-	      // and book!
-	      metsig::SigInputObj temp(sign_tower_type,sign_tower_et,sign_tower_phi,sign_tower_sigma_et,sign_tower_sigma_phi);
-	      if(!noHF || subdet !=HcalForward)
+	    else if( !emIsDone && id.det() == DetId::Ecal )
+	      {
+		EcalSubdetector subdet = EcalSubdetector( id.subdetId() );
+		
+		if(subdet == EcalBarrel){
+		  sign_tower_type = "emcalotower";
+		  sign_tower_et = calotower->emEt();
+		  sign_tower_sigma_et = resolutions.eval(metsig::caloEB,metsig::ET,calotower->emEt(),calotower->phi(),calotower->eta());
+		  sign_tower_sigma_phi = resolutions.eval(metsig::caloEB,metsig::PHI,calotower->emEt(),calotower->phi(),calotower->eta());
+		}
+		else if(subdet == EcalEndcap ){
+		  sign_tower_type = "emcalotower";
+		  sign_tower_et = calotower->emEt();
+		  sign_tower_sigma_et = resolutions.eval(metsig::caloEE,metsig::ET,calotower->emEt(),calotower->phi(),calotower->eta());
+		  sign_tower_sigma_phi = resolutions.eval(metsig::caloEE,metsig::PHI,calotower->emEt(),calotower->phi(),calotower->eta());
+		  
+		}
+		else{
+		  std::cerr << " ECAL tower cell not assigned to an ECAL subdetector!!!" << std::endl;
+		}
+		metsig::SigInputObj temp(sign_tower_type,sign_tower_et,sign_tower_phi,sign_tower_sigma_et,sign_tower_sigma_phi);
 		signInputVec.push_back(temp);
-
-	      wasused=1;
-	      hadIsDone = true;
-	    }
-	  else if( !emIsDone && id.det() == DetId::Ecal )
-	    {
-	      EcalSubdetector subdet = EcalSubdetector( id.subdetId() );
-
-	      if(subdet == EcalBarrel){
-		sign_tower_type = "emcalotower";
-		sign_tower_et = calotower->emEt();
-		sign_tower_sigma_et = resolutions.eval(metsig::caloEB,metsig::ET,calotower->emEt(),calotower->phi(),calotower->eta());
-		sign_tower_sigma_phi = resolutions.eval(metsig::caloEB,metsig::PHI,calotower->emEt(),calotower->phi(),calotower->eta());
+		wasused=1;
+		emIsDone = true;
 	      }
-	      else if(subdet == EcalEndcap ){
-		sign_tower_type = "emcalotower";
-		sign_tower_et = calotower->emEt();
-		sign_tower_sigma_et = resolutions.eval(metsig::caloEE,metsig::ET,calotower->emEt(),calotower->phi(),calotower->eta());
-		sign_tower_sigma_phi = resolutions.eval(metsig::caloEE,metsig::PHI,calotower->emEt(),calotower->phi(),calotower->eta());
-
-	      }
-	      else{
-		std::cerr << " ECAL tower cell not assigned to an ECAL subdetector!!!" << std::endl;
-	      }
-	      metsig::SigInputObj temp(sign_tower_type,sign_tower_et,sign_tower_phi,sign_tower_sigma_et,sign_tower_sigma_phi);
-	      signInputVec.push_back(temp);
-	      wasused=1;
-	      emIsDone = true;
-	    }
-	}
-      if(wasused==0)
-	std::cerr << "found non-assigned cell, " << std::endl;
+	  }
+	if(wasused==0)
+	  std::cerr << "found non-assigned cell, " << std::endl;
+      }
     }
+  }
 
   // now run the significance algorithm.
   

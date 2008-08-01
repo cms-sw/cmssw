@@ -14,12 +14,11 @@
 //
 // Original Author:  Kyle Story, Freya Blekman (Cornell University)
 //         Created:  Fri Apr 18 11:58:33 CEST 2008
-// $Id: SignAlgoResolutions.cc,v 1.2 2008/07/30 13:43:14 fblekman Exp $
+// $Id: SignAlgoResolutions.cc,v 1.3 2008/07/30 17:02:54 fblekman Exp $
 //
 //
 #include "FWCore/Framework/interface/EventSetup.h"
 #include <math.h>
-
 
 double metsig::SignAlgoResolutions::eval(const resolutionType & type, const resolutionFunc & func, const double & et, const double & phi, const double & eta) const {
 
@@ -43,10 +42,8 @@ void metsig::SignAlgoResolutions::addResolutions(const edm::ParameterSet &iConfi
   // ECAL, BARREL:
   std::vector<double> ebet = iConfig.getParameter<std::vector<double> >("EB_EtResPar");
   std::vector<double> ebphi = iConfig.getParameter<std::vector<double> >("EB_PhiResPar");
-  std::cout << ebet.size() << " " << ebphi.size() << std::endl;
-  for(int i=0; i<ebet.size(); i++)
-    std::cout << ebet[i] << " " ;
-  std::cout << ebphi[0] << std::endl;
+
+
   etparameters[0]=ebet[0];
   etparameters[1]=ebet[1];
   etparameters[2]=ebet[2];
@@ -56,10 +53,7 @@ void metsig::SignAlgoResolutions::addResolutions(const edm::ParameterSet &iConfi
  // ECAL, ENDCAP:
   std::vector<double> eeet = iConfig.getParameter<std::vector<double> >("EE_EtResPar");
   std::vector<double> eephi = iConfig.getParameter<std::vector<double> >("EE_PhiResPar");
-  std::cout << eeet.size() << " " << eephi.size() << std::endl;
-  for(int i=0; i<eeet.size(); i++)
-    std::cout << eeet[i] << " " ;
-  std::cout << eephi[0] << std::endl;
+
   etparameters[0]=eeet[0];
   etparameters[1]=eeet[1];
   etparameters[2]=eeet[2];
@@ -69,10 +63,7 @@ void metsig::SignAlgoResolutions::addResolutions(const edm::ParameterSet &iConfi
  // HCAL, BARREL:
   std::vector<double> hbet = iConfig.getParameter<std::vector<double> >("HB_EtResPar");
   std::vector<double> hbphi = iConfig.getParameter<std::vector<double> >("HB_PhiResPar");
-  std::cout << hbet.size() << " " << hbphi.size() << std::endl;
-  for(int i=0; i<hbet.size(); i++)
-    std::cout << hbet[i] << " " ;
-  std::cout << hbphi[0] << std::endl;
+
   etparameters[0]=hbet[0];
   etparameters[1]=hbet[1];
   etparameters[2]=hbet[2];
@@ -82,10 +73,7 @@ void metsig::SignAlgoResolutions::addResolutions(const edm::ParameterSet &iConfi
  // HCAL, ENDCAP:
   std::vector<double> heet = iConfig.getParameter<std::vector<double> >("HE_EtResPar");
   std::vector<double> hephi = iConfig.getParameter<std::vector<double> >("HE_PhiResPar");
-  std::cout << heet.size() << " " << hephi.size() << std::endl;
-  for(int i=0; i<heet.size(); i++)
-    std::cout << heet[i] << " " ;
-  std::cout << hephi[0] << std::endl;
+
   etparameters[0]=heet[0];
   etparameters[1]=heet[1];
   etparameters[2]=heet[2];
@@ -95,10 +83,8 @@ void metsig::SignAlgoResolutions::addResolutions(const edm::ParameterSet &iConfi
  // HCAL, Outer
   std::vector<double> hoet = iConfig.getParameter<std::vector<double> >("HO_EtResPar");
   std::vector<double> hophi = iConfig.getParameter<std::vector<double> >("HO_PhiResPar");
-  std::cout << hoet.size() << " " << hophi.size() << std::endl;
-  for(int i=0; i<hoet.size(); i++)
-    std::cout << hoet[i] << " " ;
-  std::cout << hophi[0] << std::endl;
+
+
   etparameters[0]=hoet[0];
   etparameters[1]=hoet[1];
   etparameters[2]=hoet[2];
@@ -108,17 +94,13 @@ void metsig::SignAlgoResolutions::addResolutions(const edm::ParameterSet &iConfi
  // HCAL, Forward
   std::vector<double> hfet = iConfig.getParameter<std::vector<double> >("HF_EtResPar");
   std::vector<double> hfphi = iConfig.getParameter<std::vector<double> >("HF_PhiResPar");
-  std::cout << hfet.size() << " " << hfphi.size() << std::endl;
-  for(int i=0; i<hfet.size(); i++)
-    std::cout << hfet[i] << " " ;
-  std::cout << hfphi[0] << std::endl;
+
   etparameters[0]=hfet[0];
   etparameters[1]=hfet[1];
   etparameters[2]=hfet[2];
   phiparameters[0]=hfphi[0];
   addfunction(caloHF,ET,etparameters);
   addfunction(caloHF,PHI,phiparameters);
-
   return;
 }
 
@@ -149,7 +131,7 @@ double metsig::SignAlgoResolutions::getfunc(const metsig::resolutionType & type,
   else if(func==metsig::PHI)
     result = PhiFunction(x,values);
   
-  std::cout << "returning function " << type << " " << func << " " << result << " " << x[0] << std::endl; 
+  //  std::cout << "returning function " << type << " " << func << " " << result << " " << x[0] << std::endl; 
 
   return result;
 }
