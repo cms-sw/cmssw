@@ -10,7 +10,7 @@
 
      See CMS EventFilter wiki page for further notes.
 
-   $Id: StorageManager.h,v 1.35 2008/06/25 18:03:22 biery Exp $
+   $Id: StorageManager.h,v 1.36 2008/07/31 20:30:28 biery Exp $
 */
 
 #include <string>
@@ -103,12 +103,17 @@ namespace stor {
 
     void checkDirectoryOK(const std::string dir) const;
 
+    typedef std::vector<boost::shared_ptr<SMFUSenderStats> >
+      RBSS_Vector;
+
     void defaultWebPage
       (xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception);
     void css(xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception)
       {css_.css(in,out);}
     void rbsenderWebPage
       (xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception);
+    void rbsenderDetailWebPage
+      ( xgi::Input *in, xgi::Output *out ) throw (xgi::exception::Exception);
     void streamerOutputWebPage
       (xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception);
     void eventdataWebPage
