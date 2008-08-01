@@ -49,7 +49,8 @@ namespace cond {
   std::string
   PayLoadInspector<Pedestals>::dump() const {
     Printer p;
-    std::for_each(object->m_pedestals.begin(),object->m_pedestals.end(),boost::bind(&Printer::doit,boost::ref(p),_1));
+    std::for_each(object->m_pedestals.begin(),
+		  object->m_pedestals.end(),boost::bind(&Printer::doit,boost::ref(p),_1));
     p.ss << std::endl;
     return p.ss.str();
   }

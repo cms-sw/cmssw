@@ -43,6 +43,7 @@ namespace cond {
     std::vector<float> const & values() const { return m_values;}
   protected:
     void add(float v) { m_values.push_back(v); }
+    void swap(std::vector<float> & v) {m_values.swap(v);}
   private:
     void reset() { m_values.clear();}
     virtual void compute(Class const &){}

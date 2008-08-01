@@ -9,6 +9,9 @@
 #include <iterator>
 #include <boost/ref.hpp>
 #include <boost/bind.hpp>
+#include <boost/function.hpp>
+#include <boost/iterator/transform_iterator.hpp>
+
 #include <fstream>
 
 namespace {
@@ -25,9 +28,33 @@ namespace {
 namespace cond {
 
   namespace ecalped {
-    enum Quantity { mean_x12, mean_x6, mean_x3 };
+    enum Quantity { mean_x12=1, mean_x6=2, mean_x3=3 };
     enum How { singleChannel, bySuperModule, all};
 
+
+    float average(EcalPedestals const & peds, Quantity q) {
+      return std::accumulate(
+			     boost::make_transform_iterator(peds.barrelItems().begin(),bind(&EcalPedestal::mean,_1,q)),
+			     boost::make_transform_iterator(peds.barrelItems().end(),bind(&EcalPedestal::mean,_1,q)),
+			     0.)/float(peds.barrelItems().size());
+    }
+
+    void extractAverage(EcalPedestals const & peds, Quantity q, std::vector<int> const &,  std::vector<float> & result) {
+      result.resize(1);
+      result[0] = average(peds,q);
+    }
+    
+    void extractSuperModules(EcalPedestals const & peds, Quantity q, std::vector<int> const & which,  std::vector<float> & result) {
+      // bho...
+    }
+
+    void extractSingleChannel(EcalPedestals const & peds, Quantity q, std::vector<int> const & which,  std::vector<float> & result) {
+      for (int i=0; i<which.size();i++) {
+	// absolutely arbitraty
+	if (which[i]<  peds.barrelItems().size())
+	  result.push_back( peds.barrelItems()[which[i]].mean(q));
+
+	typedef boost::function<void(EcalPedestals const & peds, Quantity q, std::vector<int> const & which,  std::vector<float> & result)> PedExtractor;
   }
 
   template<>
@@ -48,25 +75,34 @@ namespace cond {
   class ValueExtractor<EcalPedestals>: public  BaseValueExtractor<EcalPedestals> {
   public:
 
+    static ecalped::PedExtractor & extractor(ecalped::How how) {
+      static  ecalped::PedExtractor fun[3] = { 
+	ecalped::PedExtractor(ecalped::extractSingleChannel),
+	ecalped::PedExtractor(ecalped::extractSuperModules),
+	ecalped::PedExtractor(ecalped::extractAverage)
+      };
+      return fun[how];
+    }
+
     typedef EcalPedestals Class;
     typedef ExtractWhat<Class> What;
     static What what() { return What();}
 
     ValueExtractor(){}
     ValueExtractor(What const & what, std::vector<int> const& which)
-      : m_which(which)
+      : m_what(what), m_which(which)
     {
       // here one can make stuff really complicated... (select mean rms, 12,6,1)
       // ask to make average on selected channels...
     }
     void compute(Class const & it){
-      for (int i=0; i<m_which.size();i++) {
-	// absolutely arbitraty
-	if (m_which[i]<  it.barrelItems().size())
-	  add( it.barrelItems()[m_which[i]].mean_x12);
+      std::vector<float> res;
+      extractor(m_what.how())(it,m_what.quantity(),m_which,res);
+      swap(res);
       }
     }
   private:
+    What  m_what;
     std::vector<int> m_which;
   };
 
