@@ -10,23 +10,30 @@
  */
 
 
-
-// Identify the ancestry of the b Quark
-// Mother               Origin
-// ======               =======
-// incoming quarks      ISR, likely gluon splitting
-//   light flavor
-// incoming quarks      ISR, likely flavor excitation
-//   heavy flavor           
-// outgoing quark       FSR
-//   light flavor
-// outgoing quark       Matrix Element b       
-//   heavy flavor
-//     no mother
-// outgoing quark       Resonance b (e.g. top quark decay)
-//   heavy flavor
-//     mother
-// outgoing resonance   Resonance b (e.g. Higgs decay)
+// -------------------------------------------------------------
+// Identify the ancestry of the Quark
+// 
+// 
+// Matrix Element:
+//    Status 3 parent with precisely 2 "grandparents" that
+//    is outside of the "initial" section (0-5) that has the
+//    same ID as the status 2 parton in question. 
+//    NOTE: This is not the actual ultimate progenitor,
+//    but this is the signature of matrix element decays.
+//    The ultimate progenitor is the parent of the status 3
+//    parton.
+//
+// Flavor excitation:
+//    Almost the same as the matrix element classification,
+//    but has only one outgoing parton product instead of two.
+//
+// Gluon splitting:
+//    Parent is a quark of a different flavor than the parton
+//    in question, or a gluon. Can come from either ISR or FSR.
+//
+// True decay:
+//    Decays from a resonance like top, Higgs, etc.
+// -------------------------------------------------------------
 
 
 #include "DataFormats/Common/interface/Ptr.h"
@@ -42,12 +49,12 @@ namespace reco {
 class FlavorHistory {
 public:
 
-  enum FLAVOR_T { FLAVOR_NULL=0,
-		  FLAVOR_GS,
-		  FLAVOR_EXC,
-		  FLAVOR_ME,
-		  FLAVOR_DECAY,
-		  N_FLAVOR_TYPES };
+  enum FLAVOR_T { FLAVOR_NULL=0,   // No flavor, unset
+		  FLAVOR_GS,       // gluon splitting
+		  FLAVOR_EXC,      // flavor excitation
+		  FLAVOR_ME,       // matrix element
+		  FLAVOR_DECAY,    // flavor decay
+		  N_FLAVOR_TYPES };// total number
 
   static const int  gluonId=21;
   static const int  tQuarkId=6;
