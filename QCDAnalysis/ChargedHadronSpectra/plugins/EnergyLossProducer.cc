@@ -9,7 +9,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
-#include "RecoPixelVertexing/PixelLowPtUtilities/interface/EnergyLossPlain.h"
+#include "QCDAnalysis/ChargedHadronSpectra/interface/EnergyLossPlain.h"
 
 #include "DataFormats/TrackReco/interface/TrackDeDxHits.h"
 #include "DataFormats/TrackReco/interface/TrackDeDxEstimate.h"

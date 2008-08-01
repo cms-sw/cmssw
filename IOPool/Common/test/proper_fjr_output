@@ -14,7 +14,15 @@
 </Branches>
 <InputSourceClass>PoolSource</InputSourceClass>
 <EventsRead>10</EventsRead>
+<LumiSections>
+<LumiSection>
+<LumiSectionNumber Value="1"/>
+<RunNumber Value="100"/>
+</LumiSection>
+
+</LumiSections>
 </InputFile>
+
 <InputFile>
 <State  Value="closed"/>
 <LFN></LFN>
@@ -29,7 +37,15 @@
 </Branches>
 <InputSourceClass>PoolSource</InputSourceClass>
 <EventsRead>15</EventsRead>
+<LumiSections>
+<LumiSection>
+<LumiSectionNumber Value="1"/>
+<RunNumber Value="200"/>
+</LumiSection>
+
+</LumiSections>
 </InputFile>
+
 <File>
 <State  Value="closed"/>
 <LFN></LFN>

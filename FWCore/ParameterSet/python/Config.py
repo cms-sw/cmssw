@@ -195,6 +195,9 @@ class Process(object):
         if not self._okToPlace(name, value, self.__dict__):
             #print "WARNING: trying to override definition of process."+name
             return
+        # remove the old object of the name (if there is one) 
+        if hasattr(self,name) and not (getattr(self,name)==newValue):
+            self.__delattr__(name)
         self.__dict__[name]=newValue
         if isinstance(newValue,_Labelable):
             newValue.setLabel(name)
@@ -204,8 +207,25 @@ class Process(object):
         newValue._place(name,self)
         
     def __delattr__(self,name):
-        pass
-
+        if not hasattr(self,name):
+            raise KeyError('process does not know about '+name)
+        elif name.startswith('_Process__'):
+            raise ValueError('this attribute cannot be deleted')
+        else: 
+            # we have to remove it from all dictionaries/registries   
+            dicts = [item for item in self.__dict__.values() if (type(item)==dict or type(item)==DictTypes.SortedKeysDict)]
+            for reg in dicts:
+                if reg.has_key(name): del reg[name]
+            # if it was a labelable object, the label needs to be removed
+            obj = getattr(self,name)
+            if isinstance(obj,_Labelable):
+                getattr(self,name).setLabel(None)
+            # now remove it from the process itself
+            try:
+                del self.__dict__[name]    
+            except:
+                pass
+            
     def add_(self,value):
         """Allows addition of components which do not have to have a label, e.g. Services"""
         if not isinstance(value,_ConfigureComponent):
@@ -319,7 +339,7 @@ class Process(object):
                 self.__setattr__(name,item)
                 labelled[name]=item
                 try:
-                    item.label()
+                    item.label_()
                 except:
                     item.setLabel(name)
                 continue
@@ -410,7 +430,7 @@ class Process(object):
         for name,item in self.vpsets.iteritems():
             config +=options.indentation()+'VPSet '+name+' = '+item.configValue(options)
         if self.schedule:
-            pathNames = [p.label() for p in self.schedule]
+            pathNames = [p.label_() for p in self.schedule]
             config +=options.indentation()+'schedule = {'+','.join(pathNames)+'}\n'
             
 #        config+=self._dumpConfigNamedList(self.vpsets.iteritems(),
@@ -493,10 +513,24 @@ class Process(object):
         result+=self._dumpPythonList(self.psets, options)
         result+=self._dumpPythonList(self.vpsets, options)
         if self.schedule:
-            pathNames = ['process.'+p.label() for p in self.schedule]
+            pathNames = ['process.'+p.label_() for p in self.schedule]
             result +='process.schedule = cms.Schedule('+','.join(pathNames)+')\n'
         return result
 
+    def globalReplace(self,label,new):
+        """ Replace the item with label 'label' by object 'new' in the process and all sequences/paths"""
+        if not hasattr(self,label):
+            raise LookupError("process has no item of label "+label)
+        old = getattr(self,label)
+        #TODO - replace by iterator concatenation
+        for sequenceable in self.sequences.itervalues():
+            sequenceable.replace(old,new)
+        for sequenceable in self.paths.itervalues():
+            sequenceable.replace(old,new)
+        for sequenceable in self.endpaths.itervalues():
+            sequenceable.replace(old,new)
+                
+        setattr(self,label,new)    
     def _insertInto(self, parameterSet, itemDict):
         for name,value in itemDict.iteritems():
             value.insertInto(parameterSet, name)
@@ -533,7 +567,7 @@ class Process(object):
                 endpaths.append(name)
         else:
             for path in self.schedule_():
-               pathname = path.label()
+               pathname = path.label_()
                scheduledPaths.append(pathname)
                if self.endpaths_().has_key(pathname):
                    endpaths.append(pathname)
@@ -552,6 +586,9 @@ class Process(object):
         for endpathname in endpaths:
             #self.endpaths_()[endpathname].insertInto(processPSet, endpathname, self.sequences_())
             self.endpaths_()[endpathname].insertInto(processPSet, endpathname, self.__dict__)
+        # all the placeholders should be resolved now, so...
+        #if self.schedule_() != None:
+        #    self.schedule_().enforceDependencies()
         
     def fillProcessDesc(self, processDesc, processPSet):
         processPSet.addString(True, "@process_name", self.name_())
@@ -808,6 +845,16 @@ process.schedule = cms.Schedule(process.p2,process.p)
             p.a = SecSource("MySecSource")
             self.assertEqual(p.dumpConfig(),"process test = {\n    secsource a = MySecSource { \n    }\n}\n")
 
+        def testGlobalReplace(self):
+            p = Process('test')
+            p.a = EDAnalyzer("MyAnalyzer")
+            p.b = EDAnalyzer("YourAnalyzer")
+            p.c = EDAnalyzer("OurAnalyzer")
+            p.s = Sequence(p.a*p.b)
+            p.p = Path(p.c+p.s+p.a)
+            new = EDAnalyzer("NewAnalyzer")
+            p.globalReplace("a",new)
+                                                                                                                        
         def testSequence(self):
             p = Process('test')
             p.a = EDAnalyzer("MyAnalyzer")
@@ -815,7 +862,7 @@ process.schedule = cms.Schedule(process.p2,process.p)
             p.c = EDAnalyzer("OurAnalyzer")
             p.s = Sequence(p.a*p.b)
             self.assertEqual(str(p.s),'a*b')
-            self.assertEqual(p.s.label(),'s')
+            self.assertEqual(p.s.label_(),'s')
             path = Path(p.c+p.s)
             self.assertEqual(str(path),'c+a*b')
 

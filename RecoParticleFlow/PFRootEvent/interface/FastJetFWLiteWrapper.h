@@ -46,11 +46,11 @@ class FastJetFWLiteWrapper
 {  
  public:
   FastJetFWLiteWrapper();
- ~FastJetFWLiteWrapper();
-   void run(const JetReco::InputCollection& fInput, JetReco::OutputCollection* fOutput);
+  ~FastJetFWLiteWrapper();
+  void run(const JetReco::InputCollection& fInput, JetReco::OutputCollection* fOutput);
 
 
-private:         
+ private:         
  
 
   int theMode_;

@@ -26,7 +26,7 @@ sprawdzic konwencje znaku mionu !!!!! (takze w L1RpcMuon0)
 #include "L1Trigger/RPCTrigger/interface/TPatternsGroup.h"
 #include "L1Trigger/RPCTrigger/interface/TEPatternsGroup.h"
 #include "L1Trigger/RPCTrigger/interface/TTPatternsGroup.h"
-
+#include "CondFormats/RPCObjects/interface/L1RPCConfig.h"
 //------------------------------------------------------------------------------
 
 //class RPCPacData: public RPCPacBase {
@@ -38,6 +38,8 @@ public:
   RPCPacData(std::string patFilesDir, int m_tower, int logSector, int logSegment);
    
   RPCPacData(const RPCPattern::RPCPatVec &patVec, const RPCPattern::TQualityVec &qualVec);
+
+  RPCPacData(const L1RPCConfig * patConf, const int tower, const int sector, const int segment);
   
   void init(const RPCPatternsParser& parser, const RPCConst::l1RpcConeCrdnts& coneCrdnts);
 
@@ -101,7 +103,7 @@ private:
   /** Adds pattern to m_TrackPatternsGroup or appropriate group
     * from m_EnergeticPatternsGroupList. If the appropriate TEPatternsGroup does
     * not exist, it is created.*/
-  void insertPatterns(const RPCPattern::RPCPatVec &pattern);
+  void insertPatterns(const RPCPattern::RPCPatVec &pattern, const int tower = 99, const int sector = 99, const int segment = 99 );
 
   /** Runs the "baselie" m_PAC algorithm. Compares the hits from cone with patterns
    * from m_TrackPatternsGroup. If many patterns fist to the hits (like usual),

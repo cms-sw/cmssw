@@ -36,7 +36,13 @@ public:
 			PFToolsException&) {
 		return getCalibrationCoefficientsCore();
 	}
-	
+	;
+
+//	DetectorElementPtr getOffsetElement() {
+//		return getOffsetElementCore();
+//	}
+//	;
+
 	/* 
 	 * Here we use the virtual constructor idea to allow for plug-and-play Calibrators
 	 * See http://www.parashift.com/c++-faq-lite/virtual-functions.html#faq-20.8
@@ -52,12 +58,17 @@ public:
 		return myParticleDeposits;
 	}
 
-
+	//	virtual void setDetectorElements(const std::vector<DetectorElement*> elements) {
+	//		myDetectorElements = elements;
+	//	}
 
 protected:
 	virtual std::map<DetectorElementPtr, double>
 			getCalibrationCoefficientsCore() throw(PFToolsException&);
 
+	//virtual DetectorElementPtr getOffsetElementCore();
+
+	//static DetectorElement* offsetElement;
 	std::vector<DetectorElementPtr> myDetectorElements;
 	std::vector<ParticleDepositPtr> myParticleDeposits;
 };

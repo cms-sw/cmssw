@@ -42,12 +42,12 @@ DialogFrame::DialogFrame(PFRootEventManager *evman,DisplayManager *dm,const TGWi
 //__________________________________________________________________________________________________
 void DialogFrame::closeCanvasAttr()
 {
- if (gROOT->GetListOfCanvases()->FindObject("graphic Attributes")) 
+  if (gROOT->GetListOfCanvases()->FindObject("graphic Attributes")) 
     attrView_->Close();
- attrView_=0;
- thisClusPattern_=0;
- trackPattern_=0;
- simplePartPattern_=0;
+  attrView_=0;
+  thisClusPattern_=0;
+  trackPattern_=0;
+  simplePartPattern_=0;
 }
 //__________________________________________________________________________________________________
 void DialogFrame::createCanvasAttr()
@@ -55,37 +55,37 @@ void DialogFrame::createCanvasAttr()
   //creates an attributes canvas which enable modifications
   //of cluster and track graphic attributes 
   
- closeCanvasAttr(); 
- attrView_=0;
- attrView_ = new TCanvas("graphic Attributes","graphic Attributes",180,300);
- char *action1="win->DialogFrame::modifyAttr()";
- char *action2="win->DialogFrame::closeCanvasAttr()";
- TButton *accept_ = new TButton("modify",action1,0.1,0.2,0.5,0.3);
- TButton *cancel_ = new TButton("cancel",action2,0.54,0.2,0.9,0.3);
- double x[3];
- double y[3];
- x[0]=0.1;x[1]=0.3;x[2]=0.5;
- y[0]=0.6;y[1]=0.6;y[2]=0.6;
- thisClusPattern_= new TMarker(0.3,0.8,display_->clusPattern_->GetMarkerStyle());
- thisClusPattern_->SetMarkerColor(display_->clusPattern_->GetMarkerColor());
- thisClusPattern_->SetMarkerSize(display_->clusPattern_->GetMarkerSize());
- thisClusPattern_->Draw();
- TText * tt=new TText(0.6,0.78,"clusters");
- tt->SetTextSize(.08);
- tt->Draw();
- trackPattern_= new TGraph(3,x,y);
- trackPattern_->SetLineColor(display_->trackPatternL_->GetLineColor());
- trackPattern_->SetMarkerColor(display_->trackPatternM_->GetMarkerColor());
- trackPattern_->SetMarkerStyle(display_->trackPatternM_->GetMarkerStyle());
- trackPattern_->SetMarkerSize(display_->trackPatternM_->GetMarkerSize());
- trackPattern_->Draw("pl");
- TText *tt2= new TText(0.6,0.58,"recTracks");
- tt2->SetTextSize(.08);
- tt2->Draw();
+  closeCanvasAttr(); 
+  attrView_=0;
+  attrView_ = new TCanvas("graphic Attributes","graphic Attributes",180,300);
+  char *action1="win->DialogFrame::modifyAttr()";
+  char *action2="win->DialogFrame::closeCanvasAttr()";
+  TButton *accept_ = new TButton("modify",action1,0.1,0.2,0.5,0.3);
+  TButton *cancel_ = new TButton("cancel",action2,0.54,0.2,0.9,0.3);
+  double x[3];
+  double y[3];
+  x[0]=0.1;x[1]=0.3;x[2]=0.5;
+  y[0]=0.6;y[1]=0.6;y[2]=0.6;
+  thisClusPattern_= new TMarker(0.3,0.8,display_->clusPattern_->GetMarkerStyle());
+  thisClusPattern_->SetMarkerColor(display_->clusPattern_->GetMarkerColor());
+  thisClusPattern_->SetMarkerSize(display_->clusPattern_->GetMarkerSize());
+  thisClusPattern_->Draw();
+  TText * tt=new TText(0.6,0.78,"clusters");
+  tt->SetTextSize(.08);
+  tt->Draw();
+  trackPattern_= new TGraph(3,x,y);
+  trackPattern_->SetLineColor(display_->trackPatternL_->GetLineColor());
+  trackPattern_->SetMarkerColor(display_->trackPatternM_->GetMarkerColor());
+  trackPattern_->SetMarkerStyle(display_->trackPatternM_->GetMarkerStyle());
+  trackPattern_->SetMarkerSize(display_->trackPatternM_->GetMarkerSize());
+  trackPattern_->Draw("pl");
+  TText *tt2= new TText(0.6,0.58,"recTracks");
+  tt2->SetTextSize(.08);
+  tt2->Draw();
  
- accept_->Draw();
- cancel_->Draw();
- attrView_->Update();
+  accept_->Draw();
+  cancel_->Draw();
+  attrView_->Update();
 }
 //__________________________________________________________________________________________________
 void DialogFrame::createCmdFrame() 
@@ -237,13 +237,13 @@ void DialogFrame::createCmdFrame()
   
   viewGroup->AddFrame(lookFor,lo1);
   viewGroup->AddFrame(genPartNb,lo1),
-  viewGroup->AddFrame(particleTypeEntry_,lo1);
+    viewGroup->AddFrame(particleTypeEntry_,lo1);
   viewGroup->AddFrame(unZoomButton,lo1);
   viewGroup->AddFrame(lab1,lo1);
   viewGroup->AddFrame(lab2,lo1);
   viewGroup->AddFrame(newAttrBis,lo1); 
   
-//
+  //
   optionFrame->AddFrame(h2,lo);
   optionFrame->AddFrame(viewGroup,lo1);
   h1Frame1->AddFrame(optionFrame,lo);
@@ -267,10 +267,10 @@ void DialogFrame::createCmdFrame()
   reProcessButton->Connect("Clicked()","DialogFrame",this,"doReProcessEvent()");
   h1->AddFrame(reProcessButton,new TGLayoutHints(kLHintsBottom|kLHintsCenterX,2,2,2,2));
   
-//Modifie Graphic attributes in option file
-//  TGTextButton *newAttr = new TGTextButton(h1,"new GAttr");
-//  newAttr->Connect("Clicked()","DialogFrame",this,"modifyGraphicAttributes()");
-//  h1->AddFrame(newAttr,new TGLayoutHints(kLHintsBottom|kLHintsCenterX,2,2,2,2));
+  //Modifie Graphic attributes in option file
+  //  TGTextButton *newAttr = new TGTextButton(h1,"new GAttr");
+  //  newAttr->Connect("Clicked()","DialogFrame",this,"modifyGraphicAttributes()");
+  //  h1->AddFrame(newAttr,new TGLayoutHints(kLHintsBottom|kLHintsCenterX,2,2,2,2));
 
     
   exitButton = new TGTextButton(h1,"&Exit","gApplication->Terminate(0)");
@@ -286,8 +286,8 @@ void DialogFrame::CloseWindow()
 //_________________________________________________________________________________
 void DialogFrame::doLookForGenParticle()
 {
- int num = particleTypeEntry_->GetIntNumber();
- display_->lookForGenParticle((unsigned)num);
+  int num = particleTypeEntry_->GetIntNumber();
+  display_->lookForGenParticle((unsigned)num);
 }
 
 //_________________________________________________________________________________
@@ -415,13 +415,13 @@ void DialogFrame::unZoom()
 }
 //________________________________________________________________________________
 /*void DialogFrame::modifyGraphicAttributes()
-{
- // readOption avec nom du fichier apres valeurs changees a la main
- std::cout <<"do it yourself in the root input window"<<std::endl;
- std::cout <<"Edit your option file "<<std::endl;
- std::cout <<"modify the clusAttributes, trackAttributes or simpleTrackAttributes "<<std::endl;
- std::cout <<"type :dm->readOptions(opt.c_str();"<<std::endl;
-} 
+  {
+  // readOption avec nom du fichier apres valeurs changees a la main
+  std::cout <<"do it yourself in the root input window"<<std::endl;
+  std::cout <<"Edit your option file "<<std::endl;
+  std::cout <<"modify the clusAttributes, trackAttributes or simpleTrackAttributes "<<std::endl;
+  std::cout <<"type :dm->readOptions(opt.c_str();"<<std::endl;
+  } 
 */
 //______________________________________________________________________________________
 void DialogFrame::modifyAttr()
@@ -454,12 +454,12 @@ Bool_t DialogFrame::ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2)
         }
       case MAXL:  // print genPart max lines
         evMan_->printGenParticles_ = true;
-	printButton_[6]->SetState(kButtonDown);
+        printButton_[6]->SetState(kButtonDown);
         doPrintGenParticles();
-	break;
+        break;
       case PARTTYPE:
-        doLookForGenParticle();	
-       	break;
+        doLookForGenParticle(); 
+        break;
       default:break;
       }
       break;

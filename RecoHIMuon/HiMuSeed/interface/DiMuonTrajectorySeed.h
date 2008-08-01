@@ -4,25 +4,30 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
-#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
+
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include <vector>
-namespace cms
-{
+
 class DiMuonTrajectorySeed : public TrajectorySeed {
 
 public:
 
 // construct
-
-  DiMuonTrajectorySeed( const TrajectoryMeasurement& mtm0, const FreeTrajectoryState& ftsmuon, int aMult=1 ); 
+  DiMuonTrajectorySeed( const TrajectoryMeasurement& mtm0, const FreeTrajectoryState& ftsmuon, int aMult=1 ): 
+                        theFtsMuon(ftsmuon),
+		        thePropagationDirection(oppositeToMomentum),
+		        theLowMult(aMult)
+		                                                   {
+								   theTrajMeasurements.push_back(mtm0);
+//								   theRecHits.push_back(*(mtm0.recHit()->hit()));
+								   } 
 
 // access
 
   std::vector<TrajectoryMeasurement> measurements() const {return theTrajMeasurements;};
   
-  FreeTrajectoryState& getMuon() {return theFtsMuon;}
+  FreeTrajectoryState getMuon() {return theFtsMuon;};
   
   int getMult(){return theLowMult;};
   
@@ -32,12 +37,12 @@ public:
       
  private:
  std::vector<TrajectoryMeasurement> theTrajMeasurements;
- edm::OwnVector<TrackingRecHit>     theRecHits;
- FreeTrajectoryState                theFtsMuon;
- PropagationDirection               thePropagationDirection;
- int                                theLowMult;
+ edm::OwnVector<TrackingRecHit> theRecHits;
+ FreeTrajectoryState theFtsMuon;
+ PropagationDirection thePropagationDirection;
+ int                 theLowMult;
 };
-}
+
 #endif // Tracker_TrajectorySeed_H
 
 

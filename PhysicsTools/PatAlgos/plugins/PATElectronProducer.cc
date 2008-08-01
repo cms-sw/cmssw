@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.cc,v 1.11 2008/07/08 21:24:50 gpetrucc Exp $
+// $Id: PATElectronProducer.cc,v 1.12 2008/07/10 12:21:18 fronga Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATElectronProducer.h"
@@ -7,7 +7,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
-#include "PhysicsTools/Utilities/interface/DeltaR.h"
 #include "DataFormats/Common/interface/Association.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"

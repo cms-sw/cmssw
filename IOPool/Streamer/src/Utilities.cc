@@ -86,7 +86,7 @@ namespace edm
 			ProductRegistry const& reg)
   {
     bool rc = true;
-    SendDescs::const_iterator i(sd.descs_.begin()),e(sd.descs_.end());
+    SendDescs::const_iterator i(sd.descs().begin()),e(sd.descs().end());
 
     // the next line seems to be not good.  what if the productdesc is
     // already there? it looks like I replace it.  maybe that it correct
@@ -121,7 +121,7 @@ namespace edm
 			SendJobHeader const& ref)
   {
     bool rc = true;
-    SendDescs::const_iterator i(sd.descs_.begin()),e(sd.descs_.end());
+    SendDescs::const_iterator i(sd.descs().begin()),e(sd.descs().end());
 
     FDEBUG(6) << "registryIsSubset: Product List: " << std::endl;
     for(;i != e; ++i) {
@@ -132,7 +132,7 @@ namespace edm
 	BranchKey key(*i);
         // look for matching in ref
 	FDEBUG(9) << "Looking for " << i->className() << "\n";
-        SendDescs::const_iterator iref(ref.descs_.begin()),eref(ref.descs_.end());
+        SendDescs::const_iterator iref(ref.descs().begin()),eref(ref.descs().end());
         bool found = false;
         for(; iref != eref; ++iref) {
 	  FDEBUG(9) << "testing against " << iref->className() << "\n";
@@ -215,7 +215,7 @@ namespace edm
       }
 
     std::auto_ptr<SendJobHeader> p = readHeaderFromStream(ist);
-    StreamerInputSource::mergeIntoRegistry(p->descs_,pr);
+    StreamerInputSource::mergeIntoRegistry(p->descs(), pr);
     return pr;
   }
 

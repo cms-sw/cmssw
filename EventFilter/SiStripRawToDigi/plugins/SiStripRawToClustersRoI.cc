@@ -6,8 +6,8 @@ using namespace std;
 using namespace sistrip;
 
 SiStripRawToClustersRoI::SiStripRawToClustersRoI(const edm::ParameterSet& conf) :
-
-  cabling_(),
+  cabling_(0),
+  cacheId_(0),
   allregions_(),
   nlayers_(conf.getUntrackedParameter<int>("Layers",-1)),
   global_(conf.getUntrackedParameter<bool>("Global",true)),
@@ -37,26 +37,20 @@ SiStripRawToClustersRoI::SiStripRawToClustersRoI(const edm::ParameterSet& conf) 
 SiStripRawToClustersRoI::~SiStripRawToClustersRoI() {}
 
 void SiStripRawToClustersRoI::beginJob(const edm::EventSetup& setup) {
-
-  setup.get<SiStripRegionCablingRcd>().get(cabling_);
-  allregions_.reserve(cabling_->getRegionCabling().size());
-  for (uint32_t iregion=0;iregion<cabling_->getRegionCabling().size();iregion++) {
-    for (uint32_t isubdet=0;isubdet<cabling_->getRegionCabling()[iregion].size();isubdet++) {  
-      for (uint32_t ilayer=0;ilayer<cabling_->getRegionCabling()[iregion][isubdet].size();ilayer++) {
-	uint32_t index = SiStripRegionCabling::elementIndex(iregion,static_cast<SubDet>(isubdet),ilayer);
-	allregions_.push_back(index);
-      }
-    }
-  }
+  updateCabling( setup );  
 }
 
-void SiStripRawToClustersRoI::endJob() {}
+void SiStripRawToClustersRoI::beginRun( edm::Run&, const edm::EventSetup& setup) {
+  updateCabling( setup );  
+}
 
 void SiStripRawToClustersRoI::produce(edm::Event& event, const edm::EventSetup& setup) {
   
+  updateCabling( setup );  
+  
   edm::Handle< LazyGetter > lazygetter;
   event.getByLabel(siStripLazyGetter_,lazygetter);
-
+  
   /// All regions 
   
   if (global_) {
@@ -118,6 +112,28 @@ void SiStripRawToClustersRoI::produce(edm::Event& event, const edm::EventSetup& 
     }
   
   event.put(refgetter);
+}
+
+// -----------------------------------------------------------------------------
+/** */
+void SiStripRawToClustersRoI::updateCabling( const edm::EventSetup& setup ) {
+  uint32_t cache_id = setup.get<SiStripRegionCablingRcd>().cacheIdentifier();
+  if ( cacheId_ != cache_id ) {
+    edm::ESHandle<SiStripRegionCabling> c;
+    setup.get<SiStripRegionCablingRcd>().get( c );
+    cabling_ = c.product();
+    cacheId_ = cache_id;
+    allregions_.clear();
+    allregions_.reserve( cabling_->getRegionCabling().size() );
+    for (uint32_t iregion=0;iregion<cabling_->getRegionCabling().size();iregion++) {
+      for (uint32_t isubdet=0;isubdet<cabling_->getRegionCabling()[iregion].size();isubdet++) {  
+	for (uint32_t ilayer=0;ilayer<cabling_->getRegionCabling()[iregion][isubdet].size();ilayer++) {
+	  uint32_t index = SiStripRegionCabling::elementIndex(iregion,static_cast<SubDet>(isubdet),ilayer);
+	  allregions_.push_back(index);
+	}
+      }
+    }
+  }
 }
 
 bool SiStripRawToClustersRoI::physicalLayer(SubDet& subdet, uint32_t& layer) const {

@@ -1,6 +1,6 @@
 /** \class HcalText2DetIdConverter
     \author F.Ratnikov, UMd
-    $Id: HcalText2DetIdConverter.cc,v 1.7 2008/04/18 13:12:36 rofierzy Exp $
+    $Id: HcalText2DetIdConverter.cc,v 1.6 2008/03/03 16:52:51 rofierzy Exp $
 */
 #include <stdlib.h>
 #include <iostream>
@@ -48,8 +48,7 @@ namespace {
       fName == "RadDam1" ? 5 :
       fName == "RadDam2" ? 6 :
       fName == "RadDam3" ? 7 :
-      atoi(fName.c_str());
-    //      0;
+      0;
   }
 }
 
@@ -143,16 +142,16 @@ bool HcalText2DetIdConverter::init (DetId fId) {
     default: result = false;
     }
     setField (1, calibId.rbx());
-    //    switch (calibId.cboxChannel ()) {
-    //    case 1: field2 = "Mixer-High"; break;
-    //    case 2: field2 = "Mixer-Low"; break;
-    //    case 3: field2 = "Megatile"; break;
-    //    case 4: field2 = "Mixer-Scintillator"; break;
-    //    case 5: field2 = "RadDam1"; break;
-    //    case 6: field2 = "RadDam2"; break;
-    //    case 7: field2 = "RadDam3"; break;
-    //    default: result = false;
-    //    }
+    switch (calibId.cboxChannel ()) {
+    case 1: field2 = "Mixer-High"; break;
+    case 2: field2 = "Mixer-Low"; break;
+    case 3: field2 = "Megatile"; break;
+    case 4: field2 = "Mixer-Scintillator"; break;
+    case 5: field2 = "RadDam1"; break;
+    case 6: field2 = "RadDam2"; break;
+    case 7: field2 = "RadDam3"; break;
+    default: result = false;
+    }
     setField (2, calibId.cboxChannel() );
     setField (3, -99);
     //    std::cout << "Calib: " << calibId.rbx() << " " <<  calibId.cboxChannel() << " " << field2 << std::endl;

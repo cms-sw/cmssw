@@ -44,26 +44,17 @@ class SiStripBaseCondObjDQM {
 
     virtual ~SiStripBaseCondObjDQM(){};
   
-    virtual void getActiveDetIds(const edm::EventSetup & eSetup)=0;
-
     void analysis(const edm::EventSetup & eSetup_);
-    void analysisOnDemand(const edm::EventSetup & eSetup_, uint32_t detIdOnDemand);
-    void analysisOnDemand(const edm::EventSetup & eSetup_, std::vector<uint32_t> detIdsOnDemand);
-    void analysisOnDemand(const edm::EventSetup & eSetup_,
-                        std::string requestedSubDetector, 
-                        uint32_t requestedSide, 
-			uint32_t requestedLayer);
-  
-
+    
     std::vector<uint32_t> getCabledModules();
-    void selectModules(std::vector<uint32_t> & detIds_);
-  
-    virtual void     fillModMEs(const std::vector<uint32_t> & selectedDetIds)=0;
-    virtual void fillSummaryMEs(const std::vector<uint32_t> & selectedDetIds)=0;
+    std::vector<uint32_t> selectModules(std::vector<uint32_t> detIds_);
+    
+    virtual void fillModMEs()=0;
+    virtual void fillSummaryMEs()=0;
  
     virtual unsigned long long getCache(const edm::EventSetup & eSetup_)=0;
-    virtual void getConditionObject(const edm::EventSetup & eSetup_)=0;
-      
+  
+  
   protected:
     
     struct ModMEs{ 
@@ -71,15 +62,13 @@ class SiStripBaseCondObjDQM {
       MonitorElement* CumulDistr;
       MonitorElement* SummaryOfProfileDistr;
       MonitorElement* SummaryOfCumulDistr;
-      MonitorElement* SummaryDistr;
     }; 
-
+    
+    std::vector<uint32_t> selectedDetIds;
 
     void getModMEs(ModMEs& CondObj_ME, const uint32_t& detId_);
     void getSummaryMEs(ModMEs& CondObj_ME, const uint32_t& detId_);
     std::pair<std::string,uint32_t> getLayerNameAndId(const uint32_t& detId_);
-    std::pair<std::string,uint32_t> getStringNameAndId(const uint32_t& detId_);
-    std::vector<uint32_t> GetSameLayerDetId(std::vector<uint32_t> activeDetIds, uint32_t selDetId);
     
     SiStripDetInfoFileReader* reader; 
     
@@ -89,39 +78,30 @@ class SiStripBaseCondObjDQM {
     
     bool Mod_On_;
     bool SummaryOnLayerLevel_On_;
-    bool SummaryOnStringLevel_On_;
     std::string CondObj_fillId_;
     std::string CondObj_name_;
-    bool FillSummaryAtLayerLevel;
-    bool FillSummaryProfileAtLayerLevel;
-    bool FillCumulativeSummaryAtLayerLevel;
      
     std::map<uint32_t, ModMEs> ModMEsMap_;
     std::map<uint32_t, ModMEs> SummaryMEsMap_;
-    std::vector<uint32_t> activeDetIds;
- 
-    unsigned long long cacheID_memory;
-    unsigned long long cacheID_current;
-
-  
+   
  private:
-  
+    
     void bookProfileMEs(SiStripBaseCondObjDQM::ModMEs& CondObj_ME, const uint32_t& detId_);
     void bookCumulMEs(SiStripBaseCondObjDQM::ModMEs& CondObj_ME, const uint32_t& detId_);
     void bookSummaryProfileMEs(SiStripBaseCondObjDQM::ModMEs& CondObj_ME, const uint32_t& detId_);
     void bookSummaryCumulMEs(SiStripBaseCondObjDQM::ModMEs& CondObj_ME, const uint32_t& detId_);
-    void bookSummaryMEs(SiStripBaseCondObjDQM::ModMEs& CondObj_ME, const uint32_t& detId_);
   
+    //std::pair<std::string,uint32_t> GetSubDetAndLayer(const uint32_t& detid_);
+
     DQMStore* dqmStore_;
+    unsigned long long m_cacheID_;
     
     std::vector<uint32_t> ModulesToBeExcluded_;
     std::vector<uint32_t> ModulesToBeIncluded_;
     std::vector<std::string> SubDetectorsToBeExcluded_;
 
     edm::ESHandle<SiStripDetCabling> detCablingHandle_;
-
-    std::string condDataMonitoringMode_;
-     
+    
     SiStripHistoId hidmanager;                        
     SiStripFolderOrganizer folder_organizer;         
 

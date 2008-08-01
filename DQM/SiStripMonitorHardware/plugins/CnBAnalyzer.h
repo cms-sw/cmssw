@@ -38,15 +38,11 @@ class CnBAnalyzer : public edm::EDAnalyzer {
  private:
   
   void beginJob(const edm::EventSetup&);
-  void beginRun(const edm::Run&, const edm::EventSetup&); 
   void analyze(const edm::Event&, const edm::EventSetup&);
   void endJob();
 
   // Access the cabling database or not
   bool useCablingDb_;
-  const SiStripFedCabling* cabling_;
-
-  //  edm::ESHandle<SiStripFedCabling>* cabling_; 
 
   // A data structure to record
   // the found FEDs

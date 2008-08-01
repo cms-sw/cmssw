@@ -55,9 +55,6 @@ L1GlobalTriggerRecord::L1GlobalTriggerRecord(
 
     m_gtDecisionWordBeforeMask = result.m_gtDecisionWordBeforeMask;
     m_gtTechnicalTriggerWordBeforeMask = result.m_gtTechnicalTriggerWordBeforeMask;
- 
-    m_gtPrescaleFactorIndexTech = result.m_gtPrescaleFactorIndexTech;
-    m_gtPrescaleFactorIndexAlgo = result.m_gtPrescaleFactorIndexAlgo;
 
 }
 
@@ -83,9 +80,6 @@ L1GlobalTriggerRecord& L1GlobalTriggerRecord::operator=(
 
         m_gtDecisionWordBeforeMask = result.m_gtDecisionWordBeforeMask;
         m_gtTechnicalTriggerWordBeforeMask = result.m_gtTechnicalTriggerWordBeforeMask;
-
-        m_gtPrescaleFactorIndexTech = result.m_gtPrescaleFactorIndexTech;
-        m_gtPrescaleFactorIndexAlgo = result.m_gtPrescaleFactorIndexAlgo;
     }
 
     return *this;
@@ -114,14 +108,6 @@ bool L1GlobalTriggerRecord::operator==(
     }
     
     if (m_gtTechnicalTriggerWordBeforeMask != result.m_gtTechnicalTriggerWordBeforeMask) {
-        return false;
-    }
-
-    if (m_gtPrescaleFactorIndexTech != result.m_gtPrescaleFactorIndexTech) {
-        return false;
-    }
-    
-    if (m_gtPrescaleFactorIndexAlgo != result.m_gtPrescaleFactorIndexAlgo) {
         return false;
     }
 
@@ -226,11 +212,11 @@ void L1GlobalTriggerRecord::printGtDecision(std::ostream& myCout) const
 
     int iWord = 0;
 
-    myCout << "\n  DecisionWord after trigger mask (bitset style)";
     for (std::vector<std::string>::reverse_iterator ritWord = decWord.rbegin();
             ritWord != decWord.rend(); ++ritWord) {
 
-        myCout << "\n  Bits "
+        myCout << std::endl;
+        myCout << "  DecisionWord after trigger mask (bitset style): bits "
         << iWord*sizeW64 + sizeW64 - 1 << " : " << iWord*sizeW64 << "\n  ";
         myCout << *ritWord;
 
@@ -295,9 +281,6 @@ void L1GlobalTriggerRecord::reset()
         *itBit = false;
         
     }
- 
-    m_gtPrescaleFactorIndexTech = 0;
-    m_gtPrescaleFactorIndexAlgo = 0;
 
 }
 
@@ -311,14 +294,6 @@ void L1GlobalTriggerRecord::print(std::ostream& myCout) const
     myCout << std::endl;
         
     printTechnicalTrigger(myCout);
-    
-    myCout << std::endl;
-    myCout << "\n  Index of prescale factor set for technical triggers: " 
-        << m_gtPrescaleFactorIndexTech << std::endl;
-    myCout << "  Index of prescale factor set for algorithm triggers: " 
-        << m_gtPrescaleFactorIndexTech << std::endl;
-    myCout << std::endl;
-   
 
 }
 

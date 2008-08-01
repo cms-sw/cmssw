@@ -175,9 +175,9 @@ class DisplayManager {
                    const std::vector<reco::PFTrajectoryPoint>& points, 
                    int ident,double pt,double phi0, double sign, 
                    bool displayInitial,int markerIndex);
-		   
-//  void createGGenParticle(HepMC::GenEvent::particle_const_iterator p);		   
-  void createGGenParticle(HepMC::GenParticle* p);		   
+                   
+  //  void createGGenParticle(HepMC::GenEvent::particle_const_iterator p);                 
+  void createGGenParticle(HepMC::GenParticle* p);                  
 
   //void createGClusterLines(const reco::PFCluster& cluster,int viewType);                      
   void drawGObject(int ident,int color,bool toInitialColor);

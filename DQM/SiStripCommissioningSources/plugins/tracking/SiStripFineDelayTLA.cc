@@ -12,11 +12,14 @@
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
+#include <Geometry/CommonTopologies/interface/Topology.h>
+#include <Geometry/CommonTopologies/interface/StripTopology.h>
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include <TrackingTools/PatternTools/interface/Trajectory.h>
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "DQM/SiStripCommissioningSources/plugins/tracking/SimpleTrackRefitter.h"
 
@@ -68,9 +71,7 @@ std::vector<std::pair< std::pair<DetId, LocalPoint> ,float> > SiStripFineDelayTL
   std::vector<TrajectoryMeasurement> TMeas=traj.measurements();
   std::vector<TrajectoryMeasurement>::iterator itm;
   int i=0;
-  LogDebug("SiStripFineDelayTLA::findtrackangle")<<"Loop on rechit and TSOS";
   for (itm=TMeas.begin();itm!=TMeas.end();itm++){
-    //std::cout<<"hit: "<<i++<<std::endl;
     TrajectoryStateOnSurface tsos=itm->updatedState();
     const TransientTrackingRecHit::ConstRecHitPointer thit=itm->recHit();
     const SiStripMatchedRecHit2D* matchedhit=dynamic_cast<const SiStripMatchedRecHit2D*>((*thit).hit());
@@ -79,39 +80,66 @@ std::vector<std::pair< std::pair<DetId, LocalPoint> ,float> > SiStripFineDelayTL
     if(matchedhit){//if matched hit...
 	GluedGeomDet * gdet=(GluedGeomDet *)tracker->idToDet(matchedhit->geographicalId());
 	GlobalVector gtrkdir=gdet->toGlobal(trackdirection);
-	//cluster and trackdirection on mono det
+	// trackdirection on mono det
 	// this the pointer to the mono hit of a matched hit 
 	const SiStripRecHit2D *monohit=matchedhit->monoHit();
-	const SiStripRecHit2D::ClusterRef & monocluster=monohit->cluster();
 	const GeomDetUnit * monodet=gdet->monoDet();
 	LocalVector monotkdir=monodet->toLocal(gtrkdir);
 	if(monotkdir.z()!=0){
 	  // the local angle (mono)
-	  float angle = acos(monotkdir.z()/monotkdir.mag())*180/TMath::Pi();
+          float localpitch = ((StripTopology*)(&monodet->topology()))->localPitch(tsos.localPosition());
+          float thickness = ((((((monohit->geographicalId())>>25)&0x7f)==0xd)||
+	                     ((((monohit->geographicalId())>>25)&0x7f)==0xe))&&
+			           ((((monohit->geographicalId())>>5)&0x7)>4)) ? 0.0500 : 0.0320;
+          float angle = computeAngleCorr(monotkdir, localpitch, thickness);
 	  hitangleassociation.push_back(make_pair(make_pair(monohit->geographicalId(),monohit->localPosition()), angle)); 
-	  //cluster and trackdirection on stereo det
+	  // trackdirection on stereo det
 	  // this the pointer to the stereo hit of a matched hit 
 	  const SiStripRecHit2D *stereohit=matchedhit->stereoHit();
-	  const SiStripRecHit2D::ClusterRef & stereocluster=stereohit->cluster();
 	  const GeomDetUnit * stereodet=gdet->stereoDet(); 
 	  LocalVector stereotkdir=stereodet->toLocal(gtrkdir);
 	  if(stereotkdir.z()!=0){
 	    // the local angle (stereo)
-	    float angle = acos(stereotkdir.z()/stereotkdir.mag())*180/TMath::Pi();
+            float localpitch = ((StripTopology*)(&stereodet->topology()))->localPitch(tsos.localPosition());
+            float thickness = ((((((stereohit->geographicalId())>>25)&0x7f)==0xd)||
+	                       ((((stereohit->geographicalId())>>25)&0x7f)==0xe))&&
+			             ((((stereohit->geographicalId())>>5)&0x7)>4)) ? 0.0500 : 0.0320;
+            float angle = computeAngleCorr(stereotkdir, localpitch, thickness);
  	    hitangleassociation.push_back(make_pair(make_pair(stereohit->geographicalId(),stereohit->localPosition()), angle)); 
 	  }
 	}
     }
     else if(hit){
+        GeomDetUnit * det=(GeomDetUnit *)tracker->idToDet(hit->geographicalId());
 	//  hit= pointer to the rechit
-	const SiStripRecHit2D::ClusterRef & cluster=hit->cluster();
 	if(trackdirection.z()!=0){
-	  float angle = acos(trackdirection.z()/trackdirection.mag())*180/TMath::Pi();
+          // the local angle (single hit)
+          float localpitch = ((StripTopology*)(&det->topology()))->localPitch(tsos.localPosition());
+          float thickness = ((((((hit->geographicalId())>>25)&0x7f)==0xd)||
+	                     ((((hit->geographicalId())>>25)&0x7f)==0xe))&&
+			           ((((hit->geographicalId())>>5)&0x7)>4)) ? 0.0500 : 0.0320;
+          float angle = computeAngleCorr(trackdirection, localpitch, thickness);
 	  hitangleassociation.push_back(make_pair(make_pair(hit->geographicalId(),hit->localPosition()), angle)); 
 	}
     }
-    LogDebug("SiStripFineDelayTLA")<<"I found "<<i<<" hits.";
   }
   return hitangleassociation;
+}
+
+double SiStripFineDelayTLA::computeAngleCorr(const LocalVector& v, double pitch, double thickness)
+{
+  double v_xy = sqrt(v.x()*v.x()+v.y()*v.y());
+  double L = fabs(thickness*v_xy/v.z());
+  double Lmax = fabs(pitch/v.x()*v_xy);
+  if(L<Lmax) {
+    LogDebug("SiStripFineDelayTLA ") << L << " vs " << Lmax 
+        << " Signal contained in strip. Correction is " << v.z()/v.mag();
+    return v.z()/v.mag();
+  } else {
+    LogDebug("SiStripFineDelayTLA ") << L << " vs " << Lmax
+       << " Signal not contained in strip. Correction is " << thickness/pitch*v.x()/v_xy*v.z()/v.mag()
+       << " instead of " << v.z()/v.mag();
+    return thickness/pitch*v.x()/v_xy*v.z()/v.mag();
+  }
 }
 

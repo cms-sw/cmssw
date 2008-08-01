@@ -110,7 +110,7 @@ AlignmentGlobalTrackSelector::checkIsolation(const Tracks& cands,const edm::Even
     for(Tracks::const_iterator it = cands.begin();it < cands.end();++it){
       bool isolated = true;
       for(reco::CaloJetCollection::const_iterator itJet = jets->begin(); itJet != jets->end() ; ++itJet) 
-	isolated = !((*itJet).pt() > theMaxJetPt && deltaR(*(*it),(*itJet)) < theMinJetDeltaR);
+	isolated &= !((*itJet).pt() > theMaxJetPt && deltaR(*(*it),(*itJet)) < theMinJetDeltaR);
       
       if(isolated)
 	result.push_back(*it);

@@ -2,8 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 # -*-TCL-*-
 #pieces needed to run the associator-related stuff
-from Geometry.CMSCommonData.cmsIdealGeometryXML_cff import *
-from Geometry.CaloEventSetup.CaloGeometry_cfi import *
 from Geometry.CommonDetUnit.globalTrackingGeometry_cfi import *
 from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAny_cfi import *
 from TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff import *

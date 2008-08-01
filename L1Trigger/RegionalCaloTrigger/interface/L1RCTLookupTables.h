@@ -2,10 +2,9 @@
 #define L1RCTLookupTables_h
 
 class L1RCTParameters;
-struct L1RCTChannelMask;
-class L1CaloEcalScale;
-class L1CaloHcalScale;
+class CaloTPGTranscoder;
 class L1CaloEtScale;
+class EcalTPGScale;
 
 class L1RCTLookupTables {
  
@@ -13,7 +12,7 @@ class L1RCTLookupTables {
 
   // constructor
 
-  L1RCTLookupTables() : rctParameters_(0), channelMask_(0), ecalScale_(0), hcalScale_(0), etScale_(0) {}
+  L1RCTLookupTables() : rctParameters_(0), transcoder_(0), etScale_(0) {}
   
   // this needs to be refreshed every event -- constructor inits to zero
   // to indicate that it cannot be used -- if this set function is
@@ -22,23 +21,18 @@ class L1RCTLookupTables {
     {
       rctParameters_ = rctParameters;
     }
-  // ditto for channel mask
-  void setChannelMask(const L1RCTChannelMask* channelMask)
+  // ditto for transcoder
+  void setTranscoder(const CaloTPGTranscoder* transcoder)
     {
-      channelMask_ = channelMask;
-    }
-  // ditto for hcal TPG scale
-  void setHcalScale(const L1CaloHcalScale* hcalScale)
-    {
-      hcalScale_ = hcalScale;
+      transcoder_ = transcoder;
     }
   // ditto for caloEtScale
   void setL1CaloEtScale(const L1CaloEtScale* etScale)
     {
       etScale_ = etScale;
     }
-  // ditto for ecal TPG Scale
-  void setEcalScale(const L1CaloEcalScale* ecalScale)
+  // ditto for ecalTPGScale
+  void setEcalTPGScale(EcalTPGScale* ecalScale)
     {
       ecalScale_ = ecalScale;
     }
@@ -64,20 +58,19 @@ class L1RCTLookupTables {
   unsigned int jetMETETCode(float ecal, float hcal, int iAbsEta) const;
   bool hOeFGVetoBit(float ecal, float hcal, bool fgbit) const;
   bool activityBit(float ecal, float hcal) const;
-
+  
  private:
 
   // helper functions
 
-  float convertEcal(unsigned short ecal, unsigned short iAbsEta, short sign) const;  
-  float convertHcal(unsigned short hcal, unsigned short iAbsEta, short sign) const;
+  float convertEcal(unsigned short ecal, unsigned short iAbsEta, unsigned short iPhi, short sign) const;
+  float convertHcal(unsigned short hcal, unsigned short iAbsEta) const;
   unsigned long convertToInteger(float et, float lsb, int precision) const;
 
   const L1RCTParameters* rctParameters_;
-  const L1RCTChannelMask* channelMask_;
-  const L1CaloEcalScale* ecalScale_;
-  const L1CaloHcalScale* hcalScale_;
+  const CaloTPGTranscoder* transcoder_;
   const L1CaloEtScale* etScale_;
+  EcalTPGScale* ecalScale_;
 
 };
 #endif

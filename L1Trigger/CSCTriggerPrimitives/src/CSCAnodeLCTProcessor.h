@@ -13,8 +13,8 @@
  * in ORCA).
  * Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch), May 2006.
  *
- * $Date: 2008/07/06 05:17:00 $
- * $Revision: 1.12 $
+ * $Date: 2007/08/17 16:12:36 $
+ * $Revision: 1.10 $
  *
  */
 
@@ -22,7 +22,7 @@
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <DataFormats/CSCDigi/interface/CSCWireDigiCollection.h>
 #include <DataFormats/CSCDigi/interface/CSCALCTDigi.h>
-#include <CondFormats/CSCObjects/interface/CSCL1TPParameters.h>
+#include <CondFormats/L1TObjects/interface/L1CSCTPParameters.h>
 #include <L1Trigger/CSCCommonTrigger/interface/CSCConstants.h>
 
 class CSCAnodeLCTProcessor
@@ -38,7 +38,7 @@ class CSCAnodeLCTProcessor
   CSCAnodeLCTProcessor();
 
   /** Sets configuration parameters obtained via EventSetup mechanism. */
-  void setConfigParameters(const CSCL1TPParameters* conf);
+  void setConfigParameters(const L1CSCTPParameters* conf);
 
   /** Clears the LCT containers. */
   void clear();
@@ -114,7 +114,7 @@ class CSCAnodeLCTProcessor
 
   /** Configuration parameters. */
   unsigned int fifo_tbins, fifo_pretrig, bx_width, drift_delay;
-  unsigned int nph_thresh, nph_pattern, acc_thresh, acc_pattern;
+  unsigned int nph_thresh, nph_pattern;
   unsigned int trig_mode, alct_amode, l1a_window;
 
   /** Chosen pattern mask. */

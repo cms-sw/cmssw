@@ -72,8 +72,7 @@ const int L1GtCondition::nrObjects() const
 
     switch (m_condType) {
 
-        case TypeNull: 
-        case TypeCastor: {
+        case TypeNull: {
                 return 0;
             }
 
@@ -180,11 +179,6 @@ void L1GtCondition::print(std::ostream& myCout) const
             }
 
             break;
-        case CondCastor: {
-                myCout << "  Condition category: " << "CondCastor"  << std::endl;
-            }
-
-            break;
         default: {
                 myCout << "  Condition category: " << m_condCategory
                 << "  - no such category defined. Check L1GtConditionCategory enum."
@@ -250,11 +244,6 @@ void L1GtCondition::print(std::ostream& myCout) const
             break;
         case TypeJetCounts: {
                 myCout << "  Condition type:     " << "TypeJetCounts"  << std::endl;
-            }
-
-            break;
-        case TypeCastor: {
-                myCout << "  Condition type:     " << "TypeCastor"  << std::endl;
             }
 
             break;

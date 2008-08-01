@@ -18,7 +18,7 @@ int main(){
     cond::IOVEditor* editor=iovmanager.newIOVEditor();
     pooldb.start(false);
     unsigned int pos=0;
-    editor->create(10,cond::timestamp);
+    editor->create(10);
     pos=editor->insert(20,"pay1tok");
     std::cout<<"inserted 20 payload at position "<<pos<<std::endl;
     pos=editor->insert(40, "pay2tok");

@@ -31,7 +31,7 @@
 
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h"
-#include "SimTracker/TrackHistory/interface/TrackHistory.h"
+#include "SimTracker/TrackHistory/interface/TrackOrigin.h"
 
 //
 // class decleration
@@ -59,13 +59,13 @@ private:
   typedef std::vector<vstring> vvstring;  
   typedef std::vector<edm::ParameterSet> vParameterSet;
 
-  edm::InputTag trackCollection_;
+  std::string trackCollection_;
   
   std::string rootFile_;
     
   vvstring vetoList_;
 
-  TrackHistory tracer_;  
+  TrackOrigin tracer_;  
   
   // Track history
 
@@ -82,25 +82,25 @@ private:
   void Count(const std::string &);  
 };
 
-VertexTHA::VertexTHA(const edm::ParameterSet& config) : tracer_(config)
+VertexTHA::VertexTHA(const edm::ParameterSet& iConfig) : tracer_(iConfig)
 {
-  trackCollection_ = config.getUntrackedParameter<edm::InputTag> ( "trackProducer" );
+  trackCollection_ = iConfig.getParameter<std::string> ( "recoTrackModule" );
 
-  rootFile_ = config.getUntrackedParameter<std::string> ( "rootFile" );
+  rootFile_ = iConfig.getParameter<std::string> ( "rootFile" );
   
-  sourceCut_ = config.getUntrackedParameter<double> ( "sourceCut" );
+  sourceCut_ = iConfig.getParameter<double> ( "sourceCut" );
 }
 
 VertexTHA::~VertexTHA() { }
 
-void VertexTHA::analyze(const edm::Event& event, const edm::EventSetup& setup)
+void VertexTHA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   // Track collection
   edm::Handle<edm::View<reco::Track> > trackCollection;
-  event.getByLabel(trackCollection_, trackCollection);
+  iEvent.getByLabel(trackCollection_, trackCollection);
   
   // Set the tracer for a new event
-  tracer_.newEvent(event, setup);
+  tracer_.newEvent(iEvent, iSetup);
   
   // Loop over the track collection.
   for (std::size_t index = 0; index < trackCollection->size(); index++)
@@ -109,7 +109,7 @@ void VertexTHA::analyze(const edm::Event& event, const edm::EventSetup& setup)
     if ( tracer_.evaluate( edm::RefToBase<reco::Track>(trackCollection, index) ) )
     {
       // Get the list of TrackingVertexes associated to
-      TrackHistory::SimVertexTrail vertexes(tracer_.simVertexTrail());
+      TrackOrigin::SimVertexTrail vertexes(tracer_.simVertexTrail());
          
       // Loop over all vertexes                       
       if( !vertexes.empty() )
@@ -184,10 +184,10 @@ void VertexTHA::analyze(const edm::Event& event, const edm::EventSetup& setup)
 
 
 void 
-VertexTHA::beginJob(const edm::EventSetup& setup) 
+VertexTHA::beginJob(const edm::EventSetup& iSetup) 
 {
   // Get the particles table.
-  setup.getData( pdt_ );
+  iSetup.getData( pdt_ );
   
   totalTracks_ = 0;
 }

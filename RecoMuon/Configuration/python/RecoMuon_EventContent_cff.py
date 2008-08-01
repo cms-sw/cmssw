@@ -4,11 +4,17 @@
 
 # Global's tracks with extra and hits
 
+# TeV muons products
+
 # Tracker's Tracks without extra and hits
 
 # Muon Id
 
 # Seed
+
+# Global's tracks with extra and hits
+
+# TeV muons products
 
 import FWCore.ParameterSet.Config as cms
 
@@ -21,16 +27,18 @@ RecoMuonAOD = cms.PSet(
         'keep TrackingRecHitsOwned_standAloneMuons_*_*', 
         'keep recoTracks_globalMuons_*_*', 
         'keep recoTrackExtras_globalMuons_*_*', 
-        'keep TrackingRecHitsOwned_globalMuons_*_*', 
-        'keep *_tevMuons_*_*', 
+        'keep recoTracks_tevMuons_*_*', 
+        'keep recoTrackExtras_tevMuons_*_*', 
+        'keep recoTracksToOnerecoTracksAssociation_tevMuons_*_*', 
         'keep recoTracks_generalTracks_*_*', 
-        'keep recoMuons_trackerMuons_*_*', 
         'keep recoMuons_muons_*_*', 
         'keep recoCaloMuons_calomuons_*_*')
 )
 # RECO content
 RecoMuonRECO = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep *_MuonSeed_*_*')
+    outputCommands = cms.untracked.vstring('keep *_MuonSeed_*_*', 
+        'keep TrackingRecHitsOwned_globalMuons_*_*', 
+        'keep TrackingRecHitsOwned_tevMuons_*_*')
 )
 # Full Event content 
 RecoMuonFEVT = cms.PSet(

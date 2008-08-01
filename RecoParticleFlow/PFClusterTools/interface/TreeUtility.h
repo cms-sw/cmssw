@@ -8,8 +8,7 @@
 #include <boost/shared_ptr.hpp>
 #include <TFile.h>
 #include <vector>
-#include <string>
-#include <map>
+
 namespace pftools {
 /**
  * 
@@ -39,12 +38,9 @@ public:
 			const std::vector<Calibratable>& input,
 			std::vector<ParticleDepositPtr>& toBeFilled,
 			CalibrationTarget target, DetectorElementPtr offset,
-			DetectorElementPtr ecal, DetectorElementPtr hcal, bool includeOffset = false);
+			DetectorElementPtr ecal, DetectorElementPtr hcal);
 
 	std::vector<ParticleDepositPtr> extractParticles(TFile& f);
-	
-private:
-	std::map<std::string, unsigned> vetos_;
 };
 }
 #endif /*TREEUTILITY_HH_*/

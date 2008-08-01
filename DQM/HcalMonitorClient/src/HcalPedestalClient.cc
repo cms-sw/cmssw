@@ -12,7 +12,7 @@ void HcalPedestalClient::init(const ParameterSet& ps, DQMStore* dbe,string clien
 
   readoutMap_=0;
 
-  for(int i=0; i<4; ++i){
+  for(int i=0; i<4; i++){
     all_peds_[i]=0;   ped_rms_[i]=0;
     ped_mean_[i]=0;   capid_rms_[i]=0;
     sub_mean_[i]=0;   sub_rms_[i]=0;
@@ -105,7 +105,7 @@ void HcalPedestalClient::setup(void) {
 
 void HcalPedestalClient::cleanup(void) {
   if(cloneME_){
-    for(int i=0; i<4; ++i){
+    for(int i=0; i<4; i++){
       if(all_peds_[i]);     delete all_peds_[i];   
       if(ped_rms_[i]);      delete ped_rms_[i];
       if(ped_mean_[i]);     delete ped_mean_[i];   
@@ -124,7 +124,7 @@ void HcalPedestalClient::cleanup(void) {
       if(pedMapRMSD_[i]);   delete pedMapRMSD_[i];
     }
   }
-  for(int i=0; i<4; ++i){
+  for(int i=0; i<4; i++){
     all_peds_[i]=0;   ped_rms_[i]=0;
     ped_mean_[i]=0;   capid_rms_[i]=0;
     sub_mean_[i]=0;   sub_rms_[i]=0;
@@ -172,7 +172,7 @@ void HcalPedestalClient::getHistograms(){
   MonitorElement* meMeanMap_E[3];
   MonitorElement* meRMSMap_E[3];
 
-  for(int i=0; i<4; ++i){
+  for(int i=0; i<4; i++){
     sprintf(name,"%sHcal/PedestalMonitor/Ped Mean Depth %d",process_.c_str(),i+1);
     meMeanMap_D[i]  = dbe_->get(name);
     sprintf(name,"%sHcal/PedestalMonitor/Ped RMS Depth %d",process_.c_str(),i+1);
@@ -190,7 +190,7 @@ void HcalPedestalClient::getHistograms(){
   meRMSMap_E[1] = dbe_->get(name);
 
 
-  for(int i=0; i<4; ++i){
+  for(int i=0; i<4; i++){
     if(!subDetsOn_[i]) continue;
     string type = "HB";
     if(i==1) type = "HE"; 
@@ -243,10 +243,10 @@ void HcalPedestalClient::getHistograms(){
       dbe_->softReset(meMeanMap_E[1]); dbe_->softReset(meRMSMap_E[1]);
     }
     bool capidOK = false;
-    for(int ieta=-42; ieta<=42; ++ieta){
+    for(int ieta=-42; ieta<=42; ieta++){
       if(ieta==0) continue;
-      for(int iphi=1; iphi<=73; ++iphi){
-	for(int depth=1; depth<=4; ++depth){
+      for(int iphi=1; iphi<=73; iphi++){
+	for(int depth=1; depth<=4; depth++){
 	  if(!isValidGeom(i, ieta, iphi,depth)) continue;
 	  
 	  HcalSubdetector subdet = HcalBarrel;
@@ -259,7 +259,7 @@ void HcalPedestalClient::getHistograms(){
 	  float capmeanS[4]; float caprmsS[4];	  
 	  float capmeanP[4]; float caprmsP[4];	  
 	  capidOK = true;
-	  for(int capid=0; capid<4 && capidOK; ++capid){
+	  for(int capid=0; capid<4 && capidOK; capid++){
 	    capmeanP[capid]=0; caprmsP[capid]=0; 
 	    capmeanS[capid]=0; caprmsS[capid]=0; 
 	    sprintf(name,"%sHcal/PedestalMonitor/%s/%s Pedestal Value (ADC) ieta=%d iphi=%d depth=%d CAPID=%d",process_.c_str(),
@@ -356,11 +356,10 @@ void HcalPedestalClient::getHistograms(){
     
   }
 
-  for(int i=0; i<4; ++i)
-    {
-      pedMapMeanD_[i] = getHisto2(meMeanMap_D[i],debug_,cloneME_);
-      pedMapRMSD_[i] = getHisto2(meRMSMap_D[i],debug_,cloneME_);
-    }
+  for(int i=0; i<4; i++){
+    pedMapMeanD_[i] = getHisto2(meMeanMap_D[i],debug_,cloneME_);
+    pedMapRMSD_[i] = getHisto2(meRMSMap_D[i],debug_,cloneME_);
+  }
   
   pedMapMean_E[0] = getHisto2(meMeanMap_E[0],debug_,cloneME_);
   pedMapRMS_E[0] = getHisto2(meRMSMap_E[0],debug_,cloneME_);
@@ -390,7 +389,7 @@ void HcalPedestalClient::createTests(){
   
   if(debug_) printf("Creating Pedestal tests...\n");
   
-  for(int i=0; i<4; ++i){
+  for(int i=0; i<4; i++){
     if(!subDetsOn_[i]) continue;
     string type = "HB";
     if(i==1) type = "HE"; 
@@ -493,10 +492,10 @@ void HcalPedestalClient::createTests(){
     }
     
     if(doPerChanTests_){
-      for(int ieta=-42; ieta<=42; ++ieta){
+      for(int ieta=-42; ieta<=42; ieta++){
 	if(ieta==0) continue;
-	for(int iphi=1; iphi<=73; ++iphi){
-	  for(int depth=1; depth<=4; ++depth){
+	for(int iphi=1; iphi<=73; iphi++){
+	  for(int depth=1; depth<=4; depth++){
 	    if(!isValidGeom(i,ieta,iphi,depth)) continue;	    
 
 	    HcalSubdetector subdet = HcalBarrel;
@@ -505,7 +504,7 @@ void HcalPedestalClient::createTests(){
 	    else if(i==3) subdet = HcalOuter;
 	    const HcalDetId id(subdet,ieta,iphi,depth);
 	    bool qie = true;
-	    for(int capid=0; capid<4 && qie; ++capid){
+	    for(int capid=0; capid<4 && qie; capid++){
 	      sprintf(meTitle,"%sHcal/PedestalMonitor/%s/%s Pedestal Value (ADC) ieta=%d iphi=%d depth=%d CAPID=%d", process_.c_str(),type.c_str(),type.c_str(),ieta,iphi,depth,capid);  
 	      sprintf(name,"%s Pedestal ieta=%d iphi=%d depth=%d CAPID=%d: Sigma",type.c_str(),ieta,iphi,depth,capid);  
 	      if( dqmQtests_.find(name) == dqmQtests_.end()){ 
@@ -546,7 +545,7 @@ void HcalPedestalClient::resetAllME(){
   if(!dbe_) return;
   Char_t name[150];    
 
-  for(int i=1; i<5; ++i){
+  for(int i=1; i<5; i++){
     sprintf(name,"%sHcal/PedestalMonitor/Ped Mean Depth %d",process_.c_str(),i);
     resetME(name,dbe_);
     sprintf(name,"%sHcal/PedestalMonitor/Ped RMS Depth %d",process_.c_str(),i);
@@ -565,7 +564,7 @@ void HcalPedestalClient::resetAllME(){
     resetME(name,dbe_);
   }
 
-  for(int i=0; i<4; ++i){
+  for(int i=0; i<4; i++){
     if(!subDetsOn_[i]) continue;    
     string type = "HB";
     if(i==1) type = "HE"; 
@@ -612,10 +611,10 @@ void HcalPedestalClient::resetAllME(){
 	    process_.c_str(),type.c_str(),type.c_str());
     resetME(name,dbe_);
     
-    for(int ieta=-42; ieta<42; ++ieta){
-      for(int iphi=0; iphi<72; ++iphi){
-	for(int depth=0; depth<4; ++depth){
-	  for(int capid=0; capid<4; ++capid){
+    for(int ieta=-42; ieta<42; ieta++){
+      for(int iphi=0; iphi<72; iphi++){
+	for(int depth=0; depth<4; depth++){
+	  for(int capid=0; capid<4; capid++){
 	    sprintf(name,"%sHcal/PedestalMonitor/%s/%s Pedestal Value (ADC) ieta=%d iphi=%d depth=%d CAPID=%d",process_.c_str(), type.c_str(),type.c_str(),ieta,iphi,depth,capid);  
 	    resetME(name,dbe_);
 	    sprintf(name,"%sHcal/PedestalMonitor/%s/%s Pedestal Value (Subtracted) ieta=%d iphi=%d depth=%d CAPID=%d",process_.c_str(), type.c_str(),type.c_str(),ieta,iphi,depth,capid);  
@@ -724,7 +723,7 @@ void HcalPedestalClient::htmlOutput(int runNo, string htmlDir, string htmlName){
   histoHTML2(runNo,pedMapRMS_E[1],"Channel","Fiber Index", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
-  for(int i=0; i<4; ++i){
+  for(int i=0; i<4; i++){
     if(!subDetsOn_[i]) continue;
     string type = "HB";
     if(i==1) type = "HE"; 
@@ -789,7 +788,7 @@ void HcalPedestalClient::loadHistograms(TFile* infile){
 
   char name[256];    
   
-  for(int i=0; i<4; ++i){
+  for(int i=0; i<4; i++){
     sprintf(name,"DQMData/Hcal/PedestalMonitor/Ped Mean Depth %d",i+1);
     pedMapMeanD_[i] = (TH2F*)infile->Get(name);
     sprintf(name,"DQMData/Hcal/PedestalMonitor/Ped RMS Depth %d",i+1);
@@ -806,7 +805,7 @@ void HcalPedestalClient::loadHistograms(TFile* infile){
   sprintf(name,"DQMData/Hcal/PedestalMonitor/Ped RMS by Fiber-Chan");
   pedMapRMS_E[1] = (TH2F*)infile->Get(name);
   
-  for(int i=0; i<4; ++i){
+  for(int i=0; i<4; i++){
     if(!subDetsOn_[i]) continue;
     string type = "HB";
     if(i==1) type = "HE"; 
@@ -846,10 +845,10 @@ void HcalPedestalClient::loadHistograms(TFile* infile){
     err_map_elec_[i] = (TH2F*)infile->Get(name);
     
     bool capidOK = false;
-    for(int ieta=-42; ieta<=42; ++ieta){
+    for(int ieta=-42; ieta<=42; ieta++){
       if(ieta==0) continue;
-      for(int iphi=1; iphi<=73; ++iphi){
-	for(int depth=1; depth<=4; ++depth){
+      for(int iphi=1; iphi<=73; iphi++){
+	for(int depth=1; depth<=4; depth++){
 	  if(!isValidGeom(i, ieta, iphi,depth)) continue;
 	  
 	  capidOK = true;
@@ -863,7 +862,7 @@ void HcalPedestalClient::loadHistograms(TFile* infile){
 	  
 	  float capmeanS[4]; float caprmsS[4];	  
 	  float capmeanP[4]; float caprmsP[4];	  
-	  for(int capid=0; capid<4 && capidOK; ++capid){
+	  for(int capid=0; capid<4 && capidOK; capid++){
 	    capmeanS[capid]=0; caprmsS[capid]=0; 
 	    capmeanP[capid]=0; caprmsP[capid]=0; 
 	    sprintf(name,"DQMData/Hcal/PedestalMonitor/%s/%s Pedestal Value (ADC) ieta=%d iphi=%d depth=%d CAPID=%d", type.c_str(),type.c_str(),ieta,iphi,depth,capid);  
@@ -969,19 +968,19 @@ void HcalPedestalClient::generateBadChanList(string htmlDir){
     outFile << "<th> RMS  (Ref)</th>" << endl;
     outFile << " </tr></strong></h2><hr></br>" << endl;    
 
-    for(int i=0; i<4; ++i){
+    for(int i=0; i<4; i++){
       if(!subDetsOn_[i]) continue;
       string type = "HB";
       if(i==1) type = "HE"; 
       else if(i==2) type = "HF";
       else if(i==3) type = "HO";
 
-      for(int ieta=-42; ieta<=42; ++ieta){
+      for(int ieta=-42; ieta<=42; ieta++){
 	if(ieta==0) continue;
-	for(int iphi=1; iphi<=73; ++iphi){
-	  for(int depth=1; depth<=4; ++depth){
+	for(int iphi=1; iphi<=73; iphi++){
+	  for(int depth=1; depth<=4; depth++){
 	    if(!isValidGeom(i, ieta, iphi,depth)) continue;
-	    for(int capid=0; capid<4; ++capid){
+	    for(int capid=0; capid<4; capid++){
 	      sprintf(name,"%s Pedestal ieta=%d iphi=%d depth=%d CAPID=%d: Sigma",type.c_str(),ieta,iphi,depth,capid);  
 	      map<string, string>::iterator errTest=dqmQtests_.find(name);
 	      if( errTest != dqmQtests_.end()){ 

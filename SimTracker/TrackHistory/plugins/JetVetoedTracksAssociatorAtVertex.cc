@@ -3,7 +3,7 @@
 // Original Author:  Andrea Rizzi
 //         Created:  Wed Apr 12 11:12:49 CEST 2006
 // Accommodated for Jet Package by: Fedor Ratnikov Jul. 30, 2007
-// $Id: JetVetoedTracksAssociatorAtVertex.cc,v 1.1 2008/04/14 15:45:25 bazterra Exp $
+// $Id: JetTracksAssociatorAtVertex.h,v 1.1 2007/09/20 22:32:41 fedor Exp $
 //
 //
 
@@ -31,7 +31,7 @@ class JetVetoedTracksAssociatorAtVertex : public edm::EDProducer {
      edm::InputTag mJets;
      edm::InputTag mTracks;
      JetVetoedTracksAssociationDRVertex mAssociator;
-     TrackClassifier classifier;
+     TrackCategories classifier;
 };
 
 JetVetoedTracksAssociatorAtVertex::JetVetoedTracksAssociatorAtVertex(const edm::ParameterSet& fConfig)

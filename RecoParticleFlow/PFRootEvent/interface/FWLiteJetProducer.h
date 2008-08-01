@@ -31,17 +31,17 @@ class FWLiteJetProducer{
   ~FWLiteJetProducer();
   /// Apply Et and E cuts on input object to jet algorihms, prepare 
   /// InputCollection to Jet Algo
-  void applyCuts(const reco::CandidateCollection& Candidates, 
-		 JetReco::InputCollection* input);         
+  void applyCuts( const reco::CandidatePtrVector& Candidates, 
+                  JetReco::InputCollection* input );         
   /// Produce jet collection using CMS Iterative Cone Algorithm 
   void makeIterativeConeJets(const JetReco::InputCollection& fInput, 
-			     JetReco::OutputCollection* fOutput);
+                             JetReco::OutputCollection* fOutput);
   /// Produce jet collection using CMS Fast Jet Algorithm       
   void makeFastJets(const JetReco::InputCollection& fInput, 
-		    JetReco::OutputCollection* fOutput);
+                    JetReco::OutputCollection* fOutput);
   /// Produce jet collection using CMS Midpoint Jet Algorithm   
   void makeMidpointJets(const JetReco::InputCollection& fInput, 
-			JetReco::OutputCollection* fOutput);
+                        JetReco::OutputCollection* fOutput);
   void print();
   void updateParameter();
   /// Jet Algos --------------------------------------------

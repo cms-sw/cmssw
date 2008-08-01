@@ -31,6 +31,16 @@ public:
     return *this;
   }
 
+  /// Assing a new bare pointer to this DeepCopyPointer, taking ownership of it.
+  /// The old content of this DeepCopyPointer is deleted 
+  void replaceWith(T * otherP) {
+    if ( theData != otherP ) {
+        delete theData;
+        theData = otherP;
+    }
+  }
+
+
   T&       operator*()       { return *theData;}
   const T& operator*() const { return *theData;}
 

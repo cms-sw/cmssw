@@ -15,7 +15,7 @@
 //
 // Original Author:  Emmanuelle Perez
 //         Created:  Sat Nov 25 13:59:51 CET 2006
-// $Id: EcalDigiToRaw.h,v 1.4 2007/06/05 14:49:48 eperez Exp $
+// $Id: EcalDigiToRaw.h,v 1.5 2007/08/03 07:58:23 eperez Exp $
 //
 //
 
@@ -70,6 +70,8 @@ class EcalDigiToRaw : public edm::EDProducer {
 	bool GetDoTower() {return doTower_ ;}
 	bool GetDoTCC() {return doTCC_ ;}
 
+        std::vector<int32_t>* GetListDCCId() {return &listDCCId_ ;}
+    
 	static const int BXMAX = 2808;
 
 
@@ -96,6 +98,8 @@ class EcalDigiToRaw : public edm::EDProducer {
 	bool doBarrel_;
 	bool doEndCap_;
 
+        std::vector<int32_t> listDCCId_;
+    
 	std::string label_;
 	std::string instanceNameEB_;
 	std::string instanceNameEE_;

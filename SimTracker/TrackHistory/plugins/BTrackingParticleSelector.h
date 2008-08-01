@@ -2,7 +2,7 @@
 #define BTrackSelection_h
 
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
-#include "SimTracker/TrackHistory/interface/TrackClassifier.h"
+#include "SimTracker/TrackHistory/interface/TrackCategories.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 //#include "CLHEP/HepPDT/ParticleID.hh"
 
@@ -34,15 +34,16 @@ class BTrackingParticleSelector {
 
     const collection & tpc = *(TPCH.product());
         
-    for(TrackingParticleCollection::size_type i=0; i<tpc.size(); i++)
-    {  
+    for(TrackingParticleCollection::size_type i=0; i<tpc.size(); i++){
+      
       TrackingParticleRef tp(TPCH, i);
 
-      if( classifier_.evaluate(tp).is(TrackCategories::BWeakDecay) )
-      {
-        const TrackingParticle * trap = &(tpc[i]);
-        selected_.push_back(trap);
-      }  	    	
+      if( classifier_.evaluate(tp) )
+        if( classifier_.is(TrackCategories::Bottom) )
+        {
+          const TrackingParticle * trap = &(tpc[i]);
+          selected_.push_back(trap);
+        }  	    	
     }
   }
 
@@ -58,7 +59,7 @@ class BTrackingParticleSelector {
   //private:
 
   container selected_;
-  TrackClassifier classifier_;
+  TrackCategories classifier_;
 
 };
 

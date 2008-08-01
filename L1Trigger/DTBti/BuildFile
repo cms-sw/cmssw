@@ -5,7 +5,7 @@
 <use name=CalibMuon/DTDigiSync>
 <use name=DataFormats/DTDigi>
 <use name=Geometry/DTGeometry>
-<use name=L1TriggerConfig/DTTPGConfig>
+<use name=CondFormats/L1TObjects>
 <use name=L1Trigger/DTUtilities>
 
 <use name=CLHEP>
@@ -17,7 +17,7 @@
 
    <use name=FWCore/Framework>
    <use name=FWCore/PluginManager>
-   <use name=L1TriggerConfig/DTTPGConfig>
+   <use name=CondFormats/L1TObjects>
    <use name=L1Trigger/DTUtilities>
    <use name=CalibMuon/DTDigiSync>
    <use name=FWCore/ParameterSet>

@@ -43,9 +43,7 @@ std::map<std::string, MonitorElement*> MuonSegmentEff::bookDetUnitSeg(RPCDetId &
   
 
   //Begin booking DT
-  if(detId.region()==0) {
-    std::cout<<"Booking for the Barrel"<<detUnitLabel<<std::endl;
-
+  //  if(detId.region()==0) {
     sprintf(meId,"ExpectedOccupancyFromDT_%s",detUnitLabel);
     sprintf(meTitle,"ExpectedOccupancyFromDT_for_%s",layerLabel);
     meMap[meId] = dbe->book1D(meId, meTitle, 100, 0.5, 100.5);
@@ -69,10 +67,6 @@ std::map<std::string, MonitorElement*> MuonSegmentEff::bookDetUnitSeg(RPCDetId &
     sprintf(meId,"RPCResidualsFromDT_%s",detUnitLabel);
     sprintf(meTitle,"RPCResidualsFromDT_for_%s",layerLabel);
     meMap[meId] = dbe->book1D(meId, meTitle, 201,-100.5, 100.5);
-
-    sprintf(meId,"BXDistribution_%s",detUnitLabel);
-    sprintf(meTitle,"BXDistribution_for_%s",layerLabel);
-    meMap[meId] = dbe->book1D(meId, meTitle, 11,-5, 5);
     
     sprintf(meId,"RPCResiduals2DFromDT_%s",detUnitLabel);
     sprintf(meTitle,"RPCResiduals2DFromDT_for_%s",layerLabel);
@@ -86,9 +80,10 @@ std::map<std::string, MonitorElement*> MuonSegmentEff::bookDetUnitSeg(RPCDetId &
     sprintf(meTitle,"EfficienyFromDT2DExtrapolation_for_%s",layerLabel);
     meMap[meId] = dbe->book2D(meId, meTitle, 100, 0.5, 100.5,200,-100.,100.);
 
-  }else{
-    std::cout<<"Booking for the EndCap"<<detUnitLabel<<std::endl;
+    //    }
 
+    //if(detId.region()==-1 || detId.region()==1){
+    //CSC
     sprintf(meId,"ExpectedOccupancyFromCSC_%s",detUnitLabel);
     sprintf(meTitle,"ExpectedOccupancyFromCSC_for_%s",layerLabel);
     meMap[meId] = dbe->book1D(meId, meTitle, 100, 0.5, 100.5);
@@ -112,11 +107,7 @@ std::map<std::string, MonitorElement*> MuonSegmentEff::bookDetUnitSeg(RPCDetId &
     sprintf(meId,"RPCResidualsFromCSC_%s",detUnitLabel);
     sprintf(meTitle,"RPCResidualsFromCSC_for_%s",layerLabel);
     meMap[meId] = dbe->book1D(meId, meTitle, 201,-100.5, 100.5);
-
-    sprintf(meId,"BXDistribution_%s",detUnitLabel);
-    sprintf(meTitle,"BXDistribution_for_%s",layerLabel);
-    meMap[meId] = dbe->book1D(meId, meTitle, 11,-5, 5);
-
+    
     sprintf(meId,"RPCResiduals2DFromCSC_%s",detUnitLabel);
     sprintf(meTitle,"RPCResiduals2DFromCSC_for_%s",layerLabel);
     meMap[meId] = dbe->book2D(meId, meTitle, 201,-100.5, 100.5,200,-100.,100.);
@@ -128,7 +119,7 @@ std::map<std::string, MonitorElement*> MuonSegmentEff::bookDetUnitSeg(RPCDetId &
     sprintf(meId,"EfficienyFromCSC2DExtrapolation_%s",detUnitLabel);
     sprintf(meTitle,"EfficienyFromCSC2DExtrapolation_for_%s",layerLabel);
     meMap[meId] = dbe->book2D(meId, meTitle, 100, 0.5, 100.5,200,-100.,100.);
-  }
+    //}
 
   return meMap;
 }

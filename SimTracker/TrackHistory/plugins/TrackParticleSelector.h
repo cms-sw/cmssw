@@ -5,7 +5,7 @@
 
 #include "DataFormats/Common/interface/RefTraits.h"
 
-#include "SimTracker/TrackHistory/interface/TrackClassifier.h"
+#include "SimTracker/TrackHistory/interface/TrackCategories.h"
 
 /**
  Selector to select only tracking particles originating from a B-hadron decay.
@@ -45,11 +45,12 @@ class TrackParticleSelector {
     {  
       edm::Ref<Collection> tp(TPCH, i);
 
-      if( classifier_.evaluate(tp).is(Category) )
-      {
-        const type * trap = &(tpc[i]);
-        selected_.push_back(trap);
-      }  	    	
+      if( classifier_.evaluate(tp) )
+        if( classifier_.is(Category) )
+        {
+          const type * trap = &(tpc[i]);
+          selected_.push_back(trap);
+        }  	    	
     }
   }
 
@@ -68,7 +69,7 @@ class TrackParticleSelector {
 
  private:
 
-  TrackClassifier classifier_;
+  TrackCategories classifier_;
 
 };
 

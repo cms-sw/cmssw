@@ -112,8 +112,6 @@ class parseResult:
             self.triggers = self.text[6]
             self.triggers = string.split(self.triggers,"</TD>")[0]
             self.triggers = string.split(self.triggers,">")[1]
-            if (self.triggers<>"null"):
-                self.triggers=string.atoi(self.triggers)
         except:
             if (self.debug):
                 print "Could not determine triggers from %s"%self.text[6]
@@ -126,9 +124,6 @@ class parseResult:
             # Make sure read integer value 
             if (self.events<>"null"):
                 self.events=string.atoi(self.events)
-            # If events ="null", try to estimate num. of events from triggers
-            if (self.events=="null" and self.triggers<>"null"):
-                self.events=self.triggers
         except:
             if (self.debug):
                 print "Could not determine # of events from %s"%self.text[7]
@@ -181,34 +176,7 @@ class parseResult:
         return
 
 
-class goodHCALRun:
-    '''
-    stores info about a single run number'''
-    def __init__(self, run=43293, debug=False):
-        self.beginRun=run
-        self.endRun=run
-        self.debug=debug
-        self.values={"RUN_BEGIN":self.beginRun,
-                     "RUN_END":self.endRun}
-        # Run Summary Page URL
-        myurl="http://cmsmon.cern.ch/cmsdb/servlet/RunSummary"
-        
-        # encode values as URL data, and post them to run summary page
-        data=urllib.urlencode(self.values)
-        req=urllib2.Request(myurl,data)
-        # Get result of sending data to URL
-        response=urllib2.urlopen(req)
-        self.thepage=response.read()
-        # Split result by <TR> (since result is a table of runs, if runs found)
-        self.thepage=string.split(self.thepage,"<TR>")
-        #for i in thepage:
-        #    print i
-        self.runinfo = parseResult(self.thepage[-1],self.debug)
-        print "\n\n\n"
-        self.runinfo.printParse()
-        return
-
-class goodHCALList:    
+class goodHCALList:
     '''
     goodHCALList class stores list of runs in range, and list of runs containing HCAL.
     '''

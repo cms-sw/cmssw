@@ -313,7 +313,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 
   // loop on EB xtals
   if (writeToFiles_) (*out_file_)<<"COMMENT ====== barrel crystals ====== "<<std::endl ;
-  const std::vector<DetId>& ebCells = theBarrelGeometry_->getValidDetIds(DetId::Ecal, EcalBarrel);
+  std::vector<DetId> ebCells = theBarrelGeometry_->getValidDetIds(DetId::Ecal, EcalBarrel);
   for (vector<DetId>::const_iterator it = ebCells.begin(); it != ebCells.end(); ++it) {
     EBDetId id(*it) ;
     double theta = theBarrelGeometry_->getGeometry(id)->getPosition().theta() ;
@@ -378,11 +378,14 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   }
 
 
+
+  if(DBEE_){
+
   // loop on EE xtals
   if (writeToFiles_) (*out_file_)<<"COMMENT ====== endcap crystals ====== "<<std::endl ;
 
-  
-  const std::vector<DetId> & eeCells = theEndcapGeometry_->getValidDetIds(DetId::Ecal, EcalEndcap);
+
+  std::vector<DetId> eeCells = theEndcapGeometry_->getValidDetIds(DetId::Ecal, EcalEndcap);
   for (vector<DetId>::const_iterator it = eeCells.begin(); it != eeCells.end(); ++it) {
     EEDetId id(*it);
     double theta = theEndcapGeometry_->getGeometry(id)->getPosition().theta() ;
@@ -422,6 +425,8 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
       getCoeff(coeff, gainMap, id.rawId()) ;
       getCoeff(coeff, pedMap, id.rawId()) ;
     }
+
+
   
     // compute and fill linearization parameters
     for (int i=0 ; i<3 ; i++) {
@@ -442,7 +447,6 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
       linset[logicId] = lin ;
     }
   } //eeCells
-
   if (writeToDB_ ) {
     // EcalLogicID  of the whole barrel is: my_EcalLogicId_EB
     FEConfigParamDat linparam ;
@@ -454,6 +458,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     linparamset[my_EcalLogicId_EE] = linparam ;
   }
 
+  }
   std::cout<< "we are in analyze 2"<< endl; 
 
   if (writeToDB_) {
@@ -633,7 +638,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   if (writeToFiles_) {
     (*out_file_) <<std::endl ;
     (*out_file_) <<"LUT 0"<<std::endl ;
-    for (int i=0 ; i<1024 ; i++) (*out_file_)<<"0x"<<hex<<lut_EB[i]<<endl ;
+    for (int i=0 ; i<1024 ; i++) (*out_file_)<<"0x"<<hex<<lut_EB[i]<<" " ;
     (*out_file_)<<endl ;
   }
   
@@ -645,7 +650,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   if (newLUT && writeToFiles_) { 
     (*out_file_) <<std::endl ;
     (*out_file_) <<"LUT 1"<<std::endl ;
-    for (int i=0 ; i<1024 ; i++) (*out_file_)<<"0x"<<hex<<lut_EE[i]<<endl ;
+    for (int i=0 ; i<1024 ; i++) (*out_file_)<<"0x"<<hex<<lut_EE[i]<<" " ;
     (*out_file_)<<endl ;
   }
 
@@ -1082,12 +1087,12 @@ void EcalTPGParamBuilder::computeLUT(int * lut, std::string det)
   // Now, add TTF thresholds to LUT and apply LUT threshold if needed
   for (int j=0 ; j<1024 ; j++) {
     double Et_GeV = Et_sat/1024*(j+0.5) ;
-    if (Et_GeV <= LUT_threshold) lut[j] = 0 ; // LUT threshold
     int ttf = 0x0 ;    
     if (Et_GeV >= TTF_highThreshold) ttf = 3 ;
     if (Et_GeV >= TTF_lowThreshold && Et_GeV < TTF_highThreshold) ttf = 1 ;
     ttf = ttf << 8 ;
     lut[j] += ttf ;
+    if (Et_GeV <= LUT_threshold) lut[j] = 0 ;
   }
 
 }

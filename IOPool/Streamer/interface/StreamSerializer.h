@@ -33,7 +33,7 @@ namespace edm
 
     StreamSerializer(Selections const* selections);
 
-    int serializeRegistry(InitMsgBuilder& initMessage);   
+    int serializeRegistry();   
     int serializeEvent(EventPrincipal const& eventPrincipal,
                        bool use_compression, int compression_level);
 

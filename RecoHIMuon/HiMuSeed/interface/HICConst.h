@@ -1,11 +1,10 @@
 #ifndef HIC_CONST_FOR_PROPAGATION
 #define HIC_CONST_FOR_PROPAGATION
-namespace cms {
+
 class HICConst {
 public:
 HICConst();
 virtual ~HICConst(){}
-void setVertex(double a);
 public:
 double chicut;
 double Zcut1;
@@ -105,7 +104,6 @@ double phimatchend[2];
 
 
 };
-}
 #endif
 
 

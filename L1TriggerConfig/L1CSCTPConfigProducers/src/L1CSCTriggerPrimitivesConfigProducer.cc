@@ -10,8 +10,8 @@
 
 #include <L1TriggerConfig/L1CSCTPConfigProducers/src/L1CSCTriggerPrimitivesConfigProducer.h>
 
-#include "CondFormats/CSCObjects/interface/CSCL1TPParameters.h"
-#include "CondFormats/DataRecord/interface/CSCL1TPParametersRcd.h"
+#include "CondFormats/L1TObjects/interface/L1CSCTPParameters.h"
+#include "CondFormats/DataRecord/interface/L1CSCTPParametersRcd.h"
 
 //----------------
 // Constructors --
@@ -49,8 +49,6 @@ L1CSCTriggerPrimitivesConfigProducer::L1CSCTriggerPrimitivesConfigProducer(const
   m_alct_drift_delay = alctParams.getParameter<unsigned int>("alctDriftDelay");
   m_alct_nph_thresh  = alctParams.getParameter<unsigned int>("alctNphThresh");
   m_alct_nph_pattern = alctParams.getParameter<unsigned int>("alctNphPattern");
-  m_alct_acc_thresh  = alctParams.getParameter<unsigned int>("alctAccThresh");
-  m_alct_acc_pattern = alctParams.getParameter<unsigned int>("alctAccPattern");
   m_alct_trig_mode   = alctParams.getParameter<unsigned int>("alctTrigMode");
   m_alct_alct_amode  = alctParams.getParameter<unsigned int>("alctAlctAmode");
   m_alct_l1a_window  = alctParams.getParameter<unsigned int>("alctL1aWindow");
@@ -85,13 +83,13 @@ L1CSCTriggerPrimitivesConfigProducer::~L1CSCTriggerPrimitivesConfigProducer() {
 //------------------
 
 // ------------ method called to produce the data  ------------
-std::auto_ptr<CSCL1TPParameters>
-L1CSCTriggerPrimitivesConfigProducer::produce(const CSCL1TPParametersRcd& iRecord) {
+std::auto_ptr<L1CSCTPParameters>
+L1CSCTriggerPrimitivesConfigProducer::produce(const L1CSCTPParametersRcd& iRecord) {
   using namespace edm::es;
   //boost::shared_ptr<L1CSCTriggerPrimitivesConfigProducer> pL1CSCTPConfigProducer;
 
   // Create empty collection of CSCTPParameters.
-  std::auto_ptr<CSCL1TPParameters> pL1CSCTPParams(new CSCL1TPParameters);
+  std::auto_ptr<L1CSCTPParameters> pL1CSCTPParams(new L1CSCTPParameters);
 
   // Set ALCT parameters.
   pL1CSCTPParams->setAlctFifoTbins(m_alct_fifo_tbins);
@@ -100,8 +98,6 @@ L1CSCTriggerPrimitivesConfigProducer::produce(const CSCL1TPParametersRcd& iRecor
   pL1CSCTPParams->setAlctDriftDelay(m_alct_drift_delay);
   pL1CSCTPParams->setAlctNphThresh(m_alct_nph_thresh);
   pL1CSCTPParams->setAlctNphPattern(m_alct_nph_pattern);
-  pL1CSCTPParams->setAlctAccThresh(m_alct_acc_thresh);
-  pL1CSCTPParams->setAlctAccPattern(m_alct_acc_pattern);
   pL1CSCTPParams->setAlctTrigMode(m_alct_trig_mode);
   pL1CSCTPParams->setAlctAlctAmode(m_alct_alct_amode);
   pL1CSCTPParams->setAlctL1aWindow(m_alct_l1a_window);

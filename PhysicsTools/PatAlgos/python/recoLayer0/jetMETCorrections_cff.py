@@ -25,7 +25,7 @@ import JetMETCorrections.Type1MET.corMetMuons_cfi
 # muon MET correction maker 
 corMetType1Icone5Muons = JetMETCorrections.Type1MET.corMetMuons_cfi.corMetMuons.clone()
 # JetMET corrections for muons: input jet-corrected MET
-corMetType1Icone5Muons.inputUncorMetLabel = cms.string('corMetType1Icone5')
+corMetType1Icone5Muons.inputUncorMetLabel = cms.InputTag('corMetType1Icone5')
 
 # It would be better to get this config to JetMETCorrections/Type1MET/data/ at some point
 corMetType1Icone5Muons.TrackAssociatorParameters.useEcal = False ## RecoHits

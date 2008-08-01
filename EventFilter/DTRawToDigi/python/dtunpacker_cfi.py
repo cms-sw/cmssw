@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 # a DTLocalTriggerCollection
 muonDTDigis = cms.EDFilter("DTUnpackingModule",
     dataType = cms.string('DDU'),
-    fedColl = cms.untracked.string('source'),
+    inputLabel = cms.untracked.InputTag('source'),
     fedbyType = cms.untracked.bool(False),
     useStandardFEDid = cms.untracked.bool(True),
     readOutParameters = cms.PSet(

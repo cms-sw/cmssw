@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from Geometry.CaloEventSetup.CaloGeometry_cfi import *
 from Geometry.CaloEventSetup.CaloTopology_cfi import *
 from TrackingTools.TransientTrack.TransientTrackBuilder_cfi import *
 from RecoBTau.JetTagComputer.jetTagRecord_cfi import *

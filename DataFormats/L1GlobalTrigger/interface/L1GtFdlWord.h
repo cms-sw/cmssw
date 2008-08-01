@@ -44,12 +44,8 @@ public:
         TechnicalTriggerWord gtTechnicalTriggerWordValue,
         DecisionWord gtDecisionWordValue,
         DecisionWordExtended gtDecisionWordExtendedValue,
-        boost::uint16_t gtPrescaleFactorIndexTechValue,
-        boost::uint16_t gtPrescaleFactorIndexAlgoValue,
         boost::uint16_t noAlgoValue,
         boost::uint16_t finalORValue,
-        boost::uint32_t orbitNrValue,
-        boost::uint16_t lumiSegmentNrValue,
         boost::uint16_t localBxNrValue
     );
 
@@ -74,7 +70,7 @@ public:
     }
 
     /// set BoardId from a BoardId value
-    void setBoardId(const boost::uint16_t& boardIdValue)
+    void setBoardId(boost::uint16_t boardIdValue)
     {
         m_boardId = boardIdValue;
     }
@@ -84,7 +80,7 @@ public:
 
     /// set the BoardId value in a 64-bits word, having the index iWord
     /// in the GTFE raw record
-    void setBoardIdWord64(boost::uint64_t& word64, const int iWord);
+    void setBoardIdWord64(boost::uint64_t& word64, int iWord);
 
 
 
@@ -94,7 +90,7 @@ public:
         return m_bxInEvent;
     }
 
-    void setBxInEvent(const int bxInEventValue)
+    void setBxInEvent(int bxInEventValue)
     {
         m_bxInEvent = bxInEventValue;
     }
@@ -104,7 +100,7 @@ public:
 
     /// set the BxInEvent value in a 64-bits word, having the index iWord
     /// in the GTFE raw record
-    void setBxInEventWord64(boost::uint64_t& word64, const int iWord);
+    void setBxInEventWord64(boost::uint64_t& word64, int iWord);
 
 
 
@@ -114,7 +110,7 @@ public:
         return m_bxNr;
     }
 
-    void setBxNr(const boost::uint16_t& bxNrValue)
+    void setBxNr(boost::uint16_t bxNrValue)
     {
         m_bxNr = bxNrValue;
     }
@@ -124,7 +120,7 @@ public:
 
     /// set the BxNr value in a 64-bits word, having the index iWord
     /// in the GTFE raw record
-    void setBxNrWord64(boost::uint64_t& word64, const int iWord);
+    void setBxNrWord64(boost::uint64_t& word64, int iWord);
 
 
 
@@ -134,7 +130,7 @@ public:
         return m_eventNr;
     }
 
-    void setEventNr(const boost::uint32_t& eventNrValue)
+    void setEventNr(boost::uint32_t eventNrValue)
     {
         m_eventNr = eventNrValue;
     }
@@ -144,7 +140,7 @@ public:
 
     /// set the EventNr value in a 64-bits word, having the index iWord
     /// in the GTFE raw record
-    void setEventNrWord64(boost::uint64_t& word64, const int iWord);
+    void setEventNrWord64(boost::uint64_t& word64, int iWord);
 
 
     /// get/set technical trigger bits
@@ -153,7 +149,7 @@ public:
         return m_gtTechnicalTriggerWord;
     }
 
-    void setGtTechnicalTriggerWord (const TechnicalTriggerWord& gtTechnicalTriggerWordValue)
+    void setGtTechnicalTriggerWord (TechnicalTriggerWord gtTechnicalTriggerWordValue)
     {
         m_gtTechnicalTriggerWord = gtTechnicalTriggerWordValue;
     }
@@ -165,7 +161,7 @@ public:
 
     /// set the technical trigger bits in a 64-bits word, having the index iWord
     /// in the GTFE raw record
-    void setGtTechnicalTriggerWordWord64(boost::uint64_t& word64, const int iWord);
+    void setGtTechnicalTriggerWordWord64(boost::uint64_t& word64, int iWord);
 
 
 
@@ -175,7 +171,7 @@ public:
         return m_gtDecisionWord;
     }
 
-    void setGtDecisionWord(const DecisionWord& gtDecisionWordValue)
+    void setGtDecisionWord(DecisionWord gtDecisionWordValue)
     {
         m_gtDecisionWord = gtDecisionWordValue;
     }
@@ -193,12 +189,12 @@ public:
     /// set the algorithms bits in two 64-bits word, having the first index iWord
     /// in the GTFE raw record
     /// WordA: bits 0-63
-    void setGtDecisionWordAWord64(boost::uint64_t& word64, const int iWord);
+    void setGtDecisionWordAWord64(boost::uint64_t& word64, int iWord);
 
     /// set the algorithms bits in two 64-bits word, having the first index iWord
     /// in the GTFE raw record
     /// WordB: bits 64-128
-    void setGtDecisionWordBWord64(boost::uint64_t& word64, const int iWord);
+    void setGtDecisionWordBWord64(boost::uint64_t& word64, int iWord);
 
 
     /// get/set extended algorithms bits (extended decision word)
@@ -207,7 +203,7 @@ public:
         return m_gtDecisionWordExtended;
     }
 
-    void setGtDecisionWordExtended (const DecisionWordExtended& gtDecisionWordExtendedValue)
+    void setGtDecisionWordExtended (DecisionWordExtended gtDecisionWordExtendedValue)
     {
         m_gtDecisionWordExtended = gtDecisionWordExtendedValue;
     }
@@ -219,57 +215,17 @@ public:
 
     /// set the extended algorithms bits in a 64-bits word, having the index iWord
     /// in the GTFE raw record
-    void setGtDecisionWordExtendedWord64(boost::uint64_t& word64, const int iWord);
+    void setGtDecisionWordExtendedWord64(boost::uint64_t& word64, int iWord);
 
 
 
-    /// get/set index of the set of prescale factors
-    
-    inline const boost::uint16_t gtPrescaleFactorIndexTech() const
-    {
-        return m_gtPrescaleFactorIndexTech;
-    }
-
-    void setGtPrescaleFactorIndexTech(const boost::uint16_t& gtPrescaleFactorIndexTechValue)
-    {
-        m_gtPrescaleFactorIndexTech = gtPrescaleFactorIndexTechValue;
-    }
-
-    /// set the GtPrescaleFactorIndexTech from a 64-bits word
-    void setGtPrescaleFactorIndexTech(const boost::uint64_t& word64);
-
-    /// set the GtPrescaleFactorIndexTech bits in a 64-bits word, having the index iWord
-    /// in the GTFE raw record
-    void setGtPrescaleFactorIndexTechWord64(boost::uint64_t& word64, const int iWord);
-
-    
-
-    inline const boost::uint16_t gtPrescaleFactorIndexAlgo() const
-    {
-        return m_gtPrescaleFactorIndexAlgo;
-    }
-
-    void setGtPrescaleFactorIndexAlgo(const boost::uint16_t& gtPrescaleFactorIndexAlgoValue)
-    {
-        m_gtPrescaleFactorIndexAlgo = gtPrescaleFactorIndexAlgoValue;
-    }
-
-    /// set the GtPrescaleFactorIndexAlgo from a 64-bits word
-    void setGtPrescaleFactorIndexAlgo(const boost::uint64_t& word64);
-
-    /// set the GtPrescaleFactorIndexAlgo bits in a 64-bits word, having the index iWord
-    /// in the GTFE raw record
-    void setGtPrescaleFactorIndexAlgoWord64(boost::uint64_t& word64, const int iWord);
-    
-
-    
     /// get/set NoAlgo
     inline const boost::uint16_t noAlgo() const
     {
         return m_noAlgo;
     }
 
-    void setNoAlgo(const boost::uint16_t& noAlgoValue)
+    void setNoAlgo(boost::uint16_t noAlgoValue)
     {
         m_noAlgo = noAlgoValue;
     }
@@ -279,7 +235,7 @@ public:
 
     /// set the NoAlgo bits in a 64-bits word, having the index iWord
     /// in the GTFE raw record
-    void setNoAlgoWord64(boost::uint64_t& word64, const int iWord);
+    void setNoAlgoWord64(boost::uint64_t& word64, int iWord);
 
 
 
@@ -289,7 +245,7 @@ public:
         return m_finalOR;
     }
 
-    void setFinalOR(const boost::uint16_t& finalORValue)
+    void setFinalOR(boost::uint16_t finalORValue)
     {
         m_finalOR = finalORValue;
     }
@@ -299,7 +255,7 @@ public:
 
     /// set the "Final OR" bits in a 64-bits word, having the index iWord
     /// in the GTFE raw record
-    void setFinalORWord64(boost::uint64_t& word64, const int iWord);
+    void setFinalORWord64(boost::uint64_t& word64, int iWord);
 
 
 
@@ -308,54 +264,13 @@ public:
         return static_cast<bool> (m_finalOR);
     }
 
-
-    /// get/set orbit number
-    inline const boost::uint32_t orbitNr() const
-    {
-        return m_orbitNr;
-    }
-
-    void setOrbitNr(const boost::uint32_t& orbitNrValue)
-    {
-        m_orbitNr = orbitNrValue;
-    }
-
-    /// set the orbit number bits from a 64-bits word
-    void setOrbitNr(const boost::uint64_t& word64);
-
-    /// set the orbit number bits in a 64-bits word, having the index iWord
-    /// in the GTFE raw record
-    void setOrbitNrWord64(boost::uint64_t& word64, const int iWord);
-
-    
-    
-    /// get/set luminosity segment number of the actual bx
-    inline const boost::uint16_t lumiSegmentNr() const
-    {
-        return m_lumiSegmentNr;
-    }
-
-    void setLumiSegmentNr(const boost::uint16_t& lumiSegmentNrValue)
-    {
-        m_lumiSegmentNr = lumiSegmentNrValue;
-    }
-
-    /// set the luminosity segment number bits from a 64-bits word
-    void setLumiSegmentNr(const boost::uint64_t& word64);
-
-    /// set the luminosity segment number bits in a 64-bits word, having the index iWord
-    /// in the GTFE raw record
-    void setLumiSegmentNrWord64(boost::uint64_t& word64, const int iWord);
-    
- 
-    
     /// get/set local bunch cross number of the actual bx
     inline const boost::uint16_t localBxNr() const
     {
         return m_localBxNr;
     }
 
-    void setLocalBxNr(const boost::uint16_t& localBxNrValue)
+    void setLocalBxNr(boost::uint16_t localBxNrValue)
     {
         m_localBxNr = localBxNrValue;
     }
@@ -365,7 +280,7 @@ public:
 
     /// set the local bunch cross number bits in a 64-bits word, having the index iWord
     /// in the GTFE raw record
-    void setLocalBxNrWord64(boost::uint64_t& word64, const int iWord);
+    void setLocalBxNrWord64(boost::uint64_t& word64, int iWord);
 
 
 
@@ -441,32 +356,18 @@ private:
     static const int GtDecisionWordExtendedShift;
 
     // word 5
-    static const int GtPrescaleFactorIndexTechWord;    
-    static const int GtPrescaleFactorIndexAlgoWord;
     static const int NoAlgoWord;
     static const int FinalORWord;
 
-    static const boost::uint64_t GtPrescaleFactorIndexTechMask;    
-    static const boost::uint64_t GtPrescaleFactorIndexAlgoMask;
     static const boost::uint64_t NoAlgoMask;
     static const boost::uint64_t FinalORMask;
 
-    static const int GtPrescaleFactorIndexTechShift;    
-    static const int GtPrescaleFactorIndexAlgoShift;
     static const int NoAlgoShift;
     static const int FinalORShift;
 
     // word 6
-    static const int OrbitNrWord;
-    static const int LumiSegmentNrWord;
     static const int LocalBxNrWord;
-
-    static const boost::uint64_t OrbitNrMask;
-    static const boost::uint64_t LumiSegmentNrMask;
     static const boost::uint64_t LocalBxNrMask;
-
-    static const int OrbitNrShift;
-    static const int LumiSegmentNrShift;
     static const int LocalBxNrShift;
 
 private:
@@ -496,30 +397,19 @@ private:
     DecisionWordExtended m_gtDecisionWordExtended;
 
     //
-    /// index of the set of prescale factors in the DB/EventSetup
-    /// for algorithm triggers and technical triggers
-    boost::uint16_t m_gtPrescaleFactorIndexTech;
-    boost::uint16_t m_gtPrescaleFactorIndexAlgo;
 
-    /// true if no algorithm (from a defined group - default all) triggered
+    // TODO meaning; just one bit?
     boost::uint16_t m_noAlgo;
 
     /// FINOR (7:0) Final OR bits.
     /// FINOR(i) is connected to Partition (i);
     boost::uint16_t m_finalOR;
-        
-    //
-    
-    /// orbit number
-    boost::uint32_t m_orbitNr;
 
-    /// luminosity segment number
-    boost::uint16_t m_lumiSegmentNr;
+    //
 
     /// local bunch cross number of the actual bx
     /// bx number at which the data were written into the ringbuffer
     boost::uint16_t m_localBxNr;
-    
 
 
 };

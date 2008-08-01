@@ -1,13 +1,19 @@
 #ifndef PIXELFECCONFIGINTERFACE_H
 #define PIXELFECCONFIGINTERFACE_H
-/**
-*   \file CalibFormats/SiPixelObjects/interface/PixelFECConfigInterface.h
-*   \brief This class intends to define an abstract interface for the commands to talk to the PixelFEC.
-*
-*   ******THIS SHOULD REALLY BE IN A SEPARATE PACKAGE*****
-*
-*   A longer explanation will be placed here later
-*/
+//
+// This class intends to define an abstract interface for the
+// commands to talk to the PixelFEC.
+//
+//  ******THIS SHOULD REALLY BE IN A SEPARATE PACKAGE*****
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 #include <vector>
 #include <string>
@@ -15,12 +21,6 @@
 
 
 namespace pos{
-/*! \class PixelFECConfigInterface PixelFECConfigInterface.h "interface/PixelFECConfigInterface.h"
-*   \brief This class implements..
-*
-*   A longer explanation will be placed here later
-
-*/
   class PixelFECConfigInterface{
 
   public:
@@ -31,33 +31,51 @@ namespace pos{
 
     //Generate the commands needed to set the trim and mask bits that
     //are specified by the vector allPixels. 
+    //NOT YET IMPLEMENTED 
+    //The commands are not executed until method executeCommandStack() is called.
+    //NOT YET IMPLEMENTED  
 
     virtual void setMaskAndTrimAll(const PixelHdwAddress& theROC,
-				   const std::vector<unsigned char>& allPixels,
-				   const bool buffermode=false)=0;
-
-    virtual void setDcolEnableAll(const PixelHdwAddress& theROC,
-                                  unsigned char maskAndTrim,
-                                  const bool buffermode=false )=0;
+				   const std::vector<unsigned char>& allPixels)=0;
 
     //Generate the commands needed to set the trim and mask bits for all
     //pixels to the common value specified by maskAndTrim. 
-    // DO WE REALY NEED THIS?? Danek 15/4/08
-    //virtual void setMaskAndTrimCommon(const PixelHdwAddress& theROC,
-    //			      unsigned char maskAndTrim,)=0;
+    //NOT YET IMPLEMENTED  
+    //The commands are not executed
+    //until method executeCommandStack() is called.
+    //NOT YET IMPLEMENTED  
+    virtual void setMaskAndTrimCommon(const PixelHdwAddress& theROC,
+				      unsigned char maskAndTrim)=0;
   
     //Generate the commands needed to set the DAC values for a ROC.
+    //NOT YET IMPLEMENTED
+    //The commands are not executed
+    //until method executeCommandStack() is called.
+    //NOT YET IMPLEMENTED
     virtual void setAllDAC(const PixelHdwAddress& theROC, 
-			   const std::vector<unsigned int>& dacs,
-			   const bool buffermode=false) = 0;
+			   const std::vector<unsigned int>& dacs)=0;
+
+    //NOT YET IMPLEMENTED
+    //This method executes the commands that have been generated, i.e.,
+    //sends them via VME to the FEC in chunks for the right size.
+    // mode=0 (default) means that commands are combined such that
+    //        they are as large as possible without exceeding the 
+    //        1 kbyte limit. Also commands are executed in the same
+    //        orders as they were generated.
+    // mode=-1 means that the commands are sent one at the time as they
+    //        were generated.
+    //NOT YET IMPLEMENTED
+    virtual void executeCommandStack(int mode=0)=0;
+
+    //NOT YET IMPLEMENTED
+    //This method cleans the command stack.
+    //NOT YET IMPLEMENTED
+    virtual void cleanCommandStack()=0;
+
 
     virtual int roctrimload(int mfec, int fecchannel, 
 			    int hubaddress, int portaddress, int rocid,
 			    const std::vector<unsigned char>& allPixels)=0;
-
-    virtual int rocinit(int mfec, int fecchannel,
-                        int hubaddress, int portaddress, int rocid,
-                        int mask, int trim)=0;
 
     virtual int injectrstroc(const int mfec, const int bitstate)=0;
     virtual int injecttrigger(const int mfec, const int bitstate)=0;
@@ -122,12 +140,10 @@ namespace pos{
 			    int mymask, 
 			    int mytrim,
 			    int nTry,
-			    int commands,
 			    int& success0, 
 			    int& success1,
 			    int& success2, 
-			    int& success3,
-			    int& success4)=0;
+			    int& success3)=0;
     
 
     virtual int rocreset(int mfec, int fecchannel, 

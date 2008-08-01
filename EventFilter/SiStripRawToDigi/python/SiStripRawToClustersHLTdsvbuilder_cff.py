@@ -5,7 +5,7 @@ from EventFilter.SiStripRawToDigi.SiStripRawToClusters_cfi import *
 # raw-to-clusters regions of interest module
 from EventFilter.SiStripRawToDigi.SiStripRawToClustersRoI_cfi import *
 # DetSetVector builder
-siStripClusters = cms.EDFilter("SiStripClustersDSVBuilder",
+siStripClusters = cms.ESProducer("SiStripClustersDSVBuilder",
     SiStripLazyGetter = cms.InputTag("SiStripRawToClustersFacility"),
     SiStripRefGetter = cms.InputTag("SiStripRoI")
 )

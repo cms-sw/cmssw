@@ -35,7 +35,7 @@ public:
 
   explicit MuonCandProducerMon(const edm::ParameterSet&);
   ~MuonCandProducerMon();
-  
+
 private:
 
   virtual void beginJob(const edm::EventSetup&);
@@ -45,11 +45,13 @@ private:
   int verbose() {return verbose_;}
 
  private:
- 
+
   int verbose_;
   edm::InputTag CSCinput_;
   edm::InputTag DTinput_;
-  CSCTFPtLUT *ptLUT_;
+  CSCTFPtLUT *cscPtLUT_;
+  unsigned long long m_scalesCacheID ;
+  unsigned long long m_ptScaleCacheID ;
 
 };
 

@@ -46,7 +46,6 @@ TSGForRoadSearch::TSGForRoadSearch(const edm::ParameterSet & par){
   edm::ParameterSet errorMatrixPset = par.getParameter<edm::ParameterSet>("errorMatrixPset");
   if (!errorMatrixPset.empty()){
     theAdjustAtIp = errorMatrixPset.getParameter<bool>("atIP");
-    theScale = !errorMatrixPset.getParameter<bool>("assignError");
     theErrorMatrixAdjuster = new MuonErrorMatrix(errorMatrixPset);}
   else {
     theAdjustAtIp =false;
@@ -55,7 +54,6 @@ TSGForRoadSearch::TSGForRoadSearch(const edm::ParameterSet & par){
 TSGForRoadSearch::~TSGForRoadSearch(){
   delete theChi2Estimator;
   if (theUpdator)  delete theUpdator;
-  if (theErrorMatrixAdjuster) delete theErrorMatrixAdjuster;
 }
 
 
@@ -89,13 +87,8 @@ void  TSGForRoadSearch::trackerSeeds(const TrackCand & muonTrackCand, const Trac
 void TSGForRoadSearch::adjust(FreeTrajectoryState & state){
   CurvilinearTrajectoryError oMat = state.curvilinearError();
   CurvilinearTrajectoryError sfMat = theErrorMatrixAdjuster->get(state.momentum());//FIXME with position
-
-  if (theScale){
-    MuonErrorMatrix::multiply(oMat, sfMat);
-  }
-  else{
-    oMat=sfMat;
-  }
+  MuonErrorMatrix::multiply(oMat, sfMat);
+  
   state = FreeTrajectoryState(state.parameters(),
 			      oMat);
 }
@@ -103,13 +96,8 @@ void TSGForRoadSearch::adjust(FreeTrajectoryState & state){
 void TSGForRoadSearch::adjust(TrajectoryStateOnSurface & state){
   CurvilinearTrajectoryError oMat = state.curvilinearError();
   CurvilinearTrajectoryError sfMat = theErrorMatrixAdjuster->get(state.globalMomentum());//FIXME with position
-
-  if (theScale){
   MuonErrorMatrix::multiply(oMat, sfMat);
-  }
-  else{
-    oMat=sfMat;
-  }
+  
   state = TrajectoryStateOnSurface(state.globalParameters(),
 				   oMat,
 				   state.surface(),

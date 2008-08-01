@@ -40,16 +40,12 @@ namespace edm {
     static
     std::auto_ptr<SendJobHeader> deserializeRegistry(InitMsgView const& initView);
 
+    std::auto_ptr<SendJobHeader> deserializeAndMergeWithRegistry(InitMsgView const& initView);
+
     std::auto_ptr<EventPrincipal> deserializeEvent(EventMsgView const& eventView);
 
-    void mergeWithRegistry(SendDescs const& descs);
-
-    static void mergeIntoRegistry(SendDescs const& descs, ProductRegistry&);
-
-    void
-    setProcessHistoryID(ProcessHistoryID phid) {
-      processHistoryID_ = phid;
-    }
+    static
+    void mergeIntoRegistry(SendDescs const& descs, ProductRegistry&);
 
     /**
      * Uncompresses the data in the specified input buffer into the
@@ -88,7 +84,6 @@ namespace edm {
     bool newLumi_;
     std::auto_ptr<EventPrincipal> ep_;
 
-    ProcessHistoryID processHistoryID_;
     TClass* tc_;
     std::vector<unsigned char> dest_;
     RootBuffer xbuf_;

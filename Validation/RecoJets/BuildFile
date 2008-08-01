@@ -1,11 +1,17 @@
+<flags EDM_PLUGIN=1>
 <use name=FWCore/Framework>
-<use name=FWCore/ParameterSet>
 <use name=FWCore/MessageLogger>
+<use name=FWCore/ParameterSet>
 <use name=FWCore/ServiceRegistry>
-<use name=PhysicsTools/UtilAlgos>
-<use name=root>
+<use name=DQMServices/Core>
+<use name=DataFormats/JetReco>
+<use name=RecoJets/JetAlgorithms>
 <export>
    <lib name=ValidationRecoJets>
+   <use name=FWCore/Framework>
    <use name=FWCore/MessageLogger>
-   <use name=root>
+   <use name=FWCore/ParameterSet>
+   <use name=FWCore/ServiceRegistry>
+   <use name=DQMServices/Core>
+   <use name=DataFormats/JetReco>
 </export>

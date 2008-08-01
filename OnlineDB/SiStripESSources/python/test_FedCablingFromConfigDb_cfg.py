@@ -1,15 +1,20 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("test_FedCablingFromConfigDb")
+process = cms.Process("testFedCablingFromConfigDb")
+
 process.load("DQM.SiStripCommon.MessageLogger_cfi")
 
 process.load("OnlineDB.SiStripESSources.FedCablingFromConfigDb_cff")
+process.SiStripConfigDb.UsingDb = True
+process.SiStripConfigDb.ConfDb  = ''
+process.SiStripConfigDb.Partitions.PrimaryPartition.PartitionName = ''
+process.SiStripConfigDb.Partitions.PrimaryPartition.RunNumber     = 0
+process.FedCablingFromConfigDb.CablingSource = 'UNDEFINED'
 
 process.load("IORawData.SiStripInputSources.EmptySource_cff")
+process.maxEvents.input = 2
 
-process.test = cms.EDFilter("test_FedCablingBuilder")
+process.test = cms.EDAnalyzer("test_FedCablingBuilder")
 
 process.p = cms.Path(process.test)
-process.FedCablingFromConfigDb.CablingSource = 'UNDEFINED'
-process.maxEvents.input = 2
 

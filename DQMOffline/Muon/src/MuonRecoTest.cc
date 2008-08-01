@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/07/12 10:48:17 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/06/09 13:41:20 $
+ *  $Revision: 1.5 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -38,8 +38,8 @@ MuonRecoTest::MuonRecoTest(const edm::ParameterSet& ps){
   cout << "[MuonRecoTest]: Constructor called!"<<endl;
   parameters = ps;
 
-  theDbe = edm::Service<DQMStore>().operator->();
-  theDbe->setVerbose(1);
+  dbe = edm::Service<DQMStore>().operator->();
+  dbe->setVerbose(1);
 
   prescaleFactor = parameters.getUntrackedParameter<int>("diagnosticPrescale", 1);
 
@@ -56,7 +56,7 @@ MuonRecoTest::~MuonRecoTest(){
 void MuonRecoTest::beginJob(const edm::EventSetup& context){
 
   metname = "muonRecoTest";
-  theDbe->setCurrentFolder("Muons/Tests/muonRecoTest");
+  dbe->setCurrentFolder("Muons/Tests/muonRecoTest");
 
   LogTrace(metname)<<"[MuonRecoTest] Parameters initialization";
  
@@ -65,19 +65,19 @@ void MuonRecoTest::beginJob(const edm::EventSetup& context){
   etaBin = parameters.getParameter<int>("etaBin");
   etaMin = parameters.getParameter<double>("etaMin");
   etaMax = parameters.getParameter<double>("etaMax");
-  etaEfficiency = theDbe->book1D("etaEfficiency_staMuon", "etaEfficiency_staMuon", etaBin, etaMin, etaMax);
+  etaEfficiency = dbe->book1D("etaEfficiency_staMuon", "etaEfficiency_staMuon", etaBin, etaMin, etaMax);
 
   phiBin = parameters.getParameter<int>("phiBin");
   phiMin = parameters.getParameter<double>("phiMin");
   phiMax = parameters.getParameter<double>("phiMax");
-  phiEfficiency = theDbe->book1D("phiEfficiency_staMuon", "phiEfficiency_staMuon", phiBin, phiMin, phiMax);
+  phiEfficiency = dbe->book1D("phiEfficiency_staMuon", "phiEfficiency_staMuon", phiBin, phiMin, phiMax);
 
 }
 
 
 void MuonRecoTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
 
-  LogTrace(metname)<<"[MuonRecoTest]: Begin of LS transition";
+  cout<<"[MuonRecoTest]: Begin of LS transition"<<endl;
 
   // Get the run number
   run = lumiSeg.run();
@@ -105,9 +105,9 @@ void MuonRecoTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup
   if ( nLumiSegs%prescaleFactor != 0 ) return;
 
   string path = "Muons/MuonRecoAnalyzer/StaEta_ifCombinedAlso";
-  MonitorElement * staEtaIfComb_histo = theDbe->get(path);
+  MonitorElement * staEtaIfComb_histo = dbe->get(path);
   path = "Muons/MuonRecoAnalyzer/StaEta";
-  MonitorElement * staEta_histo = theDbe->get(path);
+  MonitorElement * staEta_histo = dbe->get(path);
 
   if(staEtaIfComb_histo && staEta_histo){
     TH1F * staEtaIfComb_root = staEtaIfComb_histo->getTH1F();
@@ -129,9 +129,9 @@ void MuonRecoTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup
   }
 
   path = "Muons/MuonRecoAnalyzer/StaPhi_ifCombinedAlso";
-  MonitorElement * staPhiIfComb_histo = theDbe->get(path);
+  MonitorElement * staPhiIfComb_histo = dbe->get(path);
   path = "Muons/MuonRecoAnalyzer/StaPhi";
-  MonitorElement * staPhi_histo = theDbe->get(path);
+  MonitorElement * staPhi_histo = dbe->get(path);
 
   if(staPhiIfComb_histo && staPhi_histo){
  
@@ -184,7 +184,7 @@ void MuonRecoTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup
 void MuonRecoTest::endJob(){
   
   LogTrace(metname)<< "[MuonRecoTest] endjob called!";
-  theDbe->rmdir("Muons/Tests/muonRecoTest");
+  dbe->rmdir("Muons/Tests/muonRecoTest");
   
 }
   

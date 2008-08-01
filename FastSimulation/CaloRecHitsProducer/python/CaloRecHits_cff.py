@@ -33,13 +33,13 @@ caloRecHits = cms.EDProducer("CaloRecHitsProducer",
             EnableSaturation = cms.bool(True),
 
             NoiseHB = cms.double(0.23),
-            ThresholdHB = cms.double(0.9),
+            ThresholdHB = cms.double(-0.5),
 
             NoiseHE = cms.double(0.31),
-            ThresholdHE = cms.double(1.4),
+            ThresholdHE = cms.double(-0.5),
             
             NoiseHO = cms.double(0.17),
-            ThresholdHO = cms.double(1.1),
+            ThresholdHO = cms.double(-0.5),
 
             NoiseHF = cms.double(0.0),
             ThresholdHF = cms.double(0.5),

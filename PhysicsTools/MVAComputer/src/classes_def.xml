@@ -1,7 +1,10 @@
 <lcgdict>
 	<class name="PhysicsTools::MVAComputer"/>
+<!--
+This causes problems with a monolithic build and ROOT confusing namespaces
 	<class name="PhysicsTools::BitSet"/>
 	<class name="PhysicsTools::BitSet::Manipulator"/>
+-->
 	<class name="PhysicsTools::Variable"/>
 	<class name="PhysicsTools::Variable::Value"/>
 	<class name="PhysicsTools::Variable::ValueList"/>

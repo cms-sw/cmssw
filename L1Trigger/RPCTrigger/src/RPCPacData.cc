@@ -76,6 +76,34 @@ RPCPacData::RPCPacData(const RPCPattern::RPCPatVec &patVec,
 
    
 }
+
+
+
+RPCPacData::RPCPacData(const L1RPCConfig * rpcconf, const int tower, const int sector, const int segment):
+  m_MaxQuality(0)
+{
+
+    for (unsigned int iqual=0; iqual<rpcconf->m_quals.size(); iqual++){
+
+      if (rpcconf->m_quals[iqual].m_tower != tower ||  
+          rpcconf->m_quals[iqual].m_logsector != sector ||
+          rpcconf->m_quals[iqual].m_logsegment != segment )  continue;
+
+      RPCPattern::TQuality quality =rpcconf->m_quals[iqual];
+      std::bitset<RPCConst::m_LOGPLANES_COUNT> qualBits(quality.m_FiredPlanes);
+      unsigned short firedPlanes = qualBits.to_ulong();
+      insertQualityRecord(quality.m_QualityTabNumber, firedPlanes, quality.m_QualityValue);
+
+    }
+
+  insertPatterns(rpcconf->m_pats,tower,sector,segment);
+
+}
+
+
+
+
+
 /**
  *
  * @return the count af all patterns gropu, i.e. 1 + m_EnergeticPatternsGroupList.size(). 
@@ -182,14 +210,22 @@ void RPCPacData::insertQualityRecord(unsigned int qualityTabNumber,
 }
 
 
-void RPCPacData::insertPatterns(const RPCPattern::RPCPatVec& patternsVec) {
-     
+void RPCPacData::insertPatterns(const RPCPattern::RPCPatVec& patternsVec, const int tower, const int sector, const int segment) {
+   
+  bool ignorePos = false;
+  if ( tower == 99 || sector == 99 || segment == 99) ignorePos = true; 
+  
   RPCConst rpcconst;
   
   for(RPCPattern::RPCPatVec::const_iterator patIt = patternsVec.begin();
       patIt != patternsVec.end();
       patIt++)
   {
+    if (!ignorePos &&
+         (patIt->getTower() != tower  
+          || patIt->getLogSector() != sector  
+          || patIt->getLogSegment() != segment) ) continue;
+    
     if(patIt->getPatternType() == RPCPattern::PAT_TYPE_T)
       m_TrackPatternsGroup.addPattern(patIt);
     else if(patIt->getPatternType() == RPCPattern::PAT_TYPE_E) {

@@ -27,8 +27,8 @@
 //                Based on code by Nick Wisniewski (nw@its.caltech.edu)
 //                and a framework by Darin Acosta (acosta@phys.ufl.edu).
 //
-//   $Date: 2008/06/12 15:26:40 $
-//   $Revision: 1.14 $
+//   $Date: 2008/03/03 14:38:41 $
+//   $Revision: 1.12 $
 //
 //   Modifications: Numerous later improvements by Jason Mumford and
 //                  Slava Valuev (see cvs in ORCA).
@@ -108,7 +108,7 @@ void CSCMotherboard::clear() {
 }
 
 // Set configuration parameters obtained via EventSetup mechanism.
-void CSCMotherboard::setConfigParameters(const CSCL1TPParameters* conf) {
+void CSCMotherboard::setConfigParameters(const L1CSCTPParameters* conf) {
   alct->setConfigParameters(conf);
   clct->setConfigParameters(conf);
   // No config. parameters for the TMB itself yet.
@@ -253,7 +253,7 @@ CSCCorrelatedLCTDigi CSCMotherboard::constructLCTs(const CSCALCTDigi& aLCT,
   int trknmb = 0;
   CSCCorrelatedLCTDigi thisLCT(trknmb, 1, quality, aLCT.getKeyWG(),
 			       cLCT.getKeyStrip(), pattern, cLCT.getBend(),
-			       bx, 0, 0, 0, theTrigChamber);
+			       bx);
   return thisLCT;
 }
 

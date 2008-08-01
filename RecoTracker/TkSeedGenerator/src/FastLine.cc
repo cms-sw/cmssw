@@ -36,7 +36,7 @@ void FastLine::createLineParameters() {
   if(theRho > 0.) {
     if (fabs( 1. - theInnerHit.perp2()/(2.*theRho*theRho) ) > 1.) rphi0 = theInnerHit.perp();
     else rphi0 = theRho*acos(1. - theInnerHit.perp2()/(2.*theRho*theRho));
-    if (fabs(1. - theOuterHit.perp2()/(2.*theRho*theRho) ) >1.) rphi1 = theInnerHit.perp();
+    if (fabs(1. - theOuterHit.perp2()/(2.*theRho*theRho) ) >1.) rphi1 = theOuterHit.perp();
     else rphi1 = theRho*acos(1. - theOuterHit.perp2()/(2.*theRho*theRho));
   } else {
     rphi0 = theInnerHit.perp();

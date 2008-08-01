@@ -15,13 +15,13 @@ simSiStripDigis = cms.EDFilter("SiStripDigitizer",
     #SiTrivialInduceChargeOnStrips
     # DECOnvolution Mode
     # TIB
-    CouplingCostantDecoTIB = cms.vdouble(0.76, 0.12),
+    CouplingCostantDecTIB = cms.vdouble(0.76, 0.12),
     # TID
-    CouplingCostantDecoTID = cms.vdouble(0.76, 0.12),
+    CouplingCostantDecTID = cms.vdouble(0.76, 0.12),
     # TOB
-    CouplingCostantDecoTOB = cms.vdouble(0.76, 0.12),
+    CouplingCostantDecTOB = cms.vdouble(0.76, 0.12),
     # TEC
-    CouplingCostantDecoTEC = cms.vdouble(0.76, 0.12),
+    CouplingCostantDecTEC = cms.vdouble(0.76, 0.12),
     # PEAK Mode
     # TIB
     CouplingCostantPeakTIB = cms.vdouble(0.94, 0.03),

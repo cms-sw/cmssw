@@ -1,11 +1,14 @@
 #ifndef PixelFECConfig_h
 #define PixelFECConfig_h
-/**
-*   \file CalibFormats/SiPixelObjects/interface/PixelFECConfig.h
-*   \brief This class specifies which FEC boards are used and how they are addressed
-*
-*   A longer explanation will be placed here later
-*/
+//
+// This class specifies which FEC boards
+// are used and how they are addressed
+// 
+// 
+// 
+//
+//
+//
 #include <iostream>
 #include <vector>
 #include <string>
@@ -14,13 +17,6 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelFECParameters.h"
 
 namespace pos{
-/*!  \ingroup ConfigurationObjects "Configuration Objects"
-*    
-*  @{
-*
-*  \class PixelFECConfig PixelFECConfig.h
-*  \brief This class specifies which FEC boards are used and how they are addressed
-*/
   class PixelFECConfig: public PixelConfigBase {
 
   public:
@@ -40,7 +36,6 @@ namespace pos{
     unsigned int FECSlotFromFECNumber(unsigned int fecnumber) {return FECSlotFromVMEBaseAddress(VMEBaseAddressFromFECNumber(fecnumber));}
 
     void writeASCII(std::string dir="") const;
-    void writeXML(pos::PixelConfigKey key, int version, std::string path) const {;}
 
     //friend std::ostream& operator<<(std::ostream& s, const PixelDetectorconfig& config);
 
@@ -61,5 +56,4 @@ namespace pos{
  
   };
 }
-/* @} */
 #endif

@@ -107,8 +107,6 @@ private:
     /// assume symmetrical number of BX around L1Accept
     int m_maxBxInEvent;
 
-    /// length of BST record (in bytes)
-    int m_bstLengthBytes;
 
 };
 

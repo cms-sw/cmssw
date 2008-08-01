@@ -142,8 +142,8 @@ DQMStore::DQMStore(const edm::ParameterSet &pset)
     std::cout << "DQMStore: verbosity set to " << verbose_ << std::endl;
 
   collateHistograms_ = pset.getUntrackedParameter<bool>("collateHistograms", false);
-  if (! collateHistograms_)
-    std::cout << "DQMStore: disabling histogram collation\n";
+  if (collateHistograms_)
+    std::cout << "DQMStore: histogram collation is enabled\n";
 
   std::string ref = pset.getUntrackedParameter<std::string>("referenceFileName", "");
   if (! ref.empty())
@@ -336,6 +336,8 @@ DQMStore::book(const std::string &dir, const std::string &name,
                   << context << ": monitor element '"
                   << path << "' already exists" << std::endl;
       me->Reset();
+      collate(me, h);
+      delete h;
       return me;
     }
   }

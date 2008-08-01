@@ -2,8 +2,8 @@
  *  Class:PostProcessor 
  *
  *
- *  $Date: 2008/07/15 18:43:44 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/05/27 14:12:35 $
+ *  $Revision: 1.1 $
  * 
  *  \author Junghwan Goh - SungKyunKwan University
  */
@@ -17,7 +17,7 @@
 
 #include <TH1F.h>
 #include <cmath>
-//#include <boost/tokenizer.hpp>
+#include <boost/tokenizer.hpp>
 
 using namespace std;
 using namespace edm;
@@ -43,7 +43,8 @@ void PostProcessor::endJob()
   }
 
   theDQM = dqm;
-  
+  theDQM->setCurrentFolder(subDir_);
+
   for(vstring::const_iterator iCmd = commands_.begin();
       iCmd != commands_.end(); ++iCmd) {
     const string& cmd = *iCmd;
@@ -62,18 +63,31 @@ void PostProcessor::endJob()
 
     if ( args.empty() ) continue;
 
-    processLoop(args[0],args);
-
+    switch ( args[0][0] ) {
+     // Efficiency plots
+     case 'E':
+     case 'e':
+      if ( args.size() != 5 ) continue;;
+      computeEfficiency(args[1], args[2], args[3], args[4]);
+      break;
+     // Resolution plots
+     case 'R':
+     case 'r':
+      if ( args.size() != 4 ) continue;;
+      computeResolution(args[1], args[2], args[3]);
+      break;
+     default:
+      LogError("PostProcessor") << "Invalid command\n";
+    }
   }
 
   if ( ! outputFileName_.empty() ) theDQM->save(outputFileName_);
 }
 
-void PostProcessor::computeEfficiency(const string& startDir, const string& efficMEName, const string& efficMETitle,
+void PostProcessor::computeEfficiency(const string& efficMEName, const string& efficMETitle,
                                       const string& recoMEName, const string& simMEName)
 {
-  theDQM->cd(startDir);
-  ME* simME  = theDQM->get(simMEName);
+  ME* simME  = theDQM->get(simMEName );
   ME* recoME = theDQM->get(recoMEName);
   if ( !simME || !recoME ) {
     LogError("PostProcessor") << "computeEfficiency() : No reco-ME '" << recoMEName 
@@ -88,7 +102,7 @@ void PostProcessor::computeEfficiency(const string& startDir, const string& effi
     return;
   }
 
-  theDQM->setCurrentFolder(startDir);
+  theDQM->setCurrentFolder(subDir_);
   ME* efficME = theDQM->book1D(efficMEName, efficMETitle, hSim->GetNbinsX(), hSim->GetXaxis()->GetXmin(), hSim->GetXaxis()->GetXmax());
   if ( !efficME ) {
     LogError("PostProcessor") << "computeEfficiency() : Cannot book effic-ME from the DQM\n";
@@ -97,8 +111,8 @@ void PostProcessor::computeEfficiency(const string& startDir, const string& effi
 
   hReco->Sumw2();
   hSim->Sumw2();
-  //  efficME->getTH1F()->Divide(hReco, hSim, 1., 1., "B");
-
+  efficME->getTH1F()->Divide(hReco, hSim, 1., 1., "B");
+/*
   const int nBin = efficME->getNbinsX();
   for(int bin = 0; bin <= nBin; ++bin) {
     const float nSim  = simME ->getBinContent(bin);
@@ -108,13 +122,12 @@ void PostProcessor::computeEfficiency(const string& startDir, const string& effi
     efficME->setBinContent(bin, eff);
     efficME->setBinError(bin, err);
   }
-
+*/
 }
 
-void PostProcessor::computeResolution(const string& startDir, const string& namePrefix, const string& titlePrefix,
+void PostProcessor::computeResolution(const string& namePrefix, const string& titlePrefix,
                                       const std::string& srcName)
 {
-  theDQM->cd(startDir);
   ME* srcME = theDQM->get(srcName);
   if ( !srcME ) {
     LogError("PostProcessor") << "computeResolution() : No source ME '" << srcName << "' found\n";
@@ -127,94 +140,11 @@ void PostProcessor::computeResolution(const string& startDir, const string& name
     return;
   }
 
-  theDQM->setCurrentFolder(startDir);
-
-  const int nBin = hSrc->GetNbinsX();
-  const double xMin = hSrc->GetXaxis()->GetXmin();
-  const double xMax = hSrc->GetXaxis()->GetXmax();
-
-  ME* meanME = theDQM->book1D(namePrefix+"_Mean", titlePrefix+" Mean", nBin, xMin, xMax);
-  ME* sigmaME = theDQM->book1D(namePrefix+"_Sigma", titlePrefix+" Sigma", nBin, xMin, xMax);
-//  ME* chi2ME  = theDQM->book1D(namePrefix+"_Chi2" , titlePrefix+" #Chi^{2}", nBin, xMin, xMax); // N/A
-
+  theDQM->setCurrentFolder(subDir_);
+  ME* sigmaME = theDQM->book1D(namePrefix+"_Sigma", titlePrefix+" Sigma", 
+                               hSrc->GetNbinsX(), hSrc->GetXaxis()->GetXmin(), hSrc->GetXaxis()->GetXmax());
   FitSlicesYTool fitTool(srcME);
-  fitTool.getFittedMeanWithError(meanME);
   fitTool.getFittedSigmaWithError(sigmaME);
-//  fitTool.getFittedChisqWithError(chi2ME); // N/A
 
 }
 
-void PostProcessor::processLoop( const std::string& startDir, vector<boost::tokenizer<elsc>::value_type> args) 
-{
-  if(theDQM->dirExists(startDir)) theDQM->cd(startDir);
-  
-  std::vector<std::string> subDirs =   theDQM->getSubdirs();
-  std::vector<std::string> mes     =  theDQM->getMEs();
-
-  /*
-  std::cout << " ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
-
-  std::cout << " ------------------------------------------------------------\n"
-	    << "                    Current Directory:                   \n"
-	    << theDQM->pwd() << std::endl
-	    << " ------------------------------------------------------------\n";
-
-  std::cout << " ------------------------------------------------------------\n"
-	    << "                    SubDirs:                     \n"
-	    << " ------------------------------------------------------------\n";
-  
-  std::copy(subDirs.begin(), subDirs.end(),
-	    std::ostream_iterator<std::string>(std::cout, "\n"));
-  
-  std::cout << " ------------------------------------------------------------\n";
-
-  std::cout << " ------------------------------------------------------------\n"
-	    << "                    MEs:                     \n"
-	    << " ------------------------------------------------------------\n";
-  
-  std::copy(mes.begin(), mes.end(),
-	    std::ostream_iterator<std::string>(std::cout, "\n"));
-  
-  std::cout << " ------------------------------------------------------------\n";
-  std::cout << " ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
-  */
-
-  for(vstring::const_iterator iDir = subDirs.begin(); iDir != subDirs.end();++iDir) {
-    const string& theSubDir = *iDir;
-    processLoop(theSubDir,args);
-
-  }
-
-  string path1, path2;
-    
-  switch ( args[1][0] ) {
-    // Efficiency plots
-  case 'E':
-  case 'e':
-    if ( args.size() != 6 ) break;;
-    path1.clear();
-    path1 += startDir;
-    path1 += "/";
-    path1 += args[4];
-    path2.clear();
-    path2 += startDir;
-    path2 += "/";
-    path2 += args[5];
-    computeEfficiency(startDir,args[2], args[3], path1, path2);
-    break;
-    // Resolution plots
-  case 'R':
-  case 'r':
-    if ( args.size() != 5 ) break;;
-    path1.clear();
-    path1 += startDir;
-    path1 += "/";
-    path1 += args[4];
-    computeResolution(startDir,args[2], args[3], path1);
-    break;
-  default:
-    LogError("PostProcessor") << "Invalid command\n";
-  }
-  
-  
-}

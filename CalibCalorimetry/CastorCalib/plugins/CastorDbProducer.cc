@@ -29,7 +29,7 @@
 
 CastorDbProducer::CastorDbProducer( const edm::ParameterSet& fConfig)
   : ESProducer(),
-    mService (new CastorDbService ()),
+    mService (new CastorDbService (fConfig)),
     mDumpRequest (),
     mDumpStream(0)
 {

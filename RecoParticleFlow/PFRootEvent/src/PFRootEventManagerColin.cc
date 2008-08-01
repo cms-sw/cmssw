@@ -250,9 +250,9 @@ bool PFRootEventManagerColin::processHIGH_E_TAUS() {
     tauEvent_->eNeutral = 0;
   }
 
-//   if( tauEvent_->eNeutral > 0.1* tauEvent_->pHadron ) {
-//     print();
-//   }
+  //   if( tauEvent_->eNeutral > 0.1* tauEvent_->pHadron ) {
+  //     print();
+  //   }
 
 
   // check that there is 
@@ -261,17 +261,17 @@ bool PFRootEventManagerColin::processHIGH_E_TAUS() {
   // 0 or 1 hcal cluster
 
   if( recTracks_.size() != 1 ) {
-//     cout<<"more than 1 track"<<endl;
+    //     cout<<"more than 1 track"<<endl;
     tauEvent_->rCode = 1;
     return false;
   }
   if( clustersECAL_->size() > 1 ) {
-//     cout<<"more than 1 ecal cluster"<<endl;
+    //     cout<<"more than 1 ecal cluster"<<endl;
     tauEvent_->rCode = 2;
     // return false;
   }
   if( clustersHCAL_->size() > 1 ) {
-//     cout<<"more than 1 hcal cluster"<<endl;
+    //     cout<<"more than 1 hcal cluster"<<endl;
     tauEvent_->rCode = 3;
     return false;
   }
@@ -312,8 +312,8 @@ bool PFRootEventManagerColin::processHIGH_E_TAUS() {
     
     std::multimap<double, unsigned> sortedElems;
     block.associatedElements( iTrack, 
-			      block.linkData(),
-			      sortedElems );
+                              block.linkData(),
+                              sortedElems );
     
     tauEvent_->nECAL=0;
     tauEvent_->nHCAL=0;
@@ -333,23 +333,23 @@ bool PFRootEventManagerColin::processHIGH_E_TAUS() {
       
 
       if( type == reco::PFBlockElement::ECAL ) {
-	if(!tauEvent_->nECAL ) { // closest ecal
-	  assert( !clusterRef.isNull() );
-	  tauEvent_->eECAL = clusterRef->energy();
-	  tauEvent_->etaECAL = clusterRef->position().Eta();
-	  tauEvent_->chi2ECAL = chi2;
-	  tauEvent_->nECAL++;
-	}
+        if(!tauEvent_->nECAL ) { // closest ecal
+          assert( !clusterRef.isNull() );
+          tauEvent_->eECAL = clusterRef->energy();
+          tauEvent_->etaECAL = clusterRef->position().Eta();
+          tauEvent_->chi2ECAL = chi2;
+          tauEvent_->nECAL++;
+        }
       }
 
 
       else if( type == reco::PFBlockElement::HCAL ) {
-	if(!tauEvent_->nHCAL ) { // closest hcal
-	  assert( !clusterRef.isNull() );
-	  tauEvent_->eHCAL = clusterRef->energy();
-	  tauEvent_->etaHCAL = clusterRef->position().Eta();
-	  tauEvent_->nHCAL++;
-	}
+        if(!tauEvent_->nHCAL ) { // closest hcal
+          assert( !clusterRef.isNull() );
+          tauEvent_->eHCAL = clusterRef->energy();
+          tauEvent_->etaHCAL = clusterRef->position().Eta();
+          tauEvent_->nHCAL++;
+        }
       } 
     } // eles associated to the track
   } // blocks

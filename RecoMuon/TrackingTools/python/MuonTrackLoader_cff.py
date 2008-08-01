@@ -56,4 +56,3 @@ MuonTrackLoaderForCosmic = cms.PSet(
     )
 )
 
-

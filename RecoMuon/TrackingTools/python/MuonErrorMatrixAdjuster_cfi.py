@@ -19,4 +19,3 @@ muonErrorMatrixAdjuster = cms.EDFilter("MuonErrorMatrixAdjuster",
 )
 
 
-

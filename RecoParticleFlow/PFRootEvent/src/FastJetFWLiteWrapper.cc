@@ -60,7 +60,7 @@ FastJetFWLiteWrapper::FastJetFWLiteWrapper()
   theActive_Area_Repeats_=5;
   //default GhostArea 0.01  
   theGhostArea_=0.01;
-  mActiveArea = new fastjet::ActiveAreaSpec ( theGhost_EtaMax_, theActive_Area_Repeats_ , theGhostArea_);	
+  mActiveArea = new fastjet::ActiveAreaSpec ( theGhost_EtaMax_, theActive_Area_Repeats_ , theGhostArea_);       
 
   
   //configuring algorithm 
@@ -69,9 +69,9 @@ FastJetFWLiteWrapper::FastJetFWLiteWrapper()
   fastjet::JetFinder jet_finder;
   if (JetFinder=="cambridge_algorithm") jet_finder=fastjet::cambridge_algorithm;
   else jet_finder=fastjet::kt_algorithm;
-	
+        
   //choosing search-strategy:
-	
+        
   fastjet::Strategy strategy;
   if (Strategy=="N2Plain") strategy=fastjet::N2Plain;
   // N2Plain is best for N<50
@@ -85,7 +85,7 @@ FastJetFWLiteWrapper::FastJetFWLiteWrapper()
   // NlnNCam is best for N>6000
   else strategy=fastjet::Best;
   // Chooses best Strategy for every event, depending on N and ktRParam
-	
+        
   //additional strategies are possible, but not documented in the manual as they are experimental,
   //they are also not used by the "Best" method. Note: "NlnNCam" only works with 
   //the cambridge_algorithm and does not link against CGAL, "NlnN" is only 
@@ -107,7 +107,7 @@ FastJetFWLiteWrapper::FastJetFWLiteWrapper()
   else {
     theMode_=0;     
   }
-	
+        
   // theJetConfig_->theJetDef=fastjet::JetDefinition(jet_finder, theRparam_, strategy);
   cout <<"*******************************************"<<endl;
   cout <<"* Configuration of FastJet                "<<endl;
@@ -152,66 +152,66 @@ void FastJetFWLiteWrapper::run(const JetReco::InputCollection& fInput, JetReco::
     fjInputs.back().set_user_index(i);
   }
    
-   // create an object that represents your choice of jet finder and 
-   // the associated parameters
-   // run the jet clustering with the above jet definition
+  // create an object that represents your choice of jet finder and 
+  // the associated parameters
+  // run the jet clustering with the above jet definition
 
-   // here we need to keep both pointers, as "area" interfaces are missing in base class
-   fastjet::ClusterSequenceActiveArea* clusterSequenceWithArea = 0;
-   fastjet::ClusterSequenceWithArea* clusterSequence = 0;
-   //  if (mActiveArea) {
-   // clusterSequenceWithArea = new fastjet::ClusterSequenceActiveArea (fjInputs, *mJetDefinition, *mActiveArea);
-   // clusterSequence = clusterSequenceWithArea;
-   // }
-   // else {
-     clusterSequence = new fastjet::ClusterSequenceWithArea (fjInputs, *mJetDefinition);
-     // }
-   // retrieve jets for selected mode
-   std::vector<fastjet::PseudoJet> jets = clusterSequence->inclusive_jets (thePtMin_);
+  // here we need to keep both pointers, as "area" interfaces are missing in base class
+  fastjet::ClusterSequenceActiveArea* clusterSequenceWithArea = 0;
+  fastjet::ClusterSequenceWithArea* clusterSequence = 0;
+  //  if (mActiveArea) {
+  // clusterSequenceWithArea = new fastjet::ClusterSequenceActiveArea (fjInputs, *mJetDefinition, *mActiveArea);
+  // clusterSequence = clusterSequenceWithArea;
+  // }
+  // else {
+  clusterSequence = new fastjet::ClusterSequenceWithArea (fjInputs, *mJetDefinition);
+  // }
+  // retrieve jets for selected mode
+  std::vector<fastjet::PseudoJet> jets = clusterSequence->inclusive_jets (thePtMin_);
 
-   // get PU pt
-   double median_Pt_Per_Area = clusterSequenceWithArea ? clusterSequenceWithArea->pt_per_unit_area() : 0.;
+  // get PU pt
+  double median_Pt_Per_Area = clusterSequenceWithArea ? clusterSequenceWithArea->pt_per_unit_area() : 0.;
 
-   // process found jets
-   for (std::vector<fastjet::PseudoJet>::const_iterator jet=jets.begin(); jet!=jets.end();++jet) {
-     // jet itself
-     double px=jet->px();
-     double py=jet->py();
-     double pz=jet->pz();
-     double E=jet->E();
-     double jetArea=clusterSequence->area(*jet);
-     double pu=0.;
-     // PU subtraction
-     if (clusterSequenceWithArea) {
-       fastjet::PseudoJet pu_p4 = median_Pt_Per_Area * clusterSequenceWithArea->area_4vector(*jet);
-       pu = pu_p4.E();
-       if (pu_p4.perp2() >= jet->perp2() || pu_p4.E() >= jet->E()) { // if the correction is too large, set the jet to zero
-	 px = py = pz = E = 0.;
-       } 
-       else {   // otherwise do an E-scheme subtraction
-	 px -= pu_p4.px();
-	 py -= pu_p4.py();
-	 pz -= pu_p4.pz();
-	 E -= pu_p4.E();
-       }
-     }
-     math::XYZTLorentzVector p4(px,py,pz,E);
-     // constituents
-     std::vector<fastjet::PseudoJet> fastjet_constituents = clusterSequence->constituents(*jet);
-     JetReco::InputCollection jetConstituents; 
-     jetConstituents.reserve (fastjet_constituents.size());
-     for (std::vector<fastjet::PseudoJet>::const_iterator itConst=fastjet_constituents.begin();
-	  itConst!=fastjet_constituents.end();itConst++){
-       jetConstituents.push_back(fInput[(*itConst).user_index()]);
-     }
-     // Build ProtoJet
-     fOutput->push_back(ProtoJet(p4,jetConstituents));
-     fOutput->back().setJetArea (jetArea);
-     fOutput->back().setPileup (pu);
-   }
-   // cleanup
-   if (clusterSequenceWithArea) delete clusterSequenceWithArea;
-   else delete clusterSequence; // sigh... No plymorphism in fastjet
+  // process found jets
+  for (std::vector<fastjet::PseudoJet>::const_iterator jet=jets.begin(); jet!=jets.end();++jet) {
+    // jet itself
+    double px=jet->px();
+    double py=jet->py();
+    double pz=jet->pz();
+    double E=jet->E();
+    double jetArea=clusterSequence->area(*jet);
+    double pu=0.;
+    // PU subtraction
+    if (clusterSequenceWithArea) {
+      fastjet::PseudoJet pu_p4 = median_Pt_Per_Area * clusterSequenceWithArea->area_4vector(*jet);
+      pu = pu_p4.E();
+      if (pu_p4.perp2() >= jet->perp2() || pu_p4.E() >= jet->E()) { // if the correction is too large, set the jet to zero
+        px = py = pz = E = 0.;
+      } 
+      else {   // otherwise do an E-scheme subtraction
+        px -= pu_p4.px();
+        py -= pu_p4.py();
+        pz -= pu_p4.pz();
+        E -= pu_p4.E();
+      }
+    }
+    math::XYZTLorentzVector p4(px,py,pz,E);
+    // constituents
+    std::vector<fastjet::PseudoJet> fastjet_constituents = clusterSequence->constituents(*jet);
+    JetReco::InputCollection jetConstituents; 
+    jetConstituents.reserve (fastjet_constituents.size());
+    for (std::vector<fastjet::PseudoJet>::const_iterator itConst=fastjet_constituents.begin();
+         itConst!=fastjet_constituents.end();itConst++){
+      jetConstituents.push_back(fInput[(*itConst).user_index()]);
+    }
+    // Build ProtoJet
+    fOutput->push_back(ProtoJet(p4,jetConstituents));
+    fOutput->back().setJetArea (jetArea);
+    fOutput->back().setPileup (pu);
+  }
+  // cleanup
+  if (clusterSequenceWithArea) delete clusterSequenceWithArea;
+  else delete clusterSequence; // sigh... No plymorphism in fastjet
 }
 
 

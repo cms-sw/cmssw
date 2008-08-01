@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 # Calo geometry/topology services
-from Geometry.CaloEventSetup.CaloGeometry_cfi import *
 #include "Geometry/CaloEventSetup/data/CaloTowerConstituents.cfi"
 #es_module = CaloTowerConstituentsMapBuilder {
 #    untracked string MapFile="Geometry/CaloTopology/data/CaloTowerEEGeometric.map.gz"

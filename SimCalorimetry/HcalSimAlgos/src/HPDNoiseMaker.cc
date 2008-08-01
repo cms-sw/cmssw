@@ -2,7 +2,7 @@
 // Engine to store HPD noise events in the library
 // Project: HPD noise library
 // Author: F.Ratnikov UMd, Jan. 15, 2008
-// $Id: HPDNoiseMaker.cc,v 1.2 2008/01/17 23:35:53 fedor Exp $
+// $Id: HPDNoiseMaker.cc,v 1.1 2008/01/16 02:12:41 fedor Exp $
 // --------------------------------------------------------
 
 #include "SimCalorimetry/HcalSimAlgos/interface/HPDNoiseMaker.h"
@@ -34,17 +34,14 @@ HPDNoiseMaker::~HPDNoiseMaker () {
 }
 
 int HPDNoiseMaker::addHpd (const std::string& fName) {
-  TDirectory* currentDirectory = gDirectory;
-  mFile->cd();
+   TDirectory* currentDirectory = gDirectory;
+   mFile->cd();
   mCatalog->addHpd (fName, 0.);
   mNames.push_back (fName);
   mTrees.push_back (new TTree (fName.c_str(), fName.c_str()));
-  HPDNoiseData* addr = 0;
-  TBranch* newBranch = mTrees.back()->Branch ("HPDNoiseData", "HPDNoiseData", &addr, 32000, 1);
-  if (!newBranch) {
-    std::cerr << "HPDNoiseMaker::addHpd-> Can not make branch HPDNoiseData to the tree " << fName << std::endl;
-  }
-  currentDirectory->cd();
+  void* addr = 0;
+  mTrees.back()->Branch ("HPDNoiseData", "HPDNoiseData", &addr, 32000, 1);
+   currentDirectory->cd();
   return mNames.size();
 }
 
@@ -63,14 +60,8 @@ void HPDNoiseMaker::newHpdEvent (const std::string& fName, const HPDNoiseData& f
 void HPDNoiseMaker::newHpdEvent (size_t i, const HPDNoiseData& fData) {
   if (i < mTrees.size()) {
     HPDNoiseData* data = (HPDNoiseData*) &fData;
-    TBranch* branch = mTrees[i]->GetBranch ("HPDNoiseData");
-    if (branch) {
-      mTrees[i]->GetBranch ("HPDNoiseData")->SetAddress(&data);
-      mTrees[i]->Fill();
-    }
-    else {
-      std::cerr << "HPDNoiseMaker::newHpdEvent-> Can not find branch HPDNoiseData in the tree" << std::endl;
-    }
+    mTrees[i]->GetBranch ("HPDNoiseData")->SetAddress(&data);
+    mTrees[i]->Fill();
   }
 }
 

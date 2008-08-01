@@ -15,7 +15,7 @@
 class GPFRecHit : public GPFBase, public TGraph {
  public:
   GPFRecHit(DisplayManager *dm,int view, int ident, 
-	    reco::PFRecHit *hit,int size,
+            reco::PFRecHit *hit,int size,
             double *x,double *y , int color, std::string option);
   virtual ~GPFRecHit() {}
     

@@ -1,4 +1,3 @@
-
 #include "EventFilter/GctRawToDigi/src/GctBlockUnpackerBase.h"
 
 // C++ headers
@@ -26,8 +25,6 @@ GctBlockUnpackerBase::GctBlockUnpackerBase(bool hltMode):
   gctEtTotal_(0),
   gctEtHad_(0),
   gctEtMiss_(0),
-  gctInternJetData_(0),
-  gctInternEtSums_(0),
   hltMode_(hltMode),
   srcCardRouting_()
 {
@@ -176,23 +173,19 @@ void GctBlockUnpackerBase::blockToRctCaloRegions(const unsigned char * d, const 
       if (i>0) {
         if (crate<9){ // negative eta
           ieta = 11-i; 
-          iphi = 2*((11-crate)%9);
+          iphi = crate*2;
         } else {      // positive eta
           ieta = 10+i;
-          iphi = 2*((20-crate)%9);
+          iphi = (crate-9)*2;
         }        
         // First region is phi=0
         rctCalo_->push_back( L1CaloRegion(*p, ieta, iphi, bx) );
         ++p;
         // Second region is phi=1
-        if (iphi>0){
-          iphi-=1;
-        } else {
-          iphi = 17;
-        }
+        iphi+=1;
         rctCalo_->push_back( L1CaloRegion(*p, ieta, iphi, bx) );
         ++p;
-      } else { // Skip the first two regions which are duplicates. 
+      } else { // Skip the first two regions which are duplicates. Check with Magnus
         ++p;
         ++p;
       }
@@ -275,121 +268,3 @@ void GctBlockUnpackerBase::blockToAllRctCaloRegions(const unsigned char * d, con
     }
   }
 }
-
-void GctBlockUnpackerBase::blockToGctInternEtSums(const unsigned char * d, const GctBlockHeaderBase& hdr)
-{
-  // Don't want to do this in HLT optimisation mode!                                                                                                                              
-  if(hltMode()) { LogDebug("GCT") << "HLT mode - skipping unpack of internal Et Sums"; return; }
-
-  unsigned int id = hdr.id();
-  unsigned int nSamples = hdr.nSamples();
-  unsigned int length = hdr.length();
-
-  // Re-interpret pointer to 32 bits 
-  uint32_t * p = reinterpret_cast<uint32_t *>(const_cast<unsigned char *>(d));
-
-  for (unsigned int i=0; i<length; ++i) {
-    // Loop over timesamples (i.e. bunch crossings)                                                                                                                               
-    for (unsigned int bx=0; bx<nSamples; ++bx) {
-      gctInternEtSums_->push_back(L1GctInternEtSum(id,i,bx,*p));
-      ++p;
-    }
-  }
-}
-
-void GctBlockUnpackerBase::blockToGctInternEtSumsAndJetCluster(const unsigned char * d, const GctBlockHeaderBase& hdr)
-{
-  // Don't want to do this in HLT optimisation mode!
-  if(hltMode()) { LogDebug("GCT") << "HLT mode - skipping unpack of internal Jet Cands"; return; }
-
-  unsigned int id = hdr.id();
-  unsigned int nSamples = hdr.nSamples();
-  unsigned int length = hdr.length();
-
-  // Re-interpret pointer to 32 bits 
-  uint32_t * p = reinterpret_cast<uint32_t *>(const_cast<unsigned char *>(d));
-
-  for (unsigned int i=0; i<length; ++i) {
-    // Loop over timesamples (i.e. bunch crossings)
-    for (unsigned int bx=0; bx<nSamples; ++bx) {
-      if (i<2) gctInternEtSums_->push_back(L1GctInternEtSum(id,i,bx,*p));
-      //if (i==3); Need a new class or ctor for et and ht or a filthy hack? et first then ht. overflow bits are 12 and 28 
-      if (i>4) gctInternJetData_->push_back(L1GctInternJetData::fromJetCluster(L1CaloRegionDetId(0,0),id,i,bx,*p));
-      ++p;
-    }  
-  }
-}
-
-void GctBlockUnpackerBase::blockToGctTrigObjects(const unsigned char * d, const GctBlockHeaderBase& hdr)
-{
-  // Don't want to do this in HLT optimisation mode!
-  if(hltMode()) { LogDebug("GCT") << "HLT mode - skipping unpack of internal Jet Cands"; return; }
-
-  unsigned int id = hdr.id();
-  unsigned int nSamples = hdr.nSamples();
-  unsigned int length = hdr.length();
-
-  // Re-interpret pointer to 16 bits so it sees one candidate at a time.
-  uint16_t * p = reinterpret_cast<uint16_t *>(const_cast<unsigned char *>(d));
-
-  for (unsigned int i=0; i<length; ++i) {
-    // Loop over timesamples (i.e. bunch crossings)
-    for (unsigned int bx=0; bx<nSamples; ++bx) {
-      gctInternJetData_->push_back( L1GctInternJetData::fromGctTrigObject(L1CaloRegionDetId(0,0),id,i,bx,*p));
-      ++p;
-      gctInternJetData_->push_back( L1GctInternJetData::fromGctTrigObject(L1CaloRegionDetId(0,0),id,i,bx,*p));
-      ++p;
-    }
-  } 
-}
-
-void GctBlockUnpackerBase::blockToGctJetClusterMinimal(const unsigned char * d, const GctBlockHeaderBase& hdr)
-{
-  // Don't want to do this in HLT optimisation mode!
-  if(hltMode()) { LogDebug("GCT") << "HLT mode - skipping unpack of internal Jet Cands"; return; }
-
-  unsigned int id = hdr.id();
-  unsigned int nSamples = hdr.nSamples();
-  unsigned int length = hdr.length();
-
-  // Re-interpret pointer to 16 bits so it sees one candidate at a time.
-  uint16_t * p = reinterpret_cast<uint16_t *>(const_cast<unsigned char *>(d));
-
-  for (unsigned int i=0; i<length; ++i) {
-    // Loop over timesamples (i.e. bunch crossings)
-    for (unsigned int bx=0; bx<nSamples; ++bx) {
-      gctInternJetData_->push_back( L1GctInternJetData::fromJetClusterMinimal(L1CaloRegionDetId(0,0),id,i,bx,*p));
-      ++p;
-      gctInternJetData_->push_back( L1GctInternJetData::fromJetClusterMinimal(L1CaloRegionDetId(0,0),id,i,bx,*p));
-      ++p;
-    }
-  } 
-}
-
-void GctBlockUnpackerBase::blockToGctJetPreCluster(const unsigned char * d, const GctBlockHeaderBase& hdr)
-{
-  // Don't want to do this in HLT optimisation mode!
-  if(hltMode()) { LogDebug("GCT") << "HLT mode - skipping unpack of internal Jet Cands"; return; }
-
-  unsigned int id = hdr.id();
-  unsigned int nSamples = hdr.nSamples();
-  unsigned int length = hdr.length();
-
-  // Re-interpret pointer to 16 bits so it sees one candidate at a time.
-  uint16_t * p = reinterpret_cast<uint16_t *>(const_cast<unsigned char *>(d));
-
-  for (unsigned int i=0; i<length; ++i) {
-    // Loop over timesamples (i.e. bunch crossings)
-    for (unsigned int bx=0; bx<nSamples; ++bx) {
-      gctInternJetData_->push_back( L1GctInternJetData::fromJetPreCluster(L1CaloRegionDetId(0,0),id,i,bx,*p));
-      ++p;
-      gctInternJetData_->push_back( L1GctInternJetData::fromJetPreCluster(L1CaloRegionDetId(0,0),id,i,bx,*p));
-      ++p;
-    }
-  } 
-}
-
-void GctBlockUnpackerBase::blockToGctInternRingSums(const unsigned char * d, const GctBlockHeaderBase& hdr)
-{
-}
-

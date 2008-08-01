@@ -312,7 +312,7 @@ namespace edm {
   void RootOutputFile::pruneOutputItemList(BranchType branchType, FileBlock const& inputFile) {
     OutputItemList& items = prunedOutputItemList_[branchType];
     items.clear();
-    items = droppedOutputItemList_[branchType];
+    items = selectedOutputItemList_[branchType];
     MatchItemWithoutPedigree pred(items, inputFile.branchChildren());
     items.erase(std::remove_if(items.begin(), items.end(), pred), items.end());
   }
@@ -483,10 +483,7 @@ namespace edm {
   void RootOutputFile::writeParameterSetRegistry() { 
     typedef std::map<ParameterSetID, ParameterSetBlob> ParameterSetMap;
     ParameterSetMap psetMap;
-    pset::Registry const* psetRegistry = pset::Registry::instance();    
-    for (pset::Registry::const_iterator it = psetRegistry->begin(), itEnd = psetRegistry->end(); it != itEnd; ++it) {
-      psetMap.insert(std::make_pair(it->first, ParameterSetBlob(it->second.toStringOfTracked())));
-    }
+    pset::fill(pset::Registry::instance(), psetMap);
     ParameterSetMap *pPsetMap = &psetMap;
     TBranch* b = metaDataTree_->Branch(poolNames::parameterSetMapBranchName().c_str(), &pPsetMap, om_->basketSize(), 0);
     assert(b);

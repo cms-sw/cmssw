@@ -14,7 +14,7 @@
 //
 // Original Author:  
 //         Created:  Thu Sun 21 10:14:34 CEST 2006
-// $Id: HcalTB02Histo.h,v 1.1 2006/05/23 10:53:29 sunanda Exp $
+// $Id: HcalTB02Histo.h,v 1.2 2008/03/01 21:28:40 sunanda Exp $
 //
   
 // system include files
@@ -25,8 +25,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include <TH1D.h>
+#include <TH2D.h>
 
 class HcalTB02Histo {
    
@@ -49,9 +49,9 @@ private:
   std::string                   fileName;
   bool                          verbose;
 
-  DQMStore                     *dbe_;
-  MonitorElement               *rt_tbTimes, *rt_TransProf;
-  std::vector<MonitorElement *> rt_histoProf;
+  TH1D                          *rt_tbTimes;
+  TH2D                          *rt_TransProf;
+  std::vector<TH1D *>           rt_histoProf;
 };
  
 #endif

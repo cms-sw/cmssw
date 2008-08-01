@@ -9,7 +9,7 @@ process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 
-process.load("MagneticField.Engine.volumeBasedMagneticField_cfi")
+process.load("Configuration.StandardSequences.MagneticField_cff")
 
 process.load("SimG4Core.Application.g4SimHits_cfi")
 
@@ -82,6 +82,5 @@ process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_EMV'
 process.g4SimHits.StackingAction.TrackNeutrino = False
 process.g4SimHits.Generator.MinPhiCut = -5.5
 process.g4SimHits.Generator.MaxPhiCut = 5.5
-process.g4SimHits.Generator.MinPtCut = 0.040
 process.g4SimHits.G4Commands = ['/physics_engine/neutron/energyLimit 1 MeV', '/physics_engine/neutron/timeLimit 0.001 ms']
 

@@ -185,7 +185,6 @@ class SiPixelInformationExtractor {
   TH2F * goodmodsMap;
   int count;
   int errcount;
-  bool gotDigis;
   
   MonitorElement * SummaryReport;
   MonitorElement * SummaryReportMap;

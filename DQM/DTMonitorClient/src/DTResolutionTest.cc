@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/06/03 10:26:32 $
- *  $Revision: 1.25 $
+ *  $Date: 2008/04/16 10:48:26 $
+ *  $Revision: 1.22 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -363,13 +363,7 @@ void DTResolutionTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventS
 void DTResolutionTest::endJob(){
 
   edm::LogVerbatim ("resolution") << "[DTResolutionTest] endjob called!";
-  //dbe->rmdir("DT/DTCalibValidation");
-  //dbe->rmdir("DT/Tests/DTResolution");
-  bool outputMEsInRootFile = parameters.getParameter<bool>("OutputMEsInRootFile");
-  if(outputMEsInRootFile){
-	std::string outputFileName = parameters.getParameter<std::string>("OutputFileName");
-	dbe->save(outputFileName,"DT/Tests");	
-  }	
+  dbe->rmdir("DT/Tests/DTResolution");
 
 }
 

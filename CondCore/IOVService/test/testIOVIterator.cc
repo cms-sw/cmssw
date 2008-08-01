@@ -29,7 +29,7 @@ int main(){
     pooldb.start(false);
     cond::IOVService iovmanager(pooldb);
     cond::IOVEditor* editor=iovmanager.newIOVEditor();
-    editor->create(1,cond::timestamp);
+    editor->create(1);
     editor->insert(20,"pay1tok");
     editor->insert(40,"pay2tok");
     editor->insert(60,"pay3tok");
@@ -64,7 +64,7 @@ int main(){
     // use Proxy
     {
       std::cout<<"test proxy "<<std::endl;
-      cond::IOVProxy iov(pooldb,iovtok, true);
+      cond::IOVProxy iov(pooldb,iovtok);
       std::cout << "size " << iov.size()
 		<<", Time Type " << iov.timetype() << std::endl;
       std::for_each(iov.begin(),iov.end(),boost::bind(&print,_1));

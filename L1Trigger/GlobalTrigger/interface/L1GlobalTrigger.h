@@ -129,9 +129,6 @@ private:
     boost::uint16_t m_activeBoardsGtDaq;
     boost::uint16_t m_activeBoardsGtEvm;
 
-    /// length of BST record (in bytes) from event setup
-    unsigned int m_bstLengthBytes;
-
     /// board maps - cache only the record
     const L1GtBoardMaps* m_l1GtBM;
     unsigned long long m_l1GtBMCacheID;
@@ -144,8 +141,8 @@ private:
     const L1GtPrescaleFactors* m_l1GtPfTech;
     unsigned long long m_l1GtPfTechCacheID;
        
-    const std::vector<std::vector<int> >* m_prescaleFactorsAlgoTrig;
-    const std::vector<std::vector<int> >* m_prescaleFactorsTechTrig;
+    std::vector<int> m_prescaleFactorsAlgoTrig;
+    std::vector<int> m_prescaleFactorsTechTrig;
 
     /// trigger masks & veto masks
     const L1GtTriggerMask* m_l1GtTmAlgo;
@@ -179,9 +176,6 @@ private:
     /// input tag for calorimeter collections from GCT
     edm::InputTag m_caloGctInputTag;
 
-    /// input tag for CASTOR record 
-    edm::InputTag m_castorInputTag;
-
     /// input tag for technical triggers
     edm::InputTag m_technicalTriggersInputTag;
 
@@ -206,8 +200,6 @@ private:
     /// even numbers (except 0) "rounded" to the nearest lower odd number
     int m_emulateBxInEvent;
 
-    /// length of BST record (in bytes) from parameter set
-    int m_psBstLengthBytes;
 
 };
 

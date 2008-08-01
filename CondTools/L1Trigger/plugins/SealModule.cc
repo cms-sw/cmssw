@@ -62,19 +62,24 @@ REGISTER_L1_WRITER(L1MuTriggerPtScaleRcd, L1MuTriggerPtScale);
 REGISTER_PLUGIN(L1MuGMTScalesRcd, L1MuGMTScales);
 REGISTER_L1_WRITER(L1MuGMTScalesRcd, L1MuGMTScales);
 
+// DT TPG records
+#include "CondFormats/L1TObjects/interface/DTConfigManager.h"
+#include "CondFormats/DataRecord/interface/DTConfigManagerRcd.h"
+
+REGISTER_PLUGIN(DTConfigManagerRcd, DTConfigManager);
+REGISTER_L1_WRITER(DTConfigManagerRcd, DTConfigManager);
+
 // DT TF records
 #include "CondFormats/L1TObjects/interface/L1MuDTEtaPatternLut.h"
 #include "CondFormats/L1TObjects/interface/L1MuDTExtLut.h"
 #include "CondFormats/L1TObjects/interface/L1MuDTPhiLut.h"
 #include "CondFormats/L1TObjects/interface/L1MuDTPtaLut.h"
 #include "CondFormats/L1TObjects/interface/L1MuDTQualPatternLut.h"
-#include "CondFormats/L1TObjects/interface/L1MuDTTFParameters.h"
 #include "CondFormats/DataRecord/interface/L1MuDTEtaPatternLutRcd.h"
 #include "CondFormats/DataRecord/interface/L1MuDTExtLutRcd.h"
 #include "CondFormats/DataRecord/interface/L1MuDTPhiLutRcd.h"
 #include "CondFormats/DataRecord/interface/L1MuDTPtaLutRcd.h"
 #include "CondFormats/DataRecord/interface/L1MuDTQualPatternLutRcd.h"
-#include "CondFormats/DataRecord/interface/L1MuDTTFParametersRcd.h"
 
 REGISTER_PLUGIN(L1MuDTEtaPatternLutRcd, L1MuDTEtaPatternLut);
 REGISTER_L1_WRITER(L1MuDTEtaPatternLutRcd, L1MuDTEtaPatternLut);
@@ -91,47 +96,46 @@ REGISTER_L1_WRITER(L1MuDTPtaLutRcd, L1MuDTPtaLut);
 REGISTER_PLUGIN(L1MuDTQualPatternLutRcd, L1MuDTQualPatternLut);
 REGISTER_L1_WRITER(L1MuDTQualPatternLutRcd, L1MuDTQualPatternLut);
 
-REGISTER_PLUGIN(L1MuDTTFParametersRcd, L1MuDTTFParameters);
-REGISTER_L1_WRITER(L1MuDTTFParametersRcd, L1MuDTTFParameters);
+// CSC TPG records
+#include "CondFormats/DataRecord/interface/L1CSCTPParametersRcd.h"
+#include "CondFormats/L1TObjects/interface/L1CSCTPParameters.h"
+
+REGISTER_PLUGIN(L1CSCTPParametersRcd, L1CSCTPParameters);
+REGISTER_L1_WRITER(L1CSCTPParametersRcd, L1CSCTPParameters);
 
 // CSC TF records
 #include "CondFormats/L1TObjects/interface/L1MuCSCTFConfiguration.h"
-#include "CondFormats/L1TObjects/interface/L1MuCSCTFAlignment.h"
-// #include "CondFormats/L1TObjects/interface/L1MuCSCDTLut.h"
-// #include "CondFormats/L1TObjects/interface/L1MuCSCGlobalLuts.h"
-// #include "CondFormats/L1TObjects/interface/L1MuCSCLocalPhiLut.h"
+#include "CondFormats/L1TObjects/interface/L1MuCSCDTLut.h"
+#include "CondFormats/L1TObjects/interface/L1MuCSCGlobalLuts.h"
+#include "CondFormats/L1TObjects/interface/L1MuCSCLocalPhiLut.h"
 #include "CondFormats/L1TObjects/interface/L1MuCSCPtLut.h"
 #include "CondFormats/DataRecord/interface/L1MuCSCTFConfigurationRcd.h"
-#include "CondFormats/DataRecord/interface/L1MuCSCTFAlignmentRcd.h"
-// #include "CondFormats/DataRecord/interface/L1MuCSCDTLutRcd.h"
-// #include "CondFormats/DataRecord/interface/L1MuCSCGlobalLutsRcd.h"
-// #include "CondFormats/DataRecord/interface/L1MuCSCLocalPhiLutRcd.h"
+#include "CondFormats/DataRecord/interface/L1MuCSCDTLutRcd.h"
+#include "CondFormats/DataRecord/interface/L1MuCSCGlobalLutsRcd.h"
+#include "CondFormats/DataRecord/interface/L1MuCSCLocalPhiLutRcd.h"
 #include "CondFormats/DataRecord/interface/L1MuCSCPtLutRcd.h"
 
 REGISTER_PLUGIN(L1MuCSCTFConfigurationRcd, L1MuCSCTFConfiguration);
 REGISTER_L1_WRITER(L1MuCSCTFConfigurationRcd, L1MuCSCTFConfiguration);
 
-REGISTER_PLUGIN(L1MuCSCTFAlignmentRcd, L1MuCSCTFAlignment);
-REGISTER_L1_WRITER(L1MuCSCTFAlignmentRcd, L1MuCSCTFAlignment);
+REGISTER_PLUGIN(L1MuCSCDTLutRcd, L1MuCSCDTLut);
+REGISTER_L1_WRITER(L1MuCSCDTLutRcd, L1MuCSCDTLut);
 
-// REGISTER_PLUGIN(L1MuCSCDTLutRcd, L1MuCSCDTLut);
-// REGISTER_L1_WRITER(L1MuCSCDTLutRcd, L1MuCSCDTLut);
+REGISTER_PLUGIN(L1MuCSCGlobalLutsRcd, L1MuCSCGlobalLuts);
+REGISTER_L1_WRITER(L1MuCSCGlobalLutsRcd, L1MuCSCGlobalLuts);
 
-// REGISTER_PLUGIN(L1MuCSCGlobalLutsRcd, L1MuCSCGlobalLuts);
-// REGISTER_L1_WRITER(L1MuCSCGlobalLutsRcd, L1MuCSCGlobalLuts);
-
-// REGISTER_PLUGIN(L1MuCSCLocalPhiLutRcd, L1MuCSCLocalPhiLut);
-// REGISTER_L1_WRITER(L1MuCSCLocalPhiLutRcd, L1MuCSCLocalPhiLut);
+REGISTER_PLUGIN(L1MuCSCLocalPhiLutRcd, L1MuCSCLocalPhiLut);
+REGISTER_L1_WRITER(L1MuCSCLocalPhiLutRcd, L1MuCSCLocalPhiLut);
 
 REGISTER_PLUGIN(L1MuCSCPtLutRcd, L1MuCSCPtLut);
 REGISTER_L1_WRITER(L1MuCSCPtLutRcd, L1MuCSCPtLut);
 
 // RPC records
-#include "CondFormats/RPCObjects/interface/L1RPCConfig.h"
-#include "CondFormats/DataRecord/interface/L1RPCConfigRcd.h"
+// #include "CondFormats/RPCObjects/interface/L1RPCConfig.h"
+// #include "CondFormats/DataRecord/interface/L1RPCConfigRcd.h"
 
 // REGISTER_PLUGIN(L1RPCConfigRcd, L1RPCConfig);
-REGISTER_L1_WRITER(L1RPCConfigRcd, L1RPCConfig);
+// REGISTER_L1_WRITER(L1RPCConfigRcd, L1RPCConfig);
 
 // GMT records
 #include "CondFormats/L1TObjects/interface/L1MuGMTParameters.h"
@@ -147,31 +151,7 @@ REGISTER_L1_WRITER(L1MuGMTParametersRcd, L1MuGMTParameters);
 REGISTER_PLUGIN(L1RCTParametersRcd, L1RCTParameters);
 REGISTER_L1_WRITER(L1RCTParametersRcd, L1RCTParameters);
 
-#include "CondFormats/L1TObjects/interface/L1RCTChannelMask.h"
-#include "CondFormats/DataRecord/interface/L1RCTChannelMaskRcd.h"
-
-REGISTER_PLUGIN(L1RCTChannelMaskRcd, L1RCTChannelMask);
-REGISTER_L1_WRITER(L1RCTChannelMaskRcd, L1RCTChannelMask);
-
-#include "CondFormats/L1TObjects/interface/L1CaloEcalScale.h"
-#include "CondFormats/DataRecord/interface/L1CaloEcalScaleRcd.h"
-
-REGISTER_PLUGIN(L1CaloEcalScaleRcd, L1CaloEcalScale);
-REGISTER_L1_WRITER(L1CaloEcalScaleRcd, L1CaloEcalScale);
-
-#include "CondFormats/L1TObjects/interface/L1CaloHcalScale.h"
-#include "CondFormats/DataRecord/interface/L1CaloHcalScaleRcd.h"
-
-REGISTER_PLUGIN(L1CaloHcalScaleRcd, L1CaloHcalScale);
-REGISTER_L1_WRITER(L1CaloHcalScaleRcd, L1CaloHcalScale);
-
 // GCT records
-#include "CondFormats/L1TObjects/interface/L1GctChannelMask.h"
-#include "CondFormats/DataRecord/interface/L1GctChannelMaskRcd.h"
-
-REGISTER_PLUGIN(L1GctChannelMaskRcd, L1GctChannelMask);
-REGISTER_L1_WRITER(L1GctChannelMaskRcd, L1GctChannelMask);
-
 #include "CondFormats/L1TObjects/interface/L1GctJetFinderParams.h"
 #include "CondFormats/DataRecord/interface/L1GctJetFinderParamsRcd.h"
 

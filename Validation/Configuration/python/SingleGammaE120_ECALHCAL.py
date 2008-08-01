@@ -55,6 +55,8 @@ def customise(process):
 
     process.output.outputCommands.append("keep *_simHcalUnsuppressedDigis_*_*")
 
+
+            
 # user schedule: use only calorimeters digitization and local reconstruction
 
     del process.schedule[:] 
@@ -80,5 +82,14 @@ def customise(process):
     process.schedule.append(process.local_validation) 
 
     process.schedule.append(process.out_step)
-        
+
+# drop the plain root file outputs of all analyzers
+# Note: all the validation "analyzers" are EDFilters!
+    for filter in (getattr(process,f) for f in process.filters_()):
+        if hasattr(filter,"outputFile"):
+            filter.outputFile=""
+        #Catch the problem with valid_HB.root that uses OutputFile instead of outputFile
+        if hasattr(filter,"OutputFile"):
+            filter.OutputFile=""
+
     return(process)

@@ -7,7 +7,7 @@ cosmicseedfinder = cms.EDFilter("CosmicSeedGenerator",
 
     matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
     MaxNumberOfCosmicClusters = cms.uint32(300),
-    SeedPt = cms.double(1.0),
+    SeedPt = cms.double(5.0),
     HitsForSeeds = cms.untracked.string('pairs'),
     TTRHBuilder = cms.string('WithTrackAngle'),
     ptMin = cms.double(0.9),

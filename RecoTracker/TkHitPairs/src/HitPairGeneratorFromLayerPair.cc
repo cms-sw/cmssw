@@ -34,8 +34,9 @@ template <class T> T sqr( T t) {return t*t;}
 #include "FWCore/Framework/interface/ESHandle.h"
 
 HitPairGeneratorFromLayerPair::HitPairGeneratorFromLayerPair(
-    const Layer& inner, const Layer& outer, LayerCacheType* layerCache)
-  : theLayerCache(*layerCache), theOuterLayer(outer), theInnerLayer(inner)
+    const Layer& inner, const Layer& outer, LayerCacheType* layerCache, unsigned int nSize)
+  : HitPairGenerator(nSize),
+    theLayerCache(*layerCache), theOuterLayer(outer), theInnerLayer(inner)
 { }
 
 void HitPairGeneratorFromLayerPair::hitPairs(

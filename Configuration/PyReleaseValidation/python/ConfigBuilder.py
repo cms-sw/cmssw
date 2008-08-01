@@ -1,16 +1,10 @@
 #! /usr/bin/env python
 
-# This is a prototype for the new pyrelease validation package
-# this class here takes the input of optparse in cmsDriver and
-# creates a complete config file.
-# relval_main + the custom config for it is not needed any more
-
-__version__ = "$Revision: 1.49 $"
+__version__ = "$Revision: 1.56 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.Modules import _Module 
-
 
 # some helper routines
 def dumpPython(process,name):
@@ -25,6 +19,7 @@ def findName(object,dictionary):
     for name, item in dictionary.iteritems():
         if item == object:
             return name
+
              
 class ConfigBuilder(object):
     """The main building routines """
@@ -86,7 +81,6 @@ class ConfigBuilder(object):
                    self.additionalObjects.insert(0,name)
                 if isinstance(theObject, cms.Sequence):
                    self.additionalObjects.append(name)
-
         return
 
     def addOutput(self):
@@ -105,13 +99,8 @@ class ConfigBuilder(object):
         if hasattr(self.process,"generation_step"):
             output.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('generation_step')) 
         
-        # if a filtername is given, use that one
-        if self._options.filtername !='':
-            output.dataset.filterName = cms.untracked.string(self._options.filtername)
-        else:
-            conditionsSP = self._options.conditions.split(',')
-            if len(conditionsSP) > 1:
-              output.dataset.filterName = cms.untracked.string(str(conditionsSP[1].split("::")[0]))
+        # add the filtername
+        output.dataset.filterName = cms.untracked.string(self._options.filtername)
 
         # and finally add the output to the process
         self.process.output = output
@@ -169,8 +158,10 @@ class ConfigBuilder(object):
                 raise 
 
         # the magnetic field
-        self.imports.append('Configuration/StandardSequences/MagneticField_'+self._options.magField.replace('.','')+'_cff')
-                                               
+        magneticFieldFilename = 'Configuration/StandardSequences/MagneticField_'+self._options.magField.replace('.','')+'_cff'
+        magneticFieldFilename = magneticFieldFilename.replace("__",'_')
+        self.imports.append(magneticFieldFilename)
+                                                        
 
         # what steps are provided by this class?
         stepList = [methodName.lstrip("prepare_") for methodName in self.__class__.__dict__ if methodName.startswith('prepare_')]
@@ -200,10 +191,19 @@ class ConfigBuilder(object):
             # fake or real conditions?
             if len(conditionsSP)>1:
                 self.loadAndRemember('FastSimulation/Configuration/CommonInputs_cff')
+
+                # Apply ECAL and HCAL miscalibration
                 self.additionalCommands.append('process.caloRecHits.RecHitsFactory.HCAL.fileNameHcal = "hcalmiscalib_startup.xml"')
-                self.additionalCommands.append("process.caloRecHits.RecHitsFactory.doMiscalib = True")
+                if "IDEAL" in conditionsSP:
+                    self.additionalCommands.append("process.caloRecHits.RecHitsFactory.doMiscalib = True")
+                                
+                # Apply Tracker misalignment
+                self.additionalCommands.append("process.famosSimHits.ApplyAlignment = True")
+                self.additionalCommands.append("process.misalignedTrackerGeometry.applyAlignment = True")
+                                       
             else:
                 self.loadAndRemember('FastSimulation/Configuration/CommonInputsFake_cff')
+                
         else:
             self.loadAndRemember('Configuration/StandardSequences/'+conditionsSP[0]+'_cff')
         
@@ -239,21 +239,27 @@ class ConfigBuilder(object):
 
     def prepare_ALCA(self, sequence = None):
         """ Enrich the process with alca streams """
-        alcaConfig = self.loadAndRemember("Configuration/StandardSequences/AlCaRecoStreams_cff")
+        alcaConfig = self.loadAndRemember("Configuration/StandardSequences/AlCaReco_cff")
 
         # decide which ALCA paths to use
         alcaList = sequence.split("+")
         alcaPathList = ["pathALCARECO"+name for name in alcaList]
 
-        for name in alcaConfig.__dict__:
-            alcastream = getattr(alcaConfig,name)
-            if name in alcaList and isinstance(alcastream,alcaConfig.FilteredStream):
-                alcaOutput = cms.OutputModule("PoolOutputModule")
-                alcaOutput.SelectEvents = alcastream.SelectEvents
-                alcaOutput.outputCommands = alcastream.content
-                alcaOutput.dataset  = cms.untracked.PSet( dataTier = alcastream.dataTier)
-                self.additionalOutputs.append(alcaOutput)
-                setattr(self.process,name,alcaOutput) 
+        # put it in the schedule
+        for pathname in alcaConfig.__dict__:
+            if isinstance(getattr(alcaConfig,pathname),cms.Path) and pathname in alcaPathList:
+                self.process.schedule.append(getattr(self.process,pathname))
+            else:
+                self.blacklist_paths.append(pathname)
+        #for name in alcaConfig.__dict__:
+        #    alcastream = getattr(alcaConfig,name)
+        #    if name in alcaList and isinstance(alcastream,alcaConfig.FilteredStream):
+        #        alcaOutput = cms.OutputModule("PoolOutputModule")
+        #        alcaOutput.SelectEvents = alcastream.SelectEvents
+        #        alcaOutput.outputCommands = alcastream.content
+        #        alcaOutput.dataset  = cms.untracked.PSet( dataTier = alcastream.dataTier)
+        #        self.additionalOutputs.append(alcaOutput)
+        #        setattr(self.process,name,alcaOutput) 
 
         # the schedule insertion is missing for now  
 
@@ -367,12 +373,6 @@ class ConfigBuilder(object):
             self.additionalCommands.append("process.famosSimHits.SimulateTracking = True")
             self.additionalCommands.append("process.famosPileUp.PileUpSimulator.averageNumber = 0.0")
 
-            # Apply Tracker misalignment (ideal alignment though)
-            self.additionalCommands.append("process.famosSimHits.ApplyAlignment = True")
-            self.additionalCommands.append("process.misalignedTrackerGeometry.applyAlignment = True")
-            self.additionalCommands.append("process.caloRecHits.RecHitsFactory.HCAL.Refactor = 1.0")
-            self.additionalCommands.append("process.caloRecHits.RecHitsFactory.HCAL.Refactor_mean = 1.0")
-
             self.additionalCommands.append("process.simulation = cms.Sequence(process.simulationWithFamos)")
             self.additionalCommands.append("process.HLTEndSequence = cms.Sequence(process.reconstructionWithFamos)")
 
@@ -391,14 +391,14 @@ class ConfigBuilder(object):
             # now the additional commands we need to make the config work
             self.additionalCommands.append("process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True")
         else:
-             print "FastSim setting",self._options.beamspot, "unknown."
+             print "FastSim setting", sequence, "unknown."
              raise
                   
         
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.49 $"),
+              (version=cms.untracked.string("$Revision: 1.56 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
@@ -417,7 +417,7 @@ class ConfigBuilder(object):
         self.addCommon()
 
         self.pythonCfgCode =  "# Auto generated configuration file\n"
-        self.pythonCfgCode += "# using: \n# "+__version__+"\n# "+__source__+"\n"
+        self.pythonCfgCode += "# using: \n# "+__version__[1:-1]+"\n# "+__source__[1:-1]+"\n"
         self.pythonCfgCode += "import FWCore.ParameterSet.Config as cms\n\n"
         self.pythonCfgCode += "process = cms.Process('"+self._options.name+"')\n\n"
         
@@ -425,16 +425,6 @@ class ConfigBuilder(object):
         for module in self.imports:
             self.pythonCfgCode += ("process.load('"+module+"')\n")
 
-        # dump ReleaseValidation PSet
-        totnumevts = int(self._options.relval.split(",")[0])
-        evtsperjob = int(self._options.relval.split(",")[1])
-        dsetname="RelVal"+self._options.evt_type.replace(".","_").rstrip("_cfi")
-
-        self.process.ReleaseValidation=cms.untracked.PSet(totalNumberOfEvents=cms.untracked.int32(totnumevts),
-                                                     eventsPerJob=cms.untracked.int32(evtsperjob),
-                                                     primaryDatasetName=cms.untracked.string(dsetname))
-        self.pythonCfgCode += "\nprocess.ReleaseValidation = "+self.process.ReleaseValidation.dumpPython()
- 
         # dump production info
         if not hasattr(self.process,"configurationMetadata"):
             self.process.configurationMetadata=self.build_production_info(self._options.evt_type, self._options.number)
@@ -481,7 +471,7 @@ class ConfigBuilder(object):
 
         # dump the schedule
         self.pythonCfgCode += "\n# Schedule definition\n"
-        pathNames = ['process.'+p.label() for p in self.process.schedule]
+        pathNames = ['process.'+p.label_() for p in self.process.schedule]
         result ='process.schedule = cms.Schedule('+','.join(pathNames)+')\n'
         self.pythonCfgCode += result
 

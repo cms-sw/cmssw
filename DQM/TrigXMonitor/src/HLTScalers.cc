@@ -1,9 +1,6 @@
-// $Id: HLTScalers.cc,v 1.8 2008/03/01 00:40:16 lat Exp $
+// $Id: HLTScalers.cc,v 1.7 2008/01/22 19:02:43 muzaffar Exp $
 // 
 // $Log: HLTScalers.cc,v $
-// Revision 1.8  2008/03/01 00:40:16  lat
-// DQM core migration.
-//
 // Revision 1.7  2008/01/22 19:02:43  muzaffar
 // include cleanup. Only for cc/cpp files
 //
@@ -66,14 +63,12 @@ HLTScalers::HLTScalers(const edm::ParameterSet &ps):
   detailedScalers_(0), l1scalers_(0), 
   l1Correlations_(0),
   nProc_(0),
-  nLumiBlocks_(0),
   trigResultsSource_( ps.getParameter< edm::InputTag >("triggerResults")),
   l1GtDataSource_( ps.getParameter< edm::InputTag >("l1GtData")),
   resetMe_(true),
   verbose_(ps.getUntrackedParameter < bool > ("verbose", false)),
   monitorDaemon_(ps.getUntrackedParameter<bool>("MonitorDaemon", false)),
   nev_(0), 
-  nLumi_(0),
   currentRun_(-1)
 {
   if ( verbose_ ) {
@@ -87,7 +82,7 @@ HLTScalers::HLTScalers(const edm::ParameterSet &ps):
   dbe_ = Service<DQMStore>().operator->();
   dbe_->setVerbose(0);
   if (dbe_ ) {
-    dbe_->setCurrentFolder("HLT/HLTScalers");
+    dbe_->setCurrentFolder("L1T/HLTScalers");
   }
 
 }
@@ -104,11 +99,10 @@ void HLTScalers::beginJob(const edm::EventSetup& c)
     if ( verbose_ ) {
       dbe_->setVerbose(1);
     }
-    dbe_->setCurrentFolder("HLT/HLTScalers");
+    dbe_->setCurrentFolder("L1T/HLTScalers");
 
 
     nProc_ = dbe_->bookInt("nProcessed");
-    nLumiBlocks_ = dbe_->bookInt("nLumiBlocks");
 
     // fixed - only for 128 algo bits right now
     l1scalers_ = dbe_->book1D("l1Scalers", "L1 scalers (locally derived)",
@@ -180,10 +174,7 @@ void HLTScalers::analyze(const edm::Event &e, const edm::EventSetup &c)
       if ( verbose_ )
 	std::cout << q << ": " << *j << std::endl;
       char pname[256];
-      snprintf(pname, 256, "path%02d", q);
-      // setting these here is a nice idea but it's totally illegible
-      //scalers_->setBinLabel(q+1, *j); 
-      ++q;
+      snprintf(pname, 256, "path%02d", q++);
       MonitorElement *e = dbe_->bookString(pname, *j);
       hltPathNames_.push_back(e);  // I don't ever use these....
     }
@@ -247,9 +238,7 @@ void HLTScalers::analyze(const edm::Event &e, const edm::EventSetup &c)
 void HLTScalers::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
 				    const edm::EventSetup& c)
 {
-  // put this in as a first-pass for figuring out the rate
-  // each lumi block is 93 seconds in length
-  nLumiBlocks_->Fill(++nLumi_);
+  // does nothing yet (TM)
 }
 
 

@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Giovanni FRANZONI
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: TriggerTypeFilter.cc,v 1.3 2008/07/11 14:59:47 mzanetti Exp $
+// $Id: TriggerTypeFilter.cc,v 1.1 2008/02/28 08:46:06 mzanetti Exp $
 //
 //
 
@@ -69,10 +69,7 @@ enum GapFilterConstants{
   H_FEDID_MASK           = 0xFFF,
    
   H_TTYPE_B              = 56,
-  H_TTYPE_FROM_TCS       = 20,
-  H_TCSBLOCK_SHIFT       = 7,
-  H_TTYPE_MASK           = 0xF
-
+  H_TTYPE_MASK           = 0xF    
 
 };
 
@@ -119,22 +116,10 @@ TriggerTypeFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   if (fedData.size()< EMPTY_FEDSIZE) return false;
 
   uint64_t * pData = (uint64_t *)(fedData.data());
-
-  // First Header Word of fed block
-  unsigned short triggerTypeFED       = ((*pData)>>H_TTYPE_B)   & H_TTYPE_MASK;
-  unsigned short triggerType       =  (*( pData+H_TCSBLOCK_SHIFT) >> H_TTYPE_FROM_TCS)   & H_TTYPE_MASK;
-
-  if (triggerType != triggerTypeFED) 
-    std::cout<<"Warning!! trigger type mismatch. FED="<<triggerTypeFED<<", TCS="<<triggerType<<std::endl;
-
-//   if (triggerTypeFED != SelectedTriggerType_)
-//     std::cout<<"Warning!! trigger type from FED = "<<triggerTypeFED<<std::endl;
-
-//   if (triggerType != SelectedTriggerType_)
-//     std::cout<<"Warning!! trigger type from TCS = "<<triggerTypeFED<<std::endl;
-
-
-
+  
+  // First Header Word of fed block contains trigger type
+  unsigned short triggerType       = ((*pData)>>H_TTYPE_B)   & H_TTYPE_MASK;
+  
   return (triggerType == SelectedTriggerType_) ? true : false;
 }
 

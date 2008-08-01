@@ -1,5 +1,6 @@
 /*
  *  RecoTOA.C
+ *  CMSSW_1_3_1
  *
  *  Created by Victor Eduardo Bazterra on 5/31/07.
  *  Copyright 2007 __MyCompanyName__. All rights reserved.
@@ -32,7 +33,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
-#include "SimTracker/TrackHistory/interface/TrackHistory.h"
+#include "SimTracker/TrackHistory/interface/TrackOrigin.h"
 
 //
 // class decleration
@@ -60,7 +61,7 @@ private:
   typedef std::vector<vstring> vvstring;  
   typedef std::vector<edm::ParameterSet> vParameterSet;
 
-  edm::InputTag trackProducer_;
+  std::string trackCollection_;
   
   std::string rootFile_;
   bool antiparticles_;
@@ -68,7 +69,7 @@ private:
     
   vvstring vetoList_;
 
-  TrackHistory tracer_;
+  TrackOrigin tracer_;
   
   // Track origin
 
@@ -119,44 +120,44 @@ private:
 };
 
 
-RecoTOA::RecoTOA(const edm::ParameterSet& config) : tracer_(config)
+RecoTOA::RecoTOA(const edm::ParameterSet& iConfig) : tracer_(iConfig)
 {
-  trackProducer_ = config.getUntrackedParameter<edm::InputTag> ( "trackProducer" );
-	
-  rootFile_ = config.getUntrackedParameter<std::string> ( "rootFile" );
+  trackCollection_ = iConfig.getParameter<std::string> ( "recoTrackModule" );
+
+  rootFile_ = iConfig.getParameter<std::string> ( "rootFile" );
   
-  antiparticles_ = config.getUntrackedParameter<bool> ( "antiparticles" );
+  antiparticles_     = iConfig.getParameter<bool> ( "antiparticles" );
 
-  status_ = config.getUntrackedParameter<bool> ( "status2" );
+  status_ = iConfig.getParameter<bool> ( "status2" );
 
-  edm::ParameterSet pset = config.getUntrackedParameter<edm::ParameterSet> ( "veto" );
+  edm::ParameterSet pset = iConfig.getParameter<edm::ParameterSet> ( "veto" );
   
   vstring vetoListNames = pset.getParameterNames();
   
   vetoList_.reserve(vetoListNames.size());
   
   for(std::size_t i=0; i < vetoListNames.size(); i++)
-    vetoList_.push_back(pset.getUntrackedParameter<vstring> (vetoListNames[i]));
+    vetoList_.push_back(pset.getParameter<vstring> (vetoListNames[i]));
 }
 
 RecoTOA::~RecoTOA() { }
 
 void
-RecoTOA::analyze(const edm::Event& event, const edm::EventSetup& setup)
+RecoTOA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   // Track collection
   edm::Handle<edm::View<reco::Track> > trackCollection;
   // Get reco::TrackCollection from the file.
-  event.getByLabel(trackProducer_,trackCollection);
+  iEvent.getByLabel(trackCollection_,trackCollection);
 
-  // Initialive the TrackHistory object.
+  // Initialive the TrackOrigin object.
   if (status_)
     tracer_.depth(-2);
   else
     tracer_.depth(-1);
     
   // Set the tracer for a new event  
-  tracer_.newEvent(event, setup);
+  tracer_.newEvent(iEvent, iSetup);
      
   // Initialize and reset the temporal counters 
   InitCounter();
@@ -168,7 +169,7 @@ RecoTOA::analyze(const edm::Event& event, const edm::EventSetup& setup)
     if ( tracer_.evaluate( edm::RefToBase<reco::Track>(trackCollection, index) ))
     {
       //TrackingParticle::GenParticleRefVector particles = tracer.genParticles();
-      const HepMC::GenParticle * particle = tracer_.genParticle();
+      const HepMC::GenParticle * particle = tracer_.particle();
       // If the origin can be determined then take the first particle as the original
       if (particle)
         Count(particle->barcode(), particle->pdg_id());
@@ -181,10 +182,10 @@ RecoTOA::analyze(const edm::Event& event, const edm::EventSetup& setup)
 
 
 void 
-RecoTOA::beginJob(const edm::EventSetup& setup) 
+RecoTOA::beginJob(const edm::EventSetup& iSetup) 
 {
   // Get the particles table.
-  setup.getData( pdt_ );
+  iSetup.getData( pdt_ );
 }
 
 

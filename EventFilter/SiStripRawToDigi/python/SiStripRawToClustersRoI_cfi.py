@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-SiStripRoI = cms.EDFilter("SiStripRawToClustersRoI",
+SiStripRoI = cms.ESProducer("SiStripRawToClustersRoI",
     # layers of interest
     Layers = cms.untracked.int32(-1),
     BJetEtaWindow = cms.untracked.double(0.2),

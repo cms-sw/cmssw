@@ -5,7 +5,7 @@ ecalTBSimWeightUncalibRecHit = cms.EDProducer("EcalTBWeightUncalibRecHitProducer
     EBdigiCollection = cms.string(''),
     tdcRecInfoCollection = cms.string('EcalTBTDCRecInfo'),
     EBhitCollection = cms.string('EcalUncalibRecHitsEB'),
-    digiProducer = cms.string('ecalUnsuppressedDigis'),
+    digiProducer = cms.string('simEcalUnsuppressedDigis'),
     nbTimeBin = cms.int32(25),
     tdcRecInfoProducer = cms.string('ecalTBSimTDCReconstructor')
 )

@@ -67,33 +67,20 @@ void DataWriter::writeKey (L1TriggerKey * key,
     editor = iov.newIOVEditor (tagToken);
 
     // finally insert new IOV
-    cond::TimeType timetype = cond::runnumber; 
-    cond::Time_t globalSince = cond::timeTypeSpecs[timetype].beginValue; 
-
     if( requireMapping )
       {
-	editor->create( globalSince, timetype ) ;
+	editor->create( iov.globalSince() ) ;
       }
 
-    if( sinceRun == globalSince || requireMapping )
+    if( sinceRun == iov.globalSince() )
       {
-	cond::Time_t globalTill = cond::timeTypeSpecs[timetype].endValue; 
-	editor->insert (globalTill, ref.token ());
-	tagToken = editor->token ();
-	std::cout << "L1TriggerKey IOV TOKEN " << tagToken << std::endl ;
+	editor->insert (iov.globalTill(), ref.token ());
       }
     else
       {
-	if( iov.payloadToken( tagToken, sinceRun ) != ref.token() )
-	  {
-	    editor->append( sinceRun, ref.token() ) ;
-	    std::cout << tag << "L1TriggerKey IOV TOKEN " << tagToken << std::endl ;
-	  }
-	else
-	  {
-	    std::cout << "IOV already up to date." << std::endl ;
-	  }
+	editor->append(sinceRun, ref.token ());
       }
+    tagToken = editor->token ();
     delete editor;
 
     pool.commit ();
@@ -106,6 +93,8 @@ void DataWriter::writeKey (L1TriggerKey * key,
     // Assign payload token with IOV value
     if (requireMapping)
         addMappings (tag, tagToken);
+
+    std::cout << "L1TriggerKey TOKEN " << tagToken << std::endl ;
 }
 
 void DataWriter::addMappings (const std::string tag, const std::string iovToken)
@@ -214,22 +203,18 @@ DataWriter::writeKeyList( L1TriggerKeyList* keyList,
     editor = iov.newIOVEditor( tagToken ) ;
 
     // Insert new IOV
-    cond::TimeType timetype = cond::runnumber; 
-    cond::Time_t globalSince = cond::timeTypeSpecs[timetype].beginValue; 
-
     if( requireMapping )
       {
-	std::cout << "GLOBAL SINCE " << globalSince
+	std::cout << "GLOBAL SINCE " << iov.globalSince()
 		  << " SINCE " << sinceRun 
 		  << std::endl ;
 
-	editor->create( globalSince, timetype ) ;
+	editor->create( iov.globalSince() ) ;
       }
 
-    if( sinceRun == globalSince || requireMapping )
+    if( sinceRun == iov.globalSince() )
       {
-	cond::Time_t globalTill = cond::timeTypeSpecs[timetype].endValue; 
-	editor->insert (globalTill, ref.token ());
+	editor->insert (iov.globalTill(), ref.token ());
       }
     else
       {
@@ -277,34 +262,21 @@ DataWriter::updateIOV( const std::string& tag,
     editor = iov.newIOVEditor( tagToken ) ;
 
     // Insert new IOV
-    cond::TimeType timetype = cond::runnumber; 
-    cond::Time_t globalSince = cond::timeTypeSpecs[timetype].beginValue; 
-
     if( requireMapping )
       {
 	// insert() sets till-time, not since-time -- will this work?
-	editor->create( globalSince, timetype ) ;
+	editor->create( iov.globalSince() ) ;
       }
 
-    if( sinceRun == globalSince || requireMapping )
+    if( sinceRun == iov.globalSince() )
       {
-	cond::Time_t globalTill = cond::timeTypeSpecs[timetype].endValue; 
-	editor->insert (globalTill, payloadToken );
-	tagToken = editor->token() ;
-	std::cout << tag << " IOV TOKEN " << tagToken << std::endl ;
+	editor->insert (iov.globalTill(), payloadToken );
       }
     else
       {
-	if( iov.payloadToken( tagToken, sinceRun ) != payloadToken )
-	  {
-	    editor->append( sinceRun, payloadToken ) ;
-	    std::cout << tag << " IOV TOKEN " << tagToken << std::endl ;
-	  }
-	else
-	  {
-	    std::cout << "IOV already up to date." << std::endl ;
-	  }
+	editor->append( sinceRun, payloadToken ) ;
       }
+    tagToken = editor->token() ;
     delete editor ;
 
     // Is this necessary?
@@ -320,6 +292,8 @@ DataWriter::updateIOV( const std::string& tag,
     {
        addMappings( tag, tagToken ) ;
     }
+
+    std::cout << tag << " IOV TOKEN " << tagToken << std::endl ;
 }
 
 

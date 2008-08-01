@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2008/07/12 09:02:10 $
- * $Revision: 1.434 $
+ * $Date: 2008/07/23 06:18:00 $
+ * $Revision: 1.436 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -207,6 +207,14 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const ParameterSet& ps) : Modul
     } else {
       cout << " debug switch is OFF" << endl;
     }
+  }
+
+  // prescaleFactor
+
+  prescaleFactor_ = ps.getUntrackedParameter<int>("prescaleFactor", 1);
+
+  if ( verbose_ ) {
+    cout << " prescaleFactor = " << prescaleFactor_ << endl;
   }
 
   // enableMonitorDaemon switch
@@ -1469,7 +1477,8 @@ void EcalBarrelMonitorClient::analyze(void) {
 
   if ( ! mergeRuns_ && run_ != last_run_ ) forced_update_ = true;
 
-  bool update = ( jevt_ <   10                      ) ||
+  bool update = ( prescaleFactor_ != 1              ) ||
+                ( jevt_ <   10                      ) ||
                 ( jevt_ <  100 && jevt_ %   10 == 0 ) ||
                 ( jevt_ < 1000 && jevt_ %  100 == 0 ) ||
                 (                 jevt_ % 1000 == 0 );
@@ -1520,7 +1529,7 @@ void EcalBarrelMonitorClient::analyze(void) {
 
     if ( begin_run_ && ! end_run_ ) {
 
-      bool update = ( jevt_ < 3 || jevt_ % 1000 == 0 );
+      bool update = ( prescaleFactor_ != 1 || jevt_ < 3 || jevt_ % 1000 == 0 );
 
       if ( update || strcmp(status_.c_str(), "begin-of-run") == 0 || strcmp(status_.c_str(), "end-of-run") == 0 || forced_update_ ) {
 
@@ -1670,7 +1679,9 @@ void EcalBarrelMonitorClient::analyze(const Event &e, const EventSetup &c) {
   run_ = e.id().run();
   evt_ = e.id().event();
 
-  this->analyze();
+  if ( prescaleFactor_ > 0 ) {
+    if ( jevt_ % prescaleFactor_ == 0 ) this->analyze();
+  }
 
 }
 

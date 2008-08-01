@@ -4,8 +4,8 @@
 /*
  * \file DTDigiTask.h
  *
- * $Date: 2008/05/22 07:00:39 $
- * $Revision: 1.19 $
+ * $Date: 2008/05/16 17:59:26 $
+ * $Revision: 1.18 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -20,6 +20,9 @@
 
 #include "DataFormats/LTCDigi/interface/LTCDigi.h"
 
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include <FWCore/Framework/interface/LuminosityBlock.h>
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
@@ -37,8 +40,6 @@ class DTChamberId;
 class DTTtrig;
 class DTT0;
 
-class DQMStore;
-class MonitorElement;
 
 class DTDigiTask: public edm::EDAnalyzer{
 
@@ -131,7 +132,7 @@ private:
   int inTimeHitsUpperBound;
   int timeBoxGranularity;
   int tdcRescale;
-  bool doNoiseOccupancies;
+
 
 };
 

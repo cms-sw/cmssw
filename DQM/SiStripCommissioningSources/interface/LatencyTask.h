@@ -25,7 +25,9 @@ class LatencyTask : public CommissioningTask {
   static std::map<std::string, HistoSet> timingMap_;
   static std::map<std::string, HistoSet> clusterMap_;
   HistoSet* timing_;
+  HistoSet* timingPartition_;
   HistoSet* cluster_;
+  HistoSet* clusterPartition_;
   int firstReading_;
 
 };

@@ -13,7 +13,7 @@
 //
 // Original Author:  Emmanuelle Perez
 //         Created:  Sat Nov 25 13:59:51 CET 2006
-// $Id: EcalDigiToRaw.cc,v 1.7 2007/08/03 07:57:37 eperez Exp $
+// $Id: EcalDigiToRaw.cc,v 1.8 2008/01/22 19:10:41 muzaffar Exp $
 //
 //
 
@@ -57,6 +57,8 @@ EcalDigiToRaw::EcalDigiToRaw(const edm::ParameterSet& iConfig)
    doBarrel_ = iConfig.getUntrackedParameter<bool>("DoBarrel");
    doEndCap_ = iConfig.getUntrackedParameter<bool>("DoEndCap");
 
+   listDCCId_ = iConfig.getUntrackedParameter< std::vector<int32_t> >("listDCCId");
+   
    label_= iConfig.getParameter<string>("Label");
    instanceNameEB_ = iConfig.getParameter<string>("InstanceEB");
    instanceNameEE_ = iConfig.getParameter<string>("InstanceEE");

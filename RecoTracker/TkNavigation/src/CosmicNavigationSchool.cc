@@ -14,6 +14,7 @@
 #include "TrackingTools/DetLayers/src/DetLessZ.h"
 #include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 
+
 #include "Utilities/General/interface/CMSexception.h"
 
 #include <functional>
@@ -23,24 +24,8 @@
 
 using namespace std;
 
-CosmicNavigationSchool::CosmicNavigationSchoolConfiguration::CosmicNavigationSchoolConfiguration(const edm::ParameterSet conf){
-  noPXB=conf.getParameter<bool>("noPXB");
-  noPXF=conf.getParameter<bool>("noPXF");
-  noTIB=conf.getParameter<bool>("noTIB");
-  noTID=conf.getParameter<bool>("noTID");
-  noTOB=conf.getParameter<bool>("noTOB");
-  noTEC=conf.getParameter<bool>("noTEC");
-}
-
 CosmicNavigationSchool::CosmicNavigationSchool(const GeometricSearchTracker* theInputTracker,
 					       const MagneticField* field)
-{
-  build(theInputTracker, field, CosmicNavigationSchoolConfiguration());
-}
- 
-void CosmicNavigationSchool::build(const GeometricSearchTracker* theInputTracker,
-				   const MagneticField* field,
-				   const CosmicNavigationSchoolConfiguration conf)
 {
   LogTrace("CosmicNavigationSchool") << "*********Running CosmicNavigationSchool***********" ;	
   theBarrelLength = 0;theField = field; theTracker = theInputTracker;
@@ -50,18 +35,12 @@ void CosmicNavigationSchool::build(const GeometricSearchTracker* theInputTracker
   // Get barrel layers
   vector<BarrelDetLayer*> blc = theTracker->barrelLayers();
   for ( vector<BarrelDetLayer*>::iterator i = blc.begin(); i != blc.end(); i++) {
-    if (conf.noPXB && (*i)->subDetector() == GeomDetEnumerators::PixelBarrel) continue;
-    if (conf.noTOB && (*i)->subDetector() == GeomDetEnumerators::TOB) continue;
-    if (conf.noTIB && (*i)->subDetector() == GeomDetEnumerators::TIB) continue;
     theBarrelLayers.push_back( (*i) );
   }
 
   // get forward layers
   vector<ForwardDetLayer*> flc = theTracker->forwardLayers();
   for ( vector<ForwardDetLayer*>::iterator i = flc.begin(); i != flc.end(); i++) {
-    if (conf.noPXF && (*i)->subDetector() == GeomDetEnumerators::PixelEndcap) continue;
-    if (conf.noTEC && (*i)->subDetector() == GeomDetEnumerators::TEC) continue;
-    if (conf.noTID && (*i)->subDetector() == GeomDetEnumerators::TID) continue;
     theForwardLayers.push_back( (*i) );
   }
 
@@ -148,8 +127,7 @@ void CosmicNavigationSchool::establishInverseRelations(SymmetricLayerFinder& sym
     vector<DetLayer*> lc = theTracker->allLayers();
     for ( vector<DetLayer*>::iterator i = lc.begin(); i != lc.end(); i++) {
       SimpleNavigableLayer* navigableLayer = dynamic_cast<SimpleNavigableLayer*>((**i).navigableLayer());
-      if (navigableLayer)
-	navigableLayer->setInwardLinks( reachedBarrelLayersMap[*i],reachedForwardLayersMap[*i] );
+      navigableLayer->setInwardLinks( reachedBarrelLayersMap[*i],reachedForwardLayersMap[*i] );
     }	
     buildAdditionalBarrelLinks();
     buildAdditionalForwardLinks(symFinder); 

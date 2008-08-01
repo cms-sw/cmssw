@@ -6,6 +6,10 @@
 // *                                                                         *
 // ***************************************************************************
 
+// In order for this example to work (which you should not do in FWLite
+// anyway) you have to uncomment the commented-out parts in
+// src/classes_def.xml to add definitions of BitSet dictionaries back
+
 void testFWLiteWrite()
 {
 	using namespace PhysicsTools::Calibration;

@@ -199,9 +199,9 @@ cmsRun "$cfg_path$data_file".graph.$$.cfg >& "$log_dir$data_file".$$.graph
 echo ""
 echo ""
 
-mv *.$$.*.root log/uRecHitsHists.$data_file.$$.root
+mv *.graph.root log/
 echo "File root with graphs was created:" 
-ls -ltrFh $preferred_dir/log/uRecHitsHists.$data_file.$$.root | tail -1 | awk '{print $9}'
+ls -ltrFh $preferred_dir/log/*.graph.root | tail -1 | awk '{print $9}'
 
 echo ""
 echo ""
@@ -209,4 +209,5 @@ echo "Now you can look at the plots (TBrowser)"
 echo ""
 echo ""
 
-root -l $preferred_dir/log/uRecHitsHists.$data_file.$$.root
+root -l $preferred_dir/log/*.graph.root
+#root -l `ls -tr $preferred_dir/log/*.graph.root| tail -n1`

@@ -45,8 +45,3 @@ DEFINE_ANOTHER_FWK_MODULE(EETriggerTowerTask);
 #include <DQM/EcalEndcapMonitorTasks/interface/EETimingTask.h>
 DEFINE_ANOTHER_FWK_MODULE(EETimingTask);
 
-#include <DQM/EcalEndcapMonitorTasks/interface/EESelectiveReadoutTask.h>
-DEFINE_ANOTHER_FWK_MODULE(EESelectiveReadoutTask);
-
-#include <DQM/EcalEndcapMonitorTasks/interface/EERawDataTask.h>
-DEFINE_ANOTHER_FWK_MODULE(EERawDataTask);

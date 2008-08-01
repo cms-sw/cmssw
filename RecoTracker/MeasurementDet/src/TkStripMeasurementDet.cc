@@ -75,6 +75,7 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
       // there are hits on the left of the utraj
       new_const_iterator leftCluster = rightCluster;
       while ( --leftCluster >=  detSet_.begin()) {
+        if (isMasked(*leftCluster)) continue;
 	//      TransientTrackingRecHit* recHit = buildRecHit( *leftCluster, 
 	SiStripClusterRef clusterref = edmNew::makeRefTo( handle_, leftCluster ); 
 	TransientTrackingRecHit::RecHitPointer recHit = buildRecHit(clusterref, 
@@ -89,6 +90,7 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
     }
     
     for ( ; rightCluster != detSet_.end(); rightCluster++) {
+      if (isMasked(*rightCluster)) continue;
       SiStripClusterRef clusterref = edmNew::makeRefTo( handle_, rightCluster ); 
       TransientTrackingRecHit::RecHitPointer recHit = buildRecHit( clusterref, 
 								   stateOnThisDet.localParameters());
@@ -108,6 +110,7 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
       // there are hits on the left of the utraj
       const_iterator leftCluster = rightCluster;
       while ( --leftCluster >=  beginCluster) {
+        if (isMasked(*leftCluster)) continue;
 	//      TransientTrackingRecHit* recHit = buildRecHit( *leftCluster, 
 	//std::cout << "=====making ref in fastMeas left " << std::endl;
 	SiStripRegionalClusterRef clusterref = edm::makeRefToLazyGetter(regionalHandle_,leftCluster-regionalHandle_->begin_record());
@@ -123,6 +126,7 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
     }
     
     for ( ; rightCluster != endCluster; rightCluster++) {
+      if (isMasked(*rightCluster)) continue;
       //std::cout << "=====making ref in fastMeas rigth " << std::endl;
       SiStripRegionalClusterRef clusterref = edm::makeRefToLazyGetter(regionalHandle_,rightCluster-regionalHandle_->begin_record());
       TransientTrackingRecHit::RecHitPointer recHit = buildRecHit( clusterref, 
@@ -191,12 +195,14 @@ TkStripMeasurementDet::recHits( const TrajectoryStateOnSurface& ts) const
 
   if(!isRegional){//old implemetation with DetSet
     for ( new_const_iterator ci = detSet_.begin(); ci != detSet_.end(); ++ ci ) {
+      if (isMasked(*ci)) continue;
       // for ( ClusterIterator ci=theClusterRange.first; ci != theClusterRange.second; ci++) {
       SiStripClusterRef  cluster = edmNew::makeRefTo( handle_, ci ); 
       result.push_back( buildRecHit( cluster, ts.localParameters()));
     }
   }else{
     for (const_iterator ci = beginCluster ; ci != endCluster; ci++) {      
+      if (isMasked(*ci)) continue;
       SiStripRegionalClusterRef clusterRef = edm::makeRefToLazyGetter(regionalHandle_,ci-regionalHandle_->begin_record());     
       result.push_back( buildRecHit( clusterRef, ts.localParameters()));
     }

@@ -49,7 +49,7 @@ import string # DBS output parsing
 import helpfunctions  # displays text in new window
 
 
-from pyDBSRunClass import FileInfo, DBSRun  # Gets class that holds information as to whether a given run has been processed through DQM
+from pyDBSRunClass import DBSRun  # Gets class that holds information as to whether a given run has been processed through DQM
 
 from pydbsAccessor import dbsAccessor  # sends queries to DBS
 import pyRunSummaryBaseClass # accesses html output from RunSummary page
@@ -120,7 +120,7 @@ class dbsBaseGui:
         # Set possible auto-update times (in minutes) for DBS, DQM
         self.updateTimes=(2,5,10,20,30,60,120)
         # Set blocks of Luminosity over which to search
-        self.lumiBlockRanges=("All",1,2,5,10,20,50,100,200,500,1000)
+        self.lumiBlockRanges=("All",1,5,10,20,50,100,200,500,1000)
         self.lumiBlockRange=StringVar()
         self.lumiBlockRange.set("All")
         
@@ -146,10 +146,6 @@ class dbsBaseGui:
         # Store maximum # of events to be run for each DQM job 
         self.maxDQMEvents=IntVar()
         self.maxDQMEvents.set(1000)
-
-        self.prescaleOverRun=BooleanVar()
-        self.prescaleOverRun.set(False)
-        self.prescaleOverRunText="# prescale (unused) = "
 
         # TO DO:  Make this default value changeable by user?  Save in cPickle?
         self.dbsRange.set(100) # specify range of runs over which to search, starting at the LastDBS value
@@ -507,8 +503,8 @@ class dbsBaseGui:
         # For the moment ( 12 May 2008), keep this disabled, until we
         # understand how lumi blocks are arranged in files
         # Lumi setting will now run over all lumi blocks by default -- usual way of running
-        self.dqmmenu.add_cascade(label="Set Lum'y Block Range",
-                                menu=self.lumiBlockRangeMenu.choices)
+        #self.dqmmenu.add_cascade(label="Set Lum'y Block Range",
+        #                        menu=self.lumiBlockRangeMenu.choices)
 
 
         self.Bdqm['menu']=self.dqmmenu
@@ -1009,36 +1005,23 @@ class dbsBaseGui:
         
         myvars={"  Final DQM Save Directory = ":self.finalDir,
                 "  # of events to run for each DQM = ":self.maxDQMEvents,
-                "  Prescale to run over entire run (1=yes/0=no)? ":self.prescaleOverRun,
                 "  .cfg file to run for each DQM = ":self.cfgFileName}
         temp=myvars.keys()
         temp.sort()
 
         # Create variable labels, entries
-        for i in range(len(temp)):
-            # Skip prescale-over-run option if prescaleOverRunText value is the default (user must specify his/her own text output option in inherited code for this option to become active)
-
-            if (temp[i]== "  Prescale to run over entire run (1=yes/0=no)? " and self.prescaleOverRunText=="# prescale (unused) = "):
-                continue
+        for i in temp:
             Label(self.dqmvaluewin,
                   width=40,
-                  text="%s"%temp[i]).grid(row=myrow,column=0)
-
-            if temp[i]=="  Prescale to run over entire run (1=yes/0=no)? ":
-                tempEnt=OptionMenu(self.dqmvaluewin,
-                                   self.prescaleOverRun,
-                                   'True',
-                                   'False')
-                tempEnt.configure(width=75,bg="white")
-            else:
-                tempEnt=Entry(self.dqmvaluewin,
-                              width=80,
+                  text="%s"%i).grid(row=myrow,column=0)
+            tempEnt=Entry(self.dqmvaluewin,
+                          width=80,
                           bg="white",
-                              textvar=myvars[temp[i]])
+                          textvar=myvars[i])
             tempEnt.grid(row=myrow,column=1)
-            if temp[i]=="  Final DQM Save Directory = ": 
+            if i=="  Final DQM Save Directory = ": 
                 tempEnt.bind("<Return>",(lambda event:self.checkExistence(self.finalDir)))
-            elif temp[i]== "  .cfg file to run for each DQM = ":
+            elif i== "  .cfg file to run for each DQM = ":
                 tempEnt.bind("<Return>",(lambda event:self.checkExistence(self.cfgFileName)))
             myrow=myrow+1
         newFrame=Frame(self.dqmvaluewin)
@@ -1075,7 +1058,6 @@ class dbsBaseGui:
                 self.finalDir.set(cPickle.load(pcl))
                 self.maxDQMEvents.set(cPickle.load(pcl))
                 self.cfgFileName.set(cPickle.load(pcl))
-                self.prescaleOverRun.set(cPickle.load(pcl))
                 pcl.close()
             except:
                 self.commentLabel.configure(text="Could not read file '.dqmDefaults.cPickle' ")
@@ -1100,7 +1082,6 @@ class dbsBaseGui:
             cPickle.dump(self.finalDir.get(),pcl)
             cPickle.dump(self.maxDQMEvents.get(),pcl)
             cPickle.dump(self.cfgFileName.get(),pcl)
-            cPickle.dump(self.prescaleOverRun.get(),pcl)
             pcl.close()
             os.system("chmod a+rw %s"%os.path.join(self.basedir,".dqmDefaults.cPickle"))
                       
@@ -1388,11 +1369,7 @@ class dbsBaseGui:
                 if not success:
                     # If we're only running once (not checking multiple lumi block ranges),
                     # then the lack of output indicates that there was a real problem
-
-                    if (self.lumiBlockRange.get()=="All"):
-                    # Resetting lumiBlockIncrement via the gui menu doesn't seem to work; use lumiBlockRange directly
-                    #print "RUN ",i," LUMY INC = ",self.filesInDBS[i].lumiBlockIncrement
-                    #if (self.filesInDBS[i].lumiBlockIncrement==0):     
+                    if (self.filesInDBS[i].lumiBlockIncrement==0):     
 
                         print "Problem with Run # %i -- DQM started but did not finish!"%i
                         self.commentLabel.configure(text="Problem with Run # %i -- DQM started but did not finish!"%i)
@@ -1406,9 +1383,8 @@ class dbsBaseGui:
             # Run DQM if DQM process hasn't started yet or if we want to re-run over a new luminosity
             # block (in which case "startedDQM" will be True, but "finishedDQM" will be False).
             if ((not self.filesInDBS[i].startedDQM ) or
-                (self.lumiBlockRange.get()<>"All" and
-                 self.filesInDBS[i].startedDQM and not
-                 self.filesInDBS[i].finishedDQM)):
+                  (self.filesInDBS[i].lumiBlockIncrement>0 and self.filesInDBS[i].startedDQM
+                   and not self.filesInDBS[i].finishedDQM)):
                 
                 # nothing started yet; begin DQM
 
@@ -1428,16 +1404,14 @@ class dbsBaseGui:
                 # Here is where the cmsRun command is sent!
                 
                 if (self.callDQMscript(i)):
-                    #if (self.filesInDBS[i].lumiBlockIncrement==0):
-                    if (self.lumiBlockRange.get()=="All"):
+                    if (self.filesInDBS[i].lumiBlockIncrement==0):
                         self.filesInDBS[i].finishedDQM=True
                         
                     else:
-                        #self.filesInDBS[i].currentLumiBlock=self.filesInDBS[i].currentLumiBlock+self.filesInDBS[i].lumiBlockIncrement
-                        self.filesInDBS[i].currentLumiBlock=self.filesInDBS[i].currentLumiBlock+int(self.lumiBlockRange.get())
+                        self.filesInDBS[i].currentLumiBlock=self.filesInDBS[i].currentLumiBlock+self.filesInDBS[i].lumiBlockIncrement
                         if (self.filesInDBS[i].currentLumiBlock>self.filesInDBS[i].numLumiBlocks):
                             self.filesInDBS[i].finishedDQM=True
-                            
+
                     finished_run=finished_run+1 # increment finished regardless of whether all lum'y blocks completed?
                 
             if (self.debug):
@@ -1521,61 +1495,23 @@ class dbsBaseGui:
         # Allow a different # for each file?
         #temp.write("replace maxEvents.input=%i\n"%self.filesInDBS[i].maxEvents)
 
-        # If wish to prescale over entire file, calculate prescale here:
-        if (self.prescaleOverRun.get() and self.prescaleOverRunText<>"# prescale (unused) = "):
-            # No longer need to get run info from summary page; already have it from DBS
-            #myruninfo=pyRunSummaryBaseClass.goodHCALRun(i,self.debug)
-            
-            try:
-                # Get prescale value
-                prescaleVal=int(self.filesInDBS[i].totalEvents/self.maxDQMEvents.get())
-                if (self.debug):
-                    print "Run #%i  Total events = %i  Max Events to run = %i  Prescale = %i"%(i,self.filesInDBS[i].totalEvents, self.maxDQMEvents.get(),prescaleVal)
-                if (prescaleVal>0):
-                    temp.write("%s %i\n\n"%(self.prescaleOverRunText,prescaleVal))
-                    # Need to run over all events if using prescale
-                    temp.write("replace maxEvents.input=%i\n"%self.filesInDBS[i].totalEvents)
-                     
-            except:
-                # If above fails for some reason, still dump out the maxEvents replacement (replace with maxDQMEvents)
-                temp.write("replace maxEvents.input=%i\n"%self.maxDQMEvents.get())
-                 
-
         # Set luminosity blocks over which to run
-        else:
-            temp.write("replace maxEvents.input=%i\n"%self.maxDQMEvents.get())
-
+        temp.write("replace maxEvents.input=%i\n"%self.maxDQMEvents.get())
         if (self.debug):
-            print "run= ",i," lumi increment = ",self.lumiBlockRange.get()
+            print "run= ",i," lumi increment = ",self.filesInDBS[i].lumiBlockIncrement
+        if (self.filesInDBS[i].lumiBlockIncrement>0):
+            temp.write("# replace lumiblockFilter.startblock=%i\n"%self.filesInDBS[i].currentLumiBlock)
+            temp.write("# replace lumiblockFilter.endblock=%i\n"%(self.filesInDBS[i].lumiBlockIncrement+self.filesInDBS[i].currentLumiBlock))
 
-        #if (self.filesInDBS[i].lumiBlockIncrement>0):
-        #    temp.write("# replace lumiblockFilter.startblock=%i\n"%self.filesInDBS[i].currentLumiBlock)
-        #    temp.write("# replace lumiblockFilter.endblock=%i\n"%(self.filesInDBS[i].lumiBlockIncrement+self.filesInDBS[i].currentLumiBlock))
-
-        filesToRun=[]
-        if (self.lumiBlockRange.get()=="All"):
-            filesToRun=self.filesInDBS[i].files
-        else:
-            # If only running over a subset of files, calculate total number of events in the given range
-            totalevents=0
-            for myfile in range(len(self.filesInDBS[i].fileInfo)):
-                myval=self.filesInDBS[i].fileInfo[myfile].lumiBlock
-                # Check over luminosity ranges
-                if (myval>=self.filesInDBS[i].currentLumiBlock and myval<self.filesInDBS[i].currentLumiBlock+int(self.lumiBlockRange.get())):
-                    filesToRun.append(self.filesInDBS[i].fileInfo[myfile].fileName)
-                    totalevents=totalevents+self.filesInDBS[i].fileInfo[myfile].numEvents
-            self.filesInDBS[i].totalEvents=totalevents
-            
-        filelength=len(filesToRun)
+        filelength=len(self.filesInDBS[i].files)
         if (filelength==0):
             self.commentLabel.configure(text = "<ERROR> No files found for run %i!"%i)
             self.commentLabel.update_idletasks()
             time.sleep(2)
             return
         temp.write("replace PoolSource.fileNames={\n")
-        
         for f in range(0,filelength):
-            temp.write("'%s'"%string.strip(filesToRun[f]))
+            temp.write("'%s'"%string.strip(self.filesInDBS[i].files[f]))
             if (f==filelength-1):
                 temp.write("\n")
             else:
@@ -1674,13 +1610,9 @@ class dbsBaseGui:
             if (self.debug):
                 print "<getcmsRunOutput> success=True!"
             # Move directory to new name if checking runs by lumi block
-            if (self.lumiBlockRange.get()<>"All"):
-                #if (self.filesInDBS[runnum].lumiBlockIncrement>0):
+            if (self.filesInDBS[runnum].lumiBlockIncrement>0):
                 newdirname="%s_L%i_%i"%(outputdir,self.filesInDBS[runnum].currentLumiBlock,
-                                        #self.filesInDBS[runnum].currentLumiBlock+self.filesInDBS[runnum].lumiBlockIncrement-1)
-                                        min(self.filesInDBS[runnum].currentLumiBlock+int(self.lumiBlockRange.get())-1,
-                                            self.filesInDBS[runnum].numLumiBlocks)
-                                        )
+                                        self.filesInDBS[runnum].currentLumiBlock+self.filesInDBS[runnum].lumiBlockIncrement-1)
                 os.system("mv %s %s"%(outputdir,newdirname))
                 outputdir=newdirname
             self.cmsRunOutput.append(outputdir)
@@ -1690,23 +1622,13 @@ class dbsBaseGui:
         success=success and (os.path.exists(outputroot))
         if os.path.exists(outputroot):
             # Perform additional move when lumi block checking is incremented
-            #if (self.filesInDBS[runnum].lumiBlockIncrement>0):
-            if (self.lumiBlockRange.get()<>"All"):
+            if (self.filesInDBS[runnum].lumiBlockIncrement>0):
                 newfilename="%s_L%i_%i.root"%(os.path.join(self.basedir,outname),
                                               self.filesInDBS[runnum].currentLumiBlock,
-                                              #self.filesInDBS[runnum].currentLumiBlock+self.filesInDBS[runnum].lumiBlockIncrement-1)
-                                              min(self.filesInDBS[runnum].currentLumiBlock+int(self.lumiBlockRange.get())-1,
-                                                  self.filesInDBS[runnum].numLumiBlocks)
-                                              )
+                                              self.filesInDBS[runnum].currentLumiBlock+self.filesInDBS[runnum].lumiBlockIncrement-1)
                 os.system("mv %s %s"%(outputroot,newfilename))
                 outputroot=newfilename
             self.cmsRunOutput.append(outputroot)
-
-
-        # Hack for Jason to look at Timing Code
-        timingoutput="HcalTiming_run%i.root"%runnum
-        if os.path.exists(timingoutput):
-            self.cmsRunOutput.append(timingoutput)
 
         if (self.debug):
             print "<getcmsRunOutput>  The following cmsRun outputs were found:"
@@ -1763,9 +1685,9 @@ class dbsBaseGui:
 
         if (self.debug):
             print self.parseDBSInfo.__doc__
-            
-            
-        hcalrunlist=[]
+
+
+        
         # Added on 4 June 2008:  Try to get run list by explicitly check the RunSummary page to make sure that HCAL was included in the run.  Not yet enabled(need to generalize for non-HCAL running?)
 
         if (self.dbsSetHcalValue.get()=="Only runs including HCAL"):
@@ -1785,7 +1707,7 @@ class dbsBaseGui:
                 continue # skip blank output lines
             # Use "Found ... runs" output line to determine # of runs found
             if (r.startswith("Found")):
-                
+
                 self.foundfiles=string.atoi(string.split(r)[1])
                 if (self.foundfiles==0):
                     self.commentLabel.configure(text="WARNING!  No runs found in the run range %i-%i"%(self.lastFoundDBS.get(),self.lastFoundDBS.get()+self.dbsRange.get()))
@@ -1831,9 +1753,9 @@ class dbsBaseGui:
 
             self.dbsProgress.configure(text="Found run %i in range (%i-%i)..."%(r,self.lastFoundDBS.get(),self.lastFoundDBS.get()+self.dbsRange.get()))
             self.commentLabel.update_idletasks()
-            
+
             tempfiles=[]
-        
+
             # For each run, create new accessor that will find files, datasets associated with the run
             x=dbsAccessor(debug=self.debug)
             x.host.set(self.myDBS.host.get())
@@ -1847,31 +1769,29 @@ class dbsBaseGui:
             x.case.set(self.myDBS.case.get())
             x.details.set(self.myDBS.details.get())
             x.debug.set(self.myDBS.debug.get())
-            #x.site.set(self.myDBS.site.get())
-            x.site.set("")  # we already know file exists at this site -- don't check for site again (causes crash in dbs search)
+            x.site.set(self.myDBS.site.get())
             # beginRun, endRun don't need to be set -- we're looking for one specific run here
             
             # give new accessor same defaults as set for self.myDBS
-            text="find file,file.numevents,lumi,dataset where %s run=%i"%(self.myDBS.formParsedString(),r)
-
+            text="find file,dataset where %s run=%i"%(self.myDBS.formParsedString(),r)
+            
             x.searchDBS(mytext=text)
             
-            searchfiles=string.split(x.searchResult,"\n")
-            if (self.debug):
-                print "File,numevents,lumi,dataset search output = ",searchfiles
+            files=string.split(x.searchResult,"\n")
+
             dataset=None
             # Parse output looking over files for a given run number
-            for searchfile in searchfiles:
-            
+            for file in files:
+
                 # ignore blank lines
-                if len(searchfile)==0:
+                if len(file)==0:
                     continue
 
                 # Don't try to split the response describing found files;
                 # simply store that info
                 # (Send warning if found files is greater than # allowed files?)
-                if (searchfile.startswith("Found")):
-                    self.foundfiles=self.foundfiles+string.atoi(string.split(searchfile)[1])
+                if (file.startswith("Found")):
+                    self.foundfiles=self.foundfiles+string.atoi(string.split(file)[1])
                     if (self.foundfiles==0):
                         self.commentLabel.configure(text="WARNING!  No files found for run # %i"%r)
                         self.dbsProgress.configure(text="No files found for run # %i"%r,
@@ -1880,30 +1800,23 @@ class dbsBaseGui:
                         #return False
                         continue
                 else:
-                    if (self.debug): print "\tFile,dataset,lumi search output = ",searchfile
+                    #print "i = ",file
                     try:
-                        i=string.split(searchfile,",")
-                        if (i[0].endswith(".root")):
-                            tempFileInfo=FileInfo(searchfile)
-                            if (tempFileInfo.goodFile==False):
-                                self.commentLabel.configure(text="Could not properly parse DBS entry:\n'%s'"%i)
-                                badcount=badcount+1
-                                if (self.debug):
-                                    print "Could not properly parse DBS entry: %s"%i
-                                    self.commentLabel.update_idletasks()
-                            else:
-                                tempfiles.append(tempFileInfo)
+                        i=string.split(file,",")
+                        dataset=i[1] # dataset
+                        i=i[0] # file name
+                        if (i.endswith(".root")):  # file must be .root file
+                            tempfiles.append(i) 
                         else:
                              self.commentLabel.configure(text="Could not recognize DBS entry:\n'%s'"%i)
                              badcount=badcount+1
-                             if (self.debug):
-                                 print "Could not parse DBS entry: %s"%i
+                             #print "Could not parse DBS entry: %s"%i
                              self.commentLabel.update_idletasks()
 
-                    except SyntaxError:
+                    except:
                         self.commentLabel.configure(text="Could not parse DBS entry:\n'%s'"%i)
                         badcount=badcount+1
-                        print "Could not parse DBS entry: %s"%i
+                        #print "Could not parse DBS entry: %s"%i
                         self.commentLabel.update_idletasks()
 
             if len(tempfiles)==0:
@@ -1911,30 +1824,43 @@ class dbsBaseGui:
                 self.commentLabel.configure(text="No valid files found for run # %i"%r)
                 self.commentLabel.update_idletasks()
                 continue
-            tempDBS=DBSRun()
+            tempDBS=DBSRun(tempfiles)
             tempDBS.runnum=r
             tempDBS.maxEvents=self.maxDQMEvents.get()
-            for fileobject in tempfiles:
-                tempDBS.AddFileInfo(fileobject)
-            tempDBS.UpdateRunInfo()
+            if (dataset<>None):
+                tempDBS.dataset=string.strip(dataset,"\n")
 
-            # Run not found -- create a new DBSRun object
             if r not in self.filesInDBS.keys():
                 self.filesInDBS[r]=tempDBS
             else:
-                # Run found
-                for f in tempfiles:
-                    # Run found, but not this particular file -- need to add file Info to self.filesInDBS[r]
-                    if f.fileName not in self.filesInDBS[r].files:
-                        self.filesInDBS[r].fileInfo.append(f)
-                # After all new files found for run r, update info
-                self.filesInDBS[r].UpdateRunInfo()
-            
+                for file in tempDBS.files:
+                    if file not in self.filesInDBS[r].files:
+                        self.filesInDBS[r].files.append(file)
+                
+            # Now we have to repeat search again, this time looking for luminosity blocks:  (We could perform both searches at once, but that results in a huge number of files (# files * # lumi blocks, I think).  It's easier (but slower?) to just search twice.)
 
-            tmpvar=self.lumiBlockRange.get()
-            if (tmpvar=="All"):
-                tmpvar="0"
-            self.filesInDBS[r].lumiBlockIncrement=string.atoi(tmpvar)
+            #text="find lumi where %s run=%i"%(self.myDBS.formParsedString(),r)
+            #x.searchDBS(mytext=text)
+            #lumiinfo=string.split(x.searchResult,"\n")
+            #maxlumi=0
+            # Lumi blocks should be returned in descending order, so it's not really necessary to loop through all of them.  However, the loop offers some protections should the ordering be changed, and I don't think it takes too much extra time.
+            #for lumi in lumiinfo:
+            #    if (self.debug):
+            #        print "lumi = '%s'"%lumi
+            #    try:
+            #        templumi=string.atoi(string.strip(lumi))
+            #        if templumi>maxlumi:
+            #            maxlumi=templumi
+            #        if (self.debug):
+            #            print "Max. lumi block is now: ",maxlumi
+            #    except:
+            #        continue
+            #self.filesInDBS[r].numLumiBlocks=max(maxlumi,
+            #                                     self.filesInDBS[r].numLumiBlocks)
+            #tmpvar=self.lumiBlockRange.get()
+            #if (tmpvar=="All"):
+            #    tmpvar="0"
+            #self.filesInDBS[r].lumiBlockIncrement=string.atoi(tmpvar)
 
         # Set lastFoundDBS to most recent run in filesInDBS 
         
@@ -1986,12 +1912,12 @@ class dbsBaseGui:
         x=self.filesInDBS.keys()
         x.sort()
         x.reverse()
-        temp ="%10s     %35s%10s%10s     %10s%12s%15s%15s     %20s\n"%(" Run #", "Dataset"," ",
-                                                                   "# of files","#events","IgnoreRun?",
-                                                                   "Started DQM?","Finished DQM?","Starting Lumiblock")
-        
+        temp ="%10s     %45s%10s     %10s%12s%15s%15s\n"%(" Run #", "Dataset"," ",
+                                                          "# of files","IgnoreRun?",
+                                                          "Started DQM?","Finished DQM?")
         for i in x:
             temp=temp+self.filesInDBS[i].Print()
+
         # Make window displaying run info
         if (len(x)<>1):
             title="A total of %i runs have been found in DBS"%len(x)
@@ -2050,7 +1976,7 @@ class dbsBaseGui:
                                string.ljust("IgnoreRun?",20),string.ljust("# of files",20),
                                string.ljust("Dataset",30))
         Label(scrollwin,
-              text=temp).grid(row=myrow,column=0,sticky=W)
+              text=temp).grid(row=myrow,column=0)
         myrow=myrow+1
         self.lb=Listbox(scrollwin,
                         bg="white",
@@ -2492,21 +2418,8 @@ class dbsBaseGui:
         choice=self.lumiBlockRange.get()
         if choice=="All":
             choice="0"
-
         for r in self.filesInDBS.keys():
-            # Compute Number of events just in the current range of luminosity blocks
-            totalevents=0
-            for myfile in range(len(self.filesInDBS[r].fileInfo)):
-                myval=self.filesInDBS[r].fileInfo[myfile].lumiBlock
-                # Check over luminosity ranges
-                if (choice=="0" or (myval>=self.filesInDBS[r].currentLumiBlock and myval<self.filesInDBS[r].currentLumiBlock+int(choice))):
-                        
-                    totalevents=totalevents+self.filesInDBS[r].fileInfo[myfile].numEvents
-            self.filesInDBS[r].totalEvents=totalevents
-
-            
             self.filesInDBS[r].lumiBlockIncrement=string.atoi(choice)
-            # This doesn't seem to work; use a direct "get" of self.lumiBlockRange
             if (self.debug):
                 print "<setLumiBlockMenu> run # = %i, lumi block increment = %i"%(r, self.filesInDBS[r].lumiBlockIncrement)
         return

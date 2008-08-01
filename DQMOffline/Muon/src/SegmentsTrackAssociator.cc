@@ -3,13 +3,12 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/06/30 19:51:47 $
- *  $Revision: 1.3 $
- *  \author C. Botta, G. Mila - INFN Torino
+ *  $Date: 2008/05/13 14:51:46 $
+ *  $Revision: 1.2 $
+ *  \author C. Botta - INFN Torino
+ *  Revised by G. Mila
  */
 
-
-#include "DQMOffline/Muon/src/SegmentsTrackAssociator.h"
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -21,18 +20,22 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4D.h"
 #include "DataFormats/TrackingRecHit/interface/RecSegment.h"
-
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 #include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
 #include "DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h"
 
+
+
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
+
+#include "DQMOffline/Muon/src/SegmentsTrackAssociator.h"
+
 
 #include <vector>
 
@@ -47,9 +50,9 @@ SegmentsTrackAssociator::SegmentsTrackAssociator(const ParameterSet& iConfig)
   theCSCSegmentLabel = iConfig.getUntrackedParameter<InputTag>("segmentsCSC");
   theSegmentContainerName = iConfig.getUntrackedParameter<InputTag>("SelectedSegments");
     
-  numRecHit=0;
-  numRecHitDT=0;
-  numRecHitCSC=0;
+  NrecHit=0;
+  NrecHitDT=0;
+  NrecHitCSC=0;
   metname = "SegmentsTrackAssociator";
 }
 
@@ -60,48 +63,49 @@ SegmentsTrackAssociator::~SegmentsTrackAssociator();
 MuonTransientTrackingRecHit::MuonRecHitContainer SegmentsTrackAssociator::associate(const Event& iEvent, const EventSetup& iSetup, const reco::Track& Track){
 
   // The segment collections
-  Handle<DTRecSegment4DCollection> dtSegments;
-  iEvent.getByLabel(theDTSegmentLabel, dtSegments); 
-  Handle<CSCSegmentCollection> cscSegments;
-  iEvent.getByLabel(theCSCSegmentLabel, cscSegments);
+  Handle<DTRecSegment4DCollection> DTSegments;
+  iEvent.getByLabel(theDTSegmentLabel, DTSegments); 
+  Handle<CSCSegmentCollection> CSCSegments;
+  iEvent.getByLabel(theCSCSegmentLabel, CSCSegments);
   ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
   iSetup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
   
 
   DTRecSegment4DCollection::const_iterator segment;
   CSCSegmentCollection::const_iterator segment2;
-  MuonTransientTrackingRecHit::MuonRecHitContainer selectedSegments;
-  MuonTransientTrackingRecHit::MuonRecHitContainer selectedDtSegments;
-  MuonTransientTrackingRecHit::MuonRecHitContainer selectedCscSegments;
+  MuonTransientTrackingRecHit::MuonRecHitContainer SelectedSegments;
+  MuonTransientTrackingRecHit::MuonRecHitContainer SelectedDtSegments;
+  MuonTransientTrackingRecHit::MuonRecHitContainer SelectedCscSegments;
 
   //loop over recHit
   for(trackingRecHit_iterator recHit =  Track.recHitsBegin(); recHit != Track.recHitsEnd(); ++recHit){
     
-    numRecHit++;
+    NrecHit++;
  
     //get the detector Id and the local position
-    DetId idRivHit = (*recHit)->geographicalId();
+    DetId IdRivHit = (*recHit)->geographicalId();
     LocalPoint posTrackRecHit = (*recHit)->localPosition(); 
     
 
-    // DT recHits
-    if (idRivHit.det() == DetId::Muon && idRivHit.subdetId() == MuonSubdetId::DT ) {
+    // for DT recHits
+    if (IdRivHit.det() == DetId::Muon && IdRivHit.subdetId() == MuonSubdetId::DT ) {
 
       DTRecSegment4DCollection::range range; 	
-      numRecHitDT++;
-      // get the chamber Id
-      DTChamberId chamberId(idRivHit.rawId());
-      // get the segments of the chamber
-      range = dtSegments->get(chamberId);
+      NrecHitDT++;
 
-      // loop over segments
+      // get the chamber Id
+      DTChamberId chamberId(IdRivHit.rawId());
+      // get the segments of the chamber
+      range = DTSegments->get(chamberId);
+      //loop over segments
       for (segment = range.first; segment!=range.second; segment++){
 
-	DetId id = segment->geographicalId();
-	const GeomDet* det = theTrackingGeometry->idToDet(id);
+	DetId Id = segment->geographicalId();
+	const GeomDet* det = theTrackingGeometry->idToDet(Id);
+	
 	vector<const TrackingRecHit*> segments2D = (&(*segment))->recHits();
 	// container for 4D segment recHits
-	vector <const TrackingRecHit*> dtRecHits;
+	vector <const TrackingRecHit*> DTrecHits;
 
 	for(vector<const TrackingRecHit*>::const_iterator segm2D = segments2D.begin();
 	  segm2D != segments2D.end();
@@ -109,35 +113,35 @@ MuonTransientTrackingRecHit::MuonRecHitContainer SegmentsTrackAssociator::associ
 
 	  vector <const TrackingRecHit*> rHits1D = (*segm2D)->recHits();
 	  for (int hit=0; hit<int(rHits1D.size()); hit++){
-	    dtRecHits.push_back(rHits1D[hit]);
+	    DTrecHits.push_back(rHits1D[hit]);
 	  }
 
 	}
 	
 	// loop over the recHit checking if there's the recHit of the track
-	for (unsigned int hit = 0; hit < dtRecHits.size(); hit++) { 	  
+	for (unsigned int hit = 0; hit < DTrecHits.size(); hit++) { 	  
 	  
-	  DetId idRivHitSeg = (*dtRecHits[hit]).geographicalId();
+	  DetId IdRivHitSeg = (*DTrecHits[hit]).geographicalId();
 	  LocalPoint posDTSegment=  segment->localPosition();
-	  LocalPoint posSegDTRecHit = (*dtRecHits[hit]).localPosition(); 
+	  LocalPoint posSegDTRecHit = (*DTrecHits[hit]).localPosition(); 
 	  	    
 	  double rDT=sqrt(pow((posSegDTRecHit.x()-posTrackRecHit.x()),2) +pow((posSegDTRecHit.y()-posTrackRecHit.y()),2) + pow((posSegDTRecHit.z()-posTrackRecHit.z()),2));
 	  
-	  if (idRivHit == idRivHitSeg && rDT<0.0001){  
+	  if (IdRivHit == IdRivHitSeg && rDT<0.0001){  
 
-	    if (selectedDtSegments.empty()){
-		selectedDtSegments.push_back(MuonTransientTrackingRecHit::specificBuild(det,&*segment));
+	    if (SelectedDtSegments.empty()){
+		SelectedDtSegments.push_back(MuonTransientTrackingRecHit::specificBuild(det,&*segment));
 		LogTrace(metname) <<"First selected segment (from DT). Position : "<<posDTSegment<<"  Chamber : "<<segment->chamberId();
 	    }
 	    else{
 	      int check=0;
-	      for(int segm=0; segm < int(selectedDtSegments.size()); ++segm) {
-		double dist=sqrt(pow((((*(selectedDtSegments[segm])).localPosition()).x()-posDTSegment.x()),2) +pow((((*(selectedDtSegments[segm])).localPosition()).y()-posDTSegment.y()),2) + pow((((*(selectedDtSegments[segm])).localPosition()).z()-posDTSegment.z()),2));
+	      for(int segm=0; segm < int(SelectedDtSegments.size()); ++segm) {
+		double dist=sqrt(pow((((*(SelectedDtSegments[segm])).localPosition()).x()-posDTSegment.x()),2) +pow((((*(SelectedDtSegments[segm])).localPosition()).y()-posDTSegment.y()),2) + pow((((*(SelectedDtSegments[segm])).localPosition()).z()-posDTSegment.z()),2));
 		if(dist>30) check++;
 	      }     
 		
-	      if(check==int(selectedDtSegments.size())){
-		selectedDtSegments.push_back(MuonTransientTrackingRecHit::specificBuild(det,&*segment));
+	      if(check==int(SelectedDtSegments.size())){
+		SelectedDtSegments.push_back(MuonTransientTrackingRecHit::specificBuild(det,&*segment));
 		LogTrace(metname) <<"New DT selected segment. Position : "<<posDTSegment<<"  Chamber : "<<segment->chamberId();
 	      }      
 	    }	
@@ -149,14 +153,14 @@ MuonTransientTrackingRecHit::MuonRecHitContainer SegmentsTrackAssociator::associ
     }
     
    
-    // CSC recHits
-    if (idRivHit.det() == DetId::Muon && idRivHit.subdetId() == MuonSubdetId::CSC ) {
+    // for CSC recHits
+    if (IdRivHit.det() == DetId::Muon && IdRivHit.subdetId() == MuonSubdetId::CSC ) {
 
       CSCSegmentCollection::range range; 
-      numRecHitCSC++;
+      NrecHitCSC++;
 
       // get the chamber Id
-      CSCDetId tempchamberId(idRivHit.rawId());
+      CSCDetId tempchamberId(IdRivHit.rawId());
       
       int ring = tempchamberId.ring();
       int station = tempchamberId.station();
@@ -165,39 +169,39 @@ MuonTransientTrackingRecHit::MuonRecHitContainer SegmentsTrackAssociator::associ
       CSCDetId chamberId(endcap, station, ring, chamber, 0);
       
       // get the segments of the chamber
-      range = cscSegments->get(chamberId);
+      range = CSCSegments->get(chamberId);
       // loop over segments
       for(segment2 = range.first; segment2!=range.second; segment2++){
 
-	DetId id2 = segment2->geographicalId();
-	const GeomDet* det2 = theTrackingGeometry->idToDet(id2);
+	DetId Id2 = segment2->geographicalId();
+	const GeomDet* det2 = theTrackingGeometry->idToDet(Id2);
 	
 	// container for CSC segment recHits
-	vector<const TrackingRecHit*> cscRecHits = (&(*segment2))->recHits();
+	vector<const TrackingRecHit*> CSCrecHits = (&(*segment2))->recHits();
 	
 	// loop over the recHit checking if there's the recHit of the track	
-	for (unsigned int hit = 0; hit < cscRecHits.size(); hit++) { 
+	for (unsigned int hit = 0; hit < CSCrecHits.size(); hit++) { 
   
-	  DetId idRivHitSeg = (*cscRecHits[hit]).geographicalId();
-	  LocalPoint posSegCSCRecHit = (*cscRecHits[hit]).localPosition(); 
+	  DetId IdRivHitSeg = (*CSCrecHits[hit]).geographicalId();
+	  LocalPoint posSegCSCRecHit = (*CSCrecHits[hit]).localPosition(); 
 	  LocalPoint posCSCSegment=  segment2->localPosition();
 	    	  
 	  double rCSC=sqrt(pow((posSegCSCRecHit.x()-posTrackRecHit.x()),2) +pow((posSegCSCRecHit.y()-posTrackRecHit.y()),2) + pow((posSegCSCRecHit.z()-posTrackRecHit.z()),2));
 
-	  if (idRivHit==idRivHitSeg && rCSC < 0.0001){
+	  if (IdRivHit==IdRivHitSeg && rCSC < 0.0001){
 
-	    if (selectedCscSegments.empty()){
-	      selectedCscSegments.push_back(MuonTransientTrackingRecHit::specificBuild(det2,&*segment2));
+	    if (SelectedCscSegments.empty()){
+	      SelectedCscSegments.push_back(MuonTransientTrackingRecHit::specificBuild(det2,&*segment2));
 	      LogTrace(metname) <<"First selected segment (from CSC). Position: "<<posCSCSegment;
 	    }
 	    else{
 	      int check=0;
-	      for(int n=0; n< int(selectedCscSegments.size()); n++){
-		double dist = sqrt(pow(((*(selectedCscSegments[n])).localPosition().x()-posCSCSegment.x()),2) +pow(((*(selectedCscSegments[n])).localPosition().y()-posCSCSegment.y()),2) + pow(((*(selectedCscSegments[n])).localPosition().z()-posCSCSegment.z()),2));
+	      for(int n=0; n< int(SelectedCscSegments.size()); n++){
+		double dist = sqrt(pow(((*(SelectedCscSegments[n])).localPosition().x()-posCSCSegment.x()),2) +pow(((*(SelectedCscSegments[n])).localPosition().y()-posCSCSegment.y()),2) + pow(((*(SelectedCscSegments[n])).localPosition().z()-posCSCSegment.z()),2));
 		if(dist>30) check++;
 	      }
-	      if(check==int(selectedCscSegments.size())){  
-		selectedCscSegments.push_back(MuonTransientTrackingRecHit::specificBuild(det2,&*segment2));
+	      if(check==int(SelectedCscSegments.size())){  
+		SelectedCscSegments.push_back(MuonTransientTrackingRecHit::specificBuild(det2,&*segment2));
 		LogTrace(metname) <<"New CSC segment selected. Position : "<<posCSCSegment;	
 	      }
 	    }
@@ -211,19 +215,19 @@ MuonTransientTrackingRecHit::MuonRecHitContainer SegmentsTrackAssociator::associ
       
   } // loop over track recHits
     
-  LogTrace(metname) <<"N recHit:"<<numRecHit;
-  numRecHit=0;
-  LogTrace(metname) <<"N recHit DT:"<<numRecHitDT;
-  numRecHitDT=0;
-  LogTrace(metname) <<"N recHit CSC:"<<numRecHitCSC;
-  numRecHitCSC=0;
+  LogTrace(metname) <<"N recHit:"<<NrecHit;
+  NrecHit=0;
+  LogTrace(metname) <<"N recHit DT:"<<NrecHitDT;
+  NrecHitDT=0;
+  LogTrace(metname) <<"N recHit CSC:"<<NrecHitCSC;
+  NrecHitCSC=0;
   
-  copy(selectedDtSegments.begin(), selectedDtSegments.end(), back_inserter(selectedSegments));
-  LogTrace(metname) <<"N selected Dt segments:"<<selectedDtSegments.size();
-  copy(selectedCscSegments.begin(), selectedCscSegments.end(), back_inserter(selectedSegments));
-  LogTrace(metname) <<"N selected Csc segments:"<<selectedCscSegments.size();
-  LogTrace(metname) <<"N selected segments:"<<selectedSegments.size();
+  copy(SelectedDtSegments.begin(), SelectedDtSegments.end(), back_inserter(SelectedSegments));
+  LogTrace(metname) <<"N selected Dt segments:"<<SelectedDtSegments.size();
+  copy(SelectedCscSegments.begin(), SelectedCscSegments.end(), back_inserter(SelectedSegments));
+  LogTrace(metname) <<"N selected Csc segments:"<<SelectedCscSegments.size();
+  LogTrace(metname) <<"N selected segments:"<<SelectedSegments.size();
 
-  return selectedSegments;
+  return SelectedSegments;
   
 }

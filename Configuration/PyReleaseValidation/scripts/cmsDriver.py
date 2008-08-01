@@ -12,184 +12,155 @@ from Configuration.PyReleaseValidation.ConfigBuilder import ConfigBuilder
 usage=\
 """%prog <TYPE> [options].
 Examples:
-%prog QCD
-%prog 10MU+ -e 45 -n 100 --no_output
-%prog B_JETS -s DIGI -e 40_130 -n 50 --filein MYSIMJETS --fileout MYDIGIJETS
-%prog GAMMA -s DIGI --filein file:myGAMMA.root --dirout rfio:$CASTOR_HOME/test/
-%prog GAMMA -s RECO --dirin rfio:$CASTOR_HOME/test/ --fileout file:myGAMMAreco.root
+
+%prog SingleMuPt10_cfi -n 100 --no_output
+%prog QCD_Pt_15_20_cfi -s GEN,SIM,DIGI,L1,DQM,DIGI2RAW,HLT -n 10
+%prog QCD_Pt_15_20_cfi -s RAW2DIGI,RECO -n 10 --filein file:myQCD.root --dirout rfio:$CASTOR_HOME/test/
 """
 parser = optparse.OptionParser(usage)
 
+expertSettings = optparse.OptionGroup(parser, '===============\n  Expert Options', 'Caution: please use only if you know what you are doing.')
+famosSettings = optparse.OptionGroup(parser, '===============\n  FastSimulation options', '')
+parser.add_option_group(expertSettings)
+
 parser.add_option("-s", "--step",
                    help="The desired step. The possible values are: "+\
-                        "GEN (Generation),"+\
-                        "SIM (Simulation), "+\
-                        "GENSIM (Generation+Simulation)"+\
-                        "DIGI (Digitisation), "+\
-                        "RECO (Reconstruction), "+\
-                        "ALCA (alignment/calibration), "+\
-                        "DIGIRECO (DigitisationReconstruction), "+\
-                        "DIGIPURECO (DigitisationReconstruction+ Pileup at low lumi), "+\
-                        "ALL (Simulation-Reconstruction-Digitisation).",
+                        "GEN,SIM,DIGI,DIGI2RAW,HLT,RAW2DIGI,RECO,POSTRECO,DQM,ALCA or ALL.",
                    default="ALL",
                    dest="step")
 
-parser.add_option("-n", "--number",
-                   help="The number of evts. The default is 1.",
-                   default="1",
-                   dest="number")
-                   
-parser.add_option("--relval",
-                   help="Set total number of events and events per job in the ReleaseValidation PSet as <tot_num>,<evts_per_job>.",
-                   default="5000,250",
-                   dest="relval")                   
-                
-parser.add_option("--pileup",
-                  help="Enable the pile up.",
-                  default='NoPileUp',
-                  dest="pileup")                     
-                                     
+parser.add_option("--conditions",
+                  help="What conditions to use. Default are frontier conditions 'STARTUP_V4::All'",
+                  default="FrontierConditions_GlobalTag,STARTUP_V4::All",
+                  dest="conditions")
+
+parser.add_option("--eventcontent",
+                  help="What event content to write out. Default=FEVTDEBUG",
+                  default="FEVTDEBUG",
+                  dest="eventcontent")
+
 parser.add_option("--filein",
-                   help="The infile name. If absent and necessary a "+\
-                        "default value is assigned. "+\
-                        "The form is <type>_<energy>_<step>.root.",
+                   help="The infile name.",
                    default="",#to be changed in the default form later
                    dest="filein")
 
-parser.add_option("--secondfilein",
-                   help="The secondary infile name."+\
-                        "for the two-file solution. Default is no file",
-                   default="",#to be changed in the default form later
-                   dest="secondfilein")
-
 parser.add_option("--fileout",
-                   help="The outfile name. If absent a default value is "+\
-                        "assigned. The form is <type>_<energy>_<step>.root.",
+                   help="The outfile name. If absent a default value is assigned",
                    default="", #to be changed in the default form later
                    dest="fileout")
 
-parser.add_option("--writeraw",
-                  help="In addition to the nominal output, write a file with just raw",
-                  action="store_true",
-                  default=False,
-                  dest="writeraw")
+parser.add_option("-n", "--number",
+                  help="The number of events. The default is 1.",
+                  default="1",
+                  dest="number")
 
-parser.add_option("--eventcontent",
-                   help="What event content to write out. Default=FEVTDEBUG",
-                   default="FEVTDEBUG",
-                   dest="eventcontent")
+# expert settings
+expertSettings.add_option("--beamspot",
+                          help="What beam spot to use (from Configuration/StandardSequences). Default=Early10TeVCollision",
+                          default="Early10TeVCollision",
+                          dest="beamspot")
 
-parser.add_option("--datatier",
-                   help="What data tier to use. Default from lookup table",
-                   default='',
-                   dest="datatier")
+expertSettings.add_option("--customise",
+                          help="Specify the file where the code to modify the process object is stored.",
+                          default="",
+                          dest="customisation_file")
 
-parser.add_option("--filtername",
-                   help="What filter name to specify in output module",
-                   default="",
-                   dest="filtername")
+expertSettings.add_option("--datatier",
+                          help="What data tier to use.",
+                          default='',
+                          dest="datatier")
 
-parser.add_option("--oneoutput",
-                   help="use only one output module",
-                   action="store_true",
-                   default="False",
-                   dest="oneoutput")
+expertSettings.add_option( "--dirin",
+                          help="The infile directory.",
+                          default="",
+                          dest="dirin")                    
 
-parser.add_option("--conditions",
-                   help="What conditions to use. Default=FrontierConditions_GlobalTag,STARTUP_V4::All",
-                   default="FrontierConditions_GlobalTag,STARTUP_V4::All",
-                   dest="conditions")
+expertSettings.add_option( "--dirout",
+                          help="The outfile directory.",
+                          default="",
+                          dest="dirout")                
 
-parser.add_option("--beamspot",
-                   help="What beam spot to use (from Configuration/StandardSequences). Default=Early10TeVCollision",
-                   default="Early10TeVCollision",
-                   dest="beamspot")
+expertSettings.add_option("--filtername",
+                          help="What filter name to specify in output module",
+                          default="",
+                          dest="filtername")
 
+expertSettings.add_option("--geometry",
+                          help="What geometry to use (from Configuration/StandardSequences). Default=Pilot2",
+                          default="Pilot2",
+                          dest="geometry")
 
-parser.add_option("--geometry",
-                   help="What geometry to use (from Configuration/StandardSequences)",
-                   default="",
-                   dest="geometry")
+expertSettings.add_option("--magField",
+                          help="What magnetic field to use (from Configuration/StandardSequences).",
+                          default="",
+                          dest="magField")
 
-parser.add_option("--magField",
-                   help="What magnetic field to use (from Configuration/StandardSequences). Default=3.8T",
-                   default="3.8T",
-                   dest="magField")
+expertSettings.add_option("--no_output",
+                          help="Do not write anything to disk. This is for "+\
+                          "benchmarking purposes.",
+                          action="store_true",
+                          default=False,
+                          dest="no_output_flag")
 
-parser.add_option("--altcffs",
-                   help="Specify any nondefault cffs to include (replace the default ones) [syntax <step>:cff]",
-                   default="",
-                   dest="altcffs")
+expertSettings.add_option("--oneoutput",
+                          help="use only one output module",
+                          action="store_true",
+                          default="False",
+                          dest="oneoutput")
 
-parser.add_option( "--dirin",
-                   help="The infile directory.",
-                   default="",
-                   dest="dirin")                    
+expertSettings.add_option("--prefix",
+                          help="Specify a prefix to the cmsRun command.",
+                          default="",
+                          dest="prefix")  
 
-parser.add_option( "--dirout",
-                   help="The outfile directory.",
-                   default="",
-                   dest="dirout")                
+expertSettings.add_option("--relval",
+                          help="Set total number of events and events per job.", #this does not get used but get parsed in the command by DatOps
+                          default="5000,250",
+                          dest="relval")
 
-parser.add_option("-p","--profiler_service",
-                  help="Equip the process with the profiler service "+\
-                       "by Vincenzo Innocente. First and the last events in "+\
-                       " the form <first>_<last>.",
-                  default="",
-                  dest="profiler_service_cuts")
-
-parser.add_option("--fpe",
-                  help="Equip the process with the floating point exception service. "+\
-                       "For details see https://twiki.cern.ch/twiki/bin/"+\
-                       "view/CMS/SWGuideFloatingPointBehavior",
-                  action="store_true",
-                  default=False,
-                  dest="fpe_service_flag")                        
-                  
-parser.add_option("--prefix",
-                  help="Specify a prefix to the cmsRun command.",
-                  default="",
-                  dest="prefix")  
-                   
-parser.add_option("--no_output",
-                  help="Do not write anything to disk. This is for "+\
-                       "benchmarking purposes.",
-                  action="store_true",
-                  default=False,
-                  dest="no_output_flag")
-                                                                                      
-parser.add_option("--dump_python",
+expertSettings.add_option("--dump_python",
                   help="Dump the config file in python "+\
-                  "language in the file given as argument."+\
-                  "If absent and necessary a "+\
-                  "default value is assigned. "+\
-                  "The form is <type>_<energy>_<step>.py .",
+                  "and do a full expansion of imports.",
                   action="store_true",
                   default=False,                  
                   dest="dump_python")
-                                                    
-parser.add_option("--python_filename",
-                  help="Change the name of the created config file ",
-                  default='',
-                  dest="python_filename")
 
-parser.add_option("--dump_DSetName",
-                  help="Dump the primary datasetname.",
-                  action="store_true",
-                  default=False,
-                  dest="dump_dsetname_flag")                  
-                                    
+expertSettings.add_option("--dump_DSetName",
+                          help="Dump the primary datasetname.",
+                          action="store_true",
+                          default=False,
+                          dest="dump_dsetname_flag")
+
+expertSettings.add_option("--pileup",
+                  help="What pileup config to use. Default=NoPileUp.",
+                  default='NoPileUp',
+                  dest="pileup")
+
+                                                    
+expertSettings.add_option("--python_filename",
+                          help="Change the name of the created config file ",
+                          default='',
+                          dest="python_filename")
+
+expertSettings.add_option("--secondfilein",
+                          help="The secondary infile name."+\
+                                "for the two-file solution. Default is no file",
+                          default="",#to be changed in the default form later
+                          dest="secondfilein")
+
+expertSettings.add_option("--writeraw",
+                          help="In addition to the nominal output, write a file with just raw",
+                          action="store_true",
+                          default=False,
+                          dest="writeraw")
+
+
 parser.add_option("--no_exec",
-                  help="Do not exec cmsrun. Just prepare the parameters module",
+                  help="Do not exec cmsRun. Just prepare the python config file.",
                   action="store_true",
                   default=False,
                   dest="no_exec_flag")   
                   
-parser.add_option("--customise",
-                  help="Specify the file where the code to modify the process object is stored.",
-                  default="",
-                  dest="customisation_file")                     
-
 (options,args) = parser.parse_args() # by default the arg is sys.argv[1:]
 
 # A simple check on the consistency of the arguments
@@ -324,10 +295,10 @@ if options.dump_python:
     execfile(python_config_filename, result)
     process = result["process"]
     expanded = process.dumpPython()
-    expandedFile = file(python_config_filename.rstrip('.py')+'_expanded.py',"w")
+    expandedFile = file(python_config_filename,"w")
     expandedFile.write(expanded)
     expandedFile.close()
-    print "Config file "+python_config_filename.rstrip('.py')+'_expanded.py'+ " created"
+    print "Expanded config file", python_config_filename, "created"
     sys.exit(0)           
   
 if options.no_exec_flag:

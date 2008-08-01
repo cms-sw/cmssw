@@ -18,10 +18,10 @@ class GPFSimParticle : public GPFBase, public TGraph {
  public:
 
   GPFSimParticle(DisplayManager *dm,int view, int ident, 
-		 const reco::PFSimParticle *ptc, 
-		 int size, double *x, double *y,
+                 const reco::PFSimParticle *ptc, 
+                 int size, double *x, double *y,
                  double pt,TAttMarker *attm,TAttLine *attl,
-		 std::string option);
+                 std::string option);
                  
   virtual void     draw();
   double           getPt() { return pt_;}

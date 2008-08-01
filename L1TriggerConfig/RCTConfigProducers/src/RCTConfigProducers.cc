@@ -13,7 +13,7 @@
 //
 // Original Author:  Sridhara Dasu
 //         Created:  Mon Jul 16 23:48:35 CEST 2007
-// $Id: RCTConfigProducers.cc,v 1.8 2008/05/13 23:53:52 jleonard Exp $
+// $Id: RCTConfigProducers.cc,v 1.5 2008/02/13 15:46:41 jleonard Exp $
 //
 //
 
@@ -25,34 +25,27 @@
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/ESProducts.h"
+
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "CondFormats/DataRecord/interface/L1RCTParametersRcd.h"
 #include "CondFormats/L1TObjects/interface/L1RCTParameters.h"
-#include "CondFormats/DataRecord/interface/L1RCTChannelMaskRcd.h"
-#include "CondFormats/L1TObjects/interface/L1RCTChannelMask.h"
 
 //
 // class declaration
 //
 
 class RCTConfigProducers : public edm::ESProducer {
-public:
-  RCTConfigProducers(const edm::ParameterSet&);
-  ~RCTConfigProducers();
-  
-  //typedef boost::shared_ptr<L1RCTParameters> ReturnType;
-  //typedef edm::ESProducts< boost::shared_ptr<L1RCTParameters>, boost::shared_ptr<L1RCTChannelMask> > ReturnType;
-  
-  //ReturnType produce(const L1RCTParametersRcd&);
-  boost::shared_ptr<L1RCTParameters> produceL1RCTParameters(const L1RCTParametersRcd&);
-  boost::shared_ptr<L1RCTChannelMask> produceL1RCTChannelMask(const L1RCTChannelMaskRcd&);
+   public:
+      RCTConfigProducers(const edm::ParameterSet&);
+      ~RCTConfigProducers();
 
+      typedef boost::shared_ptr<L1RCTParameters> ReturnType;
+
+      ReturnType produce(const L1RCTParametersRcd&);
 private:
-  // ----------member data ---------------------------
+      // ----------member data ---------------------------
   L1RCTParameters *rctParameters;
-  L1RCTChannelMask *rctChannelMask;
 };
 
 //
@@ -70,10 +63,7 @@ RCTConfigProducers::RCTConfigProducers(const edm::ParameterSet& iConfig)
 {
    //the following line is needed to tell the framework what
    // data is being produced
-   //setWhatProduced(this);
-  setWhatProduced(this, &RCTConfigProducers::produceL1RCTParameters);
-  setWhatProduced(this, &RCTConfigProducers::produceL1RCTChannelMask);
-
+   setWhatProduced(this);
    //now do what ever other initialization is needed
    rctParameters = 
      new L1RCTParameters(iConfig.getParameter<double>("eGammaLSB"),
@@ -97,24 +87,6 @@ RCTConfigProducers::RCTConfigProducers(const edm::ParameterSet& iConfig)
                          iConfig.getParameter<std::vector< double > >("jetMETECalScaleFactors"),
                          iConfig.getParameter<std::vector< double > >("jetMETHCalScaleFactors")
 			 );
-
-   // value of true if channel is masked, false if not masked
-   rctChannelMask = new L1RCTChannelMask ;
-   for (int i = 0; i < 18; i++)
-     {
-       for (int j = 0; j < 2; j++)
-	 {
-	   for (int k = 0; k < 28; k++)
-	     {
-	       rctChannelMask->ecalMask[i][j][k] = false;
-	       rctChannelMask->hcalMask[i][j][k] = false;
-	     }
-	   for (int k = 0; k < 4; k++)
-	     {
-	       rctChannelMask->hfMask[i][j][k] = false;
-	     }
-	 }
-     }
 }
 
 
@@ -132,24 +104,13 @@ RCTConfigProducers::~RCTConfigProducers()
 //
 
 // ------------ method called to produce the data  ------------
-//RCTConfigProducers::ReturnType
-boost::shared_ptr<L1RCTParameters>
-RCTConfigProducers::produceL1RCTParameters(const L1RCTParametersRcd& iRecord)
+RCTConfigProducers::ReturnType
+RCTConfigProducers::produce(const L1RCTParametersRcd& iRecord)
 {
    using namespace edm::es;
    boost::shared_ptr<L1RCTParameters> pL1RCTParameters =
      (boost::shared_ptr<L1RCTParameters>) rctParameters;
    return pL1RCTParameters ;
-   //return products( pL1RCTParameters, pL1RCTChannelMask );
-}
-
-boost::shared_ptr<L1RCTChannelMask>
-RCTConfigProducers::produceL1RCTChannelMask(const L1RCTChannelMaskRcd& iRecord)
-{
-  using namespace edm::es;
-   boost::shared_ptr<L1RCTChannelMask> pL1RCTChannelMask =
-     (boost::shared_ptr<L1RCTChannelMask>) rctChannelMask;
-   return pL1RCTChannelMask ;
 }
 
 //define this as a plug-in

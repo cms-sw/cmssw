@@ -9,7 +9,8 @@
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/MessageLogger>
-<use name=DQMServices/Core>
+<use name=FWCore/ServiceRegistry>
+<use name=PhysicsTools/UtilAlgos>
 <use name=geant4>
 <use name=boost>
 <use name=root>
@@ -18,20 +19,6 @@
 
 <export>
  <lib name=SimG4CMSHcalTestBeam>
- <use name=SimG4Core/Notification> 
- <use name=SimG4Core/Watcher>
- <use name=SimG4CMS/Calo>
- <use name=Geometry/EcalCommonData>
- <use name=Geometry/HcalCommonData>
- <use name=DataFormats/HcalDetId>
- <use name=SimDataFormats/HcalTestBeam>
- <use name=FWCore/Framework>
- <use name=FWCore/ParameterSet>
- <use name=FWCore/MessageLogger>
- <use name=DQMServices/Core>
- <use name=geant4>
- <use name=boost>
- <use name=root>
 </export>
 
 <Flags EDM_PLUGIN=1>

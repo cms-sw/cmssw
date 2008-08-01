@@ -9,7 +9,6 @@
 <use name=FWCore/ServiceRegistry>
 <use name=Geometry/RPCGeometry>
 <use name=Geometry/CommonDetUnit>
-<use name=Geometry/Records>
 <use name=DataFormats/L1GlobalMuonTrigger>
 <export>
 <lib name=DQMRPCMonitorClient> 
@@ -23,6 +22,5 @@
 <use name=FWCore/ServiceRegistry>
 <use name=Geometry/RPCGeometry>
 <use name=Geometry/CommonDetUnit>
-<use name=Geometry/Records>
 <use name=DataFormats/L1GlobalMuonTrigger>
 </export>

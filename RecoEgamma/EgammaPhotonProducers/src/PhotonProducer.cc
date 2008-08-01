@@ -21,9 +21,8 @@
 #include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h"
 #include "RecoCaloTools/Selectors/interface/CaloConeSelector.h"
 #include "RecoEgamma/EgammaPhotonProducers/interface/PhotonProducer.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaEcalIsolation.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaRecHitIsolation.h"
-#include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
+
+
 
 PhotonProducer::PhotonProducer(const edm::ParameterSet& config) : 
   conf_(config), 
@@ -47,31 +46,14 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) :
   hbheInstanceName_ = conf_.getParameter<std::string>("hbheInstance");
   hOverEConeSize_   = conf_.getParameter<double>("hOverEConeSize");
   maxHOverE_        = conf_.getParameter<double>("maxHOverE");
-  minSCEt_          = conf_.getParameter<double>("minSCEt");
-  minR9_            = conf_.getParameter<double>("minR9");
+  minSCEt_        = conf_.getParameter<double>("minSCEt");
+  minR9_        = conf_.getParameter<double>("minR9");
   likelihoodWeights_= conf_.getParameter<std::string>("MVA_weights_location");
-  //  extRadius_        = conf_.getParameter<double>("ecalIsolExtR");
-  //innRadius_        = conf_.getParameter<double>("ecalIsolInnR");
-  //minEtRecHit_      = conf_.getParameter<double>("minEtRecHit");     
-  //isolEtCut_        = conf_.getParameter<double>("isolEtCut");     
 
   usePrimaryVertex_ = conf_.getParameter<bool>("usePrimaryVertex");
   risolveAmbiguity_ = conf_.getParameter<bool>("risolveConversionAmbiguity");
 
-  paramForIsolBarrel_.push_back(conf_.getParameter<double>("ecalIsolExtRBarrel")); 
-  paramForIsolBarrel_.push_back(conf_.getParameter<double>("ecalIsolInnRBarrel"));
-  paramForIsolBarrel_.push_back(conf_.getParameter<double>("ecalIsolEtaStripBarrel"));
-  paramForIsolBarrel_.push_back(conf_.getParameter<double>("minEtRecHitBarrel"));     
-  paramForIsolBarrel_.push_back(conf_.getParameter<double>("isolEtCutBarrel"));     
-
-  paramForIsolEndcap_.push_back(conf_.getParameter<double>("ecalIsolExtREndcap")); 
-  paramForIsolEndcap_.push_back(conf_.getParameter<double>("ecalIsolInnREndcap"));
-  paramForIsolEndcap_.push_back(conf_.getParameter<double>("ecalIsolEtaStripEndcap"));
-  paramForIsolEndcap_.push_back(conf_.getParameter<double>("minEtRecHitEndcap"));     
-  paramForIsolEndcap_.push_back(conf_.getParameter<double>("isolEtCutEndcap"));     
-
-
-
+ 
   // Parameters for the position calculation:
   std::map<std::string,double> providedParameters;
   providedParameters.insert(std::make_pair("LogWeighted",conf_.getParameter<bool>("posCalc_logweight")));
@@ -215,8 +197,8 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
 
   int iSC=0; // index in photon collection
   // Loop over barrel and endcap SC collections and fill the  photon collection
-  fillPhotonCollection(scBarrelHandle,barrelGeometry,preshowerGeometry,topology,barrelRecHits,mhbhe.get(),paramForIsolBarrel_,conversionHandle,pixelSeeds,vtx,outputPhotonCollection,iSC);
-  fillPhotonCollection(scEndcapHandle,endcapGeometry,preshowerGeometry,topology,endcapRecHits,mhbhe.get(),paramForIsolEndcap_,conversionHandle,pixelSeeds,vtx,outputPhotonCollection,iSC);
+  fillPhotonCollection(scBarrelHandle,barrelGeometry,preshowerGeometry,topology,barrelRecHits,mhbhe.get(),conversionHandle,pixelSeeds,vtx,outputPhotonCollection,iSC);
+  fillPhotonCollection(scEndcapHandle,endcapGeometry,preshowerGeometry,topology,endcapRecHits,mhbhe.get(),conversionHandle,pixelSeeds,vtx,outputPhotonCollection,iSC);
 
   // put the product in the event
   edm::LogInfo("PhotonProducer") << " Put in the event " << iSC << " Photon Candidates \n";
@@ -232,7 +214,6 @@ void PhotonProducer::fillPhotonCollection(
 		   const CaloTopology *topology,
 		   const EcalRecHitCollection *hits,
 		   HBHERecHitMetaCollection *mhbhe,
-		   std::vector<double> paramsForIsolation,
                    const edm::Handle<reco::ConversionCollection> & conversionHandle,
 		   const reco::ElectronPixelSeedCollection& pixelSeeds,
 		   math::XYZPoint & vtx,
@@ -264,7 +245,7 @@ void PhotonProducer::fillPhotonCollection(
     // calculate HoE
     double HoE=theHoverEcalc_(pClus,mhbhe);
     if (HoE>=maxHOverE_)  continue;
-
+    
     
     
     // recalculate position of seed BasicCluster taking shower depth for unconverted photon
@@ -303,31 +284,11 @@ void PhotonProducer::fillPhotonCollection(
 
     
     reco::Photon newCandidate(p4, caloPosition, scRef, HoE, hasSeed, vtx);
-    
-    double ecalIsol=0;
-    std::auto_ptr<CaloRecHitMetaCollectionV> ecalRecHits(0); 
-    ecalRecHits = std::auto_ptr<CaloRecHitMetaCollectionV>(new EcalRecHitMetaCollection(hits));
-    double extRadius   = paramsForIsolation[0];
-    double innRadius   = paramsForIsolation[1];
-    double etaStrip    = paramsForIsolation[2];
-    double minEtRecHit = paramsForIsolation[3]; 
-    double isolEtCut   = paramsForIsolation[4]; 
-    //    std::cout << " extR " << extRadius << " innR " << innRadius << " etaStrip " << etaStrip << " minEtRecHit " << minEtRecHit << " isolEtCut " << isolEtCut << std::endl;
-
-    EgammaRecHitIsolation phoIso(extRadius,innRadius,etaStrip,minEtRecHit,theCaloGeom_,&(*ecalRecHits),DetId::Ecal);
-    ecalIsol = phoIso.getEtSum(&newCandidate);
-    if ( ecalIsol > isolEtCut ) {
-      //       std::cout << " ecalIsol is " << ecalIsol << " rejecting the photon " << std::endl;
-      continue;
-    }
-
-
 
     if ( validConversions_) {
       
       if ( risolveAmbiguity_ ) { 
-
-	//std::cout << " Like is on " << std::endl;	
+	
         reco::ConversionRef bestRef=solveAmbiguity( conversionHandle , scRef);	
 
 	if (bestRef.isNonnull() ) newCandidate.addConversion(bestRef);	
@@ -340,8 +301,7 @@ void PhotonProducer::fillPhotonCollection(
 	  
 	  reco::ConversionRef cpRef(reco::ConversionRef(conversionHandle,icp));
 	  icp++;      
-	           
-
+          
           if (!( scRef.id() == (*itCP).caloCluster()[0].id() && scRef.key() == (*itCP).caloCluster()[0].key() )) continue; 
 	  if ( !(*itCP).isConverted() ) continue;  
 	  newCandidate.addConversion(cpRef);     
@@ -367,8 +327,6 @@ reco::ConversionRef  PhotonProducer::solveAmbiguity(const edm::Handle<reco::Conv
   std::multimap<reco::ConversionRef, double >   convMap;
   int icp=0;
   reco::ConversionCollection conversionCollection  = *(conversionHandle.product());
-
-  //std::cout << " PhotonProducer::solveAmbiguity conversion size " << conversionCollection.size() << std::endl;
   for( reco::ConversionCollection::const_iterator  itCP = conversionCollection.begin(); itCP != conversionCollection.end(); itCP++) {
     reco::ConversionRef cpRef(reco::ConversionRef(conversionHandle,icp));
     icp++;      

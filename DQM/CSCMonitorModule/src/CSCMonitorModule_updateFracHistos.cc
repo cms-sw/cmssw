@@ -18,7 +18,7 @@
  */
 
 #include "DQM/CSCMonitorModule/interface/CSCMonitorModule.h"
-#include "CSCUtilities.cc"
+#include "csc_utilities.cc"
 
 void CSCMonitorModule::updateFracHistos() {
 
@@ -128,14 +128,8 @@ void CSCMonitorModule::updateFracHistos() {
 
   if (MEEMU("CSC_Reporting", me1)) {
 
-    // Getting reference and reporting histograms for CSC_Reporting
-    TH2* ref = dynamic_cast<TH2*>(me1->getRefRootObject());
     TH2* rep = dynamic_cast<TH2*>(me1->getTH1());
-    if (ref) {
-      summary.ReadReportingChambersRef(rep, ref, 0.1, 5.0);
-    } else {
-      summary.ReadReportingChambers(rep, 1.0);
-    }
+    summary.ReadReportingChambers(rep, 1.0);
 
     if (MEEMU("CSC_Format_Errors", me2)) {
       TH2* err = dynamic_cast<TH2*>(me2->getTH1());
@@ -186,41 +180,21 @@ void CSCMonitorModule::updateFracHistos() {
 
     TH2* tmp=dynamic_cast<TH2*>(me1->getTH1());
     float rs = summary.WriteMap(tmp);
+    float he = summary.GetEfficiencyHW();
     TString title = Form("EMU Status: Physics Efficiency %.2f", rs);
     tmp->SetTitle(title);
 
-    // Filling in the main summary number
-    // Note: this uses a different approach then summary contents numbers
-    // This one uses Physics efficinency
     if(MEEventInfo("reportSummary", me1))  me1->Fill(rs);
-
-    // Looping via addresses (scope: side->station->ring) and
-    // filling in HW efficiencies
-    CSCAddress adr;
-    adr.mask.chamber = adr.mask.layer = adr.mask.cfeb = adr.mask.hv = false;
-    adr.mask.side = true;
-    for (adr.side = 1; adr.side <= N_SIDES; adr.side++) {
-      adr.mask.station = adr.mask.ring = false;
-
-      if(MEReportSummaryContents(summary.Detector().AddressName(adr), me1)) 
-        me1->Fill(summary.GetEfficiencyHW(adr));
-
-      adr.mask.station = true; 
-      for (adr.station = 1; adr.station <= N_STATIONS; adr.station++) {
-        adr.mask.ring = false;
-
-        if(MEReportSummaryContents(summary.Detector().AddressName(adr), me1)) 
-          me1->Fill(summary.GetEfficiencyHW(adr));
-
-        adr.mask.ring = true;
-        for (adr.ring = 1; adr.ring <= summary.Detector().NumberOfRings(adr.station); adr.ring++) {
-
-          if(MEReportSummaryContents(summary.Detector().AddressName(adr), me1)) 
-            me1->Fill(summary.GetEfficiencyHW(adr));
-
-        }
-      }
-    }
+    if(MEReportSummaryContents("EMUPhysicsEfficiency", me1)) me1->Fill(rs);
+    if(MEReportSummaryContents("EMUHWEfficiency", me1))      me1->Fill(he);
+    if(MEReportSummaryContents("ME1PhysicsEfficiency", me1)) me1->Fill(summary.GetEfficiencyArea(1));
+    if(MEReportSummaryContents("ME2PhysicsEfficiency", me1)) me1->Fill(summary.GetEfficiencyArea(2));
+    if(MEReportSummaryContents("ME3PhysicsEfficiency", me1)) me1->Fill(summary.GetEfficiencyArea(3));
+    if(MEReportSummaryContents("ME4PhysicsEfficiency", me1)) me1->Fill(summary.GetEfficiencyArea(4)); 
+    if(MEReportSummaryContents("ME1HWEfficiency", me1))      me1->Fill(summary.GetEfficiencyHW(1));
+    if(MEReportSummaryContents("ME2HWEfficiency", me1))      me1->Fill(summary.GetEfficiencyHW(2));
+    if(MEReportSummaryContents("ME3HWEfficiency", me1))      me1->Fill(summary.GetEfficiencyHW(3));
+    if(MEReportSummaryContents("ME4HWEfficiency", me1))      me1->Fill(summary.GetEfficiencyHW(4));
 
   }
 

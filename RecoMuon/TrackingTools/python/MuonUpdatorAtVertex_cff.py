@@ -17,4 +17,3 @@ MuonUpdatorAtVertexAnyDirection = cms.PSet(
     )
 )
 
-

@@ -32,8 +32,8 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManager.h"
-#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManagerRcd.h"
+#include "CondFormats/L1TObjects/interface/DTConfigManager.h"
+#include "CondFormats/DataRecord/interface/DTConfigManagerRcd.h"
 
 //
 // class declaration

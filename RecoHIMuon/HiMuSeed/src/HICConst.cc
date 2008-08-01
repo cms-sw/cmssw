@@ -1,7 +1,5 @@
 #include "RecoHIMuon/HiMuSeed/interface/HICConst.h"
 #include <iostream>
-namespace cms {
-void HICConst::setVertex(double a){zvert=a;}
 HICConst::HICConst()
 {
 
@@ -1125,7 +1123,7 @@ phicutfbb[13][3][0] = 0.005;
 phicutfbb[13][2][1] = 0.005;
 phicutfbb[13][2][0] = 0.003;
 
-phicutfbb[13][1][0] = 0.0035;
+phicutfbb[13][1][0] = 0.003;
 
 // +++++++++++ Last layer = 12
 
@@ -1218,7 +1216,7 @@ phicutfbb[12][3][0] = 0.005;
 phicutfbb[12][2][1] = 0.005;
 phicutfbb[12][2][0] = 0.005;
 
-phicutfbb[12][1][0] = 0.0035;
+phicutfbb[12][1][0] = 0.003;
 
 // +++++++++++ Last layer = 11
 
@@ -1312,7 +1310,7 @@ phicutfbb[11][3][0] = 0.005;
 phicutfbb[11][2][1] = 0.005;
 phicutfbb[11][2][0] = 0.005;
 
-phicutfbb[11][1][0] = 0.0035;
+phicutfbb[11][1][0] = 0.003;
 
 // +++++++++++ Last layer = 10
 
@@ -1972,7 +1970,7 @@ phiwinfbb[13][3][0] = 0.005;
 phiwinfbb[13][2][1] = 0.005;
 phiwinfbb[13][2][0] = 0.003;
 
-phiwinfbb[13][1][0] = 0.0035;
+phiwinfbb[13][1][0] = 0.003;
 
 // +++++++++++ Last layer = 12
 
@@ -2065,7 +2063,7 @@ phiwinfbb[12][3][0] = 0.005;
 phiwinfbb[12][2][1] = 0.005;
 phiwinfbb[12][2][0] = 0.005;
 
-phiwinfbb[12][1][0] = 0.0035;
+phiwinfbb[12][1][0] = 0.003;
 
 // +++++++++++ Last layer = 11
 
@@ -2159,7 +2157,7 @@ phiwinfbb[11][3][0] = 0.005;
 phiwinfbb[11][2][1] = 0.005;
 phiwinfbb[11][2][0] = 0.005;
 
-phiwinfbb[11][1][0] = 0.0035;
+phiwinfbb[11][1][0] = 0.003;
 
 // +++++++++++ Last layer = 10
 
@@ -2252,7 +2250,7 @@ phiwinfbb[10][3][0] = 0.005;
 phiwinfbb[10][2][1] = 0.005;
 phiwinfbb[10][2][0] = 0.005;
 
-phiwinfbb[10][1][0] = 0.0035;
+phiwinfbb[10][1][0] = 0.003;
 
 // +++++++++++ Last layer = 9
 
@@ -2346,7 +2344,7 @@ phiwinfbb[9][3][0] = 0.005;
 phiwinfbb[9][2][1] = 0.005;
 phiwinfbb[9][2][0] = 0.005;
 
-phiwinfbb[9][1][0] = 0.0035;
+phiwinfbb[9][1][0] = 0.003;
 
 // +++++++++++ Last layer = 8
 
@@ -2440,7 +2438,7 @@ phiwinfbb[8][3][0] = 0.005;
 phiwinfbb[8][2][1] = 0.005;
 phiwinfbb[8][2][0] = 0.005;
 
-phiwinfbb[8][1][0] = 0.0035;
+phiwinfbb[8][1][0] = 0.003;
 
 // +++++++++++ Last layer = 7
 
@@ -2535,7 +2533,7 @@ phiwinfbb[7][3][0] = 0.005;
 phiwinfbb[7][2][1] = 0.005;
 phiwinfbb[7][2][0] = 0.005;
 
-phiwinfbb[7][1][0] = 0.0035;
+phiwinfbb[7][1][0] = 0.003;
 
 // +++++++++++ Last layer = 6
 
@@ -2630,7 +2628,7 @@ phiwinfbb[6][3][0] = 0.005;
 phiwinfbb[6][2][1] = 0.005;
 phiwinfbb[6][2][0] = 0.005;
 
-phiwinfbb[6][1][0] = 0.0035;
+phiwinfbb[6][1][0] = 0.003;
 
 // +++++++++++ Last layer = 5
 
@@ -2726,7 +2724,7 @@ phiwinfbb[5][3][0] = 0.005;
 phiwinfbb[5][2][1] = 0.005;
 phiwinfbb[5][2][0] = 0.005;
 
-phiwinfbb[5][1][0] = 0.0035;
+phiwinfbb[5][1][0] = 0.003;
 
 
 // Forward roads, windows, phiwinfrw
@@ -2835,7 +2833,7 @@ phiwinfrw[13][3][0] = 0.005;
 phiwinfrw[13][2][1] = 0.005;
 phiwinfrw[13][2][0] = 0.003;
 
-phiwinfrw[13][1][0] = 0.0035;
+phiwinfrw[13][1][0] = 0.003;
 
 // +++++++++++ Last layer = 12
 
@@ -2928,7 +2926,7 @@ phiwinfrw[12][3][0] = 0.005;
 phiwinfrw[12][2][1] = 0.005;
 phiwinfrw[12][2][0] = 0.005;
 
-phiwinfrw[12][1][0] = 0.0035;
+phiwinfrw[12][1][0] = 0.003;
 
 // +++++++++++ Last layer = 11
 
@@ -3008,7 +3006,7 @@ phiwinfrw[11][3][0] = 0.005;
 phiwinfrw[11][2][1] = 0.005;
 phiwinfrw[11][2][0] = 0.005;
 
-phiwinfrw[11][1][0] = 0.0035;
+phiwinfrw[11][1][0] = 0.003;
 
 // +++++++++++ Last layer = 10
 
@@ -3075,7 +3073,7 @@ phiwinfrw[10][3][0] = 0.005;
 phiwinfrw[10][2][1] = 0.005;
 phiwinfrw[10][2][0] = 0.005;
 
-phiwinfrw[10][1][0] = 0.0035;
+phiwinfrw[10][1][0] = 0.003;
 
 // +++++++++++ Last layer = 9
 
@@ -3132,7 +3130,7 @@ phiwinfrw[9][3][0] = 0.005;
 phiwinfrw[9][2][1] = 0.005;
 phiwinfrw[9][2][0] = 0.005;
 
-phiwinfrw[9][1][0] = 0.0035;
+phiwinfrw[9][1][0] = 0.003;
 
 // +++++++++++ Last layer = 8
 
@@ -3179,7 +3177,7 @@ phiwinfrw[8][3][0] = 0.005;
 phiwinfrw[8][2][1] = 0.005;
 phiwinfrw[8][2][0] = 0.005;
 
-phiwinfrw[8][1][0] = 0.0035;
+phiwinfrw[8][1][0] = 0.003;
 
 // +++++++++++ Last layer = 7
 
@@ -3216,7 +3214,7 @@ phiwinfrw[7][3][0] = 0.005;
 phiwinfrw[7][2][1] = 0.005;
 phiwinfrw[7][2][0] = 0.005;
 
-phiwinfrw[7][1][0] = 0.0035;
+phiwinfrw[7][1][0] = 0.003;
 
 // +++++++++++ Last layer = 6
 
@@ -3245,7 +3243,7 @@ phiwinfrw[6][3][0] = 0.005;
 phiwinfrw[6][2][1] = 0.005;
 phiwinfrw[6][2][0] = 0.005;
 
-phiwinfrw[6][1][0] = 0.0035;
+phiwinfrw[6][1][0] = 0.003;
 
 // +++++++++++ Last layer = 5
 
@@ -3267,7 +3265,7 @@ phiwinfrw[5][3][0] = 0.005;
 phiwinfrw[5][2][1] = 0.005;
 phiwinfrw[5][2][0] = 0.005;
 
-phiwinfrw[5][1][0] = 0.0035;
+phiwinfrw[5][1][0] = 0.003;
 
 // =============== size of propagation cut in phi-z.
 // =============== forward phi, phicutfrw
@@ -3376,7 +3374,7 @@ phicutfrw[13][3][0] = 0.005;
 phicutfrw[13][2][1] = 0.005;
 phicutfrw[13][2][0] = 0.003;
 
-phicutfrw[13][1][0] = 0.0035;
+phicutfrw[13][1][0] = 0.003;
 
 // +++++++++++ Last layer = 12
 
@@ -3469,7 +3467,7 @@ phicutfrw[12][3][0] = 0.005;
 phicutfrw[12][2][1] = 0.005;
 phicutfrw[12][2][0] = 0.005;
 
-phicutfrw[12][1][0] = 0.0035;
+phicutfrw[12][1][0] = 0.003;
 
 // +++++++++++ Last layer = 11
 
@@ -3549,7 +3547,7 @@ phicutfrw[11][3][0] = 0.005;
 phicutfrw[11][2][1] = 0.005;
 phicutfrw[11][2][0] = 0.005;
 
-phicutfrw[11][1][0] = 0.0035;
+phicutfrw[11][1][0] = 0.003;
 
 // +++++++++++ Last layer = 10
 
@@ -3616,7 +3614,7 @@ phicutfrw[10][3][0] = 0.005;
 phicutfrw[10][2][1] = 0.005;
 phicutfrw[10][2][0] = 0.005;
 
-phicutfrw[10][1][0] = 0.0035;
+phicutfrw[10][1][0] = 0.003;
 
 // +++++++++++ Last layer = 9
 
@@ -3673,7 +3671,7 @@ phicutfrw[9][3][0] = 0.005;
 phicutfrw[9][2][1] = 0.005;
 phicutfrw[9][2][0] = 0.005;
 
-phicutfrw[9][1][0] = 0.0035;
+phicutfrw[9][1][0] = 0.003;
 
 // +++++++++++ Last layer = 8
 
@@ -3720,7 +3718,7 @@ phicutfrw[8][3][0] = 0.005;
 phicutfrw[8][2][1] = 0.005;
 phicutfrw[8][2][0] = 0.005;
 
-phicutfrw[8][1][0] = 0.0035;
+phicutfrw[8][1][0] = 0.003;
 
 // +++++++++++ Last layer = 7
 
@@ -3757,7 +3755,7 @@ phicutfrw[7][3][0] = 0.005;
 phicutfrw[7][2][1] = 0.005;
 phicutfrw[7][2][0] = 0.005;
 
-phicutfrw[7][1][0] = 0.0035;
+phicutfrw[7][1][0] = 0.003;
 
 // +++++++++++ Last layer = 6
 
@@ -3786,7 +3784,7 @@ phicutfrw[6][3][0] = 0.005;
 phicutfrw[6][2][1] = 0.005;
 phicutfrw[6][2][0] = 0.005;
 
-phicutfrw[6][1][0] = 0.0035;
+phicutfrw[6][1][0] = 0.003;
 
 // +++++++++++ Last layer = 5
 
@@ -3808,7 +3806,7 @@ phicutfrw[5][3][0] = 0.005;
 phicutfrw[5][2][1] = 0.005;
 phicutfrw[5][2][0] = 0.005;
 
-phicutfrw[5][1][0] = 0.0035;
+phicutfrw[5][1][0] = 0.003;
 
 
 
@@ -4666,7 +4664,7 @@ zwinfbb[5][1][0] = 0.5;
 
 // ++++++++++++Last layer = 13
 
-zcutfbb[13][12][11] = 15.;
+zcutfbb[13][12][11] = 12.;
 zcutfbb[13][12][10] = 10.;
 zcutfbb[13][12][9] = 10.;
 zcutfbb[13][12][8] = 10.;
@@ -5815,7 +5813,7 @@ zcutfrw[10][10][2] = 10.;
 zcutfrw[10][10][1] = 10.;
 zcutfrw[10][10][0] = 10.;
 
-zcutfrw[10][9][8] = 15.;
+zcutfrw[10][9][8] = 14.;
 zcutfrw[10][9][7] = 10.;
 zcutfrw[10][9][6] = 10.;
 zcutfrw[10][9][5] = 10.;
@@ -6062,14 +6060,14 @@ zcutfrw[5][1][0] = 0.7;
 
 // Forward-barrel roads, phiwinbfrw
 
-phiwinbfrw[13][5][12] = 0.025;
-phiwinbfrw[13][5][11] = 0.025;
-phiwinbfrw[13][5][10] = 0.025;
-phiwinbfrw[13][5][9] = 0.025;
-phiwinbfrw[13][5][8] = 0.025;
-phiwinbfrw[13][5][2] = 0.025;
-phiwinbfrw[13][5][1] = 0.025;
-phiwinbfrw[13][5][0] = 0.025;
+phiwinbfrw[13][5][12] = 0.02;
+phiwinbfrw[13][5][11] = 0.02;
+phiwinbfrw[13][5][10] = 0.02;
+phiwinbfrw[13][5][9] = 0.02;
+phiwinbfrw[13][5][8] = 0.02;
+phiwinbfrw[13][5][2] = 0.02;
+phiwinbfrw[13][5][1] = 0.02;
+phiwinbfrw[13][5][0] = 0.02;
 phiwinbfrw[13][1][2] = 0.005;
 phiwinbfrw[13][1][1] = 0.005;
 phiwinbfrw[13][1][0] = 0.005;
@@ -6078,14 +6076,14 @@ phiwinbfrw[13][0][1] = 0.005;
 phiwinbfrw[13][0][0] = 0.005;
 
 
-phiwinbfrw[12][5][12] = 0.025;
-phiwinbfrw[12][5][11] = 0.025;
-phiwinbfrw[12][5][10] = 0.025;
-phiwinbfrw[12][5][9] = 0.025;
-phiwinbfrw[12][5][8] = 0.025;
-phiwinbfrw[12][5][2] = 0.025;
-phiwinbfrw[12][5][1] = 0.025;
-phiwinbfrw[12][5][0] = 0.025;
+phiwinbfrw[12][5][12] = 0.02;
+phiwinbfrw[12][5][11] = 0.02;
+phiwinbfrw[12][5][10] = 0.02;
+phiwinbfrw[12][5][9] = 0.02;
+phiwinbfrw[12][5][8] = 0.02;
+phiwinbfrw[12][5][2] = 0.02;
+phiwinbfrw[12][5][1] = 0.02;
+phiwinbfrw[12][5][0] = 0.02;
 phiwinbfrw[12][1][2] = 0.005;
 phiwinbfrw[12][1][1] = 0.005;
 phiwinbfrw[12][1][0] = 0.005;
@@ -6093,14 +6091,14 @@ phiwinbfrw[12][0][2] = 0.005;
 phiwinbfrw[12][0][1] = 0.005;
 phiwinbfrw[12][0][0] = 0.005;
 
-phiwinbfrw[11][5][12] = 0.025;
-phiwinbfrw[11][5][11] = 0.025;
-phiwinbfrw[11][5][10] = 0.025;
-phiwinbfrw[11][5][9] = 0.025;
-phiwinbfrw[11][5][8] = 0.025;
-phiwinbfrw[11][5][2] = 0.025;
-phiwinbfrw[11][5][1] = 0.025;
-phiwinbfrw[11][5][0] = 0.025;
+phiwinbfrw[11][5][12] = 0.02;
+phiwinbfrw[11][5][11] = 0.02;
+phiwinbfrw[11][5][10] = 0.02;
+phiwinbfrw[11][5][9] = 0.02;
+phiwinbfrw[11][5][8] = 0.02;
+phiwinbfrw[11][5][2] = 0.02;
+phiwinbfrw[11][5][1] = 0.02;
+phiwinbfrw[11][5][0] = 0.02;
 phiwinbfrw[11][1][2] = 0.005;
 phiwinbfrw[11][1][1] = 0.005;
 phiwinbfrw[11][1][0] = 0.005;
@@ -6109,80 +6107,80 @@ phiwinbfrw[11][0][1] = 0.005;
 phiwinbfrw[11][0][0] = 0.005;
 
 
-phiwinbfrw[10][5][12] = 0.025;
-phiwinbfrw[10][5][11] = 0.025;
-phiwinbfrw[10][5][10] = 0.025;
-phiwinbfrw[10][5][9] = 0.025;
-phiwinbfrw[10][5][8] = 0.025;
-phiwinbfrw[10][5][2] = 0.025;
-phiwinbfrw[10][5][1] = 0.025;
-phiwinbfrw[10][5][0] = 0.025;
-phiwinbfrw[10][1][2] = 0.025;
-phiwinbfrw[10][1][1] = 0.025;
-phiwinbfrw[10][1][0] = 0.025;
-phiwinbfrw[10][0][2] = 0.025;
-phiwinbfrw[10][0][1] = 0.025;
-phiwinbfrw[10][0][0] = 0.025;
+phiwinbfrw[10][5][12] = 0.02;
+phiwinbfrw[10][5][11] = 0.02;
+phiwinbfrw[10][5][10] = 0.02;
+phiwinbfrw[10][5][9] = 0.02;
+phiwinbfrw[10][5][8] = 0.02;
+phiwinbfrw[10][5][2] = 0.02;
+phiwinbfrw[10][5][1] = 0.02;
+phiwinbfrw[10][5][0] = 0.02;
+phiwinbfrw[10][1][2] = 0.02;
+phiwinbfrw[10][1][1] = 0.02;
+phiwinbfrw[10][1][0] = 0.02;
+phiwinbfrw[10][0][2] = 0.02;
+phiwinbfrw[10][0][1] = 0.02;
+phiwinbfrw[10][0][0] = 0.02;
 
-phiwinbfrw[9][5][12] = 0.025;
-phiwinbfrw[9][5][11] = 0.025;
-phiwinbfrw[9][5][10] = 0.025;
-phiwinbfrw[9][5][9] = 0.025;
-phiwinbfrw[9][5][8] = 0.025;
-phiwinbfrw[9][5][2] = 0.025;
-phiwinbfrw[9][5][1] = 0.025;
-phiwinbfrw[9][5][0] = 0.025;
-phiwinbfrw[9][1][2] = 0.025;
-phiwinbfrw[9][1][1] = 0.025;
-phiwinbfrw[9][1][0] = 0.025;
-phiwinbfrw[9][0][2] = 0.025;
-phiwinbfrw[9][0][1] = 0.025;
-phiwinbfrw[9][0][0] = 0.025;
+phiwinbfrw[9][5][12] = 0.02;
+phiwinbfrw[9][5][11] = 0.02;
+phiwinbfrw[9][5][10] = 0.02;
+phiwinbfrw[9][5][9] = 0.02;
+phiwinbfrw[9][5][8] = 0.02;
+phiwinbfrw[9][5][2] = 0.02;
+phiwinbfrw[9][5][1] = 0.02;
+phiwinbfrw[9][5][0] = 0.02;
+phiwinbfrw[9][1][2] = 0.02;
+phiwinbfrw[9][1][1] = 0.02;
+phiwinbfrw[9][1][0] = 0.02;
+phiwinbfrw[9][0][2] = 0.02;
+phiwinbfrw[9][0][1] = 0.02;
+phiwinbfrw[9][0][0] = 0.02;
 
-phiwinbfrw[8][5][12] = 0.025;
-phiwinbfrw[8][5][11] = 0.025;
-phiwinbfrw[8][5][10] = 0.025;
-phiwinbfrw[8][5][9] = 0.025;
-phiwinbfrw[8][5][8] = 0.025;
-phiwinbfrw[8][5][2] = 0.025;
-phiwinbfrw[8][5][1] = 0.025;
-phiwinbfrw[8][5][0] = 0.025;
-phiwinbfrw[8][1][2] = 0.025;
-phiwinbfrw[8][1][1] = 0.025;
-phiwinbfrw[8][1][0] = 0.025;
-phiwinbfrw[8][0][2] = 0.025;
-phiwinbfrw[8][0][1] = 0.025;
-phiwinbfrw[8][0][0] = 0.025;
+phiwinbfrw[8][5][12] = 0.02;
+phiwinbfrw[8][5][11] = 0.02;
+phiwinbfrw[8][5][10] = 0.02;
+phiwinbfrw[8][5][9] = 0.02;
+phiwinbfrw[8][5][8] = 0.02;
+phiwinbfrw[8][5][2] = 0.02;
+phiwinbfrw[8][5][1] = 0.02;
+phiwinbfrw[8][5][0] = 0.02;
+phiwinbfrw[8][1][2] = 0.02;
+phiwinbfrw[8][1][1] = 0.02;
+phiwinbfrw[8][1][0] = 0.02;
+phiwinbfrw[8][0][2] = 0.02;
+phiwinbfrw[8][0][1] = 0.02;
+phiwinbfrw[8][0][0] = 0.02;
 
-phiwinbfrw[7][5][12] = 0.025;
-phiwinbfrw[7][5][11] = 0.025;
-phiwinbfrw[7][5][10] = 0.025;
-phiwinbfrw[7][5][9] = 0.025;
-phiwinbfrw[7][5][8] = 0.025;
-phiwinbfrw[7][5][2] = 0.025;
-phiwinbfrw[7][5][1] = 0.025;
-phiwinbfrw[7][5][0] = 0.025;
-phiwinbfrw[7][1][2] = 0.025;
-phiwinbfrw[7][1][1] = 0.025;
-phiwinbfrw[7][1][0] = 0.025;
-phiwinbfrw[7][0][2] = 0.025;
-phiwinbfrw[7][0][1] = 0.025;
-phiwinbfrw[7][0][0] = 0.025;
+phiwinbfrw[7][5][12] = 0.02;
+phiwinbfrw[7][5][11] = 0.02;
+phiwinbfrw[7][5][10] = 0.02;
+phiwinbfrw[7][5][9] = 0.02;
+phiwinbfrw[7][5][8] = 0.02;
+phiwinbfrw[7][5][2] = 0.02;
+phiwinbfrw[7][5][1] = 0.02;
+phiwinbfrw[7][5][0] = 0.02;
+phiwinbfrw[7][1][2] = 0.02;
+phiwinbfrw[7][1][1] = 0.02;
+phiwinbfrw[7][1][0] = 0.02;
+phiwinbfrw[7][0][2] = 0.02;
+phiwinbfrw[7][0][1] = 0.02;
+phiwinbfrw[7][0][0] = 0.02;
 
-phiwinbfrw[6][5][12] = 0.025;
-phiwinbfrw[6][5][11] = 0.025;
-phiwinbfrw[6][5][10] = 0.025;
-phiwinbfrw[6][5][9] = 0.025;
-phiwinbfrw[6][5][8] = 0.025;
-phiwinbfrw[6][5][2] = 0.025;
-phiwinbfrw[6][5][1] = 0.025;
-phiwinbfrw[6][5][0] = 0.025;
-phiwinbfrw[6][1][2] = 0.025;
-phiwinbfrw[6][1][1] = 0.025;
-phiwinbfrw[6][1][0] = 0.025;
-phiwinbfrw[6][0][2] = 0.025;
-phiwinbfrw[6][0][1] = 0.025;
-phiwinbfrw[6][0][0] = 0.025;
+phiwinbfrw[6][5][12] = 0.02;
+phiwinbfrw[6][5][11] = 0.02;
+phiwinbfrw[6][5][10] = 0.02;
+phiwinbfrw[6][5][9] = 0.02;
+phiwinbfrw[6][5][8] = 0.02;
+phiwinbfrw[6][5][2] = 0.02;
+phiwinbfrw[6][5][1] = 0.02;
+phiwinbfrw[6][5][0] = 0.02;
+phiwinbfrw[6][1][2] = 0.02;
+phiwinbfrw[6][1][1] = 0.02;
+phiwinbfrw[6][1][0] = 0.02;
+phiwinbfrw[6][0][2] = 0.02;
+phiwinbfrw[6][0][1] = 0.02;
+phiwinbfrw[6][0][0] = 0.02;
 
 phiwinbfrw[5][5][12] = 0.1;
 phiwinbfrw[5][5][11] = 0.1;
@@ -6201,14 +6199,14 @@ phiwinbfrw[5][0][0] = 0.1;
 
 // propagation cut, phicutbfrw
 
-phicutbfrw[13][5][12] = 0.025;
-phicutbfrw[13][5][11] = 0.025;
-phicutbfrw[13][5][10] = 0.025;
-phicutbfrw[13][5][9] = 0.025;
-phicutbfrw[13][5][8] = 0.025;
-phicutbfrw[13][5][2] = 0.025;
-phicutbfrw[13][5][1] = 0.025;
-phicutbfrw[13][5][0] = 0.025;
+phicutbfrw[13][5][12] = 0.02;
+phicutbfrw[13][5][11] = 0.02;
+phicutbfrw[13][5][10] = 0.02;
+phicutbfrw[13][5][9] = 0.02;
+phicutbfrw[13][5][8] = 0.02;
+phicutbfrw[13][5][2] = 0.02;
+phicutbfrw[13][5][1] = 0.02;
+phicutbfrw[13][5][0] = 0.02;
 phicutbfrw[13][1][2] = 0.005;
 phicutbfrw[13][1][1] = 0.005;
 phicutbfrw[13][1][0] = 0.005;
@@ -6217,14 +6215,14 @@ phicutbfrw[13][0][1] = 0.005;
 phicutbfrw[13][0][0] = 0.005;
 
 
-phicutbfrw[12][5][12] = 0.025;
-phicutbfrw[12][5][11] = 0.025;
-phicutbfrw[12][5][10] = 0.025;
-phicutbfrw[12][5][9] = 0.025;
-phicutbfrw[12][5][8] = 0.025;
-phicutbfrw[12][5][2] = 0.025;
-phicutbfrw[12][5][1] = 0.025;
-phicutbfrw[12][5][0] = 0.025;
+phicutbfrw[12][5][12] = 0.02;
+phicutbfrw[12][5][11] = 0.02;
+phicutbfrw[12][5][10] = 0.02;
+phicutbfrw[12][5][9] = 0.02;
+phicutbfrw[12][5][8] = 0.02;
+phicutbfrw[12][5][2] = 0.02;
+phicutbfrw[12][5][1] = 0.02;
+phicutbfrw[12][5][0] = 0.02;
 phicutbfrw[12][1][2] = 0.005;
 phicutbfrw[12][1][1] = 0.005;
 phicutbfrw[12][1][0] = 0.005;
@@ -6232,14 +6230,14 @@ phicutbfrw[12][0][2] = 0.005;
 phicutbfrw[12][0][1] = 0.005;
 phicutbfrw[12][0][0] = 0.005;
 
-phicutbfrw[11][5][12] = 0.025;
-phicutbfrw[11][5][11] = 0.025;
-phicutbfrw[11][5][10] = 0.025;
-phicutbfrw[11][5][9] = 0.025;
-phicutbfrw[11][5][8] = 0.025;
-phicutbfrw[11][5][2] = 0.025;
-phicutbfrw[11][5][1] = 0.025;
-phicutbfrw[11][5][0] = 0.025;
+phicutbfrw[11][5][12] = 0.02;
+phicutbfrw[11][5][11] = 0.02;
+phicutbfrw[11][5][10] = 0.02;
+phicutbfrw[11][5][9] = 0.02;
+phicutbfrw[11][5][8] = 0.02;
+phicutbfrw[11][5][2] = 0.02;
+phicutbfrw[11][5][1] = 0.02;
+phicutbfrw[11][5][0] = 0.02;
 phicutbfrw[11][1][2] = 0.005;
 phicutbfrw[11][1][1] = 0.005;
 phicutbfrw[11][1][0] = 0.005;
@@ -6248,95 +6246,95 @@ phicutbfrw[11][0][1] = 0.005;
 phicutbfrw[11][0][0] = 0.005;
 
 
-phicutbfrw[10][5][12] = 0.025;
-phicutbfrw[10][5][11] = 0.025;
-phicutbfrw[10][5][10] = 0.025;
-phicutbfrw[10][5][9] = 0.025;
-phicutbfrw[10][5][8] = 0.025;
-phicutbfrw[10][5][2] = 0.025;
-phicutbfrw[10][5][1] = 0.025;
-phicutbfrw[10][5][0] = 0.025;
-phicutbfrw[10][1][2] = 0.025;
-phicutbfrw[10][1][1] = 0.025;
-phicutbfrw[10][1][0] = 0.025;
-phicutbfrw[10][0][2] = 0.025;
-phicutbfrw[10][0][1] = 0.025;
-phicutbfrw[10][0][0] = 0.025;
+phicutbfrw[10][5][12] = 0.02;
+phicutbfrw[10][5][11] = 0.02;
+phicutbfrw[10][5][10] = 0.02;
+phicutbfrw[10][5][9] = 0.02;
+phicutbfrw[10][5][8] = 0.02;
+phicutbfrw[10][5][2] = 0.02;
+phicutbfrw[10][5][1] = 0.02;
+phicutbfrw[10][5][0] = 0.02;
+phicutbfrw[10][1][2] = 0.02;
+phicutbfrw[10][1][1] = 0.02;
+phicutbfrw[10][1][0] = 0.02;
+phicutbfrw[10][0][2] = 0.02;
+phicutbfrw[10][0][1] = 0.02;
+phicutbfrw[10][0][0] = 0.02;
 
-phicutbfrw[9][5][12] = 0.025;
-phicutbfrw[9][5][11] = 0.025;
-phicutbfrw[9][5][10] = 0.025;
-phicutbfrw[9][5][9] = 0.025;
-phicutbfrw[9][5][8] = 0.025;
-phicutbfrw[9][5][2] = 0.025;
-phicutbfrw[9][5][1] = 0.025;
-phicutbfrw[9][5][0] = 0.025;
-phicutbfrw[9][1][2] = 0.025;
-phicutbfrw[9][1][1] = 0.025;
-phicutbfrw[9][1][0] = 0.025;
-phicutbfrw[9][0][2] = 0.025;
-phicutbfrw[9][0][1] = 0.025;
-phicutbfrw[9][0][0] = 0.025;
+phicutbfrw[9][5][12] = 0.02;
+phicutbfrw[9][5][11] = 0.02;
+phicutbfrw[9][5][10] = 0.02;
+phicutbfrw[9][5][9] = 0.02;
+phicutbfrw[9][5][8] = 0.02;
+phicutbfrw[9][5][2] = 0.02;
+phicutbfrw[9][5][1] = 0.02;
+phicutbfrw[9][5][0] = 0.02;
+phicutbfrw[9][1][2] = 0.02;
+phicutbfrw[9][1][1] = 0.02;
+phicutbfrw[9][1][0] = 0.02;
+phicutbfrw[9][0][2] = 0.02;
+phicutbfrw[9][0][1] = 0.02;
+phicutbfrw[9][0][0] = 0.02;
 
-phicutbfrw[8][5][12] = 0.025;
-phicutbfrw[8][5][11] = 0.025;
-phicutbfrw[8][5][10] = 0.025;
-phicutbfrw[8][5][9] = 0.025;
-phicutbfrw[8][5][8] = 0.025;
-phicutbfrw[8][5][2] = 0.025;
-phicutbfrw[8][5][1] = 0.025;
-phicutbfrw[8][5][0] = 0.025;
-phicutbfrw[8][1][2] = 0.025;
-phicutbfrw[8][1][1] = 0.025;
-phicutbfrw[8][1][0] = 0.025;
-phicutbfrw[8][0][2] = 0.025;
-phicutbfrw[8][0][1] = 0.025;
-phicutbfrw[8][0][0] = 0.025;
+phicutbfrw[8][5][12] = 0.02;
+phicutbfrw[8][5][11] = 0.02;
+phicutbfrw[8][5][10] = 0.02;
+phicutbfrw[8][5][9] = 0.02;
+phicutbfrw[8][5][8] = 0.02;
+phicutbfrw[8][5][2] = 0.02;
+phicutbfrw[8][5][1] = 0.02;
+phicutbfrw[8][5][0] = 0.02;
+phicutbfrw[8][1][2] = 0.02;
+phicutbfrw[8][1][1] = 0.02;
+phicutbfrw[8][1][0] = 0.02;
+phicutbfrw[8][0][2] = 0.02;
+phicutbfrw[8][0][1] = 0.02;
+phicutbfrw[8][0][0] = 0.02;
 
-phicutbfrw[7][5][12] = 0.025;
-phicutbfrw[7][5][11] = 0.025;
-phicutbfrw[7][5][10] = 0.025;
-phicutbfrw[7][5][9] = 0.025;
-phicutbfrw[7][5][8] = 0.025;
-phicutbfrw[7][5][2] = 0.025;
-phicutbfrw[7][5][1] = 0.025;
-phicutbfrw[7][5][0] = 0.025;
-phicutbfrw[7][1][2] = 0.025;
-phicutbfrw[7][1][1] = 0.025;
-phicutbfrw[7][1][0] = 0.025;
-phicutbfrw[7][0][2] = 0.025;
-phicutbfrw[7][0][1] = 0.025;
-phicutbfrw[7][0][0] = 0.025;
+phicutbfrw[7][5][12] = 0.02;
+phicutbfrw[7][5][11] = 0.02;
+phicutbfrw[7][5][10] = 0.02;
+phicutbfrw[7][5][9] = 0.02;
+phicutbfrw[7][5][8] = 0.02;
+phicutbfrw[7][5][2] = 0.02;
+phicutbfrw[7][5][1] = 0.02;
+phicutbfrw[7][5][0] = 0.02;
+phicutbfrw[7][1][2] = 0.02;
+phicutbfrw[7][1][1] = 0.02;
+phicutbfrw[7][1][0] = 0.02;
+phicutbfrw[7][0][2] = 0.02;
+phicutbfrw[7][0][1] = 0.02;
+phicutbfrw[7][0][0] = 0.02;
 
-phicutbfrw[6][5][12] = 0.025;
-phicutbfrw[6][5][11] = 0.025;
-phicutbfrw[6][5][10] = 0.025;
-phicutbfrw[6][5][9] = 0.025;
-phicutbfrw[6][5][8] = 0.025;
-phicutbfrw[6][5][2] = 0.025;
-phicutbfrw[6][5][1] = 0.025;
-phicutbfrw[6][5][0] = 0.025;
-phicutbfrw[6][1][2] = 0.025;
-phicutbfrw[6][1][1] = 0.025;
-phicutbfrw[6][1][0] = 0.025;
-phicutbfrw[6][0][2] = 0.025;
-phicutbfrw[6][0][1] = 0.025;
-phicutbfrw[6][0][0] = 0.025;
+phicutbfrw[6][5][12] = 0.02;
+phicutbfrw[6][5][11] = 0.02;
+phicutbfrw[6][5][10] = 0.02;
+phicutbfrw[6][5][9] = 0.02;
+phicutbfrw[6][5][8] = 0.02;
+phicutbfrw[6][5][2] = 0.02;
+phicutbfrw[6][5][1] = 0.02;
+phicutbfrw[6][5][0] = 0.02;
+phicutbfrw[6][1][2] = 0.02;
+phicutbfrw[6][1][1] = 0.02;
+phicutbfrw[6][1][0] = 0.02;
+phicutbfrw[6][0][2] = 0.02;
+phicutbfrw[6][0][1] = 0.02;
+phicutbfrw[6][0][0] = 0.02;
 
-phicutbfrw[5][5][12] = 0.025;
-phicutbfrw[5][5][11] = 0.025;
-phicutbfrw[5][5][10] = 0.025;
-phicutbfrw[5][5][9] = 0.025;
-phicutbfrw[5][5][8] = 0.025;
-phicutbfrw[5][5][2] = 0.025;
-phicutbfrw[5][5][1] = 0.025;
-phicutbfrw[5][5][0] = 0.025;
-phicutbfrw[5][1][2] = 0.025;
-phicutbfrw[5][1][1] = 0.025;
-phicutbfrw[5][1][0] = 0.025;
-phicutbfrw[5][0][2] = 0.025;
-phicutbfrw[5][0][1] = 0.025;
-phicutbfrw[5][0][0] = 0.025;
+phicutbfrw[5][5][12] = 0.02;
+phicutbfrw[5][5][11] = 0.02;
+phicutbfrw[5][5][10] = 0.02;
+phicutbfrw[5][5][9] = 0.02;
+phicutbfrw[5][5][8] = 0.02;
+phicutbfrw[5][5][2] = 0.02;
+phicutbfrw[5][5][1] = 0.02;
+phicutbfrw[5][5][0] = 0.02;
+phicutbfrw[5][1][2] = 0.02;
+phicutbfrw[5][1][1] = 0.02;
+phicutbfrw[5][1][0] = 0.02;
+phicutbfrw[5][0][2] = 0.02;
+phicutbfrw[5][0][1] = 0.02;
+phicutbfrw[5][0][0] = 0.02;
 
 
 // size of window in phi-z.
@@ -6344,51 +6342,51 @@ phicutbfrw[5][0][0] = 0.025;
  
 // +++++++++++ Last layer = 12, zwinbar
 
-zwinbar[12][12][11] = 15.;
-zwinbar[12][12][10] = 15.;
-zwinbar[12][12][9] = 15.;
-zwinbar[12][12][8] = 15.;
-zwinbar[12][12][7] = 15.;
-zwinbar[12][12][6] = 15.;
-zwinbar[12][12][5] = 15.;
-zwinbar[12][12][4] = 15.;
-zwinbar[12][12][3] = 15.;
-zwinbar[12][12][2] = 15.;
-zwinbar[12][12][1] = 15.;
-zwinbar[12][12][0] = 15.;
+zwinbar[12][12][11] = 14.;
+zwinbar[12][12][10] = 12.;
+zwinbar[12][12][9] = 12.;
+zwinbar[12][12][8] = 12.;
+zwinbar[12][12][7] = 12.;
+zwinbar[12][12][6] = 12.;
+zwinbar[12][12][5] = 12.;
+zwinbar[12][12][4] = 12.;
+zwinbar[12][12][3] = 12.;
+zwinbar[12][12][2] = 12.;
+zwinbar[12][12][1] = 12.;
+zwinbar[12][12][0] = 12.;
 
-zwinbar[12][11][10] = 15.;
-zwinbar[12][11][9] = 15.;
-zwinbar[12][11][8] = 15.;
-zwinbar[12][11][7] = 15.;
-zwinbar[12][11][6] = 15.;
-zwinbar[12][11][5] = 15.;
-zwinbar[12][11][4] = 15.;
-zwinbar[12][11][3] = 15.;
-zwinbar[12][11][2] = 15.;
-zwinbar[12][11][1] = 15.;
-zwinbar[12][11][0] = 15.;
+zwinbar[12][11][10] = 14.;
+zwinbar[12][11][9] = 12.;
+zwinbar[12][11][8] = 12.;
+zwinbar[12][11][7] = 12.;
+zwinbar[12][11][6] = 12.;
+zwinbar[12][11][5] = 12.;
+zwinbar[12][11][4] = 12.;
+zwinbar[12][11][3] = 12.;
+zwinbar[12][11][2] = 12.;
+zwinbar[12][11][1] = 12.;
+zwinbar[12][11][0] = 12.;
 
 zwinbar[12][10][9] = 15.;
 zwinbar[12][10][8] = 15.;
 zwinbar[12][10][7] = 15.;
-zwinbar[12][10][6] = 15.;
-zwinbar[12][10][5] = 15.;
-zwinbar[12][10][4] = 15.;
-zwinbar[12][10][3] = 15.;
-zwinbar[12][10][2] = 15.;
-zwinbar[12][10][1] = 15.;
-zwinbar[12][10][0] = 15.;
+zwinbar[12][10][6] = 12.;
+zwinbar[12][10][5] = 12.;
+zwinbar[12][10][4] = 12.;
+zwinbar[12][10][3] = 12.;
+zwinbar[12][10][2] = 12.;
+zwinbar[12][10][1] = 12.;
+zwinbar[12][10][0] = 12.;
 
 zwinbar[12][9][8] = 15.;
 zwinbar[12][9][7] = 15.;
 zwinbar[12][9][6] = 15.;
-zwinbar[12][9][5] = 15.;
-zwinbar[12][9][4] = 15.;
-zwinbar[12][9][3] = 15.;
-zwinbar[12][9][2] = 15.;
-zwinbar[12][9][1] = 15.;
-zwinbar[12][9][0] = 15.;
+zwinbar[12][9][5] = 12.;
+zwinbar[12][9][4] = 12.;
+zwinbar[12][9][3] = 12.;
+zwinbar[12][9][2] = 12.;
+zwinbar[12][9][1] = 12.;
+zwinbar[12][9][0] = 12.;
 
 zwinbar[12][8][7] = 15.;
 zwinbar[12][8][6] = 15.;
@@ -6399,31 +6397,31 @@ zwinbar[12][8][2] = 15.;
 zwinbar[12][8][1] = 15.;
 zwinbar[12][8][0] = 15.;
 
-zwinbar[12][7][6] = 15.;
-zwinbar[12][7][5] = 15.;
-zwinbar[12][7][4] = 15.;
-zwinbar[12][7][3] = 15.;
-zwinbar[12][7][2] = 15.;
-zwinbar[12][7][1] = 15.;
-zwinbar[12][7][0] = 15.;
+zwinbar[12][7][6] = 12.;
+zwinbar[12][7][5] = 12.;
+zwinbar[12][7][4] = 12.;
+zwinbar[12][7][3] = 12.;
+zwinbar[12][7][2] = 12.;
+zwinbar[12][7][1] = 12.;
+zwinbar[12][7][0] = 12.;
 
-zwinbar[12][6][5] = 15.;
-zwinbar[12][6][4] = 15.;
-zwinbar[12][6][3] = 15.;
-zwinbar[12][6][2] = 15.;
-zwinbar[12][6][1] = 15.;
-zwinbar[12][6][0] = 15.;
+zwinbar[12][6][5] = 12.;
+zwinbar[12][6][4] = 12.;
+zwinbar[12][6][3] = 12.;
+zwinbar[12][6][2] = 12.;
+zwinbar[12][6][1] = 12.;
+zwinbar[12][6][0] = 12.;
 
-zwinbar[12][5][4] = 15.;
-zwinbar[12][5][3] = 15.;
-zwinbar[12][5][2] = 15.;
-zwinbar[12][5][1] = 15.;
-zwinbar[12][5][0] = 15.;
+zwinbar[12][5][4] = 12.;
+zwinbar[12][5][3] = 12.;
+zwinbar[12][5][2] = 12.;
+zwinbar[12][5][1] = 12.;
+zwinbar[12][5][0] = 12.;
 
-zwinbar[12][4][3] = 15.;
-zwinbar[12][4][2] = 15.;
-zwinbar[12][4][1] = 15.;
-zwinbar[12][4][0] = 15.;
+zwinbar[12][4][3] = 12.;
+zwinbar[12][4][2] = 12.;
+zwinbar[12][4][1] = 12.;
+zwinbar[12][4][0] = 12.;
 
 zwinbar[12][3][2] = 10.;
 zwinbar[12][3][1] = 10.;
@@ -6438,62 +6436,62 @@ zwinbar[12][1][0] = 0.7;
 // +++++++++++ Last layer = 11
 
 zwinbar[11][11][10] = 15.;
-zwinbar[11][11][9] = 15.;
-zwinbar[11][11][8] = 15.;
-zwinbar[11][11][7] = 15.;
-zwinbar[11][11][6] = 15.;
-zwinbar[11][11][5] = 15.;
-zwinbar[11][11][4] = 15.;
-zwinbar[11][11][3] = 15.;
-zwinbar[11][11][2] = 15.;
-zwinbar[11][11][1] = 15.;
-zwinbar[11][11][0] = 15.;
+zwinbar[11][11][9] = 12.;
+zwinbar[11][11][8] = 12.;
+zwinbar[11][11][7] = 12.;
+zwinbar[11][11][6] = 12.;
+zwinbar[11][11][5] = 12.;
+zwinbar[11][11][4] = 12.;
+zwinbar[11][11][3] = 12.;
+zwinbar[11][11][2] = 12.;
+zwinbar[11][11][1] = 12.;
+zwinbar[11][11][0] = 12.;
 
 
 zwinbar[11][10][9] = 15.;
-zwinbar[11][10][8] = 15.;
-zwinbar[11][10][7] = 15.;
-zwinbar[11][10][6] = 15.;
-zwinbar[11][10][5] = 15.;
-zwinbar[11][10][4] = 15.;
-zwinbar[11][10][3] = 15.;
-zwinbar[11][10][2] = 15.;
-zwinbar[11][10][1] = 15.;
-zwinbar[11][10][0] = 15.;
+zwinbar[11][10][8] = 12.;
+zwinbar[11][10][7] = 12.;
+zwinbar[11][10][6] = 12.;
+zwinbar[11][10][5] = 12.;
+zwinbar[11][10][4] = 12.;
+zwinbar[11][10][3] = 12.;
+zwinbar[11][10][2] = 12.;
+zwinbar[11][10][1] = 12.;
+zwinbar[11][10][0] = 12.;
 
-zwinbar[11][9][8] = 15.;
-zwinbar[11][9][7] = 15.;
-zwinbar[11][9][6] = 15.;
-zwinbar[11][9][5] = 15.;
-zwinbar[11][9][4] = 15.;
-zwinbar[11][9][3] = 15.;
-zwinbar[11][9][2] = 15.;
-zwinbar[11][9][1] = 15.;
-zwinbar[11][9][0] = 15.;
+zwinbar[11][9][8] = 12.;
+zwinbar[11][9][7] = 12.;
+zwinbar[11][9][6] = 12.;
+zwinbar[11][9][5] = 12.;
+zwinbar[11][9][4] = 12.;
+zwinbar[11][9][3] = 12.;
+zwinbar[11][9][2] = 12.;
+zwinbar[11][9][1] = 12.;
+zwinbar[11][9][0] = 12.;
 
-zwinbar[11][8][7] = 15.;
-zwinbar[11][8][6] = 15.;
-zwinbar[11][8][5] = 15.;
-zwinbar[11][8][4] = 15.;
-zwinbar[11][8][3] = 15.;
-zwinbar[11][8][2] = 15.;
-zwinbar[11][8][1] = 15.;
-zwinbar[11][8][0] = 15.;
+zwinbar[11][8][7] = 12.;
+zwinbar[11][8][6] = 12.;
+zwinbar[11][8][5] = 12.;
+zwinbar[11][8][4] = 12.;
+zwinbar[11][8][3] = 12.;
+zwinbar[11][8][2] = 12.;
+zwinbar[11][8][1] = 12.;
+zwinbar[11][8][0] = 12.;
 
-zwinbar[11][7][6] = 15.;
-zwinbar[11][7][5] = 15.;
-zwinbar[11][7][4] = 15.;
-zwinbar[11][7][3] = 15.;
-zwinbar[11][7][2] = 15.;
-zwinbar[11][7][1] = 15.;
-zwinbar[11][7][0] = 15.;
+zwinbar[11][7][6] = 12.;
+zwinbar[11][7][5] = 12.;
+zwinbar[11][7][4] = 12.;
+zwinbar[11][7][3] = 12.;
+zwinbar[11][7][2] = 12.;
+zwinbar[11][7][1] = 12.;
+zwinbar[11][7][0] = 12.;
 
-zwinbar[11][6][5] = 15.;
-zwinbar[11][6][4] = 15.;
-zwinbar[11][6][3] = 15.;
-zwinbar[11][6][2] = 15.;
-zwinbar[11][6][1] = 15.;
-zwinbar[11][6][0] = 15.;
+zwinbar[11][6][5] = 12.;
+zwinbar[11][6][4] = 12.;
+zwinbar[11][6][3] = 12.;
+zwinbar[11][6][2] = 12.;
+zwinbar[11][6][1] = 12.;
+zwinbar[11][6][0] = 12.;
 
 zwinbar[11][5][4] = 10.;
 zwinbar[11][5][3] = 10.;
@@ -6516,9 +6514,9 @@ zwinbar[11][1][0] = 0.7;
 
 // +++++++++++ Last layer = 10
 
-zwinbar[10][10][9] = 15.;
-zwinbar[10][10][8] = 15.;
-zwinbar[10][10][7] = 15.;
+zwinbar[10][10][9] = 12.;
+zwinbar[10][10][8] = 12.;
+zwinbar[10][10][7] = 12.;
 zwinbar[10][10][6] = 10.;
 zwinbar[10][10][5] = 10.;
 zwinbar[10][10][4] = 10.;
@@ -6527,8 +6525,8 @@ zwinbar[10][10][2] = 10.;
 zwinbar[10][10][1] = 10.;
 zwinbar[10][10][0] = 10.;
 
-zwinbar[10][9][8] = 15.;
-zwinbar[10][9][7] = 15.;
+zwinbar[10][9][8] = 12.;
+zwinbar[10][9][7] = 12.;
 zwinbar[10][9][6] = 10.;
 zwinbar[10][9][5] = 10.;
 zwinbar[10][9][4] = 10.;
@@ -6537,8 +6535,8 @@ zwinbar[10][9][2] = 10.;
 zwinbar[10][9][1] = 10.;
 zwinbar[10][9][0] = 10.;
 
-zwinbar[10][8][7] = 15.;
-zwinbar[10][8][6] = 15.;
+zwinbar[10][8][7] = 12.;
+zwinbar[10][8][6] = 12.;
 zwinbar[10][8][5] = 10.;
 zwinbar[10][8][4] = 10.;
 zwinbar[10][8][3] = 10.;
@@ -6546,16 +6544,16 @@ zwinbar[10][8][2] = 10.;
 zwinbar[10][8][1] = 10.;
 zwinbar[10][8][0] = 10.;
 
-zwinbar[10][7][6] = 15.;
-zwinbar[10][7][5] = 15.;
+zwinbar[10][7][6] = 12.;
+zwinbar[10][7][5] = 12.;
 zwinbar[10][7][4] = 10.;
 zwinbar[10][7][3] = 10.;
 zwinbar[10][7][2] = 10.;
 zwinbar[10][7][1] = 10.;
 zwinbar[10][7][0] = 10.;
 
-zwinbar[10][6][5] = 15.;
-zwinbar[10][6][4] = 15.;
+zwinbar[10][6][5] = 12.;
+zwinbar[10][6][4] = 12.;
 zwinbar[10][6][3] = 10.;
 zwinbar[10][6][2] = 10.;
 zwinbar[10][6][1] = 10.;
@@ -6585,7 +6583,7 @@ zwinbar[10][1][0] = 0.7;
 
 // +++++++++++ Last layer = 12, zcutbar
 
-zcutbar[12][12][11] = 15.;
+zcutbar[12][12][11] = 12.;
 zcutbar[12][12][10] = 15.;
 zcutbar[12][12][9] = 15.;
 zcutbar[12][12][8] = 15.;
@@ -6827,7 +6825,7 @@ zcutbar[10][1][0] = 0.7;
 
 // ++++++++++++Last layer = 13, zwinfrw
 
-zwinfrw[13][13][12] = 15.;
+zwinfrw[13][13][12] = 12.;
 zwinfrw[13][13][11] = 10.;
 zwinfrw[13][13][10] = 10.;
 zwinfrw[13][13][9] = 10.;
@@ -7126,7 +7124,7 @@ zwinfrw[10][10][2] = 10.;
 zwinfrw[10][10][1] = 10.;
 zwinfrw[10][10][0] = 10.;
 
-zwinfrw[10][9][8] = 15.;
+zwinfrw[10][9][8] = 14.;
 zwinfrw[10][9][7] = 10.;
 zwinfrw[10][9][6] = 10.;
 zwinfrw[10][9][5] = 10.;
@@ -7966,7 +7964,6 @@ phimatchbar[0] = 0.12;
 phimatchbar[1] = 0.25;
 
 } // end of constructor
-}
 
 
 

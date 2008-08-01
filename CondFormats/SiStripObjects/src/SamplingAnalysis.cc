@@ -2,7 +2,6 @@
 #include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/SiStripCommon/interface/SiStripPulseShape.h"
 #include <iostream>
 #include <sstream>
 #include <iomanip>
@@ -39,6 +38,7 @@ void SamplingAnalysis::reset() {
 // 
 void SamplingAnalysis::print( std::stringstream& ss, uint32_t not_used ) { 
   header( ss );
+  ss << " Granularity: " << SiStripEnumsAndStrings::granularity(granularity_) << std::endl;
   ss << " Delay corresponding to the maximum of the pulse : " << max_ << std::endl
      << " Error on the position (from the fit)            : " << error_ << std::endl;
 }

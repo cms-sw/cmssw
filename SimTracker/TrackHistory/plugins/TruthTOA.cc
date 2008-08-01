@@ -30,7 +30,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
-#include "SimTracker/TrackHistory/interface/TrackHistory.h"
+#include "SimTracker/TrackHistory/interface/TrackOrigin.h"
 
 //
 // class decleration
@@ -60,12 +60,13 @@ private:
   typedef std::vector<vstring> vvstring;  
   typedef std::vector<edm::ParameterSet> vParameterSet;
   
-  edm::InputTag trackingTruth_;
+  std::string trackingParticleModule_;
+  std::string trackingParticleInstance_;
   
   std::string rootFile_;
   bool status_, antiparticles_;
 
-  TrackHistory tracer_;
+  TrackOrigin tracer_;
     
   vvstring vetoList_;
   
@@ -118,26 +119,28 @@ private:
 };
 
 
-TruthTOA::TruthTOA(const edm::ParameterSet& config) : tracer_(config)
+TruthTOA::TruthTOA(const edm::ParameterSet& iConfig) : tracer_(iConfig)
 {
-  trackingTruth_ = config.getUntrackedParameter<edm::InputTag> ( "trackingTruth" );
+  trackingParticleModule_ = iConfig.getParameter<std::string> ( "trackingParticleModule" );
 
-  matchedHits_ = config.getUntrackedParameter<int> ( "matchedHits" );
+  trackingParticleInstance_ = iConfig.getParameter<std::string> ( "trackingParticleProduct" );
 
-  rootFile_ = config.getUntrackedParameter<std::string> ( "rootFile" );
+  matchedHits_ = iConfig.getParameter<int> ( "matchedHits" );
+
+  rootFile_ = iConfig.getParameter<std::string> ( "rootFile" );
   
-  antiparticles_ = config.getUntrackedParameter<bool> ( "antiparticles" );
+  antiparticles_ = iConfig.getParameter<bool> ( "antiparticles" );
 
-  status_ = config.getUntrackedParameter<bool> ( "status2" );
+  status_ = iConfig.getParameter<bool> ( "status2" );
 
-  edm::ParameterSet pset = config.getUntrackedParameter<edm::ParameterSet> ( "veto" );
+  edm::ParameterSet pset = iConfig.getParameter<edm::ParameterSet> ( "veto" );
   
   vstring vetoListNames = pset.getParameterNames();
   
   vetoList_.reserve(vetoListNames.size());
   
   for(std::size_t i=0; i < vetoListNames.size(); i++)
-    vetoList_.push_back(pset.getUntrackedParameter<vstring> (vetoListNames[i]));
+    vetoList_.push_back(pset.getParameter<vstring> (vetoListNames[i]));
 }
 
 
@@ -145,11 +148,11 @@ TruthTOA::~TruthTOA() { }
 
 
 void
-TruthTOA::analyze(const edm::Event& event, const edm::EventSetup& setup)
+TruthTOA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   // Tracking particle information
   edm::Handle<TrackingParticleCollection>  TPCollection;
-  event.getByLabel(trackingTruth_, TPCollection);
+  iEvent.getByLabel(trackingParticleModule_, trackingParticleInstance_, TPCollection);
 
   // Set the history depth
   if(status_)
@@ -171,7 +174,7 @@ TruthTOA::analyze(const edm::Event& event, const edm::EventSetup& setup)
     {
       if ( tracer_.evaluate(track) )
       {
-        const HepMC::GenParticle * particle = tracer_.genParticle();
+        const HepMC::GenParticle * particle = tracer_.particle();
         // If the origin can be determined then take the first particle as the original
         if (particle)
           Count(particle->barcode(), particle->pdg_id());
@@ -185,10 +188,10 @@ TruthTOA::analyze(const edm::Event& event, const edm::EventSetup& setup)
 
 
 void 
-TruthTOA::beginJob(const edm::EventSetup& setup) 
+TruthTOA::beginJob(const edm::EventSetup& iSetup) 
 {  
   // Get the particles table.
-  setup.getData( pdt_ );
+  iSetup.getData( pdt_ );
 }
 
 

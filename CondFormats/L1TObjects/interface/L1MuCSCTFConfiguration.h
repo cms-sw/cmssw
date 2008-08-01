@@ -2,28 +2,27 @@
 #define L1TObjects_L1MuCSCTFConfiguration_h
 
 #include <string>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
+
+class CSCTFConfigProducer;
 
 class L1MuCSCTFConfiguration {
 private:
-	std::string registers[12];
+	std::string parametersAsText;
+	friend class CSCTFConfigProducer;
 
 public:
-	const std::string* configAsText(void) const throw() {
-		return registers;
+	const std::string& parameters(void) const throw() {
+		return parametersAsText;
 	}
 
-	edm::ParameterSet parameters(int sp) const ;
-
 	L1MuCSCTFConfiguration& operator=(const L1MuCSCTFConfiguration& conf){
-		for(int sp=0;sp<12;sp++) registers[sp] = conf.registers[sp];
+		parametersAsText = conf.parametersAsText;
 		return *this;
 	}
 
 	L1MuCSCTFConfiguration(void){}
-	L1MuCSCTFConfiguration(std::string regs[12]){ for(int sp=0;sp<12;sp++) registers[sp]=regs[sp]; }
 	L1MuCSCTFConfiguration(const L1MuCSCTFConfiguration& conf){
-		for(int sp=0;sp<12;sp++) registers[sp] = conf.registers[sp];
+		parametersAsText = conf.parametersAsText;
 	}
 	~L1MuCSCTFConfiguration(void){}
 };

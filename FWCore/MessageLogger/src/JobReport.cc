@@ -17,7 +17,7 @@
 
 //
 // Original Author:  Marc Paterno
-// $Id: JobReport.cc,v 1.35 2008/06/20 20:55:46 fischler Exp $
+// $Id: JobReport.cc,v 1.41 2008/06/24 21:39:22 ewv Exp $
 //
 
 
@@ -43,7 +43,6 @@ namespace edm
       os << "\n<InputSourceClass>" << f.inputSourceClassName
 	 << "</InputSourceClass>";
       os << "\n<EventsRead>" << f.numEventsRead << "</EventsRead>";
-      os << "\n</InputFile>";
       return os;
     }
 
@@ -201,7 +200,18 @@ namespace edm
      */
     void JobReport::JobReportImpl::writeInputFile(JobReport::InputFile const& f){
       if(ost_) {
-        *ost_ <<f<<std::flush;
+        *ost_ <<f ;
+	*ost_ << "\n<LumiSections>";
+	std::vector<JobReport::LumiSectionReport>::const_iterator iLumi;
+	for (iLumi = f.lumiSections.begin();
+	     iLumi != f.lumiSections.end(); iLumi++){
+	  *ost_ << *iLumi;
+	}
+	*ost_ << "\n</LumiSections>\n";
+        *ost_ << "</InputFile>\n";
+
+
+	*ost_ << std::flush;
       }
 	//LogInfo("FwkJob") << f;
     }
@@ -326,6 +336,45 @@ namespace edm
 
   }
 
+
+  void JobReport::JobReportImpl::associateInputLumiSection(JobReport::LumiSectionReport const&  rep){
+    std::vector<Token> openFiles = openInputFiles();
+    std::vector<Token>::iterator iToken;
+    for (iToken = openFiles.begin(); iToken != openFiles.end(); iToken++){
+      //
+      // Loop over all open output files
+      //
+      JobReport::InputFile & theFile = inputFiles_[*iToken];
+      //
+      // check known lumi sections for each file
+      //
+      std::vector<JobReport::LumiSectionReport>::iterator iLumi;
+      bool lumiKnownByFile = false;
+      for (iLumi = theFile.lumiSections.begin();
+	   iLumi != theFile.lumiSections.end(); iLumi++){
+
+	if ( (iLumi->lumiSectionId == rep.lumiSectionId) &&
+	     (iLumi->runNumber == rep.runNumber) ){
+	  //
+	  // This file already has this lumi section associated to it
+	  // dont report it twice
+
+	  lumiKnownByFile = true;
+	}
+      }
+      if (lumiKnownByFile == false){
+	//
+	// New lumi section for file: associate lumi section with it.
+	//
+	JobReport::LumiSectionReport newReport;
+	newReport.runNumber = rep.runNumber;
+	newReport.lumiSectionId = rep.lumiSectionId;
+	theFile.lumiSections.push_back(newReport);
+      }
+    }
+
+
+  }
   JobReport::~JobReport() {
     impl_->writeGeneratorInfo();
     impl_->flushFiles();
@@ -591,7 +640,13 @@ namespace edm
     lumiRep.runNumber = run;
     lumiRep.lumiSectionId = lumiSectId;
     impl_->associateLumiSection(lumiRep);
-
+  }
+  void
+  JobReport::reportInputLumiSection(unsigned int run, unsigned int lumiSectId){
+    JobReport::LumiSectionReport lumiRep;
+    lumiRep.runNumber = run;
+    lumiRep.lumiSectionId = lumiSectId;
+    impl_->associateInputLumiSection(lumiRep);
   }
 
 

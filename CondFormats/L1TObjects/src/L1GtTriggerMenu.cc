@@ -40,7 +40,6 @@ L1GtTriggerMenu::L1GtTriggerMenu(
         const std::vector<std::vector<L1GtCaloTemplate> >& vecCaloTemplateVal,
         const std::vector<std::vector<L1GtEnergySumTemplate> >& vecEnergySumTemplateVal,
         const std::vector<std::vector<L1GtJetCountsTemplate> >& vecJetCountsTemplateVal,
-        const std::vector<std::vector<L1GtCastorTemplate> >& vecCastorTemplateVal,
         const std::vector<std::vector<L1GtCorrelationTemplate> >& vecCorrelationTemplateVal,
         const std::vector<std::vector<L1GtMuonTemplate> >& corMuonTemplateVal,
         const std::vector<std::vector<L1GtCaloTemplate> >& corCaloTemplateVal,
@@ -52,7 +51,6 @@ L1GtTriggerMenu::L1GtTriggerMenu(
             m_vecCaloTemplate(vecCaloTemplateVal),
             m_vecEnergySumTemplate(vecEnergySumTemplateVal),
             m_vecJetCountsTemplate(vecJetCountsTemplateVal),
-            m_vecCastorTemplate(vecCastorTemplateVal),
             m_vecCorrelationTemplate(vecCorrelationTemplateVal),
             m_corMuonTemplate(corMuonTemplateVal),
             m_corCaloTemplate(corCaloTemplateVal),
@@ -152,22 +150,6 @@ void L1GtTriggerMenu::buildGtConditionMap() {
     
     
     chipNr = -1;
-    for (std::vector<std::vector<L1GtCastorTemplate> >::iterator 
-            itCondOnChip = m_vecCastorTemplate.begin();
-            itCondOnChip != m_vecCastorTemplate.end();
-            itCondOnChip++) {
-
-        chipNr++;
-        
-        for (std::vector<L1GtCastorTemplate>::iterator 
-                itCond = itCondOnChip->begin(); itCond != itCondOnChip->end();
-                itCond++) {
-            
-            (m_conditionMap[chipNr])[itCond->condName()] = &(*itCond);
-        }
-    }
-
-    chipNr = -1;
     for (std::vector<std::vector<L1GtCorrelationTemplate> >::iterator 
             itCondOnChip = m_vecCorrelationTemplate.begin();
             itCondOnChip != m_vecCorrelationTemplate.end();
@@ -216,12 +198,6 @@ void L1GtTriggerMenu::setVecJetCountsTemplate(
         const std::vector<std::vector<L1GtJetCountsTemplate> >& vecJetCountsTempl) {
     
     m_vecJetCountsTemplate = vecJetCountsTempl;
-}
-
-void L1GtTriggerMenu::setVecCastorTemplate(
-        const std::vector<std::vector<L1GtCastorTemplate> >& vecCastorTempl) {
-    
-    m_vecCastorTemplate = vecCastorTempl;
 }
 
 void L1GtTriggerMenu::setVecCorrelationTemplate(

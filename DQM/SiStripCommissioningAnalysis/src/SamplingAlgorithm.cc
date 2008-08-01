@@ -22,10 +22,10 @@ SamplingAlgorithm::SamplingAlgorithm( SamplingAnalysis* const anal )
     peak_fitter_(0),
     samp_(0)
 {
-   peak_fitter_ = new TF1("peak_fitter",fpeak_convoluted,-2500,0,5);
-   peak_fitter_->SetNpx(1000);
+   peak_fitter_ = new TF1("peak_fitter",fpeak_convoluted,-4800,0,5);
+   peak_fitter_->SetNpx(2000);
    peak_fitter_->FixParameter(0,0);
-   peak_fitter_->SetParLimits(1,0,2500);
+   peak_fitter_->SetParLimits(1,0,4800);
    peak_fitter_->SetParLimits(2,0,20);
    peak_fitter_->FixParameter(3,50);
    peak_fitter_->SetParLimits(4,0,50);
@@ -88,6 +88,9 @@ void SamplingAlgorithm::extract( const std::vector<TH1*>& histos) {
     // Set the mode for later fits
     samp_->runType_ = title.runType();
     
+    // Set the granularity
+    samp_->granularity_ = title.granularity();
+
     // Extract timing histo
     if ( title.extraInfo().find(sistrip::extrainfo::clusterCharge_) != std::string::npos ) {
       histo_.first = *ihis;
@@ -131,9 +134,11 @@ void SamplingAlgorithm::analyse() {
     // initialize  the fit (overal latency)
     float max = prof->GetBinCenter(prof->GetMaximumBin());
     peak_fitter_->SetParameters(0.,50-max,10,50,10);
+
     // fit
     prof->Fit(peak_fitter_,"Q");
     prof->Fit(peak_fitter_,"QEWM");
+
     // Set monitorables
     samp_->max_   = peak_fitter_->GetMaximumX();
     samp_->error_ = peak_fitter_->GetParError(1);

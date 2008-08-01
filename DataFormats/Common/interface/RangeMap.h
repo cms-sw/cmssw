@@ -16,9 +16,9 @@
  *
  * \author Tommaso Boccali, Luca Lista INFN
  *
- * \version $Revision: 1.34 $
+ * \version $Revision: 1.35 $
  *
- * $Id: RangeMap.h,v 1.34 2007/12/21 22:46:50 wmtan Exp $
+ * $Id: RangeMap.h,v 1.35 2008/03/31 21:12:11 wmtan Exp $
  *
  */
 #include <map>
@@ -44,7 +44,8 @@ namespace edm {
     /// constant access iterator type
     typedef typename C::const_iterator const_iterator;
     /// index range
-    typedef std::pair<typename C::size_type, typename C::size_type> pairType;
+    //use unsigned int rather than C::size_type in order to avoid porting problems
+    typedef std::pair<unsigned int, unsigned int> pairType;
     /// map of identifier to index range
     typedef std::map<ID, pairType> mapType;
     /// iterator range
@@ -159,11 +160,12 @@ namespace edm {
       C tmp;
       for (typename mapType::iterator it = map_.begin(), itEnd = map_.end(); it != itEnd; it ++) {   
 	range r = get((*it).first);
-	typename C::size_type begIt = tmp.size();
+	//do cast to acknowledge that we may be going from a larger type to a smaller type but we are OK
+	unsigned int begIt = static_cast<unsigned int>(tmp.size());
 	for(const_iterator i = r.first; i != r.second; ++i)
 	  tmp.push_back(P::clone(*i));
-	typename C::size_type endIt = tmp.size();
-	it->second = std::make_pair(begIt, endIt);
+	unsigned int endIt = static_cast<unsigned int>(tmp.size());
+	it->second = pairType(begIt, endIt);
       }
       collection_ = tmp;
     }

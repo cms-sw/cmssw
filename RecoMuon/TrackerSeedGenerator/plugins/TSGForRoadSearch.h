@@ -79,7 +79,6 @@ private:
   /// adjust the error matrix of the TSOS
   void adjust(TrajectoryStateOnSurface &);
   bool theAdjustAtIp;
-  bool theScale;
 
   /// add the seed(s) to the collection of seeds
   void pushTrajectorySeed(const reco::Track & muon, std::vector<DetLayer::DetWithState > & compatible, PropagationDirection direction, std::vector<TrajectorySeed>& result)const;

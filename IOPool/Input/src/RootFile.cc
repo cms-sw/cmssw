@@ -887,6 +887,8 @@ namespace edm {
     assert(lumiAux_.luminosityBlock() == fileIndexIter_->lumi_);
     overrideRunNumber(lumiAux_.id_);
     assert(lumiAux_.run() == rp->run());
+    Service<JobReport> reportSvc;
+    reportSvc->reportInputLumiSection(lumiAux_.run(), lumiAux_.luminosityBlock());
 
     if (lumiAux_.beginTime() == Timestamp::invalidTimestamp()) {
       // LuminosityBlockAuxiliary did not contain a timestamp. Take it from the next event.

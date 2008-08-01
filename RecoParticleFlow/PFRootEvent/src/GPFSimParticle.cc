@@ -8,10 +8,10 @@
 
 //________________________________________________________________________
 GPFSimParticle::GPFSimParticle(DisplayManager *display,int view, int ident, 
-			       const reco::PFSimParticle *ptc, 
-			       int size, double *x, double *y,
+                               const reco::PFSimParticle *ptc, 
+                               int size, double *x, double *y,
                                double pt,TAttMarker *attm, TAttLine *attl,
-			       std::string option)
+                               std::string option)
   : GPFBase(display,view,ident,attm,attl),
     TGraph(size,x,y), part_(ptc), pt_(pt), option_(option) 
 {
@@ -72,11 +72,11 @@ void GPFSimParticle::setInitialColor()
 //_____________________________________________________________________________
 void GPFSimParticle::setNewSize()
 {
- SetMarkerSize(markerAttr_->GetMarkerSize());
+  SetMarkerSize(markerAttr_->GetMarkerSize());
 }
 //____________________________________________________________________________
 void GPFSimParticle::setNewStyle()
 {
- SetMarkerStyle(markerAttr_->GetMarkerStyle());
+  SetMarkerStyle(markerAttr_->GetMarkerStyle());
 }
 

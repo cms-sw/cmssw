@@ -13,52 +13,52 @@
 #include "SimTracker/TrackHistory/interface/TrackHistory.h"
 
 TrackHistory::TrackHistory (
-  const edm::ParameterSet & config
+  const edm::ParameterSet & iConfig
 )
 {
   // Default depth	
   depth_ = -1;
 			
   // Name of the track collection
-  trackProducer_ = config.getUntrackedParameter<edm::InputTag> ( "trackProducer" );
+  recoTrackModule_ = iConfig.getParameter<std::string> ( "recoTrackModule" );
 
   // Name of the traking pariticle collection
-  trackingTruth_ = config.getUntrackedParameter<edm::InputTag> ( "trackingTruth" );
+  trackingParticleModule_ = iConfig.getParameter<std::string> ( "trackingParticleModule" );
+  trackingParticleInstance_ = iConfig.getParameter<std::string> ( "trackingParticleProduct" );
   
-  // Track association record
-  trackAssociator_ = config.getUntrackedParameter<std::string> ( "trackAssociator" );
+  // Association by hit
+  associationModule_ = iConfig.getParameter<std::string> ( "associationModule" );
 
   // Association by max. value
-  bestMatchByMaxValue_ = config.getUntrackedParameter<bool> ( "bestMatchByMaxValue" );
+  bestMatchByMaxValue_ = iConfig.getParameter<bool> ( "bestMatchByMaxValue" );
 }
 
 
 void TrackHistory::newEvent (
-  const edm::Event & event, const edm::EventSetup & setup
+  const edm::Event & iEvent, const edm::EventSetup & iSetup
 )
 {
   // Track collection
   edm::Handle<edm::View<reco::Track> > trackCollection;
-  event.getByLabel(trackProducer_, trackCollection);
+  iEvent.getByLabel(recoTrackModule_, trackCollection);
    
   // Tracking particle information
   edm::Handle<TrackingParticleCollection>  TPCollection;
-  event.getByLabel(trackingTruth_, TPCollection);
+  iEvent.getByLabel(trackingParticleModule_, trackingParticleInstance_, TPCollection);
     
-  // Get the track associator
+  // Get the associator by hits or chi2
   edm::ESHandle<TrackAssociatorBase> associator;
-  setup.get<TrackAssociatorRecord>().get(trackAssociator_, associator);
-  
-  // Get the map between recotracks and tp
-  association_ = associator->associateRecoToSim (trackCollection, TPCollection, &event);
+
+  iSetup.get<TrackAssociatorRecord>().get(associationModule_, associator);
+    
+  association_ = associator->associateRecoToSim (trackCollection, TPCollection, &iEvent);
 }
 
 
 void TrackHistory::traceGenHistory(const HepMC::GenParticle * gpp)
 {
   // Third stop criteria: status abs(depth_) particles after the hadronization.
-  // The after hadronization is done by detecting the pdg_id pythia code from 88 to 99
-  if ( gpp->status() <= abs(depth_) && (gpp->pdg_id() < 88 || gpp->pdg_id() > 99) )
+  if ( gpp->status() <= abs(depth_) && gpp->pdg_id() != 92 )
   {
     genParticleTrail_.push_back(gpp);
     // Get the producer vertex.

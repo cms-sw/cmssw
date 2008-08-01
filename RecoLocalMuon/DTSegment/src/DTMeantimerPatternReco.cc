@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2008/03/10 11:18:20 $
- * $Revision: 1.4 $
+ * $Date: 2007/10/17 10:32:20 $
+ * $Revision: 1.2 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  * \author Piotr Traczyk - SINS Warsaw <ptraczyk@fuw.edu.pl>
@@ -51,8 +51,7 @@ DTRecSegment2DBaseAlgo(pset), theAlgoName("DTMeantimerPatternReco")
 
 /// Destructor
 DTMeantimerPatternReco::~DTMeantimerPatternReco() {
-  delete theUpdator;
-  delete theCleaner;
+ 
 }
 
 /* Operations */ 
@@ -72,8 +71,7 @@ DTMeantimerPatternReco::reconstruct(const DTSuperLayer* sl,
 
     theUpdator->update(segment);
 
-    if (debug) 
-      cout<<"Reconstructed 2D segments "<<*segment<<endl;
+    if (debug) cout<<"Reconstructed 2D segments "<<*segment<<endl;
     result.push_back(segment);
 
     delete *(cand++); // delete the candidate!
@@ -107,7 +105,6 @@ DTMeantimerPatternReco::buildSegments(const DTSuperLayer* sl,
   typedef vector<DTHitPairForFit*> hitCont;
   typedef hitCont::const_iterator  hitIter;
   vector<DTSegmentCand*> result;
-  DTEnums::DTCellSide codes[2]={DTEnums::Right, DTEnums::Left};
 
   if(debug) {
     cout << "buildSegments: " << sl->id() << " nHits " << hits.size() << endl;
@@ -126,15 +123,6 @@ DTMeantimerPatternReco::buildSegments(const DTSuperLayer* sl,
     return result;
   }
 
-  GlobalPoint IP;
-  float DAlphaMax;
-  if ((sl->id()).superlayer()==2)  // Theta SL
-    DAlphaMax=theAlphaMaxTheta;
-  else // Phi SL
-    DAlphaMax=theAlphaMaxPhi;
-  
-  vector<AssPoint> usedHits;
-
   // get two hits in different layers and see if there are other hits
   //  compatible with them
   for (hitCont::const_iterator firstHit=hits.begin(); firstHit!=hits.end();
@@ -145,40 +133,49 @@ DTMeantimerPatternReco::buildSegments(const DTSuperLayer* sl,
       // a geometrical sensibility cut for the two hits
       if (!geometryFilter((*firstHit)->id(),(*lastHit)->id())) continue;
 	 
-      // create a set of hits for the fit (only the hits between the two selected ones)
-      hitCont hitsForFit;
-      for (hitCont::const_iterator tmpHit=firstHit+1; (*tmpHit)!=(*lastHit); tmpHit++) 
-        if ((geometryFilter((*tmpHit)->id(),(*lastHit)->id())) 
-            && (geometryFilter((*tmpHit)->id(),(*firstHit)->id()))) hitsForFit.push_back(*tmpHit);
+      GlobalPoint IP;
+      float DAlphaMax;
+      if ((sl->id()).superlayer()==2)  // Theta SL
+        DAlphaMax=theAlphaMaxTheta;
+      else // Phi SL
+        DAlphaMax=theAlphaMaxPhi;
 
+      DTEnums::DTCellSide codes[2]={DTEnums::Right, DTEnums::Left};
       for (int firstLR=0; firstLR<2; ++firstLR) {
         for (int lastLR=0; lastLR<2; ++lastLR) {
-
 	  // TODO move the global transformation in the DTHitPairForFit class
 	  // when it will be moved I will able to remove the sl from the input parameter
 	  GlobalPoint gposFirst=sl->toGlobal( (*firstHit)->localPosition(codes[firstLR]) );
 	  GlobalPoint gposLast= sl->toGlobal( (*lastHit)->localPosition(codes[lastLR]) );
+
           GlobalVector gvec=gposLast-gposFirst;
           GlobalVector gvecIP=gposLast-IP;
 
           // difference in angle measured
           float DAlpha=fabs(gvec.theta()-gvecIP.theta());
-          if (DAlpha>DAlphaMax) continue;
+
+          if (DAlpha<DAlphaMax) {
 	  
-	  if(debug) {
+	    if(debug) {
               cout << "Selected hit pair:" << endl;
               cout << "  First " << *(*firstHit) << " Layer Id: " << (*firstHit)->id().layerId() << " Side: " << firstLR << endl;
               cout << "  Last "  << *(*lastHit)  << " Layer Id: " << (*lastHit)->id().layerId()  << " Side: " << lastLR << endl;
-          }
-        
-          vector<AssPoint> assHits;
-          // create a candidate hit list
-          assHits.push_back(AssPoint(*firstHit,codes[firstLR]));
-          assHits.push_back(AssPoint(*lastHit,codes[lastLR]));
+            }
 
-          // run hit adding/segment building 
-          maxfound = 3;
-          addHits(sl,assHits,hitsForFit,result, usedHits);
+            vector<AssPoint> assHits;
+            // create a candidate hit list
+            assHits.push_back(AssPoint(*firstHit,codes[firstLR]));
+            assHits.push_back(AssPoint(*lastHit,codes[lastLR]));
+
+            // create a set of hits for the fit (only the hits between the two selected ones)
+            hitCont hitsForFit;
+            for (hitCont::const_iterator tmpHit=firstHit+1; (*tmpHit)!=(*lastHit); tmpHit++) 
+              if ((geometryFilter((*tmpHit)->id(),(*lastHit)->id())) 
+	       && (geometryFilter((*tmpHit)->id(),(*firstHit)->id()))) hitsForFit.push_back(*tmpHit);
+
+            // run hit adding/segment building 
+            addHits(sl,assHits,hitsForFit,result);
+          }
         }
       }
     }
@@ -188,7 +185,7 @@ DTMeantimerPatternReco::buildSegments(const DTSuperLayer* sl,
   if (debug) {
     cout << "Result (before cleaning): " << result.size() << endl;
     for (vector<DTSegmentCand*>::const_iterator seg=result.begin(); seg!=result.end(); ++seg) 
-      cout << *(*seg) << endl;
+        cout << *(*seg) << endl;
   }        
   result = theCleaner->clean(result);
   if (debug) {
@@ -204,8 +201,7 @@ DTMeantimerPatternReco::buildSegments(const DTSuperLayer* sl,
 
 
 void 
-DTMeantimerPatternReco::addHits(const DTSuperLayer* sl, vector<AssPoint>& assHits, const vector<DTHitPairForFit*>& hits, 
-                                vector<DTSegmentCand*> &result, vector<AssPoint>& usedHits) {
+DTMeantimerPatternReco::addHits(const DTSuperLayer* sl, vector<AssPoint>& assHits, const vector<DTHitPairForFit*>& hits, vector<DTSegmentCand*> &result) {
 
   typedef vector<DTHitPairForFit*> hitCont;
   double chi2l,chi2r,t0_corrl,t0_corrr;
@@ -214,76 +210,66 @@ DTMeantimerPatternReco::addHits(const DTSuperLayer* sl, vector<AssPoint>& assHit
 //  if (debug) { 
 //    cout << "DTMeantimerPatternReco::addHit " << endl << "   Picked " << assHits.size() << " hits, " << hits.size() << " left." << endl;
 //  }
-  
-  if (assHits.size()+hits.size()<maxfound) return;
-          
+        
   // loop over the remaining hits
   for (hitCont::const_iterator hit=hits.begin(); hit!=hits.end(); ++hit) {
-    if (debug)
-      cout << "          Trying B: " << **hit<< " wire: " << (*hit)->id() << endl;
+//    if (debug)
+//      cout << "          Trying B: " << **hit<< " wire: " << (*hit)->id() << endl;
             
+    bool left_ok;
+    bool right_ok;
+
     assHits.push_back(AssPoint(*hit, DTEnums::Left));
-    bool left_ok=fitWithT0(assHits, chi2l, t0_corrl,0);
+    left_ok=fitWithT0(assHits, chi2l, t0_corrl,0);
     assHits.pop_back();
 
     assHits.push_back(AssPoint(*hit, DTEnums::Right));
-    bool right_ok=fitWithT0(assHits, chi2r, t0_corrr,0);
+    right_ok=fitWithT0(assHits, chi2r, t0_corrr,0);
     assHits.pop_back();
 
-    if (debug) {
-      int nHits=assHits.size()+1;
-      cout << "      Left:  t0_corr = " << t0_corrl << "ns  chi2/nHits = " << chi2l << "/" << nHits << " " << left_ok << endl;
-      cout << "     Right:  t0_corr = " << t0_corrr << "ns  chi2/nHits = " << chi2r << "/" << nHits << " " << right_ok << endl;
-    }
+//    if (debug) {
+//      cout << "      Left:  t0_corr = " << t0_corrl << "ns  chi2/nHits = " << chi2l << "/" << nHits << endl;
+//      cout << "     Right:  t0_corr = " << t0_corrr << "ns  chi2/nHits = " << chi2r << "/" << nHits << endl;
+//    }
 
     if (!left_ok && !right_ok) continue;
 
-    foundSomething = true;    
-
+    int nHits=assHits.size()+1;
     // prepare the hit set for the next search, start from the other side                        
     hitCont hitsForFit;
     for (hitCont::const_iterator tmpHit=hit+1; tmpHit!=hits.end(); tmpHit++) 
-      if (geometryFilter((*tmpHit)->id(),(*hit)->id())) hitsForFit.push_back(*tmpHit); 
-      
+      if (geometryFilter((*tmpHit)->id(),(*hit)->id())) hitsForFit.push_back(*tmpHit);
     reverse(hitsForFit.begin(),hitsForFit.end());
 
     // choose only one - left or right
     if (left_ok && right_ok) {
-      if (chi2l<chi2r-0.1) right_ok=false; else
-        if (chi2r<chi2l-0.1) left_ok=false;
+      if (chi2l/(nHits-2)<chi2r/(nHits-2)-0.1) right_ok=false; else
+      if (chi2r/(nHits-2)<chi2l/(nHits-2)-0.1) left_ok=false;
     }
     if (left_ok) { 
       assHits.push_back(AssPoint(*hit, DTEnums::Left));
-      addHits(sl,assHits,hitsForFit,result,usedHits);
+      addHits(sl,assHits,hitsForFit,result);
       assHits.pop_back();
+      foundSomething = true;    
     }
     if (right_ok) { 
       assHits.push_back(AssPoint(*hit, DTEnums::Right));
-      addHits(sl,assHits,hitsForFit,result,usedHits);
+      addHits(sl,assHits,hitsForFit,result);
       assHits.pop_back();
+      foundSomething = true;    
     }
   }
 
-  if (foundSomething) return;
+  if (foundSomething || assHits.size()<3) 
+    return;
 
-  // If we already have a segment with more hits from this hit pair - don't save this one.  
-  if (assHits.size()<maxfound) return;
-
-  // Check if semgent Ok, calculate chi2
-  if (!fitWithT0(assHits, chi2l, t0_corrl,debug)) return;
-
-  // If no more iterations - store the current segment
+  fitWithT0(assHits, chi2l, t0_corrl,debug);
 
   DTSegmentCand::AssPointCont pointsSet;
   pointsSet.insert(assHits.begin(),assHits.end());
   DTSegmentCand* seg = new DTSegmentCand(pointsSet,sl);
-  theUpdator->fit(seg);
 
-  if (seg) {
-    for (vector<AssPoint>::const_iterator hiti = assHits.begin()+1; hiti != assHits.end()-1; hiti++)
-      usedHits.push_back(*hiti);
-
-    if (assHits.size()>maxfound) maxfound = assHits.size();
+  if (theUpdator->fit(seg)) {
     seg->setChi2(chi2l); // we need to set the chi^2 so that the cleaner can pick the best segments
     if (debug) cout << "Segment built: " << *seg<< endl;
     if (checkDoubleCandidates(result,seg)) {
@@ -300,8 +286,6 @@ DTMeantimerPatternReco::addHits(const DTSuperLayer* sl, vector<AssPoint>& assHit
 bool
 DTMeantimerPatternReco::geometryFilter( const DTWireId first, const DTWireId second ) const
 {
-//  return true;
-
   const int layerLowerCut[4]={0,-1,-2,-2};
   const int layerUpperCut[4]={0, 2, 2, 3};
 //  const int layerLowerCut[4]={0,-2,-4,-5};
@@ -335,105 +319,107 @@ DTMeantimerPatternReco::geometryFilter( const DTWireId first, const DTWireId sec
 
 bool
 DTMeantimerPatternReco::fitWithT0(const vector<AssPoint> &assHits, double &chi2, double &t0_corr, const bool fitdebug) 
-{
+{            
   typedef vector < pair<double,double> > hitCoord;
-  double a,b,coordError,x,y;
-  double sx=0,sy=0,sxy=0,sxx=0,ssx=0,ssy=0,s=0,ss=0;
-  int leftHits=0,rightHits=0;
+  hitCoord leftHits;
+  hitCoord rightHits;
+  pair <double,double> tmpHit;
+  double al,ar,bl,br,a,b,coordError;
 
   if (assHits.size()<3) return false;
 
   // I'm assuming the single hit error is the same for all hits...
-  coordError=((*(assHits.begin())).first)->localPositionError().xx();
+  coordError=sqrt(((*(assHits.begin())).first)->localPositionError().xx());
 
+  // Separate the left and right hits
   for (vector<AssPoint>::const_iterator assHit=assHits.begin(); assHit!=assHits.end(); ++assHit) {
-    if (coordError!=((*(assHits.begin())).first)->localPositionError().xx()) 
+    if (coordError!=sqrt(((*(assHits.begin())).first)->localPositionError().xx())) 
       cout << "   DTMeantimerPatternReco: Warning! Hit errors different within one segment!" << endl;
 
-    x=((*assHit).first)->localPosition((*assHit).second).z();
-    y=((*assHit).first)->localPosition((*assHit).second).x();
-
-    sx+=x;
-    sy+=y;
-    sxy+=x*y;
-    sxx+=x*x;
-    s++;
-    
-    if ((*assHit).second==DTEnums::Left) {
-      leftHits++;
-      ssx+=x;
-      ssy+=y;
-      ss++;
-    } else {
-      rightHits++;
-      ssx-=x;
-      ssy-=y;
-      ss--;
-    }  
+    tmpHit.first=((*assHit).first)->localPosition((*assHit).second).z();
+    tmpHit.second=((*assHit).first)->localPosition((*assHit).second).x();
+    if ((*assHit).second==DTEnums::Left) leftHits.push_back(tmpHit);
+      else rightHits.push_back(tmpHit);
   }      
                     
   if (fitdebug && debug)
-    cout  << "   DTMeantimerPatternReco::fitWithT0   Left hits: " << leftHits << "  Right hits: " << rightHits << endl;
+    cout  << "   DTMeantimerPatternReco::fitWithT0   Left hits: " << leftHits.size() << "  Right hits: " << rightHits.size() << endl;
 
-  if (leftHits && rightHits) {
-
-    double delta = ss*ss*sxx+s*sx*sx+s*ssx*ssx-s*s*sxx-2*ss*sx*ssx;
-    t0_corr=0.;
-
-    if (delta) {
-      a=(ssy*s*ssx+sxy*ss*ss+sy*sx*s-sy*ss*ssx-ssy*sx*ss-sxy*s*s)/delta;
-      b=(ssx*sy*ssx+sxx*ssy*ss+sx*sxy*s-sxx*sy*s-ssx*sxy*ss-sx*ssy*ssx)/delta;
-      t0_corr=(ssx*s*sxy+sxx*ss*sy+sx*sx*ssy-sxx*s*ssy-sx*ss*sxy-ssx*sx*sy)/delta;
-    } else return false;
-  } else {
-    double d = s*sxx - sx*sx;
-    b = (sxx*sy- sx*sxy)/ d;
-    a = (s*sxy - sx*sy) / d;
-    t0_corr=0;
+// Fit a straight line separately for sets of hits
+// x = a*z + b
+        
+  rawFit(al,bl,leftHits);
+  rawFit(ar,br,rightHits);
+  
+// If there's only 1 hit on one side, take the slope from the other side and adjust the constant
+// so that the line passes through the single hit  
+  
+  if (al==0) { 
+    al=ar; 
+    if (bl==0) bl=br; 
+      else bl-=al*(*(leftHits.begin())).first;
+  }    
+  if (ar==0) {
+    ar=al;
+    if (br==0) br=bl; 
+      else br-=ar*(*(rightHits.begin())).first;
   }
 
+// The best fit is the average of the left and right fits
+
+  a=(al+ar)/2.;
+  b=(bl+br)/2.;
+
+  // Now we can calculate the t0 correction for the hits
+  // as the average over all the individual hit t0 measurements
+
+  double t0_left=0, t0_right=0;
+  if (leftHits.size()) 
+    for (hitCoord::const_iterator assHit=leftHits.begin(); assHit!=leftHits.end(); ++assHit)
+      t0_left+=(*assHit).second-a*(*assHit).first-b;
+
+  if (rightHits.size())
+    for (hitCoord::const_iterator assHit=rightHits.begin(); assHit!=rightHits.end(); ++assHit)
+      t0_right+=(*assHit).second-a*(*assHit).first-b;
+
+  t0_corr=(t0_right-t0_left)/(leftHits.size()+rightHits.size());
+  
 // Calculate the chi^2 of the hits AFTER t0 correction
 
-  double chi,chi2_not0;  
+  double chi;  
   chi2=0;
-  chi2_not0=0;
   
-  for (vector<AssPoint>::const_iterator assHit=assHits.begin(); assHit!=assHits.end(); ++assHit) {
-    x=((*assHit).first)->localPosition((*assHit).second).z();
-    y=((*assHit).first)->localPosition((*assHit).second).x();
+  if (leftHits.size())
+    for (hitCoord::const_iterator assHit=leftHits.begin(); assHit!=leftHits.end(); ++assHit) {
+      chi=(*assHit).second+t0_corr-a*(*assHit).first-b;
+      chi/=coordError;
+      chi2+=chi*chi;
+    }
+  if (rightHits.size())
+    for (hitCoord::const_iterator assHit=rightHits.begin(); assHit!=rightHits.end(); ++assHit) {
+      chi=(*assHit).second-t0_corr-a*(*assHit).first-b;
+      chi/=coordError;
+      chi2+=chi*chi;
+    }
 
-    chi=y-a*x-b;
-    chi2_not0+=chi*chi/coordError;
+  t0_corr/=0.00543; // convert drift distance to time, positive times mean late particles
 
-    if ((*assHit).second==DTEnums::Left) chi-=t0_corr;
-      else chi+=t0_corr;
-      
-    chi2+=chi*chi/coordError;
-  }
-
-  // For 3-hit segments ignore timing information
-  if (assHits.size()<4) {
-    chi2=chi2_not0;
-    if (chi2/(assHits.size()-2)<theMaxChi2) return true;
-      else return false;
-  }
-
-  t0_corr/=-0.00543; // convert drift distance to time
-
-  if (debug && fitdebug) 
-  {
+  if (debug && fitdebug) {
     cout << "      t0_corr = " << t0_corr << "ns  chi2/nHits = " << chi2 << "/" << assHits.size() << endl;
-    
-    if (((chi2/(assHits.size()-2)<theMaxChi2) && (t0_corr<theMaxT0) && (t0_corr>theMinT0)) || (assHits.size()==4)) {
+    if (((chi2/(assHits.size()-2)<theMaxChi2) && (t0_corr<theMaxT0) && (t0_corr>theMinT0)) || (assHits.size()>6)) {
+      cout << "      al = " << al << "       bl = " << bl << endl;
+      cout << "      ar = " << ar << "       br = " << br << endl;
       cout << "      a  = " << a  << "       b  = " << b  << endl;
-      for (vector<AssPoint>::const_iterator assHit=assHits.begin(); assHit!=assHits.end(); ++assHit) {
-        x=((*assHit).first)->localPosition((*assHit).second).z();
-        y=((*assHit).first)->localPosition((*assHit).second).x();
-        cout << "   z= " << x << "   x= " << y;
-        if ((*assHit).second==DTEnums::Left) cout << "   x_corr= " << y+t0_corr*0.00543;
-                                       else  cout << "   x_corr= " << y-t0_corr*0.00543;
-        cout << "   seg= " << a*x+b << endl;
-      }
+      if (leftHits.size())
+        for (hitCoord::const_iterator assHit=leftHits.begin(); assHit!=leftHits.end(); ++assHit) 
+            cout << "   z= " << (*assHit).first << "   x= " << (*assHit).second 
+                 << "   x_corr= " << (*assHit).second+t0_corr*0.00543 
+                 << "   seg= " << a*(*assHit).first+b << endl;
+      if (rightHits.size())
+        for (hitCoord::const_iterator assHit=rightHits.begin(); assHit!=rightHits.end(); ++assHit) 
+            cout << "   z= " << (*assHit).first << "   x= " << (*assHit).second 
+                 << "   x_corr= " << (*assHit).second-t0_corr*0.00543 
+                 << "   seg= " << a*(*assHit).first+b << endl;
     }
   }
 
@@ -474,10 +460,7 @@ bool
 DTMeantimerPatternReco::checkDoubleCandidates(vector<DTSegmentCand*>& cands,
                                                   DTSegmentCand* seg) {
   for (vector<DTSegmentCand*>::iterator cand=cands.begin();
-       cand!=cands.end(); ++cand) {
+       cand!=cands.end(); ++cand) 
     if (*(*cand)==*seg) return false;
-    if (((*cand)->nHits()>=seg->nHits()) && ((*cand)->chi2ndof()<seg->chi2ndof()))
-      if ((*cand)->nSharedHitPairs(*seg)>int(seg->nHits()-2)) return false;
-  }    
   return true;
 }

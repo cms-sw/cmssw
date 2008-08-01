@@ -4,10 +4,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"  
 #include "DQM/SiStripMonitorHardware/interface/Fed9UDebugEvent.hh"
 #include "DQM/SiStripMonitorHardware/interface/Fed9UEventAnalyzer.hh"
-#include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
 
-Fed9UEventAnalyzer::Fed9UEventAnalyzer(std::pair<int,int> newFedBoundaries,
-				       bool doSwap, bool doPreSwap ) {
+Fed9UEventAnalyzer::Fed9UEventAnalyzer(std::pair<int,int> newFedBoundaries, bool doSwap, bool doPreSwap) {
   // First of all we instantiate the Fed9U object of the event
   fedEvent_ = new Fed9U::Fed9UDebugEvent(); 
   fedIdBoundaries_ = newFedBoundaries;
@@ -19,7 +17,7 @@ Fed9UEventAnalyzer::Fed9UEventAnalyzer(std::pair<int,int> newFedBoundaries,
 
 Fed9UEventAnalyzer::Fed9UEventAnalyzer(Fed9U::u32* data_u32, Fed9U::u32 size_u32,
 				       std::pair<int,int> newFedBoundaries,
-				       bool doSwap, bool doPreSwap ) {
+				       bool doSwap, bool doPreSwap) {
   Fed9UEventAnalyzer(newFedBoundaries,doSwap, doPreSwap);
 
   Initialize(data_u32, size_u32);
@@ -127,7 +125,7 @@ bool Fed9UEventAnalyzer::Initialize(Fed9U::u32* data_u32, Fed9U::u32 size_u32) {
 }
 
 
-Fed9UErrorCondition Fed9UEventAnalyzer::Analyze(bool useConns, const std::vector<FedChannelConnection>* conns) {
+Fed9UErrorCondition Fed9UEventAnalyzer::Analyze() {
   Fed9UErrorCondition result;
   
   // **********************************
@@ -136,21 +134,8 @@ Fed9UErrorCondition Fed9UEventAnalyzer::Analyze(bool useConns, const std::vector
   // *                                *
   // **********************************
 
-  // TODO: tidy up this piece of code
   result.problemsSeen = 0;
-  if (!useConns) {
-    result.totalChannels = fedEvent_->totalChannels();
-  } else {
-    result.totalChannels = 0;
-    if (conns) {
-      for (int channelIndex=0; channelIndex<96; channelIndex++) {
-	if ((conns->at(95-channelIndex)).isConnected()) result.totalChannels++;
-      }
-    } else {
-      edm::LogWarning("Fed9UEventAnalyzer") << "for some reason I have useConns == true and conns==NULL)";
-    }
-  }
-
+  result.totalChannels = fedEvent_->totalChannels();
 
   // Clear the FED errors
   result.internalFreeze       = false;
@@ -193,7 +178,6 @@ Fed9UErrorCondition Fed9UEventAnalyzer::Analyze(bool useConns, const std::vector
 
   result.apveAddress = fedEvent_->getSpecialApvEmulatorAddress();
 
-
   // **********************************
   // *                                *
   // * FE FPGA Main cycle and checks  *
@@ -211,15 +195,9 @@ Fed9UErrorCondition Fed9UEventAnalyzer::Analyze(bool useConns, const std::vector
       // Look only at FEs with no overflow
       if (fedEvent_->getFeOverflow(fpga)) {
 
-	// Report the overflow and update the number of error channels
+	// Report the overflow
 	result.feOverflow[fpga] = true;
-	if ((useConns)&&(conns)) {
-	  for (unsigned int fi=0; fi<12; fi++) 
-	    if ((conns->at(95-(12*fpga+fi))).isConnected()) result.problemsSeen++;
-	} else {
-	  result.problemsSeen+=12;
-	}
-	
+
       } else {
 
 	// TODO: add APV Address Error bit (i.e. x-check with APVe)
@@ -239,61 +217,49 @@ Fed9UErrorCondition Fed9UEventAnalyzer::Analyze(bool useConns, const std::vector
 	  // Local index to access the result channel vector
 	  unsigned channelIndex=12*fpga+fi;
 
-	  bool readChannel = true;
-	  if (useConns) {
-	    if (conns) {
-	      if (!(conns->at(95-channelIndex)).isConnected()) {
-		readChannel = false;
-	      }
-	    } else {
-	      edm::LogWarning("Fed9UEventAnalyzer") << "for some reason I have useConns == true and conns==NULL)";
+
+	  bool APV1Error       = fedEvent_->getAPV1Error(fpga,fi);
+	  bool APV2Error       = fedEvent_->getAPV2Error(fpga,fi);
+	  bool APV1WrongHeader = fedEvent_->getAPV1WrongHeader(fpga,fi);
+	  bool APV2WrongHeader = fedEvent_->getAPV2WrongHeader(fpga,fi);
+	  bool outOfSync       = fedEvent_->getOutOfSync(fpga,fi);
+	  bool unlocked        = fedEvent_->getUnlocked(fpga,fi);
+
+	  bool anyError =
+	    APV1Error ||
+	    APV2Error ||
+	    APV1WrongHeader ||
+	    APV2WrongHeader ||
+	    outOfSync ||
+	    unlocked ;
+
+	  outOfSync     = outOfSync && (!unlocked);
+
+	  bool badAPV1  = (APV1Error || APV1WrongHeader) && (!outOfSync) && (!unlocked);
+	  bool badAPV2  = (APV2Error || APV2WrongHeader) && (!outOfSync) && (!unlocked);
+
+	  if (anyError) {
+	    result.problemsSeen++;
+
+	    if (unlocked) {
+	      result.channel[channelIndex]=FIBERUNLOCKED;
+	    }
+	    if (outOfSync) {
+	      result.channel[channelIndex]=FIBEROUTOFSYNCH;
+	    }
+	    if (badAPV1) {
+	      result.apv[channelIndex*2]=BADAPV;
+	    }
+	    if (badAPV2) {
+	      result.apv[channelIndex*2+1]=BADAPV;
 	    }
 	  }
-	  
-	  if (readChannel) {
-	    bool APV1Error       = fedEvent_->getAPV1Error(fpga,fi);
-	    bool APV2Error       = fedEvent_->getAPV2Error(fpga,fi);
-	    bool APV1WrongHeader = fedEvent_->getAPV1WrongHeader(fpga,fi);
-	    bool APV2WrongHeader = fedEvent_->getAPV2WrongHeader(fpga,fi);
-	    bool outOfSync       = fedEvent_->getOutOfSync(fpga,fi);
-	    bool unlocked        = fedEvent_->getUnlocked(fpga,fi);
-	    
-	    bool anyError =
-	      APV1Error ||
-	      APV2Error ||
-	      APV1WrongHeader ||
-	      APV2WrongHeader ||
-	      outOfSync ||
-	      unlocked ;
-	    
-	    outOfSync     = outOfSync && (!unlocked);
-	    
-	    bool badAPV1  = (APV1Error || APV1WrongHeader) && (!outOfSync) && (!unlocked);
-	    bool badAPV2  = (APV2Error || APV2WrongHeader) && (!outOfSync) && (!unlocked);
-	    
-	    if (anyError) {
-	      result.problemsSeen++;
-	      
-	      if (unlocked) {
-		result.channel[channelIndex]=FIBERUNLOCKED;
-	      }
-	      if (outOfSync) {
-		result.channel[channelIndex]=FIBEROUTOFSYNCH;
-	      }
-	      if (badAPV1) {
-		result.apv[channelIndex*2]=BADAPV;
-	      }
-	      if (badAPV2) {
-		result.apv[channelIndex*2+1]=BADAPV;
-	      }
-	    }
-	  }
-	  
+
 	} // Fiber loop end
-	
-	
+
+
       } // FE no overflow
-      
+
     } // if FE enabled
   } // for FE fpga loop 
   

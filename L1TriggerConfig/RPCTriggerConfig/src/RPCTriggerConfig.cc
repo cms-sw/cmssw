@@ -13,7 +13,7 @@
 //
 // Original Author:  Tomasz Maciej Frueboes
 //         Created:  Tue Mar 20 12:30:19 CET 2007
-// $Id: RPCTriggerConfig.cc,v 1.3 2007/11/20 17:01:18 michals Exp $
+// $Id: RPCTriggerConfig.cc,v 1.4 2008/02/22 12:03:29 fruboes Exp $
 //
 //
 
@@ -110,12 +110,16 @@ RPCTriggerConfig::produce(const L1RPCConfigRcd& iRecord)
    std::auto_ptr<L1RPCConfig> pL1RPCConfig = std::auto_ptr<L1RPCConfig>( new L1RPCConfig() );
 
    pL1RPCConfig->setPPT(m_ppt);
+
+   int qualsNoEstimate = 3210, patsNoEstimate = 310000;
    
    // parse and isert patterns
    int scCnt = 0, sgCnt = 0;
    if(m_ppt == 1) {
        scCnt = 1;
        sgCnt = 1;
+       qualsNoEstimate /= 12; 
+       patsNoEstimate /= 12;
     }
     else if(m_ppt == 12) {
        scCnt = 1;
@@ -124,11 +128,20 @@ RPCTriggerConfig::produce(const L1RPCConfigRcd& iRecord)
     else if(m_ppt == 144) {
        scCnt = 12;
        sgCnt = 12;
+       qualsNoEstimate *= 12; 
+       patsNoEstimate *= 12;
     }
     else {
        throw cms::Exception("BadConfig") << "Bad number of ppt requested: " << m_ppt << "\n";
     }
 
+
+    RPCPattern::RPCPatVec tempPats;
+    tempPats.reserve(patsNoEstimate);
+
+
+    RPCPattern::TQualityVec tempQuals;
+    tempQuals.reserve(qualsNoEstimate);
 
     for (int tower = 0; tower < RPCConst::m_TOWER_COUNT; ++tower) {
       for (int logSector = 0; logSector < scCnt; ++logSector) {
@@ -150,7 +163,8 @@ RPCTriggerConfig::produce(const L1RPCConfigRcd& iRecord)
 	    RPCPattern::RPCPatVec npats = parser.getPatternsVec(tower, logSector, logSegment);
             for (int ip=0; ip<npats.size(); ip++) {
               npats[ip].setCoords(tower,logSector,logSegment);
-              pL1RPCConfig->m_pats.push_back(npats[ip]);
+              //pL1RPCConfig->m_pats.push_back(npats[ip]);
+              tempPats.push_back(npats[ip]);
             }
 
             RPCPattern::TQualityVec nquals = parser.getQualityVec(); 
@@ -158,7 +172,8 @@ RPCTriggerConfig::produce(const L1RPCConfigRcd& iRecord)
               nquals[iq].m_tower=tower;
               nquals[iq].m_logsector=logSector;
               nquals[iq].m_logsegment=logSegment;
-              pL1RPCConfig->m_quals.push_back(nquals[iq]);
+              //pL1RPCConfig->m_quals.push_back(nquals[iq]);
+              tempQuals.push_back(nquals[iq]);
             }
 	    
 	    LogDebug("RPCTriggerConfig") 
@@ -172,6 +187,11 @@ RPCTriggerConfig::produce(const L1RPCConfigRcd& iRecord)
     } // towers
 
 
+   pL1RPCConfig->m_pats.reserve(tempPats.size());
+   pL1RPCConfig->m_pats.insert(pL1RPCConfig->m_pats.end(),tempPats.begin(),tempPats.end());
+
+   pL1RPCConfig->m_quals.reserve(tempQuals.size());
+   pL1RPCConfig->m_quals.insert(pL1RPCConfig->m_quals.end(),tempQuals.begin(),tempQuals.end());
 
    return pL1RPCConfig ;
 }

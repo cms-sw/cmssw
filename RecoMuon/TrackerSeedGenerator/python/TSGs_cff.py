@@ -52,7 +52,6 @@ TSGsBlock = cms.PSet(
         ),
         UpdateState = cms.bool(False),
         UseSecondMeasurements = cms.bool(False),
-        SelectState = cms.bool(True),
         MaxChi2 = cms.double(30.0),
         UseVertexState = cms.bool(True),
         Propagator = cms.string('SmartPropagatorAnyOpposite')
@@ -75,8 +74,7 @@ TSGsBlock = cms.PSet(
         errorMatrixPset = cms.PSet(
             MuonErrorMatrixValues,
             action = cms.string('use'),
-            atIP = cms.bool(True),
-            assignError = cms.bool(True)
+            atIP = cms.bool(True)
         ),
         propagatorName = cms.string('SteppingHelixPropagatorAlong'),
         manySeeds = cms.bool(False),
@@ -98,8 +96,7 @@ TSGsBlock = cms.PSet(
         errorMatrixPset = cms.PSet(
             MuonErrorMatrixValues,
             action = cms.string('use'),
-            atIP = cms.bool(True),
-            assignError = cms.bool(True)
+            atIP = cms.bool(True)
         ),
         propagatorName = cms.string('SteppingHelixPropagatorAlong'),
         manySeeds = cms.bool(False),

@@ -38,9 +38,8 @@ class TrackIPProducer : public edm::EDProducer {
     double  m_cutMaxDecayLen;
     double  m_cutMaxChiSquared;
     double  m_cutMaxLIP;
-    double  m_cutMaxDistToAxis;
-    bool  m_directionWithTracks;
-    bool  m_useTrackQuality;
+    double m_cutMaxDistToAxis;
+    bool m_directionWithTracks;
 };
 #endif
 

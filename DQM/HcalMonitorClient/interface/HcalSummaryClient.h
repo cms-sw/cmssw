@@ -5,8 +5,8 @@
  * \file HcalSummaryClient.h
  *
  * Code ported from DQM/EcalBarrelMonitorClient/interface/EBSummaryClient.h
- * $Date: 2008/07/01 20:22:45 $
- * $Revision: 1.9 $
+ * $Date: 2008/06/12 21:24:08 $
+ * $Revision: 1.6 $
  * \author Jeff Temple
  *
 */
@@ -57,8 +57,6 @@ class HcalSummaryClient : public HcalBaseClient {
 
   // Analyze
   void analyze(void);
-  float analyze_everything(std::string name, int type, float& subdet);
-
   float analyze_deadcell(std::string name, float& subdet); 
   float analyze_hotcell(std::string name, float& subdet);  
   float analyze_digi(std::string name, float& subdet);
@@ -97,7 +95,6 @@ class HcalSummaryClient : public HcalBaseClient {
 
 
   std::map<std::string, int> subdetCells_;
-  int totalcells_; // stores total possible # of cells being checked
 
   // Individual status values for each task by subdetector
   float status_digi[4];

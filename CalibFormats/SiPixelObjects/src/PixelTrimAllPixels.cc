@@ -20,88 +20,71 @@
 using namespace pos;
 
 PixelTrimAllPixels::PixelTrimAllPixels( std::vector <std::vector<std::string> >& tableMat):
-  PixelTrimBase("","","")
-{
+  PixelTrimBase("","",""){
+
+    //std::cout<<"Table Size:"<<tableMat.size()<<std::endl;
 
     std::stringstream currentRocName;
+    std::vector< std::string > ins = tableMat[0];
     std::map<std::string , int > colM;
     std::vector<std::string > colNames;
-    /**
-       View's name: CONF_KEY_ROC_TRIMS_MV
+    colNames.push_back("ROC_NAME");//0
+    colNames.push_back("TRIM_BLOB");//1
 
-       Name                                      Null?    Type
-       ----------------------------------------- -------- ----------------------------
-       CONFIG_KEY_ID                                      NUMBER(38)
-       CONFG_KEY                                          VARCHAR2(80)
-       VERSION                                            VARCHAR2(40)
-       KIND_OF_COND                                       VARCHAR2(40)
-       ROC_NAME                                           VARCHAR2(187)
-       HUB_ADDRS                                          NUMBER(38)
-       PORT_NUMBER                                        NUMBER(10)
-       ROC_I2C_ADDR                                       NUMBER
-       GEOM_ROC_NUM                                       NUMBER(10)
-       DATA_FILE                                          VARCHAR2(200)
-       TRIM_CLOB                                          CLOB
-    */
-
-    colNames.push_back("CONFIG_KEY_ID"  );
-    colNames.push_back("CONFG_KEY"	);
-    colNames.push_back("VERSION"	);
-    colNames.push_back("KIND_OF_COND"	);
-    colNames.push_back("ROC_NAME"	);
-    colNames.push_back("HUB_ADDRS"	);
-    colNames.push_back("PORT_NUMBER"	);
-    colNames.push_back("ROC_I2C_ADDR"   );
-    colNames.push_back("GEOM_ROC_NUM"   );
-    colNames.push_back("DATA_FILE"      );
-    colNames.push_back("TRIM_CLOB"      );
- 
-
-    for(unsigned int c = 0 ; c < tableMat[0].size() ; c++)
-      {
-	for(unsigned int n=0; n<colNames.size(); n++)
-	  {
-	    if(tableMat[0][c] == colNames[n])
-	      {
-		colM[colNames[n]] = c;
-		break;
-	      }
-	  }
-      }//end for
-    for(unsigned int n=0; n<colNames.size(); n++)
-      {
-      if(colM.find(colNames[n]) == colM.end())
-	{
-	  std::cerr << "[PixelTrimAllPixels::PixelTrimAllPixels()]\tCouldn't find in the database the column with name " << colNames[n] << std::endl;
-	  assert(0);
+    for(unsigned int c = 0 ; c < ins.size() ; c++){
+      for(unsigned int n=0; n<colNames.size(); n++){
+	if(tableMat[0][c] == colNames[n]){
+	  colM[colNames[n]] = c;
+	  break;
 	}
       }
-    
+    }//end for
+    for(unsigned int n=0; n<colNames.size(); n++){
+      if(colM.find(colNames[n]) == colM.end()){
+	std::cerr << "[PixelTrimAllPixels::PixelTrimAllPixels()]\tCouldn't find in the database the column with name " << colNames[n] << std::endl;
+	assert(0);
+      }
+    }
+ 
     //unsigned char *bits ;        /// supose to be " unsigned  char bits[tableMat[1][colM["TRIM_BLOB"]].size()] ;  "
     //char c[2080];
     std::string bits;
 	
-    for(unsigned int r = 1 ; r < tableMat.size() ; r++)    //Goes to every row of the Matrix
-      {
-	PixelROCName rocid( tableMat[r][colM["ROC_NAME"]] );
-	// tableMat[r][colM["TRIM_BLOB"]].copy(c , 2080 );
-	// unsigned char *bits = (unsigned char* )(tableMat[r][colM["TRIM_BLOB"]].c_str());
-	//bits = (unsigned char)(tableMat[r][colM["TRIM_BLOB"]].c_str());
-	PixelROCTrimBits tmp;     // Have to add like this  PixelROCTrimBits tmp(rocid , bits ); 
-	std::istringstream istring ;
-	istring.str(tableMat[r][colM["TRIM_CLOB"]]) ;
-	tmp.read(rocid, istring) ;
-// 	bits = tableMat[r][colM["TRIM_CLOB"]];
-	//std::cout<<rocid<<std::endl;
-	// std::cout<<bits.size()<<std::endl;
-// 	tmp.setROCTrimBits(rocid, bits);
-	trimbits_.push_back(tmp);
-	//std::cout<<"Pase por aqui:"<<r<<std::endl;
-	// dacValue = atoi(tableMat[r][colM["VALUE"]].c_str());
-	// pDSM.insert(pair<string,pair<string,int> >(currentRocName.str(),pair<string,int>(dacName,dacValue)));
-      }//end for r 
+    for(unsigned int r = 1 ; r < tableMat.size() ; r++){    //Goes to every row of the Matrix
+      currentRocName.str("");
+      currentRocName <<tableMat[r][colM[colNames[0]]] ;                 
+		 
+      PixelROCName rocid(currentRocName.str());
+		 
+      // tableMat[r][colM["TRIM_BLOB"]].copy(c , 2080 );
+		 
+      // unsigned char *bits = (unsigned char* )(tableMat[r][colM["TRIM_BLOB"]].c_str());
+		
+      //bits = (unsigned char)(tableMat[r][colM["TRIM_BLOB"]].c_str());
+		 
+		 
+      PixelROCTrimBits tmp;     // Have to add like this  PixelROCTrimBits tmp(rocid , bits ); 
+		 
+      bits = tableMat[r][colM[colNames[1]]];
+      //std::cout<<rocid<<std::endl;
+      // std::cout<<bits.size()<<std::endl;
+		 
+      tmp.setROCTrimBits(rocid, bits);
+		 
+      trimbits_.push_back(tmp);
+		  
+		  
+      //std::cout<<"Pase por aqui:"<<r<<std::endl;
+		  
+      // dacValue = atoi(tableMat[r][colM["VALUE"]].c_str());
+ 
+      // pDSM.insert(pair<string,pair<string,int> >(currentRocName.str(),pair<string,int>(dacName,dacValue)));
+  
+    }//end for r 
+
     //std::cout<<trimbits_.size()<<std::endl;
-} //end contructor with databasa table
+
+  }//end vector contructor
 
  
 PixelTrimAllPixels::PixelTrimAllPixels(std::string filename):

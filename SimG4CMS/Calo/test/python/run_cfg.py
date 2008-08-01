@@ -7,7 +7,7 @@ process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
 
 process.load("Geometry.CMSCommonData.ecalhcalGeometryXML_cfi")
 
-process.load("MagneticField.Engine.volumeBasedMagneticField_cfi")
+process.load("Configuration.StandardSequences.MagneticField_cff")
 
 process.load("Configuration.EventContent.EventContent_cff")
 
@@ -74,7 +74,7 @@ process.o1 = cms.OutputModule("PoolOutputModule",
 process.p1 = cms.Path(process.VtxSmeared*process.g4SimHits)
 process.outpath = cms.EndPath(process.o1)
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/DummyPhysics'
-process.g4SimHits.Physics.DummyEMPhysics = true
+process.g4SimHits.Physics.DummyEMPhysics = True
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     CheckForHighEtPhotons = cms.untracked.bool(False),
     TrackMin = cms.untracked.int32(0),

@@ -8,7 +8,7 @@
  *
  * \author Slava Valuev
  * Created: Thu Apr 12 11:26:54 CEST 2007
- * $Id: L1CSCTriggerPrimitivesConfigProducer.h,v 1.4 2008/07/06 05:24:25 wsun Exp $
+ * $Id: L1CSCTriggerPrimitivesConfigProducer.h,v 1.2 2007/08/15 12:46:01 slava Exp $
  *
  */
 
@@ -20,8 +20,8 @@
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 
-class CSCL1TPParameters;
-class CSCL1TPParametersRcd;
+class L1CSCTPParameters;
+class L1CSCTPParametersRcd;
 
 class L1CSCTriggerPrimitivesConfigProducer : public edm::ESProducer {
  public:
@@ -30,14 +30,13 @@ class L1CSCTriggerPrimitivesConfigProducer : public edm::ESProducer {
 
   //typedef boost::shared_ptr<L1CSCTriggerPrimitivesConfigProducer> ReturnType;
 
-  std::auto_ptr<CSCL1TPParameters> produce(const CSCL1TPParametersRcd&);
+  std::auto_ptr<L1CSCTPParameters> produce(const L1CSCTPParametersRcd&);
 
  private:
   /** ALCT configuration parameters. */
   unsigned int m_alct_fifo_tbins, m_alct_fifo_pretrig;
   unsigned int m_alct_bx_width,   m_alct_drift_delay;
   unsigned int m_alct_nph_thresh, m_alct_nph_pattern;
-  unsigned int m_alct_acc_thresh, m_alct_acc_pattern;
   unsigned int m_alct_trig_mode,  m_alct_alct_amode, m_alct_l1a_window;
 
   /** CLCT configuration parameters. */

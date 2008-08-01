@@ -6,7 +6,7 @@
  *
  *  DQM histogram post processor
  *
- *  $Date: 2008/05/27 14:12:35 $
+ *  $Date: 2008/05/27 23:07:22 $
  *  $Revision: 1.1 $
  *
  *  \author Junghwan Goh - SungKyunKwan University
@@ -18,11 +18,8 @@
 
 #include <string>
 #include <vector>
-#include <boost/tokenizer.hpp>
 
 class DQMStore;
-
-typedef boost::escaped_list_separator<char> elsc;
 
 class PostProcessor : public edm::EDAnalyzer
 {
@@ -33,15 +30,10 @@ class PostProcessor : public edm::EDAnalyzer
   void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) {};
   void endJob();
 
-  void computeEfficiency(const std::string&, 
-			 const std::string& efficMEName, const std::string& efficMETitle,
+  void computeEfficiency(const std::string& efficMEName, const std::string& efficMETitle,
                          const std::string& recoMEName, const std::string& simMEName);
-  void computeResolution(const std::string &, 
-			 const std::string& fitMEPrefix, const std::string& fitMETItlePrefix, 
+  void computeResolution(const std::string& fitMEPrefix, const std::string& fitMETItlePrefix, 
                          const std::string& srcMEName);
-
- private:
-  void processLoop( const std::string& dir, std::vector<boost::tokenizer<elsc>::value_type> args) ;
 
  private:
   DQMStore* theDQM;

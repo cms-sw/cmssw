@@ -31,9 +31,8 @@ class L1RCTProducer : public edm::EDProducer
   bool useHcal;
   edm::InputTag ecalDigisLabel;
   edm::InputTag hcalDigisLabel;
-  //std::string ecalESLabel;
-  //std::string hcalESLabel;
-  bool useDebugTpgScales;
+  std::string ecalESLabel;
+  std::string hcalESLabel;
   bool useHcalCosmicTiming;
   bool useEcalCosmicTiming;
   unsigned preSamples;

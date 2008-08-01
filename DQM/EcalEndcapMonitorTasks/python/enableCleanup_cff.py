@@ -14,8 +14,6 @@ from DQM.EcalEndcapMonitorTasks.EEStatusFlagsTask_cfi import *
 from DQM.EcalEndcapMonitorTasks.EETestPulseTask_cfi import *
 from DQM.EcalEndcapMonitorTasks.EETimingTask_cfi import *
 from DQM.EcalEndcapMonitorTasks.EETriggerTowerTask_cfi import *
-from DQM.EcalEndcapMonitorTasks.EESelectiveReadoutTask_cfi import *
-from DQM.EcalEndcapMonitorTasks.EERawDataTask_cfi import *
 
 ecalEndcapOccupancyTask.enableCleanup = True
 ecalEndcapIntegrityTask.enableCleanup = True
@@ -37,5 +35,3 @@ ecalEndcapBeamCaloTask.enableCleanup = True
 
 ecalEndcapClusterTask.enableCleanup = True
 
-ecalEndcapSelectiveReadoutTask.enableCleanup = True
-ecalEndcapRawDataTask.enableCleanup = True

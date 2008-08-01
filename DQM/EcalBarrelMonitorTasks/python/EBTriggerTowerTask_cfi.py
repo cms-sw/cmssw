@@ -6,6 +6,6 @@ ecalBarrelTriggerTowerTask = cms.EDFilter("EBTriggerTowerTask",
     mergeRuns = cms.untracked.bool(False),    
     OutputRootFile = cms.untracked.string(''),
     EcalTrigPrimDigiCollectionReal = cms.InputTag("ecalEBunpacker","EcalTriggerPrimitives"),
-    EcalTrigPrimDigiCollectionEmul = cms.InputTag("simEcalTriggerPrimitiveDigis")
+    EcalTrigPrimDigiCollectionEmul = cms.InputTag("ecalTriggerPrimitiveDigis")
 )
 

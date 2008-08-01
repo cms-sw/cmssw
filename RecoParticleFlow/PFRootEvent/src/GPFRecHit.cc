@@ -8,7 +8,7 @@
 
 //________________________________________________________________________
 GPFRecHit::GPFRecHit(DisplayManager * display,int view,int ident,
-		     reco::PFRecHit *rechit,int size,
+                     reco::PFRecHit *rechit,int size,
                      double *x, double *y, int color, std::string option)
   : GPFBase(display,view,ident, color),
     TGraph(size,x,y),
@@ -69,10 +69,10 @@ void GPFRecHit::setColor()
 //_________________________________________________________________________
 void GPFRecHit::setNewSize() 
 {
- //not implemented
+  //not implemented
 }
 //_________________________________________________________________________
 void GPFRecHit::setNewStyle()
 {
- //not implemented
+  //not implemented
 }

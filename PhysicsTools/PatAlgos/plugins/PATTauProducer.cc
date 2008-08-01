@@ -1,5 +1,5 @@
 //
-// $Id: PATTauProducer.cc,v 1.11 2008/06/24 22:58:24 gpetrucc Exp $
+// $Id: PATTauProducer.cc,v 1.12 2008/07/08 21:24:51 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATTauProducer.h"
@@ -8,8 +8,6 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Common/interface/Association.h"
-
-#include "PhysicsTools/Utilities/interface/DeltaR.h"
 
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauDiscriminatorByIsolation.h"

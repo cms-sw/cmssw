@@ -29,6 +29,11 @@
 <use name=root>
 <flags EDM_PLUGIN=1>
 </library>
+<library file=MuonGeometryIntoNtuples.cc>
+<use name=CLHEP>
+<use name=root>
+<flags EDM_PLUGIN=1>
+</library>
 <library file=TrackerGeometryCompare.cc>
 <use name=CLHEP>
 <use name=root>

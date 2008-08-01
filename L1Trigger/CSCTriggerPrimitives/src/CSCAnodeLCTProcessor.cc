@@ -20,8 +20,8 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Date: 2008/07/06 05:17:00 $
-//   $Revision: 1.24 $
+//   $Date: 2008/05/02 16:21:35 $
+//   $Revision: 1.21 $
 //
 //   Modifications: 
 //
@@ -144,8 +144,6 @@ CSCAnodeLCTProcessor::CSCAnodeLCTProcessor(unsigned endcap, unsigned station,
   drift_delay  = conf.getParameter<unsigned int>("alctDriftDelay"); // def = 3
   nph_thresh   = conf.getParameter<unsigned int>("alctNphThresh");  // def = 2
   nph_pattern  = conf.getParameter<unsigned int>("alctNphPattern"); // def = 4
-  acc_thresh   = conf.getParameter<unsigned int>("alctAccThresh");  // def = 2
-  acc_pattern  = conf.getParameter<unsigned int>("alctAccPattern"); // def = 4
   trig_mode    = conf.getParameter<unsigned int>("alctTrigMode");   // def = 3
   alct_amode   = conf.getParameter<unsigned int>("alctMode");       // def = 1
   l1a_window   = conf.getParameter<unsigned int>("alctL1aWindow");  // def = 5
@@ -171,7 +169,7 @@ CSCAnodeLCTProcessor::CSCAnodeLCTProcessor(unsigned endcap, unsigned station,
   // Load appropriate pattern mask.
   for (int i_patt = 0; i_patt < CSCConstants::NUM_ALCT_PATTERNS; i_patt++) {
     for (int i_wire = 0; i_wire < NUM_PATTERN_WIRES; i_wire++) {
-      if (isMTCC || isTMB07) {
+      if (isMTCC) {
 	pattern_mask[i_patt][i_wire] = pattern_mask_MTCC[i_patt][i_wire];
       }
       else {
@@ -212,15 +210,13 @@ void CSCAnodeLCTProcessor::setDefaultConfigParameters() {
   drift_delay  =  3;
   nph_thresh   =  2;
   nph_pattern  =  4;
-  acc_thresh   =  2;
-  acc_pattern  =  4;
   trig_mode    =  3;
   alct_amode   =  1;
   l1a_window   =  5;  
 }
 
 // Set configuration parameters obtained via EventSetup mechanism.
-void CSCAnodeLCTProcessor::setConfigParameters(const CSCL1TPParameters* conf) {
+void CSCAnodeLCTProcessor::setConfigParameters(const L1CSCTPParameters* conf) {
   static bool config_dumped = false;
 
   fifo_tbins   = conf->alctFifoTbins();
@@ -229,8 +225,6 @@ void CSCAnodeLCTProcessor::setConfigParameters(const CSCL1TPParameters* conf) {
   drift_delay  = conf->alctDriftDelay();
   nph_thresh   = conf->alctNphThresh();
   nph_pattern  = conf->alctNphPattern();
-  acc_thresh   = conf->alctAccThresh();
-  acc_pattern  = conf->alctAccPattern();
   trig_mode    = conf->alctTrigMode();
   alct_amode   = conf->alctAlctAmode();
   l1a_window   = conf->alctL1aWindow();
@@ -253,8 +247,6 @@ void CSCAnodeLCTProcessor::checkConfigParameters() const {
   static const unsigned int max_drift_delay  = 1 << 2;
   static const unsigned int max_nph_thresh   = 1 << 3;
   static const unsigned int max_nph_pattern  = 1 << 3;
-  static const unsigned int max_acc_thresh   = 1 << 3;
-  static const unsigned int max_acc_pattern  = 1 << 3;
   static const unsigned int max_trig_mode    = 1 << 2;
   static const unsigned int max_alct_amode   = 1 << 2;
   static const unsigned int max_l1a_window   = MAX_ALCT_BINS; // 4 bits
@@ -289,16 +281,6 @@ void CSCAnodeLCTProcessor::checkConfigParameters() const {
     throw cms::Exception("CSCAnodeLCTProcessor")
       << "+++ Value of nph_pattern, " << nph_pattern
       << ", exceeds max allowed, " << max_nph_pattern-1 << " +++\n";
-  }
-  if (acc_thresh >= max_acc_thresh) {
-    throw cms::Exception("CSCAnodeLCTProcessor")
-      << "+++ Value of acc_thresh, " << acc_thresh
-      << ", exceeds max allowed, " << max_acc_thresh-1 << " +++\n";
-  }
-  if (acc_pattern >= max_acc_pattern) {
-    throw cms::Exception("CSCAnodeLCTProcessor")
-      << "+++ Value of acc_pattern, " << acc_pattern
-      << ", exceeds max allowed, " << max_acc_pattern-1 << " +++\n";
   }
   if (trig_mode >= max_trig_mode) {
     throw cms::Exception("CSCAnodeLCTProcessor")
@@ -584,9 +566,6 @@ bool CSCAnodeLCTProcessor::preTrigger(const int key_wire) {
   unsigned int layers_hit;
   bool hit_layer[CSCConstants::NUM_LAYERS];
   int this_layer, this_wire;
-  const unsigned int pretrig_thresh[CSCConstants::NUM_ALCT_PATTERNS] = {
-    acc_thresh, nph_thresh, nph_thresh
-  };
 
   // Loop over bx times, accelerator and collision patterns to 
   // look for pretrigger.
@@ -611,7 +590,7 @@ bool CSCAnodeLCTProcessor::preTrigger(const int key_wire) {
 
 	      // See if number of layers hit is greater than or equal to
 	      // nph_thresh.
-	      if (layers_hit >= pretrig_thresh[i_pattern]) {
+	      if (layers_hit >= nph_thresh) {
 		first_bx[key_wire] = bx_time;
 		if (infoV > 1) {
 		  LogTrace("CSCAnodeLCTProcessor")
@@ -640,9 +619,6 @@ bool CSCAnodeLCTProcessor::patternDetection(const int key_wire) {
   bool hit_layer[CSCConstants::NUM_LAYERS];
   unsigned int temp_quality;
   int this_layer, this_wire;
-  const unsigned int pattern_thresh[CSCConstants::NUM_ALCT_PATTERNS] = {
-    acc_pattern, nph_pattern, nph_pattern
-  };
   const std::string ptn_label[] = {"Accelerator", "CollisionA", "CollisionB"};
 
   for (int i_pattern = 0; i_pattern < CSCConstants::NUM_ALCT_PATTERNS; i_pattern++){
@@ -678,21 +654,11 @@ bool CSCAnodeLCTProcessor::patternDetection(const int key_wire) {
 	}
       }
     }
-    if (temp_quality >= pattern_thresh[i_pattern]) {
+    if (temp_quality >= nph_pattern) {
       trigger = true;
-
-      if (!isTMB07) {
-	// Quality reported by the pattern detector is defined as the number
-	// of the layers hit in a pattern minus (nph_pattern-1) value.
-	temp_quality -= (pattern_thresh[i_pattern]-1);
-      }
-      else {
-	// Quality definition changed on 22 June 2007: it no longer depends
-	// on nph_pattern.
-	if (temp_quality > 3) temp_quality -= 3;
-	else                  temp_quality  = 0; // quality code 0 is valid!
-      }
-
+      // Quality reported by the pattern detector is defined as the number
+      // of the layers hit in a pattern minus (nph_pattern-1) value
+      temp_quality -= (nph_pattern-1);
       if (i_pattern == 0) {
 	// Accelerator pattern
 	quality[key_wire][0] = temp_quality;
@@ -757,10 +723,8 @@ void CSCAnodeLCTProcessor::ghostCancellationLogic() {
 	  else if (dt > 0 && dt <= 4) {
 	    // Next "if" check accounts for firmware bug and should be
 	    // removed once the next firmware version is used.
-	    // The bug is fixed in 5/5/2008 version of ALCT firmware,
-	    // which is used in all chambers starting with 26/05/2008.
-	    ////if (qual_prev >= qual_this)
-	    ghost_cleared[key_wire][i_pattern] = 1;
+	    if (qual_prev >= qual_this)
+	      ghost_cleared[key_wire][i_pattern] = 1;
 	  }
 	}
 
@@ -785,10 +749,8 @@ void CSCAnodeLCTProcessor::ghostCancellationLogic() {
 	  else if (dt > 0 && dt <= 4) {
 	    // Next "if" check accounts for firmware bug and should be
 	    // removed once the next firmware version is used.
-	    // The bug is fixed in 5/5/2008 version of ALCT firmware,
-	    // which is used in all chambers starting with 26/05/2008.
-	    ////if (qual_next > qual_this)
-	    ghost_cleared[key_wire][i_pattern] = 1;
+	    if (qual_next > qual_this)
+	      ghost_cleared[key_wire][i_pattern] = 1;
 	  }
 	}
 	if (ghost_cleared[key_wire][i_pattern] == 1) {
@@ -1195,10 +1157,6 @@ void CSCAnodeLCTProcessor::dumpConfigParams() const {
        << nph_thresh << "\n";
   strm << " nph_pattern  [min. number of layers hit for trigger] = "
        << nph_pattern << "\n";
-  strm << " acc_thresh   [min. number of layers hit for accel. pre-trigger] = "
-       << acc_thresh << "\n";
-  strm << " acc_pattern  [min. number of layers hit for accel. trigger] = "
-       << acc_pattern << "\n";
   strm << " trig_mode    [enabling/disabling collision/accelerator tracks] = "
        << trig_mode << "\n";
   strm << " alct_amode   [preference to collision/accelerator tracks] = "

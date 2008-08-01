@@ -6,7 +6,7 @@ EDMtoMEConverter = cms.EDFilter("EDMtoMEConverter",
                                         # 1 provides basic output
     Frequency = cms.untracked.int32(50),
     convertOnEndLumi = cms.untracked.bool(False),
-    convertOnEndRun = cms.untracked.bool(False),
+    convertOnEndRun = cms.untracked.bool(True),
     prescaleFactor = cms.untracked.int32(1)
 )
 

@@ -1,7 +1,7 @@
 <use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=Geometry/DTGeometry>
-<use name=L1TriggerConfig/DTTPGConfig>
+<use name=CondFormats/L1TObjects>
 <use name=CLHEP>
 <use name=root>
 <use name=rootrflx>
@@ -13,6 +13,6 @@
    <use name=FWCore/ParameterSet>
    <use name=Geometry/Records>
    <use name=Geometry/DTGeometry>
-   <use name=L1TriggerConfig/DTTPGConfig>
+   <use name=CondFormats/L1TObjects>
 
 </export>

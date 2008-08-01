@@ -30,6 +30,7 @@ void BlockFormatter::SetParam(EcalDigiToRaw* base) {
  prunnumber_ = (base -> GetRunNumber());
  doBarrel_ = base -> GetDoBarrel();
  doEndCap_ = base -> GetDoEndCap();
+ plistDCCId_ = base -> GetListDCCId();
  doTCC_ = base -> GetDoTCC();
  doSR_ = base -> GetDoSR();
  doTower_ = base -> GetDoTower();
@@ -131,11 +132,17 @@ void BlockFormatter::CleanUp(FEDRawDataCollection* productRawData,
         if ( (! doBarrel_) && (id >= 9 && id <= 44)) continue;
         if ( (! doEndCap_) && (id <= 8 || id >= 45)) continue;
 
-
         int FEDid = EcalFEDIds.first + id +1;
         FEDRawData& rawdata = productRawData -> FEDData(FEDid);
 
-	// ---- Add the trailer word
+        // ---- if raw need not be made for a given fed, set its size to empty and return 
+        if ( find( (*plistDCCId_).begin(), (*plistDCCId_).end(), (id+1) ) == (*plistDCCId_).end() )
+        {
+            rawdata.resize( 0 );
+            continue;
+        }
+
+        // ---- Add the trailer word
 	int lastline = rawdata.size();
 	rawdata.resize( lastline + 8);
 	unsigned char * pData = rawdata.data(); 

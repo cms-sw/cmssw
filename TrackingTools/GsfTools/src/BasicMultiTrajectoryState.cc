@@ -8,6 +8,7 @@ using namespace SurfaceSideDefinition;
 BasicMultiTrajectoryState::BasicMultiTrajectoryState( const std::vector<TSOS>& tsvec) :
   theCombinedStateUp2Date( false)
 {
+  theStates.reserve(tsvec.size());
   for (std::vector<TSOS>::const_iterator i=tsvec.begin(); i!=tsvec.end(); i++) {
     if (!i->isValid()) {
       throw cms::Exception("LogicError") << "MultiTrajectoryState constructed with invalid state";

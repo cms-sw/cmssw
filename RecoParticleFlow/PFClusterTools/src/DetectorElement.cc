@@ -21,9 +21,6 @@ void DetectorElement::setCalibCore(double calib) throw(PFToolsException&){
 }
 
 double DetectorElement::getCalibCore() const {
-	if(myType == OFFSET && myCalib == 1) {
-		return 1.0;
-	}
 	return myCalib;
 }
 

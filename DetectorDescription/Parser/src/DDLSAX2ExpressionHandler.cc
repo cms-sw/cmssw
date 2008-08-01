@@ -24,6 +24,8 @@
 #include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
 
 // Xerces C++ dependencies
+#include <xercesc/sax2/Attributes.hpp>
+#include <xercesc/sax/SAXParseException.hpp>
 #include <xercesc/sax/SAXException.hpp>
 
 // Seal timer

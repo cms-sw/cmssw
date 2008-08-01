@@ -2,8 +2,8 @@
 
 /** \class TSGFromPropagation
  *
- *  $Date: 2008/05/21 19:01:01 $
- *  $Revision: 1.28 $
+ *  $Date: 2008/05/11 00:55:13 $
+ *  $Revision: 1.26 $
  *  \author Chang Liu - Purdue University 
  */
 
@@ -101,7 +101,7 @@ void TSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const TrackingRe
        for (std::vector<TrajectoryMeasurement>::const_iterator itm = alltm.begin();
             itm != alltm.end(); itm++, i++) {
             TrajectoryStateOnSurface updatedTSOS = updator()->update(itm->predictedState(), *(itm->recHit()));
-            if ( updatedTSOS.isValid() && passSelection(updatedTSOS) )  {
+            if ( updatedTSOS.isValid() )  {
                edm::OwnVector<TrackingRecHit> container;
                container.push_back(itm->recHit()->hit()->clone());
                TrajectorySeed ts = createSeed(updatedTSOS, container, itm->recHit()->geographicalId());
@@ -152,8 +152,6 @@ void TSGFromPropagation::init(const MuonServiceProxy* service) {
   theUpdateStateFlag = theConfig.getParameter<bool>("UpdateState");
 
   theUseSecondMeasurementsFlag = theConfig.getParameter<bool>("UseSecondMeasurements");
-
-  theSelectStateFlag = theConfig.getParameter<bool>("SelectState");
 
   theUpdator = new KFUpdator();
 
@@ -302,13 +300,10 @@ void TSGFromPropagation::findSecondMeasurements(std::vector<TrajectoryMeasuremen
 }
 
 bool TSGFromPropagation::passSelection(const TrajectoryStateOnSurface& tsos) const {
-  if ( !theSelectStateFlag ) return true;
-  else {
-     double theSigmaZ = 22;
-     return ( (zDis(tsos) < theSigmaZ) ); 
-  }
-//  double theDxyCut = 100;
-//  return ( (zDis(tsos) < theSigmaZ) && (dxyDis(tsos) < theDxyCut) );
+
+  double theSigmaZ = 20;
+  double theDxyCut = 100;
+  return ( (zDis(tsos) < theSigmaZ) && (dxyDis(tsos) < theDxyCut) );
 
 }
 

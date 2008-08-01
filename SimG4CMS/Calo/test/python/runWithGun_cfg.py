@@ -9,7 +9,7 @@ process.load("Geometry.CMSCommonData.cmsSimIdealGeometryXML_cfi")
 
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 
-process.load("MagneticField.Engine.volumeBasedMagneticField_cfi")
+process.load("Configuration.StandardSequences.MagneticField_cff")
 
 process.load("Configuration.EventContent.EventContent_cff")
 

@@ -1,9 +1,0 @@
-<?xml version='1.0' encoding="UTF-8"?>
-<!DOCTYPE PoolDatabase SYSTEM "InMemory">
- <PoolDatabase >
-  <PoolContainer name="L1MuDTQualPatternLutRcd" >
-   <Class table="L1MUDTQUALPATTERNLUT" id_columns="ID" name="L1MuDTQualPatternLut" mapping_version="L1MuDTQualPatternLut_basic" >
-     <Blob column="L1MUDTQUALPATTERNL_1_BLOB" name="m_lut" />
-   </Class >
-  </PoolContainer >
- </PoolDatabase >

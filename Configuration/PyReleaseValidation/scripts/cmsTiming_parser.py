@@ -51,6 +51,10 @@ def manipulate_log(outdir,logfile_name,secsperbin):
     sys.argv=sys.argv[:1]
     ROOT.gROOT.SetStyle("Plain") # style paranoia
     sys.argv=__argv
+    #Cannot use this option when the logfile includes
+    #a large number of events... PyRoot seg-faults.
+    #Set ROOT in batch mode to avoid canvases popping up!
+    ROOT.gROOT.SetBatch(1)
 
     # Save in file
     rootfilename='%s/graphs.root' %outdir

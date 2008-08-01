@@ -6,10 +6,11 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
+
 /** \class HcalDeadCellMonitor
   *  
-  * $Date: 2008/07/01 00:06:08 $
-  * $Revision: 1.12 $
+  * $Date: 2008/06/04 01:18:40 $
+  * $Revision: 1.10 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -85,14 +86,12 @@ class HcalDeadCellMonitor: public HcalBaseMonitor {
 			 const HFRecHitCollection& hfHits);
   void setupHists(DeadCellHists& hist,  DQMStore* dbe);
   void reset_Nevents(DeadCellHists& h);
-  void fill_Nevents(DeadCellHists& hcal, DeadCellHists& hb, DeadCellHists& he, DeadCellHists& ho, DeadCellHists& hf);
   void reset();
 
 
  private:  ///Methods
   
    bool debug_;
-
    bool doFCpeds_; // true if ped values are in FC; otherwise, assume peds in ADC counts
 
    int ievt_;

@@ -19,7 +19,7 @@ class AlignmentPositionError {
 
   ~AlignmentPositionError(){};
   
-  GlobalError globalError() const { return theGlobalError; };
+  const GlobalError & globalError() const { return theGlobalError; };
 
   AlignmentPositionError operator+ (const AlignmentPositionError& ape) const {
     return AlignmentPositionError ( this->globalError() + ape.globalError());

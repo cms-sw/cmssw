@@ -2,6 +2,7 @@
 
 #include "DataFormats/Common/interface/OrphanHandle.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
+#include "DataFormats/Common/interface/RefToPtr.h"
 
 #include "DataFormats/Math/interface/Point3D.h"
 
@@ -68,10 +69,10 @@ PFRootEventManager::PFRootEventManager(const char* file)
   //   iEvent_=0;
   h_deltaETvisible_MCEHT_ 
     = new TH1F("h_deltaETvisible_MCEHT","Jet Et difference CaloTowers-MC"
-	       ,100,-100,100);
+               ,100,-100,100);
   h_deltaETvisible_MCPF_  
     = new TH1F("h_deltaETvisible_MCPF" ,"Jet Et difference ParticleFlow-MC"
-	       ,100,-100,100);
+               ,100,-100,100);
 
   readOptions(file, true, true);
  
@@ -146,7 +147,7 @@ void PFRootEventManager::readOptions(const char* file,
       // cout<<"don't do tree"<<endl;
     }
   }
-// PFJet benchmark options and output jetfile to be open before input file!!!--
+  // PFJet benchmark options and output jetfile to be open before input file!!!--
 
   doPFJetBenchmark_ = false;
   options_->GetOpt("pfjet_benchmark", "on/off", doPFJetBenchmark_);
@@ -154,7 +155,7 @@ void PFRootEventManager::readOptions(const char* file,
   if (doPFJetBenchmark_) {
     string outjetfilename;
     options_->GetOpt("pfjet_benchmark", "outjetfile", outjetfilename);
-	
+        
     bool pfjBenchmarkDebug;
     options_->GetOpt("pfjet_benchmark", "debug", pfjBenchmarkDebug);
     
@@ -165,10 +166,10 @@ void PFRootEventManager::readOptions(const char* file,
     options_->GetOpt("pfjet_benchmark", "deltaRMax", deltaRMax);
 
 
-          PFJetBenchmark_.setup( outjetfilename, 
-      			   pfjBenchmarkDebug,
-      			   PlotAgainstReco,
-     			   deltaRMax );
+    PFJetBenchmark_.setup( outjetfilename, 
+                           pfjBenchmarkDebug,
+                           PlotAgainstReco,
+                           deltaRMax );
   }
 
 
@@ -480,13 +481,13 @@ void PFRootEventManager::readOptions(const char* file,
 
   shared_ptr<PFEnergyCalibration> 
     calibration( new PFEnergyCalibration( e_slope,
-					  e_offset, 
-					  eh_eslope,
-					  eh_hslope,
-					  eh_offset,
-					  h_slope,
-					  h_offset,
-					  h_damping ) );
+                                          e_offset, 
+                                          eh_eslope,
+                                          eh_hslope,
+                                          eh_offset,
+                                          h_slope,
+                                          h_offset,
+                                          h_damping ) );
 
 
   double nSigmaECAL = 99999;
@@ -511,11 +512,11 @@ void PFRootEventManager::readOptions(const char* file,
   options_->GetOpt("particle_flow", "mergedPhotons_PSCut", PSCut);
 
   try {
-//     pfAlgo_.setParameters( eCalibP0, eCalibP1, nSigmaECAL, nSigmaHCAL,
-//                            PSCut, mvaCut, mvaWeightFile.c_str() );
+    //     pfAlgo_.setParameters( eCalibP0, eCalibP1, nSigmaECAL, nSigmaHCAL,
+    //                            PSCut, mvaCut, mvaWeightFile.c_str() );
     pfAlgo_.setParameters( nSigmaECAL, nSigmaHCAL, 
-			   calibration,
-			   clusterRecoveryAlgo,
+                           calibration,
+                           clusterRecoveryAlgo,
                            PSCut, mvaCut, mvaWeightFile.c_str() );
   }
   catch( std::exception& err ) {
@@ -836,34 +837,18 @@ void PFRootEventManager::connect( const char* infilename ) {
   
   // GenParticlesCand   
   string genParticleCandBranchName;
-  genParticleforJetsBranch_ = 0;
+  genParticlesforJetsBranch_ = 0;
   options_->GetOpt("root","genParticleforJets_branch", 
-		   genParticleCandBranchName);
+                   genParticleCandBranchName);
   if(!genParticleCandBranchName.empty() ){  
-    genParticleforJetsBranch_= 
+    genParticlesforJetsBranch_= 
       tree_->GetBranch(genParticleCandBranchName.c_str()); 
-    if(!genParticleforJetsBranch_) {
+    if(!genParticlesforJetsBranch_) {
       cerr<<"PFRootEventanager::ReadOptions : "
-	  <<"genParticleBaseCandidates_branch not found : "
+          <<"genParticleforJets_branch not found : "
           <<genParticleCandBranchName<< endl;
     }  
   }
-       
-  // calo tower base candidates 
-  string caloTowerCandBranchName;
-  caloTowerBaseCandidatesBranch_ = 0;
-  options_->GetOpt("root","caloTowerBaseCandidates_branch", 
-		   caloTowerCandBranchName);
-  if(!caloTowerCandBranchName.empty() ){  
-    caloTowerBaseCandidatesBranch_= 
-      tree_->GetBranch(caloTowerCandBranchName.c_str()); 
-    if(!caloTowerBaseCandidatesBranch_) {
-      cerr<<"PFRootEventanager::ReadOptions : "
-	  <<"caloTowerBaseCandidates_branch not found : "
-          <<caloTowerCandBranchName<< endl;
-    }  
-  }
-
       
   string genJetBranchName; 
   options_->GetOpt("root","genJetBranchName", genJetBranchName);
@@ -893,7 +878,7 @@ void PFRootEventManager::connect( const char* infilename ) {
           <<recPFBranchName<< endl;
     }
   }
- setAddresses();
+  setAddresses();
 
 }
 
@@ -916,11 +901,11 @@ void PFRootEventManager::setAddresses() {
     MCTruthBranch_->SetAddress(&MCTruth_);
   }
   if( caloTowersBranch_ ) caloTowersBranch_->SetAddress(&caloTowers_);
-  if( genParticleforJetsBranch_ ) 
-    genParticleforJetsBranch_->SetAddress(&genParticleRef_);
-  if( caloTowerBaseCandidatesBranch_ ) {
-    caloTowerBaseCandidatesBranch_->SetAddress(&caloTowerBaseCandidates_);
-  }
+  if( genParticlesforJetsBranch_ ) 
+    genParticlesforJetsBranch_->SetAddress(&genParticlesforJets_);
+//   if( caloTowerBaseCandidatesBranch_ ) {
+//     caloTowerBaseCandidatesBranch_->SetAddress(&caloTowerBaseCandidates_);
+//   }
   if (genJetBranch_) genJetBranch_->SetAddress(&genJetsCMSSW_);
   if (recCaloBranch_) recCaloBranch_->SetAddress(&caloJetsCMSSW_);
   if (recPFBranch_) recPFBranch_->SetAddress(&pfJetsCMSSW_); 
@@ -937,16 +922,13 @@ PFRootEventManager::~PFRootEventManager() {
 
 
   delete options_;
-  
-  //   delete energyCalibration_;
-  //   PFBlock::setEnergyCalibration(NULL);
-  //   delete energyResolution_;
-  //   PFBlock::setEnergyResolution(NULL);
 }
 
 
 void PFRootEventManager::write() {
-  // if(doPFJetBenchmark_) PFJetBenchmark_.write();
+
+  if(doPFJetBenchmark_) PFJetBenchmark_.write();
+
   if(!outFile_) return;
   else {
     outFile_->cd(); 
@@ -1006,47 +988,47 @@ bool PFRootEventManager::processEntry(int entry) {
     reconstructCaloJets();
     reconstructPFJets();
   }    
-	
+        
   // call print() in verbose mode
   if( verbosity_ == VERBOSE ) print();
   
   // evaluate PFJet Benchmark 
   
-	if(doPFJetBenchmark_) { // start PFJet Benchmark
+  if(doPFJetBenchmark_) { // start PFJet Benchmark
 
-	  
-	    	PFJetBenchmark_.process(pfJets_, genJets_);
-	    	double resPt = PFJetBenchmark_.resPtMax();
-	    	double resChargedHadEnergy = PFJetBenchmark_.resChargedHadEnergyMax();
-	    	double resNeutralHadEnergy = PFJetBenchmark_.resNeutralHadEnergyMax();
-	    	double resNeutralEmEnergy = PFJetBenchmark_.resNeutralEmEnergyMax();
-	  
-  	if( verbosity_ == VERBOSE ){ //start debug print
+          
+    PFJetBenchmark_.process(pfJets_, genJets_);
+    double resPt = PFJetBenchmark_.resPtMax();
+    double resChargedHadEnergy = PFJetBenchmark_.resChargedHadEnergyMax();
+    double resNeutralHadEnergy = PFJetBenchmark_.resNeutralHadEnergyMax();
+    double resNeutralEmEnergy = PFJetBenchmark_.resNeutralEmEnergyMax();
+          
+    if( verbosity_ == VERBOSE ){ //start debug print
 
-  	cout << " =====================PFJetBenchmark =================" << endl;
-  	cout<<"Resol Pt max "<<resPt
-  	    <<" resChargedHadEnergy Max " << resChargedHadEnergy
-  		<<" resNeutralHadEnergy Max " << resNeutralHadEnergy
-  	    << " resNeutralEmEnergy Max "<< resNeutralEmEnergy << endl;
-  	 } // end debug print
- //	 if (resNeutralEmEnergy>0.5) return true;
-//	 else return false;
-	}// end PFJet Benchmark
+      cout << " =====================PFJetBenchmark =================" << endl;
+      cout<<"Resol Pt max "<<resPt
+          <<" resChargedHadEnergy Max " << resChargedHadEnergy
+          <<" resNeutralHadEnergy Max " << resNeutralHadEnergy
+          << " resNeutralEmEnergy Max "<< resNeutralEmEnergy << endl;
+    } // end debug print
+    //   if (resNeutralEmEnergy>0.5) return true;
+    //   else return false;
+  }// end PFJet Benchmark
   
   // evaluate tau Benchmark 
   
-	if( goodevent && doTauBenchmark_) { // start tau Benchmark
-	double deltaEt = 0.;
-	deltaEt  = tauBenchmark( *pfCandidates_ ); 
-	if( verbosity_ == VERBOSE ) cout<<"delta E_t ="<<deltaEt <<endl;
-  //      cout<<"delta E_t ="<<deltaEt<<" delta E_t Other ="<<deltaEt1<<endl;
+  if( goodevent && doTauBenchmark_) { // start tau Benchmark
+    double deltaEt = 0.;
+    deltaEt  = tauBenchmark( *pfCandidates_ ); 
+    if( verbosity_ == VERBOSE ) cout<<"delta E_t ="<<deltaEt <<endl;
+    //      cout<<"delta E_t ="<<deltaEt<<" delta E_t Other ="<<deltaEt1<<endl;
 
 
-  //   if( deltaEt>0.4 ) {
-  //     cout<<deltaEt<<endl;
-  //     return true;
-  //   }  
-  //   else return false;
+    //   if( deltaEt>0.4 ) {
+    //     cout<<deltaEt<<endl;
+    //     return true;
+    //   }  
+    //   else return false;
 
   
   } // end tau Benchmark
@@ -1107,12 +1089,12 @@ bool PFRootEventManager::readFromSimulation(int entry) {
   if(recTracksBranch_) {
     recTracksBranch_->GetEntry(entry);
   }
-  if(genParticleforJetsBranch_) {
-    genParticleforJetsBranch_->GetEntry(entry);
+  if(genParticlesforJetsBranch_) {
+    genParticlesforJetsBranch_->GetEntry(entry);
   }
-  if(caloTowerBaseCandidatesBranch_) {
-    caloTowerBaseCandidatesBranch_->GetEntry(entry);
-  }
+//   if(caloTowerBaseCandidatesBranch_) {
+//     caloTowerBaseCandidatesBranch_->GetEntry(entry);
+//   }
   if(genJetBranch_) {
     genJetBranch_->GetEntry(entry);
   }
@@ -1121,7 +1103,7 @@ bool PFRootEventManager::readFromSimulation(int entry) {
   }
   if(recPFBranch_) {
     recPFBranch_->GetEntry(entry);
-    }
+  }
 
   tree_->GetEntry( entry, 0 );
 
@@ -1159,32 +1141,32 @@ bool PFRootEventManager::readFromSimulation(int entry) {
   //       fillOutEventWithCaloTowers( caloTowers_ );
   //   } 
 
-   if(rechitsECALBranch_) {
-     PreprocessRecHits( rechitsECAL_ , findRecHitNeighbours_);
-   }
-   if(rechitsHCALBranch_) {
-     PreprocessRecHits( rechitsHCAL_ , findRecHitNeighbours_);
-   }
-   if(rechitsPSBranch_) {
-     PreprocessRecHits( rechitsPS_ , findRecHitNeighbours_);
-   }
+  if(rechitsECALBranch_) {
+    PreprocessRecHits( rechitsECAL_ , findRecHitNeighbours_);
+  }
+  if(rechitsHCALBranch_) {
+    PreprocessRecHits( rechitsHCAL_ , findRecHitNeighbours_);
+  }
+  if(rechitsPSBranch_) {
+    PreprocessRecHits( rechitsPS_ , findRecHitNeighbours_);
+  }
 
-   if ( recTracksBranch_ ) { 
-     PreprocessRecTracks( recTracks_);
-   }
+  if ( recTracksBranch_ ) { 
+    PreprocessRecTracks( recTracks_);
+  }
    
-//   if(clustersECALBranch_ && !doClustering_) {
-//     for(unsigned i=0; i<clustersECAL_->size(); i++) 
-//       (*clustersECAL_)[i].calculatePositionREP();
-//   }
-//   if(clustersHCALBranch_ && !doClustering_) {
-//     for(unsigned i=0; i<clustersHCAL_->size(); i++) 
-//       (*clustersHCAL_)[i].calculatePositionREP();    
-//   }
-//   if(clustersPSBranch_ && !doClustering_) {
-//     for(unsigned i=0; i<clustersPS_->size(); i++) 
-//       (*clustersPS_)[i].calculatePositionREP();    
-//   }
+  //   if(clustersECALBranch_ && !doClustering_) {
+  //     for(unsigned i=0; i<clustersECAL_->size(); i++) 
+  //       (*clustersECAL_)[i].calculatePositionREP();
+  //   }
+  //   if(clustersHCALBranch_ && !doClustering_) {
+  //     for(unsigned i=0; i<clustersHCAL_->size(); i++) 
+  //       (*clustersHCAL_)[i].calculatePositionREP();    
+  //   }
+  //   if(clustersPSBranch_ && !doClustering_) {
+  //     for(unsigned i=0; i<clustersPS_->size(); i++) 
+  //       (*clustersPS_)[i].calculatePositionREP();    
+  //   }
 
   return goodevent;
 }
@@ -1434,7 +1416,7 @@ void PFRootEventManager::clustering() {
   fillRecHitMask( mask, rechitsECAL_ );
   clusterAlgoECAL_.setMask( mask );  
 
-//   edm::OrphanHandle< reco::PFRecHitCollection > rechitsHandleECAL( &rechitsECAL_, edm::ProductID(10001) );
+  //   edm::OrphanHandle< reco::PFRecHitCollection > rechitsHandleECAL( &rechitsECAL_, edm::ProductID(10001) );
   clusterAlgoECAL_.doClustering( rechitsECAL_ );
   clustersECAL_ = clusterAlgoECAL_.clusters();
 
@@ -1446,7 +1428,7 @@ void PFRootEventManager::clustering() {
 
   fillRecHitMask( mask, rechitsHCAL_ );
   clusterAlgoHCAL_.setMask( mask );  
-//   edm::OrphanHandle< reco::PFRecHitCollection > rechitsHandleHCAL( &rechitsHCAL_, edm::ProductID(10002) );
+  //   edm::OrphanHandle< reco::PFRecHitCollection > rechitsHandleHCAL( &rechitsHCAL_, edm::ProductID(10002) );
   clusterAlgoHCAL_.doClustering( rechitsHCAL_ );
   clustersHCAL_ = clusterAlgoHCAL_.clusters();
 
@@ -1456,7 +1438,7 @@ void PFRootEventManager::clustering() {
 
   fillRecHitMask( mask, rechitsPS_ );
   clusterAlgoPS_.setMask( mask );  
-//   edm::OrphanHandle< reco::PFRecHitCollection > rechitsHandlePS( &rechitsPS_, edm::ProductID(10003) );
+  //   edm::OrphanHandle< reco::PFRecHitCollection > rechitsHandlePS( &rechitsPS_, edm::ProductID(10003) );
   clusterAlgoPS_.doClustering( rechitsPS_ );
   clustersPS_ = clusterAlgoPS_.clusters();
 
@@ -1663,8 +1645,8 @@ void PFRootEventManager::particleFlow() {
   pfBlocks_ = pfBlockAlgo_.transferBlocks();
 
 
-//   edm::OrphanHandle< reco::PFBlockCollection > blockh( pfBlocks_.get(), 
-//                                                        edm::ProductID(5) );  
+  //   edm::OrphanHandle< reco::PFBlockCollection > blockh( pfBlocks_.get(), 
+  //                                                        edm::ProductID(5) );  
   
   pfAlgo_.reconstructParticles( *pfBlocks_.get() );
   //   pfAlgoOther_.reconstructParticles( blockh );
@@ -1681,213 +1663,166 @@ void PFRootEventManager::particleFlow() {
 
 void PFRootEventManager::reconstructGenJets() {
 
-//   genJets_.clear();
-//   genParticleBaseCandidates_.clear();
-//   if (verbosity_ == VERBOSE || jetsDebug_) {
-//     cout <<"start reconstruct GenJets"<<endl;
-// 	cout << " input gen particles for jet: all muons/neutrinos removed " << endl;
-//   }
-//   // need to convert reco::GenParticleRefVector genParticleRef_ 
-//   // into Candidate Collection input for reconstructFWLiteJets.
-//   // Warning: the selection of gen particles to be used for jet
-//   // has changed!!!
-//   // in 1_6_9  all muons/neutrinos are removed
-//   // for > 1_8_0  only muons/neutrinos coming from Bosons (pdg id from 23 to 39)
-//   // are removed. For instance muons/neutrinos from  tau decays are kept.
-//   // The motivation is: calo jet corrections should include corrections due
-//   // to muons/neutrinos from heavy flavors (b or c) decays inside jets.
-//   for(unsigned i=0; i<genParticleRef_.size(); i++) {
-//   const reco::GenParticle mcpart = *(genParticleRef_[i]);
-// 	  // remove all muons/neutrinos for PFJet studies
-// 	  if (reco::isNeutrino (mcpart) || reco::isMuon (mcpart)) continue;
-// 	   if (jetsDebug_ ) {
-// 	   cout << "      #" << i << "  PDG code:" << mcpart.pdgId() 
-// 		    << " status " << mcpart.status()
-// 		    << ", p/pt/eta/phi: " << mcpart.p() << '/' << mcpart.pt() 
-// 		    << '/' << mcpart.eta() << '/' << mcpart.phi() << endl;
-// 	   }
-//   genParticleBaseCandidates_.push_back(mcpart.clone() );
-//   }
-  
-//   // convert Candidate Collection to RefTobase  vector GenConstit
-//   // Jet constituents are stored as CandidateBaseRef(see CandidateFwd.h)
-//   reco::CandidateBaseRefVector Genconstit;
+  if (verbosity_ == VERBOSE || jetsDebug_) {
+    cout<<endl;
+    cout<<"start reconstruct GenJets  --- "<<endl;
+    cout<< " input gen particles for jet: all muons/neutrinos removed " << endl;
+  }
 
-  
-//   for(unsigned i=0;i<genParticleRef_.size(); i++) {
-// 	  // conversion in two steps: cand->Ref->RefTobase
-// 	  // transient Ref:
-// 	  // edm::Ref <CandidateCollection> candRef(&genParticleBaseCandidates_, i); does not compile yet
-// 	  edm::Ref <CandidateCollection>
-// 	  candRef(const_cast<const CandidateCollection*>(&genParticleBaseCandidates_),i); 
-// 	  const CandidateBaseRef constit (candRef); 
-// 	  // conversion in one step does not compile?
-// 	  //      edm::RefToBase <CandidateCollection> constit(pfCandh, i); 
-// 	  Genconstit.push_back(constit);
-	  
-//   }
-  
-  
+  genJets_.clear();
+  genParticlesforJetsPtrs_.clear();
 
-//   vector<ProtoJet> protoJets;
-//   reconstructFWLiteJets(genParticleBaseCandidates_, protoJets );
+  for(unsigned i=0; i<genParticlesforJets_.size(); i++) {
 
-//     // Convert Protojets to GenJets
+    const reco::GenParticle&    genPart = *(genParticlesforJets_[i]);
+
+    // remove all muons/neutrinos for PFJet studies
+    if (reco::isNeutrino( genPart ) || reco::isMuon( genPart )) continue;
+    if (jetsDebug_ ) {
+      cout << "      #" << i << "  PDG code:" << genPart.pdgId() 
+	   << " status " << genPart.status()
+	   << ", p/pt/eta/phi: " << genPart.p() << '/' << genPart.pt() 
+	   << '/' << genPart.eta() << '/' << genPart.phi() << endl;
+    }
+    
+    genParticlesforJetsPtrs_.push_back( refToPtr(genParticlesforJets_[i]) );
+  }
   
-//   // For each Protojet in turn
-//   int ijet = 0;
-//   typedef vector <ProtoJet>::const_iterator IPJ;
-//   for  (IPJ ipj = protoJets.begin(); ipj != protoJets.end (); ipj++) {
-// 	  const ProtoJet& protojet = *ipj;
-// 	  const ProtoJet::Constituents& constituents = protojet.getTowerList();
-	  
-// 	  reco::Jet::Point vertex (0,0,0); // do not have true vertex yet, use default
-// 	  GenJet::Specific specific;
-// 	  JetMaker::makeSpecific(constituents, &specific);
-// 	  // constructor without constituents
-// 	  GenJet newJet (protojet.p4(), vertex, specific);
-	  
-// 	  // last step is to copy the constituents into the jet (new jet definition since 18X)
-// 	  // namespace reco {
-// 	  //class Jet : public CompositeRefBaseCandidate {
-// 	  // public:
-// 	  //  typedef reco::CandidateBaseRefVector Constituents;
-	  
-// 	  ProtoJet::Constituents::const_iterator constituent = constituents.begin();
-// 	  for (; constituent != constituents.end(); ++constituent) {
-// 		  // find index of this ProtoJet constituent in the overall collection PFconstit
-// 		  // see class IndexedCandidate in JetRecoTypes.h
-// 		  uint index = constituent->index();
-// 		  newJet.addDaughter(Genconstit[index]);
-// 	  }  // end loop on ProtoJet constituents
-// 		 // last step: copy ProtoJet Variables into Jet
-// 	  newJet.setJetArea(protojet.jetArea()); 
-// 	  newJet.setPileup(protojet.pileup());
-// 	  newJet.setNPasses(protojet.nPasses());
-// 	  ++ijet;
-// 	  if (jetsDebug_ )cout<<ijet<<newJet.print()<<endl;
-// 	  genJets_.push_back (newJet);
-	  
-// 	  } // end loop on protojets iterator IPJ
+  vector<ProtoJet> protoJets;
+  reconstructFWLiteJets(genParticlesforJetsPtrs_, protoJets );
+
+
+  // Convert Protojets to GenJets
+    int ijet = 0;
+  typedef vector <ProtoJet>::const_iterator IPJ;
+  for  (IPJ ipj = protoJets.begin(); ipj != protoJets.end (); ipj++) {
+    const ProtoJet& protojet = *ipj;
+    const ProtoJet::Constituents& constituents = protojet.getTowerList();
+          
+    reco::Jet::Point vertex (0,0,0); // do not have true vertex yet, use default
+    GenJet::Specific specific;
+    JetMaker::makeSpecific(constituents, &specific);
+    // constructor without constituents
+    GenJet newJet (protojet.p4(), vertex, specific);
+          
+    // last step is to copy the constituents into the jet (new jet definition since 18X)
+    // namespace reco {
+    //class Jet : public CompositeRefBaseCandidate {
+    // public:
+    //  typedef reco::CandidateBaseRefVector Constituents;
+          
+    ProtoJet::Constituents::const_iterator constituent = constituents.begin();
+    for (; constituent != constituents.end(); ++constituent) {
+      // find index of this ProtoJet constituent in the overall collection PFconstit
+      // see class IndexedCandidate in JetRecoTypes.h
+      uint index = constituent->index();
+      newJet.addDaughter( genParticlesforJetsPtrs_[index] );
+    }  // end loop on ProtoJet constituents
+    // last step: copy ProtoJet Variables into Jet
+    newJet.setJetArea(protojet.jetArea()); 
+    newJet.setPileup(protojet.pileup());
+    newJet.setNPasses(protojet.nPasses());
+    ++ijet;
+    if (jetsDebug_ ) cout<<" gen jet "<<ijet<<" "<<newJet.print()<<endl;
+    genJets_.push_back (newJet);
+          
+  } // end loop on protojets iterator IPJ
   
 }
 
 void PFRootEventManager::reconstructCaloJets() {
 
-//   caloJets_.clear();
-//   if (verbosity_ == VERBOSE || jetsDebug_ ) {
-//     cout <<"start reconstruct CaloJets"<<endl;
-//   }
+  if (verbosity_ == VERBOSE || jetsDebug_ ) {
+    cout<<endl;
+    cout<<"start reconstruct CaloJets --- "<<endl;
+  }
+  caloJets_.clear();
+  caloTowersPtrs_.clear();
 
-//   //   reco::CandidateCollection baseCandidates;
-//   //   for(unsigned i=0; i<caloTowers_.size(); i++) {
-//   //     baseCandidates.push_back( caloTowers_[i].clone() );
-//   //   }
+  for( unsigned i=0; i<caloTowers_.size(); i++) {
+    reco::CandidatePtr candPtr( &caloTowers_, i );
+    caloTowersPtrs_.push_back( candPtr );
+  }
  
-//   reconstructFWLiteJets(caloTowerBaseCandidates_, caloJets_ );
+  reconstructFWLiteJets( caloTowersPtrs_, caloJets_ );
 
-//   //COLIN: geometry needed to make a calo jet from a proto jet !!
-//   //   JetMaker mjet;
-//   //   typedef vector <ProtoJet>::const_iterator IPJ;
-//   //   for  (IPJ ipj = protoJets.begin(); ipj != protoJets.end (); ipj++) {
-//   //     caloJets_.push_back(mjet.makeCaloJet(*ipj));  
-//   //   } 
+  if (jetsDebug_ ) {
+    for(unsigned ipj=0; ipj<caloJets_.size(); ipj++) {
+      const ProtoJet& protojet = caloJets_[ipj];      
+      cout<<" calo jet "<<ipj<<" "<<protojet.pt() <<endl;
+    }
+  }
+
 }
 
 
 void PFRootEventManager::reconstructPFJets() {
 
-// 	pfJets_.clear();
-//     basePFCandidates_.clear();
-// 	/// basePFCandidates_ to be declared global in PFRootEventManager.h
-// 	//reco::CandidateCollection basePFCandidates_;
-//     if (verbosity_ == VERBOSE || jetsDebug_) {
-// 		cout <<"start reconstruct PFJets"<<endl;
-// 	}
-	
-// 	// Copy PFCandidates into std::vector<Candidate> format
-// 	// as input for jet algorithms
-// 	// Warning:
-// 	// basePFCandidates_ Collection lifetime ==  pfJets_ Collection lifetime
-// 	// transform PFCandidates to Candidates
-// 	for(unsigned i=0; i<pfCandidates_->size(); i++) { 
-// 		basePFCandidates_.push_back( (*pfCandidates_)[i].clone() );	  
-// 	}
-	
-// 	// Jet constituents are stored as CandidateBaseRef(see CandidateFwd.h)
-// 	reco::CandidateBaseRefVector PFconstit;
-		
-// 	// convert Candidate Collection to RefTobase  vector PFConstit
-	
-// 	for(unsigned i=0;i<pfCandidates_->size(); i++) {
-// 		// conversion in two steps: cand->Ref->RefTobase
-// 		// transient Ref:
-// 		// edm::Ref <CandidateCollection> candRef(&basePFCandidates_, i); does not compile yet
-// 		edm::Ref <CandidateCollection> 
-// 		candRef(const_cast<const CandidateCollection*>(&basePFCandidates_),i); 
-// 		const CandidateBaseRef constit (candRef);
-// 		// conversion in one step does not compile?
-// 		//      edm::RefToBase <CandidateCollection> constit(pfCandh, i); 
-// 		PFconstit.push_back(constit);
-		
-// 	}
-	
-// // Reconstruct ProtoJets from basePFCandidates_
+  if (verbosity_ == VERBOSE || jetsDebug_) {
+    cout<<endl;
+    cout<<"start reconstruct PF Jets --- "<<endl;
+  }
+  pfJets_.clear();
+  pfCandidatesPtrs_.clear();
+        
+  for( unsigned i=0; i<pfCandidates_->size(); i++) {
+    reco::CandidatePtr candPtr( pfCandidates_.get(), i );
+    pfCandidatesPtrs_.push_back( candPtr );
+  }
 
-// vector<ProtoJet> protoJets;
-// reconstructFWLiteJets(basePFCandidates_, protoJets );
+  vector<ProtoJet> protoJets;
+  reconstructFWLiteJets(pfCandidatesPtrs_, protoJets );
 
-// // Convert Protojets to PFJets
+  // Convert Protojets to PFJets
 
-// // For each Protojet in turn
-// int ijet = 0;
-// typedef vector <ProtoJet>::const_iterator IPJ;
-// for  (IPJ ipj = protoJets.begin(); ipj != protoJets.end (); ipj++) {
-// 	const ProtoJet& protojet = *ipj;
-// 	const ProtoJet::Constituents& constituents = protojet.getTowerList();
-	
-// 	reco::Jet::Point vertex (0,0,0); // do not have true vertex yet, use default
-// 	PFJet::Specific specific;
-// 	JetMaker::makeSpecific(constituents, &specific);
-// 	// constructor without constituents
-// 	PFJet newJet (protojet.p4(), vertex, specific);
-	
-// 	// last step is to copy the constituents into the jet (new jet definition since 18X)
-// 	// namespace reco {
-// 	//class Jet : public CompositeRefBaseCandidate {
-// 	// public:
-// 	//  typedef reco::CandidateBaseRefVector Constituents;
-	
-// 	ProtoJet::Constituents::const_iterator constituent = constituents.begin();
-// 	for (; constituent != constituents.end(); ++constituent) {
-// 		// find index of this ProtoJet constituent in the overall collection PFconstit
-// 		// see class IndexedCandidate in JetRecoTypes.h
-// 		uint index = constituent->index();
-// 		newJet.addDaughter(PFconstit[index]);
-// 	}  // end loop on ProtoJet constituents
-// 	   // last step: copy ProtoJet Variables into Jet
-// 	newJet.setJetArea(protojet.jetArea()); 
-// 	newJet.setPileup(protojet.pileup());
-// 	newJet.setNPasses(protojet.nPasses());
-// 	++ijet;
-// 	if (jetsDebug_ )cout<<ijet<<newJet.print()<<endl;
-// 	pfJets_.push_back (newJet);
-	
-// 	} // end loop on protojets iterator IPJ
+  int ijet = 0;
+  typedef vector <ProtoJet>::const_iterator IPJ;
+  for  (IPJ ipj = protoJets.begin(); ipj != protoJets.end (); ipj++) {
+    const ProtoJet& protojet = *ipj;
+    const ProtoJet::Constituents& constituents = protojet.getTowerList();
+        
+    reco::Jet::Point vertex (0,0,0); // do not have true vertex yet, use default
+    PFJet::Specific specific;
+    JetMaker::makeSpecific(constituents, &specific);
+    // constructor without constituents
+    PFJet newJet (protojet.p4(), vertex, specific);
+        
+    // last step is to copy the constituents into the jet (new jet definition since 18X)
+    // namespace reco {
+    //class Jet : public CompositeRefBaseCandidate {
+    // public:
+    //  typedef reco::CandidateBaseRefVector Constituents;
+        
+    ProtoJet::Constituents::const_iterator constituent = constituents.begin();
+    for (; constituent != constituents.end(); ++constituent) {
+      // find index of this ProtoJet constituent in the overall collection PFconstit
+      // see class IndexedCandidate in JetRecoTypes.h
+      uint index = constituent->index();
+      newJet.addDaughter(pfCandidatesPtrs_[index]);
+    }  // end loop on ProtoJet constituents
+    // last step: copy ProtoJet Variables into Jet
+    newJet.setJetArea(protojet.jetArea()); 
+    newJet.setPileup(protojet.pileup());
+    newJet.setNPasses(protojet.nPasses());
+    ++ijet;
+    if (jetsDebug_ )  cout<<" PF jet "<<ijet<<" "<<newJet.print()<<endl;
+    pfJets_.push_back (newJet);
+        
+  } // end loop on protojets iterator IPJ
 
-	}
+}
 
 
 
-void PFRootEventManager::reconstructFWLiteJets(const reco::CandidateCollection& Candidates, vector<ProtoJet>& output ) {
+void 
+PFRootEventManager::reconstructFWLiteJets(const reco::CandidatePtrVector& Candidates, vector<ProtoJet>& output ) {
 
   // cout<<"!!! Make FWLite Jets  "<<endl;  
   JetReco::InputCollection input;
   // vector<ProtoJet> output;
   jetMaker_.applyCuts (Candidates, &input); 
   if (jetAlgoType_==1) {// ICone 
-    /// Produce jet collection using CMS Iterative Cone Algorithm  
-	     
+    /// Produce jet collection using CMS Iterative Cone Algorithm
     jetMaker_.makeIterativeConeJets(input, &output);
   }
   if (jetAlgoType_==2) {// MCone
@@ -1914,51 +1849,80 @@ PFRootEventManager::tauBenchmark( const reco::PFCandidateCollection& candidates)
   //initialize Jets Reconstruction
   jetAlgo_.Clear();
 
+  //COLIN The following comment is not really adequate, 
+  // since partTOTMC is not an action..
+  // one should say what this variable is for.
+  // see my comment later 
   //MAKING TRUE PARTICLE JETS
-  TLorentzVector partTOTMC;
+//   TLorentzVector partTOTMC;
 
   // colin: the following is not necessary
+  // since the lorentz vectors are initialized to 0,0,0,0. 
   // partTOTMC.SetPxPyPzE(0.0, 0.0, 0.0, 0.0);
 
   //MAKING JETS WITH TAU DAUGHTERS
-  vector<reco::PFSimParticle> vectPART;
+  //Colin: this vector vectPART is not necessary !!
+  //it was just an efficient copy of trueparticles_.....
+//   vector<reco::PFSimParticle> vectPART;
+//   for ( unsigned i=0;  i < trueParticles_.size(); i++) {
+//     const reco::PFSimParticle& ptc = trueParticles_[i];
+//     vectPART.push_back(ptc);
+//   }//loop
+
+
+  //COLIN one must not loop on trueParticles_ to find taus. 
+  //the code was giving wrong results on non single tau events. 
+
+  // first check that this is a single tau event. 
+  bool tauFound = false;
+  bool tooManyTaus = false;
   for ( unsigned i=0;  i < trueParticles_.size(); i++) {
     const reco::PFSimParticle& ptc = trueParticles_[i];
-    vectPART.push_back(ptc);
-  }//loop
-
-  for ( unsigned i=0;  i < trueParticles_.size(); i++) {
-    const reco::PFSimParticle& ptc = trueParticles_[i];
-    const std::vector<int>& ptcdaughters = ptc.daughterIds();
-
     if (abs(ptc.pdgCode()) == 15) {
-      for ( unsigned int dapt=0; dapt < ptcdaughters.size(); ++dapt) {
+      // this is a tau
+      if( i ) tooManyTaus = true;
+      else tauFound=true;
+    }
+  }
+  
+  if(!tauFound || tooManyTaus ) {
+    cerr<<"PFRootEventManager::tauBenchmark : not a single tau event"<<endl;
+    return -9999;
+  }
 
-        const reco::PFTrajectoryPoint& tpatvtx 
-          = vectPART[ptcdaughters[dapt]].trajectoryPoint(0);
-        TLorentzVector partMC;
-        partMC.SetPxPyPzE(tpatvtx.momentum().Px(),
-                          tpatvtx.momentum().Py(),
-                          tpatvtx.momentum().Pz(),
-                          tpatvtx.momentum().E());
+  // loop on the daugthers of the tau
+  const std::vector<int>& ptcdaughters = trueParticles_[0].daughterIds();
 
-        partTOTMC += partMC;
-        if (tauBenchmarkDebug_) {
-          //pdgcode
-          int pdgcode = vectPART[ptcdaughters[dapt]].pdgCode();
-          cout << pdgcode << endl;
-          cout << tpatvtx << endl;
-          cout << partMC.Px() << " " << partMC.Py() << " " 
-               << partMC.Pz() << " " << partMC.E()
-               << " PT=" 
-               << sqrt(partMC.Px()*partMC.Px()+partMC.Py()*partMC.Py()) 
-               << endl;
-        }//debug
-      }//loop daughter
-    }//tau?
-  }//loop particles
+  // will contain the sum of the lorentz vectors of the visible daughters
+  // of the tau.
+  TLorentzVector partTOTMC;
+
+  for ( unsigned int dapt=0; dapt < ptcdaughters.size(); ++dapt) {
+    
+    const reco::PFTrajectoryPoint& tpatvtx 
+      = trueParticles_[ptcdaughters[dapt]].trajectoryPoint(0);
+    TLorentzVector partMC;
+    partMC.SetPxPyPzE(tpatvtx.momentum().Px(),
+		      tpatvtx.momentum().Py(),
+		      tpatvtx.momentum().Pz(),
+		      tpatvtx.momentum().E());
+    
+    partTOTMC += partMC;
+    if (tauBenchmarkDebug_) {
+      //pdgcode
+      int pdgcode =  trueParticles_[ptcdaughters[dapt]].pdgCode();
+      cout << pdgcode << endl;
+      cout << tpatvtx << endl;
+      cout << partMC.Px() << " " << partMC.Py() << " " 
+	   << partMC.Pz() << " " << partMC.E()
+	   << " PT=" 
+	   << sqrt(partMC.Px()*partMC.Px()+partMC.Py()*partMC.Py()) 
+	   << endl;
+    }//debug
+  }//loop daughter
 
   EventColin::Jet jetmc;
+
   jetmc.eta = partTOTMC.Eta();
   jetmc.phi = partTOTMC.Phi();
   jetmc.et = partTOTMC.Et();
@@ -2337,7 +2301,7 @@ void  PFRootEventManager::print(ostream& out,int maxNLines ) const {
     out<<"Generated: "<<endl;
     for(unsigned i=0; i<genJets_.size(); i++) {      
       out<<i<<genJets_[i].print()<<endl;
-	// <<" invisible energy = "<<genJets_[i].invisibleEnergy()<<endl;
+      // <<" invisible energy = "<<genJets_[i].invisibleEnergy()<<endl;
     }        
     out<<endl;
     out<<"Calo: "<<endl;
@@ -2365,9 +2329,9 @@ void  PFRootEventManager::print(ostream& out,int maxNLines ) const {
 
 void
 PFRootEventManager::printGenParticles(std::ostream& out,
-                                 int maxNLines) const {
-				 
-				 
+                                      int maxNLines) const {
+                                 
+                                 
   const HepMC::GenEvent* myGenEvent = MCTruth_.GetEvent();
   if(!myGenEvent) return;
 
@@ -2394,107 +2358,107 @@ PFRootEventManager::printGenParticles(std::ostream& out,
     // We have here a subset of particles only. 
     // To be filled according to the needs.
     /*switch(partId) {
-		case    1: { name = "d"; break; } 
-		case    2: { name = "u"; break; } 
-		case    3: { name = "s"; break; } 
-		case    4: { name = "c"; break; } 
-		case    5: { name = "b"; break; } 
-		case    6: { name = "t"; break; } 
-		case   -1: { name = "~d"; break; } 
-		case   -2: { name = "~u"; break; } 
-		case   -3: { name = "~s"; break; } 
-		case   -4: { name = "~c"; break; } 
-		case   -5: { name = "~b"; break; } 
-		case   -6: { name = "~t"; break; } 
-		case   11: { name = "e-"; break; }
-		case  -11: { name = "e+"; break; }
-		case   12: { name = "nu_e"; break; }
-		case  -12: { name = "~nu_e"; break; }
-		case   13: { name = "mu-"; break; }
-		case  -13: { name = "mu+"; break; }
-		case   14: { name = "nu_mu"; break; }
-		case  -14: { name = "~nu_mu"; break; }
-		case   15: { name = "tau-"; break; }
-		case  -15: { name = "tau+"; break; }
-		case   16: { name = "nu_tau"; break; }
-		case  -16: { name = "~nu_tau"; break; }
-		case   21: { name = "gluon"; break; }
-		case   22: { name = "gamma"; break; }
-		case   23: { name = "Z0"; break; }
-		case   24: { name = "W+"; break; }
-		case   25: { name = "H0"; break; }
-		case  -24: { name = "W-"; break; }
-		case  111: { name = "pi0"; break; }
-		case  113: { name = "rho0"; break; }
-		case  223: { name = "omega"; break; }
-		case  333: { name = "phi"; break; }
-		case  443: { name = "J/psi"; break; }
-		case  553: { name = "Upsilon"; break; }
-		case  130: { name = "K0L"; break; }
-		case  211: { name = "pi+"; break; }
-		case -211: { name = "pi-"; break; }
-		case  213: { name = "rho+"; break; }
-		case -213: { name = "rho-"; break; }
-		case  221: { name = "eta"; break; }
-		case  331: { name = "eta'"; break; }
-		case  441: { name = "etac"; break; }
-		case  551: { name = "etab"; break; }
-		case  310: { name = "K0S"; break; }
-		case  311: { name = "K0"; break; }
-		case -311: { name = "Kbar0"; break; }
-		case  321: { name = "K+"; break; }
-		case -321: { name = "K-"; break; }
-		case  411: { name = "D+"; break; }
-		case -411: { name = "D-"; break; }
-		case  421: { name = "D0"; break; }
-		case  431: { name = "Ds_+"; break; }
-		case -431: { name = "Ds_-"; break; }
-		case  511: { name = "B0"; break; }
-		case  521: { name = "B+"; break; }
-		case -521: { name = "B-"; break; }
-		case  531: { name = "Bs_0"; break; }
-		case  541: { name = "Bc_+"; break; }
-		case -541: { name = "Bc_+"; break; }
-		case  313: { name = "K*0"; break; }
-		case -313: { name = "K*bar0"; break; }
-		case  323: { name = "K*+"; break; }
-		case -323: { name = "K*-"; break; }
-		case  413: { name = "D*+"; break; }
-		case -413: { name = "D*-"; break; }
-		case  423: { name = "D*0"; break; }
-		case  513: { name = "B*0"; break; }
-		case  523: { name = "B*+"; break; }
-		case -523: { name = "B*-"; break; }
-		case  533: { name = "B*_s0"; break; }
-		case  543: { name = "B*_c+"; break; }
-		case -543: { name = "B*_c-"; break; }
-		case  1114: { name = "Delta-"; break; }
-		case -1114: { name = "Deltabar+"; break; }
-		case -2112: { name = "nbar0"; break; }
-		case  2112: { name = "n"; break; }
-		case  2114: { name = "Delta0"; break; }
-		case -2114: { name = "Deltabar0"; break; }
-		case  3122: { name = "Lambda0"; break; }
-		case -3122: { name = "Lambdabar0"; break; }
-		case  3112: { name = "Sigma-"; break; }
-		case -3112: { name = "Sigmabar+"; break; }
-		case  3212: { name = "Sigma0"; break; }
-		case -3212: { name = "Sigmabar0"; break; }
-		case  3214: { name = "Sigma*0"; break; }
-		case -3214: { name = "Sigma*bar0"; break; }
-		case  3222: { name = "Sigma+"; break; }
-		case -3222: { name = "Sigmabar-"; break; }
-		case  2212: { name = "p"; break; }
-		case -2212: { name = "~p"; break; }
-		case -2214: { name = "Delta-"; break; }
-		case  2214: { name = "Delta+"; break; }
-		case -2224: { name = "Deltabar--"; break; }
-		case  2224: { name = "Delta++"; break; }
-		default: { 
+      case    1: { name = "d"; break; } 
+      case    2: { name = "u"; break; } 
+      case    3: { name = "s"; break; } 
+      case    4: { name = "c"; break; } 
+      case    5: { name = "b"; break; } 
+      case    6: { name = "t"; break; } 
+      case   -1: { name = "~d"; break; } 
+      case   -2: { name = "~u"; break; } 
+      case   -3: { name = "~s"; break; } 
+      case   -4: { name = "~c"; break; } 
+      case   -5: { name = "~b"; break; } 
+      case   -6: { name = "~t"; break; } 
+      case   11: { name = "e-"; break; }
+      case  -11: { name = "e+"; break; }
+      case   12: { name = "nu_e"; break; }
+      case  -12: { name = "~nu_e"; break; }
+      case   13: { name = "mu-"; break; }
+      case  -13: { name = "mu+"; break; }
+      case   14: { name = "nu_mu"; break; }
+      case  -14: { name = "~nu_mu"; break; }
+      case   15: { name = "tau-"; break; }
+      case  -15: { name = "tau+"; break; }
+      case   16: { name = "nu_tau"; break; }
+      case  -16: { name = "~nu_tau"; break; }
+      case   21: { name = "gluon"; break; }
+      case   22: { name = "gamma"; break; }
+      case   23: { name = "Z0"; break; }
+      case   24: { name = "W+"; break; }
+      case   25: { name = "H0"; break; }
+      case  -24: { name = "W-"; break; }
+      case  111: { name = "pi0"; break; }
+      case  113: { name = "rho0"; break; }
+      case  223: { name = "omega"; break; }
+      case  333: { name = "phi"; break; }
+      case  443: { name = "J/psi"; break; }
+      case  553: { name = "Upsilon"; break; }
+      case  130: { name = "K0L"; break; }
+      case  211: { name = "pi+"; break; }
+      case -211: { name = "pi-"; break; }
+      case  213: { name = "rho+"; break; }
+      case -213: { name = "rho-"; break; }
+      case  221: { name = "eta"; break; }
+      case  331: { name = "eta'"; break; }
+      case  441: { name = "etac"; break; }
+      case  551: { name = "etab"; break; }
+      case  310: { name = "K0S"; break; }
+      case  311: { name = "K0"; break; }
+      case -311: { name = "Kbar0"; break; }
+      case  321: { name = "K+"; break; }
+      case -321: { name = "K-"; break; }
+      case  411: { name = "D+"; break; }
+      case -411: { name = "D-"; break; }
+      case  421: { name = "D0"; break; }
+      case  431: { name = "Ds_+"; break; }
+      case -431: { name = "Ds_-"; break; }
+      case  511: { name = "B0"; break; }
+      case  521: { name = "B+"; break; }
+      case -521: { name = "B-"; break; }
+      case  531: { name = "Bs_0"; break; }
+      case  541: { name = "Bc_+"; break; }
+      case -541: { name = "Bc_+"; break; }
+      case  313: { name = "K*0"; break; }
+      case -313: { name = "K*bar0"; break; }
+      case  323: { name = "K*+"; break; }
+      case -323: { name = "K*-"; break; }
+      case  413: { name = "D*+"; break; }
+      case -413: { name = "D*-"; break; }
+      case  423: { name = "D*0"; break; }
+      case  513: { name = "B*0"; break; }
+      case  523: { name = "B*+"; break; }
+      case -523: { name = "B*-"; break; }
+      case  533: { name = "B*_s0"; break; }
+      case  543: { name = "B*_c+"; break; }
+      case -543: { name = "B*_c-"; break; }
+      case  1114: { name = "Delta-"; break; }
+      case -1114: { name = "Deltabar+"; break; }
+      case -2112: { name = "nbar0"; break; }
+      case  2112: { name = "n"; break; }
+      case  2114: { name = "Delta0"; break; }
+      case -2114: { name = "Deltabar0"; break; }
+      case  3122: { name = "Lambda0"; break; }
+      case -3122: { name = "Lambdabar0"; break; }
+      case  3112: { name = "Sigma-"; break; }
+      case -3112: { name = "Sigmabar+"; break; }
+      case  3212: { name = "Sigma0"; break; }
+      case -3212: { name = "Sigmabar0"; break; }
+      case  3214: { name = "Sigma*0"; break; }
+      case -3214: { name = "Sigma*bar0"; break; }
+      case  3222: { name = "Sigma+"; break; }
+      case -3222: { name = "Sigmabar-"; break; }
+      case  2212: { name = "p"; break; }
+      case -2212: { name = "~p"; break; }
+      case -2214: { name = "Delta-"; break; }
+      case  2214: { name = "Delta+"; break; }
+      case -2224: { name = "Deltabar--"; break; }
+      case  2224: { name = "Delta++"; break; }
+      default: { 
       name = "unknown"; 
       cout << "Unknown code : " << partId << endl;
-    }   
-    }
+      }   
+      }
     */
     std::string latexString;
     std::string name = getGenParticleName(partId,latexString);
@@ -2502,22 +2466,27 @@ PFRootEventManager::printGenParticles(std::ostream& out,
     math::XYZTLorentzVector momentum1(p->momentum().px(),
                                       p->momentum().py(),
                                       p->momentum().pz(),
-                                      p->momentum().e());
+                                      p->momentum().e() );
 
     int vertexId1 = 0;
 
-    if ( !p->production_vertex() ) continue;
+    if ( !p->production_vertex() && p->pdg_id() == 2212 ) continue;
 
-    math::XYZVector vertex1 (p->production_vertex()->position().x()/10.,
-                             p->production_vertex()->position().y()/10.,
-                             p->production_vertex()->position().z()/10.);
-    vertexId1 = p->production_vertex()->barcode();
-    
+    math::XYZVector vertex1;
+    vertexId1 = -1;
+
+    if(p->production_vertex() ) {
+      vertex1.SetCoordinates( p->production_vertex()->position().x()/10.,
+			      p->production_vertex()->position().y()/10.,
+			      p->production_vertex()->position().z()/10. );
+      vertexId1 = p->production_vertex()->barcode();
+    }
+
     out.setf(std::ios::fixed, std::ios::floatfield);
     out.setf(std::ios::right, std::ios::adjustfield);
     
     out << std::setw(4) << p->barcode() << " " 
-              << name;
+        << name;
     
     for(unsigned int k=0;k<11-name.length() && k<12; k++) out << " ";  
     
@@ -2526,23 +2495,26 @@ PFRootEventManager::printGenParticles(std::ostream& out,
     if ( eta < -10. ) eta = -10.;
     
     out << std::setw(6) << std::setprecision(2) << eta << " " 
-	<< std::setw(6) << std::setprecision(2) << momentum1.phi() << " " 
-	<< std::setw(7) << std::setprecision(2) << momentum1.pt() << " " 
-	<< std::setw(7) << std::setprecision(2) << momentum1.e() << " " 
-	<< std::setw(4) << vertexId1 << " " 
-	<< std::setw(6) << std::setprecision(1) << vertex1.x() << " " 
-	<< std::setw(6) << std::setprecision(1) << vertex1.y() << " " 
-	<< std::setw(6) << std::setprecision(1) << vertex1.z() << " ";
+        << std::setw(6) << std::setprecision(2) << momentum1.phi() << " " 
+        << std::setw(7) << std::setprecision(2) << momentum1.pt() << " " 
+        << std::setw(7) << std::setprecision(2) << momentum1.e() << " " 
+        << std::setw(4) << vertexId1 << " " 
+        << std::setw(6) << std::setprecision(1) << vertex1.x() << " " 
+        << std::setw(6) << std::setprecision(1) << vertex1.y() << " " 
+        << std::setw(6) << std::setprecision(1) << vertex1.z() << " ";
 
 
-    const HepMC::GenParticle* mother = 
-      *(p->production_vertex()->particles_in_const_begin());
+    if( p->production_vertex() ) {
+      if ( p->production_vertex()->particles_in_size() ) {
+	const HepMC::GenParticle* mother = 
+	  *(p->production_vertex()->particles_in_const_begin());
+	
+	out << std::setw(4) << mother->barcode() << " ";
+      }
+      else 
+	out << "     " ;
+    }    
 
-    if ( mother )
-      out << std::setw(4) << mother->barcode() << " ";
-    else 
-      out << "     " ;
-    
     if ( p->end_vertex() ) {  
       math::XYZTLorentzVector vertex2(p->end_vertex()->position().x()/10.,
                                       p->end_vertex()->position().y()/10.,
@@ -2560,10 +2532,10 @@ PFRootEventManager::printGenParticles(std::ostream& out,
       }      
 
       out << std::setw(4) << vertexId2 << " "
-	  << std::setw(6) << std::setprecision(2) << vertex2.eta() << " " 
-	  << std::setw(6) << std::setprecision(2) << vertex2.phi() << " " 
-	  << std::setw(5) << std::setprecision(1) << vertex2.pt() << " " 
-	  << std::setw(6) << std::setprecision(1) << vertex2.z() << " ";
+          << std::setw(6) << std::setprecision(2) << vertex2.eta() << " " 
+          << std::setw(6) << std::setprecision(2) << vertex2.phi() << " " 
+          << std::setw(5) << std::setprecision(1) << vertex2.pt() << " " 
+          << std::setw(6) << std::setprecision(1) << vertex2.z() << " ";
 
       for ( unsigned id=0; id<children.size(); ++id )
         out << std::setw(4) << children[id]->barcode() << " ";
@@ -2743,15 +2715,15 @@ PFRootEventManager::readCMSSWJets() {
 
   cout<<"CMSSW Gen jets : size = " <<  genJetsCMSSW_.size() << endl;
   for ( unsigned i = 0; i < genJetsCMSSW_.size(); i++) {
-     cout<<"Gen jet Et : " <<  genJetsCMSSW_[i].et() << endl;
+    cout<<"Gen jet Et : " <<  genJetsCMSSW_[i].et() << endl;
   }
   cout<<"CMSSW PF jets : size = " <<  pfJetsCMSSW_.size() << endl;
   for ( unsigned i = 0; i < pfJetsCMSSW_.size(); i++) {
-     cout<<"PF jet Et : " <<  pfJetsCMSSW_[i].et() << endl;
+    cout<<"PF jet Et : " <<  pfJetsCMSSW_[i].et() << endl;
   }
   cout<<"CMSSW Calo jets : size = " <<  caloJetsCMSSW_.size() << endl;
   for ( unsigned i = 0; i < caloJetsCMSSW_.size(); i++) {
-     cout<<"Calo jet Et : " << caloJetsCMSSW_[i].et() << endl;
+    cout<<"Calo jet Et : " << caloJetsCMSSW_[i].et() << endl;
   }
 }
 //________________________________________________________________
@@ -2759,110 +2731,110 @@ std::string PFRootEventManager::getGenParticleName(int partId, std::string &late
 {
   std::string  name;
   switch(partId) {
- 	case    1: { name = "d";latexString="d"; break; } 
-	case    2: { name = "u";latexString="u";break; } 
-	case    3: { name = "s";latexString="s" ;break; } 
-	case    4: { name = "c";latexString="c" ; break; } 
-	case    5: { name = "b";latexString="b" ; break; } 
-	case    6: { name = "t";latexString="t" ; break; } 
-	case   -1: { name = "~d";latexString="#bar{d}" ; break; } 
-	case   -2: { name = "~u";latexString="#bar{u}" ; break; } 
-	case   -3: { name = "~s";latexString="#bar{s}" ; break; } 
-	case   -4: { name = "~c";latexString="#bar{c}" ; break; } 
-	case   -5: { name = "~b";latexString="#bar{b}" ; break; } 
-	case   -6: { name = "~t";latexString="#bar{t}" ; break; } 
-	case   11: { name = "e-";latexString=name ; break; }
-	case  -11: { name = "e+";latexString=name ; break; }
-	case   12: { name = "nu_e";latexString="#nu_{e}" ; break; }
-	case  -12: { name = "~nu_e";latexString="#bar{#nu}_{e}" ; break; }
-	case   13: { name = "mu-";latexString="#mu-" ; break; }
-	case  -13: { name = "mu+";latexString="#mu+" ; break; }
-	case   14: { name = "nu_mu";latexString="#nu_{mu}" ; break; }
-	case  -14: { name = "~nu_mu";latexString="#bar{#nu}_{#mu}"; break; }
-	case   15: { name = "tau-";latexString="#tau^{-}" ; break; }
-	case  -15: { name = "tau+";latexString="#tau^{+}" ; break; }
-	case   16: { name = "nu_tau";latexString="#nu_{#tau}" ; break; }
-	case  -16: { name = "~nu_tau";latexString="#bar{#nu}_{#tau}"; break; }
-	case   21: { name = "gluon";latexString= name; break; }
-	case   22: { name = "gamma";latexString= "#gamma"; break; }
-	case   23: { name = "Z0";latexString="Z^{0}" ; break; }
-	case   24: { name = "W+";latexString="W^{+}" ; break; }
-	case   25: { name = "H0";latexString=name ; break; }
-	case  -24: { name = "W-";latexString="W^{-}" ; break; }
-	case  111: { name = "pi0";latexString="#pi^{0}" ; break; }
-	case  113: { name = "rho0";latexString="#rho^{0}" ; break; }
-	case  223: { name = "omega";latexString="#omega" ; break; }
-	case  333: { name = "phi";latexString= "#phi"; break; }
-	case  443: { name = "J/psi";latexString="J/#psi" ; break; }
-	case  553: { name = "Upsilon";latexString="#Upsilon" ; break; }
-	case  130: { name = "K0L";latexString=name ; break; }
-	case  211: { name = "pi+";latexString="#pi^{+}" ; break; }
-	case -211: { name = "pi-";latexString="#pi^{-}" ; break; }
-	case  213: { name = "rho+";latexString="#rho^{+}" ; break; }
-	case -213: { name = "rho-";latexString="#rho^{-}" ; break; }
-	case  221: { name = "eta";latexString="#eta" ; break; }
-	case  331: { name = "eta'";latexString="#eta'" ; break; }
-	case  441: { name = "etac";latexString="#eta_{c}" ; break; }
-	case  551: { name = "etab";latexString= "#eta_{b}"; break; }
-	case  310: { name = "K0S";latexString=name ; break; }
-	case  311: { name = "K0";latexString="K^{0}" ; break; }
-	case -311: { name = "Kbar0";latexString="#bar{#Kappa}^{0}" ; break; }
-	case  321: { name = "K+";latexString= "K^{+}"; break; }
-	case -321: { name = "K-";latexString="K^{-}"; break; }
-	case  411: { name = "D+";latexString="D^{+}" ; break; }
-	case -411: { name = "D-";latexString="D^{-}"; break; }
-	case  421: { name = "D0";latexString=name ; break; }
-	case  431: { name = "Ds_+";latexString="Ds_{+}" ; break; }
-	case -431: { name = "Ds_-";latexString="Ds_{-}" ; break; }
-	case  511: { name = "B0";latexString= name; break; }
-	case  521: { name = "B+";latexString="B^{+}" ; break; }
-	case -521: { name = "B-";latexString="B^{-}" ; break; }
-	case  531: { name = "Bs_0";latexString="Bs_{0}" ; break; }
-	case  541: { name = "Bc_+";latexString="Bc_{+}" ; break; }
-	case -541: { name = "Bc_+";latexString="Bc_{+}" ; break; }
-	case  313: { name = "K*0";latexString="K^{*0}" ; break; }
-	case -313: { name = "K*bar0";latexString="#bar{K}^{*0}" ; break; }
-	case  323: { name = "K*+";latexString="#K^{*+}"; break; }
-	case -323: { name = "K*-";latexString="#K^{*-}" ; break; }
-	case  413: { name = "D*+";latexString= "D^{*+}"; break; }
-	case -413: { name = "D*-";latexString= "D^{*-}" ; break; }
-	case  423: { name = "D*0";latexString="D^{*0}" ; break; }
-	case  513: { name = "B*0";latexString="B^{*0}" ; break; }
-	case  523: { name = "B*+";latexString="B^{*+}" ; break; }
-	case -523: { name = "B*-";latexString="B^{*-}" ; break; }
-	case  533: { name = "B*_s0";latexString="B^{*}_{s0}" ; break; }
-	case  543: { name = "B*_c+";latexString= "B^{*}_{c+}"; break; }
-	case -543: { name = "B*_c-";latexString= "B^{*}_{c-}"; break; }
-	case  1114: { name = "Delta-";latexString="#Delta^{-}" ; break; }
-	case -1114: { name = "Deltabar+";latexString="#bar{#Delta}^{+}" ; break; }
-	case -2112: { name = "nbar0";latexString="{bar}n^{0}" ; break; }
-	case  2112: { name = "n"; latexString=name ;break;}
-	case  2114: { name = "Delta0"; latexString="#Delta^{0}" ;break; }
-	case -2114: { name = "Deltabar0"; latexString="#bar{#Delta}^{0}" ;break; }
-	case  3122: { name = "Lambda0";latexString= "#Lambda^{0}"; break; }
-	case -3122: { name = "Lambdabar0";latexString="#bar{#Lambda}^{0}" ; break; }
-	case  3112: { name = "Sigma-"; latexString="#Sigma" ;break; }
-	case -3112: { name = "Sigmabar+"; latexString="#bar{#Sigma}^{+}" ;break; }
-	case  3212: { name = "Sigma0";latexString="#Sigma^{0}" ; break; }
-	case -3212: { name = "Sigmabar0";latexString="#bar{#Sigma}^{0}" ; break; }
-	case  3214: { name = "Sigma*0"; latexString="#Sigma^{*0}" ;break; }
-	case -3214: { name = "Sigma*bar0";latexString="#bar{#Sigma}^{*0}" ; break; }
-	case  3222: { name = "Sigma+"; latexString="#Sigma^{+}" ;break; }
-	case -3222: { name = "Sigmabar-"; latexString="#bar{#Sigma}^{-}";break; }
-	case  2212: { name = "p";latexString=name ; break; }
-	case -2212: { name = "~p";latexString="#bar{p}" ; break; }
-	case -2214: { name = "Delta-";latexString="#Delta^{-}" ; break; }
-	case  2214: { name = "Delta+";latexString="#Delta^{+}" ; break; }
-	case -2224: { name = "Deltabar--"; latexString="#bar{#Delta}^{--}" ;break; }
-	case  2224: { name = "Delta++"; latexString= "#Delta^{++}";break; }
-	default:
-	 {
-	   name = "unknown"; 
-           cout << "Unknown code : " << partId << endl;
-	   break;
-         } 
-		
-		  
+  case    1: { name = "d";latexString="d"; break; } 
+  case    2: { name = "u";latexString="u";break; } 
+  case    3: { name = "s";latexString="s" ;break; } 
+  case    4: { name = "c";latexString="c" ; break; } 
+  case    5: { name = "b";latexString="b" ; break; } 
+  case    6: { name = "t";latexString="t" ; break; } 
+  case   -1: { name = "~d";latexString="#bar{d}" ; break; } 
+  case   -2: { name = "~u";latexString="#bar{u}" ; break; } 
+  case   -3: { name = "~s";latexString="#bar{s}" ; break; } 
+  case   -4: { name = "~c";latexString="#bar{c}" ; break; } 
+  case   -5: { name = "~b";latexString="#bar{b}" ; break; } 
+  case   -6: { name = "~t";latexString="#bar{t}" ; break; } 
+  case   11: { name = "e-";latexString=name ; break; }
+  case  -11: { name = "e+";latexString=name ; break; }
+  case   12: { name = "nu_e";latexString="#nu_{e}" ; break; }
+  case  -12: { name = "~nu_e";latexString="#bar{#nu}_{e}" ; break; }
+  case   13: { name = "mu-";latexString="#mu-" ; break; }
+  case  -13: { name = "mu+";latexString="#mu+" ; break; }
+  case   14: { name = "nu_mu";latexString="#nu_{mu}" ; break; }
+  case  -14: { name = "~nu_mu";latexString="#bar{#nu}_{#mu}"; break; }
+  case   15: { name = "tau-";latexString="#tau^{-}" ; break; }
+  case  -15: { name = "tau+";latexString="#tau^{+}" ; break; }
+  case   16: { name = "nu_tau";latexString="#nu_{#tau}" ; break; }
+  case  -16: { name = "~nu_tau";latexString="#bar{#nu}_{#tau}"; break; }
+  case   21: { name = "gluon";latexString= name; break; }
+  case   22: { name = "gamma";latexString= "#gamma"; break; }
+  case   23: { name = "Z0";latexString="Z^{0}" ; break; }
+  case   24: { name = "W+";latexString="W^{+}" ; break; }
+  case   25: { name = "H0";latexString=name ; break; }
+  case  -24: { name = "W-";latexString="W^{-}" ; break; }
+  case  111: { name = "pi0";latexString="#pi^{0}" ; break; }
+  case  113: { name = "rho0";latexString="#rho^{0}" ; break; }
+  case  223: { name = "omega";latexString="#omega" ; break; }
+  case  333: { name = "phi";latexString= "#phi"; break; }
+  case  443: { name = "J/psi";latexString="J/#psi" ; break; }
+  case  553: { name = "Upsilon";latexString="#Upsilon" ; break; }
+  case  130: { name = "K0L";latexString=name ; break; }
+  case  211: { name = "pi+";latexString="#pi^{+}" ; break; }
+  case -211: { name = "pi-";latexString="#pi^{-}" ; break; }
+  case  213: { name = "rho+";latexString="#rho^{+}" ; break; }
+  case -213: { name = "rho-";latexString="#rho^{-}" ; break; }
+  case  221: { name = "eta";latexString="#eta" ; break; }
+  case  331: { name = "eta'";latexString="#eta'" ; break; }
+  case  441: { name = "etac";latexString="#eta_{c}" ; break; }
+  case  551: { name = "etab";latexString= "#eta_{b}"; break; }
+  case  310: { name = "K0S";latexString=name ; break; }
+  case  311: { name = "K0";latexString="K^{0}" ; break; }
+  case -311: { name = "Kbar0";latexString="#bar{#Kappa}^{0}" ; break; }
+  case  321: { name = "K+";latexString= "K^{+}"; break; }
+  case -321: { name = "K-";latexString="K^{-}"; break; }
+  case  411: { name = "D+";latexString="D^{+}" ; break; }
+  case -411: { name = "D-";latexString="D^{-}"; break; }
+  case  421: { name = "D0";latexString=name ; break; }
+  case  431: { name = "Ds_+";latexString="Ds_{+}" ; break; }
+  case -431: { name = "Ds_-";latexString="Ds_{-}" ; break; }
+  case  511: { name = "B0";latexString= name; break; }
+  case  521: { name = "B+";latexString="B^{+}" ; break; }
+  case -521: { name = "B-";latexString="B^{-}" ; break; }
+  case  531: { name = "Bs_0";latexString="Bs_{0}" ; break; }
+  case  541: { name = "Bc_+";latexString="Bc_{+}" ; break; }
+  case -541: { name = "Bc_+";latexString="Bc_{+}" ; break; }
+  case  313: { name = "K*0";latexString="K^{*0}" ; break; }
+  case -313: { name = "K*bar0";latexString="#bar{K}^{*0}" ; break; }
+  case  323: { name = "K*+";latexString="#K^{*+}"; break; }
+  case -323: { name = "K*-";latexString="#K^{*-}" ; break; }
+  case  413: { name = "D*+";latexString= "D^{*+}"; break; }
+  case -413: { name = "D*-";latexString= "D^{*-}" ; break; }
+  case  423: { name = "D*0";latexString="D^{*0}" ; break; }
+  case  513: { name = "B*0";latexString="B^{*0}" ; break; }
+  case  523: { name = "B*+";latexString="B^{*+}" ; break; }
+  case -523: { name = "B*-";latexString="B^{*-}" ; break; }
+  case  533: { name = "B*_s0";latexString="B^{*}_{s0}" ; break; }
+  case  543: { name = "B*_c+";latexString= "B^{*}_{c+}"; break; }
+  case -543: { name = "B*_c-";latexString= "B^{*}_{c-}"; break; }
+  case  1114: { name = "Delta-";latexString="#Delta^{-}" ; break; }
+  case -1114: { name = "Deltabar+";latexString="#bar{#Delta}^{+}" ; break; }
+  case -2112: { name = "nbar0";latexString="{bar}n^{0}" ; break; }
+  case  2112: { name = "n"; latexString=name ;break;}
+  case  2114: { name = "Delta0"; latexString="#Delta^{0}" ;break; }
+  case -2114: { name = "Deltabar0"; latexString="#bar{#Delta}^{0}" ;break; }
+  case  3122: { name = "Lambda0";latexString= "#Lambda^{0}"; break; }
+  case -3122: { name = "Lambdabar0";latexString="#bar{#Lambda}^{0}" ; break; }
+  case  3112: { name = "Sigma-"; latexString="#Sigma" ;break; }
+  case -3112: { name = "Sigmabar+"; latexString="#bar{#Sigma}^{+}" ;break; }
+  case  3212: { name = "Sigma0";latexString="#Sigma^{0}" ; break; }
+  case -3212: { name = "Sigmabar0";latexString="#bar{#Sigma}^{0}" ; break; }
+  case  3214: { name = "Sigma*0"; latexString="#Sigma^{*0}" ;break; }
+  case -3214: { name = "Sigma*bar0";latexString="#bar{#Sigma}^{*0}" ; break; }
+  case  3222: { name = "Sigma+"; latexString="#Sigma^{+}" ;break; }
+  case -3222: { name = "Sigmabar-"; latexString="#bar{#Sigma}^{-}";break; }
+  case  2212: { name = "p";latexString=name ; break; }
+  case -2212: { name = "~p";latexString="#bar{p}" ; break; }
+  case -2214: { name = "Delta-";latexString="#Delta^{-}" ; break; }
+  case  2214: { name = "Delta+";latexString="#Delta^{+}" ; break; }
+  case -2224: { name = "Deltabar--"; latexString="#bar{#Delta}^{--}" ;break; }
+  case  2224: { name = "Delta++"; latexString= "#Delta^{++}";break; }
+  default:
+    {
+      name = "unknown"; 
+      cout << "Unknown code : " << partId << endl;
+      break;
+    } 
+                
+                  
   }
   return name;  
 

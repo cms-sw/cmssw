@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2008/06/25 14:16:15 $
- * $Revision: 1.110 $
+ * $Date: 2008/07/12 09:02:10 $
+ * $Revision: 1.111 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -124,6 +124,8 @@ bool cloneME_;
 
 bool verbose_;
 bool debug_;
+
+int prescaleFactor_;
 
 bool enableMonitorDaemon_;
 

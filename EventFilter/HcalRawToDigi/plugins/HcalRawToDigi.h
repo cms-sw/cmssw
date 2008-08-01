@@ -38,6 +38,16 @@ private:
   int firstFED_;
   bool unpackCalib_, unpackZDC_;
   bool complainEmptyData_;
+
+  struct Statistics {
+    int max_hbhe, ave_hbhe;
+    int max_ho, ave_ho;
+    int max_hf, ave_hf;
+    int max_tp, ave_tp;
+    int max_tpho, ave_tpho;
+    int max_calib, ave_calib;
+    uint64_t n;
+  } stats_;
 };
 
 #endif

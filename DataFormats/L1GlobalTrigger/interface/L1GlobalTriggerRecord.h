@@ -27,7 +27,8 @@
 // forward declarations
 namespace edm
 {
-template <typename T> class Handle;
+template <typename T>
+class Handle;
 }
 
 // class interface
@@ -62,25 +63,30 @@ public:
 
     /// get Global Trigger decision, decision word and technical trigger word
     /// for bunch cross with L1Accept (BxInEvent = 0) 
-    inline const bool decision() const {
+    inline const bool decision() const
+    {
         return m_gtGlobalDecision;
     }
 
-    inline const DecisionWord decisionWord() const {
+    inline const DecisionWord decisionWord() const
+    {
         return m_gtDecisionWord;
     }
 
-    inline const TechnicalTriggerWord technicalTriggerWord() const {
+    inline const TechnicalTriggerWord technicalTriggerWord() const
+    {
         return m_gtTechnicalTriggerWord;
     }
 
-    inline const DecisionWord decisionWordBeforeMask() const {
+    inline const DecisionWord decisionWordBeforeMask() const
+    {
         return m_gtDecisionWordBeforeMask;
     }
 
-    inline const TechnicalTriggerWord technicalTriggerWordBeforeMask() const {
+    inline const TechnicalTriggerWord technicalTriggerWordBeforeMask() const
+    {
         return m_gtTechnicalTriggerWordBeforeMask;
-    }
+    }   
 
     /// set global decision, decision word and technical trigger word
     /// for bunch cross with L1Accept (BxInEvent = 0) 
@@ -89,28 +95,7 @@ public:
     void setTechnicalTriggerWord(const TechnicalTriggerWord& ttWordValue);
 
     void setDecisionWordBeforeMask(const DecisionWord& dWordValue);
-    void setTechnicalTriggerWordBeforeMask(
-            const TechnicalTriggerWord& ttWordValue);
-
-    /// get/set index of the set of prescale factors
-
-    inline const unsigned int gtPrescaleFactorIndexTech() const {
-        return m_gtPrescaleFactorIndexTech;
-    }
-
-    void setGtPrescaleFactorIndexTech(
-            const unsigned int& gtPrescaleFactorIndexTechValue) {
-        m_gtPrescaleFactorIndexTech = gtPrescaleFactorIndexTechValue;
-    }
-
-    inline const unsigned int gtPrescaleFactorIndexAlgo() const {
-        return m_gtPrescaleFactorIndexAlgo;
-    }
-
-    void setGtPrescaleFactorIndexAlgo(
-            const unsigned int& gtPrescaleFactorIndexAlgoValue) {
-        m_gtPrescaleFactorIndexAlgo = gtPrescaleFactorIndexAlgoValue;
-    }
+    void setTechnicalTriggerWordBeforeMask(const TechnicalTriggerWord& ttWordValue);
 
     /// print global decision and algorithm decision word
     void printGtDecision(std::ostream& myCout) const;
@@ -127,14 +112,14 @@ public:
     void print(std::ostream& myCout) const;
 
     /// output stream operator
-    friend std::ostream
-            & operator<<(std::ostream&, const L1GlobalTriggerRecord&);
+    friend std::ostream& operator<<(std::ostream&, const L1GlobalTriggerRecord&);
+
 
 private:
 
     /// global decision for L1A bunch cross
     bool m_gtGlobalDecision;
-
+    
     /// algorithm decision word for L1A bunch cross
     DecisionWord m_gtDecisionWord;
 
@@ -147,11 +132,7 @@ private:
     /// technical trigger word for L1A bunch cross before applying the masks
     TechnicalTriggerWord m_gtTechnicalTriggerWordBeforeMask;
 
-    /// index of the set of prescale factors in the DB/EventSetup
-    /// for algorithm triggers and technical triggers
-    unsigned int m_gtPrescaleFactorIndexTech;
-    unsigned int m_gtPrescaleFactorIndexAlgo;
-
 };
+
 
 #endif

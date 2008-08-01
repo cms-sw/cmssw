@@ -309,7 +309,7 @@ class _TypedParameterizable(_Parameterizable):
             # and pass it to the constructor using the **{...} notation
             label = ""
             try:
-               label = "process."+self.label()
+               label = "process."+self.label_()
             except:
                label = "FIX-THIS"
             result += ")\n" + self.dumpPythonAttributes(label, options)
@@ -340,7 +340,10 @@ class _Labelable(object):
     """A 'mixin' used to denote that the class can be paired with a label (e.g. an EDProducer)"""
     def setLabel(self,label):
         self.__label = label
+    def label_(self):
+        return self.__label
     def label(self):
+        #print "WARNING: _Labelable::label() needs to be changed to label_()"
         return self.__label
     def __str__(self):
         #this is probably a bad idea
@@ -353,17 +356,17 @@ class _Labelable(object):
         return 'process.'+str(self.__label)
     def _findDependencies(self,knownDeps,presentDeps):
         #print 'in labelled'
-        myDeps=knownDeps.get(self.label(),None)
+        myDeps=knownDeps.get(self.label_(),None)
         if myDeps!=None:
             if presentDeps != myDeps:
-                raise RuntimeError("the module "+self.label()+" has two dependencies \n"
+                raise RuntimeError("the module "+self.label_()+" has two dependencies \n"
                                    +str(presentDeps)+"\n"
                                    +str(myDeps)+"\n"
                                    +"Please modify sequences to rectify this inconsistency")
         else:
             myDeps=set(presentDeps)
-            knownDeps[self.label()]=myDeps
-        presentDeps.add(self.label())
+            knownDeps[self.label_()]=myDeps
+        presentDeps.add(self.label_())
     def fillNamesList(self, l, otherSequences):
         l.append(self.__label)
 

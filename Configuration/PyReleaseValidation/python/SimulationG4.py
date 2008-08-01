@@ -62,4 +62,11 @@ def customise(process):
         ,G4cout = cms.untracked.PSet(limit = cms.untracked.int32(-1))
         ,G4cerr = cms.untracked.PSet(limit = cms.untracked.int32(-1))
         )
+
+    #Add these 3 lines to put back the summary for timing information at the end of the logfile
+    #(needed for TimeReport report)
+    process.options = cms.untracked.PSet(
+        wantSummary = cms.untracked.bool(True)
+        )
+    
     return(process)

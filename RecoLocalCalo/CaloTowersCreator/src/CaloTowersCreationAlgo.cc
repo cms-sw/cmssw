@@ -424,6 +424,15 @@ CaloTower CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTo
     double E_had=mt.E_had;
     double E_outer=mt.E_outer;
 
+    // Note: E_outer is used to save HO energy OR energy in the outermost depths in endcap region
+    // In the methods with separate treatment of EM and HAd components:
+    //  - HO is not used to determine direction, however HO energy is added to get "total had energy"
+    //  => Check if the tower is within HO coverage before adding E_outer to the "total had" energy
+    //     else the energy will be double counted
+    // When summing up the energy of the tower these checks are performed in the loops over RecHits,
+    // so it only affects the alternative methods that are NOT yet used
+
+
     float  ecalTime = (mt.emSumEForTime>0)?   mt.emSumTimeTimesE/mt.emSumEForTime  : -9999;
     float  hcalTime = (mt.hadSumEForTime>0)?  mt.hadSumTimeTimesE/mt.hadSumEForTime : -9999;
 
@@ -441,7 +450,9 @@ CaloTower CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTo
 
     if (id.ietaAbs()<=29 && E_had<theHcalThreshold) {
       E-=E_had;
-      // if (theHOIsUsed && id.ietaAbs()<=17)  E-=E_outer; // not subtracted before, think it should be done
+
+      if (theHOIsUsed && id.ietaAbs()<16)  E-=E_outer; // has to be done for consistency
+     
       E_had=0;
       E_outer=0;
       std::vector<std::pair<DetId,double> > metaContains_nohcal;
@@ -463,7 +474,8 @@ CaloTower CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTo
       GlobalPoint p=theTowerGeometry->getGeometry(id)->getPosition();
 
       double pf=1.0/cosh(p.eta());
-      towerP4 = CaloTower::PolarLorentzVector(E*pf, p.eta(), p.phi(), 0);  // simple momentum assignment, same position
+      if (E>0) towerP4 = CaloTower::PolarLorentzVector(E*pf, p.eta(), p.phi(), 0);
+      
       emPoint  = p;   
       hadPoint = p;
     }  // end case 0
@@ -478,7 +490,7 @@ CaloTower CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTo
           towerP4 += CaloTower::PolarLorentzVector(E_em*emPf, emPoint.eta(), emPoint.phi(), 0); 
         }
         if (E_had>0) {
-          double E_had_tot = (theHOIsUsed)? E_had+E_outer : E_had; 
+          double E_had_tot = (theHOIsUsed && id.ietaAbs()<16)? E_had+E_outer : E_had;
           hadPoint  = hadShwrPos(metaContains, theMomHadDepth, E_had_tot);
           double hadPf = 1.0/cosh(hadPoint.eta());
           towerP4 += CaloTower::PolarLorentzVector(E_had_tot*hadPf, hadPoint.eta(), hadPoint.phi(), 0); 
@@ -487,7 +499,7 @@ CaloTower CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTo
       else {  // forward detector: use the CaloTower position 
         GlobalPoint p=theTowerGeometry->getGeometry(id)->getPosition();
         double pf=1.0/cosh(p.eta());
-        towerP4 = CaloTower::PolarLorentzVector(E*pf, p.eta(), p.phi(), 0);  // simple momentum assignment, same position
+        if (E>0) towerP4 = CaloTower::PolarLorentzVector(E*pf, p.eta(), p.phi(), 0);  // simple momentum assignment, same position
         emPoint  = p;   
         hadPoint = p;
       }
@@ -696,7 +708,7 @@ GlobalPoint CaloTowersCreationAlgo::hadShwrPos(std::vector<std::pair<DetId,doubl
     if (mc_it->first.det() != DetId::Hcal) continue;
     ++nConst;
 
-    GlobalPoint p = hadSegmentShwrPos(mc_it->first.det(), fracDepth);
+    GlobalPoint p = hadSegmentShwrPos(mc_it->first, fracDepth);
 
     // longitudinal segmentation: do not weight by energy,
     // get the geometrical position
@@ -721,7 +733,7 @@ GlobalPoint CaloTowersCreationAlgo::emShwrPos(std::vector<std::pair<DetId,double
   std::vector<std::pair<DetId,double> >::iterator mc_it = metaContains.begin();
   for (; mc_it!=metaContains.end(); ++mc_it) {
     if (mc_it->first.det() != DetId::Ecal) continue;
-    GlobalPoint p = emCrystalShwrPos(mc_it->first.det(), fracDepth);
+    GlobalPoint p = emCrystalShwrPos(mc_it->first, fracDepth);
     double e = mc_it->second;
 
     emX += p.x() * e;

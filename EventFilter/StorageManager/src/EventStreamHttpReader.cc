@@ -17,7 +17,7 @@
                 Manager or specify a maximum number of events for
                 the client to read through a maxEvents parameter.
 
-  $Id: EventStreamHttpReader.cc,v 1.28 2008/01/29 20:51:12 biery Exp $
+  $Id: EventStreamHttpReader.cc,v 1.29 2008/02/11 15:14:53 biery Exp $
 */
 
 #include "EventFilter/StorageManager/src/EventStreamHttpReader.h"
@@ -99,8 +99,7 @@ namespace edm
     registerWithEventServer();
 
     std::auto_ptr<SendJobHeader> p = readHeader();
-    SendDescs & descs = p->descs_;
-    mergeWithRegistry(descs);
+    SendDescs const& descs = p->descs();
 
     // next taken from IOPool/Streamer/EventStreamFileReader
     // jbk - the next line should not be needed
@@ -377,7 +376,7 @@ namespace edm
         throw cms::Exception("EventStreamHttpReader", "readHeader");
       }
       InitMsgView initView(&regdata[0]);
-      p = deserializeRegistry(initView);
+      p = deserializeAndMergeWithRegistry(initView);
     }
     catch (cms::Exception excpt) {
       const unsigned int MAX_DUMP_LENGTH = 1000;

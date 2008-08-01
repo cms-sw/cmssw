@@ -34,7 +34,30 @@ globalhitsanalyze = cms.EDAnalyzer("GlobalHitsAnalyzer",
     # 2 provides output of the fill step + 1
     # 3 provides output of the store step + 2
     Frequency = cms.untracked.int32(50),
-    ECalEBSrc = cms.InputTag("g4SimHits","EcalHitsEB")
+    ECalEBSrc = cms.InputTag("g4SimHits","EcalHitsEB"),
+
+    validHepMCevt = cms.untracked.bool(True),
+    validG4VtxContainer = cms.untracked.bool(True),
+    validG4trkContainer = cms.untracked.bool(True),
+    validPxlBrlLow = cms.untracked.bool(True),
+    validPxlBrlHigh = cms.untracked.bool(True),
+    validPxlFwdLow = cms.untracked.bool(True),
+    validPxlFwdHigh = cms.untracked.bool(True),
+    validSiTIBLow = cms.untracked.bool(True),
+    validSiTIBHigh = cms.untracked.bool(True),
+    validSiTOBLow = cms.untracked.bool(True),
+    validSiTOBHigh = cms.untracked.bool(True),
+    validSiTIDLow = cms.untracked.bool(True),
+    validSiTIDHigh = cms.untracked.bool(True),
+    validSiTECLow = cms.untracked.bool(True),
+    validSiTECHigh = cms.untracked.bool(True),
+    validMuonCSC = cms.untracked.bool(True),
+    validMuonDt = cms.untracked.bool(True),
+    validMuonRPC = cms.untracked.bool(True),
+    validEB = cms.untracked.bool(True),
+    validEE = cms.untracked.bool(True),
+    validPresh = cms.untracked.bool(False),
+    validHcal = cms.untracked.bool(True)    
 )
 
 

@@ -7,12 +7,12 @@ class CSCTFConfigProducer;
 
 class L1MuCSCPtLut {
 private:
-        unsigned short pt_lut[1<<21];
+	unsigned short pt_lut[1<<21];
 	friend class CSCTFConfigProducer;
 
 public:
 	unsigned short pt(unsigned long addr) const throw() {
-	  if( addr<(1<<21) ) return pt_lut[(unsigned int)addr];
+		if( addr<(1<<21) ) return pt_lut[addr];
 		else return 0;
 	}
 

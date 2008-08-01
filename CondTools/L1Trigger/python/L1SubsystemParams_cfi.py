@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+# keys are used only in L1TriggerKeyDummyProd
+# tags are used in L1CondDBIOVWriterProd and must match PoolDBESSource
 L1SubsystemParams = cms.PSet(
     recordInfo = cms.VPSet(cms.PSet(
         record = cms.string('L1JetEtScaleRcd'),
@@ -14,21 +16,9 @@ L1SubsystemParams = cms.PSet(
             key = cms.string('dummy')
         ), 
         cms.PSet(
-            record = cms.string('L1MuTriggerScalesRcd'),
-            tag = cms.string('L1MuTriggerScales_CRUZET_hlt'),
-            type = cms.string('L1MuTriggerScales'),
-            key = cms.string('dummy')
-        ), 
-        cms.PSet(
-            record = cms.string('L1MuTriggerPtScaleRcd'),
-            tag = cms.string('L1MuTriggerPtScale_CRUZET_hlt'),
-            type = cms.string('L1MuTriggerPtScale'),
-            key = cms.string('dummy')
-        ), 
-        cms.PSet(
-            record = cms.string('L1MuGMTScalesRcd'),
-            tag = cms.string('L1MuGMTScales_CRUZET_hlt'),
-            type = cms.string('L1MuGMTScales'),
+            record = cms.string('L1CSCTPParametersRcd'),
+            tag = cms.string('L1CSCTPParameters_CRUZET_hlt'),
+            type = cms.string('L1CSCTPParameters'),
             key = cms.string('dummy')
         ), 
         cms.PSet(
@@ -38,15 +28,9 @@ L1SubsystemParams = cms.PSet(
             key = cms.string('dummy')
         ), 
         cms.PSet(
-            record = cms.string('L1MuCSCTFAlignmentRcd'),
-            tag = cms.string('L1MuCSCTFAlignment_CRUZET_hlt'),
-            type = cms.string('L1MuCSCTFAlignment'),
-            key = cms.string('dummy')
-        ), 
-        cms.PSet(
-            record = cms.string('L1MuCSCPtLutRcd'),
-            tag = cms.string('L1MuCSCPtLut_CRUZET_hlt'),
-            type = cms.string('L1MuCSCPtLut'),
+            record = cms.string('DTConfigManagerRcd'),
+            tag = cms.string('DTConfigManager_CRUZET_hlt'),
+            type = cms.string('DTConfigManager'),
             key = cms.string('dummy')
         ), 
         cms.PSet(
@@ -80,18 +64,6 @@ L1SubsystemParams = cms.PSet(
             key = cms.string('dummy')
         ), 
         cms.PSet(
-            record = cms.string('L1MuDTTFParametersRcd'),
-            tag = cms.string('L1MuDTTFParameters_CRUZET_hlt'),
-            type = cms.string('L1MuDTTFParameters'),
-            key = cms.string('dummy')
-        ), 
-        cms.PSet(
-            record = cms.string('L1RPCConfigRcd'),
-            tag = cms.string('L1RPCConfig_CRUZET_hlt'),
-            type = cms.string('L1RPCConfig'),
-            key = cms.string('dummy')
-        ), 
-        cms.PSet(
             record = cms.string('L1MuGMTParametersRcd'),
             tag = cms.string('L1MuGMTParameters_CRUZET_hlt'),
             type = cms.string('L1MuGMTParameters'),
@@ -101,30 +73,6 @@ L1SubsystemParams = cms.PSet(
             record = cms.string('L1RCTParametersRcd'),
             tag = cms.string('L1RCTParameters_CRUZET_hlt'),
             type = cms.string('L1RCTParameters'),
-            key = cms.string('dummy')
-        ), 
-        cms.PSet(
-            record = cms.string('L1RCTChannelMaskRcd'),
-            tag = cms.string('L1RCTChannelMask_CRUZET_hlt'),
-            type = cms.string('L1RCTChannelMask'),
-            key = cms.string('dummy')
-        ), 
-        cms.PSet(
-            record = cms.string('L1CaloEcalScaleRcd'),
-            tag = cms.string('L1CaloEcalScale_CRUZET_hlt'),
-            type = cms.string('L1CaloEcalScale'),
-            key = cms.string('dummy')
-        ), 
-        cms.PSet(
-            record = cms.string('L1CaloHcalScaleRcd'),
-            tag = cms.string('L1CaloHcalScale_CRUZET_hlt'),
-            type = cms.string('L1CaloHcalScale'),
-            key = cms.string('dummy')
-        ), 
-        cms.PSet(
-            record = cms.string('L1GctChannelMaskRcd'),
-            tag = cms.string('L1GctChannelMask_CRUZET_hlt'),
-            type = cms.string('L1GctChannelMask'),
             key = cms.string('dummy')
         ), 
         cms.PSet(
@@ -191,18 +139,6 @@ L1SubsystemParams = cms.PSet(
             record = cms.string('L1GtTriggerMaskTechTrigRcd'),
             tag = cms.string('L1GtTriggerMaskTechTrig_CRUZET_hlt'),
             type = cms.string('L1GtTriggerMask'),
-            key = cms.string('dummy')
-        ), 
-        cms.PSet(
-            record = cms.string('L1GtTriggerMenuRcd'),
-            tag = cms.string('L1GtTriggerMenu_CRUZET_hlt'),
-            type = cms.string('L1GtTriggerMenu'),
-            key = cms.string('dummy')
-        ), 
-        cms.PSet(
-            record = cms.string('L1CaloGeometryRecord'),
-            tag = cms.string('L1CaloGeometry_CRUZET_hlt'),
-            type = cms.string('L1CaloGeometry'),
             key = cms.string('dummy')
         ))
 )

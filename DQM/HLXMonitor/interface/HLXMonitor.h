@@ -14,7 +14,7 @@ Implementation:
 // Original Author:  Adam Hunt - Princeton University
 //           email:  ahunt@princeton.edu
 //         Created:  Thu Jul 19 02:29:59 EDT 2007
-// $Id: HLXMonitor.h,v 1.6 2008/07/10 21:47:54 neadam Exp $
+// $Id: HLXMonitor.h,v 1.4 2008/05/13 07:17:48 neadam Exp $
 //
 //
 
@@ -63,12 +63,11 @@ class HLXMonitor : public edm::EDAnalyzer
       virtual void beginJob(const edm::EventSetup&) ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob();
-      //virtual void endRun(const edm::Run&, const edm::EventSetup&);
 
       void SaveDQMFile();
 
       void SetupHists();
-      void SetupEventInfo();
+      void SetupEventInfo(const edm::ParameterSet&);
 
       void FillHistoBX(const LUMI_SECTION&);
       void FillHistoDist(const LUMI_SECTION&);
@@ -77,8 +76,6 @@ class HLXMonitor : public edm::EDAnalyzer
       void FillHistoLumi(const LUMI_SECTION&);
       void FillHistoSum(const LUMI_SECTION&);
       void FillEventInfo(const LUMI_SECTION&);
-
-      void ResetAll();
 
       //  void FillHistoHistory(const LUMI_SECTION&);
 
@@ -129,11 +126,12 @@ class HLXMonitor : public edm::EDAnalyzer
       MonitorElement * runId_;
       MonitorElement * lumisecId_;
 
-      // Report Summary
-      MonitorElement * reportSummary_;
-      MonitorElement * reportSummaryMap_;
-
-      // DQM Store ...
+      edm::ParameterSet parameters_;
+      timeval currentTime_, lastUpdateTime_, lastAvgTime_;
+      float evtRateWindow_;
+      int evtRateCount_;
+      int pEvent_;
+  
       DQMStore* dbe_;
 
       unsigned int numActiveTowersSet1;
@@ -171,10 +169,6 @@ class HLXMonitor : public edm::EDAnalyzer
       unsigned int set2AboveIndex;
 
       bool ResetAtNewRun;
-      bool SaveAtEndJob;
-
-      std::string eventInfoFolder_;
-      std::string subSystemName_;
 
       unsigned int runNumLength;
       unsigned int secNumLength;
@@ -187,10 +181,8 @@ class HLXMonitor : public edm::EDAnalyzer
       HCAL_HLX::LUMI_SECTION lumiSection;
 
       unsigned int runNumber_;
-      unsigned int expectedNibbles_;
-      unsigned int totalNibbles_[36];
 
-      unsigned int HLXHFMap[36];
+      int HLXHFMap[36];
 
 };
 

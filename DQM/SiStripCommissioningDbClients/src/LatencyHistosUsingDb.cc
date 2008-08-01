@@ -1,4 +1,4 @@
-// Last commit: $Id: LatencyHistosUsingDb.cc,v 1.13 2008/05/23 12:37:00 delaer Exp $
+// Last commit: $Id: LatencyHistosUsingDb.cc,v 1.14 2008/05/28 14:56:12 delaer Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/LatencyHistosUsingDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -123,7 +123,13 @@ bool LatencyHistosUsingDb::update( SiStripConfigDb::DeviceDescriptionsRange devi
   }
 
   // Compute latency and PLL shift from the sampling measurement
-  SamplingAnalysis* anal = dynamic_cast<SamplingAnalysis*>( data().begin()->second );
+  SamplingAnalysis* anal = NULL;
+  for( CommissioningHistograms::Analysis it = data().begin(); it!=data().end();++it) {
+    if(dynamic_cast<SamplingAnalysis*>( it->second ) && 
+       dynamic_cast<SamplingAnalysis*>( it->second )->granularity()==sistrip::TRACKER)
+      anal = dynamic_cast<SamplingAnalysis*>( it->second );
+  }
+  if(!anal) return false;
   uint16_t latency = uint16_t(ceil(anal->maximum()/(-25.)));
   float shift = anal->maximum()-(latency*(-25));
 
@@ -318,6 +324,10 @@ void LatencyHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptionsV& desc,
   SamplingAnalysis* anal = dynamic_cast<SamplingAnalysis*>( analysis->second );
   if ( !anal ) { return; }
   
+  std::stringstream ss;
+  anal->print(ss);
+  edm::LogError("Latency analysis result") << ss.str();
+
   SiStripFecKey fec_key( anal->fecKey() ); //@@ analysis->first
   SiStripFedKey fed_key( anal->fedKey() );
   

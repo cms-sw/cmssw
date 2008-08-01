@@ -12,9 +12,6 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
-
 #include <iostream>
 #include <string>
 #include <sstream>
@@ -46,8 +43,7 @@ CnBAnalyzer::CnBAnalyzer(const edm::ParameterSet& iConfig) {
   totalNumberOfFeds_ = fedIdBoundaries_.second - fedIdBoundaries_.first + 1;
 
   // Whether we should use the cabling database
-  useCablingDb_ = iConfig.getUntrackedParameter<bool>("useCablingDb",false);
-  cabling_ = NULL;
+  useCablingDb_ = iConfig.getUntrackedParameter<bool>("useCablingDatabase",false);
 }
 
 CnBAnalyzer::~CnBAnalyzer() {
@@ -126,48 +122,24 @@ void CnBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       Fed9UErrorCondition thisFedEventErrs;
 
       // The actual checkout of the buffer:
-      if (cabling_) {
-	const std::vector<FedChannelConnection> conns = cabling_->connections(static_cast<int>(*ifed));
-	// TODO: check here if the connections are actually there.
-	//       if not you should fill a corresponding error
-	
-#undef CNBANALYZER_CABLING_DEBUG
-#ifdef CNBANALYZER_CABLING_DEBUG
-	// TODO: remove this bad debug :-)
-	// ????????????????????????????????
-	if ( iEvent.id().event() == 1 ) {
-	  std::cout << "analyzing event 1 with cabling for FED " << std::dec << (*ifed) << std::endl;
-	  for (int channelIndex=0; channelIndex<96; channelIndex++) {
-	    std::cout << std::dec << std::setfill('0') << std::setw(2)
-		      << (channelIndex+1) << "  "
-		      << ((conns.at(95-channelIndex)).isConnected() ? "-" : "X" )
-		      << std::endl;
-	  }
-	}
-	// ????????????????????????????????
-#endif
-	thisFedEventErrs = myEventAnalyzer.Analyze(true, &conns);
-      } else {
-	thisFedEventErrs = myEventAnalyzer.Analyze(false, NULL);
-      }
+      thisFedEventErrs = myEventAnalyzer.Analyze();
 
       total_enabled_channels += thisFedEventErrs.totalChannels;
       total_faulty_channels  += thisFedEventErrs.problemsSeen;
 
-      if (thisFedEventErrs.problemsSeen) {
+      if (total_faulty_channels!=0) {
 	createDetailedFedHistograms((*ifed));
 	
 	// Update counters for FEDs
-	fedGenericErrors_->Fill(*ifed, thisFedEventErrs.problemsSeen);
+	fedGenericErrors_->Fill(*ifed, total_faulty_channels);
 	if (thisFedEventErrs.internalFreeze) fedFreeze_->Fill(*ifed);
 	if (thisFedEventErrs.bxError) fedBx_->Fill(*ifed);
 	
 #ifdef CNBANALYZER_DEBUG
-	LogInfo("FEDBuffer") << "FED number" << (*ifed) << std::endl
-			     << "enabled        = " << thisFedEventErrs.totalChannels << std::endl
-			     << "faulty         = " << thisFedEventErrs.problemsSeen << std::endl
-			     << "internalFreeze = " << thisFedEventErrs.internalFreeze << std::endl
-			     << "bxError        = " << thisFedEventErrs.bxError;
+	LogInfo("FEDBuffer") << "total_enabled = " << total_enabled_channels;
+	LogInfo("FEDBuffer") << "total_faulty = " << total_faulty_channels;
+	LogInfo("FEDBuffer") << "internalFreeze = " << thisFedEventErrs.internalFreeze;
+	LogInfo("FEDBuffer") << "bxError = " << thisFedEventErrs.bxError;
 #endif
 	
 	// Fill the Front-end failure counters 
@@ -203,19 +175,17 @@ void CnBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 #ifdef CNBANALYZER_DEBUG
 	  LogInfo("FEDBuffer") << "apv[" << iApv << "] = " << hex << thisFedEventErrs.apv[iApv];
 #endif
+	  
 	  if (thisFedEventErrs.apv[iApv])
 	    badApv_[*ifed]->Fill(iApv);
 	}
+	
       }
+      
     }
     
-  } // End of the ifed loop
+  } // end of the for ifed loop
   
-#ifdef CNBANALYZER_DEBUG
-  LogInfo("FEDBuffer") << "Event summary:" << std::endl
-		       << "total_enabled = " << total_enabled_channels << std::endl
-		       << "total_faulty  = " << total_faulty_channels;
-#endif
 
   // TODO: find a better solution to this (and remove the explicit 1000)
   if ( iEvent.id().event()<1000) {
@@ -230,23 +200,14 @@ void CnBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 void 
 CnBAnalyzer::beginJob(const edm::EventSetup& iSetup)
 {
+  
   // ---------- DQM back-end interface ----------
   dqm_ = edm::Service<DQMStore>().operator->();
   dqm()->setVerbose(0);
 
   // Summary histograms
   createRootFedHistograms();
-}
 
-// ------------ method called once each job just before starting event loop  ------------
-void CnBAnalyzer::beginRun(const edm::Run& r, const edm::EventSetup& iSetup)
-{
-  // Create and populate the FED cabling object if needed
-  if (useCablingDb_) {
-    edm::ESHandle<SiStripFedCabling> myCabling;
-    iSetup.get<SiStripFedCablingRcd>().get(myCabling);
-    cabling_ = new SiStripFedCabling (*myCabling);
-  }
 }
 
 // The following method should be called
@@ -293,10 +254,6 @@ void CnBAnalyzer::createRootFedHistograms() {
   for (int i=fedIdBoundaries_.first; i<=fedIdBoundaries_.second; i++) {
     binNameS.str(""); if (i%10==0) binNameS << i; fedBx_->setBinLabel(i-fedIdBoundaries_.first+1, binNameS.str(), 1);
   }
-
-  // TODO: corrupt buffer ?
-  
-  // TODO: missing connections ?
 
   // Trend plots:
   totalChannels_  = dqm()->book1D( "TotalChannelsVsEvent",

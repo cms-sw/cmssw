@@ -7,7 +7,7 @@ process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
 
 process.load("SimG4CMS.Calo.testGeometryPMTXML_cfi")
 
-process.load("MagneticField.Engine.volumeBasedMagneticField_cfi")
+process.load("Configuration.StandardSequences.MagneticField_cff")
 
 process.load("Configuration.EventContent.EventContent_cff")
 

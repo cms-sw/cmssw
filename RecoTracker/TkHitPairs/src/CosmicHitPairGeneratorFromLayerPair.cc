@@ -82,7 +82,7 @@ void CosmicHitPairGeneratorFromLayerPair::hitPairs(
       float dxdy=abs((outx-innx)/(outy-inny));
       float DeltaR=oh->r()-ih->r();
       
-      if( InTheBarrel && (abs(z_diff)<30)  && (outy > 0.) && (inny > 0.)
+      if( InTheBarrel && (abs(z_diff)<30) // && (outy > 0.) && (inny > 0.)
 	  //&&((abs(inny-outy))<30) 
 	  &&(dxdy<2)
 	  &&(inny*outy>0)

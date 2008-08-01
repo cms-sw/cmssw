@@ -66,9 +66,7 @@ public:
         const unsigned int numberPhysTriggers, const unsigned int numberTechnicalTriggers,
         const unsigned int numberDaqPartitions,
         const L1GlobalTriggerGTL* ptrGTL,
-        const L1GlobalTriggerPSB* ptrPSB, 
-        const int pfAlgoSetIndex,
-        const int pfTechSetIndex);
+        const L1GlobalTriggerPSB* ptrPSB);
 
     /// fill the FDL block in the L1 GT DAQ record for iBxInEvent
     void fillDaqFdlBlock(

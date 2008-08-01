@@ -2,7 +2,6 @@
 
 #include "CondFormats/L1TObjects/interface/L1GctJetFinderParams.h"
 #include "CondFormats/L1TObjects/interface/L1GctJetCounterSetup.h"
-#include "CondFormats/L1TObjects/interface/L1GctChannelMask.h"
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctEmLeafCard.h"
@@ -35,9 +34,7 @@ L1GlobalCaloTrigger::L1GlobalCaloTrigger(const L1GctJetLeafCard::jetFinderType j
   theNonIsoElectronSorters(N_EM_LEAF_CARDS*2),
   theWheelJetFpgas(N_WHEEL_CARDS),
   theWheelEnergyFpgas(N_WHEEL_CARDS),
-  m_jetFinderParams(0),
   m_jetEtCalLut(0),
-  m_inputChannelMask(0),
   m_bxRangeAuto(true),
   m_bxStart(0), m_numOfBx(1),
   m_allInputEmCands(), m_allInputRegions()  
@@ -80,10 +77,6 @@ L1GlobalCaloTrigger::~L1GlobalCaloTrigger()
   
 }
 
-///=================================================================================================
-///
-/// Methods to reset all processors and process an event (consisting of multiple bunch crossings)
-///
 void L1GlobalCaloTrigger::reset() {
 
   // Input data
@@ -159,6 +152,13 @@ void L1GlobalCaloTrigger::process() {
     bx++;
   }
 }
+
+/// process crossings from (firstBx) to (lastBx) 
+void L1GlobalCaloTrigger::setBxRange(const int firstBx, const int lastBx) { m_bxStart = firstBx; m_numOfBx = lastBx - firstBx + 1; m_bxRangeAuto = false; }
+/// process crossings from (-numOfBx) to (numOfBx) 
+void L1GlobalCaloTrigger::setBxRangeSymmetric(const int numOfBx) { m_bxStart = -numOfBx; m_numOfBx = 2*numOfBx + 1; m_bxRangeAuto = false; }
+/// process all crossings present in the input (and only those crossings)
+void L1GlobalCaloTrigger::setBxRangeAutomatic()  { m_bxStart = 0; m_numOfBx = 1; m_bxRangeAuto = true; }
 
 /// Sort the input data by bunch crossing number
 void L1GlobalCaloTrigger::sortInputData() {
@@ -302,9 +302,6 @@ void L1GlobalCaloTrigger::bxProcess(const int bx) {
 
 }
 
-///=================================================================================================
-/// Configuration options for the GCT
-///
 /// setup the Jet Finder parameters
 void L1GlobalCaloTrigger::setJetFinderParams(const L1GctJetFinderParams* jfpars) {
 
@@ -333,7 +330,6 @@ void L1GlobalCaloTrigger::setJetEtCalibrationLut(const L1GctJetEtCalibrationLut*
   }
 }
 
-/// setup Jet Counter LUTs
 void L1GlobalCaloTrigger::setupJetCounterLuts(const L1GctJetCounterSetup* jcPosPars,
                                               const L1GctJetCounterSetup* jcNegPars) {
 
@@ -348,40 +344,22 @@ void L1GlobalCaloTrigger::setupJetCounterLuts(const L1GctJetCounterSetup* jcPosP
   }
 }
 
-/// setup the input channel mask
-void L1GlobalCaloTrigger::setChannelMask(const L1GctChannelMask* mask) {
-  m_inputChannelMask = mask;
-}
-
-/// setup the bunch crossing range to be processed
-/// process crossings from (firstBx) to (lastBx) 
-void L1GlobalCaloTrigger::setBxRange(const int firstBx, const int lastBx) { m_bxStart = firstBx; m_numOfBx = lastBx - firstBx + 1; m_bxRangeAuto = false; }
-/// process crossings from (-numOfBx) to (numOfBx) 
-void L1GlobalCaloTrigger::setBxRangeSymmetric(const int numOfBx) { m_bxStart = -numOfBx; m_numOfBx = 2*numOfBx + 1; m_bxRangeAuto = false; }
-/// process all crossings present in the input (and only those crossings)
-void L1GlobalCaloTrigger::setBxRangeAutomatic()  { m_bxStart = 0; m_numOfBx = 1; m_bxRangeAuto = true; }
-
-///=================================================================================================
-/// Input data set methods
-///
 void L1GlobalCaloTrigger::setRegion(const L1CaloRegion& region) 
 {
-  if ( !m_inputChannelMask->regionMask( region.gctEta(), region.gctPhi() ) ) {
-    unsigned crate = region.rctCrate();
-    // Find the relevant jetFinders
-    static const unsigned NPHI = L1CaloRegionDetId::N_PHI/2;
-    unsigned thisphi = crate % NPHI;
-    unsigned nextphi = (crate+1) % NPHI;
-    unsigned prevphi = (crate+NPHI-1) % NPHI;
+  unsigned crate = region.rctCrate();
+  // Find the relevant jetFinders
+  static const unsigned NPHI = L1CaloRegionDetId::N_PHI/2;
+  unsigned thisphi = crate % NPHI;
+  unsigned nextphi = (crate+1) % NPHI;
+  unsigned prevphi = (crate+NPHI-1) % NPHI;
 
-    // Send the region to six jetFinders.
-    theJetFinders.at(thisphi)->setInputRegion(region);
-    theJetFinders.at(nextphi)->setInputRegion(region);
-    theJetFinders.at(prevphi)->setInputRegion(region);
-    theJetFinders.at(thisphi+NPHI)->setInputRegion(region);
-    theJetFinders.at(nextphi+NPHI)->setInputRegion(region);
-    theJetFinders.at(prevphi+NPHI)->setInputRegion(region);
-  }
+  // Send the region to six jetFinders.
+  theJetFinders.at(thisphi)->setInputRegion(region);
+  theJetFinders.at(nextphi)->setInputRegion(region);
+  theJetFinders.at(prevphi)->setInputRegion(region);
+  theJetFinders.at(thisphi+NPHI)->setInputRegion(region);
+  theJetFinders.at(nextphi+NPHI)->setInputRegion(region);
+  theJetFinders.at(prevphi+NPHI)->setInputRegion(region);
 }
 
 void L1GlobalCaloTrigger::setRegion(const unsigned et, const unsigned ieta, const unsigned iphi,
@@ -393,14 +371,12 @@ void L1GlobalCaloTrigger::setRegion(const unsigned et, const unsigned ieta, cons
 
 void L1GlobalCaloTrigger::setIsoEm(const L1CaloEmCand& em) 
 {
-  if ( !m_inputChannelMask->emCrateMask( em.rctCrate() ) )
-    theIsoElectronSorters.at(sorterNo(em))->setInputEmCand(em);
+  theIsoElectronSorters.at(sorterNo(em))->setInputEmCand(em); 
 }
 
 void L1GlobalCaloTrigger::setNonIsoEm(const L1CaloEmCand& em) 
 {
-  if ( !m_inputChannelMask->emCrateMask( em.rctCrate() ) )
-    theNonIsoElectronSorters.at(sorterNo(em))->setInputEmCand(em);
+  theNonIsoElectronSorters.at(sorterNo(em))->setInputEmCand(em); 
 }
 
 /// Fill input data (local copies)

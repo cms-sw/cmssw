@@ -2,8 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 # -*-SH-*-
 # include geometry and magnetic field
-from Geometry.CMSCommonData.cmsIdealGeometryXML_cff import *
-from Geometry.CaloEventSetup.CaloGeometry_cfi import *
 from Geometry.CaloEventSetup.CaloTopology_cfi import *
 from Geometry.CommonDetUnit.bareGlobalTrackingGeometry_cfi import *
 # add the SteppingHelixPropagator to the EventSetup

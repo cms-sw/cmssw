@@ -1,6 +1,5 @@
 #ifndef SiStripMonitorSummary_SiStripMonitorSummary_h
 #define SiStripMonitorSummary_SiStripMonitorSummary_h
-
 // -*- C++ -*-
 //
 // Package:     SiStripMonitorSummary
@@ -53,6 +52,7 @@ class SiStripMonitorCondData : public edm::EDAnalyzer {
   
  private:  
   
+   
    edm::ParameterSet conf_;
   
    bool monitorPedestals_   ;

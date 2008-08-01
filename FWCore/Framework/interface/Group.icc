@@ -96,8 +96,11 @@ namespace edm {
   inline
   ProductStatus
   GroupT<T>::status() const {
-    // for backward compatibility
+    if (!entryInfo_) {
+      return productstatus::dropped();
+    }
     if (product_) {
+      // for backward compatibility
       product_->isPresent() ? entryInfo_->setPresent() : entryInfo_->setNotPresent();
     }
     return entryInfo_->productStatus();
@@ -240,6 +243,10 @@ namespace edm {
         << "moduleLabel = " << moduleLabel() << "\n"
         << "instance = " << productInstanceName() << "\n"
         << "process = " << processName() << "\n";
+    }
+
+    if (!entryInfo_) {
+      return;
     }
 
     // Don't support specifying multple modules.  So just null the description

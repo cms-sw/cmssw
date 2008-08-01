@@ -14,7 +14,7 @@
 //
 // Original Author:  Sunanda Banerjee
 //         Created:  Thu May 18 10:14:34 CEST 2006
-// $Id: HcalTB04Histo.h,v 1.2 2006/05/23 10:53:29 sunanda Exp $
+// $Id: HcalTB04Histo.h,v 1.3 2008/03/01 21:28:40 sunanda Exp $
 //
   
 // system include files
@@ -25,8 +25,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include <TH1D.h>
+#include <TH2D.h>
+#include <TProfile.h>
 
 class HcalTB04Histo {
    
@@ -47,15 +48,13 @@ public:
 private:
 
   // ---------- Private Data members -----------------------
-  std::string           fileName;
   bool                  verbose;
   double                eTotMax, eHcalMax;
 
-  DQMStore              *dbe_;
-  MonitorElement        *iniE,  *iEta,  *iPhi;
-  MonitorElement        *edepS, *edecS, *edhcS, *edepQ, *edecQ, *edhcQ;
-  MonitorElement        *edehS, *edehQ;
-  MonitorElement        *latse, *latqe, *latsf, *latqf, *lngs, *lngq;
+  TH1D                  *iniE,  *iEta,  *iPhi;
+  TH1D                  *edepS, *edecS, *edhcS, *edepQ, *edecQ, *edhcQ;
+  TH2D                  *edehS, *edehQ;
+  TProfile              *latse, *latqe, *latsf, *latqf, *lngs, *lngq;
 };
  
 #endif

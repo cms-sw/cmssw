@@ -11,10 +11,7 @@
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/Event.h"#include "FWCore/Framework/interface/ESHandle.h"#include "FWCore/Framework/interface/EventSetup.h"#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
@@ -91,13 +88,6 @@ public:
     return simParticleTrail_[0];
   }
 
-  //! Returns a pointer to most primitive status 1 or 2 particle.
-  const HepMC::GenParticle * genParticle() const
-  {
-    if ( genParticleTrail_.empty() ) return 0;
-    return genParticleTrail_[genParticleTrail_.size()-1];
-  }
-
   //! Return all the simulated vertexes in the history.
   const SimVertexTrail & simVertexTrail() const
   {
@@ -152,13 +142,15 @@ private:
   bool traceSimHistory (TrackingParticleRef, int);
   
   bool bestMatchByMaxValue_;  
+ 
+  std::string associationModule_;
 
-  edm::InputTag trackProducer_;
+  std::string recoTrackModule_;
   
-  edm::InputTag trackingTruth_;
+  std::string trackingParticleModule_;
 
-  std::string trackAssociator_;
-  
+  std::string trackingParticleInstance_;
+
   reco::RecoToSimCollection association_;
   
   TrackingParticleRef match ( edm::RefToBase<reco::Track> );  

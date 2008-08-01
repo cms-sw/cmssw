@@ -7,7 +7,7 @@
 #include <map>
 #include <vector>
 #include <set>
-
+#include "RecoEcal/EgammaCoreTools/interface/ClusterEtLess.h"
 //The real constructor
 HybridClusterAlgo::HybridClusterAlgo(double eb_str, 
 				     int step, 
@@ -135,7 +135,7 @@ void HybridClusterAlgo::makeClusters(const EcalRecHitCollection*recColl,
   }
 
   //Yay more sorting.
-  sort(basicClusters.begin(), basicClusters.end());
+  sort(basicClusters.rbegin(), basicClusters.rend(), ClusterEtLess() );
   //Done!
   if ( debugLevel_ == pDEBUG )
     std::cout << "returning to producer. " << std::endl;
@@ -507,7 +507,7 @@ reco::SuperClusterCollection HybridClusterAlgo::makeSuperClusters(const reco::Ba
       std::cout << "Made supercluster with energy E: " << suCl.energy() << std::endl;
     }
   }//end loop over map
-  sort(SCcoll.begin(), SCcoll.end());
+  sort(SCcoll.rbegin(), SCcoll.rend(), ClusterEtLess());
   return SCcoll;
 }
 

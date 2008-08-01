@@ -1,10 +1,23 @@
-/*
- *  OptTOA.C
- *
- *  Created by Victor Eduardo Bazterra on 5/31/07.
- *  Copyright 2007 __MyCompanyName__. All rights reserved.
- *
- */
+
+// -*- C++ -*-
+//
+// Package:    OptTOA
+// Class:      OptTOA
+// 
+/**\class OptTOA OptTOA.cc temp/TrackOriginAnalyzerOptTOA/src/OptTOA.cc
+
+ Description: This analyzer calculates the relative composition from a list of
+ particle categories.
+
+ Implementation:
+     <Notes on implementation>
+*/
+//
+// Original Author:  Victor Bazterra
+//         Created:  Tue Mar 13 14:15:40 CDT 2007
+// $Id: OptTOA.cc,v 1.7 2008/04/07 14:12:56 bazterra Exp $
+//
+//
 
 #include <algorithm>
 #include <cctype>
@@ -34,7 +47,7 @@
 
 #include "RecoVertex/PrimaryVertexProducer/interface/PrimaryVertexSorter.h"
 
-#include "SimTracker/TrackHistory/interface/TrackClassifier.h"
+#include "SimTracker/TrackHistory/interface/TrackCategories.h"
 
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 
@@ -61,9 +74,8 @@ private:
   typedef std::vector<int> vint;
   typedef std::vector<std::string> vstring;
 
-  edm::InputTag trackProducer_;
-  edm::InputTag primaryVertexProducer_;
-  edm::InputTag jetTracksAssociation_;
+  std::string trackCollection_;
+  std::string jetTracks_;
   
   std::string rootFile_;
 
@@ -217,8 +229,10 @@ private:
     }
   };
   
+  std::string primaryVertex_;
+
   // Track classification.
-  TrackClassifier classifier_;
+  TrackCategories classifier_;
 
 };
 
@@ -226,20 +240,19 @@ private:
 //
 // constructors and destructor
 //
-OptTOA::OptTOA(const edm::ParameterSet& config) : classifier_(config)
+OptTOA::OptTOA(const edm::ParameterSet& iConfig) : classifier_(iConfig)
 {
-  trackProducer_         = config.getUntrackedParameter<edm::InputTag> ( "trackProducer" );
-  primaryVertexProducer_ = config.getUntrackedParameter<edm::InputTag> ( "primaryVertexProducer" );
-  jetTracksAssociation_  = config.getUntrackedParameter<edm::InputTag> ( "jetTracksAssociation" ); 
+  trackCollection_ = iConfig.getParameter<std::string> ( "recoTrackModule" );
+  jetTracks_       = iConfig.getParameter<std::string> ( "jetTracks" ); 
 
-  rootFile_ = config.getUntrackedParameter<std::string> ( "rootFile" );
+  rootFile_ = iConfig.getParameter<std::string> ( "rootFile" );
 
-  minimumNumberOfHits_       = config.getUntrackedParameter<int> ( "minimumNumberOfHits" );  
-  minimumNumberOfPixelHits_  = config.getUntrackedParameter<int> ( "minimumNumberOfPixelHits" );
-  minimumTransverseMomentum_ = config.getUntrackedParameter<double> ( "minimumTransverseMomentum" );
-  maximumChiSquared_         = config.getUntrackedParameter<double> ( "maximumChiSquared" );
+  minimumNumberOfHits_       = iConfig.getParameter<int> ( "minimumNumberOfHits" );  
+  minimumNumberOfPixelHits_  = iConfig.getParameter<int> ( "minimumNumberOfPixelHits" );
+  minimumTransverseMomentum_ = iConfig.getParameter<double> ( "minimumTransverseMomentum" );
+  maximumChiSquared_         = iConfig.getParameter<double> ( "maximumChiSquared" );
 
-  std::string trackQualityType = config.getUntrackedParameter<std::string>("trackQualityClass"); //used
+  std::string trackQualityType = iConfig.getParameter<std::string>("trackQualityClass"); //used
   trackQuality_ =  reco::TrackBase::qualityByName(trackQualityType);
   useAllQualities_ = false;
 
@@ -249,6 +262,7 @@ OptTOA::OptTOA(const edm::ParameterSet& config) : classifier_(config)
   	std::cout << "Using any" << std::endl;
     useAllQualities_ = true;
   }
+  primaryVertex_ = iConfig.getParameter<std::string> ( "primaryVertex" );
 }
 
 OptTOA::~OptTOA() {}
@@ -259,27 +273,27 @@ OptTOA::~OptTOA() {}
 
 // ------------ method called to for each event  ------------
 void
-OptTOA::analyze(const edm::Event& event, const edm::EventSetup& setup)
+OptTOA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   // Track collection
   edm::Handle<edm::View<reco::Track> > trackCollection;
-  event.getByLabel(trackProducer_,trackCollection);
+  iEvent.getByLabel(trackCollection_,trackCollection);
   // Primary vertex
-  edm::Handle<reco::VertexCollection> primaryVertexCollection;
-  event.getByLabel(primaryVertexProducer_, primaryVertexCollection);  
+  edm::Handle<reco::VertexCollection> primaryVertex;
+  iEvent.getByLabel(primaryVertex_, primaryVertex);  
   // Jet to tracks associator
   edm::Handle<reco::JetTracksAssociationCollection> jetTracks;
-  event.getByLabel(jetTracksAssociation_, jetTracks);
+  iEvent.getByLabel(jetTracks_, jetTracks);
   // Trasient track builder
   edm::ESHandle<TransientTrackBuilder> TTbuilder;
-  setup.get<TransientTrackRecord>().get("TransientTrackBuilder", TTbuilder);
-
+  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", TTbuilder);
+ 
   // Setting up event information for the track categories.
-  classifier_.newEvent(event, setup);
+  classifier_.newEvent(iEvent, iSetup);
 
   LoopOverJetTracksAssociation(
     TTbuilder,
-    primaryVertexCollection,
+    primaryVertex,
     jetTracks
   );
 }    
@@ -287,7 +301,7 @@ OptTOA::analyze(const edm::Event& event, const edm::EventSetup& setup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-OptTOA::beginJob(const edm::EventSetup& setup) 
+OptTOA::beginJob(const edm::EventSetup& iSetup) 
 {    
   histogram_data_.resize(5);
 }
@@ -330,7 +344,7 @@ OptTOA::endJob()
 void
 OptTOA::LoopOverJetTracksAssociation(
   const edm::ESHandle<TransientTrackBuilder> & TTbuilder,
-  const edm::Handle<reco::VertexCollection> & primaryVertexProducer_,
+  const edm::Handle<reco::VertexCollection> & primaryVertex,
   const edm::Handle<reco::JetTracksAssociationCollection> & jetTracksAssociation
 )
 {
@@ -340,10 +354,10 @@ OptTOA::LoopOverJetTracksAssociation(
   // use first pv of the collection
   reco::Vertex pv;
  
-  if(primaryVertexProducer_->size() != 0)
+  if(primaryVertex->size() != 0)
   {
     PrimaryVertexSorter pvs;
-    std::vector<reco::Vertex> sortedList = pvs.sortedList(*(primaryVertexProducer_.product()));
+    std::vector<reco::Vertex> sortedList = pvs.sortedList(*(primaryVertex.product()));
     pv = (sortedList.front());
   }
   else 
@@ -394,30 +408,21 @@ OptTOA::LoopOverJetTracksAssociation(
       double ips = IPTools::signedImpactParameter3D(transientTrack, direction, pv).second.value();
 	  double d0 = IPTools::signedTransverseImpactParameter(transientTrack, direction, pv).second.value();
       double dz = tracks[index]->dz() - pvZ;
-  
+	  
 	  // Classify the reco track;
-	  classifier_.evaluate( edm::RefToBase<reco::Track>(tracks[index]) );
-  
-      // Check for the different categories
-	  if ( classifier_.is(TrackCategories::Fake) )
-	    histogram_data_[4].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits, pixelHits));
-      else if ( classifier_.is(TrackCategories::BWeakDecay) )
-        histogram_data_[0].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits, pixelHits));
-      else if ( classifier_.is(TrackCategories::Bad) )
-        histogram_data_[3].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits, pixelHits));
-      else if ( 
-        (
-           !classifier_.is(TrackCategories::CWeakDecay) && 
-            classifier_.is(TrackCategories::LongLivedDecay)
-        ) ||
-        classifier_.is(TrackCategories::Conversion) ||
-        classifier_.is(TrackCategories::Interaction) ||            
-        classifier_.is(TrackCategories::Unknown) 
-      )
-        histogram_data_[2].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits, pixelHits));
-	  else
-	    histogram_data_[1].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits, pixelHits));	    
-
+	  if ( classifier_.evaluate(edm::RefToBase<reco::Track>(tracks[index])) )
+	  {
+	    if ( classifier_.is(TrackCategories::Fake) )
+	      histogram_data_[4].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits, pixelHits));
+        else if ( classifier_.is(TrackCategories::Bottom) )
+		  histogram_data_[0].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits, pixelHits));      
+        else if ( classifier_.is(TrackCategories::Bad) )
+          histogram_data_[3].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits, pixelHits));          
+        else if ( classifier_.is(TrackCategories::Displaced) )
+          histogram_data_[2].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits, pixelHits));
+	    else
+	      histogram_data_[1].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits, pixelHits));	    
+      }
 	}
   }
 }

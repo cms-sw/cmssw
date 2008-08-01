@@ -91,7 +91,6 @@ public:
   void deleteHists(DeadCellHists& hist);
 
   void getSubDetHistograms(DeadCellHists& hist);
-  void combineSubDetHistograms(DeadCellHists& hcal, DeadCellHists& hb, DeadCellHists& he, DeadCellHists& ho, DeadCellHists& hf);
   void resetSubDetHistograms(DeadCellHists& hist);
   void getSubDetHistogramsFromFile(DeadCellHists& hist, TFile* infile);
   void htmlSubDetOutput(DeadCellHists& hist, int runNo, 

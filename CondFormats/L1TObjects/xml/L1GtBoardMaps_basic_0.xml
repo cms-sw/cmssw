@@ -1,9 +1,0 @@
-<?xml version='1.0' encoding="UTF-8"?>
-<!DOCTYPE PoolDatabase SYSTEM "InMemory">
- <PoolDatabase >
-  <PoolContainer name="L1GtBoardMapsRcd" >
-   <Class table="L1GTBOARDMAPS" id_columns="ID" name="L1GtBoardMaps" mapping_version="L1GtBoardMaps_basic" >
-     <Blob column="L1GTBOARDMAPS_M_GT_1_BLOB" name="m_gtBoardMaps" />
-   </Class >
-  </PoolContainer >
- </PoolDatabase >

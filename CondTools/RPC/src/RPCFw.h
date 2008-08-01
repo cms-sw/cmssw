@@ -5,7 +5,7 @@
  * \class RPCFw
  *  Reads data from OMDS and creates conditioning objects
  *
- *  $Date: 2008/02/15 12:15:50 $
+ *  $Date: 2008/02/1 15:36:08 $
  *  $Revision: 1.1 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
@@ -15,7 +15,6 @@
 #include "TestBase.h"
 #include "CoralBase/TimeStamp.h"
 #include "RPCSourceHandler.h"
-#include "RPCGasSH.h"
 
 struct dbread{
     float alias;
@@ -36,9 +35,6 @@ public:
   std::vector<RPCdbData::Item> createIMON(int from);
   std::vector<RPCdbData::Item> createVMON(int from); 
   std::vector<RPCdbData::Item> createSTATUS(int from); 
-  std::vector<RPCGas::GasItem> createGAS(int from);
-
-
   
 private:
   std::string m_connectionString;

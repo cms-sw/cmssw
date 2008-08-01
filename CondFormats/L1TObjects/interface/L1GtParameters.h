@@ -42,7 +42,7 @@ public:
 public:
 
     /// get / set the total Bx's in the event
-    inline const int gtTotalBxInEvent() const
+    inline int gtTotalBxInEvent() const
     {
         return m_totalBxInEvent;
     }
@@ -51,7 +51,7 @@ public:
 
 
     /// get / set the active boards for L1 GT DAQ record
-    inline const boost::uint16_t gtDaqActiveBoards() const
+    inline boost::uint16_t gtDaqActiveBoards() const
     {
         return m_daqActiveBoards;
     }
@@ -60,21 +60,13 @@ public:
 
 
     /// get / set the active boards for L1 GT EVM record
-    inline const boost::uint16_t gtEvmActiveBoards() const
+    inline boost::uint16_t gtEvmActiveBoards() const
     {
         return m_evmActiveBoards;
     }
 
     void setGtEvmActiveBoards(const boost::uint16_t&);
 
-
-    /// get / set length of BST message (in bytes) for L1 GT EVM record
-    inline const unsigned int gtBstLengthBytes() const
-    {
-        return m_bstLengthBytes;
-    }
-
-    void setGtBstLengthBytes(const unsigned int&);
 
     /// print all the L1 GT parameters
     void print(std::ostream&) const;
@@ -89,10 +81,6 @@ private:
 
     /// active boards in the L1 EVM record
     boost::uint16_t m_evmActiveBoards;
-
-    /// length of BST message (in bytes)
-    unsigned int m_bstLengthBytes;
-   
 
 };
 

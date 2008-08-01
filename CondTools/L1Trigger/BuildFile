@@ -8,7 +8,6 @@
 <use name=CondCore/PluginSystem>
 <use name=CondFormats/DataRecord>
 <use name=CondFormats/L1TObjects>
-<use name=CondFormats/RPCObjects>
 
 <export>
    <lib name=CondToolsL1Trigger>
@@ -20,5 +19,4 @@
    <use name=CondCore/PluginSystem>
    <use name=CondFormats/DataRecord>
    <use name=CondFormats/L1TObjects>
-   <use name=CondFormats/RPCObjects>
 </export>
