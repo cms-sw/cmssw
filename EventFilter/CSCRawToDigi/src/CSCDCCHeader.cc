@@ -1,25 +1,19 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCDCCHeader.h"
-#include <iostream>
+#include "DataFormats/FEDRawData/interface/FEDHeader.h"
 
 
-
-
-CSCDCCHeader::CSCDCCHeader(int bx, int l1a, int sourceId) 
+CSCDCCHeader::CSCDCCHeader(int bx, int l1a, int sourceId)
 {
-  bzero(this, sizeInWords()*2);
-  dcc_code1 = 0xD9;
-  dcc_code2 = 0x97;
-  BX_id = bx;
-  LV1_id = l1a;
-  Source_id = sourceId;
+  word[0] = 0x510000000000005FLL;
+  word[1] = 0xD900000000000097LL;
+  FEDHeader::set(reinterpret_cast<unsigned char *>(data()), 1, l1a, bx, sourceId);
 }
 
 
 CSCDCCHeader::CSCDCCHeader() 
 {
-  bzero(this, sizeInWords()*2);
-  dcc_code1 = 0xD9;
-  dcc_code2 = 0x97;
+  word[0] = 0x510000000000005FLL;
+  word[1] = 0xD900000000000097LL;
 }
 
 CSCDCCHeader::CSCDCCHeader(const CSCDCCStatusDigi & digi)

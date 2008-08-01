@@ -16,6 +16,8 @@ struct CSCDCCTrailer {
   {
     bzero(this, sizeInWords()*2);
     dcc_trail1 = 0xEF;
+    EOE_1 = 0XA;
+    XXXX_1 = 0XF;
   }
   
   CSCDCCTrailer(const CSCDCCStatusDigi & digi)
@@ -43,7 +45,7 @@ struct CSCDCCTrailer {
   unsigned dollardollar : 1;
 
   static unsigned sizeInWords() {return 8;}
-  bool check() const {return dcc_trail1 == 0xEF;}
+  bool check() const {return (dcc_trail1 == 0xEF) && (EOE_1 == 0XA) && (XXXX_1 == 0XF);}
   unsigned short * data() {return (unsigned short *) this;}
 
 };
