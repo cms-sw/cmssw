@@ -91,8 +91,7 @@ process.MessageLogger = cms.Service("MessageLogger",
         ),
         noLineBreaks = cms.untracked.bool(True)
     ),
-    categories = cms.untracked.vstring('EcalBarrelMonitorModule'),
-    categories = cms.untracked.vstring('EcalEndcapMonitorModule'),
+    categories = cms.untracked.vstring('EcalBarrelMonitorModule', 'EcalEndcapMonitorModule'),
     destinations = cms.untracked.vstring('cout')
 )
 
