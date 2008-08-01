@@ -6,6 +6,7 @@
 #include <string>
 #include <sstream>
 #include <algorithm>
+#include <numeric>
 #include <iterator>
 #include <boost/ref.hpp>
 #include <boost/bind.hpp>
@@ -31,7 +32,6 @@ namespace cond {
     enum Quantity { mean_x12=1, mean_x6=2, mean_x3=3 };
     enum How { singleChannel, bySuperModule, all};
 
-
     float average(EcalPedestals const & peds, Quantity q) {
       return std::accumulate(
 			     boost::make_transform_iterator(peds.barrelItems().begin(),bind(&EcalPedestal::mean,_1,q)),
@@ -53,6 +53,8 @@ namespace cond {
 	// absolutely arbitraty
 	if (which[i]<  peds.barrelItems().size())
 	  result.push_back( peds.barrelItems()[which[i]].mean(q));
+      }
+    }
 
 	typedef boost::function<void(EcalPedestals const & peds, Quantity q, std::vector<int> const & which,  std::vector<float> & result)> PedExtractor;
   }
@@ -80,7 +82,7 @@ namespace cond {
 	ecalped::PedExtractor(ecalped::extractSingleChannel),
 	ecalped::PedExtractor(ecalped::extractSuperModules),
 	ecalped::PedExtractor(ecalped::extractAverage)
-      };
+              };
       return fun[how];
     }
 
@@ -95,12 +97,13 @@ namespace cond {
       // here one can make stuff really complicated... (select mean rms, 12,6,1)
       // ask to make average on selected channels...
     }
+
     void compute(Class const & it){
       std::vector<float> res;
       extractor(m_what.how())(it,m_what.quantity(),m_which,res);
       swap(res);
-      }
     }
+
   private:
     What  m_what;
     std::vector<int> m_which;
