@@ -43,6 +43,9 @@ TTbar
 QCD_80_120
 '''
 import os
+import time
+import getopt
+import sys
 
 MIN_REQ_TS_EVENTS = 8
 
@@ -65,8 +68,7 @@ AuxiliaryScripts=["cmsScimarkLaunch.csh","cmsScimarkParser.py","cmsScimarkStop.p
 
 
 #Options handling
-import getopt
-import sys
+
 
 def usage():
     print __doc__
@@ -85,11 +87,13 @@ def runcmd(command):
     cmdout=os.popen4(command)[1].read()
     print cmdout
 
-def benchmarks(redirect,name,type):
-    command= Commands[3]+ redirect + name
-    printFlush(command+" [%s/%s]"%(idx+1,int(type)))
-    runcmd(command)
-    sys.stdout.flush()
+def benchmarks(cmd,redirect,name,bencher):
+    numofbenchs = int(bencher)
+    for i in range(numofbenchs):
+        command= cmd + redirect + name
+        printFlush(command+" [%s/%s]"%(i+1,numofbenchs))
+        runcmd(command)
+        sys.stdout.flush()
 
 def getDate():
     return time.ctime()
@@ -97,8 +101,8 @@ def getDate():
 def printDate():
     print getDate()
 
-def getPrereqRoot():
-
+def getPrereqRoot(rootdir,rootfile):
+    os.system("cd %s ; cmsDriver.py MinBias_cfi -s GEN,SIM -n 10" % (rootdir))
     print "ERROR: %s file required to run QCD profiling does not exist. We can not run QCD profiling please create root file" % (mbrootfile)
     print "       to run QCD profiling."
     print "       Running cmsDriver.py to get Required MinbiasEvents"
@@ -109,7 +113,7 @@ def checkQcdConditions(isAllCandles,usercandles,AllCandles,TimeSizeEvents,rootdi
         print "WARNING: TimeSizeEvents is less than 8 but QCD needs at least that to run. Setting TimeSizeEvents to 8"
         if isAllCandles:
             AllCandles.popitem("QCD_80_120")
-        else
+        else :
             usercandles.pop("QCD_80_120")
         
     rootfilepath = rootdir + "/" + rootfile
@@ -176,7 +180,7 @@ def main(argv):
         print "No arguments given, so DEFAULT test will be run:"
         
     #Print a time stamp at the beginning:
-    import time
+
     path=os.path.abspath(".")
     print "Performance Suite started running at %s on %s in directory %s, run by user %s" % (getDate(),host,path,user)
     showtags=os.popen4("showtags -r")[1].read()
@@ -249,11 +253,17 @@ def main(argv):
     scimark      = open("cmsScimark2.log"      ,"w")
     scimarklarge = open("cmsScimark2_large.log","w")
 
-    print "Starting with %s cmsScimark on cpu%s"%(cmsScimark,cpu)
-    benchmarks(" >& ",scimark.name,cmsScimark)
+    #Test mode... development use only... we need to add an option for this
+    # but getopt is rubbish... we should move this to optparse.
+    testmode = False
+    #dont do benchmarking if in test mode... saves time
+    benching = not testmode
+    if benching:
+        print "Starting with %s cmsScimark on cpu%s"%(cmsScimark,cpu)
+        benchmarks(Commands[3]," >& ",scimark.name,cmsScimark)
     
-    print "Following with %s cmsScimarkLarge on cpu%s"%(cmsScimarkLarge,cpu)
-    benchmarks(" -large >& ",scimarklarge.name,cmsScimarkLarge)
+        print "Following with %s cmsScimarkLarge on cpu%s"%(cmsScimarkLarge,cpu)
+        benchmarks(Commands[3]," -large >& ",scimarklarge.name,cmsScimarkLarge)
         
     #Here the real performance suite starts
     #List of Candles
@@ -450,12 +460,13 @@ def main(argv):
             runCmdSet(cmd)
         
 
+    if benching:
     #Ending the performance suite with the cmsScimark benchmarks again: 
-    print "Ending with %s cmsScimark on cpu%s"%(cmsScimark,cpu)
-    benchmarks(" >& ",scimark.name,cmsScimark)
+        print "Ending with %s cmsScimark on cpu%s"%(cmsScimark,cpu)
+        benchmarks(" >& ",scimark.name,cmsScimark)
     
-    print "Following with %s cmsScimarkLarge on cpu%s"%(cmsScimarkLarge,cpu)
-    benchmarks(" -large >& ",scimarklarge.name,cmsScimarkLarge)
+        print "Following with %s cmsScimarkLarge on cpu%s"%(cmsScimarkLarge,cpu)
+        benchmarks(" -large >& ",scimarklarge.name,cmsScimarkLarge)
     
     #Stopping all cmsScimark jobs and analysing automatically the logfiles
     print "Stopping all cmsScimark jobs"
