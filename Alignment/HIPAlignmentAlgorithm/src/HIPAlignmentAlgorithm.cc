@@ -70,7 +70,7 @@ HIPAlignmentAlgorithm::HIPAlignmentAlgorithm(const edm::ParameterSet& cfg):
   isCollector=cfg.getParameter<bool>("collectorActive");
   theCollectorNJobs=cfg.getParameter<int>("collectorNJobs");
   theCollectorPath=cfg.getParameter<string>("collectorPath");
-  fillTrackMonitoring=cfg.getParameter<bool>("fillTrackMonitoring");
+  theFillTrackMonitoring=cfg.getUntrackedParameter<bool>("fillTrackMonitoring");
 
   if (isCollector) edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm] Collector mode";
 
@@ -117,6 +117,7 @@ HIPAlignmentAlgorithm::initialize( const edm::EventSetup& setup,
   theAPEParameters.clear();
 
   // get APE parameters
+  if(theApplyAPE){
   AlignmentParameterSelector selector(tracker, muon);
   for (std::vector<edm::ParameterSet>::const_iterator setiter = theAPEParameterSet.begin();  setiter != theAPEParameterSet.end();  ++setiter) {
      std::vector<Alignable*> alignables;
@@ -154,6 +155,7 @@ HIPAlignmentAlgorithm::initialize( const edm::EventSetup& setup,
      }
 
      theAPEParameters.push_back(std::pair<std::vector<Alignable*>, std::vector<double> >(alignables, apeSPar));
+  }
   }
 }
 
@@ -344,23 +346,18 @@ void HIPAlignmentAlgorithm::terminate(void)
   // eventwise tree
   theFile->cd();
   theTree->Write();
-  theFile->Close();
   delete theFile;
 
   if (theLevels.size() > 0){
     theFile3->cd();
     theTree3->Write();
-    theFile3->Close();
     delete theFile3;
   }
 
   // alignable-wise tree is only filled once
-  //if ((!isCollector && theIteration==1)||
-      //    ( isCollector && theIteration==2)) { 
   if (theIteration==1) { // only for 1st iteration
     theFile2->cd();
     theTree2->Write(); 
-    theFile2->Close();
     delete theFile2;
   }  
 
@@ -430,12 +427,15 @@ void HIPAlignmentAlgorithm::run( const edm::EventSetup& setup,
         //TrajectoryStateOnSurface tsos=meas.updatedState();
         // combine fwd and bwd predicted state to get state 
         // which excludes current hit
-        TrajectoryStateOnSurface tsosc = tsoscomb.combine(
+        TrajectoryStateOnSurface tsos = tsoscomb.combine(
                                                           meas.forwardPredictedState(),
                                                           meas.backwardPredictedState());
-        hitvec.push_back(hit);
-        //tsosvec.push_back(tsos);
-        tsosvec.push_back(tsosc);
+	
+	if(tsos.isValid()){
+	  hitvec.push_back(hit);
+	  //tsosvec.push_back(tsos);
+	  tsosvec.push_back(tsos);
+	}
       }
     }
     
@@ -501,7 +501,7 @@ void HIPAlignmentAlgorithm::run( const edm::EventSetup& setup,
 
        // invert covariance matrix
         int ierr; 
-	int nhitDim=(*ihit)->dimension();
+	uint32_t nhitDim=(*ihit)->dimension();
 	//if(covmat[1][1]>4.0)nhitDim=2;
  
 
@@ -549,15 +549,16 @@ void HIPAlignmentAlgorithm::run( const edm::EventSetup& setup,
 	   uservar->jtve += thisjtve;
 	   uservar->nhit ++;
 	   //for alignable chi squared
-	   AlgebraicVector thischi2(1);
-	   thischi2 = hitresidualT *covmat *hitresidual; 
+	   //AlgebraicVector thischi2(1);
+	   float thischi2;
+	   thischi2 = (hitresidualT *covmat *hitresidual)[0]; 
 	  
-	   if( verbose &&(((float)thischi2[0]/ (float)uservar->nhit) >10.0) ){
-	     edm::LogWarning("Alignment") << "Added to Chi2 the number "<<thischi2[0]<<" having "<<uservar->nhit<<"  dof  " <<endl << "X-resid "<< hitresidual[0]<<"  Y-resid "<< hitresidual[1]<<endl<<"  Cov^-1 matr (covmat): [0][0]= "<<covmat[0][0]<<" [0][1]= "<<covmat[0][1]<<" [1][0]= "<<covmat[1][0]<<" [1][1]= "<<covmat[1][1]<<endl;
+	   if( verbose &&((thischi2/ static_cast <float>(uservar->nhit)) >10.0) ){
+	     edm::LogWarning("Alignment") << "Added to Chi2 the number "<<thischi2<<" having "<<uservar->nhit<<"  dof  " <<endl << "X-resid "<< hitresidual[0]<<"  Y-resid "<< hitresidual[1]<<endl<<"  Cov^-1 matr (covmat): [0][0]= "<<covmat[0][0]<<" [0][1]= "<<covmat[0][1]<<" [1][0]= "<<covmat[1][0]<<" [1][1]= "<<covmat[1][1]<<endl;
 	   }
 
-	   uservar->alichi2 +=(float)thischi2[0];  // a bit weird, but vector.transposed * matrix * vector doesn't give a double in CMSSW's opinion
-	   uservar->alindof += (uint32_t)1*nhitDim;// 2D hits contribute twice to the ndofs
+	   uservar->alichi2 +=thischi2;  // a bit weird, but vector.transposed * matrix * vector doesn't give a double in CMSSW's opinion
+	   uservar->alindof += 1*nhitDim;// 2D hits contribute twice to the ndofs
 	}//end if usethishit
       }//end if ali!=0
 
@@ -568,7 +569,7 @@ void HIPAlignmentAlgorithm::run( const edm::EventSetup& setup,
   } // end of track loop
 
   // fill eventwise root tree (with prescale defined in pset)
-  if(fillTrackMonitoring){
+  if(theFillTrackMonitoring){
     theCurrentPrescale--;
     if (theCurrentPrescale<=0) {
       theTree->Fill();
@@ -942,7 +943,7 @@ void HIPAlignmentAlgorithm::collector(void)
       uvarvecadd,ioerr);
 
    //fill Eventwise Tree
-   if(fillTrackMonitoring){
+   if(theFillTrackMonitoring){
      uvfile= theCollectorPath+"/job"+str+"/HIPAlignmentEvents.root";
      edm::LogWarning("Alignment") <<"Added to the tree "<<fillEventwiseTree((char*)uvfile.c_str(),theIteration,ioerr)<< "tracks";
    }

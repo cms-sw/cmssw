@@ -83,7 +83,7 @@ class HIPAlignmentAlgorithm : public AlignmentAlgorithmBase
   int theCollectorNJobs;
   std::string theCollectorPath;
   int theEventPrescale,theCurrentPrescale;
-  bool fillTrackMonitoring;
+  bool theFillTrackMonitoring;
 
   std::vector<align::StructureType> theLevels; // for survey residuals
 
