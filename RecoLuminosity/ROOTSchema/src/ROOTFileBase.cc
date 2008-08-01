@@ -37,8 +37,6 @@ HCAL_HLX::ROOTFileBase::ROOTFileBase(){
   TriggerDeadtime = new HCAL_HLX::TRIGGER_DEADTIME;
   RingSet         = new HCAL_HLX::LUMI_HF_RING_SET;
 
-  HighFreqEtSum   = new HCAL_HLX::HIGH_FREQ_ET_SUM;
-
   outputDir_ = ".";
   outputFilePrefix_ = "CMS_LUMI_RAW";
 
@@ -73,8 +71,6 @@ HCAL_HLX::ROOTFileBase::~ROOTFileBase(){
   delete TriggerDeadtime; 
   delete RingSet;
 
-  delete HighFreqEtSum;
-
 #ifdef DEBUG
   std::cout << "End " << __PRETTY_FUNCTION__ << std::endl;
 #endif
@@ -85,6 +81,15 @@ void HCAL_HLX::ROOTFileBase::SetFileName(const std::string& fileName){
   fileName_ = fileName;
 
 } 
+
+std::string HCAL_HLX::ROOTFileBase::GetJustFileName(){
+  
+  std::string justFileName = fileName_.substr( fileName_.rfind("/") + 1, fileName_.length() - fileName_.rfind("/") - 1);
+  
+  std::cout << "GetJustFileName: " << justFileName << std::endl;
+
+  return justFileName;
+}
 
 void HCAL_HLX::ROOTFileBase::SetEtSumOnly( bool bEtSumOnly ){
 
@@ -228,6 +233,8 @@ void HCAL_HLX::ROOTFileBase::FillTree(const HCAL_HLX::LUMI_SECTION& localSection
   memcpy(Summary, &localSection.lumiSummary, sizeof(HCAL_HLX::LUMI_SUMMARY));
   memcpy(Detail,  &localSection.lumiDetail,  sizeof(HCAL_HLX::LUMI_DETAIL));
 
+  Header->sectionNumber++;
+
   InsertInformation(); // To be modified later.
 
   m_tree->Fill();
@@ -282,7 +289,7 @@ void HCAL_HLX::ROOTFileBase::InsertInformation(){
   Threshold->OccThreshold1Set2 = 53;
   Threshold->OccThreshold2Set2 = 54;
   Threshold->ETSum             = 55;
-
+  
   L1Trigger->L1lineNumber  = 71;
   L1Trigger->L1Scaler      = 72;
   L1Trigger->L1RateCounter = 73;

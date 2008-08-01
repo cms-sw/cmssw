@@ -34,6 +34,11 @@ class LumiFileWriter : public edm::EDAnalyzer {
       bool bMerge_;
       bool bWBM_;
       bool bTransfer_;
+      bool bTest_;
+
+      unsigned int lastRun_;
+      bool lastCMSLive_;
+
       unsigned int LSCount_;
       unsigned int MergeRate_;
       

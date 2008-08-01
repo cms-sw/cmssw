@@ -77,6 +77,15 @@ std::string HCAL_HLX::ROOTFileMerger::GetFileName(){
   return outputFileName_;
 }
 
+std::string HCAL_HLX::ROOTFileMerger::GetJustFileName(){
+
+  std::string justOutputFileName = outputFileName_.substr( outputFileName_.rfind("/") + 1, 
+							   outputFileName_.length() - outputFileName_.rfind("/") - 1);
+
+  std::cout << "GetJustOutputFileName: " << justOutputFileName << std::endl;
+
+  return justOutputFileName;
+}
 
 std::string HCAL_HLX::ROOTFileMerger::CreateInputFileName(const unsigned int runNumber){
 #ifdef DEBUG

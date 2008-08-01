@@ -65,6 +65,14 @@ namespace HCAL_HLX{
 	 double XMin_;
 	 double XMax_;
 
+	 int iEta_[36];
+	 int iPhi_[36];
+
+	 HCAL_HLX::LUMI_SECTION lumiSection_;
+
+	 std::string HLXToHFMap_[36];
+
+
    };
   
 }

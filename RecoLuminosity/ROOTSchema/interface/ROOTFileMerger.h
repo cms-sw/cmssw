@@ -18,6 +18,7 @@ namespace HCAL_HLX{
     void Merge(const unsigned int runNumber, bool bCMSLive);
     
     std::string GetFileName();
+    std::string GetJustFileName();
 
   private:
 

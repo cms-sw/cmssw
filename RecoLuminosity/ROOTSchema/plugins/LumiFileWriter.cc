@@ -38,7 +38,7 @@ LumiFileWriter::LumiFileWriter(const edm::ParameterSet& iConfig){
    // TCP Receiver configuration
    unsigned int listenPort = iConfig.getUntrackedParameter< unsigned int >("SourcePort", 51002);
    unsigned int AquireMode = iConfig.getUntrackedParameter< unsigned int >("AquireMode",  0);
-   std::string  DistribIP  = iConfig.getUntrackedParameter< std::string  >("HLXDAQIP",    "vmepcs2f17-19");
+   std::string  DistribIP  = iConfig.getUntrackedParameter< std::string  >("HLXDAQIP",    "vmepcS2F17-19");
    reconTime               = iConfig.getUntrackedParameter< unsigned int >("ReconnectionTime",60);
 
    HLXTCP.SetPort(listenPort);
@@ -71,6 +71,10 @@ LumiFileWriter::LumiFileWriter(const edm::ParameterSet& iConfig){
    bWBM_      = iConfig.getUntrackedParameter< bool   >("CreateWebPage", false );
    MergeRate_ = iConfig.getUntrackedParameter< unsigned int >("MergeRate", 1 );
    bTransfer_ = iConfig.getUntrackedParameter< bool >("TransferToDBS", false );
+   bTest_     = iConfig.getUntrackedParameter< bool >("Test", false );
+
+   lastRun_ = 0;
+
 }
 
 LumiFileWriter::~LumiFileWriter()
@@ -95,12 +99,8 @@ void LumiFileWriter::analyze(const edm::Event& iEvent,
     std::cout << "Writing LS file" << std::endl;
     lumiSchema.ProcessSection(localSection);
     
-    if( bMerge_ ){
-      if( LSCount_ % MergeRate_ == 0 ){
-	std::cout << "Merge files" << std::endl;    
-	RFM.Merge(localSection.hdr.runNumber, localSection.hdr.bCMSLive);
-      }
-    }
+    lastRun_ = localSection.hdr.runNumber;
+    lastCMSLive_  = localSection.hdr.bCMSLive;
 
     if( bWBM_ ){
       std::cout << "Create Web page" << std::endl; 
@@ -112,14 +112,23 @@ void LumiFileWriter::analyze(const edm::Event& iEvent,
   }else{
 
     HLXTCP.Disconnect();
-    
-    if( bTransfer_ ){
-      std::cout << "Transfer files" << std::endl;    
-      RFT.SetFileName( RFM.GetFileName() );
-      RFT.TransferFile( );
+
+    if( bMerge_ ){
+      if( lastRun_ != 0 ){
+	if( LSCount_ % MergeRate_ == 0 ){
+	  std::cout << "Merge files" << std::endl;    
+	  RFM.Merge( lastRun_ , lastCMSLive_ );
+	}
+	
+	if( bTransfer_ ){
+	  std::cout << "Transfer files" << std::endl;    
+	  RFT.SetFileName( RFM.GetJustFileName() );
+	  RFT.TransferFile( );
+	}
+	lastRun_ = 0;
+      }
     }
   }
-
 }
 
 // ------------ method called once each job just before starting event loop  ------------
@@ -131,6 +140,16 @@ LumiFileWriter::beginJob(const edm::EventSetup&)
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 LumiFileWriter::endJob() {
+
+  if(bTest_){
+    HLXTCP.Disconnect();
+    
+    if( bTransfer_ ){
+      std::cout << "Transfer files" << std::endl;    
+      RFT.SetFileName( RFM.GetJustFileName() );
+      RFT.TransferFile( );
+    }
+  }
 }
 
 //define this as a plug-in

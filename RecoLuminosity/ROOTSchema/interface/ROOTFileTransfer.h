@@ -11,11 +11,11 @@ namespace HCAL_HLX{
     ~ROOTFileTransfer();
      
     void SetFileName( std::string fileName );
-    int TransferFile();
+    int TransferFile( );
 
   private:
     std::string fileName_;
-
+    std::string dirName_;
   };
 }
 
