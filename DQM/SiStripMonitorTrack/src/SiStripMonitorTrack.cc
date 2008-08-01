@@ -160,7 +160,7 @@ void SiStripMonitorTrack::analyze(const edm::Event& e, const edm::EventSetup& es
       NClus[i][j]=0;
     } // loop over TIB, TID, TOB, TEC
     
-    name=flags[j]+"_NumberOfClusters";
+    name=flags[j]+"_TotalNumberOfClusters";
     iME = MEMap.find(name);
     if(iME!=MEMap.end() && nTot) iME->second->Fill(nTot);
     if(Trend_On_){
@@ -195,7 +195,7 @@ void SiStripMonitorTrack::book()
     dbe->setCurrentFolder(MEFolderName);
     
     for (int j=0;j<off_Flag;j++) { // Loop on onTrack, offTrack
-      name=flags[j]+"_NumberOfClusters";
+      name=flags[j]+"_TotalNumberOfClusters";
       if(MEMap.find(name)==MEMap.end()) {
 	MEMap[name]=bookME1D("TH1nClusters", name.Data()); 
 	if(Trend_On_){
@@ -383,9 +383,10 @@ void SiStripMonitorTrack::bookSubDetMEs(TString name,TString flag)//Histograms a
   if(iLayerME==LayerMEsMap.end()){
     LayerMEs theLayerMEs;
     
-    // Number of Cluster 
-    sprintf(completeName,"Summary_NumberOfClusters_%s",name.Data());
+    // TotalNumber of Cluster 
+    sprintf(completeName,"Summary_TotalNumberOfClusters_%s",name.Data());
     theLayerMEs.nClusters=bookME1D("TH1nClusters", completeName);
+    theLayerMEs.nClusters->getTH1()->StatOverflows(kTRUE);
     
     // Cluster Width
     sprintf(completeName,"Summary_ClusterWidth_%s",name.Data());
@@ -405,8 +406,8 @@ void SiStripMonitorTrack::bookSubDetMEs(TString name,TString flag)//Histograms a
 
 
     if(Trend_On_){
-      // Number of Cluster 
-      sprintf(completeName,"Trend_NumberOfClusters_%s",name.Data());
+      // TotalNumber of Cluster 
+      sprintf(completeName,"Trend_TotalNumberOfClusters_%s",name.Data());
       theLayerMEs.nClustersTrend=bookMETrend("TH1nClusters", completeName);
       // Cluster Width
       sprintf(completeName,"Trend_ClusterWidth_%s",name.Data());
