@@ -94,9 +94,27 @@ private:
   std::string histname; 
   TString name;
   LocalVector LV;
-  
+
   struct ModMEs{
-    ModMEs():    
+    ModMEs():  
+      ClusterStoN(0),
+	 ClusterStoNCorr(0),
+	 ClusterCharge(0),
+	 ClusterChargeCorr(0),
+	 ClusterWidth(0),
+	 ClusterPos(0),
+	 ClusterPGV(0){};
+    MonitorElement* ClusterStoN;
+    MonitorElement* ClusterStoNCorr;
+    MonitorElement* ClusterCharge;
+    MonitorElement* ClusterChargeCorr; 
+    MonitorElement* ClusterWidth;
+    MonitorElement* ClusterPos;
+    MonitorElement* ClusterPGV;
+  };
+
+  struct LayerMEs{
+    LayerMEs():    
       nClusters(0),
       nClustersTrend(0),
       ClusterStoN(0),
@@ -136,7 +154,9 @@ private:
   };
   
   std::map<TString, ModMEs> ModMEsMap;
+  std::map<TString, LayerMEs> LayerMEsMap;
   std::map<TString, MonitorElement*> MEMap;
+
   
   edm::Handle< edm::DetSetVector<SiStripRawDigi> >    dsv_SiStripRawDigi;
   edm::Handle< edmNew::DetSetVector<SiStripCluster> > dsv_SiStripCluster;

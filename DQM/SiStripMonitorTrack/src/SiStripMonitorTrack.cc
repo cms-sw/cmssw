@@ -140,20 +140,21 @@ void SiStripMonitorTrack::analyze(const edm::Event& e, const edm::EventSetup& es
   //Summary Counts of clusters
   std::map<TString, MonitorElement*>::iterator iME;
   std::map<TString, ModMEs>::iterator          iModME ;
+  std::map<TString, LayerMEs>::iterator        iLayerME;
   
   for (int j=0;j<off_Flag;++j){ // loop over ontrack, offtrack
     int nTot=0;
     for (int i=0;i<4;++i){ // loop over TIB, TID, TOB, TEC
       name=flags[j]+"_in_"+SubDet[i];      
-      iModME = ModMEsMap.find(name);
-      if(iModME!=ModMEsMap.end()) {
+      iLayerME = LayerMEsMap.find(name);
+      if(iLayerME!=LayerMEsMap.end()) {
 	if(flags[j]=="OnTrack" && NClus[i][j]){
-	  fillME(   iModME->second.nClusters,      NClus[i][j]);
+	  fillME(   iLayerME->second.nClusters,      NClus[i][j]);
 	}else if(flags[j]=="OffTrack"){
-	  fillME(   iModME->second.nClusters,      NClus[i][j]);
+	  fillME(   iLayerME->second.nClusters,      NClus[i][j]);
 	}
 	if(Trend_On_)
-	  fillTrend(iModME->second.nClustersTrend, NClus[i][j]);
+	  fillTrend(iLayerME->second.nClustersTrend, NClus[i][j]);
       }
       nTot+=NClus[i][j];
       NClus[i][j]=0;
@@ -213,7 +214,7 @@ void SiStripMonitorTrack::book()
       folder_organizer.setLayerFolder(*detid_iter,folder_organizer.GetSubDetAndLayer(*detid_iter).second); 
       bookTrendMEs("layer",folder_organizer.GetSubDetAndLayer(*detid_iter).second,*detid_iter,flags[j]);
     }
-  
+    
     if(Mod_On_){
       //    book module plots
       folder_organizer.setDetectorFolder(*detid_iter);
@@ -221,7 +222,7 @@ void SiStripMonitorTrack::book()
     }
     DetectedLayers[folder_organizer.GetSubDetAndLayer(*detid_iter)] |= (DetectedLayers.find(folder_organizer.GetSubDetAndLayer(*detid_iter)) == DetectedLayers.end());
     //      }
-  }//end loop on detector
+  }//end loop on detectors detid
   
   //  book SubDet plots
   for (std::map<std::pair<std::string,int32_t>,bool>::const_iterator iter=DetectedLayers.begin(); iter!=DetectedLayers.end();iter++){
@@ -300,150 +301,157 @@ void SiStripMonitorTrack::bookTrendMEs(TString name,int32_t layer,uint32_t id,st
 
   SiStripHistoId hidmanager;
   std::string hid = hidmanager.createHistoLayer("",name.Data(),rest,flag);
-  std::map<TString, ModMEs>::iterator iModME  = ModMEsMap.find(TString(hid));
-  if(iModME==ModMEsMap.end()){
-    ModMEs theModMEs; 
+  std::map<TString, LayerMEs>::iterator iLayerME  = LayerMEsMap.find(TString(hid));
+  if(iLayerME==LayerMEsMap.end()){
+    LayerMEs theLayerMEs; 
     
     // Cluster Width
-    theModMEs.ClusterWidth=bookME1D("TH1ClusterWidth", hidmanager.createHistoLayer("Summary_ClusterWidth",name.Data(),rest,flag).c_str()); 
-    dbe->tag(theModMEs.ClusterWidth,layer); 
+    theLayerMEs.ClusterWidth=bookME1D("TH1ClusterWidth", hidmanager.createHistoLayer("Summary_ClusterWidth",name.Data(),rest,flag).c_str()); 
+    dbe->tag(theLayerMEs.ClusterWidth,layer); 
     
     // Cluster Noise
-    theModMEs.ClusterNoise=bookME1D("TH1ClusterNoise", hidmanager.createHistoLayer("Summary_ClusterNoise",name.Data(),rest,flag).c_str()); 
-    dbe->tag(theModMEs.ClusterNoise,layer); 
+    theLayerMEs.ClusterNoise=bookME1D("TH1ClusterNoise", hidmanager.createHistoLayer("Summary_ClusterNoise",name.Data(),rest,flag).c_str()); 
+    dbe->tag(theLayerMEs.ClusterNoise,layer); 
     
     // Cluster Charge
-    theModMEs.ClusterCharge=bookME1D("TH1ClusterCharge", hidmanager.createHistoLayer("Summary_ClusterCharge",name.Data(),rest,flag).c_str());
-    dbe->tag(theModMEs.ClusterCharge,layer);
+    theLayerMEs.ClusterCharge=bookME1D("TH1ClusterCharge", hidmanager.createHistoLayer("Summary_ClusterCharge",name.Data(),rest,flag).c_str());
+    dbe->tag(theLayerMEs.ClusterCharge,layer);
     
     // Cluster StoN
-    theModMEs.ClusterStoN=bookME1D("TH1ClusterStoN", hidmanager.createHistoLayer("Summary_ClusterStoN",name.Data(),rest,flag).c_str());
-    dbe->tag(theModMEs.ClusterStoN,layer); 
-    
-    // Symmetric Eta function Eta=(L+R)/(2C) (Capacitive Coupling)
-    theModMEs.ClusterSymmEtaCC=bookME1D("TH1ClusterSymmEtaCC", hidmanager.createHistoLayer("Summary_ClusterSymmEtaCC",name.Data(),rest,flag).c_str()); 
-    dbe->tag(theModMEs.ClusterSymmEtaCC,layer); 
-    
+    theLayerMEs.ClusterStoN=bookME1D("TH1ClusterStoN", hidmanager.createHistoLayer("Summary_ClusterStoN",name.Data(),rest,flag).c_str());
+    dbe->tag(theLayerMEs.ClusterStoN,layer); 
+
     // Trends
     if(Trend_On_){
       // Cluster Width
-      theModMEs.ClusterWidthTrend=bookMETrend("TH1ClusterWidth", hidmanager.createHistoLayer("Trend_ClusterWidth",name.Data(),rest,flag).c_str()); 
-      dbe->tag(theModMEs.ClusterWidthTrend,layer); 
+      theLayerMEs.ClusterWidthTrend=bookMETrend("TH1ClusterWidth", hidmanager.createHistoLayer("Trend_ClusterWidth",name.Data(),rest,flag).c_str()); 
+      dbe->tag(theLayerMEs.ClusterWidthTrend,layer); 
       // Cluster Noise
-      theModMEs.ClusterNoiseTrend=bookMETrend("TH1ClusterNoise", hidmanager.createHistoLayer("Trend_ClusterNoise",name.Data(),rest,flag).c_str()); 
-      dbe->tag(theModMEs.ClusterNoiseTrend,layer); 
+      theLayerMEs.ClusterNoiseTrend=bookMETrend("TH1ClusterNoise", hidmanager.createHistoLayer("Trend_ClusterNoise",name.Data(),rest,flag).c_str()); 
+      dbe->tag(theLayerMEs.ClusterNoiseTrend,layer); 
       // Cluster Charge
-      theModMEs.ClusterChargeTrend=bookMETrend("TH1ClusterCharge", hidmanager.createHistoLayer("Trend_ClusterCharge",name.Data(),rest,flag).c_str());
-      dbe->tag(theModMEs.ClusterChargeTrend,layer); 
+      theLayerMEs.ClusterChargeTrend=bookMETrend("TH1ClusterCharge", hidmanager.createHistoLayer("Trend_ClusterCharge",name.Data(),rest,flag).c_str());
+      dbe->tag(theLayerMEs.ClusterChargeTrend,layer); 
       // Cluster StoN
-      theModMEs.ClusterStoNTrend=bookMETrend("TH1ClusterStoN", hidmanager.createHistoLayer("Trend_ClusterStoN",name.Data(),rest,flag).c_str());
-      dbe->tag(theModMEs.ClusterStoNTrend,layer); 
-      // Symmetric Eta function Eta=(L+R)/(2C) (Capacitive Coupling)
-      theModMEs.ClusterSymmEtaCCTrend=bookMETrend("TH1ClusterSymmEtaCC", hidmanager.createHistoLayer("Trend_ClusterSymmEtaCC",name.Data(),rest,flag).c_str()); 
-      dbe->tag(theModMEs.ClusterSymmEtaCCTrend,layer); 
+      theLayerMEs.ClusterStoNTrend=bookMETrend("TH1ClusterStoN", hidmanager.createHistoLayer("Trend_ClusterStoN",name.Data(),rest,flag).c_str());
+      dbe->tag(theLayerMEs.ClusterStoNTrend,layer); 
     }
     
     if(flag=="OnTrack"){
       
       // Cluster Charge Corrected
-      theModMEs.ClusterChargeCorr=bookME1D("TH1ClusterChargeCorr", hidmanager.createHistoLayer("Summary_ClusterChargeCorr",name.Data(),rest,flag).c_str());
-      dbe->tag(theModMEs.ClusterChargeCorr,layer); 
+      theLayerMEs.ClusterChargeCorr=bookME1D("TH1ClusterChargeCorr", hidmanager.createHistoLayer("Summary_ClusterChargeCorr",name.Data(),rest,flag).c_str());
+      dbe->tag(theLayerMEs.ClusterChargeCorr,layer); 
       
       // Cluster StoN Corrected
-      theModMEs.ClusterStoNCorr=bookME1D("TH1ClusterStoNCorr", hidmanager.createHistoLayer("Summary_ClusterStoNCorr",name.Data(),rest,flag).c_str());
-      dbe->tag(theModMEs.ClusterStoNCorr,layer); 
+      theLayerMEs.ClusterStoNCorr=bookME1D("TH1ClusterStoNCorr", hidmanager.createHistoLayer("Summary_ClusterStoNCorr",name.Data(),rest,flag).c_str());
+      dbe->tag(theLayerMEs.ClusterStoNCorr,layer); 
+
+     // Symmetric Eta function Eta=(L+R)/(2C) (Capacitive Coupling)
+      theLayerMEs.ClusterSymmEtaCC=bookME1D("TH1ClusterSymmEtaCC", hidmanager.createHistoLayer("Summary_ClusterSymmEtaCC",name.Data(),rest,flag).c_str()); 
+      dbe->tag(theLayerMEs.ClusterSymmEtaCC,layer); 
       
       if(Trend_On_){
 	// Cluster Charge Corrected
-	theModMEs.ClusterChargeCorrTrend=bookMETrend("TH1ClusterChargeCorr", hidmanager.createHistoLayer("Trend_ClusterChargeCorr",name.Data(),rest,flag).c_str());
-	dbe->tag(theModMEs.ClusterChargeCorrTrend,layer); 
+	theLayerMEs.ClusterChargeCorrTrend=bookMETrend("TH1ClusterChargeCorr", hidmanager.createHistoLayer("Trend_ClusterChargeCorr",name.Data(),rest,flag).c_str());
+	dbe->tag(theLayerMEs.ClusterChargeCorrTrend,layer); 
 	// Cluster StoN Corrected
-	theModMEs.ClusterStoNCorrTrend=bookMETrend("TH1ClusterStoNCorr", hidmanager.createHistoLayer("Trend_ClusterStoNCorr",name.Data(),rest,flag).c_str());
-	dbe->tag(theModMEs.ClusterStoNCorrTrend,layer); 
+	theLayerMEs.ClusterStoNCorrTrend=bookMETrend("TH1ClusterStoNCorr", hidmanager.createHistoLayer("Trend_ClusterStoNCorr",name.Data(),rest,flag).c_str());
+	dbe->tag(theLayerMEs.ClusterStoNCorrTrend,layer); 
+
+	// Symmetric Eta function Eta=(L+R)/(2C) (Capacitive Coupling)
+	theLayerMEs.ClusterSymmEtaCCTrend=bookMETrend("TH1ClusterSymmEtaCC", hidmanager.createHistoLayer("Trend_ClusterSymmEtaCC",name.Data(),rest,flag).c_str()); 
+	dbe->tag(theLayerMEs.ClusterSymmEtaCCTrend,layer); 
       }
       
     }
     
     //Cluster Position
-    theModMEs.ClusterPos=bookME1D("TH1ClusterPos", hidmanager.createHistoLayer("Summary_ClusterPosition",name.Data(),rest,flag).c_str());  
-    dbe->tag(theModMEs.ClusterPos,layer); 
+    theLayerMEs.ClusterPos=bookME1D("TH1ClusterPos", hidmanager.createHistoLayer("Summary_ClusterPosition",name.Data(),rest,flag).c_str());  
+    dbe->tag(theLayerMEs.ClusterPos,layer); 
     
     //bookeeping
-    ModMEsMap[hid]=theModMEs;
+    LayerMEsMap[hid]=theLayerMEs;
   }
 
 }
 
 void SiStripMonitorTrack::bookSubDetMEs(TString name,TString flag)//Histograms at SubDet level
 {
-  std::map<TString, ModMEs>::iterator iModME  = ModMEsMap.find(name);
+  std::map<TString, LayerMEs>::iterator iLayerME  = LayerMEsMap.find(name);
   char completeName[1024];
-  if(iModME==ModMEsMap.end()){
-    ModMEs theModMEs;
+  if(iLayerME==LayerMEsMap.end()){
+    LayerMEs theLayerMEs;
     
     // Number of Cluster 
     sprintf(completeName,"Summary_NumberOfClusters_%s",name.Data());
-    theModMEs.nClusters=bookME1D("TH1nClusters", completeName);
+    theLayerMEs.nClusters=bookME1D("TH1nClusters", completeName);
     
     // Cluster Width
     sprintf(completeName,"Summary_ClusterWidth_%s",name.Data());
-    theModMEs.ClusterWidth=bookME1D("TH1ClusterWidth", completeName);
+    theLayerMEs.ClusterWidth=bookME1D("TH1ClusterWidth", completeName);
     
     // Cluster Noise
     sprintf(completeName,"Summary_ClusterNoise_%s",name.Data());
-    theModMEs.ClusterNoise=bookME1D("TH1ClusterNoise", completeName);
+    theLayerMEs.ClusterNoise=bookME1D("TH1ClusterNoise", completeName);
     
     // Cluster Charge
     sprintf(completeName,"Summary_ClusterCharge_%s",name.Data());
-    theModMEs.ClusterCharge=bookME1D("TH1ClusterCharge", completeName);
+    theLayerMEs.ClusterCharge=bookME1D("TH1ClusterCharge", completeName);
     
     // Cluster StoN
     sprintf(completeName,"Summary_ClusterStoN_%s",name.Data());
-    theModMEs.ClusterStoN=bookME1D("TH1ClusterStoN", completeName);
-    
-    // Symmetric Eta function Eta=(L+R)/(2C) (Capacitive Coupling)
-    sprintf(completeName,"Summary_ClusterSymmEtaCC_%s",name.Data());
-    theModMEs.ClusterSymmEtaCC=bookME1D("TH1ClusterSymmEtaCC", completeName);
-    
+    theLayerMEs.ClusterStoN=bookME1D("TH1ClusterStoN", completeName);
+
+
     if(Trend_On_){
       // Number of Cluster 
       sprintf(completeName,"Trend_NumberOfClusters_%s",name.Data());
-      theModMEs.nClustersTrend=bookMETrend("TH1nClusters", completeName);
+      theLayerMEs.nClustersTrend=bookMETrend("TH1nClusters", completeName);
       // Cluster Width
       sprintf(completeName,"Trend_ClusterWidth_%s",name.Data());
-      theModMEs.ClusterWidthTrend=bookMETrend("TH1ClusterWidth", completeName);
+      theLayerMEs.ClusterWidthTrend=bookMETrend("TH1ClusterWidth", completeName);
       // Cluster Noise
       sprintf(completeName,"Trend_ClusterNoise_%s",name.Data());
-      theModMEs.ClusterNoiseTrend=bookMETrend("TH1ClusterNoise", completeName);
+      theLayerMEs.ClusterNoiseTrend=bookMETrend("TH1ClusterNoise", completeName);
       // Cluster Charge
       sprintf(completeName,"Trend_ClusterCharge_%s",name.Data());
-      theModMEs.ClusterChargeTrend=bookMETrend("TH1ClusterCharge", completeName);
+      theLayerMEs.ClusterChargeTrend=bookMETrend("TH1ClusterCharge", completeName);
       // Cluster StoN
       sprintf(completeName,"Trend_ClusterStoN_%s",name.Data());
-      theModMEs.ClusterStoNTrend=bookMETrend("TH1ClusterStoN", completeName); 
+      theLayerMEs.ClusterStoNTrend=bookMETrend("TH1ClusterStoN", completeName); 
     }
 
     if (flag=="OnTrack"){
       //Cluster StoNCorr
       sprintf(completeName,"Summary_ClusterStoNCorr_%s",name.Data());
-      theModMEs.ClusterStoNCorr=bookME1D("TH1ClusterStoNCorr", completeName);
+      theLayerMEs.ClusterStoNCorr=bookME1D("TH1ClusterStoNCorr", completeName);
       
       // Cluster ChargeCorr
       sprintf(completeName,"Summary_ClusterChargeCorr_%s",name.Data());
-      theModMEs.ClusterChargeCorr=bookME1D("TH1ClusterChargeCorr", completeName);
-      
+      theLayerMEs.ClusterChargeCorr=bookME1D("TH1ClusterChargeCorr", completeName);
+
+      // Symmetric Eta function Eta=(L+R)/(2C) (Capacitive Coupling)
+      sprintf(completeName,"Summary_ClusterSymmEtaCC_%s",name.Data());
+      theLayerMEs.ClusterSymmEtaCC=bookME1D("TH1ClusterSymmEtaCC", completeName);
+         
       if(Trend_On_){ 
 	// Cluster StoNCorr
 	sprintf(completeName,"Trend_ClusterStoNCorr_%s",name.Data());
-	theModMEs.ClusterStoNCorrTrend=bookMETrend("TH1ClusterStoNCorr", completeName);     
+	theLayerMEs.ClusterStoNCorrTrend=bookMETrend("TH1ClusterStoNCorr", completeName);     
 	// Cluster ChargeCorr
 	sprintf(completeName,"Trend_ClusterChargeCorr_%s",name.Data());
-	theModMEs.ClusterChargeCorrTrend=bookMETrend("TH1ClusterChargeCorr", completeName);
+	theLayerMEs.ClusterChargeCorrTrend=bookMETrend("TH1ClusterChargeCorr", completeName);
+	// Cluster Eta function
+	sprintf(completeName,"Trend_ClusterSymmEtaCC_%s",name.Data());
+	theLayerMEs.ClusterSymmEtaCCTrend=bookMETrend("TH1ClusterSymmEtaCC", completeName);
+
+
       }
     }
     
     //bookeeping
-    ModMEsMap[name]=theModMEs;
+    LayerMEsMap[name]=theLayerMEs;
   }
 }
 //--------------------------------------------------------------------------------
@@ -864,30 +872,30 @@ void SiStripMonitorTrack::fillModMEs(SiStripClusterInfo* cluster,TString name,fl
 //------------------------------------------------------------------------
 void SiStripMonitorTrack::fillTrendMEs(SiStripClusterInfo* cluster,std::string name,float cos, std::string flag)
 { 
-  std::map<TString, ModMEs>::iterator iModME  = ModMEsMap.find(name);
-  if(iModME!=ModMEsMap.end()){
+  std::map<TString, LayerMEs>::iterator iLayerME  = LayerMEsMap.find(name);
+  if(iLayerME!=LayerMEsMap.end()){
     if(flag=="OnTrack"){
-      fillME(iModME->second.ClusterStoNCorr,(cluster->getSignalOverNoise())*cos);
-      fillTrend(iModME->second.ClusterStoNCorrTrend,(cluster->getSignalOverNoise())*cos);
-      fillME(iModME->second.ClusterChargeCorr,cluster->getCharge()*cos);
-      fillTrend(iModME->second.ClusterChargeCorrTrend,cluster->getCharge()*cos);
+      fillME(iLayerME->second.ClusterStoNCorr,(cluster->getSignalOverNoise())*cos);
+      fillTrend(iLayerME->second.ClusterStoNCorrTrend,(cluster->getSignalOverNoise())*cos);
+      fillME(iLayerME->second.ClusterChargeCorr,cluster->getCharge()*cos);
+      fillTrend(iLayerME->second.ClusterChargeCorrTrend,cluster->getCharge()*cos);
     }
-    fillME(iModME->second.ClusterStoN  ,cluster->getSignalOverNoise());
-    fillTrend(iModME->second.ClusterStoNTrend,cluster->getSignalOverNoise());
-    fillME(iModME->second.ClusterCharge,cluster->getCharge());
-    fillTrend(iModME->second.ClusterChargeTrend,cluster->getCharge());
-    fillME(iModME->second.ClusterNoise ,cluster->getNoise());
-    fillTrend(iModME->second.ClusterNoiseTrend,cluster->getNoise());
-    fillME(iModME->second.ClusterWidth ,cluster->getWidth());
-    fillTrend(iModME->second.ClusterWidthTrend,cluster->getWidth());
-    fillME(iModME->second.ClusterPos   ,cluster->getPosition());
+    fillME(iLayerME->second.ClusterStoN  ,cluster->getSignalOverNoise());
+    fillTrend(iLayerME->second.ClusterStoNTrend,cluster->getSignalOverNoise());
+    fillME(iLayerME->second.ClusterCharge,cluster->getCharge());
+    fillTrend(iLayerME->second.ClusterChargeTrend,cluster->getCharge());
+    fillME(iLayerME->second.ClusterNoise ,cluster->getNoise());
+    fillTrend(iLayerME->second.ClusterNoiseTrend,cluster->getNoise());
+    fillME(iLayerME->second.ClusterWidth ,cluster->getWidth());
+    fillTrend(iLayerME->second.ClusterWidthTrend,cluster->getWidth());
+    fillME(iLayerME->second.ClusterPos   ,cluster->getPosition());
   }
 }
 
 //------------------------------------------------------------------------
 void SiStripMonitorTrack::fillCapacitiveCouplingMEs(SiStripClusterInfo* cluster,std::string name, float cos, std::string flag) {
-  std::map<TString, ModMEs>::iterator iModME  = ModMEsMap.find(name);
-  if(iModME!=ModMEsMap.end()){
+  std::map<TString, LayerMEs>::iterator iLayerME  = LayerMEsMap.find(name);
+  if(iLayerME!=LayerMEsMap.end()){
     // Capacitive Coupling analysis
     if( cos > 0.9 ) { // perpendicular track
       LogTrace("SiStripMonitorTrack") << "\t\t Perpendicular Track, cluster center " << cluster->getMaxPosition() << std::endl;
@@ -943,8 +951,8 @@ void SiStripMonitorTrack::fillCapacitiveCouplingMEs(SiStripClusterInfo* cluster,
       //
       
       // fill monitor elements
-      fillME(iModME->second.ClusterSymmEtaCC , symmetricEta);
-      fillTrend(iModME->second.ClusterSymmEtaCCTrend, symmetricEta);
+      fillME(iLayerME->second.ClusterSymmEtaCC , symmetricEta);
+      fillTrend(iLayerME->second.ClusterSymmEtaCCTrend, symmetricEta);
       //
       
     } // perpendicular track

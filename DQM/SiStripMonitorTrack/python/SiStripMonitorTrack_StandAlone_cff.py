@@ -6,7 +6,7 @@ SiStripMonitorTrack.TrackLabel    = ''
 SiStripMonitorTrack.OutputMEsInRootFile = True
 SiStripMonitorTrack.OutputFileName = '/tmp/sistripmonitortrack_prova.root'
 SiStripMonitorTrack.Cluster_src = 'siStripClusters'
-SiStripMonitorTrack.Mod_On      = True
+SiStripMonitorTrack.Mod_On      = False
 SiStripMonitorTrack.OffHisto_On = True
 SiStripMonitorTrack.Trend_On    = False
 
