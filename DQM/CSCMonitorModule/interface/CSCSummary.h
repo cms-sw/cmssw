@@ -60,7 +60,8 @@ class CSCSummary {
 
     const bool ChamberCoords(const unsigned int x, const unsigned int y, CSCAddress& adr) const;
     const double GetReportingArea(CSCAddress adr) const; 
-    const double SignificanceLevel(const unsigned int N, const unsigned int n, const double eps, const bool op_less = true) const;
+    const double SignificanceLevel(const unsigned int N, const unsigned int n, const double eps) const;
+    const double SignificanceLevelHot(const unsigned int N, const unsigned int n) const;
 
     // Atomic HW element status matrix
     // Possible values and appropriate color codes in maps:

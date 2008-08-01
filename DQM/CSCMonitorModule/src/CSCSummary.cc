@@ -133,7 +133,7 @@ void CSCSummary::ReadReportingChambersRef(TH2*& h2, TH2*& refh2, const double ep
           } else if (N > 0) {
             eps_meas = (1.0 * n) / (1.0 * N);
             if (eps_meas < eps_min) {
-              if (SignificanceLevel(N, n, eps_min, false) > Sfail) {
+              if (SignificanceLevel(N, n, eps_min) > Sfail) {
                 val = -1;
               }
               LOGINFO("ReadReportingChambersRef") << "eps_min = " << eps_min << 
@@ -141,8 +141,13 @@ void CSCSummary::ReadReportingChambersRef(TH2*& h2, TH2*& refh2, const double ep
                                                      ", eps_meas = " << eps_meas << 
                                                      ", N = " << N << 
                                                      ", n = " << n << 
-                                                     ", Sbeta = " << SignificanceLevel(N, n, eps_min, false) << 
+                                                     ", S = " << SignificanceLevel(N, n, eps_min) << 
                                                      ", value = " << val;
+            } else
+            if (eps_meas > 1.0) {
+              if (SignificanceLevelHot(N, n) > Sfail) {
+                val = -1;
+              }
             }
           }
           SetValue(adr, val);
@@ -176,7 +181,7 @@ void CSCSummary::ReadErrorChambers(TH2*& evs, TH2*& err, const double eps_max, c
         N = int(evs->GetBinContent(x, y));
         n = int(err->GetBinContent(x, y));
         if(ChamberCoords(x, y, adr)) {
-          if(SignificanceLevel(N, n, eps_max, true) > Sfail) { 
+          if(SignificanceLevel(N, n, eps_max) > Sfail) { 
             //LOGINFO("ReadErrorChambers") << " N = " << N << ", n = " << n << ", Salpha = " << SignificanceLevel(N, n, eps_max, true);
             SetValue(adr, -1);
           }
@@ -707,11 +712,9 @@ const bool CSCSummary::ChamberCoords(const unsigned int x, const unsigned int y,
  * @param  N Number of events
  * @param  n Number of errors
  * @param  eps Rate of tolerance
- * @param  op_less TRUE to return (alpha) significance probability that the true failure rate is *less* than emax, 
- *                 FALSE to return (beta) probability that the true failure rate is *larger* than emax
  * @return Significance level
  */
-const double CSCSummary::SignificanceLevel(const unsigned int N, const unsigned int n, const double eps, const bool op_less) const {
+const double CSCSummary::SignificanceLevel(const unsigned int N, const unsigned int n, const double eps) const {
 
   double l_eps = eps;
   if (l_eps <= 0.0) l_eps = 0.000001;
@@ -728,9 +731,22 @@ const double CSCSummary::SignificanceLevel(const unsigned int N, const unsigned 
     for (unsigned int r = 0; r < (N - n); r++) b = b * (1 - eps_meas) / (1 - l_eps);
   }
 
-  double q = (op_less ? a * b : 1 / (a * b));
+  return sqrt(2.0 * log(a * b));
 
-  return sqrt(2.0 * log(q));
+}
 
+/**
+ * @brief  Calculate error significance alpha for the given number of events
+ * based on reference number of errors for "hot" elements: actual number of
+ * events have to be larger then the reference.
+ * @param  N number of reference events
+ * @param  n number of actual events
+ * @return error significance
+ */
+const double CSCSummary::SignificanceLevelHot(const unsigned int N, const unsigned int n) const {
+  if (N > n) return 0.0;
+  // no - n observed, ne - n expected
+  double no = 1.0 * n, ne = 1.0 * N;
+  return sqrt(2.0 * (no * (log(no / ne) - 1) + ne));
 }
 

@@ -245,7 +245,7 @@ void CSCMonitorModule::book(const std::string prefix) {
         if(findHistoValue(hdi->second, "YTitle", s)) me->setAxisTitle(s, 2);
         if(findHistoValue(hdi->second, "ZTitle", s)) me->setAxisTitle(s, 3);
         if(findHistoValue(hdi->second, "SetOption", s)) h->SetOption(s.c_str());
-        if(findHistoValue(hdi->second, "SetiStats", i)) h->SetStats(i);
+        if(findHistoValue(hdi->second, "SetStats", i)) h->SetStats(i);
         h->SetFillColor(getHistoValue(hdi->second, "SetFillColor", i, DEF_HISTO_COLOR));
         if(findHistoValue(hdi->second, "SetXLabels", s)) {
           std::map<int, std::string> labels;
