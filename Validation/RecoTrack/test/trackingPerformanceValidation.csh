@@ -23,9 +23,10 @@
 set RefRelease=CMSSW_2_1_0_pre6
 set NewRelease=$CMSSW_VERSION
 set Algo=""
-set Quality="highPurity"
-#set Tracks="generalTracks"
-set Tracks="cutsRecoTracks"
+set Quality=""
+#set Quality="highPurity"
+set Tracks="generalTracks"
+#set Tracks="cutsRecoTracks"
 set GlobalTag = IDEAL_V5
 set RefSelection=IDEAL_V2_out_of_the_box
 set NewSelection=${GlobalTag}_out_of_the_box${Algo}${Quality}
@@ -39,8 +40,8 @@ set NewRepository=/afs/cern.ch/cms/performance/tracker/activities/reconstruction
 set Sequence=only_validation
 #set samples=(RelValSingleMuPt1 RelValSingleMuPt10  RelValSingleMuPt100) 
 #set samples=(RelValSingleMuPt1 RelValSingleMuPt10 RelValSingleMuPt100) 
-#set samples=(RelValSinglePiPt100)
-set samples=(RelValSinglePiPt1)
+set samples=(RelValSingleMuPt100)
+#set samples=(RelValSinglePiPt1)
 #set samples=(RelValTTbar)
 #set samples=(RelValSingleMuPt1 RelValSingleMuPt10 RelValSingleMuPt100 RelValSinglePiPt1 RelValSinglePiPt10 RelValSinglePiPt100 RelValTTbar RelValQCD_Pt_3000_3500 RelValQCD_Pt_80_120)
 #set cfg = trackingPerformanceValidation13x.cfg
@@ -66,8 +67,7 @@ foreach sample($samples)
     cat $sample.cff |grep -v maxEvents>! tmp0.cfg
     cat $cfg >> tmp0.cfg
     #cp $RefRepository/$RefRelease/$RefSelection/$sample/$sample.cff .
-#    set rootfiles = `cat $sample.cff|grep store`
-#    set rootfiles = test
+
     if($sample == RelValZPrimeEEM4000) then
     sed s/NEVENT/1000/g tmp0.cfg >! tmp1.cfg
     else if($sample == RelValQCD_Pt_3000_3500) then
@@ -96,7 +96,7 @@ foreach sample($samples)
     sed s/QUALITY/$Quality/g tmp5.cfg >!  tmp6.cfg
     sed s/TRACKS/$Tracks/g tmp6.cfg >!  tmp7.cfg
     sed -e "s/[ ]\+source/source/g" tmp7.cfg >!  $sample.py
-#    sed s@"FILENAMES"@"$rootfiles"@g  tmp4.cfg >! $sample.py
+
 
 #touch $sample.cff
 
@@ -141,7 +141,7 @@ foreach sample($samples)
     cp val.$sample.root $NewRepository/$NewRelease/$NewSelection/$sample
 
     echo "copying cff file for sample: " $sample
-    #cp $sample.cff $NewRepository/$NewRelease/$NewSelection/$sample
+    cp $sample.cff $NewRepository/$NewRelease/$NewSelection/$sample
 
     echo "copying cfg file for sample: " $sample
     #cp $sample.cfg $NewRepository/$NewRelease/$NewSelection/$sample

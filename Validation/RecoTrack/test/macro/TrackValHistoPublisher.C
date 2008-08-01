@@ -34,11 +34,14 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
  if(sfile->cd("DQMData/RecoTrackV")) sfile->cd("DQMData/RecoTrackV/Track");
  else sfile->cd("DQMData/Track");
  sdir=gDirectory;
+ TList *sl= sdir->GetListOfKeys();
+ TString collname2 =sl->At(0)->GetName(); 
 
  if(rfile->cd("DQMData/RecoTrackV")) rfile->cd("DQMData/RecoTrackV/Track");
  else rfile->cd("DQMData/Track");
  rdir=gDirectory;
- 
+ TList *rl= rdir->GetListOfKeys();
+ TString collname1=rl->At(0)->GetName(); 
  //HistoCompare_Tracks * myPV = new HistoCompare_Tracks();
 
  TCanvas *canvas;
@@ -59,13 +62,6 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
  bool ctf=1;
  bool rs=0;
 
- TString collname1 = "general_trackingParticleRecoAsssociation";
- TString collname2 = "general_trackingParticleRecoAsssociation";
-
- //TString collname1 = "cutsReco_AssociatorByHits";//general_AssociatorByHits
- //TString collname2 = "cutsReco_AssociatorByHits";//general_AssociatorByHits
-// TString collname1 = "general_AssociatorByHits";//general_AssociatorByHits
- //TString collname2 = "general_AssociatorByHits";//general_AssociatorByHits
 
  //////////////////////////////////////
  /////////// CTF //////////////////////
