@@ -104,7 +104,7 @@ process.ecalEndcapOccupancyTask.EcalTrigPrimDigiCollection = 'ecalTriggerPrimiti
 
 process.ecalEndcapPedestalOnlineTask.EEDigiCollection = cms.InputTag("simEcalDigis","eeDigis")
 
-process.ecalEndcapMonitorClient.maskFile = 'maskfile-EE.dat'
+process.ecalEndcapMonitorClient.maskFile = '../data/maskfile-EE.dat'
 process.ecalEndcapMonitorClient.mergeRuns = True
 process.ecalEndcapMonitorClient.location = 'H4'
 process.ecalEndcapMonitorClient.baseHtmlDir = '.'

@@ -245,7 +245,7 @@ process.ecalUncalibHit.EEdigiCollection = cms.InputTag("ecalEBunpacker","eeDigis
 process.ecalRecHit.EBuncalibRecHitCollection = cms.InputTag("ecalUncalibHit","EcalUncalibRecHitsEB")
 process.ecalRecHit.EEuncalibRecHitCollection = cms.InputTag("ecalUncalibHit","EcalUncalibRecHitsEE")
 
-process.ecalEndcapMonitorClient.maskFile = 'maskfile.dat'
+process.ecalEndcapMonitorClient.maskFile = '../data/maskfile.dat'
 process.ecalEndcapMonitorClient.location = 'H4'
 process.ecalEndcapMonitorClient.baseHtmlDir = '.'
 process.ecalEndcapMonitorClient.superModules = [10]

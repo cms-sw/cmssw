@@ -142,7 +142,7 @@ process.ecalBarrelOccupancyTask.EcalTrigPrimDigiCollection = 'simEcalTriggerPrim
 
 process.ecalBarrelPedestalOnlineTask.EBDigiCollection = cms.InputTag("ecalDigis","ebDigis")
 
-process.ecalBarrelMonitorClient.maskFile = 'maskfile-EB.dat'
+process.ecalBarrelMonitorClient.maskFile = '../data/maskfile-EB.dat'
 process.ecalBarrelMonitorClient.mergeRuns = True
 process.ecalBarrelMonitorClient.location = 'H4'
 process.ecalBarrelMonitorClient.baseHtmlDir = '.'

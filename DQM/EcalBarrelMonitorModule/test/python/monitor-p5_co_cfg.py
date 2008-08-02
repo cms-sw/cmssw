@@ -225,7 +225,7 @@ process.ecalBarrelLaserTask.EcalUncalibratedRecHitCollection = cms.InputTag("eca
 
 process.ecalBarrelTimingTask.EcalUncalibratedRecHitCollection = cms.InputTag("ecalUncalibHit2","EcalUncalibRecHitsEB")
 
-process.ecalBarrelMonitorClient.maskFile = 'maskfile-EB.dat'
+process.ecalBarrelMonitorClient.maskFile = '../data/maskfile-EB.dat'
 process.ecalBarrelMonitorClient.location = 'P5_Co'
 process.ecalBarrelMonitorClient.baseHtmlDir = '.'
 #process.ecalBarrelMonitorClient.superModules = [34]
