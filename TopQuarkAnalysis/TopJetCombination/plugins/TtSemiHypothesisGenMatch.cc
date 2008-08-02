@@ -18,21 +18,20 @@ TtSemiHypothesisGenMatch::buildHypo(edm::Event& evt,
   // add jets
   // -----------------------------------------------------
   for(unsigned idx=0; idx<match.size(); ++idx){
-    int ij = match[idx];     
-    if( isValid( ij, jets) ){
+    if( isValid(match[idx], jets) ){
       switch(idx){
       case TtSemiEvtPartons::LightQ:
-	setCandidate(jets, ij, lightQ_); break;
+	setCandidate(jets, match[idx], lightQ_); break;
       case TtSemiEvtPartons::LightQBar:
-	setCandidate(jets, ij, lightQBar_); break;
+	setCandidate(jets, match[idx], lightQBar_); break;
       case TtSemiEvtPartons::HadB:
-	setCandidate(jets, ij, hadronicB_); break;
-      case TtSemiEvtPartons::LepB:
-	setCandidate(jets, ij, leptonicB_); break;
+	setCandidate(jets, match[idx], hadronicB_); break;
+      case TtSemiEvtPartons::LepB: 
+	setCandidate(jets, match[idx], leptonicB_); break;
       }
     }
   }
-  
+
   // -----------------------------------------------------
   // add lepton
   // -----------------------------------------------------
@@ -41,7 +40,7 @@ TtSemiHypothesisGenMatch::buildHypo(edm::Event& evt,
     if( iLepton>=0 )
       setCandidate(leps, iLepton, lepton_);
   }
-
+  
   // -----------------------------------------------------
   // add neutrino
   // -----------------------------------------------------
