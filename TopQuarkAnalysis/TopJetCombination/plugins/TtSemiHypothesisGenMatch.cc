@@ -15,36 +15,20 @@ TtSemiHypothesisGenMatch::buildHypo(edm::Event& evt,
 				    std::vector<int>& match)
 {
   // -----------------------------------------------------
-  // add jets; the order of match is Q, QBar, hadB, lepB
+  // add jets
   // -----------------------------------------------------
   for(unsigned idx=0; idx<match.size(); ++idx){
     int ij = match[idx];     
     if( isValid( ij, jets) ){
       switch(idx){
       case TtSemiEvtPartons::LightQ:
-	{ 
-	  edm::Ptr<pat::Jet> jet = edm::Ptr<pat::Jet>(jets, ij);
-	  lightQ_   = new reco::ShallowClonePtrCandidate( jet, jet->charge(), jet->p4(), jet->vertex() ); 
-	  break;
-	}
+	setCandidate(jets, ij, lightQ_); break;
       case TtSemiEvtPartons::LightQBar:
-	{
-	  edm::Ptr<pat::Jet> jet = edm::Ptr<pat::Jet>(jets, ij);
-	  lightQBar_= new reco::ShallowClonePtrCandidate( jet, jet->charge(), jet->p4(), jet->vertex() ); 
-	  break;
-	}
+	setCandidate(jets, ij, lightQBar_); break;
       case TtSemiEvtPartons::HadB:
-	{
-	  edm::Ptr<pat::Jet> jet = edm::Ptr<pat::Jet>(jets, ij);
-	  hadronicB_= new reco::ShallowClonePtrCandidate( jet, jet->charge(), jet->p4(), jet->vertex() ); 
-	  break;
-	}
+	setCandidate(jets, ij, hadronicB_); break;
       case TtSemiEvtPartons::LepB:
-	{
-	  edm::Ptr<pat::Jet> jet = edm::Ptr<pat::Jet>(jets, ij);
-	  leptonicB_= new reco::ShallowClonePtrCandidate( jet, jet->charge(), jet->p4(), jet->vertex() ); 
-	  break;
-	}
+	setCandidate(jets, ij, leptonicB_); break;
       }
     }
   }
@@ -54,19 +38,15 @@ TtSemiHypothesisGenMatch::buildHypo(edm::Event& evt,
   // -----------------------------------------------------
   if( !leps->empty() ){
     int iLepton = findMatchingLepton(evt,leps);
-    if( iLepton>=0 ){
-      edm::Ptr<reco::RecoCandidate> lep = edm::Ptr<reco::RecoCandidate>(leps, iLepton);
-      lepton_= new reco::ShallowClonePtrCandidate( lep, lep->charge(), lep->p4(), lep->vertex() );
-    }
+    if( iLepton>=0 )
+      setCandidate(leps, iLepton, lepton_);
   }
 
   // -----------------------------------------------------
   // add neutrino
   // -----------------------------------------------------
-  if( !mets->empty() ){
-    edm::Ptr<pat::MET> met = edm::Ptr<pat::MET>(mets, 0);
-    neutrino_= new reco::ShallowClonePtrCandidate( met, met->charge(), met->p4(), met->vertex() );
-  }
+  if( !mets->empty() )
+    setCandidate(mets, 0, neutrino_);
 }
 
 int

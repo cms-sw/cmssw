@@ -94,16 +94,12 @@ TtSemiHypothesisMaxSumPtWMass::buildHypo(edm::Event& evt,
   // add jets
   // -----------------------------------------------------
   if( isValid(closestToWMassIndices[0], jets) ){
-    int ij = closestToWMassIndices[0];  
-    edm::Ptr<pat::Jet> jet = edm::Ptr<pat::Jet>(jets, ij);
-    lightQ_= new reco::ShallowClonePtrCandidate( jet, jet->charge(), jet->p4(), jet->vertex() );
+    setCandidate(jets, closestToWMassIndices[0], lightQ_);
     match[TtSemiEvtPartons::LightQ] = closestToWMassIndices[0];
   }
 
   if( isValid(closestToWMassIndices[1], jets) ){
-    int ij = closestToWMassIndices[1];  
-    edm::Ptr<pat::Jet> jet = edm::Ptr<pat::Jet>(jets, ij);
-    lightQBar_= new reco::ShallowClonePtrCandidate( jet, jet->charge(), jet->p4(), jet->vertex() );
+    setCandidate(jets, closestToWMassIndices[1], lightQBar_);
     match[TtSemiEvtPartons::LightQBar] = closestToWMassIndices[1];
   }
 
@@ -112,9 +108,7 @@ TtSemiHypothesisMaxSumPtWMass::buildHypo(edm::Event& evt,
     if( std::find( closestToWMassIndices.begin(), closestToWMassIndices.end(), maxPtIndices[idx]) == closestToWMassIndices.end() ){
       // ...and if it is valid
       if( isValid(maxPtIndices[idx], jets) ){
-	int ij = maxPtIndices[idx];  
-	edm::Ptr<pat::Jet> jet = edm::Ptr<pat::Jet>(jets, ij);
-	hadronicB_= new reco::ShallowClonePtrCandidate( jet, jet->charge(), jet->p4(), jet->vertex() );
+	setCandidate(jets, maxPtIndices[idx], hadronicB_);
 	match[TtSemiEvtPartons::HadB] = maxPtIndices[idx];
 	break; // there should be no other cadidates!
       }
@@ -122,21 +116,17 @@ TtSemiHypothesisMaxSumPtWMass::buildHypo(edm::Event& evt,
   }
 
   if( isValid(lepB, jets) ){
-    int ij = lepB;  
-    edm::Ptr<pat::Jet> jet = edm::Ptr<pat::Jet>(jets, ij);
-    leptonicB_= new reco::ShallowClonePtrCandidate( jet, jet->charge(), jet->p4(), jet->vertex() );
+    setCandidate(jets, lepB, leptonicB_);
     match[TtSemiEvtPartons::LepB] = lepB;
   }
 
   // -----------------------------------------------------
   // add lepton
   // -----------------------------------------------------
-  edm::Ptr<reco::RecoCandidate> lep = edm::Ptr<reco::RecoCandidate>(leps, 0);
-  lepton_= new reco::ShallowClonePtrCandidate( lep, lep->charge(), lep->p4(), lep->vertex() );
+  setCandidate(leps, 0, lepton_);
   
   // -----------------------------------------------------
   // add neutrino
   // -----------------------------------------------------
-  edm::Ptr<pat::MET> met = edm::Ptr<pat::MET>(mets, 0);
-  neutrino_= new reco::ShallowClonePtrCandidate( met, met->charge(), met->p4(), met->vertex() );
+  setCandidate(mets, 0, neutrino_);
 }
