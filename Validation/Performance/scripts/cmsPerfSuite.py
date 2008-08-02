@@ -3,19 +3,6 @@
 Usage: ./cmsPerfSuite.py [options]
        
 Options:
-  -o ..., --output=...   specify the wanted CASTOR directory where to store the results tarball
-  -t ..., --timesize=... specify the number of events for the TimeSize tests
-  -i ..., --igprof=...   specify the number of events for the IgProf tests
-  -v ..., --valgrind=... specify the number of events for the Valgrind tests
-  --cmsScimark=...       specify the number of times the cmsScimark benchmark is run before and after the performance suite on cpu1
-  --cmsScimarkLarge=...  specify the number of times the cmsScimarkLarge benchmark is run before and after the performance suite on cpu1
-  --cmsdriver=...        specify special options to use with the cmsDriver.py commands (designed for integration build use)
-  --step=...             specify the processing steps intended (instead of the default ones)
-  --candle=...           specify the candle(s) to run (instead of all 7 default candles)
-  --cpu=...              specify the core on which to run the performance suite
-  --cores=...            specify the number of cores of the machine (can be used with 0 to stop cmsScimark from running on the other cores)
-  -h, --help           show this help
-  -d                   show debugging information
 
 Examples:
 ./cmsPerfSuite.py
@@ -46,6 +33,114 @@ import os
 import time
 import getopt
 import sys
+import optparse as opt
+
+def optionParse():
+    parser = opt.OptionParser(usage=usage())
+
+    #parser.set_defaults(debug=False)
+
+    parser.add_option(
+        '-d',
+        '--debug',
+        action='store_true',
+        dest='debug',
+        help='Debug',
+        #metavar='<DIR>',
+        )
+
+    parser.add_option(
+        '-o',
+        '--output',
+        type='string',
+        dest='castordir',
+        help='specify the wanted CASTOR directory where to store the results tarball',
+        metavar='<DIR>',
+        )
+    parser.add_option(
+        '-t',
+        '--timesize',
+        type='int',
+        dest='TimeSizeEvents',
+        help='specify the number of events for the TimeSize tests',
+        metavar='<#EVENTS>',
+        )
+
+    parser.add_option(
+        '-i',
+        '--igprof',
+        type='int',
+        dest='IgProfEvents',
+        help='specify the number of events for the IgProf tests',
+        metavar='<#EVENTS>',
+        )
+
+    parser.add_option(
+        '-v',
+        '--valgrind',
+        type='int',
+        dest='ValgrindEvents',
+        help='specify the number of events for the Valgrind tests',
+        metavar='<#EVENTS>',
+        )
+
+    parser.add_option(
+        '--cmsScimark',
+        type='string',
+        dest='cmsScimark',
+        help='specify the number of times the cmsScimark benchmark is run before and after the performance suite on cpu1',
+        metavar='',
+        )
+
+    parser.add_option(
+        '--cmsScimarkLarge',
+        type='string',
+        dest='cmsScimarkLarge',
+        help='specify the number of times the cmsScimarkLarge benchmark is run before and after the performance suite on cpu1',
+        metavar='',
+        )
+
+    parser.add_option(
+        '-c',
+        '--cmsdriver',
+        type='string',
+        dest='cmsdriverOptions',
+        help='specify special options to use with the cmsDriver.py commands (designed for integration build use',
+        metavar='<OPTION_STR>',
+        )
+
+    parser.add_option(
+        '--step',
+        type='string',
+        dest='stepOptions',
+        help='specify the processing steps intended (instead of the default ones)',
+        metavar='<OPTION_STR>',
+        )
+
+    parser.add_option(
+        '--candle',
+        type='string',
+        dest='candleOptions',
+        help='specify the candle(s) to run (instead of all 7 default candles)',
+        metavar='<OPTION_STR>',
+        )
+
+    parser.add_option(
+        '--cpu',
+        type='string',
+        dest='cpu',
+        help='specify the core on which to run the performance suite',
+        metavar='<CPU_STR>',
+        )
+
+    parser.add_option(
+        '--cores',
+        type='string',
+        dest='cores',
+        help='specify the number of cores of the machine (can be used with 0 to stop cmsScimark from running on the other cores)',
+        metavar='<OPTION_STR>',
+        )
+    return parser.parse_args()
 
 MIN_REQ_TS_EVENTS = 8
 
@@ -140,41 +235,27 @@ def main(argv):
     #Cpu core on which the suite is run:
     cpu=1
     #Let's check the command line arguments
-    try:
-        opts, args = getopt.getopt(argv, "o:t:i:v:hd", ["output=","timesize=","igprof=","valgrind=","cmsScimark=","cmsScimarkLarge=","cmsdriver=","step=","candle=","cpu=","cores=","help"])
-    except getopt.GetoptError:
-        print "This argument option is not accepted"
-        usage()
-        sys.exit(2)
-    for opt, arg in opts:
-        if opt in ("-h", "--help"):
-            usage()
-            sys.exit()
-        elif opt == '-d':
-            global _debug
-            _debug = 1
-        elif opt in ("-o", "--output"):
-            castordir= arg
-        elif opt in ("-t","--timesize"):
-            TimeSizeEvents = arg
-        elif opt in ("-i", "--igprof"):
-            IgProfEvents = arg
-        elif opt in ("-v", "--valgrind"):
-            ValgrindEvents = arg
-        elif opt == "--cmsScimark":
-            cmsScimark = arg
-        elif opt == "--cmsScimarkLarge":
-            cmsScimarkLarge = arg
-        elif opt in ("-c","--cmsdriver"):
-            cmsdriverOptions= arg
-        elif opt == "--step":
-            stepOptions=arg
-        elif opt == "--candle":
-            candleoption=arg
-        elif opt == "--cpu":
-            cpu=arg
-        elif opt == "--cores":
-            cores=arg
+
+    (options, args) = optionParse()
+
+    global _debug  
+    _debug         = options.debug
+    castordir      = options.castordir
+    TimeSizeEvents = options.TimeSizeEvents
+    IgProfEvents   = options.IgProfEvents
+    ValgrindEvents = options.ValgrindEvents
+    cmsScimark     = options.cmsScimark
+    cmsScimarkLarge= options.cmsScimarkLarge
+    cmsdriverOptions=options.cmsdriverOptions
+    stepOptions    = options.stepOptions
+    candleoption   = options.candleoption
+    cpu            = options.cpu
+    cores          = options.core
+
+
+        #opts, args = getopt.getopt(argv, "o:t:i:v:hd", ["output=","timesize=","igprof=","valgrind=","cmsScimark=","cmsScimarkLarge=","cmsdriver=","step=","candle=","cpu=","cores=","help"])
+   # except getopt.GetoptError:
+ 
     #Case with no arguments (using defaults)
     if opts == []:
         print "No arguments given, so DEFAULT test will be run:"
