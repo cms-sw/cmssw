@@ -55,11 +55,12 @@ process.dqmSaverEB = cms.EDFilter("DQMFileSaver",
 process.maxEvents = cms.untracked.PSet(
 #    input = cms.untracked.int32(150)
 )
+
 #process.source = cms.Source("NewEventStreamFileReader",
-process.source = cms.Source("PoolSource",
-# GREA
 #    fileNames = cms.untracked.vstring('/store/users/dellaric/data/GlobalAug07.00017123.0001.A.storageManager.0.0000.dat',
 #        '/store/users/dellaric/data/GlobalAug07.00017123.0002.A.storageManager.0.0000.dat')
+#)
+process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring('/store/users/dellaric/data/GlobalAug07.00017123.root')
 )
 

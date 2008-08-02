@@ -122,7 +122,7 @@ process.ecalBarrelOccupancyTask.EcalTrigPrimDigiCollection = 'ecalTriggerPrimiti
 
 process.ecalBarrelPedestalOnlineTask.EBDigiCollection = 'ecalDigis:ebDigis'
 
-process.ecalBarrelMonitorClient.maskFile = 'maskfile-EB.dat'
+process.ecalBarrelMonitorClient.maskFile = '../data/maskfile-EB.dat'
 process.ecalBarrelMonitorClient.mergeRuns = True
 process.ecalBarrelMonitorClient.location = 'H4'
 process.ecalBarrelMonitorClient.baseHtmlDir = 'HTML_EB'
@@ -138,7 +138,7 @@ process.ecalEndcapOccupancyTask.EcalTrigPrimDigiCollection = 'ecalTriggerPrimiti
 
 process.ecalEndcapPedestalOnlineTask.EEDigiCollection = 'ecalDigis:eeDigis'
 
-process.ecalEndcapMonitorClient.maskFile = 'maskfile-EE.dat'
+process.ecalEndcapMonitorClient.maskFile = '../data/maskfile-EE.dat'
 process.ecalEndcapMonitorClient.mergeRuns = True
 process.ecalEndcapMonitorClient.location = 'H4'
 process.ecalEndcapMonitorClient.baseHtmlDir = 'HTML_EE'
