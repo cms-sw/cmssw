@@ -1,0 +1,11 @@
+#!/bin/tcsh
+cd CMSSW_BASE/src
+cmsenv
+set run=RUN_NAME
+set job=JOB_NAME
+set tmpdir=/tmp/$USER/$run/$job
+mkdir -p $tmpdir
+cd CURRENT_DIR/$run/$job
+cmsRun SiStripDQMOfflineGlobalRunCAF.cfg >! SiStripDQMOfflineGlobalRunCAF.log
+COPY $tmpdir/DQM_SiStrip_${run}.root OUTPUT_DIR/DQM_SiStrip_${job}.root
+rm -rf $tmpdir
