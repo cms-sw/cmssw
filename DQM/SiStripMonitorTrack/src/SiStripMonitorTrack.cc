@@ -185,10 +185,6 @@ void SiStripMonitorTrack::book()
       edm::LogError("SiStripMonitorTrack")<< "[" <<__PRETTY_FUNCTION__ << "] invalid detid " << detid<< std::endl;
       continue;
     }
-    if (DetectedLayers.find(folder_organizer.GetSubDetAndLayer(detid)) == DetectedLayers.end()){
-      
-      DetectedLayers[folder_organizer.GetSubDetAndLayer(detid)]=true;
-    }    
 
     // set the DQM directory
     std::string MEFolderName = conf_.getParameter<std::string>("FolderName");    
@@ -210,9 +206,13 @@ void SiStripMonitorTrack::book()
     //					<< " Layer "  << GetSubDetAndLayer(*detid).second;
 
     // book Layer plots      
-    for (int j=0;j<off_Flag;j++){ 
-      folder_organizer.setLayerFolder(*detid_iter,folder_organizer.GetSubDetAndLayer(*detid_iter).second); 
-      bookTrendMEs("layer",folder_organizer.GetSubDetAndLayer(*detid_iter).second,*detid_iter,flags[j]);
+    if (DetectedLayers.find(folder_organizer.GetSubDetAndLayer(detid)) == DetectedLayers.end()){
+      
+      DetectedLayers[folder_organizer.GetSubDetAndLayer(detid)]=true;
+      for (int j=0;j<off_Flag;j++){     
+	folder_organizer.setLayerFolder(*detid_iter,folder_organizer.GetSubDetAndLayer(*detid_iter).second); 
+	bookTrendMEs("layer",folder_organizer.GetSubDetAndLayer(*detid_iter).second,*detid_iter,flags[j]);
+      }
     }
     
     if(Mod_On_){
@@ -304,7 +304,8 @@ void SiStripMonitorTrack::bookTrendMEs(TString name,int32_t layer,uint32_t id,st
   std::map<TString, LayerMEs>::iterator iLayerME  = LayerMEsMap.find(TString(hid));
   if(iLayerME==LayerMEsMap.end()){
     LayerMEs theLayerMEs; 
-    
+ 
+    LogDebug("SiStripMonitorTrack") << "Booking " << rest << flag << std::endl;   
     // Cluster Width
     theLayerMEs.ClusterWidth=bookME1D("TH1ClusterWidth", hidmanager.createHistoLayer("Summary_ClusterWidth",name.Data(),rest,flag).c_str()); 
     dbe->tag(theLayerMEs.ClusterWidth,layer); 

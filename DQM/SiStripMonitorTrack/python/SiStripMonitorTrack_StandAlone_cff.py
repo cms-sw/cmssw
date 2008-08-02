@@ -4,11 +4,11 @@ from DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi import *
 SiStripMonitorTrack.TrackProducer = 'TrackRefitter'
 SiStripMonitorTrack.TrackLabel    = ''
 SiStripMonitorTrack.OutputMEsInRootFile = True
-SiStripMonitorTrack.OutputFileName = '/tmp/sistripmonitortrack_prova.root'
+SiStripMonitorTrack.OutputFileName = 'testSim.root'
 SiStripMonitorTrack.Cluster_src = 'siStripClusters'
 SiStripMonitorTrack.Mod_On      = False
 SiStripMonitorTrack.OffHisto_On = True
-SiStripMonitorTrack.Trend_On    = False
+SiStripMonitorTrack.Trend_On    = True
 
 #TrackRefitter With Material
 from RecoTracker.TrackProducer.RefitterWithMaterial_cff import *
