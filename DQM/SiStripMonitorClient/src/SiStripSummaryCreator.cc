@@ -139,8 +139,13 @@ void SiStripSummaryCreator::fillGrandSummaryHistos(DQMStore* dqm_store) {
   vector<string> subdirs = dqm_store->getSubdirs();
   if (subdirs.size() == 0) return;;
   for (map<string,string>::const_iterator isum = summaryMEMap.begin();
-       isum != summaryMEMap.end(); isum++) {    
-    string name = isum->first;
+       isum != summaryMEMap.end(); isum++) {
+    string name, summary_name;
+    name = isum->first;
+    if (isum->second == "sum" || isum->second == "sum")    
+      summary_name = "Summary_" + isum->first;
+    else 
+      summary_name = "Summary_Mean" + isum->first;
     string htype = isum->second;
     int ibinStep =0;
     for (vector<string>::const_iterator it = subdirs.begin();
@@ -153,7 +158,7 @@ void SiStripSummaryCreator::fillGrandSummaryHistos(DQMStore* dqm_store) {
         MonitorElement * me_i = (*im);
         if (!me_i) continue;
         string name_i = me_i->getName();
-        if (name_i.find((name)) != string::npos) {
+        if (name_i.find((summary_name)) != string::npos) {
           
           map<string, MonitorElement*>::iterator iPos = MEMap.find(name); 
           MonitorElement* me; 
@@ -184,8 +189,17 @@ MonitorElement* SiStripSummaryCreator::getSummaryME(DQMStore* dqm_store,
                          string& name, string htype) {
   MonitorElement* me = 0;
   string currDir = dqm_store->pwd();
-  string sum_name = "Summary_" + name + "_in_" 
-                      + currDir.substr(currDir.find_last_of("/")+1);
+  string sum_name, tag_name;
+ 
+  string dname = currDir.substr(currDir.find_last_of("/")+1);
+  if (dname.find("_") != string::npos) dname.insert(dname.find("_"),"_");
+  if (htype == "sum" && htype == "Sum") {
+    sum_name = "Summary" + name + "__" + dname;
+    tag_name = "Summary" + name;
+  } else {
+    sum_name = "Summary_Mean" + name + "__" + dname;
+    tag_name = "Summary_Mean" + name;
+  }
   // If already booked
   vector<MonitorElement*> contents = dqm_store->getContents(currDir);
   for (vector<MonitorElement *>::const_iterator im = contents.begin();
@@ -216,9 +230,9 @@ MonitorElement* SiStripSummaryCreator::getSummaryME(DQMStore* dqm_store,
        int ibin = 0;
        for (vector<string>::const_iterator it = subdirs.begin();
           it != subdirs.end(); it++) {
-       string subdir_name = (*it).substr((*it).find_last_of("/")+1);
-       ibin++;
-       tags.insert(pair<int,string>(ibin, (subdir_name)));        
+	 string subdir_name = (*it).substr((*it).find_last_of("/")+1);
+	 ibin++;
+	 tags.insert(pair<int,string>(ibin, (subdir_name)));        
        }
     } else if (htype == "bin-by-bin" || htype == "Bin-by-Bin") {
       for (vector<string>::const_iterator it = subdirs.begin();
@@ -231,11 +245,12 @@ MonitorElement* SiStripSummaryCreator::getSummaryME(DQMStore* dqm_store,
           MonitorElement* s_me = (*iv);
           if (!s_me) continue;
           string s_me_name = s_me->getName();
-	  if (s_me_name.find(name) == string::npos) continue;
-	  int ibin = s_me->getNbinsX();
-	  nBins += ibin;
-	  tags.insert(pair<int,string>(nBins-ibin/2, (subdir_name)));        
-	  break;
+	  if (s_me_name.find(name) == 0 || s_me_name.find(tag_name) == 0) {
+	    int ibin = s_me->getNbinsX();
+	    nBins += ibin;
+	    tags.insert(pair<int,string>(nBins-ibin/2, (subdir_name)));        
+	    break;
+          }
 	}
 	dqm_store->goUp();
       }
