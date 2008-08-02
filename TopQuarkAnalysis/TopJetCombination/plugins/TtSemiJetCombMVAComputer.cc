@@ -1,6 +1,7 @@
 #include "PhysicsTools/JetMCUtils/interface/combination.h"
 
 #include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiJetCombMVAComputer.h"
+#include "TopQuarkAnalysis/TopTools/interface/TtSemiEvtPartons.h"
 #include "TopQuarkAnalysis/TopTools/interface/TtSemiJetCombEval.h"
 
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -76,9 +77,10 @@ TtSemiJetCombMVAComputer::produce(edm::Event& evt, const edm::EventSetup& setup)
 
   do{
     for(int cnt = 0; cnt < TMath::Factorial( combi.size() ); ++cnt){
-      if(combi[0] < combi[1]) {  // take into account indistinguishability 
-	                         // of the two jets from the hadr. W decay,
-	                         // reduces combinatorics by a factor of 2
+      // take into account indistinguishability of the two jets from the hadr. W decay,
+      // reduces combinatorics by a factor of 2
+      if(combi[TtSemiEvtPartons::LightQ] < combi[TtSemiEvtPartons::LightQBar]) {
+
 	TtSemiJetComb jetComb(*jets, combi, lepton);
 
 	// get discriminator here
@@ -87,6 +89,7 @@ TtSemiJetCombMVAComputer::produce(edm::Event& evt, const edm::EventSetup& setup)
 	  discrimMax = discrim;
 	  combiMax = combi;
 	}
+
       }
       next_permutation( combi.begin() , combi.end() );
     }
