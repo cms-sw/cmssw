@@ -61,8 +61,6 @@ process.source = cms.Source("PoolSource",
 #---
     fileNames = cms.untracked.vstring('/store/users/dellaric/data/cosmics_ZS_noSR_RAW.root')
 #---
-#    fileNames = cms.untracked.vstring('/store/users/dellaric/data/muon_50GeV_allECAL_gain200.root')
-#---
 )
 
 process.EcalTrivialConditionRetriever = cms.ESSource("EcalTrivialConditionRetriever",
