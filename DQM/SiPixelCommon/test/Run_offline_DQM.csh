@@ -161,12 +161,12 @@ endif
 	set file_extension = `echo $filename | grep -o -e ".dmp" -e ".root" -e ".dat"`
 	set endrun = `echo $filename | grep -o -e "_[0-9]\{2,\}\."`
 	set runnumber = `echo $endrun | grep -o -e ".*[^\.]"`
-
+        set rundefault = "_default"
 	
 
 	
 	if($calibtype == "PixelAlive" || $calibtype == "SCurve" || $calibtype == "GainCalibration") then
-	    set tagnumber = $calibtype$runnumber	    
+	    set tagnumber = $calibtype$rundefault	    
 	else
 	    set tagnumber = "PixelAlive_default"
 	    echo "No calibrations detected for file ${filename}, using default tag"
@@ -232,30 +232,38 @@ endif
 	    set source_type = PoolSource
 	    set first_param = ""
 	    set second_param = ""
-	    set has_calibdigis = `edmEventSize -v $filename | grep -m 1 -o -e "siPixelCalibDigis"`
+	    edmEventSize -v $filename >& es.log 
+	    set has_calibdigis = `grep -m 1 -o -e "siPixelCalibDigis" es.log`
 	    if( $has_calibdigis == "siPixelCalibDigis" ) then
 		set has_calibdigis = "true"
 	    else
 		set has_calibdigis = "false"
 	    endif
-	    set has_digis = `edmEventSize -v $filename | grep -m 1 -o -e "siPixelDigis"`
+
+
+	    set has_digis = `grep -m 1 -o -e "siPixelDigis" es.log`
 	    if( $has_digis == "siPixelDigis" ) then
 		set has_digis = "true"
 	    else
 		set has_digis = "false"
 	    endif
-	    set has_clusters = `edmEventSize -v $filename | grep -m 1 -o -e "siPixelClusters"`
+
+
+	    set has_clusters = ` grep -m 1 -o -e "siPixelClusters" es.log`
 	    if( $has_clusters == "siPixelClusters" ) then
 		set has_clusters = "true"
 	    else
 		set has_clusters = "false"
 	    endif
-	    set has_rechits = `edmEventSize -v $filename | grep -m 1 -o -e "siPixelRecHits"`
+
+
+	    set has_rechits = `grep -m 1 -o -e "siPixelRecHits" es.log`
 	    if( $has_rechits == "siPixelRecHits" ) then
 		set has_rechits = "true"
 	    else
 		set has_rechits = "false"
 	    endif
+	    rm es.log
 	endif
 
     if( $all_flag == "true" || $default_flag == "true" ) then
@@ -372,6 +380,7 @@ endif
 	sed "s/TEXTFILE/$logfile/" < Run_offline_DQM_${file_counter}.cfg > temp.xml
 	cp temp.xml Run_offline_DQM_${file_counter}.cfg
 	rm temp.xml       
+	echo "created file Run_offline_DQM_${file_counter}.cfg to run on file ${filename}"
 	@ file_counter = $file_counter + 1
 	
     end
