@@ -1,8 +1,8 @@
 /*
  * \file SiStripAnalyser.cc
  * 
- * $Date: 2008/06/02 10:58:56 $
- * $Revision: 1.36 $
+ * $Date: 2008/07/12 22:36:56 $
+ * $Revision: 1.37 $
  * \author  S. Dutta INFN-Pisa
  *
  */
@@ -84,7 +84,7 @@ SiStripAnalyser::SiStripAnalyser(edm::ParameterSet const& ps) :
   summaryFrequency_      = ps.getUntrackedParameter<int>("SummaryCreationFrequency",20);
   tkMapFrequency_        = ps.getUntrackedParameter<int>("TkMapCreationFrequency",50); 
   staticUpdateFrequency_ = ps.getUntrackedParameter<int>("StaticUpdateFrequency",10);
-  globalStatusFilling_   = ps.getUntrackedParameter<int>("GlobalStatusFilling", true);
+  globalStatusFilling_   = ps.getUntrackedParameter<bool>("GlobalStatusFilling", true);
   // get back-end interface
   dqmStore_ = Service<DQMStore>().operator->();
 
