@@ -86,6 +86,7 @@ void CSCDCCEventData::unpack_data(unsigned short *buf, CSCDCCExaminer* examiner)
   
 }
 	  
+
 bool CSCDCCEventData::check() const 
 {
   // the trailer counts in 64-bit words
@@ -96,6 +97,29 @@ bool CSCDCCEventData::check() const
 
   return  theDCCHeader.check() && theDCCTrailer.check();
 }
+
+
+void CSCDCCEventData::addChamber(CSCEventData & chamber, int dduID, int dmbID)
+{
+  // first, find this DDU
+  std::vector<CSCDDUEventData>::iterator dduItr;
+  for(dduItr = theDDUData.begin(); dduItr != theDDUData.end(); ++dduItr)
+  {
+    if(dduItr->header().source_id() == dduID) continue;
+  }
+  if(dduItr == theDDUData.end())
+  {
+    // make a new one
+    CSCDDUHeader newDDUHeader(dccHeader().getCDFBunchCounter(), 
+                              dccHeader().getCDFEventNumber(), dduID);
+    theDDUData.push_back(CSCDDUEventData(newDDUHeader));
+    dduItr = theDDUData.end()-1;
+    //FIXME should be ddu slot ID
+    //dccHeader().setDAV(dduSlot);
+  }
+  dduItr->add(chamber, dmbID);
+}
+ 
 
 boost::dynamic_bitset<> CSCDCCEventData::pack() 
 {
