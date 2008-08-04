@@ -1,4 +1,5 @@
 #include "CondFormats/SiStripObjects/interface/SiStripSummary.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 		
 SiStripSummary::SiStripSummary(std::vector<std::string>& userDBContent, std::string tag)
@@ -88,13 +89,13 @@ std::vector<uint32_t> SiStripSummary::getDetIds() const
 
 
 
-const size_t SiStripSummary::getPosition(std::string elementName) const
+const short SiStripSummary::getPosition(std::string elementName) const
 {
   // returns position of elementName in UserDBContent_
   std::vector<std::string>::const_iterator it = find(userDBContent_.begin(),userDBContent_.end(),elementName);  
-  std::vector<std::string>::difference_type pos = -1;
+  short pos = -1;
   if (it != userDBContent_.end()) pos = it - userDBContent_.begin();
-  else std::cout << "attempting to retrieve non existing historic DB object : "<< elementName <<std::endl;
+  else edm::LogError("SiStripSummary") << "attempting to retrieve non existing historic DB object : "<< elementName <<std::endl;
   return pos;  
 }   
 
@@ -124,7 +125,8 @@ void  SiStripSummary::setObj(const uint32_t& detID, std::string elementName, flo
 float SiStripSummary::getSummaryObj(uint32_t& detID, std::string elementName) const
 {
   const SiStripSummary::Range range = getRange(detID);
-  if (getPosition(elementName) != -1) return *((range.first)+getPosition(elementName));
+  const short pos =  getPosition(elementName);
+  if (pos != -1) return *((range.first)+getPosition(elementName));
    
   else return -999;
 }
@@ -134,9 +136,13 @@ std::vector<float> SiStripSummary::getSummaryObj(uint32_t& detID, std::vector<st
 {  
   std::vector<float> SummaryObj;
   const SiStripSummary::Range range = getRange(detID);
-  for (unsigned int i=0; i<list.size(); i++)
-    { if (getPosition(list.at(i))!=-1) SummaryObj.push_back(*((range.first)+getPosition(list.at(i))));
-    else SummaryObj.push_back(-999.);}
+  for (unsigned int i=0; i<list.size(); i++){ 
+    const size_t pos=getPosition(list.at(i));
+    if (pos!=-1) 
+      SummaryObj.push_back(*((range.first)+pos));
+    else 
+      SummaryObj.push_back(-999.);
+  }
   return SummaryObj;
 }
 

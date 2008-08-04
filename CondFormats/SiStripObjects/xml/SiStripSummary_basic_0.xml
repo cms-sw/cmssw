@@ -8,7 +8,7 @@
      <Primitive column="TIMEVALUE" name="timeValue_" />
      <Blob column="SISTRIPSUMMARY_QUANTITIES" name="userDBContent_" />
      <Blob column="SISTRIPSUMMARY_REGISTRY" name="indexes_"/>
-     <Blob column="SISTRIPSUMMARY_DATA" name="v_sum_" />
+     <Blob column="SISTRIPSUMMARY_DATA" name="v_sum_"/>
    </Class >
   </PoolContainer >
  </PoolDatabase >

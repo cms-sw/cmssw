@@ -119,7 +119,7 @@ class SiStripSummary {
         protected:	
 	
 	        // RETURNS POSITION OF ELEMENTNAME IN userDBContent_
-	        const size_t getPosition(std::string elementName) const;
+	        const short getPosition(std::string elementName) const;
 	
 	
    };
