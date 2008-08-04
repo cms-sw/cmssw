@@ -18,6 +18,12 @@ def customise(process):
     #Adding Timing service:
     process.Timing=cms.Service("Timing")
 
+    #Add these 3 lines to put back the summary for timing information at the end of the logfile
+    #(needed for TimeReport report)
+    process.options = cms.untracked.PSet(
+        wantSummary = cms.untracked.bool(True)
+        )
+            
     #Overwriting the fileNames to be used by the MixingModule
     #when invoking cmsDriver.py with the --PU option
     process.mix.input.fileNames = cms.untracked.vstring('file:../MinBias_TimeSize/MINBIAS__GEN,SIM.root')
