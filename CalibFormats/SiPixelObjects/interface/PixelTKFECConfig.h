@@ -45,7 +45,10 @@ namespace pos{
     unsigned int addressFromTKFECID(std::string TKFECID) const;
 
     virtual void writeASCII(std::string dir) const;
-    virtual void writeXML(pos::PixelConfigKey key, int version, std::string path) const {;}
+    virtual void writeXML(      pos::PixelConfigKey key, int version, std::string path)                     const {;}
+    virtual void writeXMLHeader(pos::PixelConfigKey key, int version, std::string path, std::ofstream *out) const {;}
+    virtual void writeXML(                                                              std::ofstream *out) const {;}
+    virtual void writeXMLTrailer(                                                       std::ofstream *out) const {;}
     
   private:
     std::vector< PixelTKFECParameters > TKFECconfig_;

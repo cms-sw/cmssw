@@ -4,6 +4,7 @@
 #include <iostream>
 
 #include "CalibFormats/SiPixelObjects/interface/PixelFEDCard.h"
+#include "CalibFormats/SiPixelObjects/interface/PixelTimeFormatter.h"
 
 #include <cassert>
 #include <sstream>
@@ -27,8 +28,8 @@ PixelFEDCard::PixelFEDCard(vector<vector<string> > &tableMat):PixelConfigBase(" 
   bool first = true ;
   /**
     
-    Name                                           Null?    Type
-    ----------------------------------------- -------- ----------------------------
+    Name                                           Null?    Type          POS variable
+    ----------------------------------------- -------- ---------------------------------------------------------------
 
     CONFIG_KEY_ID                             NOT NULL      NUMBER(38)
     CONFIG_KEY                                NOT NULL      VARCHAR2(80)
@@ -40,57 +41,57 @@ PixelFEDCard::PixelFEDCard(vector<vector<string> > &tableMat):PixelConfigBase(" 
     SLOT_NUMBER                               NOT NULL      NUMBER(38)
     VME_ADDRS_HEX                                           VARCHAR2(17)
     CHANNEL_ID                                NOT NULL      NUMBER(10)
-    NUM_ROCS                                  NOT NULL      NUMBER(4)  NRocs[1-36]    index taken from CHANNEL_ID
-    CHAN_OFFST_DAC                            NOT NULL      NUMBER(10) offs_dac[1-36] index taken from CHANNEL_ID
-    CHAN_DELAY                                NOT NULL      NUMBER(10) DelayCh[1-36]  index taken from CHANNEL_ID
-    CHAN_BHIGH                                NOT NULL      NUMBER(10) BlackHi[1-36]  index taken from CHANNEL_ID
-    CHAN_BLOW                                 NOT NULL      NUMBER(10) BlackLo[1-36]  index taken from CHANNEL_ID
-    CHAN_UB                                   NOT NULL      NUMBER(10) Ublack[1-36]   index taken from CHANNEL_ID
-    OPT1_CAP                                  NOT NULL      NUMBER(38) opt_cap[0]
-    OPT2_CAP                                  NOT NULL      NUMBER(38) opt_cap[1]
-    OPT3_CAP                                  NOT NULL      NUMBER(38) opt_cap[2]
-    OPT1_INP                                  NOT NULL      NUMBER(38) opt_inadj[0] 
-    OPT2_INP                                  NOT NULL      NUMBER(38) opt_inadj[1] 
-    OPT3_INP                                  NOT NULL      NUMBER(38) opt_inadj[2] 
-    OPT1_OUT                                  NOT NULL      NUMBER(38) opt_outadj[0] 
-    OPT2_OUT                                  NOT NULL      NUMBER(38) opt_outadj[1] 
-    OPT3_OUT                                  NOT NULL      NUMBER(38) opt_outadj[2] 
-    NORTH_CLKPHB                              NOT NULL      NUMBER(38) clkphs1_9
-    NORTHCENTER_CLKPHB                        NOT NULL      NUMBER(38) clkphs10_18
-    SOUTHCENTER_CLKPHB                        NOT NULL      NUMBER(38) clkphs19_27
-    SOUTH_CLKPHB                              NOT NULL      NUMBER(38) clkphs28_36
-    NORTH_CTRL                                NOT NULL      NUMBER(38) Ncntrl 
-    NORTHCENTER_CTRL                          NOT NULL      NUMBER(38) NCcntrl
-    SOUTHCENTER_CTRL                          NOT NULL      NUMBER(38) SCcntrl
-    SOUTH_CTRL                                NOT NULL      NUMBER(38) Scntrl 
-    REG1_TTCRX_FDLA                           NOT NULL      NUMBER(38) FineDes2Del
-    REG2_TTCRX_CDLA                           NOT NULL      NUMBER(38) CoarseDel
-    REG3_TTCRX_CLKD2                          NOT NULL      NUMBER(38) ClkDes2
-    CENTER_CTRL                               NOT NULL      NUMBER(38) Ccntrl
-    CENTER_MODE                               NOT NULL      NUMBER(38) modeRegister
-    B1_ADCGN                                  NOT NULL      NUMBER(38) Nadcg 
-    B2_ADCGN                                  NOT NULL      NUMBER(38) NCadcg
-    B3_ADCGN                                  NOT NULL      NUMBER(38) SCadcg
-    B4_ADCGN                                  NOT NULL      NUMBER(38) Sadcg 
-    NORTH_BADJ                                NOT NULL      NUMBER(38) Nbaseln 
-    NORTHCENTER_BADJ                          NOT NULL      NUMBER(38) NCbaseln
-    SOUTHCENTER_BADJ                          NOT NULL      NUMBER(38) SCbaseln
-    SOUTH_BADJ                                NOT NULL      NUMBER(38) Sbaseln 
-    NORTH_TBMMASK                                           NUMBER(38) N_TBMmask
-    NORTHCENTER_TBMMASK                                     NUMBER(38) NC_TBMmask
-    SOUTHCENTER_TBMMASK                                     NUMBER(38) SC_TBMmask
-    SOUTH_TBMMASK                                           NUMBER(38) S_TBMmask
-    NORTH_PWORD                                             NUMBER(38) N_Pword 
-    NORTHCENTER_PWORD                                       NUMBER(38) NC_Pword
-    SOUTH_PWORD                                             NUMBER(38) S_Pword
-    SOUTHCENTER_PWORD                                       NUMBER(38) SC_Pword 
-    SPECDAC                                                 NUMBER(38) SpecialDac
-    OOS_LVL                                                 NUMBER(38) Ooslvl
-    ERR_LVL                                                 NUMBER(38) Errlvl
-    NORTH_FIFO1_BZ_LVL                                      NUMBER(38) Nfifo1Bzlvl
-    NORTHCENTER_FIFO1_BZ_LVL                                NUMBER(38) NCfifo1Bzlvl
-    SOUTHCENTER_FIFO1_BZ_LVL                                NUMBER(38) SCfifo1Bzlvl
-    SOUTH_FIFO1_BZ_LVL                                      NUMBER(38) Sfifo1Bzlvl
+    NUM_ROCS                                  NOT NULL      NUMBER(4)     NRocs[1-36]	 index taken from CHANNEL_ID 
+    CHAN_OFFST_DAC                            NOT NULL      NUMBER(10)    offs_dac[1-36] index taken from CHANNEL_ID 
+    CHAN_DELAY                                NOT NULL      NUMBER(10)    DelayCh[1-36]  index taken from CHANNEL_ID 
+    CHAN_BHIGH                                NOT NULL      NUMBER(10)    BlackHi[1-36]  index taken from CHANNEL_ID 
+    CHAN_BLOW                                 NOT NULL      NUMBER(10)    BlackLo[1-36]  index taken from CHANNEL_ID 
+    CHAN_UB                                   NOT NULL      NUMBER(10)    Ublack[1-36]   index taken from CHANNEL_ID 
+    OPT1_CAP                                  NOT NULL      NUMBER(38)    opt_cap[0]				     
+    OPT2_CAP                                  NOT NULL      NUMBER(38)    opt_cap[1]				     
+    OPT3_CAP                                  NOT NULL      NUMBER(38)    opt_cap[2]				     
+    OPT1_INP                                  NOT NULL      NUMBER(38)    opt_inadj[0]  			     
+    OPT2_INP                                  NOT NULL      NUMBER(38)    opt_inadj[1]  			     
+    OPT3_INP                                  NOT NULL      NUMBER(38)    opt_inadj[2]  			     
+    OPT1_OUT                                  NOT NULL      NUMBER(38)    opt_outadj[0] 			     
+    OPT2_OUT                                  NOT NULL      NUMBER(38)    opt_outadj[1] 			     
+    OPT3_OUT                                  NOT NULL      NUMBER(38)    opt_outadj[2] 			     
+    NORTH_CLKPHB                              NOT NULL      NUMBER(38)    clkphs1_9				     
+    NORTHCENTER_CLKPHB                        NOT NULL      NUMBER(38)    clkphs10_18				     
+    SOUTHCENTER_CLKPHB                        NOT NULL      NUMBER(38)    clkphs19_27				     
+    SOUTH_CLKPHB                              NOT NULL      NUMBER(38)    clkphs28_36				     
+    NORTH_CTRL                                NOT NULL      NUMBER(38)    Ncntrl 				     
+    NORTHCENTER_CTRL                          NOT NULL      NUMBER(38)    NCcntrl				     
+    SOUTHCENTER_CTRL                          NOT NULL      NUMBER(38)    SCcntrl				     
+    SOUTH_CTRL                                NOT NULL      NUMBER(38)    Scntrl 				     
+    REG1_TTCRX_FDLA                           NOT NULL      NUMBER(38)    FineDes2Del				     
+    REG2_TTCRX_CDLA                           NOT NULL      NUMBER(38)    CoarseDel				     
+    REG3_TTCRX_CLKD2                          NOT NULL      NUMBER(38)    ClkDes2				     
+    CENTER_CTRL                               NOT NULL      NUMBER(38)    Ccntrl				     
+    CENTER_MODE                               NOT NULL      NUMBER(38)    modeRegister				     
+    B1_ADCGN                                  NOT NULL      NUMBER(38)    Nadcg 				     
+    B2_ADCGN                                  NOT NULL      NUMBER(38)    NCadcg				     
+    B3_ADCGN                                  NOT NULL      NUMBER(38)    SCadcg				     
+    B4_ADCGN                                  NOT NULL      NUMBER(38)    Sadcg 				     
+    NORTH_BADJ                                NOT NULL      NUMBER(38)    Nbaseln 				     
+    NORTHCENTER_BADJ                          NOT NULL      NUMBER(38)    NCbaseln				     
+    SOUTHCENTER_BADJ                          NOT NULL      NUMBER(38)    SCbaseln				     
+    SOUTH_BADJ                                NOT NULL      NUMBER(38)    Sbaseln 				     
+    NORTH_TBMMASK                                           NUMBER(38)    N_TBMmask				     
+    NORTHCENTER_TBMMASK                                     NUMBER(38)    NC_TBMmask				     
+    SOUTHCENTER_TBMMASK                                     NUMBER(38)    SC_TBMmask				     
+    SOUTH_TBMMASK                                           NUMBER(38)    S_TBMmask				     
+    NORTH_PWORD                                             NUMBER(38)    N_Pword 				     
+    NORTHCENTER_PWORD                                       NUMBER(38)    NC_Pword				     
+    SOUTH_PWORD                                             NUMBER(38)    S_Pword				     
+    SOUTHCENTER_PWORD                                       NUMBER(38)    SC_Pword 				     
+    SPECDAC                                                 NUMBER(38)    SpecialDac				     
+    OOS_LVL                                                 NUMBER(38)    Ooslvl				     
+    ERR_LVL                                                 NUMBER(38)    Errlvl				     
+    NORTH_FIFO1_BZ_LVL                                      NUMBER(38)    Nfifo1Bzlvl				     
+    NORTHCENTER_FIFO1_BZ_LVL                                NUMBER(38)    NCfifo1Bzlvl				     
+    SOUTHCENTER_FIFO1_BZ_LVL                                NUMBER(38)    SCfifo1Bzlvl				     
+    SOUTH_FIFO1_BZ_LVL                                      NUMBER(38)    Sfifo1Bzlvl				     
   */
   colNames.push_back("CONFIG_KEY_ID"            );
   colNames.push_back("CONFIG_KEY"               );
@@ -1059,6 +1060,285 @@ void PixelFEDCard::writeASCII(std::string dir) const{
 
 }
 
+//=============================================================================================
+void PixelFEDCard::writeXMLHeader(pos::PixelConfigKey key, int version, std::string path, std::ofstream *out) const {
+  std::string mthn = "[PixelFEDCard::writeXMLHeader()]\t\t\t    " ;
+  std::stringstream fullPath ;
+
+  fullPath << path << "/fedcard.xml" ;
+  std::cout << mthn << "Writing to: " << fullPath.str()  << "" << std::endl ;
+
+  out->open(fullPath.str().c_str()) ;
+  
+  *out << "<?xml version='1.0' encoding='UTF-8' standalone='yes'?>"		         	  << std::endl ;
+  *out << "<ROOT>"										  << std::endl ; 
+  *out << ""											  << std::endl ; 
+  *out << " <HEADER>"										  << std::endl ; 
+  *out << "  <TYPE>"										  << std::endl ; 
+  *out << "   <EXTENSION_TABLE_NAME>FED_CONFIGURATION</EXTENSION_TABLE_NAME>"			  << std::endl ; 
+  *out << "   <NAME>Pixel FED Configuration</NAME>"						  << std::endl ; 
+  *out << "  </TYPE>"										  << std::endl ; 
+  *out << "  <RUN>"										  << std::endl ; 
+  *out << "   <RUN_TYPE>Pixel FED Configuration</RUN_TYPE>"					  << std::endl ; 
+  *out << "   <RUN_NUMBER>1</RUN_NUMBER>"							  << std::endl ; 
+  *out << "   <RUN_BEGIN_TIMESTAMP>" << PixelTimeFormatter::getTime() << "</RUN_BEGIN_TIMESTAMP>" << std::endl ; 
+  *out << "   <COMMENT_DESCRIPTION>Pixel FED Configuration</COMMENT_DESCRIPTION>"		  << std::endl ; 
+  *out << "   <LOCATION>CERN TAC</LOCATION>"							  << std::endl ; 
+  *out << "   <INITIATED_BY_USER>Dario Menasce</INITIATED_BY_USER>"				  << std::endl ; 
+  *out << "  </RUN>"										  << std::endl ; 
+  *out << " </HEADER>"  									  << std::endl ; 
+  *out << ""											  << std::endl ; 
+  *out << " <DATA_SET>"										  << std::endl ;
+  *out << ""  											  << std::endl ;
+  *out << "  <VERSION>" << version << "</VERSION>"                                                << std::endl ;
+  *out << "  <COMMENT_DESCRIPTION>Pixel FED Configuration</COMMENT_DESCRIPTION>"                  << std::endl ;
+  *out << "" 											  << std::endl ;
+  *out << "  <PART>"                                                                              << std::endl ;
+  *out << "   <NAME_LABEL>CMS-PIXEL-ROOT</NAME_LABEL>"                  			  << std::endl ;      
+  *out << "   <KIND_OF_PART>Detector ROOT</KIND_OF_PART>"               			  << std::endl ;	 
+  *out << "  </PART>" 										  << std::endl ;
+}
+//=============================================================================================
+void PixelFEDCard::writeXML( std::ofstream *out) const {
+  std::string mthn = "[PixelFEDCard::writeXML()]\t\t\t    " ;
+
+  *out << "  <DATA>"										  << std::endl ;
+  *out << " "   										  << std::endl ;
+  *out << "   <PXLFED_NAME>PxlFED_" << fedNumber<< "</PXLFED_NAME>"				  << std::endl ;
+//  *out << "   <CRATE_NUMBER>1</CRATE_NUMBER>"							  << std::endl ;
+//  *out << "   <SLOT_NUMBER>5</SLOT_NUMBER>	  "						  << std::endl ;
+//  *out << "   <VME_ADDRESS>268435456</VME_ADDRESS>"						  << std::endl ;
+//  *out << "   <CRATE_LABEL>S1G03e</CRATE_LABEL>"						  << std::endl ;
+  *out << ""											  << std::endl ;
+  *out << "   <CHANNEL_ID>1</CHANNEL_ID>"							  << std::endl ;
+  *out << "   <NUMBER_OF_ROCS>21</NUMBER_OF_ROCS>"						  << std::endl ;
+  *out << "   <CHANNEL_OFFSET_DAC_SETTINGS>0</CHANNEL_OFFSET_DAC_SETTINGS>"			  << std::endl ;
+  *out << "   <CHANNEL_DELAY_SETTINGS>3</CHANNEL_DELAY_SETTINGS>"				  << std::endl ;
+  *out << "   <CHANNEL_BLACK_HIGH>400</CHANNEL_BLACK_HIGH>"					  << std::endl ;
+  *out << "   <CHANNEL_BLACK_LOW>150</CHANNEL_BLACK_LOW>"					  << std::endl ;
+  *out << "   <CHANNEL_ULTRA_BLACK>120</CHANNEL_ULTRA_BLACK>"					  << std::endl ;
+  *out << ""											  << std::endl ;
+  *out << "   <OPT1_CAP>0</OPT1_CAP>"								  << std::endl ;
+  *out << "   <OPT2_CAP>0</OPT2_CAP>"								  << std::endl ;
+  *out << "   <OPT3_CAP>0</OPT3_CAP>"								  << std::endl ;
+  *out << "   <OPT1_INP>0</OPT1_INP>"								  << std::endl ;
+  *out << "   <OPT2_INP>0</OPT2_INP>"								  << std::endl ;
+  *out << "   <OPT3_INP>0</OPT3_INP>"								  << std::endl ;
+  *out << "   <OPT1_OUT>0</OPT1_OUT>"								  << std::endl ;
+  *out << "   <OPT2_OUT>0</OPT2_OUT>"								  << std::endl ;
+  *out << "   <OPT3_OUT>0</OPT3_OUT>"								  << std::endl ;
+  *out << "   <NORTH_CLKPHB>511</NORTH_CLKPHB>" 						  << std::endl ;
+  *out << "   <NORTHCENTER_CLKPHB>511</NORTHCENTER_CLKPHB>"					  << std::endl ;
+  *out << "   <SOUTHCENTER_CLKPHB>511</SOUTHCENTER_CLKPHB>"					  << std::endl ;
+  *out << "   <SOUTH_CLKPHB>511</SOUTH_CLKPHB>" 						  << std::endl ;
+  *out << "   <NORTH_CTRL>0</NORTH_CTRL> "							  << std::endl ;
+  *out << "   <NORTHCENTER_CTRL>0</NORTHCENTER_CTRL>"						  << std::endl ;
+  *out << "   <SOUTHCENTER_CTRL>0</SOUTHCENTER_CTRL>"						  << std::endl ;
+  *out << "   <SOUTH_CTRL>0</SOUTH_CTRL>"							  << std::endl ;
+  *out << "   <REG1_TTCRX_FDLA>5</REG1_TTCRX_FDLA>"						  << std::endl ;
+  *out << "   <REG2_TTCRX_CDLA>0</REG2_TTCRX_CDLA>"						  << std::endl ;
+  *out << "   <REG3_TTCRX_CLKD2>155</REG3_TTCRX_CLKD2>" 					  << std::endl ;
+  *out << "   <CENTER_CTRL>0</CENTER_CTRL>"							  << std::endl ;
+  *out << "   <CENTER_MODE>0</CENTER_MODE>"							  << std::endl ;
+  *out << "   <B1_ADCGN>0</B1_ADCGN>"								  << std::endl ;
+  *out << "   <B2_ADCGN>0</B2_ADCGN>"								  << std::endl ;
+  *out << "   <B3_ADCGN>0</B3_ADCGN>"								  << std::endl ;
+  *out << "   <B4_ADCGN>0</B4_ADCGN>"								  << std::endl ;
+  *out << "   <NORTH_BADJ>330</NORTH_BADJ>"							  << std::endl ;
+  *out << "   <NORTHCENTER_BADJ>330</NORTHCENTER_BADJ>" 					  << std::endl ;
+  *out << "   <SOUTHCENTER_BADJ>330</SOUTHCENTER_BADJ>" 					  << std::endl ;
+  *out << "   <SOUTH_BADJ>330</SOUTH_BADJ>"							  << std::endl ;
+  *out << "   <NORTH_TBMMASK>2</NORTH_TBMMASK>" 						  << std::endl ;
+  *out << "   <NORTHCENTER_TBMMASK>2</NORTHCENTER_TBMMASK>"					  << std::endl ;
+  *out << "   <SOUTHCENTER_TBMMASK>2</SOUTHCENTER_TBMMASK>"					  << std::endl ;
+  *out << "   <SOUTH_TBMMASK>2</SOUTH_TBMMASK>" 						  << std::endl ;
+  *out << "   <NORTH_PWORD>177</NORTH_PWORD>"							  << std::endl ;
+  *out << "   <NORTHCENTER_PWORD>178</NORTHCENTER_PWORD>"					  << std::endl ;
+  *out << "   <SOUTHCENTER_PWORD>179</SOUTHCENTER_PWORD>"					  << std::endl ;
+  *out << "   <SOUTH_PWORD>180</SOUTH_PWORD>"							  << std::endl ;
+  *out << "   <SPECDAC>0</SPECDAC>"								  << std::endl ;
+  *out << "   <OOS_LVL>0</OOS_LVL>"								  << std::endl ;
+  *out << "   <ERR_LVL>0</ERR_LVL>"								  << std::endl ;
+  *out << "   <NORTH_FIFO1_BZ_LVL>900</NORTH_FIFO1_BZ_LVL>"					  << std::endl ;
+  *out << "   <NORTHCENTER_FIFO1_BZ_LVL>900</NORTHCENTER_FIFO1_BZ_LVL>" 			  << std::endl ;
+  *out << "   <SOUTHCENTER_FIFO1_BZ_LVL>900</SOUTHCENTER_FIFO1_BZ_LVL>" 			  << std::endl ;
+  *out << "   <SOUTH_FIFO1_BZ_LVL>900</SOUTH_FIFO1_BZ_LVL>"					  << std::endl ;
+  *out << "   <FIFO3_WRN_LVL>7680</FIFO3_WRN_LVL> "						  << std::endl ;
+  *out << " "                                                                                     << std::endl ;
+  *out << "  </DATA>"										  << std::endl ;
+  *out << " "											  << std::endl ;
+}
+
+//=============================================================================================
+void PixelFEDCard::writeXMLTrailer(std::ofstream *out) const {
+  std::string mthn = "[PixelFEDCard::writeXMLTrailer()]\t\t\t    " ;
+
+  *out << " </DATA_SET>"              << std::endl ;
+  *out << "</ROOT>"                   << std::endl ;
+
+  out->close() ;
+  std::cout << mthn << "Data written" << std::endl ;
+}
+
+//=============================================================================================
+void PixelFEDCard::writeXML(pos::PixelConfigKey key, int version, std::string path) const {
+  std::string mthn = "[PixelFEDCard::writeXML()]\t\t\t    " ;
+  std::stringstream fullPath ;
+
+  fullPath << path << "/fedcard.xml" ;
+  std::cout << mthn << "Writing to: |" << fullPath.str()  << "|" << std::endl ;
+
+  std::ofstream out(fullPath.str().c_str()) ;
+
+  out << "<ROOT>"										 << std::endl ; 
+  out << ""											 << std::endl ; 
+  out << " <HEADER>"										 << std::endl ; 
+  out << "  <TYPE>"										 << std::endl ; 
+  out << "   <EXTENSION_TABLE_NAME>FED_CONFIGURATION</EXTENSION_TABLE_NAME>"			 << std::endl ; 
+  out << "   <NAME>Pixel FED Configuration</NAME>"						 << std::endl ; 
+  out << "  </TYPE>"										 << std::endl ; 
+  out << "  <RUN>"										 << std::endl ; 
+  out << "   <RUN_TYPE>Pixel FED Configuration</RUN_TYPE>"					 << std::endl ; 
+  out << "   <RUN_NUMBER>1</RUN_NUMBER>"							 << std::endl ; 
+  out << "   <RUN_BEGIN_TIMESTAMP>" << PixelTimeFormatter::getTime() << "</RUN_BEGIN_TIMESTAMP>" << std::endl ; 
+  out << "   <COMMENT_DESCRIPTION>Pixel FED Configuration</COMMENT_DESCRIPTION>"		 << std::endl ; 
+  out << "   <LOCATION>CERN TAC</LOCATION>"							 << std::endl ; 
+  out << "   <INITIATED_BY_USER>Dario Menasce</INITIATED_BY_USER>"				 << std::endl ; 
+  out << "  </RUN>"										 << std::endl ; 
+  out << " </HEADER>"										 << std::endl ; 
+  out << ""											 << std::endl ; 
+  out << " <DATA_SET>"  									 << std::endl ;
+  out << ""											 << std::endl ;
+  out << "  <VERSION>T_E_S_T</VERSION>" 							 << std::endl ;
+  out << "  <COMMENT_DESCRIPTION>Pixel FED Configuration</COMMENT_DESCRIPTION>" 		 << std::endl ;
+  out << ""											 << std::endl ;
+  out << "  <PART>"										 << std::endl ;
+  out << "   <NAME_LABEL>CMS-PIXEL-ROOT</NAME_LABEL>"						 << std::endl ;
+  out << "   <KIND_OF_PART>Detector ROOT</KIND_OF_PART>"					 << std::endl ;
+  out << "  </PART>"										 << std::endl ;
+  out << ""											 << std::endl ;
+  out << "  <DATA>"										 << std::endl ;
+  out << "   <PXLFED_NAME>PxlFED_32</PXLFED_NAME>"						 << std::endl ;
+  out << "   <CRATE_NUMBER>1</CRATE_NUMBER>"							 << std::endl ;
+  out << "   <SLOT_NUMBER>5</SLOT_NUMBER>	 "						 << std::endl ;
+  out << "   <VME_ADDRESS>268435456</VME_ADDRESS>"						 << std::endl ;
+  out << "   <CRATE_LABEL>S1G03e</CRATE_LABEL>" 						 << std::endl ;
+  out << ""											 << std::endl ;
+  out << "   <CHANNEL_ID>1</CHANNEL_ID>"							 << std::endl ;
+  out << "   <NUMBER_OF_ROCS>21</NUMBER_OF_ROCS>"						 << std::endl ;
+  out << "   <CHANNEL_OFFSET_DAC_SETTINGS>0</CHANNEL_OFFSET_DAC_SETTINGS>"			 << std::endl ;
+  out << "   <CHANNEL_DELAY_SETTINGS>3</CHANNEL_DELAY_SETTINGS>"				 << std::endl ;
+  out << "   <CHANNEL_BLACK_HIGH>400</CHANNEL_BLACK_HIGH>"					 << std::endl ;
+  out << "   <CHANNEL_BLACK_LOW>150</CHANNEL_BLACK_LOW>"					 << std::endl ;
+  out << "   <CHANNEL_ULTRA_BLACK>120</CHANNEL_ULTRA_BLACK>"					 << std::endl ;
+  out << ""											 << std::endl ;
+  out << "   <OPT1_CAP>0</OPT1_CAP>"								 << std::endl ;
+  out << "   <OPT2_CAP>0</OPT2_CAP>"								 << std::endl ;
+  out << "   <OPT3_CAP>0</OPT3_CAP>"								 << std::endl ;
+  out << "   <OPT1_INP>0</OPT1_INP>"								 << std::endl ;
+  out << "   <OPT2_INP>0</OPT2_INP>"								 << std::endl ;
+  out << "   <OPT3_INP>0</OPT3_INP>"								 << std::endl ;
+  out << "   <OPT1_OUT>0</OPT1_OUT>"								 << std::endl ;
+  out << "   <OPT2_OUT>0</OPT2_OUT>"								 << std::endl ;
+  out << "   <OPT3_OUT>0</OPT3_OUT>"								 << std::endl ;
+  out << "   <NORTH_CLKPHB>511</NORTH_CLKPHB>"  						 << std::endl ;
+  out << "   <NORTHCENTER_CLKPHB>511</NORTHCENTER_CLKPHB>"					 << std::endl ;
+  out << "   <SOUTHCENTER_CLKPHB>511</SOUTHCENTER_CLKPHB>"					 << std::endl ;
+  out << "   <SOUTH_CLKPHB>511</SOUTH_CLKPHB>"  						 << std::endl ;
+  out << "   <NORTH_CTRL>0</NORTH_CTRL> "							 << std::endl ;
+  out << "   <NORTHCENTER_CTRL>0</NORTHCENTER_CTRL>"						 << std::endl ;
+  out << "   <SOUTHCENTER_CTRL>0</SOUTHCENTER_CTRL>"						 << std::endl ;
+  out << "   <SOUTH_CTRL>0</SOUTH_CTRL>"							 << std::endl ;
+  out << "   <REG1_TTCRX_FDLA>5</REG1_TTCRX_FDLA>"						 << std::endl ;
+  out << "   <REG2_TTCRX_CDLA>0</REG2_TTCRX_CDLA>"						 << std::endl ;
+  out << "   <REG3_TTCRX_CLKD2>155</REG3_TTCRX_CLKD2>"  					 << std::endl ;
+  out << "   <CENTER_CTRL>0</CENTER_CTRL>"							 << std::endl ;
+  out << "   <CENTER_MODE>0</CENTER_MODE>"							 << std::endl ;
+  out << "   <B1_ADCGN>0</B1_ADCGN>"								 << std::endl ;
+  out << "   <B2_ADCGN>0</B2_ADCGN>"								 << std::endl ;
+  out << "   <B3_ADCGN>0</B3_ADCGN>"								 << std::endl ;
+  out << "   <B4_ADCGN>0</B4_ADCGN>"								 << std::endl ;
+  out << "   <NORTH_BADJ>330</NORTH_BADJ>"							 << std::endl ;
+  out << "   <NORTHCENTER_BADJ>330</NORTHCENTER_BADJ>"  					 << std::endl ;
+  out << "   <SOUTHCENTER_BADJ>330</SOUTHCENTER_BADJ>"  					 << std::endl ;
+  out << "   <SOUTH_BADJ>330</SOUTH_BADJ>"							 << std::endl ;
+  out << "   <NORTH_TBMMASK>2</NORTH_TBMMASK>"  						 << std::endl ;
+  out << "   <NORTHCENTER_TBMMASK>2</NORTHCENTER_TBMMASK>"					 << std::endl ;
+  out << "   <SOUTHCENTER_TBMMASK>2</SOUTHCENTER_TBMMASK>"					 << std::endl ;
+  out << "   <SOUTH_TBMMASK>2</SOUTH_TBMMASK>"  						 << std::endl ;
+  out << "   <NORTH_PWORD>177</NORTH_PWORD>"							 << std::endl ;
+  out << "   <NORTHCENTER_PWORD>178</NORTHCENTER_PWORD>"					 << std::endl ;
+  out << "   <SOUTHCENTER_PWORD>179</SOUTHCENTER_PWORD>"					 << std::endl ;
+  out << "   <SOUTH_PWORD>180</SOUTH_PWORD>"							 << std::endl ;
+  out << "   <SPECDAC>0</SPECDAC>"								 << std::endl ;
+  out << "   <OOS_LVL>0</OOS_LVL>"								 << std::endl ;
+  out << "   <ERR_LVL>0</ERR_LVL>"								 << std::endl ;
+  out << "   <NORTH_FIFO1_BZ_LVL>900</NORTH_FIFO1_BZ_LVL>"					 << std::endl ;
+  out << "   <NORTHCENTER_FIFO1_BZ_LVL>900</NORTHCENTER_FIFO1_BZ_LVL>"  			 << std::endl ;
+  out << "   <SOUTHCENTER_FIFO1_BZ_LVL>900</SOUTHCENTER_FIFO1_BZ_LVL>"  			 << std::endl ;
+  out << "   <SOUTH_FIFO1_BZ_LVL>900</SOUTH_FIFO1_BZ_LVL>"					 << std::endl ;
+  out << "   <FIFO3_WRN_LVL>7680</FIFO3_WRN_LVL> "						 << std::endl ;
+  out << "  </DATA>"										 << std::endl ;
+/*												
+  out<< "  <DATA>										
+		<OPT1_CAP>0</OPT1_CAP>								
+		<OPT2_CAP>0</OPT2_CAP>								
+		<OPT3_CAP>0</OPT3_CAP>								
+		<OPT1_INP>0</OPT1_INP>								
+		<OPT2_INP>0</OPT2_INP>								
+		<OPT3_INP>0</OPT3_INP>
+		<OPT1_OUT>0</OPT1_OUT>
+		<OPT2_OUT>0</OPT2_OUT>
+		<OPT3_OUT>0</OPT3_OUT>
+		<NORTH_CLKPHB>511</NORTH_CLKPHB>
+		<NORTHCENTER_CLKPHB>511</NORTHCENTER_CLKPHB>
+		<SOUTHCENTER_CLKPHB>511</SOUTHCENTER_CLKPHB>
+		<SOUTH_CLKPHB>511</SOUTH_CLKPHB>
+		<NORTH_CTRL>0</NORTH_CTRL> 
+		<NORTHCENTER_CTRL>0</NORTHCENTER_CTRL>
+		<SOUTHCENTER_CTRL>0</SOUTHCENTER_CTRL>
+		<SOUTH_CTRL>0</SOUTH_CTRL>
+		<REG1_TTCRX_FDLA>5</REG1_TTCRX_FDLA>
+		<REG2_TTCRX_CDLA>0</REG2_TTCRX_CDLA>
+		<REG3_TTCRX_CLKD2>155</REG3_TTCRX_CLKD2>
+		<CENTER_CTRL>0</CENTER_CTRL>
+		<CENTER_MODE>0</CENTER_MODE> 
+		<B1_ADCGN>0</B1_ADCGN>
+		<B2_ADCGN>0</B2_ADCGN>
+		<B3_ADCGN>0</B3_ADCGN>
+		<B4_ADCGN>0</B4_ADCGN>
+		<NORTH_BADJ>330</NORTH_BADJ>
+		<NORTHCENTER_BADJ>330</NORTHCENTER_BADJ>
+		<SOUTHCENTER_BADJ>330</SOUTHCENTER_BADJ>
+		<SOUTH_BADJ>330</SOUTH_BADJ>		
+		<NORTH_TBMMASK>2</NORTH_TBMMASK>
+		<NORTHCENTER_TBMMASK>2</NORTHCENTER_TBMMASK>		
+		<SOUTHCENTER_TBMMASK>2</SOUTHCENTER_TBMMASK>		
+		<SOUTH_TBMMASK>2</SOUTH_TBMMASK>		
+		<NORTH_PWORD>177</NORTH_PWORD>
+		<NORTHCENTER_PWORD>178</NORTHCENTER_PWORD>
+		<SOUTHCENTER_PWORD>179</SOUTHCENTER_PWORD>
+		<SOUTH_PWORD>180</SOUTH_PWORD>		
+		<SPECDAC>0</SPECDAC>		
+		<OOS_LVL>0</OOS_LVL>
+		<ERR_LVL>0</ERR_LVL>
+		<NORTH_FIFO1_BZ_LVL>900</NORTH_FIFO1_BZ_LVL>
+		<NORTHCENTER_FIFO1_BZ_LVL>900</NORTHCENTER_FIFO1_BZ_LVL>			
+		<SOUTHCENTER_FIFO1_BZ_LVL>900</SOUTHCENTER_FIFO1_BZ_LVL>	
+		<SOUTH_FIFO1_BZ_LVL>900</SOUTH_FIFO1_BZ_LVL>		
+		<FIFO3_WRN_LVL>7680</FIFO3_WRN_LVL>				
+	</DATA>
+	
+  </DATA_SET>  
+  out << " </DATA_SET>"                                                                          << std::endl ;
+  out << "</ROOT>"                                                                               << std::endl ;
+
+  out.close() ;
+*/  
+  std::cout << mthn << "Data written"                                                            << std::endl ;
+}
+
+//=============================================================================================
 unsigned long long PixelFEDCard::enabledChannels() {
   unsigned long long channels=0;
 // return a 64-bit word with low 36 bits set if a channel is enabled

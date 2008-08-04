@@ -364,7 +364,7 @@ void PixelDetectorConfig::writeXML(pos::PixelConfigKey key, int version, std::st
   std::stringstream fullPath ;
 
   fullPath << path << "/detectorconfig.xml" ;
-  cout << mthn << "Writing to: |" << fullPath.str()  << "|" << endl ;
+  cout << mthn << "Writing to: " << fullPath.str() << endl ;
   
   std::ofstream out(fullPath.str().c_str()) ;
   
@@ -391,6 +391,7 @@ void PixelDetectorConfig::writeXML(pos::PixelConfigKey key, int version, std::st
   out << "   <NAME_LABEL>CMS-PIXEL-ROOT</NAME_LABEL>"   	 	                      	      << endl ;
   out << "   <KIND_OF_PART>Detector ROOT</KIND_OF_PART>"		    	 	      	      << endl ;
   out << "  </PART>"							    	 	      	      << endl ;
+  out << ""							    	 	      	              << endl ;
 
   if(rocs_.size() == 0) 
     {
@@ -414,9 +415,9 @@ void PixelDetectorConfig::writeXML(pos::PixelConfigKey key, int version, std::st
           std::string sts = (irocs->second).statusName() ;
           if( sts == "" ) {sts = "on" ;}
           out << "  <DATA>"							    	 	      << endl ;
+          out << "   <ROC_NAME>"   << (irocs->first).rocname() << "</ROC_NAME>"		     	      << endl ;
           out << "   <ROC_STATUS>" << sts << "</ROC_STATUS>"	                         	      << endl ;
           out << "  </DATA>"							    	 	      << endl ;
-          out << " </DATA_SET>" 						    	 	      << endl ;
           out << " "                                                                     	      << endl ;
         }
     }

@@ -44,7 +44,10 @@ namespace pos{
     void writeBinary(std::ofstream& out) const;
 
     void writeASCII(std::ostream& out) const;
-    void writeXML(std::ostream& out, pos::PixelConfigKey key, int version, std::string path) const ;
+    void 	 writeXML(      pos::PixelConfigKey key, int version, std::string path)                     const {;}
+    virtual void writeXMLHeader(pos::PixelConfigKey key, int version, std::string path, std::ofstream *out) const {;}
+    virtual void writeXML(                                                              std::ofstream *out) const  ;
+    virtual void writeXMLTrailer(                                                       std::ofstream *out) const {;}
 
     void getDACs(std::vector<unsigned int>& dacs) const;
     void getDACs(std::map<std::string, unsigned int>& dacs) const;

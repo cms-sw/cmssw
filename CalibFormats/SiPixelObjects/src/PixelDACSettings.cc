@@ -363,6 +363,66 @@ void PixelDACSettings::writeASCII(std::string dir) const {
 }
 
 //=============================================================================================
+void PixelDACSettings::writeXMLHeader(pos::PixelConfigKey key, int version, std::string path, std::ofstream *out) const {
+  std::string mthn = "[PixelDACSettings::writeXMLHeader()]\t\t\t    " ;
+  std::stringstream fullPath ;
+
+  fullPath << path << "/dacsettings.xml" ;
+  std::cout << mthn << "Writing to: |" << fullPath.str()  << "|" << std::endl ;
+
+  out->open(fullPath.str().c_str()) ;
+  
+  *out << "<?xml version='1.0' encoding='UTF-8' standalone='yes'?>"		         	  << std::endl ;
+  *out << "<ROOT xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>" 	         	  << std::endl ;
+  *out << " <HEADER>"										  << std::endl ;
+  *out << "  <TYPE>"										  << std::endl ;
+  *out << "   <EXTENSION_TABLE_NAME>ROC_DAC_SETTINGS_COL</EXTENSION_TABLE_NAME>"		  << std::endl ;
+  *out << "   <NAME>ROC DAC Settings Col</NAME>"						  << std::endl ;
+  *out << "  </TYPE>"										  << std::endl ;
+  *out << "  <RUN>"										  << std::endl ;
+  *out << "   <RUN_TYPE>test</RUN_TYPE>"							  << std::endl ;
+  *out << "   <RUN_NUMBER>1</RUN_NUMBER>"							  << std::endl ;
+  *out << "   <RUN_BEGIN_TIMESTAMP>" << PixelTimeFormatter::getTime() << "</RUN_BEGIN_TIMESTAMP>" << std::endl ;
+  *out << "   <COMMENT_DESCRIPTION>Test of DAC Settings xml</COMMENT_DESCRIPTION>"		  << std::endl ;
+  *out << "   <LOCATION>CERN TAC</LOCATION>"							  << std::endl ;
+  *out << "   <INITIATED_BY_USER>Dario Menasce</INITIATED_BY_USER>"				  << std::endl ;
+  *out << "  </RUN>"										  << std::endl ;
+  *out << " </HEADER>"  									  << std::endl ;
+  *out << ""											  << std::endl ;
+  *out << " <DATA_SET>" 									  << std::endl ;
+  *out << "  <VERSION>" << version << "</VERSION>"						  << std::endl ;
+  *out << " "											  << std::endl ;
+  *out << "  <PART>"										  << std::endl ;
+  *out << "   <NAME_LABEL>CMS-PIXEL-ROOT</NAME_LABEL>"  					  << std::endl ;
+  *out << "   <KIND_OF_PART>Detector ROOT</KIND_OF_PART>"					  << std::endl ;
+  *out << "  </PART>"										  << std::endl ;
+  *out << " "                                                                       		  << std::endl ;
+
+  std::cout << mthn << "Header written" << std::endl ;
+}
+
+//=============================================================================================
+void PixelDACSettings::writeXML( std::ofstream *out) const {
+  std::string mthn = "[PixelDACSettings::writeXML()]\t\t\t    " ;
+
+  for(unsigned int i=0;i<dacsettings_.size();i++){
+    dacsettings_[i].writeXML(out);
+  }
+}
+
+//=============================================================================================
+void PixelDACSettings::writeXMLTrailer(std::ofstream *out) const {
+  std::string mthn = "[PixelDACSettings::writeXMLTrailer()]\t\t\t    " ;
+
+  *out << " </DATA_SET>"              << std::endl ;
+  *out << "</ROOT>"                   << std::endl ;
+
+  std::cout << mthn << "Closing input stream" << std::endl ;
+  out->close() ;
+  std::cout << mthn << "Data written" << std::endl ;
+}
+
+//=============================================================================================
 void PixelDACSettings::writeXML(pos::PixelConfigKey key, int version, std::string path) const {
   std::string mthn = "[PixelDACSettings::writeXML()]\t\t\t    " ;
   std::stringstream fullPath ;
@@ -401,12 +461,14 @@ void PixelDACSettings::writeXML(pos::PixelConfigKey key, int version, std::strin
   out << " "                                                                       		 << std::endl ;
 
   for(unsigned int i=0;i<dacsettings_.size();i++){
-    dacsettings_[i].writeXML(out, key, version, path);
+//    dacsettings_[i].writeXML(out, key, version, path);
   }
 
   out << " </DATA_SET>"                                                                          << std::endl ;
   out << "</ROOT>"                                                                               << std::endl ;
 
+  out.close() ;
+  std::cout << mthn << "Data written"                                                            << std::endl ;
 }
 
 //=============================================================================================
