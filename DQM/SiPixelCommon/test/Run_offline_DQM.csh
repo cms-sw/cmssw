@@ -166,7 +166,7 @@ endif
 
 	
 	if($calibtype == "PixelAlive" || $calibtype == "SCurve" || $calibtype == "GainCalibration") then
-	    set tagnumber = $calibtype$rundefault	    
+	    set tagnumber = $calibtype$runnumber	    
 	else
 	    set tagnumber = "PixelAlive_default"
 	    echo "No calibrations detected for file ${filename}, using default tag"
