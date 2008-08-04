@@ -1,8 +1,8 @@
 #include "DQMServices/Components/src/DQMFileSaver.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-// #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
-// #include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/GetReleaseVersion.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -205,14 +205,17 @@ DQMFileSaver::beginJob(const edm::EventSetup &)
 }
 
 void
-DQMFileSaver::beginRun(const edm::Run &, const edm::EventSetup &)
+DQMFileSaver::beginRun(const edm::Run &r, const edm::EventSetup &)
 {
+  irun_     = (forceRunNumber_ == -1 ? r.id().run() : forceRunNumber_);
   ++nrun_;
 }
 
 void
-DQMFileSaver::beginLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &)
+DQMFileSaver::beginLuminosityBlock(const edm::LuminosityBlock &l, const edm::EventSetup &)
 {
+  ilumi_    = l.id().luminosityBlock();
+  if (ilumiprev_ == -1) ilumiprev_ = ilumi_;
   ++nlumi_;
 }
 
@@ -220,12 +223,7 @@ void DQMFileSaver::analyze(const edm::Event &e, const edm::EventSetup &)
 {
   ++nevent_;
 
-  // Get event parameters.
-  irun_     = (forceRunNumber_ == -1 ? e.id().run() : forceRunNumber_);
-  ilumi_    = e.luminosityBlock();
   ievent_   = e.id().event();
-  if (ilumiprev_ == -1)
-    ilumiprev_ = ilumi_;
 
   // Check if we should save for this event.
   char suffix[64];
