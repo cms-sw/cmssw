@@ -159,7 +159,7 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
   MonitorElement *RCT_QHist = dbe_->get("L1T/L1TRCT/RctNonIsoEmOccEtaPhi");
   MonitorElement *GMT_QHist = dbe_->get("L1T/L1TGMT/GMT_etaphi");
   MonitorElement *CSCTF_QHist = dbe_->get("L1T/L1TCSCTF/CSCTF_occupancies");
-  MonitorElement *DTTF_QHist = dbe_->get("L1T/L1TDTTF/DTTF_TRACKS/INTEG/Occupancy_Summary");
+  MonitorElement *DTTF_QHist = dbe_->get("L1T/L1TDTTF/DTTF_TRACKS/INTEG/Occupancy Summary");
   
   int nSubsystems = 20;
   for (int k = 0; k < nSubsystems; k++) {
