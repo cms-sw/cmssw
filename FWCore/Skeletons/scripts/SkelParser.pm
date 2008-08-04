@@ -64,7 +64,7 @@ BEGIN {
     # set the version for version checking
     $VERSION     = 1.00;
     # if using RCS/CVS, this may be preferred
-    $VERSION = sprintf "%d.%03d", q$Revision: 1.6 $ =~ /(\d+)/g;
+    $VERSION = sprintf "%d.%03d", q$Revision: 1.7 $ =~ /(\d+)/g;
     
     @ISA         = qw(Exporter);
     @EXPORT      = qw(&copy_file &make_file &grandparent_parent_dir &mk_package_structure &find_mkTemplate_dir);
@@ -224,19 +224,13 @@ if (-s "$outfile") {
        $author = "$author1 $author2";
     }
 #
-# if author is still blank fill it in with REAL LIFE name in finger output
+# if author is still blank fill it in with REAL LIFE name
 #
     if ($author1 eq "") {
-       $author1 = $ENV{"LOGNAME"};
-       foreach $_ (`finger -m -s "$author1"`) {
-	  if (/$ENV{"LOGNAME"}\s\w*/) {
-	     @words = split(/\s{2,}/, $_);
-	     $author = $words[1];
-	     chomp($author);
-	     $afrom = "the output finger cmnd";
-	     last;
-	  }
-       }
+	@words = getpwnam(getlogin());
+	$author = $words[6];
+	chomp($author);
+	$afrom = "the gcos entry";
     }
 #   write out some stuff to the screen
     print "  I: using skeleton: $skeleton \n";
