@@ -39,9 +39,6 @@ process.load("PhysicsTools.PatAlgos.patLayer1_cff")
 # input pat skeleton analyzer sequence
 process.load("PhysicsTools.StarterKit.PatAnalyzerSkeleton_cfi")
 
-# load the pat layer 1 event content
-process.load("PhysicsTools.PatAlgos.patLayer1_EventContent_cff")
-
 # talk to TFileService for output histograms
 process.TFileService = cms.Service("TFileService",
     fileName = cms.string('PatAnalyzerSkeletonHistos.root')
@@ -51,6 +48,10 @@ process.TFileService = cms.Service("TFileService",
 process.p = cms.Path(process.patLayer0*
                      process.patLayer1*
                      process.patAnalyzerSkeleton)
+
+
+# load the pat layer 1 event content
+process.load("PhysicsTools.PatAlgos.patLayer1_EventContent_cff")
 
 # setup event content: drop everything before PAT
 process.patEventContent = cms.PSet(
