@@ -1,5 +1,5 @@
 // -*-c++-*-
-// $Id: HLTPerformanceInfo.h,v 1.12 2008/07/24 19:32:56 wittich Exp $
+// $Id: HLTPerformanceInfo.h,v 1.13 2008/07/30 09:35:08 wittich Exp $
 #ifndef HLTPERFORMANCEINFO_H
 #define HLTPERFORMANCEINFO_H
 
@@ -101,7 +101,7 @@ public:
       return moduleView_.begin();
     }
     ModulesInPath::const_iterator end() {
-      return moduleView_.begin();
+      return moduleView_.end();
     }
     size_t getModuleIndex(size_t j) const {
       return moduleView_.at(j);
@@ -159,9 +159,9 @@ public:
   }
 
   // non-const?
-  Module & getModuleOnPath(size_t m, size_t p);
-  const Module & getModule(size_t m) { return modules_.at(m); }
-  const Path & getPath(size_t p) { return paths_.at(p); }
+  const Module & getModuleOnPath(size_t m, size_t p) const ;
+  const Module & getModule(size_t m) const { return modules_.at(m); }
+  const Path & getPath(size_t p) const { return paths_.at(p); }
 
 
   // find a module, given its name.

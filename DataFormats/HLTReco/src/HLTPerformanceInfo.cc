@@ -1,7 +1,8 @@
-// $Id: HLTPerformanceInfo.cc,v 1.14 2008/07/24 19:32:30 wittich Exp $
+// $Id: HLTPerformanceInfo.cc,v 1.15 2008/07/30 09:35:08 wittich Exp $
 
 #include "DataFormats/Common/interface/HLTenums.h"
 #include "DataFormats/HLTReco/interface/HLTPerformanceInfo.h"
+#include <iostream>
 
 HLTPerformanceInfo::HLTPerformanceInfo() {
   paths_.clear(); modules_.clear();
@@ -126,8 +127,8 @@ const char* HLTPerformanceInfo::longestModuleCPUTimeName() const
 //   return -1 ; 
 // }
 
-HLTPerformanceInfo::Module & HLTPerformanceInfo::getModuleOnPath(size_t m, 
-								 size_t p)
+const HLTPerformanceInfo::Module & HLTPerformanceInfo::getModuleOnPath(size_t m, 
+                                                                       size_t p) const 
 {
   // well if this doesn't get your attention....
   assert(p<paths_.size()&& m<paths_[p].numberOfModules());
@@ -156,9 +157,10 @@ int HLTPerformanceInfo::moduleIndexInPath(const char *mod, const char *path)
 {
   PathList::iterator p = findPath(path);
   if ( p == endPaths() ) return -1; // Path doesn't exist
+  int ctr = 0 ; 
   for ( ModulesInPath::const_iterator j = p->begin(); j != p->end(); ++j ) {
-    if ( modules_.at(p->getModuleIndex(*j)) == mod ) 
-      return *j;
+      if ( modules_.at(*j) == mod ) return ctr ; 
+      ctr++ ; 
   }
   return -2; // module not found on path
 }
@@ -179,22 +181,21 @@ void HLTPerformanceInfo::setStatusOfModulesFromPath(const char *pathName)
     unsigned int modIndex = 0 ; 
 
     // get module in the master list
-    Module & mod = modules_.at(p->getModuleIndex(*j));
-    // we have already set this in a previous pass
-    if ( ! mod.status().wasrun()  ) 
-      continue;
-
-    if (p->status().accept()) {
-      modState = edm::hlt::Pass ;
-    } else {
-      if ( p->status().index() > ctr ) {
-	modState = edm::hlt::Pass ; 
-      } else if ( p->status().index() == ctr ) {
-	modState = p->status().state() ; 
-      }
+    Module & mod = modules_.at(*j);
+    
+    if ( ! mod.status().wasrun() ) {
+        if (p->status().accept()) {
+            modState = edm::hlt::Pass ;
+        } else {
+            if ( p->status().index() > ctr ) {
+                modState = edm::hlt::Pass ; 
+            } else if ( p->status().index() == ctr ) {
+                modState = p->status().state() ; 
+            }
+        }
+        mod.setStatus(edm::HLTPathStatus(modState,modIndex)) ;
     }
-    mod.setStatus(edm::HLTPathStatus(modState,modIndex)) ;
-
+    ctr++ ; 
   }
   
 }
