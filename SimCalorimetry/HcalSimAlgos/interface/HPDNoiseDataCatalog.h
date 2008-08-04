@@ -5,16 +5,14 @@
 // Object to store HPD instance name and noise rate for the instance
 // Project: HPD noise library
 // Author: F.Ratnikov UMd, Jan. 15, 2008
-// $Id: HPDNoiseDataCatalog.h,v 1.2 2008/01/17 23:35:52 fedor Exp $
+// $Id: HPDNoiseDataCatalog.h,v 1.3 2008/07/21 18:30:03 tyetkin Exp $
 // --------------------------------------------------------
 
 #include <iostream>
 #include <vector>
 #include <string>
 
-#include "TObject.h"
-
-class HPDNoiseDataCatalog : public TObject {
+class HPDNoiseDataCatalog {
  public:
   HPDNoiseDataCatalog () {}
   virtual ~HPDNoiseDataCatalog ();
@@ -41,6 +39,10 @@ class HPDNoiseDataCatalog : public TObject {
   const std::string& getName (size_t i) const {return mHpdName[i];}
   /// set discharge/IonFeedback/Electron emission noise rates
   void setRate (const std::string& fName, float fDischargeRate, float fIonFeedbackFirstPeakRate, float fIonFeedbackSecondPeakRate, float fElectronEmissionRate);
+  /// class name
+  static const char* className () {return "HPDNoiseDataCatalog";}
+  /// object name
+  static const char* objectName () {return "catalog";}
  private:
   std::vector<std::string> mHpdName;
   std::vector<float> mDischargeRate;//HPD discharge rate
@@ -48,7 +50,6 @@ class HPDNoiseDataCatalog : public TObject {
   std::vector<float> mIonFeedbackSecondPeakRate;//HPD ion feedback rate
   std::vector<float> mElectronEmissionRate;//HPD thermal electron emission rate
 
-  ClassDef(HPDNoiseDataCatalog,1)
 };
 
 /// printout

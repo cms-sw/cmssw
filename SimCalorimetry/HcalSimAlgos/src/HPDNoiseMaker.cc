@@ -2,7 +2,7 @@
 // Engine to store HPD noise events in the library
 // Project: HPD noise library
 // Author: F.Ratnikov UMd, Jan. 15, 2008
-// $Id: HPDNoiseMaker.cc,v 1.3 2008/07/15 01:49:03 fedor Exp $
+// $Id: HPDNoiseMaker.cc,v 1.4 2008/07/21 18:30:03 tyetkin Exp $
 // --------------------------------------------------------
 
 #include "SimCalorimetry/HcalSimAlgos/interface/HPDNoiseMaker.h"
@@ -23,12 +23,11 @@ HPDNoiseMaker::HPDNoiseMaker (const std::string& fFileName) {
 }
 
 HPDNoiseMaker::~HPDNoiseMaker () {
-  mFile->cd();  
   for (size_t i = 0; i < mTrees.size(); ++i) {
     mTrees[i]->Write();
     delete mTrees[i];
   }
-  mCatalog->Write();
+  mFile->WriteObject (mCatalog, HPDNoiseDataCatalog::objectName ());
   delete mCatalog;
   delete mFile;
 }
@@ -40,7 +39,7 @@ int HPDNoiseMaker::addHpd (const std::string& fName) {
   mNames.push_back (fName);
   mTrees.push_back (new TTree (fName.c_str(), fName.c_str()));
   HPDNoiseData* addr = 0;
-  TBranch* newBranch = mTrees.back()->Branch ("HPDNoiseData", "HPDNoiseData", &addr, 32000, 1);
+  TBranch* newBranch = mTrees.back()->Branch (HPDNoiseData::branchName(), HPDNoiseData::className(), &addr, 32000, 1);
   if (!newBranch) {
     std::cerr << "HPDNoiseMaker::addHpd-> Can not make branch HPDNoiseData to the tree " << fName << std::endl;
   }
@@ -64,13 +63,14 @@ void HPDNoiseMaker::newHpdEvent (const std::string& fName, const HPDNoiseData& f
 void HPDNoiseMaker::newHpdEvent (size_t i, const HPDNoiseData& fData) {
   if (i < mTrees.size()) {
     HPDNoiseData* data = (HPDNoiseData*) &fData;
-    TBranch* branch = mTrees[i]->GetBranch ("HPDNoiseData");
+    TBranch* branch = mTrees[i]->GetBranch (HPDNoiseData::branchName());
     if (branch) {
-      mTrees[i]->GetBranch ("HPDNoiseData")->SetAddress(&data);
+      branch->SetAddress(&data);
       mTrees[i]->Fill();
     }
     else {
-      std::cerr << "HPDNoiseMaker::newHpdEvent-> Can not find branch HPDNoiseData in the tree" << std::endl;
+      std::cerr << "HPDNoiseMaker::newHpdEvent-> Can not find branch " << HPDNoiseData::branchName() 
+		<< " in the tree" << std::endl;
     }
   }
 }

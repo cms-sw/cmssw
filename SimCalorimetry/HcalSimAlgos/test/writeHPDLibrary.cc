@@ -1,7 +1,10 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HPDNoiseMaker.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HPDNoiseData.h"
+#include <Cintex/Cintex.h>
 
 int main () {
+  ROOT::Cintex::Cintex::Enable();
+
   HPDNoiseMaker maker ("hpdNoiseLibrary.root");
 
   maker.addHpd ("HPD01");

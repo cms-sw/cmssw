@@ -3,8 +3,11 @@
 
 #include <iostream>
 #include "TClass.h"
+#include <Cintex/Cintex.h>
 
 int main () {
+  ROOT::Cintex::Cintex::Enable();
+  
   HPDNoiseReader reader ("hpdNoiseLibrary.root");
   std::vector <std::string> names = reader.allNames ();
   for (size_t i = 0; i < names.size(); ++i) {
