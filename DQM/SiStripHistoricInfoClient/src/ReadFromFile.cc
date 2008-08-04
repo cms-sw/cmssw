@@ -87,16 +87,16 @@ void ReadFromFile::endRun(const edm::Run& run , const edm::EventSetup& iSetup)
     }
     vSummary.back()->setUserDBContent(userDBContent);
     
-    std::cout << "QUANTITIES TO BE INSERTED IN DB : " << std::endl;
+    edm::LogInfo("SiStripSummary") << "QUANTITIES TO BE INSERTED IN DB : " << std::endl;
 
     std::vector<std::string> userDBContentA = vSummary.back()->getUserDBContent();
     for (size_t i=0;i<userDBContentA.size();++i){
-      std::cout << userDBContentA[i]<< std::endl;
+      edm::LogInfo("SiStripSummary") << userDBContentA[i]<< std::endl;
     }
 
 
     //*FILL SUMMARY*//
-    std::cout << "\n STARTING TO FILL OBJECT " << std::endl;
+    edm::LogInfo("SiStripSummary") << "\n STARTING TO FILL OBJECT " << std::endl;
     ithistoList = histoList.begin();
     for(; ithistoList != ithistoListEnd; ++ithistoList ) {
       std::string histoName = ithistoList->getUntrackedParameter<std::string>("Name");
@@ -140,7 +140,7 @@ void ReadFromFile::scanTreeAndFillSummary(std::string top_dir, SiStripSummary* s
       SiStripSummary::InputVector values;
       std::vector<std::string> userDBContent;
       
-      std::cout << "\n-----------------------------\nFound compatible ME " << me_name << " " << histoName << std::endl;
+      edm::LogInfo("SiStripSummary") << "\n-----------------------------\nFound compatible ME " << me_name << " " << histoName << std::endl;
       
       for(size_t i=0;i<Quantities.size();++i){
 	
@@ -179,8 +179,8 @@ void ReadFromFile::scanTreeAndFillSummary(std::string top_dir, SiStripSummary* s
      
       
       for(size_t i=0;i<values.size();++i)
-      std::cout << "Quantity " << userDBContent[i] << " value " << values[i] << std::endl;
-      std::cout << std::endl;
+      edm::LogInfo("SiStripSummary") << "Quantity " << userDBContent[i] << " value " << values[i] << std::endl;
+      edm::LogInfo("SiStripSummary") << std::endl;
       
       summary->put(returnDetComponent(me_name),values,userDBContent);
     }
