@@ -20,6 +20,7 @@ class CSCDCCHeader {
   int getCDFFOV() const;
   int getCDFEventType() const;
   int getCDFBunchCounter() const; 
+  void setDAV(int dduSlot);
   bool check() const { return true/*dcc_code1==0xD9 && dcc_code2==0x97*/;}
   unsigned short * data() {return (short unsigned *)word;}
   static unsigned sizeInWords() {return 8;}
