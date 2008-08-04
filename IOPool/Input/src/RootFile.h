@@ -132,7 +132,7 @@ namespace edm {
     bool selected(BranchDescription const& desc) const;
 
     template <typename T>
-    boost::shared_ptr<BranchMapper<T> > makeBranchMapper(RootTree & rootTree, BranchType const& type, std::vector<T> *&) const;
+    boost::shared_ptr<BranchMapper<T> > makeBranchMapper(RootTree & rootTree, BranchType const& type) const;
 
     std::string const file_;
     std::string const logicalFile_;
@@ -162,12 +162,6 @@ namespace edm {
     EventAuxiliary eventAux_;
     LuminosityBlockAuxiliary lumiAux_;
     RunAuxiliary runAux_;
-    EventEntryInfoVector            eventEntryInfoVector_;
-    LumiEntryInfoVector	            lumiEntryInfoVector_;
-    RunEntryInfoVector              runEntryInfoVector_;
-    EventEntryInfoVector *          pEventEntryInfoVector_;
-    LumiEntryInfoVector *           pLumiEntryInfoVector_;
-    RunEntryInfoVector *            pRunEntryInfoVector_;
     RootTree eventTree_;
     RootTree lumiTree_;
     RootTree runTree_;
@@ -185,9 +179,9 @@ namespace edm {
 
   template <typename T>
   boost::shared_ptr<BranchMapper<T> >
-  RootFile::makeBranchMapper(RootTree & rootTree, BranchType const& type, std::vector<T> *& pEntryInfoVector) const {
+  RootFile::makeBranchMapper(RootTree & rootTree, BranchType const& type) const {
     if (fileFormatVersion_.value_ >= 8) {
-      return rootTree.makeBranchMapper<T>(pEntryInfoVector);
+      return rootTree.makeBranchMapper<T>();
     } 
     // backward compatibility
     boost::shared_ptr<BranchMapper<T> > mapper(new BranchMapper<T>);

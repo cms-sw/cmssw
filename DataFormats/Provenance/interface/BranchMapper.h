@@ -26,7 +26,9 @@ namespace edm {
   public:
     BranchMapper();
 
-    ~BranchMapper() {}
+    explicit BranchMapper(bool delayedRead);
+
+    virtual ~BranchMapper() {}
 
     void write(std::ostream& os) const;
 
@@ -38,7 +40,11 @@ namespace edm {
 
     void mergeMappers(boost::shared_ptr<BranchMapper<T> > other) {nextMapper_ = other;}
 
+
   private:
+    void readProvenance() const;
+    virtual void readProvenance_() const {}
+
     typedef typename std::set<T> eiSet;
     typedef typename std::map<ProductID, typename eiSet::const_iterator> eiMap;
 
@@ -47,6 +53,8 @@ namespace edm {
     eiMap entryInfoMap_;
 
     boost::shared_ptr<BranchMapper<T> > nextMapper_;
+
+    mutable bool delayedRead_;
 
   };
   
@@ -59,15 +67,38 @@ namespace edm {
   }
 
   template <typename T>
+  inline
   BranchMapper<T>::BranchMapper() :
     entryInfoSet_(),
     entryInfoMap_(),
-    nextMapper_()
+    nextMapper_(),
+    delayedRead_(false)
   { }
 
   template <typename T>
+  inline
+  BranchMapper<T>::BranchMapper(bool delayedRead) :
+    entryInfoSet_(),
+    entryInfoMap_(),
+    nextMapper_(),
+    delayedRead_(delayedRead)
+  { }
+
+  template <typename T>
+  inline
+  void
+  BranchMapper<T>::readProvenance() const {
+    if (delayedRead_) {
+      delayedRead_ = false;
+      readProvenance_();
+    }
+  }
+
+  template <typename T>
+  inline
   void
   BranchMapper<T>::insert(T const& entryInfo) {
+    readProvenance();
     entryInfoSet_.insert(entryInfo);
     if (!entryInfoMap_.empty()) {
       entryInfoMap_.insert(std::make_pair(entryInfo.productID(), entryInfoSet_.find(entryInfo)));
@@ -75,8 +106,10 @@ namespace edm {
   }
     
   template <typename T>
+  inline
   boost::shared_ptr<T>
   BranchMapper<T>::branchToEntryInfo(BranchID const& bid) const {
+    readProvenance();
     T ei(bid);
     typename eiSet::const_iterator it = entryInfoSet_.find(ei);
     if (it == entryInfoSet_.end()) {
@@ -91,18 +124,28 @@ namespace edm {
 
 /*
   template <typename T>
+  inline
   ProductID 
   BranchMapper<T>::branchToProduct(BranchID const& bid) const {
+    readProvenance();
     T ei(bid);
     typename eiSet::const_iterator it = entryInfoSet_.find(ei);
-    if (it == entryInfoSet_.end()) return ProductID();
+    if (it == entryInfoSet_.end()) {
+      if (nextMapper_) {
+	return nextMapper_->branchToProduct(bid);
+      } else {
+	return ProductID();
+      }
+    }
     return it->productID();
   }
 */
 
   template <typename T>
+  inline
   BranchID 
   BranchMapper<T>::productToBranch(ProductID const& pid) const {
+    readProvenance();
     if (entryInfoMap_.empty()) {
       eiMap & map = const_cast<eiMap &>(entryInfoMap_);
       for (typename eiSet::const_iterator i = entryInfoSet_.begin(), iEnd = entryInfoSet_.end();
@@ -111,7 +154,13 @@ namespace edm {
       }
     }
     typename eiMap::const_iterator it = entryInfoMap_.find(pid);
-    if (it == entryInfoMap_.end()) return BranchID();
+    if (it == entryInfoMap_.end()) {
+      if (nextMapper_) {
+	return nextMapper_->productToBranch(pid);
+      } else {
+	return BranchID();
+      }
+    }
     return it->second->branchID();
   }
 

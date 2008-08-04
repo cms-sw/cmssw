@@ -18,7 +18,7 @@ RootTree.h // used by ROOT input sources
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
 #include "DataFormats/Provenance/interface/EventEntryInfo.h"
 #include "DataFormats/Provenance/interface/BranchKey.h"
-#include "DataFormats/Provenance/interface/BranchMapper.h"
+#include "IOPool/Input/src/BranchMapperWithReader.h"
 #include "TBranch.h"
 #include "TTree.h"
 class TFile;
@@ -50,7 +50,7 @@ namespace edm {
     void fillGroups(T& item);
     boost::shared_ptr<DelayedReader> makeDelayedReader() const;
     template <typename T>
-    boost::shared_ptr<BranchMapper<T> > makeBranchMapper(std::vector<T> *&) const;
+    boost::shared_ptr<BranchMapper<T> > makeBranchMapper() const;
     //TBranch *auxBranch() {return auxBranch_;}
     template <typename T>
     void fillAux(T *& pAux) const {
@@ -104,16 +104,9 @@ namespace edm {
 
   template <typename T>
   boost::shared_ptr<BranchMapper<T> >
-  RootTree::makeBranchMapper(std::vector<T> *& pEntryInfoVector) const {
+  RootTree::makeBranchMapper() const {
     assert (branchEntryInfoBranch_);
-    boost::shared_ptr<BranchMapper<T> > mapper(new BranchMapper<T>);
-
-    branchEntryInfoBranch_->SetAddress(&pEntryInfoVector);
-    branchEntryInfoBranch_->GetEntry(entryNumber_);
-    for (typename std::vector<T>::const_iterator it = pEntryInfoVector->begin(), itEnd = pEntryInfoVector->end();
-	it != itEnd; ++it) {
-      mapper->insert(*it);
-    }
+    boost::shared_ptr<BranchMapper<T> > mapper(new BranchMapperWithReader<T>(branchEntryInfoBranch_, entryNumber_));
     return mapper;
   }
 
