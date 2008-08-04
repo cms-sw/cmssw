@@ -73,7 +73,7 @@ process.out = cms.OutputModule("PoolOutputModule",
     process.patEventSelection,
     process.patEventContent,
     verbose = cms.untracked.bool(False),
-    fileName = cms.untracked.string('PatAnalyzerKitSkim.root')
+    fileName = cms.untracked.string('PatAnalyzerSkeletonSkim.root')
 )
 
 # define output path

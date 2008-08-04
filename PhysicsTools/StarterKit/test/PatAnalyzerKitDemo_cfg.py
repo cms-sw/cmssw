@@ -41,7 +41,7 @@ process.load("PhysicsTools.StarterKit.PatAnalyzerKit_cfi")
 
 # talk to TFileService for output histograms
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('PatAnalyzerSkeletonHistos.root')
+    fileName = cms.string('PatAnalyzerKitHistos.root')
 )
 
 # define path 'p': PAT Layer 0, PAT Layer 1, and the analyzer
