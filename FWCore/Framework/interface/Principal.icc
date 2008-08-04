@@ -7,7 +7,6 @@
 
 #include "FWCore/Framework/interface/Principal.h"
 #include "DataFormats/Provenance/interface/BranchMapper.h"
-//#include "DataFormats/Provenance/interface/BranchMapperRegistry.h"
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
