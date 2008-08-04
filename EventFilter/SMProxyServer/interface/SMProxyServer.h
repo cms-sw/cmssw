@@ -12,7 +12,7 @@
 
      See CMS EventFilter wiki page for further notes.
 
-   $Id: SMProxyServer.h,v 1.11 2008/06/12 16:07:24 biery Exp $
+   $Id: SMProxyServer.h,v 1.12 2008/06/25 18:06:48 biery Exp $
 */
 
 #include <string>
@@ -95,6 +95,8 @@ namespace stor {
     void headerdataWebPage
       (xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception);
     void consumerWebPage
+      (xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception);
+    void consumerListWebPage
       (xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception);
     void eventServerWebPage
       (xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception);
