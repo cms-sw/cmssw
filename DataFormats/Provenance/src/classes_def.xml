@@ -9,9 +9,7 @@
  <class name="std::basic_string<char>"/>
  <class name="std::vector<std::basic_string<char> >"/>
  <class name="std::set<std::basic_string<char> >"/>
- <class name="edm::EventAuxiliary">
-   <field name="branchMapperID_" transient="true"/>
- </class>
+ <class name="edm::EventAuxiliary"/>
  <class name="edm::History"/>
  <class name="edm::LuminosityBlockAuxiliary"/>
  <class name="edm::RunAuxiliary"/>

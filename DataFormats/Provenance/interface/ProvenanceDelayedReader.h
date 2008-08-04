@@ -1,1 +1,0 @@
-#error ProvenanceDelayedReader is obsolete

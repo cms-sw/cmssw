@@ -3,7 +3,6 @@
 
 #include <iosfwd>
 
-//#include "DataFormats/Provenance/interface/BranchMapperID.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
@@ -29,7 +28,6 @@ namespace edm
     static int const invalidStoreNumber = 0;
     EventAuxiliary() :
 	processHistoryID_(),
-//	branchMapperID_(),
 	id_(),
         processGUID_(),
 	time_(),
@@ -44,7 +42,6 @@ namespace edm
 		   int bunchXing = invalidBunchXing, int storeNumber = invalidStoreNumber,
                    int orbitNum = invalidBunchXing) :
 	processHistoryID_(),
-//	branchMapperID_(),
 	id_(theId),
         processGUID_(theProcessGUID),
 	time_(theTime),
@@ -57,7 +54,6 @@ namespace edm
     ~EventAuxiliary() {}
     void write(std::ostream& os) const;
     ProcessHistoryID& processHistoryID() const {return processHistoryID_;}
-//    BranchMapperID& branchMapperID() const {return branchMapperID_;}
     EventID const& id() const {return id_;}
     std::string const& processGUID() const {return processGUID_;}
     Timestamp const& time() const {return time_;}
@@ -73,7 +69,6 @@ namespace edm
     // most recently process that processed this event
     // is the last on the list, this defines what "latest" is
     mutable ProcessHistoryID processHistoryID_;
-//  mutable BranchMapperID branchMapperID_;
     // Event ID
     EventID id_;
     // Globally unique process ID of process that created event.

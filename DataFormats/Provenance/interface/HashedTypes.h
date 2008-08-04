@@ -12,8 +12,7 @@ namespace edm
       ParameterSetType,
       ProcessHistoryType,
       ProcessConfigurationType,
-      EntryDescriptionType //,
-      // BranchMapperType
+      EntryDescriptionType
   };		     
 }
 

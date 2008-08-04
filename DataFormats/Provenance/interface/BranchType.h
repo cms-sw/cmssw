@@ -54,13 +54,6 @@ namespace edm {
     std::string const& entryDescriptionBranchName();
 
     //------------------------------------------------------------------
-    // BranchMapper Tree
-    std::string const& branchMapperTreeName();
-
-    // Branches on BranchMapper Tree
-    std::string const& branchMapperIDBranchName();
-    std::string const& branchMapperBranchName();
-    //------------------------------------------------------------------
     // MetaData Tree (1 entry per file)
     std::string const& metaDataTreeName();
 
@@ -80,7 +73,6 @@ namespace edm {
 
     // Branches on EventHistory Tree
     std::string const& eventHistoryBranchName();
-    std::string const& eventBranchMapperBranchName();
 
     //------------------------------------------------------------------
     // Other tree names

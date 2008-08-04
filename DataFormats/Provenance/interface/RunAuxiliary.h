@@ -3,7 +3,6 @@
 
 #include <iosfwd>
 
-//#include "DataFormats/Provenance/interface/BranchMapperID.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
@@ -15,26 +14,22 @@ namespace edm
   struct RunAuxiliary {
     RunAuxiliary() :
 	processHistoryID_(),
-//	branchMapperID_(),
 	id_(),
 	beginTime_(),
 	endTime_() {}
     RunAuxiliary(RunID const& theId, Timestamp const& theTime, Timestamp const& theEndTime) :
 	processHistoryID_(),
-//	branchMapperID_(),
 	id_(theId),
 	beginTime_(theTime),
 	endTime_(theEndTime) {}
     RunAuxiliary(RunNumber_t const& run, Timestamp const& theTime, Timestamp const& theEndTime) :
 	processHistoryID_(),
-//	branchMapperID_(),
 	id_(run),
 	beginTime_(theTime),
 	endTime_(theEndTime) {}
     ~RunAuxiliary() {}
     void write(std::ostream& os) const;
     ProcessHistoryID& processHistoryID() const {return processHistoryID_;}
-//    BranchMapperID& branchMapperID() const {return branchMapperID_;}
     RunID const& id() const {return id_;}
     Timestamp const& beginTime() const {return beginTime_;}
     Timestamp const& endTime() const {return endTime_;}
@@ -47,7 +42,6 @@ namespace edm
     // most recent process that processed this run
     // is the last on the list, this defines what "latest" is
     mutable ProcessHistoryID processHistoryID_;
-//    mutable BranchMapperID branchMapperID_;
     // Run ID
     RunID id_;
     // Times from DAQ
