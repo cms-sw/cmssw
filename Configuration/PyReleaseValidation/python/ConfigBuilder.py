@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.59 $"
+__version__ = "$Revision: 1.60 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -53,7 +53,7 @@ class ConfigBuilder(object):
         # TODO: maybe a list of to be dumped objects would help as well        
         self.blacklist_paths = [] 
         self.additionalObjects = []
-        self.additionalOutputs = []
+        self.additionalOutputs = {}
         self.productionFilterSequence = None
 
     def loadAndRemember(self, includeFile):
@@ -121,8 +121,10 @@ class ConfigBuilder(object):
         self.process.output = output
         self.process.out_step = cms.EndPath(self.process.output)
 
-        for item in self.additionalOutputs:
-            self.process.out_step.append(item)
+        # TODO - put at another place 
+        #for item in self.additionalOutputs:
+        #    self.process.out_step.append(item)
+
         self.process.schedule.append(self.process.out_step)
 
         # ATTENTION: major tweaking to avoid inlining of event content
@@ -254,28 +256,27 @@ class ConfigBuilder(object):
 
     def prepare_ALCA(self, sequence = None):
         """ Enrich the process with alca streams """
-        alcaConfig = self.loadAndRemember("Configuration/StandardSequences/AlCaReco_cff")
+        alcaConfig = self.loadAndRemember("Configuration/StandardSequences/AlCaRecoStreams_cff")
 
         # decide which ALCA paths to use
         alcaList = sequence.split("+")
-        alcaPathList = ["pathALCARECO"+name for name in alcaList]
+#        alcaPathList = ["pathALCARECO"+name for name in alcaList]
 
         # put it in the schedule
-        for pathname in alcaConfig.__dict__:
-            if isinstance(getattr(alcaConfig,pathname),cms.Path) and pathname in alcaPathList:
-                self.process.schedule.append(getattr(self.process,pathname))
-            else:
-                self.blacklist_paths.append(pathname)
-        #for name in alcaConfig.__dict__:
-        #    alcastream = getattr(alcaConfig,name)
-        #    if name in alcaList and isinstance(alcastream,alcaConfig.FilteredStream):
-        #        alcaOutput = cms.OutputModule("PoolOutputModule")
-        #        alcaOutput.SelectEvents = alcastream.SelectEvents
-        #        alcaOutput.outputCommands = alcastream.content
-        #        alcaOutput.dataset  = cms.untracked.PSet( dataTier = alcastream.dataTier)
-        #        self.additionalOutputs.append(alcaOutput)
-        #        setattr(self.process,name,alcaOutput) 
-
+        #for pathname in alcaConfig.__dict__:
+        #    if isinstance(getattr(alcaConfig,pathname),cms.Path) and pathname in alcaPathList:
+        #        self.process.schedule.append(getattr(self.process,pathname))
+        #    else:
+        #        self.blacklist_paths.append(pathname)
+        for name in alcaConfig.__dict__:
+            alcastream = getattr(alcaConfig,name)
+            if name in alcaList and isinstance(alcastream,alcaConfig.FilteredStream):
+                alcaOutput = cms.OutputModule("PoolOutputModule")
+                alcaOutput.SelectEvents = alcastream.selectEvents
+                alcaOutput.outputCommands = alcastream.content
+                alcaOutput.dataset  = cms.untracked.PSet( dataTier = alcastream.dataTier)
+                self.additionalOutputs[name] = alcaOutput
+                setattr(self.process,name,alcaOutput) 
         # the schedule insertion is missing for now  
 
     def prepare_GEN(self, sequence = None):
@@ -413,7 +414,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.59 $"),
+              (version=cms.untracked.string("$Revision: 1.60 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
@@ -459,6 +460,11 @@ class ConfigBuilder(object):
         self.pythonCfgCode += "\n# Output definition\n"
         self.pythonCfgCode += "process.output = "+self.process.output.dumpPython()
 
+        # dump all additional outputs (e.g. alca or skim streams)
+	self.pythonCfgCode += "\n# Additional output definition\n"
+	for name, output in self.additionalOutputs.iteritems():
+		self.pythonCfgCode += "process.%s = %s" %(name, output.dumpPython())
+
         # dump all additional commands
         self.pythonCfgCode += "\n# Other statements\n"
         for command in self.additionalCommands:
@@ -496,13 +502,30 @@ class ConfigBuilder(object):
         return
       
 
-def loadReco(process):
-    wb = ConfigBuilder(defaultOptions, process = process)
-    wb._options.step = 'RECO'
-    wb.addStandardSequences()
-    wb.addConditions()
+def promptReco(process, recoOutputModule, aodOutputModule = None):
+    """
+    _promptReco_
+
+    Method to install the standard PromptReco configuration into
+    a basic process containing source and output modules.
+
+    process is the CMS Process instance to be populated
+
+    recoOutputModule is the output module used to write the
+    RECO data tier
+
+    aodOutputModule is the output module used to write
+    the AOD data tier, if this is not none, any AOD sequences
+    should be added.
+    """
+    cb = ConfigBuilder(process)
+    cb._options.step = 'RECO'
+    cb.addStandardSequences()
+    cb.addConditions()
+    #process.load('Configuration.EventContent.EventContent_cff')
+    recoOutputModule.eventContent = process.RECOEventContent
+    if aodOutputModule != None:
+        aodOutputModule.eventContent = process.AODEventContent
     return process
-                    
-      
         
         
