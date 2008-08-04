@@ -1192,14 +1192,17 @@ sub searchPreprocessedFile ()
   while(my $line=<OFILE>)
   {
     chomp $line;
-    if ($ref && ($line=~/^CreateBuildFileScriptVariable_$$\.$$\s+VAR=([^;]+);$/)){$file=$1;next;}
+    if ($ref && ($line=~/^const char\* CreateBuildFileScriptVariable_$$\d+=\"([^"]+)";$/)){$file=$1;next;}
     foreach my $k (keys %search)
     {
-      my $f=$data->{PROD_TYPE_SEARCH_RULES}{$k}{filter};
-      if($line=~/$f/)
+      foreach my $f (keys %{$data->{PROD_TYPE_SEARCH_RULES}{$k}{filter}})
       {
-	$data->{PROD_TYPE_SEARCH_RULES}{$k}{file}=$file;
-	delete $search{$k};
+        if($line=~/$f/)
+        {
+	  $data->{PROD_TYPE_SEARCH_RULES}{$k}{file}=$file;
+	  delete $search{$k};
+	  last;
+        }
       }
     }
     if(scalar(keys %search)==0){last;}
@@ -1219,17 +1222,56 @@ sub generatePreprocessedCXX ()
     my $cflags=$data->{compileflags}." ".$xflags;
     my $tmpdir=&getTmpDir();
     my $ofile="${tmpdir}/preprocessed.$$";
-    my $fname=""; my $xincs=();
+    my $fname="${ofile}.cc";
+    my $xincs={};
     if (ref($file) eq "ARRAY")
     {
-      $fname="${tmpdir}/preprocessed.$$.cc";
       foreach my $f (@$file){$xincs->{dirname($f)}=1;}
       $xincs=join(" -I",keys %$xincs);
-      system("touch $fname; for f in ".join(" ",@$file)."; do echo \"CreateBuildFileScriptVariable_$$.$$ VAR=\$f;\" >> $fname; cat \$f >> $fname; done");
+      system("touch $fname; x=0; for f in ".join(" ",@$file)."; do echo \"const char* CreateBuildFileScriptVariable_$$\$x=\\\"\$f\\\";\" >> $fname; cat \$f >> $fname; x=`expr \$x + 1`; done");
     }
-    else{$fname=$file;}
-    if(system("$compilecmd -I$xincs $cflags -E -o $ofile $fname")==0){return $ofile;}
-    system("rm -rf $tmpdir");
+    else{system("cp $file $fname");}
+    my @output=`$compilecmd -I$xincs $cflags -E -o $ofile $fname 2>&1`;
+    my $err=$?;
+    if ($err==0){return $ofile;}
+    my %incs=();
+    foreach my $l (@output)
+    {
+      chomp $l;
+      print STDERR "$l\n";
+      if ($l=~/:\s*([^\s:]+)\s*:\s*No such file or directory\s*$/i){$incs{$1}=1;}
+    }
+    if (scalar(keys %incs)>0)
+    {
+      my $iref;my $oref;
+      if (open($iref,$fname))
+      {
+        if (open($oref,">${fname}.new"))
+        {
+          while(my $line=<$iref>)
+	  {
+	    chomp $line;
+	    if ($line=~/^\s*#\s*include\s*(<|")([^>"]+)(>|")/)
+	    {
+	      if (exists $incs{$2})
+	      {
+	        $line="//$line";
+		print STDERR "Commecting out: $2\n";
+	      }
+	    }
+	    print $oref "$line\n";
+	  }
+          close($oref);
+        }
+        close($iref);
+	if (-f "${fname}.new")
+	{
+	  system("cp ${fname}.new $fname");
+	  if(system("$compilecmd -I$xincs $cflags -E -o $ofile $fname")==0){return $ofile;}
+	}
+      }
+    }
+    return $fname;
   }
   return "";
 }

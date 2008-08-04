@@ -36,17 +36,26 @@ sub process ()
   my $xml=shift || 0;
   if(!-d $dir){return;}
   my %bfs=();
+  my $timestamp=0;
   foreach my $file (&SCRAMGenUtils::readDir("$dir",0))
   {
     my $fpath="${dir}/${file}";
     if(-d $fpath){&process($fpath,$xml);}
+    elsif($file=~/^BuildFile(.xml|)\.auto$/){my @s=stat("${dir}/${file}");$timestamp=$s[9];}
     elsif($file=~/^(.+?)BuildFile(\.xml|)\.auto$/)
     {
       if($2 eq ".xml"){$xml=1;}
-      $bfs{$file}=0;
+      my @s=stat("${dir}/${file}");
+      $bfs{$file}=$s[9];
     }
   }
   if(scalar(keys %bfs)==0){return;}
+  if ($timestamp)
+  {
+    my $new=0;
+    foreach my $f (keys %bfs){if ($timestamp <= $bfs{$f}){$new=1;last;}}
+    if (!$new){return;}
+  }
   print "Working on $dir\n";
   my %commontools=();
   if($common)
@@ -125,6 +134,8 @@ sub process ()
     close($infile);
   }
   close($outfile);
+  my @s=stat($mbf);
+  utime($s[9]+1,$s[9]+1,$mbf);
 }
 	      
 sub usage_msg() 

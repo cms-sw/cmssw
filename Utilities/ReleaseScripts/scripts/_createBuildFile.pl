@@ -334,7 +334,7 @@ if($isPackage || ($prodtype eq "library"))
     }
   }
 }
-
+my $fullpath=&findProductInRelease($prodname);
 print STDERR "Reading source files\n";
 my $srcfiles=[];
 foreach my $file (@files)
@@ -357,7 +357,7 @@ if (scalar(@$srcfiles)>0)
   }
 }
 foreach my $file (@files){&process_cxx_file ($file,$data);}
-my $bindeps=&getBinaryDependency($prodname);
+my $bindeps=&getBinaryDependency($prodname,$fullpath);
 my $tid=&SCRAMGenUtils::startTimer ();
 wait();
 print STDERR "WAIT TIME:",&SCRAMGenUtils::stopTimer($tid),"\n";
@@ -400,6 +400,11 @@ my $pack=$dir;
 $pack=~s/^$release\/src\///;
 if($detail && $srcplugin){print STDERR "SealPlugin:$prodname:$srcplugin\n";}
 if($detail && $srcedmplugin){print STDERR "EDMPlugin:$prodname:$srcedmplugin\n";}
+if ($fullpath && ($fullpath=~/\/plugin.+\.so$/) && (($srcedmplugin eq "") || ($srcplugin)))
+{
+  $srcedmplugin="(forced to be an EDM plugin as its build as EDM plugin in release)";
+  $srcplugin="";
+}
 
 if($fortrancode){foreach my $t ("pythia6","genser"){if (exists $cache->{TOOLS}{$t}){$data->{deps}{src}{$t}=1;}}}
 if($plugin==-1)
@@ -619,8 +624,8 @@ sub extraProcessing ()
 sub getBinaryDependency()
 {
   my $p1=shift;
+  my $p=shift;
   my $ts={};
-  my $p=&findProductInRelease($p1);
   if ($p eq ""){print STDERR "WARNING: Could not find product:$p1\n";return $ts;}
   my $res=&parentCommunication("SYMBOL_CHECK_REQUEST",$p);
   if ($res ne "")
