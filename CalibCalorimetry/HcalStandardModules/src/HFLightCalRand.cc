@@ -4,6 +4,7 @@
 // and HF performance based on this analysis
 //
 // Igor Vodopiyanov. Oct-2007
+// Thanks G.Safronov, M.Mohammadi, F.Ratnikov
 //
 #include <memory>
 #include <string>
@@ -139,14 +140,15 @@ void HistSpec(TH1F* hist, Double_t &mean, Double_t &rms, Double_t range=4) {
 }
 
 Double_t Fit3Peak(Double_t *x, Double_t *par) { 
-// Spectra fit function: Pedestal Gaussian + asymmetric 1PE and 2PE peaks
+// Spectra fit function: Pedestal Gaussian + asymmetric 1PE + 2PE +3PE peaks
 
-  Double_t sum,xx,A0,C0,r0,sigma0,mean1,sigma1,A1,C1,r1,mean2,sigma2,A2,C2,r2;
-  const Double_t k0=2.0,k1=1.0, k2=1.2;
+  Double_t sum,xx,A0,C0,r0,sigma0,mean1,sigma1,A1,C1,r1,mean2,sigma2,A2,C2,r2,mean3,sigma3,A3,C3,r3;
+
+  const Double_t k0=2.0,k1=1.5, k2=2.0;
 
   xx=x[0];
   sigma0 = par[2];
-  A0 = 2*NEvents/(2+2*par[0]+par[0]*par[0]);
+  A0 = 2*NEvents/(2+2*par[0]+par[0]*par[0]+par[0]*par[0]*par[0]/3);
   r0 = ((xx-par[1])/sigma0);
   C0 = 1/(sigma0* TMath::Exp(-k0*k0/2)/k0 +
 	  sigma0*sqrt(2*3.14159)*0.5*(1+TMath::Erf(k0/1.41421)));
@@ -157,7 +159,7 @@ Double_t Fit3Peak(Double_t *x, Double_t *par) {
   mean1 = par[1]+par[3];
   //sigma1 = par[4];
   sigma1 = 1.547+0.125*par[3]+0.004042*par[3]*par[3];
-  sigma1 = (sigma1+(9.1347e-3+3.845e-2*par[3])*par[4]*1.0)*par[2];
+  sigma1 = (sigma1+(9.1347e-3+3.845e-2*par[3])*par[4]*2.0)*par[2];
   A1 = A0*par[0];
   C1 = 1/(sigma1* TMath::Exp(-k1*k1/2)/k1 +
 	  sigma1*sqrt(2*3.14159)*0.5*(1+TMath::Erf(k1/1.41421)));
@@ -167,12 +169,20 @@ Double_t Fit3Peak(Double_t *x, Double_t *par) {
 
   mean2 = 2*par[3]+par[1];
   sigma2 = sqrt(2*sigma1*sigma1 - par[2]*par[2]);
+  //A2 = A0*par[5]*par[0]*par[0]/2;
   A2 = A0*par[0]*par[0]/2;
   C2 = 1/(sigma2* TMath::Exp(-k2*k2/2)/k2 +
 	  sigma2*sqrt(2*3.14159)*0.5*(1+TMath::Erf(k2/1.41421)));
   r2 = ((xx-mean2)/sigma2);
   if(r2 < k2) sum += C2*A2*TMath::Exp(-0.5*r2*r2);
   else sum += C2*A2*TMath::Exp(0.5*k2*k2-k2*r2);
+
+  mean3 = 3*par[3]+par[1];
+  sigma3 = sqrt(3*sigma1*sigma1 - 2*par[2]*par[2]);
+  A3 = A0*par[0]*par[0]*par[0]/6;
+  C3 = 1/(sigma3*sqrt(2*3.14159));
+  r3 = ((xx-mean3)/sigma3);
+  sum += C3*A3*TMath::Exp(-0.5*r3*r3);
 
   return sum;
 }
