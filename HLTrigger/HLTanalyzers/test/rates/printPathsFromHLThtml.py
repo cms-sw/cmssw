@@ -26,9 +26,10 @@ def main(argv) :
             if count == 1: continue
             row0 = row[0]
             row1 = row[1].replace('OR','OR ')
-            print row0+': "'+row1+'"'
+            #print row0+': "'+row1+'"'
             #row2 = row1.replace(' OR ',',')
             #print 'menu->AddHlt("'+row0+'","'+row1+'",1,1,"","");'
+            print 'map_BitOfStandardHLTPath["'+row0+'"] = '+row0+';'
 
     #print p.doc # Get to the data
 
