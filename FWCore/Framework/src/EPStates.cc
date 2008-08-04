@@ -1,5 +1,5 @@
 
-// $Id: EPStates.cc,v 1.8 2008/04/22 22:31:41 wdd Exp $
+// $Id: EPStates.cc,v 1.9 2008/07/29 02:17:36 wmtan Exp $
 
 #include "FWCore/Framework/src/EPStates.h"
 #include "FWCore/Framework/interface/IEventProcessor.h"
@@ -251,7 +251,6 @@ namespace statemachine {
     exitCalled_(false),
     beginRunCalled_(false),
     currentRun_(INVALID_RUN),
-    previousRun_(INVALID_RUN),
     runException_(false) { }
 
   void HandleRuns::exit() {
@@ -314,7 +313,6 @@ namespace statemachine {
 
   bool HandleRuns::beginRunCalled() const { return beginRunCalled_; }
   int HandleRuns::currentRun() const { return currentRun_; }
-  int HandleRuns::previousRun() const { return previousRun_; }
   bool HandleRuns::runException() const { return runException_; }
 
   void HandleRuns::setupCurrentRun() {
@@ -322,21 +320,14 @@ namespace statemachine {
     runException_ = true;
     currentRun_ = ep_.readAndCacheRun();
     if (context<Machine>().fileMode() == FULLLUMIMERGE || context<Machine>().fileMode() == MERGE) {
-      if (previousRun_ != INVALID_RUN && currentRun_ != previousRun_) {
-	if (previousRuns_.find(currentRun_) != previousRuns_.end()) {
-	  throw cms::Exception("Merge failure:") << 
-	      "Run " << currentRun_ << " is discontinuous, and cannot be merged in this mode.\n"
-	      "The run is split across two or more input files,\n"
-	      "and either the run is not the last run in the previous input file,\n"
-	      "or it is not the first run in the current input file.\n"
-	      "To handle this case, either sort the input files, if not sorted,\n"
-	      "or use 'fileMode = \"FULLMERGE\"' in the parameter set options block.\n";
-	}
-	ep_.writeLumiCache();
-	ep_.writeRun(previousRun_);
-	ep_.deleteRunFromCache(previousRun_);
-	previousRuns_.insert(previousRun_);
-	previousRun_ = INVALID_RUN;
+      if (previousRuns_.find(currentRun_) != previousRuns_.end()) {
+        throw cms::Exception("Merge failure:") << 
+            "Run " << currentRun_ << " is discontinuous, and cannot be merged in this mode.\n"
+            "The run is split across two or more input files,\n"
+            "and either the run is not the last run in the previous input file,\n"
+            "or it is not the first run in the current input file.\n"
+            "To handle this case, either sort the input files, if not sorted,\n"
+            "or use 'fileMode = \"FULLMERGE\"' in the parameter set options block.\n";
       }
     }
     runException_ = false;
@@ -372,11 +363,13 @@ namespace statemachine {
     runException_ = true;
 
     if (beginRunCalled_) endRun(currentRun());
-    if (context<Machine>().fileMode() == NOMERGE) {
+    if (context<Machine>().fileMode() == NOMERGE ||
+        context<Machine>().fileMode() == MERGE ||
+        context<Machine>().fileMode() == FULLLUMIMERGE) {
       ep_.writeRun(currentRun_);
       ep_.deleteRunFromCache(currentRun_);
+      previousRuns_.insert(currentRun_);
     }
-    previousRun_ = currentRun_;
     currentRun_ = INVALID_RUN;
     runException_ = false;   
   }
@@ -476,7 +469,6 @@ namespace statemachine {
     exitCalled_(false),
     currentLumiEmpty_(true),
     currentLumi_(InvalidLumiID),
-    previousLumi_(InvalidLumiID),
     previousLumis_(),
     lumiException_(false)
   { 
@@ -550,8 +542,6 @@ namespace statemachine {
 
   HandleLumis::LumiID HandleLumis::currentLumi() const { return currentLumi_; }
 
-  HandleLumis::LumiID HandleLumis::previousLumi() const { return previousLumi_; }
-
   bool HandleLumis::currentLumiEmpty() const { return currentLumiEmpty_; }
 
   std::vector<HandleLumis::LumiID> const& HandleLumis::unhandledLumis() const 
@@ -566,21 +556,15 @@ namespace statemachine {
     lumiException_ = true;
     currentLumi_ = HandleLumis::LumiID(run, ep_.readAndCacheLumi());
     if (context<Machine>().fileMode() == MERGE) {
-      if (previousLumi_ != InvalidLumiID && currentLumi_ != previousLumi_) {
-	if (previousLumis_.find(currentLumi_) != previousLumis_.end()) {
-	  throw cms::Exception("Merge failure:") << 
-	      "Luminosity Section " << currentLumi_.first <<":" << currentLumi_.second << " is discontinuous, and cannot be merged in this mode.\n"
-	      "The lumi section is split across two or more input files,\n"
-	      "and either the lumi section is not the last run in the previous input file,\n"
-	      "or it is not the first lumi section in the current input file.\n"
-	      "To handle this case, either sort the input files, if not sorted,\n"
-	      "or use 'fileMode = \"FULLMERGE\"' or 'fileMode = \"FULLLUMIMERGE\"'\n"
-	      "in the parameter set options block.\n";
-	}
-	ep_.writeLumi(previousLumi_.first, previousLumi_.second);
-	ep_.deleteLumiFromCache(previousLumi_.first, previousLumi_.second);
-	previousLumis_.insert(previousLumi_);
-	previousLumi_ = InvalidLumiID;
+      if (previousLumis_.find(currentLumi_) != previousLumis_.end()) {
+        throw cms::Exception("Merge failure:") << 
+            "Luminosity Section " << currentLumi_.first <<":" << currentLumi_.second << " is discontinuous, and cannot be merged in this mode.\n"
+            "The lumi section is split across two or more input files,\n"
+            "and either the lumi section is not the last run in the previous input file,\n"
+            "or it is not the first lumi section in the current input file.\n"
+            "To handle this case, either sort the input files, if not sorted,\n"
+            "or use 'fileMode = \"FULLMERGE\"' or 'fileMode = \"FULLLUMIMERGE\"'\n"
+            "in the parameter set options block.\n";
       }
     }
     lumiException_ = false;
@@ -603,31 +587,36 @@ namespace statemachine {
         if (context<HandleRuns>().beginRunCalled()) {
           ep_.beginLumi(currentLumi().first, currentLumi().second);
           ep_.endLumi(currentLumi().first, currentLumi().second);
-          if (context<Machine>().fileMode() == NOMERGE) {
+          if (context<Machine>().fileMode() == NOMERGE ||
+              context<Machine>().fileMode() == MERGE) {
             ep_.writeLumi(currentLumi().first, currentLumi().second);
             ep_.deleteLumiFromCache(currentLumi().first, currentLumi().second);
+	    previousLumis_.insert(currentLumi_);
           }
         }
         else {
           unhandledLumis_.push_back(currentLumi());
+	  previousLumis_.insert(currentLumi_);
         }
       }
       else {
-        if (context<Machine>().fileMode() == NOMERGE) {
+        if (context<Machine>().fileMode() == NOMERGE ||
+            context<Machine>().fileMode() == MERGE) {
           ep_.writeLumi(currentLumi().first, currentLumi().second);
           ep_.deleteLumiFromCache(currentLumi().first, currentLumi().second);
+          previousLumis_.insert(currentLumi_);
         }
       }
     }
     else { 
       ep_.endLumi(currentLumi().first, currentLumi().second);
-      if (context<Machine>().fileMode() == NOMERGE) {
+      if (context<Machine>().fileMode() == NOMERGE ||
+          context<Machine>().fileMode() == MERGE) {
         ep_.writeLumi(currentLumi().first, currentLumi().second);
         ep_.deleteLumiFromCache(currentLumi().first, currentLumi().second);
+        previousLumis_.insert(currentLumi_);
       }
     }
-    previousLumi_ = currentLumi_;
-
     currentLumi_ = InvalidLumiID;
 
     lumiException_ = false;
@@ -642,9 +631,11 @@ namespace statemachine {
          ++iter) {
       ep_.beginLumi(iter->first, iter->second);
       ep_.endLumi(iter->first, iter->second);
-      if (context<Machine>().fileMode() == NOMERGE) {
+      if (context<Machine>().fileMode() == NOMERGE ||
+          context<Machine>().fileMode() == MERGE) {
         ep_.writeLumi(iter->first, iter->second);
         ep_.deleteLumiFromCache(iter->first, iter->second);
+        previousLumis_.insert(*iter);
       }
     }
     unhandledLumis_.clear();

@@ -298,9 +298,9 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 0  handleEmptyLumis = 0
 	shouldWeStop
     *** nextItemType: Lumi 2 ***
 	endLumi 1/1
-	readAndCacheLumi 2
 	writeLumi 1/1
 	deleteLumiFromCache 1/1
+	readAndCacheLumi 2
     *** nextItemType: Event ***
 	beginLumi 1/2
 	readEvent
@@ -322,7 +322,11 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 0  handleEmptyLumis = 0
 	shouldWeStop
     *** nextItemType: Stop 1 ***
 	endLumi 1/2
+	writeLumi 1/2
+	deleteLumiFromCache 1/2
 	endRun 1
+	writeRun 1
+	deleteRunFromCache 1
 	respondToCloseInputFile
 	closeInputFile
 	writeLumiCache
@@ -351,9 +355,9 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 0  handleEmptyLumis = 1
 	shouldWeStop
     *** nextItemType: Lumi 2 ***
 	endLumi 1/1
-	readAndCacheLumi 2
 	writeLumi 1/1
 	deleteLumiFromCache 1/1
+	readAndCacheLumi 2
     *** nextItemType: Event ***
 	beginLumi 1/2
 	readEvent
@@ -375,7 +379,11 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 0  handleEmptyLumis = 1
 	shouldWeStop
     *** nextItemType: Stop 1 ***
 	endLumi 1/2
+	writeLumi 1/2
+	deleteLumiFromCache 1/2
 	endRun 1
+	writeRun 1
+	deleteRunFromCache 1
 	respondToCloseInputFile
 	closeInputFile
 	writeLumiCache
@@ -404,9 +412,9 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 1  handleEmptyLumis = 0
 	shouldWeStop
     *** nextItemType: Lumi 2 ***
 	endLumi 1/1
-	readAndCacheLumi 2
 	writeLumi 1/1
 	deleteLumiFromCache 1/1
+	readAndCacheLumi 2
     *** nextItemType: Event ***
 	beginLumi 1/2
 	readEvent
@@ -428,7 +436,11 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 1  handleEmptyLumis = 0
 	shouldWeStop
     *** nextItemType: Stop 1 ***
 	endLumi 1/2
+	writeLumi 1/2
+	deleteLumiFromCache 1/2
 	endRun 1
+	writeRun 1
+	deleteRunFromCache 1
 	respondToCloseInputFile
 	closeInputFile
 	writeLumiCache
@@ -457,9 +469,9 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 1  handleEmptyLumis = 1
 	shouldWeStop
     *** nextItemType: Lumi 2 ***
 	endLumi 1/1
-	readAndCacheLumi 2
 	writeLumi 1/1
 	deleteLumiFromCache 1/1
+	readAndCacheLumi 2
     *** nextItemType: Event ***
 	beginLumi 1/2
 	readEvent
@@ -481,7 +493,11 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 1  handleEmptyLumis = 1
 	shouldWeStop
     *** nextItemType: Stop 1 ***
 	endLumi 1/2
+	writeLumi 1/2
+	deleteLumiFromCache 1/2
 	endRun 1
+	writeRun 1
+	deleteRunFromCache 1
 	respondToCloseInputFile
 	closeInputFile
 	writeLumiCache
@@ -533,6 +549,8 @@ Machine parameters:  mode = FULLLUMIMERGE  handleEmptyRuns = 0  handleEmptyLumis
     *** nextItemType: Stop 1 ***
 	endLumi 1/2
 	endRun 1
+	writeRun 1
+	deleteRunFromCache 1
 	respondToCloseInputFile
 	closeInputFile
 	writeLumiCache
@@ -584,6 +602,8 @@ Machine parameters:  mode = FULLLUMIMERGE  handleEmptyRuns = 0  handleEmptyLumis
     *** nextItemType: Stop 1 ***
 	endLumi 1/2
 	endRun 1
+	writeRun 1
+	deleteRunFromCache 1
 	respondToCloseInputFile
 	closeInputFile
 	writeLumiCache
@@ -635,6 +655,8 @@ Machine parameters:  mode = FULLLUMIMERGE  handleEmptyRuns = 1  handleEmptyLumis
     *** nextItemType: Stop 1 ***
 	endLumi 1/2
 	endRun 1
+	writeRun 1
+	deleteRunFromCache 1
 	respondToCloseInputFile
 	closeInputFile
 	writeLumiCache
@@ -686,6 +708,8 @@ Machine parameters:  mode = FULLLUMIMERGE  handleEmptyRuns = 1  handleEmptyLumis
     *** nextItemType: Stop 1 ***
 	endLumi 1/2
 	endRun 1
+	writeRun 1
+	deleteRunFromCache 1
 	respondToCloseInputFile
 	closeInputFile
 	writeLumiCache

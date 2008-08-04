@@ -490,7 +490,11 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 0  handleEmptyLumis = 0
 	processEvent
 	shouldWeStop
 	endLumi 1/1
+	writeLumi 1/1
+	deleteLumiFromCache 1/1
 	endRun 1
+	writeRun 1
+	deleteRunFromCache 1
 	respondToCloseInputFile
 	closeInputFile
 	writeLumiCache
@@ -567,7 +571,11 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 0  handleEmptyLumis = 1
 	processEvent
 	shouldWeStop
 	endLumi 1/1
+	writeLumi 1/1
+	deleteLumiFromCache 1/1
 	endRun 1
+	writeRun 1
+	deleteRunFromCache 1
 	respondToCloseInputFile
 	closeInputFile
 	writeLumiCache
@@ -644,7 +652,11 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 1  handleEmptyLumis = 0
 	processEvent
 	shouldWeStop
 	endLumi 1/1
+	writeLumi 1/1
+	deleteLumiFromCache 1/1
 	endRun 1
+	writeRun 1
+	deleteRunFromCache 1
 	respondToCloseInputFile
 	closeInputFile
 	writeLumiCache
@@ -721,7 +733,11 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 1  handleEmptyLumis = 1
 	processEvent
 	shouldWeStop
 	endLumi 1/1
+	writeLumi 1/1
+	deleteLumiFromCache 1/1
 	endRun 1
+	writeRun 1
+	deleteRunFromCache 1
 	respondToCloseInputFile
 	closeInputFile
 	writeLumiCache
@@ -799,6 +815,8 @@ Machine parameters:  mode = FULLLUMIMERGE  handleEmptyRuns = 0  handleEmptyLumis
 	shouldWeStop
 	endLumi 1/1
 	endRun 1
+	writeRun 1
+	deleteRunFromCache 1
 	respondToCloseInputFile
 	closeInputFile
 	writeLumiCache
@@ -876,6 +894,8 @@ Machine parameters:  mode = FULLLUMIMERGE  handleEmptyRuns = 0  handleEmptyLumis
 	shouldWeStop
 	endLumi 1/1
 	endRun 1
+	writeRun 1
+	deleteRunFromCache 1
 	respondToCloseInputFile
 	closeInputFile
 	writeLumiCache
@@ -953,6 +973,8 @@ Machine parameters:  mode = FULLLUMIMERGE  handleEmptyRuns = 1  handleEmptyLumis
 	shouldWeStop
 	endLumi 1/1
 	endRun 1
+	writeRun 1
+	deleteRunFromCache 1
 	respondToCloseInputFile
 	closeInputFile
 	writeLumiCache
@@ -1030,6 +1052,8 @@ Machine parameters:  mode = FULLLUMIMERGE  handleEmptyRuns = 1  handleEmptyLumis
 	shouldWeStop
 	endLumi 1/1
 	endRun 1
+	writeRun 1
+	deleteRunFromCache 1
 	respondToCloseInputFile
 	closeInputFile
 	writeLumiCache

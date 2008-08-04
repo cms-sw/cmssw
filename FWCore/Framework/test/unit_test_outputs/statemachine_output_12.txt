@@ -399,6 +399,8 @@ Machine parameters:  mode = FULLLUMIMERGE  handleEmptyRuns = 0  handleEmptyLumis
     *** nextItemType: Stop 1 ***
 	endLumi 1/1
 	endRun 1
+	writeRun 1
+	deleteRunFromCache 1
 	respondToCloseInputFile
 	closeInputFile
 	writeLumiCache
@@ -460,6 +462,8 @@ Machine parameters:  mode = FULLLUMIMERGE  handleEmptyRuns = 0  handleEmptyLumis
     *** nextItemType: Stop 1 ***
 	endLumi 1/1
 	endRun 1
+	writeRun 1
+	deleteRunFromCache 1
 	respondToCloseInputFile
 	closeInputFile
 	writeLumiCache
@@ -521,6 +525,8 @@ Machine parameters:  mode = FULLLUMIMERGE  handleEmptyRuns = 1  handleEmptyLumis
     *** nextItemType: Stop 1 ***
 	endLumi 1/1
 	endRun 1
+	writeRun 1
+	deleteRunFromCache 1
 	respondToCloseInputFile
 	closeInputFile
 	writeLumiCache
@@ -582,6 +588,8 @@ Machine parameters:  mode = FULLLUMIMERGE  handleEmptyRuns = 1  handleEmptyLumis
     *** nextItemType: Stop 1 ***
 	endLumi 1/1
 	endRun 1
+	writeRun 1
+	deleteRunFromCache 1
 	respondToCloseInputFile
 	closeInputFile
 	writeLumiCache
