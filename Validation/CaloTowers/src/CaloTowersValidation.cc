@@ -35,50 +35,51 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf):
   // get hold of back-end interface
   dbe_ = edm::Service<DQMStore>().operator->();
    
+  const char * sub = hcalselector_.c_str();
   Char_t histo[20];
 
   if ( dbe_ ) {
     std::cout << " dbe_->setCurrentFolder" << std::endl; 
     dbe_->setCurrentFolder("CaloTowersV/CaloTowersTask");
   
-    sprintf (histo, "CaloTowersTask_sum_of_energy_HCAL_vs_ECAL" ) ;
+    sprintf (histo, "CaloTowersTask_sum_of_energy_HCAL_vs_ECAL_%s",sub) ;
     meEnergyHcalvsEcal    = dbe_->book2D(histo, histo, 120, 0., 100., 100, 0., 200.);
 
-    sprintf (histo, "CaloTowersTask_energy_OUTER" ) ;
+    sprintf (histo, "CaloTowersTask_energy_OUTER_%s",sub ) ;
     meEnergyHO    = dbe_->book1D(histo, histo, 30, 0, 30);   
 
-    sprintf (histo, "CaloTowersTask_energy_HCAL" ) ;
+    sprintf (histo, "CaloTowersTask_energy_HCAL_%s",sub ) ;
     meEnergyHcal    = dbe_->book1D(histo, histo, 100, 0, 100);  
 
-    sprintf (histo, "CaloTowersTask_energy_ECAL" ) ;
+    sprintf (histo, "CaloTowersTask_energy_ECAL_%s",sub ) ;
     meEnergyEcal    = dbe_->book1D(histo, histo, 100, -20, 80); 
 
-    sprintf (histo, "CaloTowersTask_number_of_fired_towers" ) ;
+    sprintf (histo, "CaloTowersTask_number_of_fired_towers_%s",sub ) ;
     meNumFiredTowers = dbe_->book1D(histo, histo, 100, 0, 100); 
 
-    sprintf (histo, "CaloTowersTask_energy_of_ECAL_component_of_tower" ) ;
+    sprintf (histo, "CaloTowersTask_energy_of_ECAL_component_of_tower_%s",sub ) ;
     meEnergyEcalTower = dbe_->book1D(histo, histo, 120 , -20, 100); 
   
-    sprintf (histo, "CaloTowersTask_energy_of_HCAL_component_of_tower" ) ;
+    sprintf (histo, "CaloTowersTask_energy_of_HCAL_component_of_tower_%s",sub ) ;
     meEnergyHcalTower = dbe_->book1D(histo, histo, 120 , -20 , 100); 
 
-    sprintf  (histo, "CaloTowersTask_energy_HcalPlusEcalPlusHO" ) ;
+    sprintf  (histo, "CaloTowersTask_energy_HcalPlusEcalPlusHO_%s",sub ) ;
     meTotEnergy = dbe_->book1D(histo, histo,100, 0., 100.) ;
     
-    sprintf  (histo, "CaloTowersTask_map_energy" );
+    sprintf  (histo, "CaloTowersTask_map_energy_%s",sub );
     mapEnergy = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
-    sprintf  (histo, "CaloTowersTask_map_energy_HCAL");
+    sprintf  (histo, "CaloTowersTask_map_energy_HCAL_%s",sub);
     mapEnergyHcal = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
-    sprintf  (histo, "CaloTowersTask_map_energy_ECAL" );
+    sprintf  (histo, "CaloTowersTask_map_energy_ECAL_%s",sub );
     mapEnergyEcal = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
 
-    sprintf  (histo, "CaloTowersTask_MET" ) ;
+    sprintf  (histo, "CaloTowersTask_MET_%s",sub ) ;
     MET = dbe_->book1D(histo, histo, 100, 0. , 100. ) ;
     
-    sprintf  (histo, "CaloTowersTask_SET" ) ;
+    sprintf  (histo, "CaloTowersTask_SET_%s",sub ) ;
     SET = dbe_->book1D(histo, histo, 200, 0. , 200. ) ;
     
-    sprintf  (histo, "CaloTowersTask_phi_MET" ) ;
+    sprintf  (histo, "CaloTowersTask_phi_MET_%s",sub ) ;
     phiMET = dbe_->book1D(histo, histo, 72, -3.1415926535898, 3.1415926535898 ) ;
     /*
     sprintf (histo, "CaloTowersTask_profile_HCAL_cone_energy_vs eta");
