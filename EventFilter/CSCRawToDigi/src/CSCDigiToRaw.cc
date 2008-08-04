@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/07/22 23:21:42 $
- *  $Revision: 1.28 $
+ *  $Date: 2008/08/01 02:38:08 $
+ *  $Revision: 1.29 $
  *  \author A. Tumanov - Rice
  */
 
@@ -187,10 +187,6 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
     //          ? 5 : 4; 
     //@@ WARNING some DCCs only have 4 DDUs, but I'm giving them all 5, for now
     int nDDUs = 5;
-    // this is a vector of which ddu IDs correspond to the ones in the DCC
-    vector<int> dduIds;
-    dduIds.reserve(nDDUs);
-
     dccMap.insert(std::pair<int, CSCDCCEventData>(idcc, CSCDCCEventData(idcc, nDDUs, bx, l1a) ) );
 
     // for every chamber with data, add to a DDU in this DCC Event
@@ -212,17 +208,7 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
         int dduId = mapping->ddu(chamberItr->first);
         int dmbId = mapping->dmb(chamberItr->first);
 
-        vector<int>::iterator dduIdItr = find(dduIds.begin(), dduIds.end(), dduId);
-        // if it's not found, it'll point at end(), so the distance should work out right.
-        int indexDDU = distance(dduIds.begin(), dduIdItr);
-        if(dduIdItr == dduIds.end()) 
-        {
-          dduIds.push_back(dduId);
-        }
-        // just to make sure we're using STL right
-        assert(dduIds.at(indexDDU) == dduId);
-
-        dccMapItr->second.dduData()[indexDDU].add(chamberItr->second, dmbId);
+        dccMapItr->second.addChamber(chamberItr->second, dduId, dmbId);
       }
     }
   }
