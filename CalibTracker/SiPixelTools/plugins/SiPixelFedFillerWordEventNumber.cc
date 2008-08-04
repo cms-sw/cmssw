@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    SiPixelFedFillerWordEventNumber
-// Class:      SiPixelFedFillerWordEventNumber
+// Package:    SiPixelFedFillerWordEventNumber 
+// Class:      SiPixelFedFillerWordEventNumber 
 // 
-/**\class SiPixelFedFillerWordEventNumber SiPixelFedFillerWordEventNumber.cc FedFillerWords/SiPixelFedFillerWordEventNumber/src/SiPixelFedFillerWordEventNumber.cc
+/**\class SiPixelFedFillerWordEventNumber  SiPixelFedFillerWordEventNumber .cc FedFillerWords/SiPixelFedFillerWordEventNumber /src/SiPixelFedFillerWordEventNumber .cc
    
 Description: <one line class summary>
 
@@ -23,23 +23,129 @@ Implementation:
 #include "CalibTracker/SiPixelTools/interface/SiPixelFedFillerWordEventNumber.h"
 
 //======= constructors and destructor
-SiPixelFedFillerWordEventNumber::SiPixelFedFillerWordEventNumber(const edm::ParameterSet& iConfig)
+SiPixelFedFillerWordEventNumber ::SiPixelFedFillerWordEventNumber (const edm::ParameterSet& iConfig)
 {
-  SaveFillerWords_bool = iConfig.getParameter<bool>("SaveFillerWords");
+  SaveFillerWordsbool = iConfig.getParameter<bool>("SaveFillerWords");
   label     =iConfig.getUntrackedParameter<std::string>("InputLabel","source");
   instance = iConfig.getUntrackedParameter<std::string>("InputInstance",""); 
-  produces<std::vector<uint32_t> > ("FillerWordEventNumber");
-  if (SaveFillerWords_bool == true){
+  produces<std::vector<uint32_t> > ("FillerWordEventNumber1");
+  produces<std::vector<uint32_t> > ("FillerWordEventNumber2");
+  if (SaveFillerWordsbool == true){
     produces<std::vector<uint32_t> > ("SaveFillerWord");
   }
 }
 
-SiPixelFedFillerWordEventNumber::~SiPixelFedFillerWordEventNumber()
+SiPixelFedFillerWordEventNumber ::~SiPixelFedFillerWordEventNumber ()
 {
   
 }
+unsigned int SiPixelFedFillerWordEventNumber ::CalibStatFillWord(unsigned int totword, int status){
+  //===== Variables to get each filler word out of the totword and 
+  //      to conform the last 16 bit filler word if Filler3 is zero.   
+  unsigned int Filler1      = (totword)&0x000000ff;
+  unsigned int Filler2      = ((totword)&0x0000ff00)>>8;
+  unsigned int Filler3      = ((totword)&0x00ff0000)>>16;
+  unsigned int Filler4      = ((totword)&0xffff0000)>>16;
+  unsigned int maskFiller4  = ((totword)&0xff000000)>>16;
+  unsigned int Filler14     = (Filler1&maskFiller4);
+  unsigned int Filler24     = (Filler2&maskFiller4);
+  unsigned int CalibFiller1 = 0;
+  unsigned int CalibFiller2 = 0;
+  bool BoolStat = false;
+  //=====Possible cases for the totword. "CalibFiller1" and "CalibFiller2" take their valur
+  //     according to the value of the totword.
+  if ((status == 0x1)||(status == 0x9)){
+    CalibFiller1 = Filler1;
+    if((status == 0x9)){CalibFiller2 = Filler14;}
+  }
+  if ((status == 0x2)||(status == 0xa)){
+    CalibFiller1 = Filler2;
+    if((status == 0xa)){CalibFiller2 = Filler24;}
+  }
+  if ((status == 0x4)||(status == 0xc)){
+    CalibFiller1 = Filler3;
+    if((status == 0xc)){CalibFiller2 = Filler4;}
+  }
+  if ((status == 0x8)){CalibFiller2 = Filler4;}  
+  if((status == 0x7)||(status == 0xf)){
+    if((Filler1 == Filler2)&&(Filler1 == Filler3)&&(Filler2 == Filler3)){
+      CalibFiller1 = Filler1;
+      BoolStat = true;
+      if(status == 0xf){CalibFiller2 = Filler4;} 
+    }else{
+      edm::LogError("AnazrFedFillerWords")<<"Status: "<<status << "Event ID in Filler words don't match"
+                                          <<'\t'<<"Filler1: "<<(Filler1%256)
+					  <<'\t'<<"Filler2: "<<(Filler2%256)
+					  <<'\t'<<"Filler3: "<<(Filler3%256)
+					  <<std::endl; 
+    }
+  }
+  if((status == 0x3)||(status == 0xb)){
+    if((Filler1 == Filler2)){
+      CalibFiller1 = Filler1;
+      BoolStat = true;
+      if(status == 0xb){CalibFiller2 = Filler14;}
+    }else{
+      edm::LogError("AnazrFedFillerWords")<<"Status: "<<status << "Event ID in Filler words don't match"
+                                          <<'\t'<<"Filler1: "<<(Filler1%256)
+					  <<'\t'<<"Filler2: "<<(Filler2%256)
+					  <<std::endl;
+    }
+  }
+  if((status == 0x5)||(status == 0xd)){
+    if((Filler1 == Filler3)){
+      CalibFiller1 = Filler1;
+      BoolStat = true;
+      if(status == 0xd){CalibFiller2 = Filler4;}
+    }else{
+      edm::LogError("AnazrFedFillerWords")<<"Status: "<<status << "Event ID in Filler words don't match"
+                                          <<'\t'<<"Filler1: "<<(Filler1%256)
+					  <<'\t'<<"Filler3: "<<(Filler3%256) 
+                                          <<std::endl;
+    }
+  }
+  if((status == 0x6)||(status == 0xe)){
+    if((Filler2 == Filler3)){
+      CalibFiller1 = Filler2;
+      BoolStat = true;
+      if(status == 0xe){CalibFiller2 = Filler4;}
+    }else{
+      edm::LogError("AnazrFedFillerWords")<<"Status: "<<status << "Event ID Filler words don't match"
+                                          <<'\t'<<"Filler2: "<<(Filler2%256)
+					  <<'\t'<<"Filler3: "<<(Filler3%256) 
+                                          <<std::endl;
+    }
+  }
+  //===== Using the Event number from CMSSW to get a value to compare with the value encoded 
+  //      in the filler words.
+  unsigned int CalibEvtNum = ((EventNum -1)/10);
+  if((CalibFiller1 != 0)&&(CalibEvtNum != CalibFiller1)){
+    edm::LogError("AnazrFedFillerWords")<<"Error, Event ID Numbers Don't match---->"<<"Filler1 Event ID: "
+                                        << CalibFiller1 <<'\t'<<"Run Event ID: "
+					<<CalibEvtNum<<'\t'<<std::endl;
+  }else if((CalibFiller1 != 0)&&(CalibEvtNum == CalibFiller1)){
+    vecFillerWordsEventNumber1.push_back((CalibFiller1%256));
+    edm::LogInfo("AnazrFedFillerWords")<<"Filler1 Event ID: "
+                                       <<(CalibFiller1%256)<<std::endl;
+  }else if((CalibFiller2 != 0)&&(BoolStat == true)){
+    vecFillerWordsEventNumber2.push_back((((CalibFiller2%65536)&(0xff00))>>8));
+    edm::LogInfo("AnazrFedFillerWords")<<"Filler2 Event ID:"
+                                       <<(((CalibFiller2%65536)&(0xff00))>>8)<<std::endl;
+  }else if((CalibFiller2 != 0)&&(BoolStat == false)){
+    if((status == 0x9)||(status == 0xa)||(status == 0xc)){
+      vecFillerWordsEventNumber2.push_back((((CalibFiller2%65536)&(0xff00))>>8));
+      edm::LogInfo("AnazrFedFillerWords")<<"Filler2 Event ID:"<<(((CalibFiller2%65536)&(0xff00))>>8)<<std::endl;
+    }else if((status == 0x8)){
+      edm::LogError("AnazrFedFillerWords")<<"Status: "<<status 
+                                          <<" No Filler1 found, is not possible get any Event ID Number"
+                                          <<std::endl;
+    }
+  }
+  
+  return 0;
+} 
 //========== Function to decode data words ================================================== 
-int SiPixelFedFillerWordEventNumber::PwordSlink64(uint64_t * ldata, const int length, uint32_t &totword) {
+int SiPixelFedFillerWordEventNumber ::PwordSlink64(uint64_t * ldata, const int length, uint32_t &totword) {
   edm::LogInfo("FedFillerWords") <<"Begin of data"<<std::endl;
   
   if( (ldata[0]&0xf000000000000000LL) != 0x5000000000000000LL )//header 
@@ -72,8 +178,6 @@ int SiPixelFedFillerWordEventNumber::PwordSlink64(uint64_t * ldata, const int le
     if((((ldata[kk]&0xff00000000000000LL)>>32) == 0xa0000000) 
        && (((ldata[kk]&0xffffff00000000LL)>>32)== (uint64_t)(kk+1))){break;}
     
-    edm::LogInfo("FedFillerWords") <<kk<<"Data--->0x" <<std::hex<<ldata[kk] <<std::dec<<std::endl;
-    
     word2 = (uint32_t) ldata[kk];
     word1 = (uint32_t) (ldata[kk]>>32);
     
@@ -103,25 +207,11 @@ int SiPixelFedFillerWordEventNumber::PwordSlink64(uint64_t * ldata, const int le
     if(roc==26){
       gap[fifcnt-1]=(0x1000+(word1&0xff));
       gapcnt++;
-      vecSaveFillerWords.push_back(word1);
-      edm::LogInfo("FedFillerWords") <<"Filler Word---->"
- 				     <<std::hex<<word1<<std::dec
- 				     <<" ==== Gap   word---->"
- 				     <<std::hex<<gap[fifcnt-1]
-				     <<std::dec<<std::endl;
-      vecFillerWordsEventNumber.push_back(gap[fifcnt-1]);
     }
     //====== Dummy Word 
     if((roc==27)&&((fif2cnt+dumcnt)<6)){
-      dumcnt++;
       dum[fifcnt-1]=(0x1000+(word1&0xff));
-      vecSaveFillerWords.push_back(word1);
-      edm::LogInfo("FedFillerWords") <<"Filler Word---->"
- 				     <<std::hex<<word1<<std::dec
- 				     <<" ==== Dummy Word---->"
- 				     <<std::hex<<dum[fifcnt-1]
-				     <<std::dec<<std::endl;
-      vecFillerWordsEventNumber.push_back(dum[fifcnt-1]);
+      dumcnt++;
     }
     else if((roc==27)&&((fif2cnt+dumcnt)>6)){
       dumcnt=1;
@@ -155,24 +245,10 @@ int SiPixelFedFillerWordEventNumber::PwordSlink64(uint64_t * ldata, const int le
     if(roc==26){
       gap[fifcnt-1]=(0x1000+(word2&0xff));
       gapcnt++;
-      vecSaveFillerWords.push_back(word2);
-      edm::LogInfo("FedFillerWords") <<"Filler Word--->"
- 				     <<std::hex<<word2<<std::dec
- 				     <<" ==== Gap   Word----->"
- 				     <<std::hex<<gap[fifcnt-1]
-				     <<std::dec<<std::endl;
-      vecFillerWordsEventNumber.push_back(gap[fifcnt-1]);
     }
     if ((roc==27)&&((fif2cnt+dumcnt)<6)){
-      dumcnt++;
       dum[fifcnt-1]=(0x1000+(word1&0xff));
-      vecSaveFillerWords.push_back(word2);
-      edm::LogInfo("FedFillerWords") <<"Filler Word---->"
- 				     <<std::hex<<word2<<std::dec
- 				     <<" ==== Dummy Word---->"
- 				     <<std::hex<<dum[fifcnt-1]
-				     <<std::dec<<std::endl;
-      vecFillerWordsEventNumber.push_back(dum[fifcnt-1]);
+      dumcnt++;
     }
     else if((roc==27)&&((fif2cnt+dumcnt)>6)){
       dumcnt=1;
@@ -267,6 +343,10 @@ int SiPixelFedFillerWordEventNumber::PwordSlink64(uint64_t * ldata, const int le
     totword=totword|((dum[7]&0xff)<<24);
     status=status|0x8;
   }
+  vecSaveFillerWords.push_back(totword);
+  if((EventNum%10) == 0){
+  CalibStatFill = CalibStatFillWord(totword, status);
+  }
   edm::LogInfo("FedFillerWords") <<"total word = 0x"
  				 <<std::hex<<totword
 				 <<std::hex<<" Status = 0x"
@@ -276,11 +356,13 @@ int SiPixelFedFillerWordEventNumber::PwordSlink64(uint64_t * ldata, const int le
 }
 
 void
-SiPixelFedFillerWordEventNumber::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+SiPixelFedFillerWordEventNumber ::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 { 
+  EventNum = iEvent.id().event();
   edm::Handle<FEDRawDataCollection> buffers;  
   iEvent.getByLabel( label, instance, buffers);
-  std::auto_ptr<std::vector<uint32_t> > FillerWordEventNumbers(new std::vector<uint32_t>);
+  std::auto_ptr<std::vector<uint32_t> > FillerWordEventNumbers1(new std::vector<uint32_t>);
+  std::auto_ptr<std::vector<uint32_t> > FillerWordEventNumbers2(new std::vector<uint32_t>);
   std::auto_ptr<std::vector<uint32_t> > SaveFillerWords(new std::vector<uint32_t>);
   //===== Loop over all the FEDs ========================================================
   FEDNumbering fednum;
@@ -305,29 +387,35 @@ SiPixelFedFillerWordEventNumber::produce(edm::Event& iEvent, const edm::EventSet
 	  edm::LogWarning("FedFillerWords") <<"========= Filler Words Vector is empty! ==========" <<std::endl;
 	}
       edm::LogInfo("FedFillerWords") << "Found " << value << " filler words in FED " << fedId << std::endl;
-      for (vecFillerWordsEventNumber_It = vecFillerWordsEventNumber.begin(); vecFillerWordsEventNumber_It != vecFillerWordsEventNumber.end(); vecFillerWordsEventNumber_It++){
-	FillerWordEventNumbers->push_back(*vecFillerWordsEventNumber_It);
+      for (vecFillerWordsEventNumber1_It = vecFillerWordsEventNumber1.begin(); vecFillerWordsEventNumber1_It != vecFillerWordsEventNumber1.end(); vecFillerWordsEventNumber1_It++){
+	FillerWordEventNumbers1->push_back(*vecFillerWordsEventNumber1_It);
+      }
+      for(vecFillerWordsEventNumber2_It = vecFillerWordsEventNumber2.begin(); vecFillerWordsEventNumber2_It != vecFillerWordsEventNumber2.end(); vecFillerWordsEventNumber2_It++){
+        FillerWordEventNumbers2->push_back(*vecFillerWordsEventNumber2_It);
       }
     }
   }
-  iEvent.put(FillerWordEventNumbers , "FillerWordEventNumber");
+  iEvent.put(FillerWordEventNumbers1 , "FillerWordEventNumber1");
+  iEvent.put(FillerWordEventNumbers2 , "FillerWordEventNumber2");
   //====== bool variable to be controled in the config file, allows the user to put or
   //       the filler words inside the output root file
-  if(SaveFillerWords_bool == true)
+  if(SaveFillerWordsbool == true)
     {
       iEvent.put(SaveFillerWords, "SaveFillerWord");
     }
   vecSaveFillerWords.erase(vecSaveFillerWords.begin(), vecSaveFillerWords.end());    
-  vecFillerWordsEventNumber.erase(vecFillerWordsEventNumber.begin(), vecFillerWordsEventNumber.end());
+  vecFillerWordsEventNumber1.erase(vecFillerWordsEventNumber1.begin(), vecFillerWordsEventNumber1.end());
 }
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-SiPixelFedFillerWordEventNumber::beginJob(const edm::EventSetup&)
+SiPixelFedFillerWordEventNumber ::beginJob(const edm::EventSetup&)
 {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
-SiPixelFedFillerWordEventNumber::endJob() {
+SiPixelFedFillerWordEventNumber ::endJob() {
 }
+//===== define this as a plug-in
+DEFINE_FWK_MODULE(SiPixelFedFillerWordEventNumber );
