@@ -3,7 +3,8 @@
 process = cms.Process("TkVal")
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
-### standard includes 
+### standard includes
+process.load("Configuration.StandardSequences.RawToDigi_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("SimGeneral.MixingModule.mixNoPU_cfi")
@@ -23,8 +24,6 @@ process.source = source
 #process.load("SimTracker.TrackAssociation.TrackAssociatorByChi2_cfi")
 process.load("SimTracker.TrackAssociation.TrackAssociatorByHits_cfi")
 process.load("Validation.RecoTrack.cuts_cff")
-#process.load("Validation.RecoTrack.cutsTPEffic_cfi")
-#process.load("Validation.RecoTrack.cutsTPFake_cfi")
 process.load("Validation.RecoTrack.MultiTrackValidator_cff")
 process.load("SimGeneral.TrackingAnalysis.trackingParticles_cfi")
 
@@ -34,10 +33,8 @@ process.multiTrackValidator.out = 'val.SAMPLE.root'
 
 process.cutsRecoTracks.algorithm = cms.string('ALGORITHM')
 process.cutsRecoTracks.quality = cms.string('QUALITY')
-#process.cutsRecoTracks.quality = cms.string('highPurity')
 
 process.multiTrackValidator.associators = ['TrackAssociatorByHits']
-#process.multiTrackValidator.label = ['generalTracks']
 
 process.multiTrackValidator.label = ['TRACKS']
 if (process.multiTrackValidator.label[0] == 'generalTracks'):
@@ -65,13 +62,27 @@ process.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('output.SAMPLE.root')
 )
 
-#process.digi2track = cms.Sequence(process.siPixelDigis*process.SiStripRawToDigis*process.trackerlocalreco*process.ckftracks*process.cutsTPEffic*process.cutsTPFake*process.multiTrackValidator)
-#process.re_tracking = cms.Sequence(process.siPixelRecHits*process.siStripMatchedRecHits*process.ckftracks*process.cutsTPEffic*process.cutsTPFake*process.multiTrackValidator)
-#process.re_tracking = cms.Sequence(process.siPixelRecHits*process.siStripMatchedRecHits)
+process.digi2track = cms.Sequence(process.siPixelDigis*process.SiStripRawToDigis*
+                                  process.trackerlocalreco*
+                                  process.ckftracks*
+                                  process.cutsRecoTracks*
+                                  process.cutsTPEffic*process.cutsTPFake*
+                                  process.multiTrackValidator)
+
+process.re_tracking = cms.Sequence(process.siPixelRecHits*process.siStripMatchedRecHits*
+                                   process.ckftracks*
+                                   process.cutsRecoTracks*
+                                   process.cutsTPEffic*process.cutsTPFake*
+                                   process.multiTrackValidator
+                                   )
+
 if (process.multiTrackValidator.label[0] == 'generalTracks'):
-    process.only_validation = cms.Sequence(process.cutsTPEffic*process.cutsTPFake*process.multiTrackValidator)
+    process.only_validation = cms.Sequence(process.cutsTPEffic*process.cutsTPFake*
+                                           process.multiTrackValidator)
 else:
-    process.only_validation = cms.Sequence(process.cutsRecoTracks*process.cutsTPEffic*process.cutsTPFake*process.multiTrackValidator)
+    process.only_validation = cms.Sequence(process.cutsRecoTracks*
+                                           process.cutsTPEffic*process.cutsTPFake*
+                                           process.multiTrackValidator)
 
 process.p = cms.Path(process.SEQUENCE)
 
