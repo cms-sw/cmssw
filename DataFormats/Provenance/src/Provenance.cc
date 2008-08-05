@@ -44,6 +44,14 @@ namespace edm {
     branchEntryInfoPtr_ = bei;
   }
 
+  boost::shared_ptr<EventEntryInfo>
+  Provenance::resolve () const {
+    boost::shared_ptr<EventEntryInfo> prov = store_->branchToEntryInfo(branchDescription_.branchID());
+    setEventEntryInfo(prov);
+    return prov;
+}
+
+
   void
   Provenance::write(std::ostream& os) const {
     // This is grossly inadequate, but it is not critical for the

@@ -10,6 +10,7 @@ existence.
 #include <iosfwd>
 
 #include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/BranchMapper.h"
 #include "DataFormats/Provenance/interface/EventEntryInfo.h"
 #include "DataFormats/Provenance/interface/EventEntryDescription.h"
 #include "DataFormats/Provenance/interface/RunLumiEntryInfo.h"
@@ -46,7 +47,11 @@ namespace edm {
     ConstBranchDescription const& constBranchDescription() const {return branchDescription_;}
     EventEntryInfo const* branchEntryInfoPtr() const {return branchEntryInfoPtr_.get();}
     boost::shared_ptr<EventEntryInfo> branchEntryInfoSharedPtr() const {return branchEntryInfoPtr_;}
-    EventEntryInfo const& branchEntryInfo() const {return *branchEntryInfoPtr_;}
+    boost::shared_ptr<EventEntryInfo> resolve() const;
+    EventEntryInfo const& branchEntryInfo() const {
+      if (branchEntryInfoPtr_.get()) return *branchEntryInfoPtr_;
+      return *resolve();
+    }
     EventEntryDescription const& entryDescription() const {return branchEntryInfo().entryDescription();}
     BranchID const& branchID() const {return product().branchID();}
     std::string const& branchName() const {return product().branchName();}
@@ -73,9 +78,14 @@ namespace edm {
 
     void setEventEntryInfo(boost::shared_ptr<EventEntryInfo> bei) const;
 
+    void setStore(boost::shared_ptr<BranchMapper<EventEntryInfo> > store) const {store_ = store;}
+
+    void setStore(boost::shared_ptr<BranchMapper<RunLumiEntryInfo> >) const {}
+
   private:
     ConstBranchDescription const branchDescription_;
     mutable boost::shared_ptr<EventEntryInfo> branchEntryInfoPtr_;
+    mutable boost::shared_ptr<BranchMapper<EventEntryInfo> > store_;
   };
   
   inline
