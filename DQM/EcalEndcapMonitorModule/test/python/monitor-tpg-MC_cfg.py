@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("ECALDQM")
+process = cms.Process("ECALDQM'
 
 import RecoLocalCalo.EcalRecProducers.ecalFixedAlphaBetaFitUncalibRecHit_cfi
 process.ecalUncalibHit = RecoLocalCalo.EcalRecProducers.ecalFixedAlphaBetaFitUncalibRecHit_cfi.ecalFixedAlphaBetaFitUncalibRecHit.clone()
@@ -8,36 +8,36 @@ process.ecalUncalibHit = RecoLocalCalo.EcalRecProducers.ecalFixedAlphaBetaFitUnc
 #import RecoLocalCalo.EcalRecProducers.ecalWeightUncalibRecHit_cfi
 #process.ecalUncalibHit = RecoLocalCalo.EcalRecProducers.ecalWeightUncalibRecHit_cfi.ecalWeightUncalibRecHit.clone()
 
-process.load("RecoLocalCalo.EcalRecProducers.ecalRecHit_cfi")
+process.load("RecoLocalCalo.EcalRecProducers.ecalRecHit_cfi'
 
-process.load("Geometry.CaloEventSetup.CaloGeometry_cfi")
+process.load("Geometry.CaloEventSetup.CaloGeometry_cfi'
 
-process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
+process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi'
 
-process.load("Geometry.EcalMapping.EcalMapping_cfi")
+process.load("Geometry.EcalMapping.EcalMapping_cfi'
 
-process.load("Geometry.EcalMapping.EcalMappingRecord_cfi")
+process.load("Geometry.EcalMapping.EcalMappingRecord_cfi'
 
-process.load("DQM.EcalEndcapMonitorModule.EcalEndcapMonitorModule_cfi")
+process.load("DQM.EcalEndcapMonitorModule.EcalEndcapMonitorModule_cfi'
 
-process.load("DQM.EcalEndcapMonitorTasks.EcalEndcapMonitorTasks_cfi")
+process.load("DQM.EcalEndcapMonitorTasks.EcalEndcapMonitorTasks_cfi'
 
-process.load("DQM.EcalEndcapMonitorTasks.mergeRuns_cff")
+process.load("DQM.EcalEndcapMonitorTasks.mergeRuns_cff'
 
-process.load("Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi")
+process.load("Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi'
 
-process.load("SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cff")
+process.load("SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cff'
 
 import SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cfi
 process.simEcalTriggerPrimitiveDigis2 = SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cfi.simEcalTriggerPrimitiveDigis.clone()
 
-process.load("DQM.EcalEndcapMonitorClient.EcalEndcapMonitorClient_cfi")
+process.load("DQM.EcalEndcapMonitorClient.EcalEndcapMonitorClient_cfi'
 
-process.load("RecoEcal.EgammaClusterProducers.ecalClusteringSequence_cff")
+process.load("RecoEcal.EgammaClusterProducers.ecalClusteringSequence_cff'
 
-process.load("CalibCalorimetry.EcalLaserCorrection.ecalLaserCorrectionService_cfi")
+process.load("CalibCalorimetry.EcalLaserCorrection.ecalLaserCorrectionService_cfi'
 
-process.load("DQMServices.Core.DQM_cfg")
+process.load("DQMServices.Core.DQM_cfg'
 
 process.preScaler = cms.EDFilter("Prescaler",
     prescaleFactor = cms.int32(1)
@@ -97,14 +97,14 @@ process.q = cms.EndPath(process.ecalEndcapDefaultTasksSequence*process.ecalEndca
 
 process.ecalUncalibHit.MinAmplBarrel = 12.
 process.ecalUncalibHit.MinAmplEndcap = 16.
-process.ecalUncalibHit.EBdigiCollection = cms.InputTag("ecalDigis","ebDigis")
-process.ecalUncalibHit.EEdigiCollection = cms.InputTag("ecalDigis","eeDigis")
+process.ecalUncalibHit.EBdigiCollection = 'ecalDigis:ebDigis'
+process.ecalUncalibHit.EEdigiCollection = 'ecalDigis:eeDigis'
 
-process.ecalRecHit.EBuncalibRecHitCollection = cms.InputTag("ecalUncalibHit","EcalUncalibRecHitsEB")
-process.ecalRecHit.EEuncalibRecHitCollection = cms.InputTag("ecalUncalibHit","EcalUncalibRecHitsEE")
+process.ecalRecHit.EBuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHitsEB'
+process.ecalRecHit.EEuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHitsEE'
 
 process.ecalEndcapMonitorModule.mergeRuns = True
-process.ecalEndcapMonitorModule.EEDigiCollection = cms.InputTag("ecalDigis","eeDigis")
+process.ecalEndcapMonitorModule.EEDigiCollection = 'ecalDigis:eeDigis'
 process.ecalEndcapMonitorModule.runType = 3 # MTCC/PHYSICS
 
 process.simEcalTriggerPrimitiveDigis.Label = 'ecalDigis'
@@ -119,10 +119,10 @@ process.ecalEndcapTriggerTowerTask.EcalTrigPrimDigiCollectionReal = 'simEcalTrig
 
 process.ecalEndcapMonitorModule.EcalTrigPrimDigiCollection = 'simEcalTriggerPrimitiveDigis2'
 
-process.ecalEndcapOccupancyTask.EEDigiCollection = cms.InputTag("ecalDigis","eeDigis")
+process.ecalEndcapOccupancyTask.EEDigiCollection = 'ecalDigis:eeDigis'
 process.ecalEndcapOccupancyTask.EcalTrigPrimDigiCollection = 'simEcalTriggerPrimitiveDigis'
 
-process.ecalEndcapPedestalOnlineTask.EEDigiCollection = cms.InputTag("ecalDigis","eeDigis")
+process.ecalEndcapPedestalOnlineTask.EEDigiCollection = 'ecalDigis:eeDigis'
 
 process.ecalEndcapMonitorClient.maskFile = '../data/maskfile-EE.dat'
 process.ecalEndcapMonitorClient.mergeRuns = True

@@ -1,43 +1,43 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("ECALDQM")
+process = cms.Process("ECALDQM'
 
 import RecoLocalCalo.EcalRecProducers.ecalFixedAlphaBetaFitUncalibRecHit_cfi
 
 process.ecalUncalibHit = RecoLocalCalo.EcalRecProducers.ecalFixedAlphaBetaFitUncalibRecHit_cfi.ecalFixedAlphaBetaFitUncalibRecHit.clone()
-process.load("RecoLocalCalo.EcalRecProducers.ecalRecHit_cfi")
+process.load("RecoLocalCalo.EcalRecProducers.ecalRecHit_cfi'
 
 #import RecoLocalCalo.EcalRecProducers.ecalWeightUncalibRecHit_cfi
 #process.ecalUncalibHit = RecoLocalCalo.EcalRecProducers.ecalWeightUncalibRecHit_cfi.ecalWeightUncalibRecHit.clone()
 
-process.load("Geometry.CaloEventSetup.CaloGeometry_cfi")
+process.load("Geometry.CaloEventSetup.CaloGeometry_cfi'
 
-process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
+process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi'
 
-process.load("Geometry.EcalMapping.EcalMapping_cfi")
+process.load("Geometry.EcalMapping.EcalMapping_cfi'
 
-process.load("Geometry.EcalMapping.EcalMappingRecord_cfi")
+process.load("Geometry.EcalMapping.EcalMappingRecord_cfi'
 
-process.load("DQM.EcalBarrelMonitorModule.EcalBarrelMonitorModule_cfi")
+process.load("DQM.EcalBarrelMonitorModule.EcalBarrelMonitorModule_cfi'
 
-process.load("DQM.EcalBarrelMonitorTasks.EcalBarrelMonitorTasks_cfi")
+process.load("DQM.EcalBarrelMonitorTasks.EcalBarrelMonitorTasks_cfi'
 
-process.load("DQM.EcalBarrelMonitorTasks.mergeRuns_cff")
+process.load("DQM.EcalBarrelMonitorTasks.mergeRuns_cff'
 
-process.load("Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi")
+process.load("Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi'
 
-process.load("SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cff")
+process.load("SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cff'
 
 import SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cfi
 process.simEcalTriggerPrimitiveDigis2 = SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cfi.simEcalTriggerPrimitiveDigis.clone()
 
-process.load("DQM.EcalBarrelMonitorClient.EcalBarrelMonitorClient_cfi")
+process.load("DQM.EcalBarrelMonitorClient.EcalBarrelMonitorClient_cfi'
 
-process.load("RecoEcal.EgammaClusterProducers.ecalClusteringSequence_cff")
+process.load("RecoEcal.EgammaClusterProducers.ecalClusteringSequence_cff'
 
-process.load("CalibCalorimetry.EcalLaserCorrection.ecalLaserCorrectionService_cfi")
+process.load("CalibCalorimetry.EcalLaserCorrection.ecalLaserCorrectionService_cfi'
 
-process.load("DQMServices.Core.DQM_cfg")
+process.load("DQMServices.Core.DQM_cfg'
 
 process.preScaler = cms.EDFilter("Prescaler",
     prescaleFactor = cms.int32(1)
@@ -97,14 +97,14 @@ process.q = cms.EndPath(process.ecalBarrelDefaultTasksSequence*process.ecalBarre
 
 process.ecalUncalibHit.MinAmplBarrel = 12.
 process.ecalUncalibHit.MinAmplEndcap = 16.
-process.ecalUncalibHit.EBdigiCollection = cms.InputTag("ecalDigis","ebDigis")
-process.ecalUncalibHit.EEdigiCollection = cms.InputTag("ecalDigis","eeDigis")
+process.ecalUncalibHit.EBdigiCollection = 'ecalDigis:ebDigis'
+process.ecalUncalibHit.EEdigiCollection = 'ecalDigis:eeDigis'
 
-process.ecalRecHit.EBuncalibRecHitCollection = cms.InputTag("ecalUncalibHit","EcalUncalibRecHitsEB")
-process.ecalRecHit.EEuncalibRecHitCollection = cms.InputTag("ecalUncalibHit","EcalUncalibRecHitsEE")
+process.ecalRecHit.EBuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHitsEB'
+process.ecalRecHit.EEuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHitsEE'
 
 process.ecalBarrelMonitorModule.mergeRuns = True
-process.ecalBarrelMonitorModule.EBDigiCollection = cms.InputTag("ecalDigis","ebDigis")
+process.ecalBarrelMonitorModule.EBDigiCollection = 'ecalDigis:ebDigis'
 process.ecalBarrelMonitorModule.runType = 3 # MTCC/PHYSICS
 
 process.simEcalTriggerPrimitiveDigis.Label = 'ecalDigis'
@@ -121,10 +121,10 @@ process.ecalBarrelTriggerTowerTask.EcalTrigPrimDigiCollectionReal = 'simEcalTrig
 
 process.ecalBarrelMonitorModule.EcalTrigPrimDigiCollection = 'simEcalTriggerPrimitiveDigis2'
 
-process.ecalBarrelOccupancyTask.EBDigiCollection = cms.InputTag("ecalDigis","ebDigis")
+process.ecalBarrelOccupancyTask.EBDigiCollection = 'ecalDigis:ebDigis'
 process.ecalBarrelOccupancyTask.EcalTrigPrimDigiCollection = 'simEcalTriggerPrimitiveDigis'
 
-process.ecalBarrelPedestalOnlineTask.EBDigiCollection = cms.InputTag("ecalDigis","ebDigis")
+process.ecalBarrelPedestalOnlineTask.EBDigiCollection = 'ecalDigis:ebDigis'
 
 process.ecalBarrelMonitorClient.maskFile = '../data/maskfile-EB.dat'
 process.ecalBarrelMonitorClient.mergeRuns = True

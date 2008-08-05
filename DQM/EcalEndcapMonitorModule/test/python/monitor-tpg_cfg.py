@@ -1,10 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("ECALDQM")
+process = cms.Process("ECALDQM'
 
-process.load("RecoTBCalo.EcalTBHodoscopeReconstructor.ecal2006TBHodoscopeReconstructor_cfi")
+process.load("RecoTBCalo.EcalTBHodoscopeReconstructor.ecal2006TBHodoscopeReconstructor_cfi'
 
-process.load("RecoTBCalo.EcalTBTDCReconstructor.ecal2006TBTDCReconstructor_cfi")
+process.load("RecoTBCalo.EcalTBTDCReconstructor.ecal2006TBTDCReconstructor_cfi'
 
 import RecoLocalCalo.EcalRecProducers.ecalFixedAlphaBetaFitUncalibRecHit_cfi
 process.ecalUncalibHit = RecoLocalCalo.EcalRecProducers.ecalFixedAlphaBetaFitUncalibRecHit_cfi.ecalFixedAlphaBetaFitUncalibRecHit.clone()
@@ -12,32 +12,32 @@ process.ecalUncalibHit = RecoLocalCalo.EcalRecProducers.ecalFixedAlphaBetaFitUnc
 #import RecoLocalCalo.EcalRecProducers.ecalWeightUncalibRecHit_cfi
 #process.ecalUncalibHit = RecoLocalCalo.EcalRecProducers.ecalWeightUncalibRecHit_cfi.ecalWeightUncalibRecHit.clone()
 
-process.load("RecoLocalCalo.EcalRecProducers.ecalRecHit_cfi")
+process.load("RecoLocalCalo.EcalRecProducers.ecalRecHit_cfi'
 
-process.load("Geometry.CaloEventSetup.CaloGeometry_cfi")
+process.load("Geometry.CaloEventSetup.CaloGeometry_cfi'
 
-process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
+process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi'
 
-process.load("Geometry.EcalMapping.EcalMapping_cfi")
+process.load("Geometry.EcalMapping.EcalMapping_cfi'
 
-process.load("Geometry.EcalMapping.EcalMappingRecord_cfi")
+process.load("Geometry.EcalMapping.EcalMappingRecord_cfi'
 
-process.load("DQM.EcalEndcapMonitorModule.EcalEndcapMonitorModule_cfi")
+process.load("DQM.EcalEndcapMonitorModule.EcalEndcapMonitorModule_cfi'
 
-process.load("DQM.EcalEndcapMonitorTasks.EcalEndcapMonitorTasks_cfi")
+process.load("DQM.EcalEndcapMonitorTasks.EcalEndcapMonitorTasks_cfi'
 
-process.load("Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi")
+process.load("Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi'
 
-process.load("SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cff")
+process.load("SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cff'
 
 import SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cfi
 process.simEcalTriggerPrimitiveDigis2 = SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cfi.simEcalTriggerPrimitiveDigis.clone()
 
-process.load("DQM.EcalEndcapMonitorClient.EcalEndcapMonitorClient_cfi")
+process.load("DQM.EcalEndcapMonitorClient.EcalEndcapMonitorClient_cfi'
 
-process.load("CalibCalorimetry.EcalLaserCorrection.ecalLaserCorrectionService_cfi")
+process.load("CalibCalorimetry.EcalLaserCorrection.ecalLaserCorrectionService_cfi'
 
-process.load("DQMServices.Core.DQM_cfg")
+process.load("DQMServices.Core.DQM_cfg'
 
 process.ecalEBunpacker = cms.EDFilter("EcalDCCTB07UnpackingModule",
     produceEBdigi = cms.untracked.bool(False),
@@ -63,8 +63,8 @@ process.ecalEBunpacker = cms.EDFilter("EcalDCCTB07UnpackingModule",
 
 )
 
-#process.load("EventFilter.EcalRawToDigiDev.EcalUnpackerMapping_cfi")
-#process.load("EventFilter.EcalRawToDigiDev.EcalUnpackerData_cfi")
+#process.load("EventFilter.EcalRawToDigiDev.EcalUnpackerMapping_cfi'
+#process.load("EventFilter.EcalRawToDigiDev.EcalUnpackerData_cfi'
 
 process.preScaler = cms.EDFilter("Prescaler",
     prescaleFactor = cms.int32(1)
@@ -240,11 +240,11 @@ process.ecal2006TBTDCReconstructor.eventHeaderProducer = 'ecalEBunpacker'
 
 process.ecalUncalibHit.MinAmplBarrel = 12.
 process.ecalUncalibHit.MinAmplEndcap = 16.
-process.ecalUncalibHit.EBdigiCollection = cms.InputTag("ecalEBunpacker","ebDigis")
-process.ecalUncalibHit.EEdigiCollection = cms.InputTag("ecalEBunpacker","eeDigis")
+process.ecalUncalibHit.EBdigiCollection = 'ecalEBunpacker:ebDigis'
+process.ecalUncalibHit.EEdigiCollection = 'ecalEBunpacker:eeDigis'
 
-process.ecalRecHit.EBuncalibRecHitCollection = cms.InputTag("ecalUncalibHit","EcalUncalibRecHitsEB")
-process.ecalRecHit.EEuncalibRecHitCollection = cms.InputTag("ecalUncalibHit","EcalUncalibRecHitsEE")
+process.ecalRecHit.EBuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHitsEB'
+process.ecalRecHit.EEuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHitsEE'
 
 process.ecalEndcapMonitorModule.runType = 3 # MTCC/PHYSICS
 
