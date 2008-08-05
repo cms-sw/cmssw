@@ -61,10 +61,10 @@ int main(int argc, char *argv[])
 
   //  AlgoInit();
 
+  // Copied from example stand-alone program in Message Logger July 18, 2007
   std::string const kProgramName = argv[0];
   int rc = 0;
 
-  // Copied from example stand-alone program in Message Logger July 18, 2007
   try {
 
     // A.  Instantiate a plug-in manager first.
