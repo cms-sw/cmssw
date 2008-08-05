@@ -18,58 +18,60 @@ ecal_dqm_source_offline9 = cms.Sequence(ecalBarrelMonitorModule*dqmInfoEB*ecalBa
 
 ecal_dqm_source_offline = cms.Sequence(ecal_dqm_source_offline1)
 
-ecalBarrelMonitorModule.EcalRawDataCollection = cms.InputTag("ecalDigis")
-ecalBarrelMonitorModule.EBDigiCollection = cms.InputTag("ecalDigis","ebDigis")
-ecalBarrelMonitorModule.EcalTrigPrimDigiCollection = cms.InputTag("ecalDigis","EcalTriggerPrimitives")
+ecalBarrelMonitorModule.EcalRawDataCollection = 'ecalDigis'
+ecalBarrelMonitorModule.EBDigiCollection = 'ecalDigis:ebDigis'
+ecalBarrelMonitorModule.EcalTrigPrimDigiCollection = 'ecalDigis:EcalTriggerPrimitives'
 ecalBarrelMonitorModule.verbose = False
 
-ecalBarrelCosmicTask.EcalRawDataCollection = cms.InputTag("ecalDigis")
-ecalBarrelCosmicTask.EcalUncalibratedRecHitCollection = cms.InputTag("ecalFixedAlphaBetaFitUncalibRecHit","EcalUncalibRecHitsEB")
+ecalBarrelCosmicTask.EcalRawDataCollection = 'ecalDigis'
+ecalBarrelCosmicTask.EcalUncalibratedRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEB'
 
-ecalBarrelIntegrityTask.EBDetIdCollection0 = cms.InputTag("ecalDigis","EcalIntegrityDCCSizeErrors")
-ecalBarrelIntegrityTask.EBDetIdCollection1 = cms.InputTag("ecalDigis","EcalIntegrityGainErrors")
-ecalBarrelIntegrityTask.EBDetIdCollection2 = cms.InputTag("ecalDigis","EcalIntegrityChIdErrors")
-ecalBarrelIntegrityTask.EBDetIdCollection3 = cms.InputTag("ecalDigis","EcalIntegrityGainSwitchErrors")
-ecalBarrelIntegrityTask.EcalElectronicsIdCollection1 = cms.InputTag("ecalDigis","EcalIntegrityTTIdErrors")
-ecalBarrelIntegrityTask.EcalElectronicsIdCollection2 = cms.InputTag("ecalDigis","EcalIntegrityBlockSizeErrors")
-ecalBarrelIntegrityTask.EcalElectronicsIdCollection3 = cms.InputTag("ecalDigis","EcalIntegrityMemTtIdErrors")
-ecalBarrelIntegrityTask.EcalElectronicsIdCollection4 = cms.InputTag("ecalDigis","EcalIntegrityMemBlockSizeErrors")
-ecalBarrelIntegrityTask.EcalElectronicsIdCollection5 = cms.InputTag("ecalDigis","EcalIntegrityMemChIdErrors")
-ecalBarrelIntegrityTask.EcalElectronicsIdCollection6 = cms.InputTag("ecalDigis","EcalIntegrityMemGainErrors")
+ecalBarrelIntegrityTask.EBDetIdCollection0 = 'ecalDigis:EcalIntegrityDCCSizeErrors'
+ecalBarrelIntegrityTask.EBDetIdCollection1 = 'ecalDigis:EcalIntegrityGainErrors'
+ecalBarrelIntegrityTask.EBDetIdCollection2 = 'ecalDigis:EcalIntegrityChIdErrors'
+ecalBarrelIntegrityTask.EBDetIdCollection3 = 'ecalDigis:EcalIntegrityGainSwitchErrors'
+ecalBarrelIntegrityTask.EcalElectronicsIdCollection1 = 'ecalDigis:EcalIntegrityTTIdErrors'
+ecalBarrelIntegrityTask.EcalElectronicsIdCollection2 = 'ecalDigis:EcalIntegrityBlockSizeErrors'
+ecalBarrelIntegrityTask.EcalElectronicsIdCollection3 = 'ecalDigis:EcalIntegrityMemTtIdErrors'
+ecalBarrelIntegrityTask.EcalElectronicsIdCollection4 = 'ecalDigis:EcalIntegrityMemBlockSizeErrors'
+ecalBarrelIntegrityTask.EcalElectronicsIdCollection5 = 'ecalDigis:EcalIntegrityMemChIdErrors'
+ecalBarrelIntegrityTask.EcalElectronicsIdCollection6 = 'ecalDigis:EcalIntegrityMemGainErrors'
 
-ecalBarrelLaserTask.EcalRawDataCollection = cms.InputTag("ecalDigis")
-ecalBarrelLaserTask.EBDigiCollection = cms.InputTag("ecalDigis","ebDigis")
-ecalBarrelLaserTask.EcalPnDiodeDigiCollection = cms.InputTag("ecalDigis")
-ecalBarrelLaserTask.EcalUncalibratedRecHitCollection = cms.InputTag("ecalFixedAlphaBetaFitUncalibRecHit","EcalUncalibRecHitsEB")
+ecalBarrelLaserTask.EcalRawDataCollection = 'ecalDigis'
+ecalBarrelLaserTask.EBDigiCollection = 'ecalDigis:ebDigis'
+ecalBarrelLaserTask.EcalPnDiodeDigiCollection = 'ecalDigis'
+ecalBarrelLaserTask.EcalUncalibratedRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEB'
 
-ecalBarrelOccupancyTask.EcalRawDataCollection = cms.InputTag("ecalDigis")
-ecalBarrelOccupancyTask.EBDigiCollection = cms.InputTag("ecalDigis","ebDigis")
-ecalBarrelOccupancyTask.EcalPnDiodeDigiCollection = cms.InputTag("ecalDigis")
-ecalBarrelOccupancyTask.EcalTrigPrimDigiCollection = cms.InputTag("ecalDigis","EcalTriggerPrimitives")
+ecalBarrelOccupancyTask.EcalRawDataCollection = 'ecalDigis'
+ecalBarrelOccupancyTask.EBDigiCollection = 'ecalDigis:ebDigis'
+ecalBarrelOccupancyTask.EcalPnDiodeDigiCollection = 'ecalDigis'
+ecalBarrelOccupancyTask.EcalTrigPrimDigiCollection = 'ecalDigis:EcalTriggerPrimitives'
 
-ecalBarrelPedestalOnlineTask.EBDigiCollection = cms.InputTag("ecalDigis","ebDigis")
+ecalBarrelPedestalOnlineTask.EBDigiCollection = 'ecalDigis:ebDigis'
 
-ecalBarrelPedestalTask.EcalRawDataCollection = cms.InputTag("ecalDigis")
-ecalBarrelPedestalTask.EBDigiCollection = cms.InputTag("ecalDigis","ebDigis")
-ecalBarrelPedestalTask.EcalPnDiodeDigiCollection = cms.InputTag("ecalDigis")
+ecalBarrelPedestalTask.EcalRawDataCollection = 'ecalDigis'
+ecalBarrelPedestalTask.EBDigiCollection = 'ecalDigis:ebDigis'
+ecalBarrelPedestalTask.EcalPnDiodeDigiCollection = 'ecalDigis'
 
-ecalBarrelStatusFlagsTask.EcalRawDataCollection = cms.InputTag("ecalDigis")
+ecalBarrelStatusFlagsTask.EcalRawDataCollection = 'ecalDigis'
 
-ecalBarrelTestPulseTask.EcalRawDataCollection = cms.InputTag("ecalDigis")
-ecalBarrelTestPulseTask.EBDigiCollection = cms.InputTag("ecalDigis","ebDigis")
-ecalBarrelTestPulseTask.EcalPnDiodeDigiCollection = cms.InputTag("ecalDigis")
-ecalBarrelTestPulseTask.EcalUncalibratedRecHitCollection = cms.InputTag("ecalFixedAlphaBetaFitUncalibRecHit","EcalUncalibRecHitsEB")
+ecalBarrelTestPulseTask.EcalRawDataCollection = 'ecalDigis'
+ecalBarrelTestPulseTask.EBDigiCollection = 'ecalDigis:ebDigis'
+ecalBarrelTestPulseTask.EcalPnDiodeDigiCollection = 'ecalDigis'
+ecalBarrelTestPulseTask.EcalUncalibratedRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEB'
 
-ecalBarrelTimingTask.EcalRawDataCollection = cms.InputTag("ecalDigis")
-ecalBarrelTimingTask.EcalUncalibratedRecHitCollection = cms.InputTag("ecalFixedAlphaBetaFitUncalibRecHit","EcalUncalibRecHitsEB")
+ecalBarrelTimingTask.EcalRawDataCollection = 'ecalDigis'
+ecalBarrelTimingTask.EcalUncalibratedRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEB'
 
-ecalBarrelTriggerTowerTask.EcalTrigPrimDigiCollectionReal = cms.InputTag("ecalDigis","EcalTriggerPrimitives")
+ecalBarrelTriggerTowerTask.EcalTrigPrimDigiCollectionReal = 'ecalDigis:EcalTriggerPrimitives'
 
 # to be used if the TP emulator _is_not_ in the path
-ecalBarrelTriggerTowerTask.EcalTrigPrimDigiCollectionEmul = cms.InputTag("ecalDigis","EcalTriggerPrimitives")
+ecalBarrelTriggerTowerTask.EcalTrigPrimDigiCollectionEmul = 'ecalDigis:EcalTriggerPrimitives'
 
 # to be used if the TP emulator _is_ in the path
-#ecalBarrelTriggerTowerTask.EcalTrigPrimDigiCollectionEmul = cms.InputTag("valEcalTriggerPrimitiveDigis")
+#ecalBarrelTriggerTowerTask.EcalTrigPrimDigiCollectionEmul = 'valEcalTriggerPrimitiveDigis'
 
-ecalBarrelClusterTask.BasicClusterCollection = cms.InputTag("cosmicBasicClusters","CosmicBarrelBasicClusters")
+ecalBarrelClusterTask.BasicClusterCollection = 'cosmicBasicClusters:CosmicBarrelBasicClusters'
+ecalBarrelClusterTask.SuperClusterCollection = 'hybridSuperClusters'
+ecalBarrelClusterTask.ClusterShapeAssociation= 'hybridSuperClusters:hybridShapeAssoc'
 
