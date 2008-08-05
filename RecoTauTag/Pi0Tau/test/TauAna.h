@@ -15,7 +15,7 @@ Implementation:
 //
 // Original Author:  Dongwook Jang
 //         Created:  Wed Oct 11 11:08:40 CDT 2006
-// $Id: TauAna.h,v 1.1 2007/03/27 21:32:03 dwjang Exp $
+// $Id: TauAna.h,v 1.1 2007/06/04 23:11:24 dwjang Exp $
 //
 
 // system include files
@@ -30,6 +30,7 @@ Implementation:
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <TTree.h>
+#include <TVector3.h>
 #include <TLorentzVector.h>
 
 //
@@ -37,7 +38,7 @@ Implementation:
 //
 
 class TauAna : public edm::EDAnalyzer {
-//class TauAna : public edm::EDProducer {
+
  public:
   explicit TauAna(const edm::ParameterSet&);
   ~TauAna();
@@ -61,6 +62,7 @@ class TauAna : public edm::EDAnalyzer {
   TLorentzVector *t_tracksMomentum;
   TLorentzVector *t_pi0sMomentum;
   TLorentzVector *t_momentum;
+  TVector3 *t_seedTrackVertex;
 
 };
 
