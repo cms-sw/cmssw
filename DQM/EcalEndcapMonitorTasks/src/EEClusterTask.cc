@@ -1,8 +1,8 @@
 /*
  * \file EEClusterTask.cc
  *
- * $Date: 2008/08/05 13:55:38 $
- * $Revision: 1.50 $
+ * $Date: 2008/08/05 14:06:07 $
+ * $Revision: 1.51 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -98,7 +98,11 @@ EEClusterTask::EEClusterTask(const ParameterSet& ps){
 
   mes1s9_ = 0;
   mes9s25_ = 0;
-  meInvMass_ = 0;
+
+  meInvMassPi0_ = 0;
+  meInvMassJPsi_ = 0;
+  meInvMassZ0_ = 0;
+  meInvMassHigh_ = 0;
 
 }
 
@@ -195,7 +199,14 @@ void EEClusterTask::reset(void) {
 
   if ( mes9s25_ ) mes9s25_->Reset();
 
-  if ( meInvMass_ ) meInvMass_->Reset();
+  if ( meInvMassPi0_ ) meInvMassPi0_->Reset();
+
+  if ( meInvMassJPsi_ ) meInvMassJPsi_->Reset();
+
+  if ( meInvMassZ0_ ) meInvMassZ0_->Reset();
+
+  if ( meInvMassHigh_ ) meInvMassHigh_->Reset();
+
 }
 
 void EEClusterTask::setup(void){
@@ -359,9 +370,21 @@ void EEClusterTask::setup(void){
     mes9s25_ = dqmStore_->book1D(histo, histo, 75, 0., 1.5);
     mes9s25_->setAxisTitle("s9/s25", 1);
 
-    sprintf(histo, "EECLT dicluster invariant mass");
-    meInvMass_ = dqmStore_->book1D(histo, histo, 100, 0., 200.);
-    meInvMass_->setAxisTitle("mass (GeV)", 1);
+    sprintf(histo, "EECLT dicluster invariant mass Pi0");
+    meInvMassPi0_ = dqmStore_->book1D(histo, histo, 50, 0., 0.300);
+    meInvMassPi0_->setAxisTitle("mass (GeV)", 1);
+
+    sprintf(histo, "EECLT dicluster invariant mass JPsi");
+    meInvMassJPsi_ = dqmStore_->book1D(histo, histo, 50, 2.9, 3.3);
+    meInvMassJPsi_->setAxisTitle("mass (GeV)", 1);
+
+    sprintf(histo, "EECLT dicluster invariant mass Z0");
+    meInvMassZ0_ = dqmStore_->book1D(histo, histo, 50, 40, 110);
+    meInvMassZ0_->setAxisTitle("mass (GeV)", 1);
+
+    sprintf(histo, "EECLT dicluster invariant mass high");
+    meInvMassHigh_ = dqmStore_->book1D(histo, histo, 500, 110, 3000);
+    meInvMassHigh_->setAxisTitle("mass (GeV)", 1);
 
   }
 
@@ -470,8 +493,17 @@ void EEClusterTask::cleanup(void){
     if ( mes9s25_ ) dqmStore_->removeElement( mes9s25_->getName() );
     mes9s25_ = 0;
 
-    if ( meInvMass_ ) dqmStore_->removeElement( meInvMass_->getName() );
-    meInvMass_ = 0;
+    if ( meInvMassPi0_ ) dqmStore_->removeElement( meInvMassPi0_->getName() );
+    meInvMassPi0_ = 0;
+
+    if ( meInvMassJPsi_ ) dqmStore_->removeElement( meInvMassJPsi_->getName() );
+    meInvMassJPsi_ = 0;
+
+    if ( meInvMassZ0_ ) dqmStore_->removeElement( meInvMassZ0_->getName() );
+    meInvMassZ0_ = 0;
+
+    if ( meInvMassHigh_ ) dqmStore_->removeElement( meInvMassHigh_->getName() );
+    meInvMassHigh_ = 0;
 
   }
 
@@ -638,7 +670,16 @@ void EEClusterTask::analyze(const Event& e, const EventSetup& c){
     // Get the invariant mass of the two most energetic super clusters
     if ( nscc >= 2) {
       TLorentzVector sum = sc1_p+sc2_p;
-      meInvMass_->Fill(sum.M());
+      float mass = sum.M();
+      if ( mass < 0.3 ) {
+	meInvMassPi0_->Fill( mass );
+      } else if ( mass > 2.9 && mass < 3.3 ) {
+	meInvMassJPsi_->Fill( mass );
+      } else if ( mass > 40 && mass < 110 ) {
+	meInvMassZ0_->Fill( mass );
+      } else if ( mass > 110 ) {
+	meInvMassHigh_->Fill( mass );
+      }
     }
 
   } else {

@@ -1,8 +1,8 @@
 /*
  * \file EBClusterClient.cc
  *
- * $Date: 2008/06/25 14:16:15 $
- * $Revision: 1.67 $
+ * $Date: 2008/06/25 15:08:18 $
+ * $Revision: 1.68 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -289,7 +289,7 @@ void EBClusterClient::analyze(void) {
   me = dqmStore_->get(histo);
   s01_[1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, s01_[1] );
 
-  sprintf(histo, (prefixME_ + "/EBClusterTask/EBCLT dicluster invariant mass").c_str());
+  sprintf(histo, (prefixME_ + "/EBClusterTask/EBCLT dicluster invariant mass Pi0").c_str());
   me = dqmStore_->get(histo);
   s01_[2] = UtilsClient::getHisto<TH1F*>( me, cloneME_, s01_[2] );
 

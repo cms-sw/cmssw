@@ -4,8 +4,8 @@
 /*
  * \file EBClusterTask.h
  *
- * $Date: 2008/08/05 13:55:36 $
- * $Revision: 1.19 $
+ * $Date: 2008/08/05 14:05:48 $
+ * $Revision: 1.20 $
  * \author G. Della Ricca
  *
  */
@@ -85,7 +85,10 @@ MonitorElement* meSCSiz_;
 
 MonitorElement* mes1s9_;
 MonitorElement* mes9s25_;
-MonitorElement* meInvMass_;
+MonitorElement* meInvMassPi0_;
+MonitorElement* meInvMassJPsi_;
+MonitorElement* meInvMassZ0_;
+MonitorElement* meInvMassHigh_;
 
 bool init_;
 

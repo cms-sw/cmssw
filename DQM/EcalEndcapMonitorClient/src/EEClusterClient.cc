@@ -1,8 +1,8 @@
 /*
  * \file EEClusterClient.cc
  *
- * $Date: 2008/06/25 14:16:16 $
- * $Revision: 1.54 $
+ * $Date: 2008/06/25 15:08:19 $
+ * $Revision: 1.55 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -343,7 +343,7 @@ void EEClusterClient::analyze(void) {
   me = dqmStore_->get(histo);
   s01_[1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, s01_[1] );
 
-  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT dicluster invariant mass").c_str());
+  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT dicluster invariant mass Pi0").c_str());
   me = dqmStore_->get(histo);
   s01_[2] = UtilsClient::getHisto<TH1F*>( me, cloneME_, s01_[2] );
 

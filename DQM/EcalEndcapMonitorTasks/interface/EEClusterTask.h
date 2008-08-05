@@ -4,8 +4,8 @@
 /*
  * \file EEClusterTask.h
  *
- * $Date: 2008/08/05 13:55:38 $
- * $Revision: 1.14 $
+ * $Date: 2008/08/05 14:06:06 $
+ * $Revision: 1.15 $
  * \author G. Della Ricca
  *
  */
@@ -82,7 +82,11 @@ MonitorElement* meBCEneBwdMapProjPhi_, *meBCNumBwdMapProjPhi_, *meBCETBwdMapProj
 
 MonitorElement* meSCEne_, *meSCNum_, *meSCSiz_;  
 
-MonitorElement* mes1s9_, *mes9s25_, *meInvMass_;
+MonitorElement* mes1s9_, *mes9s25_;
+MonitorElement* meInvMassPi0_;
+MonitorElement* meInvMassJPsi_;
+MonitorElement* meInvMassZ0_;
+MonitorElement* meInvMassHigh_;
 
 bool init_;
 
