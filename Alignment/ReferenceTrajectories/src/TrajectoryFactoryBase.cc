@@ -64,6 +64,8 @@ TrajectoryFactoryBase::orderedTrajectoryMeasurements( const Trajectory & traject
 
   if ( hitsAreReverse )
   {
+    // Simply use this line instead of the copying by hand?
+    // const Trajectory::DataContainer reordered(original.rbegin(), original.rend());
     Trajectory::DataContainer reordered;
     reordered.reserve( original.size() );
 
@@ -81,6 +83,8 @@ TrajectoryFactoryBase::orderedTrajectoryMeasurements( const Trajectory & traject
 
 bool TrajectoryFactoryBase::sameSurface( const Surface& s1, const Surface& s2 ) const
 {
+  // - Should use perp2() instead of perp()
+  // - Should not rely on floating point equality, but make a minimal range, e.g. 1.e-6 ?
   return ( s1.eta() == s2.eta() ) && ( s1.phi() == s2.phi() ) && ( s1.position().perp() == s2.position().perp() );
 }
 
