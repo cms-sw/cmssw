@@ -34,7 +34,7 @@ HcalSimHitStudy::~HcalSimHitStudy() {
 void HcalSimHitStudy::beginJob(const edm::EventSetup& ) {
 
   if (dbe_) {
-    dbe_->setCurrentFolder("HcalSimHitStudy");
+    dbe_->setCurrentFolder("HcalHitsV/HcalSimHitsTask");
 
     //Histograms for Hits
     if (checkHit_) {
