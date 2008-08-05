@@ -143,7 +143,7 @@ void SDDYAnalyzer::analyze(const edm::Event & ev, const edm::EventSetup&){
 
   if(proton2 != genParticles->end()){
 		if(debug) std::cout << "Proton 2: " << proton2->pt() << "  " << proton2->eta() << "  " << proton2->phi() << std::endl;	
-   		double xigen2 = 1 + proton2->pt()/Ebeam;
+   		double xigen2 = 1 + proton2->pz()/Ebeam;
         	hXiGen->Fill(xigen2);
 		hProtonPt2->Fill(proton2->pt()*proton2->pt());
   }

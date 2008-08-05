@@ -34,6 +34,7 @@ private:
   TH1F* hJetDeltaEta;
   TH1F* hJetDeltaPhi;
   TH1F* hJetDeltaPt;
+  TH1F* hThrust;
   TH1F* hEnergyvsEta;
   TH1F* hXiGen;
   TH1F* hProtonPt2;	
@@ -51,8 +52,10 @@ private:
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
 
+#include "DataFormats/Common/interface/View.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
+#include "PhysicsTools/CandUtils/interface/Thrust.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -91,6 +94,7 @@ void SDDijetsAnalyzer::beginJob(const edm::EventSetup& eventSetup){
   hJetDeltaEta = fs->make<TH1F>("hJetDeltaEta","hJetDeltaEta",100,-5.,5.);
   hJetDeltaPhi = fs->make<TH1F>("hJetDeltaPhi","hJetDeltaPhi",100,-3.141592,3.141592);
   hJetDeltaPt = fs->make<TH1F>("hJetDeltaPt","hJetDeltaPt",100,0.,100.);
+  hThrust = fs->make<TH1F>("hThrust","hThrust",100,0.,1.);
 
   hEnergyvsEta = fs->make<TH1F>("hEnergyvsEta","hEnergyvsEta",100,-15.0,15.0); 		
   hXiGen = fs->make<TH1F>("hXiGen","hXiGen",100,0.,0.21);
@@ -114,12 +118,13 @@ void SDDijetsAnalyzer::analyze(const edm::Event & ev, const edm::EventSetup&){
   double pz2min = 0.;
   reco::GenParticleCollection::const_iterator proton1 = genParticles->end();
   reco::GenParticleCollection::const_iterator proton2 = genParticles->end();
+  //std::vector<reco::GenParticle> myStableParticles;
   //for(size_t i = 0; i < genParticles->size(); ++i) {
   for(reco::GenParticleCollection::const_iterator genpart = genParticles->begin(); genpart != genParticles->end(); ++genpart){
       		//const reco::GenParticle& genpart = (*genParticles)[i];
       		//LogTrace("") << ">>>>>>> pid,status,px,py,px,e= "  << genpart.pdgId() << " , " << genpart.status() << " , " << genpart.px() << " , " << genpart.py() << " , " << genpart.pz() << " , " << genpart.energy();	
 		if(genpart->status() != 1) continue;
-
+		//myStableParticles.push_back(*genpart);
 		hEnergyvsEta->Fill(genpart->eta(),genpart->energy());	
 		
 		double pz = genpart->pz();
@@ -139,7 +144,7 @@ void SDDijetsAnalyzer::analyze(const edm::Event & ev, const edm::EventSetup&){
 
   if(proton2 != genParticles->end()){
 		if(debug) std::cout << "Proton 2: " << proton2->pt() << "  " << proton2->eta() << "  " << proton2->phi() << std::endl;	
-   		double xigen2 = 1 + proton2->pt()/Ebeam;
+   		double xigen2 = 1 + proton2->pz()/Ebeam;
         	hXiGen->Fill(xigen2);
 		hProtonPt2->Fill(proton2->pt()*proton2->pt());
   }
@@ -188,7 +193,16 @@ void SDDijetsAnalyzer::analyze(const edm::Event & ev, const edm::EventSetup&){
 	hJetDeltaEta->Fill(jet1->eta() - jet2->eta());
 	hJetDeltaPhi->Fill(jet1->phi() - jet2->phi());
 	hJetDeltaPt->Fill(jet1->pt() - jet2->pt());	
-  }	
+  }
+
+  //Calculate Thrust
+  edm::Handle<edm::View<reco::Candidate> > genParticlesVisible;
+  ev.getByLabel("genParticlesVisible", genParticlesVisible);
+  Thrust mythrust(genParticlesVisible->begin(),genParticlesVisible->end());
+  double thrustValue = mythrust.thrust();
+  if(debug) std::cout << ">>> Event Thrust: " << thrustValue << std::endl;
+  hThrust->Fill(thrustValue);
+				
 }
 
 DEFINE_FWK_MODULE(SDDijetsAnalyzer);
