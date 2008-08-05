@@ -52,7 +52,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 process.source = cms.Source("PoolSource",
 #---
-    fileNames = cms.untracked.vstring('/store/users/dellaric/data/cosmics_ZS_noSR_RAW.root')
+    fileNames = cms.untracked.vstring('/store/users/dellaric/data/relval_zee.root')
 #---
 )
 
@@ -80,7 +80,7 @@ process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('cout')
 )
 
-process.ecalDataSequence = cms.Sequence(process.preScaler*process.ecalUncalibHit*process.ecalRecHit*process.islandBasicClusters*process.islandSuperClusters*process.hybridSuperClusters)
+process.ecalDataSequence = cms.Sequence(process.preScaler*process.ecalUncalibHit*process.ecalRecHit*process.hybridSuperClusters*process.correctedHybridSuperClusters*process.multi5x5BasicClusters*process.multi5x5SuperClusters)
 process.ecalBarrelMonitorSequence = cms.Sequence(process.ecalBarrelMonitorModule*process.dqmInfoEB*process.ecalBarrelMonitorClient*process.dqmSaverEB)
 
 process.p = cms.Path(process.ecalDataSequence*process.ecalBarrelMonitorSequence)
@@ -88,21 +88,21 @@ process.q = cms.EndPath(process.ecalBarrelDefaultTasksSequence*process.ecalBarre
 
 process.ecalUncalibHit.MinAmplBarrel = 12.
 process.ecalUncalibHit.MinAmplEndcap = 16.
-process.ecalUncalibHit.EBdigiCollection = 'ecalDigis:ebDigis'
-process.ecalUncalibHit.EEdigiCollection = 'ecalDigis:eeDigis'
+process.ecalUncalibHit.EBdigiCollection = 'simEcalDigis:ebDigis'
+process.ecalUncalibHit.EEdigiCollection = 'simEcalDigis:eeDigis'
 
 process.ecalRecHit.EBuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHitsEB'
 process.ecalRecHit.EEuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHitsEE'
 
 process.ecalBarrelMonitorModule.mergeRuns = True
-process.ecalBarrelMonitorModule.EBDigiCollection = 'ecalDigis:ebDigis'
+process.ecalBarrelMonitorModule.EBDigiCollection = 'simEcalDigis:ebDigis'
 process.ecalBarrelMonitorModule.runType = 3 # MTCC/PHYSICS
 process.ecalBarrelMonitorModule.EcalTrigPrimDigiCollection = 'ecalTriggerPrimitiveDigis'
 
-process.ecalBarrelOccupancyTask.EBDigiCollection = 'ecalDigis:ebDigis'
+process.ecalBarrelOccupancyTask.EBDigiCollection = 'simEcalDigis:ebDigis'
 process.ecalBarrelOccupancyTask.EcalTrigPrimDigiCollection = 'ecalTriggerPrimitiveDigis'
 
-process.ecalBarrelPedestalOnlineTask.EBDigiCollection = 'ecalDigis:ebDigis'
+process.ecalBarrelPedestalOnlineTask.EBDigiCollection = 'simEcalDigis:ebDigis'
 
 process.ecalBarrelMonitorClient.maskFile = '../data/maskfile-EB.dat'
 process.ecalBarrelMonitorClient.mergeRuns = True

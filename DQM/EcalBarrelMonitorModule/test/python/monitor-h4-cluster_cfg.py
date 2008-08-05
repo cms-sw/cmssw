@@ -201,7 +201,7 @@ process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('cout')
 )
 
-process.ecalDataSequence = cms.Sequence(process.preScaler*process.ecalEBunpacker*process.ecalUncalibHit*process.ecalRecHit*process.islandBasicClusters*process.islandSuperClusters*process.hybridSuperClusters)
+process.ecalDataSequence = cms.Sequence(process.preScaler*process.ecalEBunpacker*process.ecalUncalibHit*process.ecalRecHit*process.hybridSuperClusters*process.correctedHybridSuperClusters*process.multi5x5BasicClusters*process.multi5x5SuperClusters)
 process.ecalBarrelMonitorSequence = cms.Sequence(process.ecalBarrelMonitorModule*process.dqmInfoEB*process.ecalBarrelMonitorClient*process.dqmQTestEB*process.dqmSaverEB)
 
 process.p = cms.Path(process.ecalDataSequence*process.ecalBarrelMonitorSequence)
@@ -221,14 +221,9 @@ process.ecalBarrelMonitorClient.baseHtmlDir = '.'
 process.ecalBarrelMonitorClient.enabledClients = ['Integrity', 'Occupancy', 'StatusFlags', 'PedestalOnline', 'Cosmic', 'Timing', 'Cluster', 'Summary']
 process.ecalBarrelMonitorClient.superModules = [19]
 
-process.islandBasicClusters.IslandBarrelSeedThr = 0.150
-process.islandBasicClusters.IslandEndcapSeedThr = 0.150
-
 process.hybridSuperClusters.HybridBarrelSeedThr = 0.150
 process.hybridSuperClusters.step = 1
 process.hybridSuperClusters.eseed = 0.150
-
-process.islandSuperClusters.seedTransverseEnergyThreshold = 0.150
 
 process.DQM.collectorHost = ''
 
