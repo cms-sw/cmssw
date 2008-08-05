@@ -119,12 +119,12 @@ void MonitorTrackResiduals::createMEs(const edm::EventSetup& iSetup){
 	if(! m_SubdetLayerResiduals[subdetandlayer ] ) {
 	  // book histogramms on layer level, check for barrel for correct labeling
 	  std::string histoname = Form(subdetandlayer.first.find("B") != std::string::npos ? 
-				       "HitResiduals_%s__Layer_%d" : "HitResiduals_%s__wheel_%d" ,
-				       subdetandlayer.first.c_str(),subdetandlayer.second);
+				       "HitResiduals_%s__Layer__%d" : "HitResiduals_%s__wheel__%d" ,
+				       subdetandlayer.first.c_str(),abs(subdetandlayer.second));
 	  std::string normhistoname = 
 	    Form(subdetandlayer.first.find("B") != std::string::npos ? 
-		 "NormalizedHitResidual_%s__Layer_%d" : "NormalizedHitResidual_%s__wheel_%d" ,
-		 subdetandlayer.first.c_str(),subdetandlayer.second);
+		 "NormalizedHitResidual_%s__Layer__%d" : "NormalizedHitResidual_%s__wheel__%d" ,
+		 subdetandlayer.first.c_str(),abs(subdetandlayer.second));
 	  m_SubdetLayerResiduals[subdetandlayer] = 
 	    dqmStore_->book1D(histoname.c_str(),histoname.c_str(),
 			      i_residuals_Nbins,d_residual_xmin,d_residual_xmax);
