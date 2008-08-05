@@ -1,26 +1,20 @@
 <use name=Alignment/ReferenceTrajectories>
+<use name=Alignment/TwoBodyDecay>
+<use name=FWCore/Framework>
+<use name=FWCore/MessageLogger>
+<use name=FWCore/ParameterSet>
+<use name=DataFormats/CLHEP>
+<use name=DataFormats/GeometryCommonDetAlgo>
+<use name=DataFormats/GeometrySurface>
+<use name=DataFormats/Math>
+<use name=DataFormats/TrackingRecHit>
+<use name=MagneticField/Records>
+<use name=TrackingTools/GeomPropagators>
+<use name=TrackingTools/TransientTrack>
+<use name=RecoVertex/VertexTools>
 
-<library file=ReferenceTrajectoryFactory.cc>
+<use name=rootcore>
+
+<library file=*.cc name=AlignmentReferenceTrajectoriesPlugins>
    <flags EDM_PLUGIN=1>
 </library>
-
-<library file=BzeroReferenceTrajectoryFactory.cc>
-   <flags EDM_PLUGIN=1>
-</library>
-
-<library file=DualTrajectoryFactory.cc>
-   <flags EDM_PLUGIN=1>
-</library>
-
-<library file=DualBzeroTrajectoryFactory.cc>
-   <flags EDM_PLUGIN=1>
-</library>
-
-<library file=TwoBodyDecayTrajectoryFactory.cc>
-   <flags EDM_PLUGIN=1>
-</library>
-
-<library file=CombinedTrajectoryFactory.cc>
-   <flags EDM_PLUGIN=1>
-</library>
-
