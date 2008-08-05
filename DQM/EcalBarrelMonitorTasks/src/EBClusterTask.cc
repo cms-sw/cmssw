@@ -1,8 +1,8 @@
 /*
  * \file EBClusterTask.cc
  *
- * $Date: 2008/07/07 18:11:00 $
- * $Revision: 1.60 $
+ * $Date: 2008/07/08 08:05:08 $
+ * $Revision: 1.61 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -24,8 +24,10 @@
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-#include "DataFormats/EgammaReco/interface/ClusterShape.h"
-#include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
+#include "Geometry/CaloTopology/interface/CaloTopology.h"
+#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 #include "DataFormats/Math/interface/Point3D.h"
 
 #include <DQM/EcalCommon/interface/Numbers.h>
@@ -55,7 +57,7 @@ EBClusterTask::EBClusterTask(const ParameterSet& ps){
   EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
   BasicClusterCollection_ = ps.getParameter<edm::InputTag>("BasicClusterCollection");
   SuperClusterCollection_ = ps.getParameter<edm::InputTag>("SuperClusterCollection");
-  ClusterShapeAssociation_ = ps.getParameter<edm::InputTag>("ClusterShapeAssociation");
+  reducedBarrelRecHitCollection_ = ps.getParameter<edm::InputTag>("reducedBarrelRecHitCollection");
 
   // histograms...
   meBCEne_ = 0;
@@ -442,12 +444,6 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
     int nscc = pSuperClusters->size();
     if ( nscc > 0 ) meSCNum_->Fill(float(nscc));
 
-    Handle<BasicClusterShapeAssociationCollection> pClusterShapeAssociation;
-
-    if ( ! e.getByLabel(ClusterShapeAssociation_, pClusterShapeAssociation) ) {
-      LogWarning("EBClusterTask") << "Can't get collection with label "   << ClusterShapeAssociation_.label();
-    }
-
     TLorentzVector sc1_p(0,0,0,0);
     TLorentzVector sc2_p(0,0,0,0);
 
@@ -458,10 +454,30 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
       meSCSiz_->Fill( float(sCluster->clustersSize()) );
 
       // seed and shapes
-      if ( pClusterShapeAssociation.isValid() ) {
-        const ClusterShapeRef& shape = pClusterShapeAssociation->find(sCluster->seed())->val;
-        mes1s9_->Fill(shape->eMax()/shape->e3x3());
-        mes9s25_->Fill(shape->e3x3()/shape->e5x5());
+      edm::Handle< EcalRecHitCollection > pEBRecHits;
+      e.getByLabel( reducedBarrelRecHitCollection_, pEBRecHits );
+      if ( pEBRecHits.isValid() ) {
+        const EcalRecHitCollection *ebRecHits = pEBRecHits.product();
+
+	edm::ESHandle<CaloTopology> pTopology;
+        c.get<CaloTopologyRecord>().get(pTopology);
+        if ( pTopology.isValid() ) {
+          const CaloTopology *topology = pTopology.product();
+
+          BasicClusterRef theSeed = sCluster->seed();
+          float eMax = EcalClusterTools::eMax( *theSeed, ebRecHits );
+          float e3x3 = EcalClusterTools::e3x3( *theSeed, ebRecHits, topology );
+          float e5x5 = EcalClusterTools::e5x5( *theSeed, ebRecHits, topology );
+
+          mes1s9_->Fill( eMax/e3x3 );
+          mes9s25_->Fill( e3x3/e5x5 );
+        }
+        else {
+          LogWarning("EBClusterTask") << "CaloTopology not valid";
+        }
+      }
+      else {
+        LogWarning("EBClusterTask") << reducedBarrelRecHitCollection_ << " not available";
       }
 
       // look for the two most energetic super clusters

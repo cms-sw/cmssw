@@ -5,8 +5,8 @@ ecalBarrelClusterTask = cms.EDFilter("EBClusterTask",
     enableCleanup = cms.untracked.bool(False),
     mergeRuns = cms.untracked.bool(False),    
     EcalRawDataCollection = cms.InputTag("ecalEBunpacker"),
-    BasicClusterCollection = cms.InputTag("islandBasicClusters","islandBarrelBasicClusters"),
-    SuperClusterCollection = cms.InputTag("hybridSuperClusters"),
-    ClusterShapeAssociation = cms.InputTag("hybridSuperClusters","hybridShapeAssoc")
+    BasicClusterCollection = cms.InputTag("hybridSuperClusters","hybridBarrelBasicClusters"),
+    SuperClusterCollection = cms.InputTag("correctedHybridSuperClusters"),
+    reducedBarrelRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEB")
 )
 
