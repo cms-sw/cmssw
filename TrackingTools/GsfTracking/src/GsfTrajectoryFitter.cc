@@ -143,7 +143,7 @@ std::vector<Trajectory> GsfTrajectoryFitter::fit(const TrajectorySeed& aSeed,
 	currTsos = updator()->update(predTsos, *preciseHit);
       }
       myTraj.push(TM(predTsos, currTsos, preciseHit,
-		     estimator()->estimate(predTsos, **ihit).second));
+		     estimator()->estimate(predTsos, *preciseHit).second));
     } else {
       currTsos = predTsos;
       myTraj.push(TM(predTsos, *ihit));
