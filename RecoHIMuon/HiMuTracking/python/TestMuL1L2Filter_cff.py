@@ -19,6 +19,7 @@ process.load("Configuration.StandardSequences.L1TriggerDefaultMenu_cff")
 process.load("Configuration.StandardSequences.DigiToRaw_cff")
 process.load("Configuration.StandardSequences.RawToDigi_cff")
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
+process.load("RecoHIMuon.HiMuTracking.HiMuL3_cff")
 
 process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('cout',
@@ -39,13 +40,7 @@ process.source = cms.Source("PoolSource",
     catalog = cms.untracked.string('PoolFileCatalog.xml'),
     fileNames = cms.untracked.vstring('rfio:/castor/cern.ch/cms/store/cmshi/mc/sim/pgun_upsilon2muons_d20080604/pgun_upsilon2muons_d20080604_r000001.root')
 )
-process.muonFilter = cms.EDFilter("TestMuL1L2Filter",
-    CandTag = cms.InputTag("standAloneMuons"),
-    NavigationPSet = cms.PSet(
-        ComponentName = cms.string('SimpleNavigationSchool')
-    ),
-    rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit")
-)
+
 process.TimerService = cms.Service("TimerService",
     useCPUtime = cms.untracked.bool(True)
 )
