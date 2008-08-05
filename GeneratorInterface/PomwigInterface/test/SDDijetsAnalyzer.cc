@@ -31,9 +31,16 @@ private:
   TH1F* hJet2Pt;
   TH1F* hJet2Eta;
   TH1F* hJet2Phi;
-  TH1F* hEnergyvsEta;	
+  TH1F* hJetDeltaEta;
+  TH1F* hJetDeltaPhi;
+  TH1F* hJetDeltaPt;
+  TH1F* hEnergyvsEta;
+  TH1F* hXiGen;
+  TH1F* hProtonPt2;	
 
   int nevents;
+  bool debug;
+  double Ebeam;
 };
 
 ////////// Source code ////////////////////////////////////////////////
@@ -51,11 +58,19 @@ private:
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 
+struct jetptcomp {
+  bool operator() (std::pair<reco::GenJetCollection::const_iterator,double> jet1, std::pair<reco::GenJetCollection::const_iterator,double> jet2){
+                return (jet1.second > jet2.second);
+        } 
+} myjetptcomp;
+
 /// Constructor
 SDDijetsAnalyzer::SDDijetsAnalyzer(const edm::ParameterSet& pset)
 {
   genParticlesTag_ = pset.getParameter<edm::InputTag>("GenParticleTag");
   genJetsTag_ = pset.getParameter<edm::InputTag>("GenJetTag");
+
+  debug = pset.getUntrackedParameter<bool>("debug",false);
 }
 
 /// Destructor
@@ -72,9 +87,17 @@ void SDDijetsAnalyzer::beginJob(const edm::EventSetup& eventSetup){
   hJet2Pt = fs->make<TH1F>("hJet2Pt","hJet2Pt",100,0.,200.);
   hJet2Eta = fs->make<TH1F>("hJet2Eta","hJet2Eta",100,-5.,5.);  
   hJet2Phi = fs->make<TH1F>("hJet2Phi","hJet2Phi",100,-3.141592,3.141592);
+
+  hJetDeltaEta = fs->make<TH1F>("hJetDeltaEta","hJetDeltaEta",100,-5.,5.);
+  hJetDeltaPhi = fs->make<TH1F>("hJetDeltaPhi","hJetDeltaPhi",100,-3.141592,3.141592);
+  hJetDeltaPt = fs->make<TH1F>("hJetDeltaPt","hJetDeltaPt",100,0.,100.);
+
   hEnergyvsEta = fs->make<TH1F>("hEnergyvsEta","hEnergyvsEta",100,-15.0,15.0); 		
+  hXiGen = fs->make<TH1F>("hXiGen","hXiGen",100,0.,0.21);
+  hProtonPt2 = fs->make<TH1F>("hProtonPt2","hProtonPt2",100,0.,3.0);
 
   nevents = 0;
+  Ebeam = 5000.;//Fix get the Ebeam from the event
 }
 
 void SDDijetsAnalyzer::endJob(){
@@ -87,17 +110,43 @@ void SDDijetsAnalyzer::analyze(const edm::Event & ev, const edm::EventSetup&){
   // Generator Information
   edm::Handle<reco::GenParticleCollection> genParticles;
   ev.getByLabel(genParticlesTag_, genParticles);
-  for(size_t i = 0; i < genParticles->size(); ++i) {
-      		const reco::GenParticle& genpart = (*genParticles)[i];
+  double pz1max = 0.;
+  double pz2min = 0.;
+  reco::GenParticleCollection::const_iterator proton1 = genParticles->end();
+  reco::GenParticleCollection::const_iterator proton2 = genParticles->end();
+  //for(size_t i = 0; i < genParticles->size(); ++i) {
+  for(reco::GenParticleCollection::const_iterator genpart = genParticles->begin(); genpart != genParticles->end(); ++genpart){
+      		//const reco::GenParticle& genpart = (*genParticles)[i];
       		//LogTrace("") << ">>>>>>> pid,status,px,py,px,e= "  << genpart.pdgId() << " , " << genpart.status() << " , " << genpart.px() << " , " << genpart.py() << " , " << genpart.pz() << " , " << genpart.energy();	
-		if(genpart.status() != 1) continue;
+		if(genpart->status() != 1) continue;
 
-		hEnergyvsEta->Fill(genpart.eta(),genpart.energy());	
+		hEnergyvsEta->Fill(genpart->eta(),genpart->energy());	
+		
+		double pz = genpart->pz();
+     		if((genpart->pdgId() == 2212)&&(pz > 0.75*Ebeam)){
+			if(pz > pz1max){proton1 = genpart;pz1max=pz;}
+		} else if((genpart->pdgId() == 2212)&&(pz < -0.75*Ebeam)){
+     			if(pz < pz2min){proton2 = genpart;pz2min=pz;}
+     		}
+  }
+
+  if(proton1 != genParticles->end()){
+		if(debug) std::cout << "Proton 1: " << proton1->pt() << "  " << proton1->eta() << "  " << proton1->phi() << std::endl;
+   		double xigen1 = 1 - proton1->pz()/Ebeam;
+		hXiGen->Fill(xigen1);
+		hProtonPt2->Fill(proton1->pt()*proton1->pt());
+  }	
+
+  if(proton2 != genParticles->end()){
+		if(debug) std::cout << "Proton 2: " << proton2->pt() << "  " << proton2->eta() << "  " << proton2->phi() << std::endl;	
+   		double xigen2 = 1 + proton2->pt()/Ebeam;
+        	hXiGen->Fill(xigen2);
+		hProtonPt2->Fill(proton2->pt()*proton2->pt());
   }
 
   edm::Handle<reco::GenJetCollection> genJets;
   ev.getByLabel(genJetsTag_,genJets);
-  reco::GenJetCollection::const_iterator jet1 = genJets->end();
+  /*reco::GenJetCollection::const_iterator jet1 = genJets->end();
   reco::GenJetCollection::const_iterator jet2 = genJets->end();
   double firstpt = -1.;
   double secondpt = -1.;	
@@ -110,16 +159,35 @@ void SDDijetsAnalyzer::analyze(const edm::Event & ev, const edm::EventSetup&){
 		secondpt = genjet->pt();
 		jet2 = genjet;
 	}
+  }*/
+  std::vector<std::pair<reco::GenJetCollection::const_iterator,double> > genjetvec;	
+  int jetcount = 0;
+  for(reco::GenJetCollection::const_iterator genjet = genJets->begin(); genjet != genJets->end(); ++genjet){
+	if(debug) std::cout << " Jet " << jetcount++ << " pt: " << genjet->pt() << std::endl;
+	genjetvec.push_back(std::make_pair(genjet,genjet->pt()));
   }
-  if(jet1 != genJets->end()){
+  std::sort(genjetvec.begin(),genjetvec.end(),myjetptcomp);
+  reco::GenJetCollection::const_iterator jet1 = genjetvec[0].first;
+  reco::GenJetCollection::const_iterator jet2 = genjetvec[1].first;
+  if(debug){
+  	std::cout << ">>> After sorting: " << std::endl;
+  	for(size_t k = 0; k < genjetvec.size(); ++k) std::cout << " Jet " << k << " pt: " << genjetvec[k].second << std::endl;
+  }
+	
+  if((jet1 != genJets->end())&&(jet2 != genJets->end())){
+	if(debug) std::cout << ">>> Leading Jet pt,eta: " << jet1->pt() << " , " << jet1->eta() << std::endl;
 	hJet1Pt->Fill(jet1->pt());
 	hJet1Eta->Fill(jet1->eta());
 	hJet1Phi->Fill(jet1->phi());
-  }
-  if(jet2 != genJets->end()){
+
+	if(debug) std::cout << ">>> Second leading Jet pt,eta: " << jet2->pt() << " , " << jet2->eta() << std::endl;
         hJet2Pt->Fill(jet2->pt());
         hJet2Eta->Fill(jet2->eta());
         hJet2Phi->Fill(jet2->phi());
+
+	hJetDeltaEta->Fill(jet1->eta() - jet2->eta());
+	hJetDeltaPhi->Fill(jet1->phi() - jet2->phi());
+	hJetDeltaPt->Fill(jet1->pt() - jet2->pt());	
   }	
 }
 
