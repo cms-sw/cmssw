@@ -1,8 +1,11 @@
 
-#include "CondFormats//SiStripObjects/interface/SiStripLorentzAngle.h"
+#include "CondFormats/SiStripObjects/interface/SiStripLorentzAngle.h"
 
 #include "CondCore/Utilities/interface/PayLoadInspector.h"
 #include "CondCore/Utilities/interface/InspectorPythonWrapper.h"
+
+#include <string>
+#include <fstream>
 
 namespace cond {
 

@@ -1,8 +1,11 @@
 
-#include "CondFormats//SiStripObjects/interface/SiStripSummary.h"
+#include "CondFormats/SiStripObjects/interface/SiStripSummary.h"
 
 #include "CondCore/Utilities/interface/PayLoadInspector.h"
 #include "CondCore/Utilities/interface/InspectorPythonWrapper.h"
+
+#include <string>
+#include <fstream>
 
 namespace cond {
 
