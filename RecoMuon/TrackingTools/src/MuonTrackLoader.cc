@@ -3,8 +3,8 @@
  *  Class to load the product in the event
  *
 
- *  $Date: 2008/07/31 12:58:32 $
- *  $Revision: 1.67 $
+ *  $Date: 2008/08/05 16:07:28 $
+ *  $Revision: 1.68 $
 
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -602,7 +602,7 @@ pair<bool,reco::Track> MuonTrackLoader::buildTrackAtPCA(const Trajectory& trajec
   math::XYZVector persistentMomentum(p.x(),p.y(),p.z());
 
   bool bon = true;
-  if(theService->magneticField()->inTesla(GlobalPoint(0,0,0)).mag() < 0.01) bon=false;   
+  if(abs(theService->magneticField()->inTesla(GlobalPoint(0,0,0)).z()) < 0.01) bon=false;   
   double ndof = trajectory.ndof(bon);
   
   reco::Track track(trajectory.chiSquared(), 
