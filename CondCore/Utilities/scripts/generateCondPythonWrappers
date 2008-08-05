@@ -15,7 +15,7 @@ def generateBuildFile(package,classes) :
     f.seek(0,2)
     s = string.Template(buildfileTemplate)
     for classname in classes:
-        f.write(s.substitute(_PACKAGE_=package, _CLASS_NAME_=classname))
+        f.write(s.substitute(_PACKAGE_=package, _CLASS_NAME_=classname).replace('-',''))
 
 def generateWrapper(package,classes) :
     s = string.Template(wrapperTemplate)
