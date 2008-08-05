@@ -23,7 +23,6 @@ void SiPixelSCurveCalibrationAnalysis::calibrationEnd(){
 }
 
 void SiPixelSCurveCalibrationAnalysis::makeThresholdSummary(void){
- //write run number in file
   ofstream myfile;
   myfile.open (thresholdfilename_.c_str());
   for(detIDHistogramMap::iterator  thisDetIdHistoGrams= histograms_.begin();  thisDetIdHistoGrams != histograms_.end(); ++thisDetIdHistoGrams){
@@ -36,6 +35,7 @@ void SiPixelSCurveCalibrationAnalysis::makeThresholdSummary(void){
     rocname+="_ROC";
     int total_rows = sigmahist ->getNbinsY();
     int total_columns = sigmahist->getNbinsX();
+    //loop over all rows on columns on all ROCs 
     for (int irow=0; irow<total_rows; ++irow){
       for (int icol=0; icol<total_columns; ++icol){
 	float threshold_error = sigmahist->getBinContent(icol,irow);
@@ -51,7 +51,6 @@ void SiPixelSCurveCalibrationAnalysis::makeThresholdSummary(void){
 	  }
 	  if (realfedID==-1){
 	    std::cout<<"error: could not obtain real fed ID"<<std::endl;
-	    break;
 	  }
 	  sipixelobjects::DetectorIndex detector ={detid,irow,icol};
 	  sipixelobjects::ElectronicIndex cabling; 
@@ -62,11 +61,13 @@ void SiPixelSCurveCalibrationAnalysis::makeThresholdSummary(void){
 	  sipixelobjects::LocalPixel::DcolPxid loc;
 	  loc.dcol = cabling.dcol;
 	  loc.pxid = cabling.pxid;
+	  const sipixelobjects::PixelFEDCabling *theFed= theCablingMap_.product()->fed(realfedID);
+	  const sipixelobjects::PixelFEDLink * link = theFed->link(cabling.link);
+	  const sipixelobjects::PixelROC *theRoc = link->roc(cabling.roc);
 	  sipixelobjects::LocalPixel locpixel(loc);
 	  int newrow= locpixel.rocRow();
 	  int newcol = locpixel.rocCol();
-	  int newroc= cabling.roc;
-	  myfile<<rocname<<newroc<<" "<<newcol<<" "<<newrow<<" "<<thresholdhist->getBinContent(icol, irow)<<" "<<threshold_error;
+	  myfile<<rocname<<theRoc->idInDetUnit()<<" "<<newcol<<" "<<newrow<<" "<<thresholdhist->getBinContent(icol, irow)<<" "<<threshold_error;
 	  myfile<<"\n";
 	}
       }
