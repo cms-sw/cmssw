@@ -10,7 +10,6 @@
 #include "HLTriggerOffline/Tau/interface/ElectronOfETauDQM.h"
 #include "HLTriggerOffline/Tau/interface/HLTTauMCProducer.h"
 #include "HLTriggerOffline/Tau/interface/HLTMuonTauAnalyzer.h"
-#include "HLTriggerOffline/Tau/interface/HLTTauMCProducer.h"
 
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(HLTTauRefCombiner);
@@ -23,4 +22,3 @@ DEFINE_ANOTHER_FWK_MODULE(TauJetMCFilter);
 DEFINE_ANOTHER_FWK_MODULE(ElectronOfETauDQM);
 DEFINE_ANOTHER_FWK_MODULE(HLTTauMCProducer);
 DEFINE_ANOTHER_FWK_MODULE(HLTMuonTauAnalyzer);
-DEFINE_ANOTHER_FWK_MODULE(HLTTauMCProducer);
