@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: setup_sm.sh,v 1.10 2008/06/12 12:27:02 loizides Exp $
+# $Id: setup_sm.sh,v 1.11 2008/07/23 13:09:47 loizides Exp $
 
 if test -e "/etc/profile.d/sm_env.sh"; then 
     source /etc/profile.d/sm_env.sh;
@@ -22,10 +22,11 @@ case $hname in
         echo "cmsdisk0 needs manual treatment"
         exit 0;
         ;;
-    cmsdisk1)
-        nname=node_cmsdisk1
-        ;;
+#    cmsdisk1)
+#        nname=node_cmsdisk1
+#        ;;
     srv-C2D05-02)
+        nname=node_cmsdisk1
 	for i in $store/satacmsdisk*; do 
             sn=`basename $i`
             if test -z "`mount | grep $sn`"; then
