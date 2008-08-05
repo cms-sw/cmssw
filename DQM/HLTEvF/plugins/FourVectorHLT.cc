@@ -1,4 +1,4 @@
-// $Id: FourVectorHLT.cc,v 1.6 2008/05/26 09:31:14 wittich Exp $
+// $Id: FourVectorHLT.cc,v 1.7 2008/05/27 06:52:05 wittich Exp $
 // See header file for information. 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -23,7 +23,7 @@ FourVectorHLT::FourVectorHLT(const edm::ParameterSet& iConfig):
 
   dbe_ = Service < DQMStore > ().operator->();
   if ( ! dbe_ ) {
-    LogWarning("FourVectorHLT") << "unabel to get DQMStore service?";
+    LogWarning("Status") << "unable to get DQMStore service?";
   }
   if (iConfig.getUntrackedParameter < bool > ("DQMStore", false)) {
     dbe_->setVerbose(0);
@@ -59,7 +59,7 @@ FourVectorHLT::FourVectorHLT(const edm::ParameterSet& iConfig):
   }
   if ( hltPaths_.size() && plotAll_) {
     // these two ought to be mutually exclusive....
-    LogWarning("FourVectorHLT") << "Using both plotAll and a list. "
+    LogWarning("Configuration") << "Using both plotAll and a list. "
       "list will be ignored." ;
     hltPaths_.clear();
   }
@@ -90,12 +90,12 @@ FourVectorHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   using namespace edm;
   using namespace trigger;
   ++nev_;
-  LogDebug("FourVectorHLT")<< "FourVectorHLT: analyze...." ;
+  LogDebug("Status")<< "analyze" ;
   
   edm::Handle<TriggerEvent> triggerObj;
   iEvent.getByLabel(triggerSummaryLabel_,triggerObj); 
   if(!triggerObj.isValid()) { 
-    edm::LogWarning("FourVectorHLT") << "Summary HLT objects not found, "
+    edm::LogWarning("Status") << "Summary HLT objects not found, "
       "skipping event"; 
     return;
   }
@@ -107,13 +107,29 @@ FourVectorHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   if ( plotAll_ ) {
     for ( size_t ia = 0; ia < triggerObj->sizeFilters(); ++ ia) {
-      std::string name = triggerObj->filterTag(ia).encode();
+      std::string fullname = triggerObj->filterTag(ia).encode();
+      // the name can have in it the module label as well as the process and
+      // other labels - strip 'em
+      std::string name;
+      size_t p = fullname.find_first_of(':');
+      if ( p != std::string::npos) {
+	name = fullname.substr(0, p);
+      }
+      else {
+	name = fullname;
+      }
+
+      LogDebug("Parameter") << "filter " << ia << ", full name = " << fullname
+			    << ", p = " << p 
+			    << ", abbreviated = " << name ;
+      
       PathInfoCollection::iterator pic =  hltPaths_.find(name);
       if ( pic == hltPaths_.end() ) {
 	// doesn't exist - add it
 	MonitorElement *et(0), *eta(0), *phi(0), *etavsphi(0);
+	
 	std::string histoname(name+"_et");
-	std::string title(name+" E_t");
+	std::string title(name+" E_{T}");
 	et =  dbe_->book1D(histoname.c_str(),
 			  title.c_str(),nBins_, 0, 100);
       
@@ -125,7 +141,7 @@ FourVectorHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	histoname = name+"_phi";
 	title = name+" #phi";
 	phi =  dbe_->book1D(histoname.c_str(),
-			   histoname.c_str(),nBins_,-3.14,3.14);
+			   title.c_str(),nBins_,-3.14,3.14);
       
       
 	histoname = name+"_etaphi";
@@ -158,7 +174,7 @@ FourVectorHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       if ( index >= triggerObj->sizeFilters() ) {
 	continue; // not in this event
       }
-      LogDebug("FourVectorHLT") << "filling ... " ;
+      LogDebug("Status") << "filling ... " ;
       const trigger::Keys & k = triggerObj->filterKeys(index);
       for (trigger::Keys::const_iterator ki = k.begin(); ki !=k.end(); ++ki ) {
 	v->getEtHisto()->Fill(toc[*ki].pt());
@@ -227,7 +243,7 @@ FourVectorHLT::beginJob(const edm::EventSetup&)
 void 
 FourVectorHLT::endJob() 
 {
-   LogInfo("FourVectorHLT") << "analyzed " << nev_ << " events";
+   LogInfo("Status") << "endJob: analyzed " << nev_ << " events";
    return;
 }
 
@@ -235,11 +251,11 @@ FourVectorHLT::endJob()
 // BeginRun
 void FourVectorHLT::beginRun(const edm::Run& run, const edm::EventSetup& c)
 {
-  LogDebug("FourVectorHLT") << "beginRun, run " << run.id();
+  LogDebug("Status") << "beginRun, run " << run.id();
 }
 
 /// EndRun
 void FourVectorHLT::endRun(const edm::Run& run, const edm::EventSetup& c)
 {
-  LogDebug("FourVectorHLT") << "endRun, run " << run.id();
+  LogDebug("Status") << "endRun, run " << run.id();
 }
