@@ -30,8 +30,16 @@ process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(False)
 )
 
+## configure geometry
+process.load("Configuration.StandardSequences.Geometry_cff")
+
+## configure conditions
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.GlobalTag.globaltag = cms.string('STARTUP_V4::All')
+
 # Magnetic field now needs to be in the high-level py
 process.load("Configuration.StandardSequences.MagneticField_cff")
+
 
 #-------------------------------------------------
 # tqaf configuration; if the TQAF Layer 1 is

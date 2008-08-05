@@ -8,14 +8,14 @@ import FWCore.ParameterSet.Config as cms
 
 # initialize analyzers
 import TopQuarkAnalysis.Examples.HypothesisAnalyzer_cfi
-analyzeWMassMaxSumPt = TopQuarkAnalysis.Examples.HypothesisAnalyzer_cfi.analyzeHypothesis.clone()
+analyzeMaxSumPtWMass = TopQuarkAnalysis.Examples.HypothesisAnalyzer_cfi.analyzeHypothesis.clone()
 
 import TopQuarkAnalysis.Examples.HypothesisAnalyzer_cfi
 analyzeGenMatch      = TopQuarkAnalysis.Examples.HypothesisAnalyzer_cfi.analyzeHypothesis.clone()
 
 # configure analyzers
-analyzeWMassMaxSumPt.hypoKey = 'ttSemiHypothesisMaxSumPtWMass:Key'
+analyzeMaxSumPtWMass.hypoKey = 'ttSemiHypothesisMaxSumPtWMass:Key'
 analyzeGenMatch.hypoKey      = 'ttSemiHypothesisGenMatch:Key'
 
 # define sequence
-analyzeAllHypotheses = cms.Sequence(analyzeWMassMaxSumPt*analyzeGenMatch)
+analyzeAllHypotheses = cms.Sequence(analyzeMaxSumPtWMass*analyzeGenMatch)
