@@ -3,8 +3,8 @@
  *  method, the vertex constraint. The vertex constraint is applyed using the Kalman Filter tools used for 
  *  the vertex reconstruction.
  *
- *  $Date: 2008/03/20 13:18:03 $
- *  $Revision: 1.31 $
+ *  $Date: 2008/07/31 12:58:52 $
+ *  $Revision: 1.32 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -159,20 +159,16 @@ MuonUpdatorAtVertex::propagate(const TrajectoryStateOnSurface &tsos, const reco:
   else{
     LogTrace(metname) << "Trajectory inside the muon system";
 
-    // Define a line using two 3D-points
-    GlobalPoint p1(0.,0.,-1500);
-    GlobalPoint p2(0.,0.,1500);
-    
-    pair<FreeTrajectoryState,double> 
-      result = thePropagator->propagateWithPath(*tsos.freeState(),p1,p2);
+    FreeTrajectoryState
+      result = thePropagator->propagate(*tsos.freeState(),beamSpot);
     
     LogTrace(metname) << "MuonUpdatorAtVertex::propagate, path: "
-		      << result.second << " parameters: " << result.first.parameters();
+		      << result << " parameters: " << result.parameters();
     
-    if(result.first.hasError()) 
-      return pair<bool,FreeTrajectoryState>(true,result.first);
+    if(result.hasError()) 
+      return pair<bool,FreeTrajectoryState>(true,result);
     else
-      edm::LogInfo(metname) << "Propagation to the PCA failed! Path: "<<result.second;
+      edm::LogInfo(metname) << "Propagation to the PCA failed!";
   }
   return pair<bool,FreeTrajectoryState>(false,FreeTrajectoryState());
 }
