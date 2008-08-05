@@ -73,5 +73,4 @@ ecalBarrelTriggerTowerTask.EcalTrigPrimDigiCollectionEmul = 'ecalDigis:EcalTrigg
 
 ecalBarrelClusterTask.BasicClusterCollection = 'cosmicBasicClusters:CosmicBarrelBasicClusters'
 ecalBarrelClusterTask.SuperClusterCollection = 'hybridSuperClusters'
-ecalBarrelClusterTask.ClusterShapeAssociation= 'hybridSuperClusters:hybridShapeAssoc'
 
