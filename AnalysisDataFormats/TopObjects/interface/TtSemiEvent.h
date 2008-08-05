@@ -86,6 +86,7 @@ class TtSemiEvent {
   std::string mvaMethod() const { return mvaDisc_.first; }
   double mvaDisc() const { return mvaDisc_.second; }
   double fitChi2() const { return fitChi2_; }
+  double fitProb() const { return fitProb_; }
 
  public:
 
@@ -104,6 +105,7 @@ class TtSemiEvent {
   void setGenMatchSumDR(const double& val) {genMatchSumDR_=val;};
   void setMvaDiscAndMethod(const std::string& name, const double& val) {mvaDisc_=std::pair<std::string, double>(name, val);};
   void setFitChi2(const double& val) { fitChi2_=val; };
+  void setFitProb(const double& val) { fitProb_=val; };
 
  private:
 
@@ -115,6 +117,7 @@ class TtSemiEvent {
   //meta information
   std::map<HypoKey, std::vector<int> > jetMatch_;
   double fitChi2_;                          // result of kinematic fit
+  double fitProb_;                          // result of kinematic fit
   double genMatchSumPt_;                    // result of gen match
   double genMatchSumDR_;                    // result of gen match
   std::pair<std::string, double> mvaDisc_;  // result of MVA discriminant
