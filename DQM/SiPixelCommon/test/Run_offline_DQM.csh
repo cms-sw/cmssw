@@ -157,15 +157,15 @@ endif
 	set rsys = "rfio:"
 	set osys = "file:"
 	set iscastor = `echo $filename | grep -o castor`
-	set calibtype = `echo $filename | grep -o -e "PixelAlive" -e "SCurve" -e "GainCalibration"`
+	set calibtype = `echo $filename | grep -o -e "PixelAlive_" -e "SCurve_" -e "GainCalibration_"`
 	set file_extension = `echo $filename | grep -o -e ".dmp" -e ".root" -e ".dat"`
-	set endrun = `echo $filename | grep -o -e "_[0-9]\{2,\}\."`
+	set endrun = `echo $filename | grep -o -e "[0-9]\{2,\}\."`
 	set runnumber = `echo $endrun | grep -o -e ".*[^\.]"`
-        set rundefault = "_default"
-	
+        set rundefault = "default"
+		
 
 	
-	if($calibtype == "PixelAlive" || $calibtype == "SCurve" || $calibtype == "GainCalibration") then
+	if($calibtype == "PixelAlive_" || $calibtype == "SCurve_" || $calibtype == "GainCalibration_") then
 	    set tagnumber = $calibtype$runnumber	    
 	else
 	    set tagnumber = "PixelAlive_default"
@@ -380,6 +380,36 @@ endif
 	sed "s/TEXTFILE/$logfile/" < Run_offline_DQM_${file_counter}.cfg > temp.xml
 	cp temp.xml Run_offline_DQM_${file_counter}.cfg
 	rm temp.xml       
+
+	if( $runnumber > 50000 ) then
+	sed 's/NEW//' < Run_offline_DQM_${file_counter}.cfg > temp.xml
+	    cp temp.xml Run_offline_DQM_${file_counter}.cfg
+	    rm temp.xml
+	sed '/^OLD/d' < Run_offline_DQM_${file_counter}.cfg > temp.xml
+	    cp temp.xml Run_offline_DQM_${file_counter}.cfg 
+	    rm temp.xml
+
+	else
+	sed 's/OLD//' < Run_offline_DQM_${file_counter}.cfg > temp.xml
+	    cp temp.xml Run_offline_DQM_${file_counter}.cfg
+	    rm temp.xml
+	sed '/^NEW/d' < Run_offline_DQM_${file_counter}.cfg > temp.xml
+	    cp temp.xml Run_offline_DQM_${file_counter}.cfg 
+	    rm temp.xml
+	endif
+
+	if( $calibtype == "PixelAlive_" ) then
+	    set globalcalibtag = "PixelAlive"
+	else if ( $calibtype == "SCurve_" ) then
+	    set globalcalibtag = "Scurve"
+	else if ( $calibtype == "GainCalibration_" ) then
+	    set globalcalibtag = "Gain"
+	endif
+
+	
+	sed "s/GLOBALCALIB/$globalcalibtag/" < Run_offline_DQM_${file_counter}.cfg > temp.xml
+	    cp temp.xml Run_offline_DQM_${file_counter}.cfg
+	    rm temp.xml
 	echo "created file Run_offline_DQM_${file_counter}.cfg to run on file ${filename}"
 	@ file_counter = $file_counter + 1
 	
