@@ -2,6 +2,8 @@
 Test beam geometry/analysis related files for Geant4
 ------------------------------------------------------
 
+* Note : This set of configuration works in CMSSW_2_1_0_pre3
+
 BuildFile : This BuildFile doesn't work as it is
 because scramv1 doesn't support non-standard directory structure
 such as "TB". However we want to keep all Test beam related files
