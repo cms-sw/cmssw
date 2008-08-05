@@ -1,47 +1,35 @@
 import FWCore.ParameterSet.Config as cms
 
-from DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi import *
-
-from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAny_cfi import *
-from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAlong_cfi import *
-from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorOpposite_cfi import *
-
-from RecoLocalTracker.SiPixelRecHits.PixelCPEESProducers_cff import *
-
-BeamSpotEarlyCollision = cms.ESSource(
-    "PoolDBESSource",
-    DBParameters = cms.PSet( messageLevel = cms.untracked.int32(0)
-                             ),
-    timetype = cms.string('runtime'),
-    toGet = cms.VPSet( cms.PSet( record = cms.string('BeamSpotObjectsRcd'),
-                                 tag = cms.string('EarlyCollision_5p3cm_mc')
-                                 )
-                       ),
-    connect = cms.string('frontier://Frontier/CMS_COND_20X_BEAMSPOT')
-    )
-
+#-----------------------
+#  Reconstruction Modules
+#-----------------------
+# Real data raw to digi
 from EventFilter.SiStripRawToDigi.SiStripDigis_cfi import *
 siStripDigis.ProductLabel = 'source'
-from EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi import*
-siPixelDigis.InputLabel = 'source'
-# tracker
+# Local and Track Reconstruction
 from RecoLocalTracker.Configuration.RecoLocalTracker_Cosmics_cff import *
 from RecoTracker.Configuration.RecoTrackerP5_cff import *
+CTF_P5_MeasurementTracker.pixelClusterProducer = ''
+RS_P5_MeasurementTracker.pixelClusterProducer = ''
 from RecoVertex.BeamSpotProducer.BeamSpot_cff import *
 
-from RecoLocalTracker.SiStripClusterizer.SiStripClusterizer_RealData_cfi import *
-siStripClusters.SiStripQualityLabel = 'test1'
+#-----------------------
+#  SiStripMonitorTrack
+#-----------------------
+from DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi import *
+SiStripMonitorTrack.TrackProducer       = cms.string('ctfWithMaterialTracksP5')
+SiStripMonitorTrack.TrackLabel          = cms.string('')
+SiStripMonitorTrack.OutputMEsInRootFile = cms.bool(True)
+SiStripMonitorTrack.OutputFileName      = cms.string('testReal.root')
+SiStripMonitorTrack.Cluster_src         = cms.string('siStripClusters')
+SiStripMonitorTrack.Mod_On              = cms.bool(False)
+SiStripMonitorTrack.OffHisto_On         = cms.bool(True)
+SiStripMonitorTrack.FolderName          = cms.string('SiStrip/Tracks')
 
-trackerGR = cms.Sequence( siPixelDigis
-                          *
-                          siStripDigis
-                          *
-                          offlineBeamSpot
-                          *
-                          trackerlocalreco*ctftracksP5
-                          )
+#-----------------------
+#  Scheduling
+#-----------------------
+trackerGR = cms.Sequence(siStripDigis*offlineBeamSpot*striptrackerlocalreco*ctftracksP5)
+DQMSiStripMonitorTrack_Real = cms.Sequence(trackerGR*SiStripMonitorTrack)
 
-DQMSiStripMonitorTrack_Real = cms.Sequence( trackerGR
-                                            *
-                                            SiStripMonitorTrack
-                                            )
+
