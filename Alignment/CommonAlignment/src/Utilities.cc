@@ -1,25 +1,37 @@
+// #include "Math/GenVector/Rotation3D.h"
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Alignment/CommonAlignment/interface/Utilities.h"
 
 align::EulerAngles align::toAngles(const RotationType& rot)
 {
+  const Scalar one = 1; // to ensure same precison is used in comparison
+
   EulerAngles angles(3);
 
-  if ( std::abs( rot.zx() ) < static_cast<Scalar>(1) )
+  if (std::abs( rot.zx() ) > one)
+  {
+    edm::LogWarning("Alignment") << "Rounding errors in\n" << rot;
+  }
+
+  if (std::abs( rot.zx() ) < one)
   {
     angles(1) = -std::atan2( rot.zy(), rot.zz() );
     angles(2) =  std::asin( rot.zx() );
     angles(3) = -std::atan2( rot.yx(), rot.xx() );
   }
-  else
+  else if (rot.zx() >= one)
   {
-    edm::LogWarning("Alignment") << "Rounding errors in\n" << rot;
-
-    angles(1) = std::atan2( .5 * ( rot.xy() + rot.yz() ),
-			    .5 * ( rot.yy() - rot.xz() ) );
-    angles(2) = std::asin( rot.zx() > 0. ? 1. : -1. );
-    angles(3) = 0.;
+    angles(1) = std::atan2(rot.xy() + rot.yz(), rot.yy() - rot.xz() );
+    angles(2) = std::asin(one);
+    angles(3) = 0;
+  }
+  else if (rot.zx() <= -one)
+  {
+    angles(1) = std::atan2(rot.xy() - rot.yz(), rot.yy() + rot.xz() );
+    angles(2) = std::asin(-one);
+    angles(3) = 0;
   }
 
   return angles;
@@ -179,5 +191,18 @@ align::GlobalVector align::centerOfMass(const GlobalVectors& theVs)
 
 void align::rectify(RotationType& rot)
 {
-  rot = toMatrix( toAngles(rot) );
+// Use ROOT for better numerical precision but slower.
+
+//   ROOT::Math::Rotation3D temp( rot.xx(), rot.xy(), rot.xz(),
+//                                rot.yx(), rot.yy(), rot.yz(),
+//                                rot.zx(), rot.zy(), rot.zz() );
+// 
+//   temp.Rectify();
+// 
+//   Scalar elems[9];
+// 
+//   temp.GetComponents(elems);
+//   rot = RotationType(elems);
+
+  rot = toMatrix( toAngles(rot) ); // fast rectification but less precise
 }
