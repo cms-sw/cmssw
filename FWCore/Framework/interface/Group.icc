@@ -96,8 +96,10 @@ namespace edm {
   inline
   ProductStatus
   GroupT<T>::status() const {
+    if (dropped_) return productstatus::dropped();
     if (!entryInfo_) {
-      return productstatus::dropped();
+      if (product_) return product_->isPresent() ? productstatus::present() : productstatus::neverCreated();
+      else return productstatus::unknown();
     }
     if (product_) {
       // for backward compatibility

@@ -116,13 +116,13 @@ namespace edm {
 
   template <typename T>
   typename Principal<T>::SharedConstGroupPtr const
-  Principal<T>::getGroup(BranchID const& bid, bool resolveProd, bool fillOnDemand) const {
+  Principal<T>::getGroup(BranchID const& bid, bool resolveProd, bool resolveProv, bool fillOnDemand) const {
     typename GroupCollection::const_iterator it = groups_.find(bid);
     if (it == groups_.end()) {
       return SharedConstGroupPtr();
     }
     SharedConstGroupPtr const& g = it->second;
-    if (g->provenanceAvailable()) {
+    if (resolveProv && g->provenanceAvailable()) {
       this->resolveProvenance(*g);
     }
     if (resolveProd && !g->productUnavailable()) {
@@ -134,7 +134,7 @@ namespace edm {
   template <typename T>
   OutputHandle<T>
   Principal<T>::getForOutput(BranchID const& bid, bool getProd) const {
-    SharedConstGroupPtr const& g = getGroup(bid, getProd, false);
+    SharedConstGroupPtr const& g = getGroup(bid, getProd, true, false);
     if (g.get() == 0) {
       return OutputHandle<T>();
     }
@@ -404,7 +404,7 @@ namespace edm {
     for (std::vector<BranchID>::const_iterator ib(vindex.begin()), ie(vindex.end());
 	 ib != ie;
 	 ++ib) {
-      SharedConstGroupPtr const& group = getGroup(*ib, false, false);
+      SharedConstGroupPtr const& group = getGroup(*ib, false, false, false);
       if(group.get() == 0) {
         continue;
       }
@@ -418,7 +418,9 @@ namespace edm {
           // Unscheduled execution can fail to produce the EDProduct so check
           if (!group->productUnavailable() && !group->onDemand()) {
             // Found a good match, save it
-            results.push_back(BasicHandle(group->product(), group->provenance()));
+	    BasicHandle bh(group->product(), group->provenance());
+	    bh.provenance()->setStore(branchMapperPtr_);
+            results.push_back(bh);
           }
         }
       }

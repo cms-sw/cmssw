@@ -61,7 +61,7 @@ namespace edm {
 
   Provenance
   RunPrincipal::getProvenance(BranchID const& bid) const {
-    SharedConstGroupPtr const& g = getGroup(bid, false, true);
+    SharedConstGroupPtr const& g = getGroup(bid, false, true, true);
     if (g.get() == 0) {
       throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
 	<< "getProvenance: no product with given branch id: "<< bid << "\n";

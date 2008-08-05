@@ -120,7 +120,7 @@ namespace edm {
   BasicHandle
   EventPrincipal::getByProductID(ProductID const& oid) const {
     BranchID bid = branchMapperPtr()->productToBranch(oid);
-    SharedConstGroupPtr const& g = getGroup(bid, true, true);
+    SharedConstGroupPtr const& g = getGroup(bid, true, true, true);
     if (g.get() == 0) {
       if (!oid.isValid()) {
         throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
@@ -151,7 +151,7 @@ namespace edm {
 
   Provenance
   EventPrincipal::getProvenance(BranchID const& bid) const {
-    SharedConstGroupPtr const& g = getGroup(bid, false, true);
+    SharedConstGroupPtr const& g = getGroup(bid, false, true, true);
     if (g.get() == 0) {
       throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
 	<< "getProvenance: no product with given branch id: "<< bid << "\n";

@@ -133,6 +133,7 @@ namespace edm {
 
     SharedConstGroupPtr const getGroup(BranchID const& oid,
                                        bool resolveProd,
+                                       bool resolveProv,
 				       bool fillOnDemand) const;
 
   private:
