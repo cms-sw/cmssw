@@ -4,8 +4,8 @@
 /*
  * \file EBClusterTask.h
  *
- * $Date: 2008/07/07 17:11:23 $
- * $Revision: 1.18 $
+ * $Date: 2008/08/05 13:55:36 $
+ * $Revision: 1.19 $
  * \author G. Della Ricca
  *
  */
@@ -68,7 +68,7 @@ bool mergeRuns_;
 edm::InputTag EcalRawDataCollection_;
 edm::InputTag BasicClusterCollection_;
 edm::InputTag SuperClusterCollection_;
-edm::InputTag reducedBarrelRecHitCollection_;
+edm::InputTag EcalRecHitCollection_;
 
 MonitorElement* meBCEne_;
 MonitorElement* meBCNum_;

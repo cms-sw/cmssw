@@ -7,6 +7,6 @@ ecalBarrelClusterTask = cms.EDFilter("EBClusterTask",
     EcalRawDataCollection = cms.InputTag("ecalEBunpacker"),
     BasicClusterCollection = cms.InputTag("hybridSuperClusters","hybridBarrelBasicClusters"),
     SuperClusterCollection = cms.InputTag("correctedHybridSuperClusters"),
-    reducedBarrelRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEB")
+    EcalRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEB")
 )
 

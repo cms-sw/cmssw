@@ -1,8 +1,8 @@
 /*
  * \file EEClusterTask.cc
  *
- * $Date: 2008/07/08 08:05:07 $
- * $Revision: 1.49 $
+ * $Date: 2008/08/05 13:55:38 $
+ * $Revision: 1.50 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -57,7 +57,7 @@ EEClusterTask::EEClusterTask(const ParameterSet& ps){
   EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
   BasicClusterCollection_ = ps.getParameter<edm::InputTag>("BasicClusterCollection");
   SuperClusterCollection_ = ps.getParameter<edm::InputTag>("SuperClusterCollection");
-  reducedEndcapRecHitCollection_ = ps.getParameter<edm::InputTag>("reducedEndcapRecHitCollection");
+  EcalRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalRecHitCollection");
 
   // histograms...
   meBCEne_ = 0;
@@ -599,7 +599,7 @@ void EEClusterTask::analyze(const Event& e, const EventSetup& c){
 
       // seed and shapes
       edm::Handle< EcalRecHitCollection > pEERecHits;
-      e.getByLabel( reducedEndcapRecHitCollection_, pEERecHits );
+      e.getByLabel( EcalRecHitCollection_, pEERecHits );
       if ( pEERecHits.isValid() ) {
         const EcalRecHitCollection *eeRecHits = pEERecHits.product();
 
@@ -621,7 +621,7 @@ void EEClusterTask::analyze(const Event& e, const EventSetup& c){
         }
       }
       else {
-        LogWarning("EEClusterTask") << reducedEndcapRecHitCollection_ << " not available";
+        LogWarning("EEClusterTask") << EcalRecHitCollection_ << " not available";
       }
 
       // look for the two most energetic super clusters

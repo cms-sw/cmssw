@@ -7,6 +7,6 @@ ecalEndcapClusterTask = cms.EDFilter("EEClusterTask",
     EcalRawDataCollection = cms.InputTag("ecalEBunpacker"),
     BasicClusterCollection = cms.InputTag("multi5x5BasicClusters","multi5x5EndcapBasicClusters"),
     SuperClusterCollection = cms.InputTag("multi5x5SuperClusters","multi5x5EndcapSuperClusters"),
-    reducedEndcapRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEE")
+    EcalRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEE")
 )
 

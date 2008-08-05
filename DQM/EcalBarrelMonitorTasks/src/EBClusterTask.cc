@@ -1,8 +1,8 @@
 /*
  * \file EBClusterTask.cc
  *
- * $Date: 2008/07/08 08:05:08 $
- * $Revision: 1.61 $
+ * $Date: 2008/08/05 13:55:37 $
+ * $Revision: 1.62 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -57,7 +57,7 @@ EBClusterTask::EBClusterTask(const ParameterSet& ps){
   EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
   BasicClusterCollection_ = ps.getParameter<edm::InputTag>("BasicClusterCollection");
   SuperClusterCollection_ = ps.getParameter<edm::InputTag>("SuperClusterCollection");
-  reducedBarrelRecHitCollection_ = ps.getParameter<edm::InputTag>("reducedBarrelRecHitCollection");
+  EcalRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalRecHitCollection");
 
   // histograms...
   meBCEne_ = 0;
@@ -455,7 +455,7 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
 
       // seed and shapes
       edm::Handle< EcalRecHitCollection > pEBRecHits;
-      e.getByLabel( reducedBarrelRecHitCollection_, pEBRecHits );
+      e.getByLabel( EcalRecHitCollection_, pEBRecHits );
       if ( pEBRecHits.isValid() ) {
         const EcalRecHitCollection *ebRecHits = pEBRecHits.product();
 
@@ -477,7 +477,7 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
         }
       }
       else {
-        LogWarning("EBClusterTask") << reducedBarrelRecHitCollection_ << " not available";
+        LogWarning("EBClusterTask") << EcalRecHitCollection_ << " not available";
       }
 
       // look for the two most energetic super clusters
