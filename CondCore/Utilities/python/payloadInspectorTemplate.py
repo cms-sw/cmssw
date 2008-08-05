@@ -1,5 +1,5 @@
 buildfileTemplate = """
-<library file="$_CLASS_NAME_ \bPyWrapper.cc" name=$_CLASS_NAME_ \bPyInterface>
+<library file="$_CLASS_NAME_-PyWrapper.cc" name=$_CLASS_NAME_-PyInterface>
 <use name=CondCore/Utilities>
 <use name=CondFormats/$_PACKAGE_/>
 <use name=boost>
