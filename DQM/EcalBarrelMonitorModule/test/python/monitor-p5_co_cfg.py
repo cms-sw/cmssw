@@ -1,9 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("ECALDQM'
+process = cms.Process("ECALDQM")
 
-process.load("EventFilter.EcalRawToDigiDev.EcalUnpackerMapping_cfi'
-process.load("EventFilter.EcalRawToDigiDev.EcalUnpackerData_cfi'
+process.load("EventFilter.EcalRawToDigiDev.EcalUnpackerMapping_cfi")
+process.load("EventFilter.EcalRawToDigiDev.EcalUnpackerData_cfi")
 
 import RecoLocalCalo.EcalRecProducers.ecalFixedAlphaBetaFitUncalibRecHit_cfi
 process.ecalUncalibHit2 = RecoLocalCalo.EcalRecProducers.ecalFixedAlphaBetaFitUncalibRecHit_cfi.ecalFixedAlphaBetaFitUncalibRecHit.clone()
@@ -11,25 +11,25 @@ process.ecalUncalibHit2 = RecoLocalCalo.EcalRecProducers.ecalFixedAlphaBetaFitUn
 import RecoLocalCalo.EcalRecProducers.ecalWeightUncalibRecHit_cfi
 process.ecalUncalibHit = RecoLocalCalo.EcalRecProducers.ecalWeightUncalibRecHit_cfi.ecalWeightUncalibRecHit.clone()
 
-process.load("RecoLocalCalo.EcalRecProducers.ecalRecHit_cfi'
+process.load("RecoLocalCalo.EcalRecProducers.ecalRecHit_cfi")
 
-process.load("Geometry.CaloEventSetup.CaloGeometry_cfi'
+process.load("Geometry.CaloEventSetup.CaloGeometry_cfi")
 
-process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi'
+process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 
-process.load("Geometry.EcalMapping.EcalMapping_cfi'
+process.load("Geometry.EcalMapping.EcalMapping_cfi")
 
-process.load("Geometry.EcalMapping.EcalMappingRecord_cfi'
+process.load("Geometry.EcalMapping.EcalMappingRecord_cfi")
 
-process.load("DQM.EcalBarrelMonitorModule.EcalBarrelMonitorModule_cfi'
+process.load("DQM.EcalBarrelMonitorModule.EcalBarrelMonitorModule_cfi")
 
-process.load("DQM.EcalBarrelMonitorTasks.EcalBarrelMonitorTasks_cfi'
+process.load("DQM.EcalBarrelMonitorTasks.EcalBarrelMonitorTasks_cfi")
 
-process.load("DQM.EcalBarrelMonitorClient.EcalBarrelMonitorClient_cfi'
+process.load("DQM.EcalBarrelMonitorClient.EcalBarrelMonitorClient_cfi")
 
-process.load("CalibCalorimetry.EcalLaserCorrection.ecalLaserCorrectionService_cfi'
+process.load("CalibCalorimetry.EcalLaserCorrection.ecalLaserCorrectionService_cfi")
 
-process.load("DQMServices.Core.DQM_cfg'
+process.load("DQMServices.Core.DQM_cfg")
 
 process.preScaler = cms.EDFilter("Prescaler",
     prescaleFactor = cms.int32(1)
