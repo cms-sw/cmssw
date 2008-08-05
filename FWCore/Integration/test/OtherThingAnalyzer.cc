@@ -21,7 +21,7 @@ namespace edmtest {
 
   void OtherThingAnalyzer::doit(edm::Event const& dv, std::string const& label) {
     edm::Handle<OtherThingCollection> otherThings;
-    dv.getByLabel("OtherThing", label, otherThings);
+    assert(dv.getByLabel("OtherThing", label, otherThings));
     edm::LogInfo("OtherThingAnalyzer") << " --------------- next event ------------ \n";
     int i = 0;
     for (OtherThingCollection::const_iterator it = otherThings->begin(), itEnd = otherThings->end();
