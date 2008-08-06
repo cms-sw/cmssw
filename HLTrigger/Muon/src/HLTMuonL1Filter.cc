@@ -85,6 +85,9 @@ HLTMuonL1Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       LogDebug("HLTMuonL1Filter") 
             << " Muon in loop: q*pt= " << muon->charge()*muon->pt() 
             << ", eta= " << muon->eta();
+
+      if (!triggerByPreviousLevel(muon, l1mu)) continue;
+
       float eta   =  muon->eta();
       if (fabs(eta)>max_Eta_) continue;
       float pt    =  muon->pt();
