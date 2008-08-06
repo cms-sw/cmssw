@@ -78,9 +78,6 @@ void SetNoSeed(int object_number)  {
                           // prevents an object from being used as a seed
                           // (method introduced on 15/09/06)
 
-void SetDebug(int debug)  { dbg = debug; } 
- 
- 
 private:
 
 
@@ -104,7 +101,6 @@ std::vector<float> Axis2;
 int seed_meth;
 int hemi_meth;
 int status;
-int dbg;
 
 
 float DeltaPhi(float, float);
