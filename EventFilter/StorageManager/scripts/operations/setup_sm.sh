@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: setup_sm.sh,v 1.11 2008/07/23 13:09:47 loizides Exp $
+# $Id: setup_sm.sh,v 1.12 2008/08/05 14:26:14 loizides Exp $
 
 if test -e "/etc/profile.d/sm_env.sh"; then 
     source /etc/profile.d/sm_env.sh;
@@ -25,6 +25,10 @@ case $hname in
 #    cmsdisk1)
 #        nname=node_cmsdisk1
 #        ;;
+    srv-S2C17-01)
+        nname=node_cms-tier0-stage
+        ;;
+    
     srv-C2D05-02)
         nname=node_cmsdisk1
 	for i in $store/satacmsdisk*; do 
