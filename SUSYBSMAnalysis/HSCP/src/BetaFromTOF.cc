@@ -13,7 +13,7 @@
 //
 // Original Author:  Traczyk Piotr
 //         Created:  Thu Oct 11 15:01:28 CEST 2007
-// $Id: BetaFromTOF.cc,v 1.16 2008/05/19 08:41:04 ptraczyk Exp $
+// $Id: BetaFromTOF.cc,v 1.17 2008/06/24 12:49:49 ptraczyk Exp $
 //
 //
 
@@ -194,7 +194,7 @@ BetaFromTOF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iSetup.get<MuonGeometryRecord>().get(theDTGeometry);
 
   Handle<reco::TrackCollection> staMuonsH;
-  iEvent.getByLabel("standAloneMuons",staMuonsH);
+  iEvent.getByLabel("cosmicMuonsBarrelOnly",staMuonsH);
   const reco::TrackCollection & staMuons = * staMuonsH.product();
   if (debug) 
     cout << " STA Muon collection size: " << staMuons.size() << endl;
@@ -280,7 +280,8 @@ BetaFromTOF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         for (DTRecSegment4DCollection::const_iterator rechit = range.first; rechit!=range.second;++rechit) {
 
           // match with the current recHit
-          if ((rechit->localPosition()-(*hi)->localPosition()).mag()>0.01) continue;
+//          if ((rechit->globalPosition()-(*hi)->globalPosition()).mag()>0.01)
+  //           { cout << "skip because dist > 0.01  " << (rechit->globalPosition()-(*hi)->globalPosition()).mag() << endl;  continue;}
 
           // loop over (theta, phi) segments
           for (int phi=0; phi<2; phi++) {
@@ -288,7 +289,8 @@ BetaFromTOF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
             const DTRecSegment2D* segm;
   	    if (phi) segm = dynamic_cast<const DTRecSegment2D*>(rechit->phiSegment()); 
   	      else segm = dynamic_cast<const DTRecSegment2D*>(rechit->zSegment());
-  	      
+  	    if(segm == 0){cout << "skip this" << endl;  continue; }   
+            cout << "spec " << segm->specificRecHits().size() << endl;
   	    if (!segm->specificRecHits().size()) continue;
 
             const GeomDet* geomDet = theTrackingGeometry->idToDet(segm->geographicalId());
@@ -296,6 +298,10 @@ BetaFromTOF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
             // store all the hits from the segment
     	    for (vector<DTRecHit1D>::const_iterator hiti=hits1d.begin(); hiti!=hits1d.end(); hiti++) {
+
+            if (((*hi)->localPosition() - hiti->localPosition()).mag()>0.01)
+             { cout << "skip because dist > 0.01  " <<  ((*hi)->localPosition() - hiti->localPosition()).mag() << endl;  continue;}
+
 
   	      const GeomDet* dtcell = theTrackingGeometry->idToDet(hiti->geographicalId());
               TimeMeasurement thisHit;
@@ -306,7 +312,7 @@ BetaFromTOF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
               thisHit.posInLayer = geomDet->toLocal(dtcell->toGlobal(hiti->localPosition())).x();
               thisHit.distIP = dtcell->toGlobal(hiti->localPosition()).mag();
               thisHit.station = station;
-                  
+              cout << "push" << endl;      
               tof.timeMeasurements.push_back(thisHit);
             }
 
