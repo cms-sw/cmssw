@@ -13,6 +13,7 @@
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/MuonReco>
 <use name=DataFormats/DTRecHit>
+<use name=DataFormats/RPCRecHit>
 <use name=Geometry/CSCGeometry>
 <use name=Geometry/DTGeometry>
 <use name=Geometry/RPCGeometry>
@@ -45,6 +46,7 @@
    <use name=DataFormats/TrackReco>
    <use name=DataFormats/MuonReco>
    <use name=DataFormats/DTRecHit>
+   <use name=DataFormats/RPCRecHit>
    <use name=Geometry/CSCGeometry>
    <use name=Geometry/DTGeometry>
    <use name=Geometry/RPCGeometry>
