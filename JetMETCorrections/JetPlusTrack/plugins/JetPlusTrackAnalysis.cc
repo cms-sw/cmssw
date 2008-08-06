@@ -36,9 +36,9 @@ JetPlusTrackAnalysis::JetPlusTrackAnalysis(const edm::ParameterSet& iConfig)
    mInputJetsGen = iConfig.getParameter<edm::InputTag>("src2");	
    cout<<" Start JetPlusTrackAnalysis Point 2"<<endl;  
    mInputJetsCorrected = iConfig.getParameter<edm::InputTag>("src3");
-   cout<<" Start JetPlusTrackAnalysis Point 3"<<endl;
-   m_inputTrackLabel = iConfig.getUntrackedParameter<std::string>("inputTrackLabel","ctfWithMaterialTracks");
-   cout<<" Start JetPlusTrackAnalysis Point 4"<<endl;
+
+   m_inputTrackLabel = iConfig.getUntrackedParameter<std::string>("inputTrackLabel");
+
    hbhelabel_ = iConfig.getParameter<edm::InputTag>("HBHERecHitCollectionLabel");
    cout<<" Start JetPlusTrackAnalysis Point 5"<<endl;
    holabel_ = iConfig.getParameter<edm::InputTag>("HORecHitCollectionLabel");
@@ -430,9 +430,9 @@ void JetPlusTrackAnalysis::analyze(
        HcalEmpty[0] = empty_jet_energy_hcal;
 
 // Tracker
-/*
+
     edm::Handle<reco::TrackCollection> tracks;
-    iEvent.getByLabel("ctfWithMaterialTracks", tracks);
+    iEvent.getByLabel(m_inputTrackLabel, tracks);
 
     reco::TrackCollection::const_iterator trk;
     int iTracks = 0;
@@ -444,7 +444,7 @@ void JetPlusTrackAnalysis::analyze(
     }
     NumRecoTrack = iTracks;
     cout<<" Number of tracks "<<NumRecoTrack<<endl;
-*/
+
   for(int jjj = 0; jjj<NumRecoJetsCaloTower; jjj++)
   {
    if(JetRecoGenPartonType[jjj] > -1){
