@@ -28,6 +28,7 @@ class TtSemiHypothesis : public edm::EDProducer {
   
   /// produce the event hypothesis as CompositeCandidate and Key
   virtual void produce(edm::Event&, const edm::EventSetup&);
+  // use one object in a collection to set a ShallowClonePtrCandidate
   template <typename O, template<typename> class C>
   void setCandidate(const edm::Handle<C<O> >&, const int&, reco::ShallowClonePtrCandidate*&);
   /// return key

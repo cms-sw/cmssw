@@ -15,6 +15,7 @@ ttSemiEvent = cms.EDProducer("TtSemiEventBuilder",
                              
     ## considered event hypotheses                             
     hyps = cms.VInputTag(cms.InputTag("ttSemiHypothesisMaxSumPtWMass"),
+                         cms.InputTag("ttSemiHypothesisKinFit"),
                          cms.InputTag("ttSemiHypothesisGenMatch"),
                          cms.InputTag("ttSemiHypothesisMVADisc")
                          ),
@@ -22,14 +23,22 @@ ttSemiEvent = cms.EDProducer("TtSemiEventBuilder",
     ## event hypotheses' keys for mapping
     keys = cms.VInputTag(cms.InputTag("ttSemiHypothesisMaxSumPtWMass","Key"),
                          cms.InputTag("ttSemiHypothesisGenMatch","Key"),
+                         cms.InputTag("ttSemiHypothesisKinFit","Key"),
                          cms.InputTag("ttSemiHypothesisMVADisc","Key")
                          ),
 
     ## event hypotheses' jet parton association as meta information
     matches = cms.VInputTag(cms.InputTag("ttSemiHypothesisMaxSumPtWMass","Match"),
+                            cms.InputTag("ttSemiHypothesisKinFit","Match"),
                             cms.InputTag("ttSemiHypothesisGenMatch","Match"),
                             cms.InputTag("ttSemiHypothesisMVADisc","Match")
                             ),
+
+    ## add extra information on kinFit
+    kinFit = cms.PSet(
+        chi2 = cms.InputTag("kinFitTtSemiEvent","Chi2"),
+        prob = cms.InputTag("kinFitTtSemiEvent","Prob"),
+    ),
 
     ## add extra information on genMatch
     genMatch = cms.PSet(
@@ -37,6 +46,7 @@ ttSemiEvent = cms.EDProducer("TtSemiEventBuilder",
         sumDR = cms.InputTag("ttSemiJetPartonMatch","SumDR"),
     ),
 
+    ## add extra information on mvaDisc
     mvaDisc = cms.PSet(
         meth = cms.InputTag("findTtSemiJetCombMVA","Meth"),
         disc = cms.InputTag("findTtSemiJetCombMVA","Disc")

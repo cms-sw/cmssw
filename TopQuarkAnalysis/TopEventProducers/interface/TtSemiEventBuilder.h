@@ -34,6 +34,11 @@ class TtSemiEventBuilder : public edm::EDProducer {
   // meta information
   std::vector<edm::InputTag> matches_;  
 
+  // kinFit extras
+  edm::ParameterSet kinFit_;
+  edm::InputTag fitChi2_;
+  edm::InputTag fitProb_;
+
   // gen match extras
   int decay_;
   edm::InputTag genEvt_;
@@ -43,7 +48,6 @@ class TtSemiEventBuilder : public edm::EDProducer {
   edm::InputTag sumDR_;
 
   // mvaDisc extras
-
   edm::ParameterSet mvaDisc_;
   edm::InputTag meth_;
   edm::InputTag disc_;

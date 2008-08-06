@@ -6,9 +6,15 @@ TtSemiEventBuilder::TtSemiEventBuilder(const edm::ParameterSet& cfg) :
   hyps_    (cfg.getParameter<std::vector<edm::InputTag> >("hyps")),
   keys_    (cfg.getParameter<std::vector<edm::InputTag> >("keys")),
   matches_ (cfg.getParameter<std::vector<edm::InputTag> >("matches")),
+  kinFit_  (cfg.getParameter<edm::ParameterSet>("kinFit")),
   decay_   (cfg.getParameter<int>("decay")),
   genEvt_  (cfg.getParameter<edm::InputTag>("genEvent"))
 {
+  if( cfg.exists("kinFit") ) {
+    // get parameter subsets for kinFit
+    fitChi2_=kinFit_.getParameter<edm::InputTag>("chi2");
+    fitProb_=kinFit_.getParameter<edm::InputTag>("prob");
+  }
   // get parameter subsets for genMatch
   if( cfg.exists("genMatch") ) {
     genMatch_= cfg.getParameter<edm::ParameterSet>("genMatch");
@@ -65,6 +71,15 @@ TtSemiEventBuilder::produce(edm::Event& evt, const edm::EventSetup& setup)
 
     event.addJetMatch((TtSemiEvent::HypoKey&)*key, *match);
   }
+
+  // set kinFit extras
+  edm::Handle<double> fitChi2;
+  evt.getByLabel(fitChi2_, fitChi2);
+  event.setFitChi2(*fitChi2);
+
+  edm::Handle<double> fitProb;
+  evt.getByLabel(fitProb_, fitProb);
+  event.setFitProb(*fitProb);
 
   // set genMatch extras
   edm::Handle<double> sumPt;
