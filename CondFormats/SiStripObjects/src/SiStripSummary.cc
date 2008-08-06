@@ -57,7 +57,7 @@ bool SiStripSummary::put(const uint32_t& DetId, InputVector &input, std::vector<
 }
 
 
-bool SiStripSummary::put(TrackerRegion region, InputVector &input, std::vector<std::string>& userContent ) {
+bool SiStripSummary::put(sistripsummary::TrackerRegion region, InputVector &input, std::vector<std::string>& userContent ) {
 
   uint32_t fakeDet = region;
   return put(fakeDet, input, userContent);
@@ -124,20 +124,23 @@ void  SiStripSummary::setObj(const uint32_t& detID, std::string elementName, flo
 
 float SiStripSummary::getSummaryObj(uint32_t& detID, std::string elementName) const
 {
-  const SiStripSummary::Range range = getRange(detID);
-  const short pos =  getPosition(elementName);
-  if (pos != -1) return *((range.first)+getPosition(elementName));
-   
-  else return -999;
+  std::vector<std::string> list;
+  list.push_back(elementName);
+  return getSummaryObj(detID,list).at(0);
 }
 
+float SiStripSummary::getSummaryObj(sistripsummary::TrackerRegion region, std::string elementName) const
+{
+  uint32_t fakeDet = region;
+  return getSummaryObj(fakeDet,elementName);
+}
 
 std::vector<float> SiStripSummary::getSummaryObj(uint32_t& detID, std::vector<std::string> list) const
 {  
   std::vector<float> SummaryObj;
   const SiStripSummary::Range range = getRange(detID);
   for (unsigned int i=0; i<list.size(); i++){ 
-    const size_t pos=getPosition(list.at(i));
+    const short pos=getPosition(list.at(i));
     if (pos!=-1) 
       SummaryObj.push_back(*((range.first)+pos));
     else 
@@ -146,7 +149,11 @@ std::vector<float> SiStripSummary::getSummaryObj(uint32_t& detID, std::vector<st
   return SummaryObj;
 }
 
-
+std::vector<float> SiStripSummary::getSummaryObj(sistripsummary::TrackerRegion region, std::vector<std::string> list) const
+{
+  uint32_t fakeDet = region;
+  return getSummaryObj(fakeDet,list);
+}
 
 std::vector<float> SiStripSummary::getSummaryObj(uint32_t& detID) const
 {  
@@ -168,7 +175,7 @@ std::vector<float> SiStripSummary::getSummaryObj(std::string elementName) const
 {
   std::vector<float> vSumElement;
   std::vector<uint32_t> DetIds_ = getDetIds();
-  int pos = getPosition(elementName);
+  const short pos = getPosition(elementName);
    
   if (pos !=-1)
     {

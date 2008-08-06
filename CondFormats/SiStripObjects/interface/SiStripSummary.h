@@ -12,7 +12,23 @@
  @author D. Giordano, A.-C. Le Bihan
  @class to hold historic DQM summary informations
 */
-
+ 
+namespace sistripsummary {
+  enum TrackerRegion { TRACKER = 0, 
+		       TIB = 1, 
+		       TIB_1 = 11, TIB_2 = 12, TIB_3 = 13, TIB_4 = 14,
+		       TOB = 2, 
+		       TOB_1 = 21, TOB_2 = 22, TOB_3 = 23, TOB_4 = 24, TOB_5 = 25, TOB_6 = 26, 
+		       TIDP = 3, 
+		       TIDP_1 = 31, TIDP_2 = 32, TIDP_3 = 33,
+		       TIDM = 4, 
+		       TIDM_1 = 41, TIDM_2 = 42, TIDM_3 = 43,
+		       TECP = 4, 
+		       TECP_1 = 41, TECP_2 = 42, TECP_3 = 43, TECP_4 = 44, TECP_5 = 45, TECP_6 = 46, TECP_7 = 47, TECP_8 = 48, TECP_9 = 49,
+		       TECM = 5, 
+		       TECM_1 = 51, TECM_2 = 52, TECM_3 = 53, TECM_4 = 54, TECM_5 = 55, TECM_6 = 56, TECM_7 = 57, TECM_8 = 58, TECM_9 = 59
+  };
+}
 
 class SiStripSummary {
 
@@ -23,13 +39,6 @@ class SiStripSummary {
 			uint32_t ibegin;
 		};
                 
-		enum TrackerRegion { TRACKER = 0, TIB = 1, TOB = 2, TID = 3, TEC = 4, 
-		                     TIB_1 = 10, TIB_2 = 11, TIB_3 = 12, TIB_4 = 13,
-		                     TOB_1 = 14, TOB_2 = 15, TOB_3 = 16, TOB_4 = 17, TOB_5 = 18, TOB_6 =19, 
-				     TID_1 = 20, TID_2 = 21, TID_3 = 22,
-				     TEC_1 = 23, TEC_2 = 24, TEC_3 = 25, TEC_4 = 26, TEC_5 = 27, TEC_6 = 28, TEC_7 = 29, TEC_8 = 30, TEC_9 = 31
-		};
-   
 		class StrictWeakOrdering{
 			public:
 				bool operator() (const DetRegistry& p,const uint32_t& i) const {return p.detid < i;}
@@ -50,6 +59,11 @@ class SiStripSummary {
 		SiStripSummary(){};
 		~SiStripSummary(){};
 		
+             
+		ContainerIterator getDataVectorBegin()     const {return v_sum_.begin();  }
+		ContainerIterator getDataVectorEnd()       const {return v_sum_.end();    } 
+		RegistryIterator  getRegistryVectorBegin() const {return indexes_.begin();}
+		RegistryIterator  getRegistryVectorEnd()   const {return indexes_.end();  }
 
                 // RETURNS POSITION OF DETID IN v_sum_
 		//
@@ -64,7 +78,7 @@ class SiStripSummary {
 		// INSERT SUMMARY OBJECTS...
 		//
 		bool put(const uint32_t& detID, InputVector &input, std::vector<std::string>& userContent );
-		bool put(TrackerRegion region, InputVector &input, std::vector<std::string>& userContent );
+		bool put(sistripsummary::TrackerRegion region, InputVector &input, std::vector<std::string>& userContent );
 		void setObj(const uint32_t& detID, std::string elementName, float value);
 		
 		
@@ -72,9 +86,11 @@ class SiStripSummary {
 		//
 		// returns info "elementName" for a given detId
 		float getSummaryObj(uint32_t& detID, std::string elementName) const;	
+		float getSummaryObj(sistripsummary::TrackerRegion region, std::string elementName) const;	
 		
 		// returns a vector of selected infos related to a given detId 
 		std::vector<float> getSummaryObj(uint32_t& detID, std::vector<std::string> list) const; 
+		std::vector<float> getSummaryObj(sistripsummary::TrackerRegion region, std::vector<std::string> list) const; 
 		 
 		// returns a vector filled with "info elementName" for each detId 
 		// The order is SORTED according to the one used in getDetIds() !
