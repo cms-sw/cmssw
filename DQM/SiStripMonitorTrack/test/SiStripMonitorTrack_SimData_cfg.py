@@ -13,9 +13,7 @@ process.MessageLogger = cms.Service(
 #-------------------------------------------------
 ## MAGNETIC FIELD
 #-------------------------------------------------
-process.load("MagneticField.Engine.uniformMagneticField_cfi")
-process.UniformMagneticFieldESProducer.ZFieldInTesla = 0.0
-process.es_prefer_UniformMagneticFieldESProducer = cms.ESPrefer("UniformMagneticFieldESProducer")
+process.load("Configuration.GlobalRuns.ForceZeroTeslaField_cff")
 
 #-------------------------------------------------
 ## GEOMETRY

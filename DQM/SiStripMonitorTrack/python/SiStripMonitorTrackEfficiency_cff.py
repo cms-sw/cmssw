@@ -6,7 +6,7 @@ SiStripMonitorTrackEfficiency.TrackProducer = 'ctfWithMaterialTracksP5'
 SiStripMonitorTrackEfficiency.TrackLabel    = ''
 SiStripMonitorTrackEfficiency.OutputMEsInRootFile = True
 SiStripMonitorTrackEfficiency.OutputFileName= '/tmp/giordano/sistripmonitortrack_test21X.root'
-SiStripMonitorTrackEfficiency.Cluster_src = siStripClusters
+SiStripMonitorTrackEfficiency.Cluster_src = 'siStripClusters'
 SiStripMonitorTrackEfficiency.Mod_On      = False
 SiStripMonitorTrackEfficiency.OffHisto_On = True
 
@@ -23,8 +23,8 @@ DQMsiStripMonitorTrackEfficiency_Sim = cms.Sequence( siStripDigis
                                                      siStripZeroSuppression
                                                      *cms.SequencePlaceholder("TrackRefitter")
                                                      *
-                                                     siStripMonitorTrackEfficiency
+                                                     SiStripMonitorTrackEfficiency
                                                      )
 
-DQMSiStripMonitorTrackEfficiency_Real = cms.Sequence( siStripMonitorTrackEfficiency
+DQMSiStripMonitorTrackEfficiency_Real = cms.Sequence( SiStripMonitorTrackEfficiency
                                                       )

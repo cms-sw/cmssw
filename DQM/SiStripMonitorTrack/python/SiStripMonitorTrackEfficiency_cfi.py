@@ -82,13 +82,13 @@ SiStripMonitorTrackEfficiency = cms.EDFilter(
                                    xmin = cms.double(-10.0),
                                    xmax = cms.double(10.0),
                                    Nbiny = cms.int32(20),
-                                   ymin = cms.double(-0.1)
-                                   ymax = cms.double(1.2),
+                                   ymin = cms.double(-0.1),
+                                   ymax = cms.double(1.2)
                                    ),
     
     Trending = cms.PSet( Nbins      = cms.int32(10),
-                         Steps      = cms.int32(5)
-                         UpdateMode = cms.int32(1),
+                         Steps      = cms.int32(5),
+                         UpdateMode = cms.int32(1)
                          )
     
     )

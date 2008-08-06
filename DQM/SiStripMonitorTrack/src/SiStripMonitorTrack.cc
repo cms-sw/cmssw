@@ -32,6 +32,7 @@ SiStripMonitorTrack::SiStripMonitorTrack(const edm::ParameterSet& conf):
   Trend_On_(conf.getParameter<bool>("Trend_On")),
   OffHisto_On_(conf.getParameter<bool>("OffHisto_On")),
   RawDigis_On_(conf.getParameter<bool>("RawDigis_On")),
+  CCAnalysis_On_(conf.getParameter<bool>("CCAnalysis_On")),
   folder_organizer(), tracksCollection_in_EventTree(true),
   firstEvent(-1)
 {
@@ -339,27 +340,35 @@ void SiStripMonitorTrack::bookTrendMEs(TString name,int32_t layer,uint32_t id,st
     }
     
     if(flag=="OnTrack"){
-      
       // Cluster Charge Corrected
       theLayerMEs.ClusterChargeCorr=bookME1D("TH1ClusterChargeCorr", hidmanager.createHistoLayer("Summary_ClusterChargeCorr",name.Data(),rest,flag).c_str());
       dbe->tag(theLayerMEs.ClusterChargeCorr,layer); 
-      
       // Cluster StoN Corrected
       theLayerMEs.ClusterStoNCorr=bookME1D("TH1ClusterStoNCorr", hidmanager.createHistoLayer("Summary_ClusterStoNCorr",name.Data(),rest,flag).c_str());
       dbe->tag(theLayerMEs.ClusterStoNCorr,layer); 
-
-     // Symmetric Eta function Eta=(L+R)/(2C) (Capacitive Coupling)
+      // Symmetric Eta function Eta=(L+R)/(2C) (Capacitive Coupling)
       theLayerMEs.ClusterSymmEtaCC=bookME1D("TH1ClusterSymmEtaCC", hidmanager.createHistoLayer("Summary_ClusterSymmEtaCC",name.Data(),rest,flag).c_str()); 
       dbe->tag(theLayerMEs.ClusterSymmEtaCC,layer); 
+      
+      // Histograms booked and filled only if Charge Coupling Analysis is selected
+      if(CCAnalysis_On_) {
+	// Cluster Width (perpendicular tracks, Capacitive Coupling analysis)
+	theLayerMEs.ClusterWidthCC=bookME1D("TH1ClusterWidthCC", hidmanager.createHistoLayer("Summary_ClusterWidthCC",name.Data(),rest,flag).c_str()); 
+	dbe->tag(theLayerMEs.ClusterWidthCC,layer); 
+	// Charge Coupling Estimator x=Eta/(1+2xEta) (Capacitive Coupling analysis)
+	theLayerMEs.ClusterEstimatorCC=bookME1D("TH1ClusterEstimatorCC", hidmanager.createHistoLayer("Summary_ClusterEstimatorCC",name.Data(),rest,flag).c_str()); 
+	dbe->tag(theLayerMEs.ClusterEstimatorCC,layer); 
+      }
       
       if(Trend_On_){
 	// Cluster Charge Corrected
 	theLayerMEs.ClusterChargeCorrTrend=bookMETrend("TH1ClusterChargeCorr", hidmanager.createHistoLayer("Trend_ClusterChargeCorr",name.Data(),rest,flag).c_str());
 	dbe->tag(theLayerMEs.ClusterChargeCorrTrend,layer); 
+	
 	// Cluster StoN Corrected
 	theLayerMEs.ClusterStoNCorrTrend=bookMETrend("TH1ClusterStoNCorr", hidmanager.createHistoLayer("Trend_ClusterStoNCorr",name.Data(),rest,flag).c_str());
 	dbe->tag(theLayerMEs.ClusterStoNCorrTrend,layer); 
-
+	
 	// Symmetric Eta function Eta=(L+R)/(2C) (Capacitive Coupling)
 	theLayerMEs.ClusterSymmEtaCCTrend=bookMETrend("TH1ClusterSymmEtaCC", hidmanager.createHistoLayer("Trend_ClusterSymmEtaCC",name.Data(),rest,flag).c_str()); 
 	dbe->tag(theLayerMEs.ClusterSymmEtaCCTrend,layer); 
@@ -374,7 +383,7 @@ void SiStripMonitorTrack::bookTrendMEs(TString name,int32_t layer,uint32_t id,st
     //bookeeping
     LayerMEsMap[hid]=theLayerMEs;
   }
-
+  
 }
 
 void SiStripMonitorTrack::bookSubDetMEs(TString name,TString flag)//Histograms at SubDet level
@@ -437,6 +446,16 @@ void SiStripMonitorTrack::bookSubDetMEs(TString name,TString flag)//Histograms a
       sprintf(completeName,"Summary_ClusterSymmEtaCC_%s",name.Data());
       theLayerMEs.ClusterSymmEtaCC=bookME1D("TH1ClusterSymmEtaCC", completeName);
          
+      // Histograms booked and filled only if Charge Coupling Analysis is selected
+      if(CCAnalysis_On_) {
+	// Cluster Width (perpendicular tracks, Capacitive Coupling analysis)
+	sprintf(completeName,"Summary_ClusterWidthCC_%s",name.Data());
+	theLayerMEs.ClusterWidthCC=bookME1D("TH1ClusterWidthCC", completeName);
+	// Charge Coupling Estimator x=Eta/(1+2xEta) (Capacitive Coupling analysis)
+	sprintf(completeName,"Summary_ClusterEstimatorCC_%s",name.Data());
+	theLayerMEs.ClusterEstimatorCC=bookME1D("TH1ClusterEstimatorCC", completeName);
+      }
+      
       if(Trend_On_){ 
 	// Cluster StoNCorr
 	sprintf(completeName,"Trend_ClusterStoNCorr_%s",name.Data());
@@ -926,6 +945,7 @@ void SiStripMonitorTrack::fillCapacitiveCouplingMEs(SiStripClusterInfo* cluster,
 	chargeLeftRight = cluster->getChargeLRFirstNeighbour();
       }
       float symmetricEta = SymEta(chargeCentral,chargeLeftRight.first,chargeLeftRight.second);
+      float ccEstimator  = symmetricEta / ( 1 + 2 * symmetricEta );
       
       // Summary
       LogTrace("SiStripMonitorTrack")    
@@ -945,6 +965,7 @@ void SiStripMonitorTrack::fillCapacitiveCouplingMEs(SiStripClusterInfo* cluster,
 	<<"\n\t\t\t     Pos = " << cluster->getMaxPosition()
 	<<"\n\t\t\t     1st = " << cluster->getFirstStrip()
 	<<"\n\t\t\t Symmetric Eta = " << symmetricEta
+	<<"\n\t\t\t CC Estimator  = " << ccEstimator
 	<< std::endl;
       for (std::vector<uint8_t>::const_iterator it=cluster->getStripAmplitudes().begin();it<cluster->getStripAmplitudes().end();++it) {
 	LogTrace("SiStripMonitorTrack")    
@@ -955,6 +976,11 @@ void SiStripMonitorTrack::fillCapacitiveCouplingMEs(SiStripClusterInfo* cluster,
       // fill monitor elements
       fillME(iLayerME->second.ClusterSymmEtaCC , symmetricEta);
       fillTrend(iLayerME->second.ClusterSymmEtaCCTrend, symmetricEta);
+      // Histograms booked and filled only if Charge Coupling Analysis is selected
+      if(CCAnalysis_On_) {
+	fillME(iLayerME->second.ClusterWidthCC, cluster->getWidth() );
+	fillME(iLayerME->second.ClusterEstimatorCC , ccEstimator );
+      }
       //
       
     } // perpendicular track

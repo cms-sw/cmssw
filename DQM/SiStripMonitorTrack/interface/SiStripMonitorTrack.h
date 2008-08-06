@@ -131,6 +131,8 @@ private:
       ClusterWidthTrend(0),
       ClusterSymmEtaCC(0),
       ClusterSymmEtaCCTrend(0),
+      ClusterWidthCC(0),
+      ClusterEstimatorCC(0),
       ClusterPos(0),
       ClusterPGV(0){};
     MonitorElement* nClusters;
@@ -149,6 +151,8 @@ private:
     MonitorElement* ClusterWidthTrend;
     MonitorElement* ClusterSymmEtaCC;
     MonitorElement* ClusterSymmEtaCCTrend;
+    MonitorElement* ClusterWidthCC;
+    MonitorElement* ClusterEstimatorCC;
     MonitorElement* ClusterPos;
     MonitorElement* ClusterPGV;
   };
@@ -175,6 +179,7 @@ private:
   bool Trend_On_;
   bool OffHisto_On_;
   bool RawDigis_On_;
+  bool CCAnalysis_On_;
   int off_Flag;
   std::vector<uint32_t> ModulesToBeExcluded_;
   std::vector<const SiStripCluster*> vPSiStripCluster;

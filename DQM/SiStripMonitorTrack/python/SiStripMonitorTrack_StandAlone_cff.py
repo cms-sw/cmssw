@@ -6,9 +6,10 @@ SiStripMonitorTrack.TrackLabel    = ''
 SiStripMonitorTrack.OutputMEsInRootFile = True
 SiStripMonitorTrack.OutputFileName = 'testSim.root'
 SiStripMonitorTrack.Cluster_src = 'siStripClusters'
-SiStripMonitorTrack.Mod_On      = False
-SiStripMonitorTrack.OffHisto_On = True
-SiStripMonitorTrack.Trend_On    = True
+SiStripMonitorTrack.Mod_On        = False
+SiStripMonitorTrack.OffHisto_On   = True
+SiStripMonitorTrack.Trend_On      = True
+SiStripMonitorTrack.CCAnalysis_On = False
 
 #TrackRefitter With Material
 from RecoTracker.TrackProducer.RefitterWithMaterial_cff import *

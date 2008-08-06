@@ -2,30 +2,24 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("SiStripDQMFile")
 
-process.MessageLogger = cms.Service("MessageLogger",
+process.MessageLogger = cms.Service(
+    "MessageLogger",
     debugModules = cms.untracked.vstring('ctfWithMaterialTracks', 
-        'SiStripMonitorTrack'),
+                                         'SiStripMonitorTrack'),
     cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO')
+    threshold = cms.untracked.string('INFO')
     ),
     destinations = cms.untracked.vstring('cout')
-)
+    )
 
 
 #-------------------------------------------------
-# GEOMETRY
+# CMS Geometry
 #-------------------------------------------------
-# tracker geometry
-process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
-
-# tracker numbering
-process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
-
-# cms geometry
-process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
+process.load("Configuration.StandardSequences.Geometry_cff")
 
 #-------------------------------------------------
-# Calobration
+# Calibration
 #-------------------------------------------------
 import CalibTracker.Configuration.Common.PoolDBESSource_cfi
 process.siStripCond = CalibTracker.Configuration.Common.PoolDBESSource_cfi.poolDBESSource.clone()
@@ -59,9 +53,9 @@ process.sistripconn = cms.ESProducer("SiStripConnectivity")
 #-------------------------------------------------
 # DQMStore Service
 process.DQMStore = cms.Service("DQMStore",
-    referenceFileName = cms.untracked.string(''),
-    verbose = cms.untracked.int32(0)
-)
+                               referenceFileName = cms.untracked.string(''),
+                               verbose = cms.untracked.int32(0)
+                               )
 # SiStripMonitorTrack
 process.load("DQM.SiStripMonitorTrack.SiStripMonitorTrack_WithReco_cff")
 
@@ -70,8 +64,8 @@ process.load("DQM.SiStripMonitorTrack.SiStripMonitorTrack_WithReco_cff")
 #-------------------------------------------------
 # memory
 process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",
-    ignoreTotal = cms.untracked.int32(0)
-)
+                                        ignoreTotal = cms.untracked.int32(0)
+                                        )
 
 # timing
 process.Timing = cms.Service("Timing")
@@ -79,21 +73,21 @@ process.Timing = cms.Service("Timing")
 #-------------------------------------------------
 # In-/Output
 #-------------------------------------------------
-   
+
 # input
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring(
-       '/store/data/CRUZET3/Cosmics/RAW/v1/000/051/490/02D59D05-4151-DD11-9E79-001617DBD5AC.root', 
-       '/store/data/CRUZET3/Cosmics/RAW/v1/000/051/490/02E220B3-4451-DD11-8471-000423D98868.root'
+                            fileNames = cms.untracked.vstring(
+    '/store/data/CRUZET3/Cosmics/RAW/v1/000/051/490/02D59D05-4151-DD11-9E79-001617DBD5AC.root', 
+    '/store/data/CRUZET3/Cosmics/RAW/v1/000/051/490/02E220B3-4451-DD11-8471-000423D98868.root'
     )
-)
+                            )
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(500))
 
 # output
 process.out = cms.OutputModule("PoolOutputModule",
-     fileName = cms.untracked.string('TESTReal.root'),
-     options = cms.PSet(wantSummary = cms.untracked.bool(True))                               
-)
+                               fileName = cms.untracked.string('TESTReal.root'),
+                               options = cms.PSet(wantSummary = cms.untracked.bool(True))                               
+                               )
 
 #-------------------------------------------------
 # Scheduling

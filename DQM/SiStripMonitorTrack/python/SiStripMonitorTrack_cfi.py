@@ -21,10 +21,11 @@ SiStripMonitorTrack = cms.EDFilter(
     Cluster_src = cms.InputTag('siStripClusters'),
     
     ModulesToBeExcluded = cms.vuint32(),
-        
-    Mod_On      = cms.bool(False),
-    OffHisto_On = cms.bool(True),
-    Trend_On    = cms.bool(False),    
+    
+    Mod_On        = cms.bool(False),
+    OffHisto_On   = cms.bool(True),
+    Trend_On      = cms.bool(False),
+    CCAnalysis_On = cms.bool(False),
     
     ClusterConditions = cms.PSet( On       = cms.bool(False),
                                   minStoN  = cms.double(0.0),
@@ -42,7 +43,7 @@ SiStripMonitorTrack = cms.EDFilter(
                             xmin  = cms.double(-0.5),
                             xmax  = cms.double(15.5)
                             ),
-
+    
     TH1nClusters = cms.PSet( Nbinx = cms.int32(50),
                              xmin  = cms.double(-0.5),
                              xmax  = cms.double(99.5)
@@ -88,6 +89,16 @@ SiStripMonitorTrack = cms.EDFilter(
                                     xmax  = cms.double(1.1)
                                     ),
     
+    TH1ClusterWidthCC = cms.PSet( Nbinx = cms.int32(10),
+                                  xmin  = cms.double(-0.5),
+                                  xmax  = cms.double(9.5)
+                                  ),
+    
+    TH1ClusterEstimatorCC = cms.PSet( Nbinx = cms.int32(120),
+                                      xmin  = cms.double(-0.1),
+                                      xmax  = cms.double(1.1)
+                                      ),
+    
     TProfileClusterPGV = cms.PSet( Nbinx = cms.int32(20),
                                    xmin = cms.double(-10.0),
                                    xmax = cms.double(10.0),
@@ -102,5 +113,3 @@ SiStripMonitorTrack = cms.EDFilter(
                          )
     
     )
-
-
