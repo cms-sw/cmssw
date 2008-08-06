@@ -1,5 +1,5 @@
 /** \class ThePEGInterface
- *  $Id: ThePEGInterface.cc,v 1.5 2008/07/09 10:31:52 stober Exp $
+ *  $Id: ThePEGInterface.cc,v 1.6 2008/07/17 08:26:18 stober Exp $
  *  
  *  Oliver Oberst <oberst@ekp.uni-karlsruhe.de>
  *  Fred-Markus Stober <stober@ekp.uni-karlsruhe.de>
@@ -107,6 +107,10 @@ void ThePEGInterface::readParameterSet(const edm::ParameterSet &pset, const stri
 	if (!dumpConfig_.empty())
 		cfgDump.open(dumpConfig_.c_str(), ios_base::app);
 
+	edm::LogInfo("ThePEGInterface") << "Loading parameter set (" << paramSet << ")";
+	if (!dumpConfig_.empty() && (paramSet != "parameterSets"))
+		cfgDump << endl << "####### " << paramSet << " #######" << endl;
+
 	// Read CMSSW config file parameter set
 	vector<string> params = pset.getParameter<vector<string> >(paramSet);
 
@@ -115,19 +119,11 @@ void ThePEGInterface::readParameterSet(const edm::ParameterSet &pset, const stri
 	    psIter != params.end(); ++psIter) {
 
 		// Include other parameter sets specified by +psName
-		if (psIter->find_first_of('+') == 0) {
-			edm::LogInfo("ThePEGInterface") << "Loading parameter set (" << psIter->substr(1) << ")";
-			if (!dumpConfig_.empty())
-				cfgDump << endl << "####### " << psIter->substr(1) << " #######" << endl;
+		if (psIter->find_first_of('+') == 0)
 			readParameterSet(pset, psIter->substr(1));
-		}
 		// Topmost parameter set is called "parameterSets"
-		else if (paramSet == "parameterSets") {
-			edm::LogInfo("ThePEGInterface") << "Loading parameter set (" << *psIter << ")";
-			if (!dumpConfig_.empty())
-				cfgDump << endl << "####### " << *psIter << " #######" << endl;
+		else if (paramSet == "parameterSets")
 			readParameterSet(pset, *psIter);
-		}
 		// Transfer parameters to the repository
 		else {
 			string line = resolveEnvVars(*psIter);
@@ -135,7 +131,13 @@ void ThePEGInterface::readParameterSet(const edm::ParameterSet &pset, const stri
 			if (!dumpConfig_.empty())
 				cfgDump << line << endl;
 			if (out != "")
+			{
 				edm::LogInfo("ThePEGInterface") << line << " => " << out;
+				cerr << "Error in ThePEG configuration!" << endl
+					<< "\tParameter set: " << paramSet << endl
+					<< "\tLine: " << line << endl
+					<< out << endl;
+			}
 		}
 	}
 }

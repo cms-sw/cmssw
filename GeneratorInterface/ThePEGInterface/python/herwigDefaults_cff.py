@@ -12,7 +12,7 @@ herwigDefaultsBlock = cms.PSet(
 		'+basicSetup',
 		'+pdfCTEQ6L1',
 		'+cm14TeV',
-		'+disableCtau10mmDecays',
+		'+setParticlesStableForDetector',
 	),
 
 	basicSetup = cms.vstring(
@@ -54,6 +54,31 @@ herwigDefaultsBlock = cms.PSet(
 	cm14TeV = cms.vstring(
 		'set /Herwig/Generators/LHCGenerator:EventHandler:LuminosityFunction:Energy 14000.0',
 		'set /Herwig/Shower/Evolver:IntrinsicPtGaussian 2.2*GeV',
+	),
+
+	setParticlesStableForDetector = cms.vstring(
+		'cd /Herwig/Particles',
+		'set mu-:Stable Stable',
+		'set mu+:Stable Stable',
+		'set Sigma-:Stable Stable',
+		'set Sigmabar+:Stable Stable',
+		'set Lambda0:Stable Stable',
+		'set Lambdabar0:Stable Stable',
+		'set Sigma+:Stable Stable',
+		'set Sigmabar-:Stable Stable',
+		'set Xi-:Stable Stable',
+		'set Xibar+:Stable Stable',
+		'set Xi0:Stable Stable',
+		'set Xibar0:Stable Stable',
+		'set Omega-:Stable Stable',
+		'set Omegabar+:Stable Stable',
+		'set pi+:Stable Stable',
+		'set pi-:Stable Stable',
+		'set K+:Stable Stable',
+		'set K-:Stable Stable',
+		'set K_S0:Stable Stable',
+		'set K_L0:Stable Stable',
+		'cd /',
 	),
 
 	disableCtau10mmDecays = cms.vstring(
