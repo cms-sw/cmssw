@@ -57,10 +57,10 @@ TtSemiHypothesisGenMatch::findMatchingLepton(edm::Event& evt, const edm::Handle<
   edm::Handle<TtGenEvent> genEvt;
   evt.getByLabel("genEvt", genEvt);  
   
-  if( genEvt->isTtBar() && genEvt->isSemiLeptonic() && genEvt->lepton() ){
+  if( genEvt->isTtBar() && genEvt->isSemiLeptonic() && genEvt->singleLepton() ){
     double minDR=-1;
     for(unsigned i=0; i<leps->size(); ++i){
-      double dR = deltaR(genEvt->lepton()->eta(), genEvt->lepton()->phi(), (*leps)[i].eta(), (*leps)[i].phi());
+      double dR = deltaR(genEvt->singleLepton()->eta(), genEvt->singleLepton()->phi(), (*leps)[i].eta(), (*leps)[i].phi());
       if(minDR<0 || dR<minDR){
 	minDR=dR;
 	genIdx=i;

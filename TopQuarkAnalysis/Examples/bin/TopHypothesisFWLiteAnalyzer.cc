@@ -32,6 +32,7 @@ int main(int argc, char* argv[])
   TtSemiEvent::HypoKey hypoKey;
   if(!strcmp(argv[3], "kWMassMaxSumPt")) hypoKey = TtSemiEvent::kWMassMaxSumPt; else if
     (!strcmp(argv[3], "kMaxSumPtWMass")) hypoKey = TtSemiEvent::kMaxSumPtWMass; else if
+    (!strcmp(argv[3], "kGeom"         )) hypoKey = TtSemiEvent::kGeom;          else if
     (!strcmp(argv[3], "kKinFit"       )) hypoKey = TtSemiEvent::kKinFit;        else if
     (!strcmp(argv[3], "kGenMatch"     )) hypoKey = TtSemiEvent::kGenMatch;      else if
     (!strcmp(argv[3], "kMVADisc"      )) hypoKey = TtSemiEvent::kMVADisc; 
@@ -42,6 +43,7 @@ int main(int argc, char* argv[])
 	      << "        Please specify one out of the following keys:" << std::endl
 	      << "        * kWMassMaxSumPt" << std::endl
 	      << "        * kMaxSumPtWMass" << std::endl
+	      << "        * kGeom" << std::endl
 	      << "        * kKinFit" << std::endl
 	      << "        * kGenMatch" << std::endl
 	      << "        * kMVADisc" << std::endl;
