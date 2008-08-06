@@ -574,6 +574,9 @@ int main(int argc, char *argv[]){
       TString tempL1BitName = menu->GetHltL1BitMap().find(trignames[it])->second;
       TString tempThreshold = menu->GetHltThresholdMap().find(trignames[it])->second;
       
+      if(strlen(tempL1BitName) > 30)
+	tempL1BitName = "List Too Long";
+
       /*
 	if(tempTrigName.Contains("Apt")) {
 	outFile << "new & " ;
