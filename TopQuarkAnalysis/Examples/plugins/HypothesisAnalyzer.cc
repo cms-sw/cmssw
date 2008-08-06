@@ -1,5 +1,5 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
-#include "AnalysisDataFormats/TopObjects/interface/TtSemiEvent.h"
+#include "AnalysisDataFormats/TopObjects/interface/TtSemiLeptonicEvent.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TopQuarkAnalysis/TopTools/interface/TtSemiEvtPartons.h"
 #include "TopQuarkAnalysis/Examples/plugins/HypothesisAnalyzer.h"

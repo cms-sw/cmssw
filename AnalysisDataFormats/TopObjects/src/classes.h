@@ -1,7 +1,7 @@
 #include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
 #include "AnalysisDataFormats/TopObjects/interface/StGenEvent.h"
 #include "AnalysisDataFormats/TopObjects/interface/TopGenEvent.h"
-#include "AnalysisDataFormats/TopObjects/interface/TtSemiEvent.h"
+#include "AnalysisDataFormats/TopObjects/interface/TtSemiLeptonicEvent.h"
 #include "AnalysisDataFormats/TopObjects/interface/StEvtSolution.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtDilepEvtSolution.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtHadEvtSolution.h"

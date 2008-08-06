@@ -6,7 +6,7 @@
 #include <iostream>
 
 #include "FWCore/FWLite/interface/AutoLibraryLoader.h"
-#include "AnalysisDataFormats/TopObjects/interface/TtSemiEvent.h"
+#include "AnalysisDataFormats/TopObjects/interface/TtSemiLeptonicEvent.h"
 
 #include "TopQuarkAnalysis/Examples/bin/NiceStyle.cc"
 #include "TopQuarkAnalysis/Examples/interface/RootSystem.h"

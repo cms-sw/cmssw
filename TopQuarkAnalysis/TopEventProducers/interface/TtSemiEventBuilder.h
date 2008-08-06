@@ -10,7 +10,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "AnalysisDataFormats/TopObjects/interface/TtSemiEvent.h"
+#include "AnalysisDataFormats/TopObjects/interface/TtSemiLeptonicEvent.h"
 #include "DataFormats/Candidate/interface/NamedCompositeCandidate.h"
 
 

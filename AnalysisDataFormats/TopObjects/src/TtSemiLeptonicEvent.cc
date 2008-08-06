@@ -1,5 +1,5 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "AnalysisDataFormats/TopObjects/interface/TtSemiEvent.h"
+#include "AnalysisDataFormats/TopObjects/interface/TtSemiLeptonicEvent.h"
 
 
 //empty constructor

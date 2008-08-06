@@ -14,7 +14,7 @@
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 
 #include "DataFormats/Candidate/interface/ShallowCloneCandidate.h"
-#include "AnalysisDataFormats/TopObjects/interface/TtSemiEvent.h"
+#include "AnalysisDataFormats/TopObjects/interface/TtSemiLeptonicEvent.h"
 
 
 class TtSemiHypothesis : public edm::EDProducer {
