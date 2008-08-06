@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.69 2008/07/31 20:30:28 biery Exp $
+// $Id: StorageManager.cc,v 1.70 2008/08/01 15:54:19 biery Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -2256,8 +2256,13 @@ void StorageManager::consumerListWebPage(xgi::Input *in, xgi::Output *out)
 	sprintf(buffer, "<Consumer>\n");
 	out->write(buffer,strlen(buffer));
 
-	sprintf(buffer, "<Name>%s</Name>\n",
-		consumerPipe->getConsumerName().c_str());
+	if (consumerPipe->isProxyServer()) {
+	  sprintf(buffer, "<Name>Proxy Server</Name>\n");
+	}
+	else {
+	  sprintf(buffer, "<Name>%s</Name>\n",
+	          consumerPipe->getConsumerName().c_str());
+	}
 	out->write(buffer,strlen(buffer));
 
 	sprintf(buffer, "<ID>%d</ID>\n", consumerPipe->getConsumerId());
@@ -2311,8 +2316,13 @@ void StorageManager::consumerListWebPage(xgi::Input *in, xgi::Output *out)
 	sprintf(buffer, "<DQMConsumer>\n");
 	out->write(buffer,strlen(buffer));
 
-	sprintf(buffer, "<Name>%s</Name>\n",
-		dqmPipe->getConsumerName().c_str());
+	if (dqmPipe->isProxyServer()) {
+	  sprintf(buffer, "<Name>Proxy Server</Name>\n");
+	}
+	else {
+	  sprintf(buffer, "<Name>%s</Name>\n",
+	          dqmPipe->getConsumerName().c_str());
+	}
 	out->write(buffer,strlen(buffer));
 
 	sprintf(buffer, "<ID>%d</ID>\n", dqmPipe->getConsumerId());
