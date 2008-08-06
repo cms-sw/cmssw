@@ -12,8 +12,8 @@ namespace DeDxTools {
 using namespace std;
 using namespace reco;
 
-
-  trajectoryRawHits(const edm::Ref<std::vector<Trajectory> > & trajectory, vector<RawHits> & hits)
+                   
+  void trajectoryRawHits(const edm::Ref<std::vector<Trajectory> >& trajectory, vector<RawHits>& hits)
   {
 
     //    vector<RawHits> hits;
@@ -96,6 +96,7 @@ using namespace reco;
     }
     // return hits;
   }
+
 
 
 

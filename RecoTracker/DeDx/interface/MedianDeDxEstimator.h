@@ -9,8 +9,8 @@ class MedianDeDxEstimator: public BaseDeDxEstimator
 public: 
  MedianDeDxEstimator(float expo) {}
 
- virtual float dedx(const reco::DeDxHitCollection & Hits) 
- {return Hits[Hits.size()/2].charge(); } 
+ virtual std::pair<float,float> dedx(const reco::DeDxHitCollection & Hits) 
+ {return std::make_pair(Hits[Hits.size()/2].charge(),-1); } 
 };
 
 #endif

@@ -10,17 +10,14 @@ class TruncatedAverageDeDxEstimator: public BaseDeDxEstimator
 public: 
  TruncatedAverageDeDxEstimator(float fraction): m_fraction(fraction) {}
 
- virtual float dedx(const reco::DeDxHitCollection & Hits) 
- {
-  int nTrunc = int( Hits.size()*m_fraction);
-  double sumdedx = 0;
-  for(size_t i=0;i + nTrunc <  Hits.size() ; i++)
-   {
-     sumdedx+=Hits[i].charge();
-   } 
- double avrdedx = (Hits.size()) ? sumdedx/(Hits.size()-nTrunc) :0.0;
-
-  return  avrdedx;
+ virtual std::pair<float,float> dedx(const reco::DeDxHitCollection& Hits){
+    int nTrunc = int( Hits.size()*m_fraction);
+    double sumdedx = 0;
+    for(size_t i=0;i + nTrunc <  Hits.size() ; i++){
+       sumdedx+=Hits[i].charge();
+    } 
+   double avrdedx = (Hits.size()) ? sumdedx/(Hits.size()-nTrunc) :0.0;
+   return  std::make_pair(avrdedx,-1);
  } 
 
 private:

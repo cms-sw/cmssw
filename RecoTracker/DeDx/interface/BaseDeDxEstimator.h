@@ -5,7 +5,7 @@
 class BaseDeDxEstimator
 {
 public: 
- virtual float dedx(const reco::DeDxHitCollection & Hits) = 0;
+ virtual std::pair<float,float> dedx(const reco::DeDxHitCollection& Hits) = 0;
 
 
 

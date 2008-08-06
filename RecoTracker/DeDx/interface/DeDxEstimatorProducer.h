@@ -11,6 +11,10 @@
 
 #include "RecoTracker/DeDx/interface/BaseDeDxEstimator.h"
 
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h" 
+
 
 
 //
@@ -29,18 +33,26 @@ private:
   virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
 
-  std::vector<Measurement1D> GetMeasurements(TrajectoryStateOnDetInfoCollection Tsodis, edm::ESHandle<TrackerGeometry> tkGeom);
+  double thickness    (DetId id);
+  double normalization(DetId id);
+  double distance     (DetId id);
+
 
   // ----------member data ---------------------------
   BaseDeDxEstimator*                m_estimator;
 
   edm::InputTag                     m_trajTrackAssociationTag;
   edm::InputTag                     m_tracksTag;
+
   bool usePixel;
   bool useStrip;
-  double MeVPerADCPixel;
-  double MeVPerADCStrip;
+  double MeVperADCPixel;
+  double MeVperADCStrip;
 
+  const TrackerGeometry* m_tracker;
+  std::map<DetId,double> m_normalizationMap;
+  std::map<DetId,double> m_distanceMap;
+  std::map<DetId,double> m_thicknessMap;
 };
 
 #endif

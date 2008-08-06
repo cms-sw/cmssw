@@ -9,8 +9,8 @@ class GenericAverageDeDxEstimator: public BaseDeDxEstimator
 public: 
  GenericAverageDeDxEstimator(float expo): m_expo(expo) {}
 
- virtual float dedx(const reco::DeDxHitCollection & Hits) 
- {return DeDxTools::genericAverage(Hits, m_expo); } 
+ virtual std::pair<float,float> dedx(const reco::DeDxHitCollection& Hits) 
+ {return std::make_pair(DeDxTools::genericAverage(Hits, m_expo),-1); } 
 
 private:
  float m_expo;
