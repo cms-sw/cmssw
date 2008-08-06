@@ -1,4 +1,4 @@
-# /dev/CMSSW_2_1_0/HLT/V3 (CMSSW_2_1_0_HLT1)
+# /dev/CMSSW_2_1_0/HLT/V4 (CMSSW_2_1_0_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -5257,7 +5257,8 @@ hltL3TrajectorySeed = cms.EDProducer( "TSGFromL2Muon",
           pf3_V55 = cms.PSet(  values = cms.vdouble( 1.0, 1.0, 27.275, 15.167, 13.818, 1.0, 1.0, 1.0, 1.037, 1.129, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.023, 1.028, 1.063, 1.08, 1.077, 1.054, 1.068, 1.065, 1.047, 1.025, 1.046, 1.064, 1.082, 1.078, 1.137, 1.12, 1.163, 1.158, 1.112, 1.072, 1.054, 1.095, 1.101, 1.092, 1.219, 1.167, 1.186, 1.203, 1.144, 1.096, 1.095, 1.109, 1.111, 1.105, 1.236, 1.187, 1.203, 1.262, 1.2, 1.086, 1.106, 1.112, 1.138, 1.076, 1.287, 1.255, 1.241, 1.334, 1.244, 1.112, 1.083, 1.111, 1.127, 1.025, 1.309, 1.257, 1.263, 1.393, 1.23, 1.091, 1.075, 1.078, 1.135, 1.042, 1.313, 1.303, 1.295, 1.436, 1.237, 1.064, 1.078, 1.075, 1.149, 1.037, 1.329, 1.509, 1.369, 1.546, 1.269, 1.079, 1.084, 1.047, 1.183, 1.008 ) )
         ),
         action = cms.string( "use" ),
-        atIP = cms.bool( True )
+        atIP = cms.bool( True ),
+        assignError = cms.bool( False )
       )
     ),
     TSGForRoadSearchIOpxl = cms.PSet( 
@@ -5290,14 +5291,15 @@ hltL3TrajectorySeed = cms.EDProducer( "TSGFromL2Muon",
           pf3_V55 = cms.PSet(  values = cms.vdouble( 1.0, 1.0, 27.275, 15.167, 13.818, 1.0, 1.0, 1.0, 1.037, 1.129, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.023, 1.028, 1.063, 1.08, 1.077, 1.054, 1.068, 1.065, 1.047, 1.025, 1.046, 1.064, 1.082, 1.078, 1.137, 1.12, 1.163, 1.158, 1.112, 1.072, 1.054, 1.095, 1.101, 1.092, 1.219, 1.167, 1.186, 1.203, 1.144, 1.096, 1.095, 1.109, 1.111, 1.105, 1.236, 1.187, 1.203, 1.262, 1.2, 1.086, 1.106, 1.112, 1.138, 1.076, 1.287, 1.255, 1.241, 1.334, 1.244, 1.112, 1.083, 1.111, 1.127, 1.025, 1.309, 1.257, 1.263, 1.393, 1.23, 1.091, 1.075, 1.078, 1.135, 1.042, 1.313, 1.303, 1.295, 1.436, 1.237, 1.064, 1.078, 1.075, 1.149, 1.037, 1.329, 1.509, 1.369, 1.546, 1.269, 1.079, 1.084, 1.047, 1.183, 1.008 ) )
         ),
         action = cms.string( "use" ),
-        atIP = cms.bool( True )
+        atIP = cms.bool( True ),
+        assignError = cms.bool( False )
       )
     ),
     TSGFromPropagation = cms.PSet( 
       ComponentName = cms.string( "TSGFromPropagation" ),
       Propagator = cms.string( "SmartPropagatorAnyOpposite" ),
-      MaxChi2 = cms.double( 30.0 ),
-      ErrorRescaling = cms.double( 10.0 ),
+      MaxChi2 = cms.double( 15.0 ),
+      ErrorRescaling = cms.double( 3.0 ),
       UseVertexState = cms.bool( True ),
       UpdateState = cms.bool( False ),
       UseSecondMeasurements = cms.bool( False )
