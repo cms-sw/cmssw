@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 #
-# produce genMatch hypothesis with all necessary 
+# produce mvaDisc hypothesis with all necessary 
 # ingredients
 #
 
