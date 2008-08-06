@@ -142,7 +142,7 @@ HLTMon::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       fillHistos<l1extra::L1MuonParticleCollection>(triggerObj,iEvent,n);break;
     case 82: // non-iso L1
       fillHistos<l1extra::L1EmParticleCollection>(triggerObj,iEvent,n);break;
-    case 83: // iso L1
+    case 83: // iso L1http://slashdot.org/
       fillHistos<l1extra::L1EmParticleCollection>(triggerObj,iEvent,n);break;
     case 91: //photon 
       fillHistos<reco::RecoEcalCandidateCollection>(triggerObj,iEvent,n);break;
@@ -159,6 +159,7 @@ HLTMon::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 template <class T> void HLTMon::fillHistos(edm::Handle<trigger::TriggerEventWithRefs>& triggerObj,const edm::Event& iEvent  ,unsigned int n){
   
+
   std::vector<edm::Ref<T> > particlecands;
   if (!( triggerObj->filterIndex(theHLTCollectionLabels[n])>=triggerObj->size() )){ // only process if availabel  
     // retrieve saved filter objects
@@ -177,30 +178,39 @@ template <class T> void HLTMon::fillHistos(edm::Handle<trigger::TriggerEventWith
     if (particlecands.size()!=0){
       if(particlecands.size() >= reqNum ) 
 	total->Fill(n+0.5);
-      for (unsigned int i=0; i<particlecands.size(); i++) {
+      for (unsigned int i=0; i<particlecands.size() && particlecands[i].isAvailable(); i++) {
 	//unmatched
+        std::cout << "top loop" << std::endl;
 	ethist[n]->Fill(particlecands[i]->et() );
 	etahist[n]->Fill(particlecands[i]->eta() );
 	phihist[n]->Fill(particlecands[i]->phi() );
 	eta_phihist[n]->Fill(particlecands[i]->eta(), particlecands[i]->phi() );
+        std::cout << "bottom loop" << std::endl;
 
 	//plot isolation variables (show not yet cut  iso, i.e. associated to next filter)
 	if(n+1 < theHLTCollectionLabels.size()){ // can't plot beyond last
 	  if(plotiso[n+1]){
 	    for(unsigned int j =  0 ; j < isoNames[n+1].size() ;j++  ){
 	      edm::Handle<edm::AssociationMap<edm::OneToValue< T , float > > > depMap; 
-	      iEvent.getByLabel(isoNames[n+1].at(j).label(),depMap);
-	      typename edm::AssociationMap<edm::OneToValue< T , float > >::const_iterator mapi = depMap->find(particlecands[i]);
-	      if(mapi!=depMap->end()){  // found candidate in isolation map! 
-		etahistiso[n+1]->Fill(particlecands[i]->eta(),mapi->val);
-		ethistiso[n+1]->Fill(particlecands[i]->et(),mapi->val);
-		phihistiso[n+1]->Fill(particlecands[i]->phi(),mapi->val);
-		break; // to avoid multiple filling we only look until we found the candidate once.
-	      }
+              std::cout << "before gbL" << std::endl;
+              try{
+	           iEvent.getByLabel(isoNames[n+1].at(j).label(),depMap);
+                   typename edm::AssociationMap<edm::OneToValue< T , float > >::const_iterator mapi = depMap->find(particlecands[i]);
+	           if(mapi!=depMap->end()){  // found candidate in isolation map! 
+		     etahistiso[n+1]->Fill(particlecands[i]->eta(),mapi->val);
+		     ethistiso[n+1]->Fill(particlecands[i]->et(),mapi->val);
+		     phihistiso[n+1]->Fill(particlecands[i]->phi(),mapi->val);
+		     break; // to avoid multiple filling we only look until we found the candidate once.
+	           }
+                 }
+               catch(...){
+               edm::LogWarning("HLTMon") << "IsoName collection not found";  
+                 }
 	    }
 	  }	  	  
 	}
       }
+      std::cout << "end loop" << std::endl;
     }
   }
 }
