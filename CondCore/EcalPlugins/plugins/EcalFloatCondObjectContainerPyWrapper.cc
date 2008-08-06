@@ -1,5 +1,5 @@
 
-#include "CondFormats/EcalObjects/interface/EcalFloatCondObjectContainer.h"
+#include "CondFormats/EcalObjects/interface/EcalCondObjectContainer.h"
 
 #include "CondCore/Utilities/interface/PayLoadInspector.h"
 #include "CondCore/Utilities/interface/InspectorPythonWrapper.h"
