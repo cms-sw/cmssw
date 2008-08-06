@@ -61,12 +61,9 @@ TtSemiKinFitProducer<LeptonCollection>::TtSemiKinFitProducer(const edm::Paramete
 {
   fitter = new TtSemiKinFitter(jetParam_, lepParam_, metParam_, maxNrIter_, maxDeltaS_, maxF_, constraints_);
 
-  produces< pat::Particle >("HadB");
-  produces< pat::Particle >("HadP");
-  produces< pat::Particle >("HadQ");
-  produces< pat::Particle >("LepB");
-  produces< pat::Particle >("LepL");
-  produces< pat::Particle >("LepN");
+  produces< std::vector<pat::Particle> >("Partons");
+  produces< std::vector<pat::Particle> >("Leptons");
+  produces< std::vector<pat::Particle> >("Neutrinos");
 
   produces< std::vector<int> >();
   produces< double >("Chi2");
@@ -83,12 +80,9 @@ TtSemiKinFitProducer<LeptonCollection>::~TtSemiKinFitProducer()
 template<typename LeptonCollection>
 void TtSemiKinFitProducer<LeptonCollection>::produce(edm::Event& evt, const edm::EventSetup& setup)
 {
-  std::auto_ptr< pat::Particle > pHadB( new pat::Particle );
-  std::auto_ptr< pat::Particle > pHadP( new pat::Particle );
-  std::auto_ptr< pat::Particle > pHadQ( new pat::Particle );
-  std::auto_ptr< pat::Particle > pLepB( new pat::Particle );
-  std::auto_ptr< pat::Particle > pLepL( new pat::Particle );
-  std::auto_ptr< pat::Particle > pLepN( new pat::Particle );
+  std::auto_ptr< std::vector<pat::Particle> > pPartons  ( new std::vector<pat::Particle> );
+  std::auto_ptr< std::vector<pat::Particle> > pLeptons  ( new std::vector<pat::Particle> );
+  std::auto_ptr< std::vector<pat::Particle> > pNeutrinos( new std::vector<pat::Particle> );
 
   std::auto_ptr< std::vector<int> > pCombi(new std::vector<int>);
   std::auto_ptr< double > pChi2( new double);
@@ -105,6 +99,7 @@ void TtSemiKinFitProducer<LeptonCollection>::produce(edm::Event& evt, const edm:
   evt.getByLabel(leps_, leps);
 
   unsigned int nPartons = 4;
+  pPartons->resize(nPartons);
 
   edm::Handle<std::vector<int> > match;
   bool unvalidMatch = false;
@@ -128,18 +123,16 @@ void TtSemiKinFitProducer<LeptonCollection>::produce(edm::Event& evt, const edm:
   // -----------------------------------------------------
 
   if( leps->empty() || mets->empty() || jets->size()<nPartons || unvalidMatch ) {
-    *pHadB=fitter->getFitHadb(); // these getters return empty objects here
-    *pHadP=fitter->getFitHadp();
-    *pHadQ=fitter->getFitHadq();
-    *pLepB=fitter->getFitLepb();
-    *pLepL=fitter->getFitLepl();
-    *pLepN=fitter->getFitLepn();  
-    evt.put(pHadB, "HadB");
-    evt.put(pHadP, "HadP");
-    evt.put(pHadQ, "HadQ");
-    evt.put(pLepB, "LepB");
-    evt.put(pLepL, "LepL");
-    evt.put(pLepN, "LepN");  
+    // the kinFit getters return empty objects here
+    (*pPartons)[TtSemiEvtPartons::LightQ   ] = fitter->getFitHadp();
+    (*pPartons)[TtSemiEvtPartons::LightQBar] = fitter->getFitHadq();
+    (*pPartons)[TtSemiEvtPartons::HadB     ] = fitter->getFitHadb();
+    (*pPartons)[TtSemiEvtPartons::LepB     ] = fitter->getFitLepb();
+    pLeptons  ->push_back( fitter->getFitLepl() );
+    pNeutrinos->push_back( fitter->getFitLepn() );
+    evt.put(pPartons,   "Partons");
+    evt.put(pLeptons,   "Leptons");
+    evt.put(pNeutrinos, "Neutrinos");
     for(unsigned int i = 0; i < nPartons; ++i) 
       pCombi->push_back( -1 );
     evt.put(pCombi);
@@ -228,18 +221,15 @@ void TtSemiKinFitProducer<LeptonCollection>::produce(edm::Event& evt, const edm:
   // -----------------------------------------------------
 
   // feed out particles that result from the kinematic fit
-  *pHadB=bestHadb;
-  *pHadP=bestHadp;
-  *pHadQ=bestHadq;
-  *pLepB=bestLepb;
-  *pLepL=bestLepl;
-  *pLepN=bestLepn;
-  evt.put(pHadB, "HadB");
-  evt.put(pHadP, "HadP");
-  evt.put(pHadQ, "HadQ");
-  evt.put(pLepB, "LepB");
-  evt.put(pLepL, "LepL");
-  evt.put(pLepN, "LepN");
+  (*pPartons)[TtSemiEvtPartons::LightQ   ] = bestHadp;
+  (*pPartons)[TtSemiEvtPartons::LightQBar] = bestHadq;
+  (*pPartons)[TtSemiEvtPartons::HadB     ] = bestHadb;
+  (*pPartons)[TtSemiEvtPartons::LepB     ] = bestLepb;
+  pLeptons  ->push_back( bestLepl );
+  pNeutrinos->push_back( bestLepn );
+  evt.put(pPartons,   "Partons");
+  evt.put(pLeptons,   "Leptons");
+  evt.put(pNeutrinos, "Neutrinos");
 
   // feed out indices referring to the jet combination that gave the smallest chi2
   for(unsigned int i = 0; i < bestCombi.size(); ++i)
