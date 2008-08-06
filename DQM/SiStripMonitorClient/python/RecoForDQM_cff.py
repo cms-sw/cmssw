@@ -21,7 +21,7 @@ RS_P5_MeasurementTracker.pixelClusterProducer = ''
 from RecoVertex.BeamSpotProducer.BeamSpot_cff import *
 
 # Reconstruction Sequence
-RecoForDQM = cms.Sequence(siPixelDigis*siStripDigis*offlineBeamSpot*trackerlocalreco*ctftracksP5)
+RecoForDQM = cms.Sequence(siStripDigis*offlineBeamSpot*striptrackerlocalreco*ctftracksP5)
 
 
 
