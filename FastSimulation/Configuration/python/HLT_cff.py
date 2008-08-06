@@ -1,4 +1,4 @@
-# /dev/CMSSW_2_1_0_pre10/HLT/V5 (CMSSW_2_1_X_2008-07-29-0800_HLT1)
+# /dev/CMSSW_2_1_0/HLT/V4 (CMSSW_2_1_0_HLT1)
 # Begin replace statements specific to the FastSim HLT
 # For all HLTLevel1GTSeed objects, make the following replacements:
 #   - L1GtReadoutRecordTag changed from hltGtDigis to gtDigis
@@ -3285,7 +3285,8 @@ hltMuLevel1PathLevel1Seed = cms.EDFilter( "HLTLevel1GTSeed",
     L1MuonCollectionTag = cms.InputTag( "l1ParamMuons" )
 )
 hltMuLevel1PathL1Filtered = cms.EDFilter( "HLTMuonL1Filter",
-    CandTag = cms.InputTag( "hltMuLevel1PathLevel1Seed" ),
+    CandTag = cms.InputTag( "l1extraParticles" ),
+    PreviousCandTag = cms.InputTag( "hltMuLevel1PathLevel1Seed" ),
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 0.0 ),
     MinQuality = cms.int32( -1 ),
@@ -3302,7 +3303,8 @@ hltMuLevel1PathLevel1OpenSeed = cms.EDFilter( "HLTLevel1GTSeed",
     L1MuonCollectionTag = cms.InputTag( "l1ParamMuons" )
 )
 hltMuLevel1PathL1OpenFiltered = cms.EDFilter( "HLTMuonL1Filter",
-    CandTag = cms.InputTag( "hltMuLevel1PathLevel1OpenSeed" ),
+    CandTag = cms.InputTag( "l1extraParticles" ),
+    PreviousCandTag = cms.InputTag( "hltMuLevel1PathLevel1OpenSeed" ),
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 0.0 ),
     MinQuality = cms.int32( -1 ),
@@ -3319,7 +3321,8 @@ hltSingleMuNoIsoLevel1Seed = cms.EDFilter( "HLTLevel1GTSeed",
     L1MuonCollectionTag = cms.InputTag( "l1ParamMuons" )
 )
 hltSingleMuNoIsoL1Filtered = cms.EDFilter( "HLTMuonL1Filter",
-    CandTag = cms.InputTag( "hltSingleMuNoIsoLevel1Seed" ),
+    CandTag = cms.InputTag( "l1extraParticles" ),
+    PreviousCandTag = cms.InputTag( "hltSingleMuNoIsoLevel1Seed" ),
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 0.0 ),
     MinQuality = cms.int32( -1 ),
@@ -3706,7 +3709,8 @@ hltSingleMuIsoLevel1Seed = cms.EDFilter( "HLTLevel1GTSeed",
     L1MuonCollectionTag = cms.InputTag( "l1ParamMuons" )
 )
 hltSingleMuIsoL1Filtered = cms.EDFilter( "HLTMuonL1Filter",
-    CandTag = cms.InputTag( "hltSingleMuIsoLevel1Seed" ),
+    CandTag = cms.InputTag( "l1extraParticles" ),
+    PreviousCandTag = cms.InputTag( "hltSingleMuIsoLevel1Seed" ),
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 0.0 ),
     MinQuality = cms.int32( -1 ),
@@ -3778,7 +3782,8 @@ hltL2MuonIsolations = cms.EDProducer( "L2MuonIsolationProducer",
     )
 )
 hltSingleMuIsoL2IsoFiltered7 = cms.EDFilter( "HLTMuonIsoFilter",
-    CandTag = cms.InputTag( "hltSingleMuIsoL2PreFiltered7" ),
+    CandTag = cms.InputTag( "hltL2MuonCandidates" ),
+    PreviousCandTag = cms.InputTag( "hltSingleMuIsoL2PreFiltered7" ),
     IsoTag = cms.InputTag( "hltL2MuonIsolations" ),
     MinN = cms.int32( 1 )
 )
@@ -3832,7 +3837,8 @@ hltL3MuonIsolations = cms.EDProducer( "L3MuonIsolationProducer",
     )
 )
 hltSingleMuIsoL3IsoFiltered9 = cms.EDFilter( "HLTMuonIsoFilter",
-    CandTag = cms.InputTag( "hltSingleMuIsoL3PreFiltered9" ),
+    CandTag = cms.InputTag( "hltL3MuonCandidates" ),
+    PreviousCandTag = cms.InputTag( "hltSingleMuIsoL3PreFiltered9" ),
     IsoTag = cms.InputTag( "hltL3MuonIsolations" ),
     MinN = cms.int32( 1 ),
     SaveTag = cms.untracked.bool( True )
@@ -3852,7 +3858,8 @@ hltSingleMuIsoL2PreFiltered = cms.EDFilter( "HLTMuonL2PreFilter",
     NSigmaPt = cms.double( 0.0 )
 )
 hltSingleMuIsoL2IsoFiltered = cms.EDFilter( "HLTMuonIsoFilter",
-    CandTag = cms.InputTag( "hltSingleMuIsoL2PreFiltered" ),
+    CandTag = cms.InputTag( "hltL2MuonCandidates" ),
+    PreviousCandTag = cms.InputTag( "hltSingleMuIsoL2PreFiltered" ),
     IsoTag = cms.InputTag( "hltL2MuonIsolations" ),
     MinN = cms.int32( 1 )
 )
@@ -3870,7 +3877,8 @@ hltSingleMuIsoL3PreFiltered = cms.EDFilter( "HLTMuonL3PreFilter",
     NSigmaPt = cms.double( 0.0 )
 )
 hltSingleMuIsoL3IsoFiltered = cms.EDFilter( "HLTMuonIsoFilter",
-    CandTag = cms.InputTag( "hltSingleMuIsoL3PreFiltered" ),
+    CandTag = cms.InputTag( "hltL3MuonCandidates" ),
+    PreviousCandTag = cms.InputTag( "hltSingleMuIsoL3PreFiltered" ),
     IsoTag = cms.InputTag( "hltL3MuonIsolations" ),
     MinN = cms.int32( 1 )
 )
@@ -3884,7 +3892,8 @@ hltSingleMuIsoLevel1Seed10 = cms.EDFilter( "HLTLevel1GTSeed",
     L1MuonCollectionTag = cms.InputTag( "l1ParamMuons" )
 )
 hltSingleMuIsoL1Filtered10 = cms.EDFilter( "HLTMuonL1Filter",
-    CandTag = cms.InputTag( "hltSingleMuIsoLevel1Seed10" ),
+    CandTag = cms.InputTag( "l1extraParticles" ),
+    PreviousCandTag = cms.InputTag( "hltSingleMuIsoLevel1Seed10" ),
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 0.0 ),
     MinQuality = cms.int32( -1 ),
@@ -3904,7 +3913,8 @@ hltSingleMuIsoL2PreFiltered11 = cms.EDFilter( "HLTMuonL2PreFilter",
     NSigmaPt = cms.double( 0.0 )
 )
 hltSingleMuIsoL2IsoFiltered11 = cms.EDFilter( "HLTMuonIsoFilter",
-    CandTag = cms.InputTag( "hltSingleMuIsoL2PreFiltered11" ),
+    CandTag = cms.InputTag( "hltL2MuonCandidates" ),
+    PreviousCandTag = cms.InputTag( "hltSingleMuIsoL2PreFiltered11" ),
     IsoTag = cms.InputTag( "hltL2MuonIsolations" ),
     MinN = cms.int32( 1 )
 )
@@ -3922,7 +3932,8 @@ hltSingleMuIsoL3PreFiltered13 = cms.EDFilter( "HLTMuonL3PreFilter",
     NSigmaPt = cms.double( 0.0 )
 )
 hltSingleMuIsoL3IsoFiltered13 = cms.EDFilter( "HLTMuonIsoFilter",
-    CandTag = cms.InputTag( "hltSingleMuIsoL3PreFiltered13" ),
+    CandTag = cms.InputTag( "hltL3MuonCandidates" ),
+    PreviousCandTag = cms.InputTag( "hltSingleMuIsoL3PreFiltered13" ),
     IsoTag = cms.InputTag( "hltL3MuonIsolations" ),
     MinN = cms.int32( 1 ),
     SaveTag = cms.untracked.bool( True )
@@ -3942,7 +3953,8 @@ hltSingleMuIsoL2PreFiltered12 = cms.EDFilter( "HLTMuonL2PreFilter",
     NSigmaPt = cms.double( 0.0 )
 )
 hltSingleMuIsoL2IsoFiltered12 = cms.EDFilter( "HLTMuonIsoFilter",
-    CandTag = cms.InputTag( "hltSingleMuIsoL2PreFiltered12" ),
+    CandTag = cms.InputTag( "hltL2MuonCandidates" ),
+    PreviousCandTag = cms.InputTag( "hltSingleMuIsoL2PreFiltered12" ),
     IsoTag = cms.InputTag( "hltL2MuonIsolations" ),
     MinN = cms.int32( 1 )
 )
@@ -3960,7 +3972,8 @@ hltSingleMuIsoL3PreFiltered15 = cms.EDFilter( "HLTMuonL3PreFilter",
     NSigmaPt = cms.double( 0.0 )
 )
 hltSingleMuIsoL3IsoFiltered15 = cms.EDFilter( "HLTMuonIsoFilter",
-    CandTag = cms.InputTag( "hltSingleMuIsoL3PreFiltered15" ),
+    CandTag = cms.InputTag( "hltL3MuonCandidates" ),
+    PreviousCandTag = cms.InputTag( "hltSingleMuIsoL3PreFiltered15" ),
     IsoTag = cms.InputTag( "hltL3MuonIsolations" ),
     MinN = cms.int32( 1 ),
     SaveTag = cms.untracked.bool( True )
@@ -4004,7 +4017,8 @@ hltSingleMuPrescale3Level1Seed = cms.EDFilter( "HLTLevel1GTSeed",
     L1MuonCollectionTag = cms.InputTag( "l1ParamMuons" )
 )
 hltSingleMuPrescale3L1Filtered = cms.EDFilter( "HLTMuonL1Filter",
-    CandTag = cms.InputTag( "hltSingleMuPrescale3Level1Seed" ),
+    CandTag = cms.InputTag( "l1extraParticles" ),
+    PreviousCandTag = cms.InputTag( "hltSingleMuPrescale3Level1Seed" ),
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 0.0 ),
     MinQuality = cms.int32( -1 ),
@@ -4047,7 +4061,8 @@ hltSingleMuPrescale5Level1Seed = cms.EDFilter( "HLTLevel1GTSeed",
     L1MuonCollectionTag = cms.InputTag( "l1ParamMuons" )
 )
 hltSingleMuPrescale5L1Filtered = cms.EDFilter( "HLTMuonL1Filter",
-    CandTag = cms.InputTag( "hltSingleMuPrescale5Level1Seed" ),
+    CandTag = cms.InputTag( "l1extraParticles" ),
+    PreviousCandTag = cms.InputTag( "hltSingleMuPrescale5Level1Seed" ),
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 0.0 ),
     MinQuality = cms.int32( -1 ),
@@ -4090,7 +4105,8 @@ hltSingleMuPrescale77Level1Seed = cms.EDFilter( "HLTLevel1GTSeed",
     L1MuonCollectionTag = cms.InputTag( "l1ParamMuons" )
 )
 hltSingleMuPrescale77L1Filtered = cms.EDFilter( "HLTMuonL1Filter",
-    CandTag = cms.InputTag( "hltSingleMuPrescale77Level1Seed" ),
+    CandTag = cms.InputTag( "l1extraParticles" ),
+    PreviousCandTag = cms.InputTag( "hltSingleMuPrescale77Level1Seed" ),
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 0.0 ),
     MinQuality = cms.int32( -1 ),
@@ -4189,7 +4205,8 @@ hltSingleMuNoIsoLevel1Seed10 = cms.EDFilter( "HLTLevel1GTSeed",
     L1MuonCollectionTag = cms.InputTag( "l1ParamMuons" )
 )
 hltSingleMuNoIsoL1Filtered10 = cms.EDFilter( "HLTMuonL1Filter",
-    CandTag = cms.InputTag( "hltSingleMuNoIsoLevel1Seed10" ),
+    CandTag = cms.InputTag( "l1extraParticles" ),
+    PreviousCandTag = cms.InputTag( "hltSingleMuNoIsoLevel1Seed10" ),
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 0.0 ),
     MinQuality = cms.int32( -1 ),
@@ -4304,7 +4321,8 @@ hltDiMuonIsoLevel1Seed = cms.EDFilter( "HLTLevel1GTSeed",
     L1MuonCollectionTag = cms.InputTag( "l1ParamMuons" )
 )
 hltDiMuonIsoL1Filtered = cms.EDFilter( "HLTMuonL1Filter",
-    CandTag = cms.InputTag( "hltDiMuonIsoLevel1Seed" ),
+    CandTag = cms.InputTag( "l1extraParticles" ),
+    PreviousCandTag = cms.InputTag( "hltDiMuonIsoLevel1Seed" ),
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 0.0 ),
     MinQuality = cms.int32( -1 ),
@@ -4324,7 +4342,8 @@ hltDiMuonIsoL2PreFiltered = cms.EDFilter( "HLTMuonL2PreFilter",
     NSigmaPt = cms.double( 0.0 )
 )
 hltDiMuonIsoL2IsoFiltered = cms.EDFilter( "HLTMuonIsoFilter",
-    CandTag = cms.InputTag( "hltDiMuonIsoL2PreFiltered" ),
+    CandTag = cms.InputTag( "hltL2MuonCandidates" ),
+    PreviousCandTag = cms.InputTag( "hltDiMuonIsoL2PreFiltered" ),
     IsoTag = cms.InputTag( "hltL2MuonIsolations" ),
     MinN = cms.int32( 1 )
 )
@@ -4342,7 +4361,8 @@ hltDiMuonIsoL3PreFiltered = cms.EDFilter( "HLTMuonL3PreFilter",
     NSigmaPt = cms.double( 0.0 )
 )
 hltDiMuonIsoL3IsoFiltered = cms.EDFilter( "HLTMuonIsoFilter",
-    CandTag = cms.InputTag( "hltDiMuonIsoL3PreFiltered" ),
+    CandTag = cms.InputTag( "hltL3MuonCandidates" ),
+    PreviousCandTag = cms.InputTag( "hltDiMuonIsoL3PreFiltered" ),
     IsoTag = cms.InputTag( "hltL3MuonIsolations" ),
     MinN = cms.int32( 1 ),
     SaveTag = cms.untracked.bool( True )
@@ -4357,7 +4377,8 @@ hltDiMuonNoIsoLevel1Seed = cms.EDFilter( "HLTLevel1GTSeed",
     L1MuonCollectionTag = cms.InputTag( "l1ParamMuons" )
 )
 hltDiMuonNoIsoL1Filtered = cms.EDFilter( "HLTMuonL1Filter",
-    CandTag = cms.InputTag( "hltDiMuonNoIsoLevel1Seed" ),
+    CandTag = cms.InputTag( "l1extraParticles" ),
+    PreviousCandTag = cms.InputTag( "hltDiMuonNoIsoLevel1Seed" ),
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 0.0 ),
     MinQuality = cms.int32( -1 ),
@@ -4430,7 +4451,8 @@ hltJpsiMMLevel1Seed = cms.EDFilter( "HLTLevel1GTSeed",
     L1MuonCollectionTag = cms.InputTag( "l1ParamMuons" )
 )
 hltJpsiMML1Filtered = cms.EDFilter( "HLTMuonL1Filter",
-    CandTag = cms.InputTag( "hltJpsiMMLevel1Seed" ),
+    CandTag = cms.InputTag( "l1extraParticles" ),
+    PreviousCandTag = cms.InputTag( "hltJpsiMMLevel1Seed" ),
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 0.0 ),
     MinQuality = cms.int32( -1 ),
@@ -4491,7 +4513,8 @@ hltUpsilonMMLevel1Seed = cms.EDFilter( "HLTLevel1GTSeed",
     L1MuonCollectionTag = cms.InputTag( "l1ParamMuons" )
 )
 hltUpsilonMML1Filtered = cms.EDFilter( "HLTMuonL1Filter",
-    CandTag = cms.InputTag( "hltUpsilonMMLevel1Seed" ),
+    CandTag = cms.InputTag( "l1extraParticles" ),
+    PreviousCandTag = cms.InputTag( "hltUpsilonMMLevel1Seed" ),
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 0.0 ),
     MinQuality = cms.int32( -1 ),
@@ -4552,7 +4575,8 @@ hltZMMLevel1Seed = cms.EDFilter( "HLTLevel1GTSeed",
     L1MuonCollectionTag = cms.InputTag( "l1ParamMuons" )
 )
 hltZMML1Filtered = cms.EDFilter( "HLTMuonL1Filter",
-    CandTag = cms.InputTag( "hltZMMLevel1Seed" ),
+    CandTag = cms.InputTag( "l1extraParticles" ),
+    PreviousCandTag = cms.InputTag( "hltZMMLevel1Seed" ),
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 0.0 ),
     MinQuality = cms.int32( -1 ),
@@ -4613,7 +4637,8 @@ hltSameSignMuLevel1Seed = cms.EDFilter( "HLTLevel1GTSeed",
     L1MuonCollectionTag = cms.InputTag( "l1ParamMuons" )
 )
 hltSameSignMuL1Filtered = cms.EDFilter( "HLTMuonL1Filter",
-    CandTag = cms.InputTag( "hltSameSignMuLevel1Seed" ),
+    CandTag = cms.InputTag( "l1extraParticles" ),
+    PreviousCandTag = cms.InputTag( "hltSameSignMuLevel1Seed" ),
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 0.0 ),
     MinQuality = cms.int32( -1 ),
@@ -5091,7 +5116,8 @@ hltJpsitoMumuL1SeedRelaxed = cms.EDFilter( "HLTLevel1GTSeed",
     L1MuonCollectionTag = cms.InputTag( "l1ParamMuons" )
 )
 hltJpsitoMumuL1FilteredRelaxed = cms.EDFilter( "HLTMuonL1Filter",
-    CandTag = cms.InputTag( "hltJpsitoMumuL1SeedRelaxed" ),
+    CandTag = cms.InputTag( "l1extraParticles" ),
+    PreviousCandTag = cms.InputTag( "hltJpsitoMumuL1SeedRelaxed" ),
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 3.0 ),
     MinQuality = cms.int32( -1 ),
@@ -5120,7 +5146,8 @@ hltJpsitoMumuL1Seed = cms.EDFilter( "HLTLevel1GTSeed",
     L1MuonCollectionTag = cms.InputTag( "l1ParamMuons" )
 )
 hltJpsitoMumuL1Filtered = cms.EDFilter( "HLTMuonL1Filter",
-    CandTag = cms.InputTag( "hltJpsitoMumuL1Seed" ),
+    CandTag = cms.InputTag( "l1extraParticles" ),
+    PreviousCandTag = cms.InputTag( "hltJpsitoMumuL1Seed" ),
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 3.0 ),
     MinQuality = cms.int32( -1 ),
@@ -5149,7 +5176,8 @@ hltMuMukL1Seed = cms.EDFilter( "HLTLevel1GTSeed",
     L1MuonCollectionTag = cms.InputTag( "l1ParamMuons" )
 )
 hltMuMukL1Filtered = cms.EDFilter( "HLTMuonL1Filter",
-    CandTag = cms.InputTag( "hltMuMukL1Seed" ),
+    CandTag = cms.InputTag( "l1extraParticles" ),
+    PreviousCandTag = cms.InputTag( "hltMuMukL1Seed" ),
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 3.0 ),
     MinQuality = cms.int32( -1 ),
@@ -5874,7 +5902,8 @@ hltEMuonLevel1Seed = cms.EDFilter( "HLTLevel1GTSeed",
     L1MuonCollectionTag = cms.InputTag( "l1ParamMuons" )
 )
 hltEMuL1MuonFilter = cms.EDFilter( "HLTMuonL1Filter",
-    CandTag = cms.InputTag( "hltEMuonLevel1Seed" ),
+    CandTag = cms.InputTag( "l1extraParticles" ),
+    PreviousCandTag = cms.InputTag( "hltEMuonLevel1Seed" ),
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 4.0 ),
     MinQuality = cms.int32( -1 ),
@@ -5928,7 +5957,8 @@ hltEMuL2MuonPreFilter = cms.EDFilter( "HLTMuonL2PreFilter",
     NSigmaPt = cms.double( 0.0 )
 )
 hltEMuL2MuonIsoFilter = cms.EDFilter( "HLTMuonIsoFilter",
-    CandTag = cms.InputTag( "hltEMuL2MuonPreFilter" ),
+    CandTag = cms.InputTag( "hltL2MuonCandidates" ),
+    PreviousCandTag = cms.InputTag( "hltEMuL2MuonPreFilter" ),
     IsoTag = cms.InputTag( "hltL2MuonIsolations" ),
     MinN = cms.int32( 1 )
 )
@@ -5965,7 +5995,8 @@ hltEMuL3MuonPreFilter = cms.EDFilter( "HLTMuonL3PreFilter",
     NSigmaPt = cms.double( 0.0 )
 )
 hltEMuL3MuonIsoFilter = cms.EDFilter( "HLTMuonIsoFilter",
-    CandTag = cms.InputTag( "hltEMuL3MuonPreFilter" ),
+    CandTag = cms.InputTag( "hltL3MuonCandidates" ),
+    PreviousCandTag = cms.InputTag( "hltEMuL3MuonPreFilter" ),
     IsoTag = cms.InputTag( "hltL3MuonIsolations" ),
     MinN = cms.int32( 1 ),
     SaveTag = cms.untracked.bool( True )
@@ -5991,7 +6022,8 @@ hltemuNonIsoLevel1Seed = cms.EDFilter( "HLTLevel1GTSeed",
     L1MuonCollectionTag = cms.InputTag( "l1ParamMuons" )
 )
 hltNonIsoEMuL1MuonFilter = cms.EDFilter( "HLTMuonL1Filter",
-    CandTag = cms.InputTag( "hltemuNonIsoLevel1Seed" ),
+    CandTag = cms.InputTag( "l1extraParticles" ),
+    PreviousCandTag = cms.InputTag( "hltemuNonIsoLevel1Seed" ),
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 0.0 ),
     MinQuality = cms.int32( -1 ),
@@ -6521,7 +6553,8 @@ hltLevel1GTSeedMuonTau = cms.EDFilter( "HLTLevel1GTSeed",
     L1MuonCollectionTag = cms.InputTag( "l1ParamMuons" )
 )
 hltMuonTauL1Filtered = cms.EDFilter( "HLTMuonL1Filter",
-    CandTag = cms.InputTag( "hltLevel1GTSeedMuonTau" ),
+    CandTag = cms.InputTag( "l1extraParticles" ),
+    PreviousCandTag = cms.InputTag( "hltLevel1GTSeedMuonTau" ),
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 0.0 ),
     MinQuality = cms.int32( -1 ),
@@ -6541,7 +6574,8 @@ hltMuonTauIsoL2PreFiltered = cms.EDFilter( "HLTMuonL2PreFilter",
     NSigmaPt = cms.double( 0.0 )
 )
 hltMuonTauIsoL2IsoFiltered = cms.EDFilter( "HLTMuonIsoFilter",
-    CandTag = cms.InputTag( "hltMuonTauIsoL2PreFiltered" ),
+    CandTag = cms.InputTag( "hltL2MuonCandidates" ),
+    PreviousCandTag = cms.InputTag( "hltMuonTauIsoL2PreFiltered" ),
     IsoTag = cms.InputTag( "hltL2MuonIsolations" ),
     MinN = cms.int32( 1 )
 )
@@ -6559,7 +6593,8 @@ hltMuonTauIsoL3PreFiltered = cms.EDFilter( "HLTMuonL3PreFilter",
     NSigmaPt = cms.double( 0.0 )
 )
 hltMuonTauIsoL3IsoFiltered = cms.EDFilter( "HLTMuonIsoFilter",
-    CandTag = cms.InputTag( "hltMuonTauIsoL3PreFiltered" ),
+    CandTag = cms.InputTag( "hltL3MuonCandidates" ),
+    PreviousCandTag = cms.InputTag( "hltMuonTauIsoL3PreFiltered" ),
     IsoTag = cms.InputTag( "hltL3MuonIsolations" ),
     MinN = cms.int32( 1 ),
     SaveTag = cms.untracked.bool( True )
@@ -6672,7 +6707,8 @@ hltMuBLevel1Seed = cms.EDFilter( "HLTLevel1GTSeed",
     L1MuonCollectionTag = cms.InputTag( "l1ParamMuons" )
 )
 hltMuBLifetimeL1Filtered = cms.EDFilter( "HLTMuonL1Filter",
-    CandTag = cms.InputTag( "hltMuBLevel1Seed" ),
+    CandTag = cms.InputTag( "l1extraParticles" ),
+    PreviousCandTag = cms.InputTag( "hltMuBLevel1Seed" ),
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 7.0 ),
     MinQuality = cms.int32( -1 ),
@@ -6692,7 +6728,8 @@ hltMuBLifetimeIsoL2PreFiltered = cms.EDFilter( "HLTMuonL2PreFilter",
     NSigmaPt = cms.double( 0.0 )
 )
 hltMuBLifetimeIsoL2IsoFiltered = cms.EDFilter( "HLTMuonIsoFilter",
-    CandTag = cms.InputTag( "hltMuBLifetimeIsoL2PreFiltered" ),
+    CandTag = cms.InputTag( "hltL2MuonCandidates" ),
+    PreviousCandTag = cms.InputTag( "hltMuBLifetimeIsoL2PreFiltered" ),
     IsoTag = cms.InputTag( "hltL2MuonIsolations" ),
     MinN = cms.int32( 1 )
 )
@@ -6710,14 +6747,16 @@ hltMuBLifetimeIsoL3PreFiltered = cms.EDFilter( "HLTMuonL3PreFilter",
     NSigmaPt = cms.double( 0.0 )
 )
 hltMuBLifetimeIsoL3IsoFiltered = cms.EDFilter( "HLTMuonIsoFilter",
-    CandTag = cms.InputTag( "hltMuBLifetimeIsoL3PreFiltered" ),
+    CandTag = cms.InputTag( "hltL3MuonCandidates" ),
+    PreviousCandTag = cms.InputTag( "hltMuBLifetimeIsoL3PreFiltered" ),
     IsoTag = cms.InputTag( "hltL3MuonIsolations" ),
     MinN = cms.int32( 1 ),
     SaveTag = cms.untracked.bool( True )
 )
 hltMuBsoftMuPrescale = cms.EDFilter( "HLTPrescaler" )
 hltMuBSoftL1Filtered = cms.EDFilter( "HLTMuonL1Filter",
-    CandTag = cms.InputTag( "hltMuBLevel1Seed" ),
+    CandTag = cms.InputTag( "l1extraParticles" ),
+    PreviousCandTag = cms.InputTag( "hltMuBLevel1Seed" ),
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 3.0 ),
     MinQuality = cms.int32( -1 ),
@@ -6737,7 +6776,8 @@ hltMuBSoftIsoL2PreFiltered = cms.EDFilter( "HLTMuonL2PreFilter",
     NSigmaPt = cms.double( 0.0 )
 )
 hltMuBSoftIsoL2IsoFiltered = cms.EDFilter( "HLTMuonIsoFilter",
-    CandTag = cms.InputTag( "hltMuBSoftIsoL2PreFiltered" ),
+    CandTag = cms.InputTag( "hltL2MuonCandidates" ),
+    PreviousCandTag = cms.InputTag( "hltMuBSoftIsoL2PreFiltered" ),
     IsoTag = cms.InputTag( "hltL2MuonIsolations" ),
     MinN = cms.int32( 1 )
 )
@@ -6755,7 +6795,8 @@ hltMuBSoftIsoL3PreFiltered = cms.EDFilter( "HLTMuonL3PreFilter",
     NSigmaPt = cms.double( 0.0 )
 )
 hltMuBSoftIsoL3IsoFiltered = cms.EDFilter( "HLTMuonIsoFilter",
-    CandTag = cms.InputTag( "hltMuBSoftIsoL3PreFiltered" ),
+    CandTag = cms.InputTag( "hltL3MuonCandidates" ),
+    PreviousCandTag = cms.InputTag( "hltMuBSoftIsoL3PreFiltered" ),
     IsoTag = cms.InputTag( "hltL3MuonIsolations" ),
     MinN = cms.int32( 1 ),
     SaveTag = cms.untracked.bool( True )
@@ -6770,7 +6811,8 @@ hltMuJetsLevel1Seed = cms.EDFilter( "HLTLevel1GTSeed",
     L1MuonCollectionTag = cms.InputTag( "l1ParamMuons" )
 )
 hltMuJetsL1Filtered = cms.EDFilter( "HLTMuonL1Filter",
-    CandTag = cms.InputTag( "hltMuJetsLevel1Seed" ),
+    CandTag = cms.InputTag( "l1extraParticles" ),
+    PreviousCandTag = cms.InputTag( "hltMuJetsLevel1Seed" ),
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 7.0 ),
     MinQuality = cms.int32( -1 ),
@@ -6790,7 +6832,8 @@ hltMuJetsL2PreFiltered = cms.EDFilter( "HLTMuonL2PreFilter",
     NSigmaPt = cms.double( 0.0 )
 )
 hltMuJetsL2IsoFiltered = cms.EDFilter( "HLTMuonIsoFilter",
-    CandTag = cms.InputTag( "hltMuJetsL2PreFiltered" ),
+    CandTag = cms.InputTag( "hltL2MuonCandidates" ),
+    PreviousCandTag = cms.InputTag( "hltMuJetsL2PreFiltered" ),
     IsoTag = cms.InputTag( "hltL2MuonIsolations" ),
     MinN = cms.int32( 1 )
 )
@@ -6808,7 +6851,8 @@ hltMuJetsL3PreFiltered = cms.EDFilter( "HLTMuonL3PreFilter",
     NSigmaPt = cms.double( 0.0 )
 )
 hltMuJetsL3IsoFiltered = cms.EDFilter( "HLTMuonIsoFilter",
-    CandTag = cms.InputTag( "hltMuJetsL3PreFiltered" ),
+    CandTag = cms.InputTag( "hltL3MuonCandidates" ),
+    PreviousCandTag = cms.InputTag( "hltMuJetsL3PreFiltered" ),
     IsoTag = cms.InputTag( "hltL3MuonIsolations" ),
     MinN = cms.int32( 1 ),
     SaveTag = cms.untracked.bool( True )
@@ -6830,7 +6874,8 @@ hltMuNoL2IsoJetsLevel1Seed = cms.EDFilter( "HLTLevel1GTSeed",
     L1MuonCollectionTag = cms.InputTag( "l1ParamMuons" )
 )
 hltMuNoL2IsoJetsL1Filtered = cms.EDFilter( "HLTMuonL1Filter",
-    CandTag = cms.InputTag( "hltMuNoL2IsoJetsLevel1Seed" ),
+    CandTag = cms.InputTag( "l1extraParticles" ),
+    PreviousCandTag = cms.InputTag( "hltMuNoL2IsoJetsLevel1Seed" ),
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 8.0 ),
     MinQuality = cms.int32( -1 ),
@@ -6863,7 +6908,8 @@ hltMuNoL2IsoJetsL3PreFiltered = cms.EDFilter( "HLTMuonL3PreFilter",
     NSigmaPt = cms.double( 0.0 )
 )
 hltMuNoL2IsoJetsL3IsoFiltered = cms.EDFilter( "HLTMuonIsoFilter",
-    CandTag = cms.InputTag( "hltMuNoL2IsoJetsL3PreFiltered" ),
+    CandTag = cms.InputTag( "hltL3MuonCandidates" ),
+    PreviousCandTag = cms.InputTag( "hltMuNoL2IsoJetsL3PreFiltered" ),
     IsoTag = cms.InputTag( "hltL3MuonIsolations" ),
     MinN = cms.int32( 1 ),
     SaveTag = cms.untracked.bool( True )
@@ -6885,7 +6931,8 @@ hltMuNoIsoJetsLevel1Seed = cms.EDFilter( "HLTLevel1GTSeed",
     L1MuonCollectionTag = cms.InputTag( "l1ParamMuons" )
 )
 hltMuNoIsoJetsL1Filtered = cms.EDFilter( "HLTMuonL1Filter",
-    CandTag = cms.InputTag( "hltMuNoIsoJetsLevel1Seed" ),
+    CandTag = cms.InputTag( "l1extraParticles" ),
+    PreviousCandTag = cms.InputTag( "hltMuNoIsoJetsLevel1Seed" ),
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 14.0 ),
     MinQuality = cms.int32( -1 ),
@@ -6934,7 +6981,8 @@ hltMuNoIsoJets30Level1Seed = cms.EDFilter( "HLTLevel1GTSeed",
     L1MuonCollectionTag = cms.InputTag( "l1ParamMuons" )
 )
 hltMuNoIsoJetsMinPt4L1Filtered = cms.EDFilter( "HLTMuonL1Filter",
-    CandTag = cms.InputTag( "hltMuNoIsoJets30Level1Seed" ),
+    CandTag = cms.InputTag( "l1extraParticles" ),
+    PreviousCandTag = cms.InputTag( "hltMuNoIsoJets30Level1Seed" ),
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 5.0 ),
     MinQuality = cms.int32( -1 ),

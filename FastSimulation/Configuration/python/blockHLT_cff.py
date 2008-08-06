@@ -1,4 +1,4 @@
-# /dev/CMSSW_2_1_0_pre10/HLT/V5 (CMSSW_2_1_X_2008-07-29-0800_HLT1)
+# /dev/CMSSW_2_1_0/HLT/V4 (CMSSW_2_1_0_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
