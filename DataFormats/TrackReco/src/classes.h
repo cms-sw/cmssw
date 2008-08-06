@@ -18,9 +18,7 @@
 //#include "DataFormats/TrackReco/interface/DeDxHitFwd.h"
 #include "DataFormats/TrackReco/interface/DeDxHit.h"
 #include "DataFormats/TrackReco/interface/TrackDeDxHits.h"
-#include "DataFormats/TrackReco/interface/TrackDeDxEstimate.h"
-#include "DataFormats/TrackReco/interface/TrajectoryStateOnDetInfo.h"
-#include "DataFormats/TrackReco/interface/TrackTrajectoryStateOnDetInfos.h"
+#include "DataFormats/TrackReco/interface/DeDxData.h"
 
 
 #include <vector>
@@ -60,29 +58,17 @@ namespace {
     reco::TrackToTrackMap tttmap1;
     edm::Wrapper<reco::TrackToTrackMap> wtttmap1;
 
-// DEDX containers
-    reco::DeDxHit dedx1;
-    //reco::DeDxHitCollection dedx2;
-    //reco::DeDxHitRef dedx3;
-    //reco::DeDxHitRefProd dedx4;
-    //reco::DeDxHitRefVector dedx5;
-
-    reco::TrackDeDxHitsCollection dedx6;
-    reco::TrackDeDxHits dedx7;
-    reco::TrackDeDxHitsRef dedx8;
-    reco::TrackDeDxHitsRefProd dedx9;
-    reco::TrackDeDxHitsRefVector dedx10;
-    std::vector<std::pair<edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,std::vector<reco::DeDxHit> > > dedx11;
-    std::vector<std::vector<reco::DeDxHit> > dedx12;
-    
-    reco::TrackDeDxEstimateCollection dedxe1;
-    reco::TrackDeDxEstimate dedxe2;
-    reco::TrackDeDxEstimateRef dedxe3;
-    reco::TrackDeDxEstimateRefProd dedxe4;
-    reco::TrackDeDxEstimateRefVector dedxe5;
+    // DEDX containers    
+    reco::DeDxDataCollection dedxe1;
+    reco::DeDxData dedxe2;
+    reco::DeDxDataValueMap dedxe3;
  
     edm::Wrapper<reco::TrackDeDxHitsCollection> dedxw1; 
-    edm::Wrapper<reco::TrackDeDxEstimateCollection> dedxw2; 
+    edm::Wrapper<reco::DeDxDataCollection> dedxw2; 
+    edm::Wrapper<reco::DeDxDataValueMap> dedxw3;
+
+
+
  
     // RefToBase Holders for Tracks
     edm::RefToBase<reco::Track>                         rtb_tk;
@@ -91,18 +77,6 @@ namespace {
     edm::reftobase::RefHolder<reco::TrackRef>           rf_tkr;
     edm::reftobase::Holder<reco::Track, reco::TrackRef> h_tk_tkr;
     std::vector< edm::RefToBase<reco::Track> >		rtb_tk_vect;
-
-    reco::TrajectoryStateOnDetInfo 		TSODI1;
-    reco::TrajectoryStateOnDetInfoCollection	TSODI2;
-    reco::TrackTrajectoryStateOnDetInfosCollection TSODI3;
-    reco::TrackTrajectoryStateOnDetInfos TSODI4;
-    reco::TrackTrajectoryStateOnDetInfosRef TSODI5;
-    reco::TrackTrajectoryStateOnDetInfosRefProd TSODI6;
-    reco::TrackTrajectoryStateOnDetInfosRefVector TSODI7;
-    std::vector<std::pair<edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,std::vector<reco::TrajectoryStateOnDetInfo> > > TSODI8;
-    std::vector<std::vector<reco::TrajectoryStateOnDetInfo> > TSODI9;
-    edm::Wrapper<reco::TrackTrajectoryStateOnDetInfosCollection> TSODI10;
-
 
   }
 }
