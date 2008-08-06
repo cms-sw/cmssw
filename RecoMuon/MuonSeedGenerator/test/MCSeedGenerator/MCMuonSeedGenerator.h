@@ -4,8 +4,8 @@
 /** \class MCMuonSeedGenerator
  *  No description available.
  *
- *  $Date: 2008/06/27 15:01:51 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/07/30 16:17:53 $
+ *  $Revision: 1.2 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -27,7 +27,7 @@ class SimVertex;
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 
-class MCMuonSeedGenerator : public edm::EDProducer {
+class MCMuonSeedGenerator2 : public edm::EDProducer {
  
 public:
 
@@ -35,10 +35,10 @@ public:
 
   
   /// Constructor
-  MCMuonSeedGenerator(const edm::ParameterSet&);
+  MCMuonSeedGenerator2(const edm::ParameterSet&);
 
   /// Destructor
-  ~MCMuonSeedGenerator();
+  ~MCMuonSeedGenerator2();
 
   // Operations
 
