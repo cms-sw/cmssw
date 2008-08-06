@@ -30,6 +30,7 @@ def generateWrapper(package,classes) :
     s = string.Template(wrapperTemplate)
     for classname in classes:
         f = file('plugins/'+classname+'PyWrapper.cc','w')
+        print "generating file:", f.name
         f.write(s.substitute(_PACKAGE_=package, _CLASS_NAME_=classname, _HEADER_FILE_=classname))
         f.close()
 
@@ -37,6 +38,7 @@ def generateWrapper(package,classes) :
 if __name__ == "__main__":
     classes=getClasses()
     package = guessPackage()
+    print "generating Python wrappers for classes in package:", package
     generateBuildFile(package,classes)
     generateWrapper(package,classes)
 
