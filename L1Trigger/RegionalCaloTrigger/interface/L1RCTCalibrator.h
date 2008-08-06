@@ -25,7 +25,7 @@
 //
 // Original Author:  pts/47
 //         Created:  Thu Jul 13 21:38:08 CEST 2006
-// $Id: L1RCTCalibrator.h,v 1.1 2008/07/31 14:17:13 lgray Exp $
+// $Id: L1RCTCalibrator.h,v 1.2 2008/07/31 20:27:15 lgray Exp $
 //
 //
 
@@ -45,10 +45,12 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+// calo digis
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 
+// handle
 #include "DataFormats/Common/interface/Handle.h"
 
 // default scales
@@ -63,12 +65,17 @@
 #include "CondFormats/L1TObjects/interface/L1RCTChannelMask.h"
 #include "CondFormats/DataRecord/interface/L1RCTChannelMaskRcd.h"
 
+
+// L1 calo geometry
+#include "CondFormats/L1TObjects/interface/L1CaloGeometry.h"
+#include "CondFormats/DataRecord/interface/L1CaloGeometryRecord.h"
+
+
 // Abstract Collection
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
-#include "TH1F.h"
-#include "TH2F.h"
+#include "TFile.h"
 
 //
 // class declaration
@@ -76,6 +83,31 @@
 class L1RCTCalibrator : public edm::EDAnalyzer 
 {
  public: 
+  // nested classes
+  class rct_location
+    { 
+      public:
+      int crate, card, region;
+      
+      bool operator==(const rct_location& r) const { return (crate == r.crate && card == r.card && region == r.region); }
+    };
+
+  struct region
+  {
+    int linear_et, ieta, iphi;
+    rct_location loc;
+
+    bool operator==(const region& r) const { return (loc == r.loc); }
+  };
+  
+  struct tpg
+  {
+    int ieta, iphi;
+    double ecalEt, hcalEt, ecalE, hcalE;
+    rct_location loc;
+
+    bool operator==(const tpg& r) const { return ((ieta == r.ieta) && (iphi == r.iphi)); }
+  };
 
   // useful typedefs
   typedef edm::View<reco::Candidate> cand_view;
@@ -99,44 +131,71 @@ class L1RCTCalibrator : public edm::EDAnalyzer
   virtual void saveCalibrationInfo(const view_vector&,const edm::Handle<ecal_view>&, 
 				   const edm::Handle<hcal_view>&, const edm::Handle<reg_view>&) = 0;
   virtual void postProcessing() = 0;
+
   virtual void bookHistograms() = 0;
 
 protected:
   // ----------protected member functions---------------
-
-  void deltaR(const double& eta1, const double& phi1, 
-	      const double& eta2, const double& phi2,double& dr) const;  
+  void deltaR(const double& eta1, double phi1, 
+	      const double& eta2, double phi2,double& dr) const;  
   void etaBin(const double&, int&) const; // returns Trigger Tower number
   void etaValue(const int&, double&) const; // return Trigger Tower eta bin center
-  void phiBin(const double&, int&) const; // returns TT phi bin
+  void phiBin(double, int&) const; // returns TT phi bin
   void phiValue(const int&, double&) const; // return TT phi bin center
+  double uniPhi(const double&) const; // returns phi that is in [0, 2*pi]
+  bool isSelfOrNeighbor(const rct_location&, const rct_location&) const;
+  rct_location makeRctLocation(const double& eta, const double& phi) const;
+  rct_location makeRctLocation(const int& ieta, const int& iphi) const;
+
+  template<typename T> 
+    int find(const T&, const std::vector<T>&) const;
+
+  double ecalEt(const EcalTriggerPrimitiveDigi&) const;
+  double hcalEt(const HcalTriggerPrimitiveDigi&) const;
+  double ecalE(const EcalTriggerPrimitiveDigi&) const;
+  double hcalE(const HcalTriggerPrimitiveDigi&) const;
+
+  void putHist(TObject* o) { hists_.push_back(o); }
 
   const std::string& fitOpts() const { return fitOpts_; }
+  const int& debug() const { return debug_; }
+  const int& eventNumber() const { return event_; }
+  const int& runNumber() const { return run_; }
   const L1CaloEcalScale* eScale() const { return const_cast<const L1CaloEcalScale*>(eScale_); }
   const L1CaloHcalScale* hScale() const { return const_cast<const L1CaloHcalScale*>(hScale_); }
   const L1RCTParameters* rctParams() const { return const_cast<const L1RCTParameters*>(rctParams_); }
   const L1RCTChannelMask* chMask() const { return const_cast<const L1RCTChannelMask*>(chMask_); }
+  const L1CaloGeometry* l1Geometry() const { return const_cast<const L1CaloGeometry*>(l1Geometry_); }
 
   double ecal_[28][3], hcal_[28][3], hcal_high_[28][3], cross_[28][6], he_low_smear_[28], he_high_smear_[28];
 
  private: 
+  std::vector<rct_location> neighbors(const rct_location&) const;
   void printCfFragment(std::ostream&) const;
   bool sanityCheck() const;
+
+  void writeHistograms();
 
   // ----------member data----------------------------
   L1CaloEcalScale *eScale_;
   L1CaloHcalScale *hScale_;
   L1RCTParameters *rctParams_;
   L1RCTChannelMask *chMask_;
+  L1CaloGeometry *l1Geometry_;
   std::vector<edm::InputTag> cand_inputs_;
   edm::InputTag ecalTPG_, hcalTPG_, regions_;
   std::string outfile_;
-  int debug_; // -1 for quiet mode, 0 for LogInfo/Warning/Error, 1 for "0 + verbose couts and fits", 
-             // 9 for empty coefficient tables, 10 for output sanity check
+  const int debug_; // -1 for quiet mode, 0 for LogInfo/Warning/Error, 1 for "0 + verbose couts and fits", 
+                    // 9 for empty coefficient tables, 10 for output sanity check
   bool python_;  
   const double deltaEtaBarrel_, maxEtaBarrel_, deltaPhi_;
   const std::vector<double> endcapEta_;
   const std::string fitOpts_;
+  int event_, run_;
+  TFile *rootOut_;
+
+  //vector of all histograms for easy writing and cleanup
+  std::vector<TObject*> hists_;
 };
 
 //
@@ -146,5 +205,17 @@ protected:
 //
 // static data member definitions
 //
+
+//
+// templated function definitions
+//
+
+template<typename T> 
+int L1RCTCalibrator::find(const T& item, const std::vector<T>& v) const
+{
+  for(unsigned i = 0; i < v.size(); ++i)
+    if(item == v[i]) return i;
+  return -1;
+}
 
 #endif
