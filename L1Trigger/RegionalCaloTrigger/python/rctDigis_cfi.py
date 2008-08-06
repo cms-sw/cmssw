@@ -10,7 +10,7 @@ rctDigis = cms.EDProducer("L1RCTProducer",
     useEcal = cms.bool(True),
     useHcal = cms.bool(True),
     ecalDigisLabel = cms.InputTag("ecalTriggerPrimitiveDigis"),
-    useCorrectionsLindsey = cms.bool(True)
+    useCorrectionsLindsey = cms.bool(False)
 )
 
 
