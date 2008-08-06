@@ -1,5 +1,5 @@
 //
-// $Id: TtGenEvent.cc,v 1.20 2008/02/15 12:10:54 rwolf Exp $
+// $Id: TtGenEvent.cc,v 1.21 2008/06/17 10:21:43 rwolf Exp $
 //
 
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -170,7 +170,7 @@ TtGenEvent::lepton() const
 {
   const reco::GenParticle* cand=0;
   const reco::GenParticleCollection & partsColl = *parts_;
-  for (unsigned int i = 0; i < partsColl.size(); ++i) {
+  for (unsigned int i = 0; i < partsColl.size(); ++i) { // particles keep status 3 in decaySubset
     if (reco::isLepton(partsColl[i]) && reco::flavour(partsColl[i])>0&&(partsColl[i].status()==3)) {
       cand = &partsColl[i];
     }  
@@ -183,7 +183,7 @@ TtGenEvent::neutrino() const
 {
   const reco::GenParticle* cand=0;
   const reco::GenParticleCollection & partsColl = *parts_;
-  for (unsigned int i = 0; i < partsColl.size(); ++i) {
+  for (unsigned int i = 0; i < partsColl.size(); ++i) { // particles keep status 3 in decaySubset
     if (reco::isNeutrino(partsColl[i]) && reco::flavour(partsColl[i])>0&&(partsColl[i].status()==3)) {
       cand = &partsColl[i];
     }  
@@ -196,7 +196,7 @@ TtGenEvent::leptonBar() const
 {
   const reco::GenParticle* cand=0;
   const reco::GenParticleCollection & partsColl = *parts_;
-  for (unsigned int i = 0; i < partsColl.size(); ++i) {
+  for (unsigned int i = 0; i < partsColl.size(); ++i) { // particles keep status 3 in decaySubset
     if (reco::isLepton(partsColl[i]) && reco::flavour(partsColl[i])<0&&(partsColl[i].status()==3)) {
       cand = &partsColl[i];
     }  
@@ -209,7 +209,7 @@ TtGenEvent::neutrinoBar() const
 {
   const reco::GenParticle* cand=0;
   const reco::GenParticleCollection & partsColl = *parts_;
-  for (unsigned int i = 0; i < partsColl.size(); ++i) {
+  for (unsigned int i = 0; i < partsColl.size(); ++i) { // particles keep status 3 in decaySubset
     if (reco::isNeutrino(partsColl[i]) && reco::flavour(partsColl[i])<0&&(partsColl[i].status()==3)) {
       cand = &partsColl[i];
     }  
