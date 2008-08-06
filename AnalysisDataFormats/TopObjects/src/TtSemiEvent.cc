@@ -7,6 +7,6 @@ TtSemiEvent::TtSemiEvent():
   decay_(kNone), 
   fitChi2_(-1.), 
   genMatchSumPt_(-1.), 
-  genMatchSumDR_(-1.),
+  genMatchSumDR_(-1.)
 {
 }
