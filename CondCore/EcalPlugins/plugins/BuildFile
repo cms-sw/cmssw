@@ -1,21 +1,3 @@
-<library file="PedestalPyWrapper.cc" name=EcalPedestalsPyInterface>
-<use name=CondCore/Utilities>
-<use name=CondFormats/EcalObjects>
-<use name=boost>
-<use name=boost_filesystem>
-<use name=boost_python>
-<use name=boost_regex>
-<flags EDM_PLUGIN=1>
-</library>
-library file="DummyPyWrapper.cc" name=EcalDummiesPyInterface>
-<use name=CondCore/Utilities>
-<use name=CondFormats/EcalObjects>
-<use name=boost>
-<use name=boost_filesystem>
-<use name=boost_python>
-<use name=boost_regex>
-<flags EDM_PLUGIN=1>
-</library>
 <library file="classes_cids.cc" name=CondCoreDBEcalObjectsCIDS>
 <use name=FWCore/Framework>
 <use name=CondCore/DBCommon>
@@ -25,3 +7,122 @@ library file="DummyPyWrapper.cc" name=EcalDummiesPyInterface>
 </library>
 
 
+<library file="EcalPedestalsPyWrapper.cc" name=EcalPedestalsPyInterface>
+<use name=CondCore/Utilities>
+<use name=CondFormats/EcalObjects>
+<use name=boost>
+<use name=boost_filesystem>
+<use name=boost_python>
+<use name=boost_regex>
+<flags EDM_PLUGIN=1>
+</library>
+
+<library file="EcalWeightXtalGroupsPyWrapper.cc" name=EcalWeightXtalGroupsPyInterface>
+<use name=CondCore/Utilities>
+<use name=CondFormats/EcalObjects>
+<use name=boost>
+<use name=boost_filesystem>
+<use name=boost_python>
+<use name=boost_regex>
+<flags EDM_PLUGIN=1>
+</library>
+
+<library file="EcalTBWeightsPyWrapper.cc" name=EcalTBWeightsPyInterface>
+<use name=CondCore/Utilities>
+<use name=CondFormats/EcalObjects>
+<use name=boost>
+<use name=boost_filesystem>
+<use name=boost_python>
+<use name=boost_regex>
+<flags EDM_PLUGIN=1>
+</library>
+
+<library file="EcalGainRatiosPyWrapper.cc" name=EcalGainRatiosPyInterface>
+<use name=CondCore/Utilities>
+<use name=CondFormats/EcalObjects>
+<use name=boost>
+<use name=boost_filesystem>
+<use name=boost_python>
+<use name=boost_regex>
+<flags EDM_PLUGIN=1>
+</library>
+
+<library file="EcalFloatCondObjectContainerPyWrapper.cc" name=EcalFloatCondObjectContainerPyInterface>
+<use name=CondCore/Utilities>
+<use name=CondFormats/EcalObjects>
+<use name=boost>
+<use name=boost_filesystem>
+<use name=boost_python>
+<use name=boost_regex>
+<flags EDM_PLUGIN=1>
+</library>
+
+<library file="EcalFloatCondObjectContainerPyWrapper.cc" name=EcalFloatCondObjectContainerPyInterface>
+<use name=CondCore/Utilities>
+<use name=CondFormats/EcalObjects>
+<use name=boost>
+<use name=boost_filesystem>
+<use name=boost_python>
+<use name=boost_regex>
+<flags EDM_PLUGIN=1>
+</library>
+
+<library file="EcalADCToGeVConstantPyWrapper.cc" name=EcalADCToGeVConstantPyInterface>
+<use name=CondCore/Utilities>
+<use name=CondFormats/EcalObjects>
+<use name=boost>
+<use name=boost_filesystem>
+<use name=boost_python>
+<use name=boost_regex>
+<flags EDM_PLUGIN=1>
+</library>
+
+<library file="EcalFloatCondObjectContainerPyWrapper.cc" name=EcalFloatCondObjectContainerPyInterface>
+<use name=CondCore/Utilities>
+<use name=CondFormats/EcalObjects>
+<use name=boost>
+<use name=boost_filesystem>
+<use name=boost_python>
+<use name=boost_regex>
+<flags EDM_PLUGIN=1>
+</library>
+
+<library file="EcalLaserAPDPNRatiosPyWrapper.cc" name=EcalLaserAPDPNRatiosPyInterface>
+<use name=CondCore/Utilities>
+<use name=CondFormats/EcalObjects>
+<use name=boost>
+<use name=boost_filesystem>
+<use name=boost_python>
+<use name=boost_regex>
+<flags EDM_PLUGIN=1>
+</library>
+
+<library file="EcalFloatCondObjectContainerPyWrapper.cc" name=EcalFloatCondObjectContainerPyInterface>
+<use name=CondCore/Utilities>
+<use name=CondFormats/EcalObjects>
+<use name=boost>
+<use name=boost_filesystem>
+<use name=boost_python>
+<use name=boost_regex>
+<flags EDM_PLUGIN=1>
+</library>
+
+<library file="EcalChannelStatusPyWrapper.cc" name=EcalChannelStatusPyInterface>
+<use name=CondCore/Utilities>
+<use name=CondFormats/EcalObjects>
+<use name=boost>
+<use name=boost_filesystem>
+<use name=boost_python>
+<use name=boost_regex>
+<flags EDM_PLUGIN=1>
+</library>
+
+<library file="EcalMappingElectronicsPyWrapper.cc" name=EcalMappingElectronicsPyInterface>
+<use name=CondCore/Utilities>
+<use name=CondFormats/EcalObjects>
+<use name=boost>
+<use name=boost_filesystem>
+<use name=boost_python>
+<use name=boost_regex>
+<flags EDM_PLUGIN=1>
+</library>
