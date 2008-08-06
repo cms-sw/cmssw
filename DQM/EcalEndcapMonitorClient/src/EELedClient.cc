@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2008/06/25 14:16:17 $
- * $Revision: 1.86 $
+ * $Date: 2008/06/25 15:08:20 $
+ * $Revision: 1.87 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -25,10 +25,8 @@
 #include "OnlineDB/EcalCondDB/interface/MonLed2Dat.h"
 #include "OnlineDB/EcalCondDB/interface/MonPNLed1Dat.h"
 #include "OnlineDB/EcalCondDB/interface/MonPNLed2Dat.h"
-/*
 #include "OnlineDB/EcalCondDB/interface/MonTimingLed1CrystalDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonTimingLed2CrystalDat.h"
-*/
 #include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunTTErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunPNErrorsDat.h"
@@ -1066,7 +1064,6 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
     }
   }
 
-/*
   if ( verbose_ ) cout << endl;
 
   MonTimingLed1CrystalDat t_l1;
@@ -1260,7 +1257,6 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
       cerr << e.what() << endl;
     }
   }
-*/
 
   return true;
 

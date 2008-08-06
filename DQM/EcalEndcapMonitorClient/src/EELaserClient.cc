@@ -1,8 +1,8 @@
 /*
  * \file EELaserClient.cc
  *
- * $Date: 2008/06/25 14:16:17 $
- * $Revision: 1.102 $
+ * $Date: 2008/06/25 15:08:19 $
+ * $Revision: 1.103 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -29,12 +29,10 @@
 #include "OnlineDB/EcalCondDB/interface/MonPNGreenDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonPNIRedDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonPNRedDat.h"
-/*
 #include "OnlineDB/EcalCondDB/interface/MonTimingLaserBlueCrystalDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonTimingLaserGreenCrystalDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonTimingLaserIRedCrystalDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonTimingLaserRedCrystalDat.h"
-*/
 #include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunTTErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunPNErrorsDat.h"
@@ -1682,7 +1680,6 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
     }
   }
 
-/*
   if ( verbose_ ) cout << endl;
 
   MonTimingLaserBlueCrystalDat t_bl;
@@ -2024,7 +2021,6 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
       cerr << e.what() << endl;
     }
   }
-*/
 
   return true;
 
