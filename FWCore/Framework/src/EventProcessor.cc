@@ -1287,10 +1287,12 @@ namespace edm {
           fileMode = statemachine::NOMERGE;
 	} else if (preg_.anyProducts(InLumi)) {
 	  // Otherwise, if there are any per lumi products, the mode should be MERGE.
-          fileMode = statemachine::MERGE;
+	  // For now, we don't use MERGE by default.
+          // fileMode = statemachine::MERGE;
 	} else if (preg_.anyProducts(InRun)) {
 	  // Otherwise, if there are any per run products, the mode should be FULLLUMIMERGE.
-          fileMode = statemachine::FULLLUMIMERGE;
+	  // For now, we don't use FULLLUMIMERGE by default.
+          // fileMode = statemachine::FULLLUMIMERGE;
 	}
 	// Otherwise, the mode should be FULLMERGE.
 	
