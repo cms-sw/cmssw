@@ -180,19 +180,16 @@ template <class T> void HLTMon::fillHistos(edm::Handle<trigger::TriggerEventWith
 	total->Fill(n+0.5);
       for (unsigned int i=0; i<particlecands.size() && particlecands[i].isAvailable(); i++) {
 	//unmatched
-        std::cout << "top loop" << std::endl;
 	ethist[n]->Fill(particlecands[i]->et() );
 	etahist[n]->Fill(particlecands[i]->eta() );
 	phihist[n]->Fill(particlecands[i]->phi() );
 	eta_phihist[n]->Fill(particlecands[i]->eta(), particlecands[i]->phi() );
-        std::cout << "bottom loop" << std::endl;
 
 	//plot isolation variables (show not yet cut  iso, i.e. associated to next filter)
 	if(n+1 < theHLTCollectionLabels.size()){ // can't plot beyond last
 	  if(plotiso[n+1]){
 	    for(unsigned int j =  0 ; j < isoNames[n+1].size() ;j++  ){
 	      edm::Handle<edm::AssociationMap<edm::OneToValue< T , float > > > depMap; 
-              std::cout << "before gbL" << std::endl;
               try{
 	           iEvent.getByLabel(isoNames[n+1].at(j).label(),depMap);
                    typename edm::AssociationMap<edm::OneToValue< T , float > >::const_iterator mapi = depMap->find(particlecands[i]);
@@ -210,7 +207,6 @@ template <class T> void HLTMon::fillHistos(edm::Handle<trigger::TriggerEventWith
 	  }	  	  
 	}
       }
-      std::cout << "end loop" << std::endl;
     }
   }
 }
