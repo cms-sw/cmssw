@@ -8,4 +8,4 @@ electronGSGsfTrackCandidates.TrackProducers = []
 electronGSGsfTrackCandidates.SeedCleaning = True
 electronGSGsfTrackCandidates.MinNumberOfCrossedLayers = 5
 #electronGSGsfTrackCandidates.SplitHits = False
-
+electronGSGsfTrackCandidates.OverlapCleaning = True
