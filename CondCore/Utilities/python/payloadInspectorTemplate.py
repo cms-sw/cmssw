@@ -1,7 +1,7 @@
 buildfileTemplate = """
 <library file="$_CLASS_NAME_-PyWrapper.cc" name=$_CLASS_NAME_-PyInterface>
 <use name=CondCore/Utilities>
-<use name=CondFormats/$_PACKAGE_/>
+<use name=CondFormats/$_PACKAGE_>
 <use name=boost>
 <use name=boost_filesystem>
 <use name=boost_python>
@@ -15,6 +15,9 @@ wrapperTemplate = """
 
 #include "CondCore/Utilities/interface/PayLoadInspector.h"
 #include "CondCore/Utilities/interface/InspectorPythonWrapper.h"
+
+#include <string>
+#include <fstream>
 
 namespace cond {
 

@@ -3,6 +3,15 @@
 from CondCore.Utiltities.payloadInspectorTemplate import *
 import string, os, sys
 
+
+def guessPackage() :
+    lines = ( line for line in file('src/plugin.cc')
+              if (line.find('CondFormats')>0 and line.find('DataRecord')<0)
+    )
+    f = lines.next()
+    f = f[f.find('CondFormats/')+len('CondFormats/'):]
+    return f[:f.find('/')]
+ 
 def getClasses() :
     ret = []
     lines = ( line for line in file('src/plugin.cc') if line[0:3]=='REG')
@@ -27,6 +36,7 @@ def generateWrapper(package,classes) :
 
 if __name__ == "__main__":
     classes=getClasses()
+    package = guessPackage()
     generateBuildFile(package,classes)
     generateWrapper(package,classes)
 
