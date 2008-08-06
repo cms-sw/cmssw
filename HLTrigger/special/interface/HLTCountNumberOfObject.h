@@ -45,8 +45,10 @@ private:
     edm::Handle<OColl> oHandle;
     iEvent.getByLabel(src_, oHandle);
     int s=oHandle->size();
-    bool answer=(s>=minN_ && s<=maxN_);
-    LogDebug("HLTCountNumberOfObject")<<module()<<" sees: "<<s<<" objects. Filtere answer is: "<<(answer?"true":"false")<<std::endl;
+    bool answer=true;
+    if (minN_!=-1) answer = answer && (s>=minN_);
+    if (maxN_!=-1) answer = answer && (s<=maxN_);
+    LogDebug("HLTCountNumberOfObject")<<module()<<" sees: "<<s<<" objects. Filtere answer is: "<<(answer?"true":"false");
 
     iEvent.put(filterproduct);
     return answer;
