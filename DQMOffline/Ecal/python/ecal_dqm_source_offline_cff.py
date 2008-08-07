@@ -18,12 +18,12 @@ ecal_dqm_source_offline9 = cms.Sequence(ecalBarrelMonitorModule*dqmInfoEB*ecalBa
 
 ecal_dqm_source_offline = cms.Sequence(ecal_dqm_source_offline1)
 
-ecalBarrelMonitorModule.EcalRawDataCollection = 'ecalDigis'
+ecalBarrelMonitorModule.EcalRawDataCollection = 'ecalDigis:'
 ecalBarrelMonitorModule.EBDigiCollection = 'ecalDigis:ebDigis'
 ecalBarrelMonitorModule.EcalTrigPrimDigiCollection = 'ecalDigis:EcalTriggerPrimitives'
 ecalBarrelMonitorModule.verbose = False
 
-ecalBarrelCosmicTask.EcalRawDataCollection = 'ecalDigis'
+ecalBarrelCosmicTask.EcalRawDataCollection = 'ecalDigis:'
 ecalBarrelCosmicTask.EcalUncalibratedRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEB'
 
 ecalBarrelIntegrityTask.EBDetIdCollection0 = 'ecalDigis:EcalIntegrityDCCSizeErrors'
@@ -37,30 +37,30 @@ ecalBarrelIntegrityTask.EcalElectronicsIdCollection4 = 'ecalDigis:EcalIntegrityM
 ecalBarrelIntegrityTask.EcalElectronicsIdCollection5 = 'ecalDigis:EcalIntegrityMemChIdErrors'
 ecalBarrelIntegrityTask.EcalElectronicsIdCollection6 = 'ecalDigis:EcalIntegrityMemGainErrors'
 
-ecalBarrelLaserTask.EcalRawDataCollection = 'ecalDigis'
+ecalBarrelLaserTask.EcalRawDataCollection = 'ecalDigis:'
 ecalBarrelLaserTask.EBDigiCollection = 'ecalDigis:ebDigis'
-ecalBarrelLaserTask.EcalPnDiodeDigiCollection = 'ecalDigis'
+ecalBarrelLaserTask.EcalPnDiodeDigiCollection = 'ecalDigis:'
 ecalBarrelLaserTask.EcalUncalibratedRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEB'
 
-ecalBarrelOccupancyTask.EcalRawDataCollection = 'ecalDigis'
+ecalBarrelOccupancyTask.EcalRawDataCollection = 'ecalDigis:'
 ecalBarrelOccupancyTask.EBDigiCollection = 'ecalDigis:ebDigis'
-ecalBarrelOccupancyTask.EcalPnDiodeDigiCollection = 'ecalDigis'
+ecalBarrelOccupancyTask.EcalPnDiodeDigiCollection = 'ecalDigis:'
 ecalBarrelOccupancyTask.EcalTrigPrimDigiCollection = 'ecalDigis:EcalTriggerPrimitives'
 
 ecalBarrelPedestalOnlineTask.EBDigiCollection = 'ecalDigis:ebDigis'
 
-ecalBarrelPedestalTask.EcalRawDataCollection = 'ecalDigis'
+ecalBarrelPedestalTask.EcalRawDataCollection = 'ecalDigis:'
 ecalBarrelPedestalTask.EBDigiCollection = 'ecalDigis:ebDigis'
-ecalBarrelPedestalTask.EcalPnDiodeDigiCollection = 'ecalDigis'
+ecalBarrelPedestalTask.EcalPnDiodeDigiCollection = 'ecalDigis:'
 
-ecalBarrelStatusFlagsTask.EcalRawDataCollection = 'ecalDigis'
+ecalBarrelStatusFlagsTask.EcalRawDataCollection = 'ecalDigis:'
 
-ecalBarrelTestPulseTask.EcalRawDataCollection = 'ecalDigis'
+ecalBarrelTestPulseTask.EcalRawDataCollection = 'ecalDigis:'
 ecalBarrelTestPulseTask.EBDigiCollection = 'ecalDigis:ebDigis'
-ecalBarrelTestPulseTask.EcalPnDiodeDigiCollection = 'ecalDigis'
+ecalBarrelTestPulseTask.EcalPnDiodeDigiCollection = 'ecalDigis:'
 ecalBarrelTestPulseTask.EcalUncalibratedRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEB'
 
-ecalBarrelTimingTask.EcalRawDataCollection = 'ecalDigis'
+ecalBarrelTimingTask.EcalRawDataCollection = 'ecalDigis:'
 ecalBarrelTimingTask.EcalUncalibratedRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEB'
 
 ecalBarrelTriggerTowerTask.EcalTrigPrimDigiCollectionReal = 'ecalDigis:EcalTriggerPrimitives'
