@@ -10,6 +10,7 @@ multiTkTrackValidator = cms.EDFilter("MultiTrackValidator",
     label_tp_fake = cms.InputTag("mergedtruth","MergedTrackTruth"),
     out = cms.string('validationPlots.root'),
     min = cms.double(-2.5),
+    maxPhi = cms.double(3.15),
     nintpT = cms.int32(300),
     label = cms.VInputTag(cms.InputTag("generalTracks")),
     maxHit = cms.double(75.0),
@@ -23,7 +24,9 @@ multiTkTrackValidator = cms.EDFilter("MultiTrackValidator",
     maxpT = cms.double(3100.0),
     nint = cms.int32(50),
     beamSpot = cms.InputTag("offlineBeamSpot"),
-    UseAssociators = cms.bool(False)
+    nintPhi = cms.int32(63),
+    UseAssociators = cms.bool(False),
+    minPhi = cms.double(-3.15)
 )
 
 
