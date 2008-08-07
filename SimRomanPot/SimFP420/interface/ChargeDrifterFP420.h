@@ -6,7 +6,7 @@
 
 class ChargeDrifterFP420 : public CDrifterFP420{
  public:
-  ChargeDrifterFP420(double,double,double,double,double,double,double,double,double);
+  ChargeDrifterFP420(double,double,double,double,double,double,double,double,double,int);
   CDrifterFP420::collection_type drift (const CDrifterFP420::ionization_type, const G4ThreeVector&, const int&);
 
  private:
@@ -22,6 +22,7 @@ class ChargeDrifterFP420 : public CDrifterFP420{
   double appV;
   double ldriftcurrX;
   double ldriftcurrY;
+  int verbo;
   
 };
 

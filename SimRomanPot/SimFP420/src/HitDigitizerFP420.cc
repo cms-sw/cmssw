@@ -1,8 +1,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 // File: HitDigitizerFP420.cc
-// Date: 12.2006
+// Date: 08.2008
 // Description: HitDigitizerFP420 for FP420
-// Modifications: Here - zside - has a sense of xytype of plane
+// Modifications: 
 ///////////////////////////////////////////////////////////////////////////////
 #include "SimRomanPot/SimFP420/interface/HitDigitizerFP420.h"
 //#include "SimG4CMS/FP420/interface/FP420G4HitCollection.h"
@@ -23,11 +23,9 @@ using namespace std;
 #define CBOLTZ (1.38E-23)
 #define e_SI (1.6E-19)
 
-//#define mydigidebug2
-
 //HitDigitizerFP420::HitDigitizerFP420(float in,float inp,float inpx,float inpy){
 //HitDigitizerFP420::HitDigitizerFP420(float in,float inp,float inpx,float inpy,float ild,float ildx,float ildy){
-HitDigitizerFP420::HitDigitizerFP420(float in,float ild,float ildx,float ildy,float in0,float in2,float in3){
+HitDigitizerFP420::HitDigitizerFP420(float in,float ild,float ildx,float ildy,float in0,float in2,float in3,int verbosity){
   moduleThickness =in; 
   double bz420 = in0; 
   double bzD2 =  in2; 
@@ -43,7 +41,7 @@ HitDigitizerFP420::HitDigitizerFP420(float in,float ild,float ildx,float ildy,fl
   //
   
   //theCDividerFP420 = new ChargeDividerFP420(pitch);
-  theCDividerFP420 = new ChargeDividerFP420(moduleThickness, bz420, bzD2, bzD3);
+  theCDividerFP420 = new ChargeDividerFP420(moduleThickness, bz420, bzD2, bzD3, verbosity);
   
   depletionVoltage=20.0; //
   appliedVoltage=25.0;  //  a bit bigger than depletionVoltage to have positive value A for logA, A=1-2*Tfract.*Vd/(Vd+Vb)
@@ -77,11 +75,12 @@ HitDigitizerFP420::HitDigitizerFP420(float in,float ild,float ildx,float ildy,fl
   gevperelectron= 3.61e-09; //     double GevPerElectron = 3.61e-09
   
   // GevPerElectron AZ:average deposited energy per e-h pair [keV]??? =0.0036
-#ifdef mydigidebug2
-  std::cout << "HitDigitizerFP420: constructor pitch= " << pitch << std::endl;
-  std::cout << "pitchX= " << pitchX << "pitchY= " << pitchY << std::endl;
-  std::cout << "depletionVoltage" <<  depletionVoltage    << "appliedVoltage" <<  appliedVoltage    << "chargeMobility" <<  chargeMobility    << "temperature" <<  temperature    << "diffusionConstant" <<  diffusionConstant    << "chargeDistributionRMS" <<   chargeDistributionRMS   << "moduleThickness" <<   moduleThickness   << "timeNormalisation" <<  timeNormalisation    << "gevperelectron" <<  gevperelectron    << std::endl;
-#endif
+  if(verbosity>0) {
+    std::cout << "HitDigitizerFP420: constructor ldrift= " << ldrift << std::endl;
+    std::cout << "ldriftY= " <<ldriftY  << "ldriftX= " <<ldriftX  << std::endl;
+    std::cout << "depletionVoltage" <<  depletionVoltage    << "appliedVoltage" <<  appliedVoltage    << "chargeMobility" <<  chargeMobility    << "temperature" <<  temperature    << "diffusionConstant" <<  diffusionConstant    << "chargeDistributionRMS" <<   chargeDistributionRMS   << "moduleThickness" <<   moduleThickness   << "timeNormalisation" <<  timeNormalisation    << "gevperelectron" <<  gevperelectron    << std::endl;
+  }
+  //ndif
   
   theCDrifterFP420 = 
     new ChargeDrifterFP420(moduleThickness,
@@ -92,7 +91,7 @@ HitDigitizerFP420::HitDigitizerFP420(float in,float ild,float ildx,float ildy,fl
 			   depletionVoltage,
 			   appliedVoltage,
 			   ldriftX,
-			   ldriftY);
+			   ldriftY, verbosity);
   //					pitchX,
   //					pitchY);
   
@@ -107,19 +106,19 @@ HitDigitizerFP420::~HitDigitizerFP420(){
 }
 
 
-//HitDigitizerFP420::hit_map_type HitDigitizerFP420::processHit(const PSimHit& hit, G4ThreeVector bfield, int zside,int numStrips, double pitch){
-HitDigitizerFP420::hit_map_type HitDigitizerFP420::processHit(const PSimHit& hit, G4ThreeVector bfield, int zside,int numStrips, double pitch, int numStripsW, double pitchW, double moduleThickness){
+//HitDigitizerFP420::hit_map_type HitDigitizerFP420::processHit(const PSimHit& hit, G4ThreeVector bfield, int xytype,int numStrips, double pitch){
+HitDigitizerFP420::hit_map_type HitDigitizerFP420::processHit(const PSimHit& hit, G4ThreeVector bfield, int xytype,int numStrips, double pitch, int numStripsW, double pitchW, double moduleThickness, int verbosity){
   
   // use chargePosition just for cross-check in "induce" method
   // hit center in 3D-detector r.f.
-
+  
   float middlex = (hit.exitPoint().x() + hit.entryPoint().x() )/2.;
   float middley = (hit.exitPoint().y() + hit.entryPoint().y() )/2.;
-
-
+  
+  
   float chargePosition= -100.;
   // Y: 
-  if(zside == 1) {
+  if(xytype == 1) {
     //     chargePosition  = fabs(-numStrips/2. - ( int(middle.x()/pitch) +1.) );
     //chargePosition  = fabs(int(middle.x()/pitch+0.5*(numStrips+1)) + 1.);
     //      chargePosition  = fabs(int(middle.y()/pitch+0.5*(numStrips+1)) + 1.);
@@ -130,7 +129,7 @@ HitDigitizerFP420::hit_map_type HitDigitizerFP420::processHit(const PSimHit& hit
     
   }
   // X:
-  else if(zside == 2) {
+  else if(xytype == 2) {
     //     chargePosition  = fabs(-numStrips/2. - ( int(middle.y()/pitch) +1.) );
     //chargePosition  = fabs(int(middle.y()/pitch+0.5*(numStrips+1)) + 1.);
     //      chargePosition  = fabs(int(middle.x()/pitch+0.5*(numStrips+1)) + 1.);
@@ -142,8 +141,8 @@ HitDigitizerFP420::hit_map_type HitDigitizerFP420::processHit(const PSimHit& hit
   }
   else {
     std::cout <<"================================================================"<<std::endl;
-    std::cout << "****   HitDigitizerFP420:  !!!  ERROR: you have not to be here !!!  zside=" << zside << std::endl;
-    // std::cout << "****   HitDigitizerFP420:  !!!  ERROR: you have not to be here !!!  zside=" << zside << std::endl;
+    std::cout << "****   HitDigitizerFP420:  !!!  ERROR: you have not to be here !!!  xytype=" << xytype << std::endl;
+    // std::cout << "****   HitDigitizerFP420:  !!!  ERROR: you have not to be here !!!  xytype=" << xytype << std::endl;
     
     
     //     break;
@@ -154,13 +153,13 @@ HitDigitizerFP420::hit_map_type HitDigitizerFP420::processHit(const PSimHit& hit
     //     break;
   }
   
-#ifdef mydigidebug2
-  std::cout << " ======   ****   HitDigitizerFP420:  !!!  processHit  !!!  : input: zside=" << zside << " numStrips=  " << numStrips << " pitch=  " << pitch << " Calculated chargePosition=  " << chargePosition << std::endl;
-  std::cout << "The middle of hit point on input was: middlex =  " << middlex << std::endl;
-  std::cout << "The middle of hit point on input was: middley =  " << middley << std::endl;
-  //  std::cout << "For checks: hit point Entry =  " << hit.getEntry() << std::endl;
-  std::cout << " ======   ****   HitDigitizerFP420:processHit:   start  CDrifterFP420 divide" << std::endl;
-#endif
+  if(verbosity>0) {
+    std::cout << " ======   ****   HitDigitizerFP420:  !!!  processHit  !!!  : input: xytype=" << xytype << " numStrips=  " << numStrips << " pitch=  " << pitch << " Calculated chargePosition=  " << chargePosition << std::endl;
+    std::cout << "The middle of hit point on input was: middlex =  " << middlex << std::endl;
+    std::cout << "The middle of hit point on input was: middley =  " << middley << std::endl;
+    //  std::cout << "For checks: hit point Entry =  " << hit.getEntry() << std::endl;
+    std::cout << " ======   ****   HitDigitizerFP420:processHit:   start  CDrifterFP420 divide" << std::endl;
+  }
   //
   // Fully process one SimHit
   //
@@ -172,24 +171,24 @@ HitDigitizerFP420::hit_map_type HitDigitizerFP420::processHit(const PSimHit& hit
   //
   
   //  G4ThreeVector driftDir = DriftDirection(&det,bfield);
-  G4ThreeVector driftDir = DriftDirection(bfield,zside);
-#ifdef mydigidebug2
-  std::cout << " ======   ****   HitDigitizerFP420:processHit: driftDir= " << driftDir << std::endl;
-  std::cout << " ======   ****   HitDigitizerFP420:processHit:  start   induce , CDrifterFP420   drift   " << std::endl;
-#endif
+  G4ThreeVector driftDir = DriftDirection(bfield,xytype,verbosity);
+  if(verbosity>0) {
+    std::cout << " ======   ****   HitDigitizerFP420:processHit: driftDir= " << driftDir << std::endl;
+    std::cout << " ======   ****   HitDigitizerFP420:processHit:  start   induce , CDrifterFP420   drift   " << std::endl;
+  }
   
   //  if(driftDir.z() ==0.) {
   //    std::cout << " pxlx: drift in z is zero " << std::endl; 
   //  }  else  
-  return theIChargeFP420->induce(theCDrifterFP420->drift(ion,driftDir,zside), numStrips, pitch, numStripsW, pitchW, zside);
+  return theIChargeFP420->induce(theCDrifterFP420->drift(ion,driftDir,xytype), numStrips, pitch, numStripsW, pitchW, xytype, verbosity);
   
 }
 
 
 
-G4ThreeVector HitDigitizerFP420::DriftDirection(G4ThreeVector _bfield, int zside){
+G4ThreeVector HitDigitizerFP420::DriftDirection(G4ThreeVector _bfield, int xytype, int verbosity){
   
-  // LOCAL hit: exchange zside:  1 <-> 2
+  // LOCAL hit: exchange xytype:  1 <-> 2
   
   //  Frame detFrame(_detp->surface().position(),_detp->surface().rotation());
   //  G4ThreeVector Bfield=detFrame.toLocal(_bfield);
@@ -206,14 +205,14 @@ G4ThreeVector HitDigitizerFP420::DriftDirection(G4ThreeVector _bfield, int zside
   
   // global Y or localX
   // E field is in Xlocal direction with change vector to opposite
-  if(zside == 2) {
+  if(xytype == 2) {
     dir_x = 1.; // E field in Xlocal direction
     dir_y = +tanLorentzAnglePerTesla * Bfield.z();
     dir_z = -tanLorentzAnglePerTesla * Bfield.y();
   }
   // global X
   // E field is in Ylocal direction with change vector to opposite
-  else if(zside == 1) {
+  else if(xytype == 1) {
     dir_x = +tanLorentzAnglePerTesla * Bfield.z();
     dir_y = 1.; // E field in Ylocal direction
     dir_z = -tanLorentzAnglePerTesla * Bfield.x();
@@ -222,17 +221,17 @@ G4ThreeVector HitDigitizerFP420::DriftDirection(G4ThreeVector _bfield, int zside
     dir_x = 0.;
     dir_y = 0.;
     dir_z = 0.;
-    std::cout << "HitDigitizerFP420: ERROR - wrong zside=" <<  zside   << std::endl;
+    std::cout << "HitDigitizerFP420: ERROR - wrong xytype=" <<  xytype   << std::endl;
   }
   
   
   //  G4ThreeVector theDriftDirection = LocalVector(dir_x,dir_y,dir_z);
   G4ThreeVector theDriftDirection(dir_x,dir_y,dir_z);
   // Local3DPoint EntryPo(aHit->getEntry().x(),aHit->getEntry().y(),aHit->getEntry().z());
-#ifdef mydigidebug2
-  std::cout << "HitDigitizerFP420:DriftDirection tanLorentzAnglePerTesla= " << tanLorentzAnglePerTesla    << std::endl;
-  std::cout << "HitDigitizerFP420:DriftDirection The drift direction in local coordinate is " <<  theDriftDirection    << std::endl;
-#endif
+  if(verbosity>0) {
+    std::cout << "HitDigitizerFP420:DriftDirection tanLorentzAnglePerTesla= " << tanLorentzAnglePerTesla    << std::endl;
+    std::cout << "HitDigitizerFP420:DriftDirection The drift direction in local coordinate is " <<  theDriftDirection    << std::endl;
+  }
   
   return theDriftDirection;
   
