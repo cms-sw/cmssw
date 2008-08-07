@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+from RecoMuon.TrackingTools.MuonServiceProxy_cff import *
+
 RecoMuonValidatorCommon = cms.PSet(
     nBinEta = cms.untracked.uint32(50),
     minErrEta = cms.untracked.double(-0.01),
