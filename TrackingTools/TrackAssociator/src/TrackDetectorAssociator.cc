@@ -17,6 +17,7 @@
 //
 //
 
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 
@@ -41,7 +42,6 @@
 #include "DataFormats/DetId/interface/DetId.h"
 
 // calorimeter info
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
@@ -122,9 +122,9 @@ void TrackDetectorAssociator::useDefaultPropagator()
 void TrackDetectorAssociator::init( const edm::EventSetup& iSetup )
 {
    // access the calorimeter geometry
-   iSetup.get<IdealGeometryRecord>().get(theCaloGeometry_);
+   iSetup.get<CaloGeometryRecord>().get(theCaloGeometry_);
    if (!theCaloGeometry_.isValid()) 
-     throw cms::Exception("FatalError") << "Unable to find IdealGeometryRecord in event!\n";
+     throw cms::Exception("FatalError") << "Unable to find CaloGeometryRecord in event!\n";
    
    // get the tracking Geometry
    iSetup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry_);
