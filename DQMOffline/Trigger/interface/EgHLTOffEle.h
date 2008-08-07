@@ -39,8 +39,10 @@ class EgHLTOffEle {
 
  private:
   const reco::GsfElectron* gsfEle_; //pointers to the underlying electron (we do not own this)
-  const reco::ClusterShape* clusShape_; //pointers to the underlying cluster shape (we do not own this and it may be null)
-  
+  // const reco::ClusterShape* clusShape_; //pointers to the underlying cluster shape (we do not own this and it may be null)
+  float sigmaEtaEta_;
+  float sigmaPhiPhi_;
+
   IsolData isolData_;
 
   //these are bit-packed words telling me which cuts the electron fail (ie 0x0 is passed all cuts)
@@ -51,8 +53,8 @@ class EgHLTOffEle {
 
  public:
   
- EgHLTOffEle(const reco::GsfElectron& ele,const reco::ClusterShape* clusShape,const IsolData& isolData):
-   gsfEle_(&ele),clusShape_(clusShape),isolData_(isolData),
+ EgHLTOffEle(const reco::GsfElectron& ele,float sigmaEtaEta,const IsolData& isolData):
+   gsfEle_(&ele),sigmaEtaEta_(sigmaEtaEta),isolData_(isolData),
    tagCutCode_(CutCodes::INVALID),probeCutCode_(CutCodes::INVALID),cutCode_(CutCodes::INVALID){}
   ~EgHLTOffEle(){}
   
@@ -71,7 +73,8 @@ class EgHLTOffEle {
   float etaSC()const{return gsfEle_->superCluster()->eta();}
   float phiSC()const{return gsfEle_->superCluster()->phi();}
   float zVtx()const{return gsfEle_->TrackPositionAtVtx().z();}
-  
+  const math::XYZTLorentzVector& p4()const{return gsfEle_->p4();}
+
   //classification (couldnt they have just used type)
   int classification()const{return gsfEle_->classification();}
 
@@ -92,11 +95,12 @@ class EgHLTOffEle {
   float epOut()const{return gsfEle_->eSeedClusterOverPout();}
   
   //variables with no direct method
-  float sigmaEtaEta()const; //the evil compliated variable that is a pain to access...
-  float sigmaPhiPhi()const{return clusShape_!=NULL ? sqrt(clusShape_->covPhiPhi()) : 999;}
+  float sigmaEtaEta()const;
+  float sigmaEtaEtaUnCorr()const{return sigmaEtaEta_;}
+  //float sigmaPhiPhi()const{return clusShape_!=NULL ? sqrt(clusShape_->covPhiPhi()) : 999;}
   float bremFrac()const{return (pVtx()-pCalo())/pVtx();}
   float invEOverInvP()const{return 1./gsfEle_->caloEnergy() - 1./gsfEle_->trackMomentumAtVtx().R();}
-  float e9OverE25()const{return clusShape_!=NULL ? clusShape_->e3x3()/clusShape_->e5x5() : -999;}
+  //float e9OverE25()const{return clusShape_!=NULL ? clusShape_->e3x3()/clusShape_->e5x5() : -999;}
   
   //isolation
   float isolEm()const{return isolData_.em;}

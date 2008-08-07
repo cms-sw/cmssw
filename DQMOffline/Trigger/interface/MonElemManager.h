@@ -33,7 +33,6 @@ template<class T> class MonElemManagerBase {
  private:
   MonitorElement *monElem_; //we own this (or do we, currently I have decided we dont) FIXME
 
-
  //disabling copying and assignment as I havnt figured out how I want them to work yet
  //incidently we cant copy a MonitorElement anyway at the moment (and we prob dont want to)
  private:
@@ -41,6 +40,7 @@ template<class T> class MonElemManagerBase {
   MonElemManagerBase& operator=(const MonElemManagerBase& rhs){return *this;}
  public:
   MonElemManagerBase(std::string name,std::string title,int nrBins,double xMin,double xMax);
+  MonElemManagerBase(std::string name,std::string title,int nrBinsX,double xMin,double xMax,int nrBinsY,double yMin,double yMax);
   virtual ~MonElemManagerBase();
 
   MonitorElement* monElem(){return monElem_;}
@@ -58,6 +58,15 @@ template <class T> MonElemManagerBase<T>::MonElemManagerBase(std::string name,st
   monElem_ =dbe->book1D(name,title,nrBins,xMin,xMax);
 }
   
+template <class T> MonElemManagerBase<T>::MonElemManagerBase(std::string name,std::string title,
+							     int nrBinsX,double xMin,double xMax,
+							     int nrBinsY,double yMin,double yMax):
+  monElem_(NULL)
+{
+  DQMStore* dbe = edm::Service<DQMStore>().operator->();
+  monElem_ =dbe->book2D(name,title,nrBinsX,xMin,xMax,nrBinsY,yMin,yMax);
+}
+
  
 template <class T> MonElemManagerBase<T>::~MonElemManagerBase()
 {
@@ -65,7 +74,6 @@ template <class T> MonElemManagerBase<T>::~MonElemManagerBase()
 }
 
 //fills the MonitorElement with a member function of class T returning type varType
-//warning only valid for 1D hist monitor elements currently
 template<class T,typename varType> class MonElemManager : public MonElemManagerBase<T> {
  private:
 
@@ -100,5 +108,42 @@ template<class T,typename varType> MonElemManager<T,varType>::~MonElemManager()
 {
  
 }
+
+
+//fills a 2D monitor element with member functions of T returning varType1 and varType2 
+template<class T,typename varTypeX,typename varTypeY=varTypeX> class MonElemManager2D : public MonElemManagerBase<T> {
+ private:
+
+ varTypeX (T::*varFuncX_)()const;
+ varTypeY (T::*varFuncY_)()const;
+
+  //disabling copying and assignment as I havnt figured out how I want them to work yet
+ private:
+ MonElemManager2D(const MonElemManager2D& rhs){}
+ MonElemManager2D& operator=(const MonElemManager2D& rhs){return *this;}
+ 
+ public:
+ MonElemManager2D(std::string name,std::string title,int nrBinsX,double xMin,double xMax,int nrBinsY,double yMin,double yMax,
+		  varTypeX (T::*varFuncX)()const,varTypeY (T::*varFuncY)()const):
+                  MonElemManagerBase<T>(name,title,nrBinsX,xMin,xMax,nrBinsY,yMin,yMax),
+                  varFuncX_(varFuncX),varFuncY_(varFuncY){}
+ ~MonElemManager2D();
+
+
+ void fill(const T& obj,float weight);
+
+
+};
+
+template<class T,typename varTypeX,typename varTypeY> void MonElemManager2D<T,varTypeX,varTypeY>::fill(const T& obj,float weight)
+{
+  MonElemManagerBase<T>::monElem()->Fill((obj.*varFuncX_)(),(obj.*varFuncY_)(),weight);
+}
+
+template<class T,typename varTypeX,typename varTypeY> MonElemManager2D<T,varTypeX,varTypeY>::~MonElemManager2D()
+{
+ 
+}
+
 
 #endif

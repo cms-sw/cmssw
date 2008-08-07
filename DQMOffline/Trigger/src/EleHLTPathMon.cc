@@ -18,12 +18,12 @@ void EleHLTPathMon::addFilter(std::string filterName)
 
 void EleHLTPathMon::setStdFilters()
 {
-  addFilter(pathName_+"L1MatchFilterRegional");
-  addFilter(pathName_+"EtFilter");
-  addFilter(pathName_+"HcalIsolFilter");
-  addFilter(pathName_+"PixelMatchFilter");
-  addFilter(pathName_+"EoverpFilter");
-  addFilter(pathName_+"HOneOEMinusOneOPFilter");
+  //addFilter(pathName_+"L1MatchFilterRegional");
+  //addFilter(pathName_+"EtFilter");
+  //addFilter(pathName_+"HcalIsolFilter");
+  //addFilter(pathName_+"PixelMatchFilter");
+  //addFilter(pathName_+"EoverpFilter");
+  //addFilter(pathName_+"HOneOEMinusOneOPFilter");
   addFilter(pathName_+"TrackIsolFilter");
 }
 

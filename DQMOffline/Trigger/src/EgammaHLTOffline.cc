@@ -3,7 +3,7 @@
 #include "DQMOffline/Trigger/interface/EleHLTPathMon.h"
 #include "DQMOffline/Trigger/interface/EleHLTFilterMon.h"
 #include "DQMOffline/Trigger/interface/EgHLTOffData.h"
-
+#include "DQMOffline/Trigger/interface/DebugFuncs.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 
@@ -30,7 +30,7 @@ EgammaHLTOffline::EgammaHLTOffline(const edm::ParameterSet& iConfig)
   triggerSummaryLabel_ = iConfig.getParameter<edm::InputTag>("triggerSummaryLabel");
 
   
-  dirName_="HLT/EgammaHLTOffline_" + iConfig.getParameter<std::string>("@module_label");
+  dirName_=iConfig.getParameter<std::string>("DQMDirName");//"HLT/EgammaHLTOffline_" + iConfig.getParameter<std::string>("@module_label");
 
   if(dbe_) dbe_->setCurrentFolder(dirName_);
  
@@ -40,7 +40,7 @@ EgammaHLTOffline::EgammaHLTOffline(const edm::ParameterSet& iConfig)
 
 EgammaHLTOffline::~EgammaHLTOffline()
 { 
-  LogDebug("EgammaHLTOffline") << "destructor called";
+  // LogDebug("EgammaHLTOffline") << "destructor called";
   for(size_t i=0;i<elePathMonHists_.size();i++){
     delete elePathMonHists_[i];
   }
@@ -48,8 +48,8 @@ EgammaHLTOffline::~EgammaHLTOffline()
 
 void EgammaHLTOffline::beginJob(const edm::EventSetup& iSetup)
 {
-  addTrigPath("hltL1NonIsoSingleElectron");
-  addTrigPath("hltL1NonIsoLargeWindowSingleElectron");
+  addTrigPath("hltL1NonIsoHLTNonIsoSingleElectronEt15");
+  addTrigPath("hltL1NonIsoHLTNonIsoSingleElectronLWEt15");
   
   namesFiltersUsed_.clear();
  filterNamesUsed(namesFiltersUsed_);
@@ -59,24 +59,38 @@ void EgammaHLTOffline::beginJob(const edm::EventSetup& iSetup)
 
 void EgammaHLTOffline::endJob() 
 {
-  LogDebug("EgammaHLTOffline") << "ending job";
+  //  LogDebug("EgammaHLTOffline") << "ending job";
 }
 
 void EgammaHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& c)
 {
-  LogDebug("EgammaHLTOffline") << "beginRun, run " << run.id();
+  //LogDebug("EgammaHLTOffline") << "beginRun, run " << run.id();
 }
 
 
 void EgammaHLTOffline::endRun(const edm::Run& run, const edm::EventSetup& c)
 {
-  LogDebug("EgammaHLTOffline") << "endRun, run " << run.id();
+  //LogDebug("EgammaHLTOffline") << "endRun, run " << run.id();
 }
 
 
 void EgammaHLTOffline::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup)
 {
   double weight=1.;
+
+  //debugging info, commented out for prod
+  // int nrProducts = debug::listAllProducts<trigger::TriggerEvent>(iEvent,"EgammaHLTOffline");
+//   edm::LogInfo("EgammaHLTOffline")<<" nr of HLT objs "<<nrProducts;
+
+//   int nrRecHits = debug::listAllProducts<EcalRecHitCollection>(iEvent,"EgammaHLTOffline");
+//   edm::LogInfo("EgammaHLTOffline")<<" nr of ecal rec hit collections "<<nrRecHits;
+
+
+//   int nrEleColl = debug::listAllProducts<reco::PixelMatchGsfElectronCollection>(iEvent,"EgammaHLTOffline");
+//   edm::LogInfo("EgammaHLTOffline")<<" nr of Ele coll "<<nrEleColl;
+
+//    int nrClusColl = debug::listAllProducts<reco::BasicClusterShapeAssociationCollection>(iEvent,"EgammaHLTOffline");
+//    edm::LogInfo("EgammaHLTOffline")<<" nr of clus "<<nrClusColl;
 
   edm::Handle<trigger::TriggerEvent> triggerObj;
   iEvent.getByLabel(triggerSummaryLabel_,triggerObj); 
@@ -92,7 +106,7 @@ void EgammaHLTOffline::analyze(const edm::Event& iEvent,const edm::EventSetup& i
     return;
   }  
 
-  egHelper_.getHandles(iEvent);
+  egHelper_.getHandles(iEvent,iSetup);
 
   std::vector<EgHLTOffEle> egHLTOffEles;
   egHelper_.fillEgHLTOffEleVec(gsfElectrons,egHLTOffEles);
@@ -105,13 +119,13 @@ void EgammaHLTOffline::analyze(const edm::Event& iEvent,const edm::EventSetup& i
   evtData.eles = &egHLTOffEles;
   evtData.filtersElePasses = &filtersElePasses;
 
-  //edm::LogInfo ("EgammaHLTOffline") << "starting event "<<iEvent.id().run()<<" "<<iEvent.id().event();
+//   edm::LogInfo ("EgammaHLTOffline") << "starting event "<<iEvent.id().run()<<" "<<iEvent.id().event();
 
   
-  //  edm::LogInfo ("EgammaHLTOffline") << "nr filters in event "<<triggerObj->sizeFilters();
-  //for(size_t i=0;i<triggerObj->sizeFilters();i++){
-  // edm::LogInfo("EgammaHLTOffline")<<" in event filter "<<triggerObj->filterTag(i);
-  //}
+//   edm::LogInfo ("EgammaHLTOffline") << "nr filters in event "<<triggerObj->sizeFilters();
+//   for(size_t i=0;i<triggerObj->sizeFilters();i++){
+//     edm::LogInfo("EgammaHLTOffline")<<" in event filter "<<triggerObj->filterTag(i);
+//   }
 
   for(size_t pathNr=0;pathNr<elePathMonHists_.size();pathNr++){
     elePathMonHists_[pathNr]->fill(evtData,weight);
@@ -136,7 +150,7 @@ void EgammaHLTOffline::obtainFiltersElePasses(const std::vector<EgHLTOffEle>& el
 
   const double maxDeltaR=0.3;
   for(size_t filterNrInVec=0;filterNrInVec<filters.size();filterNrInVec++){
-    size_t filterNrInEvt = trigEvt->filterIndex(edm::InputTag(filters[filterNrInVec],"","HLT"));
+    size_t filterNrInEvt = trigEvt->filterIndex(edm::InputTag(filters[filterNrInVec],"","HLT").encode());
     
     if(filterNrInEvt<trigEvt->sizeFilters()){ //filter found in event, something passes it
       const trigger::Keys& trigKeys = trigEvt->filterKeys(filterNrInEvt);  //trigger::Keys is actually a vector<uint16_t> holding the position of trigger objects in the trigger collection passing the filter

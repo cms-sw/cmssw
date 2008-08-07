@@ -61,9 +61,9 @@ int EgHLTOffEleSel::getCutCode(const EgHLTOffEle& ele,const CutValues& cuts,int 
   if(fabs(ele.dPhiOut()) > cuts.maxDPhiOutCut) cutCode |=CutCodes::DPHIOUT;
   if(ele.invEOverInvP() > cuts.maxInvEInvPCut) cutCode |= CutCodes::INVEINVP;
   if(ele.bremFrac() < cuts.minBremFracCut) cutCode |= CutCodes::BREMFRAC;
-  if(ele.e9OverE25() < cuts.minE9E25Cut) cutCode |= CutCodes::E9OVERE25;
+  //if(ele.e9OverE25() < cuts.minE9E25Cut) cutCode |= CutCodes::E9OVERE25;
   if(ele.sigmaEtaEta()<cuts.minSigmaEtaEtaCut || ele.sigmaEtaEta()>cuts.maxSigmaEtaEtaCut) cutCode |= CutCodes::SIGMAETAETA;
-  if(ele.sigmaPhiPhi()<cuts.minSigmaPhiPhiCut || ele.sigmaPhiPhi()>cuts.maxSigmaPhiPhiCut) cutCode |= CutCodes::SIGMAPHIPHI;
+  //if(ele.sigmaPhiPhi()<cuts.minSigmaPhiPhiCut || ele.sigmaPhiPhi()>cuts.maxSigmaPhiPhiCut) cutCode |= CutCodes::SIGMAPHIPHI;
   if(ele.isolEm()>( cuts.minIsolEmConstCut + cuts.isolEmGradCut*ele.et())) cutCode |=CutCodes::ISOLEM;
   if(ele.isolHad()> (cuts.minIsolHadConstCut + cuts.isolHadGradCut*ele.et())) cutCode |=CutCodes::ISOLHAD;
   if(ele.isolPtTrks() > (cuts.minIsolPtTrksConstCut + cuts.isolPtTrksGradCut*ele.et())) cutCode |=CutCodes::ISOLPTTRKS;

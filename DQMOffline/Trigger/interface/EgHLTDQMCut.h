@@ -23,7 +23,7 @@ template<class T> struct EgHLTDQMCut {
   
 template<class T> struct EgHLTDQMVarCut : public EgHLTDQMCut<T> {
   private:
-  int cutsToPass_;
+  int cutsToPass_; //the cuts whose eff we are measuring
   int (T::*cutCodeFunc_)()const;
 
   public:
@@ -43,7 +43,6 @@ template<class T> bool EgHLTDQMVarCut<T>::pass(const T& obj,const EgHLTOffData& 
 {
   if(((obj.*cutCodeFunc_)() & cutsToPass_)==0) return true;
   else return false;
-
 }
 
 

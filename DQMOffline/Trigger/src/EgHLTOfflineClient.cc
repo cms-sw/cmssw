@@ -28,7 +28,7 @@ EgHLTOfflineClient::EgHLTOfflineClient(const edm::ParameterSet& iConfig)
   }
  
   
-  dirName_="HLT/EgHLTOfflineClient_" + iConfig.getParameter<std::string>("sourceModuleName");
+  dirName_=iConfig.getParameter<std::string>("DQMDirName");//"HLT/EgHLTOfflineClient_" + iConfig.getParameter<std::string>("sourceModuleName");
 
   if(dbe_) dbe_->setCurrentFolder(dirName_);
  
@@ -87,14 +87,15 @@ void EgHLTOfflineClient::createEffHist(const std::string& name)
   //edm::LogInfo("EgHLTOfflineClient") <<" getting hist "<<name<<"_pass";
   MonitorElement* numer = dbe_->get(dirName_+"/"+name+"_pass");
   // edm::LogInfo("EgHLTOfflineClient") <<" got hist "<<numer;
-  TH1F* denomHist = denom->getTH1F();
-  TH1F* numerHist = numer->getTH1F();
-  
-  TH1F* effHist = (TH1F*) numerHist->Clone(name.c_str());
-  effHist->Divide(denomHist);
- 
-  dbe_->book1D(name,effHist);
-  
+  if(denom!=NULL && numer!=NULL){
+    TH1F* denomHist = denom->getTH1F();
+    TH1F* numerHist = numer->getTH1F();
+    
+    TH1F* effHist = (TH1F*) numerHist->Clone(name.c_str());
+    effHist->Divide(denomHist);
+    
+    dbe_->book1D(name,effHist);
+  }
 }
 
 

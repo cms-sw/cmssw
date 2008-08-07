@@ -19,9 +19,12 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 
+
+
 struct EgHLTOffData {
   public:
   edm::Handle<trigger::TriggerEvent> trigEvt;
+ 
   std::vector<EgHLTOffEle> *eles; //EgHLTOffEle is lightweight and handles copying well hence it isnt a vector of pointers
   std::vector<std::vector<int> > *filtersElePasses; //the filter numbers which each electron passed, the filter numbers are sorted and the electrons have an entry to entry correspondance to electrons in eles
 };

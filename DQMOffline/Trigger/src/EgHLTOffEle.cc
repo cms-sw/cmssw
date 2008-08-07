@@ -2,12 +2,9 @@
 
 float EgHLTOffEle::sigmaEtaEta()const
 {
-  if(clusShape_!=NULL){
-    if(fabs(etaSC())<1.479) return sqrt(clusShape_->covEtaEta()); //barrel case, no correction
-    else{ //endcap, need to apply eta correction
-      float unCorrSigmaEtaEta = sqrt(clusShape_->covEtaEta());
-      return unCorrSigmaEtaEta - 0.02*( fabs(etaSC()) - 2.3);
-    }
-  }else return 999.;
+  if(fabs(etaSC())<1.479) return sigmaEtaEta_; //barrel case, no correction
+  else{ //endcap, need to apply eta correction
+    return sigmaEtaEta_ - 0.02*( fabs(etaSC()) - 2.3);
+  } 
 
 }

@@ -20,8 +20,11 @@
 
 #include "DQMOffline/Trigger/interface/MonElemManager.h"
 #include "DQMOffline/Trigger/interface/EgHLTOffData.h"
+#include "DQMOffline/Trigger/interface/ParticlePair.h"
 #include "DQMOffline/Trigger/interface/EgHLTOffEle.h"
 #include "DQMOffline/Trigger/interface/EgammaHLTEffSrc.h"
+
+#include <string>
 
 namespace trigger{
   class TriggerObject;
@@ -49,6 +52,8 @@ class EleHLTFilterMon {
   std::vector<MonElemManagerBase<trigger::TriggerObject>*> trigMonElems_;
   std::vector<MonElemManagerBase<EgHLTOffEle>*> eleFailMonElems_;
   std::vector<EgammaHLTEffSrcBase<EgHLTOffEle>*> eleEffHists_;
+  std::vector<MonElemManagerBase<ParticlePair<EgHLTOffEle> >*> diEleMonElems_;
+  
   //std::vector<MonElemManager*> l1EleMonElems_;
   std::string filterName_;
   
