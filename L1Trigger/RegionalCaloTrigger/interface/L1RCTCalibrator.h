@@ -12,20 +12,29 @@
  Implementation:
 
  The functions below are defined in the base class:
-     beginJob() 
-     analyze()
-     endJob() -- this already takes care of printing out the resulting _cff.py file.
+     beginJob() -- calls bookHistograms(), opens root file and checkity-checks itself for consistency
+     analyze()  -- gets regions, e/hcal tpgs and any candidates you specify in "CalibrationInputs" (a vector of InputTags)
+                   and provides them to saveCalibrationInfo().
+     endJob()   -- this calls postProcessing() and takes care of printing out the resulting _cff.py  and .root files.
 
  When you inherit from this class you must define:
-     saveCalibrationInfo() -- anything you need to do during analyze()
-     postProcessing() -- this is anything you need to do in end job.
+     bookHistograms() -- instanciate all your histograms here... also use putHist(histo = new TH1X()) to keep track of your histograms
+     saveCalibrationInfo() -- anything you need to do to your data during analyze(), i.e. plotting raw energies, 
+                              saving data for later and making sanity check plots.
+     postProcessing() -- this is anything you need to do in endJob(). i.e. doing fits and determining coefficients
  
+Debug levels: (feel free to add more in your derived classes!) requires you to use " if (debug()) { code }"
+-1 = quiet mode no output from anything
+ 0 = LogInfo / LogWarning / LowError are turned on
+ 1 = debug level 0 + LogDebug and any direct cout statements
+ 9 = create an empty cff and root file
+10 = create a debugging cff that contains the element index for all entries and a root file
 
 */
 //
 // Original Author:  pts/47
 //         Created:  Thu Jul 13 21:38:08 CEST 2006
-// $Id: L1RCTCalibrator.h,v 1.2 2008/07/31 20:27:15 lgray Exp $
+// $Id: L1RCTCalibrator.h,v 1.3 2008/08/06 15:49:27 lgray Exp $
 //
 //
 
@@ -137,30 +146,52 @@ class L1RCTCalibrator : public edm::EDAnalyzer
 protected:
   // ----------protected member functions---------------
   void deltaR(const double& eta1, double phi1, 
-	      const double& eta2, double phi2,double& dr) const;  
-  void etaBin(const double&, int&) const; // returns Trigger Tower number
-  void etaValue(const int&, double&) const; // return Trigger Tower eta bin center
-  void phiBin(double, int&) const; // returns TT phi bin
-  void phiValue(const int&, double&) const; // return TT phi bin center
+	      const double& eta2, double phi2,double& dr) const; // calculates delta R between two coordinates
+  void etaBin(const double&, int&) const; // calculates Trigger Tower number
+  void etaValue(const int&, double&) const; // calculates Trigger Tower eta bin center
+  void phiBin(double, int&) const; // calculates TT phi bin
+  void phiValue(const int&, double&) const; // calculates TT phi bin center
   double uniPhi(const double&) const; // returns phi that is in [0, 2*pi]
   bool isSelfOrNeighbor(const rct_location&, const rct_location&) const;
-  rct_location makeRctLocation(const double& eta, const double& phi) const;
-  rct_location makeRctLocation(const int& ieta, const int& iphi) const;
+  rct_location makeRctLocation(const double& eta, const double& phi) const; // makes an rct_location struct from detector coordinates
+  rct_location makeRctLocation(const int& ieta, const int& iphi) const; // makes an rct_location struct from TT ieta and iphi
 
+  // returns -1 if item not present, [index] if it is, T must have an == operator
   template<typename T> 
     int find(const T&, const std::vector<T>&) const;
 
+  // returns Et of the TPG
   double ecalEt(const EcalTriggerPrimitiveDigi&) const;
   double hcalEt(const HcalTriggerPrimitiveDigi&) const;
+  // these calculate the energy from Et by using the eta bin center
   double ecalE(const EcalTriggerPrimitiveDigi&) const;
   double hcalE(const HcalTriggerPrimitiveDigi&) const;
 
+  // returns tpgs within a specified delta r near the point (eta,phi)
+  std::vector<tpg> tpgsNear(const double& eta, const double& phi, const std::vector<tpg>&, const double& dr = .5) const;
+  // returns an ordered pair of (Et, deltaR)
+  std::pair<double,double> showerSize(const std::vector<tpg>&, const double frac = .95, const double& max_dr = .5, 
+				      const bool& ecal = true, const bool& hcal = true) const;
+  // returns the sum of tpg Et near the point (eta,phi) within a specified delta R, 
+  // can choose to only give ecal or hcal sum through bools
+  double sumEt(const double& eta, const double& phi, const std::vector<tpg>&, const double& dr = .5, 
+	       const bool& ecal = true, const bool& hcal = true) const;
+  // returns energy weighted average of Eta
+  double avgPhi(const std::vector<tpg>&) const;
+  // returns energy weighted average of Phi
+  double avgEta(const std::vector<tpg>&) const;
+
+  // saves pointer to Histogram in a vector, making writing out easier later.
   void putHist(TObject* o) { hists_.push_back(o); }
 
+  // use these to access debug level, fit options, and event/run number.
   const std::string& fitOpts() const { return fitOpts_; }
   const int& debug() const { return debug_; }
   const int& eventNumber() const { return event_; }
   const int& runNumber() const { return run_; }
+
+  // use these functions to access the pointers to various scales
+  // it is safer than using the bare pointer.
   const L1CaloEcalScale* eScale() const { return const_cast<const L1CaloEcalScale*>(eScale_); }
   const L1CaloHcalScale* hScale() const { return const_cast<const L1CaloHcalScale*>(hScale_); }
   const L1RCTParameters* rctParams() const { return const_cast<const L1RCTParameters*>(rctParams_); }
@@ -170,10 +201,15 @@ protected:
   double ecal_[28][3], hcal_[28][3], hcal_high_[28][3], cross_[28][6], he_low_smear_[28], he_high_smear_[28];
 
  private: 
+  // returns the regions that neighbor the input
   std::vector<rct_location> neighbors(const rct_location&) const;
+  // prints a CFG or python language configuration file fragment that contains the
+  // resultant calibration information
   void printCfFragment(std::ostream&) const;
+  // makes sure that etaBin = etaBin(etaValue(etaBin)) and phiBin = phiBin(phiValue(phiBin))
   bool sanityCheck() const;
 
+  // loops through hists_ and calls Write for each one
   void writeHistograms();
 
   // ----------member data----------------------------
@@ -194,7 +230,7 @@ protected:
   int event_, run_;
   TFile *rootOut_;
 
-  //vector of all histograms for easy writing and cleanup
+  //vector of all pointers to histograms
   std::vector<TObject*> hists_;
 };
 

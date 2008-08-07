@@ -15,7 +15,7 @@
 //
 // Original Author:  pts/47
 //         Created:  Thu Jul 13 21:38:08 CEST 2006
-// $Id: L1RCTCalibrator.h,v 1.1 2008/07/31 14:17:13 lgray Exp $
+// $Id: L1RCTGenCalibrator.h,v 1.1 2008/08/06 15:49:27 lgray Exp $
 //
 //
 
@@ -88,6 +88,7 @@ private:
   TH1Fptr hDeltaEtPeakvsEtaBin_uc[12], hDeltaEtPeakvsEtaBin_c[12], hDeltaEtPeakRatiovsEtaBin[12], 
     hDeltaEtPeakvsEtaBinAllEt_uc, hDeltaEtPeakvsEtaBinAllEt_c, hDeltaEtPeakRatiovsEtaBinAllEt;
 
+  TH1Fptr hDeltaR95[12];
   // histograms for algorithm
 
 };

@@ -78,6 +78,7 @@ void L1RCTCalibrator::analyze(const edm::Event& e, const edm::EventSetup& es)
   es.get<L1CaloHcalScaleRcd>().get(hcalScale);
   hScale_ = const_cast<L1CaloHcalScale*>(hcalScale.product());
 
+  // get L1 Calo Trigger Geometry
   edm::ESHandle<L1CaloGeometry> level1Geometry;
   es.get<L1CaloGeometryRecord>().get(level1Geometry);
   l1Geometry_ = const_cast<L1CaloGeometry*>(level1Geometry.product());
@@ -439,4 +440,90 @@ double L1RCTCalibrator::hcalE(const HcalTriggerPrimitiveDigi& h) const
   double theta = 2*std::atan(std::exp(-eta));
 
   return hcalEt(h)/std::sin(theta);
+}
+
+// energy, deltaR
+std::pair<double,double> L1RCTCalibrator::showerSize(const std::vector<tpg>& tp, const double frac, const double& max_dr,
+						     const bool& ecal, const bool& hcal) const
+{
+  double c_eta = avgEta(tp), c_phi = avgPhi(tp);
+  double result = 0.0, 
+    e_max = sumEt(c_eta, c_phi, tp, max_dr, ecal, hcal);
+  
+  double dr_iter = 0.0;
+  
+  do{
+    result = sumEt(c_eta, c_phi, tp, dr_iter, ecal, hcal);
+    dr_iter += 0.01;
+  }while(result/e_max < frac);
+  
+  return std::make_pair(result,dr_iter);
+}
+
+double L1RCTCalibrator::sumEt(const double& eta, const double& phi, const std::vector<tpg>& tp, const double& dr, 
+			      const bool& ecal, const bool& hcal) const
+{
+  double delta_r, tp_phi, tp_eta, sum = 0.0;  
+
+  for(std::vector<tpg>::const_iterator i = tp.begin(); i != tp.end(); ++i)
+    {
+      etaValue(i->ieta, tp_eta);
+      phiValue(i->iphi, tp_phi);
+
+      deltaR(eta,uniPhi(phi),tp_eta,tp_phi,delta_r);
+
+      if(delta_r < dr)
+	{
+	  if(i->ecalE > .5 && ecal) sum += i->ecalEt;
+	  if(i->hcalE > .5 && hcal) sum += i->hcalEt;
+	}
+    }
+  return sum;
+}
+
+double L1RCTCalibrator::avgPhi(const std::vector<tpg>& t) const
+{
+  double n = 0.0, d = 0.0;
+
+  for(std::vector<tpg>::const_iterator i = t.begin(); i != t.end(); ++i)
+    {
+      double temp_phi;
+      phiValue(i->iphi, temp_phi);
+      n = (i->ecalE + i->hcalE)*temp_phi;
+      d = i->ecalE + i->hcalE;
+    }
+
+  return n/d;
+}
+
+double L1RCTCalibrator::avgEta(const std::vector<tpg>& t) const
+{
+  double n = 0.0, d = 0.0;
+
+  for(std::vector<tpg>::const_iterator i = t.begin(); i != t.end(); ++i)
+    {
+      double temp_eta;
+      etaValue(i->ieta, temp_eta);
+      n = (i->ecalE + i->hcalE)*temp_eta;
+      d = i->ecalE + i->hcalE;
+    }
+  return n/d;
+}
+
+std::vector<L1RCTCalibrator::tpg> L1RCTCalibrator::tpgsNear(const double& eta, const double& phi, const std::vector<tpg>& tpgs, 
+							    const double& dr) const
+{
+  std::vector<tpg> result;
+
+  for(std::vector<tpg>::const_iterator i = tpgs.begin(); i != tpgs.end(); ++i)
+    {
+      double delta_r;
+      double teta, tphi;
+      phiValue(i->iphi, tphi);
+      etaValue(i->ieta, teta);
+      deltaR(eta,phi,teta,tphi,delta_r);
+      
+      if(delta_r < dr) result.push_back(*i);
+    }
+  return result;
 }
