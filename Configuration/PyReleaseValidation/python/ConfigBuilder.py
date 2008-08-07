@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.62 $"
+__version__ = "$Revision: 1.63 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -404,7 +404,10 @@ class ConfigBuilder(object):
 
             # the settings have to be the same as for the generator to stay consistent  
             print 'Set comEnergy to famos decay processing to 10 TeV. Please edit by hand if it needs to be different.'
+            print 'The pile up is taken from 10 TeV files. To switch to other files remove the inclusion of "PileUpSimulator10TeV_cfi"'
             self.additionalCommands.append('process.famosSimHits.ActivateDecays.comEnergy = 10000')
+            self.loadAndRemember("FastSimulation.PileUpProducer.PileUpSimulator10TeV_cfi")
+	    self.additionalCommands.append('process.famosPileUp.PileUpSimulator = process.PileUpSimulatorBlock.PileUpSimulator')
 	    
             self.additionalCommands.append("process.simulation = cms.Sequence(process.simulationWithFamos)")
             self.additionalCommands.append("process.HLTEndSequence = cms.Sequence(process.reconstructionWithFamos)")
@@ -431,7 +434,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.62 $"),
+              (version=cms.untracked.string("$Revision: 1.63 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
