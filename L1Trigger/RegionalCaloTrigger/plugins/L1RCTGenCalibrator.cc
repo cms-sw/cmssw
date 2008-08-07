@@ -2,6 +2,7 @@
 
 // Framework Stuff
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // Gen Collections
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
@@ -56,10 +57,58 @@ void L1RCTGenCalibrator::saveCalibrationInfo(const view_vector& calib_to,const e
 }
 
 void L1RCTGenCalibrator::postProcessing()
-{
+{  
+  // first event data loop, calibrate ecal.
   for(std::vector<event_data>::const_iterator i = data_.begin(); i != data_.end(); ++i)
     {
-      
+      int ipt = 0;
+      hEvent->Fill(i->event);
+      hRun->Fill(i->run);
+
+      std::vector<generator>::const_iterator gen = i->gen_particles.begin();
+
+      for(; gen != i->gen_particles.end(); ++gen)
+	{
+	  if(gen->particle_type != 22) continue;
+
+	  double regionsum = sumEt(gen->eta,gen->phi,i->regions);
+	  
+	  if(regionsum > 0.0)
+	    {
+	      std::vector<tpg> matchedTpgs = tpgsNear(gen->eta,gen->phi,i->tpgs);
+	      std::pair<double,double> matchedCentroid = std::make_pair(avgEta(matchedTpgs),avgPhi(matchedTpgs));
+	      std::pair<double,double> etAndDeltaR95 = showerSize(matchedTpgs);
+	      std::pair<double,double> ecalEtandDeltaR95 = showerSize(matchedTpgs, .95, .5, true, false);
+	      
+	      int sumieta, sumiphi;
+	      
+	      etaBin(fabs(matchedCentroid.first), sumieta);
+	      phiBin(matchedCentroid.second, sumiphi);
+
+	      if(debug() > 0)
+		{
+		  int n_towers = tpgsNear(matchedCentroid.first, matchedCentroid.second, i->tpgs, ecalEtandDeltaR95.second).size();
+		  LogDebug("PhotonTPGSumInfo") << "TPG sum near gen Photon with nearby non-zero RCT region found:\n"
+					       << "\tNumber of Towers  : " << n_towers << std::endl
+					       << "\tCentroid Eta      : " << matchedCentroid.first << std::endl
+					       << "\tCentroid Phi      : " << matchedCentroid.second << std::endl
+					       << "\tDelta R 95  (h+e) : " << etAndDeltaR95.second << std::endl
+					       << "\tDelta R 95  (e)   : " << ecalEtandDeltaR95.second << std::endl
+					       << "\tTotal Et in Cone  : " << etAndDeltaR95.first << std::endl
+					       << "\tEcal Et in Cone   : " << ecalEtandDeltaR95.first << std::endl;
+		}
+		  
+	      hPhotonDeltaR95[sumieta]->Fill(etAndDeltaR95.second);
+	      gPhotonEtvsGenEt[sumieta]->SetPoint(ipt++, ecalEtandDeltaR95.first, gen->et);	      
+
+	      hGenPhivsTpgSumPhi->Fill(gen->phi, matchedCentroid.second);
+	      hGenEtavsTpgSumEta->Fill(gen->eta, matchedCentroid.first);
+	      hTpgSumEt->Fill(etAndDeltaR95.first);
+	      hTpgSumEta->Fill(matchedCentroid.first);
+	      hTpgSumPhi->Fill(matchedCentroid.second);
+	    }
+	    
+	}
     }
 }
 
@@ -83,13 +132,13 @@ void L1RCTGenCalibrator::saveGenInfo(const reco::GenParticle* g_ , const edm::Ha
       gen.loc = makeRctLocation(gen.eta, gen.phi);
       
       if(debug() > 0)
-	std::cout << "Adding Gen Particle to Data Record:\n"
-		  << "\tEta    :\t" << gen.eta << std::endl
-		  << "\tPhi    :\t" << gen.phi << std::endl
-		  << "\tEt     :\t" << gen.et << std::endl
-		  << "\tRegion :\t" << gen.loc.region << std::endl
-		  << "\tCard   :\t" << gen.loc.card << std::endl
-		  << "\tCrate  :\t" << gen.loc.crate << std::endl;      
+	LogDebug("AddingParticle") << "Adding Gen Particle to Data Record:\n"
+				   << "\tEta    :\t" << gen.eta << std::endl
+				   << "\tPhi    :\t" << gen.phi << std::endl
+				   << "\tEt     :\t" << gen.et << std::endl
+				   << "\tRegion :\t" << gen.loc.region << std::endl
+				   << "\tCard   :\t" << gen.loc.card << std::endl
+				   << "\tCrate  :\t" << gen.loc.crate << std::endl;      
 
       hGenPhi->Fill(gen.phi);
       hGenEta->Fill(gen.eta);
@@ -114,11 +163,11 @@ void L1RCTGenCalibrator::saveGenInfo(const reco::GenParticle* g_ , const edm::Ha
 	      r_save.iphi = ri->gctPhi();
 	      
 	      if(debug() > 0)
-		std::cout << "Adding RCT Region to Data Record:\n"
-			  << "\tRegion:\t" << r_save.loc.region << std::endl
-			  << "\tCard  :\t" << r_save.loc.card << std::endl
-			  << "\tCrate :\t" << r_save.loc.crate << std::endl
-			  << "\tEt    :\t" << r_save.linear_et << std::endl;
+		LogDebug("AddingRegion") << "Adding RCT Region to Data Record:\n"
+					 << "\tRegion:\t" << r_save.loc.region << std::endl
+					 << "\tCard  :\t" << r_save.loc.card << std::endl
+					 << "\tCrate :\t" << r_save.loc.crate << std::endl
+					 << "\tEt    :\t" << r_save.linear_et << std::endl;
 
 	      hRCTRegionEt->Fill(r_save.linear_et*.5);
 	      hRCTRegionEta->Fill(l1Geometry()->globalEtaBinCenter(r_save.ieta));
@@ -152,14 +201,14 @@ void L1RCTGenCalibrator::saveGenInfo(const reco::GenParticle* g_ , const edm::Ha
 		  if( find<tpg>(t_save, *tp) == -1 )
 		    {
 		      if(debug() > 0)
-			std::cout << "Adding TPG to data record:\n"
-				  << "\tieta  :\t" << t_save.ieta << std::endl
-				  << "\tiphi  :\t" << t_save.iphi << std::endl
-				  << "\tecalEt:\t" << t_save.ecalEt << std::endl
-				  << "\thcalEt:\t" << t_save.hcalEt << std::endl
-				  << "\tregion:\t" << t_save.loc.region << std::endl
-				  << "\tcard  :\t" << t_save.loc.card << std::endl
-				  << "\tcrate :\t" << t_save.loc.crate << std::endl;
+			LogDebug("AddingTPG") << "Adding TPG to data record:\n"
+					      << "\tieta  :\t" << t_save.ieta << std::endl
+					      << "\tiphi  :\t" << t_save.iphi << std::endl
+					      << "\tecalEt:\t" << t_save.ecalEt << std::endl
+					      << "\thcalEt:\t" << t_save.hcalEt << std::endl
+					      << "\tregion:\t" << t_save.loc.region << std::endl
+					      << "\tcard  :\t" << t_save.loc.card << std::endl
+					      << "\tcrate :\t" << t_save.loc.crate << std::endl;
 		      
 		      tp->push_back(t_save);
 		    }
@@ -172,8 +221,21 @@ void L1RCTGenCalibrator::saveGenInfo(const reco::GenParticle* g_ , const edm::Ha
 
 void L1RCTGenCalibrator::bookHistograms()
 {
+  double deltaRbins[28];
+  
+  for(int i = 0; i < 28; ++i)
+    {
+      double delta_r, eta, phi;
+      phiValue(0,phi);
+      etaValue(i+1,eta);
+      deltaR(0,0,eta,phi,delta_r);
+
+      deltaRbins[i] = delta_r;
+    }
+
   putHist(hEvent = new TH1F("hEvent","Event Number",10000,0,10000));
   putHist(hRun = new TH1F("hRun","Run Number",10000,0,10000));
+
   putHist(hGenPhi = new TH1F("hGenPhi","Generator #phi",72, 0, 2*M_PI));
   putHist(hGenEta = new TH1F("hGenEta","Generator #eta",100,-6,6));
   putHist(hGenEt = new TH1F("hGenEt","Generator E_{T}", 1000,0,500));
@@ -191,6 +253,20 @@ void L1RCTGenCalibrator::bookHistograms()
   putHist(hGenEtavsTpgSumEta = new TH2F("hGenEtavsTpgSumEta","Generator Particle #eta vs. TPG Sum #eta Centroid",57,-5,5,57,-5,5));
   putHist(hGenPhivsRegionPhi = new TH2F("hGenPhivsRegionPhi","Generator Particle #phi vs. RCT Region #phi",72,0,2*M_PI,72,0,2*M_PI));
   putHist(hGenEtavsRegionEta = new TH2F("hGenEtavsRegionEta","Generator Particle #eta vs. RCT Region #eta",23,-5,5,23,-5,5));
+
+  for(int i = 0; i < 28; ++i)
+    {
+      putHist(hPhotonDeltaR95[i] = new TH1F(TString("hPhotonDeltaR95") += i, TString("Photon #DeltaR Containing 95% of E_{T} in #eta Bin: ") +=i, 28, deltaRbins));
+      putHist(hPionDeltaR95[i] = new TH1F(TString("hPhotonDeltaR95") += i, TString("Pion #DeltaR Containing 95% of E_{T} in #eta Bin: ") +=i, 28, deltaRbins));
+      
+      putHist(gPhotonEtvsGenEt[i] = new TGraph());
+      gPhotonEtvsGenEt[i]->SetName(TString("hPhotonEtvsGenEt") += i); 
+      gPhotonEtvsGenEt[i]->SetTitle(TString("Photon TPG Sum E_{T} vs. Generator E_{T}") += i);
+
+      for(int i = 0; i < 12; ++i)
+	{
+	}	      
+    }
 
   for(int i = 0; i < 12; ++i)
     {

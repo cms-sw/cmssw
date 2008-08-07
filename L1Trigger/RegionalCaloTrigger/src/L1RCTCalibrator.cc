@@ -470,13 +470,29 @@ double L1RCTCalibrator::sumEt(const double& eta, const double& phi, const std::v
       etaValue(i->ieta, tp_eta);
       phiValue(i->iphi, tp_phi);
 
-      deltaR(eta,uniPhi(phi),tp_eta,tp_phi,delta_r);
+      deltaR(eta,phi,tp_eta,tp_phi,delta_r);
 
       if(delta_r < dr)
 	{
 	  if(i->ecalE > .5 && ecal) sum += i->ecalEt;
 	  if(i->hcalE > .5 && hcal) sum += i->hcalEt;
 	}
+    }
+  return sum;
+}
+
+double L1RCTCalibrator::sumEt(const double& eta, const double& phi, const std::vector<region>& regs, const double& dr) const
+{
+  double sum = 0.0, delta_r, reta, rphi;
+
+  for(std::vector<region>::const_iterator i = regs.begin(); i != regs.end(); ++i)
+    {
+      rphi = l1Geometry()->emJetPhiBinCenter(i->iphi);
+      reta = l1Geometry()->globalEtaBinCenter(i->ieta);
+
+      deltaR(eta,phi,reta,rphi,delta_r);
+
+      if(delta_r < dr) sum += i->linear_et*rctParams()->jetMETLSB();
     }
   return sum;
 }
@@ -527,3 +543,4 @@ std::vector<L1RCTCalibrator::tpg> L1RCTCalibrator::tpgsNear(const double& eta, c
     }
   return result;
 }
+

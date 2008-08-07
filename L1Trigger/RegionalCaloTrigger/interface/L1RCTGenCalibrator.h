@@ -15,13 +15,14 @@
 //
 // Original Author:  pts/47
 //         Created:  Thu Jul 13 21:38:08 CEST 2006
-// $Id: L1RCTGenCalibrator.h,v 1.1 2008/08/06 15:49:27 lgray Exp $
+// $Id: L1RCTGenCalibrator.h,v 1.2 2008/08/07 17:05:12 lgray Exp $
 //
 //
 
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTCalibrator.h"
 #include "TH1F.h"
 #include "TH2F.h"
+#include "TGraph.h"
 
 // forward declarations
 namespace reco
@@ -37,7 +38,8 @@ class L1RCTGenCalibrator : public L1RCTCalibrator
 {
   typedef TH1F* TH1Fptr;
   typedef TH2F* TH2Fptr;
-
+  typedef TGraph* TGraphptr;
+  
   // condensed data structs
   struct generator
   {
@@ -88,8 +90,11 @@ private:
   TH1Fptr hDeltaEtPeakvsEtaBin_uc[12], hDeltaEtPeakvsEtaBin_c[12], hDeltaEtPeakRatiovsEtaBin[12], 
     hDeltaEtPeakvsEtaBinAllEt_uc, hDeltaEtPeakvsEtaBinAllEt_c, hDeltaEtPeakRatiovsEtaBinAllEt;
 
-  TH1Fptr hDeltaR95[12];
+  TH1Fptr hPhotonDeltaR95[28], hPionDeltaR95[28] ;
+  
   // histograms for algorithm
+  
+  TGraphptr gPhotonEtvsGenEt[28];
 
 };
 

@@ -34,7 +34,7 @@ Debug levels: (feel free to add more in your derived classes!) requires you to u
 //
 // Original Author:  pts/47
 //         Created:  Thu Jul 13 21:38:08 CEST 2006
-// $Id: L1RCTCalibrator.h,v 1.3 2008/08/06 15:49:27 lgray Exp $
+// $Id: L1RCTCalibrator.h,v 1.4 2008/08/07 17:05:12 lgray Exp $
 //
 //
 
@@ -174,6 +174,7 @@ protected:
 				      const bool& ecal = true, const bool& hcal = true) const;
   // returns the sum of tpg Et near the point (eta,phi) within a specified delta R, 
   // can choose to only give ecal or hcal sum through bools
+  double sumEt(const double& eta, const double& phi, const std::vector<region>&, const double& dr = .5) const;
   double sumEt(const double& eta, const double& phi, const std::vector<tpg>&, const double& dr = .5, 
 	       const bool& ecal = true, const bool& hcal = true) const;
   // returns energy weighted average of Eta
