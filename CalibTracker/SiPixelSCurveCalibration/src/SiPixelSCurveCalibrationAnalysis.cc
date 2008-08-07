@@ -38,7 +38,7 @@ void SiPixelSCurveCalibrationAnalysis::makeThresholdSummary(void){
     //loop over all rows on columns on all ROCs 
     for (int irow=0; irow<total_rows; ++irow){
       for (int icol=0; icol<total_columns; ++icol){
-	float threshold_error = sigmahist->getBinContent(icol,irow);
+	float threshold_error = sigmahist->getBinContent(icol+1,irow+1); // +1 because root bins start at 1
        	if(writeZeroes_ ||(!writeZeroes_ && threshold_error>0)){	     
 	  //changing from offline to online numbers
 	  int realfedID=-1;
@@ -67,7 +67,7 @@ void SiPixelSCurveCalibrationAnalysis::makeThresholdSummary(void){
 	  sipixelobjects::LocalPixel locpixel(loc);
 	  int newrow= locpixel.rocRow();
 	  int newcol = locpixel.rocCol();
-	  myfile<<rocname<<theRoc->idInDetUnit()<<" "<<newcol<<" "<<newrow<<" "<<thresholdhist->getBinContent(icol, irow)<<" "<<threshold_error;
+	  myfile<<rocname<<theRoc->idInDetUnit()<<" "<<newcol<<" "<<newrow<<" "<<thresholdhist->getBinContent(icol+1, irow+1)<<" "<<threshold_error;  // +1 because root bins start at 1
 	  myfile<<"\n";
 	}
       }
@@ -375,15 +375,15 @@ bool SiPixelSCurveCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixe
       //always fill fit result
       (*thisDetIdHistoGrams).second[kFitResultSummary]->Fill(errorFlag);
       if (write2dFitResult_)
-         (*thisDetIdHistoGrams).second[kFitResults]->setBinContent(col, row, errorFlag);
+         (*thisDetIdHistoGrams).second[kFitResults]->setBinContent(col+1, row+1, errorFlag); // +1 because root bins start at 1
 
       // fill sigma/threshold result
       (*thisDetIdHistoGrams).second[kSigmaSummary]->Fill(sigma);
       (*thisDetIdHistoGrams).second[kThresholdSummary]->Fill(threshold);
       if (write2dHistograms_)
       {
-         (*thisDetIdHistoGrams).second[kSigmas]->setBinContent(col, row, sigma);
-         (*thisDetIdHistoGrams).second[kThresholds]->setBinContent(col, row, threshold);
+         (*thisDetIdHistoGrams).second[kSigmas]->setBinContent(col+1, row+1, sigma); // +1 because root bins start at 1
+         (*thisDetIdHistoGrams).second[kThresholds]->setBinContent(col+1, row+1, threshold); // +1 because root bins start at 1
       }
       // fill chi2
       (*thisDetIdHistoGrams).second[kChi2Summary]->Fill(chi2probability);
