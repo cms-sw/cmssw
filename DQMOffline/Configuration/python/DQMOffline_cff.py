@@ -16,3 +16,4 @@ DQMOffline = cms.Sequence(SiStripDQMTier0*ecal_dqm_source_offline7*muonCosmicMon
 DQMOffline_woHcal = cms.Sequence(SiStripDQMTier0*ecal_dqm_source_offline7*muonCosmicMonitors*jetMETAnalyzer)
 
 DQMOffline_noHLT = cms.Sequence(SiStripDQMTier0*ecal_dqm_source_offline7*muonCosmicMonitors*jetMETAnalyzer*hcalOfflineDQMSource)
+DQMOffline_woHcal_noHLT = cms.Sequence(SiStripDQMTier0*ecal_dqm_source_offline7*muonCosmicMonitors*jetMETAnalyzer)
