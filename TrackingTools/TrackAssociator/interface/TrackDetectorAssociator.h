@@ -14,7 +14,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackDetectorAssociator.h,v 1.12 2007/10/08 13:04:32 dmytro Exp $
+// $Id: TrackDetectorAssociator.h,v 1.13.2.1 2008/08/07 00:45:13 dmytro Exp $
 //
 //
 
@@ -54,6 +54,7 @@ class TrackDetectorAssociator {
    ~TrackDetectorAssociator();
    
    typedef TrackAssociatorParameters AssociatorParameters;
+   enum Direction { Any, InsideOut, OutsideIn };
    
    /// propagate a track across the whole detector and
    /// find associated objects. Association is done in
@@ -83,7 +84,8 @@ class TrackDetectorAssociator {
    TrackDetMatchInfo            associate( const edm::Event&,
 					   const edm::EventSetup&,
 					   const reco::Track&,
-					   const AssociatorParameters& );
+					   const AssociatorParameters&,
+					   Direction direction = Any );
    /// associate using a simulated track
    TrackDetMatchInfo            associate( const edm::Event&,
 					   const edm::EventSetup&,
@@ -114,6 +116,9 @@ class TrackDetectorAssociator {
 						      const GlobalVector&,
 						      const GlobalPoint&,
 						      const int);
+        
+   static bool                crossedIP(const reco::Track& track);
+
  private:
    DetIdAssociator::MapRange getMapRange( const std::pair<float,float>& delta,
 					  const float dR );

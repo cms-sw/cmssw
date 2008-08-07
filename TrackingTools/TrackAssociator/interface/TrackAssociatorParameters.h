@@ -13,7 +13,7 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: TrackAssociatorParameters.h,v 1.3.4.1 2007/10/08 10:28:17 dmytro Exp $
+// $Id: TrackAssociatorParameters.h,v 1.4.2.1 2008/05/22 23:21:53 dmytro Exp $
 //
 //
 
@@ -71,5 +71,6 @@ class TrackAssociatorParameters {
    edm::InputTag theCSCSegmentCollectionLabel;
    
    CrossedEnergyAlgorithmType crossedEnergyType;
+   bool propagateAllDirections; // needs TrackExtra if set true
 };
 #endif
