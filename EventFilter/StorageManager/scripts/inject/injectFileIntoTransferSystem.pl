@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: injectFileIntoTransferSystem.pl,v 1.22 2008/08/07 07:47:21 loizides Exp $
+# $Id: injectFileIntoTransferSystem.pl,v 1.23 2008/08/07 07:59:43 loizides Exp $
 
 use strict;
 use DBI;
@@ -34,7 +34,7 @@ sub usage
   You therefore must be sure about all options before you run this script.
 
   Required parameters for injecting files to be transferred:
-  $0 --filename file --path path  --type type --hostname host [--destination default] [--filesize size]
+  $0 --filename file --path path --type type [--destination default] [--filesize size] [--hostname host]
  
   Filename and path to file on the given host point to the file to be transferred.
 
@@ -47,14 +47,15 @@ sub usage
     - Lumi files require runnumber, lumisection, appname, and appversion. 
     - DQM files  require runnumber, lumisection, appname, and appversion.
 
-  Hostname is the host on which the file is found. (This could be the name as returned by the
-  `hostname` command. Supported hosts for copies: cms-tier0-stage, cmsdisk1, cmsmon, 
-  vmepcS2B18-39 (tracker node) and the Storage Manager nodes.
+  Destination determines where the file goes on Tier0. It wil be set to default if not set by 
+  user. 
 
-  Destination determines where file goes on Tier0. It is set to default if not set by user.
+  Filesize [in Bytes] is required. Since in most case submitting host is where the file resides 
+  the filesize will be determined automatically.
 
-  Filesize in Bytes is required. In case the submitting host is where the file resides filesize 
-  will be determined automatically.
+  Hostname is the host on which the file is found. By default, this will be set to the name as 
+  returned by the `hostname` command. Supported hosts for copies are: cms-tier0-stage, cmsdisk1, 
+  cmsmon, vmepcS2B18-39 (tracker node) and the Storage Manager nodes.
  
   --------------------------------------------------------------------------------------------
   If you are not sure about what you are doing please send an inquiry to hn-tier0-ops\@cern.ch.
@@ -145,7 +146,7 @@ my ($appname, $appversion, $nevents, $checksum, $setuplabel, $check);
 $help        = 0;
 $debug       = 0;
 $test        = 0;
-$hostname    = '';
+$hostname    = 'unset';
 $filename    = ''; 
 $pathname    = '';
 $destination = '';
@@ -282,7 +283,7 @@ if($check) {
     unless($result[0]) {print "File not found in database.\n"; exit;}
     unless($result[1]) {print "FILES_CREATED: File found in database but not passed over to T0 system.\n";              exit 0;}
     unless($result[2]) {print "FILES_INJECTED: File found in database and handed over to T0 system.\n";                 exit 0;}
-    unless($result[3]) {print "FILES_TRANS_NEW: File found in database and being processed by T0 system.\n";                  exit 0;}
+    unless($result[3]) {print "FILES_TRANS_NEW: File found in database and being processed by T0 system.\n";            exit 0;}
     unless($result[4]) {print "FILES_TRANS_COPIED: File found in database and copied by T0 system.\n";                  exit 0;}
     unless($result[5]) {print "FILES_TRANS_CHECKED: File found in database and checked by T0 system.\n";                exit 0;}
     unless($result[6]) {print "FILES_TRANS_INSERTED: File found in database and sucessfully processed by T0 system.\n"; exit 0;}
@@ -297,35 +298,28 @@ unless($pathname) {
     usageShort();
 }
 
-# try to match hostname to alias
-$hostname = 'cms-tier0-stage' if $hostname eq 'srv-S2C17-01';
-$hostname = 'cmsdisk1'        if $hostname eq 'srv-C2D05-02';
-$hostname = 'cmsmon'          if $hostname eq 'srv-c2d17-02.cms';
+# try to match hostname and alias
+$hostname = hostname()         if $hostname eq 'unset';
+$hostname = 'srv-S2C17-01'     if $hostname eq 'cms-tier0-stage';
+$hostname = 'srv-C2D05-02'     if $hostname eq 'cmsdisk1';
+$hostname = 'srv-c2d17-02.cms' if $hostname eq 'cmsmon';
 
-unless($hostname eq 'cmsdisk1'         || 
-       $hostname eq 'cmsmon'           || 
-       $hostname eq 'cms-tier0-stage'  || 
-       $hostname eq 'vmepcS2B18-39'    ||
-       $hostname =~ 'srv-c2c07-'       || 
+unless($hostname eq 'srv-S2C17-01'      || 
+       $hostname eq 'srv-C2D05-02'      || 
+       $hostname eq 'srv-c2d17-02.cms'  || 
+       $hostname eq 'vmepcS2B18-39'     ||
        $hostname =~ 'srv-C2C07-') { 
     print "Error: Hostname not valid. Must be one of cms-tier0-stage, cmsdisk1, cmsmon or vmepcS2B18-39.\n";
     usageShort();
 }
 
-# try to verify if file can be found on host
-my $thostname = $hostname;
-$thostname = 'srv-S2C17-01'     if $hostname eq 'cms-tier0-stage';
-$thostname = 'srv-C2D05-02'     if $hostname eq 'cmsdisk1';
-$thostname = 'srv-c2d17-02.cms' if $hostname eq 'cmsmon';
-
-if(hostname() eq $thostname && !(-e "$pathname/$filename")) {
+if(hostname() eq $hostname && !(-e "$pathname/$filename")) {
     print "Error: Hostname = this machine, but file does not exist, exiting!\n";
     usageShort();
-} elsif(hostname() ne $thostname && (-e "$pathname/$filename")) {
+} elsif(hostname() ne $hostname && (-e "$pathname/$filename")) {
     print "Error: Hostname != this machine, but file exists on this host, exiting!\n";
     usageShort();
 }
-
 
 # if we are running this on same host as the file can find out filesize as a fallback
 unless($filesize) {
@@ -530,7 +524,7 @@ if ($test==0) {
 if ($test==0) {
     my $T0out;
     if($rowsCreate==1 && $rowsInject==1) {
-        print "DB inserts completed, running Tier 0 notification script \n";
+        print "DB inserts completed, running Tier 0 notification script.\n";
         $T0out=`$TIERZERO 2>&1`;
         if($T0out =~ /Connection established/ ) {
             print "File sucessfully submitted for transfer.\n";
