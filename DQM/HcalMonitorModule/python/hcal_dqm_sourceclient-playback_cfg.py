@@ -73,9 +73,14 @@ process.hcalClient.CaloTowerClient = False
 process.hcalClient.LEDClient = False
 process.hcalClient.PedestalClient = False
 process.hcalClient.baseHtmlDir = ''
-process.GlobalTag.connect = 'frontier://Frontier/CMS_COND_20X_GLOBALTAG' ##Frontier/CMS_COND_20X_GLOBALTAG" 
 
-process.GlobalTag.globaltag = 'CRUZET2_V2HLT::All'
+
+# Old tags don't seem to work; replace with STARTUP_V4 until given updated tags
+process.GlobalTag.connect = 'frontier://Frontier/CMS_COND_21X_GLOBALTAG'
+process.GlobalTag.globaltag = 'STARTUP_V4::All'
+#process.GlobalTag.connect = 'frontier://Frontier/CMS_COND_20X_GLOBALTAG' ##Frontier/CMS_COND_20X_GLOBALTAG" 
+#process.GlobalTag.globaltag = 'CRUZET2_V2HLT::All'
+
 process.dqmSaver.convention = 'Online'
 #replace dqmSaver.dirName          = "."
 process.dqmSaver.producer = 'DQM'

@@ -52,6 +52,8 @@ process.source = cms.Source("EventStreamHttpReader",
 process.p = cms.Path(process.hcalDigis*process.horeco*process.hfreco*process.hbhereco*process.hcalMonitor*process.hcalClient*process.dqmEnv*process.dqmSaver)
 process.DQM.collectorHost = 'myhost'
 process.DQM.collectorPort = 9092
+
+# hcalMonitor configurable values -- toggle individual modules on/off
 process.hcalMonitor.DataFormatMonitor = True
 process.hcalMonitor.DigiMonitor = True
 process.hcalMonitor.HotCellMonitor = True
@@ -63,6 +65,8 @@ process.hcalMonitor.PedestalMonitor = False
 process.hcalMonitor.LEDMonitor = False
 process.hcalMonitor.CaloTowerMonitor = False
 process.hcalMonitor.HcalAnalysis = False
+
+# hcalClient configurable values -- toggle individual modules on/off
 process.hcalClient.DataFormatClient = True
 process.hcalClient.DigiClient = True
 process.hcalClient.RecHitClient = True
@@ -74,8 +78,13 @@ process.hcalClient.LEDClient = False
 process.hcalClient.PedestalClient = False
 process.hcalClient.baseHtmlDir = ''
 
-process.GlobalTag.globaltag = 'CRUZET2_V2::All'
-process.GlobalTag.connect = 'frontier://Frontier/CMS_COND_20X_GLOBALTAG' ##Frontier/CMS_COND_20X_GLOBALTAG" 
+
+# Old tags don't seem to work; replace with STARTUP_V4 until given updated tags
+process.GlobalTag.connect = 'frontier://Frontier/CMS_COND_21X_GLOBALTAG'
+process.GlobalTag.globaltag = 'STARTUP_V4::All'
+
+#process.GlobalTag.globaltag = 'CRUZET2_V2::All'
+#process.GlobalTag.connect = 'frontier://Frontier/CMS_COND_20X_GLOBALTAG' ##Frontier/CMS_COND_20X_GLOBALTAG" 
 
 process.dqmSaver.convention = 'Online'
 #replace dqmSaver.dirName          = "."
