@@ -171,6 +171,7 @@ namespace edm {
 
       { sJobReady,      mStopAsync,      sJobReady },
       { sJobReady,      mCountComplete,  sJobReady },
+      { sJobReady,      mFinished,       sJobReady },
 
       { sRunGiven,      mException,      sError },
       { sRunGiven,      mRunAsync,       sRunning },
