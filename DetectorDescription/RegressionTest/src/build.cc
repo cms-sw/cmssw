@@ -221,7 +221,7 @@ void output(string filename)
 }
 
 #include "DetectorDescription/Parser/interface/DDLParser.h"
-#include "DetectorDescription/Parser/interface/DDLConfiguration.h"
+#include "DetectorDescription/Parser/interface/FIPConfiguration.h"
 #include "DetectorDescription/Algorithm/src/AlgoInit.h"
 void testParser()
 {
@@ -234,8 +234,8 @@ void testParser()
 
     cout << "main::about to set configuration" << endl;
     //    myP->SetConfig("configuration.xml");
-    DDLConfiguration cf;
-    cf.readConfig("configuration.xml");
+    FIPConfiguration cf;
+    cf.readConfig("DetectorDescription/RegressionTest/test/configuration.xml");
 
     cout << "main::about to start parsing" << endl;
  
