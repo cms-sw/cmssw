@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.23 2008/05/30 11:36:54 jribnik Exp $
+// $Id: MuonIdProducer.cc,v 1.20.2.1 2008/08/07 01:00:33 dmytro Exp $
 //
 //
 
@@ -320,39 +320,60 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       LogTrace("MuonIdentification") << "Creating tracker muons";
       for ( unsigned int i = 0; i < innerTrackCollectionHandle_->size(); ++i )
 	{
-	   if ( ! isGoodTrack( innerTrackCollectionHandle_->at(i) ) ) continue;
-	   
-	   // make muon
-	   // timers.push("MuonIdProducer::produce::fillMuonId");
-	   reco::Muon trackerMuon( makeMuon(iEvent, iSetup, reco::TrackRef( innerTrackCollectionHandle_, i ), InnerTrack ) );
-	   trackerMuon.setType( reco::Muon::TrackerMuon );
-	   fillMuonId(iEvent, iSetup, trackerMuon);
-	   if ( ! isGoodTrackerMuon( trackerMuon ) ){
-	      LogTrace("MuonIdentification") << "track failed minimal number of muon matches requirement";
-	      continue;
+	   const reco::Track& track = innerTrackCollectionHandle_->at(i);
+	   if ( ! isGoodTrack( track ) ) continue;
+	   bool splitTrack = false;
+	   if ( track.extra().isAvailable() && 
+		TrackDetectorAssociator::crossedIP( track ) ) splitTrack = true;
+	   std::vector<TrackDetectorAssociator::Direction> directions;
+	   if ( splitTrack ) {
+	      directions.push_back(TrackDetectorAssociator::InsideOut);
+	      directions.push_back(TrackDetectorAssociator::OutsideIn);
+	   } else {
+	      directions.push_back(TrackDetectorAssociator::Any);
 	   }
-	   // timers.pop();
+	   for ( std::vector<TrackDetectorAssociator::Direction>::const_iterator direction = directions.begin();
+		 direction != directions.end(); ++direction )
+	     {
+		// make muon
+		// timers.push("MuonIdProducer::produce::fillMuonId");
+		reco::Muon trackerMuon( makeMuon(iEvent, iSetup, reco::TrackRef( innerTrackCollectionHandle_, i ), InnerTrack ) );
+		trackerMuon.setType( reco::Muon::TrackerMuon );
+		fillMuonId(iEvent, iSetup, trackerMuon, *direction);
+		if ( ! isGoodTrackerMuon( trackerMuon ) ){
+		   LogTrace("MuonIdentification") << "track failed minimal number of muon matches requirement";
+		   continue;
+		}
+		// timers.pop();
 	  
-	   if ( debugWithTruthMatching_ ) {
-	      // add MC hits to a list of matched segments. 
-	      // Since it's debugging mode - code is slow
-	      MuonIdTruthInfo::truthMatchMuon(iEvent, iSetup, trackerMuon);
-	   }
+		if ( debugWithTruthMatching_ ) {
+		   // add MC hits to a list of matched segments. 
+		   // Since it's debugging mode - code is slow
+		   MuonIdTruthInfo::truthMatchMuon(iEvent, iSetup, trackerMuon);
+		}
 	  
-	   // check if this muon is already in the list
-	   bool newMuon = true;
-	   for ( reco::MuonCollection::iterator muon = outputMuons->begin();
-		 muon !=  outputMuons->end(); ++muon )
-	     if ( muon->track().get() == trackerMuon.track().get() ) {
-		newMuon = false;
-		muon->setMatches( trackerMuon.matches() );
-		muon->setTime( trackerMuon.time() );
-		muon->setCalEnergy( trackerMuon.calEnergy() );
-		muon->setType( muon->type() | reco::Muon::TrackerMuon );
-		LogTrace("MuonIdentification") << "Found a corresponding global muon. Set energy, matches and move on";
-		break;
+		// check if this muon is already in the list
+		// have to check where muon hits are really located
+		// to match properly
+		bool newMuon = true;
+		for ( reco::MuonCollection::iterator muon = outputMuons->begin();
+		      muon !=  outputMuons->end(); ++muon )
+		  {
+		     if ( muon->track().get() == trackerMuon.track().get() &&
+			  cos(phiOfMuonIneteractionRegion(*muon) - 
+			      phiOfMuonIneteractionRegion(trackerMuon)) > 0 )
+		       {
+			  newMuon = false;
+			  muon->setMatches( trackerMuon.matches() );
+			  muon->setTime( trackerMuon.time() );
+			  muon->setCalEnergy( trackerMuon.calEnergy() );
+			  muon->setType( muon->type() | reco::Muon::TrackerMuon );
+			  LogTrace("MuonIdentification") << "Found a corresponding global muon. Set energy, matches and move on";
+			  break;
+		       }
+		  }
+		if ( newMuon ) outputMuons->push_back( trackerMuon );
 	     }
-	   if ( newMuon ) outputMuons->push_back( trackerMuon );
 	}
    }
    
@@ -405,8 +426,20 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	// Fill muonID
 	// timers.push("MuonIdProducer::produce::fillMuonId");
 	if ( ( fillMatching_ && ! muon->isMatchesValid() ) || 
-	     ( fillEnergy_ && !muon->isEnergyValid() ) ) fillMuonId(iEvent, iSetup, *muon);
-	// timers.pop();
+	     ( fillEnergy_ && !muon->isEnergyValid() ) )
+	  {
+	     // predict direction based on the muon interaction region location 
+	     // if it's available
+	     if ( muon->isStandAloneMuon() ) {
+		if ( cos(phiOfMuonIneteractionRegion(*muon) - muon->phi()) > 0 )
+		  fillMuonId(iEvent, iSetup, *muon, TrackDetectorAssociator::InsideOut);
+		else
+		  fillMuonId(iEvent, iSetup, *muon, TrackDetectorAssociator::OutsideIn);
+	     } else {
+		LogTrace("MuonIdentification") << "THIS SHOULD NEVER HAPPEN";
+		fillMuonId(iEvent, iSetup, *muon);
+	     }
+	  }
 	
 	// timers.push("MuonIdProducer::produce::fillCaloCompatibility");
 	if ( fillCaloCompatibility_ ) muon->setCaloCompatibility( muonCaloCompatibility_.evaluate(*muon) );
@@ -556,7 +589,8 @@ bool MuonIdProducer::isGoodTrackerMuon( const reco::Muon& muon )
 }
 
 void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetup,
-				reco::Muon& aMuon)
+				reco::Muon& aMuon, 
+				TrackDetectorAssociator::Direction direction)
 {
    // perform track - detector association
    const reco::Track* track = 0;
@@ -569,8 +603,8 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
 	else
 	  throw cms::Exception("FatalError") << "Failed to fill muon id information for a muon with undefined references to tracks"; 
      }
-
-     TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup, *track, parameters_);
+   
+   TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup, *track, parameters_, direction);
    
    if ( fillEnergy_ ) {
       reco::MuonEnergy muonEnergy;
@@ -842,3 +876,29 @@ reco::Muon MuonIdProducer::makeMuon( const reco::Track& track )
 			      energy);
    return reco::Muon( track.charge(), p4, track.vertex() );
 }
+
+double MuonIdProducer::sectorPhi( const DetId& id )
+{
+   double phi = 0;
+   if( id.subdetId() ==  MuonSubdetId::DT ) {    // DT
+      DTChamberId muonId(id.rawId());
+      if ( muonId.sector() <= 12 )
+	phi = (muonId.sector()-1)/6.*M_PI;
+      if ( muonId.sector() == 13 ) phi = 3/6.*M_PI;
+      if ( muonId.sector() == 14 ) phi = 9/6.*M_PI;
+   }
+   if( id.subdetId() == MuonSubdetId::CSC ) {    // CSC
+      CSCDetId muonId(id.rawId());
+      phi = M_PI/4+(muonId.triggerSector()-1)/3.*M_PI;
+   }
+   if ( phi > M_PI ) phi -= 2*M_PI; 
+   return phi; 
+}
+
+double MuonIdProducer::phiOfMuonIneteractionRegion( const reco::Muon& muon ) const
+{
+   if ( muon.isStandAloneMuon() ) return muon.standAloneMuon()->innerPosition().phi();
+   // the rest is tracker muon only
+   return sectorPhi(muon.matches().at(0).id);
+}
+
