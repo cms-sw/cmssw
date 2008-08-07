@@ -25,6 +25,7 @@ import sys
 import os
 import re
 import optparse as opt 
+import operator
 
 ################
 # Global variables
@@ -384,36 +385,31 @@ def setInputFile(steps,step,acandle,stepIndex,OutputStep="",qcd=False):
 
     return InputFileOption
 
-def writeUnprofiledStep(simcandles,CustomisePythonFragment, cmsDriverOptions,step,acandle,NumberOfEvents, AllSteps, stepIndex):
+def writeUnprofiledSteps(simcandles,CustomisePythonFragment,cmsDriverOptions,unprofiledSteps,acandle,NumberOfEvents, AllSteps, stepIndex):
 
-    simcandles.write("\n#Run a %s step that has not been selected for profiling but is needed to run the next step\n" % (step))
-    OutputFileOption = "--fileout=%s_%s.root" % ( FileName[acandle],step)
+    stepsStr = ",".join(unprofiledSteps)
 
-    InputFileOption = setInputFile(AllSteps,step,acandle,stepIndex)
+    simcandles.write("\n#Run a %s step(s) that has not been selected for profiling but is needed to run the next step to be profiled\n" % (stepsStr))
+    OutputFileOption = "--fileout=%s_%s.root" % ( FileName[acandle],unprofiledSteps[-1])
+
+    InputFileOption = setInputFile(AllSteps,unprofiledSteps[0],acandle,stepIndex)
 
     Command = ("%s %s -n %s --step=%s %s %s --customise=%s %s"
                        % (cmsDriver,
                           KeywordToCfi[acandle],
                           NumberOfEvents,
-                          step,
+                          stepsStr,
                           InputFileOption,
                           OutputFileOption,
                           CustomisePythonFragment,
                           cmsDriverOptions) )
     simcandles.write( "%s @@@ None @@@ None\n\n" % (Command))
 
-def writePrerequisteSteps(simcandles,steps,AllSteps,stepIndex,acandle,NumberOfEvents,cmsDriverOptions):
-
-    stepIndex = 0
-    startUserSteps = getFstIndex(steps[0],AllSteps)
-    fstIdx = startUserSteps
-    for x in range(0,fstIdx,1):
-        step = AllSteps[x]
-        #(Profile , SavedProfile) = determineNewProfile(step,Profile,SavedProfile)
-        CustomisePythonFragment = pythonFragment(step)
-        writeUnprofiledStep(simcandles, CustomisePythonFragment, cmsDriverOptions,step,acandle,NumberOfEvents, AllSteps, stepIndex)
-        stepIndex += 1
-    return stepIndex
+def writePrerequisteSteps(simcandles,steps,AllSteps,acandle,NumberOfEvents,cmsDriverOptions):
+    fstIdx = getFstIndex(steps[0],AllSteps) 
+    CustomisePythonFragment = pythonFragment("GEN,SIM")
+    writeUnprofiledSteps(simcandles, CustomisePythonFragment, cmsDriverOptions,AllSteps[0:fstIdx],acandle,NumberOfEvents, AllSteps, 0)        
+    return fstIdx
 
 def writeCommands(simcandles,
                  Profile,
@@ -436,7 +432,7 @@ def writeCommands(simcandles,
 
     if not qcd :
         if not (steps[0] == AllSteps[0]):
-            stepIndex = writePrerequisteSteps(simcandles,steps,AllSteps,stepIndex,acandle,NumberOfEvents,cmsDriverOptions)
+            stepIndex = writePrerequisteSteps(simcandles,steps,AllSteps,acandle,NumberOfEvents,cmsDriverOptions)
             start = getFstIndex(steps[0],AllSteps)
             lst   = getLstIndex(steps[-1],AllSteps)
             steps = AllSteps
@@ -444,7 +440,7 @@ def writeCommands(simcandles,
             numOfSteps = (lst - start) + 1
             stopIndex = start + numOfSteps
 
-
+    unprofiledSteps = []
 #   FOR step in steps
     for x in range(start,stopIndex,1):
         step = steps[x]
@@ -516,9 +512,22 @@ def writeCommands(simcandles,
 
                 if debug:
                     print InputFileOption, step, 'GEN,SIM' in step, 'HTL' in steps[stepIndex - 1], steps
-                    print "cmsDriveroptions : " + cmsDriverOptions
+                    print "cmsDriveroptions : " + cmsDriverOption
         else:
-            writeUnprofiledStep(simcandles,CustomisePythonFragment, cmsDriverOptions,step,acandle,NumberOfEvents, AllSteps, stepIndex)
+            unprofiledSteps.append(step)
+            isNextStepForProfile = False # Just an initialization for scoping. don't worry about it being false
+            try:
+                isNextStepForProfile = steps[x + 1] in userSteps
+            except IndexError:
+                # This loop should have terminated if x + 1 is out of bounds!
+                print "Error: Something is wrong we shouldn't have come this far"
+                break
+
+            if isNextStepForProfile:
+                writeUnprofiledSteps(simcandles,CustomisePythonFragment,cmsDriverOptions,unprofiledSteps,acandle,NumberOfEvents, AllSteps, stepIndex)
+                unprofiledSteps = []
+                
+                
                 
         stepIndex +=1
 
