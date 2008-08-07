@@ -1,0 +1,12 @@
+import FWCore.ParameterSet.Config as cms
+
+from Validation.RecoMuon.tpToGlbTrackAssociation_cfi import *
+from Validation.RecoMuon.tpToStaTrackAssociation_cfi import *
+import Validation.RecoMuon.tpToGlbTrackAssociation_cfi
+tpToGlbTrackAssociationPos = Validation.RecoMuon.tpToGlbTrackAssociation_cfi.tpToGlbTrackAssociation.clone()
+import Validation.RecoMuon.tpToStaTrackAssociation_cfi
+tpToStaTrackAssociationPos = Validation.RecoMuon.tpToStaTrackAssociation_cfi.tpToStaTrackAssociation.clone()
+muonTrackTPMatchSequence = cms.Sequence(tpToGlbTrackAssociation+tpToStaTrackAssociation+tpToGlbTrackAssociationPos+tpToStaTrackAssociationPos)
+tpToGlbTrackAssociationPos.associator = 'TrackAssociatorByPosition'
+tpToStaTrackAssociationPos.associator = 'TrackAssociatorByPosition'
+
