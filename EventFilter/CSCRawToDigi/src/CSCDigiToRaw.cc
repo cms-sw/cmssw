@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/08/01 02:38:08 $
- *  $Revision: 1.29 $
+ *  $Date: 2008/08/04 18:27:21 $
+ *  $Revision: 1.30 $
  *  \author A. Tumanov - Rice
  */
 
@@ -206,9 +206,10 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
         // get ddu id based on ChamberId from mapping
 
         int dduId = mapping->ddu(chamberItr->first);
+        int dduSlot = mapping->dduSlot(chamberItr->first);
         int dmbId = mapping->dmb(chamberItr->first);
 
-        dccMapItr->second.addChamber(chamberItr->second, dduId, dmbId);
+        dccMapItr->second.addChamber(chamberItr->second, dduId, dduSlot, dmbId);
       }
     }
   }
