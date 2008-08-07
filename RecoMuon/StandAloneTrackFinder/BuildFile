@@ -5,6 +5,7 @@
 <use name=RecoMuon/MeasurementDet>
 <use name=RecoMuon/DetLayers>
 
+<use name=TrackingTools/TrackRefitter>
 <use name=TrackingTools/KalmanUpdators>
 <use name=TrackingTools/TransientTrackingRecHit>
 
