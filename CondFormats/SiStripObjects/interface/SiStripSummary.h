@@ -19,14 +19,16 @@ namespace sistripsummary {
 		       TIB_1 = 11, TIB_2 = 12, TIB_3 = 13, TIB_4 = 14,
 		       TOB = 2, 
 		       TOB_1 = 21, TOB_2 = 22, TOB_3 = 23, TOB_4 = 24, TOB_5 = 25, TOB_6 = 26, 
-		       TIDP = 3, 
-		       TIDP_1 = 31, TIDP_2 = 32, TIDP_3 = 33,
-		       TIDM = 4, 
-		       TIDM_1 = 41, TIDM_2 = 42, TIDM_3 = 43,
-		       TECP = 4, 
-		       TECP_1 = 41, TECP_2 = 42, TECP_3 = 43, TECP_4 = 44, TECP_5 = 45, TECP_6 = 46, TECP_7 = 47, TECP_8 = 48, TECP_9 = 49,
-		       TECM = 5, 
-		       TECM_1 = 51, TECM_2 = 52, TECM_3 = 53, TECM_4 = 54, TECM_5 = 55, TECM_6 = 56, TECM_7 = 57, TECM_8 = 58, TECM_9 = 59
+		       TID = 3, 
+		       TIDM = 31, 
+		       TIDP = 32, 
+		       TIDM_1 = 311, TIDM_2 = 312, TIDM_3 = 313,
+		       TIDP_1 = 321, TIDP_2 = 322, TIDP_3 = 323,
+		       TEC = 4, 
+		       TECM = 41, 
+		       TECP = 42, 
+		       TECM_1 = 411, TECM_2 = 412, TECM_3 = 413, TECM_4 = 414, TECM_5 = 415, TECM_6 = 416, TECM_7 = 417, TECM_8 = 418, TECM_9 = 419,
+		       TECP_1 = 421, TECP_2 = 422, TECP_3 = 423, TECP_4 = 424, TECP_5 = 425, TECP_6 = 426, TECP_7 = 427, TECP_8 = 428, TECP_9 = 429
   };
 }
 
