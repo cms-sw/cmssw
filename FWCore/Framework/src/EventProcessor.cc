@@ -1191,8 +1191,6 @@ namespace edm {
     FDEBUG(2) << "asyncRun starting ......................\n";
 
     try {
-      // rc = me->processInputFiles(-1, false, mRunAsync);
-
       bool onlineStateTransitions = true;
       rc = me->runToCompletion(onlineStateTransitions);
     }
@@ -1328,6 +1326,29 @@ namespace edm {
 
         FDEBUG(1) << "itemType = " << itemType << "\n";
 
+        // These are used for asynchronous running only and
+        // and are checking to see if stopAsync or shutdownAsync
+        // were called from another thread.  In the future, we
+        // may need to do something better than polling the state.
+        // With the current code this is the simplest thing and
+        // it should always work.  If the interaction between
+        // threads becomes more complex this may cause problems.
+        if (state_ == sStopping) {
+          FDEBUG(1) << "In main processing loop, encountered sStopping state\n";
+          forceLooperToEnd_ = true;
+          machine_->process_event(statemachine::Stop());
+          forceLooperToEnd_ = false;
+          break;
+        }
+        else if (state_ == sShuttingDown) {
+          FDEBUG(1) << "In main processing loop, encountered sShuttingDown state\n";
+          forceLooperToEnd_ = true;
+          machine_->process_event(statemachine::Stop());
+          forceLooperToEnd_ = false;
+          break;
+        }
+
+        // Look for a shutdown signal
         {
           boost::mutex::scoped_lock sl(usr2_lock);
           if (edm::shutdown_flag) {
