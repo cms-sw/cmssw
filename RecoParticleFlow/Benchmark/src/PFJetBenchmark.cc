@@ -182,7 +182,7 @@ void PFJetBenchmark::process(const reco::PFJetCollection& pfJets, const reco::Ge
     if(!truth) continue;   
     double deltaR = algo_->deltaR(&pfj, truth);
     // check deltaR is small enough
-    if(deltaR < deltaRMax_) {//start case deltaR < deltaRMax
+    if(deltaR < deltaRMax_ || deltaRMax_ == -1.0 ) {//start case deltaR < deltaRMax
       // generate histograms comparing the reco and truth candidate (truth = closest in delta-R) 
       // get the quantities to place on the denominator and/or divide by
       double pt_denom;

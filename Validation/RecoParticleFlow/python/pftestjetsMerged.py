@@ -48,10 +48,10 @@ process.maxEvents = cms.untracked.PSet(
 process.pfAnalyzer = cms.EDAnalyzer("PFBenchmarkAnalyzer",
     OutputFile = cms.untracked.string('PFJetTester_data.root'),
     InputTruthLabel = cms.string('iterativeCone5GenJets'),
-    maxEta = cms.double(2.0),
-    recPt = cms.double(-1.0),
+    maxEta = cms.double(3.0),
+    recPt = cms.double(10.0),
     deltaRMax = cms.double(0.2),
-    PlotAgainstRecoQuantities = cms.bool(True),
+    PlotAgainstRecoQuantities = cms.bool(False),
     BenchmarkLabel = cms.string('ParticleFlow'),
     InputRecoLabel = cms.string('iterativeCone5PFJets')
 )
@@ -62,15 +62,15 @@ process.pfAnalyzer = cms.EDAnalyzer("PFBenchmarkAnalyzer",
 #)
 
 process.pfJetAnalyzer = cms.EDAnalyzer("JetAna",
-    OutputFile = cms.untracked.string('PFJetTester_data.root'),
-    InputTruthLabel = cms.string('iterativeCone5GenJets'),
-    maxEta = cms.double(2.0),
-    recPt = cms.double(-1.0),
-    PlotAgainstRecoQuantities = cms.bool(True),
+    OutputFile = process.pfAnalyzer.OutputFile, 
+    InputTruthLabel = process.pfAnalyzer.InputTruthLabel, 
+    maxEta = process.pfAnalyzer.maxEta,
+    recPt = process.pfAnalyzer.recPt,
+    PlotAgainstRecoQuantities = process.pfAnalyzer.PlotAgainstRecoQuantities,
     pfjBenchmarkDebug = cms.bool(False),
-    deltaRMax = cms.double(0.2),
-    BenchmarkLabel = cms.string('ParticleFlow'),
-    InputRecoLabel = cms.string('iterativeCone5PFJets')
+    deltaRMax = process.pfAnalyzer.deltaRMax,
+    BenchmarkLabel = process.pfAnalyzer.BenchmarkLabel,
+    InputRecoLabel = process.pfAnalyzer.InputRecoLabel
 )
 
 process.o = cms.OutputModule("PoolOutputModule",
@@ -80,9 +80,8 @@ process.o = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('test.root')
 )
 
-#process.p =cms.Path(process.genParticles*process.genJetParticles*process.recoGenJets*process.pfAnalyzer*process.pfJetAnalyzer)
 
-process.p =cms.Path(process.genParticles*process.genJetParticles*process.recoGenJets*process.recoPFJets*process.pfAnalyzer)
+process.p =cms.Path(process.genParticles*process.genJetParticles*process.recoGenJets*process.pfAnalyzer*process.pfJetAnalyzer)
 
 process.schedule = cms.Schedule(process.p)
 
