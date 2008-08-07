@@ -1,9 +1,16 @@
 #!/bin/sh
-# $Id: setup_sm.sh,v 1.12 2008/08/05 14:26:14 loizides Exp $
+# $Id: setup_sm.sh,v 1.13 2008/08/06 14:32:06 jserrano Exp $
 
 if test -e "/etc/profile.d/sm_env.sh"; then 
     source /etc/profile.d/sm_env.sh;
 fi
+
+###
+echo     5 > /proc/sys/vm/dirty_background_ratio
+echo    15 > /proc/sys/vm/dirty_ratio
+echo   128 > /proc/sys/vm/lower_zone_protection
+echo 16384 > /proc/sys/vm/min_free_kbytes
+###
 
 store=/store
 if test -n "$SM_STORE"; then
