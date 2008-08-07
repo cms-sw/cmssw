@@ -10,7 +10,7 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: TrackAssociatorParameters.cc,v 1.4.2.1 2008/05/22 23:21:53 dmytro Exp $
+// $Id: TrackAssociatorParameters.cc,v 1.5 2008/08/07 02:06:23 dmytro Exp $
 //
 //
 
@@ -58,7 +58,7 @@ void TrackAssociatorParameters::loadParameters( const edm::ParameterSet& iConfig
    else
      if ( type != "SinglePointAlongTrajectory" ) 
        throw cms::Exception("ConfigurationError") << "Uknown algorithm type: " << type << "\n";
-   propagateAllDirections = iConfig.getParameter<bool>("propagateAllDirections");
+   // propagateAllDirections = iConfig.getParameter<bool>("propagateAllDirections");
 }
 
 TrackAssociatorParameters::TrackAssociatorParameters( const edm::ParameterSet& iConfig )
