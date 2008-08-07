@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: setup_sm.sh,v 1.13 2008/08/06 14:32:06 jserrano Exp $
+# $Id: setup_sm.sh,v 1.14 2008/08/07 15:39:29 loizides Exp $
 
 if test -e "/etc/profile.d/sm_env.sh"; then 
     source /etc/profile.d/sm_env.sh;
@@ -77,6 +77,11 @@ if test -n "$SM_CALIB_NFS" -a -n "$SM_CALIBAREA"; then
         echo "Attempting to mount $SM_CALIBAREA"
         mount -t nfs -o rsize=32768,wsize=32768,timeo=14,intr $SM_CALIB_NFS $SM_CALIBAREA
     fi
+fi
+
+if test -x "/sbin/multipath"; then
+    echo "Flushing unused multipath devices"
+    /sbin/multipath -F
 fi
 
 su - cmsprod -c "~cmsprod/$nname/t0_control.sh stop" >/dev/null 2>&1
