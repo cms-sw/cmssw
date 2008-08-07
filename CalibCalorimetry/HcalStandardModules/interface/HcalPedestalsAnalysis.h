@@ -56,6 +56,7 @@ namespace edm {
    struct NewPedBunch
    {
       HcalDetId detid;
+      HcalZDCDetId zdcid;
       bool usedflag;
       float cap[4];
       float capfc[4];
@@ -93,7 +94,6 @@ class HcalPedestalsAnalysis : public edm::EDAnalyzer
    std::string widthsfCfilename;
    std::string XMLfilename;
    std::string XMLtag;
-   std::string ZSfilename;
 
    TH1F *HBMeans;
    TH1F *HBWidths;
@@ -103,6 +103,8 @@ class HcalPedestalsAnalysis : public edm::EDAnalyzer
    TH1F *HFWidths;
    TH1F *HOMeans;
    TH1F *HOWidths;
+   TH1F *ZDCMeans;
+   TH1F *ZDCWidths;
 
    TFile *theFile;
    bool firsttime;

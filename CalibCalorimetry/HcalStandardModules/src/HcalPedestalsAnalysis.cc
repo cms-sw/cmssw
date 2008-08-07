@@ -22,9 +22,8 @@ HcalPedestalsAnalysis::~HcalPedestalsAnalysis()
 {
    HcalPedestals* rawPedsItem = new HcalPedestals();
    HcalPedestalWidths* rawWidthsItem = new HcalPedestalWidths();
-//   HcalPedestals* rawPedsItemfc = new HcalPedestals();
-//   HcalPedestalWidths* rawWidthsItemfc = new HcalPedestalWidths();
-   HcalZSThresholds* ZSItem = new HcalZSThresholds();
+   HcalPedestals* rawPedsItemfc = new HcalPedestals();
+   HcalPedestalWidths* rawWidthsItemfc = new HcalPedestalWidths();
 
    //Calculate pedestal constants
    std::cout << "Calculating Pedestal constants...\n";
@@ -41,10 +40,10 @@ HcalPedestalsAnalysis::~HcalPedestalsAnalysis()
       bunch_it->cap[1] /= bunch_it->num[1][1];
       bunch_it->cap[2] /= bunch_it->num[2][2];
       bunch_it->cap[3] /= bunch_it->num[3][3];
-//      bunch_it->capfc[0] /= bunch_it->num[0][0];
-//      bunch_it->capfc[1] /= bunch_it->num[1][1];
-//      bunch_it->capfc[2] /= bunch_it->num[2][2];
-//      bunch_it->capfc[3] /= bunch_it->num[3][3];
+      bunch_it->capfc[0] /= bunch_it->num[0][0];
+      bunch_it->capfc[1] /= bunch_it->num[1][1];
+      bunch_it->capfc[2] /= bunch_it->num[2][2];
+      bunch_it->capfc[3] /= bunch_it->num[3][3];
       //widths are the covariance matrix--assumed symmetric
       bunch_it->sig[0][0] = (bunch_it->prod[0][0]/bunch_it->num[0][0])-(bunch_it->cap[0])*(bunch_it->cap[0]);
       bunch_it->sig[1][1] = (bunch_it->prod[1][1]/bunch_it->num[1][1])-(bunch_it->cap[1])*(bunch_it->cap[1]);
@@ -57,16 +56,16 @@ HcalPedestalsAnalysis::~HcalPedestalsAnalysis()
       bunch_it->sig[1][3] = (bunch_it->prod[1][3])/(bunch_it->num[1][3])-(bunch_it->cap[1]*bunch_it->cap[3]);
       bunch_it->sig[2][3] = (bunch_it->prod[2][3])/(bunch_it->num[2][3])-(bunch_it->cap[2]*bunch_it->cap[3]);
 
-//      bunch_it->sigfc[0][0] = (bunch_it->prodfc[0][0]/bunch_it->num[0][0])-(bunch_it->capfc[0])*(bunch_it->capfc[0]);
-//      bunch_it->sigfc[1][1] = (bunch_it->prodfc[1][1]/bunch_it->num[1][1])-(bunch_it->capfc[1])*(bunch_it->capfc[1]);
-//      bunch_it->sigfc[2][2] = (bunch_it->prodfc[2][2]/bunch_it->num[2][2])-(bunch_it->capfc[2])*(bunch_it->capfc[2]);
-//      bunch_it->sigfc[3][3] = (bunch_it->prodfc[3][3]/bunch_it->num[3][3])-(bunch_it->capfc[3])*(bunch_it->capfc[3]);
-//      bunch_it->sigfc[0][1] = (bunch_it->prodfc[0][1]/(bunch_it->num[0][1]))-(bunch_it->capfc[0]*bunch_it->capfc[1]);
-//      bunch_it->sigfc[0][2] = (bunch_it->prodfc[0][2]/(bunch_it->num[0][2]))-(bunch_it->capfc[0]*bunch_it->capfc[2]);
-//      bunch_it->sigfc[0][3] = (bunch_it->prodfc[0][3]/(bunch_it->num[0][3]))-(bunch_it->capfc[0]*bunch_it->capfc[3]);
-//      bunch_it->sigfc[1][2] = (bunch_it->prodfc[1][2]/(bunch_it->num[1][2]))-(bunch_it->capfc[1]*bunch_it->capfc[2]);
-//      bunch_it->sigfc[1][3] = (bunch_it->prodfc[1][3]/(bunch_it->num[1][3]))-(bunch_it->capfc[1]*bunch_it->capfc[3]);
-//      bunch_it->sigfc[2][3] = (bunch_it->prodfc[2][3]/(bunch_it->num[2][3]))-(bunch_it->capfc[2]*bunch_it->capfc[3]);
+      bunch_it->sigfc[0][0] = (bunch_it->prodfc[0][0]/bunch_it->num[0][0])-(bunch_it->capfc[0])*(bunch_it->capfc[0]);
+      bunch_it->sigfc[1][1] = (bunch_it->prodfc[1][1]/bunch_it->num[1][1])-(bunch_it->capfc[1])*(bunch_it->capfc[1]);
+      bunch_it->sigfc[2][2] = (bunch_it->prodfc[2][2]/bunch_it->num[2][2])-(bunch_it->capfc[2])*(bunch_it->capfc[2]);
+      bunch_it->sigfc[3][3] = (bunch_it->prodfc[3][3]/bunch_it->num[3][3])-(bunch_it->capfc[3])*(bunch_it->capfc[3]);
+      bunch_it->sigfc[0][1] = (bunch_it->prodfc[0][1]/(bunch_it->num[0][1]))-(bunch_it->capfc[0]*bunch_it->capfc[1]);
+      bunch_it->sigfc[0][2] = (bunch_it->prodfc[0][2]/(bunch_it->num[0][2]))-(bunch_it->capfc[0]*bunch_it->capfc[2]);
+      bunch_it->sigfc[0][3] = (bunch_it->prodfc[0][3]/(bunch_it->num[0][3]))-(bunch_it->capfc[0]*bunch_it->capfc[3]);
+      bunch_it->sigfc[1][2] = (bunch_it->prodfc[1][2]/(bunch_it->num[1][2]))-(bunch_it->capfc[1]*bunch_it->capfc[2]);
+      bunch_it->sigfc[1][3] = (bunch_it->prodfc[1][3]/(bunch_it->num[1][3]))-(bunch_it->capfc[1]*bunch_it->capfc[3]);
+      bunch_it->sigfc[2][3] = (bunch_it->prodfc[2][3]/(bunch_it->num[2][3]))-(bunch_it->capfc[2]*bunch_it->capfc[3]);
 
       if(bunch_it->detid.subdet() == 1){
          for(int i = 0; i != 3; i++){
@@ -108,7 +107,7 @@ HcalPedestalsAnalysis::~HcalPedestalsAnalysis()
       widthsp.setSigma(3,3,bunch_it->sig[3][3]);
       rawWidthsItem->addValues(widthsp);
 
-/*      const HcalPedestal itemfc(bunch_it->detid, bunch_it->capfc[0], bunch_it->capfc[1],
+      const HcalPedestal itemfc(bunch_it->detid, bunch_it->capfc[0], bunch_it->capfc[1],
                                    bunch_it->capfc[2], bunch_it->capfc[3]);
       rawPedsItemfc->addValues(itemfc);
       HcalPedestalWidth widthspfc(bunch_it->detid);
@@ -122,15 +121,7 @@ HcalPedestalsAnalysis::~HcalPedestalsAnalysis()
       widthspfc.setSigma(2,2,bunch_it->sigfc[2][2]);
       widthspfc.setSigma(2,3,bunch_it->sigfc[2][3]);
       widthspfc.setSigma(3,3,bunch_it->sigfc[3][3]);
-      rawWidthsItemfc->addValues(widthspfc);*/
-
-      int threshold = (int)floor(
-                                (3 * sqrt(bunch_it->sig[0][0]) + bunch_it->cap[0] +
-                                 3 * sqrt(bunch_it->sig[1][1]) + bunch_it->cap[1] +
-                                 3 * sqrt(bunch_it->sig[2][2]) + bunch_it->cap[2] +
-                                 3 * sqrt(bunch_it->sig[3][3]) + bunch_it->cap[3]) / 4);
-      const HcalZSThreshold zerosup(bunch_it->detid, threshold);
-      ZSItem->addValues(zerosup);
+      rawWidthsItemfc->addValues(widthspfc);
       }
    }
 
@@ -140,14 +131,10 @@ HcalPedestalsAnalysis::~HcalPedestalsAnalysis()
     std::ofstream outStream2(widthsADCfilename.c_str());
     HcalDbASCIIIO::dumpObject (outStream2, (*rawWidthsItem) );
 
-/*    std::ofstream outStream3(pedsfCfilename.c_str());
+    std::ofstream outStream3(pedsfCfilename.c_str());
     HcalDbASCIIIO::dumpObject (outStream3, (*rawPedsItemfc) );
     std::ofstream outStream4(widthsfCfilename.c_str());
     HcalDbASCIIIO::dumpObject (outStream4, (*rawWidthsItemfc) );
-*/
-
-    std::ofstream outStream8(ZSfilename.c_str());
-    HcalDbASCIIIO::dumpObject (outStream8, (*ZSItem) );
 
     if(dumpXML){
        std::ofstream outStream5(XMLfilename.c_str());
@@ -190,10 +177,11 @@ HcalPedestalsAnalysis::analyze(const edm::Event& e, const edm::EventSetup& iSetu
    edm::Handle<HBHEDigiCollection> hbhe;              e.getByType(hbhe);
    edm::Handle<HODigiCollection> ho;                  e.getByType(ho);
    edm::Handle<HFDigiCollection> hf;                  e.getByType(hf);
+   edm::Handle<ZDCDigiCollection> zdc;		      e.getByType(zdc);
    edm::ESHandle<HcalDbService> conditions;
    iSetup.get<HcalDbRecord>().get(conditions);
 
-//   const HcalQIEShape* shape = conditions->getHcalShape();
+   const HcalQIEShape* shape = conditions->getHcalShape();
 
    if(firsttime)
    {
@@ -204,12 +192,11 @@ HcalPedestalsAnalysis::analyze(const edm::Event& e, const edm::EventSetup& iSetu
       runnum_string = tempstringout.str();
       ROOTfilename = runnum_string + "-peds_ADC.root";
       pedsADCfilename = runnum_string + "-peds_ADC.txt";
-//      pedsfCfilename = runnum_string + "-peds_fC.txt";
+      pedsfCfilename = runnum_string + "-peds_fC.txt";
       widthsADCfilename = runnum_string + "-widths_ADC.txt";
-//      widthsfCfilename = runnum_string + "-widths_fC.txt";
+      widthsfCfilename = runnum_string + "-widths_fC.txt";
       XMLfilename = runnum_string + "-peds_ADC_complete.xml"; 
       XMLtag = "Hcal_pedestals_" + runnum_string;
-      ZSfilename = runnum_string + "-ZSThresholds.txt";
 
       theFile = new TFile(ROOTfilename.c_str(), "RECREATE");
       theFile->cd();
@@ -228,6 +215,10 @@ HcalPedestalsAnalysis::analyze(const edm::Event& e, const edm::EventSetup& iSetu
       HFWidths = new TH1F("All Ped Widths HF","All Ped Widths HF", 100, 0, 3);
       HOMeans = new TH1F("All Ped Means HO","All Ped Means HO", 100, 0, 9);
       HOWidths = new TH1F("All Ped Widths HO","All Ped Widths HO", 100, 0, 3);
+      ZDCMeans = new TH1F("All Ped Means ZDC","All Ped Means ZDC", 100, 0, 9);
+      ZDCWidths = new TH1F("All Ped Widths ZDC","All Ped Widths ZDC", 100, 0, 3);
+
+
 
       edm::ESHandle<HcalElectronicsMap> refEMap;
       iSetup.get<HcalElectronicsMapRcd>().get(refEMap);
@@ -242,21 +233,47 @@ HcalPedestalsAnalysis::analyze(const edm::Event& e, const edm::EventSetup& iSetu
             HcalDetId chanid(mygenid.rawId());
             a.detid = chanid;
             a.usedflag = false;
-            string type;
-            if(chanid.subdet() == 1) type = "HB";
-            if(chanid.subdet() == 2) type = "HE";
-            if(chanid.subdet() == 3) type = "HO";
-            if(chanid.subdet() == 4) type = "HF";
+//            string type;
+//            if(chanid.subdet() == 1) type = "HB";
+//            if(chanid.subdet() == 2) type = "HE";
+//            if(chanid.subdet() == 3) type = "HO";
+//            if(chanid.subdet() == 4) type = "HF";
             for(int i = 0; i != 4; i++)
             {
                a.cap[i] = 0;
-//               a.capfc[i] = 0;
+               a.capfc[i] = 0;
                for(int j = 0; j != 4; j++)
                {
                   a.sig[i][j] = 0;
-//                  a.sigfc[i][j] = 0;
+                  a.sigfc[i][j] = 0;
                   a.prod[i][j] = 0;
-//                  a.prodfc[i][j] = 0;
+                  a.prodfc[i][j] = 0;
+                  a.num[i][j] = 0;
+               }
+            }
+            Bunches.push_back(a);
+         }
+         else if(mygenid.isHcalZDCDetId())
+         {
+            NewPedBunch a;
+            HcalZDCDetId chanid(mygenid.rawId());
+            a.zdcid = chanid;
+            a.usedflag = false;
+//            string type = "ZDC";
+//            if(chanid.subdet() == 1) type = "HB";
+//            if(chanid.subdet() == 2) type = "HE";
+//            if(chanid.subdet() == 3) type = "HO";
+//            if(chanid.subdet() == 4) type = "HF";
+            for(int i = 0; i != 4; i++)
+            {
+               a.cap[i] = 0;
+               a.capfc[i] = 0;
+               for(int j = 0; j != 4; j++)
+               {
+                  a.sig[i][j] = 0;
+                  a.sigfc[i][j] = 0;
+                  a.prod[i][j] = 0;
+                  a.prodfc[i][j] = 0;
                   a.num[i][j] = 0;
                }
             }
@@ -276,29 +293,29 @@ HcalPedestalsAnalysis::analyze(const edm::Event& e, const edm::EventSetup& iSetu
       bunch_it->usedflag = true;
       for(int ts = firstTS; ts != lastTS+1; ts++)
       {
-//         const HcalQIECoder* coder = conditions->getHcalCoder(digi.id().rawId());
+         const HcalQIECoder* coder = conditions->getHcalCoder(digi.id().rawId());
          bunch_it->num[digi.sample(ts).capid()][digi.sample(ts).capid()] += 1;
          bunch_it->cap[digi.sample(ts).capid()] += digi.sample(ts).adc();
-//         double charge1 = coder->charge(*shape, digi.sample(ts).adc(), digi.sample(ts).capid());
-//         bunch_it->capfc[digi.sample(ts).capid()] += charge1;
+         double charge1 = coder->charge(*shape, digi.sample(ts).adc(), digi.sample(ts).capid());
+         bunch_it->capfc[digi.sample(ts).capid()] += charge1;
          bunch_it->prod[digi.sample(ts).capid()][digi.sample(ts).capid()] += (digi.sample(ts).adc() * digi.sample(ts).adc());
-//         bunch_it->prodfc[digi.sample(ts).capid()][digi.sample(ts).capid()] += charge1 * charge1;
+         bunch_it->prodfc[digi.sample(ts).capid()][digi.sample(ts).capid()] += charge1 * charge1;
          if((ts+1 < digi.size()) && (ts+1 < lastTS)){
             bunch_it->prod[digi.sample(ts).capid()][digi.sample(ts+1).capid()] += digi.sample(ts).adc()*digi.sample(ts+1).adc();
-//            double charge2 = coder->charge(*shape, digi.sample(ts+1).adc(), digi.sample(ts+1).capid());
-//            bunch_it->prodfc[digi.sample(ts).capid()][digi.sample(ts+1).capid()] += charge1*charge2;
+            double charge2 = coder->charge(*shape, digi.sample(ts+1).adc(), digi.sample(ts+1).capid());
+            bunch_it->prodfc[digi.sample(ts).capid()][digi.sample(ts+1).capid()] += charge1*charge2;
             bunch_it->num[digi.sample(ts).capid()][digi.sample(ts+1).capid()] += 1;
          }
          if((ts+2 < digi.size()) && (ts+2 < lastTS)){
             bunch_it->prod[digi.sample(ts).capid()][digi.sample(ts+2).capid()] += digi.sample(ts).adc()*digi.sample(ts+2).adc();
-//            double charge2 = coder->charge(*shape, digi.sample(ts+2).adc(), digi.sample(ts+2).capid());
-//            bunch_it->prodfc[digi.sample(ts).capid()][digi.sample(ts+2).capid()] += charge1*charge2;
+            double charge2 = coder->charge(*shape, digi.sample(ts+2).adc(), digi.sample(ts+2).capid());
+            bunch_it->prodfc[digi.sample(ts).capid()][digi.sample(ts+2).capid()] += charge1*charge2;
             bunch_it->num[digi.sample(ts).capid()][digi.sample(ts+2).capid()] += 1;
          }
          if((ts+3 < digi.size()) && (ts+3 < lastTS)){
             bunch_it->prod[digi.sample(ts).capid()][digi.sample(ts+3).capid()] += digi.sample(ts).adc()*digi.sample(ts+3).adc();
-//            double charge2 = coder->charge(*shape, digi.sample(ts+3).adc(), digi.sample(ts+3).capid());
-//            bunch_it->prodfc[digi.sample(ts).capid()][digi.sample(ts+3).capid()] += charge1*charge2;
+            double charge2 = coder->charge(*shape, digi.sample(ts+3).adc(), digi.sample(ts+3).capid());
+            bunch_it->prodfc[digi.sample(ts).capid()][digi.sample(ts+3).capid()] += charge1*charge2;
             bunch_it->num[digi.sample(ts).capid()][digi.sample(ts+3).capid()] += 1;
          }
       }
@@ -312,29 +329,29 @@ HcalPedestalsAnalysis::analyze(const edm::Event& e, const edm::EventSetup& iSetu
       bunch_it->usedflag = true;
       for(int ts = firstTS; ts <= lastTS; ts++)
       {
-//         const HcalQIECoder* coder = conditions->getHcalCoder(digi.id().rawId());
+         const HcalQIECoder* coder = conditions->getHcalCoder(digi.id().rawId());
          bunch_it->num[digi.sample(ts).capid()][digi.sample(ts).capid()] += 1;
          bunch_it->cap[digi.sample(ts).capid()] += digi.sample(ts).adc();
-//         double charge1 = coder->charge(*shape, digi.sample(ts).adc(), digi.sample(ts).capid());
-//         bunch_it->capfc[digi.sample(ts).capid()] += charge1;
+         double charge1 = coder->charge(*shape, digi.sample(ts).adc(), digi.sample(ts).capid());
+         bunch_it->capfc[digi.sample(ts).capid()] += charge1;
          bunch_it->prod[digi.sample(ts).capid()][digi.sample(ts).capid()] += (digi.sample(ts).adc() * digi.sample(ts).adc());
-//         bunch_it->prodfc[digi.sample(ts).capid()][digi.sample(ts).capid()] += charge1 * charge1;
+         bunch_it->prodfc[digi.sample(ts).capid()][digi.sample(ts).capid()] += charge1 * charge1;
          if((ts+1 < digi.size()) && (ts+1 < lastTS)){
             bunch_it->prod[digi.sample(ts).capid()][digi.sample(ts+1).capid()] += digi.sample(ts).adc()*digi.sample(ts+1).adc();
-//            double charge2 = coder->charge(*shape, digi.sample(ts+1).adc(), digi.sample(ts+1).capid());
-//            bunch_it->prodfc[digi.sample(ts).capid()][digi.sample(ts+1).capid()] += charge1*charge2;
+            double charge2 = coder->charge(*shape, digi.sample(ts+1).adc(), digi.sample(ts+1).capid());
+            bunch_it->prodfc[digi.sample(ts).capid()][digi.sample(ts+1).capid()] += charge1*charge2;
             bunch_it->num[digi.sample(ts).capid()][digi.sample(ts+1).capid()] += 1;
          }
          if((ts+2 < digi.size()) && (ts+2 < lastTS)){
             bunch_it->prod[digi.sample(ts).capid()][digi.sample(ts+2).capid()] += digi.sample(ts).adc()*digi.sample(ts+2).adc();
-//            double charge2 = coder->charge(*shape, digi.sample(ts+2).adc(), digi.sample(ts+2).capid());
-//            bunch_it->prodfc[digi.sample(ts).capid()][digi.sample(ts+2).capid()] += charge1*charge2;
+            double charge2 = coder->charge(*shape, digi.sample(ts+2).adc(), digi.sample(ts+2).capid());
+            bunch_it->prodfc[digi.sample(ts).capid()][digi.sample(ts+2).capid()] += charge1*charge2;
             bunch_it->num[digi.sample(ts).capid()][digi.sample(ts+2).capid()] += 1;
          }
          if((ts+3 < digi.size()) && (ts+3 < lastTS)){
             bunch_it->prod[digi.sample(ts).capid()][digi.sample(ts+3).capid()] += digi.sample(ts).adc()*digi.sample(ts+3).adc();
-//            double charge2 = coder->charge(*shape, digi.sample(ts+3).adc(), digi.sample(ts+3).capid());
-//            bunch_it->prodfc[digi.sample(ts).capid()][digi.sample(ts+3).capid()] += charge1*charge2;
+            double charge2 = coder->charge(*shape, digi.sample(ts+3).adc(), digi.sample(ts+3).capid());
+            bunch_it->prodfc[digi.sample(ts).capid()][digi.sample(ts+3).capid()] += charge1*charge2;
             bunch_it->num[digi.sample(ts).capid()][digi.sample(ts+3).capid()] += 1;
          }
       }
@@ -348,68 +365,71 @@ HcalPedestalsAnalysis::analyze(const edm::Event& e, const edm::EventSetup& iSetu
       bunch_it->usedflag = true;
       for(int ts = firstTS; ts <= lastTS; ts++)
       {
-//         const HcalQIECoder* coder = conditions->getHcalCoder(digi.id().rawId());
+         const HcalQIECoder* coder = conditions->getHcalCoder(digi.id().rawId());
          bunch_it->num[digi.sample(ts).capid()][digi.sample(ts).capid()] += 1;
          bunch_it->cap[digi.sample(ts).capid()] += digi.sample(ts).adc();
-//         double charge1 = coder->charge(*shape, digi.sample(ts).adc(), digi.sample(ts).capid());
-//         bunch_it->capfc[digi.sample(ts).capid()] += charge1;
+         double charge1 = coder->charge(*shape, digi.sample(ts).adc(), digi.sample(ts).capid());
+         bunch_it->capfc[digi.sample(ts).capid()] += charge1;
          bunch_it->prod[digi.sample(ts).capid()][digi.sample(ts).capid()] += (digi.sample(ts).adc() * digi.sample(ts).adc());
-//         bunch_it->prodfc[digi.sample(ts).capid()][digi.sample(ts).capid()] += charge1 * charge1;
+         bunch_it->prodfc[digi.sample(ts).capid()][digi.sample(ts).capid()] += charge1 * charge1;
          if((ts+1 < digi.size()) && (ts+1 < lastTS)){
             bunch_it->prod[digi.sample(ts).capid()][digi.sample(ts+1).capid()] += digi.sample(ts).adc()*digi.sample(ts+1).adc();
-//            double charge2 = coder->charge(*shape, digi.sample(ts+1).adc(), digi.sample(ts+1).capid());
-//            bunch_it->prodfc[digi.sample(ts).capid()][digi.sample(ts+1).capid()] += charge1*charge2;
+            double charge2 = coder->charge(*shape, digi.sample(ts+1).adc(), digi.sample(ts+1).capid());
+            bunch_it->prodfc[digi.sample(ts).capid()][digi.sample(ts+1).capid()] += charge1*charge2;
             bunch_it->num[digi.sample(ts).capid()][digi.sample(ts+1).capid()] += 1;
          }
          if((ts+2 < digi.size()) && (ts+2 < lastTS)){
             bunch_it->prod[digi.sample(ts).capid()][digi.sample(ts+2).capid()] += digi.sample(ts).adc()*digi.sample(ts+2).adc();
-//            double charge2 = coder->charge(*shape, digi.sample(ts+2).adc(), digi.sample(ts+2).capid());
-//            bunch_it->prodfc[digi.sample(ts).capid()][digi.sample(ts+2).capid()] += charge1*charge2;
+            double charge2 = coder->charge(*shape, digi.sample(ts+2).adc(), digi.sample(ts+2).capid());
+            bunch_it->prodfc[digi.sample(ts).capid()][digi.sample(ts+2).capid()] += charge1*charge2;
             bunch_it->num[digi.sample(ts).capid()][digi.sample(ts+2).capid()] += 1;
          }
          if((ts+3 < digi.size()) && (ts+3 < lastTS)){
             bunch_it->prod[digi.sample(ts).capid()][digi.sample(ts+3).capid()] += digi.sample(ts).adc()*digi.sample(ts+3).adc();
-//            double charge2 = coder->charge(*shape, digi.sample(ts+3).adc(), digi.sample(ts+3).capid());
-//            bunch_it->prodfc[digi.sample(ts).capid()][digi.sample(ts+3).capid()] += charge1*charge2;
+            double charge2 = coder->charge(*shape, digi.sample(ts+3).adc(), digi.sample(ts+3).capid());
+            bunch_it->prodfc[digi.sample(ts).capid()][digi.sample(ts+3).capid()] += charge1*charge2;
             bunch_it->num[digi.sample(ts).capid()][digi.sample(ts+3).capid()] += 1;
          }
       }
+   }
 
-/* Once I figure out how to unpack Calib digis they go here
-      const HFDataFrame digi = (const HFDataFrame)(*j);
+   for(ZDCDigiCollection::const_iterator j = zdc->begin(); j != zdc->end(); j++)
+   {
+      const ZDCDataFrame digi = (const ZDCDataFrame)(*j);
       for(bunch_it = Bunches.begin(); bunch_it != Bunches.end(); bunch_it++)
          if(bunch_it->detid.rawId() == digi.id().rawId()) break;
       bunch_it->usedflag = true;
       for(int ts = firstTS; ts <= lastTS; ts++)
       {
-//         const HcalQIECoder* coder = conditions->getHcalCoder(digi.id().rawId());
+         const HcalQIECoder* coder = conditions->getHcalCoder(digi.id().rawId());
          bunch_it->num[digi.sample(ts).capid()][digi.sample(ts).capid()] += 1;
          bunch_it->cap[digi.sample(ts).capid()] += digi.sample(ts).adc();
-//         double charge1 = coder->charge(*shape, digi.sample(ts).adc(), digi.sample(ts).capid());
-//         bunch_it->capfc[digi.sample(ts).capid()] += charge1;
+         double charge1 = coder->charge(*shape, digi.sample(ts).adc(), digi.sample(ts).capid());
+         bunch_it->capfc[digi.sample(ts).capid()] += charge1;
          bunch_it->prod[digi.sample(ts).capid()][digi.sample(ts).capid()] += (digi.sample(ts).adc() * digi.sample(ts).adc());
-//         bunch_it->prodfc[digi.sample(ts).capid()][digi.sample(ts).capid()] += charge1 * charge1;
+         bunch_it->prodfc[digi.sample(ts).capid()][digi.sample(ts).capid()] += charge1 * charge1;
          if((ts+1 < digi.size()) && (ts+1 < lastTS)){
             bunch_it->prod[digi.sample(ts).capid()][digi.sample(ts+1).capid()] += digi.sample(ts).adc()*digi.sample(ts+1).adc();
-//            double charge2 = coder->charge(*shape, digi.sample(ts+1).adc(), digi.sample(ts+1).capid());
-//            bunch_it->prodfc[digi.sample(ts).capid()][digi.sample(ts+1).capid()] += charge1*charge2;
+            double charge2 = coder->charge(*shape, digi.sample(ts+1).adc(), digi.sample(ts+1).capid());
+            bunch_it->prodfc[digi.sample(ts).capid()][digi.sample(ts+1).capid()] += charge1*charge2;
             bunch_it->num[digi.sample(ts).capid()][digi.sample(ts+1).capid()] += 1;
          }
          if((ts+2 < digi.size()) && (ts+2 < lastTS)){
             bunch_it->prod[digi.sample(ts).capid()][digi.sample(ts+2).capid()] += digi.sample(ts).adc()*digi.sample(ts+2).adc();
-//            double charge2 = coder->charge(*shape, digi.sample(ts+2).adc(), digi.sample(ts+2).capid());
-//            bunch_it->prodfc[digi.sample(ts).capid()][digi.sample(ts+2).capid()] += charge1*charge2;
+            double charge2 = coder->charge(*shape, digi.sample(ts+2).adc(), digi.sample(ts+2).capid());
+            bunch_it->prodfc[digi.sample(ts).capid()][digi.sample(ts+2).capid()] += charge1*charge2;
             bunch_it->num[digi.sample(ts).capid()][digi.sample(ts+2).capid()] += 1;
          }
          if((ts+3 < digi.size()) && (ts+3 < lastTS)){
             bunch_it->prod[digi.sample(ts).capid()][digi.sample(ts+3).capid()] += digi.sample(ts).adc()*digi.sample(ts+3).adc();
-//            double charge2 = coder->charge(*shape, digi.sample(ts+3).adc(), digi.sample(ts+3).capid());
-//            bunch_it->prodfc[digi.sample(ts).capid()][digi.sample(ts+3).capid()] += charge1*charge2;
+            double charge2 = coder->charge(*shape, digi.sample(ts+3).adc(), digi.sample(ts+3).capid());
+            bunch_it->prodfc[digi.sample(ts).capid()][digi.sample(ts+3).capid()] += charge1*charge2;
             bunch_it->num[digi.sample(ts).capid()][digi.sample(ts+3).capid()] += 1;
          }
-*/
-
+      }
    }
+
+
 //this is the last brace
 }
 
