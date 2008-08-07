@@ -17,6 +17,8 @@
 #include "Randomize.hh"
 #include "CLHEP/Units/PhysicalConstants.h"
 
+//#define DebugLog
+
 HFShower::HFShower(std::string & name, const DDCompactView & cpv, 
 		   edm::ParameterSet const & p) : cherenkov(0), fibre(0) {
 
@@ -78,7 +80,9 @@ int HFShower::getHits(G4Step * aStep) {
   if (aStep->GetTrack()->GetDefinition()->GetPDGCharge() != 0.)
     stepl = aStep->GetStepLength();
   if ((edep == 0.) || (stepl == 0.)) {
+#ifdef DebugLog
     LogDebug("HFShower") << "HFShower::getHits: Number of Hits " << nHit;
+#endif
     return nHit;
   }
 
@@ -113,12 +117,13 @@ int HFShower::getHits(G4Step * aStep) {
   double tSlice   = (aStep->GetPostStepPoint()->GetGlobalTime());
   double time     = fibre->tShift(globalPos, depth, false);
 
+#ifdef DebugLog
   LogDebug("HFShower") << "HFShower::getHits: in " << name << " Z " << zCoor 
 		       << " " << fibreLength(name) << " " << zFibre << " Time "
 		       << tSlice  << " " << time 
 		       << "\n                  Direction " << momentumDir 
 		       << " Local " << localMom;
- 
+#endif 
   int npe = cherenkov->computeNPE(particleDef, pBeta, u, v, w, stepl, zFibre, 
 				  dose, npeDose);
   std::vector<double> wavelength = cherenkov->getWL();
@@ -127,10 +132,12 @@ int HFShower::getHits(G4Step * aStep) {
     double p   = fibre->attLength(wavelength[i]);
     double r1  = G4UniformRand();
     double r2  = G4UniformRand();
+#ifdef DebugLog
     LogDebug("HFShower") << "HFShower::getHits: " << i << " attenuation " << r1
 			 <<":" << exp(-p*zFibre) << " r2 " << r2 << ":" 
 			 << probMax << " Survive: " 
 			 << (r1 <= exp(-p*zFibre) && r2 <= probMax);
+#endif
     if (r1 <= exp(-p*zFibre) && r2 <= probMax) {
       nHit++;
       wlHit.push_back(wavelength[i]);
@@ -138,11 +145,12 @@ int HFShower::getHits(G4Step * aStep) {
     }
   }
 
+#ifdef DebugLog
   LogDebug("HFShower") << "HFShower::getHits: Number of Hits " << nHit;
   for (int i=0; i<nHit; i++)
     LogDebug("HFShower") << "HFShower::Hit " << i << " WaveLength " << wlHit[i]
 			 << " Time " << timHit[i];
-
+#endif
   return nHit;
 
 } 
@@ -151,7 +159,9 @@ double HFShower::getTSlice(int i) {
    
   double tim = 0.;
   if (i < nHit) tim = timHit[i];
+#ifdef DebugLog
   LogDebug("HFShower") << "HFShower: Time (" << i << "/" << nHit << ") " <<tim;
+#endif
   return tim;
 }
 

@@ -13,6 +13,8 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 #include <iostream>
 
+//#define DebugLog
+
 HFFibre::HFFibre(std::string & name, const DDCompactView & cpv, 
 		 edm::ParameterSet const & p) {
 
@@ -118,10 +120,11 @@ double HFFibre::attLength(double lambda) {
   else if (i < 0)
     j = 0;
   double att = attL[j];
+#ifdef DebugLog
   LogDebug("HFShower") << "HFFibre::attLength for Lambda " << lambda
 		       << " index " << i  << " " << j << " Att. Length " 
 		       << att;
-
+#endif
   return att;
 }
 
@@ -147,11 +150,13 @@ double HFFibre::tShift(G4ThreeVector point, int depth, bool fromEndAbs) {
   }
   if (depth == 2) zFibre += gpar[0];
   double time   = zFibre/cFibre;
+#ifdef DebugLog
   LogDebug("HFShower") << "HFFibre::tShift for point " << point
 		       << " (R = " << hR/cm << " cm, Index = " << ieta 
 		       << ", depth = " << depth << ", Fibre Length = " 
 		       << length/cm       << " cm, traversed length = " 
 		       << zFibre/cm  << " cm) = " << time/ns << " ns";
+#endif
   return time;
 }
 
@@ -159,11 +164,15 @@ std::vector<double> HFFibre::getDDDArray(const std::string & str,
 					 const DDsvalues_type & sv, 
 					 int & nmin) {
 
+#ifdef DebugLog
   LogDebug("HFShower") << "HFFibre:getDDDArray called for " << str 
 		       << " with nMin " << nmin;
+#endif
   DDValue value(str);
   if (DDfetch(&sv,value)) {
+#ifdef DebugLog
     LogDebug("HFShower") << value;
+#endif
     const std::vector<double> & fvec = value.doubles();
     int nval = fvec.size();
     if (nmin > 0) {
