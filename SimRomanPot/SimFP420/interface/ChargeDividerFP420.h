@@ -13,7 +13,7 @@
 class ChargeDividerFP420 : public CDividerFP420{
  public:
   
-  explicit ChargeDividerFP420(double pit, double az420, double azD2, double azD3);
+  explicit ChargeDividerFP420(double pit, double az420, double azD2, double azD3, int);
   
   
   virtual ~ChargeDividerFP420();
@@ -46,6 +46,7 @@ class ChargeDividerFP420 : public CDividerFP420{
   double deltaCut ;
   LandauFP420 fluctuate; 
   //  HepPDTable * particleTable;
+  int  verbosity;
 };
 
 #endif
