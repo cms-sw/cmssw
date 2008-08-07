@@ -152,6 +152,12 @@ void MuIsoDepositProducer::produce(Event& event, const EventSetup& eventSetup){
 	  } else {
 	    muRef = TrackBaseRef((*muons)[i].standAloneMuon());
 	  }
+	} else if (theMuonTrackRefType == "bestTrkSta"){
+	  if (!(*muons)[i].track().isNull()){
+	    muRef = TrackBaseRef((*muons)[i].track());
+	  } else {
+	    muRef = TrackBaseRef((*muons)[i].standAloneMuon());
+	  }
 	}else {
 	  edm::LogWarning(metname)<<"Wrong track type is supplied: breaking";
 	  break;

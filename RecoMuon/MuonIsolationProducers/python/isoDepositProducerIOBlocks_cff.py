@@ -6,28 +6,28 @@ MIsoDepositViewMultiIOBlock = cms.PSet(
     inputMuonCollection = cms.InputTag("muons"),
     MultipleDepositsFlag = cms.bool(True),
     InputType = cms.string('MuonCollection'),
-    MuonTrackRefType = cms.string('bestGlbTrkSta')
+    MuonTrackRefType = cms.string('bestTrkSta')
 )
 MIsoDepositViewIOBlock = cms.PSet(
     ExtractForCandidate = cms.bool(False),
     inputMuonCollection = cms.InputTag("muons"),
     MultipleDepositsFlag = cms.bool(False),
     InputType = cms.string('MuonCollection'),
-    MuonTrackRefType = cms.string('bestGlbTrkSta')
+    MuonTrackRefType = cms.string('bestTrkSta')
 )
 MIsoDepositParamGlobalViewMultiIOBlock = cms.PSet(
     ExtractForCandidate = cms.bool(False),
     inputMuonCollection = cms.InputTag("paramMuons","ParamGlobalMuons"),
     MultipleDepositsFlag = cms.bool(True),
     InputType = cms.string('MuonCollection'),
-    MuonTrackRefType = cms.string('bestGlbTrkSta')
+    MuonTrackRefType = cms.string('bestTrkSta')
 )
 MIsoDepositParamGlobalViewIOBlock = cms.PSet(
     ExtractForCandidate = cms.bool(False),
     inputMuonCollection = cms.InputTag("paramMuons","ParamGlobalMuons"),
     MultipleDepositsFlag = cms.bool(False),
     InputType = cms.string('MuonCollection'),
-    MuonTrackRefType = cms.string('bestGlbTrkSta')
+    MuonTrackRefType = cms.string('bestTrkSta')
 )
 MIsoDepositParamGlobalMultiIOBlock = cms.PSet(
     ExtractForCandidate = cms.bool(False),
