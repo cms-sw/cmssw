@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: injectFileIntoTransferSystem.pl,v 1.20 2008/07/22 16:23:42 loizides Exp $
+# $Id: injectFileIntoTransferSystem.pl,v 1.21 2008/07/30 12:27:18 loizides Exp $
 
 use strict;
 use DBI;
@@ -48,7 +48,7 @@ sub usage
     - DQM files  require runnumber, lumisection, appname, and appversion.
 
   Hostname is the host on which the file is found. (This should be the name as returned by the
-  `hostname` command. Supported hosts for copies: cmsdisk1, srv-c2c06-02 (cmsmon), 
+  `hostname` command. Supported hosts for copies: cms-tier0-stage, cmsdisk1, cmsmon, 
   vmepcS2B18-39 (tracker node) and the Storage Manager nodes.
 
   Destination determines where file goes on Tier0. It is set to default if not set by user.
@@ -298,18 +298,28 @@ unless($pathname) {
 }
 
 unless($hostname eq 'cmsdisk1'         || 
-       $hostname eq 'srv-c2c06-02.cms' || 
+       $hostname eq 'cmsmon'           || 
+       $hostname eq 'cms-tier0-stage'  || 
        $hostname eq 'vmepcS2B18-39'    ||
        $hostname =~ 'srv-c2c07-'       || 
        $hostname =~ 'srv-C2C07-') { 
-    print "Error: Hostname not valid.  Must be cmsdisk1, srv-c2c06-02.cms, or a Storage Manager node\n";
+    print "Error: Hostname not valid. Must be cmsdisk1, srv-c2c06-02.cms, or a Storage Manager node\n";
     usageShort();
 }
 
-if(hostname() eq $hostname && !(-e "$pathname/$filename")) {
+my $thostname = $hostname;
+$thostname = 'srv-S2C17-01'     if $hostname eq 'cms-tier0-stage';
+$thostname = 'srv-C2D05-02'     if $hostname eq 'cmsdisk1';
+$thostname = 'srv-c2d17-02.cms' if $hostname eq 'cmsmon';
+
+if(hostname() eq $thostname && !(-e "$pathname/$filename")) {
     print "Error: Hostname = this machine, but file does not exist, exiting!\n";
     usageShort();
-} 
+} elsif(hostname() ne $thostname && (-e "$pathname/$filename")) {
+    print "Error: Hostname != this machine, but file exists on this host, exiting!\n";
+    usageShort();
+}
+
 
 # if we are running this on same host as the file can find out filesize as a fallback
 unless($filesize) {
