@@ -52,7 +52,7 @@ void CSCDCCHeader::setDAV(int slot)
      For slink0, the DDU slots are 5, 12, 4, 13, 3 (same as Fifo_in_use[4:0]); 
      for slink1, the DDU slots are 9, 7, 10, 6, 11
   */
-  assert(slot>=3 && slot < 13);
+  assert(slot>=3 && slot <= 13);
   int bit[] = {0, 0, 0, 2, 5, 7, 4, 6, 0, 7, 5, 2, 6, 4};
   word[0] |= 1 << bit[slot];
 }
