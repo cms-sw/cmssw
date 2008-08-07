@@ -3,7 +3,7 @@
 
 
 //empty constructor
-TtSemiEvent::TtSemiEvent():
+TtSemiLeptonicEvent::TtSemiLeptonicEvent():
   decay_(kNone), 
   fitChi2_(-1.), 
   genMatchSumPt_(-1.), 

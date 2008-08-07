@@ -1,5 +1,5 @@
-#ifndef TopObjects_TtSemiEvent_h
-#define TopObjects_TtSemiEvent_h
+#ifndef TopObjects_TtSemiLeptonicEvent_h
+#define TopObjects_TtSemiLeptonicEvent_h
 
 #include <vector>
 #include <string>
@@ -26,7 +26,7 @@ namespace TtSemiDaughter{
   static const std::string HadQ="HadQ", HadP="HadP", HadW="HadW", HadB="HadB", HadTop="HadTop"; 
 }
 
-class TtSemiEvent {
+class TtSemiLeptonicEvent {
   
  public:
 
@@ -38,8 +38,8 @@ class TtSemiEvent {
 
  public:
 
-  TtSemiEvent();
-  virtual ~TtSemiEvent(){};
+  TtSemiLeptonicEvent();
+  virtual ~TtSemiLeptonicEvent(){};
 
   // access decay 
   Decay decay() const { return decay_;}

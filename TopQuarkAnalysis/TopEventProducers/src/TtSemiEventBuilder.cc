@@ -27,9 +27,9 @@ TtSemiEventBuilder::TtSemiEventBuilder(const edm::ParameterSet& cfg) :
     meth_=mvaDisc_.getParameter<edm::InputTag>("meth");
     disc_=mvaDisc_.getParameter<edm::InputTag>("disc");
   }
-  // produces an TtSemiEvent from hypothesis
+  // produces an TtSemiLeptonicEvent from hypothesis
   // and associated extra information
-  produces<TtSemiEvent>();
+  produces<TtSemiLeptonicEvent>();
 }
 
 TtSemiEventBuilder::~TtSemiEventBuilder()
@@ -39,10 +39,10 @@ TtSemiEventBuilder::~TtSemiEventBuilder()
 void
 TtSemiEventBuilder::produce(edm::Event& evt, const edm::EventSetup& setup)
 {
-  TtSemiEvent event;
+  TtSemiLeptonicEvent event;
 
   // set decay
-  event.setDecay((TtSemiEvent::Decay&)decay_);
+  event.setDecay((TtSemiLeptonicEvent::Decay&)decay_);
 
   // set genEvent
   edm::Handle<TtGenEvent> genEvt;
@@ -58,7 +58,7 @@ TtSemiEventBuilder::produce(edm::Event& evt, const edm::EventSetup& setup)
     edm::Handle<reco::CompositeCandidate> hyp; 
     evt.getByLabel(*h, hyp);
 
-    event.addEventHypo((TtSemiEvent::HypoKey&)*key, *hyp);
+    event.addEventHypo((TtSemiLeptonicEvent::HypoKey&)*key, *hyp);
   }
 
   // set jetMatch extras
@@ -69,7 +69,7 @@ TtSemiEventBuilder::produce(edm::Event& evt, const edm::EventSetup& setup)
     edm::Handle<std::vector<int> > match;
     evt.getByLabel(*m, match);
 
-    event.addJetMatch((TtSemiEvent::HypoKey&)*key, *match);
+    event.addJetMatch((TtSemiLeptonicEvent::HypoKey&)*key, *match);
   }
 
   // set kinFit extras
@@ -99,7 +99,7 @@ TtSemiEventBuilder::produce(edm::Event& evt, const edm::EventSetup& setup)
   event.setMvaDiscAndMethod((std::string&)*meth, *disc);
 
   // feed out 
-  std::auto_ptr<TtSemiEvent> pOut(new TtSemiEvent);
+  std::auto_ptr<TtSemiLeptonicEvent> pOut(new TtSemiLeptonicEvent);
   *pOut=event;
   evt.put(pOut);
 }

@@ -29,13 +29,13 @@ int main(int argc, char* argv[])
   }
 
   // parse HypoKey
-  TtSemiEvent::HypoKey hypoKey;
-  if(!strcmp(argv[3], "kWMassMaxSumPt")) hypoKey = TtSemiEvent::kWMassMaxSumPt; else if
-    (!strcmp(argv[3], "kMaxSumPtWMass")) hypoKey = TtSemiEvent::kMaxSumPtWMass; else if
-    (!strcmp(argv[3], "kGeom"         )) hypoKey = TtSemiEvent::kGeom;          else if
-    (!strcmp(argv[3], "kKinFit"       )) hypoKey = TtSemiEvent::kKinFit;        else if
-    (!strcmp(argv[3], "kGenMatch"     )) hypoKey = TtSemiEvent::kGenMatch;      else if
-    (!strcmp(argv[3], "kMVADisc"      )) hypoKey = TtSemiEvent::kMVADisc; 
+  TtSemiLeptonicEvent::HypoKey hypoKey;
+  if(!strcmp(argv[3], "kWMassMaxSumPt")) hypoKey = TtSemiLeptonicEvent::kWMassMaxSumPt; else if
+    (!strcmp(argv[3], "kMaxSumPtWMass")) hypoKey = TtSemiLeptonicEvent::kMaxSumPtWMass; else if
+    (!strcmp(argv[3], "kGeom"         )) hypoKey = TtSemiLeptonicEvent::kGeom;          else if
+    (!strcmp(argv[3], "kKinFit"       )) hypoKey = TtSemiLeptonicEvent::kKinFit;        else if
+    (!strcmp(argv[3], "kGenMatch"     )) hypoKey = TtSemiLeptonicEvent::kGenMatch;      else if
+    (!strcmp(argv[3], "kMVADisc"      )) hypoKey = TtSemiLeptonicEvent::kMVADisc; 
   else{
     // -------------------------------------------------  
     std::cerr << "ERROR:: " 
@@ -92,16 +92,16 @@ int main(int argc, char* argv[])
   assert( decay_ != 0 ); 
   char genEvtName[50];
   sprintf(genEvtName, "TtGenEvent_genEvt__%s.obj", argv[2]);
-  TBranch* genEvt_  = events_->GetBranch( genEvtName ); // referred to from within TtSemiEvent class
+  TBranch* genEvt_  = events_->GetBranch( genEvtName ); // referred to from within TtSemiLeptonicEvent class
   assert( genEvt_ != 0 ); 
   char semiEvtName[50];
-  sprintf(semiEvtName, "TtSemiEvent_ttSemiEvent__%s.obj", argv[2]);
+  sprintf(semiEvtName, "TtSemiLeptonicEvent_ttSemiEvent__%s.obj", argv[2]);
   TBranch* semiEvt_ = events_->GetBranch( semiEvtName ); 
   assert( semiEvt_ != 0 );
   
   // loop over events and fill histograms  
   int nevt = events_->GetEntries();
-  TtSemiEvent semiEvt;
+  TtSemiLeptonicEvent semiEvt;
   // -------------------------------------------------  
   std::cout << "start looping " << nevt << " events..." << std::endl;
   // -------------------------------------------------
@@ -153,23 +153,23 @@ int main(int argc, char* argv[])
   // save histograms to file
   TFile outFile( "analyzeHypothesis.root", "recreate" );
   switch( hypoKey ){
-  case TtSemiEvent::kWMassMaxSumPt : 
+  case TtSemiLeptonicEvent::kWMassMaxSumPt : 
     outFile.mkdir("analyzeMaxSumPtWMass");
     outFile.cd("analyzeMaxSumPtWMass");
     break;
-  case TtSemiEvent::kMaxSumPtWMass : 
+  case TtSemiLeptonicEvent::kMaxSumPtWMass : 
     outFile.mkdir("analyzeMaxSumPtWMass");
     outFile.cd("analyzeMaxSumPtWMass");
     break;
-  case TtSemiEvent::kKinFit : 
+  case TtSemiLeptonicEvent::kKinFit : 
     outFile.mkdir("analyzeKinFit");
     outFile.cd("analyzeKinFit");
     break;
-  case TtSemiEvent::kGenMatch : 
+  case TtSemiLeptonicEvent::kGenMatch : 
     outFile.mkdir("analyzeGenMatch");
     outFile.cd("analyzeGenMatch");
     break;
-  case TtSemiEvent::kMVADisc : 
+  case TtSemiLeptonicEvent::kMVADisc : 
     outFile.mkdir("analyzeMVADisc");
     outFile.cd("analyzeMVADisc");
     break;

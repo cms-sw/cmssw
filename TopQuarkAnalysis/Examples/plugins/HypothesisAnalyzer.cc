@@ -14,19 +14,19 @@ HypothesisAnalyzer::HypothesisAnalyzer(const edm::ParameterSet& cfg):
 void
 HypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
 {
-  edm::Handle<TtSemiEvent> semiEvt;
+  edm::Handle<TtSemiLeptonicEvent> semiEvt;
   evt.getByLabel(semiEvt_, semiEvt);
 
   edm::Handle<int> hypoKeyHandle;
   evt.getByLabel(hypoKey_, hypoKeyHandle);
-  TtSemiEvent::HypoKey& hypoKey = (TtSemiEvent::HypoKey&) *hypoKeyHandle;
+  TtSemiLeptonicEvent::HypoKey& hypoKey = (TtSemiLeptonicEvent::HypoKey&) *hypoKeyHandle;
 
   if( !semiEvt->isHypoAvailable(hypoKey) ){
-    edm::LogWarning ( "NonValidHyp" ) << "Hypothesis not available for this event";
+    edm::LogInfo ( "NonValidHyp" ) << "Hypothesis not available for this event";
     return;
   }
   if( !semiEvt->isHypoValid(hypoKey) ){
-    edm::LogWarning ( "NonValidHyp" ) << "Hypothesis not valid for this event";
+    edm::LogInfo ( "NonValidHyp" ) << "Hypothesis not valid for this event";
     return;
   }
   

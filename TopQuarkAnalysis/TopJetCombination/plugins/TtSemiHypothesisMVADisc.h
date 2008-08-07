@@ -14,7 +14,7 @@ class TtSemiHypothesisMVADisc : public TtSemiHypothesis  {
  private:
   
   /// build the event hypothesis key
-  virtual void buildKey() { key_= TtSemiEvent::kMVADisc; };  
+  virtual void buildKey() { key_= TtSemiLeptonicEvent::kMVADisc; };  
   /// build event hypothesis from the reco objects of a semi-leptonic event 
   virtual void buildHypo(edm::Event&,
 			 const edm::Handle<edm::View<reco::RecoCandidate> >&,

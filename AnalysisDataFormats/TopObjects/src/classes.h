@@ -29,8 +29,6 @@ namespace {
     std::pair<unsigned int, std::vector<unsigned int> > p_uint_vint;
     std::vector<int> v_int;
     std::vector<std::pair<std::string, double> > v_p_str_dbl;
-    std::map<TtSemiEvent::HypoKey, reco::CompositeCandidate> m_key_hyp;
-    std::map<TtSemiEvent::HypoKey, std::vector<int> > m_key_vint;
 
     typedef edm::Ptr<pat::MET> PtrMet;
     typedef edm::Ptr<pat::Jet> PtrJet;
@@ -44,16 +42,19 @@ namespace {
     TtGenEvent ttgen;
     StGenEvent stgen;
     TopGenEvent topgen;
-    TtSemiEvent ttsemievt;
+    TtSemiLeptonicEvent ttsemievt;
     edm::Wrapper<TtGenEvent> w_ttgen;
     edm::Wrapper<StGenEvent> w_stgen;
     edm::Wrapper<TopGenEvent> w_topgen;
-    edm::Wrapper<TtSemiEvent> w_tttsemievt;
+    edm::Wrapper<TtSemiLeptonicEvent> w_tttsemievt;
+
     edm::RefProd<TtGenEvent> rp_ttgen;
     edm::RefProd<StGenEvent> rp_stgen;
     edm::RefProd<TopGenEvent> rp_topgen;
-    edm::RefProd<TtSemiEvent> rp_ttsemievt;
+    edm::RefProd<TtSemiLeptonicEvent> rp_ttsemievt;
 
+    std::map<TtSemiLeptonicEvent::HypoKey, reco::CompositeCandidate> m_key_hyp;
+    std::map<TtSemiLeptonicEvent::HypoKey, std::vector<int> > m_key_vint;
 
     TtDilepEvtSolution ttdilep;
     TtSemiEvtSolution ttsemi;
