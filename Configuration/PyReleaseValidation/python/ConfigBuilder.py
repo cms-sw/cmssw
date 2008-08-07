@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.63 $"
+__version__ = "$Revision: 1.64 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -15,7 +15,7 @@ defaultOptions = Options()
 defaultOptions.pileup = 'NoPileUp'
 defaultOptions.geometry = 'Pilot2'
 defaultOptions.beamspot = 'Early10TeVCollision'
-defaultOptions.magField = ''
+defaultOptions.magField = '38T'
 defaultOptions.conditions = 'FrontierConditions_GlobalTag,STARTUP_V4::All'
 
 # the pile up map
@@ -39,6 +39,9 @@ def findName(object,dictionary):
     for name, item in dictionary.iteritems():
         if item == object:
             return name
+
+def availableFileOptions(nameTemplate):
+	pass
 
 
 class ConfigBuilder(object):
@@ -434,7 +437,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.63 $"),
+              (version=cms.untracked.string("$Revision: 1.64 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
