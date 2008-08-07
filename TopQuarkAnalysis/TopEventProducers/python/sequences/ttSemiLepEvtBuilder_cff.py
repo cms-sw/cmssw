@@ -14,31 +14,31 @@ from TopQuarkAnalysis.TopEventProducers.sequences.ttGenEventFilters_cff import *
 from TopQuarkAnalysis.TopEventProducers.sequences.ttSemiEventHypotheses_cff import *
 
 ## configure ttSemiEventBuilder
-from TopQuarkAnalysis.TopEventProducers.producers.TtSemiEventBuilder_cfi import *
+from TopQuarkAnalysis.TopEventProducers.producers.TtSemiLepEvtBuilder_cfi import *
 
 ## make ttSemiEvent
 makeTtSemiEvent = cms.Sequence(makeGenEvt *
                                makeTtSemiHyps *
-                               ttSemiEvent
+                               ttSemiLepEvent
                                )
 
 ## make ttSemiEvent prefiltered for full leptonic decays
 makeTtSemiEvent_fullLepFilter = cms.Sequence(makeGenEvt *
                                ttFullyLeptonicFilter *               
                                makeTtSemiHyps *
-                               ttSemiEvent
+                               ttSemiLepEvent
                                )
 
 ## make ttSemiEvent prefiltered for semi-leptonic decays
 makeTtSemiEvent_semiLepFilter = cms.Sequence(makeGenEvt *
                                ttSemiLeptonicFilter *               
                                makeTtSemiHyps *
-                               ttSemiEvent
+                               ttSemiLepEvent
                                )
 
 ## make ttSemiEvent prefiltered for full hadronic decays
 makeTtSemiEvent_fullHadFilter = cms.Sequence(makeGenEvt *
                                ttFullyHadronicFilter *               
                                makeTtSemiHyps *
-                               ttSemiEvent
+                               ttSemiLepEvent
                                )

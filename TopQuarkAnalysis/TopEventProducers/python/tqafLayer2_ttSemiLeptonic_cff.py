@@ -11,7 +11,7 @@ from TopQuarkAnalysis.TopEventProducers.sequences.numLeptonFilter_ttSemiLeptonic
 from TopQuarkAnalysis.TopEventProducers.sequences.numJetFilter_ttSemiLeptonic_cff import *
 
 ## produce ttSemiEvent
-from TopQuarkAnalysis.TopEventProducers.sequences.ttSemiEventBuilder_cff import *
+from TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepEvtBuilder_cff import *
 
 ## produce event solution (legacy)
 from TopQuarkAnalysis.TopEventProducers.producers.TtSemiEvtSolProducer_cfi import *

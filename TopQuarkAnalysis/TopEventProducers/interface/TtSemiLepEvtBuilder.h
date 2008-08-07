@@ -1,5 +1,5 @@
-#ifndef TtSemiEventBuilder_h
-#define TtSemiEventBuilder_h
+#ifndef TtSemiLepEvtBuilder_h
+#define TtSemiLepEvtBuilder_h
 
 #include <memory>
 #include <vector>
@@ -14,12 +14,12 @@
 #include "DataFormats/Candidate/interface/NamedCompositeCandidate.h"
 
 
-class TtSemiEventBuilder : public edm::EDProducer {
+class TtSemiLepEvtBuilder : public edm::EDProducer {
 
  public:
 
-  explicit TtSemiEventBuilder(const edm::ParameterSet&);
-  ~TtSemiEventBuilder();
+  explicit TtSemiLepEvtBuilder(const edm::ParameterSet&);
+  ~TtSemiLepEvtBuilder();
   
  private:
 

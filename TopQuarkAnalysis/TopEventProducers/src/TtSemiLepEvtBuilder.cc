@@ -1,8 +1,8 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "TopQuarkAnalysis/TopEventProducers/interface/TtSemiEventBuilder.h"
+#include "TopQuarkAnalysis/TopEventProducers/interface/TtSemiLepEvtBuilder.h"
 
 
-TtSemiEventBuilder::TtSemiEventBuilder(const edm::ParameterSet& cfg) :
+TtSemiLepEvtBuilder::TtSemiLepEvtBuilder(const edm::ParameterSet& cfg) :
   hyps_    (cfg.getParameter<std::vector<edm::InputTag> >("hyps")),
   keys_    (cfg.getParameter<std::vector<edm::InputTag> >("keys")),
   matches_ (cfg.getParameter<std::vector<edm::InputTag> >("matches")),
@@ -32,12 +32,12 @@ TtSemiEventBuilder::TtSemiEventBuilder(const edm::ParameterSet& cfg) :
   produces<TtSemiLeptonicEvent>();
 }
 
-TtSemiEventBuilder::~TtSemiEventBuilder()
+TtSemiLepEvtBuilder::~TtSemiLepEvtBuilder()
 {
 }
 
 void
-TtSemiEventBuilder::produce(edm::Event& evt, const edm::EventSetup& setup)
+TtSemiLepEvtBuilder::produce(edm::Event& evt, const edm::EventSetup& setup)
 {
   TtSemiLeptonicEvent event;
 

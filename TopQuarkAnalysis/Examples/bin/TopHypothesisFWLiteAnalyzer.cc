@@ -95,7 +95,7 @@ int main(int argc, char* argv[])
   TBranch* genEvt_  = events_->GetBranch( genEvtName ); // referred to from within TtSemiLeptonicEvent class
   assert( genEvt_ != 0 ); 
   char semiEvtName[50];
-  sprintf(semiEvtName, "TtSemiLeptonicEvent_ttSemiEvent__%s.obj", argv[2]);
+  sprintf(semiEvtName, "TtSemiLeptonicEvent_ttSemiLepEvent__%s.obj", argv[2]);
   TBranch* semiEvt_ = events_->GetBranch( semiEvtName ); 
   assert( semiEvt_ != 0 );
   
@@ -153,6 +153,10 @@ int main(int argc, char* argv[])
   // save histograms to file
   TFile outFile( "analyzeHypothesis.root", "recreate" );
   switch( hypoKey ){
+  case TtSemiLeptonicEvent::kGeom : 
+    outFile.mkdir("analyzeGeom");
+    outFile.cd("analyzeGeom");
+    break;
   case TtSemiLeptonicEvent::kWMassMaxSumPt : 
     outFile.mkdir("analyzeMaxSumPtWMass");
     outFile.cd("analyzeMaxSumPtWMass");
