@@ -1,8 +1,8 @@
 /** \class StandAloneTrajectoryBuilder
  *  Concrete class for the STA Muon reco 
  *
- *  $Date: 2007/04/27 14:55:16 $
- *  $Revision: 1.39 $
+ *  $Date: 2008/04/23 16:56:34 $
+ *  $Revision: 1.40 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author Stefano Lacaprara - INFN Legnaro
  */
@@ -31,6 +31,8 @@
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "TrackingTools/TrackRefitter/interface/SeedTransformer.h"
+
 
 using namespace edm;
 using namespace std;
@@ -72,6 +74,9 @@ StandAloneMuonTrajectoryBuilder::StandAloneMuonTrajectoryBuilder(const Parameter
   // Disable/Enable the refit of the trajectory
   doRefit = par.getParameter<bool>("DoRefit");
    
+  // Disable/Enable the refit of the trajectory seed
+  doSeedRefit = par.getParameter<bool>("DoSeedRefit");
+   
   if(doBackwardFilter){
     // The outward-inward fitter (starts from theFilter outermost state)
     ParameterSet bwFilterPSet = par.getParameter<ParameterSet>("BWFilterParameters");
@@ -85,9 +90,15 @@ StandAloneMuonTrajectoryBuilder::StandAloneMuonTrajectoryBuilder(const Parameter
   if(doRefit){
     // The outward-inward fitter (starts from theBWFilter innermost state)
     ParameterSet refitterPSet = par.getParameter<ParameterSet>("RefitterParameters");
-    theRefitter = new StandAloneMuonRefitter(refitterPSet,theService);
+    theRefitter = new StandAloneMuonRefitter(refitterPSet, theService);
   }
-} 
+
+  // The seed transformer (used to refit the seed and get the seed transient state)
+  //  ParameterSet seedTransformerPSet = par.getParameter<ParameterSet>("SeedTransformerParameters");
+  ParameterSet seedTransformerParameters = par.getParameter<ParameterSet>("SeedTransformerParameters");
+  theSeedTransformer = new SeedTransformer(seedTransformerParameters);
+
+}
 
 void StandAloneMuonTrajectoryBuilder::setEvent(const edm::Event& event){
   theFilter->setEvent(event);
@@ -102,6 +113,7 @@ StandAloneMuonTrajectoryBuilder::~StandAloneMuonTrajectoryBuilder(){
   if(theFilter) delete theFilter;
   if(doBackwardFilter && theBWFilter) delete theBWFilter;
   if(doRefit && theRefitter) delete theRefitter;
+  if(theSeedTransformer) delete theSeedTransformer;
 }
 
 
@@ -111,6 +123,9 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
   const std::string metname = "Muon|RecoMuon|StandAloneMuonTrajectoryBuilder";
   MuonPatternRecoDumper debug;
 
+  // Set the services for the seed transformer
+  theSeedTransformer->setServices(theService->eventSetup());
+
   // the trajectory container. In principle starting from one seed we can
   // obtain more than one trajectory. TODO: this feature is not yet implemented!
   TrajectoryContainer trajectoryContainer;
@@ -118,8 +133,27 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
   PropagationDirection fwDirection = (theSeedPosition == recoMuon::in) ? alongMomentum : oppositeToMomentum;  
   Trajectory trajectoryFW(seed,fwDirection);
 
-  DetLayerWithState inputFromSeed = propagateTheSeedTSOS(seed); // it returns DetLayer-TSOS pair
+  TrajectoryStateOnSurface lastTSOS;
+  DetId lastDetId;
+
+  vector<Trajectory> seedTrajectories;
+
+  if(doSeedRefit) {
+    seedTrajectories = theSeedTransformer->seedTransform(seed);
+    if(!seedTrajectories.empty()) {
+      TrajectoryMeasurement lastTM(seedTrajectories.front().lastMeasurement());
+      lastTSOS = lastTM.updatedState();
+      lastDetId = lastTM.recHit()->geographicalId();
+    }
+  }
   
+  if(!doSeedRefit || seedTrajectories.empty()) {
+    lastTSOS = theSeedTransformer->seedTransientState(seed);
+    lastDetId = seed.startingState().detId();
+  }
+
+  DetLayerWithState inputFromSeed = propagateTheSeedTSOS(lastTSOS, lastDetId);
+
   // refine the FTS given by the seed
 
   // the trajectory is filled in the refitter::refit
@@ -255,24 +289,15 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
 
 
 StandAloneMuonTrajectoryBuilder::DetLayerWithState
-StandAloneMuonTrajectoryBuilder::propagateTheSeedTSOS(const TrajectorySeed& seed){
+StandAloneMuonTrajectoryBuilder::propagateTheSeedTSOS(TrajectoryStateOnSurface& aTSOS, DetId& aDetId) {
 
   const std::string metname = "Muon|RecoMuon|StandAloneMuonTrajectoryBuilder";
   MuonPatternRecoDumper debug;
 
-  // Get the Trajectory State on Det (persistent version of a TSOS) from the seed
-  PTrajectoryStateOnDet pTSOD = seed.startingState();
-  
-  // Transform it in a TrajectoryStateOnSurface
-  LogTrace(metname)<<"Transform PTrajectoryStateOnDet in a TrajectoryStateOnSurface"<<endl;
-  TrajectoryStateTransform tsTransform;
+  DetId seedDetId(aDetId);
+  //  const GeomDet* gdet = theService->trackingGeometry()->idToDet( seedDetId );
 
-  DetId seedDetId(pTSOD.detId());
-
-  const GeomDet* gdet = theService->trackingGeometry()->idToDet( seedDetId );
-
-  TrajectoryStateOnSurface initialState = tsTransform.transientState(pTSOD, &(gdet->surface()), 
-								     &*theService->magneticField());
+  TrajectoryStateOnSurface initialState(aTSOS);
 
   LogTrace(metname)<<"Seed's Pt: "<<initialState.freeState()->momentum().perp()<<endl;
 
@@ -343,3 +368,5 @@ StandAloneMuonTrajectoryBuilder::propagateTheSeedTSOS(const TrajectorySeed& seed
   
   return result;
 }
+
+
