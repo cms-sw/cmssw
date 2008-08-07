@@ -13,13 +13,7 @@ bool CSCDCCEventData::debug = false;
 CSCDCCEventData::CSCDCCEventData(int sourceId, int nDDUs, int bx, int l1a) 
 : theDCCHeader(bx, l1a, sourceId) 
 {
-
   theDDUData.reserve(nDDUs);
-  CSCDDUHeader dduHeader(bx, l1a, sourceId);
-  for(int i = 0; i < nDDUs; ++i) 
-    {
-      theDDUData.push_back(CSCDDUEventData(dduHeader));
-    }
 } 
 
 CSCDCCEventData::CSCDCCEventData(unsigned short *buf, CSCDCCExaminer* examiner)
@@ -99,25 +93,26 @@ bool CSCDCCEventData::check() const
 }
 
 
-void CSCDCCEventData::addChamber(CSCEventData & chamber, int dduID, int dmbID)
+void CSCDCCEventData::addChamber(CSCEventData & chamber, int dduID, int dduSlot, int dmbID)
 {
   // first, find this DDU
   std::vector<CSCDDUEventData>::iterator dduItr;
-  for(dduItr = theDDUData.begin(); dduItr != theDDUData.end(); ++dduItr)
+  int dduIndex = -1;
+  int nDDUs = theDDUData.size();
+  for(int i = 0; dduIndex == -1 && i < nDDUs; ++i)
   {
-    if(dduItr->header().source_id() == dduID) continue;
+    if(theDDUData[i].header().source_id() == dduID) dduIndex = i;
   }
-  if(dduItr == theDDUData.end())
+  if(dduIndex == -1)
   {
     // make a new one
     CSCDDUHeader newDDUHeader(dccHeader().getCDFBunchCounter(), 
                               dccHeader().getCDFEventNumber(), dduID);
     theDDUData.push_back(CSCDDUEventData(newDDUHeader));
-    dduItr = theDDUData.end()-1;
-    //FIXME should be ddu slot ID
-    //dccHeader().setDAV(dduSlot);
+    dduIndex = nDDUs;
+    dccHeader().setDAV(dduSlot);
   }
-  dduItr->add(chamber, dmbID);
+  theDDUData[dduIndex].add(chamber, dmbID);
 }
  
 
