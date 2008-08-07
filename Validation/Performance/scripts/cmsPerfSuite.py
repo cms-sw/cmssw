@@ -35,10 +35,23 @@ import getopt
 import sys
 import optparse as opt
 
+global ERRORS 
+ERRORS = 0
+
 def optionParse():
     parser = opt.OptionParser(usage=usage())
 
-    #parser.set_defaults(debug=False)
+    parser.set_defaults(TimeSizeEvents   = 100,
+                        IgProfEvents     = 5,
+                        ValgrindEvents   = 1,
+                        cmsScimark       = 10,
+                        cmsScimarkLarge  = 10,
+                        cmsdriverOptions = "",
+                        stepOptions      = "",
+                        candleOptions    = "",
+                        castordir = "/castor/cern.ch/cms/store/relval/performance/",
+                        cores=4, #Number of cpu cores on the machine
+                        cpu=1) #Cpu core on which the suite is run:
 
     parser.add_option(
         '-d',
@@ -169,9 +182,13 @@ def usage():
     print __doc__
 
 def runCmdSet(cmd):
-    for subcmd in cmd:
-        printFlush(subcmd)
-    runcmd(";".join(cmd))
+    if len(cmd) <= 1:
+        runcmd(cmd)
+        printFlush(cmd)
+    else:
+        for subcmd in cmd:
+            printFlush(subcmd)
+        runcmd(";".join(cmd))
     printFlush(getDate())
 
 def printFlush(command):
@@ -197,43 +214,85 @@ def printDate():
     print getDate()
 
 def getPrereqRoot(rootdir,rootfile):
-    os.system("cd %s ; cmsDriver.py MinBias_cfi -s GEN,SIM -n 10" % (rootdir))
-    print "ERROR: %s file required to run QCD profiling does not exist. We can not run QCD profiling please create root file" % (mbrootfile)
+    print "ERROR: %s file required to run QCD profiling does not exist. We can not run QCD profiling please create root file" % (rootdir + "/" + rootfile)
     print "       to run QCD profiling."
     print "       Running cmsDriver.py to get Required MinbiasEvents"
+    if not os.path.exists(rootdir):
+        os.system("mkdir -p %s" % rootdir)
+    if not _debug:
+        os.system("cd %s ; cmsDriver.py MinBias_cfi -s GEN,SIM -n 10" % (rootdir))
 
 
-def checkQcdConditions(isAllCandles,usercandles,AllCandles,TimeSizeEvents,rootdir,rootfile):
+def checkQcdConditions(isAllCandles,candles,TimeSizeEvents,rootdir,rootfile):
     if TimeSizeEvents < MIN_REQ_TS_EVENTS :
         print "WARNING: TimeSizeEvents is less than 8 but QCD needs at least that to run. Setting TimeSizeEvents to 8"
         if isAllCandles:
-            AllCandles.popitem("QCD_80_120")
-        else :
-            usercandles.pop("QCD_80_120")
+            candles.remove("QCD_80_120")
+        else:
+            candles.remove("QCD_80_120")
         
     rootfilepath = rootdir + "/" + rootfile
     if not os.path.exists(rootfilepath):
         getPrereqRoot(rootdir,rootfile)
-        if not os.path.exists(rootfilepath):
-            print "ERROR: Could not create root with enough TimeSize events for QCD exiting..."
+        if not os.path.exists(rootfilepath) and not _debug:
+            print "ERROR: Could not create or find a rootfile %s with enough TimeSize events for QCD exiting..." % rootfilepath
             sys.exit()
-    return (usercandles,AllCandles)
+    return candles
+
+def mkCandleDir(candle,profiler):
+    dir = "%s_%s" % (candle,profiler)
+    runcmd( "mkdir -p %s" % dir )
+    printDate()
+    #runCmdSet(cmd)
+    return dir
+
+def cpIgProfGenSim(dir,candle):
+    cmds = ("cd %s" % dir,
+            "cp -pR ../%s_IgProf/%s_GEN,SIM.root ."  % (candle,candle))
+    runCmdSet(cmds)
+
+def displayErrors(file):
+    global ERRORS
+    try:
+        for line in open(file,"r"):
+            if "cerr" in line:
+                print "ERROR: %s" % line
+                ERRORS += 1
+    except IOError:
+        print "WARNING: The log file could not be open for some reason"
+        ERRORS += 1
+    
+
+def valFilterReport(dir,cmsver):
+    cmds = ("cd %s" % dir,
+            "grep -v \"step=GEN,SIM\" SimulationCandles_%s.txt > tmp" % (cmssw_version),
+            "mv tmp SimulationCandles_%s.txt"                         % (cmssw_version))
+    runCmdSet(cmds)
+
+def runCmsReport(dir,cmd,cmsver,candle):
+    cmds = ("cd %s"                 % (dir),
+            "%s -i SimulationCandles_%s.txt -t perfreport_tmp -R -P >& %s.log" % (cmd,cmsver,candle))
+    if not _debug:
+        runCmdSet(cmds)
+
+def runCmsInput(dir,cmd,numevents,candle,cmsdrvopts,stepopt,profiler):
+
+    profilers = { "TimeSize" : "0123",
+                  "IgProf"   : "4567",
+                  "Valgrind" : "89"} 
+
+    cmds = ("cd %s"                 % (dir),
+            "%s %s \"%s\" %s %s %s" % (cmd,
+                                       numevents,
+                                       candle,
+                                       profilers[profiler],
+                                       cmsdrvopts,
+                                       stepopt))
+    runCmdSet(cmds)
 
 def main(argv):
     #Some default values:
-    castordir = "/castor/cern.ch/cms/store/relval/performance/"
-    TimeSizeEvents   = "100"
-    IgProfEvents     = "5"
-    ValgrindEvents   = "1"
-    cmsScimark       = "10"
-    cmsScimarkLarge  = "10"
-    cmsdriverOptions = ""
-    stepOptions      = ""
-    candleoption     = ""
-    #Number of cpu cores on the machine
-    cores=4
-    #Cpu core on which the suite is run:
-    cpu=1
+
     #Let's check the command line arguments
 
     (options, args) = optionParse()
@@ -248,16 +307,16 @@ def main(argv):
     cmsScimarkLarge= options.cmsScimarkLarge
     cmsdriverOptions=options.cmsdriverOptions
     stepOptions    = options.stepOptions
-    candleoption   = options.candleoption
+    candleoption   = options.candleOptions
     cpu            = options.cpu
-    cores          = options.core
+    cores          = options.cores
 
 
         #opts, args = getopt.getopt(argv, "o:t:i:v:hd", ["output=","timesize=","igprof=","valgrind=","cmsScimark=","cmsScimarkLarge=","cmsdriver=","step=","candle=","cpu=","cores=","help"])
    # except getopt.GetoptError:
  
     #Case with no arguments (using defaults)
-    if opts == []:
+    if options == []:
         print "No arguments given, so DEFAULT test will be run:"
         
     #Print a time stamp at the beginning:
@@ -334,11 +393,9 @@ def main(argv):
     scimark      = open("cmsScimark2.log"      ,"w")
     scimarklarge = open("cmsScimark2_large.log","w")
 
-    #Test mode... development use only... we need to add an option for this
-    # but getopt is rubbish... we should move this to optparse.
-    testmode = False
-    #dont do benchmarking if in test mode... saves time
-    benching = not testmode
+
+    #dont do benchmarking if in debug mode... saves time
+    benching = not _debug
     if benching:
         print "Starting with %s cmsScimark on cpu%s"%(cmsScimark,cpu)
         benchmarks(Commands[3]," >& ",scimark.name,cmsScimark)
@@ -362,183 +419,89 @@ def main(argv):
     AllCandles.sort()
 
     isAllCandles = candleoption == ""
-
-    if not isAllCandles:
-        usercandles=candleoption.split(",")
+    
+    candles = {}
+    if isAllCandles:
+        candles=AllCandles
+    else:
+        candles=candleoption.split(",")
 
     qcdWillRun = isAllCandles or ((not isAllCandles) and "QCD_80_120" in usercandles )
+
+    if qcdWillRun:
+        candles = checkQcdConditions(isAllCandles,
+                                     candles,
+                                     TimeSizeEvents,
+                                     "./%s_%s" % ("MinBias","TimeSize"),
+                                     "%s_cfi_GEN_SIM.root" % "MinBias")  
 
     #TimeSize tests:
     if int(TimeSizeEvents)>0:
 
         print "Launching the TimeSize tests (TimingReport, TimeReport, SimpleMemoryCheck, EdmSize) with %s events each" % TimeSizeEvents
         printDate()
-
-        if qcdWillRun:
-            (usercandles,
-             AllCandles)     = checkQcdConditions(isAllCandles,
-                                                  usercandles,
-                                                  AllCandles,
-                                                  TimeSizeEvents,
-                                                  "./MinBias_TimeSize",
-                                                  "MinBias_GEN,SIM.root")
-
-        if isAllCandles:
-            cmds=[]
-            sys.stdout.flush()
-            for candle in AllCandles:
-                cmd = ("mkdir %s_TimeSize"                                                % (candle),
-                       "cd %s_TimeSize"                                                   % (candle),
-                       "%s %s \"%s\" 0123 %s %s"                                          % (Commands[2],
-                                                                                             TimeSizeEvents,
-                                                                                             Candles[candle],
-                                                                                             cmsdriverOptions,
-                                                                                             stepOptions),
-                       "%s -i SimulationCandles_%s.txt -t perfreport_tmp -R -P >& %s.log" % (Commands[1],cmssw_version,candle))
-                runCmdSet(cmd)
-
-        else:
-            for candle in usercandles:
-                cmd = ("mkdir %s_TimeSize"                                                % (candle),
-                       "cd %s_TimeSize"                                                   % (candle),
-                       "%s %s \"%s\" 0123 %s %s"                                          % (Commands[2],
-                                                                                             TimeSizeEvents,
-                                                                                             Candles[candle],
-                                                                                             cmsdriverOptions,
-                                                                                             stepOptions),
-                       "%s -i SimulationCandles_%s.txt -t perfreport_tmp -R -P >& %s.log" % (Commands[1],cmssw_version,candle))
-                runCmdSet(cmd)
+        
+        sys.stdout.flush()
+        for candle in candles:
+            dir = mkCandleDir(candle,"TimeSize")
+            runCmsInput(dir,Commands[2],TimeSizeEvents,Candles[candle],cmsdriverOptions,stepOptions,"TimeSize")
+            runCmsReport(dir,Commands[1],cmssw_version,candle)
+            displayErrors("%s/%s_%s.log" % (dir,candle,"TimeSize"))
 
     #IgProf tests:
     if int(IgProfEvents)>0:
         print "Launching the IgProf tests (IgProfPerf, IgProfMemTotal, IgProfMemLive, IgProfMemAnalyse) with %s events each" % IgProfEvents
         printDate()
 
-        if qcdWillRun:
-            (usercandles,
-             AllCandles) = checkQcdConditions(isAllCandles,
-                                                  usercandles,
-                                                  AllCandles,
-                                                  TimeSizeEvents,
-                                                  "./MinBias_TimeSize",
-                                                  "MinBias_GEN,SIM.root")           
-        
+        IgCandles = candles
+        cmds=[]
+        sys.stdout.flush()        
         if isAllCandles:
-            cmds=[]
-            sys.stdout.flush()
-            
             #By default run IgProf only on QCD_80_120 candle
-            candle = "QCD_80_120"
-            cmd = ("mkdir %s_IgProf"                                                  % (candle),
-                   "cd %s_IgProf"                                                     % (candle),
-                   "%s %s \"%s\" 4567 %s %s"                                          % (Commands[2],
-                                                                                         IgProfEvents,
-                                                                                         Candles[candle],
-                                                                                         cmsdriverOptions,
-                                                                                         stepOptions),
-                   "%s -i SimulationCandles_%s.txt -t perfreport_tmp -R -P >& %s.log" % (Commands[1],cmssw_version,candle))
+            IgCandles = [ "QCD_80_120" ]
 
-            runCmdSet(cmd)
-        else:
-            
-            #In the user-defined candles a different behavior: do IgProf for all specified candles (usually it will only be 1)
-            usercandles=candleoption.split(",")
-            for candle in usercandles:
-                cmd = ("mkdir %s_IgProf"                                                  % (candle),
-                       "cd %s_IgProf"                                                     % (candle),
-                       "%s %s \"%s\" 4567 %s %s"                                          % (Commands[2],
-                                                                                             IgProfEvents,
-                                                                                             Candles[candle],
-                                                                                             cmsdriverOptions,
-                                                                                             stepOptions),
-                       "%s -i SimulationCandles_%s.txt -t perfreport_tmp -R -P >& %s.log" % (Commands[1],cmssw_version,candle))
-                runtCmdSet(cmd)
+
+        for candle in IgCandles:
+            dir = mkCandleDir(candle,"IgProf")
+            runCmsInput(dir,Commands[2],IgProfEvents,Candles[candle],cmsdriverOptions,stepOptions,"IgProf")
+            runCmsReport(dir,Commands[1],cmssw_version,candle)
+            displayErrors("%s/%s_%s.log" % (dir,candle,"IgProf"))            
+
     #Valgrind tests:
     if int(ValgrindEvents)>0:
         print "Launching the Valgrind tests (callgrind_FCE, memcheck) with %s events each" % ValgrindEvents
-        printDate()
+        printDate()   
 
-        if qcdWillRun:
-            (usercandles,
-             AllCandles) = checkQcdConditions(isAllCandles,
-                                              usercandles,
-                                              AllCandles,
-                                              TimeSizeEvents,
-                                              "./MinBias_Valgrind",
-                                              "MinBias_GEN,SIM.root")                                                
+        valCandles = candles
         
         if isAllCandles:
             cmds=[]
             sys.stdout.flush()
             
             #By default run Valgrind only on QCD_80_120, skipping SIM step since it would take forever (and do SIM step on SingleMu)
-            candle = "QCD_80_120"
-            print "Valgrind tests **SKIPPING GEN,SIM** on %s candle" % candle
-            cmd = ("mkdir %s_Valgrind"                                                % (candle),
-                   "cd %s_Valgrind"                                                   % (candle),
-                   "cp -pR ../%s_IgProf/%s_GEN,SIM.root ."                            % (candle,candle),
-                   "%s %s \"%s\" 89 %s %s"                                            % (Commands[2],
-                                                                                         ValgrindEvents,
-                                                                                         Candles[candle],
-                                                                                         cmsdriverOptions,
-                                                                                         stepOptions),
-                   "grep -v \"step=GEN,SIM\" SimulationCandles_%s.txt > tmp"          % (cmssw_version),
-                   "mv tmp SimulationCandles_%s.txt"                                  % (cmssw_version),
-                   "%s -i SimulationCandles_%s.txt -t perfreport_tmp -R -P >& %s.log" % (Commands[1],cmssw_version,candle))
-            runCmdSet(cmd)
-            
-            #By default run Valgring GEN,SIM profiling only on SingleMu (fastest) candle
-            candle = "SingleMuMinusPt10"
-            print "Valgrind tests **GEN,SIM ONLY** on %s candle" % candle
-            cmd = ("mkdir %s_Valgrind"                                                % (candle),
-                   "cd %s_Valgrind"                                                   % (candle),
-                   "%s %s \"%s\" 89 %s %s"                                            % (Commands[2],
-                                                                                         ValgrindEvents,
-                                                                                         Candles[candle],
-                                                                                         cmsdriverOptions,
-                                                                                         stepOptions),
-                   "grep \"step=GEN,SIM\" SimulationCandles_%s.txt > tmp"             % (cmssw_version),
-                   "mv tmp SimulationCandles_%s.txt"                                  % (cmssw_version),
-                   "%s -i SimulationCandles_%s.txt -t perfreport_tmp -R -P >& %s.log" % (Commands[1],cmssw_version,candle))
-            
-            runCmdSet(cmd)
-        else:
-            
-            #In the user-defined candles a different behavior: do Valgrind for all specified candles (usually it will only be 1)
-            usercandles=candleoption.split(",")
-            for candle in usercandles:
-                print "Valgrind tests **SKIPPING GEN,SIM** on %s candle" % candle
-                cmd = ("mkdir %s_Valgrind"                                                % (candle),
-                       "cd %s_Valgrind"                                                   % (candle),
-                       "cp -pR ../%s_IgProf/%s_GEN,SIM.root ."                            % (candle,candle) ,
-                       "%s %s \"%s\" 89 %s %s"                                            % (Commands[2],
-                                                                                             ValgrindEvents,
-                                                                                             Candles[candle],
-                                                                                             cmsdriverOptions,
-                                                                                             stepOptions),
-                       "grep -v \"step=GEN,SIM\" SimulationCandles_%s.txt > tmp"          % (cmssw_version),
-                       "mv tmp SimulationCandles_%s.txt"                                  % (cmssw_version),
-                       "%s -i SimulationCandles_%s.txt -t perfreport_tmp -R -P >& %s.log" % (Commands[1],cmssw_version,candle))
- 
-                runCmdSet(cmd)
-                
-            #Besides always run, only once the GEN,SIM step on SingleMu:
-            candle = "SingleMuMinusPt10"
-            print "Valgrind tests **GEN,SIM ONLY** on %s candle" % candle
-            cmd = ("mkdir %s_Valgrind"                                                % (candle),
-                   "cd %s_Valgrind"                                                   % (candle),
-                   "%s %s \"%s\" 89 %s %s"                                            % (candle,
-                                                                                         Commands[2],
-                                                                                         ValgrindEvents,
-                                                                                         Candles[candle],
-                                                                                         cmsdriverOptions),
-                   "grep \"step=GEN,SIM\" SimulationCandles_%s.txt > tmp"             % (stepOptions),
-                   "mv tmp SimulationCandles_%s.txt"                                  % (cmssw_version),
-                   "%s -i SimulationCandles_%s.txt -t perfreport_tmp -R -P >& %s.log" % (Commands[1],cmssw_version,candle)
-                   )
-#cmd = ("mkdir %s_Valgrind;cd %s_Valgrind;%s %s \"%s\" 89 %s %s;grep \"step=GEN,SIM\" SimulationCandles_%s.txt > tmp;mv tmp SimulationCandles_%s.txt;%s -i SimulationCandles_%s.txt -t perfreport_tmp -R -P >& %s.log% (candle,candle,Commands[2],ValgrindEvents,Candles[candle],cmsdriverOptions,stepOptions,cmssw_version,cmssw_version,Commands[1],cmssw_version,candle))
+            valCandles = [ "QCD_80_120" ]
 
-            runCmdSet(cmd)
+            
+        #In the user-defined candles a different behavior: do Valgrind for all specified candles (usually it will only be 1)
+        #usercandles=candleoption.split(",")
+        for candle in valCandles:
+            print "Valgrind tests **SKIPPING GEN,SIM** on %s candle" % candle
+            dir = mkCandleDir(candle,"Valgrind")
+            cpIgProfGenSim(dir,candle)
+            runCmsInput(dir,Commands[2],ValgrindEvents,Candles[candle],cmsdriverOptions,stepOptions,"Valgrind")
+            valFilterReport(dir,cmssw_version)
+            runCmsReport(dir,Commands[1],cmssw_version,candle)
+            displayErrors("%s/%s_%s.log" % (dir,candle,"Valgrind")) 
+
+        #Besides always run, only once the GEN,SIM step on SingleMu:
+        candle = "SingleMuMinusPt10"
+        print "Valgrind tests **GEN,SIM ONLY** on %s candle" % candle
+
+        dir = mkCandleDir(candle,"Valgrind")
+        runCmsInput(dir,Commands[2],ValgrindEvents,Candles[candle],cmsdriverOptions,stepOptions,"Valgrind")
+        valFilterReport(dir,cmssw_version)
+        runCmsReport(dir,Commands[1],cmssw_version,candle)
+        displayErrors("%s/%s_%s.log" % (dir,candle,"Valgrind"))            
         
 
     if benching:
@@ -562,7 +525,7 @@ def main(argv):
     printFlush(os.popen4(tarcmd)[1].read())
     
     #Archive it on CASTOR
-    castorcmd="rfcp "+TarFile+".gz "+castordir+TarFile+".gz"
+    castorcmd="rfcp " + TarFile + ".gz " + castordir + TarFile+".gz"
     printFlush(castorcmd)
     printFlush(os.popen4(castorcmd)[1].read())
 
@@ -571,7 +534,12 @@ def main(argv):
     #Print a time stamp at the end:
     date=time.ctime(time.time())
     print "Performance Suite finished running at %s on %s in directory %s" % (date,host,path)
-    
+    if ERRORS == 0:
+        print "There were no errors detected in any of the log files!"
+    else:
+        print "ERROR: There were %s errors detected in the log files, please revise!" % ERRORS
+
+
 if __name__ == "__main__":
     main(sys.argv[1:])
 

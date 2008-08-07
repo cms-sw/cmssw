@@ -86,13 +86,6 @@ KeywordToCfi = {
 def getFstOccur(item, list):
     return filter(item.__eq__,list)[0]
 
-def getFstIndex(item, list):
-    n = 0
-    for x in list:
-        if x == item:
-            return n
-        n += 1
-
 def getLstIndex(item, list):
     lenlist = len(list)
     for x in range(lenlist - 1,0,-1):
@@ -386,7 +379,7 @@ def setInputFile(steps,step,acandle,stepIndex,OutputStep="",qcd=False):
     return InputFileOption
 
 def writeUnprofiledSteps(simcandles,CustomisePythonFragment,cmsDriverOptions,unprofiledSteps,acandle,NumberOfEvents, AllSteps, stepIndex):
-
+    # reduce(lambda x,y : x + "," + "y",unprofiledSteps)
     stepsStr = ",".join(unprofiledSteps)
 
     simcandles.write("\n#Run a %s step(s) that has not been selected for profiling but is needed to run the next step to be profiled\n" % (stepsStr))
@@ -406,7 +399,7 @@ def writeUnprofiledSteps(simcandles,CustomisePythonFragment,cmsDriverOptions,unp
     simcandles.write( "%s @@@ None @@@ None\n\n" % (Command))
 
 def writePrerequisteSteps(simcandles,steps,AllSteps,acandle,NumberOfEvents,cmsDriverOptions):
-    fstIdx = getFstIndex(steps[0],AllSteps) 
+    fstIdx = AllSteps.index(steps[0]) 
     CustomisePythonFragment = pythonFragment("GEN,SIM")
     writeUnprofiledSteps(simcandles, CustomisePythonFragment, cmsDriverOptions,AllSteps[0:fstIdx],acandle,NumberOfEvents, AllSteps, 0)        
     return fstIdx
@@ -433,8 +426,8 @@ def writeCommands(simcandles,
     if not qcd :
         if not (steps[0] == AllSteps[0]):
             stepIndex = writePrerequisteSteps(simcandles,steps,AllSteps,acandle,NumberOfEvents,cmsDriverOptions)
-            start = getFstIndex(steps[0],AllSteps)
-            lst   = getLstIndex(steps[-1],AllSteps)
+            start = AllSteps.index(steps[0])
+            lst   = AllSteps.index(steps[-1])
             steps = AllSteps
             runSteps = AllSteps[start:lst]
             numOfSteps = (lst - start) + 1
