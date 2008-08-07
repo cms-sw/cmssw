@@ -1,10 +1,11 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.61 $"
+__version__ = "$Revision: 1.62 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.Modules import _Module 
+import sys
 
 class Options:
         pass
@@ -16,6 +17,13 @@ defaultOptions.geometry = 'Pilot2'
 defaultOptions.beamspot = 'Early10TeVCollision'
 defaultOptions.magField = ''
 defaultOptions.conditions = 'FrontierConditions_GlobalTag,STARTUP_V4::All'
+
+# the pile up map
+pileupMap = {'LowLumiPileUp': 7.1,
+	     'NoPileUp': 0, 
+	     'InitialPileUp': 3.8,
+	     'HighLumiPileUp': 25.4
+	     }
     
 
 # some helper routines
@@ -150,6 +158,12 @@ class ConfigBuilder(object):
 
             # pile up handling for fastsim
             # TODO - do we want a map config - number or actual values?             
+	    if self._options.pileup not in pileupMap.keys():
+		    print "Pile up option",self._options.pileup,"unknown."
+		    print "Possible options are:", pileupMap.keys()
+                    sys.exit(-1)
+            else:
+                    self.additionalCommands.append("process.famosPileUp.PileUpSimulator.averageNumber = %s" %pileupMap[self._options.pileup])
 
         # no fast sim   
         else:
@@ -387,10 +401,9 @@ class ConfigBuilder(object):
             self.loadAndRemember("Configuration.StandardSequences.L1TriggerDefaultMenu_cff")
             self.additionalCommands.append("process.famosSimHits.SimulateCalorimetry = True")
             self.additionalCommands.append("process.famosSimHits.SimulateTracking = True")
-            self.additionalCommands.append("process.famosPileUp.PileUpSimulator.averageNumber = 0.0")
 
             # the settings have to be the same as for the generator to stay consistent  
-            print 'Set comEnergy to famos decay processing to 10 TeV. Please edit by hand if it needs to be differently'
+            print 'Set comEnergy to famos decay processing to 10 TeV. Please edit by hand if it needs to be different.'
             self.additionalCommands.append('process.famosSimHits.ActivateDecays.comEnergy = 10000')
 	    
             self.additionalCommands.append("process.simulation = cms.Sequence(process.simulationWithFamos)")
@@ -418,7 +431,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.61 $"),
+              (version=cms.untracked.string("$Revision: 1.62 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
