@@ -46,13 +46,13 @@ GctRawToDigi::GctRawToDigi(const edm::ParameterSet& iConfig) :
   verbose_(iConfig.getUntrackedParameter<bool>("verbose",false)),
   hltMode_(iConfig.getParameter<bool>("hltMode")),
   grenCompatibilityMode_(iConfig.getParameter<bool>("grenCompatibilityMode")),
+  doRct_(iConfig.getUntrackedParameter<bool>("unpackRct",true)),
+  doInternEm_(iConfig.getUntrackedParameter<bool>("unpackInternEm",false)),
+  doInternJets_(iConfig.getUntrackedParameter<bool>("unpackInternJets",false)),
+  doFibres_(iConfig.getUntrackedParameter<bool>("unpackFibres",false)),
   doEm_(iConfig.getUntrackedParameter<bool>("unpackEm",true)),
   doJets_(iConfig.getUntrackedParameter<bool>("unpackJets",true)),
   doEtSums_(iConfig.getUntrackedParameter<bool>("unpackEtSums",true)),
-  doInternEm_(iConfig.getUntrackedParameter<bool>("unpackInternEm",true)),
-  doInternJets_(iConfig.getUntrackedParameter<bool>("unpackInternJets",true)),
-  doRct_(iConfig.getUntrackedParameter<bool>("unpackRct",true)),
-  doFibres_(iConfig.getUntrackedParameter<bool>("unpackFibres",true)),
   blockUnpacker_(0),
   unpackFailures_(0)
 {
