@@ -118,9 +118,9 @@ process.hcalClient.CaloTowerClient = process.hcalMonitor.CaloTowerMonitor
 
 # Get conditions, global tag
 
-#This works
-process.GlobalTag.connect = 'frontier://Frontier/CMS_COND_21X_GLOBALTAG'
-process.GlobalTag.globaltag = 'STARTUP_V4::All'
+#This works at FNAL
+#process.GlobalTag.connect = 'frontier://Frontier/CMS_COND_21X_GLOBALTAG'
+#process.GlobalTag.globaltag = 'STARTUP_V4::All'
 
 # Including these two lines (the old conditions) produces the following errors:
 #cms::Exception caught in cmsRun
@@ -133,8 +133,8 @@ process.GlobalTag.globaltag = 'STARTUP_V4::All'
 #process.GlobalTag.connect = 'frontier://Frontier/CMS_COND_20X_GLOBALTAG' ##Frontier/CMS_COND_20X_GLOBALTAG"
 
 # For running at p5:
-#process.GlobalTag.connect = "frontier://(proxyurl=http://localhost:3128)(serverurl=http://frontier1.cms:8000/FrontierOnProd)(serverurl=http://frontier2.cms:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_20X_GLOBALTAG"
-#process.GlobalTag.globaltag = 'CRUZET3_V6::All' # or any other appropriate
+process.GlobalTag.connect = "frontier://(proxyurl=http://localhost:3128)(serverurl=http://frontier1.cms:8000/FrontierOnProd)(serverurl=http://frontier2.cms:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_20X_GLOBALTAG"
+process.GlobalTag.globaltag = 'CRUZET3_V6::All' # or any other appropriate
 
 
 
