@@ -1,4 +1,4 @@
-// $Id: StreamService.cc,v 1.9 2008/04/26 19:27:38 hcheung Exp $
+// $Id: StreamService.cc,v 1.10 2008/05/13 18:06:46 loizides Exp $
 
 #include <EventFilter/StorageManager/interface/StreamService.h>
 #include <EventFilter/StorageManager/interface/ProgressMarker.h>
@@ -56,7 +56,6 @@ bool StreamService::nextEvent(EventMsgView const& view)
   
   ProgressMarker::instance()->writing(true);
   outputService->writeEvent(view);
-  closeTimedOutFiles();
   ProgressMarker::instance()->writing(false);
   return true;
 }
@@ -76,22 +75,24 @@ void StreamService::stop()
 
 
 // 
-// *** close all output service which have not received an events 
-// *** for lumiSectionTimeOut seconds and make a record of the file
+// *** close all output service of the previous lumi-section 
+// *** when lumiSectionTimeOut seconds have passed since the
+// *** appearance of the new lumi section and make a record of the file
 // 
-void StreamService::closeTimedOutFiles()
+void StreamService::closeTimedOutFiles(int lumi, double timeoutdiff)
 {
-  double currentTime = getCurrentTime();
+  if (timeoutdiff < lumiSectionTimeOut_) 
+    return;
+
   for (OutputMapIterator it = outputMap_.begin(); it != outputMap_.end(); ) {
-      if (currentTime - it->second->lastEntry() > lumiSectionTimeOut_) {
-        boost::shared_ptr<FileRecord> fd(it->first);
-        outputMap_.erase(it++);
-        fillOutputSummaryClosed(fd);
-      } else 
-        ++it;
+    if (it->second->lumiSection() < lumi) {
+      boost::shared_ptr<FileRecord> fd(it->first);
+      outputMap_.erase(it++);
+      fillOutputSummaryClosed(fd);
+    } else 
+      ++it;
   }
 }
-
 
 //
 // *** find output service in map or return a new one
