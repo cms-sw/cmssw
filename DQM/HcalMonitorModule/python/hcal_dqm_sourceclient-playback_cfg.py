@@ -7,7 +7,24 @@ process = cms.Process("HCALDQM")
 #----------------------------
 # Event Source
 #-----------------------------
-process.load("DQM.Integration.test.inputsource_playback_cfi")
+#process.load("DQM.Integration.test.inputsource_playback_cfi")
+process.maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32(-1)
+    )
+
+process.source = cms.Source("EventStreamHttpReader",
+                            sourceURL = cms.string('http://srv-c2c05-27:50082/urn:xdaq-application:lid=29'),
+                            consumerPriority = cms.untracked.string('normal'),
+                            max_event_size = cms.int32(7000000),
+                            consumerName = cms.untracked.string('Playback Source'),
+                            max_queue_depth = cms.int32(5),
+                            maxEventRequestRate = cms.untracked.double(12.0),
+                            SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('*')
+                                                              ),
+                            headerRetryInterval = cms.untracked.int32(3)
+                            )
+
+
 
 #----------------------------
 # DQM Environment
@@ -20,7 +37,15 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 #----------------------------
 # DQM Playback Environment
 #-----------------------------
-process.load("DQM.Integration.test.environment_playback_cfi")
+#process.load("DQM.Integration.test.environment_playback_cfi")
+process.DQM.collectorHost = 'srv-c2d05-18.cms'
+process.DQM.collectorPort = 9090
+process.dqmSaver.convention = 'Online'
+process.dqmSaver.dirName = '/home/dqmdevlocal/output'
+process.dqmSaver.producer = 'Playback'
+process.dqmSaver.saveByMinute = 15
+process.dqmSaver.saveByRun = 1
+process.dqmSaver.saveAtJobEnd = True
 
 #-----------------------------
 process.load("DQM.HcalMonitorModule.HcalMonitorModule_cfi")
