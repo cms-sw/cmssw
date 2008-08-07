@@ -147,11 +147,9 @@ void SiStripDigitizer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   edm::ESHandle<SiStripThreshold> thresholdHandle;
   edm::ESHandle<SiStripPedestals> pedestalHandle;
   std::string LAname = conf_.getParameter<std::string>("LorentzAngle");
-  //iSetup.get<SiStripLorentzAngleRcd>().get(LAname,lorentzAngleHandle);
-  iSetup.get<SiStripLorentzAngleRcd>().get(lorentzAngleHandle);
+  iSetup.get<SiStripLorentzAngleRcd>().get(LAname,lorentzAngleHandle);
   std::string gainLabel = conf_.getParameter<std::string>("Gain");
-  //iSetup.get<SiStripGainRcd>().get(gainLabel,gainHandle);
-  iSetup.get<SiStripGainRcd>().get(gainHandle);
+  iSetup.get<SiStripGainRcd>().get(gainLabel,gainHandle);
   iSetup.get<SiStripNoisesRcd>().get(noiseHandle);
   iSetup.get<SiStripThresholdRcd>().get(thresholdHandle);
   iSetup.get<SiStripPedestalsRcd>().get(pedestalHandle);
