@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: injectFileIntoTransferSystem.pl,v 1.24 2008/08/07 14:06:53 loizides Exp $
+# $Id: injectFileIntoTransferSystem.pl,v 1.25 2008/08/07 18:32:19 loizides Exp $
 
 use strict;
 use DBI;
@@ -325,7 +325,7 @@ if(hostname() eq $hostname && !(-e "$pathname/$filename")) {
 # test if file is world readable
 if(hostname() eq $hostname) {
     system("chmod a+r $pathname/$filename");
-    my $mode = (stat($pathname/$filename))[2];
+    my $mode = (stat("$pathname/$filename"))[2];
     $mode = $mode & 0x0007;
     if($mode<4) {
         print "Error: Hostname = this machine, but file is not readable by others, exiting!\n";
