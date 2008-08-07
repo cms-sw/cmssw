@@ -285,15 +285,16 @@ namespace edm {
     (a.friendlyClassName() == b.friendlyClassName()) &&
     (a.productInstanceName() == b.productInstanceName()) &&
     (a.moduleLabel() == b.moduleLabel()) &&
-    (a.branchID() == b.branchID()) &&
-    (a.psetIDs() == b.psetIDs()) &&
-    (a.processConfigurationIDs() == b.processConfigurationIDs()) &&
-    (a.branchAliases() == b.branchAliases());
+    (a.branchID() == b.branchID());
   }
 
   bool
   operator==(BranchDescription const& a, BranchDescription const& b) {
-    return combinable(a, b) && (a.present() == b.present());
+    return combinable(a, b) &&
+       (a.present() == b.present()) &&
+       (a.psetIDs() == b.psetIDs()) &&
+       (a.processConfigurationIDs() == b.processConfigurationIDs()) &&
+       (a.branchAliases() == b.branchAliases());
   }
 
   std::string

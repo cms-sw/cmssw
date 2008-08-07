@@ -59,6 +59,7 @@ namespace edm {
     } else {
       assert(combinable(iter->second, productDesc));
       iter->second.setPresent(iter->second.present() || productDesc.present());
+      iter->second.merge(productDesc);
     }
   }
   
