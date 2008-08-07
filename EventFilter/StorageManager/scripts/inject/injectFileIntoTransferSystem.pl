@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: injectFileIntoTransferSystem.pl,v 1.21 2008/07/30 12:27:18 loizides Exp $
+# $Id: injectFileIntoTransferSystem.pl,v 1.22 2008/08/07 07:47:21 loizides Exp $
 
 use strict;
 use DBI;
@@ -47,7 +47,7 @@ sub usage
     - Lumi files require runnumber, lumisection, appname, and appversion. 
     - DQM files  require runnumber, lumisection, appname, and appversion.
 
-  Hostname is the host on which the file is found. (This should be the name as returned by the
+  Hostname is the host on which the file is found. (This could be the name as returned by the
   `hostname` command. Supported hosts for copies: cms-tier0-stage, cmsdisk1, cmsmon, 
   vmepcS2B18-39 (tracker node) and the Storage Manager nodes.
 
@@ -297,16 +297,22 @@ unless($pathname) {
     usageShort();
 }
 
+# try to match hostname to alias
+$hostname = 'cms-tier0-stage' if $hostname eq 'srv-S2C17-01';
+$hostname = 'cmsdisk1'        if $hostname eq 'srv-C2D05-02';
+$hostname = 'cmsmon'          if $hostname eq 'srv-c2d17-02.cms';
+
 unless($hostname eq 'cmsdisk1'         || 
        $hostname eq 'cmsmon'           || 
        $hostname eq 'cms-tier0-stage'  || 
        $hostname eq 'vmepcS2B18-39'    ||
        $hostname =~ 'srv-c2c07-'       || 
        $hostname =~ 'srv-C2C07-') { 
-    print "Error: Hostname not valid. Must be cmsdisk1, srv-c2c06-02.cms, or a Storage Manager node\n";
+    print "Error: Hostname not valid. Must be one of cms-tier0-stage, cmsdisk1, cmsmon or vmepcS2B18-39.\n";
     usageShort();
 }
 
+# try to verify if file can be found on host
 my $thostname = $hostname;
 $thostname = 'srv-S2C17-01'     if $hostname eq 'cms-tier0-stage';
 $thostname = 'srv-C2D05-02'     if $hostname eq 'cmsdisk1';
