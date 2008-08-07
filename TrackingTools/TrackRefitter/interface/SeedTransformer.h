@@ -6,8 +6,8 @@
  *  fits its RecHits and returns a vector of Trajectories.
  *  If the fit fails, the returned vector is empty.
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2008/08/07 12:08:51 $
+ *  $Revision: 1.1 $
  *  \author D. Trocino - University and INFN Torino
  */
 
@@ -22,7 +22,6 @@ namespace edm {
 class Trajectory;
 class TrajectorySeed;
 class TrajectoryStateOnSurface;
-class MuonServiceProxy;
 class GlobalTrackingGeometry;
 class MagneticField;
 class TrajectoryFitter;
@@ -48,8 +47,6 @@ public:
 protected:
 
 private:
-  MuonServiceProxy *theService;
-
   edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
   edm::ESHandle<MagneticField> theMagneticField;
   edm::ESHandle<TrajectoryFitter> theFitter;

@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2008/08/07 12:09:30 $
+ *  $Revision: 1.1 $
  *  \author D. Trocino - University and INFN Torino
  */
 
@@ -22,12 +22,12 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // Services and Tools
-#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
 // Geometry and Magnetic field
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 
 // Other include files
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
@@ -37,6 +37,8 @@
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "TrackingTools/GeomPropagators/interface/Propagator.h"
+
 
 using namespace std;
 using namespace edm;
@@ -48,7 +50,6 @@ SeedTransformer::SeedTransformer(const ParameterSet& iConfig) {
   LogTrace("Reco|TrackingTools|SeedTransformer") << "SeedTransformer constructor called." << endl << endl;
 
   ParameterSet serviceParameters = iConfig.getParameter<ParameterSet>("ServiceParameters");
-  theService = new MuonServiceProxy(serviceParameters);
 
   theFitterName = iConfig.getParameter<string>("Fitter");  
   theMuonRecHitBuilderName = iConfig.getParameter<string>("MuonRecHitBuilder");
@@ -62,14 +63,9 @@ SeedTransformer::~SeedTransformer() {
 
   LogTrace("Reco|TrackingTools|SeedTransformer") << "SeedTransformer destructor called." << endl << endl;
 
-  if (theService) delete theService;
-
 }
 
 void SeedTransformer::setServices(const EventSetup& iSetup) {
-
-  // Update the services
-  theService->update(iSetup);
 
   iSetup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry); 
   iSetup.get<IdealMagneticFieldRecord>().get(theMagneticField);
