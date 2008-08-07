@@ -5,15 +5,15 @@
  *  to MC and (eventually) data. 
  *  Implementation file contents follow.
  *
- *  $Date: 2008/07/21 20:09:35 $
- *  $Revision: 1.54 $
+ *  $Date: 2008/07/31 19:27:59 $
+ *  $Revision: 1.55 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.cc,v 1.54 2008/07/21 20:09:35 slava77 Exp $
+// $Id: SteppingHelixPropagator.cc,v 1.55 2008/07/31 19:27:59 slava77 Exp $
 //
 //
 
@@ -394,12 +394,14 @@ SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type,
       if (debug_) LogTrace(metname)<<"Skipped refToDest: guess tanDist = "<<tanDist
 				   <<" next check at "<<tanDistNextCheck<<std::endl;
     }
+    //! define a fast-skip distance: should be the shortest of a possible step or distance
+    double fastSkipDist = fabs(dist) > fabs(tanDist) ? tanDist : dist;
 
     if (propagationDirection() == anyDirection){
       dir = refDirection;
     } else {
       dir = propagationDirection();
-      if (fabs(tanDist)<0.1 && refDirection != dir){
+      if (fabs(tanDist)<0.1 && refDirection != dir ){
 	nOsc++;
 	dir = refDirection;
 	if (debug_) LogTrace(metname)<<"NOTE: overstepped last time: switch direction (can do it if within 1 mm)"<<std::endl;
@@ -408,7 +410,7 @@ SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type,
 
     if (useMagVolumes_ && ! (fabs(dist) < fabs(epsilon))){//need to know the general direction
       if (tanDistMagNextCheck < 0){
-	resultToMag = refToMagVolume((*svCurrent), dir, distMag, tanDistMag, fabs(dist), expectNewMagVolume);
+	resultToMag = refToMagVolume((*svCurrent), dir, distMag, tanDistMag, fabs(fastSkipDist), expectNewMagVolume);
 	tanDistMagNextCheck = fabs(tanDistMag)*0.5-0.5; //need a better guess (to-do)
 	//reasonable limit; "turn off" checking if bounds are further than the destination
 	if (tanDistMagNextCheck >  defaultStep_*20. 
@@ -425,7 +427,7 @@ SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type,
 
     if (useMatVolumes_ && ! (fabs(dist) < fabs(epsilon))){//need to know the general direction
       if (tanDistMatNextCheck < 0){
-	resultToMat = refToMatVolume((*svCurrent), dir, distMat, tanDistMat, fabs(dist));
+	resultToMat = refToMatVolume((*svCurrent), dir, distMat, tanDistMat, fabs(fastSkipDist));
 	tanDistMatNextCheck = fabs(tanDistMat)*0.5-0.5; //need a better guess (to-do)
 	//reasonable limit; "turn off" checking if bounds are further than the destination
 	if (tanDistMatNextCheck >  defaultStep_*20. 
@@ -1608,10 +1610,10 @@ SteppingHelixPropagator::refToDest(SteppingHelixPropagator::DestType dest,
       Point rLine(pars[0], pars[1], pars[2]);
       Vector dLine(pars[3], pars[4], pars[5]);
       dLine = (dLine - rLine);
-      dLine *= 1./dLine.mag();
+      dLine *= 1./dLine.mag(); if (debug_) LogTrace(metname)<<"dLine "<<dLine;
 
       Vector dR = sv.r3 - rLine;
-      Vector dRPerp = dR - dLine*(dR.dot(dLine));
+      Vector dRPerp = dR - dLine*(dR.dot(dLine)); if (debug_) LogTrace(metname)<<"dRperp "<<dRPerp;
       dist = dRPerp.mag() + 1e-24;//add a small number to avoid 1/0
       tanDist = dRPerp.dot(sv.p3)/sv.p3.mag();
       //angle wrt line
