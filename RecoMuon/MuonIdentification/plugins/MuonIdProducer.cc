@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.20.2.1 2008/08/07 01:00:33 dmytro Exp $
+// $Id: MuonIdProducer.cc,v 1.25 2008/08/07 02:27:43 dmytro Exp $
 //
 //
 
@@ -171,13 +171,13 @@ reco::Muon MuonIdProducer::makeMuon(edm::Event& iEvent, const edm::EventSetup& i
    reco::Muon aMuon( makeMuon( *(track.get()) ) );
    switch (type) {
     case InnerTrack: 
-      aMuon.setTrack( track );
+      aMuon.setInnerTrack( track );
       break;
     case OuterTrack:
-      aMuon.setStandAlone( track );
+      aMuon.setOuterTrack( track );
       break;
     case CombinedTrack:
-      aMuon.setCombined( track );
+      aMuon.setGlobalTrack( track );
       break;
    }
    return aMuon;
@@ -187,9 +187,9 @@ reco::Muon MuonIdProducer::makeMuon( const reco::MuonTrackLinks& links )
 {
    LogTrace("MuonIdentification") << "Creating a muon from a link to tracks object";
    reco::Muon aMuon = makeMuon( *(links.globalTrack()) );
-   aMuon.setTrack( links.trackerTrack() );
-   aMuon.setStandAlone( links.standAloneTrack() );
-   aMuon.setCombined( links.globalTrack() );
+   aMuon.setInnerTrack( links.trackerTrack() );
+   aMuon.setOuterTrack( links.standAloneTrack() );
+   aMuon.setGlobalTrack( links.globalTrack() );
    return aMuon;
 }
 
@@ -359,7 +359,7 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		for ( reco::MuonCollection::iterator muon = outputMuons->begin();
 		      muon !=  outputMuons->end(); ++muon )
 		  {
-		     if ( muon->track().get() == trackerMuon.track().get() &&
+		     if ( muon->innerTrack().get() == trackerMuon.innerTrack().get() &&
 			  cos(phiOfMuonIneteractionRegion(*muon) - 
 			      phiOfMuonIneteractionRegion(trackerMuon)) > 0 )
 		       {
@@ -404,7 +404,7 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		   if ( overlap(*muon,outerTrackCollectionHandle_->at(i))>0 ) {
 		      LogTrace("MuonIdentification") << "Found associated tracker muon. Set a reference and move on";
 		      newMuon = false;
-		      muon->setStandAlone( reco::TrackRef( outerTrackCollectionHandle_, i ) );
+		      muon->setOuterTrack( reco::TrackRef( outerTrackCollectionHandle_, i ) );
 		      muon->setType( muon->type() | reco::Muon::StandAloneMuon );
 		      break;
 		   }

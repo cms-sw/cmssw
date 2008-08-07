@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Wed Oct  3 16:29:03 CDT 2007
-// $Id: CaloMuonProducer.cc,v 1.1 2007/10/07 17:18:29 dmytro Exp $
+// $Id: CaloMuonProducer.cc,v 1.2 2007/10/08 12:55:37 dmytro Exp $
 //
 //
 
@@ -81,8 +81,8 @@ reco::CaloMuon CaloMuonProducer::makeMuon( const edm::Event& iEvent, const edm::
    double energy = sqrt(track->p() * track->p() + 0.011163691);
    math::XYZTLorentzVector p4(track->px(), track->py(), track->pz(), energy);
    reco::Muon tmpMuon( track->charge(), p4, track->vertex() );
-   tmpMuon.setCalEnergy( aMuon.getCalEnergy() );
-   tmpMuon.setTrack( aMuon.track() );
+   tmpMuon.setCalEnergy( aMuon.calEnergy() );
+   tmpMuon.setInnerTrack( aMuon.track() );
    
    // get calo compatibility
    aMuon.setCaloCompatibility( muonCaloCompatibility_.evaluate(tmpMuon) );
@@ -118,7 +118,7 @@ void CaloMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 	      }
 	if ( usedTrack ) continue;
 	reco::CaloMuon caloMuon( makeMuon( iEvent, iSetup, reco::TrackRef( tracks, i ) ) );
-	if ( ! caloMuon.isCaloCompatibilityValid() || caloMuon.getCaloCompatibility() < caloCut_ ) continue;
+	if ( ! caloMuon.isCaloCompatibilityValid() || caloMuon.caloCompatibility() < caloCut_ ) continue;
 	caloMuons->push_back( caloMuon );
      }
    iEvent.put(caloMuons);
