@@ -7,7 +7,25 @@ process = cms.Process("HCALDQM")
 #----------------------------
 # Event Source
 #-----------------------------
-process.load("DQM.Integration.test.inputsource_cfi")
+#process.load("DQM.Integration.python.test.inputsource_cfi")
+# This comes from DQM/Integration/python/test/inputsource_cfi.py
+# How do we include a file from a subdirectory of 'python'?   Figure that out later -- Jeff T.
+process.maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32(-1)
+    )
+
+process.source = cms.Source("EventStreamHttpReader",
+                            sourceURL = cms.string('http://cmsmon:50082/urn:xdaq-application:lid=29'),
+                            consumerPriority = cms.untracked.string('normal'),
+                            max_event_size = cms.int32(7000000),
+                            consumerName = cms.untracked.string('DQM Source'),
+                            max_queue_depth = cms.int32(5),
+                            maxEventRequestRate = cms.untracked.double(15.0),
+                            SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('*DQM')
+                                                              ),
+                            headerRetryInterval = cms.untracked.int32(3)
+                            )
+
 
 #----------------------------
 # DQM Environment
@@ -20,7 +38,20 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 #----------------------------
 # DQM Live Environment
 #-----------------------------
-process.load("DQM.Integration.test.environment_cfi")
+#process.load("DQM.Integration.test.environment_cfi")
+#process.load("DQM.Integration.python.test.environment_cfi")
+# enviroment_cfi.py uses old format -- needs "process" in front of variables
+process.DQM.collectorHost = 'srv-c2d05-19.cms'
+process.DQM.collectorPort = 9090
+process.dqmSaver.convention = 'Online'
+process.dqmSaver.dirName = '/home/dqmprolocal/output'
+process.dqmSaver.producer = 'Playback'
+process.dqmSaver.saveByMinute = 200
+process.dqmSaver.saveByRun = 1
+process.dqmSaver.saveAtJobEnd = True
+
+
+
 
 #-----------------------------
 process.load("DQM.HcalMonitorModule.HcalMonitorModule_cfi")
