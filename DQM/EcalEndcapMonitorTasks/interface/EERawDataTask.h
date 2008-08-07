@@ -4,8 +4,8 @@
 /*
  * \file EERawDataTask.h
  *
- * $Date: 2008/05/11 09:35:09 $
- * $Revision: 1.105 $
+ * $Date: 2008/07/12 08:26:48 $
+ * $Revision: 1.2 $
  * \author E. Di Marco
  *
 */
@@ -67,6 +67,7 @@ bool mergeRuns_;
 
 edm::InputTag FEDRawDataCollection_;
 edm::InputTag EcalRawDataCollection_;
+edm::InputTag GTEvmSource_;
 
 MonitorElement* meEECRCErrors_;
 
@@ -77,6 +78,8 @@ MonitorElement* meEEBunchCrossingErrors_;
 MonitorElement* meEETriggerTypeErrors_;
 
 bool init_;
+
+enum activeEVM { TCS, FDLEVM };
 
 };
 

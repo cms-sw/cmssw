@@ -1,8 +1,8 @@
 /*
  * \file EERawDataTask.cc
  *
- * $Date: 2008/07/12 13:04:10 $
- * $Revision: 1.3 $
+ * $Date: 2008/07/28 19:07:14 $
+ * $Revision: 1.4 $
  * \author E. Di Marco
  *
 */
@@ -22,6 +22,7 @@
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 #include "DataFormats/FEDRawData/src/fed_header.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
 
 #include <DQM/EcalCommon/interface/Numbers.h>
 
@@ -45,6 +46,7 @@ EERawDataTask::EERawDataTask(const ParameterSet& ps) {
 
   FEDRawDataCollection_ = ps.getParameter<edm::InputTag>("FEDRawDataCollection");
   EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
+  GTEvmSource_ =  ps.getParameter<edm::InputTag>("GTEvmSource");
 
   meEECRCErrors_ = 0;
   meEERunNumberErrors_ = 0;
@@ -136,6 +138,7 @@ void EERawDataTask::setup(void){
     for (int i = 0; i < 18; i++) {
       meEETriggerTypeErrors_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
     }
+
   }
 
 }
@@ -190,6 +193,7 @@ void EERawDataTask::analyze(const Event& e, const EventSetup& c){
   edm::Handle<FEDRawDataCollection> allFedRawData;
 
   int gtFedDataSize = 0;
+  bool GT_OrbitNumber_Present = false;
 
   int ECALDCC_L1A_MostFreqId = -1;
   int ECALDCC_OrbitNumber_MostFreqId = -1;
@@ -203,8 +207,6 @@ void EERawDataTask::analyze(const Event& e, const EventSetup& c){
     
     gtFedDataSize = gtFedData.size()/sizeof(uint64_t);
     
-    // std::cout << "GT FED length = " << length << endl;
-    
     if ( gtFedDataSize > 0 ) {
       
       FEDHeader header(gtFedData.data());
@@ -213,13 +215,33 @@ void EERawDataTask::analyze(const Event& e, const EventSetup& c){
       GT_BunchCrossing = header.bxID();
       GT_TriggerType = header.triggerType();
       
-      //      uint64_t * pData = (uint64_t *)(gtFedData.data());
-      /// FIXME: how to get the orbit from the GT?
-      GT_OrbitNumber = 0;
-
-    }  else {
+    }
+  
+    Handle<L1GlobalTriggerEvmReadoutRecord> GTEvmReadoutRecord;
+    e.getByLabel(GTEvmSource_, GTEvmReadoutRecord);
+    
+    if (!GTEvmReadoutRecord.isValid()) {
+      edm::LogWarning("EBRawDataTask") << "L1GlobalTriggerEvmReadoutRecord with label "
+				       << GTEvmSource_.label() << " not available";
+    } else {
       
-      // use the most frequent among the ECAL FEDs
+      L1GtfeWord gtfeEvmWord = GTEvmReadoutRecord->gtfeWord();
+      int gtfeEvmActiveBoards = gtfeEvmWord.activeBoards();
+      
+      if( gtfeEvmActiveBoards & (1<<TCS) ) { // if TCS present in the record
+	
+	GT_OrbitNumber_Present = true;
+	
+	L1TcsWord tcsWord = GTEvmReadoutRecord->tcsWord();
+	
+	GT_OrbitNumber = tcsWord.orbitNr();
+	
+      }
+    }
+    
+    if ( gtFedDataSize == 0 || !GT_OrbitNumber_Present ) {
+      
+    // use the most frequent among the ECAL FEDs
       
       std::map<int,int> ECALDCC_L1A_FreqMap;
       std::map<int,int> ECALDCC_OrbitNumber_FreqMap;
@@ -280,7 +302,7 @@ void EERawDataTask::analyze(const Event& e, const EventSetup& c){
       } else {
 	LogWarning("EERawDataTask") << EcalRawDataCollection_ << " not available";
       }
-
+      
     }
 
     // ECAL endcap FEDs
@@ -340,8 +362,6 @@ void EERawDataTask::analyze(const Event& e, const EventSetup& c){
 	  
 	  if ( GT_L1A != ECALDCC_L1A ) meEEL1AErrors_->Fill( xism );
 	  
-	  if ( GT_OrbitNumber != ECALDCC_OrbitNumber ) meEEOrbitNumberErrors_->Fill ( xism );
-	  
 	  if ( GT_BunchCrossing != ECALDCC_BunchCrossing ) meEEBunchCrossingErrors_->Fill( xism );
 
 	  if ( GT_TriggerType != ECALDCC_TriggerType ) meEETriggerTypeErrors_->Fill ( xism );
@@ -350,12 +370,20 @@ void EERawDataTask::analyze(const Event& e, const EventSetup& c){
 	  
 	  if ( ECALDCC_L1A_MostFreqId != ECALDCC_L1A ) meEEL1AErrors_->Fill( xism );
 	  
-	  if ( ECALDCC_OrbitNumber_MostFreqId != ECALDCC_OrbitNumber ) meEEOrbitNumberErrors_->Fill ( xism );
-	  
 	  if ( ECALDCC_BunchCrossing_MostFreqId != ECALDCC_BunchCrossing ) meEEBunchCrossingErrors_->Fill( xism );
 	  
 	  if ( ECALDCC_TriggerType_MostFreqId != ECALDCC_TriggerType ) meEETriggerTypeErrors_->Fill ( xism );
 
+	}
+
+	if ( GT_OrbitNumber_Present ) {
+	  
+	  if ( GT_OrbitNumber != ECALDCC_OrbitNumber ) meEEOrbitNumberErrors_->Fill ( xism );
+	  
+	} else {
+	  
+	  if ( ECALDCC_OrbitNumber_MostFreqId != ECALDCC_OrbitNumber ) meEEOrbitNumberErrors_->Fill ( xism );
+	  
 	}
 
       }
