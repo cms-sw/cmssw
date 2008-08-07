@@ -15,7 +15,7 @@ Examples:
 
 %prog SingleMuPt10_cfi -n 100 --no_output
 %prog QCD_Pt_15_20_cfi -s GEN,SIM,DIGI,L1,DQM,DIGI2RAW,HLT -n 10
-%prog QCD_Pt_15_20_cfi -s RAW2DIGI,RECO -n 10 --filein file:myQCD.root --dirout rfio:$CASTOR_HOME/test/
+%prog reco -s RAW2DIGI,RECO --conditions FrontierConditions_GlobalTag,STARTUP_V4::All
 """
 parser = optparse.OptionParser(usage)
 
@@ -30,7 +30,7 @@ parser.add_option("-s", "--step",
                    dest="step")
 
 parser.add_option("--conditions",
-                  help="What conditions to use. Default are frontier conditions 'STARTUP_V4::All'",
+                  help="What conditions to use. Default are frontier conditions 'STARTUP_V4::All' (FrontierConditions_GlobalTag,STARTUP_V4::All)",
                   default=defaultOptions.conditions,
                   dest="conditions")
 
