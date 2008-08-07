@@ -2,8 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 # L1 Emulator sequence for simulation use-case
 # Jim Brooke, 24 April 2008
-
-
+# Emulator configuration
+from L1Trigger.Configuration.L1Config_cff import *
 import L1Trigger.RegionalCaloTrigger.rctDigis_cfi
 # RCT emulator
 simRctDigis = L1Trigger.RegionalCaloTrigger.rctDigis_cfi.rctDigis.clone()
