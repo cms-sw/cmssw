@@ -107,12 +107,12 @@ process.ecalBarrelMonitorModule.mergeRuns = True
 process.ecalBarrelMonitorModule.EBDigiCollection = 'simEcalDigis:ebDigis'
 process.ecalBarrelMonitorModule.runType = 3 # MTCC/PHYSICS
 
-process.simEcalTriggerPrimitiveDigis.Label = 'simEcalDigis'
+process.simEcalTriggerPrimitiveDigis.Label = 'simEcalDigis:'
 process.simEcalTriggerPrimitiveDigis.InstanceEB = 'ebDigis'
 process.simEcalTriggerPrimitiveDigis.InstanceEE = 'eeDigis'
 process.simEcalTriggerPrimitiveDigis.BarrelOnly = True
 
-process.simEcalTriggerPrimitiveDigis2.Label = 'simEcalDigis'
+process.simEcalTriggerPrimitiveDigis2.Label = 'simEcalDigis:'
 process.simEcalTriggerPrimitiveDigis2.InstanceEB = 'ebDigis'
 process.simEcalTriggerPrimitiveDigis2.InstanceEE = 'eeDigis'
 process.simEcalTriggerPrimitiveDigis2.BarrelOnly = True

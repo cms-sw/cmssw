@@ -124,11 +124,11 @@ process.ecalEndcapMonitorModule.mergeRuns = True
 process.ecalEndcapMonitorModule.EEDigiCollection = 'simEcalDigis:eeDigis'
 process.ecalEndcapMonitorModule.runType = 3 # MTCC/PHYSICS
 
-process.simEcalTriggerPrimitiveDigis.Label = 'simEcalDigis'
+process.simEcalTriggerPrimitiveDigis.Label = 'simEcalDigis:'
 process.simEcalTriggerPrimitiveDigis.InstanceEB = 'ebDigis'
 process.simEcalTriggerPrimitiveDigis.InstanceEE = 'eeDigis'
 
-process.simEcalTriggerPrimitiveDigis2.Label = 'simEcalDigis'
+process.simEcalTriggerPrimitiveDigis2.Label = 'simEcalDigis:'
 process.simEcalTriggerPrimitiveDigis2.InstanceEB = 'ebDigis'
 process.simEcalTriggerPrimitiveDigis2.InstanceEE = 'eeDigis'
 
