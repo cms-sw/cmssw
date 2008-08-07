@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: injectFileIntoTransferSystem.pl,v 1.23 2008/08/07 07:59:43 loizides Exp $
+# $Id: injectFileIntoTransferSystem.pl,v 1.24 2008/08/07 14:06:53 loizides Exp $
 
 use strict;
 use DBI;
@@ -313,12 +313,24 @@ unless($hostname eq 'srv-S2C17-01'      ||
     usageShort();
 }
 
+# test if file is present
 if(hostname() eq $hostname && !(-e "$pathname/$filename")) {
     print "Error: Hostname = this machine, but file does not exist, exiting!\n";
     usageShort();
 } elsif(hostname() ne $hostname && (-e "$pathname/$filename")) {
     print "Error: Hostname != this machine, but file exists on this host, exiting!\n";
     usageShort();
+}
+
+# test if file is world readable
+if(hostname() eq $hostname) {
+    system("chmod a+r $pathname/$filename");
+    my $mode = (stat($pathname/$filename))[2];
+    $mode = $mode & 0x0007;
+    if($mode<4) {
+        print "Error: Hostname = this machine, but file is not readable by others, exiting!\n";
+        usageShort();
+    }
 }
 
 # if we are running this on same host as the file can find out filesize as a fallback
