@@ -85,7 +85,7 @@ sub analyze_dependencies{
 	# print "processing $buildfile\n";
 	my @lines = ();
 	if ($core_mode) {
-	    open(IN, "$ENV{CMSSW_RELEASE_BASE}/src/$buildfile") || die "Cannot open file $buildfile\n$!\n";
+	    open(IN, "$ENV{CMSSW_RELEASE_BASE}/src/$buildfile") || next;
 	    while (my $line = <IN>){
 		push @lines, $line;
 	    }
@@ -256,8 +256,11 @@ system("mkdir -p $dir/cms/") if ($core_mode);
 foreach my $package ( sort keys %packages ){
     # print "$packages{$package} \t $package\n";
     if ( $core_mode ){
-	system("mkdir -p $dir/cms/$package");
-	system("cp -r $ENV{CMSSW_RELEASE_BASE}/src/$package/* $dir/cms/$package/");
+	# system("mkdir -p $dir/cms/$package");
+	# system("cp -r $ENV{CMSSW_RELEASE_BASE}/src/$package/* $dir/cms/$package/");
+	my $tag = `addpkg -q -r $package`;
+	$tag =~ s/\n//;
+	system("cd $dir/cms; cvs co -r $tag");
     }
 }
 

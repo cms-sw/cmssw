@@ -24,3 +24,4 @@ DataFormats/L1GlobalCaloTrigger
 DataFormats/L1GlobalMuonTrigger
 DataFormats/L1CaloTrigger
 DataFormats/MuonData
+PhysicsTools/Utilities
