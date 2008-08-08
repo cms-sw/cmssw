@@ -16,7 +16,7 @@ from DQMOffline.Trigger.Tau.HLTTauDQMOfflineSingleTauMET_cfi import *
 from DQMOffline.Trigger.Tau.HLTTauDQMOfflineElectronTau_cfi import *
 from DQMOffline.Trigger.Tau.HLTTauDQMOfflineMuonTau_cfi import *
 
-HLTTauDQMOffline = cms.Path(TauRefProducer+HLTTauL1DQMSequence+HLTTauOfflineDQMDoubleTauSequence+HLTTauOfflineDQMSingleTauSequence+HLTTauOfflineDQMSingleTauMETSequence+HLTTauOfflineDQMElectronTauSequence+HLTTauOfflineDQMMuonTauSequence)
+HLTTauDQMOffline = cms.Sequence(TauRefProducer+HLTTauL1DQMSequence+HLTTauOfflineDQMDoubleTauSequence+HLTTauOfflineDQMSingleTauSequence+HLTTauOfflineDQMSingleTauMETSequence+HLTTauOfflineDQMElectronTauSequence+HLTTauOfflineDQMMuonTauSequence)
 
 
 

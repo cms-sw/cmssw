@@ -9,13 +9,15 @@ process.load("DQMServices.Core.DQM_cfg")
 #
 #  DQM SOURCES
 #
-#process.load("CondCore.DBCommon.CondDBSetup_cfi")
+process.load("CondCore.DBCommon.CondDBSetup_cfi")
 
 #process.load("Configuration.GlobalRuns.ForceZeroTeslaField_cff")
 
 #process.load("Configuration.GlobalRuns.ReconstructionGR_cff")
 
-#process.load("L1Trigger.Configuration.L1Config_cff")
+process.load("Configuration.StandardSequences.Geometry_cff")
+
+process.load("L1Trigger.Configuration.L1Config_cff")
 
 #process.load("L1Trigger.HardwareValidation.L1HardwareValidation_cff")
 
@@ -24,6 +26,12 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 #process.load("DQMOffline.Trigger.FourVectorHLTOffline_cfi")
 
 process.load("DQMOffline.Trigger.L1TMonitor_dqmoffline_cff")
+process.load("DQMOffline.Trigger.Tau.HLTTauDQMOffline_cff")
+process.load("DQMOffline.Trigger.EgammaHLTOffline_cfi")
+process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
+
+
+
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
@@ -53,7 +61,7 @@ process.MessageLogger = cms.Service("MessageLogger",
         'cout')
 )
 
-process.psource = cms.Path(process.l1tmonitor)
+process.psource = cms.Path(process.l1tmonitor*process.egammaHLTDQM*process.HLTTauDQMOffline)
 process.p = cms.EndPath(process.dqmSaver)
 process.DQMStore.verbose = 0
 process.DQM.collectorHost = ''
