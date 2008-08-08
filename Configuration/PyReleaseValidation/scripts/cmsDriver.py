@@ -115,7 +115,7 @@ expertSettings.add_option("--prefix",
 
 expertSettings.add_option("--relval",
                           help="Set total number of events and events per job.", #this does not get used but get parsed in the command by DatOps
-                          default="5000,250",
+                          default="",
                           dest="relval")
 
 expertSettings.add_option("--dump_python",
@@ -153,7 +153,6 @@ expertSettings.add_option("--writeraw",
                           action="store_true",
                           default=False,
                           dest="writeraw")
-
 
 parser.add_option("--no_exec",
                   help="Do not exec cmsRun. Just prepare the python config file.",

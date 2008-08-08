@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.64 $"
+__version__ = "$Revision: 1.65 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -118,7 +118,7 @@ class ConfigBuilder(object):
         output = cms.OutputModule("PoolOutputModule",
                                   theEventContent,
                                   fileName = cms.untracked.string(self._options.outfile_name),
-                                  dataset = cms.untracked.PSet(dataTier =cms.untracked.string(self._options.datatier))
+                                  dataset = cms.untracked.PSet(dataTier = cms.untracked.string(self._options.datatier))
                                  ) 
 
         # if there is a generation step in the process, that one should be used as filter decision
@@ -128,24 +128,20 @@ class ConfigBuilder(object):
         # add the filtername
         output.dataset.filterName = cms.untracked.string(self._options.filtername)
 
-        # and finally add the output to the process
-        self.process.output = output
-        self.process.out_step = cms.EndPath(self.process.output)
+        # if the only step is alca we don't need to put in an output
+	if not self._options.step.split(',')[0].split(':')[0] == 'ALCA':
+            self.process.output = output
+            self.process.out_step = cms.EndPath(self.process.output)
+            self.process.schedule.append(self.process.out_step)
 
-        # TODO - put at another place 
-        #for item in self.additionalOutputs:
-        #    self.process.out_step.append(item)
-
-        self.process.schedule.append(self.process.out_step)
-
-        # ATTENTION: major tweaking to avoid inlining of event content
-        # should we do that?
-        def dummy(instance,label = "process."+self._options.eventcontent.split(',')[-1]+"EventContent.outputCommands"):
-            return label
+            # ATTENTION: major tweaking to avoid inlining of event content
+            # should we do that?
+            def dummy(instance,label = "process."+self._options.eventcontent.split(',')[-1]+"EventContent.outputCommands"):
+                return label
         
-        self.process.output.outputCommands.__dict__["dumpPython"] = dummy
+            self.process.output.outputCommands.__dict__["dumpPython"] = dummy
         
-        return "\n"+self.process.output.dumpPython()
+            return "\n"+self.process.output.dumpPython()
         
         
     def addStandardSequences(self):
@@ -196,7 +192,6 @@ class ConfigBuilder(object):
         magneticFieldFilename = magneticFieldFilename.replace("__",'_')
         self.imports.append(magneticFieldFilename)
                                                         
-
         # what steps are provided by this class?
         stepList = [methodName.lstrip("prepare_") for methodName in ConfigBuilder.__dict__ if methodName.startswith('prepare_')]
 
@@ -277,14 +272,7 @@ class ConfigBuilder(object):
 
         # decide which ALCA paths to use
         alcaList = sequence.split("+")
-#        alcaPathList = ["pathALCARECO"+name for name in alcaList]
 
-        # put it in the schedule
-        #for pathname in alcaConfig.__dict__:
-        #    if isinstance(getattr(alcaConfig,pathname),cms.Path) and pathname in alcaPathList:
-        #        self.process.schedule.append(getattr(self.process,pathname))
-        #    else:
-        #        self.blacklist_paths.append(pathname)
         for name in alcaConfig.__dict__:
             alcastream = getattr(alcaConfig,name)
             if name in alcaList and isinstance(alcastream,alcaConfig.FilteredStream):
@@ -292,9 +280,16 @@ class ConfigBuilder(object):
                 alcaOutput.SelectEvents = alcastream.selectEvents
                 alcaOutput.outputCommands = alcastream.content
                 alcaOutput.dataset  = cms.untracked.PSet( dataTier = alcastream.dataTier)
-                self.additionalOutputs[name] = alcaOutput
-                setattr(self.process,name,alcaOutput) 
-        # the schedule insertion is missing for now  
+                self.process.schedule.append(alcastream.paths)
+                # in case of relvals we don't want to have additional outputs  
+		if not self._options.relval: 
+                    self.additionalOutputs[name] = alcaOutput
+                    setattr(self.process,name,alcaOutput) 
+                alcaList.remove(name)
+        if len(alcaList) != 0:
+            print "The following alcas could not be found", alcaList
+
+        # TODO: blacklisting of al alca paths
 
     def prepare_GEN(self, sequence = None):
         """ Enrich the schedule with the generation step """    
@@ -437,7 +432,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.64 $"),
+              (version=cms.untracked.string("$Revision: 1.65 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
@@ -480,13 +475,17 @@ class ConfigBuilder(object):
         self.pythonCfgCode += "process.source = "+self.process.source.dumpPython() 
         
         # dump the output definition
-        self.pythonCfgCode += "\n# Output definition\n"
-        self.pythonCfgCode += "process.output = "+self.process.output.dumpPython()
+	if hasattr(self.process,"output"):
+            self.pythonCfgCode += "\n# Output definition\n"
+            self.pythonCfgCode += "process.output = "+self.process.output.dumpPython()
 
         # dump all additional outputs (e.g. alca or skim streams)
 	self.pythonCfgCode += "\n# Additional output definition\n"
 	for name, output in self.additionalOutputs.iteritems():
 		self.pythonCfgCode += "process.%s = %s" %(name, output.dumpPython())
+                tmpOut = cms.EndPath(output)  
+                setattr(self.process,name+'OutPath',tmpOut)
+                self.process.schedule.append(tmpOut)
 
         # dump all additional commands
         self.pythonCfgCode += "\n# Other statements\n"
@@ -525,7 +524,21 @@ class ConfigBuilder(object):
         return
       
 
-def promptReco(process, recoOutputModule, aodOutputModule = None):
+def installFilteredStream(process, schedule, streamName, definitionFile = "Configuration/StandardSequences/AlCaRecoStreams_cff" ):
+
+    definitionModule = __import__(definitionFile)
+    process.extend(definitionModule)
+    stream = getattr(definitionModule,streamName)
+    output = cms.OutputModule("PoolOutputModule")
+    output.SelectEvents = stream.selectEvents
+    output.outputCommands = stream.content
+    output.dataset  = cms.untracked.PSet( dataTier = stream.dataTier)
+    setattr(process,streamName,output)
+    for path in stream.paths:
+        schedule.append(path)
+							    
+
+def installPromptReco(process, recoOutputModule, aodOutputModule = None):
     """
     _promptReco_
 
@@ -552,3 +565,4 @@ def promptReco(process, recoOutputModule, aodOutputModule = None):
     return process
         
         
+promptReco = installPromptReco
