@@ -67,8 +67,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2008/07/22 12:12:42 $ 
- **  $Revision: 1.5 $
+ **  $Date: 2008/07/31 19:33:57 $ 
+ **  $Revision: 1.6 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -505,6 +505,12 @@ void PhotonValidator::beginJob( const edm::EventSetup& setup)
     h_EoverPTracks_[1][0] = dbe_->book1D(histname+"All"," photons conversion E/p: all Ecal ",100, 0., 5.);
     h_EoverPTracks_[1][1] = dbe_->book1D(histname+"Barrel"," photons conversion E/p: Barrel Ecal",100, 0., 5.);
     h_EoverPTracks_[1][2] = dbe_->book1D(histname+"Endcap"," photons conversion E/p: Endcap Ecal ",100, 0., 5.);
+
+    histname="PoverEtracks";
+    h_PoverETracks_[1][0] = dbe_->book1D(histname+"All"," photons conversion p/E: all Ecal ",100, 0., 5.);
+    h_PoverETracks_[1][1] = dbe_->book1D(histname+"Barrel"," photons conversion p/E: Barrel Ecal",100, 0., 5.);
+    h_PoverETracks_[1][2] = dbe_->book1D(histname+"Endcap"," photons conversion p/E: Endcap Ecal ",100, 0., 5.);
+
 
 
     histname="EoverEtrueVsEoverP";
@@ -1126,6 +1132,9 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       reco::ConversionRef aConv=conversions[iConv];
       std::vector<reco::TrackRef> tracks = aConv->tracks();
       if (tracks.size() < 2 ) continue;
+      //      if ( fabs( aConv->pairCotThetaSeparation() ) > 0.05) continue;
+ 
+
 
       nRecConv_++;
 
@@ -1253,11 +1262,12 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
 	///////////  Quantities per conversion
         type =1;
-        float eoverp= matchingPho.superCluster()->energy()/totP;
+        float eoverp= aConv->EoverP();
 
 	h_invMass_[type][0] ->Fill( invM);
 	h_convPRes_[type][0]->Fill( totP / (*mcPho).fourMomentum().e() );
 	h_EoverPTracks_[type][0] ->Fill( eoverp ) ;
+	h_PoverETracks_[type][0] ->Fill( 1./eoverp ) ;
 	h2_EoverEtrueVsEoverP_[0] ->Fill( eoverp,matchingPho.superCluster()->energy()/ (*mcPho).fourMomentum().e()  ) ;
 	h2_PoverPtrueVsEoverP_[0] ->Fill( eoverp, totP/ (*mcPho).fourMomentum().e()  ) ;
 	h2_EoverEtrueVsEta_[0]->Fill (mcEta_,matchingPho.superCluster()->energy()/ (*mcPho).fourMomentum().e()  ) ;
@@ -1294,8 +1304,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	  h_invMass_[type][1] ->Fill(invM);
 	  h_convPRes_[type][1]->Fill( totP / (*mcPho).fourMomentum().e() );
 	  h_EoverPTracks_[type][1] ->Fill( eoverp ) ;
-
-	  //h_EoverPTracks_[type][1] ->Fill( aConv->caloCluster()[0]->energy()/totP);
+	  h_PoverETracks_[type][1] ->Fill( 1./eoverp ) ;
 	  h_DPhiTracksAtVtx_[type][1]->Fill( dPhiTracksAtVtx);
 	  h_DCotTracks_[type][1] ->Fill ( aConv->pairCotThetaSeparation() );
 
@@ -1309,7 +1318,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	  h_invMass_[type][2] ->Fill(invM);
 	  h_convPRes_[type][2]->Fill( totP / (*mcPho).fourMomentum().e() );
 	  h_EoverPTracks_[type][2] ->Fill( eoverp ) ;
-	  //h_EoverPTracks_[type][2] ->Fill( aConv->caloCluster()[0]->energy()/totP);
+	  h_PoverETracks_[type][2] ->Fill( 1./eoverp ) ;
 	  h_DPhiTracksAtVtx_[type][2]->Fill( dPhiTracksAtVtx);
 	  h_DCotTracks_[type][2] ->Fill ( aConv->pairCotThetaSeparation() );
 	  h2_EoverEtrueVsEoverP_[2] ->Fill( eoverp,matchingPho.superCluster()->energy()/ (*mcPho).fourMomentum().e()  ) ;
@@ -1445,7 +1454,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       reco::ConversionRef aConv=conversions[iConv];
       std::vector<reco::TrackRef> tracks = aConv->tracks();
       if (tracks.size() < 2 ) continue;
-
+      //      if ( fabs( aConv->pairCotThetaSeparation() ) > 0.05) continue;
 
       
       for (unsigned int f=0; f<etaintervalslarge_.size()-1; f++){
