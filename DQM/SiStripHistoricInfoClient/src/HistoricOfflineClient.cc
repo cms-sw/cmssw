@@ -213,28 +213,28 @@ uint32_t HistoricOfflineClient::returnDetComponent(std::string histoName)
       if (histoName.find("layer")!= std::string::npos) 
 	return 10+atoi(histoName.substr(histoName.find("layer__")+7,1).c_str());
       else 
-	return SiStripSummary::TIB;
+	return sistripsummary::TIB;
     }
   else if(histoName.find("TOB")!= std::string::npos)
     {
       if (histoName.find("layer")!= std::string::npos) 
 	return 13+atoi(histoName.substr(histoName.find("layer__")+7,1).c_str());
       else    
-	return SiStripSummary::TOB;
+	return sistripsummary::TOB;
     }
   else if(histoName.find("TID")!= std::string::npos)
     {  
       if (histoName.find("layer")!= std::string::npos) 
 	return 20+atoi(histoName.substr(histoName.find("layer__")+7,1).c_str());
       else    
-	return SiStripSummary::TID;
+	return sistripsummary::TID;
     } 
   else if(histoName.find("TEC")!= std::string::npos)
     {  
       if (histoName.find("layer")!= std::string::npos) 
 	return 22+atoi(histoName.substr(histoName.find("layer__")+7,1).c_str());
       else    
-	return SiStripSummary::TEC;
+	return sistripsummary::TEC;
     } 
   
 }
