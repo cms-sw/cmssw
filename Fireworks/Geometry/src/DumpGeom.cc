@@ -171,6 +171,7 @@ static
 TGeoCombiTrans* createPlacement(const DDRotationMatrix& iRot,
 				const DDTranslation& iTrans)
 {
+  std::cout << "in createPlacement" << std::endl;
    double elements[9];
    iRot.GetComponents(elements);
    TGeoRotation r;
@@ -554,8 +555,19 @@ void DumpGeom::mapCSCGeometry(const DDCompactView& cview,
     // chamber geometry (i.e. won't copy whole of CSCGeometryBuilderFromDDD
 
      idToName_[chamberId.rawId()] = name;
-     //     std::cout << "CSC chamber: " << chamberId.rawId() << " \tname: " << name << std::endl;
-
+     std::cout << "CSC chamber: " << chamberId.rawId() << " \tname: " << name << std::endl;
+     
+     //  If it's ME11 you need to have two detId's per chamber. This is how to construct the detId
+     //  copied from the CSCGeometryBuilder code.
+     int jstation = chamberId.station();
+     int jring    = chamberId.ring();
+     int jchamber = chamberId.chamber();
+     int jendcap  = chamberId.endcap();
+     if ( jstation==1 && jring==1 ) {
+       CSCDetId detid1a = CSCDetId( jendcap, 1, 4, jchamber, 0 );
+       std::cout << "CSC chamber: " << detid1a.rawId() << " \tname: " << name << std::endl;
+       idToName_[detid1a.rawId()] = name;
+     }
 /* We don't need layers for now, till we get geometry for them fixed
     int jend   = chamberId.endcap();
     int jstat  = chamberId.station();
@@ -902,6 +914,7 @@ DumpGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    TGeoMaterial* matVacuum = new TGeoMaterial("Vacuum");
    TGeoMedium* vacuum = new TGeoMedium("Vacuum",1,matVacuum);
 
+   std::cout << "about to initialize the DDCompactView walker" << std::endl;
    DDCompactView::walker_type walker(viewH->graph());
    DDCompactView::walker_type::value_type info = 
       walker.current();
@@ -942,30 +955,35 @@ DumpGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       TGeoVolume* child = createVolume(std::string(info.first.name()),
 				       info.first.solid(),
 				       vacuum);
-//       std::cout << "done with " << info.first.name() << " about to mess w the stack" 
-// 		<< " child = " << child 
-// 		<< " childAlreadyExist = " << childAlreadyExists
-// 		<< " level_ = " << level_ << " parentStack.size() = " << parentStack.size();
-//       std::cout << " info.second " << info.second << std::endl;
+      std::cout << "done with " << info.first.name() << " about to mess w the stack" 
+		<< " child = " << child 
+		<< " childAlreadyExist = " << childAlreadyExists
+		<< " level_ = " << level_ << " parentStack.size() = " << parentStack.size();
+      std::cout << " info.second " << info.second << std::endl;
       if(0!=child && info.second != 0) {
 	 //add to parent
+	//mikes debug output
 // 	std::cout << " info.second->copyno_ = " << info.second->copyno_
 // 		  << std::endl;
 // 	std::cout << "adding a node to the parent" << std::endl;
+	//end mikes debug output
 	 parentStack.back()->AddNode(child,
 				 info.second->copyno_,
 				 createPlacement(info.second->rotation(),
 						 info.second->translation()));
 	 child->SetLineColor(kBlue);
-      } else {
-	if ( info.second == 0 ) {
+      } 
+	//mikes debug output
+// else {
+// 	if ( info.second == 0 ) {
 // 	  std::cout << "OKAY! it IS 0" << std::endl;
-	  break;
-	}
+// 	 break;
+// 	}
 // 	if ( parentStack.size() != 0 ) {
 // 	  std::cout << "huh?  have we popped back further than we should? and why?" << std::endl;
 // 	}
-      }
+//       }
+	//end mikes debug output
       if(0 == child || childAlreadyExists || level_ == int(parentStack.size()) ) {
 	 if(0!=child) {
 	    child->SetLineColor(kRed);
@@ -1029,16 +1047,16 @@ DumpGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    } while( ev.next() );
 */
    geom->CloseGeometry();
-  std::cout << "In the DumpGeom::analyze method...done with main geometry" << std::endl;
+   std::cout << "In the DumpGeom::analyze method...done with main geometry" << std::endl;
    mapDTGeometry(*viewH, *mdc);
-  std::cout << "In the DumpGeom::analyze method...done with DT" << std::endl;
+   std::cout << "In the DumpGeom::analyze method...done with DT" << std::endl;
    mapCSCGeometry(*viewH, *mdc);
-  std::cout << "In the DumpGeom::analyze method...done with CSC" << std::endl;
+   std::cout << "In the DumpGeom::analyze method...done with CSC" << std::endl;
    mapTrackerGeometry(*viewH, *rDD);
-  std::cout << "In the DumpGeom::analyze method...done with Tracker" << std::endl;
+   std::cout << "In the DumpGeom::analyze method...done with Tracker" << std::endl;
    mapEcalGeometry(*viewH, *pG);
-  std::cout << "In the DumpGeom::analyze method...done with Ecal" << std::endl;
-
+   std::cout << "In the DumpGeom::analyze method...done with Ecal" << std::endl;
+   
    TCanvas * canvas = new TCanvas( );
    top->Draw("ogle");
 
