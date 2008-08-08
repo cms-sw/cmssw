@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: setup_sm.sh,v 1.14 2008/08/07 15:39:29 loizides Exp $
+# $Id: setup_sm.sh,v 1.15 2008/08/07 15:54:10 jserrano Exp $
 
 if test -e "/etc/profile.d/sm_env.sh"; then 
     source /etc/profile.d/sm_env.sh;
@@ -23,6 +23,11 @@ fi
 
 hname=`hostname | cut -d. -f1`;
 nname="node"`echo $hname | cut -d- -f3` 
+
+if test -x "/sbin/multipath"; then
+    echo "Refresh multipath devices"
+    /sbin/multipath
+fi
 
 case $hname in
     cmsdisk0)
