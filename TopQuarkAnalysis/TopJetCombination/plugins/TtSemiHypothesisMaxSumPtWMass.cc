@@ -2,8 +2,9 @@
 #include "TopQuarkAnalysis/TopTools/interface/TtSemiEvtPartons.h"
 
 TtSemiHypothesisMaxSumPtWMass::TtSemiHypothesisMaxSumPtWMass(const edm::ParameterSet& cfg):
-  TtSemiHypothesis( cfg ),  
-  maxNJets_(cfg.getParameter<unsigned>("nJetsMax" ))
+  TtSemiHypothesis( cfg ),
+  maxNJets_(cfg.getParameter<unsigned>("nJetsMax")),
+  wMass_   (cfg.getParameter<double>  ("wMass"   ))
 { 
 
 }
@@ -54,7 +55,6 @@ TtSemiHypothesisMaxSumPtWMass::buildHypo(edm::Event& evt,
   // with their invariant mass to the W boson
   // -----------------------------------------------------
   double wDist =-1.;
-  double wMass = 80.413;
   std::vector<unsigned> closestToWMassIndices;
   for(unsigned idx=0; idx<maxPtIndices.size(); ++idx){  
     for(unsigned jdx=0; jdx<maxPtIndices.size(); ++jdx){  
@@ -62,8 +62,8 @@ TtSemiHypothesisMaxSumPtWMass::buildHypo(edm::Event& evt,
       reco::Particle::LorentzVector sum = 
 	(*jets)[idx].p4()+
 	(*jets)[jdx].p4();
-      if( wDist<0. || wDist>fabs(sum.mass()-wMass) ){
-	wDist=fabs(sum.mass()-wMass);
+      if( wDist<0. || wDist>fabs(sum.mass()-wMass_) ){
+	wDist=fabs(sum.mass()-wMass_);
 	closestToWMassIndices.clear();
 	closestToWMassIndices.push_back(maxPtIndices[idx]);
 	closestToWMassIndices.push_back(maxPtIndices[jdx]);

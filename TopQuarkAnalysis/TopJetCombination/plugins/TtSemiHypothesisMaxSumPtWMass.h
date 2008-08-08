@@ -25,6 +25,7 @@ class TtSemiHypothesisMaxSumPtWMass : public TtSemiHypothesis  {
  private:
 
   unsigned maxNJets_;
+  double wMass_;
 };
 
 #endif
