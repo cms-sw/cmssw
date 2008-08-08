@@ -349,6 +349,7 @@ void CSCEventData::add(const CSCStripDigi & digi, int layer) {
 void CSCEventData::add(const CSCWireDigi & digi, int layer) {
   checkALCTClasses();
   theAnodeData->add(digi, layer);
+  theALCTHeader->setDAVForChannel(digi.getWireGroup());
 }
 
 void CSCEventData::add(const CSCComparatorDigi & digi, int layer) {

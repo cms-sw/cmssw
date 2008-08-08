@@ -239,6 +239,11 @@ class CSCALCTHeader {
   unsigned short int Promote2()        const {return header2006.promote2;}
   unsigned short int LCTChipRead()     const {return header2006.lctChipRead;}
   unsigned short int alctFirmwareVersion() const {return firmwareVersion;}
+  void setDAVForChannel(int wireGroup) {
+     if(firmwareVersion == 2006) {
+       header2006.setDAV((wireGroup-1)/16);
+     }
+  }
   CSCALCTHeader2007 alctHeader2007()   const {return header2007;}
   CSCALCTHeader2006 alctHeader2006()   const {return header2006;}
 

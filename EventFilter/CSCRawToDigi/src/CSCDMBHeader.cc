@@ -119,7 +119,7 @@ void CSCDMBHeader::addNCLCT()
 
 void CSCDMBHeader::addNALCT() 
 {
-  alct_dav_1 = 1;
+  alct_dav_1 = alct_dav_2 = alct_dav_4 = 1;
 }
 
 
