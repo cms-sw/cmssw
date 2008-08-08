@@ -55,12 +55,17 @@ void SiStripHistoricPlot::fillHistograms(edm::ESHandle<SiStripSummary> pS){
  
       std::string mean = "ClusterWidth@mean";
       std::string rms = "ClusterWidth@rms";
+      std::vector<std::string> items;
         
       std::ostringstream osdetid; osdetid<<vdetids.at(i); TString sdetid = osdetid.str();
       int jbin;
-      ClusterSizesAllDets->Fill(sdetid,pS->getSummaryObj(vdetids.at(i),mean));
+      items.clear();
+      items.push_back(mean);
+      ClusterSizesAllDets->Fill(sdetid,pS->getSummaryObj(vdetids.at(i),items).back());
       jbin = ClusterSizesAllDets->GetXaxis()->FindBin(sdetid);
-      ClusterSizesAllDets->SetBinError(jbin,pS->getSummaryObj(vdetids.at(i),rms));
+      items.clear();
+      items.push_back(rms);
+      ClusterSizesAllDets->SetBinError(jbin,pS->getSummaryObj(vdetids.at(i),items).back());
      
       // 
       std::vector<uint32_t>::const_iterator aDet = std::find(activeDets.begin(),activeDets.end(), vdetids.at(i));
@@ -68,9 +73,13 @@ void SiStripHistoricPlot::fillHistograms(edm::ESHandle<SiStripSummary> pS){
         std::ostringstream osrunid; osrunid<<presentRunNr_; TString srunid = osrunid.str();
         int ibin; TString ohistoid;
         ohistoid=detHistoTitle(vdetids.at(i),"ClusterSizesAllRuns");
-        ((TH1F*) AllDetHistograms->FindObject(ohistoid))->Fill(srunid,pS->getSummaryObj(vdetids.at(i), mean));
+	items.clear();
+	items.push_back(mean);
+        ((TH1F*) AllDetHistograms->FindObject(ohistoid))->Fill(srunid,pS->getSummaryObj(vdetids.at(i), items).back());
         ibin = ((TH1F*) AllDetHistograms->FindObject(ohistoid))->GetXaxis()->FindBin(srunid);
-        ((TH1F*) AllDetHistograms->FindObject(ohistoid))->SetBinError(ibin,pS->getSummaryObj(vdetids.at(i), rms));
+	items.clear();
+	items.push_back(rms);
+        ((TH1F*) AllDetHistograms->FindObject(ohistoid))->SetBinError(ibin,pS->getSummaryObj(vdetids.at(i), items).back());
         }
     
     
