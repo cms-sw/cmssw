@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.66 $"
+__version__ = "$Revision: 1.67 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -281,7 +281,11 @@ class ConfigBuilder(object):
                 alcaOutput.outputCommands = alcastream.content
                 alcaOutput.fileName = cms.untracked.string(alcastream.name+'.root')
                 alcaOutput.dataset  = cms.untracked.PSet( dataTier = alcastream.dataTier)
-                self.process.schedule.append(alcastream.paths)
+		if isinstance(alcastream.paths,tuple):
+                    for path in alcastream.paths:
+		        self.process.schedule.append(path)
+                else:		
+		    self.process.schedule.append(alcastream.paths)
                 # in case of relvals we don't want to have additional outputs  
 		if not self._options.relval: 
                     self.additionalOutputs[name] = alcaOutput
@@ -433,7 +437,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.66 $"),
+              (version=cms.untracked.string("$Revision: 1.67 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
