@@ -3,8 +3,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2008/05/20 22:06:11 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/05/21 20:26:05 $
+ *  $Revision: 1.10 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -54,6 +54,7 @@ MEtoEDMConverter::MEtoEDMConverter(const edm::ParameterSet & iPSet) :
     
   // create persistent objects
   produces<MEtoEDM<TH1F>, edm::InRun>(fName);
+  produces<MEtoEDM<TH1S>, edm::InRun>(fName);
   produces<MEtoEDM<TH2F>, edm::InRun>(fName);
   produces<MEtoEDM<TH3F>, edm::InRun>(fName);
   produces<MEtoEDM<TProfile>, edm::InRun>(fName);
@@ -83,6 +84,7 @@ MEtoEDMConverter::endJob(void)
   // information flags
   std::map<std::string,int> packages; // keep track just of package names
   unsigned nTH1F = 0; // count various objects we have
+  unsigned nTH1S = 0;
   unsigned nTH2F = 0;
   unsigned nTH3F = 0;
   unsigned nTProfile = 0;
@@ -131,6 +133,12 @@ MEtoEDMConverter::endJob(void)
 	std::cout << "   normal: " << tobj->GetName() << ": TH1F\n";
       break;
 
+    case MonitorElement::DQM_KIND_TH1S:
+      ++nTH1S;
+      if (verbosity > 1)
+	std::cout << "   normal: " << tobj->GetName() << ": TH1S\n";
+      break;
+
     case MonitorElement::DQM_KIND_TH2F:
       ++nTH2F;
       if (verbosity > 1)
@@ -173,6 +181,7 @@ MEtoEDMConverter::endJob(void)
 		<< std::endl;
 
     std::cout << "We have " << nTH1F << " TH1F objects" << std::endl;
+    std::cout << "We have " << nTH1S << " TH1S objects" << std::endl;
     std::cout << "We have " << nTH2F << " TH2F objects" << std::endl;
     std::cout << "We have " << nTH3F << " TH3F objects" << std::endl;
     std::cout << "We have " << nTProfile << " TProfile objects" << std::endl;
@@ -233,6 +242,10 @@ MEtoEDMConverter::beginRun(edm::Run& iRun, const edm::EventSetup& iSetup)
       me->Reset();
       break;
 
+    case MonitorElement::DQM_KIND_TH1S:
+      me->Reset();
+      break;
+
     case MonitorElement::DQM_KIND_TH2F:
       me->Reset();
       break;
@@ -268,6 +281,7 @@ MEtoEDMConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
   std::string release = edm::getReleaseVersion();
 
   mestorage<TH1F> TH1FME;
+  mestorage<TH1S> TH1SME;
   mestorage<TH2F> TH2FME;
   mestorage<TH3F> TH3FME;
   mestorage<TProfile> TProfileME;
@@ -326,6 +340,15 @@ MEtoEDMConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
       TH1FME.datatier.push_back(datatier);
       break;
 
+    case MonitorElement::DQM_KIND_TH1S:
+      TH1SME.object.push_back(*me->getTH1S());
+      TH1SME.name.push_back(me->getFullname());
+      TH1SME.tags.push_back(me->getTags());
+      TH1SME.release.push_back(release);
+      TH1SME.run.push_back(run);
+      TH1SME.datatier.push_back(datatier);
+      break;
+
     case MonitorElement::DQM_KIND_TH2F:
       TH2FME.object.push_back(*me->getTH2F());
       TH2FME.name.push_back(me->getFullname());
@@ -376,6 +399,12 @@ MEtoEDMConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
     std::auto_ptr<MEtoEDM<TH1F> > pOut1(new MEtoEDM<TH1F>);
     pOut1->putMEtoEdmObject(TH1FME.name,TH1FME.tags,TH1FME.object,
 			    TH1FME.release,TH1FME.run,TH1FME.datatier);
+    iRun.put(pOut1,fName);
+  }
+  if (! TH1SME.object.empty()) {
+    std::auto_ptr<MEtoEDM<TH1S> > pOut1(new MEtoEDM<TH1S>);
+    pOut1->putMEtoEdmObject(TH1SME.name,TH1SME.tags,TH1SME.object,
+			    TH1SME.release,TH1SME.run,TH1SME.datatier);
     iRun.put(pOut1,fName);
   }
   if (! TH2FME.object.empty()) {

@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2008/07/16 10:02:23 $
- *  $Revision: 1.14 $
+ *  $Date: 2008/07/17 09:08:33 $
+ *  $Revision: 1.15 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -55,6 +55,7 @@ EDMtoMEConverter::EDMtoMEConverter(const edm::ParameterSet & iPSet) :
   
   classtypes.clear();
   classtypes.push_back("TH1F");
+  classtypes.push_back("TH1S");
   classtypes.push_back("TH2F");
   classtypes.push_back("TH3F");
   classtypes.push_back("TProfile");
@@ -155,7 +156,8 @@ void EDMtoMEConverter::convert(const edm::Run& iRun)
   if (verbosity >= 0)
     edm::LogInfo (MsgLoggerCat) << "\nRestoring MonitorElements.";
  
-  for (unsigned int ii = 0; ii < classtypes.size(); ++ii) {    
+  for (unsigned int ii = 0; ii < classtypes.size(); ++ii) { 
+     
     if (classtypes[ii] == "TH1F") {
       edm::Handle<MEtoEDM<TH1F> > metoedm;
       iRun.getByType(metoedm);
@@ -216,6 +218,67 @@ void EDMtoMEConverter::convert(const edm::Run& iRun)
 	    }
 	  } // end loop thorugh metoedmobject
 	} // end TH1F creation
+    
+    if (classtypes[ii] == "TH1S") {
+      edm::Handle<MEtoEDM<TH1S> > metoedm;
+      iRun.getByType(metoedm);
+      
+      if (!metoedm.isValid()) {
+        //edm::LogWarning(MsgLoggerCat)
+        //  << "MEtoEDM<TH1S> doesn't exist in run";
+        continue;
+      }
+      
+      std::vector<MEtoEDM<TH1S>::MEtoEDMObject> metoedmobject = 
+	metoedm->getMEtoEdmObject(); 
+      
+      me1.resize(metoedmobject.size());
+      
+      for (unsigned int i = 0; i < metoedmobject.size(); ++i) {
+	
+	    me1[i] = 0;
+
+        // get full path of monitor element
+	    std::string pathname = metoedmobject[i].name;
+	    if (verbosity) std::cout << pathname << std::endl;
+
+        // set the release tag if it has not be yet done
+	    if (!releaseTag)
+	    {
+	      dbe->cd();	
+	      dbe->bookString(
+	        "ReleaseTag",
+	        metoedmobject[i].
+		release.substr(1,metoedmobject[i].release.size()-2)
+	      );
+	      releaseTag = true;
+	    }
+	      
+	    std::string dir;
+	    
+	    // deconstruct path from fullpath
+	    StringList fulldir = StringOps::split(pathname,"/");
+	    
+	    for (unsigned j = 0; j < fulldir.size() - 1; ++j) {
+	      dir += fulldir[j];
+	      if (j != fulldir.size() - 2) dir += "/";
+	    }
+	    
+	    // define new monitor element
+	    if (dbe) {
+	      dbe->setCurrentFolder(dir);
+	      me1[i] = dbe->book1S(metoedmobject[i].object.GetName(), 
+				   &metoedmobject[i].object);
+	    } // end define new monitor elements
+	    
+	    // attach taglist
+	    TagList tags = metoedmobject[i].tags;
+	    
+	    for (unsigned int j = 0; j < tags.size(); ++j) {
+	      dbe->tag(me1[i]->getFullname(),tags[j]);
+	    }
+	  } // end loop thorugh metoedmobject
+	} // end TH1S creation
     
     if (classtypes[ii] == "TH2F") {
     	    
