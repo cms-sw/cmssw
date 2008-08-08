@@ -6,6 +6,7 @@
 # include "FWCore/Utilities/interface/EDMException.h"
 # include "TF1.h"
 # include "TH1F.h"
+# include "TH1S.h"
 # include "TH2F.h"
 # include "TH3F.h"
 # include "TProfile.h"
@@ -45,6 +46,7 @@ public:
     DQM_KIND_REAL,
     DQM_KIND_STRING,
     DQM_KIND_TH1F,
+    DQM_KIND_TH1S,
     DQM_KIND_TH2F,
     DQM_KIND_TH3F,
     DQM_KIND_TPROFILE,
@@ -245,6 +247,7 @@ public:
   TObject *getRootObject(void) const;
   TH1 *getTH1(void) const;
   TH1F *getTH1F(void) const;
+  TH1S *getTH1S(void) const;
   TH2F *getTH2F(void) const;
   TH3F *getTH3F(void) const;
   TProfile *getTProfile(void) const;
@@ -253,6 +256,7 @@ public:
   TObject *getRefRootObject(void) const;
   TH1 *getRefTH1(void) const;
   TH1F *getRefTH1F(void) const;
+  TH1S *getRefTH1S(void) const;
   TH2F *getRefTH2F(void) const;
   TH3F *getRefTH3F(void) const;
   TProfile *getRefTProfile(void) const;

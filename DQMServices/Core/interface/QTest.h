@@ -655,10 +655,10 @@ protected:
   void checkRange(void);
 
   /// test for useRange_ = true case
-  float doRangeTest(const TH1F *h);
+  float doRangeTest(const TH1 *h);
 
   /// test assuming mean value is quantity with gaussian errors
-  float doGaussTest(const TH1F *h, float sigma);
+  float doGaussTest(const TH1 *h, float sigma);
 
 
   TH1F*h;              //define Test histo

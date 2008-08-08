@@ -3,6 +3,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "TMath.h"
 #include "TH1F.h"
+#include "TH1S.h"
 #include <iostream>
 #include <sstream>
 #include <math.h>
@@ -71,12 +72,21 @@ float Comp2RefEqualH::runTest(const MonitorElement*me)
  
  int nbins=0;
  int nbinsref=0;
- //-- TH1
+ //-- TH1F
  if (me->kind()==MonitorElement::DQM_KIND_TH1F){ 
   nbins = me->getTH1F()->GetXaxis()->GetNbins(); 
   nbinsref = me->getRefTH1F()->GetXaxis()->GetNbins();
   h  = me->getTH1F(); // access Test histo
   ref_ = me->getRefTH1F(); //access Ref hiso 
+  if (nbins != nbinsref) return -1;
+ } 
+ 
+ //-- TH1S
+ if (me->kind()==MonitorElement::DQM_KIND_TH1S){ 
+  nbins = me->getTH1S()->GetXaxis()->GetNbins(); 
+  nbinsref = me->getRefTH1S()->GetXaxis()->GetNbins();
+  h  = me->getTH1S(); // access Test histo
+  ref_ = me->getRefTH1S(); //access Ref hiso 
   if (nbins != nbinsref) return -1;
  } 
  
@@ -105,7 +115,7 @@ float Comp2RefEqualH::runTest(const MonitorElement*me)
  } 
 
  else{ 
-  std::cout<< "Comp2RefEqualH ERROR: ME does not contain TH1F/TH2F/TH3F" << std::endl; 
+  std::cout<< "Comp2RefEqualH ERROR: ME does not contain TH1F/TH1S/TH2F/TH3F" << std::endl; 
   return -1;
  } 
  
@@ -133,10 +143,15 @@ float Comp2RefChi2::runTest(const MonitorElement *me)
    if (!me) return -1;
    if( ! me->getRootObject() ||  ! me->getRefRootObject() ) return -1;
 
-   //-- TH1
+   //-- TH1F
    if (me->kind()==MonitorElement::DQM_KIND_TH1F){ 
     h = me->getTH1F(); // access Test histo
     ref_ = me->getRefTH1F(); //access Ref histo
+   } 
+   //-- TH1S
+   else if (me->kind()==MonitorElement::DQM_KIND_TH1S){ 
+    h = me->getTH1S(); // access Test histo
+    ref_ = me->getRefTH1S(); //access Ref histo
    } 
    //-- TProfile
    else if (me->kind()==MonitorElement::DQM_KIND_TPROFILE){
@@ -145,7 +160,7 @@ float Comp2RefChi2::runTest(const MonitorElement *me)
    } 
   
    else{ 
-    std::cout<< "Comp2RefChi2 ERROR: ME does not contain TH1F/TProfile" << std::endl; 
+    std::cout<< "Comp2RefChi2 ERROR: ME does not contain TH1F/TH1S/TProfile" << std::endl; 
     return -1;
    } 
 
@@ -226,10 +241,15 @@ float Comp2RefKolmogorov::runTest(const MonitorElement *me)
    if (!me) return -1;
    if( ! me->getRootObject() ||  ! me->getRefRootObject() ) return -1;
 
-   //-- TH1
+   //-- TH1F
    if (me->kind()==MonitorElement::DQM_KIND_TH1F){ 
     h = me->getTH1F(); // access Test histo
     ref_ = me->getRefTH1F(); //access Ref histo
+   } 
+   //-- TH1S
+   else if (me->kind()==MonitorElement::DQM_KIND_TH1S){ 
+    h = me->getTH1S(); // access Test histo
+    ref_ = me->getRefTH1S(); //access Ref histo
    } 
    //-- TProfile
    else if (me->kind()==MonitorElement::DQM_KIND_TPROFILE){
@@ -237,7 +257,7 @@ float Comp2RefKolmogorov::runTest(const MonitorElement *me)
     ref_ = me->getRefTProfile(); //access Ref histo
     }
    else{ 
-    std::cout<< "Comp2RefKolmogorov ERROR: ME does not contain TH1F/TProfile" << std::endl; 
+    std::cout<< "Comp2RefKolmogorov ERROR: ME does not contain TH1F/TH1S/TProfile" << std::endl; 
     return -1;
    } 
    
@@ -359,13 +379,18 @@ float ContentsXRange::runTest(const MonitorElement*me)
  if (!me) return -1;
  if( ! me->getRootObject() ) return -1;
 
- if (me->kind()!=MonitorElement::DQM_KIND_TH1F) { 
- std::cout<< "ContentsXRange ERROR: ME " << me->getFullname() << " does not contain TH1F" << std::endl; 
- return -1;} 
+ TH1* h = 0;
 
- 
- TH1F *h = me->getTH1F(); //access Test histo
-
+ if (me->kind()==MonitorElement::DQM_KIND_TH1F ) {
+   h = me->getTH1F();
+ } 
+ else if ( me->kind()==MonitorElement::DQM_KIND_TH1S ) {
+   h = me->getTH1S();
+ } 
+ else {
+     std::cout<< "ContentsXRange ERROR: ME " << me->getFullname() << " does not contain TH1F/TH1S" << std::endl; 
+     return -1;
+ } 
 
  if (!rangeInitialized_)
  {
@@ -406,13 +431,19 @@ float ContentsYRange::runTest(const MonitorElement*me)
 
  if (!me) return -1;
  if( ! me->getRootObject() ) return -1;
+ TH1* h = 0;
 
- if (me->kind()!=MonitorElement::DQM_KIND_TH1F) { 
- std::cout<< "ContentsYRange ERROR: ME " << me->getFullname() << " does not contain TH1F" << std::endl; 
- return -1;} 
+ if (me->kind()==MonitorElement::DQM_KIND_TH1F) { 
+  h = me->getTH1F(); //access Test histo
+ } 
+ else if (me->kind()==MonitorElement::DQM_KIND_TH1S) { 
+  h = me->getTH1S(); //access Test histo
+ } 
+ else {
+ std::cout<< "ContentsYRange ERROR: ME " << me->getFullname() << " does not contain TH1F/TH1S" << std::endl; 
+ return -1;
+ } 
 
-  TH1F *h = me->getTH1F(); //access Test histo
- 
   if (!rangeInitialized_ || !h->GetXaxis()) return 1; // all bins are accepted if no initialization
   Int_t ncx = h->GetXaxis()->GetNbins();
   // do NOT use underflow bin
@@ -472,21 +503,27 @@ float NoisyChannel::runTest(const MonitorElement *me)
  if( ! me->getRootObject() ) return -1; 
 
  int nbins=0;
- //-- TH1
+ //-- TH1F
  if (me->kind()==MonitorElement::DQM_KIND_TH1F){ 
-  nbins = me->getTH1F()->GetXaxis()->GetNbins(); 
-  h  = me->getTH1F(); // access Test histo
+   nbins = me->getTH1F()->GetXaxis()->GetNbins(); 
+   h  = me->getTH1F(); // access Test histo
+ } 
+ //-- TH1S
+ else if (me->kind()==MonitorElement::DQM_KIND_TH1S){ 
+   nbins = me->getTH1S()->GetXaxis()->GetNbins(); 
+   h  = me->getTH1S(); // access Test histo
  } 
  //-- TH2
  else if (me->kind()==MonitorElement::DQM_KIND_TH2F){ 
-  nbins = me->getTH2F()->GetXaxis()->GetNbins() *
-          me->getTH2F()->GetYaxis()->GetNbins();
-  h  = me->getTH2F(); // access Test histo
-  } 
- else{  
- std::cout<< "NoisyChannel ERROR: ME " << me->getFullname() << " does not contain TH1F or TH2F" << std::endl; 
- return -1;
-  }
+   nbins = me->getTH2F()->GetXaxis()->GetNbins() *
+           me->getTH2F()->GetYaxis()->GetNbins();
+   h  = me->getTH2F(); // access Test histo
+ } 
+ else {  
+   std::cout<< "NoisyChannel ERROR: ME " << me->getFullname() << 
+   " does not contain TH1F/TH1S or TH2F" << std::endl; 
+   return -1;
+ }
 
  //--  QUALITY TEST itself 
 
@@ -809,11 +846,17 @@ float MeanWithinExpected::runTest(const MonitorElement *me )
   if (!me) return -1;
   if( ! me->getRootObject() ) return -1;
 
-  if (me->kind()!=MonitorElement::DQM_KIND_TH1F) { 
-  std::cout<< " MeanWithinExpected ERROR: ME " << me->getFullname() << " does not contain TH1F" << std::endl; 
-  return -1;} 
-  
-  h = me->getTH1F(); //access Test histo
+  TH1* h=0;
+  if (me->kind()==MonitorElement::DQM_KIND_TH1F) { 
+    h = me->getTH1F(); //access Test histo
+  }
+  else if (me->kind()==MonitorElement::DQM_KIND_TH1S) { 
+    h = me->getTH1S(); //access Test histo
+  }
+  else {
+    std::cout<< " MeanWithinExpected ERROR: ME " << me->getFullname() << " does not contain TH1F/TH1S" << std::endl; 
+    return -1;
+  } 
    
   if (isInvalid()) return -1;
 
@@ -828,14 +871,14 @@ float MeanWithinExpected::runTest(const MonitorElement *me )
 }
 
 // test assuming mean value is quantity with gaussian errors
-float MeanWithinExpected::doGaussTest(const TH1F *h, float sigma)
+float MeanWithinExpected::doGaussTest(const TH1 *h, float sigma)
 {
   float chi = (h->GetMean() - expMean_)/sigma;
   return TMath::Prob(chi*chi, 1);
 }
 
 // test for useRange_ = true case
-float MeanWithinExpected::doRangeTest(const TH1F *h)
+float MeanWithinExpected::doRangeTest(const TH1 *h)
 {
   float mean = h->GetMean();
   if (mean <= xmax_ && mean >= xmin_) return 1;
