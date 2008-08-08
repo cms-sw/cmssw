@@ -1,4 +1,4 @@
-# /dev/CMSSW_2_1_0/HLT/V5 (CMSSW_2_1_0_HLT1)
+# /dev/CMSSW_2_1_0/HLT/V6 (CMSSW_2_1_0_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -584,13 +584,15 @@ hltGctDigis = cms.EDProducer( "GctRawToDigi",
 hltL1GtObjectMap = cms.EDProducer( "L1GlobalTrigger",
     GmtInputTag = cms.InputTag( "hltGtDigis" ),
     GctInputTag = cms.InputTag( "hltGctDigis" ),
+    CastorInputTag = cms.InputTag( "castorL1Digis" ),
     TechnicalTriggersInputTag = cms.InputTag( "techTrigDigis" ),
     ProduceL1GtDaqRecord = cms.bool( False ),
     ProduceL1GtEvmRecord = cms.bool( False ),
     ProduceL1GtObjectMapRecord = cms.bool( True ),
     WritePsbL1GtDaqRecord = cms.bool( False ),
     ReadTechnicalTriggerRecords = cms.bool( True ),
-    EmulateBxInEvent = cms.int32( 1 )
+    EmulateBxInEvent = cms.int32( 1 ),
+    BstLengthBytes = cms.int32( -1 )
 )
 hltL1extraParticles = cms.EDProducer( "L1ExtraParticlesProd",
     produceMuonParticles = cms.bool( True ),
