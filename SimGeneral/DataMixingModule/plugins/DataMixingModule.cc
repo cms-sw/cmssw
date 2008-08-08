@@ -133,22 +133,22 @@ namespace edm
       // to look at...
 
       //      edm::BranchDescription desc = it->second;
-      //if (!desc.friendlyClassName_.compare(0,9,"EBRecHitC")) {
-      //	Subdetectors_.push_back(desc.productInstanceName_);
-      //LogInfo("DataMixingModule") <<"Adding container "<<desc.productInstanceName_ <<" for pileup treatment";
+      //if (!desc.friendlyClassName().compare(0,9,"EBRecHitC")) {
+      //	Subdetectors_.push_back(desc.productInstanceName());
+      //LogInfo("DataMixingModule") <<"Adding container "<<desc.productInstanceName() <<" for pileup treatment";
       //}
-      //else if (!desc.friendlyClassName_.compare(0,9,"EERecHitC")) {
-	//      else if (!desc.friendlyClassName_.compare(0,9,"EErechitC") && desc.productInstanceName_.compare(0,11,"TrackerHits")) {
-      //	Subdetectors_.push_back(desc.productInstanceName_);
-      //LogInfo("DataMixingModule") <<"Adding container "<<desc.productInstanceName_ <<" for pileup treatment";
+      //else if (!desc.friendlyClassName().compare(0,9,"EERecHitC")) {
+	//      else if (!desc.friendlyClassName().compare(0,9,"EErechitC") && desc.productInstanceName().compare(0,11,"TrackerHits")) {
+      //	Subdetectors_.push_back(desc.productInstanceName());
+      //LogInfo("DataMixingModule") <<"Adding container "<<desc.productInstanceName() <<" for pileup treatment";
       //}
-      //else if (!desc.friendlyClassName_.compare(0,9,"HBRecHitC")) {
-      //	Subdetectors_.push_back(desc.productInstanceName_);
-      //LogInfo("DataMixingModule") <<"Adding container "<<desc.productInstanceName_ <<" for pileup treatment";
+      //else if (!desc.friendlyClassName().compare(0,9,"HBRecHitC")) {
+      //	Subdetectors_.push_back(desc.productInstanceName());
+      //LogInfo("DataMixingModule") <<"Adding container "<<desc.productInstanceName() <<" for pileup treatment";
       //}
-      //else if (!desc.friendlyClassName_.compare(0,9,"HERecHitC")) {
-      //	Subdetectors_.push_back(desc.productInstanceName_);
-      //LogInfo("DataMixingModule") <<"Adding container "<<desc.productInstanceName_ <<" for pileup treatment";
+      //else if (!desc.friendlyClassName().compare(0,9,"HERecHitC")) {
+      //	Subdetectors_.push_back(desc.productInstanceName());
+      //LogInfo("DataMixingModule") <<"Adding container "<<desc.productInstanceName() <<" for pileup treatment";
       // }
 	// and so on with other detector types...
     // }
