@@ -13,7 +13,7 @@
 //
 // Original Author:  Domenico GIORDANO
 //         Created:  Wed Oct  3 12:11:10 CEST 2007
-// $Id: SiStripQualityESProducer.cc,v 1.1 2008/02/06 17:04:19 bainbrid Exp $
+// $Id: SiStripQualityESProducer.cc,v 1.2 2008/07/25 16:13:56 giordano Exp $
 //
 //
 
@@ -74,8 +74,8 @@ boost::shared_ptr<SiStripQuality> SiStripQualityESProducer::produce(const SiStri
   
   quality->cleanUp();
 
-  if(pset_.getUntrackedParameter<bool>("ReduceGranularity",false)){
-      quality->ReduceGranularity(pset_.getUntrackedParameter<double>("ThresholdForReducedGranularity",0.3));
+  if(pset_.getParameter<bool>("ReduceGranularity")){
+      quality->ReduceGranularity(pset_.getParameter<double>("ThresholdForReducedGranularity"));
       quality->cleanUp(true);
   }
 

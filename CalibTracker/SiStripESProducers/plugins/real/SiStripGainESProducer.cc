@@ -13,7 +13,7 @@
 //
 // Original Author:  Giacomo Bruno
 //         Created:  Fri Apr 27 12:31:25 CEST 2007
-// $Id: SiStripGainESProducer.cc,v 1.2 2008/07/03 12:37:35 vciulli Exp $
+// $Id: SiStripGainESProducer.cc,v 1.3 2008/08/08 07:59:01 giordano Exp $
 //
 //
 
@@ -39,7 +39,7 @@ SiStripGainESProducer::SiStripGainESProducer(const edm::ParameterSet& iConfig){
   automaticMode_ = iConfig.getParameter<bool>("AutomaticNormalization");
   norm_=iConfig.getParameter<double>("NormalizationFactor");
   printdebug_ = iConfig.getUntrackedParameter<bool>("printDebug", false);
-  //apvgain_ = iConfig.getParameter<std::string>("APVGain");
+  apvgain_ = iConfig.getParameter<std::string>("APVGain");
 
   if(!automaticMode_ && norm_<=0){
     edm::LogError("SiStripGainESProducer::SiStripGainESProducer() - ERROR: negative or zero Normalization factor provided. Assuming 1 for such factor") << std::endl;
@@ -67,9 +67,8 @@ std::auto_ptr<SiStripGain> SiStripGainESProducer::produce(const SiStripGainRcd &
 {
    using namespace edm::es;
    edm::ESHandle<SiStripApvGain> pDD;
-   //iRecord.getRecord<SiStripApvGainRcd>().get(apvgain_,pDD );
-   iRecord.getRecord<SiStripApvGainRcd>().get(pDD );
-
+   iRecord.getRecord<SiStripApvGainRcd>().get(apvgain_,pDD );
+   
    double NFactor;
 
    if(automaticMode_ || printdebug_ ){
