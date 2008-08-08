@@ -28,6 +28,7 @@ class SiStripQualityDQM : public SiStripBaseCondObjDQM{
   
   void fillSummaryMEs(const std::vector<uint32_t> & selectedDetIds);
   void fillMEsForLayer( std::map<uint32_t, ModMEs> selModMEsMap_, uint32_t selDetId_);
+  void fillGrandSummaryMEs();
  	       
   
   unsigned long long getCache(const edm::EventSetup & eSetup){ return eSetup.get<SiStripQualityRcd>().cacheIdentifier();}
@@ -40,6 +41,11 @@ class SiStripQualityDQM : public SiStripBaseCondObjDQM{
   private: 
     std::string qualityLabel_ ;
     edm::ESHandle<SiStripQuality> qualityHandle_;
+    int NTkBadComponent[4]; //k: 0=BadModule, 1=BadFiber, 2=BadApv, 3=BadStrips
+    int NBadComponent[4][19][4];  
+    std::stringstream ssV[4][19];
+    void SetBadComponents(int i, int component,SiStripQuality::BadComponent& BC);
+   
 
 };
 

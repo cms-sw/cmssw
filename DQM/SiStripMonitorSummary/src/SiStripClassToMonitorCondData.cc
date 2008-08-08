@@ -51,8 +51,8 @@
 // std
 #include <cstdlib>
 #include <string>
-#include <cmath>
-#include <numeric>
+//#include <cmath>
+//#include <numeric>
 #include <algorithm>
 
 
@@ -201,7 +201,6 @@ void SiStripClassToMonitorCondData::endRun(edm::EventSetup const& eSetup) {
  
 } // endRun
 // -----
-
 
 
 //

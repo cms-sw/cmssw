@@ -1,6 +1,9 @@
 #include "DQM/SiStripMonitorSummary/interface/SiStripBaseCondObjDQM.h"
 
 // -----
+
+
+
 SiStripBaseCondObjDQM::SiStripBaseCondObjDQM(const edm::EventSetup & eSetup,
                                              edm::ParameterSet const& hPSet,
                                              edm::ParameterSet const& fPSet ):
@@ -12,16 +15,14 @@ SiStripBaseCondObjDQM::SiStripBaseCondObjDQM(const edm::EventSetup & eSetup,
 
   reader = new SiStripDetInfoFileReader(edm::FileInPath(std::string("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat") ).fullPath());
   
-  Mod_On_                 = fPSet_.getParameter<bool>("Mod_On");
-  SummaryOnLayerLevel_On_ = fPSet_.getParameter<bool>("SummaryOnLayerLevel_On");
+  Mod_On_                  = fPSet_.getParameter<bool>("Mod_On");
+  SummaryOnLayerLevel_On_  = fPSet_.getParameter<bool>("SummaryOnLayerLevel_On");
   SummaryOnStringLevel_On_ = fPSet_.getParameter<bool>("SummaryOnStringLevel_On");
+  GrandSummary_On_           = fPSet_.getParameter<bool>("GrandSummary_On");
   
   CondObj_fillId_    = hPSet_.getParameter<std::string>("CondObj_fillId");
   CondObj_name_      = hPSet_.getParameter<std::string>("CondObj_name");
 
-  FillSummaryAtLayerLevel = hPSet_.getParameter<bool>("FillSummaryAtLayerLevel");
-  FillSummaryProfileAtLayerLevel = hPSet_.getParameter<bool>("FillSummaryProfileAtLayerLevel");
-  FillCumulativeSummaryAtLayerLevel = hPSet_.getParameter<bool>("FillCumulativeSummaryAtLayerLevel");
 
   //Warning message from wrong input:
   if(SummaryOnLayerLevel_On_ && SummaryOnStringLevel_On_){
@@ -29,13 +30,13 @@ SiStripBaseCondObjDQM::SiStripBaseCondObjDQM(const edm::EventSetup & eSetup,
        << "[SiStripBaseCondObjDQM::SiStripBaseCondObjDQMs] PLEASE CHECK : String and layer level options can not be activated together"
        << std::endl; 
   }
- 
+
 
 }
 // -----
 
 
-
+//======================================
 // -----
 void SiStripBaseCondObjDQM::analysis(const edm::EventSetup & eSetup_){
  
@@ -49,12 +50,11 @@ void SiStripBaseCondObjDQM::analysis(const edm::EventSetup & eSetup_){
   
   if(Mod_On_ )                                            { fillModMEs(activeDetIds); }
   if(SummaryOnLayerLevel_On_ || SummaryOnStringLevel_On_ ){ fillSummaryMEs(activeDetIds);}
-
 }
 // -----
 
 
-
+//=====================================
 // -----
 void SiStripBaseCondObjDQM::analysisOnDemand(const edm::EventSetup & eSetup_, 
                                             std::string requestedSubDetector, 
@@ -87,7 +87,7 @@ void SiStripBaseCondObjDQM::analysisOnDemand(const edm::EventSetup & eSetup_,
 }
 // -----
 
-
+//===========================================
 // -----
 void SiStripBaseCondObjDQM::analysisOnDemand(const edm::EventSetup & eSetup_, uint32_t  detIdOnDemand){
  
@@ -104,7 +104,7 @@ void SiStripBaseCondObjDQM::analysisOnDemand(const edm::EventSetup & eSetup_, ui
   
 }
 // -----
-
+//===============================================
 // -----
 void SiStripBaseCondObjDQM::analysisOnDemand(const edm::EventSetup & eSetup_, std::vector<uint32_t>  detIdsOnDemand){
  
@@ -119,7 +119,7 @@ void SiStripBaseCondObjDQM::analysisOnDemand(const edm::EventSetup & eSetup_, st
   
 }
 // -----
-
+//====================================
 // -----
 std::vector<uint32_t> SiStripBaseCondObjDQM::getCabledModules() {     
  
@@ -133,7 +133,7 @@ std::vector<uint32_t> SiStripBaseCondObjDQM::getCabledModules() {
 // -----
 
 
-
+//=========================================================
 // -----
 void SiStripBaseCondObjDQM::selectModules(std::vector<uint32_t> & detIds_){
    
@@ -276,7 +276,7 @@ void SiStripBaseCondObjDQM::selectModules(std::vector<uint32_t> & detIds_){
 // -----
 
 
-
+//=================================================
 // -----
 void SiStripBaseCondObjDQM::getModMEs(ModMEs& CondObj_ME, const uint32_t& detId_){
   
@@ -316,7 +316,7 @@ void SiStripBaseCondObjDQM::getModMEs(ModMEs& CondObj_ME, const uint32_t& detId_
 }
 // ---- 
 
-
+//===============================================
 // -----
 void SiStripBaseCondObjDQM::getSummaryMEs(ModMEs& CondObj_ME, const uint32_t& detId_){
 
@@ -336,14 +336,14 @@ void SiStripBaseCondObjDQM::getSummaryMEs(ModMEs& CondObj_ME, const uint32_t& de
       CondObj_name_ == "noise"         || 
       CondObj_name_ == "apvgain"       || 
       CondObj_name_ == "lorentzangle" ) {
-    if(FillSummaryProfileAtLayerLevel)	
+    if(fPSet_.getParameter<bool>("FillSummaryProfileAtLayerLevel"))	
       if (CondObj_ME.SummaryOfProfileDistr) { bookSummaryProfileMEs(CondObj_ME,detId_);}  
     
   }
     
   // --> currently only genuine cumul LA
   if(  CondObj_name_ == "lorentzangle" ||  CondObj_name_ == "noise"  ) {
-    if(FillCumulativeSummaryAtLayerLevel)
+    if(fPSet_.getParameter<bool>("FillCumulativeSummaryAtLayerLevel"))
       if (CondObj_ME.SummaryOfCumulDistr) { bookSummaryCumulMEs(CondObj_ME,detId_); } 
   } 
                           
@@ -352,7 +352,7 @@ void SiStripBaseCondObjDQM::getSummaryMEs(ModMEs& CondObj_ME, const uint32_t& de
           CondObj_name_ == "apvgain"        || 
 	  CondObj_name_ == "pedestal"       || 
 	  CondObj_name_ == "quality"           ) {
-    if(FillSummaryAtLayerLevel)          
+    if(fPSet_.getParameter<bool>("FillSummaryAtLayerLevel"))          
       if (CondObj_ME.SummaryDistr) { bookSummaryMEs(CondObj_ME,detId_); } 
     
   } 
@@ -367,8 +367,7 @@ void SiStripBaseCondObjDQM::getSummaryMEs(ModMEs& CondObj_ME, const uint32_t& de
 }
 // ---- 
 
-
-
+//====================================================
 // -----
 void SiStripBaseCondObjDQM::bookProfileMEs(SiStripBaseCondObjDQM::ModMEs& CondObj_ME, const uint32_t& detId_){
      
@@ -403,7 +402,7 @@ void SiStripBaseCondObjDQM::bookProfileMEs(SiStripBaseCondObjDQM::ModMEs& CondOb
   folder_organizer.setDetectorFolder(detId_); 
       
   std::string hProfile_Name; 
-  hProfile_Name = hidmanager.createHistoId(hProfile_description, "det", detId_); ;
+  hProfile_Name = hidmanager.createHistoId(hProfile_description, "det", detId_);
       
   std::string hProfile;
   hProfile = hProfile_Name ;
@@ -417,7 +416,7 @@ void SiStripBaseCondObjDQM::bookProfileMEs(SiStripBaseCondObjDQM::ModMEs& CondOb
 // -----
 
 
-      
+//=============================================      
 // -----
 void SiStripBaseCondObjDQM::bookCumulMEs(SiStripBaseCondObjDQM::ModMEs& CondObj_ME, const uint32_t& detId_){
 
@@ -457,7 +456,7 @@ void SiStripBaseCondObjDQM::bookCumulMEs(SiStripBaseCondObjDQM::ModMEs& CondObj_
 // ---- 
 
 
-
+//===========================================
 // -----
 void SiStripBaseCondObjDQM::bookSummaryProfileMEs(SiStripBaseCondObjDQM::ModMEs& CondObj_ME, const uint32_t& detId_){
   
@@ -682,7 +681,7 @@ void SiStripBaseCondObjDQM::bookSummaryProfileMEs(SiStripBaseCondObjDQM::ModMEs&
 // ---- 
 
 
-
+//=============================================================
 // -----
 void SiStripBaseCondObjDQM::bookSummaryCumulMEs(SiStripBaseCondObjDQM::ModMEs& CondObj_ME, const uint32_t& detId_){
     
@@ -747,7 +746,7 @@ void SiStripBaseCondObjDQM::bookSummaryCumulMEs(SiStripBaseCondObjDQM::ModMEs& C
 }
 // -----
 
-
+//================================================
 // -----
 void SiStripBaseCondObjDQM::bookSummaryMEs(SiStripBaseCondObjDQM::ModMEs& CondObj_ME, const uint32_t& detId_){
   
@@ -774,23 +773,10 @@ void SiStripBaseCondObjDQM::bookSummaryMEs(SiStripBaseCondObjDQM::ModMEs& CondOb
   // -----
   // get detIds belonging to same layer to fill X-axis with detId-number
   					   
-  uint32_t subDetId_ =  ((detId_>>25)&0x7);
-  SiStripSubStructure substructure_;
   
   sameLayerDetIds_.clear();
    
-  if(subDetId_==3){  //  TIB
-    substructure_.getTIBDetectors(activeDetIds, sameLayerDetIds_, TIBDetId(detId_).layerNumber(),0,0,0);  
-  }
-  else if(subDetId_==4){  // TID
-    substructure_.getTIDDetectors(activeDetIds, sameLayerDetIds_, TIDDetId(detId_).side(),TIDDetId(detId_).diskNumber(),0,0);
-  }
-  else if(subDetId_==5){  // TOB
-    substructure_.getTOBDetectors(activeDetIds, sameLayerDetIds_, TOBDetId(detId_).layerNumber(),0,0);
-  }
-  else if(subDetId_==6){  // TEC
-    substructure_.getTECDetectors(activeDetIds, sameLayerDetIds_, TECDetId(detId_).side(), TECDetId(detId_).wheelNumber(),0,0,0,0);
-  }
+  sameLayerDetIds_=GetSameLayerDetId(activeDetIds,detId_);
 
   hSummary_NchX           = sameLayerDetIds_.size(); 
   hSummary_LowX           = 0.5;
@@ -856,8 +842,7 @@ void SiStripBaseCondObjDQM::bookSummaryMEs(SiStripBaseCondObjDQM::ModMEs& CondOb
 } 
 
 
-
-
+//==========================================================
 // -----
 std::pair<std::string,uint32_t> SiStripBaseCondObjDQM::getLayerNameAndId(const uint32_t& detId_){
 
@@ -969,7 +954,7 @@ std::pair<std::string,uint32_t> SiStripBaseCondObjDQM::getLayerNameAndId(const u
   return std::make_pair(layerName_,layerId_);
 }
 
-
+//=================================================
 //---------------
 
 

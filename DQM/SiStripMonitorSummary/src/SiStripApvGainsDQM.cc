@@ -149,12 +149,9 @@ void SiStripApvGainsDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_,
   
   std::vector<uint32_t> sameLayerDetIds_;
   
-  uint32_t subselDetId_ =  ((selDetId_>>25)&0x7);
-  SiStripSubStructure substructure_;
-  
   sameLayerDetIds_.clear();
 
-  sameLayerDetIds_=GetSameLayerDetId(activeDetIds,subselDetId_);
+  sameLayerDetIds_=GetSameLayerDetId(activeDetIds,selDetId_);
   
   unsigned int iBin=0;
   for(unsigned int i=0;i<sameLayerDetIds_.size();i++){

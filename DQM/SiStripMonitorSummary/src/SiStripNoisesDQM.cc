@@ -128,7 +128,7 @@ void SiStripNoisesDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_, u
   SiStripHistoId hidmanager;
   float gainFactor=1;
   
-  if(FillSummaryProfileAtLayerLevel){
+  if(fPSet_.getParameter<bool>("FillSummaryProfileAtLayerLevel")){
     // --> profile summary    
     std::string hSummaryOfProfile_description;
     hSummaryOfProfile_description  = hPSet_.getParameter<std::string>("SummaryOfProfile_description");
@@ -162,7 +162,7 @@ void SiStripNoisesDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_, u
     }// istrip
   }//if fill
   
-  if(FillSummaryAtLayerLevel){
+  if(fPSet_.getParameter<bool>("FillSummaryAtLayerLevel")){
     // --> cumul summary    
     std::string hSummary_description;
     hSummary_description  = hPSet_.getParameter<std::string>("Summary_description");
@@ -214,12 +214,9 @@ void SiStripNoisesDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_, u
   
     std::vector<uint32_t> sameLayerDetIds_;
     
-    uint32_t subselDetId_ =  ((selDetId_>>25)&0x7);
-    SiStripSubStructure substructure_;
-    
     sameLayerDetIds_.clear();
     
-    sameLayerDetIds_=GetSameLayerDetId(activeDetIds,subselDetId_);
+    sameLayerDetIds_=GetSameLayerDetId(activeDetIds,selDetId_);
     
     
     unsigned int iBin=0;
@@ -232,7 +229,7 @@ void SiStripNoisesDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_, u
   }//if fill
 
   /// Cumulative distr. for Noise:
-  if(FillCumulativeSummaryAtLayerLevel){
+  if(fPSet_.getParameter<bool>("FillCumulativeSummaryAtLayerLevel")){
     std::string hSummaryOfCumul_description;
     hSummaryOfCumul_description  = hPSet_.getParameter<std::string>("Cumul_description");
     

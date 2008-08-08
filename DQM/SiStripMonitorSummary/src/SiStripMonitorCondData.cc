@@ -31,6 +31,7 @@
 #include "DQM/SiStripMonitorSummary/interface/SiStripQualityDQM.h" 
 #include "DQM/SiStripMonitorSummary/interface/SiStripApvGainsDQM.h" 
 #include "DQM/SiStripMonitorSummary/interface/SiStripLorentzAngleDQM.h"
+#include "DQM/SiStripMonitorSummary/interface/SiStripCablingDQM.h"
 
 #include "TH1F.h"
 #include "TH2F.h"
@@ -54,6 +55,7 @@ SiStripMonitorCondData::SiStripMonitorCondData(edm::ParameterSet const& iConfig)
   monitorQuality_        = iConfig.getParameter<bool>("MonitorSiStripQuality");
   monitorApvGains_       = iConfig.getParameter<bool>("MonitorSiStripApvGain");
   monitorLorentzAngle_   = iConfig.getParameter<bool>("MonitorSiStripLorentzAngle");
+  monitorCabling_        = iConfig.getParameter<bool>("MonitorSiStripCabling");
   
 }
 // -----
@@ -70,6 +72,7 @@ SiStripMonitorCondData::~SiStripMonitorCondData(){
   if(monitorQuality_)     { delete qualityDQM_     ;}
   if(monitorApvGains_)    { delete apvgainsDQM_    ;}
   if(monitorLorentzAngle_){ delete lorentzangleDQM_;}
+  if(monitorCabling_)     { delete cablingDQM_;}
 
 }
 // -----
@@ -114,7 +117,11 @@ void SiStripMonitorCondData::beginRun(edm::Run const& run, edm::EventSetup const
                                                  conf_.getParameter<edm::ParameterSet>("SiStripLorentzAngleDQM_PSet"),
                                                  conf_.getParameter<edm::ParameterSet>("FillConditions_PSet"));
   }
-
+  if(monitorCabling_){
+    cablingDQM_ = new SiStripCablingDQM(eSetup,
+					conf_.getParameter<edm::ParameterSet>("SiStripCablingDQM_PSet"),
+					conf_.getParameter<edm::ParameterSet>("FillConditions_PSet"));
+  }
 } // beginRun
 // -----
 
@@ -135,10 +142,10 @@ void SiStripMonitorCondData::analyze(edm::Event const& iEvent, edm::EventSetup c
  
   if(monitorPedestals_)      { pedestalsDQM_     ->analysis(eSetup);}
   if(monitorNoises_)         { noisesDQM_        ->analysis(eSetup);}    
-  if(monitorQuality_)        { qualityDQM_       ->analysis(eSetup);}
   if(monitorApvGains_)       { apvgainsDQM_      ->analysis(eSetup);}    
   if(monitorLorentzAngle_)   { lorentzangleDQM_  ->analysis(eSetup);}
-  
+  if(monitorQuality_)        { qualityDQM_->analysis(eSetup);qualityDQM_->fillGrandSummaryMEs();}//fillGrand. for SiStripquality
+  if(monitorCabling_)        { cablingDQM_       ->analysis(eSetup);}
 } // analyze
 // -----
 

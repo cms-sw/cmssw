@@ -36,15 +36,19 @@
 
 class SiStripBaseCondObjDQM {
 
-  public:
-  		 
-    SiStripBaseCondObjDQM(const edm::EventSetup & eSetup,
-                          edm::ParameterSet const& hPSet,
-                          edm::ParameterSet const& fPSet );
+ 
 
-    virtual ~SiStripBaseCondObjDQM(){};
+  public:
   
-    virtual void getActiveDetIds(const edm::EventSetup & eSetup)=0;
+		 
+
+  SiStripBaseCondObjDQM(const edm::EventSetup & eSetup,
+			edm::ParameterSet const& hPSet,
+			edm::ParameterSet const& fPSet );
+  
+  virtual ~SiStripBaseCondObjDQM(){};
+  
+  virtual void getActiveDetIds(const edm::EventSetup & eSetup)=0;
 
     void analysis(const edm::EventSetup & eSetup_);
     void analysisOnDemand(const edm::EventSetup & eSetup_, uint32_t detIdOnDemand);
@@ -60,6 +64,7 @@ class SiStripBaseCondObjDQM {
   
     virtual void     fillModMEs(const std::vector<uint32_t> & selectedDetIds)=0;
     virtual void fillSummaryMEs(const std::vector<uint32_t> & selectedDetIds)=0;
+    //    virtual void fillTopSummaryMEs()=0;
  
     virtual unsigned long long getCache(const edm::EventSetup & eSetup_)=0;
     virtual void getConditionObject(const edm::EventSetup & eSetup_)=0;
@@ -90,11 +95,9 @@ class SiStripBaseCondObjDQM {
     bool Mod_On_;
     bool SummaryOnLayerLevel_On_;
     bool SummaryOnStringLevel_On_;
+    bool GrandSummary_On_;
     std::string CondObj_fillId_;
     std::string CondObj_name_;
-    bool FillSummaryAtLayerLevel;
-    bool FillSummaryProfileAtLayerLevel;
-    bool FillCumulativeSummaryAtLayerLevel;
      
     std::map<uint32_t, ModMEs> ModMEsMap_;
     std::map<uint32_t, ModMEs> SummaryMEsMap_;
@@ -102,6 +105,7 @@ class SiStripBaseCondObjDQM {
  
     unsigned long long cacheID_memory;
     unsigned long long cacheID_current;
+
 
   
  private:
@@ -112,7 +116,6 @@ class SiStripBaseCondObjDQM {
     void bookSummaryCumulMEs(SiStripBaseCondObjDQM::ModMEs& CondObj_ME, const uint32_t& detId_);
     void bookSummaryMEs(SiStripBaseCondObjDQM::ModMEs& CondObj_ME, const uint32_t& detId_);
   
-    DQMStore* dqmStore_;
     
     std::vector<uint32_t> ModulesToBeExcluded_;
     std::vector<uint32_t> ModulesToBeIncluded_;
@@ -124,6 +127,7 @@ class SiStripBaseCondObjDQM {
      
     SiStripHistoId hidmanager;                        
     SiStripFolderOrganizer folder_organizer;         
+    DQMStore* dqmStore_;
 
 };
 
