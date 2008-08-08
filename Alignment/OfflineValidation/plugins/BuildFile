@@ -29,40 +29,40 @@
 <use name=root>
 <flags EDM_PLUGIN=1>
 </library>
-#<library file=MuonAlignmentAnalyzer.cc>
-#<use name=CLHEP>
-#<use name=root>
-#<flags EDM_PLUGIN=1>
-#</library>
-#<library file=TrackerGeometryCompare.cc>
-#<use name=CLHEP>
-#<use name=root>
-#<flags EDM_PLUGIN=1>
-#</library>
-#<library file=TrackerGeometryIntoNtuples.cc>
-#<use name=CLHEP>
-#<use name=root>
-#<flags EDM_PLUGIN=1>
-#</library>
-#<library file=Tracker_OldtoNewConverter.cc>
-#<use name=CLHEP>
-#<use name=root>
-#<flags EDM_PLUGIN=1>
-#</library>
-#<library file=ValidationMisalignedTracker.cc>
-#<use name=CLHEP>
-#<use name=root>
-#<flags EDM_PLUGIN=1>
-#</library>
-#
-#
-#
-#<library file=TrackerOfflineValidation.cc>
-#<use name=Alignment/OfflineValidation>
-#<use name=CLHEP>
-#<use name=root>
-#<flags EDM_PLUGIN=1>
-#</library>
-#
+<library file=MuonAlignmentAnalyzer.cc>
+<use name=CLHEP>
+<use name=root>
+<flags EDM_PLUGIN=1>
+</library>
+<library file=TrackerGeometryCompare.cc>
+<use name=CLHEP>
+<use name=root>
+<flags EDM_PLUGIN=1>
+</library>
+<library file=TrackerGeometryIntoNtuples.cc>
+<use name=CLHEP>
+<use name=root>
+<flags EDM_PLUGIN=1>
+</library>
+<library file=Tracker_OldtoNewConverter.cc>
+<use name=CLHEP>
+<use name=root>
+<flags EDM_PLUGIN=1>
+</library>
+<library file=ValidationMisalignedTracker.cc>
+<use name=CLHEP>
+<use name=root>
+<flags EDM_PLUGIN=1>
+</library>
+
+
+
+<library file=TrackerOfflineValidation.cc>
+<use name=Alignment/OfflineValidation>
+<use name=CLHEP>
+<use name=root>
+<flags EDM_PLUGIN=1>
+</library>
+
 
 
