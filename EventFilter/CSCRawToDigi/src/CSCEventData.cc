@@ -314,7 +314,9 @@ void CSCEventData::checkALCTClasses() {
     theALCTHeader = new CSCALCTHeader(theChamberType);
     theALCTHeader->setEventInformation(theDMBHeader);
     theAnodeData = new CSCAnodeData(*theALCTHeader);
-    theALCTTrailer = new CSCALCTTrailer();
+    int size = theALCTHeader->sizeInWords() + theAnodeData->sizeInWords() + CSCALCTTrailer::sizeInWords();
+    int firmwareVersion = 2006;
+    theALCTTrailer = new CSCALCTTrailer(size, firmwareVersion);
     // set data available flag
     theDMBHeader.addNALCT();
   }

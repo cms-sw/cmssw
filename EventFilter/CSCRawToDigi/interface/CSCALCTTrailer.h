@@ -19,8 +19,8 @@ struct CSCALCTTrailer2006 {
       zero_1 = 0;
       d_3 = 0xD;
       reserved_3 = 1;
-    //FIXME set wordcount and CRC
   }
+  void setSize(int size) {frameCount = size;}
   short unsigned int sizeInWords() const { ///size of ALCT Header
     return 4;
   }
@@ -49,7 +49,7 @@ class CSCALCTTrailer
 {
 public:
   ///needed for packing
-  CSCALCTTrailer();
+  CSCALCTTrailer(int size, int firmVersion);
   CSCALCTTrailer(const unsigned short * buf);
   CSCALCTTrailer(const CSCALCTStatusDigi & digi) {
     CSCALCTTrailer(digi.trailer());
