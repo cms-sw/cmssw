@@ -58,10 +58,10 @@ void L1RCTGenCalibrator::saveCalibrationInfo(const view_vector& calib_to,const e
 
 void L1RCTGenCalibrator::postProcessing()
 {  
-  // first event data loop, calibrate ecal.
+  // first event data loop, calibrate ecal, hcal with NI pions
   for(std::vector<event_data>::const_iterator i = data_.begin(); i != data_.end(); ++i)
     {
-      int ipt = 0;
+      int iph = 0, ipi = 0;
       hEvent->Fill(i->event);
       hRun->Fill(i->run);
 
@@ -69,47 +69,82 @@ void L1RCTGenCalibrator::postProcessing()
 
       for(; gen != i->gen_particles.end(); ++gen)
 	{
-	  if(gen->particle_type != 22) continue;
+	  if(gen->particle_type != 22 && abs(gen->particle_type) != 211 ) continue;
 
 	  double regionsum = sumEt(gen->eta,gen->phi,i->regions);
 	  
 	  if(regionsum > 0.0)
-	    {
+	    {	      
 	      std::vector<tpg> matchedTpgs = tpgsNear(gen->eta,gen->phi,i->tpgs);
 	      std::pair<double,double> matchedCentroid = std::make_pair(avgEta(matchedTpgs),avgPhi(matchedTpgs));
 	      std::pair<double,double> etAndDeltaR95 = showerSize(matchedTpgs);
-	      std::pair<double,double> ecalEtandDeltaR95 = showerSize(matchedTpgs, .95, .5, true, false);
 	      
-	      int sumieta, sumiphi;
-	      
-	      etaBin(fabs(matchedCentroid.first), sumieta);
-	      phiBin(matchedCentroid.second, sumiphi);
-
-	      if(debug() > 0)
+	      if(gen->particle_type == 22)
 		{
-		  int n_towers = tpgsNear(matchedCentroid.first, matchedCentroid.second, i->tpgs, ecalEtandDeltaR95.second).size();
-		  LogDebug("PhotonTPGSumInfo") << "TPG sum near gen Photon with nearby non-zero RCT region found:\n"
-					       << "\tNumber of Towers  : " << n_towers << std::endl
-					       << "\tCentroid Eta      : " << matchedCentroid.first << std::endl
-					       << "\tCentroid Phi      : " << matchedCentroid.second << std::endl
-					       << "\tDelta R 95  (h+e) : " << etAndDeltaR95.second << std::endl
-					       << "\tDelta R 95  (e)   : " << ecalEtandDeltaR95.second << std::endl
-					       << "\tTotal Et in Cone  : " << etAndDeltaR95.first << std::endl
-					       << "\tEcal Et in Cone   : " << ecalEtandDeltaR95.first << std::endl;
-		}
+		  std::pair<double,double> ecalEtandDeltaR95 = showerSize(matchedTpgs, .95, .5, true, false);
 		  
-	      hPhotonDeltaR95[sumieta]->Fill(etAndDeltaR95.second);
-	      gPhotonEtvsGenEt[sumieta]->SetPoint(ipt++, ecalEtandDeltaR95.first, gen->et);	      
+		  int sumieta, sumiphi;
+		  
+		  etaBin(fabs(matchedCentroid.first), sumieta);
+		  phiBin(matchedCentroid.second, sumiphi);
+		  
+		  if(debug() > 0)
+		    {
+		      int n_towers = tpgsNear(matchedCentroid.first, matchedCentroid.second, matchedTpgs, ecalEtandDeltaR95.second).size();
+		      LogDebug("PhotonTPGSumInfo") << "TPG sum near gen Photon with nearby non-zero RCT region found:\n"
+						   << "\tNumber of Towers  : " << n_towers << std::endl
+						   << "\tCentroid Eta      : " << matchedCentroid.first << std::endl
+						   << "\tCentroid Phi      : " << matchedCentroid.second << std::endl
+						   << "\tDelta R 95  (h+e) : " << etAndDeltaR95.second << std::endl
+						   << "\tDelta R 95  (e)   : " << ecalEtandDeltaR95.second << std::endl
+						   << "\tTotal Et in Cone  : " << etAndDeltaR95.first << std::endl
+						   << "\tEcal Et in Cone   : " << ecalEtandDeltaR95.first << std::endl;
+		    }
+		  
+		  hPhotonDeltaR95[sumieta - 1]->Fill(etAndDeltaR95.second);
+		  gPhotonEtvsGenEt[sumieta - 1]->SetPoint(iph++, ecalEtandDeltaR95.first, gen->et);	      
+		}  
+
+	      if(abs(gen->particle_type) == 211)
+		{
+		  double ecal = sumEt(matchedCentroid.first, matchedCentroid.second, matchedTpgs, etAndDeltaR95.second, true, false);
+		  double hcal = sumEt(matchedCentroid.first, matchedCentroid.second, matchedTpgs, etAndDeltaR95.second, false, true);
+
+		  int sumieta, sumiphi;
+		  etaBin(fabs(matchedCentroid.first), sumieta);
+		  phiBin(matchedCentroid.second, sumiphi);
+		  
+		  if( ecal < 1.0  && etAndDeltaR95.first > 0)
+		    {
+		      if(debug() > 0)
+			{
+			  int n_towers = tpgsNear(matchedCentroid.first, matchedCentroid.second, matchedTpgs, etAndDeltaR95.second).size();
+			  LogDebug("PhotonTPGSumInfo") << "TPG sum near gen Charged Pion with nearby non-zero RCT region and little ECAL energy found:\n"
+						       << "\tNumber of Towers  : " << n_towers << std::endl
+						       << "\tCentroid Eta      : " << matchedCentroid.first << std::endl
+						       << "\tCentroid Phi      : " << matchedCentroid.second << std::endl
+						       << "\tDelta R 95  (h+e) : " << etAndDeltaR95.second << std::endl
+						       << "\tTotal Et in Cone  : " << etAndDeltaR95.first << std::endl
+						       << "\tEcal Et in Cone   : " << ecal << std::endl
+						       << "\tHcal Et in Cone   : " << hcal << std::endl;
+			}
+		      
+
+		      hNIPionDeltaR95[sumieta - 1]->Fill(etAndDeltaR95.second);
+		      gNIPionEtvsGenEt[sumieta - 1]->SetPoint(ipi++, etAndDeltaR95.first, gen->et);
+		    }
+		}
 
 	      hGenPhivsTpgSumPhi->Fill(gen->phi, matchedCentroid.second);
-	      hGenEtavsTpgSumEta->Fill(gen->eta, matchedCentroid.first);
+	      hGenEtavsTpgSumEta->Fill(gen->eta, matchedCentroid.first);	      
 	      hTpgSumEt->Fill(etAndDeltaR95.first);
 	      hTpgSumEta->Fill(matchedCentroid.first);
-	      hTpgSumPhi->Fill(matchedCentroid.second);
-	    }
-	    
+	      hTpgSumPhi->Fill(matchedCentroid.second);		
+	    }	    
 	}
     }
+  
+  
 }
 
 void L1RCTGenCalibrator::saveGenInfo(const reco::GenParticle* g_ , const edm::Handle<ecal_view>& e_, const edm::Handle<hcal_view>& h_,
@@ -257,11 +292,15 @@ void L1RCTGenCalibrator::bookHistograms()
   for(int i = 0; i < 28; ++i)
     {
       putHist(hPhotonDeltaR95[i] = new TH1F(TString("hPhotonDeltaR95") += i, TString("Photon #DeltaR Containing 95% of E_{T} in #eta Bin: ") +=i, 28, deltaRbins));
-      putHist(hPionDeltaR95[i] = new TH1F(TString("hPhotonDeltaR95") += i, TString("Pion #DeltaR Containing 95% of E_{T} in #eta Bin: ") +=i, 28, deltaRbins));
+      putHist(hNIPionDeltaR95[i] = new TH1F(TString("hPhotonDeltaR95") += i, TString("NI Pion #DeltaR Containing 95% of E_{T} in #eta Bin: ") +=i, 28, deltaRbins));
       
       putHist(gPhotonEtvsGenEt[i] = new TGraph());
-      gPhotonEtvsGenEt[i]->SetName(TString("hPhotonEtvsGenEt") += i); 
+      gPhotonEtvsGenEt[i]->SetName(TString("gPhotonEtvsGenEt") += i); 
       gPhotonEtvsGenEt[i]->SetTitle(TString("Photon TPG Sum E_{T} vs. Generator E_{T}") += i);
+
+      putHist(gNIPionEtvsGenEt[i] = new TGraph());
+      gNIPionEtvsGenEt[i]->SetName(TString("gNIPionEtvsGenEt") += i);
+      gNIPionEtvsGenEt[i]->SetTitle(TString("Charged Pion with no/small ECAL deposit TPG Sum E_{T} vs. Generator E_{T}") += i);
 
       for(int i = 0; i < 12; ++i)
 	{

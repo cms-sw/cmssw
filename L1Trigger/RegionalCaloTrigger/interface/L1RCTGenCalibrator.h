@@ -15,7 +15,7 @@
 //
 // Original Author:  pts/47
 //         Created:  Thu Jul 13 21:38:08 CEST 2006
-// $Id: L1RCTGenCalibrator.h,v 1.2 2008/08/07 17:05:12 lgray Exp $
+// $Id: L1RCTGenCalibrator.h,v 1.3 2008/08/07 22:28:58 lgray Exp $
 //
 //
 
@@ -90,11 +90,11 @@ private:
   TH1Fptr hDeltaEtPeakvsEtaBin_uc[12], hDeltaEtPeakvsEtaBin_c[12], hDeltaEtPeakRatiovsEtaBin[12], 
     hDeltaEtPeakvsEtaBinAllEt_uc, hDeltaEtPeakvsEtaBinAllEt_c, hDeltaEtPeakRatiovsEtaBinAllEt;
 
-  TH1Fptr hPhotonDeltaR95[28], hPionDeltaR95[28] ;
+  TH1Fptr hPhotonDeltaR95[28], hNIPionDeltaR95[28] ;
   
   // histograms for algorithm
   
-  TGraphptr gPhotonEtvsGenEt[28];
+  TGraphptr gPhotonEtvsGenEt[28], gNIPionEtvsGenEt[28];
 
 };
 
