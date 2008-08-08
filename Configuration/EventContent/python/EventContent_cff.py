@@ -30,7 +30,7 @@ import FWCore.ParameterSet.Config as cms
 #
 #  FEVT (RAW+RECO), FEVTSIM (RAWSIM+RECOSIM), FEVTDEBUG (FEVTSIM+ALL_SIM_INFO), FEVTDEBUGHLT (FEVTDEBUG+HLTDEBUG)
 #
-#  $Id: EventContent_cff.py,v 1.4 2008/06/20 06:57:11 arizzi Exp $
+#  $Id: EventContent_cff.py,v 1.5 2008/06/26 16:06:41 fambrogl Exp $
 #
 #
 #
@@ -180,6 +180,20 @@ FEVTDEBUGEventContent = cms.PSet(
 FEVTDEBUGHLTEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *')
 )
+
+#
+## HLTDEBUG tier definition
+#
+from HLTrigger.Configuration.HLTDebugOutput_cff  import block_hltDebugOutput
+HLTDEBUGEventContent = cms.PSet(
+    #outputCommands = cms.untracked.vstring('drop *',
+    #        'keep *_hlt*_*_*')
+    outputCommands = cms.untracked.vstring('drop *')
+)
+HLTDEBUGEventContent.outputCommands.extend(block_hltDebugOutput.outputCommands)
+
+
+
 RAWEventContent.outputCommands.extend(L1TriggerRAW.outputCommands)
 RAWEventContent.outputCommands.extend(HLTriggerRAW.outputCommands)
 RECOEventContent.outputCommands.extend(RecoLocalTrackerRECO.outputCommands)
