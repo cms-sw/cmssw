@@ -99,10 +99,8 @@ void CSCDCCEventData::addChamber(CSCEventData & chamber, int dduID, int dduSlot,
   std::vector<CSCDDUEventData>::iterator dduItr;
   int dduIndex = -1;
   int nDDUs = theDDUData.size();
-std::cout << "PACK " << dduID << " IN " << nDDUs << std::endl;
   for(int i = 0; dduIndex == -1 && i < nDDUs; ++i)
   {
-  std::cout << "EXISTING DDU " << theDDUData[i].header().source_id() << std::endl;
     if(theDDUData[i].header().source_id() == dduID) dduIndex = i;
   }
   if(dduIndex == -1)
@@ -112,11 +110,9 @@ std::cout << "PACK " << dduID << " IN " << nDDUs << std::endl;
                               dccHeader().getCDFEventNumber(), dduID);
     theDDUData.push_back(CSCDDUEventData(newDDUHeader));
     dduIndex = nDDUs;
-    std::cout << "MAKE NEW DDU " << dduID << " DMB " << dmbID << std::endl;
     dccHeader().setDAV(dduSlot);
   }
   theDDUData[dduIndex].add(chamber, dmbID);
-std::cout << "ADDED DATA TO DDU " << theDDUData[dduIndex].header().source_id() << " WITH INDEX " << dduIndex << " SO SIZE IS " << theDDUData[dduIndex].cscData().size() << std::endl;
 }
  
 
