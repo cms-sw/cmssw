@@ -35,9 +35,9 @@ process.orcon = cms.ESSource("PoolDBESSource",
 )
 
 process.p = cms.Path(process.L1CondDBPayloadWriter)
-process.orcon.connect = cms.string('oracle://cms_orcon_prod/CMS_COND_20X_L1T')
+process.orcon.connect = cms.string('oracle://cms_orcon_prod/CMS_COND_21X_L1T')
 process.orcon.DBParameters.authenticationPath = '/nfshome0/onlinedbadm/conddb'
-process.L1CondDBPayloadWriter.offlineDB = cms.string('oracle://cms_orcon_prod/CMS_COND_20X_L1T')
+process.L1CondDBPayloadWriter.offlineDB = cms.string('oracle://cms_orcon_prod/CMS_COND_21X_L1T')
 process.L1CondDBPayloadWriter.offlineAuthentication = '/nfshome0/onlinedbadm/conddb'
 
 
