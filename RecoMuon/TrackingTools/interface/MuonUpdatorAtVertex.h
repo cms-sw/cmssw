@@ -21,8 +21,8 @@
  *  BeamSpotPositionErrors[2] = sigma(z)
  *
  *
- *  $Date: 2008/02/20 08:48:25 $
- *  $Revision: 1.16 $
+ *  $Date: 2008/07/31 12:58:12 $
+ *  $Revision: 1.17 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -76,6 +76,11 @@ public:
   std::pair<bool,FreeTrajectoryState>
     propagateWithUpdate(const TrajectoryStateOnSurface &tsos,
 			const reco::BeamSpot & beamSpot);
+
+  /// Propagate the state to the 2D-PCA (nominal CMS axis)
+  std::pair<bool,FreeTrajectoryState>
+    propagateToNominalLine(const TrajectoryStateOnSurface &tsos);
+  
 
 protected:
 

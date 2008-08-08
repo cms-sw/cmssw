@@ -3,8 +3,8 @@
  *  method, the vertex constraint. The vertex constraint is applyed using the Kalman Filter tools used for 
  *  the vertex reconstruction.
  *
- *  $Date: 2008/07/31 12:58:52 $
- *  $Revision: 1.32 $
+ *  $Date: 2008/08/05 16:06:43 $
+ *  $Revision: 1.33 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -18,6 +18,7 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrackFromFTSFactory.h"
 #include "TrackingTools/GeomPropagators/interface/TrackerBounds.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryStateClosestToBeamLineBuilder.h"
+#include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
 
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
@@ -250,4 +251,49 @@ MuonUpdatorAtVertex::propagateWithUpdate(const TrajectoryStateOnSurface &tsos, c
     edm::LogInfo("Muon|RecoMuon|MuonUpdatorAtVertex") << "Constraint at vertex failed";
     return pair<bool,FreeTrajectoryState>(false,FreeTrajectoryState());
   }
+}
+
+
+ std::pair<bool,FreeTrajectoryState>
+ MuonUpdatorAtVertex::propagateToNominalLine(const TrajectoryStateOnSurface &tsos){
+   
+   const string metname = "Muon|RecoMuon|MuonUpdatorAtVertex";
+   
+   setPropagator();
+   
+   if(TrackerBounds::isInside(tsos.globalPosition())){
+     LogTrace(metname) << "Trajectory inside the Tracker";
+     
+     TSCPBuilderNoMaterial tscpBuilder;
+     TrajectoryStateClosestToPoint tscp = tscpBuilder(*(tsos.freeState()),
+						     GlobalPoint(0.,0.,0.));
+    
+    // FIXME: check if the tscp is valid or not!!
+    if(tscp.hasError())
+      return pair<bool,FreeTrajectoryState>(true,tscp.theState());
+    else
+      edm::LogWarning(metname) << "Propagation to the PCA using TSCPBuilderNoMaterial failed!"
+			       << " This can cause a severe bug.";
+  }
+  else{
+    LogTrace(metname) << "Trajectory inside the muon system";
+
+    // Define a line using two 3D-points
+    GlobalPoint p1(0.,0.,-1500);
+    GlobalPoint p2(0.,0.,1500);
+    
+    pair<FreeTrajectoryState,double> 
+      result = thePropagator->propagateWithPath(*tsos.freeState(),p1,p2);
+    
+    LogTrace(metname) << "MuonUpdatorAtVertex::propagate, path: "
+		      << result.second << " parameters: " << result.first.parameters();
+    
+    if(result.first.hasError()) 
+      return pair<bool,FreeTrajectoryState>(true,result.first);
+    else
+      edm::LogInfo(metname) << "Propagation to the PCA failed! Path: "<<result.second;
+  }
+  return pair<bool,FreeTrajectoryState>(false,FreeTrajectoryState());
+
+   
 }
