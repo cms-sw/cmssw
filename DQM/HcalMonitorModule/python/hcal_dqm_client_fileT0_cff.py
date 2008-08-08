@@ -5,7 +5,6 @@ hcalOfflineDQMClient = cms.Sequence(hcalClient)
 hcalClient.plotPedRAW = True
 hcalClient.DoPerChanTests = False
 hcalClient.baseHtmlDir = ''
-
 hcalClient.SummaryClient = True
 hcalClient.DataFormatClient = True
 hcalClient.DigiClient = False
