@@ -23,8 +23,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2008/07/22 12:11:20 $ 
- **  $Revision: 1.5 $
+ **  $Date: 2008/07/31 19:34:05 $ 
+ **  $Revision: 1.6 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -227,6 +227,8 @@ class PhotonValidator : public edm::EDAnalyzer
   MonitorElement* h_invMass_[2][3];
   MonitorElement* h_r9VsNofTracks_[2][3];
   MonitorElement* h_EoverPTracks_[2][3];
+  MonitorElement* h_PoverETracks_[2][3];
+
 
   MonitorElement* h2_EoverEtrueVsEoverP_[3];
   MonitorElement* h2_PoverPtrueVsEoverP_[3];
