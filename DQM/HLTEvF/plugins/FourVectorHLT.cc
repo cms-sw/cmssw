@@ -1,4 +1,4 @@
-// $Id: FourVectorHLT.cc,v 1.7 2008/05/27 06:52:05 wittich Exp $
+// $Id: FourVectorHLT.cc,v 1.8 2008/08/05 21:02:00 wittich Exp $
 // See header file for information. 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -95,7 +95,7 @@ FourVectorHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<TriggerEvent> triggerObj;
   iEvent.getByLabel(triggerSummaryLabel_,triggerObj); 
   if(!triggerObj.isValid()) { 
-    edm::LogWarning("Status") << "Summary HLT objects not found, "
+    edm::LogInfo("Status") << "Summary HLT object (TriggerEvent) not found, "
       "skipping event"; 
     return;
   }
