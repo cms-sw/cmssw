@@ -15,7 +15,7 @@ SiStripQualityESProducer = cms.ESProducer("SiStripQualityESProducer",
             tag = cms.string('SiStripBadChannel_v1')
         )
     ),
-    ReduceGranularity = cms.bool(True),
+    ReduceGranularity = cms.bool(False),
     ThresholdForReducedGranularity = cms.double(0.3)                                                                                  
 )
 
