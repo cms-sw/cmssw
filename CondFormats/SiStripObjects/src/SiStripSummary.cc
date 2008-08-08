@@ -122,19 +122,6 @@ void  SiStripSummary::setObj(const uint32_t& detID, std::string elementName, flo
 }
 
 
-float SiStripSummary::getSummaryObj(uint32_t& detID, std::string elementName) const
-{
-  std::vector<std::string> list;
-  list.push_back(elementName);
-  return getSummaryObj(detID,list).at(0);
-}
-
-float SiStripSummary::getSummaryObj(sistripsummary::TrackerRegion region, std::string elementName) const
-{
-  uint32_t fakeDet = region;
-  return getSummaryObj(fakeDet,elementName);
-}
-
 std::vector<float> SiStripSummary::getSummaryObj(uint32_t& detID, std::vector<std::string> list) const
 {  
   std::vector<float> SummaryObj;

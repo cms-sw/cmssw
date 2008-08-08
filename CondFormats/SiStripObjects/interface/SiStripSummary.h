@@ -86,9 +86,6 @@ class SiStripSummary {
 		
 		// RETRIEVE SUMMARY OBJECTS...
 		//
-		// returns info "elementName" for a given detId
-		float getSummaryObj(uint32_t& detID, std::string elementName) const;	
-		float getSummaryObj(sistripsummary::TrackerRegion region, std::string elementName) const;	
 		
 		// returns a vector of selected infos related to a given detId 
 		std::vector<float> getSummaryObj(uint32_t& detID, std::vector<std::string> list) const; 
