@@ -73,6 +73,7 @@
        DQMStore* theDMBE;
        std::map<uint32_t,SiPixelClusterModule*> thePixelStructure;
        bool modOn; 
+       bool twoDimOn;
        //barrel:
        bool ladOn, layOn, phiOn;
        //forward:

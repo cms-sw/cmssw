@@ -43,7 +43,7 @@ class SiPixelClusterModule {
   typedef edmNew::DetSet<SiPixelCluster>::const_iterator    ClusterIterator;
 
   /// Book histograms
-  void book(const edm::ParameterSet& iConfig, int type=0);
+  void book(const edm::ParameterSet& iConfig, int type=0, bool twoD=true);
   /// Fill histograms
   void fill(const edmNew::DetSetVector<SiPixelCluster> & input, 
             bool modon=true, 
@@ -52,7 +52,8 @@ class SiPixelClusterModule {
 	    bool phion=false, 
 	    bool bladeon=false, 
 	    bool diskon=false, 
-	    bool ringon=false);
+	    bool ringon=false, 
+	    bool twoD=true);
   
  private:
 
@@ -71,6 +72,8 @@ class SiPixelClusterModule {
   MonitorElement* meMinCol_;
   MonitorElement* meMaxCol_;
   MonitorElement* mePixClusters_;
+  MonitorElement* mePixClusters_px_;
+  MonitorElement* mePixClusters_py_;
   //  MonitorElement* meEdgeHitX_;
   //  MonitorElement* meEdgeHitY_;
   
@@ -87,6 +90,8 @@ class SiPixelClusterModule {
   MonitorElement* meMinColLad_;
   MonitorElement* meMaxColLad_;
   MonitorElement* mePixClustersLad_;
+  MonitorElement* mePixClustersLad_px_;
+  MonitorElement* mePixClustersLad_py_;
 
   MonitorElement* meNClustersLay_;
   MonitorElement* meYLay_;
@@ -100,6 +105,8 @@ class SiPixelClusterModule {
   MonitorElement* meMinColLay_;
   MonitorElement* meMaxColLay_;
   MonitorElement* mePixClustersLay_;
+  MonitorElement* mePixClustersLay_px_;
+  MonitorElement* mePixClustersLay_py_;
 
   MonitorElement* meNClustersPhi_;
   MonitorElement* meYPhi_;
@@ -113,7 +120,9 @@ class SiPixelClusterModule {
   MonitorElement* meMinColPhi_;
   MonitorElement* meMaxColPhi_;
   MonitorElement* mePixClustersPhi_;
-  
+  MonitorElement* mePixClustersPhi_px_;
+  MonitorElement* mePixClustersPhi_py_;
+
   //forward
   MonitorElement* meNClustersBlade_;
   MonitorElement* meYBlade_;
@@ -153,6 +162,8 @@ class SiPixelClusterModule {
   MonitorElement* meMinColRing_;
   MonitorElement* meMaxColRing_;
   MonitorElement* mePixClustersRing_;
-  
+  MonitorElement* mePixClustersRing_px_;
+  MonitorElement* mePixClustersRing_py_;
+
 };
 #endif

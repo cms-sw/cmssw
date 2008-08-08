@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia & Andrew York
 //         Created:  
-// $Id: SiPixelClusterSource.cc,v 1.11 2008/06/26 09:11:16 merkelp Exp $
+// $Id: SiPixelClusterSource.cc,v 1.10 2008/06/26 08:27:36 merkelp Exp $
 //
 //
 // Updated by: Lukas Wehrli
@@ -49,6 +49,7 @@ SiPixelClusterSource::SiPixelClusterSource(const edm::ParameterSet& iConfig) :
   isPIB( conf_.getUntrackedParameter<bool>("isPIB",false) ),
   slowDown( conf_.getUntrackedParameter<bool>("slowDown",false) ),
   modOn( conf_.getUntrackedParameter<bool>("modOn",true) ),
+  twoDimOn( conf_.getUntrackedParameter<bool>("twoDimOn",true) ),
   ladOn( conf_.getUntrackedParameter<bool>("ladOn",false) ), 
   layOn( conf_.getUntrackedParameter<bool>("layOn",false) ), 
   phiOn( conf_.getUntrackedParameter<bool>("phiOn",false) ), 
@@ -76,6 +77,8 @@ void SiPixelClusterSource::beginJob(const edm::EventSetup& iSetup){
 	    << layOn << "/" << phiOn << std::endl;
   LogInfo ("PixelDQM") << "Blade/Disk/Ring" << bladeOn << "/" << diskOn << "/" 
 	    << ringOn << std::endl;
+  LogInfo ("PixelDQM") << "2DIM IS " << twoDimOn << "\n";
+
   eventNo = 0;
   // Build map
   buildStructure(iSetup);
@@ -108,15 +111,7 @@ SiPixelClusterSource::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   std::map<uint32_t,SiPixelClusterModule*>::iterator struct_iter;
   for (struct_iter = thePixelStructure.begin() ; struct_iter != thePixelStructure.end() ; struct_iter++) {
     
-    (*struct_iter).second->fill(*input,
-                                modOn, 
-				ladOn, 
-				layOn, 
-				phiOn, 
-				bladeOn, 
-				diskOn, 
-				ringOn
-				);
+    (*struct_iter).second->fill(*input, modOn, ladOn, layOn, phiOn, bladeOn, diskOn, ringOn, twoDimOn);
     
   }
 
@@ -201,50 +196,51 @@ void SiPixelClusterSource::bookMEs(){
     /// Create folder tree and book histograms 
     if(modOn){
       if(theSiPixelFolder.setModuleFolder((*struct_iter).first)){
-        (*struct_iter).second->book( conf_ );
+        (*struct_iter).second->book( conf_,0,twoDimOn);
       } else {
+        
         if(!isPIB) throw cms::Exception("LogicError")
 	  << "[SiPixelClusterSource::bookMEs] Creation of DQM folder failed";
       }
     }
     if(ladOn){
       if(theSiPixelFolder.setModuleFolder((*struct_iter).first,1)){
-	(*struct_iter).second->book( conf_,1);
+	(*struct_iter).second->book( conf_,1,twoDimOn);
 	} else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH LADDER-FOLDER\n";
       }
     }
     if(layOn){
       if(theSiPixelFolder.setModuleFolder((*struct_iter).first,2)){
-	(*struct_iter).second->book( conf_,2);
+	(*struct_iter).second->book( conf_,2,twoDimOn);
 	} else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH LAYER-FOLDER\n";
       }
     }
     if(phiOn){
       if(theSiPixelFolder.setModuleFolder((*struct_iter).first,3)){
-	(*struct_iter).second->book( conf_,3);
+	(*struct_iter).second->book( conf_,3,twoDimOn);
 	} else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH PHI-FOLDER\n";
       }
     }
     if(bladeOn){
       if(theSiPixelFolder.setModuleFolder((*struct_iter).first,4)){
-	(*struct_iter).second->book( conf_,4);
+	(*struct_iter).second->book( conf_,4,twoDimOn);
 	} else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH BLADE-FOLDER\n";
       }
     }
     if(diskOn){
       if(theSiPixelFolder.setModuleFolder((*struct_iter).first,5)){
-	(*struct_iter).second->book( conf_,5);
+	(*struct_iter).second->book( conf_,5,twoDimOn);
 	} else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH DISK-FOLDER\n";
       }
     }
     if(ringOn){
       if(theSiPixelFolder.setModuleFolder((*struct_iter).first,6)){
-	(*struct_iter).second->book( conf_,6);
+	(*struct_iter).second->book( conf_,6,twoDimOn);
 	} else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH RING-FOLDER\n";
       }

@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia & Andrew York
 //         Created:  
-// $Id: SiPixelClusterModule.cc,v 1.15 2008/07/04 09:26:33 merkelp Exp $
+// $Id: SiPixelClusterModule.cc,v 1.14 2008/06/23 15:06:13 merkelp Exp $
 //
 //
 // Updated by: Lukas Wehrli
@@ -62,7 +62,7 @@ SiPixelClusterModule::~SiPixelClusterModule() {}
 //
 // Book histograms
 //
-void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, int type) {
+void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, int type, bool twoD) {
   
   bool barrel = DetId::DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
   bool endcap = DetId::DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
@@ -124,14 +124,22 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, int type) {
     hid = theHistogramId->setHistoId("maxcol",id_);
     meMaxCol_ = theDMBE->book1D(hid,"Highest cluster column",500,0.,500.);
     meMaxCol_->setAxisTitle("Highest cluster column",1);
-    // 2D hit map
     int nbinx = ncols_/2;
     int nbiny = nrows_/2;
     hid = theHistogramId->setHistoId("hitmap",id_);
-    mePixClusters_ = theDMBE->book2D(hid,"Number of Clusters (1bin=four pixels)",nbinx,0.,float(ncols_),nbiny,0.,float(nrows_));
-    mePixClusters_->setAxisTitle("Columns",1);
-    mePixClusters_->setAxisTitle("Rows",2);
-
+    if(twoD){
+      // 2D hit map
+      mePixClusters_ = theDMBE->book2D(hid,"Number of Clusters (1bin=four pixels)",nbinx,0.,float(ncols_),nbiny,0.,float(nrows_));
+      mePixClusters_->setAxisTitle("Columns",1);
+      mePixClusters_->setAxisTitle("Rows",2);
+    }
+    else{
+      // projections of hitmap
+      mePixClusters_px_ = theDMBE->book1D(hid+"_px","Number of Clusters (1bin=two columns)",nbinx,0.,float(ncols_));
+      mePixClusters_py_ = theDMBE->book1D(hid+"_py","Number of Clusters (1bin=two rows)",nbiny,0.,float(nrows_));
+      mePixClusters_px_->setAxisTitle("Columns",1);
+      mePixClusters_py_->setAxisTitle("Rows",1);
+    }
     delete theHistogramId;
   }
 
@@ -174,10 +182,19 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, int type) {
     // Highest cluster column
     meMaxColLad_ = theDMBE->book1D("maxcol_" + hid,"Highest cluster column",500,0.,500.);
     meMaxColLad_->setAxisTitle("Highest cluster column",1);
-    // 2D hit map
-    mePixClustersLad_ = theDMBE->book2D("hitmap_" + hid,"Number of Clusters (1bin=four pixels)",nbinx,0.,float(ncols_),nbiny,0.,float(nrows_));
-    mePixClustersLad_->setAxisTitle("Columns",1);
-    mePixClustersLad_->setAxisTitle("Rows",2);
+    if(twoD){
+      // 2D hit map
+      mePixClustersLad_ = theDMBE->book2D("hitmap_" + hid,"Number of Clusters (1bin=four pixels)",nbinx,0.,float(ncols_),nbiny,0.,float(nrows_));
+      mePixClustersLad_->setAxisTitle("Columns",1);
+      mePixClustersLad_->setAxisTitle("Rows",2);
+    }
+    else{
+      // projections of hitmap
+      mePixClustersLad_px_ = theDMBE->book1D("hitmap_" + hid+"_px","Number of Clusters (1bin=two columns)",nbinx,0.,float(ncols_));
+      mePixClustersLad_py_ = theDMBE->book1D("hitmap_" + hid+"_py","Number of Clusters (1bin=two rows)",nbiny,0.,float(nrows_));
+      mePixClustersLad_px_->setAxisTitle("Columns",1);
+      mePixClustersLad_py_->setAxisTitle("Rows",1);
+    }
   }
 
   if(type==2 && barrel){
@@ -218,15 +235,30 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, int type) {
     // Highest cluster column
     meMaxColLay_ = theDMBE->book1D("maxcol_" + hid,"Highest cluster column",500,0.,500.);
     meMaxColLay_->setAxisTitle("Highest cluster column",1);
-    // 2D hit map
-    if(isHalfModule){
-      mePixClustersLay_ = theDMBE->book2D("hitmap_" + hid,"Number of Clusters (1bin=four pixels)",nbinx,0.,float(ncols_),2*nbiny,0.,float(2*nrows_));
+    if(twoD){
+      // 2D hit map
+      if(isHalfModule){
+	mePixClustersLay_ = theDMBE->book2D("hitmap_" + hid,"Number of Clusters (1bin=four pixels)",nbinx,0.,float(ncols_),2*nbiny,0.,float(2*nrows_));
+      }
+      else {
+	mePixClustersLay_ = theDMBE->book2D("hitmap_" + hid,"Number of Clusters (1bin=four pixels)",nbinx,0.,float(ncols_),nbiny,0.,float(nrows_));
+      }
+      mePixClustersLay_->setAxisTitle("Columns",1);
+      mePixClustersLay_->setAxisTitle("Rows",2);
     }
-    else {
-      mePixClustersLay_ = theDMBE->book2D("hitmap_" + hid,"Number of Clusters (1bin=four pixels)",nbinx,0.,float(ncols_),nbiny,0.,float(nrows_));
+    else{
+      // projections of hitmap
+      mePixClustersLay_px_ = theDMBE->book1D("hitmap_" + hid+"_px","Number of Clusters (1bin=two columns)",nbinx,0.,float(ncols_));
+      if(isHalfModule){
+	mePixClustersLay_py_ = theDMBE->book1D("hitmap_" + hid+"_py","Number of Clusters (1bin=two rows)",2*nbiny,0.,float(2*nrows_));
+      }
+      else{
+	mePixClustersLay_py_ = theDMBE->book1D("hitmap_" + hid+"_py","Number of Clusters (1bin=two rows)",nbiny,0.,float(nrows_));
+      }
+      mePixClustersLay_px_->setAxisTitle("Columns",1);
+      mePixClustersLay_py_->setAxisTitle("Rows",1);
+
     }
-    mePixClustersLay_->setAxisTitle("Columns",1);
-    mePixClustersLay_->setAxisTitle("Rows",2);
   }
   if(type==3 && barrel){
     uint32_t DBmodule = PixelBarrelName::PixelBarrelName(DetId::DetId(id_)).moduleName();
@@ -265,15 +297,29 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, int type) {
     // Highest cluster column
     meMaxColPhi_ = theDMBE->book1D("maxcol_" + hid,"Highest cluster column",500,0.,500.);
     meMaxColPhi_->setAxisTitle("Highest cluster column",1);
-    // 2D hit map
-    if(isHalfModule){
-      mePixClustersPhi_ = theDMBE->book2D("hitmap_" + hid,"Number of Clusters (1bin=four pixels)",nbinx,0.,float(ncols_),2*nbiny,0.,float(2*nrows_));
+    if(twoD){
+      // 2D hit map
+      if(isHalfModule){
+	mePixClustersPhi_ = theDMBE->book2D("hitmap_" + hid,"Number of Clusters (1bin=four pixels)",nbinx,0.,float(ncols_),2*nbiny,0.,float(2*nrows_));
+      }
+      else {
+	mePixClustersPhi_ = theDMBE->book2D("hitmap_" + hid,"Number of Clusters (1bin=four pixels)",nbinx,0.,float(ncols_),nbiny,0.,float(nrows_));
+      }
+      mePixClustersPhi_->setAxisTitle("Columns",1);
+      mePixClustersPhi_->setAxisTitle("Rows",2);
     }
-    else {
-      mePixClustersPhi_ = theDMBE->book2D("hitmap_" + hid,"Number of Clusters (1bin=four pixels)",nbinx,0.,float(ncols_),nbiny,0.,float(nrows_));
+    else{
+      // projections of hitmap
+      mePixClustersPhi_px_ = theDMBE->book1D("hitmap_" + hid+"_px","Number of Clusters (1bin=two columns)",nbinx,0.,float(ncols_));
+      if(isHalfModule){
+	mePixClustersPhi_py_ = theDMBE->book1D("hitmap_" + hid+"_py","Number of Clusters (1bin=two rows)",2*nbiny,0.,float(2*nrows_));
+      }
+      else{
+	mePixClustersPhi_py_ = theDMBE->book1D("hitmap_" + hid+"_py","Number of Clusters (1bin=two rows)",nbiny,0.,float(nrows_));
+      }
+      mePixClustersPhi_px_->setAxisTitle("Columns",1);
+      mePixClustersPhi_py_->setAxisTitle("Rows",1);
     }
-    mePixClustersPhi_->setAxisTitle("Columns",1);
-    mePixClustersPhi_->setAxisTitle("Rows",2);
   }
 
   if(type==4 && endcap){
@@ -395,24 +441,26 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, int type) {
     // Highest cluster column
     meMaxColRing_ = theDMBE->book1D("maxcol_" + hid,"Highest cluster column",500,0.,500.);
     meMaxColRing_->setAxisTitle("Highest cluster column",1);
-    // 2D hit map
-    mePixClustersRing_ = theDMBE->book2D("hitmap_" + hid,"Number of Clusters (1bin=four pixels)",nbinx,0.,float(ncols_),nbiny,0.,float(nrows_));
-    mePixClustersRing_->setAxisTitle("Columns",1);
-    mePixClustersRing_->setAxisTitle("Rows",2);
+    if(twoD){
+      // 2D hit map
+      mePixClustersRing_ = theDMBE->book2D("hitmap_" + hid,"Number of Clusters (1bin=four pixels)",nbinx,0.,float(ncols_),nbiny,0.,float(nrows_));
+      mePixClustersRing_->setAxisTitle("Columns",1);
+      mePixClustersRing_->setAxisTitle("Rows",2);
+    }
+    else{
+      // projections of hitmap
+      mePixClustersRing_px_ = theDMBE->book1D("hitmap_" + hid+"_px","Number of Clusters (1bin=two columns)",nbinx,0.,float(ncols_));
+      mePixClustersRing_py_ = theDMBE->book1D("hitmap_" + hid+"_py","Number of Clusters (1bin=two rows)",nbiny,0.,float(nrows_));
+      mePixClustersRing_px_->setAxisTitle("Columns",1);
+      mePixClustersRing_py_->setAxisTitle("Rows",1);
+    }
   }
-
+  
 }
 //
 // Fill histograms
 //
-void SiPixelClusterModule::fill(const edmNew::DetSetVector<SiPixelCluster>& input, 
-                                bool modon, 
-				bool ladon, 
-				bool layon, 
-				bool phion, 
-				bool bladeon, 
-				bool diskon, 
-				bool ringon) {
+void SiPixelClusterModule::fill(const edmNew::DetSetVector<SiPixelCluster>& input,bool modon, bool ladon, bool layon, bool phion, bool bladeon, bool diskon, bool ringon, bool twoD) {
   
   bool barrel = DetId::DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
   bool endcap = DetId::DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
@@ -425,6 +473,7 @@ void SiPixelClusterModule::fill(const edmNew::DetSetVector<SiPixelCluster>& inpu
     
     // Look at clusters now
     edmNew::DetSet<SiPixelCluster>::const_iterator  di;
+    //for(di = isearch->data.begin(); di != isearch->data.end(); di++) {
     for(di = isearch->begin(); di != isearch->end(); di++) {
       numberOfClusters++;
       float charge = 0.001*(di->charge()); // total charge of cluster
@@ -451,7 +500,11 @@ void SiPixelClusterModule::fill(const edmNew::DetSetVector<SiPixelCluster>& inpu
 	(meMaxRow_)->Fill((int)maxPixelRow);
 	(meMinCol_)->Fill((int)minPixelCol);
 	(meMaxCol_)->Fill((int)maxPixelCol);
-	(mePixClusters_)->Fill((float)y,(float)x);
+	if(twoD)(mePixClusters_)->Fill((float)y,(float)x);
+	else{
+	  (mePixClusters_px_)->Fill((float)y);
+	  (mePixClusters_py_)->Fill((float)x);
+	}
 	//      (meEdgeHitX_)->Fill((int)edgeHitX);
 	//      (meEdgeHitY_)->Fill((int)edgeHitY);
       }
@@ -467,7 +520,11 @@ void SiPixelClusterModule::fill(const edmNew::DetSetVector<SiPixelCluster>& inpu
 	(meMaxRowLad_)->Fill((int)maxPixelRow);
 	(meMinColLad_)->Fill((int)minPixelCol);
 	(meMaxColLad_)->Fill((int)maxPixelCol);
-	(mePixClustersLad_)->Fill((float)y,(float)x);
+	if(twoD) (mePixClustersLad_)->Fill((float)y,(float)x);
+	else{
+	  (mePixClustersLad_px_)->Fill((float)y);
+	  (mePixClustersLad_py_)->Fill((float)x);
+	}
       }
       if(layon && barrel){
 	(meChargeLay_)->Fill((float)charge);
@@ -480,7 +537,11 @@ void SiPixelClusterModule::fill(const edmNew::DetSetVector<SiPixelCluster>& inpu
 	(meMaxRowLay_)->Fill((int)maxPixelRow);
 	(meMinColLay_)->Fill((int)minPixelCol);
 	(meMaxColLay_)->Fill((int)maxPixelCol);
-	(mePixClustersLay_)->Fill((float)y,(float)x);
+	if(twoD) (mePixClustersLay_)->Fill((float)y,(float)x);
+	else{
+	  (mePixClustersLay_px_)->Fill((float)y);
+	  (mePixClustersLay_py_)->Fill((float)x);
+	}
       }
       if(phion && barrel){
 	(meChargePhi_)->Fill((float)charge);
@@ -493,7 +554,11 @@ void SiPixelClusterModule::fill(const edmNew::DetSetVector<SiPixelCluster>& inpu
 	(meMaxRowPhi_)->Fill((int)maxPixelRow);
 	(meMinColPhi_)->Fill((int)minPixelCol);
 	(meMaxColPhi_)->Fill((int)maxPixelCol);
-	(mePixClustersPhi_)->Fill((float)y,(float)x);
+	if(twoD) (mePixClustersPhi_)->Fill((float)y,(float)x);
+	else{
+	  (mePixClustersPhi_px_)->Fill((float)y);
+	  (mePixClustersPhi_py_)->Fill((float)x);
+	}
       }
       if(bladeon && endcap){
 	(meChargeBlade_)->Fill((float)charge);
@@ -531,7 +596,11 @@ void SiPixelClusterModule::fill(const edmNew::DetSetVector<SiPixelCluster>& inpu
 	(meMaxRowRing_)->Fill((int)maxPixelRow);
 	(meMinColRing_)->Fill((int)minPixelCol);
 	(meMaxColRing_)->Fill((int)maxPixelCol);
-	(mePixClustersRing_)->Fill((float)y,(float)x);
+	if(twoD) (mePixClustersRing_)->Fill((float)y,(float)x);
+	else{
+	  (mePixClustersRing_px_)->Fill((float)y);
+	  (mePixClustersRing_py_)->Fill((float)x);
+	}
       }
     }
     if(modon) (meNClusters_)->Fill((float)numberOfClusters);
