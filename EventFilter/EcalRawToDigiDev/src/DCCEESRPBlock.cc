@@ -44,8 +44,11 @@ void DCCEESRPBlock::addSRFlagToCollection(){
 bool DCCEESRPBlock::checkSrpIdAndNumbSRFlags(){
 
   expNumbSrFlags_=36;//to be corrected
-  //todo :  to be implemented...
 
+  int dccId = mapper_->getActiveDCC() - 600;
+  if (dccId == SECTOR_EEM_CCU_JUMP || dccId == SECTOR_EEP_CCU_JUMP) expNumbSrFlags_ = 41;
+
+  //todo :  checks to be implemented...
   return true;
 
 } 
