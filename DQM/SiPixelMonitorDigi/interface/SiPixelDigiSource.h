@@ -16,7 +16,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiSource.h,v 1.8 2008/05/26 15:04:43 merkelp Exp $
+// $Id: SiPixelDigiSource.h,v 1.9 2008/06/06 15:51:52 merkelp Exp $
 //
 
 #include <memory>
@@ -67,6 +67,7 @@
        bool isPIB;
        bool slowDown;
        bool modOn; 
+       bool twoDimOn;
        //barrel:
        bool ladOn, layOn, phiOn;
        //forward:

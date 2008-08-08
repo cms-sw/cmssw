@@ -44,7 +44,7 @@ SiPixelDigiModule::~SiPixelDigiModule() {}
 //
 // Book histograms
 //
-void SiPixelDigiModule::book(const edm::ParameterSet& iConfig, int type) {
+void SiPixelDigiModule::book(const edm::ParameterSet& iConfig, int type, bool twoD) {
   bool barrel = DetId::DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
   bool endcap = DetId::DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
   bool isHalfModule = false;
@@ -72,14 +72,25 @@ void SiPixelDigiModule::book(const edm::ParameterSet& iConfig, int type) {
     meNDigis_->setAxisTitle("Number of digis",1);
     // Charge in ADC counts
     hid = theHistogramId->setHistoId("adc",id_);
-    meADC_ = theDMBE->book1D(hid,"Digi charge",500,0.,500.);
+    meADC_ = theDMBE->book1D(hid,"Digi charge",256,0.,256.);
     meADC_->setAxisTitle("ADC counts",1);
-    // 2D hit map
-    hid = theHistogramId->setHistoId("hitmap",id_);
-    mePixDigis_ = theDMBE->book2D(hid,"Number of Digis (1bin=four pixels)",nbinx,0.,float(ncols_),nbiny,0.,float(nrows_));
-    mePixDigis_->setAxisTitle("Columns",1);
-    mePixDigis_->setAxisTitle("Rows",2);
+    if(twoD){
+      // 2D hit map
+      hid = theHistogramId->setHistoId("hitmap",id_);
+      mePixDigis_ = theDMBE->book2D(hid,"Number of Digis (1bin=four pixels)",nbinx,0.,float(ncols_),nbiny,0.,float(nrows_));
+      mePixDigis_->setAxisTitle("Columns",1);
+      mePixDigis_->setAxisTitle("Rows",2);
+    }
+    else{
+      // projections of 2D hit map
+      hid = theHistogramId->setHistoId("hitmap",id_);
+      mePixDigis_px_ = theDMBE->book1D(hid+"_px","Number of Digis (1bin=two columns)",nbinx,0.,float(ncols_));
+      mePixDigis_py_ = theDMBE->book1D(hid+"_py","Number of Digis (1bin=two rows)",nbiny,0.,float(nrows_));
+      mePixDigis_px_->setAxisTitle("Columns",1);
+      mePixDigis_py_->setAxisTitle("Rows",1);
+    }
     delete theHistogramId;
+
   }
   
   if(type==1 && barrel){
@@ -92,12 +103,21 @@ void SiPixelDigiModule::book(const edm::ParameterSet& iConfig, int type) {
     meNDigisLad_ = theDMBE->book1D("ndigis_"+hid,"Number of Digis",50,0.,50.);
     meNDigisLad_->setAxisTitle("Number of digis",1);
     // Charge in ADC counts
-    meADCLad_ = theDMBE->book1D("adc_" + hid,"Digi charge",500,0.,500.);
+    meADCLad_ = theDMBE->book1D("adc_" + hid,"Digi charge",256,0.,256.);
     meADCLad_->setAxisTitle("ADC counts",1);
-    // 2D hit map
-    mePixDigisLad_ = theDMBE->book2D("hitmap_"+hid,"Number of Digis (1bin=four pixels)",nbinx,0.,float(ncols_),nbiny,0.,float(nrows_));
-    mePixDigisLad_->setAxisTitle("Columns",1);
-    mePixDigisLad_->setAxisTitle("Rows",2);
+    if(twoD){
+      // 2D hit map
+      mePixDigisLad_ = theDMBE->book2D("hitmap_"+hid,"Number of Digis (1bin=four pixels)",nbinx,0.,float(ncols_),nbiny,0.,float(nrows_));
+      mePixDigisLad_->setAxisTitle("Columns",1);
+      mePixDigisLad_->setAxisTitle("Rows",2);
+    }
+    else{
+      // projections of 2D hit map
+      mePixDigisLad_px_ = theDMBE->book1D("hitmap_"+hid+"_px","Number of Digis (1bin=two columns)",nbinx,0.,float(ncols_));
+      mePixDigisLad_py_ = theDMBE->book1D("hitmap_"+hid+"_py","Number of Digis (1bin=two rows)",nbiny,0.,float(nrows_));
+      mePixDigisLad_px_->setAxisTitle("Columns",1);
+      mePixDigisLad_py_->setAxisTitle("Rows",1);
+    }
   }
   if(type==2 && barrel){
     uint32_t DBlayer = PixelBarrelName::PixelBarrelName(DetId::DetId(id_)).layerName();
@@ -107,17 +127,31 @@ void SiPixelDigiModule::book(const edm::ParameterSet& iConfig, int type) {
     meNDigisLay_ = theDMBE->book1D("ndigis_"+hid,"Number of Digis",50,0.,50.);
     meNDigisLay_->setAxisTitle("Number of digis",1);
     // Charge in ADC counts
-    meADCLay_ = theDMBE->book1D("adc_" + hid,"Digi charge",500,0.,500.);
+    meADCLay_ = theDMBE->book1D("adc_" + hid,"Digi charge",256,0.,256.);
     meADCLay_->setAxisTitle("ADC counts",1);
-    // 2D hit map
-    if(isHalfModule){
-      mePixDigisLay_ = theDMBE->book2D("hitmap_"+hid,"Number of Digis (1bin=four pixels)",nbinx,0.,float(ncols_),2*nbiny,0.,float(2*nrows_));
+    if(twoD){
+      // 2D hit map
+      if(isHalfModule){
+	mePixDigisLay_ = theDMBE->book2D("hitmap_"+hid,"Number of Digis (1bin=four pixels)",nbinx,0.,float(ncols_),2*nbiny,0.,float(2*nrows_));
+      }
+      else{
+	mePixDigisLay_ = theDMBE->book2D("hitmap_"+hid,"Number of Digis (1bin=four pixels)",nbinx,0.,float(ncols_),nbiny,0.,float(nrows_));
+      }
+      mePixDigisLay_->setAxisTitle("Columns",1);
+      mePixDigisLay_->setAxisTitle("Rows",2);
     }
     else{
-      mePixDigisLay_ = theDMBE->book2D("hitmap_"+hid,"Number of Digis (1bin=four pixels)",nbinx,0.,float(ncols_),nbiny,0.,float(nrows_));
+      // projections of 2D hit map
+      mePixDigisLay_px_ = theDMBE->book1D("hitmap_"+hid+"_px","Number of Digis (1bin=two columns)",nbinx,0.,float(ncols_));
+      if(isHalfModule){
+	mePixDigisLay_py_ = theDMBE->book1D("hitmap_"+hid+"_py","Number of Digis (1bin=two rows)",2*nbiny,0.,float(2*nrows_));
+      }
+      else{
+	mePixDigisLay_py_ = theDMBE->book1D("hitmap_"+hid+"_py","Number of Digis (1bin=two rows)",nbiny,0.,float(nrows_));
+      }
+      mePixDigisLay_px_->setAxisTitle("Columns",1);
+      mePixDigisLay_py_->setAxisTitle("Rows",1);
     }
-    mePixDigisLay_->setAxisTitle("Columns",1);
-    mePixDigisLay_->setAxisTitle("Rows",2);
   }
   if(type==3 && barrel){
     uint32_t DBmodule = PixelBarrelName::PixelBarrelName(DetId::DetId(id_)).moduleName();
@@ -127,17 +161,33 @@ void SiPixelDigiModule::book(const edm::ParameterSet& iConfig, int type) {
     meNDigisPhi_ = theDMBE->book1D("ndigis_"+hid,"Number of Digis",50,0.,50.);
     meNDigisPhi_->setAxisTitle("Number of digis",1);
     // Charge in ADC counts
-    meADCPhi_ = theDMBE->book1D("adc_" + hid,"Digi charge",500,0.,500.);
+    meADCPhi_ = theDMBE->book1D("adc_" + hid,"Digi charge",256,0.,256.);
     meADCPhi_->setAxisTitle("ADC counts",1);
-    // 2D hit map
-    if(isHalfModule){
-      mePixDigisPhi_ = theDMBE->book2D("hitmap_"+hid,"Number of Digis (1bin=four pixels)",nbinx,0.,float(ncols_),2*nbiny,0.,float(2*nrows_));
+    if(twoD){
+      // 2D hit map
+      if(isHalfModule){
+	mePixDigisPhi_ = theDMBE->book2D("hitmap_"+hid,"Number of Digis (1bin=four pixels)",nbinx,0.,float(ncols_),2*nbiny,0.,float(2*nrows_));
+      }
+      else {
+	mePixDigisPhi_ = theDMBE->book2D("hitmap_"+hid,"Number of Digis (1bin=four pixels)",nbinx,0.,float(ncols_),nbiny,0.,float(nrows_));
+      }
+      mePixDigisPhi_->setAxisTitle("Columns",1);
+      mePixDigisPhi_->setAxisTitle("Rows",2);
     }
-    else {
-      mePixDigisPhi_ = theDMBE->book2D("hitmap_"+hid,"Number of Digis (1bin=four pixels)",nbinx,0.,float(ncols_),nbiny,0.,float(nrows_));
+    else{
+      // projections of 2D hit map
+      mePixDigisPhi_px_ = theDMBE->book1D("hitmap_"+hid+"_px","Number of Digis (1bin=two columns)",nbinx,0.,float(ncols_));
+      if(isHalfModule){
+	mePixDigisPhi_py_ = theDMBE->book1D("hitmap_"+hid+"_py","Number of Digis (1bin=two rows)",2*nbiny,0.,float(2*nrows_));
+      }
+      else{
+	mePixDigisPhi_py_ = theDMBE->book1D("hitmap_"+hid+"_py","Number of Digis (1bin=two rows)",nbiny,0.,float(nrows_));
+      }
+      mePixDigisPhi_px_->setAxisTitle("Columns",1);
+      mePixDigisPhi_py_->setAxisTitle("Rows",1);
     }
-    mePixDigisPhi_->setAxisTitle("Columns",1);
-    mePixDigisPhi_->setAxisTitle("Rows",2);
+
+
   }
   if(type==4 && endcap){
     uint32_t blade= PixelEndcapName::PixelEndcapName(DetId::DetId(id_)).bladeName();
@@ -148,7 +198,7 @@ void SiPixelDigiModule::book(const edm::ParameterSet& iConfig, int type) {
     meNDigisBlade_ = theDMBE->book1D("ndigis_"+hid,"Number of Digis",50,0.,50.);
     meNDigisBlade_->setAxisTitle("Number of digis",1);
     // Charge in ADC counts
-    meADCBlade_ = theDMBE->book1D("adc_" + hid,"Digi charge",500,0.,500.);
+    meADCBlade_ = theDMBE->book1D("adc_" + hid,"Digi charge",256,0.,256.);
     meADCBlade_->setAxisTitle("ADC counts",1);
   }
   if(type==5 && endcap){
@@ -160,7 +210,7 @@ void SiPixelDigiModule::book(const edm::ParameterSet& iConfig, int type) {
     meNDigisDisk_ = theDMBE->book1D("ndigis_"+hid,"Number of Digis",50,0.,50.);
     meNDigisDisk_->setAxisTitle("Number of digis",1);
     // Charge in ADC counts
-    meADCDisk_ = theDMBE->book1D("adc_" + hid,"Digi charge",500,0.,500.);
+    meADCDisk_ = theDMBE->book1D("adc_" + hid,"Digi charge",256,0.,256.);
     meADCDisk_->setAxisTitle("ADC counts",1);
   }
   if(type==6 && endcap){
@@ -172,12 +222,22 @@ void SiPixelDigiModule::book(const edm::ParameterSet& iConfig, int type) {
     meNDigisRing_ = theDMBE->book1D("ndigis_"+hid,"Number of Digis",50,0.,50.);
     meNDigisRing_->setAxisTitle("Number of digis",1);
     // Charge in ADC counts
-    meADCRing_ = theDMBE->book1D("adc_" + hid,"Digi charge",500,0.,500.);
+    meADCRing_ = theDMBE->book1D("adc_" + hid,"Digi charge",256,0.,256.);
     meADCRing_->setAxisTitle("ADC counts",1);
-    // 2D hit map
-    mePixDigisRing_ = theDMBE->book2D("hitmap_"+hid,"Number of Digis (1bin=four pixels)",nbinx,0.,float(ncols_),nbiny,0.,float(nrows_));
-    mePixDigisRing_->setAxisTitle("Columns",1);
-    mePixDigisRing_->setAxisTitle("Rows",2);
+    if(twoD){
+      // 2D hit map
+      mePixDigisRing_ = theDMBE->book2D("hitmap_"+hid,"Number of Digis (1bin=four pixels)",nbinx,0.,float(ncols_),nbiny,0.,float(nrows_));
+      mePixDigisRing_->setAxisTitle("Columns",1);
+      mePixDigisRing_->setAxisTitle("Rows",2);
+    }
+    else{
+      // projections of 2D hit map
+      mePixDigisRing_px_ = theDMBE->book1D("hitmap_"+hid+"_px","Number of Digis (1bin=two columns)",nbinx,0.,float(ncols_));
+      mePixDigisRing_py_ = theDMBE->book1D("hitmap_"+hid+"_py","Number of Digis (1bin=two rows)",nbiny,0.,float(nrows_));
+      mePixDigisRing_px_->setAxisTitle("Columns",1);
+      mePixDigisRing_py_->setAxisTitle("Rows",1);
+    }
+
   }
 }
 
@@ -185,7 +245,7 @@ void SiPixelDigiModule::book(const edm::ParameterSet& iConfig, int type) {
 //
 // Fill histograms
 //
-void SiPixelDigiModule::fill(const edm::DetSetVector<PixelDigi>& input, bool modon, bool ladon, bool layon, bool phion, bool bladeon, bool diskon, bool ringon) {
+void SiPixelDigiModule::fill(const edm::DetSetVector<PixelDigi>& input, bool modon, bool ladon, bool layon, bool phion, bool bladeon, bool diskon, bool ringon, bool twoD) {
   bool barrel = DetId::DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
   bool endcap = DetId::DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
   bool isHalfModule = false;
@@ -213,25 +273,51 @@ void SiPixelDigiModule::fill(const edm::DetSetVector<PixelDigi>& input, bool mod
       int col = di->column(); // column 
       int row = di->row();    // row
       if(modon){
-	(mePixDigis_)->Fill((float)col,(float)row);
+	if(twoD) (mePixDigis_)->Fill((float)col,(float)row);
+	else {
+	  (mePixDigis_px_)->Fill((float)col);
+	  (mePixDigis_py_)->Fill((float)row);
+	}
 	(meADC_)->Fill((float)adc);
       }
       if(ladon && barrel){
-	(mePixDigisLad_)->Fill((float)col,(float)row);
+	if(twoD) (mePixDigisLad_)->Fill((float)col,(float)row);
+	else {
+	  (mePixDigisLad_px_)->Fill((float)col);
+	  (mePixDigisLad_py_)->Fill((float)row);
+	}
 	(meADCLad_)->Fill((float)adc);
       }
       if(layon && barrel){
-	if(isHalfModule && DBladder==1){
-	  (mePixDigisLay_)->Fill((float)col,(float)row+80);
+	if(twoD){
+	  if(isHalfModule && DBladder==1){
+	    (mePixDigisLay_)->Fill((float)col,(float)row+80);
+	  }
+	  else (mePixDigisLay_)->Fill((float)col,(float)row);
 	}
-	else (mePixDigisLay_)->Fill((float)col,(float)row);
+	else {
+	  (mePixDigisLay_px_)->Fill((float)col);
+	  if(isHalfModule && DBladder==1) {
+	    (mePixDigisLay_py_)->Fill((float)row+80);
+	  }
+	  else (mePixDigisLay_py_)->Fill((float)row);
+	}
 	(meADCLay_)->Fill((float)adc);
       }
       if(phion && barrel){
-	if(isHalfModule && DBladder==1){
-	  (mePixDigisPhi_)->Fill((float)col,(float)row+80);
+	if(twoD){
+	  if(isHalfModule && DBladder==1){
+	    (mePixDigisPhi_)->Fill((float)col,(float)row+80);
+	  }
+	  else (mePixDigisPhi_)->Fill((float)col,(float)row);
 	}
-	else (mePixDigisPhi_)->Fill((float)col,(float)row);
+	else {
+	  (mePixDigisPhi_px_)->Fill((float)col);
+	  if(isHalfModule && DBladder==1) {
+	    (mePixDigisPhi_py_)->Fill((float)row+80);
+	  }
+	  else (mePixDigisPhi_py_)->Fill((float)row);
+	}
 	(meADCPhi_)->Fill((float)adc);
       }
       if(bladeon && endcap){
@@ -241,7 +327,11 @@ void SiPixelDigiModule::fill(const edm::DetSetVector<PixelDigi>& input, bool mod
 	(meADCDisk_)->Fill((float)adc);
       }
       if(ringon && endcap){
-	(mePixDigisRing_)->Fill((float)col,(float)row);
+	if(twoD) (mePixDigisRing_)->Fill((float)col,(float)row);
+	else {
+	  (mePixDigisRing_px_)->Fill((float)col);
+	  (mePixDigisRing_py_)->Fill((float)row);
+	}
 	(meADCRing_)->Fill((float)adc);
       }
     }
