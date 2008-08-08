@@ -356,57 +356,63 @@ HLTTauL1DQMOfflineSource::getL1extraObjects(const edm::Event& iEvent)
   _L1Taus.clear();
   Handle<L1JetParticleCollection> l1TauHandle;
   iEvent.getByLabel(_L1extraTauJetSource,l1TauHandle);
+  if (l1TauHandle.isValid()){
   for( L1JetParticleCollection::const_iterator itr = l1TauHandle->begin() ;
        itr != l1TauHandle->end() ; ++itr ) {
     LV p(itr->px(),itr->py(),itr->pz(),itr->energy());
     _L1Taus.push_back(p);
   }
-
+  }
   //
   _L1CenJets.clear();
   Handle<L1JetParticleCollection> l1CenJetHandle;
   iEvent.getByLabel(_L1extraCenJetSource,l1CenJetHandle);
+  if (l1CenJetHandle.isValid()) {
   for( L1JetParticleCollection::const_iterator itr = l1CenJetHandle->begin() ;
        itr != l1CenJetHandle->end() ; ++itr ) {
     LV p(itr->px(),itr->py(),itr->pz(),itr->energy());
     _L1CenJets.push_back(p);
   }
-
+  }
   //
   _L1ForJets.clear();
   Handle<L1JetParticleCollection> l1ForJetHandle;
   iEvent.getByLabel(_L1extraForJetSource,l1ForJetHandle);
+  if (l1ForJetHandle.isValid()) {
   for( L1JetParticleCollection::const_iterator itr = l1ForJetHandle->begin() ;
        itr != l1ForJetHandle->end() ; ++itr ) {
     LV p(itr->px(),itr->py(),itr->pz(),itr->energy());
     _L1ForJets.push_back(p);
   }
-
+  }
   //
   _L1IsoEgammas.clear();
   Handle<L1EmParticleCollection> l1IsoEgammaHandle;
   iEvent.getByLabel(_L1extraIsoEgammaSource,l1IsoEgammaHandle);
+  if (l1IsoEgammaHandle.isValid()) {
   for( L1EmParticleCollection::const_iterator itr = l1IsoEgammaHandle->begin() ;
        itr != l1IsoEgammaHandle->end() ; ++itr ) {
     LV p(itr->px(),itr->py(),itr->pz(),itr->energy());
     _L1IsoEgammas.push_back(p);
   }
-
+  }
   //
   _L1NonIsoEgammas.clear();
   Handle<L1EmParticleCollection> l1NonIsoEgammaHandle;
   iEvent.getByLabel(_L1extraNonIsoEgammaSource,l1NonIsoEgammaHandle);
+  if (l1NonIsoEgammaHandle.isValid()) {
   for( L1EmParticleCollection::const_iterator itr = l1NonIsoEgammaHandle->begin() ;
        itr != l1NonIsoEgammaHandle->end() ; ++itr ) {
     LV p(itr->px(),itr->py(),itr->pz(),itr->energy());
     _L1NonIsoEgammas.push_back(p);
   }
-
+  }
   //
   _L1Muons.clear();
   _L1MuQuals.clear();
   Handle<L1MuonParticleCollection> l1MuonHandle;
   iEvent.getByLabel(_L1extraMuonSource,l1MuonHandle);
+  if (l1MuonHandle.isValid()) {
   for( L1MuonParticleCollection::const_iterator itr = l1MuonHandle->begin() ;
        itr != l1MuonHandle->end() ; ++itr ) {
     LV p(itr->px(),itr->py(),itr->pz(),itr->energy());
@@ -414,15 +420,17 @@ HLTTauL1DQMOfflineSource::getL1extraObjects(const edm::Event& iEvent)
     L1MuGMTExtendedCand gmtCand = itr->gmtMuonCand();
     _L1MuQuals.push_back(gmtCand.quality());// Muon quality as defined in the GT
   }
-
+  }
   //
   _L1METs.clear();
   Handle<L1EtMissParticleCollection> l1MetHandle;
   iEvent.getByLabel(_L1extraMETSource,l1MetHandle);
+  if (l1MetHandle.isValid()) {
   for( L1EtMissParticleCollection::const_iterator itr = l1MetHandle->begin() ;
        itr != l1MetHandle->end() ; ++itr ) {
     LV p(itr->px(),itr->py(),itr->pz(),itr->energy());
     _L1METs.push_back(p);
+  }
   }
   /*
   Handle<L1EtMissParticle> l1MetHandle;
@@ -470,7 +478,7 @@ HLTTauL1DQMOfflineSource::fillL1Histograms() {
       h_L1Muon1Phi->Fill(_L1Muons[i].Phi());
     }
   }
-  for (int i=0; i<1; i++) {
+  for (int i=0; i<(int)_L1METs.size(); i++) {
     h_L1Met->Fill(_L1METs[i].Et());
     h_L1MetEta->Fill(_L1METs[i].Eta());
     h_L1MetPhi->Fill(_L1METs[i].Phi());

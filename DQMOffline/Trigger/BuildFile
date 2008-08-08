@@ -6,7 +6,6 @@
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/MuonReco>
 <use name=FWCore/ServiceRegistry>
-<use name=DataFormats/EgammaCandidates>
 <use name=DataFormats/RecoCandidate>
 <use name=DataFormats/HLTReco>
 <use name=DataFormats/EgammaReco>
@@ -38,7 +37,6 @@
   <use name=FWCore/ParameterSet>
   <use name=DataFormats/MuonReco>
   <use name=FWCore/ServiceRegistry>
-  <use name=DataFormats/EgammaCandidates>
   <use name=DataFormats/RecoCandidate>
   <use name=DataFormats/HLTReco>
   <use name=DataFormats/EgammaReco>
