@@ -12,7 +12,7 @@
 
 #include "EventFilter/CSCRawToDigi/src/bitset_append.h"
 
-bool CSCDDUEventData::debug = false;
+bool CSCDDUEventData::debug = true;
 unsigned int CSCDDUEventData::errMask = 0xFFFFFFFF;
 
 
@@ -57,114 +57,115 @@ void CSCDDUEventData::decodeStatus(int code) const
       if((code&0x0000F000)>0)
         {
           if((0x00008000&code)>0)
-            LogTrace ("CSCDDUEventData|CSCRawToDigi") << "   DDU Critical Error, ** needs reset **";
+            std::cout << "   DDU Critical Error, ** needs reset **";
           if((0x00004000&code)>0)
-            LogTrace ("CSCDDUEventData|CSCRawToDigi") << "   DDU Single Error, bad event";
+            std::cout << "   DDU Single Error, bad event";
           if((0x00002000&code)>0)
-            LogTrace ("CSCDDUEventData|CSCRawToDigi") << "   DDU Single Warning";
+            std::cout << "   DDU Single Warning";
           if((0x00001000&code)>0)
-            LogTrace ("CSCDDUEventData|CSCRawToDigi") << "   DDU Near Full Warning";
+            std::cout << "   DDU Near Full Warning";
         }
       if((code&0x00000F00)>0)
         {
           if((0x00000800&code)>0) 
-            LogTrace ("CSCDDUEventData|CSCRawToDigi") << "   DDU 64-bit Alignment Error";
+            std::cout << "   DDU 64-bit Alignment Error";
           if((0x00000400&code)>0)
-            LogTrace ("CSCDDUEventData|CSCRawToDigi") << "   DDU Control DLL Error occured";
+            std::cout << "   DDU Control DLL Error occured";
           if((0x00000200&code)>0)
-            LogTrace ("CSCDDUEventData|CSCRawToDigi") << "   DDU DMB Error occurred";
+            std::cout << "   DDU DMB Error occurred";
           if((0x00000100&code)>0)
-            LogTrace ("CSCDDUEventData|CSCRawToDigi") << "   DDU Lost In Event Error";
+            std::cout << "   DDU Lost In Event Error";
         }
       if((code&0x000000F0)>0)
         {
           if((0x00000080&code)>0)
-            LogTrace ("CSCDDUEventData|CSCRawToDigi") << "   DDU Lost In Data Error occurred";
+            std::cout << "   DDU Lost In Data Error occurred";
           if((0x00000040&code)>0)
-            LogTrace ("CSCDDUEventData|CSCRawToDigi") << "   DDU Timeout Error";
+            std::cout << "   DDU Timeout Error";
           if((0x00000020&code)>0)
-            LogTrace ("CSCDDUEventData|CSCRawToDigi") << "   TMB or ALCT CRC Error";
+            std::cout << "   TMB or ALCT CRC Error";
           if((0x00000010&code)>0)
-            LogTrace ("CSCDDUEventData|CSCRawToDigi") << "   DDU Multiple Transmit Errors";
+            std::cout << "   DDU Multiple Transmit Errors";
         }
       if((code&0x0000000F)>0)
         {
           if((0x00000008&code)>0)
-            LogTrace ("CSCDDUEventData|CSCRawToDigi") << "   DDU Sync Lost or FIFO Full Error";
+            std::cout << "   DDU Sync Lost or FIFO Full Error";
           if((0x00000004&code)>0)
-            LogTrace ("CSCDDUEventData|CSCRawToDigi") << "   DDU Fiber/FIFO Connection Error";
+            std::cout << "   DDU Fiber/FIFO Connection Error";
           if((0x00000002&code)>0)
-            LogTrace ("CSCDDUEventData|CSCRawToDigi") << "   DDU L1A Match Error";
+            std::cout << "   DDU L1A Match Error";
           if((0x00000001&code)>0)
-            LogTrace ("CSCDDUEventData|CSCRawToDigi") << "   DDU DMB or CFEB CRC Error";
+            std::cout << "   DDU DMB or CFEB CRC Error";
         }
       if((code&0xF0000000)>0)
         {
           // JRG, high-order 16-bit status (not-so-serious errors):
           if((0x80000000&code)>0)
-            LogTrace ("CSCDDUEventData|CSCRawToDigi") << "   DDU DMB LCT/DAV/Movlp Mismatch";
+            std::cout << "   DDU DMB LCT/DAV/Movlp Mismatch";
           if((0x40000000&code)>0)
-            LogTrace ("CSCDDUEventData|CSCRawToDigi") << "   DDU-CFEB L1 Mismatch";
+            std::cout << "   DDU-CFEB L1 Mismatch";
           if((0x20000000&code)>0)
-            LogTrace ("CSCDDUEventData|CSCRawToDigi") << "   DDU saw no good DMB CRCs";
+            std::cout << "   DDU saw no good DMB CRCs";
           if((0x10000000&code)>0)
-            LogTrace ("CSCDDUEventData|CSCRawToDigi") << "   DDU CFEB Count Error";
+            std::cout << "   DDU CFEB Count Error";
         }
       if((code&0x0F000000)>0)
         {
           if((0x08000000&code)>0)
-            LogTrace ("CSCDDUEventData|CSCRawToDigi") << "   DDU FirstDat Error";
+            std::cout << "   DDU FirstDat Error";
           if((0x04000000&code)>0)
-            LogTrace ("CSCDDUEventData|CSCRawToDigi") << "   DDU L1A-FIFO Full Error";
+            std::cout << "   DDU L1A-FIFO Full Error";
           if((0x02000000&code)>0)
-            LogTrace ("CSCDDUEventData|CSCRawToDigi") << "   DDU Data Stuck in FIFO";
+            std::cout << "   DDU Data Stuck in FIFO";
           if((0x01000000&code)>0)
-            LogTrace ("CSCDDUEventData|CSCRawToDigi") << "   DDU NoLiveFibers Error";
+            std::cout << "   DDU NoLiveFibers Error";
         }
       if((code&0x00F00000)>0)
         {
           if((0x00800000&code)>0)
-            LogTrace ("CSCDDUEventData|CSCRawToDigi") << "   DDU Spwd single-bit Warning";
+            std::cout << "   DDU Spwd single-bit Warning";
           if((0x00400000&code)>0)
-            LogTrace ("CSCDDUEventData|CSCRawToDigi") << "   DDU Input FPGA Error";
+            std::cout << "   DDU Input FPGA Error";
           if((0x00200000&code)>0)
-            LogTrace ("CSCDDUEventData|CSCRawToDigi") << "   DDU DAQ Stop bit set";
+            std::cout << "   DDU DAQ Stop bit set";
           if((0x00100000&code)>0)
-            LogTrace ("CSCDDUEventData|CSCRawToDigi") << "   DDU DAQ says Not Ready";
+            std::cout << "   DDU DAQ says Not Ready";
           if((0x00300000&code)==0x00200000)
-	    LogTrace ("CSCDDUEventData|CSCRawToDigi") << "   DDU DAQ Applied Backpressure";
+	    std::cout << "   DDU DAQ Applied Backpressure";
         }
       if((code&0x000F0000)>0)
         {
           if((0x00080000&code)>0)
-            LogTrace ("CSCDDUEventData|CSCRawToDigi") << "   DDU TMB Error";
+            std::cout << "   DDU TMB Error";
           if((0x00040000&code)>0)
-            LogTrace ("CSCDDUEventData|CSCRawToDigi") << "   DDU ALCT Error";
+            std::cout << "   DDU ALCT Error";
           if((0x00020000&code)>0)
-            LogTrace ("CSCDDUEventData|CSCRawToDigi") << "   DDU Trigger Readout Wordcount Error";
+            std::cout << "   DDU Trigger Readout Wordcount Error";
           if((0x00010000&code)>0)
-            LogTrace ("CSCDDUEventData|CSCRawToDigi") << "   DDU Trigger L1A Match Error";
+            std::cout << "   DDU Trigger L1A Match Error";
         }
     }
 }
 
 void CSCDDUEventData::unpack_data(unsigned short *buf, CSCDCCExaminer* examiner) 
 {
+debug = true;
   // just to calculate length
   unsigned short * inputBuf = buf;
   theData.clear();
-  if (debug) LogTrace ("CSCDDUEventData|CSCRawToDigi") << "CSCDDUEventData::unpack_data() is called";
+  if (debug) std::cout << "CSCDDUEventData::unpack_data() is called";
   if (debug) for (int i=0;i<4;++i) 
     {
-      LogTrace ("CSCDDUEventData|CSCRawToDigi") << i << std::hex << buf[4*i+3] << buf[4*i+2] 
+      std::cout << i << std::hex << buf[4*i+3] << buf[4*i+2] 
 						<< buf[4*i+1] << buf[4*i];
     }
 
   memcpy(&theDDUHeader, buf, theDDUHeader.sizeInWords()*2);
   
   if (debug) {
-    LogTrace ("CSCDDUEventData|CSCRawToDigi") << "size of ddu header in words = " << theDDUHeader.sizeInWords();
-    LogTrace ("CSCDDUEventData|CSCRawToDigi") << "sizeof(DDUHeader) = " << sizeof(theDDUHeader);
+    std::cout << "size of ddu header in words = " << theDDUHeader.sizeInWords();
+    std::cout << "sizeof(DDUHeader) = " << sizeof(theDDUHeader);
   }
   buf += theDDUHeader.sizeInWords();
 
@@ -181,7 +182,7 @@ void CSCDDUEventData::unpack_data(unsigned short *buf, CSCDCCExaminer* examiner)
 
   if (examiner!= NULL) { // Use selective unpacking mode
 
-    if (debug) LogTrace ("CSCDDUEventData|CSCRawToDigi") << "selective unpacking starting";
+    if (debug) std::cout << "selective unpacking starting";
 
     // Find this DDU in examiner's DDUs list
     int dduID = theDDUHeader.source_id();	
@@ -203,7 +204,7 @@ void CSCDDUEventData::unpack_data(unsigned short *buf, CSCDCCExaminer* examiner)
         long errors = examiner->errorsForChamber(cscid);
         if ((errors & examiner->getMask()) > 0 ) {	
          	if (debug) 
-		LogTrace ("CSCDDUEventData|CSCRawToDigi" )
+		std::cout
                        << "skip unpacking of CSC " << cscid << " due format errors: 0x" << std::hex << errors << std::dec;
 	  continue;
         } 
@@ -213,31 +214,31 @@ void CSCDDUEventData::unpack_data(unsigned short *buf, CSCDCCExaminer* examiner)
 
       if (debug)
 	{
-	  LogTrace ("CSCDDUEventData|CSCRawToDigi") << "size of vector of cscData = " << theData.size();
+	  std::cout << "size of vector of cscData = " << theData.size();
 	}
 
       // decode ddu tail
       memcpy(&theDDUTrailer, inputBuf+dduBufSize, theDDUTrailer.sizeInWords()*2);
       // memcpy(&theDDUTrailer, dduBlock+(dduBufSize-theDDUTrailer.sizeInWords())*2, theDDUTrailer.sizeInWords()*2);
-      if (debug) LogTrace ("CSCDDUEventData|CSCRawToDigi") << theDDUTrailer.check();
+      if (debug) std::cout << theDDUTrailer.check();
       errorstat=theDDUTrailer.errorstat();
       if ((errorstat&errMask) != 0)
 	{
 	  if (theDDUTrailer.check())
 	    {
-	      if (debug) LogTrace ("CSCDDUEventData|CSCRawToDigi")
+	      if (debug) std::cout
 		<< "+++ CSCDDUEventData warning: DDU Trailer errors = " << std::hex << errorstat << " +++ ";
 	      if (debug) decodeStatus(errorstat);
 	    }
 	  else
 	    {
-	      if (debug) LogTrace ("CSCDDUEventData|CSCRawToDigi" )
+	      if (debug) std::cout
 		<< " Unpacking lost DDU trailer - check() failed and 8 8 ffff 8 was not found ";
 	    }
 	}
 
       if (debug) {
-	LogTrace ("CSCDDUEventData|CSCRawToDigi")  << " Final errorstat " << std::hex << errorstat << std::dec ;
+	std::cout  << " Final errorstat " << std::hex << errorstat << std::dec ;
       }
       // the trailer counts in 64-bit words
 
@@ -254,46 +255,47 @@ void CSCDDUEventData::unpack_data(unsigned short *buf, CSCDCCExaminer* examiner)
     while( (((buf[0]&0xf000) == 0x9000)||((buf[0]&0xf000) == 0xa000)) 
 	   && (buf[3] != 0x8000)) {
 	// ++i;
-	if (debug) LogTrace ("CSCDDUEventData|CSCRawToDigi") << "unpack csc data loop started";
+	if (debug) std::cout << "unpack csc data loop started";
 	theData.push_back(CSCEventData(buf));
 	buf += (theData.back()).size();
 	if (debug) {
-	    LogTrace ("CSCDDUEventData|CSCRawToDigi") << "size of vector of cscData = " << theData.size();
+	    std::cout << "size of vector of cscData = " << theData.size();
 	}
     }
  
     if (debug) {
-	LogTrace ("CSCDDUEventData|CSCRawToDigi") << "unpacking ddu trailer ";
-	LogTrace ("CSCDDUEventData|CSCRawToDigi") << std::hex << buf[3]<<" " << buf[2] 
+	std::cout << "unpacking ddu trailer ";
+	std::cout << std::hex << buf[3]<<" " << buf[2] 
 					 <<" " << buf[1]<<" " << buf[0];
     }
 
     // decode ddu tail
     memcpy(&theDDUTrailer, buf, theDDUTrailer.sizeInWords()*2);
-    if (debug) LogTrace ("CSCDDUEventData|CSCRawToDigi") << theDDUTrailer.check();
+    if (debug) std::cout << theDDUTrailer.check();
     errorstat=theDDUTrailer.errorstat();
     if ((errorstat&errMask) != 0)  
       {
 	if (theDDUTrailer.check())
 	  {
-	    if (debug) LogTrace ("CSCDDUEventData|CSCRawToDigi") 
+	    if (debug) std::cout 
 	      << "+++ CSCDDUEventData warning: DDU Trailer errors = " << std::hex << errorstat << " +++ ";
 	    if (debug) decodeStatus(errorstat);
 	  } 
 	else 
 	  {
-	    if (debug) LogTrace ("CSCDDUEventData|CSCRawToDigi" ) 
+	    if (debug) std::cout 
 	      << " Unpacking lost DDU trailer - check() failed and 8 8 ffff 8 was not found ";
 	  }
       }
    
     if (debug) 
-      LogTrace ("CSCDDUEventData|CSCRawToDigi")  << " Final errorstat " << std::hex << errorstat << std::dec ;
+      std::cout  << " Final errorstat " << std::hex << errorstat << std::dec ;
     // the trailer counts in 64-bit words
     buf += theDDUTrailer.sizeInWords();
   
     theSizeInWords = buf - inputBuf;
   }
+std::cout << std::endl;
 }
 
 
@@ -302,8 +304,8 @@ bool CSCDDUEventData::check() const
   // the trailer counts in 64-bit words
   if (debug)
     {
-      LogTrace ("CSCDDUEventData|CSCRawToDigi") << sizeInWords();
-      LogTrace ("CSCDDUEventData|CSCRawToDigi") << "wordcount = " << theDDUTrailer.wordcount()*4;
+      std::cout << sizeInWords();
+      std::cout << "wordcount = " << theDDUTrailer.wordcount()*4;
     }
 
   return theDDUHeader.check() && theDDUTrailer.check();

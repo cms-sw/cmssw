@@ -559,6 +559,7 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
         // == ALCT Header found right after DMB Header
         //   (check for all currently reserved/fixed bits in ALCT first 4 words)
         // if( ( (buf0 [0]&0xF800)==0x6000 && (buf0 [1]&0xFF80)==0x0080 && (buf0 [2]&0xF000)==0x0000 && (buf0 [3]&0xc000)==0x0000 )
+std::cout << "SEARCH ALCT " << std::hex << (buf0 [0]&0xF800) << " " << (buf0 [1]&0x8F80) << " " <<  (buf0 [2]&0x8000) << " " << (buf0 [3]&0xc000) << std::endl;
         if( ( (buf0 [0]&0xF800)==0x6000 && (buf0 [1]&0x8F80)==0x0080 && (buf0 [2]&0x8000)==0x0000 && (buf0 [3]&0xc000)==0x0000 )
             &&
             ( (buf_1[0]&0xF000)==0xA000 && (buf_1[1]&0xF000)==0xA000 && (buf_1[2]&0xF000)==0xA000 && (buf_1[3]&0xF000)==0xA000 ) ){
@@ -635,7 +636,9 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
         // New ALCT data format:
         ( buf0[0]==0xDE0D && (buf0[1]&0xF800)==0xD000 && (buf0[2]&0xF800)==0xD000 && (buf0[3]&0xF000)==0xD000 && fALCT_Format2007 ) ||
         // Old ALCT data format; last check is added to avoid confusion with new TMB header (may not be needed):
-        ( (buf0[0]&0x0800)==0x0000 && (buf0[1]&0xF800)==0xD000 && (buf0[2]&0xFFFF)==0xDE0D && (buf0[3]&0xF000)==0xD000 && !fALCT_Format2007 && !(fTMB_Header&&fTMB_Format2007) )
+        // RPW disable last check, because packer uses 2007 TMB and 2006 ALCT!
+        ( (buf0[0]&0x0800)==0x0000 && (buf0[1]&0xF800)==0xD000 && (buf0[2]&0xFFFF)==0xDE0D && (buf0[3]&0xF000)==0xD000 && !fALCT_Format2007 /*&& !(fTMB_Header&&fTMB_Format2007)*/ )
+
     ){
       // should've been (buf0[0]&0xF800)==0xD000 - see comments for sERROR[11]
 
@@ -682,6 +685,7 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
       //ALCT_WordCount = (buf0[3]&0x03FF);
       ALCT_WordCount = (buf0[3]&0x07FF);
       CFEB_SampleWordCount = 0;
+std::cout << "ALCT TRAILER " << std::endl;
       cout << "A> ";
     }
 
@@ -764,9 +768,9 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 
       if( buf_1[3]==0x6E0C && buf_1[2]==0x6E04 )
 	TMB_WordsExpected = TMB_WordsExpected + 4 + TMB_WordsExpectedCorrection;
-
       CFEB_SampleWordCount = 0;
       cout << "T> ";
+std::cout << "TMB TRAILER " << std::endl;
     }
 
     if( fTMB_Header && checkCrcTMB ){
@@ -785,17 +789,18 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 
 
     // == CFEB Sample Trailer found
-
+std::cout << std::hex << buf0[0] << " " << buf0[1] << " " << buf0[2]<< " " << buf0[3] << std::dec << std::endl;
 	if( ((buf0[1]&0xF000)==0x7000) &&
                 ((buf0[2]&0xF000)==0x7000) &&
                 ((buf0[1]!=0x7FFF) || (buf0[2]!=0x7FFF)) &&
                 ( ((buf0[3]&0xFFFF)==0x7FFF) ||   // old format
               ( (buf0[3]&buf0[0])==0x0000 && (buf0[3]+buf0[0])==0x7FFF ) // 2007 format
               ) ){
-
+std::cout << "FOUND CFEB TRAILER after " << CFEB_SampleWordCount <<  std::endl;
       if((CFEB_SampleCount%8)  == 0   ){ cout<<" <"; }
       if( CFEB_SampleWordCount == 100 ){ cout<<"+";  }
       if( CFEB_SampleWordCount != 100 ){ cout<<"-";
+std::cout << "SO DAMN MANY CFEBS! " << std::endl;
       fERROR[16] = true;
       bERROR    |= 0x10000;
       fCHAMB_ERR[16].insert(currentChamber);

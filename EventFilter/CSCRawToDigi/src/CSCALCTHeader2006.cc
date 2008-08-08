@@ -11,6 +11,8 @@ CSCALCTHeader2006::CSCALCTHeader2006(int chamberType) { //constructor for digi->
   flag_0 = 0xC;
   flag_1 = 0;
   reserved_1 = 0;
+  // examiner demands this
+  l1aMatch = 1;
   lctChipRead = activeFEBsForChamberType[chamberType];
   activeFEBs = lctChipRead;
   nTBins = nTBinsForChamberType[chamberType];

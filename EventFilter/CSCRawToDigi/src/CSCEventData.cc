@@ -402,9 +402,11 @@ boost::dynamic_bitset<> CSCEventData::pack() {
   if(theALCTTrailer != NULL)  {
     boost::dynamic_bitset<> alctTrailer =bitset_utilities::ushortToBitset(theALCTTrailer->sizeInWords()*16,
 									  theALCTTrailer->data());
+std::cout << "TRAILER " << std::endl;
+bitset_utilities::printWords(alctTrailer);
+
     result = bitset_utilities::append(result, alctTrailer);
   }
-
   if(theTMBData != NULL)  {
     result  = bitset_utilities::append(result, theTMBData->pack());
   }
@@ -420,6 +422,8 @@ boost::dynamic_bitset<> CSCEventData::pack() {
   boost::dynamic_bitset<> dmbTrailer = bitset_utilities::ushortToBitset( theDMBTrailer.sizeInWords()*16,
 									 theDMBTrailer.data());
   result = bitset_utilities::append(result, dmbTrailer);
+std::cout << "TOTAL " << std::endl;
+bitset_utilities::printWords(result);
   return result;
 }
 
