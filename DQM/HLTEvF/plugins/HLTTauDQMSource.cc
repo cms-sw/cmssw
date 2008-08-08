@@ -1166,7 +1166,12 @@ HLTTauDQMSource::importFilterColl(edm::InputTag& filter,int pdgID,const Event& i
 
       //Look at all Different triggers
       Handle<TriggerEvent> handle;
-      iEvent.getByLabel(triggerEvent_,handle);
+      // force the signature such that we don't get an exception here [wittich]
+      bool ret = iEvent.getByLabel(triggerEvent_,handle);
+      if ( ! ret ) {
+	edm::LogInfo("Status") << "couldn't find TriggerEvent.";
+	return out;
+      }
 
       //get All the final trigger objects
       const TriggerObjectCollection& TOC(handle->getObjects());
