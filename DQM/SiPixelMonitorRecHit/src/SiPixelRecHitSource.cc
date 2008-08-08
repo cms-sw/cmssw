@@ -14,7 +14,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelRecHitSource.cc,v 1.10 2008/06/26 08:57:20 merkelp Exp $
+// $Id: SiPixelRecHitSource.cc,v 1.9 2008/06/26 08:36:23 merkelp Exp $
 //
 //
 // Adapted by:  Keith Rose
@@ -54,6 +54,7 @@ SiPixelRecHitSource::SiPixelRecHitSource(const edm::ParameterSet& iConfig) :
   isPIB( conf_.getUntrackedParameter<bool>("isPIB",false) ),
   slowDown( conf_.getUntrackedParameter<bool>("slowDown",false) ),
   modOn( conf_.getUntrackedParameter<bool>("modOn",true) ),
+  twoDimOn( conf_.getUntrackedParameter<bool>("twoDimOn",true) ),
   ladOn( conf_.getUntrackedParameter<bool>("ladOn",false) ), 
   layOn( conf_.getUntrackedParameter<bool>("layOn",false) ), 
   phiOn( conf_.getUntrackedParameter<bool>("phiOn",false) ), 
@@ -81,6 +82,7 @@ void SiPixelRecHitSource::beginJob(const edm::EventSetup& iSetup){
 	    << layOn << "/" << phiOn << std::endl;
   LogInfo ("PixelDQM") << "Blade/Disk/Ring" << bladeOn << "/" << diskOn << "/" 
 	    << ringOn << std::endl;
+  LogInfo ("PixelDQM") << "2DIM IS " << twoDimOn << "\n";
   eventNo = 0;
 	
   // Build map
@@ -95,7 +97,11 @@ void SiPixelRecHitSource::beginJob(const edm::EventSetup& iSetup){
 void SiPixelRecHitSource::endJob(void){
 
   std::map<uint32_t,SiPixelRecHitModule*>::iterator struct_iter;
-  
+  for (struct_iter = thePixelStructure.begin() ; struct_iter != thePixelStructure.end() ; struct_iter++) {
+    uint32_t TheID = (*struct_iter).first;
+    int total = rechit_count[TheID];
+    (*struct_iter).second->nfill(total, modOn, ladOn, layOn, phiOn, bladeOn, diskOn, ringOn);
+  }
 
   if(saveFile){
     LogInfo ("PixelDQM") << " SiPixelRecHitSource::endJob - Saving Root File " << std::endl;
@@ -129,12 +135,12 @@ void SiPixelRecHitSource::analyze(const edm::Event& iEvent, const edm::EventSetu
       // if( pixelrechitRangeIteratorBegin == pixelrechitRangeIteratorEnd) {cout << "oops" << endl;}
       float rechit_x = 0;
       float rechit_y = 0;
-      int total = 0;
+
   for ( ; pixeliter != pixelrechitRangeIteratorEnd; pixeliter++) 
 	{
 	  
 
-	  total++;
+	  rechit_count[TheID]++;
 	  //cout << TheID << endl;
 	  SiPixelRecHit::ClusterRef const& clust = pixeliter->cluster();
 	  int sizeX = (*clust).sizeX();
@@ -149,11 +155,10 @@ void SiPixelRecHitSource::analyze(const edm::Event& iEvent, const edm::EventSetu
 	  //  float lerr_x = sqrt(lerr.xx());
 	  //  float lerr_y = sqrt(lerr.yy());
 	  //cout << "hh" << endl;
-	  (*struct_iter).second->fill(rechit_x, rechit_y, sizeX, sizeY,modOn, ladOn, layOn, phiOn, bladeOn, diskOn, ringOn);
+	  (*struct_iter).second->fill(rechit_x, rechit_y, sizeX, sizeY,modOn, ladOn, layOn, phiOn, bladeOn, diskOn, ringOn, twoDimOn);
 	  //cout << "ii" << endl;
-	  
+	
 	}
-  (*struct_iter).second->nfill(total, modOn, ladOn, layOn, phiOn, bladeOn, diskOn, ringOn);
     
   }
 
@@ -180,39 +185,49 @@ void SiPixelRecHitSource::buildStructure(const edm::EventSetup& iSetup){
     if(dynamic_cast<PixelGeomDetUnit*>((*it))!=0){
 
       DetId detId = (*it)->geographicalId();
-      if(detId.subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) {
-        if(isPIB) continue;
-	LogDebug ("PixelDQM") << " ---> Adding Barrel Module " <<  detId.rawId() << endl;
-	uint32_t id = detId();
-	SiPixelRecHitModule* theModule = new SiPixelRecHitModule(id);
-	thePixelStructure.insert(pair<uint32_t,SiPixelRecHitModule*> (id,theModule));
-      }	else if(detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) {
-	LogDebug ("PixelDQM") << " ---> Adding Endcap Module " <<  detId.rawId() << endl;
-	uint32_t id = detId();
-	SiPixelRecHitModule* theModule = new SiPixelRecHitModule(id);
+      // const GeomDetUnit      * geoUnit = pDD->idToDetUnit( detId );
+      //const PixelGeomDetUnit * pixDet  = dynamic_cast<const PixelGeomDetUnit*>(geoUnit);
 
-        PixelEndcapName::HalfCylinder side = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).halfCylinder();
-        int disk   = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).diskName();
-        int blade  = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).bladeName();
-        int panel  = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).pannelName();
-        int module = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).plaquetteName();
-
-        char sside[80];  sprintf(sside,  "HalfCylinder_%i",side);
-        char sdisk[80];  sprintf(sdisk,  "Disk_%i",disk);
-        char sblade[80]; sprintf(sblade, "Blade_%02i",blade);
-        char spanel[80]; sprintf(spanel, "Panel_%i",panel);
-        char smodule[80];sprintf(smodule,"Module_%i",module);
-        std::string side_str = sside;
-	std::string disk_str = sdisk;
-	bool mask = side_str.find("HalfCylinder_1")!=string::npos||
-	            side_str.find("HalfCylinder_2")!=string::npos||
-	            side_str.find("HalfCylinder_4")!=string::npos||
-	            disk_str.find("Disk_2")!=string::npos;
-	if(isPIB && mask) continue;
+     	  
+	  
+	      // SiPixelRecHitModule *theModule = new SiPixelRecHitModule(id, rechit_x, rechit_y, x_res, y_res, x_pull, y_pull);
 	
-	thePixelStructure.insert(pair<uint32_t,SiPixelRecHitModule*> (id,theModule));
-      }
-    }	    
+	
+	      if(detId.subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) {
+                if(isPIB) continue;
+		LogDebug ("PixelDQM") << " ---> Adding Barrel Module " <<  detId.rawId() << endl;
+		uint32_t id = detId();
+	        SiPixelRecHitModule* theModule = new SiPixelRecHitModule(id);
+		thePixelStructure.insert(pair<uint32_t,SiPixelRecHitModule*> (id,theModule));
+		
+	      }	else if(detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) {
+		LogDebug ("PixelDQM") << " ---> Adding Endcap Module " <<  detId.rawId() << endl;
+		uint32_t id = detId();
+		SiPixelRecHitModule* theModule = new SiPixelRecHitModule(id);
+
+                PixelEndcapName::HalfCylinder side = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).halfCylinder();
+                int disk   = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).diskName();
+                int blade  = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).bladeName();
+                int panel  = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).pannelName();
+                int module = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).plaquetteName();
+
+                char sside[80];  sprintf(sside,  "HalfCylinder_%i",side);
+                char sdisk[80];  sprintf(sdisk,  "Disk_%i",disk);
+                char sblade[80]; sprintf(sblade, "Blade_%02i",blade);
+                char spanel[80]; sprintf(spanel, "Panel_%i",panel);
+                char smodule[80];sprintf(smodule,"Module_%i",module);
+                std::string side_str = sside;
+	        std::string disk_str = sdisk;
+	        bool mask = side_str.find("HalfCylinder_1")!=string::npos||
+	                    side_str.find("HalfCylinder_2")!=string::npos||
+		            side_str.find("HalfCylinder_4")!=string::npos||
+		            disk_str.find("Disk_2")!=string::npos;
+	        if(isPIB && mask) continue;
+	
+		thePixelStructure.insert(pair<uint32_t,SiPixelRecHitModule*> (id,theModule));
+	      }
+      
+	}	    
   }
 
   LogInfo ("PixelDQM") << " *** Pixel Structure Size " << thePixelStructure.size() << endl;
@@ -232,7 +247,7 @@ void SiPixelRecHitSource::bookMEs(){
     /// Create folder tree and book histograms 
     if(modOn){
       if(theSiPixelFolder.setModuleFolder((*struct_iter).first)){
-	(*struct_iter).second->book( conf_ );
+	(*struct_iter).second->book( conf_,0,twoDimOn);
       } else {
 	if(!isPIB) throw cms::Exception("LogicError")
 	  << "[SiPixelDigiSource::bookMEs] Creation of DQM folder failed";
@@ -240,42 +255,42 @@ void SiPixelRecHitSource::bookMEs(){
     }
     if(ladOn){
       if(theSiPixelFolder.setModuleFolder((*struct_iter).first,1)){
-	(*struct_iter).second->book( conf_,1);
+	(*struct_iter).second->book( conf_,1,twoDimOn);
 	} else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH LADDER-FOLDER\n";
       }
     }
     if(layOn){
       if(theSiPixelFolder.setModuleFolder((*struct_iter).first,2)){
-	(*struct_iter).second->book( conf_,2);
+	(*struct_iter).second->book( conf_,2,twoDimOn);
 	} else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH LAYER-FOLDER\n";
       }
     }
     if(phiOn){
       if(theSiPixelFolder.setModuleFolder((*struct_iter).first,3)){
-	(*struct_iter).second->book( conf_,3);
+	(*struct_iter).second->book( conf_,3,twoDimOn);
 	} else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH PHI-FOLDER\n";
       }
     }
     if(bladeOn){
       if(theSiPixelFolder.setModuleFolder((*struct_iter).first,4)){
-	(*struct_iter).second->book( conf_,4);
+	(*struct_iter).second->book( conf_,4,twoDimOn);
 	} else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH BLADE-FOLDER\n";
       }
     }
     if(diskOn){
       if(theSiPixelFolder.setModuleFolder((*struct_iter).first,5)){
-	(*struct_iter).second->book( conf_,5);
+	(*struct_iter).second->book( conf_,5,twoDimOn);
 	} else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH DISK-FOLDER\n";
       }
     }
     if(ringOn){
       if(theSiPixelFolder.setModuleFolder((*struct_iter).first,6)){
-	(*struct_iter).second->book( conf_,6);
+	(*struct_iter).second->book( conf_,6,twoDimOn);
 	} else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH RING-FOLDER\n";
       }

@@ -32,7 +32,7 @@ SiPixelRecHitModule::~SiPixelRecHitModule() {}
 //
 // Book histograms
 //
-void SiPixelRecHitModule::book(const edm::ParameterSet& iConfig, int type) {
+void SiPixelRecHitModule::book(const edm::ParameterSet& iConfig, int type, bool twoD) {
 
   bool barrel = DetId::DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
   bool endcap = DetId::DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
@@ -50,12 +50,21 @@ void SiPixelRecHitModule::book(const edm::ParameterSet& iConfig, int type) {
 
 
   if(type==0){
-    // XYPosition
-    hid = theHistogramId->setHistoId("xypos",id_);
-    //std::cout << hid << " " << theHistogramId->getDataCollection(hid) << " " << theHistogramId->getRawId(hid) << std::endl;
-    meXYPos_ = theDMBE->book2D(hid,"XY Position",100,-1.,1,100,-4,4);
-    meXYPos_->setAxisTitle("X Position",1);
-    meXYPos_->setAxisTitle("Y Position",2);
+    if(twoD){
+      // XYPosition
+      hid = theHistogramId->setHistoId("xypos",id_);
+      meXYPos_ = theDMBE->book2D(hid,"XY Position",100,-1.,1,100,-4,4);
+      meXYPos_->setAxisTitle("X Position",1);
+      meXYPos_->setAxisTitle("Y Position",2);
+    }
+    else{
+      // projections of XYPosition
+      hid = theHistogramId->setHistoId("xypos",id_);
+      meXYPos_px_ = theDMBE->book1D(hid+"_px","X Position",100,-1.,1);
+      meXYPos_px_->setAxisTitle("X Position",1);
+      meXYPos_py_ = theDMBE->book1D(hid+"_py","Y Position",100,-4,4);
+      meXYPos_py_->setAxisTitle("Y Position",1);
+    }
     hid = theHistogramId->setHistoId("ClustX",id_);
     meClustX_ = theDMBE->book1D(hid, "Cluster X size", 10, 0, 10);
     meClustX_->setAxisTitle("Cluster size X dimension", 1);
@@ -74,11 +83,18 @@ void SiPixelRecHitModule::book(const edm::ParameterSet& iConfig, int type) {
     hid = src.label() + "_" + sladder;
     if(isHalfModule) hid += "H";
     else hid += "F";
-
-    meXYPosLad_ = theDMBE->book2D("xypos_" + hid,"XY Position",100,-1.,1,100,-4,4);
-    meXYPosLad_->setAxisTitle("X Position",1);
-    meXYPosLad_->setAxisTitle("Y Position",2);
-
+    if(twoD){
+      meXYPosLad_ = theDMBE->book2D("xypos_" + hid,"XY Position",100,-1.,1,100,-4,4);
+      meXYPosLad_->setAxisTitle("X Position",1);
+      meXYPosLad_->setAxisTitle("Y Position",2);
+    }
+    else{
+      // projections of XYPosition
+      meXYPosLad_px_ = theDMBE->book1D("xypos_"+hid+"_px","X Position",100,-1.,1);
+      meXYPosLad_px_->setAxisTitle("X Position",1);
+      meXYPosLad_py_ = theDMBE->book1D("xypos_"+hid+"_py","Y Position",100,-4,4);
+      meXYPosLad_py_->setAxisTitle("Y Position",1);
+    }
     meClustXLad_ = theDMBE->book1D("ClustX_" +hid, "Cluster X size", 10, 0, 10);
     meClustXLad_->setAxisTitle("Cluster size X dimension", 1);
     meClustYLad_ = theDMBE->book1D("ClustY_" +hid,"Cluster Y size", 25, 0.,25.);
@@ -94,9 +110,18 @@ void SiPixelRecHitModule::book(const edm::ParameterSet& iConfig, int type) {
     char slayer[80]; sprintf(slayer,"Layer_%i",DBlayer);
     hid = src.label() + "_" + slayer;
     
-    meXYPosLay_ = theDMBE->book2D("xypos_" + hid,"XY Position",100,-1.,1,100,-4,4);
-    meXYPosLay_->setAxisTitle("X Position",1);
-    meXYPosLay_->setAxisTitle("Y Position",2);
+    if(twoD){
+      meXYPosLay_ = theDMBE->book2D("xypos_" + hid,"XY Position",100,-1.,1,100,-4,4);
+      meXYPosLay_->setAxisTitle("X Position",1);
+      meXYPosLay_->setAxisTitle("Y Position",2);
+    }
+    else{
+      // projections of XYPosition
+      meXYPosLay_px_ = theDMBE->book1D("xypos_"+hid+"_px","X Position",100,-1.,1);
+      meXYPosLay_px_->setAxisTitle("X Position",1);
+      meXYPosLay_py_ = theDMBE->book1D("xypos_"+hid+"_py","Y Position",100,-4,4);
+      meXYPosLay_py_->setAxisTitle("Y Position",1);
+    }
 
     meClustXLay_ = theDMBE->book1D("ClustX_" +hid, "Cluster X size", 10, 0, 10);
     meClustXLay_->setAxisTitle("Cluster size X dimension", 1);
@@ -111,11 +136,19 @@ void SiPixelRecHitModule::book(const edm::ParameterSet& iConfig, int type) {
     uint32_t DBmodule = PixelBarrelName::PixelBarrelName(DetId::DetId(id_)).moduleName();
     char smodule[80]; sprintf(smodule,"Ring_%i",DBmodule);
     hid = src.label() + "_" + smodule;
-
-    meXYPosPhi_ = theDMBE->book2D("xypos_" + hid,"XY Position",100,-1.,1,100,-4,4);
-    meXYPosPhi_->setAxisTitle("X Position",1);
-    meXYPosPhi_->setAxisTitle("Y Position",2);
-
+    
+    if(twoD){
+      meXYPosPhi_ = theDMBE->book2D("xypos_" + hid,"XY Position",100,-1.,1,100,-4,4);
+      meXYPosPhi_->setAxisTitle("X Position",1);
+      meXYPosPhi_->setAxisTitle("Y Position",2);
+    }
+    else{
+      // projections of XYPosition
+      meXYPosPhi_px_ = theDMBE->book1D("xypos_"+hid+"_px","X Position",100,-1.,1);
+      meXYPosPhi_px_->setAxisTitle("X Position",1);
+      meXYPosPhi_py_ = theDMBE->book1D("xypos_"+hid+"_py","Y Position",100,-4,4);
+      meXYPosPhi_py_->setAxisTitle("Y Position",1);
+    }
     meClustXPhi_ = theDMBE->book1D("ClustX_" +hid, "Cluster X size", 10, 0, 10);
     meClustXPhi_->setAxisTitle("Cluster size X dimension", 1);
     meClustYPhi_ = theDMBE->book1D("ClustY_" +hid,"Cluster Y size", 25, 0.,25.);
@@ -165,11 +198,19 @@ void SiPixelRecHitModule::book(const edm::ParameterSet& iConfig, int type) {
     uint32_t module= PixelEndcapName::PixelEndcapName(DetId::DetId(id_)).plaquetteName();
     char slab[80]; sprintf(slab, "Panel_%i_Ring_%i",panel, module);
     hid = src.label() + "_" + slab;
-
-    meXYPosRing_ = theDMBE->book2D("xypos_" + hid,"XY Position",100,-1.,1,100,-4,4);
-    meXYPosRing_->setAxisTitle("X Position",1);
-    meXYPosRing_->setAxisTitle("Y Position",2);
-
+    
+    if(twoD){
+      meXYPosRing_ = theDMBE->book2D("xypos_" + hid,"XY Position",100,-1.,1,100,-4,4);
+      meXYPosRing_->setAxisTitle("X Position",1);
+      meXYPosRing_->setAxisTitle("Y Position",2);
+    }
+    else{
+      // projections of XYPosition
+      meXYPosRing_px_ = theDMBE->book1D("xypos_"+hid+"_px","X Position",100,-1.,1);
+      meXYPosRing_px_->setAxisTitle("X Position",1);
+      meXYPosRing_py_ = theDMBE->book1D("xypos_"+hid+"_py","Y Position",100,-4,4);
+      meXYPosRing_py_->setAxisTitle("Y Position",1);
+    }
     meClustXRing_ = theDMBE->book1D("ClustX_" +hid, "Cluster X size", 10, 0, 10);
     meClustXRing_->setAxisTitle("Cluster size X dimension", 1);
     meClustYRing_ = theDMBE->book1D("ClustY_" +hid,"Cluster Y size", 25, 0.,25.);
@@ -183,7 +224,7 @@ void SiPixelRecHitModule::book(const edm::ParameterSet& iConfig, int type) {
 //
 // Fill histograms
 //
-void SiPixelRecHitModule::fill(const float& rechit_x, const float& rechit_y, const int& sizeX, const int& sizeY, bool modon, bool ladon, bool layon, bool phion, bool bladeon, bool diskon, bool ringon) {
+void SiPixelRecHitModule::fill(const float& rechit_x, const float& rechit_y, const int& sizeX, const int& sizeY, bool modon, bool ladon, bool layon, bool phion, bool bladeon, bool diskon, bool ringon, bool twoD) {
 
    bool barrel = DetId::DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
   bool endcap = DetId::DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
@@ -219,26 +260,42 @@ void SiPixelRecHitModule::fill(const float& rechit_x, const float& rechit_y, con
   */
   //std::cout << rechit_x << " " << rechit_y << " " << sizeX << " " << sizeY << std::endl;
   if(modon){
-    meXYPos_->Fill(rechit_x, rechit_y);
+    if(twoD) meXYPos_->Fill(rechit_x, rechit_y);
+    else {
+      meXYPos_px_->Fill(rechit_x); 
+      meXYPos_py_->Fill(rechit_y);
+    }
     meClustX_->Fill(sizeX);
     meClustY_->Fill(sizeY);
   }
   //std::cout<<"number of detector units="<<numberOfDetUnits<<std::endl;
 
   if(ladon && barrel){
-    meXYPosLad_->Fill(rechit_x, rechit_y);
+    if(twoD) meXYPosLad_->Fill(rechit_x, rechit_y);
+    else{
+      meXYPosLad_px_->Fill(rechit_x); 
+      meXYPosLad_py_->Fill(rechit_y);
+    }
     meClustXLad_->Fill(sizeX);
     meClustYLad_->Fill(sizeY);
   }
 
   if(layon && barrel){
-    meXYPosLay_->Fill(rechit_x, rechit_y);
+    if(twoD) meXYPosLay_->Fill(rechit_x, rechit_y);
+    else{
+      meXYPosLay_px_->Fill(rechit_x); 
+      meXYPosLay_py_->Fill(rechit_y);
+    }
     meClustXLay_->Fill(sizeX);
     meClustYLay_->Fill(sizeY);
   }
 
   if(phion && barrel){
-    meXYPosPhi_->Fill(rechit_x, rechit_y);
+    if(twoD) meXYPosPhi_->Fill(rechit_x, rechit_y);
+    else{
+      meXYPosPhi_px_->Fill(rechit_x); 
+      meXYPosPhi_py_->Fill(rechit_y);
+    }
     meClustXPhi_->Fill(sizeX);
     meClustYPhi_->Fill(sizeY);
   }
@@ -256,7 +313,11 @@ void SiPixelRecHitModule::fill(const float& rechit_x, const float& rechit_y, con
   }
 
   if(ringon && endcap){
-    meXYPosRing_->Fill(rechit_x, rechit_y);
+    if(twoD) meXYPosRing_->Fill(rechit_x, rechit_y);
+    else{
+      meXYPosRing_px_->Fill(rechit_x); 
+      meXYPosRing_py_->Fill(rechit_y);
+    }
     meClustXRing_->Fill(sizeX);
     meClustYRing_->Fill(sizeY);
   }

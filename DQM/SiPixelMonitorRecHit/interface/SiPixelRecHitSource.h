@@ -16,7 +16,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelRecHitSource.h,v 1.4 2008/06/23 15:52:05 merkelp Exp $
+// $Id: SiPixelRecHitSource.h,v 1.5 2008/06/26 08:36:32 merkelp Exp $
 //
 // Updated by: Keith Rose
 // for use in SiPixelMonitorRecHits
@@ -77,6 +77,7 @@
        std::map<uint32_t,SiPixelRecHitModule*> thePixelStructure;
        std::map<uint32_t,int> rechit_count;
        bool modOn; 
+       bool twoDimOn;
        //barrel:
        bool ladOn, layOn, phiOn;
        //forward:
