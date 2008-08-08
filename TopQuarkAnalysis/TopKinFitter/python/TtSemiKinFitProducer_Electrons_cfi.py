@@ -28,12 +28,13 @@ kinFitTtSemiEvent = cms.EDProducer("TtSemiKinFitProducerElectron",
     # select parametrisation
     # 0: EMom, 1: EtEtaPhi, 2: EtThetaPhi
     # ------------------------------------------------
-    jetParametrisation = cms.uint32(0),
-    lepParametrisation = cms.uint32(0),
-    metParametrisation = cms.uint32(0),
+    jetParametrisation = cms.uint32(1),
+    lepParametrisation = cms.uint32(1),
+    metParametrisation = cms.uint32(1),
     # ------------------------------------------------
     # set constraints
-    # 1: Whadr, 2: Wlep, 3: thadr, 4: tlep, 5: nu-mas
+    # 1: Whad-mass, 2: Wlep-mass
+    # 3: thad-mass, 4: tlep-mass, 5: nu-mass
     # ------------------------------------------------                                   
     constraints = cms.vint32(1, 2)
 )
