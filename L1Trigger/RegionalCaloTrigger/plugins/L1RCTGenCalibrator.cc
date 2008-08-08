@@ -142,9 +142,7 @@ void L1RCTGenCalibrator::postProcessing()
 	      hTpgSumPhi->Fill(matchedCentroid.second);		
 	    }	    
 	}
-    }
-  
-  
+    }  
 }
 
 void L1RCTGenCalibrator::saveGenInfo(const reco::GenParticle* g_ , const edm::Handle<ecal_view>& e_, const edm::Handle<hcal_view>& h_,
@@ -256,7 +254,7 @@ void L1RCTGenCalibrator::saveGenInfo(const reco::GenParticle* g_ , const edm::Ha
 
 void L1RCTGenCalibrator::bookHistograms()
 {
-  double deltaRbins[28];
+  double deltaRbins[29];
   
   for(int i = 0; i < 28; ++i)
     {
@@ -265,7 +263,7 @@ void L1RCTGenCalibrator::bookHistograms()
       etaValue(i+1,eta);
       deltaR(0,0,eta,phi,delta_r);
 
-      deltaRbins[i] = delta_r;
+      deltaRbins[i+1] = delta_r;
     }
 
   putHist(hEvent = new TH1F("hEvent","Event Number",10000,0,10000));
@@ -292,7 +290,7 @@ void L1RCTGenCalibrator::bookHistograms()
   for(int i = 0; i < 28; ++i)
     {
       putHist(hPhotonDeltaR95[i] = new TH1F(TString("hPhotonDeltaR95") += i, TString("Photon #DeltaR Containing 95% of E_{T} in #eta Bin: ") +=i, 28, deltaRbins));
-      putHist(hNIPionDeltaR95[i] = new TH1F(TString("hPhotonDeltaR95") += i, TString("NI Pion #DeltaR Containing 95% of E_{T} in #eta Bin: ") +=i, 28, deltaRbins));
+      putHist(hNIPionDeltaR95[i] = new TH1F(TString("hNIPionDeltaR95") += i, TString("NI Pion #DeltaR Containing 95% of E_{T} in #eta Bin: ") +=i, 28, deltaRbins));
       
       putHist(gPhotonEtvsGenEt[i] = new TGraph());
       gPhotonEtvsGenEt[i]->SetName(TString("gPhotonEtvsGenEt") += i); 
