@@ -8,3 +8,4 @@ muonCosmicAnalyzer.SeedCollection = 'CosmicMuonSeed'
 muonCosmicAnalyzer.GlobalMuTrackCollection = 'globalCosmicMuons'
 muonCosmicAnalyzer.STAMuTrackCollection = 'cosmicMuons'
 
+

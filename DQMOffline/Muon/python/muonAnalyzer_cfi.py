@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-from RecoMuon.TrackingTools.MuonServiceProxy_cff import *
 
 # MuonAnalyzer
 muonAnalyzer = cms.EDAnalyzer("MuonAnalyzer",

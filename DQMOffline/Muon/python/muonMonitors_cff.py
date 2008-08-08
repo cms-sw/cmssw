@@ -9,8 +9,8 @@ from DQMOffline.Muon.muonAnalyzer_cff import *
 from DQMOffline.Muon.CSCMonitor_cfi import *
 #dedicated clients for offline dqm 
 from DQMOffline.Muon.muonQualityTests_cff import *
-muonTrackAnalyzers = cms.Sequence(cms.SequencePlaceholder("standAloneMuonsMonitors")*MonitorTrackGLBMuons)
-muonMonitors = cms.Sequence(muonTrackAnalyzers*dtSegmentsMonitor*cscMonitor*muonAnalyzer)
+muonTrackAnalyzers = cms.Sequence(MonitorTrackSTAMuons*MonitorTrackGLBMuons)
+muonMonitors = cms.Sequence(muonTrackAnalyzers*dtSegmentsMonitor*muonAnalyzer)
 muonMonitorsAndQualityTests = cms.Sequence(muonMonitors*muonQualityTests)
 
 
