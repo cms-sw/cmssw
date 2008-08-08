@@ -59,7 +59,7 @@ ecalConditions = cms.ESSource("PoolDBESSource",
     authenticationMethod = cms.untracked.uint32(1)
 )
 
-ecalBarrelDataSequence = cms.Sequence(ecalEBunpacker*ecalUncalibHit*ecalUncalibHit2*ecalRecHit*ecalTriggerPrimitiveDigis)
+ecalBarrelDataSequence = cms.Sequence(ecalEBunpacker*ecalUncalibHit*ecalUncalibHit2*ecalRecHit*simEcalTriggerPrimitiveDigis)
 ecalUncalibHit2.MinAmplBarrel = 12.
 ecalUncalibHit2.MinAmplEndcap = 16.
 ecalUncalibHit2.EBdigiCollection = cms.InputTag("ecalEBunpacker","ebDigis")
@@ -68,12 +68,12 @@ ecalUncalibHit.EBdigiCollection = cms.InputTag("ecalEBunpacker","ebDigis")
 ecalUncalibHit.EEdigiCollection = cms.InputTag("ecalEBunpacker","eeDigis")
 ecalRecHit.EBuncalibRecHitCollection = cms.InputTag("ecalUncalibHit","EcalUncalibRecHitsEB")
 ecalRecHit.EEuncalibRecHitCollection = cms.InputTag("ecalUncalibHit","EcalUncalibRecHitsEE")
-ecalTriggerPrimitiveDigis.Label = 'ecalEBunpacker'
-ecalTriggerPrimitiveDigis.InstanceEB = 'ebDigis'
-ecalTriggerPrimitiveDigis.InstanceEE = 'eeDigis'
-ecalTriggerPrimitiveDigis.BarrelOnly = True
-EcalTrigPrimESProducer.DatabaseFileEB = 'TPG_EB_MIPs.txt'
-EcalTrigPrimESProducer.DatabaseFileEE = 'TPG_EE.txt'
+simEcalTriggerPrimitiveDigis.Label = 'ecalEBunpacker'
+simEcalTriggerPrimitiveDigis.InstanceEB = 'ebDigis'
+simEcalTriggerPrimitiveDigis.InstanceEE = 'eeDigis'
+simEcalTriggerPrimitiveDigis.BarrelOnly = True
+#EcalTrigPrimESProducer.DatabaseFileEB = 'TPG_EB_MIPs.txt'
+#EcalTrigPrimESProducer.DatabaseFileEE = 'TPG_EE.txt'
 islandBasicClusters.IslandBarrelSeedThr = 0.150 ## 0.500
 
 islandBasicClusters.IslandEndcapSeedThr = 0.150 ## 0.180
