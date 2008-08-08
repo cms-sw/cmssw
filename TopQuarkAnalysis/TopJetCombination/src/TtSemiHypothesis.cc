@@ -71,6 +71,17 @@ TtSemiHypothesis::produce(edm::Event& evt, const edm::EventSetup& setup)
   evt.put(pMatch, "Match");
 }
 
+void
+TtSemiHypothesis::resetCandidates()
+{
+  lightQ_    = 0;
+  lightQBar_ = 0;
+  hadronicB_ = 0;
+  leptonicB_ = 0;
+  neutrino_  = 0;
+  lepton_    = 0;
+}
+
 reco::CompositeCandidate
 TtSemiHypothesis::hypo()
 {
