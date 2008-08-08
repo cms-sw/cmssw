@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Mon Nov  5 16:56:35 CET 2007
-// $Id: SimpleTestPrintOutPixelCalibAnalyzer.cc,v 1.4 2008/01/22 19:12:43 muzaffar Exp $
+// $Id: SimpleTestPrintOutPixelCalibAnalyzer.cc,v 1.5 2008/01/23 10:39:25 fblekman Exp $
 //
 //
 
@@ -30,24 +30,7 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiPixelDigi/interface/SiPixelCalibDigi.h"
 
-//
-// class decleration
-//
-
-class SimpleTestPrintOutPixelCalibAnalyzer : public edm::EDAnalyzer {
-public:
-  explicit SimpleTestPrintOutPixelCalibAnalyzer(const edm::ParameterSet&);
-  ~SimpleTestPrintOutPixelCalibAnalyzer();
-  
-  
-private:
-  virtual void beginJob(const edm::EventSetup&) ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void printInfo(const edm::Event&, const edm::EventSetup&); // print method added by Freya, this way the analyzer stays clean
-  virtual void endJob() ;
-
-      // ----------member data ---------------------------
-};
+#include "CalibTracker/SiPixelGainCalibration/test/SimpleTestPrintOutPixelCalibAnalyzer.h"
 
 //
 // constants, enums and typedefs
@@ -122,5 +105,3 @@ void
 SimpleTestPrintOutPixelCalibAnalyzer::endJob() {
 }
 
-//define this as a plug-in
-DEFINE_FWK_MODULE(SimpleTestPrintOutPixelCalibAnalyzer);
