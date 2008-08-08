@@ -27,6 +27,8 @@ struct CSCALCTHeader2006 { ///this struct contains all 2006 ALCT Header words ex
 
   void setEventInformation(const CSCDMBHeader &);///for packing
 
+  void setDAV(int afebBoard) {activeFEBs |= 1 << afebBoard;}
+
   /// l1 accept counter
   unsigned l1Acc         : 4;
   /// chamber ID number
