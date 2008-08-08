@@ -71,6 +71,7 @@ ecalBarrelTriggerTowerTask.EcalTrigPrimDigiCollectionEmul = 'ecalDigis:EcalTrigg
 # to be used if the TP emulator _is_ in the path
 #ecalBarrelTriggerTowerTask.EcalTrigPrimDigiCollectionEmul = 'valEcalTriggerPrimitiveDigis'
 
+ecalBarrelClusterTask.EcalRawDataCollection = 'ecalDigis:'
 ecalBarrelClusterTask.BasicClusterCollection = 'cosmicBasicClusters:CosmicBarrelBasicClusters'
 ecalBarrelClusterTask.SuperClusterCollection = 'hybridSuperClusters:'
 
