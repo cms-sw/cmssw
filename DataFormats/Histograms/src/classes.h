@@ -47,6 +47,7 @@ namespace {
     std::vector<uint32_t> dummy1;
     std::vector<std::vector<uint32_t> > dummy2;
     MEtoEDM<TH1F> dummy3;
+    MEtoEDM<TH1S> dummy3s;
     MEtoEDM<TH2F> dummy4;
     MEtoEDM<TH3F> dummy5;
     MEtoEDM<TProfile> dummy6;
@@ -55,6 +56,7 @@ namespace {
     MEtoEDM<int> dummy9;
     MEtoEDM<TString> dummy10;
     std::vector<MEtoEDM<TH1F>::MEtoEDMObject> dummy11;
+    std::vector<MEtoEDM<TH1S>::MEtoEDMObject> dummy11s;
     std::vector<MEtoEDM<TH2F>::MEtoEDMObject> dummy12;
     std::vector<MEtoEDM<TH3F>::MEtoEDMObject> dummy13;
     std::vector<MEtoEDM<TProfile>::MEtoEDMObject> dummy14;
@@ -63,6 +65,7 @@ namespace {
     std::vector<MEtoEDM<int>::MEtoEDMObject> dummy17;
     std::vector<MEtoEDM<TString>::MEtoEDMObject> dummy18;
     edm::Wrapper<MEtoEDM<TH1F> > theValidData1;
+    edm::Wrapper<MEtoEDM<TH1S> > theValidData1s;
     edm::Wrapper<MEtoEDM<TH2F> > theValidData2;
     edm::Wrapper<MEtoEDM<TH3F> > theValidData3;
     edm::Wrapper<MEtoEDM<TProfile> > theValidData4;
