@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris D Jones
 //         Created:  Wed Sep 26 08:27:23 EDT 2007
-// $Id: DumpGeom.cc,v 1.7 2008/02/13 00:07:02 case Exp $
+// $Id: DumpGeom.cc,v 1.11 2008/08/08 21:45:31 case Exp $
 //
 //
 
@@ -77,6 +77,7 @@
 
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 
+//#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
@@ -555,7 +556,7 @@ void DumpGeom::mapCSCGeometry(const DDCompactView& cview,
     // chamber geometry (i.e. won't copy whole of CSCGeometryBuilderFromDDD
 
      idToName_[chamberId.rawId()] = name;
-     std::cout << "CSC chamber: " << chamberId.rawId() << " \tname: " << name << std::endl;
+     //     std::cout << "CSC chamber: " << chamberId.rawId() << " \tname: " << name << std::endl;
      
      //  If it's ME11 you need to have two detId's per chamber. This is how to construct the detId
      //  copied from the CSCGeometryBuilder code.
@@ -565,7 +566,7 @@ void DumpGeom::mapCSCGeometry(const DDCompactView& cview,
      int jendcap  = chamberId.endcap();
      if ( jstation==1 && jring==1 ) {
        CSCDetId detid1a = CSCDetId( jendcap, 1, 4, jchamber, 0 );
-       std::cout << "CSC chamber: " << detid1a.rawId() << " \tname: " << name << std::endl;
+       //       std::cout << "CSC chamber: " << detid1a.rawId() << " \tname: " << name << std::endl;
        idToName_[detid1a.rawId()] = name;
      }
 /* We don't need layers for now, till we get geometry for them fixed
@@ -955,11 +956,14 @@ DumpGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       TGeoVolume* child = createVolume(std::string(info.first.name()),
 				       info.first.solid(),
 				       vacuum);
-      std::cout << "done with " << info.first.name() << " about to mess w the stack" 
-		<< " child = " << child 
-		<< " childAlreadyExist = " << childAlreadyExists
-		<< " level_ = " << level_ << " parentStack.size() = " << parentStack.size();
-      std::cout << " info.second " << info.second << std::endl;
+      //mikes debug output
+//       std::cout << "done with " << info.first.name() << " about to mess w the stack" 
+// 		<< " child = " << child 
+// 		<< " childAlreadyExist = " << childAlreadyExists
+// 		<< " level_ = " << level_ << " parentStack.size() = " << parentStack.size();
+//       std::cout << " info.second " << info.second << std::endl;
+// end mikes debug output
+
       if(0!=child && info.second != 0) {
 	 //add to parent
 	//mikes debug output
@@ -972,17 +976,17 @@ DumpGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 				 createPlacement(info.second->rotation(),
 						 info.second->translation()));
 	 child->SetLineColor(kBlue);
-      } 
-	//mikes debug output
-// else {
-// 	if ( info.second == 0 ) {
-// 	  std::cout << "OKAY! it IS 0" << std::endl;
-// 	 break;
-// 	}
+      }  else {
+	if ( info.second == 0 ) {
+//mikes debug output 	  std::cout << "OKAY! it IS 0" << std::endl;
+	  break;
+ 	}
+//mikes debug output
 // 	if ( parentStack.size() != 0 ) {
-// 	  std::cout << "huh?  have we popped back further than we should? and why?" << std::endl;
-// 	}
-//       }
+//  	  std::cout << "huh?  have we popped back further than we should? and why?" << std::endl;
+//  	}
+//end mikes debug output
+      }
 	//end mikes debug output
       if(0 == child || childAlreadyExists || level_ == int(parentStack.size()) ) {
 	 if(0!=child) {
