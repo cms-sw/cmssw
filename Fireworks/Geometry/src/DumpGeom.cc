@@ -77,7 +77,7 @@
 
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 
-//#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
@@ -898,7 +898,7 @@ DumpGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    iSetup.get<IdealGeometryRecord>().get( rDD );
 
    edm::ESHandle<CaloGeometry> pG;
-   iSetup.get<IdealGeometryRecord>().get(pG);     
+   iSetup.get<CaloGeometryRecord>().get(pG);     
 
 //    if ( pG.isValid() ) {
 //      std::cout << "pG is valid" << std::endl;
