@@ -34,7 +34,6 @@ CSCDDUEventData::~CSCDDUEventData()
 
 void CSCDDUEventData::add(CSCEventData & cscData, int dmbId) 
 {
-  ++(theDDUHeader.ncsc_);
   theDDUHeader.setDMBDAV(dmbId);
   theDDUTrailer.setDMBDAV(dmbId);
   cscData.dmbHeader()->setdmbID(dmbId);
