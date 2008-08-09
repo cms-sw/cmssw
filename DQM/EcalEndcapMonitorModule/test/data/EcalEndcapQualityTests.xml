@@ -901,10 +901,6 @@
         <TestName activate="true">EE_Quality_Summary</TestName>
 </LINK>
 
-<LINK name="*EcalEndcap/EESummaryClient/EEPT EE * pedestal quality summary L1">
-        <TestName activate="true">EE_Quality_Summary</TestName>
-</LINK>
-
 <LINK name="*EcalEndcap/EESummaryClient/EELDT EE * led quality summary L2">
         <TestName activate="true">EE_Quality_Summary</TestName>
 </LINK>
@@ -913,7 +909,7 @@
         <TestName activate="true">EE_Quality_Summary</TestName>
 </LINK>
 
-<LINK name="*EcalEndcap/EESummaryClient/EEPT EE * pedestal quality summary L2">
+<LINK name="*EcalEndcap/EESummaryClient/EEPT EE * pedestal quality summary">
         <TestName activate="true">EE_Quality_Summary</TestName>
 </LINK>
 
