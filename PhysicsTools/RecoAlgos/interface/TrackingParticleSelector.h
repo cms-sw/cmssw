@@ -4,8 +4,8 @@
  *
  * \author Giuseppe Cerati, INFN
  *
- *  $Date: 2008/04/01 15:28:26 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/07/24 09:12:02 $
+ *  $Revision: 1.3 $
  *
  */
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
@@ -23,9 +23,8 @@ public:
   /// Operator() performs the selection: e.g. if (tPSelector(tp)) {...}
   bool operator()( const TrackingParticle & tp ) const { 
 
-    bool signal = true;
-    if (signalOnly_) signal = (tp.eventId().bunchCrossing()== 0 && tp.eventId().event() == 0);
-    if (!signal) return false;//quickly reject if it is from pile-up
+    //quickly reject if it is from pile-up
+    if (signalOnly_ && !(tp.eventId().bunchCrossing()==0 && tp.eventId().event()==0) )return false;
 
     if (chargedOnly_ && tp.charge()==0) return false;//select only if charge!=0
     bool testId = false;
