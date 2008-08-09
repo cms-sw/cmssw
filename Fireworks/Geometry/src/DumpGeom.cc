@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris D Jones
 //         Created:  Wed Sep 26 08:27:23 EDT 2007
-// $Id: DumpGeom.cc,v 1.11 2008/08/08 21:45:31 case Exp $
+// $Id: DumpGeom.cc,v 1.13 2008/08/09 00:19:14 case Exp $
 //
 //
 
@@ -172,7 +172,7 @@ static
 TGeoCombiTrans* createPlacement(const DDRotationMatrix& iRot,
 				const DDTranslation& iTrans)
 {
-  std::cout << "in createPlacement" << std::endl;
+  //  std::cout << "in createPlacement" << std::endl;
    double elements[9];
    iRot.GetComponents(elements);
    TGeoRotation r;
