@@ -8,6 +8,7 @@ use Getopt::Long;
 die "Usage:\n\t$0 <parameters and options>\n\nLook at the code for details.\n\n" if (@ARGV == 0);
 
 my $required_packages      = "required_packages.txt";
+my $required_tools         = "required_tools.txt";
 my $dir                    = "core";
 my $core_mode              = 0;
 my $libs_file              = "libs.txt";
@@ -25,8 +26,12 @@ $core_mode = 1 if ( $mode =~ /core/i);
 if ( $core_mode ){
     die "Please set CMSSW environment\n" if ( ! defined $ENV{"CMSSW_RELEASE_BASE"} );
     die "Please provide file $required_packages that has a list of packages (one package\n".
-      "per line). All dependencies are automatically resolved, so list only what you really\n".
-      "need.\n" if (! -e $required_packages);
+      "per line). All dependencies are automatically resolved within DataFormats\n".
+      "and SimDataFormats, so list only what you really need.\n"
+      if (! -e $required_packages);
+    die "Please provide file $required_tools that has a list of required tools for\n".
+      "the event display. Tools needed to compile CMSSW data formats are auto extracted\n"
+      if (! -e $required_tools);
 }
 
 # resolve dependencies and get complete list of required packages, libraries and tools
@@ -108,8 +113,8 @@ sub analyze_dependencies{
 	    next if ($ignore);
 	    analyze_scram_tool($1) if ($line =~ /\<use\s+name\s*=\s*([^\/\>\s]+)\>/);
 	    $libraries{$1}++ if ($line =~ /\<lib\s+name\s*=\s*([^\/\>\s]+)\>/);
-	    if ($line =~ /\<use\s+name\s*=\s*([^\/\>\s]+\/[^\/\>\s]+)\>/){
-		my $newpackage = $1;
+	    if ($line =~ /\<use\s+name\s*=\s*(DataFormats|SimDataFormats)\/([^\/\>\s]+)\>/){
+		my $newpackage = "$1/$2";
 		my $file = "$dir/src/$newpackage";
 		$file = "$dir/cms/$newpackage" if ( ! -e $file );
 		$file = "$ENV{CMSSW_RELEASE_BASE}/src/$newpackage" if ( $core_mode );
@@ -131,7 +136,15 @@ if ( $core_mode ){
     while (my $package = <pIN>){
 	$package =~ s/\n//;
 	next if ($package !~ /\S/);
+	next if ($package =~ /^\s*#/);
 	push @list, $package;
+    }
+    close pIN;
+    open(pIN, $required_tools) || die "Cannot open file $required_tools\n$!\n";
+    while (my $tool = <pIN>){
+	$tool =~ s/\n//;
+	next if ($tool !~ /\S/);
+	analyze_scram_tool($tool);
     }
     close pIN;
 } else {
@@ -145,7 +158,7 @@ if ( $core_mode ){
 }
 
 my $limit = 100;
-analyze_scram_tool("gsl");
+# analyze_scram_tool("gsl");
 my $newEntries = analyze_dependencies(@list);
 while ( $limit > 0 && $newEntries){
     $newEntries = analyze_dependencies(keys %packages);

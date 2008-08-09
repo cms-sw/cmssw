@@ -1,5 +1,13 @@
+# DataFormats and SimDataFormats are parsed for additional dependencies
+# within the packages. All other packages have to be explicitely
+# included
+CommonTools/Statistics
+FWCore/FWLite 
+FWCore/MessageLogger
+FWCore/PluginManager
 FWCore/RootAutoLibraryLoader
-FWCore/FWLite
+FWCore/Utilities
+PhysicsTools/Utilities
 DataFormats/MuonReco
 DataFormats/EgammaCandidates
 DataFormats/HcalRecHit
@@ -24,4 +32,4 @@ DataFormats/L1GlobalCaloTrigger
 DataFormats/L1GlobalMuonTrigger
 DataFormats/L1CaloTrigger
 DataFormats/MuonData
-PhysicsTools/Utilities
+
