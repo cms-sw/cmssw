@@ -4,13 +4,14 @@
  *
  * \author Giuseppe Cerati, INFN
  *
- *  $Date: 2008/06/09 14:07:49 $
- *  $Revision: 1.11 $
+ *  $Date: 2008/07/24 09:12:55 $
+ *  $Revision: 1.12 $
  *
  */
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 
 class RecoTrackSelector {
  public:
@@ -29,7 +30,8 @@ class RecoTrackSelector {
     minHit_(cfg.getParameter<int>("minHit")),
     maxChi2_(cfg.getParameter<double>("maxChi2")),
     quality_(cfg.getParameter<std::vector<std::string> >("quality")),
-    algorithm_(cfg.getParameter<std::vector<std::string> >("algorithm")) { }
+    algorithm_(cfg.getParameter<std::vector<std::string> >("algorithm")),
+    bsSrc_(cfg.getParameter<edm::InputTag>("beamSpot")) { }
 
   RecoTrackSelector ( double ptMin, double minRapidity, double maxRapidity,
 		      double tip, double lip, int minHit, double maxChi2, 
@@ -44,7 +46,7 @@ class RecoTrackSelector {
   void select( const edm::Handle<collection>& c, const edm::Event & event, const edm::EventSetup&) {
     selected_.clear();
     edm::Handle<reco::BeamSpot> beamSpot;
-    event.getByLabel("offlineBeamSpot",beamSpot); 
+    event.getByLabel(bsSrc_,beamSpot); 
     for( reco::TrackCollection::const_iterator trk = c->begin(); 
          trk != c->end(); ++ trk )
       if ( operator()(*trk,beamSpot.product()) ) {
@@ -91,6 +93,7 @@ class RecoTrackSelector {
   double maxChi2_;
   std::vector<std::string> quality_;
   std::vector<std::string> algorithm_;
+  edm::InputTag bsSrc_;
   container selected_;
 };
 
