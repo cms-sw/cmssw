@@ -17,12 +17,12 @@ else
 endif
 
 include core.mk
-include project.mk
+# include project.mk
 
 # 
 # common compiler flags
-#COMPILERFLAGS := -Wall -O2 -m32
- COMPILERFLAGS := -Wall -O0 -g
+COMPILERFLAGS := -Wall -O3 -m32
+# COMPILERFLAGS := -Wall -O0 -g
 # common includes
 INCLUDE := -I./ -I$(FWROOTSYS)/include -Icms $(addprefix -I,$(CoreIncludes))
 # compiler

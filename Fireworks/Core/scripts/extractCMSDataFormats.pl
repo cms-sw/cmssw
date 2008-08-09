@@ -289,8 +289,8 @@ if ( $core_mode ) {
     print OUT "CoreIncludes := $mk_incs\n";
     print OUT $mk_text;
     close OUT;
-    system("cp $0 $dir/");
-    system("cp Makefile $dir/");
+    # system("cp $0 $dir/");
+    # system("cp Makefile $dir/");
 } else {
     open(OUT, ">$dir/$project_make_file")||die "Cannot write to file $dir/$project_make_file\n$!\n";
     print OUT "ProjectLibs := $mk_libs\n";

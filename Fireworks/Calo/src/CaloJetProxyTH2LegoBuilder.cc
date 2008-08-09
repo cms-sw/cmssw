@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: CaloJetProxyTH2LegoBuilder.cc,v 1.4 2008/07/07 00:45:41 chrjones Exp $
+// $Id: CaloJetProxyTH2LegoBuilder.cc,v 1.5 2008/07/16 13:51:00 dmytro Exp $
 //
 
 // system include files
@@ -91,8 +91,8 @@ CaloJetProxyTH2LegoBuilder::build(const FWEventItem* iItem,
       // printf("jet pt: %0.2f, eta: %0.2f, phi: %0.2f\n",jets->at(i).pt(), jets->at(i).eta(), jets->at(i).phi());
       if ( ! iItem->modelInfo(i).displayProperties().isVisible() ) continue;
       if ( iItem->modelInfo(i).isSelected() != selectedFlag ) continue;
-      std::vector<CaloTowerRef> towers = jets->at(i).getConstituents();
-      for ( std::vector<CaloTowerRef>::const_iterator tower = towers.begin();
+      std::vector<CaloTowerPtr> towers = jets->at(i).getCaloConstituents();
+      for ( std::vector<CaloTowerPtr>::const_iterator tower = towers.begin();
 	    tower != towers.end(); ++tower )
 	{
 	   // printf("\ttower eta: %0.2f, phi: %0.2f, et: %0.2f, ieta: %d, iphi: %d\n",
@@ -125,9 +125,9 @@ void CaloJetProxyTH2LegoBuilder::message( int type, int xbin, int ybin )
 	 iItem->unselect(i);
 	 continue;
       }
-      std::vector<CaloTowerRef> towers = jets->at(i).getConstituents();
+      std::vector<CaloTowerPtr> towers = jets->at(i).getCaloConstituents();
       bool selected = false;
-      for ( std::vector<CaloTowerRef>::const_iterator tower = towers.begin();
+      for ( std::vector<CaloTowerPtr>::const_iterator tower = towers.begin();
 	    tower != towers.end(); ++tower )
 	{
 	   if ( m_product->GetXaxis()->FindFixBin((*tower)->eta()) == xbin &&
