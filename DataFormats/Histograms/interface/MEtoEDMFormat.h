@@ -6,8 +6,8 @@
  *  DataFormat class to hold the information from a ME tranformed into
  *  ROOT objects as appropriate
  *
- *  $Date: 2008/03/10 22:23:42 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/08/08 16:59:00 $
+ *  $Revision: 1.5 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -15,6 +15,7 @@
 #include <TH1F.h>
 #include <TH1S.h>
 #include <TH2F.h>
+#include <TH2S.h>
 #include <TH3F.h>
 #include <TProfile.h>
 #include <TProfile2D.h>
@@ -69,6 +70,7 @@ class MEtoEDM
     { return MEtoEdmObject; }
 
   bool mergeProduct(const MEtoEDM<T> &newMEtoEDM) {
+  //  std::cout << "MEtoEDMFormat::mergeProduct called - now adding" << std::endl;
     const MEtoEdmObjectVector &newMEtoEDMObject = 
       newMEtoEDM.getMEtoEdmObject();
     for (unsigned int i = 0; i < MEtoEdmObject.size(); ++i) {

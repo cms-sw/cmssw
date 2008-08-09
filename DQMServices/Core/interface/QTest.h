@@ -490,7 +490,7 @@ protected:
 };
 
 //==================== ContentsWithinExpected  =========================//
-// Check that every TH2F channel has mean, RMS within allowed range.
+// Check that every TH2 channel has mean, RMS within allowed range.
 class ContentsWithinExpected : public SimpleTest
 {
 public:

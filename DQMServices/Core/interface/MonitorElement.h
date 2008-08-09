@@ -8,6 +8,7 @@
 # include "TH1F.h"
 # include "TH1S.h"
 # include "TH2F.h"
+# include "TH2S.h"
 # include "TH3F.h"
 # include "TProfile.h"
 # include "TProfile2D.h"
@@ -48,6 +49,7 @@ public:
     DQM_KIND_TH1F,
     DQM_KIND_TH1S,
     DQM_KIND_TH2F,
+    DQM_KIND_TH2S,
     DQM_KIND_TH3F,
     DQM_KIND_TPROFILE,
     DQM_KIND_TPROFILE2D
@@ -249,6 +251,7 @@ public:
   TH1F *getTH1F(void) const;
   TH1S *getTH1S(void) const;
   TH2F *getTH2F(void) const;
+  TH2S *getTH2S(void) const;
   TH3F *getTH3F(void) const;
   TProfile *getTProfile(void) const;
   TProfile2D *getTProfile2D(void) const;
@@ -258,6 +261,7 @@ public:
   TH1F *getRefTH1F(void) const;
   TH1S *getRefTH1S(void) const;
   TH2F *getRefTH2F(void) const;
+  TH2S *getRefTH2S(void) const;
   TH3F *getRefTH3F(void) const;
   TProfile *getRefTProfile(void) const;
   TProfile2D *getRefTProfile2D(void) const;

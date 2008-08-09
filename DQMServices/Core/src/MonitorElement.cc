@@ -64,6 +64,7 @@ MonitorElement::initialise(Kind kind, const std::string &path)
   case DQM_KIND_TH1F:
   case DQM_KIND_TH1S:
   case DQM_KIND_TH2F:
+  case DQM_KIND_TH2S:
   case DQM_KIND_TH3F:
   case DQM_KIND_TPROFILE:
   case DQM_KIND_TPROFILE2D:
@@ -96,6 +97,11 @@ MonitorElement::initialise(Kind kind, const std::string &path, TH1 *rootobj)
 
   case DQM_KIND_TH2F:
     assert(dynamic_cast<TH2F *>(rootobj));
+    curvalue_.tobj = data_.object = rootobj;
+    break;
+
+  case DQM_KIND_TH2S:
+    assert(dynamic_cast<TH2S *>(rootobj));
     curvalue_.tobj = data_.object = rootobj;
     break;
 
@@ -206,6 +212,9 @@ MonitorElement::Fill(float x, float yw)
   else if (kind_ == DQM_KIND_TH2F)
     static_cast<TH2F *>(accessRootObject(__PRETTY_FUNCTION__, 2))
       ->Fill(x, yw, 1);
+  else if (kind_ == DQM_KIND_TH2S)
+    static_cast<TH2S *>(accessRootObject(__PRETTY_FUNCTION__, 2))
+      ->Fill(x, yw, 1);
   else if (kind_ == DQM_KIND_TPROFILE)
     static_cast<TProfile *>(accessRootObject(__PRETTY_FUNCTION__, 1))
       ->Fill(x, yw, 1);
@@ -220,6 +229,9 @@ MonitorElement::Fill(float x, float y, float zw)
   update();
   if (kind_ == DQM_KIND_TH2F)
     static_cast<TH2F *>(accessRootObject(__PRETTY_FUNCTION__, 2))
+      ->Fill(x, y, zw);
+  else if (kind_ == DQM_KIND_TH2S)
+    static_cast<TH2S *>(accessRootObject(__PRETTY_FUNCTION__, 2))
       ->Fill(x, y, zw);
   else if (kind_ == DQM_KIND_TH3F)
     static_cast<TH3F *>(accessRootObject(__PRETTY_FUNCTION__, 2))
@@ -778,6 +790,27 @@ MonitorElement::softReset(void)
     r->Add(orig);
     orig->Reset();
   }
+  else if (kind_ == DQM_KIND_TH2S)
+  {
+    TH2S *orig = static_cast<TH2S *>(curvalue_.tobj);
+    TH2S *r = static_cast<TH2S *>(refvalue_);
+    if (! r)
+    {
+      refvalue_ = r = new TH2S((std::string(orig->GetName()) + "_ref").c_str(),
+			       orig->GetTitle(),
+			       orig->GetNbinsX(),
+			       orig->GetXaxis()->GetXmin(),
+			       orig->GetXaxis()->GetXmax(),
+			       orig->GetNbinsY(),
+			       orig->GetYaxis()->GetXmin(),
+			       orig->GetYaxis()->GetXmax());
+      r->SetDirectory(0);
+      r->Reset();
+    }
+
+    r->Add(orig);
+    orig->Reset();
+  }
   else if (kind_ == DQM_KIND_TH3F)
   {
     TH3F *orig = static_cast<TH3F *>(curvalue_.tobj);
@@ -860,6 +893,7 @@ MonitorElement::disableSoftReset(void)
     if (kind_ == DQM_KIND_TH1F
 	|| kind_ == DQM_KIND_TH1S
 	|| kind_ == DQM_KIND_TH2F
+	|| kind_ == DQM_KIND_TH2S
 	|| kind_ == DQM_KIND_TH3F)
     {
       TH1 *orig = static_cast<TH1 *>(curvalue_.tobj);
@@ -1024,6 +1058,7 @@ MonitorElement::copyFrom(TH1 *from)
     if (kind_ == DQM_KIND_TH1F
 	|| kind_ == DQM_KIND_TH1S
 	|| kind_ == DQM_KIND_TH2F
+	|| kind_ == DQM_KIND_TH2S
 	|| kind_ == DQM_KIND_TH3F)
       // subtract "reference"
       orig->Add(from, refvalue_, 1, -1);
@@ -1167,6 +1202,14 @@ MonitorElement::getTH2F(void) const
   return dynamic_cast<TH2F *>(accessRootObject(__PRETTY_FUNCTION__, 2));
 }
 
+TH2S *
+MonitorElement::getTH2S(void) const
+{
+  assert(kind_ == DQM_KIND_TH2S);
+  const_cast<MonitorElement *>(this)->update();
+  return dynamic_cast<TH2S *>(accessRootObject(__PRETTY_FUNCTION__, 2));
+}
+
 TH3F *
 MonitorElement::getTH3F(void) const
 {
@@ -1230,6 +1273,15 @@ MonitorElement::getRefTH2F(void) const
   assert(kind_ == DQM_KIND_TH2F);
   const_cast<MonitorElement *>(this)->update();
   return dynamic_cast<TH2F *>
+    (checkRootObject(data_.name, data_.reference, __PRETTY_FUNCTION__, 2));
+}
+
+TH2S *
+MonitorElement::getRefTH2S(void) const
+{
+  assert(kind_ == DQM_KIND_TH2S);
+  const_cast<MonitorElement *>(this)->update();
+  return dynamic_cast<TH2S *>
     (checkRootObject(data_.name, data_.reference, __PRETTY_FUNCTION__, 2));
 }
 

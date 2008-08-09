@@ -17,6 +17,7 @@
 #include "TProfile.h"
 #include "TH3F.h"
 #include "TH2F.h"
+#include "TH2S.h"
 #include "TH1F.h"
 #include "TH1S.h"
 #include <unistd.h>
@@ -314,6 +315,8 @@ DQMNet::reinstateObject(DQMStore *store, Object &o)
     store->book3D(name, t);
   else if (TH2F *t = dynamic_cast<TH2F *>(o.object))
     store->book2D(name, t);
+  else if (TH2S *t = dynamic_cast<TH2S *>(o.object))
+    store->book2S(name, t);
   else if (TH1F *t = dynamic_cast<TH1F *>(o.object))
     store->book1D(name, t);
   else if (TH1S *t = dynamic_cast<TH1S *>(o.object))
