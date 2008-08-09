@@ -4,8 +4,8 @@
  *
  * \author Giuseppe Cerati, INFN
  *
- *  $Date: 2008/07/24 09:12:55 $
- *  $Revision: 1.12 $
+ *  $Date: 2008/08/09 14:30:34 $
+ *  $Revision: 1.13 $
  *
  */
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -29,16 +29,23 @@ class RecoTrackSelector {
     lip_(cfg.getParameter<double>("lip")),
     minHit_(cfg.getParameter<int>("minHit")),
     maxChi2_(cfg.getParameter<double>("maxChi2")),
-    quality_(cfg.getParameter<std::vector<std::string> >("quality")),
-    algorithm_(cfg.getParameter<std::vector<std::string> >("algorithm")),
-    bsSrc_(cfg.getParameter<edm::InputTag>("beamSpot")) { }
-
+    bsSrc_(cfg.getParameter<edm::InputTag>("beamSpot")) 
+    {
+      std::vector<int> quality = cfg.getParameter<std::vector<int> >("quality");
+      for (unsigned int j=0;j<quality.size();j++) quality_.push_back(reco::TrackBase::TrackQuality(quality[j]));
+      std::vector<int> algorithm = cfg.getParameter<std::vector<int> >("algorithm");
+      for (unsigned int j=0;j<algorithm.size();j++) algorithm_.push_back(reco::TrackBase::TrackAlgorithm(algorithm[j]));
+    }
+  
   RecoTrackSelector ( double ptMin, double minRapidity, double maxRapidity,
 		      double tip, double lip, int minHit, double maxChi2, 
-		      std::vector<std::string> quality , std::vector<std::string> algorithm ) :
+    		      std::vector<int> quality , std::vector<int> algorithm ) :
     ptMin_( ptMin ), minRapidity_( minRapidity ), maxRapidity_( maxRapidity ),
-    tip_( tip ), lip_( lip ), minHit_( minHit ), maxChi2_( maxChi2 ),
-    quality_(quality),algorithm_(algorithm) { }
+    tip_( tip ), lip_( lip ), minHit_( minHit ), maxChi2_( maxChi2 ) 
+    { 
+      for (unsigned int j=0;j<quality.size();j++) quality_.push_back(reco::TrackBase::TrackQuality(quality[j]));
+      for (unsigned int j=0;j<algorithm.size();j++) algorithm_.push_back(reco::TrackBase::TrackAlgorithm(algorithm[j]));
+    }
 
   const_iterator begin() const { return selected_.begin(); }
   const_iterator end() const { return selected_.end(); }
@@ -60,7 +67,7 @@ class RecoTrackSelector {
     if (quality_.size()!=0) {
       quality_ok = false;
       for (unsigned int i = 0; i<quality_.size();++i) {
-	if (t.quality(t.qualityByName(quality_[i]))){
+	if (t.quality(quality_[i])){
 	  quality_ok = true;
 	  break;	  
 	}
@@ -68,7 +75,7 @@ class RecoTrackSelector {
     }
     bool algo_ok = true;
     if (algorithm_.size()!=0) {
-      if (std::find(algorithm_.begin(),algorithm_.end(),t.algoName())==algorithm_.end()) algo_ok = false;
+      if (std::find(algorithm_.begin(),algorithm_.end(),t.algo())==algorithm_.end()) algo_ok = false;
     }
     return
       (t.hitPattern().trackerLayersWithMeasurement() >= minHit_ &&
@@ -91,8 +98,8 @@ class RecoTrackSelector {
   double lip_;
   int    minHit_;
   double maxChi2_;
-  std::vector<std::string> quality_;
-  std::vector<std::string> algorithm_;
+  std::vector<reco::TrackBase::TrackQuality> quality_;
+  std::vector<reco::TrackBase::TrackAlgorithm> algorithm_;
   edm::InputTag bsSrc_;
   container selected_;
 };
