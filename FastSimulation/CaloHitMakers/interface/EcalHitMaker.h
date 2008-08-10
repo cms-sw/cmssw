@@ -126,6 +126,9 @@ class EcalHitMaker: public CaloHitMaker
 
   inline void setCrackPadSurvivalProbability(double val ) {crackPadProbability_ = val ;};
 
+ // set preshower
+ inline void setPreshowerPresent(bool ps) {simulatePreshower_=ps;};
+
   /// for debugging
   inline const std::vector<Crystal>& getCrystals() const {return regionOfInterest_;}
 
@@ -180,6 +183,7 @@ class EcalHitMaker: public CaloHitMaker
 
  // creates a crack
  void cracksPads(std::vector<neighbour> & cracks, unsigned iq);
+
 
  private:
 
@@ -252,6 +256,8 @@ class EcalHitMaker: public CaloHitMaker
   double currentdepth_;
   // magnetic field correction factor
   double bfactor_;
+  // simulate preshower
+  bool simulatePreshower_;
   
   // pads-depth specific quantities 
   unsigned ncrackpadsatdepth_;
