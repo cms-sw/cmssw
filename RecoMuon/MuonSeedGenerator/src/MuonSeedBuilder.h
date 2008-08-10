@@ -26,8 +26,11 @@ class MuonDetLayerGeometry;
 class MagneticField;
 class MuonSeedCreator;
 
+typedef std::vector<TrajectorySeed> SeedContainer;
+
 class MuonSeedBuilder
 {
+
  public:
 
   typedef MuonTransientTrackingRecHit::MuonRecHitContainer SegmentContainer;
@@ -57,13 +60,35 @@ class MuonSeedBuilder
 
   /// Find segment which matches protoTrack for endcap only
   bool foundMatchingSegment( int type, SegmentContainer& protoTrack, SegmentContainer& segments,
-			     BoolContainer& usedSeg, float& eta_temp, float& phi_temp );
+       BoolContainer& usedSeg, float& eta_temp, float& phi_temp, int& lastLayer, bool& showeringBefore );
 
   /// cleaning the seeds 
-  void seedCleaner(const edm::EventSetup& eventSetup, std::vector<TrajectorySeed>& seeds );   
+  std::vector<TrajectorySeed> seedCleaner(const edm::EventSetup& eventSetup, std::vector<TrajectorySeed>& seeds );   
 
   /// calculate the eta error from global R error
   double etaError(const GlobalPoint gp, double rErr);
+
+  /// identify the showering layer
+  bool IdentifyShowering( SegmentContainer& segs, BoolContainer& usedSeg, float& eta_last, float& phi_last, int layer, int& NShoweringSegments  );
+
+  
+  /// group the seeds 
+  std::vector<SeedContainer> GroupSeeds( std::vector<TrajectorySeed>& seeds );
+  /// pick the seed by better parameter error
+  TrajectorySeed BetterDirection( std::vector<TrajectorySeed>& seeds ) ;
+  TrajectorySeed BetterChi2( std::vector<TrajectorySeed>& seeds );
+  /// filter out the bad pt seeds, if all are bad pt seeds then keep all    
+  bool MomentumFilter(std::vector<TrajectorySeed>& seeds );
+  /// collect long seeds
+  SeedContainer LengthFilter(std::vector<TrajectorySeed>& seeds );
+  /// pick the seeds w/ 1st layer information and w/ more than 1 segments 
+  SeedContainer SeedCandidates( std::vector<TrajectorySeed>& seeds, bool good );
+  /// check overlapping segment for seeds
+  unsigned int OverlapSegments( TrajectorySeed seed1, TrajectorySeed seed2 );
+  /// retrieve seed global position
+  GlobalPoint SeedPosition( TrajectorySeed seed );
+  /// retrieve seed global momentum 
+  GlobalVector SeedMomentum( TrajectorySeed seed );
 
   // This Producer private debug flag
   bool debug;
@@ -87,6 +112,9 @@ class MuonSeedBuilder
   float maxDeltaPhiOverlap;
   float maxDeltaEtaDT;
   float maxDeltaPhiDT;
+
+  // Number of Segments from a shower
+  int NShowerSeg;
 
   /// Name of the DT segment collection
   edm::InputTag theDTSegmentLabel;
