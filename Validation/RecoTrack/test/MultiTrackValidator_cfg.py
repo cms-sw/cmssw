@@ -43,8 +43,11 @@ process.load("Validation.RecoTrack.cuts_cff")
 #process.cutsRecoTracks.lip = cms.double(30)
 #process.cutsRecoTracks.minHit = cms.int32(8)
 #process.cutsRecoTracks.maxChi2 = cms.double(10000) #not used in tdr
-#process.cutsRecoTracks.quality = cms.vstring('tight')
-#process.cutsRecoTracks.algorithm = cms.vstring('ctf')
+#enum defined in DataFormats/TrackReco/interface/TrackBase.h
+#enum TrackAlgorithm {undefAlgorithm=0,ctf=1,rs=2,cosmics=3,beamhalo=4,iter1=5,iter2=6,iter3=7};
+#process.cutsRecoTracks.algorithm = cms.vint32(1)
+#enum TrackQuality {undefQuality=-1,loose=0,tight=1,highPurity=2,confirmed=3,goodIterative=4};
+#process.cutsRecoTracks.quality = cms.vint32(1)
 
 process.load("Validation.RecoTrack.MultiTrackValidator_cff")
 #process.multiTrackValidator.associators = cms.vstring('TrackAssociatorByHits','TrackAssociatorByChi2')
