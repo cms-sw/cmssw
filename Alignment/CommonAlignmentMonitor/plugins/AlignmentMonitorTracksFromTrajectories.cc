@@ -44,6 +44,7 @@ class AlignmentMonitorTracksFromTrajectories: public AlignmentMonitorBase {
       MuonServiceProxy *theMuonServiceProxy;
       MuonUpdatorAtVertex *theMuonUpdatorAtVertex;
       bool m_vertexConstraint;
+      double m_vX, m_vY, m_vZ;
 
       TH1F *m_diMuon_Z;
       TH1F *m_diMuon_Zforward;
@@ -98,6 +99,15 @@ AlignmentMonitorTracksFromTrajectories::AlignmentMonitorTracksFromTrajectories(c
    : AlignmentMonitorBase(cfg, "AlignmentMonitorTracksFromTrajectories")
    , m_vertexConstraint(cfg.getParameter<bool>("vertexConstraint"))
 {
+   std::vector<double> vertex(cfg.getParameter<std::vector<double> >("fakeBeamSpot"));
+   if (vertex.size() != 3) {
+      throw cms::Exception("BadConfig")
+	 << "fakeBeamSpot must be a 3-tuple: cms.vdouble(##, ##, ##)" << std::endl;
+   }
+   m_vX = vertex[0];
+   m_vY = vertex[1];
+   m_vZ = vertex[2];
+
    if (m_vertexConstraint) {
       throw cms::Exception("NotImplemented")
 	 << "Sorry; AlignmentMonitorTracksFromTrajectories can't constrain "
@@ -188,7 +198,7 @@ void AlignmentMonitorTracksFromTrajectories::event(const edm::EventSetup &iSetup
 // 	    // add in chi^2 contribution from vertex contratint?
 // 	 }
 // 	 else {
- 	    state = theMuonUpdatorAtVertex->propagate(closestTSOS);
+ 	    state = theMuonUpdatorAtVertex->propagate(closestTSOS, GlobalPoint(m_vX, m_vY, m_vZ));
 // 	 }
 
 	 if (state.first) {
