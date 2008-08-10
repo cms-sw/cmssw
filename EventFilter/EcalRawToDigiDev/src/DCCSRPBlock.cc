@@ -70,7 +70,10 @@ int DCCSRPBlock::unpack(uint64_t ** data, uint * dwToEnd, uint numbFlags ){
 	   return STOP_EVENT_UNPACKING;
     }
   } 
-   
+
+  // initialize array, protecting in case of inconsistently formatted data
+  for(int dccCh=0; dccCh<SRP_NUMBFLAGS; dccCh++) srFlags_[dccCh] =0;
+  
   //display(cout); 
   addSRFlagToCollection();
   
