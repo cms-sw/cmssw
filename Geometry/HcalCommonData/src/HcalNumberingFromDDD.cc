@@ -397,18 +397,19 @@ std::vector<HcalCellType::HcalCellType> HcalNumberingFromDDD::HcalCellTypes(Hcal
   }
 
   int    dmin, dmax, indx, nz, nmod;
+  double hsize;
   switch(subdet) {
   case HcalEndcap:
-    dmin = 1; dmax = 3; indx = 1, nz = nzHE, nmod = nmodHE;
+    dmin = 1; dmax = 3; indx = 1; nz = nzHE; nmod = nmodHE; hsize = 0;
     break;
   case HcalForward:
-    dmin = 1; dmax = 2; indx = 2, nz = 2, nmod = 18;
+    dmin = 1; dmax = 2; indx = 2; nz = 2; nmod = 18; hsize = dzVcal;
     break;
   case HcalOuter:
-    dmin = 4; dmax = 4; indx = 0, nz = nzHB, nmod = nmodHB;
+    dmin = 4; dmax = 4; indx = 0; nz = nzHB; nmod = nmodHB; hsize = 0;
     break;
   default:
-    dmin = 1; dmax = 3; indx = 0, nz = nzHB, nmod = nmodHB;
+    dmin = 1; dmax = 3; indx = 0; nz = nzHB; nmod = nmodHB; hsize = 0;
     break;
   }
 
@@ -421,10 +422,10 @@ std::vector<HcalCellType::HcalCellType> HcalNumberingFromDDD::HcalCellTypes(Hcal
     int    shift = getShift(subdet, depth);
     double gain  = getGain (subdet, depth);
     for (int eta=etaMin[indx]; eta<= etaMax[indx]; eta++) {
-      HcalCellType::HcalCell temp1 = cell(subdet0, zside, depth, eta, phi,cor);
+      HcalCellType::HcalCell temp1 = cell(subdet0,zside,depth,eta,phi,cor);
       if (temp1.ok) {
 	HcalCellType::HcalCellType temp2(subdet, eta, phi, depth, temp1,
-					 shift, gain, nz, nmod);
+					 shift, gain, nz, nmod, hsize);
 	cellTypes.push_back(temp2);
       }
     }
@@ -518,7 +519,7 @@ void HcalNumberingFromDDD::initialize(std::string & name,
     throw DDException("HcalNumberingFromDDD: cannot match "+attribute+" to "+name);
   }
 
-  std::vector<HcalCellType::HcalCellType> cellTypes =HcalCellTypes();
+  std::vector<HcalCellType::HcalCellType> cellTypes = HcalCellTypes();
 #ifdef DebugLog
   LogDebug ("HCalGeom") << "HcalNumberingFromDDD: " << cellTypes.size()
 			<< " cells of type HCal (All)";
