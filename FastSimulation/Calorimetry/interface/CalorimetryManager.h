@@ -114,6 +114,7 @@ class CalorimetryManager{
   double RCFactor_,RTFactor_;
   //FR
   int optionHDSim_, hdGridSize_, hdSimMethod_;
+  bool simulatePreshower_;
   //RF
 
   // Famos Random Engine

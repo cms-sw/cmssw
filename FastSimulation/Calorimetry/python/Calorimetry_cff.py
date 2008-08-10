@@ -24,7 +24,8 @@ FamosCalorimetryBlock = cms.PSet(
             #SpotFraction < 0 <=> deactivated. In the case, CoreIntervals and 
             #TailIntervals are used   
             SpotFraction = cms.double(-1.0),
-            GapLossProbability = cms.double(0.9)
+            GapLossProbability = cms.double(0.9),
+            SimulatePreshower = cms.bool(True)
         ),
         CalorimeterProperties = cms.PSet(
             PreshowerLayer2_thickness = cms.double(0.38),
