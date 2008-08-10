@@ -45,6 +45,10 @@
 #include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 
 
+
+#include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
+
+
 //
 // class declaration
 //
@@ -124,14 +128,30 @@ class HLTPi0RecHitsFilter : public HLTFilter {
   edm::InputTag l1SeedFilterTag_;
 
 
- std::map<DetId, EcalRecHit> *recHitsEB_map;
+  /// std::map<DetId, EcalRecHit> *recHitsEB_map;
+  ///replace by two vectors. 
 
+ std::vector<EBDetId> detIdEBRecHits; 
+ std::vector<EcalRecHit> EBRecHits; 
+ 
+ 
+ double ptMinForIsolation_; 
+ bool storeIsoClusRecHit_; 
+
+ 
+ 
+ 
+
+ 
 
 
  bool debug_; 
  bool first_; 
  double EMregionEtaMargin_;
  double EMregionPhiMargin_;
+ 
+ 
+ std::map<std::string,double> providedParameters;  
  
  
 
@@ -141,6 +161,17 @@ class HLTPi0RecHitsFilter : public HLTFilter {
  double ptMinEMObj_ ; 
  
  EcalElectronicsMapping* TheMapping;
+ 
+
+ const CaloSubdetectorGeometry *geometry_eb;
+ const CaloSubdetectorGeometry *geometry_ee;
+ const CaloSubdetectorGeometry *geometry_es;
+ const CaloSubdetectorTopology *topology_eb;
+ const CaloSubdetectorTopology *topology_ee;
+
+ 
+ PositionCalc posCalculator_;
+ 
  
 
 
