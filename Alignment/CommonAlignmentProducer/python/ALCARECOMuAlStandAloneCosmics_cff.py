@@ -16,5 +16,7 @@ ALCARECOMuAlStandAloneCosmics.ptMin = cms.double(0.0)
 ALCARECOMuAlStandAloneCosmics.etaMin = cms.double(-100.0)
 ALCARECOMuAlStandAloneCosmics.etaMax = cms.double(100.0)
 
-seqALCARECOMuAlStandAloneCosmics = cms.Sequence(ALCARECOMuAlStandAloneCosmicsHLT + ALCARECOMuAlStandAloneCosmics)
+# Turn off trigger requirement for first CRUZET-4/CRAFT test
+# seqALCARECOMuAlStandAloneCosmics = cms.Sequence(ALCARECOMuAlStandAloneCosmicsHLT + ALCARECOMuAlStandAloneCosmics)
+seqALCARECOMuAlStandAloneCosmics = cms.Sequence(ALCARECOMuAlStandAloneCosmics)
 
