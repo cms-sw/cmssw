@@ -75,5 +75,6 @@ class CaloGeometryHelper:public Calorimeter
   
   //mag field at 0,0,0
   double bfield_;
+  bool preshowerPresent_;
 };
 #endif
