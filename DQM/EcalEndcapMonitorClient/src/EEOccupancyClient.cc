@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyClient.cc
  *
- * $Date: 2008/06/25 14:16:17 $
- * $Revision: 1.26 $
+ * $Date: 2008/06/25 15:08:20 $
+ * $Revision: 1.27 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -381,15 +381,15 @@ void EEOccupancyClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
     }
   }
 
-  dummy2.SetBinContent(2, 5, +7);
-  dummy2.SetBinContent(2, 7, +8);
-  dummy2.SetBinContent(4, 9, +9);
-  dummy2.SetBinContent(7, 9, +1);
-  dummy2.SetBinContent(9, 7, +2);
-  dummy2.SetBinContent(9, 5, +3);
-  dummy2.SetBinContent(8, 3, +4);
+  dummy2.SetBinContent(2, 5, +3);
+  dummy2.SetBinContent(2, 7, +2);
+  dummy2.SetBinContent(4, 9, +1);
+  dummy2.SetBinContent(7, 9, +9);
+  dummy2.SetBinContent(9, 7, +8);
+  dummy2.SetBinContent(9, 5, +7);
+  dummy2.SetBinContent(8, 3, +6);
   dummy2.SetBinContent(6, 2, +5);
-  dummy2.SetBinContent(3, 3, +6);
+  dummy2.SetBinContent(3, 3, +4);
 
   dummy2.SetMarkerSize(2);
   dummy2.SetMinimum(+0.01);
