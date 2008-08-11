@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/07/02 15:14:02 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/05/30 13:48:59 $
+ *  $Revision: 1.2 $
  *  \author C. Battilana S. Marcellini - INFN Bologna
  */
 
@@ -72,10 +72,6 @@ void DTLocalTriggerLutTest::beginJob(const edm::EventSetup& c){
 	    bookSectorHistos(wh,sect,"","PhibTkvsTrigIntercept");  
 	    bookSectorHistos(wh,sect,"","PhibTkvsTrigCorr");  
 	  }
-	  bookWheelHistos(wh,"","PhiResidualMean");  
-	  bookWheelHistos(wh,"","PhiResidualRMS");
-	  bookWheelHistos(wh,"","PhibResidualMean");  
-	  bookWheelHistos(wh,"","PhibResidualRMS");  
 	  bookWheelHistos(wh,"","PhiTkvsTrigSlope");  
 	  bookWheelHistos(wh,"","PhiTkvsTrigIntercept");  
 	  bookWheelHistos(wh,"","PhiTkvsTrigCorr");  
@@ -87,21 +83,6 @@ void DTLocalTriggerLutTest::beginJob(const edm::EventSetup& c){
     }
   }
 
-  // Summary test histo booking (only static)
-  for (iTr = trigSources.begin(); iTr != trEnd; ++iTr){
-    trigSource = (*iTr);
-    for (iHw = hwSources.begin(); iHw != hwSources.end(); ++iHw){
-      hwSource = (*iHw);
-      // Loop over the TriggerUnits
-      for (int wh=-2; wh<=2; ++wh){
-	bookWheelHistos(wh,"","PhiSlopeSummary");
-	bookWheelHistos(wh,"","PhibSlopeSummary");
-      }
-      bookCmsHistos("PhiSlopeSummary");
-      bookCmsHistos("PhibSlopeSummary");
-    }	
-  }
-
 }
 
 
@@ -110,7 +91,7 @@ void DTLocalTriggerLutTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, E
   edm::LogVerbatim ("localTrigger") <<"[" << testName << "Test]: End of LS transition, performing the DQM client operation";
 
   // counts number of lumiSegs 
-  nLumiSegs++;
+  nLumiSegs = lumiSeg.id().luminosityBlock();
 
   // prescale factor
   if ( nLumiSegs%prescaleFactor != 0 ) return;
@@ -202,122 +183,11 @@ void DTLocalTriggerLutTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, E
 	  
 	    }
 
-	    // Make Phi Residual Summary
-	    TH1F * PhiResidual = getHisto<TH1F>(dbe->get(getMEName("PhiResidual","Segment", chId)));
-	    
-	    if (PhiResidual && PhiResidual->GetEffectiveEntries()>10) {// station 3 has no meaningful MB3 phi bending information
-	      
-	      // Fill client histos
-	      if( whME[wh].find(fullName("PhiResidualMean")) == whME[wh].end() ){
- 		bookWheelHistos(wh,"","PhiResidualMean");  
-		bookWheelHistos(wh,"","PhiResidualRMS");  
-	      }
-
-	      double peak = PhiResidual->GetBinCenter(PhiResidual->GetMaximumBin());
-	      PhiResidual->Fit("gaus","CQO","",peak-5,peak+5);
-	      TF1 *ffPhi = PhiResidual->GetFunction("gaus");
-	      if ( ffPhi ) {
-		double phiMean = ffPhi->GetParameter(1);
-		double phiRMS  = ffPhi->GetParameter(2);
-		
-		std::map<std::string,MonitorElement*> *innerME = &(whME[wh]);
-		innerME->find(fullName("PhiResidualMean"))->second->setBinContent(sect,stat,phiMean);
-		innerME->find(fullName("PhiResidualRMS"))->second->setBinContent(sect,stat,phiRMS);
-	      }
-	  
-	    }
-
-	    // Make Phib Residual Summary
-	    TH1F * PhibResidual = getHisto<TH1F>(dbe->get(getMEName("PhibResidual","Segment", chId)));
-	    
-	    if (stat != 3 && PhibResidual && PhibResidual->GetEffectiveEntries()>10) {// station 3 has no meaningful MB3 phi bending information
-	      
-	      // Fill client histos
-	      if( whME[wh].find(fullName("PhibResidualMean")) == whME[wh].end() ){
- 		bookWheelHistos(wh,"","PhibResidualMean");  
-		bookWheelHistos(wh,"","PhibResidualRMS");  
-	      }
-
-	      double peak = PhibResidual->GetBinCenter(PhibResidual->GetMaximumBin());
-	      PhibResidual->Fit("gaus","CQO","",peak-5,peak+5);
-	      TF1 *ffPhib = PhibResidual->GetFunction("gaus");
-	      if ( ffPhib ) {
-		double phibMean = ffPhib->GetParameter(1);
-		double phibRMS  = ffPhib->GetParameter(2);
-
-		std::map<std::string,MonitorElement*> *innerME = &(whME[wh]);
-		innerME->find(fullName("PhibResidualMean"))->second->setBinContent(sect,stat,phibMean);
-		innerME->find(fullName("PhibResidualRMS"))->second->setBinContent(sect,stat,phibRMS);
-	      }
-	  
-	    }
-
 	  }
 	}
       }
     }
-  }
-	
-  // Summary Plots
-  map<int,map<string,MonitorElement*> >::const_iterator imapIt = secME.begin();
-  map<int,map<string,MonitorElement*> >::const_iterator mapEnd = secME.end();
-
-  for(; imapIt != mapEnd; ++imapIt){
-    int sector = ((*imapIt).first-1)/5 + 1;
-    int wheel  = ((*imapIt).first-1)%5 - 2;
-
-    for (vector<string>::const_iterator iTr = trigSources.begin(); iTr != trigSources.end(); ++iTr){
-      trigSource = (*iTr);
-      for (vector<string>::const_iterator iHw = hwSources.begin(); iHw != hwSources.end(); ++iHw){
-	hwSource = (*iHw);
-
-	MonitorElement *testME = (*imapIt).second.find(fullName("PhiTkvsTrigSlope"))->second;
-	bool hasEntries = testME->getEntries()>=1;
-	const QReport *testQReport = testME->getQReport("TrigPhiSlopeInRange");
-
-	if (testQReport) {
-	  int err = testQReport->getBadChannels().size();	  
-	  if (err<0 || err>4) err=4;
-	  cmsME.find(fullName("PhiSlopeSummary"))->second->setBinContent(sector,wheel+3,err);
-	  vector<dqm::me_util::Channel> badChannels = testQReport->getBadChannels();
-	  int cherr[4];
-	  for (int i=0;i<4;++i) 
-	    cherr[i] = hasEntries ? 0 : 1;
-	  if (hasEntries) {
-	    for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
-		 channel != badChannels.end(); channel++) {
-	      cherr[(*channel).getBin()-1] = 2 ; 
-	    }
-	  }
-	  for (int i=0;i<4;++i)
-	    whME.find(wheel)->second.find(fullName("PhiSlopeSummary"))->second->setBinContent(sector,i+1,cherr[i]);
-	}
-
-	testME = (*imapIt).second.find(fullName("PhibTkvsTrigSlope"))->second;
-	hasEntries = testME->getEntries()>=1;
-	testQReport = testME->getQReport("TrigPhibSlopeInRange");
-
-	if (testQReport) {
-	  int err = testQReport->getBadChannels().size();	  
-	  if (err<0 || err>4) err=4;
-	  vector<dqm::me_util::Channel> badChannels = testQReport->getBadChannels();
-	  int cherr[4];
-	  for (int i=0;i<4;++i)
-	    cherr[i] = hasEntries ? 0 : 1;
-	  if (hasEntries) {
-	    for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
-		 channel != badChannels.end(); channel++) {
-	      cherr[(*channel).getBin()-1] = 2 ;
-	      if ((*channel).getBin()==3) err-=1;
-	    }
-	  }
-	  cherr[2] = 1; //MB3 has no meaningful phib info!
-	  cmsME.find(fullName("PhibSlopeSummary"))->second->setBinContent(sector,wheel+3,err);
-	  for (int i=0;i<4;++i)
-	    whME.find(wheel)->second.find(fullName("PhibSlopeSummary"))->second->setBinContent(sector,i+1,cherr[i]);
-	}
-      }
-    }
-  }
+  }	
+  
 }
 

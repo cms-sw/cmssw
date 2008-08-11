@@ -1,3 +1,0 @@
-/castor/cern.ch/cms/store/TAC/PIXEL/FPIX/HC-Z1/SCurve_35_340.root
-/castor/cern.ch/cms/store/TAC/PIXEL/FPIX/HC-Z2/PixelAlive_36_513.root
-/castor/cern.ch/cms/store/TAC/PIXEL/FPIX/HC+Z1/GainCalibration_298.root

@@ -40,7 +40,7 @@ PlotCompareUtility::PlotCompareUtility(std::string Reference, std::string New, s
   summaryWidth = 700;
   summaryBarsThickness = 20;
   summaryTopMargin = 60;
-  summaryLeftMargin = 250;//former 180
+  summaryLeftMargin = 180;
   summaryRightMargin = 60;
   summaryBottomMargin = 60;
 
@@ -132,7 +132,6 @@ HistoData *PlotCompareUtility::addHistoData(string NewName, string RefName, int 
   // store the HistoData information
   HistoData hd(NewName,Type,bin,newPath,newFile,refPath,refFile);
   histos.push_back(hd);
-  //histos.insert(histos.begin(),hd);
   return &(*histos.rbegin());
 
 }
@@ -275,15 +274,14 @@ void PlotCompareUtility::makeSummaryPlot(string Name) {
 
   // create and setup the summary histogram
   TH1F summary("summary","Compatibility with Reference Histograms",numHistos,1,numHistos+1);
-  summary.GetXaxis()->SetLabelSize(float(summaryLeftMargin) / (11 * summaryWidth)); //used to be 3*
-  summary.GetYaxis()->SetLabelSize(summary.GetXaxis()->GetLabelSize());
+  summary.GetXaxis()->SetLabelSize(float(summaryLeftMargin) / (3 * summaryWidth));
   summary.GetYaxis()->SetTitle("Compatibility");
   summary.SetStats(0);
   summary.GetYaxis()->SetRangeUser(getThreshold()/10,2);
   summary.Draw("hbar0");
 
   // loop over hd's and draw result
-    vector<HistoData>::iterator hd;
+  vector<HistoData>::iterator hd;
   for (hd = histos.begin(); hd != histos.end(); hd++)
     hd->drawResult(&summary,false,true);
 
@@ -350,7 +348,7 @@ void PlotCompareUtility::makeSummaryHTML(string Name) {
 
     // add coordinates area to image map
     fout << "        <area shape=\"rect\" alt=\"\" coords=\"" << x1 << "," << y1 << "," << x2 << "," << y2
-         << "\" href=\"" << target  << "\" onMouseOver=\"tn('" << target << "','" << image << "')\">" << endl;
+         << "\" href=\"" << target << "\" onMouseOver=\"tn('" << target << "','" << image << "')\">" << endl;
 
   }
 

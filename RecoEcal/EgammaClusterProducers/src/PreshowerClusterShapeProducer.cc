@@ -97,28 +97,23 @@ void PreshowerClusterShapeProducer::produce(Event& evt, const EventSetup& es) {
   std::auto_ptr< reco::PreshowerClusterShapeCollection > ps_cl_for_pi0_disc_x(new reco::PreshowerClusterShapeCollection);
   std::auto_ptr< reco::PreshowerClusterShapeCollection > ps_cl_for_pi0_disc_y(new reco::PreshowerClusterShapeCollection);
 
-   // ShR 18Jul2008: check if geometry is NULL. If so we are using
-   // partial CMS gemoetry in Pilot1/2 scenarios which do not include the preshower
-   if( !geometry ) {
-      LogDebug("PreshowerClusterShapeProducer") << "No EcalPreshower geometry available. putting empty collections in event";
-      evt.put(ps_cl_for_pi0_disc_x, PreshowerClusterShapeCollectionX_);
-      evt.put(ps_cl_for_pi0_disc_y, PreshowerClusterShapeCollectionY_);  
-      return;
-   }
 
+  CaloSubdetectorTopology* topology_p=0;
+  if (geometry)
+      topology_p = new EcalPreshowerTopology(geoHandle);
 
-  EcalPreshowerTopology topology(geoHandle);
-  CaloSubdetectorTopology * topology_p = &topology;
-
+  
   // fetch the Preshower product (RecHits)
   evt.getByLabel( preshHitProducer_, pRecHits);
   // pointer to the object in the product
   const EcalRecHitCollection* rechits = pRecHits.product(); 
-  if ( debugL_pi0 == EndcapPiZeroDiscriminatorAlgo::pDEBUG ) cout << "PreshowerClusterShapeProducer: ### Total # of preshower RecHits: "
-                                                          << rechits->size() << endl;
-							  
-//  if ( rechits->size() <= 0 ) return;
-    							  
+  
+  if ( debugL_pi0 == EndcapPiZeroDiscriminatorAlgo::pDEBUG ) 
+    cout << "PreshowerClusterShapeProducer: ### Total # of preshower RecHits: "
+	 << rechits->size() << endl;
+  
+  //  if ( rechits->size() <= 0 ) return;
+  
   // make the map of Preshower rechits:
   map<DetId, EcalRecHit> rechits_map;
   EcalRecHitCollection::const_iterator it;
@@ -126,9 +121,9 @@ void PreshowerClusterShapeProducer::produce(Event& evt, const EventSetup& es) {
      rechits_map.insert(make_pair(it->id(), *it));
   }
   if ( debugL_pi0 <= EndcapPiZeroDiscriminatorAlgo::pDEBUG ) cout
-                                << "PreshowerClusterShapeProducer: ### Preshower RecHits_map of size "
+    << "PreshowerClusterShapeProducer: ### Preshower RecHits_map of size "
                                 << rechits_map.size() <<" was created!" << endl; 
-				
+  
   reco::PreshowerClusterShapeCollection ps_cl_x, ps_cl_y;
 
   //make cycle over Photon Collection
@@ -156,55 +151,60 @@ void PreshowerClusterShapeProducer::produce(Event& evt, const EventSetup& es) {
                   << " superCl_Eta = " << SC_eta
        		  << " superCl_Phi = " << SC_phi << endl;
       }			   
-
-      if(fabs(SC_eta) >= 1.65 && fabs(SC_eta) <= 2.5) {  //  Use Preshower region only
-          const GlobalPoint pointSC(it_super->x(),it_super->y(),it_super->z()); // get the centroid of the SC
-          if ( debugL_pi0 <= EndcapPiZeroDiscriminatorAlgo::pDEBUG ) cout << "SC centroind = " << pointSC << endl;
-
-// Get the Preshower 2-planes RecHit vectors associated with the given SC
-          DetId tmp_stripX = (dynamic_cast<const EcalPreshowerGeometry*>(geometry_p))->getClosestCellInPlane(pointSC, 1);
-          DetId tmp_stripY = (dynamic_cast<const EcalPreshowerGeometry*>(geometry_p))->getClosestCellInPlane(pointSC, 2);
-          ESDetId stripX = (tmp_stripX == DetId(0)) ? ESDetId(0) : ESDetId(tmp_stripX);
-          ESDetId stripY = (tmp_stripY == DetId(0)) ? ESDetId(0) : ESDetId(tmp_stripY);
-
-          vector<float> vout_stripE1 = presh_pi0_algo->findPreshVector(stripX, &rechits_map, topology_p);
-          vector<float> vout_stripE2 = presh_pi0_algo->findPreshVector(stripY, &rechits_map, topology_p);
-
-          if ( debugL_pi0 <= EndcapPiZeroDiscriminatorAlgo::pDEBUG ) {
-            cout  << "PreshowerClusterShapeProducer : ES Energy vector associated to the given SC = " ;
-            for(int k1=0;k1<11;k1++) {
-              cout  << vout_stripE1[k1] << " " ;
-            }
-            for(int k1=0;k1<11;k1++) {
-              cout  << vout_stripE2[k1] << " " ;
-            }	    
-            cout  << endl;
-	  } 
-
-          reco::PreshowerClusterShape ps1 = reco::PreshowerClusterShape(vout_stripE1,1);
-	  ps1.setSCRef(it_super);
-          ps_cl_x.push_back(ps1);
-
-	  reco::PreshowerClusterShape ps2 = reco::PreshowerClusterShape(vout_stripE2,2);
-          ps2.setSCRef(it_super);
-	  ps_cl_y.push_back(ps2);
- 
-      }
-      SC_index++;
-  } // end of cycle over Endcap SC       
-
+      
+      if(fabs(SC_eta) >= 1.65 && fabs(SC_eta) <= 2.5) 
+	{  //  Use Preshower region only
+	  if (geometry)
+	    {
+	      const GlobalPoint pointSC(it_super->x(),it_super->y(),it_super->z()); // get the centroid of the SC
+	      if ( debugL_pi0 <= EndcapPiZeroDiscriminatorAlgo::pDEBUG ) cout << "SC centroind = " << pointSC << endl;
+	      
+	      // Get the Preshower 2-planes RecHit vectors associated with the given SC
+	      
+	      DetId tmp_stripX = (dynamic_cast<const EcalPreshowerGeometry*>(geometry_p))->getClosestCellInPlane(pointSC, 1);
+	      DetId tmp_stripY = (dynamic_cast<const EcalPreshowerGeometry*>(geometry_p))->getClosestCellInPlane(pointSC, 2);
+	      ESDetId stripX = (tmp_stripX == DetId(0)) ? ESDetId(0) : ESDetId(tmp_stripX);
+	      ESDetId stripY = (tmp_stripY == DetId(0)) ? ESDetId(0) : ESDetId(tmp_stripY);
+	      
+	      vector<float> vout_stripE1 = presh_pi0_algo->findPreshVector(stripX, &rechits_map, topology_p);
+	      vector<float> vout_stripE2 = presh_pi0_algo->findPreshVector(stripY, &rechits_map, topology_p);
+	      
+	      if ( debugL_pi0 <= EndcapPiZeroDiscriminatorAlgo::pDEBUG ) {
+		cout  << "PreshowerClusterShapeProducer : ES Energy vector associated to the given SC = " ;
+		for(int k1=0;k1<11;k1++) {
+		  cout  << vout_stripE1[k1] << " " ;
+		}
+		for(int k1=0;k1<11;k1++) {
+		  cout  << vout_stripE2[k1] << " " ;
+		}	    
+		cout  << endl;
+	      } 
+	      
+	      reco::PreshowerClusterShape ps1 = reco::PreshowerClusterShape(vout_stripE1,1);
+	      ps1.setSCRef(it_super);
+	      ps_cl_x.push_back(ps1);
+	      
+	      reco::PreshowerClusterShape ps2 = reco::PreshowerClusterShape(vout_stripE2,2);
+	      ps2.setSCRef(it_super);
+	      ps_cl_y.push_back(ps2);
+	      
+	    }
+	  SC_index++;
+	} // end of cycle over Endcap SC       
+  } 
   // put collection of PreshowerClusterShape in the Event:
   ps_cl_for_pi0_disc_x->assign(ps_cl_x.begin(), ps_cl_x.end());
   ps_cl_for_pi0_disc_y->assign(ps_cl_y.begin(), ps_cl_y.end());
   
   evt.put(ps_cl_for_pi0_disc_x, PreshowerClusterShapeCollectionX_);
   evt.put(ps_cl_for_pi0_disc_y, PreshowerClusterShapeCollectionY_);  
-
+  
   if ( debugL_pi0 <= EndcapPiZeroDiscriminatorAlgo::pDEBUG ) cout << "PreshowerClusterShapeCollection added to the event" << endl;
+
+  if (topology_p)
+    delete topology_p;
 
   nEvt_++;
 
   LogDebug("PiZeroDiscriminatorDebug") << ostr.str();
-
-
 }

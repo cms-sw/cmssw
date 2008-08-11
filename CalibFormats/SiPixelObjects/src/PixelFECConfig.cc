@@ -16,69 +16,82 @@ using namespace std;
 
 PixelFECConfig::PixelFECConfig(std::vector<std::vector<std::string> >& tableMat ) : PixelConfigBase(" "," "," "){
 
+ std::vector< std::string > ins = tableMat[0];
  std::map<std::string , int > colM;
  std::vector<std::string > colNames;
- /**
-    CONFIG_KEY_ID                             NOT NULL NUMBER(38)
-    CONFIG_KEY                                NOT NULL VARCHAR2(80)
-    VERSION                                            VARCHAR2(40)
-    KIND_OF_COND                              NOT NULL VARCHAR2(40)
-    PIXEL_FEC                                 NOT NULL VARCHAR2(200)
-    CRATE                                     NOT NULL NUMBER(38)
-    SLOT_NUMBER                               NOT NULL NUMBER(38)
-    VME_ADDRS_HEX                                      VARCHAR2(17)
- */
+ colNames.push_back("FEC_NAME");//0
+ colNames.push_back("CRATE");//1
+ colNames.push_back("VME_ADDR");//2
 
- colNames.push_back("CONFIG_KEY_ID"  );
- colNames.push_back("CONFIG_KEY"     );
- colNames.push_back("VERSION"        );
- colNames.push_back("KIND_OF_COND"   );
- colNames.push_back("PIXEL_FEC"      );
- colNames.push_back("CRATE"          );
- colNames.push_back("SLOT_NUMBER"    );
- colNames.push_back("VME_ADDRS_HEX"  );
-
-
- for(unsigned int c = 0 ; c < tableMat[0].size() ; c++)
-   {
-     for(unsigned int n=0; n<colNames.size(); n++)
-       {
-	 if(tableMat[0][c] == colNames[n]){
-	   colM[colNames[n]] = c;
-	   break;
-	 }
-       }
-   }//end for
- for(unsigned int n=0; n<colNames.size(); n++)
-   {
-     if(colM.find(colNames[n]) == colM.end()){
-       std::cerr << "[PixelFECConfig::PixelFECConfig()]\tCouldn't find in the database the column with name " << colNames[n] << std::endl;
-       assert(0);
+for(unsigned int c = 0 ; c < ins.size() ; c++){
+   for(unsigned int n=0; n<colNames.size(); n++){
+     if(tableMat[0][c] == colNames[n]){
+       colM[colNames[n]] = c;
+       break;
      }
    }
-
- fecconfig_.clear();
- for(unsigned int r = 1 ; r < tableMat.size() ; r++)    //Goes to every row of the Matrix
-   {
-     unsigned int fecnumber;
-     unsigned int crate;
-     unsigned int vme_base_address;
-     
-//      01234567890123
-//      BPix_Pxl_FEC_1
-     string fullFECName = tableMat[r][colM["PIXEL_FEC"]] ;
-     fullFECName.replace(0,13,"") ;
-     fecnumber = atoi(fullFECName.c_str()) ;
-     crate     = atoi(tableMat[r][colM["CRATE"]].c_str()) ;
-     string hexVMEAddr = tableMat[r][colM["VME_ADDRS_HEX"]] ;
-     sscanf(hexVMEAddr.c_str(), "%x", &vme_base_address) ;
-     PixelFECParameters tmp;
-     
-     tmp.setFECParameters(fecnumber , crate , vme_base_address);
-     
-     fecconfig_.push_back(tmp);
+ }//end for
+ for(unsigned int n=0; n<colNames.size(); n++){
+   if(colM.find(colNames[n]) == colM.end()){
+     std::cerr << "[PixelFECConfig::PixelFECConfig()]\tCouldn't find in the database the column with name " << colNames[n] << std::endl;
+     assert(0);
    }
+ }
+
+std::string fecname = "";
+unsigned int fecnum = 0;
+fecconfig_.clear();
+bool flag = false;
+for(unsigned int r = 1 ; r < tableMat.size() ; r++){    //Goes to every row of the Matrix
+  
+
+  fecname = tableMat[r][colM[colNames[0]]]; //This is not going to work if you change in the database "Pix Fec #"  Im removing "Pix Fec" and store the number
+                        //becuase the PixelFecConfig class ask for the fec number not the name.  
+  fecname.erase(0,8); 
+  fecnum = (unsigned int)atoi(fecname.c_str()) ;
+  
+  if(fecconfig_.empty()){
+  
+  PixelFECParameters tmp;
+  
+  tmp.setFECParameters( fecnum, (unsigned int)atoi(tableMat[r][colM[colNames[1]]].c_str()) , 
+  (unsigned int)atoi(tableMat[r][colM[colNames[2]]].c_str()));   
+  
+   fecconfig_.push_back(tmp);
+  
+  }
+  else{
  
+ for( unsigned int y = 0; y < fecconfig_.size() ; y++){
+   if (fecconfig_[y].getFECNumber() == fecnum){    // This is for check is they are Pixel Fecs already in the vector because
+                                                 // in the view of the database that I'm reading are repeated.
+   flag =true;					// This ensure that the are no objects in the fecconfig vector with repeated values.
+   break;
+   }else flag= false;
+  }
+   
+   if(flag == false){
+  PixelFECParameters tmp;
+  
+  tmp.setFECParameters( fecnum, (unsigned int)atoi(tableMat[r][colM[colNames[1]]].c_str()) , 
+  (unsigned int)atoi(tableMat[r][colM[colNames[2]]].c_str()));   
+  
+  fecconfig_.push_back(tmp); 
+  }
+  
+  }//end else 
+  
+  }//end for r
+  
+std::cout<<std::endl;
+
+for( unsigned int x = 0 ; x < fecconfig_.size() ; x++){
+     std::cout<<fecconfig_[x]<<std::endl;
+
+}
+
+std::cout<<fecconfig_.size()<<std::endl;
+
 }// end contructor
 
 //****************************************************************************************
@@ -90,11 +103,11 @@ PixelFECConfig::PixelFECConfig(std::string filename):
     std::ifstream in(filename.c_str());
 
     if (!in.good()){
-	std::cout << "[PixelFECConfig::PixelFECConfig()]\t\t\t    Could not open: "<<filename<<std::endl;
+	std::cout << "Could not open:"<<filename<<std::endl;
 	assert(0);
     }
     else {
-	std::cout << "[PixelFECConfig::PixelFECConfig()]\t\t\t    Opened: "<<filename<<std::endl;
+	std::cout << "Opened:"<<filename<<std::endl;
     }
 
     std::string dummy;
@@ -128,6 +141,7 @@ PixelFECConfig::PixelFECConfig(std::string filename):
     }
     while (!in.eof());
     in.close();
+
 }
  
 

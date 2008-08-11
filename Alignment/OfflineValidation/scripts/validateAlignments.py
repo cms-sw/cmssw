@@ -50,7 +50,6 @@ offlineTemplate = """process OfflineValidator.oO[name]Oo. =  {
 
 
 //_____________________________________ Refitter _____________________________________
-    include "Configuration/StandardSequences/data/MagneticField.cff"
     include "RecoTracker/TrackProducer/data/RefitterWithMaterial.cff"
     replace TrackRefitter.src = ".oO[TrackCollection]Oo."
     #replace TrackRefitter.useHitsSplitting = true
@@ -190,8 +189,6 @@ process  mcValidate.oO[name]Oo. =
     untracked PSet maxEvents = { untracked int32 input = .oO[nEvents]Oo.}
     
 //________________________ needed Modules __________________________
-    include "Configuration/StandardSequences/data/MagneticField.cff"
-
     include "Configuration/StandardSequences/data/Reconstruction.cff"
     include "Configuration/StandardSequences/data/Simulation.cff"
 
@@ -479,7 +476,7 @@ def getDownloads(path,alignments,prefixes):
 def getComparisonPostProcess(compares, copyImages = False):
     result = "cd .oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation/scripts\n"
     for name in compares:
-        if  '"DetUnit"' in compares[name][0].split(","):
+        if  '"Det"' in compares[name][0].split(","):
             result += "root -b -q 'comparisonScript.C(\".oO[workdir]Oo./.oO[name]Oo.Comparison_common"+name+".root\",\".oO[workdir]Oo./\")'\n"
             result += "rfcp .oO[workdir]Oo./OUTPUT_comparison.root .oO[datadir]Oo./compared"+name+"_.oO[name]Oo..root\n"
     result += "find . -maxdepth 1 -name \"LOGFILE_*_.oO[name]Oo..log\" -print | xargs -I {} bash -c 'echo \"*** \";echo \"**   {}\";echo \"***\" ; cat {}' > .oO[workdir]Oo./LOGFILE_GeomComparision_.oO[name]Oo..log\n"

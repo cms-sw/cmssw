@@ -1,4 +1,5 @@
 #include "CalibTracker/SiStripAPVAnalysis/interface/TkCommonMode.h"
+#include "CalibTracker/SiStripAPVAnalysis/interface/TkCommonModeTopology.h"
 using namespace std;
 vector<float> TkCommonMode::toVector() const {
   vector<float> temp;

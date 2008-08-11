@@ -10,7 +10,7 @@
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
-// #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 // #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -657,7 +657,7 @@ void myFastSimVal::analyze( const Event& evt, const EventSetup& es ) {
 
   double ZpM, ZpMG, ZpMM;
   double LeadMass1, LeadMass2, LeadMass3, LeadMass4;
-  double LeadMassP1, LeadMassP2, LeadMassP3;
+  double LeadMassP1, LeadMassP2, LeadMassP3, LeadMassP4;
 
   float pt1, pt2, pt3;
 
@@ -1441,13 +1441,13 @@ void myFastSimVal::analyze( const Event& evt, const EventSetup& es ) {
 
   jetInd = 0;
   double dRmin[MAXJETS];
-  math::XYZTLorentzVector  p4gen[MAXJETS], p4cal[MAXJETS],  
-    p4par[MAXJETS], p4Zp[MAXJETS], p4part[MAXJETS];
+  math::XYZTLorentzVector p4jet[MAXJETS], p4gen[MAXJETS], p4cal[MAXJETS], p4cor[MAXJETS], 
+    p4par[MAXJETS], p4parm[MAXJETS], p4Zp[MAXJETS], p4part[MAXJETS];
 
   int used[MAXJETS];
   int nj;
 
-  for( int i=0; i<maxJets; ++i ) used[i] = 0;  
+  for( size_t i=0; i<maxJets; ++i ) used[i] = 0;  
 
   //  cout << ">>>>>>>>> " << endl;
 
@@ -1579,7 +1579,7 @@ void myFastSimVal::analyze( const Event& evt, const EventSetup& es ) {
   //  double dRmin[20];
   //  math::XYZTLorentzVector p4jet[20], p4gen[20], p4cal[20], p4cor[20];
 
-  for( int i=0; i<maxJets; ++i ) used[i] = 0;    
+  for( size_t i=0; i<maxJets; ++i ) used[i] = 0;    
   for( GenJetCollection::const_iterator gen = genJets->begin(); 
        gen != genJets->end() && jetInd<maxJets; ++ gen ) { 
     p4gen[jetInd] = gen->p4();    //Gen 4-vector
@@ -1688,7 +1688,7 @@ void myFastSimVal::analyze( const Event& evt, const EventSetup& es ) {
   //  double dRmin[20];
   //  math::XYZTLorentzVector p4jet[20], p4gen[20], p4cal[20], p4cor[20];
 
-  for( int i=0; i<maxJets; ++i ) used[i] = 0;
+  for( size_t i=0; i<maxJets; ++i ) used[i] = 0;
   for( GenJetCollection::const_iterator gen = genJets->begin(); 
        gen != genJets->end() && jetInd<maxJets; ++ gen ) { 
     p4gen[jetInd] = gen->p4();    //Gen 4-vector
@@ -1790,7 +1790,7 @@ void myFastSimVal::analyze( const Event& evt, const EventSetup& es ) {
   //  double dRmin[20];
   //  math::XYZTLorentzVector p4jet[20], p4gen[20], p4cal[20], p4cor[20];
 
-  for( int i=0; i<maxJets; ++i ) used[i] = 0;    
+  for( size_t i=0; i<maxJets; ++i ) used[i] = 0;    
   for( GenJetCollection::const_iterator gen = genJets->begin(); 
        gen != genJets->end() && jetInd<maxJets; ++ gen ) { 
     p4gen[jetInd] = gen->p4();    //Gen 4-vector
@@ -1900,7 +1900,7 @@ void myFastSimVal::analyze( const Event& evt, const EventSetup& es ) {
 
   jetInd = 0;
 
-  for( int i=0; i<maxJets; ++i ) used[i] = 0;
+  for( size_t i=0; i<maxJets; ++i ) used[i] = 0;
   for( CaloJetCollection::const_iterator cal1 = calo1Jets->begin(); 
        cal1 != calo1Jets->end() && jetInd<maxJets; ++cal1 ) { 
 
@@ -1935,7 +1935,6 @@ void myFastSimVal::analyze( const Event& evt, const EventSetup& es ) {
 
   // ******************************************
   // ******************************************
-
 
   Handle<CandidateCollection> genParticles;
   evt.getByLabel("genParticleCandidates",genParticles);
@@ -1983,7 +1982,7 @@ void myFastSimVal::analyze( const Event& evt, const EventSetup& es ) {
         }
       }
 
-      for( int id1=0, nd1=p.numberOfDaughters(); id1 < nd1; ++id1 ) {
+      for( size_t id1=0, nd1=p.numberOfDaughters(); id1 < nd1; ++id1 ) {
 
 	const Candidate * d1 = p.daughter(id1);
 
@@ -2000,7 +1999,7 @@ void myFastSimVal::analyze( const Event& evt, const EventSetup& es ) {
 
   // *********************
   // Match jets to Zp
-  int genInd = 0;
+  int genInd;
 
   if (nPart == 2) {
     
@@ -2030,8 +2029,8 @@ void myFastSimVal::analyze( const Event& evt, const EventSetup& es ) {
     usedInd = -1;
     jetInd  = 0;
 
-    for( int i=0; i<maxJets; ++i ) used[i] = 0;
-    for( int i=0; i<2; ++i ) { 
+    for( size_t i=0; i<maxJets; ++i ) used[i] = 0;
+    for( size_t i=0; i<2; ++i ) { 
       
       dRmin[jetInd]  = 1000.0;
 
@@ -2148,8 +2147,8 @@ void myFastSimVal::analyze( const Event& evt, const EventSetup& es ) {
     usedInd = -1;
     jetInd  = 0;
 
-    for( int i=0; i<maxJets; ++i ) used[i] = 0;
-    for( int i=0; i<2; ++i ) { 
+    for( size_t i=0; i<maxJets; ++i ) used[i] = 0;
+    for( size_t i=0; i<2; ++i ) { 
       
       dRmin[jetInd]  = 1000.0;
 
@@ -2197,8 +2196,8 @@ void myFastSimVal::analyze( const Event& evt, const EventSetup& es ) {
     usedInd = -1;
     jetInd  = 0;
 
-    for( int i=0; i<maxJets; ++i ) used[i] = 0;
-    for( int i=0; i<2; ++i ) { 
+    for( size_t i=0; i<maxJets; ++i ) used[i] = 0;
+    for( size_t i=0; i<2; ++i ) { 
       
       dRmin[jetInd]  = 1000.0;
 
@@ -2372,8 +2371,8 @@ void myFastSimVal::analyze( const Event& evt, const EventSetup& es ) {
     usedInd = -1;
     jetInd  = 0;
     
-    for( int i=0; i<maxJets; ++i ) used[i] = 0;
-    for( int i=0; i<6; ++i ) { 
+    for( size_t i=0; i<maxJets; ++i ) used[i] = 0;
+    for( size_t i=0; i<6; ++i ) { 
       
       dRmin[jetInd]  = 1000.0;
 
@@ -2437,8 +2436,8 @@ void myFastSimVal::analyze( const Event& evt, const EventSetup& es ) {
     jetInd = 0;
     usedInd = -1;
 
-    for( int i=0; i<maxJets; ++i ) used[i] = 0;
-    for( int i=0; i<6; ++i ) { 
+    for( size_t i=0; i<maxJets; ++i ) used[i] = 0;
+    for( size_t i=0; i<6; ++i ) { 
       
       dRmin[jetInd]  = 1000.0;
 
@@ -2499,8 +2498,8 @@ void myFastSimVal::analyze( const Event& evt, const EventSetup& es ) {
     jetInd = 0;
     usedInd = -1;
 
-    for( int i=0; i<maxJets; ++i ) used[i] = 0;
-    for( int i=0; i<6; ++i ) { 
+    for( size_t i=0; i<maxJets; ++i ) used[i] = 0;
+    for( size_t i=0; i<6; ++i ) { 
       
       dRmin[jetInd]  = 1000.0;
 
@@ -2714,7 +2713,7 @@ void myFastSimVal::analyze( const Event& evt, const EventSetup& es ) {
   double sum_et = 0.0;
   double sum_ex = 0.0;
   double sum_ey = 0.0;
-  //  double sum_ez = 0.0;
+  double sum_ez = 0.0;
 
   // --- Loop over towers and make a lists of used and unused towers
   for (CaloTowerCollection::const_iterator tower = caloTowers->begin();
@@ -2732,7 +2731,7 @@ void myFastSimVal::analyze( const Event& evt, const EventSetup& es ) {
       // ********
       double phix   = tower->phi();
       //      double theta = tower->theta();
-      //      double e     = tower->energy();
+      double e     = tower->energy();
       //      double et    = e*sin(theta);
       //      double et    = tower->emEt() + tower->hadEt();
       double et    = tower->et();

@@ -20,10 +20,10 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 process.source = cms.Source("EmptyIOVSource",
-    firstValue = cms.uint64(1),
-    lastValue = cms.uint64(1),
     timetype = cms.string('runnumber'),
-    interval = cms.uint64(1)
+    firstRun = cms.untracked.uint32(1),
+    lastRun = cms.untracked.uint32(1),
+    interval = cms.uint32(1)
 )
 
 process.orcon = cms.ESSource("PoolDBESSource",
@@ -35,9 +35,9 @@ process.orcon = cms.ESSource("PoolDBESSource",
 )
 
 process.p = cms.Path(process.L1CondDBPayloadWriter)
-process.orcon.connect = cms.string('oracle://cms_orcon_prod/CMS_COND_20X_L1T')
+process.orcon.connect = cms.string('oracle://cms_orcon_prod/CMS_COND_21X_L1T')
 process.orcon.DBParameters.authenticationPath = '/nfshome0/onlinedbadm/conddb'
-process.L1CondDBPayloadWriter.offlineDB = cms.string('oracle://cms_orcon_prod/CMS_COND_20X_L1T')
+process.L1CondDBPayloadWriter.offlineDB = cms.string('oracle://cms_orcon_prod/CMS_COND_21X_L1T')
 process.L1CondDBPayloadWriter.offlineAuthentication = '/nfshome0/onlinedbadm/conddb'
 
 

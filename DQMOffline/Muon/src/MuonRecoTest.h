@@ -7,8 +7,8 @@
  *  DQMOffline Test Client
  *       check the recostruction efficiency of Sta/Glb on eta, phi parameters
  *
- *  $Date: 2008/07/12 10:48:43 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/05/06 11:02:28 $
+ *  $Revision: 1.2 $
  *  \author  G. Mila - INFN Torino
  *   
  */
@@ -26,6 +26,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+
 
 #include <memory>
 #include <iostream>
@@ -64,7 +65,6 @@ protected:
 
 private:
 
-  // counters
   int nevents;
   unsigned int nLumiSegs;
   int prescaleFactor;
@@ -72,7 +72,7 @@ private:
   // Switch for verbosity
   std::string metname;
 
-  DQMStore* theDbe;
+  DQMStore* dbe;
   edm::ParameterSet parameters;
 
    //histo binning parameters

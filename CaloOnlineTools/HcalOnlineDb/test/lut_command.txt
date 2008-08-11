@@ -1,1 +1,0 @@
-./xmlToolsRun --create-lut-xml --tag-name testtest --lin-lut-master-file inputLUTcoder_CRUZET_v2.0.dat --comp-lut-master-file ../../../CalibCalorimetry/CaloTPG/data/outputLUTtranscoder_CROZET.dat      

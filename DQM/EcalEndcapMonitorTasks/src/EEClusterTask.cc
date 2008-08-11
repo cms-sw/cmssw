@@ -1,8 +1,8 @@
 /*
  * \file EEClusterTask.cc
  *
- * $Date: 2008/07/07 18:11:00 $
- * $Revision: 1.48 $
+ * $Date: 2008/04/08 18:11:28 $
+ * $Revision: 1.45 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -20,7 +20,6 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
-#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
@@ -52,7 +51,6 @@ EEClusterTask::EEClusterTask(const ParameterSet& ps){
   mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
 
   // parameters...
-  EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
   BasicClusterCollection_ = ps.getParameter<edm::InputTag>("BasicClusterCollection");
   SuperClusterCollection_ = ps.getParameter<edm::InputTag>("SuperClusterCollection");
   ClusterShapeAssociation_ = ps.getParameter<edm::InputTag>("ClusterShapeAssociation");
@@ -487,36 +485,6 @@ void EEClusterTask::endJob(void){
 
 void EEClusterTask::analyze(const Event& e, const EventSetup& c){
 
-  bool enable = false;
-
-  Handle<EcalRawDataCollection> dcchs;
-
-  if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
-
-    for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
-
-      EcalDCCHeaderBlock dcch = (*dcchItr);
-
-      if ( Numbers::subDet( dcch ) != EcalEndcap ) continue;
-
-      if ( dcch.getRunType() == EcalDCCHeaderBlock::COSMIC ||
-           dcch.getRunType() == EcalDCCHeaderBlock::MTCC ||
-           dcch.getRunType() == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
-           dcch.getRunType() == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
-           dcch.getRunType() == EcalDCCHeaderBlock::COSMICS_LOCAL ||
-           dcch.getRunType() == EcalDCCHeaderBlock::PHYSICS_LOCAL ) enable = true;
-
-      break;
-
-    }
-
-  } else {
-
-    enable = true;
-    LogWarning("EEClusterTask") << EcalRawDataCollection_ << " not available";
-
-  }
-
   if ( ! init_ ) this->setup();
 
   ievt_++;
@@ -536,36 +504,36 @@ void EEClusterTask::analyze(const Event& e, const EventSetup& c){
       meBCSiz_->Fill(float(bCluster->getHitsByDetId().size()));
 
       if ( bCluster->eta() > 0 ) {
-        meBCEneFwdMap_->Fill(bCluster->x(), bCluster->y(), bCluster->energy());
-        meBCEneFwdMapProjR_->Fill( sqrt(pow(bCluster->x(),2)+pow(bCluster->y(),2)), bCluster->energy() );
-        meBCEneFwdMapProjPhi_->Fill( bCluster->phi(), bCluster->energy() );
+	meBCEneFwdMap_->Fill(bCluster->x(), bCluster->y(), bCluster->energy());
+	meBCEneFwdMapProjR_->Fill( sqrt(pow(bCluster->x(),2)+pow(bCluster->y(),2)), bCluster->energy() );
+	meBCEneFwdMapProjPhi_->Fill( bCluster->phi(), bCluster->energy() );
 
-        meBCNumFwdMap_->Fill(bCluster->x(), bCluster->y());
-        meBCNumFwdMapProjR_->Fill(sqrt(pow(bCluster->x(),2)+pow(bCluster->y(),2)));
-        meBCNumFwdMapProjPhi_->Fill( bCluster->phi() );
+	meBCNumFwdMap_->Fill(bCluster->x(), bCluster->y());
+	meBCNumFwdMapProjR_->Fill(sqrt(pow(bCluster->x(),2)+pow(bCluster->y(),2)));
+	meBCNumFwdMapProjPhi_->Fill( bCluster->phi() );
 
-        meBCETFwdMap_->Fill(bCluster->x(), bCluster->y(),  bCluster->energy() * sin(bCluster->position().theta()) );
-        meBCETFwdMapProjR_->Fill( sqrt(pow(bCluster->x(),2)+pow(bCluster->y(),2)), bCluster->energy() * sin(bCluster->position().theta()) );
-        meBCETFwdMapProjPhi_->Fill( bCluster->phi(), bCluster->energy() * sin(bCluster->position().theta()) );
+	meBCETFwdMap_->Fill(bCluster->x(), bCluster->y(),  bCluster->energy() * sin(bCluster->position().theta()) );
+	meBCETFwdMapProjR_->Fill( sqrt(pow(bCluster->x(),2)+pow(bCluster->y(),2)), bCluster->energy() * sin(bCluster->position().theta()) );
+	meBCETFwdMapProjPhi_->Fill( bCluster->phi(), bCluster->energy() * sin(bCluster->position().theta()) );
 
-        meBCSizFwdMap_->Fill(bCluster->x(), bCluster->y(), float(bCluster->getHitsByDetId().size()) );
-        meBCSizFwdMapProjR_->Fill( sqrt(pow(bCluster->x(),2)+pow(bCluster->y(),2)), float(bCluster->getHitsByDetId().size()) );
+	meBCSizFwdMap_->Fill(bCluster->x(), bCluster->y(), float(bCluster->getHitsByDetId().size()) );
+	meBCSizFwdMapProjR_->Fill( sqrt(pow(bCluster->x(),2)+pow(bCluster->y(),2)), float(bCluster->getHitsByDetId().size()) );
         meBCSizFwdMapProjPhi_->Fill( bCluster->phi(), float(bCluster->getHitsByDetId().size()) );
       } else {
-        meBCEneBwdMap_->Fill(bCluster->x(), bCluster->y(), bCluster->energy());
-        meBCEneBwdMapProjR_->Fill( sqrt(pow(bCluster->x(),2)+pow(bCluster->y(),2)), bCluster->energy() );
-        meBCEneBwdMapProjPhi_->Fill( bCluster->phi(), bCluster->energy() );
+	meBCEneBwdMap_->Fill(bCluster->x(), bCluster->y(), bCluster->energy());
+	meBCEneBwdMapProjR_->Fill( sqrt(pow(bCluster->x(),2)+pow(bCluster->y(),2)), bCluster->energy() );
+	meBCEneBwdMapProjPhi_->Fill( bCluster->phi(), bCluster->energy() );
 
-        meBCNumBwdMap_->Fill(bCluster->x(), bCluster->y());
-        meBCNumBwdMapProjR_->Fill(sqrt(pow(bCluster->x(),2)+pow(bCluster->y(),2)));
-        meBCNumBwdMapProjPhi_->Fill( bCluster->phi() );
+	meBCNumBwdMap_->Fill(bCluster->x(), bCluster->y());
+	meBCNumBwdMapProjR_->Fill(sqrt(pow(bCluster->x(),2)+pow(bCluster->y(),2)));
+	meBCNumBwdMapProjPhi_->Fill( bCluster->phi() );
 
-        meBCETBwdMap_->Fill(bCluster->x(), bCluster->y(),  bCluster->energy() * sin(bCluster->position().theta()) );
-        meBCETBwdMapProjR_->Fill( sqrt(pow(bCluster->x(),2)+pow(bCluster->y(),2)), bCluster->energy() * sin(bCluster->position().theta()) );
-        meBCETBwdMapProjPhi_->Fill( bCluster->phi(), bCluster->energy() * sin(bCluster->position().theta()) );
+	meBCETBwdMap_->Fill(bCluster->x(), bCluster->y(),  bCluster->energy() * sin(bCluster->position().theta()) );
+	meBCETBwdMapProjR_->Fill( sqrt(pow(bCluster->x(),2)+pow(bCluster->y(),2)), bCluster->energy() * sin(bCluster->position().theta()) );
+	meBCETBwdMapProjPhi_->Fill( bCluster->phi(), bCluster->energy() * sin(bCluster->position().theta()) );
 
-        meBCSizBwdMap_->Fill(bCluster->x(), bCluster->y(), float(bCluster->getHitsByDetId().size()) );
-        meBCSizBwdMapProjR_->Fill( sqrt(pow(bCluster->x(),2)+pow(bCluster->y(),2)), float(bCluster->getHitsByDetId().size()) );
+	meBCSizBwdMap_->Fill(bCluster->x(), bCluster->y(), float(bCluster->getHitsByDetId().size()) );
+	meBCSizBwdMapProjR_->Fill( sqrt(pow(bCluster->x(),2)+pow(bCluster->y(),2)), float(bCluster->getHitsByDetId().size()) );
         meBCSizBwdMapProjPhi_->Fill( bCluster->phi(), float(bCluster->getHitsByDetId().size()) );
       }
 
@@ -610,12 +578,12 @@ void EEClusterTask::analyze(const Event& e, const EventSetup& c){
 
       // look for the two most energetic super clusters
       if ( sCluster->energy() > sc1_p.Energy() ) {
-        sc2_p=sc1_p;
-        sc1_p.SetPtEtaPhiE(sCluster->energy()*sin(sCluster->position().theta()),
-                           sCluster->eta(), sCluster->phi(), sCluster->energy());
+	sc2_p=sc1_p;
+	sc1_p.SetPtEtaPhiE(sCluster->energy()*sin(sCluster->position().theta()),
+			   sCluster->eta(), sCluster->phi(), sCluster->energy());
       } else if ( sCluster->energy() > sc2_p.Energy() ) {
-        sc2_p.SetPtEtaPhiE(sCluster->energy()*sin(sCluster->position().theta()),
-                           sCluster->eta(), sCluster->phi(), sCluster->energy());
+	sc2_p.SetPtEtaPhiE(sCluster->energy()*sin(sCluster->position().theta()),
+			   sCluster->eta(), sCluster->phi(), sCluster->energy());
       }
 
     }

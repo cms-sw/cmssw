@@ -8,8 +8,8 @@
 
 /** \class HcalTrigPrimMonitor
   *  
-  * $Date: 2008/06/30 21:50:17 $
-  * $Revision: 1.12 $
+  * $Date: 2008/04/22 17:59:30 $
+  * $Revision: 1.9 $
   * \author W. Fisher - FNAL
   */
  static const float TrigMonAdc2fc[128]={-0.5, 0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5,
@@ -48,8 +48,7 @@ public:
 		    const HBHEDigiCollection& hbhedigi,
 		    const HODigiCollection& hodigi,
 		    const HFDigiCollection& hfdigi,		    
-		    const HcalTrigPrimDigiCollection& tpDigis,
-		    const HcalElectronicsMap& emap);
+		    const HcalTrigPrimDigiCollection& tpDigis);
   void clearME();
   void reset();
 
@@ -63,8 +62,6 @@ private:  ///Monitoring elements
   int TPdigi_;
   int ADCdigi_;
   double etaMax_, etaMin_, phiMax_, phiMin_;
-
-  int checkNevents_; // only fill some histograms every N events -- not yet in use
 
   MonitorElement* meEVT_;
   MonitorElement* tpCount_;
@@ -81,11 +78,9 @@ private:  ///Monitoring elements
   MonitorElement* TPTimingBot_; 
   MonitorElement* TPOcc_;
   MonitorElement* TP_ADC_;
-  MonitorElement* MAX_ADC_;
-  MonitorElement* TS_MAX_;
   MonitorElement* TPvsDigi_;
 
-
+  MonitorElement* OCC_MAP_SLB;
   MonitorElement* OCC_ETA;
   MonitorElement* OCC_PHI;
   MonitorElement* OCC_MAP_GEO;

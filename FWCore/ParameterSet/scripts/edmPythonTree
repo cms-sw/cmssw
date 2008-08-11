@@ -3,14 +3,10 @@
 from FWCore.ParameterSet.TreeCrawler import getImportTree
 import sys, os
 
-import optparse
-usage = "%prog [configuration file name]"
-parser = optparse.OptionParser(usage=usage)
-
-(options, args) = parser.parse_args()
-if len(args) != 1:
-    parser.error("wrong number of arguments")
-    filename = args[0]
+try:
+    filename = sys.argv[1]
+except:
+    parser.error("Please specify a python config file to inspect")
 
 sys.path.append(os.environ["PWD"])
 path = sys.path[:]

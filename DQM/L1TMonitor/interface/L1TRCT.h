@@ -5,14 +5,11 @@
 /*
  * \file L1TRCT.h
  *
- * $Date: 2008/03/01 00:40:00 $
- * $Revision: 1.4 $
+ * $Date: 2007/09/03 15:14:42 $
+ * $Revision: 1.3 $
  * \author P. Wittich
- * $Id: L1TRCT.h,v 1.4 2008/03/01 00:40:00 lat Exp $
+ * $Id: L1TRCT.h,v 1.3 2007/09/03 15:14:42 wittich Exp $
  * $Log: L1TRCT.h,v $
- * Revision 1.4  2008/03/01 00:40:00  lat
- * DQM core migration.
- *
  * Revision 1.3  2007/09/03 15:14:42  wittich
  * updated RCT with more diagnostic and local coord histos
  *
@@ -98,12 +95,8 @@ private:
   MonitorElement* rctRegionRank_;
 
 
-  MonitorElement* rctOverFlowEtaPhi_;
   MonitorElement* rctTauVetoEtaPhi_;
-  MonitorElement* rctMipEtaPhi_;
-  MonitorElement* rctQuietEtaPhi_;
-  MonitorElement* rctFineGrainEtaPhi_;
-
+  
   // Bx
   MonitorElement *rctRegionBx_;
   MonitorElement *rctEmBx_;

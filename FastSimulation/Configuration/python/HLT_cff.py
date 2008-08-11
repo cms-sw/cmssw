@@ -1,4 +1,4 @@
-# /dev/CMSSW_2_1_0_pre9/HLT/V6 (CMSSW_2_1_0_pre9)
+# /dev/CMSSW_2_1_0_pre10/HLT/V5 (CMSSW_2_1_X_2008-07-29-0800_HLT1)
 # Begin replace statements specific to the FastSim HLT
 # For all HLTLevel1GTSeed objects, make the following replacements:
 #   - L1GtReadoutRecordTag changed from hltGtDigis to gtDigis
@@ -3803,7 +3803,7 @@ hltL3MuonIsolations = cms.EDProducer( "L3MuonIsolationProducer",
     OutputMuIsoDeposits = cms.bool( True ),
     TrackPt_Min = cms.double( -1.0 ),
     ExtractorPSet = cms.PSet( 
-      ComponentName = cms.string( "TrackExtractor" ),
+      ComponentName = cms.string( "PixelTrackExtractor" ),
       inputTrackCollection = cms.InputTag( "hltPixelTracks" ),
       DepositLabel = cms.untracked.string( "PXLS" ),
       Diff_r = cms.double( 0.1 ),

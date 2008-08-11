@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/07/02 14:34:22 $
- *  $Revision: 1.13 $
+ *  $Date: 2008/06/03 16:40:43 $
+ *  $Revision: 1.11 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -15,6 +15,7 @@
 #include <FWCore/Framework/interface/Event.h>
 #include "DataFormats/Common/interface/Handle.h" 
 #include <FWCore/Framework/interface/ESHandle.h>
+#include <FWCore/Framework/interface/MakerMacros.h>
 #include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 
@@ -222,7 +223,7 @@ string DTSegmentAnalysisTest::getMEName(const DTChamberId & chID, string histoTa
   
   string folderRoot = parameters.getUntrackedParameter<string>("folderRoot", "Collector/FU0/");
   string folderName = 
-    folderRoot + "DT/02-Segments/Wheel" +  wheel.str() +
+    folderRoot + "DT/Segments/Wheel" +  wheel.str() +
     "/Station" + station.str() +
     "/Sector" + sector.str() + "/";
 
@@ -233,7 +234,7 @@ string DTSegmentAnalysisTest::getMEName(const DTChamberId & chID, string histoTa
   
   if(histoTag == "numberOfSegments")
     histoname = 
-      folderRoot + "DT/02-Segments/Wheel" +  wheel.str() + "/" +
+      folderRoot + "DT/Segments/Wheel" +  wheel.str() + "/" +
       histoTag  + + "_W" + wheel.str();
 
   return histoname;
@@ -243,7 +244,7 @@ string DTSegmentAnalysisTest::getMEName(const DTChamberId & chID, string histoTa
 
 void DTSegmentAnalysisTest::bookHistos() {
   
-  dbe->setCurrentFolder("DT/02-Segments");
+  dbe->setCurrentFolder("DT/Segments");
 
   for(int wh=-2; wh<=2; wh++){
       stringstream wheel; wheel << wh;

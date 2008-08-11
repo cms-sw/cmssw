@@ -31,9 +31,6 @@ DEFINE_ANOTHER_FWK_MODULE(DTTriggerCheck);
 #include "DQM/DTMonitorModule/src/DTDigiForNoiseTask.h"
 DEFINE_ANOTHER_FWK_MODULE(DTDigiForNoiseTask);
 
-#include "DQM/DTMonitorModule/src/DTNoiseTask.h"
-DEFINE_ANOTHER_FWK_MODULE(DTNoiseTask);
-
 #include "DQM/DTMonitorModule/src/DTAlbertoBenvenutiTask.h"
 DEFINE_ANOTHER_FWK_MODULE(DTAlbertoBenvenutiTask);
 

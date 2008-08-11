@@ -9,8 +9,8 @@ FullSimRootFileDirectory=${current_area}/FullSim/
 mkdir $FullSimRootFileDirectory -p
 
 #======= Define list of samples that you will be validating ========#
-#dirlist="ZDimu ZprimeDijets QCD_0-15 QCD_15-20 QCD_20-30 QCD_30-50 QCD_50-80 QCD_80-120 QCD_120-170 QCD_170-230 QCD_230-300 QCD_300-380 QCD_380-470 QCD_470-600 QCD_600-800 QCD_800-1000 ttbar QCD_3000-3500"
-dirlist="ttbar"
+dirlist="ZDimu ZprimeDijets QCD_0-15 QCD_15-20 QCD_20-30 QCD_30-50 QCD_50-80 QCD_80-120 QCD_120-170 QCD_170-230 QCD_230-300 QCD_300-380 QCD_380-470 QCD_470-600 QCD_600-800 QCD_800-1000 ttbar QCD_3000-3500"
+
 
 #======= Define list of modules that will be run for each sample ========#
 RunPath="fileSaver, calotoweroptmaker, analyzeRecHits, analyzecaloTowers, analyzeGenMET, analyzeGenMETFromGenJets, analyzeHTMET, analyzeCaloMET"
@@ -66,10 +66,6 @@ process.load(\"Validation.RecoMET.caloTowers_cff\")
 
 process.load(\"Validation.RecoMET.RecHits_cff\")
 
-process.load(\"Configuration.StandardSequences.Geometry_cff\")
-
-process.load(\"Configuration.StandardSequences.MagneticField_cff\")
-
 process.DQMStore = cms.Service(\"DQMStore\")
 
 process.source = cms.Source(\"PoolSource\",
@@ -79,10 +75,6 @@ process.source = cms.Source(\"PoolSource\",
 
 
 )
-
-
-
-
 
 process.fileSaver = cms.EDFilter(\"METFileSaver\",
     OutputFile = cms.untracked.string('METTester_data_${i}.root')

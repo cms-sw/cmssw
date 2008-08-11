@@ -36,9 +36,7 @@ time cmsRun the.cfg
 # clean the link created above to avoid copying later (maybe uncomment, see above)
 rm  treeFileISN.root
 
-# Gzip one by one in case one argument cannot be expanded:
-gzip -f *.log
-gzip -f *.txt
+gzip -f *.log *.txt
 
 # Merge possible alignment monitor and millepede monitor hists...
 # ...and remove individual histogram files after merging to save space (if success):
@@ -57,10 +55,4 @@ echo "\nDirectory content after running cmsRun, zipping log file and merging his
 ls -lh
 # Copy everything you need to MPS directory of your job,
 # but you might want to copy less stuff to save disk space:
-# (separate cp's for each item, otherwise you loose all if one file is missing):
-cp -p *.dump $RUNDIR
-cp -p *.log.gz $RUNDIR
-cp -p *.txt.gz $RUNDIR
-cp -p *.root $RUNDIR
-cp -p millepede.*s $RUNDIR
-cp -p *.db $RUNDIR
+cp -p *.log.gz *.txt.gz *.root millepede.*s *.db $RUNDIR

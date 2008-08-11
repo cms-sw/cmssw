@@ -7,7 +7,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BeamSpot.cc,v 1.5 2007/11/22 14:41:47 speer Exp $
+ version $Id: BeamSpot.cc,v 1.4 2007/08/21 20:45:37 ratnik Exp $
 
  ________________________________________________________________**/
 
@@ -23,32 +23,39 @@ namespace reco {
   using namespace math;
 
   BeamSpot::BeamSpot() {
-	  // initialize
-	  position_ = Point(0.,0.,0.);
-	  sigmaZ_ = 0.;
-	  dxdz_ = 0.;
-	  dydz_ = 0.;
-	  BeamWidth_ = 0.;
-	  for (int j=0; j<7; j++) {
-			for (int k=j; k<7; k++) {
-				error_(j,k) = 0.;
-			}
-	  }
-	  type_ = Unknown;
+    // initialize
+    position_ = Point(0.,0.,0.);
+    sigmaZ_ = 0.;
+    dxdz_ = 0.;
+    dydz_ = 0.;
+    BeamWidth_ = 0.;
+
   }
-   	
+
+  void BeamSpot::dummy() {
+    // dummy beam spot
+    position_ = Point(0.,0.,0.);
+    sigmaZ_ = 7.55; //cm
+    dxdz_ = 0.;
+    dydz_ = 0.;
+    BeamWidth_ = 0.0015; //cm
+//     error_(0,0) = BeamWidth_*BeamWidth_;
+//     error_(1,1) = error_(0,0);
+//     error_(2,2) = sigmaZ_*sigmaZ_;
+
+  }
+
   void BeamSpot::print(std::stringstream& ss) const {
 
     ss << "-----------------------------------------------------\n"
-       << "              Beam Spot Data\n\n"
-	   << " Beam type  = " << type() << "\n"
-       << "       X0   = " << x0() << " +/- " << x0Error() << " [cm]\n"
-       << "       Y0   = " << y0() << " +/- " << y0Error() << " [cm]\n"
-       << "       Z0   = " << z0() << " +/- " << z0Error() << " [cm]\n"
-       << " Sigma Z0   = " << sigmaZ() << " +/- " << sigmaZ0Error() << " [cm]\n"
-       << " dxdz       = " << dxdz() << " +/- " << dxdzError() << " [radians]\n"
-       << " dydz       = " << dydz() << " +/- " << dydzError() << " [radians]\n"
-       << " Beam width = " << BeamWidth() << " +/- " << BeamWidthError() << " [cm]\n"
+       << "            Calculated Beam Spot\n\n"
+       << "   X0 = " << x0() << " +/- " << x0Error() << " [cm]\n"
+       << "   Y0 = " << y0() << " +/- " << y0Error() << " [cm]\n"
+       << "   Z0 = " << z0() << " +/- " << z0Error() << " [cm]\n"
+       << " Sigma Z0 = " << sigmaZ() << " +/- " << sigmaZ0Error() << " [cm]\n"
+       << " dxdz = " << dxdz() << " +/- " << dxdzError() << " [radians]\n"
+       << " dydz = " << dydz() << " +/- " << dydzError() << " [radians]\n"
+       << " Beam Width = " << BeamWidth() << " +/- " << BeamWidthError() << " [cm]\n"
        << "-----------------------------------------------------\n\n";
 
   }

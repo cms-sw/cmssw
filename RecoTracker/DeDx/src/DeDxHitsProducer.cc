@@ -13,7 +13,7 @@
 //
 // Original Author:  andrea
 //         Created:  Thu May 31 14:09:02 CEST 2007
-// $Id: DeDxHitsProducer.cc,v 1.9 2007/08/13 08:01:07 arizzi Exp $
+// $Id: DeDxHitsProducer.cc,v 1.8 2007/08/13 07:52:36 arizzi Exp $
 //
 //
 
@@ -128,12 +128,12 @@ DeDxHitsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         }
     }
   
-   //reverse the track-trajectory map
+  //reverse the track-trajectory map
    std::map<const reco::Track *,const Trajectory *> trackToTrajectoryMap;
    for(TrajTrackAssociationCollection::const_iterator it = trajectoryToTrackMap->begin(); it!=trajectoryToTrackMap->end(); ++it)
-     {
-       trackToTrajectoryMap[&(*it->val)]=&(*it->key);
-     }
+   {
+    trackToTrajectoryMap[&(*it->val)]=&(*it->key);
+   }
 
 
    reco::TrackCollection::const_iterator tk_it = tracks.begin();  

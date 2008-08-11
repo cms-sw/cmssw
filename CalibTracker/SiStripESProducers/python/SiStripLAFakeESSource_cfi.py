@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-siStripLAFakeESSource = cms.ESSource("SiStripLAFakeESSource",
-    appendToDataLabel = cms.string(''),
+SiStripLAFakeESSource = cms.ESSource("SiStripLAFakeESSource",
     TemperatureError = cms.double(10.0),
     Temperature = cms.double(297.0),
     HoleRHAllParameter = cms.double(0.7),
@@ -11,6 +10,5 @@ siStripLAFakeESSource = cms.ESSource("SiStripLAFakeESSource",
     file = cms.FileInPath('CalibTracker/SiStripCommon/data/SiStripDetInfo.dat'),
     AppliedVoltage = cms.double(150.0)
 )
-
 
 

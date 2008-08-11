@@ -2,7 +2,6 @@
 #define FED9UEVENTANALYZER_H
 
 #include "DQM/SiStripMonitorHardware/interface/Fed9UDebugEvent.hh"
-#include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
 
 typedef struct Fed9UErrorCondition{
   // Generic (summary)
@@ -43,17 +42,17 @@ private:
   
 public:
   // Constructor
-  Fed9UEventAnalyzer(std::pair<int,int> newFedBoundaries, bool doSwap, bool doPreSwap );
+  Fed9UEventAnalyzer(std::pair<int,int> newFedBoundaries, bool doSwap, bool doPreSwap);
   
   // Constructor and event analyzer
   Fed9UEventAnalyzer(Fed9U::u32* data_u32, Fed9U::u32 size_u32,
-		     std::pair<int,int> newFedBoundaries, bool doSwap, bool doPreSwap );
+		     std::pair<int,int> newFedBoundaries, bool doSwap, bool doPreSwap);
   ~Fed9UEventAnalyzer();
 
   // The actual event analyzer
   bool Initialize(Fed9U::u32* data_u32, Fed9U::u32 size_u32);
 
-  Fed9UErrorCondition Analyze(bool useConns, const std::vector<FedChannelConnection>* conns);
+  Fed9UErrorCondition Analyze();
 
   enum {APVERROR=0x01,
 	APVWRONGHEADER=0x02,

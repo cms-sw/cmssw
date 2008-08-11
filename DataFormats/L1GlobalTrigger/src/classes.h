@@ -36,18 +36,18 @@ namespace { struct dictionary {
     // dictionary for L1GtFdlWord
     L1GtFdlWord dummy40;
     edm::Wrapper<L1GtFdlWord> dummy41;
-    
+
     std::vector<L1GtFdlWord> dummy42;
     edm::Wrapper<std::vector<L1GtFdlWord> > dummy43;
 
     // dictionary for L1GtPsbWord
     L1GtPsbWord dummy80;
     edm::Wrapper<L1GtPsbWord> dummy81;
-    
+
     std::vector<L1GtPsbWord> dummy82;
     edm::Wrapper<std::vector<L1GtPsbWord> > dummy83;
 
-    // dictionary for L1 Global Trigger Readout Setup    
+    // dictionary for L1 Global Trigger Readout Setup
     L1GlobalTriggerReadoutSetup dummy50;
     edm::Wrapper<L1GlobalTriggerReadoutSetup> dummy51;
 
@@ -73,17 +73,20 @@ namespace { struct dictionary {
     // dictionary for L1 Global Trigger Record
     L1GlobalTriggerRecord dummy120;
     edm::Wrapper<L1GlobalTriggerRecord> dummy121;
-    
+
     // dictionary for L1 Global Trigger Technical Trigger Record
     L1GtTechnicalTrigger dummy130;
-    edm::Wrapper<L1GtTechnicalTrigger> dummy131; 
+    edm::Wrapper<L1GtTechnicalTrigger> dummy131;
+
+    std::vector<L1GtTechnicalTrigger> dummy132;
+    edm::Wrapper<std::vector<L1GtTechnicalTrigger> > dummy133;
 
     L1GtTechnicalTriggerRecord dummy135;
-    edm::Wrapper<L1GtTechnicalTriggerRecord> dummy136; 
-    
+    edm::Wrapper<L1GtTechnicalTriggerRecord> dummy136;
+
     //
     std::vector<L1GtObject> dummy100;
-    std::vector<std::vector<L1GtObject> > dummy101; 
+    std::vector<std::vector<L1GtObject> > dummy101;
 
     L1GtLogicParser::OperandToken dummy110;
     std::vector<L1GtLogicParser::OperandToken> dummy111;

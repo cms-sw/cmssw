@@ -61,7 +61,7 @@ class HcalTrigPrimClient : public HcalBaseClient {
   TH2F* OCC_ELEC_VME_;
   TH2F* OCC_ELEC_DCC_;
   TH2F* OCC_MAP_GEO_;
-
+  TH2F* OCC_MAP_SLB_;
   TH2F* OCC_MAP_THR_;
   TH1F* EN_ETA_;
   TH1F* EN_PHI_;
@@ -72,8 +72,6 @@ class HcalTrigPrimClient : public HcalBaseClient {
   TH1F* TPTimingTop_;
   TH1F* TPTimingBot_;
   TH1F* TP_ADC_;
-  TH1F* MAX_ADC_;
-  TH1F* TS_MAX_;
   TH2F* TPOcc_;
   TH2F* TPvsDigi_;
 

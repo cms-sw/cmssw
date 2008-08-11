@@ -72,7 +72,8 @@ void AlignableDet::addAlignmentPositionError(const AlignmentPositionError& ape)
   if ( !theAlignmentPositionError ) {
     theAlignmentPositionError = new AlignmentPositionError( ape );
   } else {
-    *theAlignmentPositionError += ape;
+    // *theAlignmentPositionError += ape; grrr... buggy AlignmentPositionError::operator+=
+    *theAlignmentPositionError = (*theAlignmentPositionError) += ape;
   }
 
   AlignableComposite::addAlignmentPositionError( ape );

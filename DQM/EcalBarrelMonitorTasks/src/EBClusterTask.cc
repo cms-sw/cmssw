@@ -1,8 +1,8 @@
 /*
  * \file EBClusterTask.cc
  *
- * $Date: 2008/07/07 18:11:00 $
- * $Revision: 1.60 $
+ * $Date: 2008/04/08 15:35:11 $
+ * $Revision: 1.57 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -20,7 +20,6 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
-#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
@@ -52,7 +51,6 @@ EBClusterTask::EBClusterTask(const ParameterSet& ps){
   mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
 
   // parameters...
-  EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
   BasicClusterCollection_ = ps.getParameter<edm::InputTag>("BasicClusterCollection");
   SuperClusterCollection_ = ps.getParameter<edm::InputTag>("SuperClusterCollection");
   ClusterShapeAssociation_ = ps.getParameter<edm::InputTag>("ClusterShapeAssociation");
@@ -355,38 +353,6 @@ void EBClusterTask::reset(void) {
 
 void EBClusterTask::analyze(const Event& e, const EventSetup& c){
 
-  bool enable = false;
-
-  Handle<EcalRawDataCollection> dcchs;
-
-  if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
-
-    for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
-
-      EcalDCCHeaderBlock dcch = (*dcchItr);
-
-      if ( Numbers::subDet( dcch ) != EcalBarrel ) continue;
-
-      if ( dcch.getRunType() == EcalDCCHeaderBlock::COSMIC ||
-           dcch.getRunType() == EcalDCCHeaderBlock::MTCC ||
-           dcch.getRunType() == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
-           dcch.getRunType() == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
-           dcch.getRunType() == EcalDCCHeaderBlock::COSMICS_LOCAL ||
-           dcch.getRunType() == EcalDCCHeaderBlock::PHYSICS_LOCAL ) enable = true;
-
-      break;
-
-    }
-
-  } else {
-
-    enable = true;
-    LogWarning("EBClusterTask") << EcalRawDataCollection_ << " not available";
-
-  }
-
-  if ( ! enable ) return;
-
   if ( ! init_ ) this->setup();
 
   ievt_++;
@@ -466,14 +432,14 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
 
       // look for the two most energetic super clusters
       if ( nscc >= 2 ) {
-        if ( sCluster->energy() > sc1_p.Energy() ) {
-          sc2_p=sc1_p;
-          sc1_p.SetPtEtaPhiE(sCluster->energy()*sin(sCluster->position().theta()),
-                             sCluster->eta(), sCluster->phi(), sCluster->energy());
-        } else if ( sCluster->energy() > sc2_p.Energy() ) {
-          sc2_p.SetPtEtaPhiE(sCluster->energy()*sin(sCluster->position().theta()),
-                             sCluster->eta(), sCluster->phi(), sCluster->energy());
-        }
+	if ( sCluster->energy() > sc1_p.Energy() ) {
+	  sc2_p=sc1_p;
+	  sc1_p.SetPtEtaPhiE(sCluster->energy()*sin(sCluster->position().theta()),
+			     sCluster->eta(), sCluster->phi(), sCluster->energy());
+	} else if ( sCluster->energy() > sc2_p.Energy() ) {
+	  sc2_p.SetPtEtaPhiE(sCluster->energy()*sin(sCluster->position().theta()),
+			     sCluster->eta(), sCluster->phi(), sCluster->energy());
+	}
       }
     }
     // Get the invariant mass of the two most energetic super clusters

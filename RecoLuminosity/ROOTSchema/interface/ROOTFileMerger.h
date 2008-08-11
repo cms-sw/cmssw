@@ -17,16 +17,12 @@ namespace HCAL_HLX{
     
     void Merge(const unsigned int runNumber, bool bCMSLive);
     
-    std::string GetFileName();
-
   private:
-
-    std::string CreateInputFileName(const unsigned int runNumber);
     
+    std::string CreateInputFileName(const unsigned int runNumber);
+
     unsigned int minSectionNumber;
     
-    std::string outputFileName_;
-
   };
 }
 

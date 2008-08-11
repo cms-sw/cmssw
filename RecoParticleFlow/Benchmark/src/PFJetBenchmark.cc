@@ -1,141 +1,88 @@
 #include "RecoParticleFlow/Benchmark/interface/PFJetBenchmark.h"
-#include "FWCore/ServiceRegistry/interface/Service.h" 
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+
+
+#include "TFile.h"
 #include "TH1F.h"
 #include "TH2F.h"
-#include <string>
-
-
-// preprocessor macro for booking 1d histos with DQMStore -or- bare Root
-#define BOOK1D(name,title,nbinsx,lowx,highx) \
-  h##name = dbe_ ? dbe_->book1D(#name,title,nbinsx,lowx,highx)->getTH1F() \
-    : new TH1F(#name,title,nbinsx,lowx,highx)
-
-// preprocessor macro for booking 2d histos with DQMStore -or- bare Root
-#define BOOK2D(name,title,nbinsx,lowx,highx,nbinsy,lowy,highy) \
-  h##name = dbe_ ? dbe_->book2D(#name,title,nbinsx,lowx,highx,nbinsy,lowy,highy)->getTH2F() \
-    : new TH2F(#name,title,nbinsx,lowx,highx,nbinsy,lowy,highy)
-
-//macros for building barrel and endcap histos with one call
-#define DBOOK1D(name,title,nbinsx,lowx,highx) \
-  BOOK1D(B##name,"Barrel "#title,nbinsx,lowx,highx); BOOK1D(E##name,"Endcap "#title,nbinsx,lowx,highx);
-#define DBOOK2D(name,title,nbinsx,lowx,highx,nbinsy,lowy,highy) \
-  BOOK2D(B##name,"Barrel "#title,nbinsx,lowx,highx,nbinsy,lowy,highy); BOOK2D(E##name,"Endcap "#title,nbinsx,lowx,highx,nbinsy,lowy,highy);
-
-// all versions OK
-// preprocesor macro for setting axis titles
-#define SETAXES(name,xtitle,ytitle) \
-  h##name->GetXaxis()->SetTitle(xtitle); h##name->GetYaxis()->SetTitle(ytitle)
-
-//macro for setting the titles for barrel and endcap together
-#define DSETAXES(name,xtitle,ytitle) \
-  SETAXES(B##name,xtitle,ytitle);SETAXES(E##name,xtitle,ytitle)
-/*#define SET2AXES(name,xtitle,ytitle) \
-  hE##name->GetXaxis()->SetTitle(xtitle); hE##name->GetYaxis()->SetTitle(ytitle);  hB##name->GetXaxis()->SetTitle(xtitle); hB##name->GetYaxis()->SetTitle(ytitle)
-*/
-
-#define PT (PlotAgainstReco_)?"reconstructed P_{T}" :"generated P_{T}"
 
 using namespace reco;
 using namespace std;
-
-class MonitorElement;
 
 PFJetBenchmark::PFJetBenchmark() {}
 
 PFJetBenchmark::~PFJetBenchmark() {}
 
-void PFJetBenchmark::save() {
-   // Store the DAQ Histograms 
-  if (outputFile_.size() != 0) {
-    if (dbe_)
-          dbe_->save(outputFile_.c_str());
-    // use bare Root if no DQM (FWLite applications)
-    else if (file_)
-      file_->Write(outputFile_.c_str());
-  }
-  else 
-    cout << "No output file specified ("<<outputFile_<<"). Results will not be saved!" << endl;} 
-
 void PFJetBenchmark::setup(
 			   string Filename,
-			   bool debug, 
+ 			   bool debug, 
 			   bool PlotAgainstReco, 
-			   double deltaRMax, 
-			   string benchmarkLabel_, 
-			   double recPt, 
-			   double maxEta) {
+			   double deltaRMax  ) {
+	
+  // save previous directory, we must go back there
+  // or it will put a mess in all the other places where 
+  // the root output is used.
+  TDirectory* previousDir = gDirectory;
+  file_ = TFile::Open(Filename.c_str(), "recreate");
+  file_->cd();
+
   debug_ = debug; 
   PlotAgainstReco_ = PlotAgainstReco; 
   deltaRMax_ = deltaRMax;
-  outputFile_=Filename;
-  recPt_cut = recPt;
-  maxEta_cut= maxEta;
-  file_ = NULL;
-  dbe_ = NULL;
   // print parameters
   cout<< "PFJetBenchmark Setup parameters =============================================="<<endl;
   cout << "Filename ot write histograms " << Filename<<endl;
   cout << "PFJetBenchmark debug " << debug_<< endl;
   cout << "PlotAgainstReco " << PlotAgainstReco_ << endl;
   cout << "deltaRMax " << deltaRMax << endl;
-  // Book histogram
-
-  // Establish DQM Store
-  dbe_ = edm::Service<DQMStore>().operator->();
-  string path = "PFTask/Benchmarks/"+ benchmarkLabel_ + "/";
-  if (PlotAgainstReco) path += "Reco"; else path += "Gen";
-  if (dbe_) {
-    dbe_->setCurrentFolder(path.c_str());
-  }
-  else {
-    file_ = new TFile();
-    cout << "Warning: DQM is not available to support data storage service. Errors in saving might occur. "<<endl;
-  }
-  // Jets inclusive  distributions  (Pt > 20 or specified recPt GeV)
-  char cutString[35];
-  sprintf(cutString,"Jet multiplicity P_{T}>%4.1f GeV", recPt_cut);
-  BOOK1D(Njets,cutString,50, 0, 50);
-
-  BOOK1D(jetsPt,"Jets P_{T} Distribution",100, 0, 500);
-
-  sprintf(cutString,"Jets #eta Distribution |#eta|<%4.1f", maxEta_cut);
-  BOOK1D(jetsEta,cutString,100, -5, 5);
+  // Book histograms
+  // Jets inclusive  distributions  (Pt > 20 GeV)
+  hNjets = new TH1F("hNjets","Jet multiplicity Pt > 20 GeV",50, 0, 50);
+  hjetsPt = new TH1F("hjetsPt","Jets Pt Distribution",100, 0, 500);
+  hjetsEta = new TH1F("hjetsEta","Jets Eta Distribution",100, -5, 5);
 	
   // delta Pt or E quantities for Barrel
-  DBOOK1D(RPt,#DeltaP_{T}/P_{T},80,-2,2);
-  DBOOK1D(RCHE,#DeltaE/E (charged had),80,-2,2);
-  DBOOK1D(RNHE,#DeltaE/E (neutral had),80,-2,2);
-  DBOOK1D(RNEE,#DeltaE/E (neutral em),80,-2,2);
-  DBOOK1D(Rneut,#DeltaE/E (neutral),80,-2,2);
-  DBOOK2D(RPtvsPt,#DeltaP_{T}/P_{T} vs P_{T},40, 0, 500, 80,-2,2);       //used to be 50 bin for each in x-direction
-  DBOOK2D(RCHEvsPt,#DeltaE/E (charged had) vs P_{T},40, 0, 500, 80,-2,2);
-  DBOOK2D(RNHEvsPt,#DeltaE/E (neutral had) vs P_{T},40, 0, 500, 80,-2,2);
-  DBOOK2D(RNEEvsPt,#DeltaE/E (neutral em) vs P_{T},40, 0, 500, 80,-2,2);
-  DBOOK2D(RneutvsPt,#DeltaE/E (neutral) vs P_{T},40, 0, 500, 80,-2,2);
+  hBRPt = new TH1F("hBRPt","Barrel ResolPt",80,-2,2);
+  hBRCHE = new TH1F("hBRCHE","Barrel Resol charged had Energy",80,-2,2);
+  hBRNHE = new TH1F("hBRNHE","Barrel Resol neutral had Energy",80,-2,2);
+  hBRNEE = new TH1F("hBRNEE","Barrel Resol neutral elm Energy",80,-2,2);
+  hBRneut = new TH1F("hBRneut","Barrel Resol neutral Energy",80,-2,2);
+  hBRPtvsPt = new TH2F("hBRPtvsPt","Barrel ResolPt vs Pt",50, 0, 500, 80,-2,2);
+  hBRCHEvsPt = new TH2F("hBRCHEvsPt","Barrel Resol charged had Energy vs Pt",50, 0, 500, 80,-2,2);
+  hBRNHEvsPt = new TH2F("hBRNHEvsPt","Barrel Resol neutral had Energy vs Pt",50, 0, 500, 80,-2,2);
+  hBRNEEvsPt = new TH2F("hBRNEEvsPt","Barrel Resol neutral elm Energy vs Pt",50, 0, 500, 80,-2,2);
+  hBRneutvsPt = new TH2F("hBRneutvsPt","Barrel Resol neutral Energy vs Pt",50, 0, 500, 80,-2,2);
 	
- // Set Axis Titles
- 
- // Jets inclusive  distributions  (Pt > 20 GeV)
-  SETAXES(Njets,"","Multiplicity");
-  SETAXES(jetsPt, PT, "Number of Events");
-  SETAXES(jetsEta, "#eta", "Number of Events");
-  // delta Pt or E quantities for Barrel and Endcap
-  DSETAXES(RPt, "#DeltaP_{T}/P_{T}", "Events");
-  DSETAXES(RCHE, "#DeltaE/E(charged had)", "Events");
-  DSETAXES(RNHE, "#DeltaE/E(neutral had)", "Events");
-  DSETAXES(RNEE, "#DeltaE/E(neutral em)", "Events");
-  DSETAXES(Rneut, "#DeltaE/E(neutral)", "Events");
-  DSETAXES(RPtvsPt, PT, "#DeltaP_{T}/P_{T}");
-  DSETAXES(RCHEvsPt, PT, "#DeltaE/E(charged had)");
-  DSETAXES(RNHEvsPt, PT, "#DeltaE/E(neutral had)");
-  DSETAXES(RNEEvsPt, PT, "#DeltaE/E(neutral em)");
-  DSETAXES(RneutvsPt, PT, "#DeltaE/E(neutral)");
-
+  // delta Pt or E quantities for Endcap
+  hERPt = new TH1F("hERPt","Endcap ResolPt",80,-2,2);
+  hERCHE = new TH1F("hERCHE","Endcap Resol charged had Energy",80,-2,2);
+  hERNHE = new TH1F("hERNHE","Endcap Resol neutral had Energy",80,-2,2);
+  hERNEE = new TH1F("hERNEE","Endcap Resol neutral elm Energy",80,-2,2);
+  hERneut = new TH1F("hERneut","Endcap Resol neutral Energy",80,-2,2);
+  hERPtvsPt = new TH2F("hERPtvsPt","Endcap ResolPt vs Pt",50, 0, 500, 80,-2,2);
+  hERCHEvsPt = new TH2F("hERCHEvsPt","Endcap Resol charged had Energy vs Pt",50, 0, 500, 80,-2,2);
+  hERNHEvsPt = new TH2F("hERNHEvsPt","Endcap Resol neutral had Energy vs Pt",50, 0, 500, 80,-2,2);
+  hERNEEvsPt = new TH2F("hERNEEvsPt","Endcap Resol neutral elm Energy vs Pt",50, 0, 500, 80,-2,2);
+  hERneutvsPt = new TH2F("hERneutvsPt","Endcap Resol neutral Energy vs Pt",50, 0, 500, 80,-2,2);
+	
+  previousDir->cd();
 }
 
 
 void PFJetBenchmark::process(const reco::PFJetCollection& pfJets, const reco::GenJetCollection& genJets) {
+  //    	if(debug_){
+  //	cout<<"PFJetBenchmark::process---------- Particle Flow Jets: "<<endl;
+  //      for(unsigned i=0; i<pfJets.size(); i++) { 
+  //	 	  cout<<i<<pfJets[i].print()<<endl;
+  //          printPFJet(&pfJets[i]);
+  //      }    
+  //   cout<<endl;
+  //   cout<<"PFJetBenchmark::process---------- Generated Jets: "<<endl;
+  //      for(unsigned i=0; i<genJets.size(); i++) { 
+  //  	  cout<<i<<genJets[i].print()<<endl;
+  //	      printGenJet(&genJets[i]);
+  //      }
+  //   }// debug
+	
   // loop over reco  pf  jets
   resPtMax_ = 0.;
   resChargedHadEnergyMax_ = 0.;
@@ -150,27 +97,22 @@ void PFJetBenchmark::process(const reco::PFJetCollection& pfJets, const reco::Ge
     double rec_pt = pfj.pt();
     double rec_eta = pfj.eta();
     double rec_phi = pfj.phi();
-    // skip PFjets with pt < recPt_cut GeV
-    if (rec_pt<recPt_cut and recPt_cut != -1.) continue;
-    // skip PFjets with eta > maxEta_cut
-    if (fabs(rec_eta)>maxEta_cut and maxEta_cut != -1.) continue;
-
+    // skip PFjets with pt < 20 GeV
+    if (rec_pt<20.) continue;
     NPFJets++;
 		
     // fill inclusive PFjet distribution pt > 20 GeV
     hNjets->Fill(NPFJets);
     hjetsPt->Fill(rec_pt);
     hjetsEta->Fill(rec_eta);
-
+		
     // separate Barrel PFJets from Endcap PFJets
     bool Barrel = false;
     bool Endcap = false;
     if (abs(rec_eta) < 1.4 ) Barrel = true;
     if (abs (rec_eta) > 1.6 && abs (rec_eta) < 3. ) Endcap = true;
-
     // do only barrel for now
-    //  if(!Barrel) continue;
-
+    if(!Barrel) continue;
     // look for the closets gen Jet : truth
     const GenJet *truth = algo_->matchByDeltaR(&pfj,&genJets);
     if(!truth) continue;   
@@ -179,10 +121,10 @@ void PFJetBenchmark::process(const reco::PFJetCollection& pfJets, const reco::Ge
     if(deltaR < deltaRMax_) {//start case deltaR < deltaRMax
       // generate histograms comparing the reco and truth candidate (truth = closest in delta-R) 
       // get the quantities to place on the denominator and/or divide by
-      double pt_denom;
+      //double pt_denom;
       double true_pt = truth->pt();
-      if (PlotAgainstReco_) {pt_denom = rec_pt;}
-      else {pt_denom = true_pt;}
+      //if (PlotAgainstReco_) {pt_denom = rec_pt}
+      //else {pt_denom = true_pt;}
       // get true specific quantities
       double true_ChargedHadEnergy;
       double true_NeutralHadEnergy;
@@ -229,7 +171,7 @@ void PFJetBenchmark::process(const reco::PFJetCollection& pfJets, const reco::Ge
 	resNeutralEnergy = (rec_NeutralEnergy- true_NeutralEnergy)/true_NeutralEnergy;
 	plot5 = true;}
 			
-	 		
+			
       //double deltaEta = algo_->deltaEta(&pfj, truth);
       //double deltaPhi = algo_->deltaPhi(&pfj, truth);
       if(abs(resPt) > resPtMax_) resPtMax_ = abs(resPt);
@@ -269,11 +211,11 @@ void PFJetBenchmark::process(const reco::PFJetCollection& pfJets, const reco::Ge
 	if(plot3)hBRNHE->Fill(resNeutralHadEnergy);
 	if(plot4)hBRNEE->Fill(resNeutralEmEnergy);
 	if(plot5)hBRneut->Fill(resNeutralEnergy);
-	if(plot1)hBRPtvsPt->Fill(pt_denom, resPt);
-	if(plot2)hBRCHEvsPt->Fill(pt_denom, resChargedHadEnergy);
-	if(plot3)hBRNHEvsPt->Fill(pt_denom, resNeutralHadEnergy);
-	if(plot4)hBRNEEvsPt->Fill(pt_denom, resNeutralEmEnergy);
-	if(plot5)hBRneutvsPt->Fill(pt_denom, resNeutralEnergy);
+	if(plot1)hBRPtvsPt->Fill(true_pt, resPt);
+	if(plot2)hBRCHEvsPt->Fill(true_pt, resChargedHadEnergy);
+	if(plot3)hBRNHEvsPt->Fill(true_pt, resNeutralHadEnergy);
+	if(plot4)hBRNEEvsPt->Fill(true_pt, resNeutralEmEnergy);
+	if(plot5)hBRneutvsPt->Fill(true_pt, resNeutralEnergy);
       }
       // delta Pt or E quantities for Endcap
       if (Endcap){
@@ -282,15 +224,18 @@ void PFJetBenchmark::process(const reco::PFJetCollection& pfJets, const reco::Ge
 	if(plot3)hERNHE->Fill(resNeutralHadEnergy);
 	if(plot4)hERNEE->Fill(resNeutralEmEnergy);
 	if(plot5)hERneut->Fill(resNeutralEnergy);
-	if(plot1)hERPtvsPt->Fill(pt_denom, resPt);
-	if(plot2)hERCHEvsPt->Fill(pt_denom, resChargedHadEnergy);
-	if(plot3)hERNHEvsPt->Fill(pt_denom, resNeutralHadEnergy);
-	if(plot4)hERNEEvsPt->Fill(pt_denom, resNeutralEmEnergy);
-	if(plot5)hERneutvsPt->Fill(pt_denom, resNeutralEnergy);
-      }						
+	if(plot1)hERPtvsPt->Fill(true_pt, resPt);
+	if(plot2)hERCHEvsPt->Fill(true_pt, resChargedHadEnergy);
+	if(plot3)hERNHEvsPt->Fill(true_pt, resNeutralHadEnergy);
+	if(plot4)hERNEEvsPt->Fill(true_pt, resNeutralEmEnergy);
+	if(plot5)hERneutvsPt->Fill(true_pt, resNeutralEnergy);
+      }
+			
+			
     } // end case deltaR < deltaRMax
 		
-  } // i loop on pf Jets	
+  } // i loop on pf Jets
+	
 }
 
 void PFJetBenchmark::gettrue (const reco::GenJet* truth, double& true_ChargedHadEnergy, 
@@ -321,14 +266,19 @@ void PFJetBenchmark::gettrue (const reco::GenJet* truth, double& true_ChargedHad
       true_NeutralHadEnergy += e;
     default:
       break;
-    }  // end PDG switch		
+    }  // end PDG switch
+		
   }  // end loop on constituents.
+	
 }
 
 void PFJetBenchmark::printPFJet(const reco::PFJet* pfj){
   cout<<setiosflags(ios::right);
   cout<<setiosflags(ios::fixed);
   cout<<setprecision(3);
+	
+  //const reco::Jet* jet = pfj;
+  // cout << jet->print();
   std::vector <const PFCandidate*> pfCandidates = pfj->getPFConstituents ();
   cout << "PFJet  p/px/py/pz/pt: " << pfj->p() << '/' << pfj->px () 
        << '/' << pfj->py() << '/' << pfj->pz() << '/' << pfj->pt() << endl
@@ -349,8 +299,6 @@ void PFJetBenchmark::printPFJet(const reco::PFJet* pfj){
 	
   cout<<resetiosflags(ios::right|ios::fixed);
 }
-
-
 void PFJetBenchmark::printGenJet (const reco::GenJet* truth){
   std::vector <const GenParticle*> mcparts = truth->getGenConstituents ();
   cout << "GenJet p/px/py/pz/pt: " << truth->p() << '/' << truth->px () 
@@ -362,7 +310,15 @@ void PFJetBenchmark::printGenJet (const reco::GenJet* truth){
     const GenParticle* mcpart = mcparts[i];
     cout << "      #" << i << "  PDG code:" << mcpart->pdgId() 
 	 << ", p/pt/eta/phi: " << mcpart->p() << '/' << mcpart->pt() 
-	 << '/' << mcpart->eta() << '/' << mcpart->phi() << endl;	
+	 << '/' << mcpart->eta() << '/' << mcpart->phi() << endl;
+		
   }    
 }
 
+void PFJetBenchmark::write() {
+	
+  if (file_){
+    cout<<"writing PFBenchmark Histos to "<<file_->GetName()<<endl;
+    file_->Write();
+  }
+}

@@ -132,9 +132,6 @@ void SiStripActionExecutor::bookGlobalStatus(DQMStore* dqm_store) {
 // -- Fill Dummy Global Status
 //
 void SiStripActionExecutor::fillDummyGlobalStatus(){
-  
-  resetGlobalStatus();
-
   SummaryReport->Fill(-1.0);
 
   SummaryTIB->Fill(-1.0);
@@ -243,47 +240,31 @@ void SiStripActionExecutor::fillGlobalStatus(const edm::ESHandle<SiStripDetCabli
 	}
       }
   }
-  fillDummyGlobalStatus();
+  SummaryReportMap->Reset();
   if (nDetTot > 0) {
     gStatus = (1 - nDetErr*1.0/nDetTot);
- 
+    
+    if (nDetTIBTot  > 0) statusTIB  = (1 - nDetTIBErr*1.0/nDetTIBTot);
+    if (nDetTOBTot  > 0) statusTOB  = (1 - nDetTOBErr*1.0/nDetTOBTot);
+    if (nDetTIDFTot > 0) statusTIDF = (1 - nDetTIDFErr*1.0/nDetTIDFTot);
+    if (nDetTIDBTot > 0) statusTIDB = (1 - nDetTIDBErr*1.0/nDetTIDBTot);
+    if (nDetTECFTot > 0) statusTECF = (1 - nDetTECFErr*1.0/nDetTECFTot);
+    if (nDetTECBTot > 0) statusTECB = (1 - nDetTECBErr*1.0/nDetTECBTot);
+    
     string dname;
-    // If TIB detectors are present in the set up   
-    if (nDetTIBTot  > 0) {
-      statusTIB  = (1 - nDetTIBErr*1.0/nDetTIBTot);
-      dname = "SiStrip/MechanicalView/TIB";
-      fillSubDetStatus(dqm_store, dname, 1);  
-    }
-    // If TOB detectors are present in the set up 
-    if (nDetTOBTot  > 0) {
-       statusTOB  = (1 - nDetTOBErr*1.0/nDetTOBTot);
-       dname = "SiStrip/MechanicalView/TOB";
-       fillSubDetStatus(dqm_store, dname, 2);  
-    }
-    // If TIDF detectors are present in the set up    
-    if (nDetTIDFTot > 0) {
-      statusTIDF = (1 - nDetTIDFErr*1.0/nDetTIDFTot);
-      dname = "SiStrip/MechanicalView/TID/side_2";
-      fillSubDetStatus(dqm_store, dname, 3);  
-    }
-    // If TIDB detectors are present in the set up 
-    if (nDetTIDBTot > 0) {
-      statusTIDB = (1 - nDetTIDBErr*1.0/nDetTIDBTot);
-      dname = "SiStrip/MechanicalView/TID/side_1";
-      fillSubDetStatus(dqm_store, dname, 4);  
-    }
-    // If TECF detectors are present in the set up 
-    if (nDetTECFTot > 0) {
-      statusTECF = (1 - nDetTECFErr*1.0/nDetTECFTot);
-      dname = "SiStrip/MechanicalView/TEC/side_2";
-      fillSubDetStatus(dqm_store, dname, 5);  
-    }
-    // If TECF detectors are present in the set up 
-    if (nDetTECBTot > 0) {
-      statusTECB = (1 - nDetTECBErr*1.0/nDetTECBTot);
-      dname = "SiStrip/MechanicalView/TEC/side_1";
-      fillSubDetStatus(dqm_store, dname, 6);  
-    }   
+    dname = "SiStrip/MechanicalView/TIB";
+    fillSubDetStatus(dqm_store, dname, 1);  
+    dname = "SiStrip/MechanicalView/TOB";
+    fillSubDetStatus(dqm_store, dname, 2);  
+    dname = "SiStrip/MechanicalView/TID/side_2";
+    fillSubDetStatus(dqm_store, dname, 3);  
+    dname = "SiStrip/MechanicalView/TID/side_1";
+    fillSubDetStatus(dqm_store, dname, 4);  
+    dname = "SiStrip/MechanicalView/TEC/side_2";
+    fillSubDetStatus(dqm_store, dname, 5);  
+    dname = "SiStrip/MechanicalView/TEC/side_1";
+    fillSubDetStatus(dqm_store, dname, 6);  
+
     cout <<"# of Det TIB : (tot)"<<setw(5)<<nDetTIBTot<< " (error) "<<nDetTIBErr <<" ==> "<<statusTIB<< endl; 
     cout <<"# of Det TOB : (tot)"<<setw(5)<<nDetTOBTot<< " (error) "<<nDetTOBErr <<" ==> "<<statusTOB<< endl; 
     cout <<"# of Det TIDF: (tot)"<<setw(5)<<nDetTIDFTot<<" (error) "<<nDetTIDFErr<<" ==> "<<statusTIDF<< endl; 
@@ -339,9 +320,6 @@ void SiStripActionExecutor::fillGlobalStatus(const edm::ESHandle<SiStripDetCabli
 // -- fill subDetStatus
 //
 void SiStripActionExecutor::fillSubDetStatus(DQMStore* dqm_store, string& dname, unsigned int xbin) {
-  if (SummaryReportMap->kind() != MonitorElement::DQM_KIND_TH2F) return;
-  TH2F* hist2 = SummaryReportMap->getTH2F();
-  if (!hist2) return;
   if (dqm_store->dirExists(dname)) {
     dqm_store->cd(dname);
     SiStripFolderOrganizer folder_organizer;
@@ -374,15 +352,17 @@ void SiStripActionExecutor::fillSubDetStatus(DQMStore* dqm_store, string& dname,
       }
       ybin++;
       float eff_fac = 1 - (err_det*1.0/tot_det);
-      if (tot_det > 0.0) hist2->SetBinContent(xbin,ybin, eff_fac);
+      if (tot_det > 0.0) SummaryReportMap->Fill(xbin,ybin, eff_fac);
+      else SummaryReportMap->Fill(xbin,ybin, -1.0);
+    }
+    unsigned ytot = SummaryReportMap->getNbinsY();
+    if (ybin < ytot) {
+      for (unsigned int ic = ybin+1; ic < ytot+1; ic++) SummaryReportMap->Fill(xbin,ic,-1);
     }
   }
 }
 void SiStripActionExecutor::fillSubDetStatus(DQMStore* dqm_store, string& dname,  
                             int& tot_me_subdet, int& error_me_subdet, unsigned int xbin) {
-  if (SummaryReportMap->kind() != MonitorElement::DQM_KIND_TH2F) return;
-  TH2F* hist2 = SummaryReportMap->getTH2F();
-  if (!hist2) return;
   if (dqm_store->dirExists(dname)) {
     dqm_store->cd(dname);
     vector<string> subDirVec = dqm_store->getSubdirs();
@@ -412,7 +392,12 @@ void SiStripActionExecutor::fillSubDetStatus(DQMStore* dqm_store, string& dname,
       }
       ybin++;
       float eff_fac = 1 - (error_me*1.0/tot_me);
-      if (tot_me > 0.0) hist2->SetBinContent(xbin,ybin, eff_fac);
+      if (tot_me > 0.0) SummaryReportMap->Fill(xbin,ybin, eff_fac);
+      else SummaryReportMap->Fill(xbin,ybin, -1.0);
+    }
+    unsigned ytot = SummaryReportMap->getNbinsY();
+    if (ybin < ytot) {
+      for (unsigned int ic = ybin+1; ic < ytot+1; ic++) SummaryReportMap->Fill(xbin,ic,-1);
     }
   }
 }

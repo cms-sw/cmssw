@@ -93,15 +93,15 @@ class dbsAccessor:
         self.dbsInst.set("cms_dbs_prod_global")
         #self.searchStringFile.set("*/Global*/A/*RAW/*.root")
         self.searchStringFile.set("")
-        self.searchStringDataset.set("/Cosmics/CRUZET3-v1/RAW")
+        self.searchStringDataset.set("/Cosmics/CRUZET2-v1/RAW")
         self.page.set(0)
         self.limit.set(10000)
         self.xml.set(False)
         self.case.set("on")
         self.details.set(False)
         self.debug.set(False)
-        self.beginRun.set(50700)
-        self.endRun.set(self.beginRun.get()+100)
+        self.beginRun.set(42100)
+        self.endRun.set(42200)
         self.site.set("")
         return
 
@@ -231,11 +231,8 @@ class dbsAccessor:
             self.endRun.set(endrun)
         if (mytext==None):
             temp=self.formParsedString()
-            if (self.beginRun.get()<=self.endRun.get()):
-                mytext="find run where %s run between %i-%i"%(temp,self.beginRun.get(),self.endRun.get())
-            else:
-                mytext="find run where %s"%temp[:-4]
-                if (self.class_debug): print "MYTEXT = ",mytext
+
+            mytext="find run where %s run between %i-%i"%(temp,self.beginRun.get(),self.endRun.get())
         if (self.site.get()<>""):
             mytext=mytext+" and site = %s"%self.site.get()
         if (self.class_debug):  print "mytext = ",mytext
@@ -262,20 +259,6 @@ class dbsAccessor:
 if __name__=="__main__":
     root=Tk()
     temp=dbsAccessor(debug=1,pclName="pydbsAccessor_test.pcl")
-    if (len(sys.argv))>1:
-        try:
-            begin=string.atoi(sys.argv[1])
-            temp.beginRun.set(begin)
-            print "Starting run = ",begin
-        except:
-            pass
-    if (len(sys.argv))>2:
-        try:
-            end=string.atoi(sys.argv[2])
-            temp.endRun.set(end)
-            print "Ending run = ",end
-        except:
-            pass
     temp.Print()
     temp.searchDBS()
     #Label(root,text="This is a test window\nfor pydbsAccessor.py").grid(row=0)

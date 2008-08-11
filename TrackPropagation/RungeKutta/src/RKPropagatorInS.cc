@@ -140,10 +140,10 @@ RKPropagatorInS::propagateParametersOnPlane( const FreeTrajectoryState& ts,
 					      startState.momentum(), 
 					      (double) ts.charge(), currentDirection);
     if (!path.first) { 
-      LogDebug("RKPropagatorInS")  << "RKPropagatorInS: Path length calculation to plane failed!" ;
-      LogDebug("RKPropagatorInS")  << "...distance to plane " << plane.localZ( globalPosition(startState.position())) ;
-      LogDebug("RKPropagatorInS")  << "...Local starting position in volume " << startState.position() ;
-      LogDebug("RKPropagatorInS")  << "...Magnetic field " << field.inTesla( startState.position()) ;
+      LogDebug("RKPropagatorInS")  << "RKPropagatorInS: Path length calculation to plane failed!" 
+				   << "...distance to plane " << plane.localZ( globalPosition(startState.position()))
+				   << "...Local starting position in volume " << startState.position() 
+				   << "...Magnetic field " << field.inTesla( startState.position()) ;
 
 
       return GlobalParametersWithPath();
@@ -234,11 +234,11 @@ RKPropagatorInS::propagateParametersOnCylinder( const FreeTrajectoryState& ts,
 	// point (reconverted to GlobalPoint)
 	GlobalPoint x (cylCrossing.position(s));
 	GlobalTrajectoryParameters res( x, gmom, ts.charge(), theVolume);
-	std::cout << "Straight line propagation to cylinder succeeded !!" << std::endl; 
+	LogDebug("RKPropagatorInS")  << "Straight line propagation to cylinder succeeded !!";
 	return GlobalParametersWithPath( res, s);
       } else {
 	//do someting 
-	std::cout << "Straight line propagation to cylinder failed !!" << std::endl;
+	edm::LogError("RKPropagatorInS")  <<"Straight line propagation to cylinder failed !!";
 	return GlobalParametersWithPath( );
       }
     }
@@ -263,9 +263,8 @@ RKPropagatorInS::propagateParametersOnCylinder( const FreeTrajectoryState& ts,
 
       std::pair<bool,double> path = pathLength.pathLength( cyl);
       if (!path.first) { 
-	LogDebug("RKPropagatorInS")  << "RKPropagatorInS: Path length calculation to cylinder failed!" ;
-	LocalPoint lpos( startState.position());
-	LogDebug("RKPropagatorInS")  << "Radius " << cyl.radius() << " pos.perp() " << lpos.perp() ;
+	LogDebug("RKPropagatorInS")  << "RKPropagatorInS: Path length calculation to cylinder failed!" 
+				     << "Radius " << cyl.radius() << " pos.perp() " << LocalPoint(startState.position()).perp() ;
 	return GlobalParametersWithPath();
       }
       else {

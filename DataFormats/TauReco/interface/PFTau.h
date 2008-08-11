@@ -101,19 +101,6 @@ namespace reco {
     void setSegComp(const float&);
     void setMuonDecision(const bool&);
 //
-
-    /// return the number of source Candidates
-    /// ( the candidates used to construct this Candidate)
-    /// in the case of taus, there is only one source candidate,
-    /// which is the corresponding PFJet
-    size_type numberOfSourceCandidatePtrs() const {return 1;}
-
-    /// return a RefToBase to the source Candidates
-    /// ( the candidates used to construct this Candidate)
-    CandidatePtr sourceCandidatePtr( size_type i ) const;
-
-    /// prints information on this PFTau
-    void dump(std::ostream& out=std::cout) const;
     
  private:
     // check overlap with another candidate
@@ -142,7 +129,7 @@ namespace reco {
     bool muonDecision_;
   };
 
-  std::ostream & operator<<(std::ostream& out, const PFTau& c); 
+std::ostream & operator<<(std::ostream& out, const PFTau& c); 
 
 }
 #endif

@@ -13,6 +13,4 @@ DEFINE_EDM_PLUGIN(NavigationSchoolFactory, CosmicNavigationSchool, "CosmicNaviga
 DEFINE_EDM_PLUGIN(NavigationSchoolFactory, BeamHaloNavigationSchool, "BeamHaloNavigationSchool");
 
 #include "RecoTracker/TkNavigation/plugins/NavigationSchoolESProducer.h"
-#include "RecoTracker/TkNavigation/plugins/SkippingLayerCosmicNavigationSchoolESProducer.h"
 DEFINE_FWK_EVENTSETUP_MODULE(NavigationSchoolESProducer);
-DEFINE_FWK_EVENTSETUP_MODULE(SkippingLayerCosmicNavigationSchoolESProducer);

@@ -13,7 +13,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Fri Feb 22 09:20:55 CST 2008
-// $Id: L1TauAnalyzer.cc,v 1.3 2008/04/24 21:27:31 chinhan Exp $
+// $Id: L1TauAnalyzer.cc,v 1.2 2008/03/03 00:36:08 chinhan Exp $
 //
 //
 
@@ -488,12 +488,12 @@ L1TauAnalyzer::fillL1Histograms() {
     h_L1TauEt->Fill(_L1Taus[i].Et());
     h_L1TauEta->Fill(_L1Taus[i].Eta());
     h_L1TauPhi->Fill(_L1Taus[i].Phi());
-    if (i==0) {
+    if (i==1) {
       h_L1Tau1Et->Fill(_L1Taus[i].Et());
       h_L1Tau1Eta->Fill(_L1Taus[i].Eta());
       h_L1Tau1Phi->Fill(_L1Taus[i].Phi());
     }
-    if (i==1) {
+    if (i==2) {
       h_L1Tau2Et->Fill(_L1Taus[i].Et());
       h_L1Tau2Eta->Fill(_L1Taus[i].Eta());
       h_L1Tau2Phi->Fill(_L1Taus[i].Phi());

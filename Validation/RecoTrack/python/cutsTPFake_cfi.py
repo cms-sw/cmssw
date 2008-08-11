@@ -8,5 +8,3 @@ cutsTPFake.maxRapidity = 3.0
 cutsTPFake.tip = 120
 cutsTPFake.lip = 250
 cutsTPFake.signalOnly = False
-
-

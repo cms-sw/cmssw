@@ -6,11 +6,11 @@ from Configuration.StandardSequences.Geometry_cff import *
 from Configuration.StandardSequences.Digi_cff     import *
 from Configuration.StandardSequences.MixingNoPileUp_cff import *
 from Configuration.StandardSequences.FakeConditions_cff import *
-
+from Configuration.StandardSequences.Reconstruction_cff import *
 from DQMServices.Core.DQM_cfg import *
 
 maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(-1)
 )
 source = cms.Source("PoolSource",
     debugFlag = cms.untracked.bool(True),
@@ -22,13 +22,15 @@ MessageLogger = cms.Service("MessageLogger")
 
 hcalDigiAnalyzer = cms.EDFilter("HcalDigiTester",
     digiLabel = cms.InputTag("simHcalUnsuppressedDigis"),
+    zside = cms.untracked.string('*'),
     outputFile = cms.untracked.string('HcalDigisValidationHB.root'),
-    hcalselector = cms.untracked.string('HB'),
-    zside = cms.untracked.string('*')
+    hcalselector = cms.untracked.string('HB')
 )
 
 DQM.collectorHost = ''
 
+simEcalUnsuppressedDigis.doNoise = False
+simEcalUnsuppressedDigis.doESNoise = False
 
-p = cms.Path(mix*simHcalUnsuppressedDigis*hcalDigiAnalyzer)
+p = cms.Path(mix*calDigi*hcalDigiAnalyzer)
 

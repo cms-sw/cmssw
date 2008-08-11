@@ -38,7 +38,7 @@ TrajectoryStateOnSurface TrackAssociatorByPosition::getState(const TrackingParti
 
   if (psimhit && plane){
     //build a trajectorystate on this surface    
-    SurfaceSideDefinition::SurfaceSide surfaceside = SurfaceSideDefinition::atCenterOfSurface;
+    SurfaceSide surfaceside = atCenterOfSurface;
     GlobalPoint initialPoint=plane->toGlobal(psimhit->localPosition());
     GlobalVector initialMomentum=plane->toGlobal(psimhit->momentumAtEntry());
     int initialCharge =  (psimhit->particleType()>0) ? -1:1;

@@ -1,6 +1,9 @@
 #ifndef EcalTBDaqFileReader_H
 #define EcalTBDaqFileReader_H
 
+
+
+
 #include <iosfwd>
 #include <string>
 #include <vector>
@@ -19,6 +22,8 @@ struct FedDataPair {
   int len;
 };
 
+
+
 class EcalTBDaqFileReader  {
 
  public:
@@ -27,6 +32,9 @@ class EcalTBDaqFileReader  {
   EcalTBDaqFileReader();
   /// Destructor
   virtual ~EcalTBDaqFileReader();
+
+  //Return the instance of the reader
+  //  static EcalTBDaqFileReader * instance();
 
   //Set the initialization bit
   void setInitialized(bool value);

@@ -5,15 +5,15 @@
  *  to MC and (eventually) data. 
  *  Implementation file contents follow.
  *
- *  $Date: 2008/06/27 15:56:49 $
- *  $Revision: 1.53 $
+ *  $Date: 2008/06/16 05:20:47 $
+ *  $Revision: 1.52 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.cc,v 1.53 2008/06/27 15:56:49 slava77 Exp $
+// $Id: SteppingHelixPropagator.cc,v 1.52 2008/06/16 05:20:47 slava77 Exp $
 //
 //
 
@@ -1638,7 +1638,7 @@ SteppingHelixPropagator::refToMagVolume(const SteppingHelixPropagator::StateInfo
   const MagVolume* cVol = sv.magVol;
 
   if (cVol == 0) return result;
-  const std::vector<VolumeSide>& cVolFaces(cVol->faces());
+  std::vector<VolumeSide> cVolFaces(cVol->faces());
 
   double distToFace[6] = {0,0,0,0,0,0};
   double tanDistToFace[6] = {0,0,0,0,0,0};

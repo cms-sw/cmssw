@@ -1,16 +1,10 @@
 #! /usr/bin/env python
 
-# This is a prototype for the new pyrelease validation package
-# this class here takes the input of optparse in cmsDriver and
-# creates a complete config file.
-# relval_main + the custom config for it is not needed any more
-
-__version__ = "$Revision: 1.53 $"
+__version__ = "$Revision: 1.56 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.Modules import _Module 
-
 
 # some helper routines
 def dumpPython(process,name):
@@ -25,6 +19,7 @@ def findName(object,dictionary):
     for name, item in dictionary.iteritems():
         if item == object:
             return name
+
              
 class ConfigBuilder(object):
     """The main building routines """
@@ -86,7 +81,6 @@ class ConfigBuilder(object):
                    self.additionalObjects.insert(0,name)
                 if isinstance(theObject, cms.Sequence):
                    self.additionalObjects.append(name)
-
         return
 
     def addOutput(self):
@@ -164,8 +158,10 @@ class ConfigBuilder(object):
                 raise 
 
         # the magnetic field
-        self.imports.append('Configuration/StandardSequences/MagneticField_'+self._options.magField.replace('.','')+'_cff')
-                                               
+        magneticFieldFilename = 'Configuration/StandardSequences/MagneticField_'+self._options.magField.replace('.','')+'_cff'
+        magneticFieldFilename = magneticFieldFilename.replace("__",'_')
+        self.imports.append(magneticFieldFilename)
+                                                        
 
         # what steps are provided by this class?
         stepList = [methodName.lstrip("prepare_") for methodName in self.__class__.__dict__ if methodName.startswith('prepare_')]
@@ -195,10 +191,19 @@ class ConfigBuilder(object):
             # fake or real conditions?
             if len(conditionsSP)>1:
                 self.loadAndRemember('FastSimulation/Configuration/CommonInputs_cff')
+
+                # Apply ECAL and HCAL miscalibration
                 self.additionalCommands.append('process.caloRecHits.RecHitsFactory.HCAL.fileNameHcal = "hcalmiscalib_startup.xml"')
-                self.additionalCommands.append("process.caloRecHits.RecHitsFactory.doMiscalib = True")
+                if "IDEAL" in conditionsSP:
+                    self.additionalCommands.append("process.caloRecHits.RecHitsFactory.doMiscalib = True")
+                                
+                # Apply Tracker misalignment
+                self.additionalCommands.append("process.famosSimHits.ApplyAlignment = True")
+                self.additionalCommands.append("process.misalignedTrackerGeometry.applyAlignment = True")
+                                       
             else:
                 self.loadAndRemember('FastSimulation/Configuration/CommonInputsFake_cff')
+                
         else:
             self.loadAndRemember('Configuration/StandardSequences/'+conditionsSP[0]+'_cff')
         
@@ -368,11 +373,6 @@ class ConfigBuilder(object):
             self.additionalCommands.append("process.famosSimHits.SimulateTracking = True")
             self.additionalCommands.append("process.famosPileUp.PileUpSimulator.averageNumber = 0.0")
 
-            # Apply Tracker misalignment (ideal alignment though)
-            #
-            self.additionalCommands.append("process.famosSimHits.ApplyAlignment = True")
-            self.additionalCommands.append("process.misalignedTrackerGeometry.applyAlignment = True")
-
             self.additionalCommands.append("process.simulation = cms.Sequence(process.simulationWithFamos)")
             self.additionalCommands.append("process.HLTEndSequence = cms.Sequence(process.reconstructionWithFamos)")
 
@@ -398,7 +398,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.53 $"),
+              (version=cms.untracked.string("$Revision: 1.56 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
@@ -417,7 +417,7 @@ class ConfigBuilder(object):
         self.addCommon()
 
         self.pythonCfgCode =  "# Auto generated configuration file\n"
-        self.pythonCfgCode += "# using: \n# "+__version__+"\n# "+__source__+"\n"
+        self.pythonCfgCode += "# using: \n# "+__version__[1:-1]+"\n# "+__source__[1:-1]+"\n"
         self.pythonCfgCode += "import FWCore.ParameterSet.Config as cms\n\n"
         self.pythonCfgCode += "process = cms.Process('"+self._options.name+"')\n\n"
         
@@ -425,16 +425,6 @@ class ConfigBuilder(object):
         for module in self.imports:
             self.pythonCfgCode += ("process.load('"+module+"')\n")
 
-        # dump ReleaseValidation PSet
-        totnumevts = int(self._options.relval.split(",")[0])
-        evtsperjob = int(self._options.relval.split(",")[1])
-        dsetname="RelVal"+self._options.evt_type.replace(".","_").rstrip("_cfi")
-
-        self.process.ReleaseValidation=cms.untracked.PSet(totalNumberOfEvents=cms.untracked.int32(totnumevts),
-                                                     eventsPerJob=cms.untracked.int32(evtsperjob),
-                                                     primaryDatasetName=cms.untracked.string(dsetname))
-        self.pythonCfgCode += "\nprocess.ReleaseValidation = "+self.process.ReleaseValidation.dumpPython()
- 
         # dump production info
         if not hasattr(self.process,"configurationMetadata"):
             self.process.configurationMetadata=self.build_production_info(self._options.evt_type, self._options.number)

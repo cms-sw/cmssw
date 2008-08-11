@@ -1,4 +1,4 @@
-// $Id: Candidate.cc,v 1.15 2008/05/08 15:29:35 srappocc Exp $
+// $Id: Candidate.cc,v 1.14 2008/04/21 14:04:28 llista Exp $
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 using namespace reco;
@@ -64,15 +64,3 @@ bool Candidate::isPhoton() const { return false; }
 bool Candidate::isConvertedPhoton() const { return false; }
 
 bool Candidate::isJet() const { return false; }
-
-const Candidate * Candidate::daughter(const std::string&) const {
-  throw edm::Exception(edm::errors::UnimplementedFeature) 
-    << "This Candidate type does not implement daughter(std::string). "
-    << "Please use CompositeCandidate or NamedCompositeCandidate.\n";
-}
-
-Candidate * Candidate::daughter(const std::string&) {
-  throw edm::Exception(edm::errors::UnimplementedFeature) 
-    << "This Candidate type does not implement daughter(std::string). "
-    << "Please use CompositeCandidate or NamedCompositeCandidate.\n";
-}

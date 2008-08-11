@@ -14,6 +14,9 @@ ecal_notCont_sim = cms.PSet(
     # For Barrel using E_{25}/E_{true}
     # For Endcap using E_{25} + E_{ps} = E_{true} 
     EBs25notContainment = cms.double(0.971),
-    EEs25notContainment = cms.double(0.975)
+    # with preshower
+    # EEs25notContainment = cms.double(0.976)
+    # no preshower
+    EEs25notContainment = cms.double(0.971)
 )
 

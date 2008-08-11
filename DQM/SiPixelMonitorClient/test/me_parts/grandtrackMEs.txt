@@ -1,4 +1,0 @@
-     <MonElement name="residualX_RMS">  </MonElement>
-     <MonElement name="residualY_RMS">  </MonElement>
-     <MonElement name="residualX_mean"> </MonElement>
-     <MonElement name="residualY_mean"> </MonElement>

@@ -1,12 +1,17 @@
 #ifndef PixelTrimAllPixels_h
 #define PixelTrimAllPixels_h
-/**
-* \file CalibFormats/SiPixelObjects/interface/PixelTrimAllPixels.h
-* \brief This class implements..
-*
-*   A longer explanation will be placed here later
-*
-*/
+//
+// This class provide a base class for the
+// pixel trim data for the pixel FEC configuration
+// This is a pure interface (abstract class) that
+// needs to have an implementation.
+//
+// Need to figure out what is 'VMEcommand' below! 
+//
+// All applications should just use this 
+// interface and not care about the specific
+// implementation
+//
 
 #include <string>
 #include <vector>
@@ -17,17 +22,6 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelNameTranslation.h"
 
 namespace pos{
-/*!  \ingroup TrimObjects "Trim Objects"
-*    \ingroup ConfigurationObjects "Configuration Objects"
-*    
-*  @{
-*
-*  \class PixelTrimBase PixelTrimBase.h
-*  \brief This class implements..
-*
-*   A longer explanation will be placed here later
-*
-*/
   class PixelTrimAllPixels: public PixelTrimBase {
 
   public:
@@ -45,7 +39,6 @@ namespace pos{
     void writeBinary(std::string filename) const;
 
     void writeASCII(std::string filename) const;
-    void writeXML(pos::PixelConfigKey key, int version, std::string path) const {;}
 
     PixelROCTrimBits getTrimBits(int ROCId) const;
 
@@ -59,5 +52,4 @@ namespace pos{
 
   };
 }
-/* @} */
 #endif

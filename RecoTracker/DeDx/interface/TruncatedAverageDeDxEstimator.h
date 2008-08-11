@@ -1,8 +1,8 @@
-#ifndef RecoTrackerDeDx_TruncatedAverageDeDxEstimator_h
-#define RecoTrackerDeDx_TruncatedAverageDeDxEstimator_h
+#ifndef TruncatedAverageDeDxEstimator_h
+#define TruncatedAverageDeDxEstimator_h
 
 #include "RecoTracker/DeDx/interface/DeDxTools.h"
-#include "DataFormats/TrackReco/interface/DeDxHit.h"
+#include "DataFormats/TrackReco/interface/TrackDeDxHits.h"
 #include <numeric>
 
 class TruncatedAverageDeDxEstimator: public BaseDeDxEstimator
@@ -10,15 +10,15 @@ class TruncatedAverageDeDxEstimator: public BaseDeDxEstimator
 public: 
  TruncatedAverageDeDxEstimator(float fraction): m_fraction(fraction) {}
 
- virtual float dedx(const reco::DeDxHitCollection & Hits) 
+ virtual float dedx(const reco::TrackDeDxHits & trackWithHits) 
  {
-  int nTrunc = int( Hits.size()*m_fraction);
+  int nTrunc = int( trackWithHits.second.size()*m_fraction);
   double sumdedx = 0;
-  for(size_t i=0;i + nTrunc <  Hits.size() ; i++)
+  for(size_t i=0;i + nTrunc <  trackWithHits.second.size() ; i++)
    {
-     sumdedx+=Hits[i].charge();
+     sumdedx+=trackWithHits.second[i].charge();
    } 
- double avrdedx = (Hits.size()) ? sumdedx/(Hits.size()-nTrunc) :0.0;
+ double avrdedx = (trackWithHits.second.size()) ? sumdedx/(trackWithHits.second.size()-nTrunc) :0.0;
 
   return  avrdedx;
  } 

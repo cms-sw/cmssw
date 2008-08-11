@@ -90,7 +90,23 @@ void SiPixelWebInterface::handleEDARequest(xgi::Input* in,xgi::Output* out, int 
     }
 
   } else if (requestID == "getIMGCPlot") {	  // <-----------------
-   infoExtractor_->getIMGCImage(requestMap_, out);
+    std::string plot    = get_from_multimap(requestMap_, "Plot");
+    std::string folder  = get_from_multimap(requestMap_, "Folder");
+    /*std::string canvasW = get_from_multimap(requestMap_, "canvasW");
+    std::string canvasH = get_from_multimap(requestMap_, "canvasH");*/
+    //std::stringstream fullPath ;
+    //fullPath << folder << "/" << plot ;
+    //std::string fullPath ;
+    //fullPath = folder + "/" + plot ;
+    //std::cout<<"old-fashioned path: "<<fullPath<<std::endl;
+    /*out->getHTTPResponseHeader().addHeader("Content-Type", "image/png");
+    out->getHTTPResponseHeader().addHeader("Pragma", "no-cache");   
+    out->getHTTPResponseHeader().addHeader("Cache-Control", "no-store, no-cache, must-revalidate,max-age=0");
+    out->getHTTPResponseHeader().addHeader("Expires","Mon, 26 Jul 1997 05:00:00 GMT");
+    *out << infoExtractor_->getIMGCImage(bei_, fullPath.str(), canvasW, canvasH ).str();
+    theActionFlag = NoAction; */   
+    //infoExtractor_->createImages(bei_);
+    infoExtractor_->getIMGCImage(requestMap_, out);
 
   } else if (requestID == "SetupQTest") {	  // <-----------------
     theActionFlag = setupQTest;

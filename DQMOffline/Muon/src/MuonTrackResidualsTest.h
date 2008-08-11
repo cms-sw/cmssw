@@ -7,8 +7,8 @@
  *  DQMOffline Test Client
  *       check the residuals of the track parameters comparing STA/tracker only/global muons
  *
- *  $Date: 2008/05/06 11:02:28 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/04/16 19:40:29 $
+ *  $Revision: 1.1 $
  *  \author  G. Mila - INFN Torino
  *   
  */
@@ -65,7 +65,6 @@ protected:
 
 private:
 
-  // counters
   int nevents;
   unsigned int nLumiSegs;
   int prescaleFactor;
@@ -73,7 +72,7 @@ private:
   // Switch for verbosity
   std::string metname;
 
-  DQMStore* theDbe;
+  DQMStore* dbe;
   edm::ParameterSet parameters;
 
   // source residuals histograms

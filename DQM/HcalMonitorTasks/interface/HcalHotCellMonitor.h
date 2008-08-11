@@ -11,8 +11,8 @@
 
 /** \class HcalHotCellMonitor
   *  
-  * $Date: 2008/07/16 22:07:54 $
-  * $Revision: 1.19 $
+  * $Date: 2008/06/10 22:14:30 $
+  * $Revision: 1.16 $
   * \author W. Fisher - FNAL
   * \ updated by J. Temple - Univ. of Maryland
   */
@@ -57,8 +57,6 @@ struct HotCellHists{
   
   // diagnostic histograms (remove eventually?)
   std::vector<MonitorElement*> diagnostic;
-
-  MonitorElement* hotcellsigma;
   MonitorElement* RecHitEnergyDist;
   MonitorElement* DigiEnergyDist;
   MonitorElement* EnergyVsNADAcube;
@@ -89,13 +87,6 @@ struct HotCellHists{
   int type;
   std::string name;
   bool subdetOn;
-  
-  /*
-    // Not yet used -- eventually allow for turning on/off checks for individual subdetectors?
-  bool checkThreshold_;
-  bool checkNADA_;
-  bool checkAbovePed_;
-  */
 
   double etaMax, etaMin, phiMax, phiMin;
   int etaBins, phiBins;
@@ -135,13 +126,10 @@ public:
 private:  ///Monitoring elements
 
   bool debug_;
-
+  
   int ievt_;
 
   float HF_offsets[13][36][2];
-  bool checkThreshold_;
-  bool checkNADA_;
-  bool checkAbovePed_;
 
 
   HotCellHists hbHists,heHists,hfHists,hoHists;

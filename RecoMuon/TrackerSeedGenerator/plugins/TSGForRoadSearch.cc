@@ -46,7 +46,7 @@ TSGForRoadSearch::TSGForRoadSearch(const edm::ParameterSet & par){
   edm::ParameterSet errorMatrixPset = par.getParameter<edm::ParameterSet>("errorMatrixPset");
   if (!errorMatrixPset.empty()){
     theAdjustAtIp = errorMatrixPset.getParameter<bool>("atIP");
-    theScale = !errorMatrixPset.getParameter<bool>("assignError");
+    //    theScale = !errorMatrixPset.getParameter<bool>("assignError");
     theErrorMatrixAdjuster = new MuonErrorMatrix(errorMatrixPset);}
   else {
     theAdjustAtIp =false;
@@ -55,7 +55,7 @@ TSGForRoadSearch::TSGForRoadSearch(const edm::ParameterSet & par){
 TSGForRoadSearch::~TSGForRoadSearch(){
   delete theChi2Estimator;
   if (theUpdator)  delete theUpdator;
-  if (theErrorMatrixAdjuster) delete theErrorMatrixAdjuster;
+  //  if (theErrorMatrixAdjuster) delete theErrorMatrixAdjuster;
 }
 
 
@@ -90,12 +90,12 @@ void TSGForRoadSearch::adjust(FreeTrajectoryState & state){
   CurvilinearTrajectoryError oMat = state.curvilinearError();
   CurvilinearTrajectoryError sfMat = theErrorMatrixAdjuster->get(state.momentum());//FIXME with position
 
-  if (theScale){
-    MuonErrorMatrix::multiply(oMat, sfMat);
-  }
-  else{
-    oMat=sfMat;
-  }
+  //  if (theScale){
+  MuonErrorMatrix::multiply(oMat, sfMat);
+  //  }
+  //  else{
+  //    oMat=sfMat;
+  //  }
   state = FreeTrajectoryState(state.parameters(),
 			      oMat);
 }
@@ -104,12 +104,12 @@ void TSGForRoadSearch::adjust(TrajectoryStateOnSurface & state){
   CurvilinearTrajectoryError oMat = state.curvilinearError();
   CurvilinearTrajectoryError sfMat = theErrorMatrixAdjuster->get(state.globalMomentum());//FIXME with position
 
-  if (theScale){
+  //  if (theScale){
   MuonErrorMatrix::multiply(oMat, sfMat);
-  }
-  else{
-    oMat=sfMat;
-  }
+  //  }
+  //  else{
+  //    oMat=sfMat;
+  //  }
   state = TrajectoryStateOnSurface(state.globalParameters(),
 				   oMat,
 				   state.surface(),
@@ -172,7 +172,7 @@ void TSGForRoadSearch::makeSeeds_0(const reco::Track & muon, std::vector<Traject
     case PixelSubdetector::PixelEndcap:
     case StripSubdetector::TOB:
     case StripSubdetector::TEC:
-      edm::LogError(theCategory)<<"from inside-out, trying TEC or TOB layers. no seed.";
+      LogDebug(theCategory)<<"from inside-out, trying TEC or TOB layers. no seed.";
       return;
       break;
     case StripSubdetector::TIB:
@@ -182,7 +182,7 @@ void TSGForRoadSearch::makeSeeds_0(const reco::Track & muon, std::vector<Traject
       inLayer = ( z < 0 ) ? ntecc.front() : ptecc.front() ;
       break;
     default:
-      edm::LogError(theCategory)<<"subdetectorid is not a tracker sub-dectector id. skipping.";
+      LogDebug(theCategory)<<"subdetectorid is not a tracker sub-dectector id. skipping.";
       return;
     }
     compatible = inLayer->compatibleDets(inner,*theProxyService->propagator(thePropagatorCompatibleName),*theChi2Estimator);
@@ -218,7 +218,7 @@ void TSGForRoadSearch::makeSeeds_3(const reco::Track & muon, std::vector<Traject
   StateOnTrackerBound onBounds(theProxyService->propagator(thePropagatorName).product());
   TrajectoryStateOnSurface outer = onBounds(cIPFTS);
 
-  if ( !outer.isValid() ) {edm::LogError(theCategory) <<"outer state is not valid. no seed."; return;}
+  if ( !outer.isValid() ) {LogDebug(theCategory) <<"outer state is not valid. no seed."; return;}
   
   //rescale the error
   if (theErrorMatrixAdjuster && !theAdjustAtIp){ adjust(outer); }
@@ -256,7 +256,7 @@ void TSGForRoadSearch::makeSeeds_3(const reco::Track & muon, std::vector<Traject
     case StripSubdetector::TOB:
       layerShift++;
       if (layerShift>=blc.size()){
-	edm::LogError(theCategory) <<"all barrel layers are exhausted to find starting state. no seed,";
+	LogDebug(theCategory) <<"all barrel layers are exhausted to find starting state. no seed,";
 	return;}
       inLayer = *(blc.rbegin()+layerShift);
       break;

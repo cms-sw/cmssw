@@ -3,7 +3,6 @@
 #include <math.h>
 #include <sstream>
 using namespace std;
-#include "FWCore/Utilities/interface/CPUTimer.h"
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -48,11 +47,7 @@ namespace HcalDeadCellCheck
 			 bool pedsInFC=false)
   {
 
-    if (!hist.check) return;
-
-    // Timing doesn't work well on individual digis -- times almost always come out as 0.
-    //edm::CPUTimer XXX;
-    //XXX.reset(); XXX.start();
+    if (hist.check==0) return;
 
     string type;
     // Get subdet name associated with type value
@@ -78,13 +73,12 @@ namespace HcalDeadCellCheck
 
     // Fill (eta,phi) map if digi is found for that cell
     hist.digiCheck->Fill(digi_eta,digi_phi);
-    /////all.digiCheck->Fill(digi_eta,digi_phi);
-
+    all.digiCheck->Fill(digi_eta,digi_phi);
 
     if (hist.makeDiagnostics)
       {
 	hist.digiCheck_depth[digi_depth-1]->Fill(digi_eta,digi_phi);
-	/////all.digiCheck_depth[digi_depth-1]->Fill(digi_eta,digi_phi);
+	all.digiCheck_depth[digi_depth-1]->Fill(digi_eta,digi_phi);
       }
 
     /* Update on 21 May 2008 -- code modified to compare digi values to 
@@ -101,7 +95,9 @@ namespace HcalDeadCellCheck
     const HcalQIEShape* shape = cond.getHcalShape();
     const HcalQIECoder* coder = cond.getHcalCoder(digi.id());  
 
-    // Loop over the  time slices of the digi to find the time slice with maximum charge deposition
+
+
+    // Loop over the 10 time slices of the digi to find the time slice with maximum charge deposition
     // We'll assume steeply-peaked distribution, so that charge deposit occurs
     // in slices (i-1) -> (i+2) around maximum deposit time i
 
@@ -112,7 +108,7 @@ namespace HcalDeadCellCheck
     float total_pedestal=0;
     float total_pedwidth=0;
 
-    for(int i=0; i<digi.size(); ++i)
+    for(int i=0; i<10; ++i)
       {
 	int thisCapid = digi.sample(i).capid();
 
@@ -129,14 +125,15 @@ namespace HcalDeadCellCheck
 	    maxa=digival ;
 	    maxi=i;
 	  }
-      } // for (int i=0;i<digi.size();++i)	
+      } // for (int i=0;i<10;++i)	
+
 
     // Now loop over 4 time slices around maximum value
     
-    //for (int i=0;i<digi.size();++i) // old code ran over all time slices
+    //for (int i=0;i<digi.size();++i) // old code ran over all 10 slices
 
     
-    for (int i=max(0,maxi-1);i<=min(digi.size()-1,maxi+2);++i)
+    for (int i=max(0,maxi-1);i<=min(9,maxi+2);++i)
       {
 	ADCsum+=digi.sample(i).adc();
 
@@ -169,20 +166,19 @@ namespace HcalDeadCellCheck
 
 	// Not yet sure if this histogram is useful, but it gives an idea of the ADC distributions
 	hist.ADCdist->Fill(digi.sample(i).adc());
-	/////all.ADCdist->Fill(digi.sample(i).adc());
+	all.ADCdist->Fill(digi.sample(i).adc());
       } // for (int i = max(0,maxi-1)...)
-    
 
     // Compare sum around max digi value to sum of pedestals
     total_pedwidth=pow(total_pedwidth,0.5);
     if (total_digival>total_pedestal+Nsigma*total_pedwidth)
       {
 	hist.above_pedestal_temp_depth[digi_depth-1]->Fill(digi_eta,digi_phi);
-	/////all.above_pedestal_temp_depth[digi_depth-1]->Fill(digi_eta,digi_phi);
+	all.above_pedestal_temp_depth[digi_depth-1]->Fill(digi_eta,digi_phi);
 	hist.above_pedestal->Fill(digi_eta,digi_phi);
-	/////all.above_pedestal->Fill(digi_eta,digi_phi);
+	all.above_pedestal->Fill(digi_eta,digi_phi);
 	hist.above_pedestal_depth[digi_depth-1]->Fill(digi_eta,digi_phi);
-	/////all.above_pedestal_depth[digi_depth-1]->Fill(digi_eta,digi_phi);
+	all.above_pedestal_depth[digi_depth-1]->Fill(digi_eta,digi_phi);
       }
     
     // If ADCsum <= mincount, cell is considered dead
@@ -193,18 +189,18 @@ namespace HcalDeadCellCheck
 	if (hist.makeDiagnostics)
 	  {
 	    hist.deadADC_map_depth[digi_depth-1]->Fill(digi_eta,digi_phi);
-	    /////all.deadADC_map_depth[digi_depth-1]->Fill(digi_eta,digi_phi); 
+	    all.deadADC_map_depth[digi_depth-1]->Fill(digi_eta,digi_phi); 
 	  }
 	//hist.deadADC_temp_depth[digi_depth-1]->Fill(digi_eta,digi_phi);
 	hist.deadADC_eta->Fill(digi_eta);
-	/////all.deadADC_map->Fill(digi_eta,digi_phi);
-	/////all.deadADC_eta->Fill(digi_eta);
+	all.deadADC_map->Fill(digi_eta,digi_phi);
+	all.deadADC_eta->Fill(digi_eta);
 
 	// Dead cell is potentially problematic -- add it to combined "problem cell" histogram
 	hist.problemDeadCells->Fill(digi_eta,digi_phi);
 	all.problemDeadCells->Fill(digi_eta,digi_phi);
 	hist.problemDeadCells_depth[digi_depth-1]->Fill(digi_eta,digi_phi);
-	/////all.problemDeadCells_depth[digi_depth-1]->Fill(digi_eta,digi_phi);
+	all.problemDeadCells_depth[digi_depth-1]->Fill(digi_eta,digi_phi);
 	
       }
 
@@ -214,10 +210,9 @@ namespace HcalDeadCellCheck
 	if (capADC[zz]<=mincount)
 	  {
 	    hist.deadcapADC_map[zz]->Fill(digi_eta,digi_phi);
-	    /////all.deadcapADC_map[zz]->Fill(digi_eta,digi_phi);
+	    all.deadcapADC_map[zz]->Fill(digi_eta,digi_phi);
 	  }
       }
-
     return;
   } // void CheckForDeadDigis(...)
 
@@ -233,24 +228,27 @@ namespace HcalDeadCellCheck
 		 DeadCellHists& hist, DeadCellHists& all, 
 		 DQMStore* dbe)
   { 
+    // This seems to run really slowly; disable it for now
+    return;
+
     if (hist.check==false) 
       return;
     
     string type;
     type=hist.subdet;
 
-    typename Hits::const_iterator CellIter;
-    for (CellIter=hits.begin();
-	 CellIter!=hits.end(); 
-	 ++CellIter)
+    typename Hits::const_iterator _cell;
+    for (_cell=hits.begin();
+	 _cell!=hits.end(); 
+	 ++_cell)
       {
 	// Fill histogram if cell found in hist region
 
-	//if ((CellIter->id().subdet())!=hist.type) continue; // does this cause a slowdown?  Or has Jason's fix cured this?
+	//if ((_cell->id().subdet())!=hist.type) continue; // does this cause a slowdown?  Or has Jason's fix cured this?
 
-	HcalDetId id(CellIter->detid().rawId());
-	int cell_eta=id.ieta();
-	int cell_depth=id.depth();
+	int cell_eta=_cell->id().ieta();
+	int cell_phi=_cell->id().iphi();
+	int cell_depth=_cell->id().depth();
 	if (hist.type==1)
 	  {
 	    if (abs(cell_eta)>16)
@@ -264,7 +262,6 @@ namespace HcalDeadCellCheck
 	    else if (abs(cell_eta)==16 && cell_depth!=3)
 	      continue;
 	  }
-	int cell_phi=id.iphi();
 
 	int temp_cell_phi = cell_phi;  // temporary variable for dealing with neighbors at boundaries between different phi segmentations
 	
@@ -280,8 +277,8 @@ namespace HcalDeadCellCheck
 	    all.cellCheck_depth[ cell_depth-1]->Fill(cell_eta,cell_phi);
 	  }
 
-	// if (id.depth()==2) continue; // skip depth=2 for now
-	// if (vetoCell(id)) continue;
+	// if (_cell->id().depth()==2) continue; // skip depth=2 for now
+	// if (vetoCell(_cell->id())) continue;
 
 	// Sum energies of neighbors around cell
 	
@@ -297,15 +294,11 @@ namespace HcalDeadCellCheck
 	  {
 	    //if (vetoCell(neighbor->id())) continue;
 	    // Calls to .subdet() are too slow?
-	    //if  ((HcalSubdetector)(neighbor->id().subdet())!=(HcalSubdetector)(id.subdet())) continue;
-	    HcalDetId neighborId(neighbor->detid().rawId());
-	    int NeighborEta=neighborId.ieta();
-	    // Only check nearest neighbors in eta
-	    if (abs(NeighborEta-cell_eta)>=2)
-	      continue;
+	    //if  ((HcalSubdetector)(neighbor->id().subdet())!=(HcalSubdetector)(_cell->id().subdet())) continue;
+	    if (neighbor->id().depth()!=_cell->id().depth()) continue;
 	    
-	    if (neighborId.depth()!=cell_depth) continue;
-	    
+	    int NeighborEta=neighbor->id().ieta();
+
 	    if (hist.type==1)
 	      {
 		if (abs(NeighborEta)>16)
@@ -326,7 +319,7 @@ namespace HcalDeadCellCheck
 	    // boundary between phi=5 and phi=10 segmentation
 	    if (abs(cell_eta)==20 && abs(NeighborEta)==21)
 	      {
-		if (temp_cell_phi%2); --temp_cell_phi; // odd cells treated as even
+	      temp_cell_phi-=(temp_cell_phi%2); // odd cells treated as even:
 	      }
 
 	    /*
@@ -343,24 +336,23 @@ namespace HcalDeadCellCheck
 	    // boundary between phi=10 and phi=20 segmentation
 	    else if (abs(cell_eta)==39 && abs(NeighborEta)==40)
 	      {
-		if ((temp_cell_phi%4)==3) ++temp_cell_phi;
+		temp_cell_phi+=(temp_cell_phi%4==3);
 	      }
 
 	    // Check just against nearest neighbors (+/-1 in eta, phi, same depth)
 
 	    // Find minimum distance in phi between neighbors
-	    dPhi = (abs(neighborId.iphi()-temp_cell_phi));
+	    dPhi = (abs(neighbor->id().iphi()-temp_cell_phi));
 	    if (dPhi>36)
 	      dPhi=72-dPhi;
 
-	    if (dPhi<(1+etaFactor)
-		//&& 		 (abs(NeighborEta-cell_eta))<2)
-		)
+	    if (dPhi<(1+etaFactor) && 
+		 (abs(neighbor->id().ieta()-cell_eta))<2)
 	      {
 		// Skip neighbors with negative energy?
 		//if (neighbor->energy()<0) continue;
 		allneighbors++;
-		if ((neighbor->energy()-CellIter->energy())>hist.mindiff)
+		if (neighbor->energy()-_cell->energy()>hist.mindiff)
 		  {
 		    neighborE+=neighbor->energy();
 		    neighbors++;
@@ -369,11 +361,11 @@ namespace HcalDeadCellCheck
 	  }// for (Hits::const_iterator neighbor=hits.begin()...
 	
 	// Remove cell energy from neighbor calculation
-	neighborE-=CellIter->energy();
+	neighborE-=_cell->energy();
 	neighbors-=1;
 
 	// If cell energy is less than minimum value ("hist.floor") , mark it as cool for the event
-	if (CellIter->energy()<hist.floor)
+	if (_cell->energy()<hist.floor)
 	  {
 	    hist.NADA_cool_cell_map->Fill(cell_eta,cell_phi);
 	    all.NADA_cool_cell_map->Fill(cell_eta,cell_phi);
@@ -391,7 +383,7 @@ namespace HcalDeadCellCheck
 
 	    // hard-code # of neighbors -- may need to be adjusted at phi segmenation boundaries
 	    if ((neighbors>4) &&
-	       (CellIter->energy()>0. && CellIter->energy()<coolcellfrac*(1.0*neighborE/neighbors)))
+	       (_cell->energy()>0. && _cell->energy()<coolcellfrac*(1.0*neighborE/neighbors)))
 
 	    {
 	      hist.NADA_cool_cell_map->Fill(cell_eta, cell_phi);
@@ -403,9 +395,9 @@ namespace HcalDeadCellCheck
 		}
 	    } 
  
-	  } // else (CellIter->energy()>=hist.floor)
+	  } // else (_cell->energy()>=hist.floor)
 
-      } // for (CellIter=hits.begin()...)
+      } // for (_cell=hits.begin()...)
 
     return;
 
@@ -447,8 +439,6 @@ void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
 
   if (fVerbosity) 
     cout << "DeadCell phi min/max set to " << phiMin_ << "/" << phiMax_ << endl;
-
-  checkAbovePed_ = ps.getUntrackedParameter<bool>("DeadCell_checkAbovePed",true);
   doFCpeds_ = ps.getUntrackedParameter<bool>("PedestalsInFC", false);
 
   // if cell energy is less than this fraction of its neighbors, cell is marked as cool:
@@ -529,7 +519,7 @@ void HcalDeadCellMonitor::setupHists(DeadCellHists& hist,  DQMStore* dbe)
       the total "Hcal" combination.)
   */
 
-  if (hist.check==false) return;
+  if (hist.check==0) return;
   if (hist.type==1)
     hist.subdet="HB";
   else if (hist.type==2)
@@ -773,15 +763,12 @@ void HcalDeadCellMonitor::processEvent(const HBHERecHitCollection& hbHits,
 
   // Look for cells that have been "cool" for (checkNevents_) consecutive events
 
-  if (checkAbovePed_ && (ievt_%checkNevents_)==0)
+  if ((ievt_%checkNevents_)==0)
     {
       reset_Nevents(hbHists);
       reset_Nevents(heHists);
       reset_Nevents(hoHists);
       reset_Nevents(hfHists);
-
-      // fill HcalHists only every N events
-      //fill_Nevents(hcalHists, hbHists, heHists, hoHists, hfHists);
     }
   
 } // void HcalDeadCellMonitor::processEvent
@@ -800,10 +787,6 @@ void HcalDeadCellMonitor::processEvent_digi(const HBHEDigiCollection& hbhedigi,
     compare readout values vs. pedestals).
   */
 
-  if (showTiming)
-    {
-      cpu_timer.reset(); cpu_timer.start(); 
-    }
 
   if (fVerbosity) cout <<"HcalDeadCellMonitor::processEvent_digi     Starting process"<<endl;
 
@@ -831,12 +814,6 @@ void HcalDeadCellMonitor::processEvent_digi(const HBHEDigiCollection& hbhedigi,
       if(fVerbosity) cout <<"HcalDeadCellMonitor::processEvent_digi   No HBHE Digis."<<endl;
     }
 
-  if (showTiming)
-    {
-      cpu_timer.stop(); std::cout << " TIMER::HcalDeadCell DIGI HBHE-> " << cpu_timer.cpuTime() << std::endl;
-  cpu_timer.reset(); cpu_timer.start(); 
-    }
-
   // Loop over HO
   try
     {
@@ -853,14 +830,7 @@ void HcalDeadCellMonitor::processEvent_digi(const HBHEDigiCollection& hbhedigi,
       if(fVerbosity) cout <<"HcalDeadCellMonitor::processEvent_digi   No HO Digis."<<endl;
     }
 
-  if (showTiming)
-    {
-      cpu_timer.stop(); std::cout << " TIMER::HcalDeadCell HO DIGI-> " << cpu_timer.cpuTime() << std::endl;
-      
-      cpu_timer.reset(); cpu_timer.start(); 
-    }
-
-  // Load HF
+  // Loop over HF
   try
     {
       for (HFDigiCollection::const_iterator j=hfdigi.begin(); j!=hfdigi.end(); ++j)
@@ -876,10 +846,6 @@ void HcalDeadCellMonitor::processEvent_digi(const HBHEDigiCollection& hbhedigi,
       if(fVerbosity) cout <<"HcalDeadCellMonitor::processEvent_digi   No HF Digis."<<endl;
     }
 
-  if (showTiming)
-    {
-      cpu_timer.stop(); std::cout << " TIMER::HcalDeadCell HF DIGI-> " << cpu_timer.cpuTime() << std::endl;
-    }
   return;
 
 } // void HcalDeadCellMonitor::processEvent_digi
@@ -896,8 +862,6 @@ void HcalDeadCellMonitor::processEvent_hits(const HBHERecHitCollection& hbHits,
      (by comparing to neighboring cell energies)
   */
 
-  return;  // CheckHits doesn't seem to provide much info?
-
   if(!m_dbe) 
     {
       if(fVerbosity) cout <<"HcalDeadCellMonitor::processEvent_hits    DQMStore not instantiated!!!\n";
@@ -906,11 +870,7 @@ void HcalDeadCellMonitor::processEvent_hits(const HBHERecHitCollection& hbHits,
   if (fVerbosity) cout <<"HcalDeadCellMonitor::processEvent_hits     Starting process"<<endl;
 
 
-  // Loop over HB rechits
-  if (showTiming)
-    {
-      cpu_timer.reset(); cpu_timer.start();
-    }
+  // Loop over HB digis
   try
     {
       HcalDeadCellCheck::CheckHits(coolcellfrac_,hbHits,hbHists,
@@ -920,13 +880,8 @@ void HcalDeadCellMonitor::processEvent_hits(const HBHERecHitCollection& hbHits,
 	{
 	  if(fVerbosity) cout <<"HcalDeadCellMonitor::processEvent_hits:   Could not process HB Hits"<<endl;
 	}
-  if (showTiming)
-    {
-      cpu_timer.stop(); std::cout << " TIMER:: HcalDeadCell HB RECHITS-> " << cpu_timer.cpuTime() << std::endl;
-      cpu_timer.reset(); cpu_timer.start();
-    }
 
-  // Loop over HE Rechits
+  // Loop over HE digis
   try
     {
       HcalDeadCellCheck::CheckHits(coolcellfrac_,hbHits,heHists,
@@ -936,14 +891,8 @@ void HcalDeadCellMonitor::processEvent_hits(const HBHERecHitCollection& hbHits,
     {
       if(fVerbosity) cout <<"HcalDeadCellMonitor::processEvent_hits:   Could not process HE Hits"<<endl;
     }
-
-  if (showTiming)
-    {
-      cpu_timer.stop(); std::cout << " TIMER::HcalDeadCell HE RECHITS-> " << cpu_timer.cpuTime() << std::endl;
-      cpu_timer.reset(); cpu_timer.start();
-    }
-
-  // Loop over HO rechits
+  
+  // Loop over HO digis
   try
     {
       HcalDeadCellCheck::CheckHits(coolcellfrac_,hoHits,hoHists,
@@ -954,13 +903,7 @@ void HcalDeadCellMonitor::processEvent_hits(const HBHERecHitCollection& hbHits,
       if(fVerbosity) cout <<"HcalDeadCellMonitor::processEvent_hits:   Could not process HO Hits"<<endl;
     }
 
-  if (showTiming)
-    {
-      cpu_timer.stop(); std::cout << " TIMER::HcalDeadCell HO RECHITS-> " << cpu_timer.cpuTime() << std::endl;
-      cpu_timer.reset(); cpu_timer.start();
-    }
-  
-  // Loop over HF rechits
+  // Loop over HF digis
   try
     {
       HcalDeadCellCheck::CheckHits(coolcellfrac_,hfHits,
@@ -970,11 +913,7 @@ void HcalDeadCellMonitor::processEvent_hits(const HBHERecHitCollection& hbHits,
     {
       if(fVerbosity) cout <<"HcalDeadCellMonitor::processEvent_hits:   Could not process HF Hits"<<endl;
     }
-  
-  if (showTiming)
-    {
-      cpu_timer.stop(); std::cout << " TIMER::HcalDeadCell HF RECHITS-> " << cpu_timer.cpuTime() << std::endl;
-    }
+
   return;
 
 } // void HcalDeadCellMonitor::processEvent_hits(...)
@@ -991,7 +930,7 @@ void HcalDeadCellMonitor::reset_Nevents(DeadCellHists &h)
 
   if (fVerbosity)
     cout <<"<HcalDeadCellMonitor> Entered reset_Nevents routine"<<endl;
-  if (h.check==false) return;
+  if (h.check==0) return;
   
   int eta, phi; // these will store detector eta, phi
   for (int ieta=1;ieta<=etaBins_;++ieta)
@@ -1074,15 +1013,15 @@ void HcalDeadCellMonitor::reset_Nevents(DeadCellHists &h)
 		    
 		    {
 		      h.coolcell_below_pedestal->Fill(eta,phi,checkNevents_);
-		      /////hcalHists.coolcell_below_pedestal->Fill(eta,phi,checkNevents_);
+		      hcalHists.coolcell_below_pedestal->Fill(eta,phi,checkNevents_);
 		      h.coolcell_below_pedestal_depth[d-1]->Fill(eta,phi,checkNevents_);
-		      /////hcalHists.coolcell_below_pedestal_depth[d-1]->Fill(eta,phi,checkNevents_);
+		      hcalHists.coolcell_below_pedestal_depth[d-1]->Fill(eta,phi,checkNevents_);
 		      // Cells consistently below pedestal go to combined "problem cell" histogram
 		      hcalHists.problemDeadCells->Fill(eta,phi,checkNevents_);
 		      h.problemDeadCells->Fill(eta,phi,checkNevents_);
 
 
-		      /////hcalHists.problemDeadCells_depth[d-1]->Fill(eta,phi,checkNevents_);
+		      hcalHists.problemDeadCells_depth[d-1]->Fill(eta,phi,checkNevents_);
 		      h.problemDeadCells_depth[d-1]->Fill(eta,phi,checkNevents_);
 
 
@@ -1100,34 +1039,7 @@ void HcalDeadCellMonitor::reset_Nevents(DeadCellHists &h)
     }
 
   return;
-} // reset_Nevents(...)
-
-
-void HcalDeadCellMonitor::fill_Nevents(DeadCellHists& hcal, 
-				       DeadCellHists& hb, DeadCellHists& he,
-				       DeadCellHists& ho, DeadCellHists& hf)
-{
-  // Idea is to fill overall HcalPlots only ever N events.  However, this seems to take a lot of time, so I'm disabling the hcal fills for now. -- 4 July 2008
-
-  int eta,phi;
-  float newval;
-
-  hcal.digiCheck->Reset();
-  for (int ieta=1;ieta<=etaBins_;++ieta)
-    {
-      for (int iphi=1;iphi<=phiBins_;++iphi)
-	{
-	  newval= hb.digiCheck->getBinContent(ieta,iphi)+he.digiCheck->getBinContent(ieta,iphi)+ho.digiCheck->getBinContent(ieta,iphi)+hf.digiCheck->getBinContent(ieta,iphi);
-	  if (newval==0) continue; // ignore bins with no entries
-	  eta=ieta+int(etaMin_)-1;
-	  phi=iphi+int(phiMin_)-1;
-	
-	  hcal.digiCheck->Fill(eta,phi,newval);
-	} // int iphi=1;...
-    } // int ieta=1;...
-
-}//void HcalDeadCellMonitor::fill_Nevents(...)
-				       
+}
 
 
 void HcalDeadCellMonitor::clearME()
@@ -1184,26 +1096,9 @@ void HcalDeadCellMonitor::done()
 	  
 	  for (int d=0;d<4;++d)
 	    {
-	      binval=hbHists.problemDeadCells_depth[d]->getBinContent(ieta,iphi);
-	      if (fVerbosity && binval>0) cout <<"Dead Cell "<<"HB("<<eta<<", "<<phi<<", "<<d+1<<") in "<<binval<<"/"<<ievt_<<" events"<<endl;
+	      binval=hcalHists.problemDeadCells_depth[d]->getBinContent(ieta,iphi);
+	      if (fVerbosity && binval>0) cout <<"Dead Cell ("<<eta<<", "<<phi<<", 1) in "<<binval<<"/"<<ievt_<<" events"<<endl;
 	    }
-	  for (int d=0;d<4;++d)
-	    {
-	      binval=heHists.problemDeadCells_depth[d]->getBinContent(ieta,iphi);
-	      if (fVerbosity && binval>0) cout <<"Dead Cell "<<"HE("<<eta<<", "<<phi<<", "<<d+1<<") in "<<binval<<"/"<<ievt_<<" events"<<endl;
-	    }
-	  for (int d=0;d<4;++d)
-	    {
-	      binval=hoHists.problemDeadCells_depth[d]->getBinContent(ieta,iphi);
-	      if (fVerbosity && binval>0) cout <<"Dead Cell "<<"HO("<<eta<<", "<<phi<<", "<<d+1<<") in "<<binval<<"/"<<ievt_<<" events"<<endl;
-	    }
-	  for (int d=0;d<4;++d)
-	    {
-	      binval=hfHists.problemDeadCells_depth[d]->getBinContent(ieta,iphi);
-	      if (fVerbosity && binval>0) cout <<"Dead Cell "<<"HF("<<eta<<", "<<phi<<", "<<d+1<<") in "<<binval<<"/"<<ievt_<<" events"<<endl;
-	    }
-
-
 	  
 	} // for (int iphi=1...)
     } // for (int ieta = 1...)

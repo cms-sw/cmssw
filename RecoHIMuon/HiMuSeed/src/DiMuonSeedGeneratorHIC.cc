@@ -4,37 +4,32 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-#include "TrackingTools/MeasurementDet/interface/MeasurementDet.h"
+
 #include "DataFormats/Common/interface/Handle.h"
-
-
 using namespace edm;
 using namespace std;
-//#define DEBUG
 
-namespace cms {
 DiMuonSeedGeneratorHIC::DiMuonSeedGeneratorHIC(edm::InputTag rphirecHitsTag0,
                                                const MagneticField* magfield0, 
                                                const GeometricSearchTracker* theTracker0, 
-                                               const HICConst* hh,
 					       int aMult = 1):
 					       TTRHbuilder(0),
 					       rphirecHitsTag(rphirecHitsTag0),
 					       magfield(magfield0),
 					       theTracker(theTracker0),
-                                               theHICConst(hh),
 					       theLowMult(aMult)
 
 {
   
 // initialization
 
+  theHicConst= new HICConst();
   thePropagator=new PropagatorWithMaterial(oppositeToMomentum,0.1057,&(*magfield) );
    
   
 }
 
-map<DetLayer*,DiMuonSeedGeneratorHIC::SeedContainer> DiMuonSeedGeneratorHIC::produce(const edm::Event& e, const edm::EventSetup& iSetup, 
+DiMuonSeedGeneratorHIC::SeedContainer DiMuonSeedGeneratorHIC::produce(const edm::Event& e, const edm::EventSetup& iSetup, 
                                                     FreeTrajectoryState& theFtsTracker, 
 						    TrajectoryStateOnSurface& newtsos,
 						    FreeTrajectoryState& theFtsMuon,
@@ -45,10 +40,7 @@ map<DetLayer*,DiMuonSeedGeneratorHIC::SeedContainer> DiMuonSeedGeneratorHIC::pro
 
     theMeasurementTracker = measurementTracker;
     theLayerMeasurements = new LayerMeasurements(theMeasurementTracker);
-
-  //  cout<<" Point 0 "<<endl;
-					    
-    std::map<DetLayer*,DiMuonSeedGeneratorHIC::SeedContainer> seedMap;
+    					    
     SeedContainer seedContainer;
     
     bl = theTracker->barrelLayers();
@@ -60,117 +52,107 @@ map<DetLayer*,DiMuonSeedGeneratorHIC::SeedContainer> DiMuonSeedGeneratorHIC::pro
     iSetup.get<TransientRecHitRecord>().get("WithoutRefit",theBuilderHandle);
     TTRHbuilder = theBuilderHandle.product();
   }
-  //  cout<<" Point 1 "<<endl;   
+
+
+    edm::Handle<SiStripRecHit2DCollection> rphirecHits0;
+    e.getByLabel( rphirecHitsTag ,rphirecHits0);
+    const SiStripRecHit2DCollection* rphirecHits = rphirecHits0.product();   
+ 
+    cout <<" Start MuSeedGeneratorHIC ======================================= "<<endl;
+    cout <<" MuSeedGeneratorHIC::Number of layers in initial container= "<<theDetLayer->size()<<endl;
+    cout <<" Trajectory state on tracker surface "<<newtsos.globalPosition().perp()<<endl;
+   
     int npair=0;
 //
 //  For each fts do a cycle on possible layers.
 //
+    bool itrust = true;
     int nSig =3;
-    bool itrust=true; 
+    
     HICSeedMeasurementEstimator theEstimator(itrust,nSig);
-   
-   // cout<<" Point 2 "<<endl;
- 
+    
     double phipred, zpred, phiupd, zupd;
+    
+    
     
     for( vector<DetLayer* >::const_iterator ml=theDetLayer->begin(); ml != theDetLayer->end(); ml++)
     {
-
      const BarrelDetLayer* bl = dynamic_cast<const BarrelDetLayer*>(*ml);
      const ForwardDetLayer* fl = dynamic_cast<const ForwardDetLayer*>(*ml);
       if( bl != 0 )
       { 
        // The last layer for barrel
-       phipred = (double)theHICConst->phicut[12];
-       phiupd = (double)theHICConst->phiro[12];
-       zpred = (double)theHICConst->zcut[12];
-       zupd = (double)theHICConst->tetro[12];
-     //  cout<<" DiMuonSeedGenerator::propagate to barrel layer surface "<<bl->specificSurface().radius()<<endl;
+       phipred = (double)theHicConst->phicut[12];
+       phiupd = (double)theHicConst->phiro[12];
+       zpred = (double)theHicConst->zcut[12];
+       zupd = (double)theHicConst->tetro[12];
+       cout<<" DiMuonSeedGenerator::propagate to barrel layer surface "<<bl->specificSurface().radius()<<endl;
       }
         else
          {
 	   if ( fl != 0 ) 
            {
-
               // The last layer for endcap
-              phipred = (double)theHICConst->phicutf[13];
-              phiupd = (double)theHICConst->phirof[13];
-              zpred = (double)theHICConst->tetcutf[13];
-              zupd = (double)theHICConst->tetrof[13];
+              phipred = (double)theHicConst->phicutf[13];
+              phiupd = (double)theHicConst->phirof[13];
+              zpred = (double)theHicConst->tetcutf[13];
+              zupd = (double)theHicConst->tetrof[13];
 	      
-       //       cout<<" DiMuonSeedGenerator::propagate to endcap layer surface "<<fl->position().z()<<" Mult="<<
-//              theLowMult<<endl;
+              cout<<" DiMuonSeedGenerator::propagate to endcap layer surface "<<fl->position().z()<<" Mult="<<
+              theLowMult<<endl;
            } // end fl
          }// end else
 // ==========================================       
        theEstimator.set(phipred, zpred);
-#ifdef DEBUG       
-       std::cout<<" DiMuonSeedGenerator::estimator::set cuts "<<std::endl;
-#endif
-       std::vector<TrajectoryMeasurement> vTM = theLayerMeasurements->measurements((**ml),newtsos, *thePropagator, theEstimator);
-#ifdef DEBUG
-       std::cout<<" DiMuonSeedGenerator::Size of compatible TM found by measurements "<<vTM.size()<<std::endl;
-#endif
        
-        int measnum = 0;
+       std::cout<<" DiMuonSeedGenerator::estimator::set cuts "<<std::endl;
+
+       std::vector<TrajectoryMeasurement> vTM = theLayerMeasurements->measurements((**ml),newtsos, *thePropagator, theEstimator);
+       
+       
+       std::cout<<" Size of compatible TM "<<vTM.size()<<std::endl;
+       
 
        for(std::vector<TrajectoryMeasurement>::iterator it=vTM.begin(); it!=vTM.end(); it++)
        {
-       pair<TrajectoryMeasurement,bool> newtmr;
-
+       TrajectoryMeasurement newtm;
        if( bl != 0 )
        {
-#ifdef DEBUG
-        cout<<" DiMuonSeedGenerator::Barrel seed "<<endl;
-#endif
-        newtmr = barrelUpdateSeed(theFtsMuon,(*it));
-
+        newtm = barrelUpdateSeed(theFtsMuon,(*it));
        }
          else
          {
-#ifdef DEBUG
-            cout<<" DiMuonSeedGenerator::Endcap seed "<<endl;
-#endif
-            newtmr = forwardUpdateSeed(theFtsMuon,(*it));
+            newtm = forwardUpdateSeed(theFtsMuon,(*it));
          }
-#ifdef DEBUG
-           cout<<" DiMuonSeedGenerator::Estimate seed "<<newtmr.first.estimate()<<" True or false  "<<newtmr.second<<endl;
-#endif
-          if(newtmr.second) seedContainer.push_back(DiMuonTrajectorySeed(newtmr.first,theFtsMuon,theLowMult));
+          seedContainer.push_back(DiMuonTrajectorySeed(newtm,theFtsMuon,theLowMult));  
        }
-       seedMap[*ml] = seedContainer;
     }       
-    delete theLayerMeasurements;
-    return  seedMap; 
+    return  seedContainer; 
   
 }      
 
-pair<TrajectoryMeasurement,bool> DiMuonSeedGeneratorHIC::barrelUpdateSeed ( 
+TrajectoryMeasurement DiMuonSeedGeneratorHIC::barrelUpdateSeed ( 
                                                                   const FreeTrajectoryState& FTSOLD, 
                                                                   const TrajectoryMeasurement& tm 
 							        ) const
-{
 
-  bool good=false;
-#ifdef DEBUG
-  std::cout<<" DiMuonSeedGeneratorHIC::barrelUpdateSeed::BarrelSeed "<<std::endl;
-#endif
+{
   const DetLayer* dl = tm.layer();
- // std::cout<<" BarrelSeed 0"<<std::endl;  
   const TransientTrackingRecHit::ConstRecHitPointer rh = tm.recHit(); 
- // std::cout<<" BarrelSeed 1"<<std::endl;
+
   if(!(rh->isValid())) 
   {
-#ifdef DEBUG
-     std::cout<<" DiMuonSeedGeneratorHIC::barrelUpdateSeed::hit is not valid "<<std::endl;
-#endif
-     return pair<TrajectoryMeasurement,bool>(tm,good);
+     return tm;
   }
-#ifdef DEBUG
-     std::cout<<" DiMuonSeedGeneratorHIC::barrelUpdateSeed::hit is  valid "<<std::endl;
-#endif
-//  std::cout<<" BarrelSeed 2"<<std::endl;
   FreeTrajectoryState FTS = *(tm.forwardPredictedState().freeTrajectoryState());
+  
+//
+// Find code a DetLayer from the map and remember as a code of SeedLayer for current trajectory.
+//
+//  MyRingedLayer * theMyRingedLayer = (*theCorrespondantLayers.find(dl)).second;
+//  int icode = theMyRingedLayer->getLayerCode();
+//  theMyRingedLayer->setSeedLayerCode(icode);
+
 
 //
 // Define local variables.
@@ -183,25 +165,22 @@ pair<TrajectoryMeasurement,bool> DiMuonSeedGeneratorHIC::barrelUpdateSeed (
   double pt = FTS.parameters().momentum().perp();
   double aCharge = FTS.parameters().charge();
   AlgebraicSymMatrix55 e = FTS.curvilinearError().matrix();
-//  double dpt = 0.2*pt;
-  double dpt = 0.35*pt;
+  double dpt = 3.*e(1,1);
   
-//  std::cout<<" BarrelSeed 3 "<<std::endl;  
 //
 // Calculate a bin for lower and upper boundary of PT interval available for track.  
 //  
-  int imax0 = (int)((pt+dpt-theHICConst->ptboun)/theHICConst->step) + 1;
-  int imin0 = (int)((pt-dpt-theHICConst->ptboun)/theHICConst->step) + 1;
+  int imax0 = (int)((pt+dpt-theHicConst->ptboun)/theHicConst->step) + 1;
+  int imin0 = (int)((pt-dpt-theHicConst->ptboun)/theHicConst->step) + 1;
   if( imin0 < 1 ) imin0 = 1;
-#ifdef DEBUG	
-	std::cout<<" DiMuonSeedGeneratorHIC::barrelUpdateSeed::imin0,imax0 "<<imin0<<" "<<imax0<<" pt,dpt "<<pt<<" "<<dpt<<std::endl;
+#ifdef DIMUONGENERATOR_DB	
+	cout<<" imin0,imax0 "<<imin0<<" "<<imax0<<" pt,dpt "<<pt<<" "<<dpt<<endl;
 #endif	
 
   double dens,df,ptmax,ptmin;
 
   GlobalPoint realhit = (*rh).globalPosition();
-  df = fabs(realhit.phi() - phi);
-
+  df = abs(realhit.phi() - phi);
   if(df > pi) df = twopi-df;
   if(df > 1.e-5) 
   {
@@ -211,56 +190,35 @@ pair<TrajectoryMeasurement,bool> DiMuonSeedGeneratorHIC::barrelUpdateSeed (
       {
 	  dens = 100000.;
       } // end else
-  //   std::cout<<" Phi rh "<<realhit.phi()<<" phumu "<<phi<<" df "<<df<<" dens "<<dens<<std::endl;	
+	
 	//
 	// Calculate new imin, imax, pt (works till 20GeV/c)
 	// It is necessary to parametrized for different Pt value with some step (to be done)
 	//
 	
-	ptmax = (dens-(double)(theHICConst->phias[26]))/(double)(theHICConst->phibs[26]) + theHICConst->ptbmax;
-	ptmin = (dens-(double)(theHICConst->phiai[26]))/(double)(theHICConst->phibi[26]) + theHICConst->ptbmax;
-#ifdef DEBUG
-     std::cout<<" Phias,phibs,phiai,phibi "<<theHICConst->phias[26]<<" "<<theHICConst->phibs[26]<<" "<<
-     theHICConst->phiai[26]<<" "<<theHICConst->phibi[26]<<" "<<theHICConst->ptbmax<<std::endl;
-     std::cout<<" ptmin= "<<ptmin<<" ptmax "<<ptmax<<std::endl;
-     std::cout<<" ptboun "<<theHICConst->ptboun<<" "<<theHICConst->step<<std::endl;
-#endif 
-	imax = (int)((ptmax-theHICConst->ptboun)/theHICConst->step)+1;
-	imin = (int)((ptmin-theHICConst->ptboun)/theHICConst->step)+1;
-	if(imin > imax) {
-#ifdef DEBUG	
-                std::cout<<" imin>imax "<<imin<<" "<<imax<<std::endl; 
-#endif		
-           return pair<TrajectoryMeasurement,bool>(tm,good);}
-	if(imax < 1) { 
-#ifdef DEBUG	
-              std::cout<<"imax < 1 "<<imax<<std::endl; 
-#endif	      
-              return pair<TrajectoryMeasurement,bool>(tm,good);}
-
+	ptmax = (dens-(double)(theHicConst->phias[26]))/(double)(theHicConst->phibs[26]) + theHicConst->ptbmax;
+	ptmin = (dens-(double)(theHicConst->phiai[26]))/(double)(theHicConst->phibi[26]) + theHicConst->ptbmax;
+	imax = (int)((ptmax-theHicConst->ptboun)/theHicConst->step)+1;
+	imin = (int)((ptmin-theHicConst->ptboun)/theHicConst->step)+1;
+	if(imin > imax) return TrajectoryMeasurement();
+	if(imax < 1) return TrajectoryMeasurement();
 	imin1 = max(imin,imin0);
 	imax1 = min(imax,imax0);
 	if(imin1 > imax1) {
-#ifdef DEBUG	
-         std::cout<<" imin,imax "<<imin<<" "<<imax<<std::endl; 
-         std::cout<<" imin,imax "<<imin0<<" "<<imax0<<std::endl;
-         std::cout<<" imin1>imax1 "<<imin1<<" "<<imax1<<std::endl;
-#endif	
-         return pair<TrajectoryMeasurement,bool>(tm,good);
+	return TrajectoryMeasurement(); // bad rhit
 	}
-
 //
 // Define new trajectory. 
 //
-	double ptnew = theHICConst->ptboun + theHICConst->step * (imax1 + imin1)/2. - theHICConst->step/2.;  // recalculated PT of track
+	double ptnew = theHicConst->ptboun + theHicConst->step * (imax1 + imin1)/2. - theHicConst->step/2.;  // recalculated PT of track
 	
 	//
 	// new theta angle of track
 	//
 	
-	double dfmax = 1./((double)(theHICConst->phias[26])+(double)(theHICConst->phibs[26])*(ptnew-theHICConst->ptbmax));
-	double dfmin = 1./((double)(theHICConst->phiai[26])+(double)(theHICConst->phibi[26])*(ptnew-theHICConst->ptbmax));
-	double dfcalc = fabs(dfmax+dfmin)/2.;
+	double dfmax = 1./((double)(theHicConst->phias[26])+(double)(theHicConst->phibs[26])*(ptnew-theHicConst->ptbmax));
+	double dfmin = 1./((double)(theHicConst->phiai[26])+(double)(theHicConst->phibi[26])*(ptnew-theHicConst->ptbmax));
+	double dfcalc = abs(dfmax+dfmin)/2.;
 	double phinew = phi+aCharge*dfcalc;
 	
 	//    
@@ -275,11 +233,9 @@ pair<TrajectoryMeasurement,bool> DiMuonSeedGeneratorHIC::barrelUpdateSeed (
 	// Fill GlobalPoint,GlobalVector    
         //
 	
-	double delx = realhit.z()-theHICConst->zvert;
+	double delx = realhit.z()-theHicConst->zvert;
 	double delr = sqrt( realhit.y()*realhit.y()+realhit.x()*realhit.x() );
-	double theta = atan2(delr,delx);	
-	
-//	std::cout<<" Point 3 "<<std::endl;
+	double theta = atan2(delr,delx);
 //	
 // Each trajectory in tracker starts from real point	
 //	GlobalPoint xnew0( realhit.perp()*cos(phinew), realhit.perp()*sin(phinew), realhit.z() ); 
@@ -287,52 +243,42 @@ pair<TrajectoryMeasurement,bool> DiMuonSeedGeneratorHIC::barrelUpdateSeed (
 	GlobalPoint xnew0( realhit.x(), realhit.y(), realhit.z() ); 
 
 	GlobalVector pnew0(ptnew*cos(alfnew),ptnew*sin(alfnew),ptnew/tan(theta));
-
 	AlgebraicSymMatrix m(5,0);
-	m(1,1) = 0.5*ptnew; m(2,2) = theHICConst->phiro[12];
-	m(3,3) = theHICConst->tetro[12];
-	m(4,4) = theHICConst->phiro[12]; 
-	m(5,5) = theHICConst->tetro[12];
+	m(1,1) = 0.5*ptnew; m(2,2) = theHicConst->phiro[12];
+	m(3,3) = theHicConst->tetro[12];
+	m(4,4) = theHicConst->phiro[12]; 
+	m(5,5) = theHicConst->tetro[12];
 	   
 	TrajectoryStateOnSurface updatedTsosOnDet=TrajectoryStateOnSurface
 	  ( GlobalTrajectoryParameters( xnew0, pnew0, (int)aCharge, &(*magfield) ),
 					      CurvilinearTrajectoryError(m), dl->surface()  );
+     TransientTrackingRecHit::RecHitPointer itt = TTRHbuilder->build(&(*rh)); 
+  return TrajectoryMeasurement(tm.forwardPredictedState(), updatedTsosOnDet, itt, (float)1.,dl );
   
-     float estimate = 1.;
-     TrajectoryMeasurement newtm(tm.forwardPredictedState(), updatedTsosOnDet, rh, estimate, dl );
-     good=true;
-     pair<TrajectoryMeasurement,bool> newtmr(newtm,good);
-    // std::cout<<" Barrel newtm estimate= "<<newtmr.first.estimate()<<" "<<newtmr.second<<std::endl; 
-  return newtmr;
 } 
   
-pair<TrajectoryMeasurement,bool> DiMuonSeedGeneratorHIC::forwardUpdateSeed ( 
+TrajectoryMeasurement DiMuonSeedGeneratorHIC::forwardUpdateSeed ( 
                                                                          const FreeTrajectoryState& FTSOLD, 
                                                                          const TrajectoryMeasurement& tm
 							               ) const
 {
-  bool good=false;
-#ifdef DEBUG
-  std::cout<<" DiMuonSeedGeneratorHIC::forwardUpdateSeed::EndcapSeed::start "<<std::endl;
-#endif
+
   const DetLayer* dl = tm.layer();
-//  std::cout<<" EndcapSeed 0"<<std::endl;
-  const TransientTrackingRecHit::ConstRecHitPointer rh = tm.recHit();
-//  std::cout<<" EndcapSeed 1"<<std::endl;   
+  const TransientTrackingRecHit::ConstRecHitPointer rh = tm.recHit();   
   if(!(rh->isValid())) 
   {
-#ifdef DEBUG
-  std::cout<<" DiMuonSeedGeneratorHIC::forwardUpdateSeed::EndcapSeed::EndcapSeed::hit is not valid "<<std::endl;
-#endif
-
-     return pair<TrajectoryMeasurement,bool>(tm,good);
+     return tm;
   }
-
-#ifdef DEBUG
-  std::cout<<" DiMuonSeedGeneratorHIC::forwardUpdateSeed::EndcapSeed::EndcapSeed::valid "<<std::endl;
-#endif 
-
+  
   FreeTrajectoryState FTS = *(tm.forwardPredictedState().freeTrajectoryState());
+
+//
+// Find code a DetLayer from the map and remember as a code of SeedLayer for current trajectory.
+//
+  
+//  MyRingedLayer * theMyRingedLayer = (*theCorrespondantLayers.find(theDetLayer)).second;
+//  int icode = theMyRingedLayer->getLayerCode();
+//  theMyRingedLayer->setSeedLayerCode(icode);
 
 //
 // Define local variables.
@@ -345,25 +291,18 @@ pair<TrajectoryMeasurement,bool> DiMuonSeedGeneratorHIC::forwardUpdateSeed (
   double pz = FTS.parameters().momentum().z();
   double dpt = 0.6*pt;
   
-//  std::cout<<" Point 0 "<<std::endl;
-  
         GlobalPoint realhit = rh->globalPosition();
-
-//  std::cout<<" Point 1 "<<std::endl;
 	
-	double df = fabs(realhit.phi() - phi);
-
+	double df = abs(realhit.phi() - phi);
+	
+//	cout<<" DiMuonSeedGeneratorHIC::forwardUpdateSeed "<<phi<<" "<<realhit.phi()<<endl;
+	
 	if(df > pi) df = twopi-df;
-
-#ifdef DEBUG
-        cout<<" DiMuonSeedGeneratorHIC::forwardUpdateSeed::phipred::phihit::df "<<phi<<" "<<realhit.phi()<<" "<<df<<endl;
-#endif
-
 	//
 	// calculate the new Pl
 	//
 
-	double delx = realhit.z() - theHICConst->zvert;
+	double delx = realhit.z() - theHicConst->zvert;
 	double delr = sqrt(realhit.y()*realhit.y()+realhit.x()*realhit.x());
 	double theta = atan2( delr, delx );
 	double ptmin = 0.;
@@ -373,45 +312,36 @@ pair<TrajectoryMeasurement,bool> DiMuonSeedGeneratorHIC::forwardUpdateSeed (
 	
 // old ok  double pznew = abs((aCharge*theHicConst->forwparam[1])/(df-theHicConst->forwparam[0]));
 
-	if( fabs(FTSOLD.parameters().momentum().eta()) > 1.9 )
+	if( abs(FTSOLD.parameters().momentum().eta()) > 1.9 )
 	{
-#ifdef DEBUG	
-	   cout<<" First parametrization "<<df<<endl;
-#endif	   
-	   pznew = fabs(( df - 0.0191878 )/(-0.0015952))/3.;
+//	   cout<<" First parametrization "<<df<<endl;
+	   pznew = abs(( df - 0.0191878 )/(-0.0015952))/3.;
 	   
-	   if( df > 0.1 ) pznew = 5.;
-	   if( fabs(pznew)<3.) pznew = 3.;
+	   if( df > 0.1 ) pznew = 5;
 	   
            if( FTSOLD.parameters().position().z() < 0. ) pznew = (-1)*pznew;
 	   ptnew = pznew * tan( theta );
 	}
-	if( fabs(FTSOLD.parameters().momentum().eta()) > 1.7 && fabs(FTSOLD.parameters().momentum().eta()) < 1.9 )
+	if( abs(FTSOLD.parameters().momentum().eta()) > 1.7 && abs(FTSOLD.parameters().momentum().eta()) < 1.9 )
 	{
-#ifdef DEBUG	
-	   cout<<" Second parametrization "<<df<<endl;
-#endif	
-	   pznew = fabs(( df - 0.38 )/(-0.009))/3.;
-	   if( fabs(pznew)<2.) pznew = 2.;
-	   
+//	   cout<<" Second parametrization "<<df<<endl;
+	
+	   pznew = abs(( df - 0.38 )/(-0.009))/3.;
            if( FTSOLD.parameters().position().z() < 0. ) pznew = (-1)*pznew;
 	   ptnew = pznew * tan( theta );
 	}
-	if( fabs(FTSOLD.parameters().momentum().eta()) > 1.6 && fabs(FTSOLD.parameters().momentum().eta()) < 1.7 )
+	if( abs(FTSOLD.parameters().momentum().eta()) > 1.6 && abs(FTSOLD.parameters().momentum().eta()) < 1.7 )
 	{
-#ifdef DEBUG	
-	   cout<<" Third parametrization "<<df<<endl;
-#endif	
-	   pznew = fabs(( df - 0.9 )/(-0.02))/3.;
-	   if( fabs(pznew)<1.) pznew = 1.;
+//	   cout<<" Third parametrization "<<df<<endl;
+	
+	   pznew = abs(( df - 0.9 )/(-0.02))/3.;
            if( FTSOLD.parameters().position().z() < 0. ) pznew = (-1)*pznew;
 	   ptnew = pznew * tan( theta );
 	}
-	if( fabs(FTSOLD.parameters().momentum().eta()) > 0.7 && fabs(FTSOLD.parameters().momentum().eta()) < 1.6 )
+	if( abs(FTSOLD.parameters().momentum().eta()) > 0.7 && abs(FTSOLD.parameters().momentum().eta()) < 1.6 )
 	{
-#ifdef DEBUG
-	   cout<<" Forth parametrization "<<df<<endl;
-#endif	
+//	   cout<<" Forth parametrization "<<df<<endl;
+	
 	   double dfinv = 0.;
 	   if( df < 0.0000001 ) {
 	        dfinv = 1000000.; 
@@ -425,111 +355,77 @@ pair<TrajectoryMeasurement,bool> DiMuonSeedGeneratorHIC::forwardUpdateSeed (
 	   ptmax = (dfinv - 0.5)/0.3 + 3.;
 	   ptnew = ( ptmin + ptmax )/2.;
 	   pznew = ptnew/tan( theta );
+	}
 	
-// std::cout<<" Point 6 "<<std::endl;
-#ifdef DEBUG	
-	std::cout<<" Paramters of algorithm "<<df<<" "<<theHICConst->forwparam[1]<<" "<<theHICConst->forwparam[0]<<std::endl;
-        std::cout<<" dfinv  "<<dfinv<<" ptmax "<<ptmax<<" ptmin "<<ptmin<<std::endl;
-	std::cout<<" check "<<pt<<" "<<ptnew<<" "<<dpt<<" pz "<<pznew<<" "<<pz<<std::endl;
-#endif
-        }
+//	cout<<" Paramters of algorithm "<<df<<" "<<theHicConst->forwparam[1]<<" "<<theHicConst->forwparam[0]<<endl;
+//	cout<<" check "<<pt<<" "<<ptnew<<" "<<dpt<<" pz "<<pznew<<" "<<pz<<endl;
         //
 	// Check if it is valid
 	//  	
 	if( (pt - ptnew)/pt < -2 || (pt - ptnew)/pt > 1 )
 	{
-#ifdef DEBUG
-            cout<<" Return fake 0 pt::ptnew "<<pt<<" "<<ptnew<<endl;
-#endif
-	   return pair<TrajectoryMeasurement,bool>(tm,good); // bad rhit
+	   return TrajectoryMeasurement(); // bad rhit
 	}
-    //        cout<<" Start recalculation 0 "<<endl;
 	//
 	// Recalculate phi, and Z.     
 	//
-	double alf = theHICConst->atra * ( realhit.z() - theHICConst->zvert )/fabs(pznew);
+	double alf = theHicConst->atra * ( realhit.z() - theHicConst->zvert )/abs(pznew);
 	double alfnew = realhit.phi() + aCharge*alf;
 	GlobalPoint xnew0(realhit.x(), realhit.y(), realhit.z()); 
 	GlobalVector pnew0( ptnew*cos(alfnew), ptnew*sin(alfnew), pznew );
-#ifdef DEBUG	
-        cout<<" Start recalculation 1 FTSOLD eta, r hit, pt "<<FTSOLD.parameters().momentum().eta()<<" "<<realhit.perp()<<
-                                                                   " "<<FTSOLD.parameters().momentum().perp()<<endl;	
-#endif	
-	if( fabs(FTSOLD.parameters().momentum().eta()) < 1.7 && fabs(FTSOLD.parameters().momentum().eta()) > 0.8 )
+	
+	if( abs(FTSOLD.parameters().momentum().eta()) < 1.7 && abs(FTSOLD.parameters().momentum().eta()) > 0.8 )
 	{
 	    if( realhit.perp() < 80. ) {
-//	    if( realhit.perp() < 72. ) {
-#ifdef DEBUG
-              cout<<" Return fake 1 "<<realhit.perp()<<endl;
-#endif	      
-	      return pair<TrajectoryMeasurement,bool>(tm,good);
+	      return TrajectoryMeasurement();
 	    }  
 	}
-// std::cout<<" Point 9 "<<std::endl;
 
         if( FTSOLD.parameters().momentum().perp() > 2.0){
-	  if( fabs(FTSOLD.parameters().momentum().eta()) < 2.0 && fabs(FTSOLD.parameters().momentum().eta()) >= 1.7 )
+	
+	  if( abs(FTSOLD.parameters().momentum().eta()) < 2.0 && abs(FTSOLD.parameters().momentum().eta()) >= 1.7 )
 	  {
-	    if( realhit.perp() > 100. || realhit.perp() < 60. ) {
-#ifdef DEBUG	    
-              cout<<" Return fake 2 "<<endl;
-#endif	      
-	      return pair<TrajectoryMeasurement,bool>(tm,good);
+	    if( realhit.perp() > 80. || realhit.perp() < 60. ) {
+	      return TrajectoryMeasurement();
 	  }  
 	  }
-	  if( fabs(FTSOLD.parameters().momentum().eta()) < 2.4 && fabs(FTSOLD.parameters().momentum().eta()) >= 2.0 )
+	  if( abs(FTSOLD.parameters().momentum().eta()) < 2.4 && abs(FTSOLD.parameters().momentum().eta()) >= 2.0 )
 	  {
+//	    if( realhit.perp() > 60. || realhit.perp() < 40. ) {	  
 	    if( realhit.perp() > 75. || realhit.perp() < 40. ) {
-//	    if( realhit.perp() > 82. || realhit.perp() < 40. ) {
-#ifdef DEBUG	    
-              cout<<" Return fake 3 "<<endl;
-#endif	      
-	      return pair<TrajectoryMeasurement,bool>(tm,good);
+	      return TrajectoryMeasurement();
 	    }  
 	  }
 	  
 	}  
         else  // pt<2
 	{
-	  if( fabs(FTSOLD.parameters().momentum().eta()) < 2.0 && fabs(FTSOLD.parameters().momentum().eta()) >= 1.7 )
-	  {	  
-	    if( realhit.perp() > 84. || realhit.perp() < 40. ) {
-#ifdef DEBUG	    
-              cout<<" Return fake 4 "<<endl;
-#endif	      
-	      return pair<TrajectoryMeasurement,bool>(tm,good);
-	    }  
-	  }
- 	  if( fabs(FTSOLD.parameters().momentum().eta()) < 2.4 && fabs(FTSOLD.parameters().momentum().eta()) >= 2.0 )
+	  if( abs(FTSOLD.parameters().momentum().eta()) < 2.0 && abs(FTSOLD.parameters().momentum().eta()) >= 1.7 )
 	  {
 	    if( realhit.perp() > 84. || realhit.perp() < 40. ) {
-#ifdef DEBUG	    
-              cout<<" Return fake 5 "<<endl;
-#endif	      
-	      return pair<TrajectoryMeasurement,bool>(tm,good);
+	      return TrajectoryMeasurement();
+	    }  
+	  }
+ 	  if( abs(FTSOLD.parameters().momentum().eta()) < 2.4 && abs(FTSOLD.parameters().momentum().eta()) >= 2.0 )
+	  {
+	    if( realhit.perp() > 84. || realhit.perp() < 40. ) {
+	      return TrajectoryMeasurement();
 	    }  
 	  }
        } // pt ><2
-#ifdef DEBUG
-          cout<<" Create new TM "<<endl;
-#endif	
+
+
+	
 	AlgebraicSymMatrix m(5,0);        
-	m(1,1) = fabs(0.5*pznew); m(2,2) = theHICConst->phiro[13]; 
-	m(3,3) = theHICConst->tetro[13];
-	m(4,4) = theHICConst->phiro[13]; 
-	m(5,5) = theHICConst->tetro[13];
+	m(1,1) = abs(0.5*pznew); m(2,2) = theHicConst->phiro[13]; 
+	m(3,3) = theHicConst->tetro[13];
+	m(4,4) = theHicConst->phiro[13]; 
+	m(5,5) = theHicConst->tetro[13];
 	
 	TrajectoryStateOnSurface updatedTsosOnDet=TrajectoryStateOnSurface
 	  (GlobalTrajectoryParameters( xnew0, pnew0, (int)aCharge, &(*magfield) ),
 					     CurvilinearTrajectoryError(m), dl->surface() );
+          TransientTrackingRecHit::RecHitPointer itt = TTRHbuilder->build(&(*rh));
+  return TrajectoryMeasurement( tm.forwardPredictedState(), updatedTsosOnDet, itt,(float)1., dl );
+}
 
-       float estimate=1.;
-     TrajectoryMeasurement newtm(tm.forwardPredictedState(), updatedTsosOnDet, rh,estimate, dl);
-     good=true;
-      pair<TrajectoryMeasurement,bool> newtmr(newtm,good);
-#ifdef DEBUG      
-     std::cout<<" Endcap newtm estimate= "<<newtmr.first.estimate()<<" "<<newtmr.second<<" pt "<<pnew0.perp()<<" pz "<<pnew0.z()<<std::endl;
-#endif
-  return newtmr;
-}
-}

@@ -6,8 +6,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2008/07/02 16:32:48 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/05/22 07:10:05 $
+ *  $Revision: 1.1 $
  *  \author  G. Cerminara - University and INFN Torino
  *   
  */
@@ -17,7 +17,6 @@
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include <FWCore/Framework/interface/ESHandle.h>
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include <DataFormats/MuonDetId/interface/DTLayerId.h>
 
 #include "TH2F.h"
 
@@ -29,8 +28,6 @@ class DTGeometry;
 class DTChamberId;
 class DQMStore;
 
-#include "TFile.h"
-#include "TNtuple.h"
 
 class DTOccupancyTest: public edm::EDAnalyzer{
 
@@ -70,7 +67,7 @@ private:
   std::string getMEName(std::string histoTag, const DTChamberId& chId);
 
   // Run the test on the occupancy histos
-  int runOccupancyTest(TH2F *histo, const DTChamberId& chId);
+  int runOccupancyTest(const TH2F *histo, const DTChamberId& chId) const;
 
   int nevents;
 
@@ -81,16 +78,8 @@ private:
   // wheel summary histograms  
   std::map< int, MonitorElement* > wheelHistos;  
   MonitorElement* summaryHisto;
-
-  std::set<DTLayerId> monitoredLayers;
-
-  int lsCounter;
   
-  bool writeRootFile;
-  TFile *rootFile;
-  TNtuple *ntuple;
-
-  bool debug; // FIXME: remove it
+  
 };
 
 #endif

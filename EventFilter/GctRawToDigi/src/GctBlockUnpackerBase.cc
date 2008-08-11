@@ -291,7 +291,9 @@ void GctBlockUnpackerBase::blockToGctInternEtSums(const unsigned char * d, const
   for (unsigned int i=0; i<length; ++i) {
     // Loop over timesamples (i.e. bunch crossings)                                                                                                                               
     for (unsigned int bx=0; bx<nSamples; ++bx) {
-      gctInternEtSums_->push_back(L1GctInternEtSum(id,i,bx,*p));
+
+      // FIXME! Use named ctor here
+      gctInternEtSums_->push_back(L1GctInternEtSum(id,i,bx,*p, 0));
       ++p;
     }
   }
@@ -312,7 +314,9 @@ void GctBlockUnpackerBase::blockToGctInternEtSumsAndJetCluster(const unsigned ch
   for (unsigned int i=0; i<length; ++i) {
     // Loop over timesamples (i.e. bunch crossings)
     for (unsigned int bx=0; bx<nSamples; ++bx) {
-      if (i<2) gctInternEtSums_->push_back(L1GctInternEtSum(id,i,bx,*p));
+
+      // FIXME! Use named ctor here
+      if (i<2) gctInternEtSums_->push_back(L1GctInternEtSum(id,i,bx,*p, 0));
       //if (i==3); Need a new class or ctor for et and ht or a filthy hack? et first then ht. overflow bits are 12 and 28 
       if (i>4) gctInternJetData_->push_back(L1GctInternJetData::fromJetCluster(L1CaloRegionDetId(0,0),id,i,bx,*p));
       ++p;

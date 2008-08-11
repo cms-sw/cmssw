@@ -7,7 +7,7 @@
  * \author original version: Chris Jones, Cornell, 
  *         extended by Luca Lista, INFN
  *
- * \version $Revision: 1.13 $
+ * \version $Revision: 1.11 $
  *
  */
 #include "boost/spirit/core.hpp"
@@ -22,7 +22,6 @@
 #include "PhysicsTools/Utilities/src/IntSetter.h"
 #include "PhysicsTools/Utilities/src/CombinerStack.h"
 #include "PhysicsTools/Utilities/src/MethodStack.h"
-#include "PhysicsTools/Utilities/src/MethodArgumentStack.h"
 #include "PhysicsTools/Utilities/src/TypeStack.h"
 #include "PhysicsTools/Utilities/src/IntStack.h"
 #include "PhysicsTools/Utilities/src/CombinerSetter.h"
@@ -32,7 +31,6 @@
 #include "PhysicsTools/Utilities/src/ExpressionBinaryOperatorSetter.h"
 #include "PhysicsTools/Utilities/src/ExpressionUnaryOperatorSetter.h"
 #include "PhysicsTools/Utilities/src/MethodSetter.h"
-#include "PhysicsTools/Utilities/src/MethodArgumentSetter.h"
 // #include "PhysicsTools/Utilities/src/Abort.h"
 
 namespace reco {
@@ -47,8 +45,7 @@ namespace reco {
       mutable SelectorStack selStack;
       mutable CombinerStack cmbStack;
       mutable FunctionStack funStack;
-      mutable MethodStack         methStack;
-      mutable MethodArgumentStack methArgStack;
+      mutable MethodStack methStack;
       mutable TypeStack typeStack;
       mutable IntStack intStack;
       template<typename T>
@@ -67,7 +64,7 @@ namespace reco {
 					  boost::spirit::same, 
 					  boost::spirit::same>{  
 	typedef boost::spirit::rule<ScannerT> rule;
-	rule number, var, metharg, method, term, power, factor, function1, function2, expression, 
+	rule number, var, method, term, power, factor, function1, function2, expression, 
 	  comparison_op, binary_comp, trinary_comp,
 	  logical_combiner, logical_expression, logical_factor, logical_term,
 	  or_op, and_op, cut, fun;
@@ -78,8 +75,7 @@ namespace reco {
 	  ExpressionNumberSetter number_s(self.exprStack);
 	  IntSetter int_s(self.intStack);
 	  ExpressionVarSetter var_s(self.exprStack, self.methStack, self.typeStack);
-	  MethodArgumentSetter methodArg_s(self.methArgStack);
-	  MethodSetter method_s(self.methStack, self.typeStack, self.methArgStack);
+	  MethodSetter method_s(self.methStack, self.typeStack, self.intStack);
 	  ComparisonSetter<less_equal<double> > less_equal_s(self.cmpStack);
 	  ComparisonSetter<less<double> > less_s(self.cmpStack);
 	  ComparisonSetter<equal_to<double> > equal_to_s(self.cmpStack);
@@ -112,14 +108,10 @@ namespace reco {
   
 	  number = 
 	    real_p [ number_s ];
-          metharg = ( strict_real_p [ methodArg_s ] ) |
-                    ( int_p [ methodArg_s ] ) |
-                    ( ch_p('"' ) >> *(~ch_p('"' ))  >> ch_p('"' ) ) [ methodArg_s ] |
-                    ( ch_p('\'') >> *(~ch_p('\''))  >> ch_p('\'') ) [ methodArg_s ];
 	  var = 
 	    (alpha_p >> * alnum_p >> 
-	      ch_p('(') >> metharg >> * (ch_p(',') >> metharg ) >> ch_p(')')) [ method_s ] |
-	    ( (alpha_p >> * alnum_p) [ method_s ] >> ! (ch_p('(') >> ch_p(')')) ) ;
+	      ch_p('(') >> int_p [ int_s ] >> * (ch_p(',') >> int_p [ int_s ]) >> ch_p(')')) [ method_s ] |
+	    (alpha_p >> * alnum_p) [ method_s ];
 	  method = 
 	    (var >> * ((ch_p('.') >> var))) [ var_s ];
 	  function1 = 

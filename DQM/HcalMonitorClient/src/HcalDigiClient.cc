@@ -12,7 +12,7 @@ void HcalDigiClient::init(const ParameterSet& ps, DQMStore* dbe, string clientNa
   errorFrac_=ps.getUntrackedParameter<double>("digiErrorFrac",0.05);
 
 
-  for(int i=0; i<4; ++i){
+  for(int i=0; i<4; i++){
     gl_occ_geo_[i]=0;
     if(i<3) gl_occ_elec_[i]=0;
     if(i<3) gl_err_elec_[i]=0;
@@ -39,23 +39,9 @@ void HcalDigiClient::init(const ParameterSet& ps, DQMStore* dbe, string clientNa
     sub_digi_size_[i] = 0;
 
     ProblemDigiCells_DEPTH[i]=0;
-    ProblemDigiCellsHB_DEPTH[i]=0;
-    ProblemDigiCellsHE_DEPTH[i]=0;
-    ProblemDigiCellsHO_DEPTH[i]=0;
-    ProblemDigiCellsHF_DEPTH[i]=0;
-
-    RawPedestalMean[i]=0; 
-    RawPedestalRMS[i]=0; 
-    SubPedestalMean[i]=0;  
-    SubPedestalRMS[i]=0;  
   }
   
   ProblemDigiCells=0;
-  ProblemDigiCellsHB=0;
-  ProblemDigiCellsHE=0;
-  ProblemDigiCellsHO=0;
-  ProblemDigiCellsHF=0;
-
   gl_err_geo_=0;
   gl_occ_eta_ = 0;
   gl_occ_phi_ = 0;
@@ -168,14 +154,6 @@ void HcalDigiClient::cleanup(void) {
       if(sub_digi_shape_[i]) delete sub_digi_shape_[i];           
       if(sub_digi_size_[i]) delete sub_digi_size_[i];
       if (ProblemDigiCells_DEPTH[i]) delete ProblemDigiCells_DEPTH[i];
-      if (ProblemDigiCellsHB_DEPTH[i]) delete ProblemDigiCellsHB_DEPTH[i];
-      if (ProblemDigiCellsHE_DEPTH[i]) delete ProblemDigiCellsHE_DEPTH[i];
-      if (ProblemDigiCellsHO_DEPTH[i]) delete ProblemDigiCellsHO_DEPTH[i];
-      if (ProblemDigiCellsHF_DEPTH[i]) delete ProblemDigiCellsHF_DEPTH[i];
-      if (RawPedestalMean[i]) delete RawPedestalMean[i]; 
-      if (RawPedestalRMS[i])  delete RawPedestalRMS[i]; 
-      if (SubPedestalMean[i]) delete SubPedestalMean[i];  
-      if (SubPedestalMean[i]) delete SubPedestalRMS[i];  
     } // for (int i=0;i<4;++i)
     /*
     if (gl_occ_geo_)   delete gl_occ_geo_;
@@ -199,11 +177,6 @@ void HcalDigiClient::cleanup(void) {
   } // if (cloneME_)
 
   ProblemDigiCells=0;
-  ProblemDigiCellsHB=0;
-  ProblemDigiCellsHE=0;
-  ProblemDigiCellsHO=0;
-  ProblemDigiCellsHF=0;
-
   gl_err_geo_=0;
   gl_occ_eta_ = 0;
   gl_occ_phi_ = 0;
@@ -212,19 +185,9 @@ void HcalDigiClient::cleanup(void) {
   gl_num_bqdigi_ = 0;
   gl_bqdigi_frac_ = 0;
   gl_capid_t0_ = 0;
-
-  for(int i=0; i<4; ++i){
+  
+  for(int i=0; i<4; i++){
     ProblemDigiCells_DEPTH[i]=0;
-    ProblemDigiCellsHB_DEPTH[i]=0;
-    ProblemDigiCellsHE_DEPTH[i]=0;
-    ProblemDigiCellsHO_DEPTH[i]=0;
-    ProblemDigiCellsHF_DEPTH[i]=0;
-
-    RawPedestalMean[i]=0; 
-    RawPedestalRMS[i]=0; 
-    SubPedestalMean[i]=0;  
-    SubPedestalRMS[i]=0;  
-
     gl_occ_geo_[i]=0;
     if(i<3) gl_occ_elec_[i]=0;
     if(i<3) gl_err_elec_[i]=0;
@@ -236,7 +199,7 @@ void HcalDigiClient::cleanup(void) {
     sub_occ_elec_[i][2]=0;
     sub_occ_eta_[i] = 0;
     sub_occ_phi_[i] = 0;
-    
+
     sub_err_geo_[i]=0;  
     sub_err_elec_[i][0]=0;
     sub_err_elec_[i][1]=0;
@@ -271,6 +234,7 @@ void HcalDigiClient::report(){
   }
 
   getHistograms();
+
   return;
 }
 
@@ -289,39 +253,14 @@ void HcalDigiClient::analyze(void){
 void HcalDigiClient::getHistograms(){
   if(!dbe_) return;
 
-
   char name[150];    
   sprintf(name,"DigiMonitor/HCAL/HCALProblemDigiCells");
   ProblemDigiCells=getHisto2(name,process_,dbe_,debug_,cloneME_);
-  sprintf(name,"DigiMonitor/HB/HBProblemDigiCells");
-  ProblemDigiCellsHB=getHisto2(name,process_,dbe_,debug_,cloneME_);
-  sprintf(name,"DigiMonitor/HE/HEProblemDigiCells");
-  ProblemDigiCellsHE=getHisto2(name,process_,dbe_,debug_,cloneME_);
-  sprintf(name,"DigiMonitor/HO/HOProblemDigiCells");
-  ProblemDigiCellsHO=getHisto2(name,process_,dbe_,debug_,cloneME_);
-  sprintf(name,"DigiMonitor/HF/HFProblemDigiCells");
-  ProblemDigiCellsHF=getHisto2(name,process_,dbe_,debug_,cloneME_);
   
   for (int i=0;i<4;++i)
     {
       sprintf(name,"DigiMonitor/HCAL/expertPlots/HCALProblemDigiCells_depth%i",i+1);
       ProblemDigiCells_DEPTH[i]=getHisto2(name,process_,dbe_,debug_,cloneME_);
-      sprintf(name,"DigiMonitor/HB/expertPlots/HBProblemDigiCells_depth%i",i+1);
-      ProblemDigiCellsHB_DEPTH[i]=getHisto2(name,process_,dbe_,debug_,cloneME_);
-      sprintf(name,"DigiMonitor/HE/expertPlots/HEProblemDigiCells_depth%i",i+1);
-      ProblemDigiCellsHE_DEPTH[i]=getHisto2(name,process_,dbe_,debug_,cloneME_);
-      sprintf(name,"DigiMonitor/HO/expertPlots/HOProblemDigiCells_depth%i",i+1);
-      ProblemDigiCellsHO_DEPTH[i]=getHisto2(name,process_,dbe_,debug_,cloneME_);
-      sprintf(name,"DigiMonitor/HF/expertPlots/HFProblemDigiCells_depth%i",i+1);
-      ProblemDigiCellsHF_DEPTH[i]=getHisto2(name,process_,dbe_,debug_,cloneME_);
-      sprintf(name,"DigiMonitor/HCAL/RawPedestalMeanDepth%i",i+1);
-      RawPedestalMean[i]=getHisto2(name,process_,dbe_,debug_,cloneME_); 
-      sprintf(name,"DigiMonitor/HCAL/RawPedestalRMSDepth%i",i+1);
-      RawPedestalRMS[i]=getHisto2(name,process_,dbe_,debug_,cloneME_); 
-      sprintf(name,"DigiMonitor/HCAL/SubPedestalMeanDepth%i",i+1);
-      SubPedestalMean[i]=getHisto2(name,process_,dbe_,debug_,cloneME_); 
-      sprintf(name,"DigiMonitor/HCAL/SubPedestalRMSDepth%i",i+1);
-      SubPedestalRMS[i]=getHisto2(name,process_,dbe_,debug_,cloneME_); 
     }
   
   
@@ -370,83 +309,81 @@ void HcalDigiClient::getHistograms(){
   sprintf(name,"DigiMonitor/Bad Digi Fraction");
   gl_bqdigi_frac_ = getHisto(name,process_, dbe_,debug_,cloneME_);
    
-  for(int i=0; i<4; ++i)
-    {
-      if(!subDetsOn_[i]) continue;
-      string type = "HB";
-      if(i==1) type = "HE";
-      if(i==2) type = "HF"; 
-      if(i==3) type = "HO"; 
-      
-      sprintf(name,"DigiMonitor/%s/%s Digi Geo Error Map",type.c_str(),type.c_str());
-   
-      sub_err_geo_[i] = getHisto2(name, process_, dbe_,debug_,cloneME_);
-      
-      sprintf(name,"DigiMonitor/%s/%s Digi VME Error Map",type.c_str(),type.c_str());
-      sub_err_elec_[i][0] = getHisto2(name,process_, dbe_,debug_,cloneME_);
-      
-      sprintf(name,"DigiMonitor/%s/%s Digi Fiber Error Map",type.c_str(),type.c_str());
-      sub_err_elec_[i][1] = getHisto2(name,process_, dbe_,debug_,cloneME_);
-      
-      sprintf(name,"DigiMonitor/%s/%s Digi Spigot Error Map",type.c_str(),type.c_str());
-      sub_err_elec_[i][2] = getHisto2(name,process_, dbe_,debug_,cloneME_);
-      
-      sprintf(name,"DigiMonitor/%s/%s Digi Depth 1 Occupancy Map",type.c_str(),type.c_str());
-      sub_occ_geo_[i][0] = getHisto2(name, process_, dbe_,debug_,cloneME_);
-      
-      sprintf(name,"DigiMonitor/%s/%s Digi Depth 2 Occupancy Map",type.c_str(),type.c_str());
-      sub_occ_geo_[i][1] = getHisto2(name, process_, dbe_,debug_,cloneME_);
-      
-      sprintf(name,"DigiMonitor/%s/%s Digi Depth 3 Occupancy Map",type.c_str(),type.c_str());
-      sub_occ_geo_[i][2] = getHisto2(name, process_, dbe_,debug_,cloneME_);
-      
-      sprintf(name,"DigiMonitor/%s/%s Digi Depth 4 Occupancy Map",type.c_str(),type.c_str());
-      sub_occ_geo_[i][3] = getHisto2(name, process_, dbe_,debug_,cloneME_);
-      
-      sprintf(name,"DigiMonitor/%s/%s Digi VME Occupancy Map",type.c_str(),type.c_str());
-      sub_occ_elec_[i][0] = getHisto2(name,process_, dbe_,debug_,cloneME_);
-      
-      sprintf(name,"DigiMonitor/%s/%s Digi Fiber Occupancy Map",type.c_str(),type.c_str());
-      sub_occ_elec_[i][1] = getHisto2(name,process_, dbe_,debug_,cloneME_);
-      
-      sprintf(name,"DigiMonitor/%s/%s Digi Spigot Occupancy Map",type.c_str(),type.c_str());
-      sub_occ_elec_[i][2] = getHisto2(name,process_, dbe_,debug_,cloneME_);
-      
-      sprintf(name,"DigiMonitor/%s/%s Digi Eta Occupancy Map",type.c_str(),type.c_str());
-      sub_occ_eta_[i] = getHisto(name,process_, dbe_,debug_,cloneME_);
-      
-      sprintf(name,"DigiMonitor/%s/%s Digi Phi Occupancy Map",type.c_str(),type.c_str());
-      sub_occ_phi_[i] = getHisto(name,process_, dbe_,debug_,cloneME_);
-      
-      sprintf(name,"DigiMonitor/%s/%s QIE ADC Value",type.c_str(),type.c_str());
-      qie_adc_[i] = getHisto(name, process_, dbe_,debug_,cloneME_);
-      
-      sprintf(name,"DigiMonitor/%s/%s # of Digis",type.c_str(),type.c_str());
-      num_digi_[i] = getHisto(name, process_, dbe_,debug_,cloneME_);
-      
-      sprintf(name,"DigiMonitor/%s/%s QIE Cap-ID",type.c_str(),type.c_str());
-      qie_capid_[i] = getHisto(name, process_, dbe_,debug_,cloneME_);
-      
-      sprintf(name,"DigiMonitor/%s/%s QIE Data Valid Err Bits",type.c_str(),type.c_str());
-      qie_dverr_[i] = getHisto(name, process_, dbe_,debug_,cloneME_);
-      qie_dverr_[i]->GetXaxis()->SetBinLabel(1,"Err=0 DV=0");
-      qie_dverr_[i]->GetXaxis()->SetBinLabel(2,"Err=0 DV=1");
-      qie_dverr_[i]->GetXaxis()->SetBinLabel(3,"Err=1 DV=0");
-      qie_dverr_[i]->GetXaxis()->SetBinLabel(4,"Err=1 DV=1");
-      
-      sprintf(name,"DigiMonitor/%s/%s # Bad Qual Digis",type.c_str(),type.c_str());
-      sub_num_bqdigi_[i] = getHisto(name, process_, dbe_,debug_,cloneME_);
-      
-      sprintf(name,"DigiMonitor/%s/%s Bad Digi Fraction",type.c_str(),type.c_str());
-      sub_bqdigi_frac_[i] = getHisto(name, process_, dbe_,debug_,cloneME_);
-      
-      sprintf(name,"DigiMonitor/%s/%s Capid 1st Time Slice",type.c_str(),type.c_str());
-      sub_capid_t0_[i] = getHisto(name, process_, dbe_,debug_,cloneME_);
-      
-      sprintf(name,"DigiMonitor/%s/%s Digi Shape - over thresh",type.c_str(),type.c_str());
-      sub_digi_shape_[i] = getHisto(name, process_, dbe_,debug_,cloneME_);
-      sprintf(name,"DigiMonitor/%s/%s Digi Size",type.c_str(),type.c_str());
-      sub_digi_size_[i] = getHisto(name, process_, dbe_,debug_,cloneME_);
+  for(int i=0; i<4; i++){
+    if(!subDetsOn_[i]) continue;
+    string type = "HB";
+    if(i==1) type = "HE";
+    if(i==2) type = "HF"; 
+    if(i==3) type = "HO"; 
+    
+    sprintf(name,"DigiMonitor/%s/%s Digi Geo Error Map",type.c_str(),type.c_str());
+    sub_err_geo_[i] = getHisto2(name, process_, dbe_,debug_,cloneME_);
+    
+    sprintf(name,"DigiMonitor/%s/%s Digi VME Error Map",type.c_str(),type.c_str());
+    sub_err_elec_[i][0] = getHisto2(name,process_, dbe_,debug_,cloneME_);
+    
+    sprintf(name,"DigiMonitor/%s/%s Digi Fiber Error Map",type.c_str(),type.c_str());
+    sub_err_elec_[i][1] = getHisto2(name,process_, dbe_,debug_,cloneME_);
+
+    sprintf(name,"DigiMonitor/%s/%s Digi Spigot Error Map",type.c_str(),type.c_str());
+    sub_err_elec_[i][2] = getHisto2(name,process_, dbe_,debug_,cloneME_);
+
+    sprintf(name,"DigiMonitor/%s/%s Digi Depth 1 Occupancy Map",type.c_str(),type.c_str());
+    sub_occ_geo_[i][0] = getHisto2(name, process_, dbe_,debug_,cloneME_);
+
+    sprintf(name,"DigiMonitor/%s/%s Digi Depth 2 Occupancy Map",type.c_str(),type.c_str());
+    sub_occ_geo_[i][1] = getHisto2(name, process_, dbe_,debug_,cloneME_);
+
+    sprintf(name,"DigiMonitor/%s/%s Digi Depth 3 Occupancy Map",type.c_str(),type.c_str());
+    sub_occ_geo_[i][2] = getHisto2(name, process_, dbe_,debug_,cloneME_);
+
+    sprintf(name,"DigiMonitor/%s/%s Digi Depth 4 Occupancy Map",type.c_str(),type.c_str());
+    sub_occ_geo_[i][3] = getHisto2(name, process_, dbe_,debug_,cloneME_);
+
+    sprintf(name,"DigiMonitor/%s/%s Digi VME Occupancy Map",type.c_str(),type.c_str());
+    sub_occ_elec_[i][0] = getHisto2(name,process_, dbe_,debug_,cloneME_);
+
+    sprintf(name,"DigiMonitor/%s/%s Digi Fiber Occupancy Map",type.c_str(),type.c_str());
+    sub_occ_elec_[i][1] = getHisto2(name,process_, dbe_,debug_,cloneME_);
+
+    sprintf(name,"DigiMonitor/%s/%s Digi Spigot Occupancy Map",type.c_str(),type.c_str());
+    sub_occ_elec_[i][2] = getHisto2(name,process_, dbe_,debug_,cloneME_);
+    
+    sprintf(name,"DigiMonitor/%s/%s Digi Eta Occupancy Map",type.c_str(),type.c_str());
+    sub_occ_eta_[i] = getHisto(name,process_, dbe_,debug_,cloneME_);
+
+    sprintf(name,"DigiMonitor/%s/%s Digi Phi Occupancy Map",type.c_str(),type.c_str());
+    sub_occ_phi_[i] = getHisto(name,process_, dbe_,debug_,cloneME_);
+    
+    sprintf(name,"DigiMonitor/%s/%s QIE ADC Value",type.c_str(),type.c_str());
+    qie_adc_[i] = getHisto(name, process_, dbe_,debug_,cloneME_);
+
+    sprintf(name,"DigiMonitor/%s/%s # of Digis",type.c_str(),type.c_str());
+    num_digi_[i] = getHisto(name, process_, dbe_,debug_,cloneME_);
+
+    sprintf(name,"DigiMonitor/%s/%s QIE Cap-ID",type.c_str(),type.c_str());
+    qie_capid_[i] = getHisto(name, process_, dbe_,debug_,cloneME_);
+
+    sprintf(name,"DigiMonitor/%s/%s QIE Data Valid Err Bits",type.c_str(),type.c_str());
+    qie_dverr_[i] = getHisto(name, process_, dbe_,debug_,cloneME_);
+    qie_dverr_[i]->GetXaxis()->SetBinLabel(1,"Err=0 DV=0");
+    qie_dverr_[i]->GetXaxis()->SetBinLabel(2,"Err=0 DV=1");
+    qie_dverr_[i]->GetXaxis()->SetBinLabel(3,"Err=1 DV=0");
+    qie_dverr_[i]->GetXaxis()->SetBinLabel(4,"Err=1 DV=1");
+
+    sprintf(name,"DigiMonitor/%s/%s # Bad Qual Digis",type.c_str(),type.c_str());
+    sub_num_bqdigi_[i] = getHisto(name, process_, dbe_,debug_,cloneME_);
+
+    sprintf(name,"DigiMonitor/%s/%s Bad Digi Fraction",type.c_str(),type.c_str());
+    sub_bqdigi_frac_[i] = getHisto(name, process_, dbe_,debug_,cloneME_);
+
+    sprintf(name,"DigiMonitor/%s/%s Capid 1st Time Slice",type.c_str(),type.c_str());
+    sub_capid_t0_[i] = getHisto(name, process_, dbe_,debug_,cloneME_);
+
+    sprintf(name,"DigiMonitor/%s/%s Digi Shape - over thresh",type.c_str(),type.c_str());
+    sub_digi_shape_[i] = getHisto(name, process_, dbe_,debug_,cloneME_);
+    sprintf(name,"DigiMonitor/%s/%s Digi Size",type.c_str(),type.c_str());
+    sub_digi_size_[i] = getHisto(name, process_, dbe_,debug_,cloneME_);
 
   }
   return;
@@ -458,44 +395,15 @@ void HcalDigiClient::resetAllME(){
 
   Char_t name[150];    
   
-  for(int i=1; i<5; ++i)
-    {
-      sprintf(name,"%sHcal/DigiMonitor/Digi Depth %d Occupancy Map",process_.c_str(),i);
-      resetME(name,dbe_);
-
-      sprintf(name,"%sHcal/DigiMonitor/HCAL/expertPlots/HCALProblemDigiCells_depth%i",process_.c_str(),i);
-      resetME(name,dbe_);
-      sprintf(name,"%sHcal/DigiMonitor/HB/expertPlots/HBProblemDigiCells_depth%i",process_.c_str(),i);
-      resetME(name,dbe_);
-      sprintf(name,"%sHcal/DigiMonitor/HE/expertPlots/HEProblemDigiCells_depth%i",process_.c_str(),i);
-      resetME(name,dbe_);
-      sprintf(name,"%sHcal/DigiMonitor/HO/expertPlots/HOProblemDigiCells_depth%i",process_.c_str(),i);
-      resetME(name,dbe_);
-      sprintf(name,"%sHcal/DigiMonitor/HF/expertPlots/HFProblemDigiCells_depth%i",process_.c_str(),i);
-      resetME(name,dbe_);
-      
-      sprintf(name,"%sHcal/DigiMonitor/HCAL/RawPedestalMeanDepth%i",process_.c_str(),i);
-      resetME(name,dbe_);
-      sprintf(name,"%sHcal/DigiMonitor/HCAL/RawPedestalRMSDepth%i",process_.c_str(),i);
-      resetME(name,dbe_);
-      sprintf(name,"%sHcal/DigiMonitor/HCAL/SubPedestalMeanDepth%i",process_.c_str(),i);
-      resetME(name,dbe_);
-      sprintf(name,"%sHcal/DigiMonitor/HCAL/SubPedestalRMSDepth%i",process_.c_str(),i);
-      resetME(name,dbe_);
+  for(int i=1; i<5; i++){
+    sprintf(name,"%sHcal/DigiMonitor/Digi Depth %d Occupancy Map",process_.c_str(),i);
+    resetME(name,dbe_);
+    sprintf(name,"%sHcal/DigiMonitor/HCAL/expertPlots/HCALProblemDigiCells_depth%i",process_.c_str(),i);
+    resetME(name,dbe_);
   }
 
-  sprintf(name,"%sHcal/DigiMonitor/HCAL/HCALProblemDigiCells",process_.c_str());
+  sprintf(name,"%sHcal/DigMonitor/HCAL/HCALProblemDigiCells",process_.c_str());
   resetME(name,dbe_);
-  sprintf(name,"%sHcal/DigiMonitor/HB/HBProblemDigiCells",process_.c_str());
-  resetME(name,dbe_);
-  sprintf(name,"%sHcal/DigiMonitor/HE/HEProblemDigiCells",process_.c_str());
-  resetME(name,dbe_);
-  sprintf(name,"%sHcal/DigiMonitor/HO/HOProblemDigiCells",process_.c_str());
-  resetME(name,dbe_);
-  sprintf(name,"%sHcal/DigiMonitor/HF/HFProblemDigiCells",process_.c_str());
-  resetME(name,dbe_);
-
-
   sprintf(name,"%sHcal/DigiMonitor/Digi Eta Occupancy Map",process_.c_str());
   resetME(name,dbe_);
   sprintf(name,"%sHcal/DigiMonitor/Digi Phi Occupancy Map",process_.c_str());
@@ -523,7 +431,7 @@ void HcalDigiClient::resetAllME(){
   sprintf(name,"%sDigiMonitor/Bad Digi Fraction",process_.c_str());
   resetME(name,dbe_);
   
-  for(int i=0; i<4; ++i){
+  for(int i=0; i<4; i++){
     if(!subDetsOn_[i]) continue;
     string type = "HB";
     if(i==1) type = "HE"; 
@@ -711,7 +619,7 @@ void HcalDigiClient::htmlExpertOutput(int runNo, string htmlDir, string htmlName
   histoHTML2(runNo,gl_err_elec_[2],"Spigot","DCC Id", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
-  for(int i=0; i<4; ++i){
+  for(int i=0; i<4; i++){
     if(!subDetsOn_[i]) continue;
     string type = "HB";
     if(i==1) type = "HE"; 
@@ -732,27 +640,19 @@ void HcalDigiClient::htmlExpertOutput(int runNo, string htmlDir, string htmlName
     htmlFile << "</tr>" << endl;
 
     int count = 0;
-    htmlFile << "<tr align=\"left\">" << endl;
- 
-    if(isValidGeom(type,1)){ histoHTML2(runNo,sub_occ_geo_[i][0],"iEta","iPhi", 92, htmlFile,htmlDir); count++; }
-    if(isValidGeom(type,2)) 
-      { histoHTML2(runNo,sub_occ_geo_[i][1],"iEta","iPhi", 100, htmlFile,htmlDir); 
-	count++;
-      }
+    htmlFile << "<tr align=\"left\">" << endl;	
+    if(isValidGeom(i,0,0,1)){ histoHTML2(runNo,sub_occ_geo_[i][0],"iEta","iPhi", 92, htmlFile,htmlDir); count++; }
+    if(isValidGeom(i,0,0,2)) { histoHTML2(runNo,sub_occ_geo_[i][1],"iEta","iPhi", 100, htmlFile,htmlDir); count++;}
     if(count%2==0){
       htmlFile << "</tr>" << endl;      
       htmlFile << "<tr align=\"left\">" << endl;	
     }
-    if(isValidGeom(type,3)){histoHTML2(runNo,sub_occ_geo_[i][2],"iEta","iPhi", 92, htmlFile,htmlDir); count++;}
+    if(isValidGeom(i,0,0,3)){histoHTML2(runNo,sub_occ_geo_[i][2],"iEta","iPhi", 92, htmlFile,htmlDir); count++;}
     if(count%2==0){
       htmlFile << "</tr>" << endl;      
       htmlFile << "<tr align=\"left\">" << endl;	
     }
-    if(isValidGeom(type,4))
-      { 
-	histoHTML2(runNo,sub_occ_geo_[i][3],"iEta","iPhi", 100, htmlFile,htmlDir);
-	count++;
-      }
+    if(isValidGeom(i,0,0,4)){ histoHTML2(runNo,sub_occ_geo_[i][3],"iEta","iPhi", 100, htmlFile,htmlDir); count++;}
     htmlFile << "</tr>" << endl;
     
     htmlFile << "<tr align=\"left\">" << endl;
@@ -784,24 +684,7 @@ void HcalDigiClient::htmlExpertOutput(int runNo, string htmlDir, string htmlName
     histoHTML(runNo,qie_capid_[i],"QIE CAPID Value","Events", 100, htmlFile,htmlDir);
     htmlFile << "</tr>" << endl;
     
-  } // for (int i=0;i<4;++i)
-
-  for (int i=0;i<4;++i)
-    {
-      htmlFile<<" <tr>"<<endl;
-      histoHTML2(runNo,RawPedestalMean[i],"i#eta","i#phi",92, htmlFile, htmlDir);
-      histoHTML2(runNo,RawPedestalRMS[i],"i#eta","i#phi",92, htmlFile, htmlDir);
-      htmlFile<<" </tr>"<<endl;
-    }
-
-  for (int i=0;i<4;++i)
-    {
-      htmlFile<<" <tr>"<<endl;
-      histoHTML2(runNo,SubPedestalMean[i],"i#eta","i#phi",92, htmlFile, htmlDir);
-      histoHTML2(runNo,SubPedestalRMS[i],"i#eta","i#phi",92, htmlFile, htmlDir);
-      htmlFile<<" </tr>"<<endl;
-    }
-
+  }
   htmlFile << "</table>" << endl;
   htmlFile << "<br>" << endl;
 
@@ -815,15 +698,16 @@ void HcalDigiClient::htmlExpertOutput(int runNo, string htmlDir, string htmlName
 
   return;
 }
+
 void HcalDigiClient::createTests(){
   if(!dbe_) return;
 
   char meTitle[250], name[250];    
   vector<string> params;
   
-  if(debug_) cout <<"Creating Digi tests..."<<endl;
+  if(debug_) printf("Creating Digi tests...\n");
   
-  for(int i=0; i<4; ++i){
+  for(int i=0; i<4; i++){
     if(!subDetsOn_[i]) continue;
 
     string type = "HB";
@@ -847,20 +731,7 @@ void HcalDigiClient::createTests(){
     /*
     sprintf(meTitle,"%sHcal/DigiMonitor/%s/%s # of Digis",process_.c_str(),type.c_str(),type.c_str());
     sprintf(name,"%s # of Digis",type.c_str());
-    MonitorElement* me = dbe_->get(meTitle);
-    if (!me) cout <<"DID NOT GET TITLE!"<<endl;
-    else
-      {
-	me->runQTests();
-	std::vector<QReport*> warnings = me->getQWarnings();
-	
-	cout <<"ERROR = "<<me->hasError()<<"  WARNING:  "<<me->hasWarning()<<endl;
-      }
-    */
-
-    /*
-    if(dqmQtests_.find(name) == dqmQtests_.end())
-      {	
+    if(dqmQtests_.find(name) == dqmQtests_.end()){	
       MonitorElement* me = dbe_->get(meTitle);
       if(me){	
 	dqmQtests_[name]=meTitle;	  
@@ -924,59 +795,47 @@ void HcalDigiClient::loadHistograms(TFile* infile){
   
   sprintf(name,"DQMData/Hcal/DigiMonitor/Digi VME Error Map");
   gl_err_elec_[0] = (TH2F*)infile->Get(name);
-  
-  sprintf(name,"DQMData/Hcal/DigiMonitor/Digi Spigot Error Map");
-  gl_err_elec_[2] = (TH2F*)infile->Get(name);
-  
-  sprintf(name,"DQMData/Hcal/DigiMonitor/Digi Depth 1 Occupancy Map");
-  gl_occ_geo_[0] = (TH2F*)infile->Get(name);
-  
-  sprintf(name,"DQMData/Hcal/DigiMonitor/Digi Depth 2 Occupancy Map");
-  gl_occ_geo_[1] = (TH2F*)infile->Get(name);
-  
-  sprintf(name,"DQMData/Hcal/DigiMonitor/Digi Depth 3 Occupancy Map");
-  gl_occ_geo_[2] = (TH2F*)infile->Get(name);
-  
-  sprintf(name,"DQMData/Hcal/DigiMonitor/Digi Depth 4 Occupancy Map");
-  gl_occ_geo_[3] = (TH2F*)infile->Get(name);
-  
-  sprintf(name,"DQMData/Hcal/DigiMonitor/Digi Eta Occupancy Map");
-  gl_occ_eta_ = (TH1F*)infile->Get(name);
-  
-  sprintf(name,"DQMData/Hcal/DigiMonitor/Digi Phi Occupancy Map");
-  gl_occ_phi_ = (TH1F*)infile->Get(name);
 
-  sprintf(name,"DQMData/Hcal/DigiMonitor/Digi VME Occupancy Map");
-  gl_occ_elec_[0] = (TH2F*)infile->Get(name);
-  
-  sprintf(name,"DQMData/Hcal/DigiMonitor/Digi Spigot Occupancy Map");
-  gl_occ_elec_[2] = (TH2F*)infile->Get(name);
-  
-  sprintf(name,"DigiMonitor/Capid 1st Time Slice");
-  gl_capid_t0_ =  (TH1F*)infile->Get(name);
-  
-  sprintf(name,"DigiMonitor/# of Digis");
-  gl_num_digi_ =  (TH1F*)infile->Get(name);
-  
-  sprintf(name,"DigiMonitor/# Bad Qual Digis");
-  gl_num_bqdigi_ =  (TH1F*)infile->Get(name);
-  
-  sprintf(name,"DigiMonitor/Bad Digi Fraction");
-  gl_bqdigi_frac_ =  (TH1F*)infile->Get(name);
+    sprintf(name,"DQMData/Hcal/DigiMonitor/Digi Spigot Error Map");
+    gl_err_elec_[2] = (TH2F*)infile->Get(name);
 
-  sprintf(name,"DigiMonitor/HCAL/HCALProblemDigiCells");
-  ProblemDigiCells=(TH2F*)infile->Get(name);
-  sprintf(name,"DigiMonitor/HB/HBProblemDigiCells");
-  ProblemDigiCellsHB=(TH2F*)infile->Get(name);
-  sprintf(name,"DigiMonitor/HE/HEProblemDigiCells");
-  ProblemDigiCellsHE=(TH2F*)infile->Get(name);
-  sprintf(name,"DigiMonitor/HO/HOProblemDigiCells");
-  ProblemDigiCellsHO=(TH2F*)infile->Get(name);
-  sprintf(name,"DigiMonitor/HF/HFProblemDigiCells");
-  ProblemDigiCellsHF=(TH2F*)infile->Get(name);
+    sprintf(name,"DQMData/Hcal/DigiMonitor/Digi Depth 1 Occupancy Map");
+    gl_occ_geo_[0] = (TH2F*)infile->Get(name);
 
-  
-  for(int i=0; i<4; ++i){
+    sprintf(name,"DQMData/Hcal/DigiMonitor/Digi Depth 2 Occupancy Map");
+    gl_occ_geo_[1] = (TH2F*)infile->Get(name);
+
+    sprintf(name,"DQMData/Hcal/DigiMonitor/Digi Depth 3 Occupancy Map");
+    gl_occ_geo_[2] = (TH2F*)infile->Get(name);
+
+    sprintf(name,"DQMData/Hcal/DigiMonitor/Digi Depth 4 Occupancy Map");
+    gl_occ_geo_[3] = (TH2F*)infile->Get(name);
+
+    sprintf(name,"DQMData/Hcal/DigiMonitor/Digi Eta Occupancy Map");
+    gl_occ_eta_ = (TH1F*)infile->Get(name);
+    
+    sprintf(name,"DQMData/Hcal/DigiMonitor/Digi Phi Occupancy Map");
+    gl_occ_phi_ = (TH1F*)infile->Get(name);
+
+    sprintf(name,"DQMData/Hcal/DigiMonitor/Digi VME Occupancy Map");
+    gl_occ_elec_[0] = (TH2F*)infile->Get(name);
+
+    sprintf(name,"DQMData/Hcal/DigiMonitor/Digi Spigot Occupancy Map");
+    gl_occ_elec_[2] = (TH2F*)infile->Get(name);
+
+    sprintf(name,"DigiMonitor/Capid 1st Time Slice");
+    gl_capid_t0_ =  (TH1F*)infile->Get(name);
+
+    sprintf(name,"DigiMonitor/# of Digis");
+    gl_num_digi_ =  (TH1F*)infile->Get(name);
+
+    sprintf(name,"DigiMonitor/# Bad Qual Digis");
+    gl_num_bqdigi_ =  (TH1F*)infile->Get(name);
+
+    sprintf(name,"DigiMonitor/Bad Digi Fraction");
+    gl_bqdigi_frac_ =  (TH1F*)infile->Get(name);
+   
+  for(int i=0; i<4; i++){
     if(!subDetsOn_[i]) continue;
     string type = "HB";
     if(i==1) type = "HE"; 
@@ -1053,27 +912,6 @@ void HcalDigiClient::loadHistograms(TFile* infile){
     sprintf(name,"DQMData/Hcal/DigiMonitor/%s/%s Bad Digi Fraction",type.c_str(),type.c_str());
     sub_bqdigi_frac_[i] = (TH1F*)infile->Get(name);
 
-    sprintf(name,"DigiMonitor/HCAL/expertPlots/HCALProblemDigiCells_depth%i",i+1);
-    ProblemDigiCells_DEPTH[i]=(TH2F*)infile->Get(name);
-
-    sprintf(name,"DigiMonitor/HB/expertPlots/HBProblemDigiCells_depth%i",i+1);
-    ProblemDigiCellsHB_DEPTH[i]=(TH2F*)infile->Get(name);
-    sprintf(name,"DigiMonitor/HE/expertPlots/HEProblemDigiCells_depth%i",i+1);
-    ProblemDigiCellsHE_DEPTH[i]=(TH2F*)infile->Get(name);
-    sprintf(name,"DigiMonitor/HO/expertPlots/HOProblemDigiCells_depth%i",i+1);
-    ProblemDigiCellsHO_DEPTH[i]=(TH2F*)infile->Get(name);
-    sprintf(name,"DigiMonitor/HF/expertPlots/HFProblemDigiCells_depth%i",i+1);
-    ProblemDigiCellsHF_DEPTH[i]=(TH2F*)infile->Get(name);
-
-    sprintf(name,"DigiMonitor/HCAL/RawPedestalMeanDepth%i",i+1);
-    RawPedestalMean[i]=(TH2F*)infile->Get(name); 
-    sprintf(name,"DigiMonitor/HCAL/RawPedestalRMSDepth%i",i+1);
-    RawPedestalRMS[i]=(TH2F*)infile->Get(name); 
-    sprintf(name,"DigiMonitor/HCAL/SubPedestalMeanDepth%i",i+1);
-    SubPedestalMean[i]=(TH2F*)infile->Get(name); 
-    sprintf(name,"DigiMonitor/HCAL/SubPedestalRMSDepth%i",i+1);
-    SubPedestalRMS[i]=(TH2F*)infile->Get(name); 
-
   }
   return;
 } // void HcalDigiClient::loadHistograms()
@@ -1141,13 +979,13 @@ void HcalDigiClient::htmlOutput(int runNo, string htmlDir, string htmlName){
   htmlFile << "<tr align=\"center\">" << endl;
   histoHTML2(runNo,ProblemDigiCells,"iEta","iPhi", 92, htmlFile,htmlDir);
   htmlFile<<"</tr>"<<endl;
-  htmlFile<<"<tr><td> A digi cell is considered bad if there was no digi for that cell in the event, if the digi size was wrong (<=1), if the capid rotation for that digi was incorrect, or if the sum of ADC counts over all time slices for the digi is 0.  <br> If zero-suppression of the HCAL is enabled for a run, this plot may have high occupancy, and you should check the expert plots for more detailed information.</td></tr>"<<endl;
+  htmlFile<<"<tr><td> A digi cell is considered bad if there was no digi for that cell in the event, if the capid rotation for that digi was incorrect, or if the sum of ADC counts over all time slices for the digi is 0.  <br> If zero-suppression of the HCAL is enabled for a run, this plot may have high occupancy, and you should check the expert plots for more detailed information.</td></tr>"<<endl;
   htmlFile<<"<tr><td><a href=\"Expert_"<< htmlName<<"\">ExpertPlots </a></br></td>"<<endl;
   htmlFile<<"</tr></table><br>"<<endl;
 
   //ProblemDigiCells->Scale(ievt_); 
   ProblemDigiCells->SetMinimum(0);
-  htmlFile <<"<h2>List of Problem Digi Cells</h2>"<<endl;
+  htmlFile <<"<h2>List of Problem Digi Cells  (Warning:  Cell ID's don't yet include Subdetectors)</h2>"<<endl; 
   htmlFile <<"<table width=75%align = \"center\"><tr align=\"center\">" <<endl; 
   htmlFile <<"<td> Problem Cells</td><td align=\"center\"> Fraction of Events in wh\
 ich cells are bad (%)</td></tr>"<<endl; 
@@ -1158,8 +996,6 @@ ich cells are bad (%)</td></tr>"<<endl;
   float phiMin=ProblemDigiCells->GetYaxis()->GetXmin(); 
   
   int eta,phi; 
-
-  // HB problem cells
   for (int depth=0;depth<4; ++depth)
     {
       for (int ieta=1;ieta<=etabins;++ieta) 
@@ -1168,57 +1004,16 @@ ich cells are bad (%)</td></tr>"<<endl;
 	    {
 	      eta=ieta+int(etaMin)-1; 
 	      phi=iphi+int(phiMin)-1; 
-	      if (ProblemDigiCellsHB_DEPTH[depth]->GetBinContent(ieta,iphi)>errorFrac_)
-		htmlFile<<"<td align=\"center\">HB ("<<eta<<", "<<phi<<", "<<depth+1<<") </td><td align=\"center\"> "<<100.*ProblemDigiCells_DEPTH[depth]->GetBinContent(ieta,iphi)/ievt_<<"</td></tr>"<<endl; 
+	      
+	      //cout <<depth<<"  "<<eta<<"  "<<phi<<endl;
+	      //if (ProblemDigiCells->GetBinContent(ieta,iphi))
+	      //  cout <<eta<<"  "<<phi<<"  "<<ProblemDigiCells->GetBinContent(ieta,iphi)<<endl;
+	      if (ProblemDigiCells_DEPTH[depth]->GetBinContent(ieta,iphi)>errorFrac_)
+		htmlFile<<"<td align=\"center\"> ("<<eta<<", "<<phi<<", "<<depth+1<<") </td><td align=\"center\"> "<<100.*ProblemDigiCells_DEPTH[depth]->GetBinContent(ieta,iphi)/ievt_<<"</td></tr>"<<endl; 
+	      
 	    } // for (int iphi...)
 	} // for (int ieta...)
     } // for (int depth...)
-
-  // HE problem cells
-  for (int depth=0;depth<4; ++depth)
-    {
-      for (int ieta=1;ieta<=etabins;++ieta) 
-	{ 
-	  for (int iphi=1; iphi<=phibins;++iphi) 
-	    {
-	      eta=ieta+int(etaMin)-1; 
-	      phi=iphi+int(phiMin)-1; 
-	      if (ProblemDigiCellsHE_DEPTH[depth]->GetBinContent(ieta,iphi)>errorFrac_)
-		htmlFile<<"<td align=\"center\">HE ("<<eta<<", "<<phi<<", "<<depth+1<<") </td><td align=\"center\"> "<<100.*ProblemDigiCells_DEPTH[depth]->GetBinContent(ieta,iphi)/ievt_<<"</td></tr>"<<endl; 
-	    } // for (int iphi...)
-	} // for (int ieta...)
-    } // for (int depth...)
-
-  // HO problem cells
-  for (int depth=0;depth<4; ++depth)
-    {
-      for (int ieta=1;ieta<=etabins;++ieta) 
-	{ 
-	  for (int iphi=1; iphi<=phibins;++iphi) 
-	    {
-	      eta=ieta+int(etaMin)-1; 
-	      phi=iphi+int(phiMin)-1; 
-	      if (ProblemDigiCellsHO_DEPTH[depth]->GetBinContent(ieta,iphi)>errorFrac_)
-		htmlFile<<"<td align=\"center\">HO ("<<eta<<", "<<phi<<", "<<depth+1<<") </td><td align=\"center\"> "<<100.*ProblemDigiCells_DEPTH[depth]->GetBinContent(ieta,iphi)/ievt_<<"</td></tr>"<<endl; 
-	    } // for (int iphi...)
-	} // for (int ieta...)
-    } // for (int depth...)
-
-  // HF problem cells
-  for (int depth=0;depth<4; ++depth)
-    {
-      for (int ieta=1;ieta<=etabins;++ieta) 
-	{ 
-	  for (int iphi=1; iphi<=phibins;++iphi) 
-	    {
-	      eta=ieta+int(etaMin)-1; 
-	      phi=iphi+int(phiMin)-1; 
-	      if (ProblemDigiCellsHF_DEPTH[depth]->GetBinContent(ieta,iphi)>errorFrac_)
-		htmlFile<<"<td align=\"center\">HF ("<<eta<<", "<<phi<<", "<<depth+1<<") </td><td align=\"center\"> "<<100.*ProblemDigiCells_DEPTH[depth]->GetBinContent(ieta,iphi)/ievt_<<"</td></tr>"<<endl; 
-	    } // for (int iphi...)
-	} // for (int ieta...)
-    } // for (int depth...)
-
 
   htmlFile << "</table>" <<endl; 
 

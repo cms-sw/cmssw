@@ -3,6 +3,7 @@
   <class name="L1GctInternEmCand"/>
   <class name="L1GctInternJetData"/>
   <class name="L1GctInternEtSum"/>
+  <class name="L1GctInternHFData"/>
   <class name="L1GctFibreWord"/>
   <class name="L1GctEmCand"/>
   <class name="L1GctJetCand"/>
@@ -13,6 +14,7 @@
   <class name="std::vector<L1GctInternEmCand>"/>
   <class name="std::vector<L1GctInternJetData>"/>
   <class name="std::vector<L1GctInternEtSum>"/>
+  <class name="std::vector<L1GctInternHFData>"/>
   <class name="std::vector<L1GctFibreWord>"/>
   <class name="std::vector<L1GctEmCand>"/>
   <class name="std::vector<L1GctJetCand>"/>
@@ -31,6 +33,7 @@
   <class name="edm::Wrapper<std::vector<L1GctInternEmCand>>" splitLevel="0"/>
   <class name="edm::Wrapper<std::vector<L1GctInternJetData>>" splitLevel="0"/>
   <class name="edm::Wrapper<std::vector<L1GctInternEtSum>>" splitLevel="0"/>
+  <class name="edm::Wrapper<std::vector<L1GctInternHFData>>" splitLevel="0"/>
   <class name="edm::Wrapper<std::vector<L1GctFibreWord>>" splitLevel="0"/>
   <class name="edm::Wrapper<std::vector<L1GctEmCand>>" splitLevel="0"/>
   <class name="edm::Wrapper<std::vector<L1GctJetCand>>" splitLevel="0"/>

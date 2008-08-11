@@ -46,7 +46,7 @@ bool PlotCompareUtility::compare<Plot2D>(HistoData *HD) {
     // for Y: verify projections requested and proper X binning of href2d and hnew2d
     if (axis == axisY && !HD->getDoProjectionsY()) continue;
     if (axis == axisY && href2d->GetNbinsX() != hnew2d->GetNbinsX()) {
-      std::cerr << HD->getName() << " error: incorrect number of bins for Y projection tests\n";
+      std::cerr << HD->getName() << " error: incorrect number of bins for X projection tests\n";
       projectionsPassed = false; continue;
     }
 
@@ -184,7 +184,7 @@ void PlotCompareUtility::makePlots<Plot2D>(HistoData *HD) {
     // draw X axis
     float xMin = hnew2d->GetXaxis()->GetXmin();
     float xMax = hnew2d->GetXaxis()->GetXmax();
-    int ticksNDiv = numHistos * 20 + bodyWidth / 50;//formerly *20
+    int ticksNDiv = numHistos * 20 + bodyWidth / 50;
     TGaxis *xAxis = new TGaxis(1,0,numHistos + 1,0,xMin,xMax,ticksNDiv,"");
     if (axis == axisX) xAxis->SetTitle(hnew2d->GetYaxis()->GetTitle());
     if (axis == axisY) xAxis->SetTitle(hnew2d->GetXaxis()->GetTitle());
@@ -358,11 +358,11 @@ void PlotCompareUtility::makeHTML<Plot2D>(HistoData *HD) {
     fout << "<!DOCTYPE gif PUBLIC '-//W3C//DTD HTML 4.01 Transitional//EN'>" << std::endl
          << "<html>" << std::endl
          << "  <head>" << std::endl
-         << "    <title>Compatibility of Projections for " << HD->getRefHisto()->GetTitle() << "</title>" << std::endl
+         << "    <title>Compatibility of Projections for " << Name << "</title>" << std::endl
          << "    <script type='text/javascript'>" << std::endl << std::endl
          << "      function tn(target,image,class) {" << std::endl
          << "        clear()" << std::endl
-	 << "        document.getElementById('thumb_div').setAttribute('class',class)" << std::endl
+				 << "        document.getElementById('thumb_div').setAttribute('class',class)" << std::endl
          << "        document.getElementById('thumb_div').setAttribute('className',class)" << std::endl
          << "        document.getElementById('thumb_link').href = target" << std::endl
          << "        document.getElementById('thumb_img').src = image" << std::endl
@@ -379,10 +379,9 @@ void PlotCompareUtility::makeHTML<Plot2D>(HistoData *HD) {
          << "      }" << std::endl << std::endl
          << "    </script>" << std::endl
          << "  </head>" << std::endl
-         << "  <body onClick=\"window.location.href='index.html'\">" << std::endl
-      //         << "<a href='index.html'>"
+         << "  <body>" << std::endl
          << "    <style type='text/css'>" << std::endl
-	 << "      #thumb_div {}" << std::endl
+				 << "      #thumb_div {}" << std::endl
          << "      div.thumb_left {position: absolute; left: " << leftThumbPos << "px; top: " << thumbsLoc << "px;}" << std::endl
          << "      div.thumb_right {position: absolute; left: " << rightThumbPos << "px; top: " << thumbsLoc << "px;}" << std::endl
 				 << "      #main_d {position: absolute; left: " << offset << "px;}" << std::endl
@@ -392,7 +391,6 @@ void PlotCompareUtility::makeHTML<Plot2D>(HistoData *HD) {
          << "      a:active {color: #000000}" << std::endl
          << "    </style>" << std::endl
          << "    <div id='main_d'>" << std::endl
-      // << " <p>" <<   HD->getRefHisto()->GetTitle() << "</p>"  //include the Title of the Plot as a title of the page
          << "      <img src='" << gifNameProjections << "' usemap='#results' alt=''"
          << " height=" << projectionsHeight << " width=" << projectionsWidth << " border=0>" << std::endl
          << "      <map id='#results' name='results' onMouseOut=\"clear()\">" << std::endl;
@@ -414,17 +412,15 @@ void PlotCompareUtility::makeHTML<Plot2D>(HistoData *HD) {
       std::string tnClass = (bin - 1 >= float(proj->size()) / 2 ? "thumb_left" : "thumb_right");
       fout << "        <area shape='rect' alt='' coords='" << x1 << "," << y1 << "," << x2 << "," << y2 << "'"
            << " href='" << target << "' onMouseOver=\"tn('" << target << "','" << image << "','" << tnClass
-           << "')\" "
-           << "onMouseDown=\"window.location.href='" << target << "'\">" << std::endl;
+           << "')\">" << std::endl;
 
     }
 
-    fout << "        <area shape='default' nohref='nohref' onMouseDown='window.location.reload()' alt=''>" << std::endl
+    fout << "        <area shape='default' nohref='nohref' alt=''>" << std::endl
          << "      </map>" << std::endl
          << "      <br><img src=\"" << gifNameAllProj << "\">" << std::endl
          << "    </div>" << std::endl
          << "    <div id='thumb_div'><a href='#' id='thumb_link'><img src='' id='thumb_img' width=0 height=0 border=0></a></div>" << std::endl
-      //         << " </a>"
          << "  </body>" << std::endl
          << "</html>" << std::endl;
 

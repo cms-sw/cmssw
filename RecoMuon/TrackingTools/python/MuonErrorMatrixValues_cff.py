@@ -342,4 +342,3 @@ MuonErrorMatrixValues = cms.PSet(
     )
 )
 
-

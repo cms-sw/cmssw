@@ -147,34 +147,13 @@ void SiPixelInformationExtractor::getTrackerMapHistos(DQMStore* bei,
                                                       const std::multimap<std::string, std::string>& req_map, 
 						      xgi::Output * out) {
 
-//  cout << __LINE__ << ACYellow << ACBold 
-//       << "[SiPixelInformationExtractor::getTrackerMapHistos] " << ACPlain << endl ;
   vector<string> hlist;
   string tkmap_name;
   SiPixelConfigParser config_parser;
   string localPath = string("DQM/SiPixelMonitorClient/test/sipixel_monitorelement_config.xml");
   config_parser.getDocument(edm::FileInPath(localPath).fullPath());
-//  if (!config_parser.getMENamesForTrackerMap(tkmap_name, hlist)) return;
-//  if (hlist.size() == 0) return;
-  if (!config_parser.getMENamesForTrackerMap(tkmap_name, hlist)) 
-  {
-   cout << __LINE__ << ACYellow << ACBold 
-        << "[SiPixelInformationExtractor::getTrackerMapHistos] " 
-	<< ACPlain << ACRed << ACPlain 
-	<< "getMENamesForTrackerMap return false " 
-        << ACPlain << endl ; assert(0) ;
-   return;
-  }
-  if (hlist.size() == 0) 
-  {
-   cout << __LINE__ << ACYellow << ACBold 
-        << "[SiPixelInformationExtractor::getTrackerMapHistos] " 
-	<< ACPlain << ACRed << ACPlain 
-	<< "hlist.size() == 0 " 
-        << ACPlain << endl ;  assert(0) ;
-   return;
-  }
-
+  if (!config_parser.getMENamesForTrackerMap(tkmap_name, hlist)) return;
+  if (hlist.size() == 0) return;
 
   uint32_t detId = atoi(getItemValue(req_map,"ModId").c_str());
  
@@ -186,62 +165,36 @@ void SiPixelInformationExtractor::getTrackerMapHistos(DQMStore* bei,
   SiPixelFolderOrganizer folder_organizer;
   string path;
   folder_organizer.getModuleFolder(detId,path);   
-/*
+
   if((bei->pwd()).find("Module_") == string::npos &&
      (bei->pwd()).find("FED_") == string::npos){
     cout<<"This is not a pixel module or FED!"<<endl;
-   cout << __LINE__ << ACYellow << ACBold 
-        << "[SiPixelInformationExtractor::getTrackerMapHistos] " 
-	<< ACPlain << ACRed << ACPlain 
-	<< "This is not a pixel module or FED!" 
-        << ACPlain << endl ; assert(0) ;
     return;
   }
-*/ 
+ 
   vector<MonitorElement*> all_mes = bei->getContents(path);
-  setXMLHeader(out);
-
-//  cout << __LINE__ << ACCyan << ACBold 
-//       << " [SiPixelInformationExtractor::getTrackerMapHistos()] path "
-//       << ACPlain << path << endl ; 
-//  cout << __LINE__ << ACCyan << ACBold 
-//       << " [SiPixelInformationExtractor::getTrackerMapHistos()] all_mes.size() "
-//       << ACPlain << all_mes.size() << endl ; 
+  setHTMLHeader(out);
+  *out << path << " ";
 
   QRegExp rx("(\\w+)_(siPixel|ctfWithMaterialTracks)") ;
   QString theME ;
 
-  *out << "<pathList>" << endl ;
   for (vector<string>::iterator ih = hlist.begin();
        ih != hlist.end(); ih++) {
     for (vector<MonitorElement *>::const_iterator it = all_mes.begin();
 	 it!= all_mes.end(); it++) {
       MonitorElement * me = (*it);
-      if (!me) 
-      { 
-//       cout << __LINE__ << ACCyan << ACBold 
-//            << " [SiPixelInformationExtractor::getTrackerMapHistos()] skipping "
-//        	       << ACPlain << *ih << endl ; 
-       continue;
-      }
+      if (!me) continue;
       theME = me->getName();
       string temp_s ; 
       if( rx.search(theME) != -1 ) { temp_s = rx.cap(1).latin1() ; }
-//      cout << __LINE__ << ACCyan << ACBold 
-//           << " [SiPixelInformationExtractor::getTrackerMapHistos()] temp_s "
-//           << ACPlain << temp_s << " <--> " << *ih << " |" << theME << "|" << endl ; 
       if (temp_s == (*ih)) {
 	string full_path = path + "/" + me->getName();
 	histoPlotter_->setNewPlot(full_path, opt, width, height);
-//cout << __LINE__ << ACRed << ACBold 
-//     << " [SiPixelInformationExtractor::getTrackerMapHistos()] fullPath: "
-//     << ACPlain << full_path << endl ; 
-	*out << " <pathElement path='" << full_path << "' />" << endl ;
+	*out << me->getName() << " " ;
       }      
     }
   }   
-  *out << "</pathList>" << endl ;
-//cout << __LINE__ << " [SiPixelInformationExtractor::getTrackerMapHistos()] endlist: " << endl ;
 }
 
 //============================================================================================================
@@ -788,8 +741,13 @@ void SiPixelInformationExtractor::selectImage(string& name, vector<QReport*>& re
 //
 void SiPixelInformationExtractor::getIMGCImage(const multimap<string, string>& req_map, 
                                                xgi::Output * out){
+//cout<<"Entering SiPixelInformationExtractor::getIMGCImage: "<<endl;
   string path = getItemValue(req_map,"Path");
+  //string plot = getItemValue(req_map,"Plot");
+  //string folder = getItemValue(req_map,"Folder");
+  //string path = folder + "/" + plot;
   string image;
+//  cout<<"... trying to getNamedImageBuffer for path "<<path<<endl;
   histoPlotter_->getNamedImageBuffer(path, image);
 
   out->getHTTPResponseHeader().addHeader("Content-Type", "image/png");
@@ -797,13 +755,18 @@ void SiPixelInformationExtractor::getIMGCImage(const multimap<string, string>& r
   out->getHTTPResponseHeader().addHeader("Cache-Control", "no-store, no-cache, must-revalidate,max-age=0");
   out->getHTTPResponseHeader().addHeader("Expires","Mon, 26 Jul 1997 05:00:00 GMT");
   *out << image;
+//cout<<"... leaving SiPixelInformationExtractor::getIMGCImage!"<<endl;
 }
 
 void SiPixelInformationExtractor::getIMGCImage(multimap<string, string>& req_map, 
                                                xgi::Output * out){
   
   string path = getItemValue(req_map,"Path");
+  //string plot = getItemValue(req_map,"Plot");
+  //string folder = getItemValue(req_map,"Folder");
+  //string path = folder + "/" + plot;
   string image;
+//  cout<<"I am in getIMGCImage now and trying to getNamedImageBuffer for path "<<path<<endl;
   histoPlotter_->getNamedImageBuffer(path, image);
 
   out->getHTTPResponseHeader().addHeader("Content-Type", "image/png");
@@ -1341,23 +1304,21 @@ void SiPixelInformationExtractor::bookGlobalQualityFlag(DQMStore * bei) {
   SummaryReportMap->setBinLabel(21,"-z Disk_1",1);
   SummaryReportMap->setBinLabel(25,"Endcap",1);
   SummaryReportMap->setBinLabel(26,"-z Disk_2",1);
-  SummaryReportMap->setBinLabel(13,"Inside",2);
-  SummaryReportMap->setBinLabel(12,"LHC",2);
-  SummaryReportMap->setBinLabel(11,"Ring",2);
-  SummaryReportMap->setBinLabel(37,"Outside",2);
-  SummaryReportMap->setBinLabel(36,"LHC",2);
-  SummaryReportMap->setBinLabel(35,"Ring",2);
+  SummaryReportMap->setBinLabel(13,"Toward",2);
+  SummaryReportMap->setBinLabel(12,"LHC center",2);
+  SummaryReportMap->setBinLabel(37,"Away from",2);
+  SummaryReportMap->setBinLabel(36,"LHC center",2);
   bei->setCurrentFolder("Pixel/EventInfo/reportSummaryContents");
-  SummaryBarrel = bei->bookFloat("Pixel_Barrel");
-  SummaryShellmI = bei->bookFloat("Pixel_Shell_mI");
-  SummaryShellmO = bei->bookFloat("Pixel_Shell_mO");
-  SummaryShellpI = bei->bookFloat("Pixel_Shell_pI");
-  SummaryShellpO = bei->bookFloat("Pixel_Shell_pO");
-  SummaryEndcap = bei->bookFloat("Pixel_Endcap");
-  SummaryHCmI = bei->bookFloat("Pixel_HalfCylinder_mI");
-  SummaryHCmO = bei->bookFloat("Pixel_HalfCylinder_mO");
-  SummaryHCpI = bei->bookFloat("Pixel_HalfCylinder_pI");
-  SummaryHCpO = bei->bookFloat("Pixel_HalfCylinder_pO");
+  SummaryBarrel = bei->bookFloat("SummaryBarrel");
+  SummaryShellmI = bei->bookFloat("SummaryShellmI");
+  SummaryShellmO = bei->bookFloat("SummaryShellmO");
+  SummaryShellpI = bei->bookFloat("SummaryShellpI");
+  SummaryShellpO = bei->bookFloat("SummaryShellpO");
+  SummaryEndcap = bei->bookFloat("SummaryEndcap");
+  SummaryHCmI = bei->bookFloat("SummaryHCmI");
+  SummaryHCmO = bei->bookFloat("SummaryHCmO");
+  SummaryHCpI = bei->bookFloat("SummaryHCpI");
+  SummaryHCpO = bei->bookFloat("SummaryHCpO");
 }
 
 void SiPixelInformationExtractor::computeGlobalQualityFlag(DQMStore * bei, 
@@ -1370,7 +1331,6 @@ void SiPixelInformationExtractor::computeGlobalQualityFlag(DQMStore * bei,
 //        << " Enter" 
 //        << endl ;
   if(init){
-    gotDigis=false;
     allMods_=0; errorMods_=0; qflag_=0.; 
     bpix_mods_=0; err_bpix_mods_=0; bpix_flag_=0.;
     shellmI_mods_=0; err_shellmI_mods_=0; shellmI_flag_=0.;
@@ -1402,18 +1362,8 @@ void SiPixelInformationExtractor::computeGlobalQualityFlag(DQMStore * bei,
     if(currDir.find("HalfCylinder_pI")!=string::npos) hcylpI_mods_++;
     if(currDir.find("HalfCylinder_pO")!=string::npos) hcylpO_mods_++;
       
-    vector<string> meVec = bei->getMEs();
-    //checking for any digis anywhere to decide if Pixel detector is in DAQ:  
-    for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
-      string full_path = currDir + "/" + (*it);
-      if(full_path.find("ndigis")!=string::npos){
-        MonitorElement * me = bei->get(full_path);
-        if (!me) continue;
-        if(me->getEntries()>0) gotDigis = true;
-      }
-    }
-      
     //checking for FED errors only:
+    vector<string> meVec = bei->getMEs();
     for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
       string full_path = currDir + "/" + (*it);
       if(full_path.find("NErrors")!=string::npos){
@@ -1467,19 +1417,6 @@ void SiPixelInformationExtractor::computeGlobalQualityFlag(DQMStore * bei,
   if(hcylmO_mods_>0) hcylmO_flag_ = (float(hcylmO_mods_)-float(err_hcylmO_mods_))/float(hcylmO_mods_);
   if(hcylpI_mods_>0) hcylpI_flag_ = (float(hcylpI_mods_)-float(err_hcylpI_mods_))/float(hcylpI_mods_);
   if(hcylpO_mods_>0) hcylpO_flag_ = (float(hcylpO_mods_)-float(err_hcylpO_mods_))/float(hcylpO_mods_);
-  if(!gotDigis){
-    qflag_ = -1.;
-    bpix_flag_ = -1.;
-    shellmI_flag_ = -1.;
-    shellmO_flag_ = -1.;
-    shellpI_flag_ = -1.;
-    shellpO_flag_ = -1.;
-    fpix_flag_ = -1.;
-    hcylmI_flag_ = -1.;
-    hcylmO_flag_ = -1.;
-    hcylpI_flag_ = -1.;
-    hcylpO_flag_ = -1.;
-  }
   
   vector<string> subDirVec = bei->getSubdirs();  
   for (vector<string>::const_iterator ic = subDirVec.begin();
@@ -1491,25 +1428,25 @@ void SiPixelInformationExtractor::computeGlobalQualityFlag(DQMStore * bei,
   }
   SummaryReport = bei->get("Pixel/EventInfo/reportSummary");
   if(SummaryReport) SummaryReport->Fill(qflag_);
-  SummaryBarrel = bei->get("Pixel/EventInfo/reportSummaryContents/Pixel_Barrel");
+  SummaryBarrel = bei->get("Pixel/EventInfo/reportSummaryContents/SummaryBarrel");
   if(SummaryBarrel) SummaryBarrel->Fill(bpix_flag_);
-  SummaryShellmI = bei->get("Pixel/EventInfo/reportSummaryContents/Pixel_Shell_mI");
+  SummaryShellmI = bei->get("Pixel/EventInfo/reportSummaryContents/SummaryShellmI");
   if(SummaryShellmI) SummaryShellmI->Fill(shellmI_flag_);
-  SummaryShellmO = bei->get("Pixel/EventInfo/reportSummaryContents/Pixel_Shell_mO");
+  SummaryShellmO = bei->get("Pixel/EventInfo/reportSummaryContents/SummaryShellmO");
   if(SummaryShellmO)   SummaryShellmO->Fill(shellmO_flag_);
-  SummaryShellpI = bei->get("Pixel/EventInfo/reportSummaryContents/Pixel_Shell_pI");
+  SummaryShellpI = bei->get("Pixel/EventInfo/reportSummaryContents/SummaryShellpI");
   if(SummaryShellpI)   SummaryShellpI->Fill(shellpI_flag_);
-  SummaryShellpO = bei->get("Pixel/EventInfo/reportSummaryContents/Pixel_Shell_pO");
+  SummaryShellpO = bei->get("Pixel/EventInfo/reportSummaryContents/SummaryShellpO");
   if(SummaryShellpO)   SummaryShellpO->Fill(shellpO_flag_);
-  SummaryEndcap = bei->get("Pixel/EventInfo/reportSummaryContents/Pixel_Endcap");
+  SummaryEndcap = bei->get("Pixel/EventInfo/reportSummaryContents/SummaryEndcap");
   if(SummaryEndcap)   SummaryEndcap->Fill(fpix_flag_);
-  SummaryHCmI = bei->get("Pixel/EventInfo/reportSummaryContents/Pixel_HalfCylinder_mI");
+  SummaryHCmI = bei->get("Pixel/EventInfo/reportSummaryContents/SummaryHCmI");
   if(SummaryHCmI)   SummaryHCmI->Fill(hcylmI_flag_);
-  SummaryHCmO = bei->get("Pixel/EventInfo/reportSummaryContents/Pixel_HalfCylinder_mO");
+  SummaryHCmO = bei->get("Pixel/EventInfo/reportSummaryContents/SummaryHCmO");
   if(SummaryHCmO)   SummaryHCmO->Fill(hcylmO_flag_);
-  SummaryHCpI = bei->get("Pixel/EventInfo/reportSummaryContents/Pixel_HalfCylinder_pI");
+  SummaryHCpI = bei->get("Pixel/EventInfo/reportSummaryContents/SummaryHCpI");
   if(SummaryHCpI)   SummaryHCpI->Fill(hcylpI_flag_);
-  SummaryHCpO = bei->get("Pixel/EventInfo/reportSummaryContents/Pixel_HalfCylinder_pO");
+  SummaryHCpO = bei->get("Pixel/EventInfo/reportSummaryContents/SummaryHCpO");
   if(SummaryHCpO)   SummaryHCpO->Fill(hcylpO_flag_);
 
 }

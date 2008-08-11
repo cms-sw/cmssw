@@ -48,71 +48,69 @@ void RPCEfficiencySecond::beginJob(const edm::EventSetup&){
   dbe = edm::Service<DQMStore>().operator->();
 
   dbe->setCurrentFolder("Muons/RPCEfficiency/Wheel_-2");
-  EffGlobWm2=dbe->book1D("GlobEfficiencyWheel_-2near","Efficiency Near Side Wheel -2 ",101,0.5,101.5);
-  EffGlobWm2far=dbe->book1D("GlobEfficiencyWheel_-2far","Efficiency Far Side Wheel -2",105,0.5,105.5);
-  BXGlobWm2= dbe->book1D("GlobBXWheel_-2near","BX Near Side Wheel -2",101,0.5,101.5);
-  BXGlobWm2far= dbe->book1D("GlobBXWheel_-2far","BX Far Side Wheel -2",105,0.5,105.5);
-  MaskedGlobWm2= dbe->book1D("GlobMaskedWheel_-2near","Masked Near Side Wheel -2",101,0.5,101.5);
-  MaskedGlobWm2far= dbe->book1D("GlobMaskedWheel_-2far","Masked Far Side Wheel -2",105,0.5,105.5);
-  AverageEffWm2=dbe->book1D("AverageEfficiencyWheel_-2near","Average Efficiency Near Side Wheel -2 ",101,0.5,101.5);
-  AverageEffWm2far =dbe->book1D("AverageEfficiencyWheel_-2far","Average Efficiency Far Side Wheel -2 ",105,0.5,105.5);
-  NoPredictionWm2=dbe->book1D("NoPredictionWheel_-2near","No Predictions Near Side Wheel -2 ",101,0.5,101.5);
-  NoPredictionWm2far=dbe->book1D("NoPredictionWheel_-2far","No Predictions Efficiency Far Side Wheel -2 ",105,0.5,105.5);
+  EffGlobWm2=dbe->book1D("GlobEfficiencyWheel_-2near","Efficiency Near Wheel -2 ",101,0.5,101.5);
+  EffGlobWm2far=dbe->book1D("GlobEfficiencyWheel_-2far","Efficiency Far Wheel -2",105,0.5,105.5);
+  BXGlobWm2= dbe->book1D("GlobBXWheel_-2near","BX Near Wheel -2",101,0.5,101.5);
+  BXGlobWm2far= dbe->book1D("GlobBXWheel_-2far","BX Far Wheel -2",105,0.5,105.5);
+  MaskedGlobWm2= dbe->book1D("GlobMaskedWheel_-2near","Masked Near Wheel -2",101,0.5,101.5);
+  MaskedGlobWm2far= dbe->book1D("GlobMaskedWheel_-2far","Masked Far Wheel -2",105,0.5,105.5);
+  AverageEffWm2=dbe->book1D("AverageEfficiencyWheel_-2near","Average Efficiency Near Wheel -2 ",101,0.5,101.5);
+  AverageEffWm2far =dbe->book1D("AverageEfficiencyWheel_-2far","Average Efficiency Far Wheel -2 ",105,0.5,105.5);
+  NoPredictionWm2=dbe->book1D("NoPredictionWheel_-2near","No Predictions Near Wheel -2 ",101,0.5,101.5);
+  NoPredictionWm2far=dbe->book1D("NoPredictionWheel_-2far","No Predictions Efficiency Far Wheel -2 ",105,0.5,105.5);
 
   dbe->setCurrentFolder("Muons/RPCEfficiency/Wheel_-1");
-  EffGlobWm1= dbe->book1D("GlobEfficiencyWheel_-1near","Efficiency Near Side Wheel -1",101,0.5,101.5);
-  EffGlobWm1far=dbe->book1D("GlobEfficiencyWheel_-1far","Efficiency Far Side Wheel -1",105,0.5,105.5);
-  BXGlobWm1= dbe->book1D("GlobBXWheel_-1near","BX Near Side Wheel -1",101,0.5,101.5);
-  BXGlobWm1far= dbe->book1D("GlobBXWheel_-1far","BX Far Side Wheel -1",105,0.5,105.5);
-  MaskedGlobWm1= dbe->book1D("GlobMaskedWheel_-1near","Masked Near Side Wheel -1",101,0.5,101.5);
-  MaskedGlobWm1far= dbe->book1D("GlobMaskedWheel_-1far","Masked Far Side Wheel -1",105,0.5,105.5);
-  AverageEffWm1=dbe->book1D("AverageEfficiencyWheel_-1near","Average Efficiency Near Side Wheel -1 ",101,0.5,101.5);
-  AverageEffWm1far=dbe->book1D("AverageEfficiencyWheel_-1far","Average Efficiency Far Side Wheel -1 ",105,0.5,105.5);
-  NoPredictionWm1=dbe->book1D("NoPredictionWheel_-1near","No Predictions Near Side Wheel -1 ",101,0.5,101.5);
-  NoPredictionWm1far=dbe->book1D("NoPredictionWheel_-1far","No Predictions Efficiency Far Side Wheel -1 ",105,0.5,105.5);
+  EffGlobWm1= dbe->book1D("GlobEfficiencyWheel_-1near","Efficiency Near Wheel -1",101,0.5,101.5);
+  EffGlobWm1far=dbe->book1D("GlobEfficiencyWheel_-1far","Efficiency Far Wheel -1",105,0.5,105.5);
+  BXGlobWm1= dbe->book1D("GlobBXWheel_-1near","BX Near Wheel -1",101,0.5,101.5);
+  BXGlobWm1far= dbe->book1D("GlobBXWheel_-1far","BX Far Wheel -1",105,0.5,105.5);
+  MaskedGlobWm1= dbe->book1D("GlobMaskedWheel_-1near","Masked Near Wheel -1",101,0.5,101.5);
+  MaskedGlobWm1far= dbe->book1D("GlobMaskedWheel_-1far","Masked Far Wheel -1",105,0.5,105.5);
+  AverageEffWm1=dbe->book1D("AverageEfficiencyWheel_-1near","Average Efficiency Near Wheel -1 ",101,0.5,101.5);
+  AverageEffWm1far=dbe->book1D("AverageEfficiencyWheel_-1far","Average Efficiency Far Wheel -1 ",105,0.5,105.5);
+  NoPredictionWm1=dbe->book1D("NoPredictionWheel_-1near","No Predictions Near Wheel -1 ",101,0.5,101.5);
+  NoPredictionWm1far=dbe->book1D("NoPredictionWheel_-1far","No Predictions Efficiency Far Wheel -1 ",105,0.5,105.5);
 
   dbe->setCurrentFolder("Muons/RPCEfficiency/Wheel_0");
-  EffGlobW0 = dbe->book1D("GlobEfficiencyWheel_0near","Efficiency Near Side Wheel 0",101,0.5,101.5);
-  EffGlobW0far =dbe->book1D("GlobEfficiencyWheel_0far","Efficiency Far Side Wheel 0",105,0.5,105.5);
-  BXGlobW0 = dbe->book1D("GlobBXWheel_0near","BX Near Side Wheel 0",101,0.5,101.5);
-  BXGlobW0far = dbe->book1D("GlobBXWheel_0far","BX Far Side Wheel 0",105,0.5,105.5);
-  MaskedGlobW0 = dbe->book1D("GlobMaskedWheel_0near","Masked Near Side Wheel 0",101,0.5,101.5);
-  MaskedGlobW0far = dbe->book1D("GlobMaskedWheel_0far","Masked Far Side Wheel 0",105,0.5,105.5);
-  AverageEffW0=dbe->book1D("AverageEfficiencyWheel_0near","Average Efficiency Near Side Wheel 0 ",101,0.5,101.5);
-  AverageEffW0far=dbe->book1D("AverageEfficiencyWheel_0far","Average Efficiency Far Side Wheel 0 ",105,0.5,105.5);
-  NoPredictionW0=dbe->book1D("NoPredictionWheel_0near","No Predictions Near Side Wheel 0 ",101,0.5,101.5);
-  NoPredictionW0far=dbe->book1D("NoPredictionWheel_0far","No Predictions Efficiency Far Side Wheel 0 ",105,0.5,105.5);
+  EffGlobW0 = dbe->book1D("GlobEfficiencyWheel_0near","Efficiency Near Wheel 0",101,0.5,101.5);
+  EffGlobW0far =dbe->book1D("GlobEfficiencyWheel_0far","Efficiency Far Wheel 0",105,0.5,105.5);
+  BXGlobW0 = dbe->book1D("GlobBXWheel_0near","BX Near Wheel 0",101,0.5,101.5);
+  BXGlobW0far = dbe->book1D("GlobBXWheel_0far","BX Far Wheel 0",105,0.5,105.5);
+  MaskedGlobW0 = dbe->book1D("GlobMaskedWheel_0near","Masked Near Wheel 0",101,0.5,101.5);
+  MaskedGlobW0far = dbe->book1D("GlobMaskedWheel_0far","Masked Far Wheel 0",105,0.5,105.5);
+  AverageEffW0=dbe->book1D("AverageEfficiencyWheel_0near","Average Efficiency Near Wheel 0 ",101,0.5,101.5);
+  AverageEffW0far=dbe->book1D("AverageEfficiencyWheel_0far","Average Efficiency Far Wheel 0 ",105,0.5,105.5);
+  NoPredictionW0=dbe->book1D("NoPredictionWheel_0near","No Predictions Near Wheel 0 ",101,0.5,101.5);
+  NoPredictionW0far=dbe->book1D("NoPredictionWheel_0far","No Predictions Efficiency Far Wheel 0 ",105,0.5,105.5);
 
   dbe->setCurrentFolder("Muons/RPCEfficiency/Wheel_1");
-  EffGlobW1 = dbe->book1D("GlobEfficiencyWheel_1near","Efficiency Near Side Wheel 1",101,0.5,101.5);
-  EffGlobW1far =dbe->book1D("GlobEfficiencyWheel_1far","Efficiency Far Side Wheel 1",105,0.5,105.5);  
-  BXGlobW1 = dbe->book1D("GlobBXWheel_1near","BX Near Side Wheel 1",101,0.5,101.5);
-  BXGlobW1far = dbe->book1D("GlobBXWheel_1far","BX Far Side Wheel 1",105,0.5,105.5);
-  MaskedGlobW1 = dbe->book1D("GlobMaskedWheel_1near","Masked Near Side Wheel 1",101,0.5,101.5);
-  MaskedGlobW1far = dbe->book1D("GlobMaskedWheel_1far","Masked Far Side Wheel 1",105,0.5,105.5);
-  AverageEffW1=dbe->book1D("AverageEfficiencyWheel_1near","Average Efficiency Near Side Wheel 1 ",101,0.5,101.5);
-  AverageEffW1far=dbe->book1D("AverageEfficiencyWheel_1far","Average Efficiency Far Side Wheel 1 ",105,0.5,105.5);
-  NoPredictionW1=dbe->book1D("NoPredictionWheel_1near","No Predictions Near Side Wheel 1 ",101,0.5,101.5);
-  NoPredictionW1far=dbe->book1D("NoPredictionWheel_1far","No Predictions Efficiency Far Side Wheel 1 ",105,0.5,105.5);
+  EffGlobW1 = dbe->book1D("GlobEfficiencyWheel_1near","Efficiency Near Wheel 1",101,0.5,101.5);
+  EffGlobW1far =dbe->book1D("GlobEfficiencyWheel_1far","Efficiency Far Wheel 1",105,0.5,105.5);  
+  BXGlobW1 = dbe->book1D("GlobBXWheel_1near","BX Near Wheel 1",101,0.5,101.5);
+  BXGlobW1far = dbe->book1D("GlobBXWheel_1far","BX Far Wheel 1",105,0.5,105.5);
+  MaskedGlobW1 = dbe->book1D("GlobMaskedWheel_1near","Masked Near Wheel 1",101,0.5,101.5);
+  MaskedGlobW1far = dbe->book1D("GlobMaskedWheel_1far","Masked Far Wheel 1",105,0.5,105.5);
+  AverageEffW1=dbe->book1D("AverageEfficiencyWheel_1near","Average Efficiency Near Wheel 1 ",101,0.5,101.5);
+  AverageEffW1far=dbe->book1D("AverageEfficiencyWheel_1far","Average Efficiency Far Wheel 1 ",105,0.5,105.5);
+  NoPredictionW1=dbe->book1D("NoPredictionWheel_1near","No Predictions Near Wheel 1 ",101,0.5,101.5);
+  NoPredictionW1far=dbe->book1D("NoPredictionWheel_1far","No Predictions Efficiency Far Wheel 1 ",105,0.5,105.5);
 
   dbe->setCurrentFolder("Muons/RPCEfficiency/Wheel_2");
-  EffGlobW2 = dbe->book1D("GlobEfficiencyWheel_2near","Efficiency Near Side Wheel 2",101,0.5,101.5);
-  EffGlobW2far =dbe->book1D("GlobEfficiencyWheel_2far","Efficiency Far Side Wheel 2",105,0.5,105.5);
-  BXGlobW2 = dbe->book1D("GlobBXWheel_2near","BX Near Side Wheel 2",101,0.5,101.5);
-  BXGlobW2far = dbe->book1D("GlobBXWheel_2far","BX Far Side Wheel 2",105,0.5,105.5);
-  MaskedGlobW2 = dbe->book1D("GlobMaskedWheel_2near","Masked Near Side Wheel 2",101,0.5,101.5);
-  MaskedGlobW2far = dbe->book1D("GlobMaskedWheel_2far","Masked Far Side Wheel 2",105,0.5,105.5);
-  AverageEffW2=dbe->book1D("AverageEfficiencyWheel_2near","Average Efficiency Near Side Wheel 2 ",101,0.5,101.5);
-  AverageEffW2far=dbe->book1D("AverageEfficiencyWheel_2far","Average Efficiency Far Side Wheel 2 ",105,0.5,105.5);
-  NoPredictionW2=dbe->book1D("NoPredictionWheel_2near","No Predictions Near Side Wheel 2 ",101,0.5,101.5);
-  NoPredictionW2far=dbe->book1D("NoPredictionWheel_2far","No Predictions Efficiency Far Side Wheel 2 ",105,0.5,105.5);
+  EffGlobW2 = dbe->book1D("GlobEfficiencyWheel_2near","Efficiency Near Wheel 2",101,0.5,101.5);
+  EffGlobW2far =dbe->book1D("GlobEfficiencyWheel_2far","Efficiency Far Wheel 2",105,0.5,105.5);
+  BXGlobW2 = dbe->book1D("GlobBXWheel_2near","BX Near Wheel 2",101,0.5,101.5);
+  BXGlobW2far = dbe->book1D("GlobBXWheel_2far","BX Far Wheel 2",105,0.5,105.5);
+  MaskedGlobW2 = dbe->book1D("GlobMaskedWheel_2near","Masked Near Wheel 2",101,0.5,101.5);
+  MaskedGlobW2far = dbe->book1D("GlobMaskedWheel_2far","Masked Far Wheel 2",105,0.5,105.5);
+  AverageEffW2=dbe->book1D("AverageEfficiencyWheel_2near","Average Efficiency Near Wheel 2 ",101,0.5,101.5);
+  AverageEffW2far=dbe->book1D("AverageEfficiencyWheel_2far","Average Efficiency Far Wheel 2 ",105,0.5,105.5);
+  NoPredictionW2=dbe->book1D("NoPredictionWheel_2near","No Predictions Near Wheel 2 ",101,0.5,101.5);
+  NoPredictionW2far=dbe->book1D("NoPredictionWheel_2far","No Predictions Efficiency Far Wheel 2 ",105,0.5,105.5);
 }
 
 void RPCEfficiencySecond::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){ }
 
 void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetup){
-  std::cout<<"Begin End Run"<<std::endl;
-
   std::cout <<"\t Getting the RPC Geometry"<<std::endl;
   edm::ESHandle<RPCGeometry> rpcGeo;
   iSetup.get<MuonGeometryRecord>().get(rpcGeo);
@@ -146,12 +144,14 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	  meIdRPC = folder +"/RPCDataOccupancyFromDT_"+ rpcsrv.name();	
 	  meIdDT =folder+"/ExpectedOccupancyFromDT_"+ rpcsrv.name();
 	  bxDistroId =folder+"/BXDistribution_"+ rpcsrv.name();
-	  meIdRealRPC =folder+"/RealDetectedOccupancyFromDT_"+ rpcsrv.name();
+	  meIdRealRPC =folder+"/RealDetectedOccupancyFromDT_"+ rpcsrv.name();  
 	  
 	  histoRPC= dbe->get(meIdRPC);
 	  histoDT= dbe->get(meIdDT);
 	  BXDistribution = dbe->get(bxDistroId);
 	  histoRealRPC = dbe->get(meIdRealRPC);
+
+	  std::cout <<rpcsrv.name()<<std::endl;
 
 	  int NumberMasked=0;
 	  int NumberWithOutPrediction=0;
@@ -164,15 +164,9 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	  float buffef = 0;
 	  float buffer = 0;
 	  float sumbuffef = 0;
-	  float sumbuffer = 0;
 	  float averageeff = 0;
-	  float averageerr = 0;
-
-	  int NumberStripsPointed = 0;
-
+	  
 	  if(histoRPC && histoDT && BXDistribution && histoRealRPC){
-	    std::cout <<rpcsrv.name()<<std::endl;
-
 	    for(int i=1;i<=int((*r)->nstrips());++i){
 	      if(histoRealRPC->getBinContent(i)==0) NumberMasked++;
 	      
@@ -180,26 +174,16 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 		buffef = float(histoRPC->getBinContent(i))/float(histoDT->getBinContent(i));
 		buffer = sqrt(buffef*(1.-buffef)/float(histoDT->getBinContent(i)));
 		sumbuffef=sumbuffef+buffef;
-		sumbuffer = sumbuffer + buffer*buffer;
-		NumberStripsPointed++;
 	      }else{
-  		NumberWithOutPrediction++;
+		NumberWithOutPrediction++;
 	      }
-	      
-	      //std::cout<<"\t Strip="<<i<<" RealRPC="<<histoRealRPC->getBinContent(i)<<" RPC="<<histoRPC->getBinContent(i)<<" DT="<<histoDT->getBinContent(i)<<" buffef="<<buffef<<" buffer="<<buffer<<" sumbuffef="<<sumbuffef<<" sumbuffer="<<sumbuffer<<" NumberStripsPointed="<<NumberStripsPointed<<" NumberWithOutPrediction"<<NumberWithOutPrediction<<" Number Masked="<<NumberMasked<<std::endl;
 	    }
 	    p=histoDT->getTH1F()->Integral();
 	    o=histoRPC->getTH1F()->Integral();
 
-	    if(NumberStripsPointed!=0){
-	      averageeff = (sumbuffef/float(NumberStripsPointed))*100.;
-	      averageerr = sqrt(sumbuffer/float(NumberStripsPointed))*100.;
-	    }
-	    
+	    averageeff = (sumbuffef/float((*r)->nstrips()))*100.;
 	    mybxhisto = 50.+BXDistribution->getMean()*10;
 	    mybxerror = BXDistribution->getRMS()*10;
-	    
-
 	  }
 	  
 	  int Ring = rpcId.ring();
@@ -214,15 +198,10 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	    
 	  std::string camera = rpcsrv.name();
 	    
-	  float maskedratio = (float(NumberMasked)/float((*r)->nstrips()))*100.;
+	  float stripsratio = (float(NumberMasked)/float((*r)->nstrips()))*100.;
 	  float nopredictionsratio = (float(NumberWithOutPrediction)/float((*r)->nstrips()))*100.;
+
 	  
-	  /*std::cout<<"p="<<p<<" o="<<o<<std::endl;
-	  std::cout<<"ef="<<ef<<" +/- er="<<er<<std::endl;
-	  std::cout<<"averageeff="<<averageeff<<" +/- averageerr="<<averageerr<<std::endl;
-	  std::cout<<"maskedratio="<<maskedratio<<std::endl;
-	  std::cout<<"nopredictionsratio="<<nopredictionsratio<<std::endl;
-	  */
  	  //Near Side
 
 	  if((sector==1||sector==2||sector==3||sector==10||sector==11||sector==12)){
@@ -236,11 +215,11 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	      BXGlobWm2->setBinError(indexWheel[0],mybxerror);  
 	      BXGlobWm2->setBinLabel(indexWheel[0],camera,1);
 	      
-	      MaskedGlobWm2->setBinContent(indexWheel[0],maskedratio);  
+	      MaskedGlobWm2->setBinContent(indexWheel[0],stripsratio);  
 	      MaskedGlobWm2->setBinLabel(indexWheel[0],camera,1);
 
 	      AverageEffWm2->setBinContent(indexWheel[0],averageeff);
-	      AverageEffWm2->setBinError(indexWheel[0],averageerr);  
+	      AverageEffWm2->setBinError(indexWheel[0],er);  
 	      AverageEffWm2->setBinLabel(indexWheel[0],camera,1);
 	      
 	      NoPredictionWm2->setBinContent(indexWheel[0],nopredictionsratio);
@@ -255,11 +234,11 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	      BXGlobWm1->setBinError(indexWheel[1],mybxerror);  
 	      BXGlobWm1->setBinLabel(indexWheel[1],camera,1);
 	      
-	      MaskedGlobWm1->setBinContent(indexWheel[1],maskedratio);  
+	      MaskedGlobWm1->setBinContent(indexWheel[1],stripsratio);  
 	      MaskedGlobWm1->setBinLabel(indexWheel[1],camera,1);
 
 	      AverageEffWm1->setBinContent(indexWheel[1],averageeff);
-	      AverageEffWm1->setBinError(indexWheel[1],averageerr);  
+	      AverageEffWm1->setBinError(indexWheel[1],er);  
 	      AverageEffWm1->setBinLabel(indexWheel[1],camera,1);
 	      
 	      NoPredictionWm1->setBinContent(indexWheel[1],nopredictionsratio);
@@ -275,11 +254,11 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	      BXGlobW0->setBinError(indexWheel[2],mybxerror);  
 	      BXGlobW0->setBinLabel(indexWheel[2],camera,1);
 
-	      MaskedGlobW0->setBinContent(indexWheel[2],maskedratio);  
+	      MaskedGlobW0->setBinContent(indexWheel[2],stripsratio);  
 	      MaskedGlobW0->setBinLabel(indexWheel[2],camera,1);
 	      
 	      AverageEffW0->setBinContent(indexWheel[2],averageeff);
-	      AverageEffW0->setBinError(indexWheel[2],averageerr);  
+	      AverageEffW0->setBinError(indexWheel[2],er);  
 	      AverageEffW0->setBinLabel(indexWheel[2],camera,1);
 	      
 	      NoPredictionW0->setBinContent(indexWheel[2],nopredictionsratio);
@@ -294,11 +273,11 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	      BXGlobW1->setBinError(indexWheel[3],mybxerror);  
 	      BXGlobW1->setBinLabel(indexWheel[3],camera,1);
 
-	      MaskedGlobW1->setBinContent(indexWheel[3],maskedratio);  
+	      MaskedGlobW1->setBinContent(indexWheel[3],stripsratio);  
 	      MaskedGlobW1->setBinLabel(indexWheel[3],camera,1);
 
 	      AverageEffW1->setBinContent(indexWheel[3],averageeff);
-	      AverageEffW1->setBinError(indexWheel[3],averageerr);  
+	      AverageEffW1->setBinError(indexWheel[3],er);  
 	      AverageEffW1->setBinLabel(indexWheel[3],camera,1);
 	      
 	      NoPredictionW1->setBinContent(indexWheel[3],nopredictionsratio);
@@ -313,11 +292,11 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	      BXGlobW2->setBinError(indexWheel[4],mybxerror);  
 	      BXGlobW2->setBinLabel(indexWheel[4],camera,1);
 	      
-	      MaskedGlobW2->setBinContent(indexWheel[4],maskedratio);  
+	      MaskedGlobW2->setBinContent(indexWheel[4],stripsratio);  
 	      MaskedGlobW2->setBinLabel(indexWheel[4],camera,1);
 
 	      AverageEffW2->setBinContent(indexWheel[4],averageeff);
-	      AverageEffW2->setBinError(indexWheel[4],averageerr);  
+	      AverageEffW2->setBinError(indexWheel[4],er);  
 	      AverageEffW2->setBinLabel(indexWheel[4],camera,1);
 	      
 	      NoPredictionW2->setBinContent(indexWheel[4],nopredictionsratio);
@@ -334,15 +313,16 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	      BXGlobWm2far->setBinError(indexWheelf[0],mybxerror);  
 	      BXGlobWm2far->setBinLabel(indexWheelf[0],camera);
 	      
-	      MaskedGlobWm2far->setBinContent(indexWheelf[0],maskedratio);
+	      MaskedGlobWm2far->setBinContent(indexWheelf[0],stripsratio);
 	      MaskedGlobWm2far->setBinLabel(indexWheelf[0],camera,1);
 	      
 	      AverageEffWm2far->setBinContent(indexWheelf[0],averageeff);
-              AverageEffWm2far->setBinError(indexWheelf[0],averageerr);
+              AverageEffWm2far->setBinError(indexWheelf[0],er);
               AverageEffWm2far->setBinLabel(indexWheelf[0],camera,1);
 
               NoPredictionWm2->setBinContent(indexWheel[0],nopredictionsratio);
               NoPredictionWm2->setBinLabel(indexWheel[0],camera,1);
+
 
 	    }else if(Ring==-1){
 	      indexWheelf[1]++;  
@@ -354,11 +334,11 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	      BXGlobWm1far->setBinError(indexWheelf[1],mybxerror);  
 	      BXGlobWm1far->setBinLabel(indexWheelf[1],camera,1);
 	      
-	      MaskedGlobWm1far->setBinContent(indexWheelf[1],maskedratio);
+	      MaskedGlobWm1far->setBinContent(indexWheelf[1],stripsratio);
 	      MaskedGlobWm1far->setBinLabel(indexWheelf[1],camera,1);
 
 	      AverageEffWm1far->setBinContent(indexWheelf[1],averageeff);
-              AverageEffWm1far->setBinError(indexWheelf[1],averageerr);
+              AverageEffWm1far->setBinError(indexWheelf[1],er);
               AverageEffWm1far->setBinLabel(indexWheelf[1],camera,1);
 
               NoPredictionWm1far->setBinContent(indexWheelf[1],nopredictionsratio);
@@ -374,11 +354,11 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	      BXGlobW0far->setBinError(indexWheelf[2],mybxerror);  
 	      BXGlobW0far->setBinLabel(indexWheelf[2],camera,1);
 
-	      MaskedGlobW0far->setBinContent(indexWheelf[2],maskedratio);
+	      MaskedGlobW0far->setBinContent(indexWheelf[2],stripsratio);
 	      MaskedGlobW0far->setBinLabel(indexWheelf[2],camera,1);
 
 	      AverageEffW0far->setBinContent(indexWheelf[2],averageeff);
-              AverageEffW0far->setBinError(indexWheelf[2],averageerr);
+              AverageEffW0far->setBinError(indexWheelf[2],er);
               AverageEffW0far->setBinLabel(indexWheelf[2],camera,1);
 
               NoPredictionW0far->setBinContent(indexWheelf[2],nopredictionsratio);
@@ -393,11 +373,11 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	      BXGlobW1far->setBinError(indexWheelf[3],mybxerror);  
 	      BXGlobW1far->setBinLabel(indexWheelf[3],camera,1);
 
-	      MaskedGlobW1far->setBinContent(indexWheelf[3],maskedratio);
+	      MaskedGlobW1far->setBinContent(indexWheelf[3],stripsratio);
 	      MaskedGlobW1far->setBinLabel(indexWheelf[3],camera,1);
 	      
 	      AverageEffW1far->setBinContent(indexWheelf[3],averageeff);
-              AverageEffW1far->setBinError(indexWheelf[3],averageerr);
+              AverageEffW1far->setBinError(indexWheelf[3],er);
               AverageEffW1far->setBinLabel(indexWheelf[3],camera,1);
 
               NoPredictionW1far->setBinContent(indexWheelf[3],nopredictionsratio);
@@ -413,11 +393,11 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	      BXGlobW2far->setBinError(indexWheelf[4],mybxerror);  
 	      BXGlobW2far->setBinLabel(indexWheelf[4],camera,1);
 	      
-	      MaskedGlobW2far->setBinContent(indexWheelf[4],maskedratio);
+	      MaskedGlobW2far->setBinContent(indexWheelf[4],stripsratio);
 	      MaskedGlobW2far->setBinLabel(indexWheelf[4],camera,1);
 
 	      AverageEffW2far->setBinContent(indexWheelf[4],averageeff);
-              AverageEffW2far->setBinError(indexWheelf[4],averageerr);
+              AverageEffW2far->setBinError(indexWheelf[4],er);
               AverageEffW2far->setBinLabel(indexWheelf[4],camera,1);
 
               NoPredictionW2far->setBinContent(indexWheelf[4],nopredictionsratio);
@@ -440,95 +420,22 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
   EffGlobW0far->setAxisRange(0.,100.,2);
   EffGlobW1far->setAxisRange(0.,100.,2);
   EffGlobW2far->setAxisRange(0.,100.,2);
-
-  AverageEffWm2->setAxisRange(0.,100.,2);
-  AverageEffWm1->setAxisRange(0.,100.,2);
-  AverageEffW0->setAxisRange(0.,100.,2);
-  AverageEffW1->setAxisRange(0.,100.,2);
-  AverageEffW2->setAxisRange(0.,100.,2);
   
-  AverageEffWm2far->setAxisRange(0.,100.,2);
-  AverageEffWm1far->setAxisRange(0.,100.,2);
-  AverageEffW0far->setAxisRange(0.,100.,2);
-  AverageEffW1far->setAxisRange(0.,100.,2);
-  AverageEffW2far->setAxisRange(0.,100.,2);
 
-  MaskedGlobWm2->setAxisRange(0.,100.,2);
-  MaskedGlobWm1->setAxisRange(0.,100.,2);
-  MaskedGlobW0->setAxisRange(0.,100.,2);
-  MaskedGlobW1->setAxisRange(0.,100.,2);
-  MaskedGlobW2->setAxisRange(0.,100.,2);
+  EffGlobWm2->setAxisTitle("Efficiency (%)/Dead Strips (%)",2);
+  EffGlobWm2far->setAxisTitle("Efficiency (%)/Dead Strips (%)",2);
+  EffGlobWm1->setAxisTitle("Efficiency (%)/Dead Strips (%)",2);
+  EffGlobWm1far->setAxisTitle("Efficiency (%)/Dead Strips (%)",2);
+  EffGlobW0->setAxisTitle("Efficiency (%)/Dead Strips (%)",2);
+  EffGlobW0far->setAxisTitle("Efficiency (%)/Dead Strips (%)",2);
+  EffGlobW1->setAxisTitle("Efficiency (%)/Dead Strips (%)",2);
+  EffGlobW1far->setAxisTitle("Efficiency (%)/Dead Strips (%)",2);
+  EffGlobW2->setAxisTitle("Efficiency (%)/Dead Strips (%)",2);
+  EffGlobW2far->setAxisTitle("Efficiency (%)/Dead Strips (%)",2);
   
-  MaskedGlobWm2far->setAxisRange(0.,100.,2);
-  MaskedGlobWm1far->setAxisRange(0.,100.,2);
-  MaskedGlobW0far->setAxisRange(0.,100.,2);
-  MaskedGlobW1far->setAxisRange(0.,100.,2);
-  MaskedGlobW2far->setAxisRange(0.,100.,2);
-
-  NoPredictionWm2->setAxisRange(0.,100.,2);
-  NoPredictionWm1->setAxisRange(0.,100.,2);
-  NoPredictionW0->setAxisRange(0.,100.,2);
-  NoPredictionW1->setAxisRange(0.,100.,2);
-  NoPredictionW2->setAxisRange(0.,100.,2);
-  
-  NoPredictionWm2far->setAxisRange(0.,100.,2);
-  NoPredictionWm1far->setAxisRange(0.,100.,2);
-  NoPredictionW0far->setAxisRange(0.,100.,2);
-  NoPredictionW1far->setAxisRange(0.,100.,2);
-  NoPredictionW2far->setAxisRange(0.,100.,2);
-
-  //Title
-
-  EffGlobWm2->setAxisTitle("%",2);
-  EffGlobWm1->setAxisTitle("%",2);
-  EffGlobW0->setAxisTitle("%",2);
-  EffGlobW1->setAxisTitle("%",2);
-  EffGlobW2->setAxisTitle("%",2);
-  
-  EffGlobWm2far->setAxisTitle("%",2);
-  EffGlobWm1far->setAxisTitle("%",2);
-  EffGlobW0far->setAxisTitle("%",2);
-  EffGlobW1far->setAxisTitle("%",2);
-  EffGlobW2far->setAxisTitle("%",2);
-
-  AverageEffWm2->setAxisTitle("%",2);
-  AverageEffWm1->setAxisTitle("%",2);
-  AverageEffW0->setAxisTitle("%",2);
-  AverageEffW1->setAxisTitle("%",2);
-  AverageEffW2->setAxisTitle("%",2);
-  
-  AverageEffWm2far->setAxisTitle("%",2);
-  AverageEffWm1far->setAxisTitle("%",2);
-  AverageEffW0far->setAxisTitle("%",2);
-  AverageEffW1far->setAxisTitle("%",2);
-  AverageEffW2far->setAxisTitle("%",2);
-
-  MaskedGlobWm2->setAxisTitle("%",2);
-  MaskedGlobWm1->setAxisTitle("%",2);
-  MaskedGlobW0->setAxisTitle("%",2);
-  MaskedGlobW1->setAxisTitle("%",2);
-  MaskedGlobW2->setAxisTitle("%",2);
-  
-  MaskedGlobWm2far->setAxisTitle("%",2);
-  MaskedGlobWm1far->setAxisTitle("%",2);
-  MaskedGlobW0far->setAxisTitle("%",2);
-  MaskedGlobW1far->setAxisTitle("%",2);
-  MaskedGlobW2far->setAxisTitle("%",2);
-
-  NoPredictionWm2->setAxisTitle("%",2);
-  NoPredictionWm1->setAxisTitle("%",2);
-  NoPredictionW0->setAxisTitle("%",2);
-  NoPredictionW1->setAxisTitle("%",2);
-  NoPredictionW2->setAxisTitle("%",2);
-  
-  NoPredictionWm2far->setAxisTitle("%",2);
-  NoPredictionWm1far->setAxisTitle("%",2);
-  NoPredictionW0far->setAxisTitle("%",2);
-  NoPredictionW1far->setAxisTitle("%",2);
-  NoPredictionW2far->setAxisTitle("%",2);
-
+  std::cout<<"Begin End Job"<<std::endl;
   std::cout<<"Saving RootFile"<<std::endl;
-  //dbe->rmdir("RPC");
+  dbe->rmdir("RPC");
   if(SaveFile)dbe->save(NameFile);
 
 }

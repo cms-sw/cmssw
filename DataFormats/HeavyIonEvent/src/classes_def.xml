@@ -1,6 +1,0 @@
-<lcgdict>
-<class name="reco::EvtPlane"/>
-<class name="edm::Wrapper<reco::EvtPlane>"/>
-<class name="reco::Centrality"/>
-<class name="edm::Wrapper<reco::Centrality>"/>
-</lcgdict>

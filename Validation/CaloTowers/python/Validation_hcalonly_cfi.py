@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 from Configuration.StandardSequences.SimulationRandomNumberGeneratorSeeds_cff import *
-from Configuration.StandardSequences.Geometry_cff import *
 from Configuration.StandardSequences.VtxSmearedGauss_cff import *
 from SimG4Core.Application.g4SimHits_cfi import *
 from SimCalorimetry.HcalSimProducers.hcalUnsuppressedDigis_cfi import *
@@ -71,9 +70,7 @@ XMLIdealGeometryESSource.geomXMLFiles = cms.vstring(
     "Geometry/HcalCommonData/data/hcalforwardfibre.xml",
     "Geometry/HcalCommonData/data/hcalsens.xml",
     "Geometry/HcalSimData/data/CaloUtil.xml",
-    "Geometry/HcalSimData/data/HcalProdCuts.xml",
-    "Geometry/CMSCommonData/data/FieldParameters.xml"
-)
+    "Geometry/HcalSimData/data/HcalProdCuts.xml")
 
 
 CaloGeometryBuilder.SelectedCalos = ['HCAL']

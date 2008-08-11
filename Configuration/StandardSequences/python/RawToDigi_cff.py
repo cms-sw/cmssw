@@ -21,8 +21,11 @@ import EventFilter.GctRawToDigi.l1GctHwDigis_cfi
 gctDigis = EventFilter.GctRawToDigi.l1GctHwDigis_cfi.l1GctHwDigis.clone()
 import EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi
 gtDigis = EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi.l1GtUnpack.clone()
-import EventFilter.L1GlobalTriggerRawToDigi.l1GtEvmUnpack_cfi
-gtEvmDigis = EventFilter.L1GlobalTriggerRawToDigi.l1GtEvmUnpack_cfi.l1GtEvmUnpack.clone()
+
+# GT EVM unpacker removed as temporary measure, to be re-instated later - Jim B
+#import EventFilter.L1GlobalTriggerRawToDigi.l1GtEvmUnpack_cfi
+#gtEvmDigis = EventFilter.L1GlobalTriggerRawToDigi.l1GtEvmUnpack_cfi.l1GtEvmUnpack.clone()
+
 from EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi import *
 from EventFilter.SiStripRawToDigi.SiStripRawToDigis_standard_cff import *
 from SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cff import *
@@ -38,7 +41,7 @@ import EventFilter.DTRawToDigi.dtunpacker_cfi
 muonDTDigis = EventFilter.DTRawToDigi.dtunpacker_cfi.muonDTDigis.clone()
 import EventFilter.RPCRawToDigi.rpcUnpacker_cfi
 muonRPCDigis = EventFilter.RPCRawToDigi.rpcUnpacker_cfi.rpcunpacker.clone()
-RawToDigi = cms.Sequence(csctfDigis+dttfDigis+gctDigis+gtDigis+gtEvmDigis+siPixelDigis+SiStripRawToDigis+ecalDigis+ecalPreshowerDigis+hcalDigis+muonCSCDigis+muonDTDigis+muonRPCDigis)
+RawToDigi = cms.Sequence(csctfDigis+dttfDigis+gctDigis+gtDigis+siPixelDigis+SiStripRawToDigis+ecalDigis+ecalPreshowerDigis+hcalDigis+muonCSCDigis+muonDTDigis+muonRPCDigis)
 csctfDigis.producer = 'rawDataCollector'
 dttfDigis.DTTF_FED_Source = 'rawDataCollector'
 gctDigis.inputLabel = 'rawDataCollector'
@@ -46,10 +49,10 @@ gtDigis.DaqGtInputTag = 'rawDataCollector'
 siPixelDigis.InputLabel = 'rawDataCollector'
 ecalDigis.DoRegional = False
 ecalDigis.InputLabel = 'rawDataCollector'
-ecalPreshowerDigis.Label = 'rawDataCollector'
+ecalPreshowerDigis.sourceTag = 'rawDataCollector'
 hcalDigis.InputLabel = 'rawDataCollector'
 muonCSCDigis.InputObjects = 'rawDataCollector'
 muonCSCDigis.UseExaminer = False
-muonDTDigis.fedColl = 'rawDataCollector'
+muonDTDigis.inputLabel = 'rawDataCollector'
 muonRPCDigis.InputLabel = 'rawDataCollector'
-gtEvmDigis.EvmGtInputTag = 'rawDataCollector'
+#gtEvmDigis.EvmGtInputTag = 'rawDataCollector'

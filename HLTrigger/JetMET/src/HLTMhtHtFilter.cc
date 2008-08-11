@@ -77,9 +77,11 @@ HLTMhtHtFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     if( sqrt(mhtx*mhtx + mhty*mhty) > minMht_){
 
       for (reco::CaloJetCollection::const_iterator recocalojet = recocalojets->begin(); recocalojet!=recocalojets->end(); recocalojet++) {
-	ref = CaloJetRef(recocalojets,distance(recocalojets->begin(),recocalojet));
-	filterobject->addObject(TriggerJet,ref);
-	n++;
+	if (recocalojet->pt() > minPtJet_) {
+	  ref = CaloJetRef(recocalojets,distance(recocalojets->begin(),recocalojet));
+	  filterobject->addObject(TriggerJet,ref);
+	  n++;
+	}
       }
     }
     

@@ -1,20 +1,14 @@
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/MessageLogger>
-<use name=FWCore/ServiceRegistry>
-<use name=FWCore/Utilities>
 <use name=DataFormats/Common>
-<use name=CondFormats/SiStripObjects>  
-<use name=CondFormats/DataRecord>  
+
 
 <export>
-  <lib name=CalibTrackerSiStripAPVAnalysis>
-  <use name=FWCore/Framework>
-  <use name=FWCore/ParameterSet>
-  <use name=FWCore/MessageLogger>
-  <use name=DataFormats/Common>  
-  <use name=DataFormats/SiStripDigi>  
-  <use name=CalibFormats/SiStripObject>  
-  <use name=CondFormats/SiStripObjects>  
-  <use name=CondFormats/DataRecord>  
+   <lib name=CalibTrackerSiStripAPVAnalysis>
+   <use name=FWCore/Framework>
+   <use name=FWCore/ParameterSet>
+   <use name=FWCore/MessageLogger>
+   <use name=DataFormats/Common>  
+   <use name=DataFormats/SiStripDigi>  
 </export>

@@ -1,4 +1,0 @@
-     <MonElement name="Gain1d">	                 </MonElement> 
-     <MonElement name="GainChi2NDF1d">	         </MonElement> 
-     <MonElement name="GainChi2Prob1d">	         </MonElement> 
-     <MonElement name="Pedestal1d">	         </MonElement> 

@@ -23,8 +23,6 @@ namespace {
     edm::Wrapper<std::vector<reco::PFCandidate> > w1;
     edm::reftobase::Holder<reco::Candidate, reco::PFCandidateRef> bla1; 
     edm::reftobase::RefHolder<reco::PFCandidateRef> bla2; 
-    reco::PFCandidatePtr bla3;     
-
     reco::PFCandidate::ElementInBlock jo1;
     reco::PFCandidate::ElementsInBlocks jo2;  
 
@@ -32,12 +30,10 @@ namespace {
     reco::IsolatedPFCandidateRefProd ic_rp;
     reco::IsolatedPFCandidateRefVector ic_rv;
     edm::Wrapper<std::vector<reco::IsolatedPFCandidate> > iw1;
-    reco::IsolatedPFCandidatePtr bla4;     
 
     reco::PileUpPFCandidateRef puc_r;
     reco::PileUpPFCandidateRefProd puc_rp;
     reco::PileUpPFCandidateRefVector puc_rv;
     edm::Wrapper<std::vector<reco::PileUpPFCandidate> > puw1;
-    reco::PileUpPFCandidatePtr bla5;     
   }
 }

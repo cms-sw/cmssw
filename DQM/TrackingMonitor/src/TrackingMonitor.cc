@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/07/15 18:04:15 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/05/12 14:19:04 $
+ *  $Revision: 1.7 $
  *  \author Suchandra Dutta , Giorgia Mila
  */
 
@@ -59,21 +59,6 @@ void TrackingMonitor::beginJob(edm::EventSetup const& iSetup) {
   double ThetaMin = conf_.getParameter<double>("ThetaMin");
   double ThetaMax = conf_.getParameter<double>("ThetaMax");
 
-  int    D0Bin = conf_.getParameter<int>("D0Bin");
-  double D0Min = conf_.getParameter<double>("D0Min");
-  double D0Max = conf_.getParameter<double>("D0Max");
-
-  int    VXBin = conf_.getParameter<int>("VXBin");
-  double VXMin = conf_.getParameter<double>("VXMin");
-  double VXMax = conf_.getParameter<double>("VXMax");
-
-  int    VYBin = conf_.getParameter<int>("VYBin");
-  double VYMin = conf_.getParameter<double>("VYMin");
-  double VYMax = conf_.getParameter<double>("VYMax");
-
-  int    VZBin = conf_.getParameter<int>("VZBin");
-  double VZMin = conf_.getParameter<double>("VZMin");
-  double VZMax = conf_.getParameter<double>("VZMax");
 
   histname = "NumberOfTracks_";
   NumberOfTracks = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, TKNoBin, TKNoMin, TKNoMax);
@@ -96,35 +81,35 @@ void TrackingMonitor::beginJob(edm::EventSetup const& iSetup) {
   Chi2overDoF->setAxisTitle("Chi2 over nr. of degrees of freedom of each track");
 
   histname = "DistanceOfClosestApproach_";
-  DistanceOfClosestApproach = dqmStore_->book1D(histname+AlgoName,histname+AlgoName,D0Bin,D0Min,D0Max);
+  DistanceOfClosestApproach = dqmStore_->book1D(histname+AlgoName,histname+AlgoName,100, -0.5, 0.5);
   DistanceOfClosestApproach->setAxisTitle("Track distance of closest approach");
 
   histname = "DistanceOfClosestApproachVsTheta_";
-  DistanceOfClosestApproachVsTheta = dqmStore_->book2D(histname+AlgoName,histname+AlgoName, ThetaBin, ThetaMin, ThetaMax, D0Bin,D0Min,D0Max);
+  DistanceOfClosestApproachVsTheta = dqmStore_->book2D(histname+AlgoName,histname+AlgoName, ThetaBin, ThetaMin, ThetaMax, 100, -0.4, 0.4);
   DistanceOfClosestApproachVsTheta->setAxisTitle("Track polar angle",1);
   DistanceOfClosestApproachVsTheta->setAxisTitle("Track distance of closest approach",2);
   histname = "DistanceOfClosestApproachVsPhi_";
-  DistanceOfClosestApproachVsPhi = dqmStore_->book2D(histname+AlgoName,histname+AlgoName, PhiBin, PhiMin, PhiMax, D0Bin,D0Min,D0Max);
-
+  DistanceOfClosestApproachVsPhi = dqmStore_->book2D(histname+AlgoName,histname+AlgoName, PhiBin, PhiMin, PhiMax, 100, -0.5, 0.5);
+  
   DistanceOfClosestApproachVsPhi->setAxisTitle("Track azimuthal angle",1);
   DistanceOfClosestApproachVsPhi->setAxisTitle("Track distance of closest approach",2);
   histname = "DistanceOfClosestApproachVsEta_";
-  DistanceOfClosestApproachVsEta = dqmStore_->book2D(histname+AlgoName,histname+AlgoName, EtaBin, EtaMin, EtaMax, D0Bin,D0Min,D0Max);
+  DistanceOfClosestApproachVsEta = dqmStore_->book2D(histname+AlgoName,histname+AlgoName, EtaBin, EtaMin, EtaMax, 100, -0.5, 0.5);
   DistanceOfClosestApproachVsEta->setAxisTitle("Track pseudorapidity",1);
   DistanceOfClosestApproachVsEta->setAxisTitle("Track distance of closest approach",2);
 
   histname = "xPointOfClosestApproach_";
-  xPointOfClosestApproach = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, VXBin, VXMin, VXMax);
+  xPointOfClosestApproach = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, 20, -20, 20);
   xPointOfClosestApproach->setAxisTitle("Track distance of closest approach on the x-axis");
 
   histname = "yPointOfClosestApproach_";
-  yPointOfClosestApproach = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, VYBin, VYMin, VYMax);
+  yPointOfClosestApproach = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, 20, -20, 20);
   yPointOfClosestApproach->setAxisTitle("Track distance of closest approach on the y-axis");
 
   histname = "zPointOfClosestApproach_";
-  zPointOfClosestApproach = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, VZBin, VZMin, VZMax);
+  zPointOfClosestApproach = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, 50, -100, 100);
   zPointOfClosestApproach->setAxisTitle("Track distance of closest approach on the z-axis");
- 
+
   std::string StateName = conf_.getParameter<std::string>("MeasurementState");
   if (StateName == "All") {
     bookHistosForState("OuterSurface");

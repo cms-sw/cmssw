@@ -12,6 +12,7 @@
  */
 
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 
 class HLTMuonIsoFilter : public HLTFilter {
 
@@ -19,9 +20,10 @@ class HLTMuonIsoFilter : public HLTFilter {
       explicit HLTMuonIsoFilter(const edm::ParameterSet&);
       ~HLTMuonIsoFilter();
       virtual bool filter(edm::Event&, const edm::EventSetup&);
-
+      bool triggerdByPreviousLevel(const reco::RecoChargedCandidateRef &, const std::vector<reco::RecoChargedCandidateRef> &);
    private:
       edm::InputTag candTag_; // input tag identifying muon container
+      edm::InputTag previousCandTag_;  // input tag identifying product contains muons passing the previous level
       edm::InputTag isoTag_;  // input tag identifying isolation map
       
       int    min_N_;          // minimum number of muons to fire the trigger

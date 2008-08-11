@@ -1,14 +1,10 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//        Program to calculate rates of trigger paths using variables of OHltTree class,
+//   Program to calculate HLT rates
 //
-//				Note: OHltTree class needs to be updated if any new variables become available 
-//				in OpenHLT (HLTAnalyzer).
-//				
-//        Author:  Vladimir Rekovic,     Date: 2007/12/10
-//					
+//   Contacts: Jonathan Hollar (LLNL), Chi Nhan Nguyen (TAMU)
 //
-//        Contacts: Jonathan Hollar (LLNL), Chi Nhan Nguyen (TAMU)
+//   2008 June 10
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -32,7 +28,6 @@ using namespace std;
 
 // Declaration of different Menus
 void BookMenu_Default(OHltMenu *menu, double &iLumi, double &nBunches);
-void BookMenu_21XDefault(OHltMenu *menu, double &iLumi, double &nBunches);
 void BookMenu_OhltExample(OHltMenu *menu, double &iLumi, double &nBunches);
 void BookMenu_TauStudy(OHltMenu *menu, double &iLumi, double &nBunches);
 
@@ -108,7 +103,7 @@ int main(int argc, char *argv[]){
 
   /**** Different Beam conditions: ****/ 
   // Fixed LHC defaults
-  const double bunchCrossingTime = 50.0E-09;  // Design: 25 ns Startup: 25, 50 or 75 ns?
+  const double bunchCrossingTime = 25.0E-09;  // 25 ns
   const double maxFilledBunches = 3557;
     
   // Defaults, to be changed in the menu booking
@@ -122,8 +117,6 @@ int main(int argc, char *argv[]){
   OHltMenu* menu = new OHltMenu();
   if(sMenu.CompareTo("default") == 0)
     BookMenu_Default(menu,ILumi,nFilledBunches);
-  else if(sMenu.CompareTo("21X") == 0)
-    BookMenu_21XDefault(menu,ILumi,nFilledBunches);
   else if(sMenu.CompareTo("example") == 0)
     BookMenu_OhltExample(menu,ILumi,nFilledBunches);
   else if(sMenu.CompareTo("tau") == 0)
@@ -255,7 +248,7 @@ int main(int argc, char *argv[]){
     }
     doMuonCut.push_back(true); doElecCut.push_back(false);
     
-    xsec.push_back(3.56E7); // pp 10 TeV PYTHIA cross-section times filter pp->eleX (5.16E10*0.000689)
+    xsec.push_back(9.51E7); // PYTHIA cross-section times filter pp->eleX (7.923E10*0.0012)
     skmeff.push_back(1.);  //
 
 
@@ -287,7 +280,7 @@ int main(int argc, char *argv[]){
     }
     doMuonCut.push_back(false); doElecCut.push_back(true);
     
-    xsec.push_back(5.15E7); // pp 10 TeV PYTHIA cross-section times filter pp->muX (5.16E10*0.000998)
+    xsec.push_back(6.8375E7); // PYTHIA cross-section times filter pp->muX (7.923E10*0.000863)
     skmeff.push_back(1.);  //
 
     // Minbias
@@ -586,7 +579,7 @@ int main(int argc, char *argv[]){
     }
     doMuonCut.push_back(true); doElecCut.push_back(true);
     
-    xsec.push_back(7.53E10); // pp 10 TeV PYTHIA xsec
+    xsec.push_back(7.923E10); // 
     skmeff.push_back(1.);  //
 
 
@@ -945,172 +938,6 @@ int main(int argc, char *argv[]){
   }
 }
 
-// Forward addition of new names and table for CMSSW 21X
-// /* ********** */
-// To be effective 2 things have to be updated as well in OHltTree.h:
-// - Declaration of branches (use MakeClass() function)
-// - OHltTree::SetMapBitOfStandardHLTPath() assignments
-// - Prescales are all set to 1!!! Need to be changes!!!
-void BookMenu_21XDefault(OHltMenu*  menu, double &iLumi, double &nBunches) {
-
-  iLumi = 2E30;
-  nBunches = 43;
-
-  menu->AddHlt("HLT_L1Jet15","L1_SingleJet15",1,1,"","");
-  menu->AddHlt("HLT_Jet30","L1_SingleJet15",1,1,"","");
-  menu->AddHlt("HLT_Jet50","L1_SingleJet30",1,1,"","");
-  menu->AddHlt("HLT_Jet80","L1_SingleJet50",1,1,"","");
-  menu->AddHlt("HLT_Jet110","L1_SingleJet70",1,1,"","");
-  menu->AddHlt("HLT_Jet180","L1_SingleJet70",1,1,"","");
-  menu->AddHlt("HLT_Jet250","L1_SingleJet70",1,1,"","");
-  menu->AddHlt("HLT_FwdJet20","L1_IsoEG10_Jet15_ForJet10",1,1,"","");
-  menu->AddHlt("HLT_DoubleJet150","L1_SingleJet150 OR L1_DoubleJet70",1,1,"","");
-  menu->AddHlt("HLT_DoubleJet125_Aco","L1_SingleJet150 OR L1_DoubleJet70",1,1,"","");
-  menu->AddHlt("HLT_DoubleFwdJet50","L1_SingleJet30",1,1,"","");
-  menu->AddHlt("HLT_DiJetAve15","L1_SingleJet15",1,1,"","");
-  menu->AddHlt("HLT_DiJetAve30","L1_SingleJet30",1,1,"","");
-  menu->AddHlt("HLT_DiJetAve50","L1_SingleJet50",1,1,"","");
-  menu->AddHlt("HLT_DiJetAve70","L1_SingleJet70",1,1,"","");
-  menu->AddHlt("HLT_DiJetAve130","L1_SingleJet70",1,1,"","");
-  menu->AddHlt("HLT_DiJetAve220","L1_SingleJet70",1,1,"","");
-  menu->AddHlt("HLT_TripleJet85","L1_SingleJet150 OR L1_DoubleJet70 OR L1_TripleJet50",1,1,"","");
-  menu->AddHlt("HLT_QuadJet30","L1_QuadJet15",1,1,"","");
-  menu->AddHlt("HLT_QuadJet60","L1_SingleJet150 OR L1_DoubleJet70 OR L1_TripleJet50 OR L1_QuadJet30",1,1,"","");
-  menu->AddHlt("HLT_SumET120","L1_ETT60",1,1,"","");
-  menu->AddHlt("HLT_L1MET20","L1_ETM20",1,1,"","");
-  menu->AddHlt("HLT_MET25","L1_ETM20",1,1,"","");
-  menu->AddHlt("HLT_MET35","L1_ETM30",1,1,"","");
-  menu->AddHlt("HLT_MET50","L1_ETM40",1,1,"","");
-  menu->AddHlt("HLT_MET65","L1_ETM50",1,1,"","");
-  menu->AddHlt("HLT_MET75","L1_ETM50",1,1,"","");
-  menu->AddHlt("HLT_MET35_HT350","L1_HTT300",1,1,"","");
-  menu->AddHlt("HLT_Jet180_MET60","L1_SingleJet150",1,1,"","");
-  menu->AddHlt("HLT_Jet60_MET70_Aco","L1_SingleJet150",1,1,"","");
-  menu->AddHlt("HLT_Jet100_MET60_Aco","L1_SingleJet150",1,1,"","");
-  menu->AddHlt("HLT_DoubleJet125_MET60","L1_SingleJet150",1,1,"","");
-  menu->AddHlt("HLT_DoubleFwdJet40_MET60","L1_ETM40",1,1,"","");
-  menu->AddHlt("HLT_DoubleJet60_MET60_Aco","L1_SingleJet150",1,1,"","");
-  menu->AddHlt("HLT_DoubleJet50_MET70_Aco","L1_SingleJet150",1,1,"","");
-  menu->AddHlt("HLT_DoubleJet40_MET70_Aco","L1_SingleJet150",1,1,"","");
-  menu->AddHlt("HLT_TripleJet60_MET60","L1_SingleJet150",1,1,"","");
-  menu->AddHlt("HLT_QuadJet35_MET60","L1_SingleJet150",1,1,"","");
-  menu->AddHlt("HLT_IsoEle15_L1I","L1_SingleIsoEG12",1,1,"","");
-  menu->AddHlt("HLT_IsoEle18_L1R","L1_SingleEG15",1,1,"","");
-  menu->AddHlt("HLT_IsoEle15_LW_L1I","L1_SingleIsoEG12",1,1,"","");
-  menu->AddHlt("HLT_LooseIsoEle15_LW_L1R","L1_SingleEG12",1,1,"","");
-  menu->AddHlt("HLT_Ele10_SW_L1R","L1_SingleEG8",1,1,"","");
-  menu->AddHlt("HLT_Ele15_SW_L1R","L1_SingleEG12",1,1,"","");
-  menu->AddHlt("HLT_Ele15_LW_L1R","L1_SingleEG10",1,1,"","");
-  menu->AddHlt("HLT_EM80","L1_SingleEG15",1,1,"","");
-  menu->AddHlt("HLT_EM200","L1_SingleEG15",1,1,"","");
-  menu->AddHlt("HLT_DoubleIsoEle10_L1I","L1_DoubleIsoEG8",1,1,"","");
-  menu->AddHlt("HLT_DoubleIsoEle12_L1R","L1_DoubleEG10",1,1,"","");
-  menu->AddHlt("HLT_DoubleIsoEle10_LW_L1I","L1_DoubleIsoEG8",1,1,"","");
-  menu->AddHlt("HLT_DoubleIsoEle12_LW_L1R","L1_DoubleEG10",1,1,"","");
-  menu->AddHlt("HLT_DoubleEle5_SW_L1R","L1_DoubleEG5",1,1,"","");
-  menu->AddHlt("HLT_DoubleEle10_LW_OnlyPixelM_L1R","L1_DoubleEG5",1,1,"","");
-  menu->AddHlt("HLT_DoubleEle10_Z","L1_DoubleIsoEG8",1,1,"","");
-  menu->AddHlt("HLT_DoubleEle6_Exclusive","L1_ExclusiveDoubleIsoEG6",1,1,"","");
-  menu->AddHlt("HLT_IsoPhoton30_L1I","L1_SingleIsoEG12",1,1,"","");
-  menu->AddHlt("HLT_IsoPhoton10_L1R","L1_SingleEG8",1,1,"","");
-  menu->AddHlt("HLT_IsoPhoton15_L1R","L1_SingleEG12",1,1,"","");
-  menu->AddHlt("HLT_IsoPhoton20_L1R","L1_SingleEG15",1,1,"","");
-  menu->AddHlt("HLT_IsoPhoton25_L1R","L1_SingleEG15",1,1,"","");
-  menu->AddHlt("HLT_IsoPhoton40_L1R","L1_SingleEG15",1,1,"","");
-  menu->AddHlt("HLT_Photon15_L1R","L1_SingleEG10",1,1,"","");
-  menu->AddHlt("HLT_Photon25_L1R","L1_SingleEG15",1,1,"","");
-  menu->AddHlt("HLT_DoubleIsoPhoton20_L1I","L1_DoubleIsoEG8",1,1,"","");
-  menu->AddHlt("HLT_DoubleIsoPhoton20_L1R","L1_DoubleEG10",1,1,"","");
-  menu->AddHlt("HLT_DoublePhoton10_Exclusive","L1_ExclusiveDoubleIsoEG6",1,1,"","");
-  menu->AddHlt("HLT_L1Mu","L1_SingleMu7 OR L1_DoubleMu3",1,1,"","");
-  menu->AddHlt("HLT_L1MuOpen","L1_SingleMuOpen OR L1_SingleMu3 OR L1_SingleMu5",1,1,"","");
-  menu->AddHlt("HLT_L2Mu9","L1_SingleMu7",1,1,"","");
-  menu->AddHlt("HLT_IsoMu9","L1_SingleMu7",1,1,"","");
-  menu->AddHlt("HLT_IsoMu11","L1_SingleMu7",1,1,"","");
-  menu->AddHlt("HLT_IsoMu13","L1_SingleMu10",1,1,"","");
-  menu->AddHlt("HLT_IsoMu15","L1_SingleMu10",1,1,"","");
-  menu->AddHlt("HLT_NoTrackerIsoMu15","L1_SingleMu7",1,1,"","");
-  menu->AddHlt("HLT_Mu3","L1_SingleMu3",1,1,"","");
-  menu->AddHlt("HLT_Mu5","L1_SingleMu5",1,1,"","");
-  menu->AddHlt("HLT_Mu7","L1_SingleMu7",1,1,"","");
-  menu->AddHlt("HLT_Mu9","L1_SingleMu7",1,1,"","");
-  menu->AddHlt("HLT_Mu11","L1_SingleMu7",1,1,"","");
-  menu->AddHlt("HLT_Mu13","L1_SingleMu10",1,1,"","");
-  menu->AddHlt("HLT_Mu15","L1_SingleMu10",1,1,"","");
-  menu->AddHlt("HLT_Mu15_L1Mu7","L1_SingleMu7",1,1,"","");
-  menu->AddHlt("HLT_Mu15_Vtx2cm","L1_SingleMu7",1,1,"","");
-  menu->AddHlt("HLT_Mu15_Vtx2mm","L1_SingleMu7",1,1,"","");
-  menu->AddHlt("HLT_DoubleIsoMu3","L1_DoubleMu3",1,1,"","");
-  menu->AddHlt("HLT_DoubleMu3","L1_DoubleMu3",1,1,"","");
-  menu->AddHlt("HLT_DoubleMu3_Vtx2cm","L1_DoubleMu3",1,1,"","");
-  menu->AddHlt("HLT_DoubleMu3_Vtx2mm","L1_DoubleMu3",1,1,"","");
-  menu->AddHlt("HLT_DoubleMu3_JPsi","L1_DoubleMu3",1,1,"","");
-  menu->AddHlt("HLT_DoubleMu3_Upsilon","L1_DoubleMu3",1,1,"","");
-  menu->AddHlt("HLT_DoubleMu7_Z","L1_DoubleMu3",1,1,"","");
-  menu->AddHlt("HLT_DoubleMu3_SameSign","L1_DoubleMu3",1,1,"","");
-  menu->AddHlt("HLT_DoubleMu3_Psi2S","L1_DoubleMu3",1,1,"","");
-  menu->AddHlt("HLT_BTagIP_Jet180","L1_SingleJet150 OR L1_DoubleJet100 OR L1_TripleJet50 OR L1_QuadJet30 OR L1_HTT300",1,1,"","");
-  menu->AddHlt("HLT_BTagIP_Jet120_Relaxed","L1_SingleJet100 OR L1_DoubleJet70 OR L1_TripleJet50 OR L1_QuadJet30 OR L1_HTT300",1,1,"","");
-  menu->AddHlt("HLT_BTagIP_DoubleJet120","L1_SingleJet150 OR L1_DoubleJet100 OR L1_TripleJet50 OR L1_QuadJet30 OR L1_HTT300",1,1,"","");
-  menu->AddHlt("HLT_BTagIP_DoubleJet60_Relaxed","L1_SingleJet100 OR L1_DoubleJet70 OR L1_TripleJet50 OR L1_QuadJet30 OR L1_HTT300",1,1,"","");
-  menu->AddHlt("HLT_BTagIP_TripleJet70","L1_SingleJet150 OR L1_DoubleJet100 OR L1_TripleJet50 OR L1_QuadJet30 OR L1_HTT300",1,1,"","");
-  menu->AddHlt("HLT_BTagIP_TripleJet40_Relaxed","L1_SingleJet100 OR L1_DoubleJet70 OR L1_TripleJet50 OR L1_QuadJet30 OR L1_HTT300",1,1,"","");
-  menu->AddHlt("HLT_BTagIP_QuadJet40","L1_SingleJet150 OR L1_DoubleJet100 OR L1_TripleJet50 OR L1_QuadJet30 OR L1_HTT300",1,1,"","");
-  menu->AddHlt("HLT_BTagIP_QuadJet30_Relaxed","L1_SingleJet100 OR L1_DoubleJet70 OR L1_TripleJet50 OR L1_QuadJet30 OR L1_HTT300",1,1,"","");
-  menu->AddHlt("HLT_BTagIP_HT470","L1_SingleJet150 OR L1_DoubleJet100 OR L1_TripleJet50 OR L1_QuadJet30 OR L1_HTT300",1,1,"","");
-  menu->AddHlt("HLT_BTagIP_HT320_Relaxed","L1_SingleJet100 OR L1_DoubleJet70 OR L1_TripleJet50 OR L1_QuadJet30 OR L1_HTT300",1,1,"","");
-  menu->AddHlt("HLT_BTagMu_DoubleJet120","L1_Mu5_Jet15",1,1,"","");
-  menu->AddHlt("HLT_BTagMu_DoubleJet60_Relaxed","L1_Mu5_Jet15",1,1,"","");
-  menu->AddHlt("HLT_BTagMu_TripleJet70","L1_Mu5_Jet15",1,1,"","");
-  menu->AddHlt("HLT_BTagMu_TripleJet40_Relaxed","L1_Mu5_Jet15",1,1,"","");
-  menu->AddHlt("HLT_BTagMu_QuadJet40","L1_Mu5_Jet15",1,1,"","");
-  menu->AddHlt("HLT_BTagMu_QuadJet30_Relaxed","L1_Mu5_Jet15",1,1,"","");
-  menu->AddHlt("HLT_BTagMu_HT370","L1_HTT300",1,1,"","");
-  menu->AddHlt("HLT_BTagMu_HT250_Relaxed","L1_HTT200",1,1,"","");
-  menu->AddHlt("HLT_DoubleMu3_BJPsi","L1_DoubleMu3",1,1,"","");
-  menu->AddHlt("HLT_DoubleMu4_BJPsi","L1_DoubleMu3",1,1,"","");
-  menu->AddHlt("HLT_TripleMu3_TauTo3Mu","L1_DoubleMu3",1,1,"","");
-  menu->AddHlt("HLT_IsoTau_MET65_Trk20","L1_SingleTauJet80",1,1,"","");
-  menu->AddHlt("HLT_IsoTau_MET35_Trk15_L1MET","L1_TauJet30_ETM30",1,1,"","");
-  menu->AddHlt("HLT_LooseIsoTau_MET30","L1_SingleTauJet80",1,1,"","");
-  menu->AddHlt("HLT_LooseIsoTau_MET30_L1MET","L1_TauJet30_ETM30",1,1,"","");
-  menu->AddHlt("HLT_DoubleIsoTau_Trk3","L1_DoubleTauJet40",1,1,"","");
-  menu->AddHlt("HLT_DoubleLooseIsoTau","L1_DoubleTauJet20",1,1,"","");
-  menu->AddHlt("HLT_IsoEle8_IsoMu7","L1_Mu3_IsoEG5",1,1,"","");
-  menu->AddHlt("HLT_IsoEle10_Mu10_L1R","L1_Mu3_EG12",1,1,"","");
-  menu->AddHlt("HLT_IsoEle12_IsoTau_Trk3","L1_IsoEG10_TauJet20",1,1,"","");
-  menu->AddHlt("HLT_IsoEle10_BTagIP_Jet35","L1_IsoEG10_Jet20",1,1,"","");
-  menu->AddHlt("HLT_IsoEle12_Jet40","L1_IsoEG10_Jet30",1,1,"","");
-  menu->AddHlt("HLT_IsoEle12_DoubleJet80","L1_IsoEG10_Jet30",1,1,"","");
-  menu->AddHlt("HLT_IsoElec5_TripleJet30","L1_EG5_TripleJet15",1,1,"","");
-  menu->AddHlt("HLT_IsoEle12_TripleJet60","L1_IsoEG10_Jet30",1,1,"","");
-  menu->AddHlt("HLT_IsoEle12_QuadJet35","L1_IsoEG10_Jet30",1,1,"","");
-  menu->AddHlt("HLT_IsoMu14_IsoTau_Trk3","L1_Mu5_TauJet20",1,1,"","");
-  menu->AddHlt("HLT_IsoMu7_BTagIP_Jet35","L1_Mu5_Jet15",1,1,"","");
-  menu->AddHlt("HLT_IsoMu7_BTagMu_Jet20","L1_Mu5_Jet15",1,1,"","");
-  menu->AddHlt("HLT_IsoMu7_Jet40","L1_Mu5_Jet15",1,1,"","");
-  menu->AddHlt("HLT_NoL2IsoMu8_Jet40","L1_Mu5_Jet15",1,1,"","");
-  menu->AddHlt("HLT_Mu14_Jet50","L1_Mu5_Jet15",1,1,"","");
-  menu->AddHlt("HLT_Mu5_TripleJet30","L1_Mu3_TripleJet15",1,1,"","");
-  menu->AddHlt("HLT_BTagMu_Jet20_Calib","L1_Mu5_Jet15",1,1,"","");
-  menu->AddHlt("HLT_ZeroBias","L1_ZeroBias",1,1,"","");
-  menu->AddHlt("HLT_MinBias","L1_MinBias_HTT10",1,1,"","");
-  menu->AddHlt("HLT_MinBiasHcal","L1_SingleJetCountsHFTow OR L1_DoubleJetCountsHFTow OR L1_SingleJetCountsHFRing0Sum3 OR L1_DoubleJetCountsHFRing0Sum3 OR L1_SingleJetCountsHFRing0Sum6 OR L1_DoubleJetCountsHFRing0Sum6",1,1,"","");
-  menu->AddHlt("HLT_MinBiasEcal","L1_SingleEG2 OR L1_DoubleEG1",1,1,"","");
-  menu->AddHlt("HLT_MinBiasPixel","L1_ZeroBias",1,1,"","");
-  menu->AddHlt("HLT_MinBiasPixel_Trk5","L1_ZeroBias",1,1,"","");
-  menu->AddHlt("HLT_BackwardBSC","38 OR 39",1,1,"","");
-  menu->AddHlt("HLT_ForwardBSC","36 OR 37",1,1,"","");
-  menu->AddHlt("HLT_CSCBeamHalo","L1_SingleMuBeamHalo",1,1,"","");
-  menu->AddHlt("HLT_CSCBeamHaloOverlapRing1","L1_SingleMuBeamHalo",1,1,"","");
-  menu->AddHlt("HLT_CSCBeamHaloOverlapRing2","L1_SingleMuBeamHalo",1,1,"","");
-  menu->AddHlt("HLT_CSCBeamHaloRing2or3","L1_SingleMuBeamHalo",1,1,"","");
-  menu->AddHlt("HLT_TrackerCosmics","24 OR 25 OR 26 OR 27 OR 28",1,1,"","");
-  menu->AddHlt("AlCa_IsoTrack","L1_SingleJet30 OR L1_SingleJet50 OR L1_SingleJet70 OR L1_SingleJet100 OR L1_SingleTauJet30 OR L1_SingleTauJet40 OR L1_SingleTauJet60 OR L1_SingleTauJet80",1,1,"","");
-  menu->AddHlt("AlCa_EcalPhiSym","L1_ZeroBias OR L1_SingleJetCountsHFTow OR L1_DoubleJetCountsHFTow OR L1_SingleEG2 OR L1_DoubleEG1 OR L1_SingleJetCountsHFRing0Sum3 OR L1_DoubleJetCountsHFRing0Sum3 OR L1_SingleJetCountsHFRing0Sum6 OR L1_DoubleJetCountsHFRing0Sum6",1,1,"","");
-  menu->AddHlt("AlCa_EcalPi0","L1_SingleIsoEG5 OR L1_SingleIsoEG8 OR L1_SingleIsoEG10 OR L1_SingleIsoEG12 OR L1_SingleIsoEG15 OR L1_SingleIsoEG20 OR L1_SingleIsoEG25 OR L1_SingleEG5 OR L1_SingleEG8 OR L1_SingleEG10 OR L1_SingleEG12 OR L1_SingleEG15 OR L1_SingleEG20 OR L1_SingleEG25",1,1,"","");
-
-}
 
 void BookMenu_Default(OHltMenu*  menu, double &iLumi, double &nBunches) {
 

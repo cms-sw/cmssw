@@ -23,4 +23,3 @@ MuonCkfTrajectoryBuilder = cms.ESProducer("MuonCkfTrajectoryBuilderESProducer",
 )
 
 
-

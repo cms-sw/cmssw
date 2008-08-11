@@ -2,7 +2,7 @@
 // Engine to read HPD noise events from the library
 // Project: HPD noise library
 // Author: F.Ratnikov UMd, Jan. 15, 2008
-// $Id: HPDNoiseReader.cc,v 1.2 2008/01/17 23:35:53 fedor Exp $
+// $Id: HPDNoiseReader.cc,v 1.1 2008/01/16 02:12:41 fedor Exp $
 // --------------------------------------------------------
 
 #include "SimCalorimetry/HcalSimAlgos/interface/HPDNoiseReader.h"
@@ -28,10 +28,7 @@ HPDNoiseReader::HPDNoiseReader (const std::string& fFileName) {
       TTree* tree = (TTree*) mFile->Get (names[i].c_str());
       if (tree) {
 	mTrees.push_back (tree);
-	mDischargeRate.push_back (catalog->getDischargeRate (i));
-	mIonFeedbackFirstPeakRate.push_back(catalog->getIonFeedbackFirstPeakRate(i));
-	mIonFeedbackSecondPeakRate.push_back(catalog->getIonFeedbackSecondPeakRate(i));
-        mElectronEmissionRate.push_back(catalog->getElectronEmissionRate(i));
+	mRates.push_back (catalog->getRate (i));
 	mCurrentEntry.push_back (0);
       }
       else {
@@ -66,21 +63,9 @@ HPDNoiseReader::Handle HPDNoiseReader::getHandle (const std::string& fName) {
   return -1;
 }
 
-float HPDNoiseReader::dischargeRate (Handle fHandle) const {
+float HPDNoiseReader::rate (Handle fHandle) const {
   if (!valid (fHandle)) return 0;
-  return mDischargeRate[fHandle];
-}
-float HPDNoiseReader::ionFeedbackFirstPeakRate (Handle fHandle) const {
-  if (!valid (fHandle)) return 0;
-  return mIonFeedbackFirstPeakRate[fHandle];
-}
-float HPDNoiseReader::ionFeedbackSecondPeakRate (Handle fHandle) const {
-  if (!valid (fHandle)) return 0;
-  return mIonFeedbackSecondPeakRate[fHandle];
-}
-float HPDNoiseReader::emissionRate (Handle fHandle) const {
-  if (!valid (fHandle)) return 0;
-  return mElectronEmissionRate[fHandle];
+  return mRates[fHandle];
 }
 
 unsigned long HPDNoiseReader::totalEntries (Handle fHandle) const {

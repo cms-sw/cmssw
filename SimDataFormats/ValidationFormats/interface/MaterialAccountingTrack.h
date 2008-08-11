@@ -10,7 +10,7 @@
 // keep material accounting informations on a per-track basis
 class MaterialAccountingTrack {
 private:
-  // this values are optimized to avoid resizing
+  // this values are optimize to avoid resizing
   enum { kSteps = 600, kDetectors = 30 };
   
 public:

@@ -1,8 +1,8 @@
 #!/usr/local/bin/perl
 #     R. Mankel, DESY Hamburg      3-Jul-2007
 #     A. Parenti, DESY Hamburg    21-Apr-2008
-#     $Revision: 1.8 $
-#     $Date: 2008/05/21 14:52:05 $
+#     $Revision: 1.5 $
+#     $Date: 2008/05/02 13:13:08 $
 #
 #  Submit jobs that are setup in local mps database
 #  
@@ -10,7 +10,6 @@
 #  Usage:
 #
 #  mps_fire.pl [-m[f]] [maxjobs]
-#  mps_fire.pl -h
 
 BEGIN {
 use File::Basename;
@@ -46,18 +45,6 @@ while (@ARGV) {
     }
   }
 }
-
-if ( $helpwanted != 0 ) {
-  print "Usage:\n  mps_fire.pl [-m[f]] [maxjobs]";
-  print "\nmaxjobs:       Number of Mille jobs to be submitted (default is one)";
-  print "\nKnown options:";
-  print "\n  -m   Submit the Pede job.";
-  print "\n  -mf  Force the submission of the Pede job in case";
-  print "\n          some Mille jobs are not in the OK state.\n";
-  print "\n  -h   This help.";
-  exit 1;
-}
-
 
 read_db();
 

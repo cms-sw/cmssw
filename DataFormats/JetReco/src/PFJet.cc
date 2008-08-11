@@ -1,6 +1,6 @@
 // PFJet.cc
 // Fedor Ratnikov UMd
-// $Id: PFJet.cc,v 1.12 2008/07/24 14:51:23 cbern Exp $
+// $Id: PFJet.cc,v 1.10 2008/02/17 20:26:00 dlange Exp $
 #include <sstream>
 #include <typeinfo>
 
@@ -55,23 +55,6 @@ std::vector <const reco::PFCandidate*> PFJet::getPFConstituents () const {
   for (unsigned i = 0;  i <  numberOfDaughters (); i++) result.push_back (getPFConstituent (i));
   return result;
 }
-
-
-reco::TrackRefVector PFJet::getTrackRefs() const {
-  // result will contain chargedMultiplicity() elements
-  reco::TrackRefVector result;
-  result.reserve( chargedMultiplicity() );
-  for (unsigned i = 0;  i <  numberOfDaughters (); i++) {
-    const reco::PFCandidate* pfcand = getPFConstituent (i);
-    reco::TrackRef trackref = pfcand->trackRef();
-    if( trackref.isNonnull() ) {
-      result.push_back( trackref );
-    }
-  }
-
-  return result;
-}
-
 
 PFJet* PFJet::clone () const {
   return new PFJet (*this);

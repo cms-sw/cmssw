@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.h
  *
- * $Date: 2008/06/19 22:55:32 $
- * $Revision: 1.27 $
+ * $Date: 2008/03/05 20:48:57 $
+ * $Revision: 1.26 $
  * \author W. Fisher
  *
 */
@@ -26,7 +26,6 @@
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "FWCore/Utilities/interface/CPUTimer.h"
 
 #include "DataFormats/Provenance/interface/EventID.h"  
 #include "DataFormats/HcalDigi/interface/HcalUnpackerReport.h"
@@ -119,11 +118,6 @@ public:
 
   /// Verbosity switch used for debugging or informational output
   bool debug_;
-
-  // control whether or not to display time used by each module
-  bool showTiming_; 
-  edm::CPUTimer cpu_timer; // 
-
 
   /// counters and flags
   int nevt_;

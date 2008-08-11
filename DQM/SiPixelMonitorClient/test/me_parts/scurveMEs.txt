@@ -1,4 +1,0 @@
-     <MonElement name="ScurveChi2ProbSummary">    </MonElement> 
-     <MonElement name="ScurveFitResultSummary">  </MonElement> 
-     <MonElement name="ScurveSigmasSummary">     </MonElement> 
-     <MonElement name="ScurveThresholdSummary">  </MonElement> 

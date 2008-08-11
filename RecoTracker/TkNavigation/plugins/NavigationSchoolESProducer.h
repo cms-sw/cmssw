@@ -24,8 +24,8 @@ public:
   
   typedef boost::shared_ptr<NavigationSchool> ReturnType;
 
-  virtual ReturnType produce(const NavigationSchoolRecord&);
- protected:
+  ReturnType produce(const NavigationSchoolRecord&);
+   private:
   // ----------member data ---------------------------
   edm::ParameterSet theNavigationPSet;
   std::string theNavigationSchoolName;

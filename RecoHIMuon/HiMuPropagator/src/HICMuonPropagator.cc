@@ -14,7 +14,7 @@
 #include <iostream>
 #include <vector>
 //#define MUPROPAGATOR_DEBUG
-namespace cms {
+
 TrajectoryStateOnSurface
              HICMuonPropagator::propagate(const FreeTrajectoryState& fts,
   			                  const Cylinder& surface) const
@@ -32,9 +32,7 @@ TrajectoryStateOnSurface
   double dfcalc,phnext,zdet;
   double pt = p.perp();
   double a = p.perp()/pz;
-
-  double b = -a*theHICConst->zvert; 
- 
+  double b = -a*theHicConst.zvert;  
   double phiold=x.phi();
   if(x.phi()<0.) phiold=twopi+x.phi();
     
@@ -153,4 +151,4 @@ TrajectoryStateOnSurface
      return tsos;
   }
 
-}
+

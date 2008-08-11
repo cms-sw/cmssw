@@ -6,7 +6,7 @@
 // Implementation:
 //
 // Original Author:  Jim Kowalkowski
-// $Id: PathTimerService.cc,v 1.11 2008/01/22 18:54:37 muzaffar Exp $
+// $Id: PathTimerService.cc,v 1.10 2007/09/14 17:33:33 bdahmes Exp $
 //
 
 #include "DQM/HLTEvF/interface/PathTimerService.h"
@@ -74,7 +74,6 @@ namespace edm {
                 std::vector<unsigned int> loc ; 
                 const std::vector<std::string> modules=tns->getTrigPathModules(trigPaths[i]);
                 unsigned int mIdx = 0 ; 
-                _perfInfo->addPath(hltPath);
                 for ( unsigned int j=0; j<modules.size(); j++) {
                     _moduleTime[modules[j]]=0. ;
                     _moduleCPUTime[modules[j]]=0. ;
@@ -94,10 +93,11 @@ namespace edm {
                         }
                     }
                     if (!duplicateModule) {
-		      _perfInfo->addModuleToPath(modules[j].c_str(),trigPaths[i].c_str());
+                        _perfInfo->addModuleToPath(modules[j].c_str(),&hltPath);
                         loc.push_back(mIdx++) ; 
                     }
                 }
+                _perfInfo->addPath(hltPath);
                 _newPathIndex.push_back(loc) ;
             }
             curr_job_ = getTime();
@@ -110,7 +110,13 @@ namespace edm {
       curr_event_ = iID;
       curr_event_time_ = getTime();
 
-      _perfInfo->clearModules();
+      HLTPerformanceInfo::Modules::const_iterator iMod=_perfInfo->beginModules();
+      while ( iMod != _perfInfo->endModules() ) {
+	HLTPerformanceInfo::Module *mod=const_cast<HLTPerformanceInfo::Module*>(&(*iMod));
+	mod->clear();
+	iMod++;
+      }
+
       
       std::map<std::string, double>::iterator iter=_moduleTime.begin();
       std::map<std::string, double>::iterator iCPU=_moduleCPUTime.begin();
@@ -144,32 +150,35 @@ namespace edm {
           _moduleTime[desc.moduleLabel()] = tWall ;
           _moduleCPUTime[desc.moduleLabel()] = tCPU ; 
         
-          HLTPerformanceInfo::Modules::iterator iMod =
+          HLTPerformanceInfo::Modules::const_iterator iMod =
               _perfInfo->findModule(desc.moduleLabel().c_str());
           if ( iMod != _perfInfo->endModules() ) {
-	    iMod->setTime(tWall) ;
-	    iMod->setCPUTime(tCPU) ;
+              HLTPerformanceInfo::Module *mod = const_cast<HLTPerformanceInfo::Module*>(&(*iMod));
+              mod->setTime(tWall) ;
+              mod->setCPUTime(tCPU) ;
           }
       }
 
       void PathTimerService::postPathProcessing(const std::string &name, 
                                                 const HLTPathStatus &status) {
 
-          HLTPerformanceInfo::PathList::iterator iPath=_perfInfo->beginPaths();
+          HLTPerformanceInfo::PathList::const_iterator iPath=_perfInfo->beginPaths();
           int ctr = 0 ; 
           while ( iPath != _perfInfo->endPaths() ) {
-	    if ( iPath->name() == name) { 
-	      unsigned int pIndex = _newPathIndex.at(ctr).at(status.index()) ;
-	      iPath->setStatus(HLTPathStatus(status.state(),pIndex)) ; 
-// 	      for (HLTPerformanceInfo::Path::iterator iMod=iPath->begin();
-// 		   iMod!=iPath->end(); iMod++) {
-// 		iMod->setStatusByPath(path) ;
-//               }
+              HLTPerformanceInfo::Path *path = const_cast<HLTPerformanceInfo::Path*>(&(*iPath));
+              if ( iPath->name() == name) { 
+                  unsigned int pIndex = _newPathIndex.at(ctr).at(status.index()) ;
+                  path->setStatus(HLTPathStatus(status.state(),pIndex)) ; 
+                  for (HLTPerformanceInfo::Path::const_iterator iMod=iPath->begin();
+                       iMod!=iPath->end(); iMod++) {
+                      HLTPerformanceInfo::Module *module = const_cast<HLTPerformanceInfo::Module*>(&(*iMod));
+                      module->setStatusByPath(path) ;
+                  }
+              }
 
               iPath++;
               ctr++; 
-	    }
-	  }
+          }
       }
   }
 }

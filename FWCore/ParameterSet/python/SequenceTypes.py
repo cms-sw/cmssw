@@ -105,7 +105,7 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
         return self
     def replace(self, original, replacement):
         if not isinstance(original,_Sequenceable) or not isinstance(replacement,_Sequenceable):
-           raise ValueError
+           raise TypeError("replace only works with sequenceable objects")
         else:
            self._replace(original, replacement)
     def _replace(self, original, replacement):

@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/07/15 04:16:59 $
- *  $Revision: 1.27 $
+ *  $Date: 2008/06/27 03:19:50 $
+ *  $Revision: 1.26 $
  *  \author A. Tumanov - Rice
  */
 
@@ -193,6 +193,7 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
       for(map<CSCDetId, CSCEventData>::iterator chamberItr = theChamberDataMap.begin();
             chamberItr != theChamberDataMap.end(); ++chamberItr)
         {
+
            //std::cout<<"inside the pack loop" <<std::endl;
            int indexDCC = mapping->slink(chamberItr->first);
 
@@ -203,7 +204,6 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
              {
                 // get ddu id based on ChamberId from mapping
                 int dduId = mapping->ddu(chamberItr->first);
-                int dmbId = mapping->dmb(chamberItr->first);
                 vector<int>::iterator dduIdItr = find(dduIds.begin(), dduIds.end(), dduId);
                 // if it's not found, it'll point at end(), so the distance should work out right.
                 int indexDDU = distance(dduIds.begin(), dduIdItr);
@@ -214,7 +214,7 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
                 // just to make sure we're using STL right
                 assert(dduIds.at(indexDDU) == dduId);
 
-                dccEvent.dduData()[indexDDU].add(chamberItr->second, dmbId);
+                dccEvent.dduData()[indexDDU].add(chamberItr->second);
                 boost::dynamic_bitset<> dccBits = dccEvent.pack();
                 FEDRawData & fedRawData = fed_buffers.FEDData(idcc);
                 fedRawData.resize(dccBits.size());

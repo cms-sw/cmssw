@@ -15,25 +15,19 @@ class SiStripLorentzAngleDQM : public SiStripBaseCondObjDQM{
   public:
   
   SiStripLorentzAngleDQM(const edm::EventSetup & eSetup,
-                             edm::ParameterSet const& hPSet,
-                             edm::ParameterSet const& fPSet);
+                      edm::ParameterSet const& hPSet,
+                      edm::ParameterSet const& fPSet);
   
   virtual ~SiStripLorentzAngleDQM();
   
-  void getActiveDetIds(const edm::EventSetup & eSetup);
-  
-  void fillModMEs(const std::vector<uint32_t> & selectedDetIds){};
+  void fillModMEs(){};
   void fillMEsForDet(ModMEs selModME_,uint32_t selDetId_){};
   
-  void fillSummaryMEs(const std::vector<uint32_t> & selectedDetIds);
+  void fillSummaryMEs();
+  
   void fillMEsForLayer( std::map<uint32_t, ModMEs> selModMEsMap_, uint32_t selDetId_);
   
-  unsigned long long getCache(const edm::EventSetup & eSetup){ return eSetup.get<SiStripLorentzAngleRcd>().cacheIdentifier();}
-  
-  void getConditionObject(const edm::EventSetup & eSetup){
-    eSetup.get<SiStripLorentzAngleRcd>().get(lorentzangleHandle_);
-    cacheID_memory = cacheID_current;
-  }
+  unsigned long long getCache(const edm::EventSetup & eSetup_){ return eSetup_.get<SiStripLorentzAngleRcd>().cacheIdentifier();}
 
   private:
     edm::ESHandle<SiStripLorentzAngle> lorentzangleHandle_;

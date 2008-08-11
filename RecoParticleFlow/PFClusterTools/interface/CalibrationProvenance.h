@@ -10,8 +10,8 @@ namespace pftools {
  * \date June 2008
  */
 enum CalibrationProvenance {
-	UNCALIBRATED = 0, LINEAR = 1, BAYESIAN = 2, LINEARECAL = 3, LINEARHCAL=4
+	UNCALIBRATED = 0, LINEAR = 1, BAYESIAN = 2
 };
 
-}
+
 #endif /*CALIBRATIONPROVENANCE_H_*/

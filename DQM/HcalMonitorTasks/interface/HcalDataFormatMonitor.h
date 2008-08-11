@@ -10,8 +10,8 @@
 
 /** \class Hcaldataformatmonitor
  *
- * $Date: 2008/04/22 21:38:59 $
- * $Revision: 1.25 $
+ * $Date: 2008/04/22 15:48:08 $
+ * $Revision: 1.24 $
  * \author W. Fisher - FNAL
  */
 class HcalDataFormatMonitor: public HcalBaseMonitor {
@@ -46,8 +46,6 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
  private:  //Monitoring elements
    
    MonitorElement* meEVT_;
-   MonitorElement* DATAFORMAT_PROBLEM_MAP;
-   MonitorElement* DATAFORMAT_PROBLEM_ZOO;
    
    //MEs for hcalunpacker report info
    MonitorElement* meSpigotFormatErrors_;

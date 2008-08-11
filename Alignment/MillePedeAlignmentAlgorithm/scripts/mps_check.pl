@@ -1,8 +1,8 @@
 #!/usr/local/bin/perl
 #     R. Mankel, DESY Hamburg     09-Jul-2007
 #     A. Parenti, DESY Hamburg    24-Apr-2008
-#     $Revision: 1.9 $
-#     $Date: 2008/06/25 17:31:50 $
+#     $Revision: 1.3 $
+#     $Date: 2008/04/20 18:32:10 $
 #
 #  Check output from jobs that have FETCH status
 #  
@@ -47,6 +47,7 @@ for ($i=0; $i<@JOBID; ++$i) {
     $stdOut = "jobData/@JOBDIR[$i]/STDOUT";
     open STDFILE,"$stdOut";
     # scan records in input file
+    $nEvent = -1;
     while ($line = <STDFILE>) {
       if (($line =~ m/CERN report: Job Killed/) eq 1) { $killed = 1;}
       if (($line =~ m/Job finished/) eq 1)  { $finished = 1; }
@@ -66,6 +67,7 @@ for ($i=0; $i<@JOBID; ++$i) {
     # open the input file
     open INFILE,"$eazeLog";
     # scan records in input file
+    $nEvent = 0;
     while ($line = <INFILE>) {
       # check if end of file has been reached
       if (($line =~ m/\<StorageStatistics\>/) eq 1) { $eofile = 1;}
@@ -76,6 +78,9 @@ for ($i=0; $i<@JOBID; ++$i) {
       if (($line =~ m/segmentation violation/) eq 1) { $segviol = 1;}
       if (($line =~ m/failed RFIO error/) eq 1) { $rfioerr = 1;}
       if (($line =~ m/Request exceeds quota/) eq 1) { $quota = 1;}
+      if (($line =~ m/\<EventsRead\> *(\d+)\<\/EventsRead\>/) eq 1) {
+	$nEvent = $nEvent + $1;
+      }
     }
     close INFILE;
 
@@ -86,32 +91,28 @@ for ($i=0; $i<@JOBID; ++$i) {
       system "gunzip ".$eazeLog.".gz";
       $logZipped = "true";
     }
-    if (-r $eazeLog) {
-      # open the input file
-      open INFILE,"$eazeLog";
-      # scan records in input file
-      while ($line = <INFILE>) {
-	# check if end of file has been reached
-	if (($line =~ m/\<StorageStatistics\>/) eq 1) { $eofile = 1;}
-	if (($line =~ m/EAZE\. Time limit reached\./) eq 1) { $timel = 1;}
-	if (($line =~ m/GAF gives I\/O problem/) eq 1) { $ioprob = 1;}
-	if (($line =~ m/FrameworkError ExitStatus=\"8001\"/) eq 1) { $fw8001 = 1;}
-	if (($line =~ m/too many tracks/) eq 1) { $tooManyTracks = 1;}
-	if (($line =~ m/segmentation violation/) eq 1) { $segviol = 1;}
-	if (($line =~ m/failed RFIO error/) eq 1) { $rfioerr = 1;}
-	if (($line =~ m/Request exceeds quota/) eq 1) { $quota = 1;}
-	if (($line =~ m/Exception caught in cmsRun/) eq 1) { $exceptionCaught = 1;}
-	if (($line =~ m/FwkReport            -i main_input:sourc/) eq 1) {
-	  @array = split(' ',$line);
-	  $nEvent = $array[5];
-	}
+    # open the input file
+    open INFILE,"$eazeLog";
+    # scan records in input file
+    $nEvent = 0;
+    while ($line = <INFILE>) {
+      # check if end of file has been reached
+      if (($line =~ m/\<StorageStatistics\>/) eq 1) { $eofile = 1;}
+      if (($line =~ m/EAZE\. Time limit reached\./) eq 1) { $timel = 1;}
+      if (($line =~ m/GAF gives I\/O problem/) eq 1) { $ioprob = 1;}
+      if (($line =~ m/FrameworkError ExitStatus=\"8001\"/) eq 1) { $fw8001 = 1;}
+      if (($line =~ m/too many tracks/) eq 1) { $tooManyTracks = 1;}
+      if (($line =~ m/segmentation violation/) eq 1) { $segviol = 1;}
+      if (($line =~ m/failed RFIO error/) eq 1) { $rfioerr = 1;}
+      if (($line =~ m/Request exceeds quota/) eq 1) { $quota = 1;}
+      if (($line =~ m/Exception caught in cmsRun/) eq 1) { $exceptionCaught = 1;}
+      if (($line =~ m/\<EventsRead\> *(\d+)\<\/EventsRead\>/) eq 1) {
+	$nEvent = $nEvent + $1;
       }
-      close INFILE;
-      if ($logZipped eq "true") {
-	system "gzip $eazeLog";
-      }
-    } else {
-      print "mps_check.pl cannot find $eazeLog to test\n";
+    }
+    close INFILE;
+    if ($logZipped eq "true") {
+      system "gzip $eazeLog";
     }
 
     # for mille jobs checks that milleBinary file is not empty
@@ -125,21 +126,53 @@ for ($i=0; $i<@JOBID; ++$i) {
 
     # additional checks for merging job
     if (@JOBDIR[$i] eq "jobm") {
-      # if there is a pede.dump file, check it as well
-      $eazeLog = "jobData/@JOBDIR[$i]/pede.dump";
-      if (-r $eazeLog) {
-	# open the input file
-	open INFILE,"$eazeLog";
-	# scan records in input file
-	$pedeAbend = 1;
-	while ($line = <INFILE>) {
-	  # check if pede has reached its normal end
-	  if (($line =~ m/Millepede II ending/) eq 1) { $pedeAbend = 0;}
+        # if there is an alignment_merge.log[.gz] file, check it as well
+	$eazeLog = "jobData/@JOBDIR[$i]/alignment_merge.log";
+        $logZipped = "no";
+        if (-r $eazeLog.".gz") {
+          system "gunzip ".$eazeLog.".gz";
+          $logZipped = "true";
+        }
+	if (-r $eazeLog) {
+	    # open the input file
+	    open INFILE,"$eazeLog";
+	    # scan records in input file
+	    $nEvent = 0;
+	    while ($line = <INFILE>) {
+		# check if end of file has been reached
+		if (($line =~ m/\<StorageStatistics\>/) eq 1) { $eofile = 1;}
+		if (($line =~ m/EAZE\. Time limit reached\./) eq 1) { $timel = 1;}
+		if (($line =~ m/GAF gives I\/O problem/) eq 1) { $ioprob = 1;}
+		if (($line =~ m/FrameworkError ExitStatus=\"8001\"/) eq 1) { $fw8001 = 1;}
+		if (($line =~ m/too many tracks/) eq 1) { $tooManyTracks = 1;}
+		if (($line =~ m/segmentation violation/) eq 1) { $segviol = 1;}
+		if (($line =~ m/failed RFIO error/) eq 1) { $rfioerr = 1;}
+		if (($line =~ m/Request exceeds quota/) eq 1) { $quota = 1;}
+		if (($line =~ m/\<EventsRead\> *(\d+)\<\/EventsRead\>/) eq 1) {
+		    $nEvent = $nEvent + $1;
+		}
+	    }
+	    close INFILE;
+	} else {
+	    print "mps_check.pl cannot find $eazeLog to test\n";
 	}
-      } else {
-	print "mps_check.pl cannot find $eazeLog to test\n";
-      }
-      # Add check on millepede.log[.gz] as well?
+	if ($logZipped eq "true") {
+	    system "gzip $eazeLog";
+	}
+
+	# if there is a pede.dump file, check it as well
+	$eazeLog = "jobData/@JOBDIR[$i]/pede.dump";
+	if (-r $eazeLog) {
+	    # open the input file
+	    open INFILE,"$eazeLog";
+	    # scan records in input file
+	    $pedeAbend = 1;
+	    while ($line = <INFILE>) {
+		# check if pede has reached its normal end
+		if (($line =~ m/Millepede II ending/) eq 1) { $pedeAbend = 0;}
+	    }
+	}
+
     }
 
     $farmhost = " ";

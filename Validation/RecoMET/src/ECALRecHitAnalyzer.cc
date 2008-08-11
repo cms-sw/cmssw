@@ -318,7 +318,6 @@ void ECALRecHitAnalyzer::WriteECALRecHits(const edm::Event& iEvent, const edm::E
   double EBSET_EtaRing[171];
   double EBMaxEnergy_EtaRing[171];
   double EBMinEnergy_EtaRing[171];
-  double EBenergy_EtaRing[171];
 
   for (int i=0; i<171; i++)
     {
@@ -327,7 +326,6 @@ void ECALRecHitAnalyzer::WriteECALRecHits(const edm::Event& iEvent, const edm::E
       EBSET_EtaRing[i] = 0.0;
       EBMaxEnergy_EtaRing[i] = -999; 
       EBMinEnergy_EtaRing[i] = 14E3; 
-      EBenergy_EtaRing[i] = 0.0;
     }
 
   edm::LogInfo("OutputInfo") << "Looping over EB" << endl;
@@ -358,9 +356,7 @@ void ECALRecHitAnalyzer::WriteECALRecHits(const edm::Event& iEvent, const edm::E
 	EBSET_EtaRing[EtaRing]+=ET;
 	v_.SetPtEtaPhiE(ET, 0, phi, ET);
 	vEBMET_EtaRing[EtaRing]-=v_;
-	EBenergy_EtaRing[EtaRing]+=Energy;
 	me["hEB_Occ_ieta_iphi"]->Fill(ieta, iphi);
-
       }
     
     me["hEB_energy_ieta_iphi"]->Fill(ieta, iphi, Energy);
@@ -385,7 +381,6 @@ void ECALRecHitAnalyzer::WriteECALRecHits(const edm::Event& iEvent, const edm::E
 	  me["hEB_MEyvsieta"]->Fill(iEtaRing-85, vEBMET_EtaRing[iEtaRing].Py());
 	  me["hEB_SETvsieta"]->Fill(iEtaRing-85, EBSET_EtaRing[iEtaRing]);
 	  me["hEB_Occvsieta"]->Fill(iEtaRing-85, EBNActiveCells[iEtaRing]);
-	  me["hEB_energyvsieta"]->Fill(iEtaRing-85, EBenergy_EtaRing[iEtaRing]);
 	}
     }
 
@@ -478,8 +473,8 @@ void ECALRecHitAnalyzer::WriteECALRecHits(const edm::Event& iEvent, const edm::E
 	me["hEEmZ_energyvsir"]->Fill(ir, Energy);
 	me["hEEmZ_energy_ix_iy"]->Fill(ix, iy, Energy);
 
-	if (Energy>EEmZMaxEnergy_EtaRing[ir]) EEmZMaxEnergy_EtaRing[ir] = Energy;
-	if (Energy<EEmZMinEnergy_EtaRing[ir]) EEmZMinEnergy_EtaRing[ir] = Energy;
+	if (Energy>EEpZMaxEnergy_EtaRing[ir]) EEpZMaxEnergy_EtaRing[ir] = Energy;
+	if (Energy<EEpZMinEnergy_EtaRing[ir]) EEpZMinEnergy_EtaRing[ir] = Energy;
 
 	if (Energy>me["hEEmZ_Maxenergy_ix_iy"]->getBinContent(ix,iy))
 	  me["hEEmZ_Maxenergy_ix_iy"]->setBinContent(ix,iy, Energy);
@@ -499,9 +494,6 @@ void ECALRecHitAnalyzer::WriteECALRecHits(const edm::Event& iEvent, const edm::E
 	  }
 	me["hEEpZ_energyvsir"]->Fill(ir, Energy);
 	me["hEEpZ_energy_ix_iy"]->Fill(ix, iy, Energy);
-
-	if (Energy>EEpZMaxEnergy_EtaRing[ir]) EEpZMaxEnergy_EtaRing[ir] = Energy;
-	if (Energy<EEpZMinEnergy_EtaRing[ir]) EEpZMinEnergy_EtaRing[ir] = Energy;
 	if (Energy>me["hEEpZ_Maxenergy_ix_iy"]->getBinContent(ix,iy))
 	  me["hEEpZ_Maxenergy_ix_iy"]->setBinContent(ix,iy, Energy);
 	if (Energy<me["hEEpZ_Minenergy_ix_iy"]->getBinContent(ix,iy))

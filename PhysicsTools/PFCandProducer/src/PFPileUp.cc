@@ -69,7 +69,7 @@ void PFPileUp::produce(Event& iEvent,
   for( unsigned i=0; i<pfCandidates->size(); i++ ) {
     
     const reco::PFCandidate& cand = (*pfCandidates)[i];
-    PFCandidatePtr candptr(pfCandidates, i);
+    PFCandidateRef candref(pfCandidates, i);
     
     bool isPileUp = false;
     // just to debug ! all particles with neg charge 
@@ -78,7 +78,7 @@ void PFPileUp::produce(Event& iEvent,
       isPileUp = true; 
 
     if( isPileUp ) {
-      pOutput->push_back( PileUpPFCandidate( candptr ) );
+      pOutput->push_back( PileUpPFCandidate( candref ) );
     }
     
   }

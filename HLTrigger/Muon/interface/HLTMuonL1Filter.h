@@ -12,6 +12,8 @@
  */
 
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
+#include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
+#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
 
 class HLTMuonL1Filter : public HLTFilter {
 
@@ -19,10 +21,10 @@ class HLTMuonL1Filter : public HLTFilter {
       explicit HLTMuonL1Filter(const edm::ParameterSet&);
       ~HLTMuonL1Filter();
       virtual bool filter(edm::Event&, const edm::EventSetup&);
-
+      bool triggerByPreviousLevel(const l1extra::L1MuonParticleRef &, const std::vector<l1extra::L1MuonParticleRef> &);
    private:
       edm::InputTag candTag_;  // input tag identifying product contains muons
-      
+      edm::InputTag previousCandTag_;  // input tag identifying product contains muons passing the previous level
       double max_Eta_;      // Max eta cut
       double min_Pt_;      // Pt threshold
       int min_Quality_;      // Cut on quality (probably not what we want)

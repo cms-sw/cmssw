@@ -2,7 +2,6 @@
 #include "DQM/SiPixelMonitorClient/interface/SiPixelUtility.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQM/SiPixelMonitorClient/interface/ANSIColors.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
@@ -237,16 +236,19 @@ void SiPixelHistoPlotter::makePlot(DQMStore* bei, const PlotParameter& par) {
 // -- Get Named Image buffer
 //
 void SiPixelHistoPlotter::getNamedImageBuffer(const string& path, string& image) {
+//std::cout<<"Trying to getNamedImageBuffer for path "<<path<<std::endl;
   map<string, string>::iterator cPos = namedPictureBuffer_.find(path);
   if (cPos != namedPictureBuffer_.end()) {
+  //cout<<"I found an image in the namedPictureBuffer_!"<<endl;
     image = cPos->second;
     if (namedPictureBuffer_.size() > 99 ) namedPictureBuffer_.erase(cPos);
   } else {
+    //cout << " Sending Dummy Image for :"
+	// <<  path << endl;
      cPos = namedPictureBuffer_.find("Dummy");
      image = cPos->second;
   }
 }
-
 
 /*! \brief (Documentation under construction).
  *

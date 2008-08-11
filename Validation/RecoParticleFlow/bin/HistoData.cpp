@@ -7,8 +7,7 @@
 #include <TPave.h>
 #include <TLine.h>
 #include <TH1.h>
-#include <TNamed.h>
- 
+
 using namespace std;
 
 HistoData::HistoData(std::string Name, int Type, int Bin, string NewPath, TFile *NewFile, string RefPath, TFile *RefFile) {
@@ -104,13 +103,12 @@ void HistoData::drawResult(TH1 *Summary, bool Vertical, bool SetBinLabel) {
 
   // add label to the summary if desired
   if (SetBinLabel) {
-    Summary->GetXaxis()->SetBinLabel(bin,getRefHisto()->GetTitle());
-    //Summary->GetXaxis()->SetBinLabel(bin,name.c_str());
-  }
-  else 
     Summary->GetXaxis()->SetBinLabel(bin,name.c_str());
+    Summary->GetXaxis()->SetBinLabel(bin,name.c_str());
+  }
 
   double minimum = Summary->GetMinimum();
+
   // determine where to draw the result (score axis)
   //   1: solid bar starts
   //   2: solid bar ends, hatched bar starts
@@ -172,15 +170,4 @@ void HistoData::drawResult(TH1 *Summary, bool Vertical, bool SetBinLabel) {
   axisLine->SetBit(kCanDelete);
   axisLine->Draw("SAME");
 
-  //paste a line before (in this proceeding that means after) Barrel and Endcap Plots
-  if ( name == "ERPt" || name == "BRPt" ) {
-    axisY1=axisY2=binCenter+binWidth/2;
-    axisX2=Summary->GetMaximum();
-    axisX1=Summary->GetMinimum()-200;
-    TLine *regionLine = new TLine(axisX1,axisY1,axisX2,axisY2);
-    regionLine->SetLineColor(Summary->GetAxisColor("X"));
-    regionLine->SetBit(kCanDelete);
-    regionLine->SetLineWidth(3);
-    regionLine->Draw();
-  }
 }

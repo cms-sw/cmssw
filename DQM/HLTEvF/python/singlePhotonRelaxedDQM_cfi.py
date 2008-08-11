@@ -7,38 +7,38 @@ singlePhotonRelaxedDQM = cms.EDFilter("HLTMonElectron",
     DaqMonitorBEInterface = cms.untracked.bool(True),
     filters = cms.VPSet(cms.PSet(
         PlotBounds = cms.vdouble(0.0, 0.0),
-        HLTCollectionLabels = cms.InputTag("hltL1seedRelaxedSingleEgamma::HLT"),
+        HLTCollectionLabels = cms.InputTag("l1seedRelaxedSingle"),
         IsoCollections = cms.VInputTag(cms.InputTag("none")),
         theHLTOutputTypes = cms.uint32(82)
     ), 
         cms.PSet(
             PlotBounds = cms.vdouble(0.0, 0.0),
-            HLTCollectionLabels = cms.InputTag("hltL1NonIsoSinglePhotonL1MatchFilterRegional::HLT"),
+            HLTCollectionLabels = cms.InputTag("hltL1NonIsoSinglePhotonL1MatchFilterRegional"),
             IsoCollections = cms.VInputTag(cms.InputTag("none")),
             theHLTOutputTypes = cms.uint32(100)
         ), 
         cms.PSet(
             PlotBounds = cms.vdouble(0.0, 0.0),
-            HLTCollectionLabels = cms.InputTag("hltL1NonIsoSinglePhotonEtFilter"::HLT),
+            HLTCollectionLabels = cms.InputTag("hltL1NonIsoSinglePhotonEtFilter"),
             IsoCollections = cms.VInputTag(cms.InputTag("none")),
             theHLTOutputTypes = cms.uint32(100)
         ), 
         cms.PSet(
             PlotBounds = cms.vdouble(0.0, 10.0),
-            HLTCollectionLabels = cms.InputTag("hltL1NonIsoSinglePhotonEcalIsolFilter::HLT"),
-            IsoCollections = cms.VInputTag(cms.InputTag("hltL1IsolatedPhotonEcalIsol::HLT"), cms.InputTag("hltL1NonIsolatedPhotonEcalIsol::HLT")),
+            HLTCollectionLabels = cms.InputTag("hltL1NonIsoSinglePhotonEcalIsolFilter"),
+            IsoCollections = cms.VInputTag(cms.InputTag("l1IsolatedPhotonEcalIsol"), cms.InputTag("l1NonIsolatedPhotonEcalIsol")),
             theHLTOutputTypes = cms.uint32(100)
         ), 
         cms.PSet(
             PlotBounds = cms.vdouble(0.0, 10.0),
-            HLTCollectionLabels = cms.InputTag("hltL1NonIsoSinglePhotonHcalIsolFilter::HLT"),
-            IsoCollections = cms.VInputTag(cms.InputTag("hltL1IsolatedPhotonHcalIsol::HLT"), cms.InputTag("hltL1NonIsolatedPhotonHcalIsol::HLT")),
+            HLTCollectionLabels = cms.InputTag("hltL1NonIsoSinglePhotonHcalIsolFilter"),
+            IsoCollections = cms.VInputTag(cms.InputTag("l1IsolatedPhotonHcalIsol"), cms.InputTag("l1NonIsolatedPhotonHcalIsol")),
             theHLTOutputTypes = cms.uint32(100)
         ), 
         cms.PSet(
             PlotBounds = cms.vdouble(0.0, 10.0),
-            HLTCollectionLabels = cms.InputTag("hltL1NonIsoSinglePhotonTrackIsolFilter::HLT"),
-            IsoCollections = cms.VInputTag(cms.InputTag("hltL1IsoPhotonTrackIsol::HLT"), cms.InputTag("hltL1NonIsoPhotonTrackIsol::HLT")),
+            HLTCollectionLabels = cms.InputTag("hltL1NonIsoSinglePhotonTrackIsolFilter"),
+            IsoCollections = cms.VInputTag(cms.InputTag("l1IsoPhotonTrackIsol"), cms.InputTag("l1NonIsoPhotonTrackIsol")),
             theHLTOutputTypes = cms.uint32(91)
         )),
     disableROOToutput = cms.untracked.bool(True),

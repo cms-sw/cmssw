@@ -47,9 +47,6 @@
 #include "RecoHIMuon/HiMuSeed/interface/HICConst.h"
 #include "RecoHIMuon/HiMuSeed/interface/DiMuonTrajectorySeed.h"
 
-// HICConst
-#include "RecoHIMuon/HiMuSeed/interface/HICConst.h"
-
 // CLHEP includes
 #include "CLHEP/Units/PhysicalConstants.h"
 //#include "CLHEP/Vector/ThreeVector.h"
@@ -65,8 +62,7 @@
 #include <map>
 #include <vector>
 
-namespace cms
-{
+
 class DiMuonSeedGeneratorHIC  {
 
  public:
@@ -76,15 +72,14 @@ class DiMuonSeedGeneratorHIC  {
   DiMuonSeedGeneratorHIC(edm::InputTag,
                          const MagneticField*, 
                          const GeometricSearchTracker*,
-                         const HICConst*,
 			 int aMult);
 
-  virtual std::map<DetLayer*,SeedContainer>  produce(const edm::Event& e, const edm::EventSetup& c,
+  virtual SeedContainer  produce(const edm::Event& e, const edm::EventSetup& c,
   			 FreeTrajectoryState&, 
 			 TrajectoryStateOnSurface&,
 			 FreeTrajectoryState&,
-		    const TransientTrackingRecHitBuilder* RecHitBuilder,
-		    const MeasurementTracker* measurementTracker,
+						    const TransientTrackingRecHitBuilder* RecHitBuilder,
+						    const MeasurementTracker* measurementTracker,
 			 std::vector<DetLayer*>* 
                        );
 
@@ -95,7 +90,8 @@ class DiMuonSeedGeneratorHIC  {
  private:
   FreeTrajectoryState                        theFtsTracker;
   FreeTrajectoryState                        theFtsMuon;
-  const HICConst*                            theHICConst;
+  HICConst*                                  theHicConst;
+//  PropagatorWithMaterial*                    thePropagator; 
   Propagator*                                thePropagator; 
   
   int                                        theLowMult;
@@ -109,11 +105,11 @@ class DiMuonSeedGeneratorHIC  {
   bool                                       isFirstCall;
   TrackerLayerIdAccessor                     acc;
   
-  std::pair<TrajectoryMeasurement,bool> barrelUpdateSeed(
+  TrajectoryMeasurement barrelUpdateSeed(
                                            const FreeTrajectoryState&,
 					   const TrajectoryMeasurement&
 					 ) const;
-  std::pair<TrajectoryMeasurement,bool> forwardUpdateSeed(
+  TrajectoryMeasurement forwardUpdateSeed(
                                            const FreeTrajectoryState&,
 					   const TrajectoryMeasurement&
 					 ) const;
@@ -126,6 +122,6 @@ class DiMuonSeedGeneratorHIC  {
   const LayerMeasurements*              theLayerMeasurements;
   			 
 };
-}
+
 #endif
 

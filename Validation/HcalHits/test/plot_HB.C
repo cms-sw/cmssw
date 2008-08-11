@@ -1,7 +1,7 @@
 // Commands executed in a GLOBAL scope, e.g. created hitograms aren't erased...
-void plot_HB(TString inputfile="simevent_HB.root",
-	     TString outputfile="HB_histo+es.root",
-	     Int_t drawmode = 2, 
+void plot_HB(TString inputfile="HB_ref.root",
+	     TString outputfile="HB_histo.root",
+	     Int_t drawmode = 0, 
 	     TString    reffile="../data/HB_ref.root")
 {
 
@@ -168,8 +168,8 @@ void plot_HB(TString inputfile="simevent_HB.root",
       if(i == 12)  
 	          h1[i] = new TH1F(hname,label1[i],72,-3.1415926,3.1415926);   
       if(i == 7 || i == 8) h1[i] = new TH1F(hname,label1[i],100,-0.1,0.1);  
-      if( i == 4)  h1[i] = new TH1F(hname,label1[i],50,0.,100.);  
-      if( i == 6)  h1[i] = new TH1F(hname,label1[i],50,0.,100.);
+      if( i == 4)  h1[i] = new TH1F(hname,label1[i],60,0.,60.);  
+      if( i == 6)  h1[i] = new TH1F(hname,label1[i],40,0.,200.);
     }
     else { 
       h1[i] = new TH1F(hname,label1[i],100,1.,0.);  
@@ -191,7 +191,7 @@ void plot_HB(TString inputfile="simevent_HB.root",
   // Special : Longitudinal profile
   h1[45] = new TH1F("h45",label1[45],20,0.,20.);
   // Etot HCAL
-  TH1F *h1[46] = new TH1F("h46",label1[46],50,0.,1.0);
+  TH1F *h1[46] = new TH1F("h46",label1[46],30,0.,1.5);
 
   for (int i = 0;  i < Nhist1; i++) {
     if(i != 39)  h1[i]->Sumw2();
@@ -200,7 +200,7 @@ void plot_HB(TString inputfile="simevent_HB.root",
   for (int i = 0; i < Nhist2; i++) {
     char hname[3]; 
     sprintf(hname,"D%d",i);
-    h2[i] = new TH2F(hname,label2[i],100,0.,100.,100,0.,100.);
+    h2[i] = new TH2F(hname,label2[i],150,0.,150.,150,0.,150.);
   }
 
   // scint. layers

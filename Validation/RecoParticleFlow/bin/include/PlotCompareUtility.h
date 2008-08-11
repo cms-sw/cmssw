@@ -7,10 +7,6 @@
 #include <map>
 #include <string>
 
-#ifndef HTML1D
-#define HTML1D
-#endif
-
 class TFile;
 class TH1;
 

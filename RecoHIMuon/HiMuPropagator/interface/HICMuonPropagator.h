@@ -8,7 +8,7 @@
 
 #include <string>
 #include <iostream>
-namespace cms {
+
 class HICMuonPropagator:public Propagator{
 public:
   HICMuonPropagator(const MagneticField * mf){field = mf;}
@@ -19,8 +19,6 @@ public:
   TrajectoryStateOnSurface propagate(const FreeTrajectoryState& fts,
                                      const Plane& plane) const;
 
-  void setHICConst(HICConst* hh) {theHICConst = hh;}
- 
   virtual HICMuonPropagator * clone() const 
   {
     return new HICMuonPropagator(field);
@@ -44,10 +42,10 @@ public:
   
   virtual const MagneticField* magneticField() const {return field;}
 private:
-  HICConst*             theHICConst;  
+  HICConst  theHicConst;  
   const MagneticField * field;
 };
-}
+
 #endif
 
 

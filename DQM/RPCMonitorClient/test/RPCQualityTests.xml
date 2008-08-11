@@ -22,7 +22,9 @@
 </QTEST>
 
 
-<LINK name="*/Occupancy*RB*">
+
+
+<LINK name="*/Occupancy_*">
 	<TestName activate="true">DeadChannel_0</TestName>
 </LINK>
 

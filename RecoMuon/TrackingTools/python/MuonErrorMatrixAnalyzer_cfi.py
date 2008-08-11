@@ -48,4 +48,3 @@ muonErrorMatrixAnalyzer = cms.EDAnalyzer("MuonErrorMatrixAnalyzer",
 )
 
 
-

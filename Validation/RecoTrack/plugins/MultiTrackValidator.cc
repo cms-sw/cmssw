@@ -59,15 +59,15 @@ void MultiTrackValidator::beginRun(Run const&, EventSetup const& setup) {
       h_ptSIM.push_back( dbe_->book1D("ptSIM", "generated p_{t}", 5500, 0, 110 ) );
       h_etaSIM.push_back( dbe_->book1D("etaSIM", "generated pseudorapidity", 500, -2.5, 2.5 ) );
       h_tracksSIM.push_back( dbe_->book1D("tracksSIM","number of simluated tracks",100,-0.5,99.5) );
-      h_vertposSIM.push_back( dbe_->book1D("vertposSIM","Transverse position of sim vertices",100,0.,120.) );
+      h_vertposSIM.push_back( dbe_->book1D("vertposSIM","Transverse position of sim vertices",1000,-0.5,10000.5) );
       
       dbe_->cd();
       dbe_->setCurrentFolder(dirName.c_str());
       h_tracks.push_back( dbe_->book1D("tracks","number of reconstructed tracks",20,-0.5,19.5) );
       h_fakes.push_back( dbe_->book1D("fakes","number of fake reco tracks",20,-0.5,19.5) );
       h_charge.push_back( dbe_->book1D("charge","charge",3,-1.5,1.5) );
-      h_hits.push_back( dbe_->book1D("hits", "number of hits per track", nintHit,minHit,maxHit ) );
-      h_losthits.push_back( dbe_->book1D("losthits", "number of lost hits per track", nintHit,minHit,maxHit) );
+      h_hits.push_back( dbe_->book1D("hits", "number of hits per track", 35, -0.5, 34.5 ) );
+      h_losthits.push_back( dbe_->book1D("losthits", "number of lost hits per track", 35, -0.5, 34.5 ) );
       h_nchi2.push_back( dbe_->book1D("chi2", "normalized #chi^{2}", 200, 0, 20 ) );
       h_nchi2_prob.push_back( dbe_->book1D("chi2_prob", "normalized #chi^{2} probability",100,0,1));
 
@@ -555,7 +555,6 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 }
 
 void MultiTrackValidator::endRun(Run const&, EventSetup const&) {
-
   int w=0;
   for (unsigned int ww=0;ww<associators.size();ww++){
     for (unsigned int www=0;www<label.size();www++){

@@ -66,8 +66,7 @@ void HFClusterAlgo::clusterize(const HFRecHitCollection& hf,
   
   std::sort(hits.begin(), hits.end(), CompareHFCompleteHitET());
   for (i=hits.begin(); i!= hits.end(); i++)  {
-    isok=true;
-    doCluster=false;
+    
     if (i->et > 10) {
       if ((i->id.ietaAbs()==40)||(i->id.ietaAbs()==41)||(i->id.ietaAbs()==29)||(i->id.depth()!=1)) 
 	isok = false; 

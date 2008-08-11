@@ -5,8 +5,8 @@
 //   Description: Extrapolator
 //
 //
-//   $Date: 2008/05/09 15:01:59 $
-//   $Revision: 1.4 $
+//   $Date: 2007/03/30 09:05:32 $
+//   $Revision: 1.3 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -124,6 +124,13 @@ void L1MuDTEUX::run(const edm::EventSetup& c) {
 
   // Extrapolation TS quality filter
   switch ( theExtFilter ) {
+    case 0 : { break; } 
+    case 1 : { if ( m_start->quality() < 2 ) return; break; }
+    case 2 : { if ( m_start->quality() < 4 ) return; break; }
+    case 3 : { if ( m_start->quality() < 2 && m_target->quality() < 2 ) return; break; }
+    case 4 : { if ( m_start->quality() < 4 && m_target->quality() < 4 ) return; break; }
+    case 5 : { if ( ( m_target->station() == 3 && m_target->quality() < 2 ) ||
+                    ( m_start->quality() < 2 ) ) return; break; }
     default : { break; }
   }
   

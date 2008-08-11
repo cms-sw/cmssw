@@ -141,7 +141,7 @@ void HLTInfo::analyze(/*const HLTFilterObjectWithRefs& hltobj,*/
 //		      const l1extra::L1ParticleMapCollection& L1MapColl,
 		      const L1GlobalTriggerReadoutRecord& L1GTRR,
 		      const L1GlobalTriggerObjectMapRecord& L1GTOMRec,
-		      const L1GctJetCountsCollection& L1GctCounts,
+		      const L1GctJetCounts& L1GctCounts,
 		      TTree* HltTree) {
 
 //   std::cout << " Beginning HLTInfo " << std::endl;
@@ -471,16 +471,13 @@ void HLTInfo::analyze(/*const HLTFilterObjectWithRefs& hltobj,*/
     std::cout<<"E "<<L1GctCounts.hfRing1EtSumPositiveEta()<<std::endl;
     std::cout<<"F "<<L1GctCounts.hfRing1EtSumNegativeEta()<<std::endl;
     */
-
     
-    for (L1GctJetCountsCollection::const_iterator jbx=L1GctCounts.begin(); jbx!=L1GctCounts.end(); jbx++) {
-      l1hfTowerCountPositiveEta = (int)(* jbx).hfTowerCountPositiveEta();
-      l1hfTowerCountNegativeEta = (int)(* jbx).hfTowerCountNegativeEta();
-      l1hfRing0EtSumPositiveEta = (int)(* jbx).hfRing0EtSumPositiveEta();
-      l1hfRing0EtSumNegativeEta = (int)(* jbx).hfRing0EtSumNegativeEta();
-      l1hfRing1EtSumPositiveEta = (int)(* jbx).hfRing1EtSumPositiveEta();
-      l1hfRing1EtSumNegativeEta = (int)(* jbx).hfRing1EtSumNegativeEta();
-    }
+    l1hfTowerCountPositiveEta = (int)L1GctCounts.hfTowerCountPositiveEta();
+    l1hfTowerCountNegativeEta = (int)L1GctCounts.hfTowerCountNegativeEta();
+    l1hfRing0EtSumPositiveEta = (int)L1GctCounts.hfRing0EtSumPositiveEta();
+    l1hfRing0EtSumNegativeEta = (int)L1GctCounts.hfRing0EtSumNegativeEta();
+    l1hfRing1EtSumPositiveEta = (int)L1GctCounts.hfRing1EtSumPositiveEta();
+    l1hfRing1EtSumNegativeEta = (int)L1GctCounts.hfRing1EtSumNegativeEta();
   } else {
     if (_Debug) std::cout << "%HLTInfo -- No L1 GctJetCounts" << std::endl;
   }

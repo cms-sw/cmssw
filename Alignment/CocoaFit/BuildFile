@@ -6,16 +6,6 @@
  <use name=CLHEP>
  <use name=meschach>
 
-<use name=FWCore/Framework>
-<use name=FWCore/ParameterSet>
-<use name=CondFormats/OptAlignObjects>
-<use name=CondFormats/DataRecord>
-<use name=CondFormats/Alignment>
-<use name=CondFormats/AlignmentRecord>
-<use name=CondCore/DBCommon>
-<use name=CondCore/DBOutputService>
-
-
 <export>
  <lib name=AlignmentCocoaFit>
  <use name=Alignment/CocoaUtilities> 

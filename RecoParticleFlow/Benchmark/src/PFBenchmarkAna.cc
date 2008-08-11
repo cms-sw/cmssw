@@ -6,139 +6,140 @@
 
 // preprocessor macro for booking 1d histos with DQMStore -or- bare Root
 #define BOOK1D(name,title,nbinsx,lowx,highx) \
-  h##name = DQM ? DQM->book1D(#name,title,nbinsx,lowx,highx)->getTH1F() \
-    : new TH1F(#name,title,nbinsx,lowx,highx)
+  h##name = DQM ? DQM->book1D(#name,#title,nbinsx,lowx,highx)->getTH1F() \
+    : new TH1F(#name,#title,nbinsx,lowx,highx)
 
 // preprocessor macro for booking 2d histos with DQMStore -or- bare Root
 #define BOOK2D(name,title,nbinsx,lowx,highx,nbinsy,lowy,highy) \
-  h##name = DQM ? DQM->book2D(#name,title,nbinsx,lowx,highx,nbinsy,lowy,highy)->getTH2F() \
-    : new TH2F(#name,title,nbinsx,lowx,highx,nbinsy,lowy,highy)
+  h##name = DQM ? DQM->book2D(#name,#title,nbinsx,lowx,highx,nbinsy,lowy,highy)->getTH2F() \
+    : new TH2F(#name,#title,nbinsx,lowx,highx,nbinsy,lowy,highy)
 
+/*
+// CMSSW_1_X_X
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/CoreROOT/interface/CollateMERoot.h"
 
+// preprocessor macro for booking 1d histos with DaqMonitorBEInterface -or- bare Root
+#define BOOK1D(name,title,nbinsx,lowx,highx) \
+  if (DQM) { \
+    MonitorElement *me = DQM->book1D(#name,#title,nbinsx,lowx,highx); \
+    MonitorElementT<TNamed> *ob = dynamic_cast<MonitorElementT<TNamed>* >(me); \
+    if (ob) h##name = dynamic_cast<TH1F *>(ob->operator->()); \
+  } else h##name = new TH1F(#name,#title,nbinsx,lowx,highx)
 
-
-
+// preprocessor macro for booking 2d histos with DaqMonitorBEInterface -or- bare Root
+#define BOOK2D(name,title,nbinsx,lowx,highx,nbinsy,lowy,highy) \
+  if (DQM) { \
+    MonitorElement *me = DQM->book2D(#name,#title,nbinsx,lowx,highx,nbinsy,lowy,highy); \
+    MonitorElementT<TNamed> *ob = dynamic_cast<MonitorElementT<TNamed>* >(me); \
+    if (ob) h##name = dynamic_cast<TH2F *>(ob->operator->()); \
+  } else h##name = new TH2F(#name,#title,nbinsx,lowx,highx,nbinsy,lowy,highy)
+*/
 
 // all versions OK
 // preprocesor macro for setting axis titles
-
 #define SETAXES(name,xtitle,ytitle) \
   h##name->GetXaxis()->SetTitle(xtitle); h##name->GetYaxis()->SetTitle(ytitle)
-
-#define ET (PlotAgainstReco_)?"reconstructed E_{T}":"generated E_{T}"
-#define ETA (PlotAgainstReco_)?"reconstructed #eta":"generated #eta"
-#define PHI (PlotAgainstReco_)?"reconstructed #phi":"generated #phi"
-
-
 
 PFBenchmarkAna::PFBenchmarkAna() {}
 
 PFBenchmarkAna::~PFBenchmarkAna() {}
 
-void PFBenchmarkAna::setup(DQMStore *DQM, bool PlotAgainstReco_) { 
+void PFBenchmarkAna::setup(DQMStore *DQM) { // CMSSW_2_X_X
+//void PFBenchmarkAna::setup(DaqMonitorBEInterface *DQM) { // CMSSW_1_X_X
 
-  // CMSSW_2_X_X
   // use bare Root if no DQM (FWLite applications)
   if (!DQM) file_ = new TFile();
 
   // Book Histograms
 
   // delta et quantities
-  BOOK1D(DeltaEt,"#DeltaE_{T}",1000,-60,40);
-  BOOK2D(DeltaEtvsEt,"#DeltaE_{T} vs E_{T}",1000,0,1000,1000,-100,100);
-  BOOK2D(DeltaEtOverEtvsEt,"#DeltaE_{T}/E_{T} vsE_{T}",1000,0,1000,100,-1,1);
-  BOOK2D(DeltaEtvsEta,"#DeltaE_{T} vs #eta",200,-5,5,1000,-100,100);
-  BOOK2D(DeltaEtOverEtvsEta,"#DeltaE_{T}/E_{T} vs #eta",200,-5,5,100,-1,1);
-  BOOK2D(DeltaEtvsPhi,"#DeltaE_{T} vs #phi",200,-M_PI,M_PI,1000,-100,100);
-  BOOK2D(DeltaEtOverEtvsPhi,"#DeltaE_{T}/E_{T} vs #Phi",200,-M_PI,M_PI,100,-1,1);
-  BOOK2D(DeltaEtvsDeltaR,"#DeltaE_{T} vs #DeltaR",100,0,1,1000,-100,100);
-  BOOK2D(DeltaEtOverEtvsDeltaR,"#DeltaE_{T}/E_{T} vs #DeltaR",100,0,1,100,-1,1);
+  BOOK1D(DeltaEt,DeltaEt,1000,-100,100);
+  BOOK2D(DeltaEtvsEt,DeltaEtvsEt,1000,0,1000,1000,-100,100);
+  BOOK2D(DeltaEtOverEtvsEt,DeltaEtOverEtvsEt,1000,0,1000,100,-1,1);
+  BOOK2D(DeltaEtvsEta,DeltaEtvsEta,200,-5,5,1000,-100,100);
+  BOOK2D(DeltaEtOverEtvsEta,DeltaEtOverEtvsEta,200,-5,5,100,-1,1);
+  BOOK2D(DeltaEtvsPhi,DeltaEtvsPhi,200,-M_PI,M_PI,1000,-100,100);
+  BOOK2D(DeltaEtOverEtvsPhi,DeltaEtOverEtvsPhi,200,-M_PI,M_PI,100,-1,1);
+  BOOK2D(DeltaEtvsDeltaR,DeltaEtvsDeltaR,100,0,1,1000,-100,100);
+  BOOK2D(DeltaEtOverEtvsDeltaR,DeltaEtOverEtvsDeltaR,100,0,1,100,-1,1);
 
   // delta eta quantities
-  BOOK1D(DeltaEta,"#Delta#eta",100,-0.2,0.2);
-  BOOK2D(DeltaEtavsEt,"#Delta#eta vs E_{T}",1000,0,1000,100,-3,3);
-  BOOK2D(DeltaEtaOverEtavsEt,"#Delta#eta/#eta vs E_(T}",1000,0,1000,100,-1,1); // ms: propose remove
-  BOOK2D(DeltaEtavsEta,"#Delta#eta vs #eta",200,-5,5,100,-3,3);
-  BOOK2D(DeltaEtaOverEtavsEta,"EDelta#eta/#eta vs #eta",200,-5,5,100,-1,1); // ms: propose remove
-  BOOK2D(DeltaEtavsPhi,"#Delta#eta vs #phi",200,-M_PI,M_PI,200,-M_PI,M_PI); // ms: propose remove
-  BOOK2D(DeltaEtaOverEtavsPhi,"#Delta#eta/#eta vs #phi",200,-M_PI,M_PI,100,-1,1); // ms: propose remove
+  BOOK1D(DeltaEta,DeltaEta,100,-3,3);
+  BOOK2D(DeltaEtavsEt,DeltaEtavsEt,1000,0,1000,100,-3,3);
+  BOOK2D(DeltaEtaOverEtavsEt,DeltaEtaOverEtavsEt,1000,0,1000,100,-1,1); // ms: propose remove
+  BOOK2D(DeltaEtavsEta,DeltaEtavsEta,200,-5,5,100,-3,3);
+  BOOK2D(DeltaEtaOverEtavsEta,DeltaEtaOverEtvsEta,200,-5,5,100,-1,1); // ms: propose remove
+  BOOK2D(DeltaEtavsPhi,DeltaEtavsPhi,200,-M_PI,M_PI,200,-M_PI,M_PI); // ms: propose remove
+  BOOK2D(DeltaEtaOverEtavsPhi,DeltaEtaOverEtavsPhi,200,-M_PI,M_PI,100,-1,1); // ms: propose remove
 
   // delta phi quantities
-  BOOK1D(DeltaPhi,"#Delta#phi",100,-0.2,0.2);
-  BOOK2D(DeltaPhivsEt,"#Delta#phi vs E_{T}",1000,0,1000,100,-M_PI_2,M_PI_2);
-  BOOK2D(DeltaPhiOverPhivsEt,"#Delta#phi/#phi vs E_{T}",1000,0,1000,100,-1,1); // ms: propose remove
-  BOOK2D(DeltaPhivsEta,"#Delta#phi vs #eta",200,-5,5,100,-M_PI_2,M_PI_2);
-  BOOK2D(DeltaPhiOverPhivsEta,"#Delta#phi/#phi vs #eta",200,-5,5,100,-1,1); // ms: propose remove
-  BOOK2D(DeltaPhivsPhi,"#Delta#phi vs #phi",200,-M_PI,M_PI,200,-M_PI,M_PI); // ms: propose remove
-  BOOK2D(DeltaPhiOverPhivsPhi,"#Delta#phi/#phi vs #phi",200,-M_PI,M_PI,100,-1,1); // ms: propose remove
+  BOOK1D(DeltaPhi,DeltaPhi,100,-M_PI_2,M_PI_2);
+  BOOK2D(DeltaPhivsEt,DeltaPhivsEt,1000,0,1000,100,-M_PI_2,M_PI_2);
+  BOOK2D(DeltaPhiOverPhivsEt,DeltaPhiOverPhivsEt,1000,0,1000,100,-1,1); // ms: propose remove
+  BOOK2D(DeltaPhivsEta,DeltaPhivsEta,200,-5,5,100,-M_PI_2,M_PI_2);
+  BOOK2D(DeltaPhiOverPhivsEta,DeltaPhiOverPhivsEta,200,-5,5,100,-1,1); // ms: propose remove
+  BOOK2D(DeltaPhivsPhi,DeltaPhivsPhi,200,-M_PI,M_PI,200,-M_PI,M_PI); // ms: propose remove
+  BOOK2D(DeltaPhiOverPhivsPhi,DeltaPhiOverPhivsPhi,200,-M_PI,M_PI,100,-1,1); // ms: propose remove
 
   // delta R quantities
-  BOOK1D(DeltaR,"#DeltaR",100,0,1);
-  BOOK2D(DeltaRvsEt,"#DeltaR vs E_{T}",1000,0,1000,100,0,1);
-  BOOK2D(DeltaRvsEta,"#DeltaR vs #eta",200,-5,5,100,0,1);
-  BOOK2D(DeltaRvsPhi,"#DeltaR vs #phi",200,-M_PI,M_PI,100,0,1); // ms: propose remove
+  BOOK1D(DeltaR,DeltaR,100,0,1);
+  BOOK2D(DeltaRvsEt,DeltaRvsEt,1000,0,1000,100,0,1);
+  BOOK2D(DeltaRvsEta,DeltaRvsEta,200,-5,5,100,0,1);
+  BOOK2D(DeltaRvsPhi,DeltaRvsPhi,200,-M_PI,M_PI,100,0,1); // ms: propose remove
 
   // number of truth particles found within given cone radius of reco
   //BOOK2D(NumInConeVsConeSize,NumInConeVsConeSize,100,0,1,25,0,25);
 
   // Set Axis Titles
- 
+
   // delta et quantities
-  SETAXES(DeltaEt,"#DeltaE_{T}","Events");
-  SETAXES(DeltaEtvsEt,ET,"#DeltaE_{T}");
-  SETAXES(DeltaEtOverEtvsEt,ET,"#DeltaE_{T}/E_{T}");
-  SETAXES(DeltaEtvsEta,ETA,"#DeltaE_{T}");
-  SETAXES(DeltaEtOverEtvsEta,ETA,"#DeltaE_{T}/E_{T}");
-  SETAXES(DeltaEtvsPhi,PHI,"#DeltaE_{T}");
-  SETAXES(DeltaEtOverEtvsPhi,PHI,"#DeltaE_{T}/E_{T}");
-  SETAXES(DeltaEtvsDeltaR,"#DeltaR","#DeltaE_{T}");
-  SETAXES(DeltaEtOverEtvsDeltaR,"#DeltaR","#DeltaE_{T}/E_{T}");
+  SETAXES(DeltaEt,"#DeltaEt","Events");
+  SETAXES(DeltaEtvsEt,"Et","#DeltaEt");
+  SETAXES(DeltaEtOverEtvsEt,"Et","#DeltaEt/Et");
+  SETAXES(DeltaEtvsEta,"Eta","#DeltaEt");
+  SETAXES(DeltaEtOverEtvsEta,"Eta","#DeltaEt/Et");
+  SETAXES(DeltaEtvsPhi,"Phi","#DeltaEt");
+  SETAXES(DeltaEtOverEtvsPhi,"Phi","#DeltaEt/Et");
+  SETAXES(DeltaEtvsDeltaR,"#DeltaR","#DeltaEt");
+  SETAXES(DeltaEtOverEtvsDeltaR,"#DeltaR","#DeltaEt/Et");
 
   // delta eta quantities
-  SETAXES(DeltaEta,"#Delta#eta","Events");
-  SETAXES(DeltaEtavsEt,ET,"#Delta#eta");
-  SETAXES(DeltaEtavsEta,ETA,"#Delta#eta");
-  SETAXES(DeltaEtaOverEtavsEt,ET,"#Delta#eta/#eta");
-  SETAXES(DeltaEtaOverEtavsEta,ETA,"#Delta#eta/#eta");
-  SETAXES(DeltaEtavsPhi,PHI,"#Delta#eta");
-  SETAXES(DeltaEtaOverEtavsPhi,PHI,"#Delta#eta/#eta");
+  SETAXES(DeltaEta,"#DeltaEta","Events");
+  SETAXES(DeltaEtavsEt,"Et","#DeltaEta");
+  SETAXES(DeltaEtavsEta,"Eta","#DeltaEta");
+  SETAXES(DeltaEtaOverEtavsEt,"Et","#DeltaEta/Eta");
+  SETAXES(DeltaEtaOverEtavsEta,"Eta","#DeltaEta/Eta");
+  SETAXES(DeltaEtavsPhi,"Phi","#DeltaEta");
+  SETAXES(DeltaEtaOverEtavsPhi,"Phi","#DeltaEta/Eta");
 
   // delta phi quantities
-  SETAXES(DeltaPhi,"#Delta#phi","Events");
-  SETAXES(DeltaPhivsEt,ET,"#Delta#phi");
-  SETAXES(DeltaPhivsEta,ETA,"#Delta#phi");
-  SETAXES(DeltaPhiOverPhivsEt,ET,"#Delta#phi/#phi");
-  SETAXES(DeltaPhiOverPhivsEta,ETA,"#Delta#phi/#phi");
-  SETAXES(DeltaPhivsPhi,PHI,"#Delta#phi");
-  SETAXES(DeltaPhiOverPhivsPhi,PHI,"#Delta#phi/#phi");
+  SETAXES(DeltaPhi,"#DeltaPhi","Events");
+  SETAXES(DeltaPhivsEt,"Et","#DeltaPhi");
+  SETAXES(DeltaPhivsEta,"Eta","#DeltaPhi");
+  SETAXES(DeltaPhiOverPhivsEt,"Et","#DeltaPhi/Phi");
+  SETAXES(DeltaPhiOverPhivsEta,"Eta","#DeltaPhi/Phi");
+  SETAXES(DeltaPhivsPhi,"Phi","#DeltaEta");
+  SETAXES(DeltaPhiOverPhivsPhi,"Phi","#DeltaPhi/Phi");
 
   // delta R quantities
   SETAXES(DeltaR,"#DeltaR","Events");
-  SETAXES(DeltaRvsEt,ET,"#DeltaR");
-  SETAXES(DeltaRvsEta,ETA,"#DeltaR");
-  SETAXES(DeltaRvsPhi,PHI,"#DeltaR");
+  SETAXES(DeltaRvsEt,"Et","#DeltaR");
+  SETAXES(DeltaRvsEta,"Eta","#DeltaR");
+  SETAXES(DeltaRvsPhi,"Phi","#DeltaR");
   
 }
 
 
-void PFBenchmarkAna::fill(const edm::View<reco::Candidate> *RecoCollection, const edm::View<reco::Candidate> *GenCollection, bool PlotAgainstReco, double recPt_cut, double maxEta_cut) {
+void PFBenchmarkAna::fill(const edm::View<reco::Candidate> *RecoCollection, const edm::View<reco::Candidate> *GenCollection, bool PlotAgainstReco) {
 
   // loop over reco particles
   for (unsigned int i = 0; i < RecoCollection->size(); i++) {
-    
+
     // generate histograms comparing the reco and truth candidate (truth = closest in delta-R)
     const reco::Candidate *particle = &(*RecoCollection)[i];
     const reco::Candidate *gen_particle = algo_->matchByDeltaR(particle,GenCollection);
-
-   if  ((particle!=NULL) &&  (gen_particle!=NULL)){
-      //   std::cout << RecoCollection->size() << " " << GenCollection->size() <<particle  <<gen_particle << std::endl;   
-
-    //skip reconstructed PFJets with p_t < recPt_cut
-    if (particle->pt() < recPt_cut and recPt_cut != -1.)
-      continue;
-    //skip if PFJet within eta>maxEta_cut
-    if (fabs(particle->eta())>maxEta_cut and maxEta_cut != -1.)
-      continue;
 
     // get the quantities to place on the denominator and/or divide by
     double et, eta, phi;
@@ -150,9 +151,7 @@ void PFBenchmarkAna::fill(const edm::View<reco::Candidate> *RecoCollection, cons
     double deltaR = algo_->deltaR(particle,gen_particle);
     double deltaEta = algo_->deltaEta(particle,gen_particle);
     double deltaPhi = algo_->deltaPhi(particle,gen_particle);
-   
-    //TODO implement variable Cut:
-    // if (deltaR > 0.5) {
+    
     // fill histograms
     hDeltaEt->Fill(deltaEt);
     hDeltaEtvsEt->Fill(et,deltaEt);
@@ -183,7 +182,7 @@ void PFBenchmarkAna::fill(const edm::View<reco::Candidate> *RecoCollection, cons
     hDeltaR->Fill(deltaR);
     hDeltaRvsEt->Fill(et,deltaR);
     hDeltaRvsEta->Fill(eta,deltaR);
-   }
+
   }
 
 }

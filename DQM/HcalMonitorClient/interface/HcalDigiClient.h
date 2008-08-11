@@ -88,24 +88,7 @@ private:
 
   TH2F* ProblemDigiCells;
   TH2F* ProblemDigiCells_DEPTH[4];
-  
-  TH2F* ProblemDigiCellsHB;
-  TH2F* ProblemDigiCellsHE;
-  TH2F* ProblemDigiCellsHO;
-  TH2F* ProblemDigiCellsHF;
-  
-  TH2F* ProblemDigiCellsHB_DEPTH[4];
-  TH2F* ProblemDigiCellsHE_DEPTH[4];
-  TH2F* ProblemDigiCellsHO_DEPTH[4];
-  TH2F* ProblemDigiCellsHF_DEPTH[4];
-  
   double errorFrac_;
-
-  TH2F* RawPedestalMean[4];
-  TH2F* RawPedestalRMS[4];
-  TH2F* SubPedestalMean[4]; 
-  TH2F* SubPedestalRMS[4]; 
- 
 };
 
 #endif

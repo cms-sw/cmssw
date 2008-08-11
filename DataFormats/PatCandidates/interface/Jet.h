@@ -1,5 +1,5 @@
 //
-// $Id: Jet.h,v 1.22 2008/07/08 20:56:48 gpetrucc Exp $
+// $Id: Jet.h,v 1.21 2008/06/20 07:46:37 fronga Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Jet_h
@@ -13,7 +13,7 @@
    'pat' namespace
 
   \author   Steven Lowette
-  \version  $Id: Jet.h,v 1.22 2008/07/08 20:56:48 gpetrucc Exp $
+  \version  $Id: Jet.h,v 1.21 2008/06/20 07:46:37 fronga Exp $
 */
 
 
@@ -141,7 +141,7 @@ namespace pat {
       /// method to set the resolutions under the assumption this is a b-jet
       void setBResolutions(float bResEt_, float bResEta_, float bResPhi_, float bResA_, float bResB_, float bResC_, float bResD_, float bResTheta_);
       /// method to add a algolabel-discriminator pair
-      void addBDiscriminatorPair(const std::pair<std::string, float> & thePair);
+      void addBDiscriminatorPair(std::pair<std::string, float> & thePair);
 
       /// method to set the jet charge
       void setJetCharge(float jetCharge);

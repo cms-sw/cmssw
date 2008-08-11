@@ -11,10 +11,7 @@ int main () {
     HPDNoiseReader::Handle handle = reader.getHandle (names[i]);
     std::cout << "name/valid: " << names[i] << '/' << reader.valid (handle) << std::endl;
     if (reader.valid (handle)) {
-      std::cout << "   discharge rate: " << reader.dischargeRate (handle);
-      std::cout << "   ionfeedback first peak rate: " << reader.ionFeedbackFirstPeakRate(handle);
-      std::cout << "   ionfeedback second peak rate: " << reader.ionFeedbackSecondPeakRate(handle);
-      std::cout << "   thermal/field emission rate: " << reader.emissionRate (handle);
+      std::cout << "   rate: " << reader.rate (handle);
       std::cout << "   entries: " << reader.totalEntries (handle) << std::endl;
       for (unsigned long ievt = 0; ievt < 5; ++ievt) {
 	HPDNoiseData* data;

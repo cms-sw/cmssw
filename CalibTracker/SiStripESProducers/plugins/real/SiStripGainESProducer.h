@@ -15,7 +15,7 @@
 //
 // Original Author:  Giacomo Bruno
 //         Created:  Fri Apr 27 12:31:25 CEST 2007
-// $Id: SiStripGainESProducer.h,v 1.1 2008/02/06 17:04:19 bainbrid Exp $
+// $Id: SiStripGainESProducer.h,v 1.1 2007/10/11 12:52:55 giordano Exp $
 //
 //
 
@@ -40,7 +40,7 @@
 class SiStripGainESProducer : public edm::ESProducer {
 
    public:
-      SiStripGainESProducer(const edm::ParameterSet & iConfig);
+      SiStripGainESProducer(const edm::ParameterSet &);
       ~SiStripGainESProducer();
 
   //      typedef edm::ESProducts<> ReturnType;
@@ -50,8 +50,6 @@ class SiStripGainESProducer : public edm::ESProducer {
    private:
       // ----------member data ---------------------------
 
- 
-  std::string apvgain_;
   double norm_;
   bool automaticMode_;
   bool  printdebug_;

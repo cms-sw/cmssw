@@ -22,8 +22,6 @@
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h" 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "FastSimulation/BaseParticlePropagator/interface/BaseParticlePropagator.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include <fstream>
 #include <string>
 #include "TMath.h"
@@ -203,10 +201,9 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 						  Tk[i].outerPosition().y(),
 						  Tk[i].outerPosition().z(),
 						  0.);
-
       BaseParticlePropagator theOutParticle = 
 	BaseParticlePropagator( RawParticle(mom,pos),
-				0,0,B_.z());
+				0.,0.,4.);
       theOutParticle.setCharge(Tk[i].charge());
       
       theOutParticle.propagateToEcalEntrance(false);
@@ -446,12 +443,9 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 void 
 GoodSeedProducer::beginJob(const EventSetup& es)
 {
-  //Magnetic Field
-  ESHandle<MagneticField> magneticField;
-  es.get<IdealMagneticFieldRecord>().get(magneticField);
-  B_=magneticField->inTesla(GlobalPoint(0,0,0));
-  
-  pfTransformer_= new PFTrackTransformer(B_);
+
+
+  pfTransformer_= new PFTrackTransformer();
 
 
 
@@ -517,7 +511,7 @@ int GoodSeedProducer::getBin(float eta, float pt){
 void GoodSeedProducer::PSforTMVA(XYZTLorentzVector mom,XYZTLorentzVector pos ){
 
   BaseParticlePropagator OutParticle(RawParticle(mom,pos)
-				     ,0.,0.,B_.z()) ;
+				     ,0.,0.,4.) ;
 
   OutParticle.propagateToPreshowerLayer1(false);
   if (OutParticle.getSuccess()!=0){

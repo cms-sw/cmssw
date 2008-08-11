@@ -81,9 +81,6 @@ class HcalDataFormatClient : public HcalBaseClient {
   TProfile* EvFragSize_;
   TH2F* EvFragSize2_;
 
-  TH1F* Num_Frags_by_FED_;
-  TH1F* FED_Frag_Sizes_;
-
   TH2F* ErrCrate0_;
   TH2F* ErrCrate1_;
   TH2F* ErrCrate2_;

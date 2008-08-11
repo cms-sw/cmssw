@@ -4,7 +4,7 @@ esRawToDigi = cms.EDFilter("ESRawToDigi",
     debugMode = cms.untracked.bool(False),
     InstanceES = cms.string(''),
     ESdigiCollection = cms.string(''),
-    Label = cms.string('source')
+    sourceTag = cms.InputTag('source')
 )
 
 

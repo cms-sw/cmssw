@@ -1,15 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
 triggerTest = cms.EDFilter("DTLocalTriggerTest",
-    # prescale factor (in luminosity blocks) to perform client analysis
+    runningStandalone = cms.untracked.bool(True),
     diagnosticPrescale = cms.untracked.int32(1),
-    # kind of trigger data processed by DTLocalTriggerTask
-    hwSources = cms.untracked.vstring('DCC', 
-        'DDU'),
-    # false if DTLocalTriggerTask used LTC digis
-    localrun = cms.untracked.bool(True),
-    # root folder for booking of histograms
-    folderRoot = cms.untracked.string('')
+    folderRoot = cms.untracked.string(''),
+    dataFromDDU = cms.untracked.bool(True)
 )
 
 

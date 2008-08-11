@@ -1,8 +1,8 @@
 #!/usr/local/bin/perl
 #     R. Mankel, DESY Hamburg     03-Jul-2007
 #     A. Parenti, DESY Hamburg    24-Apr-2008
-#     $Revision: 1.12 $
-#     $Date: 2008/06/02 22:10:21 $
+#     $Revision: 1.8 $
+#     $Date: 2008/05/20 17:10:29 $
 #
 #  produce cfg file for merging run
 #
@@ -94,8 +94,7 @@ unless (-d $mergeDir) {
 $replaceBlock = "";
 
 # change name of log file
-# not anymore: there cannot be '.' in python names and it is not needed anyway
-# $nn = ($body =~ s/alignment\.log/alignment\_merge\.log/g);
+$nn = ($body =~ s/alignment\.log/alignment\_merge\.log/g);
 ## print "alignment.log nn= $nn\n";
 
 # replace "save to DB" directives
