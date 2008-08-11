@@ -4,6 +4,10 @@
 #include <algorithm>
 using namespace reco;
 
+// To be kept in synch with the enumerator definitions in TrackBase.h file
+std::string const TrackBase::algoNames[] = { "undefAlgorithm", "ctf", "rs", "cosmics", "beamhalo", "iter1", "iter2","iter3"};
+std::string const TrackBase::qualityNames[] = { "loose", "tight", "highPurity", "confirmed", "goodIterative"};
+
 TrackBase::TrackBase() :
   chi2_(0), ndof_(0), vertex_(0,0,0), momentum_(0,0,0), charge_(0), algorithm_(undefAlgorithm), quality_(0) {
   index idx = 0;
@@ -31,13 +35,21 @@ TrackBase::CovarianceMatrix & TrackBase::fill( CovarianceMatrix & v ) const {
 }
 
 TrackBase::TrackQuality TrackBase::qualityByName(const std::string &name){
-  if (name ==  "loose")    return loose;
-  else if (name ==  "tight")    return tight;
-  else if (name ==  "highPurity")    return highPurity;
-  else if (name ==  "confirmed")    return confirmed;
-  else if (name ==  "goodIterative")    return goodIterative;
-  else if (name ==  "undefQuality")  return undefQuality;
-  else return undefQuality; // better this or throw() ?
+  TrackQuality size = qualitySize;
+  int index = std::find(qualityNames, qualityNames+size, name)-qualityNames;
+  if(index == size) return undefQuality; // better this or throw() ?
+
+  // cast
+  return TrackQuality(index);
+}
+
+TrackBase::TrackAlgorithm TrackBase::algoByName(const std::string &name){
+  TrackAlgorithm size = algoSize;
+  int index = std::find(algoNames, algoNames+size, name)-algoNames;
+  if(index == size) return undefAlgorithm; // better this or throw() ?
+
+  // cast
+  return TrackAlgorithm(index);
 }
 
 

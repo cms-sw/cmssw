@@ -46,7 +46,7 @@
  * 
  * \author Thomas Speer, Luca Lista, Pascal Vanlaer, Juan Alcaraz
  *
- * \version $Id: TrackBase.h,v 1.66 2008/05/19 20:26:55 burkett Exp $
+ * \version $Id: TrackBase.h,v 1.67 2008/06/14 17:38:26 burkett Exp $
  *
  */
 
@@ -78,11 +78,13 @@ namespace reco {
     /// index type
     typedef unsigned int index;
     /// track algorithm
-    enum TrackAlgorithm { undefAlgorithm=0, ctf=1, rs=2, cosmics=3, beamhalo=4, iter1=5, iter2=6, iter3=7 };
+    enum TrackAlgorithm { undefAlgorithm=0, ctf=1, rs=2, cosmics=3, beamhalo=4, iter1=5, iter2=6, iter3=7, algoSize=8 };
+    static const std::string algoNames[];
+
     /// track quality
-      enum TrackQuality { undefQuality=-1, loose=0, tight=1, highPurity=2 ,
-			  confirmed=3, goodIterative=4};
-    
+    enum TrackQuality { undefQuality=-1, loose=0, tight=1, highPurity=2, confirmed=3, goodIterative=4, qualitySize=5};
+    static const std::string qualityNames[];
+
     /// default constructor
     TrackBase();
     /// constructor from fit parameters and error matrix
@@ -220,11 +222,16 @@ namespace reco {
     void setAlgorithm(const TrackAlgorithm a, bool set=true) { if (set) algorithm_=a; else algorithm_=undefAlgorithm;}
     TrackAlgorithm algo() const ;
     std::string algoName() const;
+    static std::string algoName(TrackAlgorithm);
+    static TrackAlgorithm algoByName(const std::string &name);
+
     ///Track quality
     bool quality(const TrackQuality ) const;
     void setQuality(const TrackQuality, bool set=true); 
     static std::string qualityName(TrackQuality);
     static TrackQuality qualityByName(const std::string &name);
+
+
     int qualityMask() const { return quality_; }
     void setQualityMask(int qualMask) {quality_ = qualMask;}
   private:
@@ -255,10 +262,14 @@ namespace reco {
   }
 
   inline TrackBase::TrackAlgorithm TrackBase::algo() const {
-    return (TrackBase::TrackAlgorithm) algorithm_;
+    return (TrackAlgorithm) algorithm_;
   }
 
   inline std::string TrackBase::algoName() const{
+    // I'd like to do:
+    // return TrackBase::algoName(algorithm_);
+    // but I cannot define a const static function. Why???
+
     switch(algorithm_)
       {
       case undefAlgorithm: return "undefAlgorithm";
@@ -302,18 +313,16 @@ namespace reco {
     }
   }
 
-  inline std::string TrackBase::qualityName(TrackQuality q){
-    switch(q)
-      {
-      case undefQuality:      return "undefQuality";
-      case loose:             return "loose";
-      case tight:             return "tight";
-      case highPurity:        return "highPurity";
-      case confirmed:         return "confirmed";
-      case goodIterative:     return "goodIterative";
-      }
+  inline std::string TrackBase::qualityName(TrackQuality q) {
+    if(int(q) < int(qualitySize) && int(q)>=0) return qualityNames[int(q)];
     return "undefQuality";
   }
+
+  inline std::string TrackBase::algoName(TrackAlgorithm a){
+    if(int(a) < int(algoSize) && int(a)>0) return algoNames[int(a)];
+    return "undefAlgorithm";
+  }
+
 
 
 }
