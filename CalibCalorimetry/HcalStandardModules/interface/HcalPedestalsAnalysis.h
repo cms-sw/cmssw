@@ -55,6 +55,7 @@ namespace edm {
 
    struct NewPedBunch
    {
+      HcalGenericDetId genid;
       HcalDetId detid;
       HcalZDCDetId zdcid;
       bool usedflag;
@@ -108,6 +109,11 @@ class HcalPedestalsAnalysis : public edm::EDAnalyzer
 
    TFile *theFile;
    bool firsttime;
+
+   HcalPedestals* rawPedsItem;
+   HcalPedestalWidths* rawWidthsItem;
+   HcalPedestals* rawPedsItemfc;
+   HcalPedestalWidths* rawWidthsItemfc;
 };
 #endif
 
