@@ -49,7 +49,7 @@ class AlignmentMonitorMuonHIP: public AlignmentMonitorBase {
       ~AlignmentMonitorMuonHIP() {};
 
       void book();
-      void event(const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection& iTrajTracks);
+      void event(const edm::Event &iEvent, const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection& iTrajTracks);
       void afterAlignment(const edm::EventSetup &iSetup);
 
    private:
@@ -742,7 +742,7 @@ void AlignmentMonitorMuonHIP::bookByAli(const char *level, const int rawid, cons
 // event()
 //////////////////////////////////////////////////////////////////////
 
-void AlignmentMonitorMuonHIP::event(const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection& tracks) {
+void AlignmentMonitorMuonHIP::event(const edm::Event &iEvent, const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection& tracks) {
    TrajectoryStateCombiner tsoscomb;
 
    for (ConstTrajTrackPairCollection::const_iterator it = tracks.begin();  it != tracks.end();  ++it) {
