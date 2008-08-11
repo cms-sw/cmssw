@@ -211,7 +211,7 @@ Double_t FitFun(Double_t *x, Double_t *par) {
   else sum += C1*A1*TMath::Exp(0.5*k1*k1-k1*r1);
 
   mean2 = 2*par[3]+par[1];
-  sigma2 = sqrt(2*sigma1*sigma1 - par[2]*par[2]);
+  sigma2 = sqrt(2*sigma1*sigma1 - pow(par[2],2));
   //A2 = A0*par[5]*par[0]*par[0]/2;
   A2 = A0*par[0]*par[0]/2;
   C2 = 1/(sigma2* TMath::Exp(-k2*k2/2)/k2 +
@@ -221,7 +221,7 @@ Double_t FitFun(Double_t *x, Double_t *par) {
   else sum += C2*A2*TMath::Exp(0.5*k2*k2-k2*r2);
 
   mean3 = 3*par[3]+par[1];
-  sigma3 = sqrt(3*sigma1*sigma1 - 2*par[2]*par[2]);
+  sigma3 = sqrt(3*sigma1*sigma1 - 2*pow(par[2],2));
   A3 = A0*par[0]*par[0]*par[0]/6;
   C3 = 1/(sigma3*sqrt(2*3.14159));
   r3 = ((xx-mean3)/sigma3);
@@ -263,7 +263,7 @@ void HFLightCal::endJob(void)
   fprintf(tFile,"#eta/phi/depth  sum4maxTS     RMS      ~N_PE  sum4lowTS     RMS  maxTS  SPE +/- Err   Comment\n");
   TF1* fPed = new TF1("fPed","gaus",0,120);
   fPed->SetNpx(200);
-  TF1 *fTot = new TF1("fTot",FitFun ,0,200,4);
+  TF1 *fTot = new TF1("fTot",FitFun ,0,200,5);
   fTot->SetNpx(800);
   for (int i=0;i<26;i++) for (int j=0;j<36;j++) for (int k=0;k<2;k++) {
     if (i>10 && i<13 && j%2==0) continue;
