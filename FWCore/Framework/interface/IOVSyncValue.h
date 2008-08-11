@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Aug  3 18:35:24 EDT 2005
-// $Id: IOVSyncValue.h,v 1.5 2006/02/07 07:51:41 wmtan Exp $
+// $Id: IOVSyncValue.h,v 1.6 2007/03/04 06:00:22 wmtan Exp $
 //
 
 // system include files
@@ -24,6 +24,7 @@
 
 // user include files
 #include "DataFormats/Provenance/interface/EventID.h"
+#include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 
 // forward declarations
@@ -35,12 +36,13 @@ class IOVSyncValue
    public:
       IOVSyncValue();
       //virtual ~IOVSyncValue();
-      explicit IOVSyncValue(const EventID& iID);
+      explicit IOVSyncValue(const EventID& iID, LuminosityBlockNumber_t iLumi=0);
       explicit IOVSyncValue(const Timestamp& iTime);
-      IOVSyncValue(const EventID& iID, const Timestamp& iID);
+      IOVSyncValue(const EventID& iID, LuminosityBlockNumber_t iLumi, const Timestamp& iID);
 
       // ---------- const member functions ---------------------
       const EventID& eventID() const { return eventID_;}
+      LuminosityBlockNumber_t luminosityBlockNumber() const { return lumiID_;}
       const Timestamp& time() const {return time_; }
       
       bool operator==(const IOVSyncValue& iRHS) const {
@@ -78,8 +80,19 @@ class IOVSyncValue
          bool doOp(const IOVSyncValue& iRHS) const {
             bool returnValue = false;
             if(haveID_ && iRHS.haveID_) {
-               Op<EventID> op;
-               returnValue = op(eventID_, iRHS.eventID_);
+               if(lumiID_==0 || iRHS.lumiID_==0 || lumiID_==iRHS.lumiID_) {
+                  Op<EventID> op;
+                  returnValue = op(eventID_, iRHS.eventID_);
+               } else {
+                  if(iRHS.eventID_.run() == eventID_.run()) {
+                     Op<LuminosityBlockNumber_t> op;
+                     returnValue = op(lumiID_, iRHS.lumiID_);
+                  } else {
+                     Op<RunNumber_t> op;
+                     returnValue = op(eventID_.run(), iRHS.eventID_.run());
+                  }
+               }
+
             } else if (haveTime_ && iRHS.haveTime_) {
                Op<Timestamp> op;
                returnValue = op(time_, iRHS.time_);
@@ -91,6 +104,7 @@ class IOVSyncValue
          
       // ---------- member data --------------------------------
       EventID eventID_;
+      LuminosityBlockNumber_t lumiID_;
       Timestamp time_;
       bool haveID_;
       bool haveTime_;

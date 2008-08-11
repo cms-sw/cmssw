@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Aug  3 18:35:35 EDT 2005
-// $Id: IOVSyncValue.cc,v 1.4 2006/09/01 18:16:42 wmtan Exp $
+// $Id: IOVSyncValue.cc,v 1.5 2007/04/09 23:08:20 chrjones Exp $
 //
 
 // system include files
@@ -30,23 +30,23 @@ namespace edm {
 //
 // constructors and destructor
 //
-IOVSyncValue::IOVSyncValue(): eventID_(), time_(),
+IOVSyncValue::IOVSyncValue(): eventID_(), lumiID_(0), time_(),
 haveID_(true), haveTime_(true)
 {
 }
 
-IOVSyncValue::IOVSyncValue(const EventID& iID) : eventID_(iID), time_(),
+IOVSyncValue::IOVSyncValue(const EventID& iID, LuminosityBlockNumber_t iLumi) : eventID_(iID), lumiID_(iLumi), time_(),
 haveID_(true), haveTime_(false)
 {
 }
 
-IOVSyncValue::IOVSyncValue(const Timestamp& iTime) : eventID_(), time_(iTime),
+IOVSyncValue::IOVSyncValue(const Timestamp& iTime) : eventID_(), lumiID_(0),time_(iTime),
 haveID_(false), haveTime_(true)
 {
 }
 
-IOVSyncValue::IOVSyncValue(const EventID& iID, const Timestamp& iTime) :
-eventID_(iID), time_(iTime),
+IOVSyncValue::IOVSyncValue(const EventID& iID, LuminosityBlockNumber_t iLumi, const Timestamp& iTime) :
+eventID_(iID), lumiID_(iLumi), time_(iTime),
 haveID_(true), haveTime_(true)
 {
 }
@@ -91,12 +91,13 @@ IOVSyncValue::invalidIOVSyncValue() {
 const IOVSyncValue&
 IOVSyncValue::endOfTime() {
    static IOVSyncValue s_endOfTime(EventID(0xFFFFFFFFUL, EventID::maxEventNumber()),
+                                   LuminosityBlockID::maxLuminosityBlockNumber(),
                                    Timestamp::endOfTime());
    return s_endOfTime;
 }
 const IOVSyncValue&
 IOVSyncValue::beginOfTime() {
-   static IOVSyncValue s_beginOfTime(EventID(1,0), Timestamp::beginOfTime());
+   static IOVSyncValue s_beginOfTime(EventID(1,0), 0, Timestamp::beginOfTime());
    return s_beginOfTime;
 }
 }
