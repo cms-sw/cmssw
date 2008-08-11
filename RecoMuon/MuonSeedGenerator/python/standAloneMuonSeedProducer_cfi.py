@@ -3,10 +3,12 @@ import FWCore.ParameterSet.Config as cms
 # The new seed generator to be used in 2-X-X is MuonSeedProducer
 # to Uncomment for using the new seed generator
 from RecoMuon.TrackingTools.MuonServiceProxy_cff import *
-from RecoMuon.MuonSeedGenerator.ptSeedParameterization_38T_cfi import *
+from RecoMuon.MuonSeedGenerator.ptSeedParameterization_cfi import *
+from RecoMuon.MuonSeedGenerator.MuonSeedPtScale_cfi import *
 MuonSeed = cms.EDProducer("MuonSeedProducer",
     ptSeedParameterization,
     MuonServiceProxy,
+    dphiScale,
     # Parameters for seed creation in overlap region
     maxDeltaEtaOverlap = cms.double(0.08),
     # Flag for internal debugging
