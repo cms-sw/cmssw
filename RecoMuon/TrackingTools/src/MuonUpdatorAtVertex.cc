@@ -3,8 +3,8 @@
  *  method, the vertex constraint. The vertex constraint is applyed using the Kalman Filter tools used for 
  *  the vertex reconstruction.
  *
- *  $Date: 2008/08/05 16:06:43 $
- *  $Revision: 1.33 $
+ *  $Date: 2008/08/08 14:34:54 $
+ *  $Revision: 1.34 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -296,4 +296,9 @@ MuonUpdatorAtVertex::propagateWithUpdate(const TrajectoryStateOnSurface &tsos, c
   return pair<bool,FreeTrajectoryState>(false,FreeTrajectoryState());
 
    
+}
+
+std::pair<bool,FreeTrajectoryState>
+MuonUpdatorAtVertex::propagate(const TrajectoryStateOnSurface &tsos){
+  return propagateToNominalLine(tsos);
 }
