@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: cleanupEmu.sh,v 1.6 2008/07/23 21:36:40 loizides Exp $
+# $Id: cleanupEmu.sh,v 1.7 2008/07/25 11:27:10 loizides Exp $
 
 if test -e "/etc/profile.d/sm_env.sh"; then 
     source /etc/profile.d/sm_env.sh
@@ -28,7 +28,7 @@ if ! test -d "$EMUDIR"; then
 fi
  
 # lifetime in mins / 1 day = 1440
-LIFETIME90=90
+LIFETIME50=90
 LIFETIME30=360
 LIFETIME20=1440
 LIFETIME00=10080
@@ -44,12 +44,12 @@ for CUD in $( ls $EMUDIR | grep ^[0-9][0-9]$ ); do
 
     # find how full disk is to determine how much to delete
     LIFETIME=$(df | 
-        awk -v LIFETIME90="$LIFETIME90" \
+        awk -v LIFETIME50="$LIFETIME50" \
             -v LIFETIME30="$LIFETIME30" \
             -v LIFETIME20="$LIFETIME20" \
             -v LIFETIME00="$LIFETIME00" \
             -v pat="$mntpoint" \
-           '$0 ~ pat {if ($5 > 90) print LIFETIME90; \
+           '$0 ~ pat {if ($5 > 50) print LIFETIME50; \
                  else if ($5 > 30) print LIFETIME30; \
                  else if ($5 > 20) print LIFETIME20; \
                  else print LIFETIME00; }' )
