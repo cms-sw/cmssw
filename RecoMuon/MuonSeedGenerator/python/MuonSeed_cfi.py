@@ -1,7 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-# The new seed generator to be used in 2-X-X is MuonSeedProducer
-# to Uncomment for using the new seed generator
 from RecoMuon.TrackingTools.MuonServiceProxy_cff import *
 from RecoMuon.MuonSeedGenerator.ptSeedParameterization_cfi import *
 from RecoMuon.MuonSeedGenerator.MuonSeedPtScale_cfi import *
