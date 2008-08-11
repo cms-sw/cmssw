@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# last update: $Date: 2008/06/23 12:42:09 $ by $Author: futyand $
+# last update: $Date: 2008/07/01 13:32:35 $ by $Author: argiro $
 # Please update the sequence defined at the very end of this file
 # with any new/changed sequences
 # Tracker Alignment
@@ -49,6 +49,8 @@ from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalMinBias_cff import *
 #  include "Calibration/HcalAlCaRecoProducers/data/ALCARECOHcalCalZMuMu.cff"
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalHO_cff import *
 # Muon Alignment with cosmics
+from Alignment.CommonAlignmentProducer.ALCARECOMuAlStandAloneCosmics_cff import *
+from Alignment.CommonAlignmentProducer.ALCARECOMuAlGlobalCosmics_cff import *
 from Alignment.CommonAlignmentProducer.ALCARECOMuAlZeroFieldGlobalCosmics_cff import *
 # Muon calibration with minbias
 from Alignment.CommonAlignmentProducer.ALCARECOMuCaliMinBias_cff import *
@@ -101,5 +103,7 @@ pathALCARECOTkAlCosmicsRSHLT = cms.Path(seqALCARECOTkAlCosmicsRSHLT)
 pathALCARECOTkAlCosmicsCTF0THLT = cms.Path(seqALCARECOTkAlCosmicsCTF0THLT)
 pathALCARECOTkAlCosmicsCosmicTF0THLT = cms.Path(seqALCARECOTkAlCosmicsCosmicTF0THLT)
 pathALCARECOTkAlCosmicsRS0THLT = cms.Path(seqALCARECOTkAlCosmicsRS0THLT)
+pathALCARECOMuAlStandAloneCosmics = cms.Path(seqALCARECOMuAlStandAloneCosmics)
+pathALCARECOMuAlGlobalCosmics = cms.Path(seqALCARECOMuAlGlobalCosmics)
 pathALCARECOMuAlZeroFieldGlobalCosmics = cms.Path(seqALCARECOMuAlZeroFieldGlobalCosmics)
 
