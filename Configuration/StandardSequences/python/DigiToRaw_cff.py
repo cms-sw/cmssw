@@ -1,7 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from L1Trigger.Configuration.L1DummyConfig_cff import *
-
 from EventFilter.CSCTFRawToDigi.csctfpacker_cfi import *
 from EventFilter.DTTFRawToDigi.dttfpacker_cfi import *
 from EventFilter.GctRawToDigi.gctDigiToRaw_cfi import *

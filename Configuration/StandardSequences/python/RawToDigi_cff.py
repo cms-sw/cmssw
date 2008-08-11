@@ -7,12 +7,7 @@ from CondCore.DBCommon.CondDBSetup_cfi import *
 #from HLTrigger.Configuration.rawToDigi.EcalGeometrySetup_cff import *
 #from Geometry.DTGeometry.dtGeometry_cfi import *
 #from Geometry.RPCGeometry.rpcGeometry_cfi import *
-from L1TriggerConfig.L1ScalesProducers.L1MuTriggerScalesConfig_cff import *
-from L1TriggerConfig.L1ScalesProducers.L1MuTriggerPtScaleConfig_cff import *
-from L1TriggerConfig.L1ScalesProducers.L1MuGMTScalesConfig_cff import *
-from L1TriggerConfig.GctConfigProducers.L1GctConfig_cff import *
-from L1TriggerConfig.L1GtConfigProducers.L1GtConfig_cff import *
-from L1TriggerConfig.GMTConfigProducers.L1MuGMTParametersConfig_cff import *
+
 import EventFilter.CSCTFRawToDigi.csctfunpacker_cfi
 csctfDigis = EventFilter.CSCTFRawToDigi.csctfunpacker_cfi.csctfunpacker.clone()
 import EventFilter.DTTFRawToDigi.dttfunpacker_cfi

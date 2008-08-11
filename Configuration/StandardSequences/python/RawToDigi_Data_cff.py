@@ -11,13 +11,6 @@ from CondCore.DBCommon.CondDBSetup_cfi import *
 #-------------------------#
 #--- RawToDigi modules ---#
 #-------------------------#
-#--- L1 Setup ---#
-from L1TriggerConfig.L1ScalesProducers.L1MuTriggerScalesConfig_cff import *
-from L1TriggerConfig.L1ScalesProducers.L1MuGMTScalesConfig_cff import *
-from L1TriggerConfig.GctConfigProducers.L1GctConfig_cff import *
-from L1TriggerConfig.L1GtConfigProducers.L1GtConfig_cff import *
-from L1TriggerConfig.GMTConfigProducers.L1MuGMTParametersConfig_cff import *
-from L1TriggerConfig.L1ScalesProducers.L1MuTriggerPtScaleConfig_cff import *
 
 import EventFilter.CSCTFRawToDigi.csctfunpacker_cfi
 #--- CSC TF ---#
