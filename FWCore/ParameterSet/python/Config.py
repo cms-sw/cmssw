@@ -443,8 +443,8 @@ class Process(object):
         return config
     def _dumpConfigESPrefers(self, options):
         result = ''
-        for name, item in self.es_prefers_().iteritems():
-            result += item.dumpConfig(options)
+        for item in self.es_prefers_().itervalues():
+            result +=options.indentation()+'es_prefer '+item.targetLabel_()+' = '+item.dumpConfig(options)
         return result
     def _dumpPythonList(self, d, options):
         returnValue = ''
@@ -610,31 +610,43 @@ class Process(object):
         self._insertServices(processDesc, self.services_())
         return processDesc
 
-    def prefer(self, esmodule):
+    def prefer(self, esmodule,*args,**kargs):
         """Prefer this ES source or producer.  The argument can
            either be an object label, e.g., 
              process.prefer(process.juicerProducer) (not supported yet)
            or a name of an ESSource or ESProducer
              process.prefer("juicer")
            or a type of unnamed ESSource or ESProducer
-             process.prefer("JuicerProducer")"""
+             process.prefer("JuicerProducer")
+           In addition, you can pass as a labelled arguments the name of the Record you wish to
+           prefer where the type passed is a cms.vstring and that vstring can contain the
+           name of the C++ types in the Record which are being preferred, e.g.,
+              #prefer all data in record 'OrangeRecord' from 'juicer'
+              process.prefer("juicer", OrangeRecord=cms.vstring())
+           or
+              #prefer only "Orange" data in "OrangeRecord" from "juicer" 
+              process.prefer("juicer", OrangeRecord=cms.vstring("Orange"))
+           or 
+              #prefer only "Orange" data with label "ExtraPulp" in "OrangeRecord" from "juicer" 
+              ESPrefer("ESJuicerProd", OrangeRecord=cms.vstring("Orange/ExtraPulp"))
+        """
         # see if this refers to a named ESProducer
         if isinstance(esmodule, ESSource) or isinstance(esmodule, ESProducer):
             raise RuntimeError("Syntax of process.prefer(process.esmodule) not supported yet")
-        elif self._findPreferred(esmodule, self.es_producers_()) or \
-                self._findPreferred(esmodule, self.es_sources_()):
+        elif self._findPreferred(esmodule, self.es_producers_(),*args,**kargs) or \
+                self._findPreferred(esmodule, self.es_sources_(),*args,**kargs):
             pass
         else:
             raise RuntimeError("Cannot resolve prefer for "+repr(esmodule))
 
-    def _findPreferred(self, esname, d):
+    def _findPreferred(self, esname, d,*args,**kargs):
         # is esname a name in the dictionary?
         if esname in d:
             typ = d[esname].type_()
             if typ == esname:
-                self.__setattr__( esname+"_prefer", ESPrefer(typ) )
+                self.__setattr__( esname+"_prefer", ESPrefer(typ,*args,**kargs) )
             else:
-                self.__setattr__( esname+"_prefer", ESPrefer(typ, esname) )
+                self.__setattr__( esname+"_prefer", ESPrefer(typ, esname,*args,**kargs) )
             return True
         else:
             # maybe it's an unnamed ESModule?
@@ -663,7 +675,8 @@ if __name__=="__main__":
     class TestModuleCommand(unittest.TestCase):
         def setUp(self):
             """Nothing to do """
-            print 'testing'
+            #print 'testing'
+            None
         def testParameterizable(self):
             p = _Parameterizable()
             self.assertEqual(len(p.parameterNames_()),0)
@@ -991,7 +1004,54 @@ process.schedule = cms.Schedule(process.p2,process.p)
             p.juicer = ESProducer("JuicerProducer")
             p.prefer("ForceSource")
             p.prefer("juicer")
+            self.assertEqual(p.dumpConfig(),
+"""process Test = {
+    es_module juicer = JuicerProducer { 
+    }
+    es_source  = ForceSource { 
+    }
+    es_prefer  = ForceSource { 
+    }
+    es_prefer juicer = JuicerProducer { 
+    }
+}
+""")
+            p.prefer("juicer",fooRcd=vstring("Foo"))
+            self.assertEqual(p.dumpConfig(),
+"""process Test = {
+    es_module juicer = JuicerProducer { 
+    }
+    es_source  = ForceSource { 
+    }
+    es_prefer  = ForceSource { 
+    }
+    es_prefer juicer = JuicerProducer { 
+        vstring fooRcd = {
+            'Foo'
+        }
 
+    }
+}
+""")
+            self.assertEqual(p.dumpPython(),
+"""import FWCore.ParameterSet.Config as cms
+
+process = cms.Process("Test")
+
+process.juicer = cms.ESProducer("JuicerProducer")
+
+
+process.ForceSource = cms.ESSource("ForceSource")
+
+
+process.prefer("ForceSource")
+
+process.prefer("juicer",
+    fooRcd = cms.vstring('Foo')
+)
+
+""")
+        
         def testFindDependencies(self):
             p = Process("test")
             p.a = EDProducer("MyProd")
