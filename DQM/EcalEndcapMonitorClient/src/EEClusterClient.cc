@@ -1,8 +1,8 @@
 /*
  * \file EEClusterClient.cc
  *
- * $Date: 2008/06/25 15:08:19 $
- * $Revision: 1.55 $
+ * $Date: 2008/08/05 15:37:24 $
+ * $Revision: 1.56 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -227,99 +227,99 @@ void EEClusterClient::analyze(void) {
   me = dqmStore_->get(histo);
   h01_[2] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h01_[2] );
 
-  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC energy map EE +").c_str());
+  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC energy map EE -").c_str());
   me = dqmStore_->get(histo);
   h04_[0][0] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h04_[0][0] );
 
-  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC number map EE +").c_str());
+  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC number map EE -").c_str());
   me = dqmStore_->get(histo);
   h03_[0] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h03_[0] );
 
-  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC ET map EE +").c_str());
+  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC ET map EE -").c_str());
   me = dqmStore_->get(histo);
   h04_[1][0] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h04_[1][0] );
 
-  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC size map EE +").c_str());
+  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC size map EE -").c_str());
   me = dqmStore_->get(histo);
   h04_[2][0] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h04_[2][0] );
 
-  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC energy projection R EE +").c_str());
+  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC energy projection R EE -").c_str());
   me = dqmStore_->get(histo);
   h02ProjR_[0][0] = UtilsClient::getHisto<TProfile*>( me, cloneME_, h02ProjR_[0][0] );
 
-  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC energy projection phi EE +").c_str());
+  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC energy projection phi EE -").c_str());
   me = dqmStore_->get(histo);
   h02ProjPhi_[0][0] = UtilsClient::getHisto<TProfile*>( me, cloneME_, h02ProjPhi_[0][0] );
 
-  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC number projection R EE +").c_str());
+  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC number projection R EE -").c_str());
   me = dqmStore_->get(histo);
   h03ProjR_[0] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h03ProjR_[0] );
 
-  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC number projection phi EE +").c_str());
+  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC number projection phi EE -").c_str());
   me = dqmStore_->get(histo);
   h03ProjPhi_[0] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h03ProjPhi_[0] );
 
-  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC ET projection R EE +").c_str());
+  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC ET projection R EE -").c_str());
   me = dqmStore_->get(histo);
   h02ProjR_[1][0] = UtilsClient::getHisto<TProfile*>( me, cloneME_, h02ProjR_[1][0] );
 
-  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC ET projection phi EE +").c_str());
+  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC ET projection phi EE -").c_str());
   me = dqmStore_->get(histo);
   h02ProjPhi_[1][0] = UtilsClient::getHisto<TProfile*>( me, cloneME_, h02ProjPhi_[1][0] );
 
-  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC size projection R EE +").c_str());
+  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC size projection R EE -").c_str());
   me = dqmStore_->get(histo);
   h02ProjR_[2][0] = UtilsClient::getHisto<TProfile*>( me, cloneME_, h02ProjR_[2][0] );
 
-  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC size projection phi EE +").c_str());
+  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC size projection phi EE -").c_str());
   me = dqmStore_->get(histo);
   h02ProjPhi_[2][0] = UtilsClient::getHisto<TProfile*>( me, cloneME_, h02ProjPhi_[2][0] );
 
-  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC energy map EE -").c_str());
+  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC energy map EE +").c_str());
   me = dqmStore_->get(histo);
   h04_[0][1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h04_[0][1] );
 
-  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC number map EE -").c_str());
+  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC number map EE +").c_str());
   me = dqmStore_->get(histo);
   h03_[1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h03_[1] );
 
-  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC ET map EE -").c_str());
+  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC ET map EE +").c_str());
   me = dqmStore_->get(histo);
   h04_[1][1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h04_[1][1] );
 
-  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC size map EE -").c_str());
+  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC size map EE +").c_str());
   me = dqmStore_->get(histo);
   h04_[2][1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h04_[2][1] );
 
-  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC energy projection R EE -").c_str());
+  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC energy projection R EE +").c_str());
   me = dqmStore_->get(histo);
   h02ProjR_[0][1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, h02ProjR_[0][1] );
 
-  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC energy projection phi EE -").c_str());
+  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC energy projection phi EE +").c_str());
   me = dqmStore_->get(histo);
   h02ProjPhi_[0][1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, h02ProjPhi_[0][1] );
 
-  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC number projection R EE -").c_str());
+  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC number projection R EE +").c_str());
   me = dqmStore_->get(histo);
   h03ProjR_[1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h03ProjR_[1] );
 
-  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC number projection phi EE -").c_str());
+  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC number projection phi EE +").c_str());
   me = dqmStore_->get(histo);
   h03ProjPhi_[1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h03ProjPhi_[1] );
 
-  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC ET projection R EE -").c_str());
+  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC ET projection R EE +").c_str());
   me = dqmStore_->get(histo);
   h02ProjR_[1][1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, h02ProjR_[1][1] );
 
-  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC ET projection phi EE -").c_str());
+  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC ET projection phi EE +").c_str());
   me = dqmStore_->get(histo);
   h02ProjPhi_[1][1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, h02ProjPhi_[1][1] );
 
-  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC size projection R EE -").c_str());
+  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC size projection R EE +").c_str());
   me = dqmStore_->get(histo);
   h02ProjR_[2][1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, h02ProjR_[2][1] );
 
-  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC size projection phi EE -").c_str());
+  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC size projection phi EE +").c_str());
   me = dqmStore_->get(histo);
   h02ProjPhi_[2][1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, h02ProjPhi_[2][1] );
 
@@ -429,15 +429,15 @@ void EEClusterClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
     }
   }
 
-  labelGrid2.SetBinContent(2, 5, +7);
-  labelGrid2.SetBinContent(2, 7, +8);
-  labelGrid2.SetBinContent(4, 9, +9);
-  labelGrid2.SetBinContent(7, 9, +1);
-  labelGrid2.SetBinContent(9, 7, +2);
-  labelGrid2.SetBinContent(9, 5, +3);
-  labelGrid2.SetBinContent(8, 3, +4);
+  labelGrid2.SetBinContent(2, 5, +3);
+  labelGrid2.SetBinContent(2, 7, +2);
+  labelGrid2.SetBinContent(4, 9, +1);
+  labelGrid2.SetBinContent(7, 9, +9);
+  labelGrid2.SetBinContent(9, 7, +8);
+  labelGrid2.SetBinContent(9, 5, +7);
+  labelGrid2.SetBinContent(8, 3, +6);
   labelGrid2.SetBinContent(6, 2, +5);
-  labelGrid2.SetBinContent(3, 3, +6);
+  labelGrid2.SetBinContent(3, 3, +4);
 
   labelGrid2.SetMarkerSize(2);
   labelGrid2.SetMinimum(+0.01);
