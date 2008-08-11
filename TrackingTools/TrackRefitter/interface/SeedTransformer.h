@@ -6,8 +6,8 @@
  *  fits its RecHits and returns a vector of Trajectories.
  *  If the fit fails, the returned vector is empty.
  *
- *  $Date: 2008/08/07 12:08:51 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/08/07 16:56:25 $
+ *  $Revision: 1.2 $
  *  \author D. Trocino - University and INFN Torino
  */
 
@@ -59,6 +59,9 @@ private:
 
   /// Minimum number of RecHits required to perform the fit
   unsigned int nMinRecHits;
+
+  /// Error rescale factor
+  double errorRescale;
 
 };
 #endif

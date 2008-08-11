@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/08/07 12:09:30 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/08/07 16:56:26 $
+ *  $Revision: 1.2 $
  *  \author D. Trocino - University and INFN Torino
  */
 
@@ -56,6 +56,7 @@ SeedTransformer::SeedTransformer(const ParameterSet& iConfig) {
   thePropagatorName = iConfig.getParameter<string>("Propagator");
 
   nMinRecHits = iConfig.getParameter<unsigned int>("NMinRecHits");
+  errorRescale = iConfig.getParameter<double>("RescaleError");
 
 }
 
@@ -89,7 +90,7 @@ vector<Trajectory> SeedTransformer::seedTransform(const TrajectorySeed& aSeed) c
   TrajectoryStateOnSurface aTSOS(seedTransientState(aSeed));
 
   // Rescale errors before refit, not to bias the result
-  aTSOS.rescaleError(10.);
+  aTSOS.rescaleError(errorRescale);
 
   vector<TransientTrackingRecHit::ConstRecHitPointer> recHits;
   unsigned int countRH = 0;
