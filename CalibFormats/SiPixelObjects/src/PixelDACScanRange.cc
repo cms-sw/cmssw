@@ -19,6 +19,7 @@ PixelDACScanRange::PixelDACScanRange(std::string name, unsigned int first,
 
   uniformSteps_=true;
   relative_=false;
+  negative_=false;
 
   first_=first;
   last_=last;
@@ -45,6 +46,7 @@ PixelDACScanRange::PixelDACScanRange(std::string name,
 
   uniformSteps_=false;
   relative_=false;
+  negative_=false;
 
   name_=name;
   values_=values;

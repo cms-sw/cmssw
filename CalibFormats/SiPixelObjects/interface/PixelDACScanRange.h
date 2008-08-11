@@ -46,6 +46,8 @@ namespace pos{
     bool uniformSteps() const { return uniformSteps_; }
     void setRelative() { relative_=true; }
     bool relative() const { return relative_; }
+    void setNegative() { negative_=true; }
+    bool negative() const { return negative_; }
 
   private:
 
@@ -66,6 +68,8 @@ namespace pos{
     bool relative_; //Only to be used with 'SetRelative' and indicates that the
                     //value specified should apply a change to the default
                     //dac setting.
+
+    bool negative_; //Used to flag that relative value is negative
 
   };
 }

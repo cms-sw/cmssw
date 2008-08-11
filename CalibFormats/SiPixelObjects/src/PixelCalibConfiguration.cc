@@ -223,7 +223,7 @@ PixelCalibConfiguration::PixelCalibConfiguration(std::vector< std::vector<std::s
     while ((tmp=="Set:")||(tmp=="SetRelative:")){
       string name;
       in >> name;
-      unsigned int val;
+      int val;
       in >> val;
       unsigned int index=1;
       if (dacs_.size()>0) index=dacs_.back().index()*dacs_.back().getNPoints();
@@ -462,13 +462,17 @@ PixelCalibConfiguration::PixelCalibConfiguration(std::string filename):
       while ((tmp=="Set:")||(tmp=="SetRelative:")){
 	string name;
         in >> name;
-        unsigned int val;
+        int val;
         in >> val;
+	unsigned int absval=std::abs(val);
         unsigned int index=1;
         if (dacs_.size()>0) index=dacs_.back().index()*dacs_.back().getNPoints();
-        PixelDACScanRange dacrange(name,val,val,1,index,false);
+        PixelDACScanRange dacrange(name,absval,absval,1,index,false);
 	if (tmp=="SetRelative:") {
 	  dacrange.setRelative();
+	  if (val<0) {
+	    dacrange.setNegative();
+	  }
 	}
         dacs_.push_back(dacrange);
         in >> tmp;
@@ -897,7 +901,7 @@ void PixelCalibConfiguration::nextFECState(std::map<unsigned int, PixelFECConfig
 #ifdef BPIX      
       const PixelChannel channel = trans->getChannelForROC(rocs_[i]);
       string tbmChannel = channel.TBMChannelString();
-      cout<<" tbm channel "<<tbmChannel<<endl; 
+      //cout<<" tbm channel "<<tbmChannel<<endl; 
       rocInfo.tbmChannel_ = tbmChannel;
 #endif
 
@@ -990,6 +994,15 @@ void PixelCalibConfiguration::nextFECState(std::map<unsigned int, PixelFECConfig
 
       // Set the DACs back to their default values when we're done with a scan.
       for ( unsigned int j=0; j< dacs_.size(); j++ ) {
+
+
+	//Try to not reprogram DACs as often..
+	if (state!=0){
+	  if (scanCounter(dacs_[j].name(),state)==scanCounter(dacs_[j].name(),state-1)){
+	    continue;
+	  }
+	}
+
         pixelFECs[theROC.fecnumber()]->progdac(theROC.mfec(),
 					       theROC.mfecchannel(),
 					       theROC.hubaddress(),
@@ -998,6 +1011,12 @@ void PixelCalibConfiguration::nextFECState(std::map<unsigned int, PixelFECConfig
 					       rocInfo_[i].defaultDACs_[j].first,
 					       rocInfo_[i].defaultDACs_[j].second,
 					       _bufferData);	
+
+	if (dacs_[j].dacchannel()==k_DACAddress_WBC) {
+	  changedWBC=true;
+	  //cout << "Changed WBC 1"<<endl;
+	}
+
       }
       
       PixelROCTrimBits* rocTrims=rocInfo_[i].trims_;
@@ -1024,16 +1043,24 @@ void PixelCalibConfiguration::nextFECState(std::map<unsigned int, PixelFECConfig
     
     // Program all the DAC values.
     for (unsigned int ii=0;ii<dacs_.size();ii++){
-    
-      //FIXME have to make this signed so that we can have negative 
-      //offsets.
-      unsigned int dacvalue = scanValue(ii, state, rocs_[i]);
+
+      //Try to not reprogram DACs as often..
+      if (state!=0){
+	if (scanCounter(dacs_[ii].name(),state)==scanCounter(dacs_[ii].name(),state-1)){
+	  continue;
+	}
+      }
+
+      int dacvalue = scanValue(ii, state, rocs_[i]);
 
       //cout << "dacname ii:"<<dacs_[ii].name()<<" "<<ii<<endl;
       
       if (dacs_[ii].relative()){
+
 	//We have to find the default DAC setting so that we can
 	//add the offset as we are in relative mode.
+
+	if (dacs_[ii].negative()) dacvalue=-dacvalue;
 	
 	dacvalue+=rocInfo_[i].defaultDACs_[ii].second;
 	//cout << "[PixelCalibConfiguration::nextFECState] ROC="<<rocs_[i]
@@ -1048,7 +1075,11 @@ void PixelCalibConfiguration::nextFECState(std::map<unsigned int, PixelFECConfig
 					     rocInfo_[i].defaultDACs_[ii].first,
 					     dacvalue,_bufferData);
 
-      if (dacs_[ii].dacchannel()==k_DACAddress_WBC) changedWBC=true;
+      if (dacs_[ii].dacchannel()==k_DACAddress_WBC) {
+	changedWBC=true;
+	//cout << "Changed WBC 2"<<endl;
+      }
+
     }
 
     // At the beginning of a scan, set the pixel pattern.
