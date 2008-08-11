@@ -1,7 +1,8 @@
 from Mixins import _ConfigureComponent
 from Mixins import _Unlabelable, _Labelable
-from Mixins import _TypedParameterizable, PrintOptions
+from Mixins import _TypedParameterizable, _Parameterizable, PrintOptions
 from SequenceTypes import _Sequenceable
+from Types import vstring
 
 from ExceptionHandling import *
 class Service(_ConfigureComponent,_TypedParameterizable,_Unlabelable):
@@ -51,11 +52,31 @@ class ESProducer(_ConfigureComponent,_TypedParameterizable,_Unlabelable,_Labelab
 
 
 class ESPrefer(_ConfigureComponent,_TypedParameterizable,_Unlabelable,_Labelable):
-    def __init__(self,type_,targetLabel=''):
-        super(ESPrefer,self).__init__(type_)
+    """Used to set which EventSetup provider should provide a particular data item
+    in the case where multiple providers are capable of delivering the data.
+    The first argument specifies the C++ class type of the prodiver.
+    If the provider has been given a label, you must specify that label as the second argument.
+    Additional 'vstring' arguments maybe used to specify exactly which EventSetup Records
+    are being preferred and optionally which data items within that Record.
+    E.g.,
+        #prefer all data in record 'OrangeRecord' from 'juicer'
+        ESPrefer("ESJuicerProd", OrangeRecord=cms.vstring())
+    or
+        #prefer only "Orange" data in "OrangeRecord" from "juicer" 
+        ESPrefer("ESJuicerProd", OrangeRecord=cms.vstring("ExtraPulp"))
+    or 
+        #prefer only "Orange" data with label "ExtraPulp" in "OrangeRecord" from "juicer" 
+        ESPrefer("ESJuicerProd", OrangeRecord=cms.vstring("Orange/ExtraPulp"))
+    """
+    def __init__(self,type_,targetLabel='',*arg,**kargs):
+        super(ESPrefer,self).__init__(type_,*arg,**kargs)
         self._targetLabel = targetLabel
         if targetLabel is None:
             self._targetLabel = str('')
+        if kargs:
+            for k,v in kargs.iteritems():
+                if not isinstance(v,vstring):
+                    raise RuntimeError('ESPrefer only allows vstring attributes. "'+k+'" is a '+str(type(v)))
     def _placeImpl(self,name,proc):
         proc._placeESPrefer(name,self)
     def nameInProcessDesc_(self, myname):
@@ -67,6 +88,8 @@ class ESPrefer(_ConfigureComponent,_TypedParameterizable,_Unlabelable,_Labelable
         return returnValue
     def moduleLabel_(self, myname):
         return self._targetLabel
+    def targetLabel_(self):
+        return self._targetLabel
     def dumpPythonAs(self, label, options=PrintOptions()):
        result = options.indentation()
        basename = self._targetLabel
@@ -74,16 +97,18 @@ class ESPrefer(_ConfigureComponent,_TypedParameterizable,_Unlabelable,_Labelable
            basename = self.type_()
        if options.isCfg:
            # do either type or label
-           result += 'process.prefer(\"'+basename+'\")\n'
+           result += 'process.prefer("'+basename+'"'
+           if self.parameterNames_():
+               result += ",\n"+_Parameterizable.dumpPython(self,options)+options.indentation()
+           result +=')\n'
        else:
            # use the base class Module
-           result += 'es_prefer_'+basename+' = cms.ESPrefer(\"'+self.type_()+'\"'
+           result += 'es_prefer_'+basename+' = cms.ESPrefer("'+self.type_()+'"'
            if self._targetLabel != '':
-              result += ',\"'+self._targetLabel+'\"'
+              result += ',"'+self._targetLabel+'"'
+           if self.parameterNames_():
+               result += ",\n"+_Parameterizable.dumpPython(self,options)+options.indentation()
            result += ')\n'
-       return result
-    def dumpConfig(self, options):
-       result = options.indentation() + 'es_prefer '+ self._targetLabel+ ' = ' + self.type_() + '{}\n'
        return result
 
 class _Module(_ConfigureComponent,_TypedParameterizable,_Labelable,_Sequenceable):
@@ -173,14 +198,41 @@ if __name__ == "__main__":
             m = EDProducer("DumbProducer", block, j = int32(10))
             self.assertEqual(9, m.i.value())
             self.assertEqual(10, m.j.value())
+        def testESPrefer(self):
             juicer = ESPrefer("JuiceProducer")
             options = PrintOptions()
             options.isCfg = True
-            self.assertEqual(juicer.dumpPythonAs("juicer", options), "process.prefer(\"juicer\")")
+            self.assertEqual(juicer.dumpPythonAs("juicer", options), "process.prefer(\"JuiceProducer\")\n")
             options.isCfg = False
-            self.assertEqual(juicer.dumpPythonAs("juicer", options), "es_prefer_juicer = cms.ESPrefer(\"JuiceProducer\")\n")
+            self.assertEqual(juicer.dumpPythonAs("juicer", options), "es_prefer_JuiceProducer = cms.ESPrefer(\"JuiceProducer\")\n")
 
+            juicer = ESPrefer("JuiceProducer","juicer")
+            options = PrintOptions()
+            options.isCfg = True
+            self.assertEqual(juicer.dumpPythonAs("juicer", options), 'process.prefer("juicer")\n')
+            options.isCfg = False
+            self.assertEqual(juicer.dumpPythonAs("juicer", options), 'es_prefer_juicer = cms.ESPrefer("JuiceProducer","juicer")\n')
+            juicer = ESPrefer("JuiceProducer",fooRcd=vstring())
+            self.assertEqual(juicer.dumpConfig(options),
+"""JuiceProducer { 
+    vstring fooRcd = {
+    }
 
+}
+""")
+            options = PrintOptions()
+            options.isCfg = True
+            self.assertEqual(juicer.dumpPythonAs("juicer"),
+"""process.prefer("JuiceProducer",
+    fooRcd = cms.vstring()
+)
+""")
+            options.isCfg = False
+            self.assertEqual(juicer.dumpPythonAs("juicer", options),
+"""es_prefer_JuiceProducer = cms.ESPrefer("JuiceProducer",
+    fooRcd = cms.vstring()
+)
+""")
         
         def testService(self):
             empty = Service("Empty")
