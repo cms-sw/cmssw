@@ -1,14 +1,14 @@
-#ifndef TtSemiHypothesisKinFit_h
-#define TtSemiHypothesisKinFit_h
+#ifndef TtSemiLepKinFit_h
+#define TtSemiLepKinFit_h
 
-#include "TopQuarkAnalysis/TopJetCombination/interface/TtSemiHypothesis.h"
+#include "TopQuarkAnalysis/TopJetCombination/interface/TtSemiLepHypothesis.h"
 
-class TtSemiHypothesisKinFit : public TtSemiHypothesis  {
+class TtSemiLepKinFit : public TtSemiLepHypothesis  {
 
  public:
 
-  explicit TtSemiHypothesisKinFit(const edm::ParameterSet&);
-  ~TtSemiHypothesisKinFit();
+  explicit TtSemiLepKinFit(const edm::ParameterSet&);
+  ~TtSemiLepKinFit();
 
  private:
   

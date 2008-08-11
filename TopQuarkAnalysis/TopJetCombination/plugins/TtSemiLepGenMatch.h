@@ -1,15 +1,15 @@
-#ifndef TtSemiHypothesisGenMatch_h
-#define TtSemiHypothesisGenMatch_h
+#ifndef TtSemiLepGenMatch_h
+#define TtSemiLepGenMatch_h
 
-#include "TopQuarkAnalysis/TopJetCombination/interface/TtSemiHypothesis.h"
+#include "TopQuarkAnalysis/TopJetCombination/interface/TtSemiLepHypothesis.h"
 
 
-class TtSemiHypothesisGenMatch : public TtSemiHypothesis  {
+class TtSemiLepGenMatch : public TtSemiLepHypothesis  {
 
  public:
 
-  explicit TtSemiHypothesisGenMatch(const edm::ParameterSet&);
-  ~TtSemiHypothesisGenMatch();
+  explicit TtSemiLepGenMatch(const edm::ParameterSet&);
+  ~TtSemiLepGenMatch();
 
  private:
 

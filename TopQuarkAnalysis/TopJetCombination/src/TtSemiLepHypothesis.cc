@@ -1,8 +1,8 @@
 #include "PhysicsTools/CandUtils/interface/AddFourMomenta.h"
-#include "TopQuarkAnalysis/TopJetCombination/interface/TtSemiHypothesis.h"
+#include "TopQuarkAnalysis/TopJetCombination/interface/TtSemiLepHypothesis.h"
 
 
-TtSemiHypothesis::TtSemiHypothesis(const edm::ParameterSet& cfg):
+TtSemiLepHypothesis::TtSemiLepHypothesis(const edm::ParameterSet& cfg):
   jets_ (cfg.getParameter<edm::InputTag>("jets" )),
   leps_ (cfg.getParameter<edm::InputTag>("leps" )),
   mets_ (cfg.getParameter<edm::InputTag>("mets" )),
@@ -20,7 +20,7 @@ TtSemiHypothesis::TtSemiHypothesis(const edm::ParameterSet& cfg):
   produces<std::vector<int> >("Match");
 }
 
-TtSemiHypothesis::~TtSemiHypothesis()
+TtSemiLepHypothesis::~TtSemiLepHypothesis()
 {
   if( lightQ_   ) delete lightQ_;
   if( lightQBar_) delete lightQBar_;
@@ -31,7 +31,7 @@ TtSemiHypothesis::~TtSemiHypothesis()
 }
 
 void
-TtSemiHypothesis::produce(edm::Event& evt, const edm::EventSetup& setup)
+TtSemiLepHypothesis::produce(edm::Event& evt, const edm::EventSetup& setup)
 {
   edm::Handle<std::vector<pat::Jet> > jets;
   evt.getByLabel(jets_, jets);
@@ -72,7 +72,7 @@ TtSemiHypothesis::produce(edm::Event& evt, const edm::EventSetup& setup)
 }
 
 void
-TtSemiHypothesis::resetCandidates()
+TtSemiLepHypothesis::resetCandidates()
 {
   lightQ_    = 0;
   lightQBar_ = 0;
@@ -83,7 +83,7 @@ TtSemiHypothesis::resetCandidates()
 }
 
 reco::CompositeCandidate
-TtSemiHypothesis::hypo()
+TtSemiLepHypothesis::hypo()
 {
   // check for sanity of the hypothesis
   if( !lightQ_ || !lightQBar_ || !hadronicB_ || 

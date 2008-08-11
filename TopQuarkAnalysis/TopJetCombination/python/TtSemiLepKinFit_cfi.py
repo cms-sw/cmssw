@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 #
 # module to make the kinematic fit hypothesis
 #
-ttSemiHypothesisKinFit = cms.EDProducer("TtSemiHypothesisKinFit",
+ttSemiLepKinFit = cms.EDProducer("TtSemiLepKinFit",
     jets  = cms.InputTag("selectedLayer1Jets"),
     leps  = cms.InputTag("selectedLayer1Muons"),
     mets  = cms.InputTag("selectedLayer1METs"),

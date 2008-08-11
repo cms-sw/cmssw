@@ -1,13 +1,13 @@
-#include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiHypothesisMVADisc.h"
+#include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepMVADisc.h"
 #include "TopQuarkAnalysis/TopTools/interface/TtSemiEvtPartons.h"
 
-TtSemiHypothesisMVADisc::TtSemiHypothesisMVADisc(const edm::ParameterSet& cfg):
-  TtSemiHypothesis( cfg ) { }
+TtSemiLepMVADisc::TtSemiLepMVADisc(const edm::ParameterSet& cfg):
+  TtSemiLepHypothesis( cfg ) { }
 
-TtSemiHypothesisMVADisc::~TtSemiHypothesisMVADisc() { }
+TtSemiLepMVADisc::~TtSemiLepMVADisc() { }
 
 void
-TtSemiHypothesisMVADisc::buildHypo(edm::Event& evt,
+TtSemiLepMVADisc::buildHypo(edm::Event& evt,
 				   const edm::Handle<edm::View<reco::RecoCandidate> >& leps, 
 				   const edm::Handle<std::vector<pat::MET> >& mets, 
 				   const edm::Handle<std::vector<pat::Jet> >& jets, 

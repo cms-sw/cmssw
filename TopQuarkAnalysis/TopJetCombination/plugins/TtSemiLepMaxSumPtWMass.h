@@ -1,15 +1,15 @@
-#ifndef TtSemiHypothesisMaxSumPtWMass_h
-#define TtSemiHypothesisMaxSumPtWMass_h
+#ifndef TtSemiLepMaxSumPtWMass_h
+#define TtSemiLepMaxSumPtWMass_h
 
-#include "TopQuarkAnalysis/TopJetCombination/interface/TtSemiHypothesis.h"
+#include "TopQuarkAnalysis/TopJetCombination/interface/TtSemiLepHypothesis.h"
 
 
-class TtSemiHypothesisMaxSumPtWMass : public TtSemiHypothesis  {
+class TtSemiLepMaxSumPtWMass : public TtSemiLepHypothesis  {
 
  public:
 
-  explicit TtSemiHypothesisMaxSumPtWMass(const edm::ParameterSet&);
-  ~TtSemiHypothesisMaxSumPtWMass();
+  explicit TtSemiLepMaxSumPtWMass(const edm::ParameterSet&);
+  ~TtSemiLepMaxSumPtWMass();
 
  private:
 

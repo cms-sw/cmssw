@@ -1,5 +1,5 @@
-#ifndef TtSemiHypothesis_h
-#define TtSemiHypothesis_h
+#ifndef TtSemiLepHypothesis_h
+#define TtSemiLepHypothesis_h
 
 #include <memory>
 #include <vector>
@@ -17,12 +17,12 @@
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiLeptonicEvent.h"
 
 
-class TtSemiHypothesis : public edm::EDProducer {
+class TtSemiLepHypothesis : public edm::EDProducer {
 
  public:
 
-  explicit TtSemiHypothesis(const edm::ParameterSet&);
-  ~TtSemiHypothesis();
+  explicit TtSemiLepHypothesis(const edm::ParameterSet&);
+  ~TtSemiLepHypothesis();
 
  protected:
   
@@ -77,7 +77,7 @@ class TtSemiHypothesis : public edm::EDProducer {
 // would cause unresolved references in classes derived from this base class
 template <typename O, template<typename> class C>
 void
-TtSemiHypothesis::setCandidate(const edm::Handle<C<O> >& handle, const int& idx, reco::ShallowClonePtrCandidate* &clone) {
+TtSemiLepHypothesis::setCandidate(const edm::Handle<C<O> >& handle, const int& idx, reco::ShallowClonePtrCandidate* &clone) {
   edm::Ptr<O> ptr = edm::Ptr<O>(handle, idx);
   clone = new reco::ShallowClonePtrCandidate( ptr, ptr->charge(), ptr->p4(), ptr->vertex() );
 }

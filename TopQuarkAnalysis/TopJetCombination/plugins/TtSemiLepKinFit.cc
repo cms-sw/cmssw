@@ -1,10 +1,10 @@
-#include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiHypothesisKinFit.h"
+#include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepKinFit.h"
 #include "TopQuarkAnalysis/TopTools/interface/TtSemiEvtPartons.h"
 
 #include "DataFormats/PatCandidates/interface/Particle.h"
 
-TtSemiHypothesisKinFit::TtSemiHypothesisKinFit(const edm::ParameterSet& cfg):
-  TtSemiHypothesis( cfg ),
+TtSemiLepKinFit::TtSemiLepKinFit(const edm::ParameterSet& cfg):
+  TtSemiLepHypothesis( cfg ),
   status_   (cfg.getParameter<edm::InputTag>("status")),
   partons_  (cfg.getParameter<edm::InputTag>("partons")),
   leptons_  (cfg.getParameter<edm::InputTag>("leptons")),
@@ -12,10 +12,10 @@ TtSemiHypothesisKinFit::TtSemiHypothesisKinFit(const edm::ParameterSet& cfg):
 {
 }
 
-TtSemiHypothesisKinFit::~TtSemiHypothesisKinFit() { }
+TtSemiLepKinFit::~TtSemiLepKinFit() { }
 
 void
-TtSemiHypothesisKinFit::buildHypo(edm::Event& evt,
+TtSemiLepKinFit::buildHypo(edm::Event& evt,
 				  const edm::Handle<edm::View<reco::RecoCandidate> >& leps, 
 				  const edm::Handle<std::vector<pat::MET> >& mets, 
 				  const edm::Handle<std::vector<pat::Jet> >& jets, 

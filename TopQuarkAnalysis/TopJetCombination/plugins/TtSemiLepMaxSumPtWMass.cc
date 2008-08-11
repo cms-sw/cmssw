@@ -1,18 +1,18 @@
-#include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiHypothesisMaxSumPtWMass.h"
+#include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepMaxSumPtWMass.h"
 #include "TopQuarkAnalysis/TopTools/interface/TtSemiEvtPartons.h"
 
-TtSemiHypothesisMaxSumPtWMass::TtSemiHypothesisMaxSumPtWMass(const edm::ParameterSet& cfg):
-  TtSemiHypothesis( cfg ),
+TtSemiLepMaxSumPtWMass::TtSemiLepMaxSumPtWMass(const edm::ParameterSet& cfg):
+  TtSemiLepHypothesis( cfg ),
   maxNJets_(cfg.getParameter<unsigned>("nJetsMax")),
   wMass_   (cfg.getParameter<double>  ("wMass"   ))
 { 
 
 }
 
-TtSemiHypothesisMaxSumPtWMass::~TtSemiHypothesisMaxSumPtWMass() { }
+TtSemiLepMaxSumPtWMass::~TtSemiLepMaxSumPtWMass() { }
 
 void
-TtSemiHypothesisMaxSumPtWMass::buildHypo(edm::Event& evt,
+TtSemiLepMaxSumPtWMass::buildHypo(edm::Event& evt,
 					 const edm::Handle<edm::View<reco::RecoCandidate> >& leps, 
 					 const edm::Handle<std::vector<pat::MET> >& mets, 
 					 const edm::Handle<std::vector<pat::Jet> >& jets, 

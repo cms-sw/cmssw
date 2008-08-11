@@ -14,24 +14,24 @@ ttSemiLepEvent = cms.EDProducer("TtSemiLepEvtBuilder",
     genEvent = cms.InputTag("genEvt"),
                              
     ## considered event hypotheses                             
-    hyps = cms.VInputTag(cms.InputTag("ttSemiHypothesisMaxSumPtWMass"),
-                         cms.InputTag("ttSemiHypothesisKinFit"),
-                         cms.InputTag("ttSemiHypothesisGenMatch"),
-                         cms.InputTag("ttSemiHypothesisMVADisc")
+    hyps = cms.VInputTag(cms.InputTag("ttSemiLepMaxSumPtWMass"),
+                         cms.InputTag("ttSemiLepKinFit"),
+                         cms.InputTag("ttSemiLepGenMatch"),
+                         cms.InputTag("ttSemiLepMVADisc")
                          ),
 
     ## event hypotheses' keys for mapping
-    keys = cms.VInputTag(cms.InputTag("ttSemiHypothesisMaxSumPtWMass","Key"),
-                         cms.InputTag("ttSemiHypothesisGenMatch","Key"),
-                         cms.InputTag("ttSemiHypothesisKinFit","Key"),
-                         cms.InputTag("ttSemiHypothesisMVADisc","Key")
+    keys = cms.VInputTag(cms.InputTag("ttSemiLepMaxSumPtWMass","Key"),
+                         cms.InputTag("ttSemiLepGenMatch","Key"),
+                         cms.InputTag("ttSemiLepKinFit","Key"),
+                         cms.InputTag("ttSemiLepMVADisc","Key")
                          ),
 
     ## event hypotheses' jet parton association as meta information
-    matches = cms.VInputTag(cms.InputTag("ttSemiHypothesisMaxSumPtWMass","Match"),
-                            cms.InputTag("ttSemiHypothesisKinFit","Match"),
-                            cms.InputTag("ttSemiHypothesisGenMatch","Match"),
-                            cms.InputTag("ttSemiHypothesisMVADisc","Match")
+    matches = cms.VInputTag(cms.InputTag("ttSemiLepMaxSumPtWMass","Match"),
+                            cms.InputTag("ttSemiLepKinFit","Match"),
+                            cms.InputTag("ttSemiLepGenMatch","Match"),
+                            cms.InputTag("ttSemiLepMVADisc","Match")
                             ),
 
     ## add extra information on kinFit
