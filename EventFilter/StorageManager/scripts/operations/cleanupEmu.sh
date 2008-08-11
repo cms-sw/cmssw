@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: cleanupEmu.sh,v 1.7 2008/07/25 11:27:10 loizides Exp $
+# $Id: cleanupEmu.sh,v 1.8 2008/08/11 19:19:16 loizides Exp $
 
 if test -e "/etc/profile.d/sm_env.sh"; then 
     source /etc/profile.d/sm_env.sh
@@ -40,7 +40,12 @@ EPOCH=`date +%s`
 for CUD in $( ls $EMUDIR | grep ^[0-9][0-9]$ ); do
   
     # find mount point of dir to cleanup
-    mntpoint=`ls -l $EMUDIR/$CUD | cut -f2 -d">" | cut -f3 -d"/"`
+    tmpvar=`ls -l $EMUDIR/$CUD | cut -f2 -d">"`
+    if test "`hostname`" = "srv-C2D05-02" -o "`hostname`" = "srv-S2C17-01"; then
+        mntpoint=`echo $tmpvar | cut -f2 -d"/"`
+    else
+        mntpoint=`echo $tmpvar | cut -f3 -d"/"`
+    fi
 
     # find how full disk is to determine how much to delete
     LIFETIME=$(df | 
