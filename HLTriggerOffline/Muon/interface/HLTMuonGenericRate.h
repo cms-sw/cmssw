@@ -46,6 +46,7 @@ public:
 private:
 
   // Input from cfg file
+  std::string folderName;
   edm::InputTag theL1CollectionLabel, theGenLabel, theRecoLabel;
   std::vector<edm::InputTag> theHLTCollectionLabels;
   double theL1ReferenceThreshold,theHLTReferenceThreshold;

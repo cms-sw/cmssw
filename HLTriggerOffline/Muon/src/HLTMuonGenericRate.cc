@@ -50,6 +50,8 @@ HLTMuonGenericRate::HLTMuonGenericRate( const ParameterSet& pset,
   if ( useMuonFromReco )
     theRecoLabel = pset.getUntrackedParameter<InputTag>("RecoLabel");
   
+  folderName = pset.getUntrackedParameter<string>("FolderName", "HLT/Muon/");
+
   Parameters TriggerLists  = pset.getParameter<Parameters>("TriggerCollection");
   ParameterSet thisTrigger = TriggerLists[triggerIndex];
   theL1CollectionLabel     = thisTrigger.getParameter<InputTag>("L1CollectionLabel");
@@ -84,9 +86,9 @@ HLTMuonGenericRate::HLTMuonGenericRate( const ParameterSet& pset,
 
   if ( dbe_ != NULL ) {
     dbe_->cd();
-    dbe_->setCurrentFolder("HLT/Muon");
-    dbe_->setCurrentFolder("HLT/Muon/RateEfficiencies");
-    dbe_->setCurrentFolder("HLT/Muon/Distributions");
+    dbe_->setCurrentFolder( folderName );
+    dbe_->setCurrentFolder( std::string( folderName + "RateEfficiencies" ) );
+    dbe_->setCurrentFolder( std::string( folderName + "Distributions" ) );
   }
 }
 
