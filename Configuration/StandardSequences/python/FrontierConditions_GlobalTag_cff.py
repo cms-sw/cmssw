@@ -21,7 +21,12 @@ es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
 
 sistripconn = cms.ESProducer("SiStripConnectivity")
 
+
+# CSC trigger primitive conditions
+from L1TriggerConfig.L1CSCTPConfigProducers.L1CSCTriggerPrimitivesConfig_cff import *
+# DT trigger primitive conditions
 from L1TriggerConfig.DTTPGConfigProducers.L1DTTPGConfig_cff import *
+# RPC trigger conditions
 from L1TriggerConfig.RPCTriggerConfig.RPCPatSource_cfi import *
 from L1TriggerConfig.RPCTriggerConfig.RPCHWConfigSource_cfi import *
 
