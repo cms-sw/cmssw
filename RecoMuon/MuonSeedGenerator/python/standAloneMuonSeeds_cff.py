@@ -9,6 +9,11 @@ from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *
 from RecoMuon.MuonSeedGenerator.ancientMuonSeed_cfi import *
 
 # New standalone muon producer to be used in 2-X-X
-from RecoMuon.MuonSeedGenerator.standAloneMuonSeedProducer_cfi import *
+from RecoMuon.MuonSeedGenerator.MuonSeed_cfi import *
 
 
+mergedStandAloneMuonSeeds = cms.EDProducer("MuonSeedMerger",
+                                           SeedCollections = cms.VInputTag(cms.InputTag("ancientMuonSeed"),
+                                                                           cms.InputTag("MuonSeed")
+                                                                           )
+                                           )
