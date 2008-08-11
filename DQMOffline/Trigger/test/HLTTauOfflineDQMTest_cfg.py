@@ -57,5 +57,5 @@ process.DQM.collectorHost = "pcwiscms10"
 process.DQM.collectorPort = 9091
 process.dqmEnv.subSystemFolder = "HLTOffline/HLTTAU"
 
-process.p = cms.Path(process.dqmEnv)
+process.p = cms.Path(process.HLTTauDQMOffline*process.dqmEnv)
 

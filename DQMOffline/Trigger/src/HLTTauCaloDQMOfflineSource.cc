@@ -57,17 +57,29 @@ HLTTauCaloDQMOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSe
    using namespace reco;
 
    Handle<L2TauInfoAssociation> l2TauInfoAssoc; //Handle to the input (L2 Tau Info Association)
+   iEvent.getByLabel(l2TauInfoAssoc_,l2TauInfoAssoc);
+
    Handle<LVColl> McInfo; //Handle To The Truth!!!!
+   iEvent.getByLabel(mcColl_,McInfo);
+
    Handle<reco::CaloJetCollection> l2Isolated;
+   iEvent.getByLabel(l2Isolated_,l2Isolated);
+
+   if (!l2TauInfoAssoc.isValid() || !l2Isolated.isValid())
+     {
+      edm::LogInfo("HLTTauCaloDQMOfflineSource") << "l2TauInfoAssoc object not found, "
+      "skipping event"; 
+    return;
+     }
 
 
    std::vector<l1extra::L1JetParticleRef> tauCandRefVec;
 
-   if(iEvent.getByLabel(l2TauInfoAssoc_,l2TauInfoAssoc))//get the Association class
+   if(l2TauInfoAssoc.isValid())//get the Association class
      {
 
        //Lets see if we have MC w matching or real data
-       if(iEvent.getByLabel(mcColl_,McInfo))
+       if(McInfo.isValid())
        //If the Collection exists do work
        if(l2TauInfoAssoc->size()>0)
 	 for(L2TauInfoAssociation::const_iterator p = l2TauInfoAssoc->begin();p!=l2TauInfoAssoc->end();++p)
@@ -93,7 +105,7 @@ HLTTauCaloDQMOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSe
 	      
 		   EtEffDenom->Fill(jet.et());
 
-  		   if(iEvent.getByLabel(l2Isolated_,l2Isolated))
+  		   if(l2Isolated.isValid())
 		     {
 		       if(matchJet(jet,*l2Isolated)) 
 			    EtEffNum->Fill(jet.et());
@@ -108,8 +120,8 @@ HLTTauCaloDQMOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSe
      }
 
    //Plot the missing Et. To be used in SingleTau mainly
-   Handle<CaloMETCollection> met;
-   if(iEvent.getByLabel(met_,met))//get the Association class
+   Handle<CaloMETCollection> met; iEvent.getByLabel(met_,met);
+   if(met.isValid())//get the Association class
      {
        MET->Fill((*met)[0].pt());
      }
@@ -180,8 +192,7 @@ HLTTauCaloDQMOfflineSource::matchJet(const reco::Jet& jet,const reco::CaloJetCol
      	  double delta = ROOT::Math::VectorUtil::DeltaR(jet.p4().Vect(),it->p4().Vect());
 	  if(delta<matchDeltaRMC_)
 	    {
-	      matched=true;
-	     
+	      matched=true;	     
 	    }
    }
 
