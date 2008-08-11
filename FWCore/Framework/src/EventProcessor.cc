@@ -755,7 +755,7 @@ namespace edm {
   void
   EventProcessor::procOneEvent(EventPrincipal *pep) {
     if(0 != pep) {
-      IOVSyncValue ts(pep->id(), pep->time());
+      IOVSyncValue ts(pep->id(), pep->luminosityBlock(), pep->time());
       EventSetup const& es = esp_->eventSetupForInstance(ts);
       schedule_->runOneEvent(*pep, es, BranchActionEvent);
     }
@@ -1615,6 +1615,7 @@ namespace edm {
   void EventProcessor::beginRun(int run) {
     RunPrincipal& runPrincipal = principalCache_.runPrincipal(run);
     IOVSyncValue ts(EventID(runPrincipal.run(),0),
+                    0,
                     runPrincipal.beginTime());
     EventSetup const& es = esp_->eventSetupForInstance(ts);
     schedule_->runOneEvent(runPrincipal, es, BranchActionBegin);
@@ -1625,6 +1626,7 @@ namespace edm {
     RunPrincipal& runPrincipal = principalCache_.runPrincipal(run);
     input_->doEndRun(runPrincipal);
     IOVSyncValue ts(EventID(runPrincipal.run(),EventID::maxEventNumber()),
+                    LuminosityBlockID::maxLuminosityBlockNumber(),
                     runPrincipal.endTime());
     EventSetup const& es = esp_->eventSetupForInstance(ts);
     schedule_->runOneEvent(runPrincipal, es, BranchActionEnd);
@@ -1633,7 +1635,9 @@ namespace edm {
 
   void EventProcessor::beginLumi(int run, int lumi) {
     LuminosityBlockPrincipal& lumiPrincipal = principalCache_.lumiPrincipal(run, lumi);
-    IOVSyncValue ts(EventID(lumiPrincipal.run(),0), lumiPrincipal.beginTime());
+    // NOTE: Using 0 as the event number for the begin of a lumi block is a bad idea
+    // lumi blocks know their start and end times why not also start and end events?
+    IOVSyncValue ts(EventID(lumiPrincipal.run(),0), lumiPrincipal.luminosityBlock(), lumiPrincipal.beginTime());
     EventSetup const& es = esp_->eventSetupForInstance(ts);
     schedule_->runOneEvent(lumiPrincipal, es, BranchActionBegin);
     FDEBUG(1) << "\tbeginLumi " << run << "/" << lumi << "\n";
@@ -1642,7 +1646,10 @@ namespace edm {
   void EventProcessor::endLumi(int run, int lumi) {
     LuminosityBlockPrincipal& lumiPrincipal = principalCache_.lumiPrincipal(run, lumi);
     input_->doEndLumi(lumiPrincipal);
+    //NOTE: Using the max event number for the end of a lumi block is a bad idea
+    // lumi blocks know their start and end times why not also start and end events?
     IOVSyncValue ts(EventID(lumiPrincipal.run(),EventID::maxEventNumber()),
+                    lumiPrincipal.luminosityBlock(),
                     lumiPrincipal.endTime());
     EventSetup const& es = esp_->eventSetupForInstance(ts);
     schedule_->runOneEvent(lumiPrincipal, es, BranchActionEnd);
@@ -1690,7 +1697,7 @@ namespace edm {
   }
 
   void EventProcessor::processEvent() {
-    IOVSyncValue ts(sm_evp_->id(), sm_evp_->time());
+    IOVSyncValue ts(sm_evp_->id(), sm_evp_->luminosityBlock(), sm_evp_->time());
     EventSetup const& es = esp_->eventSetupForInstance(ts);
     schedule_->runOneEvent(*sm_evp_, es, BranchActionEvent);
  
