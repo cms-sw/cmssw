@@ -1,4 +1,4 @@
-# last update on $Date: 2008/07/14 18:20:43 $ by $Author: flucke $
+# last update on $Date: 2008/07/15 18:35:21 $ by $Author: flucke $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -235,6 +235,6 @@ process.p = cms.Path(process.offlineBeamSpot*process.AlignmentTrackSelector*proc
 #    tag = cms.string('testTagAPE')
 #    ))
 #                                          )
-# MPS needs next line as placeholder for pede _cfg.p:
+# MPS needs next line as placeholder for pede _cfg.py:
 #MILLEPEDEBLOCK
 
