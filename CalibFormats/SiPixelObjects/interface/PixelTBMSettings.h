@@ -37,7 +37,8 @@ namespace pos{
 
     //Generate the DAC settings
     void generateConfiguration(PixelFECConfigInterface* pixelFEC,
-	                       PixelNameTranslation* trans) const; 
+	                       PixelNameTranslation* trans,
+			       bool physics=false) const; 
 
     void writeBinary(std::string filename) const;
 
