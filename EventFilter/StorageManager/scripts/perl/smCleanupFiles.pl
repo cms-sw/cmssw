@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: smCleanupFiles.pl,v 1.2 2008/06/11 13:59:47 loizides Exp $
+# $Id: smCleanupFiles.pl,v 1.3 2008/06/27 20:39:55 loizides Exp $
 
 use strict;
 use DBI;
@@ -66,11 +66,6 @@ $force      = 0;
 
 $hostname   = `hostname -s`;
 chomp($hostname);
-
-# have to redirect for minidaq/localdaq runs
-if($hostname eq 'srv-s2c17-01' || $hostname eq 'srv-C2D05-02') {
-    $hostname = 'cmsdisk1';
-}
 
 GetOptions(
            "help"          => \$help,
