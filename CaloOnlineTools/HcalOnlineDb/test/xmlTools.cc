@@ -239,19 +239,6 @@ int main( int argc, char **argv )
 	string _tag = vm["tag-name"].as<string>();
 	HcalLutManager manager;
 	manager . createAllLutXmlFiles( _tag, lin_master_file, comp_master_file, !vm.count("do-not-split-by-crate") );
-	/*
-	int _lut_type = vm["lut-type"].as<int>();
-	if (_lut_type==1){
-	  manager . getLutXmlFromAsciiMaster( _master_file, _tag, _cr, !vm.count("do-not-split-by-crate") );
-	}
-	else if (_lut_type==2){
-	  cout << "Creating compression LUT XML..." << endl;
-	  manager . getCompressionLutXmlFromAsciiMaster( _master_file, _tag, _cr, !vm.count("do-not-split-by-crate") );
-	}
-	else{
-	  cout << "Invalid LUT type...exiting" << endl;
-	}
-	*/
 	break;
       }
       return 0;

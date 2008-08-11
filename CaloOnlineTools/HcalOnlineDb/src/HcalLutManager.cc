@@ -15,6 +15,8 @@
 //#include "CaloOnlineTools/HcalOnlineDb/interface/RooGKCounter.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
+#include "CalibCalorimetry/HcalTPGAlgos/interface/HcaluLUTTPGCoder.h"
+
 using namespace std;
 using namespace oracle::occi;
 using namespace hcal;
@@ -206,6 +208,75 @@ HcalLutSet HcalLutManager::getLutSetFromFile( string _filename, int _type )
   return _lutset;
 }
 
+std::map<int, shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXmlFromCoder( string _tag, bool split_by_crate )
+{
+  cout << "Generating linearization (input) LUTs from HcaluLUTTPGCoder..." << endl;
+  map<int, shared_ptr<LutXml> > _xml; // index - crate number
+
+  //EMap _emap("../../../CondFormats/HcalObjects/data/official_emap_v5_080208.txt");
+  //std::vector<EMap::EMapRow> & _map = _emap.get_map();
+  //cout << "EMap contains " << _map . size() << " entries" << endl;
+
+  LMap _lmap;
+  _lmap . read( "HCALmapHBEF.txt", "HBEF" );
+  _lmap . read( "HCALmapHO.txt", "HO" );
+  map<int,LMapRow> & _map = _lmap.get_map();
+  cout << "LMap contains " << _map . size() << " channels" << endl;
+
+  HcaluLUTTPGCoder _coder("CalibCalorimetry/HcalTPGAlgos/data/RecHit-TPG-calib.dat",false);
+
+  // read LUTs and their eta/phi/depth/subdet ranges
+  //HcalLutSet _set = getLinearizationLutSetFromCoder();
+  //int lut_set_size = _set.lut.size(); // number of different luts
+
+  //loop over all HCAL channels
+  for( map<int,LMapRow>::const_iterator row=_map.begin(); row!=_map.end(); row++ ){
+    LutXml::Config _cfg;
+    
+    if ( _xml.count(row->second.crate) == 0 && split_by_crate ){
+      _xml.insert( pair<int,shared_ptr<LutXml> >(row->second.crate,shared_ptr<LutXml>(new LutXml())) );
+    }
+    else if ( _xml.count(0) == 0 ){
+      _xml.insert( pair<int,shared_ptr<LutXml> >(0,shared_ptr<LutXml>(new LutXml())) );
+    }
+    _cfg.ieta = row->second.side*row->second.eta;
+    _cfg.iphi = row->second.phi;
+    _cfg.depth = row->second.depth;
+    _cfg.crate = row->second.crate;
+    _cfg.slot = row->second.htr;
+    if (row->second.fpga . find("top") != string::npos) _cfg.topbottom = 1;
+    else if (row->second.fpga . find("bot") != string::npos) _cfg.topbottom = 0;
+    else cout << "Warning! fpga out of range..." << endl;
+    // FIXME: probably fixed. fiber==htr_fi, not rm_fi in LMAP notation.
+    //_cfg.fiber = row->second.rm_fi;
+    _cfg.fiber = row->second.htr_fi;
+    _cfg.fiberchan = row->second.fi_ch;
+    _cfg.lut_type = 1;
+    _cfg.creationtag = _tag;
+    _cfg.creationstamp = get_time_stamp( time(0) );
+    _cfg.targetfirmware = "1.0.0";
+    _cfg.formatrevision = "1"; //???
+    // "original" definition of GENERALIZEDINDEX from Mike Weinberger
+    //    int generalizedIndex=id.ietaAbs()+1000*id.depth()+10000*id.iphi()+
+    //        ((id.ieta()<0)?(0):(100))+((id.subdet()==HcalForward && id.ietaAbs()==29)?(4*10000):(0));
+    _cfg.generalizedindex =
+      _cfg.iphi*10000 + _cfg.depth*1000 +
+      (row->second.side>0)*100 + row->second.eta +
+      ((row->second.det==HcalForward && row->second.eta==29)?(4*10000):(0));
+    HcalDetId _detid(row->first);
+    _cfg.lut = _coder . getLinearizationLut(_detid);
+    if (split_by_crate ){
+      _xml[row->second.crate]->addLut( _cfg, lut_checksums_xml );  
+    }
+    else{
+      _xml[0]->addLut( _cfg, lut_checksums_xml );  
+    }
+  }
+  cout << "Generating linearization (input) LUTs from HcaluLUTTPGCoder...DONE" << endl;
+  return _xml;
+}
+
+
 std::map<int, shared_ptr<LutXml> > HcalLutManager::getLutXmlFromAsciiMaster( string _filename, string _tag, int _crate, bool split_by_crate )
 {
   cout << "Generating linearization (input) LUTs from ascii master file..." << endl;
@@ -318,6 +389,24 @@ int HcalLutManager::createAllLutXmlFiles( string _tag, string _lin_file, string 
     addLutMap( xml, getCompressionLutXmlFromAsciiMaster( _comp_file, _tag, -1, split_by_crate ) );
     //cout << "DEBUG2!!!!" << endl;
   }
+  writeLutXmlFiles( xml, _tag, split_by_crate );
+
+  string checksums_file = _tag + "_checksums.xml";
+  lut_checksums_xml -> write( checksums_file . c_str() );
+
+  return 0;
+}
+
+int HcalLutManager::createAllLutXmlFilesFromCoder( string _tag, bool split_by_crate )
+{
+  //cout << "DEBUG1: split_by_crate = " << split_by_crate << endl;
+  std::map<int, shared_ptr<LutXml> > xml;
+  if ( !lut_checksums_xml ){
+    lut_checksums_xml = new XMLDOMBlock( "CFGBrick", 1 );
+  }
+  
+  addLutMap( xml, getLinearizationLutXmlFromCoder( _tag, split_by_crate ) );
+
   writeLutXmlFiles( xml, _tag, split_by_crate );
 
   string checksums_file = _tag + "_checksums.xml";
