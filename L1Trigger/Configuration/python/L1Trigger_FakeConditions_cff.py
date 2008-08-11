@@ -12,7 +12,7 @@ from L1TriggerConfig.L1GeometryProducers.l1CaloGeomConfig_cff import *
 # L1 Muon configuration
 from L1TriggerConfig.DTTrackFinder.L1DTTrackFinderConfig_cff import *
 from L1TriggerConfig.CSCTFConfigProducers.L1CSCTFConfig_cff import *
-from L1TriggerConfig.RPCTriggerConfig.RPCConeSource_cfi import *
+from L1TriggerConfig.RPCTriggerConfig.L1RPCConfig_cff import *
 from L1TriggerConfig.GMTConfigProducers.L1MuGMTParametersConfig_cff import *
 from L1TriggerConfig.L1ScalesProducers.L1MuTriggerScalesConfig_cff import *
 from L1TriggerConfig.L1ScalesProducers.L1MuTriggerPtScaleConfig_cff import *
@@ -25,5 +25,5 @@ from L1TriggerConfig.L1GtConfigProducers.L1GtConfig_cff import *
 # they should be moved to CSC/DT/RPC fake conditions
 from L1TriggerConfig.L1CSCTPConfigProducers.L1CSCTriggerPrimitivesConfig_cff import *
 from L1TriggerConfig.DTTPGConfigProducers.L1DTTPGConfig_cff import *
-from L1TriggerConfig.RPCTriggerConfig.RPCPatSource_cfi import *
-from L1TriggerConfig.RPCTriggerConfig.RPCHwConfigSource_cfi import *
+from L1TriggerConfig.RPCTriggerConfig.RPCConeConfig_cff import *
+from L1TriggerConfig.RPCTriggerConfig.RPCHwConfig_cff import *
