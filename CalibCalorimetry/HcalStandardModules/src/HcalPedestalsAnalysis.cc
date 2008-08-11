@@ -10,31 +10,27 @@
 HcalPedestalsAnalysis::HcalPedestalsAnalysis(const edm::ParameterSet& ps)
 {
    hiSaveFlag = ps.getUntrackedParameter<bool>("hiSaveFlag", false);
-   dumpXML = ps.getUntrackedParameter<bool>("dumpXML", true);
-   verboseflag = ps.getUntrackedParameter<bool>("verbose", false);
+   dumpXML = ps.getUntrackedParameter<bool>("dumpXML", false);
    firstTS = ps.getUntrackedParameter<int>("firstTS", 0);
    lastTS = ps.getUntrackedParameter<int>("lastTS", 9);   
    firsttime = true;
+
+   rawPedsItem = new HcalPedestals();
+   rawWidthsItem = new HcalPedestalWidths();
+   rawPedsItemfc = new HcalPedestals();
+   rawWidthsItemfc = new HcalPedestalWidths();
 }
 
 
 HcalPedestalsAnalysis::~HcalPedestalsAnalysis()
 {
-   HcalPedestals* rawPedsItem = new HcalPedestals();
-   HcalPedestalWidths* rawWidthsItem = new HcalPedestalWidths();
-   HcalPedestals* rawPedsItemfc = new HcalPedestals();
-   HcalPedestalWidths* rawWidthsItemfc = new HcalPedestalWidths();
-
    //Calculate pedestal constants
    std::cout << "Calculating Pedestal constants...\n";
    std::vector<NewPedBunch>::iterator bunch_it;
    for(bunch_it=Bunches.begin(); bunch_it != Bunches.end(); bunch_it++)
    {
-      if(bunch_it->usedflag){
-
-      if(verboseflag) std::cout << "Analyzing channel phi= " << bunch_it->detid.iphi() 
-        << " eta = " << bunch_it->detid.ieta() << " depth = " << bunch_it->detid.depth()
-        << std::endl;
+      if(bunch_it->usedflag)
+      {
       //pedestal constant is the mean
       bunch_it->cap[0] /= bunch_it->num[0][0];
       bunch_it->cap[1] /= bunch_it->num[1][1];
@@ -67,6 +63,9 @@ HcalPedestalsAnalysis::~HcalPedestalsAnalysis()
       bunch_it->sigfc[1][3] = (bunch_it->prodfc[1][3]/(bunch_it->num[1][3]))-(bunch_it->capfc[1]*bunch_it->capfc[3]);
       bunch_it->sigfc[2][3] = (bunch_it->prodfc[2][3]/(bunch_it->num[2][3]))-(bunch_it->capfc[2]*bunch_it->capfc[3]);
 
+      if(bunch_it->genid.isHcalDetId())
+      {
+
       if(bunch_it->detid.subdet() == 1){
          for(int i = 0; i != 3; i++){
             HBMeans->Fill(bunch_it->cap[i]);
@@ -92,36 +91,73 @@ HcalPedestalsAnalysis::~HcalPedestalsAnalysis()
          }
       }
 
-      const HcalPedestal item(bunch_it->detid, bunch_it->cap[0], bunch_it->cap[1], bunch_it->cap[2], bunch_it->cap[3]);
-      rawPedsItem->addValues(item);
-      HcalPedestalWidth widthsp(bunch_it->detid);
-      widthsp.setSigma(0,0,bunch_it->sig[0][0]);
-      widthsp.setSigma(0,1,bunch_it->sig[0][1]);
-      widthsp.setSigma(0,2,bunch_it->sig[0][2]);
-      widthsp.setSigma(0,3,bunch_it->sig[0][3]);
-      widthsp.setSigma(1,1,bunch_it->sig[1][1]);
-      widthsp.setSigma(1,2,bunch_it->sig[1][2]);
-      widthsp.setSigma(1,3,bunch_it->sig[1][3]);
-      widthsp.setSigma(2,2,bunch_it->sig[2][2]);
-      widthsp.setSigma(2,3,bunch_it->sig[2][3]);
-      widthsp.setSigma(3,3,bunch_it->sig[3][3]);
-      rawWidthsItem->addValues(widthsp);
+         const HcalPedestal item(bunch_it->detid.rawId(), bunch_it->cap[0], bunch_it->cap[1], bunch_it->cap[2], bunch_it->cap[3]);
+         rawPedsItem->addValues(item);
+         HcalPedestalWidth widthsp(bunch_it->detid.rawId());
+         widthsp.setSigma(0,0,bunch_it->sig[0][0]);
+         widthsp.setSigma(0,1,bunch_it->sig[0][1]);
+         widthsp.setSigma(0,2,bunch_it->sig[0][2]);
+         widthsp.setSigma(0,3,bunch_it->sig[0][3]);
+         widthsp.setSigma(1,1,bunch_it->sig[1][1]);
+         widthsp.setSigma(1,2,bunch_it->sig[1][2]);
+         widthsp.setSigma(1,3,bunch_it->sig[1][3]);
+         widthsp.setSigma(2,2,bunch_it->sig[2][2]);
+         widthsp.setSigma(2,3,bunch_it->sig[2][3]);
+         widthsp.setSigma(3,3,bunch_it->sig[3][3]);
+         rawWidthsItem->addValues(widthsp);
 
-      const HcalPedestal itemfc(bunch_it->detid, bunch_it->capfc[0], bunch_it->capfc[1],
+         const HcalPedestal itemfc(bunch_it->detid.rawId(), bunch_it->capfc[0], bunch_it->capfc[1],
                                    bunch_it->capfc[2], bunch_it->capfc[3]);
-      rawPedsItemfc->addValues(itemfc);
-      HcalPedestalWidth widthspfc(bunch_it->detid);
-      widthspfc.setSigma(0,0,bunch_it->sigfc[0][0]);
-      widthspfc.setSigma(0,1,bunch_it->sigfc[0][1]);
-      widthspfc.setSigma(0,2,bunch_it->sigfc[0][2]);
-      widthspfc.setSigma(0,3,bunch_it->sigfc[0][3]);
-      widthspfc.setSigma(1,1,bunch_it->sigfc[1][1]);
-      widthspfc.setSigma(1,2,bunch_it->sigfc[1][2]);
-      widthspfc.setSigma(1,3,bunch_it->sigfc[1][3]);
-      widthspfc.setSigma(2,2,bunch_it->sigfc[2][2]);
-      widthspfc.setSigma(2,3,bunch_it->sigfc[2][3]);
-      widthspfc.setSigma(3,3,bunch_it->sigfc[3][3]);
-      rawWidthsItemfc->addValues(widthspfc);
+         rawPedsItemfc->addValues(itemfc);
+         HcalPedestalWidth widthspfc(bunch_it->detid.rawId());
+         widthspfc.setSigma(0,0,bunch_it->sigfc[0][0]);
+         widthspfc.setSigma(0,1,bunch_it->sigfc[0][1]);
+         widthspfc.setSigma(0,2,bunch_it->sigfc[0][2]);
+         widthspfc.setSigma(0,3,bunch_it->sigfc[0][3]);
+         widthspfc.setSigma(1,1,bunch_it->sigfc[1][1]);
+         widthspfc.setSigma(1,2,bunch_it->sigfc[1][2]);
+         widthspfc.setSigma(1,3,bunch_it->sigfc[1][3]);
+         widthspfc.setSigma(2,2,bunch_it->sigfc[2][2]);
+         widthspfc.setSigma(2,3,bunch_it->sigfc[2][3]);
+         widthspfc.setSigma(3,3,bunch_it->sigfc[3][3]);
+         rawWidthsItemfc->addValues(widthspfc);
+      }else if(bunch_it->genid.isHcalZDCDetId()){
+         for(int i = 0; i != 3; i++){
+            ZDCMeans->Fill(bunch_it->cap[i]);
+            ZDCWidths->Fill(bunch_it->sig[i][i]);
+         }
+
+         const HcalPedestal item(bunch_it->zdcid.rawId(), bunch_it->cap[0], bunch_it->cap[1], bunch_it->cap[2], bunch_it->cap[3]);
+         rawPedsItem->addValues(item);
+         HcalPedestalWidth widthsp(bunch_it->zdcid.rawId());
+         widthsp.setSigma(0,0,bunch_it->sig[0][0]);
+         widthsp.setSigma(0,1,bunch_it->sig[0][1]);
+         widthsp.setSigma(0,2,bunch_it->sig[0][2]);
+         widthsp.setSigma(0,3,bunch_it->sig[0][3]);
+         widthsp.setSigma(1,1,bunch_it->sig[1][1]);
+         widthsp.setSigma(1,2,bunch_it->sig[1][2]);
+         widthsp.setSigma(1,3,bunch_it->sig[1][3]);
+         widthsp.setSigma(2,2,bunch_it->sig[2][2]);
+         widthsp.setSigma(2,3,bunch_it->sig[2][3]);
+         widthsp.setSigma(3,3,bunch_it->sig[3][3]);
+         rawWidthsItem->addValues(widthsp);
+
+         const HcalPedestal itemfc(bunch_it->zdcid.rawId(), bunch_it->capfc[0], bunch_it->capfc[1],
+                                   bunch_it->capfc[2], bunch_it->capfc[3]);
+         rawPedsItemfc->addValues(itemfc);
+         HcalPedestalWidth widthspfc(bunch_it->zdcid.rawId());
+         widthspfc.setSigma(0,0,bunch_it->sigfc[0][0]);
+         widthspfc.setSigma(0,1,bunch_it->sigfc[0][1]);
+         widthspfc.setSigma(0,2,bunch_it->sigfc[0][2]);
+         widthspfc.setSigma(0,3,bunch_it->sigfc[0][3]);
+         widthspfc.setSigma(1,1,bunch_it->sigfc[1][1]);
+         widthspfc.setSigma(1,2,bunch_it->sigfc[1][2]);
+         widthspfc.setSigma(1,3,bunch_it->sigfc[1][3]);
+         widthspfc.setSigma(2,2,bunch_it->sigfc[2][2]);
+         widthspfc.setSigma(2,3,bunch_it->sigfc[2][3]);
+         widthspfc.setSigma(3,3,bunch_it->sigfc[3][3]);
+         rawWidthsItemfc->addValues(widthspfc);
+         }
       }
    }
 
@@ -160,11 +196,20 @@ HcalPedestalsAnalysis::~HcalPedestalsAnalysis()
        theFile->cd("HO");
        HOMeans->Write();
        HOWidths->Write();
+       theFile->cd("ZDC");
+       ZDCMeans->Write();
+       ZDCWidths->Write();
     }
 
     std::cout << "Writing ROOT file... ";
     theFile->Close();
     std::cout << "ROOT file closed.\n";
+    
+    delete rawPedsItem;
+    delete rawWidthsItem;
+    delete rawPedsItemfc;
+    delete rawWidthsItemfc;    
+
 }
 
 // ------------ method called to for each event  ------------
@@ -205,6 +250,7 @@ HcalPedestalsAnalysis::analyze(const edm::Event& e, const edm::EventSetup& iSetu
       theFile->mkdir("HE");
       theFile->mkdir("HF");
       theFile->mkdir("HO");
+      theFile->mkdir("ZDC");
       theFile->cd();
 
       HBMeans = new TH1F("All Ped Means HB","All Ped Means HB", 100, 0, 9);
@@ -215,10 +261,8 @@ HcalPedestalsAnalysis::analyze(const edm::Event& e, const edm::EventSetup& iSetu
       HFWidths = new TH1F("All Ped Widths HF","All Ped Widths HF", 100, 0, 3);
       HOMeans = new TH1F("All Ped Means HO","All Ped Means HO", 100, 0, 9);
       HOWidths = new TH1F("All Ped Widths HO","All Ped Widths HO", 100, 0, 3);
-      ZDCMeans = new TH1F("All Ped Means ZDC","All Ped Means ZDC", 100, 0, 9);
-      ZDCWidths = new TH1F("All Ped Widths ZDC","All Ped Widths ZDC", 100, 0, 3);
-
-
+      ZDCMeans = new TH1F("All Ped Means ZDC","All Ped Means ZDC", 100, 0, 19);
+      ZDCWidths = new TH1F("All Ped Widths ZDC","All Ped Widths ZDC", 100, 0, 19);
 
       edm::ESHandle<HcalElectronicsMap> refEMap;
       iSetup.get<HcalElectronicsMapRcd>().get(refEMap);
@@ -232,12 +276,8 @@ HcalPedestalsAnalysis::analyze(const edm::Event& e, const edm::EventSetup& iSetu
             NewPedBunch a;
             HcalDetId chanid(mygenid.rawId());
             a.detid = chanid;
+            a.genid = mygenid;
             a.usedflag = false;
-//            string type;
-//            if(chanid.subdet() == 1) type = "HB";
-//            if(chanid.subdet() == 2) type = "HE";
-//            if(chanid.subdet() == 3) type = "HO";
-//            if(chanid.subdet() == 4) type = "HF";
             for(int i = 0; i != 4; i++)
             {
                a.cap[i] = 0;
@@ -258,12 +298,8 @@ HcalPedestalsAnalysis::analyze(const edm::Event& e, const edm::EventSetup& iSetu
             NewPedBunch a;
             HcalZDCDetId chanid(mygenid.rawId());
             a.zdcid = chanid;
+            a.genid = mygenid;
             a.usedflag = false;
-//            string type = "ZDC";
-//            if(chanid.subdet() == 1) type = "HB";
-//            if(chanid.subdet() == 2) type = "HE";
-//            if(chanid.subdet() == 3) type = "HO";
-//            if(chanid.subdet() == 4) type = "HF";
             for(int i = 0; i != 4; i++)
             {
                a.cap[i] = 0;
@@ -428,8 +464,6 @@ HcalPedestalsAnalysis::analyze(const edm::Event& e, const edm::EventSetup& iSetu
          }
       }
    }
-
-
 //this is the last brace
 }
 
