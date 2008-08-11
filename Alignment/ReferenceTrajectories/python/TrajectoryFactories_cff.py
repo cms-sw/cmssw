@@ -106,7 +106,7 @@ TwoBodyDecayTrajectoryFactory = cms.PSet(
 ###############################################################
 #
 # CombinedTrajectoryFactory using an instance of TwoBodyDecayTrajectoryFactory
-# and ReferenceTrajectoryFactory
+# and ReferenceTrajectoryFactory, taking the first successful.
 #
 ###############################################################
 CombinedTrajectoryFactory = cms.PSet(
@@ -131,23 +131,48 @@ CombinedTrajectoryFactory = cms.PSet(
 # one propagating alongMomentum, one oppositeToMomentum.
 #
 ###############################################################
-# first a helper object
-BwdBzeroReferenceTrajectoryFactory = BzeroReferenceTrajectoryFactory
+# First a helper object, where I'd like to do:
+#BwdBzeroReferenceTrajectoryFactory = BzeroReferenceTrajectoryFactory.clone(PropagationDirection = 'oppositeToMomentum')
+# Since there is no clone in cms.PSet (yet?), but clone is needed for python that works by reference, 
+# take solution from https://hypernews.cern.ch/HyperNews/CMS/get/swDevelopment/1890/1.html:
+import copy
+BwdBzeroReferenceTrajectoryFactory = copy.deepcopy(BzeroReferenceTrajectoryFactory)
 BwdBzeroReferenceTrajectoryFactory.PropagationDirection = 'oppositeToMomentum'
 # now the PSet
 CombinedFwdBwdBzeroTrajectoryFactory = cms.PSet(
     TrajectoryFactoryBase, # will not be used!
     TrajectoryFactoryName = cms.string('CombinedTrajectoryFactory'),
-    # look for PSets called FwdBzero and BwdBzero:
+
     TrajectoryFactoryNames = cms.vstring(
         'BzeroReferenceTrajectoryFactory,FwdBzero',  # look for PSet called FwdBzero
         'BzeroReferenceTrajectoryFactory,BwdBzero'), # look for PSet called BwdBzero
     useAllFactories = cms.bool(True),
+    
     # now one PSet for each of the configured trajectories:
-    FwdBzero = cms.PSet(
-        BzeroReferenceTrajectoryFactory
-    ),
-    BwdBzero = cms.PSet(
-        BwdBzeroReferenceTrajectoryFactory
-    )
+    FwdBzero = cms.PSet(BzeroReferenceTrajectoryFactory),
+    BwdBzero = cms.PSet(BwdBzeroReferenceTrajectoryFactory)
+)
+
+###############################################################
+#
+# CombinedTrajectoryFactory using three ReferenceTrajectories:
+# - two instances of BzeroReferenceTrajectoryFactory,
+#   one propagating alongMomentum, one oppositeToMomentum,
+# - a DualBzeroTrajectory to start in the middle.
+#
+###############################################################
+CombinedFwdBwdDualBzeroTrajectoryFactory = cms.PSet(
+    TrajectoryFactoryBase, # will not be used!
+    TrajectoryFactoryName = cms.string('CombinedTrajectoryFactory'),
+
+    TrajectoryFactoryNames = cms.vstring(
+        'BzeroReferenceTrajectoryFactory,FwdBzero',  # look for PSet called FwdBzero
+        'BzeroReferenceTrajectoryFactory,BwdBzero',  # look for PSet called BwdBzero
+    	'DualBzeroTrajectoryFactory,DualBzero'),     # look for PSet called DualBzero
+    useAllFactories = cms.bool(True),
+
+    # now one PSet for each of the configured trajectories:
+    FwdBzero  = cms.PSet(BzeroReferenceTrajectoryFactory),
+    BwdBzero  = cms.PSet(BwdBzeroReferenceTrajectoryFactory), # defined above for CombinedFwdBwdBzeroTrajectoryFactory
+    DualBzero = cms.PSet(DualBzeroTrajectoryFactory)
 )
