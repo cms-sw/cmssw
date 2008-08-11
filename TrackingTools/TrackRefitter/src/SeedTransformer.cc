@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/08/07 16:56:26 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/08/11 14:30:28 $
+ *  $Revision: 1.3 $
  *  \author D. Trocino - University and INFN Torino
  */
 
@@ -48,8 +48,6 @@ using namespace reco;
 SeedTransformer::SeedTransformer(const ParameterSet& iConfig) {
 
   LogTrace("Reco|TrackingTools|SeedTransformer") << "SeedTransformer constructor called." << endl << endl;
-
-  ParameterSet serviceParameters = iConfig.getParameter<ParameterSet>("ServiceParameters");
 
   theFitterName = iConfig.getParameter<string>("Fitter");  
   theMuonRecHitBuilderName = iConfig.getParameter<string>("MuonRecHitBuilder");
