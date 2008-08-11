@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2008/06/26 11:01:19 $
- * $Revision: 1.163 $
+ * $Date: 2008/08/11 07:24:13 $
+ * $Revision: 1.164 $
  * \author G. Della Ricca
  *
 */
@@ -669,7 +669,7 @@ void EBSummaryClient::analyze(void) {
               (val_02>=3&&val_02<=5) ? maskedVal.push_back(val_02) : unmaskedVal.push_back(val_02);
               (val_03>=3&&val_03<=5) ? maskedVal.push_back(val_03) : unmaskedVal.push_back(val_03);
 
-              float brightColor=-1, darkColor=-1;
+              float brightColor=6, darkColor=6;
               float maxPriority=-1;
 
               vector<float>::const_iterator Val;
