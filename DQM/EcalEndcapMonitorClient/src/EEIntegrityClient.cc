@@ -2,8 +2,8 @@
 /*
  * \file EEIntegrityClient.cc
  *
- * $Date: 2008/06/25 15:08:19 $
- * $Revision: 1.82 $
+ * $Date: 2008/06/25 17:34:37 $
+ * $Revision: 1.83 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -182,7 +182,7 @@ void EEIntegrityClient::setup(void) {
     for ( int ix = 1; ix <= 50; ix++ ) {
       for ( int iy = 1; iy <= 50; iy++ ) {
 
-        if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ix, iy, -1. );
+        if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ix, iy, 6. );
 
         int jx = ix + Numbers::ix0EE(ism);
         int jy = iy + Numbers::iy0EE(ism);
@@ -804,7 +804,7 @@ void EEIntegrityClient::analyze(void) {
 
         num01 = num02 = num03 = num04 = num05 = 0.;
 
-        if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ix, iy, -1. );
+        if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ix, iy, 6. );
 
         bool update1 = false;
         bool update2 = false;
@@ -843,7 +843,7 @@ void EEIntegrityClient::analyze(void) {
           float val;
 
           val = 1.;
-          // numer of events on a channel
+          // number of events on a channel
           if ( numTot > 0 ) {
             float errorRate1 =  num00 / numTot;
             if ( errorRate1 > threshCry_ )
@@ -897,10 +897,7 @@ void EEIntegrityClient::analyze(void) {
 
             if ( ecid.getLogicID() == LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic).getLogicID() ) {
               if ( (m->second).getErrorBits() & bits01 ) {
-                if ( meg01_[ism-1] ) {
-                  float val = int(meg01_[ism-1]->getBinContent(ix, iy)) % 3;
-                  meg01_[ism-1]->setBinContent( ix, iy, val+3 );
-                }
+                UtilsClient::maskBinContent( meg01_[ism-1], ix, iy );
               }
             }
 
@@ -917,10 +914,7 @@ void EEIntegrityClient::analyze(void) {
 
             if ( ecid.getLogicID() == LogicID::getEcalLogicID("EE_readout_tower", Numbers::iSM(ism, EcalEndcap), itt).getLogicID() ) {
               if ( (m->second).getErrorBits() & bits02 ) {
-                if ( meg01_[ism-1] ) {
-                  float val = int(meg01_[ism-1]->getBinContent(ix, iy)) % 3;
-                  meg01_[ism-1]->setBinContent( ix, iy, val+3 );
-                }
+                UtilsClient::maskBinContent( meg01_[ism-1], ix, iy );
               }
             }
 
@@ -977,7 +971,7 @@ void EEIntegrityClient::analyze(void) {
           float val;
 
           val = 1.;
-          // numer of events on a channel
+          // number of events on a channel
           if ( numTotmem > 0 ) {
             float errorRate1 = ( num06 + num06 ) / numTotmem / 2.;
             if ( errorRate1 > threshCry_ )
@@ -1010,10 +1004,7 @@ void EEIntegrityClient::analyze(void) {
 
             if ( ecid.getLogicID() == LogicID::getEcalLogicID("EE_mem_channel", Numbers::iSM(ism, EcalEndcap), ic).getLogicID() ) {
               if ( (m->second).getErrorBits() & bits01 ) {
-                if ( meg02_[ism-1] ) {
-                  float val = int(meg02_[ism-1]->getBinContent(ie, ip)) % 3;
-                  meg02_[ism-1]->setBinContent( ie, ip, val+3 );
-                }
+                UtilsClient::maskBinContent( meg02_[ism-1], ie, ip );
               }
             }
           }
@@ -1030,10 +1021,7 @@ void EEIntegrityClient::analyze(void) {
 
             if ( ecid.getLogicID() == LogicID::getEcalLogicID("EE_mem_TT", Numbers::iSM(ism, EcalEndcap), itt).getLogicID() ) {
               if ( (m->second).getErrorBits() & bits02 ) {
-                if ( meg02_[ism-1] ) {
-                  float val = int(meg02_[ism-1]->getBinContent(ie, ip)) % 3;
-                  meg02_[ism-1]->setBinContent( ie, ip, val+3 );
-                }
+                UtilsClient::maskBinContent( meg02_[ism-1], ie, ip );
               }
             }
           }
@@ -1199,7 +1187,7 @@ void EEIntegrityClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
 
   const int csize = 250;
 
-  int pCol3[6] = { 301, 302, 303, 304, 305, 306 };
+  int pCol3[7] = { 301, 302, 303, 304, 305, 306, 307 };
   int pCol4[10];
   for ( int i = 0; i < 10; i++ ) pCol4[i] = 401+i;
   int pCol5[10];
@@ -1305,11 +1293,11 @@ void EEIntegrityClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
 
       cQual->cd();
       gStyle->SetOptStat(" ");
-      gStyle->SetPalette(6, pCol3);
+      gStyle->SetPalette(7, pCol3);
       cQual->SetGridx();
       cQual->SetGridy();
       obj2f->SetMinimum(-0.00000001);
-      obj2f->SetMaximum(6.0);
+      obj2f->SetMaximum(7.0);
       obj2f->GetXaxis()->SetLabelSize(0.02);
       obj2f->GetXaxis()->SetTitleSize(0.02);
       obj2f->GetYaxis()->SetLabelSize(0.02);
@@ -1466,13 +1454,13 @@ void EEIntegrityClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
 
       cMeMem->cd();
       gStyle->SetOptStat(" ");
-      gStyle->SetPalette(6, pCol3);
+      gStyle->SetPalette(7, pCol3);
       obj2f->GetXaxis()->SetNdivisions(10);
       obj2f->GetYaxis()->SetNdivisions(5);
       cMeMem->SetGridx();
       cMeMem->SetGridy(0);
       obj2f->SetMinimum(-0.00000001);
-      obj2f->SetMaximum(6.0);
+      obj2f->SetMaximum(7.0);
       obj2f->Draw("col");
       dummy3.Draw("text,same");
       cMeMem->Update();

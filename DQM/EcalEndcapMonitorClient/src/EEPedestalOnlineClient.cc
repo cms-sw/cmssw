@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineClient.cc
  *
- * $Date: 2008/06/25 15:08:20 $
- * $Revision: 1.81 $
+ * $Date: 2008/06/25 17:14:57 $
+ * $Revision: 1.82 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -24,7 +24,6 @@
 #include "OnlineDB/EcalCondDB/interface/MonPedestalsOnlineDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunTTErrorsDat.h"
-#include "OnlineDB/EcalCondDB/interface/RunMemTTErrorsDat.h"
 
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
 
@@ -167,7 +166,7 @@ void EEPedestalOnlineClient::setup(void) {
     for ( int ix = 1; ix <= 50; ix++ ) {
       for ( int iy = 1; iy <= 50; iy++ ) {
 
-        meg03_[ism-1]->setBinContent( ix, iy, -1. );
+        meg03_[ism-1]->setBinContent( ix, iy, 6. );
 
         int jx = ix + Numbers::ix0EE(ism);
         int jy = iy + Numbers::iy0EE(ism);
@@ -260,7 +259,7 @@ bool EEPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov,
 
         bool update03;
 
-        update03 = UtilsClient::getBinStats(h03_[ism-1], ix, iy, num03, mean03, rms03);
+        update03 = UtilsClient::getBinStatistics(h03_[ism-1], ix, iy, num03, mean03, rms03);
 
         if ( update03 ) {
 
@@ -277,13 +276,13 @@ bool EEPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov,
           p.setADCMeanG12(mean03);
           p.setADCRMSG12(rms03);
 
-          if ( meg03_[ism-1] && int(meg03_[ism-1]->getBinContent( ix, iy )) % 3 == 1 ) {
+          if ( UtilsClient::getBinStatus(meg03_[ism-1], ix, iy) ) {
             p.setTaskStatus(true);
           } else {
             p.setTaskStatus(false);
           }
 
-          status = status && UtilsClient::getBinQual(meg03_[ism-1], ix, iy);
+          status = status && UtilsClient::getBinQuality(meg03_[ism-1], ix, iy);
 
           int ic = Numbers::indexEE(ism, jx, jy);
 
@@ -356,7 +355,7 @@ void EEPedestalOnlineClient::analyze(void) {
     for ( int ix = 1; ix <= 50; ix++ ) {
       for ( int iy = 1; iy <= 50; iy++ ) {
 
-        if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent(ix, iy, -1.);
+        if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent(ix, iy, 6.);
 
         int jx = ix + Numbers::ix0EE(ism);
         int jy = iy + Numbers::iy0EE(ism);
@@ -373,7 +372,7 @@ void EEPedestalOnlineClient::analyze(void) {
         float mean03;
         float rms03;
 
-        update03 = UtilsClient::getBinStats(h03_[ism-1], ix, iy, num03, mean03, rms03);
+        update03 = UtilsClient::getBinStatistics(h03_[ism-1], ix, iy, num03, mean03, rms03);
 
         if ( update03 ) {
 
@@ -412,17 +411,14 @@ void EEPedestalOnlineClient::analyze(void) {
 
             if ( ecid.getLogicID() == LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic).getLogicID() ) {
               if ( (m->second).getErrorBits() & bits03 ) {
-                if ( meg03_[ism-1] ) {
-                  float val = int(meg03_[ism-1]->getBinContent(ix, iy)) % 3;
-                  meg03_[ism-1]->setBinContent( ix, iy, val+3 );
-                }
+                UtilsClient::maskBinContent( meg03_[ism-1], ix, iy );
               }
             }
 
           }
         }
 
-	// TT masking
+        // TT masking
 
         if ( mask2.size() != 0 ) {
           map<EcalLogicID, RunTTErrorsDat>::const_iterator m;
@@ -433,10 +429,9 @@ void EEPedestalOnlineClient::analyze(void) {
             int itt = Numbers::iTT(ism, EcalEndcap, ix, iy);
 
             if ( ecid.getLogicID() == LogicID::getEcalLogicID("EE_readout_tower", Numbers::iSM(ism, EcalEndcap), itt).getLogicID() ) {
-	      if ( meg03_[ism-1] ) {
-		float val = int(meg03_[ism-1]->getBinContent(ix, iy)) % 3;
-		meg03_[ism-1]->setBinContent( ix, iy, val+3 );
-	      }
+              if ( (m->second).getErrorBits() & bits03 ) {
+                UtilsClient::maskBinContent( meg03_[ism-1], ix, iy );
+              }
             }
 
           }
@@ -514,7 +509,7 @@ void EEPedestalOnlineClient::htmlOutput(int run, string& htmlDir, string& htmlNa
 
   const double histMax = 1.e15;
 
-  int pCol3[6] = { 301, 302, 303, 304, 305, 306 };
+  int pCol3[7] = { 301, 302, 303, 304, 305, 306, 307 };
 
   TH2S labelGrid("labelGrid","label grid", 100, -2., 98., 100, -2., 98.);
   for ( short j=0; j<400; j++ ) {
@@ -557,7 +552,7 @@ void EEPedestalOnlineClient::htmlOutput(int run, string& htmlDir, string& htmlNa
 
       cQual->cd();
       gStyle->SetOptStat(" ");
-      gStyle->SetPalette(6, pCol3);
+      gStyle->SetPalette(7, pCol3);
       cQual->SetGridx();
       cQual->SetGridy();
       obj2f->GetXaxis()->SetLabelSize(0.02);
@@ -565,7 +560,7 @@ void EEPedestalOnlineClient::htmlOutput(int run, string& htmlDir, string& htmlNa
       obj2f->GetYaxis()->SetLabelSize(0.02);
       obj2f->GetYaxis()->SetTitleSize(0.02);
       obj2f->SetMinimum(-0.00000001);
-      obj2f->SetMaximum(6.0);
+      obj2f->SetMaximum(7.0);
       obj2f->Draw("col");
       int x1 = labelGrid.GetXaxis()->FindFixBin(Numbers::ix0EE(ism)+0.);
       int x2 = labelGrid.GetXaxis()->FindFixBin(Numbers::ix0EE(ism)+50.);

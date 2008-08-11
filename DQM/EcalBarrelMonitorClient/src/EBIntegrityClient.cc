@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2008/06/25 15:08:18 $
- * $Revision: 1.209 $
+ * $Date: 2008/06/25 17:34:37 $
+ * $Revision: 1.210 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -796,7 +796,7 @@ void EBIntegrityClient::analyze(void) {
           float val;
 
           val = 1.;
-          // numer of events on a channel
+          // number of events on a channel
           if ( numTot > 0 ) {
             float errorRate1 =  num00 / numTot;
             if ( errorRate1 > threshCry_ )
@@ -834,10 +834,7 @@ void EBIntegrityClient::analyze(void) {
 
             if ( ecid.getLogicID() == LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalBarrel), ic).getLogicID() ) {
               if ( (m->second).getErrorBits() & bits01 ) {
-                if ( meg01_[ism-1] ) {
-                  float val = int(meg01_[ism-1]->getBinContent(ie, ip)) % 3;
-                  meg01_[ism-1]->setBinContent( ie, ip, val+3 );
-                }
+                UtilsClient::maskBinContent( meg01_[ism-1], ie, ip );
               }
             }
 
@@ -854,10 +851,7 @@ void EBIntegrityClient::analyze(void) {
 
             if ( ecid.getLogicID() == LogicID::getEcalLogicID("EB_trigger_tower", Numbers::iSM(ism, EcalBarrel), itt).getLogicID() ) {
               if ( (m->second).getErrorBits() & bits02 ) {
-                if ( meg01_[ism-1] ) {
-                  float val = int(meg01_[ism-1]->getBinContent(ie, ip)) % 3;
-                  meg01_[ism-1]->setBinContent( ie, ip, val+3 );
-                }
+                UtilsClient::maskBinContent( meg01_[ism-1], ie, ip );
               }
             }
 
@@ -914,7 +908,7 @@ void EBIntegrityClient::analyze(void) {
           float val;
 
           val = 1.;
-          // numer of events on a channel
+          // number of events on a channel
           if ( numTotmem > 0 ) {
             float errorRate1 = ( num06 + num07 ) / numTotmem / 2.;
             if ( errorRate1 > threshCry_ )
@@ -947,10 +941,7 @@ void EBIntegrityClient::analyze(void) {
 
             if ( ecid.getLogicID() == LogicID::getEcalLogicID("EB_mem_channel", Numbers::iSM(ism, EcalBarrel), ic).getLogicID() ) {
               if ( (m->second).getErrorBits() & bits01 ) {
-                if ( meg02_[ism-1] ) {
-                  float val = int(meg02_[ism-1]->getBinContent(ie, ip)) % 3;
-                  meg02_[ism-1]->setBinContent( ie, ip, val+3 );
-                }
+                UtilsClient::maskBinContent( meg02_[ism-1], ie, ip );
               }
             }
           }
@@ -967,10 +958,7 @@ void EBIntegrityClient::analyze(void) {
 
             if ( ecid.getLogicID() == LogicID::getEcalLogicID("EB_mem_TT", Numbers::iSM(ism, EcalBarrel), itt).getLogicID() ) {
               if ( (m->second).getErrorBits() & bits02 ) {
-                if ( meg02_[ism-1] ) {
-                  float val = int(meg02_[ism-1]->getBinContent(ie, ip)) % 3;
-                  meg02_[ism-1]->setBinContent( ie, ip, val+3 );
-                }
+                UtilsClient::maskBinContent( meg02_[ism-1], ie, ip );
               }
             }
           }
@@ -1136,7 +1124,7 @@ void EBIntegrityClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
 
   const int csize = 250;
 
-  int pCol3[6] = { 301, 302, 303, 304, 305, 306 };
+  int pCol3[7] = { 301, 302, 303, 304, 305, 306, 307 };
   int pCol4[10];
   for ( int i = 0; i < 10; i++ ) pCol4[i] = 401+i;
   int pCol5[10];
@@ -1251,13 +1239,13 @@ void EBIntegrityClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
 
       cQual->cd();
       gStyle->SetOptStat(" ");
-      gStyle->SetPalette(6, pCol3);
+      gStyle->SetPalette(7, pCol3);
       obj2f->GetXaxis()->SetNdivisions(17);
       obj2f->GetYaxis()->SetNdivisions(4);
       cQual->SetGridx();
       cQual->SetGridy();
       obj2f->SetMinimum(-0.00000001);
-      obj2f->SetMaximum(6.0);
+      obj2f->SetMaximum(7.0);
       obj2f->Draw("col");
       dummy1.Draw("text,same");
       cQual->Update();
@@ -1365,13 +1353,13 @@ void EBIntegrityClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
 
       cMeMem->cd();
       gStyle->SetOptStat(" ");
-      gStyle->SetPalette(6, pCol3);
+      gStyle->SetPalette(7, pCol3);
       obj2f->GetXaxis()->SetNdivisions(10);
       obj2f->GetYaxis()->SetNdivisions(5);
       cMeMem->SetGridx();
       cMeMem->SetGridy(0);
       obj2f->SetMinimum(-0.00000001);
-      obj2f->SetMaximum(6.0);
+      obj2f->SetMaximum(7.0);
       obj2f->Draw("col");
       dummy3.Draw("text,same");
       cMeMem->Update();

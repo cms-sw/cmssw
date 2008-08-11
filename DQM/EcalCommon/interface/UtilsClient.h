@@ -1,11 +1,11 @@
-// $Id: UtilsClient.h,v 1.13 2008/02/15 19:25:26 dellaric Exp $
+// $Id: UtilsClient.h,v 1.14 2008/02/29 15:04:53 dellaric Exp $
 
 /*!
   \file UtilsClient.h
   \brief Ecal Monitor Utils for Client
   \author B. Gobbo 
-  \version $Revision: 1.13 $
-  \date $Date: 2008/02/15 19:25:26 $
+  \version $Revision: 1.14 $
+  \date $Date: 2008/02/29 15:04:53 $
 */
 
 #ifndef UtilsClient_H
@@ -61,10 +61,10 @@ class UtilsClient {
     return ret;
   }
 
-  /*! \fn template<class T> static void printBadChannels( const MonitorElement* me, const T* hi, positive_only = false )
+  /*! \fn template<class T> static void printBadChannels( const MonitorElement* me, const T* hi, bool positive_only = false )
       \brief Print the bad channels
       \param me monitor element
-      \param h1 histogram
+      \param hi histogram
       \param positive_only enable logging of channels with positive content, only
    */
   template<class T> static void printBadChannels( const MonitorElement* me, const T* hi, bool positive_only = false ) {
@@ -93,7 +93,13 @@ class UtilsClient {
         if ( positive_only ) {
           if ( hi->GetBinContent(hi->GetBin(jx, jy)) <= 0 ) continue;
         } else {
-          if ( int(me->getBinContent( ix, iy )) % 3 != 0 ) continue;
+          float val = me->getBinContent( ix, iy );
+          //  0/3 = red/dark red
+          //  1/4 = green/dark green
+          //  2/5 = yellow/dark yellow
+          //  6   = unknown
+          if ( val == 6 ) continue;
+          if ( int(val) % 3 != 0 ) continue;
         }
         if ( ! title ) {
           std::cout << " Channels failing \"" << me->getName() << "\""
@@ -119,7 +125,7 @@ class UtilsClient {
     return;
   }
 
-  /*! \fn template<class T> static bool getBinStats( const T* histo, const int ix, const int iy, float& num, float& mean, float& rms )
+  /*! \fn template<class T> static bool getBinStatistics( const T* histo, const int ix, const int iy, float& num, float& mean, float& rms )
       \brief Returns true if the bin contains good statistical data
       \param histo input ROOT histogram
       \param (ix, iy) input histogram's bin
@@ -127,7 +133,7 @@ class UtilsClient {
       \param mean bins' mean
       \param rms bin's rms
    */
-  template<class T> static bool getBinStats( const T* histo, const int ix, const int iy, float& num, float& mean, float& rms ) {
+  template<class T> static bool getBinStatistics( const T* histo, const int ix, const int iy, float& num, float& mean, float& rms ) {
     num  = -1.; mean = -1.; rms  = -1.;
     float percent = 0.01; float n_min_bin = 10.;
 
@@ -145,25 +151,65 @@ class UtilsClient {
     return false;
   }
 
-  /*! \fn template<class T> static bool getBinQual( const T* histo, const int ix, const int iy )
+  /*! \fn static bool getBinQuality( const MonitorElement* me, const int ix, const int iy )
       \brief Returns true if the bin quality is good or masked
-      \param histo input ROOT histogram
+      \param me input histogram
       \param (ix, iy) input histogram's bins
    */
-  template<class T> static bool getBinQual( const T* histo, const int ix, const int iy ) {
-    if ( histo ) {
-      float val = histo->getBinContent(ix, iy);
-      if ( val == 0. || val == 2 ) return false;
-      if ( val == 1. || val >= 3 ) return true;
+  static bool getBinQuality( const MonitorElement* me, const int ix, const int iy ) {
+    if ( me ) {
+      float val = me->getBinContent(ix, iy);
+      //  0/3 = red/dark red
+      //  1/4 = green/dark green
+      //  2/5 = yellow/dark yellow
+      //  6   = unknown
+      if ( val == 0. || val == 2 || val == 6 ) return false;
+      if ( val == 1. || val == 3 || val == 4 || val == 5 ) return true;
     }
     return false;
   }
 
-  /*! static int getFirstNonEmptyChannel( TProfile2D* histo )
+  /*! \fn static bool getBinStatus( const MonitorElement* me, const int ix, const int iy )
+      \brief Returns true if the bin status is red/dark red
+      \param me input histogram
+      \param (ix, iy) input histogram's bins
+   */
+  static bool getBinStatus( const MonitorElement* me, const int ix, const int iy ) {
+    if ( me ) {
+      float val = me->getBinContent(ix, iy);
+      //  0/3 = red/dark red
+      //  1/4 = green/dark green
+      //  2/5 = yellow/dark yellow
+      //  6   = unknown
+      if ( val == 0. || val == 3 ) return true;
+      return false;
+    }
+    return false;
+  }
+
+  /*! static void maskBinContent( const MonitorElement* me, const int ix, const int iy )
+      \brief Mask the bin content
+      \param histo input histogram
+      \param (ix, iy) input histogram's bins
+   */
+  static void maskBinContent( const MonitorElement* me, const int ix, const int iy ) {
+    if ( me ) {
+      float val = me->getBinContent(ix, iy);
+      //  0/3 = red/dark red
+      //  1/4 = green/dark green
+      //  2/5 = yellow/dark yellow
+      //  6   = unknown
+      if ( val >= 0. && val <= 2. ) {
+        const_cast<MonitorElement*>(me)->setBinContent(ix, iy, val+3);
+      }
+    }
+  }
+
+  /*! static int getFirstNonEmptyChannel( const TProfile2D* histo )
       \brief Find the first non empty bin
       \param histo input ROOT histogram
    */
-  static int getFirstNonEmptyChannel( TProfile2D* histo ) {
+  static int getFirstNonEmptyChannel( const TProfile2D* histo ) {
     if ( histo ) {
       int ichannel = 1;
       while ( ichannel <= histo->GetNbinsX() ) {

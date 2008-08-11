@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2008/07/23 06:18:01 $
- * $Revision: 1.195 $
+ * $Date: 2008/07/23 06:31:53 $
+ * $Revision: 1.196 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -352,7 +352,7 @@ EcalEndcapMonitorClient::EcalEndcapMonitorClient(const ParameterSet& ps) : Modul
 
   // Define new color palette
 
-  for( int i=0; i<6; i++ ) {
+  for( int i=0; i<7; i++ ) {
     TColor* color = gROOT->GetColor( 301+i );
     if ( ! color ) color = new TColor( 301+i, 0, 0, 0, "");
     color->SetRGB( ecdqm::rgb[i][0], ecdqm::rgb[i][1], ecdqm::rgb[i][2] );

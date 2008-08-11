@@ -1,8 +1,8 @@
 /*
  * \file EEBeamCaloClient.cc
  *
- * $Date: 2008/06/25 14:16:16 $
- * $Revision: 1.53 $
+ * $Date: 2008/06/25 15:08:19 $
+ * $Revision: 1.54 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -592,7 +592,7 @@ void EEBeamCaloClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
   const int csize = 250;
   //  const double histMax = 1.e15;
 
-  int pCol3[6] = { 301, 302, 303, 304, 305, 306 };
+  int pCol3[7] = { 301, 302, 303, 304, 305, 306, 307 };
 
   TH2C dummy( "dummy", "dummy for sm", 85, 0., 85., 20, 0., 20. );
   for ( int i = 0; i < 68; i++ ) {
@@ -653,13 +653,13 @@ void EEBeamCaloClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
 
     can->cd();
     gStyle->SetOptStat(" ");
-    gStyle->SetPalette(6, pCol3);
+    gStyle->SetPalette(7, pCol3);
     obj2f->GetXaxis()->SetNdivisions(17);
     obj2f->GetYaxis()->SetNdivisions(4);
     can->SetGridx();
     can->SetGridy();
     obj2f->SetMinimum(-0.00000001);
-    obj2f->SetMaximum(6.0);
+    obj2f->SetMaximum(7.0);
     obj2f->Draw("col");
     dummy.Draw("text,same");
     can->Update();
@@ -684,11 +684,11 @@ void EEBeamCaloClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
 
     can->cd();
     gStyle->SetOptStat(" ");
-    gStyle->SetPalette(6, pCol3);
+    gStyle->SetPalette(7, pCol3);
     obj2f->GetXaxis()->SetNdivisions(0);
     obj2f->GetYaxis()->SetNdivisions(0);
     obj2f->SetMinimum(-0.00000001);
-    obj2f->SetMaximum(6.0);
+    obj2f->SetMaximum(7.0);
     obj2f->Draw("col");
     can->Update();
     can->SaveAs(imgName1.c_str());
@@ -720,13 +720,13 @@ void EEBeamCaloClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
 
     can->cd();
     gStyle->SetOptStat(" ");
-    gStyle->SetPalette(6, pCol3);
+    gStyle->SetPalette(7, pCol3);
     obj2f->GetXaxis()->SetNdivisions(86);
     obj2f->GetYaxis()->SetNdivisions(0);
     can->SetGridx();
     //can->SetGridy();
     obj2f->SetMinimum(-0.00000001);
-    obj2f->SetMaximum(6.0);
+    obj2f->SetMaximum(7.0);
     obj2f->Draw("col");
     dummyStep.Draw("text90,same");
     can->Update();

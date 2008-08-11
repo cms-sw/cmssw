@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2008/06/25 15:08:18 $
- * $Revision: 1.143 $
+ * $Date: 2008/06/25 17:14:57 $
+ * $Revision: 1.144 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -241,7 +241,7 @@ bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov,
 
         bool update03;
 
-        update03 = UtilsClient::getBinStats(h03_[ism-1], ie, ip, num03, mean03, rms03);
+        update03 = UtilsClient::getBinStatistics(h03_[ism-1], ie, ip, num03, mean03, rms03);
 
         if ( update03 ) {
 
@@ -258,13 +258,13 @@ bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov,
           p.setADCMeanG12(mean03);
           p.setADCRMSG12(rms03);
 
-          if ( meg03_[ism-1] && int(meg03_[ism-1]->getBinContent( ie, ip )) % 3 == 1 ) {
+          if ( UtilsClient::getBinStatus(meg03_[ism-1], ie, ip) ) {
             p.setTaskStatus(true);
           } else {
             p.setTaskStatus(false);
           }
 
-          status = status && UtilsClient::getBinQual(meg03_[ism-1], ie, ip);
+          status = status && UtilsClient::getBinQuality(meg03_[ism-1], ie, ip);
 
           int ic = Numbers::indexEB(ism, ie, ip);
 
@@ -342,7 +342,7 @@ void EBPedestalOnlineClient::analyze(void) {
         float mean03;
         float rms03;
 
-        update03 = UtilsClient::getBinStats(h03_[ism-1], ie, ip, num03, mean03, rms03);
+        update03 = UtilsClient::getBinStatistics(h03_[ism-1], ie, ip, num03, mean03, rms03);
 
         if ( update03 ) {
 
@@ -372,19 +372,16 @@ void EBPedestalOnlineClient::analyze(void) {
 
             if ( ecid.getLogicID() == LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalBarrel), ic).getLogicID() ) {
               if ( (m->second).getErrorBits() & bits03 ) {
-                if ( meg03_[ism-1] ) {
-                  float val = int(meg03_[ism-1]->getBinContent(ie, ip)) % 3;
-                  meg03_[ism-1]->setBinContent( ie, ip, val+3 );
-                }
+                UtilsClient::maskBinContent( meg03_[ism-1], ie, ip );
               }
             }
 
           }
         }
 
-	// TT masking
+        // TT masking
 
-	if ( mask2.size() != 0 ) {
+        if ( mask2.size() != 0 ) {
           map<EcalLogicID, RunTTErrorsDat>::const_iterator m;
           for (m = mask2.begin(); m != mask2.end(); m++) {
 
@@ -393,10 +390,9 @@ void EBPedestalOnlineClient::analyze(void) {
             int itt = Numbers::iTT(ism, EcalBarrel, ie, ip);
 
             if ( ecid.getLogicID() == LogicID::getEcalLogicID("EB_trigger_tower", Numbers::iSM(ism, EcalBarrel), itt).getLogicID() ) {
-	      if ( meg03_[ism-1] ) {
-		float val = int(meg03_[ism-1]->getBinContent(ie, ip)) % 3;
-		meg03_[ism-1]->setBinContent( ie, ip, val+3 );
-	      }
+              if ( (m->second).getErrorBits() & bits03 ) {
+                UtilsClient::maskBinContent( meg03_[ism-1], ie, ip );
+              }
             }
 
           }
@@ -426,7 +422,7 @@ void EBPedestalOnlineClient::softReset(bool flag) {
 //      if ( me ) dqmStore_->disableSoftReset(me);
     }
 
-  } 	 
+  }          
 
 }
 
@@ -474,7 +470,7 @@ void EBPedestalOnlineClient::htmlOutput(int run, string& htmlDir, string& htmlNa
 
   const double histMax = 1.e15;
 
-  int pCol3[6] = { 301, 302, 303, 304, 305, 306 };
+  int pCol3[7] = { 301, 302, 303, 304, 305, 306, 307 };
 
   TH2C dummy( "dummy", "dummy for sm", 85, 0., 85., 20, 0., 20. );
   for ( int i = 0; i < 68; i++ ) {
@@ -517,13 +513,13 @@ void EBPedestalOnlineClient::htmlOutput(int run, string& htmlDir, string& htmlNa
 
       cQual->cd();
       gStyle->SetOptStat(" ");
-      gStyle->SetPalette(6, pCol3);
+      gStyle->SetPalette(7, pCol3);
       obj2f->GetXaxis()->SetNdivisions(17);
       obj2f->GetYaxis()->SetNdivisions(4);
       cQual->SetGridx();
       cQual->SetGridy();
       obj2f->SetMinimum(-0.00000001);
-      obj2f->SetMaximum(6.0);
+      obj2f->SetMaximum(7.0);
       obj2f->Draw("col");
       dummy.Draw("text,same");
       cQual->Update();

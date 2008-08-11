@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2008/06/25 15:08:20 $
- * $Revision: 1.143 $
+ * $Date: 2008/06/26 11:01:20 $
+ * $Revision: 1.144 $
  * \author G. Della Ricca
  *
 */
@@ -668,31 +668,31 @@ void EESummaryClient::analyze(void) {
   for ( int ix = 1; ix <= 100; ix++ ) {
     for ( int iy = 1; iy <= 100; iy++ ) {
 
-      meIntegrity_[0]->setBinContent( ix, iy, -1. );
-      meIntegrity_[1]->setBinContent( ix, iy, -1. );
+      meIntegrity_[0]->setBinContent( ix, iy, 6. );
+      meIntegrity_[1]->setBinContent( ix, iy, 6. );
       meOccupancy_[0]->setBinContent( ix, iy, 0. );
       meOccupancy_[1]->setBinContent( ix, iy, 0. );
-      meStatusFlags_[0]->setBinContent( ix, iy, -1. );
-      meStatusFlags_[1]->setBinContent( ix, iy, -1. );
-      mePedestalOnline_[0]->setBinContent( ix, iy, -1. );
-      mePedestalOnline_[1]->setBinContent( ix, iy, -1. );
+      meStatusFlags_[0]->setBinContent( ix, iy, 6. );
+      meStatusFlags_[1]->setBinContent( ix, iy, 6. );
+      mePedestalOnline_[0]->setBinContent( ix, iy, 6. );
+      mePedestalOnline_[1]->setBinContent( ix, iy, 6. );
 
-      meLaserL1_[0]->setBinContent( ix, iy, -1. );
-      meLaserL1_[1]->setBinContent( ix, iy, -1. );
-      meLedL1_[0]->setBinContent( ix, iy, -1. );
-      meLedL1_[1]->setBinContent( ix, iy, -1. );
-      mePedestal_[0]->setBinContent( ix, iy, -1. );
-      mePedestal_[1]->setBinContent( ix, iy, -1. );
-      meTestPulse_[0]->setBinContent( ix, iy, -1. );
-      meTestPulse_[1]->setBinContent( ix, iy, -1. );
+      meLaserL1_[0]->setBinContent( ix, iy, 6. );
+      meLaserL1_[1]->setBinContent( ix, iy, 6. );
+      meLedL1_[0]->setBinContent( ix, iy, 6. );
+      meLedL1_[1]->setBinContent( ix, iy, 6. );
+      mePedestal_[0]->setBinContent( ix, iy, 6. );
+      mePedestal_[1]->setBinContent( ix, iy, 6. );
+      meTestPulse_[0]->setBinContent( ix, iy, 6. );
+      meTestPulse_[1]->setBinContent( ix, iy, 6. );
 
       meCosmic_[0]->setBinContent( ix, iy, 0. );
       meCosmic_[1]->setBinContent( ix, iy, 0. );
-      meTiming_[0]->setBinContent( ix, iy, -1. );
-      meTiming_[1]->setBinContent( ix, iy, -1. );
+      meTiming_[0]->setBinContent( ix, iy, 6. );
+      meTiming_[1]->setBinContent( ix, iy, 6. );
 
-      meGlobalSummary_[0]->setBinContent( ix, iy, -1. );
-      meGlobalSummary_[1]->setBinContent( ix, iy, -1. );
+      meGlobalSummary_[0]->setBinContent( ix, iy, 6. );
+      meGlobalSummary_[1]->setBinContent( ix, iy, 6. );
 
     }
   }
@@ -700,12 +700,12 @@ void EESummaryClient::analyze(void) {
   for ( int ix = 1; ix <= 20; ix++ ) {
     for ( int iy = 1; iy <= 90; iy++ ) {
 
-      meLaserL1PN_[0]->setBinContent( ix, iy, -1. );
-      meLaserL1PN_[1]->setBinContent( ix, iy, -1. );
-      mePedestalPN_[0]->setBinContent( ix, iy, -1. );
-      mePedestalPN_[1]->setBinContent( ix, iy, -1. );
-      meTestPulsePN_[0]->setBinContent( ix, iy, -1. );
-      meTestPulsePN_[1]->setBinContent( ix, iy, -1. );
+      meLaserL1PN_[0]->setBinContent( ix, iy, 6. );
+      meLaserL1PN_[1]->setBinContent( ix, iy, 6. );
+      mePedestalPN_[0]->setBinContent( ix, iy, 6. );
+      mePedestalPN_[1]->setBinContent( ix, iy, 6. );
+      meTestPulsePN_[0]->setBinContent( ix, iy, 6. );
+      meTestPulsePN_[1]->setBinContent( ix, iy, 6. );
 
     }
   }
@@ -714,8 +714,8 @@ void EESummaryClient::analyze(void) {
     for ( int iy = 1; iy <= 100; iy++ ) {
       meTriggerTowerEt_[0]->setBinContent( ix, iy, 0. );
       meTriggerTowerEt_[1]->setBinContent( ix, iy, 0. );
-      meTriggerTowerEmulError_[0]->setBinContent( ix, iy, -1. );
-      meTriggerTowerEmulError_[1]->setBinContent( ix, iy, -1. );
+      meTriggerTowerEmulError_[0]->setBinContent( ix, iy, 6. );
+      meTriggerTowerEmulError_[1]->setBinContent( ix, iy, 6. );
     }
   }
 
@@ -923,11 +923,11 @@ void EESummaryClient::analyze(void) {
               float val_03=me_03->getBinContent(ix,iy);
 
               vector<float> maskedVal, unmaskedVal;
-              (val_01>2) ? maskedVal.push_back(val_01) : unmaskedVal.push_back(val_01);
-              (val_02>2) ? maskedVal.push_back(val_02) : unmaskedVal.push_back(val_02);
-              (val_03>2) ? maskedVal.push_back(val_03) : unmaskedVal.push_back(val_03);
+              (val_01>=3&&val_01<=5) ? maskedVal.push_back(val_01) : unmaskedVal.push_back(val_01);
+              (val_02>=3&&val_02<=5) ? maskedVal.push_back(val_02) : unmaskedVal.push_back(val_02);
+              (val_03>=3&&val_03<=5) ? maskedVal.push_back(val_03) : unmaskedVal.push_back(val_03);
 
-              float brightColor=-1, darkColor=-1;
+              float brightColor=6, darkColor=6;
               float maxPriority=-1;
 
               vector<float>::const_iterator Val;
@@ -971,11 +971,11 @@ void EESummaryClient::analyze(void) {
               float val_03=me_03->getBinContent(ix,iy);
 
               vector<float> maskedVal, unmaskedVal;
-              (val_01>2) ? maskedVal.push_back(val_01) : unmaskedVal.push_back(val_01);
-              (val_02>2) ? maskedVal.push_back(val_02) : unmaskedVal.push_back(val_02);
-              (val_03>2) ? maskedVal.push_back(val_03) : unmaskedVal.push_back(val_03);
+              (val_01>=3&&val_01<=5) ? maskedVal.push_back(val_01) : unmaskedVal.push_back(val_01);
+              (val_02>=3&&val_02<=5) ? maskedVal.push_back(val_02) : unmaskedVal.push_back(val_02);
+              (val_03>=3&&val_03<=5) ? maskedVal.push_back(val_03) : unmaskedVal.push_back(val_03);
 
-              float brightColor=-1, darkColor=-1;
+              float brightColor=6, darkColor=6;
               float maxPriority=-1;
 
               vector<float>::const_iterator Val;
@@ -1061,9 +1061,9 @@ void EESummaryClient::analyze(void) {
 
             if ( me ) {
 
-              float xval = -1;
+              float xval = 6;
 
-              if ( me->getBinContent( ix, iy ) == -1 ) xval = 2;
+              if ( me->getBinContent( ix, iy ) == 6 ) xval = 2;
               if ( me->getBinContent( ix, iy ) == 0 ) xval = 1;
               if ( me->getBinContent( ix, iy ) > 0 ) xval = 0;
 
@@ -1105,7 +1105,7 @@ void EESummaryClient::analyze(void) {
 
             }
 
-            float xval = -1;
+            float xval = 6;
             if(!hasRealDigi) xval = 2;
             else {
 
@@ -1203,7 +1203,7 @@ void EESummaryClient::analyze(void) {
           if ( eetttc ) {
 
             if ( ism >= 1 && ism <= 9 ) {
-              if ( meTriggerTowerEmulError_[0]->getBinContent( jx, jy ) == -1 ) {
+              if ( meTriggerTowerEmulError_[0]->getBinContent( jx, jy ) == 6 ) {
                 if ( Numbers::validEE(ism, 101 - jx, jy) ) meTriggerTowerEmulError_[0]->setBinContent( jx, jy, 2 );
               }
             } else {
@@ -1237,7 +1237,7 @@ void EESummaryClient::analyze(void) {
 
       if(meIntegrity_[0] && mePedestalOnline_[0] && meLaserL1_[0] && meTiming_[0] && meStatusFlags_[0] && meTriggerTowerEmulError_[0]) {
 
-        float xval = -1;
+        float xval = 6;
         float val_in = meIntegrity_[0]->getBinContent(jx,jy);
         float val_po = mePedestalOnline_[0]->getBinContent(jx,jy);
         float val_ls = meLaserL1_[0]->getBinContent(jx,jy);
@@ -1247,22 +1247,23 @@ void EESummaryClient::analyze(void) {
 
         // turn each dark color (masked channel) to bright green
         // for laser & timing turn also yellow into bright green
-        if(val_in> 2) val_in=1;
-        if(val_po> 2) val_po=1;
-        if(val_ls>=2) val_ls=1;
-        if(val_tm>=2) val_tm=1;
-        if(val_sf> 2) val_sf=1;
-        if(val_ee> 2) val_ee=1;
 
-        // -1 = unknown
-        //  0 = red
-        //  1 = green
-        //  2 = yellow
+        //  0/3 = red/dark red
+        //  1/4 = green/dark green
+        //  2/5 = yellow/dark yellow
+        //  6   = unknown
 
-        if(val_in==-1) xval=-1;
-        else if(val_in == 0) xval=0;
-        else if(val_po == 0 || val_ls == 0 || val_tm == 0 || val_sf == 0 || val_ee == 0) xval = 0;
-        else if(val_po == 2 || val_ls == 2 || val_tm == 2 || val_sf == 2 || val_ee == 2) xval = 2;
+        if(             val_in==3 || val_in==4 || val_in==5) val_in=1;
+        if(             val_po==3 || val_po==4 || val_po==5) val_po=1;
+        if(val_ls==2 || val_ls==3 || val_ls==4 || val_ls==5) val_ls=1;
+        if(val_tm==2 || val_tm==3 || val_tm==4 || val_tm==5) val_tm=1;
+        if(             val_sf==3 || val_sf==4 || val_sf==5) val_sf=1;
+        if(             val_ee==3 || val_ee==4 || val_ee==5) val_ee=1;
+
+        if(val_in==6) xval=6;
+        else if(val_in==0) xval=0;
+        else if(val_po==0 || val_ls==0 || val_tm==0 || val_sf==0 || val_ee==0) xval=0;
+        else if(val_po==2 || val_ls==2 || val_tm==2 || val_sf==2 || val_ee==2) xval=2;
         else xval=1;
 
         bool validCry = false;
@@ -1295,7 +1296,7 @@ void EESummaryClient::analyze(void) {
 
         meGlobalSummary_[0]->setBinContent( jx, jy, xval );
 
-        if ( xval > -1 ) {
+        if ( xval >= 0 && xval <= 5 ) {
           if ( xval != 2 && xval != 5 ) ++nValidChannels;
           for (int i = 1; i <= 9; i++) {
             if ( xval != 2 && xval != 5 ) {
@@ -1314,7 +1315,7 @@ void EESummaryClient::analyze(void) {
 
       if(meIntegrity_[1] && mePedestalOnline_[1] && meLaserL1_[1] && meTiming_[1] && meStatusFlags_[1] && meTriggerTowerEmulError_[1]) {
 
-        float xval = -1;
+        float xval = 6;
         float val_in = meIntegrity_[1]->getBinContent(jx,jy);
         float val_po = mePedestalOnline_[1]->getBinContent(jx,jy);
         float val_ls = meLaserL1_[1]->getBinContent(jx,jy);
@@ -1324,22 +1325,23 @@ void EESummaryClient::analyze(void) {
 
         // turn each dark color to bright green
         // for laser turn also yellow into bright green
-        if(val_in> 2) val_in=1;
-        if(val_po> 2) val_po=1;
-        if(val_ls>=2) val_ls=1;
-        if(val_tm>=2) val_tm=1;
-        if(val_sf> 2) val_sf=1;
-        if(val_ee> 2) val_ee=1;
 
-        // -1 = unknown
-        //  0 = red
-        //  1 = green
-        //  2 = yellow
+        //  0/3 = red/dark red
+        //  1/4 = green/dark green
+        //  2/5 = yellow/dark yellow
+        //  6   = unknown
 
-        if(val_in==-1) xval=-1;
-        else if(val_in == 0) xval=0;
-        else if(val_po == 0 || val_ls == 0 || val_tm == 0 || val_sf == 0 || val_ee == 0) xval = 0;
-        else if(val_po == 2 || val_ls == 2 || val_tm == 2 || val_sf == 2 || val_ee == 2) xval = 2;
+        if(             val_in==3 || val_in==4 || val_in==5) val_in=1;
+        if(             val_po==3 || val_po==4 || val_po==5) val_po=1;
+        if(val_ls==2 || val_ls==3 || val_ls==4 || val_ls==5) val_ls=1;
+        if(val_tm==2 || val_tm==3 || val_tm==4 || val_tm==5) val_tm=1;
+        if(             val_sf==3 || val_sf==4 || val_sf==5) val_sf=1;
+        if(             val_ee==3 || val_ee==4 || val_ee==5) val_ee=1;
+
+        if(val_in==6) xval=6;
+        else if(val_in==0) xval=0;
+        else if(val_po==0 || val_ls==0 || val_tm==0 || val_sf==0 || val_ee==0) xval=0;
+        else if(val_po==2 || val_ls==2 || val_tm==2 || val_sf==2 || val_ee==2) xval=2;
         else xval=1;
 
         bool validCry = false;
@@ -1368,7 +1370,7 @@ void EESummaryClient::analyze(void) {
 
         meGlobalSummary_[1]->setBinContent( jx, jy, xval );
 
-        if ( xval > -1 ) {
+        if ( xval >= 0 && xval <= 5 ) {
           if ( xval != 2 && xval != 5 ) ++nValidChannels;
           for (int i = 10; i <= 18; i++) {
             if ( xval != 2 && xval != 5 ) {
@@ -1432,7 +1434,7 @@ void EESummaryClient::analyze(void) {
 
           float xval = meGlobalSummary_[iside]->getBinContent( jx, jy );
 
-          if ( xval > -1 ) {
+          if ( xval >= 0 && xval <= 5 ) {
             if ( xval != 2 && xval != 5 ) ++nValidChannelsTT[iside][jxdcc-1][jydcc-1];
             if ( xval == 0 ) ++nGlobalErrorsTT[iside][jxdcc-1][jydcc-1];
           } else {
@@ -1504,7 +1506,7 @@ void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
 
 //  const double histMax = 1.e15;
 
-  int pCol3[6] = { 301, 302, 303, 304, 305, 306 };
+  int pCol3[7] = { 301, 302, 303, 304, 305, 306, 307 };
   int pCol4[10];
   for ( int i = 0; i < 10; i++ ) pCol4[i] = 401+i;
 
@@ -1593,11 +1595,11 @@ void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
 
     cMap->cd();
     gStyle->SetOptStat(" ");
-    gStyle->SetPalette(6, pCol3);
+    gStyle->SetPalette(7, pCol3);
     cMap->SetGridx();
     cMap->SetGridy();
     obj2f->SetMinimum(-0.00000001);
-    obj2f->SetMaximum(6.0);
+    obj2f->SetMaximum(7.0);
     obj2f->GetXaxis()->SetLabelSize(0.03);
     obj2f->GetYaxis()->SetLabelSize(0.03);
     obj2f->Draw("col");
@@ -1630,11 +1632,11 @@ void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
 
     cMap->cd();
     gStyle->SetOptStat(" ");
-    gStyle->SetPalette(6, pCol3);
+    gStyle->SetPalette(7, pCol3);
     cMap->SetGridx();
     cMap->SetGridy();
     obj2f->SetMinimum(-0.00000001);
-    obj2f->SetMaximum(6.0);
+    obj2f->SetMaximum(7.0);
     obj2f->GetXaxis()->SetLabelSize(0.03);
     obj2f->GetYaxis()->SetLabelSize(0.03);
     obj2f->Draw("col");
@@ -1741,11 +1743,11 @@ void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
 
     cMap->cd();
     gStyle->SetOptStat(" ");
-    gStyle->SetPalette(6, pCol3);
+    gStyle->SetPalette(7, pCol3);
     cMap->SetGridx();
     cMap->SetGridy();
     obj2f->SetMinimum(-0.00000001);
-    obj2f->SetMaximum(6.0);
+    obj2f->SetMaximum(7.0);
     obj2f->GetXaxis()->SetLabelSize(0.03);
     obj2f->GetYaxis()->SetLabelSize(0.03);
     obj2f->Draw("col");
@@ -1778,11 +1780,11 @@ void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
 
     cMap->cd();
     gStyle->SetOptStat(" ");
-    gStyle->SetPalette(6, pCol3);
+    gStyle->SetPalette(7, pCol3);
     cMap->SetGridx();
     cMap->SetGridy();
     obj2f->SetMinimum(-0.00000001);
-    obj2f->SetMaximum(6.0);
+    obj2f->SetMaximum(7.0);
     obj2f->GetXaxis()->SetLabelSize(0.03);
     obj2f->GetYaxis()->SetLabelSize(0.03);
     obj2f->Draw("col");
@@ -1815,11 +1817,11 @@ void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
 
     cMap->cd();
     gStyle->SetOptStat(" ");
-    gStyle->SetPalette(6, pCol3);
+    gStyle->SetPalette(7, pCol3);
     cMap->SetGridx();
     cMap->SetGridy();
     obj2f->SetMinimum(-0.00000001);
-    obj2f->SetMaximum(6.0);
+    obj2f->SetMaximum(7.0);
     obj2f->GetXaxis()->SetLabelSize(0.03);
     obj2f->GetYaxis()->SetLabelSize(0.03);
     obj2f->Draw("col");
@@ -1852,11 +1854,11 @@ void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
 
     cMap->cd();
     gStyle->SetOptStat(" ");
-    gStyle->SetPalette(6, pCol3);
+    gStyle->SetPalette(7, pCol3);
     cMap->SetGridx();
     cMap->SetGridy();
     obj2f->SetMinimum(-0.00000001);
-    obj2f->SetMaximum(6.0);
+    obj2f->SetMaximum(7.0);
     obj2f->GetXaxis()->SetLabelSize(0.03);
     obj2f->GetYaxis()->SetLabelSize(0.03);
     obj2f->Draw("col");
@@ -1889,11 +1891,11 @@ void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
 
     cMap->cd();
     gStyle->SetOptStat(" ");
-    gStyle->SetPalette(6, pCol3);
+    gStyle->SetPalette(7, pCol3);
     cMap->SetGridx();
     cMap->SetGridy();
     obj2f->SetMinimum(-0.00000001);
-    obj2f->SetMaximum(6.0);
+    obj2f->SetMaximum(7.0);
     obj2f->GetXaxis()->SetLabelSize(0.03);
     obj2f->GetYaxis()->SetLabelSize(0.03);
     obj2f->Draw("col");
@@ -1926,11 +1928,11 @@ void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
 
     cMap->cd();
     gStyle->SetOptStat(" ");
-    gStyle->SetPalette(6, pCol3);
+    gStyle->SetPalette(7, pCol3);
     cMap->SetGridx();
     cMap->SetGridy();
     obj2f->SetMinimum(-0.00000001);
-    obj2f->SetMaximum(6.0);
+    obj2f->SetMaximum(7.0);
     obj2f->GetXaxis()->SetLabelSize(0.03);
     obj2f->GetYaxis()->SetLabelSize(0.03);
     obj2f->Draw("col");
@@ -1968,11 +1970,11 @@ void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
 
     cMap->cd();
     gStyle->SetOptStat(" ");
-    gStyle->SetPalette(6, pCol3);
+    gStyle->SetPalette(7, pCol3);
     cMap->SetGridx();
     cMap->SetGridy();
     obj2f->SetMinimum(-0.00000001);
-    obj2f->SetMaximum(6.0);
+    obj2f->SetMaximum(7.0);
     obj2f->GetXaxis()->SetLabelSize(0.03);
     obj2f->GetYaxis()->SetLabelSize(0.03);
     obj2f->Draw("col");
@@ -2005,11 +2007,11 @@ void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
 
     cMap->cd();
     gStyle->SetOptStat(" ");
-    gStyle->SetPalette(6, pCol3);
+    gStyle->SetPalette(7, pCol3);
     cMap->SetGridx();
     cMap->SetGridy();
     obj2f->SetMinimum(-0.00000001);
-    obj2f->SetMaximum(6.0);
+    obj2f->SetMaximum(7.0);
     obj2f->GetXaxis()->SetLabelSize(0.03);
     obj2f->GetYaxis()->SetLabelSize(0.03);
     obj2f->Draw("col");
@@ -2047,11 +2049,11 @@ void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
 
     cMap->cd();
     gStyle->SetOptStat(" ");
-    gStyle->SetPalette(6, pCol3);
+    gStyle->SetPalette(7, pCol3);
     cMap->SetGridx();
     cMap->SetGridy();
     obj2f->SetMinimum(-0.00000001);
-    obj2f->SetMaximum(6.0);
+    obj2f->SetMaximum(7.0);
     obj2f->GetXaxis()->SetLabelSize(0.03);
     obj2f->GetYaxis()->SetLabelSize(0.03);
     obj2f->Draw("col");
@@ -2084,11 +2086,11 @@ void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
 
     cMap->cd();
     gStyle->SetOptStat(" ");
-    gStyle->SetPalette(6, pCol3);
+    gStyle->SetPalette(7, pCol3);
     cMap->SetGridx();
     cMap->SetGridy();
     obj2f->SetMinimum(-0.00000001);
-    obj2f->SetMaximum(6.0);
+    obj2f->SetMaximum(7.0);
     obj2f->GetXaxis()->SetLabelSize(0.03);
     obj2f->GetYaxis()->SetLabelSize(0.03);
     obj2f->Draw("col");
@@ -2126,11 +2128,11 @@ void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
 
     cMap->cd();
     gStyle->SetOptStat(" ");
-    gStyle->SetPalette(6, pCol3);
+    gStyle->SetPalette(7, pCol3);
     cMap->SetGridx();
     cMap->SetGridy();
     obj2f->SetMinimum(-0.00000001);
-    obj2f->SetMaximum(6.0);
+    obj2f->SetMaximum(7.0);
     obj2f->GetXaxis()->SetLabelSize(0.03);
     obj2f->GetYaxis()->SetLabelSize(0.03);
     obj2f->Draw("col");
@@ -2163,11 +2165,11 @@ void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
 
     cMap->cd();
     gStyle->SetOptStat(" ");
-    gStyle->SetPalette(6, pCol3);
+    gStyle->SetPalette(7, pCol3);
     cMap->SetGridx();
     cMap->SetGridy();
     obj2f->SetMinimum(-0.00000001);
-    obj2f->SetMaximum(6.0);
+    obj2f->SetMaximum(7.0);
     obj2f->GetXaxis()->SetLabelSize(0.03);
     obj2f->GetYaxis()->SetLabelSize(0.03);
     obj2f->Draw("col");
@@ -2279,11 +2281,11 @@ void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
 
     cMap->cd();
     gStyle->SetOptStat(" ");
-    gStyle->SetPalette(6, pCol3);
+    gStyle->SetPalette(7, pCol3);
     cMap->SetGridx();
     cMap->SetGridy();
     obj2f->SetMinimum(-0.00000001);
-    obj2f->SetMaximum(6.0);
+    obj2f->SetMaximum(7.0);
     obj2f->GetXaxis()->SetLabelSize(0.03);
     obj2f->GetYaxis()->SetLabelSize(0.03);
     obj2f->Draw("col");
@@ -2316,11 +2318,11 @@ void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
 
     cMap->cd();
     gStyle->SetOptStat(" ");
-    gStyle->SetPalette(6, pCol3);
+    gStyle->SetPalette(7, pCol3);
     cMap->SetGridx();
     cMap->SetGridy();
     obj2f->SetMinimum(-0.00000001);
-    obj2f->SetMaximum(6.0);
+    obj2f->SetMaximum(7.0);
     obj2f->GetXaxis()->SetLabelSize(0.03);
     obj2f->GetYaxis()->SetLabelSize(0.03);
     obj2f->Draw("col");
@@ -2353,11 +2355,11 @@ void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
 
     cMap->cd();
     gStyle->SetOptStat(" ");
-    gStyle->SetPalette(6, pCol3);
+    gStyle->SetPalette(7, pCol3);
     cMap->SetGridx();
     cMap->SetGridy();
     obj2f->SetMinimum(-0.00000001);
-    obj2f->SetMaximum(6.0);
+    obj2f->SetMaximum(7.0);
     obj2f->GetXaxis()->SetLabelSize(0.03);
     obj2f->GetYaxis()->SetLabelSize(0.03);
     obj2f->Draw("col");
@@ -2390,11 +2392,11 @@ void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
 
     cMap->cd();
     gStyle->SetOptStat(" ");
-    gStyle->SetPalette(6, pCol3);
+    gStyle->SetPalette(7, pCol3);
     cMap->SetGridx();
     cMap->SetGridy();
     obj2f->SetMinimum(-0.00000001);
-    obj2f->SetMaximum(6.0);
+    obj2f->SetMaximum(7.0);
     obj2f->GetXaxis()->SetLabelSize(0.03);
     obj2f->GetYaxis()->SetLabelSize(0.03);
     obj2f->Draw("col");
@@ -2501,11 +2503,11 @@ void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
 
     cMap->cd();
     gStyle->SetOptStat(" ");
-    gStyle->SetPalette(6, pCol3);
+    gStyle->SetPalette(7, pCol3);
     cMap->SetGridx();
     cMap->SetGridy();
     obj2f->SetMinimum(-0.00000001);
-    obj2f->SetMaximum(6.0);
+    obj2f->SetMaximum(7.0);
     obj2f->GetXaxis()->SetLabelSize(0.03);
     obj2f->GetYaxis()->SetLabelSize(0.03);
     obj2f->Draw("col");
@@ -2538,11 +2540,11 @@ void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
 
     cMap->cd();
     gStyle->SetOptStat(" ");
-    gStyle->SetPalette(6, pCol3);
+    gStyle->SetPalette(7, pCol3);
     cMap->SetGridx();
     cMap->SetGridy();
     obj2f->SetMinimum(-0.00000001);
-    obj2f->SetMaximum(6.0);
+    obj2f->SetMaximum(7.0);
     obj2f->GetXaxis()->SetLabelSize(0.03);
     obj2f->GetYaxis()->SetLabelSize(0.03);
     obj2f->Draw("col");

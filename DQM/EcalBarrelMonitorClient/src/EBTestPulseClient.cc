@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2008/06/25 14:16:16 $
- * $Revision: 1.207 $
+ * $Date: 2008/06/25 15:08:18 $
+ * $Revision: 1.208 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -402,9 +402,9 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
         float mean01, mean02, mean03;
         float rms01, rms02, rms03;
 
-        update01 = UtilsClient::getBinStats(ha01_[ism-1], ie, ip, num01, mean01, rms01);
-        update02 = UtilsClient::getBinStats(ha02_[ism-1], ie, ip, num02, mean02, rms02);
-        update03 = UtilsClient::getBinStats(ha03_[ism-1], ie, ip, num03, mean03, rms03);
+        update01 = UtilsClient::getBinStatistics(ha01_[ism-1], ie, ip, num01, mean01, rms01);
+        update02 = UtilsClient::getBinStatistics(ha02_[ism-1], ie, ip, num02, mean02, rms02);
+        update03 = UtilsClient::getBinStatistics(ha03_[ism-1], ie, ip, num03, mean03, rms03);
 
         if ( update01 || update02 || update03 ) {
 
@@ -429,17 +429,17 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
           adc.setADCMeanG12(mean03);
           adc.setADCRMSG12(rms03);
 
-          if ( meg01_[ism-1] && int(meg01_[ism-1]->getBinContent( ie, ip )) % 3 == 1. &&
-               meg02_[ism-1] && int(meg02_[ism-1]->getBinContent( ie, ip )) % 3 == 1. &&
-               meg03_[ism-1] && int(meg03_[ism-1]->getBinContent( ie, ip )) % 3 == 1. ) {
+          if ( UtilsClient::getBinStatus(meg01_[ism-1], ie, ip) &&
+               UtilsClient::getBinStatus(meg02_[ism-1], ie, ip) &&
+               UtilsClient::getBinStatus(meg03_[ism-1], ie, ip) ) {
             adc.setTaskStatus(true);
           } else {
             adc.setTaskStatus(false);
           }
 
-          status = status && UtilsClient::getBinQual(meg01_[ism-1], ie, ip) &&
-                             UtilsClient::getBinQual(meg02_[ism-1], ie, ip) &&
-                             UtilsClient::getBinQual(meg03_[ism-1], ie, ip);
+          status = status && UtilsClient::getBinQuality(meg01_[ism-1], ie, ip) &&
+                             UtilsClient::getBinQuality(meg02_[ism-1], ie, ip) &&
+                             UtilsClient::getBinQuality(meg03_[ism-1], ie, ip);
 
           if ( Numbers::icEB(ism, ie, ip) == 1 ) {
 
@@ -556,10 +556,10 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
       float mean01, mean02, mean03, mean04;
       float rms01, rms02, rms03, rms04;
 
-      update01 = UtilsClient::getBinStats(i01_[ism-1], i, 0, num01, mean01, rms01);
-      update02 = UtilsClient::getBinStats(i02_[ism-1], i, 0, num02, mean02, rms02);
-      update03 = UtilsClient::getBinStats(i03_[ism-1], i, 1, num03, mean03, rms03);
-      update04 = UtilsClient::getBinStats(i04_[ism-1], i, 1, num04, mean04, rms04);
+      update01 = UtilsClient::getBinStatistics(i01_[ism-1], i, 0, num01, mean01, rms01);
+      update02 = UtilsClient::getBinStatistics(i02_[ism-1], i, 0, num02, mean02, rms02);
+      update03 = UtilsClient::getBinStatistics(i03_[ism-1], i, 1, num03, mean03, rms03);
+      update04 = UtilsClient::getBinStatistics(i04_[ism-1], i, 1, num04, mean04, rms04);
 
       if ( update01 || update02 || update03 || update04 ) {
 
@@ -586,15 +586,15 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
         pn.setPedMeanG16(mean04);
         pn.setPedRMSG16(rms04);
 
-        if ( meg04_[ism-1] && int(meg04_[ism-1]->getBinContent( i, 1 )) % 3 == 1. &&
-             meg05_[ism-1] && int(meg05_[ism-1]->getBinContent( i, 1 )) % 3 == 1. ) {
+        if ( UtilsClient::getBinStatus(meg04_[ism-1], i, 1) &&
+             UtilsClient::getBinStatus(meg05_[ism-1], i, 1) ) {
           pn.setTaskStatus(true);
         } else {
           pn.setTaskStatus(false);
         }
 
-        status = status && UtilsClient::getBinQual(meg04_[ism-1], i, 1) &&
-                           UtilsClient::getBinQual(meg05_[ism-1], i, 1);
+        status = status && UtilsClient::getBinQuality(meg04_[ism-1], i, 1) &&
+                           UtilsClient::getBinQuality(meg05_[ism-1], i, 1);
 
         if ( econn ) {
           ecid = LogicID::getEcalLogicID("EB_LM_PN", Numbers::iSM(ism, EcalBarrel), i-1);
@@ -752,9 +752,9 @@ void EBTestPulseClient::analyze(void) {
         float mean01, mean02, mean03;
         float rms01, rms02, rms03;
 
-        update01 = UtilsClient::getBinStats(ha01_[ism-1], ie, ip, num01, mean01, rms01);
-        update02 = UtilsClient::getBinStats(ha02_[ism-1], ie, ip, num02, mean02, rms02);
-        update03 = UtilsClient::getBinStats(ha03_[ism-1], ie, ip, num03, mean03, rms03);
+        update01 = UtilsClient::getBinStatistics(ha01_[ism-1], ie, ip, num01, mean01, rms01);
+        update02 = UtilsClient::getBinStatistics(ha02_[ism-1], ie, ip, num02, mean02, rms02);
+        update03 = UtilsClient::getBinStatistics(ha03_[ism-1], ie, ip, num03, mean03, rms03);
 
         if ( update01 ) {
           meanAmpl01 += mean01;
@@ -799,9 +799,9 @@ void EBTestPulseClient::analyze(void) {
         float mean01, mean02, mean03;
         float rms01, rms02, rms03;
 
-        update01 = UtilsClient::getBinStats(ha01_[ism-1], ie, ip, num01, mean01, rms01);
-        update02 = UtilsClient::getBinStats(ha02_[ism-1], ie, ip, num02, mean02, rms02);
-        update03 = UtilsClient::getBinStats(ha03_[ism-1], ie, ip, num03, mean03, rms03);
+        update01 = UtilsClient::getBinStatistics(ha01_[ism-1], ie, ip, num01, mean01, rms01);
+        update02 = UtilsClient::getBinStatistics(ha02_[ism-1], ie, ip, num02, mean02, rms02);
+        update03 = UtilsClient::getBinStatistics(ha03_[ism-1], ie, ip, num03, mean03, rms03);
 
         if ( update01 ) {
 
@@ -887,31 +887,22 @@ void EBTestPulseClient::analyze(void) {
 
             if ( ecid.getLogicID() == LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalBarrel), ic).getLogicID() ) {
               if ( (m->second).getErrorBits() & bits01 ) {
-                if ( meg01_[ism-1] ) {
-                  float val = int(meg01_[ism-1]->getBinContent(ie, ip)) % 3;
-                  meg01_[ism-1]->setBinContent( ie, ip, val+3 );
-                }
+                UtilsClient::maskBinContent( meg01_[ism-1], ie, ip );
               }
               if ( (m->second).getErrorBits() & bits02 ) {
-                if ( meg02_[ism-1] ) {
-                  float val = int(meg02_[ism-1]->getBinContent(ie, ip)) % 3;
-                  meg02_[ism-1]->setBinContent( ie, ip, val+3 );
-                }
+                UtilsClient::maskBinContent( meg02_[ism-1], ie, ip );
               }
               if ( (m->second).getErrorBits() & bits03 ) {
-                if ( meg03_[ism-1] ) {
-                  float val = int(meg03_[ism-1]->getBinContent(ie, ip)) % 3;
-                  meg03_[ism-1]->setBinContent( ie, ip, val+3 );
-                }
+                UtilsClient::maskBinContent( meg03_[ism-1], ie, ip );
               }
             }
 
           }
         }
 
-	// TT masking
+        // TT masking
 
-	if ( mask3.size() != 0 ) {
+        if ( mask3.size() != 0 ) {
           map<EcalLogicID, RunTTErrorsDat>::const_iterator m;
           for (m = mask3.begin(); m != mask3.end(); m++) {
 
@@ -920,18 +911,15 @@ void EBTestPulseClient::analyze(void) {
             int itt = Numbers::iTT(ism, EcalBarrel, ie, ip);
 
             if ( ecid.getLogicID() == LogicID::getEcalLogicID("EB_trigger_tower", Numbers::iSM(ism, EcalBarrel), itt).getLogicID() ) {
-	      if ( meg01_[ism-1] ) {
-		float val = int(meg01_[ism-1]->getBinContent(ie, ip)) % 3;
-		meg01_[ism-1]->setBinContent( ie, ip, val+3 );
-	      }
-	      if ( meg02_[ism-1] ) {
-		float val = int(meg02_[ism-1]->getBinContent(ie, ip)) % 3;
-		meg02_[ism-1]->setBinContent( ie, ip, val+3 );
-	      }
-	      if ( meg03_[ism-1] ) {
-		float val = int(meg03_[ism-1]->getBinContent(ie, ip)) % 3;
-		meg03_[ism-1]->setBinContent( ie, ip, val+3 );
-	      }
+              if ( (m->second).getErrorBits() & bits01 ) {
+                UtilsClient::maskBinContent( meg01_[ism-1], ie, ip );
+              }
+              if ( (m->second).getErrorBits() & bits02 ) {
+                UtilsClient::maskBinContent( meg02_[ism-1], ie, ip );
+              }
+              if ( (m->second).getErrorBits() & bits03 ) {
+                UtilsClient::maskBinContent( meg03_[ism-1], ie, ip );
+              }
             }
 
           }
@@ -954,10 +942,10 @@ void EBTestPulseClient::analyze(void) {
       float mean01, mean02, mean03, mean04;
       float rms01, rms02, rms03, rms04;
 
-      update01 = UtilsClient::getBinStats(i01_[ism-1], i, 0, num01, mean01, rms01);
-      update02 = UtilsClient::getBinStats(i02_[ism-1], i, 0, num02, mean02, rms02);
-      update03 = UtilsClient::getBinStats(i03_[ism-1], i, 0, num03, mean03, rms03);
-      update04 = UtilsClient::getBinStats(i04_[ism-1], i, 0, num04, mean04, rms04);
+      update01 = UtilsClient::getBinStatistics(i01_[ism-1], i, 0, num01, mean01, rms01);
+      update02 = UtilsClient::getBinStatistics(i02_[ism-1], i, 0, num02, mean02, rms02);
+      update03 = UtilsClient::getBinStatistics(i03_[ism-1], i, 0, num03, mean03, rms03);
+      update04 = UtilsClient::getBinStatistics(i04_[ism-1], i, 0, num04, mean04, rms04);
 
       if ( mer04_[ism-1] ) mer04_[ism-1]->Fill(rms03);
       if ( mer05_[ism-1] ) mer05_[ism-1]->Fill(rms04);
@@ -1004,16 +992,10 @@ void EBTestPulseClient::analyze(void) {
 
           if ( ecid.getLogicID() == LogicID::getEcalLogicID("EB_LM_PN", Numbers::iSM(ism, EcalBarrel), i-1).getLogicID() ) {
             if ( (m->second).getErrorBits() & (bits01|bits04) ) {
-              if ( meg04_[ism-1] ) {
-                float val = int(meg04_[ism-1]->getBinContent(i, 1)) % 3;
-                meg04_[ism-1]->setBinContent( i, 1, val+3 );
-              }
+              UtilsClient::maskBinContent( meg04_[ism-1], i, 1 );
             }
             if ( (m->second).getErrorBits() & (bits03|bits06) ) {
-              if ( meg05_[ism-1] ) {
-                float val = int(meg05_[ism-1]->getBinContent(i, 1)) % 3;
-                meg05_[ism-1]->setBinContent( i, 1, val+3 );
-              }
+              UtilsClient::maskBinContent( meg05_[ism-1], i, 1 );
             }
           }
 
@@ -1103,7 +1085,7 @@ void EBTestPulseClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
 
 //  const double histMax = 1.e15;
 
-  int pCol3[6] = { 301, 302, 303, 304, 305, 306 };
+  int pCol3[7] = { 301, 302, 303, 304, 305, 306, 307 };
 
   TH2C dummy( "dummy", "dummy for sm", 85, 0., 85., 20, 0., 20. );
   for ( int i = 0; i < 68; i++ ) {
@@ -1173,13 +1155,13 @@ void EBTestPulseClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
 
         cQual->cd();
         gStyle->SetOptStat(" ");
-        gStyle->SetPalette(6, pCol3);
+        gStyle->SetPalette(7, pCol3);
         obj2f->GetXaxis()->SetNdivisions(17);
         obj2f->GetYaxis()->SetNdivisions(4);
         cQual->SetGridx();
         cQual->SetGridy();
         obj2f->SetMinimum(-0.00000001);
-        obj2f->SetMaximum(6.0);
+        obj2f->SetMaximum(7.0);
         obj2f->Draw("col");
         dummy.Draw("text,same");
         cQual->Update();
@@ -1305,13 +1287,13 @@ void EBTestPulseClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
 
         cQual->cd();
         gStyle->SetOptStat(" ");
-        gStyle->SetPalette(6, pCol3);
+        gStyle->SetPalette(7, pCol3);
         obj2f->GetXaxis()->SetNdivisions(10);
         obj2f->GetYaxis()->SetNdivisions(5);
         cQual->SetGridx();
         cQual->SetGridy(0);
         obj2f->SetMinimum(-0.00000001);
-        obj2f->SetMaximum(6.0);
+        obj2f->SetMaximum(7.0);
         obj2f->Draw("col");
         dummy1.Draw("text,same");
         cQual->Update();

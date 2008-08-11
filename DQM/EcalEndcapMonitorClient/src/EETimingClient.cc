@@ -1,8 +1,8 @@
 /*
  * \file EETimingClient.cc
  *
- * $Date: 2008/06/25 14:16:17 $
- * $Revision: 1.82 $
+ * $Date: 2008/06/25 15:08:20 $
+ * $Revision: 1.83 $
  * \author G. Della Ricca
  *
 */
@@ -177,7 +177,7 @@ void EETimingClient::setup(void) {
     for ( int ix = 1; ix <= 50; ix++ ) {
       for ( int iy = 1; iy <= 50; iy++ ) {
 
-        if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ix, iy, -1. );
+        if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ix, iy, 6. );
 
         int jx = ix + Numbers::ix0EE(ism);
         int jy = iy + Numbers::iy0EE(ism);
@@ -279,7 +279,7 @@ bool EETimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
 
         bool update01;
 
-        update01 = UtilsClient::getBinStats(h01_[ism-1], ix, iy, num01, mean01, rms01);
+        update01 = UtilsClient::getBinStatistics(h01_[ism-1], ix, iy, num01, mean01, rms01);
 
         if ( update01 ) {
 
@@ -296,13 +296,13 @@ bool EETimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
           t.setTimingMean(mean01);
           t.setTimingRMS(rms01);
 
-          if ( meg01_[ism-1] && int(meg01_[ism-1]->getBinContent( ix, iy )) % 3 == 1 ) {
+          if ( UtilsClient::getBinStatus(meg01_[ism-1], ix, iy) ) {
             t.setTaskStatus(true);
           } else {
             t.setTaskStatus(false);
           }
 
-          status = status && UtilsClient::getBinQual(meg01_[ism-1], ix, iy);
+          status = status && UtilsClient::getBinQuality(meg01_[ism-1], ix, iy);
 
           int ic = Numbers::indexEE(ism, jx, jy);
 
@@ -380,7 +380,7 @@ void EETimingClient::analyze(void) {
     for ( int ix = 1; ix <= 50; ix++ ) {
       for ( int iy = 1; iy <= 50; iy++ ) {
 
-        if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent(ix, iy, -1.);
+        if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent(ix, iy, 6.);
 
         int jx = ix + Numbers::ix0EE(ism);
         int jy = iy + Numbers::iy0EE(ism);
@@ -397,7 +397,7 @@ void EETimingClient::analyze(void) {
         float mean01;
         float rms01;
 
-        update01 = UtilsClient::getBinStats(h01_[ism-1], ix, iy, num01, mean01, rms01);
+        update01 = UtilsClient::getBinStatistics(h01_[ism-1], ix, iy, num01, mean01, rms01);
 
         if ( update01 ) {
 
@@ -449,17 +449,14 @@ void EETimingClient::analyze(void) {
 
             if ( ecid.getLogicID() == LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic).getLogicID() ) {
               if ( (m->second).getErrorBits() & bits01 ) {
-                if ( meg01_[ism-1] ) {
-                  float val = int(meg01_[ism-1]->getBinContent(ix, iy)) % 3;
-                  meg01_[ism-1]->setBinContent( ix, iy, val+3 );
-                }
+                UtilsClient::maskBinContent( meg01_[ism-1], ix, iy );
               }
             }
 
           }
         }
 
-	// TT masking
+        // TT masking
 
         if ( mask2.size() != 0 ) {
           map<EcalLogicID, RunTTErrorsDat>::const_iterator m;
@@ -470,10 +467,9 @@ void EETimingClient::analyze(void) {
             int itt = Numbers::iTT(ism, EcalEndcap, ix, iy);
 
             if ( ecid.getLogicID() == LogicID::getEcalLogicID("EE_readout_tower", Numbers::iSM(ism, EcalEndcap), itt).getLogicID() ) {
-	      if ( meg01_[ism-1] ) {
-		float val = int(meg01_[ism-1]->getBinContent(ix, iy)) % 3;
-		meg01_[ism-1]->setBinContent( ix, iy, val+3 );
-	      }
+              if ( (m->second).getErrorBits() & bits01 ) {
+                UtilsClient::maskBinContent( meg01_[ism-1], ix, iy );
+              }
             }
 
           }
@@ -534,7 +530,7 @@ void EETimingClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
 
   const double histMax = 1.e15;
 
-  int pCol3[6] = { 301, 302, 303, 304, 305, 306 };
+  int pCol3[7] = { 301, 302, 303, 304, 305, 306, 307 };
   int pCol4[10];
   for ( int i = 0; i < 10; i++ ) pCol4[i] = 401+i;
 
@@ -581,11 +577,11 @@ void EETimingClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
 
       cQual->cd();
       gStyle->SetOptStat(" ");
-      gStyle->SetPalette(6, pCol3);
+      gStyle->SetPalette(7, pCol3);
       cQual->SetGridx();
       cQual->SetGridy();
       obj2f->SetMinimum(-0.00000001);
-      obj2f->SetMaximum(6.0);
+      obj2f->SetMaximum(7.0);
       obj2f->GetXaxis()->SetLabelSize(0.02);
       obj2f->GetXaxis()->SetTitleSize(0.02);
       obj2f->GetYaxis()->SetLabelSize(0.02);

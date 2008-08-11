@@ -1,17 +1,18 @@
-// $Id: ColorPalette.h,v 1.3 2007/10/09 06:05:16 dellaric Exp $
+// $Id: ColorPalette.cc,v 1.1 2007/10/19 08:42:23 dellaric Exp $
 
 /*!
   \file ColorPalette.h
   \brief Color palette for quality plots
   \author B. Gobbo 
-  \version $Revision: 1.3 $
-  \date $Date: 2007/10/09 06:05:16 $
+  \version $Revision: 1.1 $
+  \date $Date: 2007/10/19 08:42:23 $
 */
 
 namespace ecdqm {
-    float rgb[6][3] = {{1.00, 0.00, 0.00}, {0.00, 1.00, 0.00},
+    float rgb[7][3] = {{1.00, 0.00, 0.00}, {0.00, 1.00, 0.00},
                        {1.00, 0.96, 0.00}, {0.50, 0.00, 0.00},
-                       {0.00, 0.40, 0.00}, {0.94, 0.78, 0.00}};
+                       {0.00, 0.40, 0.00}, {0.94, 0.78, 0.00},
+                       {1.00, 1.00, 1.00}};
 
     float rgb2[10][3] = {{ 0.0000, 0.6510, 1.0000}, { 0.0000, 0.6135, 0.9455}, 
                          { 0.0000, 0.5760, 0.8911}, { 0.0000, 0.5386, 0.8366}, 

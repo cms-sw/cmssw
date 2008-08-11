@@ -1,8 +1,8 @@
 /*
  * \file EBTimingClient.cc
  *
- * $Date: 2008/06/25 14:16:16 $
- * $Revision: 1.88 $
+ * $Date: 2008/06/25 15:08:18 $
+ * $Revision: 1.89 $
  * \author G. Della Ricca
  *
 */
@@ -261,7 +261,7 @@ bool EBTimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
 
         bool update01;
 
-        update01 = UtilsClient::getBinStats(h01_[ism-1], ie, ip, num01, mean01, rms01);
+        update01 = UtilsClient::getBinStatistics(h01_[ism-1], ie, ip, num01, mean01, rms01);
 
         if ( update01 ) {
 
@@ -278,13 +278,13 @@ bool EBTimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
           t.setTimingMean(mean01);
           t.setTimingRMS(rms01);
 
-          if ( meg01_[ism-1] && int(meg01_[ism-1]->getBinContent( ie, ip )) % 3 == 1 ) {
+          if ( UtilsClient::getBinStatus(meg01_[ism-1], ie, ip) ) {
             t.setTaskStatus(true);
           } else {
             t.setTaskStatus(false);
           }
 
-          status = status && UtilsClient::getBinQual(meg01_[ism-1], ie, ip);
+          status = status && UtilsClient::getBinQuality(meg01_[ism-1], ie, ip);
 
           int ic = Numbers::indexEB(ism, ie, ip);
 
@@ -368,7 +368,7 @@ void EBTimingClient::analyze(void) {
         float mean01;
         float rms01;
 
-        update01 = UtilsClient::getBinStats(h01_[ism-1], ie, ip, num01, mean01, rms01);
+        update01 = UtilsClient::getBinStatistics(h01_[ism-1], ie, ip, num01, mean01, rms01);
 
         if ( update01 ) {
 
@@ -408,19 +408,16 @@ void EBTimingClient::analyze(void) {
 
             if ( ecid.getLogicID() == LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalBarrel), ic).getLogicID() ) {
               if ( (m->second).getErrorBits() & bits01 ) {
-                if ( meg01_[ism-1] ) {
-                  float val = int(meg01_[ism-1]->getBinContent(ie, ip)) % 3;
-                  meg01_[ism-1]->setBinContent( ie, ip, val+3 );
-                }
+                UtilsClient::maskBinContent( meg01_[ism-1], ie, ip );
               }
             }
 
           }
         }
 
-	// TT masking
+        // TT masking
 
-	if ( mask2.size() != 0 ) {
+        if ( mask2.size() != 0 ) {
           map<EcalLogicID, RunTTErrorsDat>::const_iterator m;
           for (m = mask2.begin(); m != mask2.end(); m++) {
 
@@ -429,10 +426,9 @@ void EBTimingClient::analyze(void) {
             int itt = Numbers::iTT(ism, EcalBarrel, ie, ip);
 
             if ( ecid.getLogicID() == LogicID::getEcalLogicID("EB_trigger_tower", Numbers::iSM(ism, EcalBarrel), itt).getLogicID() ) {
-	      if ( meg01_[ism-1] ) {
-		float val = int(meg01_[ism-1]->getBinContent(ie, ip)) % 3;
-		meg01_[ism-1]->setBinContent( ie, ip, val+3 );
-	      }
+              if ( (m->second).getErrorBits() & bits01 ) {
+                UtilsClient::maskBinContent( meg01_[ism-1], ie, ip );
+              }
             }
 
           }
@@ -493,7 +489,7 @@ void EBTimingClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
 
   const double histMax = 1.e15;
 
-  int pCol3[6] = { 301, 302, 303, 304, 305, 306 };
+  int pCol3[7] = { 301, 302, 303, 304, 305, 306, 307 };
   int pCol4[10];
   for ( int i = 0; i < 10; i++ ) pCol4[i] = 401+i;
 
@@ -540,13 +536,13 @@ void EBTimingClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
 
       cQual->cd();
       gStyle->SetOptStat(" ");
-      gStyle->SetPalette(6, pCol3);
+      gStyle->SetPalette(7, pCol3);
       obj2f->GetXaxis()->SetNdivisions(17);
       obj2f->GetYaxis()->SetNdivisions(4);
       cQual->SetGridx();
       cQual->SetGridy();
       obj2f->SetMinimum(-0.00000001);
-      obj2f->SetMaximum(6.0);
+      obj2f->SetMaximum(7.0);
       obj2f->Draw("col");
       dummy.Draw("text,same");
       cQual->Update();
