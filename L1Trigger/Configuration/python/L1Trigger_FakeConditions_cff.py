@@ -26,4 +26,4 @@ from L1TriggerConfig.L1GtConfigProducers.L1GtConfig_cff import *
 from L1TriggerConfig.L1CSCTPConfigProducers.L1CSCTriggerPrimitivesConfig_cff import *
 from L1TriggerConfig.DTTPGConfigProducers.L1DTTPGConfig_cff import *
 from L1TriggerConfig.RPCTriggerConfig.RPCPatSource_cfi import *
-from L1TriggerConfig.RPCTriggerConfig.RPCHWConfigSource_cfi import *
+from L1TriggerConfig.RPCTriggerConfig.RPCHwConfigSource_cfi import *
