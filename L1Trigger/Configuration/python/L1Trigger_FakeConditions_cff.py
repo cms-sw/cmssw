@@ -17,8 +17,11 @@ from L1TriggerConfig.GMTConfigProducers.L1MuGMTParametersConfig_cff import *
 from L1TriggerConfig.L1ScalesProducers.L1MuTriggerScalesConfig_cff import *
 from L1TriggerConfig.L1ScalesProducers.L1MuTriggerPtScaleConfig_cff import *
 from L1TriggerConfig.L1ScalesProducers.L1MuGMTScalesConfig_cff import *
-# L1 GT configuration
+# GT configuration
 from L1TriggerConfig.L1GtConfigProducers.L1GtConfig_cff import *
+
+# GT menu
+from L1TriggerConfig.L1GtConfigProducers.Luminosity.lumi1030.L1Menu2008_2E30_Unprescaled_cff import *
 
 
 # these are never stored in L1 DB
