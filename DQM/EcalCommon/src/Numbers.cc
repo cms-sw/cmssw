@@ -1,11 +1,11 @@
-// $Id: Numbers.cc,v 1.59 2008/06/05 17:27:20 dellaric Exp $
+// $Id: Numbers.cc,v 1.60 2008/07/28 14:10:26 dellaric Exp $
 
 /*!
   \file Numbers.cc
   \brief Some "id" conversions
   \author B. Gobbo
-  \version $Revision: 1.59 $
-  \date $Date: 2008/06/05 17:27:20 $
+  \version $Revision: 1.60 $
+  \date $Date: 2008/07/28 14:10:26 $
 */
 
 #include <sstream>
@@ -555,10 +555,10 @@ int Numbers::RtHalf(const EEDetId& id) {
 //
 // to be confirmed !
 //
-  if ( ism == +5 && ix > 50 ) return 2;
-  if ( ism == -5 && ix > 50 ) return 2;
+  if ( ism == +5 && ix > 50 ) return 1;
+  if ( ism == -5 && ix > 50 ) return 1;
 
-  return 1;
+  return 0;
 
 }
 
