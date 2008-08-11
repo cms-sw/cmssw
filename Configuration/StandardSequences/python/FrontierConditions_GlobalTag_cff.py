@@ -21,6 +21,11 @@ es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
 
 sistripconn = cms.ESProducer("SiStripConnectivity")
 
+from L1TriggerConfig.DTTPGConfigProducers.L1DTTPGConfig_cff import *
+from L1TriggerConfig.RPCTriggerConfig.RPCPatSource_cfi import *
+from L1TriggerConfig.RPCTriggerConfig.RPCHWConfigSource_cfi import *
+
+
 # end fake calibrations
 
 from Configuration.StandardSequences.FrontierConditions_GlobalTag_cfi import *
