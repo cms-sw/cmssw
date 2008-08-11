@@ -1,8 +1,8 @@
 /*
  * \file EELedTask.cc
  *
- * $Date: 2008/05/11 09:35:13 $
- * $Revision: 1.38 $
+ * $Date: 2008/08/11 17:47:13 $
+ * $Revision: 1.39 $
  * \author G. Della Ricca
  *
 */
@@ -473,8 +473,7 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
       if ( ! ( dccMap[ism].getRunType() == EcalDCCHeaderBlock::LED_STD ||
                dccMap[ism].getRunType() == EcalDCCHeaderBlock::LED_GAP ) ) continue;
 
-      if ( dccMap[ism].getRtHalf() != 3 &&
-           dccMap[ism].getRtHalf() != Numbers::RtHalf(id) ) continue;
+      if ( dccMap[ism].getRtHalf() != Numbers::RtHalf(id) ) continue;
 
       LogDebug("EELedTask") << " det id = " << id;
       LogDebug("EELedTask") << " sm, ix, iy " << ism << " " << ix << " " << iy;
@@ -654,8 +653,7 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
       if ( ! ( dccMap[ism].getRunType() == EcalDCCHeaderBlock::LED_STD ||
                dccMap[ism].getRunType() == EcalDCCHeaderBlock::LED_GAP ) ) continue;
 
-      if ( dccMap[ism].getRtHalf() != 3 &&
-           dccMap[ism].getRtHalf() != Numbers::RtHalf(id) ) continue;
+      if ( dccMap[ism].getRtHalf() != Numbers::RtHalf(id) ) continue;
 
       LogDebug("EELedTask") << " det id = " << id;
       LogDebug("EELedTask") << " sm, ix, iy " << ism << " " << ix << " " << iy;
