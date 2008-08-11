@@ -66,30 +66,30 @@ HcalPedestalsAnalysis::~HcalPedestalsAnalysis()
       if(bunch_it->genid.isHcalDetId())
       {
 
-      if(bunch_it->detid.subdet() == 1){
-         for(int i = 0; i != 3; i++){
-            HBMeans->Fill(bunch_it->cap[i]);
-            HBWidths->Fill(bunch_it->sig[i][i]);
+         if(bunch_it->detid.subdet() == 1){
+            for(int i = 0; i != 3; i++){
+               HBMeans->Fill(bunch_it->cap[i]);
+               HBWidths->Fill(bunch_it->sig[i][i]);
+            }
          }
-      }
-      if(bunch_it->detid.subdet() == 2){
-         for(int i = 0; i != 3; i++){
-            HEMeans->Fill(bunch_it->cap[i]);
-            HEWidths->Fill(bunch_it->sig[i][i]);
+         if(bunch_it->detid.subdet() == 2){
+            for(int i = 0; i != 3; i++){
+               HEMeans->Fill(bunch_it->cap[i]);
+               HEWidths->Fill(bunch_it->sig[i][i]);
+            }
          }
-      }
-      if(bunch_it->detid.subdet() == 3){
-         for(int i = 0; i != 3; i++){
-            HOMeans->Fill(bunch_it->cap[i]);
-            HOWidths->Fill(bunch_it->sig[i][i]);
+         if(bunch_it->detid.subdet() == 3){
+            for(int i = 0; i != 3; i++){
+               HOMeans->Fill(bunch_it->cap[i]);
+               HOWidths->Fill(bunch_it->sig[i][i]);
+            }
          }
-      }
-      if(bunch_it->detid.subdet() == 4){
-         for(int i = 0; i != 3; i++){
-            HFMeans->Fill(bunch_it->cap[i]);
-            HFWidths->Fill(bunch_it->sig[i][i]);
+         if(bunch_it->detid.subdet() == 4){
+            for(int i = 0; i != 3; i++){
+               HFMeans->Fill(bunch_it->cap[i]);
+               HFWidths->Fill(bunch_it->sig[i][i]);
+            }
          }
-      }
 
          const HcalPedestal item(bunch_it->detid.rawId(), bunch_it->cap[0], bunch_it->cap[1], bunch_it->cap[2], bunch_it->cap[3]);
          rawPedsItem->addValues(item);
@@ -121,7 +121,9 @@ HcalPedestalsAnalysis::~HcalPedestalsAnalysis()
          widthspfc.setSigma(2,3,bunch_it->sigfc[2][3]);
          widthspfc.setSigma(3,3,bunch_it->sigfc[3][3]);
          rawWidthsItemfc->addValues(widthspfc);
-      }else if(bunch_it->genid.isHcalZDCDetId()){
+      }
+      else if(bunch_it->genid.isHcalZDCDetId())
+      {
          for(int i = 0; i != 3; i++){
             ZDCMeans->Fill(bunch_it->cap[i]);
             ZDCWidths->Fill(bunch_it->sig[i][i]);
@@ -433,7 +435,7 @@ HcalPedestalsAnalysis::analyze(const edm::Event& e, const edm::EventSetup& iSetu
    {
       const ZDCDataFrame digi = (const ZDCDataFrame)(*j);
       for(bunch_it = Bunches.begin(); bunch_it != Bunches.end(); bunch_it++)
-         if(bunch_it->detid.rawId() == digi.id().rawId()) break;
+         if(bunch_it->zdcid.rawId() == digi.id().rawId()) break;
       bunch_it->usedflag = true;
       for(int ts = firstTS; ts <= lastTS; ts++)
       {
