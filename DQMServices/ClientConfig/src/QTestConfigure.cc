@@ -2,8 +2,8 @@
  *
  *  Implementation of QTestConfigure
  *
- *  $Date: 2008/05/14 12:38:47 $
- *  $Revision: 1.14 $
+ *  $Date: 2008/06/06 08:47:25 $
+ *  $Revision: 1.15 $
  *  \author Ilaria Segoni
  */
 #include "DQMServices/ClientConfig/interface/QTestConfigure.h"
@@ -161,7 +161,11 @@ void QTestConfigure::EnableDeadChannelTest(std::string testName, std::map<std::s
 	DeadChannel * me_qc1 = ( DeadChannel *) qc1;
 	
 	unsigned int threshold=(unsigned int)atof(params["threshold"].c_str());
-	me_qc1->setMinimumEntries(threshold);
+	me_qc1->setThreshold(threshold);
+      
+        // Include/Exclude empty bins ?
+        //unsigned int useEmptyBins=(unsigned int)atof(params["useEmptyBins"].c_str());
+        //me_qc1->setUseEmptyBins(useEmptyBins);
 	
 	double warning=atof(params["warning"].c_str());
 	double error=atof(params["error"].c_str());
