@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("RecoMuon")
+process = cms.Process("TEST")
 
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring('/store/data/CRUZET3/Cosmics/RECO/CRUZET3_V2P_v3/0060/226F5F00-3451-DD11-9688-000423D9853C.root')
@@ -8,9 +8,6 @@ process.source = cms.Source("PoolSource",
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
-
-
-process.load("RecoMuon.Configuration.MessageLogger_cfi")
 
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.GlobalRuns.ForceZeroTeslaField_cff")
