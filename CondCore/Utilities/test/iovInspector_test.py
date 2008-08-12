@@ -19,14 +19,19 @@ class TestWhat :
     def __init__(self) :
         self.__how = How()
         self.__which = CondDB.VInt()
+        self.__lost = CondDB.VInt()
     def how(self) :
         return self.__how
     def which(self):
         return self.__which
+    def lost(self):
+        return self.__lost
     def set_how(self,h):
         self.__how=h
     def set_which(self,vi) :
         self.__which = vi
+    def set_lost(self,vi) :
+        self.__lost= vi
     def descr_which(self):
         d = CondDB.VString()
         d.append('me')
@@ -44,7 +49,7 @@ for key in d.keys() :
     (mode,val) = d[key]
     if (mode=='single') :
         ret[key]=val[1]
-    elif (mode=='multiple') :
+    else :
         ret[key]=[0,2]
 
 inspect.setWhat(ts,ret)
