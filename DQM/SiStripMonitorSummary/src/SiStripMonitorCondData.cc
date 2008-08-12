@@ -28,6 +28,7 @@
 
 #include "DQM/SiStripMonitorSummary/interface/SiStripPedestalsDQM.h" 
 #include "DQM/SiStripMonitorSummary/interface/SiStripNoisesDQM.h" 
+#include "DQM/SiStripMonitorSummary/interface/SiStripThresholdDQM.h" 
 #include "DQM/SiStripMonitorSummary/interface/SiStripQualityDQM.h" 
 #include "DQM/SiStripMonitorSummary/interface/SiStripApvGainsDQM.h" 
 #include "DQM/SiStripMonitorSummary/interface/SiStripLorentzAngleDQM.h"
@@ -52,6 +53,8 @@ SiStripMonitorCondData::SiStripMonitorCondData(edm::ParameterSet const& iConfig)
   
   monitorPedestals_      = iConfig.getParameter<bool>("MonitorSiStripPedestal");
   monitorNoises_         = iConfig.getParameter<bool>("MonitorSiStripNoise");
+  monitorLowThreshold_   = iConfig.getParameter<bool>("MonitorSiStripLowThreshold");
+  monitorHighThreshold_  = iConfig.getParameter<bool>("MonitorSiStripHighThreshold");
   monitorQuality_        = iConfig.getParameter<bool>("MonitorSiStripQuality");
   monitorApvGains_       = iConfig.getParameter<bool>("MonitorSiStripApvGain");
   monitorLorentzAngle_   = iConfig.getParameter<bool>("MonitorSiStripLorentzAngle");
@@ -69,6 +72,8 @@ SiStripMonitorCondData::~SiStripMonitorCondData(){
 
   if(monitorPedestals_)   { delete pedestalsDQM_   ;}
   if(monitorNoises_)      { delete noisesDQM_      ;}
+  if(monitorLowThreshold_) { delete lowthresholdDQM_ ;}
+  if(monitorHighThreshold_){ delete highthresholdDQM_;}
   if(monitorQuality_)     { delete qualityDQM_     ;}
   if(monitorApvGains_)    { delete apvgainsDQM_    ;}
   if(monitorLorentzAngle_){ delete lorentzangleDQM_;}
@@ -98,6 +103,18 @@ void SiStripMonitorCondData::beginRun(edm::Run const& run, edm::EventSetup const
   }
   
   
+  if(monitorLowThreshold_){
+    lowthresholdDQM_ = new SiStripThresholdDQM(eSetup,
+                                           conf_.getParameter<edm::ParameterSet>("SiStripLowThresholdDQM_PSet"),
+                                           conf_.getParameter<edm::ParameterSet>("FillConditions_PSet"));
+  }
+
+  if(monitorHighThreshold_){
+    highthresholdDQM_ = new SiStripThresholdDQM(eSetup,
+                                           conf_.getParameter<edm::ParameterSet>("SiStripHighThresholdDQM_PSet"),
+                                           conf_.getParameter<edm::ParameterSet>("FillConditions_PSet"));
+  }
+
   if(monitorQuality_){
     qualityDQM_ = new SiStripQualityDQM(eSetup,
                                        conf_.getParameter<edm::ParameterSet>("SiStripQualityDQM_PSet"),
@@ -142,6 +159,8 @@ void SiStripMonitorCondData::analyze(edm::Event const& iEvent, edm::EventSetup c
  
   if(monitorPedestals_)      { pedestalsDQM_     ->analysis(eSetup);}
   if(monitorNoises_)         { noisesDQM_        ->analysis(eSetup);}    
+  if(monitorLowThreshold_)   { lowthresholdDQM_  ->analysis(eSetup);}    
+  if(monitorHighThreshold_)  { highthresholdDQM_ ->analysis(eSetup);}    
   if(monitorApvGains_)       { apvgainsDQM_      ->analysis(eSetup);}    
   if(monitorLorentzAngle_)   { lorentzangleDQM_  ->analysis(eSetup);}
   if(monitorQuality_)        { qualityDQM_->analysis(eSetup);qualityDQM_->fillGrandSummaryMEs();}//fillGrand. for SiStripquality

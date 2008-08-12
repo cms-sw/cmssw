@@ -332,8 +332,10 @@ void SiStripBaseCondObjDQM::getSummaryMEs(ModMEs& CondObj_ME, const uint32_t& de
   if (SummaryMEsMap_iter != SummaryMEsMap_.end()){ return;}
 
   // --> currently only profile summary defined for all condition objects except quality
-  if(  CondObj_name_ == "pedestal"      || 
+  if(  CondObj_name_ == "pedestal"     || 
       CondObj_name_ == "noise"         || 
+      CondObj_name_ == "lowthreshold"  || 
+      CondObj_name_ == "highthreshold" || 
       CondObj_name_ == "apvgain"       || 
       CondObj_name_ == "lorentzangle" ) {
     if(hPSet_.getParameter<bool>("FillSummaryProfileAtLayerLevel"))	
@@ -348,10 +350,12 @@ void SiStripBaseCondObjDQM::getSummaryMEs(ModMEs& CondObj_ME, const uint32_t& de
   } 
                           
   // --> currently only summary as a function of detId for noise, pedestal and apvgain 
-  if(      CondObj_name_ == "noise"          ||
-          CondObj_name_ == "apvgain"        || 
-	  CondObj_name_ == "pedestal"       || 
-	  CondObj_name_ == "quality"           ) {
+  if(      CondObj_name_ == "noise"         ||
+	   CondObj_name_ == "lowthreshold"  || 
+	   CondObj_name_ == "highthreshold" || 
+	   CondObj_name_ == "apvgain"       || 
+	   CondObj_name_ == "pedestal"      || 
+	   CondObj_name_ == "quality"           ) {
     if(hPSet_.getParameter<bool>("FillSummaryAtLayerLevel"))          
       if (CondObj_ME.SummaryDistr) { bookSummaryMEs(CondObj_ME,detId_); } 
     
@@ -486,7 +490,7 @@ void SiStripBaseCondObjDQM::bookSummaryProfileMEs(SiStripBaseCondObjDQM::ModMEs&
 
 
      
-  if( CondObj_name_ == "pedestal" || CondObj_name_ == "noise" ){ // plot in strip number
+  if( CondObj_name_ == "pedestal" || CondObj_name_ == "noise"|| CondObj_name_ == "lowthreshold" || CondObj_name_ == "highthreshold" ){ // plot in strip number
     
     if( (layerId_ > 610 && layerId_ < 620) || // TID & TEC have 768 strips at maximum
         (layerId_ > 620 && layerId_ < 630) ||

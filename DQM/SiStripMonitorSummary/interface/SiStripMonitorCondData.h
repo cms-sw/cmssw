@@ -32,6 +32,7 @@ class MonitorElement;
 
 class SiStripPedestalsDQM;
 class SiStripNoisesDQM;
+class SiStripThresholdDQM;
 class SiStripQualityDQM;
 class SiStripApvGainsDQM;
 class SiStripLorentzAngleDQM;
@@ -58,6 +59,8 @@ class SiStripMonitorCondData : public edm::EDAnalyzer {
   
    bool monitorPedestals_   ;
    bool monitorNoises_      ;
+   bool monitorLowThreshold_  ;
+   bool monitorHighThreshold_ ;
    bool monitorQuality_     ;
    bool monitorApvGains_    ;
    bool monitorLorentzAngle_;
@@ -67,6 +70,8 @@ class SiStripMonitorCondData : public edm::EDAnalyzer {
 
    SiStripPedestalsDQM*           pedestalsDQM_;
    SiStripNoisesDQM*                 noisesDQM_; 
+   SiStripThresholdDQM*        lowthresholdDQM_; 
+   SiStripThresholdDQM*       highthresholdDQM_; 
    SiStripQualityDQM*               qualityDQM_; 
    SiStripApvGainsDQM*             apvgainsDQM_;  
    SiStripLorentzAngleDQM*     lorentzangleDQM_; 

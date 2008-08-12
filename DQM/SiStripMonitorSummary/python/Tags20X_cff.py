@@ -1,6 +1,3 @@
-# The following comments couldn't be translated into the new config version:
-
-#Frontier/CMS_COND_20X_STRIP"
 import FWCore.ParameterSet.Config as cms
 
 import CalibTracker.Configuration.Common.PoolDBESSource_cfi
@@ -22,3 +19,4 @@ siStripCond.toGet = cms.VPSet(cms.PSet(
 siStripCond.connect = 'frontier://Frontier/CMS_COND_20X_STRIP'
 siStripCond.DBParameters.authenticationPath = ''
 
+import DQM.SiStripMonitorSummary.tagsQuality_cfi
