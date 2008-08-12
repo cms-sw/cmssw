@@ -6,6 +6,7 @@
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 
@@ -19,6 +20,12 @@
 
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
+
+#include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
+#include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
+
+#include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbService.h"
+#include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbRecord.h"
 
 // C/C++ headers
 #include <string>
@@ -53,12 +60,11 @@ class CosmicClusterAlgo
 
   // this is the method that will start the clusterisation
   std::vector<reco::BasicCluster> makeClusters(const EcalRecHitCollection* hits,
+											   const EcalUncalibratedRecHitCollection* uncalibhits,
                                                const CaloSubdetectorGeometry *geometry,
                                                const CaloSubdetectorTopology *topology_p,
                                                const CaloSubdetectorGeometry *geometryES_p,
                                                EcalPart ecalPart,
-                                               const EcalIntercalibConstantMap& icalMap,
-                                               const std::vector<int>& masked = std::vector<int>(),
 					       bool regional = false,
 					       const std::vector<EcalEtaPhiRegion>& regions = std::vector<EcalEtaPhiRegion>());
 
@@ -84,6 +90,8 @@ class CosmicClusterAlgo
   
   // collection of all rechits
   const EcalRecHitCollection *recHits_;
+  // collection of all uncalibrated rechits
+  const EcalUncalibratedRecHitCollection *uncalibRecHits_;
 
   // The vector of seeds:
   std::vector<EcalRecHit> seeds;
@@ -92,7 +100,9 @@ class CosmicClusterAlgo
   std::set<DetId> used_s;
   std::set<DetId> canSeed_s; // set of crystals not to be added but which can seed
                                 // a new 3x3 (e.g. the outer crystals in a 5x5)
-
+ 
+  //in EB or EE?
+  bool inEB;
 
   // The vector of DetId's in the cluster currently reconstructed
   std::vector<DetId> current_v9;
@@ -105,23 +115,19 @@ class CosmicClusterAlgo
   // The verbosity level
   VerbosityLevel verbosity;
 
-  void mainSearch(const EcalRecHitCollection* hits,
-                  const CaloSubdetectorGeometry *geometry_p,
+  void mainSearch(  const CaloSubdetectorGeometry *geometry_p,
                   const CaloSubdetectorTopology *topology_p,
 		  const CaloSubdetectorGeometry *geometryES_p,
-                  EcalPart ecalPart,
-				  const EcalIntercalibConstantMap& icalMap);
+                  EcalPart ecalPart);
 
   // Is the crystal at the navigator position a 
   // local maxiumum in energy?
-  bool checkMaxima(CaloNavigator<DetId> &navigator,
-		   const EcalRecHitCollection *hits);
+  bool checkMaxima(CaloNavigator<DetId> &navigator);
 
   // prepare the 5x5 taking care over which crystals
   // are allowed to seed new clusters and which are not
   // after the preparation is complete
   void prepareCluster(CaloNavigator<DetId> &navigator,
-                const EcalRecHitCollection *hits,
                 const CaloSubdetectorGeometry *geometry);
 
   // Add the crystal with DetId det to the current
@@ -132,7 +138,7 @@ class CosmicClusterAlgo
   
   // take the crystals in the current_v and build 
   // them into a BasicCluster
-  void makeCluster(const EcalRecHitCollection* hits,const CaloSubdetectorGeometry *geometry_p,const CaloSubdetectorGeometry *geometryES_p, const EcalIntercalibConstantMap& icalMap);
+  void makeCluster(const CaloSubdetectorGeometry *geometry_p,const CaloSubdetectorGeometry *geometryES_p);
 
   //TEMP JHAUPT 4-27
   std::vector<int> maskedChannels_; //TEMP JHAUPT 4-27

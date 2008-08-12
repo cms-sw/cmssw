@@ -12,18 +12,17 @@
 
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
-#include "RecoEcal/EgammaCoreTools/interface/ClusterEtLess.h"
+
 
 // Return a vector of clusters from a collection of EcalRecHits:
 //
 std::vector<reco::BasicCluster> CosmicClusterAlgo::makeClusters(
                                   const EcalRecHitCollection* hits,
+				  const EcalUncalibratedRecHitCollection *uncalibhits,				  
 				  const CaloSubdetectorGeometry *geometry_p,
 				  const CaloSubdetectorTopology *topology_p,
 				  const CaloSubdetectorGeometry *geometryES_p,
 				  EcalPart ecalPart,
-                                  const EcalIntercalibConstantMap& icalMap,
-				  const std::vector<int>& masked,
 				  bool regional,
 				  const std::vector<EcalEtaPhiRegion>& regions)
 {
@@ -33,28 +32,29 @@ std::vector<reco::BasicCluster> CosmicClusterAlgo::makeClusters(
   clusters_v.clear();
 
   recHits_ = hits;
-
-  //JHAUPT 4-27 TEMP TEMP 
-  maskedChannels_.assign(masked.begin(),masked.end());//JHAUPT 4-27 TEMP TEMP
+  uncalibRecHits_ = uncalibhits;
   
+  inEB = true;
   double threshold = 0;
   std::string ecalPart_string;
   if (ecalPart == endcap) 
     {
       threshold = ecalEndcapSeedThreshold;
       ecalPart_string = "EndCap";
+	  inEB = false;
     }
   if (ecalPart == barrel) 
     {
       threshold = ecalBarrelSeedThreshold;
       ecalPart_string = "Barrel";
+	  inEB = true;
     }
 
   if (verbosity < pINFO)
     {
       std::cout << "-------------------------------------------------------------" << std::endl;
       std::cout << "Island algorithm invoked for ECAL" << ecalPart_string << std::endl;
-      std::cout << "Looking for seeds, energy threshold used = " << threshold << " GeV" <<std::endl;
+      std::cout << "Looking for seeds, threshold used = " << threshold << " ADC" <<std::endl;
     }
 
   int nregions=0;
@@ -63,18 +63,34 @@ std::vector<reco::BasicCluster> CosmicClusterAlgo::makeClusters(
   if(!regional || nregions) {
 
     EcalRecHitCollection::const_iterator it;
-    for(it = hits->begin(); it != hits->end(); it++)
-      {
-          double energy = it->energy();
-          // find intercalib constant for this xtal
-          EcalIntercalibConstantMap::const_iterator icalit=icalMap.find(it->id());
-          EcalIntercalibConstant icalconst = 1.;
-	  if( icalit!=icalMap.end() ){icalconst = (*icalit);}
-	  energy /= icalconst;
-	if (energy < threshold) continue; // need to check to see if this line is useful!
-
-	const CaloCellGeometry *thisCell = geometry_p->getGeometry(it->id());
-	GlobalPoint position = thisCell->getPosition();
+    for(it = recHits_->begin(); it != recHits_->end(); it++)
+      {	  
+	  
+	  if (!uncalibRecHits_){  
+	     if (verbosity < pINFO)
+         {
+            std::cout << "-------------------------------------------------------------" << std::endl;
+            std::cout << "No Uncalibrated RecHits no Uncalibrated rec hit collection available" << std::endl;
+         }
+	  }
+	  
+	  EcalUncalibratedRecHitCollection::const_iterator itt =  uncalibRecHits_->find(it->id());
+	  
+	  if (itt == uncalibRecHits_->end()){  
+	     if (verbosity < pINFO)
+         {
+            std::cout << "-------------------------------------------------------------" << std::endl;
+            std::cout << "No Uncalibrated RecHit associated with the RecHit Probably no Uncalibrated rec hit collection available" << std::endl;
+			continue;
+		 }
+	  }
+	  
+      EcalUncalibratedRecHit uhit_p = *itt;
+	  
+	  if (uhit_p.amplitude() <  (inEB ? ecalBarrelSeedThreshold : ecalEndcapSeedThreshold) ) continue; // 
+	  
+	  const CaloCellGeometry *thisCell = geometry_p->getGeometry(it->id());
+	  GlobalPoint position = thisCell->getPosition();
 
 	// Require that RecHit is within clustering region in case
 	// of regional reconstruction
@@ -110,8 +126,8 @@ std::vector<reco::BasicCluster> CosmicClusterAlgo::makeClusters(
 	  }
    }
 
-   mainSearch(hits,geometry_p,topology_p,geometryES_p,ecalPart,icalMap);
-   sort(clusters_v.rbegin(), clusters_v.rend(),ClusterEtLess());
+   mainSearch(geometry_p,topology_p,geometryES_p,ecalPart );
+   sort(clusters_v.begin(), clusters_v.end());
          
    if (verbosity < pINFO)
    {
@@ -124,12 +140,10 @@ std::vector<reco::BasicCluster> CosmicClusterAlgo::makeClusters(
 
 // Search for clusters
 //
-void CosmicClusterAlgo::mainSearch(const EcalRecHitCollection* hits,
-                                   const CaloSubdetectorGeometry *geometry_p,
-                                   const CaloSubdetectorTopology *topology_p,
-                                   const CaloSubdetectorGeometry *geometryES_p,
-                                   EcalPart ecalPart,
-								   const EcalIntercalibConstantMap& icalMap)
+void CosmicClusterAlgo::mainSearch(	 const CaloSubdetectorGeometry *geometry_p,
+                   const CaloSubdetectorTopology *topology_p,
+                   const CaloSubdetectorGeometry *geometryES_p,
+                   EcalPart ecalPart )
 {
 
    if (verbosity < pINFO)
@@ -165,7 +179,7 @@ void CosmicClusterAlgo::mainSearch(const EcalRecHitCollection* hits,
 	  continue;
       }
 
-      // clear the vector of hits in current cluster
+      // clear the vector of hits in current clusterconst EcalRecHitCollection* hits,
       current_v9.clear();
       current_v25.clear();
       current_v25Sup.clear();
@@ -176,30 +190,29 @@ void CosmicClusterAlgo::mainSearch(const EcalRecHitCollection* hits,
       navigator.setHome(seedId);
 
       // Is the seed a local maximum?
-      bool localMaxima = checkMaxima(navigator, hits);
+      bool localMaxima = checkMaxima(navigator);
 
       if (localMaxima)
       {
          // build the 5x5 taking care over which crystals //JHaupt 4-27-08 3x3 is a good option...
          // can seed new clusters and which can't
-         prepareCluster(navigator, hits, geometry_p);
+         prepareCluster(navigator, geometry_p);
       }
 
       // If some crystals in the current vector then 
       // make them into a cluster 
       if (current_v25.size() > 0) 
       {
-         makeCluster(hits, geometry_p, geometryES_p, icalMap);
+	makeCluster(geometry_p, geometryES_p);
       }
 
    }  // End loop on seed crystals
 
 }
 
-void CosmicClusterAlgo::makeCluster(const EcalRecHitCollection* hits,
+void CosmicClusterAlgo::makeCluster(
 				    const CaloSubdetectorGeometry *geometry,
-				    const CaloSubdetectorGeometry *geometryES,
-					const EcalIntercalibConstantMap& icalMap)
+				    const CaloSubdetectorGeometry *geometryES)
 {
 
    double energy = 0;
@@ -209,44 +222,41 @@ void CosmicClusterAlgo::makeCluster(const EcalRecHitCollection* hits,
    DetId detFir;
    DetId detSec;
    //bool goodCluster = false; //JHaupt 4-27-08 Added so that some can be earased.. used another day Might not be needed as seeds are energy ordered... 
-  
+   
    
    std::vector<DetId>::iterator it;
    for (it = current_v9.begin(); it != current_v9.end(); it++)
    {
-      EcalRecHitCollection::const_iterator itt = hits->find(*it);
-      EcalRecHit hit_p = *itt;
-	  double rawE = hit_p.energy();
-	  // find intercalib constant for this xtal
-	  EcalIntercalibConstantMap::const_iterator icalit=icalMap.find(hit_p.id());
-      EcalIntercalibConstant icalconst = 1.;
-	  if( icalit!=icalMap.end() ){icalconst = (*icalit);}
-	  rawE /= icalconst;
-	  if (rawE > energySecond ) {energySecond = rawE; detSec = hit_p.id();}
+      EcalUncalibratedRecHitCollection::const_iterator ittu = uncalibRecHits_->find(*it);
+      EcalUncalibratedRecHit uhit_p = *ittu;
+	  
+	  if (uhit_p.amplitude() > energySecond ) {energySecond = uhit_p.amplitude(); detSec = uhit_p.id();}
 	  if (energySecond > energyMax ) {std::swap(energySecond,energyMax); std::swap(detFir,detSec);}
    }
    
-   
-   if ((energyMax < ecalBarrelSingleThreshold) && (energySecond < ecalBarrelSecondThreshold) ) return;
+   //if ((detFir.det() == DetId::Ecal) && (detFir.subdetId() == EcalEndcap)) inEB = false;
+   //We ignore the possiblity that the cluster may span into the EE    
+
+   if ((energyMax < (inEB ? ecalBarrelSingleThreshold : ecalEndcapSingleThreshold)) && (energySecond < (inEB ? ecalBarrelSecondThreshold : ecalEndcapSecondThreshold) )) return;
    
    for (it = current_v25.begin(); it != current_v25.end(); it++)
    {
-      EcalRecHitCollection::const_iterator itt = hits->find(*it);
+      EcalRecHitCollection::const_iterator itt = recHits_->find(*it);
       EcalRecHit hit_p = *itt;
-      EcalIntercalibConstantMap::const_iterator icalit=icalMap.find(hit_p.id());
-      EcalIntercalibConstant icalconst = 1.;
-      if( icalit!=icalMap.end() ){icalconst = (*icalit);}
-      double hitEnergy = hit_p.energy()/icalconst;
-      if ( hitEnergy > ecalBarrelSupThreshold ) 
-      {
+	  
+	  EcalUncalibratedRecHitCollection::const_iterator ittu = uncalibRecHits_->find(*it);
+      EcalUncalibratedRecHit uhit_p = *ittu;
+	  
+      if ( uhit_p.amplitude() > ( inEB ? ecalBarrelSupThreshold : ecalEndcapSupThreshold)) 
+      {  
          current_v25Sup.push_back(hit_p.id());
-         energy += hitEnergy;
+         energy += hit_p.energy(); //Keep the fully corrected energy 
          chi2 += 0;
       }     
    }
    
    Point position;
-   position = posCalculator_.Calculate_Location(current_v25Sup, hits,geometry, geometryES);
+   position = posCalculator_.Calculate_Location(current_v25Sup,recHits_, geometry, geometryES);
    
    chi2 /= energy;
    if (verbosity < pINFO)
@@ -265,13 +275,12 @@ void CosmicClusterAlgo::makeCluster(const EcalRecHitCollection* hits,
    clusters_v.push_back(reco::BasicCluster(energy, position, chi2, current_v25Sup, reco::island));
 }
 
-bool CosmicClusterAlgo::checkMaxima(CaloNavigator<DetId> &navigator,
-				       const EcalRecHitCollection *hits)
+bool CosmicClusterAlgo::checkMaxima(CaloNavigator<DetId> &navigator)
 {
 
    bool maxima = true;
    EcalRecHitCollection::const_iterator thisHit;
-   EcalRecHitCollection::const_iterator seedHit = hits->find(navigator.pos());
+   EcalRecHitCollection::const_iterator seedHit = recHits_->find(navigator.pos());
    double thisEnergy = 0.;
    double seedEnergy = seedHit->energy();
 
@@ -304,8 +313,7 @@ bool CosmicClusterAlgo::checkMaxima(CaloNavigator<DetId> &navigator,
 
 }
 
-void CosmicClusterAlgo::prepareCluster(CaloNavigator<DetId> &navigator, 
-                const EcalRecHitCollection *hits, 
+void CosmicClusterAlgo::prepareCluster(CaloNavigator<DetId> &navigator,  
                 const CaloSubdetectorGeometry *geometry)
 {
 
@@ -374,16 +382,14 @@ void CosmicClusterAlgo::addCrystal(const DetId &det, const bool in9)
     { 
         if ((used_s.find(thisIt->id()) == used_s.end())) 
         {
+		    EcalUncalibratedRecHitCollection::const_iterator thisItu =  uncalibRecHits_->find(det);
             used_s.insert(det);
-            //if (find(maskedChannels_.begin(), maskedChannels_.end(), ((EBDetId)thisIt->id()).hashedIndex()) == maskedChannels_.end())
-            //{
-                //std::cout << "   ... this is a good crystal and will be added" << std::endl;
-                if (thisIt->energy() >= -1.)
-                {		
-                    if (in9)  current_v9.push_back(det);
-                    current_v25.push_back(det);
-                }
-            //}
+            if ((thisIt->energy() >= -1.) && !(thisItu->chi2() < -1.))
+            {		
+               if (in9)  current_v9.push_back(det);
+	           current_v25.push_back(det);
+            }
+            
         }
     } 
    
