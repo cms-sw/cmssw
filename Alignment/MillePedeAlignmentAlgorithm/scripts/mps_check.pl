@@ -1,8 +1,8 @@
 #!/usr/local/bin/perl
 #     R. Mankel, DESY Hamburg     09-Jul-2007
 #     A. Parenti, DESY Hamburg    24-Apr-2008
-#     $Revision: 1.9 $
-#     $Date: 2008/06/25 17:31:50 $
+#     $Revision: 1.10.2.1 $
+#     $Date: 2008/08/12 21:19:52 $
 #
 #  Check output from jobs that have FETCH status
 #  
@@ -38,6 +38,7 @@ for ($i=0; $i<@JOBID; ++$i) {
   $timeout = 0;
   $cfgerr = 0;
   $emptyDatErr = 0;
+  $emptyDatOnFarm = 0;
 
   $remark = "";
 
@@ -57,6 +58,7 @@ for ($i=0; $i<@JOBID; ++$i) {
 	# print "Set cpu to $cputime\n";
       }
       if (($line =~ m/ConfigFileReadError/) eq 1)  { $cfgerr = 1; }
+      if (($line =~ m/0 bytes transferred/) eq 1)  { $emptyDatOnFarm = 1; }
 
     }
     close STDFILE;
@@ -200,7 +202,12 @@ for ($i=0; $i<@JOBID; ++$i) {
     if ($emptyDatErr == 1) {
       print "milleBinary???.dat file not found or empty\n";
       $remark = "empty milleBinary";
-      $okStatus = "FAIL"; 
+      if ( $emptyDatOnFarm > 0 ) {
+	my $num=$i+1;
+	print "...but already empty on farm so OK (or check job $num yourself...)\n";
+      } else {
+	$okStatus = "FAIL";
+      }
     }
 
     if ($pedeAbend eq 1) {
