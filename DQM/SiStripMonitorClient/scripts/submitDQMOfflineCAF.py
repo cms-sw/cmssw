@@ -1,4 +1,4 @@
-#!/afs/cern.ch/cms/sw/slc4_ia32_gcc345/external/python/2.4.2-cms2/bin/python
+#!/usr/bin/env python
 
 #
 # $Id: submitDQMOfflineCAF.py,v 1.1 2008/08/02 16:06:09 dutta Exp $
@@ -142,7 +142,6 @@ for str_argument in LSTR_wordArgument:
      DICT_functionLetters.has_key(str_argument)   :
     break
   else:
-
     Usage()
     sys.exit(1)
     
@@ -324,7 +323,7 @@ if int_nInputFiles == nInputFilesJob*(int_nJobs-1) and int_nJobs > 1:
   int_nJobs -= 1
 print '> submitDQMOfflineCAF.py > input files for run ' + str_runNumber + ':   ' + str(int_nInputFiles)
 print
-	
+
 # loop over single jobs
   
 int_nLinesRead = 0
@@ -332,10 +331,6 @@ file_inputFilesCff = file(str_nameRun + '/' + str_nameRun + '.cff', 'r')
 lstr_linesInput = file_inputFilesCff.readlines()
 str_nameMergeScript = 'merge' + str_nameRun + '.job'
 file_mergeScript = file(str_nameRun + '/' + str_nameMergeScript, 'w')
-file_mergeScript.write('#!/bin/tcsh \n')
-file_mergeScript.write('cd ' + str_pathCmsswBase + '/src \n')
-file_mergeScript.write('eval `scramv1 runtime -csh` \n')
-file_mergeScript.write('setenv STAGE_SVCCLASS cmscaf \n') # --> added to use CAF stager
 file_mergeScript.write('hadd -f ' + str_pathMerge + '/DQM_SiStrip_' + str_nameRun + '_CAF-standAlone.root \\\n') # --> configurable
 for int_iJob in range(int_nJobs):
   int_nDigits = 1
@@ -356,10 +351,7 @@ for int_iJob in range(int_nJobs):
   file_inputFilesJobCff = file(str_nameInputFilesJobCff, 'w')
   file_inputFilesJobCff.write('  source = PoolSource {\n    untracked vstring fileNames = {\n')
   for n_iActualLine in range(int_nLinesRead, min(int_nLinesRead+nInputFilesJob, int_nInputFiles)):
-    if (n_iActualLine+1)%nInputFilesJob == 0 or int_nLinesRead == int_nInputFiles-1:
-      lstr_actualLine1  = string.split('      \'/store/data/' + string.split(lstr_linesInput[n_iActualLine], '/store/data/')[1], '.root\'')[0] + '.root\',\n'
-    else:
-      lstr_actualLine1  = string.split('      \'/store/data/' + string.split(lstr_linesInput[n_iActualLine], '/store/data/')[1], '.root\',')[0] + '.root\',\n'
+    lstr_actualLine1  = string.split('      \'/store/data/' + string.split(lstr_linesInput[n_iActualLine], '/store/data/')[1], '.root\',')[0] + '.root\',\n'
     lstr_actualLine2  = lstr_actualLine1
     if (n_iActualLine+1)%nInputFilesJob == 0 or int_nLinesRead == int_nInputFiles-1:
       lstr_actualLine2 = string.split(lstr_actualLine1, ',')[0] + '\n'
