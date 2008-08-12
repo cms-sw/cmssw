@@ -33,3 +33,8 @@ class TestWhat :
         d.append('you')
         d.append('her')
         return d;
+
+ts = TestWhat()
+wd = inspect.WhatDescription(ts)
+wd.describe()
+

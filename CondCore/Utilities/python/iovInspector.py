@@ -11,29 +11,28 @@ class WhatDescription :
               self.__me = w
               self.__ret ={}
        def describe(self) :
-              atts = (att for att in dir(self.__me) if not (att[0]=='_' or att[0:4]=='set_' or att[0:6]=='descr_'))
-              for att in atts:
-                     exec('a=w.'+att+'()')
-                     if (a.__class__==CondDB.VInt):
-                            if(hasattr(self.__me,'descr_'+att)) :
-                                   self.multiple(att)
+              _w = self.__me
+              _atts = (att for att in dir(self.__me) if not (att[0]=='_' or att[0:4]=='set_' or att[0:6]=='descr_'))
+              for _att in _atts:
+                     exec('_a=_w.'+_att+'()')
+                     if (_a.__class__==CondDB.VInt):
+                            if(hasattr(self.__me,'descr_'+_att)) :
+                                   self.multiple(_att)
                             else :
-                                   self.commaSeparated(att)
+                                   self.commaSeparated(_att)
                      else :
-                            self.single(att,a)
+                            self.single(_att,_a)
               return self.__ret
 
-       def single(self,att) :
-              w = self.__me
+       def single(self,att,a) :
               self.__ret[att]=('single',[val for val in dir(a) if not (val[0]=='_' or val=='name'or val=='values')])
 
        def multiple(self,att) :
-              w = self.__me
-              exec('d=w.descr_'+att+'()')
-              self.__ret[att]=('multiple',[val for val in d])
+              _w = self.__me
+              exec('_d=_w.descr_'+att+'()')
+              self.__ret[att]=('multiple',[val for val in _d])
 
        def commaSeparated(self,att) :
-              w = self.__me
               self.__ret[att]=('commaSeparated',[])
        
        
