@@ -1,16 +1,19 @@
 create or replace view view_last as
-SELECT 'Latest Open Time' AS NAME,
-       TO_CHAR ( MAX ( CTIME ) , 'YYYY/MM/DD HH24:MI' ) AS VALUE
-  FROM FILES_CREATED
-  
- UNION SELECT 'Latest Close Time' AS NAME,
+SELECT '1: Latest Open Time' AS NAME,
+       TO_CHAR ( MAX ( CTIME ),
+		 'YYYY/MM/DD HH24:MI' ) AS VALUE
+  FROM FILES_CREATED where PRODUCER = 'StorageManager'
+UNION SELECT '2: Latest Close Time' AS NAME,
        TO_CHAR ( MAX ( ITIME ),
 		 'YYYY/MM/DD HH24:MI' ) AS VALUE
-  FROM FILES_INJECTED
-
- UNION SELECT 'Latest Trans Time' AS NAME,
+  FROM FILES_CREATED LEFT OUTER JOIN FILES_INJECTED
+	     ON FILES_CREATED.FILENAME = FILES_INJECTED.FILENAME
+	     where PRODUCER = 'StorageManager'
+UNION SELECT '3: Latest Trans Time' AS NAME,
        TO_CHAR ( MAX ( ITIME ),
 		 'YYYY/MM/DD HH24:MI' ) AS VALUE
-  FROM FILES_TRANS_CHECKED;
+  FROM FILES_CREATED LEFT OUTER JOIN FILES_TRANS_CHECKED
+	     ON FILES_CREATED.FILENAME = FILES_TRANS_CHECKED.FILENAME
+	     where PRODUCER = 'StorageManager';
 
 grant select on view_last to public;
