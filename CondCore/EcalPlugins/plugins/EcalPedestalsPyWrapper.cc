@@ -95,8 +95,8 @@ namespace cond {
     static What what() { return What();}
 
     ValueExtractor(){}
-    ValueExtractor(What const & what, std::vector<int> const& which)
-      : m_what(what), m_which(which)
+    ValueExtractor(What const & what)
+      : m_what(what)
     {
       // here one can make stuff really complicated... (select mean rms, 12,6,1)
       // ask to make average on selected channels...
@@ -104,7 +104,7 @@ namespace cond {
 
     void compute(Class const & it){
       std::vector<float> res;
-      extractor(m_what.how())(it,m_what.quantity(),m_which,res);
+      extractor(m_what.how())(it,m_what.quantity(),m_what.which(),res);
       swap(res);
     }
 
