@@ -71,6 +71,7 @@ std::vector<reco::BasicCluster> CosmicClusterAlgo::makeClusters(
          {
             std::cout << "-------------------------------------------------------------" << std::endl;
             std::cout << "No Uncalibrated RecHits no Uncalibrated rec hit collection available" << std::endl;
+			continue;
          }
 	  }
 	  
