@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyTask.cc
  *
- * $Date: 2008/04/16 21:39:37 $
- * $Revision: 1.49 $
+ * $Date: 2008/05/11 09:35:13 $
+ * $Revision: 1.50 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -556,8 +556,6 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
       int eex = id.ix();
       int eey = id.iy();
 
-      if ( ism >= 1 && ism <= 9 ) eex = 101 - eex;
-
       float xeex = eex - 0.5;
       float xeey = eey - 0.5;
 
@@ -687,8 +685,6 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
       int ism = Numbers::iSM( id );
 
-      if ( ism >= 1 && ism <= 9 ) eex = 101 - eex;
-
       float xeex = eex - 0.5;
       float xeey = eey - 0.5;
 
@@ -748,8 +744,6 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
         int eex = id.ix();
         int eey = id.iy();
-
-        if ( ismt >= 1 && ismt <= 9 ) eex = 101 - eex;
 
         float xeex = eex - 0.5;
         float xeey = eey - 0.5;

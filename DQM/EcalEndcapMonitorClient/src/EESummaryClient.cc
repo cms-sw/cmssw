@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2008/06/26 11:01:20 $
- * $Revision: 1.144 $
+ * $Date: 2008/08/11 07:24:15 $
+ * $Revision: 1.145 $
  * \author G. Della Ricca
  *
 */
@@ -820,7 +820,7 @@ void EESummaryClient::analyze(void) {
               float xval = me->getBinContent( ix, iy );
 
               if ( ism >= 1 && ism <= 9 ) {
-                if ( Numbers::validEE(ism, 101 - jx, jy) ) meIntegrity_[0]->setBinContent( jx, jy, xval );
+                if ( Numbers::validEE(ism, 101 - jx, jy) ) meIntegrity_[0]->setBinContent( 101 - jx, jy, xval );
               } else {
                 if ( Numbers::validEE(ism, jx, jy) ) meIntegrity_[1]->setBinContent( jx, jy, xval );
               }
@@ -836,7 +836,7 @@ void EESummaryClient::analyze(void) {
 
               if ( ism >= 1 && ism <= 9 ) {
                 if ( xval != 0 ) {
-                  if ( Numbers::validEE(ism, 101 - jx, jy) ) meOccupancy_[0]->setBinContent( jx, jy, xval );
+                  if ( Numbers::validEE(ism, 101 - jx, jy) ) meOccupancy_[0]->setBinContent( 101 - jx, jy, xval );
                 }
               } else {
                 if ( xval != 0 ) {
@@ -858,7 +858,7 @@ void EESummaryClient::analyze(void) {
               float xval = me->getBinContent( ix, iy );
 
               if ( ism >= 1 && ism <= 9 ) {
-                if ( Numbers::validEE(ism, 101 - jx, jy) ) mePedestalOnline_[0]->setBinContent( jx, jy, xval );
+                if ( Numbers::validEE(ism, 101 - jx, jy) ) mePedestalOnline_[0]->setBinContent( 101 - jx, jy, xval );
               } else {
                 if ( Numbers::validEE(ism, jx, jy) ) mePedestalOnline_[1]->setBinContent( jx, jy, xval );
               }
@@ -878,7 +878,7 @@ void EESummaryClient::analyze(void) {
 
               if ( me->getEntries() != 0 ) {
                 if ( ism >= 1 && ism <= 9 ) {
-                  if ( Numbers::validEE(ism, 101 - jx, jy) ) meLaserL1_[0]->setBinContent( jx, jy, xval );
+                  if ( Numbers::validEE(ism, 101 - jx, jy) ) meLaserL1_[0]->setBinContent( 101 - jx, jy, xval );
                 } else {
                   if ( Numbers::validEE(ism, jx, jy) ) meLaserL1_[1]->setBinContent( jx, jy, xval );
                 }
@@ -899,7 +899,7 @@ void EESummaryClient::analyze(void) {
 
               if ( me->getEntries() != 0 ) {
                 if ( ism >= 1 && ism <= 9 ) {
-                  if ( Numbers::validEE(ism, 101 - jx, jy) ) meLedL1_[0]->setBinContent( jx, jy, xval );
+                  if ( Numbers::validEE(ism, 101 - jx, jy) ) meLedL1_[0]->setBinContent( 101 - jx, jy, xval );
                 } else {
                   if ( Numbers::validEE(ism, jx, jy) ) meLedL1_[1]->setBinContent( jx, jy, xval );
                 }
@@ -947,7 +947,7 @@ void EESummaryClient::analyze(void) {
 
               if ( me_01->getEntries() != 0 && me_02->getEntries() != 0 && me_03->getEntries() != 0 ) {
                 if ( ism >= 1 && ism <= 9 ) {
-                  if ( Numbers::validEE(ism, 101 - jx, jy) ) mePedestal_[0]->setBinContent( jx, jy, xval );
+                  if ( Numbers::validEE(ism, 101 - jx, jy) ) mePedestal_[0]->setBinContent( 101 - jx, jy, xval );
                 } else {
                   if ( Numbers::validEE(ism, jx, jy) ) mePedestal_[1]->setBinContent( jx, jy, xval );
                 }
@@ -995,7 +995,7 @@ void EESummaryClient::analyze(void) {
 
               if ( me_01->getEntries() != 0 && me_02->getEntries() != 0 && me_03->getEntries() != 0 ) {
                 if ( ism >= 1 && ism <= 9 ) {
-                  if ( Numbers::validEE(ism, 101 - jx, jy) ) meTestPulse_[0]->setBinContent( jx, jy, xval );
+                  if ( Numbers::validEE(ism, 101 - jx, jy) ) meTestPulse_[0]->setBinContent( 101 - jx, jy, xval );
                 } else {
                   if ( Numbers::validEE(ism, jx, jy) ) meTestPulse_[1]->setBinContent( jx, jy, xval );
                 }
@@ -1016,7 +1016,7 @@ void EESummaryClient::analyze(void) {
 
               if ( ism >= 1 && ism <= 9 ) {
                 if ( xval != 0 ) {
-                  if ( Numbers::validEE(ism, 101 - jx, jy) ) meCosmic_[0]->setBinContent( jx, jy, xval );
+                  if ( Numbers::validEE(ism, 101 - jx, jy) ) meCosmic_[0]->setBinContent( 101 - jx, jy, xval );
                 }
               } else {
                 if ( xval != 0 ) {
@@ -1037,7 +1037,7 @@ void EESummaryClient::analyze(void) {
               float xval = me->getBinContent( ix, iy );
 
               if ( ism >= 1 && ism <= 9 ) {
-                if ( Numbers::validEE(ism, 101 - jx, jy) ) meTiming_[0]->setBinContent( jx, jy, xval );
+                if ( Numbers::validEE(ism, 101 - jx, jy) ) meTiming_[0]->setBinContent( 101 - jx, jy, xval );
               } else {
                 if ( Numbers::validEE(ism, jx, jy) ) meTiming_[1]->setBinContent( jx, jy, xval );
               }
@@ -1069,7 +1069,7 @@ void EESummaryClient::analyze(void) {
 
               if ( me->getEntries() != 0 ) {
               if ( ism >= 1 && ism <= 9 ) {
-                if ( Numbers::validEE(ism, 101 - jx, jy) ) meStatusFlags_[0]->setBinContent( jx, jy, xval );
+                if ( Numbers::validEE(ism, 101 - jx, jy) ) meStatusFlags_[0]->setBinContent( 101 - jx, jy, xval );
               } else {
                 if ( Numbers::validEE(ism, jx, jy) ) meStatusFlags_[1]->setBinContent( jx, jy, xval );
               }
@@ -1204,7 +1204,7 @@ void EESummaryClient::analyze(void) {
 
             if ( ism >= 1 && ism <= 9 ) {
               if ( meTriggerTowerEmulError_[0]->getBinContent( jx, jy ) == 6 ) {
-                if ( Numbers::validEE(ism, 101 - jx, jy) ) meTriggerTowerEmulError_[0]->setBinContent( jx, jy, 2 );
+                if ( Numbers::validEE(ism, 101 - jx, jy) ) meTriggerTowerEmulError_[0]->setBinContent( 101 - jx, jy, 2 );
               }
             } else {
               if ( meTriggerTowerEmulError_[1]->getBinContent( jx, jy ) == -1 ) {
@@ -1519,15 +1519,15 @@ void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
     }
   }
 
-  labelGrid1.SetBinContent(2, 5, -7);
-  labelGrid1.SetBinContent(2, 7, -8);
-  labelGrid1.SetBinContent(4, 9, -9);
-  labelGrid1.SetBinContent(7, 9, -1);
-  labelGrid1.SetBinContent(9, 7, -2);
-  labelGrid1.SetBinContent(9, 5, -3);
-  labelGrid1.SetBinContent(8, 3, -4);
+  labelGrid1.SetBinContent(2, 5, -3);
+  labelGrid1.SetBinContent(2, 7, -2);
+  labelGrid1.SetBinContent(4, 9, -1);
+  labelGrid1.SetBinContent(7, 9, -9);
+  labelGrid1.SetBinContent(9, 7, -8);
+  labelGrid1.SetBinContent(9, 5, -7);
+  labelGrid1.SetBinContent(8, 3, -6);
   labelGrid1.SetBinContent(6, 2, -5);
-  labelGrid1.SetBinContent(3, 3, -6);
+  labelGrid1.SetBinContent(3, 3, -4);
 
   labelGrid1.SetMarkerSize(2);
   labelGrid1.SetMinimum(-9.01);
@@ -2749,19 +2749,21 @@ void EESummaryClient::writeMap( ofstream& hf, const char* mapname ) {
   const int C0 = 34;
   const int C1 = 148;
 
+  // EE-
+
   hf << "<map name=\"" << mapname << "_0\">" << endl;
   for( unsigned int sm=0; sm<superModules_.size(); sm++ ) {
     if( superModules_[sm] >= 1 && superModules_[sm] <= 9 ) {
-      int i=superModules_[sm]-1;
-      int j=superModules_[sm];
-      int x0 = (A0+A1)/2 + int(C0*cos(M_PI/2+3*2*M_PI/9-i*2*M_PI/9));
-      int x1 = (A0+A1)/2 + int(C0*cos(M_PI/2+3*2*M_PI/9-j*2*M_PI/9));
-      int x2 = (A0+A1)/2 + int(C1*cos(M_PI/2+3*2*M_PI/9-j*2*M_PI/9));
-      int x3 = (A0+A1)/2 + int(C1*cos(M_PI/2+3*2*M_PI/9-i*2*M_PI/9));
-      int y0 = (B0+B1)/2 - int(C0*sin(M_PI/2+3*2*M_PI/9-i*2*M_PI/9));
-      int y1 = (B0+B1)/2 - int(C0*sin(M_PI/2+3*2*M_PI/9-j*2*M_PI/9));
-      int y2 = (B0+B1)/2 - int(C1*sin(M_PI/2+3*2*M_PI/9-j*2*M_PI/9));
-      int y3 = (B0+B1)/2 - int(C1*sin(M_PI/2+3*2*M_PI/9-i*2*M_PI/9));
+      int i=superModules_[sm]-9-1;
+      int j=superModules_[sm]-9;
+      int x0 = (A0+A1)/2 + int(C0*cos(M_PI/2-3*2*M_PI/9+i*2*M_PI/9));
+      int x1 = (A0+A1)/2 + int(C0*cos(M_PI/2-3*2*M_PI/9+j*2*M_PI/9));
+      int x2 = (A0+A1)/2 + int(C1*cos(M_PI/2-3*2*M_PI/9+j*2*M_PI/9));
+      int x3 = (A0+A1)/2 + int(C1*cos(M_PI/2-3*2*M_PI/9+i*2*M_PI/9));
+      int y0 = (B0+B1)/2 - int(C0*sin(M_PI/2-3*2*M_PI/9+i*2*M_PI/9));
+      int y1 = (B0+B1)/2 - int(C0*sin(M_PI/2-3*2*M_PI/9+j*2*M_PI/9));
+      int y2 = (B0+B1)/2 - int(C1*sin(M_PI/2-3*2*M_PI/9+j*2*M_PI/9));
+      int y3 = (B0+B1)/2 - int(C1*sin(M_PI/2-3*2*M_PI/9+i*2*M_PI/9));
       hf << "<area title=\"" << Numbers::sEE(superModules_[sm])
          << "\" shape=\"poly\" href=\"" << refhtml[mapname]
          << "#" << Numbers::sEE(superModules_[sm])
@@ -2773,6 +2775,8 @@ void EESummaryClient::writeMap( ofstream& hf, const char* mapname ) {
     }
   }
   hf << "</map>" << endl;
+
+  // EE+
 
   hf << "<map name=\"" << mapname << "_1\">" << endl;
   for( unsigned int sm=0; sm<superModules_.size(); sm++ ) {
