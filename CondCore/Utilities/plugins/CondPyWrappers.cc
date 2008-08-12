@@ -100,6 +100,10 @@ BOOST_PYTHON_MODULE(pluginCondDBPyInterface) {
     .def_readonly("execmessage",  &cond::LogDBEntry::execmessage)
     ;
 
+  class_<std::vector<float> >("VString")
+    .def(vector_indexing_suite<std::vector<std::string> >())
+    ;
+
   class_<std::vector<float> >("VFloat")
     .def(vector_indexing_suite<std::vector<float> >())
     ;

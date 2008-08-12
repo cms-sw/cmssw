@@ -6,11 +6,42 @@
 
 import pluginCondDBPyInterface as CondDB
 
+class WhatDescription :
+       def __init__(self,w) :
+              self.__me = w
+              self.__ret ={}
+       def describe(self) :
+              atts = (att for att in dir(self.__me) if not (att[0]=='_' or att[0:4]=='set_' or att[0:6]=='descr_'))
+              for att in atts:
+                     exec('a=w.'+att+'()')
+                     if (a.__class__==CondDB.VInt):
+                            if(hasattr(self.__me,'descr_'+att)) :
+                                   self.multiple(att)
+                            else :
+                                   self.commaSeparated(att)
+                     else :
+                            self.single(att,a)
+              return self.__ret
+
+       def single(self,att) :
+              w = self.__me
+              self.__ret[att]=('single',[val for val in dir(a) if not (val[0]=='_' or val=='name'or val=='values')])
+
+       def multiple(self,att) :
+              w = self.__me
+              exec('d=w.descr_'+att+'()')
+              self.__ret[att]=('multiple',[val for val in d])
+
+       def commaSeparated(self,att) :
+              w = self.__me
+              self.__ret[att]=('commaSeparated',[])
+       
+       
 def extractorWhat(db, tag) :
        exec('import '+db.moduleName(tag)+' as Plug')
        ret ={}
        w = Plug.What()
-       atts = (att for att in dir(w) if not (att[0]=='_' or att[0:4]=='set_'))
+       atts = (att for att in dir(w) if not (att[0]=='_' or att[0:4]=='set_' or att[0:6]=='descr_'))
        for att in atts:
               exec('a=w.'+att+'()')
               ret[att]=[val for val in dir(a) if not (val[0]=='_' or val=='name'or val=='values')]
@@ -49,21 +80,16 @@ class Iov :
                ret.append( (elem.payloadToken(), elem.since(), elem.till(), p.summary()))
            return ret
            
-       def trend(self, what, l) :
+       def trend(self, what) :
            if (self.__modName==0) : return ["no plugin for "  + self.__tag+" no trend"]
            exec('import '+self.__modName+' as Plug')
            ret = []
-           vi = CondDB.VInt()
-           for i in l:
-               vi.append(int(i))
            w = setWhat(Plug.What(),what)
-           ex = Plug.Extractor(w,vi)
+           ex = Plug.Extractor(w)
            for elem in self.__me.elements :
                p = Plug.Object(elem)
                p.extract(ex)
-               v = []
-               for i in ex.values() :
-                   v.append(i)
+               v = [i for i in ex.values()]
                ret.append((elem.since(),elem.till(),v))
            return ret  
 

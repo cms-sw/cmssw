@@ -64,12 +64,16 @@ namespace cond {
 
     ecalped::Quantity m_quantity;
     ecalped::How m_how;
+    std::vector<int> m_which;
 
     ecalped::Quantity const & quantity() const { return m_quantity;}
     ecalped::How const & how() const { return m_how;}
+    std::vector<int> const & which() const { return m_which;}
  
+
     void set_quantity( ecalped::Quantity i) { m_quantity=i;}
     void set_how(ecalped::How i) {m_how=i;}
+    void set_which(std::vector<int> & i) { m_which.swap(i);}
   };
 
 
@@ -106,7 +110,7 @@ namespace cond {
 
   private:
     What  m_what;
-    std::vector<int> m_which;
+    
   };
 
 
@@ -163,8 +167,9 @@ namespace condPython {
     class_<What>("What",init<>())
       .def("set_quantity",&What::set_quantity)
       .def("set_how",&What::set_how)
+      .def("set_which",&What::set_which)
       .def("quantity",&What::quantity, return_value_policy<copy_const_reference>())
-      .def("how",&What::how, return_value_policy<copy_const_reference>())
+      .def("which",&What::which, return_value_policy<copy_const_reference>())
       ;
   }
 }

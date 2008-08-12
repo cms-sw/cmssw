@@ -54,7 +54,7 @@ namespace cond {
   };
 
 
-  // a collection of enumerators...
+  // a collection of enumerators, strings, ints
   template<typename T>
   struct ExtractWhat {
 
@@ -68,7 +68,7 @@ namespace cond {
     typedef T Class;
     typedef ExtractWhat<Class> What;
     ValueExtractor(){}
-    ValueExtractor(What const &, std::vector<int> const&){}
+    ValueExtractor(What const &){}
     static What what() { return What();}
   private:
     void compute(Class const &){}
