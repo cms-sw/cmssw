@@ -18,15 +18,6 @@
 #include "RecoEcal/EgammaCoreTools/interface/EcalEtaPhiRegion.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalRecHitLess.h"
 
-#include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
-#include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
-
-#include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
-#include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
-
-#include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbService.h"
-#include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbRecord.h"
-
 // C/C++ headers
 #include <string>
 #include <vector>
@@ -140,8 +131,7 @@ class CosmicClusterAlgo
   // them into a BasicCluster
   void makeCluster(const CaloSubdetectorGeometry *geometry_p,const CaloSubdetectorGeometry *geometryES_p);
 
-  //TEMP JHAUPT 4-27
-  std::vector<int> maskedChannels_; //TEMP JHAUPT 4-27
+   
  };
 
 #endif

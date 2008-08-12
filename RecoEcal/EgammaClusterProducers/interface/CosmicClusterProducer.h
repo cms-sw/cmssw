@@ -45,6 +45,11 @@ class CosmicClusterProducer : public edm::EDProducer
       std::string barrelHitCollection_;
       std::string endcapHitCollection_;
 
+	  std::string barrelUHitProducer_;
+      std::string endcapUHitProducer_;
+      std::string barrelUHitCollection_;
+      std::string endcapUHitCollection_;
+	  
       std::string barrelClusterCollection_;
       std::string endcapClusterCollection_;
 
@@ -65,18 +70,22 @@ class CosmicClusterProducer : public edm::EDProducer
                                                  const std::string& hitProducer_,
                                                  const std::string& hitCollection_);
 
-
+	  const EcalUncalibratedRecHitCollection * getUCollection(edm::Event& evt,
+                                                 const std::string& hitProducer_,
+                                                 const std::string& hitCollection_);
+												 
       void clusterizeECALPart(edm::Event &evt, const edm::EventSetup &es,
                               const std::string& hitProducer,
                               const std::string& hitCollection,
+							  const std::string& uhitProducer,
+                              const std::string& uhitCollection,
                               const std::string& clusterCollection,
 			      const std::string& clusterShapeAssociation,
                               const CosmicClusterAlgo::EcalPart& ecalPart);
 
       void outputValidationInfo(reco::BasicClusterRefVector &clusterRefVector);
 	  
-	  //TEMP JHAUPT 4-27
-	  std::vector<int> maskedChannels_; //TEMP JHAUPT 4-27
+	 
 };
 
 
