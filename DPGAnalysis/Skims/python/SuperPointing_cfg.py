@@ -14,8 +14,7 @@ process.load("Configuration.GlobalRuns.ForceZeroTeslaField_cff")
 process.load("Configuration.StandardSequences.Geometry_cff")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.connect = 'sqlite_file:/afs/cern.ch/user/m/malgeri/public/globtag/CRZT210_V1.db'
-process.GlobalTag.globaltag = 'CRZT210_V1D::All' 
+process.GlobalTag.globaltag = 'CRZT210_V1::All' 
 process.prefer("GlobalTag")
 
 process.load("Configuration.StandardSequences.ReconstructionCosmics_cff")
