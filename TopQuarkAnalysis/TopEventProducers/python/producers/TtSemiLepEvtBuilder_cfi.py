@@ -14,21 +14,27 @@ ttSemiLepEvent = cms.EDProducer("TtSemiLepEvtBuilder",
     genEvent = cms.InputTag("genEvt"),
                              
     ## considered event hypotheses                             
-    hyps = cms.VInputTag(cms.InputTag("ttSemiLepMaxSumPtWMass"),
+    hyps = cms.VInputTag(cms.InputTag("ttSemiLepGeom"),
+                         cms.InputTag("ttSemiLepWMassMaxSumPt"),
+                         cms.InputTag("ttSemiLepMaxSumPtWMass"),
                          cms.InputTag("ttSemiLepKinFit"),
                          cms.InputTag("ttSemiLepGenMatch"),
                          cms.InputTag("ttSemiLepMVADisc")
                          ),
 
     ## event hypotheses' keys for mapping
-    keys = cms.VInputTag(cms.InputTag("ttSemiLepMaxSumPtWMass","Key"),
+    keys = cms.VInputTag(cms.InputTag("ttSemiLepGeom","Key"),
+                         cms.InputTag("ttSemiLepWMassMaxSumPt","Key"),
+                         cms.InputTag("ttSemiLepMaxSumPtWMass","Key"),
                          cms.InputTag("ttSemiLepGenMatch","Key"),
                          cms.InputTag("ttSemiLepKinFit","Key"),
                          cms.InputTag("ttSemiLepMVADisc","Key")
                          ),
 
     ## event hypotheses' jet parton association as meta information
-    matches = cms.VInputTag(cms.InputTag("ttSemiLepMaxSumPtWMass","Match"),
+    matches = cms.VInputTag(cms.InputTag("ttSemiLepGeom","Match"),
+                            cms.InputTag("ttSemiLepWMassMaxSumPt","Match"),
+                            cms.InputTag("ttSemiLepMaxSumPtWMass","Match"),
                             cms.InputTag("ttSemiLepKinFit","Match"),
                             cms.InputTag("ttSemiLepGenMatch","Match"),
                             cms.InputTag("ttSemiLepMVADisc","Match")
