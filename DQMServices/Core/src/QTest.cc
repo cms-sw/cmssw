@@ -464,17 +464,34 @@ float ContentsYRange::runTest(const MonitorElement*me)
   // bins outside Y-range
   Int_t fail = 0;
   Int_t bin;
+  
 
- if(useEmptyBins_)
- {
+ //======== run DeadChannel quality test ======//
+ if (deadChanAlgo_){
    for (bin = first; bin <= last; ++bin)
    {
     Double_t contents = h->GetBinContent(bin);
     bool failure = false;
-    if (deadChanAlgo_)  failure = contents <= ymin_; // dead channel: equal to or less than ymin_
-    else failure = (contents < ymin_ || contents > ymax_); // allowed y-range: [ymin_, ymax_]
-    if (failure)
-    { 
+    failure = contents <= ymin_; // dead channel: equal to or less than ymin_
+    if (failure){ 
+     DQMChannel chan(bin, 0, 0, contents, h->GetBinError(bin));
+     badChannels_.push_back(chan);
+     ++fail;
+    }
+   }
+ return 1.*(ncx - fail)/ncx;
+ }
+ //=========================================//
+
+ //========== run ContentsYRange quality test ============//
+ else{     
+  if(useEmptyBins_)///Standard test !
+  {
+   for (bin = first; bin <= last; ++bin){
+    Double_t contents = h->GetBinContent(bin);
+    bool failure = false;
+    failure = (contents < ymin_ || contents > ymax_); // allowed y-range: [ymin_, ymax_]
+    if (failure) { 
      DQMChannel chan(bin, 0, 0, contents, h->GetBinError(bin));
      badChannels_.push_back(chan);
      ++fail;
@@ -482,12 +499,11 @@ float ContentsYRange::runTest(const MonitorElement*me)
    }
    // return fraction of bins that passed test
    return 1.*(ncx - fail)/ncx;
- } /// end of Normal Tests
+  }
 
- else     ///AS quality test !!!  
- {
-   for (bin = first; bin <= last; ++bin)
-   {
+  else ///AS quality test !!!  
+  {
+   for (bin = first; bin <= last; ++bin){
     Double_t contents = h->GetBinContent(bin);
     bool failure = false;
      if(contents) failure = (contents < ymin_ || contents > ymax_); // allowed y-range: [ymin_, ymax_]
@@ -496,7 +512,8 @@ float ContentsYRange::runTest(const MonitorElement*me)
    // return fraction of bins that passed test
    return 1.*(ncx - fail)/ncx;
   }  ///end of AS quality tests 
-
+ }
+//=================== end of ContentsYRange =========// 
 }
 
 
