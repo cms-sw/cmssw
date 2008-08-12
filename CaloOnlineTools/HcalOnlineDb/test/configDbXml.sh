@@ -256,14 +256,31 @@ genLutXml()
     fi
 }
 
+genLutXmlFromCoder()
+{
+    echo ''
+    echo -n 'Please enter the desired tag name:'
+    read tag_name
+    echo ''
+    dialog --title "Question" --yesno "Split XML files by crate?" 0 0 || split_by_crate=0
+
+    if [ $split_by_crate -eq 0 ]
+    then
+	./xmlToolsRun --create-lut-xml-from-coder --tag-name="$tag_name" --do-not-split-by-crate
+    else
+	./xmlToolsRun --create-lut-xml-from-coder --tag-name="$tag_name"
+    fi
+}
+
 lutXml()
 {
   echo ''
   echo '  -- LUT menu'
 #  echo ' 1. Generate linearization (input) LUT XML'
 #  echo ' 2. Generate compression (output) LUT XML'
-  echo ' 1. Generate full set of LUT XML'
-  echo ' 2. Prepare LUTs for uploading to the database'
+  echo ' 1. Generate a set of LUT XML from master files'
+  echo ' 2. Generate a set of LUT XML from HcaluLUTTPGCoder (no master files needed)'
+  echo ' 3. Prepare LUTs for uploading to the database'
   echo ' 0. Main menu'
   
   echo ''
@@ -279,6 +296,12 @@ lutXml()
         genLutXml
 	;;
       2)
+        echo 'Generating a set of LUT XML from HcaluLUTTPGCoder...'
+	echo ''
+        _type=3        
+        genLutXmlFromCoder
+	;;
+      3)
         lutMenu
 	;;
       0)

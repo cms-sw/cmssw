@@ -1,6 +1,10 @@
 #include <fstream>
 #include <sstream>
 #include <sys/time.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 #include "xgi/Utils.h"
 #include "toolbox/string.h"
@@ -218,12 +222,29 @@ std::map<int, shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXmlFromCod
   //cout << "EMap contains " << _map . size() << " entries" << endl;
 
   LMap _lmap;
-  _lmap . read( "HCALmapHBEF.txt", "HBEF" );
-  _lmap . read( "HCALmapHO.txt", "HO" );
+  _lmap . read( "backup/HCALmapHBEF.txt", "HBEF" );
+  // HO is not part of trigger, so TPGCoder cannot generate LUTs for it
+  //_lmap . read( "backup/HCALmapHO.txt", "HO" );
   map<int,LMapRow> & _map = _lmap.get_map();
   cout << "LMap contains " << _map . size() << " channels" << endl;
 
-  HcaluLUTTPGCoder _coder("CalibCalorimetry/HcalTPGAlgos/data/RecHit-TPG-calib.dat",false);
+  // FIXME: looking for the init file for HcaluLUTTPGCoder in local and global release areas.
+  // FIXME: The coder initialization should not require hardcoded file in future (promised by Greg Landsberg).
+  string _coder_calib_filename;
+  char * _base = getenv("CMSSW_BASE");
+  string _base_filename(_base);
+  _base_filename.append("/src/CalibCalorimetry/HcalTPGAlgos/data/RecHit-TPG-calib.dat");
+  struct stat buf_;
+  if (stat(_base_filename.c_str(),&buf_)==0){
+    _coder_calib_filename=_base_filename;
+  }
+  else{
+    char * _release_base = getenv("CMSSW_RELEASE_BASE");
+    string _release_base_filename(_release_base);
+    _release_base_filename.append("/src/CalibCalorimetry/HcalTPGAlgos/data/RecHit-TPG-calib.dat");  
+    _coder_calib_filename=_release_base_filename;
+  }
+  HcaluLUTTPGCoder _coder(_coder_calib_filename.c_str(),false);
 
   // read LUTs and their eta/phi/depth/subdet ranges
   //HcalLutSet _set = getLinearizationLutSetFromCoder();
@@ -264,7 +285,14 @@ std::map<int, shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXmlFromCod
       (row->second.side>0)*100 + row->second.eta +
       ((row->second.det==HcalForward && row->second.eta==29)?(4*10000):(0));
     HcalDetId _detid(row->first);
-    _cfg.lut = _coder . getLinearizationLut(_detid);
+    //cout << "### DEBUG: subdetector = " << row->second.det << endl;    
+    std::vector<unsigned short>  coder_lut = _coder . getLinearizationLUT(_detid);
+    for (std::vector<unsigned short>::const_iterator _i=coder_lut.begin(); _i!=coder_lut.end();_i++){
+      unsigned int _temp = (unsigned int)(*_i);
+      //if (_temp!=0) cout << "DEBUG non-zero LUT!!!!!!!!!!!!!!!" << (*_i) << "     " << _temp << endl;
+      //unsigned int _temp = 0;
+      _cfg.lut.push_back(_temp);
+    }
     if (split_by_crate ){
       _xml[row->second.crate]->addLut( _cfg, lut_checksums_xml );  
     }

@@ -7,6 +7,7 @@
 <use name=zlib>
 <use name=DataFormats/HcalDetId>
 <use name=CalibCalorimetry/CaloTPG>
+<use name=CalibCalorimetry/HcalTPGAlgos>
 <export>
   <lib name=CaloOnlineToolsHcalOnlineDb>
   <use name=boost>
