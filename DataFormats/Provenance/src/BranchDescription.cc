@@ -200,6 +200,9 @@ namespace edm {
     psetIDs_.insert(other.psetIDs().begin(), other.psetIDs().end());
     processConfigurationIDs_.insert(other.processConfigurationIDs().begin(), other.processConfigurationIDs().end());
     branchAliases_.insert(other.branchAliases().begin(), other.branchAliases().end());
+    present_ = present_ || other.present();
+    if (splitLevel_ == invalidSplitLevel) splitLevel_ = other.splitLevel();
+    if (basketSize_ == invalidBasketSize) basketSize_ = other.basketSize();
   }
 
   void
