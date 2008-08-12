@@ -169,6 +169,7 @@ namespace condPython {
       .def("set_how",&What::set_how)
       .def("set_which",&What::set_which)
       .def("quantity",&What::quantity, return_value_policy<copy_const_reference>())
+      .def("how",&What::how, return_value_policy<copy_const_reference>())
       .def("which",&What::which, return_value_policy<copy_const_reference>())
       ;
   }

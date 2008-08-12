@@ -21,6 +21,16 @@ namespace {
 namespace cond {
 
   template<>
+  struct ExtractWhat<Pedestals> {
+
+    std::vector<int> m_which;
+
+    std::vector<int> const & which() const { return m_which;}
+ 
+    void set_which(std::vector<int> & i) { m_which.swap(i);}
+  };
+
+  template<>
   class ValueExtractor<Pedestals>: public  BaseValueExtractor<Pedestals> {
   public:
 
@@ -29,8 +39,8 @@ namespace cond {
     static What what() { return What();}
 
     ValueExtractor(){}
-    ValueExtractor(What const & what, std::vector<int> const& which)
-      : m_which(which)
+    ValueExtractor(What const & what)
+      : m_which(what.which())
     {
       // here one can make stuff really complicated...
     }
@@ -63,6 +73,18 @@ namespace cond {
      return ss.str();
    }
   
+}
+
+namespace condPython {
+  template<>
+  void defineWhat<Pedestals>() {
+    typedef cond::ExtractWhat<Pedestals> What;
+    class_<What>("What",init<>())
+      .def("set_which",&What::set_which)
+      .def("which",&What::which, return_value_policy<copy_const_reference>())
+      ;
+
+  }
 }
 
 PYTHON_WRAPPER(Pedestals,Pedestal);
