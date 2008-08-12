@@ -7,7 +7,7 @@ from RecoMuon.TrackingTools.MuonTrackLoader_cff import *
 standAloneMuons = cms.EDProducer("StandAloneMuonProducer",
                                  MuonTrackLoaderForSTA,
                                  MuonServiceProxy,
-                                 InputObjects = cms.InputTag("MuonSeed"),
+                                 InputObjects = cms.InputTag("ancientMuonSeed"),
                                  STATrajBuilderParameters = cms.PSet(NavigationType = cms.string('Standard'),
                                                                      SeedPosition = cms.string('in'),
                                                                      SeedPropagator = cms.string('SteppingHelixPropagatorAny'),
