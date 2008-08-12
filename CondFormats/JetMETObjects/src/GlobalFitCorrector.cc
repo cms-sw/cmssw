@@ -1,35 +1,61 @@
 #include "FWCore/Utilities/interface/Exception.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "CondFormats/JetMETObjects/interface/GlobalFitCorrector.h"
-#include "CondFormats/JetMETObjects/interface/GlobalFitCorrectorParameters.h"
+#include "CondFormats/JetMETObjects/interface/GlobalFitParameters.h"
+#include "CondFormats/JetMETObjects/interface/SimpleJetCorrectorParameters.h"
 
 
-GlobalFitCorrector::GlobalFitCorrector(const std::string& file) : 
-  params_(new GlobalFitCorrectorParameters(file)) {}
+GlobalFitCorrector::GlobalFitCorrector(const CaloSubdetectorGeometry* geom, const std::string& file) : 
+  geom_(geom), params_(new SimpleJetCorrectorParameters(file))
+{
+  // -------------------------------------------
+  // determine number of expected tower and jet
+  // parameters from file
+  // ------------------------------------------
+  std::string param = file.substr(file.rfind("_"), file.rfind(".txt")-1);
+  if( param.compare( "MyParametrization" ) ) parametrization_= new MyParametrization();
+  else if( param.compare( "StepParametrization" ) ) parametrization_= new StepParametrization();   
+  else if( param.compare( "JetMETParametrization" ) ) parametrization_= new JetMETParametrization();
+  else if( param.compare( "StepEfracParametrization" ) ) parametrization_= new StepEfracParametrization();
+  else{
+    throw cms::Exception("GlobalFitCorrector") 
+      << "cannot instantiate a Parametrization of name " << param << "\n";    
+  }
+
+  // -------------------------------------------
+  // prepare calibration maps
+  // -------------------------------------------
+  for(unsigned int idx=0; idx<params_->size(); ++idx){
+    const SimpleJetCorrectorParameters::Record& record = params_->record(idx);
+    if(record.parameters().size() != parametrization_->nTowerPars()+parametrization_->nJetPars() ){
+      throw cms::Exception("Parameter Missmatch") 
+	<< "expect" << parametrization_->nTowerPars()+parametrization_->nJetPars()
+	<< " for parametrization " << param << " but received " 
+	<< record.parameters().size() 
+	<< " from file \n";       
+    }
+    int iEta = indexEta(record.etaMiddle());
+    for(unsigned int par=0; par<parametrization_->nTowerPars(); ++par) // phi is set to 0 for the moment
+      towerParams_[CalibKey(iEta,0)].push_back(record.parameter(par));
+    for(unsigned int par=0; par<parametrization_->nJetPars();   ++par)
+      jetParams_  [CalibKey(iEta,0)].push_back(record.parameter(par+parametrization_->nTowerPars()));
+  }
+}
 
 GlobalFitCorrector::~GlobalFitCorrector()
-{ 
+{
   delete params_; 
+  delete parametrization_;
 }
 
 double GlobalFitCorrector::correction(const reco::CaloJet& jet) const
 {
   double correction=1.;
   reco::Particle::LorentzVector towerCorrected;
-
-  // -------------------------------------------
-  // prepare calibration maps
-  // -------------------------------------------
-  CalibMap towerParams, jetParams;
-  for(unsigned int idx=0; idx<params_->size(); ++idx){
-    for(unsigned int par=0; par<params_->record(idx).towerParameters().size(); ++par)
-      towerParams[CalibKey(params_->record(idx).iEta(),params_->record(idx).iPhi())].push_back(params_->record(idx).towerParameter(par));
-    for(unsigned int par=0; par<params_->record(idx).jetParameters().size(); ++par)
-      jetParams  [CalibKey(params_->record(idx).iEta(),params_->record(idx).iPhi())].push_back(params_->record(idx).jetParameter(par)  );
-  }
-
   // -------------------------------------------
   // apply calo tower correction and
   // sum tower corrected constituents
@@ -49,10 +75,10 @@ double GlobalFitCorrector::correction(const reco::CaloJet& jet) const
       
       // read tower parameters back
       // and apply tower calibration
-      CalibMap::const_iterator pars = towerParams.find(CalibKey(id.ieta(),id.iphi()));
-      if( pars != towerParams.end() ){
+      CalibMap::const_iterator pars = towerParams_.find(CalibKey(id.ieta(),0)); // phi is set to 0 for the moment
+      if( pars != towerParams_.end() ){
 	CalibVal val=pars->second;
-	scale = params_->parametrization().correctedTowerEt(&towerDeps[0], &val[0])/(*tower)->et();
+	scale = parametrization_->correctedTowerEt(&towerDeps[0], &val[0])/(*tower)->et();
       }
     }
     // create calibrated tower
@@ -81,10 +107,19 @@ double GlobalFitCorrector::correction(const reco::CaloJet& jet) const
   std::vector<double> jetDeps;
   jetDeps.push_back( towerCorrected.pt() );
   const CaloTowerDetId& id = jet.getCaloConstituent( closestTower )->id();
-  CalibMap::const_iterator pars = jetParams.find(CalibKey(id.ieta(),id.iphi()));
-  if( pars != jetParams.end() ){
+  CalibMap::const_iterator pars = jetParams_.find(CalibKey(id.ieta(),0)); // phi is set to 0 for the moment
+  if( pars != jetParams_.end() ){
     CalibVal val=pars->second;
-    correction = params_->parametrization().correctedJetEt(&jetDeps[0], &val[0])/towerCorrected.pt();
+    correction = parametrization_->correctedJetEt(&jetDeps[0], &val[0])/towerCorrected.pt();
   }
   return correction;
+}
+
+int
+GlobalFitCorrector::indexEta(double eta)
+{
+  double theta = 2*std::atan(-std::exp(eta));
+  const GlobalPoint p( GlobalPoint::Polar(theta, 0., CaloBoundaries::hcalRadius) );
+  CaloTowerDetId towerId = geom_->getClosestCell(p); 
+  return towerId.ieta();
 }
