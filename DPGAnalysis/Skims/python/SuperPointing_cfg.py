@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("TEST")
 
 process.source = cms.Source("PoolSource",
-                            fileNames = cms.untracked.vstring('/store/data/CRUZET3/Cosmics/RECO/CRUZET3_V2P_v3/0060/226F5F00-3451-DD11-9688-000423D9853C.root')
+                            fileNames = cms.untracked.vstring('file:/afs/cern.ch/cms/CAF/CMSCOMM/COMM_GLOBAL/CRUZET3/CMSSW_2_1_2/src/DPGAnalysis/Skims/python/reco_50908_210_CRZT210_V1P.root')
                             )
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
@@ -14,7 +14,8 @@ process.load("Configuration.GlobalRuns.ForceZeroTeslaField_cff")
 process.load("Configuration.StandardSequences.Geometry_cff")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'CRUZET3_V2P::All'
+process.GlobalTag.connect = 'sqlite_file:/afs/cern.ch/user/m/malgeri/public/globtag/CRZT210_V1.db'
+process.GlobalTag.globaltag = 'CRZT210_V1D::All' 
 process.prefer("GlobalTag")
 
 process.load("Configuration.StandardSequences.ReconstructionCosmics_cff")
