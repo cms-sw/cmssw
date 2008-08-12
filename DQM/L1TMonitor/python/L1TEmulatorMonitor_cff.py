@@ -9,11 +9,11 @@ import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.FrontierConditions_GlobalTag_cff import *
 es_prefer_GlobalTag = cms.ESPrefer("PoolDBESSource","GlobalTag")
 #off-line
-GlobalTag.globaltag = 'CRZT210_V1::All'
-GlobalTag.connect = 'frontier://FrontierProd/CMS_COND_21X_GLOBALTAG'
+#GlobalTag.globaltag = 'CRZT210_V1::All'
+#GlobalTag.connect = 'frontier://FrontierProd/CMS_COND_21X_GLOBALTAG'
 #on-line
-#GlobalTag.globaltag = 'CRZT210_V1H::All'
-#GlobalTag.connect = 'frontier://(proxyurl=http://localhost:3128)(serverurl=http://frontier1.cms:8000/FrontierOnProd)(serverurl=http://frontier2.cms:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_21X_GLOBALTAG'
+GlobalTag.globaltag = 'CRZT210_V1H::All'
+GlobalTag.connect = 'frontier://(proxyurl=http://localhost:3128)(serverurl=http://frontier1.cms:8000/FrontierOnProd)(serverurl=http://frontier2.cms:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_21X_GLOBALTAG'
 
 #add'n
 from Configuration.StandardSequences.Geometry_cff import *
