@@ -36,17 +36,18 @@ class TestWhat :
 
 ts = TestWhat()
 wd = inspect.WhatDescription(ts)
-wd.describe()
+d = wd.describe()
+print d
 
 ret={}
-for key in wd.keys() :
-    (mode,val) = wd[key]
-    if (mode='single') :
+for key in d.keys() :
+    (mode,val) = d[key]
+    if (mode=='single') :
         ret[key]=val[1]
-    elif (mode='multiple') :
+    elif (mode=='multiple') :
         ret[key]=[0,2]
 
 inspect.setWhat(ts,ret)
 
-ts.how()
-ts.which()
+print ts.how()
+print [v for v in ts.which()]

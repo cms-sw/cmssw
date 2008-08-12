@@ -44,12 +44,12 @@ def extractorWhat(db, tag) :
 
 def setWhat(w,ret) :
        for key in ret.keys():
-              _val = +ret[key]
+              _val = ret[key]
               if (type(_val)==type([])) :
                      _vi = CondDB.VInt()
                      for i in _val :
                             _vi.append(i)
-                     exec ('w.set_'+key+'(_i_)')
+                     exec ('w.set_'+key+'(_vi)')
               else :
                      exec ('w.set_'+key+'(w.'+key+'().'+ret[key]+')')
        return w
