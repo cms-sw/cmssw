@@ -1,3 +1,10 @@
+2008-08-12  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-10-01
+	* remove item-changed listener for 'runNumber' xdaq parameter:
+	counters are appropriately reset in the respective state
+	transitions.
+
 2008-06-13  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-10-00

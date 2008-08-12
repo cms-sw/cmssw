@@ -438,7 +438,7 @@ void FUResourceBroker::actionPerformed(xdata::Event& e)
     if (item=="doFedIdCheck") FUResource::doFedIdCheck(doFedIdCheck_);
     if (item=="doCrcCheck")   resourceTable_->setDoCrcCheck(doCrcCheck_);
     if (item=="doDumpEvents") resourceTable_->setDoDumpEvents(doDumpEvents_);
-    if (item=="runNumber")    resourceTable_->resetCounters();
+    //if (item=="runNumber")    resourceTable_->resetCounters();
   }
   
   gui_->monInfoSpace()->unlock();
@@ -663,7 +663,7 @@ void FUResourceBroker::exportParameters()
   gui_->addItemChangedListener("doFedIdCheck",      this);
   gui_->addItemChangedListener("doCrcCheck",        this);
   gui_->addItemChangedListener("doDumpEvents",      this);
-  gui_->addItemChangedListener("runNumber",         this);
+  //gui_->addItemChangedListener("runNumber",         this);
 }
 
 
