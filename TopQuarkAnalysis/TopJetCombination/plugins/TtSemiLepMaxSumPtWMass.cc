@@ -5,9 +5,7 @@ TtSemiLepMaxSumPtWMass::TtSemiLepMaxSumPtWMass(const edm::ParameterSet& cfg):
   TtSemiLepHypothesis( cfg ),
   maxNJets_(cfg.getParameter<unsigned>("nJetsMax")),
   wMass_   (cfg.getParameter<double>  ("wMass"   ))
-{ 
-
-}
+{ }
 
 TtSemiLepMaxSumPtWMass::~TtSemiLepMaxSumPtWMass() { }
 
@@ -49,7 +47,7 @@ TtSemiLepMaxSumPtWMass::buildHypo(edm::Event& evt,
       }
     }
   }
-  
+
   // -----------------------------------------------------
   // associate those jets that get closest to the W mass
   // with their invariant mass to the W boson
@@ -60,8 +58,8 @@ TtSemiLepMaxSumPtWMass::buildHypo(edm::Event& evt,
     for(unsigned jdx=0; jdx<maxPtIndices.size(); ++jdx){  
       if( jdx==idx || maxPtIndices[idx]>maxPtIndices[jdx] ) continue;
       reco::Particle::LorentzVector sum = 
-	(*jets)[idx].p4()+
-	(*jets)[jdx].p4();
+	(*jets)[maxPtIndices[idx]].p4()+
+	(*jets)[maxPtIndices[jdx]].p4();
       if( wDist<0. || wDist>fabs(sum.mass()-wMass_) ){
 	wDist=fabs(sum.mass()-wMass_);
 	closestToWMassIndices.clear();
@@ -70,7 +68,7 @@ TtSemiLepMaxSumPtWMass::buildHypo(edm::Event& evt,
       }
     }
   }
-  
+
   // -----------------------------------------------------
   // associate the remaining jet with maximum pt of the   
   // vectorial sum with the leading lepton with the 
