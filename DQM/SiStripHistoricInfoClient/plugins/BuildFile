@@ -1,0 +1,24 @@
+<library file="*.cc" name=pluginsDQMSiStripHistoricInfoClient>
+
+<use name=boost>
+<use name=root> 
+
+<use name=FWCore/Framework>
+<use name=FWCore/ServiceRegistry>
+
+<use name=CondCore/DBCommon>
+<use name=CondCore/Utilities>
+<use name=CondCore/PopCon>
+
+<use name=CondFormats/SiStripObjects>
+<use name=CondFormats/DataRecord>
+
+<use name=CondTools/SiStrip>
+
+<use name=CalibFormats/SiStripObjects>
+<use name=CalibTracker/Records>
+
+<use name=DQMServices/Core>
+
+  <flags EDM_PLUGIN=1>
+</library>
