@@ -1,8 +1,8 @@
 /*
  * \file EELaserTask.cc
  *
- * $Date: 2008/08/11 17:47:13 $
- * $Revision: 1.48 $
+ * $Date: 2008/08/11 18:34:07 $
+ * $Revision: 1.49 $
  * \author G. Della Ricca
  *
 */
@@ -762,7 +762,6 @@ void EELaserTask::analyze(const Event& e, const EventSetup& c){
 
       if ( ! ( dccMap[ism].getRunType() == EcalDCCHeaderBlock::LASER_STD ||
                dccMap[ism].getRunType() == EcalDCCHeaderBlock::LASER_GAP ) ) continue;
-
 
       if ( dccMap[ism].getRtHalf() != Numbers::RtHalf(id) ) continue;
 
