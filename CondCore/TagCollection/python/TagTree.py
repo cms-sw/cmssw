@@ -368,13 +368,14 @@ class tagTree(object):
         try:
             if label=='ROOT' :
                 transaction.start(False)
-                tableHandle = self.__session.nominalSchema().tableHandle(self.__tagTreeTableName)
-                editor = tableHandle.dataEditor()
-                conditionData = coral.AttributeList()
-                editor.deleteRows('',conditionData)
-                idtableHandle = self.__session.nominalSchema().tableHandle(self.__tagTreeIDs)
-                ideditor = idtableHandle.dataEditor()
-                ideditor.deleteRows('',conditionData)
+                self.__session.nominalSchema().dropIfExistsTable(self.__tagTreeTableName)
+                self.__session.nominalSchema().dropIfExistsTable(self.__tagTreeIDs)
+                #editor = tableHandle.dataEditor()
+                #conditionData = coral.AttributeList()
+                #editor.deleteRows('',conditionData)
+                #idtableHandle = self.__session.nominalSchema().tableHandle(self.__tagTreeIDs)
+                #ideditor = idtableHandle.dataEditor()
+                #ideditor.deleteRows('',conditionData)
                 transaction.commit()
             else :
                 me=Node.Node()
