@@ -13,7 +13,7 @@
 //
 // Original Author:  Erik Butz
 //         Created:  Tue Dec 11 14:03:05 CET 2007
-// $Id: TrackerOfflineValidation.cc,v 1.5 2008/05/26 16:09:24 ebutz Exp $
+// $Id: TrackerOfflineValidation.cc,v 1.6 2008/08/01 15:33:55 ebutz Exp $
 //
 //
 
@@ -29,6 +29,7 @@
 #include "TH2.h"
 #include "TProfile.h"
 #include "TFile.h"
+#include "TTree.h"
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -39,6 +40,8 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Alignment/OfflineValidation/interface/TrackerValidationVariables.h"
 #include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 #include "DataFormats/SiStripDetId/interface/TECDetId.h"
 #include "DataFormats/SiStripDetId/interface/TIBDetId.h"
 #include "DataFormats/SiStripDetId/interface/TIDDetId.h"
@@ -49,6 +52,8 @@
 #include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 #include "PhysicsTools/UtilAlgos/interface/TFileDirectory.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 #include "Alignment/CommonAlignment/interface/AlignableComposite.h"
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
@@ -86,6 +91,29 @@ private:
     TH1* NormResXprimeHisto;
   };
 
+ struct TreeVariables{
+   TreeVariables(): resMean_(), normResMean_(), resXprimeMean_(), normResXprimeMean_(), 
+		    resRms_(), normResRms_(), resXprimeRms_(), normResXprimeRms_(), 
+		     globalR_(), globalPhi_(), globalEta_(),
+		     globalX_(), globalY_(), globalZ_(),
+		     entries_(), moduleId_(), subDetId_(),
+		     layer_(), side_(), rod_(),ring_(), 
+		     petal_(),blade_(), panel_(), orientation_(),
+		     isDoubleSide_(),
+		     resHistoName_(), normResHistoName_(), resXprimeHistoName_(), normResXprimeHistoName_()  {} 
+    Float_t resMean_, normResMean_, resXprimeMean_,normResXprimeMean_,    //mean value read out from modul histograms
+            resRms_, normResRms_, resXprimeRms_, normResXprimeRms_,      //rms value read out from modul histograms
+            globalR_, globalPhi_, globalEta_,                     //global coordiantes    
+            globalX_, globalY_, globalZ_;             //global coordiantes 
+                                           //number of entries for each modul
+    UInt_t   entries_, moduleId_, subDetId_,           //modul Id = detId and subdetector Id
+             layer_, side_, rod_, 
+             ring_, petal_, 
+             blade_, panel_, orientation_;
+    Bool_t isDoubleSide_;
+    std::string resHistoName_, normResHistoName_, resXprimeHistoName_, normResXprimeHistoName_;
+  };
+
   bool lCoorHistOn;
   bool moduleLevelHistsTransient;
   bool overlappOn;
@@ -120,6 +148,11 @@ private:
  
   void collateSummaryHists( TFileDirectory &tfd, const Alignable& ali, int i, const AlignableObjectId &aliobjid, std::vector<std::pair<TH1*,TH1*> > &v_levelProfiles);
   
+  void bookTree(TTree &tree, struct TrackerOfflineValidation::TreeVariables &treeMem);
+  
+  void fillTree(TTree &tree,const std::map<int, TrackerOfflineValidation::ModuleHistos> &moduleHist_, struct TrackerOfflineValidation::TreeVariables &treeMem, const TrackerGeometry &tkgeom , edm::Service<TFileService> fs);
+
+
   std::pair<TH1*,TH1*> bookSummaryHists(TFileDirectory &tfd, const Alignable& ali, align::StructureType type, int i, const AlignableObjectId &aliobjid); 
  
  
@@ -626,6 +659,16 @@ TrackerOfflineValidation::endJob() {
   edm::Service<TFileService> fs;   
   AlignableObjectId aliobjid;
 
+  TTree *tree = fs->make<TTree>("TkOffVal","TkOffVal");
+  TreeVariables treeMem;
+  this->bookTree(*tree, treeMem);
+
+  this->fillTree(*tree, mPxbResiduals_ ,treeMem, *tkGeom_, fs);
+  this->fillTree(*tree, mPxeResiduals_ ,treeMem, *tkGeom_, fs);
+  this->fillTree(*tree, mTibResiduals_ ,treeMem, *tkGeom_, fs);
+  this->fillTree(*tree, mTidResiduals_ ,treeMem, *tkGeom_, fs);
+  this->fillTree(*tree, mTobResiduals_ ,treeMem, *tkGeom_, fs);
+  this->fillTree(*tree, mTecResiduals_ ,treeMem, *tkGeom_, fs);
 
   static const int kappadiffindex = this->GetIndex(vTrackHistos_,"h_diff_curvature");
   vTrackHistos_[kappadiffindex]->Add(vTrackHistos_[this->GetIndex(vTrackHistos_,"h_curvature_neg")],vTrackHistos_[this->GetIndex(vTrackHistos_,"h_curvature_pos")],-1,1);
@@ -853,6 +896,142 @@ TrackerOfflineValidation::Fwhm (const TH1* hist)
   return fwhm;
 }
 
+void 
+TrackerOfflineValidation::bookTree(TTree &tree, struct TrackerOfflineValidation::TreeVariables &treeMem)
+{
+  //variables concerning the tracker components/hierarchy levels
+  tree.Branch("moduleId",&treeMem.moduleId_,"modulId/i");
+  tree.Branch("subDetId",&treeMem.subDetId_,"subDetId/i");
+  tree.Branch("layer",&treeMem.layer_,"layer/i");
+  tree.Branch("side",&treeMem.side_,"side/i");
+  tree.Branch("rod",&treeMem.rod_,"rod/i");
+  tree.Branch("ring",&treeMem.ring_,"ring/i");
+  tree.Branch("petal",&treeMem.petal_,"petal/i");
+  tree.Branch("blade",&treeMem.blade_,"blade/i");
+  tree.Branch("panel",&treeMem.panel_,"panel/i");
+  tree.Branch("orientation",&treeMem.orientation_,"orientation/i");
+  tree.Branch("isDoubleSide",&treeMem.isDoubleSide_,"isDoubleSide/O");
+  
+  //variables concerning the tracker geometry
+  tree.Branch("globalPhi",&treeMem.globalPhi_,"gobalPhi/F");
+  tree.Branch("globalEta",&treeMem.globalEta_,"globalEta/F");
+  tree.Branch("globalR",&treeMem.globalR_,"globalR/F");
+  tree.Branch("globalX",&treeMem.globalX_,"gobalX/F");
+  tree.Branch("globalY",&treeMem.globalY_,"globalY/F");
+  tree.Branch("globalZ",&treeMem.globalZ_,"globalZ/F");
+  
+  //mean and RMS values (extracted from histograms(Xprime) on module level)
+  tree.Branch("entries",&treeMem.entries_,"entries/i");
+  tree.Branch("resXprimeMean",&treeMem.resXprimeMean_,"resXprimeMean/F");
+  tree.Branch("resXprimeRms",&treeMem.resXprimeRms_,"resXprimeRms/F");
+  tree.Branch("normResXprimeMean",&treeMem.normResXprimeMean_,"normResXprimeMean/F");
+  tree.Branch("normResXprimeRms",&treeMem.normResXprimeRms_,"normResXprimeRms/F");
+  //histogram names 
+  tree.Branch("resXprimeHistoName",&treeMem.resXprimeHistoName_,"resXprimeHistoName/b");
+  tree.Branch("normResXprimeHistoName",&treeMem.normResXprimeHistoName_,"normResXprimeHistoName/b");
+
+  // book tree variables in local coordinates if set in cf
+    if(lCoorHistOn) {
+      //mean and RMS values (extracted from histograms(X) on module level)
+       tree.Branch("resMean",&treeMem.resMean_,"resMean/F");
+       tree.Branch("resRms",&treeMem.resRms_,"resRms/F");
+       tree.Branch("normResMean",&treeMem.normResMean_,"normResMean/F");
+       tree.Branch("normResRms",&treeMem.normResRms_,"normResRms/F");
+       tree.Branch("resHistoName",&treeMem.resHistoName_,"resHistoName/b");
+       tree.Branch("normResHistoName",&treeMem.normResHistoName_,"normResHistoName/b");
+
+    }
+}
+
+void 
+TrackerOfflineValidation::fillTree(TTree &tree,const std::map<int, TrackerOfflineValidation::ModuleHistos> &moduleHist_, struct TrackerOfflineValidation::TreeVariables &treeMem ,const TrackerGeometry &tkgeom ,edm::Service<TFileService> fs)
+{
+ 
+  for(std::map<int, TrackerOfflineValidation::ModuleHistos>::const_iterator it = moduleHist_.begin(), 
+	itEnd= moduleHist_.end(); it != itEnd;++it ) { 
+    
+    //variables concerning the tracker components/hierarchy levels
+    DetId detId_ = it->first;
+    treeMem.moduleId_ = detId_;
+    treeMem.subDetId_ = detId_.subdetId();
+    treeMem.isDoubleSide_ =0;
+
+    if(treeMem.subDetId_== PixelSubdetector::PixelBarrel){
+      PXBDetId pxbId(detId_); 
+      treeMem.layer_ = pxbId.layer(); 
+      treeMem.rod_ = pxbId.ladder();
+  
+    } else if(treeMem.subDetId_ == PixelSubdetector::PixelEndcap){
+      PXFDetId pxfId(detId_); 
+      treeMem.layer_ = pxfId.disk(); 
+      treeMem.side_ = pxfId.side();
+      treeMem.blade_ = pxfId.blade(); 
+      treeMem.panel_ = pxfId.panel();
+
+    } else if(treeMem.subDetId_ == StripSubdetector::TIB){
+      TIBDetId tibId(detId_); 
+      treeMem.layer_ = tibId.layer(); 
+      treeMem.side_ = tibId.string()[0];
+      treeMem.rod_ = tibId.string()[2]; 
+      treeMem.orientation_ = tibId.string()[1]; 
+      if (tibId.isDoubleSide())  treeMem.isDoubleSide_ = 1;
+    } else if(treeMem.subDetId_ == StripSubdetector::TID){
+      TIDDetId tidId(detId_); 
+      treeMem.layer_ = tidId.wheel(); 
+      treeMem.side_ = tidId.side();
+      treeMem.ring_ = tidId.ring(); 
+      treeMem.orientation_ = tidId.module()[0]; 
+      if (tidId.isDoubleSide())  treeMem.isDoubleSide_ = 1;
+    } else if(treeMem.subDetId_ == StripSubdetector::TOB){
+      TOBDetId tobId(detId_); 
+      treeMem.layer_ = tobId.layer(); 
+      treeMem.side_ = tobId.rod()[0];
+      treeMem.rod_ = tobId.rod()[1]; 
+      if (tobId.isDoubleSide())  treeMem.isDoubleSide_ = 1;
+    } else if(treeMem.subDetId_ == StripSubdetector::TEC) {
+      TECDetId tecId(detId_); 
+      treeMem.layer_ = tecId.wheel(); 
+      treeMem.side_ = tecId.side();
+      treeMem.ring_ = tecId.ring(); 
+      treeMem.petal_ = tecId.petal()[1]; 
+      treeMem.orientation_ = tecId.petal()[0];
+      if (tecId.isDoubleSide())  treeMem.isDoubleSide_ = 1; 
+    }
+    
+    //variables concerning the tracker geometry
+    const Surface& surface = tkgeom.idToDet(detId_)->surface();
+    LocalPoint lPModule(0.,0.,0.), lPhiDirection(1.,0.,0.), lROrZDirection(0.,1.,0.);
+    GlobalPoint gPModule       = surface.toGlobal(lPModule),
+      gPhiDirection              = surface.toGlobal(lPhiDirection),
+      gROrZDirection             = surface.toGlobal(lROrZDirection);
+    treeMem.globalPhi_ = gPModule.phi();
+    treeMem.globalEta_ = gPModule.eta();
+    treeMem.globalX_   = gPModule.x();
+    treeMem.globalY_   = gPModule.y();
+    treeMem.globalZ_   = gPModule.z();
+
+    //mean and RMS values (extracted from histograms(Xprime) on module level)
+    treeMem.entries_ = static_cast<UInt_t>(it->second.ResXprimeHisto->GetEntries());
+    treeMem.resXprimeMean_ = it->second.ResXprimeHisto->GetMean();
+    treeMem.resXprimeRms_ = it->second.ResXprimeHisto->GetRMS();
+    treeMem.normResXprimeMean_ = it->second.NormResXprimeHisto->GetMean();
+    treeMem.normResXprimeRms_ = it->second.NormResXprimeHisto->GetRMS();
+    treeMem.resXprimeHistoName_=it->second.ResXprimeHisto->GetName();
+    treeMem.normResXprimeHistoName_=it->second.NormResXprimeHisto->GetName();
+
+    // fill tree variables in local coordinates if set in cf
+    if(lCoorHistOn) {
+
+      treeMem.resMean_ = it->second.ResHisto->GetMean();
+      treeMem.resRms_ = it->second.ResHisto->GetRMS();
+      treeMem.normResMean_ = it->second.NormResHisto->GetMean();
+      treeMem.normResRms_ = it->second.NormResHisto->GetRMS();
+      treeMem.resHistoName_ = it->second.ResHisto->GetName();
+      treeMem.normResHistoName_=it->second.NormResHisto->GetName();
+    }
+    tree.Fill();
+  }
+}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(TrackerOfflineValidation);
