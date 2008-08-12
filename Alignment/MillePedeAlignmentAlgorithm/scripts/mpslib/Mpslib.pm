@@ -74,8 +74,7 @@ sub write_db() {
   $spare4 = "-- unused --";
   $spare5 = "-- unused --";
 
-  system "cp -p mps.db mps.db_~"; # GF: backup in case of interupt during write
-#  system "cp -p mps.db mps.db_$updateTime~"; # safest, but too many files...
+  system "[[ -a mps.db ]] && cp -p mps.db mps.db~"; # GF: backup if exists (in case of interupt during write)
   open DBFILE,">mps.db";
   printf DBFILE "%s\n",$header;
   printf DBFILE "%s\n",$batchScript;
