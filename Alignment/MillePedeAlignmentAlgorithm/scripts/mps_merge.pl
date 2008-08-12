@@ -2,8 +2,8 @@
 #     R. Mankel, DESY Hamburg     03-Jul-2007
 #     A. Parenti, DESY Hamburg    24-Apr-2008
 #
-#     $Revision: 1.15 $
-#     $Date: 2008/07/29 17:48:24 $
+#     $Revision: 1.16 $
+#     $Date: 2008/07/30 14:07:45 $
 #
 #  produce cfg file for merging run
 #
@@ -140,18 +140,17 @@ if ($nn != 1) {
 
 # build list of binary files
 $binaryList = "";
+$iIsOk = 1;
 for ($i=1; $i<=$nJobs; ++$i) {
-  $sep = ",\n  ";
-  if ($i == 1) { $sep = "\n  " ;}
+  $sep = ",\n                ";
+  if ($iIsOk == 1) { $sep = "\n                " ;}
 
   if ($checkok==1 && @JOBSTATUS[$i-1] ne "OK") {next;}
+  ++$iIsOk;
 
   $newName = sprintf "milleBinary%03d.dat",$i;
   print "Adding $newName to list of binary files\n";
   $binaryList = "$binaryList$sep\'$newName\'";
-  # create symbolic link
-  $jobDirName = sprintf "job%03d",$i;
-  ## system "cd $mergeDir; ln -s ../$jobDirName/milleBinary.dat $newName; cd -";
 }
 
 # replace list of binary files
@@ -171,17 +170,16 @@ if ($nn != 1) {
 
 # build list of tree files
 $treeList = "";
+$iIsOk = 1;
 for ($i=1; $i<=$nJobs; ++$i) {
-  $sep = ",\n  ";
-  if ($i == 1) { $sep = "\n  " ;}
+  $sep = ",\n                ";
+  if ($iIsOk == 1) { $sep = "\n                " ;}
 
   if ($checkok==1 && @JOBSTATUS[$i-1] ne "OK") {next;}
+  ++$iIsOk;
 
   $newName = sprintf "treeFile%03d.root",$i;
   $treeList = "$treeList$sep\'$newName\'";
-  # create symbolic link
-  $jobDirName = sprintf "job%03d",$i;
-  $result = `cd $mergeDir; rm -f ../$jobDirName/$newName; ln -s ../$jobDirName/treeFile.root $newName; cd -`;
 }
 
 # replace list of tree files
