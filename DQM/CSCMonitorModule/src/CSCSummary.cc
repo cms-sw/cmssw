@@ -489,7 +489,8 @@ const double CSCSummary::GetEfficiencyHW(CSCAddress adr) const {
     return sum / detector.NumberOfChamberHVs(adr.station, adr.ring);
   }
 
-  if (GetValue(adr) > 0) return 1.0;
+  // if not error - then OK!
+  if (GetValue(adr) >= 0) return 1.0;
 
   return 0.0;
 
