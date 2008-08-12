@@ -386,7 +386,11 @@ const bool CSCSummary::IsPhysicsReady(const float xmin, const float xmax, const 
       //std::cout << "Respons: " << box->xmin << ", " << box->xmax << ", " << box->ymin << ", " << box->ymax << std::endl;
       //detector.PrintAddress(box->adr);
 
-      if (GetValue(box->adr) == 1) {
+      int v = GetValue(box->adr);
+
+      // If hw element is not errorous - it is ready (though does not report).
+      // This is done to comply with requirement to start with 100% efficiency
+      if ( v == 1 || v == 0) {
         sum++;
         break;
       }
@@ -569,7 +573,9 @@ const double CSCSummary::GetReportingArea(CSCAddress adr) const {
   }
 
   adr.mask.layer = false;
-  if (GetValue(adr) > 0) {
+   
+  // NOT errorous! 
+  if (GetValue(adr) >= 0) {
     return detector.Area(adr);
   }
 
