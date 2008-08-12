@@ -459,5 +459,44 @@ void CSCEventData::selfTest() {
   assert(cscPackerCompare(lcts[0], corrDigis[0]));
   assert(cscPackerCompare(lcts[1], corrDigis[1]));
 
+  // test strip digis
+  CSCDetId me1adet1(1, 1, 1, 4, 1);
+  CSCDetId me1bdet1(1, 1, 4, 4, 6);
+  CSCDetId me1adet2(2, 1, 1, 4, 2);
+  CSCDetId me1bdet2(2, 1, 4, 4, 5);
+
+  std::vector<int> sca(16, 600);
+  std::vector<unsigned short> overflow(16, 0), overlap(16, 0), errorfl(16,0);
+  CSCStripDigi me1a(5, sca, overflow, overlap, errorfl);
+  CSCStripDigi me1b(8, sca, overflow, overlap, errorfl);
+
+  CSCEventData forward(1);
+  CSCEventData backward(1);
+  
+  forward.add(me1a, me1adet1.layer());
+  forward.add(me1b, me1bdet1.layer());
+  backward.add(me1a, me1adet2.layer());
+  backward.add(me1b, me1adet2.layer());
+
+  std::vector<CSCStripDigi> me1afs = forward.stripDigis(me1adet1.layer());
+  std::vector<CSCStripDigi> me1bfs = forward.stripDigis(me1bdet1.layer());
+  std::vector<CSCStripDigi> me1abs = backward.stripDigis(me1adet2.layer());
+  std::vector<CSCStripDigi> me1bbs = backward.stripDigis(me1bdet2.layer());
+
+  //FIXME The current code works under the assumption that ME11 and ME1A
+  // go into separate EventData.  They need to be combined.
+  assert(me1afs.size() == 16);
+  assert(me1bfs.size() == 16);
+  assert(me1abs.size() == 16);
+  assert(me1bbs.size() == 16);
+  assert(me1afs[4].getStrip() == 5);
+  assert(me1bfs[7].getStrip() == 8);
+  assert(me1abs[4].getStrip() == 5);
+  assert(me1bbs[7].getStrip() == 8);
+  assert(me1afs[4].pedestal() == 600);
+  assert(me1bfs[7].pedestal() == 600);
+  assert(me1abs[4].pedestal() == 600);
+  assert(me1bbs[7].pedestal() == 600);
+
+
 }
- 
