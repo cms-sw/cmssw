@@ -194,7 +194,7 @@ def scanReportArea(repdir):
     for dir in cmsScimarkDir:
         htmlfiles = glob.glob(dir + "/*.html") #filter(htmlreg.search,dc.listdir(dir))
         #htmlfiles = map(lambda x : dir + "/" + x,htmlfiles)
-        cmsScimarkResults.append(htmlfiles)
+        map(cmsScimarkResults.append,htmlfiles)
 
     ExecutionDate = ""
     ExecutionDateSec=0
