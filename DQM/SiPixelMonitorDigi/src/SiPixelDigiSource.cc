@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiSource.cc,v 1.23 2008/06/06 15:52:16 merkelp Exp $
+// $Id: SiPixelDigiSource.cc,v 1.24 2008/08/08 13:33:33 merkelp Exp $
 //
 //
 #include "DQM/SiPixelMonitorDigi/interface/SiPixelDigiSource.h"
@@ -174,6 +174,8 @@ void SiPixelDigiSource::buildStructure(const edm::EventSetup& iSetup){
 	            side_str.find("HalfCylinder_2")!=string::npos||
 		    side_str.find("HalfCylinder_4")!=string::npos||
 		    disk_str.find("Disk_2")!=string::npos;
+	// clutch to take all of FPIX, but no BPIX:
+	mask = false;
 	if(isPIB && mask) continue;
 	
 	thePixelStructure.insert(pair<uint32_t,SiPixelDigiModule*> (id,theModule));

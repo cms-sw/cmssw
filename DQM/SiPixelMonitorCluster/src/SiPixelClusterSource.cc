@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia & Andrew York
 //         Created:  
-// $Id: SiPixelClusterSource.cc,v 1.10 2008/06/26 08:27:36 merkelp Exp $
+// $Id: SiPixelClusterSource.cc,v 1.13 2008/08/08 14:36:37 merkelp Exp $
 //
 //
 // Updated by: Lukas Wehrli
@@ -172,6 +172,8 @@ void SiPixelClusterSource::buildStructure(const edm::EventSetup& iSetup){
 	            side_str.find("HalfCylinder_2")!=string::npos||
 		    side_str.find("HalfCylinder_4")!=string::npos||
 		    disk_str.find("Disk_2")!=string::npos;
+	// clutch to take all of FPIX, but no BPIX:
+	mask = false;
 	if(isPIB && mask) continue;
 	
 	thePixelStructure.insert(pair<uint32_t,SiPixelClusterModule*> (id,theModule));

@@ -174,6 +174,8 @@ void SiPixelRawDataErrorSource::buildStructure(const edm::EventSetup& iSetup){
 	            side_str.find("HalfCylinder_2")!=string::npos||
 		    side_str.find("HalfCylinder_4")!=string::npos||
 		    disk_str.find("Disk_2")!=string::npos;
+	// clutch to take all of FPIX, but no BPIX:
+	mask = false;
 	if(isPIB && mask) continue;
 		
 	thePixelStructure.insert(pair<uint32_t,SiPixelRawDataErrorModule*> (id,theModule));
