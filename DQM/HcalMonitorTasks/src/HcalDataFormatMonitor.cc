@@ -39,13 +39,29 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     m_dbe->setCurrentFolder(baseFolder_);
     
     type = "00 DataFormat Problem Map";
-    DATAFORMAT_PROBLEM_MAP = m_dbe->book2D(type, type, 85, -42.5, 42.5, 72, -0.5, 71.5);
+    DATAFORMAT_PROBLEM_MAP = m_dbe->book2D(type, type, 87, -43.5, 43.5, 72, -0.5, 71.5);
     DATAFORMAT_PROBLEM_MAP-> setAxisTitle("ieta",1);
     DATAFORMAT_PROBLEM_MAP-> setAxisTitle("iphi",2);
 
     type = "00 DataFormat Problem Zoo";
-    DATAFORMAT_PROBLEM_ZOO = m_dbe->book1D(type, type, 10, 1, 10);
-    DATAFORMAT_PROBLEM_ZOO-> setBinLabel(1,"CDF",1);
+    DATAFORMAT_PROBLEM_ZOO = m_dbe->book1D(type, type, 17, 1, 17);   
+    DATAFORMAT_PROBLEM_ZOO-> setBinLabel(1,"EE - HTR lost",1);      //HTR sent Empty Event
+    DATAFORMAT_PROBLEM_ZOO-> setBinLabel(2,"TR - LRB lost",1);	    //LRB truncated data
+    DATAFORMAT_PROBLEM_ZOO-> setBinLabel(3,"FEE",1);		    //CapID or DV not set correctly
+    DATAFORMAT_PROBLEM_ZOO-> setBinLabel(4,"HAM",1);		    //Corr. & Uncorr. Hamm.
+    DATAFORMAT_PROBLEM_ZOO-> setBinLabel(5,"HTR CRC",1);	    //DCC found HTR CRC err
+    DATAFORMAT_PROBLEM_ZOO-> setBinLabel(6,"CMS EvFmt",1);	    //Common Data Format failed check
+    DATAFORMAT_PROBLEM_ZOO-> setBinLabel(7,"DCC EvFmt",1);	    //DCC Event format failed check
+    DATAFORMAT_PROBLEM_ZOO-> setBinLabel(8,"HTR EvFmt",1);	    //HTR Event Format failed check
+    DATAFORMAT_PROBLEM_ZOO-> setBinLabel(9,"DCC OFW",1);	    //DCC Overflow Warning
+    DATAFORMAT_PROBLEM_ZOO-> setBinLabel(10,"DCC BSY",1);	    //DCC Busy 
+    DATAFORMAT_PROBLEM_ZOO-> setBinLabel(11,"HTR OFW",1);	    //HTR Overflow Warning
+    DATAFORMAT_PROBLEM_ZOO-> setBinLabel(12,"HTR BSY",1);	    //HTR Busy 
+    DATAFORMAT_PROBLEM_ZOO-> setBinLabel(13,"RL1A",1);		    //HTR Rejected L1A
+    DATAFORMAT_PROBLEM_ZOO-> setBinLabel(14,"BE",1);		    //HTR Bunchcount Error
+    DATAFORMAT_PROBLEM_ZOO-> setBinLabel(15,"OD",1);		    //Optical Data error  
+    DATAFORMAT_PROBLEM_ZOO-> setBinLabel(16,"CK",1);		    //Clock Error from HTR
+    DATAFORMAT_PROBLEM_ZOO-> setBinLabel(17,"Bit15",1);             //Bit 15 Error
 
     m_dbe->setCurrentFolder(baseFolder_ + "/DCC Plots");
 
@@ -399,6 +415,8 @@ void HcalDataFormatMonitor::processEvent(const FEDRawDataCollection& rawraw,
   }
 
   for(unsigned int i=0; i<report.getFedsError().size(); i++){
+    // Take the ith entry in the vector of FED IDs
+    // with zero-size FEDRawData, size < 24, 
     const int m = report.getFedsError()[i];
     const FEDRawData& fed = rawraw.FEDData(m);
     const HcalDCCHeader* dccHeader=(const HcalDCCHeader*)(fed.data());
@@ -426,6 +444,14 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
 
   int dccid=dccHeader->getSourceId();
   if(fVerbosity) cout << "DCC " << dccid << endl;
+  
+  // We can get this iterator to look for the DetIds associated to 
+  // this DCC
+ 
+  // if (DCCtoCell.find(dccid) != DCCtoCell::end())
+  //   ;
+  
+
   unsigned long dccEvtNum = dccHeader->getDCCEventNumber();
   int dccBCN = dccHeader->getBunchId();
   medccBCN_ -> Fill(dccBCN);
@@ -587,9 +613,11 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
   HcalHTRData htr;  
   for (int spigot=0; spigot<HcalDCCHeader::SPIGOT_COUNT; spigot++) {    
     if (!dccHeader->getSpigotPresent(spigot)) continue;
-    dccHeader->getSpigotData(spigot,htr);
+
+    // Load the given decoder with the pointer and length from this spigot.
+    dccHeader->getSpigotData(spigot,htr); 
     
-    // check
+    // check min length, correct wordcount, empty event, or total length if histo event.
     if (!htr.check()) {
       meInvHTRData_ -> Fill(spigot,dccid);
       continue; }
@@ -791,6 +819,14 @@ void HcalDataFormatMonitor::labelHTRBits(MonitorElement* mePlot,unsigned int axi
 
   return;
 }
+
+void HcalDataFormatMonitor::smuggleMaps(std::map<uint32_t, std::vector<HcalDetId> >& givenDCCtoCell,
+		std::map<pair <int,int> , std::vector<HcalDetId> >& givenHTRtoCell) {
+  DCCtoCell = givenDCCtoCell;
+  HTRtoCell = givenHTRtoCell;
+  return;
+}
+
 
 
 

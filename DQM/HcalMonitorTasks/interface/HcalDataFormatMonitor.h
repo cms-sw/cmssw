@@ -10,8 +10,8 @@
 
 /** \class Hcaldataformatmonitor
  *
- * $Date: 2008/04/22 21:38:59 $
- * $Revision: 1.25 $
+ * $Date: 2008/06/25 12:28:05 $
+ * $Revision: 1.26 $
  * \author W. Fisher - FNAL
  */
 class HcalDataFormatMonitor: public HcalBaseMonitor {
@@ -29,24 +29,32 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
 
   void HTRPrint(const HcalHTRData& htr,int prtlvl);
   void labelHTRBits(MonitorElement* mePlot,unsigned int axisType);
+ public: //Electronics map -> geographic channel map
+  void smuggleMaps(std::map<uint32_t, std::vector<HcalDetId> >& givenDCCtoCell,
+		  std::map<pair <int,int> , std::vector<HcalDetId> >& givenHTRtoCell);
+ 
+  std::map<uint32_t, std::vector<HcalDetId> > DCCtoCell;
+  std::map<uint32_t, std::vector<HcalDetId> > ::iterator thisDCC;
+  std::map<pair <int,int> , std::vector<HcalDetId> > HTRtoCell;
+  std::map<pair <int,int> , std::vector<HcalDetId> > ::iterator thisHTR;
 
  private: // Data accessors
-   vector<int> fedUnpackList_;
-   vector<int> dccCrate_;
-   vector<HcalSubdetector> dccSubdet_;
-   int firstFED_;
-   int ievt_;
-   int lastEvtN_;
-   int lastBCN_;
-   //   int dccnum_;
-   //int cratenum_;
-   
-   int prtlvl_;
-
+  vector<int> fedUnpackList_;
+  vector<int> dccCrate_;
+  vector<HcalSubdetector> dccSubdet_;
+  int firstFED_;
+  int ievt_;
+  int lastEvtN_;
+  int lastBCN_;
+  //   int dccnum_;
+  //int cratenum_;
+  
+  int prtlvl_;
+  
  private:  //Monitoring elements
    
-   MonitorElement* meEVT_;
-   MonitorElement* DATAFORMAT_PROBLEM_MAP;
+  MonitorElement* meEVT_;
+  MonitorElement* DATAFORMAT_PROBLEM_MAP;
    MonitorElement* DATAFORMAT_PROBLEM_ZOO;
    
    //MEs for hcalunpacker report info
