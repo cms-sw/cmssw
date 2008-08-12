@@ -214,9 +214,15 @@ void MillePedeAlignmentAlgorithm::run(const edm::EventSetup &setup,
   const bool useTrackTsosBack = theUseTrackTsos;
   if (!canUseTrack) theUseTrackTsos = false;
 
-  std::vector<TrajectoryStateOnSurface> trackTsos; // some buffer...
-  // loop over ReferenceTrajectoryCollection and possibly over tracks  
+  // Loop over ReferenceTrajectoryCollection and possibly over tracks,
+  // but in case Ref.-Traj. are not parallel to tracks, first fill monitor for tracks:
   ConstTrajTrackPairCollection::const_iterator iTrajTrack = tracks.begin();
+  if (theMonitor) {
+    for (; iTrajTrack != tracks.end(); ++iTrajTrack) theMonitor->fillTrack((*iTrajTrack).second);
+    iTrajTrack = tracks.begin(); // set back...
+  }
+  // Now really loop over ReferenceTrajectoryCollection
+  std::vector<TrajectoryStateOnSurface> trackTsos; // some buffer...
   for (RefTrajColl::const_iterator iRefTraj = trajectories.begin(), iRefTrajE = trajectories.end();
        iRefTraj != iRefTrajE; ++iRefTraj) {
 
@@ -224,7 +230,6 @@ void MillePedeAlignmentAlgorithm::run(const edm::EventSetup &setup,
     if (theMonitor) theMonitor->fillRefTrajectory(refTrajPtr);
     if (!refTrajPtr->isValid()) continue; // currently e.g. if any invalid hit (FIXME for cosmic?)
     
-    if (theMonitor) theMonitor->fillTrack((*iTrajTrack).second); // second is reco::Track*
     if (canUseTrack) {
       if (!this->orderedTsos((*iTrajTrack).first, trackTsos)) continue; // first is Trajectory*
     } else {
@@ -259,8 +264,8 @@ void MillePedeAlignmentAlgorithm::run(const edm::EventSetup &setup,
 	}
       }
       theMille->end();
-      if (canUseTrack && theMonitor) {
-        theMonitor->fillUsedTrack((*iTrajTrack).second, nValidHitsX, nValidHitsY);
+      if (theMonitor) {
+        theMonitor->fillUsedTrack((canUseTrack ? iTrajTrack->second : 0), nValidHitsX, nValidHitsY);
       }
     } else {
       theMille->kill();

@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.15 $
- *  $Date: 2008/03/27 17:49:15 $
+ *  $Revision: 1.16 $
+ *  $Date: 2008/07/30 15:44:49 $
  *  (last update by $Author: flucke $)
  */
 
@@ -482,15 +482,14 @@ void MillePedeMonitor::fillTrack(const reco::Track *track)
 void MillePedeMonitor::fillUsedTrack(const reco::Track *track, unsigned int nHitX,
 				     unsigned int nHitY)
 {
-  if (!track) return;
-  this->fillTrack(track, myUsedTrackHists1D, myUsedTrackHists2D);
-
   // these hist exist only for 'used track' hists:
   static const int iUsedX = this->GetIndex(myUsedTrackHists1D, "usedHitsX");
   myUsedTrackHists1D[iUsedX]->Fill(nHitX);
   static const int iUsedY = this->GetIndex(myUsedTrackHists1D, "usedHitsY");
   myUsedTrackHists1D[iUsedY]->Fill(nHitY);
 
+  if (!track) return;
+  this->fillTrack(track, myUsedTrackHists1D, myUsedTrackHists2D);
 }
 
 //__________________________________________________________________
