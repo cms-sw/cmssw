@@ -275,7 +275,6 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
   }else{
     abtime=(cond::Time_t)iTime.eventID().run();
   }
-  //std::cout<<"abtime "<<abtime<<std::endl;
   cond::Connection* c=cond::ConnectionHandler::Instance().getConnection(pos->second.begin()->pfn);
   //std::cout<<"leading pfn "<< pos->second.front().pfn <<std::endl;
   cond::PoolTransaction& pooldb=c->poolTransaction();
@@ -285,7 +284,6 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
   if( !iovservice.isValid(leadingToken,abtime) ){
     os<<abtime;
     //throw cond::noDataForRequiredTimeException("PoolDBESSource::setIntervalFor",iKey.name(),os.str());
-    //std::cout<<"setting invalidInterval"<<std::endl;
     oInterval = edm::ValidityInterval::invalidInterval();
     return;
   }
@@ -298,7 +296,6 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
     start=edm::IOVSyncValue( edm::EventID(validity.first,0) );
     stop=edm::IOVSyncValue( edm::EventID(validity.second,0) );
   }
-  //std::cout<<"setting validity "<<validity.first<<" "<<validity.second<<" for ibtime "<<abtime<< std::endl;
   oInterval = edm::ValidityInterval( start, stop );
   std::string payloadToken=iovservice.payloadToken(leadingToken,abtime);
   std::string datumName=recordname+"@"+objectname+"@"+leadingLable;

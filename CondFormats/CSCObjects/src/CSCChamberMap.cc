@@ -46,10 +46,3 @@ int CSCChamberMap::slink( const CSCDetId& id ) const {
   CSCMapItem::MapItem mitem = this->item( igor );
   return mitem.slink;   
 }
-
-int CSCChamberMap::dduSlot( const CSCDetId& id ) const {
-  int igor = dbIndex( id );
-  CSCMapItem::MapItem mitem = this->item( igor );
-  return mitem.ddu_slot;
-}
-

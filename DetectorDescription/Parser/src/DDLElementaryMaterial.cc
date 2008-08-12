@@ -17,14 +17,17 @@
 // Includes
 // -------------------------------------------------------------------------
 #include "DDLElementaryMaterial.h"
+#include "DDLElementRegistry.h"
 
 // DDCore dependencies
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 
 #include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
 
+#include <string>
 #include <iostream>
 
 // Default constructor.

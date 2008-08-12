@@ -41,7 +41,7 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
   //ecalDigisLabel_ = conf.getParameter<std::string> ("ecalDigisLabel");
   //hcalDigisLabel_ = conf.getParameter<std::string> ("hcalDigisLabel");
 
-  gctCounts_ = conf.getParameter< edm::InputTag >("l1GctCounts");
+  gctCounts_ = conf.getParameter< std::string > ("l1GctCounts");
 
   errCnt=0;
 
@@ -114,7 +114,8 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   edm::Handle<L1GlobalTriggerObjectMap> l1GtOM;
 //  edm::Handle<EcalTrigPrimDigiCollection> ecal;
 //  edm::Handle<HcalTrigPrimDigiCollection> hcal;
-  edm::Handle<L1GctJetCountsCollection> l1GctCounts;
+  edm::Handle<L1GctJetCounts> l1GctCounts;
+
   
   // ccla double pthat = *genEventScale;
 
@@ -172,8 +173,9 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
 //try {iEvent.getByLabel(particleMapSource_,l1mapcoll );} catch (...) { errMsg=errMsg + "  -- No L1 Map Collection";}
   try {iEvent.getByLabel(gtReadoutRecord_,l1GtRR);} catch (...) { errMsg=errMsg + "  -- No L1 GT ReadouRecord";}
   try {iEvent.getByLabel(gtObjectMap_,l1GtOMRec);} catch (...) { errMsg=errMsg + "  -- No L1 GT ObjectMap";}
-  //  try {iEvent.getByLabel(gctCounts_,l1GctCounts);} catch (...) { errMsg=errMsg + "  -- No L1 GCT JetCount Digis";}
-  try {iEvent.getByLabel(gctCounts_.label(), "", l1GctCounts);} catch (...) { errMsg=errMsg + "  -- No L1 GCT JetCount Digis";} 
+
+  try {iEvent.getByLabel(gctCounts_,l1GctCounts);} catch (...) { errMsg=errMsg + "  -- No L1 GCT JetCount Digis";}
+
   
   if (! mctruth.isValid()    ) { errMsg=errMsg + "  -- No Gen Particles"; mctruth = mctruthDummy;}
 

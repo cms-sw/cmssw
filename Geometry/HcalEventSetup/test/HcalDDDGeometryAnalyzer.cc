@@ -97,14 +97,11 @@ void HcalDDDGeometryAnalyzer::analyze(const edm::Event& ,
 							  HcalOuter);
     std::vector<DetId> hfCells = geometry->getValidDetIds(DetId::Hcal,
 							  HcalForward);
-    LogDebug("HCalGeom") << "HcalDDDGeometryAnalyzer:: Hcal Barrel ("
-			 << HcalBarrel << ") with " << hbCells.size() 
-			 << " valid cells; Hcal Endcap (" << HcalEndcap
-			 << ") with " << heCells.size() << " valid cells; "
-			 << "Hcal Outer (" << HcalOuter << ") with "
-			 << hoCells.size() << " valid cells; and Hcal Forward"
-			 << " (" << HcalForward << ") with " << hfCells.size() 
-			 << " valid cells";
+    LogDebug("HCalGeom") << "HcalDDDGeometryAnalyzer:: Hcal Barrel with "
+			 << hbCells.size() << " valid cells; Hcal Endcap with "
+			 << heCells.size() << " valid cells; Hcal Outer with "
+			 << hoCells.size() << " valid cells; and Hcal Forward "
+			 << " with " << hfCells.size() << " valid cells";
   }
 
   pass_++;

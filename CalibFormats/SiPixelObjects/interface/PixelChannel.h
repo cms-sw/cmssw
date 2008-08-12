@@ -1,10 +1,5 @@
 #ifndef PixelChannel_h
 #define PixelChannel_h
-/*! \file CalibFormats/SiPixelObjects/interface/PixelChannel.h
-*   \brief This class implements...
-*
-*   A longer explanation will be placed here later
-*/
  
 #include <string>
 #include <iostream>
@@ -14,10 +9,6 @@
 // class holding module name and TBM channel ("A" or "B") associated with a channel
 
 namespace pos{
-/*! \class PixelChannel PixelChannel.h "interface/PixelChannel.h"
-*
-*   A longer explanation will be placed here later
-*/
   class PixelChannel
   {
     public:
@@ -25,14 +16,11 @@ namespace pos{
     PixelChannel(){;}
     PixelChannel(PixelModuleName module, std::string TBMChannel);
     PixelChannel(PixelModuleName module, PixelTBMChannel TBMChannel);
-    PixelChannel(std::string name); // takes a name of the form produced by channelname()
 
     const PixelModuleName& module() const { return module_; }
     std::string modulename() const { return module_.modulename(); }
     const PixelTBMChannel& TBMChannel() const { return TBMChannel_; }
     std::string TBMChannelString() const { return TBMChannel_.string(); }
-
-    std::string channelname() const;
 
     friend std::ostream& operator<<(std::ostream& s, const PixelChannel& channel);
 
@@ -50,5 +38,4 @@ namespace pos{
     PixelTBMChannel TBMChannel_;
   };
 }
-
 #endif

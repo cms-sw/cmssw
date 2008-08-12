@@ -21,6 +21,7 @@ Implementation:
 
 #include "DQM/HLTEvF/interface/HLTMuonDQMSource.h"
 #include "DQMServices/Core/interface/DQMStore.h"
+
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -31,8 +32,8 @@ Implementation:
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include "DataFormats/MuonReco/interface/MuIsoDeposit.h"
-#include "DataFormats/MuonReco/interface/MuIsoDepositFwd.h"
+#include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
+#include "DataFormats/RecoCandidate/interface/IsoDepositFwd.h"
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/MuonSeed/interface/L2MuonTrajectorySeed.h"
@@ -72,6 +73,7 @@ HLTMuonDQMSource::HLTMuonDQMSource( const edm::ParameterSet& ps ) :counterEvt_(0
      dbe_ = Service < DQMStore > ().operator->();
      dbe_->setVerbose(0);
    }
+
  
    outputFile_ =
        parameters_.getUntrackedParameter < std::string > ("outputFile", "");
@@ -88,7 +90,7 @@ HLTMuonDQMSource::HLTMuonDQMSource( const edm::ParameterSet& ps ) :counterEvt_(0
    if (disable) {
      outputFile_ = "";
    }
- 
+
    if (dbe_ != NULL) {
      dbe_->setCurrentFolder("HLT/HLTMonMuon");
    }
@@ -375,19 +377,18 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
 
   if (!l2mucands.failedToGet()) {
      if (verbose_)cout << " filling L2 stuff " << endl;
-    Handle<MuIsoDepositAssociationMap> l2depMap;
+    Handle<reco::IsoDepositMap> l2depMap;
     iEvent.getByLabel (l2isolationTag_,l2depMap);
     hNMu[1]->Fill(l2mucands->size());
     for (cand=l2mucands->begin(); cand!=l2mucands->end(); ++cand) {
       TrackRef tk = cand->get<TrackRef>();
       if (!l2depMap.failedToGet()) {
 	  if (verbose_)cout << " filling L2 Iso stuff " << endl;
-	  MuIsoDepositAssociationMap::const_iterator i = l2depMap->find(tk);
-	  if ( i != l2depMap->end() ){
-	    MuIsoDepositAssociationMap::result_type calDeposit= i->val;
+	  if ( l2depMap->contains(tk.id()) ){
+	    reco::IsoDepositMap::value_type calDeposit= (*l2depMap)[tk];
 	    double dephlt = calDeposit.depositWithin(coneSize_);
 	    hiso[0]->Fill(dephlt);
-	  } else LogWarning("HLTMonMuon") << "No calo iso deposit corresponding to tk";
+	  }
       }
     
       // eta cut
@@ -427,17 +428,16 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
   if (!l3mucands.failedToGet()) {
     if (verbose_)cout << " filling L3 stuff " << endl;
     hNMu[2]->Fill(l3mucands->size());
-    Handle<MuIsoDepositAssociationMap> l3depMap;
+    Handle<reco::IsoDepositMap> l3depMap;
     iEvent.getByLabel (l3isolationTag_,l3depMap);
     for (cand=l3mucands->begin(); cand!=l3mucands->end(); ++cand) {
       TrackRef tk = cand->get<TrackRef>();
       if (!l3depMap.failedToGet()) {
-	MuIsoDepositAssociationMap::const_iterator i = l3depMap->find(tk);
-	if ( i != l3depMap->end() ) {
-	  MuIsoDepositAssociationMap::result_type calDeposit= i->val;
+	if ( l3depMap->contains(tk.id()) ){
+	  reco::IsoDepositMap::value_type calDeposit= (*l3depMap)[tk];
 	  double dephlt = calDeposit.depositWithin(coneSize_);
 	  hiso[1]->Fill(dephlt);
-	  } else LogWarning("HLTMonMuon") << "No track iso deposit corresponding to tk";
+	}
       }
       // eta cut
       hpt[2]->Fill(tk->pt());      

@@ -30,16 +30,13 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
-#include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 
-#include "MagneticField/Engine/interface/MagneticField.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/RadialStripTopology.h"
 #include "Geometry/CommonTopologies/interface/RectangularStripTopology.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"  
 #include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
 #include "Alignment/OfflineValidation/interface/TrackerValidationVariables.h"
 
@@ -50,9 +47,8 @@ TrackerValidationVariables::TrackerValidationVariables(){}
 TrackerValidationVariables::TrackerValidationVariables(const edm::EventSetup& es, const edm::ParameterSet& iSetup) 
   : conf_(iSetup), fBfield(4.06)
 {
-  es.get<TrackerDigiGeometryRecord>().get( tkGeom_ );
-  es.get<IdealMagneticFieldRecord>().get(magneticField_);
-
+  es.get<TrackerDigiGeometryRecord>().get( tkgeom );
+  //es.get<SiStripDetCablingRcd>().get( SiStripDetCabling_ );
 }
 
 TrackerValidationVariables::~TrackerValidationVariables() {}
@@ -125,13 +121,11 @@ TrackerValidationVariables::fillHitQuantities(const edm::Event& iEvent,
 	     IntSubDetID == StripSubdetector::TIB || 
 	     IntSubDetID == StripSubdetector::TOB) {
 	    hitStruct.resXprime = (res.x())*(phiorientation );
-	    hitStruct.resXprimeErr = errX;
 	    dZ = gROrZDirection.z() - gPModule.z();
 	  } else if (IntSubDetID == StripSubdetector::TID || IntSubDetID == StripSubdetector::TEC) {
 	    const RadialStripTopology* theTopol = dynamic_cast<const RadialStripTopology*>(&(detUnit->topology()));
 	    origintointersect =  static_cast<float>(theTopol->originToIntersection());
 	    
-
 	    MeasurementPoint theMeasHitPos = theTopol->measurementPosition(hit->localPosition());
 	    MeasurementPoint theMeasStatePos = theTopol->measurementPosition(tsos.localPosition());
 	    Measurement2DVector residual =  theMeasStatePos - theMeasHitPos;
@@ -140,15 +134,14 @@ TrackerValidationVariables::fillHitQuantities(const edm::Event& iEvent,
 	    MeasurementError theMeasStateErr = theTopol->measurementError(tsos.localPosition(),err1);
 
 	    double localPitch = theTopol->localPitch(hit->localPosition());
-	    float xPrime = residual.x()*localPitch ;
-	    float measErr = std::sqrt( theMeasHitErr.uu()+theMeasStateErr.uu()) *localPitch;
 
+	    float measErr = std::sqrt( theMeasHitErr.uu()*localPitch*localPitch + theMeasStateErr.uu() );
 	    R = origintointersect;
 	    dR = theTopol->yDistanceToIntersection( tsos.localPosition().y()) - 
 	      theTopol->yDistanceToIntersection( hit->localPosition().y());
 	    
-	    hitStruct.resXprime = xPrime;
-	    hitStruct.resXprimeErr = measErr;
+	    hitStruct.resXprime = residual.x()*localPitch ;
+	    
 	  } else {
 	    edm::LogWarning("TrackerValidationVariables") << "@SUB=TrackerValidationVariables::fillHitQuantities" 
 							  << "No valid tracker subdetector " << IntSubDetID;
@@ -170,52 +163,10 @@ TrackerValidationVariables::fillHitQuantities(const edm::Event& iEvent,
 	  TransientTrackingRecHit::ConstRecHitPointer hit2 = (itTraj+1)->recHit();
 	  TrackerAlignableId ali1, ali2;
 	  if(hit2->isValid() && 
-	     ali1.typeAndLayerFromDetId(hit->geographicalId()) == ali2.typeAndLayerFromDetId(hit2->geographicalId())  &&
-	     hit2->geographicalId().rawId() !=  SiStripDetId::SiStripDetId(IntRawDetID).partnerDetId()  
-	     ) {	    
-	    
-	    float overlapPath_;
-	    TrajectoryStateCombiner combiner_;
-	    AnalyticalPropagator propagator(&(*magneticField_));
-	    // forward and backward predicted states at module 1
-	    TrajectoryStateOnSurface fwdPred1 = (itTraj)->forwardPredictedState();
-	    TrajectoryStateOnSurface bwdPred1 = (itTraj)->backwardPredictedState();
-	    if ( !fwdPred1.isValid() || !bwdPred1.isValid() )  continue;
-	    // backward predicted state at module 2
-	    TrajectoryStateOnSurface bwdPred2 = (itTraj+1)->backwardPredictedState();
-	    TrajectoryStateOnSurface fwdPred2 = (itTraj+1)->forwardPredictedState();
-	    if ( !bwdPred2.isValid() )  continue;
-	    // extrapolation bwdPred2 to module 1
-	    TrajectoryStateOnSurface bwdPred2At1 = propagator.propagate(bwdPred2,fwdPred1.surface());
-	    if ( !bwdPred2At1.isValid() )  continue;
-	    // combination with fwdPred1 (ref. state, best estimate without hits 1 and 2)
-	    TrajectoryStateOnSurface comb1 = combiner_.combine(fwdPred1,bwdPred2At1);
-	    if ( !comb1.isValid() )  continue;
-	    
-	    //
-	    // propagation of reference parameters to module 2
-	    //
-	    std::pair<TrajectoryStateOnSurface,double> tsosWithS =
-	      propagator.propagateWithPath(comb1,bwdPred2.surface());
-	    TrajectoryStateOnSurface comb1At2 = tsosWithS.first;
-	    
-	    // Alternative possibility, not used at present
-	    //TrajectoryStateOnSurface comb1At2 = propagator.propagate(comb1,bwdPred2.surface());
-	    
-	    if ( !comb1At2.isValid() )  continue;
-	    overlapPath_ = tsosWithS.second;
-
-	    std::vector<GlobalPoint> predictedPositions;
-	    predictedPositions.push_back(comb1.globalPosition());
-	    predictedPositions.push_back(comb1At2.globalPosition());
-	    
-	    GlobalVector diff_pred = predictedPositions[0] - predictedPositions[1];
-
+	     ali1.typeAndLayerFromDetId(hit->geographicalId()) == ali2.typeAndLayerFromDetId(hit2->geographicalId()) ) {
 	    TrajectoryStateOnSurface tsos2 = tsoscomb( (itTraj+1)->forwardPredictedState(), (itTraj+1)->backwardPredictedState() );
 	    align::LocalVector res2 = tsos2.localPosition() - hit2->localPosition();
-	    //float overlapresidual = res2.x() - res.x();
-	    float overlapresidual = diff_pred.x();
- 
+	    float overlapresidual = res2.x() - res.x();
 	    hitStruct.overlapres = std::make_pair(hit2->geographicalId().rawId(),overlapresidual);
 	  }
 	}
@@ -250,9 +201,7 @@ TrackerValidationVariables::fillTrackQuantities(const edm::Event& iEvent,
     trackStruct.phi = RecoTrack->phi();
     trackStruct.chi2 = RecoTrack->chi2();
     trackStruct.normchi2 = RecoTrack->normalizedChi2();
-    GlobalPoint gPoint(RecoTrack->vx(), RecoTrack->vy(), RecoTrack->vz());
-    double theLocalMagField = magneticField_->inTesla(gPoint).z();
-    trackStruct.kappa = -RecoTrack->charge()*0.002998*theLocalMagField/RecoTrack->pt();
+    trackStruct.kappa = -RecoTrack->charge()*0.002998*fBfield/RecoTrack->pt();
     trackStruct.charge = RecoTrack->charge();
     trackStruct.d0 = RecoTrack->d0();
     trackStruct.dz = RecoTrack->dz();

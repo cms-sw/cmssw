@@ -64,14 +64,14 @@ unsigned int TrackingMaterialPlotter::fill_gradient(const TColor & first, const 
     // if no index was given, find the highest used one and start from that plus one
     index = ((TObjArray*) gROOT->GetListOfColors())->GetLast() + 1;
   }
-
+  
   float r1, g1, b1, r2, g2, b2;
   first.GetRGB(r1, g1, b1);
   last.GetRGB(r2, g2, b2);
   float delta_r = (r2 - r1) / (steps - 1);
   float delta_g = (g2 - g1) / (steps - 1);
   float delta_b = (b2 - b1) / (steps - 1);
-
+  
   m_gradient.resize(steps);
   for (unsigned int i = 0; i < steps; ++i) {
     new TColor(index + i, r1 + delta_r * i, g1 + delta_g * i, b1 + delta_b * i);
@@ -87,7 +87,7 @@ unsigned int TrackingMaterialPlotter::fill_gradient(unsigned int first, unsigned
 }
 
 TrackingMaterialPlotter::TrackingMaterialPlotter( float maxZ, float maxR, float resolution )
-{
+{ 
   const float rzMinZ  = -maxZ;
   const float rzMaxZ  =  maxZ;
   const float rzMinR  =    0.;
@@ -96,17 +96,17 @@ TrackingMaterialPlotter::TrackingMaterialPlotter( float maxZ, float maxR, float 
   const int   rzBinsR = (int) (     maxR * resolution);
 
   std::vector<double> max;
-  max.push_back( 0.02 );
-  max.push_back( 0.04 );
+  max.push_back( 0.02 ); 
+  max.push_back( 0.04 ); 
   m_tracker = XHistogram( 2, rzBinsZ, rzBinsR, std::make_pair(rzMinZ, rzMaxZ), std::make_pair(rzMinR, rzMaxR), m_color.size(), max);
 
   TColor::InitializeColors();
   fill_color();
   fill_gradient( kWhite, kBlack, 100);              // 100-steps gradient from white to black
 }
-
+ 
 void TrackingMaterialPlotter::plotSegmentUnassigned( const MaterialAccountingStep & step )
-{
+{ 
   std::vector<double> w(2);
   w[0] = step.radiationLengths();
   w[1] = step.energyLoss();
@@ -116,7 +116,7 @@ void TrackingMaterialPlotter::plotSegmentUnassigned( const MaterialAccountingSte
 }
 
 void TrackingMaterialPlotter::plotSegmentInLayer( const MaterialAccountingStep & step, int layer )
-{
+{ 
   std::vector<double> w(2);
   w[0] = step.radiationLengths();
   w[1] = step.energyLoss();
@@ -126,11 +126,11 @@ void TrackingMaterialPlotter::plotSegmentInLayer( const MaterialAccountingStep &
 }
 
 
-void TrackingMaterialPlotter::draw( void )
+void TrackingMaterialPlotter::draw( void ) 
 {
   const double scale = 10.;
   TCanvas* canvas;
-
+ 
   XHistogram::Histogram* radlen = m_tracker.get(0);
   canvas = new TCanvas("radlen_rz", "RadiationLengths - RZ view", (int) (600 * scale * 1.25),  (int) (120 * scale * 1.50));
   gStyle->SetOptStat(0);

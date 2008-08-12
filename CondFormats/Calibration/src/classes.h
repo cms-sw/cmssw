@@ -8,12 +8,6 @@
 #include "CondFormats/Calibration/interface/BitArray.h"
 #include "CondFormats/Calibration/interface/boostTypeObj.h"
 #include "CondFormats/Calibration/interface/mypt.h"
-#include "CondFormats/Calibration/interface/fakeMenu.h"
-#include "CondFormats/Calibration/interface/strKeyMap.h"
-#include "CondFormats/Calibration/interface/simpleInheritance.h"
-
-#include "CondFormats/Calibration/interface/Efficiency.h"
-#include "CondFormats/Calibration/interface/big.h"
 namespace {
   std::vector< Pedestals::Item >::iterator tmp0;
   std::vector< Pedestals::Item >::const_iterator tmp1;
@@ -39,7 +33,4 @@ namespace {
   std::bitset<8> b;
   BitArray<9> c;
   fixedArray<unsigned short,2097> d;
-  std::map<std::string, Algo> e;
-  std::map<std::string, Algo>::iterator tmp22;
-  std::map<std::string, Algo>::const_iterator tmp23;
 }

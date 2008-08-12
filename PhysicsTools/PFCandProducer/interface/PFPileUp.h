@@ -1,5 +1,5 @@
-#ifndef PhysicsTools_PFCandProducer_PFPileUp_
-#define PhysicsTools_PFCandProducer_PFPileUp_
+#ifndef RecoParticleFlow_PFPAT_PFPileUp_
+#define RecoParticleFlow_PFPAT_PFPileUp_
 
 // system include files
 #include <memory>
@@ -16,8 +16,7 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
 /**\class PFPileUp 
-\brief Identifies pile-up candidates from a collection of PFCandidates, and 
-produces the corresponding collection of PileUpCandidates.
+\brief produces IsolatedPFCandidates from PFCandidates
 
 \author Colin Bernet
 \date   february 2008
@@ -41,7 +40,7 @@ class PFPileUp : public edm::EDProducer {
   
 
   
-  /// PFCandidates to be analyzed
+  /// PFCandidates in which we'll look for pile up particles 
   edm::InputTag   inputTagPFCandidates_;
   
   /// verbose ?

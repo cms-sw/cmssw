@@ -40,7 +40,7 @@ public:
   
   /// in 16-bit words.  Add olne because we include beginning(b0c) and
   /// end (e0c) flags
-  virtual unsigned short int sizeInWords() const = 0;
+  unsigned short int sizeInWords() const     {return NHeaderFrames()+1;}
 
   virtual unsigned short int NHeaderFrames() const = 0;
   virtual unsigned short * data() = 0;

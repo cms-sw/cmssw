@@ -10,14 +10,12 @@
  * in addition to generic Jet parameters
  *
  * \author Fedor Ratnikov, UMd, Apr 24, 2007
-  * \version   $Id: PFJet.h,v 1.17 2008/07/27 16:22:21 cbern Exp $
+  * \version   $Id: PFJet.h,v 1.14 2008/01/25 05:06:06 fedor Exp $
  ************************************************************/
 
 
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 namespace reco {
 class PFJet : public Jet {
@@ -80,26 +78,19 @@ class PFJet : public Jet {
   /// neutralEmEnergyFraction
   float neutralEmEnergyFraction () const {return neutralEmEnergy () / energy ();}
   /// chargedMultiplicity
-  int chargedMultiplicity () const {return m_specific.mChargedMultiplicity;}
+  float chargedMultiplicity () const {return m_specific.mChargedMultiplicity;}
   /// neutralMultiplicity
-  int neutralMultiplicity () const {return m_specific.mNeutralMultiplicity;}
+  float neutralMultiplicity () const {return m_specific.mNeutralMultiplicity;}
   /// muonMultiplicity
-  int muonMultiplicity () const {return m_specific.mMuonMultiplicity;}
+  float muonMultiplicity () const {return m_specific.mMuonMultiplicity;}
 
  
   /// convert generic constituent to specific type
   static const reco::PFCandidate* getPFCandidate (const reco::Candidate* fConstituent);
-
   /// get specific constituent
   virtual const reco::PFCandidate* getPFConstituent (unsigned fIndex) const;
-
   /// get all constituents
   virtual std::vector <const reco::PFCandidate*> getPFConstituents () const;
-
-  /// \ brief get all tracks in the jets
-  /// All PFCandidates hold a reference to a track. All the non-null
-  /// references are added to the returned TrackRefVector
-  reco::TrackRefVector getTrackRefs() const; 
   
   // block accessors
   
@@ -108,9 +99,8 @@ class PFJet : public Jet {
   /// Polymorphic clone
   virtual PFJet* clone () const;
 
-  /// Print object in details
+  /// Print object
   virtual std::string print () const;
-
 
  private:
   /// Polymorphic overlap
@@ -119,9 +109,6 @@ class PFJet : public Jet {
   //Variables specific to to the PFJet class
   Specific m_specific;
 };
-
-// streamer
- std::ostream& operator<<(std::ostream& out, const reco::PFJet& jet);
 }
 // temporary fix before include_checcker runs globally
 #include "DataFormats/JetReco/interface/PFJetCollection.h" //INCLUDECHECKER:SKIP 

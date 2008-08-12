@@ -69,7 +69,7 @@ namespace edm
 
       std::vector<MixingWorkerBase *> workers_;
       std::vector<std::string> wantedBranches_;
-      bool useCurrentProcessOnly_;
+
     };
 }//edm
 

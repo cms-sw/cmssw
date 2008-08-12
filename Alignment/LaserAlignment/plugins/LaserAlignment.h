@@ -4,8 +4,8 @@
 /** \class LaserAlignment
  *  Main reconstruction module for the Laser Alignment System
  *
- *  $Date: 2008/07/09 12:39:05 $
- *  $Revision: 1.16 $
+ *  $Date: 2008/05/01 08:12:26 $
+ *  $Revision: 1.14 $
  *  \author Maarten Thomas
  */
 
@@ -34,12 +34,9 @@
 
 #include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
 #include "CondFormats/DataRecord/interface/SiStripPedestalsRcd.h"
-#include "CondFormats/Alignment/interface/DetectorGlobalPosition.h"
-#include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
 
 // Alignable Tracker needed to propagate the alignment corrections calculated 
 // for the disks down to the lowest levels
@@ -51,7 +48,6 @@
 #include "Alignment/LaserAlignment/src/LASModuleProfile.h"
 #include "Alignment/LaserAlignment/src/LASProfileJudge.h"
 #include "Alignment/LaserAlignment/src/LASBarrelAlgorithm.h"
-#include "Alignment/LaserAlignment/src/LASAlignmentTubeAlgorithm.h"
 #include "Alignment/LaserAlignment/src/LASEndcapAlgorithm.h"
 #include "Alignment/LaserAlignment/src/LASPeakFinder.h"
 #include "Alignment/LaserAlignment/src/LASCoordinateSet.h"
@@ -144,15 +140,11 @@ class LaserAlignment : public edm::EDProducer, public TObject {
 
   // fills a LASGlobalData<LASCoordinateSet> with nominal module positions
   void CalculateNominalCoordinates( void );
-  
-  // for debugging only, wil disappear
-  void DumpPosFileSet( LASGlobalData<LASCoordinateSet>& );
 
 
   int theEvents;
   bool theDoPedestalSubtraction;
   bool enableJudgeZeroFilter;
-  bool updateFromIdealGeometry;
   bool theStoreToDB;
   bool theSaveHistograms;
   int theDebugLevel;
@@ -262,6 +254,10 @@ class LaserAlignment : public edm::EDProducer, public TObject {
   AlignmentAlgorithmBW * theAlignmentAlgorithmBW;
   /// use the BS frame in the alignment algorithm (i.e. BS at z = 0)
   bool theUseBSFrame;
+  // the "barrel" algorithm
+  LASBarrelAlgorithm barrelAlgorithm;
+  // the new endcap algorithm
+  LASEndcapAlgorithm endcapAlgorithm;
 
   // the map to store digis for cluster creation
   std::map<DetId, std::vector<SiStripRawDigi> > theDigiStore;
@@ -274,7 +270,6 @@ class LaserAlignment : public edm::EDProducer, public TObject {
   // tracker geometry;
   edm::ESHandle<GeometricDet> gD;
   edm::ESHandle<TrackerGeometry> theTrackerGeometry;
-  edm::ESHandle<Alignments> theGlobalPositionRcd;
 
 
 /*  edm::ESHandle<DDCompactView> cpv;

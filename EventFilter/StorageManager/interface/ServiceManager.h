@@ -1,7 +1,7 @@
 #ifndef _SERVICEMANAGER_H_
 #define _SERVICEMANAGER_H_
 
-// $Id: ServiceManager.h,v 1.5 2008/05/11 13:49:18 hcheung Exp $
+// $Id: ServiceManager.h,v 1.4 2008/05/04 12:34:05 biery Exp $
 
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
 #include "FWCore/Framework/interface/EventSelector.h"
@@ -56,9 +56,7 @@ namespace edm
     Strings                                psetHLTOutputLabels_;
     std::vector<uint32>                    outputModuleIds_;
     std::vector<uint32>                    storedEvents_;
-    std::vector<std::string>               storedNames_;
-    int                                    currentlumi_;
-    double                                 timeouttime_;
+    std::vector<std::string>              storedNames_;
   };
   
 }//edm-namespace

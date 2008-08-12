@@ -275,7 +275,7 @@ L1RCTLutWriter::writeRcLutFile(unsigned short card)
   unsigned long data = 0;
 
   // write all memory addresses in increasing order
-  // address = (1<<22)+(nLUT<<19)+(eG?<18)+(hcalEt<<10)+(ecalfg<<9)+(ecalEt<<1)
+  // address = (1<<22)+(nLUT<<19)+(hcalEt<<10)+(ecalfg<<9)+(ecalEt<<1)
 
   // loop through the physical LUTs on the card, 0-7
   for (unsigned short nLUT = 0; nLUT < 8; nLUT++)

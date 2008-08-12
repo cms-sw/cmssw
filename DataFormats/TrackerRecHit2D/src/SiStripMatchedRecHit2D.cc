@@ -15,13 +15,14 @@ SiStripMatchedRecHit2D::sharesInput( const TrackingRecHit* other,
     else return (monoHit()->sharesInput( other,what)|| stereoHit()->sharesInput( other,what));
   }
   else{
+    const SiStripMatchedRecHit2D* otherMatched = static_cast<const SiStripMatchedRecHit2D*>(other);
     if ( what == all) {
-      return (monoHit()->sharesInput( monoHit(),what) && 
-	      stereoHit()->sharesInput( stereoHit(),what));
+      return (monoHit()->sharesInput( otherMatched->monoHit(),what) && 
+	      stereoHit()->sharesInput( otherMatched->stereoHit(),what));
     }
     else {
-      return (monoHit()->sharesInput( monoHit(),what) || 
-	      stereoHit()->sharesInput( stereoHit(),what));
+      return (monoHit()->sharesInput( otherMatched->monoHit(),what) || 
+	      stereoHit()->sharesInput( otherMatched->stereoHit(),what));
     }
   }
 }

@@ -4,8 +4,8 @@
 /** \class MCMuonSeedGenerator
  *  No description available.
  *
- *  $Date: 2008/07/30 16:17:53 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/03/06 17:59:25 $
+ *  $Revision: 1.1 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -22,23 +22,18 @@
 
 class MuonServiceProxy;
 class TrajectorySeed;
-class SimTrack;
-class SimVertex;
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 
-class MCMuonSeedGenerator2 : public edm::EDProducer {
+class MCMuonSeedGenerator : public edm::EDProducer {
  
 public:
-
-  enum SeedType{FromHits, FromTracks};
-
   
   /// Constructor
-  MCMuonSeedGenerator2(const edm::ParameterSet&);
+  MCMuonSeedGenerator(const edm::ParameterSet&);
 
   /// Destructor
-  ~MCMuonSeedGenerator2();
+  ~MCMuonSeedGenerator();
 
   // Operations
 
@@ -66,20 +61,16 @@ private:
   };
   
 private:
-  TrajectorySeed* createSeedFromHit(const PSimHit*);
-  TrajectorySeed* createSeedFromTrack(const SimTrack &simTrack, const SimVertex &simVertex, DetId detId);
-
+  TrajectorySeed* createSeed(const PSimHit*);
 
   edm::InputTag theCSCSimHitLabel;
   edm::InputTag theDTSimHitLabel; 
   edm::InputTag theRPCSimHitLabel;
   edm::InputTag theSimTrackLabel;
 
-  SeedType theSeedType;
-
   /// the event setup proxy, it takes care the services update
   MuonServiceProxy *theService;  
-  
+
   double theErrorScale;
 };
 

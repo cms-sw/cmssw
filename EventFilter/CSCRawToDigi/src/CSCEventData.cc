@@ -314,9 +314,7 @@ void CSCEventData::checkALCTClasses() {
     theALCTHeader = new CSCALCTHeader(theChamberType);
     theALCTHeader->setEventInformation(theDMBHeader);
     theAnodeData = new CSCAnodeData(*theALCTHeader);
-    int size = theALCTHeader->sizeInWords() + theAnodeData->sizeInWords() + CSCALCTTrailer::sizeInWords();
-    int firmwareVersion = 2006;
-    theALCTTrailer = new CSCALCTTrailer(size, firmwareVersion);
+    theALCTTrailer = new CSCALCTTrailer();
     // set data available flag
     theDMBHeader.addNALCT();
   }
@@ -393,7 +391,8 @@ boost::dynamic_bitset<> CSCEventData::pack() {
 								     theDMBHeader.data());
 
   if(theALCTHeader != NULL)     {
-    boost::dynamic_bitset<> alctHeader = theALCTHeader->pack();
+    boost::dynamic_bitset<> alctHeader = bitset_utilities::ushortToBitset(theALCTHeader->sizeInWords()*16,
+									  theALCTHeader->data());
     result = bitset_utilities::append(result, alctHeader);
   }
   if(theAnodeData != NULL) {
@@ -406,6 +405,7 @@ boost::dynamic_bitset<> CSCEventData::pack() {
 									  theALCTTrailer->data());
     result = bitset_utilities::append(result, alctTrailer);
   }
+
   if(theTMBData != NULL)  {
     result  = bitset_utilities::append(result, theTMBData->pack());
   }
@@ -429,9 +429,7 @@ void CSCEventData::selfTest() {
   CSCEventData chamberData(5);
   CSCDetId detId(1, 3, 2, 1, 3);
   std::vector<CSCCLCTDigi> clctDigis;
-  // Both CLCTs are read-out at the same (pre-trigger) bx, so the last-but-one
-  // arguments in both digis must be the same.
-  clctDigis.push_back(CSCCLCTDigi(1, 1, 4, 1, 0, 30, 3, 2, 1)); // valid for 2007
+  clctDigis.push_back(CSCCLCTDigi(1, 1, 4, 1, 0, 30, 3, 0, 1)); // valid for 2007
   clctDigis.push_back(CSCCLCTDigi(1, 1, 2, 1, 1, 31, 1, 2, 2));
   
   // BX of LCT (8th argument) is 1-bit word (the least-significant bit

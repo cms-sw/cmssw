@@ -7,8 +7,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2008/06/12 14:44:11 $
-//   $Revision: 1.25 $
+//   $Date: 2008/05/09 16:39:55 $
+//   $Revision: 1.24 $
 //
 //   Modifications:
 //
@@ -858,12 +858,11 @@ void CSCTriggerPrimitivesReader::compareALCTs(
   if (isMTCCData_) tbin_anode_offset = 10; // MTCC-II. Why not 6???
 
   // Should be taken from config. parameters.
-  int fifo_pretrig     = 10;
-  int fpga_latency     =  6;
-  int l1a_window_width =  7;
+  int fifo_pretrig   = 10;
+  int fpga_latency   =  6;
+  int l1a_window     =  7;
   // Time offset of raw hits w.r.t. the full 12-bit BXN.
-  int rawhit_tbin_offset =
-    (fifo_pretrig - fpga_latency) + (l1a_window_width-1)/2;
+  int rawhit_tbin_offset = (fifo_pretrig - fpga_latency) + (l1a_window-1)/2;
   // Extra difference due to additional register stages; determined
   // empirically.
   int register_delay =  2;

@@ -3,7 +3,7 @@
 <use name=DataFormats/EcalDigi>
 <use name=DataFormats/EcalRecHit>
 <use name=DataFormats/EgammaReco>
-<use name=DataFormats/EcalDetId>
+<use name=SimDataFormats/HepMCProduct>
 <use name=CondFormats/EcalObjects>
 <use name=CondFormats/DataRecord>
 <use name=RecoLocalCalo/EcalRecAlgos>
@@ -15,11 +15,6 @@
 <use name=DataFormats/Math>
 <use name=RecoEcal/EgammaCoreTools>
 <use name=DQMServices/Core>
-<use name=SimDataFormats/HepMCProduct>
-<use name=SimDataFormats/TrackingHit>
-<use name=SimDataFormats/Track>
-<use name=SimDataFormats/Vertex>
-<use name=PhysicsTools/UtilAlgos>
 <use name=clhep>
 <flags EDM_PLUGIN=1>
 <export>
@@ -29,7 +24,7 @@
   <use name=DataFormats/EcalDigi>
   <use name=DataFormats/EcalRecHit>
   <use name=DataFormats/EgammaReco>
-  <use name=DataFormats/EcalDetId>
+  <use name=SimDataFormats/HepMCProduct>
   <use name=CondFormats/EcalObjects>
   <use name=CondFormats/DataRecord>
   <use name=RecoLocalCalo/EcalRecAlgos>
@@ -39,11 +34,6 @@
   <use name=RecoEcal/EgammaClusterAlgos>
   <use name=RecoEcal/EgammaCoreTools>
   <use name=DQMServices/Core>        
-  <use name=SimDataFormats/HepMCProduct>
-  <use name=SimDataFormats/TrackingHit>
-  <use name=SimDataFormats/Track>
-  <use name=SimDataFormats/Vertex>
   <use name=DataFormats/Math>
-  <use name=PhysicsTools/UtilAlgos>
   <use name=clhep>
 </export>

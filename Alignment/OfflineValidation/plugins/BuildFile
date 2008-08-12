@@ -24,12 +24,12 @@
 <use name=SimDataFormats/HepMCProduct>                                                                                
 <use name=SimTracker/TrackAssociation>
 
-<library file=ResidualRefitting.cc>
+<library file=MuonAlignmentAnalyzer.cc>
 <use name=CLHEP>
 <use name=root>
 <flags EDM_PLUGIN=1>
 </library>
-<library file=MuonAlignmentAnalyzer.cc>
+<library file=MuonGeometryIntoNtuples.cc>
 <use name=CLHEP>
 <use name=root>
 <flags EDM_PLUGIN=1>

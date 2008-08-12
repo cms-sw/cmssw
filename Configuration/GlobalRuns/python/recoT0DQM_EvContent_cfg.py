@@ -11,8 +11,8 @@ process.maxEvents = cms.untracked.PSet(  input = cms.untracked.int32(-1) )
 process.source = cms.Source("PoolSource",
     #firstFreeID = cms.untracked.uint32(131072),
     fileNames = cms.untracked.vstring(
-        #'/store/data/CRUZET3/Cosmics/RAW/v4/000/050/908/04D61810-DD54-DD11-8FB1-001617DBD230.root'
-        '/store/data/Commissioning08/Cosmics/RAW/MW31_v1/000/053/416/68D08BC6-555E-DD11-842C-000423D9939C.root'
+        '/store/data/CRUZET3/Cosmics/RAW/v4/000/050/908/04D61810-DD54-DD11-8FB1-001617DBD230.root'
+        #'/store/data/Commissioning08/Cosmics/RAW/MW31_v1/000/053/416/68D08BC6-555E-DD11-842C-000423D9939C.root'
     )
 )
 
@@ -47,7 +47,7 @@ process.FEVT.outputCommands.append('keep recoCandidatesOwned_caloTowersOpt_*_*')
 process.FEVT.outputCommands.append('keep RPCDetIdRPCDigiMuonDigiCollection_muonRPCDigis_*_*')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.4 $'),
+    version = cms.untracked.string('$Revision: 1.5 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/GlobalRuns/python/recoT0DQM_EvContent_cfg.py,v $'),
     annotation = cms.untracked.string('CRUZET Prompt Reco with DQM')
 )
@@ -56,8 +56,10 @@ process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) ) #
 
 # Conditions (Global Tag is used here):
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.connect = "frontier://FrontierInt/CMS_COND_21X_GLOBALTAG"
-process.GlobalTag.globaltag = 'CRZT210_DRV::All'
+#process.GlobalTag.connect = "frontier://FrontierInt/CMS_COND_21X_GLOBALTAG"
+#process.GlobalTag.globaltag = 'CRZT210_DRV::All'
+process.GlobalTag.connect = 'sqlite_file:/afs/cern.ch/user/m/malgeri/public/globtag/CRZT210_V1.db'
+process.GlobalTag.globaltag = 'CRZT210_V1D::All' 
 process.prefer("GlobalTag")
 
 # Magnetic fiuld: force mag field to be 0.0 tesla
@@ -96,23 +98,21 @@ process.load("L1TriggerConfig.CSCTFConfigProducers.L1MuCSCTFConfigurationRcdSrc_
 #
 ## add quality info
 #
-#process.load("CalibTracker.SiStripESProducers.SiStripQualityESProducer_cfi")
-#process.SiStripQualityESProducer.ListOfRecordToMerge = cms.VPSet(
-#     cms.PSet( record = cms.string("SiStripFedCablingRcd"),
-#               tag    = cms.string("") ),
-#     cms.PSet( record = cms.string("SiStripBadChannelRcd"),
-#               tag    = cms.string("") )
-#)
-#process.prefer("SiStripQualityESProducer")
+process.load("CalibTracker.SiStripESProducers.SiStripQualityESProducer_cfi")
+process.SiStripQualityESProducer.ListOfRecordToMerge = cms.VPSet(
+     cms.PSet( record = cms.string("SiStripFedCablingRcd"), tag    = cms.string("") ),
+     cms.PSet( record = cms.string("SiStripBadChannelRcd"), tag    = cms.string("") ),
+     cms.PSet( record = cms.string("SiStripBadFiberRcd"),   tag    = cms.string("") )
+)
+process.prefer("SiStripQualityESProducer")
 
 # ad hoc changes for V3 reco to lower seed threshold to 5 GeV
 process.cosmicseedfinderP5.SeedPt = 5
 process.combinatorialcosmicseedfinderP5.SeedMomentum = 5
 
 process.load("DQMOffline.Muon.muonCosmicMonitors_cff")
-#process.muonTrackAnalyzers = cms.Sequence(process.muonTrackCosmicAnalyzers)
 
-#process.allPath = cms.Path( process.RawToDigi_woGCT * process.reconstructionCosmics *  process.DQMOffline_noHLT * process.MEtoEDMConverter)
-process.allPath_noDQM = cms.Path( process.RawToDigi_woGCT * process.reconstructionCosmics )
+process.allPath = cms.Path( process.RawToDigi_woGCT * process.reconstructionCosmics *  process.DQMOffline * process.MEtoEDMConverter)
+#process.allPath_noDQM = cms.Path( process.RawToDigi_woGCT * process.reconstructionCosmics )
 
 process.outpath = cms.EndPath(process.FEVT)

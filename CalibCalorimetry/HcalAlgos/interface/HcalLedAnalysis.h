@@ -67,9 +67,9 @@ private:
   //###  
   typedef std::pair<TH1F*,std::pair<std::map<int, std::vector<double> >,std::vector<TH1F*> > > LEDBUNCH;
   typedef struct{
-    TProfile* avePulse;
-    TH1F* thisPulse;
-    TH1F* integPulse;
+    TProfile* avePulse[3];
+    TH1F* thisPulse[3];
+    TH1F* integPulse[3];
   } CALIBBUNCH;
   TFile* m_file;
   void LedHBHEHists(const HcalDetId& detid, const HBHEDataFrame& ledDigi, std::map<HcalDetId, std::map<int,LEDBUNCH> > &toolT, const HcalDbService& cond);

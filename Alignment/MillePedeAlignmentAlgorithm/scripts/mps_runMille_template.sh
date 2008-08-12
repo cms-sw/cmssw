@@ -30,10 +30,8 @@ gzip -f *.log
 echo "\nDirectory content after running cmsRun and zipping log file:"
 ls -lh 
 # Copy everything you need to MPS directory of your job,
-# but you might want to copy less stuff to save disk space
-# (separate cp's for each item, otherwise you loose all if one file is missing):
-cp -p *.log.gz $RUNDIR
-cp -p *.root $RUNDIR
+# but you might want to copy less stuff to save disk space:
+cp -p *.log.gz *.root $RUNDIR
 
 # Copy MillePede binary file to Castor,
 # so first set castor pool for binary files in $MSSDIR area:

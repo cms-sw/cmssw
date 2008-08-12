@@ -14,7 +14,6 @@
   <class name="std::vector<std::pair<unsigned int, float> >" />
   <class name="std::pair<unsigned int, float>" />
 
-  <class name="std::vector<reco::GenParticleRef>" />
   <class name="pat::PATObject<pat::ElectronType>" />
   <class name="pat::PATObject<pat::MuonType>" />
   <class name="pat::PATObject<pat::TauType>" />
@@ -22,7 +21,6 @@
   <class name="pat::PATObject<pat::JetType>" />
   <class name="pat::PATObject<pat::METType>" />
   <class name="pat::PATObject<pat::ParticleType>" />
-  <class name="pat::PATObject<pat::PFParticleType>" />
   <class name="pat::PATObject<reco::RecoCandidate>" />
   <class name="pat::Lepton<pat::ElectronType>" />
   <class name="pat::Lepton<pat::MuonType>" />
@@ -47,7 +45,6 @@
   </class>
      <class name="std::vector<SpecificCaloMETData> "/>
   <class name="pat::Particle" />
-  <class name="pat::PFParticle" />
   <class name="pat::GenericParticle" />
   <class name="pat::Hemisphere" />
   <class name="std::vector<pat::Electron>" />
@@ -57,7 +54,6 @@
   <class name="std::vector<pat::Jet>" />
   <class name="std::vector<pat::MET>" />
   <class name="std::vector<pat::Particle>" />
-  <class name="std::vector<pat::PFParticle>" />
   <class name="std::vector<pat::GenericParticle>" />
   <class name="std::vector<pat::Hemisphere>" />
 
@@ -68,7 +64,6 @@
   <class name="std::vector<pat::Jet>::const_iterator" />
   <class name="std::vector<pat::MET>::const_iterator" />
   <class name="std::vector<pat::Particle>::const_iterator" />
-  <class name="std::vector<pat::PFParticle>::const_iterator" />
   <class name="std::vector<pat::GenericParticle>::const_iterator" />
   <class name="std::vector<pat::Hemisphere>::const_iterator" />
 
@@ -79,7 +74,6 @@
   <class name="edm::Wrapper<std::vector<pat::Jet> >" />
   <class name="edm::Wrapper<std::vector<pat::MET> >" />
   <class name="edm::Wrapper<std::vector<pat::Particle> >" />
-  <class name="edm::Wrapper<std::vector<pat::PFParticle> >" />
   <class name="edm::Wrapper<std::vector<pat::GenericParticle> >" />
   <class name="edm::Wrapper<std::vector<pat::Hemisphere> >" />
   <class name="pat::ElectronRef" />
@@ -89,7 +83,6 @@
   <class name="pat::JetRef" />
   <class name="pat::METRef" />
   <class name="pat::ParticleRef" />
-  <class name="pat::PFParticleRef" />
   <class name="pat::GenericParticleRef" />
   <class name="pat::HemisphereRef" />
 
@@ -100,7 +93,6 @@
   <class name="pat::JetRefVector" />
   <class name="pat::METRefVector" />
   <class name="pat::ParticleRefVector" />
-  <class name="pat::PFParticleRefVector" />
   <class name="pat::GenericParticleRefVector" />
   <class name="pat::HemisphereRefVector" />
 
@@ -111,7 +103,6 @@
   <class name="edm::Wrapper<pat::JetRefVector>" />
   <class name="edm::Wrapper<pat::METRefVector>" />
   <class name="edm::Wrapper<pat::ParticleRefVector>" />
-  <class name="edm::Wrapper<pat::PFParticleRefVector>" />
   <class name="edm::Wrapper<pat::GenericParticleRefVector>" />
   <class name="edm::Wrapper<pat::HemisphereRefVector>" />
 
@@ -128,11 +119,6 @@
   <class name="std::vector<std::pair<std::string,int32_t> >" />
   <class name="StringMap" />
   <class name="edm::Wrapper<StringMap>" />
-
-  <class name="pat::VertexAssociation" />
-  <class name="std::vector<pat::VertexAssociation>" />
-  <class name="edm::ValueMap<pat::VertexAssociation>" />
-  <class name="edm::Wrapper<edm::ValueMap<pat::VertexAssociation> >" />
 
   <class name="std::pair<std::string,edm::Ptr<reco::Candidate> >" />
   <class name="std::vector<std::pair<std::string,edm::Ptr<reco::Candidate> > >" />
@@ -218,7 +204,6 @@
 
   <class name="edm::reftobase::Holder<reco::Candidate,pat::ParticleRef>" />
   <class name="edm::reftobase::RefHolder<pat::ParticleRef>" />
-  <class name="edm::reftobase::RefHolder<pat::PFParticleRef>" />
 
   <class name="edm::reftobase::Holder<reco::Candidate,pat::GenericParticleRef>" />
   <class name="edm::reftobase::RefHolder<pat::GenericParticleRef>" />

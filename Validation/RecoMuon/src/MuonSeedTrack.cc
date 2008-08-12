@@ -2,8 +2,8 @@
  *  Class: MuonSeedTrack
  *
  * 
- *  $Date:  $
- *  $Revision:  $
+ *  $Date: 2007/09/27 18:04:38 $
+ *  $Revision: 1.1 $
  *
  *  Authors :
  *  \author Adam Everett - Purdue University
@@ -179,7 +179,7 @@ pair<bool,reco::Track> MuonSeedTrack::buildTrackAtPCA(const TrajectorySeed& seed
   // This is needed to extrapolate the tsos at vertex
   LogTrace(metname) << "Propagate to PCA...";
   pair<bool,FreeTrajectoryState> 
-    extrapolationResult = theUpdatorAtVtx->propagate(seedTSOS);
+    extrapolationResult = theUpdatorAtVtx->propagateToNominalLine(seedTSOS);
   FreeTrajectoryState ftsAtVtx;
   
   if(extrapolationResult.first) {

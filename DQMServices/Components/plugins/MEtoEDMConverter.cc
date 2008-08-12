@@ -3,8 +3,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2008/05/21 20:26:05 $
- *  $Revision: 1.10 $
+ *  $Date: 2008/08/08 15:29:01 $
+ *  $Revision: 1.11 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -56,6 +56,7 @@ MEtoEDMConverter::MEtoEDMConverter(const edm::ParameterSet & iPSet) :
   produces<MEtoEDM<TH1F>, edm::InRun>(fName);
   produces<MEtoEDM<TH1S>, edm::InRun>(fName);
   produces<MEtoEDM<TH2F>, edm::InRun>(fName);
+  produces<MEtoEDM<TH2S>, edm::InRun>(fName);
   produces<MEtoEDM<TH3F>, edm::InRun>(fName);
   produces<MEtoEDM<TProfile>, edm::InRun>(fName);
   produces<MEtoEDM<TProfile2D>, edm::InRun>(fName);
@@ -86,6 +87,7 @@ MEtoEDMConverter::endJob(void)
   unsigned nTH1F = 0; // count various objects we have
   unsigned nTH1S = 0;
   unsigned nTH2F = 0;
+  unsigned nTH2S = 0;
   unsigned nTH3F = 0;
   unsigned nTProfile = 0;
   unsigned nTProfile2D = 0;
@@ -145,6 +147,12 @@ MEtoEDMConverter::endJob(void)
 	std::cout << "   normal: " << tobj->GetName() << ": TH2F\n";
       break;
 
+    case MonitorElement::DQM_KIND_TH2S:
+      ++nTH2S;
+      if (verbosity > 1)
+	std::cout << "   normal: " << tobj->GetName() << ": TH2S\n";
+      break;
+
     case MonitorElement::DQM_KIND_TH3F:
       ++nTH3F;
       if (verbosity > 1)
@@ -183,6 +191,7 @@ MEtoEDMConverter::endJob(void)
     std::cout << "We have " << nTH1F << " TH1F objects" << std::endl;
     std::cout << "We have " << nTH1S << " TH1S objects" << std::endl;
     std::cout << "We have " << nTH2F << " TH2F objects" << std::endl;
+    std::cout << "We have " << nTH2S << " TH2S objects" << std::endl;
     std::cout << "We have " << nTH3F << " TH3F objects" << std::endl;
     std::cout << "We have " << nTProfile << " TProfile objects" << std::endl;
     std::cout << "We have " << nTProfile2D << " TProfile2D objects" 
@@ -250,6 +259,10 @@ MEtoEDMConverter::beginRun(edm::Run& iRun, const edm::EventSetup& iSetup)
       me->Reset();
       break;
 
+    case MonitorElement::DQM_KIND_TH2S:
+      me->Reset();
+      break;
+
     case MonitorElement::DQM_KIND_TH3F:
       me->Reset();
       break;
@@ -283,6 +296,7 @@ MEtoEDMConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
   mestorage<TH1F> TH1FME;
   mestorage<TH1S> TH1SME;
   mestorage<TH2F> TH2FME;
+  mestorage<TH2S> TH2SME;
   mestorage<TH3F> TH3FME;
   mestorage<TProfile> TProfileME;
   mestorage<TProfile2D> TProfile2DME;
@@ -358,6 +372,15 @@ MEtoEDMConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
       TH2FME.datatier.push_back(datatier);
       break;
 
+    case MonitorElement::DQM_KIND_TH2S:
+      TH2SME.object.push_back(*me->getTH2S());
+      TH2SME.name.push_back(me->getFullname());
+      TH2SME.tags.push_back(me->getTags());
+      TH2SME.release.push_back(release);
+      TH2SME.run.push_back(run);
+      TH2SME.datatier.push_back(datatier);
+      break;
+
     case MonitorElement::DQM_KIND_TH3F:
       TH3FME.object.push_back(*me->getTH3F());
       TH3FME.name.push_back(me->getFullname());
@@ -402,16 +425,22 @@ MEtoEDMConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
     iRun.put(pOut1,fName);
   }
   if (! TH1SME.object.empty()) {
-    std::auto_ptr<MEtoEDM<TH1S> > pOut1(new MEtoEDM<TH1S>);
-    pOut1->putMEtoEdmObject(TH1SME.name,TH1SME.tags,TH1SME.object,
+    std::auto_ptr<MEtoEDM<TH1S> > pOut1s(new MEtoEDM<TH1S>);
+    pOut1s->putMEtoEdmObject(TH1SME.name,TH1SME.tags,TH1SME.object,
 			    TH1SME.release,TH1SME.run,TH1SME.datatier);
-    iRun.put(pOut1,fName);
+    iRun.put(pOut1s,fName);
   }
   if (! TH2FME.object.empty()) {
     std::auto_ptr<MEtoEDM<TH2F> > pOut2(new MEtoEDM<TH2F>);
     pOut2->putMEtoEdmObject(TH2FME.name,TH2FME.tags,TH2FME.object,
 			    TH2FME.release,TH2FME.run,TH2FME.datatier);
     iRun.put(pOut2,fName);
+  }
+  if (! TH2SME.object.empty()) {
+    std::auto_ptr<MEtoEDM<TH2S> > pOut2s(new MEtoEDM<TH2S>);
+    pOut2s->putMEtoEdmObject(TH2SME.name,TH2SME.tags,TH2SME.object,
+			    TH2SME.release,TH2SME.run,TH2SME.datatier);
+    iRun.put(pOut2s,fName);
   }
   if (! TH3FME.object.empty()) {
     std::auto_ptr<MEtoEDM<TH3F> > pOut3(new MEtoEDM<TH3F>);

@@ -1,28 +1,13 @@
 #ifndef TP_PIXELFEDCARD_H
 #define TP_PIXELFEDCARD_H
-/**
-*   \file CalibFormats/SiPixelObjects/interface/PixelFEDCard.h
-*   \brief This class implements..
-*
-*   A longer explanation will be placed here later
-*/
+// The structure which holds all the informations needed to setup 
+// a pixel FED. Danek Kotlinski 18/4/06
 
 #include "CalibFormats/SiPixelObjects/interface/PixelConfigBase.h"
 
-#include <vector>
 #include <string>
 
 namespace pos{
-/*!  \ingroup ConfigurationObjects "Configuration Objects"
-*    
-*  @{
-*
-*  \class PixelFEDCard PixelFEDCard.h
-*  \brief This is the documentation about PixelFEDCard...
-*
-*  The structure which holds all the informations needed to setup 
-*  a pixel FED. Danek Kotlinski 18/4/06
-*/
   class PixelFEDCard : public PixelConfigBase{
 
   public:
@@ -40,18 +25,10 @@ namespace pos{
     // Constructor and destructor
     PixelFEDCard(); // empty
     PixelFEDCard(std::string filename); // create from files
-    PixelFEDCard(std::vector<std::vector<std::string> > & tab); // create from DB
     ~PixelFEDCard() {};
 
-    void readDBTBMLevels(std::vector<std::vector<std::string> > &tableMat, int first, int last) ;
-    void readDBROCLevels(std::vector<std::vector<std::string> > &tableMat, int first, int last) ;
     void writeASCII(std::string dir="") const; // write to files
-    void 	 writeXML(      pos::PixelConfigKey key, int version, std::string path)                     const ;
-    virtual void writeXMLHeader(pos::PixelConfigKey key, int version, std::string path, std::ofstream *out) const ;
-    virtual void writeXML(                                                              std::ofstream *out) const ;
-    virtual void writeXMLTrailer(                                                       std::ofstream *out) const ;
     unsigned long long enabledChannels();  // returns 64-bit integer mask 35..0
-
 
     //Settable optical input parameters (one for each 12-receiver)
     int opt_cap[3];   // Capacitor adjust
@@ -118,9 +95,6 @@ namespace pos{
 
     //data Regs adjustable fifo Almost Full levels
     int Nfifo1Bzlvl,NCfifo1Bzlvl,SCfifo1Bzlvl,Sfifo1Bzlvl,fifo3Wrnlvl;
-		
-		//Master delay for FED TTC signals 
-		int FedTTCDelay;
 
     //The values as read from file so that they can be restored after
     //calibration
@@ -131,12 +105,7 @@ namespace pos{
     //VME base address 
     unsigned long FEDBASE_0, fedNumber;
 
- private: 
- 
-    // Added by Dario (March 26th 2008)
-    void clear(void) ;
 
   }; // end class PixelFEDCard
 }
-/* @} */
 #endif // ifdef include

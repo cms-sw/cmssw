@@ -7,7 +7,6 @@
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
 #include "SimMuon/MCTruth/interface/PSimHitMap.h"
@@ -15,8 +14,7 @@
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
-#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
-#include "Geometry/CSCGeometry/interface/CSCLayerGeometry.h"
+
 
 class MuonTruth
 {
@@ -28,7 +26,7 @@ public:
 
   MuonTruth(const edm::ParameterSet&);
 
-  void eventSetup(const edm::Event & event, const edm::EventSetup & setup);
+  void eventSetup(const edm::Event & event);
 
   void analyze(const CSCRecHit2D & recHit);
   void analyze(const CSCStripDigi & stripDigi, int rawDetIdCorrespondingToCSCLayer);
@@ -65,8 +63,6 @@ private:
   edm::InputTag simTracksXFTag;
   edm::InputTag linksTag;
   edm::InputTag wireLinksTag;
-
-  const CSCGeometry* cscgeom;
 };
 
 #endif

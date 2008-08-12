@@ -75,23 +75,14 @@ TH1* HcalQLPlotHistoMgr::GetAHistogram(const HcalCalibDetId& id,
 
   char name[120];
 
-  std::string subdetStr;
-  switch (id.hcalSubdet()) {
-  case (HcalBarrel)  : subdetStr="HB"; break;
-  case (HcalEndcap)  : subdetStr="HE"; break;
-  case (HcalOuter)   : subdetStr="HO"; break;
-  case (HcalForward) : subdetStr="HF"; break;
-  default: subdetStr="Other"; break;
-  }
-
   std::string chanstring = id.cboxChannelString();
   if (!chanstring.size()) {
     chanstring = "Unknown";
     edm::LogInfo("HcalQLPlotHistoMgr::GetAHistogram") << "Unknown calibration channel " << id.cboxChannel();
   }
 
-  sprintf(name,"%s_CALIB_%s_%d_%d_chan=%s_eid=%d_%d_%d_%d_HTR_%d:%d%c",
-	  flavor.c_str(),subdetStr.c_str(),id.ieta(),id.iphi(),chanstring.c_str(),
+  sprintf(name,"%s_CALIB_%s_rbx=%d_chan=%s_eid=%d_%d_%d_%d_HTR_%d:%d%c",
+	  flavor.c_str(),id.sectorString().c_str(),id.rbx(),chanstring.c_str(),
 	  eid.dccid(),eid.spigot(), eid.fiberIndex(), eid.fiberChanId(),
 	  eid.readoutVMECrateId(), eid.htrSlot(),(eid.htrTopBottom()==1)?('t'):('b') );
 

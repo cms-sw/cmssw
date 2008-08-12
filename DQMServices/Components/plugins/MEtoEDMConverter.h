@@ -6,8 +6,8 @@
  *  Class to take dqm monitor elements and convert into a
  *  ROOT dataformat stored in Run tree of edm file
  *
- *  $Date: 2008/05/21 20:26:05 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/08/08 15:29:01 $
+ *  $Revision: 1.9 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -46,6 +46,7 @@
 #include "TH1F.h"
 #include "TH1S.h"
 #include "TH2F.h"
+#include "TH2S.h"
 #include "TH3F.h"
 #include "TProfile.h"
 #include "TProfile2D.h"

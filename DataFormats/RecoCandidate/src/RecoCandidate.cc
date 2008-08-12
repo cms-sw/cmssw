@@ -1,4 +1,4 @@
-// $Id: RecoCandidate.cc,v 1.13 2008/03/17 14:44:50 slava77 Exp $
+// $Id: RecoCandidate.cc,v 1.12 2007/04/02 13:35:17 llista Exp $
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 
@@ -53,19 +53,6 @@ const Track * RecoCandidate::bestTrack() const {
     return staRef.get(); 
   return 0;
 }
-
-TrackBaseRef RecoCandidate::bestTrackRef() const {
-  TrackRef muRef = combinedMuon();
-  if( muRef.isNonnull() ) return TrackBaseRef(muRef);
-  TrackRef trkRef = track();
-  if ( trkRef.isNonnull() ) return TrackBaseRef(trkRef);
-  GsfTrackRef gsfTrkRef = gsfTrack();
-  if ( gsfTrkRef.isNonnull() ) return TrackBaseRef(gsfTrkRef);
-  TrackRef staRef = standAloneMuon(); 
-  if ( staRef.isNonnull() ) return TrackBaseRef(staRef); 
-  return TrackBaseRef();
-}
-
 
 RecoCandidate::TrackType RecoCandidate::bestTrackType() const {
   if( combinedMuon().isNonnull() ) 

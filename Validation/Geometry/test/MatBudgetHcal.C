@@ -35,17 +35,16 @@ int colorLayer[25] = {  2,   7,   9,  30,  34,  38,  14,  40,  41,  42,
 void standardPlot (TString fileName="matbdg_HCAL.root", 
 		   TString outputFileName="hcal.txt") {
 
-  etaPhiPlot  (fileName, "IntLen", 0, 21, 1, true,  4.8);
-  etaPhiPlot  (fileName, "IntLen", 0, 20, 1, false, -1.);
-  etaPhiPlot  (fileName, "RadLen", 0, 21, 1, true,  4.8);
-  etaPhiPlot  (fileName, "RadLen", 0, 20, 1, false, -1);
-  etaPhiPlot  (fileName, "StepLen",0, 21, 1, true,  -1);
-  etaPhiPlot  (fileName, "StepLen",0, 20, 1, false, -1);
+  etaPhiPlot (fileName, "IntLen", 0, 21, 1, true,  4.8);
+  etaPhiPlot (fileName, "IntLen", 0, 20, 1, false, -1.);
+  etaPhiPlot (fileName, "RadLen", 0, 21, 1, true,  4.8);
+  etaPhiPlot (fileName, "RadLen", 0, 20, 1, false, -1);
+  etaPhiPlot (fileName, "StepLen",0, 21, 1, true,  -1);
+  etaPhiPlot (fileName, "StepLen",0, 20, 1, false, -1);
   etaPhiPlotHO(fileName, "IntLen", 1, true, 2.5);
-  etaPhiPlotEC(fileName, "IntLen", 1, true, 2.5);
-  plotDiff    (fileName, "IntLen");
-  plotDiff    (fileName, "RadLen");
-  printTable  (fileName, outputFileName);
+  plotDiff   (fileName, "IntLen");
+  plotDiff   (fileName, "RadLen");
+  printTable (fileName, outputFileName);
   etaPhi2DPlot(fileName, "IntLen", 0, 21, 1);
   etaPhi2DPlot(fileName, "RadLen", 0, 21, 1);
 }
@@ -129,19 +128,19 @@ void etaPhiPlotHO(TString fileName="matbdg_HCAL.root", TString plot="IntLen",
   hcalFile->cd("g4SimHits");
   setStyle();
 
-  int ihid[3] = {2, 18, 20};
+  int ihid[3] = {1, 18, 20};
   TString xtit = TString("#eta");
   TString ytit = "none";
   int ymin = 0, ymax = 20, istart = 200;
   double xh = 0.90;
   if (plot.CompareTo("RadLen") == 0) {
-    ytit = TString("Material Budget (X_{0})");
+    ytit = TString("HCal Material Budget (X_{0})");
     ymin = 0;  ymax = 200; istart = 100;
   } else if (plot.CompareTo("StepLen") == 0) {
-    ytit = TString("Material Budget (Step Length)");
-    ymin = 0;  ymax = 15000; istart = 300; xh = 0.70;
+    ytit = TString("HCal Material Budget (Step Length)");
+    ymin = 0;  ymax = 15000; istart = 300; xl = 0.61;
   } else {
-    ytit = TString("Material Budget (#lambda)");
+    ytit = TString("HCal Material Budget (#lambda)");
     ymin = 0;  ymax = 20; istart = 200;
   }
   if (!ifEta) {
@@ -169,8 +168,6 @@ void etaPhiPlotHO(TString fileName="matbdg_HCAL.root", TString plot="IntLen",
     prof[nplots]->GetYaxis()->SetRangeUser(ymin, ymax);
     prof[nplots]->SetLineColor(colorLayer[ii]);
     prof[nplots]->SetFillColor(colorLayer[ii]);
-    if (xh < 0.8) 
-      prof[nplots]->GetYaxis()->SetTitleOffset(1.7);
     if (ifEta && maxEta > 0) 
       prof[nplots]->GetXaxis()->SetRangeUser(0.0,maxEta);
     if (ii >= 2) {
@@ -206,113 +203,6 @@ void etaPhiPlotHO(TString fileName="matbdg_HCAL.root", TString plot="IntLen",
   for(int i=1; i<nplots; i++)
     prof[i]->Draw("h sames");
   if (drawLeg > 0) leg->Draw("sames");
-}
-
-void etaPhiPlotEC(TString fileName="matbdg_HCAL.root", TString plot="IntLen", 
-		  int drawLeg=1, bool ifEta=true, double maxEta=-1) {
-
-  TFile* hcalFile = new TFile(fileName);
-  hcalFile->cd("g4SimHits");
-  setStyle();
-
-  int ihid[3] = {0, 1, 2};
-  TString xtit = TString("#eta");
-  TString ytit = "none";
-  int ymin = 0, ymax = 7, istart = 200, ymax1 = 5;
-  double xh = 0.90, xh1 = 0.90;
-  if (plot.CompareTo("RadLen") == 0) {
-    ytit = TString("Material Budget (X_{0})");
-    ymin = 0;  ymax = 70; istart = 100, ymax1 = 50;
-  } else if (plot.CompareTo("StepLen") == 0) {
-    ytit = TString("Material Budget (Step Length)");
-    ymin = 0;  ymax = 6000; istart = 300; xh = 0.35, ymax1 = 2500;
-  } else {
-    ytit = TString("Material Budget (#lambda)");
-    ymin = 0;  ymax = 7; istart = 200;
-  }
-  if (!ifEta) {
-    istart += 400;
-    xtit    = TString("#phi"); 
-  }
-  
-  TLegend *leg = new TLegend(xh-0.25, 0.60, xh, 0.90);
-  leg->SetBorderSize(1); leg->SetFillColor(10); leg->SetMargin(0.30);
-  leg->SetTextSize(0.04);
-  int nplots=0;
-  TProfile *prof[nlaymax];
-  for (int ii=2; ii>=0; ii--) {
-    char hname[10], title[50];
-    int idpl = istart+ihid[ii];
-    sprintf(hname, "%i", idpl);
-    gDirectory->GetObject(hname,prof[nplots]);
-    prof[nplots]->GetXaxis()->SetTitle(xtit);
-    prof[nplots]->GetYaxis()->SetTitle(ytit);
-    prof[nplots]->GetXaxis()->SetLabelSize(0.05);
-    prof[nplots]->GetYaxis()->SetLabelSize(0.05);
-    prof[nplots]->GetXaxis()->SetTitleSize(0.05);
-    prof[nplots]->GetYaxis()->SetTitleSize(0.05);
-    prof[nplots]->GetYaxis()->SetTitleOffset(0.8);
-    prof[nplots]->GetYaxis()->SetRangeUser(ymin, ymax);
-    prof[nplots]->SetLineColor(colorLayer[ii]);
-    prof[nplots]->SetFillColor(colorLayer[ii]);
-    if (xh < 0.8) 
-      prof[nplots]->GetYaxis()->SetTitleOffset(1.05);
-    if (ifEta && maxEta > 0) 
-      prof[nplots]->GetXaxis()->SetRangeUser(0.0,maxEta);
-    if (ii >= 2) {
-      sprintf(title, "Front of HCAL");
-    } else if (ii == 1) {
-      sprintf(title, "After Crystals");
-    } else {
-      sprintf(title, "Before Crystals");
-    }
-    leg->AddEntry(prof[nplots], title, "lf");
-    nplots++;
-  }
-
-  TString cname = "c_EC1" + plot + xtit;
-  TCanvas *cc1 = new TCanvas(cname, cname, 700, 400);
-
-  prof[0]->Draw("h");
-  for(int i=1; i<nplots; i++)
-    prof[i]->Draw("h sames");
-  if (drawLeg > 0) leg->Draw("sames");
-
-  double xmin  = prof[2]->GetXaxis()->GetXmin();
-  double xmax  = prof[2]->GetXaxis()->GetXmax();
-  int    nbins = prof[2]->GetNbinsX();
-  TH1D *prof1 = new TH1D("Temp01", "Temp01", nbins, xmin, xmax);
-  for (int ii=0; ii<nbins; ii++) {
-    double x1 = prof[0]->GetBinLowEdge(ii+1);
-    double x2 = prof[0]->GetBinWidth(ii+1);
-    double v0 = prof[0]->GetBinContent(ii+1);
-    double v1 = prof[1]->GetBinContent(ii+1);
-    double xx = x1+0.5*x2;
-    double cont = v0 - v1;
-    prof1->Fill(xx,cont);
-  }
-  prof1->GetXaxis()->SetTitle(xtit);
-  prof1->GetYaxis()->SetTitle(ytit);
-  prof1->GetXaxis()->SetLabelSize(0.05);
-  prof1->GetYaxis()->SetLabelSize(0.05);
-  prof1->GetXaxis()->SetTitleSize(0.05);
-  prof1->GetYaxis()->SetTitleSize(0.05);
-  prof1->GetYaxis()->SetTitleOffset(0.8);
-  prof1->GetYaxis()->SetRangeUser(ymin, ymax1);
-  prof1->SetLineColor(colorLayer[3]);
-  prof1->SetFillColor(colorLayer[3]);
-  if (ifEta && maxEta > 0) prof1->GetXaxis()->SetRangeUser(0.0,maxEta);
-  if (xh < 0.8)            prof1->GetYaxis()->SetTitleOffset(1.05);
-
-  TLegend *mlg = new TLegend(xh1-0.3, 0.80, xh1, 0.90);
-  sprintf (title, "End crystal to Layer 0");
-  mlg->SetBorderSize(1); mlg->SetFillColor(10); mlg->SetMargin(0.30);
-  mlg->SetTextSize(0.04); mlg->AddEntry(prof1, title, "lf");
-
-  cname        = "c_EC2" + plot + xtit;
-  TCanvas *cc2 = new TCanvas(cname, cname, 700, 400);
-  prof1->Draw();
-  if (drawLeg > 0) mlg->Draw("sames");
 }
 
 void etaPhi2DPlot(TString fileName="matbdg_HCAL.root", TString plot="IntLen", 

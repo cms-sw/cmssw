@@ -16,6 +16,7 @@
 // Parser parts
 #include "DDLAlgoPosPart.h"
 #include "DDLElementRegistry.h"
+#include "DDXMLElement.h"
 
 // DDCore dependencies
 #include "DetectorDescription/Core/interface/DDalgoPosPart.h"
@@ -24,9 +25,11 @@
 #include "DetectorDescription/Core/interface/DDAlgo.h"
 #include "DetectorDescription/Base/interface/DDAlgoPar.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
+#include "DetectorDescription/Base/interface/DDException.h"
 
 #include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
 
+#include <string>
 #include <iostream>
 
 // Default constructor

@@ -1,4 +1,4 @@
-// $Id: SMProxyServer.cc,v 1.22 2008/07/08 18:32:20 biery Exp $
+// $Id: SMProxyServer.cc,v 1.19 2008/06/12 16:10:49 biery Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -53,7 +53,6 @@ SMProxyServer::SMProxyServer(xdaq::ApplicationStub * s)
   ah_(0), 
   collateDQM_(false),
   archiveDQM_(false),
-  archiveIntervalDQM_(0),
   filePrefixDQM_("/tmp/DQM"),
   purgeTimeDQM_(DEFAULT_PURGE_TIME),
   readyTimeDQM_(DEFAULT_READY_TIME),
@@ -99,7 +98,6 @@ SMProxyServer::SMProxyServer(xdaq::ApplicationStub * s)
   xgi::bind(this,&SMProxyServer::eventdataWebPage,     "geteventdata");
   xgi::bind(this,&SMProxyServer::headerdataWebPage,    "getregdata");
   xgi::bind(this,&SMProxyServer::consumerWebPage,      "registerConsumer");
-  xgi::bind(this,&SMProxyServer::consumerListWebPage,  "consumerList");
   xgi::bind(this,&SMProxyServer::DQMeventdataWebPage,  "getDQMeventdata");
   xgi::bind(this,&SMProxyServer::DQMconsumerWebPage,   "registerDQMConsumer");
   xgi::bind(this,&SMProxyServer::eventServerWebPage,   "EventServerStats");
@@ -109,7 +107,6 @@ SMProxyServer::SMProxyServer(xdaq::ApplicationStub * s)
 
   ispace->fireItemAvailable("collateDQM",     &collateDQM_);
   ispace->fireItemAvailable("archiveDQM",     &archiveDQM_);
-  ispace->fireItemAvailable("archiveIntervalDQM",  &archiveIntervalDQM_);
   ispace->fireItemAvailable("purgeTimeDQM",   &purgeTimeDQM_);
   ispace->fireItemAvailable("readyTimeDQM",   &readyTimeDQM_);
   ispace->fireItemAvailable("filePrefixDQM",  &filePrefixDQM_);
@@ -148,9 +145,9 @@ SMProxyServer::SMProxyServer(xdaq::ApplicationStub * s)
   ispace->fireItemAvailable("DQMmaxESEventRate",&DQMmaxESEventRate_);
   maxDQMEventRequestRate_ = 1.0;  // hertz
   ispace->fireItemAvailable("maxDQMEventRequestRate",&maxDQMEventRequestRate_);
-  DQMactiveConsumerTimeout_ = 60;  // seconds
+  DQMactiveConsumerTimeout_ = 300;  // seconds
   ispace->fireItemAvailable("DQMactiveConsumerTimeout",&DQMactiveConsumerTimeout_);
-  DQMidleConsumerTimeout_ = 120;  // seconds
+  DQMidleConsumerTimeout_ = 600;  // seconds
   ispace->fireItemAvailable("DQMidleConsumerTimeout",&DQMidleConsumerTimeout_);
   DQMconsumerQueueSize_ = 10;
   ispace->fireItemAvailable("DQMconsumerQueueSize",&DQMconsumerQueueSize_);
@@ -1124,138 +1121,6 @@ void SMProxyServer::consumerWebPage(xgi::Input *in, xgi::Output *out)
    out->write((char*) &mybuffer_[0],len);
   }
 
-}
-
-void SMProxyServer::consumerListWebPage(xgi::Input *in, xgi::Output *out)
-  throw (xgi::exception::Exception)
-{
-  char buffer[65536];
-
-  out->getHTTPResponseHeader().addHeader("Content-Type", "application/xml");
-  sprintf(buffer,
-	  "<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>\n<Monitor>\n");
-  out->write(buffer,strlen(buffer));
-
-  if(fsm_.stateName()->toString() == "Enabled")
-  {
-    sprintf(buffer, "<ConsumerList>\n");
-    out->write(buffer,strlen(buffer));
-
-    boost::shared_ptr<EventServer> eventServer;
-    if (dpm_.get() != NULL)
-    {
-      eventServer = dpm_->getEventServer();
-    }
-    if (eventServer.get() != NULL)
-    {
-      std::map< uint32, boost::shared_ptr<ConsumerPipe> > consumerTable = 
-	eventServer->getConsumerTable();
-      std::map< uint32, boost::shared_ptr<ConsumerPipe> >::const_iterator 
-	consumerIter;
-      for (consumerIter = consumerTable.begin();
-	   consumerIter != consumerTable.end();
-	   consumerIter++)
-      {
-	boost::shared_ptr<ConsumerPipe> consumerPipe = consumerIter->second;
-	sprintf(buffer, "<Consumer>\n");
-	out->write(buffer,strlen(buffer));
-
-	sprintf(buffer, "<Name>%s</Name>\n",
-		consumerPipe->getConsumerName().c_str());
-	out->write(buffer,strlen(buffer));
-
-	sprintf(buffer, "<ID>%d</ID>\n", consumerPipe->getConsumerId());
-	out->write(buffer,strlen(buffer));
-
-	sprintf(buffer, "<Time>%d</Time>\n", 
-		(int)consumerPipe->getLastEventRequestTime());
-	out->write(buffer,strlen(buffer));
-
-	sprintf(buffer, "<Host>%s</Host>\n", 
-		consumerPipe->getHostName().c_str());
-	out->write(buffer,strlen(buffer));
-
-	sprintf(buffer, "<Events>%d</Events>\n", consumerPipe->getEvents());
-	out->write(buffer,strlen(buffer));
-
-	sprintf(buffer, "<Failed>%d</Failed>\n", 
-		consumerPipe->getPushEventFailures());
-	out->write(buffer,strlen(buffer));
-
-	sprintf(buffer, "<Idle>%d</Idle>\n", consumerPipe->isIdle());
-	out->write(buffer,strlen(buffer));
-
-	sprintf(buffer, "<Disconnected>%d</Disconnected>\n", 
-		consumerPipe->isDisconnected());
-	out->write(buffer,strlen(buffer));
-
-	sprintf(buffer, "<Ready>%d</Ready>\n", consumerPipe->isReadyForEvent());
-	out->write(buffer,strlen(buffer));
-
-	sprintf(buffer, "</Consumer>\n");
-	out->write(buffer,strlen(buffer));
-      }
-    }
-    boost::shared_ptr<DQMEventServer> dqmServer;
-    if (dpm_.get() != NULL)
-    {
-      dqmServer = dpm_->getDQMEventServer();
-    }
-    if (dqmServer.get() != NULL)
-    {
-      std::map< uint32, boost::shared_ptr<DQMConsumerPipe> > dqmTable = 
-	dqmServer->getConsumerTable();
-      std::map< uint32, boost::shared_ptr<DQMConsumerPipe> >::const_iterator 
-	dqmIter;
-      for (dqmIter = dqmTable.begin();
-	   dqmIter != dqmTable.end();
-	   dqmIter++)
-      {
-	boost::shared_ptr<DQMConsumerPipe> dqmPipe = dqmIter->second;
-	sprintf(buffer, "<DQMConsumer>\n");
-	out->write(buffer,strlen(buffer));
-
-	sprintf(buffer, "<Name>%s</Name>\n",
-		dqmPipe->getConsumerName().c_str());
-	out->write(buffer,strlen(buffer));
-
-	sprintf(buffer, "<ID>%d</ID>\n", dqmPipe->getConsumerId());
-	out->write(buffer,strlen(buffer));
-
-	sprintf(buffer, "<Time>%d</Time>\n", 
-		(int)dqmPipe->getLastEventRequestTime());
-	out->write(buffer,strlen(buffer));
-
-	sprintf(buffer, "<Host>%s</Host>\n", 
-		dqmPipe->getHostName().c_str());
-	out->write(buffer,strlen(buffer));
-
-	sprintf(buffer, "<Events>%d</Events>\n", dqmPipe->getEvents());
-	out->write(buffer,strlen(buffer));
-
-	sprintf(buffer, "<Failed>%d</Failed>\n", 
-		dqmPipe->getPushEventFailures());
-	out->write(buffer,strlen(buffer));
-
-	sprintf(buffer, "<Idle>%d</Idle>\n", dqmPipe->isIdle());
-	out->write(buffer,strlen(buffer));
-
-	sprintf(buffer, "<Disconnected>%d</Disconnected>\n", 
-		dqmPipe->isDisconnected());
-	out->write(buffer,strlen(buffer));
-
-	sprintf(buffer, "<Ready>%d</Ready>\n", dqmPipe->isReadyForEvent());
-	out->write(buffer,strlen(buffer));
-
-	sprintf(buffer, "</DQMConsumer>\n");
-	out->write(buffer,strlen(buffer));
-      }
-    }
-    sprintf(buffer, "</ConsumerList>\n");
-    out->write(buffer,strlen(buffer));
-  }
-  sprintf(buffer, "</Monitor>");
-  out->write(buffer,strlen(buffer));
 }
 
 //////////////////// event server statistics web page //////////////////
@@ -2814,7 +2679,6 @@ void SMProxyServer::setupFlashList()
   is->fireItemAvailable("connectedSMs",         &connectedSMs_);
   is->fireItemAvailable("collateDQM",           &collateDQM_);
   is->fireItemAvailable("archiveDQM",           &archiveDQM_);
-  is->fireItemAvailable("archiveIntervalDQM",   &archiveIntervalDQM_);
   is->fireItemAvailable("purgeTimeDQM",         &purgeTimeDQM_);
   is->fireItemAvailable("readyTimeDQM",         &readyTimeDQM_);
   is->fireItemAvailable("filePrefixDQM",        &filePrefixDQM_);
@@ -2860,7 +2724,6 @@ void SMProxyServer::setupFlashList()
   is->addItemRetrieveListener("connectedSMs",         this);
   is->addItemRetrieveListener("collateDQM",           this);
   is->addItemRetrieveListener("archiveDQM",           this);
-  is->addItemRetrieveListener("archiveIntervalDQM",   this);
   is->addItemRetrieveListener("purgeTimeDQM",         this);
   is->addItemRetrieveListener("readyTimeDQM",         this);
   is->addItemRetrieveListener("filePrefixDQM",        this);
@@ -2974,7 +2837,6 @@ bool SMProxyServer::configuring(toolbox::task::WorkLoop* wl)
 
       dpm_->setCollateDQM(collateDQM_);
       dpm_->setArchiveDQM(archiveDQM_);
-      dpm_->setArchiveIntervalDQM(archiveIntervalDQM_);
       dpm_->setPurgeTimeDQM(purgeTimeDQM_);
       dpm_->setReadyTimeDQM(readyTimeDQM_);
       dpm_->setFilePrefixDQM(filePrefixDQM_);

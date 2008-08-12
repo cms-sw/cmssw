@@ -2,7 +2,7 @@
 
 Test of the EventProcessor class.
 
-$Id: eventprocessor_t.cppunit.cc,v 1.33 2008/06/28 01:26:25 rpw Exp $
+$Id: eventprocessor_t.cppunit.cc,v 1.35 2008/07/03 18:34:57 wdd Exp $
 
 ----------------------------------------------------------------------*/  
 #include <exception>
@@ -163,12 +163,35 @@ void testeventprocessor::asyncTest()
 
 bool testeventprocessor::asyncRunAsync(edm::EventProcessor& ep)
 {
-  for(int i=0;i<3;++i)
+  for(int i=0;i<7;++i)
     {
       ep.setRunNumber(i+1);
       ep.runAsync();
       if(sleep_secs_>0) sleep(sleep_secs_);
-      edm::EventProcessor::StatusCode rc = ep.waitTillDoneAsync(1000);
+
+      edm::EventProcessor::StatusCode rc;
+      if (i < 2) {
+        rc = ep.waitTillDoneAsync(1000);
+      }
+      else if (i == 2) {
+        rc = ep.stopAsync(1000);
+      }
+      else if (i == 3) {
+        rc = ep.stopAsync(1000);
+        rc = ep.waitTillDoneAsync(1000);
+      }
+      else if (i == 4) {
+        rc = ep.waitTillDoneAsync(1000);
+        rc = ep.stopAsync(1000);
+      }
+      else if (i == 5) {
+        rc = ep.waitTillDoneAsync(1000);
+        rc = ep.waitTillDoneAsync(1000);
+      }
+      else if (i == 6) {
+        rc = ep.stopAsync(1000);
+        rc = ep.stopAsync(1000);
+      }
       std::cerr << " ep runAsync run " << i << " done\n";
   
       switch(rc)
@@ -225,17 +248,17 @@ void testeventprocessor::driveAsyncTest( bool(testeventprocessor::*func)(edm::Ev
   }
   catch(cms::Exception& e)
     {
-      std::cerr << "cms exception: " << e.explainSelf() << "\n";
+      std::cerr << "cms exception: " << e.explainSelf() << std::endl;
       CPPUNIT_ASSERT("cms exeption"==0);
     }
   catch(std::exception& e)
     {
-      std::cerr << "std exception: " << e.what() << "\n";
+      std::cerr << "std exception: " << e.what() << std::endl;
       CPPUNIT_ASSERT("std exeption"==0);
     }
   catch(...)
     {
-      std::cerr << "unknown exception " << "\n";
+      std::cerr << "unknown exception " << std::endl;
       CPPUNIT_ASSERT("unknown exeption"==0);
     }
   std::cerr << "*********************** driveAsyncTest ending ------\n";

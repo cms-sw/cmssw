@@ -4,8 +4,8 @@
  *
  * \author Giuseppe Cerati, INFN
  *
- *  $Date: 2008/06/09 14:07:49 $
- *  $Revision: 1.11 $
+ *  $Date: 2008/06/09 12:26:17 $
+ *  $Revision: 1.10 $
  *
  */
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -28,12 +28,12 @@ class RecoTrackSelector {
     lip_(cfg.getParameter<double>("lip")),
     minHit_(cfg.getParameter<int>("minHit")),
     maxChi2_(cfg.getParameter<double>("maxChi2")),
-    quality_(cfg.getParameter<std::vector<std::string> >("quality")),
-    algorithm_(cfg.getParameter<std::vector<std::string> >("algorithm")) { }
+    quality_(cfg.getParameter<std::string>("quality")),
+    algorithm_(cfg.getParameter<std::string>("algorithm")) { }
 
   RecoTrackSelector ( double ptMin, double minRapidity, double maxRapidity,
 		      double tip, double lip, int minHit, double maxChi2, 
-		      std::vector<std::string> quality , std::vector<std::string> algorithm ) :
+		      std::string quality , std::string algorithm ) :
     ptMin_( ptMin ), minRapidity_( minRapidity ), maxRapidity_( maxRapidity ),
     tip_( tip ), lip_( lip ), minHit_( minHit ), maxChi2_( maxChi2 ),
     quality_(quality),algorithm_(algorithm) { }
@@ -54,20 +54,6 @@ class RecoTrackSelector {
 
   /// Operator() performs the selection: e.g. if (recoTrackSelector(track)) {...}
   bool operator()( const reco::Track & t, const reco::BeamSpot* bs) {
-    bool quality_ok = true;
-    if (quality_.size()!=0) {
-      quality_ok = false;
-      for (unsigned int i = 0; i<quality_.size();++i) {
-	if (t.quality(t.qualityByName(quality_[i]))){
-	  quality_ok = true;
-	  break;	  
-	}
-      }
-    }
-    bool algo_ok = true;
-    if (algorithm_.size()!=0) {
-      if (std::find(algorithm_.begin(),algorithm_.end(),t.algoName())==algorithm_.end()) algo_ok = false;
-    }
     return
       (t.hitPattern().trackerLayersWithMeasurement() >= minHit_ &&
        fabs(t.pt()) >= ptMin_ &&
@@ -75,8 +61,8 @@ class RecoTrackSelector {
        fabs(t.dxy(bs->position())) <= tip_ &&
        fabs(t.dsz(bs->position())) <= lip_  &&
        t.normalizedChi2()<=maxChi2_ &&
-       quality_ok &&
-       algo_ok);
+       (t.quality(t.qualityByName(quality_)) || quality_ == "" ) &&
+       (algorithm_ == t.algoName() || algorithm_ == ""));
   }
 
   size_t size() const { return selected_.size(); }
@@ -89,8 +75,8 @@ class RecoTrackSelector {
   double lip_;
   int    minHit_;
   double maxChi2_;
-  std::vector<std::string> quality_;
-  std::vector<std::string> algorithm_;
+  std::string quality_;
+  std::string algorithm_;
   container selected_;
 };
 

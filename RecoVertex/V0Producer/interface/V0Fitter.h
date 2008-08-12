@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Fitter.h,v 1.12 2008/04/28 23:32:42 drell Exp $
+// $Id: V0Fitter.h,v 1.11 2008/04/24 17:59:08 drell Exp $
 //
 //
 
@@ -75,7 +75,7 @@ class V0Fitter {
   reco::VertexCompositeCandidateCollection theLambdaBars;
 
   // Vector used to temporarily hold candidates before cuts and selection
-  //reco::VertexCompositeCandidateCollection preCutCands;
+  reco::VertexCompositeCandidateCollection preCutCands;
 
   // Tracker geometry for discerning hit positions
   const TrackerGeometry* trackerGeom;
@@ -100,13 +100,12 @@ class V0Fitter {
   double collinCut;
   double kShortMassCut;
   double lambdaMassCut;
-  double impactParameterCut;
 
   // Helper method that does the actual fitting using the KalmanVertexFitter
   void fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
   // Applies cuts to the VertexCompositeCandidates after they are fitted/created.
-  //void applyPostFitCuts();
+  void applyPostFitCuts();
 
   // Stuff for debug file output.
   std::ofstream mPiPiMassOut;

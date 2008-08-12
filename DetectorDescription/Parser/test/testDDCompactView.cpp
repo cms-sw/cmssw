@@ -13,30 +13,24 @@
  *   the Free Software Foundation; either version 2 of the License, or     *
  *   (at your option) any later version.                                   *
  *                                                                         *
- *   mec: 2008-08-05 : need to make this an analyzer instead?              *
- *                     for now use the "main" of cmssw                     *
  ***************************************************************************/
 
 
 #include <iostream>
 #include <stdlib.h>
-//cmssw main includes
-#include <boost/shared_ptr.hpp>
-#include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/PluginManager/interface/ProblemTracker.h"
-#include "FWCore/Utilities/interface/Presence.h"
-#include "FWCore/PluginManager/interface/PresenceFactory.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/MakeParameterSets.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-//end cmssw main includes
 
 #include "DetectorDescription/Parser/interface/DDLParser.h"
 #include "DetectorDescription/Parser/interface/FIPConfiguration.h"
+#include "DetectorDescription/Core/interface/DDMap.h"
+#include "DetectorDescription/Core/interface/DDRoot.h"
+#include "DetectorDescription/Core/interface/DDVector.h"
+#include "DetectorDescription/Core/interface/DDNumeric.h"
+#include "DetectorDescription/Core/interface/DDString.h"
 #include "DetectorDescription/Algorithm/src/AlgoInit.h"
 #include "DetectorDescription/Core/src/DDCheck.h"
+#include "DetectorDescription/Core/interface/DDSolid.h"
+#include "DetectorDescription/Core/src/DDCheckMaterials.cc"
+#include "DetectorDescription/Base/interface/DDException.h"
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
 #include "DetectorDescription/Core/interface/DDExpandedNode.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
@@ -44,123 +38,43 @@
 
 int main(int argc, char *argv[])
 {
-  // Copied from example stand-alone program in Message Logger July 18, 2007
-  std::string const kProgramName = argv[0];
-  int rc = 0;
 
-  try {
+  std::cout << "main:: initialize" << std::endl;
 
-    // A.  Instantiate a plug-in manager first.
-    edm::AssertHandler ah;
+  AlgoInit();
 
-    // B.  Load the message service plug-in.  Forget this and bad things happen!
-    //     In particular, the job hangs as soon as the output buffer fills up.
-    //     That's because, without the message service, there is no mechanism for
-    //     emptying the buffers.
-    boost::shared_ptr<edm::Presence> theMessageServicePresence;
-    theMessageServicePresence = boost::shared_ptr<edm::Presence>(edm::PresenceFactory::get()->
-								 makePresence("MessageServicePresence").release());
+  std::cout << "main::initialize DDL parser" << std::endl;
+  DDLParser* myP = DDLParser::instance();
 
-    // C.  Manufacture a configuration and establish it.
-    std::string config =
-      "process x = {"
-      "service = MessageLogger {"
-      "untracked vstring destinations = {'infos.mlog','warnings.mlog'}"
-      "untracked PSet infos = {"
-      "untracked string threshold = 'INFO'"
-      "untracked PSet default = {untracked int32 limit = 1000000}"
-      "untracked PSet FwkJob = {untracked int32 limit = 0}"
-      "}"
-      "untracked PSet warnings = {"
-      "untracked string threshold = 'WARNING'"
-      "untracked PSet default = {untracked int32 limit = 1000000}"
-      "}"
-      "untracked vstring fwkJobReports = {'FrameworkJobReport.xml'}"
-      "untracked vstring categories = {'FwkJob'}"
-      "untracked PSet FrameworkJobReport.xml = {"
-      "untracked PSet default = {untracked int32 limit = 0}"
-      "untracked PSet FwkJob = {untracked int32 limit = 10000000}"
-      "}"
-      "}"
-      "service = JobReportService{}"
-      "service = SiteLocalConfigService{}"
-      "}";
+  FIPConfiguration dp;
 
+  dp.readConfig("Geometry/CMSCommonData/data/configuration.xml");
 
-    boost::shared_ptr<std::vector<edm::ParameterSet> > pServiceSets;
-    boost::shared_ptr<edm::ParameterSet>          params_;
-    edm::makeParameterSets(config, params_, pServiceSets);
-
-    // D.  Create the services.
-    edm::ServiceToken tempToken(edm::ServiceRegistry::createSet(*pServiceSets.get()));
-
-    // E.  Make the services available.
-    edm::ServiceRegistry::Operate operate(tempToken);
-
-    // END Copy from example stand-alone program in Message Logger July 18, 2007
-
-    std::cout << "main:: initialize" << std::endl;
-
-    AlgoInit();
-
-    std::cout << "main::initialize DDL parser" << std::endl;
-    DDLParser* myP = DDLParser::instance();
-
-    FIPConfiguration dp;
-
-    dp.readConfig("DetectorDescription/Parser/test/cmsIdealGeometryXML.xml");
-
-    std::cout << "main::about to start parsing" << std::endl;
+  std::cout << "main::about to start parsing" << std::endl;
  
-    myP->parse(dp);
+  myP->parse(dp);
 
-    std::cout << "main::completed Parser" << std::endl;
+  std::cout << "main::completed Parser" << std::endl;
   
-    std::cout << std::endl << std::endl << "main::Start checking!" << std::endl << std::endl;
-    DDCheckMaterials(std::cout);
+  std::cout << std::endl << std::endl << "main::Start checking!" << std::endl << std::endl;
+  DDCheckMaterials(std::cout);
 
-    DDCompactView cpv;
+  DDCompactView cpv;
 
-    DDExpandedView ev(cpv);
-    std::cout << "== got the epv ==" << std::endl;
+  DDExpandedView ev(cpv);
+  std::cout << "== got the epv ==" << std::endl;
 
-    while ( ev.next() ) {
-      if ( ev.logicalPart().name().name() == "MBAT" ) {
-	std::cout << ev.geoHistory() << std::endl;
-      }
-      if ( ev.logicalPart().name().name() == "MUON" ) {
-	std::cout << ev.geoHistory() << std::endl;
-      }
+  while ( ev.next() ) {
+    if ( ev.logicalPart().name().name() == "MBAT" ) {
+      std::cout << ev.geoHistory() << std::endl;
     }
+    if ( ev.logicalPart().name().name() == "MUON" ) {
+      std::cout << ev.geoHistory() << std::endl;
+    }
+  }
+
+  return EXIT_SUCCESS;
+
     cpv.clear();
     std::cout << "cleared DDCompactView.  " << std::endl;
-  }
-
-  catch (DDException& e)
-    {
-      std::cerr << "DDD-PROBLEM:" << std::endl 
-	   << e << std::endl;
-    }  
-  //  Deal with any exceptions that may have been thrown.
-  catch (cms::Exception& e) {
-    std::cout << "cms::Exception caught in "
-	      << kProgramName
-	      << "\n"
-	      << e.explainSelf();
-    rc = 1;
-  }
-  catch (std::exception& e) {
-    std::cout << "Standard library exception caught in "
-	      << kProgramName
-	      << "\n"
-	      << e.what();
-    rc = 1;
-  }
-  catch (...) {
-    std::cout << "Unknown exception caught in "
-	      << kProgramName;
-    rc = 2;
-  }
-
-  return rc;
 }

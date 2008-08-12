@@ -1,5 +1,5 @@
 //
-// $Id: PATMuonProducer.cc,v 1.12 2008/07/21 17:18:38 gpetrucc Exp $
+// $Id: PATMuonProducer.cc,v 1.11 2008/07/10 12:21:18 fronga Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATMuonProducer.h"
@@ -36,14 +36,8 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet & iConfig) :
   
   // MC matching configurables
   addGenMatch_   = iConfig.getParameter<bool>         ( "addGenMatch" );
-  if (addGenMatch_) {
-      embedGenMatch_ = iConfig.getParameter<bool>         ( "embedGenMatch" );
-      if (iConfig.existsAs<edm::InputTag>("genParticleMatch")) {
-          genMatchSrc_.push_back(iConfig.getParameter<edm::InputTag>( "genParticleMatch" ));
-      } else {
-          genMatchSrc_ = iConfig.getParameter<std::vector<edm::InputTag> >( "genParticleMatch" );
-      }
-  }
+  embedGenMatch_ = iConfig.getParameter<bool>         ( "embedGenMatch" );
+  genMatchSrc_   = iConfig.getParameter<edm::InputTag>( "genParticleMatch" );
   
   // trigger matching configurables
   addTrigMatch_     = iConfig.getParameter<bool>            ( "addTrigMatch" );
@@ -111,12 +105,8 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
   }
 
   // prepare the MC matching
-  std::vector<edm::Handle<edm::Association<reco::GenParticleCollection> > > genMatches(genMatchSrc_.size());
-  if (addGenMatch_) {
-        for (size_t j = 0, nd = genMatchSrc_.size(); j < nd; ++j) {
-            iEvent.getByLabel(genMatchSrc_[j], genMatches[j]);
-        }
-  }
+  edm::Handle<edm::Association<reco::GenParticleCollection> > genMatch;
+  if (addGenMatch_) iEvent.getByLabel(genMatchSrc_, genMatch);
 
   // loop over muons
   std::vector<Muon> * patMuons = new std::vector<Muon>();
@@ -132,11 +122,10 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
 
     // store the match to the generated final state muons
     if (addGenMatch_) {
-      for(size_t i = 0, n = genMatches.size(); i < n; ++i) {
-          reco::GenParticleRef genMuon = (*genMatches[i])[muonsRef];
-          aMuon.addGenParticleRef(genMuon);
-      }
-      if (embedGenMatch_) aMuon.embedGenParticle();
+      reco::GenParticleRef genMuon = (*genMatch)[muonsRef];
+      if (genMuon.isNonnull() && genMuon.isAvailable() ) {
+        aMuon.setGenLepton(genMuon, embedGenMatch_);
+      } // leave empty if no match found
     }
     // matches to trigger primitives
     if ( addTrigMatch_ ) {

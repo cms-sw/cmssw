@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.67 $"
+__version__ = "$Revision: 1.69 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -16,7 +16,7 @@ defaultOptions.pileup = 'NoPileUp'
 defaultOptions.geometry = 'Pilot2'
 defaultOptions.beamspot = 'Early10TeVCollision'
 defaultOptions.magField = '38T'
-defaultOptions.conditions = 'FrontierConditions_GlobalTag,STARTUP_V4::All'
+defaultOptions.conditions = 'FrontierConditions_GlobalTag,STARTUP_V5::All'
 
 # the pile up map
 pileupMap = {'LowLumiPileUp': 7.1,
@@ -40,8 +40,9 @@ def findName(object,dictionary):
         if item == object:
             return name
 
-def availableFileOptions(nameTemplate):
-	pass
+def availableFileOptions(nameTemplate, path="Configuration/StandardSequences" ):
+    """returns existing filenames given a name template"""
+    pass
 
 
 class ConfigBuilder(object):
@@ -272,10 +273,10 @@ class ConfigBuilder(object):
 
         # decide which ALCA paths to use
         alcaList = sequence.split("+")
-
         for name in alcaConfig.__dict__:
             alcastream = getattr(alcaConfig,name)
-            if name in alcaList and isinstance(alcastream,alcaConfig.FilteredStream):
+            shortName = name.replace('ALCARECOStream','')
+            if shortName in alcaList and isinstance(alcastream,alcaConfig.FilteredStream):
                 alcaOutput = cms.OutputModule("PoolOutputModule")
                 alcaOutput.SelectEvents = alcastream.selectEvents
                 alcaOutput.outputCommands = alcastream.content
@@ -290,10 +291,15 @@ class ConfigBuilder(object):
 		if not self._options.relval: 
                     self.additionalOutputs[name] = alcaOutput
                     setattr(self.process,name,alcaOutput) 
-                alcaList.remove(name)
+                alcaList.remove(shortName)
+            # DQM needs a special handling
+            elif name == 'pathALCARECODQM' and 'DQM' in alcaList:
+		    path = getattr(alcaConfig,name)
+		    self.process.schedule.append(path)
+                    alcaList.remove('DQM')
         if len(alcaList) != 0:
             print "The following alcas could not be found", alcaList
-
+            raise
         # TODO: blacklisting of al alca paths
 
     def prepare_GEN(self, sequence = None):
@@ -437,7 +443,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.67 $"),
+              (version=cms.untracked.string("$Revision: 1.69 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )

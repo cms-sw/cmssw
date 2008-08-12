@@ -13,13 +13,13 @@
 //
 // Original Author:  Anna Cimmino
 //         Created:  Wed Mar  5 20:43:10 CET 2008
-// $Id: RPCQualityTests.cc,v 1.2 2008/04/25 16:45:54 cimmino Exp $
+// $Id: RPCQualityTests.cc,v 1.1 2008/04/25 14:32:40 cimmino Exp $
 //
 //
 
 #include "DQM/RPCMonitorClient/interface/RPCQualityTests.h"
 #include  "DQM/RPCMonitorClient/interface/RPCDeadChannelTest.h"
-//#include "DQM/RPCMonitorClient/interface/RPCMultiplicityTest.h"
+#include "DQM/RPCMonitorClient/interface/RPCMultiplicityTest.h"
 
 //DQMServices
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -60,7 +60,7 @@ RPCQualityTests::RPCQualityTests(const ParameterSet& iConfig)
 
   //get qtest list  
   qtestList_.push_back("DeadChannelTest");
-  //  qtestList_.push_back("MultiplicityTest");
+  qtestList_.push_back("MultiplicityTest");
   qtestList_= parameters_.getUntrackedParameter<std::vector<std::string> >("QualityTestList",qtestList_);
   
 
@@ -197,7 +197,7 @@ map<std::string , RPCClient*> RPCQualityTests::makeQTestMap() {
   map<std::string , RPCClient*> qtmap;
 
   qtmap["DeadChannelTest"] = new RPCDeadChannelTest(parameters_);
-  //  qtmap["MultiplicityTest"] = new RPCMultiplicityTest(parameters_);
+  qtmap["MultiplicityTest"] = new RPCMultiplicityTest(parameters_);
   return qtmap;
 
 }

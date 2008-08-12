@@ -8,7 +8,7 @@
  *
  * \author Slava Valuev
  * Created: Thu Apr 12 11:26:54 CEST 2007
- * $Id: L1CSCTriggerPrimitivesConfigProducer.h,v 1.5 2008/07/14 14:28:25 slava Exp $
+ * $Id: L1CSCTriggerPrimitivesConfigProducer.h,v 1.3 2007/10/08 13:48:36 slava Exp $
  *
  */
 
@@ -35,17 +35,17 @@ class L1CSCTriggerPrimitivesConfigProducer : public edm::ESProducer {
  private:
   /** ALCT configuration parameters. */
   unsigned int m_alct_fifo_tbins, m_alct_fifo_pretrig;
-  unsigned int m_alct_drift_delay;
-  unsigned int m_alct_nplanes_hit_pretrig, m_alct_nplanes_hit_accel_pretrig;
-  unsigned int m_alct_nplanes_hit_pattern, m_alct_nplanes_hit_accel_pattern;
-  unsigned int m_alct_trig_mode, m_alct_accel_mode, m_alct_l1a_window_width;
+  unsigned int m_alct_bx_width,   m_alct_drift_delay;
+  unsigned int m_alct_nph_thresh, m_alct_nph_pattern;
+  unsigned int m_alct_trig_mode,  m_alct_alct_amode, m_alct_l1a_window;
 
   /** CLCT configuration parameters. */
-  unsigned int m_clct_fifo_tbins,  m_clct_fifo_pretrig;
-  unsigned int m_clct_hit_persist, m_clct_drift_delay;
-  unsigned int m_clct_nplanes_hit_pretrig, m_clct_nplanes_hit_pattern;
-  unsigned int m_clct_pid_thresh_pretrig;
-  unsigned int m_clct_min_separation;
+  unsigned int m_clct_fifo_tbins, m_clct_fifo_pretrig;
+  unsigned int m_clct_bx_width,   m_clct_drift_delay;
+  unsigned int m_clct_nph_pattern;
+  unsigned int m_clct_hs_thresh,  m_clct_ds_thresh;
+  unsigned int m_clct_hit_thresh, m_clct_pid_thresh;  // new TMB-07 parameters
+  unsigned int m_clct_sep_src,    m_clct_sep_vme;
 };
 
 #endif

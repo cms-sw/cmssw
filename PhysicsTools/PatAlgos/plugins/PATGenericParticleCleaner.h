@@ -1,7 +1,7 @@
 #ifndef PhysicsTools_PatAlgos_PATGenericParticleCleaner_h
 #define PhysicsTools_PatAlgos_PATGenericParticleCleaner_h
 //
-// $Id: PATGenericParticleCleaner.h,v 1.3 2008/06/06 14:13:40 gpetrucc Exp $
+// $Id: PATGenericParticleCleaner.h,v 1.2 2008/06/05 20:05:13 gpetrucc Exp $
 //
 
 /**
@@ -12,7 +12,7 @@
    a collection of objects of GenericParticleType.
 
   \author   Steven Lowette, Jeremy Andrea
-  \version  $Id: PATGenericParticleCleaner.h,v 1.3 2008/06/06 14:13:40 gpetrucc Exp $
+  \version  $Id: PATGenericParticleCleaner.h,v 1.2 2008/06/05 20:05:13 gpetrucc Exp $
 */
 
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -23,7 +23,6 @@
 #include "PhysicsTools/PatAlgos/plugins/CleanerHelper.h"
 #include "PhysicsTools/PatAlgos/interface/MultiIsolator.h"
 #include "PhysicsTools/PatAlgos/interface/OverlapHelper.h"
-#include "PhysicsTools/PatAlgos/interface/VertexingHelper.h"
 
 #include <DataFormats/Candidate/interface/CandidateFwd.h>
 #include <DataFormats/Candidate/interface/Candidate.h>
@@ -56,9 +55,6 @@ namespace pat {
 
       // deltaR overlap helper
       pat::helper::OverlapHelper overlapHelper_;
-
-      // vertex association tools
-      pat::helper::VertexingHelper vertexingHelper_;
 
   }; // class
 

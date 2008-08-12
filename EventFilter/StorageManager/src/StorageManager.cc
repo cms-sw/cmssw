@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.70 2008/08/01 15:54:19 biery Exp $
+// $Id: StorageManager.cc,v 1.64 2008/06/25 18:03:22 biery Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -104,7 +104,7 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   compressionLevelDQM_(1),
   mybuffer_(7000000),
   fairShareES_(false),
-  connectedRBs_(0), 
+  connectedFUs_(0), 
   storedEvents_(0), 
   receivedEvents_(0), 
   receivedErrorEvents_(0), 
@@ -129,7 +129,7 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   ispace->fireItemAvailable("STparameterSet",&offConfig_);
   ispace->fireItemAvailable("runNumber",     &runNumber_);
   ispace->fireItemAvailable("stateName",     fsm_.stateName());
-  ispace->fireItemAvailable("connectedRBs",  &connectedRBs_);
+  ispace->fireItemAvailable("connectedFUs",  &connectedFUs_);
   ispace->fireItemAvailable("storedEvents",  &storedEvents_);
   ispace->fireItemAvailable("receivedEvents",&receivedEvents_);
   ispace->fireItemAvailable("receivedErrorEvents",&receivedErrorEvents_);
@@ -169,8 +169,7 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   // Bind web interface
   xgi::bind(this,&StorageManager::defaultWebPage,       "Default");
   xgi::bind(this,&StorageManager::css,                  "styles.css");
-  xgi::bind(this,&StorageManager::rbsenderWebPage,      "rbsenderlist");
-  xgi::bind(this,&StorageManager::rbsenderDetailWebPage,"rbsenderdetail");
+  xgi::bind(this,&StorageManager::fusenderWebPage,      "fusenderlist");
   xgi::bind(this,&StorageManager::streamerOutputWebPage,"streameroutput");
   xgi::bind(this,&StorageManager::eventdataWebPage,     "geteventdata");
   xgi::bind(this,&StorageManager::headerdataWebPage,    "getregdata");
@@ -290,7 +289,7 @@ xoap::MessageReference
 StorageManager::ParameterGet(xoap::MessageReference message)
   throw (xoap::exception::Exception)
 {
-  connectedRBs_.value_ = smrbsenders_.size();
+  connectedFUs_.value_ = smfusenders_.size();
   return Application::ParameterGet(message);
 }
 
@@ -330,7 +329,7 @@ void StorageManager::receiveRegistryMessage(toolbox::mem::Reference *ref)
   unsigned long actualFrameSize = (unsigned long)sizeof(I2O_SM_PREAMBLE_MESSAGE_FRAME)
                                   + msg->dataSize;
   addMeasurement(actualFrameSize);
-  // register this data sender into the list to keep its status
+  // register this FU sender into the list to keep its status
   // need output module name and Id which is not available in the I2O header!!
   // We must assume the registry is in a single frame! So in this case
   // we extract the information from the INIT message header
@@ -344,19 +343,19 @@ void StorageManager::receiveRegistryMessage(toolbox::mem::Reference *ref)
 
   {
   // a quick fix for registration problem TODO find real problem and fix!
-  boost::mutex::scoped_lock sl(rblist_lock_);
+  boost::mutex::scoped_lock sl(fulist_lock_);
 
-  int status = smrbsenders_.registerDataSender(&msg->hltURL[0], &msg->hltClassName[0],
+  int status = smfusenders_.registerFUSender(&msg->hltURL[0], &msg->hltClassName[0],
                  msg->hltLocalId, msg->hltInstance, msg->hltTid,
                  msg->frameCount, msg->numFrames, ref, dmoduleLabel, dmoduleId);
-  // see if this completes the registry data for this data sender
+  // see if this completes the registry data for this FU
   // if so then: if first copy it, if subsequent test it (mark which is first?)
   // should test on -1 as problems
   if(status == 1)
   {
-    char* regPtr = smrbsenders_.getRegistryData(&msg->hltURL[0], &msg->hltClassName[0],
+    char* regPtr = smfusenders_.getRegistryData(&msg->hltURL[0], &msg->hltClassName[0],
                  msg->hltLocalId, msg->hltInstance, msg->hltTid, dmoduleLabel);
-    unsigned int regSz = smrbsenders_.getRegistrySize(&msg->hltURL[0], &msg->hltClassName[0],
+    unsigned int regSz = smfusenders_.getRegistrySize(&msg->hltURL[0], &msg->hltClassName[0],
                  msg->hltLocalId, msg->hltInstance, msg->hltTid, dmoduleLabel);
 
     // attempt to add the INIT message to our collection
@@ -389,7 +388,7 @@ void StorageManager::receiveRegistryMessage(toolbox::mem::Reference *ref)
                                          1, 1, Header::INIT, 0, 0, 0); // use fixed 0 as ID
         b.commit(sizeof(stor::FragEntry));
         // this is checked ok by default
-        smrbsenders_.setRegCheckedOK(&msg->hltURL[0], &msg->hltClassName[0],
+        smfusenders_.setRegCheckedOK(&msg->hltURL[0], &msg->hltClassName[0],
                                      msg->hltLocalId, msg->hltInstance, msg->hltTid, dmoduleLabel);
 
         // add this output module to the monitoring
@@ -455,7 +454,7 @@ void StorageManager::receiveRegistryMessage(toolbox::mem::Reference *ref)
         // it was still verified to be "OK" by virtue of the fact that
         // there was no exception.
         FDEBUG(9) << "copyAndTestRegistry: Duplicate registry is okay" << std::endl;
-        smrbsenders_.setRegCheckedOK(&msg->hltURL[0], &msg->hltClassName[0],
+        smfusenders_.setRegCheckedOK(&msg->hltURL[0], &msg->hltClassName[0],
                                      msg->hltLocalId, msg->hltInstance, msg->hltTid, dmoduleLabel);
       }
     }
@@ -483,7 +482,7 @@ void StorageManager::receiveRegistryMessage(toolbox::mem::Reference *ref)
                        msg->hltInstance, 
                        I2O_FU_DATA_DISCARD,
                        hltClassName);
-  } // end of test on if registerDataSender returned that registry is complete
+  } // end of test on if registryFUSender returned that registry is complete
   } // end of scope for mutex to protect registration
 }
 
@@ -580,7 +579,7 @@ void StorageManager::receiveDataMessage(toolbox::mem::Reference *ref)
                            << " From " << msg->hltURL
                            << " Different from Run Number from configuration = " << runNumber_);
          }
-         // for data sender list update
+         // for FU sender list update
          // msg->frameCount start from 0, but in EventMsg header it starts from 1!
          bool isLocal = true;
 
@@ -588,7 +587,7 @@ void StorageManager::receiveDataMessage(toolbox::mem::Reference *ref)
          lastEventSeen_ = msg->eventID;
 
          int status = 
-	   smrbsenders_.updateSender4data(&msg->hltURL[0], &msg->hltClassName[0],
+	   smfusenders_.updateFUSender4data(&msg->hltURL[0], &msg->hltClassName[0],
 					    msg->hltLocalId, msg->hltInstance, msg->hltTid,
 					    msg->runID, msg->eventID, msg->frameCount+1, msg->numFrames,
 					    msg->originalSize, isLocal, msg->outModID);
@@ -604,7 +603,7 @@ void StorageManager::receiveDataMessage(toolbox::mem::Reference *ref)
 
          if(status == -1) {
            LOG4CPLUS_ERROR(this->getApplicationLogger(),
-                    "updateSender4data: Cannot find RB in Data Sender list!"
+                    "updateFUSender4data: Cannot find FU in FU Sender list!"
                     << " With URL "
                     << msg->hltURL << " class " << msg->hltClassName  << " instance "
                     << msg->hltInstance << " Tid " << msg->hltTid);
@@ -647,11 +646,11 @@ void StorageManager::receiveDataMessage(toolbox::mem::Reference *ref)
     //update last event seen
     lastEventSeen_ = msg->eventID;
 
-    // for data sender list update
+    // for FU sender list update
     // msg->frameCount start from 0, but in EventMsg header it starts from 1!
     bool isLocal = false;
     int status = 
-      smrbsenders_.updateSender4data(&msg->hltURL[0], &msg->hltClassName[0],
+      smfusenders_.updateFUSender4data(&msg->hltURL[0], &msg->hltClassName[0],
 				       msg->hltLocalId, msg->hltInstance, msg->hltTid,
 				       msg->runID, msg->eventID, msg->frameCount+1, msg->numFrames,
 				       msg->originalSize, isLocal, msg->outModID);
@@ -666,7 +665,7 @@ void StorageManager::receiveDataMessage(toolbox::mem::Reference *ref)
     }
     if(status == -1) {
       LOG4CPLUS_ERROR(this->getApplicationLogger(),
-		      "updateSender4data: Cannot find RB in Data Sender list!"
+		      "updateFUSender4data: Cannot find FU in FU Sender list!"
 		      << " With URL "
 		      << msg->hltURL << " class " << msg->hltClassName  << " instance "
 		      << msg->hltInstance << " Tid " << msg->hltTid);
@@ -710,8 +709,8 @@ void StorageManager::receiveErrorDataMessage(toolbox::mem::Reference *ref)
   if(fsm_.stateName()->toString() != "Enabled")
   {
     LOG4CPLUS_ERROR(this->getApplicationLogger(),
-                       "Received ERROR message but not in Enabled state! Current state = "
-                       << fsm_.stateName()->toString() << " ERROR from" << msg->hltURL
+                       "Received EVENT message but not in Enabled state! Current state = "
+                       << fsm_.stateName()->toString() << " EVENT from" << msg->hltURL
                        << " application " << msg->hltClassName);
     // just release the memory at least - is that what we want to do?
     ref->release();
@@ -776,16 +775,16 @@ void StorageManager::receiveErrorDataMessage(toolbox::mem::Reference *ref)
                            << " From " << msg->hltURL
                            << " Different from Run Number from configuration = " << runNumber_);
          }
-         // for data sender list update
+         // for FU sender list update
          // msg->frameCount start from 0, but in EventMsg header it starts from 1!
          bool isLocal = true;
 
-         //update last error event seen
+         //update last event seen
          lastErrorEventSeen_ = msg->eventID;
 
          // TODO need to fix this as the outModId is not valid for error events
          int status = 
-	   smrbsenders_.updateSender4data(&msg->hltURL[0], &msg->hltClassName[0],
+	   smfusenders_.updateFUSender4data(&msg->hltURL[0], &msg->hltClassName[0],
 					    msg->hltLocalId, msg->hltInstance, msg->hltTid,
 					    msg->runID, msg->eventID, msg->frameCount+1, msg->numFrames,
 					    msg->originalSize, isLocal, msg->outModID);
@@ -796,7 +795,7 @@ void StorageManager::receiveErrorDataMessage(toolbox::mem::Reference *ref)
 
          if(status == -1) {
            LOG4CPLUS_ERROR(this->getApplicationLogger(),
-                    "updateSender4data: Cannot find RB in Data Sender list!"
+                    "updateFUSender4data: Cannot find FU in FU Sender list!"
                     << " For Error Event With URL "
                     << msg->hltURL << " class " << msg->hltClassName  << " instance "
                     << msg->hltInstance << " Tid " << msg->hltTid);
@@ -831,20 +830,20 @@ void StorageManager::receiveErrorDataMessage(toolbox::mem::Reference *ref)
     // this->runNumber_ comes from the RunBase class that StorageManager inherits from
     if(msg->runID != runNumber_)
     {
-      LOG4CPLUS_ERROR(this->getApplicationLogger(),"Run Number from error event stream = " << msg->runID
+      LOG4CPLUS_ERROR(this->getApplicationLogger(),"Run Number from event stream = " << msg->runID
                       << " From " << msg->hltURL
                       << " Different from Run Number from configuration = " << runNumber_);
     }
 
-    //update last error event seen
+    //update last event seen
     lastErrorEventSeen_ = msg->eventID;
 
-    // for data sender list update
+    // for FU sender list update
     // msg->frameCount start from 0, but in EventMsg header it starts from 1!
     bool isLocal = false;
     // TODO need to fix this as the outModId is not valid for error events
     int status = 
-      smrbsenders_.updateSender4data(&msg->hltURL[0], &msg->hltClassName[0],
+      smfusenders_.updateFUSender4data(&msg->hltURL[0], &msg->hltClassName[0],
 				       msg->hltLocalId, msg->hltInstance, msg->hltTid,
 				       msg->runID, msg->eventID, msg->frameCount+1, msg->numFrames,
 				       msg->originalSize, isLocal, msg->outModID);
@@ -854,7 +853,7 @@ void StorageManager::receiveErrorDataMessage(toolbox::mem::Reference *ref)
     }
     if(status == -1) {
       LOG4CPLUS_ERROR(this->getApplicationLogger(),
-		      "updateSender4data: Cannot find RB in Data Sender list!"
+		      "updateFUSender4data: Cannot find FU in FU Sender list!"
 		      << " For Error Event With URL "
 		      << msg->hltURL << " class " << msg->hltClassName  << " instance "
 		      << msg->hltInstance << " Tid " << msg->hltTid);
@@ -903,13 +902,13 @@ void StorageManager::receiveOtherMessage(toolbox::mem::Reference *ref)
     return;
   }
   
-  LOG4CPLUS_INFO(this->getApplicationLogger(),"removing data sender at " << msg->hltURL);
-  bool didErase = smrbsenders_.removeDataSender(&msg->hltURL[0], &msg->hltClassName[0],
+  LOG4CPLUS_INFO(this->getApplicationLogger(),"removing FU sender at " << msg->hltURL);
+  bool didErase = smfusenders_.removeFUSender(&msg->hltURL[0], &msg->hltClassName[0],
 		 msg->hltLocalId, msg->hltInstance, msg->hltTid);
   if(!didErase)
   {
     LOG4CPLUS_ERROR(this->getApplicationLogger(),
-                    "Spurious end-of-run received for RB not in Sender list!"
+                    "Spurious end-of-run received for FU not in Sender list!"
                     << " With URL "
                     << msg->hltURL << " class " << msg->hltClassName  << " instance "
                     << msg->hltInstance << " Tid " << msg->hltTid);
@@ -1013,7 +1012,7 @@ void StorageManager::receiveDQMMessage(toolbox::mem::Reference *ref)
                                          +thislen;
          addMeasurement(actualFrameSize);
 
-         // no data sender list update yet for DQM data, should add it here
+         // no FU sender list update yet for DQM data, should add it here
       }
 
     } else {
@@ -1041,7 +1040,7 @@ void StorageManager::receiveDQMMessage(toolbox::mem::Reference *ref)
                                     + len;
     addMeasurement(actualFrameSize);
 
-    // no data sender list update yet for DQM data, should add it here
+    // no FU sender list update yet for DQM data, should add it here
   }
 
   if (  msg->frameCount == msg->numFrames-1 )
@@ -1488,7 +1487,7 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
 
   *out << "  </td>"                                                  << endl;
   *out << "</table>"                                                 << endl;
-// now for RB sender list statistics
+// now for FU sender list statistics
   *out << "<hr/>"                                                    << endl;
   *out << "<table>"                                                  << endl;
   *out << "<tr valign=\"top\">"                                      << endl;
@@ -1498,7 +1497,7 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
   *out << "<colgroup> <colgroup align=\"rigth\">"                    << endl;
     *out << "  <tr>"                                                   << endl;
     *out << "    <th colspan=2>"                                       << endl;
-    *out << "      " << "RB Sender Information"                            << endl;
+    *out << "      " << "FU Sender Information"                            << endl;
     *out << "    </th>"                                                << endl;
     *out << "  </tr>"                                                  << endl;
 
@@ -1512,10 +1511,10 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
     *out << "</tr>" << endl;
         *out << "<tr>" << endl;
           *out << "<td >" << endl;
-          *out << "Number of RB Senders" << endl;
+          *out << "Number of FU Senders" << endl;
           *out << "</td>" << endl;
           *out << "<td>" << endl;
-          *out << smrbsenders_.size() << endl;
+          *out << smfusenders_.size() << endl;
           *out << "</td>" << endl;
         *out << "  </tr>" << endl;
 
@@ -1523,12 +1522,12 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
 
   *out << "  </td>"                                                  << endl;
   *out << "</table>"                                                 << endl;
-  //---- separate pages for RB senders and Streamer Output
+  //---- separate pages for FU senders and Streamer Output
   *out << "<hr/>"                                                 << endl;
   std::string url = getApplicationDescriptor()->getContextDescriptor()->getURL();
   std::string urn = getApplicationDescriptor()->getURN();
-  *out << "<a href=\"" << url << "/" << urn << "/rbsenderlist" << "\">" 
-       << "RB Sender list web page" << "</a>" << endl;
+  *out << "<a href=\"" << url << "/" << urn << "/fusenderlist" << "\">" 
+       << "FU Sender list web page" << "</a>" << endl;
   *out << "<hr/>"                                                 << endl;
   *out << "<a href=\"" << url << "/" << urn << "/streameroutput" << "\">" 
        << "Streamer Output Status web page" << "</a>" << endl;
@@ -1547,316 +1546,391 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
   *out << "</html>"                                                  << endl;
 }
 
-/////////////////////////
-//// rbsenderWebPage ////
-/////////////////////////
 
-void StorageManager::rbsenderWebPage(xgi::Input *in, xgi::Output *out)
+//////////// *** fusender web page //////////////////////////////////////////////////////////
+void StorageManager::fusenderWebPage(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
-
-  ////////////////////////////////////////
-  //// Page opening and header table: ////
-  ////////////////////////////////////////
-
-  *out << "<?xml version=\"1.0\" encoding=\"utf-8\"?>" << endl;
-  *out << "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" "
-       << "\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">" << endl;
-
-  *out << "<html xmlns=\"http://www.w3.org/1999/xhtml\">" << endl << "<head>" << endl;
-  *out << "<link rel=\"stylesheet\""
-       << " href=\"/" << getApplicationDescriptor()->getURN()
-       << "/styles.css\"/>" << endl;
+  *out << "<html>"                                                   << endl;
+  *out << "<head>"                                                   << endl;
+  *out << "<link type=\"text/css\" rel=\"stylesheet\"";
+  *out << " href=\"/" <<  getApplicationDescriptor()->getURN()
+       << "/styles.css\"/>"                   << endl;
   *out << "<title>" << getApplicationDescriptor()->getClassName() << " instance "
-       << getApplicationDescriptor()->getInstance() << "</title>" << endl;
-  *out << "</head>" << endl << "<body>" << endl;
-
-  *out << "<table>" << endl << "<tbody>" << endl;
-  *out << "<tr>" << endl;
-
-  *out << "<td><img src=\"/rubuilder/fu/images/fu64x64.gif\" "
-       << "alt=\"main\" width=\"64\" height=\"64\" /></td>" << endl;
-
-  *out << "<td><b>" << getApplicationDescriptor()->getClassName() << " instance "
-       << getApplicationDescriptor()->getInstance() << " "
-       << fsm_.stateName()->toString() << "</b></td>" << endl;
-
-  *out << "<td><a href=\"/urn:xdaq-application:lid=3\">"
-       << "<img src=\"/hyperdaq/images/HyperDAQ.jpg\" alt=\"HyperDAQ\""
-       << " width=\"32\" height=\"32\" /></a></td>" << endl;
-
-  *out << "<td>&nbsp;&nbsp;</td>" << endl;
-
-  *out << "<td><a href=\"/" << getApplicationDescriptor()->getURN()<< "/debug\">"
-       << "<img src=\"/rubuilder/fu/images/debug32x32.gif\" alt=\"debug\""
-       << " width=\"32\" height=\"32\" /></a></td>" << endl;
-
-  *out << "</tr>" << endl << "</tbody>" << endl << "</table>" << endl;
-
-  if(fsm_.stateName()->value_ == "Failed")
-    {
-      *out << "<p><b>Failed:</b> ";
-      *out << reasonForFailedState_ << "</p>" << endl;
-    }
-
-  ///////////////////////////////
-  //// Loop over RB senders: ////
-  ///////////////////////////////
-
-  RBSS_Vector vrbstats = smrbsenders_.getSenderStats();
-
-  if( !vrbstats.empty() )
-    {
-
-      *out << "<p>RB Senders (" << vrbstats.size() << " total):</p>" << endl;
-      *out << "<table>" << endl << "<tbody>" << endl;
-
-      *out << "<tr>";
-      *out << "<th>Number:</th>";
-      *out << "<th>URL:</th>";
-      *out << "<th>Class Name:</th>";
-      *out << "<th>Instance:</th>";
-      *out << "<th>Local ID:</th>";
-      *out << "<th>TID:</th>";
-      *out << "<th>Output Modules:</th>";
-      *out << "<th>Details Link:</th>";
-      *out << "</tr>" << endl;
-
-      for( unsigned int i = 0; i < vrbstats.size(); ++i )
-	{
-
-	  boost::shared_ptr<SMFUSenderStats> p = vrbstats[i];
-
-          std::string hltUrl(p->hltURL_->begin(), p->hltURL_->end());
-          std::string hltClassName(p->hltClassName_->begin(), p->hltClassName_->end());
-
-	  *out << "<tr>";
-	  *out << "<td>" << i + 1 << "</td>";
-	  *out << "<td>" << hltUrl << "</td>";
-	  *out << "<td>" << hltClassName << "</td>";
-	  *out << "<td>" << p->hltInstance_ << "</td>";
-	  *out << "<td>" << p->hltLocalId_ << "</td>";
-	  *out << "<td>" << p->hltTid_ << "</td>";
-	  *out << "<td>" << p->registryCollection_.outModName_.size() << "</td>";
-
-	  std::string url = getApplicationDescriptor()->getContextDescriptor()->getURL();
-	  std::string urn = getApplicationDescriptor()->getURN();
-	  *out << "<td><a href=\"" << url << "/" << urn
-	       << "/rbsenderdetail?rbsender=" << i << "\">&gt;&gt;</a></td>";
-
-	  *out << "</tr>" << endl;
-
-	}
-
-      *out << "</tbody>" << endl << "</table>" << endl;
-
-    }
-  else
-    {
-      *out << "<p>No RB Senders</p>" << endl;
-    }
-
-
-  ///////////////////////
-  //// Page closing: ////
-  ///////////////////////
-
-  *out << "</body>" << endl << "</html>" << endl;
-
-}
-
-///////////////////////////////
-//// rbsenderDetailWebPage ////
-///////////////////////////////
-
-void StorageManager::rbsenderDetailWebPage( xgi::Input *in, xgi::Output *out )
-  throw (xgi::exception::Exception)
-{
-
-  ///////////////////////////////
-  //// Extract sender index: ////
-  ///////////////////////////////
-
-  int rbsender = -1;
-
-  try
-    {
-      cgicc::Cgicc cgi( in );
-      const std::string value = cgi.getElement( "rbsender" )->getValue();
-      rbsender = atoi( value.data() );
-    }
-  catch (std::exception& e)
-    {
-      XCEPT_RAISE (xgi::exception::Exception, e.what());
-    }
-
-  //////////////////////
-  //// Page header: ////
-  //////////////////////
-
-  *out << "<?xml version=\"1.0\" encoding=\"utf-8\"?>" << endl;
-  *out << "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\""
-       << " \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">" << endl;
-  *out << "<html xmlns=\"http://www.w3.org/1999/xhtml\">" << endl;
-  *out << "<head>" << endl;
-  *out << "<link rel=\"stylesheet\" href=\""
-       << getApplicationDescriptor()->getURN()
-       << "/styles.css\" />" << endl;
-  *out << "<title>"
-       << getApplicationDescriptor()->getClassName()
-       << " instance "
        << getApplicationDescriptor()->getInstance()
-       << "</title>" << endl;
-  *out << "</head>" << endl;
-  *out << "<body>" << endl;
-
-  *out << "<h2>RB Sender " << rbsender << ":</h2>" << endl;
-
-  RBSS_Vector vrbstats = smrbsenders_.getSenderStats();
-
-  // Index check:
-  if( rbsender >= static_cast<int>(vrbstats.size()) )
+       << "</title>"     << endl;
+  *out << "</head><body>"                                            << endl;
+    *out << "<table border=\"0\" width=\"100%\">"                      << endl;
+    *out << "<tr>"                                                     << endl;
+    *out << "  <td align=\"left\">"                                    << endl;
+    *out << "    <img"                                                 << endl;
+    *out << "     align=\"middle\""                                    << endl;
+    *out << "     src=\"/rubuilder/fu/images/fu64x64.gif\""     << endl;
+    *out << "     alt=\"main\""                                        << endl;
+    *out << "     width=\"64\""                                        << endl;
+    *out << "     height=\"64\""                                       << endl;
+    *out << "     border=\"\"/>"                                       << endl;
+    *out << "    <b>"                                                  << endl;
+    *out << getApplicationDescriptor()->getClassName() << " instance "
+         << getApplicationDescriptor()->getInstance()                  << endl;
+    *out << "      " << fsm_.stateName()->toString()                   << endl;
+    *out << "    </b>"                                                 << endl;
+    *out << "  </td>"                                                  << endl;
+    *out << "  <td width=\"32\">"                                      << endl;
+    *out << "    <a href=\"/urn:xdaq-application:lid=3\">"             << endl;
+    *out << "      <img"                                               << endl;
+    *out << "       align=\"middle\""                                  << endl;
+    *out << "       src=\"/hyperdaq/images/HyperDAQ.jpg\""    << endl;
+    *out << "       alt=\"HyperDAQ\""                                  << endl;
+    *out << "       width=\"32\""                                      << endl;
+    *out << "       height=\"32\""                                      << endl;
+    *out << "       border=\"\"/>"                                     << endl;
+    *out << "    </a>"                                                 << endl;
+    *out << "  </td>"                                                  << endl;
+    *out << "  <td width=\"32\">"                                      << endl;
+    *out << "  </td>"                                                  << endl;
+    *out << "  <td width=\"32\">"                                      << endl;
+    *out << "    <a href=\"/" << getApplicationDescriptor()->getURN()
+         << "/debug\">"                   << endl;
+    *out << "      <img"                                               << endl;
+    *out << "       align=\"middle\""                                  << endl;
+    *out << "       src=\"/rubuilder/fu/images/debug32x32.gif\""         << endl;
+    *out << "       alt=\"debug\""                                     << endl;
+    *out << "       width=\"32\""                                      << endl;
+    *out << "       height=\"32\""                                     << endl;
+    *out << "       border=\"\"/>"                                     << endl;
+    *out << "    </a>"                                                 << endl;
+    *out << "  </td>"                                                  << endl;
+    *out << "</tr>"                                                    << endl;
+    if(fsm_.stateName()->value_ == "Failed")
     {
-      *out << "<p>StorageManager::rbsenderDetailWebPage Error: RB sender index ("
-	   << rbsender << ") out of range (" << vrbstats.size() << ")</p>" << endl
-	   << "</head>" << endl << "<body>" << endl;
-      return;
+      *out << "<tr>"					     << endl;
+      *out << " <td>"					     << endl;
+      *out << "<textarea rows=" << 5 << " cols=60 scroll=yes";
+      *out << " readonly title=\"Reason For Failed\">"		     << endl;
+      *out << reasonForFailedState_                                  << endl;
+      *out << "</textarea>"                                          << endl;
+      *out << " </td>"					     << endl;
+      *out << "</tr>"					     << endl;
     }
+    *out << "</table>"                                                 << endl;
 
-  boost::shared_ptr<SMFUSenderStats> p = vrbstats[ rbsender ];
+  *out << "<hr/>"                                                    << endl;
 
-  ///////////////////////////////////
-  //// Loop over output modules: ////
-  ///////////////////////////////////
+// now for FU sender list statistics
+  *out << "<table>"                                                  << endl;
+  *out << "<tr valign=\"top\">"                                      << endl;
+  *out << "  <td>"                                                   << endl;
 
-  if( p->registryCollection_.outModName_.empty() )
-    {
-      *out << "<p>No Output Modules</p>" << endl;
-    }
-  else
-    {
+  *out << "<table frame=\"void\" rules=\"groups\" class=\"states\">" << endl;
+  *out << "<colgroup> <colgroup align=\"rigth\">"                    << endl;
+    *out << "  <tr>"                                                   << endl;
+    *out << "    <th colspan=2>"                                       << endl;
+    *out << "      " << "FU Sender List"                            << endl;
+    *out << "    </th>"                                                << endl;
+    *out << "  </tr>"                                                  << endl;
 
-      const unsigned int nmods = p->registryCollection_.outModName_.size();
-      *out << "<h1>Output Modules (" << nmods << " total):</h1>" << endl;
+    *out << "<tr>" << endl;
+    *out << "<th >" << endl;
+    *out << "Parameter" << endl;
+    *out << "</th>" << endl;
+    *out << "<th>" << endl;
+    *out << "Value" << endl;
+    *out << "</th>" << endl;
+    *out << "</tr>" << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "Number of FU Senders" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << smfusenders_.size() << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+    std::vector<boost::shared_ptr<SMFUSenderStats> > vfustats = smfusenders_.getFUSenderStats();
+    if(!vfustats.empty()) {
+      for(vector<boost::shared_ptr<SMFUSenderStats> >::iterator pos = vfustats.begin();
+          pos != vfustats.end(); ++pos)
+      {
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "FU Sender URL" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          char hlturl[MAX_I2O_SM_URLCHARS];
+          copy(&(((*pos)->hltURL_)->at(0)), 
+               &(((*pos)->hltURL_)->at(0)) + ((*pos)->hltURL_)->size(),
+               hlturl);
+          hlturl[((*pos)->hltURL_)->size()] = '\0';
+          *out << hlturl << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "FU Sender Class Name" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          char hltclass[MAX_I2O_SM_URLCHARS];
+          copy(&(((*pos)->hltClassName_)->at(0)), 
+               &(((*pos)->hltClassName_)->at(0)) + ((*pos)->hltClassName_)->size(),
+               hltclass);
+          hltclass[((*pos)->hltClassName_)->size()] = '\0';
+          *out << hltclass << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "FU Sender Instance" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << (*pos)->hltInstance_ << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "FU Sender Local ID" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << (*pos)->hltLocalId_ << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "FU Sender Tid" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << (*pos)->hltTid_ << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "Number of registries received (output modules)" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << (*pos)->registryCollection_.outModName_.size() << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+        *out << "<tr><td bgcolor=\"#999933\" height=\"1\" colspan=\"2\"></td></tr>" << endl;
+        // Loop over number of registries
+        if(!(*pos)->registryCollection_.outModName_.empty()) {
+          for(vector<std::string>::iterator idx = (*pos)->registryCollection_.outModName_.begin();
+              idx != (*pos)->registryCollection_.outModName_.end(); ++idx)
+          {
+            *out << "<tr>" << endl;
+              *out << "<td >" << endl;
+              *out << "Output Module Name" << endl;
+              *out << "</td>" << endl;
+              *out << "<td align=right>" << endl;
+              *out << (*idx) << endl;
+              *out << "</td>" << endl;
+            *out << "  </tr>" << endl;
+            *out << "<tr>" << endl;
+              *out << "<td >" << endl;
+              *out << "Output Module Id" << endl;
+              *out << "</td>" << endl;
+              *out << "<td align=right>" << endl;
+              *out << (*pos)->registryCollection_.outModName2ModId_[*idx] << endl;
+              *out << "</td>" << endl;
+            *out << "  </tr>" << endl;
+            *out << "<tr>" << endl;
+              *out << "<td >" << endl;
+              *out << "Product registry size (bytes)" << endl;
+              *out << "</td>" << endl;
+              *out << "<td align=right>" << endl;
+              *out << (*pos)->registryCollection_.registrySizeMap_[*idx] << endl;
+              *out << "</td>" << endl;
+            *out << "  </tr>" << endl;
+            *out << "<tr>" << endl;
+              *out << "<td >" << endl;
+              *out << "Product registry" << endl;
+              *out << "</td>" << endl;
+              *out << "<td align=right>" << endl;
+              if((*pos)->registryCollection_.regAllReceivedMap_[*idx]) {
+                *out << "All Received" << endl;
+              } else {
+                *out << "Partially received" << endl;
+              }
+              *out << "</td>" << endl;
+            *out << "  </tr>" << endl;
+            *out << "<tr>" << endl;
+              *out << "<td >" << endl;
+              *out << "Product registry" << endl;
+              *out << "</td>" << endl;
+              *out << "<td align=right>" << endl;
+              if((*pos)->registryCollection_.regCheckedOKMap_[*idx]) {
+                *out << "Checked OK" << endl;
+              } else {
+                *out << "Bad" << endl;
+              }
+              *out << "</td>" << endl;
+            *out << "  </tr>" << endl;
+            *out << "<tr><td bgcolor=\"#999933\" height=\"1\" colspan=\"2\"></td></tr>" << endl;
+          }
+        }
+        *out << "<tr>" << endl;
+          *out << "<td>" << endl;
+          *out << "Connection Status" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << (*pos)->connectStatus_ << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+        if((*pos)->connectStatus_ > 1) {
+          *out << "<tr>" << endl;
+            *out << "<td >" << endl;
+            *out << "Time since last data frame (us)" << endl;
+            *out << "</td>" << endl;
+            *out << "<td align=right>" << endl;
+            *out << (*pos)->timeWaited_ << endl;
+            *out << "</td>" << endl;
+          *out << "  </tr>" << endl;
+          *out << "<tr>" << endl;
+            *out << "<td >" << endl;
+            *out << "Run number" << endl;
+            *out << "</td>" << endl;
+            *out << "<td align=right>" << endl;
+            *out << (*pos)->runNumber_ << endl;
+            *out << "</td>" << endl;
+          *out << "  </tr>" << endl;
+          *out << "<tr>" << endl;
+            *out << "<td >" << endl;
+            *out << "Running locally" << endl;
+            *out << "</td>" << endl;
+            *out << "<td align=right>" << endl;
+            if((*pos)->isLocal_) {
+              *out << "Yes" << endl;
+            } else {
+              *out << "No" << endl;
+            }
+            *out << "</td>" << endl;
+          *out << "  </tr>" << endl;
+          *out << "<tr>" << endl;
+            *out << "<td >" << endl;
+            *out << "Frames received" << endl;
+            *out << "</td>" << endl;
+            *out << "<td align=right>" << endl;
+            *out << (*pos)->framesReceived_ << endl;
+            *out << "</td>" << endl;
+          *out << "  </tr>" << endl;
+          *out << "<tr>" << endl;
+            *out << "<td >" << endl;
+            *out << "Events received" << endl;
+            *out << "</td>" << endl;
+            *out << "<td align=right>" << endl;
+            *out << (*pos)->eventsReceived_ << endl;
+            *out << "</td>" << endl;
+          *out << "  </tr>" << endl;
+          *out << "<tr>" << endl;
+            *out << "<td >" << endl;
+            *out << "Total Bytes received" << endl;
+            *out << "</td>" << endl;
+            *out << "<td align=right>" << endl;
+            *out << (*pos)->totalSizeReceived_ << endl;
+            *out << "</td>" << endl;
+          *out << "  </tr>" << endl;
+          *out << "<tr><td bgcolor=\"#999933\" height=\"1\" colspan=\"2\"></td></tr>" << endl;
+          // Loop over number of output modules
+          if(!(*pos)->registryCollection_.outModName_.empty()) {
+            for(vector<std::string>::iterator idx = (*pos)->registryCollection_.outModName_.begin();
+                idx != (*pos)->registryCollection_.outModName_.end(); ++idx)
+            {
+              *out << "<tr>" << endl;
+                *out << "<td >" << endl;
+                *out << "Output Module Name" << endl;
+                *out << "</td>" << endl;
+                *out << "<td align=right>" << endl;
+                *out << (*idx) << endl;
+                *out << "</td>" << endl;
+              *out << "  </tr>" << endl;
+              *out << "<tr>" << endl;
+                *out << "<td >" << endl;
+                *out << "Frames received" << endl;
+                *out << "</td>" << endl;
+                *out << "<td align=right>" << endl;
+                *out << (*pos)->datCollection_.framesReceivedMap_[*idx] << endl;
+                *out << "</td>" << endl;
+              *out << "  </tr>" << endl;
+              *out << "<tr>" << endl;
+                *out << "<td >" << endl;
+                *out << "Events received" << endl;
+                *out << "</td>" << endl;
+                *out << "<td align=right>" << endl;
+                *out << (*pos)->datCollection_.eventsReceivedMap_[*idx] << endl;
+                *out << "</td>" << endl;
+              *out << "  </tr>" << endl;
+              *out << "<tr>" << endl;
+                *out << "<td >" << endl;
+                *out << "Total Bytes received" << endl;
+                *out << "</td>" << endl;
+                *out << "<td align=right>" << endl;
+                *out << (*pos)->datCollection_.totalSizeReceivedMap_[*idx] << endl;
+                *out << "</td>" << endl;
+              *out << "  </tr>" << endl;
+              *out << "<tr><td bgcolor=\"#999933\" height=\"1\" colspan=\"2\"></td></tr>" << endl;
+            }
+          }
+          if((*pos)->eventsReceived_ > 0) {
+            *out << "<tr>" << endl;
+              *out << "<td >" << endl;
+              *out << "Last frame latency (us)" << endl;
+              *out << "</td>" << endl;
+              *out << "<td align=right>" << endl;
+              *out << (*pos)->lastLatency_ << endl;
+              *out << "</td>" << endl;
+            *out << "  </tr>" << endl;
+            *out << "<tr>" << endl;
+              *out << "<td >" << endl;
+              *out << "Average event size (Bytes)" << endl;
+              *out << "</td>" << endl;
+              *out << "<td align=right>" << endl;
+              *out << (*pos)->totalSizeReceived_/(*pos)->eventsReceived_ << endl;
+              *out << "</td>" << endl;
+              *out << "<tr>" << endl;
+                *out << "<td >" << endl;
+                *out << "Last Run Number" << endl;
+                *out << "</td>" << endl;
+                *out << "<td align=right>" << endl;
+                *out << (*pos)->lastRunID_ << endl;
+                *out << "</td>" << endl;
+              *out << "  </tr>" << endl;
+              *out << "<tr>" << endl;
+                *out << "<td >" << endl;
+                *out << "Last Event Number" << endl;
+                *out << "</td>" << endl;
+                *out << "<td align=right>" << endl;
+                *out << (*pos)->lastEventID_ << endl;
+                *out << "</td>" << endl;
+              *out << "  </tr>" << endl;
+            } // events received endif
+          *out << "  </tr>" << endl;
+          *out << "<tr>" << endl;
+            *out << "<td >" << endl;
+            *out << "Total out of order frames" << endl;
+            *out << "</td>" << endl;
+            *out << "<td align=right>" << endl;
+            *out << (*pos)->totalOutOfOrder_ << endl;
+            *out << "</td>" << endl;
+          *out << "  </tr>" << endl;
+          *out << "<tr>" << endl;
+            *out << "<td >" << endl;
+            *out << "Total Bad Events" << endl;
+            *out << "</td>" << endl;
+            *out << "<td align=right>" << endl;
+            *out << (*pos)->totalBadEvents_ << endl;
+            *out << "</td>" << endl;
+          *out << "  </tr>" << endl;
+        } // connect status endif
+      } // Sender list loop
+    } //sender size test endif
 
-      *out << "<table>" << endl << "<tbody>" << endl;
+  *out << "</table>" << endl;
 
-      *out << "<tr>"
-	   << "<th>Name:</th>"
-	   << "<th>ID:</th>"
-	   << "<th>Size (Bytes):</th>"
-	   << "<th>Received:</th>"
-	   << "<th>Checked:</th>"
-	   << "<th>Frames Received:</th>"
-	   << "<th>Events Received:</th>"
-	   << "<th>Bytes Received:</th>"
-	   << "</tr>" << endl;
+  *out << "  </td>"                                                  << endl;
+  *out << "</table>"                                                 << endl;
 
-      for( vector<string>::const_iterator idx = p->registryCollection_.outModName_.begin();
-	   idx != p->registryCollection_.outModName_.end(); ++idx )
-	{
-
-	  string received( "All" );
-	  if( !p->registryCollection_.regAllReceivedMap_[ *idx ] )
-	    {
-	      received = "Partial";
-	    }
-
-	  string checked( "OK" );
-	  if( !p->registryCollection_.regCheckedOKMap_[ *idx ] )
-	    {
-	      checked = "Bad";
-	    }
-
-	  *out << "<tr>"
-	       << "<td>" << *idx << "</td>"
-	       << "<td>" << p->registryCollection_.outModName2ModId_[ *idx ] << "</td>"
-	       << "<td>" << p->registryCollection_.registrySizeMap_[ *idx ] << "</td>"
-	       << "<td>" << received << "</td>"
-	       << "<td>" << checked << "</td>"
-	       << "<td>" << p->datCollection_.framesReceivedMap_[ *idx ] << "</td>"
-	       << "<td>" << p->datCollection_.eventsReceivedMap_[ *idx ] << "</td>"
-	       << "<td>" << p->datCollection_.totalSizeReceivedMap_[ *idx ] << "</td>"
-	       << "</tr>" << endl;
-	}
-
-      *out << "</tbody>" << endl << "</table>" << endl;
-
-    }
-
-  //////////////////
-  //// Summary: ////
-  //////////////////
-
-  *out << "<h1>Summary:</h1>" << endl;
-  *out << "<table>" << endl << "<tbody>" << endl;
-
-  *out << "<tr><th>Connection Status:</th> <td>"
-       << p->connectStatus_ << "</td></tr>" << endl;
-
-  if( p->connectStatus_ > 1 )
-    {
-
-      *out << "<tr><th>Time Since Last Data Frame (ms):</th> <td>"
-	   << p->timeWaited_ << "</td></tr>" << endl;
-
-      *out << "<tr><th>Run Number:</th> <td>"
-	   << p->runNumber_ << "</td></tr>" << endl;
-
-      string local = "Yes";
-      if( !p->isLocal_ )
-	{
-	  local = "No";
-	}
-      *out << "<tr><th>Running Locally:</th> <td>"
-	   << local << "</td></tr>" << endl;
-
-      *out << "<tr><th>Frames Received:</th> <td>"
-	   << p->framesReceived_ << "</td></tr>" << endl;
-
-      *out << "<tr><th>Events Received:</th> <td>"
-	   << p->eventsReceived_ << "</td></tr>" << endl;
-
-      if( p->eventsReceived_ > 0 )
-	{
-
-	  *out << "<tr><th>Total Bytes Received:</th> <td>"
-	       << p->totalSizeReceived_ << "</td></tr>" << endl;
-
-	  *out << "<tr><th>Last Frame Latency (μs):</th> <td>"
-	       << p->lastLatency_ << "</td></tr>" << endl;
-
-	  const double avg_size =
-	    (double)p->totalSizeReceived_
-	    / (double)p->eventsReceived_;
-	  *out << "<tr><th>Average Event Size (Bytes):</th> <td>"
-	       << avg_size << "</td></tr>" << endl;
-
-	  *out << "<tr><th>Last Run Number:</th> <td>"
-	       << p->lastRunID_ << "</td></tr>" << endl;
-
-	  *out << "<tr><th>Last Eevent Number:</th> <td>"
-	       << p->lastEventID_ << "</td></tr>" << endl;
-
-	}
-
-      *out << "<tr><th>Total Out Of Order Frames:</th> <td>"
-	   << p->totalOutOfOrder_ << "</td></tr>" << endl;
-
-      *out << "<tr><th>Total Bad Events:</th> <td>"
-	   << p->totalBadEvents_ << "</td></tr>" << endl;
-
-    }
-
-  *out << "</tbody>" << endl << "</table>" << endl;
-
-  ///////////////////////
-  //// Page closing: ////
-  ///////////////////////
-
-  *out << "</body>" << endl << "</html>" << endl;
-
+  *out << "</body>"                                                  << endl;
+  *out << "</html>"                                                  << endl;
 }
+
 
 //////////// *** streamer file output web page //////////////////////////////////////////////////////////
 void StorageManager::streamerOutputWebPage(xgi::Input *in, xgi::Output *out)
@@ -2256,13 +2330,8 @@ void StorageManager::consumerListWebPage(xgi::Input *in, xgi::Output *out)
 	sprintf(buffer, "<Consumer>\n");
 	out->write(buffer,strlen(buffer));
 
-	if (consumerPipe->isProxyServer()) {
-	  sprintf(buffer, "<Name>Proxy Server</Name>\n");
-	}
-	else {
-	  sprintf(buffer, "<Name>%s</Name>\n",
-	          consumerPipe->getConsumerName().c_str());
-	}
+	sprintf(buffer, "<Name>%s</Name>\n",
+		consumerPipe->getConsumerName().c_str());
 	out->write(buffer,strlen(buffer));
 
 	sprintf(buffer, "<ID>%d</ID>\n", consumerPipe->getConsumerId());
@@ -2316,13 +2385,8 @@ void StorageManager::consumerListWebPage(xgi::Input *in, xgi::Output *out)
 	sprintf(buffer, "<DQMConsumer>\n");
 	out->write(buffer,strlen(buffer));
 
-	if (dqmPipe->isProxyServer()) {
-	  sprintf(buffer, "<Name>Proxy Server</Name>\n");
-	}
-	else {
-	  sprintf(buffer, "<Name>%s</Name>\n",
-	          dqmPipe->getConsumerName().c_str());
-	}
+	sprintf(buffer, "<Name>%s</Name>\n",
+		dqmPipe->getConsumerName().c_str());
 	out->write(buffer,strlen(buffer));
 
 	sprintf(buffer, "<ID>%d</ID>\n", dqmPipe->getConsumerId());
@@ -3837,7 +3901,7 @@ void StorageManager::setupFlashList()
   is->fireItemAvailable("STparameterSet",       &offConfig_);
   is->fireItemAvailable("stateName",            fsm_.stateName());
   is->fireItemAvailable("progressMarker",       &progressMarker_);
-  is->fireItemAvailable("connectedRBs",         &connectedRBs_);
+  is->fireItemAvailable("connectedFUs",         &connectedFUs_);
   is->fireItemAvailable("pushMode2Proxy",       &pushmode2proxy_);
   is->fireItemAvailable("collateDQM",           &collateDQM_);
   is->fireItemAvailable("archiveDQM",           &archiveDQM_);
@@ -3893,7 +3957,7 @@ void StorageManager::setupFlashList()
   is->addItemRetrieveListener("STparameterSet",       this);
   is->addItemRetrieveListener("stateName",            this);
   is->addItemRetrieveListener("progressMarker",       this);
-  is->addItemRetrieveListener("connectedRBs",         this);
+  is->addItemRetrieveListener("connectedFUs",         this);
   is->addItemRetrieveListener("pushMode2Proxy",       this);
   is->addItemRetrieveListener("collateDQM",           this);
   is->addItemRetrieveListener("archiveDQM",           this);
@@ -3932,8 +3996,8 @@ void StorageManager::actionPerformed(xdata::Event& e)
     is->lock();
     std::string item = dynamic_cast<xdata::ItemRetrieveEvent&>(e).itemName();
     // Only update those locations which are not always up to date
-    if      (item == "connectedRBs")
-      connectedRBs_   = smrbsenders_.size();
+    if      (item == "connectedFUs")
+      connectedFUs_   = smfusenders_.size();
     else if (item == "memoryUsed")
       memoryUsed_     = pool_->getMemoryUsage().getUsed();
     else if (item == "storedVolume")
@@ -4453,12 +4517,12 @@ void StorageManager::sendDiscardMessage(unsigned int    fuID,
 	    << hltClassName   << std::endl;
   */
     
-  set<xdaq::ApplicationDescriptor*> setOfRBs=
+  set<xdaq::ApplicationDescriptor*> setOfFUs=
     getApplicationContext()->getDefaultZone()->
     getApplicationDescriptors(hltClassName.c_str());
   
   for (set<xdaq::ApplicationDescriptor*>::iterator 
-	 it=setOfRBs.begin();it!=setOfRBs.end();++it)
+	 it=setOfFUs.begin();it!=setOfFUs.end();++it)
     {
       if ((*it)->getInstance()==hltInstance)
 	{

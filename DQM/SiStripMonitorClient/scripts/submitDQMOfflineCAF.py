@@ -1,7 +1,7 @@
-#!/afs/cern.ch/cms/sw/slc4_ia32_gcc345/external/python/2.4.2-cms2/bin/python
+#!/usr/bin/env python
 
 #
-# $Id: submitDQMOfflineCAF.py,v 1.6 2008/07/24 10:54:44 vadler Exp $
+# $Id: submitDQMOfflineCAF.py,v 1.1 2008/08/02 16:06:09 dutta Exp $
 #
 
 ## CMSSW/DQM/SiStripMonitorClient/scripts/submitDQMOfflineCAF.py

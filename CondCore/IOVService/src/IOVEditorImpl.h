@@ -11,13 +11,16 @@ namespace cond{
   public:
     // constructor from existing iov
     IOVEditorImpl( cond::PoolTransaction& pooldb,
-		   const std::string& token);
+		   const std::string& token,
+		   cond::Time_t globalSince, 
+		   cond::Time_t globalTill);
+
     /// Destructor
     virtual ~IOVEditorImpl();
 
     /// create a new IOV
     void create(cond::Time_t firstSince,
-			 cond::TimeType timetype);
+			 cond::TimeType timetype=cond::runnumber);
 
     /// Assign a payload with till time. Returns the payload index in the iov sequence
     virtual unsigned int insert( cond::Time_t tillTime,
@@ -47,11 +50,12 @@ namespace cond{
 
   private:
     void init();
-    bool validTime(cond::Time_t time, cond::TimeType timetype) const;
     bool validTime(cond::Time_t time) const;
 
     cond::PoolTransaction* m_pooldb;
     std::string m_token;
+    cond::Time_t m_globalSince;
+    cond::Time_t m_globalTill;
     bool m_isActive;
     cond::TypedRef<cond::IOV> m_iov;
   };

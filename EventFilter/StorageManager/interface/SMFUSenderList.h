@@ -13,7 +13,7 @@
 
 namespace stor {
 
-class SMFUSenderList  //< list of data senders with thread-safe access
+class SMFUSenderList  //< list of FU senders with thread-safe access
 {
   public:
 
@@ -23,36 +23,36 @@ class SMFUSenderList  //< list of data senders with thread-safe access
 
   // following method uses the list lock
 
-  /// number of registered data senders
+  /// number of registered FU senders
   unsigned int size();
-  /// register INIT message frame from data sender
+  /// register INIT message frame from FU sender
   /// Creates an entry or update one for subsequent frames
   ///  containing additional fragments
   /// return -1 if problems, 1 if registry is completed, 0 otherwise
-  int registerDataSender(const char* hltURL,
+  int registerFUSender(const char* hltURL,
     const char* hltClassName, const unsigned int hltLocalId,
     const unsigned int hltInstance, const unsigned int hltTid,
     const unsigned int frameCount, const unsigned int numFrames,
     toolbox::mem::Reference *ref, const std::string outModName, const uint32 outModId);
-  /// Update data sender information and statistics for each data
+  /// Update FU sender information and statistics for each data
   /// frame received, return true if this frame completes an event
   /// return -1 if problems, 1 if complete an event, 0 otherwise
-  int updateSender4data(const char* hltURL, const char* hltClassName,
+  int updateFUSender4data(const char* hltURL, const char* hltClassName,
     const unsigned int hltLocalId, const unsigned int hltInstance,
     const unsigned int hltTid,
     const unsigned int runNumber, const unsigned int eventNumber,
     const unsigned int frameNum, const unsigned int totalFrames,
     const unsigned int origdatasize, const bool isLocal, const uint32 outModId);
-  /// Removed a data sender from the list when it has ended an run
-  /// returns false if there was a problem finding the sender in list
-  bool removeDataSender(const char* hltURL,
+  /// Removed a FU sender from the list when it has ended an run
+  /// returns false if there was a problem finding FU sender in list
+  bool removeFUSender(const char* hltURL,
     const char* hltClassName, const unsigned int hltLocalId,
     const unsigned int hltInstance, const unsigned int hltTid);
   /// set the flag that says the registry has been checked
   void setRegCheckedOK(const char* hltURL,
     const char* hltClassName, const unsigned int hltLocalId,
     const unsigned int hltInstance, const unsigned int hltTid, const std::string outModName);
-  /// methods for access to sender info and statistics
+  /// methods for access to FU info and statistics
   char* getRegistryData(const char* hltURL,
     const char* hltClassName, const unsigned int hltLocalId,
     const unsigned int hltInstance, const unsigned int hltTid, const std::string outModName);
@@ -60,7 +60,7 @@ class SMFUSenderList  //< list of data senders with thread-safe access
     const char* hltClassName, const unsigned int hltLocalId,
     const unsigned int hltInstance, const unsigned int hltTid, const std::string outModName);
   /// provide access to (self-consistent) statistics
-  std::vector<boost::shared_ptr<SMFUSenderStats> > getSenderStats();
+  std::vector<boost::shared_ptr<SMFUSenderStats> > getFUSenderStats();
 
   private:
 
@@ -79,8 +79,8 @@ class SMFUSenderList  //< list of data senders with thread-safe access
                   const unsigned int hltInstance, 
                   const unsigned int hltTid);
 
-  // for large numbers of data senders we should change this later to a map
-  std::list<boost::shared_ptr<stor::SMFUSenderEntry> > senderlist_;
+  // for large numbers of FU senders we should change this later to a map
+  std::list<boost::shared_ptr<stor::SMFUSenderEntry> > fulist_;
   boost::mutex list_lock_;
   
 };

@@ -5,8 +5,8 @@
 //   L1 DT Track Finder Digi-to-Raw
 //
 //
-//   $Date: 2008/03/17 08:53:11 $
-//   $Revision: 1.9 $
+//   $Date: 2008/02/25 15:53:12 $
+//   $Revision: 1.8 $
 //
 //   Author :
 //   J. Troconiz  UAM Madrid
@@ -67,7 +67,7 @@ bool DTTFFEDSim::fillRawData(edm::Event& e,
 
   edm::Handle<L1MuDTTrackContainer>   trtrig;
   e.getByLabel(getDTPHTFInputTag(),trtrig);
-  lines += trtrig->bxSize(-1, 1)*3;
+  lines += trtrig->bxSize(-1, 1)*2;
 
   FEDRawData& dttfdata = data.FEDData(0x30C);
   dttfdata.resize(lines*8); // size in bytes
@@ -179,12 +179,12 @@ bool DTTFFEDSim::fillRawData(edm::Event& e,
 
     int channelNr = channel(tstrk->whNum(), tstrk->scNum(), tstrk->bx());
     if ( channelNr == 255 ) continue;
-    int TSId = ( tstrk->TrkTag() == 0 ) ? 0xAFFF : 0xBFFF;
+    int TSId = ( tstrk->TrkTag() == 0 ) ? 0xAFFFC : 0xBFFFC;
 
     *dataWord1 = ((channelNr&0xFF)<<24)
                + 0x00FFFFFF;
 
-    *dataWord2 = (           (TSId&0xFFFF)<<16)
+    *dataWord2 = (           (TSId&0xFFFFC)<<12)
 	       + ( tstrk->stNum(4)&0x0000F)
                + ((tstrk->stNum(3)&0x0000F)<<4)
                + ((tstrk->stNum(2)&0x0000F)<<8)
@@ -206,33 +206,6 @@ bool DTTFFEDSim::fillRawData(edm::Event& e,
                + (     (tstrk->phi_packed()&0x00FF)<<3)
                + ( (~tstrk->charge_packed()&0x0001)<<11)
 	       + (     (~tstrk->pt_packed()&0x001F)<<12);
-
-    calcCRC(*dataWord1, *dataWord2, newCRC);
-    LineFED+=4;
-    *((long*)LineFED)=*dataWord2; 
-    LineFED+=4;
-    *((long*)LineFED)=*dataWord1; 
-
-    channelNr = channel(0, tstrk->scNum(), tstrk->bx());
-    if ( channelNr == 255 ) continue;
-    TSId = (tstrk->whNum()+3)<<16;
-    TSId += ( tstrk->whNum() < 0 ) ? 0x8FFFC : 0x7FFFC;
-
-    *dataWord1 = ((channelNr&0xFF)<<24)
-               + 0x00FFFFFF;
-
-    *dataWord2 = (TSId&0xFFFFC)<<12;
-
-    if ( tstrk->TrkTag() == 0 ) {
-      *dataWord2 +=                            0x3F80
-                 + (      ~tstrk->eta_packed()&0x003F)
-                 + ((~tstrk->finehalo_packed()&0x0001)<<6);
-    }
-    else {
-      *dataWord2 +=                            0x007F
-                 + (     (~tstrk->eta_packed()&0x003F)<<7)
-                 + ((~tstrk->finehalo_packed()&0x0001)<<13);
-    }
 
     calcCRC(*dataWord1, *dataWord2, newCRC);
     LineFED+=4;

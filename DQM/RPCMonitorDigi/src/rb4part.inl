@@ -148,148 +148,126 @@ if(all4DSegments->size()>0){
 		    RPCGeomServ rpcsrv(rollId);
 		    std::string nameRoll = rpcsrv.name();
 		    std::cout<<"MB4 \t \t \t \t The RPCName is "<<nameRoll<<std::endl;
+		    _idList.push_back(nameRoll);
 		  
-		    bool deja=false;
-	            std::vector<std::string>::iterator meIt;
-	            for(meIt = _idList.begin(); meIt != _idList.end(); ++meIt){
-		      if(*meIt==nameRoll){ 
-			deja=true;
-			break;
+		  
+		     char detUnitLabel[128];
+		     sprintf(detUnitLabel ,"%s",nameRoll.c_str());
+		     sprintf(layerLabel ,"%s",nameRoll.c_str());
+		  
+		  
+		     std::map<std::string, std::map<std::string,MonitorElement*> >::iterator meItr = meCollection.find(nameRoll);
+		     if (meItr == meCollection.end()){
+		       meCollection[nameRoll] = bookDetUnitSeg(rollId);
+		     }
+		     
+		     std::map<std::string, MonitorElement*> meMap=meCollection[nameRoll];
+		     
+		     sprintf(meIdDT,"ExpectedOccupancyFromDT_%s",detUnitLabel);
+		     meMap[meIdDT]->Fill(stripPredicted);
+		     
+		     sprintf(meIdDT,"ExpectedOccupancy2DFromDT_%s",detUnitLabel);
+		     meMap[meIdDT]->Fill(stripPredicted,Y);
+		  
+		     //-------------------------------------------------
+		     
+		     totalcounter[0]++;
+		     buff=counter[0];
+		     buff[rollId]++;
+		     counter[0]=buff;		
+		  
+		     bool anycoincidence=false;
+		     double sumStripDetected = 0.;  
+		     
+		     int stripDetected = 0;
+		     int stripCounter = 0;
+		     std::cout<<"MB4 \t \t \t \t Getting Digis in Roll Asociated"<<std::endl;
+		     RPCDigiCollection::Range rpcRangeDigi = rpcDigis->get(rollasociated->id());
+
+		     std::cout<<"MB4 \t \t \t \t \t Loop over the digis in this roll looking for the Average"<<std::endl;
+
+		     for (RPCDigiCollection::const_iterator digiIt = rpcRangeDigi.first;digiIt!=rpcRangeDigi.second;++digiIt){
+			stripDetected=digiIt->strip(); 
+			if(fabs((float)stripDetected-stripPredicted)<MaxStripToCountInAverageRB4){
+			  sumStripDetected=sumStripDetected+stripDetected;
+			  stripCounter++;
+			}
+			std::cout<<"MB4 \t \t \t \t \t \t Digi "<<*digiIt<<"\t Detected="<<stripDetected<<" Predicted="<<stripPredicted<<" tmpRes(strips)="<<fabs((float)stripDetected-stripPredicted)<<"\t SumStrip= "<<sumStripDetected<<std::endl;
 		      }
-		    }
-		    if(!deja){
-		      std::cout<<"MB4 \t \t \t \t NOT Found in Id List!"<<nameRoll<<std::endl;
-		      _idList.push_back(nameRoll);
-		      std::cout<<"MB4 \t \t \t \t Filling Id List with "<<nameRoll<<std::endl;
-		      std::cout<<"MB4 \t \t \t \t Id List Size "<<_idList.size()<<std::endl;
-		    }
-		    
-		    char detUnitLabel[128];
-		    sprintf(detUnitLabel ,"%s",nameRoll.c_str());
-		    sprintf(layerLabel ,"%s",nameRoll.c_str());
-		    
-		    
-		    std::map<std::string, std::map<std::string,MonitorElement*> >::iterator meItr = meCollection.find(nameRoll);
-		    if (meItr == meCollection.end()){
-		      meCollection[nameRoll] = bookDetUnitSeg(rollId);
-		    }
-		    
-		    std::map<std::string, MonitorElement*> meMap=meCollection[nameRoll];
-		    
-		    sprintf(meIdDT,"ExpectedOccupancyFromDT_%s",detUnitLabel);
-		    meMap[meIdDT]->Fill(stripPredicted);
-		    
-		    sprintf(meIdDT,"ExpectedOccupancy2DFromDT_%s",detUnitLabel);
-		    meMap[meIdDT]->Fill(stripPredicted,Y);
-		    
-		    //-------------------------------------------------
-		    
-		    totalcounter[0]++;
-		    buff=counter[0];
-		    buff[rollId]++;
-		    counter[0]=buff;		
-		    
-		    bool anycoincidence=false;
-		    double sumStripDetected = 0.;  
-		    
-		    int stripDetected = 0;
-		    int stripCounter = 0;
-		    std::cout<<"MB4 \t \t \t \t Getting Digis in Roll Asociated"<<std::endl;
-		    RPCDigiCollection::Range rpcRangeDigi = rpcDigis->get(rollasociated->id());
-		    
-		    std::cout<<"MB4 \t \t \t \t \t Loop over the digis in this roll looking for the Average"<<std::endl;
-		    
-		    for (RPCDigiCollection::const_iterator digiIt = rpcRangeDigi.first;digiIt!=rpcRangeDigi.second;++digiIt){
-		      stripDetected=digiIt->strip(); 
-		      if(fabs((float)stripDetected-stripPredicted)<MaxStripToCountInAverageRB4){
-			sumStripDetected=sumStripDetected+stripDetected;
-			stripCounter++;
+		      
+		      std::cout<<"MB4 \t \t \t \t \t Sum of strips "<<sumStripDetected<<std::endl;
+
+		      if(stripCounter!=0){
+			double meanStripDetected = meanStripDetected=sumStripDetected/((double)stripCounter);
+
+			std::cout<<"MB4 \t \t \t \t \t Number of strips "<<stripCounter<<" Strip Average Detected="<<meanStripDetected<<std::endl;
+		      
+			LocalPoint meanstripDetectedLocalPoint = top_->localPosition((float)(meanStripDetected)-0.5);
+	      
+			float meanrescms = PointExtrapolatedRPCFrame.x()-meanstripDetectedLocalPoint.x();          
+			float meanrescmsY = PointExtrapolatedRPCFrame.y()-meanstripDetectedLocalPoint.y();
+		      
+			std::cout<<"MB4 \t \t \t \t \t PointExtrapolatedRPCFrame.x="<<PointExtrapolatedRPCFrame.x()<<" meanstripDetectedLocalPoint.x="<<meanstripDetectedLocalPoint.x()<<std::endl;
+		      
+			if(fabs(meanrescms) < MinimalResidualRB4 ){
+			
+			  std::cout<<"MB4 \t \t \t \t \t MeanRes="<<meanrescms<<"cm  MinimalResidual="<<MinimalResidual<<"cm"<<std::endl;
+			
+			  //-----GLOBAL HISTOGRAM----------
+			  std::cout<<"MB4 \t \t \t \t \t Filling the Global Histogram with= "<<meanrescms<<std::endl;
+			  //if(rollId.layer()==1&&rollId.station()==1&&rollId.ring()==0) 
+			  hGlobalRes->Fill(meanrescms);
+			  if(rollId.station()==4) hGlobalResLa6->Fill(meanrescms); 
+			  if(stripCounter==2) hGlobalResClu1La6->Fill(meanrescms);
+			  if(stripCounter==6) hGlobalResClu3La6->Fill(meanrescms);
+			  hGlobalResY->Fill(meanrescmsY);
+			  //--------------------------------
+			  
+			  
+			  sprintf(meIdRPC,"RPCResidualsFromDT_%s",detUnitLabel);
+			  meMap[meIdRPC]->Fill(meanrescms);
+			  
+			  sprintf(meIdRPC,"RPCResiduals2DFromDT_%s",detUnitLabel);
+			  meMap[meIdRPC]->Fill(meanrescms,Y);
+			  
+			  std::cout <<"MB4 \t \t \t \t \t COINCIDENCE Predict "<<stripPredicted<<"  (int)Predicted="<<(int)(stripPredicted)<<"  MeanDetected="<<meanStripDetected<<std::endl;
+			  anycoincidence=true;
+			  std::cout <<"MB4 \t \t \t \t \t Increassing DT4 counter"<<std::endl;
+			  totalcounter[1]++;
+			  buff=counter[1];
+			  buff[rollId]++;
+			  counter[1]=buff;		
+			  
+			  sprintf(meIdRPC,"RealDetectedOccupancyFromDT_%s",detUnitLabel);
+			  meMap[meIdRPC]->Fill(stripDetected);
+			  
+			  sprintf(meIdRPC,"RPCDataOccupancyFromDT_%s",detUnitLabel);
+			  meMap[meIdRPC]->Fill(stripPredicted);
+			  
+			  sprintf(meIdRPC,"RPCDataOccupancy2DFromDT_%s",detUnitLabel);
+			  meMap[meIdRPC]->Fill(stripPredicted,Y);
+			  
+			}
+		      }else{
+			std::cout <<"MB4 \t \t \t \t \t THIS ROLL DOESN'T HAVE ANY DIGI"<<std::endl;
 		      }
-		      std::cout<<"MB4 \t \t \t \t \t \t Digi "<<*digiIt<<"\t Detected="<<stripDetected<<" Predicted="<<stripPredicted<<" tmpRes(strips)="<<fabs((float)stripDetected-stripPredicted)<<"\t SumStrip= "<<sumStripDetected<<std::endl;
-		      
-		      std::cout<<"MB4 \t \t \t \t \t \t Filling BX Distribution"<<std::endl;
-		      sprintf(meIdRPC,"BXDistribution_%s",detUnitLabel);
-		      meMap[meIdRPC]->Fill(digiIt->bx());
-
-		      sprintf(meIdRPC,"RealDetectedOccupancyFromDT_%s",detUnitLabel);
-		      meMap[meIdRPC]->Fill(stripDetected);
-		      
-		    }
-		    
-		    std::cout<<"MB4 \t \t \t \t \t Sum of strips "<<sumStripDetected<<std::endl;
-		    
-		    if(stripCounter!=0){
-		      double meanStripDetected = meanStripDetected=sumStripDetected/((double)stripCounter);
-		      
-		      std::cout<<"MB4 \t \t \t \t \t Number of strips "<<stripCounter<<" Strip Average Detected="<<meanStripDetected<<std::endl;
-		      
-		      LocalPoint meanstripDetectedLocalPoint = top_->localPosition((float)(meanStripDetected)-0.5);
-		      
-		      float meanrescms = PointExtrapolatedRPCFrame.x()-meanstripDetectedLocalPoint.x();          
-		      float meanrescmsY = PointExtrapolatedRPCFrame.y()-meanstripDetectedLocalPoint.y();
-		      
-		      std::cout<<"MB4 \t \t \t \t \t PointExtrapolatedRPCFrame.x="<<PointExtrapolatedRPCFrame.x()<<" meanstripDetectedLocalPoint.x="<<meanstripDetectedLocalPoint.x()<<std::endl;
-		      
-		      if(fabs(meanrescms) < MinimalResidualRB4 ){
-			
-			std::cout<<"MB4 \t \t \t \t \t MeanRes="<<meanrescms<<"cm  MinimalResidual="<<MinimalResidual<<"cm"<<std::endl;
-			
-			//-----GLOBAL HISTOGRAM----------
-			std::cout<<"MB4 \t \t \t \t \t Filling the Global Histogram with= "<<meanrescms<<std::endl;
-
-			hGlobalRes->Fill(meanrescms);
-			if(rollId.station()==4) hGlobalResLa6->Fill(meanrescms); 
-			if(stripCounter==2) hGlobalResClu1La6->Fill(meanrescms);
-			if(stripCounter==4) hGlobalResClu2La6->Fill(meanrescms);
-			if(stripCounter==6) hGlobalResClu3La6->Fill(meanrescms);
-
-			hGlobalResY->Fill(meanrescmsY);
-			hGlobalYResLa6->Fill(meanrescmsY);
-
-			//--------------------------------
-			
-			
-			sprintf(meIdRPC,"RPCResidualsFromDT_%s",detUnitLabel);
-			meMap[meIdRPC]->Fill(meanrescms);
-			
-			sprintf(meIdRPC,"RPCResiduals2DFromDT_%s",detUnitLabel);
-			meMap[meIdRPC]->Fill(meanrescms,Y);
-			
-			std::cout <<"MB4 \t \t \t \t \t COINCIDENCE Predict "<<stripPredicted<<"  (int)Predicted="<<(int)(stripPredicted)<<"  MeanDetected="<<meanStripDetected<<std::endl;
-			anycoincidence=true;
-			std::cout <<"MB4 \t \t \t \t \t Increassing DT4 counter"<<std::endl;
-			totalcounter[1]++;
-			buff=counter[1];
+		      if(anycoincidence==false){
+			std::cout <<"MB4 \t \t \t \t \t THIS PREDICTION DOESN'T MATCH WITH THE DATA"<<std::endl;
+			std::cout <<"MB4 \t \t \t \t \t Increassing DT4 bad counter"<<std::endl;	
+			totalcounter[2]++;
+			buff=counter[2];
 			buff[rollId]++;
-			counter[1]=buff;		
-			
-			sprintf(meIdRPC,"RPCDataOccupancyFromDT_%s",detUnitLabel);
-			meMap[meIdRPC]->Fill(stripPredicted);
-			
-			sprintf(meIdRPC,"RPCDataOccupancy2DFromDT_%s",detUnitLabel);
-			meMap[meIdRPC]->Fill(stripPredicted,Y);
-			
+			counter[2]=buff;		
+			ofrej<<"MB4 \t Wh "<<dtWheel
+			     <<"\t St "<<dtStation
+			     <<"\t Se "<<dtSector
+			     <<"\t Roll "<<rollasociated->id()
+			     <<"\t Event "
+			     <<iEvent.id().event()
+			     <<"\t Run "
+			     <<iEvent.id().run()
+			     <<std::endl;
 		      }
-		    }else{
-		      std::cout <<"MB4 \t \t \t \t \t THIS ROLL DOESN'T HAVE ANY DIGI"<<std::endl;
-		    }
-		    if(anycoincidence==false){
-		      std::cout <<"MB4 \t \t \t \t \t THIS PREDICTION DOESN'T MATCH WITH THE DATA"<<std::endl;
-		      std::cout <<"MB4 \t \t \t \t \t Increassing DT4 bad counter"<<std::endl;	
-		      totalcounter[2]++;
-		      buff=counter[2];
-		      buff[rollId]++;
-		      counter[2]=buff;		
-		      ofrej<<"MB4 \t Wh "<<dtWheel
-			   <<"\t St "<<dtStation
-			   <<"\t Se "<<dtSector
-			   <<"\t Roll "<<rollasociated->id()
-			   <<"\t Event "
-			   <<iEvent.id().event()
-			   <<"\t Run "
-			   <<iEvent.id().run()
-			   <<std::endl;
-		    }
 		  }else{
 		    std::cout<<"MB4 \t \t \t \t No the prediction is outside of this roll"<<std::endl;
 		  }

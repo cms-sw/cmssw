@@ -1,8 +1,6 @@
-<use name=DataFormats/JetReco>
-<use name=FWCore/Utilities>
 <use name=rootmath>
 <use name=rootrflx>
-
+<use name=FWCore/Utilities>
 <export>
   <lib name=CondFormatsJetMETObjects>
   <use name=FWCore/Utilities>

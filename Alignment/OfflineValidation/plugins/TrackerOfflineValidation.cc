@@ -13,7 +13,7 @@
 //
 // Original Author:  Erik Butz
 //         Created:  Tue Dec 11 14:03:05 CET 2007
-// $Id: TrackerOfflineValidation.cc,v 1.5 2008/05/26 16:09:24 ebutz Exp $
+// $Id: TrackerOfflineValidation.cc,v 1.4 2008/05/26 16:06:55 ebutz Exp $
 //
 //
 
@@ -63,7 +63,7 @@
 //typedef std::vector<DetId>          DetIdContainer;
 
 
- 
+
 class TrackerOfflineValidation : public edm::EDAnalyzer {
 public:
   explicit TrackerOfflineValidation(const edm::ParameterSet&);
@@ -85,14 +85,9 @@ private:
     TH1* ResXprimeHisto;
     TH1* NormResXprimeHisto;
   };
-
-  bool lCoorHistOn;
-  bool moduleLevelHistsTransient;
-  bool overlappOn;
-
+  
   ModuleHistos& GetHistStructFromMap(const DetId& detid);
 
-  std::map< std::pair<uint32_t, uint32_t >, TH1*> hOverlappResidual;
 
   std::vector<TH1*> vTrackHistos_;
   std::vector<TProfile*> vTrackProfiles_;
@@ -101,7 +96,6 @@ private:
   std::vector<TH1*> vSubdetRes_;
   std::vector<TH1*> vSubdetNormRes_;
   std::vector<TH1*> vSubdetXprimeRes_;
-  std::vector<TH1*> vSubdetNormXprimeRes_;
 
   //__gnu_cxx::hash_map<int,TrackerOfflineValidation::ModuleHistos> m_modulehistos;
   
@@ -114,7 +108,6 @@ private:
 
   
   void bookGlobalHists(TFileDirectory &tfd);
-  void bookSubDetResiduals(TFileDirectory &tfd);
   void bookDirHists(TFileDirectory &tfd, const Alignable& ali, const AlignableObjectId &aliobjid);
   void bookHists(TFileDirectory &tfd, const Alignable& ali, align::StructureType type, int i, const AlignableObjectId &aliobjid);
  
@@ -160,9 +153,6 @@ TrackerOfflineValidation::TrackerOfflineValidation(const edm::ParameterSet& iCon
 {
    //now do what ever initialization is needed
  
-  lCoorHistOn = parset_.getParameter<bool>("localCoorHistosOn");
-  moduleLevelHistsTransient = parset_.getParameter<bool>("moduleLevelHistsTransient");
-  overlappOn = parset_.getParameter<bool>("overlappOn");
 
 }
 
@@ -194,30 +184,13 @@ TrackerOfflineValidation::beginJob(const edm::EventSetup& es)
 
   AlignableTracker aliTracker(&(*tkGeom_));
   
-  edm::LogInfo("TrackerOfflineValidation") << "There are " << (*tkGeom_).detIds().size() 
-					   << " detUnits in the Geometry record" << std::endl;
-  
 
   //
   // Book Histogramms for global track quantities
-  TFileDirectory trackglobal = fs->mkdir("GlobalTrackVariables");  
+  TFileDirectory trackglobal = fs->mkdir("GlobalTrackVariables");
+  
   this->bookGlobalHists(trackglobal);
   
-
-  this->bookSubDetResiduals(static_cast<TFileDirectory&>(*fs));
- 
-  // recursively book histogramms on lowest level
-  this->bookDirHists(static_cast<TFileDirectory&>(*fs), aliTracker, aliobjid);  
-
-}
-
-
-void 
-TrackerOfflineValidation::bookSubDetResiduals(TFileDirectory &tfd)
-{
-  
-  //
-  // get binning for residual histogramms
   parameters_ = parset_.getParameter<edm::ParameterSet>("TH1ResModules");
   int32_t i_residuals_Nbins =  parameters_.getParameter<int32_t>("Nbinx");
   double d_residual_xmin = parameters_.getParameter<double>("xmin");
@@ -229,73 +202,58 @@ TrackerOfflineValidation::bookSubDetResiduals(TFileDirectory &tfd)
   double d_normres_xmax = parameters_.getParameter<double>("xmax");
   
 
-  // book histogramms for subdetector level
-  if(lCoorHistOn) {
-    vSubdetRes_.push_back(tfd.make<TH1F>("h_Residuals_pxb","Residuals in PXB;x_{pred} - x_{rec} [cm]", 
-					 i_residuals_Nbins,d_residual_xmin,d_residual_xmax)) ;
-    vSubdetRes_.push_back(tfd.make<TH1F>("h_Residuals_pxe","Residuals in PXE;x_{pred} - x_{rec} [cm]", 
-					 i_residuals_Nbins,d_residual_xmin,d_residual_xmax)) ;
-    vSubdetRes_.push_back(tfd.make<TH1F>("h_Residuals_tib","Residuals in TIB;x_{pred} - x_{rec} [cm]", 
-					 i_residuals_Nbins,d_residual_xmin,d_residual_xmax)) ;
-    vSubdetRes_.push_back(tfd.make<TH1F>("h_Residuals_tid","Residuals in TID;x_{pred} - x_{rec} [cm]", 
-					 i_residuals_Nbins,d_residual_xmin,d_residual_xmax)) ;
-    vSubdetRes_.push_back(tfd.make<TH1F>("h_Residuals_tob","Residuals in TOB;x_{pred} - x_{rec} [cm]", 
-					 i_residuals_Nbins,d_residual_xmin,d_residual_xmax)) ;
-    vSubdetRes_.push_back(tfd.make<TH1F>("h_Residuals_tec","Residuals in TEC;x_{pred} - x_{rec} [cm]", 
-					 i_residuals_Nbins,d_residual_xmin,d_residual_xmax)) ;    
-    
-    vSubdetNormRes_.push_back(tfd.make<TH1F>("h_normResiduals_pxb","Normalized Residuals in PXB;(x_{pred} - x_{rec})/#sigma", 
-					     i_normres_Nbins,d_normres_xmin,d_normres_xmax));   
-    vSubdetNormRes_.push_back(tfd.make<TH1F>("h_normResiduals_pxe","Normalized Residuals in PXE;(x_{pred} - x_{rec})/#sigma", 
-					     i_normres_Nbins,d_normres_xmin,d_normres_xmax));   
-    vSubdetNormRes_.push_back(tfd.make<TH1F>("h_normResiduals_tib","Normalized Residuals in TIB;(x_{pred} - x_{rec})/#sigma", 
-					     i_normres_Nbins,d_normres_xmin,d_normres_xmax));   
-    vSubdetNormRes_.push_back(tfd.make<TH1F>("h_normResiduals_tid","Normalized Residuals in TID;(x_{pred} - x_{rec})/#sigma", 
-					     i_normres_Nbins,d_normres_xmin,d_normres_xmax));   
-    vSubdetNormRes_.push_back(tfd.make<TH1F>("h_normResiduals_tob","Normalized Residuals in TOB;(x_{pred} - x_{rec})/#sigma", 
-					     i_normres_Nbins,d_normres_xmin,d_normres_xmax));   
-    vSubdetNormRes_.push_back(tfd.make<TH1F>("h_normResiduals_tec","Normalized Residuals in TEC;(x_{pred} - x_{rec})/#sigma", 
-					     i_normres_Nbins,d_normres_xmin,d_normres_xmax));
-    
-  }
+  vSubdetRes_.push_back(fs->make<TH1F>("h_Residuals_pxb","Residuals in PXB;x_{pred} - x_{rec} [cm]", 
+				       i_residuals_Nbins,d_residual_xmin,d_residual_xmax)) ;
+  vSubdetRes_.push_back(fs->make<TH1F>("h_Residuals_pxe","Residuals in PXE;x_{pred} - x_{rec} [cm]", 
+				       i_residuals_Nbins,d_residual_xmin,d_residual_xmax)) ;
+  vSubdetRes_.push_back(fs->make<TH1F>("h_Residuals_tib","Residuals in TIB;x_{pred} - x_{rec} [cm]", 
+				       i_residuals_Nbins,d_residual_xmin,d_residual_xmax)) ;
+  vSubdetRes_.push_back(fs->make<TH1F>("h_Residuals_tid","Residuals in TID;x_{pred} - x_{rec} [cm]", 
+				       i_residuals_Nbins,d_residual_xmin,d_residual_xmax)) ;
+  vSubdetRes_.push_back(fs->make<TH1F>("h_Residuals_tob","Residuals in TOB;x_{pred} - x_{rec} [cm]", 
+				       i_residuals_Nbins,d_residual_xmin,d_residual_xmax)) ;
+  vSubdetRes_.push_back(fs->make<TH1F>("h_Residuals_tec","Residuals in TEC;x_{pred} - x_{rec} [cm]", 
+				       i_residuals_Nbins,d_residual_xmin,d_residual_xmax)) ;
 
-  vSubdetXprimeRes_.push_back(tfd.make<TH1F>("h_XprimeResiduals_pxb","Residuals in PXB;x_{pred} - x_{rec} [cm]", 
+  vSubdetXprimeRes_.push_back(fs->make<TH1F>("h_XprimeResiduals_pxb","Residuals in PXB;x_{pred} - x_{rec} [cm]", 
 				       i_residuals_Nbins,d_residual_xmin,d_residual_xmax)) ;
-  vSubdetXprimeRes_.push_back(tfd.make<TH1F>("h_XprimeResiduals_pxe","Residuals in PXE;x_{pred} - x_{rec} [cm]", 
+  vSubdetXprimeRes_.push_back(fs->make<TH1F>("h_XprimeResiduals_pxe","Residuals in PXE;x_{pred} - x_{rec} [cm]", 
 				       i_residuals_Nbins,d_residual_xmin,d_residual_xmax)) ;
-  vSubdetXprimeRes_.push_back(tfd.make<TH1F>("h_XprimeResiduals_tib","Residuals in TIB;x_{pred} - x_{rec} [cm]", 
+  vSubdetXprimeRes_.push_back(fs->make<TH1F>("h_XprimeResiduals_tib","Residuals in TIB;x_{pred} - x_{rec} [cm]", 
 				       i_residuals_Nbins,d_residual_xmin,d_residual_xmax)) ;
-  vSubdetXprimeRes_.push_back(tfd.make<TH1F>("h_XprimeResiduals_tid","Residuals in TID;x_{pred} - x_{rec} [cm]", 
+  vSubdetXprimeRes_.push_back(fs->make<TH1F>("h_XprimeResiduals_tid","Residuals in TID;x_{pred} - x_{rec} [cm]", 
 				       i_residuals_Nbins,d_residual_xmin,d_residual_xmax)) ;
-  vSubdetXprimeRes_.push_back(tfd.make<TH1F>("h_XprimeResiduals_tob","Residuals in TOB;x_{pred} - x_{rec} [cm]", 
+  vSubdetXprimeRes_.push_back(fs->make<TH1F>("h_XprimeResiduals_tob","Residuals in TOB;x_{pred} - x_{rec} [cm]", 
 				       i_residuals_Nbins,d_residual_xmin,d_residual_xmax)) ;
-  vSubdetXprimeRes_.push_back(tfd.make<TH1F>("h_XprimeResiduals_tec","Residuals in TEC;x_{pred} - x_{rec} [cm]", 
+  vSubdetXprimeRes_.push_back(fs->make<TH1F>("h_XprimeResiduals_tec","Residuals in TEC;x_{pred} - x_{rec} [cm]", 
 				       i_residuals_Nbins,d_residual_xmin,d_residual_xmax)) ;
 
 
-  vSubdetNormXprimeRes_.push_back(tfd.make<TH1F>("h_normXprimeResiduals_pxb",
-						 "Normalized Residuals in PXB;x_{pred} - x_{rec} [cm]/#sigma", 
-	 			        i_normres_Nbins,d_normres_xmin,d_normres_xmax));  
-  vSubdetNormXprimeRes_.push_back(tfd.make<TH1F>("h_normXprimeResiduals_pxe",
-						 "Normalized Residuals in PXE;x_{pred} - x_{rec} [cm]/#sigma", 
-	 			        i_normres_Nbins,d_normres_xmin,d_normres_xmax));  
-  vSubdetNormXprimeRes_.push_back(tfd.make<TH1F>("h_normXprimeResiduals_tib",
-						 "Normalized Residuals in TIB;x_{pred} - x_{rec} [cm]/#sigma", 
-	 			        i_normres_Nbins,d_normres_xmin,d_normres_xmax));  
-  vSubdetNormXprimeRes_.push_back(tfd.make<TH1F>("h_normXprimeResiduals_tid",
-						 "Normalized Residuals in TID;x_{pred} - x_{rec} [cm]/#sigma", 
-	 			        i_normres_Nbins,d_normres_xmin,d_normres_xmax));  
-  vSubdetNormXprimeRes_.push_back(tfd.make<TH1F>("h_normXprimeResiduals_tob",
-						 "Normalized Residuals in TOB;x_{pred} - x_{rec} [cm]/#sigma", 
-	 			        i_normres_Nbins,d_normres_xmin,d_normres_xmax));  
-  vSubdetNormXprimeRes_.push_back(tfd.make<TH1F>("h_normXprimeResiduals_tec",
-						 "Normalized Residuals in TEC;x_{pred} - x_{rec} [cm]/#sigma", 
-				        i_normres_Nbins,d_normres_xmin,d_normres_xmax));  
+  vSubdetNormRes_.push_back(fs->make<TH1F>("h_normResiduals_pxb","Normalized Residuals in PXB;(x_{pred} - x_{rec})/#sqrt{V}", 
+					   i_normres_Nbins,d_normres_xmin,d_normres_xmax));   
+  vSubdetNormRes_.push_back(fs->make<TH1F>("h_normResiduals_pxe","Normalized Residuals in PXE;(x_{pred} - x_{rec})/#sqrt{V}", 
+					   i_normres_Nbins,d_normres_xmin,d_normres_xmax));   
+  vSubdetNormRes_.push_back(fs->make<TH1F>("h_normResiduals_tib","Normalized Residuals in TIB;(x_{pred} - x_{rec})/#sqrt{V}", 
+					   i_normres_Nbins,d_normres_xmin,d_normres_xmax));   
+  vSubdetNormRes_.push_back(fs->make<TH1F>("h_normResiduals_tid","Normalized Residuals in TID;(x_{pred} - x_{rec})/#sqrt{V}", 
+					   i_normres_Nbins,d_normres_xmin,d_normres_xmax));   
+  vSubdetNormRes_.push_back(fs->make<TH1F>("h_normResiduals_tob","Normalized Residuals in TOB;(x_{pred} - x_{rec})/#sqrt{V}", 
+					   i_normres_Nbins,d_normres_xmin,d_normres_xmax));   
+  vSubdetNormRes_.push_back(fs->make<TH1F>("h_normResiduals_tec","Normalized Residuals in TEC;(x_{pred} - x_{rec})/#sqrt{V}", 
+					   i_normres_Nbins,d_normres_xmin,d_normres_xmax));
 
+
+  
+
+  
+  edm::LogInfo("TrackerOfflineValidation") << "There are " << (*tkGeom_).detIds().size() << " detUnits in the Geometry record" << std::endl;
+
+  // recursively book histogramms on lowest level
+  this->bookDirHists(static_cast<TFileDirectory&>(*fs), aliTracker, aliobjid);
+  
+ 
 
 }
-
-
 
 void 
 TrackerOfflineValidation::bookGlobalHists(TFileDirectory &tfd )
@@ -308,31 +266,29 @@ TrackerOfflineValidation::bookGlobalHists(TFileDirectory &tfd )
   vTrackHistos_.push_back(tfd.make<TH1F>("h_diff_curvature","Curvature |#kappa| Tracks Difference;|#kappa_{Track}|;# Pos Tracks - # Neg Tracks",100,.0,.05));
   vTrackHistos_.push_back(tfd.make<TH1F>("h_chi2","#chi^{2};#chi^{2}_{Track};Number of Tracks",500,-0.01,500.));	       
   vTrackHistos_.push_back(tfd.make<TH1F>("h_normchi2","#chi^{2}/ndof;#chi^{2}/ndof;Number of Tracks",100,-0.01,10.));     
-  vTrackHistos_.push_back(tfd.make<TH1F>("h_pt","p_{T}^{track};p_{T}^{track} [GeV];Number of Tracks",100,0.,2500));                     
+  vTrackHistos_.push_back(tfd.make<TH1F>("h_pt","p_{T};p_{T}^{track};Number of Tracks",100,0.,2500));                     
 
-  vTrackProfiles_.push_back(tfd.make<TProfile>("p_d0_vs_phi","Transverse Impact Parameter vs. #phi;#phi_{Track};#LT d_{0} #GT [cm]",100,-3.15,3.15));
-  vTrackProfiles_.push_back(tfd.make<TProfile>("p_dz_vs_phi","Longitudinal Impact Parameter vs. #phi;#phi_{Track};#LT d_{z} #GT [cm]",100,-3.15,3.15));
-  vTrackProfiles_.push_back(tfd.make<TProfile>("p_d0_vs_eta","Transverse Impact Parameter vs. #eta;#eta_{Track};#LT d_{0} #GT [cm]",100,-3.15,3.15));
-  vTrackProfiles_.push_back(tfd.make<TProfile>("p_dz_vs_eta","Longitudinal Impact Parameter vs. #eta;#eta_{Track};#LT d_{z} #GT [cm]",100,-3.15,3.15));
-  vTrackProfiles_.push_back(tfd.make<TProfile>("p_chi2_vs_phi","#chi^{2} vs. #phi;#phi_{Track};#LT #chi^{2} #GT",100,-3.15,3.15));
-  vTrackProfiles_.push_back(tfd.make<TProfile>("p_normchi2_vs_phi","#chi^{2}/ndof vs. #phi;#phi_{Track};#LT #chi^{2}/ndof #GT",100,-3.15,3.15));
-  vTrackProfiles_.push_back(tfd.make<TProfile>("p_chi2_vs_eta","#chi^{2} vs. #eta;#eta_{Track};#LT #chi^{2} #GT",100,-3.15,3.15));  
-  vTrackProfiles_.push_back(tfd.make<TProfile>("p_normchi2_vs_eta","#chi^{2}/ndof vs. #eta;#eta_{Track};#LT #chi^{2}/ndof #GT",100,-3.15,3.15));
-  vTrackProfiles_.push_back(tfd.make<TProfile>("p_kappa_vs_phi","#kappa vs. #phi;#phi_{Track};#kappa",100,-3.15,3.15));
-  vTrackProfiles_.push_back(tfd.make<TProfile>("p_kappa_vs_eta","#kappa vs. #eta;#eta_{Track};#kappa",100,-3.15,3.15));
+  vTrackProfiles_.push_back(tfd.make<TProfile>("h_d0_vs_phi","Transverse Impact Parameter vs. #phi;#phi_{Track};#LT d_{0} #GT",100,-3.15,3.15));  
+  vTrackProfiles_.push_back(tfd.make<TProfile>("h_dz_vs_phi","Longitudinal Impact Parameter vs. #phi;#phi_{Track};#LT d_{z} #GT",100,-3.15,3.15));
+  vTrackProfiles_.push_back(tfd.make<TProfile>("h_d0_vs_eta","Transverse Impact Parameter vs. #eta;#eta_{Track};#LT d_{0} #GT",100,-3.15,3.15));  
+  vTrackProfiles_.push_back(tfd.make<TProfile>("h_dz_vs_eta","Longitudinal Impact Parameter vs. #eta;#eta_{Track};#LT d_{z} #GT",100,-3.15,3.15));
+  vTrackProfiles_.push_back(tfd.make<TProfile>("h_chi2_vs_phi","#chi^{2} vs. #phi;#phi_{Track};#LT #chi^{2} #GT",100,-3.15,3.15));		  
+  vTrackProfiles_.push_back(tfd.make<TProfile>("h_normchi2_vs_phi","#chi^{2}/ndof vs. #phi;#phi_{Track};#LT #chi^{2}/ndof #GT",100,-3.15,3.15));  
+  vTrackProfiles_.push_back(tfd.make<TProfile>("h_chi2_vs_eta","#chi^{2} vs. #eta;#eta_{Track};#LT #chi^{2} #GT",100,-3.15,3.15));		  
+  vTrackProfiles_.push_back(tfd.make<TProfile>("h_normchi2_vs_eta","#chi^{2}/ndof vs. #eta;#eta_{Track};#LT #chi^{2}/ndof #GT",100,-3.15,3.15));  
+
+  vTrack2DHistos_.push_back(tfd.make<TH2F>("h2_d0_vs_phi","Transverse Impact Parameter vs. #phi;#phi_{Track};d_{0}",100, -3.15, 3.15, 100,-1.,1.) );  
+  vTrack2DHistos_.push_back(tfd.make<TH2F>("h2_dz_vs_phi","Longitudinal Impact Parameter vs. #phi;#phi_{Track};d_{z}",100, -3.15, 3.15, 100,-100.,100.));
+  vTrack2DHistos_.push_back(tfd.make<TH2F>("h2_d0_vs_eta","Transverse Impact Parameter vs. #eta;#eta_{Track};d_{0}",100, -3.15, 3.15, 100,-1.,1.));  
+  vTrack2DHistos_.push_back(tfd.make<TH2F>("h2_dz_vs_eta","Longitudinal Impact Parameter vs. #eta;#eta_{Track};d_{z}",100, -3.15, 3.15, 100,-100.,100.));
+  vTrack2DHistos_.push_back(tfd.make<TH2F>("h2_chi2_vs_phi","#chi^{2} vs. #phi;#phi_{Track};#chi^{2}",100, -3.15, 3.15, 500, 0., 500.));		  
+  vTrack2DHistos_.push_back(tfd.make<TH2F>("h2_normchi2_vs_phi","#chi^{2}/ndof vs. #phi;#phi_{Track};#chi^{2}/ndof",100, -3.15, 3.15, 100, 0., 10.));  
+  vTrack2DHistos_.push_back(tfd.make<TH2F>("h2_chi2_vs_eta","#chi^{2} vs. #eta;#eta_{Track};#chi^{2}",100, -3.15, 3.15, 500, 0., 500.));		  
+  vTrack2DHistos_.push_back(tfd.make<TH2F>("h2_normchi2_vs_eta","#chi^{2}/ndof vs. #eta;#eta_{Track};#chi^{2}/ndof",100,-3.15,3.15, 100, 0., 10.));  
+  vTrack2DHistos_.push_back(tfd.make<TH2F>("h2_kappa_vs_phi","#kappa vs. #phi;#phi_{Track};#kappa",100,-3.15,3.15, 100, .0,.05));  
+  
 
 
-  vTrack2DHistos_.push_back(tfd.make<TH2F>("h2_d0_vs_phi","Transverse Impact Parameter vs. #phi;#phi_{Track};d_{0} [cm]",100, -3.15, 3.15, 100,-1.,1.) );
-  vTrack2DHistos_.push_back(tfd.make<TH2F>("h2_dz_vs_phi","Longitudinal Impact Parameter vs. #phi;#phi_{Track};d_{z} [cm]",100, -3.15, 3.15, 100,-100.,100.));
-  vTrack2DHistos_.push_back(tfd.make<TH2F>("h2_d0_vs_eta","Transverse Impact Parameter vs. #eta;#eta_{Track};d_{0} [cm]",100, -3.15, 3.15, 100,-1.,1.));
-  vTrack2DHistos_.push_back(tfd.make<TH2F>("h2_dz_vs_eta","Longitudinal Impact Parameter vs. #eta;#eta_{Track};d_{z} [cm]",100, -3.15, 3.15, 100,-100.,100.));
-  vTrack2DHistos_.push_back(tfd.make<TH2F>("h2_chi2_vs_phi","#chi^{2} vs. #phi;#phi_{Track};#chi^{2}",100, -3.15, 3.15, 500, 0., 500.));
-  vTrack2DHistos_.push_back(tfd.make<TH2F>("h2_normchi2_vs_phi","#chi^{2}/ndof vs. #phi;#phi_{Track};#chi^{2}/ndof",100, -3.15, 3.15, 100, 0., 10.));
-  vTrack2DHistos_.push_back(tfd.make<TH2F>("h2_chi2_vs_eta","#chi^{2} vs. #eta;#eta_{Track};#chi^{2}",100, -3.15, 3.15, 500, 0., 500.));  
-  vTrack2DHistos_.push_back(tfd.make<TH2F>("h2_normchi2_vs_eta","#chi^{2}/ndof vs. #eta;#eta_{Track};#chi^{2}/ndof",100,-3.15,3.15, 100, 0., 10.));
-  vTrack2DHistos_.push_back(tfd.make<TH2F>("h2_kappa_vs_phi","#kappa vs. #phi;#phi_{Track};#kappa",100,-3.15,3.15, 100, .0,.05));
-  vTrack2DHistos_.push_back(tfd.make<TH2F>("h2_kappa_vs_eta","#kappa vs. #eta;#eta_{Track};#kappa",100,-3.15,3.15, 100, .0,.05));
- 
 
 }
 
@@ -400,66 +356,45 @@ TrackerOfflineValidation::bookHists(TFileDirectory &tfd, const Alignable& ali, a
 		ali.alignableObjectId() == align::AlignableDetUnit) 
     subtype = ali.alignableObjectId();
   
-  // 
-  // construct histogramm title and name
-  std::stringstream histoname, histotitle, normhistoname, normhistotitle, 
-    xprimehistoname, xprimehistotitle, normxprimehistoname, normxprimehistotitle;
-  
-  std::string wheel_or_layer;
-
+	
+  std::stringstream histoname, histotitle, normhistoname, normhistotitle, xprimehistoname, xprimehistotitle;
   if( subdetandlayer.first == StripSubdetector::TID || subdetandlayer.first == StripSubdetector::TEC ||
       subdetandlayer.first == PixelSubdetector::PixelEndcap ) {
-    wheel_or_layer = "_wheel_";
+    histoname << "h_residuals_subdet_" << subdetandlayer.first 
+	      << "_wheel_" << subdetandlayer.second << "_module_" << id.rawId();
+    xprimehistoname << "h_xprime_residuals_subdet_" << subdetandlayer.first 
+	      << "_wheel_" << subdetandlayer.second << "_module_" << id.rawId();
+    normhistoname << "h_normresiduals_subdet_" << subdetandlayer.first 
+		  << "_wheel_" << subdetandlayer.second << "_module_" << id.rawId();
+    histotitle << "Residual for module " << id.rawId() << ";x_{pred} - x_{rec} [cm]";
+    normhistotitle << "Normalized Residual for module " << id.rawId() << ";x_{pred} - x_{rec}/#sigma";
+    xprimehistotitle << "X' Residual for module " << id.rawId() << ";x_{pred} - x_{rec} [cm]";
   } else if (subdetandlayer.first == StripSubdetector::TIB || subdetandlayer.first == StripSubdetector::TOB ||
 	     subdetandlayer.first == PixelSubdetector::PixelBarrel ) {
-    wheel_or_layer = "_layer_";
+    histoname << "h_residuals_subdet_" << subdetandlayer.first 
+	      << "_layer_" << subdetandlayer.second << "_module_" << id.rawId();
+    xprimehistoname << "h_xprime_residuals_subdet_" << subdetandlayer.first 
+		    << "_layer_" << subdetandlayer.second << "_module_" << id.rawId();
+    normhistoname << "h_normresiduals_subdet_" << subdetandlayer.first 
+		  << "_layer_" << subdetandlayer.second << "_module_" << id.rawId();
+    histotitle << "Residual for module " << id.rawId() << ";x_{pred} - x_{rec} [cm]";
+    normhistotitle << "Normalized Residual for module " << id.rawId() << ";x_{pred} - x_{rec}/#sigma";
+    xprimehistotitle << "X' Residual for module " << id.rawId() << ";x_{pred} - x_{rec} [cm]";
   } else {
     edm::LogWarning("TrackerOfflineValidation") << "@SUB=TrackerOfflineValidation::bookHists" 
-						<< "Unknown subdetid: " <<  subdetandlayer.first;     
+						<< "Unknown subdetid: " <<  subdetandlayer.first; 
+    
   }
-  
-  histoname << "h_residuals_subdet_" << subdetandlayer.first 
-	    << wheel_or_layer << subdetandlayer.second << "_module_" << id.rawId();
-  xprimehistoname << "h_xprime_residuals_subdet_" << subdetandlayer.first 
-		  << wheel_or_layer << subdetandlayer.second << "_module_" << id.rawId();
-  normhistoname << "h_normresiduals_subdet_" << subdetandlayer.first 
-		<< wheel_or_layer << subdetandlayer.second << "_module_" << id.rawId();
-  normxprimehistoname << "h_normxprimeresiduals_subdet_" << subdetandlayer.first 
-		      << wheel_or_layer << subdetandlayer.second << "_module_" << id.rawId();
-  histotitle << "Residual for module " << id.rawId() << ";x_{pred} - x_{rec} [cm]";
-  normhistotitle << "Normalized Residual for module " << id.rawId() << ";x_{pred} - x_{rec}/#sigma";
-  xprimehistotitle << "X' Residual for module " << id.rawId() << ";x_{pred} - x_{rec} [cm]";
-  normxprimehistotitle << "Normalized X' Residual for module " << id.rawId() << ";x_{pred} - x_{rec}/#sigma";
   
   
   if(subtype == align::AlignableDet || subtype == align::AlignableDetUnit) {
     ModuleHistos &histStruct = this->GetHistStructFromMap(id);
-    
-    // decide via cfg if hists in local coordinates should be booked 
-    if(lCoorHistOn) {
-      if(moduleLevelHistsTransient) {
-	histStruct.ResHisto       =  new TH1F(histoname.str().c_str(),histotitle.str().c_str(),		     
-					      i_residuals_Nbins,d_residual_xmin,d_residual_xmax);
-	histStruct.NormResHisto   =  new TH1F(normhistoname.str().c_str(),normhistotitle.str().c_str(),
-					      i_normres_Nbins,d_normres_xmin,d_normres_xmax);
-      } else {
-	histStruct.ResHisto       =  tfd.make<TH1F>(histoname.str().c_str(),histotitle.str().c_str(),		     
-						    i_residuals_Nbins,d_residual_xmin,d_residual_xmax);
-	histStruct.NormResHisto   =  tfd.make<TH1F>(normhistoname.str().c_str(),normhistotitle.str().c_str(),
-						    i_normres_Nbins,d_normres_xmin,d_normres_xmax);
-      }
-    } 
-    if(moduleLevelHistsTransient) {
-      histStruct.ResXprimeHisto =  new TH1F(xprimehistoname.str().c_str(),xprimehistotitle.str().c_str(),
-					    i_residuals_Nbins,d_residual_xmin,d_residual_xmax);
-      histStruct.NormResXprimeHisto   =  new TH1F(normxprimehistoname.str().c_str(),normxprimehistotitle.str().c_str(),
-						  i_normres_Nbins,d_normres_xmin,d_normres_xmax);
-    } else {
-      histStruct.ResXprimeHisto =  tfd.make<TH1F>(xprimehistoname.str().c_str(),xprimehistotitle.str().c_str(),
-						  i_residuals_Nbins,d_residual_xmin,d_residual_xmax);
-      histStruct.NormResXprimeHisto   =  tfd.make<TH1F>(normxprimehistoname.str().c_str(),normxprimehistotitle.str().c_str(),
-							i_normres_Nbins,d_normres_xmin,d_normres_xmax);
-    }
+    histStruct.ResHisto       =  tfd.make<TH1F>(histoname.str().c_str(),histotitle.str().c_str(),		     
+					 i_residuals_Nbins,d_residual_xmin,d_residual_xmax);
+    histStruct.NormResHisto   =  tfd.make<TH1F>(normhistoname.str().c_str(),normhistotitle.str().c_str(),
+						i_normres_Nbins,d_normres_xmin,d_normres_xmax);
+    histStruct.ResXprimeHisto =  tfd.make<TH1F>(xprimehistoname.str().c_str(),xprimehistotitle.str().c_str(),
+						i_residuals_Nbins,d_residual_xmin,d_residual_xmax);
   }
   
 }
@@ -468,9 +403,6 @@ TrackerOfflineValidation::bookHists(TFileDirectory &tfd, const Alignable& ali, a
 TrackerOfflineValidation::ModuleHistos& TrackerOfflineValidation::GetHistStructFromMap(const DetId& detid)
 {
 
-  // get a struct with histogramms from the respective map
-  // if no object exist, the reference is automatically created by the map
-  // throw exception if non-tracker id is passed
   uint subdetid = detid.subdetId();
   if(subdetid == PixelSubdetector::PixelBarrel ) {
     return mPxbResiduals_[detid.rawId()];
@@ -499,9 +431,9 @@ void
 TrackerOfflineValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   
-  //using namespace edm;
+  using namespace edm;
   TrackerValidationVariables avalidator_(iSetup,parset_);
-  edm::Service<TFileService> fs;
+  
     
   std::vector<TrackerValidationVariables::AVTrackStruct> vTrackstruct;
   avalidator_.fillTrackQuantities(iEvent,vTrackstruct);
@@ -531,27 +463,23 @@ TrackerOfflineValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
     vTrackHistos_[ptindex]->Fill(it->pt);
     
     // Fill track profiles
-    static const int d0phiindex = this->GetIndex(vTrackProfiles_,"p_d0_vs_phi");
+    static const int d0phiindex = this->GetIndex(vTrackProfiles_,"h_d0_vs_phi");
     vTrackProfiles_[d0phiindex]->Fill(it->phi,it->d0);
-    static const int dzphiindex = this->GetIndex(vTrackProfiles_,"p_dz_vs_phi");
+    static const int dzphiindex = this->GetIndex(vTrackProfiles_,"h_dz_vs_phi");
     vTrackProfiles_[dzphiindex]->Fill(it->phi,it->dz);
-    static const int d0etaindex = this->GetIndex(vTrackProfiles_,"p_d0_vs_eta");
+    static const int d0etaindex = this->GetIndex(vTrackProfiles_,"h_d0_vs_eta");
     vTrackProfiles_[d0etaindex]->Fill(it->eta,it->d0);
-    static const int dzetaindex = this->GetIndex(vTrackProfiles_,"p_dz_vs_eta");
+    static const int dzetaindex = this->GetIndex(vTrackProfiles_,"h_dz_vs_eta");
     vTrackProfiles_[dzetaindex]->Fill(it->eta,it->dz);
-    static const int chiphiindex = this->GetIndex(vTrackProfiles_,"p_chi2_vs_phi");
+    static const int chiphiindex = this->GetIndex(vTrackProfiles_,"h_chi2_vs_phi");
     vTrackProfiles_[chiphiindex]->Fill(it->phi,it->chi2);
-    static const int normchiphiindex = this->GetIndex(vTrackProfiles_,"p_normchi2_vs_phi");
+    static const int normchiphiindex = this->GetIndex(vTrackProfiles_,"h_normchi2_vs_phi");
     vTrackProfiles_[normchiphiindex]->Fill(it->phi,it->normchi2);
-    static const int chietaindex = this->GetIndex(vTrackProfiles_,"p_chi2_vs_eta");
+    static const int chietaindex = this->GetIndex(vTrackProfiles_,"h_chi2_vs_eta");
     vTrackProfiles_[chietaindex]->Fill(it->eta,it->chi2);
-    static const int normchietaindex = this->GetIndex(vTrackProfiles_,"p_normchi2_vs_eta");
+    static const int normchietaindex = this->GetIndex(vTrackProfiles_,"h_normchi2_vs_eta");
     vTrackProfiles_[normchietaindex]->Fill(it->eta,it->normchi2);
-    static const int kappaphiindex = this->GetIndex(vTrackProfiles_,"p_kappa_vs_phi");
-    vTrackProfiles_[kappaphiindex]->Fill(it->phi,it->kappa);
-    static const int kappaetaindex = this->GetIndex(vTrackProfiles_,"p_kappa_vs_eta");
-    vTrackProfiles_[kappaetaindex]->Fill(it->eta,it->kappa);
-
+    
     // Fill 2D track histos
     static const int d0phiindex_2d = this->GetIndex(vTrack2DHistos_,"h2_d0_vs_phi");
     vTrack2DHistos_[d0phiindex_2d]->Fill(it->phi,it->d0);
@@ -571,8 +499,6 @@ TrackerOfflineValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
     vTrack2DHistos_[normchietaindex_2d]->Fill(it->eta,it->normchi2);
     static const int kappaphiindex_2d = this->GetIndex(vTrack2DHistos_,"h2_kappa_vs_phi");
     vTrack2DHistos_[kappaphiindex_2d]->Fill(it->phi,it->kappa);
-    static const int kappaetaindex_2d = this->GetIndex(vTrack2DHistos_,"h2_kappa_vs_eta");
-    vTrack2DHistos_[kappaetaindex_2d]->Fill(it->eta,it->kappa);
      
   } // finish loop over track quantities
 
@@ -582,36 +508,10 @@ TrackerOfflineValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
   	 itEnd = v_hitstruct.end(); it != itEnd; ++it) {
     DetId detid(it->rawDetId);
     ModuleHistos &histStruct = this->GetHistStructFromMap(detid);
+    histStruct.ResHisto->Fill(it->resX);
+    if(it->resXprime != -999)  histStruct.ResXprimeHisto->Fill(it->resXprime);
+    if(it->resErrX != 0)       histStruct.NormResHisto->Fill(it->resX/it->resErrX);
     
-    // fill histos in local coordinates if set in cf
-    if(lCoorHistOn) {
-      histStruct.ResHisto->Fill(it->resX);
-      if(it->resErrX != 0) histStruct.NormResHisto->Fill(it->resX/it->resErrX);
-    }
-    if(it->resXprime != -999) {
-      histStruct.ResXprimeHisto->Fill(it->resXprime);
-      if(it->resXprimeErr != 0 && it->resXprimeErr != -999 ) {
-	
-	histStruct.NormResXprimeHisto->Fill(it->resXprime/it->resXprimeErr);
-      } 
-    }
-
-    
-    if(overlappOn) {
-      std::pair<uint32_t,uint32_t> tmp_pair(std::make_pair(it->rawDetId, it->overlapres.first));
-      if(it->overlapres.first != 0 ) {
-	if( hOverlappResidual[tmp_pair] ) {
-	  hOverlappResidual[tmp_pair]->Fill(it->overlapres.second);
-	} else if( hOverlappResidual[std::make_pair( it->overlapres.first, it->rawDetId) ]) {
-	  hOverlappResidual[std::make_pair( it->overlapres.first, it->rawDetId) ]->Fill(it->overlapres.second);
-	} else {
-	  TFileDirectory tfd = fs->mkdir("OverlappResiduals");
-	  hOverlappResidual[tmp_pair] = tfd.make<TH1F>(Form("hOverlappResidual_%d_%d",tmp_pair.first,tmp_pair.second),"Overlapp Residuals",100,-50,50);
-	  hOverlappResidual[tmp_pair]->Fill(it->overlapres.second);
-	}
-      }
-    } // end overlappOn
-
   }
   
 }
@@ -633,63 +533,39 @@ TrackerOfflineValidation::endJob() {
   // So far done by default, should be steerable
   for(std::map<int, TrackerOfflineValidation::ModuleHistos>::const_iterator itPxb = mPxbResiduals_.begin(), 
 	itEnd = mPxbResiduals_.end(); itPxb != itEnd;++itPxb ) {
-    if(lCoorHistOn) {
-      vSubdetRes_[PixelSubdetector::PixelBarrel - 1]->Add(itPxb->second.ResHisto); 
-      vSubdetNormRes_[PixelSubdetector::PixelBarrel - 1]->Add(itPxb->second.NormResHisto);
-    }
+    vSubdetRes_[PixelSubdetector::PixelBarrel - 1]->Add(itPxb->second.ResHisto); 
     vSubdetXprimeRes_[PixelSubdetector::PixelBarrel - 1]->Add(itPxb->second.ResXprimeHisto); 
-    vSubdetNormXprimeRes_[PixelSubdetector::PixelBarrel - 1]->Add(itPxb->second.NormResXprimeHisto); 
-
+    vSubdetNormRes_[PixelSubdetector::PixelBarrel - 1]->Add(itPxb->second.NormResHisto);
   }
   for(std::map<int, TrackerOfflineValidation::ModuleHistos>::const_iterator itPxe = mPxeResiduals_.begin(), 
 	itEnd = mPxeResiduals_.end(); itPxe != itEnd;++itPxe ) {
-    if(lCoorHistOn) {
-      vSubdetRes_[PixelSubdetector::PixelEndcap - 1]->Add(itPxe->second.ResHisto);
-      vSubdetNormRes_[PixelSubdetector::PixelEndcap - 1]->Add(itPxe->second.NormResHisto);
-    }    
+    vSubdetRes_[PixelSubdetector::PixelEndcap - 1]->Add(itPxe->second.ResHisto);
     vSubdetXprimeRes_[PixelSubdetector::PixelEndcap - 1]->Add(itPxe->second.ResXprimeHisto);
-    vSubdetNormXprimeRes_[PixelSubdetector::PixelEndcap - 1]->Add(itPxe->second.NormResXprimeHisto);
-
+    vSubdetNormRes_[PixelSubdetector::PixelEndcap - 1]->Add(itPxe->second.NormResHisto);
   }
   for(std::map<int, TrackerOfflineValidation::ModuleHistos>::const_iterator itTib = mTibResiduals_.begin(), 
 	itEnd = mTibResiduals_.end(); itTib != itEnd;++itTib ) {
-    if(lCoorHistOn) {
-      vSubdetRes_[StripSubdetector::TIB - 1]->Add(itTib->second.ResHisto);
-      vSubdetNormRes_[StripSubdetector::TIB -1]->Add(itTib->second.NormResHisto);      
-    }
+    vSubdetRes_[StripSubdetector::TIB - 1]->Add(itTib->second.ResHisto);
     vSubdetXprimeRes_[StripSubdetector::TIB - 1]->Add(itTib->second.ResXprimeHisto);
-    vSubdetNormXprimeRes_[StripSubdetector::TIB - 1]->Add(itTib->second.NormResXprimeHisto);
-
+    vSubdetNormRes_[StripSubdetector::TIB -1]->Add(itTib->second.NormResHisto);
   }
   for(std::map<int, TrackerOfflineValidation::ModuleHistos>::const_iterator itTid = mTidResiduals_.begin(), 
 	itEnd = mTidResiduals_.end(); itTid != itEnd;++itTid ) {
-    if(lCoorHistOn) {
-      vSubdetRes_[StripSubdetector::TID - 1]->Add(itTid->second.ResHisto);
-      vSubdetNormRes_[StripSubdetector::TID - 1]->Add(itTid->second.NormResHisto);    
-    }
+    vSubdetRes_[StripSubdetector::TID - 1]->Add(itTid->second.ResHisto);
     vSubdetXprimeRes_[StripSubdetector::TID - 1]->Add(itTid->second.ResXprimeHisto);
-    vSubdetNormXprimeRes_[StripSubdetector::TID - 1]->Add(itTid->second.NormResXprimeHisto);
-
+    vSubdetNormRes_[StripSubdetector::TID - 1]->Add(itTid->second.NormResHisto);
   }
   for(std::map<int, TrackerOfflineValidation::ModuleHistos>::const_iterator itTob = mTobResiduals_.begin(), 
 	itEnd = mTobResiduals_.end(); itTob != itEnd;++itTob ) {
-    if(lCoorHistOn) {
-      vSubdetRes_[StripSubdetector::TOB - 1]->Add(itTob->second.ResHisto);
-      vSubdetNormRes_[StripSubdetector::TOB - 1]->Add(itTob->second.NormResHisto);
-    }
+    vSubdetRes_[StripSubdetector::TOB - 1]->Add(itTob->second.ResHisto);
     vSubdetXprimeRes_[StripSubdetector::TOB - 1]->Add(itTob->second.ResXprimeHisto);
-    vSubdetNormXprimeRes_[StripSubdetector::TOB - 1]->Add(itTob->second.NormResXprimeHisto);
-
+    vSubdetNormRes_[StripSubdetector::TOB - 1]->Add(itTob->second.NormResHisto);
   }
   for(std::map<int, TrackerOfflineValidation::ModuleHistos>::const_iterator itTec = mTecResiduals_.begin(), 
 	itEnd = mTecResiduals_.end(); itTec != itEnd;++itTec ) {
-    if(lCoorHistOn) {
-      vSubdetRes_[StripSubdetector::TEC - 1]->Add(itTec->second.ResHisto);
-      vSubdetNormRes_[StripSubdetector::TEC - 1]->Add(itTec->second.NormResHisto);
-    }
+    vSubdetRes_[StripSubdetector::TEC - 1]->Add(itTec->second.ResHisto);
     vSubdetXprimeRes_[StripSubdetector::TEC - 1]->Add(itTec->second.ResXprimeHisto);
-    vSubdetNormXprimeRes_[StripSubdetector::TEC - 1]->Add(itTec->second.NormResXprimeHisto);
-
+    vSubdetNormRes_[StripSubdetector::TEC - 1]->Add(itTec->second.NormResHisto);
   }
   
   // create summary histogramms recursively
@@ -794,9 +670,9 @@ TrackerOfflineValidation::bookSummaryHists(TFileDirectory &tfd, const Alignable&
     for(uint k=0;k<subsize;++k) {
       DetId detid = ali.components()[k]->id();
       ModuleHistos &histStruct = this->GetHistStructFromMap(detid);
-      h_thissummary->SetBinContent(k+1, histStruct.ResXprimeHisto->GetMean());
-      h_thissummary->SetBinError(k+1, histStruct.ResXprimeHisto->GetRMS());
-      h_this->Add(histStruct.ResXprimeHisto);
+      h_thissummary->SetBinContent(k+1, histStruct.ResHisto->GetMean());
+      h_thissummary->SetBinError(k+1, histStruct.ResHisto->GetRMS());
+      h_this->Add(histStruct.ResHisto);
     }
     
   }
@@ -807,9 +683,9 @@ TrackerOfflineValidation::bookSummaryHists(TFileDirectory &tfd, const Alignable&
       for(uint j = 0; j <  jEnd; ++j) {
 	DetId detid = ali.components()[k]->components()[j]->id();
 	ModuleHistos &histStruct = this->GetHistStructFromMap(detid);	
-	h_thissummary->SetBinContent(2*k+j+1,histStruct.ResXprimeHisto->GetMean());
-	h_thissummary->SetBinError(2*k+j+1,histStruct.ResXprimeHisto->GetRMS());
-	h_this->Add( histStruct.ResXprimeHisto);
+	h_thissummary->SetBinContent(2*k+j+1,histStruct.ResHisto->GetMean());
+	h_thissummary->SetBinError(2*k+j+1,histStruct.ResHisto->GetRMS());
+	h_this->Add( histStruct.ResHisto);
 
       }
     }

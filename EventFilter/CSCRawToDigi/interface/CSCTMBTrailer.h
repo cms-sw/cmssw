@@ -29,7 +29,7 @@ D8+WordCount
 class CSCTMBTrailer {
 public:
   /// don't forget to pass in the size of the tmb header + clct data
-  CSCTMBTrailer(int wordCount, int firmwareVersion);
+  CSCTMBTrailer(int wordCount=0);
 
   CSCTMBTrailer(unsigned short * buf, unsigned short int firmwareVersion);
 
@@ -39,22 +39,17 @@ public:
     }
 
   uint16_t sizeInBytes() const {return 16;}
-  unsigned int crc22() const;
-  void setCRC(int crc);
+  int crc22() const;
   bool check() const {return theData[0]==0x6e0c;}
   /// in 16-bit frames
   int sizeInWords() const {return 5+thePadding;}
   unsigned short * data() {return theData;}
 
   int wordCount() const;
-  static void selfTest();
+  void setWordCount(int words);
 private:
-  int crcOffset() const  {return (theFirmwareVersion == 2006 ? 1 : 2) + thePadding;}
-  int de0fOffset() const {return (theFirmwareVersion == 2006 ? 3 : 1) + thePadding;}
-
   unsigned short theData[7];
   int thePadding;
-  unsigned short int theFirmwareVersion;
 };
 
 #endif

@@ -1,8 +1,8 @@
 #!/usr/local/bin/perl
 #     R. Mankel, DESY Hamburg     06-Jul-2007
 #     A. Parenti, DESY Hamburg    27-Mar-2008
-#     $Revision: 1.1 $
-#     $Date: 2008/04/10 16:10:12 $
+#     $Revision: 1.14 $
+#     $Date: 2008/03/25 16:15:57 $
 #
 #  Extract INFI directives from input file
 #  and write chunk to standard output according to
@@ -72,14 +72,17 @@ $/ = "\n"; # back to normal
 # split the input into lines
 @LINES = split "\n",$body;
 
-# how many INFI cards
-$ninfi = $#LINES + 1;
-
+# GF
 my $poolDef = "";
 if ($LINES[0] =~ /^CastorPool=/) { # starts with CastorPool
   $poolDef = $LINES[0];
-  $ninfi = $ninfi - 1; # so we have one line less
+#  $pool =~ s/CastorPool=//; # first appearance erased
+  @LINES = @LINES[1..$#LINES]; # shorten
 }
+# end GF
+
+# how many INFI cards
+$ninfi = $#LINES + 1;
 
 # Now for the arithmetics
 $chunkSize = $ninfi / $totalGen;
@@ -93,10 +96,6 @@ if ($thisGen == 1) {
 if  ($thisGen == $totalGen) {
   $endId = $ninfi;
 }
-if ($poolDef ne "") {  #first line was pool definition, so shift again
-  $startId = $startId + 1;
-  $endId = $endId + 1;
-}
 
 # print "chunkSize $chunkSize\n ninfi $ninfi startID $startId endId $endId\n";
 
@@ -106,7 +105,7 @@ if ($endId < $startId) {
   exit 2;
 }
 
-# print "thisGen= $thisGen total=$totalGen startId= $startId  endID= $endId\n";
+# print "startId= $startId  endID= $endId\n";
 
 print "$poolDef\n" if ($poolDef ne ""); #GF
 

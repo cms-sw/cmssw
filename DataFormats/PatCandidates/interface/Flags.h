@@ -1,7 +1,7 @@
 #ifndef DataFormats_PatCandidates_interface_Flags_h
 #define DataFormats_PatCandidates_interface_Flags_h
 //
-// $Id: Flags.h,v 1.1 2008/03/11 17:05:50 gpetrucc Exp $
+// $Id: JetCorrFactors.h,v 1.1 2008/03/07 18:52:54 lowette Exp $
 //
 
 /**
@@ -9,7 +9,7 @@
   \brief    Flags used in PAT, and static translator from flags to strings 
 
   \author   Steven Lowette
-  \version  $Id: Flags.h,v 1.1 2008/03/11 17:05:50 gpetrucc Exp $
+  \version  $Id: JetCorrFactors.h,v 1.1 2008/03/07 18:52:54 lowette Exp $
 */
 
 #include "DataFormats/Candidate/interface/Particle.h"
@@ -40,7 +40,7 @@ namespace pat {
                 All           = 0x0000000F,
                 Duplicate     = 0x00000001, // internal duplication
                 Preselection  = 0x00000002, // base preselection 1 (e.g. pt, eta cuts)
-                Vertexing     = 0x00000004, // vertex association cuts
+                Preselection2 = 0x00000004, // base preselection 2 
                 Overflow      = 0x00000008, // if one requests to save "at most X items", 
                                             // the overflowing ones will have this bit set
                 Undefined     = 0x00000000

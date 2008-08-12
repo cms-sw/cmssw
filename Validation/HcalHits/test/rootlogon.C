@@ -1,12 +1,10 @@
 {
 
-cout << "FWlite ..." << endl;
+cout << "Loading FWLite..." << endl;
+gSystem->Load("libFWCoreFWLite");
+AutoLibraryLoader::enable();
 
-gSystem->Load("libFWCoreFWLite.so");
-   AutoLibraryLoader::enable();
-
-cout << "Redefining colors ..." << endl;
-
+cout << "Redefining colors..." << endl;
 
 TColor::InitializeColors(); 
 TColor *color = (TColor*)(gROOT->GetListOfColors()->At(41));

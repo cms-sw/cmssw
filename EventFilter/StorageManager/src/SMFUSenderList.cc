@@ -18,7 +18,7 @@ SMFUSenderList::SMFUSenderList()
 unsigned int SMFUSenderList::size()
 {
   boost::mutex::scoped_lock sl(list_lock_);
-  return (unsigned int)senderlist_.size();
+  return (unsigned int)fulist_.size();
 }
 
 boost::shared_ptr<stor::SMFUSenderEntry> SMFUSenderList::findEntry(const char* hltURL, 
@@ -29,10 +29,10 @@ boost::shared_ptr<stor::SMFUSenderEntry> SMFUSenderList::findEntry(const char* h
 {
    // initial empty pointer
    boost::shared_ptr<stor::SMFUSenderEntry> entryPtr;
-   if(senderlist_.empty()) return entryPtr;
+   if(fulist_.empty()) return entryPtr;
 
-   for(list<boost::shared_ptr<stor::SMFUSenderEntry> >::iterator pos = senderlist_.begin(); 
-       pos != senderlist_.end(); ++pos)
+   for(list<boost::shared_ptr<stor::SMFUSenderEntry> >::iterator pos = fulist_.begin(); 
+       pos != fulist_.end(); ++pos)
    {
       if((*pos)->match(hltURL, hltClassName, hltLocalId, hltInstance, hltTid))
       {
@@ -52,7 +52,7 @@ boost::shared_ptr<stor::SMFUSenderEntry> SMFUSenderList::addEntry(const char* hl
    boost::shared_ptr<stor::SMFUSenderEntry> entry_p(new SMFUSenderEntry(hltURL, hltClassName,
                      hltLocalId, hltInstance, hltTid, frameCount, numFrames, 
                      outModName, outModId, ref));
-   senderlist_.push_back(entry_p);
+   fulist_.push_back(entry_p);
    return entry_p;
 }
 
@@ -61,19 +61,19 @@ bool stor::SMFUSenderList::eraseEntry(const char* hltURL, const char* hltClassNa
                   const unsigned int hltInstance, 
                   const unsigned int hltTid)
 {
-   for(list<boost::shared_ptr<stor::SMFUSenderEntry> >::iterator pos = senderlist_.begin(); 
-       pos != senderlist_.end(); ++pos)
+   for(list<boost::shared_ptr<stor::SMFUSenderEntry> >::iterator pos = fulist_.begin(); 
+       pos != fulist_.end(); ++pos)
    {
       if((*pos)->match(hltURL, hltClassName, hltLocalId, hltInstance, hltTid))
       {
-        senderlist_.erase(pos);
+        fulist_.erase(pos);
         return true;
       }
    }
    return false;
 }
 
-int SMFUSenderList::registerDataSender(const char* hltURL,
+int SMFUSenderList::registerFUSender(const char* hltURL,
     const char* hltClassName, const unsigned int hltLocalId,
     const unsigned int hltInstance, const unsigned int hltTid,
     const unsigned int frameCount, const unsigned int numFrames,
@@ -90,7 +90,7 @@ int SMFUSenderList::registerDataSender(const char* hltURL,
     bool sameOutMod = foundPos->sameOutMod(outModName);
     if(!sameOutMod)
     {
-      FDEBUG(10) << "registerDataSender: found a new output Module " << outModName << " for URL "
+      FDEBUG(10) << "registerFUSender: found a new output Module " << outModName << " for URL "
                  << hltURL << " and Tid " << hltTid << std::endl;
       foundPos->addReg2Entry(frameCount, numFrames, outModName, outModId, ref);
       if(foundPos->regIsCopied(outModName)) {
@@ -99,7 +99,7 @@ int SMFUSenderList::registerDataSender(const char* hltURL,
         return 0;
       }
     } else {
-      FDEBUG(10) << "registerDataSender: found another frame " << frameCount << " for URL "
+      FDEBUG(10) << "registerFUSender: found another frame " << frameCount << " for URL "
                  << hltURL << " Tid " << hltTid <<  " and output module "
                  << outModName << std::endl;
       // should really check this is not a duplicate frame
@@ -112,7 +112,7 @@ int SMFUSenderList::registerDataSender(const char* hltURL,
       }
     }
   } else {
-    FDEBUG(9) << "registerDataSender: found a different FU Sender with frame " 
+    FDEBUG(9) << "registerFUSender: found a different FU Sender with frame " 
               << frameCount << " for URL "
               << hltURL << " and Tid " << hltTid << std::endl;
     // register (add) this FU sender to the list
@@ -121,8 +121,8 @@ int SMFUSenderList::registerDataSender(const char* hltURL,
     // ask Jim about a better design for the return from addEntry to say reg is complete
     if(foundPos == NULL)
     {
-      FDEBUG(9) << "registerDataSender: registering new FU sender at " << hltURL
-                << " failed! List size is " << senderlist_.size() << std::endl;
+      FDEBUG(9) << "registerFUSender: registering new FU sender at " << hltURL
+                << " failed! List size is " << fulist_.size() << std::endl;
       return -1;
     } else {
       if(foundPos->regIsCopied(outModName)) {
@@ -134,7 +134,7 @@ int SMFUSenderList::registerDataSender(const char* hltURL,
   }
 }
 
-int SMFUSenderList::updateSender4data(const char* hltURL,
+int SMFUSenderList::updateFUSender4data(const char* hltURL,
     const char* hltClassName, 
     const unsigned int hltLocalId,
     const unsigned int hltInstance, 
@@ -157,7 +157,7 @@ int SMFUSenderList::updateSender4data(const char* hltURL,
     if(!foundPos->getDataStatus())
     {  // had not received data before
       foundPos->setDataStatus();
-      FDEBUG(9) << "updateSender4data: received first data frame for URL"
+      FDEBUG(9) << "updateFUSender4data: received first data frame for URL"
                 << hltURL << " and Tid " << hltTid << std::endl;
       foundPos->setrunNumber(runNumber);
       foundPos->setisLocal(isLocal);
@@ -173,7 +173,7 @@ int SMFUSenderList::updateSender4data(const char* hltURL,
     }
    } else {
     // problem with this data frame from non-registered output module
-    FDEBUG(9) << "updateSender4data: Cannot find output module Id "
+    FDEBUG(9) << "updateFUSender4data: Cannot find output module Id "
               << outModId << " in FU Sender Entry!"
               << " With URL "
               << hltURL << " class " << hltClassName  << " instance "
@@ -182,7 +182,7 @@ int SMFUSenderList::updateSender4data(const char* hltURL,
    }
   } else {
     // problem with this data frame from non-registered FU sender
-    FDEBUG(9) << "updateSender4data: Cannot find FU in FU Sender list!"
+    FDEBUG(9) << "updateFUSender4data: Cannot find FU in FU Sender list!"
               << " With URL "
               << hltURL << " class " << hltClassName  << " instance "
               << hltInstance << " Tid " << hltTid << std::endl;
@@ -190,7 +190,7 @@ int SMFUSenderList::updateSender4data(const char* hltURL,
   }
 }
 
-bool SMFUSenderList::removeDataSender(const char* hltURL,
+bool SMFUSenderList::removeFUSender(const char* hltURL,
   const char* hltClassName, const unsigned int hltLocalId,
   const unsigned int hltInstance, const unsigned int hltTid)
 {
@@ -243,14 +243,14 @@ unsigned int SMFUSenderList::getRegistrySize(const char* hltURL,
   }
 }
 
-std::vector<boost::shared_ptr<SMFUSenderStats> > SMFUSenderList::getSenderStats()
+std::vector<boost::shared_ptr<SMFUSenderStats> > SMFUSenderList::getFUSenderStats()
 {
   boost::mutex::scoped_lock sl(list_lock_);
   std::vector<boost::shared_ptr<SMFUSenderStats> > vstat;
-  if(senderlist_.size() == 0) return vstat;
+  if(fulist_.size() == 0) return vstat;
 
-  for(std::list<boost::shared_ptr<stor::SMFUSenderEntry> >::iterator pos = senderlist_.begin();
-          pos != senderlist_.end(); ++pos)  
+  for(std::list<boost::shared_ptr<stor::SMFUSenderEntry> >::iterator pos = fulist_.begin();
+          pos != fulist_.end(); ++pos)  
   {
     boost::shared_ptr<SMFUSenderStats> fustat(new SMFUSenderStats((*pos)->getvhltURL(),
                                          (*pos)->getvhltClassName(),

@@ -1,8 +1,0 @@
-#! /bin/csh
-
-source /uscmst1/prod/sw/cms/cshrc uaf
-
-cd ${CMSSW}/src
-eval `scramv1 r -csh`
-cd ${directory}
-cmsRun ${cfg}

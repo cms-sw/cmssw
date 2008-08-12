@@ -1,8 +1,8 @@
 #!/usr/local/bin/perl
 #     R. Mankel, DESY Hamburg     08-Oct-2007
 #     A. Parenti, DESY Hamburg    16-Apr-2008
-#     $Revision: 1.12 $
-#     $Date: 2008/07/21 20:00:36 $
+#     $Revision: 1.5 $
+#     $Date: 2008/05/05 12:14:22 $
 #
 #  Setup local mps database
 #  
@@ -95,7 +95,7 @@ while (@ARGV) {
 
 # test input parameters
 if ($nJobs eq 0 or $helpwanted != 0 ) {
-  print "Usage:\n  mps_setup.pl [options] batchScript cfgTemplate infiList nJobs class[:classMerge] jobname [mergeScript [pool:]mssDir]";
+  print "Usage:\n  mps_setup.pl [options] batchScript cfgTemplate infiList nJobs class[:classMerge] jobname [mergeScript] [mssDir]";
   print "\nKnown options:";
   print "  \n -m   Setup pede merging job.";
   print "  \n -a   Append jobs to existing list.\n";
@@ -144,7 +144,6 @@ if ($mssDir ne "") {
   chomp $testMssDir;
   if ($testMssDir eq "") {
     print "Bad MSS directory name $mssDir\n";
-    exit 1;
   }
 
 }
@@ -242,11 +241,11 @@ for ($j = 1; $j <= $nJobs; ++$j) {
     @JOBSTATUS[$i-1] = "FAIL";
   }
   $theIsn = sprintf "%03d",$i;
-  print "mps_splice.pl $cfgTemplate jobData/$theJobDir/theSplit jobData/$theJobDir/the.py $theIsn\n";
-  system "mps_splice.pl $cfgTemplate jobData/$theJobDir/theSplit jobData/$theJobDir/the.py $theIsn";
+  print "mps_splice.pl $cfgTemplate jobData/$theJobDir/theSplit jobData/$theJobDir/the.cfg $theIsn\n";
+  system "mps_splice.pl $cfgTemplate jobData/$theJobDir/theSplit jobData/$theJobDir/the.cfg $theIsn";
   # create the run script
-  print "mps_script.pl $batchScript  jobData/$theJobDir/theScript.sh $theJobData/$theJobDir the.py jobData/$theJobDir/theSplit $theIsn $mssDir $castorPool\n";
-  system "mps_script.pl $batchScript  jobData/$theJobDir/theScript.sh $theJobData/$theJobDir the.py jobData/$theJobDir/theSplit $theIsn $mssDir $castorPool";
+  print "mps_script.pl $batchScript  jobData/$theJobDir/theScript.sh $theJobData/$theJobDir the.cfg jobData/$theJobDir/theSplit $theIsn $mssDir $castorPool\n";
+  system "mps_script.pl $batchScript  jobData/$theJobDir/theScript.sh $theJobData/$theJobDir the.cfg jobData/$theJobDir/theSplit $theIsn $mssDir $castorPool";
 }
 
 # create the merge job entry. This is always done. Whether it is used depends on the "merge" option.
@@ -275,12 +274,12 @@ if ($driver eq "merge") {
   my $nJobsMerge = $nJobs+$nJobExist;
 
   # create  merge job cfg
-  print "mps_merge.pl $cfgTemplate jobData/jobm/alignment_merge.py $theJobData/jobm $nJobsMerge\n";
-  system "mps_merge.pl $cfgTemplate jobData/jobm/alignment_merge.py $theJobData/jobm $nJobsMerge";
+  print "mps_merge.pl $cfgTemplate jobData/jobm/alignment_merge.cfg $theJobData/jobm $nJobsMerge\n";
+  system "mps_merge.pl $cfgTemplate jobData/jobm/alignment_merge.cfg $theJobData/jobm $nJobsMerge";
 
   # create merge job script
-  print "mps_scriptm.pl $mergeScript jobData/jobm/theScript.sh $theJobData/jobm alignment_merge.py $nJobsMerge $mssDir $castorPool\n";
-  system "mps_scriptm.pl $mergeScript jobData/jobm/theScript.sh $theJobData/jobm alignment_merge.py $nJobsMerge $mssDir $castorPool";
+  print "mps_scriptm.pl $mergeScript jobData/jobm/theScript.sh $theJobData/jobm alignment_merge.cfg $nJobsMerge $mssDir $castorPool\n";
+  system "mps_scriptm.pl $mergeScript jobData/jobm/theScript.sh $theJobData/jobm alignment_merge.cfg $nJobsMerge $mssDir $castorPool";
 }
 
 # Create a backup of batchScript, cfgTemplate, infiList (and mergeScript)

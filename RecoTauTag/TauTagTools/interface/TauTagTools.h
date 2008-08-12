@@ -10,8 +10,6 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "PhysicsTools/Utilities/interface/deltaR.h"
-#include "PhysicsTools/Utilities/interface/Angle.h"
 
 #include "Math/GenVector/VectorUtil.h" 
 
@@ -24,7 +22,6 @@ using namespace reco;
 using namespace edm;
 
 namespace TauTagTools{
-  template <class T> class sortByOpeningDistance;
   TrackRefVector filteredTracksByNumTrkHits(TrackRefVector theInitialTracks, int tkminTrackerHitsn);
   TrackRefVector filteredTracks(TrackRefVector theInitialTracks,double tkminPt,int tkminPixelHitsn,int tkminTrackerHitsn,double tkmaxipt,double tkmaxChi2, Vertex pV);
   TrackRefVector filteredTracks(TrackRefVector theInitialTracks,double tkminPt,int tkminPixelHitsn,int tkminTrackerHitsn,double tkmaxipt,double tkmaxChi2,double tktorefpointmaxDZ,Vertex pV,double refpoint_Z);
@@ -35,46 +32,6 @@ namespace TauTagTools{
   PFCandidateRefVector filteredPFNeutrHadrCands(PFCandidateRefVector theInitialPFCands,double NeutrHadrCand_HcalclusminEt);
   PFCandidateRefVector filteredPFGammaCands(PFCandidateRefVector theInitialPFCands,double GammaCand_EcalclusminEt);
   math::XYZPoint propagTrackECALSurfContactPoint(const MagneticField*,TrackRef); 
-  double computeDeltaR(const math::XYZVector& vec1, const math::XYZVector& vec2);
-  double computeAngle(const math::XYZVector& vec1, const math::XYZVector& vec2);
-  //binary predicate classes for sorting a list of indexes corresponding to PFRefVectors...(as they can't use STL??)
-  class sortRefsByOpeningDistance
-  {
-     public:
-     sortRefsByOpeningDistance(const math::XYZVector& theAxis, double (*ptrToMetricFunction)(const math::XYZVector&, const math::XYZVector&), const PFCandidateRefVector& myInputVector):myMetricFunction(ptrToMetricFunction),axis(theAxis),myVector(myInputVector){};
-     bool operator()(uint32_t indexA, uint32_t indexB)
-     {
-        const PFCandidate& candA = myVector.at(indexA);
-        const PFCandidate& candB = myVector.at(indexB);
-        return (myMetricFunction(axis, candA.momentum()) < myMetricFunction(axis, candB.momentum()));
-     }
-     private:
-     double (*myMetricFunction)(const math::XYZVector&, const math::XYZVector&);
-     math::XYZVector axis;  //axis about which candidates are sorted
-     const PFCandidateRefVector& myVector;
-  };
-
-  class filterChargedAndNeutralsByPt
-  {
-     public:
-     filterChargedAndNeutralsByPt(double minNeutralPt, double minChargedPt, const PFCandidateRefVector& myInputVector):minNeutralPt_(minNeutralPt),minChargedPt_(minChargedPt),myVector(myInputVector){};
-     bool operator()(uint32_t candIndex)
-     {
-        const PFCandidate& cand = myVector.at(candIndex);
-        bool output          = true;
-        unsigned char charge = abs(cand.charge());
-        double thePt         = cand.pt();
-        if (charge && thePt < minChargedPt_)
-           output = false;
-        else if (!charge && thePt < minNeutralPt_)
-           output = false;
-        return output;
-     }
-     private:
-     double minNeutralPt_;
-     double minChargedPt_;
-     const PFCandidateRefVector& myVector;
-  };
 }
 
 #endif

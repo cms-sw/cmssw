@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/07/25 14:15:43 $
- *  $Revision: 1.10 $
+ *  $Date: 2008/05/06 13:26:47 $
+ *  $Revision: 1.8 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -12,8 +12,8 @@
 // Framework
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include <FWCore/Framework/interface/LuminosityBlock.h>
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -38,13 +38,11 @@ DTResolutionAnalysisTask::DTResolutionAnalysisTask(const ParameterSet& pset) {
   if(debug)
     cout << "[DTResolutionAnalysisTask] Constructor called!" << endl;
 
-  // the name of the 4D rec hits collection
-  theRecHits4DLabel = pset.getParameter<string>("recHits4DLabel");
-  // the name of the rechits collection
-  theRecHitLabel = pset.getParameter<string>("recHitLabel");
-  
-  resetCycle = pset.getUntrackedParameter<int>("ResetCycle", -1);
+  // Get the DQM needed services
+  theDbe = edm::Service<DQMStore>().operator->();
+  theDbe->setCurrentFolder("DT/DTResolutionAnalysisTask");
 
+  parameters = pset;
 }
 
 
@@ -54,36 +52,21 @@ DTResolutionAnalysisTask::~DTResolutionAnalysisTask(){
 }
 
 
-void DTResolutionAnalysisTask::beginJob(const edm::EventSetup& setup){
-  // Get the DQM needed services
-  theDbe = edm::Service<DQMStore>().operator->();
-//   theDbe->setCurrentFolder("DT/02-Segments");
-
-  // Get the DT Geometry
-  setup.get<MuonGeometryRecord>().get(dtGeom);
-
-
-  // Book the histograms (for each SL)
-  vector<DTChamber*> chambers = dtGeom->chambers();
-  for(vector<DTChamber*>::const_iterator chamber = chambers.begin();
-      chamber != chambers.end(); ++chamber) {  // Loop over all chambers
-    DTChamberId dtChId = (*chamber)->id();
-    for(int sl = 1; sl <= 3; ++sl) { // Loop over SLs
-      if(dtChId.station() == 4 && sl == 2) continue;
-      const  DTSuperLayerId dtSLId(dtChId,sl);
-      bookHistos(dtSLId);
-    }
-  }
+void DTResolutionAnalysisTask::beginJob(const edm::EventSetup& context){
+  // the name of the 4D rec hits collection
+  theRecHits4DLabel = parameters.getParameter<string>("recHits4DLabel");
+  // the name of the rechits collection
+  theRecHitLabel = parameters.getParameter<string>("recHitLabel");
 }
 
 
 
-void DTResolutionAnalysisTask::beginLuminosityBlock(const LuminosityBlock& lumiSeg,
-						    const EventSetup& context) {
+void DTResolutionAnalysisTask::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
+
   if(debug)
     cout<<"[DTResolutionTask]: Begin of LS transition"<<endl;
   
-  if(resetCycle != -1 && lumiSeg.id().luminosityBlock() % resetCycle == 0) {
+  if(lumiSeg.id().luminosityBlock()%parameters.getUntrackedParameter<int>("ResetCycle", 3) == 0) {
     for(map<DTSuperLayerId, vector<MonitorElement*> > ::const_iterator histo = histosPerSL.begin();
 	histo != histosPerSL.end();
 	histo++) {
@@ -93,6 +76,7 @@ void DTResolutionAnalysisTask::beginLuminosityBlock(const LuminosityBlock& lumiS
       }
     }
   }
+  
 }
 
 
@@ -100,6 +84,7 @@ void DTResolutionAnalysisTask::endJob(){
  if(debug)
     cout<<"[DTResolutionAnalysisTask] endjob called!"<<endl;
 
+  theDbe->rmdir("DT/DTResolutionAnalysisTask");
 }
   
 
@@ -117,6 +102,12 @@ void DTResolutionAnalysisTask::analyze(const edm::Event& event, const edm::Event
   // Get the rechit collection from the event
   Handle<DTRecHitCollection> dtRecHits;
   event.getByLabel(theRecHitLabel, dtRecHits);
+
+  // Get the DT Geometry
+  ESHandle<DTGeometry> dtGeom;
+  setup.get<MuonGeometryRecord>().get(dtGeom);
+
+
 
   // Loop over all chambers containing a segment
   DTRecSegment4DCollection::id_iterator chamberId;
@@ -144,13 +135,13 @@ void DTResolutionAnalysisTask::analyze(const edm::Event& event, const edm::Event
       if((*chamberId).station() != 4 && (*segment4D).dimension() != 4) {
 	if(debug)
 	  cout << "[DTResolutionAnalysisTask]***Warning: RecSegment dimension is not 4 but "
-	       << (*segment4D).dimension() << "!" << endl;
-// 	continue; //FIXME: remove the if
+	       << (*segment4D).dimension() << ", skipping!" << endl;
+	continue;
       } else if((*chamberId).station() == 4 && (*segment4D).dimension() != 2) {
 	if(debug)
 	  cout << "[DTResolutionAnalysisTask]***Warning: RecSegment dimension is not 2 but "
-	       << (*segment4D).dimension() << "!" << endl;
-// 	continue;
+	       << (*segment4D).dimension() << ", skipping!" << endl;
+	continue;
       }
 
 
@@ -160,30 +151,23 @@ void DTResolutionAnalysisTask::analyze(const edm::Event& event, const edm::Event
 
       // Get 1D RecHits at Step 3 and select only events with
       // 8 hits in phi and 4 hits in theta (if any)
-
-      if((*segment4D).hasPhi()) { // has phi component
-	const DTChamberRecSegment2D* phiSeg = (*segment4D).phiSegment();
-	vector<DTRecHit1D> phiRecHits = phiSeg->specificRecHits();
-
-	if(phiRecHits.size() != 8) {
-	  if(debug)
-	    cout << "[DTResolutionAnalysisTask] Phi segments has: " << phiRecHits.size()
-		 << " hits" << endl; // FIXME: info output
-	  // 	continue; // FIXME: remove the if
-	}
-	copy(phiRecHits.begin(), phiRecHits.end(), back_inserter(recHits1D_S3));
-      } else {
-	if(debug) cout << "[DTResolutionAnalysisTask] 4D segment has not phi component!" << endl;
+      const DTChamberRecSegment2D* phiSeg = (*segment4D).phiSegment();
+      vector<DTRecHit1D> phiRecHits = phiSeg->specificRecHits();
+      if(phiRecHits.size() != 8) {
+	if(debug)
+	  cout << "[DTResolutionAnalysisTask] Phi segments has: " << phiRecHits.size()
+	       << " hits, skipping" << endl; // FIXME: info output
+	continue;
       }
-
-      if((*segment4D).hasZed()) {
+      copy(phiRecHits.begin(), phiRecHits.end(), back_inserter(recHits1D_S3));
+      if((*segment4D).dimension() == 4) {
 	const DTSLRecSegment2D* zSeg = (*segment4D).zSegment();
 	vector<DTRecHit1D> zRecHits = zSeg->specificRecHits();
 	if(zRecHits.size() != 4) {
 	  if(debug)
 	    cout << "[DTResolutionAnalysisTask] Theta segments has: " << zRecHits.size()
 		 << " hits, skipping" << endl; // FIXME: info output
-// 	  continue; // FIXME: remove the if
+	  continue;
 	}
 	copy(zRecHits.begin(), zRecHits.end(), back_inserter(recHits1D_S3));
       }
@@ -265,7 +249,7 @@ void DTResolutionAnalysisTask::bookHistos(DTSuperLayerId slId) {
     "_Sec" + sector.str() +
     "_SL" + superLayer.str();
   
-  theDbe->setCurrentFolder("DT/02-Segments/Wheel" + wheel.str() +
+  theDbe->setCurrentFolder("DT/DTResolutionAnalysisTask/Wheel" + wheel.str() +
 			   "/Station" + station.str() +
 			   "/Sector" + sector.str());
   // Create the monitor elements
@@ -288,6 +272,10 @@ void DTResolutionAnalysisTask::bookHistos(DTSuperLayerId slId) {
 void DTResolutionAnalysisTask::fillHistos(DTSuperLayerId slId,
 				      float distExtr,
 				      float residual) {
+  // FIXME: optimization of the number of searches
+  if(histosPerSL.find(slId) == histosPerSL.end()){
+      bookHistos(slId);
+  }
   vector<MonitorElement *> histos =  histosPerSL[slId];                          
   histos[0]->Fill(residual);
   //FIXME: 2D plot removed to reduce the # of ME

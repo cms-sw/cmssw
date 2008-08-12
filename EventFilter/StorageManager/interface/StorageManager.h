@@ -10,7 +10,7 @@
 
      See CMS EventFilter wiki page for further notes.
 
-   $Id: StorageManager.h,v 1.36 2008/07/31 20:30:28 biery Exp $
+   $Id: StorageManager.h,v 1.34 2008/06/12 16:02:38 biery Exp $
 */
 
 #include <string>
@@ -103,17 +103,12 @@ namespace stor {
 
     void checkDirectoryOK(const std::string dir) const;
 
-    typedef std::vector<boost::shared_ptr<SMFUSenderStats> >
-      RBSS_Vector;
-
     void defaultWebPage
       (xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception);
     void css(xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception)
       {css_.css(in,out);}
-    void rbsenderWebPage
+    void fusenderWebPage
       (xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception);
-    void rbsenderDetailWebPage
-      ( xgi::Input *in, xgi::Output *out ) throw (xgi::exception::Exception);
     void streamerOutputWebPage
       (xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception);
     void eventdataWebPage
@@ -191,8 +186,8 @@ namespace stor {
     boost::mutex consumerInitMsgLock_;
     xdata::String esSelectedHLTOutputModule_;
 
-    SMFUSenderList smrbsenders_;
-    xdata::UnsignedInteger32 connectedRBs_;
+    SMFUSenderList smfusenders_;
+    xdata::UnsignedInteger32 connectedFUs_;
 
     xdata::UnsignedInteger32 storedEvents_;
     xdata::UnsignedInteger32 receivedEvents_;
@@ -259,7 +254,7 @@ namespace stor {
 
     unsigned int lastEventSeen_; // report last seen event id
     unsigned int lastErrorEventSeen_; // report last error event id seen
-    boost::mutex rblist_lock_;  // quick (temporary) fix for registration problem
+    boost::mutex fulist_lock_;  // quick (temporary) fix for registration problem
 
     enum
     {

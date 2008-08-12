@@ -101,6 +101,17 @@ float Comp2RefEqualH::runTest(const MonitorElement*me)
   if (nbins != nbinsref) return -1;
  } 
 
+ //-- TH2
+ else if (me->kind()==MonitorElement::DQM_KIND_TH2S){ 
+  nbins = me->getTH2S()->GetXaxis()->GetNbins() *
+          me->getTH2S()->GetYaxis()->GetNbins();
+  nbinsref = me->getRefTH2S()->GetXaxis()->GetNbins() *
+             me->getRefTH2S()->GetYaxis()->GetNbins();
+  h  = me->getTH2S(); // access Test histo
+  ref_ = me->getRefTH2S(); //access Ref hiso 
+  if (nbins != nbinsref) return -1;
+ } 
+
  //-- TH3
  else if (me->kind()==MonitorElement::DQM_KIND_TH3F){ 
   nbins = me->getTH3F()->GetXaxis()->GetNbins() *
@@ -115,7 +126,7 @@ float Comp2RefEqualH::runTest(const MonitorElement*me)
  } 
 
  else{ 
-  std::cout<< "Comp2RefEqualH ERROR: ME does not contain TH1F/TH1S/TH2F/TH3F" << std::endl; 
+  std::cout<< "Comp2RefEqualH ERROR: ME does not contain TH1F/TH1S/TH2F/TH2S/TH3F" << std::endl; 
   return -1;
  } 
  
@@ -519,9 +530,15 @@ float NoisyChannel::runTest(const MonitorElement *me)
            me->getTH2F()->GetYaxis()->GetNbins();
    h  = me->getTH2F(); // access Test histo
  } 
+ //-- TH2
+ else if (me->kind()==MonitorElement::DQM_KIND_TH2S){ 
+   nbins = me->getTH2S()->GetXaxis()->GetNbins() *
+           me->getTH2S()->GetYaxis()->GetNbins();
+   h  = me->getTH2S(); // access Test histo
+ } 
  else {  
    std::cout<< "NoisyChannel ERROR: ME " << me->getFullname() << 
-   " does not contain TH1F/TH1S or TH2F" << std::endl; 
+   " does not contain TH1F/TH1S or TH2F/TH2S" << std::endl; 
    return -1;
  }
 
@@ -663,6 +680,13 @@ float ContentsWithinExpected::runTest(const MonitorElement*me)
     ncy = me->getTH2F()->GetYaxis()->GetNbins(); 
     h  = me->getTH2F(); // access Test histo
   }
+ 
+   //-- TH2S
+  else if (me->kind()==MonitorElement::DQM_KIND_TH2S){
+    ncx = me->getTH2S()->GetXaxis()->GetNbins();
+    ncy = me->getTH2S()->GetYaxis()->GetNbins(); 
+    h  = me->getTH2S(); // access Test histo
+  }
 
 
   //-- TProfile
@@ -680,7 +704,7 @@ float ContentsWithinExpected::runTest(const MonitorElement*me)
   }
 
   else{
-  std::cout<< " ContentsWithinExpected ERROR: ME does not contain TH2F/TPROFILE/TPROFILE2D" << std::endl; 
+  std::cout<< " ContentsWithinExpected ERROR: ME does not contain TH2F/TH2S/TPROFILE/TPROFILE2D" << std::endl; 
   return -1;
   } 
  
@@ -695,6 +719,11 @@ float ContentsWithinExpected::runTest(const MonitorElement*me)
       for (int cy = 1; cy <= ncy; ++cy)
       {
 	if (me->kind() == MonitorElement::DQM_KIND_TH2F)
+	{
+	  sum += h->GetBinContent(h->GetBin(cx, cy));
+	  ++nsum;
+	}
+	else if (me->kind() == MonitorElement::DQM_KIND_TH2S)
 	{
 	  sum += h->GetBinContent(h->GetBin(cx, cy));
 	  ++nsum;
@@ -762,6 +791,12 @@ float ContentsWithinExpected::runTest(const MonitorElement*me)
 			  h->GetBinError(h->GetBin(cx, cy)));
           badChannels_.push_back(chan);
 	}
+	else if (me->kind() == MonitorElement::DQM_KIND_TH2S) {
+          DQMChannel chan(cx, cy, 0,
+			  h->GetBinContent(h->GetBin(cx, cy)),
+			  h->GetBinError(h->GetBin(cx, cy)));
+          badChannels_.push_back(chan);
+	}
 	else if (me->kind() == MonitorElement::DQM_KIND_TPROFILE) {
 	  DQMChannel chan(cx, cy, int(me->getTProfile()->GetBinEntries(h->GetBin(cx))),
 			  0,
@@ -785,13 +820,17 @@ float ContentsWithinExpected::runTest(const MonitorElement*me)
 else     /// AS quality test !!!  
 {
   if (me->kind()==MonitorElement::DQM_KIND_TH2F){
-  ncx = me->getTH2F()->GetXaxis()->GetNbins();
-  ncy = me->getTH2F()->GetYaxis()->GetNbins();
-   h  = me->getTH2F(); // access Test histo
+    ncx = me->getTH2F()->GetXaxis()->GetNbins();
+    ncy = me->getTH2F()->GetYaxis()->GetNbins();
+    h  = me->getTH2F(); // access Test histo
   }
-
-  else{
-   std::cout<< " ContentsWithinExpected AS! ERROR: ME does not contain TH2F" << std::endl; 
+  else if (me->kind()==MonitorElement::DQM_KIND_TH2S){
+    ncx = me->getTH2S()->GetXaxis()->GetNbins();
+    ncy = me->getTH2S()->GetYaxis()->GetNbins();
+    h  = me->getTH2S(); // access Test histo
+  }
+  else {
+   std::cout<< " ContentsWithinExpected AS! ERROR: ME does not contain TH2F/TH2S" << std::endl; 
    return -1;
    } 
 

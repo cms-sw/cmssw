@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Nov 14 15:02:06 CET 2007
-// $Id: SiPixelGainCalibrationAnalysis.h,v 1.15 2008/04/21 20:41:32 fblekman Exp $
+// $Id: SiPixelGainCalibrationAnalysis.h,v 1.14 2008/04/21 12:39:04 fblekman Exp $
 //
 //
 
@@ -79,8 +79,6 @@ private:
   bool reject_badpoints_;
   bool reject_plateaupoints_;
   bool reject_single_entries_;
-  double plateau_max_slope_;
-  bool reject_first_point_;
   double reject_badpoints_frac_;
   bool bookBIGCalibPayload_;
   bool savePixelHists_;
@@ -106,5 +104,4 @@ private:
   float gainhi_;
   float pedlow_;
   float pedhi_;
-  uint16_t min_nentries_;
 };

@@ -6,7 +6,7 @@
  * Initial Implementation based on Kurt's ConsumerPipe
  * make a common class later when all this works
  *
- * $Id: DQMConsumerPipe.cc,v 1.9 2008/01/28 19:51:39 hcheung Exp $
+ * $Id: DQMConsumerPipe.cc,v 1.8 2007/11/29 19:17:41 biery Exp $
  */
 
 #include "EventFilter/StorageManager/interface/DQMConsumerPipe.h"
@@ -53,16 +53,6 @@ DQMConsumerPipe::DQMConsumerPipe(std::string name, std::string priority,
   initializationDone = false;
   pushMode_ = false;
   if(consumerPriority_.compare("PushMode") == 0) pushMode_ = true;
-
-  // determine if we're connected to a proxy server
-  consumerIsProxyServer_ = false;
-  //if (consumerName_ == PROXY_SERVER_NAME)
-  if (consumerName_.find("urn") != std::string::npos &&
-      consumerName_.find("xdaq") != std::string::npos &&
-      consumerName_.find("pushEventData") != std::string::npos)
-  {
-    consumerIsProxyServer_ = true;
-  }
 
   // assign the consumer ID
   boost::mutex::scoped_lock scopedLockForRootId(rootIdLock_);
@@ -214,7 +204,6 @@ boost::shared_ptr< std::vector<char> > DQMConsumerPipe::getDQMEvent()
     {
       bufPtr = eventQueue_.front();
       eventQueue_.pop_front();
-      ++events_;
     }
   }
 

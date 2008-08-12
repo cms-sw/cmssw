@@ -28,7 +28,7 @@ class EcalEndcapGeometry : public CaloSubdetectorGeometry
 
       typedef EcalEndcapNumberingScheme NumberingScheme ;
 
-      enum { k_NumberOfCellsForCorners = EEDetId::kSizeForDenseIndexing } ;
+      enum CornersCount { k_NumberOfCellsForCorners = 14648 } ;
 
       EcalEndcapGeometry() ;
   

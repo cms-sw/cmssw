@@ -1,8 +1,8 @@
 /** \class StandAloneMuonRefitter
  *  Class ti interface the muon system rechits with the standard KF tools.
  *
- *  $Date: 2008/07/16 10:40:08 $
- *  $Revision: 1.46 $
+ *  $Date: 2008/04/23 16:56:34 $
+ *  $Revision: 1.42 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -21,98 +21,46 @@
 using namespace edm;
 using namespace std;
 
-StandAloneMuonRefitter::StandAloneMuonRefitter(const ParameterSet& par, const MuonServiceProxy* service):theService(service) {
-  LogDebug("Muon|RecoMuon|StandAloneMuonRefitter") << "Constructor called." << endl;
-
+StandAloneMuonRefitter::StandAloneMuonRefitter(const ParameterSet& par, const MuonServiceProxy* service):theService(service){
   theFitterName = par.getParameter<string>("FitterName");
-  theNumberOfIterations = par.getParameter<unsigned int>("NumberOfIterations");
-  isForceAllIterations = par.getParameter<bool>("ForceAllIterations");
-  theMaxFractionOfLostHits = par.getParameter<double>("MaxFractionOfLostHits");
+  theTEMPORARYoption = par.getParameter<int>("Option");
 }
 
 /// Destructor
-StandAloneMuonRefitter::~StandAloneMuonRefitter() {
-  LogDebug("Muon|RecoMuon|StandAloneMuonRefitter") << "Destructor called." << endl;
+StandAloneMuonRefitter::~StandAloneMuonRefitter(){
+
 }
 
   // Operations
 
-/// Refit
-StandAloneMuonRefitter::RefitResult StandAloneMuonRefitter::singleRefit(const Trajectory& trajectory) {
+  /// Refit
+StandAloneMuonRefitter::RefitResult StandAloneMuonRefitter::refit(const Trajectory& trajectory){
   
   theService->eventSetup().get<TrackingComponentsRecord>().get(theFitterName, theFitter);
 
   vector<Trajectory> refitted;
 
-  TrajectoryMeasurement lastTM = trajectory.lastMeasurement();                                      
+  if(theTEMPORARYoption == 1)
+    refitted = theFitter->fit(trajectory);
+  
+  else if(theTEMPORARYoption == 2 || theTEMPORARYoption == 3){
+    TrajectoryMeasurement lastTM = trajectory.lastMeasurement();
+    TrajectoryStateOnSurface firstTsos = lastTM.updatedState();
+    if (theTEMPORARYoption == 3) 
+      firstTsos = TrajectoryStateWithArbitraryError()(lastTM.updatedState());
+    TransientTrackingRecHit::ConstRecHitContainer trajRH = trajectory.recHits();
+    reverse(trajRH.begin(),trajRH.end());
 
-  //  TrajectoryStateOnSurface firstTsos = TrajectoryStateWithArbitraryError()(lastTM.updatedState());  
-
-  AlgebraicSymMatrix55 newErr = lastTM.updatedState().localError().matrix();
-  newErr *= 100.;
-
-  TrajectoryStateOnSurface firstTsos(lastTM.updatedState().localParameters(), 
-				     LocalTrajectoryError(newErr), 
-				     lastTM.updatedState().surface(),
-				     &lastTM.updatedState().globalParameters().magneticField());
-
-
-  TransientTrackingRecHit::ConstRecHitContainer trajRH = trajectory.recHits();                      
-  reverse(trajRH.begin(),trajRH.end());                                                             
-  refitted = theFitter->fit(trajectory.seed(), trajRH, firstTsos);                                  
-
+    vector<Trajectory> refitted = theFitter->fit(trajectory.seed(), trajRH, firstTsos);
+  }
+  
   if(!refitted.empty()) return RefitResult(true,refitted.front());
   else return RefitResult(false,trajectory);
 }
 
 
-StandAloneMuonRefitter::RefitResult StandAloneMuonRefitter::refit(const Trajectory& trajectory) {
+// {
+//   TransientTrackingRecHit::ConstRecHitContainer trajRH = trajectory.recHits();
+//   for()
 
-  LogDebug("Muon|RecoMuon|StandAloneMuonRefitter") << "---------------------------------" << endl;
-  LogDebug("Muon|RecoMuon|StandAloneMuonRefitter") << "Starting refitting loop:" << endl;
-
-  unsigned int nSuccess=0;
-  unsigned int nOrigHits=trajectory.recHits().size();
-  Trajectory lastFitted=trajectory;
-  bool allIter=true;
-  bool enoughRH=true;
-
-  for(unsigned int j=0; j<theNumberOfIterations; ++j) {
-
-    StandAloneMuonRefitter::RefitResult singleRefitResult = singleRefit(lastFitted);
-    lastFitted = singleRefitResult.second;
-    unsigned int nLastHits=lastFitted.recHits().size();
-
-    if(!singleRefitResult.first) {
-      allIter=false;
-      LogDebug("Muon|RecoMuon|StandAloneMuonRefitter") << "  refit n. " << nSuccess+1 << ": failed" << endl;
-      break;
-    }
-
-    double lostFract= 1 - double(nLastHits)/nOrigHits;
-    if(lostFract>theMaxFractionOfLostHits) {
-      enoughRH=false;
-      LogDebug("Muon|RecoMuon|StandAloneMuonRefitter") << "  refit n. " << nSuccess+1 << ": too many RH lost" << endl;
-      LogDebug("Muon|RecoMuon|StandAloneMuonRefitter") << "     Survived RecHits: " << nLastHits << "/" << nOrigHits << endl;
-      break;
-    }
-
-    nSuccess++;
-    LogDebug("Muon|RecoMuon|StandAloneMuonRefitter") << "  refit n. " << nSuccess << ": OK" << endl;
-    LogDebug("Muon|RecoMuon|StandAloneMuonRefitter") << "     Survived RecHits: " << nLastHits << "/" << nOrigHits << endl;
-
-  } // end for
-
-  LogDebug("Muon|RecoMuon|StandAloneMuonRefitter") << nSuccess << " successful refits!" << endl;
-
-  // if isForceAllIterations==true  =>   3 successful refits: (true, refitted trajectory)
-  //                                    <3 successful refits: (false, original trajectory)
-  // if isForceAllIterations==false =>  >0 successful refits: (true, last refitted trajectory)
-  //                                     0 successful refits: (false, original trajectory)
-  if(!enoughRH)
-    return RefitResult(false, trajectory);
-  else if(isForceAllIterations)
-    return allIter ? RefitResult(allIter, lastFitted) : RefitResult(allIter, trajectory);
-  else
-    return nSuccess==0 ? RefitResult(false, trajectory) : RefitResult(true, lastFitted);
-}
+// }

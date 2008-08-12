@@ -18,7 +18,7 @@ class IsoDepositIsolator : public BaseIsolator {
 
         virtual std::string description() const ;
     protected:
-        enum Mode { Sum, Sum2, SumRelative, Sum2Relative, Max, MaxRelative, Count };
+        enum Mode { Sum, SumRelative, Count };
         edm::Handle<Isolation> handle_;
 
         float deltaR_;

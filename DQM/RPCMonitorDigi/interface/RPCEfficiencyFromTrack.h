@@ -48,11 +48,11 @@ class RPCEfficiencyFromTrack : public edm::EDAnalyzer {
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       typedef std::vector<Trajectory> Trajectories;
-      std::map<std::string, MonitorElement*> bookDetUnitTrackEff(RPCDetId & detId, const edm::EventSetup & iSetup);
+      std::map<std::string, MonitorElement*> bookDetUnitTrackEff(RPCDetId & detId);
  
    private:
 
-      edm::InputTag gmtSource_ ;
+
       TFile* fOutputFile;
       TH1F* hRecPt;
       TH1F* hGlobalRes;
@@ -63,18 +63,20 @@ class RPCEfficiencyFromTrack : public edm::EDAnalyzer {
       bool MeasureBarrel;
       bool EffSaveRootFile;
       int EffSaveRootFileEventsInterval;
-      int DTTrigValue;
+      TH2F* ExtrapErrorG;TH2F* ExtrapErrorN; 
+      TH1F* chisquareEff;TH1F* chisquareNoEff;
+      TH1F* ChiEff;
 
+      TH1F* EXPGlob1;  TH1F* EXPGlob2;  TH1F* EXPGlob3;  TH1F* EXPGlob4;  TH1F* EXPGlob5; 
+      TH1F* RPCGlob1;  TH1F* RPCGlob2;  TH1F* RPCGlob3;  TH1F* RPCGlob4;  TH1F* RPCGlob5; 
 
       int wh;
       bool cosmic;
-
       int Run;
       time_t aTime;
 
       ofstream* effres;
       std::string EffRootFileName;
-      std::string digiLabel;
       std::string TjInput;
       std::string RPCDataLabel;
       std::string GlobalRootLabel;

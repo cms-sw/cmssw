@@ -20,17 +20,16 @@
 
 
 ######################
-set RefRelease=CMSSW_2_1_0_pre9
+set RefRelease=CMSSW_2_1_0_pre6
 set NewRelease=$CMSSW_VERSION
 set Algo=""
-#set Quality=""
-set Quality="highPurity"
-#set Tracks="generalTracks"
-set Tracks="cutsRecoTracks"
+set Quality=""
+#set Quality="highPurity"
+set Tracks="generalTracks"
+#set Tracks="cutsRecoTracks"
 set GlobalTag = IDEAL_V5
-#set RefSelection=IDEAL_V5_noPU_out_of_the_box
-set RefSelection=IDEAL_V5_noPU_highPuritySelection
-set NewSelection=${GlobalTag}_noPU_${Algo}${Quality}
+set RefSelection=IDEAL_V2_out_of_the_box
+set NewSelection=${GlobalTag}_out_of_the_box${Algo}${Quality}
 set RefRepository=/afs/cern.ch/cms/performance/tracker/activities/reconstruction/tracking_performance
 set NewRepository=/afs/cern.ch/cms/performance/tracker/activities/reconstruction/tracking_performance
 #set NewRepository=myLocalPath
@@ -38,12 +37,12 @@ set NewRepository=/afs/cern.ch/cms/performance/tracker/activities/reconstruction
 #set Sequence=iterative
 #set Sequence=newConfiguration
 #set Sequence=re_tracking
-#set Sequence=only_validation
+set Sequence=only_validation
 #set samples=(RelValSingleMuPt1 RelValSingleMuPt10  RelValSingleMuPt100) 
 #set samples=(RelValSingleMuPt1 RelValSingleMuPt10 RelValSingleMuPt100) 
-#set samples=(RelValSingleMuPt100)
+set samples=(RelValSingleMuPt100)
 #set samples=(RelValSinglePiPt1)
-set samples=(RelValTTbar)
+#set samples=(RelValTTbar)
 #set samples=(RelValSingleMuPt1 RelValSingleMuPt10 RelValSingleMuPt100 RelValSinglePiPt1 RelValSinglePiPt10 RelValSinglePiPt100 RelValTTbar RelValQCD_Pt_3000_3500 RelValQCD_Pt_80_120)
 #set cfg = trackingPerformanceValidation13x.cfg
 set cfg = trackingPerformanceValidation_cfg.py

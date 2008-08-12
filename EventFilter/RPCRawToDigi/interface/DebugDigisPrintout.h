@@ -26,7 +26,6 @@ namespace rpcrawtodigi {
     std::string operator()(const RPCDigiCollection * digis) {
       std::ostringstream str;
       str << "DebugDigisPrintout:";
-      if (!digis) return str.str();
       typedef  DigiContainerIterator<RPCDetId, RPCDigi> DigiRangeIterator;
       std::vector<MyDigi> myDigis;
 
