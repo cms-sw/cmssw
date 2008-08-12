@@ -14,30 +14,30 @@ ttSemiLepEvent = cms.EDProducer("TtSemiLepEvtBuilder",
     genEvent = cms.InputTag("genEvt"),
                              
     ## considered event hypotheses                             
-    hyps = cms.VInputTag(cms.InputTag("ttSemiLepGeom"),
-                         cms.InputTag("ttSemiLepWMassMaxSumPt"),
-                         cms.InputTag("ttSemiLepMaxSumPtWMass"),
-                         cms.InputTag("ttSemiLepKinFit"),
-                         cms.InputTag("ttSemiLepGenMatch"),
-                         cms.InputTag("ttSemiLepMVADisc")
+    hyps = cms.VInputTag(cms.InputTag("ttSemiLepHypGeom"),
+                         cms.InputTag("ttSemiLepHypWMassMaxSumPt"),
+                         cms.InputTag("ttSemiLepHypMaxSumPtWMass"),
+                         cms.InputTag("ttSemiLepHypKinFit"),
+                         cms.InputTag("ttSemiLepHypGenMatch"),
+                         cms.InputTag("ttSemiLepHypMVADisc")
                          ),
 
     ## event hypotheses' keys for mapping
-    keys = cms.VInputTag(cms.InputTag("ttSemiLepGeom","Key"),
-                         cms.InputTag("ttSemiLepWMassMaxSumPt","Key"),
-                         cms.InputTag("ttSemiLepMaxSumPtWMass","Key"),
-                         cms.InputTag("ttSemiLepGenMatch","Key"),
-                         cms.InputTag("ttSemiLepKinFit","Key"),
-                         cms.InputTag("ttSemiLepMVADisc","Key")
+    keys = cms.VInputTag(cms.InputTag("ttSemiLepHypGeom","Key"),
+                         cms.InputTag("ttSemiLepHypWMassMaxSumPt","Key"),
+                         cms.InputTag("ttSemiLepHypMaxSumPtWMass","Key"),
+                         cms.InputTag("ttSemiLepHypGenMatch","Key"),
+                         cms.InputTag("ttSemiLepHypKinFit","Key"),
+                         cms.InputTag("ttSemiLepHypMVADisc","Key")
                          ),
 
     ## event hypotheses' jet parton association as meta information
-    matches = cms.VInputTag(cms.InputTag("ttSemiLepGeom","Match"),
-                            cms.InputTag("ttSemiLepWMassMaxSumPt","Match"),
-                            cms.InputTag("ttSemiLepMaxSumPtWMass","Match"),
-                            cms.InputTag("ttSemiLepKinFit","Match"),
-                            cms.InputTag("ttSemiLepGenMatch","Match"),
-                            cms.InputTag("ttSemiLepMVADisc","Match")
+    matches = cms.VInputTag(cms.InputTag("ttSemiLepHypGeom","Match"),
+                            cms.InputTag("ttSemiLepHypWMassMaxSumPt","Match"),
+                            cms.InputTag("ttSemiLepHypMaxSumPtWMass","Match"),
+                            cms.InputTag("ttSemiLepHypKinFit","Match"),
+                            cms.InputTag("ttSemiLepHypGenMatch","Match"),
+                            cms.InputTag("ttSemiLepHypMVADisc","Match")
                             ),
 
     ## add extra information on kinFit
@@ -58,5 +58,3 @@ ttSemiLepEvent = cms.EDProducer("TtSemiLepEvtBuilder",
         disc = cms.InputTag("findTtSemiJetCombMVA","Disc")
     )
 )
-
-

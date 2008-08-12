@@ -9,9 +9,9 @@ import FWCore.ParameterSet.Config as cms
 from TopQuarkAnalysis.TopJetCombination.TtSemiJetCombMVAComputer_Muons_cff import *
 
 ## configure mvaDisc hypothesis
-from TopQuarkAnalysis.TopJetCombination.TtSemiLepMVADisc_cfi import *
+from TopQuarkAnalysis.TopJetCombination.TtSemiLepHypMVADisc_cfi import *
 
 ## make hypothesis
 makeHypothesis_mvaDisc = cms.Sequence(findTtSemiJetCombMVA *
-                                      ttSemiLepMVADisc)
+                                      ttSemiLepHypMVADisc)
 

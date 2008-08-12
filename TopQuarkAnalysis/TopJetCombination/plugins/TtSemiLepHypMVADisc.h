@@ -1,15 +1,15 @@
-#ifndef TtSemiLepMVADisc_h
-#define TtSemiLepMVADisc_h
+#ifndef TtSemiLepHypMVADisc_h
+#define TtSemiLepHypMVADisc_h
 
 #include "TopQuarkAnalysis/TopJetCombination/interface/TtSemiLepHypothesis.h"
 
 
-class TtSemiLepMVADisc : public TtSemiLepHypothesis  {
+class TtSemiLepHypMVADisc : public TtSemiLepHypothesis  {
 
  public:
 
-  explicit TtSemiLepMVADisc(const edm::ParameterSet&);
-  ~TtSemiLepMVADisc();
+  explicit TtSemiLepHypMVADisc(const edm::ParameterSet&);
+  ~TtSemiLepHypMVADisc();
 
  private:
   

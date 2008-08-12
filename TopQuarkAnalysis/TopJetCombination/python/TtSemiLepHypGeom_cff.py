@@ -6,8 +6,8 @@ import FWCore.ParameterSet.Config as cms
 #
 
 ## configure geom hyothesis
-from TopQuarkAnalysis.TopJetCombination.TtSemiLepGeom_cfi import *
+from TopQuarkAnalysis.TopJetCombination.TtSemiLepHypGeom_cfi import *
 
 ## make hypothesis
-makeHypothesis_geom = cms.Sequence(ttSemiLepGeom)
+makeHypothesis_geom = cms.Sequence(ttSemiLepHypGeom)
 

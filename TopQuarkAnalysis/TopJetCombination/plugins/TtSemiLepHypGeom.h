@@ -1,15 +1,15 @@
-#ifndef TtSemiLepGeom_h
-#define TtSemiLepGeom_h
+#ifndef TtSemiLepHypGeom_h
+#define TtSemiLepHypGeom_h
 
 #include "TopQuarkAnalysis/TopJetCombination/interface/TtSemiLepHypothesis.h"
 
 
-class TtSemiLepGeom : public TtSemiLepHypothesis  {
+class TtSemiLepHypGeom : public TtSemiLepHypothesis  {
 
  public:
 
-  explicit TtSemiLepGeom(const edm::ParameterSet&);
-  ~TtSemiLepGeom();
+  explicit TtSemiLepHypGeom(const edm::ParameterSet&);
+  ~TtSemiLepHypGeom();
 
  private:
 

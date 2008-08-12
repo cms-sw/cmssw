@@ -6,8 +6,8 @@ import FWCore.ParameterSet.Config as cms
 #
 
 ## configure maxSumPtWMass hyothesis
-from TopQuarkAnalysis.TopJetCombination.TtSemiLepMaxSumPtWMass_cfi import *
+from TopQuarkAnalysis.TopJetCombination.TtSemiLepHypMaxSumPtWMass_cfi import *
 
 ## make hypothesis
-makeHypothesis_maxSumPtWMass = cms.Sequence(ttSemiLepMaxSumPtWMass)
+makeHypothesis_maxSumPtWMass = cms.Sequence(ttSemiLepHypMaxSumPtWMass)
 

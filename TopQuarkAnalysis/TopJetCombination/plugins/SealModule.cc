@@ -7,17 +7,17 @@
 DEFINE_FWK_MODULE(TtSemiJetCombMVAComputer);
 DEFINE_FWK_MODULE(TtSemiJetCombMVATrainer);
 
-#include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepGeom.h"
-#include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepWMassMaxSumPt.h"
-#include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepMaxSumPtWMass.h"
-#include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepGenMatch.h"
-#include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepMVADisc.h"
-#include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepKinFit.h"
+#include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepHypGeom.h"
+#include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepHypWMassMaxSumPt.h"
+#include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepHypMaxSumPtWMass.h"
+#include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepHypGenMatch.h"
+#include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepHypMVADisc.h"
+#include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepHypKinFit.h"
 
 // define event hypotheses
-DEFINE_FWK_MODULE(TtSemiLepGeom);
-DEFINE_FWK_MODULE(TtSemiLepWMassMaxSumPt);
-DEFINE_FWK_MODULE(TtSemiLepMaxSumPtWMass);
-DEFINE_FWK_MODULE(TtSemiLepGenMatch);
-DEFINE_FWK_MODULE(TtSemiLepMVADisc);
-DEFINE_FWK_MODULE(TtSemiLepKinFit);
+DEFINE_FWK_MODULE(TtSemiLepHypGeom);
+DEFINE_FWK_MODULE(TtSemiLepHypWMassMaxSumPt);
+DEFINE_FWK_MODULE(TtSemiLepHypMaxSumPtWMass);
+DEFINE_FWK_MODULE(TtSemiLepHypGenMatch);
+DEFINE_FWK_MODULE(TtSemiLepHypMVADisc);
+DEFINE_FWK_MODULE(TtSemiLepHypKinFit);

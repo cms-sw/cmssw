@@ -1,9 +1,9 @@
-#include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepKinFit.h"
+#include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepHypKinFit.h"
 #include "TopQuarkAnalysis/TopTools/interface/TtSemiEvtPartons.h"
 
 #include "DataFormats/PatCandidates/interface/Particle.h"
 
-TtSemiLepKinFit::TtSemiLepKinFit(const edm::ParameterSet& cfg):
+TtSemiLepHypKinFit::TtSemiLepHypKinFit(const edm::ParameterSet& cfg):
   TtSemiLepHypothesis( cfg ),
   status_   (cfg.getParameter<edm::InputTag>("status")),
   partons_  (cfg.getParameter<edm::InputTag>("partons")),
@@ -12,10 +12,10 @@ TtSemiLepKinFit::TtSemiLepKinFit(const edm::ParameterSet& cfg):
 {
 }
 
-TtSemiLepKinFit::~TtSemiLepKinFit() { }
+TtSemiLepHypKinFit::~TtSemiLepHypKinFit() { }
 
 void
-TtSemiLepKinFit::buildHypo(edm::Event& evt,
+TtSemiLepHypKinFit::buildHypo(edm::Event& evt,
 				  const edm::Handle<edm::View<reco::RecoCandidate> >& leps, 
 				  const edm::Handle<std::vector<pat::MET> >& mets, 
 				  const edm::Handle<std::vector<pat::Jet> >& jets, 

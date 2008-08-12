@@ -1,14 +1,14 @@
-#include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepGenMatch.h"
+#include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepHypGenMatch.h"
 #include "TopQuarkAnalysis/TopTools/interface/TtSemiEvtPartons.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
-TtSemiLepGenMatch::TtSemiLepGenMatch(const edm::ParameterSet& cfg):
+TtSemiLepHypGenMatch::TtSemiLepHypGenMatch(const edm::ParameterSet& cfg):
   TtSemiLepHypothesis( cfg ) { }
 
-TtSemiLepGenMatch::~TtSemiLepGenMatch() { }
+TtSemiLepHypGenMatch::~TtSemiLepHypGenMatch() { }
 
 void
-TtSemiLepGenMatch::buildHypo(edm::Event& evt,
+TtSemiLepHypGenMatch::buildHypo(edm::Event& evt,
 				    const edm::Handle<edm::View<reco::RecoCandidate> >& leps, 
 				    const edm::Handle<std::vector<pat::MET> >& mets, 
 				    const edm::Handle<std::vector<pat::Jet> >& jets, 
@@ -49,7 +49,7 @@ TtSemiLepGenMatch::buildHypo(edm::Event& evt,
 }
 
 int
-TtSemiLepGenMatch::findMatchingLepton(edm::Event& evt, const edm::Handle<edm::View<reco::RecoCandidate> >& leps)
+TtSemiLepHypGenMatch::findMatchingLepton(edm::Event& evt, const edm::Handle<edm::View<reco::RecoCandidate> >& leps)
 {
   int genIdx=-1;
 

@@ -18,27 +18,27 @@ from TopQuarkAnalysis.TopEventProducers.producers.TtSemiLepEvtBuilder_cfi import
 
 ## make ttSemiEvent
 makeTtSemiEvent = cms.Sequence(makeGenEvt *
-                               makeTtSemiHyps *
+                               makeTtSemiLepHypotheses *
                                ttSemiLepEvent
                                )
 
 ## make ttSemiEvent prefiltered for full leptonic decays
 makeTtSemiEvent_fullLepFilter = cms.Sequence(makeGenEvt *
                                ttFullyLeptonicFilter *               
-                               makeTtSemiHyps *
+                               makeTtSemiLepHypotheses *
                                ttSemiLepEvent
                                )
 
 ## make ttSemiEvent prefiltered for semi-leptonic decays
 makeTtSemiEvent_semiLepFilter = cms.Sequence(makeGenEvt *
                                ttSemiLeptonicFilter *               
-                               makeTtSemiHyps *
+                               makeTtSemiLepHypotheses *
                                ttSemiLepEvent
                                )
 
 ## make ttSemiEvent prefiltered for full hadronic decays
 makeTtSemiEvent_fullHadFilter = cms.Sequence(makeGenEvt *
                                ttFullyHadronicFilter *               
-                               makeTtSemiHyps *
+                               makeTtSemiLepHypotheses *
                                ttSemiLepEvent
                                )

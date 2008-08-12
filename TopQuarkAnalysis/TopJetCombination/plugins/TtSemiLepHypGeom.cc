@@ -1,18 +1,18 @@
-#include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepGeom.h"
+#include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepHypGeom.h"
 #include "TopQuarkAnalysis/TopTools/interface/TtSemiEvtPartons.h"
 
 #include <Math/VectorUtil.h>
 
-TtSemiLepGeom::TtSemiLepGeom(const edm::ParameterSet& cfg):
+TtSemiLepHypGeom::TtSemiLepHypGeom(const edm::ParameterSet& cfg):
   TtSemiLepHypothesis( cfg ),  
   maxNJets_ (cfg.getParameter<int> ("maxNJets" )),
   useDeltaR_(cfg.getParameter<bool>("useDeltaR"))
 { }
 
-TtSemiLepGeom::~TtSemiLepGeom() { }
+TtSemiLepHypGeom::~TtSemiLepHypGeom() { }
 
 void
-TtSemiLepGeom::buildHypo(edm::Event& evt,
+TtSemiLepHypGeom::buildHypo(edm::Event& evt,
 				const edm::Handle<edm::View<reco::RecoCandidate> >& leps,
 				const edm::Handle<std::vector<pat::MET> >& mets, 
 				const edm::Handle<std::vector<pat::Jet> >& jets, 
@@ -115,7 +115,7 @@ TtSemiLepGeom::buildHypo(edm::Event& evt,
 }
 
 double
-TtSemiLepGeom::distance(const math::XYZTLorentzVector& v1, const math::XYZTLorentzVector& v2)
+TtSemiLepHypGeom::distance(const math::XYZTLorentzVector& v1, const math::XYZTLorentzVector& v2)
 {
   // calculate the distance between two lorentz vectors 
   // using DeltaR or DeltaTheta

@@ -1,31 +1,28 @@
-#ifndef TtSemiLepWMassMaxSumPt_h
-#define TtSemiLepWMassMaxSumPt_h
+#ifndef TtSemiLepHypGenMatch_h
+#define TtSemiLepHypGenMatch_h
 
 #include "TopQuarkAnalysis/TopJetCombination/interface/TtSemiLepHypothesis.h"
 
 
-class TtSemiLepWMassMaxSumPt : public TtSemiLepHypothesis  {
+class TtSemiLepHypGenMatch : public TtSemiLepHypothesis  {
 
  public:
 
-  explicit TtSemiLepWMassMaxSumPt(const edm::ParameterSet&);
-  ~TtSemiLepWMassMaxSumPt();
+  explicit TtSemiLepHypGenMatch(const edm::ParameterSet&);
+  ~TtSemiLepHypGenMatch();
 
  private:
 
   /// build the event hypothesis key
-  virtual void buildKey() { key_= TtSemiLeptonicEvent::kWMassMaxSumPt; };  
+  virtual void buildKey() { key_= TtSemiLeptonicEvent::kGenMatch; };  
   /// build event hypothesis from the reco objects of a semi-leptonic event 
   virtual void buildHypo(edm::Event&,
 			 const edm::Handle<edm::View<reco::RecoCandidate> >&,
 			 const edm::Handle<std::vector<pat::MET> >&,
 			 const edm::Handle<std::vector<pat::Jet> >&,
-			 std::vector<int>&);
-
- private:
-
-  unsigned maxNJets_;
-  double wMass_;
+			 std::vector<int>& );
+  int findMatchingLepton(edm::Event&, 
+			 const edm::Handle<edm::View<reco::RecoCandidate> >&);
 };
 
 #endif
