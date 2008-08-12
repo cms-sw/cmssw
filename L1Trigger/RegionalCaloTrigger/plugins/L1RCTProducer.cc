@@ -256,12 +256,14 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
 	      unsigned short postLoopsZero = (unsigned short) (postSamples)
 		- (digiSize - nSOI - 1);
 	      
+	      EcalSubdetector subdet = ( ietaAbs <= 17 ) ? EcalBarrel : EcalEndcap ;
+
 	      // fill extra bx's at beginning with zeros
 	      for (int sample = 0; sample < preLoopsZero; sample++)
 		{
 		  // fill first few with zeros
 		  EcalTriggerPrimitiveDigi
-		    ecalDigi(EcalTrigTowerDetId((int) zside, EcalTriggerTower,
+		    ecalDigi(EcalTrigTowerDetId((int) zside, subdet,
 						(int) ietaAbs, (int) iphi));
 		  ecalDigi.setSize(1);
 		  ecalDigi.setSample(0, EcalTriggerPrimitiveSample(0,false,0));
@@ -274,7 +276,7 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
 		{
 		  // go through data
 		  EcalTriggerPrimitiveDigi
-		    ecalDigi(EcalTrigTowerDetId((int) zside, EcalTriggerTower,
+		    ecalDigi(EcalTrigTowerDetId((int) zside, subdet,
 						(int) ietaAbs, (int) iphi));
 		  ecalDigi.setSize(1);
 
@@ -327,7 +329,7 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
 		{
 		  // fill zeros!
 		  EcalTriggerPrimitiveDigi
-		    ecalDigi(EcalTrigTowerDetId((int) zside, EcalTriggerTower,
+		    ecalDigi(EcalTrigTowerDetId((int) zside, subdet,
 						(int) ietaAbs, (int) iphi));
 		  ecalDigi.setSize(1);
 		  ecalDigi.setSample(0, EcalTriggerPrimitiveSample(0,false,0));
@@ -350,8 +352,9 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
 		  short zside = ecal_it->id().zside();
 		  unsigned short ietaAbs = ecal_it->id().ietaAbs();
 		  short iphi = ecal_it->id().iphi();
+		  EcalSubdetector subdet = ( ietaAbs <= 17 ) ? EcalBarrel : EcalEndcap ;
 		  EcalTriggerPrimitiveDigi
-		    ecalDigi(EcalTrigTowerDetId((int) zside, EcalTriggerTower,
+		    ecalDigi(EcalTrigTowerDetId((int) zside, subdet,
 						(int) ietaAbs, (int) iphi));
 		  ecalDigi.setSize(1);
 
