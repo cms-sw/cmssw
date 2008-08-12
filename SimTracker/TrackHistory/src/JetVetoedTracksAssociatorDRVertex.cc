@@ -35,6 +35,7 @@ void JetVetoedTracksAssociationDRVertex::produce (
                 dR2 < mDeltaR2Threshold &&
                 (
                     classifier.is(TrackCategories::BWeakDecay) ||
+                    classifier.is(TrackCategories::CWeakDecay) ||
                     classifier.is(TrackCategories::PrimaryVertex)
                 )
             ) assoTracks.push_back (fTracks[t]);

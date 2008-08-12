@@ -408,13 +408,8 @@ OptTOA::LoopOverJetTracksAssociation(
             else if ( classifier_.is(TrackCategories::Bad) )
                 histogram_data_[3].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits, pixelHits));
             else if (
-                (
-                    !classifier_.is(TrackCategories::CWeakDecay) &&
-                    classifier_.is(TrackCategories::LongLivedDecay)
-                ) ||
-                classifier_.is(TrackCategories::Conversion) ||
-                classifier_.is(TrackCategories::Interaction) ||
-                classifier_.is(TrackCategories::Unknown)
+                !classifier_.is(TrackCategories::CWeakDecay) &&
+                !classifier_.is(TrackCategories::PrimaryVertex)
             )
                 histogram_data_[2].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits, pixelHits));
             else
