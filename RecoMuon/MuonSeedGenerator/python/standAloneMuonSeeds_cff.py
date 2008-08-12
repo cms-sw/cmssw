@@ -17,3 +17,5 @@ mergedStandAloneMuonSeeds = cms.EDProducer("MuonSeedMerger",
                                                                            cms.InputTag("MuonSeed")
                                                                            )
                                            )
+
+standAloneMuonSeeds = cms.Sequence(ancientMuonSeed*MuonSeed*mergedStandAloneMuonSeeds)
