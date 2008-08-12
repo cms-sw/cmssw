@@ -24,7 +24,7 @@ namespace {
     condPython::defineWhat<typename Extractor::Class>();
 
     class_<Extractor>("Extractor", init<>())
-      .def(init<What, std::vector<int> >())
+      .def(init<What>())
       .def("what",Extractor::what)
       .def("values",&Extractor::values, return_value_policy<copy_const_reference>())
       ;
