@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.h
  *
- * $Date: 2008/06/19 22:55:32 $
- * $Revision: 1.27 $
+ * $Date: 2008/06/30 23:57:11 $
+ * $Revision: 1.28 $
  * \author W. Fisher
  *
 */
@@ -34,6 +34,8 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DQM/HcalMonitorModule/interface/HcalMonitorSelector.h"
 #include "DQM/HcalMonitorTasks/interface/HcalDigiMonitor.h"
 #include "DQM/HcalMonitorTasks/interface/HcalDataFormatMonitor.h"
@@ -124,7 +126,6 @@ public:
   bool showTiming_; 
   edm::CPUTimer cpu_timer; // 
 
-
   /// counters and flags
   int nevt_;
   int nlumisecs_;
@@ -156,6 +157,12 @@ public:
   edm::InputTag inputLabelRecHitHO_;
   edm::InputTag inputLabelCaloTower_;
 
+  // Maps of readout hardware unit to calorimeter channel
+  std::map<uint32_t, std::vector<HcalDetId> > DCCtoCell;
+  std::map<uint32_t, std::vector<HcalDetId> > ::iterator thisDCC;
+  std::map<pair <int,int> , std::vector<HcalDetId> > HTRtoCell;
+  std::map<pair <int,int> , std::vector<HcalDetId> > ::iterator thisHTR;
+
   MonitorElement* meFEDS_;
   MonitorElement* meStatus_;
   MonitorElement* meRunType_;
@@ -164,7 +171,6 @@ public:
   MonitorElement* meLatency_;
   MonitorElement* meQuality_;
   
-
   HcalMonitorSelector*    evtSel_;
   HcalDigiMonitor*        digiMon_;
   HcalDataFormatMonitor*  dfMon_;

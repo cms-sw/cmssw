@@ -2,8 +2,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2008/06/30 21:47:37 $
- * $Revision: 1.64 $
+ * $Date: 2008/06/30 23:57:11 $
+ * $Revision: 1.65 $
  * \author W Fisher
  *
 */
@@ -40,10 +40,13 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
   if(debug_) cout << "HcalMonitorModule: constructor...." << endl;
 
   showTiming_ = ps.getUntrackedParameter<bool>("showTiming", false);
+
   
   if ( ps.getUntrackedParameter<bool>("DataFormatMonitor", false) ) {
     if(debug_) cout << "HcalMonitorModule: DataFormat monitor flag is on...." << endl;
     dfMon_ = new HcalDataFormatMonitor();
+    // Pass the maps to the DFMon
+    dfMon_->smuggleMaps(DCCtoCell, HTRtoCell);
     dfMon_->setup(ps, dbe_);
   }
   
@@ -185,12 +188,70 @@ void HcalMonitorModule::beginJob(const edm::EventSetup& c){
     meEvtMask_->Fill(-1);
   }
 
-  // get the hcal mapping
   edm::ESHandle<HcalDbService> pSetup;
   c.get<HcalDbRecord>().get( pSetup );
   readoutMap_=pSetup->getHcalMapping();
-  
-  // get conditions
+  DetId detid_;
+  HcalDetId hcaldetid_; 
+
+  // Build a map of readout hardware unit to calorimeter channel
+  std::vector <HcalElectronicsId> AllElIds = readoutMap_->allElectronicsIdPrecision();
+  int dccid;
+  pair <int,int> dcc_spgt;
+  // by looping over all precision (non-trigger) items.
+  for (std::vector <HcalElectronicsId>::iterator eid = AllElIds.begin();
+       eid != AllElIds.end();
+       eid++) {
+
+    //Get the HcalDetId from the HcalElectronicsId
+    detid_ = readoutMap_->lookup(*eid);
+
+    // NULL if illegal; ignore
+    if (!detid_.null()) {
+      try {
+	hcaldetid_ = HcalDetId(detid_);
+
+	dccid = eid->dccid();
+	dcc_spgt = pair <int,int> (dccid, eid->spigot());
+      
+	thisDCC = DCCtoCell.find(dccid);
+	thisHTR = HTRtoCell.find(dcc_spgt);
+      
+	// If this DCC has no entries, make this its first one.
+	if (thisDCC == DCCtoCell.end()) {
+	  std::vector <HcalDetId> tempv;
+	  tempv.push_back(hcaldetid_);
+	  pair <int, std::vector<HcalDetId> > thispair;
+	  thispair = pair <int, std::vector<HcalDetId> > (dccid,tempv);
+	  //std::cout << "Had to add for DCC " << dccid << std::endl;
+	  DCCtoCell.insert(thispair); 
+	  //std::cout << "++_+_+_Had to add for DCC " << dccid << std::endl;
+	}
+	else {
+	  thisDCC->second.push_back(hcaldetid_);
+	}
+      
+	// If this HTR has no entries, make this its first one.
+	if (thisHTR == HTRtoCell.end()) {
+	  std::vector <HcalDetId> tempv;
+	  tempv.push_back(hcaldetid_);
+	  pair < pair <int,int>, std::vector<HcalDetId> > thispair;
+	  thispair = pair <pair <int,int>, std::vector<HcalDetId> > (dcc_spgt,tempv);
+	  //std::cout << "Had to add for HTR " << dccid << ", " << eid->spigot() << std::endl;
+	  HTRtoCell.insert(thispair); 
+	  //std::cout << "Added for HTR " << dccid <<  ", " << eid->spigot() << std::endl;
+	}
+	else {
+	  thisHTR->second.push_back(hcaldetid_);	
+	}
+	// std::cout << "Looped once more through AllElIds" << std::endl;
+      } catch (...) {
+	std::cout << " ---> ";
+	std::cout << "Det " << detid_.det() << " and " << "Subdet " << detid_.subdetId() << std::endl;
+      }
+    } // fi (!detid_.null()) 
+  } 
+  //get conditions
   c.get<HcalDbRecord>().get(conditions_);
 
   return;
