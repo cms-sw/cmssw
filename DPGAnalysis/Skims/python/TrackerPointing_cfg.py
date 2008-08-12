@@ -49,7 +49,7 @@ process.out = cms.OutputModule("PoolOutputModule",
                                                                                             'cosmictrackfinderP5TkCntPath',
                                                                                             'ctfWithMaterialTracksP5TkCntPath',
                                                                                             'rsWithMaterialTracksP5TkCntPath')),
-                               fileName = cms.untracked.string('doubleMuon.root')
+                               fileName = cms.untracked.string('trackerPointing.root')
                                )
 
 process.this_is_the_end = cms.EndPath(process.out)
