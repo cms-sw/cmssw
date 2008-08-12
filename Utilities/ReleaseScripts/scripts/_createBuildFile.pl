@@ -626,7 +626,7 @@ sub getBinaryDependency()
   my $p1=shift;
   my $p=shift;
   my $ts={};
-  if ($p eq ""){print STDERR "WARNING: Could not find product:$p1\n";return $ts;}
+  if ($p eq ""){print STDERR "WARNING: Could not find product \"$p1\". Going to seach for generated object files.\n";$p=$p1;}
   my $res=&parentCommunication("SYMBOL_CHECK_REQUEST",$p);
   if ($res ne "")
   {

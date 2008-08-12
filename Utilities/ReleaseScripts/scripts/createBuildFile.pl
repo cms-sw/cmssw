@@ -50,6 +50,7 @@ if($scram_ver=~/^V1_0_/)
 }
 my $project=lc(&SCRAMGenUtils::getFromEnvironmentFile("SCRAM_PROJECTNAME",$release));
 my $releasetop=&SCRAMGenUtils::getFromEnvironmentFile("RELEASETOP",$release);
+if ($releasetop ne ""){system($SCRAMGenUtils::SCRAM_CMD." build -r echo_CXX 2>&1 >/dev/null");}
 if($project eq ""){print STDERR "ERROR: Can not find SCRAM_PROJECTNAME in ${release}.SCRAM/Environment file.\n"; exit 1;}
 
 my $tmpdir="${release}/tmp/AutoBuildFile";
@@ -88,9 +89,9 @@ foreach my $p (keys %$cache)
 {
   if((exists $pcache->{prod}{$p}) && (exists $pcache->{prod}{$p}{dir}))
   {
-    my $d=&SCRAMGenUtils::fixPath($pcache->{prod}{$p}{dir});
-    my $d1="${release}/src/${d}";
-    if($d1!~/^$dir(\/.*|)$/){$cache->{$p}{skip}=1;}
+    my $d="${release}/src/".&SCRAMGenUtils::fixPath($pcache->{prod}{$p}{dir});
+    if (!-d $d){$cache->{$p}{skip}=1;next;}
+    if($d!~/^$dir(\/.*|)$/){$cache->{$p}{skip}=1;}
     else{delete $cache->{$p}{skip};}
   }
 }
@@ -600,12 +601,34 @@ sub processRequest_SYMBOL_CHECK_REQUEST ()
 {
   my $prod=shift;
   print STDERR "REQUEST: Symbol check $prod\n";
-  my $sym=&SCRAMGenUtils::getLibSymbols($prod);
+  my $sym={};
+  if (-f $prod){$sym=&SCRAMGenUtils::getLibSymbols($prod,'^U$');}
+  elsif ((exists $cache->{$prod}) && (exists $pcache->{prod}{$prod}) && (exists $pcache->{prod}{$prod}{dir}))
+  {
+    my $d=$pcache->{prod}{$prod}{dir};
+    if (-d "${release}/tmp/${scramarch}/src/${d}")
+    {
+      my $objdir=`find ${release}/tmp/${scramarch}/src/${d} -name $prod -type d`; chomp $objdir;
+      my $ref;
+      if ($objdir && opendir($ref,$objdir))
+      {
+        foreach my $file (readdir($ref))
+	{
+	  $file="${objdir}/${file}";
+	  if (($file=~/\.o$/) && (-f $file))
+	  {
+	    my $sx=&SCRAMGenUtils::getObjectSymbols($file,'^U$');
+	    foreach my $s (keys %$sx){$sym->{$s}=$sx->{$s};}
+	  }
+	}
+        closedir($ref);
+      }
+    }
+  }
   my %ts=();
   my $allsyms=$data->{ALL_SYMBOLS};
   foreach my $s (keys %$sym)
   {
-    if($sym->{$s} ne "U"){next;}
     if (exists $allsyms->{$s})
     {
       my $s1=$allsyms->{$s};

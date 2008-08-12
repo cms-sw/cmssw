@@ -475,13 +475,38 @@ sub checkWhileSubdirFound()
 sub getLibSymbols ()
 {
   my $file=&findActualPath(shift);
+  my $filter=shift || ".+";
   my $cache={};
   if(($file ne "") && (-f $file))
   {
     foreach my $line (`nm -D $file`)
     {
       chomp $line;
-      if($line=~/^([0-9A-Fa-f]+|)\s+([A-Za-z])\s+([^\s]+)\s*$/){$cache->{$3}=$2;}
+      if($line=~/^([0-9A-Fa-f]+|)\s+([A-Za-z])\s+([^\s]+)\s*$/)
+      {
+        my $s=$3; my $type=$2;
+	if ($type=~/$filter/){$cache->{$s}=$type;}
+      }
+    }
+  }
+  return $cache;
+}
+
+sub getObjectSymbols ()
+{
+  my $file=&findActualPath(shift);
+  my $filter=shift || ".+";
+  my $cache={};
+  if(($file ne "") && (-f $file))
+  {
+    foreach my $line (`nm $file`)
+    {
+      chomp $line;
+      if($line=~/^([0-9A-Fa-f]+|)\s+([A-Za-z])\s+([^\s]+)\s*$/)
+      {
+        my $s=$3; my $type=$2;
+	if ($type=~/$filter/){$cache->{$s}=$type;}
+      }
     }
   }
   return $cache;
