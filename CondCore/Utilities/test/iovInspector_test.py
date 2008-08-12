@@ -38,3 +38,15 @@ ts = TestWhat()
 wd = inspect.WhatDescription(ts)
 wd.describe()
 
+ret={}
+for key in wd.keys() :
+    (mode,val) = wd[key]
+    if (mode='single') :
+        ret[key]=val[1]
+    elif (mode='multiple') :
+        ret[key]=[0,2]
+
+inspect.setWhat(ts,ret)
+
+ts.how()
+ts.which()

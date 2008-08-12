@@ -39,16 +39,19 @@ class WhatDescription :
 def extractorWhat(db, tag) :
        exec('import '+db.moduleName(tag)+' as Plug')
        ret ={}
-       w = Plug.What()
-       atts = (att for att in dir(w) if not (att[0]=='_' or att[0:4]=='set_' or att[0:6]=='descr_'))
-       for att in atts:
-              exec('a=w.'+att+'()')
-              ret[att]=[val for val in dir(a) if not (val[0]=='_' or val=='name'or val=='values')]
-       return ret
+       w =  WhatDescription(Plug.What())
+       return w.describe()
 
 def setWhat(w,ret) :
        for key in ret.keys():
-              exec ('w.set_'+key+'(w.'+key+'().'+ret[key]+')')
+              _val = +ret[key]
+              if (type(_val)==type([])) :
+                     _vi = CondDB.VInt()
+                     for i in _val :
+                            _vi.append(i)
+                     exec ('w.set_'+key+'(_i_)')
+              else :
+                     exec ('w.set_'+key+'(w.'+key+'().'+ret[key]+')')
        return w
 
 
