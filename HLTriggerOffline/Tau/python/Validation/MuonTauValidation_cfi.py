@@ -51,7 +51,6 @@ MuonTauL25Val = cms.EDFilter("HLTTauTrkDQMOfflineSource",
     NBins                  = cms.int32(50)                            
 )
 
-
 MuonTauValidation = cms.Sequence(MuonTauPathVal + MuonTauL2Val+MuonTauL25Val)
 
 

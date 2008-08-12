@@ -21,15 +21,15 @@ L1TauVal = cms.EDAnalyzer("HLTTauL1DQMOfflineSource",
     IsoEgTauThresholds = cms.vdouble(10.0, 20.0),                       
                                               
     L1RefTauMinDeltaR = cms.double(0.5),
-    RefTauHadMinEt = cms.double(15.0),
+    RefTauHadMinEt = cms.double(0.0),
     RefTauHadMaxAbsEta = cms.double(2.5),
 
     L1RefElecMinDeltaR = cms.double(0.2),
-    RefElecMinEt = cms.double(10.0),
+    RefElecMinEt = cms.double(0.0),
     RefElecMaxAbsEta = cms.double(2.5),
 
     L1RefMuonMinDeltaR = cms.double(0.2),
-    RefMuonMinEt = cms.double(5.0),
+    RefMuonMinEt = cms.double(0.0),
     RefMuonMaxAbsEta = cms.double(2.5),
 
     TriggerTag = cms.string("HLT/HLTTAU/L1"),

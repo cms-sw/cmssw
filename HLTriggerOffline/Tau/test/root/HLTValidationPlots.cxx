@@ -142,10 +142,6 @@ L1Val(string fname1,string fname2,string v1,string v2,string folder)
   GetIntHistos(fname1,fname2,v1,v2,folder,"L1TauMuonfixEffEt","nfidCounter",1,"E_{t} Threshold","Efficiency","Muon+ Tau Efficiency Vs Threshold");
   GetIntHistos(fname1,fname2,v1,v2,folder,"L1TauIsoEgfixEffRefMatchEt","nfidCounter",4,"E_{t} Threshold","Efficiency","Muon+ Tau (Matched)Efficiency Vs Threshold");
 
-
-
-
-
 }
 
 
@@ -408,7 +404,7 @@ GetHistos(string f1,string f2,string v1,string v2,string modName,string histo,ch
 
   double max = h->GetMaximum();
   if(hh->GetMaximum() > max)
-    max==hh->getMaximum();
+    max=hh->GetMaximum();
 
   h->GetYaxis()->SetRangeUser(0,max);
 
@@ -462,8 +458,13 @@ GetEffHistos(string f1,string f2,string v1,string v2,string modName,string histo
   h->GetYaxis()->SetTitleOffset(1.25);
   h->GetYaxis()->SetRangeUser(0.,1.01);
 
+  double max = h->GetMaximum();
+  if(hh->GetMaximum() > max)
+    max==hh->GetMaximum();
+  h->GetYaxis()->SetRangeUser(0,max);
 
-   h->SetMarkerColor(kYellow);
+
+  h->SetMarkerColor(kYellow);
   h->SetMarkerStyle(20);
   h->SetFillColor(kYellow);
   h->GetXaxis()->SetTitle(xlabel);
@@ -553,7 +554,7 @@ DrawHistos(string f1,string f2,string v1,string v2,string modName,string histo,c
 
   double max = h->GetMaximum();
   if(hh->GetMaximum() > max)
-    max==hh->getMaximum();
+    max==hh->GetMaximum();
 
   h->GetYaxis()->SetRangeUser(0,max);
 
@@ -684,6 +685,13 @@ DrawIntHistos(string f1,string f2,string v1,string v2,string modName,string hist
   hh->GetYaxis()->SetTitle(ylabel);
   hh->SetTitle(title);
 
+  double max = h->GetMaximum();
+  if(hh->GetMaximum() > max)
+    max==hh->GetMaximum();
+
+  h->GetYaxis()->SetRangeUser(0,max);
+
+
   h->Draw("HIST");
   hh->Draw("SAME");
   TLegend *l = new TLegend(0.7,0.5,0.9,0.7);
@@ -739,6 +747,13 @@ GetIntHistos(string f1,string f2,string v1,string v2,string modName,string histo
   hh->GetXaxis()->SetTitle(xlabel);
   hh->GetYaxis()->SetTitle(ylabel);
   hh->SetTitle(title);
+
+  double max = h->GetMaximum();
+  if(hh->GetMaximum() > max)
+    max==hh->GetMaximum();
+
+  h->GetYaxis()->SetRangeUser(0,max);
+
 
   h->Draw("HIST");
   hh->Draw("SAME");
