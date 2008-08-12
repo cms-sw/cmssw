@@ -84,6 +84,18 @@ process.ctfWithMaterialTracksP5Filter = cms.EDFilter("HLTMuonPointingFilter",
                                                      )
 
 
+process.cosmicMuonsBarrelOnlyPath = cms.Path(process.cosmicMuonsBarrelOnlyFilter)
+process.cosmicMuonsPath = cms.Path(process.cosmicMuonsFilter)
+process.cosmicMuons1LegBarrelOnlyPath = cms.Path(process.cosmicMuons1LegBarrelOnlyFilter)
+process.globalCosmicMuonsBarrelOnlyPath = cms.Path(process.globalCosmicMuonsBarrelOnlyFilter)
+process.cosmictrackfinderP5Path = cms.Path(process.cosmictrackfinderP5Filter)
+process.globalCosmicMuonsPath = cms.Path(process.globalCosmicMuonsFilter)
+process.rsWithMaterialTracksP5Path = cms.Path(process.rsWithMaterialTracksP5Filter)
+process.globalCosmicMuons1LegBarrelOnlyPath = cms.Path(process.globalCosmicMuons1LegBarrelOnlyFilter)
+process.ctfWithMaterialTracksP5Path = cms.Path(process.ctfWithMaterialTracksP5Filter)
+
+
+
 process.out = cms.OutputModule("PoolOutputModule",
                                SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('cosmicMuonsBarrelOnlyPath',
                                                                                             'cosmicMuonsPath',
