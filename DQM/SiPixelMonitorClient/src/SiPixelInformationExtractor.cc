@@ -1538,10 +1538,17 @@ void SiPixelInformationExtractor::fillGlobalQualityPlot(DQMStore * bei, bool ini
     float detEta=-5.; float detPhi=-5.;
     bool first=true; bool once=true;
     int xbin = -1; int ybin =-1; int xoffA = 0; int xoffB = 0; int yoffA = 0; int yoffB = 0;
-    for (vector<string>::const_iterator it = meVec.begin();
-	 it != meVec.end(); it++) {
-      if(!once) continue;
+    bool gotData=false;
+    for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
+      //checking for any digis or FED errors to decide if this module is in DAQ:  
       string full_path = currDir + "/" + (*it);
+      if(full_path.find("ndigis")!=string::npos || full_path.find("NErrors")!=string::npos){
+        MonitorElement * me = bei->get(full_path);
+        if (!me) continue;
+        if(me->getMean()>0.) gotData = true;
+      }
+      
+      if(!once) continue;
       MonitorElement * me = bei->get(full_path);
       if (!me) continue;
 /*      int id=0;
@@ -1566,6 +1573,7 @@ void SiPixelInformationExtractor::fillGlobalQualityPlot(DQMStore * bei, bool ini
 	  once=false;
 	}
       }*/
+      
       if(full_path.find("Endcap")!=string::npos){ // Endcaps
         if(full_path.find("_m")!=string::npos) xoffA = 19; // the -z endcaps are on the right hand side in x
 	if(full_path.find("_m")!=string::npos && full_path.find("Disk_2")!=string::npos) xoffB = 5; // on -z Disk_2 is right of Disk_1
@@ -1630,28 +1638,31 @@ void SiPixelInformationExtractor::fillGlobalQualityPlot(DQMStore * bei, bool ini
       }
       once=false;
 		
-    } 
+    } //end of the for loop over all ME's for a given module
     //cout<<"module: "<<bei->pwd()<<" , xbin="<<xbin<<" , ybin="<<ybin<<endl; 
     //got module ID and eta and phi now! time to count:
-    count++;
-    //allmodsEtaPhi->Fill(detEta,detPhi);
-    allmodsMap->Fill(xbin-1,ybin-1);
-    bool anyerr=false;
-    for (vector<string>::const_iterator it = meVec.begin();
-	 it != meVec.end(); it++){
-      if(anyerr) continue;
-      string full_path = currDir + "/" + (*it);
-      MonitorElement * me = bei->get(full_path);
-      if (!me) continue;
-      //use only presence of any FED error as error flag here:
-      if(full_path.find("NErrors")!=string::npos) if(me->getEntries()>0) anyerr=true;
-      //use QTest results for error flag here:
-      //if(me->hasError()||me->hasWarning()||me->hasOtherReport()) anyerr=true;
-    }
-    if(anyerr){
-      errcount++;
-      //errmodsEtaPhi->Fill(detEta,detPhi);
-      errmodsMap->Fill(xbin-1,ybin-1);
+    
+    // only consider those modules that are actually in the readout.
+    if(gotData){
+      count++;
+      //allmodsEtaPhi->Fill(detEta,detPhi);
+      allmodsMap->Fill(xbin-1,ybin-1);
+      bool anyerr=false;
+      for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); it++){
+        if(anyerr) continue;
+        string full_path = currDir + "/" + (*it);
+        MonitorElement * me = bei->get(full_path);
+        if (!me) continue;
+        //use only presence of any FED error as error flag here:
+        if(full_path.find("NErrors")!=string::npos) if(me->getEntries()>0) anyerr=true;
+        //use QTest results for error flag here:
+        //if(me->hasError()||me->hasWarning()||me->hasOtherReport()) anyerr=true;
+      }
+      if(anyerr){
+        errcount++;
+        //errmodsEtaPhi->Fill(detEta,detPhi);
+        errmodsMap->Fill(xbin-1,ybin-1);
+      }
     }
   }
 
