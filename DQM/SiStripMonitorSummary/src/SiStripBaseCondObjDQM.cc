@@ -336,14 +336,14 @@ void SiStripBaseCondObjDQM::getSummaryMEs(ModMEs& CondObj_ME, const uint32_t& de
       CondObj_name_ == "noise"         || 
       CondObj_name_ == "apvgain"       || 
       CondObj_name_ == "lorentzangle" ) {
-    if(fPSet_.getParameter<bool>("FillSummaryProfileAtLayerLevel"))	
+    if(hPSet_.getParameter<bool>("FillSummaryProfileAtLayerLevel"))	
       if (CondObj_ME.SummaryOfProfileDistr) { bookSummaryProfileMEs(CondObj_ME,detId_);}  
     
   }
     
   // --> currently only genuine cumul LA
   if(  CondObj_name_ == "lorentzangle" ||  CondObj_name_ == "noise"  ) {
-    if(fPSet_.getParameter<bool>("FillCumulativeSummaryAtLayerLevel"))
+    if(hPSet_.getParameter<bool>("FillCumulativeSummaryAtLayerLevel"))
       if (CondObj_ME.SummaryOfCumulDistr) { bookSummaryCumulMEs(CondObj_ME,detId_); } 
   } 
                           
@@ -352,7 +352,7 @@ void SiStripBaseCondObjDQM::getSummaryMEs(ModMEs& CondObj_ME, const uint32_t& de
           CondObj_name_ == "apvgain"        || 
 	  CondObj_name_ == "pedestal"       || 
 	  CondObj_name_ == "quality"           ) {
-    if(fPSet_.getParameter<bool>("FillSummaryAtLayerLevel"))          
+    if(hPSet_.getParameter<bool>("FillSummaryAtLayerLevel"))          
       if (CondObj_ME.SummaryDistr) { bookSummaryMEs(CondObj_ME,detId_); } 
     
   } 

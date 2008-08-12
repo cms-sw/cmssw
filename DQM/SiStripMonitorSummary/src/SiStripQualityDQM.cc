@@ -89,6 +89,8 @@ void SiStripQualityDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_, 
   float numberOfBadStrips=0;
   
   SiStripHistoId hidmanager;
+
+  if(hPSet_.getParameter<bool>("FillSummaryAtLayerLevel")){
       
   std::string hSummary_description;
   hSummary_description  = hPSet_.getParameter<std::string>("Summary_description");
@@ -153,7 +155,7 @@ void SiStripQualityDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_, 
 	<< e.what() ;
     } 
   } 
-  
+  }//if Fill ...  
 }  
 // -----
  
