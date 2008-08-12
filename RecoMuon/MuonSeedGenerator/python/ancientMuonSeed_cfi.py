@@ -10,12 +10,12 @@ from RecoMuon.MuonSeedGenerator.ptSeedParameterization_38T_cfi import *
 #include "RecoMuon/MuonSeedGenerator/data/ptSeedParameterization_40T.cfi"
 
 # module standAloneMuonSeeds = MuonSeedGenerator {
-MuonSeed = cms.EDAnalyzer("MuonSeedGenerator",
-                          CSCRecSegmentLabel = cms.InputTag("cscSegments"),
-                          DTRecSegmentLabel = cms.InputTag("dt4DSegments"),
-                          EnableDTMeasurement = cms.bool(True),
-                          EnableCSCMeasurement = cms.bool(True)
-                          )
+ancientMuonSeed = cms.EDProducer("MuonSeedGenerator",
+                                 CSCRecSegmentLabel = cms.InputTag("cscSegments"),
+                                 DTRecSegmentLabel = cms.InputTag("dt4DSegments"),
+                                 EnableDTMeasurement = cms.bool(True),
+                                 EnableCSCMeasurement = cms.bool(True)
+                                 )
 
 
 
