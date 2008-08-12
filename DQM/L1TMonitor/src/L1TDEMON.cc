@@ -400,8 +400,8 @@ L1TDEMON::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       //if(cid!=RCTrgn) continue;
     }
     if(sid==GCT) { 
-      if(cid!=GCTem ) continue;
-      //if(cid!=GCTjet) continue;
+      //if(cid!=GCTem ) continue;
+      if(cid!=GCTjet) continue;
     }      
     if(sid==DTP) {
       //tbd cols:th,ph; plots per wheel
