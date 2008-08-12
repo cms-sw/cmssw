@@ -78,11 +78,15 @@ namespace {
     }
  
 
+  std::string stdString(std::string s) {
+    return s;
+  }
 
 }
 
 BOOST_PYTHON_MODULE(pluginCondDBPyInterface) {
   
+  def("stdString",&stdString)
 
   class_<cond::LogDBEntry>("LogDBEntry")
     .def("getState",getState)
