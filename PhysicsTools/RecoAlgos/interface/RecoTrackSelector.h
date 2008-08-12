@@ -4,8 +4,8 @@
  *
  * \author Giuseppe Cerati, INFN
  *
- *  $Date: 2008/08/09 14:30:34 $
- *  $Revision: 1.13 $
+ *  $Date: 2008/08/09 15:36:38 $
+ *  $Revision: 1.14 $
  *
  */
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -31,20 +31,20 @@ class RecoTrackSelector {
     maxChi2_(cfg.getParameter<double>("maxChi2")),
     bsSrc_(cfg.getParameter<edm::InputTag>("beamSpot")) 
     {
-      std::vector<int> quality = cfg.getParameter<std::vector<int> >("quality");
-      for (unsigned int j=0;j<quality.size();j++) quality_.push_back(reco::TrackBase::TrackQuality(quality[j]));
-      std::vector<int> algorithm = cfg.getParameter<std::vector<int> >("algorithm");
-      for (unsigned int j=0;j<algorithm.size();j++) algorithm_.push_back(reco::TrackBase::TrackAlgorithm(algorithm[j]));
+      std::vector<std::string> quality = cfg.getParameter<std::vector<std::string> >("quality");
+      for (unsigned int j=0;j<quality.size();j++) quality_.push_back(reco::TrackBase::qualityByName(quality[j]));
+      std::vector<std::string> algorithm = cfg.getParameter<std::vector<std::string> >("algorithm");
+      for (unsigned int j=0;j<algorithm.size();j++) algorithm_.push_back(reco::TrackBase::algoByName(algorithm[j]));
     }
   
   RecoTrackSelector ( double ptMin, double minRapidity, double maxRapidity,
 		      double tip, double lip, int minHit, double maxChi2, 
-    		      std::vector<int> quality , std::vector<int> algorithm ) :
+    		      std::vector<std::string> quality , std::vector<std::string> algorithm ) :
     ptMin_( ptMin ), minRapidity_( minRapidity ), maxRapidity_( maxRapidity ),
     tip_( tip ), lip_( lip ), minHit_( minHit ), maxChi2_( maxChi2 ) 
     { 
-      for (unsigned int j=0;j<quality.size();j++) quality_.push_back(reco::TrackBase::TrackQuality(quality[j]));
-      for (unsigned int j=0;j<algorithm.size();j++) algorithm_.push_back(reco::TrackBase::TrackAlgorithm(algorithm[j]));
+      for (unsigned int j=0;j<quality.size();j++) quality_.push_back(reco::TrackBase::qualityByName(quality[j]));
+      for (unsigned int j=0;j<algorithm.size();j++) algorithm_.push_back(reco::TrackBase::algoByName(algorithm[j]));
     }
 
   const_iterator begin() const { return selected_.begin(); }

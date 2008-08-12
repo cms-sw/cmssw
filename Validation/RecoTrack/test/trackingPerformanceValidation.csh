@@ -22,12 +22,9 @@
 ######################
 set RefRelease=CMSSW_2_1_0_pre9
 set NewRelease=$CMSSW_VERSION
-#enum defined in DataFormats/TrackReco/interface/TrackBase.h
-#enum TrackAlgorithm {undefAlgorithm=0,ctf=1,rs=2,cosmics=3,beamhalo=4,iter1=5,iter2=6,iter3=7};
 set Algo=""
-#enum TrackQuality {undefQuality=-1,loose=0,tight=1,highPurity=2,confirmed=3,goodIterative=4};
 #set Quality=""
-set Quality="1"
+set Quality="highPurity"
 #set Tracks="generalTracks"
 set Tracks="cutsRecoTracks"
 set GlobalTag = IDEAL_V5

@@ -31,8 +31,8 @@ process.load("SimGeneral.TrackingAnalysis.trackingParticles_cfi")
 process.multiTrackValidator.out = 'val.SAMPLE.root'
 
 
-process.cutsRecoTracks.algorithm = cms.vint32(ALGORITHM)
-process.cutsRecoTracks.quality = cms.vint32(QUALITY)
+process.cutsRecoTracks.algorithm = cms.vstring('ALGORITHM')
+process.cutsRecoTracks.quality = cms.vstring('QUALITY')
 
 process.multiTrackValidator.associators = ['TrackAssociatorByHits']
 
