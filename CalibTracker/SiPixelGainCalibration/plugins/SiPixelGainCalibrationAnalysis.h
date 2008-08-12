@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Nov 14 15:02:06 CET 2007
-// $Id: SiPixelGainCalibrationAnalysis.h,v 1.15 2008/04/21 20:41:32 fblekman Exp $
+// $Id: SiPixelGainCalibrationAnalysis.h,v 1.16 2008/07/23 10:40:00 fblekman Exp $
 //
 //
 
@@ -75,6 +75,7 @@ private:
   std::string fitfunction_;
   TF1 *func_;
 
+  std::vector<uint32_t> listofdetids_;
   // flags
   bool reject_badpoints_;
   bool reject_plateaupoints_;
