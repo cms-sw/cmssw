@@ -78,15 +78,15 @@ namespace {
     }
  
 
-  std::string stdString(std::string s) {
-    return s;
+  void append2VS(std::vector<std::string> & v, std::string s) {
+    v.push_back(s);
   }
 
 }
 
 BOOST_PYTHON_MODULE(pluginCondDBPyInterface) {
   
-  def("stdString",&stdString)
+  def("append2VS",&append2VS);
 
   class_<cond::LogDBEntry>("LogDBEntry")
     .def("getState",getState)
@@ -104,7 +104,7 @@ BOOST_PYTHON_MODULE(pluginCondDBPyInterface) {
     .def_readonly("execmessage",  &cond::LogDBEntry::execmessage)
     ;
 
-  class_<std::vector<float> >("VString")
+  class_<std::vector<std::string> >("VString")
     .def(vector_indexing_suite<std::vector<std::string> >())
     ;
 

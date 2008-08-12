@@ -6,7 +6,7 @@ from CondCore.Utilities import iovInspector as inspect
 
 
 class How(int) :
-    __init__(self):
+   def  __init__(self):
         self.a=0
         self.b=1
         self.c=2
