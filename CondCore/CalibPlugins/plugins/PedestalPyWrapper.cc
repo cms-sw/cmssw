@@ -58,7 +58,7 @@ namespace cond {
     static What what() { return What();}
 
     typedef boost::function<float(Pedestals::Item const &)> Value;
-    static std::vector<Value> const & values() {
+    static std::vector<Value> const & allValues() {
       static std::vector<Value> v(2);
       // shall be done only ones in the usual constructor (later)...
       v[0]=boost::bind(&Pedestals::Item::m_mean,_1);
@@ -71,7 +71,7 @@ namespace cond {
       : m_which(what.which()), m_what(what.quantity().size())
     {
       // here one can make stuff really complicated...
-      std::vector<Value> const & v = values();
+      std::vector<Value> const & v = allValues();
       for (size_t i=0; i< m_what.size(); i++) m_what[i] = v[what.quantity()[i]];
     }
     void compute(Class const & it){
