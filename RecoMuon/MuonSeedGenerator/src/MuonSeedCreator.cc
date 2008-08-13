@@ -172,6 +172,7 @@ TrajectorySeed MuonSeedCreator::createSeed(int type, SegmentContainer seg, std::
 
   // for certain clear showering case, set-up the minimum value 
   if ( NShowers > 0 ) estimatePtShowering( NShowers, NShowerSegments, ptmean, sptmean ); 
+  //if ( NShowers > 0 ) std::cout<<" Showering happened "<<NShowers<<" times w/ "<< NShowerSegments<<std::endl; ; 
 
 
   // Minimal pt
@@ -188,11 +189,11 @@ TrajectorySeed MuonSeedCreator::createSeed(int type, SegmentContainer seg, std::
 
   LocalTrajectoryParameters param;
 
-  double dof = static_cast<double>(seg[0]->degreesOfFreedom());
-  double chi2_dof = seg[0]->chi2() / dof;
+  //double dof = static_cast<double>(seg[0]->degreesOfFreedom());
+  //double chi2_dof = seg[0]->chi2() / dof;
   double p_err =0.0;
   // determine the seed layer
-  /*
+  
   int    best_seg= 0;
   double chi2_dof = 9999.0;
   unsigned int ini_seg = 0;
@@ -204,9 +205,9 @@ TrajectorySeed MuonSeedCreator::createSeed(int type, SegmentContainer seg, std::
       chi2_dof = seg[i]->chi2() / dof ;
       best_seg = static_cast<int>(i);
   }  
-  */
-  //bool highPt = (fabs(ptmean) > 200.) ? true : false ;
-  bool badDirection = ( chi2_dof  > 50. ) ? true : false ;
+  
+  //bool highPt = (fabs(ptmean) > 500.) ? true : false ;
+  //bool badDirection = ( chi2_dof  > 50. ) ? true : false ;
   /*
   int  segsize = seg.size()-1 ;
   int  p2 = segsize ;
@@ -228,24 +229,39 @@ TrajectorySeed MuonSeedCreator::createSeed(int type, SegmentContainer seg, std::
   if ( type==1 || type==5 || type== 4) {
      // Fill the LocalTrajectoryParameters
      /// get the Global position
-     //last = best_seg;
-     last = 0;
+     last = best_seg;
+     // last = 0;
      GlobalVector mom = seg[last]->globalPosition()-GlobalPoint();
      segPos = seg[last]->localPosition();
      /// get the Global direction
+  
+     /*   
      GlobalVector polar;
-
-     if ( badDirection  && type != 4 )  {
+     if ( highPt && badDirection && type != 4 )  {
         // make up the direction for bad segments 
         //GlobalVector dv  = seg[ p2 ]->globalPosition() - seg[ p1 ]->globalPosition(); 
         GlobalVector dv  = seg[1]->globalPosition() - seg[0]->globalPosition(); 
-        GlobalVector polar1(GlobalVector::Spherical(mom.theta(),dv.phi(),1.));
+        GlobalVector polar1(GlobalVector::Spherical(dv.theta(),dv.phi(),1.));
         polar = polar1;
+        last = 0; 
+        mom = seg[last]->globalPosition()-GlobalPoint();
+        segPos = seg[last]->localPosition();
      } else {
-        GlobalVector polar4(GlobalVector::Spherical(mom.theta(),seg[last]->globalDirection().phi(),1.));
-        polar = polar4;
+        GlobalVector polar2(GlobalVector::Spherical(mom.theta(),seg[last]->globalDirection().phi(),1.));
+        polar = polar2;
      }
- 
+     GlobalVector polar;
+     if ( highPt ) {
+        GlobalVector polar2(GlobalVector::Spherical(mom.theta(),mom.phi(),1.));
+        polar = polar2;
+     } else {
+        GlobalVector polar1(GlobalVector::Spherical(mom.theta(),seg[last]->globalDirection().phi(),1.));
+        polar = polar1;
+     } 
+     */ 
+     GlobalVector polar(GlobalVector::Spherical(mom.theta(),seg[last]->globalDirection().phi(),1.));
+      
+
      /// scale the magnitude of total momentum
      polar *= fabs(ptmean)/polar.perp();
      /// Trasfer into local direction
@@ -256,39 +272,26 @@ TrajectorySeed MuonSeedCreator::createSeed(int type, SegmentContainer seg, std::
      p_err =  (sptmean*sptmean)/(polar.mag()*polar.mag()*ptmean*ptmean) ;
      mat = seg[last]->parametersError().similarityT( seg[last]->projectionMatrix() );  
      mat[0][0]= p_err;
-     if (type==5 || type ==4 ) { mat[0][0] = 2.25*mat[0][0]; }
+     if ( type == 5 ) { 
+        mat[0][0] = mat[0][0]/fabs( tan(mom.theta()) ); 
+        mat[1][1] = mat[1][1]/fabs( tan(mom.theta()) ); 
+        mat[3][3] = 2.25*mat[3][3];
+        mat[4][4] = 2.25*mat[4][4];
+     }
+     if ( type == 4 ) { 
+        mat[0][0] = mat[0][0]/fabs( tan(mom.theta()) ); 
+        mat[1][1] = mat[1][1]/fabs( tan(mom.theta()) ); 
+        mat[2][2] = 2.25*mat[2][2];
+        mat[3][3] = 2.25*mat[3][3];
+        mat[4][4] = 2.25*mat[4][4];
+     }
 
-     mat[1][1]= 3.*mat[1][1];
-     mat[2][2]= 3.*mat[2][2];
-     mat[3][3]= 2.*mat[3][3];
-     mat[4][4]= 2.*mat[4][4];
+     //if ( !highPt && type != 1 ) mat[1][1]= 2.25*mat[1][1];
+     //if (  highPt && type != 1 ) mat[3][3]= 2.25*mat[1][1];
+     //mat[2][2]= 3.*mat[2][2];
+     //mat[3][3]= 2.*mat[3][3];
+     //mat[4][4]= 2.*mat[4][4];
   }
-  /*
-  else if ( type== 4 ) {
-     // Fill the LocalTrajectoryParameters
-     /// get the Global position
-     last = best_seg;
-     GlobalVector mom = seg[last]->globalPosition()-GlobalPoint();
-     //GlobalVector polar(GlobalVector::Spherical(mom.theta(),seg[last]->globalDirection().phi(),1.));
-     //polar *= fabs(ptmean)/polar.perp();
-     //LocalVector segDirFromPos = seg[last]->det()->toLocal(polar);
-
-     LocalPoint  segLocalPos = seg[last]->localPosition();
-     LocalVector segLocalDir = seg[last]->localDirection();
-     double totalP = fabs( ptmean/sin(mom.theta()) );
-     double QbP = charge / totalP ;
-     double dxdz = segLocalDir.x()/segLocalDir.z();
-     double dydz = segLocalDir.y()/segLocalDir.z();
-     double lx = segLocalPos.x();
-     double ly = segLocalPos.y();
-     double pz_sign =  segLocalDir.z() > 0.0 ? 1.0:-1.0 ;
-     LocalTrajectoryParameters param1(QbP,dxdz,dydz,lx,ly,pz_sign,true);
-     param = param1;
-     p_err =  (sptmean*sptmean)/(totalP*totalP*ptmean*ptmean) ;
-     mat = seg[last]->parametersError().similarityT( seg[last]->projectionMatrix() );
-     mat[0][0]= 4.0*p_err;
-  }
-  */ 
   else {
      // Fill the LocalTrajectoryParameters
      /// get the Global position
@@ -312,7 +315,8 @@ TrajectorySeed MuonSeedCreator::createSeed(int type, SegmentContainer seg, std::
      param = param1;
      p_err =  (sptmean*sptmean)/(polar.mag()*polar.mag()*ptmean*ptmean) ;
      mat = seg[last]->parametersError().similarityT( seg[last]->projectionMatrix() );  
-     mat[0][0]= 1.44 * p_err;
+     //mat[0][0]= 1.44 * p_err;
+     mat[0][0]= p_err;
   }
 
   if ( debug ) {
@@ -372,10 +376,10 @@ void MuonSeedCreator::estimatePtCSC(SegmentContainer seg, std::vector<int> layer
   if (size < 2) return;
   
   // reverse the segment and layer container first for pure CSC case
-  if ( layers[0] > layers[ layers.size()-1 ] ) {
-     reverse( layers.begin(), layers.end() );
-     reverse( seg.begin(), seg.end() );
-  }
+  //if ( layers[0] > layers[ layers.size()-1 ] ) {
+  //   reverse( layers.begin(), layers.end() );
+  //   reverse( seg.begin(), seg.end() );
+  //}
 
   std::vector<double> ptEstimate;
   std::vector<double> sptEstimate;
@@ -954,6 +958,7 @@ void MuonSeedCreator::estimatePtShowering(int& NShowers, int& NShowerSegments,  
   }
 
 }
+
 /*
  * weightedPt
  *
