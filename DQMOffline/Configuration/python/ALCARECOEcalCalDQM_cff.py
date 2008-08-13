@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-import DQMOffline.Ecal.MonitorAlCaEcalPhisym_cfi
-ALCARECOEcalCalPhisymDQM = DQMOffline.Ecal.MonitorAlCaEcalPhisym_cfi.EcalPhiSymMon.clone()
+import DQMOffline.CalibCalo.MonitorAlCaEcalPhisym_cfi
+ALCARECOEcalCalPhisymDQM = DQMOffline.CalibCalo.MonitorAlCaEcalPhisym_cfi.EcalPhiSymMon.clone()
 
 
