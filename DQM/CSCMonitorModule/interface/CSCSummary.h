@@ -48,7 +48,7 @@ class CSCSummary {
     void SetValue(CSCAddress adr, const int value);
 
     const int GetValue(const CSCAddress& adr) const;
-    const bool IsPhysicsReady(const float xmin, const float xmax, const float ymin, const float ymax) const;
+    const int IsPhysicsReady(const float xmin, const float xmax, const float ymin, const float ymax) const;
 
     const double GetEfficiencyHW() const;
     const double GetEfficiencyHW(const unsigned int station) const;

@@ -254,9 +254,14 @@ const float CSCSummary::WriteMap(TH2*& h2) const {
         ymin = yd * y;
         ymax = ymin + yd;
 
-        if(IsPhysicsReady(xmin, xmax, ymin, ymax)) {
-          h2->SetBinContent(x + 1, y + 1, 1);
-          rep_el++;
+        switch(IsPhysicsReady(xmin, xmax, ymin, ymax)) {
+          case 1:
+            h2->SetBinContent(x + 1, y + 1, 1);
+          case 0:
+            rep_el++;
+            break;
+          case -1:
+            h2->SetBinContent(x + 1, y + 1, -1);
         }
 
         csc_el++;
@@ -350,16 +355,17 @@ void CSCSummary::SetValue(CSCAddress adr, const int value) {
  * @param  xmax Eta max coordinate of the polygon
  * @param  ymin Phi min coordinate of the polygon
  * @param  ymax Phi max coordinate of the polygon
- * @return true if this polygon is ok for physics, false - otherwise
+ * @return 1 if this polygon is ok for physics and reporting, 0 - if it is ok
+ * but does not report, -1 - otherwise
  */
-const bool CSCSummary::IsPhysicsReady(const float xmin, const float xmax, const float ymin, const float ymax) const {
+const int CSCSummary::IsPhysicsReady(const float xmin, const float xmax, const float ymin, const float ymax) const {
 
   float xpmin = (xmin < xmax ? xmin : xmax);
   float xpmax = (xmax > xmin ? xmax : xmin);
   float ypmin = (ymin < ymax ? ymin : ymax);
   float ypmax = (ymax > ymin ? ymax : ymin);
 
-  if (xmin >= -1.0 && xmax <= 1.0) return false; 
+  if (xmin >= -1.0 && xmax <= 1.0) return 0; 
 
   CSCAddress adr;
   const CSCAddressBox *box;
@@ -368,7 +374,10 @@ const bool CSCSummary::IsPhysicsReady(const float xmin, const float xmax, const 
   adr.mask.side = adr.mask.station = true;
   adr.side = (xmin > 0 ? 1 : 2);
 
-  unsigned int sum = 0;
+  unsigned int rep_sum = 0;
+  unsigned int nul_sum = 0;
+  unsigned int err_sum = 0;
+
   for (adr.station = 1; adr.station <= N_STATIONS; adr.station++) {
 
     unsigned int i = 0;
@@ -386,22 +395,25 @@ const bool CSCSummary::IsPhysicsReady(const float xmin, const float xmax, const 
       //std::cout << "Respons: " << box->xmin << ", " << box->xmax << ", " << box->ymin << ", " << box->ymax << std::endl;
       //detector.PrintAddress(box->adr);
 
-      int v = GetValue(box->adr);
-
-      // If hw element is not errorous - it is ready (though does not report).
-      // This is done to comply with requirement to start with 100% efficiency
-      if ( v == 1 || v == 0) {
-        sum++;
-        break;
-      }
+      switch(GetValue(box->adr)) {
+        case -1:
+          err_sum++;
+          break;
+        case 0:
+          nul_sum++;
+          break;
+        case 1:
+          rep_sum++;
+        }
 
     }
 
-    if (sum >= 2) return true;
+    if (rep_sum >= 2) return 1;
 
   }
 
-  return false;
+  if (err_sum >= 1) return -1;
+  return 0;
 
 }
 
