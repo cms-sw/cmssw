@@ -6,4 +6,6 @@ cosmicPhotonAnalysis.bcEndcapCollection = cms.InputTag("cosmicBasicClusters","Co
 cosmicPhotonAnalysis.scBarrelProducer = cms.InputTag("cosmicSuperClusters","CosmicBarrelSuperClusters")
 cosmicPhotonAnalysis.scEndcapProducer = cms.InputTag("cosmicSuperClusters","CosmicEndcapSuperClusters")
 cosmicPhotonAnalysis.minPhoEtCut = cms.double(0.0)
+cosmicPhotonAnalysis.eMax = cms.double(1.0)
+cosmicPhotonAnalysis.etMax = cms.double(1.0)
 
