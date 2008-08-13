@@ -154,6 +154,8 @@ class CSCMonitorModule: public edm::EDAnalyzer {
 
     /** Histogram mapping, increments, etc. */
     uint32_t                     nEvents;
+    uint32_t                     nCSCEvents;
+    bool                         bCSCEventCounted;
     std::map<std::string, int>   tmap;
     uint32_t                     L1ANumber;
     std::map<uint32_t,uint32_t>  L1ANumbers;

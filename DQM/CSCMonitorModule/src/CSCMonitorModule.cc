@@ -52,6 +52,7 @@ CSCMonitorModule::CSCMonitorModule(const edm::ParameterSet& ps){
 
   rootDir = monitorName + "/";
   nEvents = 0;
+  nCSCEvents = 0;
   L1ANumber = 0;
 
   // Loading histogram collection from XML file
@@ -163,7 +164,7 @@ void CSCMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& c){
   monitorEvent(e);
 
   // Update fractional histograms if appropriate
-  if (nEvents > 0 && fractUpdateKey.test(2) && (nEvents % fractUpdateEvF) == 0) { 
+  if (nCSCEvents > 0 && fractUpdateKey.test(2) && (nEvents % fractUpdateEvF) == 0) { 
     updateFracHistos();
   }
 
@@ -185,13 +186,13 @@ void CSCMonitorModule::beginRun(const edm::Run& r, const edm::EventSetup& contex
 }
 
 void CSCMonitorModule::endRun(const edm::Run& r, const edm::EventSetup& context) {
-  if (fractUpdateKey.test(0)) { 
+  if (nCSCEvents > 0 && fractUpdateKey.test(0)) { 
     updateFracHistos();
   }
 }
 
 void CSCMonitorModule::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) {
-  if (fractUpdateKey.test(1)) {
+  if (nCSCEvents > 0 && fractUpdateKey.test(1)) {
     updateFracHistos();
   }
 }

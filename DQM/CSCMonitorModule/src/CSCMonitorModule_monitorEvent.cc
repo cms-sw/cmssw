@@ -28,8 +28,9 @@
 void CSCMonitorModule::monitorEvent(const edm::Event& e){
 
   nEvents++;
+  bCSCEventCounted = false;
   if(nEvents %1000 == 0) {
-    LOGINFO("monitorEvent") << " # of events = " << nEvents << std::endl;
+    LOGINFO("monitorEvent") << " # of events = " << nEvents << ", # of CSC events = " << nCSCEvents << std::endl;
   }
 
   // Get a handle to the FED data collection
@@ -63,6 +64,12 @@ void CSCMonitorModule::monitorEvent(const edm::Event& e){
 
     //if fed has data then unpack it
     if ( fedData.size() >= 32 ) {
+
+      // Fed contains valid CSC data - lets count this in
+      if (!bCSCEventCounted) {
+        nCSCEvents++;
+        bCSCEventCounted = true;
+      }
        
       const short unsigned int *data = (short unsigned int *) fedData.data();
 
