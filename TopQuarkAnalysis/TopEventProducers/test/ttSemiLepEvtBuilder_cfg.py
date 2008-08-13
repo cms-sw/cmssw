@@ -53,5 +53,5 @@ process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepEvtBuilder_c
 
 ## process path
 process.p = cms.Path(process.tqafLayer1  *
-                     process.makeTtSemiEvent
+                     process.makeTtSemiLepEvent
                      )
