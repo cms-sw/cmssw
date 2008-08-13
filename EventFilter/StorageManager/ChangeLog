@@ -1,9 +1,40 @@
+2008-08-13  Kurt Biery <biery@fnal.gov>
+
+	* tag V03-12-16
+	* Backed out recent RB Sender web page changes until we've had a chance
+	  to test them more.
+	* Modified the use of the XDAQ Chrono class in SMPerformanceMeter to help
+	  avoid negative statistics on monitor web pages.
+
+2008-08-07  Constantin Loizides <loizides@mit.edu>
+
+	* tag V03-12-15
+	* Fixes a flaw/bug in the way the lumi-section timeout is handled. 
+	  Following the suggestion by Kurt the following is enforced:
+	   1. The first flaw is that the LumiSectionTimeout is enforced against
+	      the time that the last event arrived for LumiSection N instead of
+	      the time of the arrival of the first event in LumiSection N+1.
+	   2. The second flaw is that each stream keeps track of its own
+	      starting point for the timeout rather than using a common value.
+	  This is implemented by a modified version of
+	  StreamService::closeTimedOutFiles() which is called by
+	  ServiceManager::ManageEventMessage() for each stream.
+
+2008-07-19  William Tanenbaum <wmtan@fnal.gov>
+
+	* tag V03-12-14
+	* Critical fix for Streamer.  The streamer has not been kept up to date with
+	  changes in the format of metadata, so it was not saving all of the metadata,
+	  in particular, the Parameterset registry, Module Description registry,
+	  EventHistory registry, and EntryDescription registry.  With this change, the
+	  first two are saved in the header, while the data from the latter two are saved
+	  not as registries, but event by event.
+
 2008-07-17  Harry Cheung <cheung@fnal.gov>
 
 	* tag V03-12-13
-	* Fixes from KB for scalar MEs (ints, floats, strings):  correctly determine ME name;
-	  switched to using first instance when collating rather than last instance.
-	  Fixed bugs in DQM histogram serving and archiving.
+	* Fixes from KB for scalar MEs (ints, floats, strings):  correctly determine ME
+	  name; switched to using first instance when collating rather than last instance.
 
 2008-07-03  Kurt Biery <biery@fnal.gov>
 
