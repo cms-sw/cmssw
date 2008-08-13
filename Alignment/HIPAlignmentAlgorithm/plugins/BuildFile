@@ -21,6 +21,29 @@
  <flags EDM_PLUGIN=1>
 </library>
 
+<library name="MuonHIPOverlapsStripwiseRefitter" file="MuonHIPOverlapsStripwiseRefitter.cc">
+ <use name=CondFormats/Alignment>
+ <use name=DataFormats/GeometrySurface>
+ <use name=DataFormats/MuonDetId>
+ <use name=DataFormats/TrackingRecHit>
+ <use name=DataFormats/TrackReco>
+ <use name=FWCore/Framework>
+ <use name=FWCore/ParameterSet>
+ <use name=Geometry/CommonDetUnit>
+ <use name=Geometry/CSCGeometry>
+ <use name=Geometry/DTGeometry>
+ <use name=Geometry/Records>
+ <use name=MagneticField/Engine>
+ <use name=MagneticField/Records>
+ <use name=RecoMuon/TransientTrackingRecHit>
+ <use name=TrackingTools/PatternTools>
+ <use name=TrackingTools/TrajectoryState>
+ <use name=FWCore/ServiceRegistry>
+ <use name=PhysicsTools/UtilAlgos>
+ <use name=root>
+ <flags EDM_PLUGIN=1>
+</library>
+
 <library name="MuonHIPOverlapsOneSideRefitter" file="MuonHIPOverlapsOneSideRefitter.cc">
  <use name=CondFormats/Alignment>
  <use name=DataFormats/GeometrySurface>
