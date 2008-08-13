@@ -191,6 +191,7 @@ namespace edm {
       { sStopping,      mCountComplete,  sJobReady },
       { sStopping,      mShutdownSignal, sShuttingDown },
       { sStopping,      mStopAsync,      sStopping },     // stay
+      { sStopping,      mInputExhausted, sStopping },     // stay
       //{ sStopping,      mAny,            sJobReady },     // <- ??????
       { sShuttingDown,  mException,      sError },
       { sShuttingDown,  mShutdownSignal, sShuttingDown },
@@ -1151,6 +1152,8 @@ namespace edm {
 	  throw cms::Exception("BadState") << err;
       }
 
+      changeState(mRunAsync);
+
       stop_count_=0;
       last_rc_=epSuccess; // forget the last value!
       event_loop_.reset(new thread(boost::bind(EventProcessor::asyncRun,this)));
@@ -1266,8 +1269,7 @@ namespace edm {
 
     beginJob(); //make sure this was called
 
-    if (onlineStateTransitions) changeState(mRunAsync);
-    else changeState(mRunCount);
+    if (!onlineStateTransitions) changeState(mRunCount);
 
     StatusCode returnCode = epSuccess;
     stateMachineWasInErrorState_ = false;

@@ -4,7 +4,7 @@
  * event server part of the storage manager.
  *
  * 16-Aug-2006 - KAB  - Initial Implementation
- * $Id: ConsumerPipe.cc,v 1.21 2008/05/04 12:37:34 biery Exp $
+ * $Id: ConsumerPipe.cc,v 1.20 2008/04/16 16:11:44 biery Exp $
  */
 
 #include "EventFilter/StorageManager/interface/ConsumerPipe.h"
@@ -346,7 +346,6 @@ boost::shared_ptr< std::vector<char> > ConsumerPipe::getEvent()
       eventQueue_.pop_front();
 
       // add the event to our statistics for "served" events
-      ++events_;
       double sizeInMB = static_cast<double>(bufPtr->size()) / 1048576.0;
       longTermServedCounter_->addSample(sizeInMB);
       shortTermServedCounter_->addSample(sizeInMB);

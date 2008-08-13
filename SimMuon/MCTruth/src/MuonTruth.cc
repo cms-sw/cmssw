@@ -3,7 +3,6 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 MuonTruth::MuonTruth(const edm::ParameterSet& conf)
 : theDigiSimLinks(0),
@@ -15,7 +14,7 @@ MuonTruth::MuonTruth(const edm::ParameterSet& conf)
 {
 }
 
-void MuonTruth::eventSetup(const edm::Event & event, const edm::EventSetup & setup)
+void MuonTruth::eventSetup(const edm::Event & event)
 {
   edm::Handle<CrossingFrame<SimTrack> > xFrame;
   LogTrace("MuonTruth") <<"getting CrossingFrame<SimTrack> collection - "<<simTracksXFTag;
@@ -34,11 +33,6 @@ void MuonTruth::eventSetup(const edm::Event & event, const edm::EventSetup & set
   theWireDigiSimLinks = wireDigiSimLinks.product();
 
   theSimHitMap.fill(event);
-
-  // get CSC Geometry to use CSCLayer methods
-  edm::ESHandle<CSCGeometry> mugeom;
-  setup.get<MuonGeometryRecord>().get( mugeom );
-  cscgeom = &*mugeom;
 }
 
 float MuonTruth::muonFraction()
@@ -149,13 +143,9 @@ void MuonTruth::analyze(const CSCRecHit2D & recHit)
 
   int nchannels = recHit.channels().size();
   CSCRecHit2D::ADCContainer adcContainer = recHit.adcs();
-  const CSCLayerGeometry * laygeom = cscgeom->layer(recHit.cscDetId())->geometry();
-
   for(int idigi = 0; idigi < nchannels; ++idigi)
   {
-    // strip and readout channel numbers may differ in ME1/1A
-    int istrip = recHit.channels()[idigi];
-    int channel = laygeom->channel(istrip);
+    int channel = recHit.channels()[idigi];
     float weight = adcContainer[idigi];
 
     DigiSimLinks::const_iterator layerLinks = theDigiSimLinks->find(theDetId);

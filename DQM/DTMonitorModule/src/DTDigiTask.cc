@@ -1,8 +1,8 @@
  /*
  * \file DTDigiTask.cc
  * 
- * $Date: 2008/07/02 14:14:14 $
- * $Revision: 1.45 $
+ * $Date: 2008/06/03 16:30:17 $
+ * $Revision: 1.43 $
  * \author M. Zanetti - INFN Padova
  *
  */
@@ -35,7 +35,6 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include <stdio.h>
 #include <sstream>
@@ -77,8 +76,7 @@ DTDigiTask::DTDigiTask(const edm::ParameterSet& ps){
   timeBoxGranularity = ps.getUntrackedParameter<int>("timeBoxGranularity",4);
   tdcRescale = ps.getUntrackedParameter<int>("tdcRescale", 1);
 
-  doNoiseOccupancies = false;
-
+  
   dbe = edm::Service<DQMStore>().operator->();
   if(debug) dbe->setVerbose(1);
 
@@ -101,7 +99,7 @@ DTDigiTask::~DTDigiTask(){
 void DTDigiTask::endJob(){
   if(debug) cout<<"[DTDigiTask] endjob called!"<<endl;
   
-  dbe->rmdir("DT/01-Digi");
+  dbe->rmdir("DT/Digi");
 }
 
 
@@ -114,11 +112,6 @@ void DTDigiTask::beginJob(const edm::EventSetup& context){
 
   // Get the geometry
   context.get<MuonGeometryRecord>().get(muonGeom);
-}
-
-
-void DTDigiTask::beginRun(const edm::Run& run, const edm::EventSetup& context) {
-  if(debug) cout<<"[DTDigiTask]: begin run"<<endl;
 
   // tTrig 
   if (readTTrigDB) 
@@ -140,7 +133,7 @@ void DTDigiTask::beginRun(const edm::Run& run, const edm::EventSetup& context) {
 	  const  DTChamberId dtChId(wh,st,sect);
 
 	  // Occupancies 
-	  if (!doNoiseOccupancies) {
+	  if (!readTTrigDB) {
 	    bookHistos(dtChId, string("Occupancies"), "OccupancyAllHits_perCh");
 	  } else {
 	    bookHistos(dtChId, string("Occupancies"), "OccupancyNoise_perCh");
@@ -205,7 +198,7 @@ void DTDigiTask::bookHistos(const DTSuperLayerId& dtSL, string folder, string hi
   stringstream station; station << dtSL.station();	
   stringstream sector; sector << dtSL.sector();	
   stringstream superLayer; superLayer << dtSL.superlayer();
-  dbe->setCurrentFolder("DT/01-Digi/Wheel" + wheel.str() +
+  dbe->setCurrentFolder("DT/Digi/Wheel" + wheel.str() +
 			"/Station" + station.str() +
 			"/Sector" + sector.str());
 
@@ -219,7 +212,7 @@ void DTDigiTask::bookHistos(const DTSuperLayerId& dtSL, string folder, string hi
 
   if (debug) {
     cout<<"[DTDigiTask]: booking SL histo:"<<endl;
-    cout<<"              folder "<< "DT/01-Digi/Wheel" + wheel.str() +
+    cout<<"              folder "<< "DT/Digi/Wheel" + wheel.str() +
       "/Station" + station.str() +
       "/Sector" + sector.str() + "/" + folder<<endl;
     cout<<"              histoTag "<<histoTag<<endl;
@@ -241,12 +234,13 @@ void DTDigiTask::bookHistos(const DTSuperLayerId& dtSL, string folder, string hi
     }    
     else {
       (digiHistos[histoTag])[dtSL.rawId()] = 
-	dbe->book1D(histoName,histoTitle, 3*tMax/timeBoxGranularity, tTrig-tMax, tTrig+2*tMax);
+	dbe->book1D(histoName,histoTitle, 2*tMax/timeBoxGranularity, tTrig-tMax, tTrig+2*tMax);
+      // FIXME: this is not setting the right bin size ?
     }
   }
 
   if ( folder == "CathodPhotoPeaks" ) {
-    dbe->setCurrentFolder("DT/01-Digi/Wheel" + wheel.str() +
+    dbe->setCurrentFolder("DT/Digi/Wheel" + wheel.str() +
 			  "/Station" + station.str() +
 			  "/Sector" + sector.str() + "/" + folder);
     (digiHistos[histoTag])[dtSL.rawId()] = dbe->book1D(histoName,histoName,500,0,1000);
@@ -262,7 +256,7 @@ void DTDigiTask::bookHistos(const DTChamberId& dtCh, string folder, string histo
   stringstream wheel; wheel << dtCh.wheel();	
   stringstream station; station << dtCh.station();	
   stringstream sector; sector << dtCh.sector();
-  dbe->setCurrentFolder("DT/01-Digi/Wheel" + wheel.str() +
+  dbe->setCurrentFolder("DT/Digi/Wheel" + wheel.str() +
 			"/Station" + station.str() +
 			"/Sector" + sector.str());
 
@@ -274,7 +268,7 @@ void DTDigiTask::bookHistos(const DTChamberId& dtCh, string folder, string histo
 
   if (debug){
     cout<<"[DTDigiTask]: booking chamber histo:"<<endl;
-    cout<<"              folder "<< "DT/01-Digi/Wheel" + wheel.str() +
+    cout<<"              folder "<< "DT/Digi/Wheel" + wheel.str() +
       "/Station" + station.str() +
       "/Sector" + sector.str()<<endl;
     cout<<"              histoTag "<<histoTag<<endl;
@@ -355,14 +349,14 @@ void DTDigiTask::bookHistos(const DTChamberId& dtCh, string folder, string histo
 void DTDigiTask::bookHistos(const int wheelId, string folder, string histoTag) {
   // Set the current folder
   stringstream wheel; wheel << wheelId;	
-  dbe->setCurrentFolder("DT/01-Digi/Wheel" + wheel.str());
+  dbe->setCurrentFolder("DT/Digi/Wheel" + wheel.str());
 
   // build the histo name
   string histoName = histoTag + "_W" + wheel.str(); 
   
   if(debug) {
     cout<<"[DTDigiTask]: booking wheel histo:"<<endl;
-    cout<<"              folder "<< "DT/01-Digi/Wheel" + wheel.str() + "/" + folder<<endl;
+    cout<<"              folder "<< "DT/Digi/Wheel" + wheel.str() + "/" + folder<<endl;
     cout<<"              histoTag "<<histoTag<<endl;
     cout<<"              histoName "<<histoName<<endl;
   }
@@ -554,7 +548,7 @@ void DTDigiTask::analyze(const edm::Event& event, const edm::EventSetup& c) {
 
 	// Fill Occupancies
 	if (!isSyncNoisy) { // Discard synch noisy channels 
-	  if (!doNoiseOccupancies) { // Do not use ttrig table
+	  if (!readTTrigDB) { // Do not use ttrig table
 	    //Occupancies per chamber & layer
 	    histoTag = "OccupancyAllHits_perCh";
 	    map<uint32_t, MonitorElement*>::const_iterator mappedHisto =

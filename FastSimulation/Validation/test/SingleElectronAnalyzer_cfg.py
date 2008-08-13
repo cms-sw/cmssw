@@ -32,12 +32,6 @@ process.load("FastSimulation.Configuration.CommonInputsFake_cff")
 
 process.load("FastSimulation.Configuration.FamosSequences_cff")
 
-# Set the early collions 10TeV parameters (as in the standard RelVals)
-process.famosSimHits.VertexGenerator.SigmaZ=cms.double(3.8)
-process.famosSimHits.VertexGenerator.Emittance = cms.double(7.03e-08)
-process.famosSimHits.VertexGenerator.BetaStar = cms.double(300.0)
-
-
 #     
 # Keep the logging output to a nice level #
 process.load("FWCore.MessageService.MessageLogger_cfi")

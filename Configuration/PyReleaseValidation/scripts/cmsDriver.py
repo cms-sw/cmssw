@@ -272,7 +272,7 @@ options.step = options.step.replace("SIM_CHAIN","GEN,SIM,DIGI,L1,DIGI2RAW")
 
 # the process name is just the last step in the list of steps
 options.name = trimmedStep.split(',')[-1]
-if options.name in ('POSTRECO,DQM') and 'RECO' in trimmedStep:
+if options.name in ('POSTRECO,ALCA,DQM') and 'RECO' in trimmedStep:
     options.name = 'RECO'
 
 # if we're dealing with HLT, the process name has to be 'HLT' only

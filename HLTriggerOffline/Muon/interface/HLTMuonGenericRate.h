@@ -4,7 +4,7 @@
 /** \class HLTMuonGenericRate
  *  Get L1/HLT efficiency/rate plots
  *
- *  \author  M. Vander Donckt, J. Klukas  (copied from J. Alcaraz)
+ *  \author  M. Vander Donckt  (copied fromJ. Alcaraz
  */
 
 // Base Class Headers
@@ -28,7 +28,7 @@
 class HLTMuonGenericRate {
 public:
   /// Constructor
-  HLTMuonGenericRate(const edm::ParameterSet& pset, int triggerIndex);
+  HLTMuonGenericRate(const edm::ParameterSet& pset, int Index);
 
   /// Destructor
   virtual ~HLTMuonGenericRate();
@@ -39,12 +39,8 @@ public:
 
   void BookHistograms() ;
   void WriteHistograms() ;
-  void SetCurrentFolder( TString folder );
-  MonitorElement* BookIt( TString name, TString title, 
-			  int Nbins, float Min, float Max);
-
+  MonitorElement* BookIt(char name[], char title[], int bins, float min, float max) ;
 private:
-
   // Input from cfg file
   edm::InputTag theL1CollectionLabel, theGenLabel, theRecoLabel;
   std::vector<edm::InputTag> theHLTCollectionLabels;
@@ -57,18 +53,17 @@ private:
   double thePtMin;
   double thePtMax;
   unsigned int theNbins;
-  int thisEventWeight;
-
+  int this_event_weight;
   // Histograms
   DQMStore* dbe_;  
   MonitorElement* hL1DR, *hL2DR, *hL3DR;
   MonitorElement* hL1eff;
-  MonitorElement* hMCMaxPtPassL1;
-  MonitorElement* hRECOMaxPtPassL1;
-  MonitorElement* hMCMaxPt;
+  MonitorElement* hL1MCeff;
+  MonitorElement* hL1RECOeff;
+  MonitorElement* hMCptnor;
   MonitorElement* hMCphinor;
   MonitorElement* hMCetanor;
-  MonitorElement* hRECOMaxPt;
+  MonitorElement* hRECOptnor;
   MonitorElement* hRECOphinor;
   MonitorElement* hRECOetanor;
   MonitorElement* hL1rate;
@@ -79,25 +74,20 @@ private:
   MonitorElement* hL1phiRECO;
   MonitorElement* hSteps;
   std::vector <MonitorElement*> hHLTeff;
-  std::vector <MonitorElement*> hHLTMCMaxPtPass;
-  std::vector <MonitorElement*> hHLTRECOMaxPtPass;
+  std::vector <MonitorElement*> hHLTMCeff;
+  std::vector <MonitorElement*> hHLTRECOeff;
   std::vector <MonitorElement*> hHLTrate;
   std::vector <MonitorElement*> hHLTpt;
   std::vector <MonitorElement*> hHLTetaMC;
   std::vector <MonitorElement*> hHLTphiMC;
   std::vector <MonitorElement*> hHLTetaRECO;
   std::vector <MonitorElement*> hHLTphiRECO;
-
   HepMC::GenEvent::particle_const_iterator theAssociatedGenPart;
   reco::TrackCollection::const_iterator theAssociatedRecoPart;
   const HepMC::GenEvent* evt;
-
-  std::pair<double,double> getAngles( double eta, double phi, 
-			   HepMC::GenEvent evt, double maxDeltaR );
-  std::pair<double,double> getAngles( double eta, double phi, 
-			   reco::TrackCollection tracks, double maxDeltaR );
-
-  MonitorElement *NumberOfEvents, *NumberOfL1Events;
+  std::pair<double,double> getGenAngle(double eta, double phi, HepMC::GenEvent evt, double DR=0.4 );
+  std::pair<double,double> getRecoAngle(double eta, double phi,reco::TrackCollection tracks, double DR=0.4 );
+  MonitorElement *NumberOfEvents,*NumberOfL1Events;
   int theNumberOfEvents,theNumberOfL1Events;
   std::string theRootFileName;
 

@@ -8,8 +8,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2008/07/06 05:17:01 $
-//   $Revision: 1.13 $
+//   $Date: 2008/02/25 21:33:24 $
+//   $Revision: 1.12 $
 //
 //   Modifications:
 //
@@ -63,12 +63,11 @@ CSCTriggerPrimitivesBuilder::CSCTriggerPrimitivesBuilder(const edm::ParameterSet
 		(sect <= 0 || sect > MAX_SECTORS)    ||
 		(subs <= 0 || subs > MAX_SUBSECTORS) ||
 		(cham <= 0 || stat > MAX_CHAMBERS)) {
-	      edm::LogError("CSCTriggerPrimitivesBuilder")
-		<< "+++ trying to instantiate TMB of illegal CSC id ["
+	      throw cms::Exception("CSCTriggerPrimitivesBuilder")
+		<< "+++ trying to instantiate TMB of illegal CSC:"
 		<< " endcap = "  << endc << " station = "   << stat
 		<< " sector = "  << sect << " subsector = " << subs
-		<< " chamber = " << cham << "]; skipping it... +++\n";
-	      continue;
+		<< " chamber = " << cham << " +++" << std::endl;
 	    }
 	    // When the motherboard is instantiated, it instantiates ALCT
 	    // and CLCT processors.

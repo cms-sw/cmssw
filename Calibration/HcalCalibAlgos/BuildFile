@@ -30,8 +30,6 @@
 
 <use name=Calibration/Tools>
 
-<use name=DataFormats/HcalIsolatedTrack>
-
 <flags EDM_PLUGIN=1>
 <export>
    <lib name=CalibrationHcalCalibAlgos>
@@ -63,7 +61,5 @@
    <use name=TrackingTools/TrackAssociator>
 
    <use name=Calibration/Tools>
-
-   <use name=DataFormats/HcalIsolatedTrack>
 
 </export>

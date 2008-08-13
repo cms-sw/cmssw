@@ -20,7 +20,7 @@ namespace reco {
     /// default constructor
     PileUpPFCandidate();
     
-    PileUpPFCandidate( const PFCandidatePtr& candidatePtr);
+    PileUpPFCandidate( const PFCandidateRef& candidateRef);
 
     /// destructor
     virtual ~PileUpPFCandidate() {}

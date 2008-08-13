@@ -23,14 +23,12 @@ CSCTFSectorProcessor::CSCTFSectorProcessor(const unsigned& endcap,
   m_sector = sector;
   TMB07    = tmb07;
 
-  // Parameter below should always present in ParameterSet:
   m_latency = pset.getParameter<unsigned>("CoreLatency");
   m_minBX = pset.getParameter<int>("MinBX");
   m_maxBX = pset.getParameter<int>("MaxBX");
-  initializeFromPSet = pset.getParameter<bool>("initializeFromPSet");
   if( m_maxBX-m_minBX >= 7 ) edm::LogWarning("CSCTFTrackBuilder::ctor")<<" BX window width >= 7BX. Resetting m_maxBX="<<(m_maxBX=m_minBX+6);
 
-  // All following parameters may appear in either ParameterSet of in EventSetup; uninitialize:
+  // Uninitialize following parameters:
   m_bxa_depth = -1;
   m_allowALCTonly = -1;
   m_allowCLCTonly = -1;
@@ -73,7 +71,7 @@ CSCTFSectorProcessor::CSCTFSectorProcessor(const unsigned& endcap,
   singlesTrackPt  = -1;
   singlesTrackOutput = -1;
 
-  if(initializeFromPSet) readParameters(pset);
+  readParameters(pset);
 
     edm::ParameterSet srLUTset = pset.getParameter<edm::ParameterSet>("SRLUT");
     for(int i = 1; i <= 4; ++i)
@@ -89,29 +87,29 @@ CSCTFSectorProcessor::CSCTFSectorProcessor(const unsigned& endcap,
 
   core_ = new CSCTFSPCoreLogic();
 
-  if(initializeFromPSet){
+  try {
     edm::ParameterSet ptLUTset = pset.getParameter<edm::ParameterSet>("PTLUT");
     ptLUT_ = new CSCTFPtLUT(ptLUTset, scales, ptScale);
     LogDebug("CSCTFSectorProcessor") << "Using stand-alone PT LUT for endcap="<<m_endcap<<", sector="<<m_sector;
-  } else {
+  } catch(...){
     ptLUT_=0;
     LogDebug("CSCTFSectorProcessor") << "Looking for PT LUT in EventSetup for endcap="<<m_endcap<<", sector="<<m_sector;
   }
 }
 
 void CSCTFSectorProcessor::initialize(const edm::EventSetup& c){
-  if(!initializeFromPSet){
-    // Only pT lut can be initialized from EventSetup, all front LUTs are initialized locally from their parametrizations
-    LogDebug("CSCTFSectorProcessor") << "Initializing pT LUT from EventSetup";
-    ptLUT_ = new CSCTFPtLUT(c);
-
-    // Extract from EventSetup alternative (to the one, used in constructor) ParameterSet
-    edm::ESHandle<L1MuCSCTFConfiguration> config;
-    c.get<L1MuCSCTFConfigurationRcd>().get(config);
-    // And initialize only those parameters, which left uninitialized during construction
-//std::cout<<"Initializing endcap: "<<m_endcap<<" sector:"<<m_sector<<std::endl<<config.product()->parameters((m_endcap-1)*2+(m_sector-1))<<std::endl;;
-    readParameters(config.product()->parameters((m_endcap-1)*2+(m_sector-1)));
+  // Only pT lut can be initialized from EventSetup, all front LUTs are initialized locally from their parametrizations
+  if(!ptLUT_){
+	  LogDebug("CSCTFSectorProcessor") << "Initializing pT LUT from EventSetup";
+	  ptLUT_ = new CSCTFPtLUT(c);
   }
+  // Extract from EventSetup alternative (to the one, used in constructor) ParameterSet
+  edm::ESHandle<L1MuCSCTFConfiguration> config;
+  c.get<L1MuCSCTFConfigurationRcd>().get(config);
+  // And initialize only those parameters, which left uninitialized during construction
+//std::cout<<"Initializing endcap: "<<m_endcap<<" sector:"<<m_sector<<std::endl<<config.product()->parameters((m_endcap-1)*2+(m_sector-1))<<std::endl;;
+  readParameters(config.product()->parameters((m_endcap-1)*2+(m_sector-1)));
+
   // Check if parameters were not initialized in both: constuctor (from .cf? file) and initialize method (from EventSetup)
   if(m_bxa_depth    <0) throw cms::Exception("CSCTFSectorProcessor")<<"BXAdepth parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
   if(m_allowALCTonly<0) throw cms::Exception("CSCTFSectorProcessor")<<"AllowALCTonly parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
@@ -156,50 +154,160 @@ void CSCTFSectorProcessor::initialize(const edm::EventSetup& c){
 }
 
 void CSCTFSectorProcessor::readParameters(const edm::ParameterSet& pset){
+  if(m_bxa_depth<0)
+    try {
       m_bxa_depth = pset.getParameter<unsigned>("BXAdepth");
+    } catch(...) {}
+  if(m_allowALCTonly<0)
+    try {
       m_allowALCTonly = ( pset.getParameter<bool>("AllowALCTonly") ? 1 : 0 );
+    } catch(...) {}
+  if(m_allowCLCTonly<0)
+    try {
       m_allowCLCTonly = ( pset.getParameter<bool>("AllowCLCTonly") ? 1 : 0 );
+    } catch(...) {}
+  if(m_preTrigger<0)
+    try {
       m_preTrigger = pset.getParameter<unsigned>("PreTrigger");
+    } catch(...) {}
 
   std::vector<unsigned>::const_iterator iter;
   int index=0;
+  if(m_etamax[0]<0)
+    try {
       std::vector<unsigned> etawins = pset.getParameter<std::vector<unsigned> >("EtaWindows");
       for(iter=etawins.begin(),index=0; iter!=etawins.end()&&index<6; iter++,index++) m_etawin[index] = *iter;
+    } catch(...) { }
+  if(m_etamin[0]<0)
+    try {
       std::vector<unsigned> etamins = pset.getParameter<std::vector<unsigned> >("EtaMin");
       for(iter=etamins.begin(),index=0; iter!=etamins.end()&&index<8; iter++,index++) m_etamin[index] = *iter;
+    } catch(...) { }
+  if(m_etamax[0]<0)
+    try {
       std::vector<unsigned> etamaxs = pset.getParameter<std::vector<unsigned> >("EtaMax");
       for(iter=etamaxs.begin(),index=0; iter!=etamaxs.end()&&index<8; iter++,index++) m_etamax[index] = *iter;
-
-	  m_mindphip = pset.getParameter<unsigned>("mindphip");
+    } catch(...) { }
+  if(m_mindphip<0)
+    try {
+      m_mindphip = pset.getParameter<unsigned>("mindphip");
+    } catch(...) { }
+  if(m_mindeta_accp<0)
+    try {
       m_mindeta_accp = pset.getParameter<unsigned>("mindeta_accp");
+    } catch(...) { }
+  if(m_maxdeta_accp<0)
+    try {
       m_maxdeta_accp = pset.getParameter<unsigned>("maxdeta_accp");
+    } catch(...) { }
+  if(m_maxdphi_accp<0)
+    try {
       m_maxdphi_accp = pset.getParameter<unsigned>("maxdphi_accp");
+    } catch(...) { }
+  if(kill_fiber<0)
+    try {
       kill_fiber = pset.getParameter<unsigned>("kill_fiber");
+    } catch(...) {}
+  if(run_core<0)
+    try {
       run_core = pset.getParameter<bool>("run_core");
+    } catch(...) {}
+  if(trigger_on_ME1a<0)
+    try {
       trigger_on_ME1a = pset.getParameter<bool>("trigger_on_ME1a");
+    } catch(...) {}
+  if(trigger_on_ME1b<0)
+    try {
       trigger_on_ME1b = pset.getParameter<bool>("trigger_on_ME1b");
+    } catch(...) {}
+  if(trigger_on_ME2<0)
+    try {
       trigger_on_ME2 = pset.getParameter<bool>("trigger_on_ME2");
+    } catch(...) {}
+  if(trigger_on_ME3<0)
+    try {
       trigger_on_ME3 = pset.getParameter<bool>("trigger_on_ME3");
+    } catch(...) {}
+  if(trigger_on_ME4<0)
+    try {
       trigger_on_ME4 = pset.getParameter<bool>("trigger_on_ME4");
+    } catch(...) {}
+  if(trigger_on_MB1a<0)
+    try {
       trigger_on_MB1a = pset.getParameter<bool>("trigger_on_MB1a");
+    } catch(...) {}
+  if(trigger_on_MB1d<0)
+    try {
       trigger_on_MB1d = pset.getParameter<bool>("trigger_on_MB1d");
+    } catch(...) {}
+  if(singlesTrackPt<0)
+    try {
       singlesTrackPt = pset.getParameter<unsigned int>("singlesTrackPt");
+    } catch(...) {}
+  if(singlesTrackOutput<0)
+    try {
       singlesTrackOutput = pset.getParameter<unsigned int>("singlesTrackOutput");
+    } catch(...) {}
+  if(QualityEnableME1a<0)
+    try {
       QualityEnableME1a = pset.getParameter<unsigned int>("QualityEnableME1a");
+    } catch(...) {}
+  if(QualityEnableME1b<0)
+    try {
       QualityEnableME1b = pset.getParameter<unsigned int>("QualityEnableME1b");
+    } catch(...) {}
+  if(QualityEnableME1c<0)
+    try {
       QualityEnableME1c = pset.getParameter<unsigned int>("QualityEnableME1c");
+    } catch(...) {}
+  if(QualityEnableME1d<0)
+    try {
       QualityEnableME1d = pset.getParameter<unsigned int>("QualityEnableME1d");
+    } catch(...) {}
+  if(QualityEnableME1e<0)
+    try {
       QualityEnableME1e = pset.getParameter<unsigned int>("QualityEnableME1e");
+    } catch(...) {}
+  if(QualityEnableME1f<0)
+    try {
       QualityEnableME1f = pset.getParameter<unsigned int>("QualityEnableME1f");
+    } catch(...) {}
+  if(QualityEnableME2a<0)
+    try {
       QualityEnableME2a = pset.getParameter<unsigned int>("QualityEnableME2a");
+    } catch(...) {}
+  if(QualityEnableME2b<0)
+    try {
       QualityEnableME2b = pset.getParameter<unsigned int>("QualityEnableME2b");
+    } catch(...) {}
+  if(QualityEnableME2c<0)
+    try {
       QualityEnableME2c = pset.getParameter<unsigned int>("QualityEnableME2c");
+    } catch(...) {}
+  if(QualityEnableME3a<0)
+    try {
       QualityEnableME3a = pset.getParameter<unsigned int>("QualityEnableME3a");
+    } catch(...) {}
+  if(QualityEnableME3b<0)
+    try {
       QualityEnableME3b = pset.getParameter<unsigned int>("QualityEnableME3b");
+    } catch(...) {}
+  if(QualityEnableME3c<0)
+    try {
       QualityEnableME3c = pset.getParameter<unsigned int>("QualityEnableME3c");
+    } catch(...) {}
+  if(QualityEnableME4a<0)
+    try {
       QualityEnableME4a = pset.getParameter<unsigned int>("QualityEnableME4a");
+    } catch(...) {}
+  if(QualityEnableME4b<0)
+    try {
       QualityEnableME4b = pset.getParameter<unsigned int>("QualityEnableME4b");
+    } catch(...) {}
+  if(QualityEnableME4c<0)
+    try {
       QualityEnableME4c = pset.getParameter<unsigned int>("QualityEnableME4c");
+    } catch(...) {}
 }
 
 CSCTFSectorProcessor::~CSCTFSectorProcessor()
@@ -292,27 +400,15 @@ bool CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stub
           lclphidat lclPhi;
           try {
             lclPhi = srLUTs_[FPGAs[fpga]]->localPhi(itr->getStrip(), itr->getPattern(), itr->getQuality(), itr->getBend());
-          } catch( cms::Exception &e ) {
-            bzero(&lclPhi,sizeof(lclPhi));
-            edm::LogWarning("CSCTFSectorProcessor:run()") << "Exception from LocalPhi LUT in " << FPGAs[fpga]
-               << "(strip="<<itr->getStrip()<<",pattern="<<itr->getPattern()<<",quality="<<itr->getQuality()<<",bend="<<itr->getBend()<<")" <<std::endl;
-          }
+          } catch(...) { bzero(&lclPhi,sizeof(lclPhi)); }
           gblphidat gblPhi;
           try {
             gblPhi = srLUTs_[FPGAs[fpga]]->globalPhiME(lclPhi.phi_local, itr->getKeyWG(), itr->cscid());
-		  } catch( cms::Exception &e ) {
-            bzero(&gblPhi,sizeof(gblPhi));
-            edm::LogWarning("CSCTFSectorProcessor:run()") << "Exception from GlobalPhi LUT in " << FPGAs[fpga]
-               << "(phi_local="<<lclPhi.phi_local<<",KeyWG="<<itr->getKeyWG()<<",csc="<<itr->cscid()<<")"<<std::endl;
-          }
+          } catch(...) { bzero(&gblPhi,sizeof(gblPhi)); }
           gbletadat gblEta;
           try {
             gblEta = srLUTs_[FPGAs[fpga]]->globalEtaME(lclPhi.phi_bend_local, lclPhi.phi_local, itr->getKeyWG(), itr->cscid());
-          } catch( cms::Exception &e ) {
-            bzero(&gblEta,sizeof(gblEta));
-            edm::LogWarning("CSCTFSectorProcessor:run()") << "Exception from GlobalEta LUT in " << FPGAs[fpga]
-               << "(phi_bend_local="<<lclPhi.phi_bend_local<<",phi_local="<<lclPhi.phi_local<<",KeyWG="<<itr->getKeyWG()<<",csc="<<itr->cscid()<<")"<<std::endl;
-          }
+          } catch(...) { bzero(&gblEta,sizeof(gblEta)); }
 
 	  itr->setEtaPacked(gblEta.global_eta);
 	  itr->setPhiPacked(gblPhi.global_phi);

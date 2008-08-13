@@ -6,10 +6,10 @@ process.CondDBCommon.connect = cms.string('oracle://cms_orcoff_int2r/CMS_COND_PR
 process.CondDBCommon.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb'
 
 process.source = cms.Source("EmptyIOVSource",
-    lastValue = cms.uint64(1),
+    lastRun = cms.untracked.uint32(1),
     timetype = cms.string('runnumber'),
-    firstValue = cms.uint64(1),
-    interval = cms.uint64(1)
+    firstRun = cms.untracked.uint32(1),
+    interval = cms.uint32(1)
 )
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",

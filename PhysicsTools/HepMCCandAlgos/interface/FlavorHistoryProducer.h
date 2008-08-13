@@ -8,33 +8,6 @@
  * \version $Id: FlavorHistoryProducer.cc,v 1.0
  *
  */
-
-
-// -------------------------------------------------------------
-// Identify the ancestry of the Quark
-// 
-// 
-// Matrix Element:
-//    Status 3 parent with precisely 2 "grandparents" that
-//    is outside of the "initial" section (0-5) that has the
-//    same ID as the status 2 parton in question. 
-//    NOTE: This is not the actual ultimate progenitor,
-//    but this is the signature of matrix element decays.
-//    The ultimate progenitor is the parent of the status 3
-//    parton.
-//
-// Flavor excitation:
-//    Almost the same as the matrix element classification,
-//    but has only one outgoing parton product instead of two.
-//
-// Gluon splitting:
-//    Parent is a quark of a different flavor than the parton
-//    in question, or a gluon. Can come from either ISR or FSR.
-//
-// True decay:
-//    Decays from a resonance like top, Higgs, etc.
-// -------------------------------------------------------------
-
 #include "FWCore/Framework/interface/EDProducer.h"
 #include <string>
 #include <vector>
@@ -57,9 +30,6 @@
 #include <fstream>
 
 
-std::ostream & operator<<( std::ostream & out, reco::Candidate const & cand) ;
-
-std::ostream & operator<<( std::ostream & out, reco::FlavorHistory const & cand);
 
 class FlavorHistoryProducer : public edm::EDProducer {
  public:

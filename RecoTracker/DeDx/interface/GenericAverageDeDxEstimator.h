@@ -1,16 +1,16 @@
-#ifndef RecoTrackerDeDx_GenericAverageDeDxEstimator_h
-#define RecoTrackerDeDx_GenericAverageDeDxEstimator_h
+#ifndef GenericAverageDeDxEstimator_h
+#define GenericAverageDeDxEstimator_h
 
 #include "RecoTracker/DeDx/interface/DeDxTools.h"
-#include "DataFormats/TrackReco/interface/DeDxHit.h"
+#include "DataFormats/TrackReco/interface/TrackDeDxHits.h"
 
 class GenericAverageDeDxEstimator: public BaseDeDxEstimator
 {
 public: 
  GenericAverageDeDxEstimator(float expo): m_expo(expo) {}
 
- virtual std::pair<float,float> dedx(const reco::DeDxHitCollection& Hits) 
- {return std::make_pair(DeDxTools::genericAverage(Hits, m_expo),-1); } 
+ virtual float dedx(const reco::TrackDeDxHits & trackWithHits) 
+ {return DeDxTools::genericAverage(trackWithHits.second,m_expo); } 
 
 private:
  float m_expo;

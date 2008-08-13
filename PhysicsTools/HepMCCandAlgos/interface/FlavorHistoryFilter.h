@@ -17,7 +17,7 @@
 //
 // Original Author:  "Salvatore Rappoccio"
 //         Created:  Sat Jun 28 00:41:21 CDT 2008
-// $Id: FlavorHistoryFilter.h,v 1.1 2008/07/02 03:52:04 srappocc Exp $
+// $Id$
 //
 //
 
@@ -59,7 +59,6 @@ class FlavorHistoryFilter : public edm::EDFilter {
       double          minPt_;          // For pt scheme
       double          minDR_;          // For deltaR scheme
       std::string     scheme_;         // Which scheme to use
-      bool            verbose_;        // verbosity
 
       reco::GenJetCollection::const_iterator
 	getClosestJet( edm::Handle<reco::GenJetCollection> const & pJets,

@@ -22,8 +22,8 @@
  **  
  **
  **  $Id: PhotonAnalyzer
- **  $Date: 2008/07/23 17:13:48 $ 
- **  $Revision: 1.8 $
+ **  $Date: 2008/05/23 05:09:27 $ 
+ **  $Revision: 1.5 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -73,10 +73,9 @@ class PhotonAnalyzer : public edm::EDAnalyzer
            
   std::string photonCollectionProducer_;       
   std::string photonCollection_;
-
-  std::string  bcProducer_;
-  std::string  bcBarrelCollection_;
-  std::string  bcEndcapCollection_;
+  //  std::string  bcProducer_;
+  edm::InputTag  bcBarrelCollection_;
+  edm::InputTag  bcEndcapCollection_;
   std::string hbheLabel_;
   std::string hbheInstanceName_;
  
@@ -95,10 +94,7 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   double trkIsolInnRadius_;
   double trkPtLow_;
   double lip_;
-  double ecalIsolInnRadius_;
-  double ecalIsolOutRadius_;
-  double ecalEtaStrip_;
-  double minEtEcalRecHit_;
+  double ecalIsolRadius_;
   double bcEtLow_;
   double hcalIsolExtRadius_;
   double hcalIsolInnRadius_;
@@ -134,7 +130,6 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   MonitorElement* h_convPhi_[2];
   MonitorElement* h_r9VsNofTracks_[2][3];
   MonitorElement* h_EoverPTracks_[2][3];
-  MonitorElement* h_ptPairOverEt_[2][3];
   MonitorElement* p_tk_nHitsVsEta_[2]; 
   MonitorElement* h_tkChi2_[2];
   MonitorElement* h_DPhiTracksAtVtx_[2][3];

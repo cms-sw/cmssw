@@ -16,8 +16,6 @@
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
-//#define DebugLog
-
 HFShowerPMT::HFShowerPMT(std::string & name, const DDCompactView & cpv,
 			 edm::ParameterSet const & p) {
 
@@ -114,12 +112,10 @@ double HFShowerPMT::getHits(G4Step * aStep) {
     indexF = pmtFib2[pmtNo-1];
   }
 
-#ifdef DebugLog
   LogDebug("HFShower") << "HFShowerPMT: Box " << boxNo << " PMT "
 		       << pmtNo << " Mapped Indices " << indexR << ", "
 		       << indexF << " Edeposit " << edep/MeV << " MeV; PE "
 		       << edep*pePerGeV/GeV;
-#endif
   if (indexR >= 0 && indexF > 0) return edep*pePerGeV/GeV;
   else                           return 0;
 }
@@ -129,30 +125,23 @@ double HFShowerPMT::getRadius() {
   double r = 0.;
   if (indexR >= 0 && indexR+1 < (int)(rTable.size()))
     r = 0.5*(rTable[indexR]+rTable[indexR+1]);
-#ifdef DebugLog
   else
     LogDebug("HFShower") << "HFShowerPMT::getRadius: R " << indexR
 			 << " F " << indexF;
-#endif
   if (indexF == 2)  r =-r;
-#ifdef DebugLog
   LogDebug("HFShower") << "HFShower: Radius (" << indexR << "/" << indexF 
 		       << ") " << r;
-#endif
   return r;
 }
 
 std::vector<double> HFShowerPMT::getDDDArray(const std::string & str, 
 					     const DDsvalues_type & sv) {
 
-#ifdef DebugLog
   LogDebug("HFShower") << "HFShowerPMT:getDDDArray called for " << str;
-#endif
+
   DDValue value(str);
   if (DDfetch(&sv,value)) {
-#ifdef DebugLog
     LogDebug("HFShower") << value;
-#endif
     const std::vector<double> & fvec = value.doubles();
     int nval = fvec.size();
     if (nval < 2) {

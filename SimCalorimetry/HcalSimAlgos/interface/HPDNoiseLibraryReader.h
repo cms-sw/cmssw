@@ -11,7 +11,7 @@
 //
 // Project: HPD noise library reader
 // Author: T.Yetkin University of Iowa, Feb. 7, 2008
-// $Id: HPDNoiseLibraryReader.h,v 1.1 2008/02/22 03:36:13 tyetkin Exp $
+// $Id: $
 // --------------------------------------------------------
 
 #ifndef HcalSimAlgos_HPDNoiseLibraryReader_h
@@ -27,7 +27,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -40,8 +39,6 @@
 // CLHEP Random numbers
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGaussQ.h"
-#include "TMath.h"
-
 class HPDNoiseLibraryReader{
   
   public:
@@ -51,13 +48,6 @@ class HPDNoiseLibraryReader{
     std::vector<std::pair <HcalDetId, const float* > > getNoisyHcalDetIds();
     // collection of noisy detIds. At least one HcalDetId is alwasy noiosy
     std::vector<std::pair <HcalDetId, const float* > > getBiasedNoisyHcalDetIds();
-    /** 
-    HPD Ion feedback simulation based on LED data. A simple simulation
-    which uses gaussian fit to data.
-    biased = false ==> HPD noise from Ion Feedback only, unbiased
-    biased = true  ==> HPD noise from Ion Feedback only, biased (rate is X times larger than nominal rate)
-    */
-    double getIonFeedbackNoise(HcalDetId id, double energy, double bias);
     // to be used for standalone tests (from R. Wilkinson)
     // taken from SimGeneral/NoiseGenerators/interface/CorrelatedNoisifier.h
     static void initializeServices();
@@ -68,7 +58,7 @@ class HPDNoiseLibraryReader{
     HPDNoiseData* getNoiseData(int iphi);
     // reads external file provided by the user in /data directrory
     // and fill rate for each HPD.
-    void fillRates();
+    void fillRate();
     // compares noise rates for each HPD with randomly thrown numbers
     // and returns the collection of Phis.
     void getNoisyPhis();
@@ -76,11 +66,7 @@ class HPDNoiseLibraryReader{
     // always noisy
     void getBiasedNoisyPhis();
     // check if noise is applicable the the HPD
-    bool IsNoiseApplicable(int iphi);
-    
-    //normal random number
-    void Rannor(double &a, double &b);
-    
+    bool applyNoise(int iphi);
     // clear phi vector
     void clearPhi();
     // use int iphi to create HPD names
@@ -90,9 +76,7 @@ class HPDNoiseLibraryReader{
     HcalTopology  theTopology;
     
     //members
-    std::vector<float> theDischargeNoiseRate;
-    std::vector<float> theIonFeedbackFirstPeakRate;
-    std::vector<float> theIonFeedbackSecondPeakRate;
+    std::vector<float> theNoiseRate;
     std::vector<int>   theNoisyPhi;
     CLHEP::RandFlat *     theRandFlat;
     CLHEP::RandGaussQ*    theRandGaussQ; 

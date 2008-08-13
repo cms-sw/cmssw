@@ -9,7 +9,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: CompositePtrCandidate.h,v 1.3 2008/04/21 15:38:38 llista Exp $
+ * \version $Id: CompositePtrCandidate.h,v 1.2 2007/12/10 12:16:40 llista Exp $
  *
  */
 
@@ -65,16 +65,6 @@ namespace reco {
     const daughters & daughterPtrVector() const { return dau; }
     /// return pointer to mother
     virtual const Candidate * mother( size_t i = 0 ) const;
-    /// number of source candidates 
-    /// ( the candidates used to construct this Candidate). 
-    /// for CompositeRefBaseCandidates, the source candidates 
-    /// are the daughters. 
-    virtual size_type numberOfSourceCandidatePtrs() const ;
-    /// return a RefToBase to one of the source Candidates 
-    /// ( the candidates used to construct this Candidate). 
-    /// for CompositeRefBaseCandidates, the source candidates 
-    /// are the daughters. 
-    virtual CandidatePtr sourceCandidatePtr( size_type i ) const;
 
   private:
     /// const iterator implementation

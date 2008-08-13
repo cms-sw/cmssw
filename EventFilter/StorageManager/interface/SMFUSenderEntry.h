@@ -79,7 +79,7 @@ struct SMFUSenderEntry  // used to store each FU sender
 
   bool sameURL(const char* hltURL);
   bool sameClassName(const char* hltClassName);
-  bool testCompleteRegistry(const std::string outModName);
+  bool testCompleteFUReg(const std::string outModName);
   bool copyRegistry(const std::string outModName, toolbox::mem::Reference *head);
 
   public:

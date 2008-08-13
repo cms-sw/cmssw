@@ -1,8 +1,8 @@
 /** \class MuonTrackAnalyzer
  *  Analyzer of the Muon tracks
  *
- *  $Date: 2008/05/10 15:19:40 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/06/24 16:40:53 $
+ *  $Revision: 1.6 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -227,7 +227,7 @@ void MuonTrackAnalyzer::seedsAnalysis(const Event & event, const EventSetup& eve
 	      hRecoSeedInner, debug);
     
     std::pair<bool,FreeTrajectoryState> propSeed =
-      theUpdator->propagate(seedTSOS);
+      theUpdator->propagateToNominalLine(seedTSOS);
     if(propSeed.first)
       fillPlots(propSeed.second, sim.first,
 		hRecoSeedPCA, debug);

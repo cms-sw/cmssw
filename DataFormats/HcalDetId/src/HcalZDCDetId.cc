@@ -29,46 +29,6 @@ HcalZDCDetId& HcalZDCDetId::operator=(const DetId& gen) {
   return *this;
 }
 
-uint32_t 
-HcalZDCDetId::denseIndex() const 
-{
-   const int se ( section() ) ;
-   return ( ( zside()<0 ? 0 : kDepTot ) + depth() - 1 +
-	    ( se == HAD  ? kDepEM :
-	      ( se == LUM ? kDepEM + kDepHAD : 0 ) ) ) ;
-}
-
-HcalZDCDetId 
-HcalZDCDetId::detIdFromDenseIndex( uint32_t di ) 
-{
-   if( validDenseIndex( di ) )
-   {
-      const bool lz ( di >= kDepTot ) ;
-      const uint32_t in ( di%kDepTot ) ;
-      const Section se ( in<kDepEM ? EM :
-			 ( in<kDepEM+kDepHAD ? HAD : LUM ) ) ;
-      const uint32_t dp ( EM == se ? in+1 :
-			  ( HAD == se ? in - kDepEM + 1 : in - kDepEM - kDepHAD + 1 ) ) ;
-      return HcalZDCDetId( se, lz, dp ) ;
-   }
-   else
-   {
-      return HcalZDCDetId() ;
-   }
-}
-
-bool 
-HcalZDCDetId::validDetId( Section se ,
-			  int     dp   )
-{
-   return ( dp >= 1 &&
-	    ( ( se == EM      ) &&
-	      ( dp <= kDepEM  )    ) ||
-	    ( ( se == HAD     ) &&
-	      ( dp <= kDepHAD )    ) ||
-	    ( ( se == LUM     ) &&
-	      ( dp <= kDepLUM )    )    ) ;
-}
 
 std::ostream& operator<<(std::ostream& s,const HcalZDCDetId& id) {
   s << "(ZDC" << ((id.zside()==1)?("+"):("-"));

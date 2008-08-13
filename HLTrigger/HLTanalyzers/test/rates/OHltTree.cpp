@@ -382,8 +382,6 @@ void OHltTree::Loop(vector<int> * iCount, vector<int> * sPureCount, vector<int> 
       /* ******************************** */ 
       else if (trignames[it].CompareTo("OpenHLT1MuonNonIso") == 0) {
 	if( L1_SingleMu7==1) {      // L1 Seed
-	  //PrintOhltVariables(1,muon);
-	  //PrintOhltVariables(2,muon);
 	  //PrintOhltVariables(3,muon);
 	  if(OpenHlt1MuonPassed(7.,16.,16.,2.,0)>=1) {
 	    triggerBitNoPrescale[it] = true; 
@@ -396,15 +394,12 @@ void OHltTree::Loop(vector<int> * iCount, vector<int> * sPureCount, vector<int> 
 
       else if (trignames[it].CompareTo("OpenHLT1MuonIso") == 0) { 
         if( L1_SingleMu7==1) {      // L1 Seed 
-          //PrintOhltVariables(1,muon); 
-          //PrintOhltVariables(2,muon); 
-          //PrintOhltVariables(3,muon); 
           if(OpenHlt1MuonPassed(7.,11.,11.,2.,1)>=1) { 
             triggerBitNoPrescale[it] = true;  
             if ((iCountNoPrescale[it]) % map_pathHLTPrescl.find(trignames[it])->second == 0) {  
 	      triggerBit[it] = true;
             } 
-	  }
+          } 
         } 
       } 
       else if (trignames[it].CompareTo("OpenHLT2MuonNonIso") == 0) {
@@ -505,17 +500,8 @@ void OHltTree::PrintOhltVariables(int level, int type)
 	  cout << "ohMuL2Dz["<<i<<"] = " << ohMuL2Dz[i] << endl;
 	}
       }
-      else if(level == 1) {
-	for(int i=0;i<NL1OpenMu;i++) {
-	  cout << "L1MuPt["<<i<<"] = " << L1MuPt[i] << endl; 
-	  cout << "L1MuEta["<<i<<"] = " << L1MuEta[i] << endl;  
-	  cout << "L1MuPhi["<<i<<"] = " << L1MuPhi[i] << endl;  
-	  cout << "L1MuIsol["<<i<<"] = " << L1MuIsol[i] << endl;  
-	  cout << "L1MuQal["<<i<<"] = " << L1MuQal[i] << endl;  
-	}
-      }
       else {
-	cout << "PrintOhltVariables: Ohlt has Muon variables only for L1, 2, and 3. Must provide one." << endl;
+	cout << "PrintOhltVariables: Ohlt has Muon variables only for L2 and 3. Must provide one." << endl;
       }
       break;
 

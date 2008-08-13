@@ -25,7 +25,7 @@ CSCTruthTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   Handle<CSCRecHit2DCollection> cscRecHits;
   iEvent.getByLabel("csc2DRecHits",cscRecHits);
 
-  theTruth.eventSetup(iEvent,iSetup);
+  theTruth.eventSetup(iEvent);
 
   for(CSCRecHit2DCollection::const_iterator recHitItr = cscRecHits->begin();
       recHitItr != cscRecHits->end(); recHitItr++)

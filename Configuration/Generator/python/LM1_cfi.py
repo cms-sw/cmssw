@@ -9,7 +9,6 @@ source = cms.Source("PythiaSource",
     # put here the cross section of your process (in pb)
     crossSection = cms.untracked.double(42.11),
     maxEventsToPrint = cms.untracked.int32(0),
-    comEnergy = cms.untracked.double(10000.0),
     PythiaParameters = cms.PSet(
         pythiaUESettingsBlock,
         processParameters = cms.vstring('MSEL=39                  ! All SUSY processes ', 

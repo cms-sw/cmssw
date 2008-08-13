@@ -6,7 +6,6 @@
 <use name=DataFormats/RPCRecHit>
 <use name=DQMServices/Core>
 <use name=EventFilter/RPCRawToDigi>
-<use name=DataFormats/L1GlobalMuonTrigger>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ServiceRegistry>
 <use name=Geometry/RPCGeometry>

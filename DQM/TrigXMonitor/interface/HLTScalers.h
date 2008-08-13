@@ -1,20 +1,12 @@
 // -*-c++-*-
 // 
 //
-// $Id: HLTScalers.h,v 1.6 2008/07/04 15:57:18 wittich Exp $
+// $Id: HLTScalers.h,v 1.4 2007/12/11 17:24:54 wittich Exp $
 // Class to collect HLT scaler information 
 // for Trigger Cross Section Monitor
 // [wittich 11/07] 
 
 // $Log: HLTScalers.h,v $
-// Revision 1.6  2008/07/04 15:57:18  wittich
-// - move histograms to HLT directory (was in L1T)
-// - add counter for number of lumi sections
-// - attempt to hlt label histo axes locally; disabled (it's illegible)
-//
-// Revision 1.5  2008/03/01 00:40:16  lat
-// DQM core migration.
-//
 // Revision 1.4  2007/12/11 17:24:54  wittich
 // - add extra monitoring histos (eg hlt exceptions and correlations)
 //
@@ -88,15 +80,11 @@ private:
   MonitorElement *l1scalers_;
   MonitorElement *l1Correlations_;
   MonitorElement *nProc_;
-  MonitorElement *nLumiBlocks_;
   std::vector<MonitorElement*> hltPathNames_;
   edm::InputTag trigResultsSource_;
   edm::InputTag l1GtDataSource_; // L1 Scalers
-  bool resetMe_, verbose_, monitorDaemon_, specifyPaths_;
-  std::vector<std::string> pathNames_;
-  std::vector<int> pathNamesIndex_;
+  bool resetMe_, verbose_, monitorDaemon_;
   int nev_; // Number of events processed
-  int nLumi_; // number of lumi blocks
   int currentRun_;
 };
 

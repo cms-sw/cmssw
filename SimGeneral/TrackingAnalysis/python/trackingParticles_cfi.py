@@ -10,18 +10,26 @@ mergedtruth = cms.EDProducer("TrackingTruthProducer",
     HepMCDataLabels = cms.vstring('VtxSmeared', 
         'PythiaSource', 
         'source'),
-    TrackerHitLabels = cms.vstring('g4SimHitsTrackerHitsPixelBarrelLowTof', 
-        'g4SimHitsTrackerHitsPixelBarrelHighTof', 
-        'g4SimHitsTrackerHitsPixelEndcapLowTof', 
-        'g4SimHitsTrackerHitsPixelEndcapHighTof', 
-        'g4SimHitsTrackerHitsTIBLowTof', 
-        'g4SimHitsTrackerHitsTIBHighTof', 
-        'g4SimHitsTrackerHitsTIDLowTof', 
-        'g4SimHitsTrackerHitsTIDHighTof', 
-        'g4SimHitsTrackerHitsTOBLowTof', 
-        'g4SimHitsTrackerHitsTOBHighTof', 
-        'g4SimHitsTrackerHitsTECLowTof', 
-        'g4SimHitsTrackerHitsTECHighTof'),
+    TrackerHitLabels = cms.vstring(
+    	# Tracker
+	'g4SimHitsTrackerHitsPixelBarrelLowTof',
+	'g4SimHitsTrackerHitsPixelBarrelHighTof',
+	'g4SimHitsTrackerHitsPixelEndcapLowTof',
+	'g4SimHitsTrackerHitsPixelEndcapHighTof',
+	'g4SimHitsTrackerHitsTIBLowTof',
+	'g4SimHitsTrackerHitsTIBHighTof',
+	'g4SimHitsTrackerHitsTIDLowTof',
+	'g4SimHitsTrackerHitsTIDHighTof',
+	'g4SimHitsTrackerHitsTOBLowTof',
+	'g4SimHitsTrackerHitsTOBHighTof',
+	'g4SimHitsTrackerHitsTECLowTof',
+	'g4SimHitsTrackerHitsTECHighTof'
+	# Muons
+	,
+	'g4SimHitsMuonDTHits',
+	'g4SimHitsMuonCSCHits',
+	'g4SimHitsMuonRPCHits'
+        ),
     volumeZ = cms.double(3000.0)
 )
 

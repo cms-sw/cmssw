@@ -31,7 +31,6 @@
 <use name=TrackingTools/TransientTrackingRecHit>
 <use name=rootcore>
 <use name=f77compiler>
-//<Flags CXXFLAGS=-g3>
 
 <export>
   <use name=Alignment/TrackerAlignment>

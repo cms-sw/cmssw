@@ -12,41 +12,26 @@ ZdcGeometry::ZdcGeometry(const ZdcTopology * topology)
 ZdcGeometry::~ZdcGeometry() {
 }
 
-const std::vector<DetId>& 
-ZdcGeometry::getValidDetIds( DetId::Detector det,
-			     int             subdet ) const 
-{
-   const std::vector<DetId>& baseIds ( CaloSubdetectorGeometry::getValidDetIds() ) ;
-   if( det    == DetId::Detector( 0 ) &&
-       subdet == 0                        )
-   {
-      return baseIds ;
-   }
-   
-   if( lastReqDet_    != det    ||
-       lastReqSubdet_ != subdet    ) 
-   {
-      lastReqDet_     = det    ;
-      lastReqSubdet_  = subdet ;
-      m_validIds.clear();
-      m_validIds.reserve( baseIds.size() ) ;
-   }
-
-   if( m_validIds.empty() ) 
-   {
-      for( int i ( 0 ) ; i != baseIds.size() ; ++i ) 
-      {
-	 const DetId id ( baseIds[i] );
-	 if( id.det()      == det    &&
-	     id.subdetId() == subdet    )
-	 { 
-	    m_validIds.push_back( id ) ;
-	 }
-      }
+std::vector<DetId> const & ZdcGeometry::getValidDetIds(DetId::Detector det, int subdet) const {
+  if (lastReqDet_!=det || lastReqSubdet_!=subdet) {
+    lastReqDet_=det;
+    lastReqSubdet_=subdet;
+    m_validIds.clear();
+  }
+  if (m_validIds.empty()) {
+    m_validIds.reserve(cellGeometries().size());
+    CaloSubdetectorGeometry::CellCont::const_iterator i;
+    for (i=cellGeometries().begin(); i!=cellGeometries().end(); i++) {
+      DetId id(i->first);
+      if (id.det()==det && id.subdetId()==subdet) 
+	m_validIds.push_back(id);
+    }
       std::sort(m_validIds.begin(),m_validIds.end());
-   }
-   return m_validIds;
+  }
+
+  return m_validIds;
 }
+
 
 DetId ZdcGeometry::getClosestCell(const GlobalPoint& r) const
 {

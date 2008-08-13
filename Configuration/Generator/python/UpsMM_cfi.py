@@ -7,7 +7,6 @@ source = cms.Source("PythiaSource",
     filterEfficiency = cms.untracked.double(0.141),
     pythiaHepMCVerbosity = cms.untracked.bool(False),
     crossSection = cms.untracked.double(9090000.0),
-    comEnergy = cms.untracked.double(10000.0),
     maxEventsToPrint = cms.untracked.int32(0),
     PythiaParameters = cms.PSet(
         pythiaUESettingsBlock,

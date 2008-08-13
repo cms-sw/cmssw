@@ -39,7 +39,6 @@ cond::Logger::getWriteLock()throw() {
     //Instructs the server to lock the rows involved in the result set.
     m_statusEditorHandle=statusTable.newQuery();
     m_statusEditorHandle->setForUpdate();
-    m_statusEditorHandle->execute();
   }catch(const std::exception& er){
     delete m_statusEditorHandle;
     m_statusEditorHandle=0;
@@ -56,15 +55,15 @@ cond::Logger::releaseWriteLock()throw() {
   }
   m_locked=false;
   m_coraldb.commit();
-  return !m_locked;
+  return false;
 }
 void 
 cond::Logger::createLogDBIfNonExist(){
   if(m_logTableExists) return;
-  m_coraldb.start(false);
+  //m_coraldb.start(false);
   if(m_coraldb.nominalSchema().existsTable(cond::LogDBNames::SequenceTableName())&&m_coraldb.nominalSchema().existsTable(cond::LogDBNames::LogTableName())){
     m_logTableExists=true;
-    m_coraldb.commit();
+    //m_coraldb.commit();
     return;
   }
   //create sequence table
@@ -118,7 +117,7 @@ cond::Logger::createLogDBIfNonExist(){
 	  coral::AttributeSpecification::typeNameForType<std::string>() );
   m_coraldb.nominalSchema().createTable( description ).privilegeManager().grantToPublic( coral::ITablePrivilegeManager::Select );
   m_logTableExists=true;
-  m_coraldb.commit();
+  //m_coraldb.commit();
 }
 void 
 cond::Logger::logOperationNow(

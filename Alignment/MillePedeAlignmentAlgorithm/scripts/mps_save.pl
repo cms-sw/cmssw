@@ -1,8 +1,8 @@
 #!/usr/local/bin/perl
 #     R. Mankel, DESY Hamburg     11-Oct-2007
 #     A. Parenti, DESY Hamburg    16-Apr-2008
-#     $Revision: 1.7 $
-#     $Date: 2008/07/29 15:37:46 $
+#     $Revision: 1.4 $
+#     $Date: 2008/04/21 21:16:04 $
 #
 #  Save output from jobs that have FETCH status
 #  
@@ -41,10 +41,8 @@ while (@ARGV) {
 }
 
 
-if ($helpwanted == 1 or $saveDir eq "undefined") {
-  print "Usage:\n  mps_save.pl destination";
-  print "\n    Saves results in directory 'destination' (that is created if needed).";
-  print "\n  mps_save -h\n    This help.\n";
+if ($saveDir eq "undefined") {
+  print "Insufficient information given\n";
   exit 1;
 }
 
@@ -70,17 +68,17 @@ if (@JOBSTATUS[$i] eq "FETCH"
 
   $dirPrefix = "jobData/@JOBDIR[$i]/";
 
-  @FILENAMES = ("treeFile_merge.root","histograms_merge.root","millePedeMonitor_merge.root",
-		"alignment_merge.py","alignment.log",
-		"alignment.log.gz","millepede.log","millepede.log.gz",
+  @FILENAMES = ("treeFile_merge.root","histograms_merge.root",
+		"alignment_merge.cfg","alignment_merge.log",
+		"alignment_merge.log.gz","millepede.log","millepede.log.gz",
 		"millepede.res","millepede.his","pede.dump",
 		"alignments_MP.db");
 
   while ($theFile = shift @FILENAMES) {
     $copyFile = $dirPrefix.$theFile;
     if (-r $copyFile) {
-      print "cp -p $copyFile $saveDir/\n";
-      system "cp -p $copyFile $saveDir/";
+      print "cp $copyFile $saveDir/\n";
+      system "cp $copyFile $saveDir/";
       $retcode = $? >> 8;
       if ($retcode) {
 	print "Copy of $copyFile failed, retcode=$retcode\n";
@@ -91,7 +89,7 @@ if (@JOBSTATUS[$i] eq "FETCH"
     }
   }
 
-# Now copy the backup of original scripts, cfg and infiList
+# Now copy the backup of original scripts and cfg's
   $ScriptCfg = `ls jobData/ScriptsAndCfg???.tar`;
   chomp($ScriptCfg);
   $ScriptCfg =~ s/\n/ /g;
@@ -102,8 +100,8 @@ if (@JOBSTATUS[$i] eq "FETCH"
   while ($theFile = shift @FILENAMES) {
     $copyFile = "jobData/".$theFile;
     if (-r $copyFile) {
-      print "cp -p $copyFile $saveDir/\n";
-      system "cp -p $copyFile $saveDir/";
+      print "cp $copyFile $saveDir/\n";
+      system "cp $copyFile $saveDir/";
       $retcode = $? >> 8;
       if ($retcode) {
 	print "Copy of $copyFile failed, retcode=$retcode\n";

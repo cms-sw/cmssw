@@ -25,7 +25,7 @@
  *
  *  Initial Implementation based on Kurt's ConsumerPipe
  *  We can think about a common class later...
- *  $Id: DQMConsumerPipe.h,v 1.6 2007/11/29 19:14:10 biery Exp $
+ *  $Id: DQMConsumerPipe.h,v 1.5 2007/11/09 23:08:34 badgett Exp $
  */
 
 #include <string>
@@ -54,7 +54,6 @@ namespace stor
     bool isIdle() const;
     bool isDisconnected() const;
     bool isReadyForEvent() const;
-    bool isProxyServer() const { return consumerIsProxyServer_; }
     bool wantsDQMEvent(DQMEventMsgView const& eventView) const;
     void putDQMEvent(boost::shared_ptr< std::vector<char> > bufPtr);
     boost::shared_ptr< std::vector<char> > getDQMEvent();
@@ -76,7 +75,6 @@ namespace stor
     std::string consumerPriority_;
     std::string topFolderName_;
     std::string hostName_;
-    bool consumerIsProxyServer_;
     int events_;
 
     // data members for tracking active and idle states

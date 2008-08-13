@@ -12,9 +12,7 @@ public:
   /// The HcalGeometry will delete all its cell geometries at destruction time
   virtual ~HcalGeometry();
   
-  virtual const std::vector<DetId>& getValidDetIds( DetId::Detector det    = DetId::Detector ( 0 ), 
-						    int             subdet = 0 ) const;
-
+  virtual std::vector<DetId> const & getValidDetIds(DetId::Detector det, int subdet) const;
   virtual DetId getClosestCell(const GlobalPoint& r) const ;
 
 private:
@@ -25,8 +23,6 @@ private:
   const HcalTopology * theTopology;
   mutable DetId::Detector lastReqDet_;
   mutable int lastReqSubdet_;
-
-  mutable std::vector<DetId> m_validIds ;
 };
 
 

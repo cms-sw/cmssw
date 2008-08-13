@@ -1,8 +1,8 @@
 #!/usr/local/bin/perl
 #     R. Mankel, DESY Hamburg     03-Jul-2007
 #     A. Parenti, DESY Hamburg    27-Mar-2008
-#     $Revision: 1.2 $
-#     $Date: 2008/07/29 17:10:40 $
+#     $Revision: 1.14 $
+#     $Date: 2008/03/25 16:15:57 $
 #
 #  Take card file, blank all INFI directives and insert
 #  the INFI directives from the modifier file instead.
@@ -50,7 +50,7 @@ while (@ARGV) {
 }
 
 if ($outCfg eq "undefined") {
-  print "mps_splice.pl: Insufficient information given\n";
+  print "Insufficient information given\n";
   exit 1;
 }
 
@@ -70,14 +70,8 @@ close MODFILE;
 $/ = "\n"; # back to normal
 chomp $mods;
 
-$nn = ($body =~ s/mode \= \'full\'/mode \= \'mille\'/);
-if ($nn != 1) {
-  print "Replaced mode from 'full' to 'mille'.\n";
-}
-
-
 # look for the fileNames directive
-$nfileNames = ($body =~ m/fileNames = cms.untracked.vstring\(.*?\)/s);
+$nfileNames = ($body =~ m/fileNames = \{.*?\}/s);
 # prepare the new filenames directive
 @FILENAMES = split "\n",$mods;
 # GF
@@ -85,20 +79,20 @@ if ($FILENAMES[0] =~ /^CastorPool=/) { # starts with CastorPool
   @FILENAMES = @FILENAMES[1..$#FILENAMES]; # remove that line
 }
 # end GF
-$newFileNames = "\n";
+$newFileNames = "";
 while (@FILENAMES) {
   $theFile = shift(@FILENAMES);
   chomp $theFile;
-  $newFileNames = "$newFileNames        \'$theFile\'";
+  $newFileNames = "$newFileNames\"$theFile\"";
   if (@FILENAMES) {
     $newFileNames = "$newFileNames,\n";
   }
 }
 
 # insert fileNames directive
-$nrep = ($body =~ s/fileNames = cms.untracked.vstring\(.*?\)/fileNames = cms.untracked.vstring\($newFileNames\) /s);
+$nrep = ($body =~ s/fileNames = \{.*?\}/fileNames = \{ $newFileNames\n   \} /s);
 # print "The new body is:\n$body\n";
-$nfileNames = ($body =~ m/fileNames = cms.untracked.vstring\(.*?\)/s);
+$nfileNames = ($body =~ m/fileNames = \{.*?\}/s);
 
 # replace ISN for the root output file
 $nrep = ($body =~ s/ISN/$isn/gm);

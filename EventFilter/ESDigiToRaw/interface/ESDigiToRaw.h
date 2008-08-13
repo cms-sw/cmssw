@@ -4,7 +4,6 @@
 #include <memory>
 #include <iostream>
 #include <string>
-#include <fstream>
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -12,26 +11,25 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include "EventFilter/ESDigiToRaw/interface/ESDataFormatter.h"
 
-class ESDigiToRaw : public edm::EDProducer {
+using namespace std;
+using namespace edm;
+
+class ESDigiToRaw : public EDProducer {
   
  public:
   
-  ESDigiToRaw(const edm::ParameterSet& ps);
+  ESDigiToRaw(const ParameterSet& ps);
   virtual ~ESDigiToRaw();
   
-  void beginJob(const edm::EventSetup& es) ;
-  void produce(edm::Event& e, const edm::EventSetup& es);
+  void beginJob(const EventSetup& es) ;
+  void produce(Event& e, const EventSetup& es);
   void endJob() ;
   
-/*   typedef long long Word64; */
-/*   typedef unsigned int Word32; */
-
-  typedef uint32_t Word32;
-  typedef uint64_t Word64;
+  typedef long long Word64;
+  typedef unsigned int Word32;
   
   int* GetCounter() {return &counter_ ;}
   int* GetOrbit() {return &orbit_number_ ;}
@@ -40,9 +38,6 @@ class ESDigiToRaw : public edm::EDProducer {
   int* GetRunNumber() {return &run_number_ ;}
   
   static const int BXMAX = 2808;
-  static const int LHC_BX_RANGE = 3564;
-  static const int KCHIP_BC_RANGE = 4096;
-  static const int KCHIP_EC_RANGE = 256;
   
  private:
   
@@ -51,16 +46,10 @@ class ESDigiToRaw : public edm::EDProducer {
   int run_number_;
   int bx_;
   int lv1_;
-  int kchip_ec_; 
-  int kchip_bc_; 
-  int fedId_[2][2][40][40];
     
-  std::string label_;
-  std::string instanceName_;
-  edm::FileInPath lookup_;
+  string label_;
+  string instanceName_;
   bool   debug_;
-  int formatMajor_; 
-  int formatMinor_; 
 
   ESDataFormatter* ESDataFormatter_;
   

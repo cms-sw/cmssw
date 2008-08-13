@@ -5,14 +5,9 @@
 
 /// A factory that can combine the functionality of several 'trajectory factories'. At construction
 /// time, it is given an ordered list of what kinds factories it should use. When called, all the
-/// factories are called one after each other, 
-///  - either until one of them gives a result
-///  - or until all factories are really called.
-/// This is determined by the useAllFactories flag.
+/// factories are called one after, until one of them gives a result.
 ///
-/// Example: 
-/// Combine TwoBodyDecayTrajectoryFactory and ReferenceTrajectoryFactory 
-/// with useAllFactories = false. In case the former
+/// Example: Combine TwoBodyDecayTrajectoryFactory and ReferenceTrajectoryFactory. In case the former
 /// can't produce a trajectory from two given tracks, the tracks can still be used for 'ordinary'
 /// reference trajectories (see also TrajectoryFactories.cff).
 
@@ -37,7 +32,6 @@ public:
 private:
 
   std::vector<TrajectoryFactoryBase*> theFactories;
-  bool                                theUseAllFactories; /// use not only the first 'successful'?
 };
 
 

@@ -4,7 +4,6 @@
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/Common/interface/RefVector.h"
-#include "DataFormats/Common/interface/Ptr.h"
 
 namespace reco {
   class PFCandidate;
@@ -20,9 +19,6 @@ namespace reco {
 
   /// persistent reference to a PFCandidate
   typedef edm::Ref<PFCandidateCollection> PFCandidateRef;
-
-  /// persistent Ptr to a PFCandidate
-  typedef edm::Ptr<PFCandidate> PFCandidatePtr;
 
   /// persistent reference to a PFCandidates collection
   typedef edm::RefProd<PFCandidateCollection> PFCandidateRefProd;

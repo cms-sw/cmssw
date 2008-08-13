@@ -10,7 +10,6 @@ from Mixins import PrintOptions,_ParameterTypeBase,_SimpleParameterTypeBase, _Pa
 from Mixins import *
 from Types import * 
 from Modules import *
-from Modules import _Module
 from SequenceTypes import *
 from SequenceTypes import _ModuleSequenceType  #extend needs it
 import DictTypes
@@ -64,7 +63,6 @@ class Process(object):
 
     def setStrict(self, value):
         self.__isStrict = value
-        _Module.__isStrict__ = True 
 
     # some user-friendly methods for command-line browsing
     def producerNames(self):
@@ -195,7 +193,7 @@ class Process(object):
         else:
             newValue =value
         if not self._okToPlace(name, value, self.__dict__):
-            print "WARNING: trying to override definition of process."+name
+            #print "WARNING: trying to override definition of process."+name
             return
         # remove the old object of the name (if there is one) 
         if hasattr(self,name) and not (getattr(self,name)==newValue):

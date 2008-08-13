@@ -1,4 +1,4 @@
-// $Id: ServiceManager.cc,v 1.10 2008/05/13 18:06:46 loizides Exp $
+// $Id: ServiceManager.cc,v 1.9 2008/05/11 13:50:47 hcheung Exp $
 
 #include <EventFilter/StorageManager/interface/ServiceManager.h>
 #include "EventFilter/StorageManager/interface/Configurator.h"
@@ -14,9 +14,7 @@ ServiceManager::ServiceManager(const std::string& config):
   managedOutputs_(0),
   psetHLTOutputLabels_(0),
   outputModuleIds_(0),
-  storedEvents_(0),
-  currentlumi_(0),
-  timeouttime_(0)
+  storedEvents_(0)
 {
   storedNames_.clear();
   collectStreamerPSets(config);
@@ -144,35 +142,18 @@ void ServiceManager::manageInitMsg(std::string catalog, uint32 disks, std::strin
   }
 }
 
+
 void ServiceManager::manageEventMsg(EventMsgView& msg)
 {
+  bool eventAccepted = false;
+  bool thisEventAccepted = false;
   int outputIdx = -1;
-  for(StreamsIterator it = managedOutputs_.begin(), itEnd = managedOutputs_.end(); it != itEnd; ++it) {
+  for(StreamsIterator  it = managedOutputs_.begin(), itEnd = managedOutputs_.end(); it != itEnd; ++it) {
     ++outputIdx;
-    if (msg.outModId() != outputModuleIds_[outputIdx])
-      continue;
-
-    bool thisEventAccepted = (*it)->nextEvent(msg);
-    if (!thisEventAccepted)
-      continue;
-
-    ++storedEvents_[outputIdx];
-    if ((*it)->lumiSection() > currentlumi_) {
-      currentlumi_ = (*it)->lumiSection();
-      timeouttime_ = (*it)->getCurrentTime();
-    }
-  }
-
-  // close time-out open files from previous lumi-section 
-  if(currentlumi_>0) {
-
-    StreamsIterator itBeg = managedOutputs_.begin();
-    StreamsIterator itEnd = managedOutputs_.end();
-    if (itBeg != itEnd) {
-      double tdiff = (*itBeg)->getCurrentTime() - timeouttime_;
-
-      for(StreamsIterator it = itBeg; it != itEnd; ++it) 
-        (*it)->closeTimedOutFiles(currentlumi_, tdiff);
+    if (msg.outModId() == outputModuleIds_[outputIdx]) {
+      thisEventAccepted = (*it)->nextEvent(msg);
+      eventAccepted = thisEventAccepted || eventAccepted;
+      if (thisEventAccepted) ++storedEvents_[outputIdx];
     }
   }
 }

@@ -1,8 +1,8 @@
 /** \class GLBMuonAnalyzer
  *  Analyzer of the Global muon tracks
  *
- *  $Date: 2007/10/16 17:49:38 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/03/09 21:50:32 $
+ *  $Revision: 1.1 $
  *  \author R. Bellan  - INFN Torino       <riccardo.bellan@cern.ch>
  *  \author A. Everett - Purdue University <adam.everett@cern.ch>
  */
@@ -10,6 +10,7 @@
 #include "RecoMuon/GlobalMuonProducer/test/GLBMuonAnalyzer.h"
 
 // Collaborating Class Header
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -159,21 +160,13 @@ void GLBMuonAnalyzer::analyze(const Event & event, const EventSetup& eventSetup)
     trackingRecHit_iterator rhbegin = staTrack->recHitsBegin();
     trackingRecHit_iterator rhend = staTrack->recHitsEnd();
     
-    int muHit=0;
-    int tkHit=0;
-    
     //LogTrace("Analyzer")<<"RecHits:"<<endl;
     for(trackingRecHit_iterator recHit = rhbegin; recHit != rhend; ++recHit){
-      //      const GeomDet* geomDet = theTrackingGeometry->idToDet((*recHit)->geographicalId());
+      const GeomDet* geomDet = theTrackingGeometry->idToDet((*recHit)->geographicalId());
 //      double r = geomDet->surface().position().perp();
 //      double z = geomDet->toGlobal((*recHit)->localPosition()).z();
       //LogTrace("Analyzer")<<"r: "<< r <<" z: "<<z <<endl;
-      if((*recHit)->geographicalId().det() == DetId::Muon) ++muHit;
-      if((*recHit)->geographicalId().det() == DetId::Tracker) ++tkHit;
     }
-    if(tkHit == 0) LogTrace("GlobalMuonAnalyzer") << "+++++++++ This track does not contain TH hits +++++++++ ";
-
-
     
     if(recPt && theDataType == "SimData"){  
 

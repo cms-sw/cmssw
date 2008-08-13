@@ -1,9 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-# Emulator configuration
-# select one of the two lines below
-# By default (17X) take configuration from dummy producers
-from L1Trigger.Configuration.L1Config_cff import *
+# emulator sequence, to be deprecated
+
 # Emulator modules
 from L1Trigger.Configuration.L1MuonEmulator_cff import *
 from L1Trigger.Configuration.L1CaloEmulator_cff import *

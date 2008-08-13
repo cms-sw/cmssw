@@ -14,7 +14,7 @@ Implementation:
 //
 // Original Author:  Dongwook Jang
 //         Created:  Wed Oct 11 11:08:40 CDT 2006
-// $Id: TauAna.cc,v 1.3 2008/02/16 06:32:50 dwjang Exp $
+// $Id: TauAna.cc,v 1.2 2007/07/30 17:54:54 fwyzard Exp $
 //
 //
 
@@ -35,6 +35,7 @@ Implementation:
 // ROOT related includes
 #include <TFile.h>
 #include <TVector2.h>
+#include <TVector3.h>
 
 #include <iostream>
 
@@ -46,7 +47,8 @@ using namespace reco;
 //
 TauAna::TauAna(const edm::ParameterSet& iConfig)
 {
-
+  //now do what ever initialization is needed
+   //now do what ever initialization is needed
   trackCollectionName_ = iConfig.getParameter<string>("trackCollectionName");
   tauCollectionName_ = iConfig.getParameter<string>("tauCollectionName");
   pFCandidateProducerName_ = iConfig.getParameter<string>("pFCandidateProducerName");
@@ -57,14 +59,23 @@ TauAna::TauAna(const edm::ParameterSet& iConfig)
 }
 
 
-TauAna::~TauAna() {}
+TauAna::~TauAna()
+{
+ 
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
+
+}
+
 
 //
 // member functions
 //
 
 // ------------ method called to for each event  ------------
-void TauAna::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+void
+TauAna::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+//TauAna::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
   t_nSignalTracks    = 0;
@@ -74,7 +85,6 @@ void TauAna::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   t_tracksMomentum->SetXYZT(0,0,0,0);
   t_pi0sMomentum->SetXYZT(0,0,0,0);
   t_momentum->SetXYZT(0,0,0,0);
-  t_seedTrackVertex->SetXYZ(0,0,0);
 
   edm::Handle<reco::TrackCollection> trackHandle;
   iEvent.getByLabel(trackCollectionName_,trackHandle);
@@ -106,11 +116,11 @@ void TauAna::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     const Tau3D *tau3D = &*iter;
 
     TauVariables tauVar(tau3D,&tauTagInfoHandle);
-    tauVar.setUse3DAngle(false);
-    tauVar.setSignalConeSize(0.15);
-    tauVar.setIsolationConeSize(0.5);
-    tauVar.setUseVariableSignalCone(true);
-    tauVar.setSignalConeFunction(5.0);
+    tauVar.setUse3DAngle(true);
+    tauVar.setSignalConeSize(0.175);
+    tauVar.setIsolationConeSize(0.524);
+    tauVar.setUseVariableSignalCone(false);
+    tauVar.setSignalConeFunction(5.0); // do not affect anything
     tauVar.setUseVariableIsolationCone(false);
     tauVar.setIsolationConeFunction(5.0); // do not affect anything
     tauVar.setSeedTrackThreshold(5.0);
@@ -142,10 +152,6 @@ void TauAna::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                         tauVar.momentum().Y(), 
                         tauVar.momentum().Z(), 
                         tauVar.momentum().E()); 
-    t_seedTrackVertex->SetXYZ(tauVar.seedTrack()->vertex().x(),
-			      tauVar.seedTrack()->vertex().y(),
-			      tauVar.seedTrack()->vertex().z());
-
  
     tree_->Fill(); 
   }
@@ -154,13 +160,13 @@ void TauAna::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
 // ------------ method called once each job just before starting event loop  ------------
-void TauAna::beginJob(const edm::EventSetup&)
+void 
+TauAna::beginJob(const edm::EventSetup&)
 {
 
-  t_tracksMomentum  = new TLorentzVector(0.0,0.0,0.0,0.0);
-  t_pi0sMomentum    = new TLorentzVector(0.0,0.0,0.0,0.0);
-  t_momentum        = new TLorentzVector(0.0,0.0,0.0,0.0);
-  t_seedTrackVertex = new TVector3(0.0,0.0,0.0);
+  t_tracksMomentum = new TLorentzVector(0.0,0.0,0.0,0.0);
+  t_pi0sMomentum   = new TLorentzVector(0.0,0.0,0.0,0.0);
+  t_momentum       = new TLorentzVector(0.0,0.0,0.0,0.0);
 
   TFile *f = new TFile(histFileName_.c_str(),"RECREATE");
   if(f){
@@ -170,16 +176,16 @@ void TauAna::beginJob(const edm::EventSetup&)
     tree_->Branch("nSignalPi0s",&t_nSignalPi0s,"nSignalPi0s/I");
     tree_->Branch("nIsolationTracks",&t_nIsolationTracks,"nIsolationTracks/I");
     tree_->Branch("nIsolationPi0s",&t_nIsolationPi0s,"nIsolationPi0s/I");
-    //    tree_->Branch("seedTrackVertex","TVector3",&t_seedTrackVertex,32000,99);
-    tree_->Branch("tracksMomentum.","TLorentzVector",&t_tracksMomentum,32000,99);
-    tree_->Branch("pi0sMomentum.","TLorentzVector",&t_pi0sMomentum,32000,99);
-    tree_->Branch("momentum.","TLorentzVector",&t_momentum,32000,99);
+    tree_->Branch("tracksMomentum.","TLorentzVector",&t_tracksMomentum,6400,99);
+    tree_->Branch("pi0sMomentum.","TLorentzVector",&t_pi0sMomentum,6400,99);
+    tree_->Branch("momentum.","TLorentzVector",&t_momentum,6400,99);
   }
 
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void TauAna::endJob() {
+void 
+TauAna::endJob() {
 
   TFile *f = tree_->GetCurrentFile();
   if(f){

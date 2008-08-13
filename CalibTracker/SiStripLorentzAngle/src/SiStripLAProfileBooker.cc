@@ -40,7 +40,6 @@
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 
 #include <TProfile.h>
-#include <TStyle.h>
 #include <TF1.h>
 
  
@@ -101,10 +100,7 @@ void SiStripLAProfileBooker::beginJob(const edm::EventSetup& c){
   double TIBRangeMax=conf_.getParameter<double>("TIBXMax");
   double TOBRangeMin=conf_.getParameter<double>("TOBXMin");
   double TOBRangeMax=conf_.getParameter<double>("TOBXMax");
-  int TIB_bin=conf_.getParameter<int>("TIB_bin");
-  int TOB_bin=conf_.getParameter<int>("TOB_bin");
-  int SUM_bin=conf_.getParameter<int>("SUM_bin");
-    
+  
   hFile = new TFile (conf_.getUntrackedParameter<std::string>("treeName").c_str(), "RECREATE" );
   
   HitsTree = new TTree("HitsTree", "HitsTree");
@@ -145,6 +141,9 @@ void SiStripLAProfileBooker::beginJob(const edm::EventSetup& c){
   
   //get all detids
   
+  MonitorElement * check_histo=dbe_->book1D("CrossCheck","CrossCheck",100,0,100);
+  histos[1] = check_histo;
+
   for(std::vector<uint32_t>::const_iterator Id = activeDets.begin(); Id!=activeDets.end(); Id++){
 
     //  for(Iditer=Id.begin();Iditer!=Id.end();Iditer++){ //loop on detids
@@ -152,13 +151,6 @@ void SiStripLAProfileBooker::beginJob(const edm::EventSetup& c){
     DetId *Iditer=&Iditero;
     if((Iditer->subdetId() == int(StripSubdetector::TIB)) || (Iditer->subdetId() == int(StripSubdetector::TOB))){ //include only barrel
 
-      int module_bin = 0;
-      if(Iditer->subdetId() == int(StripSubdetector::TIB)){
-      module_bin = TIB_bin;
-      }else{
-      module_bin = TOB_bin;
-      }
-      
       // create a TProfile for each module
       StripSubdetector subid(*Iditer);
       std::string hid;
@@ -171,12 +163,13 @@ void SiStripLAProfileBooker::beginJob(const edm::EventSetup& c){
 		
       folder_organizer.setDetectorFolder(Iditer->rawId());
       hid = hidmanager.createHistoId(TkTag.label().c_str(),"det",Iditer->rawId());
-      MonitorElement * profile=dbe_->bookProfile(hid,hid,module_bin,ModuleRangeMin,ModuleRangeMax,20,0,5,"");
+      MonitorElement * profile=dbe_->bookProfile(hid,hid,30,ModuleRangeMin,ModuleRangeMax,20,0,5,"");
       detparameters *param=new detparameters;
       histos[Iditer->rawId()] = profile;
       detmap[Iditer->rawId()] = param;
       param->thickness = thickness*10000;
       param->pitch = topol.localPitch(p)*10000;
+
 
       const GlobalPoint globalp = (stripdet->surface()).toGlobal(p);
       GlobalVector globalmagdir = magfield->inTesla(globalp);
@@ -194,9 +187,9 @@ void SiStripLAProfileBooker::beginJob(const edm::EventSetup& c){
 	folder_organizer.setSiStripFolder();
 	MonitorElement * summaryprofile=0;
 	if (subid.subdetId()==int (StripSubdetector::TIB)||subid.subdetId()==int (StripSubdetector::TID))
-	  summaryprofile=dbe_->bookProfile(name,name,SUM_bin,TIBRangeMin,TIBRangeMax,20,0,5,"");
+	  summaryprofile=dbe_->bookProfile(name,name,30,TIBRangeMin,TIBRangeMax,20,0,5,"");
 	else if (subid.subdetId()==int (StripSubdetector::TOB)||subid.subdetId()==int (StripSubdetector::TEC))
-	  summaryprofile=dbe_->bookProfile(name,name,SUM_bin,TOBRangeMin,TOBRangeMax,20,0,5,"");
+	  summaryprofile=dbe_->bookProfile(name,name,30,TOBRangeMin,TOBRangeMax,20,0,5,"");
 	if(summaryprofile){
 	  detparameters *summaryparam=new detparameters;
 	  summaryhisto[layerid] = summaryprofile;
@@ -418,7 +411,8 @@ void SiStripLAProfileBooker::analyze(const edm::Event& e, const edm::EventSetup&
 		if(itm->estimate() <  alreadystored->second.first){
 		better_double_hit++;
 		hitangleassociation.insert(std::make_pair(monohit, std::make_pair(itm->estimate(),tanangle)));
-		
+		//HitsTree->Fill();
+		//hitcounter++;
 		}}
 	      else{
 	      hitangleassociation.insert(make_pair(monohit, std::make_pair(itm->estimate(),tanangle)));
@@ -508,7 +502,8 @@ void SiStripLAProfileBooker::analyze(const edm::Event& e, const edm::EventSetup&
 		  if(itm->estimate() <  alreadystored->second.first){
 		  better_double_hit++;
 		  hitangleassociation.insert(std::make_pair(stereohit, std::make_pair(itm->estimate(),tanangle)));
-		  
+		  //HitsTree->Fill();
+		  //hitcounter++;
 		  }}
 		else{
 		hitangleassociation.insert(std::make_pair(stereohit, std::make_pair(itm->estimate(),tanangle)));
@@ -601,7 +596,8 @@ void SiStripLAProfileBooker::analyze(const edm::Event& e, const edm::EventSetup&
 		if(itm->estimate() <  alreadystored->second.first){
 		better_double_hit++;
 		hitangleassociation.insert(std::make_pair(hit, std::make_pair(itm->estimate(),tanangle)));
-	        
+	        //HitsTree->Fill();
+		//hitcounter++;
 		}}
 	      else{
 	      hitangleassociation.insert(std::make_pair(hit,std::make_pair(itm->estimate(), tanangle) ) );
@@ -632,7 +628,12 @@ void SiStripLAProfileBooker::analyze(const edm::Event& e, const edm::EventSetup&
     
     const GeomDetUnit * StripDet=dynamic_cast<const GeomDetUnit*>(tracker->idToDet(detid));
     const GlobalPoint gposition = (StripDet->surface()).toGlobal(position);
-      
+    
+    //Cross Check DQM - Tree 
+    
+    int count = 1;
+    histos[1]->Fill(count);
+    
     float tangent = hitsiter->second.second;
 	  
     //Sign and XZ plane projection correction applied in TrackLocalAngle (TIB|TOB layers)
@@ -720,22 +721,12 @@ void SiStripLAProfileBooker::endJob(){
 
   //Histograms fit
   TF1 *fitfunc=0;
-  //TF1 *FitFunction=0;
   double ModuleRangeMin=conf_.getParameter<double>("ModuleFitXMin");
   double ModuleRangeMax=conf_.getParameter<double>("ModuleFitXMax");
   double TIBRangeMin=conf_.getParameter<double>("TIBFitXMin");
   double TIBRangeMax=conf_.getParameter<double>("TIBFitXMax");
   double TOBRangeMin=conf_.getParameter<double>("TOBFitXMin");
   double TOBRangeMax=conf_.getParameter<double>("TOBFitXMax");
-  bool Fit_Result=conf_.getParameter<bool>("Fit_Result");
-  
-  char *fit_r;
-  
-  if(Fit_Result==true){
-  fit_r="E";
-  }else{
-  fit_r="N";
-  }
   
   histomap::iterator hist_it;
   fitfunc= new TF1("fitfunc","([4]/[3])*[1]*(TMath::Abs(x-[0]))+[2]",-1,1);
@@ -755,12 +746,9 @@ void SiStripLAProfileBooker::endJob(){
       fitfunc->SetParameter(2, 1);
       fitfunc->FixParameter(3, pitch);
       fitfunc->FixParameter(4, thickness);
-
+      int fitresult=-1;
       TProfile* theProfile=ExtractTObject<TProfile>().extract(hist_it->second);
-      
-      gStyle->SetOptFit(111);
-      theProfile->Fit("fitfunc",fit_r,"",ModuleRangeMin, ModuleRangeMax);
-            
+      fitresult=theProfile->Fit(fitfunc,"N","",ModuleRangeMin, ModuleRangeMax);
       detparmap::iterator thedet=detmap.find(hist_it->first);
       LocalVector localmagdir;
       if(thedet!=detmap.end())localmagdir=thedet->second->magfield;
@@ -797,16 +785,12 @@ void SiStripLAProfileBooker::endJob(){
       fitfunc->SetParameter(2, 1);
       fitfunc->FixParameter(3, pitch);
       fitfunc->FixParameter(4, thickness);
-    
+      int fitresult=-1;
       TProfile* thesummaryProfile=ExtractTObject<TProfile>().extract(summaryhist_it->second);
-      if ((summaryhist_it->first)/10==int (StripSubdetector::TIB)||(summaryhist_it->first)/10==int(StripSubdetector::TID)){
-	gStyle->SetOptFit(111);	
-	thesummaryProfile->Fit("fitfunc",fit_r,"",TIBRangeMin, TIBRangeMax);
-	}
-      else if ((summaryhist_it->first)/10==int (StripSubdetector::TOB)||(summaryhist_it->first)/10==int(StripSubdetector::TEC)){
-	gStyle->SetOptFit(111);
-	thesummaryProfile->Fit("fitfunc",fit_r,"",TOBRangeMin, TOBRangeMax);
-	}
+      if ((summaryhist_it->first)/10==int (StripSubdetector::TIB)||(summaryhist_it->first)/10==int (StripSubdetector::TID))
+	fitresult=thesummaryProfile->Fit(fitfunc,"N","",TIBRangeMin, TIBRangeMax);
+      else if ((summaryhist_it->first)/10==int (StripSubdetector::TOB)||(summaryhist_it->first)/10==int (StripSubdetector::TEC))
+	fitresult=thesummaryProfile->Fit(fitfunc,"N","",TOBRangeMin, TOBRangeMax);
       //if(fitresult==0){
 	histofit * summaryfit=new histofit;
 	summaryfits[summaryhist_it->first] = summaryfit;
@@ -831,14 +815,19 @@ void SiStripLAProfileBooker::endJob(){
   
   ofstream fit;
   fit.open(fitName.c_str());
-   
+  
+  //  fit<<">>> ANALYZED RUNS = ";
+  //for(int n=0;n!=runcounter;n++){
+    //fit<<runvector[n]<<", ";}
+  //fit<<endl;
+  
   fit<<">>> TOTAL EVENTS = "<<eventcounter<<std::endl;
   
   fit<<">>> NUMBER OF TRACJECTORIES = "<<trajcounter<<std::endl;
   
   fit<<">>> WORSE DOUBLE HITS = "<<worse_double_hit<<std::endl;
   
-  fit<<">>> BETTER DOUBLE HITS (not substitued in the tree !!!) = "<<better_double_hit<<std::endl;
+  fit<<">>> BETTER DOUBLE HITS (not substitued in the tree) = "<<better_double_hit<<std::endl;
   
   fit<<">>> NUMBER OF RECHITS = "<<hitcounter<<std::endl;
   

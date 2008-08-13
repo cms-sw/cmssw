@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/07/07 12:46:40 $
- *  $Revision: 1.26 $
+ *  $Date: 2008/04/16 10:48:26 $
+ *  $Revision: 1.22 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -15,17 +15,19 @@
 #include <FWCore/Framework/interface/Event.h>
 #include "DataFormats/Common/interface/Handle.h" 
 #include <FWCore/Framework/interface/ESHandle.h>
+#include <FWCore/Framework/interface/MakerMacros.h>
 #include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 
 
 // Geometry
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
-#include "Geometry/DTGeometry/interface/DTChamber.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
+#include "Geometry/DTGeometry/interface/DTLayer.h"
+#include "Geometry/DTGeometry/interface/DTTopology.h"
 
-
-
+#include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
+#include "CondFormats/DTObjects/interface/DTStatusFlag.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -361,13 +363,7 @@ void DTResolutionTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventS
 void DTResolutionTest::endJob(){
 
   edm::LogVerbatim ("resolution") << "[DTResolutionTest] endjob called!";
-  //dbe->rmdir("DT/DTCalibValidation");
-  //dbe->rmdir("DT/Tests/DTResolution");
-  bool outputMEsInRootFile = parameters.getParameter<bool>("OutputMEsInRootFile");
-  if(outputMEsInRootFile){
-	std::string outputFileName = parameters.getParameter<std::string>("OutputFileName");
-	dbe->save(outputFileName,"DT/Tests");	
-  }	
+  dbe->rmdir("DT/Tests/DTResolution");
 
 }
 

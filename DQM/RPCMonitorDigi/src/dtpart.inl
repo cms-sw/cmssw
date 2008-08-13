@@ -7,10 +7,8 @@ edm::Handle<DTRecSegment4DCollection> all4DSegments;
 iEvent.getByLabel(dt4DSegments, all4DSegments);
 
 if(all4DSegments->size()>0){
-  statistics->Fill(2);
-  std::cout<<"\t Number of Segments in this event = "<<all4DSegments->size()<<std::endl; 
-  statistics->Fill(all4DSegments->size()+2);
-
+  std::cout<<"\t Number of Segments in this event = "<<all4DSegments->size()<<std::endl;
+  
   std::map<DTChamberId,int> scounter;
   DTRecSegment4DCollection::const_iterator segment;  
   
@@ -131,21 +129,7 @@ if(all4DSegments->size()>0){
 	      RPCGeomServ rpcsrv(rollId);
 	      std::string nameRoll = rpcsrv.name();
 	      std::cout<<"\t \t \t \t The RPCName is "<<nameRoll<<std::endl;
-	      //if(_idList.at(nameRoll)==null) 
-	      bool deja=false;
-	      std::vector<std::string>::iterator meIt;
-	      for(meIt = _idList.begin(); meIt != _idList.end(); ++meIt){
-		if(*meIt==nameRoll){ 
-		  deja=true;
-		  break;
-		}
-	      }
-	      if(!deja){
-		std::cout<<"\t \t \t \t NOT Found in Id List!"<<nameRoll<<std::endl;
-		_idList.push_back(nameRoll);
-		std::cout<<"\t \t \t \t Filling Id List with "<<nameRoll<<std::endl;
-		std::cout<<"\t \t \t \t Id List Size "<<_idList.size()<<std::endl;
-	      }
+	      _idList.push_back(nameRoll);
 		
 	      char detUnitLabel[128];
 	      sprintf(detUnitLabel ,"%s",nameRoll.c_str());
@@ -189,13 +173,6 @@ if(all4DSegments->size()>0){
 		  stripCounter++;
 		}
 		std::cout<<"\t \t \t \t \t \t digi "<<*digiIt<<"\t Detected="<<stripDetected<<" Predicted="<<stripPredicted<<" tmpRes(strips)="<<fabs((float)stripDetected-stripPredicted)<<"\t SumStrip= "<<sumStripDetected<<std::endl;
-		
-		std::cout<<"\t \t \t \t \t \t Filling BX Distribution"<<std::endl;
-		sprintf(meIdRPC,"BXDistribution_%s",detUnitLabel);
-		meMap[meIdRPC]->Fill(digiIt->bx());
-		
-		sprintf(meIdRPC,"RealDetectedOccupancyFromDT_%s",detUnitLabel);
-		meMap[meIdRPC]->Fill(stripDetected); //have a look to this!
 	      }
 	      
 	      std::cout<<"\t \t \t \t \t Sum of strips "<<sumStripDetected<<std::endl;
@@ -221,18 +198,24 @@ if(all4DSegments->size()>0){
 		  std::cout<<"\t \t \t \t \t Filling the Global Histogram with= "<<meanrescms<<std::endl;
 		  //if(rollId.layer()==1&&rollId.station()==1&&rollId.ring()==0) 
 		  hGlobalRes->Fill(meanrescms);
-		  if(rollId.station()==1&&rollId.layer()==1){ hGlobalResLa1->Fill(meanrescms); hGlobalYResLa1->Fill(meanrescmsY); if(stripCounter==2) hGlobalResClu1La1->Fill(meanrescms); if(stripCounter==4) hGlobalResClu2La1->Fill(meanrescms); if(stripCounter==6) hGlobalResClu3La1->Fill(meanrescms);}
-		  if(rollId.station()==1&&rollId.layer()==2){ hGlobalResLa2->Fill(meanrescms); hGlobalYResLa2->Fill(meanrescmsY); if(stripCounter==2) hGlobalResClu1La2->Fill(meanrescms); if(stripCounter==4) hGlobalResClu2La2->Fill(meanrescms); if(stripCounter==6) hGlobalResClu3La2->Fill(meanrescms);}
-		  if(rollId.station()==2&&rollId.layer()==1){ hGlobalResLa3->Fill(meanrescms); hGlobalYResLa3->Fill(meanrescmsY); if(stripCounter==2) hGlobalResClu1La3->Fill(meanrescms); if(stripCounter==4) hGlobalResClu2La3->Fill(meanrescms); if(stripCounter==6) hGlobalResClu3La3->Fill(meanrescms);}
-		  if(rollId.station()==2&&rollId.layer()==2){ hGlobalResLa4->Fill(meanrescms); hGlobalYResLa4->Fill(meanrescmsY); if(stripCounter==2) hGlobalResClu1La4->Fill(meanrescms); if(stripCounter==4) hGlobalResClu2La4->Fill(meanrescms); if(stripCounter==6) hGlobalResClu3La4->Fill(meanrescms);}
-		  if(rollId.station()==3)                   { hGlobalResLa5->Fill(meanrescms); hGlobalYResLa5->Fill(meanrescmsY); if(stripCounter==2) hGlobalResClu1La5->Fill(meanrescms); if(stripCounter==4) hGlobalResClu2La5->Fill(meanrescms); if(stripCounter==6) hGlobalResClu3La5->Fill(meanrescms);}
+		  if(rollId.station()==1&&rollId.layer()==1){ hGlobalResLa1->Fill(meanrescms); if(stripCounter==2) hGlobalResClu1La1->Fill(meanrescms); if(stripCounter==6) hGlobalResClu3La1->Fill(meanrescms); }
+		  if(rollId.station()==1&&rollId.layer()==2){ hGlobalResLa2->Fill(meanrescms); if(stripCounter==2) hGlobalResClu1La2->Fill(meanrescms); if(stripCounter==6) hGlobalResClu3La2->Fill(meanrescms);}
+		  if(rollId.station()==2&&rollId.layer()==1){ hGlobalResLa3->Fill(meanrescms); if(stripCounter==2) hGlobalResClu1La3->Fill(meanrescms); if(stripCounter==6) hGlobalResClu3La3->Fill(meanrescms); }
+		  if(rollId.station()==2&&rollId.layer()==2){ hGlobalResLa4->Fill(meanrescms); if(stripCounter==2) hGlobalResClu1La4->Fill(meanrescms); if(stripCounter==6) hGlobalResClu3La4->Fill(meanrescms);}
+		  if(rollId.station()==3){ hGlobalResLa5->Fill(meanrescms); if(stripCounter==2) hGlobalResClu1La5->Fill(meanrescms);if(stripCounter==6) hGlobalResClu3La5->Fill(meanrescms); }
 		  
+		  if(rollId.layer()==1&&rollId.station()==1&&rollId.ring()==0&&stripCounter==2) hGlobalResClu1->Fill(meanrescms);
+		  if(rollId.layer()==1&&rollId.station()==1&&rollId.ring()==0&&stripCounter==4) hGlobalResClu2->Fill(meanrescms);
+		  if(rollId.layer()==1&&rollId.station()==1&&rollId.ring()==0&&stripCounter==6) hGlobalResClu3->Fill(meanrescms);
+		  if(rollId.layer()==1&&rollId.station()==1&&rollId.ring()==0&&stripCounter==8) hGlobalResClu4->Fill(meanrescms);
+
 		  hGlobalResY->Fill(meanrescmsY);
 		  //--------------------------------
 		
 		  sprintf(meIdRPC,"RPCResidualsFromDT_%s",detUnitLabel);
-		  meMap[meIdRPC]->Fill(meanrescms);
 
+		  meMap[meIdRPC]->Fill(meanrescms);
+		  
 		  sprintf(meIdRPC,"RPCResiduals2DFromDT_%s",detUnitLabel);
 		  meMap[meIdRPC]->Fill(meanrescms,Y);
 		  
@@ -243,6 +226,9 @@ if(all4DSegments->size()>0){
 		  buff=counter[1];
 		  buff[rollId]++;
 		  counter[1]=buff;
+		  
+		  sprintf(meIdRPC,"RealDetectedOccupancyFromDT_%s",detUnitLabel);
+		  meMap[meIdRPC]->Fill(meanStripDetected); //have a look to this!
 		  
 		  sprintf(meIdRPC,"RPCDataOccupancyFromDT_%s",detUnitLabel);
 		  meMap[meIdRPC]->Fill(stripPredicted);

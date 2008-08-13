@@ -35,7 +35,7 @@
 #include "DataFormats/JetReco/interface/PFJet.h"
 //#include "DataFormats/TauReco/interface/CaloTau.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
-#include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
+
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauDiscriminatorByIsolation.h"
 
@@ -84,9 +84,7 @@ private:
   std::string dataType_;
   std::string outputhistograms_;
   std::string PFTauProducer_;
-  std::string PFTauDiscriminatorAgainstElectronProducer_;
-  std::string PFTauDiscriminatorAgainstMuonProducer_;
-
+  std::string PFTauDiscriminatorByIsolationProducer_;
   std::string tversion;
 
   // MonteCarlo Taus -- to see what kind of Taus do we originally have!
@@ -159,19 +157,6 @@ private:
   MonitorElement* N_1_GammasIsolAnnulus_;          
   MonitorElement* N_1_NeutralHadronsSignal_;	 
   MonitorElement* N_1_NeutralHadronsIsolAnnulus_;
-
-  // Discrimination against electrons
-  MonitorElement* nElectronRejection_ptTauJet_;     
-  MonitorElement* nElectronRejection_etaTauJet_;     
-  MonitorElement* nElectronRejection_phiTauJet_;     
-  MonitorElement* nElectronRejection_energyTauJet_;
-
-  // Discrimination against muon
-  MonitorElement* nMuonRejection_ptTauJet_;     
-  MonitorElement* nMuonRejection_etaTauJet_;     
-  MonitorElement* nMuonRejection_phiTauJet_;     
-  MonitorElement* nMuonRejection_energyTauJet_;
-
  
   // book-keeping variables
 

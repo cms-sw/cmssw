@@ -14,9 +14,6 @@
 <use name=CondFormats/L1TObjects>
 <use name=CondFormats/DataRecord>
 <use name=clhep>
-<use name=DataFormats/JetReco>
-<use name=DataFormats/EgammaCandidates>
-<use name=DataFormats/HepMCCandidate>
 
 <export>
 <lib name=L1TriggerRegionalCaloTrigger>
@@ -34,8 +31,5 @@
 <use name=CalibCalorimetry/EcalTPGTools>
 <use name=CondFormats/L1TObjects>
 <use name=CondFormats/DataRecord>
-<use name=DataFormats/JetReco>
-<use name=DataFormats/EgammaCandidates>
-<use name=DataFormats/HepMCCandidate>
 <use name=clhep>
 </export>

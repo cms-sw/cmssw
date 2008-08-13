@@ -7,7 +7,7 @@
 //
 // Original Author:  Fabian Stoeckli
 //         Created:  Tue Nov 14 13:43:02 CET 2006
-// $Id: ZeeAnalyzer.cc,v 1.6 2007/03/21 15:08:40 fabstoec Exp $
+// $Id: ZeeAnalyzer.cc,v 1.5 2007/03/14 16:51:32 fabstoec Exp $
 //
 //
 
@@ -20,12 +20,24 @@
 #include "ZeeAnalyzer.h"
 
 
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
 
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/Math/interface/LorentzVector.h"
 
+#include "HepMC/WeightContainer.h"
+#include "HepMC/GenEvent.h"
+#include "HepMC/GenParticle.h"
 
+#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
+#include "TH1D.h"
+#include "TFile.h"
 
 
 

@@ -13,7 +13,7 @@
 //
 // Original Author:  Sridhara Dasu
 //         Created:  Mon Jul 16 23:48:35 CEST 2007
-// $Id: RCTConfigProducers.cc,v 1.9 2008/05/15 18:49:07 wsun Exp $
+// $Id: RCTConfigProducers.cc,v 1.8 2008/05/13 23:53:52 jleonard Exp $
 //
 //
 
@@ -92,17 +92,10 @@ RCTConfigProducers::RCTConfigProducers(const edm::ParameterSet& iConfig)
 			 iConfig.getParameter<bool>("noiseVetoHB"),
 			 iConfig.getParameter<bool>("noiseVetoHEplus"),
 			 iConfig.getParameter<bool>("noiseVetoHEminus"),
-			 iConfig.getParameter<bool>("useCorrectionsLindsey"),
 			 iConfig.getParameter<std::vector< double > >("eGammaECalScaleFactors"),
                          iConfig.getParameter<std::vector< double > >("eGammaHCalScaleFactors"),
                          iConfig.getParameter<std::vector< double > >("jetMETECalScaleFactors"),
-                         iConfig.getParameter<std::vector< double > >("jetMETHCalScaleFactors"),
-			 iConfig.getParameter<std::vector< double > >("ecal_calib_Lindsey"),
-                         iConfig.getParameter<std::vector< double > >("hcal_calib_Lindsey"),
-                         iConfig.getParameter<std::vector< double > >("hcal_high_calib_Lindsey"),
-                         iConfig.getParameter<std::vector< double > >("cross_terms_Lindsey"),
-			 iConfig.getParameter<std::vector< double > >("HoverE_low_Lindsey"),
-			 iConfig.getParameter<std::vector< double > >("HoverE_high_Lindsey")
+                         iConfig.getParameter<std::vector< double > >("jetMETHCalScaleFactors")
 			 );
 
    // value of true if channel is masked, false if not masked

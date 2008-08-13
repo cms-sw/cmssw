@@ -1,6 +1,6 @@
 
 #include "GeneratorInterface/BeamHaloGenerator/interface/BeamHaloSource.h"
-#include "GeneratorInterface/BeamHaloGenerator/interface/PYR.h"
+
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -82,7 +82,6 @@ BeamHaloSource::BeamHaloSource( const ParameterSet & pset,
 
 // -- Seed for randomnumbers
     Service<RandomNumberGenerator> rng;
-    randomEngine = &(rng->getEngine());
     long seed = (long)(rng->mySeed());
 
 

@@ -63,7 +63,7 @@ bool LASProfileJudge::JudgeProfile( const LASModuleProfile& aProfile, int offset
   double negativity = GetNegativity( offset );
 
   bool isPeaks;
-  if( !isZeroFilter ) isPeaks = true; // disable this test if set in cfg
+  if( isZeroFilter ) isPeaks = true; // disable this test if set in cfg
   else isPeaks = IsPeaksInProfile( offset );
 
   bool isNegativePeaks = IsNegativePeaksInProfile( offset );
@@ -85,10 +85,6 @@ bool LASProfileJudge::JudgeProfile( const LASModuleProfile& aProfile, int offset
 /// toggle the zero filter (passed from cfg file)
 ///
 void LASProfileJudge::EnableZeroFilter( bool zeroFilter ) {
-
-  if( !zeroFilter ) {
-    std::cerr << " [LASProfileJudge::EnableZeroFilter] ** WARNING: Zero filter has been disabled." << std::endl;
-  }
 
   isZeroFilter = zeroFilter;
 

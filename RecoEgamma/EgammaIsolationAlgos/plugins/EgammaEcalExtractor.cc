@@ -17,6 +17,8 @@
 #include "RecoEgamma/EgammaIsolationAlgos/plugins/EgammaEcalExtractor.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 
+using namespace ROOT::Math::VectorUtil ;
+
 using namespace egammaisolation;
 using namespace reco::isodeposit;
 
@@ -46,7 +48,7 @@ reco::IsoDeposit EgammaEcalExtractor::deposit(const edm::Event & ev, const edm::
     const reco::SuperCluster *supercluster = &(*scItr);
    
     if(supercluster->seed()->algo() == 0){
-      deltacur = ROOT::Math::VectorUtil::DeltaR(supercluster->position(), position); 
+      deltacur = DeltaR(supercluster->position(), position); 
       if (deltacur < delta1) {
         delta1=deltacur;
 	matchedsupercluster = supercluster;
@@ -82,7 +84,7 @@ reco::IsoDeposit EgammaEcalExtractor::deposit(const edm::Event & ev, const edm::
 	    }
 	  }
 	  if (!inSuperCluster || !scmatch_ ) {  //skip selection if user wants to fill all superclusters
-	    newDelta=ROOT::Math::VectorUtil::DeltaR(cluster->position(),position);
+	    newDelta=DeltaR(cluster->position(),position);
 	    if(newDelta < conesize_) {
               deposit.addDeposit( Direction(cluster->eta(), cluster->phi()), ebc_bcet);
 	    }

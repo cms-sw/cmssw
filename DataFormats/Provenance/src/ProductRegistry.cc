@@ -58,7 +58,6 @@ namespace edm {
       productList_.insert(std::make_pair(k, productDesc));
     } else {
       assert(combinable(iter->second, productDesc));
-      iter->second.setPresent(iter->second.present() || productDesc.present());
       iter->second.merge(productDesc);
     }
   }

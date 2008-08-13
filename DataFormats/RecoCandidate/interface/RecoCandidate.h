@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: RecoCandidate.h,v 1.24 2007/10/29 08:19:57 llista Exp $
+ * \version $Id: RecoCandidate.h,v 1.23 2007/10/29 02:12:26 elmer Exp $
  *
  */
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
@@ -52,8 +52,6 @@ namespace reco {
     virtual CaloTowerRef caloTower() const;
     /// best track pointer
     const Track * bestTrack() const;
-    /// best track RefToBase
-    TrackBaseRef bestTrackRef() const;
     /// track type
     enum TrackType { noTrackType, recoTrackType, gsfTrackType };
     ///track type

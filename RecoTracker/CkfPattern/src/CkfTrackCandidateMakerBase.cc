@@ -116,11 +116,6 @@ namespace cms{
 
     // set the correct navigation
     NavigationSetter setter( *theNavigationSchool);
-    
-    // propagator
-    edm::ESHandle<Propagator> thePropagator;
-    es.get<TrackingComponentsRecord>().get("AnyDirectionAnalyticalPropagator",
-					   thePropagator);
 
     // method for Debugging
     printHitsDebugger(e);
@@ -223,24 +218,15 @@ namespace cms{
 	 //PTrajectoryStateOnDet state = *(it->seed().startingState().clone());
 	 std::pair<TrajectoryStateOnSurface, const GeomDet*> initState = 
 	   theInitialState->innerState( *it);
-
+      
 	 // temporary protection againt invalid initial states
 	 if (! initState.first.isValid() || initState.second == 0) {
 	   //cout << "invalid innerState, will not make TrackCandidate" << endl;
 	   continue;
 	 }
-	 
-	 PTrajectoryStateOnDet* state =0 ;
-	 if(useSplitting && (initState.second != thits.front()->det()) ){	 
-	   state = TrajectoryStateTransform().persistentState(
-							      thePropagator->propagate(initState.first,
-										       thits.front()->det()->surface()),
-							      thits.front()->det()->geographicalId().rawId());
-	 }
-	 
-	 if(!state) state = TrajectoryStateTransform().persistentState( initState.first,
-									initState.second->geographicalId().rawId());
-	 
+
+	 PTrajectoryStateOnDet* state = TrajectoryStateTransform().persistentState( initState.first,
+										    initState.second->geographicalId().rawId());
 	 
 	 output->push_back(TrackCandidate(recHits,it->seed(),*state,it->seedRef() ) );
 	 
@@ -297,7 +283,6 @@ namespace cms{
     // Step G: write output to file
     if (theTrackCandidateOutput){ e.put(output);}
     if (theTrajectoryOutput){e.put(outputT);}
-
   }
 }
 

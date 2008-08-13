@@ -30,25 +30,11 @@ CSCSummary::CSCSummary() {
 }
 
 /**
- * @brief  Destructor
- * @param  
- * @return 
- */
-CSCSummary::~CSCSummary() {
-  // Lets delete masked elements
-  for (unsigned int r = 0; r < masked.size(); r++) { 
-    delete (CSCAddress*) masked.at(r);
-  }
-}
-
-/**
  * @brief  Resets all detector map
  * @return 
  */
 void CSCSummary::Reset() {
   CSCAddress adr;
-
-  // Setting Zeros (no data) for each HW element (and beyond)
   adr.mask.side = adr.mask.station = adr.mask.layer = false;
   adr.mask.ring = adr.mask.chamber = adr.mask.cfeb = adr.mask.hv = true;
   for (adr.ring = 1; adr.ring <= N_RINGS; adr.ring++) { 
@@ -79,82 +65,10 @@ void CSCSummary::ReadReportingChambers(TH2*& h2, const double threshold) {
       for(unsigned int y = 1; y <= 18; y++) {
         z = h2->GetBinContent(x, y);
         if(ChamberCoords(x, y, adr)) {
-          if(z >= threshold) {
-            SetValue(adr, 1);
-          } else {
-            SetValue(adr, 0);
-          }
+          SetValue(adr, (z >= threshold ? 1 : 0));
         }
       }
     }
-  }
-}
-
-/**
- * @brief  Read Reporting Chamber histogram and fill in detector map based on
- * reference histogram.
- * @param  h2 Histogram to read
- * @param  refh2 Reference histogram of hit occupancies
- * @param  eps_min Minimum tolerance of difference (rate)
- * @param  Sfail Significance threshold for failure report
- * @return 
- */
-void CSCSummary::ReadReportingChambersRef(TH2*& h2, TH2*& refh2, const double eps_min, const double Sfail) {
-
-  if(h2->GetXaxis()->GetXmin() <= 1 && h2->GetXaxis()->GetXmax() >= 36 &&
-     h2->GetYaxis()->GetXmin() <= 1 && h2->GetYaxis()->GetXmax() >= 18 &&
-     refh2->GetXaxis()->GetXmin() <= 1 && refh2->GetXaxis()->GetXmax() >= 36 &&
-     refh2->GetYaxis()->GetXmin() <= 1 && refh2->GetYaxis()->GetXmax() >= 18) {
-
-    // Rate Factor calculation
-    double num = 0.0, denum = 0.0;
-    for(unsigned int x = 1; x <= 36; x++) {
-      for(unsigned int y = 1; y <= 18; y++) {
-        num += refh2->GetBinContent(x, y);
-        if (h2->GetBinContent(x, y) > 0) {
-          denum += (refh2->GetBinContent(x, y) * refh2->GetBinContent(x, y)) / h2->GetBinContent(x, y);
-        }
-      }
-    }
-    double factor = num / denum, eps_meas = 0.0;
-
-    CSCAddress adr;
-    unsigned int N = 0, n = 0;
-    int val = 1;
-
-    for(unsigned int x = 1; x <= 36; x++) {
-      for(unsigned int y = 1; y <= 18; y++) {
-        N = int(refh2->GetBinContent(x, y) * factor);
-        n = int(h2->GetBinContent(x, y));
-        if(ChamberCoords(x, y, adr)) {
-          val = 1;
-          if (n == 0) {
-            val = 0;
-          } else if (N > 0) {
-            eps_meas = (1.0 * n) / (1.0 * N);
-            if (eps_meas < eps_min) {
-              if (SignificanceLevel(N, n, eps_min) > Sfail) {
-                val = -1;
-              }
-              LOGINFO("ReadReportingChambersRef") << "eps_min = " << eps_min << 
-                                                     ", Sfail = " << Sfail << 
-                                                     ", eps_meas = " << eps_meas << 
-                                                     ", N = " << N << 
-                                                     ", n = " << n << 
-                                                     ", S = " << SignificanceLevel(N, n, eps_min) << 
-                                                     ", value = " << val;
-            } else
-            if (eps_meas > 1.0) {
-              if (SignificanceLevelHot(N, n) > Sfail) {
-                val = -1;
-              }
-            }
-          }
-          SetValue(adr, val);
-        }
-      }
-    }
-
   }
 }
 
@@ -181,9 +95,9 @@ void CSCSummary::ReadErrorChambers(TH2*& evs, TH2*& err, const double eps_max, c
         N = int(evs->GetBinContent(x, y));
         n = int(err->GetBinContent(x, y));
         if(ChamberCoords(x, y, adr)) {
-          if(SignificanceLevel(N, n, eps_max) > Sfail) { 
-            //LOGINFO("ReadErrorChambers") << " N = " << N << ", n = " << n << ", Salpha = " << SignificanceLevel(N, n, eps_max, true);
-            SetValue(adr, -1);
+          if(SignificanceAlpha(N, n, eps_max) > Sfail) { 
+            //LOGINFO("ReadErrorChambers") << " N = " << N << ", n = " << n << ", Salpha = " << SignificanceAlpha(N, n, eps_max);
+            SetValue(adr, 0);
           }
         }
       }
@@ -213,8 +127,12 @@ void CSCSummary::Write(TH2*& h2, const unsigned int station) const {
 
     unsigned int x = 1 + (box->adr.side - 1) * 9 + (box->adr.ring - 1) * 3 + (box->adr.hv - 1);
     unsigned int y = 1 + (box->adr.chamber - 1) * 5 + (box->adr.cfeb - 1);
-    h2->SetBinContent(x, y, GetValue(box->adr));
 
+    if (GetValue(box->adr) > 0) {
+      h2->SetBinContent(x, y, 1.0);
+    } else {
+      h2->SetBinContent(x, y, 0.0);
+    }
   }
 
   TString title = Form("ME%d Status: Physics Efficiency %.2f", station, GetEfficiencyArea(adr));
@@ -335,9 +253,7 @@ void CSCSummary::SetValue(CSCAddress adr, const int value) {
       adr.ring > 0 && adr.ring <= N_RINGS && adr.chamber > 0 && adr.chamber <= N_CHAMBERS && 
       adr.layer > 0 && adr.layer <= N_LAYERS && adr.cfeb > 0 && adr.cfeb <= N_CFEBS && adr.hv > 0 && adr.hv <= N_HVS) {
 
-    if (map[adr.side - 1][adr.station - 1][adr.ring - 1][adr.chamber - 1][adr.layer - 1][adr.cfeb - 1][adr.hv - 1] != 2 ){
-      map[adr.side - 1][adr.station - 1][adr.ring - 1][adr.chamber - 1][adr.layer - 1][adr.cfeb - 1][adr.hv - 1] = value;
-    }
+    map[adr.side - 1][adr.station - 1][adr.ring - 1][adr.chamber - 1][adr.layer - 1][adr.cfeb - 1][adr.hv - 1] = value;
 
   }
 
@@ -386,14 +302,14 @@ const bool CSCSummary::IsPhysicsReady(const float xmin, const float xmax, const 
       //std::cout << "Respons: " << box->xmin << ", " << box->xmax << ", " << box->ymin << ", " << box->ymax << std::endl;
       //detector.PrintAddress(box->adr);
 
-      if (GetValue(box->adr) == 1) {
+      if (GetValue(box->adr) > 0) {
         sum++;
         break;
       }
 
     }
 
-    if (sum >= 2) return true;
+    if (sum > 1) return true;
 
   }
 
@@ -578,9 +494,7 @@ const double CSCSummary::GetReportingArea(CSCAddress adr) const {
 }
 /**
  * @brief  Get value of some address (address must be fully filled except layers! otherwise function returns 0) 
- * If layer is ommited then function returns 1 if at least two layers for the HW element are live. 
- * If layer is ommited then function returns -1 if at least two layers for the HW element are errorous. 
- * If layer is ommited then function returns 2 if at least two layers for the HW element are off. 
+ * If layer is ommited then function returns 1 if at least two layers for the HW element are active. 
  * @param  adr Address of atomic element to return value from
  * @return Value of the requested element
  */
@@ -601,50 +515,19 @@ const int CSCSummary::GetValue(const CSCAddress& adr) const {
       }
     } else {
       unsigned int n_live_layers = 0;
-      unsigned int n_err_layers  = 0;
-      unsigned int n_off_layers  = 0;
       for (unsigned int layer = 1; layer < N_LAYERS; layer++) {
-        int value = map[adr.side - 1][adr.station - 1][adr.ring - 1][adr.chamber - 1][layer - 1][adr.cfeb - 1][adr.hv - 1];
-        switch (value) {
-          case 1:
-            n_live_layers ++;
-            break;
-          case -1:
-            n_err_layers++;
-            break;
-          case 2:
-            n_off_layers++;
-            break;
+        if (map[adr.side - 1][adr.station - 1][adr.ring - 1][adr.chamber - 1][layer - 1][adr.cfeb - 1][adr.hv - 1] > 0) {
+          n_live_layers ++;
         }
       }
-
-      if (n_live_layers >= 2) return  1;
-      if (n_err_layers  >= 2) return -1;
-      if (n_off_layers  >= 2) return  2;
-
+      if (n_live_layers >= 2) {
+        return 1;
+      }
     }
   }
 
   return 0;
 
-}
-
-/**
- * @brief  Read HW element masks (strings), create Address and apply to detector map
- * @param  tokens Vector of mask strings
- * @return number of read and applied masks
- */
-const unsigned int CSCSummary::setMaskedHWElements(std::vector<std::string>& tokens) {
-  unsigned int applied = 0;
-  for (unsigned int r = 0; r < tokens.size(); r++) {
-    std::string token = (std::string) tokens.at(r);
-    CSCAddress adr;
-    if (detector.AddressFromString(token, adr)) {
-      SetValue(adr, 2);
-      applied++; 
-    }
-  }
-  return applied;
 }
 
 /**
@@ -708,45 +591,29 @@ const bool CSCSummary::ChamberCoords(const unsigned int x, const unsigned int y,
 }
 
 /**
- * @brief  Calculate error significance alpha for the given number of errors
+ * @brief  Calculate error significance for the given number of errors
  * @param  N Number of events
  * @param  n Number of errors
- * @param  eps Rate of tolerance
+ * @param  eps_max Maximum rate of tolerance
  * @return Significance level
  */
-const double CSCSummary::SignificanceLevel(const unsigned int N, const unsigned int n, const double eps) const {
+const double CSCSummary::SignificanceAlpha(const unsigned int N, const unsigned int n, const double eps_max) const {
 
-  double l_eps = eps;
-  if (l_eps <= 0.0) l_eps = 0.000001;
-  if (l_eps >= 1.0) l_eps = 0.999999;
+  double l_eps_max = eps_max;
+  if (l_eps_max <= 0.0) l_eps_max = 0.000001;
+  if (l_eps_max >= 1.0) l_eps_max = 0.999999;
 
   double eps_meas = (1.0 * n) / (1.0 * N);
   double a = 1.0, b = 1.0;
 
   if (n > 0) {
-    for (unsigned int r = 0; r < n; r++) a = a * (eps_meas / l_eps);
+    for (unsigned int r = 0; r < n; r++) a = a * (eps_meas / l_eps_max);
   }
 
   if (n > 0 && n < N) {
-    for (unsigned int r = 0; r < (N - n); r++) b = b * (1 - eps_meas) / (1 - l_eps);
+    for (unsigned int r = 0; r < (N - n); r++) b = b * (1 - eps_meas) / (1 - l_eps_max);
   }
 
   return sqrt(2.0 * log(a * b));
 
 }
-
-/**
- * @brief  Calculate error significance alpha for the given number of events
- * based on reference number of errors for "hot" elements: actual number of
- * events have to be larger then the reference.
- * @param  N number of reference events
- * @param  n number of actual events
- * @return error significance
- */
-const double CSCSummary::SignificanceLevelHot(const unsigned int N, const unsigned int n) const {
-  if (N > n) return 0.0;
-  // no - n observed, ne - n expected
-  double no = 1.0 * n, ne = 1.0 * N;
-  return sqrt(2.0 * (no * (log(no / ne) - 1) + ne));
-}
-

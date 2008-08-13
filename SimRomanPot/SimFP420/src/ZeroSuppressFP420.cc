@@ -6,16 +6,16 @@
 ///////////////////////////////////////////////////////////////////////////////
 #include "SimRomanPot/SimFP420/interface/ZeroSuppressFP420.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+//#define mydigidebug9
 
 ZeroSuppressFP420::ZeroSuppressFP420(const edm::ParameterSet& conf, float noise) : conf_(conf), theNumFEDalgos(4)
 {
   noiseInAdc=noise;
   initParams(conf_);
-  verbosity = conf_.getUntrackedParameter<int>("VerbosityLevel");
   //initParams();
-  if(verbosity>0) {
-    std::cout << "ZeroSuppressFP420: constructor: noiseInAdc=  " << noiseInAdc << std::endl;
-  }
+#ifdef mydigidebug9
+   std::cout << "ZeroSuppressFP420: constructor: noiseInAdc=  " << noiseInAdc << std::endl;
+#endif
 }
 
 /*
@@ -23,31 +23,31 @@ ZeroSuppressFP420::ZeroSuppressFP420(const edm::ParameterSet& conf, float noise)
  * The class publically inherits from the ZSuppressFP420 class, which requires 
  * the use of a method named zeroSuppress.
  */
-
+ 
 void ZeroSuppressFP420::initParams(edm::ParameterSet const& conf_)
 {
   verbosity = conf_.getUntrackedParameter<int>("VerbosityLevel");
   algoConf      = conf_.getParameter<int>("FedFP420Algorithm"); //FedFP420Algorithm: =1  (,2,3,4)
   lowthreshConf      = conf_.getParameter<double>("FedFP420LowThreshold"); // FedFP420LowThreshold  =3.
   highthreshConf      = conf_.getParameter<double>("FedFP420HighThreshold"); // FedFP420HighThreshold  =4.
-  
-  /*
-   * There are four possible algorithms, the default of which (4)
-   * has different thresholds for isolated channels and ones in clusters.
-   * It also merges clusters (single or multi channels) that are only separated
-   * by one hole. This channel is selected as signal even though it is below
-   * both thresholds.
-   */
-  
+
+/*
+ * There are four possible algorithms, the default of which (4)
+ * has different thresholds for isolated channels and ones in clusters.
+ * It also merges clusters (single or multi channels) that are only separated
+ * by one hole. This channel is selected as signal even though it is below
+ * both thresholds.
+ */
+ 
   theFEDalgorithm  = algoConf;
   theFEDlowThresh  = lowthreshConf * noiseInAdc;
   theFEDhighThresh = highthreshConf * noiseInAdc;
-  
+
   if(verbosity>0) {
-    std::cout << "ZeroSuppressFP420: initParams: !!!  theFEDalgorithm=  " << theFEDalgorithm << std::endl;
-    std::cout << " lowthreshConf=  " << lowthreshConf << " highthreshConf=  " << highthreshConf << " theFEDlowThresh=  " << theFEDlowThresh << " theFEDhighThresh=  " << theFEDhighThresh << std::endl;
+   std::cout << "ZeroSuppressFP420: initParams: !!!  theFEDalgorithm=  " << theFEDalgorithm << std::endl;
+   std::cout << " lowthreshConf=  " << lowthreshConf << " highthreshConf=  " << highthreshConf << " theFEDlowThresh=  " << theFEDlowThresh << " theFEDhighThresh=  " << theFEDhighThresh << std::endl;
   }
-  
+
   //Check zero suppress algorithm
   if (theFEDalgorithm < 1 || theFEDalgorithm > theNumFEDalgos) {
     edm::LogError("FP420DigiInfo")<<"ZeroSuppressFP420 FATAL ERROR: Unknown zero suppress algorithm "<<theFEDalgorithm;
@@ -61,36 +61,37 @@ void ZeroSuppressFP420::initParams(edm::ParameterSet const& conf_)
   }
 }
 
-ZSuppressFP420::DigitalMapType ZeroSuppressFP420::zeroSuppress(const DigitalMapType& notZeroSuppressedMap,int vrb)
+//Zero suppress method, which called the ZeroSuppressFP420::trkFEDclusterizer
+ZSuppressFP420::DigitalMapType ZeroSuppressFP420::zeroSuppress(const DigitalMapType& notZeroSuppressedMap)
 {
-  return trkFEDclusterizer(notZeroSuppressedMap, vrb); 
-  if(vrb>0) {
-    std::cout << "zeroSuppress: return trkFEDclusterizer(notZeroSuppressedMap)" << std::endl;
-  }
+  
+  return trkFEDclusterizer(notZeroSuppressedMap); 
+#ifdef mydigidebug9
+   std::cout << "zeroSuppress: return trkFEDclusterizer(notZeroSuppressedMap)" << std::endl;
+#endif
 }
 
 //This performs the zero suppression
-ZSuppressFP420::DigitalMapType ZeroSuppressFP420::trkFEDclusterizer(const DigitalMapType &in, int vrb) 
+ZSuppressFP420::DigitalMapType ZeroSuppressFP420::trkFEDclusterizer(const DigitalMapType &in) 
 {
   const string s2("ZeroSuppressFP420::trkFEDclusterizer1");
   
   DigitalMapType selectedSignal;
   register DigitalMapType::const_iterator i, iPrev, iNext, iPrev2, iNext2;
   
-  if(vrb>0) {
-    std::cout << "Before For loop" << std::endl;
-  }
-  
+#ifdef mydigidebug9
+   std::cout << "Before For loop" << std::endl;
+#endif
   for (i = in.begin(); i != in.end(); i++) {
-    
+  
     //Find adc values for neighbouring strips
     int strip = i->first;
     int adc   = i->second;
     iPrev  = in.find(strip - 1);
     iNext  = in.find(strip + 1);
-    if(vrb>0) {
-      std::cout << "Inside For loop trkFEDclusterizer: strip= " << strip << " adc= " << adc << std::endl;
-    }
+#ifdef mydigidebug9
+   std::cout << "Inside For loop trkFEDclusterizer: strip= " << strip << " adc= " << adc << std::endl;
+#endif
     //Set values for channels just outside module to infinity.
     //This is to avoid losing channels at the edges, 
     //which otherwise would pass cuts if strips were next to each other.
@@ -102,10 +103,10 @@ ZSuppressFP420::DigitalMapType ZeroSuppressFP420::trkFEDclusterizer(const Digita
     if ( iPrev  != in.end() ) adcPrev  = iPrev->second;
     if ( iNext  != in.end() ) adcNext  = iNext->second;
     int adcMaxNeigh = max(adcPrev, adcNext);
-    if(vrb>0) {
-      std::cout << "adcPrev= " << adcPrev << " adcNext= " << adcNext << " adcMaxNeigh= " << adcMaxNeigh << std::endl;
-    }
-    
+#ifdef mydigidebug9
+   std::cout << "adcPrev= " << adcPrev << " adcNext= " << adcNext << " adcMaxNeigh= " << adcMaxNeigh << std::endl;
+#endif
+     
     //Find adc values for next neighbouring channes
     iPrev2 = in.find(strip - 2); 
     iNext2 = in.find(strip + 2);
@@ -116,19 +117,18 @@ ZSuppressFP420::DigitalMapType ZeroSuppressFP420::trkFEDclusterizer(const Digita
     if ( ((strip)%128) == 1)   adcPrev2 = 99999; 
     if ( iPrev2 != in.end() ) adcPrev2 = iPrev2->second; 
     if ( iNext2 != in.end() ) adcNext2 = iNext2->second; 
-    
-    if(vrb>0) {
-      std::cout << "adcPrev2= " << adcPrev2 << " adcNext2= " << adcNext2 << std::endl;
-      std::cout << "To be accepted or not?  adc= " << adc << " >= theFEDlowThresh=" << theFEDlowThresh << std::endl;
-    }
+#ifdef mydigidebug9
+   std::cout << "adcPrev2= " << adcPrev2 << " adcNext2= " << adcNext2 << std::endl;
+   std::cout << "To be accepted or not?  adc= " << adc << " >= theFEDlowThresh=" << theFEDlowThresh << std::endl;
+#endif
     // Decide if this channel should be accepted.
     bool accept = false;
     switch (theFEDalgorithm) {
-      
+ 
     case 1: 
       accept = (adc >= theFEDlowThresh);
       break;
-      
+
     case 2:
       accept = (adc >= theFEDhighThresh || (adc >= theFEDlowThresh && 
 					    adcMaxNeigh >= theFEDlowThresh));
@@ -138,7 +138,7 @@ ZSuppressFP420::DigitalMapType ZeroSuppressFP420::trkFEDclusterizer(const Digita
       accept = (adc >= theFEDhighThresh || (adc >= theFEDlowThresh && 
 					    adcMaxNeigh >= theFEDhighThresh));
       break;
-      
+
     case 4:
       accept = ((adc >= theFEDhighThresh) ||           //Test for adc>highThresh (same as algorithm 2)
                 ((adc >= theFEDlowThresh) &&           //Test for adc>lowThresh, with neighbour adc>lowThresh (same as algorithm 2)
@@ -158,24 +158,22 @@ ZSuppressFP420::DigitalMapType ZeroSuppressFP420::trkFEDclusterizer(const Digita
 		   (adcPrev2 >= theFEDlowThresh)))));
       break;
     }
-    
-    /*
-     * When a channel satisfying only the lower threshold is at the edge of an APV or module, 
-     * the trkFEDclusterizer method assumes that every channel just outside an APV or module has a hit on it.
-     * This is to avoid channel inefficiencies at the edges of APVs and modules.   
-     */
+
+/*
+ * When a channel satisfying only the lower threshold is at the edge of an APV or module, 
+ * the trkFEDclusterizer method assumes that every channel just outside an APV or module has a hit on it.
+ * This is to avoid channel inefficiencies at the edges of APVs and modules.   
+ */
     if (accept) {   
       selectedSignal[strip] = adc;
-      
-      if(vrb>0) {
-	std::cout << "selected strips = " << strip << " adc= " << adc << std::endl;
-      }
+#ifdef mydigidebug9
+   std::cout << "selected strips = " << strip << " adc= " << adc << std::endl;
+#endif
     }  
   }
-  
-  if(vrb>0) {
-    std::cout << "last line of trkFEDclusterizer: return selectedSignal" << std::endl;
-  }
+#ifdef mydigidebug9
+   std::cout << "last line of trkFEDclusterizer: return selectedSignal" << std::endl;
+#endif
   return selectedSignal;
 }
 

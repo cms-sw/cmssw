@@ -243,6 +243,24 @@ ALCARECOStreamTkAlCosmics0THLT = cms.FilteredStream(
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
+ALCARECOStreamMuAlStandAloneCosmics = cms.FilteredStream(
+	responsible = 'Jim Pivarski',
+	name = 'ALCARECOMuAlStandAloneCosmics',
+	paths  = (pathALCARECOMuAlStandAloneCosmics),
+	content = OutALCARECOMuAlStandAloneCosmics.outputCommands,
+	selectEvents = OutALCARECOMuAlStandAloneCosmics.SelectEvents,
+	dataTier = cms.untracked.string('ALCARECO')
+	)
+
+ALCARECOStreamMuAlGlobalCosmics = cms.FilteredStream(
+	responsible = 'Jim Pivarski',
+	name = 'ALCARECOMuAlGlobalCosmics',
+	paths  = (pathALCARECOMuAlGlobalCosmics),
+	content = OutALCARECOMuAlGlobalCosmics.outputCommands,
+	selectEvents = OutALCARECOMuAlGlobalCosmics.SelectEvents,
+	dataTier = cms.untracked.string('ALCARECO')
+	)
+
 ALCARECOStreamMuAlZeroFieldGlobalCosmics = cms.FilteredStream(
 	responsible = 'Jim Pivarski',
 	name = 'ALCARECOMuAlZeroFieldGlobalCosmics',

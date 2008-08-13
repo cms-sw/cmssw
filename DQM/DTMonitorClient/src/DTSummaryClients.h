@@ -6,8 +6,8 @@
  * *
  *  DQM Client for global summary
  *
- *  $Date: 2008/05/27 16:25:09 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/05/27 12:56:11 $
+ *  $Revision: 1.1 $
  *  \author  G. Mila - INFN Torino
  *   
  */
@@ -62,9 +62,11 @@ private:
   int nevents;
   DQMStore* dbe;
 
-  MonitorElement*  summaryReport;
-  MonitorElement*  summaryReportMap;
-  std::vector<MonitorElement*>  theSummaryContents;
+  MonitorElement*  SummaryReport;
+  MonitorElement*  SummaryReportMap;
+  MonitorElement*  SummaryLocalTrigger;
+  MonitorElement*  SummaryOccupancy;
+  MonitorElement*  SummaryDataIntegrity;
 
 };
 

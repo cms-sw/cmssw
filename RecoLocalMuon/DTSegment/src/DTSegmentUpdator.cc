@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2007/12/19 15:54:06 $
- * $Revision: 1.23 $
+ * $Date: 2007/11/04 13:41:34 $
+ * $Revision: 1.22 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  * \       A.Meneguzzo - Padova University  <anna.meneguzzo@pd.infn.it>
@@ -42,12 +42,9 @@ using namespace edm;
 /// Constructor
 DTSegmentUpdator::DTSegmentUpdator(const ParameterSet& config) :
   theFitter(new DTLinearFit()) ,
-
-  T0_fit_flag(config.getParameter<bool>("performT0SegCorrection")), 
-  vdrift_4parfit(config.getParameter<bool>("performT0_vdriftSegCorrection")),
-  T0_hit_resolution(config.getParameter<double>("hit_afterT0_resolution")),
+  T0_fit_flag(config.getUntrackedParameter<bool>("performT0SegCorrection",false)), 
+  vdrift_4parfit(config.getUntrackedParameter<bool>("performT0_vdriftSegCorrection",false)),
   T0_seg_debug(config.getUntrackedParameter<bool>("T0SegCorrectionDebug",false)) 
-
 {  
   string theAlgoName = config.getParameter<string>("recAlgo");
   theAlgo = DTRecHitAlgoFactory::get()->create(theAlgoName, 
@@ -87,80 +84,46 @@ void DTSegmentUpdator::update(DTRecSegment4D* seg)  {
         cout << "  before  fitT0_seg(seg) in Update 4D, t0cor_seg in phi = " << t0cor_seg << endl;
       }
 
-      float  t0cor=0.;//value wich will be computed in the fit 
-      double vminf=0.;// % of vdrift change  
-      float  cminf=0.;// shift on space 
-
-      if (t0cor_seg == 0 ) {   					// if t0cor_seg already computed keep its value
-
-        fitT0_seg(seg->phiSegment(),t0cor,vminf,cminf);		 // find t0 and vdrift corrections to the segment hits
-
-        updateHitsN(seg->phiSegment(), vminf, cminf ,pos,dir,2);	 // apply found corrections to hits
+      if (t0cor_seg == 0 ) {
+        float t0cor=0.;//value wich will be computed in the fit 
+        fitT0_seg(seg->phiSegment(),t0cor);
 
         if(segPhi->theT0 != t0cor )	
           cout << " Attention: in Update 4D the phi time segment has not been updated properly! segPhi " <<segPhi->theT0 <<" t0cor" << t0cor <<endl;
       }
-      else {  
 
-
-        updateHitsN(seg->phiSegment(),vminf,cminf,pos,dir,step);
-
-
-      }
       // nothing to do here the hits have been already corrected for position and direction in the fitT0_seg
       if(T0_seg_debug)  
         cout << " After  fitT0_seg(seg) in Update 4D : Phi seg !!t0corphi = " << segPhi->theT0 << endl;
-    } 			 // end if T0_seg_flag	    
+    }	    
     else 
-
       updateHits(seg->phiSegment(),pos,dir,step);
-
   }
 
   if (hasZed) {
 
     if (T0_fit_flag) {
-
       DTSLRecSegment2D *segZed=seg->zSegment();
-
       float t0cor_seg = segZed->theT0;  // get the current value of the t0seg
-      float t0cor=0.;//value wich will be computed in the fit 
-      double  vminf=0.;//value wich will be computed in the fit 
-      float  cminf=0.;
-
 
       if (T0_seg_debug){
         cout << "  before  fitT0_seg(seg) in Update 4D, t0cor_seg in Zed = " << t0cor_seg << endl;
       }
 
-      if (t0cor_seg == 0 ) {   					// if t0cor_seg already computed keep its value and dont update hits for that
-
-        fitT0_seg(seg->zSegment(),t0cor, vminf, cminf);		 // find t0 and vdrift corrections to the segment hits
-
-
-        updateHitsN(seg->zSegment(),vminf, cminf,pos,dir,2); 		 // apply found corrections to hits
-
+      if (t0cor_seg == 0 ) { 
+        float t0cor=0.;//value wich will be computed in the fit 
+        fitT0_seg(seg->zSegment(),t0cor);
 
         if(segZed->theT0 != t0cor)  //just a check that the computed value is correctly stored in the segment	
           cout << " Attention: in Update 4D the theta time segment has not been updated properly! segZed " 
             <<segZed->theT0 <<" t0cor" << t0cor  << endl;
 
-      } 
-      else{ 
-
-        updateHitsN(seg->zSegment(), vminf ,cminf ,pos,dir,step);
-
-
       }
-
-
-      if(T0_seg_debug)  cout << " After  fitT0_seg(seg) in Update 4D : Zed seg !! t0corzed = " << segZed->theT0 << endl;
-
-    } 			 // end if T0_seg_flag	    
+      if(T0_seg_debug)  
+        cout << " After  fitT0_seg(seg) in Update 4D : Zed seg !! t0corzed = " << segZed->theT0 << endl;
+    }	    
     else 
-
       updateHits(seg->zSegment(),pos,dir,step);
-
 
   }   
 
@@ -169,18 +132,13 @@ void DTSegmentUpdator::update(DTRecSegment4D* seg)  {
 
 void DTSegmentUpdator::update(DTRecSegment2D* seg)  {
   if (T0_fit_flag ) {
-    double  vminf=0.;//value wich will be computed in the fit 
-    float  cminf=0.;
 
+    float t0cor=0;
     float t0cor_seg = seg->theT0;
-    float t0cor ;
     if (T0_seg_debug)   
       cout << "  entered in update(DTRecSegment2D* seg)  !! t0cor = "<< t0cor  << endl;
 
-    if (t0cor_seg == 0. ) fitT0_seg(seg,t0cor, vminf,cminf);//for correction on only PHI+theta 4D segments) comment this line
-
-    updateHitsN(seg,vminf,cminf);  // updates of 2d segment
-
+    if (t0cor_seg == 0. ) fitT0_seg(seg,t0cor);//for correction on only PHI+theta 4D segments) comment this line
     if (T0_seg_debug) cout << " After  fitT0_seg(seg) in update(DTRecSegment2D* seg)!! t0cor =  " << t0cor << endl;
     // 
   } 
@@ -548,7 +506,7 @@ void DTSegmentUpdator::updateHits(DTRecSegment2D* seg,
 }
 
 
-void DTSegmentUpdator::fitT0_seg(DTRecSegment2D* seg, float& t0cor ,double& vminf,float& cminf) {
+void DTSegmentUpdator::fitT0_seg(DTRecSegment2D* seg, float& t0cor) {
   // WARNING: since this method is called both with a 2D and a 2DPhi as argument
   // seg->geographicalId() can be a superLayerId or a chamberId 
 
@@ -606,10 +564,8 @@ void DTSegmentUpdator::fitT0_seg(DTRecSegment2D* seg, float& t0cor ,double& vmin
   int nppar=0;
   float aminf;
   float bminf;
-  // float 
-  cminf=0.; 
-  // double 
-  vminf=0.;
+  float  cminf=0.;
+  double vminf=0.;
   double vminf0=0;
   /*  cout << "dimensione vettori: " << x.size() << " "
       << y.size() << " "
@@ -656,7 +612,7 @@ void DTSegmentUpdator::fitT0_seg(DTRecSegment2D* seg, float& t0cor ,double& vmin
 
     }
 
-    //    updateHitsN ( seg,vminf,cminf);  // here the rehits are updated
+    updateHitsN ( seg,vminf,cminf);  // here the rehits are updated
     t0cor= t0cor_dvDrift;
     seg->setT0(t0cor_dvDrift);	      // here the applied time + vdrift corrections are recorded in the segment
   }
@@ -724,7 +680,7 @@ void DTSegmentUpdator::updateHitsN(DTRecSegment2D* seg,
     DTRecHit1D newHit1D=(*hit);
     LocalPoint leftPoint(hit->localPosition().x() +dy_corr,+segPosAtLayer.y(),0.);;
     LocalPoint rightPoint(hit->localPosition().x()+dy_corr,+segPosAtLayer.y(),0.);;
-    //T0_hit_resolution=0.03;       //to be removed once inserted as cfi changeable parameter
+    float T0_hit_resolution=0.03;       //to be removed once inserted as cfi changeable parameter
     float  hitresol=T0_hit_resolution;   //local resolution in use 	
     LocalError error(hitresol*hitresol,0.,0.);
     switch(newHit1D.lrSide()) {

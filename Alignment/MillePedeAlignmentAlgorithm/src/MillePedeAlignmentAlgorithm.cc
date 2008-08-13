@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.37 $
- *  $Date: 2008/04/21 22:33:10 $
+ *  $Revision: 1.36 $
+ *  $Date: 2008/03/27 17:46:40 $
  *  (last update by $Author: flucke $)
  */
 
@@ -224,9 +224,9 @@ void MillePedeAlignmentAlgorithm::run(const edm::EventSetup &setup,
     if (theMonitor) theMonitor->fillRefTrajectory(refTrajPtr);
     if (!refTrajPtr->isValid()) continue; // currently e.g. if any invalid hit (FIXME for cosmic?)
     
-    if (theMonitor) theMonitor->fillTrack((*iTrajTrack).second); // second is reco::Track*
     if (canUseTrack) {
       if (!this->orderedTsos((*iTrajTrack).first, trackTsos)) continue; // first is Trajectory*
+      if (theMonitor) theMonitor->fillTrack((*iTrajTrack).second); // second is reco::Track*
     } else {
       trackTsos.clear();
       trackTsos.resize((*iTrajTrack).second->recHitsSize());
@@ -754,7 +754,6 @@ int MillePedeAlignmentAlgorithm
  
   // calculates correlation between Hit measurements
   const double corr = aHitCovarianceM(0,1) / sqrt(aHitCovarianceM(0,0) * aHitCovarianceM(1,1));
-  if (theMonitor) theMonitor->fillCorrelations2D(corr, aRecHit);
   bool diag = false;
   if (TMath::Abs(corr) > theMaximalCor2D) {
     this->diagonalize(aHitCovarianceM, aLocalDerivativesM, aHitResidualsM, aGlobalDerivativesM);

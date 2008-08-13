@@ -44,6 +44,7 @@ ecalEBunpacker = cms.EDFilter("EcalRawToDigiDev",
     # By default these are true  
     eventPut = cms.untracked.bool(True),
     InputLabel = cms.untracked.string('source'),
+    #   InputLabel = cms.untracked.string('rawDataCollector'),
     feIdCheck = cms.untracked.bool(True),
     #    by default whole ECAL fedId range is loaded, 600-670.
     #    This is in case a selection was needed.
@@ -58,7 +59,7 @@ ecalEBunpacker = cms.EDFilter("EcalRawToDigiDev",
     # untracked vint32 orderedDCCIdList = {28}
     DoRegional = cms.untracked.bool(False),
     memUnpacking = cms.untracked.bool(True),
-    silentMode = cms.untracked.bool(False)
+    silentMode = cms.untracked.bool(True)
 )
 
 

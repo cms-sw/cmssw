@@ -54,7 +54,9 @@ TRIG_TIME indicates which of the eight time samples in the 400ns SCA block (lowe
 
 class CSCCFEBTimeSlice {
  public:
-  CSCCFEBTimeSlice();
+  CSCCFEBTimeSlice() : dummy(0x7fff) {
+    bzero(this, 99*2);
+  }
 
   /// input from 0 to 95
   CSCCFEBDataWord * timeSample(int index) const {

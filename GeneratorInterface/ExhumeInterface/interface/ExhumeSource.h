@@ -25,10 +25,6 @@
 #include "GeneratorInterface/ExhumeInterface/interface/Higgs.h"
 
 class Run;
-namespace CLHEP {
-class HepRandomEngine;
-class RandFlat;
-}
 
 namespace edm
 {
@@ -68,8 +64,8 @@ namespace edm
     double extCrossSect;
     double extFilterEff;
 	
-    CLHEP::HepRandomEngine* fRandomEngine;
-    CLHEP::RandFlat*        fRandomGenerator;
+    //CLHEP::HepRandomEngine* fRandomEngine;
+    //CLHEP::RandFlat*        fRandomGenerator;
 
     Exhume::Event* ExhumeEvent;	
     //Exhume::Higgs* higgs;
