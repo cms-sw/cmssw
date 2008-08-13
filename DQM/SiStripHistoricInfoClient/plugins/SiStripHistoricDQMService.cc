@@ -2,6 +2,7 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 //#include "DQM/SiStripHistoricInfoClient/interface/fitME.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DQM/SiStripHistoricInfoClient/interface/fitUtilities.h"
 #include <string>
 #include <sstream>
 #include <cctype>
@@ -21,12 +22,8 @@ SiStripHistoricDQMService::~SiStripHistoricDQMService() {
 }
 
 void SiStripHistoricDQMService::initialize(){
-  
   edm::LogInfo("SiStripHistoricDQMService") <<  "[SiStripHistoricDQMService::initialize]";
-
-  //*GET Parameters*//
-  FILE_NAME = iConfig_.getUntrackedParameter<std::string>("FILE_NAME","");
-  ME_DIR = iConfig_.getUntrackedParameter<std::string>("ME_DIR","DQMData");
+  fitME = new fitUtilities();
 }
 
 
@@ -91,6 +88,7 @@ void SiStripHistoricDQMService::createSummary(){
 
   //* OPEN DQM FILE*//
   openRequestedFile();
+  const std::vector<MonitorElement*>& MEs = dqmStore_->getAllContents(iConfig_.getUntrackedParameter<std::string>("ME_DIR","DQMData"));
 
   //*FILL SUMMARY*//
   edm::LogInfo("SiStripSummary") << "\nSTARTING TO FILL OBJECT " << std::endl;
@@ -98,71 +96,71 @@ void SiStripHistoricDQMService::createSummary(){
   for(; ithistoList != ithistoListEnd; ++ithistoList ) {
     std::string keyName = ithistoList->getUntrackedParameter<std::string>("keyName");
     std::vector<std::string> Quantities = ithistoList->getUntrackedParameter<std::vector<std::string> >("quantitiesToExtract"); 
-    scanTreeAndFillSummary(ME_DIR, obj_, keyName, Quantities);
+    scanTreeAndFillSummary(MEs, obj_, keyName, Quantities);
   }
   
 }
 
 void SiStripHistoricDQMService::openRequestedFile() { 
-  edm::LogInfo("SiStripHistoricDQMService") <<  "[SiStripHistoricDQMService::openRequestedFile] " << FILE_NAME;
+
   dqmStore_ = edm::Service<DQMStore>().operator->(); 
+
   // ** FIXME ** // 
   dqmStore_->setVerbose(0); //add config param
-  dqmStore_->open(FILE_NAME, false); 
+
+  if( iConfig_.getParameter<bool>("accessDQMFile") ){
+    
+    std::string fileName = iConfig_.getUntrackedParameter<std::string>("FILE_NAME","");
+    
+    edm::LogInfo("SiStripHistoricDQMService") <<  "[SiStripHistoricDQMService::openRequestedFile] Accessing root File" << fileName;
+
+    dqmStore_->open(fileName, false); 
+  } else {
+    edm::LogInfo("SiStripHistoricDQMService") <<  "[SiStripHistoricDQMService::openRequestedFile] Accessing dqmStore stream in Online Operation";
+  }
 }
 
 
-void SiStripHistoricDQMService::scanTreeAndFillSummary(std::string top_dir, SiStripSummary* summary,std::string& keyName, std::vector<std::string>& Quantities){
+void SiStripHistoricDQMService::scanTreeAndFillSummary(const std::vector<MonitorElement*>& MEs,SiStripSummary* summary,std::string& keyName, std::vector<std::string>& Quantities){
   //
   // -- Scan full root file and fill module numbers and histograms
   //
   //-----------------------------------------------------------------------------------------------
 
-  edm::LogInfo("SiStripHistoricDQMService") <<  "[SiStripHistoricDQMService::scanTreeAndFillSummary]";
+  edm::LogInfo("SiStripHistoricDQMService") <<  "[SiStripHistoricDQMService::scanTreeAndFillSummary] keyName " << keyName;
 
-
-  const std::vector<MonitorElement*>& MEs = dqmStore_->getAllContents(top_dir);
   std::vector<MonitorElement*>::const_iterator iterMes = MEs.begin(); 
   std::vector<MonitorElement*>::const_iterator iterMesEnd = MEs.end(); 
   std::stringstream ss;
-
   for (; iterMes!=iterMesEnd; ++iterMes){
-    std::string me_name = (*iterMes)->getName();
+    std::string me_name = (*iterMes)->getName();  
     if (me_name.find(keyName) == 0){ 
 
       SiStripSummary::InputVector values;
       std::vector<std::string> userDBContent;
       
-      ss << "[SiStripHistoricDQMService::scanTreeAndFillSummary]\n-----------------------------\nFound compatible ME " << me_name << " for key " << keyName << std::endl;
+      ss << "\nFound compatible ME " << me_name << " for key " << keyName << std::endl;
       
       for(size_t i=0;i<Quantities.size();++i){
 	
 
-	if(Quantities[i]  =="landau"){  
+	if(Quantities[i]  == "landau"){  
 	  userDBContent.push_back(keyName+std::string("@landauPeak"));
 	  userDBContent.push_back(keyName+std::string("@landauPeakErr"));
 	  userDBContent.push_back(keyName+std::string("@landauSFWHM"));
-	  
-	   //fitME pfitME((*iterMes));
-	   //pfitME.doFit(); 
-	  //values.push_back( pfitME.getFitPar()[1]); 
-	  //values.push_back( pfitME.getFitParErr()[1]); 
-	  //values.push_back( pfitME.pLanConv[1]);
-	  values.push_back(1.);
-	  values.push_back(2.);
-	  values.push_back(3.);
+
+	  fitME->doLanGaussFit(*iterMes);
+	  //values.push_back( fitME->getLanGaussPar()[1]); 
+	  //values.push_back( fitME->getFitParErr()[1]); 
+	  //values.push_back( fitME->pLanConv[1]);
 	}
-	else if(Quantities[i]  =="gauss"){  
+	else if(Quantities[i]  == "gauss"){  
 	  userDBContent.push_back(keyName+std::string("@gaussMean"));
 	  userDBContent.push_back(keyName+std::string("@gaussSigma"));
-	  /*
-	    fitME pfitME((*iterMes));
-	    pfitME.doNoiseFit();
-	    values.push_back( pfitME.getNoisePar()[1]);
-	    values.push_back( pfitME.getNoiseParErr()[1]);
-	  */
-	  values.push_back(4.);
-	  values.push_back(5.);
+
+	  fitME->doGaussFit(*iterMes);
+	  //values.push_back( pfitME->getNoisePar()[1]);
+	  //values.push_back( pfitME->getNoiseParErr()[1]);
 	}
 	else if(Quantities[i]  == "stat"){  
 	  userDBContent.push_back(keyName+std::string("@entries"));
@@ -178,17 +176,19 @@ void SiStripHistoricDQMService::scanTreeAndFillSummary(std::string top_dir, SiSt
 
       uint32_t detid=returnDetComponent(me_name);
 
-      ss << " detid " << detid << " \n ";
+      ss << "detid " << detid << " \n";
       for(size_t i=0;i<values.size();++i)
 	ss << "Quantity " << userDBContent[i] << " value " << values[i] << std::endl;
       
       summary->put(detid,values,userDBContent);
+
     }
   }
+  edm::LogInfo("SiStripHistoricDQMService") <<  "[SiStripHistoricDQMService::scanTreeAndFillSummary] " << ss.str();
 }   
  
 uint32_t SiStripHistoricDQMService::returnDetComponent(std::string& histoName){
-  edm::LogInfo("SiStripHistoricDQMService") <<  "[SiStripHistoricDQMService::returnDetComponent]";
+  LogTrace("SiStripHistoricDQMService") <<  "[SiStripHistoricDQMService::returnDetComponent]";
 
   size_t __key_length__=7;
   size_t __detid_length__=9;
@@ -241,12 +241,6 @@ uint32_t SiStripHistoricDQMService::returnDetComponent(std::string& histoName){
 }
 
 uint32_t SiStripHistoricDQMService::getRunNumber() const {
-  //Get RunNumber
-  int pos1 = ME_DIR.find("Run ");
-  int pos2 = ME_DIR.find("/SiStrip");
-  
-  std::string runStr = ME_DIR.substr(pos1+4,pos2-pos1-4);
-  edm::LogInfo("SiStripHistoricDQMService") <<  "[SiStripHistoricDQMService::getRunNumber] " << runStr;
-
-  return atoi(runStr.c_str());
+  edm::LogInfo("SiStripHistoricDQMService") <<  "[SiStripHistoricDQMService::getRunNumber] " << iConfig_.getParameter<uint32_t>("RunNb");
+  return iConfig_.getParameter<uint32_t>("RunNb");
 }
