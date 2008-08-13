@@ -41,8 +41,8 @@ public:
     return RadialStripTopology::localPosition( strip );
   }
 
-   /** LocalPoint for a given MeasurementPoint <BR>
-    *
+  /** LocalPoint for a given MeasurementPoint <BR>
+   *
    * What's a MeasurementPoint?  <BR>
    * A MeasurementPoint is a 2-dim object, with the 1st dim specifying the angular position
    * in strip widths, and the 2nd dim specifying the fractional distance alone a strip.<BR>
