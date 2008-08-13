@@ -12,8 +12,13 @@
 #include "IOPool/Streamer/interface/StreamerInputModule.h"
 #include "IOPool/Streamer/src/StreamerFileReader.h"
 
+#include "IOPool/Streamer/interface/FRDEventFileWriter.h"
+#include "IOPool/Streamer/interface/FRDEventOutputModule.h"
+
 typedef edm::StreamerOutputModule<edm::StreamerFileWriter> EventStreamFileWriter;
 typedef edm::StreamerInputModule<edm::StreamerFileReader> NewEventStreamFileReader;
+typedef FRDEventOutputModule<FRDEventFileWriter> FRDStreamFileWriter;
+typedef FRDEventOutputModule<FRDEventFileWriter> ErrorStreamFileWriter;
 
 using edm::StreamerFileReader;
 using edm::StreamerFileWriter;
@@ -27,3 +32,5 @@ using stor::HLTInfo;
 
 DEFINE_FWK_SERVICE_MAKER(HLTInfo,ParameterSetMaker<HLTInfo>);
 
+DEFINE_FWK_MODULE(FRDStreamFileWriter);
+DEFINE_FWK_MODULE(ErrorStreamFileWriter);
