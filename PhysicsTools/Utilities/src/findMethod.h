@@ -11,7 +11,8 @@ namespace reco {
   std::pair<ROOT::Reflex::Member, bool> findMethod(const ROOT::Reflex::Type & type,
 						   const std::string & name,
 						   const std::vector<reco::parser::AnyMethodArgument> &args,
-                                                   std::vector<reco::parser::AnyMethodArgument> &fixuppedArgs);
+                                                   std::vector<reco::parser::AnyMethodArgument> &fixuppedArgs,
+                                                   int& oError);
 }
 
 #endif

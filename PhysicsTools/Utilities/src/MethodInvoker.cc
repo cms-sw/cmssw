@@ -7,18 +7,20 @@ using namespace ROOT::Reflex;
 using namespace std;
 
 MethodInvoker::MethodInvoker(const Member & method, const vector<AnyMethodArgument> & ints) :
-  method_(method), ints_(ints) { 
+  method_(method), ints_(ints), isFunction_(method.IsFunctionMember())
+{ 
   setArgs();
 }
 
 MethodInvoker::MethodInvoker(const MethodInvoker & other) :
-  method_(other.method_), ints_(other.ints_) {
+  method_(other.method_), ints_(other.ints_), isFunction_(other.isFunction_) {
   setArgs();
 }
 
 MethodInvoker & MethodInvoker::operator=(const MethodInvoker & other) {
   method_ = other.method_;
   ints_ = other.ints_;
+  isFunction_ = other.isFunction_;
   setArgs();
   return *this;
 }
@@ -41,7 +43,11 @@ Object MethodInvoker::value(const Object & o) const {
 	<< dynType.Name() << "\"\n";
     ret = met.Invoke(Object(dynType, o.Address()), args_);
     } else */
-  ret = method_.Invoke(o, args_);
+  if(isFunction_) {
+     ret = method_.Invoke(o, args_);
+  } else {
+     ret = method_.Get(o);
+  }
   void * addr = ret.Address(); 
   if(addr==0)
     throw edm::Exception(edm::errors::InvalidReference)

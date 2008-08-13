@@ -1,4 +1,5 @@
 #include "PhysicsTools/Utilities/src/findMethod.h"
+#include "PhysicsTools/Utilities/src/ErrorCodes.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "Reflex/Base.h"
 #include "Reflex/TypeTemplate.h"
@@ -7,21 +8,32 @@ using namespace ROOT::Reflex;
 using namespace std;
 using reco::parser::AnyMethodArgument;
 
+//Checks for errors which show we got the correct function be we just can't use it
+static bool fatalErrorCondition(int iError)
+{
+   return (reco::parser::kIsNotPublic==iError ||
+      reco::parser::kIsStatic==iError ||
+      reco::parser::kIsFunctionAddedByROOT==iError ||
+      reco::parser::kIsConstructor==iError ||
+      reco::parser::kIsDestructor==iError ||
+      reco::parser::kIsOperator==iError);
+   
+}
 namespace reco {
   int checkMethod(const ROOT::Reflex::Member & mem, const std::vector<AnyMethodArgument> &args, std::vector<AnyMethodArgument> &fixuppedArgs) {
     int casts = 0;
-    if (mem.IsConstructor()) return -1;
-    if (mem.IsDestructor()) return -1;
-    if (mem.IsOperator()) return -1;
-    if (! mem.IsPublic()) return -1;
-    if (mem.IsStatic()) return -1;
-    if ( ! mem.TypeOf().IsConst() ) return -1;
-    if (mem.Name().substr(0, 2) == "__") return -1;
+    if (mem.IsConstructor()) return -1*parser::kIsConstructor;
+    if (mem.IsDestructor()) return -1*parser::kIsDestructor;
+    if (mem.IsOperator()) return -1*parser::kIsOperator;
+    if (! mem.IsPublic()) return -1*parser::kIsNotPublic;
+    if (mem.IsStatic()) return -1*parser::kIsStatic;
+    if ( ! mem.TypeOf().IsConst() ) return -1*parser::kIsNotConst;
+    if (mem.Name().substr(0, 2) == "__") return -1*parser::kIsFunctionAddedByROOT;
     size_t minArgs = mem.FunctionParameterSize(true), maxArgs = mem.FunctionParameterSize(false);
     //std::cerr << "\nMETHOD " << mem.Name() << " of " << mem.DeclaringType().Name() 
     //    << ", min #args = " << minArgs << ", max #args = " << maxArgs 
     //    << ", args = " << args.size() << std::endl;
-    if ((args.size() < minArgs) || (args.size() > maxArgs)) return -1;
+    if ((args.size() < minArgs) || (args.size() > maxArgs)) return -1*parser::kWrongNumberOfArguments;
     if (!args.empty()) {
         Type t = mem.TypeOf();
         for (size_t i = 0; i < args.size(); ++i) { 
@@ -32,7 +44,7 @@ namespace reco {
                 casts += fixup.second;
             } else { 
                 fixuppedArgs.clear(); 
-                return -1;
+                return -1*parser::kWrongArgumentType;
             }
         }
     }
@@ -40,7 +52,8 @@ namespace reco {
     return casts;
   }
 
-  pair<Member, bool> findMethod(const Type & t, const string & name, const std::vector<AnyMethodArgument> &args, std::vector<AnyMethodArgument> &fixuppedArgs) {
+  pair<Member, bool> findMethod(const Type & t, const string & name, const std::vector<AnyMethodArgument> &args, std::vector<AnyMethodArgument> &fixuppedArgs, int& oError) {
+     oError = parser::kNameDoesNotExist;
     Type type = t; 
     if (! type)  
       throw edm::Exception(edm::errors::Configuration)
@@ -56,8 +69,14 @@ namespace reco {
     for(Member_Iterator m = type.FunctionMember_Begin(); m != type.FunctionMember_End(); ++m ) {
       if(m->Name()==name) {
         int casts = checkMethod(*m, args, fixuppedArgs);
-        if (casts != -1) {
+        if (casts > -1) {
             oks.push_back( make_pair(casts,*m) );
+        } else {
+           oError = -1*casts;
+           //is this a show stopper error?
+           if(fatalErrorCondition(oError)) {
+              return mem;
+           }
         }
       }
     }
@@ -83,29 +102,37 @@ namespace reco {
     }
 
     // if nothing was found, look in parent scopes (without checking for cross-scope overloading, as it's not allowed)
+    int baseError=parser::kNameDoesNotExist;
     if(! mem.first) {
-      for(Base_Iterator b = type.Base_Begin(); b != type.Base_End(); ++ b)
-	if((mem = findMethod(b->ToType(), name, args, fixuppedArgs)).first) break;
+      for(Base_Iterator b = type.Base_Begin(); b != type.Base_End(); ++ b) {
+	      if((mem = findMethod(b->ToType(), name, args, fixuppedArgs,baseError)).first) break;
+	      if(fatalErrorCondition(baseError)) {
+            oError = baseError;
+            return mem;
+	      }
+      }
     }
+
 
     // otherwise see if this object is just a Ref or Ptr and we should pop it out
     if(!mem.first) {
       // check for edm::Ref or edm::RefToBase or edm::Ptr
       if(type.IsTemplateInstance()) {
-	TypeTemplate templ = type.TemplateFamily();
-	std::string name = templ.Name();
-	if(name.compare("Ref") == 0 ||
-	   name.compare("RefToBase") == 0 ||
-	   name.compare("Ptr") == 0) {
+         TypeTemplate templ = type.TemplateFamily();
+         std::string name = templ.Name();
+         if(name.compare("Ref") == 0 ||
+            name.compare("RefToBase") == 0 ||
+            name.compare("Ptr") == 0) {
           // in this case  i think 'get' should be taken with no arguments!
           std::vector<AnyMethodArgument> empty, empty2; 
-	  mem = findMethod(type, "get", empty, empty2);
-	  if(!mem.first) {
-	    throw edm::Exception(edm::errors::Configuration)
-	      << "no member \"get\" in reference of type " << type.Name() << "\n";        
-	  }
-	  mem.second = true;
-	}
+          int error;
+          mem = findMethod(type, "get", empty, empty2,error);
+          if(!mem.first) {
+             throw edm::Exception(edm::errors::Configuration)
+                << "no member \"get\" in reference of type " << type.Name() << "\n";        
+          }
+          mem.second = true;
+         }
       }
     }
     /*
@@ -114,6 +141,14 @@ namespace reco {
 	<< "member " << name << " not found in class "  << type.Name() << "\n";        
     }
     */
+    if(mem.first) {
+       oError = parser::kNoError;
+    } else {
+       //use error from base check if we never found function in primary class
+       if(oError == parser::kNameDoesNotExist) {
+          oError = baseError;
+       }
+    }
     return mem;
   }
 }
