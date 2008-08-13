@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 #
 #  configuration for producer of converted photons
-#  $Id: conversionTrackCandidates_cfi.py,v 1.10 2008/06/19 18:12:05 nancy Exp $
+#  $Id: conversionTrackCandidates_cfi.py,v 1.12 2008/07/11 15:16:04 rahatlou Exp $
 #
 # Tracker geometry #####################
 from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *
@@ -22,10 +22,9 @@ from RecoEgamma.EgammaPhotonProducers.trajectoryFilterForConversions_cfi import 
 #TrajectoryBuilder
 from RecoEgamma.EgammaPhotonProducers.trajectoryBuilderForConversions_cfi import *
 conversionTrackCandidates = cms.EDProducer("ConversionTrackCandidateProducer",
-    scHybridBarrelProducer = cms.string('correctedHybridSuperClusters'),
     inOutTrackCandidateSCAssociationCollection = cms.string('inOutTrackCandidateSCAssociationCollection'),
     maxHOverE = cms.double(0.2),
-    scHybridBarrelCollection = cms.string(''),
+    scHybridBarrelProducer = cms.InputTag("correctedHybridSuperClusters"),
     hbheModule = cms.string('hbhereco'),
     inOutTrackCandidateCollection = cms.string('inOutTracksFromConversions'),
     outInTrackCandidateCollection = cms.string('outInTracksFromConversions'),
@@ -35,10 +34,9 @@ conversionTrackCandidates = cms.EDProducer("ConversionTrackCandidateProducer",
     bcEndcapCollection = cms.InputTag("multi5x5BasicClusters","multi5x5EndcapBasicClusters"),
     outInTrackCandidateSCAssociationCollection = cms.string('outInTrackCandidateSCAssociationCollection'),
     bcBarrelCollection = cms.InputTag("hybridSuperClusters","hybridBarrelBasicClusters"),
-    scIslandEndcapProducer = cms.string('correctedMulti5x5SuperClustersWithPreshower'),
+    scIslandEndcapProducer = cms.InputTag("correctedMulti5x5SuperClustersWithPreshower"),
     OutInRedundantSeedCleaner = cms.string('CachingSeedCleanerBySharedInput'),
     hOverEConeSize = cms.double(0.1),
-    scIslandEndcapCollection = cms.string(''),
     hbheInstance = cms.string(''),
     TrajectoryBuilder = cms.string('TrajectoryBuilderForConversions'),
     TransientInitialStateEstimatorParameters = cms.PSet(

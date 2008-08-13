@@ -5,8 +5,8 @@ import FWCore.ParameterSet.Config as cms
 #  
 #
 conversions = cms.EDProducer("ConvertedPhotonProducer",
-    scHybridBarrelProducer = cms.string('correctedHybridSuperClusters'),
-    scHybridBarrelCollection = cms.string(''),
+    scHybridBarrelProducer = cms.InputTag("correctedHybridSuperClusters"),
+   # scHybridBarrelCollection = cms.string(''),
     convertedPhotonCollection = cms.string(''),
     inOutTrackSCAssociation = cms.string('inOutTrackSCAssociationCollection'),
     outInTrackCollection = cms.string(''),
@@ -14,9 +14,9 @@ conversions = cms.EDProducer("ConvertedPhotonProducer",
     inOutTrackCollection = cms.string(''),
     bcEndcapCollection = cms.InputTag("multi5x5BasicClusters","multi5x5EndcapBasicClusters"),
     bcBarrelCollection = cms.InputTag("hybridSuperClusters","hybridBarrelBasicClusters"),
-    scIslandEndcapProducer = cms.string('correctedMulti5x5SuperClustersWithPreshower'),
+    scIslandEndcapProducer = cms.InputTag("correctedMulti5x5SuperClustersWithPreshower"),
     outInTrackSCAssociation = cms.string('outInTrackSCAssociationCollection'),
-    scIslandEndcapCollection = cms.string(''),
+  #  scIslandEndcapCollection = cms.string(''),
     conversionOITrackProducer = cms.string('ckfOutInTracksFromConversions')
 )
 
