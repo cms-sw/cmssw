@@ -200,7 +200,7 @@ L3Val(string fname1,string fname2,string v1,string v2,string folder)
 
 ElectronVal(string fname1,string fname2,string v1,string v2,string f)
 {
-  string folder=f+"/Electron";
+  string folder=f;
   gStyle->SetOptTitle(1);
   TFile* file1 =   new TFile(fname1.c_str());
   string Histo_path  = folder+"/total eff";
@@ -227,7 +227,7 @@ ElectronVal(string fname1,string fname2,string v1,string v2,string f)
 
 ElectronDraw(string fname1,string fname2,string v1,string v2,string f)
 {
-  string folder=f+"/Electron";
+  string folder=f;
   gStyle->SetOptTitle(1);
 
   TFile* file1 =   new TFile(fname1.c_str());
@@ -327,19 +327,15 @@ L3Draw(string fname1,string fname2,string v1,string v2,string folder)
   l33->cd(2);
   DrawHistos(fname1,fname2,v1,v2,folder,"L3jetEta","L3 Jet #eta","n. #tau cands.","L3 Jet #eta",0,false );
   l33->cd(3);
-  DrawHistos(fname1,fname2,v1,v2,folder,"L3EtEff","L3 Jet E_{t} [GeV]","Efficiency","L3 Efficiency vs E_{t}",0,true );
-  l33->cd(4);
-  DrawHistos(fname1,fname2,v1,v2,folder,"L3EtaEff","L3 Efficiency vs #eta","n. #tau cands.","Reco Jet #eta",0,true );
-  l33->cd(5);
   DrawHistos(fname1,fname2,v1,v2,folder,"L3nTrksInJet","L3 Number of  Silicon Tracks","n. #tau cands.","# Si Tracks in L3 Jet",0,false );
-  l33->cd(6);
+  l33->cd(4);
   DrawHistos(fname1,fname2,v1,v2,folder,"L3nQTrksInJet","L3 Number of Quality Si Tracks","n. #tau cands.","# Quality Si. Tracks in L3 Jet",0,false );
-  l33->cd(7);
+  l33->cd(5);
   DrawHistos(fname1,fname2,v1,v2,folder,"L3signalLeadTrkPt","L3 Lead Track P_{t}[GeV]","n. #tau cands.","Lead Track P_{t} [GeV]",0,false );
-  l25->cd(3);
-  DrawEffHistos(fname1,fname2,v1,v2,folder,"L25IsoJetEt","L25jetEt","Ref. E_{t}[GeV]","Efficiency","L25 Efficiency vs E_{t}");
-  l25->cd(4);
-  DrawEffHistos(fname1,fname2,v1,v2,folder,"L25IsoJetEta","L25jetEta","#eta","Efficiency","L25 Efficiency vs #eta");
+  l33->cd(6);
+  DrawEffHistos(fname1,fname2,v1,v2,folder,"L3IsoJetEt","L3jetEt","Ref. E_{t}[GeV]","Efficiency","L25 Efficiency vs E_{t}");
+  l33->cd(7);
+  DrawEffHistos(fname1,fname2,v1,v2,folder,"L3IsoJetEta","L3jetEta","#eta","Efficiency","L25 Efficiency vs #eta");
  
 }
 
