@@ -164,7 +164,8 @@ void CSCSummary::ReadReportingChambersRef(TH2*& h2, TH2*& refh2, const double ep
                                                     ", N = " << N << 
                                                     ", n = " << n << 
                                                     ", S = " << S << 
-                                                    ", value = " << val;
+                                                    ", value = " << val <<
+                                                    ": " << (val < 0 ? "ERROR" : "OK");
             }
 
           }
