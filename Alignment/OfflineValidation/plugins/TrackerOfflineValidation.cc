@@ -13,7 +13,7 @@
 //
 // Original Author:  Erik Butz
 //         Created:  Tue Dec 11 14:03:05 CET 2007
-// $Id: TrackerOfflineValidation.cc,v 1.6 2008/08/01 15:33:55 ebutz Exp $
+// $Id: TrackerOfflineValidation.cc,v 1.7 2008/08/12 12:19:41 jdraeger Exp $
 //
 //
 
@@ -92,26 +92,26 @@ private:
   };
 
  struct TreeVariables{
-   TreeVariables(): resMean_(), normResMean_(), resXprimeMean_(), normResXprimeMean_(), 
-		    resRms_(), normResRms_(), resXprimeRms_(), normResXprimeRms_(), 
-		     globalR_(), globalPhi_(), globalEta_(),
-		     globalX_(), globalY_(), globalZ_(),
+   TreeVariables(): meanLocalX_(), meanNormLocalX_(), meanX_(), meanNormX_(), 
+		    rmsLocalX_(), rmsNormLocalX_(), rmsX_(), rmsNormX_(), 
+		     posR_(), posPhi_(), posEta_(),
+		     posX_(), posY_(), posZ_(),
 		     entries_(), moduleId_(), subDetId_(),
 		     layer_(), side_(), rod_(),ring_(), 
-		     petal_(),blade_(), panel_(), orientation_(),
+		     petal_(),blade_(), panel_(), outerInner_(),
 		     isDoubleSide_(),
-		     resHistoName_(), normResHistoName_(), resXprimeHistoName_(), normResXprimeHistoName_()  {} 
-    Float_t resMean_, normResMean_, resXprimeMean_,normResXprimeMean_,    //mean value read out from modul histograms
-            resRms_, normResRms_, resXprimeRms_, normResXprimeRms_,      //rms value read out from modul histograms
-            globalR_, globalPhi_, globalEta_,                     //global coordiantes    
-            globalX_, globalY_, globalZ_;             //global coordiantes 
-                                           //number of entries for each modul
-    UInt_t   entries_, moduleId_, subDetId_,           //modul Id = detId and subdetector Id
+		     histNameLocalX_(), histNameNormLocalX_(), histNameX_(), histNameNormX_()  {} 
+    Float_t meanLocalX_, meanNormLocalX_, meanX_,meanNormX_,    //mean value read out from modul histograms
+            rmsLocalX_, rmsNormLocalX_, rmsX_, rmsNormX_,      //rms value read out from modul histograms
+            posR_, posPhi_, posEta_,                     //global coordiantes    
+            posX_, posY_, posZ_;             //global coordiantes 
+   UInt_t   entries_, moduleId_, subDetId_,          //number of entries for each modul //modul Id = detId and subdetector Id
              layer_, side_, rod_, 
              ring_, petal_, 
-             blade_, panel_, orientation_;
+             blade_, panel_, 
+             outerInner_; //orientation of modules in TIB:1/2= int/ext string, TID:1/2=back/front ring, TEC 1/2=back/front petal 
     Bool_t isDoubleSide_;
-    std::string resHistoName_, normResHistoName_, resXprimeHistoName_, normResXprimeHistoName_;
+    std::string histNameLocalX_, histNameNormLocalX_, histNameX_, histNameNormX_;
   };
 
   bool lCoorHistOn;
@@ -150,7 +150,7 @@ private:
   
   void bookTree(TTree &tree, struct TrackerOfflineValidation::TreeVariables &treeMem);
   
-  void fillTree(TTree &tree,const std::map<int, TrackerOfflineValidation::ModuleHistos> &moduleHist_, struct TrackerOfflineValidation::TreeVariables &treeMem, const TrackerGeometry &tkgeom , edm::Service<TFileService> fs);
+  void fillTree(TTree &tree,const std::map<int, TrackerOfflineValidation::ModuleHistos> &moduleHist_, struct TrackerOfflineValidation::TreeVariables &treeMem, const TrackerGeometry &tkgeom );
 
 
   std::pair<TH1*,TH1*> bookSummaryHists(TFileDirectory &tfd, const Alignable& ali, align::StructureType type, int i, const AlignableObjectId &aliobjid); 
@@ -663,12 +663,12 @@ TrackerOfflineValidation::endJob() {
   TreeVariables treeMem;
   this->bookTree(*tree, treeMem);
 
-  this->fillTree(*tree, mPxbResiduals_ ,treeMem, *tkGeom_, fs);
-  this->fillTree(*tree, mPxeResiduals_ ,treeMem, *tkGeom_, fs);
-  this->fillTree(*tree, mTibResiduals_ ,treeMem, *tkGeom_, fs);
-  this->fillTree(*tree, mTidResiduals_ ,treeMem, *tkGeom_, fs);
-  this->fillTree(*tree, mTobResiduals_ ,treeMem, *tkGeom_, fs);
-  this->fillTree(*tree, mTecResiduals_ ,treeMem, *tkGeom_, fs);
+  this->fillTree(*tree, mPxbResiduals_ ,treeMem, *tkGeom_);
+  this->fillTree(*tree, mPxeResiduals_ ,treeMem, *tkGeom_);
+  this->fillTree(*tree, mTibResiduals_ ,treeMem, *tkGeom_);
+  this->fillTree(*tree, mTidResiduals_ ,treeMem, *tkGeom_);
+  this->fillTree(*tree, mTobResiduals_ ,treeMem, *tkGeom_);
+  this->fillTree(*tree, mTecResiduals_ ,treeMem, *tkGeom_);
 
   static const int kappadiffindex = this->GetIndex(vTrackHistos_,"h_diff_curvature");
   vTrackHistos_[kappadiffindex]->Add(vTrackHistos_[this->GetIndex(vTrackHistos_,"h_curvature_neg")],vTrackHistos_[this->GetIndex(vTrackHistos_,"h_curvature_pos")],-1,1);
@@ -909,42 +909,42 @@ TrackerOfflineValidation::bookTree(TTree &tree, struct TrackerOfflineValidation:
   tree.Branch("petal",&treeMem.petal_,"petal/i");
   tree.Branch("blade",&treeMem.blade_,"blade/i");
   tree.Branch("panel",&treeMem.panel_,"panel/i");
-  tree.Branch("orientation",&treeMem.orientation_,"orientation/i");
+  tree.Branch("outerInner",&treeMem.outerInner_,"outerInner/i");
   tree.Branch("isDoubleSide",&treeMem.isDoubleSide_,"isDoubleSide/O");
   
   //variables concerning the tracker geometry
-  tree.Branch("globalPhi",&treeMem.globalPhi_,"gobalPhi/F");
-  tree.Branch("globalEta",&treeMem.globalEta_,"globalEta/F");
-  tree.Branch("globalR",&treeMem.globalR_,"globalR/F");
-  tree.Branch("globalX",&treeMem.globalX_,"gobalX/F");
-  tree.Branch("globalY",&treeMem.globalY_,"globalY/F");
-  tree.Branch("globalZ",&treeMem.globalZ_,"globalZ/F");
+  tree.Branch("posPhi",&treeMem.posPhi_,"gobalPhi/F");
+  tree.Branch("posEta",&treeMem.posEta_,"posEta/F");
+  tree.Branch("posR",&treeMem.posR_,"posR/F");
+  tree.Branch("posX",&treeMem.posX_,"gobalX/F");
+  tree.Branch("posY",&treeMem.posY_,"posY/F");
+  tree.Branch("posZ",&treeMem.posZ_,"posZ/F");
   
   //mean and RMS values (extracted from histograms(Xprime) on module level)
   tree.Branch("entries",&treeMem.entries_,"entries/i");
-  tree.Branch("resXprimeMean",&treeMem.resXprimeMean_,"resXprimeMean/F");
-  tree.Branch("resXprimeRms",&treeMem.resXprimeRms_,"resXprimeRms/F");
-  tree.Branch("normResXprimeMean",&treeMem.normResXprimeMean_,"normResXprimeMean/F");
-  tree.Branch("normResXprimeRms",&treeMem.normResXprimeRms_,"normResXprimeRms/F");
+  tree.Branch("meanX",&treeMem.meanX_,"meanX/F");
+  tree.Branch("rmsX",&treeMem.rmsX_,"rmsX/F");
+  tree.Branch("meanNormX",&treeMem.meanNormX_,"meanNormX/F");
+  tree.Branch("rmsNormX",&treeMem.rmsNormX_,"rmsNormX/F");
   //histogram names 
-  tree.Branch("resXprimeHistoName",&treeMem.resXprimeHistoName_,"resXprimeHistoName/b");
-  tree.Branch("normResXprimeHistoName",&treeMem.normResXprimeHistoName_,"normResXprimeHistoName/b");
+  tree.Branch("histNameX",&treeMem.histNameX_,"histNameX/b");
+  tree.Branch("histNameNormX",&treeMem.histNameNormX_,"histNameNormX/b");
 
   // book tree variables in local coordinates if set in cf
     if(lCoorHistOn) {
       //mean and RMS values (extracted from histograms(X) on module level)
-       tree.Branch("resMean",&treeMem.resMean_,"resMean/F");
-       tree.Branch("resRms",&treeMem.resRms_,"resRms/F");
-       tree.Branch("normResMean",&treeMem.normResMean_,"normResMean/F");
-       tree.Branch("normResRms",&treeMem.normResRms_,"normResRms/F");
-       tree.Branch("resHistoName",&treeMem.resHistoName_,"resHistoName/b");
-       tree.Branch("normResHistoName",&treeMem.normResHistoName_,"normResHistoName/b");
+       tree.Branch("meanLocalX",&treeMem.meanLocalX_,"meanLocalX/F");
+       tree.Branch("rmsLocalX",&treeMem.rmsLocalX_,"rmsLocalX/F");
+       tree.Branch("meanNormLocalX",&treeMem.meanNormLocalX_,"meanNormLocalX/F");
+       tree.Branch("rmsNormLocalX",&treeMem.rmsNormLocalX_,"rmsNormLocalX/F");
+       tree.Branch("histNameLocalX",&treeMem.histNameLocalX_,"histNameLocalX/b");
+       tree.Branch("histNameNormLocalX",&treeMem.histNameNormLocalX_,"histNameNormLocalX/b");
 
     }
 }
 
 void 
-TrackerOfflineValidation::fillTree(TTree &tree,const std::map<int, TrackerOfflineValidation::ModuleHistos> &moduleHist_, struct TrackerOfflineValidation::TreeVariables &treeMem ,const TrackerGeometry &tkgeom ,edm::Service<TFileService> fs)
+TrackerOfflineValidation::fillTree(TTree &tree,const std::map<int, TrackerOfflineValidation::ModuleHistos> &moduleHist_, struct TrackerOfflineValidation::TreeVariables &treeMem ,const TrackerGeometry &tkgeom )
 {
  
   for(std::map<int, TrackerOfflineValidation::ModuleHistos>::const_iterator it = moduleHist_.begin(), 
@@ -973,14 +973,14 @@ TrackerOfflineValidation::fillTree(TTree &tree,const std::map<int, TrackerOfflin
       treeMem.layer_ = tibId.layer(); 
       treeMem.side_ = tibId.string()[0];
       treeMem.rod_ = tibId.string()[2]; 
-      treeMem.orientation_ = tibId.string()[1]; 
+      treeMem.outerInner_ = tibId.string()[1]; 
       if (tibId.isDoubleSide())  treeMem.isDoubleSide_ = 1;
     } else if(treeMem.subDetId_ == StripSubdetector::TID){
       TIDDetId tidId(detId_); 
       treeMem.layer_ = tidId.wheel(); 
       treeMem.side_ = tidId.side();
       treeMem.ring_ = tidId.ring(); 
-      treeMem.orientation_ = tidId.module()[0]; 
+      treeMem.outerInner_ = tidId.module()[0]; 
       if (tidId.isDoubleSide())  treeMem.isDoubleSide_ = 1;
     } else if(treeMem.subDetId_ == StripSubdetector::TOB){
       TOBDetId tobId(detId_); 
@@ -994,40 +994,42 @@ TrackerOfflineValidation::fillTree(TTree &tree,const std::map<int, TrackerOfflin
       treeMem.side_ = tecId.side();
       treeMem.ring_ = tecId.ring(); 
       treeMem.petal_ = tecId.petal()[1]; 
-      treeMem.orientation_ = tecId.petal()[0];
+      treeMem.outerInner_ = tecId.petal()[0];
       if (tecId.isDoubleSide())  treeMem.isDoubleSide_ = 1; 
     }
     
     //variables concerning the tracker geometry
-    const Surface& surface = tkgeom.idToDet(detId_)->surface();
-    LocalPoint lPModule(0.,0.,0.), lPhiDirection(1.,0.,0.), lROrZDirection(0.,1.,0.);
-    GlobalPoint gPModule       = surface.toGlobal(lPModule),
-      gPhiDirection              = surface.toGlobal(lPhiDirection),
-      gROrZDirection             = surface.toGlobal(lROrZDirection);
-    treeMem.globalPhi_ = gPModule.phi();
-    treeMem.globalEta_ = gPModule.eta();
-    treeMem.globalX_   = gPModule.x();
-    treeMem.globalY_   = gPModule.y();
-    treeMem.globalZ_   = gPModule.z();
+    
+    //  const Surface& surface = tkgeom.idToDet(detId_)->surface();
+    //     LocalPoint lPModule(0.,0.,0.), lPhiDirection(1.,0.,0.), lROrZDirection(0.,1.,0.);
+    //     GlobalPoint gPModule       = surface.toGlobal(lPModule),
+    //       gPhiDirection              = surface.toGlobal(lPhiDirection),
+    //       gROrZDirection             = surface.toGlobal(lROrZDirection);
+    const Surface::PositionType &gPModule = tkgeom.idToDet(detId_)->position();
+    treeMem.posPhi_ = gPModule.phi();
+    treeMem.posEta_ = gPModule.eta();
+    treeMem.posX_   = gPModule.x();
+    treeMem.posY_   = gPModule.y();
+    treeMem.posZ_   = gPModule.z();
 
     //mean and RMS values (extracted from histograms(Xprime) on module level)
     treeMem.entries_ = static_cast<UInt_t>(it->second.ResXprimeHisto->GetEntries());
-    treeMem.resXprimeMean_ = it->second.ResXprimeHisto->GetMean();
-    treeMem.resXprimeRms_ = it->second.ResXprimeHisto->GetRMS();
-    treeMem.normResXprimeMean_ = it->second.NormResXprimeHisto->GetMean();
-    treeMem.normResXprimeRms_ = it->second.NormResXprimeHisto->GetRMS();
-    treeMem.resXprimeHistoName_=it->second.ResXprimeHisto->GetName();
-    treeMem.normResXprimeHistoName_=it->second.NormResXprimeHisto->GetName();
+    treeMem.meanX_ = it->second.ResXprimeHisto->GetMean();
+    treeMem.rmsX_ = it->second.ResXprimeHisto->GetRMS();
+    treeMem.meanNormX_ = it->second.NormResXprimeHisto->GetMean();
+    treeMem.rmsNormX_ = it->second.NormResXprimeHisto->GetRMS();
+    treeMem.histNameX_=it->second.ResXprimeHisto->GetName();
+    treeMem.histNameNormX_=it->second.NormResXprimeHisto->GetName();
 
     // fill tree variables in local coordinates if set in cf
     if(lCoorHistOn) {
 
-      treeMem.resMean_ = it->second.ResHisto->GetMean();
-      treeMem.resRms_ = it->second.ResHisto->GetRMS();
-      treeMem.normResMean_ = it->second.NormResHisto->GetMean();
-      treeMem.normResRms_ = it->second.NormResHisto->GetRMS();
-      treeMem.resHistoName_ = it->second.ResHisto->GetName();
-      treeMem.normResHistoName_=it->second.NormResHisto->GetName();
+      treeMem.meanLocalX_ = it->second.ResHisto->GetMean();
+      treeMem.rmsLocalX_ = it->second.ResHisto->GetRMS();
+      treeMem.meanNormLocalX_ = it->second.NormResHisto->GetMean();
+      treeMem.rmsNormLocalX_ = it->second.NormResHisto->GetRMS();
+      treeMem.histNameLocalX_ = it->second.ResHisto->GetName();
+      treeMem.histNameNormLocalX_=it->second.NormResHisto->GetName();
     }
     tree.Fill();
   }
