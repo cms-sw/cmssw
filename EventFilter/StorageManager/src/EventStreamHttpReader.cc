@@ -17,7 +17,7 @@
                 Manager or specify a maximum number of events for
                 the client to read through a maxEvents parameter.
 
-  $Id: EventStreamHttpReader.cc,v 1.29 2008/02/11 15:14:53 biery Exp $
+  $Id: EventStreamHttpReader.cc,v 1.30 2008/07/19 06:24:12 wmtan Exp $
 */
 
 #include "EventFilter/StorageManager/src/EventStreamHttpReader.h"
@@ -98,14 +98,7 @@ namespace edm
     consumerId_ = (time(0) & 0xffffff);  // temporary - will get from ES later
     registerWithEventServer();
 
-    std::auto_ptr<SendJobHeader> p = readHeader();
-    SendDescs const& descs = p->descs();
-
-    // next taken from IOPool/Streamer/EventStreamFileReader
-    // jbk - the next line should not be needed
-    declareStreamers(descs);
-    buildClassCache(descs);
-    loadExtraClasses();
+    readHeader();
   }
 
   EventStreamHttpReader::~EventStreamHttpReader()
@@ -295,7 +288,7 @@ namespace edm
     }
   }
 
-  std::auto_ptr<SendJobHeader> EventStreamHttpReader::readHeader()
+  void EventStreamHttpReader::readHeader()
   {
     // repeat a http get every 5 seconds until we get the registry
     // do it like this for pull mode
@@ -376,7 +369,7 @@ namespace edm
         throw cms::Exception("EventStreamHttpReader", "readHeader");
       }
       InitMsgView initView(&regdata[0]);
-      p = deserializeAndMergeWithRegistry(initView);
+      deserializeAndMergeWithRegistry(initView);
     }
     catch (cms::Exception excpt) {
       const unsigned int MAX_DUMP_LENGTH = 1000;
@@ -394,7 +387,6 @@ namespace edm
       std::cout << "========================================" << std::endl;
       throw excpt;
     }
-    return p;
   }
 
   void EventStreamHttpReader::registerWithEventServer()

@@ -5,7 +5,7 @@
 // the FUEventProcessor XDAQ application
 // TODO: create a common source for this and EventStreamHttpReader
 //       so we do not duplicate code, and make maintenance easier
-// $Id$
+// $Id: OnlineHttpReader.h,v 1.1 2008/04/26 19:26:28 hcheung Exp $
 
 #include "IOPool/Streamer/interface/EventBuffer.h"
 #include "IOPool/Streamer/interface/StreamerInputSource.h"
@@ -31,8 +31,8 @@ namespace edm
     virtual ~OnlineHttpReader();
 
     virtual std::auto_ptr<edm::EventPrincipal> read();
-    virtual std::auto_ptr<edm::SendJobHeader> readHeader();
-    virtual void registerWithEventServer();
+    void readHeader();
+    void registerWithEventServer();
 
   private:  
     std::auto_ptr<edm::EventPrincipal> getOneEvent();

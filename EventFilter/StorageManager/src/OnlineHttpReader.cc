@@ -17,7 +17,7 @@
                 Manager or specify a maximum number of events for
                 the client to read through a maxEvents parameter.
 
-  $Id: OnlineHttpReader.cc,v 1.3 2008/05/11 13:52:05 hcheung Exp $
+  $Id: OnlineHttpReader.cc,v 1.4 2008/07/19 06:24:12 wmtan Exp $
 */
 
 #include "EventFilter/StorageManager/src/OnlineHttpReader.h"
@@ -99,15 +99,8 @@ namespace edm
     registerWithEventServer();
     alreadyRegistered_ = true;
 
-    std::auto_ptr<SendJobHeader> p = readHeader();
+    readHeader();
     alreadyGotHeader_ = true;
-    SendDescs const& descs = p->descs();
-
-    // next taken from IOPool/Streamer/EventStreamFileReader
-    // jbk - the next line should not be needed
-    declareStreamers(descs);
-    buildClassCache(descs);
-    loadExtraClasses();
   }
 
   OnlineHttpReader::~OnlineHttpReader()
@@ -134,7 +127,7 @@ namespace edm
       alreadyRegistered_ = true;
       // we need to fake getting the Header again, but we don't need it
       // TODO: change the requirements in the SM and SMProxy to get an event
-      std::auto_ptr<SendJobHeader> p = readHeader();
+      readHeader();
     }
     // repeat a http get every N seconds until we get an event
     // wait for Storage Manager event server buffer to not be empty
@@ -318,7 +311,7 @@ namespace edm
     }
   }
 
-  std::auto_ptr<SendJobHeader> OnlineHttpReader::readHeader()
+  void OnlineHttpReader::readHeader()
   {
     // repeat a http get every 5 seconds until we get the registry
     // do it like this for pull mode
@@ -399,7 +392,7 @@ namespace edm
         throw cms::Exception("OnlineHttpReader", "readHeader");
       }
       InitMsgView initView(&regdata[0]);
-      p = deserializeAndMergeWithRegistry(initView);
+      deserializeAndMergeWithRegistry(initView);
     }
     catch (cms::Exception excpt) {
       const unsigned int MAX_DUMP_LENGTH = 1000;
@@ -417,7 +410,6 @@ namespace edm
       std::cout << "========================================" << std::endl;
       throw excpt;
     }
-    return p;
   }
 
   void OnlineHttpReader::registerWithEventServer()

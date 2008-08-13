@@ -1,7 +1,7 @@
 #ifndef STREAMER_EVENTSTREAMHTTPREADER_H
 #define STREAMER_EVENTSTREAMHTTPREADER_H
 
-// $Id: EventStreamHttpReader.h,v 1.16 2007/09/28 17:04:53 badgett Exp $
+// $Id: EventStreamHttpReader.h,v 1.17 2007/11/28 18:03:32 wmtan Exp $
 
 #include "IOPool/Streamer/interface/EventBuffer.h"
 #include "IOPool/Streamer/interface/StreamerInputSource.h"
@@ -27,8 +27,8 @@ namespace edm
     virtual ~EventStreamHttpReader();
 
     virtual std::auto_ptr<edm::EventPrincipal> read();
-    virtual std::auto_ptr<edm::SendJobHeader> readHeader();
-    virtual void registerWithEventServer();
+    void readHeader();
+    void registerWithEventServer();
 
   private:  
     std::auto_ptr<edm::EventPrincipal> getOneEvent();
