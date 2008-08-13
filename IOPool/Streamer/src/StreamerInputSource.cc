@@ -67,17 +67,23 @@ namespace edm {
 			 ProductRegistry& reg) {
     SendDescs::const_iterator i(descs.begin()), e(descs.end());
 
-    // the next line seems to be not good.  what if the productdesc is
-    // already there? it looks like I replace it.  maybe that it correct
-
     FDEBUG(6) << "mergeIntoRegistry: Product List: " << std::endl;
-    for(; i != e; ++i) {
+
+    bool merging = reg.size() != 0;
+
+    if (merging) {
+      ProductRegistry pReg;
+      for(; i != e; ++i) {
+	pReg.copyProduct(*i);
+	FDEBUG(6) << "StreamInput prod = " << i->className() << std::endl;
+      }
+      reg.merge(pReg, std::string(), BranchDescription::Permissive);
+    } else {
+      for(; i != e; ++i) {
 	reg.copyProduct(*i);
 	FDEBUG(6) << "StreamInput prod = " << i->className() << std::endl;
+      }
     }
-
-    // not needed any more
-    // fillStreamers(*pr_);
   }
 
   void
