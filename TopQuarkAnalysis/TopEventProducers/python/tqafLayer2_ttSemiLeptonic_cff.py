@@ -19,22 +19,22 @@ from TopQuarkAnalysis.TopEventProducers.producers.TtSemiEvtSolProducer_cfi impor
 
 
 ## make tqaf layer2
-tqafLayer2_ttSemiLeptonic = cms.Sequence(makeTtSemiEvent +
+tqafLayer2_ttSemiLeptonic = cms.Sequence(makeTtSemiLepEvent +
                                          solutions
                                          )
 
 ## make tqaf layer2 filtered for full leptonic decays
-tqafLayer2_ttSemiLeptonic_fullLepFilter = cms.Sequence(makeTtSemiEvent_fullLepFilter +
+tqafLayer2_ttSemiLeptonic_fullLepFilter = cms.Sequence(makeTtSemiLepEvent_fullLepFilter +
                                                        solutions
                                                        )
 
 ## make tqaf layer2 filtered for semi-leptonic decays
-tqafLayer2_ttSemiLeptonic_semiLepFilter = cms.Sequence(makeTtSemiEvent_semiLepFilter +
+tqafLayer2_ttSemiLeptonic_semiLepFilter = cms.Sequence(makeTtSemiLepEvent_semiLepFilter +
                                                        solutions
                                                        )
 
 ## make tqaf layer2 filtered for full hadronic decays
-tqafLayer2_ttSemiLeptonic_fullHadFilter = cms.Sequence(makeTtSemiEvent_fullHadFilter +
+tqafLayer2_ttSemiLeptonic_fullHadFilter = cms.Sequence(makeTtSemiLepEvent_fullHadFilter +
                                                        solutions
                                                        )
 

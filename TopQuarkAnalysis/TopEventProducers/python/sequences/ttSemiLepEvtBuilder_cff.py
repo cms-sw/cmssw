@@ -17,28 +17,28 @@ from TopQuarkAnalysis.TopEventProducers.sequences.ttSemiEventHypotheses_cff impo
 from TopQuarkAnalysis.TopEventProducers.producers.TtSemiLepEvtBuilder_cfi import *
 
 ## make ttSemiEvent
-makeTtSemiEvent = cms.Sequence(makeGenEvt *
-                               makeTtSemiLepHypotheses *
-                               ttSemiLepEvent
-                               )
+makeTtSemiLepEvent = cms.Sequence(makeGenEvt *
+                                  makeTtSemiLepHypotheses *
+                                  ttSemiLepEvent
+                                  )
 
 ## make ttSemiEvent prefiltered for full leptonic decays
-makeTtSemiEvent_fullLepFilter = cms.Sequence(makeGenEvt *
-                               ttFullyLeptonicFilter *               
-                               makeTtSemiLepHypotheses *
-                               ttSemiLepEvent
-                               )
+makeTtSemiLepEvent_fullLepFilter = cms.Sequence(makeGenEvt *
+                                  ttFullyLeptonicFilter *               
+                                  makeTtSemiLepHypotheses *
+                                  ttSemiLepEvent
+                                  )
 
 ## make ttSemiEvent prefiltered for semi-leptonic decays
-makeTtSemiEvent_semiLepFilter = cms.Sequence(makeGenEvt *
-                               ttSemiLeptonicFilter *               
-                               makeTtSemiLepHypotheses *
-                               ttSemiLepEvent
-                               )
+makeTtSemiLepEvent_semiLepFilter = cms.Sequence(makeGenEvt *
+                                  ttSemiLeptonicFilter *               
+                                  makeTtSemiLepHypotheses *
+                                  ttSemiLepEvent
+                                  )
 
 ## make ttSemiEvent prefiltered for full hadronic decays
-makeTtSemiEvent_fullHadFilter = cms.Sequence(makeGenEvt *
-                               ttFullyHadronicFilter *               
-                               makeTtSemiLepHypotheses *
-                               ttSemiLepEvent
-                               )
+makeTtSemiLepEvent_fullHadFilter = cms.Sequence(makeGenEvt *
+                                  ttFullyHadronicFilter *               
+                                  makeTtSemiLepHypotheses *
+                                  ttSemiLepEvent
+                                  )
