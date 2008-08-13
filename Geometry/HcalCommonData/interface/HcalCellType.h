@@ -25,7 +25,7 @@ public:
   HcalCellType(HcalSubdetector detType, int etaBin, int phiBin, 
 	       int depthSegment, HcalCell cell, int readoutDirection,
 	       double samplingFactor, int numberZ, int nmodule,
-	       double halfSize);
+	       double halfSize, int units);
   HcalCellType(const HcalCellType&);
   ~HcalCellType();
 
@@ -50,6 +50,7 @@ public:
 
   /// phi offset in degrees
   double phiOffset() const {return thePhiOffset;}
+  int    unitPhi() const {return theUnitPhi;}
 
   /// Number of halves (forward/backward)
   int nHalves() const {return theNumberOfZ;}
@@ -87,6 +88,7 @@ private:
   int             theNumberOfPhiBins;
   int             theNumberOfZ;
   int             theActualReadoutDirection;
+  int             theUnitPhi;
 
   bool            theRzFlag;
                                                                                
