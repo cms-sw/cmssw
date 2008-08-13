@@ -13,7 +13,7 @@
 //
 // Original Author:  Loic QUERTENMONT, Vincent ROBERFROID
 //         Created:  Tue Sep 18 14:22:48 CEST 2007
-// $Id: NuclearTrackCorrector.cc,v 1.7 2008/02/28 09:18:55 roberfro Exp $
+// $Id: NuclearTrackCorrector.cc,v 1.8 2008/07/08 09:34:59 roberfro Exp $
 //
 //
 
@@ -149,9 +149,9 @@ NuclearTrackCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
         }
         else {
            if(!KeepOnlyCorrectedTracks) {
-                //Output_track->push_back(*primTrackRef);
-      		//Output_trackextra->push_back( *primTrackRef->extra() );
-                //Output_traj->push_back(*trajRef);
+                Output_track->push_back(*primTrackRef);
+      		Output_trackextra->push_back( *primTrackRef->extra() );
+                Output_traj->push_back(*trajRef);
            }
         }
 
