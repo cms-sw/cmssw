@@ -135,18 +135,22 @@ void CSCSummary::ReadReportingChambersRef(TH2*& h2, TH2*& refh2, const double ep
           if (n == 0) {
             val = 0;
           } else if (N > 0) {
+
             eps_meas = (1.0 * n) / (1.0 * N);
+            double S = 0;
 
             // Chamber is cold? It means error!
             if (eps_meas < eps_min) {
-              if (SignificanceLevel(N, n, eps_min) > Sfail) {
+              S = SignificanceLevel(N, n, eps_min);
+              if (S > Sfail) {
                 val = -1;
               }
             } else
             
             // Chamber is hot? It means error!
             if (eps_meas > hot_coef) {
-              if (SignificanceLevelHot(N, n) > Sfail) {
+              S = SignificanceLevelHot(N, n);
+              if (S > Sfail) {
                 val = -1;
               }
             }
@@ -159,7 +163,7 @@ void CSCSummary::ReadReportingChambersRef(TH2*& h2, TH2*& refh2, const double ep
                                                     ", eps_meas = " << eps_meas << 
                                                     ", N = " << N << 
                                                     ", n = " << n << 
-                                                    ", S = " << SignificanceLevel(N, n, eps_min) << 
+                                                    ", S = " << S << 
                                                     ", value = " << val;
             }
 
