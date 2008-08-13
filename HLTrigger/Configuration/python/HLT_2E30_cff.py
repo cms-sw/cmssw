@@ -1,4 +1,4 @@
-# /dev/CMSSW_2_1_0/HLT/V6 (CMSSW_2_1_0_HLT2)
+# /dev/CMSSW_2_1_2/HLT/V3 (CMSSW_2_1_2)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -577,9 +577,7 @@ hltGctDigis = cms.EDProducer( "GctRawToDigi",
     inputLabel = cms.InputTag( "rawDataCollector" ),
     gctFedId = cms.int32( 745 ),
     hltMode = cms.bool( False ),
-    grenCompatibilityMode = cms.bool( False ),
-    unpackInternEm = cms.untracked.bool( False ),
-    unpackFibres = cms.untracked.bool( False )
+    grenCompatibilityMode = cms.bool( False )
 )
 hltL1GtObjectMap = cms.EDProducer( "L1GlobalTrigger",
     GmtInputTag = cms.InputTag( "hltGtDigis" ),
@@ -5367,25 +5365,6 @@ hltL3TrackCandidateFromL2 = cms.EDProducer( "CkfTrajectoryMaker",
 )
 hltL3Muons = cms.EDProducer( "L3MuonProducer",
     MuonCollectionLabel = cms.InputTag( 'hltL2Muons','UpdatedAtVtx' ),
-    ServiceParameters = cms.PSet( 
-      UseMuonNavigation = cms.untracked.bool( True ),
-      RPCLayers = cms.bool( True ),
-      Propagators = cms.untracked.vstring( 'SteppingHelixPropagatorAny', 'SteppingHelixPropagatorAlong', 'SteppingHelixPropagatorOpposite', 'PropagatorWithMaterial', 'PropagatorWithMaterialOpposite', 'SmartPropagator', 'SmartPropagatorOpposite', 'SmartPropagatorAnyOpposite', 'SmartPropagatorAny', 'SmartPropagatorRK', 'SmartPropagatorAnyRK' )
-    ),
-    TrackLoaderParameters = cms.PSet( 
-      MuonUpdatorAtVertexParameters = cms.PSet( 
-        Propagator = cms.string( "SteppingHelixPropagatorOpposite" ),
-        BeamSpotPosition = cms.vdouble( 0.0, 0.0, 0.0 ),
-        BeamSpotPositionErrors = cms.vdouble( 0.1, 0.1, 5.3 ),
-        MaxChi2 = cms.double( 1000000.0 )
-      ),
-      VertexConstraint = cms.bool( False ),
-      PutTkTrackIntoEvent = cms.untracked.bool( True ),
-      MuonSeededTracksInstance = cms.untracked.string( "L2Seeded" ),
-      DoSmoothing = cms.bool( True ),
-      SmoothTkTrack = cms.untracked.bool( False ),
-      Smoother = cms.string( "KFSmootherForMuonTrackLoader" )
-    ),
     L3TrajBuilderParameters = cms.PSet( 
       TrackTransformer = cms.PSet( 
         Fitter = cms.string( "KFFitterForRefitInsideOut" ),
@@ -5451,6 +5430,25 @@ hltL3Muons = cms.EDProducer( "L3MuonProducer",
       KFFitter = cms.string( "L3MuKFFitter" ),
       TransformerOutPropagator = cms.string( "SmartPropagatorAny" ),
       MatcherOutPropagator = cms.string( "SmartPropagator" )
+    ),
+    ServiceParameters = cms.PSet( 
+      UseMuonNavigation = cms.untracked.bool( True ),
+      RPCLayers = cms.bool( True ),
+      Propagators = cms.untracked.vstring( 'SteppingHelixPropagatorAny', 'SteppingHelixPropagatorAlong', 'SteppingHelixPropagatorOpposite', 'PropagatorWithMaterial', 'PropagatorWithMaterialOpposite', 'SmartPropagator', 'SmartPropagatorOpposite', 'SmartPropagatorAnyOpposite', 'SmartPropagatorAny', 'SmartPropagatorRK', 'SmartPropagatorAnyRK' )
+    ),
+    TrackLoaderParameters = cms.PSet( 
+      MuonUpdatorAtVertexParameters = cms.PSet( 
+        Propagator = cms.string( "SteppingHelixPropagatorOpposite" ),
+        BeamSpotPosition = cms.vdouble( 0.0, 0.0, 0.0 ),
+        BeamSpotPositionErrors = cms.vdouble( 0.1, 0.1, 5.3 ),
+        MaxChi2 = cms.double( 1000000.0 )
+      ),
+      VertexConstraint = cms.bool( False ),
+      PutTkTrackIntoEvent = cms.untracked.bool( True ),
+      MuonSeededTracksInstance = cms.untracked.string( "L2Seeded" ),
+      DoSmoothing = cms.bool( True ),
+      SmoothTkTrack = cms.untracked.bool( False ),
+      Smoother = cms.string( "KFSmootherForMuonTrackLoader" )
     )
 )
 hltL3MuonCandidates = cms.EDProducer( "L3MuonCandidateProducer",
@@ -8758,7 +8756,7 @@ hltFilterL25MuonTauPtLeadTk = cms.EDFilter( "HLT1Tau",
     inputTag = cms.InputTag( "hltIsolatedTauJetsSelectorL25MuonTauPtLeadTk" ),
     MinPt = cms.double( 0.0 ),
     MaxEta = cms.double( 5.0 ),
-    MinN = cms.int32( 2 )
+    MinN = cms.int32( 1 )
 )
 hltPixelTrackIsolatedTauJetsSelectorMuonTau = cms.EDProducer( "IsolatedTauJetsSelector",
     MinimumTransverseMomentumLeadingTrack = cms.double( 3.0 ),
