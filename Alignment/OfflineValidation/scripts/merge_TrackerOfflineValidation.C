@@ -1,27 +1,16 @@
 /*
 
-  NOTE: This macro is kept for back compatibility only.
-  Use instead the executable $ROOTSYS/bin/hadd
-  
-  This macro will add histograms from a list of root files and write them
-  to a target root file. The target file is newly created and must not be
-  identical to one of the source files.
+  NOTE: This macro is based on the hadd macro provided by root.
+  The merging of a TTree is different from what hadd does to merge trees.
+  The Tree is once read out for entries which are the same in all input
+  variables - like global position variables for each module - and the values
+  are copied into a new Ttree.
+  The mean and RMS values for the different residuals are taken from the merged 
+  histograms and filled into the tree after the merging procedure.
 
-  Author: Sven A. Schmidt, sven.schmidt@cern.ch
-  Date:   13.2.2001
-
-  This code is based on the hadd.C example by Rene Brun and Dirk Geppert,
-  which had a problem with directories more than one level deep.
-  (see macro hadd_old.C for this previous implementation).
-  
-  The macro from Sven has been enhanced by 
-     Anne-Sylvie Nicollerat <Anne-Sylvie.Nicollerat@cern.ch>
-   to automatically add Trees (via a chain of trees).
-  
-  To use this macro, modify the file names in function hadd.
-  
-  NB: This macro is provided as a tutorial.
-      Use $ROOTSYS/bin/hadd to merge many histogram files
+  To use the tool, the file name should have the same name+i where i is a number 
+  starting at 1. The tool automatically counts up the filenumber to the limit 
+  set by the user.
 
  */
 
