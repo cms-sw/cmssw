@@ -68,7 +68,6 @@ class MuonSeedBuilder
   /// calculate the eta error from global R error
   double etaError(const GlobalPoint gp, double rErr);
 
-<<<<<<< MuonSeedBuilder.h
   /// identify the showering layer
   bool IdentifyShowering( SegmentContainer& segs, BoolContainer& usedSeg, float& eta_last, float& phi_last, int layer, int& NShoweringSegments  );
 
@@ -98,30 +97,6 @@ class MuonSeedBuilder
   /// retrieve seed global momentum 
   GlobalVector SeedMomentum( TrajectorySeed seed );
 
-=======
-  /// identify the showering layer
-  bool IdentifyShowering( SegmentContainer& segs, BoolContainer& usedSeg, float& eta_last, float& phi_last, int layer, int& NShoweringSegments  );
-
-  
-  /// group the seeds 
-  std::vector<SeedContainer> GroupSeeds( std::vector<TrajectorySeed>& seeds );
-  /// pick the seed by better parameter error
-  TrajectorySeed BetterDirection( std::vector<TrajectorySeed>& seeds ) ;
-  TrajectorySeed BetterChi2( std::vector<TrajectorySeed>& seeds );
-  /// filter out the bad pt seeds, if all are bad pt seeds then keep all    
-  bool MomentumFilter(std::vector<TrajectorySeed>& seeds );
-  /// collect long seeds
-  SeedContainer LengthFilter(std::vector<TrajectorySeed>& seeds );
-  /// pick the seeds w/ 1st layer information and w/ more than 1 segments 
-  SeedContainer SeedCandidates( std::vector<TrajectorySeed>& seeds, bool good );
-  /// check overlapping segment for seeds
-  unsigned int OverlapSegments( TrajectorySeed seed1, TrajectorySeed seed2 );
-  /// retrieve seed global position
-  GlobalPoint SeedPosition( TrajectorySeed seed );
-  /// retrieve seed global momentum 
-  GlobalVector SeedMomentum( TrajectorySeed seed );
-
->>>>>>> 1.3
   // This Producer private debug flag
   bool debug;
 
@@ -145,16 +120,10 @@ class MuonSeedBuilder
   float maxDeltaEtaDT;
   float maxDeltaPhiDT;
 
-<<<<<<< MuonSeedBuilder.h
   // Number of Segments from a shower
   int NShowerSeg;
   SegmentContainer ShoweringSegments;   
   std::vector<int> ShoweringLayers; 
-=======
-  // Number of Segments from a shower
-  int NShowerSeg;
-
->>>>>>> 1.3
   /// Name of the DT segment collection
   edm::InputTag theDTSegmentLabel;
 
