@@ -100,15 +100,12 @@ HLTPi0RecHitsFilter::HLTPi0RecHitsFilter(const edm::ParameterSet& iConfig)
   
   
   
-  /// debug_ = false; 
-  /// debug_ = iConfig.getParameter<int> ("debugLevel");
-  ////storeIsoClusRecHit_ = iConfig.getParameter<bool> ("storeIsoClusRecHit");
-  ////ptMinForIsolation_ = iConfig.getParameter<double> ("ptMinForIsolation");
-  ////the 3 should be made configurable in the future. 
-  debug_ = 0; 
-  ptMinForIsolation_ = 0.9; 
-  storeIsoClusRecHit_ = true; 
+
+  debug_ = iConfig.getParameter<int> ("debugLevel");
+  storeIsoClusRecHit_ = iConfig.getParameter<bool> ("storeIsoClusRecHit");
+  ptMinForIsolation_ = iConfig.getParameter<double> ("ptMinForIsolation");
   
+    
   
   
   
