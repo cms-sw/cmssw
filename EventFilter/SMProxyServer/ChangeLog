@@ -1,3 +1,15 @@
+2008-08-13  Kurt Biery <biery@fnal.gov>
+
+	* tag V01-08-05
+	* Added /consumerList web page for Bill Badgett.
+
+2008-06-25  Kurt Biery <biery@fnal.gov>
+
+	* tag V01-08-04
+	* Added archiveIntervalDQM configuration parameter to control how often
+	  we archive DQM histograms (once every N lumi sections, where
+	  archiveIntervalDQM = N)
+
 2008-06-25  Kurt Biery <biery@fnal.gov>
 
 	* tag V01-08-04
