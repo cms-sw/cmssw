@@ -3,7 +3,8 @@
 
 /** \class OffsetRadialStripTopology
  *  ABC defining  RadialStripTopology with shifted offset so that it
- *  is not centred on local y (of parent chamber.)
+ *  is not centred on local y (of parent chamber)
+ *
  *  The offset is specified as a fraction of the strip angular width.
  *
  *  \author Tim Cox
@@ -88,12 +89,12 @@ public:
 
  private:
   /**
-   * Transform from coordinates w.r.t. strip plane symmetry axes to
+   * Transform from coordinates wrt strip plane symmetry axes to
    * local coordinates
    */
   LocalPoint toLocal(float xprime, float yprime) const;
   /**
-   * Transform from local coordinates to coordinates w.r.t. strip plane
+   * Transform from local coordinates to coordinates wrt strip plane
    * symmetry axes
    */
   LocalPoint toPrime(const LocalPoint&) const;
