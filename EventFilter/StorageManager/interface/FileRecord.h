@@ -1,7 +1,7 @@
 #ifndef FILERECORD_H
 #define FILERECORD_H
 
-// $Id: FileRecord.h,v 1.5 2008/04/21 12:13:34 loizides Exp $
+// $Id: FileRecord.h,v 1.6 2008/05/13 18:06:46 loizides Exp $
 #include <EventFilter/StorageManager/interface/Parameter.h>
 #include <boost/shared_ptr.hpp>
 #include <string>
@@ -24,6 +24,7 @@ namespace edm {
       void   updateDatabase();
       void   insertFileInDatabase();
       void   moveFileToClosed();
+      void   moveErrorFileToClosed();
       void   firstEntry(double d)          { firstEntry_ = d; }
       void   lastEntry(double d)           { lastEntry_  = d; }
       void   increaseFileSize(int i)       { fileSize_   += (long long) i; }
