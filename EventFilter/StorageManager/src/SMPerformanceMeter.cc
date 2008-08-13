@@ -2,7 +2,7 @@
      For performance statistics for
      Storage Manager and SMProxyServer.
 
-     $Id$
+     $Id: SMPerformanceMeter.cc,v 1.4 2008/02/02 02:31:09 hcheung Exp $
 */
 
 #include "EventFilter/StorageManager/interface/SMPerformanceMeter.h"
@@ -85,7 +85,7 @@ bool stor::SMPerformanceMeter::addSample(unsigned long size)
   if ( loopCounter_ == (stats_.samples_ - 1  ) )
   {
     chrono_.stop(0);
-    double usecs = (double) chrono_.dusecs();
+    double usecs = ((double) chrono_.dsecs()) * ((double) 1000000.0);
     chrono_.start(0);
     loopCounter_ = 0;
 
