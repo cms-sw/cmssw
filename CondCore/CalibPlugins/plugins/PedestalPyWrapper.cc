@@ -72,7 +72,7 @@ namespace cond {
     {
       // here one can make stuff really complicated...
       std::vector<Value> const & v = values();
-      for (size_t i=0; i< m_what.size(); i++) m_what[i] = values[what.quantity()[i]];
+      for (size_t i=0; i< m_what.size(); i++) m_what[i] = v[what.quantity()[i]];
     }
     void compute(Class const & it){
       for (int i=0; i<m_which.size();i++) {
