@@ -78,9 +78,13 @@ void L1TEventInfoClient::beginJob(const EventSetup& context){
   
   reportSummary_ = dbe_->bookFloat("reportSummary");
 
+  int nSubsystems = 20;
+
+  //initialize reportSummary to 1
+  if (reportSummary_) reportSummary_->Fill(1);
+
   dbe_->setCurrentFolder("L1T/EventInfo/reportSummaryContents");
 
-  int nSubsystems = 20;
   
   char histo[100];
   
@@ -118,7 +122,13 @@ void L1TEventInfoClient::beginJob(const EventSetup& context){
     
     reportSummaryContent_[n] = dbe_->bookFloat(histo);
   }
-  
+
+  //initialize reportSummaryContents to 1
+  for (int k = 0; k < nSubsystems; k++) {
+    summaryContent[k] = 1;
+    reportSummaryContent_[k]->Fill(1.);
+  }  
+
 
   dbe_->setCurrentFolder("L1T/EventInfo");
 
@@ -161,6 +171,11 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
   MonitorElement *CSCTF_QHist = dbe_->get("L1T/L1TCSCTF/CSCTF_occupancies");
   MonitorElement *DTTF_QHist = dbe_->get("L1T/L1TDTTF/DTTF_TRACKS/INTEG/Occupancy Summary");
   
+  //MonitorElement *DTTF_QHist_phi = dbe_->get("L1T/L1TDTTF/DTTF_TRACKS/INTEG/Integrated Packed Phi");
+  //MonitorElement *DTTF_QHist_pt = dbe_->get("L1T/L1TDTTF/DTTF_TRACKS/INTEG/Integrated Packed Pt");
+  //MonitorElement *DTTF_QHist_qual = dbe_->get("L1T/L1TDTTF/DTTF_TRACKS/INTEG/Integrated Packed Quality");
+
+
   int nSubsystems = 20;
   for (int k = 0; k < nSubsystems; k++) {
     summaryContent[k] = 1;
@@ -208,7 +223,7 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
   
 
   if (GCT_QHist){
-    const QReport *GCT_QReport = GCT_QHist->getQReport("HotChannels");
+    const QReport *GCT_QReport = GCT_QHist->getQReport("HotChannels_GCT");
     if (GCT_QReport) {
       int GCT_nBadCh = GCT_QReport->getBadChannels().size();
       //cout << "nBadCh(GCT): "  << GCT_nBadCh << endl;
@@ -235,44 +250,44 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 
   
   if (RCT_QHist){
-    const QReport *RCT_QReport = RCT_QHist->getQReport("HotChannels");
+    const QReport *RCT_QReport = RCT_QHist->getQReport("HotChannels_RCT");
     if (RCT_QReport) {
       int RCT_nBadCh = RCT_QReport->getBadChannels().size();
-      //cout << "nBadCh(RCT): "  << RCT_nBadCh << endl;
       summaryContent[2]=1-RCT_nBadCh/RCT_nCh;
-      //cout << "summaryContent[1]-RCT=" << summaryContent[1] << endl;
       reportSummaryContent_[2]->Fill( summaryContent[2] );
     } 
   }
 
   if (GMT_QHist){
-    const QReport *GMT_QReport = GMT_QHist->getQReport("HotChannels");
-    //cout << "GMT_QReport: " << GMT_QReport << endl;
+    const QReport *GMT_QReport = GMT_QHist->getQReport("HotChannels_GMT");
     if (GMT_QReport) {
       int GMT_nBadCh = GMT_QReport->getBadChannels().size();
-      //cout << "nBadCh(GMT): "  << GMT_nBadCh << endl;
-      //cout << "GMT_nCh: " << GMT_nCh << endl;
       summaryContent[9] = 1 - GMT_nBadCh/GMT_nCh;
-      //cout << "summaryContent[2]-GMT=" << summaryContent[2] << endl;
       reportSummaryContent_[9]->Fill( summaryContent[9] );
     } 
   }
 
   if (CSCTF_QHist){
-    const QReport *CSCTF_QReport = CSCTF_QHist->getQReport("HotChannels");
-    //cout << "CSCTF_QReport: " << CSCTF_QReport << endl;
+    const QReport *CSCTF_QReport = CSCTF_QHist->getQReport("HotChannels_CSCTF");
     if (CSCTF_QReport) {
       int CSCTF_nBadCh = CSCTF_QReport->getBadChannels().size();
-      //cout << "nBadCh(CSCTF): "  << CSCTF_nBadCh << endl;
       summaryContent[7] = 1 - CSCTF_nBadCh/CSCTF_nCh;
-      //cout << "summaryContent[3]-CSCTF=" << summaryContent[3] << endl;
       reportSummaryContent_[7]->Fill( summaryContent[7]);
     } 
   }
 
   if (DTTF_QHist){
-//     const QReport *DTTF_QReport = DTTF_QHist->getQReport("HotChannels");
-//     //cout << "DTTF_QReport: " << DTTF_QReport << endl;
+//      const QReport *DTTF_QReport = DTTF_QHist->getQReport("HotChannels_DTTF_2D");
+//      cout << "DTTF_QReport: " << DTTF_QReport << endl;
+
+//      if (DTTF_QReport) {
+//        int DTTF_nBadCh = DTTF_QReport->getBadChannels().size();
+//        cout << "nBadCh(DTTF): "  << DTTF_nBadCh << endl;
+//        cout << "hotchannel: " << DTTF_QReport->getQRName() << endl;
+//        cout << "hotchannel: " << DTTF_QReport->getMessage() << endl;
+//        cout << "getStatus: " << DTTF_QReport->getStatus() << endl;
+//      } 
+
 //     if (DTTF_QReport) {
 //       int DTTF_nBadCh = DTTF_QReport->getBadChannels().size();
 //       //cout << "nBadCh(DTTF): "  << DTTF_nBadCh << endl;
@@ -290,9 +305,57 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
       }
     summaryContent[5] = (float)nFilledBins / (float)nTotalBins;
     reportSummaryContent_[5]->Fill( summaryContent[5] );
-    //cout << "summaryContent DTTF: " << summaryContent[5] << endl;
   }
 
+  //obtain results from Comp2RefChi2 test
+//   if(DTTF_QHist_phi){
+//     const QReport *DTTF_QReport_phi = DTTF_QHist_phi->getQReport("CompareHist");
+//     if (DTTF_QReport_phi){
+//       cout << "phi: " << DTTF_QReport_phi->getQRName() << endl;
+//       cout << "phi: " << DTTF_QReport_phi->getMessage() << endl;
+//       cout << "getStatus: " << DTTF_QReport_phi->getStatus() << endl;
+//     }
+    
+//    const QReport *DTTF_QReport_phi2 = DTTF_QHist_phi->getQReport("HotChannels_DTTF_phi");
+//     cout << "DTTF_QReport_phi2: " << DTTF_QReport_phi2 << endl;
+//     if (DTTF_QReport_phi2) {
+//       int DTTF_nBadCh = DTTF_QReport_phi2->getBadChannels().size();
+//       cout << "nBadCh(DTTF): "  << DTTF_nBadCh << endl;
+//       cout << "hotchannel: " << DTTF_QReport_phi2->getQRName() << endl;
+//       cout << "hotchannel: " << DTTF_QReport_phi2->getMessage() << endl;
+//       cout << "getStatus: " << DTTF_QReport_phi2->getStatus() << endl;
+//     } 
+
+// }
+  
+//   if(DTTF_QHist_pt){
+//     const QReport *DTTF_QReport_pt = DTTF_QHist_pt->getQReport("CompareHist");
+//     if (DTTF_QReport_pt){
+//       cout << "pt: " << DTTF_QReport_pt->getQRName() << endl;
+//       cout << "pt: " << DTTF_QReport_pt->getMessage() << endl;
+//       cout << "getStatus: " << DTTF_QReport_pt->getStatus() << endl;
+//     }
+  
+//     const QReport *DTTF_QReport_pt2 = DTTF_QHist_pt->getQReport("HotChannels_DTTF_pt");
+//     cout << "DTTF_QReport_pt2: " << DTTF_QReport_pt2 << endl;
+//     if (DTTF_QReport_pt2) {
+//       int DTTF_nBadCh = DTTF_QReport_pt2->getBadChannels().size();
+//       cout << "nBadCh(DTTF): "  << DTTF_nBadCh << endl;
+//       cout << "hotchannel: " << DTTF_QReport_pt2->getQRName() << endl;
+//       cout << "hotchannel: " << DTTF_QReport_pt2->getMessage() << endl;
+//       cout << "getStatus: " << DTTF_QReport_pt2->getStatus() << endl;
+//     }
+
+//  }
+  
+//   if(DTTF_QHist_qual){
+//     const QReport *DTTF_QReport_qual = DTTF_QHist_qual->getQReport("CompareHist");
+//     if (DTTF_QReport_qual){
+//       cout << "qual: " << DTTF_QReport_qual->getQRName() << endl;
+//       cout << "qual: " << DTTF_QReport_qual->getMessage() << endl;
+//       cout << "getStatus: " << DTTF_QReport_qual->getStatus() << endl;
+//     }
+//   }
   
   
   for (int m = 0; m < nSubsystems; m++) {    

@@ -78,6 +78,9 @@ void L1TEMUEventInfoClient::beginJob(const EventSetup& context){
   
   reportSummary_ = dbe_->bookFloat("reportSummary");
 
+  //initialize reportSummary to 1
+  if (reportSummary_) reportSummary_->Fill(1);
+
   dbe_->setCurrentFolder("L1TEMU/EventInfo/reportSummaryContents");
 
   int nSubsystems = 20;
@@ -116,6 +119,11 @@ void L1TEMUEventInfoClient::beginJob(const EventSetup& context){
    reportSummaryContent_[i] = dbe_->bookFloat(histo);
   }
 
+  //initialize reportSummaryContents to 1
+  for (int k = 0; k < nSubsystems; k++) {
+    summaryContent[k] = 1;
+    reportSummaryContent_[k]->Fill(1.);
+  }  
 
   dbe_->setCurrentFolder("L1TEMU/EventInfo");
 
