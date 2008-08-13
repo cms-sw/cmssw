@@ -64,14 +64,12 @@ namespace edm {
 
   void
   StreamerInputSource::mergeIntoRegistry(SendDescs const& descs,
-			 ProductRegistry& reg) {
+			 ProductRegistry& reg, bool subsequent) {
     SendDescs::const_iterator i(descs.begin()), e(descs.end());
 
     FDEBUG(6) << "mergeIntoRegistry: Product List: " << std::endl;
 
-    bool merging = reg.size() != 0;
-
-    if (merging) {
+    if (subsequent) {
       ProductRegistry pReg;
       for(; i != e; ++i) {
 	pReg.copyProduct(*i);
@@ -79,6 +77,9 @@ namespace edm {
       }
       reg.merge(pReg, std::string(), BranchDescription::Permissive);
     } else {
+      declareStreamers(descs);
+      buildClassCache(descs);
+      loadExtraClasses();
       for(; i != e; ++i) {
 	reg.copyProduct(*i);
 	FDEBUG(6) << "StreamInput prod = " << i->className() << std::endl;
@@ -217,11 +218,11 @@ namespace edm {
    * Deserializes the specified init message into a SendJobHeader object
    * and merges registries.
    */
-  std::auto_ptr<SendJobHeader>
-  StreamerInputSource::deserializeAndMergeWithRegistry(InitMsgView const& initView)
+  void
+  StreamerInputSource::deserializeAndMergeWithRegistry(InitMsgView const& initView, bool subsequent)
   {
      std::auto_ptr<SendJobHeader> sd = deserializeRegistry(initView);
-     mergeIntoRegistry(sd->descs(), productRegistryUpdate());
+     mergeIntoRegistry(sd->descs(), productRegistryUpdate(), subsequent);
      ModuleDescriptionRegistry & moduleDescriptionRegistry = *ModuleDescriptionRegistry::instance();
      ModuleDescriptionMap const& mdMap = sd->moduleDescriptionMap();
      for (ModuleDescriptionMap::const_iterator k = mdMap.begin(), kEnd = mdMap.end(); k != kEnd; ++k) {
@@ -232,7 +233,6 @@ namespace edm {
      for (SendJobHeader::ParameterSetMap::const_iterator i = psetMap.begin(), iEnd = psetMap.end(); i != iEnd; ++i) {
        psetRegistry.insertMapped(ParameterSet(i->second.pset_));
      }
-     return sd;
   }
 
   /**

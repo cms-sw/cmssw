@@ -40,12 +40,12 @@ namespace edm {
     static
     std::auto_ptr<SendJobHeader> deserializeRegistry(InitMsgView const& initView);
 
-    std::auto_ptr<SendJobHeader> deserializeAndMergeWithRegistry(InitMsgView const& initView);
+    void deserializeAndMergeWithRegistry(InitMsgView const& initView, bool subsequent = false);
 
     std::auto_ptr<EventPrincipal> deserializeEvent(EventMsgView const& eventView);
 
     static
-    void mergeIntoRegistry(SendDescs const& descs, ProductRegistry&);
+    void mergeIntoRegistry(SendDescs const& descs, ProductRegistry&, bool subsequent);
 
     /**
      * Uncompresses the data in the specified input buffer into the
@@ -60,8 +60,8 @@ namespace edm {
                                          std::vector<unsigned char> &outputBuffer,
                                          unsigned int expectedFullSize);
   protected:
-    void declareStreamers(SendDescs const& descs);
-    void buildClassCache(SendDescs const& descs);
+    static void declareStreamers(SendDescs const& descs);
+    static void buildClassCache(SendDescs const& descs);
     void saveTriggerNames(InitMsgView const* header);
     void setEndRun() {runEndingFlag_ = true;}
     void resetAfterEndRun();
