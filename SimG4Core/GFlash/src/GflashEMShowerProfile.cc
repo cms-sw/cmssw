@@ -1,5 +1,5 @@
 //
-// $Id: GflashEMShowerProfile.cc,v 1.6 2008/06/03 22:55:31 dwjang Exp $
+// $Id: GflashEMShowerProfile.cc,v 1.7 2008/08/05 16:30:27 dwjang Exp $
 // initial setup : Soon Jun & Dongwook Jang
 // Translated from Fortran code.
 
@@ -74,6 +74,8 @@ void GflashEMShowerProfile::parameterization(const G4FastTrack& fastTrack)
   G4double logEinc = std::log(incomingEnergy);
   G4double y = incomingEnergy / Gflash::criticalEnergy; // y = E/Ec, criticalEnergy is in GeV
   G4double logY = std::log(y);
+
+  G4double e25Scale = theGflash5x5EnergyScale_a + theGflash5x5EnergyScale_b*incomingEnergy;
 
   G4double nSpots = 93.0 * std::log(Gflash::Z[jCalorimeter]) * std::pow(incomingEnergy,0.876); // total number of spots
 
@@ -274,7 +276,7 @@ void GflashEMShowerProfile::parameterization(const G4FastTrack& fastTrack)
 	rShower*std::sin(azimuthalAngle)*trajectoryPoint.getCrossUnitVector();
 
       // put energy and position to a spot
-      eSpot.setEnergy(emSpotEnergy*GeV*(theGflash5x5EnergyScale_a + theGflash5x5EnergyScale_b*incomingEnergy));
+      eSpot.setEnergy(emSpotEnergy*GeV*e25Scale);
       eSpot.setPosition(SpotPosition*cm);
 
       // for histogramming      
