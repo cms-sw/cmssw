@@ -99,7 +99,7 @@ void CSCSummary::ReadReportingChambers(TH2*& h2, const double threshold) {
  * @param  Sfail Significance threshold for failure report
  * @return 
  */
-void CSCSummary::ReadReportingChambersRef(TH2*& h2, TH2*& refh2, const double eps_min, const double Sfail) {
+void CSCSummary::ReadReportingChambersRef(TH2*& h2, TH2*& refh2, const double eps_min, const double Sfail, const double hot_coef) {
 
   if(h2->GetXaxis()->GetXmin() <= 1 && h2->GetXaxis()->GetXmax() >= 36 &&
      h2->GetYaxis()->GetXmin() <= 1 && h2->GetYaxis()->GetXmax() >= 18 &&
@@ -124,34 +124,49 @@ void CSCSummary::ReadReportingChambersRef(TH2*& h2, TH2*& refh2, const double ep
 
     for(unsigned int x = 1; x <= 36; x++) {
       for(unsigned int y = 1; y <= 18; y++) {
+        
         N = int(refh2->GetBinContent(x, y) * factor);
         n = int(h2->GetBinContent(x, y));
+
         if(ChamberCoords(x, y, adr)) {
           val = 1;
+
+          // No data? Still not reporting...
           if (n == 0) {
             val = 0;
           } else if (N > 0) {
             eps_meas = (1.0 * n) / (1.0 * N);
+
+            // Chamber is cold? It means error!
             if (eps_meas < eps_min) {
               if (SignificanceLevel(N, n, eps_min) > Sfail) {
                 val = -1;
               }
-              LOGINFO("ReadReportingChambersRef") << "eps_min = " << eps_min << 
-                                                     ", Sfail = " << Sfail << 
-                                                     ", eps_meas = " << eps_meas << 
-                                                     ", N = " << N << 
-                                                     ", n = " << n << 
-                                                     ", S = " << SignificanceLevel(N, n, eps_min) << 
-                                                     ", value = " << val;
             } else
-            if (eps_meas > 1.0) {
+            
+            // Chamber is hot? It means error!
+            if (eps_meas > hot_coef) {
               if (SignificanceLevelHot(N, n) > Sfail) {
                 val = -1;
               }
             }
+
+            if (eps_meas < eps_min || eps_meas > hot_coef) { 
+              LOGINFO("ReadReportingChambersRef") << "(x, y) = (" << x << ", " << y << ")" <<
+                                                    ", eps_min = " << eps_min << 
+                                                    ", Sfail = " << Sfail << 
+                                                    ", hot_coef = " << hot_coef << 
+                                                    ", eps_meas = " << eps_meas << 
+                                                    ", N = " << N << 
+                                                    ", n = " << n << 
+                                                    ", S = " << SignificanceLevel(N, n, eps_min) << 
+                                                    ", value = " << val;
+            }
+
           }
           SetValue(adr, val);
         }
+
       }
     }
 

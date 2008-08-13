@@ -132,7 +132,7 @@ void CSCMonitorModule::updateFracHistos() {
     TH2* ref = dynamic_cast<TH2*>(me1->getRefRootObject());
     TH2* rep = dynamic_cast<TH2*>(me1->getTH1());
     if (ref) {
-      summary.ReadReportingChambersRef(rep, ref, 0.1, 5.0);
+      summary.ReadReportingChambersRef(rep, ref, 0.1, 5.0, 2.0);
     } else {
       summary.ReadReportingChambers(rep, 1.0);
     }

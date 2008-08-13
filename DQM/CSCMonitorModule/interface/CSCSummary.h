@@ -36,7 +36,7 @@ class CSCSummary {
     const CSCDetector Detector() const { return detector; }
 
     void ReadReportingChambers(TH2*& h2, const double threshold = 1.0);
-    void ReadReportingChambersRef(TH2*& h2, TH2*& refh2, const double eps_min = 0.1, const double Sfail = 5.0);
+    void ReadReportingChambersRef(TH2*& h2, TH2*& refh2, const double eps_min = 0.1, const double Sfail = 5.0, const double hot_coef = 2.0);
     void ReadErrorChambers(TH2*& evs, TH2*& err, const double eps_max = 0.1, const double Sfail = 5.0);
 
     const unsigned int setMaskedHWElements(std::vector<std::string>& tokens);
