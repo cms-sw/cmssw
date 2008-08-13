@@ -414,7 +414,8 @@ const int CSCSummary::IsPhysicsReady(const float xmin, const float xmax, const f
           break;
         case 2:
           mas_sum++;
-        }
+      }
+      break;
 
     }
 
