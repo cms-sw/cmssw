@@ -22,8 +22,8 @@
  **  
  **
  **  $Id: PhotonAnalyzer
- **  $Date: 2008/07/23 17:13:48 $ 
- **  $Revision: 1.8 $
+ **  $Date: 2008/07/23 17:47:22 $ 
+ **  $Revision: 1.9 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -74,9 +74,9 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   std::string photonCollectionProducer_;       
   std::string photonCollection_;
 
-  std::string  bcProducer_;
-  std::string  bcBarrelCollection_;
-  std::string  bcEndcapCollection_;
+
+  edm::InputTag  bcBarrelCollection_;
+  edm::InputTag  bcEndcapCollection_;
   std::string hbheLabel_;
   std::string hbheInstanceName_;
  
@@ -95,8 +95,7 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   double trkIsolInnRadius_;
   double trkPtLow_;
   double lip_;
-  double ecalIsolInnRadius_;
-  double ecalIsolOutRadius_;
+  double ecalIsolRadius_;
   double ecalEtaStrip_;
   double minEtEcalRecHit_;
   double bcEtLow_;
