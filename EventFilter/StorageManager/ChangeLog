@@ -1,5 +1,23 @@
 2008-08-13  Kurt Biery <biery@fnal.gov>
 
+	* tag V03-14-00
+	* Added the Error stream.  This included converting the StreamService and
+	  OutputService classes into interfaces and creating derived classes for
+	  handling regular events and FRDEvents (FED Raw Data Events) [which is a
+	  more generic name for Error events].  This change depends on
+	  IOPool/Streamer V05-02-00.
+
+2008-08-13  William Tanenbaum <wmtan@fnal.gov>
+
+	* tag V03-13-00
+	* Bug fix for a repacker problem. Due to the data dictionaries being loaded
+	  too late, the repacker writes the raw data fully split, rather than unsplit,
+	  as was specified in the dictionary.  This is not a critcal problem in that
+	  the number of extra branches due to the splitting is small.  Nonetheless,
+	  this fix should be picked up in 2_1_X, although it is not critical for 2_1_3.
+
+2008-08-13  Kurt Biery <biery@fnal.gov>
+
 	* tag V03-12-16
 	* Backed out recent RB Sender web page changes until we've had a chance
 	  to test them more.
