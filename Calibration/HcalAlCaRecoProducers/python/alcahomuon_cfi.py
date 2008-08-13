@@ -5,22 +5,23 @@ import FWCore.ParameterSet.Config as cms
 #----------------------------------------------------------- 
 hoCalibProducer = cms.EDProducer("AlCaHOCalibProducer",
     hbheInput = cms.InputTag("hbhereco"),
-    lastTS = cms.untracked.int32(8),
-    hotime = cms.untracked.bool(False),
-    hbinfo = cms.untracked.bool(False),
-    sigma = cms.untracked.double(1.0),
-    hoInput = cms.InputTag("horeco"),
-    hltInput = cms.InputTag("TriggerResults"),
     l1Input = cms.InputTag("l1extraParticleMap"),
+    sigma = cms.untracked.double(1.0),
+    hotime = cms.untracked.bool(False),
     towerInput = cms.InputTag("towerMaker"),
+    hbinfo = cms.untracked.bool(False),
+    hoInput = cms.InputTag("horeco"),
+    PedestalFile = cms.untracked.string('peds_mtcc2_4333.log'),
     digiInput = cms.untracked.bool(False),
     RootFileName = cms.untracked.string('test.root'),
-    m_scale = cms.untracked.double(4.0),
+    lastTS = cms.untracked.int32(8),
     debug = cms.untracked.bool(False),
-    #        untracked InputTag muons =cosmicMuons     # standAloneMuons
-    muons = cms.untracked.InputTag("standAloneMuons"),
+    m_scale = cms.untracked.double(4.0),
     firstTS = cms.untracked.int32(5),
-    PedestalFile = cms.untracked.string('peds_mtcc2_4333.log')
+    hltInput = cms.InputTag("TriggerResults"),
+    #        untracked InputTag muons =cosmicMuons     # standAloneMuons
+    muons = cms.untracked.InputTag("standAloneMuons")
 )
+
 
 

@@ -28,7 +28,7 @@ isoTrSiStripDigis.ProductLabel = 'hltSiStripRegFED'
 isoTrEcalDigis.DoRegional = True
 isoTrEcalDigis.InputLabel = 'hltEcalRegFED'
 isoTrEcalDigis.FedLabel = 'hltEcalRegFED'
-isoTrEcalPreshowerDigis.Label = 'hltEcalRegFED'
+isoTrEcalPreshowerDigis.sourceTag = 'hltEcalRegFED'
 isoTrHcalDigis.InputLabel = 'hltSubdetFED'
 
 siPixelClusters.src = 'isoTrSiPixelDigis'
