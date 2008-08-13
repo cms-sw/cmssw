@@ -1,8 +1,8 @@
 /**
  *  A selector for muon tracks
  *
- *  $Date: 2008/02/20 08:47:54 $
- *  $Revision: 1.18 $
+ *  $Date: 2008/08/13 12:55:27 $
+ *  $Revision: 1.19 $
  *  \author R.Bellan - INFN Torino
  */
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryCleaner.h"
@@ -56,10 +56,12 @@ void MuonTrajectoryCleaner::clean(TrajectoryContainer& trajC){
 
       LogTrace(metname) 
 	<< " MuonTrajSelector: trajC " 
-	<< i << " chi2/nDOF = " << (*iter)->chiSquared() << "/" << (*iter)->ndof() 
+	<< i << "(pT="<<(*iter)->lastMeasurement().updatedState().globalMomentum().perp() << " GeV)"
+	<< " chi2/nDOF = " << (*iter)->chiSquared() << "/" << (*iter)->ndof() 
 	<< " (RH=" << (*iter)->foundHits() << ") = " << chi2_dof_i
 	<< " vs trajC " 
-	<< j << " chi2/nRH = " << (*jter)->chiSquared() << "/" <<  (*jter)->ndof() 
+	<< j << "(pT="<<(*jter)->lastMeasurement().updatedState().globalMomentum().perp() << " GeV)"
+	<< " chi2/nRH = " << (*jter)->chiSquared() << "/" <<  (*jter)->ndof() 
 	<< " (RH=" << (*jter)->foundHits() << ") = " << chi2_dof_j
 	<< " Shared RecHits: " << match; 
 
@@ -68,17 +70,48 @@ void MuonTrajectoryCleaner::clean(TrajectoryContainer& trajC){
       if ( match > 0 ) {
         // If the difference of # of rechits is less than 4, compare the chi2/ndf
         if ( abs(hit_diff) <= 4  ) {
-          if ( chi2_dof_i  > chi2_dof_j ) {
-            mask[i] = false;
-            skipnext=true;
-	    LogTrace(metname) << "Trajectory # " << i << " (pT= "<<(*iter)->lastMeasurement().updatedState().globalMomentum().perp() << " GeV) rejected";
-          }
-          else{
-	    mask[j] = false;
-	    LogTrace(metname) << "Trajectory # " << j << " (pT="<<(*jter)->lastMeasurement().updatedState().globalMomentum().perp() << " GeV) rejected";
-	  }
 
-        }
+	  double minPt = 3.5;
+	  double dPt = 7.;  // i.e. considering 10% (conservative!) resolution at minPt it is ~ 10 sigma away from the central value
+
+	  double maxFraction = 0.95;
+
+       	  double fraction = (2.*match)/((*iter)->foundHits()+(*jter)->foundHits());
+	  int belowLimit = 0;
+	  int above = 0;
+
+	  if((*jter)->lastMeasurement().updatedState().globalMomentum().perp() <= minPt) ++belowLimit; 
+	  if((*iter)->lastMeasurement().updatedState().globalMomentum().perp() <= minPt) ++belowLimit; 
+	 
+	  if((*jter)->lastMeasurement().updatedState().globalMomentum().perp() >= dPt) ++above; 
+	  if((*iter)->lastMeasurement().updatedState().globalMomentum().perp() >= dPt) ++above; 
+	  
+
+	  if(fraction >= maxFraction && belowLimit == 1 && above == 1){
+	    if((*iter)->lastMeasurement().updatedState().globalMomentum().perp() < minPt){
+	      mask[i] = false;
+	      skipnext=true;
+	      LogTrace(metname) << "Trajectory # " << i << " (pT="<<(*iter)->lastMeasurement().updatedState().globalMomentum().perp() 
+				<< " GeV) rejected because it has too low pt";
+	    } 
+	    else {
+	      mask[j] = false;
+	      LogTrace(metname) << "Trajectory # " << j << " (pT="<<(*jter)->lastMeasurement().updatedState().globalMomentum().perp() 
+				<< " GeV) rejected because it has too low pt";
+	    }
+	  }
+	  else{   
+	    if (chi2_dof_i  > chi2_dof_j) {
+	      mask[i] = false;
+	      skipnext=true;
+	      LogTrace(metname) << "Trajectory # " << i << " (pT="<<(*iter)->lastMeasurement().updatedState().globalMomentum().perp() << " GeV) rejected";
+	    }
+	    else{
+	      mask[j] = false;
+	      LogTrace(metname) << "Trajectory # " << j << " (pT="<<(*jter)->lastMeasurement().updatedState().globalMomentum().perp() << " GeV) rejected";
+	    }
+	  }
+	}
         else { // different number of hits
           if ( hit_diff < 0 ) {
             mask[i] = false;
@@ -89,23 +122,7 @@ void MuonTrajectoryCleaner::clean(TrajectoryContainer& trajC){
 	    mask[j] = false;
 	    LogTrace(metname) << "Trajectory # " << j << " (pT="<<(*jter)->lastMeasurement().updatedState().globalMomentum().perp() << " GeV) rejected";
 	  }
-        }
-
-//         if (  (*iter)->foundHits() == (*jter)->foundHits() ) {
-//           if ( (*iter)->chiSquared() > (*jter)->chiSquared() ) {
-//             mask[i] = false;
-//             skipnext=true;
-//           }
-//           else mask[j] = false;
-//         }
-//         else { // different number of hits
-//           if ( (*iter)->foundHits() < (*jter)->foundHits() ) {
-// 	    mask[i] = false;
-//             skipnext=true;
-//           }
-//           else mask[j] = false;
-// 	}
-        
+        } 
       }
       if(skipnext) break;
       j++;
