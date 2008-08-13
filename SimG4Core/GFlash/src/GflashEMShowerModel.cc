@@ -24,8 +24,6 @@ GflashEMShowerModel::GflashEMShowerModel(G4String modelName, G4Envelope* envelop
   theGflashNavigator = new G4Navigator();
   theGflashTouchableHandle = new G4TouchableHistory();
 
-  theGflashNavigator->SetWorldVolume(G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume());
-
 }
 
 // -----------------------------------------------------------------------------------
@@ -106,7 +104,8 @@ void GflashEMShowerModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastSte
     theGflashStep->GetPostStepPoint()->SetProcessDefinedStep(const_cast<G4VProcess*> (fastTrack.GetPrimaryTrack()->GetStep()->GetPostStepPoint()->GetProcessDefinedStep()));
 
     //put touchable for each energy spot so that touchable history keeps track of each step.
-    theGflashNavigator->LocateGlobalPointAndUpdateTouchable(spotIter->getPosition(),theGflashTouchableHandle(), false);
+    theGflashNavigator->SetWorldVolume(G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume());
+    theGflashNavigator->LocateGlobalPointAndUpdateTouchableHandle(spotIter->getPosition(),G4ThreeVector(0,0,0),theGflashTouchableHandle, false);
     theGflashStep->GetPreStepPoint()->SetTouchableHandle(theGflashTouchableHandle);
     theGflashStep->SetTotalEnergyDeposit(spotIter->getEnergy());
     
