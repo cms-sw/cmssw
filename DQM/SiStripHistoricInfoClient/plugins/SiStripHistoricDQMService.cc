@@ -150,17 +150,17 @@ void SiStripHistoricDQMService::scanTreeAndFillSummary(const std::vector<Monitor
 	  userDBContent.push_back(keyName+std::string("@landauSFWHM"));
 
 	  fitME->doLanGaussFit(*iterMes);
-	  //values.push_back( fitME->getLanGaussPar()[1]); 
-	  //values.push_back( fitME->getFitParErr()[1]); 
-	  //values.push_back( fitME->pLanConv[1]);
+	  values.push_back( fitME->getLanGaussPar("mpv")    ); 
+	  values.push_back( fitME->getLanGaussParErr("mpv") ); 
+	  values.push_back( fitME->getLanGaussConv("fwhm")  );
 	}
 	else if(Quantities[i]  == "gauss"){  
 	  userDBContent.push_back(keyName+std::string("@gaussMean"));
 	  userDBContent.push_back(keyName+std::string("@gaussSigma"));
 
 	  fitME->doGaussFit(*iterMes);
-	  //values.push_back( pfitME->getNoisePar()[1]);
-	  //values.push_back( pfitME->getNoiseParErr()[1]);
+	  values.push_back( fitME->getGaussPar("mean")  );
+	  values.push_back( fitME->getGaussPar("sigma") );
 	}
 	else if(Quantities[i]  == "stat"){  
 	  userDBContent.push_back(keyName+std::string("@entries"));

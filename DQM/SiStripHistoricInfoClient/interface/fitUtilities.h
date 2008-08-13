@@ -32,24 +32,28 @@ class fitUtilities{
   fitUtilities();
   ~fitUtilities();
  
-  void init();
+  void   init();
   double doLanGaussFit(MonitorElement* ME){return doLanGaussFit(ME->getTH1F());}
   double doLanGaussFit(TH1F*);
 
   double doGaussFit(MonitorElement* ME){return doGaussFit(ME->getTH1F());}
   double doGaussFit(TH1F*);
   
-  double* getLanGaussPar() {return pLanGausS;} 
-  double* getGaussPar() {return pGausS;}
-  double* getFitParErr() {return epLanGausS;} //<<<<<<< AGGIUSTA
-  double  getFitChi() {return chi2GausS;}
-  int32_t getFitnDof() {return nDofGausS;}
+  double getLanGaussPar(std::string s)   ;
+  double getLanGaussParErr(std::string s);
+  double getLanGaussConv(std::string s)  ;
+  
+  double getGaussPar(std::string s)   ;
+  double getGaussParErr(std::string s);
+
+  double getFitChi() {return chi2GausS;}
+  int    getFitnDof() {return nDofGausS;}
  
  private:
   
-  double *pLanGausS, *epLanGausS;
-  double *pGausS, *epGausS;
-  double *pLanConv;
+  double pLanGausS[4], epLanGausS[4];
+  double pGausS[3], epGausS[3];
+  double pLanConv[2];
   double chi2GausS;
   int32_t nDofGausS;
   TF1 *langausFit; 
@@ -232,12 +236,7 @@ double Gauss(double *x, double *par)
 
 
 //-----------------------------------------------------------------------------------------------
-fitUtilities::fitUtilities(){
-  pLanGausS=new double[4];
-  pGausS=new double[3];
-  epGausS=new double[3];
-  epLanGausS=new double[4];
-  pLanConv=new double[2];  
+fitUtilities::fitUtilities():langausFit(0),gausFit(0){
   init();
 }
 
@@ -249,8 +248,8 @@ void fitUtilities::init(){
   epGausS[0]=0;  epGausS[1]=0;  epGausS[2]=0;
   pLanConv[0]=0;  pLanConv[1]=0;
 
-  if ( langausFit ) delete langausFit;
-  if ( gausFit ) delete gausFit;
+  //if ( langausFit!=0 ) delete langausFit;
+  //if ( gausFit!=0 ) delete gausFit;
 
   chi2GausS = -9999.;
   nDofGausS = -9999;
@@ -258,11 +257,6 @@ void fitUtilities::init(){
 
 //-----------------------------------------------------------------------------------------------
 fitUtilities::~fitUtilities(){
-  if ( pLanGausS!=0 ) delete [] pLanGausS;
-  if ( epLanGausS!=0 ) delete [] epLanGausS;
-  if ( pGausS!=0 ) delete [] pGausS;
-  if ( epGausS!=0 ) delete [] epGausS;
-  if ( pLanConv!=0) delete[] pLanConv;
   if ( langausFit!=0 ) delete langausFit;
   if ( gausFit!=0 ) delete gausFit;
 }
@@ -272,9 +266,6 @@ fitUtilities::~fitUtilities(){
 //-----------------------------------------------------------------------------------------------
 double fitUtilities::doLanGaussFit(TH1F* htoFit){
   init();
-  pLanGausS[0]=0; pLanGausS[1]=0; pLanGausS[2]=0; pLanGausS[3]=0;
-  epLanGausS[0]=0; epLanGausS[1]=0; epLanGausS[2]=0; epLanGausS[3]=0;
- 
  
   if (htoFit->GetEntries()!=0) {
     std::cout<<"Fitting "<< htoFit->GetTitle() <<std::endl;
@@ -306,7 +297,6 @@ double fitUtilities::doLanGaussFit(TH1F* htoFit){
     plhi[0]=25.0; plhi[1]=200.0; plhi[2]=1000000.0; plhi[3]=50.0;
     pllo[0]=1.5 ; pllo[1]=10.0 ; pllo[2]=1.0      ; pllo[3]= 1.0;
 		  
-    // create different landau+gaussians for different runs
     Char_t FunName[100];
     sprintf(FunName,"FitfcnLG_%s",htoFit->GetName());  
 		  
@@ -321,8 +311,8 @@ double fitUtilities::doLanGaussFit(TH1F* htoFit){
     htoFit->Fit(langausFit,"R0");  // "R" fit in a range,"0" quiet fit
 		  
     langausFit->SetRange(fr[0],fr[1]);
-    pLanGausS=langausFit->GetParameters();
-    epLanGausS=langausFit->GetParErrors();
+    langausFit->GetParameters(pLanGausS);
+    std::memcpy((void*) epLanGausS, (void*) langausFit->GetParErrors(), 4*sizeof(double));
 		  
     chi2GausS =langausFit->GetChisquare();  // obtain chi^2
     nDofGausS = langausFit->GetNDF();           // obtain ndf
@@ -397,8 +387,8 @@ double fitUtilities::doGaussFit(TH1F* htoFit){
     htoFit->Fit(gausFit,"R0");
 		  
     gausFit->SetRange(fr[0],fr[1]);
-    pGausS=gausFit->GetParameters();
-    epGausS=gausFit->GetParErrors();
+    gausFit->GetParameters(pGausS);
+    std::memcpy((void*) epGausS, (void*) gausFit->GetParErrors(), 3*sizeof(double));
 		  
     chi2GausS =langausFit->GetChisquare(); // obtain chi^2
     nDofGausS = langausFit->GetNDF();// obtain ndf
@@ -412,3 +402,60 @@ double fitUtilities::doGaussFit(TH1F* htoFit){
   return htoFit->GetEntries();
 }
 
+//-----------------------------------------------------------------------------------------------
+double fitUtilities::getLanGaussPar(std::string s){
+  if(s=="landau_width")
+      return pLanGausS[0];
+  else if(s=="mpv")
+      return pLanGausS[1];
+  else if(s=="area")
+      return pLanGausS[1];
+  else if(s=="gauss_sigma")
+      return pLanGausS[2];
+  else
+      return -99999;
+}
+
+double fitUtilities::getLanGaussParErr(std::string s){
+  if(s=="landau_width")
+      return epLanGausS[0];
+  else if(s=="mpv")
+      return epLanGausS[1];
+  else if(s=="area")
+      return epLanGausS[1];
+  else if(s=="gauss_sigma")
+      return epLanGausS[2];
+  else
+      return -99999;
+}
+
+double fitUtilities::getLanGaussConv(std::string s) {
+  if(s=="mpv")
+      return pLanConv[0];
+  else if(s=="fwhm")
+      return pLanConv[1];
+  else
+      return -99999;
+}
+
+double fitUtilities::getGaussPar(std::string s) {
+  if(s=="area")
+      return pGausS[0];
+  else if(s=="mean")
+      return pGausS[1];
+  else if(s=="sigma")
+      return pGausS[2];
+  else
+      return -99999;
+}
+
+double fitUtilities::getGaussParErr(std::string s) {
+  if(s=="area")
+      return epGausS[0];
+  else if(s=="mean")
+      return epGausS[1];
+  else if(s=="sigma")
+      return epGausS[2];
+  else
+      return -99999;
+}
