@@ -55,11 +55,11 @@ ConversionTrackCandidateProducer::ConversionTrackCandidateProducer(const edm::Pa
   bcBarrelCollection_     = conf_.getParameter<edm::InputTag>("bcBarrelCollection");
   bcEndcapCollection_     = conf_.getParameter<edm::InputTag>("bcEndcapCollection");
   
-  scHybridBarrelProducer_       = conf_.getParameter<std::string>("scHybridBarrelProducer");
-  scIslandEndcapProducer_       = conf_.getParameter<std::string>("scIslandEndcapProducer");
+  scHybridBarrelProducer_       = conf_.getParameter<edm::InputTag>("scHybridBarrelProducer");
+  scIslandEndcapProducer_       = conf_.getParameter<edm::InputTag>("scIslandEndcapProducer");
   
-  scHybridBarrelCollection_     = conf_.getParameter<std::string>("scHybridBarrelCollection");
-  scIslandEndcapCollection_     = conf_.getParameter<std::string>("scIslandEndcapCollection");
+  // scHybridBarrelCollection_     = conf_.getParameter<std::string>("scHybridBarrelCollection");
+  //scIslandEndcapCollection_     = conf_.getParameter<std::string>("scIslandEndcapCollection");
   
   OutInTrackCandidateCollection_ = conf_.getParameter<std::string>("outInTrackCandidateCollection");
   InOutTrackCandidateCollection_ = conf_.getParameter<std::string>("inOutTrackCandidateCollection");
@@ -170,55 +170,60 @@ void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::
   std::auto_ptr<reco::TrackCandidateCaloClusterPtrAssociation> inOutAssoc_p(new reco::TrackCandidateCaloClusterPtrAssociation);
     
   // Get the basic cluster collection in the Barrel 
+  validBarrelBCHandle_=true;
   edm::Handle<edm::View<reco::CaloCluster> > bcBarrelHandle;
   theEvent.getByLabel(bcBarrelCollection_, bcBarrelHandle);
   if (!bcBarrelHandle.isValid()) {
-    edm::LogError("ConversionTrackCandidateProducer") << "Error! Can't get the product "<<bcBarrelCollection_;
-    return;
+    edm::LogError("ConversionTrackCandidateProducer") << "Error! Can't get the product "<<bcBarrelCollection_.label();
+    validBarrelBCHandle_=false;
   }
   
   
   // Get the basic cluster collection in the Endcap 
+  validEndcapBCHandle_=true;
   edm::Handle<edm::View<reco::CaloCluster> > bcEndcapHandle;
   theEvent.getByLabel(bcEndcapCollection_, bcEndcapHandle);
   if (!bcEndcapHandle.isValid()) {
-    edm::LogError("CoonversionTrackCandidateProducer") << "Error! Can't get the product "<<bcEndcapCollection_;
-    return;
+    edm::LogError("CoonversionTrackCandidateProducer") << "Error! Can't get the product "<<bcEndcapCollection_.label();
+    validEndcapBCHandle_=false; 
   }
   
   
 
   // Get the Super Cluster collection in the Barrel
+  validBarrelSCHandle_=true;
   edm::Handle<edm::View<reco::CaloCluster> > scBarrelHandle;
-  theEvent.getByLabel(scHybridBarrelProducer_,scHybridBarrelCollection_,scBarrelHandle);
+  theEvent.getByLabel(scHybridBarrelProducer_,scBarrelHandle);
   if (!scBarrelHandle.isValid()) {
-    edm::LogError("CoonversionTrackCandidateProducer") << "Error! Can't get the product "<<scHybridBarrelCollection_.c_str();
-    return;
+    edm::LogError("CoonversionTrackCandidateProducer") << "Error! Can't get the product "<<scHybridBarrelProducer_.label();
+    validBarrelSCHandle_=false;
   }
 
 
   // Get the Super Cluster collection in the Endcap
+  validEndcapSCHandle_=true;
   edm::Handle<edm::View<reco::CaloCluster> > scEndcapHandle;
-  theEvent.getByLabel(scIslandEndcapProducer_,scIslandEndcapCollection_,scEndcapHandle);
+  theEvent.getByLabel(scIslandEndcapProducer_,scEndcapHandle);
   if (!scEndcapHandle.isValid()) {
-    edm::LogError("CoonversionTrackCandidateProducer") << "Error! Can't get the product "<<scIslandEndcapCollection_.c_str();
-    return;
+    edm::LogError("CoonversionTrackCandidateProducer") << "Error! Can't get the product "<<scIslandEndcapProducer_.label();
+    validEndcapSCHandle_=false;
   }
 
 
   // get the geometry from the event setup:
   theEventSetup.get<CaloGeometryRecord>().get(theCaloGeom_);
   // Get HoverE
+  validHcalRecHitHandle_=true;
   Handle<HBHERecHitCollection> hbhe;
   std::auto_ptr<HBHERecHitMetaCollection> mhbhe;
   theEvent.getByLabel(hbheLabel_,hbheInstanceName_,hbhe);  
   if (!hbhe.isValid()) {
     edm::LogError("PhotonProducer") << "Error! Can't get the product "<<hbheInstanceName_.c_str();
-    return; 
+    validHcalRecHitHandle_=false;
   }
 
   
-  if (hOverEConeSize_ > 0.) {
+  if (validHcalRecHitHandle_ && hOverEConeSize_ > 0.) {
     mhbhe=  std::auto_ptr<HBHERecHitMetaCollection>(new HBHERecHitMetaCollection(*hbhe));
   }
   theHoverEcalc_=HoECalculator(theCaloGeom_);
@@ -227,8 +232,10 @@ void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::
   caloPtrVecOutIn_.clear();
   caloPtrVecInOut_.clear();
 
-  buildCollections(scBarrelHandle, bcBarrelHandle,  mhbhe.get(), *outInTrackCandidate_p,*inOutTrackCandidate_p,caloPtrVecOutIn_,caloPtrVecInOut_ );
-  buildCollections(scEndcapHandle, bcEndcapHandle,  mhbhe.get(), *outInTrackCandidate_p,*inOutTrackCandidate_p,caloPtrVecOutIn_,caloPtrVecInOut_ );
+  if ( validBarrelBCHandle_ && validBarrelSCHandle_ ) 
+    buildCollections(scBarrelHandle, bcBarrelHandle,  mhbhe.get(), *outInTrackCandidate_p,*inOutTrackCandidate_p,caloPtrVecOutIn_,caloPtrVecInOut_ );
+  if ( validEndcapBCHandle_ && validEndcapSCHandle_ ) 
+    buildCollections(scEndcapHandle, bcEndcapHandle,  mhbhe.get(), *outInTrackCandidate_p,*inOutTrackCandidate_p,caloPtrVecOutIn_,caloPtrVecInOut_ );
 
 
 

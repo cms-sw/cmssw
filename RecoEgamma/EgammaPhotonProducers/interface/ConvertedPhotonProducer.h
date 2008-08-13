@@ -3,9 +3,9 @@
 /** \class ConvertedPhotonProducer
  **  
  **
- **  $Id: ConvertedPhotonProducer.h,v 1.17 2008/05/08 21:18:10 nancy Exp $ 
- **  $Date: 2008/05/08 21:18:10 $ 
- **  $Revision: 1.17 $
+ **  $Id: ConvertedPhotonProducer.h,v 1.18 2008/05/29 14:59:06 arizzi Exp $ 
+ **  $Date: 2008/05/29 14:59:06 $ 
+ **  $Revision: 1.18 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -63,10 +63,10 @@ class ConvertedPhotonProducer : public edm::EDProducer {
 //  std::string bcProducer_;
   edm::InputTag bcBarrelCollection_;
   edm::InputTag bcEndcapCollection_;
-  std::string scHybridBarrelProducer_;
-  std::string scIslandEndcapProducer_;
-  std::string scHybridBarrelCollection_;
-  std::string scIslandEndcapCollection_;
+  edm::InputTag scHybridBarrelProducer_;
+  edm::InputTag scIslandEndcapProducer_;
+  //  std::string scHybridBarrelCollection_;
+  //std::string scIslandEndcapCollection_;
   edm::ParameterSet conf_;
 
   edm::ESHandle<MagneticField> theMF_;
@@ -75,8 +75,15 @@ class ConvertedPhotonProducer : public edm::EDProducer {
   ConversionVertexFinder*         theVertexFinder_;
   ConversionTrackEcalImpactPoint* theEcalImpactPositionFinder_;
 
-
   int nEvt_;
+  bool validTrackInputs_;
+
+  bool validBarrelBCHandle_;
+  bool validBarrelSCHandle_;
+  bool validEndcapBCHandle_;
+  bool validEndcapSCHandle_;
+
+
 
 
 };

@@ -3,9 +3,9 @@
 /** \class ConversionTrackCandidateProducer
  **  
  **
- **  $Id: ConversionTrackCandidateProducer.h,v 1.8 2008/05/08 21:17:59 nancy Exp $ 
- **  $Date: 2008/05/08 21:17:59 $ 
- **  $Revision: 1.8 $
+ **  $Id: ConversionTrackCandidateProducer.h,v 1.9 2008/05/29 14:59:06 arizzi Exp $ 
+ **  $Date: 2008/05/29 14:59:06 $ 
+ **  $Revision: 1.9 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -64,13 +64,18 @@ class ConversionTrackCandidateProducer : public edm::EDProducer {
   //std::string bcProducer_;
   edm::InputTag bcBarrelCollection_;
   edm::InputTag bcEndcapCollection_;
-  std::string scHybridBarrelProducer_;
-  std::string scIslandEndcapProducer_;
-  std::string scHybridBarrelCollection_;
-  std::string scIslandEndcapCollection_;
+  edm::InputTag scHybridBarrelProducer_;
+  edm::InputTag scIslandEndcapProducer_;
   edm::ParameterSet conf_;
   std::string hbheLabel_;
   std::string hbheInstanceName_;
+
+  bool validBarrelBCHandle_;
+  bool validBarrelSCHandle_;
+  bool validEndcapBCHandle_;
+  bool validEndcapSCHandle_;
+
+  bool validHcalRecHitHandle_;
 
 
   double hOverEConeSize_;
