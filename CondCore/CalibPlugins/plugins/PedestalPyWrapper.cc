@@ -34,8 +34,8 @@ namespace cond {
       }
     };
 
-    // example using multiple choice
-    static std::vector<std::string> const & descr_quantity() {
+    // example using multiple choice (not static to make the python binding easier
+    /*static*/ std::vector<std::string> const & descr_quantity() {
       static DescrQuantity d;
       return d.me;
     }
