@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Wed Dec 12 13:31:55 CST 2007
-// $Id: MuonHIPOverlapsStripwiseRefitter.cc,v 1.10 2008/06/16 15:43:14 pivarski Exp $
+// $Id: MuonHIPOverlapsStripwiseRefitter.cc,v 1.1 2008/08/13 00:06:14 pivarski Exp $
 //
 //
 
@@ -75,7 +75,7 @@ class MuonHIPOverlapsStripwiseRefitter : public edm::EDProducer {
 
       bool m_debuggingPrintouts, m_debuggingNtuple;
       TTree *m_ntuple;
-      Int_t m_ntuple_endcap, m_ntuple_station, m_ntuple_ring, m_ntuple_chamber, m_ntuple_layer;
+      Int_t m_ntuple_endcap, m_ntuple_station, m_ntuple_ring, m_ntuple_chamber, m_ntuple_layer, m_ntuple_strip;
       Float_t m_ntuple_trackx, m_ntuple_tracky, m_ntuple_hitx, m_ntuple_hity, m_ntuple_stripAngle;
 };
 
@@ -104,6 +104,7 @@ MuonHIPOverlapsStripwiseRefitter::MuonHIPOverlapsStripwiseRefitter(const edm::Pa
       m_ntuple->Branch("ring", &m_ntuple_ring, "ring/I");
       m_ntuple->Branch("chamber", &m_ntuple_chamber, "chamber/I");
       m_ntuple->Branch("layer", &m_ntuple_layer, "layer/I");
+      m_ntuple->Branch("strip", &m_ntuple_strip, "strip/I");
       m_ntuple->Branch("trackx", &m_ntuple_trackx, "trackx/F");
       m_ntuple->Branch("tracky", &m_ntuple_tracky, "tracky/F");
       m_ntuple->Branch("hitx", &m_ntuple_hitx, "hitx/F");
@@ -360,6 +361,7 @@ MuonHIPOverlapsStripwiseRefitter::produce(edm::Event& iEvent, const edm::EventSe
 		     m_ntuple_ring = id.ring();
 		     m_ntuple_chamber = id.chamber();
 		     m_ntuple_layer = id.layer();
+		     m_ntuple_strip = strip;
 		     m_ntuple_trackx = x;
 		     m_ntuple_tracky = y;
 		     m_ntuple_hitx = chamberPoint.x();
