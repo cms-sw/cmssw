@@ -5,11 +5,14 @@ process = cms.Process("HCALDQM")
 # Event Source
 #-----------------------------
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(1000)
     )
 
 process.source = cms.Source("NewEventStreamFileReader",
-                            fileNames = cms.untracked.vstring('/store/data/GlobalCruzet3MW33/A/000/056/384/GlobalCruzet3MW33.00056384.0001.A.storageManager.0.0000.dat')
+                            fileNames = cms.untracked.vstring('/store/data/GlobalCruzet3MW33/A/000/056/416/GlobalCruzet3MW33.00056416.0001.A.storageManager.0.0000.dat',
+                            '/store/data/GlobalCruzet3MW33/A/000/056/416/GlobalCruzet3MW33.00056416.0001.A.storageManager.1.0000.dat',
+                            '/store/data/GlobalCruzet3MW33/A/000/056/416/GlobalCruzet3MW33.00056416.0001.A.storageManager.2.0000.dat',
+                            '/store/data/GlobalCruzet3MW33/A/000/056/416/GlobalCruzet3MW33.00056416.0001.A.storageManager.3.0000.dat'
                             )
 
 ### process.source = cms.Source("PoolSource",
@@ -119,9 +122,9 @@ process.hcalMonitor.DataFormatMonitor = True
 process.hcalMonitor.DigiMonitor = True
 process.hcalMonitor.RecHitMonitor = True
 process.hcalMonitor.TrigPrimMonitor = True
-process.hcalMonitor.PedestalMonitor = True
-process.hcalMonitor.DeadCellMonitor = True
-process.hcalMonitor.HotCellMonitor = True
+process.hcalMonitor.PedestalMonitor = False
+process.hcalMonitor.DeadCellMonitor = False
+process.hcalMonitor.HotCellMonitor = False
 process.hcalMonitor.LEDMonitor = False
 process.hcalMonitor.CaloTowerMonitor = False
 process.hcalMonitor.MTCCMonitor = False
@@ -137,7 +140,7 @@ process.load("DQM.HcalMonitorClient.HcalMonitorClient_cfi")
 process.hcalClient.plotPedRAW = True
 process.hcalClient.DoPerChanTests = False
 # suppresses html output from HCalClient  
-process.hcalClient.baseHtmlDir = ''
+process.hcalClient.baseHtmlDir = '.'
 
 # Turn on/off individual hcalClient modules -------------
 # by default, set them equal to the hcalMonitor values.
@@ -145,16 +148,16 @@ process.hcalClient.baseHtmlDir = ''
 # If you want to turn off the client but keep the monitor,
 # just set the appropriate client value to False)
 process.hcalClient.SummaryClient = True
-process.hcalClient.DataFormatClient = True
-process.hcalClient.DigiClient = True
-process.hcalClient.RecHitClient = True
-process.hcalClient.TrigPrimClient = True
-process.hcalClient.DeadCellClient = True
-process.hcalClient.HotCellClient = True
+process.hcalClient.DataFormatClient = process.hcalMonitor.DigiMonitor
+process.hcalClient.DigiClient = process.hcalMonitor.DigiMonitor
+process.hcalClient.RecHitClient = process.hcalMonitor.RecHitMonitor
+process.hcalClient.TrigPrimClient = process.hcalMonitor.TrigPrimMonitor
+process.hcalClient.DeadCellClient = process.hcalMonitor.DeadCellMonitor
+process.hcalClient.HotCellClient = process.hcalMonitor.HotCellMonitor
 
-process.hcalClient.CaloTowerClient = False
-process.hcalClient.LEDClient = False
-process.hcalClient.PedestalClient = False
+process.hcalClient.CaloTowerClient = process.hcalMonitor.CaloTowerMonitor
+process.hcalClient.LEDClient = process.hcalMonitor.LEDMonitor
+process.hcalClient.PedestalClient = process.hcalMonitor.PedestalMonitor
 
 #-----------------------------
 # Scheduling
