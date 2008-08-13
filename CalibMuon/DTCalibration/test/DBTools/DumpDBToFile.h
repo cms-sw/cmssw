@@ -6,8 +6,8 @@
  *  a txt file of the same format of ORCA MuBarDigiParameters
  *  (see DTCalibrationMap for details)
  *
- *  $Date: 2007/01/24 16:02:14 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/02/19 15:18:17 $
+ *  $Revision: 1.5 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -35,6 +35,8 @@ public:
   // Operations
 
   virtual void beginJob(const edm::EventSetup& setup);
+
+  virtual void beginRun( const edm::Run& run, const edm::EventSetup& setup );
 
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup){}
 
