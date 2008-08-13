@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2008/08/11 07:24:15 $
- * $Revision: 1.145 $
+ * $Date: 2008/08/12 14:33:19 $
+ * $Revision: 1.146 $
  * \author G. Della Ricca
  *
 */
@@ -1095,7 +1095,7 @@ void EESummaryClient::analyze(void) {
 
               if ( ism >= 1 && ism <= 9 ) {
                 if ( xval != 0 ) {
-                  meTriggerTowerEt_[0]->setBinContent( jx, jy, xval );
+                  meTriggerTowerEt_[0]->setBinContent( 101 - jx, jy, xval );
                 }
               } else {
                 if ( xval != 0 ) {
@@ -1152,7 +1152,7 @@ void EESummaryClient::analyze(void) {
             if ( xval == 2 ) continue;
 
             if ( ism >= 1 && ism <= 9 ) {
-              meTriggerTowerEmulError_[0]->setBinContent( jx, jy, xval );
+              meTriggerTowerEmulError_[0]->setBinContent( 101 - jx, jy, xval );
             } else {
               meTriggerTowerEmulError_[1]->setBinContent( jx, jy, xval );
             }
