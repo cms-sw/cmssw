@@ -2,8 +2,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2008/06/30 23:57:11 $
- * $Revision: 1.65 $
+ * $Date: 2008/08/12 16:42:43 $
+ * $Revision: 1.66 $
  * \author W Fisher
  *
 */
@@ -26,19 +26,21 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
   ledMon_ = NULL;    mtccMon_ = NULL;
   hotMon_ = NULL;    tempAnalysis_ = NULL;
   deadMon_ = NULL;   tpMon_ = NULL;
+  laserMon_ = NULL;
 
   inputLabelDigi_        = ps.getParameter<edm::InputTag>("digiLabel");
   inputLabelRecHitHBHE_  = ps.getParameter<edm::InputTag>("hbheRecHitLabel");
   inputLabelRecHitHF_    = ps.getParameter<edm::InputTag>("hfRecHitLabel");
   inputLabelRecHitHO_    = ps.getParameter<edm::InputTag>("hoRecHitLabel");
+  inputLabelLaser_       = ps.getParameter<edm::InputTag>("hcalLaserLabel");
   
   evtSel_ = new HcalMonitorSelector(ps);
   
   dbe_ = Service<DQMStore>().operator->();
-
+  
   debug_ = ps.getUntrackedParameter<bool>("debug", false);
   if(debug_) cout << "HcalMonitorModule: constructor...." << endl;
-
+  
   showTiming_ = ps.getUntrackedParameter<bool>("showTiming", false);
 
   
@@ -74,6 +76,12 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
     ledMon_->setup(ps, dbe_);
   }
   
+  if ( ps.getUntrackedParameter<bool>("LaserMonitor", false) ) {
+    if(debug_) cout << "HcalMonitorModule: Laser monitor flag is on...." << endl;
+    laserMon_ = new HcalLaserMonitor();
+    laserMon_->setup(ps, dbe_);
+  }
+
   if ( ps.getUntrackedParameter<bool>("MTCCMonitor", false) ) {
     if(debug_) cout << "HcalMonitorModule: MTCC monitor flag is on...." << endl;
     mtccMon_ = new HcalMTCCMonitor();
@@ -136,17 +144,18 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
 //--------------------------------------------------------
 HcalMonitorModule::~HcalMonitorModule(){
   
-  if(true /* debug_ */) printf("HcalMonitorModule: Destructor.....");
+  if(true /* debug_ */) printf("HcalMonitorModule: Destructor.....\n");
   
 // if (dbe_){    
-//   if(digiMon_!=NULL) {  digiMon_->clearME();}
-//   if(dfMon_!=NULL)   {  dfMon_->clearME();}
-//   if(pedMon_!=NULL)  {  pedMon_->clearME();}
-//   if(ledMon_!=NULL)  {  ledMon_->clearME();}
-//   if(hotMon_!=NULL)  {  hotMon_->clearME();}
-//   if(deadMon_!=NULL) {  deadMon_->clearME();}
-//   if(mtccMon_!=NULL) {  mtccMon_->clearME();}
-//   if(rhMon_!=NULL)   {  rhMon_->clearME();}
+//   if(digiMon_!=NULL)   {  digiMon_->clearME();}
+//   if(dfMon_!=NULL)     {  dfMon_->clearME();}
+//   if(pedMon_!=NULL)    {  pedMon_->clearME();}
+//   if(ledMon_!=NULL)    {  ledMon_->clearME();}
+//   if(laserMon_!=NULL)  {  laserMon_->clearME();}
+//   if(hotMon_!=NULL)    {  hotMon_->clearME();}
+//   if(deadMon_!=NULL)   {  deadMon_->clearME();}
+//   if(mtccMon_!=NULL)   {  mtccMon_->clearME();}
+//   if(rhMon_!=NULL)     {  rhMon_->clearME();}
 //   
 //   dbe_->setCurrentFolder(rootFolder_);
 //   dbe_->removeContents();
@@ -156,6 +165,7 @@ HcalMonitorModule::~HcalMonitorModule(){
 //  if(dfMon_!=NULL) { delete dfMon_;     dfMon_=NULL; }
 //  if(pedMon_!=NULL) { delete pedMon_;   pedMon_=NULL; }
 //  if(ledMon_!=NULL) { delete ledMon_;   ledMon_=NULL; }
+//  if(laserMon_!=NULL) { delete laserMon_;   laserMon_=NULL; }
 //  if(hotMon_!=NULL) { delete hotMon_;   hotMon_=NULL; }
 //  if(deadMon_!=NULL) { delete deadMon_; deadMon_=NULL; }
 //  if(mtccMon_!=NULL) { delete mtccMon_; mtccMon_=NULL; }
@@ -304,6 +314,7 @@ void HcalMonitorModule::endJob(void) {
   if(dfMon_!=NULL) dfMon_->done();
   if(pedMon_!=NULL) pedMon_->done();
   if(ledMon_!=NULL) ledMon_->done();
+  if(laserMon_!=NULL) laserMon_->done();
   if(hotMon_!=NULL) hotMon_->done();
   if(deadMon_!=NULL) deadMon_->done();
   if(mtccMon_!=NULL) mtccMon_->done();
@@ -322,6 +333,7 @@ void HcalMonitorModule::reset(){
   if(dfMon_!=NULL)   dfMon_->reset();
   if(pedMon_!=NULL)  pedMon_->reset();
   if(ledMon_!=NULL)  ledMon_->reset();
+  if(laserMon_!=NULL)  laserMon_->reset();
   if(hotMon_!=NULL)  hotMon_->reset();
   if(deadMon_!=NULL)  deadMon_->reset();
   if(mtccMon_!=NULL)   mtccMon_->reset();
@@ -350,7 +362,7 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   // Do default setup...
   ievt_++;
 
-  int evtMask=DO_HCAL_DIGIMON|DO_HCAL_DFMON|DO_HCAL_RECHITMON|DO_HCAL_PED_CALIBMON|DO_HCAL_LED_CALIBMON;
+  int evtMask=DO_HCAL_DIGIMON|DO_HCAL_DFMON|DO_HCAL_RECHITMON|DO_HCAL_PED_CALIBMON|DO_HCAL_LED_CALIBMON|DO_HCAL_LASER_CALIBMON;
 
   //  int trigMask=0;
   if(mtccMon_==NULL){
@@ -369,6 +381,7 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   bool rechitOK_ = true;
   bool trigOK_   = false;
   bool tpdOK_    = true;
+  bool laserOK_  = true;
 
   // try to get raw data and unpacker report
   edm::Handle<FEDRawDataCollection> rawraw;  
@@ -396,6 +409,7 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   edm::Handle<HODigiCollection> ho_digi;
   edm::Handle<HFDigiCollection> hf_digi;
   edm::Handle<HcalTrigPrimDigiCollection> tp_digi;
+  edm::Handle<HcalLaserDigi> laser_digi;
   e.getByLabel(inputLabelDigi_,hbhe_digi);
   if (!hbhe_digi.isValid()) {
     digiOK_=false;
@@ -416,6 +430,10 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
     tpdOK_=false;
   }
 
+  e.getByLabel(inputLabelLaser_,laser_digi);
+  if (!laser_digi.isValid()) {
+    laserOK_=false;
+  }
 
   // try to get rechits
   edm::Handle<HBHERecHitCollection> hb_hits;
@@ -483,6 +501,16 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
       cpu_timer.reset(); cpu_timer.start();
     }
 
+  // Laser monitor task
+  if((laserMon_!=NULL) && (evtMask&DO_HCAL_LASER_CALIBMON) && digiOK_ && laserOK_)
+    laserMon_->processEvent(*hbhe_digi,*ho_digi,*hf_digi,*laser_digi,*conditions_);
+  if (showTiming_)
+    {
+      cpu_timer.stop();
+      if (laserMon_!=NULL) cout <<"TIMER:: LASER MONITOR ->"<<cpu_timer.cpuTime()<<endl;
+      cpu_timer.reset(); cpu_timer.start();
+    }
+
   // Rec Hit monitor task
   if((rhMon_ != NULL) && (evtMask&DO_HCAL_RECHITMON) && rechitOK_) 
     rhMon_->processEvent(*hb_hits,*ho_hits,*hf_hits);
@@ -530,11 +558,12 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
 
   if(debug_){
     cout << "HcalMonitorModule: processed " << ievt_ << " events" << endl;
-    cout << "    RAW Data==> " << rawOK_<< endl;
-    cout << "    Digis   ==> " << digiOK_<< endl;
-    cout << "    RecHits ==> " << rechitOK_<< endl;
-    cout << "    TrigRec ==> " << trigOK_<< endl;
-    cout << "    TPdigis ==> " << tpdOK_<< endl;    
+    cout << "    RAW Data   ==> " << rawOK_<< endl;
+    cout << "    Digis      ==> " << digiOK_<< endl;
+    cout << "    RecHits    ==> " << rechitOK_<< endl;
+    cout << "    TrigRec    ==> " << trigOK_<< endl;
+    cout << "    TPdigis    ==> " << tpdOK_<< endl;    
+    cout << "    LaserDigis ==> " << laserOK_ << endl;
   }
 
   return;

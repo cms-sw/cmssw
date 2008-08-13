@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.h
  *
- * $Date: 2008/06/30 23:57:11 $
- * $Revision: 1.28 $
+ * $Date: 2008/08/12 16:42:43 $
+ * $Revision: 1.29 $
  * \author W. Fisher
  *
 */
@@ -42,6 +42,7 @@
 #include "DQM/HcalMonitorTasks/interface/HcalRecHitMonitor.h"
 #include "DQM/HcalMonitorTasks/interface/HcalPedestalMonitor.h"
 #include "DQM/HcalMonitorTasks/interface/HcalLEDMonitor.h"
+#include "DQM/HcalMonitorTasks/interface/HcalLaserMonitor.h"
 #include "DQM/HcalMonitorTasks/interface/HcalMTCCMonitor.h"
 #include "DQM/HcalMonitorTasks/interface/HcalHotCellMonitor.h"
 #include "DQM/HcalMonitorTasks/interface/HcalDeadCellMonitor.h"
@@ -156,6 +157,7 @@ public:
   edm::InputTag inputLabelRecHitHF_;
   edm::InputTag inputLabelRecHitHO_;
   edm::InputTag inputLabelCaloTower_;
+  edm::InputTag inputLabelLaser_;
 
   // Maps of readout hardware unit to calorimeter channel
   std::map<uint32_t, std::vector<HcalDetId> > DCCtoCell;
@@ -177,6 +179,7 @@ public:
   HcalRecHitMonitor*      rhMon_;
   HcalPedestalMonitor*    pedMon_;
   HcalLEDMonitor*         ledMon_;
+  HcalLaserMonitor*       laserMon_;
   HcalMTCCMonitor*        mtccMon_;
   HcalHotCellMonitor*     hotMon_;
   HcalDeadCellMonitor*    deadMon_;
