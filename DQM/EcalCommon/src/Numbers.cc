@@ -1,11 +1,11 @@
-// $Id: Numbers.cc,v 1.61 2008/08/11 16:58:49 dellaric Exp $
+// $Id: Numbers.cc,v 1.62 2008/08/13 13:22:04 dellaric Exp $
 
 /*!
   \file Numbers.cc
   \brief Some "id" conversions
   \author B. Gobbo
-  \version $Revision: 1.61 $
-  \date $Date: 2008/08/11 16:58:49 $
+  \version $Revision: 1.62 $
+  \date $Date: 2008/08/13 13:22:04 $
 */
 
 #include <sstream>
@@ -642,6 +642,11 @@ int Numbers::icEE( const int ism, const int ix, const int iy ) throw( std::runti
       int vfe = eid.towerId();
       int strip = eid.stripId();
       int channel = eid.xtalId();
+
+      // EE-05 & EE+05
+      if( ism == 8 || ism == 17 ) {
+        if( vfe > 17 ) vfe = vfe - 7;
+      }
 
       return ( (vfe-1)*25 + (strip-1)*5 + channel );
 
