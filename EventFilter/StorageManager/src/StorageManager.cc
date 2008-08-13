@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.71 2008/08/06 15:52:09 biery Exp $
+// $Id: StorageManager.cc,v 1.72 2008/08/13 16:23:53 biery Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -789,9 +789,12 @@ void StorageManager::receiveErrorDataMessage(toolbox::mem::Reference *ref)
 					    msg->runID, msg->eventID, msg->frameCount+1, msg->numFrames,
 					    msg->originalSize, isLocal, msg->outModID);
 
-         if(status == 1) {
+         // 13-Aug-2008, KAB - for now, increment the receivedErrorEvent counter
+         // independent of the result of the updateFUSender4data() call since we
+         // know that the result is unlikely to be "success"
+         //if(status == 1) {
            ++(receivedErrorEvents_.value_);
-         }
+         //}
 
          if(status == -1) {
            LOG4CPLUS_ERROR(this->getApplicationLogger(),
@@ -848,9 +851,12 @@ void StorageManager::receiveErrorDataMessage(toolbox::mem::Reference *ref)
 				       msg->runID, msg->eventID, msg->frameCount+1, msg->numFrames,
 				       msg->originalSize, isLocal, msg->outModID);
     
-    if(status == 1) {
+    // 13-Aug-2008, KAB - for now, increment the receivedErrorEvent counter
+    // independent of the result of the updateFUSender4data() call since we
+    // know that the result is unlikely to be "success"
+    //if(status == 1) {
       ++(receivedErrorEvents_.value_);
-    }
+    //}
     if(status == -1) {
       LOG4CPLUS_ERROR(this->getApplicationLogger(),
 		      "updateSender4data: Cannot find RB in Data Sender list!"
@@ -2016,7 +2022,7 @@ void StorageManager::streamerOutputWebPage(xgi::Input *in, xgi::Output *out)
               *out << "<P>Files (most recent first):</P>\n" << endl;
             *out << "<pre># pathname nevts size" << endl;
             int c=0;
-            for(list<string>::const_iterator it = files.end(); it != files.begin(); --it) {
+            for(list<string>::reverse_iterator it = files.rbegin(); it != files.rend(); ++it) {
               *out <<*it << endl;
               ++c;
               if(c>249) break;

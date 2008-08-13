@@ -1,35 +1,20 @@
 #ifndef STREAMSERVICE_H
 #define STREAMSERVICE_H
 
-// $Id: StreamService.h,v 1.9 2008/05/13 18:06:46 loizides Exp $
+// $Id: StreamService.h,v 1.10 2008/08/07 11:33:14 loizides Exp $
 
-// - handling output files per stream make the problem 1-dimensional 
-// - allows to use different file handling rules per stream
-  
-// functionality:
-// - create and delete output service
-// - pass init and event message to correct output service
-// - do accounting
-// - enforce file management rules
+#include <EventFilter/StorageManager/interface/FileRecord.h>
+#include <EventFilter/StorageManager/interface/OutputService.h>
 
-// needs:
-// - event selector
-// - copy of init message to create a new file
-// - filename, rules, etc.
-
-#include "FWCore/Framework/interface/EventSelector.h"
-
-#include "IOPool/Streamer/interface/InitMessage.h"
-#include "IOPool/Streamer/interface/EventMessage.h"
-
-#include "EventFilter/StorageManager/interface/FileRecord.h"
-#include "EventFilter/StorageManager/interface/OutputService.h"  
+#include <IOPool/Streamer/interface/MsgHeader.h>
+#include <FWCore/ParameterSet/interface/ParameterSet.h>
 
 #include <boost/shared_ptr.hpp>
-#include "boost/thread/thread.hpp"
+#include <boost/thread/thread.hpp>
 
 #include <string>
 #include <map>
+
 
 namespace edm {
 
@@ -37,14 +22,13 @@ namespace edm {
   typedef std::map <boost::shared_ptr<FileRecord>, boost::shared_ptr<OutputService> >::iterator OutputMapIterator;
 
   class StreamService
-    {
+  {
     public:
-      StreamService(ParameterSet const&, InitMsgView const&);
-      ~StreamService() { stop(); }
+      virtual ~StreamService();
       
-      bool   nextEvent(EventMsgView const&);
-      void   stop();
-      void   report(std::ostream &os, int indentation) const;
+      virtual bool nextEvent(const uint8 * const) = 0;
+      virtual void stop() = 0;
+      virtual void report(std::ostream &os, int indentation) const = 0;
       int    lumiSection() const { return lumiSection_; }
 
       void   setNumberOfFileSystems(int i)          { numberOfFileSystems_ = i; } 
@@ -56,7 +40,7 @@ namespace edm {
       void   setSetupLabel(std::string s)           { setupLabel_ = s; }
       void   setHighWaterMark(double d)             { highWaterMark_ = d; }
       void   setLumiSectionTimeOut(double d)        { lumiSectionTimeOut_ = d; }
-      void   closeTimedOutFiles(int lumi, double timeoutstart);
+      virtual void closeTimedOutFiles(int lumi, double timeoutstart) = 0;
  
       double getCurrentTime() const;
 
@@ -64,34 +48,21 @@ namespace edm {
       std::list<std::string> getCurrentFileList();
       const std::string& getStreamLabel() const { return streamLabel_; }
 
-    private:
-      boost::shared_ptr<OutputService>  newOutputService();
-      boost::shared_ptr<OutputService>  getOutputService(EventMsgView const&);
-      boost::shared_ptr<FileRecord>     generateFileRecord();  
-
-      void   saveInitMessage(InitMsgView const&);
-      void   initializeSelection(InitMsgView const&);
-      bool   acceptEvent(EventMsgView const&);
+    protected:
       void   setStreamParameter();
-      bool   checkEvent(boost::shared_ptr<FileRecord>, EventMsgView const&) const;
       bool   checkFileSystem() const;
       void   fillOutputSummaryClosed(const boost::shared_ptr<FileRecord> &file);
 
       // variables
       ParameterSet                           parameterSet_;
-      boost::shared_ptr<edm::EventSelector>  eventSelector_;
       OutputMap                              outputMap_;
       std::map<std::string, int>             outputSummary_;
       std::list<std::string>                 outputSummaryClosed_;
-      std::string                            currentLockPath_;
 
       // set from event message
       int    runNumber_;
       int    lumiSection_;
 
-      // set from init message ( is init message )
-      char   saved_initmsg_[1000*1000*2];
-      
       // should be output module parameter
       int    numberOfFileSystems_;
       std::string catalog_;
@@ -112,7 +83,7 @@ namespace edm {
       //@@EM added lock to handle access to file list by monitoring loop
       boost::mutex list_lock_;
 
-     };
+  };
 
 } // edm namespace
 #endif

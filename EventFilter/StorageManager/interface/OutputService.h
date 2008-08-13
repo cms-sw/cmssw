@@ -1,41 +1,31 @@
 #ifndef OUTPUTSERVICE_H
 #define OUTPUTSERVICE_H
 
-// $Id: OutputService.h,v 1.2 2008/04/21 12:14:13 loizides Exp $
-
-#include "IOPool/Streamer/interface/EventMessage.h"
-#include "IOPool/Streamer/interface/InitMessage.h"
-#include "IOPool/Streamer/src/StreamerFileWriter.h"
+// $Id: OutputService.h,v 1.3 2008/08/07 11:33:14 loizides Exp $
 
 #include <EventFilter/StorageManager/interface/FileRecord.h>
+#include <IOPool/Streamer/interface/MsgHeader.h>
 
 #include <boost/shared_ptr.hpp>
 #include <string>
 
-
 namespace edm {
 
-
   class OutputService
-    {
-      
+  {
     public:
-      OutputService(boost::shared_ptr<FileRecord>, InitMsgView const&);
-      ~OutputService();
+      virtual ~OutputService();
 
-      void   writeEvent(EventMsgView const&);
+      virtual void writeEvent(const uint8 * const) = 0;
       double lastEntry()   const { return file_->lastEntry(); }
       double lumiSection() const { return file_->lumiSection(); }
-      void   report(std::ostream &os, int indentation) const;
+      virtual void report(std::ostream &os, int indentation) const = 0;
 
-    private:
-      void   writeHeader(InitMsgView const&);
-      void   closeFile();
+    protected:
       double getTimeStamp() const;
 
-      boost::shared_ptr<StreamerFileWriter> writer_; // writes streamer and index file
-      boost::shared_ptr<FileRecord>           file_; // writes streamer and index file
- };
+      boost::shared_ptr<FileRecord> file_;
+  };
 
 } // edm namespace
 #endif

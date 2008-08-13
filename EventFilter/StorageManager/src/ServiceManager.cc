@@ -1,8 +1,11 @@
-// $Id: ServiceManager.cc,v 1.10 2008/05/13 18:06:46 loizides Exp $
+// $Id: ServiceManager.cc,v 1.11 2008/08/07 11:33:15 loizides Exp $
 
 #include <EventFilter/StorageManager/interface/ServiceManager.h>
 #include "EventFilter/StorageManager/interface/Configurator.h"
+#include <EventFilter/StorageManager/interface/EventStreamService.h>
+#include <EventFilter/StorageManager/interface/FRDStreamService.h>
 #include <FWCore/Utilities/interface/Exception.h>
+#include <typeinfo>
 
 using namespace std;
 using namespace edm;
@@ -16,7 +19,9 @@ ServiceManager::ServiceManager(const std::string& config):
   outputModuleIds_(0),
   storedEvents_(0),
   currentlumi_(0),
-  timeouttime_(0)
+  timeouttime_(0),
+  errorStreamPSetIndex_(-1),
+  errorStreamCreated_(false)
 {
   storedNames_.clear();
   collectStreamerPSets(config);
@@ -50,6 +55,10 @@ void ServiceManager::manageInitMsg(std::string catalog, uint32 disks, std::strin
       it != itEnd; ++it) {
     ++psetIdx;
     bool createStreamNow = false;
+
+    // if this ParameterSet corresponds to the error stream, skip over it
+    // since the error stream doesn't use the INIT messages.
+    if (psetIdx == errorStreamPSetIndex_) continue;
 
     // test if this INIT message is the right one for this output module
     // (that is, whether the HLT output module specified in the 
@@ -123,7 +132,7 @@ void ServiceManager::manageInitMsg(std::string catalog, uint32 disks, std::strin
     }
 
     if (createStreamNow) {
-      shared_ptr<StreamService> stream = shared_ptr<StreamService>(new StreamService((*it),view));
+      shared_ptr<StreamService> stream = shared_ptr<StreamService>(new EventStreamService((*it),view));
       stream->setCatalog(catalog);
       stream->setNumberOfFileSystems(disks);
       stream->setSourceId(sourceId);
@@ -152,7 +161,7 @@ void ServiceManager::manageEventMsg(EventMsgView& msg)
     if (msg.outModId() != outputModuleIds_[outputIdx])
       continue;
 
-    bool thisEventAccepted = (*it)->nextEvent(msg);
+    bool thisEventAccepted = (*it)->nextEvent(msg.startAddress());
     if (!thisEventAccepted)
       continue;
 
@@ -174,6 +183,57 @@ void ServiceManager::manageEventMsg(EventMsgView& msg)
       for(StreamsIterator it = itBeg; it != itEnd; ++it) 
         (*it)->closeTimedOutFiles(currentlumi_, tdiff);
     }
+  }
+}
+
+void ServiceManager::manageErrorEventMsg(std::string catalog, uint32 disks, std::string sourceId, FRDEventMsgView& msg)
+{
+  // if no error stream was configured, we can exit early
+  if (errorStreamPSetIndex_ < 0) return;
+
+  // create the error stream, if needed
+  if (! errorStreamCreated_) {
+    ParameterSet errorStreamPSet = outModPSets_.at(errorStreamPSetIndex_);
+    boost::shared_ptr<stor::Parameter> smParameter_ = stor::Configurator::instance()->getParameter();
+
+    shared_ptr<StreamService> stream =
+      shared_ptr<StreamService>(new FRDStreamService(errorStreamPSet));
+    stream->setCatalog(catalog);
+    stream->setNumberOfFileSystems(disks);
+    stream->setSourceId(sourceId);
+    stream->setFileName(smParameter_ -> fileName());
+    stream->setFilePath(smParameter_ -> filePath());
+    stream->setMaxFileSize(smParameter_ -> maxFileSize());
+    stream->setSetupLabel(smParameter_ -> setupLabel());
+    stream->setHighWaterMark(smParameter_ -> highWaterMark());
+    stream->setLumiSectionTimeOut(smParameter_ -> lumiSectionTimeOut());
+    managedOutputs_.push_back(stream);
+    outputModuleIds_.push_back(0xffffffff);
+    storedEvents_.push_back(0);
+    storedNames_.push_back(stream->getStreamLabel());
+    stream->report(cout,3);
+
+    psetHLTOutputLabels_[errorStreamPSetIndex_] = "ResourceBroker Error Output";
+
+    errorStreamCreated_ = true;
+  }
+
+  // process the event
+  int outputIdx = -1;
+  for(StreamsIterator strIter = managedOutputs_.begin(), strIterEnd = managedOutputs_.end(); strIter != strIterEnd; ++strIter) {
+    ++outputIdx;
+    std::string streamClassName = typeid(*(*strIter)).name();
+    if (streamClassName.find("FRDStreamService", 0) == string::npos)
+      continue;
+
+    bool thisEventAccepted = (*strIter)->nextEvent(msg.startAddress());
+    if (!thisEventAccepted)
+      continue;
+
+    ++storedEvents_[outputIdx];
+
+    // for now, we don't have any lumi section information in the
+    // FRDEvent messages, so we don't try to do any lumi-boundary processing
   }
 }
 
@@ -225,8 +285,12 @@ std::vector<std::string>& ServiceManager::get_storedNames()
 std::map<std::string, Strings> ServiceManager::getStreamSelectionTable()
 {
   std::map<std::string, Strings> selTable;
+  int psetIdx = -1;
   for(std::vector<ParameterSet>::iterator it = outModPSets_.begin();
       it != outModPSets_.end(); ++it) {
+    ++psetIdx;
+    if (psetIdx == errorStreamPSetIndex_) continue;
+
     std::string streamLabel = it->getParameter<string> ("streamLabel");
     if (streamLabel.size() > 0) {
       selTable[streamLabel] = EventSelector::getEventSelectionVString(*it);
@@ -278,6 +342,12 @@ void ServiceManager::collectStreamerPSets(const std::string& config)
 	       std::string mod_type = aModInEndPathPset.getParameter<std::string> ("@module_type");
 	       if (mod_type == "EventStreamFileWriter") {
 		 outModPSets_.push_back(aModInEndPathPset);
+                 psetHLTOutputLabels_.push_back(std::string());  // empty string
+               }
+               else if (mod_type == "ErrorStreamFileWriter" ||
+                        mod_type == "FRDStreamFileWriter") {
+                 errorStreamPSetIndex_ = outModPSets_.size();
+                 outModPSets_.push_back(aModInEndPathPset);
                  psetHLTOutputLabels_.push_back(std::string());  // empty string
                }
 	   }

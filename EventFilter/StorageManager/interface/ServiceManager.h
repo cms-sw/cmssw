@@ -1,13 +1,14 @@
 #ifndef _SERVICEMANAGER_H_
 #define _SERVICEMANAGER_H_
 
-// $Id: ServiceManager.h,v 1.5 2008/05/11 13:49:18 hcheung Exp $
+// $Id: ServiceManager.h,v 1.6 2008/08/07 11:33:14 loizides Exp $
 
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
 #include "FWCore/Framework/interface/EventSelector.h"
 
 #include "IOPool/Streamer/interface/InitMessage.h"
 #include "IOPool/Streamer/interface/EventMessage.h"
+#include "IOPool/Streamer/interface/FRDEventMessage.h"
 
 #include <EventFilter/StorageManager/interface/StreamService.h>
 #include <EventFilter/StorageManager/interface/InitMsgCollection.h>
@@ -35,8 +36,10 @@ namespace edm
     void stop(); 
     
     void manageInitMsg(std::string catalog, uint32 disks, std::string sourceId, InitMsgView& init_message, stor::InitMsgCollection& initMsgCollection);
-    
+
     void manageEventMsg(EventMsgView& msg);
+
+    void manageErrorEventMsg(std::string catalog, uint32 disks, std::string sourceId, FRDEventMsgView& msg);
     
     std::list<std::string>& get_filelist();
     std::list<std::string>& get_currfiles();
@@ -59,6 +62,8 @@ namespace edm
     std::vector<std::string>               storedNames_;
     int                                    currentlumi_;
     double                                 timeouttime_;
+    int                                    errorStreamPSetIndex_;
+    bool                                   errorStreamCreated_;
   };
   
 }//edm-namespace

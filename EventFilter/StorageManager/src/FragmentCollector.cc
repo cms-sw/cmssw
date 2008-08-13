@@ -1,4 +1,4 @@
-// $Id: FragmentCollector.cc,v 1.38 2008/01/30 17:31:38 biery Exp $
+// $Id: FragmentCollector.cc,v 1.39 2008/05/12 15:55:17 hcheung Exp $
 
 #include "EventFilter/StorageManager/interface/FragmentCollector.h"
 #include "EventFilter/StorageManager/interface/ProgressMarker.h"
@@ -7,6 +7,7 @@
 #include "IOPool/Streamer/interface/MsgHeader.h"
 #include "IOPool/Streamer/interface/InitMessage.h"
 #include "IOPool/Streamer/interface/DQMEventMessage.h"
+#include "IOPool/Streamer/interface/FRDEventMessage.h"
 
 #include "boost/bind.hpp"
 
@@ -437,9 +438,9 @@ namespace stor
 	FR_DEBUG << "FragColl: Event ID " << entry->id_ << endl;
 
 	// send immediately
-        //EventMsgView emsg(entry->buffer_address_);
-        //FR_DEBUG << "FragColl: writing event size " << entry->buffer_size_ << endl;
-        //writer_->manageEventMsg(emsg);
+        FRDEventMsgView emsg(entry->buffer_address_);
+        FR_DEBUG << "FragColl: writing error event size " << entry->buffer_size_ << endl;
+        writer_->manageErrorEventMsg(catalog_, disks_, sourceId_, emsg);
 
 	// make sure the buffer properly released
 	(*buffer_deleter_)(entry);
@@ -480,9 +481,9 @@ namespace stor
 	    (*buffer_deleter_)(&(*i));
 	}
 
-        //EventMsgView emsg(&event_area_[0]);
-        //FR_DEBUG << "FragColl: writing error event size " << sum << endl;
-        //writer_->manageEventMsg(emsg);
+        FRDEventMsgView emsg(&event_area_[0]);
+        FR_DEBUG << "FragColl: writing error event size " << sum << endl;
+        writer_->manageErrorEventMsg(catalog_, disks_, sourceId_, emsg);
 
 	// remove the entry from the map
 	fragment_area_.erase(rc.first);
