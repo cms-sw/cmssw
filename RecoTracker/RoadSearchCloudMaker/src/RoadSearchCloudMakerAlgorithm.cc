@@ -48,8 +48,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: burkett $
-// $Date: 2007/08/30 14:59:12 $
-// $Revision: 1.51 $
+// $Date: 2007/09/21 15:50:02 $
+// $Revision: 1.52 $
 //
 
 #include <vector>
@@ -304,6 +304,7 @@ void RoadSearchCloudMakerAlgorithm::run(edm::Handle<RoadSearchSeedCollection> in
             
 	  ++layerCounter;
 	  unsigned int usedHitsInThisLayer = 0;
+	  bool intersectsLayer = false;
             
 	  for ( std::vector<const Ring*>::const_iterator ring = roadSetVector->begin(); ring != roadSetVector->end(); ++ring ) {
               
@@ -317,6 +318,8 @@ void RoadSearchCloudMakerAlgorithm::run(edm::Handle<RoadSearchSeedCollection> in
 	    } else {
 	      ringPhi = phiFromExtrapolation(d0,phi0,k0,ringZ,roadType);
 	    }
+	    if (ringPhi == -99) continue;
+	    intersectsLayer = true;
               
 	    int nDetIds = (*ring)->getNumDetIds();
 	    double theHalfRoad = theMinimumHalfRoad*(2.0*Geom::pi())/((double)nDetIds);
@@ -369,14 +372,15 @@ void RoadSearchCloudMakerAlgorithm::run(edm::Handle<RoadSearchSeedCollection> in
 
 	    }
 	  } else {
-	    if ( usedHitsInThisLayer > 0 ) {
-	      ++usedLayers;
-	      consecutiveMissedLayers = 0;
-	    } else {
-	      ++ missedLayers;
-	      ++consecutiveMissedLayers;
+	    if (intersectsLayer){
+	      if ( usedHitsInThisLayer > 0 ) {
+		++usedLayers;
+		consecutiveMissedLayers = 0;
+	      } else {
+		++ missedLayers;
+		++consecutiveMissedLayers;
+	      }
 	    }
-
 	    LogDebug("RoadSearch") << "Layer info: " 
 				       << " totalLayers: " << totalLayers 
 				       << " usedLayers: " << usedLayers 
