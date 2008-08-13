@@ -283,7 +283,7 @@ vector<int> L1RCTNeighborMap::se(int crate,int card,int region){
     if(card == 0 || card == 2){
       newregion = !region;
       newcrate = crate;
-      newcard = card+2*region;
+      newcard = card+2*region+1;
     }
     else if(card == 1 || card == 3){
       newregion = !region;
@@ -578,7 +578,7 @@ vector<int> L1RCTNeighborMap::nw(int crate,int card,int region){
     else if(card == 2 || card == 4){
       newregion = !region;
       newcard = card-1+2*region;
-      if(crate != 0)
+      if(crate != 9)
 	newcrate = crate-1;
       else
 	newcrate = 17;
@@ -592,7 +592,7 @@ vector<int> L1RCTNeighborMap::nw(int crate,int card,int region){
       newregion = 1;
       if(region==0){
 	newcard = 5;
-	if(crate != 0)
+	if(crate != 9)
 	  newcrate = crate-1;
 	else
 	  newcrate = 17;
