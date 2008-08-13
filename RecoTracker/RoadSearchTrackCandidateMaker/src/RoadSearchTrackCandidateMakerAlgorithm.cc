@@ -10,8 +10,8 @@
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
 // $Author: burkett $
-// $Date: 2008/06/13 07:49:38 $
-// $Revision: 1.56 $
+// $Date: 2008/07/21 08:41:52 $
+// $Revision: 1.57 $
 //
 
 #include <vector>
@@ -1210,7 +1210,7 @@ FreeTrajectoryState RoadSearchTrackCandidateMakerAlgorithm::initialTrajectory(co
 	  // linear z extrapolation of two hits have to be inside tracker ( |z| < 275 cm)
 	  FastLine linearFit(outer, inner);
 	  double z_0 = -linearFit.c()/linearFit.n2();
-	  if ( std::abs(z_0) > 275 ) return fts;
+	  if ( std::abs(z_0) > 275 && !NoFieldCosmic_ ) return fts;
 
           GlobalError vertexErr(dr2,
                                 0, dr2,
