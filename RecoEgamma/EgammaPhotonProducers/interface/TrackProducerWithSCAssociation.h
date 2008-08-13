@@ -3,9 +3,9 @@
 /** \class  TrackProducerWithSCAssociation
  **  
  **
- **  $Id: TrackProducerWithSCAssociation.h,v 1.2 2007/03/11 15:44:04 nancy Exp $ 
- **  $Date: 2007/03/11 15:44:04 $ 
- **  $Revision: 1.2 $
+ **  $Id: TrackProducerWithSCAssociation.h,v 1.3 2007/10/09 05:40:15 dlange Exp $ 
+ **  $Date: 2007/10/09 05:40:15 $ 
+ **  $Revision: 1.3 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **   Modified version of TrackProducer by Giuseppe Cerati
  **   to have super cluster - conversion track association
@@ -35,6 +35,7 @@ private:
   std::string trackSuperClusterAssociationCollection_;
   edm::OrphanHandle<reco::TrackCollection> rTracks_;
   bool myTrajectoryInEvent_;
+  bool validTrackCandidateSCAssociationInput_;
 
 
   //Same recipe as Ursula's for electrons. Copy this from TrackProducerBase to get the OrphanHandle

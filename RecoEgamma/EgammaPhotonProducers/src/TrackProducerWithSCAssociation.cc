@@ -85,18 +85,24 @@ void TrackProducerWithSCAssociation::produce(edm::Event& theEvent, const edm::Ev
   //declare and get TrackColection to be retrieved from the event
   edm::Handle<TrackCandidateCollection> theTCCollection;
   //// Get the association map between candidate out in tracks and the SC where they originated
+  validTrackCandidateSCAssociationInput_=true;
   edm::Handle<reco::TrackCandidateCaloClusterPtrAssociation> trkCandidateSCAssocHandle;
-
   theEvent.getByLabel(conversionTrackCandidateProducer_, trackCSuperClusterAssociationCollection_ , trkCandidateSCAssocHandle);
-  reco::TrackCandidateCaloClusterPtrAssociation scTrkCandAssCollection = *trkCandidateSCAssocHandle;  
-  //  std::cout   << "TrackProducerWithSCAssociation  TrkCandidateSCAssoc collection size " << (*trkCandidateSCAssocHandle).size() <<"\n";
+  if ( !trkCandidateSCAssocHandle.isValid() ) {
+    std::cout << "Error! Can't get the product  "<<trackCSuperClusterAssociationCollection_.c_str() << " but keep running. Empty collection will be produced " << "\n";
+    edm::LogError("TrackProducerWithSCAssociation") << "Error! Can't get the product  "<<trackCSuperClusterAssociationCollection_.c_str() << " but keep running. Empty collection will be produced " << "\n";
+    validTrackCandidateSCAssociationInput_=false;
+  }
+  reco::TrackCandidateCaloClusterPtrAssociation scTrkCandAssCollection = *(trkCandidateSCAssocHandle.product());
+  if ( scTrkCandAssCollection.size() ==0 )  validTrackCandidateSCAssociationInput_=false;
+
 
   std::vector<int> tccLocations;
   AlgoProductCollection algoResults;
   reco::BeamSpot bs;
   
-  
-  getFromEvt(theEvent,theTCCollection,bs);  
+   
+ getFromEvt(theEvent,theTCCollection,bs);  
   
   if (theTCCollection.failedToGet()){
     edm::LogError("TrackProducerWithSCAssociation")  <<"TrackProducerWithSCAssociation could not get the TrackCandidateCollection.";} 
@@ -167,24 +173,22 @@ void TrackProducerWithSCAssociation::produce(edm::Event& theEvent, const edm::Ev
     putInEvt(theEvent, outputRHColl, outputTColl, outputTEColl, outputTrajectoryColl, algoResults);
     
     // now construct associationmap and put it in the  event
-    int itrack=0;
+    if (  validTrackCandidateSCAssociationInput_ ) {    
+      int itrack=0;
+      std::vector<edm::Ptr<reco::CaloCluster> > caloPtrVec;
+      for(AlgoProductCollection::iterator i=algoResults.begin(); i!=algoResults.end();i++){
+	edm::Ref<TrackCandidateCollection> trackCRef(theTCCollection,tccLocations[itrack]);
+	const edm::Ptr<reco::CaloCluster>&  aClus = (*trkCandidateSCAssocHandle)[trackCRef];
+	caloPtrVec.push_back( aClus );
+	itrack++;
+      }
+      
+      
+      edm::ValueMap<reco::CaloClusterPtr>::Filler filler(*scTrkAssoc_p);
+      filler.insert(rTracks_, caloPtrVec.begin(), caloPtrVec.end());
+      filler.fill();
+    }    
     
-    //    std::vector<edm::Ref<reco::SuperClusterCollection> > vecOfSCRef; 
-    std::vector<edm::Ptr<reco::CaloCluster> > caloPtrVec;
-
-    for(AlgoProductCollection::iterator i=algoResults.begin(); i!=algoResults.end();i++){
-      edm::Ref<TrackCandidateCollection> trackCRef(theTCCollection,tccLocations[itrack]);
-      const edm::Ptr<reco::CaloCluster>&  aClus = (*trkCandidateSCAssocHandle)[trackCRef];
-      caloPtrVec.push_back( aClus );
-      itrack++;
-    }
-    
-
-    edm::ValueMap<reco::CaloClusterPtr>::Filler filler(*scTrkAssoc_p);
-    filler.insert(rTracks_, caloPtrVec.begin(), caloPtrVec.end());
-    filler.fill();
-    
-
     theEvent.put(scTrkAssoc_p,trackSuperClusterAssociationCollection_ ); 
     
   }
