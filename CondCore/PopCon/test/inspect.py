@@ -42,14 +42,19 @@ tag='EcalPedestals_online'
 what = inspect.extractorWhat(db,tag)
 ans = {}
 for key in what.keys():
-    ans[key]=what[key][2]
+    (mode,val) = what[key]
+    if (mode=='single') :
+        ans[key]=val[2]
+    else :
+        ans[key]=[0,2,12]
+
 
 iov = inspect.Iov(db,tag)
-print iov.trend(ans,[0,2,12])
-ans = {'how': 'all', 'quantity': 'mean_x3'}
-print iov.trend(ans,[0,2,12])
-ans = {'how': 'all', 'quantity': 'mean_x6'}
-print iov.trend(ans,[0,2,12])
+print iov.trend(ans)
+ans = {'how': 'all', 'quantity': 'mean_x3', 'which' : []}
+print iov.trend(an)
+ans = {'how': 'singleChannel', 'quantity': 'mean_x6', 'which' : [0,200,1200]}
+print iov.trend(ans)
 
 
 
