@@ -7,7 +7,7 @@ photonAnalysis = cms.EDAnalyzer("PhotonAnalyzer",
     hcalIsolExtR = cms.double(0.3),
     dEtaTracksMax = cms.double(0.2),
     hcalIsolInnR = cms.double(0.0),
-    scEndcapProducer = cms.string('correctedMulti5x5SuperClustersWithPreshower'),
+    scEndcapProducer = cms.InputTag('correctedMulti5x5SuperClustersWithPreshower'),
     minTrackPtCut = cms.double(1.5),
     minBcEtCut = cms.double(0.0),
     bcBarrelCollection = cms.InputTag("hybridSuperClusters","hybridBarrelBasicClusters"),
@@ -33,7 +33,10 @@ photonAnalysis = cms.EDAnalyzer("PhotonAnalyzer",
     hbheModule = cms.string('hbhereco'),
     trackProducer = cms.InputTag("generalTracks"),
     # DBE verbosity
-    Verbosity = cms.untracked.int32(2),
+    Verbosity = cms.untracked.int32(0),
+    # 1 provides basic output
+    # 2 provides output of the fill step + 1
+    # 3 provides output of the store step + 2
     trkIsolInnR = cms.double(0.03),
     r9Min = cms.double(0.0),
     ecalIsolR = cms.double(0.35),
@@ -46,18 +49,16 @@ photonAnalysis = cms.EDAnalyzer("PhotonAnalyzer",
     maxNumOfTracksInCone = cms.int32(3),
     etMax = cms.double(100.0),
     hcalEtSumCut = cms.double(6.0),
-    # 1 provides basic output
-    # 2 provides output of the fill step + 1
-    # 3 provides output of the store step + 2
     phoProducer = cms.string('photons'),
     minHcalHitEtCut = cms.double(0.0),
     etaMin = cms.double(-2.5),
     minPhoEtCut = cms.double(5.0),
     dPhiTracksBin = cms.int32(100),
-    scBarrelProducer = cms.string('correctedHybridSuperClusters'),
+    scBarrelProducer = cms.InputTag('correctedHybridSuperClusters'),
     Name = cms.untracked.string('photonAnalysis'),
     trkPtSumCut = cms.double(9999.0),
-    ecalEtSumCut = cms.double(5.0)
+    ecalEtSumCut = cms.double(5.0),
+    ecalEtaStrip = cms.double(0.02)                             
 )
 
 
