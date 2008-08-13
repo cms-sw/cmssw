@@ -255,13 +255,19 @@ const float CSCSummary::WriteMap(TH2*& h2) const {
         ymax = ymin + yd;
 
         switch(IsPhysicsReady(xmin, xmax, ymin, ymax)) {
-          case 1:
-            h2->SetBinContent(x + 1, y + 1, 1);
+          case -1:
+            h2->SetBinContent(x + 1, y + 1, -1);
+            break;
           case 0:
             rep_el++;
             break;
-          case -1:
-            h2->SetBinContent(x + 1, y + 1, -1);
+          case 1:
+            h2->SetBinContent(x + 1, y + 1, 1);
+            rep_el++;
+            break;
+          case 2:
+            h2->SetBinContent(x + 1, y + 1, 2);
+            rep_el++;
         }
 
         csc_el++;
@@ -377,6 +383,7 @@ const int CSCSummary::IsPhysicsReady(const float xmin, const float xmax, const f
   unsigned int rep_sum = 0;
   unsigned int nul_sum = 0;
   unsigned int err_sum = 0;
+  unsigned int mas_sum = 0;
 
   for (adr.station = 1; adr.station <= N_STATIONS; adr.station++) {
 
@@ -404,6 +411,9 @@ const int CSCSummary::IsPhysicsReady(const float xmin, const float xmax, const f
           break;
         case 1:
           rep_sum++;
+          break;
+        case 2:
+          mas_sum++;
         }
 
     }
@@ -413,6 +423,8 @@ const int CSCSummary::IsPhysicsReady(const float xmin, const float xmax, const f
   }
 
   if (err_sum >= 1) return -1;
+  if (mas_sum >= 1) return 2;
+
   return 0;
 
 }
