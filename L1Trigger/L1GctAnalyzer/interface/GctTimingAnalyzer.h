@@ -14,7 +14,7 @@ Description: Analyse the timing of all of the GCT pipelines
 //
 // Original Author:  Alex Tapper
 //         Created:  Mon Apr 21 14:21:06 CEST 2008
-// $Id: GctTimingAnalyzer.h,v 1.3 2008/05/13 20:13:41 tapper Exp $
+// $Id: GctTimingAnalyzer.h,v 1.4 2008/07/14 12:40:01 tapper Exp $
 //
 //
 
@@ -58,6 +58,8 @@ class GctTimingAnalyzer : public edm::EDAnalyzer {
   edm::InputTag m_fibreSource;
   edm::InputTag m_rctSource;
   unsigned m_evtNum;
+  bool m_EtSumSwitch;
+  bool m_testConfig;
 
 };
 
