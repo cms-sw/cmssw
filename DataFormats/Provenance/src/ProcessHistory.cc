@@ -30,6 +30,19 @@ namespace edm {
   }
 
   bool
+  ProcessHistory::getConfigurationForProcess(std::string const& name, 
+					     ProcessConfiguration& config) const {
+    for (const_iterator i = begin(), e = end(); i != e; ++i) {
+      if (i->processName() == name) {
+	config = *i;
+	return true;
+      }
+    }
+    // Name not found!
+    return false;				    
+  }
+
+  bool
   isAncestor(ProcessHistory const& a, ProcessHistory const& b) {
     if (a.size() >= b.size()) return false;
     typedef ProcessHistory::collection_type::const_iterator const_iterator;

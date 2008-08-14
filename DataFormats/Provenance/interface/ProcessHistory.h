@@ -57,6 +57,12 @@ namespace edm {
     collection_type const& data() const {return data_;}
     ProcessHistoryID id() const;
 
+    // Return true, and fill in config appropriately, if the a process
+    // with the given name is recorded in this ProcessHistory. Return
+    // false, and do not modify config, if process with the given name
+    // is found.
+    bool getConfigurationForProcess(std::string const& name, ProcessConfiguration& config) const;
+
   private:
     collection_type data_;
     mutable ProcessHistoryID id_;

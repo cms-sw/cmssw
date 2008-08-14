@@ -51,7 +51,6 @@ namespace edm
     // iteration more convenient. But it would seem to complicate
     // persistence. The current plan is to have parallel vectors, one
     // for each type of item stored as data.
-    
     EventSelectionIDVector eventSelections_;
 
     ProcessHistoryID processHistoryID_;

@@ -15,7 +15,7 @@ For its usage, see "FWCore/Framework/interface/DataViewImpl.h"
 */
 /*----------------------------------------------------------------------
 
-$Id: Run.h,v 1.12.2.2 2008/05/12 15:33:08 wmtan Exp $
+$Id: Run.h,v 1.13 2008/05/12 18:14:07 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -63,6 +63,16 @@ namespace edm {
 
     void
     getAllProvenance(std::vector<Provenance const*> &provenances) const;
+
+    // Return true if this Run has been subjected to a process with
+    // the given processName, and false otherwise.
+    // If true is returned, then ps is filled with the ParameterSets
+    // (possibly more than one) used to configure the identified
+    // process(es). Equivalent ParameterSets are compressed out of the
+    // result.
+    bool
+    getProcessParameterSet(std::string const& processName,
+			   std::vector<ParameterSet>& ps) const;
 
   private:
     RunPrincipal const&

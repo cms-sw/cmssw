@@ -36,7 +36,7 @@ For its usage, see "FWCore/Framework/interface/DataViewImpl.h"
 
 #include "FWCore/Framework/interface/DataViewImpl.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 namespace edm {
 
@@ -116,6 +116,7 @@ namespace edm {
     get(ProductID const& oid, Handle<View<ELEMENT> >& result) const ;
 
     History const& history() const;
+    ProcessHistoryID const& processHistoryID() const;
 
     ///Put a new product.
     template <typename PROD>
@@ -199,6 +200,14 @@ namespace edm {
 
     void
     getAllProvenance(std::vector<Provenance const*> &provenances) const;
+
+    // Return true if this Event has been subjected to a process with
+    // the given processName, and false otherwise.
+    // If true is returned, then ps is filled with the ParameterSet
+    // used to configure the identified process.
+    bool
+    getProcessParameterSet(std::string const& processName,
+			   ParameterSet& ps) const;
 
   private:
     EventPrincipal const&

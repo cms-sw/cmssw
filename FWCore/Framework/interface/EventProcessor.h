@@ -6,7 +6,7 @@
 EventProcessor: This defines the 'framework application' object. It is
 configured in the user's main() function, and is set running.
 
-$Id: EventProcessor.h,v 1.65 2008/06/28 01:23:05 rpw Exp $
+$Id: EventProcessor.h,v 1.66 2008/07/29 02:17:36 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -19,6 +19,7 @@ $Id: EventProcessor.h,v 1.65 2008/06/28 01:23:05 rpw Exp $
 #include "boost/utility.hpp"
 
 #include "FWCore/Framework/interface/IEventProcessor.h"
+#include "FWCore/Framework/interface/InputSource.h"
 #include "FWCore/ServiceRegistry/interface/ServiceLegacy.h"
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 #include "FWCore/Framework/src/WorkerRegistry.h"

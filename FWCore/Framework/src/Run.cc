@@ -1,5 +1,11 @@
+#include <vector>
+
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
+#include "DataFormats/Provenance/interface/ParameterSetID.h"
+#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/Registry.h"
 
 namespace edm {
 
@@ -30,6 +36,42 @@ namespace edm {
     runPrincipal().getAllProvenance(provenances);
   }
 
+  bool
+  Run::getProcessParameterSet(std::string const& processName,
+			      std::vector<ParameterSet>& psets) const
+  {
+    // Get the relevant ProcessHistoryIDs
+    ProcessHistoryRegistry* phreg = ProcessHistoryRegistry::instance();
+    std::vector<ProcessHistoryID> historyIDs;
+    
+
+    // Get the relevant ParameterSetIDs.
+    std::vector<ParameterSetID> psetIdsUsed;
+    for (std::vector<ProcessHistoryID>::const_iterator
+	   i = historyIDs.begin(),
+	   e = historyIDs.end();
+	 i != e;
+	 ++i)
+      {
+	ProcessHistory temp;
+	phreg->getMapped(*i, temp);
+      }
+
+    // Look up the ParameterSets for these IDs.
+    pset::Registry* psreg = pset::Registry::instance();
+    for (std::vector<ParameterSetID>::const_iterator 
+	   i = psetIdsUsed.begin(),
+	   e = psetIdsUsed.end();
+	 i != e;
+	 ++i)
+      {
+	ParameterSet temp;
+	psreg->getMapped(*i, temp);
+	psets.push_back(temp);	  
+      }
+
+    return false;
+  }
 
   void
   Run::commit_() {

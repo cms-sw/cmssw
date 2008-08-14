@@ -1,8 +1,9 @@
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "FWCore/ParameterSet/interface/Registry.h"
 
 namespace edm {
 
@@ -47,6 +48,11 @@ namespace edm {
     return eventPrincipal().history();
   }
 
+  ProcessHistoryID const&
+  Event::processHistoryID() const {
+    return eventPrincipal().history().processHistoryID();
+  }
+
 
   Provenance
   Event::getProvenance(BranchID const& bid) const
@@ -64,6 +70,29 @@ namespace edm {
   Event::getAllProvenance(std::vector<Provenance const*> & provenances) const
   {
     eventPrincipal().getAllProvenance(provenances);
+  }
+
+  bool
+  Event::getProcessParameterSet(std::string const& processName,
+				ParameterSet& ps) const
+  {
+    // Get the ProcessHistory for this event.
+    ProcessHistoryRegistry* phr = ProcessHistoryRegistry::instance();
+    ProcessHistory ph;
+    if (!phr->getMapped(processHistoryID(), ph))
+      {
+	throw Exception(errors::NotFound) 
+	  << "ProcessHistoryID " << processHistoryID()
+	  << " is claimed to describe " << id()
+	  << "\nbut is not found in the ProcessHistoryRegistry.\n"
+	  << "This file is malformed.\n";
+      }
+
+    ProcessConfiguration config;
+    bool process_found = ph.getConfigurationForProcess(processName, config);
+    if (process_found)
+      pset::Registry::instance()->getMapped(config.parameterSetID(), ps);
+    return process_found;
   }
 
   BasicHandle
