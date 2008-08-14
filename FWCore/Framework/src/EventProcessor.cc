@@ -16,6 +16,7 @@
 #include "FWCore/Utilities/interface/GetReleaseVersion.h"
 #include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Utilities/interface/UnixSignalHandlers.h"
+#include "FWCore/Utilities/interface/ExceptionCollector.h"
 
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
@@ -833,65 +834,49 @@ namespace edm {
     // to be called.
     EventSetup const& es =
       esp_->eventSetupForInstance(IOVSyncValue::beginOfTime());
+    if(looper_) {
+       looper_->beginOfJob(es);
+    }
     try {
-    input_->doBeginJob(es);
+      input_->doBeginJob(es);
     } catch(cms::Exception& e) {
       LogError("BeginJob") << "A cms::Exception happened while processing the beginJob of the 'source'\n";
       e << "A cms::Exception happened while processing the beginJob of the 'source'\n";
       throw;
-    } catch(std::exception& e)
-    {
+    } catch(std::exception& e) {
       LogError("BeginJob") << "A std::exception happened while processing the beginJob of the 'source'\n";
       throw;
-    } catch(...)
-    {
+    } catch(...) {
       LogError("BeginJob") << "An unknown exception happened while processing the beginJob of the 'source'\n";
       throw;
     }
     schedule_->beginJob(es);
     actReg_->postBeginJobSignal_();
-    if(looper_) {
-       looper_->beginOfJob(es);
-    }
     // toerror.succeeded(); // should we add this?
   }
 
   void
   EventProcessor::endJob() 
   {
+    // Collects exceptions, so we don't throw before all operations are performed.
+    ExceptionCollector c;
+
     // only allowed to run if state is sIdle,sJobReady,sRunGiven
-    changeState(mEndJob);
+    c.call(boost::bind(&EventProcessor::changeState, this, mEndJob));
 
     //make the services available
     ServiceRegistry::Operate operate(serviceToken_);  
 
-    terminateMachine();
-
-    if(looper_) {
-       looper_->endOfJob();
+    c.call(boost::bind(&EventProcessor::terminateMachine, this));
+    c.call(boost::bind(&Schedule::endJob, schedule_.get()));
+    c.call(boost::bind(&InputSource::doEndJob, input_));
+    if (looper_) {
+      c.call(boost::bind(&EDLooper::endOfJob, looper_));
     }
-    try {
-	schedule_->endJob();
+    c.call(boost::bind(&ActivityRegistry::PostEndJob::operator(), &actReg_->postEndJobSignal_));
+    if (c.hasThrown()) {
+      c.rethrow();
     }
-    catch(...) {
-      try {
-	input_->doEndJob();
-      }
-      catch (...) {
-	// If schedule_->endJob() and input_->doEndJob() both throw, we will
-	// lose the exception information from input_->doEndJob().  So what!
-      }
-      actReg_->postEndJobSignal_();
-      throw;
-    }
-    try {
-	input_->doEndJob();
-    }
-    catch(...) {
-      actReg_->postEndJobSignal_();
-      throw;
-    }
-    actReg_->postEndJobSignal_();
   }
 
   ServiceToken
