@@ -19,6 +19,9 @@
 # feature.  If the expected number of events does not
 # pass the selection, they abort with an error message.
 
+# We also test that the lookup of processing history information
+# works.
+
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")

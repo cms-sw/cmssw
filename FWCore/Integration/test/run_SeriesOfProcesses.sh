@@ -17,6 +17,8 @@ pushd ${LOCAL_TMP_DIR}
   cmsRun -p ${LOCAL_TEST_DIR}/${test}TEST2_cfg.py 2> ${test}TEST2.txt
   grep "Duplicate Process" ${test}TEST2.txt || die "cmsRun ${test}TEST2_cfg.py" $?
 
+  cmsRun -p ${LOCAL_TEST_DIR}/${test}TEST3_cfg.py || die "Failure in history testing in ${test}" $?
+
 popd
 
 exit 0
