@@ -97,7 +97,7 @@ L1Draw(string fname1,string fname2,string v1,string v2,string folder)
   l1->cd(29);
   DrawIntHistos(fname1,fname2,v1,v2,folder,"L1TauMuonfixEffEt","nfidCounter",1,"E_{t} Threshold","Efficiency","Muon+ Tau Efficiency Vs Threshold");
   l1->cd(30);  
-  DrawIntHistos(fname1,fname2,v1,v2,folder,"L1TauIsoEgfixEffRefMatchEt","nfidCounter",4,"E_{t} Threshold","Efficiency","Muon+ Tau (Matched)Efficiency Vs Threshold");
+  DrawIntHistos(fname1,fname2,v1,v2,folder,"L1TauMuonfixEffRefMatchEt","nfidCounter",4,"E_{t} Threshold","Efficiency","Muon+ Tau (Matched)Efficiency Vs Threshold");
 
 
 
@@ -140,7 +140,7 @@ L1Val(string fname1,string fname2,string v1,string v2,string folder)
   GetIntHistos(fname1,fname2,v1,v2,folder,"L1TauIsoEgfixEffEt","nfidCounter",1,"E_{t} Threshold","Efficiency","EGamma+ Tau Efficiency Vs Threshold");
   GetIntHistos(fname1,fname2,v1,v2,folder,"L1TauIsoEgfixEffRefMatchEt","nfidCounter",5,"E_{t} Threshold","Efficiency","EGamma+ Tau (Matched)Efficiency Vs Threshold");
   GetIntHistos(fname1,fname2,v1,v2,folder,"L1TauMuonfixEffEt","nfidCounter",1,"E_{t} Threshold","Efficiency","Muon+ Tau Efficiency Vs Threshold");
-  GetIntHistos(fname1,fname2,v1,v2,folder,"L1TauIsoEgfixEffRefMatchEt","nfidCounter",4,"E_{t} Threshold","Efficiency","Muon+ Tau (Matched)Efficiency Vs Threshold");
+  GetIntHistos(fname1,fname2,v1,v2,folder,"L1TauMuonfixEffRefMatchEt","nfidCounter",4,"E_{t} Threshold","Efficiency","Muon+ Tau (Matched)Efficiency Vs Threshold");
 
 }
 
@@ -263,28 +263,28 @@ ElectronDraw(string fname1,string fname2,string v1,string v2,string f)
 L2Draw(string fname1,string fname2,string v1,string v2,string folder)
 {
   TCanvas *l2 = new TCanvas;
-  l2->Divide(3,4);
+  l2->Divide(3,3);
   l2->cd(1);
   DrawHistos(fname1,fname2,v1,v2,folder,"L2tauCandEt","L2 jet E_{t}","n. #tau cands."," L2 jet E_{t}",0,false );
  l2->cd(2); 
  DrawHistos(fname1,fname2,v1,v2,folder,"L2tauCandEta","L2 jet #eta","n. #tau cands."," L2 jet #eta",0,false );
   l2->cd(3); 
  DrawHistos(fname1,fname2,v1,v2,folder,"L2ecalIsolEt","L2 ECAL Isol. E_{t}","n. #tau cands.","ECAL #Sigma E_{t} in annulus",0,false );
- l2->cd(4); 
- DrawHistos(fname1,fname2,v1,v2,folder,"L2seedTowerEt","L2 Seed Tower E_{t}","n. #tau cands.","Seed Tower E_{t} in annulus",0,false );
- l2->cd(5);  
- DrawHistos(fname1,fname2,v1,v2,folder,"L2towerIsolEt","L2 Tower isol E_{t}","n. #tau cands.","Tower #Sigma E_{t} in annulus",0,false );
- l2->cd(6);
+ // l2->cd(4); 
+ // DrawHistos(fname1,fname2,v1,v2,folder,"L2seedTowerEt","L2 Seed Tower E_{t}","n. #tau cands.","Seed Tower E_{t} in annulus",0,false );
+ //l2->cd(5);  
+ //DrawHistos(fname1,fname2,v1,v2,folder,"L2towerIsolEt","L2 Tower isol E_{t}","n. #tau cands.","Tower #Sigma E_{t} in annulus",0,false );
+ l2->cd(4);
  DrawHistos(fname1,fname2,v1,v2,folder,"L2nClusters","L2 Number of  Clusters","n. #tau cands.","Number of clusters",0,false );
- l2->cd(7);  
+ l2->cd(5);  
  DrawHistos(fname1,fname2,v1,v2,folder,"L2clusterEtaRMS","L2 Cluster #eta RMS","n. #tau cands.","Cluster #eta RMS",0,false );
- l2->cd(8);  
+ l2->cd(6);  
  DrawHistos(fname1,fname2,v1,v2,folder,"L2clusterPhiRMS","L2 Cluster #phi RMS","n. #tau cands.","Cluster #phi RMS",0,false );
- l2->cd(9);  
+ l2->cd(7);  
  DrawHistos(fname1,fname2,v1,v2,folder,"L2clusterDeltaRRMS","L2 Cluster #DeltaR RMS","n. #tau cands.","Cluster #DeltaR RMS",0,false );
- l2->cd(10);  
+ l2->cd(8);  
  DrawHistos(fname1,fname2,v1,v2,folder,"MET","MET [GeV]","n. events","Missing E_{t}",0,false );
- l2->cd(11);
+ l2->cd(9);
  DrawEffHistos(fname1,fname2,v1,v2,folder,"L2EtEffNum","L2EtEffDenom","Ref. E_{t}[GeV]","Efficiency","L2 Efficiency vs E_{t}");
 
 
@@ -300,9 +300,9 @@ L25Draw(string fname1,string fname2,string v1,string v2,string folder)
   DrawHistos(fname1,fname2,v1,v2,folder,"L25jetEt","L25 Jet E_{t} [GeV]","n. #tau cands.","L25 Jet E_{t} [GeV]",0,false );
   l25->cd(2);
   DrawHistos(fname1,fname2,v1,v2,folder,"L25jetEta","L25 Jet #eta","n. #tau cands.","L25 Jet #eta",0,false );
-  //  l25->cd(3);
-  // DrawHistos(fname1,fname2,v1,v2,folder,"L25EtEff","L25 Reco Jet E_{t} [GeV]","Efficiency","L25 Efficiency vs E_{t}",0,true );
-  //l25->cd(4);
+  //l25->cd(3);
+  //  DrawHistos(fname1,fname2,v1,v2,folder,"L25EtEff","L25 Reco Jet E_{t} [GeV]","Efficiency","L25 Efficiency vs E_{t}",0,true );
+  // l25->cd(4);
   // DrawHistos(fname1,fname2,v1,v2,folder,"L25EtaEff","L25 Efficiency vs #eta","n. #tau cands.","Reco Jet #eta",0,true );
   l25->cd(5);
   DrawHistos(fname1,fname2,v1,v2,folder,"L25nTrksInJet","L25 Number of Pixel Tracks","n. #tau cands.","# Pixel Tracks in L25 Jet",0,false );
@@ -321,7 +321,7 @@ L25Draw(string fname1,string fname2,string v1,string v2,string folder)
 L3Draw(string fname1,string fname2,string v1,string v2,string folder)
 {
   TCanvas *l33 = new TCanvas;
-  l33->Divide(3,3);
+  l33->Divide(3,2);
   l33->cd(1);
   DrawHistos(fname1,fname2,v1,v2,folder,"L3jetEt","L3 Jet E_{t} [GeV]","n. #tau cands.","L3 Jet E_{t} [GeV]",0,false );
   l33->cd(2);
@@ -333,9 +333,9 @@ L3Draw(string fname1,string fname2,string v1,string v2,string folder)
   l33->cd(5);
   DrawHistos(fname1,fname2,v1,v2,folder,"L3signalLeadTrkPt","L3 Lead Track P_{t}[GeV]","n. #tau cands.","Lead Track P_{t} [GeV]",0,false );
   l33->cd(6);
-  DrawEffHistos(fname1,fname2,v1,v2,folder,"L3IsoJetEt","L3jetEt","Ref. E_{t}[GeV]","Efficiency","L25 Efficiency vs E_{t}");
-  l33->cd(7);
-  DrawEffHistos(fname1,fname2,v1,v2,folder,"L3IsoJetEta","L3jetEta","#eta","Efficiency","L25 Efficiency vs #eta");
+  //  DrawEffHistos(fname1,fname2,v1,v2,folder,"L3IsoJetEt","L3jetEt","Ref. E_{t}[GeV]","Efficiency","L3 Efficiency vs E_{t}");
+  //l33->cd(7);
+  //DrawEffHistos(fname1,fname2,v1,v2,folder,"L3IsoJetEta","L3jetEta","#eta","Efficiency","L3 Efficiency vs #eta");
  
 }
 
@@ -685,11 +685,15 @@ DrawIntHistos(string f1,string f2,string v1,string v2,string modName,string hist
   if(hh->GetMaximum() > max)
     max==hh->GetMaximum();
 
-  h->GetYaxis()->SetRangeUser(0,max);
 
 
   h->Draw("HIST");
   hh->Draw("SAME");
+
+  h->GetYaxis()->SetRangeUser(0,max);
+  hh->GetYaxis()->SetRangeUser(0,max);
+
+
   TLegend *l = new TLegend(0.7,0.5,0.9,0.7);
   l->AddEntry(h,v1.c_str());
   l->AddEntry(hh,v2.c_str());
@@ -750,10 +754,14 @@ GetIntHistos(string f1,string f2,string v1,string v2,string modName,string histo
 
   h->GetYaxis()->SetRangeUser(0,max);
 
+ 
 
   h->Draw("HIST");
   hh->Draw("SAME");
-  TLegend *l = new TLegend(0.7,0.5,0.9,0.7);
+ 
+ 
+
+ TLegend *l = new TLegend(0.7,0.5,0.9,0.7);
   l->AddEntry(h,v1.c_str());
   l->AddEntry(hh,v2.c_str());
   l->Draw();
