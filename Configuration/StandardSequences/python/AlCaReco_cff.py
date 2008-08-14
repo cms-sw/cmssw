@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# last update: $Date: 2008/07/01 13:32:35 $ by $Author: argiro $
+# last update: $Date: 2008/08/11 09:47:13 $ by $Author: rmankel $
 # Please update the sequence defined at the very end of this file
 # with any new/changed sequences
 # Tracker Alignment
@@ -42,7 +42,7 @@ from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalDijets_cff import *
 # HCAL calibration with gamma+jet
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalGammaJet_cff import *
 # HCAL calibration with isolated tracks
-from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsoTrkNoHLT_cff import *
+from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsoTrk_cff import *
 # HCAL calibration with min.bias
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalMinBias_cff import *
 # HCAL calibration from HO (muons) 
@@ -81,7 +81,7 @@ pathALCARECOEcalCalPi0Calib = cms.Path(seqALCARECOEcalCalPi0Calib)
 pathALCARECOHcalCalMinBias = cms.Path(seqALCARECOHcalCalMinBias)
 pathALCARECOHcalCalDijets = cms.Path(seqALCARECOHcalCalDijets)
 pathALCARECOHcalCalGammaJet = cms.Path(seqALCARECOHcalCalGammaJet)
-pathALCARECOHcalCalIsoTrkNoHLT = cms.Path(seqALCARECOHcalCalIsoTrkNoHLT)
+pathALCARECOHcalCalIsoTrk = cms.Path(seqALCARECOHcalCalIsoTrk)
 pathALCARECOHcalCalHO = cms.Path(seqALCARECOHcalCalHO)
 pathALCARECOMuCaliMinBias = cms.Path(seqALCARECOMuCaliMinBias)
 pathALCARECOMuAlCalIsolatedMu = cms.Path(seqALCARECOMuAlCalIsolatedMu)

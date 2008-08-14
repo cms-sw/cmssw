@@ -135,12 +135,12 @@ ALCARECOStreamHcalCalMinBias = cms.FilteredStream(
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
-ALCARECOStreamHcalCalIsoTrkNoHLT = cms.FilteredStream(
+ALCARECOStreamHcalCalIsoTrk = cms.FilteredStream(
 	responsible = 'Grigory Safronov',
-	name = 'ALCARECOHcalCalIsoTrkNoHLT',
-	paths  = (pathALCARECOHcalCalIsoTrkNoHLT),
-	content = OutALCARECOHcalCalIsoTrkNoHLT.outputCommands,
-	selectEvents = OutALCARECOHcalCalIsoTrkNoHLT.SelectEvents,
+	name = 'ALCARECOHcalCalIsoTrk',
+	paths  = (pathALCARECOHcalCalIsoTrk),
+	content = OutALCARECOHcalCalIsoTrk.outputCommands,
+	selectEvents = OutALCARECOHcalCalIsoTrk.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
