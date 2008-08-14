@@ -2,8 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 common = cms.PSet(
     CalibrationInputs = cms.VInputTag(),
-    EcalTPGInput = cms.InputTag("simEcalTriggerPrimitiveDigis"),
-    HcalTPGInput = cms.InputTag("simHcalTriggerPrimitiveDigis"),
+    EcalTPGInput = cms.InputTag("ecalTriggerPrimitiveDigis"),
+    HcalTPGInput = cms.InputTag("hcalTriggerPrimitiveDigis"),
     RegionsInput = cms.InputTag("rctDigis"),
     OutputFile = cms.string("RCTCalibration"),
     DeltaEtaBarrel = cms.double(0.0870),

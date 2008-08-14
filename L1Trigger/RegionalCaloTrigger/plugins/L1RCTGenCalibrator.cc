@@ -25,7 +25,7 @@ L1RCTGenCalibrator::~L1RCTGenCalibrator()
 void L1RCTGenCalibrator::saveCalibrationInfo(const view_vector& calib_to,const edm::Handle<ecal_view>& e, 
 					     const edm::Handle<hcal_view>& h, const edm::Handle<reg_view>& r)
 {  
-  if(debug() > 0) std::cout << "--------------- Begin L1RCTGenCalibration::saveCalibrationInfo() ---------------\n";
+  if(debug() > 0) edm::LogVerbatim("saveCalibrationInfo()") << "--------------- Begin L1RCTGenCalibration::saveCalibrationInfo() ---------------\n";
 
   event_data temp; // event information to save for reprocessing later
   std::vector<generator>* gtemp = &(temp.gen_particles);
@@ -53,34 +53,52 @@ void L1RCTGenCalibrator::saveCalibrationInfo(const view_vector& calib_to,const e
   temp.run = runNumber();
 
   data_.push_back(temp);
-  if(debug() > 0) std::cout << "--------------- End L1RCTGenCalibration::saveCalibrationInfo() ---------------\n";
+  if(debug() > 0) edm::LogVerbatim("saveCalibrationInfo()") << "--------------- End L1RCTGenCalibration::saveCalibrationInfo() ---------------\n";
 }
 
 void L1RCTGenCalibrator::postProcessing()
 {  
+  if(debug() > -1) edm::LogVerbatim("postProcessing()") << "------------------postProcessing()-------------------\n";
+  int iph[28] = {0}, ipi[28] = {0}, nEvents = 0, nUseful = 0;
+  
   // first event data loop, calibrate ecal, hcal with NI pions
   for(std::vector<event_data>::const_iterator i = data_.begin(); i != data_.end(); ++i)
     {
-      int iph = 0, ipi = 0;
+      nEvents++;
       hEvent->Fill(i->event);
       hRun->Fill(i->run);
 
+      bool used_flag = false;
+
       std::vector<generator>::const_iterator gen = i->gen_particles.begin();
 
-      for(; gen != i->gen_particles.end(); ++gen)
-	{
-	  if(gen->particle_type != 22 && abs(gen->particle_type) != 211 ) continue;
+      std::vector<generator> ovls = overlaps(i->gen_particles);
 
+      
+      if(debug() > 0) LogTrace("StartOverlap") << "Finding overlapping selected particles in this event!\n";
+      if(debug() > 0)
+	{
+	  edm::LogVerbatim("OverlapInfo") << "=======Overlapping accepted gen particles in event " << nEvents << "\n";
+	  for(std::vector<generator>::const_iterator ov = ovls.begin(); ov != ovls.end(); ++ov)
+	    edm::LogVerbatim("OverlapInfo") << '\t' <<  ov->particle_type << " " << ov->et << " " << ov->eta << " " << ov->phi << "\n";
+	  edm::LogVerbatim("OverlapInfo") << "======================================================\n";
+	}
+      if(debug() > 0) LogTrace("EndOverlap") << "Done finding overlaps!\n";
+
+      for(; gen != i->gen_particles.end(); ++gen)
+	{	  
+	  if(gen->particle_type != 22 && abs(gen->particle_type) != 211 || find<generator>(*gen, ovls) != -1) continue;
 	  double regionsum = sumEt(gen->eta,gen->phi,i->regions);
-	  
 	  if(regionsum > 0.0)
-	    {	      
+	    {	
 	      std::vector<tpg> matchedTpgs = tpgsNear(gen->eta,gen->phi,i->tpgs);
 	      std::pair<double,double> matchedCentroid = std::make_pair(avgEta(matchedTpgs),avgPhi(matchedTpgs));
 	      std::pair<double,double> etAndDeltaR95 = showerSize(matchedTpgs);
-	      
+
 	      if(gen->particle_type == 22)
-		{
+		{		  
+		  if(!used_flag) used_flag = true;
+
 		  std::pair<double,double> ecalEtandDeltaR95 = showerSize(matchedTpgs, .95, .5, true, false);
 		  
 		  int sumieta, sumiphi;
@@ -91,22 +109,24 @@ void L1RCTGenCalibrator::postProcessing()
 		  if(debug() > 0)
 		    {
 		      int n_towers = tpgsNear(matchedCentroid.first, matchedCentroid.second, matchedTpgs, ecalEtandDeltaR95.second).size();
-		      LogDebug("PhotonTPGSumInfo") << "TPG sum near gen Photon with nearby non-zero RCT region found:\n"
-						   << "\tNumber of Towers  : " << n_towers << std::endl
-						   << "\tCentroid Eta      : " << matchedCentroid.first << std::endl
-						   << "\tCentroid Phi      : " << matchedCentroid.second << std::endl
-						   << "\tDelta R 95  (h+e) : " << etAndDeltaR95.second << std::endl
-						   << "\tDelta R 95  (e)   : " << ecalEtandDeltaR95.second << std::endl
-						   << "\tTotal Et in Cone  : " << etAndDeltaR95.first << std::endl
-						   << "\tEcal Et in Cone   : " << ecalEtandDeltaR95.first << std::endl;
+		      LogTrace("PhotonTPGSumInfo") << "TPG sum near gen Photon with nearby non-zero RCT region found:\n"
+						   << "Number of Towers  : " << n_towers << " "
+						   << "\tCentroid Eta      : " << matchedCentroid.first << " "
+						   << "\tCentroid Phi      : " << matchedCentroid.second << " "
+						   << "\tDelta R 95  (h+e) : " << etAndDeltaR95.second << " "
+						   << "\nDelta R 95  (e)   : " << ecalEtandDeltaR95.second << " "
+						   << "\tTotal Et in Cone  : " << etAndDeltaR95.first << " "
+						   << "\tEcal Et in Cone   : " << ecalEtandDeltaR95.first << " ";
 		    }
 		  
 		  hPhotonDeltaR95[sumieta - 1]->Fill(etAndDeltaR95.second);
-		  gPhotonEtvsGenEt[sumieta - 1]->SetPoint(iph++, ecalEtandDeltaR95.first, gen->et);	      
+		  gPhotonEtvsGenEt[sumieta - 1]->SetPoint(iph[sumieta - 1]++, ecalEtandDeltaR95.first, gen->et);	      
 		}  
 
 	      if(abs(gen->particle_type) == 211)
 		{
+		  if(!used_flag) used_flag = true;
+		  
 		  double ecal = sumEt(matchedCentroid.first, matchedCentroid.second, matchedTpgs, etAndDeltaR95.second, true, false);
 		  double hcal = sumEt(matchedCentroid.first, matchedCentroid.second, matchedTpgs, etAndDeltaR95.second, false, true);
 
@@ -116,22 +136,22 @@ void L1RCTGenCalibrator::postProcessing()
 		  
 		  if( ecal < 1.0  && etAndDeltaR95.first > 0)
 		    {
-		      if(debug() > 0)
+		      if(debug() > -1)
 			{
 			  int n_towers = tpgsNear(matchedCentroid.first, matchedCentroid.second, matchedTpgs, etAndDeltaR95.second).size();
-			  LogDebug("PhotonTPGSumInfo") << "TPG sum near gen Charged Pion with nearby non-zero RCT region and little ECAL energy found:\n"
-						       << "\tNumber of Towers  : " << n_towers << std::endl
-						       << "\tCentroid Eta      : " << matchedCentroid.first << std::endl
-						       << "\tCentroid Phi      : " << matchedCentroid.second << std::endl
-						       << "\tDelta R 95  (h+e) : " << etAndDeltaR95.second << std::endl
-						       << "\tTotal Et in Cone  : " << etAndDeltaR95.first << std::endl
-						       << "\tEcal Et in Cone   : " << ecal << std::endl
-						       << "\tHcal Et in Cone   : " << hcal << std::endl;
+			  LogTrace("NIPionTPGSumInfo") << "TPG sum near gen Charged Pion with nearby non-zero RCT region and little ECAL energy found:\n"
+						       << "Number of Towers  : " << n_towers << " "
+						       << "\tCentroid Eta      : " << matchedCentroid.first << " "
+						       << "\tCentroid Phi      : " << matchedCentroid.second << " "
+						       << "\tDelta R 95  (h+e) : " << etAndDeltaR95.second << " "
+						       << "\nTotal Et in Cone  : " << etAndDeltaR95.first << " "
+						       << "\tEcal Et in Cone   : " << ecal << " "
+						       << "\tHcal Et in Cone   : " << hcal << " ";
 			}
 		      
 
 		      hNIPionDeltaR95[sumieta - 1]->Fill(etAndDeltaR95.second);
-		      gNIPionEtvsGenEt[sumieta - 1]->SetPoint(ipi++, etAndDeltaR95.first, gen->et);
+		      gNIPionEtvsGenEt[sumieta - 1]->SetPoint(ipi[sumieta - 1]++, hcal, gen->et);
 		    }
 		}
 
@@ -142,19 +162,36 @@ void L1RCTGenCalibrator::postProcessing()
 	      hTpgSumPhi->Fill(matchedCentroid.second);		
 	    }	    
 	}
-    }  
+
+      if(used_flag) ++nUseful;
+    }
+
+  int pitot = 0, phtot = 0;
+
+  for(int i = 0; i < 28; ++i)
+    {
+      pitot += ipi[i];
+      phtot += iph[i];
+    }
+
+  if(debug() > -1)
+    edm::LogVerbatim("EndPostProcessing") << "Completed L1RCTGenCalibrator::postProcessing() with the following results:\n"
+					  << "Total Events       : " << nEvents << "\n"
+					  << "Useful Events      : " << nUseful << "\n"
+					  << "Number of NI Pions : " << pitot << "\n"
+					  << "Number of Photons  : " << phtot << "\n";
 }
 
 void L1RCTGenCalibrator::saveGenInfo(const reco::GenParticle* g_ , const edm::Handle<ecal_view>& e_, const edm::Handle<hcal_view>& h_,
 				     const edm::Handle<reg_view>& r_, std::vector<generator>* g, std::vector<region>* r,
 				     std::vector<tpg>* tp)
 {  
-  if(debug() > 0) std::cout << "--------------- Begin L1RCTGenCalibrator::saveGenInfo() ---------------------\n";
+  if(debug() > 0) LogTrace("saveGenInfo()") << "--------------- Begin L1RCTGenCalibrator::saveGenInfo() ---------------------\n";
   ecal_iter ei;
   hcal_iter hi;
   region_iter ri;
 
-  if((g_->pdgId() == 22 || abs(g_->pdgId()) == 211)  && g_->pt() > 5)
+  if((g_->pdgId() == 22 || abs(g_->pdgId()) == 211)  && g_->pt() > 9.5 && fabs(g_->eta()) < 2.5)
     {
       generator gen;
 
@@ -165,13 +202,13 @@ void L1RCTGenCalibrator::saveGenInfo(const reco::GenParticle* g_ , const edm::Ha
       gen.loc = makeRctLocation(gen.eta, gen.phi);
       
       if(debug() > 0)
-	LogDebug("AddingParticle") << "Adding Gen Particle to Data Record:\n"
-				   << "\tEta    :\t" << gen.eta << std::endl
-				   << "\tPhi    :\t" << gen.phi << std::endl
-				   << "\tEt     :\t" << gen.et << std::endl
-				   << "\tRegion :\t" << gen.loc.region << std::endl
-				   << "\tCard   :\t" << gen.loc.card << std::endl
-				   << "\tCrate  :\t" << gen.loc.crate << std::endl;      
+	LogTrace("AddingParticle") << "Adding Gen Particle to Data Record:\n"
+				   << "Eta    : " << gen.eta << " "
+				   << "\tPhi    : " << gen.phi << " "
+				   << "\tEt     : " << gen.et << " "
+				   << "\nRegion : " << gen.loc.region << " "
+				   << "\tCard   : " << gen.loc.card << " "
+				   << "\tCrate  : " << gen.loc.crate << " ";      
 
       hGenPhi->Fill(gen.phi);
       hGenEta->Fill(gen.eta);
@@ -196,11 +233,11 @@ void L1RCTGenCalibrator::saveGenInfo(const reco::GenParticle* g_ , const edm::Ha
 	      r_save.iphi = ri->gctPhi();
 	      
 	      if(debug() > 0)
-		LogDebug("AddingRegion") << "Adding RCT Region to Data Record:\n"
-					 << "\tRegion:\t" << r_save.loc.region << std::endl
-					 << "\tCard  :\t" << r_save.loc.card << std::endl
-					 << "\tCrate :\t" << r_save.loc.crate << std::endl
-					 << "\tEt    :\t" << r_save.linear_et << std::endl;
+		LogTrace("AddingRegion") << "Adding RCT Region to Data Record:\n"
+					 << "Region: " << r_save.loc.region << " "
+					 << "\tCard  : " << r_save.loc.card << " "
+					 << "\tCrate : " << r_save.loc.crate << " "
+					 << "\tEt    : " << r_save.linear_et << " ";
 
 	      hRCTRegionEt->Fill(r_save.linear_et*.5);
 	      hRCTRegionEta->Fill(l1Geometry()->globalEtaBinCenter(r_save.ieta));
@@ -234,14 +271,14 @@ void L1RCTGenCalibrator::saveGenInfo(const reco::GenParticle* g_ , const edm::Ha
 		  if( find<tpg>(t_save, *tp) == -1 )
 		    {
 		      if(debug() > 0)
-			LogDebug("AddingTPG") << "Adding TPG to data record:\n"
-					      << "\tieta  :\t" << t_save.ieta << std::endl
-					      << "\tiphi  :\t" << t_save.iphi << std::endl
-					      << "\tecalEt:\t" << t_save.ecalEt << std::endl
-					      << "\thcalEt:\t" << t_save.hcalEt << std::endl
-					      << "\tregion:\t" << t_save.loc.region << std::endl
-					      << "\tcard  :\t" << t_save.loc.card << std::endl
-					      << "\tcrate :\t" << t_save.loc.crate << std::endl;
+			LogTrace("AddingTPG") << "Adding TPG to data record:\n"
+					      << "ieta  : " << t_save.ieta << " "
+					      << "\tiphi  : " << t_save.iphi << " "
+					      << "\tecalEt: " << t_save.ecalEt << " "
+					      << "\thcalEt: " << t_save.hcalEt << " "
+					      << "\nregion: " << t_save.loc.region << " "
+					      << "\tcard  : " << t_save.loc.card << " "
+					      << "\tcrate : " << t_save.loc.crate << " ";
 		      
 		      tp->push_back(t_save);
 		    }
@@ -249,7 +286,7 @@ void L1RCTGenCalibrator::saveGenInfo(const reco::GenParticle* g_ , const edm::Ha
 	      }
 	  }
     }
-  if(debug() > 0) std::cout << "--------------- End L1RCTGenCalibrator::saveGenInfo() ---------------------\n";
+  if(debug() > 0) LogTrace("saveGenInfo()") << "--------------- End L1RCTGenCalibrator::saveGenInfo() ---------------------\n";
 }
 
 void L1RCTGenCalibrator::bookHistograms()
@@ -327,4 +364,32 @@ void L1RCTGenCalibrator::bookHistograms()
   putHist(hDeltaEtPeakRatiovsEtaBinAllEt = new TH1F("hDeltaEtPeakRatiovsEtaBinAllEt",
 						    "frac{Corrected E_{T}}{Uncorrected E_{T} vs. #eta Bin, All E_{T}",
 						    25,0.5,25.5));
+}
+
+std::vector<L1RCTGenCalibrator::generator>
+L1RCTGenCalibrator::overlaps(const std::vector<generator>& v) const
+{
+  std::vector<generator> result;
+
+  if(v.begin() == v.end()) return result;
+
+  for(std::vector<generator>::const_iterator i = v.begin(); i != v.end() - 1; ++i)
+    {      
+      for(std::vector<generator>::const_iterator j = i + 1; j != v.end(); ++j)
+	{
+	  double delta_r;
+
+	  deltaR(i->eta, i->phi, j->eta, j->phi, delta_r);
+
+	  if(delta_r < .5)
+	    {
+	      if(find<generator>(*i, result) == -1) 
+		result.push_back(*i); 
+	      if(find<generator>(*j, result) == -1)
+		result.push_back(*j);
+	    }	    
+	}
+    }
+
+  return result;
 }

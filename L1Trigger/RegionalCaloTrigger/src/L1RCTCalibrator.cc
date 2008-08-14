@@ -128,6 +128,8 @@ void L1RCTCalibrator::beginJob(const edm::EventSetup& es)
 void L1RCTCalibrator::endJob()
 {
   postProcessing();
+ 
+  rootOut_->cd();
   writeHistograms();
 
   rootOut_->Write();

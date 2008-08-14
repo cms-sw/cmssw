@@ -15,7 +15,7 @@
 //
 // Original Author:  pts/47
 //         Created:  Thu Jul 13 21:38:08 CEST 2006
-// $Id: L1RCTGenCalibrator.h,v 1.3 2008/08/07 22:28:58 lgray Exp $
+// $Id: L1RCTGenCalibrator.h,v 1.4 2008/08/08 19:36:55 lgray Exp $
 //
 //
 
@@ -36,16 +36,22 @@ namespace reco
 //
 class L1RCTGenCalibrator : public L1RCTCalibrator
 {
+ public:
+
   typedef TH1F* TH1Fptr;
   typedef TH2F* TH2Fptr;
   typedef TGraph* TGraphptr;
   
   // condensed data structs
-  struct generator
+  class generator
   {
+  public:
     int particle_type;
     double et, phi, eta;
     rct_location loc;
+
+    bool operator==(const generator& r) const { return ( particle_type == r.particle_type && et == r.et &&
+							 phi == r.phi && eta == r.eta ); }
   };
     
   struct event_data
@@ -56,8 +62,6 @@ class L1RCTGenCalibrator : public L1RCTCalibrator
     std::vector<region> regions;
     std::vector<tpg> tpgs;
   };
-
-public:
 
   explicit L1RCTGenCalibrator(edm::ParameterSet const&);
   ~L1RCTGenCalibrator();
@@ -73,6 +77,8 @@ private:
   void saveGenInfo(const reco::GenParticle*, const edm::Handle<ecal_view>&, const edm::Handle<hcal_view>&,
 		   const edm::Handle<reg_view>&, std::vector<generator>*, std::vector<region>*,
 		   std::vector<tpg>*);
+
+  std::vector<generator> overlaps(const std::vector<generator>&) const;
 
   // vector of all event data
   std::vector<event_data> data_;
