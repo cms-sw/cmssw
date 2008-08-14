@@ -30,8 +30,6 @@ void SiStripHistoricDQMService::initialize(){
 void SiStripHistoricDQMService::createSummary(){
     
   //*LOOP OVER THE LIST OF SUMMARY OBJECTS TO INSERT IN DB*//
-  typedef std::vector<edm::ParameterSet> VParameters;
-  edm::ParameterSet HList=iConfig_.getParameter<edm::ParameterSet>("HList");
 
   obj_=new SiStripSummary();
 
@@ -42,7 +40,8 @@ void SiStripHistoricDQMService::createSummary(){
   
   //* DISCOVER SET OF HISTOGRAMS & QUANTITIES TO BE UPLOADED*//
   std::vector<std::string> userDBContent;
-  VParameters histoList = HList.getParameter<VParameters>("histoList");
+  typedef std::vector<edm::ParameterSet> VParameters;
+  VParameters histoList = iConfig_.getParameter<VParameters>("histoList");
   VParameters::iterator ithistoList = histoList.begin();
   VParameters::iterator ithistoListEnd = histoList.end();
   
