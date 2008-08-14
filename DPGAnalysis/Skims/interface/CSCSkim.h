@@ -73,6 +73,11 @@ private:
   // extra skimming routine for alignment studies
   bool doOverlapSkimming(edm::Handle<CSCSegmentCollection> cscSegments);
 
+  // skimming routine for messy events
+  bool doMessyEventSkimming(edm::Handle<CSCRecHit2DCollection> cscRecHits, 
+                            edm::Handle<CSCSegmentCollection> cscSegments);
+
+
   // some useful functions
   int    chamberSerial(int kE, int kS, int kR, int kCh);
 
@@ -81,6 +86,7 @@ private:
   int nEventsSelected;
   int nEventsChambersBothSides;
   int nEventsOverlappingChambers;
+  int nEventsMessy;
 
   // run and event number
   int iRun;
@@ -100,12 +106,19 @@ private:
   int minimumSegments;
   bool demandChambersBothSides;
   bool makeHistograms;
+  bool makeHistogramsForMessyEvents;
 
   // histograms for skimming module
   TH1F *hxnRecHits;
   TH1F *hxnSegments;
   TH1F *hxnHitChambers;
   TH1F *hxnRecHitsSel;
+  TH1F *mevnRecHits0;
+  TH1F *mevnChambers0;
+  TH1F *mevnSegments0;
+  TH1F *mevnRecHits1;
+  TH1F *mevnChambers1;
+  TH1F *mevnSegments1;
 
 };
 #endif
