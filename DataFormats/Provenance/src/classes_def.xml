@@ -82,6 +82,7 @@
  <class name="std::map<edm::Hash<0>,edm::ModuleDescription>"/>
  <class name="std::pair<edm::Hash<0>,edm::ModuleDescription>"/>
  <class name="edm::Hash<2>"/>
+ <class name="std::set<edm::Hash<2> >"/>
  <class name="std::map<edm::Hash<2>,edm::ProcessHistory>"/>
  <class name="std::pair<edm::Hash<2>,edm::ProcessHistory>"/>
  <class name="edm::Hash<1>"/>

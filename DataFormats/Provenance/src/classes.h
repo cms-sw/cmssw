@@ -45,6 +45,7 @@ namespace {
   std::map<edm::Hash<2>, edm::ProcessHistory> dummyMapProcH;
   std::map<edm::Hash<3>, edm::ProcessConfiguration> dummyMapProcC;
   std::set<edm::Hash<1> > dummySetParam;
+  std::set<edm::Hash<2> > dummySetProcH;
   std::set<edm::Hash<3> > dummySetProcessDesc;
   std::pair<edm::Hash<0>, edm::ModuleDescription> dummyPairMod;
   std::pair<edm::Hash<1>, edm::ParameterSetBlob> dummyPairParam;
