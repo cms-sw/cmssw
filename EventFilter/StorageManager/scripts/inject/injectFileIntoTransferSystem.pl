@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: injectFileIntoTransferSystem.pl,v 1.25 2008/08/07 18:32:19 loizides Exp $
+# $Id: injectFileIntoTransferSystem.pl,v 1.26 2008/08/07 20:38:39 loizides Exp $
 
 use strict;
 use DBI;
@@ -34,7 +34,8 @@ sub usage
   You therefore must be sure about all options before you run this script.
 
   Required parameters for injecting files to be transferred:
-  $0 --filename file --path path --type type [--destination default] [--filesize size] [--hostname host]
+  $0 --filename file --path path 
+     --type type [--destination default] [--filesize size] [--hostname host]
  
   Filename and path to file on the given host point to the file to be transferred.
 
@@ -54,8 +55,8 @@ sub usage
   the filesize will be determined automatically.
 
   Hostname is the host on which the file is found. By default, this will be set to the name as 
-  returned by the `hostname` command. Supported hosts for copies are: cms-tier0-stage, cmsdisk1, 
-  cmsmon, vmepcS2B18-39 (tracker node) and the Storage Manager nodes.
+  returned by the `hostname` command. Currently supported hosts for copies are: cms-tier0-stage, 
+  cmsdisk1, cmsmon, csc-daq00, vmepcS2B18-39 (tracker node) and the Storage Manager nodes.
  
   --------------------------------------------------------------------------------------------
   If you are not sure about what you are doing please send an inquiry to hn-tier0-ops\@cern.ch.
@@ -303,10 +304,12 @@ $hostname = hostname()         if $hostname eq 'unset';
 $hostname = 'srv-S2C17-01'     if $hostname eq 'cms-tier0-stage';
 $hostname = 'srv-C2D05-02'     if $hostname eq 'cmsdisk1';
 $hostname = 'srv-c2d17-02.cms' if $hostname eq 'cmsmon';
+$hostname = 'csc-C2D07-08'     if $hostname eq 'csc-daq00';
 
 unless($hostname eq 'srv-S2C17-01'      || 
        $hostname eq 'srv-C2D05-02'      || 
        $hostname eq 'srv-c2d17-02.cms'  || 
+       $hostname eq 'csc-C2D07-08'      || 
        $hostname eq 'vmepcS2B18-39'     ||
        $hostname =~ 'srv-C2C07-') { 
     print "Error: Hostname not valid. Must be one of cms-tier0-stage, cmsdisk1, cmsmon or vmepcS2B18-39.\n";
