@@ -9,8 +9,8 @@
 #include "TH1.h"
 #include "TF1.h"
 #include "TMath.h"
-#include "TStyle.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
 /**
@@ -118,7 +118,7 @@ double langaufun(double *x, double *par){
 
 //-----------------------------------------------------------------------------------------------
 int32_t langaupro(double *params, double &maxx, double &FWHM) {
-  std::cout << "inside langaupro " << std::endl;
+   edm::LogInfo("fitUtility") << "inside langaupro " << std::endl;
   // Seaches for the location (x value) at the maximum of the 
   // Landau and its full width at half-maximum.
   //
@@ -268,7 +268,7 @@ double fitUtilities::doLanGaussFit(TH1F* htoFit){
   init();
  
   if (htoFit->GetEntries()!=0) {
-    std::cout<<"Fitting "<< htoFit->GetTitle() <<std::endl;
+     edm::LogInfo("fitUtility")<<"Fitting "<< htoFit->GetTitle() <<std::endl;
     // Setting fit range and start values
     double fr[2];
     double sv[4], pllo[4], plhi[4];
@@ -308,31 +308,30 @@ double fitUtilities::doLanGaussFit(TH1F* htoFit){
       langausFit->SetParLimits(i,pllo[i],plhi[i]);
     }  
 		  
-    htoFit->Fit(langausFit,"R0");  // "R" fit in a range,"0" quiet fit
-		  
-    langausFit->SetRange(fr[0],fr[1]);
-    langausFit->GetParameters(pLanGausS);
-    std::memcpy((void*) epLanGausS, (void*) langausFit->GetParErrors(), 4*sizeof(double));
-		  
-    chi2GausS =langausFit->GetChisquare();  // obtain chi^2
-    nDofGausS = langausFit->GetNDF();           // obtain ndf
-		  
-    double sPeak, sFWHM;
-    langaupro(pLanGausS,sPeak,sFWHM);
-    pLanConv[0]=sPeak;
-    pLanConv[1]=sFWHM;
-    std::cout << "langaupro:  max  " << sPeak << std::endl;
-    std::cout << "langaupro:  FWHM " << sFWHM << std::endl;
-		  
-    //TCanvas *cAll = new TCanvas("Fit",htoFit->GetTitle(),1);
-    //Char_t fitFileName[60];
-    //sprintf(fitFileName,"Fits/Run_%d/%s/Fit_%s.png",RunNumber,SubDetName,htoFit->GetTitle());
-    htoFit->Draw("pe");
-    htoFit->SetStats(100);
-    langausFit->Draw("lsame");
-    gStyle->SetOptFit(1111111);
-		  
-    //cAll->Print(fitFileName,"png");
+    try{
+      htoFit->Fit(langausFit,"R0");  // "R" fit in a range,"0" quiet fit
+      
+      langausFit->SetRange(fr[0],fr[1]);
+      langausFit->GetParameters(pLanGausS);
+      std::memcpy((void*) epLanGausS, (void*) langausFit->GetParErrors(), 4*sizeof(double));
+      
+      chi2GausS =langausFit->GetChisquare();  // obtain chi^2
+      nDofGausS = langausFit->GetNDF();           // obtain ndf
+      
+      double sPeak, sFWHM;
+      langaupro(pLanGausS,sPeak,sFWHM);
+      pLanConv[0]=sPeak;
+      pLanConv[1]=sFWHM;
+      edm::LogInfo("fitUtility") << "langaupro:  max  " << sPeak << std::endl;
+      edm::LogInfo("fitUtility") << "langaupro:  FWHM " << sFWHM << std::endl;
+    }
+    catch(...){
+      edm::LogError("fitUtility") << "problem in fitting " << htoFit->GetTitle() << " \n\tDefault values of the parameters will be used";
+      pLanGausS[0]=-9999; pLanGausS[1]=-9999; pLanGausS[2]=-9999; pLanGausS[3]=-9999;
+      epLanGausS[0]=-9999; epLanGausS[1]=-9999; epLanGausS[2]=-9999; epLanGausS[3]=-9999;
+      pLanConv[0]=-9999;   pLanConv[1]=-9999;   
+      chi2GausS=-9999;  nDofGausS=-9999;    
+    }
   }
   else {  
     pLanGausS[0]=-9999; pLanGausS[1]=-9999; pLanGausS[2]=-9999; pLanGausS[3]=-9999;
@@ -385,15 +384,24 @@ double fitUtilities::doGaussFit(TH1F* htoFit){
     for (int32_t i=0; i<3; i++) {
       gausFit->SetParLimits(i,pllo[i],plhi[i]);
     }
-    htoFit->Fit(gausFit,"R0");
-		  
-    gausFit->SetRange(fr[0],fr[1]);
-    gausFit->GetParameters(pGausS);
-    std::memcpy((void*) epGausS, (void*) gausFit->GetParErrors(), 3*sizeof(double));
-		  
-    chi2GausS =langausFit->GetChisquare(); // obtain chi^2
-    nDofGausS = langausFit->GetNDF();// obtain ndf
-		 
+ 
+    try{
+      htoFit->Fit(gausFit,"R0");
+      
+      gausFit->SetRange(fr[0],fr[1]);
+      gausFit->GetParameters(pGausS);
+      std::memcpy((void*) epGausS, (void*) gausFit->GetParErrors(), 3*sizeof(double));
+      
+      chi2GausS =langausFit->GetChisquare(); // obtain chi^2
+      nDofGausS = langausFit->GetNDF();// obtain ndf
+    }
+    catch(...){
+      edm::LogError("fitUtility") << "problem in fitting " << htoFit->GetTitle() << " \n\tDefault values of the parameters will be used";
+      pGausS[0]=-9999; pGausS[1]=-9999; pGausS[2]=-9999;
+      epGausS[0]=-9999; epGausS[1]=-9999; epGausS[2]=-9999;
+      chi2GausS=-9999;  nDofGausS=-9999;    
+    }
+ 		 
   }
   else {
     pGausS[0]=-9999; pGausS[1]=-9999; pGausS[2]=-9999;
