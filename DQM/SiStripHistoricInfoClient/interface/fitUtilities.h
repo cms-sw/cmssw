@@ -335,9 +335,10 @@ double fitUtilities::doLanGaussFit(TH1F* htoFit){
     //cAll->Print(fitFileName,"png");
   }
   else {  
-    pLanGausS[0]=-10; pLanGausS[1]=-10; pLanGausS[2]=-10; pLanGausS[3]=-10;
-    epLanGausS[0]=-10; epLanGausS[1]=-10; epLanGausS[2]=-10; epLanGausS[3]=-10;
-    pLanConv[0]=-10;   pLanConv[1]=-10;   chi2GausS=-10;  nDofGausS=-10;    
+    pLanGausS[0]=-9999; pLanGausS[1]=-9999; pLanGausS[2]=-9999; pLanGausS[3]=-9999;
+    epLanGausS[0]=-9999; epLanGausS[1]=-9999; epLanGausS[2]=-9999; epLanGausS[3]=-9999;
+    pLanConv[0]=-9999;   pLanConv[1]=-9999;   
+    chi2GausS=-9999;  nDofGausS=-9999;    
   }
 
   return htoFit->GetEntries();
@@ -395,8 +396,9 @@ double fitUtilities::doGaussFit(TH1F* htoFit){
 		 
   }
   else {
-    pGausS[0]=-10; pGausS[1]=-10; pGausS[2]=-10;
-    epGausS[0]=-10; epGausS[1]=-10; epGausS[2]=-10;
+    pGausS[0]=-9999; pGausS[1]=-9999; pGausS[2]=-9999;
+    epGausS[0]=-9999; epGausS[1]=-9999; epGausS[2]=-9999;
+    chi2GausS=-9999;  nDofGausS=-9999;    
   }
   
   return htoFit->GetEntries();
@@ -405,57 +407,57 @@ double fitUtilities::doGaussFit(TH1F* htoFit){
 //-----------------------------------------------------------------------------------------------
 double fitUtilities::getLanGaussPar(std::string s){
   if(s=="landau_width")
-      return pLanGausS[0];
+    return pLanGausS[0];
   else if(s=="mpv")
-      return pLanGausS[1];
+    return pLanGausS[1];
   else if(s=="area")
-      return pLanGausS[1];
+    return pLanGausS[2];
   else if(s=="gauss_sigma")
-      return pLanGausS[2];
+    return pLanGausS[3];
   else
-      return -99999;
+    return -99999;
 }
 
 double fitUtilities::getLanGaussParErr(std::string s){
   if(s=="landau_width")
-      return epLanGausS[0];
+    return epLanGausS[0];
   else if(s=="mpv")
-      return epLanGausS[1];
+    return epLanGausS[1];
   else if(s=="area")
-      return epLanGausS[1];
+    return epLanGausS[2];
   else if(s=="gauss_sigma")
-      return epLanGausS[2];
+    return epLanGausS[3];
   else
-      return -99999;
+    return -99999;
 }
 
 double fitUtilities::getLanGaussConv(std::string s) {
   if(s=="mpv")
-      return pLanConv[0];
+    return pLanConv[0];
   else if(s=="fwhm")
-      return pLanConv[1];
+    return pLanConv[1];
   else
-      return -99999;
+    return -99999;
 }
 
 double fitUtilities::getGaussPar(std::string s) {
   if(s=="area")
-      return pGausS[0];
+    return pGausS[0];
   else if(s=="mean")
-      return pGausS[1];
+    return pGausS[1];
   else if(s=="sigma")
-      return pGausS[2];
+    return pGausS[2];
   else
-      return -99999;
+    return -99999;
 }
 
 double fitUtilities::getGaussParErr(std::string s) {
   if(s=="area")
-      return epGausS[0];
+    return epGausS[0];
   else if(s=="mean")
-      return epGausS[1];
+    return epGausS[1];
   else if(s=="sigma")
-      return epGausS[2];
+    return epGausS[2];
   else
-      return -99999;
+    return -99999;
 }
