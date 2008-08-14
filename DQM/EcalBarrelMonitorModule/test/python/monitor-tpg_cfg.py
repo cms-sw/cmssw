@@ -220,12 +220,10 @@ process.ecalRecHit.EEuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHit
 process.simEcalTriggerPrimitiveDigis.Label = 'ecalEBunpacker'
 process.simEcalTriggerPrimitiveDigis.InstanceEB = 'ebDigis'
 process.simEcalTriggerPrimitiveDigis.InstanceEE = 'eeDigis'
-process.simEcalTriggerPrimitiveDigis.BarrelOnly = True
 
 process.simEcalTriggerPrimitiveDigis2.Label = 'ecalEBunpacker'
 process.simEcalTriggerPrimitiveDigis2.InstanceEB = 'ebDigis'
 process.simEcalTriggerPrimitiveDigis2.InstanceEE = 'eeDigis'
-process.simEcalTriggerPrimitiveDigis2.BarrelOnly = True
 
 process.ecalBarrelTriggerTowerTask.EcalTrigPrimDigiCollectionReal = 'simEcalTriggerPrimitiveDigis2'
 
