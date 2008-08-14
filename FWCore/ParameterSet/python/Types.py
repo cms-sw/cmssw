@@ -341,6 +341,7 @@ class PSet(_ParameterTypeBase,_Parameterizable,_ConfigureComponent,_Labelable):
     @staticmethod
     def _isValid(value):
         return True
+
     def configValue(self, options=PrintOptions()):
         config = '{ \n'
         for name in self.parameterNames_():
@@ -676,6 +677,9 @@ if __name__ == "__main__":
             vp1 = VPSet(PSet(i = int32(2)))
             #self.assertEqual(vp1.configValue(), "
             self.assertEqual(repr(vp1), "cms.VPSet(cms.PSet(\n    i = cms.int32(2)\n))")
+            self.assert_(p1.hasParameter(['a', 'b']))
+            self.failIf(p1.hasParameter(['a', 'c']))
+            self.assertEqual(p1.getParameter(['a', 'b']).value(), 1)
 
         def testFileInPath(self):
             f = FileInPath("FWCore/ParameterSet/python/Types.py")
