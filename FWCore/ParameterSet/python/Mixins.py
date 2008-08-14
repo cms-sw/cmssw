@@ -116,6 +116,37 @@ class _Parameterizable(object):
                 self._isModified = True
                 return True
         return False
+
+    def hasParameter(self, params):
+        """
+        _hasParameter_
+
+        check that pset provided has the attribute chain
+        specified.
+
+        Eg, if params is [ 'attr1', 'attr2', 'attr3' ]
+        check for pset.attr1.attr2.attr3
+
+        returns True if parameter exists, False if not
+        """
+        return (self.getParameter(params) != None)
+
+    def getParameter(self, params):
+        """
+        _getParameter_
+
+        Retrieve the specified parameter from the PSet Provided
+        given the attribute chain
+
+        returns None if not found
+        """
+        lastParam = self
+        for param in params:
+            lastParam = getattr(lastParam, param, None)
+            if lastParam == None:
+                return None
+        return lastParam
+
     def parameters_(self):
         """Returns a dictionary of copies of the user-set parameters"""
         import copy
