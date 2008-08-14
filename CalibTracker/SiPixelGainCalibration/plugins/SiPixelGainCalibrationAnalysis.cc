@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Nov 14 15:02:06 CET 2007
-// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.23 2008/07/23 11:10:39 fblekman Exp $
+// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.24 2008/08/12 15:39:11 fblekman Exp $
 //
 //
 
@@ -271,9 +271,8 @@ SiPixelGainCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixelCalibD
       func_->SetParameter(i,fitter.GetParameter(i));
     
     // convert the gain and pedestal parameters to functional form y= x/gain+ ped
-    if(slope>0.)
-      slope = 1./ slope;
-      if(slope<0)
+
+    if(slope<0)
       makehistopersistent=true;
     if(chi2>chi2Threshold_ && chi2Threshold_>=0)
       makehistopersistent=true;
