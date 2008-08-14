@@ -11,7 +11,7 @@ Description: Analyse the timing of all of the GCT pipelines
 //
 // Original Author:  Alex Tapper
 //         Created:  Mon Apr 21 14:21:06 CEST 2008
-// $Id: GctTimingAnalyzer.cc,v 1.5 2008/07/14 12:40:01 tapper Exp $
+// $Id: GctTimingAnalyzer.cc,v 1.6 2008/08/01 15:04:04 tapper Exp $
 //
 //
 
@@ -30,6 +30,8 @@ GctTimingAnalyzer::GctTimingAnalyzer(const edm::ParameterSet& iConfig):
   m_eSumsSource(iConfig.getUntrackedParameter<edm::InputTag>("eSumsSource")),
   m_fibreSource(iConfig.getUntrackedParameter<edm::InputTag>("fibreSource")),
   m_rctSource(iConfig.getUntrackedParameter<edm::InputTag>("rctSource")),
+  m_EtSumSwitch(iConfig.getUntrackedParameter<bool>("EtSumSwitch")),
+  m_testConfig(iConfig.getUntrackedParameter<bool>("testConfig")),
   m_evtNum(0)
 {
   m_outputFile.open(m_outputFileName.c_str());
@@ -44,7 +46,8 @@ void GctTimingAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 {
   using namespace edm;
   using namespace std;
-
+  
+  if(!m_testConfig){
   // Isolated EM cands in GCT output
   Handle<L1GctEmCandCollection> isoEm; 
   iEvent.getByLabel(m_isoEmSource,isoEm);    
@@ -171,11 +174,13 @@ void GctTimingAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
   for (L1GctInternJetDataCollection::const_iterator j=internJets->begin(); j!=internJets->end(); j++){
     if ((j->et()>0) || (j->rank()>0)) {
-      m_outputFile << "BX = " << dec << m_evtNum << " " << (*j) << std::endl; 
+      // if (j->capBlock() == 0xb03)
+       m_outputFile << "BX = " << dec << m_evtNum << " " << (*j) << std::endl; 
     }
   }
 
   // Internal GCT Et sums
+  if(m_EtSumSwitch){
   Handle<L1GctInternEtSumCollection> Et;
   iEvent.getByLabel(m_eSumsSource,Et);
 
@@ -184,7 +189,44 @@ void GctTimingAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
       m_outputFile << "BX = " << dec << m_evtNum << " " << (*e) << std::endl;
     }
   }
-
+  }
 
   m_evtNum++;
+
+  }else{
+
+  // Central jet cands in GCT output
+  Handle<L1GctJetCandCollection> cenJets; 
+  iEvent.getByLabel(m_cenJetsSource,cenJets);    
+
+  for (L1GctJetCandCollection::const_iterator cj=cenJets->begin(); cj!=cenJets->end(); cj++){
+    if (cj->rank()>0) {
+      m_outputFile  << " " << cj->rank() << " " << cj->etaIndex() << " " <<  cj->phiIndex() << " " <<  "central" <<  std::endl; 
+  
+      }
+  }
+
+  // Forward jet cands in GCT output
+  Handle<L1GctJetCandCollection> forJets; 
+  iEvent.getByLabel(m_forJetsSource,forJets);    
+
+  for (L1GctJetCandCollection::const_iterator fj=forJets->begin(); fj!=forJets->end(); fj++){
+    if (fj->rank()>0) {
+      m_outputFile << " " << fj->rank() << " " << fj->etaIndex() << " " << fj->phiIndex() << " " << "forward" << std::endl; 
+    }
+  }
+
+  // Tau jet cands in GCT output
+  Handle<L1GctJetCandCollection> tauJets; 
+  iEvent.getByLabel(m_tauJetsSource,tauJets);    
+
+  for (L1GctJetCandCollection::const_iterator tj=tauJets->begin(); tj!=tauJets->end(); tj++){
+    if (tj->rank()>0) {
+      m_outputFile << " " << tj->rank() << " " << tj->etaIndex() << " " << tj->phiIndex() << " " << "tau"  << std::endl; 
+    }
+  }
+
+
+
+  }
 }
