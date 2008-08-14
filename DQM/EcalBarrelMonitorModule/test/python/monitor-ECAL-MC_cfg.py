@@ -79,19 +79,20 @@ process.EcalTrivialConditionRetriever = cms.ESSource("EcalTrivialConditionRetrie
 process.MessageLogger = cms.Service("MessageLogger",
     cout = cms.untracked.PSet(
         threshold = cms.untracked.string('WARNING'),
+        noLineBreaks = cms.untracked.bool(True),
+        noTimeStamps = cms.untracked.bool(True),
         default = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
-        noTimeStamps = cms.untracked.bool(True),
         EcalBarrelMonitorModule = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
         EcalEndcapMonitorModule = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
-        ),
-        noLineBreaks = cms.untracked.bool(True)
+        )
     ),
-    categories = cms.untracked.vstring('EcalBarrelMonitorModule', 'EcalEndcapMonitorModule'),
+    categories = cms.untracked.vstring('EcalBarrelMonitorModule',
+                                       'EcalEndcapMonitorModule'),
     destinations = cms.untracked.vstring('cout')
 )
 
