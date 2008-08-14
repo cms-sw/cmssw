@@ -18,7 +18,7 @@ namespace cond {
     static What what() { return What();}
 
     ValueExtractor(){}
-    ValueExtractor(What const & what, std::vector<int> const& which)
+    ValueExtractor(What const & what)
     {
       // here one can make stuff really complicated...
     }

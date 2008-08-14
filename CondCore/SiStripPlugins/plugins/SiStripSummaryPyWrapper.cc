@@ -28,25 +28,38 @@ namespace cond {
 
   template<>
   class ValueExtractor<SiStripSummary>: public  BaseValueExtractor<SiStripSummary> {
-  public:
-    
-    typedef SiStripSummary Class;
-    typedef ExtractWhat<Class> What;
-    static What what() { return What();}
+      public:
 
-    ValueExtractor(){};
-    ValueExtractor(What const & what, std::vector<int> const& which)
+      typedef SiStripSummary Class;
+      typedef ExtractWhat<Class> What;
+      static What what() { return What();}
+
+      ValueExtractor(){};
+      ValueExtractor(What const & what)
       : m_what(what)
-    {
-      // here one can make stuff really complicated...
-    }
-    void compute(Class const & it){
-      std::vector<float> res;
-      uint32_t detid=m_what.trackerregion();
-      res.push_back(it.getSummaryObj(detid,m_what.quantity()));
-      //res.push_back(detid);
-      swap(res);
-    }
+      {
+          // here one can make stuff really complicated...
+      }
+      void compute(Class const & it){
+          std::vector<std::string> vlistItems;
+          std::vector<float> res;
+          uint32_t detid=m_what.trackerregion();
+          std::string::size_type oldloc=0; 
+          std::string ListItems   =   m_what.quantity();
+          std::string::size_type loc = ListItems.find( ",", oldloc );
+          size_t count=1;
+          while( loc != std::string::npos ) {
+              vlistItems.push_back(ListItems.substr(oldloc,loc-oldloc));
+              oldloc=loc+1;
+              loc=ListItems.find( ",", oldloc );
+              count++; 
+          } 
+          //there is a single item
+          vlistItems.push_back(ListItems.substr(oldloc,loc-oldloc));
+          res.push_back(it.getSummaryObj(detid,vlistItems));
+          //res.push_back(detid);
+          swap(res);
+      }
   private:
     What  m_what;
   };
