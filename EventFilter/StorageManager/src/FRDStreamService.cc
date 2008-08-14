@@ -1,4 +1,4 @@
-// $Id: FRDStreamService.cc,v 1.11 2008/08/07 11:33:15 loizides Exp $
+// $Id: FRDStreamService.cc,v 1.1 2008/08/13 22:48:12 biery Exp $
 
 #include <EventFilter/StorageManager/interface/FRDStreamService.h>
 #include <EventFilter/StorageManager/interface/ProgressMarker.h>
@@ -83,19 +83,8 @@ void FRDStreamService::closeTimedOutFiles(int lumi, double timeoutdiff)
 {
   // since we are currently storing all events in a single file,
   // we never close files at lumi section boundaries
-  return;
 
-  //if (timeoutdiff < lumiSectionTimeOut_) 
-  //  return;
-  //
-  //for (OutputMapIterator it = outputMap_.begin(); it != outputMap_.end(); ) {
-  //  if (it->second->lumiSection() < lumi) {
-  //    boost::shared_ptr<FileRecord> fd(it->first);
-  //    outputMap_.erase(it++);
-  //    fillOutputSummaryClosed(fd);
-  //  } else 
-  //    ++it;
-  //}
+  return;
 }
 
 //

@@ -1,4 +1,4 @@
-// $Id: StreamService.cc,v 1.11 2008/08/07 11:33:15 loizides Exp $
+// $Id: StreamService.cc,v 1.12 2008/08/13 22:48:12 biery Exp $
 
 #include <EventFilter/StorageManager/interface/StreamService.h>
 #include <EventFilter/StorageManager/interface/ProgressMarker.h>
@@ -21,7 +21,6 @@ using stor::ProgressMarker;
 //
 StreamService::~StreamService()
 {
-  //std::cout << "StreamService Destructor called." << std::endl;
 }
 
 

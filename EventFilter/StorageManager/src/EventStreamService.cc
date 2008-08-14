@@ -1,4 +1,4 @@
-// $Id: EventStreamService.cc,v 1.11 2008/08/07 11:33:15 loizides Exp $
+// $Id: EventStreamService.cc,v 1.1 2008/08/13 22:48:12 biery Exp $
 
 #include <EventFilter/StorageManager/interface/EventStreamService.h>
 #include <EventFilter/StorageManager/interface/ProgressMarker.h>
@@ -83,11 +83,10 @@ void EventStreamService::stop()
 // 
 void EventStreamService::closeTimedOutFiles(int lumi, double timeoutdiff)
 {
-  if (timeoutdiff < lumiSectionTimeOut_) 
-    return;
-
   for (OutputMapIterator it = outputMap_.begin(); it != outputMap_.end(); ) {
-    if (it->second->lumiSection() < lumi) {
+    if ( (it->second->lumiSection() < lumi-1) || //close old lumi sections in any case
+         ((timeoutdiff > lumiSectionTimeOut_) && //check for timeout of previous lumi sections
+          (it->second->lumiSection() < lumi)) ) {
       boost::shared_ptr<FileRecord> fd(it->first);
       outputMap_.erase(it++);
       fillOutputSummaryClosed(fd);
@@ -95,6 +94,7 @@ void EventStreamService::closeTimedOutFiles(int lumi, double timeoutdiff)
       ++it;
   }
 }
+
 
 //
 // *** find output service in map or return a new one
