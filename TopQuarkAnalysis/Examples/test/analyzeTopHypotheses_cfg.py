@@ -58,7 +58,7 @@ process.p0 = cms.Path(process.tqafLayer1)
 #-------------------------------------------------
 process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttGenEvent_cff")
 process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepEvtBuilder_cff")
-process.p1 = cms.Path(process.makeGenEvt * process.makeTtSemiEvent)
+process.p1 = cms.Path(process.makeGenEvt * process.makeTtSemiLepEvent)
 
 #-------------------------------------------------
 # analyze jets
