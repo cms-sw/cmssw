@@ -70,7 +70,7 @@ const SiStripSummary::Range SiStripSummary::getRange(const uint32_t& DetId) cons
   if (p==indexes_.end()|| p->detid!=DetId) 
     return SiStripSummary::Range(v_sum_.end(),v_sum_.end()); 
   else 
-    return SiStripSummary::Range(v_sum_.begin()+p->ibegin,v_sum_.begin()+userDBContent_.size());
+    return SiStripSummary::Range(v_sum_.begin()+p->ibegin,v_sum_.begin()+p->ibegin+userDBContent_.size());
 }
 
 
