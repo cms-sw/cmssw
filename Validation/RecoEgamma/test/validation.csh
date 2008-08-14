@@ -19,14 +19,15 @@
 
 #Input root trees for the two cases to be compared 
 
-setenv OLDFILE /data/test/CMSSW_2_1_0_pre8/src/Validation/RecoEgamma/test/PhotonValidationRelVal210_pre6_4.0T_SingleGammaPt1000.root
-setenv NEWFILE /data/test/CMSSW_2_1_0_pre8/src/Validation/RecoEgamma/test/PhotonValidationRelVal210_pre8_SingleGammaPt1000.root
+setenv OLDFILE /data/test/CMSSW_2_1_0/src/Validation/RecoEgamma/test/PhotonValidationRelVal210_SingleGammaPt10.root
+setenv NEWFILE /data/test/CMSSW_2_1_2/src/Validation/RecoEgamma/test/PhotonValidationRelVal212_SingleGammaPt10.root
 
 
-setenv OLDRELEASE 210pre6IDEAL
-setenv NEWRELEASE 210pre8IDEAL
+setenv OLDRELEASE 210IDEAL
+setenv NEWRELEASE 212IDEAL
 #Name of sample (affects output directory name and htmldescription only) 
-setenv SAMPLE SingleGammaPt1000
+setenv SAMPLE SingleGammaPt10
+#setenv SAMPLE H130GGgluonfusion
 #TYPE must be one ofPixelMatchGsfElectron, Photon 
 setenv TYPE Photon
 
@@ -128,6 +129,10 @@ cat > scaledhistosForConvertedPhotons <<EOF
   EoverPtracksAll
   EoverPtracksBarrel 
   EoverPtracksEndcap
+  PoverEtracksAll
+  PoverEtracksBarrel 
+  PoverEtracksEndcap
+
 
 EOF
 
@@ -152,6 +157,16 @@ cat > efficiencyForConvertedPhotons <<EOF
   convEffVsPhiTwoTracks
   convEffVsRTwoTracks
   convEffVsZTwoTracks
+
+
+EOF
+
+cat > fakeRateForConvertedPhotons <<EOF
+
+  convFakeRateVsEtaTwoTracks
+  convFakeRateVsPhiTwoTracks
+  convFakeRateVsRTwoTracks
+  convFakeRateVsZTwoTracks
 
 
 EOF
@@ -236,7 +251,7 @@ TCanvas *c$i = new TCanvas("c$i");
 c$i->SetFillColor(10);
 file_old->cd("DQMData/Egamma/PhotonValidator/Photons");
 $i->SetStats(0);
-$i->SetMinimum(0.8);
+$i->SetMinimum(0.);
 $i->SetLineColor(4);
 $i->SetLineWidth(3);
 $i->Draw();
@@ -313,6 +328,7 @@ c$i->SetFillColor(10);
 file_old->cd("DQMData/Egamma/PhotonValidator/ConversionInfo");
 $i->SetStats(0);
 $i->SetMinimum(0.);
+$i->SetMaximum(1.);
 $i->SetLineColor(4);
 $i->SetLineWidth(3);
 $i->Draw();
@@ -327,6 +343,32 @@ c$i->SaveAs("gifs/$i.gif");
 EOF
   setenv N `expr $N + 1`
 end
+
+
+foreach i (`cat fakeRateForConvertedPhotons`)
+  cat > temp$N.C <<EOF
+TCanvas *c$i = new TCanvas("c$i");
+c$i->SetFillColor(10);
+file_old->cd("DQMData/Egamma/PhotonValidator/ConversionInfo");
+$i->SetStats(0);
+$i->SetMinimum(0.);
+$i->SetMaximum(1.);
+$i->SetLineColor(4);
+$i->SetLineWidth(3);
+$i->Draw();
+file_new->cd("DQMData/Egamma/PhotonValidator/ConversionInfo");
+$i->SetStats(0);
+$i->SetMinimum(0.);
+$i->SetLineColor(2);
+$i->SetLineWidth(3);
+$i->Draw("same");
+c$i->SaveAs("gifs/$i.gif");
+
+EOF
+  setenv N `expr $N + 1`
+end
+
+
 
 foreach i (`cat scaledhistosForTracks`)
   cat > temp$N.C <<EOF
@@ -359,6 +401,7 @@ c$i->SetFillColor(10);
 file_old->cd("DQMData/Egamma/PhotonValidator/ConversionInfo");
 $i->SetStats(0);
 $i->SetMinimum(0.);
+$i->SetMaximum(15.);
 $i->SetLineColor(4);
 $i->SetLineWidth(3);
 $i->Draw();
@@ -427,7 +470,7 @@ cat begin.html >>& validation.html
 rm begin.html
 
 setenv N 1
-foreach i (`cat scaledhistosForPhotons  efficiencyForPhotons scaledhistosForConvertedPhotons unscaledhistosForConvertedPhotons  efficiencyForConvertedPhotons scaledhistosForTracks unscaledhistosForTracks  `)
+foreach i (`cat scaledhistosForPhotons  efficiencyForPhotons scaledhistosForConvertedPhotons unscaledhistosForConvertedPhotons  efficiencyForConvertedPhotons  fakeRateForConvertedPhotons scaledhistosForTracks unscaledhistosForTracks  `)
   cat > temp$N.html <<EOF
 <br>
 <p><img class="image" width="500" src="gifs/$i.gif">
@@ -454,6 +497,7 @@ rm scaledhistosForConvertedPhotons
 rm unscaledhistosForConvertedPhotons
 rm efficiencyForPhotons
 rm efficiencyForConvertedPhotons
+rm fakeRateForConvertedPhotons
 rm scaledhistosForTracks
 rm unscaledhistosForTracks
 
