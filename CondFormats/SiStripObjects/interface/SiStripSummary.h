@@ -56,7 +56,7 @@ class SiStripSummary {
 		typedef std::vector<float>		                 InputVector;
                 
 		
-		SiStripSummary(std::vector<std::string>& userDBContent, std::string tag);
+		SiStripSummary(std::vector<std::string>& userDBContent);
 		SiStripSummary(const SiStripSummary& input);
 		SiStripSummary(){};
 		~SiStripSummary(){};
@@ -107,11 +107,9 @@ class SiStripSummary {
                 inline void setUserDBContent(std::vector<std::string> userDBContent)  { userDBContent_ = userDBContent;}
 	        inline void setRunNr(int inputRunNr)                       { runNr_ = inputRunNr;      }
                 inline void setTimeValue(unsigned long long inputTimeValue){ timeValue_=inputTimeValue;}
-                inline void setTag(std::string tag)                        { tag_ = tag;               }
                 
 		inline unsigned long long getTimeValue() const             { return timeValue_;        }
                 inline std::vector<std::string>  getUserDBContent() const  { return userDBContent_;    }
-                inline std::string  getTag() const                         { return tag_;              }
                 inline int getRunNr() const                                { return runNr_;            }
                
 	       
@@ -128,7 +126,6 @@ class SiStripSummary {
 		
 	        int runNr_; 
                 unsigned long long timeValue_;
-		std::string tag_;
 		
 		
         protected:	

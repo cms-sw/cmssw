@@ -2,10 +2,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 		
-SiStripSummary::SiStripSummary(std::vector<std::string>& userDBContent, std::string tag)
+SiStripSummary::SiStripSummary(std::vector<std::string>& userDBContent)
 {
   userDBContent_ = userDBContent;
-  tag_ = tag;
   runNr_ = 0;
   timeValue_ = 0;
 }
