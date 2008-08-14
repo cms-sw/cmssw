@@ -18,7 +18,10 @@ class SiStripCondObjBuilderBase {
 			    
   /** Returns MetaData information in a stringstream */
   virtual void getMetaDataString(std::stringstream& ss){};
-  
+
+  /** Check MetaData information in a stringstream */
+  virtual bool checkForCompatibility(std::string ss){return true;}
+
   /** Returns the CondObj */
   virtual void getObj(T* & obj){};
   

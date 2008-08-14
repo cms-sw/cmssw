@@ -22,6 +22,8 @@ class SiStripHistoricDQMService : public SiStripCondObjBuilderBase<SiStripSummar
   ~SiStripHistoricDQMService();
   
   void getMetaDataString(std::stringstream& ss){ss << "Run " << getRunNumber();};
+
+  bool checkForCompatibility(std::string ss);
   
   void getObj(SiStripSummary* & obj){createSummary(); obj=obj_;}
 

@@ -26,6 +26,17 @@ void SiStripHistoricDQMService::initialize(){
   fitME = new fitUtilities();
 }
 
+bool SiStripHistoricDQMService::checkForCompatibility(std::string ss){
+  edm::LogInfo("SiStripHistoricDQMService") <<  "[SiStripHistoricDQMService::checkForCompatibility]";
+  if(ss=="")
+    return true;
+
+  uint32_t previousRun=atoi(ss.substr(ss.find("Run ")+4).c_str());
+  
+  edm::LogInfo("SiStripHistoricDQMService") <<  "[SiStripHistoricDQMService::checkForCompatibility] extracted string " << previousRun ;
+  return previousRun<getRunNumber();
+}
+
 
 void SiStripHistoricDQMService::createSummary(){
     
@@ -35,9 +46,6 @@ void SiStripHistoricDQMService::createSummary(){
 
   obj_->setRunNr(getRunNumber());
 
-  // **FIXME** //
-  //obj_->setTag("");
-  
   //* DISCOVER SET OF HISTOGRAMS & QUANTITIES TO BE UPLOADED*//
   std::vector<std::string> userDBContent;
   typedef std::vector<edm::ParameterSet> VParameters;

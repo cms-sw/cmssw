@@ -41,11 +41,12 @@ namespace popcon{
 	   << " - > getNewObjects\n"; 
 	if (this->tagInfo().size){
 	  //check whats already inside of database
-	  ss << "got offlineInfo"<<
-	    this->tagInfo().name << ", size " << this->tagInfo().size << " " << this->tagInfo().token 
-	     << " , last object valid since " 
-	     << this->tagInfo().lastInterval.first << " token "   
-	     << this->tagInfo().lastPayloadToken << "\n\n UserText " << this->userTextLog() 
+	  ss << "\ngot offlineInfo"<< this->tagInfo().name 
+	     << "\n size " << this->tagInfo().size 
+	     << "\n" << this->tagInfo().token 
+	     << "\n last object valid since " << this->tagInfo().lastInterval.first 
+	     << "\n token " << this->tagInfo().lastPayloadToken 
+	     << "\n UserText " << this->userTextLog()
 	     << "\n LogDBEntry \n" 
 	     << this->logDBEntry().logId<< "\n"
 	     << this->logDBEntry().destinationDB<< "\n"   
@@ -58,8 +59,10 @@ namespace popcon{
 	     << this->logDBEntry().payloadToken<< "\n"
 	     << this->logDBEntry().payloadContainer<< "\n"
 	     << this->logDBEntry().exectime<< "\n"
-	     << this->logDBEntry().execmessage<< "\n"
-	     << "\n\n-- user text " << this->logDBEntry().usertext.substr(this->logDBEntry().usertext.find_last_of("@")) ;
+	     << this->logDBEntry().execmessage<< "\n";
+	  if(this->logDBEntry().usertext!="")
+	    ss<< "\n-- user text " << this->logDBEntry().usertext.substr(this->logDBEntry().usertext.find_last_of("@")) ;
+	  
 	} else {
 	  ss << " First object for this tag ";
 	}
@@ -90,35 +93,44 @@ namespace popcon{
     //
     bool isTransferNeeded(){
 
+      edm::LogInfo   ("SiStripPopConDbObjHandler") << "[SiStripPopConDbObjHandler::isTransferNeeded] checking for transfer " << std::endl;
 
-      edm::LogInfo   ("SiStripPopConDbObjHandler") << "[SiStripPopConDbObjHandler::isTransferNeeded] checking for transfer"  << std::endl;
-      std::stringstream ss_logdb, ss;
-      std::stringstream ss1; 
-
-      //get log information from previous upload
-      if (this->tagInfo().size)
-	ss_logdb << this->logDBEntry().usertext.substr(this->logDBEntry().usertext.find_last_of("@"));
-      else
-	ss_logdb << "";
-      
-      ss << "@ ";
-      condObjBuilder->getMetaDataString(ss);
-      
-      if (!strcmp(ss.str().c_str(),ss_logdb.str().c_str())){
-	//string are equal, no need to do transfer
+      if(m_since<=this->tagInfo().lastInterval.first){
 	edm::LogInfo   ("SiStripPopConDbObjHandler") 
-	  << "[SiStripPopConDbObjHandler::isTransferNeeded] the selected conditions are already uploaded in the last iov ("  
+	  << "[SiStripPopConDbObjHandler::isTransferNeeded] \nthe current starting iov " << m_since
+	  << "\nis not compatible with the last iov ("  
 	  << this->tagInfo().lastInterval.first << ") open for the object " 
-	  << this->logDBEntry().payloadName << " in the db " 
-	  << this->logDBEntry().destinationDB << " parameters: "  << ss.str() << "\n NO TRANSFER NEEDED";
+	  << this->logDBEntry().payloadName << " \nin the db " 
+	  << this->logDBEntry().destinationDB << " \n NO TRANSFER NEEDED";
 	return false;
       }
-      this->m_userTextLog = ss.str();
-      edm::LogInfo   ("SiStripPopConDbObjHandler") 
-	<< "[SiStripPopConDbObjHandler::isTransferNeeded] the selected conditions will be uploaded: " << ss.str() 
-	<< "\n A- "<< ss.str()  << "\n B- " << ss_logdb.str() << "\n Fine";
+      
+      std::stringstream ss_logdb, ss;
+      
+      //get log information from previous upload
+      if (this->logDBEntry().usertext!="")
+	ss_logdb << this->logDBEntry().usertext.substr(this->logDBEntry().usertext.find_last_of("@")+2);
 
-      return true;
+
+      condObjBuilder->getMetaDataString(ss);
+      if(condObjBuilder->checkForCompatibility(ss_logdb.str())){
+	
+	this->m_userTextLog = "@ " + ss.str();
+	
+	edm::LogInfo   ("SiStripPopConDbObjHandler") 
+	  << "[SiStripPopConDbObjHandler::isTransferNeeded] \nthe selected conditions will be uploaded: " << ss.str()
+	  << "\n Current MetaData - "<< ss.str()  << "\n Last Uploaded MetaData- " << ss_logdb.str() << "\n Fine";
+	
+	return true;
+      } else {
+	edm::LogInfo   ("SiStripPopConDbObjHandler") 
+	  << "[SiStripPopConDbObjHandler::isTransferNeeded] \nthe current MetaData conditions " << ss.str() 
+	  << "\nare not compatible with the MetaData Conditions of the last iov ("  
+	  << this->tagInfo().lastInterval.first << ") open for the object " 
+	  << this->logDBEntry().payloadName << " \nin the db " 
+	  << this->logDBEntry().destinationDB << " \nConditions: "  << ss_logdb.str() << "\n NO TRANSFER NEEDED";
+	return false;
+      }	
     }
 
 
