@@ -10,7 +10,7 @@
 
 /** \class HcalCaloTowerMonitor
   *  
-  * $Date: 2008/03/05 09:21:45 $
+  * $Date: 2008/03/05 20:48:57 $
   * $Revision: 1.1 $
   * \author J. Temple - Univ. of Maryland
   */
@@ -32,8 +32,35 @@ class HcalCaloTowerMonitor: public HcalBaseMonitor {
    int etaBins_, phiBins_;
    int ievt_;
 
-   MonitorElement* caloTowerOcc;
-   MonitorElement* caloTowerEnergy; 
+   // calotower histograms
+   MonitorElement* caloTowerOccMap;
+   MonitorElement* caloTowerEnergyMap; 
+   MonitorElement* caloTowerTime;
+   MonitorElement* caloTowerEnergy;
+   MonitorElement* caloTowerMeanEnergyEta;
+
+   // hcal histograms
+   MonitorElement* hcalOccMap;
+   MonitorElement* hcalEnergyMap;
+   MonitorElement* hcalTime;
+   MonitorElement* hcalEnergy;
+   MonitorElement* hcalMeanEnergyEta;
+
+   // ecal histograms
+   MonitorElement* ecalOccMap;
+   MonitorElement* ecalEnergyMap;
+   MonitorElement* ecalTime;
+   MonitorElement* ecalEnergy;
+   MonitorElement* ecalMeanEnergyEta;
+   
+   // comparison plots
+   MonitorElement* time_HcalvsEcal;
+   MonitorElement* time_CaloTowervsEcal;
+   MonitorElement* time_CaloTowervsHcal;
+   MonitorElement* energy_HcalvsEcal;
+   MonitorElement* energy_CaloTowervsEcal;
+   MonitorElement* energy_CaloTowervsHcal;
+
    MonitorElement* meEVT_;
 
 
