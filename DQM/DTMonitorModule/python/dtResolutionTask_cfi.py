@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-dtResolutionAnalysisMonitor = cms.EDFilter("DTResolutionAnalysisTask",
+dtResolutionAnalysisMonitor = cms.EDAnalyzer("DTResolutionAnalysisTask",
     # switch for verbosity
     debug = cms.untracked.bool(False),
     # labels of 4D and 1D hits

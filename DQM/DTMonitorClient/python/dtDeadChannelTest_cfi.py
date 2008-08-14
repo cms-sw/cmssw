@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-deadChannelTest = cms.EDFilter("DTDeadChannelTest",
+deadChannelTest = cms.EDAnalyzer("DTDeadChannelTest",
     debug = cms.untracked.bool(False),
     runningStandalone = cms.untracked.bool(True),
     diagnosticPrescale = cms.untracked.int32(1),

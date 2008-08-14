@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-dataIntegrityTest = cms.EDFilter("DTDataIntegrityTest",
+dataIntegrityTest = cms.EDAnalyzer("DTDataIntegrityTest",
     outputFile = cms.untracked.string('DataIntegrityTest.root'),
     folderRoot = cms.untracked.string(''),
     nTimeBin = cms.untracked.int32(9),

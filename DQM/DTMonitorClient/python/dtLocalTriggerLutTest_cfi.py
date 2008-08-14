@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-triggerLutTest = cms.EDFilter("DTLocalTriggerLutTest",
+triggerLutTest = cms.EDAnalyzer("DTLocalTriggerLutTest",
     # prescale factor (in luminosity blocks) to perform client analysis
     diagnosticPrescale = cms.untracked.int32(1),
     # kind of trigger data processed by DTLocalTriggerTask

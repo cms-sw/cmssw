@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-noiseTest = cms.EDFilter("DTNoiseTest",
+noiseTest = cms.EDAnalyzer("DTNoiseTest",
     HzThreshold = cms.untracked.int32(300),
     runningStandalone = cms.untracked.bool(True),
     meanTestName = cms.untracked.string('NoiseMeanInRange'),

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-triggerEfficiencyTest = cms.EDFilter("DTLocalTriggerEfficiencyTest",
+triggerEfficiencyTest = cms.EDAnalyzer("DTLocalTriggerEfficiencyTest",
     # prescale factor (in luminosity blocks) to perform client analysis
     diagnosticPrescale = cms.untracked.int32(1),
     # kind of trigger data processed by DTLocalTriggerTask

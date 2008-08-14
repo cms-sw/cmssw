@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-dtSummaryClients = cms.EDFilter("DTSummaryClients")
+dtSummaryClients = cms.EDAnalyzer("DTSummaryClients")
 
 

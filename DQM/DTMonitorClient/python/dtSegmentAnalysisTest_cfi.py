@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-segmentTest = cms.EDFilter("DTSegmentAnalysisTest",
+segmentTest = cms.EDAnalyzer("DTSegmentAnalysisTest",
     #Permetted value of chi2 segment quality
     chi2Threshold = cms.untracked.double(5.0),
     #Permetted percentual of CH with bad chi2 segments 

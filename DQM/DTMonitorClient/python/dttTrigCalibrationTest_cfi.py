@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-tTrigCalibrationTest = cms.EDFilter("DTtTrigCalibrationTest",
+tTrigCalibrationTest = cms.EDAnalyzer("DTtTrigCalibrationTest",
     runningStandalone = cms.untracked.bool(True),
     tTrigTestName = cms.untracked.string('tTrigOffSet'),
     diagnosticPrescale = cms.untracked.int32(1),

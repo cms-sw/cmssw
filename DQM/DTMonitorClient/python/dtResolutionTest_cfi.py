@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-resolutionTest = cms.EDFilter("DTResolutionTest",
+resolutionTest = cms.EDAnalyzer("DTResolutionTest",
     runningStandalone = cms.untracked.bool(True),
     folderRoot = cms.untracked.string(''),
     sigmaTestName = cms.untracked.string('ResidualsSigmaInRange'),

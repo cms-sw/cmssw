@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-dtDigiMonitor = cms.EDFilter("DTDigiTask",
+dtDigiMonitor = cms.EDAnalyzer("DTDigiTask",
     # set the max TDC counts for the time-box (in units of 6400)
     tdcRescale = cms.untracked.int32(1),
     # bin size for the time boxes

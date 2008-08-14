@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-dtTriggerMonitor = cms.EDFilter("DTLocalTriggerTask",
+dtTriggerMonitor = cms.EDAnalyzer("DTLocalTriggerTask",
     # set static booking (all the detector)
     staticBooking = cms.untracked.bool(True),
     ros_label = cms.untracked.string('dtunpacker'),
