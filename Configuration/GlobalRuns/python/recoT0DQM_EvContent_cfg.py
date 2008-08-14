@@ -12,7 +12,9 @@ process.source = cms.Source("PoolSource",
     #firstFreeID = cms.untracked.uint32(131072),
     fileNames = cms.untracked.vstring(
         '/store/data/CRUZET3/Cosmics/RAW/v4/000/050/908/04D61810-DD54-DD11-8FB1-001617DBD230.root'
-        #'/store/data/Commissioning08/Cosmics/RAW/MW31_v1/000/053/416/68D08BC6-555E-DD11-842C-000423D9939C.root'
+       #'/store/data/CRUZET3/Cosmics/RAW/v4/000/050/908/08CDE58E-DC54-DD11-9D2A-000423D998BA.root',
+       #'/store/data/CRUZET3/Cosmics/RAW/v4/000/050/908/0EDB772A-DC54-DD11-8C5C-001617C3B77C.root',
+             #'/store/data/Commissioning08/Cosmics/RAW/MW31_v1/000/053/416/68D08BC6-555E-DD11-842C-000423D9939C.root'
     )
 )
 
@@ -47,7 +49,7 @@ process.FEVT.outputCommands.append('keep recoCandidatesOwned_caloTowersOpt_*_*')
 process.FEVT.outputCommands.append('keep RPCDetIdRPCDigiMuonDigiCollection_muonRPCDigis_*_*')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.6 $'),
+    version = cms.untracked.string('$Revision: 1.7 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/GlobalRuns/python/recoT0DQM_EvContent_cfg.py,v $'),
     annotation = cms.untracked.string('CRUZET Prompt Reco with DQM')
 )
