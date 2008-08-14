@@ -1,4 +1,4 @@
-# /dev/CMSSW_2_1_0/HLT/V4 (CMSSW_2_1_0_HLT1)
+# /dev/CMSSW_2_1_2/HLT/V3 (CMSSW_2_1_2)
 # Begin replace statements specific to the FastSim HLT
 # For all HLTLevel1GTSeed objects, make the following replacements:
 #   - L1GtReadoutRecordTag changed from hltGtDigis to gtDigis
@@ -6682,7 +6682,7 @@ hltFilterL25MuonTauPtLeadTk = cms.EDFilter( "HLT1Tau",
     inputTag = cms.InputTag( "hltIsolatedTauJetsSelectorL25MuonTauPtLeadTk" ),
     MinPt = cms.double( 0.0 ),
     MaxEta = cms.double( 5.0 ),
-    MinN = cms.int32( 2 )
+    MinN = cms.int32( 1 )
 )
 hltPixelTrackIsolatedTauJetsSelectorMuonTau = cms.EDProducer( "IsolatedTauJetsSelector",
     MinimumTransverseMomentumLeadingTrack = cms.double( 3.0 ),
