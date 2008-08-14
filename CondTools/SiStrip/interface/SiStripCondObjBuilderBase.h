@@ -1,8 +1,7 @@
 #ifndef CondTools_SiStrip_SiStripCondObjBuilderBase_H
 #define CondTools_SiStrip_SiStripCondObjBuilderBase_H
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
-
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "boost/cstdint.hpp"
 #include <vector>
 #include <string>
@@ -12,19 +11,17 @@ class SiStripCondObjBuilderBase {
   
  public:
 
-  SiStripCondObjBuilderBase();
-  SiStripCondObjBuilderBase(const edm::ParameterSet&,
-			    const edm::ActivityRegistry&);
-  virtual ~SiStripCondObjBuilderBase();
+  SiStripCondObjBuilderBase(const edm::ParameterSet& pset){};
+  virtual ~SiStripCondObjBuilderBase(){};
   
   virtual void initialize(){};
-
+			    
   /** Returns MetaData information in a stringstream */
-  virtual void getMetaDataString(std::stringstream ss){};
-
+  virtual void getMetaDataString(std::stringstream& ss){};
+  
   /** Returns the CondObj */
   virtual void getObj(T* & obj){};
-
+  
  protected:
   
   T* obj_;
