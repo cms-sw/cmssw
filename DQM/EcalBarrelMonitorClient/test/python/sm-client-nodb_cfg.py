@@ -18,11 +18,11 @@ process.source = cms.Source("DQMHttpSource",
 process.MessageLogger = cms.Service("MessageLogger",
     cout = cms.untracked.PSet(
         threshold = cms.untracked.string('WARNING'),
+        noTimeStamps = cms.untracked.bool(True),
+        noLineBreaks = cms.untracked.bool(True),
         default = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
-        noTimeStamps = cms.untracked.bool(True),
-        noLineBreaks = cms.untracked.bool(True),
         EcalBarrelMonitorClient = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         )
