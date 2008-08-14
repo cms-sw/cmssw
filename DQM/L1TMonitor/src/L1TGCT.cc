@@ -1,11 +1,14 @@
 /*
  * \file L1TGCT.cc
  *
- * $Date: 2008/06/06 15:18:22 $
- * $Revision: 1.29 $
+ * $Date: 2008/06/09 11:07:52 $
+ * $Revision: 1.30 $
  * \author J. Berryhill
  *
  * $Log: L1TGCT.cc,v $
+ * Revision 1.30  2008/06/09 11:07:52  tapper
+ * Removed electron sub-folders with histograms per eta and phi bin.
+ *
  * Revision 1.29  2008/06/06 15:18:22  tapper
  * Removed errorSummary folder stuff.
  *
@@ -330,9 +333,9 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
   edm::Handle < L1GctJetCandCollection > l1ForJets;
   edm::Handle < L1GctJetCandCollection > l1TauJets;
   edm::Handle < L1GctJetCountsCollection > l1JetCounts;
-  edm::Handle < L1GctEtMiss >  l1EtMiss;
-  edm::Handle < L1GctEtHad >   l1EtHad;
-  edm::Handle < L1GctEtTotal > l1EtTotal;
+  edm::Handle < L1GctEtMissCollection >  l1EtMiss;
+  edm::Handle < L1GctEtHadCollection >   l1EtHad;
+  edm::Handle < L1GctEtTotalCollection > l1EtTotal;
 
   // Split this into two parts as this appears to be the way the HW works.
   // This should not be necessary. The unpacker should produce all 
@@ -476,12 +479,19 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
     }
 
     // Energy sums
-    l1GctEtMiss_->Fill(l1EtMiss->et());
-    l1GctEtMissPhi_->Fill(l1EtMiss->phi());
-
+    if (l1EtMiss->size()){
+    	l1GctEtMiss_->Fill(l1EtMiss->at(0).et());
+    	l1GctEtMissPhi_->Fill(l1EtMiss->at(0).phi());
+    }
+	
     // these don't have phi values
-    l1GctEtHad_->Fill(l1EtHad->et());
-    l1GctEtTotal_->Fill(l1EtTotal->et());
+    if (l1EtHad->size()){
+    	l1GctEtHad_->Fill(l1EtHad->at(0).et());
+    }
+
+    if (l1EtTotal->size()){
+    	l1GctEtTotal_->Fill(l1EtTotal->at(0).et());
+    }
 	
     //Fill HF Ring Histograms
     if ( verbose_ ) {
