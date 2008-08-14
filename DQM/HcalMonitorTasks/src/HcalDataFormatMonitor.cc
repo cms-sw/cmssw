@@ -4,7 +4,9 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-HcalDataFormatMonitor::HcalDataFormatMonitor() {}
+HcalDataFormatMonitor::HcalDataFormatMonitor() {
+  
+}
 
 HcalDataFormatMonitor::~HcalDataFormatMonitor() {}
 
@@ -827,6 +829,17 @@ void HcalDataFormatMonitor::smuggleMaps(std::map<uint32_t, std::vector<HcalDetId
   return;
 }
 
+void HcalDataFormatMonitor::FillMap(int & dcc) {
+  std::vector<HcalDetId>::iterator thishdi;
 
+  for (thishdi = DCCtoCell[dcc].begin(); 
+       thishdi != DCCtoCell[dcc].end(); thishdi++) {
+    *phatmapat(thishdi->ieta(),thishdi->iphi()) = 1;
+  }
+} 
+
+void HcalDataFormatMonitor::FillMap(std::pair <int, int> & spigot) {
+
+} 
 
 
