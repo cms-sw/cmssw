@@ -56,7 +56,8 @@ namespace cond {
           } 
           //there is a single item
           vlistItems.push_back(ListItems.substr(oldloc,loc-oldloc));
-          res.push_back(it.getSummaryObj(detid,vlistItems));
+	  std::vector<float> vres=it.getSummaryObj(detid,vlistItems);
+          res.insert(res.end(),vres.begin(),vres.end());
           //res.push_back(detid);
           swap(res);
       }
