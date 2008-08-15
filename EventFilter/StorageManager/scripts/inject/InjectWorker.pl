@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: InjectWorker.pl,v 1.20 2008/08/07 14:03:14 loizides Exp $
+# $Id: InjectWorker.pl,v 1.21 2008/08/15 14:22:29 loizides Exp $
 
 use strict;
 use DBI;
@@ -462,7 +462,7 @@ while( !$endflag ) {
             if ($field =~ m/^\-\-(.*)=(.*)/i) {    
                 my $fname = "SM_$1";
                 if    ($1 eq "COUNT")      { $fname = "SM_FILECOUNTER";}
-                elsif ($1 eq "SM_DATASET") { $fname = "SM_SETUPLABEL";}
+                elsif ($1 eq "DATASET") { $fname = "SM_SETUPLABEL";}
                 elsif ($1 eq "START_TIME") { $fname = "SM_STARTTIME";}
                 elsif ($1 eq "STOP_TIME")  { $fname = "SM_STOPTIME";}
                 elsif ($1 eq "APP_VERSION") { $fname = "SM_APPVERSION";}
