@@ -15,7 +15,7 @@
 #include "CondCore/DBCommon/interface/FipProtocolParser.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
 
-#include "CondCore/DBCommon/interface/Time.h.h"
+#include "CondCore/DBCommon/interface/Time.h"
 #include "CondCore/IOVService/interface/IOVService.h"
 #include "CondCore/IOVService/interface/IOVIterator.h"
 #include <boost/program_options.hpp>
@@ -159,7 +159,7 @@ int main( int argc, char** argv ){
        unsigned int counter=0;
        std::string payloadContainer=iovservice.payloadContainerName(token);
        std::cout<<"Tag "<<tag
-       	        <<"\nTime Type " << cond::timeTypeSpecs[ioviterator->timetype()],
+       	        <<"\nTime Type " << cond::timeTypeSpecs[ioviterator->timetype()].name
                 <<"\nPayloadContainerName "<<payloadContainer<<"\n"
                 <<"since \t till \t payloadToken"<<std::endl;
        while( ioviterator->next() ){
