@@ -155,7 +155,6 @@ const CaloCellGeometry* HcalDDDGeometryLoader::makeCell(const HcalDetId& detId,
     } else {
       z         = r * sinh(eta2);
       thickness = 2. * hcalCell.halfSize();
-      z        -= 0.5*thickness;
     }
 #ifdef DebugLog
     LogDebug("HCalGeom") << "HcalDDDGeometryLoader::makeCell SubDet " << subdet
@@ -167,7 +166,7 @@ const CaloCellGeometry* HcalDDDGeometryLoader::makeCell(const HcalDetId& detId,
     thickness  = hcalCell.depthMax() - z;
     z         *= detId.zside(); // get the sign right.
     r          = z * tan(theta);
-    thickness *= std::abs(tan(theta));
+    thickness /= std::abs(cos(theta));
 #ifdef DebugLog
     LogDebug("HCalGeom") << "HcalDDDGeometryLoader::makeCell SubDet " << subdet
 			 << " eta = " << eta << " theta = " << theta
