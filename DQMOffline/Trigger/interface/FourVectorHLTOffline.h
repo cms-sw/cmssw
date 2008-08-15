@@ -16,7 +16,7 @@
 //
 // Original Author:  Jeffrey Berryhill
 //         Created:  June 2008
-// $Id: FourVectorHLTOffline.h,v 1.1 2008/06/12 21:58:48 berryhil Exp $
+// $Id: FourVectorHLTOffline.h,v 1.2 2008/06/24 19:35:43 berryhil Exp $
 //
 //
 
@@ -152,11 +152,11 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
 	MonitorElement * getEtaVsPhiL1Histo() {
 	  return etavsphiL1_;
 	}
-	const std::string getName(void ) const {
+	const edm::InputTag getTag(void ) const {
 	  return pathName_;
 	}
 	~PathInfo() {};
-	PathInfo(std::string pathName, size_t type, float ptmin, 
+	PathInfo(edm::InputTag pathName, size_t type, float ptmin, 
 		 float ptmax):
 	  pathName_(pathName), objectType_(type),
 	  etOn_(0), etaOn_(0), phiOn_(0), etavsphiOn_(0),
@@ -165,7 +165,7 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
 	  ptmin_(ptmin), ptmax_(ptmax)
 	  {
 	  };
-	  PathInfo(std::string pathName, size_t type,
+	  PathInfo(edm::InputTag pathName, size_t type,
 		   MonitorElement *etOn,
 		   MonitorElement *etaOn,
 		   MonitorElement *phiOn,
@@ -186,13 +186,13 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
 	    etL1_(etL1), etaL1_(etaL1), phiL1_(phiL1), etavsphiL1_(etavsphiL1),
 	    ptmin_(ptmin), ptmax_(ptmax)
 	    {};
-	    bool operator==(const std::string v) 
+	    bool operator==(const edm::InputTag v) 
 	    {
 	      return v==pathName_;
 	    }
       private:
 	  int pathIndex_;
-	  std::string pathName_;
+	  edm::InputTag pathName_;
 	  int objectType_;
 
 	  // we don't own this data
@@ -218,7 +218,7 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
       public:
 	PathInfoCollection(): std::vector<PathInfo>() 
 	  {};
-	  std::vector<PathInfo>::iterator find(std::string pathName) {
+	  std::vector<PathInfo>::iterator find(edm::InputTag pathName) {
 	    return std::find(begin(), end(), pathName);
 	  }
       };

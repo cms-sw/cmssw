@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOffline.cc,v 1.6 2008/06/24 21:44:36 berryhil Exp $
+// $Id: FourVectorHLTOffline.cc,v 1.7 2008/08/07 19:43:14 sharper Exp $
 // See header file for information. 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -54,7 +54,7 @@ FourVectorHLTOffline::FourVectorHLTOffline(const edm::ParameterSet& iConfig):
   }
   
   
-  dirname_="HLT/FourVectorHLTOffline" + 
+  dirname_="HLTOffline/FourVectorHLTOffline" + 
     iConfig.getParameter<std::string>("@module_label");
   
   if (dbe_ != 0 ) {
@@ -75,7 +75,7 @@ FourVectorHLTOffline::FourVectorHLTOffline(const edm::ParameterSet& iConfig):
   for(std::vector<edm::ParameterSet>::iterator 
 	filterconf = filters.begin() ; filterconf != filters.end(); 
       filterconf++) {
-    std::string me  = filterconf->getParameter<std::string>("name");
+    edm::InputTag me  = filterconf->getParameter<edm::InputTag>("name");
     int objectType = filterconf->getParameter<unsigned int>("type");
     float ptMin = filterconf->getUntrackedParameter<double>("ptMin");
     float ptMax = filterconf->getUntrackedParameter<double>("ptMax");
@@ -125,109 +125,30 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     return;
   }
   
-
-  
-
   const trigger::TriggerObjectCollection & toc(triggerObj->getObjects());
 
 
-  if ( plotAll_ ) {
-    // loop over all trigger paths, book new ME's for previously unseen paths, 
-    // and fill ME's with online and offline 4-vectors
 
-    for ( size_t ia = 0; ia < triggerObj->sizeFilters(); ++ ia) {
-      // get the path name to encode ME name
-      std::string name = "cludge_func_disabled";//triggerObj->filterTag(ia).label();
-      //std::cout << name << std::endl;
-      // KLUDGE:  trigger object type is keyed off of filterId 
-      // instead of trigger object pdgId (becuase it is buggy in 2_0)
-       Vids  idtype = triggerObj->filterIds(ia);
-       int triggertype = idtype[0];
-   
-      PathInfoCollection::iterator pic =  hltPaths_.find(name);
-      if ( pic == hltPaths_.end() ) {
-	// doesn't exist - add it
-	MonitorElement *etOn(0), *etaOn(0), *phiOn(0), *etavsphiOn(0);
-	MonitorElement *etOff(0), *etaOff(0), *phiOff(0), *etavsphiOff(0);
-	MonitorElement *etL1(0), *etaL1(0), *phiL1(0), *etavsphiL1(0);
-	std::string histoname(name+"_etOn");
-	std::string title(name+" E_t online");
-	etOn =  dbe_->book1D(histoname.c_str(),
-			  title.c_str(),nBins_, 0, 100);
+    for(PathInfoCollection::iterator v = hltPaths_.begin();
+	v!= hltPaths_.end(); ++v ) 
+{ 
       
-	histoname = name+"_etOff";
-	title = name+" E_t offline";
-	etOff =  dbe_->book1D(histoname.c_str(),
-			   title.c_str(),nBins_, 0, 100);
-
-	histoname = name+"_etL1";
-	title = name+" E_t L1";
-	etL1 =  dbe_->book1D(histoname.c_str(),
-			   title.c_str(),nBins_, 0, 100);
-
-	histoname = name+"_etaOn";
-	title = name+" #eta online";
-	etaOn =  dbe_->book1D(histoname.c_str(),
-			   title.c_str(),nBins_,-2.7,2.7);
-      
-	histoname = name+"_etaOff";
-	title = name+" #eta offline";
-	etaOff =  dbe_->book1D(histoname.c_str(),
-			   title.c_str(),nBins_,-2.7,2.7);
-
-	histoname = name+"_etaL1";
-	title = name+" #eta L1";
-	etaL1 =  dbe_->book1D(histoname.c_str(),
-			   title.c_str(),nBins_,-2.7,2.7);
-
-	histoname = name+"_phiOn";
-	title = name+" #phi online";
-	phiOn =  dbe_->book1D(histoname.c_str(),
-			   histoname.c_str(),nBins_,-3.14,3.14);
-
-	histoname = name+"_phiOff";
-	title = name+" #phi offline";
-	phiOff =  dbe_->book1D(histoname.c_str(),
-			   histoname.c_str(),nBins_,-3.14,3.14);
-
-	histoname = name+"_phiL1";
-	title = name+" #phi L1";
-	phiL1 =  dbe_->book1D(histoname.c_str(),
-			   histoname.c_str(),nBins_,-3.14,3.14);
-      
-	histoname = name+"_etaphiOn";
-	title = name+" #eta vs #phi online";
-	etavsphiOn =  dbe_->book2D(histoname.c_str(),
-				title.c_str(),
-				nBins_,-2.7,2.7,
-				nBins_,-3.14, 3.14);
-
-	histoname = name+"_etaphiOff";
-	title = name+" #eta vs #phi offline";
-	etavsphiOff =  dbe_->book2D(histoname.c_str(),
-				title.c_str(),
-				nBins_,-2.7,2.7,
-				nBins_,-3.14, 3.14);
-
-	histoname = name+"_etaphiL1";
-	title = name+" #eta vs #phi L1";
-	etavsphiL1 =  dbe_->book2D(histoname.c_str(),
-				title.c_str(),
-				nBins_,-2.7,2.7,
-				nBins_,-3.14, 3.14);
-      
-	// no idea how to get the bin boundries in this mode
-	PathInfo e(name,0, etOn, etaOn, phiOn, etavsphiOn, etOff, etaOff, phiOff, etavsphiOff, etL1, etaL1, phiL1, etavsphiL1, 0,100);
-	hltPaths_.push_back(e);  
-	pic = hltPaths_.begin() + hltPaths_.size()-1;
+      const int index = triggerObj->filterIndex(v->getTag());
+      if ( index >= triggerObj->sizeFilters() ) {
+	//        cout << "WTF no index "<< index << " of that name "
+	//	     << v->getTag().label() << "\t" << v->getTag().instance() << "\t" << v->getTag().process() << endl;
+	continue; // not in this event
       }
-      const trigger::Keys & k = triggerObj->filterKeys(ia);
-      // loop over trigger objects and fill online 4-vectors
+      LogDebug("FourVectorHLTOffline") << "filling ... " ;
+      const trigger::Keys & k = triggerObj->filterKeys(index);
+      Vids  idtype = triggerObj->filterIds(index);
+      int triggertype = idtype[0];
+
       for (trigger::Keys::const_iterator ki = k.begin(); ki !=k.end(); ++ki ) {
-	pic->getEtOnHisto()->Fill(toc[*ki].pt());
-	pic->getEtaOnHisto()->Fill(toc[*ki].eta());
-	pic->getPhiOnHisto()->Fill(toc[*ki].phi());
-	pic->getEtaVsPhiOnHisto()->Fill(toc[*ki].eta(), toc[*ki].phi());
+	v->getEtOnHisto()->Fill(toc[*ki].pt());
+	v->getEtaOnHisto()->Fill(toc[*ki].eta());
+	v->getPhiOnHisto()->Fill(toc[*ki].phi());
+	v->getEtaVsPhiOnHisto()->Fill(toc[*ki].eta(), toc[*ki].phi());
 
       // for muon triggers, loop over and fill offline 4-vectors
       if (triggertype == trigger::TriggerMuon)
@@ -239,16 +160,16 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
             edm::LogInfo("FourVectorHLTOffline") << "muonHandle not found, "
             "skipping event"; 
             return;
-         }
+          }
          const reco::MuonCollection muonCollection = *(muonHandle.product());
 
          for (reco::MuonCollection::const_iterator muonIter=muonCollection.begin(); muonIter!=muonCollection.end(); muonIter++)
          {
 	   if (reco::deltaR((*muonIter).eta(),(*muonIter).phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3){
-	  pic->getEtOffHisto()->Fill((*muonIter).pt());
-	  pic->getEtaOffHisto()->Fill((*muonIter).eta());
-	  pic->getPhiOffHisto()->Fill((*muonIter).phi());
-	  pic->getEtaVsPhiOffHisto()->Fill((*muonIter).eta(),(*muonIter).phi());
+	  v->getEtOffHisto()->Fill((*muonIter).pt());
+	  v->getEtaOffHisto()->Fill((*muonIter).eta());
+	  v->getPhiOffHisto()->Fill((*muonIter).phi());
+	  v->getEtaVsPhiOffHisto()->Fill((*muonIter).eta(),(*muonIter).phi());
 	   }
          }
 
@@ -266,10 +187,10 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
          for (l1extra::L1MuonParticleCollection::const_iterator l1MuonIter=l1MuonCollection.begin(); l1MuonIter!=l1MuonCollection.end(); l1MuonIter++)
          {
 	   if (reco::deltaR((*l1MuonIter).eta(),(*l1MuonIter).phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3){
-	  pic->getEtL1Histo()->Fill((*l1MuonIter).pt());
-	  pic->getEtaL1Histo()->Fill((*l1MuonIter).eta());
-	  pic->getPhiL1Histo()->Fill((*l1MuonIter).phi());
-	  pic->getEtaVsPhiL1Histo()->Fill((*l1MuonIter).eta(),(*l1MuonIter).phi());
+	  v->getEtL1Histo()->Fill((*l1MuonIter).pt());
+	  v->getEtaL1Histo()->Fill((*l1MuonIter).eta());
+	  v->getPhiL1Histo()->Fill((*l1MuonIter).phi());
+	  v->getEtaVsPhiL1Histo()->Fill((*l1MuonIter).eta(),(*l1MuonIter).phi());
 	   }
          }
 	}
@@ -288,10 +209,10 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
          for (reco::PixelMatchGsfElectronCollection::const_iterator gsfIter=gsfElectrons->begin(); gsfIter!=gsfElectrons->end(); gsfIter++)
          {
 	   if (reco::deltaR((*gsfIter).eta(),(*gsfIter).phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3){
-	  pic->getEtOffHisto()->Fill(gsfIter->pt());
-	  pic->getEtaOffHisto()->Fill(gsfIter->eta());
-	  pic->getPhiOffHisto()->Fill(gsfIter->phi());
-	  pic->getEtaVsPhiOffHisto()->Fill(gsfIter->eta(), gsfIter->phi());
+	  v->getEtOffHisto()->Fill(gsfIter->pt());
+	  v->getEtaOffHisto()->Fill(gsfIter->eta());
+	  v->getPhiOffHisto()->Fill(gsfIter->phi());
+	  v->getEtaVsPhiOffHisto()->Fill(gsfIter->eta(), gsfIter->phi());
 	   }
          }
 
@@ -304,10 +225,10 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
          const L1EmParticleCollection l1ElectronCollection = *(l1ElectronHandle->product());
 	   for (L1EmParticleCollection::const_iterator l1ElectronIter=l1ElectronCollection.begin(); l1ElectronIter!=l1ElectronCollection.end(); l1ElectronIter++){
 	   if (reco::deltaR((*l1ElectronIter).eta(),(*l1ElectronIter).phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3){
-     	  pic->getEtL1Histo()->Fill((*l1ElectronIter).pt());
-     	  pic->getEtaL1Histo()->Fill((*l1ElectronIter).eta());
-          pic->getPhiL1Histo()->Fill((*l1ElectronIter).phi());
-     	  pic->getEtaVsPhiL1Histo()->Fill((*l1ElectronIter).eta(),(*l1ElectronIter).phi());
+     	  v->getEtL1Histo()->Fill((*l1ElectronIter).pt());
+     	  v->getEtaL1Histo()->Fill((*l1ElectronIter).eta());
+          v->getPhiL1Histo()->Fill((*l1ElectronIter).phi());
+     	  v->getEtaVsPhiL1Histo()->Fill((*l1ElectronIter).eta(),(*l1ElectronIter).phi());
 	   }
 	   }
          }
@@ -330,10 +251,10 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
          for (reco::CaloTauCollection::const_iterator tauIter=tauCollection.begin(); tauIter!=tauCollection.end(); tauIter++)
          {
 	   if (reco::deltaR((*tauIter).eta(),(*tauIter).phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3){
-	  pic->getEtOffHisto()->Fill((*tauIter).pt());
-	  pic->getEtaOffHisto()->Fill((*tauIter).eta());
-	  pic->getPhiOffHisto()->Fill((*tauIter).phi());
-	  pic->getEtaVsPhiOffHisto()->Fill((*tauIter).eta(),(*tauIter).phi());
+	  v->getEtOffHisto()->Fill((*tauIter).pt());
+	  v->getEtaOffHisto()->Fill((*tauIter).eta());
+	  v->getPhiOffHisto()->Fill((*tauIter).phi());
+	  v->getEtaVsPhiOffHisto()->Fill((*tauIter).eta(),(*tauIter).phi());
 	   }
          }
 
@@ -352,10 +273,10 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
          const L1JetParticleCollection l1TauCollection = *(l1TauHandle->product());
 	   for (L1JetParticleCollection::const_iterator l1TauIter=l1TauCollection.begin(); l1TauIter!=l1TauCollection.end(); l1TauIter++){
 	   if (reco::deltaR((*l1TauIter).eta(),(*l1TauIter).phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3){
-     	  pic->getEtL1Histo()->Fill((*l1TauIter).pt());
-     	  pic->getEtaL1Histo()->Fill((*l1TauIter).eta());
-          pic->getPhiL1Histo()->Fill((*l1TauIter).phi());
-     	  pic->getEtaVsPhiL1Histo()->Fill((*l1TauIter).eta(),(*l1TauIter).phi());
+     	  v->getEtL1Histo()->Fill((*l1TauIter).pt());
+     	  v->getEtaL1Histo()->Fill((*l1TauIter).eta());
+          v->getPhiL1Histo()->Fill((*l1TauIter).phi());
+     	  v->getEtaVsPhiL1Histo()->Fill((*l1TauIter).eta(),(*l1TauIter).phi());
 	   }
 	   }
          }
@@ -378,10 +299,10 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
          for (reco::CaloJetCollection::const_iterator jetIter=jetCollection.begin(); jetIter!=jetCollection.end(); jetIter++)
          {
 	   if (reco::deltaR((*jetIter).eta(),(*jetIter).phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3){
-	  pic->getEtOffHisto()->Fill((*jetIter).pt());
-	  pic->getEtaOffHisto()->Fill((*jetIter).eta());
-	  pic->getPhiOffHisto()->Fill((*jetIter).phi());
-	  pic->getEtaVsPhiOffHisto()->Fill((*jetIter).eta(),(*jetIter).phi());
+	  v->getEtOffHisto()->Fill((*jetIter).pt());
+	  v->getEtaOffHisto()->Fill((*jetIter).eta());
+	  v->getPhiOffHisto()->Fill((*jetIter).phi());
+	  v->getEtaVsPhiOffHisto()->Fill((*jetIter).eta(),(*jetIter).phi());
 	   }
          }
 
@@ -401,10 +322,10 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
          const L1JetParticleCollection l1JetCollection = *(l1JetHandle->product());
 	   for (L1JetParticleCollection::const_iterator l1JetIter=l1JetCollection.begin(); l1JetIter!=l1JetCollection.end(); l1JetIter++){
 	   if (reco::deltaR((*l1JetIter).eta(),(*l1JetIter).phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3){
-     	  pic->getEtL1Histo()->Fill((*l1JetIter).pt());
-     	  pic->getEtaL1Histo()->Fill((*l1JetIter).eta());
-          pic->getPhiL1Histo()->Fill((*l1JetIter).phi());
-     	  pic->getEtaVsPhiL1Histo()->Fill((*l1JetIter).eta(),(*l1JetIter).phi());
+     	  v->getEtL1Histo()->Fill((*l1JetIter).pt());
+     	  v->getEtaL1Histo()->Fill((*l1JetIter).eta());
+          v->getPhiL1Histo()->Fill((*l1JetIter).phi());
+     	  v->getEtaVsPhiL1Histo()->Fill((*l1JetIter).eta(),(*l1JetIter).phi());
 	   }
 	   }
          }
@@ -430,10 +351,10 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
          for (reco::CaloMETCollection::const_iterator metIter=metCollection.begin(); metIter!=metCollection.end(); metIter++)
          {
 	   if (reco::deltaR((*metIter).eta(),(*metIter).phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3){
-	  pic->getEtOffHisto()->Fill((*metIter).pt());
-	  pic->getEtaOffHisto()->Fill((*metIter).eta());
-	  pic->getPhiOffHisto()->Fill((*metIter).phi());
-	  pic->getEtaVsPhiOffHisto()->Fill((*metIter).eta(),(*metIter).phi());
+	  v->getEtOffHisto()->Fill((*metIter).pt());
+	  v->getEtaOffHisto()->Fill((*metIter).eta());
+	  v->getPhiOffHisto()->Fill((*metIter).phi());
+	  v->getEtaVsPhiOffHisto()->Fill((*metIter).eta(),(*metIter).phi());
 	   }
          }
 
@@ -450,10 +371,10 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
          for (l1extra::L1EtMissParticleCollection::const_iterator l1MetIter=l1MetCollection.begin(); l1MetIter!=l1MetCollection.end(); l1MetIter++)
          {
 	   if (reco::deltaR((*l1MetIter).eta(),(*l1MetIter).phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3){
-	  pic->getEtL1Histo()->Fill((*l1MetIter).pt());
-	  pic->getEtaL1Histo()->Fill((*l1MetIter).eta());
-	  pic->getPhiL1Histo()->Fill((*l1MetIter).phi());
-	  pic->getEtaVsPhiL1Histo()->Fill((*l1MetIter).eta(),(*l1MetIter).phi());
+	  v->getEtL1Histo()->Fill((*l1MetIter).pt());
+	  v->getEtaL1Histo()->Fill((*l1MetIter).eta());
+	  v->getPhiL1Histo()->Fill((*l1MetIter).phi());
+	  v->getEtaVsPhiL1Histo()->Fill((*l1MetIter).eta(),(*l1MetIter).phi());
 	   }
          }
 
@@ -477,10 +398,10 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
          for (reco::PhotonCollection::const_iterator photonIter=photonCollection.begin(); photonIter!=photonCollection.end(); photonIter++)
          {
 	   if (reco::deltaR((*photonIter).eta(),(*photonIter).phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3){
-	  pic->getEtOffHisto()->Fill((*photonIter).pt());
-	  pic->getEtaOffHisto()->Fill((*photonIter).eta());
-	  pic->getPhiOffHisto()->Fill((*photonIter).phi());
-	  pic->getEtaVsPhiOffHisto()->Fill((*photonIter).eta(),(*photonIter).phi());
+	  v->getEtOffHisto()->Fill((*photonIter).pt());
+	  v->getEtaOffHisto()->Fill((*photonIter).eta());
+	  v->getPhiOffHisto()->Fill((*photonIter).phi());
+	  v->getEtaVsPhiOffHisto()->Fill((*photonIter).eta(),(*photonIter).phi());
 	   }
          }
 
@@ -499,66 +420,21 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
          const L1EmParticleCollection l1PhotonCollection = *(l1PhotonHandle->product());
 	   for (L1EmParticleCollection::const_iterator l1PhotonIter=l1PhotonCollection.begin(); l1PhotonIter!=l1PhotonCollection.end(); l1PhotonIter++){
 	   if (reco::deltaR((*l1PhotonIter).eta(),(*l1PhotonIter).phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3){
-     	  pic->getEtL1Histo()->Fill((*l1PhotonIter).pt());
-     	  pic->getEtaL1Histo()->Fill((*l1PhotonIter).eta());
-          pic->getPhiL1Histo()->Fill((*l1PhotonIter).phi());
-     	  pic->getEtaVsPhiL1Histo()->Fill((*l1PhotonIter).eta(),(*l1PhotonIter).phi());
+     	  v->getEtL1Histo()->Fill((*l1PhotonIter).pt());
+     	  v->getEtaL1Histo()->Fill((*l1PhotonIter).eta());
+          v->getPhiL1Histo()->Fill((*l1PhotonIter).phi());
+     	  v->getEtaVsPhiL1Histo()->Fill((*l1PhotonIter).eta(),(*l1PhotonIter).phi());
 	   }
-         }
+	   
 
-
-         // edm::Handle<L1EmParticleCollection> l1PhotonHandle;
-         // iEvent.getByLabel("hltL1extraParticles:Isolated:HLT",l1PhotonHandle);
-	
-	 //  std::vector<edm::Handle<L1EmParticleCollection> > l1PhotonHandle;
-	 // if(!l1PhotonHandle.isValid()) { 
-         //   edm::LogInfo("FourVectorHLTOffline") << "l1PhotonHandle not found, "
-         //   "skipping event"; 
-         //   return;
-	 // }
-     //         const L1EmParticleCollection l1PhotonCollection = *(l1PhotonHandle.product());
-
-     //         for (L1EmParticleCollection::const_iterator l1PhotonIter=l1PhotonCollection.begin(); l1PhotonIter!=l1PhotonCollection.end(); l1PhotonIter++)
-     //     {
-     //	  pic->getEtL1Histo()->Fill((*l1PhotonIter).pt());
-     //	  pic->getEtaL1Histo()->Fill((*l1PhotonIter).eta());
-     //  pic->getPhiL1Histo()->Fill((*l1PhotonIter).phi());
-     //	  pic->getEtaVsPhiL1Histo()->Fill((*l1PhotonIter).eta(),(*l1PhotonIter).phi());
-     //         }
 	 }
-	}
-     
-      else
-	{
-	  //	  std::cout << "Unrecognized trigger" << std::endl;
-        }
+       }
+     }
 
-	
-
-
-      }
-
-
-    }
-  }
-  else { // not plotAll_
-    for(PathInfoCollection::iterator v = hltPaths_.begin();
-	v!= hltPaths_.end(); ++v ) {
-      const int index = triggerObj->filterIndex(v->getName());
-      if ( index >= triggerObj->sizeFilters() ) {
-	continue; // not in this event
-      }
-      LogDebug("FourVectorHLTOffline") << "filling ... " ;
-      const trigger::Keys & k = triggerObj->filterKeys(index);
-      for (trigger::Keys::const_iterator ki = k.begin(); ki !=k.end(); ++ki ) {
-	v->getEtOnHisto()->Fill(toc[*ki].pt());
-	v->getEtaOnHisto()->Fill(toc[*ki].eta());
-	v->getPhiOnHisto()->Fill(toc[*ki].phi());
-	v->getEtaVsPhiOnHisto()->Fill(toc[*ki].eta(), toc[*ki].phi());
-      }  
     }
   }
 }
+
 
 
 // -- method called once each job just before starting event loop  --------
@@ -584,82 +460,84 @@ FourVectorHLTOffline::beginJob(const edm::EventSetup&)
 	MonitorElement *etOn, *etaOn, *phiOn, *etavsphiOn=0;
 	MonitorElement *etOff, *etaOff, *phiOff, *etavsphiOff=0;
 	MonitorElement *etL1, *etaL1, *phiL1, *etavsphiL1=0;
-	std::string histoname(v->getName()+"_etOn");
-	std::string title(v->getName()+" E_t online");
+	std::string labelname("dummy");
+        labelname = v->getTag().label();
+	std::string histoname(labelname+"_etOn");
+	std::string title(labelname+" E_t online");
 	etOn =  dbe->book1D(histoname.c_str(),
 			  title.c_str(),nBins_,
 			  v->getPtMin(),
 			  v->getPtMax());
       
-	histoname = v->getName()+"_etOff";
-	title = v->getName()+" E_t offline";
+	histoname = labelname+"_etOff";
+	title = labelname+" E_t offline";
 	etOff =  dbe->book1D(histoname.c_str(),
 			   title.c_str(),nBins_, 
                            v->getPtMin(),
 			   v->getPtMax());
 
-	histoname = v->getName()+"_etL1";
-	title = v->getName()+" E_t L1";
+	histoname = labelname+"_etL1";
+	title = labelname+" E_t L1";
 	etL1 =  dbe->book1D(histoname.c_str(),
 			   title.c_str(),nBins_, 
                            v->getPtMin(),
 			   v->getPtMax());
 
-	histoname = v->getName()+"_etaOn";
-	title = v->getName()+" #eta online";
+	histoname = labelname+"_etaOn";
+	title = labelname+" #eta online";
 	etaOn =  dbe->book1D(histoname.c_str(),
 			   title.c_str(),nBins_,-2.7,2.7);
 
-	histoname = v->getName()+"_etaOff";
-	title = v->getName()+" #eta offline";
+	histoname = labelname+"_etaOff";
+	title = labelname+" #eta offline";
 	etaOff =  dbe->book1D(histoname.c_str(),
 			   title.c_str(),nBins_,-2.7,2.7);
 
-	histoname = v->getName()+"_etaL1";
-	title = v->getName()+" #eta L1";
+	histoname = labelname+"_etaL1";
+	title = labelname+" #eta L1";
 	etaL1 =  dbe->book1D(histoname.c_str(),
 			   title.c_str(),nBins_,-2.7,2.7);
 
-	histoname = v->getName()+"_phiOn";
-	title = v->getName()+" #phi online";
+	histoname = labelname+"_phiOn";
+	title = labelname+" #phi online";
 	phiOn =  dbe->book1D(histoname.c_str(),
 			   histoname.c_str(),nBins_,-3.14,3.14);
 
-	histoname = v->getName()+"_phiOff";
-	title = v->getName()+" #phi offline";
+	histoname = labelname+"_phiOff";
+	title = labelname+" #phi offline";
 	phiOff =  dbe->book1D(histoname.c_str(),
 			   histoname.c_str(),nBins_,-3.14,3.14);
 
-	histoname = v->getName()+"_phiL1";
-	title = v->getName()+" #phi L1";
+	histoname = labelname+"_phiL1";
+	title = labelname+" #phi L1";
 	phiL1 =  dbe->book1D(histoname.c_str(),
 			   histoname.c_str(),nBins_,-3.14,3.14);
  
 
-	histoname = v->getName()+"_etaphiOn";
-	title = v->getName()+" #eta vs #phi online";
+	histoname = labelname+"_etaphiOn";
+	title = labelname+" #eta vs #phi online";
 	etavsphiOn =  dbe->book2D(histoname.c_str(),
 				title.c_str(),
 				nBins_,-2.7,2.7,
 				nBins_,-3.14, 3.14);
 
-	histoname = v->getName()+"_etaphiOff";
-	title = v->getName()+" #eta vs #phi offline";
+	histoname = labelname+"_etaphiOff";
+	title = labelname+" #eta vs #phi offline";
 	etavsphiOff =  dbe->book2D(histoname.c_str(),
 				title.c_str(),
 				nBins_,-2.7,2.7,
 				nBins_,-3.14, 3.14);
 
-	histoname = v->getName()+"_etaphiL1";
-	title = v->getName()+" #eta vs #phi L1";
+	histoname = labelname+"_etaphiL1";
+	title = labelname+" #eta vs #phi L1";
 	etavsphiL1 =  dbe->book2D(histoname.c_str(),
 				title.c_str(),
 				nBins_,-2.7,2.7,
 				nBins_,-3.14, 3.14);
 
 	v->setHistos( etOn, etaOn, phiOn, etavsphiOn, etOff, etaOff, phiOff, etavsphiOff, etL1, etaL1, phiL1, etavsphiL1);
-      } 
-    } // ! plotAll_ - for plotAll we discover it during the event
+      }
+    }
   }
 }
 
