@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: InjectWorker.pl,v 1.19 2008/08/06 09:35:17 loizides Exp $
+# $Id: InjectWorker.pl,v 1.20 2008/08/07 14:03:14 loizides Exp $
 
 use strict;
 use DBI;
@@ -134,7 +134,7 @@ sub inject($$)
     my $lumisection = $ENV{'SM_LUMISECTION'};
     my $pathname    = $ENV{'SM_PATHNAME'};
     my $hostname    = $ENV{'SM_HOSTNAME'};
-    my $dataset     = $ENV{'SM_DATASET'};
+    my $setuplabel  = $ENV{'SM_SETUPLABEL'};
     my $stream      = $ENV{'SM_STREAM'};
     my $instance    = $ENV{'SM_INSTANCE'};
     my $safety      = $ENV{'SM_SAFETY'};
@@ -145,28 +145,38 @@ sub inject($$)
     my $producer    = 'StorageManager';
     my $destination = 'Global';
 
-    # redirect datasets to different destinations based on their value
-    if($dataset =~  'TransferTest' || $stream eq 'Random' || $stream eq 'DQM') {
-	$destination = 'TransferTest';
+    # index file name and size
+    my $indfile     = $filename;
+    $indfile =~ s/\.dat$/\.ind/;
+    my $indfilesize = -1;
+    if (-e "$indfile") {
+        $indfilesize = -s "$indfile";
+    } else {
+        $indfile     = '';
     }
-
-    # have to redirect for minidaq/localdaq runs
-    #if($hostname eq 'srv-s2c17-01' || $hostname eq 'srv-C2D05-02') {
-    #    $hostname = 'cmsdisk1';
-    #}
 
     # fix a left over bug from CMSSW_2_0_4
     $appversion=$1 if $appversion =~ /\"(.*)'/;
     $appversion=$1 if $appversion =~ /\"(.*)\"/;
 
-    my $stime;
+    # redirect setuplabel/streams to different destinations
+    if($setuplabel =~ 'TransferTest' || $stream     =~ 'TransferTest' || $stream eq 'DQM') {
+	$destination = 'TransferTest'; # transfer but delete after
+    }
+
+    if($stream eq 'Random' || lc $stream eq 'error' ) {
+	$destination = 'GlobalNoRepacking'; # do not repack 
+        $indfile     = '';
+        $indfilesize = -1;
+    }
+
     if ($doNotify==0) {
-	$stime = gettimestamp($starttime);
+	my $stime = gettimestamp($starttime);
 
 	$sth->bind_param(1,$filename);
 	$sth->bind_param(2,$pathname);
 	$sth->bind_param(3,$hostname);
-	$sth->bind_param(4,$dataset);
+	$sth->bind_param(4,$setuplabel);
 	$sth->bind_param(5,$stream);
 	$sth->bind_param(6,$type);
 	$sth->bind_param(7,$producer);
@@ -178,7 +188,7 @@ sub inject($$)
 	$sth->bind_param(13,$instance);
 	$sth->bind_param(14,$stime);
     } else {
-        $stime = gettimestamp($stoptime);
+        my $stime = gettimestamp($stoptime);
 
 	$sth->bind_param(1,$filename);
 	$sth->bind_param(2,$pathname);
@@ -187,6 +197,8 @@ sub inject($$)
 	$sth->bind_param(5,$filesize);
 	$sth->bind_param(6,$checksum);
 	$sth->bind_param(7,$stime);
+	$sth->bind_param(8,$indfile);
+	$sth->bind_param(9,$indfilesize);
     }
 
     my $notscript = $ENV{'SM_NOTIFYSCRIPT'};
@@ -194,15 +206,16 @@ sub inject($$)
         $notscript = "/nfshome0/cmsprod/TransferTest/injection/sendNotification.sh";
     }
 
-    my $indfile     = $filename;
-    $indfile =~ s/\.dat$/\.ind/;
-
     my $TIERZERO = "$notscript --APP_NAME=$appname --APP_VERSION=$appversion --RUNNUMBER $runnumber " . 
         "--LUMISECTION $lumisection --INSTANCE $instance --COUNT $count --START_TIME $starttime " . 
         "--STOP_TIME $stoptime --FILENAME $filename --PATHNAME $pathname --HOSTNAME $hostname " .
-        "--DESTINATION $destination --SETUPLABEL $dataset --STREAM $stream --STATUS $status --TYPE $type " .
-        "--SAFETY $safety --NEVENTS $nevents --FILESIZE $filesize --CHECKSUM $checksum --INDEX $indfile";
-    
+        "--DESTINATION $destination --SETUPLABEL $setuplabel --STREAM $stream --STATUS $status --TYPE $type " .
+        "--SAFETY $safety --NEVENTS $nevents --FILESIZE $filesize --CHECKSUM $checksum";
+
+    if ($indfile ne '') {
+      $TIERZERO .= " --INDEX $indfile"; # --INDEXFILESIZE $indfilesize"
+    }
+
     if (!defined $sth) { 
         if ($debug) { 
             print "DB not defined, just returning 0\n";
@@ -399,9 +412,9 @@ if (!defined $ENV{'SM_DONTACCESSDB'}) {
     $newHandle = $dbh->prepare($SQL) or mydie("Error: Prepare failed for $SQL: $dbh->errstr \n",$lockfile);
 
     $SQL = "INSERT INTO CMS_STOMGR.FILES_INJECTED (" .
-	"FILENAME,PATHNAME,DESTINATION,NEVENTS,FILESIZE,CHECKSUM,ITIME) " .
+	"FILENAME,PATHNAME,DESTINATION,NEVENTS,FILESIZE,CHECKSUM,ITIME,INDFILENAME,INDFILESIZE) " .
 	"VALUES (?,?,?,?,?,?," . 
-	"TO_DATE(?,'YYYY-MM-DD HH24:MI:SS'))";
+	"TO_DATE(?,'YYYY-MM-DD HH24:MI:SS'),?,?)";
     $injectHandle = $dbh->prepare($SQL) or mydie("Error: Prepare failed for $SQL: $dbh->errstr \n",$lockfile);
 } else { 
     print "Don't access DB flag set \n".
@@ -449,6 +462,7 @@ while( !$endflag ) {
             if ($field =~ m/^\-\-(.*)=(.*)/i) {    
                 my $fname = "SM_$1";
                 if    ($1 eq "COUNT")      { $fname = "SM_FILECOUNTER";}
+                elsif ($1 eq "SM_DATASET") { $fname = "SM_SETUPLABEL";}
                 elsif ($1 eq "START_TIME") { $fname = "SM_STARTTIME";}
                 elsif ($1 eq "STOP_TIME")  { $fname = "SM_STOPTIME";}
                 elsif ($1 eq "APP_VERSION") { $fname = "SM_APPVERSION";}
