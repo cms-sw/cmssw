@@ -168,6 +168,9 @@ if len(sys.argv)==1:
 
 options.evt_type=sys.argv[1]
 
+# memorize the command line arguments 
+options.arguments = reduce(lambda x, y: x+' '+y, sys.argv[1:])
+
 # now adjust the given parameters before passing it to the ConfigBuilder
 
 
