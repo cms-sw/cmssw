@@ -23,6 +23,11 @@ from RecoJets.Configuration.RecoCaloTowersGR_cff import *
 from RecoJets.Configuration.RecoJetsGR_cff import *
 from RecoMET.Configuration.RecoMET_cff import *
 
+#
+## egamma
+#
+from RecoEgamma.Configuration.RecoEgammaCosmics_cff import *
+
 # local reco
 trackerCosmics = cms.Sequence(offlineBeamSpot*trackerlocalreco*tracksP5)
 caloCosmics = cms.Sequence(calolocalreco*ecalClusters)
@@ -34,6 +39,7 @@ localReconstructionCosmics = cms.Sequence(trackerCosmics*caloCosmics*muonsLocalR
 muonsCosmics = cms.Sequence(muonRecoGR)
 jetsCosmics = cms.Sequence(recoCaloTowersGR*recoJetsGR)
 metrecoCosmics = cms.Sequence(metreco)
+egammaCosmics = cms.Sequence(egammarecoCosmics_woElectrons)
 
-reconstructionCosmics = cms.Sequence(localReconstructionCosmics*muonsCosmics*jetsCosmics*metrecoCosmics)
+reconstructionCosmics = cms.Sequence(localReconstructionCosmics*muonsCosmics*jetsCosmics*metrecoCosmics*egammaCosmics)
 
