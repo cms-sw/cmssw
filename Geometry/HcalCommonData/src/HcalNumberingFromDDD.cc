@@ -296,15 +296,21 @@ HcalCellType::HcalCell HcalNumberingFromDDD::cell(int det, int zside,
 	laymin = depth3[etaR-1]+1;
 	laymax = maxlay;
       }
+      double d1=0, d2=0;
       if (laymin <= maxlay && laymax <= maxlay && laymin <= laymax) {
 	if (idet == static_cast<int>(HcalEndcap)) {
 	  flagrz = false;
-	  rz     = 0.5*(zHE[laymax-1]+zHE[laymin-1]);
-	  drz    = 0.5*(zHE[laymax-1]-zHE[laymin-1]);
+	  if (depth == 1 || laymin <= 1) d1 = zHE[laymin-1] - dzHE[laymin-1];
+	  else                           d1 = zHE[laymin-2] + dzHE[laymin-2];
+	  d2     = zHE[laymax-1] + dzHE[laymax-1];
 	} else {
-	  rz     = 0.5*(rHB[laymax-1]+rHB[laymin-1]);
-	  drz    = 0.5*(rHB[laymax-1]-rHB[laymin-1]);
+	  if (idet == static_cast<int>(HcalOuter) ||
+	      depth == 1 || laymin <=1) d1 = rHB[laymin-1] - drHB[laymin-1];
+	  else                          d1 = rHB[laymin-2] + drHB[laymin-1];
+	  d2     = rHB[laymax-1] + drHB[laymax-1];
 	}
+	rz     = 0.5*(d2+d1);
+	drz    = 0.5*(d2-d1);
       } else {
 	ok = false;
 #ifdef DebugLog
@@ -544,8 +550,8 @@ void HcalNumberingFromDDD::initialize(std::string & name,
     throw DDException("HcalNumberingFromDDD: cannot match "+attribute+" to "+name);
   }
 
-  std::vector<HcalCellType::HcalCellType> cellTypes = HcalCellTypes();
 #ifdef DebugLog
+  std::vector<HcalCellType::HcalCellType> cellTypes = HcalCellTypes();
   LogDebug ("HCalGeom") << "HcalNumberingFromDDD: " << cellTypes.size()
 			<< " cells of type HCal (All)";
   for (unsigned int i=0; i<cellTypes.size(); i++)
@@ -652,7 +658,7 @@ void HcalNumberingFromDDD::loadSpecPars(DDFilteredView fv) {
   int ngpar = 7;
   std::vector<double> gpar = getDDDArray("gparHF",sv,ngpar);
   dlShort = gpar[0];
-  zVcal   = gpar[6];
+  zVcal   = gpar[4];
 #ifdef DebugLog
   LogDebug("HCalGeom") << "HcalNumberingFromDDD: dlShort " << dlShort
 		       << " zVcal " << zVcal;
@@ -728,7 +734,7 @@ void HcalNumberingFromDDD::loadSpecPars(DDFilteredView fv) {
 void HcalNumberingFromDDD::loadGeometry(DDFilteredView fv) {
 
   bool dodet=true, hf=false;
-  std::vector<double> rb(20,0.0), ze(20,0.0);
+  std::vector<double> rb(20,0.0), ze(20,0.0), thkb(20,-1.0), thke(20,-1.0);
   std::vector<int>    ib(20,0),   ie(20,0);
   std::vector<int>    izb, phib, ize, phie, izf, phif;
   double zf = 0;
@@ -742,6 +748,23 @@ void HcalNumberingFromDDD::loadGeometry(DDFilteredView fv) {
     int nsiz = (int)(copy.size());
     if (nsiz>0) lay  = copy[nsiz-1]/10;
     if (nsiz>1) idet = copy[nsiz-2]/1000;
+    double dx=0, dy=0, dz=0;
+    if (sol.shape() == 1) {
+      const DDBox & box = static_cast<DDBox>(fv.logicalPart().solid());
+      dx = box.halfX();
+      dy = box.halfY();
+      dz = box.halfZ();
+    } else if (sol.shape() == 3) {
+      const DDTrap & trp = static_cast<DDTrap>(fv.logicalPart().solid());
+      dx = 0.25*(trp.x1()+trp.x2()+trp.x3()+trp.x4());
+      dy = 0.5*(trp.y1()+trp.y2());
+      dz = trp.halfZ();
+    } else if (sol.shape() == 2) {
+      const DDTubs & tub = static_cast<DDTubs>(fv.logicalPart().solid());
+      dx = tub.rIn();
+      dy = tub.rOut();
+      dz = tub.zhalf();
+    }
     if (idet == 3) {
       // HB
 #ifdef DebugLog
@@ -751,6 +774,10 @@ void HcalNumberingFromDDD::loadGeometry(DDFilteredView fv) {
       if (lay >=0 && lay < 20) {
 	ib[lay]++;
 	rb[lay] += t.Rho();
+	if (thkb[lay] <= 0) {
+	  if (lay < 17) thkb[lay] = dx;
+	  else          thkb[lay] = dy;
+	}
       }
       if (lay == 2) {
 	int iz = copy[nsiz-5];
@@ -769,6 +796,7 @@ void HcalNumberingFromDDD::loadGeometry(DDFilteredView fv) {
       if (lay >=0 && lay < 20) {
 	ie[lay]++;
 	ze[lay] += fabs(t.z());
+	if (thke[lay] <= 0) thke[lay] = dz;
       }
       if (copy[nsiz-1] == 10) {
 	int iz = copy[nsiz-6];
@@ -830,21 +858,25 @@ void HcalNumberingFromDDD::loadGeometry(DDFilteredView fv) {
 #endif
   if (ibmx > 0) {
     rHB.resize(ibmx);
+    drHB.resize(ibmx);
     for (int i=0; i<ibmx; i++) {
-      rHB[i] = rb[i];
+      rHB[i]  = rb[i];
+      drHB[i] = thkb[i];
 #ifdef DebugLog
       LogDebug("HCalGeom") << "HcalNumberingFromDDD: rHB[" << i << "] = "
-			   << rHB[i];
+			   << rHB[i] << " drHB[" << i << "] = " << drHB[i];
 #endif
     }
   }
   if (iemx > 0) {
     zHE.resize(iemx);
+    dzHE.resize(iemx);
     for (int i=0; i<iemx; i++) {
-      zHE[i] = ze[i];
+      zHE[i]  = ze[i];
+      dzHE[i] = thke[i];
 #ifdef DebugLog
       LogDebug("HCalGeom") << "HcalNumberingFromDDD: zHE[" << i << "] = "
-			   << zHE[i];
+			   << zHE[i] << " dzHE[" << i << "] = " << dzHE[i];
 #endif
     }
   }
