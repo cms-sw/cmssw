@@ -1,6 +1,9 @@
-// $Id: HLTScalers.cc,v 1.9 2008/07/04 15:57:18 wittich Exp $
+// $Id: HLTScalers.cc,v 1.10 2008/08/01 14:37:14 bjbloom Exp $
 // 
 // $Log: HLTScalers.cc,v $
+// Revision 1.10  2008/08/01 14:37:14  bjbloom
+// Added ability to specify which paths are cross-correlated
+//
 // Revision 1.9  2008/07/04 15:57:18  wittich
 // - move histograms to HLT directory (was in L1T)
 // - add counter for number of lumi sections
@@ -66,7 +69,7 @@ using namespace edm;
 
 HLTScalers::HLTScalers(const edm::ParameterSet &ps):
   dbe_(0),
-  scalers_(0), scalersException_(0),
+  scalersException_(0),
   hltCorrelations_(0),
   detailedScalers_(0), l1scalers_(0), 
   l1Correlations_(0),
@@ -99,6 +102,13 @@ HLTScalers::HLTScalers(const edm::ParameterSet &ps):
   if (dbe_ ) {
     dbe_->setCurrentFolder("HLT/HLTScalers");
   }
+  
+  //initialize path hit info
+  for(int i=0; i<200;i++){
+    nHitsPresentLumiBlock_[i] = 0;
+    nHitsPreviousLumiBlock_[i] = 0;
+  }
+  lumiBlock_ = 93.0;  
 
 }
 
@@ -170,8 +180,24 @@ void HLTScalers::analyze(const edm::Event &e, const edm::EventSetup &c)
     detailedScalers_ = dbe_->book2D("detailedHltScalers", "HLT Scalers", 
 				    npaths, -0.5, npaths-0.5,
 				    maxModules, 0, maxModules-1);
-    scalers_ = dbe_->book1D("hltScalers", "HLT scalers",
-			    npaths, -0.5, npaths-0.5);
+
+
+    char hname[40];//histo name
+    char mename[40];//ME name
+  
+    int npath_low = 0;
+    int npath_high =0;
+
+    //split hlt scalers up into groups of 20, assuming total of 200 paths
+    for(int k=0; k<10; k++){
+      npath_low = 20*k;
+      npath_high = 20*(k+1)-1;
+      sprintf(hname,"hltScalers_%d",k);
+      sprintf(mename,"HLT scalers - Paths %d to %d",npath_low, npath_high);
+      scalers_[k]= dbe_->book1D(mename, hname,20, -0.5 + npath_low, npath_high+0.5);
+  
+    }
+
     scalersException_ = dbe_->book1D("hltExceptions", "HLT Exception scalers",
 			    npaths, -0.5, npaths-0.5);
 
@@ -192,30 +218,33 @@ void HLTScalers::analyze(const edm::Event &e, const edm::EventSetup &c)
     for ( TriggerNames::Strings::const_iterator 
 	    j = names.triggerNames().begin();
 	  j !=names.triggerNames().end(); ++j ) {
+      
       if ( verbose_ )
 	std::cout << q << ": " << *j << std::endl;
       char pname[256];
       snprintf(pname, 256, "path%02d", q);
       // setting these here is a nice idea but it's totally illegible
-      //scalers_->setBinLabel(q+1, *j); 
+      //scalers_[q/20]->setBinLabel(q+1, *j); 
+
       ++q;
       MonitorElement *e = dbe_->bookString(pname, *j);
       hltPathNames_.push_back(e);  // I don't ever use these....
     }
   } // end resetme_ - pseudo-end-run record
-   
-   unsigned int n;
-   if(specifyPaths_)
-   {
-	n = pathNames_.size();
-   	for (unsigned int i=0; i!=n; i++) {
+  
+  unsigned int n=0;
+  if(specifyPaths_)
+    {
+      n = pathNames_.size();
+      for (unsigned int i=0; i!=n; i++) {
      	pathNamesIndex_.push_back(names.triggerIndex(pathNames_[i]));
-   	}
-   }
-  std::cout << "A_1" << std::endl;
-  unsigned int npathTest = hltResults->size();
-  for ( unsigned int i = 0; i < npathTest; ++i ) {
-    std::cout << "A" << std::endl;
+      }
+    }
+
+  //std::cout << "A_1" << std::endl;
+  int npathTest = hltResults->size();
+  for ( int i = 0; i < npathTest; ++i ) {
+    //std::cout << "A" << std::endl;
     if ( verbose_ ) {
       // state returns 0 on ready, 1 on accept, 2 on fail, 3 on exception.
       // these are defined in HLTEnums.h
@@ -226,7 +255,14 @@ void HLTScalers::analyze(const edm::Event &e, const edm::EventSetup &c)
       detailedScalers_->Fill(i,j);
     }
     if ( hltResults->state(i) == hlt::Pass) {
-      scalers_->Fill(i);
+  
+      //scalers_[i/20]->Fill(i);
+      //calculate Trigger Rates
+      nHitsPresentLumiBlock_[i]++;
+      if(lumiBlock_)
+	rate_[i] = (nHitsPresentLumiBlock_[i] - nHitsPreviousLumiBlock_[i])/lumiBlock_;      
+      scalers_[i/20]->setBinContent(i%20+1,rate_[i]);
+
       // correlations
       if(!specifyPaths_)
       {
@@ -296,6 +332,14 @@ void HLTScalers::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
   // put this in as a first-pass for figuring out the rate
   // each lumi block is 93 seconds in length
   nLumiBlocks_->Fill(++nLumi_);
+ 
+  for(int i=0; i<200;i++){
+    nHitsPreviousLumiBlock_[i] = nHitsPresentLumiBlock_[i];
+  }
+  if ( verbose_){
+    std::cout << "End of luminosity block." << std::endl;
+  }
+
 }
 
 

@@ -1,12 +1,15 @@
 // -*-c++-*-
 // 
 //
-// $Id: HLTScalers.h,v 1.6 2008/07/04 15:57:18 wittich Exp $
+// $Id: HLTScalers.h,v 1.7 2008/08/01 14:37:33 bjbloom Exp $
 // Class to collect HLT scaler information 
 // for Trigger Cross Section Monitor
 // [wittich 11/07] 
 
 // $Log: HLTScalers.h,v $
+// Revision 1.7  2008/08/01 14:37:33  bjbloom
+// Added ability to specify which paths are cross-correlated
+//
 // Revision 1.6  2008/07/04 15:57:18  wittich
 // - move histograms to HLT directory (was in L1T)
 // - add counter for number of lumi sections
@@ -81,7 +84,7 @@ public:
 
 private:
   DQMStore * dbe_;
-  MonitorElement *scalers_;
+  MonitorElement *scalers_[10];
   MonitorElement *scalersException_;
   MonitorElement *hltCorrelations_;
   MonitorElement *detailedScalers_;
@@ -98,6 +101,11 @@ private:
   int nev_; // Number of events processed
   int nLumi_; // number of lumi blocks
   int currentRun_;
+  double lumiBlock_;
+  unsigned int nHitsPresentLumiBlock_[200];
+  unsigned int nHitsPreviousLumiBlock_[200];
+  double rate_[200];
+
 };
 
 #endif // HLTSCALERS_H
