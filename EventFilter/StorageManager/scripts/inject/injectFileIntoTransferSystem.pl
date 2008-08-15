@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: injectFileIntoTransferSystem.pl,v 1.27 2008/08/14 15:24:03 loizides Exp $
+# $Id: injectFileIntoTransferSystem.pl,v 1.28 2008/08/15 14:16:51 loizides Exp $
 
 use strict;
 use DBI;
@@ -171,7 +171,7 @@ $checksum    = '';
 $setuplabel  = 'default';
 $destination = 'default';
 $index       = '';
-$indexsize   = 0;
+$indexsize   = -1;
 $comment     = '';
 
 GetOptions(
