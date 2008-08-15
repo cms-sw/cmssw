@@ -11,13 +11,16 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 import FWCore.Framework.test.cmsExceptionsFatalOption_cff
 process.options = cms.untracked.PSet(
-  Rethrow = FWCore.Framework.test.cmsExceptionsFatalOption_cff.Rethrow
-)
+    Rethrow = FWCore.Framework.test.cmsExceptionsFatalOption_cff.Rethrow
+    )
 
 process.source = cms.Source("PoolSource",
-  fileNames = cms.untracked.vstring('file:testSeriesOfProcessesTEST.root'),
-)
+                            fileNames = cms.untracked.vstring('file:testSeriesOfProcessesTEST.root'),
+                            )
 
-process.hk = cms.EDAnalyzer("TestHistoryKeeping")
+process.hk = cms.EDAnalyzer("TestHistoryKeeping",
+                            expected_processes = cms.vstring('HLT','PROD','TEST'),
+                            number_of_expected_HLT_processes_for_each_run = cms.int32(1)
+                            )
 
 process.hist = cms.Path(process.hk)

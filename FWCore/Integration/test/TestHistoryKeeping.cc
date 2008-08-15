@@ -27,30 +27,39 @@ namespace edmtest
     virtual void endRun(edm::Run const& r, edm::EventSetup const&);
 
   private:
+    std::vector<std::string> expectedProcesses_;
+    int   numberOfExpectedHLTProcessesInEachRun_;
   }; // class TestHistoryKeeping
+
+
 
   //--------------------------------------------------------------------
   //
   // Implementation details
+  //--------------------------------------------------------------------
 
-  TestHistoryKeeping::TestHistoryKeeping(edm::ParameterSet const& pset)
+  TestHistoryKeeping::TestHistoryKeeping(edm::ParameterSet const& pset) :
+    expectedProcesses_(pset.getParameter<std::vector<std::string> >("expected_processes")),
+    numberOfExpectedHLTProcessesInEachRun_(pset.getParameter<int>("number_of_expected_HLT_processes_for_each_run"))
   {
+    // Nothing to do.
   }
 
   TestHistoryKeeping::~TestHistoryKeeping() {}
 
   void
+  TestHistoryKeeping::beginRun(edm::Run const&, edm::EventSetup const&)
+  {
+    // At begin run, we're looking at, make sure we can get at the
+    // parameter sets for any HLT processing.
+  }
+
+  void
   TestHistoryKeeping::analyze(edm::Event const& ev, edm::EventSetup const&)
   {
-    // Make sure the configuration for each process can be found.
-    std::vector<std::string> expected_processes;
-    expected_processes.push_back("HLT");
-    expected_processes.push_back("PROD");
-    expected_processes.push_back("TEST");
-    
     for (std::vector<std::string>::const_iterator
-	   i = expected_processes.begin(),
-	   e = expected_processes.end();
+	   i = expectedProcesses_.begin(),
+	   e = expectedProcesses_.end();
 	 i != e;
 	 ++i)
       {
@@ -59,11 +68,6 @@ namespace edmtest
 	assert(!ps.empty());
 	assert(ps.getParameter<std::string>("@process_name") == *i);
       }
-  }
-
-  void
-  TestHistoryKeeping::beginRun(edm::Run const&, edm::EventSetup const&)
-  {
   }
 
   void
