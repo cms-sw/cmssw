@@ -46,6 +46,19 @@ namespace Fed9U {
     // DAQ register (0-1)
     u32 getDAQ(unsigned int DaqRegisterNumber);
     
+    bool getQDRFull() const;
+    bool getQDRPartialFull() const;
+    bool getQDREmpty() const;
+    bool getL1AFull() const;
+    bool getL1APartialFull() const;
+    bool getL1AEmpty() const;
+    bool getSLinkFull() const;
+    
+    //return true if buffer fails check event
+    //            of if it is ZS and one or more packet codes are not found where they are expected to be
+    //return false otherwise
+    bool getBufferCorrupt() const;
+    
     bool getAPV1Error(unsigned int fpga,unsigned int fiber);
     bool getAPV1WrongHeader(unsigned int fpga,unsigned int fiber);
     bool getAPV2Error(unsigned int fpga,unsigned int fiber);

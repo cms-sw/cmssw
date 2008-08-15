@@ -154,13 +154,21 @@ void CnBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       total_enabled_channels += thisFedEventErrs.totalChannels;
       total_faulty_channels  += thisFedEventErrs.problemsSeen;
 
+      if (thisFedEventErrs.internalFreeze) fedFreeze_->Fill(*ifed);
+      if (thisFedEventErrs.bxError) fedBx_->Fill(*ifed);
+      if (thisFedEventErrs.qdrFull) fedQDRFull_->Fill(*ifed);
+      if (thisFedEventErrs.qdrPartialFull) fedQDRPartialFull_->Fill(*ifed);
+      if (thisFedEventErrs.qdrEmpty) fedQDREmpty_->Fill(*ifed);
+      if (thisFedEventErrs.l1aFull) fedL1AFull_->Fill(*ifed);
+      if (thisFedEventErrs.l1aPartialFull) fedL1APartialFull_->Fill(*ifed);
+      if (thisFedEventErrs.l1aEmpty) fedL1AEmpty_->Fill(*ifed);
+      if (thisFedEventErrs.slinkFull) fedSLinkFull_->Fill(*ifed);
+      if (thisFedEventErrs.corruptBuffer) fedCorruptBuffers_->Fill(*ifed);
       if (thisFedEventErrs.problemsSeen) {
 	createDetailedFedHistograms((*ifed));
 	
 	// Update counters for FEDs
 	fedGenericErrors_->Fill(*ifed, thisFedEventErrs.problemsSeen);
-	if (thisFedEventErrs.internalFreeze) fedFreeze_->Fill(*ifed);
-	if (thisFedEventErrs.bxError) fedBx_->Fill(*ifed);
 	
 #ifdef CNBANALYZER_DEBUG
 	LogInfo("FEDBuffer") << "FED number" << (*ifed) << std::endl
@@ -294,7 +302,89 @@ void CnBAnalyzer::createRootFedHistograms() {
     binNameS.str(""); if (i%10==0) binNameS << i; fedBx_->setBinLabel(i-fedIdBoundaries_.first+1, binNameS.str(), 1);
   }
 
-  // TODO: corrupt buffer ?
+  //corrupt buffers
+  fedCorruptBuffers_ = dqm()->book1D( "FedCorruptBuffer","Corrupt buffers vs. FED #",
+                                      totalNumberOfFeds_,
+                                      fedIdBoundaries_.first,
+                                      fedIdBoundaries_.second + 1 );
+  fedCorruptBuffers_->setAxisTitle("Number of errors", 2);
+  fedCorruptBuffers_->setAxisTitle("Front-End Driver", 1);
+  for (int i=fedIdBoundaries_.first; i<=fedIdBoundaries_.second; i++) {
+    binNameS.str(""); if (i%10==0) binNameS << i; fedCorruptBuffers_->setBinLabel(i-fedIdBoundaries_.first+1, binNameS.str(), 1);
+  }
+  
+  //BE Buffer status
+  //QDR Full
+  fedQDRFull_ = dqm()->book1D( "FedQDRFull","Full QDR buffer events vs. FED #",
+                                      totalNumberOfFeds_,
+                                      fedIdBoundaries_.first,
+                                      fedIdBoundaries_.second + 1 );
+  fedQDRFull_->setAxisTitle("Number of events with full QDR buffer", 2);
+  fedQDRFull_->setAxisTitle("Front-End Driver", 1);
+  for (int i=fedIdBoundaries_.first; i<=fedIdBoundaries_.second; i++) {
+    binNameS.str(""); if (i%10==0) binNameS << i; fedQDRFull_->setBinLabel(i-fedIdBoundaries_.first+1, binNameS.str(), 1);
+  }
+  //QDR Partial full
+  fedQDRPartialFull_ = dqm()->book1D( "FedQDRPartialFull","Partialy full QDR buffer events vs. FED #",
+                                      totalNumberOfFeds_,
+                                      fedIdBoundaries_.first,
+                                      fedIdBoundaries_.second + 1 );
+  fedQDRPartialFull_->setAxisTitle("Number of events with partial full QDR buffer", 2);
+  fedQDRPartialFull_->setAxisTitle("Front-End Driver", 1);
+  for (int i=fedIdBoundaries_.first; i<=fedIdBoundaries_.second; i++) {
+    binNameS.str(""); if (i%10==0) binNameS << i; fedQDRPartialFull_->setBinLabel(i-fedIdBoundaries_.first+1, binNameS.str(), 1);
+  }
+  //QDR Empty
+  fedQDREmpty_ = dqm()->book1D( "FedQDREmpty","Empty QDR buffer events vs. FED #",
+                                      totalNumberOfFeds_,
+                                      fedIdBoundaries_.first,
+                                      fedIdBoundaries_.second + 1 );
+  fedQDREmpty_->setAxisTitle("Number of events with empty QDR buffer", 2);
+  fedQDREmpty_->setAxisTitle("Front-End Driver", 1);
+  for (int i=fedIdBoundaries_.first; i<=fedIdBoundaries_.second; i++) {
+    binNameS.str(""); if (i%10==0) binNameS << i; fedQDREmpty_->setBinLabel(i-fedIdBoundaries_.first+1, binNameS.str(), 1);
+  }
+  //L1A Full
+  fedL1AFull_ = dqm()->book1D( "FedL1AFull","Full L1A buffer events vs. FED #",
+                                      totalNumberOfFeds_,
+                                      fedIdBoundaries_.first,
+                                      fedIdBoundaries_.second + 1 );
+  fedL1AFull_->setAxisTitle("Number of events with full L1A buffer", 2);
+  fedL1AFull_->setAxisTitle("Front-End Driver", 1);
+  for (int i=fedIdBoundaries_.first; i<=fedIdBoundaries_.second; i++) {
+    binNameS.str(""); if (i%10==0) binNameS << i; fedL1AFull_->setBinLabel(i-fedIdBoundaries_.first+1, binNameS.str(), 1);
+  }
+  //L1A Partial full
+  fedL1APartialFull_ = dqm()->book1D( "FedL1APartialFull","Partialy full L1A buffer events vs. FED #",
+                                      totalNumberOfFeds_,
+                                      fedIdBoundaries_.first,
+                                      fedIdBoundaries_.second + 1 );
+  fedL1APartialFull_->setAxisTitle("Number of events with partial full L1A buffer", 2);
+  fedL1APartialFull_->setAxisTitle("Front-End Driver", 1);
+  for (int i=fedIdBoundaries_.first; i<=fedIdBoundaries_.second; i++) {
+    binNameS.str(""); if (i%10==0) binNameS << i; fedL1APartialFull_->setBinLabel(i-fedIdBoundaries_.first+1, binNameS.str(), 1);
+  }
+  //L1A Empty
+  fedL1AEmpty_ = dqm()->book1D( "FedL1AEmpty","Empty L1A buffer events vs. FED #",
+                                      totalNumberOfFeds_,
+                                      fedIdBoundaries_.first,
+                                      fedIdBoundaries_.second + 1 );
+  fedL1AEmpty_->setAxisTitle("Number of events with empty L1A buffer", 2);
+  fedL1AEmpty_->setAxisTitle("Front-End Driver", 1);
+  for (int i=fedIdBoundaries_.first; i<=fedIdBoundaries_.second; i++) {
+    binNameS.str(""); if (i%10==0) binNameS << i; fedL1AEmpty_->setBinLabel(i-fedIdBoundaries_.first+1, binNameS.str(), 1);
+  }
+  //SLink Full
+  fedSLinkFull_ = dqm()->book1D( "FedSLinkFull","Full SLink buffer events vs. FED #",
+                                      totalNumberOfFeds_,
+                                      fedIdBoundaries_.first,
+                                      fedIdBoundaries_.second + 1 );
+  fedSLinkFull_->setAxisTitle("Number of events with full SLink buffer", 2);
+  fedSLinkFull_->setAxisTitle("Front-End Driver", 1);
+  for (int i=fedIdBoundaries_.first; i<=fedIdBoundaries_.second; i++) {
+    binNameS.str(""); if (i%10==0) binNameS << i; fedSLinkFull_->setBinLabel(i-fedIdBoundaries_.first+1, binNameS.str(), 1);
+  }
+  
   
   // TODO: missing connections ?
 

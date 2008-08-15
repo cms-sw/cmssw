@@ -23,6 +23,18 @@ typedef struct Fed9UErrorCondition{
   // Channel- (and APV-) related
   int apv[96*2];
   int channel[96];
+  
+  //buffer
+  bool qdrFull;
+  bool qdrPartialFull;
+  bool qdrEmpty;
+  bool l1aFull;
+  bool l1aPartialFull;
+  bool l1aEmpty;
+  bool slinkFull;
+  
+  //buffer check
+  bool corruptBuffer;
 
 } Fed9UErrorCondition;
 

@@ -9,7 +9,7 @@
 Fed9UEventAnalyzer::Fed9UEventAnalyzer(std::pair<int,int> newFedBoundaries,
 				       bool doSwap, bool doPreSwap ) {
   // First of all we instantiate the Fed9U object of the event
-  fedEvent_ = new Fed9U::Fed9UDebugEvent(); 
+  fedEvent_ = NULL; 
   fedIdBoundaries_ = newFedBoundaries;
   swapOn_=doSwap;
   preSwapOn_=doPreSwap;
@@ -26,7 +26,7 @@ Fed9UEventAnalyzer::Fed9UEventAnalyzer(Fed9U::u32* data_u32, Fed9U::u32 size_u32
 }
 
 Fed9UEventAnalyzer::~Fed9UEventAnalyzer() {
-  delete fedEvent_;
+  if (fedEvent_) delete fedEvent_;
 }
 
 bool Fed9UEventAnalyzer::Initialize(Fed9U::u32* data_u32, Fed9U::u32 size_u32) {
@@ -42,9 +42,32 @@ bool Fed9UEventAnalyzer::Initialize(Fed9U::u32* data_u32, Fed9U::u32 size_u32) {
     edm::LogInfo("MissingData") << "Fed9U data size is zero";
     return false;
   }
+  
+  //if data is old VME then header needs to be swapped before using FEDHeader
+  bool swapHeader = ( ( (data_u32[0] & 0xF0000000) == 0x50000000 ) &&          //check begining mark in DAQ header
+                      ( (data_u32[size_u32-2] & 0xF0000000) == 0xA0000000 ) && //check end mark in DAQ trailer
+                      ( (data_u32[size_u32-2] & 0x00FFFFFF)*2 == size_u32 )    //check size
+                    );
+  //if data is old SLink then whole buffer needs to be swapped before using Fed9UDebugEvent
+  bool swapBuffer = ( ( (data_u32[1] & 0xF0000000) == 0x50000000 ) &&          //check begining mark in DAQ header
+                      ( (data_u32[size_u32-1] & 0xF0000000) == 0xA0000000 ) && //check end mark in DAQ trailer
+                      ( (data_u32[size_u32-1] & 0x00FFFFFF)*2 == size_u32 )    //check size
+                    );
+  //new format works with both provided new enough Fed9UEvent is used
+  
+  Fed9U::u32 header[2];
+  if (swapHeader) {
+    header[0] = data_u32[1];
+    header[1] = data_u32[0];
+  } else {
+    header[0] = data_u32[0];
+    header[1] = data_u32[1];
+  }
+  // We are now initializing the fedHeader in order to check that
+  // the buffer is SiStripTracker's and it is valid
+  FEDHeader fedHeader( reinterpret_cast<const unsigned char*>(header) );
 
-
-  // Adjusts the buffer pointers for the DAQ header and trailer present when FRLs are running
+  /*// Adjusts the buffer pointers for the DAQ header and trailer present when FRLs are running
   // additonally preforms "flipping" of the bytes in the buffer
   if(preSwapOn_){
     Fed9U::u32 temp1,temp2;
@@ -56,12 +79,12 @@ bool Fed9UEventAnalyzer::Initialize(Fed9U::u32* data_u32, Fed9U::u32 size_u32) {
       *(data_u32+i) = temp2;
       *(data_u32+i+1) = temp1;
     }
-  }
+    }
 
 
   // We are now initializing the fedHeader in order to check that
   // the buffer is SiStripTracker's and it is valid
-  FEDHeader fedHeader( reinterpret_cast<const unsigned char*>(data_u32) );
+  FEDHeader fedHeader( reinterpret_cast<const unsigned char*>(data_u32) );*/
 
   // Fisrt let's check that the header is not malformed
   if ( ! fedHeader.check() ) {
@@ -75,10 +98,17 @@ bool Fed9UEventAnalyzer::Initialize(Fed9U::u32* data_u32, Fed9U::u32 size_u32) {
     edm::LogInfo("SkipData") << "FED with ID" << thisFedId_ << "is not a Tracker FED";
     return false;
   }
+  
+  /*//dump
+  std::cout << "Dumping start of buffer" << std::endl;
+  for (unsigned int i=0; i<size_u32/2; i++) {
+    std::cout << std::dec << "word: " << i << ": " << std::hex << data_u32[2*i+1] << " " << std::hex << data_u32[2*i] << std::endl;
+  }
+  std::cout << std::dec << "End of dump" << std::endl;*/
 
   // Adjusts the buffer pointers for the DAQ header and trailer present when FRLs are running
   // additonally preforms "flipping" of the bytes in the buffer
-  if(swapOn_){
+  if(swapBuffer){
 
     Fed9U::u32 temp1,temp2;
 		
@@ -114,13 +144,15 @@ bool Fed9UEventAnalyzer::Initialize(Fed9U::u32* data_u32, Fed9U::u32 size_u32) {
   // The actual event initialization, catching its possible exceptions
   try{
     // Initialize the fedEvent with offset for slink
-    fedEvent_->Init( data_u32, 0, size_u32 );
+    fedEvent_ = new Fed9U::Fed9UDebugEvent( data_u32, 0, size_u32 );
   } catch ( const ICUtils::ICException& e ) {
+    fedEvent_ = NULL;
     std::stringstream ss;
-    ss << "Caught ICUtils::ICException in fedEvent_->Init with message:"
+    ss << "Caught ICUtils::ICException in Fed9UDebugEvent constructor with message:"
        << std::endl << e.what();
-    edm::LogWarning("FEDEventInitException") << ss.str();
-    return false;
+    ss << std::endl << "Marking event as corrupt.";
+    edm::LogInfo("FEDEventInitException") << ss.str();
+    //return false;
   }
 
   return true;
@@ -139,7 +171,8 @@ Fed9UErrorCondition Fed9UEventAnalyzer::Analyze(bool useConns, const std::vector
   // TODO: tidy up this piece of code
   result.problemsSeen = 0;
   if (!useConns) {
-    result.totalChannels = fedEvent_->totalChannels();
+    if (fedEvent_) result.totalChannels = fedEvent_->totalChannels();
+    else result.totalChannels = 0;
   } else {
     result.totalChannels = 0;
     if (conns) {
@@ -155,6 +188,7 @@ Fed9UErrorCondition Fed9UEventAnalyzer::Analyze(bool useConns, const std::vector
   // Clear the FED errors
   result.internalFreeze       = false;
   result.bxError              = false;
+  result.corruptBuffer        = false;
 
   // Clear the FPGA errors
   for (unsigned int fpga=0; fpga <8; fpga++) {
@@ -170,7 +204,22 @@ Fed9UErrorCondition Fed9UEventAnalyzer::Analyze(bool useConns, const std::vector
     result.apv[channelIndex*2]=0;
     result.apv[channelIndex*2+1]=0;
   }
+  
+  //clear the buffer status
+  result.qdrFull = false;
+  result.qdrPartialFull = false;
+  result.qdrEmpty = false;
+  result.l1aFull = false;
+  result.l1aPartialFull = false;
+  result.l1aEmpty = false;
+  result.slinkFull = false;
 
+  
+  //check that fedEvent was properly constructed. If not then it is corrupt
+  if (!fedEvent_) {
+    result.corruptBuffer = true;
+    return result;
+  }
     
   // **********************************
   // *                                *
@@ -178,6 +227,12 @@ Fed9UErrorCondition Fed9UEventAnalyzer::Analyze(bool useConns, const std::vector
   // *                                *
   // **********************************
 
+  //if buffer is corrupt then can't really rely on anything else
+  if (fedEvent_->getBufferCorrupt()) {
+    result.corruptBuffer = true;
+    return result;
+  }
+  
   // The main error condition is the FED freeze
   if (fedEvent_->getInternalFreeze()) {
     result.internalFreeze = true;
@@ -190,6 +245,22 @@ Fed9UErrorCondition Fed9UEventAnalyzer::Analyze(bool useConns, const std::vector
     result.bxError = true;
     return result;
   }
+  
+  // **********************************
+  // *                                *
+  // * FED buffer checks (BE FPGA)     *
+  // *                                *
+  // **********************************
+  
+  if (fedEvent_->getQDRFull()) result.qdrFull = true;
+  if (fedEvent_->getQDRPartialFull()) result.qdrPartialFull = true;
+  if (fedEvent_->getQDREmpty()) result.qdrEmpty = true;
+  if (fedEvent_->getL1AFull()) result.l1aFull = true;
+  if (fedEvent_->getL1APartialFull()) result.l1aPartialFull = true;
+  if (fedEvent_->getL1AEmpty()) result.l1aEmpty = true;
+  if (fedEvent_->getSLinkFull()) result.slinkFull = true;
+  
+  
 
   result.apveAddress = fedEvent_->getSpecialApvEmulatorAddress();
 

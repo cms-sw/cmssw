@@ -108,6 +108,14 @@ class CnBAnalyzer : public edm::EDAnalyzer {
   MonitorElement* fedGenericErrors_;
   MonitorElement* fedFreeze_;
   MonitorElement* fedBx_;
+  MonitorElement* fedQDRFull_;
+  MonitorElement* fedQDRPartialFull_;
+  MonitorElement* fedQDREmpty_;
+  MonitorElement* fedL1AFull_;
+  MonitorElement* fedL1APartialFull_;
+  MonitorElement* fedL1AEmpty_;
+  MonitorElement* fedSLinkFull_;
+  MonitorElement* fedCorruptBuffers_;
 
   // Trend plots
   MonitorElement* totalChannels_;

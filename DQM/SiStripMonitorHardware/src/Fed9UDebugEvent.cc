@@ -108,3 +108,60 @@ bool Fed9U::Fed9UDebugEvent::getBitFSOP(unsigned int bitNumber, unsigned int fpg
 
   return (result != 0x0);
 }
+
+bool Fed9U::Fed9UDebugEvent::getBufferCorrupt() const {
+  if (getDaqMode() != FED9U_MODE_ZERO_SUPPRESSED ) return false;
+  else {
+    bool ret = false;
+    try {
+      checkEvent();
+    } catch (ICUtils::ICException & e) {
+      ret = true;
+      return ret;
+    }
+    //check buffer for packet codes out of place since this has not made it into the version of checkEvent being used yet
+    for (int u=0; u<feUnits(); u++) {
+      //check that FEUnit contains data (ie is not disabled)
+      if (!feUnit(u).dataLength()) continue;
+      //now check that it has all channels and that all packet codes are correct
+      for (int c=0; c<CHANNELS_PER_FEUNIT; c++) {
+        if (feUnit(u).channel(c).getIterator().getu8(2) != 0xEA) {
+          ret = true;
+          //stop checking on first error
+          break;
+        }
+      }
+      //stop checking on first error
+      if (ret) break;
+    }
+    return ret;
+  }
+}
+
+bool Fed9U::Fed9UDebugEvent::getQDRFull() const {
+  return (getSpecialFedStatusRegister() & (0x1 << 2));
+}
+
+bool Fed9U::Fed9UDebugEvent::getQDRPartialFull() const {
+  return (getSpecialFedStatusRegister() & (0x1 << 3));
+}
+
+bool Fed9U::Fed9UDebugEvent::getQDREmpty() const {
+  return (getSpecialFedStatusRegister() & (0x1 << 4));
+}
+
+bool Fed9U::Fed9UDebugEvent::getL1AFull() const {
+  return (getSpecialFedStatusRegister() & (0x1 << 5));
+}
+
+bool Fed9U::Fed9UDebugEvent::getL1APartialFull() const {
+  return (getSpecialFedStatusRegister() & (0x1 << 6));
+}
+
+bool Fed9U::Fed9UDebugEvent::getL1AEmpty() const {
+  return (getSpecialFedStatusRegister() & (0x1 << 7));
+}
+
+bool Fed9U::Fed9UDebugEvent::getSLinkFull() const {
+  return (getSpecialFedStatusRegister() & 0x1);
+}
