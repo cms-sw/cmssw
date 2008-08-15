@@ -48,7 +48,7 @@ import FWCore.ParameterSet.Config as cms
 #    include reconstruction, simulation and analysis
 #  FEVTSIMDIGIHLTDEBUG FEVTSIMHLTDEBUG
 #
-#  $Id: EventContentCosmics_cff.py,v 1.3 2008/07/18 13:24:52 jbrooke Exp $
+#  $Id: EventContentCosmics_cff.py,v 1.4 2008/07/18 13:58:27 jbrooke Exp $
 #
 #
 #
@@ -76,6 +76,7 @@ from SimCalorimetry.Configuration.SimCalorimetry_EventContent_cff import *
 from SimGeneral.Configuration.SimGeneral_EventContent_cff import *
 from IOMC.RandomEngine.IOMC_EventContent_cff import *
 from EventFilter.Configuration.DigiToRaw_EventContent_cff import *
+from RecoEgamma.Configuration.RecoEgamma_EventContent_cff import *
 #not in GR
 #include "TrackingTools/Configuration/data/TrackingTools_EventContent.cff"
 #include "RecoBTau/Configuration/data/RecoBTau_EventContent.cff"
@@ -143,6 +144,7 @@ FEVTEventContent.outputCommands.extend(RecoLocalTrackerFEVT.outputCommands)
 FEVTEventContent.outputCommands.extend(RecoLocalMuonFEVT.outputCommands)
 FEVTEventContent.outputCommands.extend(RecoLocalCaloFEVT.outputCommands)
 FEVTEventContent.outputCommands.extend(RecoEcalFEVT.outputCommands)
+FEVTEventContent.outputCommands.extend(RecoEgammaFEVT.outputCommands)
 FEVTEventContent.outputCommands.extend(RecoTrackerFEVT.outputCommands)
 FEVTEventContent.outputCommands.extend(RecoJetsFEVT.outputCommands)
 FEVTEventContent.outputCommands.extend(RecoMETFEVT.outputCommands)
@@ -153,6 +155,7 @@ RECOEventContent.outputCommands.extend(RecoLocalTrackerRECO.outputCommands)
 RECOEventContent.outputCommands.extend(RecoLocalMuonRECO.outputCommands)
 RECOEventContent.outputCommands.extend(RecoLocalCaloRECO.outputCommands)
 RECOEventContent.outputCommands.extend(RecoEcalRECO.outputCommands)
+RECOEventContent.outputCommands.extend(RecoEgammaRECO.outputCommands)
 RECOEventContent.outputCommands.extend(RecoTrackerRECO.outputCommands)
 RECOEventContent.outputCommands.extend(RecoJetsRECO.outputCommands)
 RECOEventContent.outputCommands.extend(RecoMETRECO.outputCommands)
@@ -165,6 +168,7 @@ AODEventContent.outputCommands.extend(RecoLocalTrackerAOD.outputCommands)
 AODEventContent.outputCommands.extend(RecoLocalMuonAOD.outputCommands)
 AODEventContent.outputCommands.extend(RecoLocalCaloAOD.outputCommands)
 AODEventContent.outputCommands.extend(RecoEcalAOD.outputCommands)
+AODEventContent.outputCommands.extend(RecoEgammaAOD.outputCommands)
 AODEventContent.outputCommands.extend(RecoTrackerAOD.outputCommands)
 AODEventContent.outputCommands.extend(RecoJetsAOD.outputCommands)
 AODEventContent.outputCommands.extend(RecoMETAOD.outputCommands)
@@ -205,4 +209,5 @@ AODSIMEventContent.outputCommands.extend(RecoGenJetsAOD.outputCommands)
 AODSIMEventContent.outputCommands.extend(RecoGenMETAOD.outputCommands)
 AODSIMEventContent.outputCommands.extend(SimGeneralAOD.outputCommands)
 AODSIMEventContent.outputCommands.extend(MEtoEDMConverterAOD.outputCommands)
+
 
