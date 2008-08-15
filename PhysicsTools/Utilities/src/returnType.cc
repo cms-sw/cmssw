@@ -1,5 +1,4 @@
 #include "PhysicsTools/Utilities/src/returnType.h"
-#include "FWCore/Utilities/interface/EDMException.h"
 #include <map>
 #include <string>
 using namespace ROOT::Reflex;
@@ -9,11 +8,9 @@ using namespace reco::method;
 namespace reco {
   Type returnType(const Member & mem) {
     Type t = mem.TypeOf().ReturnType();
-    if(!t)
-      throw edm::Exception(edm::errors::Configuration)
-	<< "member " << mem.Name() << " return type is ivalid: \"" 
-	<<  mem.TypeOf().Name() << "\"\n";
-    while(t.IsTypedef()) t = t.ToType();
+    if(t) {
+       while(t.IsTypedef()) t = t.ToType();
+    }
     return t;
   }
 
