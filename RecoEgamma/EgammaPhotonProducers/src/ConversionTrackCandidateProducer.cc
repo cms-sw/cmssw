@@ -170,60 +170,60 @@ void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::
   std::auto_ptr<reco::TrackCandidateCaloClusterPtrAssociation> inOutAssoc_p(new reco::TrackCandidateCaloClusterPtrAssociation);
     
   // Get the basic cluster collection in the Barrel 
-  validBarrelBCHandle_=true;
+  bool validBarrelBCHandle=true;
   edm::Handle<edm::View<reco::CaloCluster> > bcBarrelHandle;
   theEvent.getByLabel(bcBarrelCollection_, bcBarrelHandle);
   if (!bcBarrelHandle.isValid()) {
     edm::LogError("ConversionTrackCandidateProducer") << "Error! Can't get the product "<<bcBarrelCollection_.label();
-    validBarrelBCHandle_=false;
+    validBarrelBCHandle=false;
   }
   
   
   // Get the basic cluster collection in the Endcap 
-  validEndcapBCHandle_=true;
+  bool validEndcapBCHandle=true;
   edm::Handle<edm::View<reco::CaloCluster> > bcEndcapHandle;
   theEvent.getByLabel(bcEndcapCollection_, bcEndcapHandle);
   if (!bcEndcapHandle.isValid()) {
     edm::LogError("CoonversionTrackCandidateProducer") << "Error! Can't get the product "<<bcEndcapCollection_.label();
-    validEndcapBCHandle_=false; 
+    validEndcapBCHandle=false; 
   }
   
   
 
   // Get the Super Cluster collection in the Barrel
-  validBarrelSCHandle_=true;
+  bool validBarrelSCHandle=true;
   edm::Handle<edm::View<reco::CaloCluster> > scBarrelHandle;
   theEvent.getByLabel(scHybridBarrelProducer_,scBarrelHandle);
   if (!scBarrelHandle.isValid()) {
     edm::LogError("CoonversionTrackCandidateProducer") << "Error! Can't get the product "<<scHybridBarrelProducer_.label();
-    validBarrelSCHandle_=false;
+    validBarrelSCHandle=false;
   }
 
 
   // Get the Super Cluster collection in the Endcap
-  validEndcapSCHandle_=true;
+  bool validEndcapSCHandle=true;
   edm::Handle<edm::View<reco::CaloCluster> > scEndcapHandle;
   theEvent.getByLabel(scIslandEndcapProducer_,scEndcapHandle);
   if (!scEndcapHandle.isValid()) {
     edm::LogError("CoonversionTrackCandidateProducer") << "Error! Can't get the product "<<scIslandEndcapProducer_.label();
-    validEndcapSCHandle_=false;
+    validEndcapSCHandle=false;
   }
 
 
   // get the geometry from the event setup:
   theEventSetup.get<CaloGeometryRecord>().get(theCaloGeom_);
   // Get HoverE
-  validHcalRecHitHandle_=true;
+  bool validHcalRecHitHandle=true;
   Handle<HBHERecHitCollection> hbhe;
   std::auto_ptr<HBHERecHitMetaCollection> mhbhe;
   theEvent.getByLabel(hbheLabel_,hbheInstanceName_,hbhe);  
   if (!hbhe.isValid()) {
     edm::LogError("PhotonProducer") << "Error! Can't get the product "<<hbheInstanceName_.c_str();
-    validHcalRecHitHandle_=false;
+    validHcalRecHitHandle=false;
   }
 
   
-  if (validHcalRecHitHandle_ && hOverEConeSize_ > 0.) {
+  if (validHcalRecHitHandle && hOverEConeSize_ > 0.) {
     mhbhe=  std::auto_ptr<HBHERecHitMetaCollection>(new HBHERecHitMetaCollection(*hbhe));
   }
   theHoverEcalc_=HoECalculator(theCaloGeom_);
@@ -232,9 +232,9 @@ void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::
   caloPtrVecOutIn_.clear();
   caloPtrVecInOut_.clear();
 
-  if ( validBarrelBCHandle_ && validBarrelSCHandle_ ) 
+  if ( validBarrelBCHandle && validBarrelSCHandle ) 
     buildCollections(scBarrelHandle, bcBarrelHandle,  mhbhe.get(), *outInTrackCandidate_p,*inOutTrackCandidate_p,caloPtrVecOutIn_,caloPtrVecInOut_ );
-  if ( validEndcapBCHandle_ && validEndcapSCHandle_ ) 
+  if ( validEndcapBCHandle && validEndcapSCHandle ) 
     buildCollections(scEndcapHandle, bcEndcapHandle,  mhbhe.get(), *outInTrackCandidate_p,*inOutTrackCandidate_p,caloPtrVecOutIn_,caloPtrVecInOut_ );
 
 

@@ -144,33 +144,32 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
 
   
   // Get the Super Cluster collection in the Barrel
-  validBarrelSCHandle_=true;
+  bool validBarrelSCHandle=true;
   edm::Handle<edm::View<reco::CaloCluster> > scBarrelHandle;
   theEvent.getByLabel(scHybridBarrelProducer_,scBarrelHandle);
   if (!scBarrelHandle.isValid()) {
     edm::LogError("ConvertedPhotonProducer") << "Error! Can't get the product "<<scHybridBarrelProducer_.label();
-    validBarrelSCHandle_=false;
+    validBarrelSCHandle=false;
   }
    
   // Get the Super Cluster collection in the Endcap
-  validEndcapSCHandle_=true;
+  bool validEndcapSCHandle=true;
   edm::Handle<edm::View<reco::CaloCluster> > scEndcapHandle;
   theEvent.getByLabel(scIslandEndcapProducer_,scEndcapHandle);
   if (!scEndcapHandle.isValid()) {
     edm::LogError("ConvertedPhotonProducer") << "Error! Can't get the product "<<scIslandEndcapProducer_.label();
-    validEndcapSCHandle_=false;
+    validEndcapSCHandle=false;
   }
   
     
   //// Get the Out In CKF tracks from conversions 
-  validTrackInputs_=true;
-
+  bool validTrackInputs=true;
   Handle<reco::TrackCollection> outInTrkHandle;
   theEvent.getByLabel(conversionOITrackProducer_,  outInTrkHandle);
   if (!outInTrkHandle.isValid()) {
     std::cout << "Error! Can't get the conversionOITrack " << "\n";
     edm::LogError("ConvertedPhotonProducer") << "Error! Can't get the conversionOITrack " << "\n";
-    validTrackInputs_=false;
+    validTrackInputs=false;
   }
   LogDebug("ConvertedPhotonProducer")<< "ConvertedPhotonProducer  outInTrack collection size " << (*outInTrkHandle).size() << "\n";
   
@@ -181,7 +180,7 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
   if (!outInTrkSCAssocHandle.isValid()) {
     std::cout << "Error! Can't get the product " <<  outInTrackSCAssociationCollection_.c_str() <<"\n";
     edm::LogError("ConvertedPhotonProducer") << "Error! Can't get the product " <<  outInTrackSCAssociationCollection_.c_str() <<"\n";
-    validTrackInputs_=false;
+    validTrackInputs=false;
   }
 
   //// Get the In Out  CKF tracks from conversions 
@@ -190,7 +189,7 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
   if (!inOutTrkHandle.isValid()) {
     std::cout << "Error! Can't get the conversionIOTrack " << "\n";
     edm::LogError("ConvertedPhotonProducer") << "Error! Can't get the conversionIOTrack " << "\n";
-    validTrackInputs_=false;
+    validTrackInputs=false;
   }
   LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer inOutTrack collection size " << (*inOutTrkHandle).size() << "\n";
 
@@ -201,27 +200,27 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
   if (!inOutTrkSCAssocHandle.isValid()) {
     std::cout << "Error! Can't get the product " <<  inOutTrackSCAssociationCollection_.c_str() <<"\n";
     edm::LogError("ConvertedPhotonProducer") << "Error! Can't get the product " <<  inOutTrackSCAssociationCollection_.c_str() <<"\n";
-    validTrackInputs_=false;
+    validTrackInputs=false;
   }
   
 
   // Get the basic cluster collection in the Barrel 
-  validBarrelBCHandle_=true;
+  bool validBarrelBCHandle=true;
   edm::Handle<edm::View<reco::CaloCluster> > bcBarrelHandle;
   theEvent.getByLabel( bcBarrelCollection_, bcBarrelHandle);
   if (!bcBarrelHandle.isValid()) {
     edm::LogError("ConvertedPhotonProducer") << "Error! Can't get the product "<<bcBarrelCollection_.label();
-    validBarrelBCHandle_=false;
+     validBarrelBCHandle=false;
   }
 
     
   // Get the basic cluster collection in the Endcap 
-  validEndcapBCHandle_=true;
+  bool validEndcapBCHandle=true;
   edm::Handle<edm::View<reco::CaloCluster> > bcEndcapHandle;
   theEvent.getByLabel( bcEndcapCollection_, bcEndcapHandle);
   if (!bcEndcapHandle.isValid()) {
     edm::LogError("ConvertedPhotonProducer") << "Error! Can't get the product "<<bcEndcapCollection_.label();
-    validEndcapBCHandle_=true;
+    validEndcapBCHandle=true;
   }
  
   
@@ -230,7 +229,7 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
   theEventSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theTransientTrackBuilder);
 
 
-  if (  validTrackInputs_ ) {
+  if (  validTrackInputs ) {
     //do the conversion:
     std::vector<reco::TransientTrack> t_outInTrk = ( *theTransientTrackBuilder ).build(outInTrkHandle );
     std::vector<reco::TransientTrack> t_inOutTrk = ( *theTransientTrackBuilder ).build(inOutTrkHandle );

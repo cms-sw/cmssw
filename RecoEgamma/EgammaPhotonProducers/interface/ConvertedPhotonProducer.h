@@ -3,9 +3,9 @@
 /** \class ConvertedPhotonProducer
  **  
  **
- **  $Id: ConvertedPhotonProducer.h,v 1.18 2008/05/29 14:59:06 arizzi Exp $ 
- **  $Date: 2008/05/29 14:59:06 $ 
- **  $Revision: 1.18 $
+ **  $Id: ConvertedPhotonProducer.h,v 1.19 2008/08/13 13:22:55 nancy Exp $ 
+ **  $Date: 2008/08/13 13:22:55 $ 
+ **  $Revision: 1.19 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -76,14 +76,6 @@ class ConvertedPhotonProducer : public edm::EDProducer {
   ConversionTrackEcalImpactPoint* theEcalImpactPositionFinder_;
 
   int nEvt_;
-  bool validTrackInputs_;
-
-  bool validBarrelBCHandle_;
-  bool validBarrelSCHandle_;
-  bool validEndcapBCHandle_;
-  bool validEndcapSCHandle_;
-
-
 
 
 };

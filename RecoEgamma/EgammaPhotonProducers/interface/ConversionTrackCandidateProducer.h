@@ -3,9 +3,9 @@
 /** \class ConversionTrackCandidateProducer
  **  
  **
- **  $Id: ConversionTrackCandidateProducer.h,v 1.9 2008/05/29 14:59:06 arizzi Exp $ 
- **  $Date: 2008/05/29 14:59:06 $ 
- **  $Revision: 1.9 $
+ **  $Id: ConversionTrackCandidateProducer.h,v 1.10 2008/08/13 13:22:47 nancy Exp $ 
+ **  $Date: 2008/08/13 13:22:47 $ 
+ **  $Revision: 1.10 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -70,14 +70,7 @@ class ConversionTrackCandidateProducer : public edm::EDProducer {
   std::string hbheLabel_;
   std::string hbheInstanceName_;
 
-  bool validBarrelBCHandle_;
-  bool validBarrelSCHandle_;
-  bool validEndcapBCHandle_;
-  bool validEndcapSCHandle_;
-
-  bool validHcalRecHitHandle_;
-
-
+ 
   double hOverEConeSize_;
   double maxHOverE_;
   double minSCEt_;
