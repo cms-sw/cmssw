@@ -124,9 +124,15 @@ HcalPedestalsAnalysis::~HcalPedestalsAnalysis()
       }
       else if(bunch_it->genid.isHcalZDCDetId())
       {
-         for(int i = 0; i != 3; i++){
-            ZDCMeans->Fill(bunch_it->cap[i]);
-            ZDCWidths->Fill(bunch_it->sig[i][i]);
+         for(int i = 0; i != 4; i++){
+//            ZDCMeans->Fill(bunch_it->cap[i]);
+//            ZDCWidths->Fill(bunch_it->sig[i][i]);
+            TF1 * f1 = new TF1("f1","gaus");
+            bunch_it->zdchists[i]->Fit("f1");
+            bunch_it->zdchists[i]->Write();
+            bunch_it->capfc[i] = f1->GetParameter(1);
+	    bunch_it->cap[i] = f1->GetParameter(1)/3.05556;         
+//            const HcalQIECoder* coder = conditions->getHcalCoder(bunch_it->genid.rawId());          
          }
 
          const HcalPedestal item(bunch_it->zdcid.rawId(), bunch_it->cap[0], bunch_it->cap[1], bunch_it->cap[2], bunch_it->cap[3]);
@@ -306,6 +312,13 @@ HcalPedestalsAnalysis::analyze(const edm::Event& e, const edm::EventSetup& iSetu
             {
                a.cap[i] = 0;
                a.capfc[i] = 0;
+               std::stringstream tempstream;
+               tempstream << mygenid;
+               std::string nameofhist = tempstream.str() + " Cap ";
+               std::stringstream tempstream11;
+               tempstream11 << i;
+               nameofhist += tempstream11.str();
+               a.zdchists[i] = new TH1F(nameofhist.c_str(),nameofhist.c_str(),200,1,150);
                for(int j = 0; j != 4; j++)
                {
                   a.sig[i][j] = 0;
@@ -443,6 +456,8 @@ HcalPedestalsAnalysis::analyze(const edm::Event& e, const edm::EventSetup& iSetu
          bunch_it->num[digi.sample(ts).capid()][digi.sample(ts).capid()] += 1;
          bunch_it->cap[digi.sample(ts).capid()] += digi.sample(ts).adc();
          double charge1 = coder->charge(*shape, digi.sample(ts).adc(), digi.sample(ts).capid());
+         bunch_it->zdchists[digi.sample(ts).capid()]->Fill(charge1);
+
          bunch_it->capfc[digi.sample(ts).capid()] += charge1;
          bunch_it->prod[digi.sample(ts).capid()][digi.sample(ts).capid()] += (digi.sample(ts).adc() * digi.sample(ts).adc());
          bunch_it->prodfc[digi.sample(ts).capid()][digi.sample(ts).capid()] += charge1 * charge1;
