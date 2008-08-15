@@ -3,7 +3,7 @@
 #include "PhysicsTools/Utilities/src/findMethod.h"
 #include "PhysicsTools/Utilities/src/findDataMember.h"
 #include "PhysicsTools/Utilities/src/ErrorCodes.h"
-#include "FWCore/Utilities/interface/EDMException.h"
+#include "PhysicsTools/Utilities/interface/Exception.h"
 #include <string>
 using namespace reco::parser;
 using namespace std;
@@ -16,8 +16,8 @@ void MethodSetter::operator()(const char * begin, const char * end) const {
   if(parenthesis != string::npos) {
     name.erase(parenthesis, name.size());
     if(intStack_.size()==0)
-      throw edm::Exception(edm::errors::Configuration)
-	<< "expected method argument, but integer stack is empty\n";    
+      throw Exception(begin)
+	<< "expected method argument, but non given.";    
     for(vector<AnyMethodArgument>::const_iterator i = intStack_.begin(); i != intStack_.end(); ++i)
       args.push_back(*i);
     intStack_.clear();
@@ -25,21 +25,27 @@ void MethodSetter::operator()(const char * begin, const char * end) const {
   string::size_type endOfExpr = name.find_last_of(' ');
   if(endOfExpr != string::npos)
     name.erase(endOfExpr, name.size());
-  push(name, args);
+  push(name, args,begin);
 }
 
-void MethodSetter::push(const string & name, const vector<AnyMethodArgument> & args) const {
+void MethodSetter::push(const string & name, const vector<AnyMethodArgument> & args, const char* begin) const {
   Type type = typeStack_.back();
   vector<AnyMethodArgument> fixups;
   int error;
-  pair<Member, bool> mem = reco::findMethod(type, name, args, fixups,error);
+  pair<Member, bool> mem = reco::findMethod(type, name, args, fixups,begin,error);
   if(mem.first) {
      Type retType = reco::returnType(mem.first);
+     if(!retType) {
+        throw Exception(begin)
+     	<< "member \"" << mem.first.Name() << "\" return type is ivalid: \"" 
+     	<<  mem.first.TypeOf().Name() << "\"";
+        
+     }
      typeStack_.push_back(retType);
    // check for edm::Ref, edm::RefToBase, edm::Ptr
      if(mem.second) {
         methStack_.push_back(MethodInvoker(mem.first));
-        push(name, args); // we have not found the method, so we have not fixupped the arguments
+        push(name, args,begin); // we have not found the method, so we have not fixupped the arguments
       } else {
          methStack_.push_back(MethodInvoker(mem.first, fixups));
       }
@@ -47,34 +53,34 @@ void MethodSetter::push(const string & name, const vector<AnyMethodArgument> & a
      if(error != reco::parser::kNameDoesNotExist) {
         switch(error) {
            case reco::parser::kIsNotPublic:
-            throw edm::Exception(edm::errors::Configuration)
+            throw Exception(begin)
               << "method named \"" << name << "\" for type \"" 
-              <<type.Name() << "\" is not publically accessible.\n";
+              <<type.Name() << "\" is not publically accessible.";
             break;
            case reco::parser::kIsStatic:
-             throw edm::Exception(edm::errors::Configuration)
+             throw Exception(begin)
                << "method named \"" << name << "\" for type \"" 
-               <<type.Name() << "\" is static.\n";
+               <<type.Name() << "\" is static.";
              break;
            case reco::parser::kIsNotConst:
-              throw edm::Exception(edm::errors::Configuration)
+              throw Exception(begin)
                 << "method named \"" << name << "\" for type \"" 
-                <<type.Name() << "\" is not const.\n";
+                <<type.Name() << "\" is not const.";
               break;
            case reco::parser::kWrongNumberOfArguments:
-               throw edm::Exception(edm::errors::Configuration)
+               throw Exception(begin)
                  << "method named \"" << name << "\" for type \"" 
-                 <<type.Name() << "\" was passed the wrong number of arguments.\n";
+                 <<type.Name() << "\" was passed the wrong number of arguments.";
                break;
            case reco::parser::kWrongArgumentType:
-               throw edm::Exception(edm::errors::Configuration)
+               throw Exception(begin)
                      << "method named \"" << name << "\" for type \"" 
-                     <<type.Name() << "\" was passed the wrong types of arguments.\n";
+                     <<type.Name() << "\" was passed the wrong types of arguments.";
                break;
            default:  
-            throw edm::Exception(edm::errors::Configuration)
+            throw Exception(begin)
              << "method named \"" << name << "\" for type \"" 
-             <<type.Name() << "\" is not usable in this context.\n";
+             <<type.Name() << "\" is not usable in this context.";
         }
      }
      //see if it is a member data
@@ -83,19 +89,19 @@ void MethodSetter::push(const string & name, const vector<AnyMethodArgument> & a
      if(!member) {
         switch(error) {
            case reco::parser::kNameDoesNotExist:
-            throw edm::Exception(edm::errors::Configuration)
+            throw Exception(begin)
                << "no method or data member named \"" << name << "\" found for type \"" 
-               <<type.Name() << "\"\n";
+               <<type.Name() << "\"";
             break;
            case reco::parser::kIsNotPublic:
-            throw edm::Exception(edm::errors::Configuration)
+            throw Exception(begin)
               << "data member named \"" << name << "\" for type \"" 
-              <<type.Name() << "\" is not publically accessible.\n";
+              <<type.Name() << "\" is not publically accessible.";
             break;
            default:
-           throw edm::Exception(edm::errors::Configuration)
+           throw Exception(begin)
              << "data member named \"" << name << "\" for type \"" 
-             <<type.Name() << "\" is not usable in this context.\n";
+             <<type.Name() << "\" is not usable in this context.";
            break;
         }
      }

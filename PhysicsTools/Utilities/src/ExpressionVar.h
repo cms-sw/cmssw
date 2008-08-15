@@ -7,7 +7,7 @@
  * \author original version: Chris Jones, Cornell, 
  *         adapted to Reflex by Luca Lista, INFN
  *
- * \version $Revision: 1.4 $
+ * \version $Revision: 1.5 $
  *
  */
 #include "PhysicsTools/Utilities/src/ExpressionBase.h"
@@ -21,6 +21,7 @@ namespace reco {
       ExpressionVar(const std::vector<MethodInvoker> & methods, method::TypeCode retType);
       virtual double value(const ROOT::Reflex::Object & o) const;
 
+      static bool isValidReturnType(method::TypeCode);
     private:
       std::vector<MethodInvoker> methods_;
       method::TypeCode retType_;

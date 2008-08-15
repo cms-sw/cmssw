@@ -73,7 +73,7 @@ Object MethodInvoker::value(const Object & o) const {
   if(!ret) 
      throw edm::Exception(edm::errors::Configuration)
       << "method \"" << method_.Name() 
-      << "\" returned void invoked on object of type " 
-      << o.TypeOf().Name() << "\n";
+      << "\" returned void invoked on object of type \"" 
+      << o.TypeOf().Name() << "\"\n";
   return ret;
 }

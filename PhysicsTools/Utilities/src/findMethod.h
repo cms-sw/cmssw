@@ -12,6 +12,7 @@ namespace reco {
 						   const std::string & name,
 						   const std::vector<reco::parser::AnyMethodArgument> &args,
                                                    std::vector<reco::parser::AnyMethodArgument> &fixuppedArgs,
+                                                   const char* where,
                                                    int& oError);
 }
 

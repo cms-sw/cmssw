@@ -1,6 +1,6 @@
 #include "PhysicsTools/Utilities/src/findMethod.h"
 #include "PhysicsTools/Utilities/src/ErrorCodes.h"
-#include "FWCore/Utilities/interface/EDMException.h"
+#include "PhysicsTools/Utilities/interface/Exception.h"
 #include "Reflex/Base.h"
 #include "Reflex/TypeTemplate.h"
 
@@ -52,12 +52,17 @@ namespace reco {
     return casts;
   }
 
-  pair<Member, bool> findMethod(const Type & t, const string & name, const std::vector<AnyMethodArgument> &args, std::vector<AnyMethodArgument> &fixuppedArgs, int& oError) {
+  pair<Member, bool> findMethod(const Type & t, 
+                                const string & name, 
+                                const std::vector<AnyMethodArgument> &args, 
+                                std::vector<AnyMethodArgument> &fixuppedArgs,
+                                const char* iIterator, 
+                                int& oError) {
      oError = parser::kNameDoesNotExist;
     Type type = t; 
     if (! type)  
-      throw edm::Exception(edm::errors::Configuration)
-	<< "no dictionary for class " << type.Name() << '\n';
+      throw parser::Exception(iIterator)
+	<< "No dictionary for class \"" << type.Name() << "\".";
     if(type.IsPointer()) type = type.ToType();
 
     pair<Member, bool> mem;
@@ -88,10 +93,10 @@ namespace reco {
             sort(oks.begin(), oks.end());
 
             if (oks[0].first == oks[1].first) { // two methods with same ambiguity
-                throw edm::Exception(edm::errors::Configuration)
-                    << "Can't resolve method " << name << " for " << type.Name() << ", the two candidates " 
+                throw parser::Exception(iIterator)
+                    << "Can't resolve method \"" << name << "\" for class \"" << type.Name() << "\", the two candidates " 
                     << oks[0].second.Name() << " and " << oks[1].second.Name() 
-                    << " require the same number of integer->real conversions (" << oks[0].first << ")\n";        
+                    << " require the same number of integer->real conversions (" << oks[0].first << ").";        
             }
 
             // I should fixup again the args, as both good methods have pushed them on fixuppedArgs
@@ -105,7 +110,7 @@ namespace reco {
     int baseError=parser::kNameDoesNotExist;
     if(! mem.first) {
       for(Base_Iterator b = type.Base_Begin(); b != type.Base_End(); ++ b) {
-	      if((mem = findMethod(b->ToType(), name, args, fixuppedArgs,baseError)).first) break;
+	      if((mem = findMethod(b->ToType(), name, args, fixuppedArgs,iIterator,baseError)).first) break;
 	      if(fatalErrorCondition(baseError)) {
             oError = baseError;
             return mem;
@@ -126,10 +131,10 @@ namespace reco {
           // in this case  i think 'get' should be taken with no arguments!
           std::vector<AnyMethodArgument> empty, empty2; 
           int error;
-          mem = findMethod(type, "get", empty, empty2,error);
+          mem = findMethod(type, "get", empty, empty2,iIterator,error);
           if(!mem.first) {
-             throw edm::Exception(edm::errors::Configuration)
-                << "no member \"get\" in reference of type " << type.Name() << "\n";        
+             throw parser::Exception(iIterator)
+                << "No member \"get\" in reference of type \"" << type.Name() << "\".";        
           }
           mem.second = true;
          }
@@ -138,7 +143,7 @@ namespace reco {
     /*
     if(!mem.first) {
       throw edm::Exception(edm::errors::Configuration)
-	<< "member " << name << " not found in class "  << type.Name() << "\n";        
+	<< "member \""" << name << "\"" not found in class \""  << type.Name() << "\"";        
     }
     */
     if(mem.first) {
