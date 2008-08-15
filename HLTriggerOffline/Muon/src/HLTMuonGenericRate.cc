@@ -5,8 +5,9 @@
  */
 
 #include "HLTriggerOffline/Muon/interface/HLTMuonGenericRate.h"
-#include "DQMServices/Core/interface/DQMStore.h"
+#include "HLTriggerOffline/Muon/interface/AnglesUtil.h"
 
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 // Collaborating Class Header
@@ -393,16 +394,18 @@ pair<double,double> HLTMuonGenericRate::getAngles( double eta, double phi,
   for (part = evt.particles_begin(); part != evt.particles_end(); ++part ) {
     int id = abs((*part)->pdg_id());
     if ( id == 13 && (*part)->status() == 1 ) {
-      double dEta = eta - (*part)->momentum().eta();
-      double dPhi = phi-(*part)->momentum().phi();
-      double deltaR = sqrt( dEta * dEta + dPhi * dPhi );
+
+      double genEta = (*part)->momentum().eta();
+      double genPhi = (*part)->momentum().phi();
+      double deltaR = kinem::delta_R( eta, phi, genEta, genPhi );
       if ( deltaR < bestDeltaR ) {
 	bestDeltaR = deltaR;
 	theAssociatedGenParticle = part;
-        angle.first  = (*part)->momentum().eta();
-        angle.second = (*part)->momentum().phi();
+        angle.first  = genEta;
+        angle.second = genPhi;
       }
     }
+
   }
   LogTrace("HLTMuonVal") << "Best deltaR = " << bestDeltaR;
   return angle;
@@ -421,15 +424,15 @@ pair<double,double> HLTMuonGenericRate::getAngles( double eta, double phi,
   LogTrace("HLTMuonVal") << " candidate eta = " << eta << " and phi = " << phi;
 
   for ( muon = muTracks.begin(); muon != muTracks.end(); ++muon ) {
-    double dEta = eta - muon->eta();
-    double dPhi = phi - muon->phi();
-    double deltaR = sqrt( dEta * dEta + dPhi * dPhi );
+
+    double deltaR = kinem::delta_R( eta, phi, muon->eta(), muon->phi() );
     if ( deltaR < bestDeltaR ) {
       bestDeltaR = deltaR;
       theAssociatedRecParticle = muon;
       angle.first  = muon->eta();
       angle.second = muon->phi();
     }
+
   }
   LogTrace("HLTMuonVal") << "Best deltaR = " << bestDeltaR;
   return angle;
