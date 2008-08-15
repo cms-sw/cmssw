@@ -9,3 +9,4 @@ from RecoEgamma.EgammaPhotonProducers.cosmicConversionSequence_cff import *
 
 egammarecoCosmics_woConvPhotons = cms.Sequence(cosmicElectronSequence*cosmicPhotonSequence)
 egammarecoCosmics = cms.Sequence(cosmicElectronSequence*cosmicConversionSequence*cosmicPhotonSequence)
+egammarecoCosmics_woElectrons = cms.Sequence(cosmicConversionSequence*cosmicPhotonSequence)
