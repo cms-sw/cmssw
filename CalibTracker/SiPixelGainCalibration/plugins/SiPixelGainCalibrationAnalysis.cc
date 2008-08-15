@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Nov 14 15:02:06 CET 2007
-// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.24 2008/08/12 15:39:11 fblekman Exp $
+// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.25 2008/08/14 12:01:36 fblekman Exp $
 //
 //
 
@@ -278,7 +278,7 @@ SiPixelGainCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixelCalibD
       makehistopersistent=true;
     if(prob<chi2ProbThreshold_)
       makehistopersistent=true;
-    if(result==1)
+    if(result<0)
       makehistopersistent=true;
 
     if(result>0){
