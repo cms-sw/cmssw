@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: injectFileIntoTransferSystem.pl,v 1.26 2008/08/07 20:38:39 loizides Exp $
+# $Id: injectFileIntoTransferSystem.pl,v 1.27 2008/08/14 15:24:03 loizides Exp $
 
 use strict;
 use DBI;
@@ -139,7 +139,7 @@ sub checkOption($) {
     return $theOpt;
 }
 
-my ($help, $debug, $hostname, $filename, $pathname, $index, $filesize, $test);
+my ($help, $debug, $hostname, $filename, $pathname, $index, $indexsize, $filesize, $test);
 my ($producer, $stream, $type, $runnumber, $lumisection, $count,$instance);
 my ($createtime, $injecttime, $ctime, $itime, $comment, $destination);
 my ($appname, $appversion, $nevents, $checksum, $setuplabel, $check);
@@ -171,6 +171,7 @@ $checksum    = '';
 $setuplabel  = 'default';
 $destination = 'default';
 $index       = '';
+$indexsize   = 0;
 $comment     = '';
 
 GetOptions(
@@ -312,7 +313,7 @@ unless($hostname eq 'srv-S2C17-01'      ||
        $hostname eq 'csc-C2D07-08'      || 
        $hostname eq 'vmepcS2B18-39'     ||
        $hostname =~ 'srv-C2C07-') { 
-    print "Error: Hostname not valid. Must be one of cms-tier0-stage, cmsdisk1, cmsmon or vmepcS2B18-39.\n";
+    print "Error: Hostname not valid. Must be one of cms-tier0-stage, cmsdisk1, cmsmon, csc-daq00 or vmepcS2B18-39.\n";
     usageShort();
 }
 
@@ -397,6 +398,21 @@ if(!$itime) {
 }
 $injecttime = gettimestamp($itime);
 
+# if file is a .dat and there is an index file, supply it
+my $indfile='';
+if($filename=~/\.dat$/  && !$index) {
+    $indfile=$filename;
+    $indfile =~ s/\.dat$/\.ind/;
+    if (-e "$pathname/$indfile") { 
+	$index = $indfile;
+        $indexsize = -s "$index";
+    } elsif($type eq 'streamer') {
+	print "Index file required for streamer files, not found in usual place please specify. Exiting!\n";
+        usage();
+	exit 1;
+    }
+}
+
 # create inserts into FILES_CREATED and FILES_INJECTED
 my $SQLcquery = "SELECT FILENAME,HOSTNAME,SETUPLABEL,STREAM,TYPE,PRODUCER,APP_NAME,APP_VERSION," .
     " RUNNUMBER,LUMISECTION,COUNT,INSTANCE,CTIME" .
@@ -413,9 +429,9 @@ my $SQLcreate = "INSERT INTO CMS_STOMGR.FILES_CREATED (" .
             "TO_DATE('$createtime','YYYY-MM-DD HH24:MI:SS'),'$comment')";
 
 my $SQLinject = "INSERT INTO CMS_STOMGR.FILES_INJECTED (" .
-               "FILENAME,PATHNAME,DESTINATION,NEVENTS,FILESIZE,CHECKSUM,ITIME,COMMENT_STR) " .
+               "FILENAME,PATHNAME,DESTINATION,NEVENTS,FILESIZE,CHECKSUM,ITIME,COMMENT_STR,INDFILENAME,INDFILESIZE) " .
                "VALUES ('$filename','$pathname','$destination',$nevents,$filesize,'$checksum'," . 
-               "TO_DATE('$injecttime','YYYY-MM-DD HH24:MI:SS'),'$comment')";
+               "TO_DATE('$injecttime','YYYY-MM-DD HH24:MI:SS'),'$comment','$index',$indexsize)";
 
 $debug && print "SQL commands:\n $SQLcreate \n $SQLinject \n";
 
@@ -423,20 +439,6 @@ $debug && print "SQL commands:\n $SQLcreate \n $SQLinject \n";
 my $notscript = $ENV{'SM_NOTIFYSCRIPT'};
 if (!defined $notscript) {
     $notscript = "/nfshome0/cmsprod/TransferTest/injection/sendNotification.sh";
-}
-
-# if file is a .dat and there is an index file, supply it
-my $indfile='';
-if($filename=~/\.dat$/  && !$index) {
-    $indfile=$filename;
-    $indfile =~ s/\.dat$/\.ind/;
-    if (-e "$pathname/$indfile") { 
-	$index = $indfile;
-    } elsif($type eq 'streamer') {
-	print "Index file required for streamer files, not found in usual place please specify. Exiting!\n";
-        usage();
-	exit 1;
-    }
 }
 
 # all these options are enforced by notify script (even if meaningless):
@@ -448,7 +450,9 @@ if($runnumber)         {$TIERZERO .= " --RUNNUMBER $runnumber";}
 if($lumisection != -1) {$TIERZERO .= " --LUMISECTION $lumisection";}
 if($stream)            {$TIERZERO .= " --STREAM $stream";}
 if($nevents)           {$TIERZERO .= " --NEVENTS $nevents";}
-if($index)             {$TIERZERO .= " --INDEX $index";}
+if($index)             {$TIERZERO .= " --INDEX $index";
+#                        $TIERZERO .= " --INDEXFILESIZE $indfilesize";
+}
 if($appname)           {$TIERZERO .= " --APP_NAME $appname";}
 if($appname)           {$TIERZERO .= " --APP_VERSION $appversion";}
 if($checksum)          {$TIERZERO .= " --CHECKSUM $checksum";}
