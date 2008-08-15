@@ -224,8 +224,12 @@ if options.fileout=="":
 # (in addition list conditions in name)
 python_config_filename = standardFileName
 conditionsSP = options.conditions.split(',')
+
 if len(conditionsSP) > 1:
-    python_config_filename += "_"+str(conditionsSP[1].split("::")[0])
+    # for conditions like STARTUP_V1, IDEAL_V1 we want only the STARTUP or IDEAL part
+    conditionsType = conditionsSP[1].split("_")[0]
+    python_config_filename += "_"+str(conditionsType)
+
 python_config_filename+=".py"
 
 

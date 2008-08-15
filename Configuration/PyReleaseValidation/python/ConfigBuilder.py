@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.69 $"
+__version__ = "$Revision: 1.70 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -443,7 +443,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.69 $"),
+              (version=cms.untracked.string("$Revision: 1.70 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
@@ -565,8 +565,8 @@ def installPromptReco(process, recoOutputModule, aodOutputModule = None):
     the AOD data tier, if this is not none, any AOD sequences
     should be added.
     """
-    cb = ConfigBuilder(process)
-    cb._options.step = 'RECO'
+    cb = ConfigBuilder(defaultOptions, process = process)
+    cb._options.step = 'RAW2DIGI,RECO'
     cb.addStandardSequences()
     cb.addConditions()
     #process.load('Configuration.EventContent.EventContent_cff')
