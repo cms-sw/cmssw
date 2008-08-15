@@ -39,6 +39,7 @@
 #include "TFile.h"
 #include "TProfile.h"
 #include "TH1.h"
+#include "TF1.h"
 #include <math.h>
 #include <iostream>
 #include <map>
@@ -66,6 +67,7 @@ namespace edm {
       float prod[4][4];
       float prodfc[4][4];
       int num[4][4];
+      TH1F * zdchists[4];
    };
 
 class HcalPedestalsAnalysis : public edm::EDAnalyzer
