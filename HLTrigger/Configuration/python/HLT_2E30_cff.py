@@ -1,4 +1,4 @@
-# /dev/CMSSW_2_1_2/HLT/V3 (CMSSW_2_1_2)
+# /dev/CMSSW_2_1_2/HLT/V5 (CMSSW_2_1_X_2008-08-15-0100)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -12,6 +12,11 @@ MCJetCorrectorIcone5 = cms.ESSource( "MCJetCorrectionService",
   label = cms.string( "MCJetCorrectorIcone5" )
 )
 
+AnyDirectionAnalyticalPropagator = cms.ESProducer( "AnalyticalPropagatorESProducer",
+  ComponentName = cms.string( "AnyDirectionAnalyticalPropagator" ),
+  PropagationDirection = cms.string( "anyDirection" ),
+  MaxDPhi = cms.double( 1.6 )
+)
 ParametrizedMagneticFieldProducer = cms.ESProducer( "ParametrizedMagneticFieldProducer",
   label = cms.untracked.string( "parametrizedField" ),
   version = cms.string( "OAE_1103l_071212" ),
