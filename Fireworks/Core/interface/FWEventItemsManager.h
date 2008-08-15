@@ -1,6 +1,6 @@
+// -*- C++ -*-
 #ifndef Fireworks_Core_FWEventItemsManager_h
 #define Fireworks_Core_FWEventItemsManager_h
-// -*- C++ -*-
 //
 // Package:     Core
 // Class  :     FWEventItemsManager
@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Thu Jan  3 13:27:29 EST 2008
-// $Id: FWEventItemsManager.h,v 1.8 2008/06/12 15:06:05 chrjones Exp $
+// $Id: FWEventItemsManager.h,v 1.9 2008/06/13 23:30:23 chrjones Exp $
 //
 
 // system include files
@@ -52,6 +52,7 @@ class FWEventItemsManager : public FWConfigurable
       // ---------- const member functions ---------------------
       const_iterator begin() const;
       const_iterator end() const;
+     // const std::vector<FWEventItem*> &items () const { return m_items; }
 
       const FWEventItem* find(const std::string& iName) const;
       // ---------- static member functions --------------------
@@ -78,7 +79,7 @@ class FWEventItemsManager : public FWConfigurable
       FWSelectionManager* m_selectionManager;
    
       const fwlite::Event* m_event;
-
+     const DetIdToMatrix *m_geom;
 };
 
 

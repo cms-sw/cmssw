@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri Jan  4 10:38:18 EST 2008
-// $Id: FWEventItemsManager.cc,v 1.12 2008/06/12 15:06:05 chrjones Exp $
+// $Id: FWEventItemsManager.cc,v 1.13 2008/06/13 23:30:23 chrjones Exp $
 //
 
 // system include files
@@ -40,7 +40,8 @@ FWEventItemsManager::FWEventItemsManager(FWModelChangeManager* iManager,
 FWSelectionManager* iSelMgr):
 m_changeManager(iManager),
 m_selectionManager(iSelMgr),
-m_event(0)
+m_event(0),
+m_geom(0)
 {
 }
 
@@ -79,7 +80,7 @@ FWEventItemsManager::add(const FWPhysicsObjectDesc& iItem)
   m_items.push_back(new FWEventItem(m_changeManager,m_selectionManager,m_items.size(),iItem) );
   newItem_(m_items.back());
    m_items.back()->goingToBeDestroyed_.connect(boost::bind(&FWEventItemsManager::removeItem,this,_1));
-
+   m_items.back()->setGeom(m_geom);
    if(m_event) {
       FWChangeSentry sentry(*m_changeManager);
       m_items.back()->setEvent(m_event);
@@ -104,6 +105,8 @@ FWEventItemsManager::newEvent(const fwlite::Event* iEvent)
 void 
 FWEventItemsManager::setGeom(const DetIdToMatrix* geom)
 {
+     // cache the geometry (in case items are added later)
+     m_geom = geom;
   for(std::vector<FWEventItem*>::iterator it = m_items.begin();
       it != m_items.end();
       ++it) {
