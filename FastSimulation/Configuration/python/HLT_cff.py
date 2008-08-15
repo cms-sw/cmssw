@@ -79,11 +79,6 @@ PixelCPEGenericESProducer = cms.ESProducer( "PixelCPEGenericESProducer",
   PixelErrorParametrization = cms.string( "NOTcmsim" ),
   Alpha2Order = cms.bool( True )
 )
-SiStripGainESProducer = cms.ESProducer( "SiStripGainESProducer",
-  AutomaticNormalization = cms.bool( False ),
-  NormalizationFactor = cms.double( 1.0 ),
-  printDebug = cms.untracked.bool( False )
-)
 SiStripRegionConnectivity = cms.ESProducer( "SiStripRegionConnectivity",
   EtaDivisions = cms.untracked.uint32( 20 ),
   PhiDivisions = cms.untracked.uint32( 20 ),
