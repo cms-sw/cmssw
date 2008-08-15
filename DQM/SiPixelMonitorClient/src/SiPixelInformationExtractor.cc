@@ -1519,9 +1519,6 @@ void SiPixelInformationExtractor::fillGlobalQualityPlot(DQMStore * bei, bool ini
   //calculate eta and phi of the modules and fill a 2D plot:
   
   if(init){
-    //allmodsEtaPhi = new TH2F("allmodsEtaPhi","allmodsEtaPhi",60,-3.,3.,64,-3.2,3.2);
-    //errmodsEtaPhi = new TH2F("errmodsEtaPhi","errmodsEtaPhi",60,-3.,3.,64,-3.2,3.2);
-    //goodmodsEtaPhi = new TH2F("goodmodsEtaPhi","goodmodsEtaPhi",60,-3.,3.,64,-3.2,3.2);
     allmodsMap = new TH2F("allmodsMap","allmodsMap",28,0.,28.,48,0.,48.);
     errmodsMap = new TH2F("errmodsMap","errmodsMap",28,0.,28.,48,0.,48.);
     goodmodsMap = new TH2F("goodmodsMap","goodmodsMap",28,0.,28.,48,0.,48.);
