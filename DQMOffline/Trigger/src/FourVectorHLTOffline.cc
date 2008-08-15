@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOffline.cc,v 1.7 2008/08/07 19:43:14 sharper Exp $
+// $Id: FourVectorHLTOffline.cc,v 1.8 2008/08/15 17:50:33 berryhil Exp $
 // See header file for information. 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -70,16 +70,17 @@ FourVectorHLTOffline::FourVectorHLTOffline(const edm::ParameterSet& iConfig):
   plotAll_ = iConfig.getUntrackedParameter<bool>("plotAll", false);
 
   // this is the list of paths to look at.
-  std::vector<edm::ParameterSet> filters = 
-    iConfig.getParameter<std::vector<edm::ParameterSet> >("filters");
+  std::vector<edm::ParameterSet> paths = 
+    iConfig.getParameter<std::vector<edm::ParameterSet> >("paths");
   for(std::vector<edm::ParameterSet>::iterator 
-	filterconf = filters.begin() ; filterconf != filters.end(); 
-      filterconf++) {
-    edm::InputTag me  = filterconf->getParameter<edm::InputTag>("name");
-    int objectType = filterconf->getParameter<unsigned int>("type");
-    float ptMin = filterconf->getUntrackedParameter<double>("ptMin");
-    float ptMax = filterconf->getUntrackedParameter<double>("ptMax");
-    hltPaths_.push_back(PathInfo(me, objectType, ptMin, ptMax));
+	pathconf = paths.begin() ; pathconf != paths.end(); 
+      pathconf++) {
+    std::string pathname = pathconf->getParameter<std::string>("pathname");  
+    edm::InputTag filtername = pathconf->getParameter<edm::InputTag>("filtername");
+    int objectType = pathconf->getParameter<unsigned int>("type");
+    float ptMin = pathconf->getUntrackedParameter<double>("ptMin");
+    float ptMax = pathconf->getUntrackedParameter<double>("ptMax");
+    hltPaths_.push_back(PathInfo(pathname, filtername, objectType, ptMin, ptMax));
   }
   if ( hltPaths_.size() && plotAll_) {
     // these two ought to be mutually exclusive....
@@ -461,7 +462,7 @@ FourVectorHLTOffline::beginJob(const edm::EventSetup&)
 	MonitorElement *etOff, *etaOff, *phiOff, *etavsphiOff=0;
 	MonitorElement *etL1, *etaL1, *phiL1, *etavsphiL1=0;
 	std::string labelname("dummy");
-        labelname = v->getTag().label();
+        labelname = v->getPath();
 	std::string histoname(labelname+"_etOn");
 	std::string title(labelname+" E_t online");
 	etOn =  dbe->book1D(histoname.c_str(),

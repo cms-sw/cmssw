@@ -16,7 +16,7 @@
 //
 // Original Author:  Jeffrey Berryhill
 //         Created:  June 2008
-// $Id: FourVectorHLTOffline.h,v 1.2 2008/06/24 19:35:43 berryhil Exp $
+// $Id: FourVectorHLTOffline.h,v 1.3 2008/08/15 17:50:32 berryhil Exp $
 //
 //
 
@@ -88,7 +88,7 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
       // helper class to store the data
       class PathInfo {
 	PathInfo():
-	  pathIndex_(-1), pathName_("unset"), objectType_(-1)
+	  pathIndex_(-1), pathName_("unset"), filterName_("unset"), objectType_(-1)
 	  {};
       public:
 	void setHistos(MonitorElement* const etOn, 
@@ -153,19 +153,22 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
 	  return etavsphiL1_;
 	}
 	const edm::InputTag getTag(void ) const {
+	  return filterName_;
+	}
+	const std::string getPath(void ) const {
 	  return pathName_;
 	}
 	~PathInfo() {};
-	PathInfo(edm::InputTag pathName, size_t type, float ptmin, 
+	PathInfo(std::string pathName, edm::InputTag filterName, size_t type, float ptmin, 
 		 float ptmax):
-	  pathName_(pathName), objectType_(type),
+	  pathName_(pathName), filterName_(filterName), objectType_(type),
 	  etOn_(0), etaOn_(0), phiOn_(0), etavsphiOn_(0),
 	  etOff_(0), etaOff_(0), phiOff_(0), etavsphiOff_(0),
 	  etL1_(0), etaL1_(0), phiL1_(0), etavsphiL1_(0),
 	  ptmin_(ptmin), ptmax_(ptmax)
 	  {
 	  };
-	  PathInfo(edm::InputTag pathName, size_t type,
+	  PathInfo(std::string pathName, edm::InputTag filterName, size_t type,
 		   MonitorElement *etOn,
 		   MonitorElement *etaOn,
 		   MonitorElement *phiOn,
@@ -180,7 +183,7 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
 		   MonitorElement *etavsphiL1,
 		   float ptmin, float ptmax
 		   ):
-	    pathName_(pathName), objectType_(type),
+	    pathName_(pathName), filterName_(filterName), objectType_(type),
 	    etOn_(etOn), etaOn_(etaOn), phiOn_(phiOn), etavsphiOn_(etavsphiOn),
 	    etOff_(etOff), etaOff_(etaOff), phiOff_(phiOff), etavsphiOff_(etavsphiOff),
 	    etL1_(etL1), etaL1_(etaL1), phiL1_(phiL1), etavsphiL1_(etavsphiL1),
@@ -188,11 +191,12 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
 	    {};
 	    bool operator==(const edm::InputTag v) 
 	    {
-	      return v==pathName_;
+	      return v==filterName_;
 	    }
       private:
 	  int pathIndex_;
-	  edm::InputTag pathName_;
+	  std::string pathName_;
+	  edm::InputTag filterName_;
 	  int objectType_;
 
 	  // we don't own this data
@@ -218,7 +222,7 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
       public:
 	PathInfoCollection(): std::vector<PathInfo>() 
 	  {};
-	  std::vector<PathInfo>::iterator find(edm::InputTag pathName) {
+	  std::vector<PathInfo>::iterator find(std::string pathName) {
 	    return std::find(begin(), end(), pathName);
 	  }
       };
