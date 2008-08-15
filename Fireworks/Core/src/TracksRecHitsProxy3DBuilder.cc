@@ -15,7 +15,7 @@
 // Original Author:  
 //         Created:  Thu Dec  6 18:01:21 PST 2007
 // Based on
-// $Id: TracksRecHitsProxy3DBuilder.cc,v 1.5 2008/07/17 10:04:17 dmytro Exp $
+// $Id: TracksRecHitsProxy3DBuilder.cc,v 1.6 2008/07/20 18:22:00 dmytro Exp $
 // New File:
 // $Id: TracksRecHitsProxy3DBuilder.cc,v 1.0 2008/02/22 10:37:00 Tom Danielson
 //
@@ -106,9 +106,9 @@ void TracksRecHitsProxy3DBuilder::build(const FWEventItem* iItem, TEveElementLis
 
     TEveElementList* trkList = new TEveElementList(Form("track%d",index));
     gEve->AddElement(trkList,tList);  
-    TEveTrack* trk = new TEveTrack(&t,rnrStyle);
-    trk->SetMainColor(iItem->defaultDisplayProperties().color());
-    trkList->AddElement(trk);
+//     TEveTrack* trk = new TEveTrack(&t,rnrStyle);
+//     trk->SetMainColor(iItem->defaultDisplayProperties().color());
+//     trkList->AddElement(trk);
 
     /* The addition of RecHits is in a try-catch block to avoid exceptions
      * occuring when TrackExtras and/or RecHits aren't available.
@@ -137,58 +137,59 @@ void TracksRecHitsProxy3DBuilder::build(const FWEventItem* iItem, TEveElementLis
 	  // localError we don't use just yet.
 	  //	  LocalError le = (*recIt)->localPositionError();
 	  // Here's the local->global transformation matrix
-	  const TGeoHMatrix* matrix = iItem->getGeom()->getMatrix( detid );
-	  // And here are the shapes of the hit modules
-	  TEveGeoShapeExtract* extract = iItem->getGeom()->getExtract( detid );
-	  if(0!=extract) {
-	    TEveElement* shape = TEveGeoShape::ImportShapeExtract(extract,0);
-	    shape->SetMainTransparency(50);
-	    shape->SetMainColor(tList->GetMainColor());
-	    trkList->AddElement(shape);
+	  if (iItem->getGeom()) {
+	       const TGeoHMatrix* matrix = iItem->getGeom()->getMatrix( detid );
+	       // And here are the shapes of the hit modules
+	       TEveGeoShapeExtract* extract = iItem->getGeom()->getExtract( detid );
+	       if(0!=extract) {
+		    TEveElement* shape = TEveGeoShape::ImportShapeExtract(extract,0);
+		    shape->SetMainTransparency(50);
+		    shape->SetMainColor(tList->GetMainColor());
+		    trkList->AddElement(shape);
+	       }
+	       
+	       // set local position to a more digestable format
+	       localRecHitPoint[0] = lp.x();
+	       localRecHitPoint[1] = lp.y();
+	       localRecHitPoint[2] = 0;
+	       
+	       // reset global position
+	       globalRecHitPoint[0] = 0;
+	       globalRecHitPoint[1] = 0;
+	       globalRecHitPoint[2] = 0;
+	       
+	       
+	       /*  Do segments for the recHits.  Right now they're going to be of arbitrary length.  
+		   Eventually, we'll have detector geom in here, but for now, we'll just use 5cm 
+		   segments in the local y.  These transform nicely.
+	       */
+	       
+	       Double_t localRecHitInnerPoint[3];
+	       Double_t localRecHitOuterPoint[3];
+	       Double_t globalRecHitInnerPoint[3];
+	       Double_t globalRecHitOuterPoint[3];
+	       
+	       localRecHitInnerPoint[0] = 0;
+	       localRecHitInnerPoint[1] = 2.5;
+	       localRecHitInnerPoint[2] = 0;
+	       
+	       localRecHitOuterPoint[0] = 0;
+	       localRecHitOuterPoint[1] = -2.5;
+	       localRecHitOuterPoint[2] = 0;
+	       
+	       // Transform from local to global, if possible
+	       if ( matrix ) {
+		    matrix->LocalToMaster(localRecHitPoint, globalRecHitPoint);
+		    matrix->LocalToMaster(localRecHitInnerPoint, globalRecHitInnerPoint);
+		    matrix->LocalToMaster(localRecHitOuterPoint, globalRecHitOuterPoint);
+		    // Now we add the point to the TEvePointSet
+		    recHitsMarker->SetPoint(globalRecHitIndex, globalRecHitPoint[0], 
+					    globalRecHitPoint[1], globalRecHitPoint[2]);
+		    recHitsLines->AddLine(globalRecHitInnerPoint[0], globalRecHitInnerPoint[1], globalRecHitInnerPoint[2],
+					  globalRecHitOuterPoint[0], globalRecHitOuterPoint[1], globalRecHitOuterPoint[2]);
+		    globalRecHitIndex++;
+	       }	 
 	  }
-
-	  // set local position to a more digestable format
-	  localRecHitPoint[0] = lp.x();
-	  localRecHitPoint[1] = lp.y();
-	  localRecHitPoint[2] = 0;
-	  
-	  // reset global position
-	  globalRecHitPoint[0] = 0;
-	  globalRecHitPoint[1] = 0;
-	  globalRecHitPoint[2] = 0;
-
-
-	  /*  Do segments for the recHits.  Right now they're going to be of arbitrary length.  
-	      Eventually, we'll have detector geom in here, but for now, we'll just use 5cm 
-	      segments in the local y.  These transform nicely.
-	  */
-	  
-	  Double_t localRecHitInnerPoint[3];
-	  Double_t localRecHitOuterPoint[3];
-	  Double_t globalRecHitInnerPoint[3];
-	  Double_t globalRecHitOuterPoint[3];
-	  
-	  localRecHitInnerPoint[0] = 0;
-	  localRecHitInnerPoint[1] = 2.5;
-	  localRecHitInnerPoint[2] = 0;
-	  
-	  localRecHitOuterPoint[0] = 0;
-	  localRecHitOuterPoint[1] = -2.5;
-	  localRecHitOuterPoint[2] = 0;
-	  
-	  // Transform from local to global, if possible
-	  if ( matrix ) {
-	    matrix->LocalToMaster(localRecHitPoint, globalRecHitPoint);
-	    matrix->LocalToMaster(localRecHitInnerPoint, globalRecHitInnerPoint);
-	    matrix->LocalToMaster(localRecHitOuterPoint, globalRecHitOuterPoint);
-	    // Now we add the point to the TEvePointSet
-	    recHitsMarker->SetPoint(globalRecHitIndex, globalRecHitPoint[0], 
-				    globalRecHitPoint[1], globalRecHitPoint[2]);
-	    recHitsLines->AddLine(globalRecHitInnerPoint[0], globalRecHitInnerPoint[1], globalRecHitInnerPoint[2],
-				  globalRecHitOuterPoint[0], globalRecHitOuterPoint[1], globalRecHitOuterPoint[2]);
-	    globalRecHitIndex++;
-	  }	 
-
 	}// if the hit isValid().
       }// For Loop Over Rec hits (recIt)
 
@@ -201,7 +202,7 @@ void TracksRecHitsProxy3DBuilder::build(const FWEventItem* iItem, TEveElementLis
       trkList->AddElement(recHitsLines);
     }
     catch (...) {
-      //      std::cout << "Sorry, don't have the recHits for this event." << std::endl;
+//  	 std::cout << "Sorry, don't have the recHits for this event." << std::endl;
     }
     
   }
