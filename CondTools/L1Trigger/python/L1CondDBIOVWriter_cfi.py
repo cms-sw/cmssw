@@ -5,7 +5,7 @@ L1CondDBIOVWriter = cms.EDFilter("L1CondDBIOVWriter",
     offlineDB = cms.string('sqlite_file:l1config.db'),
     toPut = cms.VPSet(),
     offlineAuthentication = cms.string(''),
-    L1TriggerKeyTag = cms.string('L1TriggerKey_CRUZET_hlt')
+    L1TriggerKeyTag = cms.string('L1TriggerKey_IDEAL')
 )
 
 L1CondDBIOVWriter.toPut.extend(L1SubsystemParams.recordInfo)
