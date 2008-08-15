@@ -418,10 +418,10 @@ void HLTInfo::analyze(/*const HLTFilterObjectWithRefs& hltobj,*/
   */
 
   TString algoBitToName[128];
-  DecisionWord gtDecisionWord = L1GTRR.decisionWord();
-  const unsigned int numberTriggerBits(gtDecisionWord.size());
-  // 1st event : Book as many branches as trigger paths provided in the input...
   if ((&L1GTRR) && (&L1GTOMRec)) {  
+    DecisionWord gtDecisionWord = L1GTRR.decisionWord();
+    const unsigned int numberTriggerBits(gtDecisionWord.size());
+    // 1st event : Book as many branches as trigger paths provided in the input...
     if (L1EvtCnt==0){
       // get ObjectMaps from ObjectMapRecord
       const std::vector<L1GlobalTriggerObjectMap>& objMapVec =  L1GTOMRec.gtObjectMap();
