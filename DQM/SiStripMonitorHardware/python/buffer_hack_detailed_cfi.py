@@ -7,7 +7,7 @@ HardwareMonitor = cms.EDAnalyzer("CnBAnalyzer",
     swapOn = cms.untracked.bool(True), ## non zero value does the DAQ header offset, etc.
 
     buildAllHistograms = cms.untracked.bool(False),
-    detailedHistograms = cms.untracked.bool(False),
+    detailedHistograms = cms.untracked.bool(True),
     rootFileDirectory = cms.untracked.string('/tmp')
 )
 

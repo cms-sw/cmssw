@@ -31,6 +31,7 @@ CnBAnalyzer::CnBAnalyzer(const edm::ParameterSet& iConfig) {
   // Parameters to write a debug root file
   outputFileName_ = iConfig.getUntrackedParameter<string>("rootFile", "");
   outputFileDir_ = iConfig.getUntrackedParameter<string>("rootFileDirectory","");
+  doDetailedHistos_ = iConfig.getUntrackedParameter<bool>("detailedHistograms",false);
 
   // Decides whether to build histograms also for FEDs without any error
 #ifdef CNBANALYZER_BUILD_ALL_HISTOS
@@ -165,10 +166,12 @@ void CnBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       if (thisFedEventErrs.slinkFull) fedSLinkFull_->Fill(*ifed);
       if (thisFedEventErrs.corruptBuffer) fedCorruptBuffers_->Fill(*ifed);
       if (thisFedEventErrs.problemsSeen) {
-	createDetailedFedHistograms((*ifed));
-	
 	// Update counters for FEDs
 	fedGenericErrors_->Fill(*ifed, thisFedEventErrs.problemsSeen);
+      }
+      if (doDetailedHistos_ && thisFedEventErrs.problemsSeen) {
+	createDetailedFedHistograms((*ifed));
+	
 	
 #ifdef CNBANALYZER_DEBUG
 	LogInfo("FEDBuffer") << "FED number" << (*ifed) << std::endl
@@ -406,7 +409,7 @@ void CnBAnalyzer::createDetailedFedHistograms( const uint16_t& fed_id ) {
   itFeds=foundFeds_.find(fed_id);
 
   if (itFeds==foundFeds_.end()) {
-
+    
     SiStripFedKey thisFedKey(fed_id, 0, 0, 0);
 
     foundFeds_[fed_id]=true;

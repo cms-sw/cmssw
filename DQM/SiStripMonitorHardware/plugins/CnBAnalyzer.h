@@ -86,6 +86,8 @@ class CnBAnalyzer : public edm::EDAnalyzer {
   // Name of output file
   std::string outputFileName_;
   std::string outputFileDir_;
+  
+  bool doDetailedHistos_;
 
   // vector of addresses to get median value for "golden address" which should match the apve address
   // TODO: add median calculation in wrong apv addresses
