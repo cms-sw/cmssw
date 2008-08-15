@@ -149,7 +149,7 @@ RctInputTextToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  // transform rct iphi coords into global coords
 	  iPhi = ((72 + 18 - iPhi) % 72);
 	  if (iPhi == 0) {iPhi = 72;}
-	  unsigned absIeta = abs(iEta);	  
+	  unsigned absIeta = abs(iEta);
 	  int zSide = (iEta/absIeta);
 	  
 	  /*std::cout << "iEta " << iEta << "\tabsiEta " << absIeta 
@@ -160,11 +160,8 @@ RctInputTextToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  // args to detid are zside, type of tower, absieta, iphi
 	  // absieta and iphi must be between 1 and 127 inclusive
 
-
-	  EcalSubdetector subdet = ( absIeta <= 17 ) ? EcalBarrel : EcalEndcap ;
-
 	  EcalTriggerPrimitiveDigi 
-	    ecalDigi(EcalTrigTowerDetId(zSide, subdet, absIeta,
+	    ecalDigi(EcalTrigTowerDetId(zSide, EcalTriggerTower, absIeta,
 					iPhi));
 	  ecalDigi.setSize(nEcalSamples);
 	  
