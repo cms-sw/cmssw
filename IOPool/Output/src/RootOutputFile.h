@@ -27,6 +27,7 @@
 #include "DataFormats/Provenance/interface/Selections.h"
 #include "DataFormats/Provenance/interface/EventEntryInfo.h"
 #include "DataFormats/Provenance/interface/RunLumiEntryInfo.h"
+#include "IOPool/Output/src/PoolOutputModule.h"
 #include "IOPool/Output/src/RootOutputTree.h"
 
 class TTree;
@@ -39,6 +40,8 @@ namespace edm {
 
   class RootOutputFile {
   public:
+    typedef PoolOutputModule::OutputItem OutputItem;
+    typedef PoolOutputModule::OutputItemList OutputItemList;
     typedef boost::array<RootOutputTree *, NumBranchTypes> RootOutputTreePtrArray;
     explicit RootOutputFile(PoolOutputModule * om, std::string const& fileName,
                             std::string const& logicalFileName);
@@ -64,62 +67,23 @@ namespace edm {
     void respondToCloseInputFile(FileBlock const& fb);
     bool shouldWeCloseFile() const;
 
-    struct OutputItem {
-      class Sorter {
-      public:
-        explicit Sorter(TTree * tree);
-        bool operator() (OutputItem const& lh, OutputItem const& rh) const;
-      private:
-        std::map<std::string, int> treeMap_;
-      };
-
-      OutputItem() : branchDescription_(0), renamed_(false), product_(0) {}
-
-      OutputItem(BranchDescription const* bd, bool ren) :
-	branchDescription_(bd), renamed_(ren), product_(0) {}
-
-      ~OutputItem() {}
-
-      BranchID branchID() const { return branchDescription_->branchID(); }
-
-      BranchDescription const* branchDescription_;
-      bool renamed_;
-      mutable void const* product_;
-
-      bool operator <(OutputItem const& rh) const {
-        return *branchDescription_ < *rh.branchDescription_;
-      }
-    };
-
-    typedef std::vector<OutputItem> OutputItemList;
-
   private:
 
     //-------------------------------
     // Local types
     //
 
-    typedef boost::array<OutputItemList, NumBranchTypes> OutputItemListArray;
-
     //-------------------------------
     // Private functions
 
     void setBranchAliases(TTree *tree, Selections const& branches) const;
-    void fillSelectedItemList(BranchType branchtype, TTree *theTree);
-    void fillDroppedItemList(BranchType branchtype);
 
     template <typename T>
     void fillBranches(BranchType const& branchType, Principal<T> const& principal, std::vector<T> * entryInfoVecPtr);
 
-    void pruneOutputItemList(BranchType branchType, FileBlock const& inputFile);
-
     //-------------------------------
     // Member data
 
-    OutputItemListArray selectedOutputItemList_;
-    OutputItemListArray droppedOutputItemList_;
-    OutputItemListArray prunedOutputItemList_;
-    std::set<BranchID> registryItems_;
     std::string file_;
     std::string logicalFile_;
     JobReport::Token reportToken_;
@@ -161,14 +125,15 @@ namespace edm {
 
     bool const fastCloning = (branchType == InEvent) && currentlyFastCloning_;
     
-    OutputItemList const& items = selectedOutputItemList_[branchType];
+    OutputItemList const& items = om_->selectedOutputItemList()[branchType];
 
     // Loop over EDProduct branches, fill the provenance, and write the branch.
     for (OutputItemList::const_iterator i = items.begin(), iEnd = items.end(); i != iEnd; ++i) {
 
       BranchID const& id = i->branchDescription_->branchID();
 
-      bool getProd = (i->branchDescription_->produced() || i->renamed_ || !fastCloning);
+      bool getProd = (i->branchDescription_->produced() ||
+	 !fastCloning || treePointers_[branchType]->uncloned(i->branchDescription_->branchName()));
 
       EDProduct const* product = 0;
       OutputHandle<T> const oh = principal.getForOutput(id, getProd);
@@ -201,7 +166,7 @@ namespace edm {
       }
     }
 
-    OutputItemList const& droppedItems = prunedOutputItemList_[branchType];
+    OutputItemList const& droppedItems = om_->prunedOutputItemList()[branchType];
 
     // Loop over pruned branches (branches that survived pruning) and fill the provenance.
     for (OutputItemList::const_iterator i = droppedItems.begin(), iEnd = droppedItems.end(); i != iEnd; ++i) {

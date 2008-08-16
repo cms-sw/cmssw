@@ -42,16 +42,18 @@ namespace edm {
       tree_(makeTTree(filePtr.get(), BranchTypeToProductTreeName(branchType), splitLevel)),
       metaTree_(makeTTree(filePtr.get(), BranchTypeToMetaDataTreeName(branchType), 0)),
       auxBranch_(0),
-      branches_(),
+      producedBranches_(),
       metaBranches_(),
-      clonedBranches_(),
+      readBranches_(),
+      unclonedReadBranches_(),
+      unclonedReadBranchNames_(),
       currentlyFastCloning_(),
       basketSize_(bufSize),
       splitLevel_(splitLevel) {
 
       if (treeMaxVirtualSize >= 0) tree_->SetMaxVirtualSize(treeMaxVirtualSize);
       auxBranch_ = tree_->Branch(BranchTypeToAuxiliaryBranchName(branchType).c_str(), &pAux, bufSize, 0);
-      clonedBranches_.push_back(auxBranch_);  
+      readBranches_.push_back(auxBranch_);  
 
       branchEntryInfoBranch_ = metaTree_->Branch(BranchTypeToBranchEntryInfoBranchName(branchType).c_str(),
                                                  &pEntryInfoVector, bufSize, 0);
@@ -71,7 +73,7 @@ namespace edm {
     bool isValid() const;
 
     void addBranch(BranchDescription const& prod,
-		   void const*& pProd, bool inInput);
+		   void const*& pProd, bool produced);
 
     void fastCloneTree(TTree *tree);
 
@@ -96,6 +98,11 @@ namespace edm {
       currentlyFastCloning_ = fastCloning;
     }
 
+    bool
+    uncloned(std::string const& branchName) const {
+	return unclonedReadBranchNames_.find(branchName) != unclonedReadBranchNames_.end();
+    }
+
   private:
     static void fillTTree(TTree *tree, std::vector<TBranch *> const& branches);
 // We use bare pointers for pointers to some ROOT entities.
@@ -106,9 +113,11 @@ namespace edm {
     TTree *const metaTree_;
     TBranch * auxBranch_;
     TBranch * branchEntryInfoBranch_;
-    std::vector<TBranch *> branches_; // does not include cloned branches
+    std::vector<TBranch *> producedBranches_; // does not include cloned branches
     std::vector<TBranch *> metaBranches_;
-    std::vector<TBranch *> clonedBranches_;
+    std::vector<TBranch *> readBranches_;
+    std::vector<TBranch *> unclonedReadBranches_;
+    std::set<std::string> unclonedReadBranchNames_;
     bool currentlyFastCloning_;
     int basketSize_;
     int splitLevel_;

@@ -37,13 +37,15 @@ namespace edm {
 
   void
   RootOutputTree::fastCloneTTree(TTree *in, TTree *out) {
-    TTreeCloner cloner(in, out, "");
-    if (!cloner.IsValid()) {
-       throw edm::Exception(edm::errors::FatalRootError)
-         << "invalid TTreeCloner\n";
+    if (in->GetEntries() != 0) {
+      TTreeCloner cloner(in, out, "");
+      if (!cloner.IsValid()) {
+        throw edm::Exception(edm::errors::FatalRootError)
+          << "invalid TTreeCloner\n";
+      }
+      out->SetEntries(out->GetEntries() + in->GetEntries());
+      cloner.Exec();
     }
-    out->SetEntries(out->GetEntries() + in->GetEntries());
-    cloner.Exec();
   }
  
   void
@@ -67,33 +69,44 @@ namespace edm {
 
   void
   RootOutputTree::fastCloneTree(TTree *tree) {
+    unclonedReadBranches_.clear();
+    unclonedReadBranchNames_.clear();
     if (currentlyFastCloning_) {
       fastCloneTTree(tree, tree_);
+      for (std::vector<TBranch *>::const_iterator it = readBranches_.begin(), itEnd = readBranches_.end();
+	  it != itEnd; ++it) {
+	if ((*it)->GetEntries() != tree_->GetEntries()) {
+	  unclonedReadBranches_.push_back(*it);
+	  unclonedReadBranchNames_.insert(std::string((*it)->GetName()));
+	}
+      }
     }
   }
 
   void
   RootOutputTree::fillTree() const {
     fillTTree(metaTree_, metaBranches_);
-    fillTTree(tree_, branches_);
-    if (!currentlyFastCloning_) {
-      fillTTree(tree_, clonedBranches_);
+    fillTTree(tree_, producedBranches_);
+    if (currentlyFastCloning_) {
+      fillTTree(tree_, unclonedReadBranches_);
+    } else {
+      fillTTree(tree_, readBranches_);
     }
   }
 
   void
   RootOutputTree::addBranch(BranchDescription const& prod,
-			    void const*& pProd, bool inInput) {
+			    void const*& pProd, bool produced) {
       prod.init();
       TBranch *branch = tree_->Branch(prod.branchName().c_str(),
 		 prod.wrappedName().c_str(),
 		 &pProd,
 		 (prod.basketSize() == BranchDescription::invalidBasketSize ? basketSize_ : prod.basketSize()),
 		 (prod.splitLevel() == BranchDescription::invalidSplitLevel ? splitLevel_ : prod.splitLevel()));
-      if (inInput) {
-	clonedBranches_.push_back(branch);
+      if (produced) {
+	producedBranches_.push_back(branch);
       } else {
-	branches_.push_back(branch);
+        readBranches_.push_back(branch);
       }
   }
 }
