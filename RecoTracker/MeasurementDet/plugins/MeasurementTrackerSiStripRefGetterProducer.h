@@ -9,7 +9,7 @@
  * produces a SiStripRefGetter, defined by MeasurementTrackerOD::define(...)
  * 
  * $Dates: 2007/09/21 13:28 $
- * $Revision: 1.1 $
+ * $Revision: 1.2 $
  *
  * \author Jean-Roch Vlimant  UCSB
  *
@@ -17,6 +17,7 @@
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -40,8 +41,8 @@ class MeasurementTrackerSiStripRefGetterProducer : public edm::EDProducer {
   MeasurementTrackerSiStripRefGetterProducer( const edm::ParameterSet& );
   ~MeasurementTrackerSiStripRefGetterProducer();
   
-  virtual void beginJob( const edm::EventSetup& );
-  virtual void endJob();
+  virtual void beginRun( edm::Run &, const edm::EventSetup& );
+  virtual void endRun(   edm::Run &, const edm::EventSetup& );
   virtual void produce( edm::Event&, const edm::EventSetup& );
   
  private: 
