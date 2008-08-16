@@ -170,8 +170,6 @@ namespace edm {
     InputSource::ProcessingMode processingMode_;
     int forcedRunOffset_;
     std::map<std::string, std::string> newBranchToOldBranch_;
-    std::vector<std::string> sortedNewBranchNames_;
-    std::vector<std::string> oldBranchNames_;
     TTree * eventHistoryTree_;
     History history_;    
     boost::shared_ptr<BranchChildren> branchChildren_;

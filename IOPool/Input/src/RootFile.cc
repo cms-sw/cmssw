@@ -94,8 +94,6 @@ namespace edm {
       processingMode_(processingMode),
       forcedRunOffset_(forcedRunOffset),
       newBranchToOldBranch_(),
-      sortedNewBranchNames_(),
-      oldBranchNames_(),
       eventHistoryTree_(0),
       branchChildren_(new BranchChildren) {
     eventTree_.setCacheSize(treeCacheSize);
@@ -197,13 +195,8 @@ namespace edm {
 	  // Need to call init to get old branch name.
 	  prod.init();
 	  newBranchToOldBranch_.insert(std::make_pair(newBD.branchName(), prod.branchName()));
-	  if (newBD.branchType() == InEvent) {
-	    sortedNewBranchNames_.push_back(newBD.branchName());
-	    oldBranchNames_.push_back(prod.branchName());
-	  }
 	}
       }
-      sort_all(sortedNewBranchNames_);
       // freeze the product registry
       newReg->setNextID(tempReg.nextID());
       newReg->setFrozen();
@@ -379,8 +372,6 @@ namespace edm {
 						     runTree_.metaTree(),
 						     fastClonable(),
 						     file_,
-						     sortedNewBranchNames_,
-						     oldBranchNames_,
 						     branchChildren_));
   }
 
