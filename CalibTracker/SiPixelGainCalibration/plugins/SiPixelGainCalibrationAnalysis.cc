@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Nov 14 15:02:06 CET 2007
-// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.25 2008/08/14 12:01:36 fblekman Exp $
+// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.26 2008/08/15 09:46:03 fblekman Exp $
 //
 //
 
@@ -24,7 +24,7 @@ Implementation:
 #include <sstream>
 #include <vector>
 #include <math.h>
-#include "TGraph.h"
+#include "TGraphErrors.h"
 #include "TMath.h"
 //
 // constructors and destructor
@@ -66,6 +66,7 @@ SiPixelGainCalibrationAnalysis::SiPixelGainCalibrationAnalysis(const edm::Parame
   ::putenv("CORAL_AUTH_PASSWORD=test");   
   edm::LogInfo("SiPixelGainCalibrationAnalysis") << "now using fit function " << fitfunction_ << ", which has " << nfitparameters_ << " free parameters. " << std::endl;
   func_= new TF1("func",fitfunction_.c_str());
+  graph_ = new TGraphErrors();
 }
 
 SiPixelGainCalibrationAnalysis::~SiPixelGainCalibrationAnalysis()
@@ -243,10 +244,13 @@ SiPixelGainCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixelCalibD
       result=1;
     slope = fitter.GetParameter(1);
     intercept = fitter.GetParameter(0);
-
-    chi2 = fitter.GetChisquare()/fitter.GetNumberFreeParameters();
-    prob = TMath::Prob(fitter.GetChisquare(),fitter.GetNumberFreeParameters());
+    chi2 = fitter.GetChisquare()/npoints;
+    prob = TMath::Prob(fitter.GetChisquare(),npoints);
     
+    for(int i=0; i< func_->GetNpar();i++)
+      func_->SetParameter(i,fitter.GetParameter(i));
+    
+    //    if(1){
     if(isnan(slope) || isnan(intercept) ){
       //      std::cout << "fit result : "<< result << " "  << fitter.GetChisquare() << slope << " " << intercept << std::endl;
       makehistopersistent=true;
@@ -254,22 +258,24 @@ SiPixelGainCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixelCalibD
       //	std::cout << ibla << " " << xvals[ibla] << " " << yvals[ibla] << std::endl;
       //      }
       // and do the fit another way:
-      TGraph gr(npoints,xvals,yvals);
-      Int_t tempresult = gr.Fit("pol1","Q0");
-      slope= gr.GetFunction("pol1")->GetParameter(1);
-      intercept = gr.GetFunction("pol1")->GetParameter(0);
+      graph_->Set(npoints);
+      for(int ipointtemp=0; ipointtemp<npoints; ++ipointtemp){
+	graph_->SetPoint(ipointtemp,xvals[ipointtemp],yvals[ipointtemp]);
+	graph_->SetPointError(ipointtemp,0,yerrvals[ipointtemp]);
+      }
+      Int_t tempresult = graph_->Fit("func","Q0");
+      slope=func_->GetParameter(1);
+      intercept = func_->GetParameter(0);
       if(tempresult==0)
 	result=2;
       else
 	result = -4;
-      chi2=gr.GetFunction("pol1")->GetChisquare()/gr.GetFunction("pol1")->GetNumberFreeParameters();
-      prob= TMath::Prob(gr.GetFunction("pol1")->GetChisquare(),gr.GetFunction("pol1")->GetNumberFreeParameters());
+      chi2=func_->GetChisquare()/npoints;
+      prob= TMath::Prob(func_->GetChisquare(),npoints);
+    
       //      std::cout << "modified fit result : "<< result << " "  << gr.GetFunction("pol1")->GetChisquare() << slope << " " << intercept << std::endl;
      
     }
-    for(int i=0; i< func_->GetNpar();i++)
-      func_->SetParameter(i,fitter.GetParameter(i));
-    
     // convert the gain and pedestal parameters to functional form y= x/gain+ ped
 
     if(slope<0)
@@ -298,6 +304,10 @@ SiPixelGainCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixelCalibD
       bookkeeper_[detid]["chi2_2d"]->setBinContent(ipix->col()+1,ipix->row()+1,chi2);
       bookkeeper_[detid]["prob_1d"]->Fill(prob);
       bookkeeper_[detid]["prob_2d"]->setBinContent(ipix->col()+1,ipix->row()+1,prob);
+      bookkeeper_[detid]["lowpoint_1d"]->Fill(xvals[0]);
+      bookkeeper_[detid]["highpoint_1d"]->Fill(xvals[npoints-1]);
+      bookkeeper_[detid]["nfitpoints_1d"]->Fill(npoints);
+      bookkeeper_[detid]["endpoint_1d"]->Fill((255 - intercept)/slope);
     }
   }
   bookkeeper_[detid]["status_2d"]->setBinContent(ipix->col()+1,ipix->row()+1,result);
@@ -342,6 +352,10 @@ SiPixelGainCalibrationAnalysis::newDetID(uint32_t detid)
   bookkeeper_[detid]["prob_1d"] = bookDQMHistogram1D(detid,"GainChi2Prob1d","P(#chi^{2},NDOF) for "+tempname,100,0.,1.0);
   bookkeeper_[detid]["prob_2d"] = bookDQMHistoPlaquetteSummary2D(detid,"GainChi2Prob2d","P(#chi^{2},NDOF) for "+tempname);
   bookkeeper_[detid]["status_2d"] = bookDQMHistoPlaquetteSummary2D(detid,"GainFitResult2d","Fit result for "+tempname);
+  bookkeeper_[detid]["endpoint_1d"]= bookDQMHistogram1D(detid,"GainEndPoint1d","point where fit meets ADC=255 for "+tempname,256,0.,256.);
+  bookkeeper_[detid]["lowpoint_1d"]= bookDQMHistogram1D(detid,"GainLowPoint1d","lowest fit point for "+tempname,256,0.,256.);
+  bookkeeper_[detid]["highpoint_1d"]= bookDQMHistogram1D(detid,"GainHighPoint1d","highest fit point for "+tempname,256,0.,256.);
+  bookkeeper_[detid]["nfitpoints_1d"]= bookDQMHistogram1D(detid,"GainNPoints1d","number of fit point for "+tempname,256,0.,256.);
 
 }
 //define this as a plug-in
