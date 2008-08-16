@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: InjectWorker.pl,v 1.21 2008/08/15 14:22:29 loizides Exp $
+# $Id: InjectWorker.pl,v 1.22 2008/08/15 16:29:43 loizides Exp $
 
 use strict;
 use DBI;
@@ -149,7 +149,7 @@ sub inject($$)
     my $indfile     = $filename;
     $indfile =~ s/\.dat$/\.ind/;
     my $indfilesize = -1;
-    if (-e "$indfile") {
+    if (-e "$pathname/$indfile") {
         $indfilesize = -s "$indfile";
     } else {
         $indfile     = '';
@@ -209,8 +209,8 @@ sub inject($$)
     my $TIERZERO = "$notscript --APP_NAME=$appname --APP_VERSION=$appversion --RUNNUMBER $runnumber " . 
         "--LUMISECTION $lumisection --INSTANCE $instance --COUNT $count --START_TIME $starttime " . 
         "--STOP_TIME $stoptime --FILENAME $filename --PATHNAME $pathname --HOSTNAME $hostname " .
-        "--DESTINATION $destination --SETUPLABEL $setuplabel --STREAM $stream --STATUS $status --TYPE $type " .
-        "--SAFETY $safety --NEVENTS $nevents --FILESIZE $filesize --CHECKSUM $checksum";
+        "--DESTINATION $destination --SETUPLABEL $setuplabel --STREAM $stream --STATUS $status " .
+        " --TYPE $type --SAFETY $safety --NEVENTS $nevents --FILESIZE $filesize --CHECKSUM $checksum";
 
     if ($indfile ne '') {
       $TIERZERO .= " --INDEX $indfile"; # --INDEXFILESIZE $indfilesize"
