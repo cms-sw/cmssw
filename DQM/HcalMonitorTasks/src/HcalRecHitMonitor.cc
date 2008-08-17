@@ -218,7 +218,7 @@ void HcalRecHitMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
 				     147,-73,74,147,-73,74);
     // Adjust these limits later
     ZDChadVSem_plus = m_dbe->book2D("ZDCplus_HAD_vs_EM","ZDC+ HAD vs EM",200,0,100,200,0,100);
-    ZDChadVSem_minus = m_dbe->book2D("ZDCplus_HAD_vsEM","ZDC+ HAD vs EM",200,0,100,200,0,100);
+    ZDChadVSem_minus = m_dbe->book2D("ZDCminus_HAD_vs_EM","ZDC- HAD vs EM",200,0,100,200,0,100);
     ZDCenergy_plusVSminus = m_dbe->book2D("ZDC_energy_plus_vs_minus","ZDC Energy Plus vs Minus",
 					  200,0,200,200,0,200);
     ZDCenergyVSlayer_plus = m_dbe->bookProfile("ZDC_plus_energy_vs_layer", "ZDC Plus Energy vs Layer",5,0,5,200,0,200);
