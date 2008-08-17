@@ -390,15 +390,16 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
   nEvt_++;  
   LogInfo("PhotonAnalyzer") << "PhotonAnalyzer Analyzing event number: " << e.id() << " Global Counter " << nEvt_ <<"\n";
   //  LogDebug("PhotonAnalyzer") << "PhotonAnalyzer Analyzing event number: "  << e.id() << " Global Counter " << nEvt_ <<"\n";
-  std::cout << "PhotonAnalyzer Analyzing event number: "  << e.id() << " Global Counter " << nEvt_ <<"\n";
- 
-  
+   
   ///// Get the recontructed  photons
+  bool validPhotons=true;
   Handle<reco::PhotonCollection> photonHandle; 
   e.getByLabel(photonCollectionProducer_, photonCollection_ , photonHandle);
   const reco::PhotonCollection photonCollection = *(photonHandle.product());
-  std::cout  << "PhotonAnalyzer  Photons with conversions collection size " << photonCollection.size() << "\n";
-
+  if (!photonHandle.isValid()) {
+    edm::LogError("PhotonAnalyzer") << "Error! Can't get the product  "<<photonCollection_.c_str() << "\n";
+    validPhotons=false;
+  }
   
 // get the  calo topology  from the event setup:
   edm::ESHandle<CaloTopology> pTopology;
@@ -443,6 +444,9 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
   for ( int i=0; i<nPhoEndcap.size(); i++ ) nPhoEndcap[i]=0;
 
 
+ 
+  if ( ! validPhotons ) return; //empty histograms will be produced
+ 
   for( reco::PhotonCollection::const_iterator  iPho = photonCollection.begin(); iPho != photonCollection.end(); iPho++) {
 
 
@@ -788,8 +792,8 @@ void PhotonAnalyzer::endJob()
   
   edm::LogInfo("PhotonAnalyzer") << "Analyzed " << nEvt_  << "\n";
   // std::cout  << "::endJob Analyzed " << nEvt_ << " events " << " with total " << nPho_ << " Photons " << "\n";
-  std::cout  << "PhotonAnalyzer::endJob Analyzed " << nEvt_ << " events " << "\n";
-  std::cout << " Total number of photons " << nEntry_ << std::endl;
+  // std::cout  << "PhotonAnalyzer::endJob Analyzed " << nEvt_ << " events " << "\n";
+  //std::cout << " Total number of photons " << nEntry_ << std::endl;
    
   return ;
 }
