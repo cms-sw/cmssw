@@ -42,6 +42,7 @@ process.SiStripQualityESProducer.ListOfRecordToMerge = cms.VPSet(
 
 # Fake Conditions
 process.load( "CalibTracker.Configuration.SiStripGain.SiStripGain_Fake_cff" )
+process.siStripGainFakeESSource.appendToDataLabel=cms.string('')
 process.load( "CalibTracker.Configuration.SiStripLorentzAngle.SiStripLorentzAngle_Fake_cff" )
 process.load( "CalibTracker.Configuration.SiPixelLorentzAngle.SiPixelLorentzAngle_Fake_cff" )
 process.load( "CalibTracker.Configuration.TrackerAlignment.TrackerAlignment_Fake_cff" )
