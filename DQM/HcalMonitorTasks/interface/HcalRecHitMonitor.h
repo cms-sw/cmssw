@@ -8,8 +8,8 @@
 
 /** \class HcalRecHitMonitor
   *  
-  * $Date: 2008/04/23 15:44:02 $
-  * $Revision: 1.17 $
+  * $Date: 2008/08/17 15:15:20 $
+  * $Revision: 1.18 $
   * \author W. Fisher - FNAL
   */
 class HcalRecHitMonitor: public HcalBaseMonitor {
@@ -68,13 +68,16 @@ private:  ///Monitoring elements
   MonitorElement* hfshort_meRECHIT_T_all;
 
   // ZDC plots
+  // TH1F
   MonitorElement* ZDCtanAlpha;
   MonitorElement* ZDCaverageX;
+  // TH2F
   MonitorElement* ZDCxplusVSxminus;
   MonitorElement* ZDChadVSem_plus;
   MonitorElement* ZDChadVSem_minus;
   MonitorElement* ZDCenergy_plusVSminus;
   
+  // TProfile
   MonitorElement* ZDCenergyVSlayer_plus;
   MonitorElement* ZDCenergyVSlayer_minus;
 
