@@ -2,8 +2,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2008/08/14 18:40:29 $
- * $Revision: 1.68 $
+ * $Date: 2008/08/17 15:16:22 $
+ * $Revision: 1.69 $
  * \author W Fisher
  *
 */
@@ -26,7 +26,7 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
   ledMon_ = NULL;    mtccMon_ = NULL;
   hotMon_ = NULL;    tempAnalysis_ = NULL;
   deadMon_ = NULL;   tpMon_ = NULL;
-  ctMon_ = NULL;
+  ctMon_ = NULL;     beamMon_ = NULL;
   laserMon_ = NULL;
 
   inputLabelDigi_        = ps.getParameter<edm::InputTag>("digiLabel");
@@ -114,6 +114,12 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
     ctMon_ = new HcalCaloTowerMonitor(); 	 
     ctMon_->setup(ps, dbe_); 	 
   }  
+
+  if (ps.getUntrackedParameter<bool>("BeamMonitor",false)){
+    if(debug_) cout << "HcalMonitorModule: Beam monitor flag is on...."<<endl;
+    beamMon_ = new HcalBeamMonitor();
+    beamMon_->setup(ps, dbe_);
+  }
 
 
   if ( ps.getUntrackedParameter<bool>("HcalAnalysis", false) ) {
@@ -330,6 +336,7 @@ void HcalMonitorModule::endJob(void) {
   if(mtccMon_!=NULL) mtccMon_->done();
   if (tpMon_!=NULL) tpMon_->done();
   if (ctMon_!=NULL) ctMon_->done();
+  if (beamMon_!=NULL) beamMon_->done();
   if(tempAnalysis_!=NULL) tempAnalysis_->done();
   
   return;
@@ -352,6 +359,7 @@ void HcalMonitorModule::reset(){
   if(tempAnalysis_!=NULL) tempAnalysis_->reset();
   if(tpMon_!=NULL) tpMon_->reset();
   if(ctMon_!=NULL) ctMon_->reset();
+  if(beamMon_!=NULL) beamMon_->reset();
 }
 
 //--------------------------------------------------------
@@ -563,6 +571,18 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
     {
       cpu_timer.stop();
       if (rhMon_!=NULL) cout <<"TIMER:: RECHIT MONITOR ->"<<cpu_timer.cpuTime()<<endl;
+      cpu_timer.reset(); cpu_timer.start();
+    }
+  
+  if ((beamMon_ != NULL) && (evtMask&DO_HCAL_RECHITMON) && rechitOK_)
+    {
+      beamMon_->processEvent(*hb_hits,*ho_hits,*hf_hits);
+    }
+  if (showTiming_)
+    {
+      cpu_timer.stop();
+      if (beamMon_!=NULL) cout <<"TIMER:: BEAM MONITOR ->"<<cpu_timer.cpuTime( \
+)<<endl;
       cpu_timer.reset(); cpu_timer.start();
     }
 
