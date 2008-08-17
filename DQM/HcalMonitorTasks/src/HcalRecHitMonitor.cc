@@ -208,17 +208,47 @@ void HcalRecHitMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
     hoHists.meOCC_MAPthresh_GEO = m_dbe->book2D("HO RecHit Geo Occupancy Map - Threshold",
 						"HO RecHit Geo Occupancy Map - Threshold",
 						etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-  }
+
+    // ZDC histograms
+    m_dbe->setCurrentFolder(baseFolder_+"/ZDC");
+    ZDCtanAlpha = m_dbe->book1D("ZDC_EM_tan_alpha","ZDC EM tan #alpha",100,-0.0003,0.0003);
+    ZDCaverageX = m_dbe->book1D("ZDC_EM_avg_weighted_X_position","ZDC EM avg weighted X position",
+				147,-73,74);
+    ZDCxplusVSxminus = m_dbe->book2D("ZDC_EM_Xplus_Vs_Xminus","ZDC EM <X+> vs <X->",
+				     147,-73,74,147,-73,74);
+    // Adjust these limits later
+    ZDChadVSem_plus = m_dbe->book2D("ZDCplus_HAD_vs_EM","ZDC+ HAD vs EM",200,0,100,200,0,100);
+    ZDChadVSem_minus = m_dbe->book2D("ZDCplus_HAD_vsEM","ZDC+ HAD vs EM",200,0,100,200,0,100);
+    ZDCenergy_plusVSminus = m_dbe->book2D("ZDC_energy_plus_vs_minus","ZDC Energy Plus vs Minus",
+					  200,0,200,200,0,200);
+    ZDCenergyVSlayer_plus = m_dbe->bookProfile("ZDC_plus_energy_vs_layer", "ZDC Plus Energy vs Layer",5,0,5,200,0,200);
+    ZDCenergyVSlayer_plus->setBinLabel(1,"EM");
+    ZDCenergyVSlayer_plus->setBinLabel(2,"HAD0");
+    ZDCenergyVSlayer_plus->setBinLabel(3,"HAD1");
+    ZDCenergyVSlayer_plus->setBinLabel(4,"HAD2");
+    ZDCenergyVSlayer_plus->setBinLabel(5,"HAD3");
+    
+    ZDCenergyVSlayer_minus = m_dbe->bookProfile("ZDC_minus_energy_vs_layer", "ZDC Minus Energy vs Layer",5,0,5,200,0,200);
+    ZDCenergyVSlayer_minus->setBinLabel(1,"EM");
+    ZDCenergyVSlayer_minus->setBinLabel(2,"HAD0");
+    ZDCenergyVSlayer_minus->setBinLabel(3,"HAD1");
+    ZDCenergyVSlayer_minus->setBinLabel(4,"HAD2");
+    ZDCenergyVSlayer_minus->setBinLabel(5,"HAD3");
+    
+
+  } // if (m_dbe) !=NULL
 
   return;
 }
 
 void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits, 
 				     const HORecHitCollection& hoHits, 
-				     const HFRecHitCollection& hfHits){
+				     const HFRecHitCollection& hfHits
+				     //const ZDCRecHitCollection& zdcHits // not yet ready for this withing main routine
+				     ){
 
   if(!m_dbe) { 
-    if(fVerbosity) printf("HcalRecHitMonitor::processEvent   DQMStore not instantiated!!!\n");  
+    if(fVerbosity) cout <<"HcalRecHitMonitor::processEvent   DQMStore not instantiated!!!"<<endl;  
     return; 
   }
 
@@ -229,6 +259,7 @@ void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits,
   HBHERecHitCollection::const_iterator HBHEiter;
   HORecHitCollection::const_iterator HOiter;
   HFRecHitCollection::const_iterator HFiter;
+
   float tot = 0, tot2=0, all =0;
   float totThr = 0, tot2Thr=0, allThr =0;
 
@@ -344,7 +375,7 @@ void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits,
       allThr += tot2Thr;
     }
   } catch (...) {    
-    if(fVerbosity) printf("HcalRecHitMonitor::processEvent  Error in HBHE RecHit loop\n");
+    if(fVerbosity) cout<<"HcalRecHitMonitor::processEvent  Error in HBHE RecHit loop"<<endl;
   }
 
   if (showTiming)
@@ -477,14 +508,14 @@ void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits,
       allThr += totThr;
     }
   } catch (...) {    
-    if(fVerbosity) printf("HcalRecHitMonitor::processEvent  Error in HF RecHit loop\n");
+    if(fVerbosity) cout<<"HcalRecHitMonitor::processEvent  Error in HF RecHit loop"<<endl;
   }
 
   if (showTiming)
     { 
       cpu_timer.stop(); std::cout << " TIMER::HcalRecHit RECHIT HF-> " << cpu_timer.cpuTime() << std::endl; 
     } 
-  
+
   //  if(all>0) meRECHIT_E_all->Fill(all);
   if(all>-100) meRECHIT_E_all->Fill(all);
   if(allThr>0) meRECHIT_Ethresh_all->Fill(allThr);
@@ -492,3 +523,114 @@ void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits,
   return;
 }
 
+
+void HcalRecHitMonitor::processZDC(const ZDCRecHitCollection& zdcHits)
+{
+
+  if (showTiming)  cpu_timer.reset(); cpu_timer.start();  
+
+  ZDCRecHitCollection::const_iterator ZDCiter;
+
+  //cout <<"ZDC SIZE = "<<zdcHits.size()<<endl;
+  try
+    {
+      if(zdcHits.size()>0)
+	{
+	  // Each EM channel has a width of ~18 mm in X, extending from -46 -> +46 mm  
+	  // There are 5 EM channels.  Assume the mapping is:
+	  // channel 0:  -36.8 mm
+	  // channel 1:  -18.4 mm
+	  // channel 2:  0 mm
+	  // channel 3:  +18.4 mm
+	  // channel 4:  +36.8 mm
+	  // Change this mapping in the future if I've gotten it wrong.
+
+	  float EMmapping[5]={-36.8,-18.4,0.,18.4,+36.8};
+	  float weightedXplus=0;
+	  float weightedXminus=0;
+	  float sumEemplus=0;
+	  float sumEemminus=0;
+	  float sumEhadplus=0;
+	  float sumEhadminus=0;
+	  float sumEhadlayerplus[4]={0.};
+	  float sumEhadlayerminus[4]={0.};
+
+	  for (ZDCiter=zdcHits.begin(); ZDCiter!=zdcHits.end(); ++ZDCiter) 
+	    { // loop over all hits
+	      if (ZDCiter->id().section()==0 || ZDCiter->id().section()==3) continue;
+
+	      else if (ZDCiter->id().section()==1)  // found EM hit
+		{
+		  // positive side first
+		  if (ZDCiter->id().zside()==1)
+		    {
+		      // assume EM depth runs from 0-4; convert to distance using above mapping
+		      weightedXplus+=EMmapping[ZDCiter->id().depth()]*ZDCiter->energy();
+		      sumEemplus+=ZDCiter->energy();
+		    }
+		  else // negative side
+		    {
+		      // assume EM depth runs from 0-4; convert to distance using above mapping
+		      weightedXminus+=EMmapping[ZDCiter->id().depth()]*ZDCiter->energy();
+		      sumEemminus+=ZDCiter->energy(); 
+		    }
+		} // else if (ZDCiter->id().section==1)
+
+	      else if (ZDCiter->id().section()==2) // found HAD hit
+		{
+		  // positive side first
+		  if (ZDCiter->id().zside()==1)
+		    {
+		      sumEhadplus+=ZDCiter->energy();
+		      sumEhadlayerplus[ZDCiter->id().depth()]+=ZDCiter->energy();
+		    }
+		  else // negative side
+		    {
+		      sumEhadminus+=ZDCiter->energy();
+		      sumEhadlayerminus[ZDCiter->id().depth()]+=ZDCiter->energy();
+		    }
+		}
+	      else 
+		{ if (fVerbosity) cout <<"HcalRecHitMonitor::processEvent:  Unrecognized ZDC section:  "<<ZDCiter->id().section()<<endl;}
+
+	    } // for (ZDCiter=zdcHits.begin()...)
+
+	  // Finished looping on ZDC hits.  Now form weighted X positions
+	  weightedXplus/=sumEemplus;
+	  weightedXminus/=sumEemminus;
+
+	  // Fill histograms
+	  ZDCtanAlpha->Fill((weightedXplus-weightedXminus)/280000.0); // distance in mm
+	  ZDCaverageX->Fill((weightedXplus-weightedXminus)/2.);
+	  ZDCxplusVSxminus->Fill(weightedXminus, weightedXplus);
+	  ZDChadVSem_plus->Fill(sumEhadplus, sumEemplus);
+	  ZDChadVSem_minus->Fill(sumEhadminus, sumEemminus);
+	  ZDCenergy_plusVSminus->Fill((sumEemminus+sumEhadminus),(sumEemplus+sumEhadplus));
+	  
+	  // Fill dEdz plots as TProfiles with weight 1
+	  ZDCenergyVSlayer_plus->Fill(0,sumEemplus,1);
+	  ZDCenergyVSlayer_plus->Fill(1,sumEhadlayerplus[0],1);
+	  ZDCenergyVSlayer_plus->Fill(2,sumEhadlayerplus[1],1);
+	  ZDCenergyVSlayer_plus->Fill(3,sumEhadlayerplus[2],1);
+	  ZDCenergyVSlayer_plus->Fill(4,sumEhadlayerplus[3],1);
+	  	  
+	  ZDCenergyVSlayer_minus->Fill(0,sumEemminus,1);
+	  ZDCenergyVSlayer_minus->Fill(1,sumEhadlayerminus[0],1);
+	  ZDCenergyVSlayer_minus->Fill(2,sumEhadlayerminus[1],1);
+	  ZDCenergyVSlayer_minus->Fill(3,sumEhadlayerminus[2],1);
+	  ZDCenergyVSlayer_minus->Fill(4,sumEhadlayerminus[3],1);
+	  	
+	} // if (zdcHits.size()>0)
+    } // try
+  catch (...)
+    { if (fVerbosity) cout <<"HcalRecHitMonitor::processEvent Error in ZDC RecHit loop"<<endl;}
+
+
+
+
+  if (showTiming)
+    { 
+      cpu_timer.stop(); std::cout << " TIMER::HcalRecHit RECHIT ZDC-> " << cpu_timer.cpuTime() << std::endl; 
+    } 
+
+}

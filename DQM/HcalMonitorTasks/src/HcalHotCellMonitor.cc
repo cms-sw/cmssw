@@ -597,7 +597,7 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
   checkThreshold_ = ps.getUntrackedParameter<bool>("HotCell_checkThreshold", true);
   checkNADA_      = ps.getUntrackedParameter<bool>("HotCell_checkNADA", true);
   checkAbovePed_  = ps.getUntrackedParameter<bool>("HotCell_checkAbovePed", true);
-  cout <<"HOT CHECKS: "<<checkThreshold_<<"  "<<checkNADA_<<"  "<<checkAbovePed_<<"  "<<endl;
+  //cout <<"HOT CHECKS: "<<checkThreshold_<<"  "<<checkNADA_<<"  "<<checkAbovePed_<<"  "<<endl;
 
   // All subdetector values will be set to hcalHists values, unless 
   // explicitly stated otherwise in .cfi file

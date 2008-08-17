@@ -256,7 +256,7 @@ namespace HcalDeadCellCheck
 	    if (abs(cell_eta)>16)
 	      continue;
 	  }
-	// HB starts at |eta|=17, except for one layer at |eta|=16, depth=3
+	// HE starts at |eta|=17, except for one layer at |eta|=16, depth=3
 	else if (hist.type==2)
 	  {
 	    if (abs(cell_eta)<16)
@@ -311,7 +311,7 @@ namespace HcalDeadCellCheck
 		if (abs(NeighborEta)>16)
 		  continue;
 	      }
-	    // HB starts at |eta|=17, except for one layer at |eta|=16, depth=3
+	    // HE starts at |eta|=17, except for one layer at |eta|=16, depth=3
 	    else if (hist.type==2)
 	      {
 		if (abs(NeighborEta)<16)

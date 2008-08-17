@@ -1057,7 +1057,7 @@ void HcalDigiMonitor::fill_Nevents(DigiHists& h)
     {
       if (h.temp_SHAPE_tot[i]>0)
 	h.SHAPE_tot->Fill(i,h.temp_SHAPE_tot[i]);
-	if (h.temp_SHAPE_THR_tot[i]>0)
+      if (h.temp_SHAPE_THR_tot[i]>0)
 	h.SHAPE_THR_tot->Fill(i,h.temp_SHAPE_THR_tot[i]);
       h.temp_SHAPE_tot[i]=0;
       h.temp_SHAPE_THR_tot[i]=0;
@@ -1457,7 +1457,8 @@ void HcalDigiMonitor::HBHEDigiCheck(const HBHEDigiCollection& hbhe, DigiHists& h
 
 	      //Timing plot: skipping ped. subtraction and fC conversion, just lin.adc counts
 	      //and introducing threshold able to find muons
-	    
+	      // Require max ADC count in digi to be > 10 in order for the SHAPE_THR_tot histograms to be filled.
+	      
 	      if (maxadc>10) hbHists.temp_SHAPE_THR_tot[i]+=tmp;
 	      if(digiUpset) hbHists.QIE_CAPID->Fill(5);
 	      int dver = 2*digi.sample(i).er() + digi.sample(i).dv();
