@@ -3,9 +3,9 @@
 /** \class PhotonProducer
  **  
  **
- **  $Id: PhotonProducer.h,v 1.20 2008/05/07 03:48:06 nancy Exp $ 
- **  $Date: 2008/05/07 03:48:06 $ 
- **  $Revision: 1.20 $
+ **  $Id: PhotonProducer.h,v 1.23 2008/07/18 10:14:51 nancy Exp $ 
+ **  $Date: 2008/07/18 10:14:51 $ 
+ **  $Revision: 1.23 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -48,7 +48,7 @@ class PhotonProducer : public edm::EDProducer {
 			    const CaloSubdetectorGeometry *geometry,
 			    const CaloSubdetectorGeometry *geometryES,
                             const CaloTopology *topology,
-			    const EcalRecHitCollection *hits,
+			    const EcalRecHitCollection* hits,
 			    HBHERecHitMetaCollection *mhbhe,
 			    const edm::Handle<reco::ConversionCollection> & conversionHandle,
 			    const reco::ElectronPixelSeedCollection& pixelSeeds,
@@ -94,6 +94,10 @@ class PhotonProducer : public edm::EDProducer {
   edm::ESHandle<CaloTopology> theCaloTopo_;
   HoECalculator  theHoverEcalc_;
   ConversionLikelihoodCalculator* theLikelihoodCalc_;
+
+  bool validPixelSeeds_;
+
+  int nEvt_;
 
 };
 #endif
