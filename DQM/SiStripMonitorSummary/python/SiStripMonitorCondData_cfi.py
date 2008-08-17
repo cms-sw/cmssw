@@ -74,7 +74,7 @@ CondDataMonitoring = cms.EDFilter("SiStripMonitorCondData",
     # -----
     SiStripNoisesDQM_PSet = cms.PSet(
 
-      CondObj_fillId    = cms.string('onlyProfile'),
+      CondObj_fillId    = cms.string('onlyCumul'),
       CondObj_name      = cms.string('noise'),
 
       GainRenormalisation               = cms.bool(False),
