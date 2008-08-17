@@ -4,20 +4,20 @@ CondDataMonitoring = cms.EDFilter("SiStripMonitorCondData",
 
     OutputFileName             = cms.string('SiStripMonitorCondData.root'),
                                   
-    OutputMEsInRootFile        = cms.bool(False),
+    OutputMEsInRootFile        = cms.bool(True),
 
-    MonitorSiStripPedestal     = cms.bool(False),
+    MonitorSiStripPedestal     = cms.bool(True),
     MonitorSiStripNoise        = cms.bool(True),
-    MonitorSiStripQuality      = cms.bool(False),
+    MonitorSiStripQuality      = cms.bool(True),
     MonitorSiStripCabling      = cms.bool(True),
-    MonitorSiStripLowThreshold = cms.bool(False),
-    MonitorSiStripHighThreshold= cms.bool(False),
+    MonitorSiStripLowThreshold = cms.bool(True),
+    MonitorSiStripHighThreshold= cms.bool(True),
     MonitorSiStripApvGain      = cms.bool(False),                              
     MonitorSiStripLorentzAngle = cms.bool(False),                            
 
     FillConditions_PSet = cms.PSet(
       FolderName_For_QualityAndCabling_SummaryHistos= cms.string("SiStrip/Tracks"),
-      Mod_On                  = cms.bool(False),
+      Mod_On                  = cms.bool(True),
       SummaryOnStringLevel_On = cms.bool(False),
       SummaryOnLayerLevel_On  = cms.bool(True),
       GrandSummary_On         = cms.bool(True),
