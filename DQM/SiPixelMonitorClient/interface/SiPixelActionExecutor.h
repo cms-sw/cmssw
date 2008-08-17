@@ -20,7 +20,8 @@ class SiPixelActionExecutor {
  ~SiPixelActionExecutor();
 
  void createSummary(    	    DQMStore    		 * bei);
-
+ void bookOccupancyPlots(    	    DQMStore    		 * bei);
+ void createOccupancy(    	    DQMStore    		 * bei);
  void setupQTests(      	    DQMStore    		 * bei);
  void checkQTestResults(	    DQMStore    		 * bei);
  void createTkMap(      	    DQMStore    		 * bei, 
@@ -70,6 +71,9 @@ private:
                                     int                      	   nbin, 
                                     std::string              	 & me_name, 
 				    std::vector<MonitorElement*> & mes);
+ 
+  void fillBarrelOccupancy(    	    DQMStore    		 * bei);
+  void fillEndcapOccupancy(    	    DQMStore    		 * bei);
 
   SiPixelConfigParser* configParser_;
   SiPixelConfigWriter* configWriter_;
@@ -83,6 +87,11 @@ private:
   int ndet_;
   
   QTestHandle* qtHandler_;
+  
+  MonitorElement * BarrelOccupancyMap;
+  MonitorElement * EndcapOccupancyMap;
+  MonitorElement * PixelOccupancyMap;
+  
   
 };
 #endif

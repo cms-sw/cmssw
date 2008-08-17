@@ -132,13 +132,16 @@ void SiPixelEDAClient::analyze(const edm::Event& e, const edm::EventSetup& eSetu
 //  cout<<"[SiPixelEDAClient::analyze()] "<<endl;
   nEvents_++;  
   if(nEvents_==10){
+//  cout<<"Doing the initializing now!"<<endl;
     //cout << " Setting up QTests " << endl;
     sipixelWebInterface_->setActionFlag(SiPixelWebInterface::setupQTest);
     sipixelWebInterface_->performAction();
     //cout << " Creating Summary Histos" << endl;
     sipixelWebInterface_->setActionFlag(SiPixelWebInterface::Summary);
     sipixelWebInterface_->performAction();
-    //cout << " Booking summary report ME's" << endl;
+     //cout << " Creating occupancy plots" << endl;
+    sipixelActionExecutor_->bookOccupancyPlots(bei_);
+   //cout << " Booking summary report ME's" << endl;
     sipixelInformationExtractor_->bookGlobalQualityFlag(bei_);
   }
   sipixelWebInterface_->setActionFlag(SiPixelWebInterface::CreatePlots);
@@ -164,6 +167,10 @@ void SiPixelEDAClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
   sipixelWebInterface_->performAction();
   //cout << " Checking QTest results " << endl;
   sipixelWebInterface_->setActionFlag(SiPixelWebInterface::QTestResult);
+  sipixelWebInterface_->performAction();
+   //cout << " Updating occupancy plots" << endl;
+  sipixelActionExecutor_->bookOccupancyPlots(bei_);
+  sipixelWebInterface_->setActionFlag(SiPixelWebInterface::Occupancy);
   sipixelWebInterface_->performAction();
 
   //cout  << " Checking Pixel quality flags " << endl;;
@@ -205,6 +212,10 @@ void SiPixelEDAClient::endRun(edm::Run const& run, edm::EventSetup const& eSetup
   sipixelWebInterface_->performAction();
   //cout << " Checking QTest results " << endl;
   sipixelWebInterface_->setActionFlag(SiPixelWebInterface::QTestResult);
+  sipixelWebInterface_->performAction();
+   //cout << " Updating occupancy plots" << endl;
+  sipixelActionExecutor_->bookOccupancyPlots(bei_);
+  sipixelWebInterface_->setActionFlag(SiPixelWebInterface::Occupancy);
   sipixelWebInterface_->performAction();
 
 

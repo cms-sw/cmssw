@@ -27,7 +27,8 @@ public:
 			 PlotHistogramFromPath    =  9,
 			 CreatePlots              = 10,
 			 ComputeGlobalQualityFlag = 11,
-			 dumpModIds               = 12};
+			 dumpModIds               = 12,
+			 Occupancy    	          = 13};
 			 
   SiPixelWebInterface(DQMStore* bei);
   ~SiPixelWebInterface();

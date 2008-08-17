@@ -996,6 +996,142 @@ MonitorElement* SiPixelActionExecutor::getFEDSummaryME(DQMStore* bei,
   //cout<<"...leaving SiPixelActionExecutor::getFEDSummaryME!"<<endl;
 }
 //=============================================================================================================
+void SiPixelActionExecutor::bookOccupancyPlots(DQMStore* bei) {
+//std::cout<<"entering SiPixelActionExecutor::bookOccupancyPlots..."<<std::endl;
+  bei->cd();
+  bei->setCurrentFolder("Pixel/Barrel");
+  BarrelOccupancyMap = bei->book2D("barrelOccupancyMap","Barrel Digi Occupancy Map",208,0.,416.,80,0.,160.);
+  BarrelOccupancyMap->setAxisTitle("Columns",1);
+  BarrelOccupancyMap->setAxisTitle("Rows",2);
+  bei->setCurrentFolder("Pixel/Endcap");
+  EndcapOccupancyMap = bei->book2D("endcapOccupancyMap","Endcap Digi Occupancy Map",130,0.,260.,80,0.,160.);
+  EndcapOccupancyMap->setAxisTitle("Columns",1);
+  EndcapOccupancyMap->setAxisTitle("Rows",2);
+  //bei->setCurrentFolder("Pixel");
+ // PixelOccupancyMap = bei->book2D("pixelOccupancyMap","Pixel Digi Occupancy Map",208,0.,416.,80,0.,160.);
+ // PixelOccupancyMap->setAxisTitle("Columns",1);
+ // PixelOccupancyMap->setAxisTitle("Rows",2);
+//std::cout<<"leaving SiPixelActionExecutor::bookOccupancyPlots..."<<std::endl;
+  
+}
+
+void SiPixelActionExecutor::createOccupancy(DQMStore* bei) {
+//std::cout<<"entering SiPixelActionExecutor::createOccupancy..."<<std::endl;
+  bei->cd();
+  fillBarrelOccupancy(bei);
+  bei->cd();
+  fillEndcapOccupancy(bei);
+  bei->cd();
+//std::cout<<"leaving SiPixelActionExecutor::createOccupancy..."<<std::endl;
+}
+
+void SiPixelActionExecutor::fillBarrelOccupancy(DQMStore* bei) {
+//std::cout<<"entering SiPixelActionExecutor::fillBarrelOccupancy..."<<std::endl;
+  string currDir = bei->pwd();
+  string dname = currDir.substr(currDir.find_last_of("/")+1);
+  QRegExp rx("Module_");
+  //std::cout<<"currDir= "<<currDir<< " , dname= "<<dname<<std::endl;
+    if(rx.search(dname)!=-1){
+      vector<string> meVec = bei->getMEs();
+      for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
+        string full_path = currDir + "/" + (*it);
+        if(full_path.find("hitmap_siPixelDigis")!=string::npos){
+          MonitorElement * me = bei->get(full_path);
+          if (!me) continue;
+          BarrelOccupancyMap = bei->get("Pixel/Barrel/barrelOccupancyMap");
+          if(BarrelOccupancyMap){ 
+	  //std::cout<<"I found the occupancy map!"<<std::endl;
+            for(int i=1; i!=me->getNbinsX()+1; i++){
+	      for(int j=1; j!=me->getNbinsY()+1; j++){
+	        float before = BarrelOccupancyMap->getBinContent(i,j);
+	        float now = me->getBinContent(i,j);
+	        float newcontent = before + now;
+	        BarrelOccupancyMap->setBinContent(i,j,newcontent);
+	      }
+	    }
+	  }       
+        }
+      }
+      //bei->goUp();
+    } else {  
+      //std::cout<<"finding subdirs now"<<std::endl;
+      vector<string> subdirs = bei->getSubdirs();
+      for (vector<string>::const_iterator it = subdirs.begin(); it != subdirs.end(); it++) {
+        if((bei->pwd()).find("Endcap")!=string::npos ||
+           (bei->pwd()).find("AdditionalPixelErrors")!=string::npos) bei->goUp();
+        bei->cd(*it);
+	//ls -ltr 
+	//std::cout<<"now I am in "<<bei->pwd()<<std::endl;
+        if((*it).find("Endcap")!=string::npos ||
+           (*it).find("AdditionalPixelErrors")!=string::npos) continue;
+        //std::cout<<"calling myself again "<<std::endl;
+	fillBarrelOccupancy(bei);
+        bei->goUp();
+      }
+    }
+      
+//std::cout<<"leaving SiPixelActionExecutor::fillBarrelOccupancy..."<<std::endl;
+   
+}
+
+void SiPixelActionExecutor::fillEndcapOccupancy(DQMStore* bei) {
+//std::cout<<"entering SiPixelActionExecutor::fillEndcapOccupancy..."<<std::endl;
+  string currDir = bei->pwd();
+  string dname = currDir.substr(currDir.find_last_of("/")+1);
+  QRegExp rx("Module_");
+  //std::cout<<"currDir= "<<currDir<< " , dname= "<<dname<<std::endl;
+  
+  // list of modules/ROC's to be excluded from the plot (noisy):
+  bool mod1 = currDir.find("Pixel/Endcap/HalfCylinder_mI/Disk_1/Blade_01/Panel_2/Module_2")!=string::npos;
+    
+    if(rx.search(dname)!=-1 &&
+       !mod1){
+      vector<string> meVec = bei->getMEs();
+      for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
+        string full_path = currDir + "/" + (*it);
+        if(full_path.find("hitmap_siPixelDigis")!=string::npos){
+          MonitorElement * me = bei->get(full_path);
+          if (!me) continue;
+          EndcapOccupancyMap = bei->get("Pixel/Endcap/endcapOccupancyMap");
+          if(EndcapOccupancyMap){ 
+	  //std::cout<<"I found the occupancy map!"<<std::endl;
+            for(int i=1; i!=me->getNbinsX()+1; i++){
+	      for(int j=1; j!=me->getNbinsY()+1; j++){
+	        if(currDir.find("Pixel/Endcap/HalfCylinder_pI/Disk_1/Blade_10/Panel_2/Module_1")!=string::npos &&
+		   i>26 && i<=52 && j>0 && j<=40) continue;
+	        if(currDir.find("Pixel/Endcap/HalfCylinder_pI/Disk_1/Blade_10/Panel_2/Module_3")!=string::npos &&
+		   i>26 && i<=52 && j>0 && j<=40) continue;
+	        float before = EndcapOccupancyMap->getBinContent(i,j);
+	        float now = me->getBinContent(i,j);
+	        float newcontent = before + now;
+	        EndcapOccupancyMap->setBinContent(i,j,newcontent);
+	      }
+	    }
+	  }       
+        }
+      }
+      //bei->goUp();
+    } else {  
+      //std::cout<<"finding subdirs now"<<std::endl;
+      vector<string> subdirs = bei->getSubdirs();
+      for (vector<string>::const_iterator it = subdirs.begin(); it != subdirs.end(); it++) {
+        if((bei->pwd()).find("Barrel")!=string::npos ||
+           (bei->pwd()).find("AdditionalPixelErrors")!=string::npos) bei->goUp();
+        bei->cd(*it);
+	//ls -ltr 
+	//std::cout<<"now I am in "<<bei->pwd()<<std::endl;
+        if((*it).find("Barrel")!=string::npos ||
+           (*it).find("AdditionalPixelErrors")!=string::npos) continue;
+        //std::cout<<"calling myself again "<<std::endl;
+	fillEndcapOccupancy(bei);
+        bei->goUp();
+      }
+    }
+      
+//std::cout<<"leaving SiPixelActionExecutor::fillEndcapOccupancy..."<<std::endl;
+   
+}
+//=============================================================================================================
 //
 // -- Setup Quality Tests 
 //

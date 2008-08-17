@@ -208,6 +208,11 @@ void SiPixelWebInterface::performAction() {
       actionExecutor_->createSummary(bei_);
       break;
     }
+  case SiPixelWebInterface::Occupancy :
+    {
+      actionExecutor_->createOccupancy(bei_);
+      break;
+    }
   case SiPixelWebInterface::setupQTest :
     {
       actionExecutor_->setupQTests(bei_);
