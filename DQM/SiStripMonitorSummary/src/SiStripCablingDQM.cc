@@ -39,7 +39,54 @@ void SiStripCablingDQM::getActiveDetIds(const edm::EventSetup & eSetup){
   std::vector<uint32_t>::const_iterator idet=activeDetIds.begin();
 
   for(;idet!=activeDetIds.end();++idet){
-    std::string s;
+
+    uint32_t detId = *idet;
+
+    StripSubdetector subdet(detId);
+
+    switch (subdet.subdetId()) 
+      {
+      case StripSubdetector::TIB:
+	{
+          TIBDetId tibId(detId);
+          int i = tibId.layer() - 1;
+	  counterTIB[i]++;
+	  break;       
+	}
+      case StripSubdetector::TID:
+	{
+	  TIDDetId tidId(detId);
+	  if (tidId.side() == 2) {
+            int j = tidId.wheel() - 1;
+	    counterTID[0][j]++;
+	  }  else if (tidId.side() == 1) {
+            int j = tidId.wheel() - 1;
+	    counterTID[1][j]++;
+	  }
+	  break;       
+	}
+      case StripSubdetector::TOB:
+	{
+          TOBDetId tobId(detId);
+          int i = tobId.layer() - 1;
+	  counterTOB[i]++;
+	  break;       
+	}
+      case StripSubdetector::TEC:
+	{
+	  TECDetId tecId(detId);
+	  if (tecId.side() == 2) {
+            int j = tecId.wheel() - 1;
+	    counterTEC[0][j]++;
+	  }  else if (tecId.side() == 1) {
+            int j = tecId.wheel() - 1;
+	    counterTEC[1][j]++;
+	  }
+	  break;       
+	}
+      }
+
+    /*    std::string s;
     s=getLayerNameAndId(*idet).first; 
     LogDebug("SiStripCabling")<<"Sub Det and Layer "<<s;
     for(int i=0;i<4;i++){
@@ -68,7 +115,7 @@ void SiStripCablingDQM::getActiveDetIds(const edm::EventSetup & eSetup){
 	ss<<"TEC__side__"<<i+1<<"__wheel__"<<j+1;
 	if(strstr(s.c_str(),ss.str().c_str())!=NULL)counterTEC[i][j]++;
       }
-    }
+      }*/
   }
 
   //obtained from tracker.dat and hard-coded
