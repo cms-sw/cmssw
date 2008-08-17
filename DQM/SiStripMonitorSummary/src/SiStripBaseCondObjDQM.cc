@@ -302,7 +302,7 @@ void SiStripBaseCondObjDQM::getModMEs(ModMEs& CondObj_ME, const uint32_t& detId_
   }
   
   // --> profile defined for all CondData
-  if ( (CondObj_fillId_ =="ProfileAndCumul" || CondObj_fillId_ =="onlyProfile") ) {
+  if ( (CondObj_fillId_ =="ProfileAndCumul" || CondObj_fillId_ =="onlyProfile")) {
     bookProfileMEs(CondObj_ME,detId_);
   }  
   
@@ -332,19 +332,21 @@ void SiStripBaseCondObjDQM::getSummaryMEs(ModMEs& CondObj_ME, const uint32_t& de
   if (SummaryMEsMap_iter != SummaryMEsMap_.end()){ return;}
 
   // --> currently only profile summary defined for all condition objects except quality
-  if(  CondObj_name_ == "pedestal"     || 
+  if(  (CondObj_fillId_ =="ProfileAndCumul" || CondObj_fillId_ =="onlyProfile" ) &&
+     (CondObj_name_ == "pedestal"     || 
       CondObj_name_ == "noise"         || 
       CondObj_name_ == "lowthreshold"  || 
       CondObj_name_ == "highthreshold" || 
       CondObj_name_ == "apvgain"       || 
-      CondObj_name_ == "lorentzangle" ) {
+      CondObj_name_ == "lorentzangle") ) {
     if(hPSet_.getParameter<bool>("FillSummaryProfileAtLayerLevel"))	
       if (CondObj_ME.SummaryOfProfileDistr) { bookSummaryProfileMEs(CondObj_ME,detId_);}  
     
   }
     
   // --> currently only genuine cumul LA
-  if(  CondObj_name_ == "lorentzangle" ||  CondObj_name_ == "noise"  ) {
+  if(   (CondObj_fillId_ =="ProfileAndCumul" || CondObj_fillId_ =="onlyCumul" ) &&
+	(CondObj_name_ == "lorentzangle" ||  CondObj_name_ == "noise")  ) {
     if(hPSet_.getParameter<bool>("FillCumulativeSummaryAtLayerLevel"))
       if (CondObj_ME.SummaryOfCumulDistr) { bookSummaryCumulMEs(CondObj_ME,detId_); } 
   } 

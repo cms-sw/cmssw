@@ -140,14 +140,16 @@ void SiStripNoisesDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_, u
 							 "") ;
     for( int istrip=0;istrip<nStrip;++istrip){
       
-      try{ 	
-	if(gainRenormalisation_ ){
-	  SiStripApvGain::Range gainRange = gainHandle_->getRange(selDetId_);
-	  gainFactor= gainHandle_ ->getStripGain(istrip,gainRange);
-	  selME_.SummaryOfProfileDistr->Fill(istrip+1,noiseHandle_->getNoise(istrip,noiseRange)/gainFactor);
-	}
-	else{
-	  selME_.SummaryOfProfileDistr->Fill(istrip+1,noiseHandle_->getNoise(istrip,noiseRange));
+      try{ 
+	if( CondObj_fillId_ =="onlyProfile" || CondObj_fillId_ =="ProfileAndCumul"){	
+	  if(gainRenormalisation_ ){
+	    SiStripApvGain::Range gainRange = gainHandle_->getRange(selDetId_);
+	    gainFactor= gainHandle_ ->getStripGain(istrip,gainRange);
+	    selME_.SummaryOfProfileDistr->Fill(istrip+1,noiseHandle_->getNoise(istrip,noiseRange)/gainFactor);
+	  }
+	  else{
+	    selME_.SummaryOfProfileDistr->Fill(istrip+1,noiseHandle_->getNoise(istrip,noiseRange));
+	  }
 	}
       } 
       catch(cms::Exception& e){
@@ -238,13 +240,15 @@ void SiStripNoisesDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_, u
     
     for( int istrip=0;istrip<nStrip;++istrip){
       try{ 
-	if(gainRenormalisation_){           
-	  SiStripApvGain::Range gainRange = gainHandle_->getRange(selDetId_);
-	  gainFactor= gainHandle_ ->getStripGain(istrip,gainRange);
-	  selME_.SummaryOfCumulDistr->Fill(noiseHandle_->getNoise(istrip,noiseRange)/gainFactor);
-	}
-	else{
-	  selME_.SummaryOfCumulDistr->Fill(noiseHandle_->getNoise(istrip,noiseRange));
+	if( CondObj_fillId_ =="onlyCumul" || CondObj_fillId_ =="ProfileAndCumul"){
+	  if(gainRenormalisation_){           
+	    SiStripApvGain::Range gainRange = gainHandle_->getRange(selDetId_);
+	    gainFactor= gainHandle_ ->getStripGain(istrip,gainRange);
+	    selME_.SummaryOfCumulDistr->Fill(noiseHandle_->getNoise(istrip,noiseRange)/gainFactor);
+	  }
+	  else{
+	    selME_.SummaryOfCumulDistr->Fill(noiseHandle_->getNoise(istrip,noiseRange));
+	  }
 	}
       } 
       catch(cms::Exception& e){
