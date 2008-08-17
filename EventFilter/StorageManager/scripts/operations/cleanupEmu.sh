@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: cleanupEmu.sh,v 1.8 2008/08/11 19:19:16 loizides Exp $
+# $Id: cleanupEmu.sh,v 1.9 2008/08/11 19:49:03 loizides Exp $
 
 if test -e "/etc/profile.d/sm_env.sh"; then 
     source /etc/profile.d/sm_env.sh
@@ -20,7 +20,7 @@ if test -n "$SM_STORE"; then
 fi
 
 #Path of emulator directory to cleanup
-EMUDIR="$store/emulator/"
+EMUDIR="$store/emulator"
 
 if ! test -d "$EMUDIR"; then
     echo "Dir $EMUDIR not found or not a directory"
