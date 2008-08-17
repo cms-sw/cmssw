@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: mkvol.sh,v 1.4 2008/06/11 13:58:04 loizides Exp $
+# $Id: mkvol.sh,v 1.5 2008/06/12 13:29:17 loizides Exp $
 
 if test -e "/etc/profile.d/sm_env.sh"; then 
     source /etc/profile.d/sm_env.sh;
@@ -9,6 +9,7 @@ id=$1
 sb=$2
 ar=$3
 vol=$4
+nofs=$5
 
 if test -z "$vol"; then
     echo "Error: $0 volname satabeast array volume"
@@ -47,14 +48,23 @@ if test "$mpoint" = "$testmpoint"; then
     exit 3;
 fi
 
-exstr="mkdir -p $mpoint && /sbin/mkfs.ext3 -F -T largefile -m 0 -L $mlabel $dpath && /bin/mount -L $mlabel $mpoint"
-echo "Executing $exstr"
-echo
- 
-mkdir -p $mpoint && /sbin/mkfs.ext3 -F -T largefile -m 0 -L $mlabel $dpath && /bin/mount -L $mlabel $mpoint
+mkdir -p $mpoint
+if test -z "$nofs"; then
+#    exstr="/sbin/mkfs.ext3 -F -T largefile -m 0 -L $mlabel $dpath"
+    exstr="/sbin/mkfs.xfs -f -L $mlabel $dpath"
+    echo "Executing $exstr"
+    echo
+    $exstr
 
+    if test "$?" != "0"; then
+	echo "Error: Problem formatting disk, please check status!!!"
+	exit 4;
+    fi
+fi
+
+mkdir -p $mpoint && /bin/mount -L $mlabel $mpoint
 if test "$?" != "0"; then
-    echo "Error: Problem formatting disk, please check status!!!"
+    echo "Error: Problem mounting disk, please check status!!!"
     exit 4;
 fi
 
