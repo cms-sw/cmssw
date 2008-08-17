@@ -424,19 +424,19 @@ void HcalRecHitClient::htmlOutput(int runNo, string htmlDir, string htmlName){
   // ZDC plots
   htmlFile <<"<tr align=\"left\">"<<endl;
   htmlAnyHisto(runNo, ZDCtanAlpha,"tan #alpha", "# of entries",92, htmlFile, htmlDir);
-  htmlAnyHisto(runNo, ZDCaverageX,"tan #alpha", "# of entries", 100, htmlFile, htmlDir);
+  htmlAnyHisto(runNo, ZDCaverageX,"Average X (mm)", "# of entries", 100, htmlFile, htmlDir);
   htmlFile <<"</tr>"<<endl;
   htmlFile <<"<tr align=\"left\">"<<endl;
-  htmlAnyHisto(runNo, ZDCxplusVSxminus,"Average X-", "Average X+",92, htmlFile, htmlDir);
-  htmlAnyHisto(runNo, ZDCenergy_plusVSminus,"Total Energy (- end)", "Total Energy (+ end)", 100, htmlFile, htmlDir);
+  htmlAnyHisto(runNo, ZDCxplusVSxminus,"Average X- (mm)", "Average X+ (mm)",92, htmlFile, htmlDir);
+  htmlAnyHisto(runNo, ZDCenergy_plusVSminus,"Total Energy (- end) (GeV)", "Total Energy (+ end) (GeV)", 100, htmlFile, htmlDir);
   htmlFile <<"</tr>"<<endl;
   htmlFile <<"<tr align=\"left\">"<<endl;
-  htmlAnyHisto(runNo, ZDChadVSem_plus,"EM (+ end)", "HAD (+ end)",92, htmlFile, htmlDir);
-  htmlAnyHisto(runNo, ZDChadVSem_minus,"EM (- end)", "HAD (- end)",92, htmlFile, htmlDir);
+  htmlAnyHisto(runNo, ZDChadVSem_plus,"EM Energy (+ end) (GeV)", "HAD Energy  (+ end) (GeV)",92, htmlFile, htmlDir);
+  htmlAnyHisto(runNo, ZDChadVSem_minus,"EM Energy (- end) (GeV)", "HAD Energy (- end) (GeV)",92, htmlFile, htmlDir);
   htmlFile <<"</tr>"<<endl;
   htmlFile <<"<tr align=\"left\">"<<endl;
-  htmlAnyHisto(runNo, ZDCenergyVSlayer_plus,"Energy By Layer (+ end)", "Layer",92, htmlFile, htmlDir);
-  htmlAnyHisto(runNo, ZDCenergyVSlayer_minus,"Energy By Layer (- end)", "Layer",92, htmlFile, htmlDir);
+  htmlAnyHisto(runNo, ZDCenergyVSlayer_plus, "Layer", "Avg. Energy (GeV)",92, htmlFile, htmlDir);
+  htmlAnyHisto(runNo, ZDCenergyVSlayer_minus,"Layer", "Avg. Energy (GeV)",92, htmlFile, htmlDir);
   htmlFile <<"</tr>"<<endl;
 
 
