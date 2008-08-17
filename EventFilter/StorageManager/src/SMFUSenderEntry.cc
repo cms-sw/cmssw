@@ -1,10 +1,11 @@
 /*
         For saving the FU sender list
 
- $Id: SMFUSenderEntry.cc,v 1.6 2008/07/30 19:19:55 biery Exp $
+ $Id: SMFUSenderEntry.cc,v 1.7 2008/07/31 20:30:28 biery Exp $
 */
 
 #include "EventFilter/StorageManager/interface/SMFUSenderEntry.h"
+#include "IOPool/Streamer/interface/InitMessage.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 
 using namespace stor;
@@ -426,6 +427,11 @@ bool SMFUSenderEntry::copyRegistry(const std::string outModName, toolbox::mem::R
         registryCollection_.registryDataMap_[outModName].resize(origsize);
     copy(&tempbuffer[0], &tempbuffer[0]+origsize, 
         &(registryCollection_.registryDataMap_[outModName][0]));
+    // get the real output module name
+    InitMsgView dummymsg(&tempbuffer[0]);
+    std::string dmoduleLabel = dummymsg.outputModuleLabel();
+    uint32 dmoduleId = dummymsg.outputModuleId();
+    registryCollection_.outModId2RealModName_.insert(std::make_pair(dmoduleId, dmoduleLabel));
   } else { // only one frame/fragment
     FDEBUG(9) << "copyAndTestRegistry: populating registry buffer from single frame for "
               << msg->hltURL << " and Tid " << msg->hltTid << std::endl;
@@ -439,6 +445,11 @@ bool SMFUSenderEntry::copyRegistry(const std::string outModName, toolbox::mem::R
         registryCollection_.registryDataMap_[outModName].resize(origsize);
     copy(&tempbuffer[0], &tempbuffer[0]+origsize, 
         &(registryCollection_.registryDataMap_[outModName][0]));
+    // get the real output module name
+    InitMsgView dummymsg(&tempbuffer[0]);
+    std::string dmoduleLabel = dummymsg.outputModuleLabel();
+    uint32 dmoduleId = dummymsg.outputModuleId();
+    registryCollection_.outModId2RealModName_.insert(std::make_pair(dmoduleId, dmoduleLabel));
   } // end of number of frames test
 
   // the test of subsequent registries must be done in StorageManager

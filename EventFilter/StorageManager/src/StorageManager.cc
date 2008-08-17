@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.72 2008/08/13 16:23:53 biery Exp $
+// $Id: StorageManager.cc,v 1.73 2008/08/13 22:48:12 biery Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -83,6 +83,13 @@ static void deleteSMBuffer(void* Ref)
     toolbox::mem::Reference *ref=(toolbox::mem::Reference*)entry->buffer_object_;
     ref->release();
   }
+}
+
+std::string smutil_itos(int i)	// convert int to string
+{
+  std::stringstream s;
+  s << i;
+  return s.str();
 }
 
 
@@ -333,6 +340,7 @@ void StorageManager::receiveRegistryMessage(toolbox::mem::Reference *ref)
   // need output module name and Id which is not available in the I2O header!!
   // We must assume the registry is in a single frame! So in this case
   // we extract the information from the INIT message header
+/*
   unsigned int origsize = msg->originalSize;
   vector<char> tempbuffer(origsize);
   int sz = msg->dataSize;
@@ -340,7 +348,9 @@ void StorageManager::receiveRegistryMessage(toolbox::mem::Reference *ref)
   InitMsgView dummymsg(&tempbuffer[0]);
   std::string dmoduleLabel = dummymsg.outputModuleLabel();
   uint32 dmoduleId = dummymsg.outputModuleId();
-
+*/
+  std::string dmoduleLabel("dummy" + smutil_itos(msg->outModID));
+  uint32 dmoduleId = msg->outModID;
   {
   // a quick fix for registration problem TODO find real problem and fix!
   boost::mutex::scoped_lock sl(rblist_lock_);
@@ -1726,7 +1736,8 @@ void StorageManager::rbsenderWebPage(xgi::Input *in, xgi::Output *out)
               *out << "Output Module Name" << endl;
               *out << "</td>" << endl;
               *out << "<td align=right>" << endl;
-              *out << (*idx) << endl;
+              uint32 idtemp = (*pos)->registryCollection_.outModName2ModId_[*idx];
+              *out << (*pos)->registryCollection_.outModId2RealModName_[idtemp] << endl;
               *out << "</td>" << endl;
             *out << "  </tr>" << endl;
             *out << "<tr>" << endl;
@@ -1844,7 +1855,8 @@ void StorageManager::rbsenderWebPage(xgi::Input *in, xgi::Output *out)
                 *out << "Output Module Name" << endl;
                 *out << "</td>" << endl;
                 *out << "<td align=right>" << endl;
-                *out << (*idx) << endl;
+                uint32 idtemp = (*pos)->registryCollection_.outModName2ModId_[*idx];
+                *out << (*pos)->registryCollection_.outModId2RealModName_[idtemp] << endl;
                 *out << "</td>" << endl;
               *out << "  </tr>" << endl;
               *out << "<tr>" << endl;

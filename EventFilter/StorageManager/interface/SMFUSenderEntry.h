@@ -22,6 +22,7 @@ struct SMFUSenderRegCollection // used to stored collection of INIT messages
   std::vector<std::string> outModName_;
   std::map<std::string, uint32> outModName2ModId_;
   std::map<uint32, std::string> outModId2ModName_;
+  std::map<uint32, std::string> outModId2RealModName_;
   std::map<std::string, uint32> registrySizeMap_;    // size of registry in bytes once received AND copied
   std::map<std::string, bool> regAllReceivedMap_;  // All Registry fragments are received or not
   std::map<std::string, bool> regCheckedOKMap_;    // // Registry checked to be same as configuration
