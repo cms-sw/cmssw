@@ -33,6 +33,8 @@ process.load("RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_ho_cfi")
 
 process.load("RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hf_cfi")
 
+process.load("RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_zdc_cfi")
+
 # Disabled for now; rewrite hcal_dqm... file directly (kind of dangerous?)
 #process.load("DQM.HcalMonitorModule.dqmdbsGUI._runOptions_cfi")
 
@@ -49,7 +51,7 @@ process.options = cms.untracked.PSet(
         'TooFewProducts')
 )
 
-process.p = cms.Path(process.hcalDigis*process.horeco*process.hfreco*process.hbhereco*process.hcalMonitor*process.hcalClient*process.dqmEnv*process.dqmSaver)
+process.p = cms.Path(process.hcalDigis*process.horeco*process.hfreco*process.hbhereco*process.zdcreco*process.hcalMonitor*process.hcalClient*process.dqmEnv*process.dqmSaver)
 
 process.DQM.collectorHost = 'myhost'
 process.DQM.collectorPort = 9092

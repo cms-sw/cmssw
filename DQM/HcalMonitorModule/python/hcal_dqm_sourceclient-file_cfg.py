@@ -110,6 +110,7 @@ process.load("EventFilter.HcalRawToDigi.HcalRawToDigi_cfi")
 process.load("RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hbhe_cfi")
 process.load("RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_ho_cfi")
 process.load("RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hf_cfi")
+process.load("RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_zdc_cf")
 
 # hcalMonitor configurable values -----------------------
 process.hcalMonitor.debug = False
@@ -168,7 +169,7 @@ process.options = cms.untracked.PSet(
         'TooFewProducts')
 )
 
-process.p = cms.Path(process.hcalDigis*process.horeco*process.hfreco*process.hbhereco*process.hcalMonitor*process.hcalClient*process.dqmEnv*process.dqmSaver)
+process.p = cms.Path(process.hcalDigis*process.horeco*process.hfreco*process.hbhereco*process.zdcreco*process.hcalMonitor*process.hcalClient*process.dqmEnv*process.dqmSaver)
 
 #-----------------------------
 # Quality Tester 
