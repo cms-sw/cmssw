@@ -4,9 +4,10 @@ a = cms.ESSource("PoolDBESSource",
     appendToDataLabel = cms.string('test'),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('SiStripBadFiberRcd'),
+##        record = cms.string('SiStripDetCablingRcd'),
         tag = cms.string('SiStripBadChannel_v1')
     )),
-    DBParameters = cms.PSet(
+                 DBParameters = cms.PSet(
         authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
     ),
     timetype = cms.string('runnumber'),
@@ -20,6 +21,8 @@ siStripQualityESProducer = cms.ESProducer("SiStripQualityESProducer",
     ReduceGranularity = cms.untracked.bool(True),
     ListOfRecordToMerge = cms.VPSet(cms.PSet(
         record = cms.string('SiStripBadFiberRcd'),
+##        record = cms.string('SiStripDetCablingRcd'),
+##        record = cms.string('SiStripBadChannelRcd'),        
         tag = cms.string('test')
     ))
 )
