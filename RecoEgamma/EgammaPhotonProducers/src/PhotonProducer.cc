@@ -81,54 +81,58 @@ void  PhotonProducer::beginJob (edm::EventSetup const & theEventSetup) {
   edm::FileInPath path_mvaWeightFile(likelihoodWeights_.c_str() );
   theLikelihoodCalc_->setWeightsFile(path_mvaWeightFile.fullPath().c_str());
 
-
+  nEvt_=0;
 }
 
 
 void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEventSetup) {
 
   using namespace edm;
+  nEvt_++;
 
   reco::PhotonCollection outputPhotonCollection;
   std::auto_ptr< reco::PhotonCollection > outputPhotonCollection_p(new reco::PhotonCollection);
 
   // Get the  Barrel Super Cluster collection
+  bool validBarrelSCHandle=true;
   Handle<reco::SuperClusterCollection> scBarrelHandle;
   theEvent.getByLabel(scHybridBarrelProducer_,scBarrelHandle);
   if (!scBarrelHandle.isValid()) {
     edm::LogError("PhotonProducer") << "Error! Can't get the product "<<scHybridBarrelProducer_.label();
-    return;
+    bool validBarrelSCHandle=false;
   }
-  reco::SuperClusterCollection scBarrelCollection = *(scBarrelHandle.product());
-  edm::LogInfo("PhotonProducer") << " Accessing Barrel SC collection with size : " << scBarrelCollection.size()  << "\n";
+
 
  // Get the  Endcap Super Cluster collection
+  bool validEndcapSCHandle=true;
   Handle<reco::SuperClusterCollection> scEndcapHandle;
   theEvent.getByLabel(scIslandEndcapProducer_,scEndcapHandle);
   if (!scEndcapHandle.isValid()) {
     edm::LogError("PhotonProducer") << "Error! Can't get the product "<<scIslandEndcapProducer_.label();
-    return;
+    validEndcapSCHandle=false;
   }
-  reco::SuperClusterCollection scEndcapCollection = *(scEndcapHandle.product());
-  edm::LogInfo("PhotonProducer") << " Accessing Endcap SC collection with size : " << scEndcapCollection.size()  << "\n";
+
   
  // Get EcalRecHits
+  bool validEcalRecHits=true;
   Handle<EcalRecHitCollection> barrelHitHandle;
+  EcalRecHitCollection barrelRecHits;
   theEvent.getByLabel(barrelEcalHits_, barrelHitHandle);
   if (!barrelHitHandle.isValid()) {
     edm::LogError("PhotonProducer") << "Error! Can't get the product "<<barrelEcalHits_.label();
-    return;
+    validEcalRecHits=false; 
   }
-  const EcalRecHitCollection *barrelRecHits = barrelHitHandle.product();
+  if (  validEcalRecHits)  barrelRecHits = *(barrelHitHandle.product());
 
-
+  
   Handle<EcalRecHitCollection> endcapHitHandle;
   theEvent.getByLabel(endcapEcalHits_, endcapHitHandle);
+  EcalRecHitCollection endcapRecHits;
   if (!endcapHitHandle.isValid()) {
     edm::LogError("PhotonProducer") << "Error! Can't get the product "<<endcapEcalHits_.label();
-    return;
+    validEcalRecHits=false; 
   }
-  const EcalRecHitCollection *endcapRecHits = endcapHitHandle.product();
+  if( validEcalRecHits) endcapRecHits = *(endcapHitHandle.product());
 
 
   // get the geometry from the event setup:
@@ -147,48 +151,53 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
   edm::Handle<reco::ConversionCollection> conversionHandle; 
   theEvent.getByLabel(conversionProducer_, conversionCollection_ , conversionHandle);
   if (!conversionHandle.isValid()) {
-    edm::LogError("PhotonProducer") << "Error! Can't get the product  "<<conversionCollection_.c_str() << " but keep running. Corrected Photons will be made with null reference to conversions " << "\n";
-    //return;
+    if ( nEvt_%10==0 ) edm::LogError("PhotonProducer") << "Error! Can't get the product  "<<conversionCollection_.c_str() << " but keep running. Photons will be produced with null reference to conversions " << "\n";
     validConversions_=false;
   }
  
 
 
   // Get HoverE
+  bool validHcalRecHits=true;
   Handle<HBHERecHitCollection> hbhe;
   std::auto_ptr<HBHERecHitMetaCollection> mhbhe;
   theEvent.getByLabel(hbheLabel_,hbheInstanceName_,hbhe);  
   if (!hbhe.isValid()) {
     edm::LogError("PhotonProducer") << "Error! Can't get the product "<<hbheInstanceName_.c_str();
-    return; 
+    validHcalRecHits=false;
   }
 
-  if (hOverEConeSize_ > 0.) {
-    mhbhe=  std::auto_ptr<HBHERecHitMetaCollection>(new HBHERecHitMetaCollection(*hbhe));
+  if ( hOverEConeSize_ > 0.) {
+    if ( validHcalRecHits ) mhbhe=  std::auto_ptr<HBHERecHitMetaCollection>(new HBHERecHitMetaCollection(*hbhe));
   }
 
   
   theHoverEcalc_=HoECalculator(theCaloGeom_);
 
   // Get ElectronPixelSeeds
+  validPixelSeeds_=true;
   Handle<reco::ElectronPixelSeedCollection> pixelSeedHandle;
+  reco::ElectronPixelSeedCollection pixelSeeds;
   theEvent.getByLabel(pixelSeedProducer_, pixelSeedHandle);
   if (!pixelSeedHandle.isValid()) {
-    edm::LogError("PhotonProducer") << "Error! Can't get the product ElectronPixelSeedHandle "<< "\n";
-    return;
+    if ( nEvt_%100==0 ) std::cout << " PhotonProducer Can't get the product ElectronPixelSeedHandle but Photons will be produced anyway with pixel seed flag set to false "<< "\n";
+    validPixelSeeds_=false;
   }
-  const reco::ElectronPixelSeedCollection& pixelSeeds = *pixelSeedHandle;
+  if ( validPixelSeeds_) pixelSeeds = *(pixelSeedHandle.product());
+
+
 
   // Get the primary event vertex
   Handle<reco::VertexCollection> vertexHandle;
   reco::VertexCollection vertexCollection;
+  bool validVertex=true;
   if ( usePrimaryVertex_ ) {
     theEvent.getByLabel(vertexProducer_, vertexHandle);
     if (!vertexHandle.isValid()) {
       edm::LogError("PhotonProducer") << "Error! Can't get the product primary Vertex Collection "<< "\n";
-      return;
+      validVertex=false;
     }
-    vertexCollection = *(vertexHandle.product());
+    if (validVertex) vertexCollection = *(vertexHandle.product());
   }
   math::XYZPoint vtx(0.,0.,0.);
   if (vertexCollection.size()>0) vtx = vertexCollection.begin()->position();
@@ -197,8 +206,8 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
 
   int iSC=0; // index in photon collection
   // Loop over barrel and endcap SC collections and fill the  photon collection
-  fillPhotonCollection(scBarrelHandle,barrelGeometry,preshowerGeometry,topology,barrelRecHits,mhbhe.get(),conversionHandle,pixelSeeds,vtx,outputPhotonCollection,iSC);
-  fillPhotonCollection(scEndcapHandle,endcapGeometry,preshowerGeometry,topology,endcapRecHits,mhbhe.get(),conversionHandle,pixelSeeds,vtx,outputPhotonCollection,iSC);
+  if ( validBarrelSCHandle) fillPhotonCollection(scBarrelHandle,barrelGeometry,preshowerGeometry,topology,&barrelRecHits,mhbhe.get(),conversionHandle,pixelSeeds,vtx,outputPhotonCollection,iSC);
+  if ( validEndcapSCHandle) fillPhotonCollection(scEndcapHandle,endcapGeometry,preshowerGeometry,topology,&endcapRecHits,mhbhe.get(),conversionHandle,pixelSeeds,vtx,outputPhotonCollection,iSC);
 
   // put the product in the event
   edm::LogInfo("PhotonProducer") << " Put in the event " << iSC << " Photon Candidates \n";
@@ -212,7 +221,7 @@ void PhotonProducer::fillPhotonCollection(
 		   const CaloSubdetectorGeometry *geometry,
 		   const CaloSubdetectorGeometry *geometryES,
 		   const CaloTopology *topology,
-		   const EcalRecHitCollection *hits,
+		   const EcalRecHitCollection* hits,
 		   HBHERecHitMetaCollection *mhbhe,
                    const edm::Handle<reco::ConversionCollection> & conversionHandle,
 		   const reco::ElectronPixelSeedCollection& pixelSeeds,
@@ -220,28 +229,16 @@ void PhotonProducer::fillPhotonCollection(
 		   reco::PhotonCollection & outputPhotonCollection, int& iSC) {
 
 
-
-
-  reco::SuperClusterCollection scCollection = *(scHandle.product());
-  reco::SuperClusterCollection::iterator aClus;
   reco::ElectronPixelSeedCollection::const_iterator pixelSeedItr;
-
-  reco::ConversionCollection conversionCollection;
-  if (validConversions_) conversionCollection = *(conversionHandle.product());
-
-
-  int lSC=0; // reset local supercluster index
-  for(aClus = scCollection.begin(); aClus != scCollection.end(); aClus++) {
-
+  for(unsigned int lSC=0; lSC < scHandle->size(); lSC++) {
+    
     // get SuperClusterRef
     reco::SuperClusterRef scRef(reco::SuperClusterRef(scHandle, lSC));
     iSC++;
-    lSC++;
-
-    const reco::SuperCluster* pClus=&(*aClus);
+    const reco::SuperCluster* pClus=&(*scRef);
     
     // preselection
-    if (aClus->energy()/cosh(aClus->eta()) <= minSCEt_) continue;
+    if (scRef->energy()/cosh(scRef->eta()) <= minSCEt_) continue;
     // calculate HoE
     double HoE=theHoverEcalc_(pClus,mhbhe);
     if (HoE>=maxHOverE_)  continue;
@@ -249,12 +246,12 @@ void PhotonProducer::fillPhotonCollection(
     
     
     // recalculate position of seed BasicCluster taking shower depth for unconverted photon
-    math::XYZPoint unconvPos = posCalculator_.Calculate_Location(aClus->seed()->getHitsByDetId(),hits,geometry,geometryES);
+    math::XYZPoint unconvPos = posCalculator_.Calculate_Location(scRef->seed()->getHitsByDetId(),hits,geometry,geometryES);
     
     // compute position of ECAL shower
-    float e3x3=   EcalClusterTools::e3x3(  *(aClus->seed()), &(*hits), &(*topology)); 
-    float r9 =e3x3/(aClus->rawEnergy()+aClus->preshowerEnergy());
-    float e5x5= EcalClusterTools::e5x5( *(aClus->seed()), &(*hits), &(*topology)); 
+    float e3x3=   EcalClusterTools::e3x3(  *(scRef->seed()), &(*hits), &(*topology)); 
+    float r9 =e3x3/(scRef->rawEnergy()+scRef->preshowerEnergy());
+    float e5x5= EcalClusterTools::e5x5( *(scRef->seed()), &(*hits), &(*topology)); 
 
     math::XYZPoint caloPosition;
     double photonEnergy=0;
@@ -262,23 +259,25 @@ void PhotonProducer::fillPhotonCollection(
       caloPosition = unconvPos;
       photonEnergy=e5x5;
     } else {
-      caloPosition = aClus->position();
-      photonEnergy=aClus->energy();
+      caloPosition = scRef->position();
+      photonEnergy=scRef->energy();
     }
     
     // does the SuperCluster have a matched pixel seed?
     bool hasSeed = false;
-    for(pixelSeedItr = pixelSeeds.begin(); pixelSeedItr != pixelSeeds.end(); pixelSeedItr++) {
-      if (fabs(pixelSeedItr->superCluster()->eta() - aClus->eta()) < 0.0001 &&
-	  fabs(pixelSeedItr->superCluster()->phi() - aClus->phi()) < 0.0001) {
-	hasSeed=true;
-	break;
+    if ( validPixelSeeds_) {
+      for(pixelSeedItr = pixelSeeds.begin(); pixelSeedItr != pixelSeeds.end(); pixelSeedItr++) {
+	if (fabs(pixelSeedItr->superCluster()->eta() - scRef->eta()) < 0.0001 &&
+	    fabs(pixelSeedItr->superCluster()->phi() - scRef->phi()) < 0.0001) {
+	  hasSeed=true;
+	  break;
+	}
       }
     }
     
     // compute momentum vector of photon from primary vertex and cluster position
     math::XYZVector direction = caloPosition - vtx;
-    math::XYZVector momentum = direction.unit() * aClus->energy();
+    math::XYZVector momentum = direction.unit() * scRef->energy();
 
     const reco::Particle::LorentzVector  p4(momentum.x(), momentum.y(), momentum.z(), photonEnergy );
 
@@ -296,14 +295,13 @@ void PhotonProducer::fillPhotonCollection(
 	
       } else {
 	
-	int icp=0;
-	for( reco::ConversionCollection::const_iterator  itCP = conversionCollection.begin(); itCP != conversionCollection.end(); itCP++) {
+
+	for( unsigned int icp = 0;  icp < conversionHandle->size(); icp++) {
 	  
 	  reco::ConversionRef cpRef(reco::ConversionRef(conversionHandle,icp));
-	  icp++;      
           
-          if (!( scRef.id() == (*itCP).caloCluster()[0].id() && scRef.key() == (*itCP).caloCluster()[0].key() )) continue; 
-	  if ( !(*itCP).isConverted() ) continue;  
+          if (!( scRef.id() == cpRef->caloCluster()[0].id() && scRef.key() == cpRef->caloCluster()[0].key() )) continue; 
+	  if ( !cpRef->isConverted() ) continue;  
 	  newCandidate.addConversion(cpRef);     
 
 	}	  
@@ -325,14 +323,14 @@ void PhotonProducer::fillPhotonCollection(
 reco::ConversionRef  PhotonProducer::solveAmbiguity(const edm::Handle<reco::ConversionCollection> & conversionHandle, reco::SuperClusterRef& scRef) {
 
   std::multimap<reco::ConversionRef, double >   convMap;
-  int icp=0;
-  reco::ConversionCollection conversionCollection  = *(conversionHandle.product());
-  for( reco::ConversionCollection::const_iterator  itCP = conversionCollection.begin(); itCP != conversionCollection.end(); itCP++) {
-    reco::ConversionRef cpRef(reco::ConversionRef(conversionHandle,icp));
-    icp++;      
 
-    if (!( scRef.id() == (*itCP).caloCluster()[0].id() && scRef.key() == (*itCP).caloCluster()[0].key() )) continue;    
-    if ( !(*itCP).isConverted() ) continue;  
+
+  for ( unsigned int icp=0; icp< conversionHandle->size(); icp++) {
+    reco::ConversionRef cpRef(reco::ConversionRef(conversionHandle,icp));
+    //icp++;      
+
+    if (!( scRef.id() == cpRef->caloCluster()[0].id() && scRef.key() == cpRef->caloCluster()[0].key() )) continue;    
+    if ( !cpRef->isConverted() ) continue;  
     
     double like = theLikelihoodCalc_->calculateLikelihood(cpRef);
     //    std::cout << " Like " << like << std::endl;
