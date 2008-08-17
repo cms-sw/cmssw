@@ -2,8 +2,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2008/08/13 17:05:58 $
- * $Revision: 1.67 $
+ * $Date: 2008/08/14 18:40:29 $
+ * $Revision: 1.68 $
  * \author W Fisher
  *
 */
@@ -33,6 +33,7 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
   inputLabelRecHitHBHE_  = ps.getParameter<edm::InputTag>("hbheRecHitLabel");
   inputLabelRecHitHF_    = ps.getParameter<edm::InputTag>("hfRecHitLabel");
   inputLabelRecHitHO_    = ps.getParameter<edm::InputTag>("hoRecHitLabel");
+  inputLabelRecHitZDC_   = ps.getParameter<edm::InputTag>("zdcRecHitLabel");
   inputLabelCaloTower_   = ps.getParameter<edm::InputTag>("caloTowerLabel");
   inputLabelLaser_       = ps.getParameter<edm::InputTag>("hcalLaserLabel");
   
@@ -392,6 +393,7 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   bool rawOK_    = true;
   bool digiOK_   = true;
   bool rechitOK_ = true;
+  bool zdchitOK_ = true;
   bool trigOK_   = false;
   bool tpdOK_    = true;
   bool calotowerOK_ = true;
@@ -453,7 +455,9 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   edm::Handle<HBHERecHitCollection> hb_hits;
   edm::Handle<HORecHitCollection> ho_hits;
   edm::Handle<HFRecHitCollection> hf_hits;
+  edm::Handle<ZDCRecHitCollection> zdc_hits;
   edm::Handle<CaloTowerCollection> calotowers;
+
 
   e.getByLabel(inputLabelRecHitHBHE_,hb_hits);
   if (!hb_hits.isValid()) {
@@ -469,6 +473,12 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
     rechitOK_ = false;
   }
   
+  e.getByLabel(inputLabelRecHitZDC_,zdc_hits);
+  if (!zdc_hits.isValid()) {
+    zdchitOK_ = false;
+    //cout <<"CANNOT GET ZDC HITS!!!!"<<endl;
+    //cout <<"input label = "<<inputLabelRecHitZDC_<<endl;
+  }
 
   // try to get calotowers 
   if (ctMon_!=NULL)
@@ -539,13 +549,23 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
 
   // Rec Hit monitor task
   if((rhMon_ != NULL) && (evtMask&DO_HCAL_RECHITMON) && rechitOK_) 
+    {
     rhMon_->processEvent(*hb_hits,*ho_hits,*hf_hits);
+    // This lets us process rec hits regardless of ZDC status.
+    // But is ZDC is okay, we'll make rec hit plots for that as well.
+    if (zdchitOK_)
+      {
+	if (debug_) cout <<"PROCESSING ZDC!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<<endl;
+	rhMon_->processZDC(*zdc_hits);
+      }
+    }
   if (showTiming_)
     {
       cpu_timer.stop();
       if (rhMon_!=NULL) cout <<"TIMER:: RECHIT MONITOR ->"<<cpu_timer.cpuTime()<<endl;
       cpu_timer.reset(); cpu_timer.start();
     }
+
   // Hot Cell monitor task
   if((hotMon_ != NULL) && (evtMask&DO_HCAL_RECHITMON) && rechitOK_) 
     hotMon_->processEvent(*hb_hits,*ho_hits,*hf_hits, 
