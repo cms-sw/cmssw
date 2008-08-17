@@ -1,13 +1,13 @@
 #!/bin/sh
-# $Id: setup_sm.sh,v 1.15 2008/08/07 15:54:10 jserrano Exp $
+# $Id: setup_sm.sh,v 1.16 2008/08/08 09:17:59 jserrano Exp $
 
 if test -e "/etc/profile.d/sm_env.sh"; then 
     source /etc/profile.d/sm_env.sh;
 fi
 
 ###
-echo     5 > /proc/sys/vm/dirty_background_ratio
-echo    15 > /proc/sys/vm/dirty_ratio
+#echo     5 > /proc/sys/vm/dirty_background_ratio
+#echo    15 > /proc/sys/vm/dirty_ratio
 echo   128 > /proc/sys/vm/lower_zone_protection
 echo 16384 > /proc/sys/vm/min_free_kbytes
 ###
@@ -34,13 +34,9 @@ case $hname in
         echo "cmsdisk0 needs manual treatment"
         exit 0;
         ;;
-#    cmsdisk1)
-#        nname=node_cmsdisk1
-#        ;;
     srv-S2C17-01)
         nname=node_cms-tier0-stage
         ;;
-    
     srv-C2D05-02)
         nname=node_cmsdisk1
 	for i in $store/satacmsdisk*; do 
@@ -90,7 +86,7 @@ if test -x "/sbin/multipath"; then
 fi
 
 su - cmsprod -c "~cmsprod/$nname/t0_control.sh stop" >/dev/null 2>&1
-su - cmsprod -c "~cmsprod/$nname/t0_control.sh start"
+su - cmsprod -c "NCOPYWORKER=2 ~cmsprod/$nname/t0_control.sh start"
 su - smpro -c "~smpro/scripts/t0inject.sh stop" >/dev/null 2>&1
 rm -f /tmp/.20*-${hname}-*.log.lock
 su - smpro -c "~smpro/scripts/t0inject.sh start"
