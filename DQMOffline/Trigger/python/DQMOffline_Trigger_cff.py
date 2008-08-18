@@ -18,4 +18,12 @@ l1tgct.gctIsoEmSource = 'gctDigis:isoEm:'
 l1tgct.gctNonIsoEmSource = 'gctDigis:nonIsoEm:'
 l1trct.rctSource = 'gctDigis::'
 
+from DQMOffline.Trigger.FourVectorHLTOffline_cfi import *
+#from DQMOffline.Trigger.Tau.HLTTauDQMOffline_cff import *
+from DQMOffline.Trigger.EgammaHLTOffline_cfi import *
+from Geometry.CaloEventSetup.CaloTopology_cfi import *
+#from DQM.L1TMonitor.L1TDEMON_cfi import *
+#l1temumonitor = cms.Sequence(l1demon) 
+
+triggerOfflineDQMSource = cms.Sequence(l1tmonitor*hltResults*egammaHLTDQM)
 
