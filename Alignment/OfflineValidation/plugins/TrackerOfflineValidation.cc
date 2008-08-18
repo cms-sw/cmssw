@@ -13,7 +13,7 @@
 //
 // Original Author:  Erik Butz
 //         Created:  Tue Dec 11 14:03:05 CET 2007
-// $Id: TrackerOfflineValidation.cc,v 1.7 2008/08/12 12:19:41 jdraeger Exp $
+// $Id: TrackerOfflineValidation.cc,v 1.8 2008/08/13 12:25:55 jdraeger Exp $
 //
 //
 
@@ -1000,14 +1000,10 @@ TrackerOfflineValidation::fillTree(TTree &tree,const std::map<int, TrackerOfflin
     
     //variables concerning the tracker geometry
     
-    //  const Surface& surface = tkgeom.idToDet(detId_)->surface();
-    //     LocalPoint lPModule(0.,0.,0.), lPhiDirection(1.,0.,0.), lROrZDirection(0.,1.,0.);
-    //     GlobalPoint gPModule       = surface.toGlobal(lPModule),
-    //       gPhiDirection              = surface.toGlobal(lPhiDirection),
-    //       gROrZDirection             = surface.toGlobal(lROrZDirection);
     const Surface::PositionType &gPModule = tkgeom.idToDet(detId_)->position();
     treeMem.posPhi_ = gPModule.phi();
     treeMem.posEta_ = gPModule.eta();
+    traaMem.posR_   = gPModule.r()
     treeMem.posX_   = gPModule.x();
     treeMem.posY_   = gPModule.y();
     treeMem.posZ_   = gPModule.z();
