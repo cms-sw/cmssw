@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/06/05 16:39:50 $
- *  $Revision: 1.22 $
+ *  $Date: 2008/07/02 15:16:34 $
+ *  $Revision: 1.23 $
  *  \author C. Battilana S. Marcellini - INFN Bologna
  */
 
@@ -150,7 +150,7 @@ void DTLocalTriggerTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Even
 	      for (int i=5;i<=7;++i)
 		besttrigsCorr+=BestQual->GetBinContent(i);
 	      
-	      if( secME[sector_id].find(fullName("CorrectBXPhi")) == secME[sector_id].end() ){
+	      if( secME[sector_id].find(fullName("CorrFractionPhi")) == secME[sector_id].end() ){
 		//bookSectorHistos(wh,sect,"","CorrectBXPhi");
 		bookSectorHistos(wh,sect,"","CorrFractionPhi");
 		bookSectorHistos(wh,sect,"","2ndFractionPhi");
