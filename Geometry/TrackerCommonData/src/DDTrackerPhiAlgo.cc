@@ -30,10 +30,15 @@ void DDTrackerPhiAlgo::initialize(const DDNumericArguments & nArgs,
 
   if ( nArgs.find("StartCopyNo") != nArgs.end() ) {
     startcn = size_t(nArgs["StartCopyNo"]);
+  } else {
+    startcn = 1;
   }
   if ( nArgs.find("IncrCopyNo") != nArgs.end() ) {
     incrcn = int(nArgs["IncrCopyNo"]);
+  } else {
+    incrcn = 1;
   }
+
 
   radius     = nArgs["Radius"];
   tilt       = nArgs["Tilt"];
@@ -49,10 +54,10 @@ void DDTrackerPhiAlgo::initialize(const DDNumericArguments & nArgs,
 				   << "of the Phi vector and may lead to crashes "
 				   << "or errors.";
     } 
+  } else {
+    numcopies = phi.size();
   }
-  numcopies = phi.size() - 1; // -1 for loop in execute.  seems almost redundant...
     
-
   LogDebug("TrackerGeom") << "DDTrackerPhiAlgo debug: Parameters for position"
 			  << "ing:: " << " Radius " << radius << " Tilt " 
 			  << tilt/deg << " Copies " << phi.size() << " at";
@@ -95,7 +100,7 @@ void DDTrackerPhiAlgo::execute() {
   
     DDpos (child, mother, ci, tran, rotation);
     LogDebug("TrackerGeom") << "DDTrackerPhiAlgo test: " << child << " number "
-			    << i+1 << " positioned in " << mother << " at "
+			    << ci << " positioned in " << mother << " at "
 			    << tran  << " with " << rotation;
     ++i;
   }
