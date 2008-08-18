@@ -4,7 +4,7 @@
      the resource broker to send to the Storage Manager.
      See the CMS EvF Storage Manager wiki page for further notes.
 
-   $Id: FUShmOutputModule.cc,v 1.8 2008/06/04 14:00:48 hcheung Exp $
+   $Id: FUShmOutputModule.cc,v 1.9 2008/06/04 14:05:14 hcheung Exp $
 */
 
 #include "EventFilter/Utilities/interface/i2oEvfMsgs.h"
@@ -27,6 +27,8 @@
 using namespace edm;
 using namespace std;
 
+static SM_SharedMemoryHandle sm_sharedmemory;
+
 namespace edm
 {
 
@@ -39,12 +41,14 @@ namespace edm
   FUShmOutputModule::~FUShmOutputModule()
   {
     FDEBUG(9) << "FUShmOutputModule: FUShmOutputModule destructor" << endl;
-    shmdt(shmBuffer_);
+    sm_sharedmemory.detachShmBuffer();
+    //shmdt(shmBuffer_);
   }
 
   void FUShmOutputModule::doOutputHeader(InitMsgBuilder const& initMessage)
   {
-    if(!shmBuffer_) shmBuffer_ = evf::FUShmBuffer::getShmBuffer();
+    //if(!shmBuffer_) shmBuffer_ = evf::FUShmBuffer::getShmBuffer();
+    if(!shmBuffer_) shmBuffer_ = sm_sharedmemory.getShmBuffer();
     if(!shmBuffer_) edm::LogError("FUShmOutputModule") 
       << " Error getting shared memory buffer for INIT. " 
       << " Make sure you configure the ResourceBroker before the FUEventProcessor! "
@@ -58,7 +62,8 @@ namespace edm
       InitMsgView dummymsg(buffer);
       uint32 dmoduleId = dummymsg.outputModuleId();
 
-      bool ret = shmBuffer_->writeRecoInitMsg(dmoduleId, buffer, size);
+      //bool ret = shmBuffer_->writeRecoInitMsg(dmoduleId, buffer, size);
+      bool ret = sm_sharedmemory.getShmBuffer()->writeRecoInitMsg(dmoduleId, buffer, size);
       if(!ret) edm::LogError("FUShmOutputModule") << " Error writing preamble to ShmBuffer";
     }
   }
@@ -78,14 +83,16 @@ namespace edm
       unsigned int eventid = eventView.event();
       unsigned int outModId = eventView.outModId();
       FDEBUG(10) << "FUShmOutputModule: event size = " << size << std::endl;
-      bool ret = shmBuffer_->writeRecoEventData(runid, eventid, outModId, buffer, size);
+      //bool ret = shmBuffer_->writeRecoEventData(runid, eventid, outModId, buffer, size);
+      bool ret = sm_sharedmemory.getShmBuffer()->writeRecoEventData(runid, eventid, outModId, buffer, size);
       if(!ret) edm::LogError("FUShmOutputModule") << " Error with writing data to ShmBuffer";
     }
   }
 
   void FUShmOutputModule::start()
   {
-    shmBuffer_ = evf::FUShmBuffer::getShmBuffer();
+    //shmBuffer_ = evf::FUShmBuffer::getShmBuffer();
+    shmBuffer_ = sm_sharedmemory.getShmBuffer();
     if(0==shmBuffer_) 
       edm::LogError("FUShmOutputModule")<<"Failed to attach to shared memory";
   }
@@ -94,7 +101,8 @@ namespace edm
   {
     FDEBUG(9) << "FUShmOutputModule: sending terminate run" << std::endl;
     if(0!=shmBuffer_){
-      shmdt(shmBuffer_);
+      sm_sharedmemory.detachShmBuffer();
+      //shmdt(shmBuffer_);
       shmBuffer_ = 0;
     }
   }
