@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Nov 14 15:02:06 CET 2007
-// $Id: SiPixelGainCalibrationAnalysis.h,v 1.17 2008/08/12 15:39:11 fblekman Exp $
+// $Id: SiPixelGainCalibrationAnalysis.h,v 1.18 2008/08/16 09:59:13 fblekman Exp $
 //
 //
 
@@ -110,4 +110,6 @@ private:
   float pedlow_;
   float pedhi_;
   uint16_t min_nentries_;
+  bool useVcalHigh_;
+  double scalarVcalHigh_VcalLow_;
 };

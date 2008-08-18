@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Nov 14 15:02:06 CET 2007
-// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.26 2008/08/15 09:46:03 fblekman Exp $
+// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.27 2008/08/16 09:59:13 fblekman Exp $
 //
 //
 
@@ -56,7 +56,9 @@ SiPixelGainCalibrationAnalysis::SiPixelGainCalibrationAnalysis(const edm::Parame
   theGainCalibrationDbInputOffline_(0),
   theGainCalibrationDbInputHLT_(0),
   theGainCalibrationDbInputService_(iConfig),
-  gainlow_(10.),gainhi_(0.),pedlow_(255.),pedhi_(0.)
+  gainlow_(10.),gainhi_(0.),pedlow_(255.),pedhi_(0.),
+  useVcalHigh_(conf_.getParameter<bool>("useVCALHIGH")),
+  scalarVcalHigh_VcalLow_(conf_.getParameter<double>("vcalHighToLowConversionFac"))
 {
   if(reject_single_entries_)
     min_nentries_=1;
@@ -180,6 +182,11 @@ SiPixelGainCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixelCalibD
   for(uint32_t ii=0; ii< ipix->getnpoints() && ii<200; ii++){
     nallpoints++;
     use_point=true;
+    if(useVcalHigh_){
+      xvalsall[ii]=vCalValues_[ii]/scalarVcalHigh_VcalLow_;
+    }
+    else
+      xvalsall[ii]=vCalValues_[ii];
     xvalsasfloatsforDQM[ii]=xvalsall[ii]=vCalValues_[ii];
     yerrvalsall[ii]=yvalsall[ii]=0;
     if(ipix->getnentries(ii)>min_nentries_){
