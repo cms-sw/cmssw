@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: MetProxyEveLegoBuilder.cc,v 1.1 2008/07/04 01:41:49 dmytro Exp $
+// $Id: MetProxyEveLegoBuilder.cc,v 1.2 2008/07/16 13:51:01 dmytro Exp $
 //
 
 // system include files
@@ -90,6 +90,9 @@ MetProxyEveLegoBuilder::build(const FWEventItem* iItem, TEveElementList** produc
       char title[1024]; 
       sprintf(title,"MET: %0.1f GeV",mets->at(i).et());
       TEveCompound* container = new TEveCompound( counter.str().c_str(), title );
+      container->SetRnrSelf(iItem->defaultDisplayProperties().isVisible());
+      container->SetRnrChildren(iItem->defaultDisplayProperties().isVisible());
+
       container->OpenCompound();
       //guarantees that CloseCompound will be called no matter what happens
       boost::shared_ptr<TEveCompound> sentry(container,boost::mem_fn(&TEveCompound::CloseCompound));
