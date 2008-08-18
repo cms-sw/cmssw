@@ -5,7 +5,7 @@ import FWCore.ParameterSet.Config as cms
 # ttbar decays; the match will be a std::vector<int>
 # in order  (LightQ, LightQBar, HadB, LepB)
 #
-ttSemiJetPartonMatch = cms.EDFilter("TtSemiEvtJetPartonMatch",
+ttSemiLepJetPartonMatch = cms.EDFilter("TtSemiLepJetPartonMatch",
     ## sources
     jets = cms.InputTag("selectedLayer1Jets"),
 

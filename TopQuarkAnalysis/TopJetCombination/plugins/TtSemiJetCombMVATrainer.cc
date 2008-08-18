@@ -6,8 +6,8 @@
 #include "PhysicsTools/JetMCUtils/interface/combination.h"
 
 #include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiJetCombMVATrainer.h"
-#include "TopQuarkAnalysis/TopTools/interface/TtSemiJetCombEval.h"
-#include "TopQuarkAnalysis/TopTools/interface/TtSemiEvtPartons.h"
+#include "TopQuarkAnalysis/TopTools/interface/TtSemiLepJetCombEval.h"
+#include "TopQuarkAnalysis/TopTools/interface/TtSemiLepEvtPartons.h"
 
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
@@ -79,9 +79,9 @@ TtSemiJetCombMVATrainer::analyze(const edm::Event& evt, const edm::EventSetup& s
       
       // take into account indistinguishability of the two jets from the hadr. W decay,
       // reduces combinatorics by a factor of 2
-      if(combi[TtSemiEvtPartons::LightQ] < combi[TtSemiEvtPartons::LightQBar]) {  
+      if(combi[TtSemiLepEvtPartons::LightQ] < combi[TtSemiLepEvtPartons::LightQBar]) {  
 	
-	TtSemiJetComb jetComb(*jets, combi, lepton);
+	TtSemiLepJetComb jetComb(*jets, combi, lepton);
 	
 	bool trueCombi = true;
 	if(genEvt->semiLeptonicChannel() == lepChannel_) {
@@ -96,7 +96,7 @@ TtSemiJetCombMVATrainer::analyze(const edm::Event& evt, const edm::EventSetup& s
 	// no true combinations if not signal channel
 	else trueCombi = false;
 	
-	evaluateTtSemiJetComb(mvaComputer, jetComb, true, trueCombi);
+	evaluateTtSemiLepJetComb(mvaComputer, jetComb, true, trueCombi);
 
       }
 

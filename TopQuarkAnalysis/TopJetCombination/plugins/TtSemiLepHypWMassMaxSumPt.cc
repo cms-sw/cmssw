@@ -1,5 +1,5 @@
 #include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepHypWMassMaxSumPt.h"
-#include "TopQuarkAnalysis/TopTools/interface/TtSemiEvtPartons.h"
+#include "TopQuarkAnalysis/TopTools/interface/TtSemiLepEvtPartons.h"
 
 TtSemiLepHypWMassMaxSumPt::TtSemiLepHypWMassMaxSumPt(const edm::ParameterSet& cfg):
   TtSemiLepHypothesis( cfg ),  
@@ -88,22 +88,22 @@ TtSemiLepHypWMassMaxSumPt::buildHypo(edm::Event& evt,
   // -----------------------------------------------------
   if( isValid(closestToWMassIndices[0], jets) ){
     setCandidate(jets, closestToWMassIndices[0], lightQ_);
-    match[TtSemiEvtPartons::LightQ] = closestToWMassIndices[0];
+    match[TtSemiLepEvtPartons::LightQ] = closestToWMassIndices[0];
   }
 
   if( isValid(closestToWMassIndices[1], jets) ){
     setCandidate(jets, closestToWMassIndices[1], lightQBar_);
-    match[TtSemiEvtPartons::LightQBar] = closestToWMassIndices[1];
+    match[TtSemiLepEvtPartons::LightQBar] = closestToWMassIndices[1];
   }
   
   if( isValid(hadB, jets) ){
     setCandidate(jets, hadB, hadronicB_);
-    match[TtSemiEvtPartons::HadB] = hadB;
+    match[TtSemiLepEvtPartons::HadB] = hadB;
   }
 
   if( isValid(lepB, jets) ){
     setCandidate(jets, lepB, leptonicB_);
-    match[TtSemiEvtPartons::LepB] = lepB;
+    match[TtSemiLepEvtPartons::LepB] = lepB;
   }
 
   // -----------------------------------------------------

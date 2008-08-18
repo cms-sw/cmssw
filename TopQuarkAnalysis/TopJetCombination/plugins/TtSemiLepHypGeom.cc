@@ -1,5 +1,5 @@
 #include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepHypGeom.h"
-#include "TopQuarkAnalysis/TopTools/interface/TtSemiEvtPartons.h"
+#include "TopQuarkAnalysis/TopTools/interface/TtSemiLepEvtPartons.h"
 
 #include <Math/VectorUtil.h>
 
@@ -85,22 +85,22 @@ TtSemiLepHypGeom::buildHypo(edm::Event& evt,
   // -----------------------------------------------------
   if( isValid(lightQ, jets) ){
     setCandidate(jets, lightQ, lightQ_);
-    match[TtSemiEvtPartons::LightQ] = lightQ;
+    match[TtSemiLepEvtPartons::LightQ] = lightQ;
   }
 
   if( isValid(lightQBar, jets) ){
     setCandidate(jets, lightQBar, lightQBar_);
-    match[TtSemiEvtPartons::LightQBar] = lightQBar;
+    match[TtSemiLepEvtPartons::LightQBar] = lightQBar;
   }
 
   if( isValid(hadB, jets) ){
     setCandidate(jets, hadB, hadronicB_);
-    match[TtSemiEvtPartons::HadB] = hadB;
+    match[TtSemiLepEvtPartons::HadB] = hadB;
   }
   
   if( isValid(lepB, jets) ){
     setCandidate(jets, lepB, leptonicB_);
-    match[TtSemiEvtPartons::LepB] = lepB;
+    match[TtSemiLepEvtPartons::LepB] = lepB;
   }
 
   // -----------------------------------------------------

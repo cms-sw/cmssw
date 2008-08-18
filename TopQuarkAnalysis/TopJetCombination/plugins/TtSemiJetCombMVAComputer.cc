@@ -1,8 +1,8 @@
 #include "PhysicsTools/JetMCUtils/interface/combination.h"
 
 #include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiJetCombMVAComputer.h"
-#include "TopQuarkAnalysis/TopTools/interface/TtSemiEvtPartons.h"
-#include "TopQuarkAnalysis/TopTools/interface/TtSemiJetCombEval.h"
+#include "TopQuarkAnalysis/TopTools/interface/TtSemiLepEvtPartons.h"
+#include "TopQuarkAnalysis/TopTools/interface/TtSemiLepJetCombEval.h"
 
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
@@ -79,12 +79,12 @@ TtSemiJetCombMVAComputer::produce(edm::Event& evt, const edm::EventSetup& setup)
     for(int cnt = 0; cnt < TMath::Factorial( combi.size() ); ++cnt){
       // take into account indistinguishability of the two jets from the hadr. W decay,
       // reduces combinatorics by a factor of 2
-      if(combi[TtSemiEvtPartons::LightQ] < combi[TtSemiEvtPartons::LightQBar]) {
+      if(combi[TtSemiLepEvtPartons::LightQ] < combi[TtSemiLepEvtPartons::LightQBar]) {
 
-	TtSemiJetComb jetComb(*jets, combi, lepton);
+	TtSemiLepJetComb jetComb(*jets, combi, lepton);
 
 	// get discriminator here
-	double discrim = evaluateTtSemiJetComb(mvaComputer, jetComb);
+	double discrim = evaluateTtSemiLepJetComb(mvaComputer, jetComb);
 	if(discrim > discrimMax) {
 	  discrimMax = discrim;
 	  combiMax = combi;

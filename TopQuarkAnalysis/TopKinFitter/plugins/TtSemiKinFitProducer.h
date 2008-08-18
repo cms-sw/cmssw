@@ -6,7 +6,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "TopQuarkAnalysis/TopKinFitter/interface/TtSemiKinFitter.h"
-#include "TopQuarkAnalysis/TopTools/interface/TtSemiEvtPartons.h"
+#include "TopQuarkAnalysis/TopTools/interface/TtSemiLepEvtPartons.h"
 
 #include "PhysicsTools/JetMCUtils/interface/combination.h"
 
@@ -124,10 +124,10 @@ void TtSemiKinFitProducer<LeptonCollection>::produce(edm::Event& evt, const edm:
 
   if( leps->empty() || mets->empty() || jets->size()<nPartons || unvalidMatch ) {
     // the kinFit getters return empty objects here
-    (*pPartons)[TtSemiEvtPartons::LightQ   ] = fitter->getFitHadp();
-    (*pPartons)[TtSemiEvtPartons::LightQBar] = fitter->getFitHadq();
-    (*pPartons)[TtSemiEvtPartons::HadB     ] = fitter->getFitHadb();
-    (*pPartons)[TtSemiEvtPartons::LepB     ] = fitter->getFitLepb();
+    (*pPartons)[TtSemiLepEvtPartons::LightQ   ] = fitter->getFitHadp();
+    (*pPartons)[TtSemiLepEvtPartons::LightQBar] = fitter->getFitHadq();
+    (*pPartons)[TtSemiLepEvtPartons::HadB     ] = fitter->getFitHadb();
+    (*pPartons)[TtSemiLepEvtPartons::LepB     ] = fitter->getFitLepb();
     pLeptons  ->push_back( fitter->getFitLepl() );
     pNeutrinos->push_back( fitter->getFitLepn() );
     evt.put(pPartons,   "Partons");
@@ -180,15 +180,15 @@ void TtSemiKinFitProducer<LeptonCollection>::produce(edm::Event& evt, const edm:
     for(int cnt = 0; cnt < TMath::Factorial( combi.size() ); ++cnt){
       // take into account indistinguishability of the two jets from the hadr. W decay,
       // reduces combinatorics by a factor of 2
-      if( combi[TtSemiEvtPartons::LightQ] < combi[TtSemiEvtPartons::LightQBar]
+      if( combi[TtSemiLepEvtPartons::LightQ] < combi[TtSemiLepEvtPartons::LightQBar]
 	 || useOnlyMatch_ ) {
 	
 	std::vector<pat::Jet> jetCombi;
 	jetCombi.resize(nPartons);
-	jetCombi[TtSemiEvtPartons::LightQ   ] = (*jets)[combi[TtSemiEvtPartons::LightQ   ]];
-	jetCombi[TtSemiEvtPartons::LightQBar] = (*jets)[combi[TtSemiEvtPartons::LightQBar]];
-	jetCombi[TtSemiEvtPartons::HadB     ] = (*jets)[combi[TtSemiEvtPartons::HadB     ]];
-	jetCombi[TtSemiEvtPartons::LepB     ] = (*jets)[combi[TtSemiEvtPartons::LepB     ]];
+	jetCombi[TtSemiLepEvtPartons::LightQ   ] = (*jets)[combi[TtSemiLepEvtPartons::LightQ   ]];
+	jetCombi[TtSemiLepEvtPartons::LightQBar] = (*jets)[combi[TtSemiLepEvtPartons::LightQBar]];
+	jetCombi[TtSemiLepEvtPartons::HadB     ] = (*jets)[combi[TtSemiLepEvtPartons::HadB     ]];
+	jetCombi[TtSemiLepEvtPartons::LepB     ] = (*jets)[combi[TtSemiLepEvtPartons::LepB     ]];
 
 	// do the kinematic fit
 	int status = fitter->fit(jetCombi, (*leps)[0], (*mets)[0]);
@@ -221,10 +221,10 @@ void TtSemiKinFitProducer<LeptonCollection>::produce(edm::Event& evt, const edm:
   // -----------------------------------------------------
 
   // feed out particles that result from the kinematic fit
-  (*pPartons)[TtSemiEvtPartons::LightQ   ] = bestHadp;
-  (*pPartons)[TtSemiEvtPartons::LightQBar] = bestHadq;
-  (*pPartons)[TtSemiEvtPartons::HadB     ] = bestHadb;
-  (*pPartons)[TtSemiEvtPartons::LepB     ] = bestLepb;
+  (*pPartons)[TtSemiLepEvtPartons::LightQ   ] = bestHadp;
+  (*pPartons)[TtSemiLepEvtPartons::LightQBar] = bestHadq;
+  (*pPartons)[TtSemiLepEvtPartons::HadB     ] = bestHadb;
+  (*pPartons)[TtSemiLepEvtPartons::LepB     ] = bestLepb;
   pLeptons  ->push_back( bestLepl );
   pNeutrinos->push_back( bestLepn );
   evt.put(pPartons,   "Partons");

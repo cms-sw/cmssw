@@ -1,5 +1,5 @@
-#ifndef TtHadEvtPartons_h
-#define TtHadEvtPartons_h
+#ifndef TtFullHadEvtPartons_h
+#define TtFullHadEvtPartons_h
 
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
@@ -7,15 +7,15 @@
 
 #include <vector>
 
-class TtHadEvtPartons {
+class TtFullHadEvtPartons {
   // common wrapper class to fill partons in a well
   // defined order for fully hadronic ttbar decays
  public:
 
   enum { LightQTop, LightQBarTop, B, LightQTopBar, LightQBarTopBar, BBar};
 
-  TtHadEvtPartons(){};
-  ~TtHadEvtPartons(){};
+  TtFullHadEvtPartons(){};
+  ~TtFullHadEvtPartons(){};
   std::vector<const reco::Candidate*> vec(const TtGenEvent& genEvt)
   {
     std::vector<const reco::Candidate*> vec;

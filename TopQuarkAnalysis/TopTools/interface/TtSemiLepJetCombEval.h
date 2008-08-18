@@ -1,5 +1,5 @@
-#ifndef TtSemiJetCombEval_h
-#define TtSemiJetCombEval_h
+#ifndef TtSemiLepJetCombEval_h
+#define TtSemiLepJetCombEval_h
 
 #include "Math/VectorUtil.h"
 #include "TMath.h"
@@ -8,11 +8,11 @@
 #include "PhysicsTools/MVATrainer/interface/MVATrainer.h"
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
-#include "TopQuarkAnalysis/TopTools/interface/TtSemiJetComb.h"
+#include "TopQuarkAnalysis/TopTools/interface/TtSemiLepJetComb.h"
 
-inline double evaluateTtSemiJetComb(PhysicsTools::MVAComputerCache& mvaComputer,
-				    const TtSemiJetComb& jetComb,
-				    const bool training = false, const bool trueCombi = false)
+inline double evaluateTtSemiLepJetComb(PhysicsTools::MVAComputerCache& mvaComputer,
+				       const TtSemiLepJetComb& jetComb,
+				       const bool training = false, const bool trueCombi = false)
 {
   std::vector<PhysicsTools::Variable::Value> values;
   

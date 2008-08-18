@@ -25,7 +25,7 @@ class HypothesisAnalyzer : public edm::EDAnalyzer {
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob();
 
-  edm::InputTag semiEvt_;
+  edm::InputTag semiLepEvt_;
   edm::InputTag hypoKey_;
 
   TH1F* hadWPt_;

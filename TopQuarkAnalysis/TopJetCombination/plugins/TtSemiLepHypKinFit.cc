@@ -1,5 +1,5 @@
 #include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepHypKinFit.h"
-#include "TopQuarkAnalysis/TopTools/interface/TtSemiEvtPartons.h"
+#include "TopQuarkAnalysis/TopTools/interface/TtSemiLepEvtPartons.h"
 
 #include "DataFormats/PatCandidates/interface/Particle.h"
 
@@ -39,10 +39,10 @@ TtSemiLepHypKinFit::buildHypo(edm::Event& evt,
   // add jets
   // -----------------------------------------------------
   if( !(partons->size()<4) ) {
-    setCandidate(partons, TtSemiEvtPartons::LightQ,    lightQ_   );
-    setCandidate(partons, TtSemiEvtPartons::LightQBar, lightQBar_);
-    setCandidate(partons, TtSemiEvtPartons::HadB,      hadronicB_);
-    setCandidate(partons, TtSemiEvtPartons::LepB,      leptonicB_);
+    setCandidate(partons, TtSemiLepEvtPartons::LightQ,    lightQ_   );
+    setCandidate(partons, TtSemiLepEvtPartons::LightQBar, lightQBar_);
+    setCandidate(partons, TtSemiLepEvtPartons::HadB,      hadronicB_);
+    setCandidate(partons, TtSemiLepEvtPartons::LepB,      leptonicB_);
   }
 
   // -----------------------------------------------------

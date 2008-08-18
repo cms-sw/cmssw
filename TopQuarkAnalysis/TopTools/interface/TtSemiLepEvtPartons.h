@@ -1,5 +1,5 @@
-#ifndef TtSemiEvtPartons_h
-#define TtSemiEvtPartons_h
+#ifndef TtSemiLepEvtPartons_h
+#define TtSemiLepEvtPartons_h
 
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
@@ -7,15 +7,15 @@
 
 #include <vector>
 
-class TtSemiEvtPartons {
+class TtSemiLepEvtPartons {
   // common wrapper class to fill partons in a well
   // defined order for semileptonic ttbar decays
  public:
 
   enum { LightQ, LightQBar, HadB, LepB};
 
-  TtSemiEvtPartons(){};
-  ~TtSemiEvtPartons(){};
+  TtSemiLepEvtPartons(){};
+  ~TtSemiLepEvtPartons(){};
   std::vector<const reco::Candidate*> vec(const TtGenEvent& genEvt)
   {
     std::vector<const reco::Candidate*> vec;

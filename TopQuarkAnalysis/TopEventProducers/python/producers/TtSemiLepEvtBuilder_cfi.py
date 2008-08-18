@@ -48,8 +48,8 @@ ttSemiLepEvent = cms.EDProducer("TtSemiLepEvtBuilder",
 
     ## add extra information on genMatch
     genMatch = cms.PSet(
-        sumPt = cms.InputTag("ttSemiJetPartonMatch","SumPt"),
-        sumDR = cms.InputTag("ttSemiJetPartonMatch","SumDR"),
+        sumPt = cms.InputTag("ttSemiLepJetPartonMatch","SumPt"),
+        sumDR = cms.InputTag("ttSemiLepJetPartonMatch","SumDR"),
     ),
 
     ## add extra information on mvaDisc

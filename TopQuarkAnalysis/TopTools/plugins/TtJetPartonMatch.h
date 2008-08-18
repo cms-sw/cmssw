@@ -50,7 +50,7 @@ TtJetPartonMatch<C>::TtJetPartonMatch(const edm::ParameterSet& cfg):
   maxDist_(cfg.getParameter<double>("maxDist"))
 {
   // produces a vector of jet indices in the order
-  // of TtSemiEvtPartons or TtHadEvtPartons
+  // of TtSemiLepEvtPartons or TtFullHadEvtPartons
   produces< std::vector<int> >();
   produces< double >("SumPt");
   produces< double >("SumDR");
@@ -72,7 +72,7 @@ TtJetPartonMatch<C>::produce(edm::Event& evt, const edm::EventSetup& setup)
   evt.getByLabel(jets_, topJets);
 
   // fill vector of partons in the order of
-  // of TtSemiEvtPartons or TtHadEvtPartons
+  // TtSemiLepEvtPartons or TtFullHadEvtPartons
   C parts;
   std::vector<const reco::Candidate*> partons = parts.vec(*genEvt);
 

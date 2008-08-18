@@ -1,10 +1,10 @@
 //
-// $Id: TtSemiKinFitter.cc,v 1.8.2.2 2008/08/04 09:00:01 snaumann Exp $
+// $Id: TtSemiKinFitter.cc,v 1.9 2008/08/05 13:52:37 snaumann Exp $
 //
 
 #include "TopQuarkAnalysis/TopKinFitter/interface/TtSemiKinFitter.h"
 
-#include "TopQuarkAnalysis/TopTools/interface/TtSemiEvtPartons.h"
+#include "TopQuarkAnalysis/TopTools/interface/TtSemiLepEvtPartons.h"
 
 #include "PhysicsTools/KinFitter/interface/TAbsFitParticle.h"
 #include "PhysicsTools/KinFitter/interface/TFitConstraintM.h"
@@ -166,10 +166,10 @@ int TtSemiKinFitter::fit(const std::vector<pat::Jet>& jets, const pat::Lepton<Le
     throw edm::Exception( edm::errors::Configuration, "Cannot run the TtSemiKinFitter with less than 4 jets" );
 
   // get jets in right order
-  pat::Jet Hadp = jets[TtSemiEvtPartons::LightQ   ];
-  pat::Jet Hadq = jets[TtSemiEvtPartons::LightQBar];
-  pat::Jet Hadb = jets[TtSemiEvtPartons::HadB     ];
-  pat::Jet Lepb = jets[TtSemiEvtPartons::LepB     ];
+  pat::Jet Hadp = jets[TtSemiLepEvtPartons::LightQ   ];
+  pat::Jet Hadq = jets[TtSemiLepEvtPartons::LightQBar];
+  pat::Jet Hadb = jets[TtSemiLepEvtPartons::HadB     ];
+  pat::Jet Lepb = jets[TtSemiLepEvtPartons::LepB     ];
  
   // initialize particles
   TLorentzVector hadpVec( Hadp.px(), Hadp.py(), Hadp.pz(), Hadp.energy() );
@@ -428,10 +428,10 @@ TtSemiEvtSolution TtSemiKinFitter::addKinFitInfo(TtSemiEvtSolution * asol)
 
   std::vector<pat::Jet> jets;
   jets.resize(4);
-  jets[TtSemiEvtPartons::LightQ   ] = fitsol.getCalHadp();
-  jets[TtSemiEvtPartons::LightQBar] = fitsol.getCalHadq();
-  jets[TtSemiEvtPartons::HadB     ] = fitsol.getCalHadb();
-  jets[TtSemiEvtPartons::LepB     ] = fitsol.getCalLepb();
+  jets[TtSemiLepEvtPartons::LightQ   ] = fitsol.getCalHadp();
+  jets[TtSemiLepEvtPartons::LightQBar] = fitsol.getCalHadq();
+  jets[TtSemiLepEvtPartons::HadB     ] = fitsol.getCalHadb();
+  jets[TtSemiLepEvtPartons::LepB     ] = fitsol.getCalLepb();
 
   // perform the fit, either using the electron or the muon
   if(fitsol.getDecay() == "electron") fit( jets, fitsol.getCalLepe(), fitsol.getCalLepn() );

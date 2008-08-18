@@ -6,7 +6,7 @@ import FWCore.ParameterSet.Config as cms
 # in order  (LightQTop, LightQBarTop, B, LightQTopBar,
 # LightQBarTopBar, BBar)
 #
-ttHadJetPartonMatch = cms.EDFilter("TtHadEvtJetPartonMatch",
+ttFullHadJetPartonMatch = cms.EDFilter("TtFullHadJetPartonMatch",
     ## sources
     jets = cms.InputTag("selectedLayer1Jets"),
 

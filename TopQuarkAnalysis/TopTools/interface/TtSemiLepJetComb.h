@@ -1,5 +1,5 @@
-#ifndef TtSemiJetComb_h
-#define TtSemiJetComb_h
+#ifndef TtSemiLepJetComb_h
+#define TtSemiLepJetComb_h
 
 #include <vector>
 #include "TMath.h"
@@ -7,16 +7,16 @@
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
 
-class TtSemiJetComb {
+class TtSemiLepJetComb {
   // common calculator class for likelihood
   // variables in semi leptonic ttbar decays
 public:
 
-  TtSemiJetComb();
-  TtSemiJetComb(const std::vector<pat::Jet>&, const std::vector<int>,
-		const math::XYZTLorentzVector&, const math::XYZTLorentzVector&);
-  TtSemiJetComb(const std::vector<pat::Jet>&, const std::vector<int>, const math::XYZTLorentzVector&);
-  ~TtSemiJetComb();
+  TtSemiLepJetComb();
+  TtSemiLepJetComb(const std::vector<pat::Jet>&, const std::vector<int>,
+		   const math::XYZTLorentzVector&, const math::XYZTLorentzVector&);
+  TtSemiLepJetComb(const std::vector<pat::Jet>&, const std::vector<int>, const math::XYZTLorentzVector&);
+  ~TtSemiLepJetComb();
 
   double angleHadQQBar() const { return ROOT::Math::VectorUtil::Angle(hadQJet, hadQBarJet) * TMath::RadToDeg(); }
   double angleHadWHadB() const { return ROOT::Math::VectorUtil::Angle(hadW, hadBJet) * TMath::RadToDeg(); }

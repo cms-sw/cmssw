@@ -8,12 +8,12 @@ from PhysicsTools.PatAlgos.producersLayer1.electronProducer_cfi import allLayer1
 ## input source
 allLayer1Electrons.electronSource = cms.InputTag("allLayer0Electrons")
 ## embed AOD objects?
-allLayer1Electrons.embedTrack = cms.bool(False)
-allLayer1Electrons.embedGsfTrack = cms.bool(False)
-allLayer1Electrons.embedSuperCluster = cms.bool(False)
+allLayer1Electrons.embedTrack = cms.bool(True)          ## replaced from False --> True
+allLayer1Electrons.embedGsfTrack = cms.bool(True)       ## replaced from False --> True
+allLayer1Electrons.embedSuperCluster = cms.bool(True)   ## replaced from False --> True
 ## mc matching
 allLayer1Electrons.addGenMatch = cms.bool(True)
-allLayer1Electrons.embedGenMatchd = cms.bool(False)
+allLayer1Electrons.embedGenMatchd = cms.bool(True)      ## replaced from False --> True
 allLayer1Electrons.genParticleMatch = cms.InputTag("electronMatch")
 ## resolution
 allLayer1Electrons.addResolutions = cms.bool(True)
@@ -52,8 +52,8 @@ from PhysicsTools.PatAlgos.producersLayer1.muonProducer_cfi import allLayer1Muon
 ## input source
 allLayer1Muons.muonSource = cms.InputTag("allLayer0Muons")
 ## embed AOD objects?
-allLayer1Muons.embedTrack = cms.bool(False)
-allLayer1Muons.embedCombinedMuon = cms.bool(False)
+allLayer1Muons.embedTrack = cms.bool(True)              ## replaced from False --> True
+allLayer1Muons.embedCombinedMuon = cms.bool(True)       ## replaced from False --> True
 allLayer1Muons.embedStandAloneMuon = cms.bool(False)
 ## mc matching
 allLayer1Muons.addGenMatch = cms.bool(True)

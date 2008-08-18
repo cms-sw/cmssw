@@ -1,11 +1,11 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "TopQuarkAnalysis/TopTools/plugins/TtJetPartonMatch.h"
-#include "TopQuarkAnalysis/TopTools/interface/TtHadEvtPartons.h"
-#include "TopQuarkAnalysis/TopTools/interface/TtSemiEvtPartons.h"
+#include "TopQuarkAnalysis/TopTools/interface/TtFullHadEvtPartons.h"
+#include "TopQuarkAnalysis/TopTools/interface/TtSemiLepEvtPartons.h"
 
-typedef TtJetPartonMatch< TtHadEvtPartons  > TtHadEvtJetPartonMatch;
-typedef TtJetPartonMatch< TtSemiEvtPartons > TtSemiEvtJetPartonMatch;
+typedef TtJetPartonMatch< TtFullHadEvtPartons > TtFullHadJetPartonMatch;
+typedef TtJetPartonMatch< TtSemiLepEvtPartons > TtSemiLepJetPartonMatch;
 
-DEFINE_FWK_MODULE(TtHadEvtJetPartonMatch);
-DEFINE_FWK_MODULE(TtSemiEvtJetPartonMatch);
+DEFINE_FWK_MODULE(TtFullHadJetPartonMatch);
+DEFINE_FWK_MODULE(TtSemiLepJetPartonMatch);

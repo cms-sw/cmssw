@@ -6,12 +6,12 @@ import FWCore.ParameterSet.Config as cms
 #
 
 ## std sequence to produce ttSemiJetPartonMatch
-from TopQuarkAnalysis.TopTools.TtSemiEvtJetPartonMatch_cfi import *
+from TopQuarkAnalysis.TopTools.TtSemiLepJetPartonMatch_cfi import *
 
 ## configure genMatch hypothesis
 from TopQuarkAnalysis.TopJetCombination.TtSemiLepHypGenMatch_cfi import *
 
 ## make hypothesis
-makeHypothesis_genMatch = cms.Sequence(ttSemiJetPartonMatch *
+makeHypothesis_genMatch = cms.Sequence(ttSemiLepJetPartonMatch *
                                        ttSemiLepHypGenMatch)
 

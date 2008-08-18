@@ -1,5 +1,5 @@
 #include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepHypGenMatch.h"
-#include "TopQuarkAnalysis/TopTools/interface/TtSemiEvtPartons.h"
+#include "TopQuarkAnalysis/TopTools/interface/TtSemiLepEvtPartons.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
 TtSemiLepHypGenMatch::TtSemiLepHypGenMatch(const edm::ParameterSet& cfg):
@@ -20,13 +20,13 @@ TtSemiLepHypGenMatch::buildHypo(edm::Event& evt,
   for(unsigned idx=0; idx<match.size(); ++idx){
     if( isValid(match[idx], jets) ){
       switch(idx){
-      case TtSemiEvtPartons::LightQ:
+      case TtSemiLepEvtPartons::LightQ:
 	setCandidate(jets, match[idx], lightQ_); break;
-      case TtSemiEvtPartons::LightQBar:
+      case TtSemiLepEvtPartons::LightQBar:
 	setCandidate(jets, match[idx], lightQBar_); break;
-      case TtSemiEvtPartons::HadB:
+      case TtSemiLepEvtPartons::HadB:
 	setCandidate(jets, match[idx], hadronicB_); break;
-      case TtSemiEvtPartons::LepB: 
+      case TtSemiLepEvtPartons::LepB: 
 	setCandidate(jets, match[idx], leptonicB_); break;
       }
     }
