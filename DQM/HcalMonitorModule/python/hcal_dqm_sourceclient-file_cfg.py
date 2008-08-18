@@ -110,7 +110,7 @@ process.load("EventFilter.HcalRawToDigi.HcalRawToDigi_cfi")
 process.load("RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hbhe_cfi")
 process.load("RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_ho_cfi")
 process.load("RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hf_cfi")
-process.load("RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_zdc_cf")
+process.load("RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_zdc_cfi")
 
 # hcalMonitor configurable values -----------------------
 process.hcalMonitor.debug = False
@@ -119,17 +119,18 @@ process.hcalMonitor.PedestalsPerChannel = False
 process.hcalMonitor.PedestalsInFC = True
 
 # Turn on/off individual hcalMonitor modules ------------
-process.hcalMonitor.DataFormatMonitor = True
-process.hcalMonitor.DigiMonitor = True
-process.hcalMonitor.RecHitMonitor = True
-process.hcalMonitor.TrigPrimMonitor = True
-process.hcalMonitor.PedestalMonitor = False
-process.hcalMonitor.DeadCellMonitor = False
-process.hcalMonitor.HotCellMonitor = False
-process.hcalMonitor.LEDMonitor = False
-process.hcalMonitor.CaloTowerMonitor = False
-process.hcalMonitor.MTCCMonitor = False
-process.hcalMonitor.HcalAnalysis = False
+process.hcalMonitor.DataFormatMonitor   = True
+process.hcalMonitor.DigiMonitor         = True
+process.hcalMonitor.RecHitMonitor       = True
+process.hcalMonitor.TrigPrimMonitor     = True
+process.hcalMonitor.PedestalMonitor     = False
+process.hcalMonitor.DeadCellMonitor     = False
+process.hcalMonitor.HotCellMonitor      = False
+process.hcalMonitor.LEDMonitor          = False
+process.hcalMonitor.BeamMonitor         = False
+process.hcalMonitor.CaloTowerMonitor    = False
+process.hcalMonitor.MTCCMonitor         = False
+process.hcalMonitor.HcalAnalysis        = False
 
 
 #-----------------------------
@@ -148,17 +149,17 @@ process.hcalClient.baseHtmlDir = '.'
 # (Clients can't run without monitors being present.
 # If you want to turn off the client but keep the monitor,
 # just set the appropriate client value to False)
-process.hcalClient.SummaryClient = True
-process.hcalClient.DataFormatClient = process.hcalMonitor.DigiMonitor
-process.hcalClient.DigiClient = process.hcalMonitor.DigiMonitor
-process.hcalClient.RecHitClient = process.hcalMonitor.RecHitMonitor
-process.hcalClient.TrigPrimClient = process.hcalMonitor.TrigPrimMonitor
-process.hcalClient.DeadCellClient = process.hcalMonitor.DeadCellMonitor
-process.hcalClient.HotCellClient = process.hcalMonitor.HotCellMonitor
 
-process.hcalClient.CaloTowerClient = process.hcalMonitor.CaloTowerMonitor
-process.hcalClient.LEDClient = process.hcalMonitor.LEDMonitor
-process.hcalClient.PedestalClient = process.hcalMonitor.PedestalMonitor
+process.hcalClient.SummaryClient        = True
+process.hcalClient.DataFormatClient     = process.hcalMonitor.DigiMonitor
+process.hcalClient.DigiClient           = process.hcalMonitor.DigiMonitor
+process.hcalClient.RecHitClient         = process.hcalMonitor.RecHitMonitor
+process.hcalClient.TrigPrimClient       = process.hcalMonitor.TrigPrimMonitor
+process.hcalClient.DeadCellClient       = process.hcalMonitor.DeadCellMonitor
+process.hcalClient.HotCellClient        = process.hcalMonitor.HotCellMonitor
+process.hcalClient.CaloTowerClient      = process.hcalMonitor.CaloTowerMonitor
+process.hcalClient.LEDClient            = process.hcalMonitor.LEDMonitor
+process.hcalClient.PedestalClient       = process.hcalMonitor.PedestalMonitor
 
 #-----------------------------
 # Scheduling
