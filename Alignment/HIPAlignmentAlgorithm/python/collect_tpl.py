@@ -13,7 +13,7 @@ process.maxEvents = cms.untracked.PSet(
 process.AlignmentProducer.algoConfig.collectorActive = True
 process.AlignmentProducer.algoConfig.collectorNJobs  = <JOBS>
 process.AlignmentProducer.algoConfig.collectorPath   = '<PATH>'
-process.AlignmentProducer.algoConfig.minimumNumberOfHits = 0
+process.AlignmentProducer.algoConfig.minimumNumberOfHits = 15
 process.AlignmentProducer.algoConfig.maxRelParameterError = '1e99'
 process.AlignmentProducer.algoConfig.outpath = '<PATH>/main/'
 

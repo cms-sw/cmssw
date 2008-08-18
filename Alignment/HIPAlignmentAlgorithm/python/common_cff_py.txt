@@ -17,12 +17,14 @@ process.load("Alignment.HIPAlignmentAlgorithm.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.connect = "frontier://FrontierProd/CMS_COND_21X_GLOBALTAG"
 process.GlobalTag.globaltag = "CRZT210_V1::All"
 
+process.load("FWCore.MessageService.MessageLogger_cfi")
 MessageLogger = cms.Service("MessageLogger",
 							cout = cms.untracked.PSet(
 													  threshold = cms.untracked.string('WARNING')
 													  ),
 							destinations = cms.untracked.vstring('cout')
 )
+process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 # configure magnetic field
 #from MagnecticField.Engine.uniformMagneticField_cfg import *
@@ -32,6 +34,7 @@ es_prefer_UniformMagneticFieldESProducer = cms.ESPrefer("UniformMagneticFieldESP
 
 # configure the database file - use survey one for default
 from CondCore.DBCommon.CondDBSetup_cfi import *
+#from CondCore.DBCommon.CondDBCommon_cfi import *
 #process.load("Alignment.CommonAlignmentProducer.GlobalPosition_Frontier_cff")
 process.trackerAlignment = cms.ESSource("PoolDBESSource",
 					 CondDBSetup,
@@ -44,14 +47,15 @@ process.trackerAlignment = cms.ESSource("PoolDBESSource",
 												record = cms.string('TrackerAlignmentErrorRcd'),
 												tag = cms.string('AlignmentErrors')
 												)),
-					 connect = cms.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/HIP/bonato/alignments_SiStripInflSurveyErrs_iter50.db')
+					 connect = cms.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/HIP/alignmentRcds/AllSurveyButTIBTIDGlobal_FPixBPix_wErrs.db')
 )
+
 process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource","trackerAlignment")
 
 
 process.AlignmentProducer.applyDbAlignment = True
 # Set parameters to align
-process.AlignmentProducer.ParameterBuilder.Selector.alignParams = ['AllDets,111111']
+process.AlignmentProducer.ParameterBuilder.Selector.alignParams = ['TIBSSDets,100001','TIBDSDets,110001','TOBSSDets,100001','TOBDSDets,110001']
 
 
 

@@ -7,6 +7,7 @@ set iter = $1                          # final iteration number
 set odir = `cd $2; pwd`                # get full output path
 set name = `basename $odir`            # for job name
 set jobs = `ls -d $odir/job*/ | wc -l` # number of jobs
+set queue = cmscaf                     # pick queue to run on
 
 ## Submit jobs and iterate
 
@@ -26,16 +27,16 @@ while ($i <= $iter)
   if ($jobs > 0) then
     @ j = 0 # job index
 
-	bsub -q cmscaf -C 0 -J $name/align$i\[1-$jobs\] \
+	bsub -q $queue -C 0 -J $name/align$i\[1-$jobs\] \
          -oo $odir/job%I/align$i.out $odir/job\$LSB_JOBINDEX/runScript.csh $workdir
 
     sleep 5
     set id = `bjobs -J $name/align$i | tail -n1 | awk '{print $1}'`
 
-    bsub -q cmscaf -C 0 -J $name/collect$i -w "done($id)" \
+    bsub -q $queue -C 0 -J $name/collect$i -w "done($id)" \
          -oo $odir/main/collect$i.out $odir/main/runScript.csh $workdir
 
-    bsub -q cmscaf -C 0 -J $name/stopreq$i -w "ended($name/collect$i)" \
+    bsub -q $queue -C 0 -J $name/stopreq$i -w "ended($name/collect$i)" \
          -o /dev/null bkill -J $name/requeue$i
 
 ## When <collect> job ends, <requeue> job is killed and gets an EXIT status.
@@ -48,7 +49,7 @@ while ($i <= $iter)
     end
 
   else
-    bsub -q cmscaf -C 0 -J $name/collect$i -K \
+    bsub -q $queue -C 0 -J $name/collect$i -K \
          -oo $odir/main/collect$i.out $odir/main/runScript.csh $workdir
   endif
 
