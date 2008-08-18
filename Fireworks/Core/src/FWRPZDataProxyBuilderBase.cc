@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jun 28 09:51:35 PDT 2008
-// $Id: FWRPZDataProxyBuilderBase.cc,v 1.3 2008/07/14 23:34:10 chrjones Exp $
+// $Id: FWRPZDataProxyBuilderBase.cc,v 1.4 2008/07/15 18:01:21 chrjones Exp $
 //
 
 // system include files
@@ -198,8 +198,10 @@ FWRPZDataProxyBuilderBase::attachToRhoPhiView(boost::shared_ptr<FWRhoPhiZView> i
          addRhoPhiProj( iView->importElements(prod,layer()));
       }  
       if(m_modelsChanged) {
-         //it appears that passing iterators to 0 length vector to a set causes a crash
-         applyChangesToAllModels(*(m_rhoPhiProjs.BeginChildren()));
+         if(m_rhoPhiProjs.HasChildren()) {
+            //it appears that passing iterators to 0 length vector to a set causes a crash
+            applyChangesToAllModels(*(m_rhoPhiProjs.BeginChildren()));
+         }
          m_modelsChanged=false;
       }
    }
@@ -215,7 +217,9 @@ FWRPZDataProxyBuilderBase::attachToRhoZView(boost::shared_ptr<FWRhoPhiZView> iVi
          addRhoZProj( iView->importElements(prod,layer()));
       }  
       if(m_modelsChanged) {
-         applyChangesToAllModels(*(m_rhoZProjs.BeginChildren()));
+         if(m_rhoZProjs.HasChildren()) {
+            applyChangesToAllModels(*(m_rhoZProjs.BeginChildren()));
+         }
          m_modelsChanged=false;
       }
    }
