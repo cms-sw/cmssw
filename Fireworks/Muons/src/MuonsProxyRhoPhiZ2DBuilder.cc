@@ -90,13 +90,13 @@ void MuonsProxyRhoPhiZ2DBuilder::build(const FWEventItem* iItem,
    double gMagneticField = CmsShowMain::getMagneticField();
    // double gMagneticField = 0;
    innerPropagator->SetMagField( -gMagneticField);
-   innerPropagator->SetMaxR( 350 );
-   innerPropagator->SetMaxZ( 650 );
+   innerPropagator->SetMaxR( 450 );
+   innerPropagator->SetMaxZ( 750 );
    trackerPropagator->SetMagField( -gMagneticField);
    trackerPropagator->SetMaxR( 123 );
    trackerPropagator->SetMaxZ( 300 );
    outerPropagator->SetMagField( gMagneticField * 1.5/4);
-   outerPropagator->SetMaxR( 750 );
+   outerPropagator->SetMaxR( 850 );
    outerPropagator->SetMaxZ( 1100 );
 
    TEveRecTrack innerRecTrack;
@@ -106,8 +106,6 @@ void MuonsProxyRhoPhiZ2DBuilder::build(const FWEventItem* iItem,
    unsigned int index(0);
    for ( reco::MuonCollection::const_iterator muon = muons->begin(); muon != muons->end(); ++muon, ++index )
      {
-	// REVISE ME !
-	// 
 	// If we deal with tracker muons we use projected inner tracker trajectory
 	// to draw the muon and position of recontructed muon segments as hits. In all
 	// other cases ( stand alone muons first of all ), reco hits, segments, fit 
@@ -129,94 +127,60 @@ void MuonsProxyRhoPhiZ2DBuilder::build(const FWEventItem* iItem,
 	muonList->SetRnrSelf(     iItem->defaultDisplayProperties().isVisible() );
 	muonList->SetRnrChildren( iItem->defaultDisplayProperties().isVisible() );
 	
-	
 	bool useStandAloneFit = ! muon->isMatchesValid() && 
 	  muon->standAloneMuon().isAvailable() && 
 	  muon->standAloneMuon()->extra().isAvailable();
+	
+	if ( ! useStandAloneFit && buggyMuon( &*muon, iItem->getGeom() ) ) 
+	  useStandAloneFit = true;
 	
 	Double_t lastPointVX2(0), lastPointVY2(0), lastPointVZ2(0), lastPointVX1(0), lastPointVY1(0), lastPointVZ1(0);
 	bool useLastPoint = false;
 
-	/*
-	// need to decide how deep the inner propagator should go
-	// - tracker muon (R=350, Z=650)
-	// - non-tracker muon - first stand alone muon state if available
-	//                    - otherwise (R=350, Z=650)
-	innerPropagator->SetMaxR( maxR );
-	innerPropagator->SetMaxZ( maxZ );	
-	bool useStandAloneFit = ! muon->isMatchesValid() && 
-	  muon->standAloneMuon().isAvailable() && 
-	  muon->standAloneMuon()->extra().isAvailable();
-	if ( useStandAloneFit )
-	  {
-	     innerPropagator->SetMaxR( muon->standAloneMuon()->innerPosition().Rho()+10 );
-	     innerPropagator->SetMaxZ( fabs(muon->standAloneMuon()->innerPosition().z())+10 );
-	  }
-	Double_t lastPointVX2(0), lastPointVY2(0), lastPointVZ2(0), lastPointVX1(0), lastPointVY1(0), lastPointVZ1(0);
-	bool useLastPoint = false;
-	*/
 	// draw inner track if information is available
         if ( muon->track().isAvailable() ) {
-	   /*
-	   innerRecTrack.fP = TEveVector( muon->track()->px(), muon->track()->py(), muon->track()->pz() );
-	   innerRecTrack.fV = TEveVector( muon->track()->vertex().x(), 
-					  muon->track()->vertex().y(), 
-					  muon->track()->vertex().z() );
-	   innerRecTrack.fSign = muon->charge();
-	   // std::cout << "px " << innerRecTrack.fP.fX << " py " << innerRecTrack.fP.fY << " pz " << innerRecTrack.fP.fZ
-	   // << " vx " << innerRecTrack.fV.fX << " vy " << innerRecTrack.fV.fY << " vz " << innerRecTrack.fV.fZ
-	   // << " sign " << innerRecTrack.fSign << std::endl;
-	
-	   TEveTrack* innerTrack = new TEveTrack( &innerRecTrack, innerPropagator );
-	   innerTrack->SetMainColor( iItem->defaultDisplayProperties().color() );
-	   // add outer most state position to guide the propagator 
-	   // if the information is available
-	   if ( muon->track()->extra().isAvailable() ) {
-	      TEvePathMark mark( TEvePathMark::kDaughter );
-	      mark.fV = TEveVector( muon->track()->outerPosition().x(),
-				    muon->track()->outerPosition().y(),
-				    muon->track()->outerPosition().z() );
-	      innerTrack->AddPathMark( mark );
-	   }
-	   if ( useStandAloneFit ) {
-	      TEvePathMark mark( TEvePathMark::kDaughter );
-	      mark.fV = TEveVector( muon->standAloneMuon()->innerPosition().x(), 
-				    muon->standAloneMuon()->innerPosition().y(), 
-				    muon->standAloneMuon()->innerPosition().z() );
-	      innerTrack->AddPathMark( mark );
-	   }
-	   innerTrack->MakeTrack();
-	    */
 	   TEveVector location = muonLocation(&*muon, iItem);
-	   std::vector<TEveTrack*> innerTracks = TracksProxy3DBuilder::prepareTrack(*(muon->track()),
-										    0,
-										    muonList,  
-										    iItem->defaultDisplayProperties().color() );
+	   std::vector<TEveTrack*> innerTracks = 
+	     TracksProxy3DBuilder::prepareTrack(*(muon->track()),
+						0,
+						muonList,  
+						iItem->defaultDisplayProperties().color() );
 	   for ( std::vector<TEveTrack*>::iterator trk = innerTracks.begin(); 
 		 trk != innerTracks.end(); ++ trk )
 	     {
-		// if track moves toward the muon, propagate it out of the tracker
-		if ( location.fX * (*trk)->GetMomentum().fX + 
+		// if track moves away from muon limit propagation by tracker volume
+		// otherwise propagate up to the solinoid and stich tracks
+		// properly
+		if ( location.fX * (*trk)->GetMomentum().fX +
 		     location.fY * (*trk)->GetMomentum().fY < 0 ) {
 		   (*trk)->SetPropagator( trackerPropagator );
 		   (*trk)->MakeTrack();
 		   muonList->AddElement( *trk );
 		} else {
+		   // change last pathmark type
+		   (*trk)->RefPathMarks().back().fType = TEvePathMark::kDaughter;
 		   if ( useStandAloneFit ) {
-		      // here we need a propagator for a single case
-		      TEveTrackPropagator* propagator = new TEveTrackPropagator();
-		      propagator->SetMagField( -gMagneticField);
-		      propagator->SetMaxR( muon->standAloneMuon()->innerPosition().Rho()+10 );
-		      propagator->SetMaxZ( fabs(muon->standAloneMuon()->innerPosition().z())+10 );
-		      (*trk)->SetPropagator(propagator);
-		      TEvePathMark mark( TEvePathMark::kDaughter );
-		      mark.fV = TEveVector( muon->standAloneMuon()->innerPosition().x(), 
-					    muon->standAloneMuon()->innerPosition().y(), 
-					    muon->standAloneMuon()->innerPosition().z() );
+		      TEvePathMark mark( TEvePathMark::kDecay );
+		      if (  muon->standAloneMuon()->innerPosition().R() >  
+			    muon->standAloneMuon()->outerPosition().R() ) {
+			 mark.fV = TEveVector( muon->standAloneMuon()->outerPosition().x(),
+					       muon->standAloneMuon()->outerPosition().y(),
+					       muon->standAloneMuon()->outerPosition().z() );
+			 mark.fTime = muon->standAloneMuon()->outerPosition().R();
+		      } else {
+			 mark.fV = TEveVector( muon->standAloneMuon()->innerPosition().x(),
+					       muon->standAloneMuon()->innerPosition().y(),
+					       muon->standAloneMuon()->innerPosition().z() );
+			 mark.fTime = muon->standAloneMuon()->innerPosition().R();
+		      }
 		      (*trk)->AddPathMark( mark );
 		   } else {
-		      (*trk)->SetPropagator( innerPropagator );
+		      // muon match info
+		      TEvePathMark mark( TEvePathMark::kDecay );
+		      mark.fV = firstMatch( &*muon, iItem );
+		      (*trk)->AddPathMark( mark );
 		   }
+		   (*trk)->SetPropagator( innerPropagator );
 		   (*trk)->MakeTrack();
 		   muonList->AddElement( *trk );
 		   // get last two points of the innerTrack trajectory
@@ -225,13 +189,6 @@ void MuonsProxyRhoPhiZ2DBuilder::build(const FWEventItem* iItem,
 		   useLastPoint = true;
 		}
 	     }
-	/*   
-	   // get last two points of the innerTrack trajectory
-	   innerTrack->GetPoint( innerTrack->GetLastPoint(),   lastPointVX2, lastPointVY2, lastPointVZ2);
-	   innerTrack->GetPoint( innerTrack->GetLastPoint()-1, lastPointVX1, lastPointVY1, lastPointVZ1);
-	   useLastPoint = true;
-	   // muonList->AddElement( innerTrack );
-	 */
 	}
 	
 	if ( useLastPoint ) {
@@ -290,7 +247,7 @@ void MuonsProxyRhoPhiZ2DBuilder::build(const FWEventItem* iItem,
 	     outerTrack->SetMarkerSize( 5 );
 	     */
 	     
-	     TEvePathMark mark( TEvePathMark::kDaughter );
+	     TEvePathMark mark( TEvePathMark::kDecay );
 	     if (  muon->standAloneMuon()->innerPosition().R() <  muon->standAloneMuon()->outerPosition().R() ) {
 		mark.fV = TEveVector( muon->standAloneMuon()->outerPosition().x(),
 				      muon->standAloneMuon()->outerPosition().y(),
@@ -333,7 +290,25 @@ REGISTER_FWRPZ2DDATAPROXYBUILDER(MuonsProxyRhoPhiZ2DBuilder,reco::MuonCollection
 TEveVector MuonsProxyRhoPhiZ2DBuilder::muonLocation( const reco::Muon* muon,
 						     const FWEventItem* iItem )
 {
+   
+   // stand alone information
+   if (muon->standAloneMuon().isAvailable() &&
+       muon->standAloneMuon()->extra().isAvailable() )
+     return TEveVector ( muon->standAloneMuon()->innerPosition().x(),
+			 muon->standAloneMuon()->innerPosition().y(),
+			 muon->standAloneMuon()->innerPosition().z() );
    // tracker muon info
+   TEveVector v = firstMatch( muon, iItem );
+   if (v.Mag()>0) 
+     return v;
+   else
+     //wild guess
+     return TEveVector ( muon->px(),  muon->py(),  muon->pz() );
+}
+
+TEveVector MuonsProxyRhoPhiZ2DBuilder::firstMatch( const reco::Muon* muon,
+						   const FWEventItem* iItem )
+{
    const DetIdToMatrix* geom = iItem->getGeom();
    const std::vector<reco::MuonChamberMatch>& matches = muon->matches();
    Double_t localTrajectoryPoint[3];
@@ -341,7 +316,7 @@ TEveVector MuonsProxyRhoPhiZ2DBuilder::muonLocation( const reco::Muon* muon,
    std::vector<reco::MuonChamberMatch>::const_iterator chamber = matches.begin();
    for ( ; chamber != matches.end(); ++ chamber )
      {
-   	// expected track position
+	// expected track position
 	localTrajectoryPoint[0] = chamber->x;
 	localTrajectoryPoint[1] = chamber->y;
 	localTrajectoryPoint[2] = 0;
@@ -350,23 +325,12 @@ TEveVector MuonsProxyRhoPhiZ2DBuilder::muonLocation( const reco::Muon* muon,
 	const TGeoHMatrix* matrix = geom->getMatrix( chamber->id.rawId() );
 	if ( matrix ) {
 	   matrix->LocalToMaster( localTrajectoryPoint, globalTrajectoryPoint );
-	   return TEveVector ( globalTrajectoryPoint[0],
-			       globalTrajectoryPoint[1],
-			       globalTrajectoryPoint[2] );
+	      return TEveVector( globalTrajectoryPoint[0], globalTrajectoryPoint[1], globalTrajectoryPoint[2] );
 	}
      }
-   
-   // stand alone information
-   if (muon->standAloneMuon().isAvailable() &&
-       muon->standAloneMuon()->extra().isAvailable() )
-     return TEveVector ( muon->standAloneMuon()->innerPosition().x(),
-			 muon->standAloneMuon()->innerPosition().y(),
-			 muon->standAloneMuon()->innerPosition().z() );
-   
-   //wild guess
-   return TEveVector ( muon->px(),  muon->py(),  muon->pz() );
+   return TEveVector();
 }
-   
+
    
 void MuonsProxyRhoPhiZ2DBuilder::addMatchInformation( const reco::Muon* muon,
 						      const FWEventItem* iItem,
@@ -412,7 +376,8 @@ void MuonsProxyRhoPhiZ2DBuilder::addMatchInformation( const reco::Muon* muon,
 	   if ( track ) {
 	      TEvePathMark mark( TEvePathMark::kDaughter );
 	      mark.fV = TEveVector( globalTrajectoryPoint[0], globalTrajectoryPoint[1], globalTrajectoryPoint[2] );
-	      track->AddPathMark( mark );
+	      if ( mark.fV.Mag() > track->GetVertex().Mag() ) // avoid zigzags
+		track->AddPathMark( mark );
 	   }
 	   
 	   // std::cout << "\t " << " vx " << globalTrajectoryPoint[0] << " vy " << globalTrajectoryPoint[1] << 
@@ -490,3 +455,31 @@ void MuonsProxyRhoPhiZ2DBuilder::addHitsAsPathMarks( const reco::TrackExtra* rec
      }
 }
 */
+
+bool MuonsProxyRhoPhiZ2DBuilder::buggyMuon( const reco::Muon* muon,
+					    const DetIdToMatrix* geom )
+{
+   if (! muon->standAloneMuon().isAvailable() ||
+       ! muon->standAloneMuon()->extra().isAvailable() ) return false;
+   const std::vector<reco::MuonChamberMatch>& matches = muon->matches();
+   Double_t localTrajectoryPoint[3];
+   Double_t globalTrajectoryPoint[3];
+   std::vector<reco::MuonChamberMatch>::const_iterator chamber = matches.begin();
+   for ( ; chamber != matches.end(); ++ chamber )
+     {
+	// expected track position
+	localTrajectoryPoint[0] = chamber->x;
+	localTrajectoryPoint[1] = chamber->y;
+	localTrajectoryPoint[2] = 0;
+	     
+	DetId id = chamber->id;
+	const TGeoHMatrix* matrix = geom->getMatrix( chamber->id.rawId() );
+	if ( matrix ) {
+	   matrix->LocalToMaster( localTrajectoryPoint, globalTrajectoryPoint );
+	   double phi = atan2(globalTrajectoryPoint[1],globalTrajectoryPoint[0]);
+	   if ( cos( phi - muon->standAloneMuon()->innerPosition().phi()) < 0 )
+	     return true;
+	}
+     }
+   return false;
+}

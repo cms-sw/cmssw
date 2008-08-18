@@ -14,7 +14,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: TracksProxy3DBuilder.cc,v 1.13 2008/07/17 10:04:17 dmytro Exp $
+// $Id: TracksProxy3DBuilder.cc,v 1.14 2008/07/20 18:28:02 dmytro Exp $
 //
 
 // system include files
@@ -183,7 +183,9 @@ TracksProxy3DBuilder::prepareTrack(const reco::Track& track,
 			 track.outerPosition().y(),
 			 track.outerPosition().z() );
    trackList->AddElement( states );
-   if ( ( track.innerPosition().x()*track.outerPosition().x() +  
+   // if track crossed POCA and 
+   // track points outside-in from initial point
+   if ( ( track.innerPosition().x()*track.outerPosition().x() +
 	  track.innerPosition().y()*track.outerPosition().y() < 0 )
 	&&
 	( track.innerPosition().x()*track.px() +  
@@ -206,6 +208,7 @@ TracksProxy3DBuilder::prepareTrack(const reco::Track& track,
 	   t.fP = TEveVector(track.px(), track.py(), track.pz());
 	   t.fSign = track.charge();
 	   TEveTrack* trkAlong = new TEveTrack(&t,propagator);
+	   mark2.fType = TEvePathMark::kDecay;
 	   trkAlong->AddPathMark( mark2 );
 	   trkAlong->SetMainColor(color);
 	   // trkAlong->MakeTrack();
@@ -215,6 +218,7 @@ TracksProxy3DBuilder::prepareTrack(const reco::Track& track,
 	   t.fP = TEveVector(-track.px(), -track.py(), -track.pz());
 	   t.fSign = -track.charge();
 	   TEveTrack* trkOpposite = new TEveTrack(&t,propagator);
+	   mark1.fType = TEvePathMark::kDecay;
 	   trkOpposite->AddPathMark( mark1 );
 	   trkOpposite->SetMainColor(color);
 	   // trkOpposite->MakeTrack();
@@ -232,6 +236,7 @@ TracksProxy3DBuilder::prepareTrack(const reco::Track& track,
 	   t.fP = TEveVector(track.px(), track.py(), track.pz());
 	   t.fSign = track.charge();
 	   TEveTrack* trkAlong = new TEveTrack(&t,propagator);
+	   mark2.fType = TEvePathMark::kDecay;
 	   trkAlong->AddPathMark( mark2 );
 	   trkAlong->SetMainColor(color);
 	   // trkAlong->MakeTrack();
@@ -244,6 +249,7 @@ TracksProxy3DBuilder::prepareTrack(const reco::Track& track,
 	   t.fP = TEveVector(-track.px(), -track.py(), -track.pz());
 	   t.fSign = -track.charge();
 	   TEveTrack* trkOpposite = new TEveTrack(&t,propagator);
+	   mark1.fType = TEvePathMark::kDecay;
 	   trkOpposite->AddPathMark( mark1 );
 	   trkOpposite->SetMainColor(color);
 	   // trkOpposite->MakeTrack();
@@ -262,8 +268,9 @@ TracksProxy3DBuilder::prepareTrack(const reco::Track& track,
    if ( track.innerPosition().x()*track.px() +
 	track.innerPosition().y()*track.py() < 0 )
      {
-	// std::cout << "Track " << track.pt() << "\tis inward moving" << std::endl;
 	// inward moving tracks
+	// flip momentum and change order of states.
+	// std::cout << "Track " << track.pt() << "\tis inward moving" << std::endl;
 	t.fP = TEveVector(-track.px(), -track.py(), -track.pz());
 	if ( track.vy()*track.innerPosition().y() > 0 )
 	  t.fV = TEveVector(track.vx(), track.vy(), track.vz());
@@ -289,10 +296,12 @@ TracksProxy3DBuilder::prepareTrack(const reco::Track& track,
    // now we have to make sure that the order of states is right
    if ( track.innerPosition().Rho() < track.outerPosition().Rho() ) {
       trk->AddPathMark( mark1 );
+      mark2.fType = TEvePathMark::kDecay;
       trk->AddPathMark( mark2 );
    } else {
       // std::cout << "Track " << track.pt() << "\tstates are inward ordered" << std::endl;
       trk->AddPathMark( mark2 );
+      mark1.fType = TEvePathMark::kDecay;
       trk->AddPathMark( mark1 );
    }
    trk->SetMainColor(color);

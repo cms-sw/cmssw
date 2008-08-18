@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: MuonsProxyRhoPhiZ2DBuilder.h,v 1.5 2008/06/09 19:54:03 chrjones Exp $
+// $Id: MuonsProxyRhoPhiZ2DBuilder.h,v 1.6 2008/07/20 18:28:03 dmytro Exp $
 //
 
 // system include files
@@ -63,6 +63,8 @@ class MuonsProxyRhoPhiZ2DBuilder : public FWRPZ2DDataProxyBuilder
 
       static TEveVector muonLocation( const reco::Muon* muon,
 				      const FWEventItem* iItem );
+      static TEveVector firstMatch( const reco::Muon* muon,
+				    const FWEventItem* iItem );
       //static void addHitsAsPathMarks( const reco::TrackExtra* recoTrack,
       //				      const DetIdToMatrix* geom,
       //			      TEveTrack* eveTrack );
@@ -75,6 +77,8 @@ class MuonsProxyRhoPhiZ2DBuilder : public FWRPZ2DDataProxyBuilder
       virtual void buildRhoZ(const FWEventItem* iItem, 
                                TEveElementList** product);
 
+      static bool buggyMuon( const reco::Muon* muon,
+			     const DetIdToMatrix* geom );
    
       MuonsProxyRhoPhiZ2DBuilder(const MuonsProxyRhoPhiZ2DBuilder&); // stop default
 
