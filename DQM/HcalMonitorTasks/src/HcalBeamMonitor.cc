@@ -54,7 +54,7 @@ void HcalBeamMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
     {
       m_dbe->setCurrentFolder(baseFolder_);
       char* type;
-      type = "TrigPrim Event Number";
+      type = "BeamMonitor Event Number";
       meEVT_ = m_dbe->bookInt(type);
 
       CenterOfEnergyRadius = m_dbe->book1D("CenterOfEnergyRadius",
