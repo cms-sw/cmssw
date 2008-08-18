@@ -10,7 +10,7 @@ electronMatch.matched   = cms.InputTag("genParticles")  ## match to
 electronMatch.maxDeltaR = cms.double(0.5)               ## Minimum deltaR for the match
 electronMatch.maxDPtRel = cms.double(0.5)               ## Minimum deltaPt/Pt for the match
 electronMatch.resolveAmbiguities = cms.bool(True)       ## Forbid two RECO objects to match to the same GEN object
-electronMatch.resolveByMatchQuality = cms.bool(True)    ## False = just match input in order;
+electronMatch.resolveByMatchQuality = cms.bool(False)   ## False = just match input in pt order;
                                                         ## True  = pick lowest deltaR pair first
 electronMatch.checkCharge = cms.bool(True)              ## True = require RECO and MC objects to have the same charge
 electronMatch.mcPdgId  = cms.vint32(11)                 ## one or more PDG ID (11 = electron); absolute values
@@ -27,7 +27,7 @@ muonMatch.matched   = cms.InputTag("genParticles")      ## match to
 muonMatch.maxDeltaR = cms.double(0.5)                   ## Minimum deltaR for the match
 muonMatch.maxDPtRel = cms.double(0.5)                   ## Minimum deltaPt/Pt for the match
 muonMatch.resolveAmbiguities = cms.bool(True)           ## Forbid two RECO objects to match to the same GEN object
-muonMatch.resolveByMatchQuality = cms.bool(True)        ## False = just match input in order;
+muonMatch.resolveByMatchQuality = cms.bool(False)       ## False = just match input in pt order;
                                                         ## True  = pick lowest deltaR pair first
 muonMatch.checkCharge = cms.bool(True)                  ## True = require RECO and MC objects to have the same charge
 muonMatch.mcPdgId  = cms.vint32(13)                     ## one or more PDG ID (13 = muon); absolute values
@@ -44,7 +44,7 @@ tauMatch.matched   = cms.InputTag("genParticles")       ## match to
 tauMatch.maxDeltaR = cms.double(5.0)                    ## Minimum deltaR for the match
 tauMatch.maxDPtRel = cms.double(99.)                    ## Minimum deltaPt/Pt for the match
 tauMatch.resolveAmbiguities = cms.bool(True)            ## Forbid two RECO objects to match to the same GEN object
-tauMatch.resolveByMatchQuality = cms.bool(True)         ## False = just match input in order;
+tauMatch.resolveByMatchQuality = cms.bool(False)        ## False = just match input in pt order;
                                                         ## True  = pick lowest deltaR pair first
 tauMatch.checkCharge = cms.bool(True)                   ## True = require RECO and MC objects to have the same charge
 tauMatch.mcPdgId  = cms.vint32(15)                      ## one or more PDG ID (15 = tau); absolute values
@@ -61,7 +61,7 @@ jetPartonMatch.matched   = cms.InputTag("genParticles") ## match to
 jetPartonMatch.maxDeltaR = cms.double(0.5)              ## Minimum deltaR for the match
 jetPartonMatch.maxDPtRel = cms.double(5.0)              ## Minimum deltaPt/Pt for the match
 jetPartonMatch.resolveAmbiguities = cms.bool(True)      ## Forbid two RECO objects to match to the same GEN object
-jetPartonMatch.resolveByMatchQuality = cms.bool(False)  ## False = just match input in order;
+jetPartonMatch.resolveByMatchQuality = cms.bool(False)  ## False = just match input in pt order;
                                                         ## True  = pick lowest deltaR pair first
 jetPartonMatch.checkCharge = cms.bool(False)            ## True = require RECO and MC objects to have the same charge
 jetPartonMatch.mcPdgId  = cms.vint32(1, 2, 3, 4, 5, 21) ## one or more PDG ID (15 = tau); absolute values
@@ -75,8 +75,8 @@ from PhysicsTools.PatAlgos.mcMatchLayer0.jetMatch_cfi import jetGenJetMatch
 
 jetGenJetMatch.src = cms.InputTag("allLayer0Jets")      ## input source
 jetGenJetMatch.matched   = cms.InputTag("iterativeCone5GenJets")
-jetGenJetMatch.maxDeltaR = cms.double(0.4)              ## Minimum deltaR for the match
-jetGenJetMatch.maxDPtRel = cms.double(3.0)              ## Minimum deltaPt/Pt for the match
+jetGenJetMatch.maxDeltaR = cms.double(0.5)              ## Minimum deltaR for the match
+jetGenJetMatch.maxDPtRel = cms.double(5.0)              ## Minimum deltaPt/Pt for the match
 jetGenJetMatch.resolveAmbiguities = cms.bool(True)      ## Forbid two RECO objects to match to the same GEN object
 jetGenJetMatch.resolveByMatchQuality = cms.bool(False)  ## False = just match input in order;
                                                         ## True  = pick lowest deltaR pair first

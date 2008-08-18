@@ -27,6 +27,7 @@ allLayer1Electrons.isolation.tracker = cms.PSet(
 ## isolation for ecal
 allLayer1Electrons.isolation.ecal = cms.PSet(
     src    = cms.InputTag("layer0ElectronIsolations", "eleIsoDepositEcalFromClusts"),
+   #src    = cms.InputTag("layer0ElectronIsolations","eleIsoDepositEcalFromHits"), ## recommendation from POG
     deltaR = cms.double(0.4)
     )
 ## isolation for hcal
@@ -38,6 +39,7 @@ allLayer1Electrons.isolation.hcal = cms.PSet(
 allLayer1Electrons.isoDeposits = cms.PSet(
     tracker= cms.InputTag("layer0ElectronIsolations", "eleIsoDepositTk"),
     ecal   = cms.InputTag("layer0ElectronIsolations", "eleIsoDepositEcalFromClusts"),
+   #ecal   = cms.InputTag("layer0ElectronIsolations","eleIsoDepositEcalFromHits"), ## recommendation from POG
     hcal   = cms.InputTag("layer0ElectronIsolations", "eleIsoDepositHcalFromTowers")
     )
 

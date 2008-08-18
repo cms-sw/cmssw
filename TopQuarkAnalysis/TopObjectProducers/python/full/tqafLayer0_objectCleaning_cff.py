@@ -20,6 +20,7 @@ allLayer0Electrons.isolation.tracker = cms.PSet(
 ## configure isolation for ecal
 allLayer0Electrons.isolation.ecal = cms.PSet(
     src       = cms.InputTag("patAODElectronIsolations", "eleIsoDepositEcalFromClusts"),
+   #src       = cms.InputTag("patAODElectronIsolations","eleIsoDepositEcalFromHits"), ## recommendation from POG
     deltaR    = cms.double(0.4),                                     ## POG suggestion
     cut       = cms.double(5.0)                                      ## isolation cut (as educated guess)
     )
