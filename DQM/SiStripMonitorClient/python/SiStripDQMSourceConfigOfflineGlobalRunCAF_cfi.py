@@ -25,16 +25,19 @@ import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi
 SiStripMonitorTrackCAF_cosmicTk = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone()
 SiStripMonitorTrackCAF_cosmicTk.TrackProducer = 'cosmictrackfinderP5Refitter'
 SiStripMonitorTrackCAF_cosmicTk.FolderName    = 'SiStrip/Tracks'
+SiStripMonitorTrackCAF_cosmicTk.Mod_On        = True
 # clone for CTF track finder
 import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi
 SiStripMonitorTrackCAF_ckf = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone()
 SiStripMonitorTrackCAF_ckf.TrackProducer = 'ctfWithMaterialTracksP5Refitter'
 SiStripMonitorTrackCAF_ckf.FolderName    = 'SiStrip/Tracks'
+SiStripMonitorTrackCAF_ckf.Mod_On        = True
 # clone for RS track finder
 import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi
 SiStripMonitorTrackCAF_rs = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone()
 SiStripMonitorTrackCAF_rs.TrackProducer = 'rsWithMaterialTracksP5Refitter'
 SiStripMonitorTrackCAF_rs.FolderName    = 'SiStrip/Tracks'
+SiStripMonitorTrackCAF_rs.Mod_On        = True
 
 # TrackerMonitorTrack
 # clone for cosmic track finder

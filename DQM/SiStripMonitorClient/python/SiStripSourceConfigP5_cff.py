@@ -29,52 +29,56 @@ SiStripMonitorClusterSim.StripQualityLabel = 'test1'
 import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi
 SiStripMonitorTrack_cosmicTk = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone()
 SiStripMonitorTrack_cosmicTk.TrackProducer = 'cosmictrackfinderP5'
-SiStripMonitorTrack_cosmicTk.FolderName = 'SiStrip/Tracks'
+SiStripMonitorTrack_cosmicTk.FolderName    = 'SiStrip/Tracks'
+SiStripMonitorTrack_cosmicTk.Mod_On        = True
 # Clone for CKF Tracks
 import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi
 SiStripMonitorTrack_ckf = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone()
-SiStripMonitorTrack_ckf.TrackProducer = 'ctfWithMaterialTracksP5'
-SiStripMonitorTrack_ckf.FolderName = 'SiStrip/Tracks'
+SiStripMonitorTrack_ckf.TrackProducer      = 'ctfWithMaterialTracksP5'
+SiStripMonitorTrack_ckf.FolderName         = 'SiStrip/Tracks'
+SiStripMonitorTrack_ckf.Mod_On             = True
 # Clone fir Road Search  Tracks
 import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi
 SiStripMonitorTrack_rs = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone()
-SiStripMonitorTrack_rs.TrackProducer = 'rsWithMaterialTracksP5'
-SiStripMonitorTrack_rs.FolderName = 'SiStrip/Tracks'
+SiStripMonitorTrack_rs.TrackProducer       = 'rsWithMaterialTracksP5'
+SiStripMonitorTrack_rs.FolderName          = 'SiStrip/Tracks'
+SiStripMonitorTrack_rs.Mod_On              = True
 # Clone for Merged Tracks
 import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi
 SiStripMonitorTrack_p5 = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone()
-SiStripMonitorTrack_p5.TrackProducer = 'trackCollectionP5'
-SiStripMonitorTrack_p5.FolderName = 'SiStrip/Tracks'
+SiStripMonitorTrack_p5.TrackProducer       = 'trackCollectionP5'
+SiStripMonitorTrack_p5.FolderName          = 'SiStrip/Tracks'
+SiStripMonitorTrack_p5.Mod_On              = True
 
 # TrackerMonitorTrack ####
 # Clone for Cosmic Track Finder
 import DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi
 MonitorTrackResiduals_cosmicTk = DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi.MonitorTrackResiduals.clone()
-MonitorTrackResiduals_cosmicTk.Tracks = 'cosmictrackfinderP5'
-MonitorTrackResiduals_cosmicTk.trajectoryInput = 'cosmictrackfinderP5'
+MonitorTrackResiduals_cosmicTk.Tracks              = 'cosmictrackfinderP5'
+MonitorTrackResiduals_cosmicTk.trajectoryInput     = 'cosmictrackfinderP5'
 MonitorTrackResiduals_cosmicTk.OutputMEsInRootFile = False
-MonitorTrackResiduals_cosmicTk.Mod_On = False
+MonitorTrackResiduals_cosmicTk.Mod_On              = False
 # Clone for CKF Tracks
 import DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi
 MonitorTrackResiduals_ckf = DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi.MonitorTrackResiduals.clone()
-MonitorTrackResiduals_ckf.Tracks = 'ctfWithMaterialTracksP5'
-MonitorTrackResiduals_ckf.trajectoryInput = 'ctfWithMaterialTracksP5'
-MonitorTrackResiduals_ckf.OutputMEsInRootFile = False
-MonitorTrackResiduals_ckf.Mod_On = False
+MonitorTrackResiduals_ckf.Tracks                   = 'ctfWithMaterialTracksP5'
+MonitorTrackResiduals_ckf.trajectoryInput          = 'ctfWithMaterialTracksP5'
+MonitorTrackResiduals_ckf.OutputMEsInRootFile      = False
+MonitorTrackResiduals_ckf.Mod_On                   = False
 # Clone for Road Search  Tracks
 import DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi
 MonitorTrackResiduals_rs = DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi.MonitorTrackResiduals.clone()
-MonitorTrackResiduals_rs.Tracks = 'rsWithMaterialTracksP5'
-MonitorTrackResiduals_rs.trajectoryInput = 'rsWithMaterialTracksP5'
-MonitorTrackResiduals_rs.OutputMEsInRootFile = False
-MonitorTrackResiduals_rs.Mod_On = False
+MonitorTrackResiduals_rs.Tracks                    = 'rsWithMaterialTracksP5'
+MonitorTrackResiduals_rs.trajectoryInput           = 'rsWithMaterialTracksP5'
+MonitorTrackResiduals_rs.OutputMEsInRootFile       = False
+MonitorTrackResiduals_rs.Mod_On                    = False
 # Clone for Merged Tracks
 import DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi
 MonitorTrackResiduals_p5 = DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi.MonitorTrackResiduals.clone()
-MonitorTrackResiduals_p5.Tracks = 'trackCollectionP5'
-MonitorTrackResiduals_p5.trajectoryInput = 'trackCollectionP5'
-MonitorTrackResiduals_p5.OutputMEsInRootFile = False
-MonitorTrackResiduals_p5.Mod_On = False
+MonitorTrackResiduals_p5.Tracks                    = 'trackCollectionP5'
+MonitorTrackResiduals_p5.trajectoryInput           = 'trackCollectionP5'
+MonitorTrackResiduals_p5.OutputMEsInRootFile       = False
+MonitorTrackResiduals_p5.Mod_On                    = False
 
 # TrackingMonitor ####
 # Clone for Cosmic Track Finder

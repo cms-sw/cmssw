@@ -34,16 +34,20 @@ SiStripMonitorCluster.StripQualityLabel = ''
 import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi
 SiStripMonitorTrackSim = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone()
 SiStripMonitorTrackSim.TrackProducer = 'TrackRefitter'
-SiStripMonitorTrackSim.TrackLabel = ''
-SiStripMonitorTrackSim.Cluster_src = 'siStripClusters'
-SiStripMonitorTrackSim.FolderName = 'SiStrip/Tracks'
+SiStripMonitorTrackSim.TrackLabel    = ''
+SiStripMonitorTrackSim.Cluster_src   = 'siStripClusters'
+SiStripMonitorTrackSim.FolderName    = 'SiStrip/Tracks'
+SiStripMonitorTrackSim.Mod_On        = False
+
 # Clone for Real Data
 import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi
 SiStripMonitorTrackReal = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone()
 SiStripMonitorTrackReal.TrackProducer = 'ctfWithMaterialTracksP5'
-SiStripMonitorTrackReal.TrackLabel = ''
-SiStripMonitorTrackReal.Cluster_src = 'siStripClusters'
-SiStripMonitorTrackReal.FolderName = 'SiStrip/Tracks'
+SiStripMonitorTrackReal.TrackLabel    = ''
+SiStripMonitorTrackReal.Cluster_src   = 'siStripClusters'
+SiStripMonitorTrackReal.FolderName    = 'SiStrip/Tracks'
+SiStripMonitorTrackReal.Mod_On        = False
+
 
 # Residual Monitor ####
 # Clone for Sim Data
