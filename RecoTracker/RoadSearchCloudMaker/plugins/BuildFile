@@ -1,4 +1,0 @@
-<use name=RecoTracker/RoadSearchCloudMaker>
-<library name="RecoTrackerRoadSearchCloudMakerPlugin" file="*.cc">
-  <flags EDM_PLUGIN=1>
-</library>

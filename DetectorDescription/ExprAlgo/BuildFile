@@ -1,8 +1,0 @@
-<use name=DetectorDescription/Base>
-<use name=clhep>
-<export>
-  <use name=DetectorDescription/Base>
-  <use name=clhep>
-  <lib name=DetectorDescriptionExprAlgo>
-</export>
-

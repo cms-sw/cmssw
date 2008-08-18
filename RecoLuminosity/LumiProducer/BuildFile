@@ -1,8 +1,0 @@
-<use name=FWCore/Framework>
-<use name=FWCore/ParameterSet>
-<use name=DataFormats/Provenance>
-<use name=DataFormats/Luminosity>
-<flags EDM_PLUGIN=1>
-<export>
-   <lib name=RecoLuminosityLumiProducer>
-</export>

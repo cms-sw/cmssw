@@ -1,9 +1,0 @@
-<use name=CoralBase>
-<use name=DataSvc>
-<use name=DetectorDescription/Core>
-<use name=FWCore/Utilities>
-<export>
-  <use name=DetectorDescription/Core>
-  <lib name=DetectorDescriptionOfflineDBLoader>
-</export>
-

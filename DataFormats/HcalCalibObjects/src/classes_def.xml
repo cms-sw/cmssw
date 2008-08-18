@@ -1,5 +1,0 @@
-<lcgdict>
-  <class name="HOCalibVariables"/>
-  <class name="std::vector<HOCalibVariables>"/>
-  <class name="edm::Wrapper<std::vector<HOCalibVariables> >"/>
-</lcgdict>

@@ -1,8 +1,0 @@
-<use name=DQMServices/Components>
-<use name=DataFormats/Histograms>
-<use name=FWCore/MessageLogger>
-<use name=FWCore/Utilities>
-<use name=boost>
-<library file="*.cc" name=DQMServicesComponentsPlugins>
-  <flags EDM_PLUGIN=1>
-</library>

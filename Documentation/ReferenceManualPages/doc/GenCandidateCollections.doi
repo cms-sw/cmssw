@@ -1,9 +1,0 @@
-<tr class="colgroup">
-  <td class="colgroup" colspan=5>HepMC Candidates</td>
-<tr>
-  <td><a href="classreco_1_1HepMCCandidate.html">reco::HepMCCandidate</a></rd>
-  <td><a href="DataFormats_HepMCCandidate.html">reco::CandidateCollection</a></td>
-  <td><a href="PhysicsTools_HepMCCandAlgos.html">genCandidates</a></td>
-  <td class="description">Candidates collection derived from GenParticles</td>
-  <td> L.Lista </td>
-</tr>

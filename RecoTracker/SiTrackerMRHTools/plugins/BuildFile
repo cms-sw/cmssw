@@ -1,5 +1,0 @@
-<use name=RecoTracker/Record>
-<use name=RecoTracker/SiTrackerMRHTools> 
-<library file="*.cc" name=RecoLocalTrackerSiTrackerMRHUpdatorPlugins>
-        <flags EDM_PLUGIN=1>
-</library>

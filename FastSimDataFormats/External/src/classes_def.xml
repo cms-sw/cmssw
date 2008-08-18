@@ -1,5 +1,0 @@
-<lcgdict>
- <class name="FastL1BitInfo"/>
- <class name="std::vector<FastL1BitInfo>"/>
- <class name="edm::Wrapper<std::vector<FastL1BitInfo> >"/>
-</lcgdict>

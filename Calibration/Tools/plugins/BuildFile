@@ -1,4 +1,0 @@
-<use name=Calibration/Tools>
-<library file="*.cc" name=CalibrationToolsPlugins>
-<flags EDM_PLUGIN=1>
-</library>

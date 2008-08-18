@@ -1,6 +1,0 @@
-<use name=RecoMuon/DetLayers>
-<use name=FWCore/PluginManager>
-
-<library file=*.cc name=RecoMuonDetLayersPlugins>
-	<flags EDM_PLUGIN=1>
-</library>

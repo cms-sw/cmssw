@@ -1,9 +1,0 @@
-<lcgdict>
-<selection>
-  <class name="reco::V0Candidate"/>
-  <class name="std::vector<reco::V0Candidate>" />
-  <class name="edm::Wrapper<std::vector<reco::V0Candidate> >" />
-</selection>
-<exclusion>
-</exclusion>
-</lcgdict>

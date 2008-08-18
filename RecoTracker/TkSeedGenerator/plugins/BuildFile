@@ -1,4 +1,0 @@
-<use name=RecoTracker/TkSeedGenerator>
-<library file="*.cc" name=RecoTrackerTkSeedGeneratorPlugins>
-  <flags EDM_PLUGIN=1>
-</library>

@@ -1,9 +1,0 @@
-<use name=DataFormats/Math>
-<use name=SimGeneral/HepPDTRecord>
-<use name=rootmath>
-<export>
-  <use name=DataFormats/Math>
-  <use name=SimGeneral/HepPDTRecord>
-  <use name=rootmath>
-  <lib name=FastSimulationParticle>
-</export>

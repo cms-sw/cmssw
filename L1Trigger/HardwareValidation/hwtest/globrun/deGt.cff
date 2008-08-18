@@ -1,5 +1,0 @@
-# Trigger configuration data
-# please include 'replace' statements 
-# as appropriate for the subsystem
-
-include "L1TriggerConfig/L1GtConfigProducers/data/Luminosity/lumi1x1032/L1Menu_CRUZET200805_gr7_muon.cff"

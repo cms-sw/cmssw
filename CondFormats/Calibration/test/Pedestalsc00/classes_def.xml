@@ -1,6 +1,0 @@
-<lcgdict>
- <class name="Pedestals::Item"/>
- <class name="std::vector<Pedestals::Item>"/>
- <class name="Pedestals" class_version="0"/>
-</lcgdict>   
-

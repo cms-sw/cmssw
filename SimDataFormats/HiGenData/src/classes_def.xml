@@ -1,6 +1,0 @@
-<lcgdict>
- <class name="edm::GenHIEvent"/>
- <class name="edm::SubEvent"/>
- <class name="std::vector<edm::SubEvent>"/>
- <class name="edm::Wrapper<edm::GenHIEvent>"/>
-</lcgdict>

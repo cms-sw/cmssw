@@ -1,6 +1,0 @@
-<use name=root>
-<export>
-  <lib name=PhysicsToolsKinFitter>
-  <use name=root>
-</export>
-

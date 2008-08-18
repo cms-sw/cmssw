@@ -1,9 +1,0 @@
-<use name=FWCore/Framework>
-<use name=FWCore/ParameterSet>
-<use name=heppdt> 
-<export>
-  <lib name=SimGeneralHepPDTRecord>
-  <use name=FWCore/Framework>
-  <use name=FWCore/ParameterSet>
-  <use name=heppdt>
-</export>

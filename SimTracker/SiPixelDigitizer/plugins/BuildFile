@@ -1,4 +1,0 @@
-<use name=SimTracker/SiPixelDigitizer>
-<library file="*.cc" name=SimTrackerSiPixelDigitizerPlugins>
-<flags EDM_PLUGIN=1>
-</library>

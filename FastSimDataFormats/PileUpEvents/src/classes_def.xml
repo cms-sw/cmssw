@@ -1,9 +1,0 @@
-
-<lcgdict>
-  <class name="PUEvent"/>
-  <class name="PUEvent::PUParticle"/>
-  <class name="std::vector<PUEvent::PUParticle>"/>
-  <class name="PUEvent::PUMinBiasEvt"/>
-  <class name="std::vector<PUEvent::PUMinBiasEvt>"/>
-</lcgdict>
-

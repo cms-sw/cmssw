@@ -1,7 +1,0 @@
-<lcgdict>
-  <class name="Measurement1D" />
-  <class name="Measurement1DFloat" />
-  <class name="std::vector<Measurement1DFloat>" />
-  <class name="edm::ValueMap<Measurement1DFloat>" />
-  <class name="edm::Wrapper<edm::ValueMap<Measurement1DFloat> >" />
-</lcgdict>

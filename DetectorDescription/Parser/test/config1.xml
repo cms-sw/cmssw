@@ -1,9 +1,0 @@
-<?xml version="1.0"?>
-<Configuration xmlns="http://www.cern.ch/cms/CDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="CMSConfiguration" version="0"> <!-- xsi:schemaLocation= "http://www.cern.ch/cms/CDL http://cmsdoc.cern.ch/cms/software/ddd/CDLSchema.xsd"-->
-	<Include name="test">
-		<File name="DetectorDescription/Parser/test/example.xml" url="."/>
-		<File name="DetectorDescription/Parser/test/materials.xml" url="."/>
-	</Include>
-	<Root fileName="example.xml" logicalPartName="CMS"/>
-	<!--Schema schemaLocation="http://www.cern.ch/cms/DDL  http://cmsdoc.cern.ch/cms/software/ddd/DDLSchema.xsd" validation="true"/-->
-</Configuration>

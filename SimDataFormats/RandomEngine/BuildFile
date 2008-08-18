@@ -1,8 +1,0 @@
-<use name=DataFormats/Common>
-<use name=boost>
-<use name=rootrflx>
-<export>
-  <use name=boost>
-  <lib name=SimDataFormatsRandomEngine>
-</export>
-

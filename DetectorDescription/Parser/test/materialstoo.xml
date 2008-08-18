@@ -1,8 +1,0 @@
-<?xml version="1.0"?>
-<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../Schema/DDLSchema.xsd">
-
-<MaterialSection label="materials2.xml">
-      <ElementaryMaterial name="Nitrogen" atomicNumber="7" atomicWeight="14.007" density="0.808" symbol="N"/>
-</MaterialSection>
-
-</DDDefinition>

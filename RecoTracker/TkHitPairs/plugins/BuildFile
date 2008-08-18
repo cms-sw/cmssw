@@ -1,5 +1,0 @@
-<use name=RecoTracker/TkHitPairs>
-<library file="*.cc" name=RecoTrackerTkHitPairsPlugins>
-  <flags EDM_PLUGIN=1>
-</library>
-

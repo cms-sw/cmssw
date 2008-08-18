@@ -1,7 +1,0 @@
-<use name=DataFormats/GeometryCommonDetAlgo>
-<use name=FWCore/Utilities>
-<export>
- <use name=DataFormats/GeometryCommonDetAlgo>
- <use name=FWCore/Utilities>
- <lib name=CommonToolsClustering1D>
-</export>

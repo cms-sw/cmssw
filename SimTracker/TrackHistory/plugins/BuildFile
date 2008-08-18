@@ -1,6 +1,0 @@
-<use name=root>
-<use name=TrackingTools/IPTools>
-<use name=SimTracker/TrackHistory>
-<library file=*.cc name=TrackHistoryPlugins>
-</library>
-
