@@ -19,7 +19,7 @@ using namespace std;
 SiPixelHistoricInfoReader::SiPixelHistoricInfoReader(const edm::ParameterSet& iConfig) 
 			 : printDebug_(iConfig.getUntrackedParameter<bool>("printDebug",false)), 
                            outputDir_(iConfig.getUntrackedParameter<std::string>("outputDir",".")), 
-			   presentRun_(0) {}
+			   presentRun_(0), firstBeginRun_(true) {}
 
 
 SiPixelHistoricInfoReader::~SiPixelHistoricInfoReader() {}
@@ -27,270 +27,272 @@ SiPixelHistoricInfoReader::~SiPixelHistoricInfoReader() {}
 
 void SiPixelHistoricInfoReader::beginJob(const edm::EventSetup& iSetup) {
   TString outputFilename(outputDir_); 
-  outputFilename+="/SiPixelHistoricInfoReader.root"; 
+  outputFilename += "/SiPixelHistoricInfoReader.root"; 
   outputFile = new TFile(outputFilename, "RECREATE");
+} 
 
-  allDetIds.clear(); // allDetIds.push_back(369345800);
+
+void SiPixelHistoricInfoReader::beginRun(const edm::Run& run, const edm::EventSetup& iSetup) {
   edm::ESHandle<SiPixelPerformanceSummary> pSummary;
-  iSetup.get<SiPixelPerformanceSummaryRcd>().get(pSummary);
-  pSummary->getAllDetIds(allDetIds);
-    
-  AllDetHistograms = new TObjArray();
+  iSetup.get<SiPixelPerformanceSummaryRcd>().get(pSummary); 
 
-  for (std::vector<uint32_t>::const_iterator iDet=allDetIds.begin(); iDet!=allDetIds.end(); ++iDet) {    
-    hisID="NumberOfRawDataErrors_DetID"; hisID+=*iDet; hisID+="_AllRuns";	     
+  if (firstBeginRun_) {
+    firstBeginRun_ = false;
+
+    allDetIds.clear(); // allDetIds.push_back(369345800);
+    pSummary->getAllDetIds(allDetIds);
+      
+    AllDetHistograms = new TObjArray();
+
+    for (std::vector<uint32_t>::const_iterator iDet=allDetIds.begin(); iDet!=allDetIds.end(); ++iDet) {  
+      hisID="NumberOfRawDataErrors_DetID"; hisID+=*iDet; hisID+="_AllRuns";	       
+      AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
+      ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);
+      
+      for (int pBin=0; pBin<14; pBin++) {
+  	hisID="RawDataErrorType"; hisID+=(pBin+25); hisID+="_DetID"; hisID+=*iDet; hisID+="_AllRuns";	     
+  	AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
+  	((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin); 
+      } 
+      for (int pBin=0; pBin<5; pBin++) {
+  	hisID="TBMType"; hisID+=pBin; hisID+="_DetID"; hisID+=*iDet; hisID+="_AllRuns";        
+  	AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
+  	((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin); 
+      }
+      for (int pBin=0; pBin<8; pBin++) {
+  	hisID="TBMMessage"; hisID+=pBin; hisID+="_DetID"; hisID+=*iDet; hisID+="_AllRuns";	       
+  	AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
+  	((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin); 
+      }
+      for (int pBin=0; pBin<7; pBin++) {
+  	hisID="FEDfullType"; hisID+=pBin; hisID+="_DetID"; hisID+=*iDet; hisID+="_AllRuns";	       
+  	AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
+  	((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin); 
+      }
+      for (int pBin=0; pBin<37; pBin++) {
+  	hisID="FEDtimeoutChannel"; hisID+=pBin; hisID+="_DetID"; hisID+=*iDet; hisID+="_AllRuns";      
+  	AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
+  	((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin); 
+      } 
+      hisID="SLinkErrSize_DetID"; hisID+=*iDet; hisID+="_AllRuns";	       
+      AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
+      ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);
+
+      hisID="FEDmaxErrLink_DetID"; hisID+=*iDet; hisID+="_AllRuns";	       
+      AllDetHistograms->Add(new TH2F(hisID, hisID, 1, 0, 1, 1, 0, 1));
+      ((TH2F*) AllDetHistograms->FindObject(hisID))->SetBit(TH2::kCanRebin);
+
+      hisID="maxErr36ROC_DetID"; hisID+=*iDet; hisID+="_AllRuns";      
+      AllDetHistograms->Add(new TH2F(hisID, hisID, 1, 0, 1, 1, 0, 1));
+      ((TH2F*) AllDetHistograms->FindObject(hisID))->SetBit(TH2::kCanRebin);
+
+      hisID="maxErrDCol_DetID"; hisID+=*iDet; hisID+="_AllRuns";       
+      AllDetHistograms->Add(new TH2F(hisID, hisID, 1, 0, 1, 1, 0, 1));
+      ((TH2F*) AllDetHistograms->FindObject(hisID))->SetBit(TH2::kCanRebin);
+
+      hisID="maxErrPixelRow_DetID"; hisID+=*iDet; hisID+="_AllRuns";	       
+      AllDetHistograms->Add(new TH2F(hisID, hisID, 1, 0, 1, 1, 0, 1));
+      ((TH2F*) AllDetHistograms->FindObject(hisID))->SetBit(TH2::kCanRebin);
+
+      hisID="maxErr38ROC_DetID"; hisID+=*iDet; hisID+="_AllRuns";      
+      AllDetHistograms->Add(new TH2F(hisID, hisID, 1, 0, 1, 1, 0, 1));
+      ((TH2F*) AllDetHistograms->FindObject(hisID))->SetBit(TH2::kCanRebin);
+      
+      hisID="NumberOfDigis_DetID"; hisID+=*iDet; hisID+="_AllRuns";	       
+      AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
+      ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);
+
+      hisID="ADC_DetID"; hisID+=*iDet; hisID+="_AllRuns";      
+      AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
+      ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);
+      
+      hisID="DigimapHot_DetID"; hisID+=*iDet; hisID+="_AllRuns";       
+      AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
+      ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);
+
+      hisID="DigimapCold_DetID"; hisID+=*iDet; hisID+="_AllRuns";      
+      AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
+      ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);
+
+      hisID="NumberOfClusters_DetID"; hisID+=*iDet; hisID+="_AllRuns";         
+      AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
+      ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);
+
+      hisID="ClusterCharge_DetID"; hisID+=*iDet; hisID+="_AllRuns";	       
+      AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
+      ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);
+
+      hisID="ClusterSizeX_DetID"; hisID+=*iDet; hisID+="_AllRuns";	       
+      AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
+      ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);
+
+      hisID="ClusterSizeY_DetID"; hisID+=*iDet; hisID+="_AllRuns";	       
+      AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
+      ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);
+
+      hisID="ClustermapHot_DetID"; hisID+=*iDet; hisID+="_AllRuns";	       
+      AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
+      ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);
+
+      hisID="ClustermapCold_DetID"; hisID+=*iDet; hisID+="_AllRuns";	       
+      AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
+      ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);
+
+      hisID="NumberOfRecHits_DetID"; hisID+=*iDet; hisID+="_AllRuns";	       
+      AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
+      ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);
+
+      hisID="RecHitMatchedClusterSizeX_DetID"; hisID+=*iDet; hisID+="_AllRuns";     
+      AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
+      ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);
+
+      hisID="RecHitMatchedClusterSizeY_DetID"; hisID+=*iDet; hisID+="_AllRuns";     
+      AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
+      ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);
+
+      hisID="RecHitmapHot_DetID"; hisID+=*iDet; hisID+="_AllRuns";	       
+      AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
+      ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);
+
+      hisID="RecHitmapCold_DetID"; hisID+=*iDet; hisID+="_AllRuns";	       
+      AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
+      ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);
+
+      hisID="ResidualX_DetID"; hisID+=*iDet; hisID+="_AllRuns";        
+      AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
+      ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);
+
+      hisID="ResidualY_DetID"; hisID+=*iDet; hisID+="_AllRuns";        
+      AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
+      ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);
+      
+      cout << "booking histograms for DetID" << (*iDet) <<" finished" << endl;
+    }
+    hisID="NumberOfRawDataErrors_AllDets_AllRuns";	     
     AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
     ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);
-
+    
     for (int pBin=0; pBin<14; pBin++) {
-      hisID="RawDataErrorType"; hisID+=(pBin+25); hisID+="_DetID"; hisID+=*iDet; hisID+="_AllRuns";	     
+      hisID="RawDataErrorType"; hisID+=(pBin+25); hisID+="_AllDets_AllRuns";       
       AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
       ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin); 
     } 
     for (int pBin=0; pBin<5; pBin++) {
-      hisID="TBMType"; hisID+=pBin; hisID+="_DetID"; hisID+=*iDet; hisID+="_AllRuns";	     
+      hisID="TBMType"; hisID+=pBin; hisID+="_AllDets_AllRuns";       
       AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
       ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin); 
     }
     for (int pBin=0; pBin<8; pBin++) {
-      hisID="TBMMessage"; hisID+=pBin; hisID+="_DetID"; hisID+=*iDet; hisID+="_AllRuns";	     
+      hisID="TBMMessage"; hisID+=pBin; hisID+="_AllDets_AllRuns";    
       AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
       ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin); 
     }
     for (int pBin=0; pBin<7; pBin++) {
-      hisID="FEDfullType"; hisID+=pBin; hisID+="_DetID"; hisID+=*iDet; hisID+="_AllRuns";	     
+      hisID="FEDfullType"; hisID+=pBin; hisID+="_AllDets_AllRuns";	     
       AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
       ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin); 
     }
     for (int pBin=0; pBin<37; pBin++) {
-      hisID="FEDtimeoutChannel"; hisID+=pBin; hisID+="_DetID"; hisID+=*iDet; hisID+="_AllRuns";	     
+      hisID="FEDtimeoutChannel"; hisID+=pBin; hisID+="_AllDets_AllRuns";     
       AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
       ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin); 
     } 
-    hisID="SLinkErrSize_DetID"; hisID+=*iDet; hisID+="_AllRuns";	     
+    hisID="SLinkErrSize_AllDets_AllRuns";    
     AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
     ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);
 
-    hisID="FEDmaxErrLink_DetID"; hisID+=*iDet; hisID+="_AllRuns";	     
+    hisID="FEDmaxErrLink_AllDets_AllRuns";	     
     AllDetHistograms->Add(new TH2F(hisID, hisID, 1, 0, 1, 1, 0, 1));
     ((TH2F*) AllDetHistograms->FindObject(hisID))->SetBit(TH2::kCanRebin);
 
-    hisID="maxErr36ROC_DetID"; hisID+=*iDet; hisID+="_AllRuns";	     
+    hisID="maxErr36ROC_AllDets_AllRuns";     
     AllDetHistograms->Add(new TH2F(hisID, hisID, 1, 0, 1, 1, 0, 1));
     ((TH2F*) AllDetHistograms->FindObject(hisID))->SetBit(TH2::kCanRebin);
 
-    hisID="maxErrDCol_DetID"; hisID+=*iDet; hisID+="_AllRuns";	     
+    hisID="maxErrDCol_AllDets_AllRuns";      
     AllDetHistograms->Add(new TH2F(hisID, hisID, 1, 0, 1, 1, 0, 1));
     ((TH2F*) AllDetHistograms->FindObject(hisID))->SetBit(TH2::kCanRebin);
 
-    hisID="maxErrPixelRow_DetID"; hisID+=*iDet; hisID+="_AllRuns";	     
+    hisID="maxErrPixelRow_AllDets_AllRuns";	     
     AllDetHistograms->Add(new TH2F(hisID, hisID, 1, 0, 1, 1, 0, 1));
     ((TH2F*) AllDetHistograms->FindObject(hisID))->SetBit(TH2::kCanRebin);
 
-    hisID="maxErr38ROC_DetID"; hisID+=*iDet; hisID+="_AllRuns";	     
+    hisID="maxErr38ROC_AllDets_AllRuns";     
     AllDetHistograms->Add(new TH2F(hisID, hisID, 1, 0, 1, 1, 0, 1));
     ((TH2F*) AllDetHistograms->FindObject(hisID))->SetBit(TH2::kCanRebin);
-
-    hisID="NumberOfDigis_DetID"; hisID+=*iDet; hisID+="_AllRuns";	     
+    
+    hisID="NumberOfDigis_AllDets_AllRuns";	     
     AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
     ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);
 
-    hisID="ADC_DetID"; hisID+=*iDet; hisID+="_AllRuns";	     
+    hisID="ADC_AllDets_AllRuns";     
+    AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
+    ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);
+    
+    hisID="DigimapHot_AllDets_AllRuns";      
     AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
     ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);
 
-    hisID="DigimapHot_DetID"; hisID+=*iDet; hisID+="_AllRuns";	     
+    hisID="DigimapCold_AllDets_AllRuns";     
     AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
     ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);
 
-    hisID="DigimapCold_DetID"; hisID+=*iDet; hisID+="_AllRuns";	     
+    hisID="NumberOfClusters_AllDets_AllRuns";	     
     AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
     ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);
 
-    hisID="NumberOfClusters_DetID"; hisID+=*iDet; hisID+="_AllRuns";	     
+    hisID="ClusterCharge_AllDets_AllRuns";	     
     AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
     ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);
 
-    hisID="ClusterCharge_DetID"; hisID+=*iDet; hisID+="_AllRuns";	     
+    hisID="ClusterSizeX_AllDets_AllRuns";    
     AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
     ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);
 
-    hisID="ClusterSizeX_DetID"; hisID+=*iDet; hisID+="_AllRuns";	     
+    hisID="ClusterSizeY_AllDets_AllRuns";    
     AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
     ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);
 
-    hisID="ClusterSizeY_DetID"; hisID+=*iDet; hisID+="_AllRuns";	     
+    hisID="ClustermapHot_AllDets_AllRuns";	     
     AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
     ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);
 
-    hisID="ClustermapHot_DetID"; hisID+=*iDet; hisID+="_AllRuns";	     
+    hisID="ClustermapCold_AllDets_AllRuns";	     
     AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
     ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);
 
-    hisID="ClustermapCold_DetID"; hisID+=*iDet; hisID+="_AllRuns";	     
+    hisID="NumberOfRecHits_AllDets_AllRuns";	     
     AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
     ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);
 
-    hisID="NumberOfRecHits_DetID"; hisID+=*iDet; hisID+="_AllRuns";	     
+    hisID="RecHitMatchedClusterSizeX_AllDets_AllRuns";       
     AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
     ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);
 
-    hisID="RecHitMatchedClusterSizeX_DetID"; hisID+=*iDet; hisID+="_AllRuns";	     
+    hisID="RecHitMatchedClusterSizeY_AllDets_AllRuns";       
     AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
     ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);
 
-    hisID="RecHitMatchedClusterSizeY_DetID"; hisID+=*iDet; hisID+="_AllRuns";	     
+    hisID="RecHitmapHot_AllDets_AllRuns";    
     AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
     ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);
 
-    hisID="RecHitmapHot_DetID"; hisID+=*iDet; hisID+="_AllRuns";	     
+    hisID="RecHitmapCold_AllDets_AllRuns";	     
     AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
     ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);
 
-    hisID="RecHitmapCold_DetID"; hisID+=*iDet; hisID+="_AllRuns";	     
+    hisID="ResidualX_AllDets_AllRuns";       
     AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
     ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);
 
-    hisID="ResidualX_DetID"; hisID+=*iDet; hisID+="_AllRuns";	     
+    hisID="ResidualY_AllDets_AllRuns";       
     AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
     ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);
-
-    hisID="ResidualY_DetID"; hisID+=*iDet; hisID+="_AllRuns";	     
-    AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
-    ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);
-
-    cout << "booking histograms for DetID" << (*iDet) <<" finished" << endl; 
+    
+    cout << "booking all histograms finished" << endl; 
   }
-  hisID="NumberOfRawDataErrors_AllDets_AllRuns";	   
-  AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
-  ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);
-
-  for (int pBin=0; pBin<14; pBin++) {
-    hisID="RawDataErrorType"; hisID+=(pBin+25); hisID+="_AllDets_AllRuns";	   
-    AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
-    ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin); 
-  } 
-  for (int pBin=0; pBin<5; pBin++) {
-    hisID="TBMType"; hisID+=pBin; hisID+="_AllDets_AllRuns";	   
-    AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
-    ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin); 
-  }
-  for (int pBin=0; pBin<8; pBin++) {
-    hisID="TBMMessage"; hisID+=pBin; hisID+="_AllDets_AllRuns";	   
-    AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
-    ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin); 
-  }
-  for (int pBin=0; pBin<7; pBin++) {
-    hisID="FEDfullType"; hisID+=pBin; hisID+="_AllDets_AllRuns";	   
-    AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
-    ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin); 
-  }
-  for (int pBin=0; pBin<37; pBin++) {
-    hisID="FEDtimeoutChannel"; hisID+=pBin; hisID+="_AllDets_AllRuns"; 	   
-    AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
-    ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin); 
-  } 
-  hisID="SLinkErrSize_AllDets_AllRuns";	   
-  AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
-  ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);
-
-  hisID="FEDmaxErrLink_AllDets_AllRuns";	   
-  AllDetHistograms->Add(new TH2F(hisID, hisID, 1, 0, 1, 1, 0, 1));
-  ((TH2F*) AllDetHistograms->FindObject(hisID))->SetBit(TH2::kCanRebin);
-
-  hisID="maxErr36ROC_AllDets_AllRuns";	   
-  AllDetHistograms->Add(new TH2F(hisID, hisID, 1, 0, 1, 1, 0, 1));
-  ((TH2F*) AllDetHistograms->FindObject(hisID))->SetBit(TH2::kCanRebin);
-
-  hisID="maxErrDCol_AllDets_AllRuns";	   
-  AllDetHistograms->Add(new TH2F(hisID, hisID, 1, 0, 1, 1, 0, 1));
-  ((TH2F*) AllDetHistograms->FindObject(hisID))->SetBit(TH2::kCanRebin);
-
-  hisID="maxErrPixelRow_AllDets_AllRuns";	   
-  AllDetHistograms->Add(new TH2F(hisID, hisID, 1, 0, 1, 1, 0, 1));
-  ((TH2F*) AllDetHistograms->FindObject(hisID))->SetBit(TH2::kCanRebin);
-
-  hisID="maxErr38ROC_AllDets_AllRuns";	   
-  AllDetHistograms->Add(new TH2F(hisID, hisID, 1, 0, 1, 1, 0, 1));
-  ((TH2F*) AllDetHistograms->FindObject(hisID))->SetBit(TH2::kCanRebin);
-
-  hisID="NumberOfDigis_AllDets_AllRuns";	   
-  AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
-  ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);
-
-  hisID="ADC_AllDets_AllRuns";	   
-  AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
-  ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);
-
-  hisID="DigimapHot_AllDets_AllRuns";	   
-  AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
-  ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);
-
-  hisID="DigimapCold_AllDets_AllRuns";	   
-  AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
-  ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);
-
-  hisID="NumberOfClusters_AllDets_AllRuns";  	   
-  AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
-  ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);
-
-  hisID="ClusterCharge_AllDets_AllRuns";	   
-  AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
-  ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);
-
-  hisID="ClusterSizeX_AllDets_AllRuns";	   
-  AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
-  ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);
-
-  hisID="ClusterSizeY_AllDets_AllRuns";	   
-  AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
-  ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);
-
-  hisID="ClustermapHot_AllDets_AllRuns";	   
-  AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
-  ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);
-
-  hisID="ClustermapCold_AllDets_AllRuns";	   
-  AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
-  ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);
-
-  hisID="NumberOfRecHits_AllDets_AllRuns";	   
-  AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
-  ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);
-
-  hisID="RecHitMatchedClusterSizeX_AllDets_AllRuns"; 	   
-  AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
-  ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);
-
-  hisID="RecHitMatchedClusterSizeY_AllDets_AllRuns"; 	   
-  AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
-  ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);
-
-  hisID="RecHitmapHot_AllDets_AllRuns";	   
-  AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
-  ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);
-
-  hisID="RecHitmapCold_AllDets_AllRuns";	   
-  AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
-  ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);
-
-  hisID="ResidualX_AllDets_AllRuns";	   
-  AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
-  ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);
-
-  hisID="ResidualY_AllDets_AllRuns";	   
-  AllDetHistograms->Add(new TH1F(hisID, hisID, 1, 0, 1));
-  ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBit(TH1::kCanRebin);
-
-  cout << "booking all histograms finished" << endl; 
-}
-
-
-void SiPixelHistoricInfoReader::beginRun(const edm::Run& run, const edm::EventSetup& iSetup) {
-  // it tries at every beginRun & gets a new SiPixelPerformanceSummary when the run number is right
-  edm::ESHandle<SiPixelPerformanceSummary> pSummary;
-  iSetup.get<SiPixelPerformanceSummaryRcd>().get(pSummary); 
-
+  cout << "pSummary.runNumber = "<< pSummary->getRunNumber() 
+       <<" run.run = "<< run.run() <<" presentRun_= "<< presentRun_<< endl; 
   if (presentRun_!=pSummary->getRunNumber()) { 
     pSummary->print(); 
     presentRun_ = pSummary->getRunNumber();
@@ -301,13 +303,15 @@ void SiPixelHistoricInfoReader::beginRun(const edm::Run& run, const edm::EventSe
     for (std::vector<uint32_t>::const_iterator iDet=allDetIds.begin(); iDet!=allDetIds.end(); ++iDet) {
       std::vector<float> performances; 
       performances.clear();
-      pSummary->getDetSummary(*iDet, performances);
+      pSummary->getDetSummary(*iDet, performances); 
+      
+      for (int i=0; i<108; i++) cout << performances[i] <<" "; cout << endl; 
       
       hisID="NumberOfRawDataErrors_DetID"; hisID+=*iDet; hisID+="_AllRuns";	     
       ((TH1F*) AllDetHistograms->FindObject(hisID))->Fill(sRun, performances[0]);
       iBin = ((TH1F*) AllDetHistograms->FindObject(hisID))->GetXaxis()->FindBin(sRun);
-      ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBinError(iBin, performances[1]);
-
+      ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBinError(iBin, performances[1]); 
+      
       for (int pBin=0; pBin<14; pBin++) {
         hisID="RawDataErrorType"; hisID+=(pBin+25); hisID+="_DetID"; hisID+=*iDet; hisID+="_AllRuns";	     
         ((TH1F*) AllDetHistograms->FindObject(hisID))->Fill(sRun, performances[2+pBin]);
@@ -627,8 +631,8 @@ void SiPixelHistoricInfoReader::beginRun(const edm::Run& run, const edm::EventSe
       ((TH1F*) AllDetHistograms->FindObject(hisID))->Fill(sRun, performances[106]);
       iBin = ((TH1F*) AllDetHistograms->FindObject(hisID))->GetXaxis()->FindBin(sRun);
       exErr = ((TH1F*) AllDetHistograms->FindObject(hisID))->GetBinError(iBin);
-      ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBinError(iBin, sqrt(pow(exErr,2)+pow(performances[107],2)));    
-
+      ((TH1F*) AllDetHistograms->FindObject(hisID))->SetBinError(iBin, sqrt(pow(exErr,2)+pow(performances[107],2))); 
+      
       cout << "filling histograms for run number = "<< presentRun_<<"; detId = "<< *iDet << endl;  
     }    
   }
@@ -645,7 +649,7 @@ void SiPixelHistoricInfoReader::endJob() {
   for (std::vector<uint32_t>::const_iterator iDet=allDetIds.begin(); iDet!=allDetIds.end(); ++iDet) {
     hisID="NumberOfRawDataErrors_DetID"; hisID+=*iDet; hisID+="_AllRuns";  	   
     ((TH1F*) AllDetHistograms->FindObject(hisID))->LabelsDeflate("X");
-
+    
     for (int pBin=0; pBin<14; pBin++) {
       hisID="RawDataErrorType"; hisID+=(pBin+25); hisID+="_DetID"; hisID+=*iDet; hisID+="_AllRuns";  	   
       ((TH1F*) AllDetHistograms->FindObject(hisID))->LabelsDeflate("X");
@@ -733,11 +737,11 @@ void SiPixelHistoricInfoReader::endJob() {
     ((TH1F*) AllDetHistograms->FindObject(hisID))->LabelsDeflate("X");
     
     hisID="ResidualY_DetID"; hisID+=*iDet; hisID+="_AllRuns";  	   
-    ((TH1F*) AllDetHistograms->FindObject(hisID))->LabelsDeflate("X");    
+    ((TH1F*) AllDetHistograms->FindObject(hisID))->LabelsDeflate("X"); 
   }
   hisID="NumberOfRawDataErrors_AllDets_AllRuns";	 
   ((TH1F*) AllDetHistograms->FindObject(hisID))->LabelsDeflate("X");
-
+  
   for (int pBin=0; pBin<14; pBin++) {
     hisID="RawDataErrorType"; hisID+=(pBin+25); hisID+="_AllDets_AllRuns";		 
     ((TH1F*) AllDetHistograms->FindObject(hisID))->LabelsDeflate("X");
@@ -826,7 +830,7 @@ void SiPixelHistoricInfoReader::endJob() {
   
   hisID="ResidualY_AllDets_AllRuns";	 
   ((TH1F*) AllDetHistograms->FindObject(hisID))->LabelsDeflate("X");
-
+  
   cout << "label deflating finished" << endl; 
   
   outputFile->Write();
