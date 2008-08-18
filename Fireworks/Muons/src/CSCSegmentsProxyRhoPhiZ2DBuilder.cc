@@ -136,18 +136,23 @@ void CSCSegmentsProxyRhoPhiZ2DBuilder::build(const FWEventItem* iItem,
 void 
 CSCSegmentsProxyRhoPhiZ2DBuilder::modelChanges(const FWModelIds& iIds, TEveElement* iElements)
 {
+   //NOTE: don't use ids() since they were never filled in in the build* calls
+
    //for now, only if all items selected will will apply the action
-   if(iIds.size() && iIds.size() == iIds.begin()->item()->size()) {
+   //if(iIds.size() && iIds.size() == iIds.begin()->item()->size()) {
       applyChangesToAllModels(iElements);
-   }
+   //}
 }
 
 void 
 CSCSegmentsProxyRhoPhiZ2DBuilder::applyChangesToAllModels(TEveElement* iElements)
 {
-   if(ids().size() != 0 ) {
+   //NOTE: don't use ids() since they may not have been filled in in the build* calls
+   //  since this code and FWEventItem do not agree on the # of models made
+   //if(ids().size() != 0 ) {
+   if(0!=iElements && item() && item()->size()) {
       //make the bad assumption that everything is being changed indentically
-      const FWEventItem::ModelInfo& info = ids().begin()->item()->modelInfo(ids().begin()->index());
+      const FWEventItem::ModelInfo info(item()->defaultDisplayProperties(),false);
       changeElementAndChildren(iElements, info);
       iElements->SetRnrSelf(info.displayProperties().isVisible());
       iElements->SetRnrChildren(info.displayProperties().isVisible());
