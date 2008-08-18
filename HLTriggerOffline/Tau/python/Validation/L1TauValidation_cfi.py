@@ -24,11 +24,11 @@ L1TauVal = cms.EDAnalyzer("HLTTauL1DQMOfflineSource",
     RefTauHadMinEt = cms.double(10.0),
     RefTauHadMaxAbsEta = cms.double(2.5),
 
-    L1RefElecMinDeltaR = cms.double(0.2),
+    L1RefElecMinDeltaR = cms.double(0.5),
     RefElecMinEt = cms.double(5.0),
     RefElecMaxAbsEta = cms.double(2.5),
 
-    L1RefMuonMinDeltaR = cms.double(0.2),
+    L1RefMuonMinDeltaR = cms.double(0.5),
     RefMuonMinEt = cms.double(3.0),
     RefMuonMaxAbsEta = cms.double(2.5),
 
