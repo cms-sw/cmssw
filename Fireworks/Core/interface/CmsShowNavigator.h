@@ -16,7 +16,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Tue Jun 10 14:56:34 EDT 2008
-// $Id: CmsShowNavigator.h,v 1.6 2008/07/11 00:04:06 chrjones Exp $
+// $Id: CmsShowNavigator.h,v 1.7 2008/07/22 04:01:58 jmuelmen Exp $
 //
 
 // system include files
@@ -45,7 +45,7 @@ class CmsShowNavigator
       //      void startLoop();
       Int_t realEntry(Int_t rawEntry);
       Int_t realEntry(Int_t run, Int_t event); // -1 means event not found
-      // ---------- const member functions --------------------- 
+
       void loadFile(const std::string& fileName);
       void checkPosition();
       void nextEvent();
@@ -54,9 +54,10 @@ class CmsShowNavigator
       void filterEvents(CSGAction* action);
       void goToRun(Double_t run);  // FIXME, run is integer
       void goToEvent(Double_t event); // FIXME, event is integer
-      // ---------- static member functions --------------------
+      
+      bool autoRewind() const { return m_loopMode; }
+      void setAutoRewind( bool mode ) { m_loopMode = mode; }
 
-      // ---------- member functions --------------------------- 
       //      void checkBefore();
       //      void checkAfter();
       //      sigc::signal<void, bool> notBegin;
@@ -87,6 +88,7 @@ class CmsShowNavigator
       int m_nEntries;
       int m_currentSelectedEntry;
      const CmsShowMain 	&m_main;
+      bool m_loopMode; // auto-rewind event loop
 };
 
 

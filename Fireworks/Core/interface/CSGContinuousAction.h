@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jul 29 10:19:42 EDT 2008
-// $Id$
+// $Id: CSGContinuousAction.h,v 1.1 2008/07/30 15:41:24 chrjones Exp $
 //
 
 // system include files
@@ -52,9 +52,10 @@ public:
    //override
    virtual void globalEnable();
    virtual void globalDisable();
+   
+   void switchMode();
 
 private:
-   void switchMode();
    CSGContinuousAction(const CSGContinuousAction&); // stop default
    
    const CSGContinuousAction& operator=(const CSGContinuousAction&); // stop default

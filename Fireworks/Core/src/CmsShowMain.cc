@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.35 2008/07/26 00:03:58 chrjones Exp $
+// $Id: CmsShowMain.cc,v 1.36 2008/07/30 15:54:50 chrjones Exp $
 //
 
 // system include files
@@ -117,8 +117,8 @@ static const char* const kGeomFileOpt = "geom-file";
 static const char* const kGeomFileCommandOpt = "geom-file,g";
 static const char* const kNoConfigFileOpt = "noconfig";
 static const char* const kNoConfigFileCommandOpt = "noconfig,n";
-static const char* const kFastOpt = "fast";
-static const char* const kFastCommandOpt = "fast,f";
+static const char* const kLoopPlaybackOpt = "play";
+static const char* const kLoopPlaybackCommandOpt = "play,p";
 static const char* const kDebugOpt = "debug";
 static const char* const kDebugCommandOpt = "debug,d";
 static const char* const kAdvancedRenderOpt = "shine";
@@ -150,14 +150,14 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       po::options_description desc(descString);
       desc.add_options()
       (kInputFileCommandOpt,    po::value<std::string>(), "Input root file")
-      (kConfigFileCommandOpt, po::value<std::string>(), "Include configuration file")
-      (kGeomFileCommandOpt,   po::value<std::string>(), "Include geometry file")
-      (kNoConfigFileCommandOpt,    "Don't load any configuration file")
-      (kFastCommandOpt,        "Faster running by not providing tables")
-      (kDebugCommandOpt,       "Show Eve browser to help debug problems")
-      (kAdvancedRenderCommandOpt,       "Use advance options to improve rendering quality (anti-alias etc)")
-      (kSoftCommandOpt,       "Try to force software rendering to avoid problems with bad hardware drivers")
-      (kHelpCommandOpt, "Display help message");
+      (kConfigFileCommandOpt, po::value<std::string>(),   "Include configuration file")
+      (kGeomFileCommandOpt,   po::value<std::string>(),   "Include geometry file")
+      (kNoConfigFileCommandOpt,                           "Don't load any configuration file")
+      (kLoopPlaybackCommandOpt, po::value<int>(),         "Start in auto playback mode with given interval between events in seconds")
+      (kDebugCommandOpt,                                  "Show Eve browser to help debug problems")
+      (kAdvancedRenderCommandOpt,                         "Use advance options to improve rendering quality (anti-alias etc)")
+      (kSoftCommandOpt,                                   "Try to force software rendering to avoid problems with bad hardware drivers")
+      (kHelpCommandOpt,                                   "Display help message");
       po::positional_options_description p;
       p.add(kInputFileOpt, -1);
       
@@ -219,11 +219,9 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
          TEveLine::SetDefaultSmooth(kTRUE);
       }
       
-      if ( !vm.count(kFastOpt) ) {
-         m_textView = std::auto_ptr<FWTextView>(
-                                                new FWTextView(this, &*m_selectionManager, &*m_changeManager,
-                                                               &*m_guiManager) );
-      }
+      m_textView = std::auto_ptr<FWTextView>(
+					     new FWTextView(this, &*m_selectionManager, &*m_changeManager,
+							    &*m_guiManager) );
       
       printf("Input: %s\n", m_inputFileName.c_str());
       printf("Config: %s\n", m_configFileName.c_str());
@@ -254,6 +252,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       CmsShowTaskExecutor::TaskFunctor f;
       f=boost::bind(&CmsShowMain::loadGeometry,this);
       m_startupTasks->addTask(f);
+      
       //loadGeometry();
       /*
       // prepare geometry service
@@ -279,206 +278,6 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       //setupConfiguration();
       f=boost::bind(&CmsShowMain::setupConfiguration,this);
       m_startupTasks->addTask(f);
-#if defined(NEVER_TO_BE_DEFINED)
-      if(m_configFileName.empty() ) {
-         std::cout << "WARNING: no configuration is loaded." << std::endl;
-         m_configFileName = "newconfig.fwc";
-         m_guiManager->createView("Rho Phi");
-         m_guiManager->createView("Rho Z");
-         m_guiManager->createView("3D Lego");
-         m_guiManager->createView("Glimpse");
-         
-         FWPhysicsObjectDesc ecal("ECal",
-                                  TClass::GetClass("CaloTowerCollection"),
-                                  "ECal",
-                                  FWDisplayProperties(kRed),
-                                  "towerMaker",
-                                  "",
-                                  "",
-                                  "",
-                                  2);
-         
-         FWPhysicsObjectDesc hcal("HCal",
-                                  TClass::GetClass("CaloTowerCollection"),
-                                  "HCal",
-                                  FWDisplayProperties(kBlue),
-                                  "towerMaker",
-                                  "",
-                                  "",
-                                  "",
-                                  2);
-         
-         FWPhysicsObjectDesc jets("Jets",
-                                  TClass::GetClass("reco::CaloJetCollection"),
-                                  "Jets",
-                                  FWDisplayProperties(kYellow),
-                                  "iterativeCone5CaloJets",
-                                  "",
-                                  "",
-                                  "$.pt()>15",
-                                  3);
-         
-         
-         FWPhysicsObjectDesc l1EmTrigs("L1EmTrig",
-                                       TClass::GetClass("l1extra::L1EmParticleCollection"),
-                                       "L1EmTrig",
-                                       FWDisplayProperties(kOrange),
-                                       "hltL1extraParticles",
-                                       "Isolated",
-                                       "",
-                                       "$.pt()>15",
-                                       3);
-         
-         FWPhysicsObjectDesc l1Muons("L1-Muons",
-                                     TClass::GetClass("l1extra::L1MuonParticleCollection"),
-                                     "L1-Muons",
-                                     FWDisplayProperties(kViolet),
-                                     "hltL1extraParticles",
-                                     "",
-                                     "",
-                                     "",
-                                     3);
-         
-         FWPhysicsObjectDesc l1MET("L1-MET",
-                                   TClass::GetClass("l1extra::L1EtMissParticleCollection"),
-                                   "L1-MET",
-                                   FWDisplayProperties(kTeal),
-                                   "hltL1extraParticles",
-                                   "",
-                                   "",
-                                   "",
-                                   3);
-         
-         FWPhysicsObjectDesc l1Jets("L1-Jets",
-                                    TClass::GetClass("l1extra::L1JetParticleCollection"),
-                                    "L1-Jets",
-                                    FWDisplayProperties(kMagenta),
-                                    "hltL1extraParticles",
-                                    "Central",
-                                    "",
-                                    "$.pt()>15",
-                                    3);
-         
-         
-         FWPhysicsObjectDesc tracks("Tracks",
-                                    TClass::GetClass("reco::TrackCollection"),
-                                    "Tracks",
-                                    FWDisplayProperties(kGreen),
-                                    "generalTracks",
-                                    "",
-                                    "",
-                                    "$.pt()>2",
-                                    1);
-         
-         FWPhysicsObjectDesc muons("Muons",
-                                   TClass::GetClass("reco::MuonCollection"),
-                                   "Muons",
-                                   FWDisplayProperties(kRed),
-                                   "muons",
-                                   "",
-                                   "",
-                                   "$.isGlobalMuon()",
-                                   5);
-         
-         FWPhysicsObjectDesc electrons("Electrons",
-                                       TClass::GetClass("reco::GsfElectronCollection"),
-                                       "Electrons",
-                                       FWDisplayProperties(kCyan),
-                                       "pixelMatchGsfElectrons",
-                                       "",
-                                       "",
-                                       "$.hadronicOverEm()<0.05",
-                                       3);
-         
-         FWPhysicsObjectDesc genParticles("GenParticles",
-                                          TClass::GetClass("reco::GenParticleCollection"),
-                                          "GenParticles",
-                                          FWDisplayProperties(kMagenta),
-                                          "genParticles",
-                                          "",
-                                          "",
-                                          "abs($.pdgId())==11 || abs($.pdgId())==13",
-                                          6);
-         
-         // Vertices
-         FWPhysicsObjectDesc vertices("Vertices",
-                                      TClass::GetClass("std::vector<reco::Vertex>"),
-                                      "Vertices",
-                                      FWDisplayProperties(kYellow),
-                                      "offlinePrimaryVertices",
-                                      "",
-                                      "",
-                                      "",
-                                      10);
-         
-         FWPhysicsObjectDesc mets("MET",
-                                  TClass::GetClass("reco::CaloMETCollection"),
-                                  "MET",
-                                  FWDisplayProperties(kRed),
-                                  "metNoHF",
-                                  "",
-                                  "",
-                                  "",
-                                  3);
-         
-         FWPhysicsObjectDesc dtSegments("DT-segments",
-                                        TClass::GetClass("DTRecSegment4DCollection"),
-                                        "DT-segments",
-                                        FWDisplayProperties(kBlue),
-                                        "dt4DSegments",
-                                        "",
-                                        "",
-                                        "",
-                                        1);
-         
-         FWPhysicsObjectDesc cscSegments("CSC-segments",
-                                         TClass::GetClass("CSCSegmentCollection"),
-                                         "CSC-segments",
-                                         FWDisplayProperties(kBlue),
-                                         "cscSegments",
-                                         "",
-                                         "",
-                                         "",
-                                         1);
-         registerPhysicsObject(ecal);
-         registerPhysicsObject(hcal);
-         registerPhysicsObject(jets);
-         registerPhysicsObject(l1EmTrigs);
-         registerPhysicsObject(l1Muons);
-         registerPhysicsObject(l1MET);
-         registerPhysicsObject(l1Jets);
-         registerPhysicsObject(tracks);
-         registerPhysicsObject(muons);
-         registerPhysicsObject(electrons);
-         registerPhysicsObject(genParticles);
-         registerPhysicsObject(vertices);
-         registerPhysicsObject(mets);
-         registerPhysicsObject(dtSegments);
-         registerPhysicsObject(cscSegments);
-         
-      } else {
-         char* whereConfig = gSystem->Which(TROOT::GetMacroPath(), m_configFileName.c_str(), kReadPermission);
-         if(0==whereConfig) {
-            m_configFileName = "default.fwc";
-         } 
-         
-         delete [] whereConfig;
-         m_configurationManager->readFromFile(m_configFileName);
-      }
-      
-      if(not m_configFileName.empty() ) {
-         /* //when the program quits we will want to save the configuration automatically
-          m_guiManager->goingToQuit_.connect(
-          boost::bind(&FWConfigurationManager::writeToFile,
-          m_configurationManager.get(),
-          m_configFileName));
-          */
-         m_guiManager->writeToPresentConfigurationFile_.connect(
-                                                                boost::bind(&FWConfigurationManager::writeToFile,
-                                                                            m_configurationManager.get(),
-                                                                            m_configFileName));
-      }
-#endif
       //CDJ Old position
       //gEve->GetHighlight()->SetPickToSelect(TEveSelection::kPS_PableCompound);
       //TEveTrackProjected::SetBreakTracks(kFALSE);
@@ -486,13 +285,6 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       //setupDetailedViewManagers();
       f=boost::bind(&CmsShowMain::setupDetailedViewManagers,this);
       m_startupTasks->addTask(f);
-#if defined(NEVER_TO_BE_DEFINED)
-      // register detail viewers
-      registerDetailView("Electrons", new ElectronDetailView);
-      registerDetailView("Muons", new MuonDetailView);
-      registerDetailView("Tracks", new TrackDetailView);
-      registerDetailView("GenParticles", new GenParticleDetailView);
-#endif
       
       //setupDataHandling();
       f=boost::bind(&CmsShowMain::setupDataHandling,this);
@@ -531,7 +323,13 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       }else{
          gSystem->IgnoreSignal(kSigSegmentationViolation, true);
       }
-      
+            
+      if (vm.count(kLoopPlaybackOpt)) {
+         m_playDelay = vm[kLoopPlaybackOpt].as<int>()*1000;
+	 f=boost::bind(&CSGContinuousAction::switchMode,m_guiManager->playEventsAction());
+	 m_startupTasks->addTask(f);
+      }
+
       m_startupTasks->startDoingTasks();
    } catch(std::exception& iException) {
       std::cerr <<"CmsShowMain caught exception "<<iException.what()<<std::endl;
@@ -919,8 +717,8 @@ CmsShowMain::setupDataHandling()
    m_navigator->newFileLoaded.connect(boost::bind(&CmsShowMain::resetInitialization,this));
    m_navigator->newFileLoaded.connect(sigc::mem_fun(*m_guiManager,&FWGUIManager::newFile));
    m_navigator->atBeginning.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::disablePrevious));
-   m_navigator->atBeginning.connect(sigc::mem_fun(*this, &CmsShowMain::reachedEnd));
-   m_navigator->atEnd.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::disableNext));
+   // m_navigator->atBeginning.connect(sigc::mem_fun(*this, &CmsShowMain::reachedEnd));
+   // m_navigator->atEnd.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::disableNext));
    m_navigator->atEnd.connect(sigc::mem_fun(*this, &CmsShowMain::reachedEnd));
    if (m_guiManager->getAction(cmsshow::sOpenData) != 0) m_guiManager->getAction(cmsshow::sOpenData)->activated.connect(sigc::mem_fun(*this, &CmsShowMain::openData));
    if (m_guiManager->getAction(cmsshow::sNextEvent) != 0) m_guiManager->getAction(cmsshow::sNextEvent)->activated.connect(sigc::mem_fun(*m_navigator, &CmsShowNavigator::nextEvent));
@@ -962,6 +760,7 @@ CmsShowMain::playForward()
 {
    m_isPlaying=true;
    m_forward=true;
+   m_navigator->setAutoRewind( true );
    m_guiManager->getAction(cmsshow::sNextEvent)->activated();
 }
 
@@ -978,6 +777,7 @@ CmsShowMain::stopPlaying()
 {
    if(m_isPlaying) {
       m_isPlaying=false;
+      m_navigator->setAutoRewind( false );
       if(m_forward) {
          m_playTimer->TurnOff();
       } else {
@@ -990,12 +790,15 @@ CmsShowMain::stopPlaying()
 void 
 CmsShowMain::reachedEnd()
 {
+   if(!m_isPlaying) m_guiManager->disableNext();
+   /*
    stopPlaying();
    if(m_forward) {
       m_guiManager->playEventsAction()->stop();
    } else {
       m_guiManager->playEventsBackwardsAction()->stop();
    }
+    */
 }
 
 //

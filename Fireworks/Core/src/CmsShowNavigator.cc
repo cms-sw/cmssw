@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Tue Jun 10 14:56:46 EDT 2008
-// $Id: CmsShowNavigator.cc,v 1.11 2008/07/22 04:01:58 jmuelmen Exp $
+// $Id: CmsShowNavigator.cc,v 1.12 2008/07/22 09:29:11 jmuelmen Exp $
 //
 
 // hacks
@@ -47,7 +47,8 @@
 // constructors and destructor
 //
 CmsShowNavigator::CmsShowNavigator(const CmsShowMain &main)
-     : m_main(main)
+     : m_main(main),
+ m_loopMode(false)
 {
   m_file = 0;
   m_eventTree = 0;
@@ -137,6 +138,9 @@ CmsShowNavigator::checkPosition() {
 void
 CmsShowNavigator::nextEvent() 
 {
+   if ( m_loopMode && 
+	m_currentSelectedEntry == m_nEntries-1 ) firstEvent();
+   
   if (m_currentSelectedEntry < m_nEntries-1 &&
       m_event->to(realEntry(m_currentSelectedEntry+1)) ) {
      ++m_currentSelectedEntry;
