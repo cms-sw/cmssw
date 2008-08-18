@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.71 $"
+__version__ = "$Revision: 1.72 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -171,8 +171,7 @@ class ConfigBuilder(object):
             self.contentFile = "Configuration/EventContent/EventContent_cff"
             self.imports=['Configuration/StandardSequences/Services_cff',
                           #'Configuration/StandardSequences/Geometry_cff',
-                          'FWCore/MessageService/MessageLogger_cfi',
-                          'Configuration/StandardSequences/Generator_cff']         # rm    
+                          'FWCore/MessageService/MessageLogger_cfi']
 
             # load the pile up file
             try: 
@@ -191,7 +190,12 @@ class ConfigBuilder(object):
         # the magnetic field
         magneticFieldFilename = 'Configuration/StandardSequences/MagneticField_'+self._options.magField.replace('.','')+'_cff'
         magneticFieldFilename = magneticFieldFilename.replace("__",'_')
-        self.imports.append(magneticFieldFilename)
+	if self._options.magField == '0T':
+           self.imports.append("Configuration.StandardSequences.MagneticField_cff")
+	   self.imports.append("Configuration.GlobalRuns.ForceZeroTeslaField_cff")
+	else:	
+            self.imports.append(magneticFieldFilename)
+   
                                                         
         # what steps are provided by this class?
         stepList = [methodName.lstrip("prepare_") for methodName in ConfigBuilder.__dict__ if methodName.startswith('prepare_')]
@@ -281,7 +285,7 @@ class ConfigBuilder(object):
                 alcaOutput.SelectEvents = alcastream.selectEvents
                 alcaOutput.outputCommands = alcastream.content
                 alcaOutput.fileName = cms.untracked.string(alcastream.name+'.root')
-                alcaOutput.dataset  = cms.untracked.PSet( dataTier = alcastream.dataTier)
+                alcaOutput.dataset  = cms.untracked.PSet( dataTier = alcastream.dataTier, filterName = cms.untracked.string('Stream'+alcastream.name))
 		if isinstance(alcastream.paths,tuple):
                     for path in alcastream.paths:
 		        self.process.schedule.append(path)
@@ -443,7 +447,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.71 $"),
+              (version=cms.untracked.string("$Revision: 1.72 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
