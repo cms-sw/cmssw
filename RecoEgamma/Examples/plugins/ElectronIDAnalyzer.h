@@ -22,8 +22,11 @@ class ElectronIDAnalyzer : public edm::EDAnalyzer
   edm::ParameterSet conf_;
 
   std::string electronProducer_;
-  std::string electronLabel_;
-  std::string electronIDAssocProducer_;
+
+  std::string electronLabelRobustLoose_;
+  std::string electronLabelRobustTight_;
+  std::string electronLabelLoose_; 
+  std::string electronLabelTight_;  
 
 };
 
