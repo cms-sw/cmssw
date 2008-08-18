@@ -13,7 +13,7 @@
 //
 // Original Author:  Erik Butz
 //         Created:  Tue Dec 11 14:03:05 CET 2007
-// $Id: TrackerOfflineValidation.cc,v 1.8 2008/08/13 12:25:55 jdraeger Exp $
+// $Id: TrackerOfflineValidation.cc,v 1.9 2008/08/18 11:55:12 jdraeger Exp $
 //
 //
 
@@ -1003,7 +1003,7 @@ TrackerOfflineValidation::fillTree(TTree &tree,const std::map<int, TrackerOfflin
     const Surface::PositionType &gPModule = tkgeom.idToDet(detId_)->position();
     treeMem.posPhi_ = gPModule.phi();
     treeMem.posEta_ = gPModule.eta();
-    traaMem.posR_   = gPModule.r()
+    treeMem.posR_   = gPModule.perp();
     treeMem.posX_   = gPModule.x();
     treeMem.posY_   = gPModule.y();
     treeMem.posZ_   = gPModule.z();
