@@ -150,7 +150,7 @@ TEveGeoShapeExtract* DetIdToMatrix::getExtract(const char* path, const char* nam
    extract->SetRGBA(rgba);
    extract->SetRnrSelf(kTRUE);
    extract->SetRnrElements(kTRUE);
-   extract->SetShape( manager_->GetCurrentVolume()->GetShape() );
+   extract->SetShape( (TGeoShape*)(manager_->GetCurrentVolume()->GetShape()->Clone()) );
    return extract;
 }
 
