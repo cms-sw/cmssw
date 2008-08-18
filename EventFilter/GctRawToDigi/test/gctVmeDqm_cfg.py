@@ -24,11 +24,6 @@ process.l1GctHwDigis.verbose = cms.untracked.bool ( True )
 process.l1GctHwDigis.unpackFibres = cms.untracked.bool ( True )
 process.l1GctHwDigis.unpackInternEm = cms.untracked.bool ( True )
 
-process.dumpRaw = cms.OutputModule ( "DumpFEDRawDataProduct",
-  feds = cms.untracked.vint32 ( 745 ),
-  dumpPayload = cms.untracked.bool ( True )
-)
-
 # DQM
 process.load('DQMServices.Core.DQM_cfg')
 
