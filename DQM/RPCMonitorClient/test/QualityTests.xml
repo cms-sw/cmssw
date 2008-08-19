@@ -5,6 +5,7 @@
 	<PARAM name="threshold">0</PARAM>
 	<PARAM name="error">0.30</PARAM>
 	<PARAM name="warning">0.70</PARAM>
+	<PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <QTEST name="MultiplicityInRange">

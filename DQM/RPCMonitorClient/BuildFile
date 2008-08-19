@@ -1,6 +1,7 @@
 <flags EDM_PLUGIN=1>
 <use name=boost>
-<use name=root> 
+<use name=rootcore>
+ <use name=rootgraphics>
 <use name=xdaq>
 <use name=DQMServices/Core>
 <use name=DQMServices/ClientConfig>
@@ -10,11 +11,15 @@
 <use name=Geometry/RPCGeometry>
 <use name=Geometry/CommonDetUnit>
 <use name=Geometry/Records>
+<use name=EventFilter/Utilities>
 <use name=DataFormats/L1GlobalMuonTrigger>
+<use name=DataFormats/RPCDigi>
+
 <export>
 <lib name=DQMRPCMonitorClient> 
 <use name=boost>
-<use name=root> 
+<use name=rootcore>
+ <use name=rootgraphics>
 <use name=xdaq>
 <use name=DQMServices/Core>
 <use name=DQMServices/ClientConfig>
@@ -24,5 +29,7 @@
 <use name=Geometry/RPCGeometry>
 <use name=Geometry/CommonDetUnit>
 <use name=Geometry/Records>
+<use name=EventFilter/Utilities>
 <use name=DataFormats/L1GlobalMuonTrigger>
+<use name=DataFormats/RPCDigi>
 </export>

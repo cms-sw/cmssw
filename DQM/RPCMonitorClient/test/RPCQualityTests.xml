@@ -6,29 +6,13 @@
 	<PARAM name="threshold">0</PARAM>
 	<PARAM name="error">0.30</PARAM>
 	<PARAM name="warning">0.70</PARAM>
+	<PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-
-<QTEST name="MultiplicityInRange">
-        <TYPE>MeanWithinExpected</TYPE>
-        <PARAM name="error">0.30</PARAM>
-        <PARAM name="warning">0.70</PARAM>
-        <PARAM name="mean">0.0</PARAM>
-        <PARAM name="useRMS">0</PARAM>
-        <PARAM name="useSigma">0</PARAM>
-        <PARAM name="useRange">1</PARAM>
-        <PARAM name="xmin">1</PARAM>
-        <PARAM name="xmax">6</PARAM>
-</QTEST>
 
 
 <LINK name="*/Occupancy*RB*">
 	<TestName activate="true">DeadChannel_0</TestName>
-</LINK>
-
-
-<LINK name="*NumberOfDigi*">
-	<TestName activate="true">MultiplicityInRange</TestName>
 </LINK>
 
 

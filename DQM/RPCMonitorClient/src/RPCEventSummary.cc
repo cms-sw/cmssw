@@ -45,6 +45,8 @@ void RPCEventSummary::beginJob(const EventSetup& iSetup){
 void RPCEventSummary::beginRun(const Run& r, const EventSetup& c){
  LogVerbatim ("rpceventsummary") << "[RPCEventSummary]: Begin run";
 
+ nLumiSegs_=0;
+
  MonitorElement* me;
  dbe_->setCurrentFolder(eventInfoPath_);
 
@@ -56,7 +58,7 @@ void RPCEventSummary::beginRun(const Run& r, const EventSetup& c){
   }
 
   me = dbe_->bookFloat(histoName);
-  me->Fill(-1);
+  me->Fill(1);
 
   //TH2F ME providing a map of values[0-1] to show if problems are localized or distributed
   if ( me = dbe_->get(eventInfoPath_ + "/reportSummaryMap") ) {
@@ -133,10 +135,14 @@ void RPCEventSummary::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSe
   LogVerbatim ("rpceventsummary") <<"[RPCEventSummary]: End of LS transition, performing DQM client operation";
 
   // counts number of lumiSegs 
-  nLumiSegs_ = lumiSeg.id().luminosityBlock();
-  //check some statements and prescale Factor
-  if(!enableReportSummary_  ||  nLumiSegs_%prescaleFactor_ != 0) return;
+   nLumiSegs_ = lumiSeg.id().luminosityBlock();
+   //nLumiSegs_++;
 
+   cout<<"lumi # "<<nLumiSegs_<<" prescale "<<prescaleFactor_<<" " <<nLumiSegs_%prescaleFactor_ <<endl;
+
+  //check some statements and prescale Factor
+  if(enableReportSummary_  &&  (nLumiSegs_%prescaleFactor_ == 0)) {
+  cout<<"yes  "<<endl;
   ESHandle<RPCGeometry> rpcGeo;
   iSetup.get<MuonGeometryRecord>().get(rpcGeo);
  
@@ -191,6 +197,7 @@ void RPCEventSummary::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSe
 
   if (allRolls_!=0)   reportSummary->Fill(allGood_/allRolls_);
   else reportSummary->Fill(-1);
+  }
 }
 
 
@@ -234,6 +241,7 @@ void  RPCEventSummary::fillReportSummary(const map<int,map<int,pair<float,float>
       //Fill wheel/disk report summary
       meName.str("");
       meName<<eventInfoPath_<<path<<(*itr).first;
+      cout<<"am here 1  "<<meName.str()<<endl;
       MonitorElement *   reportSummaryContents = dbe_->get( meName.str());
       if (Rolls != 0)  reportSummaryContents->Fill(Good/Rolls);
       else reportSummaryContents->Fill(-1);
@@ -242,12 +250,13 @@ void  RPCEventSummary::fillReportSummary(const map<int,map<int,pair<float,float>
     for (int j=0; j<=4; j++){
       meName.str("");
       meName<<eventInfoPath_<<path<<j;
+      cout<<"am here 2  "<<meName.str()<<endl;
       MonitorElement *   reportSummaryContents = dbe_->get( meName.str());
       if ( reportSummaryContents == NULL) continue;
 	reportSummaryContents->Fill(-1);
       for(int h =1; h<=12; h++){
 	if(region!=0 && h>6) break; //endcap has only 6 sectors
-	if (region == -1)	reportSummaryMap->setBinContent(-j+binOffSet,h, -1); 
+	if (region == -1) reportSummaryMap->setBinContent(-j+binOffSet,h, -1); 
 	else reportSummaryMap->setBinContent(j+binOffSet,h, -1); 
       }
     }   
