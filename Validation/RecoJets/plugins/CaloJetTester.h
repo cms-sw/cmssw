@@ -43,6 +43,12 @@ private:
   // Generic Jet Parameters
   MonitorElement* mEta;
   MonitorElement* mEtaFineBin;
+  MonitorElement* mEtaFineBin1p;
+  MonitorElement* mEtaFineBin2p;
+  MonitorElement* mEtaFineBin3p;
+  MonitorElement* mEtaFineBin1m;
+  MonitorElement* mEtaFineBin2m;
+  MonitorElement* mEtaFineBin3m;
   MonitorElement* mPhi;
   MonitorElement* mPhiFineBin;
   MonitorElement* mE;
@@ -73,8 +79,15 @@ private:
   MonitorElement* mPtFirst_80;
   MonitorElement* mPtFirst_3000;
 
+  MonitorElement* mNJetsEtaC;
+  MonitorElement* mNJetsEtaF;
+
+  MonitorElement* mNJets1;
+  MonitorElement* mNJets2;
+
   // DiJet Parameters
   MonitorElement* mMjj;
+  MonitorElement* mMjj_3000;
 
   // CaloJet specific
   MonitorElement* mMaxEInEmTowers;
@@ -112,6 +125,10 @@ private:
   MonitorElement* mEScale;
   MonitorElement* mDeltaE;
 
+  MonitorElement* mDelEta;
+  MonitorElement* mDelPhi;
+  MonitorElement* mDelPt;
+
   // Matching parameters
   double mMatchGenPtThreshold;
   double mGenEnergyFractionThreshold;
@@ -127,11 +144,16 @@ private:
 
   // CaloMET
   MonitorElement* mCaloMEx;
+  MonitorElement* mCaloMEx_3000;
   MonitorElement* mCaloMEy;
+  MonitorElement* mCaloMEy_3000;
   MonitorElement* mCaloMET;
+  MonitorElement* mCaloMET_3000;
   MonitorElement* mCaloMETPhi;
   MonitorElement* mCaloSumET;
+  MonitorElement* mCaloSumET_3000;
   MonitorElement* mCaloMETSig;
+  MonitorElement* mCaloMETSig_3000;
 
 
 };
