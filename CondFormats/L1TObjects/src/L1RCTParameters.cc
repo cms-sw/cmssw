@@ -1,7 +1,7 @@
 /**
  * Author: Sridhara Dasu
  * Created: 04 July 2007
- * $Id: L1RCTParameters.cc,v 1.17 2008/08/19 20:21:58 lgray Exp $
+ * $Id: L1RCTParameters.cc,v 1.18 2008/08/19 21:10:19 lgray Exp $
  **/
 
 #include <iostream>
@@ -262,7 +262,7 @@ float L1RCTParameters::correctedTPGSum_Lindsey(const float& ecal, const float& h
 	    hcal_high_calib_Lindsey_.at(index).at(2)*h);
     }
   
-  if(e == 0.0) ec += 0.000000001;
+  if(e == 0.0) e += 0.000000001;
   
   if(h/e >= 0.05)
     {
