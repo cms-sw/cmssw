@@ -55,61 +55,65 @@ using namespace edm;
 // End job: write and close the ntuple file
 void SiPixelTrackingRecHitsValid::endJob() 
 {
+  if(debugNtuple_.size()!=0){
   tfile_->Write();
   tfile_->Close();
+  }
 }
 
 void SiPixelTrackingRecHitsValid::beginJob(const edm::EventSetup& es)
 {
-  tfile_ = new TFile ("SiPixelTrackingRecHitsValid_Ntuple.root" , "RECREATE");
 
-  t_ = new TTree("Ntuple", "Ntuple");
-  int bufsize = 64000;
+  if(debugNtuple_.size()!=0){
+    tfile_ = new TFile (debugNtuple_.c_str() , "RECREATE");
+    
+    t_ = new TTree("Ntuple", "Ntuple");
+    int bufsize = 64000;
+  
+    t_->Branch("subdetId", &subdetId, "subdetId/I", bufsize);
+  
+    t_->Branch("layer" , &layer , "layer/I" , bufsize);
+    t_->Branch("ladder", &ladder, "ladder/I", bufsize);
+    t_->Branch("mod"   , &mod   , "mod/I"   , bufsize);
+    t_->Branch("side"  , &side  , "side/I"  , bufsize);
+    t_->Branch("disk"  , &disk  , "disk/I"  , bufsize);
+    t_->Branch("blade" , &blade , "blade/I" , bufsize);
+    t_->Branch("panel" , &panel , "panel/I" , bufsize);
+    t_->Branch("plaq"  , &plaq  , "plaq/I"  , bufsize);
+    
+    t_->Branch("rechitx"    , &rechitx    , "rechitx/F"    , bufsize);
+    t_->Branch("rechity"    , &rechity    , "rechity/F"    , bufsize);
+    t_->Branch("rechitz"    , &rechitz    , "rechitz/F"    , bufsize);
+    t_->Branch("rechiterrx" , &rechiterrx , "rechiterrx/F" , bufsize);
+    t_->Branch("rechiterry" , &rechiterry , "rechiterry/F" , bufsize);
+    t_->Branch("rechitresx" , &rechitresx , "rechitresx/F" , bufsize);
+    t_->Branch("rechitresy" , &rechitresy , "rechitresy/F" , bufsize);
+    t_->Branch("rechitpullx", &rechitpullx, "rechitpullx/F", bufsize);
+    t_->Branch("rechitpully", &rechitpully, "rechitpully/F", bufsize);
+    
+    t_->Branch("npix"  , &npix  , "npix/I"  , bufsize);
+    t_->Branch("nxpix" , &nxpix , "nxpix/I" , bufsize);
+    t_->Branch("nypix" , &nypix , "nypix/I" , bufsize);
+    t_->Branch("charge", &charge, "charge/F", bufsize);
+    
+    t_->Branch("alpha", &alpha, "alpha/F", bufsize);
+    t_->Branch("beta" , &beta , "beta/F" , bufsize);
+    
+    t_->Branch("phi", &phi, "phi/F", bufsize);
+    t_->Branch("eta", &eta, "eta/F", bufsize);
+    
+    t_->Branch("half"   , &half   , "half/I"   , bufsize);
+    t_->Branch("flipped", &flipped, "flipped/I", bufsize);
+    
+    t_->Branch("simhitx", &simhitx, "simhitx/F", bufsize);
+    t_->Branch("simhity", &simhity, "simhity/F", bufsize);
 
-  t_->Branch("subdetId", &subdetId, "subdetId/I", bufsize);
-
-  t_->Branch("layer" , &layer , "layer/I" , bufsize);
-  t_->Branch("ladder", &ladder, "ladder/I", bufsize);
-  t_->Branch("mod"   , &mod   , "mod/I"   , bufsize);
-  t_->Branch("side"  , &side  , "side/I"  , bufsize);
-  t_->Branch("disk"  , &disk  , "disk/I"  , bufsize);
-  t_->Branch("blade" , &blade , "blade/I" , bufsize);
-  t_->Branch("panel" , &panel , "panel/I" , bufsize);
-  t_->Branch("plaq"  , &plaq  , "plaq/I"  , bufsize);
-
-  t_->Branch("rechitx"    , &rechitx    , "rechitx/F"    , bufsize);
-  t_->Branch("rechity"    , &rechity    , "rechity/F"    , bufsize);
-  t_->Branch("rechitz"    , &rechitz    , "rechitz/F"    , bufsize);
-  t_->Branch("rechiterrx" , &rechiterrx , "rechiterrx/F" , bufsize);
-  t_->Branch("rechiterry" , &rechiterry , "rechiterry/F" , bufsize);
-  t_->Branch("rechitresx" , &rechitresx , "rechitresx/F" , bufsize);
-  t_->Branch("rechitresy" , &rechitresy , "rechitresy/F" , bufsize);
-  t_->Branch("rechitpullx", &rechitpullx, "rechitpullx/F", bufsize);
-  t_->Branch("rechitpully", &rechitpully, "rechitpully/F", bufsize);
-
-  t_->Branch("npix"  , &npix  , "npix/I"  , bufsize);
-  t_->Branch("nxpix" , &nxpix , "nxpix/I" , bufsize);
-  t_->Branch("nypix" , &nypix , "nypix/I" , bufsize);
-  t_->Branch("charge", &charge, "charge/F", bufsize);
-
-  t_->Branch("alpha", &alpha, "alpha/F", bufsize);
-  t_->Branch("beta" , &beta , "beta/F" , bufsize);
-
-  t_->Branch("phi", &phi, "phi/F", bufsize);
-  t_->Branch("eta", &eta, "eta/F", bufsize);
-
-  t_->Branch("half"   , &half   , "half/I"   , bufsize);
-  t_->Branch("flipped", &flipped, "flipped/I", bufsize);
-
-  t_->Branch("simhitx", &simhitx, "simhitx/F", bufsize);
-  t_->Branch("simhity", &simhity, "simhity/F", bufsize);
-
-  t_->Branch("nsimhit", &nsimhit, "nsimhit/I", bufsize);
-  t_->Branch("pidhit" , &pidhit , "pidhit/I" , bufsize);
-
-  t_->Branch("evt", &evt, "evt/I", bufsize);
-  t_->Branch("run", &run, "run/I", bufsize);
-
+    t_->Branch("nsimhit", &nsimhit, "nsimhit/I", bufsize);
+    t_->Branch("pidhit" , &pidhit , "pidhit/I" , bufsize);
+    
+    t_->Branch("evt", &evt, "evt/I", bufsize);
+    t_->Branch("run", &run, "run/I", bufsize);
+  }
   
 }
 
@@ -122,6 +126,7 @@ SiPixelTrackingRecHitsValid::SiPixelTrackingRecHitsValid(const ParameterSet& ps)
   builderName_ = ps.getParameter<std::string>("TTRHBuilder");   
   checkType_ = ps.getParameter<bool>("checkType");
   genType_ = ps.getParameter<int>("genType");
+  debugNtuple_=ps.getUntrackedParameter<string>("debugNtuple", "SiPixelTrackingRecHitsValid_Ntuple.root");
 
   // Book histograms
   dbe_ = Service<DQMStore>().operator->();
@@ -1737,7 +1742,7 @@ void SiPixelTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 			    } // else if ( detId.subdetId()==PixelSubdetector::PixelEndcap )
 			  else std::cout << "We are not in the pixel detector" << (int)detId.subdetId() << endl;
 			  
-			  t_->Fill();
+			  if(debugNtuple_.size()!=0)t_->Fill();
 
 			} // if ( !matched.empty() )
 		      //else

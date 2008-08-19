@@ -86,6 +86,7 @@ class SiPixelTrackingRecHitsValid : public edm::EDAnalyzer
   //TrackLocalAngle *anglefinder_;
   DQMStore* dbe_;
   std::string outputFile_;
+  std::string debugNtuple_;
   std::string src_;
   std::string builderName_;
   bool MTCCtrack_;
