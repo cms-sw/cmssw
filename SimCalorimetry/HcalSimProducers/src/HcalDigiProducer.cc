@@ -74,7 +74,8 @@ HcalDigiProducer::HcalDigiProducer(const edm::ParameterSet& ps)
 
   bool doHPDNoise = ps.getParameter<bool>("doHPDNoise");
   if(doHPDNoise) {
-    theHPDNoiseGenerator = new HPDNoiseGenerator(theParameterMap); 
+    edm::ParameterSet hpdNoisePset = ps.getParameter<edm::ParameterSet>("HPDNoiseLibrary");
+    theHPDNoiseGenerator = new HPDNoiseGenerator(hpdNoisePset, theParameterMap); 
     theHBHEDigitizer->setNoiseSignalGenerator(theHPDNoiseGenerator);
   }
 
