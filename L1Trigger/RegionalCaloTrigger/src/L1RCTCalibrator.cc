@@ -30,21 +30,21 @@ L1RCTCalibrator::L1RCTCalibrator(edm::ParameterSet const& ps):
   maxEtaBarrel_(ps.getParameter<int>("TowersInBarrel")*deltaEtaBarrel_),
   deltaPhi_(ps.getParameter<double>("TowerDeltaPhi")),
   endcapEta_(ps.getParameter<std::vector<double> >("EndcapEtaBoundaries")),
-  fitOpts_((debug_ > 0) ? "ELM" : "QELM")
+  fitOpts_((debug_ > 0) ? "ELMRNF" : "QELMRNF")
 {
   for(int i = 0; i < 28; ++i)
     {
-      he_low_smear_[i]  = ((debug_ > 9) ? i : -999);
-      he_high_smear_[i] = ((debug_ > 9) ? i : -999);
+      he_low_smear_[i]  = ((debug_ > 9) ? ( (debug_ > 10) ? 1  : i ) : -999);
+      he_high_smear_[i] = ((debug_ > 9) ? ( (debug_ > 10) ? 1  : i ) : -999);
       for(int j = 0; j < 6; ++j)
 	{
 	  if(j < 3)
 	    {
-	      ecal_[i][j]      = ((debug_ > 9) ? i*3 + j : -999);
-	      hcal_[i][j]      = ((debug_ > 9) ? i*3 + j : -999);
-	      hcal_high_[i][j] = ((debug_ > 9) ? i*3 + j : -999);
+	      ecal_[i][j]      = ((debug_ > 9) ? ( (debug_ > 10) ? ( (j == 2) ? 1 : 0 ) : i*3 + j ) : -999);
+	      hcal_[i][j]      = ((debug_ > 9) ? ( (debug_ > 10) ? ( (j == 2) ? 1 : 0 ) : i*3 + j ) : -999);
+	      hcal_high_[i][j] = ((debug_ > 9) ? ( (debug_ > 10) ? ( (j == 2) ? 1 : 0 ) : i*3 + j ) : -999);
 	    }
-	  cross_[i][j] = ((debug_ > 9) ? i*6 + j : -999);
+	  cross_[i][j] = ((debug_ > 9) ? ( (debug_ > 10) ? 0  : i*6 + j ) : -999);
 	}
     }
 }
@@ -104,7 +104,7 @@ void L1RCTCalibrator::analyze(const edm::Event& e, const edm::EventSetup& es)
   event_ = e.id().event();
   run_ = e.id().run();
 
-  saveCalibrationInfo(the_cands, ecal, hcal, regions);
+  if( debug_ < 9 ) saveCalibrationInfo(the_cands, ecal, hcal, regions);
 }
 
 void L1RCTCalibrator::writeHistograms()
@@ -127,7 +127,7 @@ void L1RCTCalibrator::beginJob(const edm::EventSetup& es)
 
 void L1RCTCalibrator::endJob()
 {
-  postProcessing();
+  if(debug_ < 9) postProcessing();
  
   rootOut_->cd();
   writeHistograms();
@@ -463,7 +463,7 @@ std::pair<double,double> L1RCTCalibrator::showerSize(const std::vector<tpg>& tp,
 }
 
 double L1RCTCalibrator::sumEt(const double& eta, const double& phi, const std::vector<tpg>& tp, const double& dr, 
-			      const bool& ecal, const bool& hcal) const
+			      const bool& ecal, const bool& hcal, const bool& c, const double& crossover) const
 {
   double delta_r, tp_phi, tp_eta, sum = 0.0;  
 
@@ -476,8 +476,59 @@ double L1RCTCalibrator::sumEt(const double& eta, const double& phi, const std::v
 
       if(delta_r < dr)
 	{
-	  if(i->ecalE > .5 && ecal) sum += i->ecalEt;
-	  if(i->hcalE > .5 && hcal) sum += i->hcalEt;
+	  if(c)
+	    {
+	      int etabin = abs(i->ieta) - 1;
+	      if(i->ecalE > .5 && ecal)
+		{
+		  if(ecal_[etabin][0] != -999 && ecal_[etabin][1] != -999 && ecal_[etabin][2] != -999) 		
+		    sum += (ecal_[etabin][0]*std::pow(i->ecalEt,3.) +
+			    ecal_[etabin][1]*std::pow(i->ecalEt,2.) +
+			    ecal_[etabin][2]*i->ecalEt);
+		  else
+		    sum += i->ecalEt;
+		}
+	      if(i->hcalE > .5 && hcal)
+		{
+		  double crossterm = 0.0, hcal_c = 0.0;
+		  if(i->ecalEt + i->hcalEt < crossover)
+		    {
+		      if(cross_[etabin][0] != -999 && cross_[etabin][1] != -999 && cross_[etabin][2] != -999 &&
+			 cross_[etabin][3] != -999 && cross_[etabin][4] != -999 && cross_[etabin][5] != -999 &&
+			 hcal_[etabin][0] != -999 && hcal_[etabin][1] != -999 && hcal_[etabin][2] != -999)
+			{
+			  crossterm = (cross_[etabin][0]*std::pow(i->ecalEt,2)*i->hcalEt +
+				       cross_[etabin][1]*std::pow(i->hcalEt,2)*i->ecalEt +
+				       cross_[etabin][2]*i->ecalEt*i->hcalEt +
+				       cross_[etabin][3]*std::pow(i->ecalEt,3)*i->hcalEt +
+				       cross_[etabin][4]*std::pow(i->hcalEt,3)*i->ecalEt +
+				       cross_[etabin][5]*std::pow(i->ecalEt,2)*std::pow(i->hcalEt,2));
+			  hcal_c = (hcal_[etabin][0]*std::pow(i->hcalEt,3.) +
+				    hcal_[etabin][1]*std::pow(i->hcalEt,2.) +
+				    hcal_[etabin][2]*i->hcalEt);
+			}
+		      else
+			hcal_c = i->hcalEt;
+		    }
+		  else
+		    {
+		      if(hcal_high_[etabin][0] != -999 && hcal_high_[etabin][1] != -999 && hcal_high_[etabin][2] != -999)
+			{
+			  hcal_c = (hcal_high_[etabin][0]*std::pow(i->hcalEt,3.) +
+				    hcal_high_[etabin][1]*std::pow(i->hcalEt,2.) +
+				    hcal_high_[etabin][2]*i->hcalEt);
+			}
+		      else
+			hcal_c = i->hcalEt;
+		    }
+		  sum += hcal_c + crossterm;
+		}
+	    }
+	  else
+	    {
+	      if(i->ecalE > .5 && ecal) sum += i->ecalEt;
+	      if(i->hcalE > .5 && hcal) sum += i->hcalEt;
+	    }
 	}
     }
   return sum;

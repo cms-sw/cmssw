@@ -29,12 +29,13 @@ Debug levels: (feel free to add more in your derived classes!) requires you to u
  1 = debug level 0 + LogDebug and any direct cout statements
  9 = create an empty cff and root file
 10 = create a debugging cff that contains the element index for all entries and a root file
+11 = create pass-thru LUTs
 
 */
 //
 // Original Author:  pts/47
 //         Created:  Thu Jul 13 21:38:08 CEST 2006
-// $Id: L1RCTCalibrator.h,v 1.4 2008/08/07 17:05:12 lgray Exp $
+// $Id: L1RCTCalibrator.h,v 1.5 2008/08/07 22:28:58 lgray Exp $
 //
 //
 
@@ -176,7 +177,8 @@ protected:
   // can choose to only give ecal or hcal sum through bools
   double sumEt(const double& eta, const double& phi, const std::vector<region>&, const double& dr = .5) const;
   double sumEt(const double& eta, const double& phi, const std::vector<tpg>&, const double& dr = .5, 
-	       const bool& ecal = true, const bool& hcal = true) const;
+	       const bool& ecal = true, const bool& hcal = true, const bool& apply_corrections = false,
+	       const double& high_low_crossover = 23) const;
   // returns energy weighted average of Eta
   double avgPhi(const std::vector<tpg>&) const;
   // returns energy weighted average of Phi

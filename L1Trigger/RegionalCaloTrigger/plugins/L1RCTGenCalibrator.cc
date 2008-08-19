@@ -8,6 +8,10 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
+//RooFit
+#include "RooRealVar.h"
+#include "RooArgSet.h"
+
 #include <fstream>
 #include <map>
 
@@ -59,7 +63,7 @@ void L1RCTGenCalibrator::saveCalibrationInfo(const view_vector& calib_to,const e
 void L1RCTGenCalibrator::postProcessing()
 {  
   if(debug() > -1) edm::LogVerbatim("postProcessing()") << "------------------postProcessing()-------------------\n";
-  int iph[28] = {0}, ipi[28] = {0}, nEvents = 0, nUseful = 0;
+  int iph[28] = {0}, ipi[28] = {0}, ipi2[28] = {0},  nEvents = 0, nUseful = 0;
   
   // first event data loop, calibrate ecal, hcal with NI pions
   for(std::vector<event_data>::const_iterator i = data_.begin(); i != data_.end(); ++i)
@@ -101,10 +105,9 @@ void L1RCTGenCalibrator::postProcessing()
 
 		  std::pair<double,double> ecalEtandDeltaR95 = showerSize(matchedTpgs, .95, .5, true, false);
 		  
-		  int sumieta, sumiphi;
+		  int sumieta;
 		  
 		  etaBin(fabs(matchedCentroid.first), sumieta);
-		  phiBin(matchedCentroid.second, sumiphi);
 		  
 		  if(debug() > 0)
 		    {
@@ -119,6 +122,10 @@ void L1RCTGenCalibrator::postProcessing()
 						   << "\tEcal Et in Cone   : " << ecalEtandDeltaR95.first << " ";
 		    }
 		  
+		  roorvPhotonTPGSumEt[sumieta - 1]->setVal(ecalEtandDeltaR95.first);
+		  roorvPhotonGenEt[sumieta - 1]->setVal(gen->et);
+		  roodsPhotonEtvsGenEt[sumieta - 1]->add(RooArgSet(*roorvPhotonTPGSumEt[sumieta-1],*roorvPhotonGenEt[sumieta-1]));
+		      
 		  hPhotonDeltaR95[sumieta - 1]->Fill(etAndDeltaR95.second);
 		  gPhotonEtvsGenEt[sumieta - 1]->SetPoint(iph[sumieta - 1]++, ecalEtandDeltaR95.first, gen->et);	      
 		}  
@@ -130,13 +137,12 @@ void L1RCTGenCalibrator::postProcessing()
 		  double ecal = sumEt(matchedCentroid.first, matchedCentroid.second, matchedTpgs, etAndDeltaR95.second, true, false);
 		  double hcal = sumEt(matchedCentroid.first, matchedCentroid.second, matchedTpgs, etAndDeltaR95.second, false, true);
 
-		  int sumieta, sumiphi;
+		  int sumieta;
 		  etaBin(fabs(matchedCentroid.first), sumieta);
-		  phiBin(matchedCentroid.second, sumiphi);
 		  
 		  if( ecal < 1.0  && etAndDeltaR95.first > 0)
 		    {
-		      if(debug() > -1)
+		      if(debug() > 0)
 			{
 			  int n_towers = tpgsNear(matchedCentroid.first, matchedCentroid.second, matchedTpgs, etAndDeltaR95.second).size();
 			  LogTrace("NIPionTPGSumInfo") << "TPG sum near gen Charged Pion with nearby non-zero RCT region and little ECAL energy found:\n"
@@ -149,9 +155,30 @@ void L1RCTGenCalibrator::postProcessing()
 						       << "\tHcal Et in Cone   : " << hcal << " ";
 			}
 		      
+		      roorvNIPionTPGSumEt[sumieta - 1]->setVal(hcal);
+		      roorvNIPionGenEt[sumieta - 1]->setVal(gen->et);
+		      roodsNIPionEtvsGenEt[sumieta - 1]->add(RooArgSet(*roorvNIPionTPGSumEt[sumieta-1],*roorvNIPionGenEt[sumieta-1]));
 
 		      hNIPionDeltaR95[sumieta - 1]->Fill(etAndDeltaR95.second);
 		      gNIPionEtvsGenEt[sumieta - 1]->SetPoint(ipi[sumieta - 1]++, hcal, gen->et);
+		    }
+		  else if(etAndDeltaR95.first > 0)
+		    {
+		      if(debug() > 0) 
+			{
+			  int n_towers = tpgsNear(matchedCentroid.first, matchedCentroid.second, matchedTpgs, etAndDeltaR95.second).size();
+			  LogTrace("PionTPGSumInfo") << "TPG sum near gen Charged Pion with nearby non-zero RCT region found:\n"
+						     << "Number of Towers  : " << n_towers << " "
+						     << "\tCentroid Eta      : " << matchedCentroid.first << " "
+						     << "\tCentroid Phi      : " << matchedCentroid.second << " "
+						     << "\tDelta R 95  (h+e) : " << etAndDeltaR95.second << " "
+						     << "\nTotal Et in Cone  : " << etAndDeltaR95.first << " "
+						     << "\tEcal Et in Cone   : " << ecal << " "
+						     << "\tHcal Et in Cone   : " << hcal << " ";
+			}
+		      
+		      hPionDeltaR95[sumieta - 1]->Fill(etAndDeltaR95.second);
+		      gPionEcalEtvsHcalEtvsGenEt[sumieta - 1]->SetPoint(ipi2[sumieta - 1]++, ecal, hcal, gen->et);
 		    }
 		}
 
@@ -166,12 +193,176 @@ void L1RCTGenCalibrator::postProcessing()
       if(used_flag) ++nUseful;
     }
 
-  int pitot = 0, phtot = 0;
+  int pitot = 0, phtot = 0, pitot2 = 0;
+  TF1 *photon[28] = {NULL};
+  TF1 *NIpion_low[28] = {NULL};
+  TF1 *NIpion_high[28] = {NULL};
+        
+  TF2* eh_surf[28] = {NULL};
+
 
   for(int i = 0; i < 28; ++i)
     {
       pitot += ipi[i];
       phtot += iph[i];
+      pitot2 += ipi2[i];
+
+      if(iph[i] > 100)
+	{
+	  photon[i] = new TF1((TString("ecal_fit")+=i).Data(),"x**3++x**2++x",0,100);
+	  gPhotonEtvsGenEt[i]->Fit(photon[i],fitOpts().c_str());
+
+	  ecal_[i][0] = photon[i]->GetParameter(0);
+	  ecal_[i][1] = photon[i]->GetParameter(1);
+	  ecal_[i][2] = photon[i]->GetParameter(2);
+	}
+      else
+	{
+	  ecal_[i][0] = 0;
+	  ecal_[i][1] = 0;
+	  ecal_[i][2] = 1;
+	}
+      if(ipi[i] > 100)
+	{
+	  NIpion_low[i] = new TF1((TString("hcal_fit_low")+=i).Data(),"x**3++x**2++x",0,23);
+	  NIpion_high[i] = new TF1((TString("hcal_fit_high")+=i).Data(),"x**3++x**2++x",23,100);
+	  gNIPionEtvsGenEt[i]->Fit(NIpion_low[i],fitOpts().c_str());
+	  gNIPionEtvsGenEt[i]->Fit(NIpion_high[i],fitOpts().c_str());
+
+	  hcal_[i][0] = NIpion_low[i]->GetParameter(0);
+	  hcal_[i][1] = NIpion_low[i]->GetParameter(1);
+	  hcal_[i][2] = NIpion_low[i]->GetParameter(2);
+	  
+	  hcal_high_[i][0] = NIpion_high[i]->GetParameter(0);
+	  hcal_high_[i][1] = NIpion_high[i]->GetParameter(1);
+	  hcal_high_[i][2] = NIpion_high[i]->GetParameter(2);
+	}
+      else
+	{
+	  hcal_[i][0] = hcal_[i][1] = hcal_high_[i][0] = hcal_high_[i][1] = 0;
+	  hcal_[i][2] = hcal_high_[i][2] = 1;
+	}
+      if(ipi2[i] >100 && NIpion_low[i] && NIpion_high[i] && photon[i])
+	{
+	  eh_surf[i] = new TF2((TString("eh_surf")+=i).Data(),"x**3++x**2++x++y**3++y**2++y++x**2*y++y**2*x++x*y++x**3*y++y**3*x++x**2*y**2",0,23,0,23);
+	  eh_surf[i]->FixParameter(0,photon[i]->GetParameter(0));
+	  eh_surf[i]->FixParameter(1,photon[i]->GetParameter(1));
+	  eh_surf[i]->FixParameter(2,photon[i]->GetParameter(2));
+	  eh_surf[i]->FixParameter(3,NIpion_low[i]->GetParameter(0));
+	  eh_surf[i]->FixParameter(4,NIpion_low[i]->GetParameter(1));
+	  eh_surf[i]->FixParameter(5,NIpion_low[i]->GetParameter(2));
+	  gPionEcalEtvsHcalEtvsGenEt[i]->Fit(eh_surf[i],fitOpts().c_str());
+
+	  cross_[i][0] = eh_surf[i]->GetParameter(6);
+	  cross_[i][1] = eh_surf[i]->GetParameter(7);
+	  cross_[i][2] = eh_surf[i]->GetParameter(8);
+	  cross_[i][3] = eh_surf[i]->GetParameter(9);
+	  cross_[i][4] = eh_surf[i]->GetParameter(10);
+	  cross_[i][5] = eh_surf[i]->GetParameter(11);
+	}
+      else
+	{
+	  cross_[i][0] = cross_[i][1] = cross_[i][2] = cross_[i][3] = cross_[i][4] = cross_[i][5] = 0;
+	}
+    }
+
+  for(std::vector<event_data>::const_iterator i = data_.begin(); i != data_.end(); ++i)
+    {
+      std::vector<generator>::const_iterator gen = i->gen_particles.begin();
+
+      std::vector<generator> ovls = overlaps(i->gen_particles);
+      
+      if(debug() > 0) LogTrace("StartOverlap") << "Finding overlapping selected particles in this event!\n";
+      if(debug() > 0)
+	{
+	  edm::LogVerbatim("OverlapInfo") << "=======Overlapping accepted gen particles in event " << nEvents << "\n";
+	  for(std::vector<generator>::const_iterator ov = ovls.begin(); ov != ovls.end(); ++ov)
+	    edm::LogVerbatim("OverlapInfo") << '\t' <<  ov->particle_type << " " << ov->et << " " << ov->eta << " " << ov->phi << "\n";
+	  edm::LogVerbatim("OverlapInfo") << "======================================================\n";
+	}
+      if(debug() > 0) LogTrace("EndOverlap") << "Done finding overlaps!\n";
+
+      for(; gen != i->gen_particles.end(); ++gen)
+	{	  
+	  if(gen->particle_type != 22 && abs(gen->particle_type) != 211 || find<generator>(*gen, ovls) != -1) continue;
+	  
+	  double regionsum = sumEt(gen->eta,gen->phi,i->regions);
+	  
+	  if(regionsum > 0.0)
+	    {	
+	      std::vector<tpg> matchedTpgs = tpgsNear(gen->eta,gen->phi,i->tpgs);
+	      std::pair<double,double> matchedCentroid = std::make_pair(avgEta(matchedTpgs),avgPhi(matchedTpgs));
+	      std::pair<double,double> etAndDeltaR95 = showerSize(matchedTpgs);
+
+	      if(gen->particle_type == 22)
+		{		
+		  std::pair<double,double> ecalEtandDeltaR95 = showerSize(matchedTpgs, .95, .5, true, false);
+		  
+		  int sumieta;
+		  
+		  etaBin(fabs(matchedCentroid.first), sumieta);
+		  		  
+		  if(etAndDeltaR95.first > 23)
+		    {
+		      double ecal_c = sumEt(matchedCentroid.first, matchedCentroid.second, matchedTpgs, etAndDeltaR95.second, true, false, true);
+		      
+		      double deltaeovere = (gen->et - ecal_c)/gen->et;
+		      hPhotonDeltaEOverE[sumieta - 1]->Fill(deltaeovere);
+		    }
+		}  
+
+	      if(abs(gen->particle_type) == 211)
+		{		  
+		  double ecal = sumEt(matchedCentroid.first, matchedCentroid.second, matchedTpgs, etAndDeltaR95.second, true, false);
+		  double hcal = sumEt(matchedCentroid.first, matchedCentroid.second, matchedTpgs, etAndDeltaR95.second, false, true);
+
+		  int sumieta;
+		  etaBin(fabs(matchedCentroid.first), sumieta);
+		 
+		  if(ecal == 0.0) ecal += 0.00000000001;
+		  if(hcal/ecal > 0.05 && etAndDeltaR95.first > 23)
+		    {
+		      double et_c = sumEt(matchedCentroid.first, matchedCentroid.second, matchedTpgs, etAndDeltaR95.second, true, true, true);
+
+		      double deltaeovere = (gen->et - et_c)/gen->et;
+		      hPionDeltaEOverE[sumieta - 1]->Fill(deltaeovere);
+		    }
+		}
+	    }	    
+	}
+    }
+
+  TF1* phGaus[28];
+  TF1* piGaus[28];
+
+  for(int i = 0; i < 28; ++i)
+    {
+      double ph_peak  = hPhotonDeltaEOverE[i]->GetBinCenter(hPhotonDeltaEOverE[i]->GetMaximumBin());
+      double ph_upper = ph_peak + hPhotonDeltaEOverE[i]->GetRMS();
+      double ph_lower = ph_peak - hPhotonDeltaEOverE[i]->GetRMS();
+
+      double pi_peak  = hPionDeltaEOverE[i]->GetBinCenter(hPionDeltaEOverE[i]->GetMaximumBin());
+      double pi_upper = pi_peak + hPionDeltaEOverE[i]->GetRMS();
+      double pi_lower = pi_peak - hPionDeltaEOverE[i]->GetRMS();
+
+      phGaus[i] = new TF1(TString("phGaus")+=i,"gaus",ph_lower,ph_upper);
+      piGaus[i] = new TF1(TString("piGaus")+=i,"gaus",pi_lower,pi_upper);
+      
+      hPhotonDeltaEOverE[i]->Fit(phGaus[i],fitOpts().c_str());
+      hPionDeltaEOverE[i]->Fit(piGaus[i],fitOpts().c_str());
+
+      he_low_smear_[i]  = 1/(1 - phGaus[i]->GetParameter(1));
+      he_high_smear_[i] = 1/(1 - piGaus[i]->GetParameter(1));
+    }
+
+  for(int i = 0; i < 28; ++i)
+    {
+      if(phGaus[i]) delete phGaus[i];
+      if(phGaus[i]) delete piGaus[i];
+      if(photon[i]) delete photon[i];
+      if(NIpion_low[i]) delete NIpion_low[i];
+      if(NIpion_high[i]) delete NIpion_high[i];
+      if(eh_surf[i]) delete eh_surf[i];
     }
 
   if(debug() > -1)
@@ -179,6 +370,7 @@ void L1RCTGenCalibrator::postProcessing()
 					  << "Total Events       : " << nEvents << "\n"
 					  << "Useful Events      : " << nUseful << "\n"
 					  << "Number of NI Pions : " << pitot << "\n"
+					  << "Number of I Pions  : " << pitot2 << "\n"
 					  << "Number of Photons  : " << phtot << "\n";
 }
 
@@ -326,20 +518,42 @@ void L1RCTGenCalibrator::bookHistograms()
 
   for(int i = 0; i < 28; ++i)
     {
-      putHist(hPhotonDeltaR95[i] = new TH1F(TString("hPhotonDeltaR95") += i, TString("Photon #DeltaR Containing 95% of E_{T} in #eta Bin: ") +=i, 28, deltaRbins));
-      putHist(hNIPionDeltaR95[i] = new TH1F(TString("hNIPionDeltaR95") += i, TString("NI Pion #DeltaR Containing 95% of E_{T} in #eta Bin: ") +=i, 28, deltaRbins));
-      
-      putHist(gPhotonEtvsGenEt[i] = new TGraph());
+      putHist(hPhotonDeltaR95[i] = new TH1F(TString("hPhotonDeltaR95") += i, TString("#gamma #DeltaR Containing 95% of E_{T} in #eta Bin: ") +=i, 28, deltaRbins));
+      putHist(hNIPionDeltaR95[i] = new TH1F(TString("hNIPionDeltaR95") += i, TString("NI #pi^{#pm} #DeltaR Containing 95% of E_{T} in #eta Bin: ") +=i, 28, deltaRbins));
+      putHist(hPionDeltaR95[i] = new TH1F(TString("hPionDeltaR95") += i, TString("#pi^{#pm} #DeltaR Containing 95% of E_{T} in #eta Bin: ") +=i, 28, deltaRbins));
+
+
+      putHist(gPhotonEtvsGenEt[i] = new TGraphAsymmErrors());
       gPhotonEtvsGenEt[i]->SetName(TString("gPhotonEtvsGenEt") += i); 
-      gPhotonEtvsGenEt[i]->SetTitle(TString("Photon TPG Sum E_{T} vs. Generator E_{T}") += i);
+      gPhotonEtvsGenEt[i]->SetTitle(TString("#gamma TPG Sum E_{T} vs. Generator E_{T}, #eta Bin: ") += i);
 
-      putHist(gNIPionEtvsGenEt[i] = new TGraph());
+      putHist(gNIPionEtvsGenEt[i] = new TGraphAsymmErrors());
       gNIPionEtvsGenEt[i]->SetName(TString("gNIPionEtvsGenEt") += i);
-      gNIPionEtvsGenEt[i]->SetTitle(TString("Charged Pion with no/small ECAL deposit TPG Sum E_{T} vs. Generator E_{T}") += i);
+      gNIPionEtvsGenEt[i]->SetTitle(TString("#pi^{#pm} with no/small ECAL deposit TPG Sum E_{T} vs. Generator E_{T}, #eta Bin: ") += i);
 
-      for(int i = 0; i < 12; ++i)
-	{
-	}	      
+      putHist(gPionEcalEtvsHcalEtvsGenEt[i] = new TGraph2DErrors());
+      gPionEcalEtvsHcalEtvsGenEt[i]->SetName(TString("gPionEcalEtvsHcalEtvsGenEt") += i);
+      gPionEcalEtvsHcalEtvsGenEt[i]->SetTitle(TString("#pi^{#pm} Ecal E_{T} vs Hcal E_{T} vs Generator E_{T}, #eta Bin: ") += i);
+
+      
+      putHist(roorvPhotonGenEt[i] = new RooRealVar(TString("roorvPhotonGenEt")+=i,TString("#gamma Gen E_{T} in #eta bin: ")+=i,0,"GeV"));
+      putHist(roorvPhotonTPGSumEt[i] = new RooRealVar(TString("roorvPhotonTPGSumEt")+=i,TString("#gamma TPG Sum E_{T} in #eta bin: ")+=i,0,"GeV"));
+      
+      putHist(roorvNIPionGenEt[i] = new RooRealVar(TString("roorvNIPionGenEt")+=i,TString("NI #pi^{#pm} Gen E_{T} in #eta bin: ")+=i,0,"GeV"));
+      putHist(roorvNIPionTPGSumEt[i] = new RooRealVar(TString("roorvNIPionTPGSumEt")+=i,TString("NI #pi^{#pm} TPG Sum  E_{T} in #eta bin: ")+=i,0,"GeV"));
+
+      putHist(roodsPhotonEtvsGenEt[i] = new RooDataSet(TString("roodsPhotonEtvsGenEt")+=i,TString("#gamma TPG Sum E_{T} vs. Gen E_{T} in #eta bin: ")+=i,
+						       RooArgSet(*roorvPhotonTPGSumEt[i],*roorvPhotonGenEt[i],TString("#gammatpgvsgen")+=i)));
+      putHist(roodsNIPionEtvsGenEt[i] = new RooDataSet(TString("roodsNIPionEtvsGenEt")+=i,TString("NI #pi^{#pm} TPG Sum E_{T} vs. Gen E_{T} in #eta bin: ")+=i,
+						       RooArgSet(*roorvNIPionTPGSumEt[i],*roorvNIPionGenEt[i],TString("NI#piontpgvsgen")+=i)));
+
+
+      
+      putHist(hPhotonDeltaEOverE[i] = new TH1F(TString("gPhotonDeltaEOverE")+=i,TString("#gamma #frac{#DeltaE_{T}}{E_{T}} in #eta Bin: ")+=i,
+					       199,-2,2));
+
+      putHist(hPionDeltaEOverE[i] = new TH1F(TString("gPionDeltaEOverE")+=i,TString("#pi^{#pm} #frac{#DeltaE_{T}}{E_{T}} in #eta Bin: ")+=i,
+					     199,-2,2));
     }
 
   for(int i = 0; i < 12; ++i)
@@ -351,7 +565,7 @@ void L1RCTGenCalibrator::bookHistograms()
 						   TString("Corrected #DeltaE_{T} Peak vs. #eta Bin in E_{T} Bin ") += i,
 						   25,0.5,25.5));
       putHist(hDeltaEtPeakRatiovsEtaBin[i] = new TH1F(TString("hEtPeakRatiovsEtaBin") += i,
-						      TString("frac{Corrected #E_{T}}{Uncorrected E_{T}} vs. #eta Bin in E_{T} Bin ") += i,
+						      TString("#frac{Corrected #E_{T}}{Uncorrected E_{T}} vs. #eta Bin in E_{T} Bin ") += i,
 						      25,0.5,25.5));
     }
   
@@ -362,7 +576,7 @@ void L1RCTGenCalibrator::bookHistograms()
 						 "Corrected #DeltaE_{T} vs. #eta Bin, All E_{T}",
 						 25,0.5,25.5));
   putHist(hDeltaEtPeakRatiovsEtaBinAllEt = new TH1F("hDeltaEtPeakRatiovsEtaBinAllEt",
-						    "frac{Corrected E_{T}}{Uncorrected E_{T} vs. #eta Bin, All E_{T}",
+						    "#frac{Corrected E_{T}}{Uncorrected E_{T} vs. #eta Bin, All E_{T}",
 						    25,0.5,25.5));
 }
 
