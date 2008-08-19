@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # GBenelli Dec 21, 2007 and JNicolson July 23, 2008
 # This script is designed to run on a local directory
@@ -21,11 +21,8 @@
 # Import modules and define functions
 #
 
-import sys
-import os
-import re
+import sys, os, re, operator
 import optparse as opt 
-import operator
 
 ################
 # Global variables
@@ -129,6 +126,7 @@ def getSteps(userSteps):
     return steps
         
 def optionparse():
+    global _noprof
     parser = opt.OptionParser(usage=("""%s NUM_EVENTS_PER_CFG CANDLES PROFILE [--conditions=cmsDriverOptions] [--usersteps=processingStepsOption]
 
     Arguments:
@@ -190,6 +188,16 @@ def optionparse():
         help='Option for cmsDriver.py can be specified as a string to be added to all cmsDriver.py commands',
         metavar='<CONDITION>',
         )
+
+    devel.add_option(
+        '-1',
+        '--no-profile',
+        action="store_true",
+        dest='noprof',
+        help='Do not perform profiling, ever',
+        #metavar='DEBUG',
+        )
+    
     devel.add_option(
         '-d',
         '--debug',
@@ -199,15 +207,16 @@ def optionparse():
         #metavar='DEBUG',
         )
 
-    parser.set_defaults(debug=False)
+    parser.set_defaults(debug=False,noprof=False)
     parser.add_option_group(devel)
 
     (options, args) = parser.parse_args()
 
+    _noprof = options.noprof
     debug = options.debug
     numofargs = len(args) 
-
-    if not numofargs == 3:
+#    print "runtime cmsinput " + str(numofargs) + " noprof "  + str(_noprof)
+    if ((not numofargs == 3) and (not _noprof)) or (_noprof and not (numofargs == 2)):
         parser.error("There are not enough arguments specified to run this program."
                      " Please determine the correct arguments from the usage information above."
                      " Run with --help option for more information.")
@@ -255,7 +264,9 @@ def setupProgramParameters(options,args):
 
     NumberOfEvents = str(args[0])  # first arg
     WhichCandles   = str(args[1])  # second arg
-    ProfileCode    = str(args[2])  # third arg
+    ProfileCode = ""
+    if not _noprof:
+        ProfileCode    = str(args[2])  # third arg
 
     if options.cmsDriverOptions:
 
@@ -363,15 +374,18 @@ def getProfileArray(ProfileCode):
         'None',
         ]
 
-    for i in range(10):
-        if str(i) in ProfileCode:
-            firstCase = i == 0 and (str(1) in ProfileCode or str(2) in ProfileCode) or i == 1 and str(2) in ProfileCode
-            secCase   = i == 5 and (str(6) in ProfileCode or str(7) in ProfileCode) or i == 6 and str(7) in ProfileCode
-
-            if firstCase or secCase:
-                Profile.append(AllowedProfile[i] + ' @@@ reuse')
-            else:
-                Profile.append(AllowedProfile[i])
+    if _noprof:
+        Profile.append(AllowedProfile[-1])
+    else:
+        for i in range(10):
+            if str(i) in ProfileCode:
+                firstCase = i == 0 and (str(1) in ProfileCode or str(2) in ProfileCode) or i == 1 and str(2) in ProfileCode
+                secCase   = i == 5 and (str(6) in ProfileCode or str(7) in ProfileCode) or i == 6 and str(7) in ProfileCode
+                
+                if firstCase or secCase:
+                    Profile.append(AllowedProfile[i] + ' @@@ reuse')
+                else:
+                    Profile.append(AllowedProfile[i])
                 
     return Profile
 
@@ -547,11 +561,14 @@ def writeCommands(simcandles,
                                cmsDriverOptions
                            ))
 
-                simcandles.write("%s @@@ %s @@@ %s_%s_%s\n" % (Command,
-                                                               Profiler[prof],
-                                                               FileName[acandle],
-                                                               OutputStep,
-                                                               prof))
+                if _noprof:
+                    simcandles.write("%s @@@ None @@@ None\n" % Command)
+                else:
+                    simcandles.write("%s @@@ %s @@@ %s_%s_%s\n" % (Command,
+                                                                   Profiler[prof],
+                                                                   FileName[acandle],
+                                                                   OutputStep,
+                                                                   prof))
 
                 if debug:
                     print InputFileOption, step, 'GEN,SIM' in step, 'HTL' in steps[stepIndex - 1], steps
@@ -632,7 +649,10 @@ def writeCommandsToReport(simcandles,Candle,Profile,debug,NumberOfEvents,cmsDriv
             else:
                 Command = prepareQcdCommand(thecandle,NumberOfEvents,cmsDriverOptions)
 
-            simcandles.write('%s @@@ %s @@@ %s_DIGI_PILEUP_%s\n' % (Command, Profiler[prof], FileName[thecandle], prof))
+            if _noprof:
+                simcandles.write("%s @@@ None @@@ None \n" % Command)
+            else:
+                simcandles.write('%s @@@ %s @@@ %s_DIGI_PILEUP_%s\n' % (Command, Profiler[prof], FileName[thecandle], prof))
 
             # Very messy solution for now:
             # Setting the stepIndex variable to 2, i.e. RECO step
@@ -679,7 +699,6 @@ def main(argv=sys.argv):
     #
 
     Profile = getProfileArray(ProfileCode)
-
 
     ##################
     # Write the commands for the report to the file

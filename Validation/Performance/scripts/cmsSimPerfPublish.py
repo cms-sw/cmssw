@@ -17,10 +17,10 @@ import re, os, sys, time, glob, socket, fnmatch
 from shutil import copy2, copystat
 from stat   import *
 
-PROG_NAME   = os.path.basename(sys.argv[0])
+PROG_NAME  = os.path.basename(sys.argv[0])
 DEF_RELVAL = "/afs/cern.ch/cms/sdt/web/performance/RelVal"
 DEF_SIMUL  = "/afs/cern.ch/cms/sdt/web/performance/simulation"
-TMP_DIR = ""
+TMP_DIR    = ""
 cpFileFilter = ( "*.root" ) # Unix pattern matching not regex
 cpDirFilter  = (          ) # Unix pattern matching not regex
 

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 '''
 Usage: ./cmsPerfSuite.py [options]
        
@@ -29,15 +29,41 @@ SinglePiMinusE1000
 TTbar
 QCD_80_120
 '''
-import os
-import time
-import getopt
-import sys
+import os, time, sys
 import optparse as opt
 
 global ERRORS 
 ERRORS = 0
+MIN_REQ_TS_EVENTS = 8
+Candles={"HiggsZZ4LM200"      : "HZZLLLL",
+         "MinBias"            : "MINBIAS",
+         "SingleElectronE1000": "E -e 1000",
+         "SingleMuMinusPt10"  : "MU- -e pt10",
+         "SinglePiMinusE1000" : "PI- -e 1000",
+         "TTbar"              : "TTBAR",
+         "QCD_80_120"         : "QCD -e 80_120"
+}
 
+
+try:
+    #Get some environment variables to use
+    cmssw_base        = os.environ["CMSSW_BASE"]
+    cmssw_release_base= os.environ["CMSSW_RELEASE_BASE"]
+    cmssw_version     = os.environ["CMSSW_VERSION"]
+    host              = os.environ["HOST"]
+    user              = os.environ["USER"]
+except KeyError:
+    print 'Error: An environment variable either CMSSW_{BASE, RELEASE_BASE or VERSION} HOST or USER is not available.'
+    print '       Please run eval `scramv1 runtime -csh` to set your environment variables'
+    sys.exit()
+
+#Scripts used by the suite:
+Scripts         =["cmsDriver.py","cmsRelvalreport.py","cmsRelvalreportInput.py","cmsScimark2"]
+AuxiliaryScripts=["cmsScimarkLaunch.csh","cmsScimarkParser.py","cmsScimarkStop.pl"]
+
+
+
+#Options handling
 def optionParse():
     parser = opt.OptionParser(usage=usage())
 
@@ -49,9 +75,10 @@ def optionParse():
                         cmsdriverOptions = "",
                         stepOptions      = "",
                         candleOptions    = "",
+                        unittest         = False,
                         castordir = "/castor/cern.ch/cms/store/relval/performance/",
-                        cores=4, #Number of cpu cores on the machine
-                        cpu=1) #Cpu core on which the suite is run:
+                        cores     = 4, #Number of cpu cores on the machine
+                        cpu       = 1) #Cpu core on which the suite is run:
 
     parser.add_option(
         '-d',
@@ -79,6 +106,22 @@ def optionParse():
         metavar='<#EVENTS>',
         )
 
+    parser.add_option(
+        '--test',
+        action="store_true",
+        dest='unittest',
+        help='Perform a simple test, overrides other options',
+        #metavar='<#EVENTS>',
+        )
+
+    parser.add_option(
+        '--verbose',
+        action="store_true",
+        dest='verbose',
+        help='Output additional information',
+        #metavar='<#EVENTS>',
+        )
+    
     parser.add_option(
         '-i',
         '--igprof',
@@ -153,53 +196,48 @@ def optionParse():
         help='specify the number of cores of the machine (can be used with 0 to stop cmsScimark from running on the other cores)',
         metavar='<OPTION_STR>',
         )
+
     return parser.parse_args()
-
-MIN_REQ_TS_EVENTS = 8
-
-try:
-    #Get some environment variables to use
-    cmssw_base        = os.environ["CMSSW_BASE"]
-    cmssw_release_base= os.environ["CMSSW_RELEASE_BASE"]
-    cmssw_version     = os.environ["CMSSW_VERSION"]
-    host              = os.environ["HOST"]
-    user              = os.environ["USER"]
-except KeyError:
-    print 'Error: An environment variable either CMSSW_{BASE, RELEASE_BASE or VERSION} HOST or USER is not available.'
-    print '       Please run eval `scramv1 runtime -csh` to set your environment variables'
-    sys.exit()
-
-#Scripts used by the suite:
-Scripts         =["cmsDriver.py","cmsRelvalreport.py","cmsRelvalreportInput.py","cmsScimark2"]
-AuxiliaryScripts=["cmsScimarkLaunch.csh","cmsScimarkParser.py","cmsScimarkStop.pl"]
-#Some defaults:
-
-
-#Options handling
-
 
 def usage():
     print __doc__
 
 def runCmdSet(cmd):
+    exitstat = None
     if len(cmd) <= 1:
-        runcmd(cmd)
-        printFlush(cmd)
+        exitstat = runcmd(cmd)
+        if _verbose:
+            printFlush(cmd)
     else:
         for subcmd in cmd:
-            printFlush(subcmd)
-        runcmd(";".join(cmd))
-    printFlush(getDate())
+            if _verbose:
+                printFlush(subcmd)
+        exitstat = runcmd(" && ".join(cmd))
+    if _verbose:
+        printFlush(getDate())
+    return exitstat
 
 def printFlush(command):
-    print command
+    if _verbose:
+        print command
     sys.stdout.flush()
 
 def runcmd(command):
-    cmdout=os.popen4(command)[1].read()
-    print cmdout
+    process  = os.popen4(command)
+    cmdout   = process[1].read()
+    exitstat = process[1].close()
+    if _verbose:
+        print cmdout
+    return exitstat
 
-def benchmarks(cmd,redirect,name,bencher):
+def benchmarks(name,bencher):
+    cmd = Commands[3]
+    redirect = ""
+    if name == "cmsScimark2.log":
+        redirect = " >& "
+    else:
+        redirect = " -large >& "
+        
     numofbenchs = int(bencher)
     for i in range(numofbenchs):
         command= cmd + redirect + name
@@ -242,7 +280,8 @@ def checkQcdConditions(isAllCandles,candles,TimeSizeEvents,rootdir,rootfile):
 def mkCandleDir(candle,profiler):
     dir = "%s_%s" % (candle,profiler)
     runcmd( "mkdir -p %s" % dir )
-    printDate()
+    if _verbose:
+        printDate()
     #runCmdSet(cmd)
     return dir
 
@@ -269,17 +308,39 @@ def valFilterReport(dir,cmsver):
             "mv tmp SimulationCandles_%s.txt"                         % (cmssw_version))
     runCmdSet(cmds)
 
-def runCmsReport(dir,cmd,cmsver,candle):
+def runCmsReport(dir,cmsver,candle):
+    cmd  = Commands[1]
     cmds = ("cd %s"                 % (dir),
             "%s -i SimulationCandles_%s.txt -t perfreport_tmp -R -P >& %s.log" % (cmd,cmsver,candle))
+    exitstat = None
     if not _debug:
-        runCmdSet(cmds)
+        exitstat = runCmdSet(cmds)
+        
+    if _unittest and (not exitstat == None):
+        print "ERROR: CMS Report returned a non-zero exit status "
+        sys.exit()
 
-def runCmsInput(dir,cmd,numevents,candle,cmsdrvopts,stepopt,profiler):
+def testCmsDriver(dir,cmsver,candle):
+    cmd  = Commands[0]
+    noExit = True
+    print "Running test cmsDriver"
+    for line in open("./%s/SimulationCandles_%s.txt" % (dir,cmsver)):
+        if line.lstrip().startswith("#") and (line.isspace() or len(line) == 0): 
+            cmdonline = line.split("@@@",1)
+            cmds = ("cd %s" % (dir),
+                    "%s"    % (cmdonline))
+            if not runCmdSet(cmds) == None:
+                print "FATAL ERROR: CMS Driver returned a non-zero exit status "
+                sys.exit()
+    
 
+def runCmsInput(dir,numevents,acandle,cmsdrvopts,stepopt,profiler):
+    cmd = Commands[2]
+    candle = Candles[acandle]
     profilers = { "TimeSize" : "0123",
                   "IgProf"   : "4567",
-                  "Valgrind" : "89"} 
+                  "Valgrind" : "89"  ,
+                  "None"     : "-1"  } 
 
     cmds = ("cd %s"                 % (dir),
             "%s %s \"%s\" %s %s %s" % (cmd,
@@ -288,7 +349,31 @@ def runCmsInput(dir,cmd,numevents,candle,cmsdrvopts,stepopt,profiler):
                                        profilers[profiler],
                                        cmsdrvopts,
                                        stepopt))
-    runCmdSet(cmds)
+    exitstat = runCmdSet(cmds)
+    if _unittest and (not exitstat == None):
+        print "ERROR: CMS Report Input returned a non-zero exit status " 
+
+def simpleGenReport(adir,NumEvents,candles,cmsdriverOptions,stepOptions,cmssw_version,Name):
+    valgrind = Name == "Valgrind"
+    for candle in candles:
+        adir = mkCandleDir(candle,Name)
+        if valgrind:
+            if candle == "SingleMuMinusPt10" : 
+                print "Valgrind tests **GEN,SIM ONLY** on %s candle" % candle                
+            else:
+                print "Valgrind tests **SKIPPING GEN,SIM** on %s candle" % candle                
+                cpIgProfGenSim(adir,candle)                
+
+        if _unittest:
+            # Run cmsDriver.py
+            runCmsInput(adir,NumEvents,candle,cmsdriverOptions,stepOptions,"None")
+            testCmsDriver(adir,cmssw_version,candle)
+        else:
+            runCmsInput(adir,NumEvents,candle,cmsdriverOptions,stepOptions,Name)            
+            if valgrind:
+                valFilterReport(adir,cmssw_version)             
+            runCmsReport(adir,cmssw_version,candle)
+            displayErrors("%s/%s_%s.log" % (adir,candle,Name))
 
 def main(argv):
     #Some default values:
@@ -297,24 +382,29 @@ def main(argv):
 
     (options, args) = optionParse()
 
-    global _debug  
-    _debug         = options.debug
-    castordir      = options.castordir
-    TimeSizeEvents = options.TimeSizeEvents
-    IgProfEvents   = options.IgProfEvents
-    ValgrindEvents = options.ValgrindEvents
-    cmsScimark     = options.cmsScimark
-    cmsScimarkLarge= options.cmsScimarkLarge
-    cmsdriverOptions=options.cmsdriverOptions
-    stepOptions    = options.stepOptions
-    candleoption   = options.candleOptions
-    cpu            = options.cpu
-    cores          = options.cores
+    global _debug, _unittest, _verbose
+    _debug           = options.debug
+    castordir        = options.castordir
+    TimeSizeEvents   = options.TimeSizeEvents
+    IgProfEvents     = options.IgProfEvents
+    ValgrindEvents   = options.ValgrindEvents
+    cmsScimark       = options.cmsScimark
+    cmsScimarkLarge  = options.cmsScimarkLarge
+    cmsdriverOptions = options.cmsdriverOptions
+    stepOptions      = options.stepOptions
+    candleoption     = options.candleOptions
+    cpu              = options.cpu
+    cores            = options.cores
+    _unittest        = options.unittest 
+    _verbose         = options.verbose
 
+    if _unittest:
+        cmsScimark      = 0
+        cmsScimarkLarge = 0
+        ValgrindEvents  = 0
+        IgProfEvents    = 0
+        TimeSizeEvents  = 1
 
-        #opts, args = getopt.getopt(argv, "o:t:i:v:hd", ["output=","timesize=","igprof=","valgrind=","cmsScimark=","cmsScimarkLarge=","cmsdriver=","step=","candle=","cpu=","cores=","help"])
-   # except getopt.GetoptError:
- 
     #Case with no arguments (using defaults)
     if options == []:
         print "No arguments given, so DEFAULT test will be run:"
@@ -324,15 +414,16 @@ def main(argv):
     path=os.path.abspath(".")
     print "Performance Suite started running at %s on %s in directory %s, run by user %s" % (getDate(),host,path,user)
     showtags=os.popen4("showtags -r")[1].read()
-    print showtags
     
     #For the log:
-    print "The performance suite results tarball will be stored in CASTOR at %s" % castordir
-    print "%s TimeSize events" % TimeSizeEvents
-    print "%s IgProf events"   % IgProfEvents
-    print "%s Valgrind events" % ValgrindEvents
-    print "%s cmsScimark benchmarks before starting the tests"      % cmsScimark
-    print "%s cmsScimarkLarge benchmarks before starting the tests" % cmsScimarkLarge
+    if _verbose:
+        print "The performance suite results tarball will be stored in CASTOR at %s" % castordir
+        print "%s TimeSize events" % TimeSizeEvents
+        print "%s IgProf events"   % IgProfEvents
+        print "%s Valgrind events" % ValgrindEvents
+        print "%s cmsScimark benchmarks before starting the tests"      % cmsScimark
+        print "%s cmsScimarkLarge benchmarks before starting the tests" % cmsScimarkLarge
+        
     if cmsdriverOptions != "":
         print "Running cmsDriver.py with the special user defined options: %s" % cmsdriverOptions
         
@@ -353,6 +444,8 @@ def main(argv):
     #Need an alternative in the release
 
     #Command Handling:
+    global Commands
+    
     Commands=[]
     AuxiliaryCommands=[]
     AllScripts=Scripts+AuxiliaryScripts
@@ -398,28 +491,19 @@ def main(argv):
     benching = not _debug
     if benching:
         print "Starting with %s cmsScimark on cpu%s"%(cmsScimark,cpu)
-        benchmarks(Commands[3]," >& ",scimark.name,cmsScimark)
+        benchmarks(scimark.name,cmsScimark)
     
         print "Following with %s cmsScimarkLarge on cpu%s"%(cmsScimarkLarge,cpu)
-        benchmarks(Commands[3]," -large >& ",scimarklarge.name,cmsScimarkLarge)
+        benchmarks(scimarklarge.name,cmsScimarkLarge)
         
     #Here the real performance suite starts
     #List of Candles
-    Candles={"HiggsZZ4LM200"      : "HZZLLLL",
-             "MinBias"            : "MINBIAS",
-             "SingleElectronE1000": "E -e 1000",
-             "SingleMuMinusPt10"  : "MU- -e pt10",
-             "SinglePiMinusE1000" : "PI- -e 1000",
-             "TTbar"              : "TTBAR",
-             "QCD_80_120"         : "QCD -e 80_120"
-             }
-    AllCandles=Candles.keys()
-    
+
     #Sort the candles to make sure MinBias is executed before QCD_80_120, otherwise DIGI PILEUP would not find its MinBias root files
+    AllCandles=Candles.keys()
     AllCandles.sort()
 
     isAllCandles = candleoption == ""
-    
     candles = {}
     if isAllCandles:
         candles=AllCandles
@@ -435,87 +519,54 @@ def main(argv):
                                      "./%s_%s" % ("MinBias","TimeSize"),
                                      "%s_cfi_GEN_SIM.root" % "MinBias")  
 
-    #TimeSize tests:
-    if int(TimeSizeEvents)>0:
 
+    #TimeSize tests:
+    if TimeSizeEvents > 0:
         print "Launching the TimeSize tests (TimingReport, TimeReport, SimpleMemoryCheck, EdmSize) with %s events each" % TimeSizeEvents
         printDate()
-        
         sys.stdout.flush()
-        for candle in candles:
-            dir = mkCandleDir(candle,"TimeSize")
-            runCmsInput(dir,Commands[2],TimeSizeEvents,Candles[candle],cmsdriverOptions,stepOptions,"TimeSize")
-            runCmsReport(dir,Commands[1],cmssw_version,candle)
-            displayErrors("%s/%s_%s.log" % (dir,candle,"TimeSize"))
+        simpleGenReport(dir,TimeSizeEvents,candles,cmsdriverOptions,stepOptions,cmssw_version,"TimeSize")
 
     #IgProf tests:
-    if int(IgProfEvents)>0:
+    if IgProfEvents > 0:
         print "Launching the IgProf tests (IgProfPerf, IgProfMemTotal, IgProfMemLive, IgProfMemAnalyse) with %s events each" % IgProfEvents
         printDate()
-
         IgCandles = candles
-        cmds=[]
-        sys.stdout.flush()        
+        sys.stdout.flush()
+        #By default run IgProf only on QCD_80_120 candle
         if isAllCandles:
-            #By default run IgProf only on QCD_80_120 candle
             IgCandles = [ "QCD_80_120" ]
-
-
-        for candle in IgCandles:
-            dir = mkCandleDir(candle,"IgProf")
-            runCmsInput(dir,Commands[2],IgProfEvents,Candles[candle],cmsdriverOptions,stepOptions,"IgProf")
-            runCmsReport(dir,Commands[1],cmssw_version,candle)
-            displayErrors("%s/%s_%s.log" % (dir,candle,"IgProf"))            
+        simpleGenReport(dir,IgProfEvents,IgCandles,cmsdriverOptions,stepOptions,cmssw_version,"IgProf")
 
     #Valgrind tests:
-    if int(ValgrindEvents)>0:
+    if ValgrindEvents > 0:
         print "Launching the Valgrind tests (callgrind_FCE, memcheck) with %s events each" % ValgrindEvents
         printDate()   
-
         valCandles = candles
         
         if isAllCandles:
             cmds=[]
-            sys.stdout.flush()
-            
+            sys.stdout.flush()    
             #By default run Valgrind only on QCD_80_120, skipping SIM step since it would take forever (and do SIM step on SingleMu)
             valCandles = [ "QCD_80_120" ]
 
-            
+        #Besides always run, only once the GEN,SIM step on SingleMu:
+        valCandles.append("SingleMuMinusPt10")
         #In the user-defined candles a different behavior: do Valgrind for all specified candles (usually it will only be 1)
         #usercandles=candleoption.split(",")
-        for candle in valCandles:
-            print "Valgrind tests **SKIPPING GEN,SIM** on %s candle" % candle
-            dir = mkCandleDir(candle,"Valgrind")
-            cpIgProfGenSim(dir,candle)
-            runCmsInput(dir,Commands[2],ValgrindEvents,Candles[candle],cmsdriverOptions,stepOptions,"Valgrind")
-            valFilterReport(dir,cmssw_version)
-            runCmsReport(dir,Commands[1],cmssw_version,candle)
-            displayErrors("%s/%s_%s.log" % (dir,candle,"Valgrind")) 
-
-        #Besides always run, only once the GEN,SIM step on SingleMu:
-        candle = "SingleMuMinusPt10"
-        print "Valgrind tests **GEN,SIM ONLY** on %s candle" % candle
-
-        dir = mkCandleDir(candle,"Valgrind")
-        runCmsInput(dir,Commands[2],ValgrindEvents,Candles[candle],cmsdriverOptions,stepOptions,"Valgrind")
-        valFilterReport(dir,cmssw_version)
-        runCmsReport(dir,Commands[1],cmssw_version,candle)
-        displayErrors("%s/%s_%s.log" % (dir,candle,"Valgrind"))            
-        
+        simpleGenReport(dir,ValgrindEvents,valCandles,cmsdriverOptions,stepOptions,cmssw_version,"Valgrind")
 
     if benching:
     #Ending the performance suite with the cmsScimark benchmarks again: 
         print "Ending with %s cmsScimark on cpu%s"%(cmsScimark,cpu)
-        benchmarks(" >& ",scimark.name,cmsScimark)
+        benchmarks(scimark.name,cmsScimark)
     
         print "Following with %s cmsScimarkLarge on cpu%s"%(cmsScimarkLarge,cpu)
-        benchmarks(" -large >& ",scimarklarge.name,cmsScimarkLarge)
+        benchmarks(scimarklarge.name,cmsScimarkLarge)
     
     #Stopping all cmsScimark jobs and analysing automatically the logfiles
     print "Stopping all cmsScimark jobs"
     printFlush(AuxiliaryScripts[2])
-
     printFlush(os.popen4(AuxiliaryScripts[2])[1].read())
 
     #Create a tarball of the work directory
@@ -526,6 +577,7 @@ def main(argv):
     
     #Archive it on CASTOR
     castorcmd="rfcp " + TarFile + ".gz " + castordir + TarFile+".gz"
+    
     printFlush(castorcmd)
     printFlush(os.popen4(castorcmd)[1].read())
 
