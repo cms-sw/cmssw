@@ -96,13 +96,15 @@ void L2TauJetsProvider::produce(edm::Event& iEvent, const edm::EventSetup& iES)
   const L1JetParticleCollection & myL1Tau  = *(tauColl.product());
   const L1JetParticleCollection & myL1Jet  = *(jetColl.product());
   L1JetParticleCollection myL1Obj;
-  myL1Obj.reserve(8);
-  //  cout <<"myL1Tau size "<<myL1Tau.size()<<endl;
+  int sizeToReserve = myL1Tau.size() + myL1Jet.size();
+    myL1Obj.reserve(sizeToReserve);
+
+        cout <<"myL1Tau size "<<myL1Tau.size()<<endl;
   for(int i=0;i<myL1Tau.size();i++)
     {
       myL1Obj.push_back(myL1Tau[i]);
     }
-  //  cout <<"myL1Jet size "<<myL1Jet.size()<<endl;
+    cout <<"myL1Jet size "<<myL1Jet.size()<<endl;
   for(int j=0;j<myL1Jet.size();j++)
     {
       myL1Obj.push_back(myL1Jet[j]);
@@ -112,25 +114,29 @@ void L2TauJetsProvider::produce(edm::Event& iEvent, const edm::EventSetup& iES)
   if(iEvent.getByLabel(tauTrigger,l1TriggeredTaus)){
 
     //        typedef std::vector<l1extra::L1JetParticleRef>    VRl1jet;
-    vector<L1JetParticleRef> tauCandRefVec;
-    vector<L1JetParticleRef> jetCandRefVec;
-    vector<L1JetParticleRef> objL1CandRefVec;
-
-    objL1CandRefVec.reserve(8);
+    //    vector<L1JetParticleRef> tauCandRefVec;
+    //    vector<L1JetParticleRef> jetCandRefVec;
+    //    vector<L1JetParticleRef> objL1CandRefVec;
     
-    L1JetParticleRef tauCandRef;
-
+    //    L1JetParticleRef tauCandRef;
+    tauCandRefVec.clear();
+    jetCandRefVec.clear();
+    objL1CandRefVec.clear();
 
 	l1TriggeredTaus->getObjects( trigger::TriggerL1TauJet,tauCandRefVec);
 	l1TriggeredTaus->getObjects( trigger::TriggerL1CenJet,jetCandRefVec);
+
+	int anotherSize = tauCandRefVec.size() + jetCandRefVec.size();
+	objL1CandRefVec.reserve(anotherSize);
+
 	
 	for(int i=0;i<tauCandRefVec.size();i++){
 	  objL1CandRefVec.push_back(tauCandRefVec[i]);
 	}
-	for(int i=0;i<jetCandRefVec.size();i++){
-	  objL1CandRefVec.push_back(jetCandRefVec[i]);
+	for(int j=0;j<jetCandRefVec.size();j++){
+	  objL1CandRefVec.push_back(jetCandRefVec[j]);
 	}
-	  //	cout <<"L1 Cand size "<< objL1CandRefVec.size()<<endl;
+	 	cout <<"L1 Cand size "<< objL1CandRefVec.size()<<endl;
     for( int iL1Tau=0; iL1Tau <objL1CandRefVec.size();iL1Tau++)
       {  
 	tauCandRef = objL1CandRefVec[iL1Tau];
