@@ -1,5 +1,3 @@
-#include "RecoLuminosity/ROOTSchema/interface/FileToolKit.h"
-
 // STL Headers
 #include <iostream>
 #include <string>
@@ -14,6 +12,8 @@
 // C
 #include <cerrno>
 #include <cstdio>
+
+#include "RecoLuminosity/ROOTSchema/interface/FileToolKit.h"
 
 void FileToolKit::Tokenize(const std::string& str,
 			   std::vector< std::string >& tokens,
@@ -94,24 +94,21 @@ void FileToolKit::MakeEmptyWebPage( const std::string &fileName,
   fileStream << "</html>"  << std::endl; 
 
   fileStream.close();
-
 }
 
 void FileToolKit::InsertLineAfter( const std::string &fileName, 
-		  const std::string &newLine,
-		  const std::string &searchLine){
+				   const std::string &newLine,
+				   const std::string &searchLine){
 
-  using std::endl;
-  using std::fstream;
   bool bMatch = false;
 
   std::vector< std::string > fileContents;
   char lineBuffer[256];
 
-  fstream fileStream;
+  std::fstream fileStream;
 
   // Read file into memory and insert new line.
-  fileStream.open(fileName.c_str(), fstream::in );
+  fileStream.open(fileName.c_str(), std::fstream::in );
   while( fileStream.good() ){
     fileStream.getline( lineBuffer, 256 );
 
@@ -126,12 +123,12 @@ void FileToolKit::InsertLineAfter( const std::string &fileName,
 
   // If search line was found, write file from buffer.
   if(bMatch){
-    fstream fileStream2;
+    std::fstream fileStream2;
 
-    fileStream2.open( fileName.c_str(), fstream::out );
+    fileStream2.open( fileName.c_str(), std::fstream::out );
 
     for(unsigned int iline = 0; iline < fileContents.size(); ++iline)
-      fileStream2 << fileContents[iline] << endl;
+      fileStream2 << fileContents[iline] << std::endl;
     
     fileStream2.close();  
 
@@ -140,18 +137,15 @@ void FileToolKit::InsertLineAfter( const std::string &fileName,
 }
 
 void FileToolKit::InsertLineBefore( const std::string &fileName, 
-		       const std::string &newLine,
-		       const  std::string &searchLine ){
+				    const std::string &newLine,
+				    const std::string &searchLine ){
 
-
-  using std::endl;
-  using std::fstream;
   bool bMatch = false;
 
   std::vector< std::string > fileContents;
   char lineBuffer[256];
 
-  fstream fileStream;
+  std::fstream fileStream;
 
   fileStream.open(fileName.c_str());
   while( fileStream.good() ){
@@ -165,12 +159,12 @@ void FileToolKit::InsertLineBefore( const std::string &fileName,
   fileStream.close();
 
   if(bMatch){
-    fstream fileStream2;
+    std::fstream fileStream2;
 
-    fileStream2.open( fileName.c_str(), fstream::out  );
+    fileStream2.open( fileName.c_str(), std::fstream::out  );
 
     for(unsigned int iline = 0; iline < fileContents.size(); ++iline){
-      fileStream2 << fileContents[iline] << endl;
+      fileStream2 << fileContents[iline] << std::endl;
     }
     
     fileStream2.close();  
@@ -181,11 +175,9 @@ void FileToolKit::InsertLineBefore( const std::string &fileName,
 
 bool FileToolKit::fileExists( const std::string &fileName){
   
-  using std::fstream;
+  std::fstream filestr;
 
-  fstream filestr;
-
-  filestr.open (fileName.c_str(), fstream::in );
+  filestr.open (fileName.c_str(), std::fstream::in );
   if (filestr.is_open()){
     filestr.close();
     return true;

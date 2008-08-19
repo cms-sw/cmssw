@@ -1,14 +1,12 @@
 #ifndef _WBMHTMLGENERATOR_H_
 #define _WBMHTMLGENERATOR_H_
 
-// STL Headers
-#include <string>
-#include <vector>
-
 // ROOT Schema Headers
 #include "RecoLuminosity/ROOTSchema/interface/ROOTFileReader.h"
 #include "RecoLuminosity/TCPReceiver/interface/TimeStamp.h"
 #include "RecoLuminosity/ROOTSchema/interface/FileToolKit.h"
+
+#include <vector>
 
 namespace HCAL_HLX{
 

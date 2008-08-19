@@ -14,10 +14,9 @@
 //
 // Original Author:  Adam Hunt
 //         Created:  Sun May 11 14:21:30 EDT 2008
-// $Id: LumiFileWriter.cc,v 1.1 2008/05/12 21:36:54 ahunt Exp $
+// $Id: LumiFileWriter.cc,v 1.2 2008/08/01 16:30:27 ahunt Exp $
 //
 //
-
 
 // system include files
 #include <memory>
@@ -31,7 +30,22 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "RecoLuminosity/ROOTSchema/interface/LumiFileWriter.h"
+#include "RecoLuminosity/TCPReceiver/interface/ICTypeDefs.hh"
+#include "RecoLuminosity/TCPReceiver/interface/LumiStructures.hh"
+
+// ROOT Schema Headers
+#include "RecoLuminosity/ROOTSchema/interface/ROOTFileReader.h"
+#include "RecoLuminosity/ROOTSchema/interface/ROOTFileMerger.h"
+#include "RecoLuminosity/ROOTSchema/interface/ROOTFileTransfer.h"
+
+#include "RecoLuminosity/TCPReceiver/interface/TimeStamp.h"
+#include "RecoLuminosity/ROOTSchema/interface/FileToolKit.h"
+
+#include "RecoLuminosity/TCPReceiver/interface/TCPReceiver.h"
+#include "RecoLuminosity/ROOTSchema/interface/ROOTSchema.h"
+#include "RecoLuminosity/ROOTSchema/interface/HTMLGenerator.hh"
+
+#include "RecoLuminosity/ROOTSchema/interface/LumiFileWriter.hh"
 
 LumiFileWriter::LumiFileWriter(const edm::ParameterSet& iConfig){
 

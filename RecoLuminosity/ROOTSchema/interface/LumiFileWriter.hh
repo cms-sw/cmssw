@@ -1,14 +1,6 @@
 #ifndef __LUMIFILEWRITER_H__
 #define __LUMIFILEWRITER_H__
 
-#include "RecoLuminosity/TCPReceiver/interface/ICTypeDefs.hh"
-#include "RecoLuminosity/TCPReceiver/interface/LumiStructures.hh"
-
-#include "RecoLuminosity/TCPReceiver/interface/TCPReceiver.h"
-#include "RecoLuminosity/ROOTSchema/interface/ROOTSchema.h"
-#include "RecoLuminosity/ROOTSchema/interface/ROOTFileMerger.h"
-#include "RecoLuminosity/ROOTSchema/interface/ROOTFileTransfer.h"
-#include "RecoLuminosity/ROOTSchema/interface/HTMLGenerator.h"
 
 class LumiFileWriter : public edm::EDAnalyzer {
    public:

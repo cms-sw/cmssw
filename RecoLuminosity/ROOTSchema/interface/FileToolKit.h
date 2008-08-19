@@ -1,7 +1,6 @@
 #ifndef __FILETOOLKIT_H__
 #define __FILETOOLKIT_H__
 
-#include <string>
 #include <vector>
 
 class FileToolKit{
@@ -25,17 +24,13 @@ class FileToolKit{
 
   bool fileExists( const std::string &fileName );
 
-  // String 
-
+  // String
   void Tokenize(const std::string& str,
 		std::vector< std::string >& tokens,
 		const std::string& delimiters = " ");
   
   // File system specific
-  
   int MakeDir( std::string dirName, mode_t writeMode );
     
 };
-
-
 #endif

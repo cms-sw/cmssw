@@ -1,11 +1,9 @@
-#include "RecoLuminosity/ROOTSchema/interface/HTMLGenerator.h"
-
 // STL Headers
 #include <sstream>
 #include <iostream>
 #include <fstream>
 #include <iomanip>
-#include <vector>
+
 
 // ROOT Headers
 #include <TH1F.h>
@@ -14,7 +12,6 @@
 #include <TChain.h>
 #include <TStyle.h>
 
-
 // Lumi Headers
 #include "RecoLuminosity/TCPReceiver/interface/ICTypeDefs.hh"
 #include "RecoLuminosity/TCPReceiver/interface/LumiStructures.hh"
@@ -22,6 +19,8 @@
 // mkdir
 #include <sys/types.h>
 #include <sys/stat.h>
+
+#include "RecoLuminosity/ROOTSchema/interface/HTMLGenerator.hh"
 
 HCAL_HLX::HTMLGenerator::HTMLGenerator():ROOTFileReader(){
 
