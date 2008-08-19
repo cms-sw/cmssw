@@ -15,12 +15,14 @@
 
 import FWCore.ParameterSet.Config as cms
 
+from CondTools.SiPixel.SiPixelGainCalibrationService_cfi import *
+
 #
 #  sipixelgaincalibrationanalysis.cfi
 #  CMSSW configuration init file for pixel gain calibrations in CMSSW>=180
 #  Original Author:  Freya Blekman
 #          Created:  November 15 2007  
-#  $Id: SiPixelGainCalibrationAnalysis_cfi.py,v 1.3 2008/07/23 11:32:13 fblekman Exp $
+#  $Id: SiPixelGainCalibrationAnalysis_cfi.py,v 1.4 2008/08/18 10:49:27 fblekman Exp $
 #
 #
 siPixelGainCalibrationAnalysis = cms.EDFilter("SiPixelGainCalibrationAnalysis",
@@ -45,7 +47,7 @@ siPixelGainCalibrationAnalysis = cms.EDFilter("SiPixelGainCalibrationAnalysis",
     appendDatabaseMode = cms.untracked.bool(False),
     # maxGainInHist fixes the range of the 1D gain summary plots to [0,maxGainInHist]
     maxGainInHist = cms.untracked.double(3.0),
-    useVCALHIGH = cms.bool(true),
+    useVCALHIGH = cms.bool(True),
     # conversion factor to go from VCAL_HIGH to VCAL_LOW. Current best estimate: VCAL_HIGH = 7 * VCAL_LOW 
     vcalHighToLowConversionFac = cms.double(7.0)                                          
 )
