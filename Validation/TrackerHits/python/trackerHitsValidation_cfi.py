@@ -7,7 +7,7 @@ trackerHitsValid = cms.EDAnalyzer("TrackerHitAnalyzer",
     #      untracked string Name = "TrackerHitProducer"
     Name = cms.untracked.string('TrackerHitAnalyzer'),
     Verbosity = cms.untracked.int32(3), ## verbosity inclusive. 0 provides no output
-
+    outputFile =cms.untracked.string('TrackerHitHisto.root'),
     PxlFwdLowSrc = cms.InputTag("g4SimHits","TrackerHitsPixelEndcapLowTof"),
     # 1 provides basic output
     # 2 provides output of the fill step
