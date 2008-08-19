@@ -13,6 +13,9 @@ PhotonIDProd = cms.EDProducer("PhotonIDProducer",
     HcalRecHitProducer = cms.string('hbhereco'),
     HcalRecHitCollection = cms.string(''),
     GsfRecoCollection = cms.InputTag("pixelMatchGsfElectrons"),
+    # Photon will be marked as being in a gap if
+    #  it is between the 0th and 1st element, or the 2nd and 3rd, or the 4th and 5th...
+    moduleEtaBoundary = cms.vdouble(0.0, 0.05, 0.4, 0.5, 0.75, 0.85, 1.1, 1.2, 1.4, 1.6),
     trackProducer = cms.InputTag("generalTracks"),
     doCutBased = cms.bool(True),
     #switches
