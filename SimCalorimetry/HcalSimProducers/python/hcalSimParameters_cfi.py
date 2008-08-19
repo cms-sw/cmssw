@@ -55,7 +55,11 @@ hcalSimParameters = cms.PSet(
             117.46, 116.79, 117.15, 117.29, 118.41,
             134.86),
         syncPhase = cms.bool(True),
-        timePhase = cms.double(5.0)
+        timePhase = cms.double(5.0),
+        HPDNoiseLibrary = cms.PSet(
+           FileName = cms.FileInPath("SimCalorimetry/HcalSimAlgos/data/hpdNoiseLibrary.root"),
+           HPDName = cms.untracked.string("HPD")
+        )
     ),
     he = cms.PSet(
         readoutFrameSize = cms.int32(10),
