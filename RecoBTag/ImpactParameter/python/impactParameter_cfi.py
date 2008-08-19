@@ -12,7 +12,8 @@ impactParameterTagInfos = cms.EDProducer("TrackIPProducer",
     jetDirectionUsingTracks = cms.bool(False),
     computeProbabilities = cms.bool(True),
     maximumDistanceToJetAxis = cms.double(0.07),
-    maximumChiSquared = cms.double(5.0)
+    maximumChiSquared = cms.double(5.0),
+    useTrackQuality = cms.bool(False)    
 )
 
 
