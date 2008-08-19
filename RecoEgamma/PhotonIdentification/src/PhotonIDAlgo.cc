@@ -1,3 +1,9 @@
+/** \class PhotonIDAlgo
+ *  Determine and Set quality information on Photon Objects
+ *
+ *  \author A. Askew, N. Marinelli, M.B. Anderson
+ */
+
 #include "RecoEgamma/PhotonIdentification/interface/PhotonIDAlgo.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
@@ -42,6 +48,7 @@ void PhotonIDAlgo::baseSetup(const edm::ParameterSet& conf) {
 
   gsfRecoInputTag_ = conf.getParameter<edm::InputTag>("GsfRecoCollection");
 
+  moduleEtaBoundary_ = conf.getParameter<std::vector<double> >("moduleEtaBoundary");
 
 }
 
@@ -59,13 +66,13 @@ void PhotonIDAlgo::classify(const reco::Photon* photon,
   double phi = photon->superCluster()->position().phi();
   double feta = fabs(eta);
 
-  //Are you in the EE?
+  //Are you in the Ecal Endcap (EE)?
   if(feta>1.479) 
     isEEPho = true;
   else 
     isEBPho = true;
 
-  //Are you in the gap between EE and EB?
+  //Are you in the gap between EE and Ecal Barrel (EB)?
   if (fabs(feta-1.479)<.1) isEBEEGap=true; 
   
   
@@ -76,13 +83,22 @@ void PhotonIDAlgo::classify(const reco::Photon* photon,
   float phigap = fabs(phi-int(phi*9/3.1416)*3.1416/9.);
   if(phigap > 1.65 && phigap <1.85) isEBGap=true;
 
-  //Module boundaries in eta (supercrystal boundaries):
-  if(fabs(eta)<.05) isEBGap=true;
-  if(fabs(eta)>.4 && fabs(eta)<.5) isEBGap=true;
-  if(fabs(eta)>.75 && fabs(eta)<.85) isEBGap=true;
-  if(fabs(eta)>1.1 && fabs(eta)<1.2) isEBGap=true;
-  if(fabs(eta)>1.43) isEBGap=true;
+  //Supermodule boundaries in eta:
   
+  // Loop over the vector of Eta boundaries given in the config file
+  bool nearEtaBoundary = false;
+  for (unsigned int i=0; i <= moduleEtaBoundary_.size(); i+=2) {
+    // Checks to see if it's between the 0th and 1st entry, the 2nd and 3rd entry...etc
+    if ( (eta > moduleEtaBoundary_[i]) && (eta < moduleEtaBoundary_[i+1]) ) {
+      //std::cout << "Photon between eta " << moduleEtaBoundary_[i] << " and " << moduleEtaBoundary_[i+1] << std::endl;
+      nearEtaBoundary = true;
+      break;
+    }
+  }
+
+  // If it's near an eta boundary and in the Barrel
+  if (nearEtaBoundary) isEBGap=true;
+
 }
 
 void PhotonIDAlgo::calculateTrackIso(const reco::Photon* photon,
