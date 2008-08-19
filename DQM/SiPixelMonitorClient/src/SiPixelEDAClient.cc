@@ -169,7 +169,7 @@ void SiPixelEDAClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
   sipixelWebInterface_->setActionFlag(SiPixelWebInterface::QTestResult);
   sipixelWebInterface_->performAction();
    //cout << " Updating occupancy plots" << endl;
-  sipixelActionExecutor_->bookOccupancyPlots(bei_);
+  //sipixelActionExecutor_->bookOccupancyPlots(bei_);
   sipixelWebInterface_->setActionFlag(SiPixelWebInterface::Occupancy);
   sipixelWebInterface_->performAction();
 
@@ -214,7 +214,7 @@ void SiPixelEDAClient::endRun(edm::Run const& run, edm::EventSetup const& eSetup
   sipixelWebInterface_->setActionFlag(SiPixelWebInterface::QTestResult);
   sipixelWebInterface_->performAction();
    //cout << " Updating occupancy plots" << endl;
-  sipixelActionExecutor_->bookOccupancyPlots(bei_);
+  //sipixelActionExecutor_->bookOccupancyPlots(bei_);
   sipixelWebInterface_->setActionFlag(SiPixelWebInterface::Occupancy);
   sipixelWebInterface_->performAction();
 
