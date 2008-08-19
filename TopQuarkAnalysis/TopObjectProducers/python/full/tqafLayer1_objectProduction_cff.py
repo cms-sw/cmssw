@@ -54,10 +54,10 @@ allLayer1Muons.muonSource = cms.InputTag("allLayer0Muons")
 ## embed AOD objects?
 allLayer1Muons.embedTrack = cms.bool(True)              ## replaced from False --> True
 allLayer1Muons.embedCombinedMuon = cms.bool(True)       ## replaced from False --> True
-allLayer1Muons.embedStandAloneMuon = cms.bool(False)
+allLayer1Muons.embedStandAloneMuon = cms.bool(True)     ## replaced from False --> True
 ## mc matching
 allLayer1Muons.addGenMatch = cms.bool(True)
-allLayer1Muons.embedGenMatch = cms.bool(False)
+allLayer1Muons.embedGenMatch = cms.bool(True)           ## replaced from False --> True
 allLayer1Muons.genParticleMatch = cms.InputTag("muonMatch")
 ## resolution
 allLayer1Muons.addResolutions = cms.bool(True)
@@ -107,11 +107,12 @@ from PhysicsTools.PatAlgos.producersLayer1.tauProducer_cfi import allLayer1Taus
 ## input source
 allLayer1Taus.tauSource = cms.InputTag("allLayer0Taus")
 ## embed AOD objects?
-allLayer1Taus.embedLeadTrack = cms.bool(False)
-allLayer1Taus.embedSignalTracks = cms.bool(False)
-allLayer1Taus.embedIsolationTracks = cms.bool(False)
+allLayer1Taus.embedLeadTrack = cms.bool(True)           ## replaced from False --> True         
+allLayer1Taus.embedSignalTracks = cms.bool(True)        ## replaced from False --> True         
+allLayer1Taus.embedIsolationTracks = cms.bool(True)     ## replaced from False --> True         
 ## mc matching
 allLayer1Taus.addGenMatch = cms.bool(True)
+allLayer1Taus.embedGenMatch = cms.bool(True)            ## replaced from False --> True         
 allLayer1Taus.genParticleMatch = cms.InputTag("tauMatch")
 ## resolution
 allLayer1Taus.addResolutions = cms.bool(True)
@@ -127,7 +128,7 @@ from PhysicsTools.PatAlgos.producersLayer1.jetProducer_cfi import allLayer1Jets
 ## input source
 allLayer1Jets.jetSource = cms.InputTag("allLayer0Jets")
 ## embed AOD objects?
-allLayer1Jets.embedCaloTowers = cms.bool(True)
+allLayer1Jets.embedCaloTowers = cms.bool(True)          ## replaced from False --> True  
 ## jec factors
 addJetCorrFactors = cms.bool(True)
 jetCorrFactorsSource = cms.InputTag("layer0JetCorrFactors")
