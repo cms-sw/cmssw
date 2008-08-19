@@ -37,6 +37,6 @@ process.source = cms.Source("PoolSource",
 
 process.p1 = cms.Path(process.hcalHitValid)
 process.DQM.collectorHost = ''
-process.hcalHitValid.OutputFile = 'valid_HF.root'
+process.hcalHitValid.outputFile = 'valid_HF.root'
 
 

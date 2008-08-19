@@ -37,6 +37,6 @@ process.source = cms.Source("PoolSource",
 
 process.p1 = cms.Path(process.hcalSimHitStudy)
 process.DQM.collectorHost = ''
-process.hcalSimHitStudy.OutputFile = 'hcalsimstudy.root'
+process.hcalSimHitStudy.outputFile = 'hcalsimstudy.root'
 
 

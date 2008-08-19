@@ -7,7 +7,7 @@ HcalSimHitStudy::HcalSimHitStudy(const edm::ParameterSet& ps) {
 
   g4Label  = ps.getUntrackedParameter<std::string>("moduleLabel","g4SimHits");
   hcalHits = ps.getUntrackedParameter<std::string>("HitCollection","HcalHits");
-  outFile_ = ps.getUntrackedParameter<std::string>("OutputFile", "hcHit.root");
+  outFile_ = ps.getUntrackedParameter<std::string>("outputFile", "hcHit.root");
   verbose_ = ps.getUntrackedParameter<bool>("Verbose", false);
   checkHit_= true;
 

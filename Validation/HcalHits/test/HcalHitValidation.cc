@@ -10,7 +10,7 @@ HcalHitValidation::HcalHitValidation(const edm::ParameterSet& ps) {
   layerInfo= ps.getUntrackedParameter<std::string>("LayerInfo","PHcalValidInfoLayer");
   nxNInfo  = ps.getUntrackedParameter<std::string>("NxNInfo","PHcalValidInfoNxN");
   jetsInfo = ps.getUntrackedParameter<std::string>("JetsInfo","PHcalValidInfoJets");
-  outFile_ = ps.getUntrackedParameter<std::string>("OutputFile", "hcValid.root");
+  outFile_ = ps.getUntrackedParameter<std::string>("outputFile", "hcValid.root");
   verbose_ = ps.getUntrackedParameter<bool>("Verbose", false);
   scheme_  = ps.getUntrackedParameter<bool>("TestNumbering", true);
   checkHit_= ps.getUntrackedParameter<bool>("CheckHits",  true);

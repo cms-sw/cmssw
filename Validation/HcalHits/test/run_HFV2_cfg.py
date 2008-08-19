@@ -133,6 +133,6 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     ),
     type = cms.string('SimG4HcalValidation')
 ))
-process.hcalHitValid.OutputFile = '100_pi_bs_plots.root'
+process.hcalHitValid.outputFile = '100_pi_bs_plots.root'
 
 

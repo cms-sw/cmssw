@@ -80,6 +80,6 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     type = cms.string('SimG4HcalValidation')
 ))
 process.DQM.collectorHost = ''
-process.hcalHitValid.OutputFile = 'valid_HF.root'
+process.hcalHitValid.outputFile = 'valid_HF.root'
 
 
