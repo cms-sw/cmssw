@@ -52,12 +52,10 @@ void L2TauJetsProvider::produce(edm::Event& iEvent, const edm::EventSetup& iES)
    }
    iL1Jet++;
  }
-  auto_ptr<CaloJetCollection> tauL2jets(new CaloJetCollection);
-  
+ auto_ptr<CaloJetCollection> tauL2jets(new CaloJetCollection);
 
  //Loop over the jetSrc to select the proper jets
   
-
   double deltaR = 0.1;
   double matchingR = 0.01;
   //Loop over the Map to find which jets has fired the trigger
@@ -105,13 +103,12 @@ void L2TauJetsProvider::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 	    if(myL2itr!=myL2L1JetsMap.end()){
 	      //Calculate the DeltaR between L1TauCandidate and L1Tau which fired the trigger
 	      if(&tauCandRefVec[iL1Tau]) 
-		deltaR = ROOT::Math::VectorUtil::DeltaR(myL1Tau[iJet].p4().Vect(), (tauCandRefVec[iL1Tau]->p4()).Vect());
-	      if(deltaR < matchingR) {
+		deltaR = ROOT::Math::VectorUtil::DeltaR(myL1Obj[iJet].p4().Vect(), (tauCandRefVec[iL1Tau]->p4()).Vect());
+	      if(deltaR < matchingR ) {
 	      //	      Getting back from the map the L2TauJet
 		const CaloJet myL2TauJet = myL2itr->second;
 		if(myL2TauJet.pt() > mEt_Min) tauL2jets->push_back(myL2TauJet);
 		myL2L1JetsMap.erase(myL2itr->first);
-
 		break;
 		
 	      }
@@ -119,7 +116,7 @@ void L2TauJetsProvider::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 	    
 	  }
       }
-    
+      
     for(unsigned int iL1Tau=0; iL1Tau <jetCandRefVec.size();iL1Tau++)
       {  
 	for(unsigned int iJet=0;iJet<myL1Obj.size();iJet++)
@@ -129,14 +126,14 @@ void L2TauJetsProvider::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 	    if(myL2itr!=myL2L1JetsMap.end()){
 	      //Calculate the DeltaR between L1TauCandidate and L1Tau which fired the trigger
 	      if(&jetCandRefVec[iL1Tau])
-	        deltaR = ROOT::Math::VectorUtil::DeltaR(myL1Tau[iJet].p4().Vect(), (jetCandRefVec[iL1Tau]->p4()).Vect());
+	        deltaR = ROOT::Math::VectorUtil::DeltaR(myL1Obj[iJet].p4().Vect(), (jetCandRefVec[iL1Tau]->p4()).Vect());
 	      if(deltaR < matchingR) {
 		// Getting back from the map the L2TauJet
 		const CaloJet myL2TauJet = myL2itr->second;
 		
 		if(myL2TauJet.pt() > mEt_Min) tauL2jets->push_back(myL2TauJet);
 		myL2L1JetsMap.erase(myL2itr->first);
-		  break;
+		break;
 		
 	      }
 	    }
