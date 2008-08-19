@@ -6,6 +6,12 @@ process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring('file:/afs/cern.ch/cms/CAF/CMSCOMM/COMM_GLOBAL/CRUZET3/CMSSW_2_1_2/src/DPGAnalysis/Skims/python/reco_50908_210_CRZT210_V1P.root')
                             )
 
+process.configurationMetadata = cms.untracked.PSet(
+    version = cms.untracked.string('$Revision: 1.1 $'),
+    name = cms.untracked.string('$Source: /local/projects/CMSSW/rep/CMSSW/DPGAnalysis/Skims/python/TrackerPointing_cfg.py,v $'),
+    annotation = cms.untracked.string('CRUZET4 TrackerPointing skim')
+)
+
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
 
@@ -55,6 +61,9 @@ process.out = cms.OutputModule("PoolOutputModule",
                                                                                             'cosmictrackfinderP5TkCntPath',
                                                                                             'ctfWithMaterialTracksP5TkCntPath',
                                                                                             'rsWithMaterialTracksP5TkCntPath')),
+                               dataset = cms.untracked.PSet(
+			                 dataTier = cms.untracked.string('RECO'),
+                                         filterName = cms.untracked.string('TrackingPointing')),
                                fileName = cms.untracked.string('trackerPointing.root')
                                )
 

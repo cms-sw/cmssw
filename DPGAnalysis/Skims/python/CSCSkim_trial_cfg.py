@@ -10,6 +10,12 @@ process.source = cms.Source("PoolSource",
       )
 )
 
+process.configurationMetadata = cms.untracked.PSet(
+    version = cms.untracked.string('$Revision: 1.1 $'),
+    name = cms.untracked.string('$Source: /local/projects/CMSSW/rep/CMSSW/DPGAnalysis/Skims/python/CSCSkim_trial_cfg.py,v $'),
+    annotation = cms.untracked.string('CRUZET4 CSCSkim skim')
+)
+
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1000)
 )
@@ -41,10 +47,11 @@ process.mySkim = cms.Path(process.muonCSCDigis*process.csc2DRecHits*process.cscS
 
 #### output 
 process.outputSkim = cms.OutputModule("PoolOutputModule",
-   fileName = cms.untracked.string("/tmp/schmittm/messyEvents.root"),
-   SelectEvents = cms.untracked.PSet(
-       SelectEvents = cms.vstring('mySkim')
-       )
+                                      fileName = cms.untracked.string("/tmp/schmittm/messyEvents.root"),
+                                      dataset = cms.untracked.PSet(
+			                        dataTier = cms.untracked.string('RECO'),
+                                                filterName = cms.untracked.string('CSCSkim_trial')),
+                                      SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('mySkim'))
 )
 
 process.outpath = cms.EndPath(process.outputSkim)
