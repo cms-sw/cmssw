@@ -33,8 +33,11 @@ class PixelPopConSourceHandler : public popcon::PopConSourceHandler<T> {
       getNewObjects_coral();
     else if (_connectString.find("file") == 0)
       getNewObjects_file();
-    else
+    else {
       std::cout << "  PixelPopConSourceHandler::getNewObjects() - unknown connect string:" << _connectString << std::endl;
+      std::cout << "    connect string must begin with \"oracle\" or \"file\"" << std::endl;
+    }
+    
   } // virtual void getNewObjects()
 
   virtual void getNewObjects_coral() {;}
