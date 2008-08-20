@@ -54,7 +54,15 @@ namespace edm {
     ProductStatus status() const {return status_;}
     std::vector<BranchID> const* parents() const {return parents_;}
 
-    void clear() {prod_= 0; desc_= 0; productID_ = ProductID(); status_ = 0; parents_ = 0;}
+   void clear() {
+     prod_= 0;
+     delete desc_;
+     desc_= 0;
+     productID_ = ProductID();
+     status_ = 0;
+     delete parents_;
+     parents_ = 0;
+  }
 
   private:
     EDProduct const* prod_;
