@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.36 2008/07/30 15:54:50 chrjones Exp $
+// $Id: CmsShowMain.cc,v 1.37 2008/08/18 06:23:30 dmytro Exp $
 //
 
 // system include files
@@ -25,6 +25,12 @@
 #include "TEveSelection.h"
 #include "TEveLine.h"
 #include "TTimer.h"
+
+//socket
+#include "TMonitor.h"
+#include "TServerSocket.h"
+//memset
+#include "string.h"
 
 //geometry
 #include "TFile.h"
@@ -127,6 +133,7 @@ static char const* const kHelpOpt = "help";
 static char const* const kHelpCommandOpt = "help,h";
 // static char const* const kSoftOpt = "soft";
 static char const* const kSoftCommandOpt = "soft";
+static const char* const kPortCommandOpt = "port";
 
 CmsShowMain::CmsShowMain(int argc, char *argv[]) :
   m_configurationManager(new FWConfigurationManager),
@@ -154,6 +161,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       (kGeomFileCommandOpt,   po::value<std::string>(),   "Include geometry file")
       (kNoConfigFileCommandOpt,                           "Don't load any configuration file")
       (kLoopPlaybackCommandOpt, po::value<int>(),         "Start in auto playback mode with given interval between events in seconds")
+      (kPortCommandOpt, po::value<unsigned int>(),        "Listen to port for new data files to open")
       (kDebugCommandOpt,                                  "Show Eve browser to help debug problems")
       (kAdvancedRenderCommandOpt,                         "Use advance options to improve rendering quality (anti-alias etc)")
       (kSoftCommandOpt,                                   "Try to force software rendering to avoid problems with bad hardware drivers")
@@ -323,7 +331,11 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       }else{
          gSystem->IgnoreSignal(kSigSegmentationViolation, true);
       }
-            
+           
+      if(vm.count(kPortCommandOpt)) {
+         f=boost::bind(&CmsShowMain::setupSocket, this, vm[kPortCommandOpt].as<unsigned int>());
+         m_startupTasks->addTask(f);
+      }
       if (vm.count(kLoopPlaybackOpt)) {
          m_playDelay = vm[kLoopPlaybackOpt].as<int>()*1000;
 	 f=boost::bind(&CSGContinuousAction::switchMode,m_guiManager->playEventsAction());
@@ -753,6 +765,51 @@ CmsShowMain::setupDebugSupport()
 {
    m_guiManager->updateStatus("Setting up debug support...");
    m_guiManager->openEveBrowserForDebugging();
+}
+
+void 
+CmsShowMain::setupSocket(unsigned int iSocket)
+{
+   m_monitor = std::auto_ptr<TMonitor>(new TMonitor);
+   TServerSocket* server = new TServerSocket(iSocket,kTRUE);
+   m_monitor->Connect("Ready(TSocket*)","CmsShowMain",this,"notified(TSocket*)");
+   m_monitor->Add(server);
+}
+
+
+void
+CmsShowMain::notified(TSocket* iSocket)
+{
+   TServerSocket* server = dynamic_cast<TServerSocket*> (iSocket);
+   if(0!=server) {
+      TSocket* connection = server->Accept();
+      if(0!=connection) {
+         m_monitor->Add(connection);
+         std::stringstream s;
+         s << "received connection from "<<iSocket->GetInetAddress().GetHostName();
+         m_guiManager->updateStatus(s.str().c_str());
+      }
+   } else {
+      char buffer[4096];
+      memset(buffer,0,sizeof(buffer));
+      if( iSocket->RecvRaw(buffer, sizeof(buffer)) <= 0) {
+         m_monitor->Remove(iSocket);
+         //std::stringstream s;
+         //s << "closing connection to "<<iSocket->GetInetAddress().GetHostName();
+         //m_guiManager->updateStatus(s.str().c_str());
+         delete iSocket;
+         return;
+      }
+      std::string fileName(buffer);
+      std::string::size_type lastNonSpace = fileName.find_last_not_of(" \n\t");
+      if(lastNonSpace != std::string::npos) {
+         fileName.erase(lastNonSpace+1);
+      }
+      std::stringstream s;
+      s <<"Ready to change to new file '"<<fileName<<"'";
+      m_guiManager->updateStatus(s.str().c_str());
+      m_navigator->nextEventChangeAlsoChangeFile(fileName);
+   }
 }
 
 void

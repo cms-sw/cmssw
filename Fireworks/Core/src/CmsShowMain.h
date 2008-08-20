@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: CmsShowMain.h,v 1.4 2008/07/12 00:34:13 chrjones Exp $
+// $Id: CmsShowMain.h,v 1.5 2008/07/30 15:54:50 chrjones Exp $
 //
 
 // system include files
@@ -44,6 +44,8 @@ class FWPhysicsObjectDesc;
 class FWConfigurationManager;
 class FWTextView;
 class TTimer;
+class TMonitor;
+class TSocket;
 
 class CmsShowNavigator;
 class CmsShowTaskExecutor;
@@ -83,6 +85,8 @@ public:
 
   void registerPhysicsObject(const FWPhysicsObjectDesc&);
   void registerDetailView (const std::string &item_name, FWDetailView *view);
+   
+   void notified(TSocket*);
 private:
   CmsShowMain(const CmsShowMain&); // stop default
   
@@ -94,6 +98,7 @@ private:
    void setupDetailedViewManagers();
    void setupDataHandling();
    void setupDebugSupport();
+   void setupSocket(unsigned int);
   
    void playForward();
    void playBackward();
@@ -127,6 +132,8 @@ private:
    bool m_isPlaying;
    bool m_forward;
    Long_t m_playDelay;
+   
+   std::auto_ptr<TMonitor> m_monitor;
 };
 
 
