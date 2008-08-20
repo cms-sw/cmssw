@@ -34,6 +34,7 @@ hypreg = re.compile('-')
 debug = False
 DEF_STEPS = ('GEN,SIM', 'DIGI')
 AllSteps  = ["GEN,SIM", "DIGI", "DIGI2RAW", "L1", "HLT", "RAW2DIGI", "RECO"]
+AfterPileUpSteps = AllSteps[2:]
 
 
 # Global variables used by writeCommandsToReport and dependents
@@ -458,7 +459,7 @@ def writeUnprofiledSteps(simcandles,CustomisePythonFragment,cmsDriverOptions,unp
     simcandles.write("\n#Run a %s step(s) that has not been selected for profiling but is needed to run the next step to be profiled\n" % (stepsStr))
     OutputFileOption = "--fileout=%s_%s.root" % ( FileName[acandle],unprofiledSteps[-1])
 
-    InputFileOption = setInputFile(AllSteps,unprofiledSteps[0],acandle,stepIndex)
+    InputFileOption = setInputFile(AllSteps,unprofiledSteps[0],acandle,stepIndex - 1)
 
     Command = ("%s %s -n %s --step=%s %s %s --customise=%s %s"
                        % (cmsDriver,
@@ -511,31 +512,47 @@ def writeCommands(simcandles,
                 lst   = AllSteps.index(steps[-1].split("-")[1])
             else:
                 lst   = AllSteps.index(steps[-1])
-            steps = AllSteps
             runSteps = AllSteps[start:lst]
             numOfSteps = (lst - start) + 1
             stopIndex = start + numOfSteps
+        else:
+            if "-" in steps[-1]:
+                stopIndex = AllSteps.index(steps[-1].split("-")[1])
+            else:
+                stopIndex = AllSteps.index(steps[-1])
+        steps = AllSteps
+            
 
     unprofiledSteps = []
 #   FOR step in steps
 
     for x in range(start,stopIndex,1):
+
         if stepIndex >= stopIndex:
             break
         step = steps[stepIndex]
-
+        stepToRun = step
+        befStep = step
+        aftStep = step
+        
         #(Profile , SavedProfile) = determineNewProfile(step,Profile,SavedProfile)
         CustomisePythonFragment = pythonFragment(step)
-        
-        if step in userSteps or map(lambda x: step in x,userSteps):
-            hypMatch = filter(lambda x: "-" in x,filter(lambda x: step in x,userSteps))
+        oneShotProf = False
+        hypsteps = []
+
+        if step in userSteps or reduce(lambda x,y : x or y,map(lambda x: step == x.split("-")[0],userSteps)):
+
+            hypMatch = filter(lambda x: "-" in x,filter(lambda x: step == x.split("-")[0],userSteps))
             if not len(hypMatch) == 0 :
                 hypsteps = expandHyphens(hypMatch[0])
-                stepIndex += len(hypsteps) - 1
-                step = ",".join(hypsteps)
+                stepToRun = ",".join(hypsteps)
+                befStep = hypsteps[0]
+                aftStep = hypsteps[-1]
+                oneShotProf = True
 
-            writeStepHead(simcandles,acandle,step,qcd)
-
+            writeStepHead(simcandles,acandle,stepToRun,qcd)
+            OutputFileOption = "--fileout=%s_%s.root" % ( FileName[acandle],aftStep)
+            
             for prof in Profile:
                 if 'EdmSize' in prof:
                     EdmFile = "%s_%s" % (FileName[acandle],step)
@@ -549,15 +566,15 @@ def writeCommands(simcandles,
                         # If the first step to be profiled is something later on in the steps such
                         # as HLT then writePrerequisteSteps() should have got you to the step prior to
                         # HLT, therefore the only thing left to run to profile EDMSIZE is HLT itself
-                        OutputFileOption = "--fileout=%s_%s.root" % ( FileName[acandle],step)
 
-                        InputFileOption = setInputFile(steps,step,acandle,stepIndex)
+
+                        InputFileOption = setInputFile(steps,befStep,acandle,stepIndex)
 
                         Command = ("%s %s -n %s --step=%s %s %s --customise=%s %s"
                                            % (cmsDriver,
                                               KeywordToCfi[acandle],
                                               NumberOfEvents,
-                                              step,
+                                              stepToRun,
                                               InputFileOption,
                                               OutputFileOption,
                                               CustomisePythonFragment,
@@ -570,18 +587,18 @@ def writeCommands(simcandles,
 
                         # Adding a fileout option too to avoid dependence on future convention changes in cmsDriver.py:
 
-                    OutputFileOption = "--fileout=%s_%s.root" % ( FileName[acandle],step)
+            
                     OutputStep = step
 
                         # Use --filein (have to for L1, DIGI2RAW, HLT) to add robustness
 
-                    InputFileOption = setInputFile(steps,step,acandle,stepIndex,OutputStep,qcd)
+                    InputFileOption = setInputFile(steps,befStep,acandle,stepIndex,OutputStep,qcd)
 
                     Command = ("%s %s -n %s --step=%s %s %s --customise=%s %s" % (
                                cmsDriver,
                                KeywordToCfi[acandle],
                                NumberOfEvents,
-                               step,
+                               stepToRun,
                                InputFileOption,
                                OutputFileOption,
                                CustomisePythonFragment,
@@ -603,20 +620,23 @@ def writeCommands(simcandles,
         else:
             unprofiledSteps.append(step)
             isNextStepForProfile = False # Just an initialization for scoping. don't worry about it being false
+            
             try:
-                isNextStepForProfile = steps[x + 1] in userSteps
+                isNextStepForProfile = steps[stepIndex + 1] in userSteps or reduce(lambda x,y : x or y,map(lambda z: steps[ stepIndex + 1 ] == z.split("-")[0],userSteps))
             except IndexError:
                 # This loop should have terminated if x + 1 is out of bounds!
                 print "Error: Something is wrong we shouldn't have come this far"
                 break
 
             if isNextStepForProfile:
-                writeUnprofiledSteps(simcandles,CustomisePythonFragment,cmsDriverOptions,unprofiledSteps,acandle,NumberOfEvents, stepIndex)
+                writeUnprofiledSteps(simcandles,CustomisePythonFragment,cmsDriverOptions,unprofiledSteps,acandle,NumberOfEvents,stepIndex)
                 unprofiledSteps = []
                 
                 
-                
-        stepIndex +=1
+        if oneShotProf:
+            stepIndex += len(hypsteps)            
+        else:
+            stepIndex +=1
 
 def prepareQcdCommand(thecandle,NumberOfEvents,cmsDriverOptions):
 
@@ -659,7 +679,7 @@ def writeCommandsToReport(simcandles,Candle,Profile,debug,NumberOfEvents,cmsDriv
     # After digi pileup steps:
     # Freeze this for now since we will only run by default the GEN-SIM,DIGI and DIGI pileup steps
 
-    AfterPileUpSteps = []
+
 
     qcdStr = 'QCD -e 80_120'
     if qcdStr in Candle:
