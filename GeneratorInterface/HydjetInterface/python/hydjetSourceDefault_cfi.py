@@ -31,26 +31,22 @@ source = cms.Source("HydjetSource",
                         qgpNumQuarkFlavor = cms.int32(0),
                         qgpInitialTemperature = cms.double(1.),
                         qgpProperTimeFormation = cms.double(0.1),
-
-                        PythiaParameters = cms.PSet(
-            # This is a vector of ParameterSet names to be read, in this order
-            pyquenPythiaDefaultBlock,
-                    parameterSets = cms.vstring('pythiaDefault','csa08Settings','pythiaJets')
-                ),
-
-                        cFlag = cms.int32(0),
-                        bFixed = cms.double(0),
-                        bMin = cms.double(0),
-                        bMax = cms.double(0),
-
-                        allowEmptyEvents = cms.bool(False)
+                    PythiaParameters = cms.PSet(pyquenPythiaDefaultBlock,
+                                                parameterSets = cms.vstring('pythiaDefault','csa08Settings','pythiaJets','pythiaPromptPhotons')
+                                                ),
+                    cFlag = cms.int32(0),
+                    bFixed = cms.double(0),
+                    bMin = cms.double(0),
+                    bMax = cms.double(0),
+                    
+                    allowEmptyEvents = cms.bool(False)
                     )
 
 configurationMetadata = cms.untracked.PSet(
-        version = cms.untracked.string('$Revision: 1.1 $'),
-            name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/GeneratorInterface/HydjetInterface/python/HYDJET_X2_B0_cff.py,v $'),
-            annotation = cms.untracked.string('PYTHIA6-MinBias at 10TeV')
-        )
+    version = cms.untracked.string('$Revision: 1.3 $'),
+    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/GeneratorInterface/HydjetInterface/python/hydjetSourceDefault_cfi.py,v $'),
+    annotation = cms.untracked.string('PYTHIA6-MinBias at 10TeV')
+    )
 
 
 

@@ -1,4 +1,12 @@
+# Particle gun whose pt and rapidity distributions can be specified
+# by TGraphs, and later handled by pythia for decays. The example here
+# is jpsi, with kinematic distributions from hep-ph/0310274v1
+# and chosen to decay into two muons
+
+
 import FWCore.ParameterSet.Config as cms
+
+from GeneratorInterface.Pythia6Interface.pythiaDefault_cff import *
 
 source = cms.Source("PythiaSource",
                     pythiaHepMCVerbosity = cms.untracked.bool(False),
@@ -15,9 +23,8 @@ source = cms.Source("PythiaSource",
                     ymin = cms.untracked.double(-10.0),
                     ymax = cms.untracked.double(10.0),
                     
-                    PythiaParameters = cms.PSet(parameterSets = cms.vstring('pythiaDefault','jpsiDecay'),
-                                                pythiaDefault=cms.vstring('PMAS(5,1)=4.8 ! b quark mass',
-                                                                          'PMAS(6,1)=172.3 ! t quark mass'),
+                    PythiaParameters = cms.PSet(pythiaDefaultBlock,
+                                                parameterSets = cms.vstring('pythiaDefault','jpsiDecay'),
                                                 jpsiDecay = cms.vstring('BRAT(858) = 0 ! switch off',
                                                                         'BRAT(859) = 1 ! switch on',
                                                                         'BRAT(860) = 0 ! switch off',
@@ -45,8 +52,8 @@ source = cms.Source("PythiaSource",
                                                 )
                     )
 
-                    
-
-
-
+# For upsilon generation, add in your configuration the uncommented lines :
+#
+#process.PythiaSource.kinematicsFile = cms.untracked.string('HeavyIonsAnalysis/Configuration/data/upsipbpb.root')
+#process.PythiaSource.ParticleID = cms.untracked.int32(553)
 
