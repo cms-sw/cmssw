@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.70 2008/07/29 13:56:05 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.71 2008/07/30 15:49:29 chrjones Exp $
 //
 
 // system include files
@@ -212,9 +212,7 @@ FWGUIManager::addFrameHoldingAView(TGFrame* iChild)
                                                             kLHintsExpandY) );
    
    m_mainFrame->MapSubwindows();
-   m_mainFrame->Resize();
-   iChild->Resize();
-   m_mainFrame->MapWindow();
+   m_mainFrame->Layout();
    
 }
 
