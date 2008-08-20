@@ -59,10 +59,8 @@ PrimaryVertexAnalyzer::PrimaryVertexAnalyzer(const ParameterSet& iConfig)
 
   vtxSample_   = iConfig.getUntrackedParameter<std::vector< std::string > >("vtxSample");
   for(std::vector<std::string>::iterator isample = vtxSample_.begin(); isample!=vtxSample_.end(); ++isample) {
-    if ( *isample == "offlinePrimaryVerticesFromCTFTracks" ) suffixSample_.push_back("AVF");
-    if ( *isample == "offlinePrimaryVerticesFromCTFTracksAVF" ) suffixSample_.push_back("AVF");
-    if ( *isample == "offlinePrimaryVerticesFromCTFTracksKVF" ) suffixSample_.push_back("KVF");
-    if ( *isample == "offlinePrimaryVerticesFromCTFTracksTKF" ) suffixSample_.push_back("TKF");
+    if ( *isample == "offlinePrimaryVertices" ) suffixSample_.push_back("AVF");
+    if ( *isample == "offlinePrimaryVerticesWithBS" ) suffixSample_.push_back("wBS");
   }
   if ( suffixSample_.size() == 0 ) throw cms::Exception("NoVertexSamples") << " no known vertex samples given";
 
@@ -148,16 +146,17 @@ void PrimaryVertexAnalyzer::beginJob(edm::EventSetup const& iSetup){
 
 void PrimaryVertexAnalyzer::endJob() {
   
-  rootFile_->cd();
+ rootFile_->cd();
   // save all histograms created in beginJob()
 
-  for(std::map<std::string,TDirectory*>::const_iterator idir=hdir.begin(); idir!=hdir.end(); ++idir){
-    idir->second->Write(); 
-    idir->second->Close();
-    }
-  //for(std::map<std::string,TH1*>::const_iterator hist=h.begin(); hist!=h.end(); hist++){
-  //   hist->second->Write();
-  // }
+//   for(std::map<std::string,TDirectory*>::const_iterator idir=hdir.begin(); idir!=hdir.end(); ++idir){
+//     idir->second->Write(); 
+//     idir->second->Close();
+//     }
+//   rootFile_->Write();
+  for(std::map<std::string,TH1*>::const_iterator hist=h.begin(); hist!=h.end(); hist++){
+     hist->second->Write();
+   }
   
 }
 
@@ -170,7 +169,7 @@ bool PrimaryVertexAnalyzer::matchVertex(const simPrimaryVertex  &vsim,
 
 bool PrimaryVertexAnalyzer::isResonance(const HepMC::GenParticle * p){
   double ctau=(pdt->particle( abs(p->pdg_id()) ))->lifetime();
-  std::cout << "isResonance   " << p->pdg_id() << " " << ctau << std::endl;
+  if(verbose_) std::cout << "isResonance   " << p->pdg_id() << " " << ctau << std::endl;
   return  ctau >0 && ctau <1e-6;
 }
 
@@ -248,10 +247,10 @@ std::vector<PrimaryVertexAnalyzer::simPrimaryVertex> PrimaryVertexAnalyzer::getS
   std::vector<PrimaryVertexAnalyzer::simPrimaryVertex> simpv;
   const HepMC::GenEvent* evt=evtMC->GetEvent();
   if (evt) {
-    std::cout << "process id " <<evt->signal_process_id()<<std::endl;
-    std::cout <<"signal process vertex "<< ( evt->signal_process_vertex() ?
+    if(verbose_) std::cout << "process id " <<evt->signal_process_id()<<std::endl;
+    if(verbose_) std::cout <<"signal process vertex "<< ( evt->signal_process_vertex() ?
 					     evt->signal_process_vertex()->barcode() : 0 )   <<std::endl;
-    std::cout <<"number of vertices " << evt->vertices_size() << std::endl;
+    if(verbose_) std::cout <<"number of vertices " << evt->vertices_size() << std::endl;
 
 
     int idx=0;
@@ -268,15 +267,15 @@ std::vector<PrimaryVertexAnalyzer::simPrimaryVertex> PrimaryVertexAnalyzer::getS
 	if (pos.t()>0) { continue;}
 
 	bool hasMotherVertex=false;
-	std::cout << "mothers" << std::endl;
+	if(verbose_)std::cout << "mothers" << std::endl;
 	for ( HepMC::GenVertex::particle_iterator
 	      mother  = (*vitr)->particles_begin(HepMC::parents);
 	      mother != (*vitr)->particles_end(HepMC::parents);
               ++mother ) {
 	  HepMC::GenVertex * mv=(*mother)->production_vertex();
 	  if (mv) {hasMotherVertex=true;}
-	  std::cout << "\t";
-	  (*mother)->print();
+	  if(verbose_)std::cout << "\t";
+	  if(verbose_)(*mother)->print();
 	}
 	/*
 	std::cout << "daughters" << std::endl;
@@ -305,11 +304,11 @@ std::vector<PrimaryVertexAnalyzer::simPrimaryVertex> PrimaryVertexAnalyzer::getS
 
 	if(!vp){
 	  // this is a new vertex
-	  std::cout << "this is a new vertex" << sv.x << " " << sv.y << " " << sv.z <<std::endl;
+	  if(verbose_)std::cout << "this is a new vertex" << sv.x << " " << sv.y << " " << sv.z <<std::endl;
 	  simpv.push_back(sv);
 	  vp=&simpv.back();
 	}else{
-	  std::cout << "this is not new vertex" << std::endl;
+	  if(verbose_)std::cout << "this is not new vertex" << std::endl;
 	}
 	vp->genVertex.push_back((*vitr)->barcode());
 	// collect final state descendants
