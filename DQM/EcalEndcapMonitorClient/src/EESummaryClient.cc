@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2008/08/13 04:09:03 $
- * $Revision: 1.147 $
+ * $Date: 2008/08/20 15:37:46 $
+ * $Revision: 1.148 $
  * \author G. Della Ricca
  *
 */
@@ -440,13 +440,13 @@ void EESummaryClient::setup(void) {
   }
 
   if( meCosmic_[0] ) dqmStore_->removeElement( meCosmic_[0]->getName() );
-  sprintf(histo, "EECT EE - quality summary");
+  sprintf(histo, "EECT EE - cosmic summary");
   meCosmic_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
   meCosmic_[0]->setAxisTitle("jx", 1);
   meCosmic_[0]->setAxisTitle("jy", 2);
 
   if( meCosmic_[1] ) dqmStore_->removeElement( meCosmic_[1]->getName() );
-  sprintf(histo, "EECT EE + quality summary");
+  sprintf(histo, "EECT EE + cosmic summary");
   meCosmic_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
   meCosmic_[1]->setAxisTitle("jx", 1);
   meCosmic_[1]->setAxisTitle("jy", 2);
