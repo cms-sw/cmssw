@@ -78,8 +78,9 @@ void DDTrackerPhiAlgo::execute() {
   DDName mother = parent().name();
   DDName child(DDSplit(childName).first, DDSplit(childName).second);
   double theta  = 90.*deg;
-  int i = 0;
-  for (size_t ci=startcn; ci<numcopies+1; ci = ci+incrcn) {
+  size_t i  = 0;
+  int ci = startcn;
+  for ( ; i < numcopies; ++i) {
     double phix = phi[i] + tilt;
     double phiy = phix + 90.*deg;
     double phideg = phi[i]/deg;
@@ -102,6 +103,6 @@ void DDTrackerPhiAlgo::execute() {
     LogDebug("TrackerGeom") << "DDTrackerPhiAlgo test: " << child << " number "
 			    << ci << " positioned in " << mother << " at "
 			    << tran  << " with " << rotation;
-    ++i;
+    ci=ci+incrcn;
   }
 }
