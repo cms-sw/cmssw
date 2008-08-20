@@ -1517,7 +1517,7 @@ void SiPixelInformationExtractor::computeGlobalQualityFlag(DQMStore * bei,
 void SiPixelInformationExtractor::fillGlobalQualityPlot(DQMStore * bei, bool init, edm::EventSetup const& eSetup)
 {
   //calculate eta and phi of the modules and fill a 2D plot:
-/*  
+  
   if(init){
     allmodsMap = new TH2F("allmodsMap","allmodsMap",28,0.,28.,48,0.,48.);
     errmodsMap = new TH2F("errmodsMap","errmodsMap",28,0.,28.,48,0.,48.);
@@ -1548,7 +1548,7 @@ void SiPixelInformationExtractor::fillGlobalQualityPlot(DQMStore * bei, bool ini
       if(!once) continue;
       MonitorElement * me = bei->get(full_path);
       if (!me) continue;
-*/ /*      int id=0;
+/*      int id=0;
       if(first){ id = getDetId(me); first=false; }
       DetId detid = DetId(id);
       if(detid.det()!=1) continue;
@@ -1571,7 +1571,7 @@ void SiPixelInformationExtractor::fillGlobalQualityPlot(DQMStore * bei, bool ini
 	}
       }*/
       
-/*      if(full_path.find("Endcap")!=string::npos){ // Endcaps
+      if(full_path.find("Endcap")!=string::npos){ // Endcaps
         if(full_path.find("_m")!=string::npos) xoffA = 19; // the -z endcaps are on the right hand side in x
 	if(full_path.find("_m")!=string::npos && full_path.find("Disk_2")!=string::npos) xoffB = 5; // on -z Disk_2 is right of Disk_1
 	if(full_path.find("_p")!=string::npos && full_path.find("Disk_1")!=string::npos) xoffB = 5; // on +z Disk_2 is left of Disk_1
@@ -1696,7 +1696,7 @@ void SiPixelInformationExtractor::fillGlobalQualityPlot(DQMStore * bei, bool ini
   if(allmodsMap) allmodsMap->Clear();
   if(goodmodsMap) goodmodsMap->Clear();
   if(errmodsMap) errmodsMap->Clear();
-*/  //cout<<"counters: "<<count<<" , "<<errcount<<endl;
+  //cout<<"counters: "<<count<<" , "<<errcount<<endl;
 }
 
 //
