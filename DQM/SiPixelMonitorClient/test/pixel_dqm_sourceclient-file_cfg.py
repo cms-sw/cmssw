@@ -10,16 +10,51 @@ process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 process.load("EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi")
+process.siPixelDigis.InputLabel = 'source'
+process.siPixelDigis.IncludeErrors = True
 
 process.load("RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizer_cfi")
 
+process.load("RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi")
+
 process.load("DQM.SiPixelMonitorRawData.SiPixelMonitorRawData_cfi")
+process.SiPixelRawDataErrorSource.saveFile = False
+process.SiPixelRawDataErrorSource.isPIB = False
+process.SiPixelRawDataErrorSource.slowDown = False
 
 process.load("DQM.SiPixelMonitorDigi.SiPixelMonitorDigi_cfi")
+process.SiPixelDigiSource.saveFile = False
+process.SiPixelDigiSource.isPIB = False
+process.SiPixelDigiSource.slowDown = False
+process.SiPixelDigiSource.modOn = True
+process.SiPixelDigiSource.ladOn = False
+process.SiPixelDigiSource.layOn = False
+process.SiPixelDigiSource.phiOn = False
+process.SiPixelDigiSource.bladeOn = False
+process.SiPixelDigiSource.diskOn = False
+process.SiPixelDigiSource.ringOn = False
 
 process.load("DQM.SiPixelMonitorCluster.SiPixelMonitorCluster_cfi")
+process.SiPixelClusterSource.saveFile = False
+process.SiPixelClusterSource.isPIB = False
+process.SiPixelClusterSource.modOn = True
+process.SiPixelClusterSource.ladOn = False
+process.SiPixelClusterSource.layOn = False
+process.SiPixelClusterSource.phiOn = False
+process.SiPixelClusterSource.bladeOn = False
+process.SiPixelClusterSource.diskOn = False
+process.SiPixelClusterSource.ringOn = False
 
 process.load("DQM.SiPixelMonitorRecHit.SiPixelMonitorRecHit_cfi")
+process.SiPixelRecHitSource.saveFile = False
+process.SiPixelRecHitSource.isPIB = False
+process.SiPixelRecHitSource.modOn = True
+process.SiPixelRecHitSource.ladOn = False
+process.SiPixelRecHitSource.layOn = False
+process.SiPixelRecHitSource.phiOn = False
+process.SiPixelRecHitSource.bladeOn = False
+process.SiPixelRecHitSource.ringOn = False
+process.SiPixelRecHitSource.diskOn = False
 
 process.load("DQMServices.Core.DQM_cfg")
 
@@ -28,7 +63,7 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.GlobalTag.connect ="sqlite_file:/afs/cern.ch/user/m/malgeri/public/globtag/CRZT210_V1.db"
 process.GlobalTag.connect = "frontier://FrontierProd/CMS_COND_21X_GLOBALTAG"
-process.GlobalTag.globaltag = "CRZT210_V2::All"
+process.GlobalTag.globaltag = "CRUZET4_V1::All"
 process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 
 process.source = cms.Source("PoolSource",
@@ -51,19 +86,17 @@ process.source = cms.Source("PoolSource",
                                       #'rfio:/castor/cern.ch/cms/store/data/Commissioning08/Cosmics/RAW/MW33_v1/000/056/741/6016DF32-4C6A-DD11-AE83-000423D94A04.root'
 	#			      )
     fileNames = cms.untracked.vstring(
-                                      #'rfio:/castor/cern.ch/cms/store/data/Commissioning08/Cosmics/RAW/MW33_v1/000/056/608/34F7E440-4C6A-DD11-AA46-001617C3B5D8.root',
-                                      #'rfio:/castor/cern.ch/cms/store/data/Commissioning08/Cosmics/RAW/MW33_v1/000/056/608/50AE713B-4C6A-DD11-B4BB-001617C3B6CE.root',
-                                      #'rfio:/castor/cern.ch/cms/store/data/Commissioning08/Cosmics/RAW/MW33_v1/000/056/608/6EA43A40-4C6A-DD11-8106-001617C3B6DC.root'
-                                      'rfio:/castor/cern.ch/cms/store/data/Commissioning08/Cosmics/RAW/MW33_v1/000/056/608/AE4F9838-4C6A-DD11-A897-001617C3B5F4.root'
-                                      #'rfio:/castor/cern.ch/cms/store/data/Commissioning08/Cosmics/RAW/MW33_v1/000/056/608/3066DF16-616A-DD11-A655-001D09F2905B.root',
-                                      #'rfio:/castor/cern.ch/cms/store/data/Commissioning08/Cosmics/RAW/MW33_v1/000/056/608/32D19FB7-606A-DD11-957E-0030487C5CFA.root'
-                                      #'rfio:/castor/cern.ch/cms/store/data/Commissioning08/Cosmics/RAW/MW33_v1/000/056/608/922D6C20-606A-DD11-B8CF-000423D99AAE.root',
-                                      #'rfio:/castor/cern.ch/cms/store/data/Commissioning08/Cosmics/RAW/MW33_v1/000/056/608/A2FC272A-616A-DD11-A085-0030487A322E.root'
+                                      'rfio:/castor/cern.ch/cms/store/data/Commissioning08/Cosmics/RAW/CRUZET4_v1/000/057/774/2260AF5F-356E-DD11-99F3-000423D6C8E6.root',
+                                      'rfio:/castor/cern.ch/cms/store/data/Commissioning08/Cosmics/RAW/CRUZET4_v1/000/057/774/2260AF5F-356E-DD11-99F3-000423D6C8E6.root',
+                                      'rfio:/castor/cern.ch/cms/store/data/Commissioning08/Cosmics/RAW/CRUZET4_v1/000/057/774/2260AF5F-356E-DD11-99F3-000423D6C8E6.root',
+                                      'rfio:/castor/cern.ch/cms/store/data/Commissioning08/Cosmics/RAW/CRUZET4_v1/000/057/774/2260AF5F-356E-DD11-99F3-000423D6C8E6.root',
+                                      'rfio:/castor/cern.ch/cms/store/data/Commissioning08/Cosmics/RAW/CRUZET4_v1/000/057/774/2260AF5F-356E-DD11-99F3-000423D6C8E6.root',
+                                      'rfio:/castor/cern.ch/cms/store/data/Commissioning08/Cosmics/RAW/CRUZET4_v1/000/057/774/2260AF5F-356E-DD11-99F3-000423D6C8E6.root'
 				      )
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1000)
+    input = cms.untracked.int32(-1)
 )
 process.MessageLogger = cms.Service("MessageLogger",
     debugModules = cms.untracked.vstring('siPixelDigis', 
@@ -97,46 +130,15 @@ process.LockService = cms.Service("LockService",
     labels = cms.untracked.vstring('source')
 )
 
-process.Reco = cms.Sequence(process.siPixelDigis*process.siPixelClusters)
+process.Reco = cms.Sequence(process.siPixelDigis*process.siPixelClusters*siPixelRecHits)
 process.RAWmonitor = cms.Sequence(process.SiPixelRawDataErrorSource)
 process.DIGImonitor = cms.Sequence(process.SiPixelDigiSource)
 process.CLUmonitor = cms.Sequence(process.SiPixelClusterSource)
 process.HITmonitor = cms.Sequence(process.SiPixelRecHitSource)
 #process.DQMmodules = cms.Sequence(process.qTester*process.dqmEnv*process.dqmSaver)
 process.DQMmodules = cms.Sequence(process.dqmEnv*process.dqmSaver)
-process.p = cms.Path(process.Reco*process.DQMmodules*process.RAWmonitor*process.DIGImonitor*process.sipixelEDAClient)
+process.p = cms.Path(process.Reco*process.DQMmodules*process.RAWmonitor*process.DIGImonitor*process.CLUmonitor*process.HITmonitor*process.sipixelEDAClient)
 #process.p = cms.Path(process.DQMmodules*process.DIGImonitor*process.sipixelEDAClient)
-process.siPixelDigis.InputLabel = 'source'
-process.siPixelDigis.IncludeErrors = True
-process.SiPixelRawDataErrorSource.saveFile = False
-process.SiPixelRawDataErrorSource.isPIB = True
-process.SiPixelRawDataErrorSource.slowDown = False
-process.SiPixelDigiSource.saveFile = False
-process.SiPixelDigiSource.isPIB = True
-process.SiPixelDigiSource.slowDown = False
-process.SiPixelDigiSource.modOn = True
-process.SiPixelDigiSource.ladOn = False
-process.SiPixelDigiSource.layOn = False
-process.SiPixelDigiSource.phiOn = False
-process.SiPixelDigiSource.bladeOn = False
-process.SiPixelDigiSource.diskOn = False
-process.SiPixelDigiSource.ringOn = False
-process.SiPixelClusterSource.saveFile = False
-process.SiPixelClusterSource.modOn = True
-process.SiPixelClusterSource.ladOn = False
-process.SiPixelClusterSource.layOn = False
-process.SiPixelClusterSource.phiOn = False
-process.SiPixelClusterSource.bladeOn = False
-process.SiPixelClusterSource.diskOn = False
-process.SiPixelClusterSource.ringOn = False
-process.SiPixelRecHitSource.saveFile = False
-process.SiPixelRecHitSource.modOn = True
-process.SiPixelRecHitSource.ladOn = False
-process.SiPixelRecHitSource.layOn = False
-process.SiPixelRecHitSource.phiOn = False
-process.SiPixelRecHitSource.bladeOn = False
-process.SiPixelRecHitSource.ringOn = False
-process.SiPixelRecHitSource.diskOn = False
 process.DQM.collectorHost = ''
 process.dqmSaver.convention = 'Online'
 process.dqmSaver.producer = 'DQM'

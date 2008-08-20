@@ -4,6 +4,17 @@
      <MonElement name="NErrors">	</MonElement> 
      <MonElement name="ndigis">         </MonElement> 
      <MonElement name="adc">            </MonElement> 
+     <MonElement name="nclusters"></MonElement>
+     <MonElement name="y">	</MonElement>
+     <MonElement name="x">	</MonElement>
+     <MonElement name="charge"> </MonElement>
+     <MonElement name="size">	</MonElement>
+     <MonElement name="sizeX">  </MonElement>
+     <MonElement name="sizeY">  </MonElement>
+     <MonElement name="minrow"> </MonElement>
+     <MonElement name="maxrow"> </MonElement>
+     <MonElement name="mincol"> </MonElement>
+     <MonElement name="maxcol"> </MonElement>
 </TkMap>
 <SummaryPlot>
 <SubStructureBarrelLevel name="Ladder_" update_frequency="300"> 
@@ -11,6 +22,16 @@
      <MonElement name="NErrors">	</MonElement> 
      <MonElement name="ndigis">         </MonElement> 
      <MonElement name="adc">            </MonElement> 
+     <MonElement name="nclusters"></MonElement>
+     <MonElement name="y">	</MonElement>
+     <MonElement name="x">	</MonElement>
+     <MonElement name="charge"> </MonElement>
+     <MonElement name="size">	</MonElement>
+     <MonElement name="sizeX">  </MonElement>
+     <MonElement name="sizeY">  </MonElement>
+     <MonElement name="minrow"> </MonElement>
+     <MonElement name="maxrow"> </MonElement>
+     <MonElement name="mincol"> </MonElement>
      <MonElement name="maxcol"> </MonElement>
 </SubStructureBarrelLevel> 
 <SubStructureGrandBarrelLevel name="Layer_" update_frequency="300"> 
@@ -18,18 +39,51 @@
      <MonElement name="NErrors">	</MonElement> 
      <MonElement name="ndigis">         </MonElement> 
      <MonElement name="adc">            </MonElement> 
+     <MonElement name="nclusters"></MonElement>
+     <MonElement name="y">	</MonElement>
+     <MonElement name="x">	</MonElement>
+     <MonElement name="charge"> </MonElement>
+     <MonElement name="size">	</MonElement>
+     <MonElement name="sizeX">  </MonElement>
+     <MonElement name="sizeY">  </MonElement>
+     <MonElement name="minrow"> </MonElement>
+     <MonElement name="maxrow"> </MonElement>
+     <MonElement name="mincol"> </MonElement>
+     <MonElement name="maxcol"> </MonElement>
 </SubStructureGrandBarrelLevel> 
 <SubStructureEndcapLevel name="Panel_" update_frequency="300"> 
      <MonElement name="errorType">	</MonElement> 
      <MonElement name="NErrors">	</MonElement> 
      <MonElement name="ndigis">         </MonElement> 
      <MonElement name="adc">            </MonElement> 
+     <MonElement name="nclusters"></MonElement>
+     <MonElement name="y">	</MonElement>
+     <MonElement name="x">	</MonElement>
+     <MonElement name="charge"> </MonElement>
+     <MonElement name="size">	</MonElement>
+     <MonElement name="sizeX">  </MonElement>
+     <MonElement name="sizeY">  </MonElement>
+     <MonElement name="minrow"> </MonElement>
+     <MonElement name="maxrow"> </MonElement>
+     <MonElement name="mincol"> </MonElement>
+     <MonElement name="maxcol"> </MonElement>
 </SubStructureEndcapLevel> 
 <SubStructureGrandEndcapLevel name="Blade_" update_frequency="300"> 
      <MonElement name="errorType">	</MonElement> 
      <MonElement name="NErrors">	</MonElement> 
      <MonElement name="ndigis">         </MonElement> 
      <MonElement name="adc">            </MonElement> 
+     <MonElement name="nclusters"></MonElement>
+     <MonElement name="y">	</MonElement>
+     <MonElement name="x">	</MonElement>
+     <MonElement name="charge"> </MonElement>
+     <MonElement name="size">	</MonElement>
+     <MonElement name="sizeX">  </MonElement>
+     <MonElement name="sizeY">  </MonElement>
+     <MonElement name="minrow"> </MonElement>
+     <MonElement name="maxrow"> </MonElement>
+     <MonElement name="mincol"> </MonElement>
+     <MonElement name="maxcol"> </MonElement>
 </SubStructureGrandEndcapLevel> 
 
 <SubStructureNonDetId name="AdditionalPixelErrors" update_frequency="300"> 	 
