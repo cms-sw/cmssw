@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Tue Jun 10 14:56:46 EDT 2008
-// $Id: CmsShowNavigator.cc,v 1.12 2008/07/22 09:29:11 jmuelmen Exp $
+// $Id: CmsShowNavigator.cc,v 1.13 2008/08/18 06:23:30 dmytro Exp $
 //
 
 // hacks
@@ -109,6 +109,13 @@ CmsShowNavigator::loadFile(const std::string& fileName)
    filterEventsAndReset(m_selection.c_str()); // first event is loaded at the end
 }
 
+void 
+CmsShowNavigator::nextEventChangeAlsoChangeFile(const std::string& fileName)
+{
+   m_nextFile = fileName;
+}
+
+
 Int_t
 CmsShowNavigator::realEntry(Int_t selectedEntry) {
   if (m_eventTree && m_eventTree->GetEventList() )
@@ -138,22 +145,35 @@ CmsShowNavigator::checkPosition() {
 void
 CmsShowNavigator::nextEvent() 
 {
+   if( ! m_nextFile.empty()) {
+      loadFile(m_nextFile);
+      m_nextFile.clear();
+      return;
+   }
    if ( m_loopMode && 
-	m_currentSelectedEntry == m_nEntries-1 ) firstEvent();
-   
-  if (m_currentSelectedEntry < m_nEntries-1 &&
+       m_currentSelectedEntry == m_nEntries-1 ) {
+      firstEvent();
+      return;
+   }
+   if (m_currentSelectedEntry < m_nEntries-1 &&
       m_event->to(realEntry(m_currentSelectedEntry+1)) ) {
      ++m_currentSelectedEntry;
      newEvent.emit(*m_event);
      checkPosition();
-  }
-  else oldEvent.emit(*m_event);
+   } else {
+      oldEvent.emit(*m_event);
+   }
 }
 
 void
 CmsShowNavigator::previousEvent()
 {
-  if (m_currentSelectedEntry > 0 &&
+   if( ! m_nextFile.empty()) {
+      loadFile(m_nextFile);
+      m_nextFile.clear();
+      return;
+   }
+   if (m_currentSelectedEntry > 0 &&
       m_event->to(realEntry(m_currentSelectedEntry-1)) ) {
      --m_currentSelectedEntry;
      newEvent.emit(*m_event);

@@ -16,7 +16,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Tue Jun 10 14:56:34 EDT 2008
-// $Id: CmsShowNavigator.h,v 1.7 2008/07/22 04:01:58 jmuelmen Exp $
+// $Id: CmsShowNavigator.h,v 1.8 2008/08/18 06:23:29 dmytro Exp $
 //
 
 // system include files
@@ -47,6 +47,7 @@ class CmsShowNavigator
       Int_t realEntry(Int_t run, Int_t event); // -1 means event not found
 
       void loadFile(const std::string& fileName);
+      void nextEventChangeAlsoChangeFile(const std::string& fileName);
       void checkPosition();
       void nextEvent();
       void previousEvent();
@@ -87,8 +88,9 @@ class CmsShowNavigator
       int m_currentEntry;
       int m_nEntries;
       int m_currentSelectedEntry;
-     const CmsShowMain 	&m_main;
+      const CmsShowMain 	&m_main;
       bool m_loopMode; // auto-rewind event loop
+      std::string m_nextFile;
 };
 
 
