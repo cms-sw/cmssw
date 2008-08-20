@@ -80,16 +80,18 @@ void PhotonIDAlgo::classify(const reco::Photon* photon,
   //EE yet.
 
   //Module boundaries in phi (supermodule boundaries):
-  float phigap = fabs(phi-int(phi*9/3.1416)*3.1416/9.);
-  if(phigap > 1.65 && phigap <1.85) isEBGap=true;
+  if (phi < 0) phi += TMath::Pi()*2.;
+  Int_t modnum =  int(phi * (18 / (TMath::Pi()*2.)));
+  Float_t modmod = (phi * (18/ (TMath::Pi()*2.)) - modnum);
+  if (modmod<.55 && modmod > .45)
+    isEBGap=true;
 
-  //Supermodule boundaries in eta:
-  
+  //Supermodule boundaries in eta:  
   // Loop over the vector of Eta boundaries given in the config file
   bool nearEtaBoundary = false;
   for (unsigned int i=0; i <= moduleEtaBoundary_.size(); i+=2) {
     // Checks to see if it's between the 0th and 1st entry, the 2nd and 3rd entry...etc
-    if ( (eta > moduleEtaBoundary_[i]) && (eta < moduleEtaBoundary_[i+1]) ) {
+    if ( (feta > moduleEtaBoundary_[i]) && (feta < moduleEtaBoundary_[i+1]) ) {
       //std::cout << "Photon between eta " << moduleEtaBoundary_[i] << " and " << moduleEtaBoundary_[i+1] << std::endl;
       nearEtaBoundary = true;
       break;
