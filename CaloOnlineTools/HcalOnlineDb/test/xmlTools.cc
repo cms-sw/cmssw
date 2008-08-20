@@ -253,7 +253,7 @@ int main( int argc, char **argv )
       }
       string _tag = vm["tag-name"].as<string>();
       HcalLutManager manager;
-      manager . createAllLutXmlFilesFromCoder( _tag, !vm.count("do-not-split-by-crate") );
+      //manager . createAllLutXmlFilesFromCoder( _tag, !vm.count("do-not-split-by-crate") );
       return 0;
     }
     

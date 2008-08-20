@@ -19,7 +19,9 @@
 //#include "CaloOnlineTools/HcalOnlineDb/interface/RooGKCounter.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
-#include "CalibCalorimetry/HcalTPGAlgos/interface/HcaluLUTTPGCoder.h"
+#include "CalibCalorimetry/CaloTPG/src/CaloTPGTranscoderULUT.h"
+#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
+
 
 using namespace std;
 using namespace oracle::occi;
@@ -212,7 +214,7 @@ HcalLutSet HcalLutManager::getLutSetFromFile( string _filename, int _type )
   return _lutset;
 }
 
-std::map<int, shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXmlFromCoder( string _tag, bool split_by_crate )
+std::map<int, shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXmlFromCoder( const HcalTPGCoder & _coder, string _tag, bool split_by_crate )
 {
   cout << "Generating linearization (input) LUTs from HcaluLUTTPGCoder..." << endl;
   map<int, shared_ptr<LutXml> > _xml; // index - crate number
@@ -230,6 +232,8 @@ std::map<int, shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXmlFromCod
 
   // FIXME: looking for the init file for HcaluLUTTPGCoder in local and global release areas.
   // FIXME: The coder initialization should not require hardcoded file in future (promised by Greg Landsberg).
+  // FIXME: UPDATE: coder is initialized through EventSetup, so must be provided as a parameter
+  /*
   string _coder_calib_filename;
   char * _base = getenv("CMSSW_BASE");
   string _base_filename(_base);
@@ -245,6 +249,7 @@ std::map<int, shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXmlFromCod
     _coder_calib_filename=_release_base_filename;
   }
   HcaluLUTTPGCoder _coder(_coder_calib_filename.c_str(),false);
+  */
 
   // read LUTs and their eta/phi/depth/subdet ranges
   //HcalLutSet _set = getLinearizationLutSetFromCoder();
@@ -284,7 +289,11 @@ std::map<int, shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXmlFromCod
       _cfg.iphi*10000 + _cfg.depth*1000 +
       (row->second.side>0)*100 + row->second.eta +
       ((row->second.det==HcalForward && row->second.eta==29)?(4*10000):(0));
-    HcalDetId _detid(row->first);
+
+    //HcalDetId _detid(row->first);
+    HcalDetId _detid(row->second.det, row->second.side*row->second.eta, row->second.phi, row->second.depth);
+    //cout << "### DEBUG: rawid = " << _detid.rawId() << endl;    
+
     //cout << "### DEBUG: subdetector = " << row->second.det << endl;    
     std::vector<unsigned short>  coder_lut = _coder . getLinearizationLUT(_detid);
     for (std::vector<unsigned short>::const_iterator _i=coder_lut.begin(); _i!=coder_lut.end();_i++){
@@ -425,7 +434,7 @@ int HcalLutManager::createAllLutXmlFiles( string _tag, string _lin_file, string 
   return 0;
 }
 
-int HcalLutManager::createAllLutXmlFilesFromCoder( string _tag, bool split_by_crate )
+int HcalLutManager::createAllLutXmlFilesFromCoder( const HcalTPGCoder & _coder, string _tag, bool split_by_crate )
 {
   //cout << "DEBUG1: split_by_crate = " << split_by_crate << endl;
   std::map<int, shared_ptr<LutXml> > xml;
@@ -433,7 +442,8 @@ int HcalLutManager::createAllLutXmlFilesFromCoder( string _tag, bool split_by_cr
     lut_checksums_xml = new XMLDOMBlock( "CFGBrick", 1 );
   }
   
-  addLutMap( xml, getLinearizationLutXmlFromCoder( _tag, split_by_crate ) );
+  addLutMap( xml, getLinearizationLutXmlFromCoder( _coder, _tag, split_by_crate ) );
+  addLutMap( xml, getCompressionLutXmlFromCoder( _tag, split_by_crate ) );
 
   writeLutXmlFiles( xml, _tag, split_by_crate );
 
@@ -527,6 +537,83 @@ std::map<int, shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFromAscii
     }
   }
   cout << "Generating compression (output) LUTs from ascii master file...DONE" << endl;
+  return _xml;
+}
+
+
+std::map<int, shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFromCoder( string _tag, bool split_by_crate )
+{
+  cout << "Generating compression (output) LUTs from CaloTPGTranscoderULUT" << endl;
+  map<int, shared_ptr<LutXml> > _xml; // index - crate number
+
+  //EMap _emap("../../../CondFormats/HcalObjects/data/official_emap_v5_080208.txt");
+  EMap _emap("../../../CondFormats/HcalObjects/data/official_emap_v6.03_080817.txt");
+
+  std::vector<EMap::EMapRow> & _map = _emap.get_map();
+  cout << "EMap contains " << _map . size() << " channels" << endl;
+
+  // read LUTs and their eta/phi/depth/subdet ranges
+  //HcalLutSet _set = getLutSetFromFile( _filename, 2 );
+  //int lut_set_size = _set.lut.size(); // number of different luts
+
+  CaloTPGTranscoderULUT _coder;
+
+  //loop over all EMap channels
+  for( std::vector<EMap::EMapRow>::const_iterator row=_map.begin(); row!=_map.end(); row++ ){
+    LutXml::Config _cfg;
+
+    // only trigger tower channels
+    if ( row->subdet . find("HT") != string::npos ) break;
+
+    if ( _xml.count(row->crate) == 0 && split_by_crate ){
+      _xml.insert( pair<int,shared_ptr<LutXml> >(row->crate,shared_ptr<LutXml>(new LutXml())) );
+    }
+    else if ( _xml.count(0) == 0 ){
+      _xml.insert( pair<int,shared_ptr<LutXml> >(0,shared_ptr<LutXml>(new LutXml())) );
+    }
+    _cfg.ieta = row->ieta;
+    _cfg.iphi = row->iphi;
+    _cfg.depth = row->idepth;
+    _cfg.crate = row->crate;
+    _cfg.slot = row->slot;
+    if (row->topbottom . find("t") != string::npos) _cfg.topbottom = 1;
+    else if (row->topbottom . find("b") != string::npos) _cfg.topbottom = 0;
+    else cout << "Warning! fpga out of range..." << endl;
+    _cfg.fiber = row->fiber;
+    _cfg.fiberchan = row->fiberchan;
+    _cfg.lut_type = 2;
+    _cfg.creationtag = _tag;
+    _cfg.creationstamp = get_time_stamp( time(0) );
+    _cfg.targetfirmware = "1.0.0";
+    _cfg.formatrevision = "1"; //???
+    // "original" definition of GENERALIZEDINDEX from Mike Weinberger
+    //   int generalizedIndex=id.ietaAbs()+10000*id.iphi()+
+    //       ((id.ieta()<0)?(0):(100));
+    _cfg.generalizedindex =
+      _cfg.iphi*10000+
+      (row->ieta>0)*100+abs(row->ieta);
+
+    // FIXME: work around bug in emap v6: rawId wasn't filled
+    //HcalTrigTowerDetId _detid(row->rawId);
+    HcalTrigTowerDetId _detid(row->ieta, row->iphi);
+
+    std::vector<unsigned char> coder_lut = _coder.getCompressionLUT(_detid);
+    for (std::vector<unsigned char>::const_iterator _i=coder_lut.begin(); _i!=coder_lut.end();_i++){
+      unsigned int _temp = (unsigned int)(*_i);
+      //if (_temp!=0) cout << "DEBUG non-zero LUT!!!!!!!!!!!!!!!" << (*_i) << "     " << _temp << endl;
+      //unsigned int _temp = 0;
+      _cfg.lut.push_back(_temp);
+    }
+    //_cfg.lut = _set.lut[lut_index];
+
+    if (split_by_crate ){
+      _xml[row->crate]->addLut( _cfg, lut_checksums_xml );  
+    }
+    else{
+      _xml[0]->addLut( _cfg, lut_checksums_xml );  
+    }
+  }
+  cout << "Generating compression (output) LUTs from CaloTPGTranscoderULUT...DONE" << endl;
   return _xml;
 }
 

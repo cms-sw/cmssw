@@ -14,15 +14,8 @@
 <use name=CalibCalorimetry/CaloTPG>
 <use name=CalibCalorimetry/HcalTPGAlgos>
 
-<export>
-  <lib name=CaloOnlineToolsHcalOnlineDb>
-  <use name=boost>
-  <use name=oracle>
-  <use name=DataFormats/Common>
-  <use name=rootrflx>
-  <use name=xerces-c>
-  <use name=xdaq>
-  <use name=DataFormats/HcalDetId>
-</export>
+<use name=CaloOnlineTools/HcalOnlineDb>
 
-
+<library file=Module.cc name=CaloOnlineToolsHcalOnlineDbPlugins>
+  <flags EDM_PLUGIN=1>
+</library>
