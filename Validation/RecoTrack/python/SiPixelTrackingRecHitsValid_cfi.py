@@ -3,7 +3,8 @@ import FWCore.ParameterSet.Config as cms
 PixelTrackingRecHitsValid = cms.EDFilter("SiPixelTrackingRecHitsValid",
                                          src = cms.untracked.string('TrackRefitter'),
                                          outputFile = cms.untracked.string('pixeltrackingrechitshist.root'),
-                                         debugNtuple = cms.untracked.string('SiPixelTrackingRecHitsValid_Ntuple.root'),
+                                         #debugNtuple = cms.untracked.string('SiPixelTrackingRecHitsValid_Ntuple.root'),
+                                         debugNtuple = cms.untracked.string(''),
                                          Fitter = cms.string('KFFittingSmoother'),
                                          # do we check that the simHit associated with recHit is of the expected particle type ?
                                          checkType = cms.bool(True),
