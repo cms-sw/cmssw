@@ -24,12 +24,14 @@ process.load("L1Trigger.Configuration.L1Config_cff")
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 
 process.load("DQMOffline.Trigger.FourVectorHLTOffline_cfi")
-process.load("DQMOffline.Trigger.L1TMonitor_dqmoffline_cff")
-process.load("DQMOffline.Trigger.Tau.HLTTauDQMOffline_cff")
-process.load("DQMOffline.Trigger.EgammaHLTOffline_cfi")
-process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
+#process.load("DQMOffline.Trigger.L1TMonitor_dqmoffline_cff")
+#process.load("DQMOffline.Trigger.Tau.HLTTauDQMOffline_cff")
+#process.load("DQMOffline.Trigger.EgammaHLTOffline_cfi")
+#process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
 
-
+from DQMOffline.Trigger.FourVectorHLTOffline_cfi import *
+process.hltmonitor = cms.Sequence(hltResults)
+hltResults.triggerSummaryLabel = cms.InputTag("hltTriggerSummaryAOD","","HLT")
 
 
 process.maxEvents = cms.untracked.PSet(
@@ -37,8 +39,8 @@ process.maxEvents = cms.untracked.PSet(
 )
 process.source = cms.Source("PoolSource",
     fileNames = 
-#cms.untracked.vstring('/store/relval/CMSSW_2_1_0/RelValZEE/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/STARTUP_V4_v1/0000/0EF324BD-9160-DD11-B591-000423D944F8.root')
-cms.untracked.vstring('/store/relval/CMSSW_2_1_0/RelValZMM/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/STARTUP_V4_v1/0000/08D532C8-9C60-DD11-AB1C-000423D99996.root')
+cms.untracked.vstring('/store/relval/CMSSW_2_1_0/RelValZEE/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/STARTUP_V4_v1/0000/0EF324BD-9160-DD11-B591-000423D944F8.root')
+#cms.untracked.vstring('/store/relval/CMSSW_2_1_0/RelValZMM/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/STARTUP_V4_v1/0000/08D532C8-9C60-DD11-AB1C-000423D99996.root')
 )
 
 process.MessageLogger = cms.Service("MessageLogger",
@@ -61,7 +63,7 @@ process.MessageLogger = cms.Service("MessageLogger",
         'cout')
 )
 
-process.psource = cms.Path(process.hltResults)
+process.psource = cms.Path(process.hltmonitor)
 process.p = cms.EndPath(process.dqmSaver)
 process.DQMStore.verbose = 0
 process.DQM.collectorHost = ''
