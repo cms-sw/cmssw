@@ -76,7 +76,7 @@ process.load('DQM.L1TMonitor.L1TDEMON_cfi')
 process.l1demon.VerboseFlag = cms.untracked.int32(1)
 process.l1demon.HistFile = cms.untracked.string('gctDqm.root')
 
-process.p = cms.Path ( process.gctRaw * process.l1GctHwDigis
+process.defaultPath = cms.Sequence ( process.gctRaw * process.l1GctHwDigis
 # print Raw
                        * process.dumpRaw
 # print GCT digis
@@ -87,3 +87,5 @@ process.p = cms.Path ( process.gctRaw * process.l1GctHwDigis
                        * process.l1tgct
 # Emulator DQM
                        * process.valGctDigis * process.l1compare * process.l1demon )
+
+process.p = cms.Path(process.defaultPath)
