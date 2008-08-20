@@ -11,8 +11,8 @@
 
 /** \class HcalDigiMonitor
   *  
-  * $Date: 2008/07/04 20:38:02 $
-  * $Revision: 1.27 $
+  * $Date: 2008/07/10 23:55:37 $
+  * $Revision: 1.28 $
   * \author W. Fisher - FNAL
   */
 
@@ -33,7 +33,12 @@ struct DigiHists
   
   TH2F* PROBLEMDIGICELLS_TEMP;
   std::vector<TH2F*> PROBLEMDIGICELLS_TEMP_DEPTH;
-  
+  // Separate by types of problems
+  std::vector<MonitorElement*> problemCell_noDigi;
+  std::vector<MonitorElement*> problemCell_BadCapID;
+  std::vector<MonitorElement*> problemCell_WrongDigiSize;
+  std::vector<MonitorElement*> problemCell_ADCSumIsZero;
+
   MonitorElement* DIGI_NUM;
   MonitorElement* DIGI_SIZE;
   MonitorElement* DIGI_PRESAMPLE;
@@ -59,6 +64,13 @@ struct DigiHists
   MonitorElement* CAPID_T0;
   MonitorElement* BQDIGI_NUM;
   MonitorElement* BQDIGI_FRAC;
+  
+  // Pedestal plots for each depth of each subdetector
+  MonitorElement* RAW_PEDESTAL_MEAN[4];
+  MonitorElement* RAW_PEDESTAL_RMS[4];
+  MonitorElement* SUB_PEDESTAL_MEAN[4];
+  MonitorElement* SUB_PEDESTAL_RMS[4];
+
   
   std::vector<MonitorElement*> TS_SUM_P, TS_SUM_M;
   
