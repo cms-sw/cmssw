@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2008/08/11 08:36:15 $
- * $Revision: 1.165 $
+ * $Date: 2008/08/20 15:35:54 $
+ * $Revision: 1.166 $
  * \author G. Della Ricca
  *
 */
@@ -1122,8 +1122,8 @@ void EBSummaryClient::analyze(void) {
 
         if(val_in==6) xval=6;
         else if(val_in==0) xval=0;
-	else if(val_po==0 || val_ls==0 || val_tm==0 || val_sf==0 || val_ee==0) xval=0;
-	else if(val_po==2 || val_ls==2 || val_tm==2 || val_sf==2 || val_ee==2) xval=2;
+        else if(val_po==0 || val_ls==0 || val_tm==0 || val_sf==0 || val_ee==0) xval=0;
+        else if(val_po==2 || val_ls==2 || val_tm==2 || val_sf==2 || val_ee==2) xval=2;
         else xval=1;
 
         // if the SM is entirely not read, the masked channels
