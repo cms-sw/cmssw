@@ -71,7 +71,7 @@ void HcalBeamMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
       //CenterOfEnergy->GetYaxis()->SetTitle("normalized y coordinate");
 
       COEradiusVSeta = m_dbe->bookProfile("COEradiusVSeta",
-					  "Center of Energy radius vs #ieta",
+					  "Center of Energy radius vs i#eta",
 					  172,-43,43,
 					  200,0,1);
       //COEradiusVSeta->GetXaxis()->SetTitle("i#eta");
