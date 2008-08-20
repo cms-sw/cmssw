@@ -1,20 +1,11 @@
 // -*- C++ -*-
-//
 // Package:    HLTMuonTauAnalyzer
 // Class:      HLTMuonTauAnalyzer
-// 
 /**\class HLTMuonTauAnalyzer HLTMuonTauAnalyzer.cc HLTriggerOffline/Muon/src/HLTMuonTauAnalyzer.cc
-
- Description: <one line class summary>
-
- Implementation:
-     <Notes on implementation>
 */
-//
 // Original Author:  Sho Maruyama, from Muriel Vander Donckt's code
 //         Created:  Tue Jul 24 12:17:12 CEST 2007
-// $Id: HLTMuonTauAnalyzer.cc,v 1.3 2008/06/17 13:16:45 muriel Exp $
-//
+// $Id: HLTMuonTauAnalyzer.cc,v 1.1 2008/08/05 18:36:42 smaruyam Exp $
 
 #include "HLTriggerOffline/Tau/interface/HLTMuonTauAnalyzer.h"
 typedef std::vector< edm::ParameterSet > Parameters;
@@ -63,5 +54,4 @@ HLTMuonTauAnalyzer::endJob() {
   } 
 }
 
-//define this as a plug-in
-DEFINE_FWK_MODULE(HLTMuonTauAnalyzer);
+//DEFINE_FWK_MODULE(HLTMuonTauAnalyzer);
