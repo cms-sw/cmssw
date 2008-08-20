@@ -1,4 +1,4 @@
-// $Id: EventStreamService.cc,v 1.1 2008/08/13 22:48:12 biery Exp $
+// $Id: EventStreamService.cc,v 1.2 2008/08/14 12:10:15 loizides Exp $
 
 #include <EventFilter/StorageManager/interface/EventStreamService.h>
 #include <EventFilter/StorageManager/interface/ProgressMarker.h>
@@ -70,6 +70,7 @@ void EventStreamService::stop()
 {
   for (OutputMapIterator it = outputMap_.begin(); it != outputMap_.end(); ) {
     boost::shared_ptr<FileRecord> fd(it->first);
+    fd->setWhyClosed(1);
     outputMap_.erase(it++);
     fillOutputSummaryClosed(fd);
   }
@@ -84,14 +85,26 @@ void EventStreamService::stop()
 void EventStreamService::closeTimedOutFiles(int lumi, double timeoutdiff)
 {
   for (OutputMapIterator it = outputMap_.begin(); it != outputMap_.end(); ) {
-    if ( (it->second->lumiSection() < lumi-1) || //close old lumi sections in any case
-         ((timeoutdiff > lumiSectionTimeOut_) && //check for timeout of previous lumi sections
-          (it->second->lumiSection() < lumi)) ) {
-      boost::shared_ptr<FileRecord> fd(it->first);
-      outputMap_.erase(it++);
-      fillOutputSummaryClosed(fd);
-    } else 
+
+    // do not touch files from current lumi section
+    if (it->first->lumiSection() == lumi) {
       ++it;
+      continue;
+    }
+
+    if (it->first->lumiSection() < lumi-1) {
+      it->first->setWhyClosed(2);  // close old (N-2) lumi sections in any case
+    } else if (timeoutdiff > lumiSectionTimeOut_) {
+      it->first->setWhyClosed(3);  // check if timeout reached for previous (N-1) lumi sections
+    } else {
+      ++it;
+      continue;
+    }
+
+    // close the file
+    boost::shared_ptr<FileRecord> fd(it->first);
+    outputMap_.erase(it++);
+    fillOutputSummaryClosed(fd);
   }
 }
 
@@ -106,8 +119,9 @@ boost::shared_ptr<OutputService> EventStreamService::getOutputService(EventMsgVi
        if (it->first->lumiSection() == lumiSection_) {
 	  if (checkEvent(it->first, view))
 	    return it->second;
-	  else {
+	  else { // close file since file size exceeded
             boost::shared_ptr<FileRecord> fd(it->first);
+            fd->setWhyClosed(4);
             outputMap_.erase(it);
             fillOutputSummaryClosed(fd);
             break;

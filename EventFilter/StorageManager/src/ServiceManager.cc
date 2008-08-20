@@ -1,4 +1,4 @@
-// $Id: ServiceManager.cc,v 1.11 2008/08/07 11:33:15 loizides Exp $
+// $Id: ServiceManager.cc,v 1.12 2008/08/13 22:48:12 biery Exp $
 
 #include <EventFilter/StorageManager/interface/ServiceManager.h>
 #include "EventFilter/StorageManager/interface/Configurator.h"
@@ -173,13 +173,13 @@ void ServiceManager::manageEventMsg(EventMsgView& msg)
   }
 
   // close time-out open files from previous lumi-section 
-  if(currentlumi_>0) {
+  if(currentlumi_>1) {
 
     StreamsIterator itBeg = managedOutputs_.begin();
     StreamsIterator itEnd = managedOutputs_.end();
     if (itBeg != itEnd) {
       double tdiff = (*itBeg)->getCurrentTime() - timeouttime_;
-
+      if(tdiff<1) return;
       for(StreamsIterator it = itBeg; it != itEnd; ++it) 
         (*it)->closeTimedOutFiles(currentlumi_, tdiff);
     }
