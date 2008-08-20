@@ -25,7 +25,7 @@ FastJetBaseWrapper::FastJetBaseWrapper(const edm::ParameterSet& fConfig)
   : mJetDefinition (0), 
     mActiveArea (0)
 {
-  mJetPtMin = fConfig.getParameter<double> ("JetPtMin");
+  mJetPtMin = fConfig.getParameter<double> ("jetPtMin");
   if (fConfig.getParameter<std::string> ("UE_Subtraction") == "yes") {            // accept pilup subtraction parameters
     double ghostEtaMax = fConfig.getParameter<double> ("Ghost_EtaMax");   //default Ghost_EtaMax should be 6
     int activeAreaRepeats = fConfig.getParameter<int> ("Active_Area_Repeats");   //default Active_Area_Repeats 5
