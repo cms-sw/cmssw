@@ -1,7 +1,8 @@
 #include "CondCore/Modules/src/EmptyIOVSource.h"
+#include "CondCore/DBCommon/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/IOVSyncValue.h"
-#include "DataFormats/Provenance/interface/EventID.h"
+//#include "DataFormats/Provenance/interface/EventID.h"
 #include <iostream>
 namespace cond{
   //allowed parameters: firstRun, firstTime, lastRun, lastTime, 
@@ -34,8 +35,12 @@ namespace cond{
   void EmptyIOVSource::setRunAndEventInfo(){
     if( m_timeType=="runnumber" ){
       setRunNumber(*m_current);
-    }else{
+    }else if( m_timeType=="timestamp" ){
       setTime(*m_current);
+    }else if( m_timeType=="lumiid" ){
+      setLuminosityBlockNumber_t(*m_current);
+    }else{
+      throw cond::Exception(std::string("EmptyIOVSource::setRunAndEventInfo: ")+m_timeType+std::string("is not one of the supported types: runnumber,timestamp,lumiid") );
     }
     setEventNumber(1);
   }
