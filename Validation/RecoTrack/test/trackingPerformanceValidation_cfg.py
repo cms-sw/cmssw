@@ -28,7 +28,7 @@ process.load("Validation.RecoTrack.MultiTrackValidator_cff")
 process.load("SimGeneral.TrackingAnalysis.trackingParticles_cfi")
 
 ### configuration MultiTrackValidator ###
-process.multiTrackValidator.out = 'val.SAMPLE.root'
+process.multiTrackValidator.outputFile = 'val.SAMPLE.root'
 
 
 process.cutsRecoTracks.algorithm = cms.vstring('ALGORITHM')

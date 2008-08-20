@@ -4,8 +4,8 @@
 /** \class MultiTrackValidatorBase
  *  Base class for analyzers that produces histrograms to validate Track Reconstruction performances
  *
- *  $Date: 2008/06/24 08:33:35 $
- *  $Revision: 1.9.2.2 $
+ *  $Date: 2008/06/30 13:14:03 $
+ *  $Revision: 1.11 $
  *  \author cerati
  */
 
@@ -43,7 +43,7 @@ class MultiTrackValidatorBase {
     label_tp_effic(pset.getParameter< edm::InputTag >("label_tp_effic")),
     label_tp_fake(pset.getParameter< edm::InputTag >("label_tp_fake")),
     associators(pset.getParameter< std::vector<std::string> >("associators")),
-    out(pset.getParameter<std::string>("out")),   
+    out(pset.getParameter<std::string>("outputFile")),   
     min(pset.getParameter<double>("min")),
     max(pset.getParameter<double>("max")),
     nint(pset.getParameter<int>("nint")),
