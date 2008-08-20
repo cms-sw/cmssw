@@ -24,8 +24,6 @@ process.load("DQM.EcalEndcapMonitorTasks.EcalEndcapMonitorTasks_cfi")
 
 process.load("DQM.EcalEndcapMonitorClient.EcalEndcapMonitorClient_cfi")
 
-process.load("FWCore.Modules.printContent_cfi")
-
 process.load("CalibCalorimetry.EcalLaserCorrection.ecalLaserCorrectionService_cfi")
 
 process.load("DQMServices.Core.DQM_cfg")
