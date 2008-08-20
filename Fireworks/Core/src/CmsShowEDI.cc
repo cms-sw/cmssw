@@ -8,7 +8,7 @@
 //
 // Original Author:  Joshua Berger  
 //         Created:  Mon Jun 23 15:48:11 EDT 2008
-// $Id: CmsShowEDI.cc,v 1.7 2008/07/16 22:58:38 chrjones Exp $
+// $Id: CmsShowEDI.cc,v 1.8 2008/07/17 00:39:32 chrjones Exp $
 //
 
 // system include files
@@ -80,6 +80,7 @@ m_item(0)
   colors.push_back((Pixel_t)gVirtualX->GetPixel(kCyan));
   colors.push_back((Pixel_t)gVirtualX->GetPixel(kMagenta));
   colors.push_back((Pixel_t)gVirtualX->GetPixel(kOrange));
+  colors.push_back((Pixel_t)gVirtualX->GetPixel(kGray));
   colors.push_back((Pixel_t)gVirtualX->GetPixel(TColor::GetColorDark(kRed)));
   colors.push_back((Pixel_t)gVirtualX->GetPixel(TColor::GetColorDark(kBlue)));
   colors.push_back((Pixel_t)gVirtualX->GetPixel(TColor::GetColorDark(kYellow)));
@@ -87,6 +88,7 @@ m_item(0)
   colors.push_back((Pixel_t)gVirtualX->GetPixel(TColor::GetColorDark(kCyan)));
   colors.push_back((Pixel_t)gVirtualX->GetPixel(TColor::GetColorDark(kMagenta)));
   colors.push_back((Pixel_t)gVirtualX->GetPixel(TColor::GetColorDark(kOrange)));
+  colors.push_back((Pixel_t)gVirtualX->GetPixel(kGray+2));
   bool haveColor = false;
   for (std::vector<Pixel_t>::const_iterator iCol = colors.begin(); iCol != colors.end(); ++iCol) {
     if (*iCol == selection) haveColor = true;
