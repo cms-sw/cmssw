@@ -76,6 +76,7 @@ def optionParse():
                         stepOptions      = "",
                         candleOptions    = "",
                         unittest         = False,
+                        verbose          = True,
                         castordir = "/castor/cern.ch/cms/store/relval/performance/",
                         cores     = 4, #Number of cpu cores on the machine
                         cpu       = 1) #Cpu core on which the suite is run:
@@ -110,15 +111,16 @@ def optionParse():
         '--test',
         action="store_true",
         dest='unittest',
-        help='Perform a simple test, overrides other options',
+        help='Perform a simple test, overrides other options. Overrides verbosity and sets it to false.',
         #metavar='<#EVENTS>',
         )
 
     parser.add_option(
-        '--verbose',
-        action="store_true",
+        '-q',
+        '--quiet',
+        action="store_false",
         dest='verbose',
-        help='Output additional information',
+        help='Output less information',
         #metavar='<#EVENTS>',
         )
     
@@ -223,12 +225,15 @@ def printFlush(command):
     sys.stdout.flush()
 
 def runcmd(command):
-    process  = os.popen4(command)
-    cmdout   = process[1].read()
-    exitstat = process[1].close()
+    process  = os.popen(command)
+    cmdout   = process.read()
+    exitstat = process.close()
     if _verbose:
         print cmdout
     return exitstat
+
+def getDate():
+    return time.ctime()
 
 def benchmarks(name,bencher):
     cmd = Commands[3]
@@ -245,8 +250,6 @@ def benchmarks(name,bencher):
         runcmd(command)
         sys.stdout.flush()
 
-def getDate():
-    return time.ctime()
 
 def printDate():
     print getDate()
@@ -263,11 +266,8 @@ def getPrereqRoot(rootdir,rootfile):
 
 def checkQcdConditions(isAllCandles,candles,TimeSizeEvents,rootdir,rootfile):
     if TimeSizeEvents < MIN_REQ_TS_EVENTS :
-        print "WARNING: TimeSizeEvents is less than 8 but QCD needs at least that to run. Setting TimeSizeEvents to 8"
-        if isAllCandles:
-            candles.remove("QCD_80_120")
-        else:
-            candles.remove("QCD_80_120")
+        print "WARNING: TimeSizeEvents is less than %s but QCD needs at least that to run. PILE-UP will be ignored" % MIN_REG_TS_EVENTS
+        
         
     rootfilepath = rootdir + "/" + rootfile
     if not os.path.exists(rootfilepath):
@@ -323,10 +323,11 @@ def runCmsReport(dir,cmsver,candle):
 def testCmsDriver(dir,cmsver,candle):
     cmd  = Commands[0]
     noExit = True
-    print "Running test cmsDriver"
+
     for line in open("./%s/SimulationCandles_%s.txt" % (dir,cmsver)):
-        if line.lstrip().startswith("#") and (line.isspace() or len(line) == 0): 
-            cmdonline = line.split("@@@",1)
+        if (not line.lstrip().startswith("#")) and not (line.isspace() or len(line) == 0): 
+            cmdonline  = line.split("@@@",1)[0]
+            print cmdonline
             cmds = ("cd %s" % (dir),
                     "%s"    % (cmdonline))
             if not runCmdSet(cmds) == None:
@@ -399,6 +400,11 @@ def main(argv):
     _verbose         = options.verbose
 
     if _unittest:
+        _verbose = False
+        if candleoption == "":
+            candleoption = "MinBias"
+        if stepOptions == "":
+            stepOptions = "GEN-SIM,DIGI,DIGI2RAW,L1,HLT,RAW2DIGI,RECO"
         cmsScimark      = 0
         cmsScimarkLarge = 0
         ValgrindEvents  = 0
@@ -449,6 +455,7 @@ def main(argv):
     Commands=[]
     AuxiliaryCommands=[]
     AllScripts=Scripts+AuxiliaryScripts
+
     for script in AllScripts:
         which="which "+script
         
@@ -461,26 +468,25 @@ def main(argv):
         elif script == "cmsScimarkLaunch.csh":
             for core in range(int(cores)):
                 if core != int(cpu):
-                    command="taskset -c "+str(core)+" "+script+" "+str(core)
+                    command="taskset -c %s %s %s" % (str(core),script,str(core))
                     AuxiliaryCommands.append(command)
         else:
             command=script
             AuxiliaryCommands.append(command)
             
-    #print Commands
-    #print AuxiliaryCommands
     sys.stdout.flush()
     
     #First submit the cmsScimark benchmarks on the unused cores:
-    for core in range(int(cores)):
-        if core != int(cpu):
-            print "Submitting cmsScimarkLaunch.csh to run on core cpu"+str(core)
-            command="taskset -c "+str(core)+" cmsScimarkLaunch.csh "+str(core)+"&"
-            print command
+    if not _unittest:    
+        for core in range(int(cores)):
+            if core != int(cpu):
+                print "Submitting cmsScimarkLaunch.csh to run on core cpu"+str(core)
+                command="taskset -c %s cmsScimarkLaunch.csh %s &" % (str(core),str(core))
+                print command
             
-            #cmsScimarkLaunch.csh is an infinite loop to spawn cmsScimark2 on the other
-            #cpus so it makes no sense to try reading its stdout/err 
-            os.popen4(command)
+                #cmsScimarkLaunch.csh is an infinite loop to spawn cmsScimark2 on the other
+                #cpus so it makes no sense to try reading its stdout/err 
+                os.popen4(command)
             
     #Submit the cmsScimark benchmarks on the cpu where the suite will be run:
     scimark      = open("cmsScimark2.log"      ,"w")

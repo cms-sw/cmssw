@@ -61,7 +61,7 @@ Profiler = {
 # Need a little hash to match the candle with the ROOT name used by cmsDriver.py.
 
 FileName = {
-    'HZZLLLL'      : 'HZZLLLL_190',
+    'HZZLLLL'      : 'HZZLLLL_200',
     'MINBIAS'      : 'MINBIAS_',
     'E -e 1000'    : 'E_1000',
     'MU- -e pt10'  : 'MU-_pt10',
@@ -95,12 +95,20 @@ def checkSteps(steps):
     idx = -2
     lstidx = -2
     for step in steps:
-        idx = AllSteps.index(step)
+        astep = step
+        split = []
+        if "-" in step:
+            split = astep.split("-")
+            astep = split[0]
+        idx = AllSteps.index(astep)
         if not ( idx == -2 ):
             if lstidx > idx:
                 print "ERROR: Your user defined steps are not in a valid order"
                 sys.exit()
-        lstidx = idx
+        lstidx = idx    
+        if "-" in step:
+            lstidx = AllSteps.index(split[1])
+
 
 def getSteps(userSteps):
 
@@ -121,7 +129,7 @@ def getSteps(userSteps):
 
         steps.append(astep)
     
-    steps = expandHypens(steps)
+    #steps = expandHypens(steps)
     checkSteps(steps)
     return steps
         
@@ -224,38 +232,37 @@ def optionparse():
 
     return (options, args)
 
-def expandHypens(steps):
-    
+def expandHyphens(step):
     newsteps = []
-    for step in steps:
-        if "-" in step:
-            hypsteps = step.split(r"-")
-            if not (len(hypsteps) == 2):
-                print "ERROR: Could not parse usersteps. You have too many hypens between commas"
-                sys.exit()
-            elif not (hypsteps[0] in AllSteps and hypsteps[1] in AllSteps):
-                print "ERROR: One of the steps you defined is invalid"
-                sys.exit()
-            else:
-                if (hypsteps[0] == hypsteps[1]):
-                    print "WARNING: You should not add a hypenated step that as the same source and destination step, ignoring"
-                    newsteps.append(hypsteps[0])
-                else:
-                    newsteps.append(hypsteps[0])
-                    srt = AllSteps.index(hypsteps[0]) + 1
-                    for n in range(srt,len(AllSteps) - 1,1):
-                        astep = AllSteps[n]
-                        if astep == hypsteps[1]:
-                            break
-                        else:
-                            newsteps.append(astep)
-                    newsteps.append(hypsteps[1])
+#    for step in steps:
+    if "-" in step:
+        hypsteps = step.split(r"-")
+        if not (len(hypsteps) == 2):
+            print "ERROR: Could not parse usersteps. You have too many hypens between commas"
+            sys.exit()
+        elif not (hypsteps[0] in AllSteps and hypsteps[1] in AllSteps):
+            print "ERROR: One of the steps you defined is invalid"
+            sys.exit()
         else:
-            if not (step in AllSteps):
-                print "ERROR: One of the steps you defined is invalid"
-                sys.exit()
+            if (hypsteps[0] == hypsteps[1]):
+                print "WARNING: You should not add a hypenated step that as the same source and destination step, ignoring"
+                newsteps.append(hypsteps[0])
             else:
-                newsteps.append(step)
+                newsteps.append(hypsteps[0])
+                srt = AllSteps.index(hypsteps[0]) + 1
+                for n in range(srt,len(AllSteps) - 1,1):
+                    astep = AllSteps[n]
+                    if astep == hypsteps[1]:
+                        break
+                    else:
+                        newsteps.append(astep)
+                newsteps.append(hypsteps[1])
+    else:
+        if not (step in AllSteps):
+            print "ERROR: One of the steps you defined is invalid"
+            sys.exit()
+        else:
+            newsteps.append(step)
     return newsteps
 
 def setupProgramParameters(options,args):
@@ -465,7 +472,11 @@ def writeUnprofiledSteps(simcandles,CustomisePythonFragment,cmsDriverOptions,unp
     simcandles.write( "%s @@@ None @@@ None\n\n" % (Command))
 
 def writePrerequisteSteps(simcandles,steps,acandle,NumberOfEvents,cmsDriverOptions):
-    fstIdx = AllSteps.index(steps[0]) 
+    fstIdx = -1
+    if "-" in steps[0]:
+        fstIdx = AllSteps.index(steps[0].split("-")[0])
+    else:
+        fstIdx = AllSteps.index(steps[0])
     CustomisePythonFragment = pythonFragment("GEN,SIM")
     writeUnprofiledSteps(simcandles, CustomisePythonFragment, cmsDriverOptions,AllSteps[0:fstIdx],acandle,NumberOfEvents, 0)        
     return fstIdx
@@ -490,8 +501,16 @@ def writeCommands(simcandles,
     if not qcd :
         if not (steps[0] == AllSteps[0]):
             stepIndex = writePrerequisteSteps(simcandles,steps,acandle,NumberOfEvents,cmsDriverOptions)
-            start = AllSteps.index(steps[0])
-            lst   = AllSteps.index(steps[-1])
+            start = -1
+            if "-" in steps[0]:
+                start = AllSteps.index(steps[0].split("-")[0])
+            else:
+                start = AllSteps.index(steps[0])
+            lst = - 1
+            if "-" in steps[-1]:
+                lst   = AllSteps.index(steps[-1].split("-")[1])
+            else:
+                lst   = AllSteps.index(steps[-1])
             steps = AllSteps
             runSteps = AllSteps[start:lst]
             numOfSteps = (lst - start) + 1
@@ -499,13 +518,21 @@ def writeCommands(simcandles,
 
     unprofiledSteps = []
 #   FOR step in steps
+
     for x in range(start,stopIndex,1):
-        step = steps[x]
+        if stepIndex >= stopIndex:
+            break
+        step = steps[stepIndex]
 
         #(Profile , SavedProfile) = determineNewProfile(step,Profile,SavedProfile)
         CustomisePythonFragment = pythonFragment(step)
-
-        if step in userSteps:
+        
+        if step in userSteps or map(lambda x: step in x,userSteps):
+            hypMatch = filter(lambda x: "-" in x,filter(lambda x: step in x,userSteps))
+            if not len(hypMatch) == 0 :
+                hypsteps = expandHyphens(hypMatch[0])
+                stepIndex += len(hypsteps) - 1
+                step = ",".join(hypsteps)
 
             writeStepHead(simcandles,acandle,step,qcd)
 
