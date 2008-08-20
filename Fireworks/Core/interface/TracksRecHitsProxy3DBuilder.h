@@ -4,7 +4,7 @@
 // Original Author:  
 //         Created:  Thu Dec  6 18:01:21 PST 2007
 // Original name
-// $Id: TracksRecHitsProxy3DBuilder.h,v 1.1 2008/03/07 05:39:32 tdaniels Exp $
+// $Id: TracksRecHitsProxy3DBuilder.h,v 1.2 2008/06/09 19:54:02 chrjones Exp $
 // New version
 // $Id: TracksRecHitsProxy3DBuilder.h, v 1.0 2008 02/21 10:53:48 Tom Danielson
 // system include files
@@ -36,6 +36,8 @@ class TracksRecHitsProxy3DBuilder : public FWRPZDataProxyBuilder
 
       const TracksRecHitsProxy3DBuilder& operator=(const TracksRecHitsProxy3DBuilder&); // stop default
 
+      void modelChanges(const FWModelIds& iIds, TEveElement* iElements);
+      void applyChangesToAllModels(TEveElement* iElements);
       // ---------- member data --------------------------------
 
 };
