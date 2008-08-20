@@ -1,6 +1,5 @@
 /** \class HLTMuonRate
  *  Get L1/HLT efficiency/rate plots
- *
  *  \author Sho Maruyama  (copied from J. Alcaraz)
  */
 #include "HLTriggerOffline/Tau/interface/HLTMuonRate.h"
@@ -197,12 +196,11 @@ for(unsigned int i = 0; i < refVector->size(); i++){
       }
     }
   }
-
 }
 
 pair<double,double> HLTMuonRate::getAngle(double eta, double phi, Handle< vector<XYZTLorentzVectorD> > & refVector)
 {
-  LogTrace("HLTMuonVal")<< "in getGenAngle";
+  LogTrace("HLTMuonVal")<< "in getAngle";
   double candDeltaR = 0.4;
   pair<double,double> angle(999.,999.);
   LogTrace("HLTMuonVal")<< " candidate eta="<<eta<<" and phi="<<phi;
@@ -239,13 +237,13 @@ void HLTMuonRate::BookHistograms(){
     snprintf(str, 99, "%s",theL1CollectionLabel.encode().c_str() );
     mylabel = strtok(str,":");
     snprintf(chname, 255, "L1DR_%s", mylabel);
-    snprintf(chtitle, 255, "L1 Gen association #DR, label=%s", mylabel);
+    snprintf(chtitle, 255, "L1 association #DR, label=%s", mylabel);
     hL1DR= BookIt(chname, chtitle,theNbins, 0., 0.5);
     snprintf(chname, 255, "L2DR_%s", mylabel);
-    snprintf(chtitle, 255, "L2 Gen association #DR, label=%s", mylabel);
+    snprintf(chtitle, 255, "L2 association #DR, label=%s", mylabel);
     hL2DR= BookIt(chname, chtitle,theNbins, 0., 0.5);
     snprintf(chname, 255, "L3DR_%s", mylabel);
-    snprintf(chtitle, 255, "L3 Gen association #DR, label=%s", mylabel);
+    snprintf(chtitle, 255, "L3 association #DR, label=%s", mylabel);
     hL3DR= BookIt(chname, chtitle,theNbins, 0., 0.5);
     snprintf(chname, 255, "HLTSteps_%s", mylabel);
     snprintf(chtitle, 255, "Events passing the HLT filters, label=%s", mylabel);
@@ -256,7 +254,6 @@ void HLTMuonRate::BookHistograms(){
 
     snprintf(chname, 255, "rate_%s", mylabel);
     snprintf(chtitle, 255, "Rate (Hz) vs L1 Pt threshold (GeV), label=%s, L=%.2E (cm^{-2} s^{-1})", mylabel, theLuminosity*1.e33);
-
     hL1rate =   BookIt(chname, chtitle, theNbins, thePtMin, thePtMax);
     dbe_->cd();
     snprintf(str3,99, "HLT/Muon/Distributions/%s",mydirlabel);
