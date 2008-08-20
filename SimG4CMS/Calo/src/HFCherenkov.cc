@@ -191,6 +191,83 @@ int HFCherenkov::computeNPE(G4ParticleDefinition* pDef, double pBeta,
 #endif
   return npe;
 }
+int HFCherenkov::computeNPEinPMT(G4ParticleDefinition* pDef, double pBeta, 
+                                 double u, double v, double w, 
+                                 double step_length){
+  clearVectors();
+  int npe_ = 0;
+  if (!isApplicable(pDef)) {return 0;}
+  if (pBeta < (1/ref_index) || step_length < 0.0001) {
+    LogDebug("HFShower") << "HFCherenkov::computeNPEinPMT: pBeta " << pBeta 
+			 << " 1/mu " << (1/ref_index) << " step_length " 
+			 << step_length;
+    return 0;
+  }
+   
+  double uv = sqrt(u*u + v*v);
+  int nbOfPhotons = computeNbOfPhotons(pBeta, step_length);
+  LogDebug("HFShower") << "HFCherenkov::computeNPEinPMT: pBeta " << pBeta 
+		       << " u/v/w " << u << "/" << v << "/" << w 
+		       << " step_length " << step_length  
+		       << " nbOfPhotons " << nbOfPhotons;
+   
+  if (nbOfPhotons < 0) {
+    return 0;
+  } else if (nbOfPhotons > 0) {
+    double u_ph, v_ph, w_ph=0;
+    for (int i = 0; i < nbOfPhotons; i++) {
+      double rand     = G4UniformRand();
+      double theta_C  = acos(1./(pBeta*ref_index));
+      double phi_C    = 2*M_PI*rand;
+      double sinTheta = sin(theta_C);
+      double cosTheta = cos(theta_C);
+      double sinPhi   = sin(phi_C);
+      double cosPhi   = cos(phi_C); 
+      //photon momentum
+      if (uv < 0.001) { // aligned with z-axis
+	u_ph = sinTheta * cosPhi;
+	v_ph = sinTheta * sinPhi;
+	w_ph = cosTheta;
+      } else { // general case
+	u_ph = u * cosTheta  + sinTheta * (v*sinPhi + u*w*cosPhi)/ uv;
+	v_ph = v * cosTheta  + sinTheta * (-u*sinPhi + v*w*cosPhi)/ uv;
+	w_ph = w * cosTheta - sinTheta * cosPhi * uv;
+      }
+      double r_lambda = G4UniformRand();
+      double lambda0 = (lambda1 * lambda2) / (lambda2 - r_lambda *
+					      (lambda2 - lambda1));
+      double lambda  = (lambda0/cm) * pow(double(10),7); // lambda is in nm
+      wlini.push_back(lambda);
+      LogDebug("HFShower") << "HFCherenkov::computeNPEinPMT: " << i << " lambda " 
+			   << lambda << " w_ph " << w_ph << " aperture " 
+			   << aperture;
+      if (w_ph > aperture) { // phton trapped inside PMT glass
+	wltrap.push_back(lambda);
+	rand = G4UniformRand();
+	LogDebug("HFShower") << "HFCherenkov::computeNPEinPMT: Random " << rand 
+			     << " Survive? " << (rand < 1.);
+	if (rand < 1.0) { // survived all the times and sent to photo-cathode
+	  wlatten.push_back(lambda);
+	  rand = G4UniformRand();
+	  double qEffic = computeQEff(lambda);//Quantum efficiency of the PMT
+	  rand = G4UniformRand();
+	  LogDebug("HFShower") << "HFCherenkov::computeNPE: qEffic " 
+		               << qEffic << " Random " << rand 
+			       << " Survive? " <<(rand < qEffic);
+	    if (rand < qEffic) { // made photoelectron
+	      npe_ += 1;
+	      momZ.push_back(w_ph);
+	      wl.push_back(lambda);
+	      wlqeff.push_back(lambda);
+	    } // made pe
+	} // accepted all Cherenkov photons
+      } // end of  if(w_ph < w_aperture), trapped inside glass
+    }// end of ++NbOfPhotons
+  } // end of if(NbOfPhotons)}
+  int npe =  npe_; // Nb of photoelectrons
+  LogDebug("HFShower") << "HFCherenkov::computeNPEinPMT: npe " << npe;
+  return npe;
+}
 
 std::vector<double>  HFCherenkov::getWLIni() {
   std::vector<double> v = wlini;
