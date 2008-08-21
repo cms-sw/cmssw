@@ -34,7 +34,7 @@ import optparse as opt
 
 global ERRORS 
 ERRORS = 0
-MIN_REQ_TS_EVENTS = 8
+MIN_REQ_TS_EVENTS = 50
 Candles={"HiggsZZ4LM200"      : "HZZLLLL",
          "MinBias"            : "MINBIAS",
          "SingleElectronE1000": "E -e 1000",
