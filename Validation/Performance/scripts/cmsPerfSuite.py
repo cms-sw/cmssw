@@ -135,7 +135,7 @@ def optionParse():
 
     parser.add_option(
         '--cmsScimark',
-        type='string',
+        type='int',
         dest='cmsScimark',
         help='specify the number of times the cmsScimark benchmark is run before and after the performance suite on cpu1',
         metavar='',
@@ -143,7 +143,7 @@ def optionParse():
 
     parser.add_option(
         '--cmsScimarkLarge',
-        type='string',
+        type='int',
         dest='cmsScimarkLarge',
         help='specify the number of times the cmsScimarkLarge benchmark is run before and after the performance suite on cpu1',
         metavar='',
@@ -246,13 +246,16 @@ def printDate():
     print getDate()
 
 def getPrereqRoot(rootdir,rootfile):
-    print "ERROR: %s file required to run QCD profiling does not exist. We can not run QCD profiling please create root file" % (rootdir + "/" + rootfile)
-    print "       to run QCD profiling."
-    print "       Running cmsDriver.py to get Required MinbiasEvents"
+    print "WARNING: %s file required to run QCD profiling does not exist. Now running cmsDriver.py to get Required Minbias root file"   % (rootdir + "/" +rootfile)
+
     if not os.path.exists(rootdir):
         os.system("mkdir -p %s" % rootdir)
     if not _debug:
-        os.system("cd %s ; cmsDriver.py MinBias_cfi -s GEN,SIM -n 10" % (rootdir))
+        cmd = "cd %s ; cmsDriver.py MinBias_cfi -s GEN,SIM -n %s >& ../minbias_for_pileup_generate.log" % (rootdir,str(10))
+        print cmd
+        os.system(cmd)
+    if not os.path.exists(rootdir + "/" + rootfile):
+        print "ERROR: We can not run QCD profiling please create root file %s to run QCD profiling." % (rootdir + "/" + rootfile)
 
 
 def checkQcdConditions(isAllCandles,candles,TimeSizeEvents,rootdir,rootfile):
@@ -266,6 +269,8 @@ def checkQcdConditions(isAllCandles,candles,TimeSizeEvents,rootdir,rootfile):
         if not os.path.exists(rootfilepath) and not _debug:
             print "ERROR: Could not create or find a rootfile %s with enough TimeSize events for QCD exiting..." % rootfilepath
             sys.exit()
+    else:
+        print "%s Root file for QCD exists. Good!!!" % (rootdir + "/" + rootfile)
     return candles
 
 def mkCandleDir(candle,profiler):
@@ -343,12 +348,12 @@ def runCmsInput(dir,numevents,candle,cmsdrvopts,stepopt,profiler):
                   "None"     : "-1"  } 
 
     cmds = ("cd %s"                 % (dir),
-            "%s %s \"%s\" %s --cmsdriver=%s %s" % (cmd,
-                                                   numevents,
-                                                   candle,
-                                                   profilers[profiler],
-                                                   cmsdrvopts,
-                                                   stepopt))
+            "%s %s \"%s\" %s %s %s" % (cmd,
+                                       numevents,
+                                       candle,
+                                       profilers[profiler],
+                                       cmsdrvopts,
+                                       stepopt))
     exitstat = runCmdSet(cmds)
     if _unittest and (not exitstat == None):
         print "ERROR: CMS Report Input returned a non-zero exit status " 
@@ -409,7 +414,8 @@ def main(argv):
         ValgrindEvents  = 0
         IgProfEvents    = 0
         TimeSizeEvents  = 1
-
+    if not cmsdriverOptions == "":
+        cmsdriverOptions = "--cmsdriver=" + cmsdriverOptions
     #Case with no arguments (using defaults)
     if options == []:
         print "No arguments given, so DEFAULT test will be run:"
@@ -516,13 +522,12 @@ def main(argv):
         candles=candleoption.split(",")
 
     qcdWillRun = isAllCandles or ((not isAllCandles) and "QCD_80_120" in candles )
-
     if qcdWillRun:
         candles = checkQcdConditions(isAllCandles,
                                      candles,
                                      TimeSizeEvents,
                                      "./%s_%s" % ("MinBias","TimeSize"),
-                                     "%s__GEN,SIM.root" % "MINBIAS")  
+                                     "%s_cfi_GEN_SIM.root" % "MinBias")  
 
 
     #TimeSize tests:
