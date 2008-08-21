@@ -343,12 +343,12 @@ def runCmsInput(dir,numevents,candle,cmsdrvopts,stepopt,profiler):
                   "None"     : "-1"  } 
 
     cmds = ("cd %s"                 % (dir),
-            "%s %s \"%s\" %s %s %s" % (cmd,
-                                       numevents,
-                                       candle,
-                                       profilers[profiler],
-                                       cmsdrvopts,
-                                       stepopt))
+            "%s %s \"%s\" %s \"%s\" %s" % (cmd,
+                                           numevents,
+                                           candle,
+                                           profilers[profiler],
+                                           cmsdrvopts,
+                                           stepopt))
     exitstat = runCmdSet(cmds)
     if _unittest and (not exitstat == None):
         print "ERROR: CMS Report Input returned a non-zero exit status " 
