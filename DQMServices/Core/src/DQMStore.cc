@@ -1395,7 +1395,18 @@ DQMStore::save(const std::string &filename,
   MEMap::iterator mi, me = data_.end();
   DQMNet::QReports::const_iterator qi, qe;
 
-  TFile f(filename.c_str(), "RECREATE");
+  // TFile flushes to disk with fsync() on every TDirectory written to the
+  // file.  This makes DQM file saving painfully slow, and ironically makes
+  // it _more_ likely the file saving gets interrupted and corrupts the file.
+  // The utility class below simply ignores the flush synchronisation.
+  class TFileNoSync : public TFile
+  {
+  public:
+    TFileNoSync(const char *file, const char *opt) : TFile(file, opt) {}
+    virtual Int_t SysSync(Int_t) { return 0; }
+  };
+
+  TFileNoSync f(filename.c_str(), "RECREATE");
   TObjString(edm::getReleaseVersion().c_str()).Write(); // Save CMSSW version
   TObjString(getDQMPatchVersion().c_str()).Write(); // Save DQM patch version
   if(f.IsZombie())
@@ -1404,7 +1415,9 @@ DQMStore::save(const std::string &filename,
   f.cd();
 
   // Construct a regular expression from the pattern string.
-  lat::Regexp rxpat(pattern.empty() ? "^" : pattern.c_str());
+  std::auto_ptr<lat::Regexp> rxpat;
+  if (! pattern.empty())
+    rxpat.reset(new lat::Regexp(pattern.c_str()));
 
   // Loop over the directory structure.
   for (di = dirs_.begin(), de = dirs_.end(); di != de; ++di)
@@ -1441,8 +1454,10 @@ DQMStore::save(const std::string &filename,
       gDirectory->cd("/");
       if (di->empty())
 	cdInto(s_monitorDirName);
+      else if (rxpat.get())
+	cdInto(s_monitorDirName + '/' + lat::StringOps::replace(*di, *rxpat, rewrite));
       else
-	cdInto(s_monitorDirName + '/' + lat::StringOps::replace(*di, rxpat, rewrite));
+	cdInto(s_monitorDirName + '/' + *di);
 
       // Save the object.
       mi->second.data_.object->Write();
@@ -1457,7 +1472,7 @@ DQMStore::save(const std::string &filename,
       }
     }
   }
-  
+
   f.Close();
 
   // Report the file to job report service.
