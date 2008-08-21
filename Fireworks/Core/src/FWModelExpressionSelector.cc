@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Jan 23 10:37:22 EST 2008
-// $Id: FWModelExpressionSelector.cc,v 1.2 2008/06/12 20:29:59 chrjones Exp $
+// $Id: FWModelExpressionSelector.cc,v 1.3 2008/08/01 14:10:32 chrjones Exp $
 //
 
 // system include files
@@ -19,7 +19,7 @@
 #include "Reflex/Type.h"
 
 #include "PhysicsTools/Utilities/src/Grammar.h"
-#include "FWCore/Utilities/interface/EDMException.h"
+#include "PhysicsTools/Utilities/interface/Exception.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWModelExpressionSelector.h"
@@ -94,8 +94,8 @@ FWModelExpressionSelector::select(FWEventItem* iItem, const std::string& iExpres
          std::cout <<"failed to parse "<<iExpression<<std::endl;
          succeeded=false;
       }
-   }catch(const edm::Exception& e) {
-      std::cout <<"failed to parse "<<iExpression<<" because "<<e.what()<<std::endl;
+   }catch(const reco::parser::BaseException& e) {
+      std::cout <<"failed to parse "<<iExpression<<" because "<<reco::parser::baseExceptionWhat(e)<<std::endl;
       succeeded=false;
    }
    if(!succeeded) { return false;}

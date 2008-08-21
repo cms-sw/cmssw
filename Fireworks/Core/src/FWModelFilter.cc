@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 29 13:39:56 PST 2008
-// $Id: FWModelFilter.cc,v 1.4 2008/08/01 13:43:15 chrjones Exp $
+// $Id: FWModelFilter.cc,v 1.5 2008/08/01 13:52:03 chrjones Exp $
 //
 
 // system include files
@@ -24,8 +24,8 @@
 #include "Fireworks/Core/interface/FWModelFilter.h"
 #include "Fireworks/Core/src/fwCintInterfaces.h"
 
-#include "FWCore/Utilities/interface/EDMException.h"
 #include "PhysicsTools/Utilities/src/Grammar.h"
+#include "PhysicsTools/Utilities/interface/Exception.h"
 
 //
 // constants, enums and typedefs
@@ -90,10 +90,10 @@ FWModelFilter::setExpression(const std::string& iExpression)
             m_selector = tmpPtr;
             m_expression = iExpression;
          } else {
-            std::cout <<"failed to parse "<<iExpression<<std::endl;
+            std::cout <<"failed to parse "<<iExpression<<" because of syntax error"<<std::endl;
          }
-      }catch(const edm::Exception& e) {
-         std::cout <<"failed to parse "<<iExpression<<" because "<<e.what()<<std::endl;
+      }catch(const reco::parser::BaseException& e) {
+         std::cout <<"failed to parse "<<iExpression<<" because "<<reco::parser::baseExceptionWhat(e)<<std::endl;
       }
    }else {
       m_expression=iExpression;
