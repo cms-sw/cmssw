@@ -281,7 +281,6 @@ def setupProgramParameters(options,args):
     if options.cmsDriverOptions:
 
         cmsDriverOptions = options.cmsDriverOptions
-        cmsDriverOptions = "--conditions " + cmsDriverOptions
         print 'Using user-specified cmsDriver.py options: ' + cmsDriverOptions
 
     if options.userSteps:
