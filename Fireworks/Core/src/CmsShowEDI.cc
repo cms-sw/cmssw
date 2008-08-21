@@ -8,7 +8,7 @@
 //
 // Original Author:  Joshua Berger  
 //         Created:  Mon Jun 23 15:48:11 EDT 2008
-// $Id: CmsShowEDI.cc,v 1.8 2008/07/17 00:39:32 chrjones Exp $
+// $Id: CmsShowEDI.cc,v 1.9 2008/08/20 23:54:44 dmytro Exp $
 //
 
 // system include files
@@ -24,6 +24,7 @@
 #include "TColor.h"
 #include "TG3DLine.h"
 #include "TGTextEntry.h"
+#include "TGTextView.h"
 #include "TGLayout.h"
 #include "TGFont.h"
 #include "TEveManager.h"
@@ -40,6 +41,7 @@
 #include "Fireworks/Core/interface/FWModelChangeSignal.h"
 #include "Fireworks/Core/interface/FWModelExpressionSelector.h"
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
+#include "Fireworks/Core/interface/FWExpressionException.h"
 //
 // constants, enums and typedefs
 //
@@ -119,6 +121,11 @@ m_item(0)
   m_filterButton = new TGTextButton(filterFrame, "Filter");
   m_filterButton->SetEnabled(kFALSE);
   filterFrame->AddFrame(m_filterButton);
+  m_filterError = new TGTextView(filterFrame);
+  m_filterError->SetForegroundColor(gVirtualX->GetPixel(kRed));
+  m_filterError->SetBackgroundColor(TGFrame::GetDefaultFrameBackground()); 
+  m_filterError->ChangeOptions(0);
+  filterFrame->AddFrame(m_filterError, new TGLayoutHints(kLHintsExpandX| kLHintsExpandY));
   ediTabs->AddTab("Filter", filterFrame);
 
   // Select tab
@@ -136,7 +143,12 @@ m_item(0)
   m_selectAllButton = new TGTextButton(selectFrame, "Select All");
   m_selectAllButton->SetEnabled(kFALSE);
   selectFrame->AddFrame(m_selectAllButton);
-  ediTabs->AddTab("Select", selectFrame);
+   m_selectError = new TGTextView(selectFrame);
+   m_selectError->SetForegroundColor(gVirtualX->GetPixel(kRed));
+   m_selectError->SetBackgroundColor(TGFrame::GetDefaultFrameBackground()); 
+   m_selectError->ChangeOptions(0);
+   selectFrame->AddFrame(m_selectError, new TGLayoutHints(kLHintsExpandX| kLHintsExpandY));
+   ediTabs->AddTab("Select", selectFrame);
   
   // Data tab
   TGVerticalFrame* dataFrame = new TGVerticalFrame(ediTabs, 200, 600);
@@ -260,6 +272,8 @@ CmsShowEDI::fillEDIFrame(FWEventItem* iItem) {
     m_colorSelectWidget->SetColor(gVirtualX->GetPixel(iItem->defaultDisplayProperties().color()),kFALSE);
     m_isVisibleButton->SetDisabledAndSelected(iItem->defaultDisplayProperties().isVisible());
     m_filterExpressionEntry->SetText(iItem->filterExpression().c_str());
+    m_filterError->Clear();
+    m_selectError->Clear();
     m_nameEntry->SetText(iItem->name().c_str());
     m_typeEntry->SetText(iItem->type()->GetName());
     m_moduleEntry->SetText(iItem->moduleLabel().c_str());
@@ -360,14 +374,31 @@ CmsShowEDI::toggleItemVisible(Bool_t on) {
 void
 CmsShowEDI::runFilter() {
   const std::string filter(m_filterExpressionEntry->GetText());
-  if (m_item != 0) m_item->setFilterExpression(filter);
+   if (m_item != 0) {
+      try {
+         m_filterError->Clear();
+         m_item->setFilterExpression(filter);
+      }catch( const FWExpressionException& e) {
+         m_filterError->AddLine(e.what().c_str());
+         std::cout << e.what()<<std::endl;
+         m_filterError->Update();
+      }
+   }
 }
 
 void
 CmsShowEDI::runSelection() {
-  FWModelExpressionSelector selector;
-  const std::string selection(m_selectExpressionEntry->GetText());
-  if (m_item != 0) selector.select(m_item, selection);
+   FWModelExpressionSelector selector;
+   const std::string selection(m_selectExpressionEntry->GetText());
+   if (m_item != 0){ 
+      try {
+         m_selectError->Clear();
+         selector.select(m_item, selection);
+      }catch( const FWExpressionException& e) {
+         m_selectError->AddLine(e.what().c_str());
+         m_selectError->Update();
+      }
+   }
 }
 
 void

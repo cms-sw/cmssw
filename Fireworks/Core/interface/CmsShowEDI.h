@@ -16,7 +16,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Mon Jun 23 15:48:42 EDT 2008
-// $Id: CmsShowEDI.h,v 1.1 2008/06/29 13:23:47 chrjones Exp $
+// $Id: CmsShowEDI.h,v 1.2 2008/07/07 00:19:28 chrjones Exp $
 //
 
 // system include files
@@ -35,6 +35,7 @@ class FWColorSelect;
 class TGCheckButton;
 class TGTextEntry;
 class TGTextButton;
+class TGTextView;
 
 class CmsShowEDI : public TGTransientFrame
 {
@@ -85,6 +86,8 @@ class CmsShowEDI : public TGTransientFrame
       sigc::connection m_displayChangedConn;
       sigc::connection m_modelChangedConn;
       sigc::connection m_destroyedConn;
+      TGTextView* m_filterError;
+      TGTextView* m_selectError;
 
 };
 
