@@ -115,8 +115,8 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
 
     type = "DCC Ev Fragment Size Distribution";
     meFEDRawDataSizes_=m_dbe->book1D(type,type,12000,-0.5,12000.5);
-    meFEDRawDataSizes_->setAxisTitle("# of Event Fragments",1);
-    meFEDRawDataSizes_->setAxisTitle("# of bytes",2);
+    meFEDRawDataSizes_->setAxisTitle("# of bytes",1);
+    meFEDRawDataSizes_->setAxisTitle("# of Event Fragments",2);
 
     type = "DCC Nonzero Spigot Conditions";
     meDCCSummariesOfHTRs_ = m_dbe->book2D(type,type,32,699.5,731.5, 20,0.5,20.5);
@@ -352,7 +352,7 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     type = "HTR Firmware Version";
     //  Maybe change to Profile histo eventually
     //meFWVersion_ = m_dbe->bookProfile(type,type,18,-0.5,17.5,245,10.0,255.0,"");
-    meFWVersion_ = m_dbe->book2D(type,type ,18,-0.5,17.5,40,70.5,110.5);
+    meFWVersion_ = m_dbe->book2D(type,type ,18,-0.5,17.5,180,75.5,255.5);
     meFWVersion_->setAxisTitle("Crate #",1);
     meFWVersion_->setAxisTitle("HTR Firmware Version",2);
 
