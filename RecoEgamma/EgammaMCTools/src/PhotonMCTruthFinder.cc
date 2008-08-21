@@ -100,11 +100,11 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(std::vector<SimTrack> theSi
     int vertexId = (*iSimTk).vertIndex();
     SimVertex vertex = theSimVertices[vertexId];
  
-    //std::cout << " Particle type " <<  (*iSimTk).type() << " Sim Track ID " << (*iSimTk).trackId() << " momentum " << (*iSimTk).momentum() <<  " vertex position " << vertex.position() << " vertex index " << (*iSimTk).vertIndex() << std::endl;  
+    //    std::cout << " Particle type " <<  (*iSimTk).type() << " Sim Track ID " << (*iSimTk).trackId() << " momentum " << (*iSimTk).momentum() <<  " vertex position " << vertex.position() << " vertex index " << (*iSimTk).vertIndex() << std::endl;  
     if ( (*iSimTk).vertIndex() == iPV ) {
       npv++;
       if ( (*iSimTk).type() == 22) {
-	//std::cout << " Found a primary photon with ID  " << (*iSimTk).trackId() << " momentum " << (*iSimTk).momentum() <<  std::endl; 
+	//	std::cout << " Found a primary photon with ID  " << (*iSimTk).trackId() << " momentum " << (*iSimTk).momentum() <<  std::endl; 
 
         
 	photonTracks.push_back( &(*iSimTk) );
@@ -115,9 +115,9 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(std::vector<SimTrack> theSi
     
   } 
   
-  //std::cout << " There are " << npv << " particles originating in the PV " << std::endl;
+  //  std::cout << " There are " << npv << " particles originating in the PV " << std::endl;
   
-   if(npv > 4) {
+   if(npv >= 3) {
      ievtype = PYTHIA;
    } else if(npv == 1) {
      if( abs(partType1) == 11 ) {
@@ -140,19 +140,49 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(std::vector<SimTrack> theSi
    //////  Look into converted photons  
 
    int isAconversion=0;   
-   if(ievflav == PHOTON_FLAV || ievflav== PIZERO_FLAV || ievtype == PYTHIA ) {
+   int phoMotherType=-1;
+   int phoMotherVtxIndex=-1;
+   int phoMotherId=-1;
+   if( ievflav == PHOTON_FLAV || ievflav== PIZERO_FLAV || ievtype == PYTHIA ) {
 
-     //std::cout << " It's a primary PHOTON or PIZERO or PYTHIA event with " << photonTracks.size() << " photons " << std::endl;
-        
+     //     std::cout << " It's a primary PHOTON or PIZERO or PYTHIA event with " << photonTracks.size() << " photons ievtype " << ievtype << " ievflav " << ievflav<<  std::endl;
+
+     //    for (std::vector<SimTrack*>::iterator iPhoTk = photonTracks.begin(); iPhoTk != photonTracks.end(); ++iPhoTk){
+     //      std::cout << " All gamma found from PV " << (*iPhoTk)->momentum() << " photon track ID " << (*iPhoTk)->trackId() << " vertex index " << (*iPhoTk)->vertIndex() << std::endl;  
+     //  }        
 
      for (std::vector<SimTrack>::iterator iPhoTk = theSimTracks.begin(); iPhoTk != theSimTracks.end(); ++iPhoTk){
-       //std::cout << " Looping on the primary gamma looking for conversions " << (*iPhoTk).momentum() << " photon track ID " << (*iPhoTk).trackId() << std::endl;
+
        trkFromConversion.clear();           
        electronsFromConversions.clear();
 
        if ( (*iPhoTk).type() != 22 ) continue;
        int photonVertexIndex= (*iPhoTk).vertIndex();
        int phoTrkId= (*iPhoTk).trackId();
+       //std::cout << " Looping on gamma looking for conversions " << (*iPhoTk).momentum() << " photon track ID " << (*iPhoTk).trackId() << std::endl;
+     
+       // check who is his mother
+       SimVertex vertex = theSimVertices[ photonVertexIndex];
+       phoMotherId=-1;
+       if ( vertex.parentIndex() != -1 ) {
+	 
+	 unsigned  motherGeantId = vertex.parentIndex(); 
+	 std::map<unsigned, unsigned >::iterator association = geantToIndex_.find( motherGeantId );
+	 if(association != geantToIndex_.end() )
+	   phoMotherId = association->second;
+	 phoMotherType = phoMotherId == -1 ? 0 : theSimTracks[phoMotherId].type();
+
+	 
+
+	 if ( phoMotherType == 111 || phoMotherType == 221 || phoMotherType == 331 ) {
+	 
+	   //std::cout << " Parent to this vertex   motherId " << motherId << " mother type " <<  phoMotherType << " Sim track ID " <<  theSimTracks[motherId].trackId() <<  " Pt " << motherPt <<  " vtx R " << R << std::endl;
+	   //std::cout << " Son of a pizero or eta " << phoMotherType << std::endl;
+	 }
+	 
+       }
+
+
 
        for (std::vector<SimTrack>::iterator iEleTk = theSimTracks.begin(); iEleTk != theSimTracks.end(); ++iEleTk){
 	 if (  (*iEleTk).noVertex() )                    continue;
@@ -196,7 +226,7 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(std::vector<SimTrack> theSi
                                              (*iEleTk).momentum().y(),
                                              (*iEleTk).momentum().z(),
                                              (*iEleTk).momentum().e());  
-         math::XYZTLorentzVectorD motherMomentum(primEleMom);  
+	     math::XYZTLorentzVectorD motherMomentum(primEleMom);  
 	     int eleId = (*iEleTk).trackId();     
              int eleVtxIndex= (*iEleTk).vertIndex();
            
@@ -297,6 +327,31 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(std::vector<SimTrack> theSi
        
        //std::cout << " DEBUG trkFromConversion.size() " << trkFromConversion.size() << " electronsFromConversions.size() " << electronsFromConversions.size() << std::endl;
 
+       math::XYZTLorentzVectorD motherVtxPosition(0.,0.,0.,0.);
+       HepLorentzVector phoMotherMom(0.,0.,0.,0.);
+       HepLorentzVector phoMotherVtx(0.,0.,0.,0.); 
+
+       if ( phoMotherId > 0) {
+	 phoMotherVtxIndex = theSimTracks[phoMotherId].vertIndex();
+	 SimVertex motherVtx = theSimVertices[ phoMotherVtxIndex];
+	 motherVtxPosition =math::XYZTLorentzVectorD (motherVtx.position().x(),
+						      motherVtx.position().y(),
+						      motherVtx.position().z(),
+						      motherVtx.position().e());
+	 
+	 phoMotherMom.setPx( theSimTracks[phoMotherId].momentum().x());
+	 phoMotherMom.setPy( theSimTracks[phoMotherId].momentum().y());
+	 phoMotherMom.setPz( theSimTracks[phoMotherId].momentum().z() );
+	 phoMotherMom.setE( theSimTracks[phoMotherId].momentum().t());
+	 
+	 phoMotherVtx.setX ( motherVtxPosition.x());
+	 phoMotherVtx.setY ( motherVtxPosition.y());
+	 phoMotherVtx.setZ ( motherVtxPosition.z());
+	 phoMotherVtx.setT ( motherVtxPosition.t());
+       
+       }
+
+
        if ( electronsFromConversions.size() > 0 ) {
        // if ( trkFromConversion.size() > 0 ) {
          isAconversion=1;
@@ -317,7 +372,10 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(std::vector<SimTrack> theSi
 	                             (*iPhoTk).momentum().pz(), (*iPhoTk).momentum().e() ) ;
 	 HepLorentzVector tmpVertex( vtxPosition.x(), vtxPosition.y(), vtxPosition.z(), vtxPosition.t() );
 	 HepLorentzVector tmpPrimVtx( primVtxPos.x(), primVtxPos.y(), primVtxPos.z(), primVtxPos.t() ) ;
-	 result.push_back( PhotonMCTruth(isAconversion, tmpPhoMom, photonVertexIndex, phoTrkId, tmpVertex,  
+
+
+
+	 result.push_back( PhotonMCTruth(isAconversion, tmpPhoMom, photonVertexIndex, phoTrkId, phoMotherType,phoMotherMom, phoMotherVtx, tmpVertex,  
 	 tmpPrimVtx, electronsFromConversions ));
 
        } else {
@@ -328,7 +386,7 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(std::vector<SimTrack> theSi
 	                             (*iPhoTk).momentum().pz(), (*iPhoTk).momentum().e() ) ;
 	 HepLorentzVector tmpPrimVtx( primVtxPos.x(), primVtxPos.y(), primVtxPos.z(), primVtxPos.t() ) ;
 	 //	 result.push_back( PhotonMCTruth(isAconversion, (*iPhoTk).momentum(),  photonVertexIndex, phoTrkId, vtxPosition,   primVtx.position(), trkFromConversion ));
-	 result.push_back( PhotonMCTruth(isAconversion, tmpPhoMom,  photonVertexIndex, phoTrkId, vtxPosition,   
+	 result.push_back( PhotonMCTruth(isAconversion, tmpPhoMom,  photonVertexIndex, phoTrkId, phoMotherType, phoMotherMom, phoMotherVtx, vtxPosition,   
 	 tmpPrimVtx, electronsFromConversions ));
 	
        }
