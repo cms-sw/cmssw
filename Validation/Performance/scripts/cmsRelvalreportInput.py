@@ -193,7 +193,7 @@ def optionparse():
         )
     parser.add_option(
         '-c',
-        '--conditions',
+        '--cmsdriver',
         type='string',
         dest='cmsDriverOptions',
         help='Option for cmsDriver.py can be specified as a string to be added to all cmsDriver.py commands',
