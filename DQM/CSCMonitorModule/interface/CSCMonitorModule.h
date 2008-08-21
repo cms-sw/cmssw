@@ -122,6 +122,7 @@ class CSCMonitorModule: public edm::EDAnalyzer {
 
     /** Global Module-wide parameters  */
     edm::ParameterSet  parameters;
+    edm::ParameterSet  effParameters;
     DQMStore*          dbe;
     std::string        monitorName;
     std::string        rootDir;

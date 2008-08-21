@@ -26,7 +26,7 @@
  */
 CSCMonitorModule::CSCMonitorModule(const edm::ParameterSet& ps){
 
-  parameters=ps;
+  parameters = ps;
   getCSCTypeToBinMap(tmap);
 
   edm::FileInPath fp;
@@ -38,6 +38,7 @@ CSCMonitorModule::CSCMonitorModule(const edm::ParameterSet& ps){
   examinerCRCKey = parameters.getUntrackedParameter<unsigned int>("ExaminerCRCKey", 0);
   fractUpdateKey = parameters.getUntrackedParameter<unsigned int>("FractUpdateKey", 1);
   fractUpdateEvF = parameters.getUntrackedParameter<unsigned int>("FractUpdateEventFreq", 1);
+  effParameters  = parameters.getUntrackedParameter<edm::ParameterSet>("effParameters");
 
   // Get ant apply dead HW element masks if any
   std::vector<std::string> hwMasks = parameters.getUntrackedParameter<std::vector<std::string> >("AddressMask");

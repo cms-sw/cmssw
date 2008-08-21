@@ -99,7 +99,7 @@ void CSCSummary::ReadReportingChambers(TH2*& h2, const double threshold) {
  * @param  Sfail Significance threshold for failure report
  * @return 
  */
-void CSCSummary::ReadReportingChambersRef(TH2*& h2, TH2*& refh2, const double eps_min, const double Sfail, const double hot_coef) {
+void CSCSummary::ReadReportingChambersRef(TH2*& h2, TH2*& refh2, const double cold_coef, const double cold_Sfail, const double hot_coef, const double hot_Sfail) {
 
   if(h2->GetXaxis()->GetXmin() <= 1 && h2->GetXaxis()->GetXmax() >= 36 &&
      h2->GetYaxis()->GetXmin() <= 1 && h2->GetYaxis()->GetXmax() >= 18 &&
@@ -140,9 +140,9 @@ void CSCSummary::ReadReportingChambersRef(TH2*& h2, TH2*& refh2, const double ep
             double S = 0;
 
             // Chamber is cold? It means error!
-            if (eps_meas < eps_min) {
-              S = SignificanceLevel(N, n, eps_min);
-              if (S > Sfail) {
+            if (eps_meas < cold_coef) {
+              S = SignificanceLevel(N, n, cold_coef);
+              if (S > cold_Sfail) {
                 val = -1;
               }
             } else
@@ -150,17 +150,18 @@ void CSCSummary::ReadReportingChambersRef(TH2*& h2, TH2*& refh2, const double ep
             // Chamber is hot? It means error!
             if (eps_meas > hot_coef) {
               S = SignificanceLevelHot(N, n);
-              if (S > Sfail) {
+              if (S > hot_Sfail) {
                 val = -1;
               }
             }
 
-            if (eps_meas < eps_min || eps_meas > hot_coef) { 
+            if (eps_meas < cold_coef || eps_meas > hot_coef) { 
               LOGINFO("ReadReportingChambersRef") << "(x, y) = (" << x << ", " << y << ")" <<
-                                                    ", eps_min = " << eps_min << 
-                                                    ", Sfail = " << Sfail << 
-                                                    ", hot_coef = " << hot_coef << 
-                                                    ", eps_meas = " << eps_meas << 
+                                                    ", cold_coef  = " << cold_coef << 
+                                                    ", cold_Sfail = " << cold_Sfail << 
+                                                    ", hot_coef   = " << hot_coef << 
+                                                    ", hot_Sfail  = " << hot_Sfail << 
+                                                    ", eps_meas   = " << eps_meas << 
                                                     ", N = " << N << 
                                                     ", n = " << n << 
                                                     ", S = " << S << 
