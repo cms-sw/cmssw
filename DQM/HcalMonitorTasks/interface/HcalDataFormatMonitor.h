@@ -4,7 +4,7 @@
 #define  IETAMIN -43
 #define  IETAMAX 43
 #define  IPHIMIN 0
-#define  IPHIMAX 72
+#define  IPHIMAX 71
 
 
 #include "DQM/HcalMonitorTasks/interface/HcalBaseMonitor.h"
@@ -16,8 +16,8 @@
 
 /** \class Hcaldataformatmonitor
  *
- * $Date: 2008/08/12 16:44:11 $
- * $Revision: 1.27 $
+ * $Date: 2008/08/14 17:30:12 $
+ * $Revision: 1.28 $
  * \author W. Fisher - FNAL
  */
 class HcalDataFormatMonitor: public HcalBaseMonitor {
@@ -35,22 +35,22 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
 
   void HTRPrint(const HcalHTRData& htr,int prtlvl);
   void labelHTRBits(MonitorElement* mePlot,unsigned int axisType);
+
  public: //Electronics map -> geographic channel map
   void smuggleMaps(std::map<uint32_t, std::vector<HcalDetId> >& givenDCCtoCell,
 		  std::map<pair <int,int> , std::vector<HcalDetId> >& givenHTRtoCell);
- 
   std::map<uint32_t, std::vector<HcalDetId> > DCCtoCell;
   std::map<uint32_t, std::vector<HcalDetId> > ::iterator thisDCC;
   std::map<pair <int,int> , std::vector<HcalDetId> > HTRtoCell;
   std::map<pair <int,int> , std::vector<HcalDetId> > ::iterator thisHTR;
 
-  
-
- private: 
+  private: 
   //backstage accounting mechanism
-  uint64_t phatmap[IETAMAX-IETAMIN+1][IPHIMAX-IPHIMIN];  // iphi/ieta projection of all hcal cells
-  // The array indeces begin at 0, which corresponds to ieta = -43. Messy.
-  uint64_t* phatmapat(int ieta, int iphi) { return ( & phatmap[ieta - IETAMIN][iphi] ); }
+  static size_t iphirange; // = IPHIMAX - IPHIMIN;
+  static size_t ietarange; // = IETAMAX - IETAMIN;
+  std::vector<std::vector<bool> > problemhere;  // 
+  std::vector<std::vector<uint64_t> > phatmap;  // iphi/ieta projection of all hcal cells
+  void UpdateMap();
 
   // Data accessors
   vector<int> fedUnpackList_;
@@ -153,11 +153,6 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
      std::map<int, short>::iterator DCCEvtFormat_it;
      std::map<int, short> DCCRsvdBits_list;
      std::map<int, short>::iterator DCCRsvdBits_it;
-     
-     // Special Functions for the ProblemMap
-     void FillMap(std::pair <int, int> & spigot);
-     void FillMap(int & dcc);
-     
 };
 
 #endif
