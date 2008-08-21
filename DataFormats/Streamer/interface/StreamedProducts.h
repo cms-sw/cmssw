@@ -32,9 +32,7 @@ namespace edm {
 
   class StreamedProduct {
   public:
-    StreamedProduct() :
-      prod_(0), desc_(0), mod_(), productID_(), status_(), parents_(0) {}
-    // explicit StreamedProduct(EDProduct const* p) : prod_(p), desc_(), productID_(), status_(), parents_(0) {}
+    StreamedProduct() : prod_(0), desc_(0), mod_(), productID_(productstatus::neverCreated()), status_(), parents_(0) {}
     explicit StreamedProduct(BranchDescription const& desc) :
 	prod_(0), desc_(&desc), mod_(), productID_(), status_(productstatus::neverCreated()), parents_(0) {}
 
@@ -43,8 +41,7 @@ namespace edm {
 		    ModuleDescriptionID const& mod,
 		    ProductID pid,
 		    ProductStatus status,
-		    std::vector<BranchID> const* parents) :
-      prod_(prod), desc_(&desc), mod_(mod), productID_(pid), status_(status), parents_(parents) {}
+		    std::vector<BranchID> const* parents);
 
     EDProduct const* prod() const {return prod_;}
     BranchDescription const* desc() const {return desc_;}
@@ -59,7 +56,7 @@ namespace edm {
      delete desc_;
      desc_= 0;
      productID_ = ProductID();
-     status_ = 0;
+     status_ = productstatus::neverCreated();
      delete parents_;
      parents_ = 0;
   }
