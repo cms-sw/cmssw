@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan  3 14:02:21 EST 2008
-// $Id: FWEventItem.h,v 1.24 2008/07/17 09:58:24 dmytro Exp $
+// $Id: FWEventItem.h,v 1.25 2008/07/22 09:29:11 jmuelmen Exp $
 //
 
 // system include files
@@ -142,6 +142,7 @@ class FWEventItem
 		     const std::string& iProcess);
       void setName(const std::string& iName);
       void setDefaultDisplayProperties(const FWDisplayProperties&);
+      /**Throws an FWExpresionException if there is a problem with the expression */
       void setFilterExpression(const std::string& );
 
       void unselect(int iIndex) const;
