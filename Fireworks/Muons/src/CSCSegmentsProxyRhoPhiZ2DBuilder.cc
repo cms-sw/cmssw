@@ -95,25 +95,17 @@ void CSCSegmentsProxyRhoPhiZ2DBuilder::build(const FWEventItem* iItem,
 	     Double_t globalSegmentCenterPoint[3];
 	     Double_t globalSegmentOuterPoint[3];
 	     
-	     localSegmentOuterPoint[0] = segment->localPosition().x() +
-	       segmentLength* (fabs(segment->localDirection().z())>0.001 ? 
-			       segment->localDirection().x()/segment->localDirection().z(): 0.001);
-	     localSegmentOuterPoint[1] = segment->localPosition().y() + 
-	       segmentLength* (fabs(segment->localDirection().z())>0.001 ? 
-			       segment->localDirection().y()/segment->localDirection().z(): 0.001);
-	     localSegmentOuterPoint[2] = segmentLength;
-
+	     localSegmentOuterPoint[0] = segment->localPosition().x() + segmentLength*segment->localDirection().x();
+	     localSegmentOuterPoint[1] = segment->localPosition().y() + segmentLength*segment->localDirection().y();
+	     localSegmentOuterPoint[2] = segmentLength*segment->localDirection().z();
+	     
 	     localSegmentCenterPoint[0] = segment->localPosition().x();
 	     localSegmentCenterPoint[1] = segment->localPosition().y();
 	     localSegmentCenterPoint[2] = 0;
 	     
-	     localSegmentInnerPoint[0] = segment->localPosition().x() -
-	       segmentLength* (fabs(segment->localDirection().z())>0.001 ? 
-			       segment->localDirection().x()/segment->localDirection().z(): 0.001);
-	     localSegmentInnerPoint[1] = segment->localPosition().y() - 
-	       segmentLength* (fabs(segment->localDirection().z())>0.001 ? 
-			       segment->localDirection().y()/segment->localDirection().z(): 0.001);
-	     localSegmentInnerPoint[2] = -segmentLength;
+	     localSegmentInnerPoint[0] = segment->localPosition().x() - segmentLength*segment->localDirection().x();
+	     localSegmentInnerPoint[1] = segment->localPosition().y() - segmentLength*segment->localDirection().y();
+	     localSegmentInnerPoint[2] = - segmentLength*segment->localDirection().z();
 	     
 	     matrix->LocalToMaster( localSegmentInnerPoint, globalSegmentInnerPoint );
 	     matrix->LocalToMaster( localSegmentCenterPoint, globalSegmentCenterPoint );

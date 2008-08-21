@@ -86,8 +86,10 @@ void DTSegmentsProxyRhoPhiZ2DBuilder::build(const FWEventItem* iItem,
 	     segment!=range.second; ++segment)
 	  {
 	     Double_t localSegmentInnerPoint[3];
+	     Double_t localSegmentCenterPoint[3];
 	     Double_t localSegmentOuterPoint[3];
 	     Double_t globalSegmentInnerPoint[3];
+	     Double_t globalSegmentCenterPoint[3];
 	     Double_t globalSegmentOuterPoint[3];
 	     
 	     if ( (rhoPhiProjection && ! segment->hasPhi() ) ||
@@ -100,27 +102,33 @@ void DTSegmentsProxyRhoPhiZ2DBuilder::build(const FWEventItem* iItem,
 		continue;
 	     }
 	     
-	     localSegmentOuterPoint[0] = segment->localPosition().x() + 
-	       segmentLength* (fabs(segment->localDirection().z())>0.001 ? 
-			       segment->localDirection().x()/segment->localDirection().z(): 0.001);
-	     localSegmentOuterPoint[1] = segment->localPosition().y() + 
-	       segmentLength* (fabs(segment->localDirection().z())>0.001 ? 
-			       segment->localDirection().y()/segment->localDirection().z(): 0.001);
-	     localSegmentOuterPoint[2] = segmentLength;
+	     localSegmentOuterPoint[0] = segment->localPosition().x() + segmentLength*segment->localDirection().x();
+	     localSegmentOuterPoint[1] = segment->localPosition().y() + segmentLength*segment->localDirection().y();
+	     localSegmentOuterPoint[2] = segmentLength*segment->localDirection().z();
 	     
-	     localSegmentInnerPoint[0] = segment->localPosition().x() -
-	       segmentLength* (fabs(segment->localDirection().z())>0.001 ? 
-			       segment->localDirection().x()/segment->localDirection().z(): 0.001);
-	     localSegmentInnerPoint[1] = segment->localPosition().y() - 
-	       segmentLength* (fabs(segment->localDirection().z())>0.001 ? 
-			       segment->localDirection().y()/segment->localDirection().z(): 0.001);
-	     localSegmentInnerPoint[2] = -segmentLength;
+	     localSegmentCenterPoint[0] = segment->localPosition().x();
+	     localSegmentCenterPoint[1] = segment->localPosition().y();
+	     localSegmentCenterPoint[2] = 0;
+	     
+	     localSegmentInnerPoint[0] = segment->localPosition().x() - segmentLength*segment->localDirection().x();
+	     localSegmentInnerPoint[1] = segment->localPosition().y() - segmentLength*segment->localDirection().y();
+	     localSegmentInnerPoint[2] = - segmentLength*segment->localDirection().z();
 	     
 	     matrix->LocalToMaster( localSegmentInnerPoint, globalSegmentInnerPoint );
+	     matrix->LocalToMaster( localSegmentCenterPoint, globalSegmentCenterPoint );
 	     matrix->LocalToMaster( localSegmentOuterPoint, globalSegmentOuterPoint );
 		
-	     segmentSet->AddLine(globalSegmentInnerPoint[0], globalSegmentInnerPoint[1], globalSegmentInnerPoint[2],
-				 globalSegmentOuterPoint[0], globalSegmentOuterPoint[1], globalSegmentOuterPoint[2] );
+	     if ( globalSegmentInnerPoint[1] * globalSegmentOuterPoint[1] > 0 ) {
+		segmentSet->AddLine(globalSegmentInnerPoint[0], globalSegmentInnerPoint[1], globalSegmentInnerPoint[2],
+				    globalSegmentOuterPoint[0], globalSegmentOuterPoint[1], globalSegmentOuterPoint[2] );
+	     } else {
+		if ( fabs(globalSegmentInnerPoint[1]) > fabs(globalSegmentOuterPoint[1]) )
+		  segmentSet->AddLine(globalSegmentInnerPoint[0], globalSegmentInnerPoint[1], globalSegmentInnerPoint[2],
+				      globalSegmentCenterPoint[0], globalSegmentCenterPoint[1], globalSegmentCenterPoint[2] );
+		else
+		  segmentSet->AddLine(globalSegmentCenterPoint[0], globalSegmentCenterPoint[1], globalSegmentCenterPoint[2],
+				      globalSegmentOuterPoint[0], globalSegmentOuterPoint[1], globalSegmentOuterPoint[2] );
+	     }
 	  }
      }
 }
