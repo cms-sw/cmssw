@@ -6,7 +6,7 @@ import optparse
 import sys
 import os
 import Configuration.PyReleaseValidation
-from Configuration.PyReleaseValidation.ConfigBuilder import ConfigBuilder
+from Configuration.PyReleaseValidation.ConfigBuilder import ConfigBuilder, defaultOptions
 
 # Prepare a parser to read the options
 usage=\
@@ -15,7 +15,7 @@ Examples:
 
 %prog SingleMuPt10_cfi -n 100 --no_output
 %prog QCD_Pt_15_20_cfi -s GEN,SIM,DIGI,L1,DQM,DIGI2RAW,HLT -n 10
-%prog QCD_Pt_15_20_cfi -s RAW2DIGI,RECO -n 10 --filein file:myQCD.root --dirout rfio:$CASTOR_HOME/test/
+%prog reco -s RAW2DIGI,RECO --conditions FrontierConditions_GlobalTag,STARTUP_V4::All
 """
 parser = optparse.OptionParser(usage)
 
@@ -30,8 +30,8 @@ parser.add_option("-s", "--step",
                    dest="step")
 
 parser.add_option("--conditions",
-                  help="What conditions to use. Default are frontier conditions 'STARTUP_V4::All'",
-                  default="FrontierConditions_GlobalTag,STARTUP_V4::All",
+                  help="What conditions to use. Default are frontier conditions 'STARTUP_V4::All' (FrontierConditions_GlobalTag,STARTUP_V4::All)",
+                  default=defaultOptions.conditions,
                   dest="conditions")
 
 parser.add_option("--eventcontent",
@@ -57,7 +57,7 @@ parser.add_option("-n", "--number",
 # expert settings
 expertSettings.add_option("--beamspot",
                           help="What beam spot to use (from Configuration/StandardSequences). Default=Early10TeVCollision",
-                          default="Early10TeVCollision",
+                          default=defaultOptions.beamspot,
                           dest="beamspot")
 
 expertSettings.add_option("--customise",
@@ -87,12 +87,12 @@ expertSettings.add_option("--filtername",
 
 expertSettings.add_option("--geometry",
                           help="What geometry to use (from Configuration/StandardSequences). Default=Pilot2",
-                          default="Pilot2",
+                          default=defaultOptions.geometry,
                           dest="geometry")
 
 expertSettings.add_option("--magField",
                           help="What magnetic field to use (from Configuration/StandardSequences).",
-                          default="",
+                          default=defaultOptions.magField,
                           dest="magField")
 
 expertSettings.add_option("--no_output",
@@ -115,7 +115,7 @@ expertSettings.add_option("--prefix",
 
 expertSettings.add_option("--relval",
                           help="Set total number of events and events per job.", #this does not get used but get parsed in the command by DatOps
-                          default="5000,250",
+                          default="",
                           dest="relval")
 
 expertSettings.add_option("--dump_python",
@@ -133,7 +133,7 @@ expertSettings.add_option("--dump_DSetName",
 
 expertSettings.add_option("--pileup",
                   help="What pileup config to use. Default=NoPileUp.",
-                  default='NoPileUp',
+                  default=defaultOptions.pileup,
                   dest="pileup")
 
                                                     
@@ -154,7 +154,6 @@ expertSettings.add_option("--writeraw",
                           default=False,
                           dest="writeraw")
 
-
 parser.add_option("--no_exec",
                   help="Do not exec cmsRun. Just prepare the python config file.",
                   action="store_true",
@@ -168,6 +167,9 @@ if len(sys.argv)==1:
     raise "Event Type: ", "No event type specified!"
 
 options.evt_type=sys.argv[1]
+
+# memorize the command line arguments 
+options.arguments = reduce(lambda x, y: x+' '+y, sys.argv[1:])
 
 # now adjust the given parameters before passing it to the ConfigBuilder
 
@@ -225,8 +227,12 @@ if options.fileout=="":
 # (in addition list conditions in name)
 python_config_filename = standardFileName
 conditionsSP = options.conditions.split(',')
+
 if len(conditionsSP) > 1:
-    python_config_filename += "_"+str(conditionsSP[1].split("::")[0])
+    # for conditions like STARTUP_V1, IDEAL_V1 we want only the STARTUP or IDEAL part
+    conditionsType = conditionsSP[1].split("_")[0]
+    python_config_filename += "_"+str(conditionsType)
+
 python_config_filename+=".py"
 
 
@@ -271,10 +277,13 @@ elif options.step=='DATA_CHAIN':
 options.step = options.step.replace("SIM_CHAIN","GEN,SIM,DIGI,L1,DIGI2RAW")
 
 
+# the process name is just the last step in the list of steps
+options.name = trimmedStep.split(',')[-1]
+if options.name in ('POSTRECO,ALCA,DQM') and 'RECO' in trimmedStep:
+    options.name = 'RECO'
 
-options.name = trimmedStep.replace(',','').replace("_","")
-# if we're dealing with HLT, the process name has to be "HLT" only
-if 'HLT' in options.name :
+# if we're dealing with HLT, the process name has to be 'HLT' only
+if 'HLT' in trimmedStep:
     options.name = 'HLT'
 
 options.outfile_name = options.dirout+options.fileout
