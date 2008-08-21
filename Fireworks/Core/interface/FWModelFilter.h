@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 29 13:39:51 PST 2008
-// $Id: FWModelFilter.h,v 1.2 2008/06/12 20:14:55 chrjones Exp $
+// $Id: FWModelFilter.h,v 1.3 2008/08/01 13:43:15 chrjones Exp $
 //
 
 // system include files
@@ -39,6 +39,7 @@ class FWModelFilter
       virtual ~FWModelFilter();
 
       // ---------- const member functions ---------------------
+
       const std::string& expression() const;
    
       bool passesFilter(const void*) const;
@@ -47,6 +48,7 @@ class FWModelFilter
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
+      /** Throws an FWExpressionException if there is a problem */
       void setExpression(const std::string& );
       void setClassName(const std::string& );
    

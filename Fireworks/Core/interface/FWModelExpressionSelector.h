@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Jan 23 10:37:13 EST 2008
-// $Id$
+// $Id: FWModelExpressionSelector.h,v 1.1 2008/01/24 00:30:30 chrjones Exp $
 //
 
 // system include files
@@ -35,7 +35,7 @@ class FWModelExpressionSelector
       //virtual ~FWModelExpressionSelector();
 
       // ---------- const member functions ---------------------
-      ///returns false if there was a problem with the expression
+      /** Throws an FWExpressionException if there is a problem */
       bool select(FWEventItem* iItem, const std::string& iExpression) const;
    
       // ---------- static member functions --------------------

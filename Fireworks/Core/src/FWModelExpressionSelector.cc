@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Jan 23 10:37:22 EST 2008
-// $Id: FWModelExpressionSelector.cc,v 1.3 2008/08/01 14:10:32 chrjones Exp $
+// $Id: FWModelExpressionSelector.cc,v 1.4 2008/08/21 15:17:19 chrjones Exp $
 //
 
 // system include files
@@ -26,6 +26,7 @@
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
 #include "Fireworks/Core/src/fwCintInterfaces.h"
+#include "Fireworks/Core/interface/FWExpressionException.h"
 
 
 //
@@ -91,11 +92,14 @@ FWModelExpressionSelector::select(FWEventItem* iItem, const std::string& iExpres
    bool succeeded=true;
    try {
       if(!parse(temp.c_str(), grammar.use_parser<0>() >> end_p, space_p).full) {
-         std::cout <<"failed to parse "<<iExpression<<std::endl;
+         throw FWExpressionException("syntax error", -1);
+         //std::cout <<"failed to parse "<<iExpression<<" because of syntax error"<<std::endl;
          succeeded=false;
       }
    }catch(const reco::parser::BaseException& e) {
-      std::cout <<"failed to parse "<<iExpression<<" because "<<reco::parser::baseExceptionWhat(e)<<std::endl;
+      //NOTE: need to calculate actual position before doing the regex
+      throw FWExpressionException(reco::parser::baseExceptionWhat(e), e.where-temp.c_str());
+      //std::cout <<"failed to parse "<<iExpression<<" because "<<reco::parser::baseExceptionWhat(e)<<std::endl;
       succeeded=false;
    }
    if(!succeeded) { return false;}

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 29 13:39:56 PST 2008
-// $Id: FWModelFilter.cc,v 1.5 2008/08/01 13:52:03 chrjones Exp $
+// $Id: FWModelFilter.cc,v 1.6 2008/08/21 15:17:19 chrjones Exp $
 //
 
 // system include files
@@ -22,7 +22,7 @@
 
 // user include files
 #include "Fireworks/Core/interface/FWModelFilter.h"
-#include "Fireworks/Core/src/fwCintInterfaces.h"
+#include "Fireworks/Core/interface/FWExpressionException.h"
 
 #include "PhysicsTools/Utilities/src/Grammar.h"
 #include "PhysicsTools/Utilities/interface/Exception.h"
@@ -90,10 +90,13 @@ FWModelFilter::setExpression(const std::string& iExpression)
             m_selector = tmpPtr;
             m_expression = iExpression;
          } else {
-            std::cout <<"failed to parse "<<iExpression<<" because of syntax error"<<std::endl;
+            throw FWExpressionException("syntax error", -1);
+            //std::cout <<"failed to parse "<<iExpression<<" because of syntax error"<<std::endl;
          }
       }catch(const reco::parser::BaseException& e) {
-         std::cout <<"failed to parse "<<iExpression<<" because "<<reco::parser::baseExceptionWhat(e)<<std::endl;
+         //NOTE: need to calculate actual position before doing the regex
+         throw FWExpressionException(reco::parser::baseExceptionWhat(e), e.where-temp.c_str());
+         //std::cout <<"failed to parse "<<iExpression<<" because "<<reco::parser::baseExceptionWhat(e)<<std::endl;
       }
    }else {
       m_expression=iExpression;
