@@ -7,7 +7,7 @@ from EventFilter.RPCRawToDigi.RPCFrontierCabling_cfi import *
 from EventFilter.RPCRawToDigi.rpcUnpacker_cfi import *
 
 #    include "EventFilter/RPCRawToDigi/data/RPCFrontierCabling.cfi"
-#process.rpcunpacker.InputLabel = cms.untracked.InputTag("rawDataCollector")
+rpcunpacker.InputLabel = cms.untracked.InputTag("rawDataCollector")
 
 l1trpctpgpath = cms.Path(rpcunpacker*l1trpctpg)
 
