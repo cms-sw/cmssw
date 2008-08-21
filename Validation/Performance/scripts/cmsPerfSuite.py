@@ -467,6 +467,8 @@ def main(argv):
     sys.stdout.flush()
     
     #First submit the cmsScimark benchmarks on the unused cores:
+    scimark = ""
+    scimarklarge = ""
     if not _unittest:    
         for core in range(int(cores)):
             if core != int(cpu):
@@ -485,7 +487,7 @@ def main(argv):
 
     #dont do benchmarking if in debug mode... saves time
     benching = not _debug
-    if benching:
+    if benching and not _unittest:
         print "Starting with %s cmsScimark on cpu%s"%(cmsScimark,cpu)
         benchmarks(scimark.name,cmsScimark)
     
@@ -552,7 +554,7 @@ def main(argv):
         #usercandles=candleoption.split(",")
         simpleGenReport(dir,ValgrindEvents,valCandles,cmsdriverOptions,stepOptions,cmssw_version,"Valgrind")
 
-    if benching:
+    if benching and not _unittest:
     #Ending the performance suite with the cmsScimark benchmarks again: 
         print "Ending with %s cmsScimark on cpu%s"%(cmsScimark,cpu)
         benchmarks(scimark.name,cmsScimark)
