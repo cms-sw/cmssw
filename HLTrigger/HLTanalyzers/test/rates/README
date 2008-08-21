@@ -27,11 +27,13 @@ README for OpenHLT rate calculating scripts
 			    Any number < 0 will be interpreted as "running over all existing events".
 			    Default is all (-1).
 	
-		<sMenu>: Type of trigger menu to run. Options are "default" and "example".
+		<sMenu>: Type of trigger menu to run. Options are "default", "example", and "l1default".
 			 The "default" option runs the full HLT menu using the trigger bits
 			 from the standard HLT. The "example" menu will run the OpenHLT 
 			 triggers together with a few triggers from the full HLT for comparison.
 			 The method for adding new OpenHLT triggers is described below.
+			 The "l1default" calculates the rates for the full L1 menu using the trigger bits
+			 from the standard L1.
 
 		<sConditions>: Options are "startup" and "ideal". The "startup" option
 			       will run over events processed with 1pb-1 conditions. The "ideal" 
