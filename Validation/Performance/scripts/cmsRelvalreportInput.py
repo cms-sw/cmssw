@@ -264,6 +264,7 @@ def expandHyphens(step):
             sys.exit()
         else:
             newsteps.append(step)
+
     return newsteps
 
 def setupProgramParameters(options,args):
@@ -517,18 +518,17 @@ def writeCommands(simcandles,
             stopIndex = start + numOfSteps
         else:
             if "-" in steps[-1]:
-                stopIndex = AllSteps.index(steps[-1].split("-")[1])
+                stopIndex = AllSteps.index(steps[-1].split("-")[1]) + 1
             else:
-                stopIndex = AllSteps.index(steps[-1])
+                stopIndex = AllSteps.index(steps[-1]) + 1
         steps = AllSteps
             
-
     unprofiledSteps = []
 #   FOR step in steps
-
+#    print "start : " + str(start) + " stopindex " + str(stopIndex)
     for x in range(start,stopIndex,1):
 
-        if stepIndex >= stopIndex:
+        if stepIndex > stopIndex:
             break
         step = steps[stepIndex]
         stepToRun = step
