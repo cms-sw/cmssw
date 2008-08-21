@@ -23,7 +23,6 @@ HFShowerLibrary::HFShowerLibrary(std::string & name, const DDCompactView & cpv,
 				 edm::ParameterSet const & p) : fibre(0),hf(0),
 								emBranch(0),
 								hadBranch(0),
-								nHit(0), 
 								npe(0) {
   
 
@@ -183,8 +182,9 @@ void HFShowerLibrary::initRun(G4ParticleTable * theParticleTable) {
 #endif
 }
 
-int HFShowerLibrary::getHits(G4Step * aStep) {
 
+std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(G4Step * aStep,
+							   bool & ok) {
 
   G4StepPoint * preStepPoint  = aStep->GetPreStepPoint(); 
   G4StepPoint * postStepPoint = aStep->GetPostStepPoint(); 
@@ -197,6 +197,14 @@ int HFShowerLibrary::getHits(G4Step * aStep) {
   G4ThreeVector hitPoint = preStepPoint->GetPosition();   
   G4String      partType = track->GetDefinition()->GetParticleName();
   int           parCode  = track->GetDefinition()->GetPDGEncoding();
+
+  std::vector<HFShowerLibrary::Hit> hit;
+  ok = false;
+  if (parCode == pi0PDG || parCode == etaPDG || parCode == nuePDG ||
+      parCode == numuPDG || parCode == nutauPDG || parCode == anuePDG ||
+      parCode == anumuPDG || parCode == anutauPDG || parCode == geantinoPDG) 
+    return hit;
+  ok = true;
 
   double tSlice = (postStepPoint->GetGlobalTime())/nanosecond;
   double pin    = preStepPoint->GetTotalEnergy();
@@ -211,13 +219,6 @@ int HFShowerLibrary::getHits(G4Step * aStep) {
   double cphi   = cos(momDir.phi());
   double ctheta = cos(momDir.theta());
   double stheta = sin(momDir.theta());
- 
-  /*  // Obsolete piece, only valid if particle comes from IP...
-  double sphi   = sin(hitPoint.phi());
-  double cphi   = cos(hitPoint.phi());
-  double ctheta = cos(hitPoint.theta());
-  double stheta = sin(hitPoint.theta());
-  */
 
 #ifdef DebugLog
   LogDebug("HFShower") << "HFShowerLibrary: getHits " << partType
@@ -229,11 +230,7 @@ int HFShowerLibrary::getHits(G4Step * aStep) {
 		       << cphi << ", " << stheta << "," << ctheta ; 
 #endif    
                        
-  if (parCode == pi0PDG || parCode == etaPDG || parCode == nuePDG ||
-      parCode == numuPDG || parCode == nutauPDG || parCode == anuePDG ||
-      parCode == anumuPDG || parCode == anutauPDG || parCode == geantinoPDG) {
-    return -1;
-  } else if (parCode == emPDG || parCode == epPDG || parCode == gammaPDG ) {
+  if (parCode == emPDG || parCode == epPDG || parCode == gammaPDG ) {
     if (pin<pmom[nMomBin-1]) {
       interpolate(0, pin);
     } else {
@@ -247,10 +244,8 @@ int HFShowerLibrary::getHits(G4Step * aStep) {
     }
   }
     
-  nHit = 0;
-  if (npe > 0) {
-    hit.clear(); hit.resize(npe);
-  }
+  int nHit = 0;
+  HFShowerLibrary::Hit oneHit;
   for (int i = 0; i < npe; i++) {
 #ifdef DebugLog
     LogDebug("HFShower") << "HFShowerLibrary: Hit " << i << " " << pe[i];
@@ -321,9 +316,10 @@ int HFShowerLibrary::getHits(G4Step * aStep) {
 #endif
       if (rInside(r) && r1 <= exp(-p*zv) && r2 <= probMax && dfir > gpar[5] &&
 	  zz >= gpar[4] && zz <= gpar[4]+gpar[1] && r3 <= backProb ){
-	hit[nHit].position = pos;
-	hit[nHit].depth    = depth;
-	hit[nHit].time     = (tSlice+(pe[i].t())+(fibre->tShift(pos,depth,true)));
+	oneHit.position = pos;
+	oneHit.depth    = depth;
+	oneHit.time     = (tSlice+(pe[i].t())+(fibre->tShift(pos,depth,true)));
+	hit.push_back(oneHit);
 #ifdef DebugLog
 	LogDebug("HFShower") << "HFShowerLibrary: Final Hit " << nHit 
 			     <<" position " << (hit[nHit].position) <<" Depth "
@@ -344,41 +340,8 @@ int HFShowerLibrary::getHits(G4Step * aStep) {
   if (nHit > npe)
     edm::LogWarning("HFShower") << "HFShowerLibrary: Hit buffer " << npe 
 				<< " smaller than " << nHit << " Hits";
-  return nHit;
+  return hit;
 
-}
-
-G4ThreeVector HFShowerLibrary::getPosHit(int i) {
-
-  G4ThreeVector pos;
-  if (i < nHit) pos = (hit[i].position);
-#ifdef DebugLog
-  LogDebug("HFShower") << " HFShowerLibrary: getPosHit (" << i << "/" << nHit 
-		       << ") " << pos;
-#endif
-  return pos;
-}
-
-int HFShowerLibrary::getDepth(int i) {
-
-  int depth = 0;
-  if (i < nHit) depth = (hit[i].depth);
-#ifdef DebugLog
-  LogDebug("HFShower") << " HFShowerLibrary: getDepth (" << i << "/" << nHit 
-		       << ") "  << depth;
-#endif
-  return depth;
-}
-
-double HFShowerLibrary::getTSlice(int i) {
-  
-  double tim = 0.;
-  if (i < nHit) tim = (hit[i].time);
-#ifdef DebugLog
-  LogDebug("HFShower") << " HFShowerLibrary: Time (" << i << "/" << nHit 
-		       << ") "  << tim;
-#endif
-  return tim;
 }
 
 bool HFShowerLibrary::rInside(double r) {

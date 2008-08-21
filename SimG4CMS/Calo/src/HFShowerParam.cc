@@ -59,26 +59,26 @@ HFShowerParam::~HFShowerParam() {
   if (fibre) delete fibre;
 }
 
-std::vector<double> HFShowerParam::getHits(G4Step * aStep) {
-
-  std::vector<double> edeps;
-  hits.clear();
+std::vector<HFShowerParam::Hit> HFShowerParam::getHits(G4Step * aStep) {
 
   G4StepPoint * preStepPoint  = aStep->GetPreStepPoint(); 
   G4Track *     track    = aStep->GetTrack();   
   G4ThreeVector hitPoint = preStepPoint->GetPosition();   
   G4String      partType = track->GetDefinition()->GetParticleName();
   G4ThreeVector localPoint = (preStepPoint->GetTouchable()->GetHistory()->GetTopTransform()).TransformPoint(hitPoint);
+
   double pin    = (preStepPoint->GetTotalEnergy())/GeV;
   double zint   = hitPoint.z(); 
   double zz     = std::abs(zint) - gpar[4];
-  
-  edm::LogInfo("HFShower") << "HFShowerParam: getHits " << partType
+
+#ifdef DebugLog
+  LogDebug("HFShower") << "HFShowerParam: getHits " << partType
 		       << " of energy " << pin << " GeV" 
                        << " Pos x,y,z = " << hitPoint.x() << "," 
 		       << hitPoint.y() << "," << zint << " (" << zz << ","
-			   << localPoint.z() << ", " << (localPoint.z()+0.5*gpar[1]) << ")";
-
+		       << localPoint.z() << ", " << (localPoint.z()+0.5*gpar[1]) << ")";
+#endif
+  std::vector<HFShowerParam::Hit> hits;
   HFShowerParam::Hit hit;
   hit.position = hitPoint;
   // take only e+-/gamma
@@ -99,57 +99,25 @@ std::vector<double> HFShowerParam::getHits(G4Step * aStep) {
       double time = fibre->tShift(hitPoint,1,false); // remaining part
       hit.depth   = 1;
       hit.time    = tSlice+time;
-      edeps.push_back(edep);
+      hit.edep    = edep;
       hits.push_back(hit);
       if (zz >= gpar[0]) {
 	time      = fibre->tShift(hitPoint,2,false);
 	hit.depth = 2;
 	hit.time  = tSlice+time;
-	edeps.push_back(edep);
 	hits.push_back(hit);
       }
       if (kill) track->SetTrackStatus(fStopAndKill);
-      edm::LogInfo("HFShower") << "HFShowerParam: getHits kill (" << kill
-			       << ") track " << track->GetTrackID() 
-			       << " and deposit " << edep << " " <<edeps.size()
-			       << " times" << " ZZ " << zz << " " << gpar[0];
+#ifdef DebugLog
+      LogDebug("HFShower") << "HFShowerParam: getHits kill (" << kill
+			   << ") track " << track->GetTrackID() 
+			   << " and deposit " << edep << " " << hits.size()
+			   << " times" << " ZZ " << zz << " " << gpar[0];
+#endif
     }
   }
     
-  return edeps;
-
-}
-G4ThreeVector HFShowerParam::getPosHit(int i) {
-
-  G4ThreeVector pos;
-  if (i < static_cast<int>(hits.size())) pos = (hits[i].position);
-#ifdef DebugLog
-  LogDebug("HFShower") << "HFShowerParam::getPosHit (" << i << "/" 
-		       << hits.size() << ") " << pos;
-#endif
-  return pos;
-}
-
-int HFShowerParam::getDepth(int i) {
-
-  int depth = 0;
-  if (i < static_cast<int>(hits.size())) depth = (hits[i].depth);
-#ifdef DebugLog
-  LogDebug("HFShower") << "HFShowerParam::getDepth (" << i << "/" 
-		       << hits.size() << ") "  << depth;
-#endif
-  return depth;
-}
- 
-double HFShowerParam::getTSlice(int i) {
-   
-  double tim = 0.;
-  if (i < static_cast<int>(hits.size())) tim = (hits[i].time);
-#ifdef DebugLog
-  LogDebug("HFShower") << "HFShowerParam::getTSlice (" << i << "/" 
-		       << hits.size()<< ") " << tim;
-#endif
-  return tim;
+  return hits;
 }
 
 std::vector<double> HFShowerParam::getDDDArray(const std::string & str, 

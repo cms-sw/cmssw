@@ -10,9 +10,8 @@
 
 //#define DebugLog
 
-HFCherenkov::HFCherenkov(edm::ParameterSet const & p) {
+HFCherenkov::HFCherenkov(edm::ParameterSet const & m_HF) {
 
-  edm::ParameterSet m_HF = p.getParameter<edm::ParameterSet>("HFCherenkov");
   //Simple configurables
   //static SimpleConfigurable<double> p1(1.459, "HFCherenkov:RefIndex");
   //static SimpleConfigurable<double> p2(280.0, "HFCherenkov:Lambda1");
@@ -82,7 +81,6 @@ int HFCherenkov::computeNPhTrapped(double pBeta,
   int n_photons = npe_Dose;
   return n_photons;
 }
-
 
 int HFCherenkov::computeNPE(G4ParticleDefinition* pDef, double pBeta,
                             double u, double v, double w,
@@ -191,6 +189,7 @@ int HFCherenkov::computeNPE(G4ParticleDefinition* pDef, double pBeta,
 #endif
   return npe;
 }
+
 int HFCherenkov::computeNPEinPMT(G4ParticleDefinition* pDef, double pBeta, 
                                  double u, double v, double w, 
                                  double step_length){
@@ -198,19 +197,22 @@ int HFCherenkov::computeNPEinPMT(G4ParticleDefinition* pDef, double pBeta,
   int npe_ = 0;
   if (!isApplicable(pDef)) {return 0;}
   if (pBeta < (1/ref_index) || step_length < 0.0001) {
+#ifdef DebugLog
     LogDebug("HFShower") << "HFCherenkov::computeNPEinPMT: pBeta " << pBeta 
 			 << " 1/mu " << (1/ref_index) << " step_length " 
 			 << step_length;
+#endif
     return 0;
   }
    
   double uv = sqrt(u*u + v*v);
   int nbOfPhotons = computeNbOfPhotons(pBeta, step_length);
+#ifdef DebugLog
   LogDebug("HFShower") << "HFCherenkov::computeNPEinPMT: pBeta " << pBeta 
 		       << " u/v/w " << u << "/" << v << "/" << w 
 		       << " step_length " << step_length  
 		       << " nbOfPhotons " << nbOfPhotons;
-   
+#endif   
   if (nbOfPhotons < 0) {
     return 0;
   } else if (nbOfPhotons > 0) {
@@ -238,35 +240,42 @@ int HFCherenkov::computeNPEinPMT(G4ParticleDefinition* pDef, double pBeta,
 					      (lambda2 - lambda1));
       double lambda  = (lambda0/cm) * pow(double(10),7); // lambda is in nm
       wlini.push_back(lambda);
-      LogDebug("HFShower") << "HFCherenkov::computeNPEinPMT: " << i << " lambda " 
+#ifdef DebugLog
+      LogDebug("HFShower") << "HFCherenkov::computeNPEinPMT: " <<i <<" lambda "
 			   << lambda << " w_ph " << w_ph << " aperture " 
 			   << aperture;
+#endif
       if (w_ph > aperture) { // phton trapped inside PMT glass
 	wltrap.push_back(lambda);
 	rand = G4UniformRand();
-	LogDebug("HFShower") << "HFCherenkov::computeNPEinPMT: Random " << rand 
+#ifdef DebugLog
+	LogDebug("HFShower") << "HFCherenkov::computeNPEinPMT: Random " << rand
 			     << " Survive? " << (rand < 1.);
+#endif
 	if (rand < 1.0) { // survived all the times and sent to photo-cathode
 	  wlatten.push_back(lambda);
 	  rand = G4UniformRand();
 	  double qEffic = computeQEff(lambda);//Quantum efficiency of the PMT
 	  rand = G4UniformRand();
-	  LogDebug("HFShower") << "HFCherenkov::computeNPE: qEffic " 
+#ifdef DebugLog
+	  LogDebug("HFShower") << "HFCherenkov::computeNPEinPMT: qEffic " 
 		               << qEffic << " Random " << rand 
 			       << " Survive? " <<(rand < qEffic);
-	    if (rand < qEffic) { // made photoelectron
-	      npe_ += 1;
-	      momZ.push_back(w_ph);
-	      wl.push_back(lambda);
-	      wlqeff.push_back(lambda);
-	    } // made pe
+#endif
+	  if (rand < qEffic) { // made photoelectron
+	    npe_ += 1;
+	    momZ.push_back(w_ph);
+	    wl.push_back(lambda);
+	    wlqeff.push_back(lambda);
+	  } // made pe
 	} // accepted all Cherenkov photons
       } // end of  if(w_ph < w_aperture), trapped inside glass
     }// end of ++NbOfPhotons
   } // end of if(NbOfPhotons)}
-  int npe =  npe_; // Nb of photoelectrons
-  LogDebug("HFShower") << "HFCherenkov::computeNPEinPMT: npe " << npe;
-  return npe;
+#ifdef DebugLog
+  LogDebug("HFShower") << "HFCherenkov::computeNPEinPMT: npe " << npe_;
+#endif
+  return npe_;
 }
 
 std::vector<double>  HFCherenkov::getWLIni() {

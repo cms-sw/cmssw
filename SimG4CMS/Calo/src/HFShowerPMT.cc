@@ -10,6 +10,7 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include "G4NavigationHistory.hh"
 #include "G4VPhysicalVolume.hh"
 #include "G4Step.hh"
 #include "G4Track.hh"
@@ -19,9 +20,9 @@
 //#define DebugLog
 
 HFShowerPMT::HFShowerPMT(std::string & name, const DDCompactView & cpv,
-			 edm::ParameterSet const & p) {
+			 edm::ParameterSet const & p) : cherenkov(0) {
 
-  edm::ParameterSet m_HF  = p.getParameter<edm::ParameterSet>("HFShower");
+  edm::ParameterSet m_HF  = p.getParameter<edm::ParameterSet>("HFShowerPMT");
   pePerGeV                = m_HF.getParameter<double>("PEPerGeVPMT");
   
   G4String attribute = "ReadOutName";
@@ -93,9 +94,12 @@ HFShowerPMT::HFShowerPMT(std::string & name, const DDCompactView & cpv,
 				<< value;
   }
 
+  cherenkov = new HFCherenkov(m_HF);
 }
 
-HFShowerPMT::~HFShowerPMT() {}
+HFShowerPMT::~HFShowerPMT() {
+  if (cherenkov) delete cherenkov;
+}
 
 double HFShowerPMT::getHits(G4Step * aStep) {
 
@@ -120,8 +124,27 @@ double HFShowerPMT::getHits(G4Step * aStep) {
 		       << indexF << " Edeposit " << edep/MeV << " MeV; PE "
 		       << edep*pePerGeV/GeV;
 #endif
-  if (indexR >= 0 && indexF > 0) return edep*pePerGeV/GeV;
-  else                           return 0;
+
+  double photons = 0;
+  if (indexR >= 0 && indexF > 0) {
+    G4Track *aTrack = aStep->GetTrack();
+    G4ParticleDefinition *particleDef = aTrack->GetDefinition();
+    double stepl = aStep->GetStepLength();
+    double beta  = preStepPoint->GetBeta();
+    G4ThreeVector pDir = aTrack->GetDynamicParticle()->GetMomentumDirection();
+    G4ThreeVector localMom = preStepPoint->GetTouchable()->GetHistory()->
+      GetTopTransform().TransformAxis(pDir);
+    photons = cherenkov->computeNPEinPMT(particleDef, beta, localMom.x(),
+					 localMom.y(), localMom.z(), stepl);
+#ifdef DebugLog
+  LogDebug("HFShower") << "HFShowerPMT::getHits: for particle " 
+		       << particleDef->GetParticleName() << " Step " << stepl
+		       << " Beta " << beta << " Direction " << pDir
+		       << " Local " << localMom << " p.e. " << photons;
+#endif 
+
+  }
+  return photons;
 }
  
 double HFShowerPMT::getRadius() {

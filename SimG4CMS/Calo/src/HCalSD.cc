@@ -502,9 +502,10 @@ void HCalSD::getFromLibrary (G4Step* aStep) {
 
   preStepPoint  = aStep->GetPreStepPoint(); 
   theTrack      = aStep->GetTrack();   
-
-  int nhit      = showerLibrary->getHits(aStep);
   int det       = 5;
+  bool ok;
+
+  std::vector<HFShowerLibrary::Hit> hits = showerLibrary->getHits(aStep, ok);
 
   double etrack    = preStepPoint->GetKineticEnergy();
   int    primaryID = 0;
@@ -521,22 +522,22 @@ void HCalSD::getFromLibrary (G4Step* aStep) {
   //  int primaryID = setTrackID(aStep);
 
   G4int particleCode = theTrack->GetDefinition()->GetPDGEncoding();
-  if ( particleCode == emPDG || particleCode == epPDG || particleCode == gammaPDG ) {
+  if (particleCode==emPDG || particleCode==epPDG || particleCode==gammaPDG) {
     edepositEM  = 1.*GeV; edepositHAD = 0.;
   } else {
     edepositEM  = 0.; edepositHAD = 1.*GeV;
   }
 
 #ifdef DebugLog
-  LogDebug("HcalSim") << "HCalSD::getFromLibrary " << nhit << " hits for "
+  LogDebug("HcalSim") << "HCalSD::getFromLibrary " <<hits.size() <<" hits for "
 		      << GetName() << " of " << primaryID << " with " 
 		      << theTrack->GetDefinition()->GetParticleName() << " of "
 		      << preStepPoint->GetKineticEnergy()/GeV << " GeV";
 #endif
-  for (int i=0; i<nhit; i++) {
-    G4ThreeVector hitPoint = showerLibrary->getPosHit(i);
-    int depth              = showerLibrary->getDepth(i);
-    double time            = showerLibrary->getTSlice(i);
+  for (unsigned int i=0; i<hits.size(); i++) {
+    G4ThreeVector hitPoint = hits[i].position;
+    int depth              = hits[i].depth;
+    double time            = hits[i].time;
     unsigned int unitID    = setDetUnitId(det, hitPoint, depth);
     currentID.setID(unitID, time, primaryID, 0);
    
@@ -549,7 +550,7 @@ void HCalSD::getFromLibrary (G4Step* aStep) {
   }
 
   //Now kill the current track
-  if (nhit >= 0) {
+  if (ok) {
     theTrack->SetTrackStatus(fStopAndKill);
   }
 }
@@ -561,31 +562,31 @@ void HCalSD::hitForFibre (G4Step* aStep) {
   int primaryID = setTrackID(aStep);
 
   int det   = 5;
-  int nHit  = hfshower->getHits(aStep);
+  std::vector<HFShower::Hit> hits = hfshower->getHits(aStep);
 
   G4int particleCode = theTrack->GetDefinition()->GetPDGEncoding();
-  if ( particleCode == emPDG || particleCode == epPDG || particleCode == gammaPDG ) {
+  if (particleCode==emPDG || particleCode==epPDG || particleCode==gammaPDG) {
     edepositEM  = 1.*GeV; edepositHAD = 0.;
   } else {
     edepositEM  = 0.; edepositHAD = 1.*GeV;
   }
  
 #ifdef DebugLog
-  LogDebug("HcalSim") << "HCalSD::hitForFibre " << nHit << " hits for " 
+  LogDebug("HcalSim") << "HCalSD::hitForFibre " << hits.size() << " hits for " 
 		      << GetName() << " of " << primaryID << " with " 
 		      << theTrack->GetDefinition()->GetParticleName() << " of "
 		      << preStepPoint->GetKineticEnergy()/GeV 
 		      << " GeV in detector type " << det;
 #endif
-  if (nHit > 0) {
+  if (hits.size() > 0) {
 
     G4ThreeVector hitPoint = preStepPoint->GetPosition();
     int           depth    = 
       (preStepPoint->GetTouchable()->GetReplicaNumber(0))%10;
     unsigned int unitID    = setDetUnitId(det, hitPoint, depth);
 
-    for (int i=0; i<nHit; i++) {
-      double time            = hfshower->getTSlice(i);
+    for (unsigned int i=0; i<hits.size(); i++) {
+      double time            = hits[i].time;
       currentID.setID(unitID, time, primaryID, 0);
 
       // check if it is in the same unit and timeslice as the previous one
@@ -602,13 +603,10 @@ void HCalSD::hitForFibre (G4Step* aStep) {
 
 void HCalSD::getFromParam (G4Step* aStep) {
 
-  std::vector<double> edeps = showerParam->getHits(aStep);
-  int nHit = static_cast<int>(edeps.size());
+  std::vector<HFShowerParam::Hit> hits = showerParam->getHits(aStep);
+  int nHit = static_cast<int>(hits.size());
 
   if (nHit > 0) {
-    edepositEM    = edeps[0]*GeV; 
-    edepositHAD   = 0.;
-
     preStepPoint  = aStep->GetPreStepPoint();
     int primaryID = setTrackID(aStep);
    
@@ -621,11 +619,13 @@ void HCalSD::getFromParam (G4Step* aStep) {
 			<< " GeV in detector type " << det;
 #endif
     for (int i = 0; i<nHit; i++) {
-      G4ThreeVector hitPoint = showerParam->getPosHit(i);
-      int depth              = showerParam->getDepth(i);
-      double time            = showerParam->getTSlice(i);
+      G4ThreeVector hitPoint = hits[i].position;
+      int depth              = hits[i].depth;
+      double time            = hits[i].time;
       unsigned int unitID    = setDetUnitId(det, hitPoint, depth);
       currentID.setID(unitID, time, primaryID, 0);
+      edepositEM             = hits[i].edep*GeV; 
+      edepositHAD            = 0;
 
       // check if it is in the same unit and timeslice as the previous one
       if (currentID == previousID) {
@@ -644,7 +644,7 @@ void HCalSD::getHitPMT (G4Step* aStep) {
   theTrack     = aStep->GetTrack();
   double edep  = showerPMT->getHits(aStep);
 
-  if (edep > 0) {
+  if (edep >= 0) {
     double etrack    = preStepPoint->GetKineticEnergy();
     int    primaryID = 0;
     if (etrack >= energyCut) {
@@ -682,13 +682,10 @@ void HCalSD::getHitPMT (G4Step* aStep) {
     }
     currentID.setID(unitID, time, primaryID, 1);
 
-    double beta = preStepPoint->GetBeta();
-    if (beta > betaThr) {
-      edepositEM  = edep*GeV; edepositHAD = aStep->GetTotalEnergyDeposit();
-    } else {
-      edepositEM  = 0.; edepositHAD = aStep->GetTotalEnergyDeposit();
-    }
+    edepositHAD = aStep->GetTotalEnergyDeposit();
+    edepositEM  =-edepositHAD + (edep*GeV);
 #ifdef DebugLog
+    double beta = preStepPoint->GetBeta();
     LogDebug("HcalSim") << "HCalSD::getHitPMT 1 hit for " << GetName() 
                         << " of " << primaryID << " with " 
 			<< theTrack->GetDefinition()->GetParticleName()

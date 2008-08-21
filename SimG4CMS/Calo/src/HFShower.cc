@@ -57,11 +57,8 @@ HFShower::HFShower(std::string & name, const DDCompactView & cpv,
     dodet = fv.next();
   }
 
-  cherenkov = new HFCherenkov(p);
+  cherenkov = new HFCherenkov(m_HF);
   fibre     = new HFFibre(name, cpv, p);
-
-  nHit      = 0;
-  clearHits();
 }
 
 HFShower::~HFShower() { 
@@ -69,9 +66,9 @@ HFShower::~HFShower() {
   if (fibre)     delete fibre;
 }
 
-int HFShower::getHits(G4Step * aStep) {
+std::vector<HFShower::Hit> HFShower::getHits(G4Step * aStep) {
 
-  clearHits();
+  std::vector<HFShower::Hit> hits;
   int    nHit    = 0;
 
   double edep    = aStep->GetTotalEnergyDeposit();
@@ -83,12 +80,13 @@ int HFShower::getHits(G4Step * aStep) {
 #ifdef DebugLog
     LogDebug("HFShower") << "HFShower::getHits: Number of Hits " << nHit;
 #endif
-    return nHit;
+    return hits;
   }
 
   G4Track *aTrack = aStep->GetTrack();
   const G4DynamicParticle *aParticle = aTrack->GetDynamicParticle();
  
+  HFShower::Hit hit;
   double energy   = aParticle->GetTotalEnergy();
   double momentum = aParticle->GetTotalMomentum();
   double pBeta    = momentum / energy;
@@ -139,31 +137,22 @@ int HFShower::getHits(G4Step * aStep) {
 			 << (r1 <= exp(-p*zFibre) && r2 <= probMax);
 #endif
     if (r1 <= exp(-p*zFibre) && r2 <= probMax) {
+      hit.time = tSlice+time;
+      hit.wavelength = wavelength[i];
+      hits.push_back(hit);
       nHit++;
-      wlHit.push_back(wavelength[i]);
-      timHit.push_back(tSlice+time);
     }
   }
 
 #ifdef DebugLog
   LogDebug("HFShower") << "HFShower::getHits: Number of Hits " << nHit;
   for (int i=0; i<nHit; i++)
-    LogDebug("HFShower") << "HFShower::Hit " << i << " WaveLength " << wlHit[i]
-			 << " Time " << timHit[i];
+    LogDebug("HFShower") << "HFShower::Hit " << i << " WaveLength " 
+			 << hits[i].wavelength << " Time " << hits[i].time;
 #endif
-  return nHit;
+  return hits;
 
 } 
- 
-double HFShower::getTSlice(int i) {
-   
-  double tim = 0.;
-  if (i < nHit) tim = timHit[i];
-#ifdef DebugLog
-  LogDebug("HFShower") << "HFShower: Time (" << i << "/" << nHit << ") " <<tim;
-#endif
-  return tim;
-}
 
 double HFShower::fibreLength(G4String name) {
 
@@ -171,10 +160,4 @@ double HFShower::fibreLength(G4String name) {
   std::map<G4String,double>::const_iterator it = fibreDz2.find(name);
   if (it != fibreDz2.end()) length = it->second;
   return length;
-}
-
-void HFShower::clearHits() {
-
-  wlHit.clear();
-  timHit.clear();
 }
