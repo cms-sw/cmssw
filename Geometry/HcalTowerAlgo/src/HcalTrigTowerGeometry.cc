@@ -96,19 +96,22 @@ void HcalTrigTowerGeometry::towerEtaBounds(int ieta, double & eta1, double & eta
   int ietaAbs = abs(ieta);
   if(ietaAbs < firstHFTower()) {
     eta1 = theHBHEEtaBounds[ietaAbs-1];
-    eta2 = theHBHEEtaBounds[ieta];
+    eta2 = theHBHEEtaBounds[ietaAbs];
     // the last tower is split, so get tower 29, too
-    if(ieta == theTopology.lastHERing()-1) {
-      eta2 = theHBHEEtaBounds[ieta+1];
+    if(ietaAbs == theTopology.lastHERing()-1) {
+      eta2 = theHBHEEtaBounds[ietaAbs+1];
     } 
   } else {
     // count from 0
     int hfIndex = firstHFRingInTower(ietaAbs) - theTopology.firstHFRing();
     eta1 = theHFEtaBounds[hfIndex];
-    eta2 = theHFEtaBounds[hfIndex+ hfTowerEtaSize(ieta)];
+    eta2 = theHFEtaBounds[hfIndex + hfTowerEtaSize(ieta)];
   }
 
-  // get the signs right
-  if(ieta < 0) eta1 *= -1;
-  if(ieta < 0) eta2 *= -1;
+  // get the signs and order right
+  if(ieta < 0) {
+    double tmp = eta1;
+    eta1 = -eta2;
+    eta2 = -tmp;
+  }
 }
