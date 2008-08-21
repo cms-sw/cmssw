@@ -29,7 +29,7 @@ SinglePiMinusE1000
 TTbar
 QCD_80_120
 '''
-import os, time, sys
+import os, time, sys, re
 import optparse as opt
 from cmsPerfCommons import Candles, MIN_REQ_TS_EVENTS
 
@@ -314,15 +314,24 @@ def runCmsReport(dir,cmsver,candle):
 def testCmsDriver(dir,cmsver,candle):
     cmd  = Commands[0]
     noExit = True
-
+    stepreg = re.compile("--step=([^ ]*)")
     for line in open("./%s/SimulationCandles_%s.txt" % (dir,cmsver)):
         if (not line.lstrip().startswith("#")) and not (line.isspace() or len(line) == 0): 
             cmdonline  = line.split("@@@",1)[0]
+            stepbeingrun = "Unknown"
+            matches = stepreg.search(cmdonline)
+            if not matches == None:
+                stepbeingrun = matches.groups()[0]
+            if "PILEUP" in cmdonline:
+                stepbeingrun += "_PILEUP"
             print cmdonline
-            cmds = ("cd %s" % (dir),
-                    "%s"    % (cmdonline))
-            if not runCmdSet(cmds) == None:
-                print "FATAL ERROR: CMS Driver returned a non-zero exit status "
+            cmds = ("cd %s"      % (dir),
+                    "%s  >& ../cmsdriver_unit_test_%s_%s.log"    % (cmdonline,candle,stepbeingrun))
+            out = runCmdSet(cmds) 
+            if not out == None:
+                sig     = out >> 16    # Get the top 16 bits
+                xstatus = out & 0xffff # Mask out all bits except the first 16 
+                print "FATAL ERROR: CMS Driver returned a non-zero exit status when running %s for candle %s that is %s. Signal interrupt was %s" % (stepbeingrun,candle,xstatus,sig)
                 sys.exit()
     
 
@@ -480,14 +489,12 @@ def main(argv):
                 #cpus so it makes no sense to try reading its stdout/err 
                 os.popen4(command)
             
-        #Submit the cmsScimark benchmarks on the cpu where the suite will be run:
-        scimark      = open("cmsScimark2.log"      ,"w")
-        scimarklarge = open("cmsScimark2_large.log","w")
-
-
     #dont do benchmarking if in debug mode... saves time
     benching = not _debug
     if benching and not _unittest:
+        #Submit the cmsScimark benchmarks on the cpu where the suite will be run:        
+        scimark      = open("cmsScimark2.log"      ,"w")        
+        scimarklarge = open("cmsScimark2_large.log","w")
         print "Starting with %s cmsScimark on cpu%s"%(cmsScimark,cpu)
         benchmarks(scimark.name,cmsScimark)
     
