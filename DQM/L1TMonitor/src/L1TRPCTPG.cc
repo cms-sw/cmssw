@@ -1,8 +1,8 @@
 /*
  * \file L1TRPCTPG.cc
  *
- * $Date: 2008/03/14 20:35:46 $
- * $Revision: 1.9 $
+ * $Date: 2008/03/20 19:38:25 $
+ * $Revision: 1.10 $
  * \author J. Berryhill
  *
  */
@@ -11,11 +11,17 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
+
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTCand.h"
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTExtendedCand.h"
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
 using namespace std;
 using namespace edm;
 
 L1TRPCTPG::L1TRPCTPG(const ParameterSet& ps)
-  : rpctpgSource_( ps.getParameter< InputTag >("rpctpgSource") )
+  : rpctpgSource_( ps.getParameter< InputTag >("rpctpgSource") ),
+    rpctfSource_( ps.getParameter< InputTag >("rpctfSource") )
 {
 
   // verbosity switch
@@ -72,13 +78,28 @@ void L1TRPCTPG::beginJob(const EventSetup& c)
   {
     dbe->setCurrentFolder("L1T/L1TRPCTPG");
     rpctpgbx = dbe->book1D("RPCTPG_bx", 
-       "RPCTPG bx 0", 3, -1.5, 1.5 ) ;
+       "RPC digis bx - all events", 9, -4.5, 4.5 ) ;
+    
     rpctpgndigi[1] = dbe->book1D("RPCTPG_ndigi", 
        "RPCTPG nDigi bx 0", 100, -0.5, 99.5 ) ;
     rpctpgndigi[2] = dbe->book1D("RPCTPG_ndigi_+1", 
        "RPCTPG nDigi bx +1", 100, -0.5, 99.5 ) ;
     rpctpgndigi[0] = dbe->book1D("RPCTPG_ndigi_-1", 
        "RPCTPG nDigi bx -1", 100, -0.5, 99.5 ) ;
+
+
+
+    m_digiBxRPCBar = dbe->book1D("RPCDigiRPCBmu_noDTmu_bx",
+       "RPC digis bx - RPC, !DT", 9, -4.5, 4.5 ) ;
+
+    m_digiBxRPCEnd = dbe->book1D("RPCDigiRPCEmu_noCSCmu_bx",
+         "RPC digis bx - RPC, !CSC", 9, -4.5, 4.5 ) ;
+
+    m_digiBxDT = dbe->book1D("RPCDigiDTmu_noRPCBmu_bx",
+         "RPC digis bx - !RPC, DT", 9, -4.5, 4.5 ) ;
+
+    m_digiBxCSC = dbe->book1D("RPCDigiCSCmu_noRPCEmu_bx",
+         "RPC digis bx - !RPC, CSC", 9, -4.5, 4.5 ) ;
    }  
 }
 
@@ -106,8 +127,8 @@ void L1TRPCTPG::analyze(const Event& e, const EventSetup& c)
     edm::LogInfo("DataNotFound") << "can't find RPCGeometry" << endl;
     return;
   }
-  char layerLabel[328];
-  char meId [328];
+//   char layerLabel[328];
+//   char meId [328];
  
 
   /// DIGI     
@@ -119,6 +140,72 @@ void L1TRPCTPG::analyze(const Event& e, const EventSetup& c)
     return;
   }
 
+  // Calculate the number of DT and CSC cands present
+  edm::Handle<L1MuGMTReadoutCollection> pCollection;
+  e.getByLabel(rpctfSource_,pCollection);
+  
+  if (!pCollection.isValid()) {
+     edm::LogInfo("DataNotFound") << "can't find L1MuGMTReadoutCollection with label "
+           << rpctfSource_.label() ;
+     return;
+  }
+  
+  L1MuGMTReadoutCollection const* gmtrc = pCollection.product();
+  vector<L1MuGMTReadoutRecord> gmt_records = gmtrc->getRecords();
+  vector<L1MuGMTReadoutRecord>::const_iterator RRItr;
+  
+  static int nRPCTrackBarrel, nRPCTrackEndcap , nDTTrack, nCSCTrack;
+  nRPCTrackBarrel = 0;
+  nRPCTrackEndcap = 0;
+  nDTTrack = 0;
+  nCSCTrack = 0;
+
+  for( RRItr = gmt_records.begin() ;
+       RRItr != gmt_records.end() ;
+       RRItr++ )
+  {
+     // DTs
+     vector<L1MuRegionalCand> DTCands = RRItr->getDTBXCands();
+     for( vector<L1MuRegionalCand>::const_iterator
+          ECItr = DTCands.begin() ;
+          ECItr != DTCands.end() ;
+          ++ECItr )
+     {
+        if (!ECItr->empty()) { ++nDTTrack; }
+     }
+      // CSCs
+     vector<L1MuRegionalCand> CSCCands = RRItr->getCSCCands();
+     for( vector<L1MuRegionalCand>::const_iterator
+          ECItr = CSCCands.begin() ;
+          ECItr != CSCCands.end() ;
+          ++ECItr )
+     {
+        if (!ECItr->empty()) { ++nCSCTrack; }
+     }
+
+     //RPC barrel
+     vector<L1MuRegionalCand> RPCBCands = RRItr->getBrlRPCCands();
+     for( vector<L1MuRegionalCand>::const_iterator
+          ECItr = RPCBCands.begin() ;
+          ECItr != RPCBCands.end() ;
+          ++ECItr )
+     {
+        if (!ECItr->empty()) { ++nRPCTrackBarrel; }
+     }
+
+     //RPC endcap
+     vector<L1MuRegionalCand> RPCECands = RRItr->getFwdRPCCands();
+     for( vector<L1MuRegionalCand>::const_iterator
+          ECItr = RPCECands.begin() ;
+          ECItr != RPCECands.end() ;
+          ++ECItr )
+     {
+        if (!ECItr->empty()) { ++nRPCTrackEndcap; }
+     }
+  }
+
+
+  
   /// RecHits, perhaps to add later
   if (0){
   edm::Handle<RPCRecHitCollection> rpcHits;
@@ -136,8 +223,9 @@ void L1TRPCTPG::analyze(const Event& e, const EventSetup& c)
   RPCDigiCollection::DigiRangeIterator collectionItr;
   for(collectionItr=rpcdigis->begin(); collectionItr!=rpcdigis->end(); ++collectionItr){
 
-    RPCDetId detId=(*collectionItr ).first; 
+    /*RPCDetId detId=(*collectionItr ).first; 
 
+    
     uint32_t id=detId();
     char detUnitLabel[328];
     RPCGeomServ RPCname(detId);
@@ -148,30 +236,48 @@ void L1TRPCTPG::analyze(const Event& e, const EventSetup& c)
     if (meItr == rpctpgmeCollection.end() || (rpctpgmeCollection.size()==0)) {
       rpctpgmeCollection[id]=L1TRPCBookME(detId);
     }
-    std::map<std::string, MonitorElement*> meMap=rpctpgmeCollection[id];
+    std::map<std::string, MonitorElement*> meMap=rpctpgmeCollection[id];*/
     
 
-     std::vector<int> strips;
-     std::vector<int> bxs;
-     strips.clear(); 
-     bxs.clear();
+//      std::vector<int> strips;
+//      std::vector<int> bxs;
+//      strips.clear(); 
+//      bxs.clear();
      RPCDigiCollection::const_iterator digiItr; 
      for (digiItr = ((*collectionItr ).second).first;
 	  digiItr!=((*collectionItr).second).second; ++digiItr){
        
        // strips is a list of hit strips (regardless of bx) for this roll
-       int strip= (*digiItr).strip();
-       strips.push_back(strip);
+//        int strip= (*digiItr).strip();
+//        strips.push_back(strip);
        int bx=(*digiItr).bx();
        rpctpgbx->Fill(bx);
+       //
+
+       if ( nRPCTrackBarrel == 0 &&  nDTTrack != 0) {
+          m_digiBxDT->Fill(bx);
+       } else if ( nRPCTrackBarrel != 0 &&  nDTTrack == 0) {
+          m_digiBxRPCBar->Fill(bx);
+       }
+
+       if ( nRPCTrackEndcap == 0 &&  nCSCTrack != 0) {
+          m_digiBxCSC->Fill(bx);
+       } else if ( nRPCTrackEndcap != 0 &&  nCSCTrack == 0) {
+          m_digiBxRPCEnd->Fill(bx);
+       }
+
+
+
+
+       
        if (bx == -1) 
        {
         numberofDigi[0]++;
        }
        if (bx == 0) 
        { 
-        sprintf(meId,"Occupancy_%s",detUnitLabel);
-	meMap[meId]->Fill(strip);
+//         sprintf(meId,"Occupancy_%s",detUnitLabel);
+// 	meMap[meId]->Fill(strip);
         numberofDigi[1]++;
        }
        if (bx == 2) 
@@ -179,10 +285,10 @@ void L1TRPCTPG::analyze(const Event& e, const EventSetup& c)
         numberofDigi[2]++;
        }
        
-       sprintf(meId,"BXN_%s",detUnitLabel);
-       meMap[meId]->Fill(bx);
-       sprintf(meId,"BXN_vs_strip_%s",detUnitLabel);
-       meMap[meId]->Fill(strip,bx);
+//        sprintf(meId,"BXN_%s",detUnitLabel);
+//        meMap[meId]->Fill(bx);
+//        sprintf(meId,"BXN_vs_strip_%s",detUnitLabel);
+//        meMap[meId]->Fill(strip,bx);
       
      }
   }

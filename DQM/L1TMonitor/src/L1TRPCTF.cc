@@ -1,8 +1,8 @@
 /*
  * \file L1TRPCTF.cc
  *
- * $Date: 2008/06/04 13:17:27 $
- * $Revision: 1.17 $
+ * $Date: 2008/06/05 12:36:26 $
+ * $Revision: 1.18 $
  * \author J. Berryhill
  *
  */
@@ -20,10 +20,13 @@ using namespace edm;
 
 L1TRPCTF::L1TRPCTF(const ParameterSet& ps)
   : rpctfSource_( ps.getParameter< InputTag >("rpctfSource") ),
-   digiSource_( ps.getParameter< InputTag >("rpctfRPCDigiSource") ),
-                  m_ntracks(0),
-                  m_rpcDigiWithBX0(0),
-                  m_rpcDigiWithBXnon0(0)
+//    digiSource_( ps.getParameter< InputTag >("rpctfRPCDigiSource") ),
+//   m_rpcDigiFine(false),
+//    m_useRpcDigi(true),
+   m_ntracks(0)
+//    m_rpcDigiWithBX0(0),
+//    m_rpcDigiWithBXnon0(0)
+
  {
 
   // verbosity switch
@@ -118,11 +121,20 @@ void L1TRPCTF::beginJob(const EventSetup& c)
     rpctfbx = dbe->book1D("RPCTF_bx", 
        "RPCTF bx", 3, -1.5, 1.5 ) ;
 
-    m_digiBx = dbe->book1D("RPCDigi_bx", 
-       "RPC digis bx", 9, -4.5, 4.5 ) ;
+//     m_digiBx = dbe->book1D("RPCDigi_bx", 
+//        "RPC digis bx", 9, -4.5, 4.5 ) ;
     
-    m_digiBxLast = dbe->book1D("RPCDigi_bx_last", 
-       "RPC digis bx (last X events)", 9, -4.5, 4.5 ) ;
+//     m_digiBxRPC = dbe->book1D("RPCDigiRPC_bx", 
+//        "RPC digis bx - events with RPC mu only", 9, -4.5, 4.5 ) ;
+// 
+//     m_digiBxDT = dbe->book1D("RPCDigiDT_bx", 
+//        "RPC digis bx - events with DT mu only", 9, -4.5, 4.5 ) ;
+// 
+//     m_digiBxCSC = dbe->book1D("RPCDigiCSC_bx", 
+//        "RPC digis bx - events with CSC mu only", 9, -4.5, 4.5 ) ;
+
+//     m_digiBxLast = dbe->book1D("RPCDigi_bx_last", 
+//        "RPC digis bx (last X events)", 9, -4.5, 4.5 ) ;
 
     m_qualVsEta = dbe->book2D("RPCTF_quality_vs_tower", 
                               "RPCTF quality vs eta", 
@@ -150,7 +162,7 @@ void L1TRPCTF::beginJob(const EventSetup& c)
                                    "RPCTF phi valuepacked", 144, -0.5, 143.5 ) ;
     
     //m_floatSynchro = dbe->bookFloat("RPCTF_bx0vsOther"); // no qtests for float
-    m_floatSynchro = dbe->book1D("RPCTF_synchronization", "RPCTF synchronization", 3, -1.5, 1.5 );
+//     m_floatSynchro = dbe->book1D("RPCTF_synchronization", "RPCTF synchronization", 3, -1.5, 1.5 );
         
   }  
 }
@@ -181,21 +193,66 @@ void L1TRPCTF::analyze(const Event& e, const EventSetup& c)
     return;
   }
 
-  edm::Handle<RPCDigiCollection> rpcdigis;
-  e.getByLabel(digiSource_, rpcdigis);
+//   edm::Handle<RPCDigiCollection> rpcdigis;
 
-  if (!rpcdigis.isValid()) {
-    edm::LogInfo("DataNotFound") << "can't find RPCDigiCollection with label "<< digiSource_ << endl;
-    return;
-  }
-
- 
-
+//   if (m_useRpcDigi){
+//    try {
+//          e.getByLabel(digiSource_, rpcdigis);
+//    } catch(const edm::Exception& e) {
+//       //if ( e.categoryCode() != edm::errors::ProductNotFound ) {
+//                            //wrong reason for exception
+//       //   throw;
+//       //}
+//       edm::LogInfo("DataNotFound") << "can't find RPCDigiCollection with label "<< digiSource_ << endl;
+//       m_useRpcDigi = false;
+//    }
+//   }
+// 
+//   if (m_useRpcDigi){
+//    m_rpcDigiFine = !rpcdigis.isValid();
+//   } else {
+//      m_rpcDigiFine = false;
+//   }
+  
   L1MuGMTReadoutCollection const* gmtrc = pCollection.product();
   vector<L1MuGMTReadoutRecord> gmt_records = gmtrc->getRecords();
   vector<L1MuGMTReadoutRecord>::const_iterator RRItr;
 
-  int nrpctftrack = 0;
+  static int nrpctftrack;/*, nDTTrack, nCSCTrack;*/
+  nrpctftrack = 0;
+/*  nDTTrack = 0;
+  nCSCTrack = 0;*/
+  // Calculate the number of DT and CSC cands present
+//   for( RRItr = gmt_records.begin() ;
+//        RRItr != gmt_records.end() ;
+//        RRItr++ )
+//   {
+//      // DTs
+//       vector<L1MuRegionalCand> DTCands = RRItr->getDTBXCands();
+//       for( vector<L1MuRegionalCand>::const_iterator
+//           ECItr = DTCands.begin() ;
+//           ECItr != DTCands.end() ;
+//           ++ECItr )
+//       {
+//         if (!ECItr->empty()) { ++nDTTrack; }
+//       }
+//       // CSCs
+//       vector<L1MuRegionalCand> CSCCands = RRItr->getCSCCands();
+//       for( vector<L1MuRegionalCand>::const_iterator
+//           ECItr = CSCCands.begin() ;
+//           ECItr != CSCCands.end() ;
+//           ++ECItr )
+//       {
+//         if (!ECItr->empty()) { ++nCSCTrack; }
+//       }
+// 
+// 
+// 
+//   }
+
+
+
+ 
   for( RRItr = gmt_records.begin() ;
        RRItr != gmt_records.end() ;
        RRItr++ ) 
@@ -264,43 +321,58 @@ void L1TRPCTF::analyze(const Event& e, const EventSetup& c)
   m_ntracks += nrpctftrack;
  
 
-  if (nrpctftrack!=0) { // events in which  muons cands were found by rpc trigger
+//   if (m_rpcDigiFine) { // do we have valid digis?
+// 
+//     ++nevRPC_;
+//     RPCDigiCollection::DigiRangeIterator collectionItr;
+//     for(collectionItr=rpcdigis->begin(); collectionItr!=rpcdigis->end(); ++collectionItr){
+// 
+//       //RPCDetId detId=(*collectionItr ).first;
+// 
+//       RPCDigiCollection::const_iterator digiItr;
+//       for (digiItr = ((*collectionItr ).second).first;
+//           digiItr!=((*collectionItr).second).second; ++digiItr){
+// 
+//           int bx=(*digiItr).bx();
+// 
+//           m_digiBx->Fill(bx);
+//           m_digiBxLast->Fill(bx);
+// 
+//           if ( nrpctftrack != 0 &&  nDTTrack == 0 && nCSCTrack == 0){
+//             m_digiBxRPC->Fill(bx);
+// 
+//             m_bxs.insert(bx);
+//             if (bx == 0) {
+//               ++m_rpcDigiWithBX0;
+//             } else {
+//               ++m_rpcDigiWithBXnon0;
+//             }
+//           }
+// 
+// 
+//           if ( nrpctftrack == 0 &&  nDTTrack != 0 && nCSCTrack == 0){ 
+//             m_digiBxDT->Fill(bx);
+//           }
+//           if ( nrpctftrack == 0 &&  nDTTrack == 0 && nCSCTrack != 0){ 
+//             m_digiBxCSC->Fill(bx);
+//           }
+// 
+//       }
+// 
+// 
+//      }
+// 
+// 
+// 
+// 
+//   }
+//   if (nevRPC_%3000 == 0) {
+//     std::cout.flush();
+//     m_digiBxLast->Reset();
+//   }
 
-    ++nevRPC_;
-    RPCDigiCollection::DigiRangeIterator collectionItr;
-    for(collectionItr=rpcdigis->begin(); collectionItr!=rpcdigis->end(); ++collectionItr){
 
-      //RPCDetId detId=(*collectionItr ).first;
-
-      RPCDigiCollection::const_iterator digiItr;
-      for (digiItr = ((*collectionItr ).second).first;
-          digiItr!=((*collectionItr).second).second; ++digiItr){
-
-          int bx=(*digiItr).bx();
-          m_digiBx->Fill(bx);
-          m_digiBxLast->Fill(bx);
-          m_bxs.insert(bx);
-          if (bx == 0) {
-            ++m_rpcDigiWithBX0;
-          } else {
-            ++m_rpcDigiWithBXnon0;
-          }
-      }
-
-
-     }
-
-
-
-
-  }
-  if (nevRPC_%3000 == 0) {
-    std::cout.flush();
-    m_digiBxLast->Reset();
-  }
-
-
-  if (nev_%100 == 0) fillNorm();
+  if (nev_%1000 == 0) fillNorm();
 
   if (verbose_) cout << "\tRPCTFCand ntrack " << nrpctftrack << endl;
 	
@@ -311,9 +383,11 @@ void L1TRPCTF::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
                                     const edm::EventSetup& context)
 {
    m_ntracks = 0;
-   m_rpcDigiWithBX0=0;
-   m_rpcDigiWithBXnon0=0;
-   m_bxs.clear();
+//    m_rpcDigiWithBX0=0;
+//    m_rpcDigiWithBXnon0=0;
+//    m_bxs.clear();
+//    m_useRpcDigi = true;
+
                           
 }
 
@@ -345,13 +419,13 @@ void L1TRPCTF::fillNorm()
 
    }
 
-  int nBX =  m_bxs.size();
-  float fs = 0;
-  if (nBX > 1 && m_rpcDigiWithBX0 != 0){
-   fs = (float)m_rpcDigiWithBXnon0/(nBX-1)/m_rpcDigiWithBX0;
-  }
+//   int nBX =  m_bxs.size();
+//   float fs = 0;
+//   if (nBX > 1 && m_rpcDigiWithBX0 != 0){
+//    fs = (float)m_rpcDigiWithBXnon0/(nBX-1)/m_rpcDigiWithBX0;
+//   }
 
-  m_floatSynchro->setBinContent(2,fs);  
+//   m_floatSynchro->setBinContent(2,fs);
    
 }
 
