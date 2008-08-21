@@ -23,7 +23,7 @@
 
 import sys, os, re, operator
 import optparse as opt 
-from cmsPerfCommons import CANDLES, MIN_REQ_TS_EVENTS
+from cmsPerfCommons import Candles, MIN_REQ_TS_EVENTS
 
 ################
 # Global variables
@@ -59,31 +59,28 @@ Profiler = {
     'None'                    : 'None',
 }
 
-Candles = CANDLES.keys()
-
 # Need a little hash to match the candle with the ROOT name used by cmsDriver.py.
 
 FileName = {}
 # Hash to switch from keyword to .cfi use of cmsDriver.py:
-
 KeywordToCfi = {}
 for x in range(len(Candles)):
     
-    configs = ['SingleElectronE1000.cfi',
-               'MinBias.cfi',
+    configs = ['H200ZZ4L.cfi',
+               'MinBias.cfi',               
+               'SingleElectronE1000.cfi',
                'SingleMuPt10.cfi',
                'SinglePiE1000.cfi',
-               'H200ZZ4L.cfi',
-               'QCD_Pt_80_120.cfi',
-               'TTbar.cfi']
-    filenames = [
-                 'E_1000',
+               'TTbar.cfi',               
+               'QCD_Pt_80_120.cfi']
+    filenames = ['HZZLLLL_200',
                  'MINBIAS_',
+                 'E_1000',                 
                  'MU-_pt10',
                  'PI-_1000',
-                 'HZZLLLL_200',
-                 'QCD_80_120',
-                 'TTBAR_']
+                 'TTBAR_',                 
+                 'QCD_80_120']
+
 
     KeywordToCfi[Candles[x]] = configs[x]
     FileName[Candles[x]]     = filenames[x]
@@ -292,7 +289,7 @@ def setupProgramParameters(options,args):
         userSteps = options.userSteps
         steps = getSteps(userSteps)
 
-    if WhichCandles == 'AllCandles':
+    if WhichCandles.upper() == 'allcandles':
         Candle = Candles
         print 'ALL standard simulation candles will be PROCESSED:'
     else:
@@ -679,8 +676,7 @@ def writeCommandsToReport(simcandles,Candle,Profile,debug,NumberOfEvents,cmsDriv
     # Freeze this for now since we will only run by default the GEN-SIM,DIGI and DIGI pileup steps
 
 
-
-    qcdStr = Candles[5]
+    qcdStr = Candles[6]
     if qcdStr in Candle and MIN_REQ_TS_EVENTS <= NumberOfEvents:
         thecandle = getFstOccur(qcdStr, Candle)
 

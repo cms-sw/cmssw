@@ -12,7 +12,7 @@ OR
 (this will archive the results in a tarball on /castor/cern.ch/user/y/yourusername/yourdirectory/)
 OR
 ./cmsPerfSuite.py -t 5 -i 2 -v 1
-(this will run the suite with 5 events for TimeSize tests, 2 for IgProf tests, 0 for Valgrind tests)
+(this will run the suite with 5 events for TimeSize tests, 2 for IgProf tests, 1 for Valgrind tests)
 OR
 ./cmsPerfSuite.py -t 200 --candle QCD_80_120 --cmsdriver="--conditions FakeConditions"
 (this will run the performance tests only on candle QCD_80_120, running 200 TimeSize evts, default IgProf and Valgrind evts. It will also add the option "--conditions FakeConditions" to all cmsDriver.py commands executed by the suite)
@@ -31,13 +31,10 @@ QCD_80_120
 '''
 import os, time, sys
 import optparse as opt
-import cmsPerfCommons
-
+from cmsPerfCommons import Candles, MIN_REQ_TS_EVENTS
 
 global ERRORS 
 ERRORS = 0
-
-Candles = cmsPerfCommons.CANDLES
 
 try:
     #Get some environment variables to use
@@ -196,7 +193,7 @@ def optionParse():
     return parser.parse_args()
 
 def usage():
-    print __doc__
+    return __doc__
 
 def runCmdSet(cmd):
     exitstat = None
@@ -329,9 +326,8 @@ def testCmsDriver(dir,cmsver,candle):
                 sys.exit()
     
 
-def runCmsInput(dir,numevents,acandle,cmsdrvopts,stepopt,profiler):
+def runCmsInput(dir,numevents,candle,cmsdrvopts,stepopt,profiler):
     cmd = Commands[2]
-    candle = Candles[acandle]
     profilers = { "TimeSize" : "0123",
                   "IgProf"   : "4567",
                   "Valgrind" : "89"  ,
@@ -387,7 +383,7 @@ def main(argv):
     cmsScimarkLarge  = options.cmsScimarkLarge
     cmsdriverOptions = options.cmsdriverOptions
     stepOptions      = options.stepOptions
-    candleoption     = options.candleOptions
+    candleoption     = options.candleOptions.upper()
     cpu              = options.cpu
     cores            = options.cores
     _unittest        = options.unittest 
@@ -482,9 +478,9 @@ def main(argv):
                 #cpus so it makes no sense to try reading its stdout/err 
                 os.popen4(command)
             
-    #Submit the cmsScimark benchmarks on the cpu where the suite will be run:
-    scimark      = open("cmsScimark2.log"      ,"w")
-    scimarklarge = open("cmsScimark2_large.log","w")
+        #Submit the cmsScimark benchmarks on the cpu where the suite will be run:
+        scimark      = open("cmsScimark2.log"      ,"w")
+        scimarklarge = open("cmsScimark2_large.log","w")
 
 
     #dont do benchmarking if in debug mode... saves time
@@ -500,7 +496,7 @@ def main(argv):
     #List of Candles
 
     #Sort the candles to make sure MinBias is executed before QCD_80_120, otherwise DIGI PILEUP would not find its MinBias root files
-    AllCandles=Candles.keys()
+    AllCandles=Candles
     AllCandles.sort()
 
     isAllCandles = candleoption == ""
@@ -510,7 +506,7 @@ def main(argv):
     else:
         candles=candleoption.split(",")
 
-    qcdWillRun = isAllCandles or ((not isAllCandles) and "QCD_80_120" in usercandles )
+    qcdWillRun = isAllCandles or ((not isAllCandles) and "QCD_80_120" in candles )
 
     if qcdWillRun:
         candles = checkQcdConditions(isAllCandles,
