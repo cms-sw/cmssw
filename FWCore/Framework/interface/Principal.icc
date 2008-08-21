@@ -138,6 +138,14 @@ namespace edm {
     if (g.get() == 0) {
       return OutputHandle<T>();
     }
+    if (getProd && (g->product() == 0 || !g->product()->isPresent()) &&
+	    g->productDescription().branchType() == InEvent &&
+            productstatus::present(g->entryInfoPtr()->productStatus())) {
+        throw edm::Exception(edm::errors::LogicError, "Principal::getForOutput\n")
+         << "A product with a status of 'present' is not actually present.\n"
+         << "The branch name is " << g->productDescription().branchName() << "\n"
+         << "Contact a framework developer.\n";
+    }
     return OutputHandle<T>(g->product(), &g->productDescription(), g->entryInfoPtr());
   }
 
