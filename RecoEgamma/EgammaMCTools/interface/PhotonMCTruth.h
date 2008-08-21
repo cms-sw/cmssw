@@ -12,8 +12,8 @@
  *  This class stores all the MC truth information needed about the
  *  conversion
  * 
- *  $Date: 2007/05/21 22:20:54 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/06/08 10:53:08 $
+ *  $Revision: 1.7 $
  *  \author N. Marinelli  University of Notre Dame
  *
  */
@@ -33,6 +33,9 @@ public:
 		HepLorentzVector v,
                 int vertIndex,
                 int trackId,
+                int motherId,
+		HepLorentzVector mothMom, 
+		HepLorentzVector mothVtx, 
 		HepLorentzVector convVertex, 
 		HepLorentzVector pV, 
 		std::vector<ElectronMCTruth>& electrons );
@@ -45,6 +48,9 @@ public:
  HepLorentzVector vertex() const {return theConvVertex_;}
  std::vector<ElectronMCTruth> electrons() const {return theElectrons_;} 
  int trackId() const {return theTrackId_;}  
+ int motherType() const {return theMotherId_;}
+ HepLorentzVector motherMomentum() const {return theMotherMom_;}
+ HepLorentzVector motherVtx() const {return theMotherVtx_;}
 
  private:
 
@@ -52,6 +58,9 @@ public:
   HepLorentzVector thePhoton_;
   int theVertexIndex_;
   int theTrackId_;
+  int theMotherId_;
+  HepLorentzVector theMotherMom_;
+  HepLorentzVector theMotherVtx_;
   HepLorentzVector theConvVertex_;
   HepLorentzVector thePrimaryVertex_;
   std::vector<ElectronMCTruth> theElectrons_;
