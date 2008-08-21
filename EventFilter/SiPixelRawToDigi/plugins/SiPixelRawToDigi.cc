@@ -82,7 +82,6 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
     edm::ESHandle<SiPixelFedCablingMap> map;
     es.get<SiPixelFedCablingMapRcd>().get( map );
     LogDebug("map version:")<< map->version();
-    delete fedCablingMap_;
     fedCablingMap_ = map.product();
     typedef std::vector<const sipixelobjects::PixelFEDCabling *>::iterator FLI;
     std::vector<const sipixelobjects::PixelFEDCabling *> feds = map.product()->fedList();
