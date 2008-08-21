@@ -73,11 +73,6 @@ void HLTInfo::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   l1exttaueta = new float[kMaxL1ExtTau];
   l1exttauphi = new float[kMaxL1ExtTau];
 
-  // HLT-specific branches of the tree 
-//   HltTree->Branch("NHltPart",&nhltpart,"NHltPart/I");
-//   HltTree->Branch("HLTPartPt",hltppt,"HLTPartPt[NHltPart]/F");
-//   HltTree->Branch("HLTPartEta",hltpeta,"HLTPartEta[NHltPart]/F");
-
   HltTree->Branch("NL1IsolEm",&nl1extiem,"NL1IsolEm/I");
   HltTree->Branch("L1IsolEmEt",l1extiemet,"L1IsolEmEt[NL1IsolEm]/F");
   HltTree->Branch("L1IsolEmE",l1extieme,"L1IsolEmE[NL1IsolEm]/F");
@@ -129,8 +124,7 @@ void HLTInfo::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
 }
 
 /* **Analyze the event** */
-void HLTInfo::analyze(/*const HLTFilterObjectWithRefs& hltobj,*/
-		      const edm::TriggerResults& hltresults,
+void HLTInfo::analyze(const edm::TriggerResults& hltresults,
 		      const l1extra::L1EmParticleCollection& L1ExtEmIsol,
 		      const l1extra::L1EmParticleCollection& L1ExtEmNIsol,
 		      const l1extra::L1MuonParticleCollection& L1ExtMu,
@@ -138,7 +132,6 @@ void HLTInfo::analyze(/*const HLTFilterObjectWithRefs& hltobj,*/
 		      const l1extra::L1JetParticleCollection& L1ExtJetF,
 		      const l1extra::L1JetParticleCollection& L1ExtTau,
 		      const l1extra::L1EtMissParticleCollection& L1ExtMet,
-//		      const l1extra::L1ParticleMapCollection& L1MapColl,
 		      const L1GlobalTriggerReadoutRecord& L1GTRR,
 		      const L1GlobalTriggerObjectMapRecord& L1GTOMRec,
 		      const L1GctJetCountsCollection& L1GctCounts,
@@ -159,7 +152,6 @@ void HLTInfo::analyze(/*const HLTFilterObjectWithRefs& hltobj,*/
     if (HltEvtCnt==0){
       for (int itrig = 0; itrig != ntrigs; ++itrig){
 	TString trigName = triggerNames_.triggerName(itrig);
-// 	HltTree->Branch("TRIGG_"+trigName,trigflag+itrig,"TRIGG_"+trigName+"/I");
 	HltTree->Branch(trigName,trigflag+itrig,trigName+"/I");
       }
       HltEvtCnt++;
@@ -182,31 +174,6 @@ void HLTInfo::analyze(/*const HLTFilterObjectWithRefs& hltobj,*/
   }
   else { if (_Debug) std::cout << "%HLTInfo -- No Trigger Result" << std::endl;}
 
-  /////////// Analyzing HLT Objects (HLTFilterObjectsWithRefs) //////////
- 
-//   int mod=-1,path=-1,npart=-1;
-
-//   if (&hltobj) {
-//     mod = hltobj.module();
-//     path = hltobj.path();
-//     npart = hltobj.size();
-//     nhltpart = npart;
-//     for (int ipart = 0; ipart != npart; ++ipart){
-//       const edm::RefToBase<Candidate> ref_ = hltobj.getParticleRef(ipart);
-//       hltppt[ipart] = ref_->pt();
-//       hltpeta[ipart] = ref_->eta();
-//     }
-
-//     if (_Debug){
-//       std::cout << "%HLTInfo --  HLTobj module: " << mod << "   path: " << path << "   Npart:" << npart << std::endl;
-//     }
-
-//   }
-//   else {
-//     nhltpart = 0;
-//     if (_Debug) std::cout << "%HLTInfo -- No HLT Object" << std::endl;
-//   }
-
   /////////// Analyzing L1Extra objects //////////
 
   const int maxL1EmIsol = 4;
@@ -217,7 +184,6 @@ void HLTInfo::analyze(/*const HLTFilterObjectWithRefs& hltobj,*/
     l1extiemphi[i] = -999.;
   }
   if (&L1ExtEmIsol) {
-    //nl1extiem = L1ExtEmIsol.size();
     nl1extiem = maxL1EmIsol;
     l1extra::L1EmParticleCollection myl1iems;
     myl1iems=L1ExtEmIsol;
@@ -244,7 +210,6 @@ void HLTInfo::analyze(/*const HLTFilterObjectWithRefs& hltobj,*/
     l1extnemphi[i] = -999.;
   }
   if (&L1ExtEmNIsol) {
-    //nl1extnem = L1ExtEmNIsol.size();
     nl1extnem = maxL1EmNIsol;
     l1extra::L1EmParticleCollection myl1nems;
     myl1nems=L1ExtEmNIsol;
@@ -276,7 +241,6 @@ void HLTInfo::analyze(/*const HLTFilterObjectWithRefs& hltobj,*/
     l1extmuqul[i] = -999;
   }
   if (&L1ExtMu) {
-    //nl1extmu = L1ExtMu.size();
     nl1extmu = maxL1Mu;
     l1extra::L1MuonParticleCollection myl1mus;
     myl1mus=L1ExtMu;
@@ -309,7 +273,6 @@ void HLTInfo::analyze(/*const HLTFilterObjectWithRefs& hltobj,*/
     l1extjtcphi[i] = -999.;
   }
   if (&L1ExtJetC) {
-    //nl1extjetc = L1ExtJetC.size();
     nl1extjetc = maxL1CenJet;
     l1extra::L1JetParticleCollection myl1jetsc;
     myl1jetsc=L1ExtJetC;
@@ -336,7 +299,6 @@ void HLTInfo::analyze(/*const HLTFilterObjectWithRefs& hltobj,*/
     l1extjtfphi[i] = -999.;
   }
   if (&L1ExtJetF) {
-    //nl1extjetf = L1ExtJetF.size();
     nl1extjetf = maxL1ForJet;
     l1extra::L1JetParticleCollection myl1jetsf;
     myl1jetsf=L1ExtJetF;
@@ -363,7 +325,6 @@ void HLTInfo::analyze(/*const HLTFilterObjectWithRefs& hltobj,*/
     l1exttauphi[i] = -999.;
   }
   if (&L1ExtTau) {
-    //nl1exttau = L1ExtTau.size();
     nl1exttau = maxL1TauJet;
     l1extra::L1JetParticleCollection myl1taus;
     myl1taus=L1ExtTau;
@@ -392,36 +353,11 @@ void HLTInfo::analyze(/*const HLTFilterObjectWithRefs& hltobj,*/
     if (_Debug) std::cout << "%HLTInfo -- No L1 MET object" << std::endl;
   }
 
-  /* comment out full block: uses the obsolete l1ExtraParticleMap|Collection
-
-  if (&L1MapColl) {
-
-    // 1st event : Book as many branches as trigger paths provided in the input...
-    if (L1EvtCnt==0){
-      for (int itrig = 0; itrig != l1extra::L1ParticleMap::kNumOfL1TriggerTypes; ++itrig){
-	const l1extra::L1ParticleMap& map = ( L1MapColl )[ itrig ] ;
-	TString trigName = map.triggerName();
-	HltTree->Branch(trigName,l1flag+itrig,trigName+"/I");
-      }
-      L1EvtCnt++;
-    }
-    // ...Fill the corresponding accepts in branch-variables
-    for (int itrig = 0; itrig != l1extra::L1ParticleMap::kNumOfL1TriggerTypes; ++itrig){
-      const l1extra::L1ParticleMap& map = ( L1MapColl )[ itrig ] ;
-      l1flag[itrig] = map.triggerDecision();
-    }
-   
-  }
-  else {
-    if (_Debug) std::cout << "%HLTInfo -- No [obsolete] L1 Map Collection" << std::endl;
-  }
-  */
-
   TString algoBitToName[128];
+  // 1st event : Book as many branches as trigger paths provided in the input...
   if ((&L1GTRR) && (&L1GTOMRec)) {  
     DecisionWord gtDecisionWord = L1GTRR.decisionWord();
     const unsigned int numberTriggerBits(gtDecisionWord.size());
-    // 1st event : Book as many branches as trigger paths provided in the input...
     if (L1EvtCnt==0){
       // get ObjectMaps from ObjectMapRecord
       const std::vector<L1GlobalTriggerObjectMap>& objMapVec =  L1GTOMRec.gtObjectMap();

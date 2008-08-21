@@ -5,6 +5,7 @@
 #include "HLTrigger/HLTanalyzers/interface/HLTJets.h"
 #include "HLTrigger/HLTanalyzers/interface/HLTMCtruth.h"
 #include "HLTrigger/HLTanalyzers/interface/HLTMuon.h"
+#include "HLTrigger/HLTanalyzers/interface/EventHeader.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -16,13 +17,11 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 
-// #include "DataFormats/L1Trigger/interface/L1ParticleMap.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMap.h"
-//#include "DataFormats/L1GlobalTrigger/interface/L1GtLogicParser.h"
 
 /** \class HLTAnalyzer
   *  
@@ -44,18 +43,23 @@ private:
   // variables persistent across events should be declared here.
   //
   ///Default analyses
-  HLTEgamma elm_analysis_;
+
+  EventHeader evt_header_;
   HLTJets jet_analysis_;
-  HLTMCtruth mct_analysis_;
   HLTMuon muon_analysis_;
+  HLTEgamma elm_analysis_;
+  HLTMCtruth mct_analysis_;
   HLTInfo hlt_analysis_;
 
-  std::string recjets_,genjets_,recmet_,genmet_,ht_, calotowers_,hltobj_,hltresults_,genEventScale_;
-  std::string Electron_,Photon_,muon_;
-  std::string l1extramc_,particleMapSource_,mctruth_; 
-  std::string ecalDigisLabel_,hcalDigisLabel_;
-  std::string gtReadoutRecord_,gtObjectMap_; 
+  edm::InputTag recjets_,genjets_,recmet_,genmet_,ht_, calotowers_,hltresults_,genEventScale_;
+  edm::InputTag Electron_,Photon_,muon_;
+  std::string l1extramc_;
+  edm::InputTag particleMapSource_,mctruth_; 
+  edm::InputTag gtReadoutRecord_,gtObjectMap_; 
   edm::InputTag gctCounts_;
+
+  edm::InputTag MuCandTag2_,MuIsolTag2_,MuCandTag3_,MuIsolTag3_,MuLinkTag_;
+  edm::InputTag myHLTTau_;
 
   int errCnt;
   const int errMax(){return 100;}
