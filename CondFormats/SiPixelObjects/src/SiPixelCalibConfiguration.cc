@@ -88,6 +88,9 @@ SiPixelCalibConfiguration::SiPixelCalibConfiguration(const pos::PixelCalibConfig
     }
     fRowPattern.push_back(-1);
   }
+  
+  // set the calibration mode
+  fMode = fancyConfig.mode();
 }
 
 uint32_t SiPixelCalibConfiguration::nRowPatterns() const{
