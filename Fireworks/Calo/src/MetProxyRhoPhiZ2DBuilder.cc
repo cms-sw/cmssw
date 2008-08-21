@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: MetProxyRhoPhiZ2DBuilder.cc,v 1.4 2008/07/15 18:20:46 dmytro Exp $
+// $Id: MetProxyRhoPhiZ2DBuilder.cc,v 1.5 2008/07/16 13:51:01 dmytro Exp $
 //
 
 // system include files
@@ -112,11 +112,15 @@ MetProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
       element->SetPickable(kTRUE);
       container->AddElement(element);
       marker->SetScaleCenter( r_ecal*cos(phi), r_ecal*sin(phi), 0 );
-      marker->AddLine( r_ecal*cos(phi), r_ecal*sin(phi), 0, (r_ecal+size)*cos(phi), (r_ecal+size)*sin(phi), 0);
-      marker->AddLine( (r_ecal+size*0.9)*cos(phi+0.01), (r_ecal+size*0.9)*sin(phi+0.01), 0, 
+      const double dx = 0.9*size*0.05;
+      const double dy = 0.9*size*cos(0.05);
+      marker->AddLine( r_ecal*cos(phi), r_ecal*sin(phi), 0, 
 		       (r_ecal+size)*cos(phi), (r_ecal+size)*sin(phi), 0);
-      marker->AddLine( (r_ecal+size*0.9)*cos(phi-0.01), (r_ecal+size*0.9)*sin(phi-0.01), 0, 
+      marker->AddLine( dx*sin(phi) + (dy+r_ecal)*cos(phi), -dx*cos(phi) + (dy+r_ecal)*sin(phi), 0,
 		       (r_ecal+size)*cos(phi), (r_ecal+size)*sin(phi), 0);
+      marker->AddLine( -dx*sin(phi) + (dy+r_ecal)*cos(phi), dx*cos(phi) + (dy+r_ecal)*sin(phi), 0,
+		       (r_ecal+size)*cos(phi), (r_ecal+size)*sin(phi), 0);
+		       
       container->AddElement(marker);
       container->SetRnrSelf(     iItem->defaultDisplayProperties().isVisible() );
       container->SetRnrChildren( iItem->defaultDisplayProperties().isVisible() );
@@ -163,11 +167,13 @@ MetProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
       marker->SetLineWidth(2);
       marker->SetLineColor(  iItem->defaultDisplayProperties().color() );
       marker->SetScaleCenter(0., (phi>0 ? r : -r), 0);
+      const double dx = 0.9*size*0.05;
+      const double dy = 0.9*size*cos(0.05);
       marker->AddLine(0., (phi>0 ? r : -r), 0,
 		      0., (phi>0 ? (r+size) : -(r+size)), 0 );
-      marker->AddLine(0., (phi>0 ? r+size*0.9 : -(r+size*0.9) ), r*0.01,
+      marker->AddLine(0., (phi>0 ? r+dy : -(r+dy) ), dx,
 		      0., (phi>0 ? (r+size) : -(r+size)), 0 );
-      marker->AddLine(0., (phi>0 ? r+size*0.9 : -(r+size*0.9) ), -r*0.01,
+      marker->AddLine(0., (phi>0 ? r+dy : -(r+dy) ), -dx,
 		      0., (phi>0 ? (r+size) : -(r+size)), 0 );
       container->AddElement( marker );
       container->SetRnrSelf(     iItem->defaultDisplayProperties().isVisible() );
