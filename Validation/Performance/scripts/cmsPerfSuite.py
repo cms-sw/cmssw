@@ -257,7 +257,7 @@ def getPrereqRoot(rootdir,rootfile):
 
 def checkQcdConditions(isAllCandles,candles,TimeSizeEvents,rootdir,rootfile):
     if TimeSizeEvents < MIN_REQ_TS_EVENTS :
-        print "WARNING: TimeSizeEvents is less than %s but QCD needs at least that to run. PILE-UP will be ignored" % MIN_REG_TS_EVENTS
+        print "WARNING: TimeSizeEvents is less than %s but QCD needs at least that to run. PILE-UP will be ignored" % MIN_REQ_TS_EVENTS
         
         
     rootfilepath = rootdir + "/" + rootfile
@@ -331,7 +331,7 @@ def testCmsDriver(dir,cmsver,candle):
             if not out == None:
                 sig     = out >> 16    # Get the top 16 bits
                 xstatus = out & 0xffff # Mask out all bits except the first 16 
-                print "FATAL ERROR: CMS Driver returned a non-zero exit status when running %s for candle %s that is %s. Signal interrupt was %s" % (stepbeingrun,candle,xstatus,sig)
+                print "FATAL ERROR: CMS Driver returned a non-zero exit status (which is %s) when running %s for candle %s. Signal interrupt was %s" % (xstatus,stepbeingrun,candle,sig)
                 sys.exit()
     
 
