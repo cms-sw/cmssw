@@ -10,7 +10,7 @@ void MakeRatePlots(TString filename = "")
     }
 
   TFile *f = TFile::Open(filename);
-  TCanvas *c1 = new TCanvas("c1","c1",800,400);
+  TCanvas *c1 = new TCanvas("c1","c1",1200,400);
   c1->Divide(3,1);
   c1->cd(1);
   TH1F *h1 = (TH1F *)f->Get("cumulative");

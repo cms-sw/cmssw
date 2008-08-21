@@ -466,6 +466,20 @@ public :
    Int_t           L1_VBF_Mu7_Tau_TauHad;
    Int_t           L1_VBF_QuadJet;
    Int_t           L1_ZeroBias;
+   Int_t	L1_SingleMuOpen;
+   Int_t	L1_SingleMuBeamHalo;
+   Int_t	L1_SingleEG2;
+   Int_t	L1_DoubleEG1;
+   Int_t	L1_QuadJet15;
+   Int_t	L1_QuadJet30;
+   Int_t	L1_ETM30;
+   Int_t	L1_EG5_TripleJet15;
+   Int_t	L1_Mu3_TripleJet15;
+   Int_t	L1_SingleJetCountsHFTow;
+   Int_t	L1_DoubleJetCountsHFTow;
+   Int_t	L1_SingleJetCountsHFRing0Sum3;
+   Int_t	L1_DoubleJetCountsHFRing0Sum3;
+   Int_t	L1_SingleJetCountsHFRing0Sum6;
 
    // List of branches
    TBranch        *b_NrecoJetCal;   //!
@@ -910,6 +924,20 @@ public :
    TBranch        *b_L1_VBF_Mu7_Tau_TauHad;   //!
    TBranch        *b_L1_VBF_QuadJet;   //!
    TBranch        *b_L1_ZeroBias;   //!
+   TBranch        *b_L1_SingleMuOpen; 
+   TBranch        *b_L1_SingleMuBeamHalo; 
+   TBranch        *b_L1_SingleEG2; 
+   TBranch        *b_L1_DoubleEG1; 
+   TBranch        *b_L1_QuadJet15; 
+   TBranch        *b_L1_QuadJet30; 
+   TBranch        *b_L1_ETM30; 
+   TBranch        *b_L1_EG5_TripleJet15; 
+   TBranch        *b_L1_Mu3_TripleJet15; 
+   TBranch        *b_L1_SingleJetCountsHFTow; 
+   TBranch        *b_L1_DoubleJetCountsHFTow; 
+   TBranch        *b_L1_SingleJetCountsHFRing0Sum3; 
+   TBranch        *b_L1_DoubleJetCountsHFRing0Sum3; 
+   TBranch        *b_L1_SingleJetCountsHFRing0Sum6; 
 
    // Cut on mu quality
    Int_t           NL1OpenMu;
@@ -1503,6 +1531,20 @@ void OHltTree::Init(TTree *tree)
    fChain->SetBranchAddress("L1_VBF_Mu7_Tau_TauHad", &L1_VBF_Mu7_Tau_TauHad, &b_L1_VBF_Mu7_Tau_TauHad);
    fChain->SetBranchAddress("L1_VBF_QuadJet", &L1_VBF_QuadJet, &b_L1_VBF_QuadJet);
    fChain->SetBranchAddress("L1_ZeroBias", &L1_ZeroBias, &b_L1_ZeroBias);
+   fChain->SetBranchAddress("L1_SingleMuOpen", &L1_SingleMuOpen, &b_L1_SingleMuOpen); 
+   fChain->SetBranchAddress("L1_SingleMuBeamHalo", &L1_SingleMuBeamHalo, &b_L1_SingleMuBeamHalo); 
+   fChain->SetBranchAddress("L1_SingleEG2", &L1_SingleEG2, &b_L1_SingleEG2); 
+   fChain->SetBranchAddress("L1_DoubleEG1", &L1_DoubleEG1, &b_L1_DoubleEG1); 
+   fChain->SetBranchAddress("L1_QuadJet15", &L1_QuadJet15, &b_L1_QuadJet15); 
+   fChain->SetBranchAddress("L1_QuadJet30", &L1_QuadJet30, &b_L1_QuadJet30); 
+   fChain->SetBranchAddress("L1_ETM30", &L1_ETM30, &b_L1_ETM30); 
+   fChain->SetBranchAddress("L1_EG5_TripleJet15", &L1_EG5_TripleJet15, &b_L1_EG5_TripleJet15); 
+   fChain->SetBranchAddress("L1_Mu3_TripleJet15", &L1_Mu3_TripleJet15, &b_L1_Mu3_TripleJet15); 
+   fChain->SetBranchAddress("L1_SingleJetCountsHFTow", &L1_SingleJetCountsHFTow, &b_L1_SingleJetCountsHFTow); 
+   fChain->SetBranchAddress("L1_DoubleJetCountsHFTow", &L1_DoubleJetCountsHFTow, &b_L1_DoubleJetCountsHFTow); 
+   fChain->SetBranchAddress("L1_SingleJetCountsHFRing0Sum3", &L1_SingleJetCountsHFRing0Sum3, &b_L1_SingleJetCountsHFRing0Sum3); 
+   fChain->SetBranchAddress("L1_DoubleJetCountsHFRing0Sum3", &L1_DoubleJetCountsHFRing0Sum3, &b_L1_DoubleJetCountsHFRing0Sum3); 
+   fChain->SetBranchAddress("L1_SingleJetCountsHFRing0Sum6", &L1_SingleJetCountsHFRing0Sum6, &b_L1_SingleJetCountsHFRing0Sum6); 
 
    Notify();
 }
@@ -1616,7 +1658,80 @@ void OHltTree::SetMapBitOfStandardHLTPath() {
   map_BitOfStandardHLTPath["CandHLTMinBiasForAlignment"] = CandHLTMinBiasForAlignment;
   map_BitOfStandardHLTPath["HLTMinBias"] = HLTMinBias;
   map_BitOfStandardHLTPath["HLTZeroBias"] = HLTZeroBias;
+
+    // For measuring L1 rates, also add L1 bits to the map!
+  map_BitOfStandardHLTPath["L1_SingleMuOpen"] = L1_SingleMuOpen; 
+  map_BitOfStandardHLTPath["L1_SingleMu3"] = L1_SingleMu3; 
+  map_BitOfStandardHLTPath["L1_SingleMu5"] = L1_SingleMu5;             
+  map_BitOfStandardHLTPath["L1_SingleMu7"] = L1_SingleMu7;             
+  map_BitOfStandardHLTPath["L1_SingleMu10"] = L1_SingleMu10;            
+  map_BitOfStandardHLTPath["L1_SingleMuBeamHalo"] = L1_SingleMuBeamHalo; 
+  map_BitOfStandardHLTPath["L1_DoubleMu3"] = L1_DoubleMu3;             
+  map_BitOfStandardHLTPath["L1_TripleMu3"] = L1_TripleMu3;             
   
+  map_BitOfStandardHLTPath["L1_SingleIsoEG10"] = L1_SingleIsoEG10;       
+  map_BitOfStandardHLTPath["L1_SingleIsoEG12"] = L1_SingleIsoEG12;       
+  map_BitOfStandardHLTPath["L1_DoubleIsoEG8"] = L1_DoubleIsoEG8;         
+  
+  map_BitOfStandardHLTPath["L1_SingleEG2"] = L1_SingleEG2;            
+  map_BitOfStandardHLTPath["L1_SingleEG5"] = L1_SingleEG5;             
+  map_BitOfStandardHLTPath["L1_SingleEG8"] = L1_SingleEG8;             
+  map_BitOfStandardHLTPath["L1_SingleEG10"] = L1_SingleEG10;            
+  map_BitOfStandardHLTPath["L1_SingleEG12"] = L1_SingleEG12;           
+  map_BitOfStandardHLTPath["L1_SingleEG15"] = L1_SingleEG15;          
+  map_BitOfStandardHLTPath["L1_DoubleEG1"] = L1_DoubleEG1;            
+  map_BitOfStandardHLTPath["L1_DoubleEG5"] = L1_DoubleEG5;             
+  map_BitOfStandardHLTPath["L1_DoubleEG10"] = L1_DoubleEG10;            
+  
+  map_BitOfStandardHLTPath["L1_SingleJet15"] = L1_SingleJet15;  
+  map_BitOfStandardHLTPath["L1_SingleJet30"] = L1_SingleJet30; 
+  map_BitOfStandardHLTPath["L1_SingleJet50"] = L1_SingleJet50;  
+  map_BitOfStandardHLTPath["L1_SingleJet70"] = L1_SingleJet70;  
+  map_BitOfStandardHLTPath["L1_SingleJet100"] = L1_SingleJet100; 
+  map_BitOfStandardHLTPath["L1_SingleJet150"] = L1_SingleJet150; 
+  map_BitOfStandardHLTPath["L1_SingleJet200"] = L1_SingleJet200; 
+  map_BitOfStandardHLTPath["L1_DoubleJet70"] = L1_DoubleJet70;   
+  map_BitOfStandardHLTPath["L1_DoubleJet100"] = L1_DoubleJet100; 
+  map_BitOfStandardHLTPath["L1_TripleJet50"] = L1_TripleJet50;   
+  map_BitOfStandardHLTPath["L1_QuadJet15"] = L1_QuadJet15;  
+  map_BitOfStandardHLTPath["L1_QuadJet30"] = L1_QuadJet30;   
+  map_BitOfStandardHLTPath["L1_HTT200"] = L1_HTT200;         
+  map_BitOfStandardHLTPath["L1_HTT300"] = L1_HTT300;         
+  
+  map_BitOfStandardHLTPath["L1_ETM20"] = L1_ETM20;
+  map_BitOfStandardHLTPath["L1_ETM30"] = L1_ETM30;   
+  map_BitOfStandardHLTPath["L1_ETM40"] = L1_ETM40;   
+  map_BitOfStandardHLTPath["L1_ETM50"] = L1_ETM50;   
+  
+  map_BitOfStandardHLTPath["L1_ETT60"] = L1_ETT60;  
+  
+  map_BitOfStandardHLTPath["L1_SingleTauJet30"] = L1_SingleTauJet30;                
+  map_BitOfStandardHLTPath["L1_SingleTauJet40"] = L1_SingleTauJet40;  
+  map_BitOfStandardHLTPath["L1_SingleTauJet60"] = L1_SingleTauJet60;    
+  map_BitOfStandardHLTPath["L1_SingleTauJet80"] = L1_SingleTauJet80;    
+  map_BitOfStandardHLTPath["L1_DoubleTauJet20"] = L1_DoubleTauJet20;    
+  map_BitOfStandardHLTPath["L1_DoubleTauJet40"] = L1_DoubleTauJet40;    
+  
+  map_BitOfStandardHLTPath["L1_IsoEG10_Jet15_ForJet10"] = L1_IsoEG10_Jet15_ForJet10;  
+  map_BitOfStandardHLTPath["L1_ExclusiveDoubleIsoEG6"] = L1_ExclusiveDoubleIsoEG6;    
+  map_BitOfStandardHLTPath["L1_Mu5_Jet15"] = L1_Mu5_Jet15;     
+  map_BitOfStandardHLTPath["L1_IsoEG10_Jet20"] = L1_IsoEG10_Jet20;  
+  map_BitOfStandardHLTPath["L1_IsoEG10_Jet30"] = L1_IsoEG10_Jet30;  
+  map_BitOfStandardHLTPath["L1_Mu3_IsoEG5"] = L1_Mu3_IsoEG5;   
+  map_BitOfStandardHLTPath["L1_Mu3_EG12"] = L1_Mu3_EG12;     
+  map_BitOfStandardHLTPath["L1_IsoEG10_TauJet20"] = L1_IsoEG10_TauJet20;  
+  map_BitOfStandardHLTPath["L1_Mu5_TauJet20"] = L1_Mu5_TauJet20;  
+  map_BitOfStandardHLTPath["L1_TauJet30_ETM30"] = L1_TauJet30_ETM30;  
+  map_BitOfStandardHLTPath["L1_EG5_TripleJet15"] = L1_EG5_TripleJet15; 
+  map_BitOfStandardHLTPath["L1_Mu3_TripleJet15"] = L1_Mu3_TripleJet15; 
+  
+  map_BitOfStandardHLTPath["L1_ZeroBias"] = L1_ZeroBias;
+  map_BitOfStandardHLTPath["L1_MinBias_HTT10"] = L1_MinBias_HTT10;
+  map_BitOfStandardHLTPath["L1_SingleJetCountsHFTow"] = L1_SingleJetCountsHFTow; 
+  map_BitOfStandardHLTPath["L1_DoubleJetCountsHFTow"] = L1_DoubleJetCountsHFTow; 
+  map_BitOfStandardHLTPath["L1_SingleJetCountsHFRing0Sum3"] = L1_SingleJetCountsHFRing0Sum3;  
+  map_BitOfStandardHLTPath["L1_DoubleJetCountsHFRing0Sum3"] = L1_DoubleJetCountsHFRing0Sum3;   
+  map_BitOfStandardHLTPath["L1_SingleJetCountsHFRing0Sum6"] = L1_SingleJetCountsHFRing0Sum6;    
 }
 
 
