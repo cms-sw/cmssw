@@ -522,7 +522,7 @@ def main(argv):
                                      candles,
                                      TimeSizeEvents,
                                      "./%s_%s" % ("MinBias","TimeSize"),
-                                     "%s_GEN_SIM.root" % "MinBias")  
+                                     "%s__GEN,SIM.root" % "MINBIAS")  
 
 
     #TimeSize tests:
