@@ -2,8 +2,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2008/08/17 15:16:22 $
- * $Revision: 1.69 $
+ * $Date: 2008/08/17 23:11:02 $
+ * $Revision: 1.70 $
  * \author W Fisher
  *
 */
@@ -50,8 +50,6 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
   if ( ps.getUntrackedParameter<bool>("DataFormatMonitor", false) ) {
     if(debug_) cout << "HcalMonitorModule: DataFormat monitor flag is on...." << endl;
     dfMon_ = new HcalDataFormatMonitor();
-    // Pass the maps to the DFMon
-    dfMon_->smuggleMaps(DCCtoCell, HTRtoCell);
     dfMon_->setup(ps, dbe_);
   }
   
@@ -251,10 +249,11 @@ void HcalMonitorModule::beginJob(const edm::EventSetup& c){
 	  thispair = pair <int, std::vector<HcalDetId> > (dccid,tempv);
 	  //std::cout << "Had to add for DCC " << dccid << std::endl;
 	  DCCtoCell.insert(thispair); 
-	  //std::cout << "++_+_+_Had to add for DCC " << dccid << std::endl;
 	}
 	else {
+	  //cout << "++_+_+_ Pushbacked. Tooked " << thisDCC->second.size(); 
 	  thisDCC->second.push_back(hcaldetid_);
+	  //cout << " up to " << thisDCC->second.size() << endl;
 	}
       
 	// If this HTR has no entries, make this its first one.
@@ -272,11 +271,13 @@ void HcalMonitorModule::beginJob(const edm::EventSetup& c){
 	}
 	// std::cout << "Looped once more through AllElIds" << std::endl;
       } catch (...) {
-	std::cout << " ---> ";
-	std::cout << "Det " << detid_.det() << " and " << "Subdet " << detid_.subdetId() << std::endl;
+	//std::cout << " ---> ";
+	//std::cout << "Det " << detid_.det() << " and " << "Subdet " << detid_.subdetId() << std::endl;
       }
     } // fi (!detid_.null()) 
   } 
+  cout << "About to smuggle from beginJob()" << endl;
+  dfMon_->smuggleMaps(DCCtoCell, HTRtoCell);
   //get conditions
   c.get<HcalDbRecord>().get(conditions_);
 
