@@ -1,4 +1,4 @@
-// $Id: StreamService.cc,v 1.12 2008/08/13 22:48:12 biery Exp $
+// $Id: StreamService.cc,v 1.13 2008/08/14 12:10:15 loizides Exp $
 
 #include <EventFilter/StorageManager/interface/StreamService.h>
 #include <EventFilter/StorageManager/interface/ProgressMarker.h>
@@ -76,7 +76,7 @@ void StreamService::setStreamParameter()
   filePath_           = ""; // set by setFilePath
   setupLabel_         = ""; // set by setSetupLabel
   highWaterMark_      = 0.9;// set by setHighWaterMark
-  lumiSectionTimeOut_ = 10; // set by setLumiSectionTimeOut
+  lumiSectionTimeOut_ = 30; // set by setLumiSectionTimeOut
   sourceId_           = ""; // set by setSourceId
   // report(cout, 4);
 }

@@ -1,4 +1,4 @@
-// $Id: EventStreamService.cc,v 1.2 2008/08/14 12:10:15 loizides Exp $
+// $Id: EventStreamService.cc,v 1.3 2008/08/20 13:20:47 loizides Exp $
 
 #include <EventFilter/StorageManager/interface/EventStreamService.h>
 #include <EventFilter/StorageManager/interface/ProgressMarker.h>
@@ -92,10 +92,13 @@ void EventStreamService::closeTimedOutFiles(int lumi, double timeoutdiff)
       continue;
     }
 
-    if (it->first->lumiSection() < lumi-1) {
-      it->first->setWhyClosed(2);  // close old (N-2) lumi sections in any case
-    } else if (timeoutdiff > lumiSectionTimeOut_) {
-      it->first->setWhyClosed(3);  // check if timeout reached for previous (N-1) lumi sections
+    int reason = lumi*100000 + it->first->lumiSection()*10;
+
+//    if (it->first->lumiSection() < lumi-1) {
+//      it->first->setWhyClosed(reason+2);  // close old (N-2) lumi sections in any case
+//    } else 
+    if (timeoutdiff > lumiSectionTimeOut_) {
+      it->first->setWhyClosed(reason+3);  // check if timeout reached for previous (N-1) lumi sections
     } else {
       ++it;
       continue;
