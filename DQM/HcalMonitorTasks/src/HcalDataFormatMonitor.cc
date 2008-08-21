@@ -840,7 +840,6 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
       problemhere[i][j] =false;
     }
   }
-  cout << "--=-=------=-=----" << dccid << endl;
 
    return;
 } // void HcalDataFormatMonitor::unpack(
