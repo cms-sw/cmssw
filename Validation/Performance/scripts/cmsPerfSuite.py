@@ -31,19 +31,13 @@ QCD_80_120
 '''
 import os, time, sys
 import optparse as opt
+import cmsPerfCommons
+
 
 global ERRORS 
 ERRORS = 0
-MIN_REQ_TS_EVENTS = 50
-Candles={"HiggsZZ4LM200"      : "HZZLLLL",
-         "MinBias"            : "MINBIAS",
-         "SingleElectronE1000": "E -e 1000",
-         "SingleMuMinusPt10"  : "MU- -e pt10",
-         "SinglePiMinusE1000" : "PI- -e 1000",
-         "TTbar"              : "TTBAR",
-         "QCD_80_120"         : "QCD -e 80_120"
-}
 
+Candles = cmsPerfCommons.CANDLES
 
 try:
     #Get some environment variables to use

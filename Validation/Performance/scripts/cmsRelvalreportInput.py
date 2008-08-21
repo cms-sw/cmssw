@@ -23,12 +23,12 @@
 
 import sys, os, re, operator
 import optparse as opt 
+from cmsPerfCommons import CANDLES, MIN_REQ_TS_EVENTS
 
 ################
 # Global variables
 #
 
-MIN_REQ_TS_EVENTS = 50
 THIS_PROG_NAME = os.path.basename(sys.argv[0])
 cmsDriver = 'cmsDriver.py'                    #cmsDriver.py path
 hypreg = re.compile('-')
@@ -36,7 +36,6 @@ debug = False
 DEF_STEPS = ('GEN,SIM', 'DIGI')
 AllSteps  = ["GEN,SIM", "DIGI", "DIGI2RAW", "L1", "HLT", "RAW2DIGI", "RECO"]
 AfterPileUpSteps = AllSteps[2:]
-AfterPileUpSteps.insert(0,"BOB")
 
 # Global variables used by writeCommandsToReport and dependents
 
@@ -60,30 +59,35 @@ Profiler = {
     'None'                    : 'None',
 }
 
+Candles = CANDLES.keys()
+
 # Need a little hash to match the candle with the ROOT name used by cmsDriver.py.
 
-FileName = {
-    'HZZLLLL'      : 'HZZLLLL_200',
-    'MINBIAS'      : 'MINBIAS_',
-    'E -e 1000'    : 'E_1000',
-    'MU- -e pt10'  : 'MU-_pt10',
-    'PI- -e 1000'  : 'PI-_1000',
-    'TTBAR'        : 'TTBAR_',
-    'QCD -e 80_120': 'QCD_80_120',
-    }
-
+FileName = {}
 # Hash to switch from keyword to .cfi use of cmsDriver.py:
 
-KeywordToCfi = {
-    'HZZLLLL': 'H200ZZ4L.cfi',
-    'MINBIAS': 'MinBias.cfi',
-    'E -e 1000': 'SingleElectronE1000.cfi',
-    'MU- -e pt10': 'SingleMuPt10.cfi',
-    'PI- -e 1000': 'SinglePiE1000.cfi',
-    'TTBAR': 'TTbar.cfi',
-    'QCD -e 80_120': 'QCD_Pt_80_120.cfi',
-}
+KeywordToCfi = {}
+for x in range(len(Candles)):
     
+    configs = ['SingleElectronE1000.cfi',
+               'MinBias.cfi',
+               'SingleMuPt10.cfi',
+               'SinglePiE1000.cfi',
+               'H200ZZ4L.cfi',
+               'QCD_Pt_80_120.cfi',
+               'TTbar.cfi']
+    filenames = [
+                 'E_1000',
+                 'MINBIAS_',
+                 'MU-_pt10',
+                 'PI-_1000',
+                 'HZZLLLL_200',
+                 'QCD_80_120',
+                 'TTBAR_']
+
+    KeywordToCfi[Candles[x]] = configs[x]
+    FileName[Candles[x]]     = filenames[x]
+
 def getFstOccur(item, list):
     return filter(item.__eq__,list)[0]
 
@@ -137,7 +141,7 @@ def getSteps(userSteps):
         
 def optionparse():
     global _noprof
-    parser = opt.OptionParser(usage=("""%s NUM_EVENTS_PER_CFG CANDLES PROFILE [--conditions=cmsDriverOptions] [--usersteps=processingStepsOption]
+    parser = opt.OptionParser(usage=("""%s NUM_EVENTS_PER_CFG CANDLES PROFILE [--cmsdriver=cmsDriverOptions] [--usersteps=processingStepsOption]
 
     Arguments:
         NUM_EVENTS_PER_CFG - The number of events per config file
@@ -172,9 +176,9 @@ def optionparse():
        Perform Timing Report, Time Report and SimpleMemoryCheck profiling for Higgs boson and 50 events.
         ./%s 50 \"HZZLLLL\" 012
        Perform IgProfPerf and IgProfMemTotal profiling for TTbar and 100 events.
-        ./%s 100 \"TTBAR\" 45 \"--conditions FakeConditions\"
+        ./%s 100 \"TTBAR\" 45 --cmsdriver=\"--conditions FakeConditions\"
        Perform ValgrindFCE ValgrindMemCheck profiling for Minimum bias and 100 events. Only on gensim and digi steps.
-        ./%s 100 \"MINBIAS\" 89 \"--conditions FakeConditions\" \"--usersteps=GEN-SIM,DIGI"""
+        ./%s 100 \"MINBIAS\" 89 --cmsdriver=\"--conditions FakeConditions\" \"--usersteps=GEN-SIM,DIGI"""
       % ( THIS_PROG_NAME, THIS_PROG_NAME,THIS_PROG_NAME,THIS_PROG_NAME,THIS_PROG_NAME)))
     
     devel  = opt.OptionGroup(parser, "Developer Options",
@@ -289,15 +293,7 @@ def setupProgramParameters(options,args):
         steps = getSteps(userSteps)
 
     if WhichCandles == 'AllCandles':
-        Candle = (
-            'HZZLLLL',
-            'MINBIAS',
-            'E -e 1000',
-            'MU- -e pt10',
-            'PI- -e 1000',
-            'TTBAR',
-            'QCD -e 80_120',
-            )
+        Candle = Candles
         print 'ALL standard simulation candles will be PROCESSED:'
     else:
         Candle = [WhichCandles]
@@ -332,17 +328,7 @@ def init_vars():
         print '       Please run eval `scramv1 runtime -csh` to set your environment variables'
         sys.exit()
 
-    # Adding a check for a local version of the packages
-
-    PyRelValPkg = CMSSW_BASE + '/src/Configuration/PyReleaseValidation'
-    if os.path.exists(PyRelValPkg):
-        BASE_PYRELVAL = PyRelValPkg
-        print '**[cmsSimPyRelVal.pl]Using LOCAL version of Configuration/PyReleaseValidation instead of the RELEASE version**'
-    else:
-        BASE_PYRELVAL = CMSSW_RELEASE_BASE + '/src/Configuration/PyReleaseValidation'
-
-    return ( BASE_PYRELVAL,
-             CMSSW_BASE,
+    return ( CMSSW_BASE,
              CMSSW_RELEASE_BASE,
              CMSSW_VERSION)
 
@@ -432,7 +418,7 @@ def pythonFragment(step):
         return CustomiseFragment['DIGI']
 
 
-def setInputFile(steps,step,acandle,stepIndex,OutputStep="",qcd=False):
+def setInputFile(steps,step,acandle,stepIndex,qcd=False):
     InputFileOption = ""
     if qcd and stepIndex == 0:
         InputFileOption = "--filein file:%s_%s" % ( FileName[acandle],"DIGI" )
@@ -440,7 +426,7 @@ def setInputFile(steps,step,acandle,stepIndex,OutputStep="",qcd=False):
         InputFileOption = "--filein file:%s_%s" % ( FileName[acandle],steps[stepIndex - 1] )
         
     if qcd:
-        OutputStep      += "_PILEUP"
+#        OutputStep      += "_PILEUP"
         InputFileOption += "_PILEUP"
     else :
         if 'GEN,SIM' in step:  # there is no input file for GEN,SIM!
@@ -581,7 +567,7 @@ def writeCommands(simcandles,
                         # HLT, therefore the only thing left to run to profile EDMSIZE is HLT itself
 
 
-                        InputFileOption = setInputFile(steps,befStep,acandle,stepIndex)
+                        InputFileOption = setInputFile(steps,befStep,acandle,stepIndex,qcd=qcd)
 
                         Command = ("%s %s -n %s --step=%s %s %s --customise=%s %s"
                                            % (cmsDriver,
@@ -605,7 +591,7 @@ def writeCommands(simcandles,
 
                         # Use --filein (have to for L1, DIGI2RAW, HLT) to add robustness
 
-                    InputFileOption = setInputFile(steps,befStep,acandle,stepIndex,OutputStep,qcd)
+                    InputFileOption = setInputFile(steps,befStep,acandle,stepIndex,qcd)#OutputStep,qcd)
 
                     Command = ("%s %s -n %s --step=%s %s %s --customise=%s %s" % (
                                cmsDriver,
@@ -694,7 +680,7 @@ def writeCommandsToReport(simcandles,Candle,Profile,debug,NumberOfEvents,cmsDriv
 
 
 
-    qcdStr = 'QCD -e 80_120'
+    qcdStr = Candles[5]
     if qcdStr in Candle and MIN_REQ_TS_EVENTS <= NumberOfEvents:
         thecandle = getFstOccur(qcdStr, Candle)
 
@@ -749,7 +735,7 @@ def main(argv=sys.argv):
     # Initialize a few variables
     #
 
-    (BASE_PYRELVAL, CMSSW_BASE, CMSSW_RELEASE_BASE, CMSSW_VERSION ) = init_vars()
+    (CMSSW_BASE, CMSSW_RELEASE_BASE, CMSSW_VERSION ) = init_vars()
 
     ##################
     # Ok everything is ready now we need to create the input file for the relvalreport script 
