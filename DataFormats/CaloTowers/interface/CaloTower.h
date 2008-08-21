@@ -13,8 +13,8 @@
 
 /** \class CaloTower
     
-$Date: 2008/04/28 17:45:41 $
-$Revision: 1.8 $
+$Date: 2008/07/10 16:29:01 $
+$Revision: 1.9 $
 \author J. Mans - Minnesota
 */
 
@@ -62,9 +62,30 @@ public:
   double emEnergy() const { return emE_ ; }
   double hadEnergy() const { return hadE_ ; }
   double outerEnergy() const { return (id_.ietaAbs()<16)? outerE_ : 0.0; }
+
   double emEt() const { return emE_ * sin( theta() ); }
   double hadEt() const { return hadE_ * sin( theta() ); }
   double outerEt() const { return (id_.ietaAbs()<16)? outerE_ * sin( theta() ) : 0.0; }
+
+
+  // recalculated wrt user provided vertex Z position
+  // preserve the inherited default accessors where applicable
+
+  using LeafCandidate::p4;
+  using LeafCandidate::p;
+  using LeafCandidate::et; 
+
+  math::PtEtaPhiMLorentzVector p4(double vtxZ) const;
+  double p (double vtxZ) const { return p4(vtxZ).P(); }
+  double et(double vtxZ) const { return p4(vtxZ).Et(); }
+
+  math::PtEtaPhiMLorentzVector hadP4(double vtxZ) const;
+  math::PtEtaPhiMLorentzVector emP4(double vtxZ) const;
+
+  double emEt(double vtxZ)  const { return  emE_ * sin(p4(vtxZ).theta()); }
+  double hadEt(double vtxZ) const { return  hadE_ * sin(p4(vtxZ).theta()); }
+  double outerEt(double vtxZ) const { return (id_.ietaAbs()<16)? hadE_ * sin(p4(vtxZ).theta()) : 0.0; }
+
 
   const GlobalPoint& emPosition()  const { return emPosition_ ; }
   const GlobalPoint& hadPosition() const { return hadPosition_ ; }

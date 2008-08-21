@@ -32,6 +32,59 @@ CaloTower::CaloTower(const CaloTowerDetId& id,
   emPosition_(emPos), hadPosition_(hadPos)  {}
 
 
+// reacalculated momentum-related quantities wrt user provided vertex Z position
+
+
+math::PtEtaPhiMLorentzVector CaloTower::hadP4(double vtxZ) const {
+
+  math::PtEtaPhiMLorentzVector newP4(0,0,0,0);
+
+  // note: for now we use the same position for HO as for the other detectors
+
+  double hcalTot;
+  if (abs(ieta())<16) hcalTot = (energy() - emE_);
+  else hcalTot = hadE_;
+
+  if (hcalTot>0) {
+    double ctgTheta = (hadPosition_.z() - vtxZ)/hadPosition_.perp();
+    double newEta = asinh(ctgTheta);  
+    double pf = 1.0/cosh(newEta);
+
+    newP4 = PolarLorentzVector(hcalTot * pf, newEta, hadPosition_.phi(), 0.0);   
+  }
+  
+  return newP4;
+}
+
+math::PtEtaPhiMLorentzVector CaloTower::emP4(double vtxZ) const {
+
+  math::PtEtaPhiMLorentzVector newP4(0,0,0,0);
+
+  if (emE_>0) {
+    double ctgTheta = (emPosition_.z() - vtxZ)/emPosition_.perp();
+    double newEta = asinh(ctgTheta);  
+    double pf = 1.0/cosh(newEta);
+  
+    newP4 = math::PtEtaPhiMLorentzVector(emE_ * pf, newEta, emPosition_.phi(), 0.0);   
+  }
+  
+  return newP4;
+}
+
+
+
+math::PtEtaPhiMLorentzVector CaloTower::p4(double vtxZ) const {
+
+  math::PtEtaPhiMLorentzVector newP4(0,0,0,0);
+
+  newP4 += emP4(vtxZ);
+  newP4 += hadP4(vtxZ);
+
+  return newP4;
+}
+
+
+
 void CaloTower::addConstituents( const std::vector<DetId>& ids ) {
   constituents_.reserve(constituents_.size()+ids.size());
   constituents_.insert(constituents_.end(),ids.begin(),ids.end());
@@ -50,6 +103,7 @@ int CaloTower::numCrystals() const {
 }
 
 std::ostream& operator<<(std::ostream& s, const CaloTower& ct) {
-  return s << ct.id() << ":" << ct.et() << " GeV ET (EM=" << ct.emEt() <<
+  return s << ct.id() << ":"  << ct.et()
+	   << " GeV ET (EM=" << ct.emEt() <<
     " HAD=" << ct.hadEt() << " OUTER=" << ct.outerEt() << ") (" << ct.eta() << "," << ct.phi() << ")";    
 }
