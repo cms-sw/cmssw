@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 29 13:39:56 PST 2008
-// $Id: FWModelFilter.cc,v 1.6 2008/08/21 15:17:19 chrjones Exp $
+// $Id: FWModelFilter.cc,v 1.7 2008/08/21 21:10:50 chrjones Exp $
 //
 
 // system include files
@@ -26,6 +26,8 @@
 
 #include "PhysicsTools/Utilities/src/Grammar.h"
 #include "PhysicsTools/Utilities/interface/Exception.h"
+
+#include "Fireworks/Core/src/expressionFormatHelpers.h"
 
 //
 // constants, enums and typedefs
@@ -74,12 +76,10 @@ void
 FWModelFilter::setExpression(const std::string& iExpression)
 {
    if(m_type != ROOT::Reflex::Type() && iExpression.size()) {
+      using namespace fireworks::expression;
       
-      //Backwards compatibility with old format: If find a $. or a () just remove them
-      const std::string variable;
-      static boost::regex const reVarName("(\\$\\.)|(\\(\\))");
-      
-      std::string temp = boost::regex_replace(iExpression,reVarName,variable);
+      //Backwards compatibility with old format
+      std::string temp = oldToNewFormat(iExpression);
       
       //now setup the parser
       using namespace boost::spirit;
@@ -95,7 +95,7 @@ FWModelFilter::setExpression(const std::string& iExpression)
          }
       }catch(const reco::parser::BaseException& e) {
          //NOTE: need to calculate actual position before doing the regex
-         throw FWExpressionException(reco::parser::baseExceptionWhat(e), e.where-temp.c_str());
+         throw FWExpressionException(reco::parser::baseExceptionWhat(e), indexFromNewFormatToOldFormat(temp,e.where-temp.c_str(),iExpression));
          //std::cout <<"failed to parse "<<iExpression<<" because "<<reco::parser::baseExceptionWhat(e)<<std::endl;
       }
    }else {

@@ -8,12 +8,11 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Jan 23 10:37:22 EST 2008
-// $Id: FWModelExpressionSelector.cc,v 1.4 2008/08/21 15:17:19 chrjones Exp $
+// $Id: FWModelExpressionSelector.cc,v 1.5 2008/08/21 21:10:50 chrjones Exp $
 //
 
 // system include files
 #include <sstream>
-#include <boost/regex.hpp>
 #include "TClass.h"
 #include "Reflex/Object.h"
 #include "Reflex/Type.h"
@@ -27,7 +26,7 @@
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
 #include "Fireworks/Core/src/fwCintInterfaces.h"
 #include "Fireworks/Core/interface/FWExpressionException.h"
-
+#include "Fireworks/Core/src/expressionFormatHelpers.h"
 
 //
 // constants, enums and typedefs
@@ -76,14 +75,13 @@ FWModelExpressionSelector::FWModelExpressionSelector()
 bool 
 FWModelExpressionSelector::select(FWEventItem* iItem, const std::string& iExpression) const
 {
+   using namespace fireworks::expression;
+
    ROOT::Reflex::Type type= ROOT::Reflex::Type::ByName(iItem->modelType()->GetName());
    assert(type != ROOT::Reflex::Type());
 
-   //Backwards compatibility with old format: If find a $. or a () just remove them
-   const std::string variable;
-   static boost::regex const reVarName("(\\$\\.)|(\\(\\))");
-   
-   std::string temp = boost::regex_replace(iExpression,reVarName,variable);
+   //Backwards compatibility with old format
+   std::string temp = oldToNewFormat(iExpression);
 
    //now setup the parser
    using namespace boost::spirit;
@@ -98,7 +96,7 @@ FWModelExpressionSelector::select(FWEventItem* iItem, const std::string& iExpres
       }
    }catch(const reco::parser::BaseException& e) {
       //NOTE: need to calculate actual position before doing the regex
-      throw FWExpressionException(reco::parser::baseExceptionWhat(e), e.where-temp.c_str());
+      throw FWExpressionException(reco::parser::baseExceptionWhat(e), indexFromNewFormatToOldFormat(temp,e.where-temp.c_str(),iExpression));
       //std::cout <<"failed to parse "<<iExpression<<" because "<<reco::parser::baseExceptionWhat(e)<<std::endl;
       succeeded=false;
    }
