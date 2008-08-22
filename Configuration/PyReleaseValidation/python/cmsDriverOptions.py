@@ -201,6 +201,7 @@ for s in step_list:
         isFirst=1
     else:
         trimmedStep=trimmedStep+','+step
+
         
 first_step=trimmedStep.split(',')[0]             
 if options.filein=="" and not first_step in ("ALL","GEN","SIM_CHAIN"):
@@ -253,20 +254,11 @@ if options.writeraw:
         else:
             fileraw=fileraw+'_rawonly.'+w
 
-#set process name:
-ext_process_name=trimmedEvtType+trimmedStep
-options.ext_process_name=trimmedEvtType+trimmedStep
 
-
-if options.dump_dsetname_flag:
-    print ext_process_name
-    sys.exit(0) # no need to go further
 
 secondfilestr=''
 if options.secondfilein!='':
     secondfilestr=options.dirin+options.secondfilein
-
-
 
 
 # replace step aliases by right list
