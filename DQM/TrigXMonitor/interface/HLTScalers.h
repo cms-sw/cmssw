@@ -1,12 +1,15 @@
 // -*-c++-*-
 // 
 //
-// $Id: HLTScalers.h,v 1.7 2008/08/01 14:37:33 bjbloom Exp $
+// $Id: HLTScalers.h,v 1.8 2008/08/15 15:40:57 wteo Exp $
 // Class to collect HLT scaler information 
 // for Trigger Cross Section Monitor
 // [wittich 11/07] 
 
 // $Log: HLTScalers.h,v $
+// Revision 1.8  2008/08/15 15:40:57  wteo
+// split hltScalers into smaller histos, calculate rates
+//
 // Revision 1.7  2008/08/01 14:37:33  bjbloom
 // Added ability to specify which paths are cross-correlated
 //
@@ -84,7 +87,7 @@ public:
 
 private:
   DQMStore * dbe_;
-  MonitorElement *scalers_[10];
+  MonitorElement *scalers_;
   MonitorElement *scalersException_;
   MonitorElement *hltCorrelations_;
   MonitorElement *detailedScalers_;
@@ -95,16 +98,15 @@ private:
   std::vector<MonitorElement*> hltPathNames_;
   edm::InputTag trigResultsSource_;
   edm::InputTag l1GtDataSource_; // L1 Scalers
-  bool resetMe_, verbose_, monitorDaemon_, specifyPaths_;
-  std::vector<std::string> pathNames_;
-  std::vector<int> pathNamesIndex_;
+  bool resetMe_, monitorDaemon_; 
+
   int nev_; // Number of events processed
   int nLumi_; // number of lumi blocks
   int currentRun_;
-  double lumiBlock_;
-  unsigned int nHitsPresentLumiBlock_[200];
-  unsigned int nHitsPreviousLumiBlock_[200];
-  double rate_[200];
+  //double lumiBlock_;
+  //unsigned int nHitsPresentLumiBlock_[200];
+  //unsigned int nHitsPreviousLumiBlock_[200];
+  //double rate_[200];
 
 };
 
