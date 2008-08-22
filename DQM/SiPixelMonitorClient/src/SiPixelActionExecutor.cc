@@ -755,7 +755,11 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DQMStore* bei,
                  }
 	       }
 	       for (int k = 1; k < nbin_subdir+1; k++) {
-		 (*igm)->setBinContent(k+nbin_i, me->getBinContent(k));
+		  if((*igm)->getName().find("ndigis_FREQ")==string::npos){  
+		    (*igm)->setBinContent(k+nbin_i, me->getBinContent(k));
+		  }else if(me->getName().find("ndigis_FREQ")!=string::npos){
+		    (*igm)->setBinContent(k+nbin_i, me->getBinContent(k));
+		  }
 	       }
              }
            }
@@ -916,8 +920,15 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore* bei,
                  }
 	       }
 	       for (int k = 1; k < nbin_subdir+1; k++) {
-	         //if(bei->pwd()=="Pixel/Endcap/HalfCylinder_mI/Disk_1/Blade_01")cout<<"HERE: "<<k<<","<<k+nbin_i<<","<<me->getBinContent(k)<<endl;
-		 (*igm)->setBinContent(k+nbin_i, me->getBinContent(k));
+	         //if((*igm)->getName()=="SUMDIG_ndigis_FREQ_Blade_01" &&
+		     //me->getName()=="SUMDIG_ndigis_FREQ_Panel_2" &&
+		   //  bei->pwd().find("HalfCylinder_mI/Disk_1/Blade_01")!=string::npos 
+		    //)cout<<"HERE: "<<(*igm)->getName()<<","<<k<<","<<k+nbin_i<<","<<me->getBinContent(k)<<endl;
+		  if((*igm)->getName().find("ndigis_FREQ")==string::npos){  
+		    (*igm)->setBinContent(k+nbin_i, me->getBinContent(k));
+		  }else if(me->getName().find("ndigis_FREQ")!=string::npos){
+		    (*igm)->setBinContent(k+nbin_i, me->getBinContent(k));
+		  }
 	       }
              }
            }
