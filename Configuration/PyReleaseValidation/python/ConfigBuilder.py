@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.72 $"
+__version__ = "$Revision: 1.73 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -273,8 +273,11 @@ class ConfigBuilder(object):
 
     def prepare_ALCA(self, sequence = None):
         """ Enrich the process with alca streams """
-        alcaConfig = self.loadAndRemember("Configuration/StandardSequences/AlCaRecoStreams_cff")
-
+        if ( len(sequence.split(','))==1 ):
+            alcaConfig = self.loadAndRemember("Configuration/StandardSequences/AlCaRecoStreams_cff")
+        else:
+            alcaConfig = self.loadAndRemember(sequence.split(',')[0])
+				
         # decide which ALCA paths to use
         alcaList = sequence.split("+")
         for name in alcaConfig.__dict__:
@@ -370,6 +373,15 @@ class ConfigBuilder(object):
         self.process.schedule.append(self.process.raw2digi_step)
         return
 
+    def prepare_RAW2DIGIDATA(self, sequence = "RawToDigi"):
+	if ( len(sequence.split(','))==1 ):
+	    self.loadAndRemember("Configuration/StandardSequences/RawToDigi_Data_cff")
+	else:
+	    self.loadAndRemember(sequence.split(',')[0])
+	self.process.raw2digi_step = cms.Path( getattr(self.process, sequence.split(',')[-1]) )
+	self.process.schedule.append(self.process.raw2digi_step)
+	return
+
     def prepare_RECO(self, sequence = "reconstruction"):
         ''' Enrich the schedule with reconstruction '''
         if ( len(sequence.split(','))==1 ):
@@ -447,7 +459,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.72 $"),
+              (version=cms.untracked.string("$Revision: 1.73 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
@@ -574,7 +586,7 @@ def installPromptReco(process, recoOutputModule, aodOutputModule = None):
     cb._options.step = 'RAW2DIGI,RECO'
     cb.addStandardSequences()
     cb.addConditions()
-    #process.load('Configuration.EventContent.EventContent_cff')
+    process.load('Configuration.EventContent.EventContent_cff')
     recoOutputModule.eventContent = process.RECOEventContent
     if aodOutputModule != None:
         aodOutputModule.eventContent = process.AODEventContent
