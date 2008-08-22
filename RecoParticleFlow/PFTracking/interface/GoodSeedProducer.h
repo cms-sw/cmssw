@@ -56,6 +56,7 @@ class GoodSeedProducer : public edm::EDProducer {
       int getBin(float);
       void PSforTMVA(math::XYZTLorentzVector mom,
 		     math::XYZTLorentzVector pos);
+      bool IsIsolated(reco::Track, edm::Event&, uint,uint);
       // ----------member data ---------------------------
 
       ///Vector of clusters of the PreShower
@@ -84,6 +85,8 @@ class GoodSeedProducer : public edm::EDProducer {
       double minPt_;
       double maxPt_;
       double maxEta_;
+      double maxDr_;
+      double maxIsol_;
 
       ///Cut on the energy of the clusters
       double clusThreshold_;

@@ -24,6 +24,8 @@ elecpreid = cms.EDProducer("GoodSeedProducer",
     UseTMVA = cms.untracked.bool(True),
     TrackQuality = cms.string('highPurity'),
     MaxPt = cms.double(50.0),
+    MaxDr = cms.double(0.5),
+    MaxIsol = cms.double(0.1),                           
     ClusterThreshold = cms.double(0.5)
 )
 

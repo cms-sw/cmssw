@@ -187,7 +187,7 @@ VertexFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     if (hasAVertex){
       Track track =(*itc);
       if(useQuality_){
-	for (int itq=0; itq<trackQualities_.size();itq++) 
+	for (uint itq=0; itq<trackQualities_.size();itq++) 
  	        track.setQuality(TrackBase::qualityByName(trackQualities_[itq]));
       }	
       track.setAlgorithm(trackAlgo_);

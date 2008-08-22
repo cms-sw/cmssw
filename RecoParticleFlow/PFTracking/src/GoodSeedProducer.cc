@@ -48,7 +48,8 @@ GoodSeedProducer::GoodSeedProducer(const ParameterSet& iConfig):
   minPt_=iConfig.getParameter<double>("MinPt");
   maxPt_=iConfig.getParameter<double>("MaxPt");
   maxEta_=iConfig.getParameter<double>("MaxEta");
-  
+  maxDr_ =iConfig.getParameter<double>("MaxDr");
+  maxIsol_ = iConfig.getParameter<double>("MaxIsol");
   pfCLusTagECLabel_=
     iConfig.getParameter<InputTag>("PFEcalClusterLabel");
   
@@ -266,8 +267,10 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
       float chi2cut=thr[ibin+0];
       float ep_cutmin=thr[ibin+1];
       bool GoodMatching= ((chichi<chi2cut) &&(EP>ep_cutmin) && (nhitpi>10));
+  
       if (Tk[i].pt()>maxPt_) GoodMatching=true;
       if (Tk[i].pt()<minPt_) GoodMatching=false;
+
       //ENDCAP
       //USE OF PRESHOWER 
       if (fabs(Tk[i].eta())>1.68){
@@ -287,7 +290,8 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	GoodMatching = (GoodMatching && GoodPSMatching);
       }
       
-      
+      if(IsIsolated(Tk[i],iEvent,i,istr)) GoodMatching=true;
+
       bool GoodRange= ((fabs(Tk[i].eta())<maxEta_) && 
                        (Tk[i].pt()>minPt_));
       //KF FILTERING FOR UNMATCHED EVENTS
@@ -571,4 +575,26 @@ void GoodSeedProducer::PSforTMVA(XYZTLorentzVector mom,XYZTLorentzVector pos ){
     }
     
   }
+}
+bool GoodSeedProducer::IsIsolated(Track tk, Event& iEvent,uint it, uint iss){
+  float frac=0;
+  for (uint istr=0; istr<tracksContainers_.size();istr++){
+    Handle<TrackCollection> tkRefCollection;
+    iEvent.getByLabel(tracksContainers_[istr], tkRefCollection);
+    TrackCollection  Tk=*(tkRefCollection.product());
+    for(uint i=0;i<Tk.size();i++){
+      if (useQuality_ &&
+	  (!(Tk[i].quality(trackQuality_)))) continue;
+      if (iss==istr && i==it) continue;
+      float Dphi=fabs(Tk[i].phi()-tk.phi());
+      if (Dphi>TMath::TwoPi()) Dphi-= TMath::TwoPi();
+      float Deta=fabs(Tk[i].eta()-tk.eta());
+      if ((Deta*Deta+Dphi*Dphi)>(maxDr_*maxDr_))continue;
+      frac+=Tk[i].pt();
+    }
+  }
+  frac=frac/tk.pt();
+  if (frac>maxIsol_) return false;
+  else return true;
+
 }
