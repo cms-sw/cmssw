@@ -1,4 +1,4 @@
-// $Id: FourVectorHLT.cc,v 1.8 2008/08/05 21:02:00 wittich Exp $
+// $Id: FourVectorHLT.cc,v 1.9 2008/08/08 09:02:31 wittich Exp $
 // See header file for information. 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -30,18 +30,18 @@ FourVectorHLT::FourVectorHLT(const edm::ParameterSet& iConfig):
   }
   
   
-  dirname_="HLT/FourVectorHLT" + 
-    iConfig.getParameter<std::string>("@module_label");
+  dirname_="HLT/FourVectorHLT" ;
   
   if (dbe_ != 0 ) {
+    LogDebug("Status") << "Setting current directory to " << dirname_;
     dbe_->setCurrentFolder(dirname_);
   }
   
   
   // plotting paramters
   ptMin_ = iConfig.getUntrackedParameter<double>("ptMin",0.);
-  ptMax_ = iConfig.getUntrackedParameter<double>("ptMax",1000.);
-  nBins_ = iConfig.getUntrackedParameter<unsigned int>("Nbins",40);
+  ptMax_ = iConfig.getUntrackedParameter<double>("ptMax",200.);
+  nBins_ = iConfig.getUntrackedParameter<unsigned int>("Nbins",50);
   
   plotAll_ = iConfig.getUntrackedParameter<bool>("plotAll", false);
 
@@ -65,8 +65,6 @@ FourVectorHLT::FourVectorHLT(const edm::ParameterSet& iConfig):
   }
   triggerSummaryLabel_ = 
     iConfig.getParameter<edm::InputTag>("triggerSummaryLabel");
- 
-  
 }
 
 
@@ -100,9 +98,6 @@ FourVectorHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     return;
   }
   
-
-  
-
   const trigger::TriggerObjectCollection & toc(triggerObj->getObjects());
 
   if ( plotAll_ ) {
@@ -129,6 +124,8 @@ FourVectorHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	MonitorElement *et(0), *eta(0), *phi(0), *etavsphi(0);
 	
 	std::string histoname(name+"_et");
+	LogDebug("Status") << "new histo with name "<<  histoname ;
+	dbe_->setCurrentFolder(dirname_);
 	std::string title(name+" E_{T}");
 	et =  dbe_->book1D(histoname.c_str(),
 			  title.c_str(),nBins_, 0, 100);
@@ -152,12 +149,16 @@ FourVectorHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 				nBins_,-3.14, 3.14);
       
 	// no idea how to get the bin boundries in this mode
-	PathInfo e(name,0, et, eta, phi, etavsphi, 0,100);
+	PathInfo e(name,0, et, eta, phi, etavsphi, ptMin_,ptMax_);
 	hltPaths_.push_back(e);  
 	pic = hltPaths_.begin() + hltPaths_.size()-1;
       }
       const trigger::Keys & k = triggerObj->filterKeys(ia);
       for (trigger::Keys::const_iterator ki = k.begin(); ki !=k.end(); ++ki ) {
+	LogDebug("Parameters") << "pt, eta, phi = " 
+			       << toc[*ki].pt() << ", "
+			       << toc[*ki].eta() << ", "
+			       << toc[*ki].phi() ;
 	pic->getEtHisto()->Fill(toc[*ki].pt());
 	pic->getEtaHisto()->Fill(toc[*ki].eta());
 	pic->getPhiHisto()->Fill(toc[*ki].phi());
