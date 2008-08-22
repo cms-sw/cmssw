@@ -5,15 +5,15 @@
  *  to MC and (eventually) data. 
  *  Implementation file contents follow.
  *
- *  $Date: 2008/07/31 19:27:59 $
- *  $Revision: 1.55 $
+ *  $Date: 2008/08/07 21:34:01 $
+ *  $Revision: 1.56 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.cc,v 1.55 2008/07/31 19:27:59 slava77 Exp $
+// $Id: SteppingHelixPropagator.cc,v 1.56 2008/08/07 21:34:01 slava77 Exp $
 //
 //
 
@@ -384,6 +384,9 @@ SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type,
     if (tanDistNextCheck < 0){
       //use pre-computed values if it's the first step
       if (! isFirstStep) refToDest(type, (*svCurrent), pars, dist, tanDist, refDirection);
+      // constrain allowed path for a tangential approach
+      if (fabs(tanDist/dist) > 4) tanDist *= fabs(dist/tanDist*4.);
+
       tanDistNextCheck = fabs(tanDist)*0.5 - 0.5; //need a better guess (to-do)
       //reasonable limit
       if (tanDistNextCheck >  defaultStep_*20. ) tanDistNextCheck = defaultStep_*20.;
@@ -411,6 +414,9 @@ SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type,
     if (useMagVolumes_ && ! (fabs(dist) < fabs(epsilon))){//need to know the general direction
       if (tanDistMagNextCheck < 0){
 	resultToMag = refToMagVolume((*svCurrent), dir, distMag, tanDistMag, fabs(fastSkipDist), expectNewMagVolume);
+	// constrain allowed path for a tangential approach
+	if (fabs(tanDistMag/distMag) > 4) tanDistMag *= fabs(distMag/tanDistMag*4.);
+
 	tanDistMagNextCheck = fabs(tanDistMag)*0.5-0.5; //need a better guess (to-do)
 	//reasonable limit; "turn off" checking if bounds are further than the destination
 	if (tanDistMagNextCheck >  defaultStep_*20. 
@@ -428,6 +434,9 @@ SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type,
     if (useMatVolumes_ && ! (fabs(dist) < fabs(epsilon))){//need to know the general direction
       if (tanDistMatNextCheck < 0){
 	resultToMat = refToMatVolume((*svCurrent), dir, distMat, tanDistMat, fabs(fastSkipDist));
+	// constrain allowed path for a tangential approach
+	if (fabs(tanDistMat/distMat) > 4) tanDistMat *= fabs(distMat/tanDistMat*4.);
+
 	tanDistMatNextCheck = fabs(tanDistMat)*0.5-0.5; //need a better guess (to-do)
 	//reasonable limit; "turn off" checking if bounds are further than the destination
 	if (tanDistMatNextCheck >  defaultStep_*20. 
@@ -468,7 +477,8 @@ SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type,
 
     if (fabs(tanDistMin) < dStep){
       dStep = fabs(tanDistMin); 
-      if (type == POINT_PCA_DT || type == LINE_PCA_DT){
+      if ((type == POINT_PCA_DT || type == LINE_PCA_DT)
+	  && fabs(tanDist) < 2.*fabs(tanDistMin) ){
 	//being lazy here; the best is to take into account the curvature
 	dStep = fabs(tanDistMin)*0.5; 
       }
@@ -1231,8 +1241,8 @@ double SteppingHelixPropagator::getDeDx(const SteppingHelixPropagator::StateInfo
       else {
 	if (lR < 156 ) rzLims = MatBounds(129, 156, 343 + ecShift, 372 + ecShift);
 	else if ( (lZ - 343 - ecShift) > (lR - 156)*1.38 ) 
-	  rzLims = MatBounds(156, 177, 127.73 + ecShift, 372 + ecShift, 0.943726, 0);
-	else rzLims = MatBounds(156, 177, 343 + ecShift, 127.73 + ecShift, 0, 0.943726);
+	  rzLims = MatBounds(156, 177, 127.72 + ecShift, 372 + ecShift, atan(1.38), 0);
+	else rzLims = MatBounds(156, 177, 343 + ecShift, 127.72 + ecShift, 0, atan(1.38));
       }
 
       if (!(lR > 135 && lZ <343 + ecShift && lZ > 304 )
@@ -1257,20 +1267,21 @@ double SteppingHelixPropagator::getDeDx(const SteppingHelixPropagator::StateInfo
 	else rzLims = MatBounds(129, 177, 548 + ecShift, 554 + ecShift); // HE gap 129<R<177 548<Z<554
       }
       else if (lR < 193){ // 177<R<193 0<Z<554
-	if ((lZ - 307) < (lR - 177.)*1.739) rzLims = MatBounds(177, 193, 0, -0.803, 0, 1.04893);
-	else if ( lZ < 389)  rzLims = MatBounds(177, 193, -0.803, 389, 1.04893, 0.);
+	if ((lZ - 307) < (lR - 177.)*1.739) rzLims = MatBounds(177, 193, 0, -0.803, 0, atan(1.739));
+	else if ( lZ < 389)  rzLims = MatBounds(177, 193, -0.803, 389, atan(1.739), 0.);
 	else if ( lZ < 389 + ecShift)  rzLims = MatBounds(177, 193, 389, 389 + ecShift); // air insert
 	else if ( lZ < 548 + ecShift ) rzLims = MatBounds(177, 193, 389 + ecShift, 548 + ecShift);// HE 177<R<193 389<Z<548
 	else rzLims = MatBounds(177, 193, 548 + ecShift, 554 + ecShift); // HE gap 177<R<193 548<Z<554
       }
       else if (lR < 264){ // 193<R<264 0<Z<554
-	if ( (lZ - 375.7278) < (lR - 193.)/1.327) rzLims = MatBounds(193, 264, 0, 230.287, 0, 0.645788); //HB
+	double anApex = 375.7278 - 193./1.327; // 230.28695599096
+	if ( (lZ - 375.7278) < (lR - 193.)/1.327) rzLims = MatBounds(193, 264, 0, anApex, 0, atan(1./1.327)); //HB
 	else if ( (lZ - 392.7278 ) < (lR - 193.)/1.327) 
-	  rzLims = MatBounds(193, 264, 230.287, 247.287, 0.645788, 0.645788); // HB-HE gap
+	  rzLims = MatBounds(193, 264, anApex, anApex+17., atan(1./1.327), atan(1./1.327)); // HB-HE gap
 	else if ( (lZ - 392.7278 - ecShift ) < (lR - 193.)/1.327) 
-	  rzLims = MatBounds(193, 264, 247.287, 247.287 + ecShift, 0.645788, 0.645788); // HB-HE gap air insert
+	  rzLims = MatBounds(193, 264, anApex+17., anApex+17. + ecShift, atan(1./1.327), atan(1./1.327)); // HB-HE gap air insert
 	// HE (372,193)-(517,193)-(517,264)-(417.8,264)
-	else if ( lZ < 517 + ecShift ) rzLims = MatBounds(193, 264, 247.287 + ecShift, 517 + ecShift, 0.645788, 0);
+	else if ( lZ < 517 + ecShift ) rzLims = MatBounds(193, 264, anApex+17. + ecShift, 517 + ecShift, atan(1./1.327), 0);
 	else if (lZ < 548 + ecShift){ // HE+gap 193<R<264 517<Z<548
 	  if (lR < 246 ) rzLims = MatBounds(193, 246, 517 + ecShift, 548 + ecShift); // HE 193<R<246 517<Z<548
 	  else rzLims = MatBounds(246, 264, 517 + ecShift, 548 + ecShift); // HE gap 246<R<264 517<Z<548
@@ -1294,11 +1305,11 @@ double SteppingHelixPropagator::getDeDx(const SteppingHelixPropagator::StateInfo
 	  && ! (lZ < 389 + ecShift && lZ > 335 && lR < 193 ) //not a gap EB-EE 129<R<193
 	  && ! (lZ > 307 && lZ < 335 && lR < 193 && ((lZ - 307) > (lR - 177.)*1.739)) //not a gap 
 	  && ! (lR < 177 && lZ < 398 + ecShift) //under the HE nose
-	  && ! (lR < 264 && lR > 175 && fabs(441.5+0.5*ecShift - lZ + (lR - 269.)/1.327) < (8.5 + ecShift*0.5)) ) //not a gap
+	  && ! (lR < 264 && lR > 193 && fabs(441.5+0.5*ecShift - lZ + (lR - 269.)/1.327) < (8.5 + ecShift*0.5)) ) //not a gap
 	{ dEdx = dEdX_HCal; radX0 = radX0_HCal; //hcal
 	}
       else if( (lR < 193 && lZ > 389 && lZ < 389 + ecShift ) || (lR > 264 && lR < 287 && lZ > 554 && lZ < 554 + ecShift)
-	       ||(lR < 264 && lR > 175 && fabs(441.5+8.5+0.5*ecShift - lZ + (lR - 269.)/1.327) < ecShift*0.5) )  {
+	       ||(lR < 264 && lR > 193 && fabs(441.5+8.5+0.5*ecShift - lZ + (lR - 269.)/1.327) < ecShift*0.5) )  {
 	dEdx = dEdX_Air; radX0 = radX0_Air; 
       }
       else {dEdx = dEdX_HCal*0.05; radX0 = radX0_Air; }//endcap gap
@@ -1486,7 +1497,7 @@ SteppingHelixPropagator::refToDest(SteppingHelixPropagator::DestType dest,
 	result = SteppingHelixStateInfo::INACC;
 	break;
       }
-      tanDist = dist/sv.p3.perp()*sv.p3.mag();
+      tanDist = dist/sv.p3.perp()*sv.p3.mag();      
       result = SteppingHelixStateInfo::OK;
     }
     break;
@@ -1556,16 +1567,27 @@ SteppingHelixPropagator::refToDest(SteppingHelixPropagator::DestType dest,
 	dist = isInside || cosDTheta > 0 ? 
 	  relV3.mag()*sinDTheta : relV3.mag();
 	double normPhi = isInside ? 
-	  Geom::pi() - relV3.phi() : relV3.phi();
-	double normTheta = theta > Geom::pi()/2. ? 
-	  (isInside ? 1.5*Geom::pi() - theta : theta - Geom::pi()/2.) 
-	  : (isInside ? Geom::pi()/2 - theta : theta + Geom::pi()/2);
+	  Geom::pi() + relV3.phi() : relV3.phi();
+	double normTheta = theta > Geom::pi()/2. ?
+	  ( isInside ? 1.5*Geom::pi()  - theta : theta - Geom::pi()/2. )
+	  : ( isInside ? Geom::pi()/2. - theta : theta + Geom::pi()/2 );
 	//this is a normVector from the cone to the point
 	Vector norm; norm.setRThetaPhi(fabs(dist), normTheta, normPhi);
-	double cosDThetaP = cos(norm.theta() - sv.p3.theta());
-	tanDist = dist/fabs(cosDThetaP);
-	refDirection = norm.dot(sv.p3) > 0 ?
+	double sineConeP = sin(theta - sv.p3.theta());
+
+	double sinSolid = norm.dot(sv.p3)/fabs(dist)/sv.p3.mag();
+	tanDist = fabs(sinSolid) > fabs(sineConeP) ? dist/fabs(sinSolid) : dist/fabs(sineConeP);
+
+
+	refDirection = sinSolid > 0 ?
 	  oppositeToMomentum : alongMomentum;
+	if (debug_){
+	  LogTrace(metname)<<"Cone pars: theta "<<theta
+			   <<" normTheta "<<norm.theta()
+			   <<" p3Theta "<<sv.p3.theta()
+			   <<" sinD: "<< sineConeP
+			   <<" sinSolid "<<sinSolid;
+	}
 	if (fabs(dist) > fastSkipDist){
 	  result = SteppingHelixStateInfo::INACC;
 	  break;
@@ -1635,6 +1657,9 @@ SteppingHelixPropagator::refToDest(SteppingHelixPropagator::DestType dest,
     break;
   }
 
+  double tanDistConstrained = tanDist;
+  if (fabs(tanDist/dist) > 4) tanDistConstrained *= fabs(dist/tanDist*4.);
+
   if (debug_){
     LogTrace(metname)<<"refToDest input: dest"<<dest<<" pars[]: ";
     for (int i = 0; i < 6; i++){
@@ -1642,11 +1667,13 @@ SteppingHelixPropagator::refToDest(SteppingHelixPropagator::DestType dest,
     }
     LogTrace(metname)<<std::endl;
     LogTrace(metname)<<"refToDest output: "
-		     <<"\t dist"<< dist
-		     <<"\t tanDist"<< tanDist      
-		     <<"\t refDirection"<< refDirection
+		     <<"\t dist" << dist
+		     <<"\t tanDist "<< tanDist      
+		     <<"\t tanDistConstr "<< tanDistConstrained      
+		     <<"\t refDirection "<< refDirection
 		     <<std::endl;
   }
+  tanDist = tanDistConstrained;
 
   return result;
 }
@@ -1951,7 +1978,7 @@ SteppingHelixPropagator::refToMatVolume(const SteppingHelixPropagator::StateInfo
     if (refDirectionToFace[iFace] == dir || fabs(distToFace[iFace]/tanDistToFace[iFace]) < 2e-2){
       double sign = dir == alongMomentum ? 1. : -1.;
       Point gPointEst(sv.r3);
-      Vector lDelta(sv.p3); lDelta *= sign*sqrt(fabs(distToFace[iFace]*tanDistToFace[iFace]))/sv.p3.mag();
+      Vector lDelta(sv.p3); lDelta *= sign*fabs(distToFace[iFace])/sv.p3.mag();
       gPointEst += lDelta;
       if (debug_){
 	LogTrace(metname)<<"Linear est point "<<gPointEst
