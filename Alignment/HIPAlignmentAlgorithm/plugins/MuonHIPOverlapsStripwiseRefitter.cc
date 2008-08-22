@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Wed Dec 12 13:31:55 CST 2007
-// $Id: MuonHIPOverlapsStripwiseRefitter.cc,v 1.1 2008/08/13 00:06:14 pivarski Exp $
+// $Id: MuonHIPOverlapsStripwiseRefitter.cc,v 1.2 2008/08/13 00:40:19 pivarski Exp $
 //
 //
 
@@ -168,6 +168,8 @@ MuonHIPOverlapsStripwiseRefitter::produce(edm::Event& iEvent, const edm::EventSe
       
       std::vector<std::vector<const TrackingRecHit*> > hits_by_station;
       std::vector<const TrackingRecHit*> current_station;
+      unsigned int current_evenhits = 0;
+      unsigned int current_oddhits = 0;
       int last_station = 0;
       DetId last_id;
 
@@ -181,13 +183,18 @@ MuonHIPOverlapsStripwiseRefitter::produce(edm::Event& iEvent, const edm::EventSe
 	    if (last_station == 0) last_station = station;
 	    if (last_station != station) {
 
-	       if (current_station.size() >= m_minHits) {
+	       if (current_evenhits >= m_minHits  &&  current_oddhits >= m_minHits) {
 		  hits_by_station.push_back(current_station);
 	       }
 	       current_station.clear();
+	       current_evenhits = 0;
+	       current_oddhits = 0;
 	    }
 
 	    current_station.push_back(&**hit);
+	    if (cscId.chamber() == 0) current_evenhits++;
+	    else current_oddhits++;
+
 	    last_station = station;
 	    last_id = id;
 	 } // end if CSC
@@ -195,7 +202,7 @@ MuonHIPOverlapsStripwiseRefitter::produce(edm::Event& iEvent, const edm::EventSe
 
       // add the last station
       if (last_id.subdetId() == MuonSubdetId::CSC) {
-	 if (current_station.size() >= m_minHits) {
+	 if (current_evenhits >= m_minHits  &&  current_oddhits >= m_minHits) {
 	    hits_by_station.push_back(current_station);
 	 }
       }
@@ -206,6 +213,18 @@ MuonHIPOverlapsStripwiseRefitter::produce(edm::Event& iEvent, const edm::EventSe
       std::vector<TrajectoryStateOnSurface> TSOSes;
 
       for (std::vector<std::vector<const TrackingRecHit*> >::const_iterator station = hits_by_station.begin();  station != hits_by_station.end();  ++station) {
+	 if (m_debuggingPrintouts) {
+	    int evenhits = 0;
+	    int oddhits = 0;
+	    CSCDetId id;
+	    for (std::vector<const TrackingRecHit*>::const_iterator hit = station->begin();  hit != station->end();  ++hit) {
+	       id = CSCDetId((*hit)->geographicalId());
+	       if (id.chamber() % 2 == 0) evenhits++;
+	       else oddhits++;
+	    }
+	    std::cout << "Station ME" << (id.endcap() == 1 ? "+" : "-") << id.station() << "/" << id.ring() << " has " << evenhits << " even-chamber hits and " << oddhits << " odd-chamber hits" << std::endl;
+	 }
+
 	 // two fits: one from even to odd and another from odd to even
 	 for (int bit = 0;  bit <= 1;  ++bit) {
 
@@ -229,7 +248,7 @@ MuonHIPOverlapsStripwiseRefitter::produce(edm::Event& iEvent, const edm::EventSe
 	       }
 	    }
 	    assert(chamberSurface);
-	    
+
 	    // collecting hits for the FIT
 	    for (std::vector<const TrackingRecHit*>::const_iterator hit = station->begin();  hit != station->end();  ++hit) {
 	       CSCDetId id((*hit)->geographicalId());
