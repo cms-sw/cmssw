@@ -79,11 +79,11 @@ process.SiPixelRecHitSource.bladeOn = False
 process.SiPixelRecHitSource.ringOn = False
 process.SiPixelRecHitSource.diskOn = False
 
-process.load("DQM.SiPixelMonitorTrack.SiPixelMonitorTrack_cfi")
-process.SiPixelTrackResidualSource.TrackCandidateProducer = 'ckfTrackCandidatesP5'
-process.SiPixelTrackResidualSource.TrackProducer = 'ALCARECOTkAlCosmicsCosmicTF0T'
-process.SiPixelTrackResidualSource.debug = True
-process.SiPixelTrackResidualSource.outputFile = '/tmp/merkelp/Pixel_DQM_TrackResidual_cosmictrackfinderP5.root'
+# process.load("DQM.SiPixelMonitorTrack.SiPixelMonitorTrack_cfi")
+# process.SiPixelTrackResidualSource.TrackCandidateProducer = 'ckfTrackCandidatesP5'
+# process.SiPixelTrackResidualSource.TrackProducer = 'ALCARECOTkAlCosmicsCosmicTF0T'
+# process.SiPixelTrackResidualSource.debug = True
+# process.SiPixelTrackResidualSource.outputFile = '/tmp/merkelp/Pixel_DQM_TrackResidual_cosmictrackfinderP5.root'
 
 
 process.load("DQMServices.Core.DQM_cfg")
@@ -110,7 +110,7 @@ process.source = cms.Source("PoolSource",
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(500)
+    input = cms.untracked.int32(-1)
 )
 process.MessageLogger = cms.Service("MessageLogger",
     debugModules = cms.untracked.vstring('siPixelDigis', 
