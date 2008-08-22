@@ -55,7 +55,35 @@ process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource","trackerAlign
 
 process.AlignmentProducer.applyDbAlignment = True
 # Set parameters to align
-process.AlignmentProducer.ParameterBuilder.Selector.alignParams = ['TIBSSDets,100001','TIBDSDets,110001','TOBSSDets,100001','TOBDSDets,110001']
+#process.AlignmentProducer.ParameterBuilder.Selector.alignParams = ['TIBSSDets,100001','TIBDSDets,110001','TOBSSDets,100001','TOBDSDets,110001']
+process.AlignmentProducer.ParameterBuilder.Selector = cms.PSet(
+                                                    alignParams = cms.vstring('PXECDets,110001',
+                                                                 'TIBSSDets,100001',
+																 'TIBDSDets,110001',
+                                                                 'TOBSSDets,100001',
+                                                                 'TOBDSDets,110001',
+                                                                 'TECDets,100001,endCapSS',
+                                                                 'TECDets,110001,endCapDS',
+                                                                 'TIDDets,100001,endCapSS',
+                                                                 'TIDDets,110001,endCapDS'
+                                                                 ),
+                                                    endCapSS= cms.PSet( # valid for TID and TEC
+                                                                       etaRanges=cms.vdouble(),
+                                                                       phiRanges=cms.vdouble(),
+                                                                       zRanges =cms.vdouble(),
+                                                                       rRanges =cms.vdouble(40., 60., 75., 999.),
+                                                                       xRanges=cms.vdouble(),
+                                                                       yRanges=cms.vdouble()
+                                                                      ),
+                                                    endCapDS= cms.PSet( # valid for TID and TEC
+                                                                       	etaRanges=cms.vdouble(),
+                                                                       phiRanges=cms.vdouble(),
+                                                                       zRanges =cms.vdouble(),
+                                                                       rRanges =cms.vdouble(0., 40., 60., 75.),
+                                                                       xRanges=cms.vdouble(),
+                                                                       yRanges=cms.vdouble()
+                                                                       )
 
+						     )
 
 

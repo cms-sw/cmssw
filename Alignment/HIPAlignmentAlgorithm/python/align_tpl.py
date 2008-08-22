@@ -22,8 +22,9 @@ process.AlignmentTrackSelector.src = '<SKIM>'
 
 # parameters for TrackHitFilter
 process.TrackHitFilter.src = 'AlignmentTrackSelector'
-#process.TrackHitFilter.hitSelection = "SiStripOnly"
-process.TrackHitFilter.hitSelection = "TOBandTIBOnly"        
+process.TrackHitFilter.hitSelection = "SiStripOnly"
+#process.TrackHitFilter.hitSelection = "TOBandTIBOnly"        
+#process.TrackHitFilter.hitSelection = "All"        
 #process.TrackHitFilter.rejectBadStoNHits = False
 process.TrackHitFilter.minHitsForRefit = 5
 

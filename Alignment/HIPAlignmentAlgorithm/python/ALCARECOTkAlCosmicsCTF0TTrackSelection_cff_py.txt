@@ -4,7 +4,7 @@ process.maxEvents = cms.untracked.PSet(
 
 # track selection for sample in filename...
 process.AlignmentTrackSelector.nHitMin = 12
-#process.AlignmentTrackSelector.ptMin = 5.0
+process.AlignmentTrackSelector.ptMin = 0.0
 process.AlignmentTrackSelector.etaMin = -99.0
 process.AlignmentTrackSelector.etaMax = 99.0
 process.AlignmentTrackSelector.nHitMin =  6 #5     # barrel

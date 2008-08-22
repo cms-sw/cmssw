@@ -17,7 +17,9 @@ $dataskim = basename( $datafile, ".dat" );
 
 system( "
 cp python/common_cff_py.txt $odir/.;
-cp python/$dataskim\TrackSelection_cff_py.txt $odir/.
+cp python/$dataskim\TrackSelection_cff_py.txt $odir/.;
+cp python/align_tpl.py $odir/.;
+cp python/collect_tpl.py $odir/.;
 " );
 
 
