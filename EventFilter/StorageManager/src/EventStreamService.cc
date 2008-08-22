@@ -1,4 +1,4 @@
-// $Id: EventStreamService.cc,v 1.4 2008/08/21 09:00:39 loizides Exp $
+// $Id: EventStreamService.cc,v 1.5 2008/08/22 14:09:29 loizides Exp $
 
 #include <EventFilter/StorageManager/interface/EventStreamService.h>
 #include <EventFilter/StorageManager/interface/ProgressMarker.h>
@@ -92,6 +92,7 @@ void EventStreamService::closeTimedOutFiles(int lumi, double timeoutdiff)
     // do not touch files from current lumi section
     if (it->first->lumiSection() == lumi) {
       it->first->setWhyClosed(reason);
+      ++it;
       continue;
     }
 
@@ -100,6 +101,8 @@ void EventStreamService::closeTimedOutFiles(int lumi, double timeoutdiff)
     } else if (timeoutdiff > lumiSectionTimeOut_) {
       it->first->setWhyClosed(reason+3);  // check if timeout reached for previous (N-1) lumi sections
     }
+
+    ++it;
   }
 
   // code from rev 1.10 
