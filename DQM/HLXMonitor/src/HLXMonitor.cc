@@ -398,14 +398,13 @@ void HLXMonitor::SetupEventInfo( )
 
    // Fill the report summary objects with default values, since these will only
    // be filled at the change of run.
-   //std::cout << "Filling report summary! Initial." << std::endl;
-   reportSummary_->Fill(-1.0);
+   reportSummary_->Fill(1.0);
 
    for( unsigned int iHLX = 0; iHLX < NUM_HLX; ++iHLX ){
       unsigned int iWedge = HLXHFMap[iHLX] + 1;
       unsigned int iEta = 2;
       if( iWedge >= 19 ){ iEta = 1; iWedge -= 18; }
-      reportSummaryMap_->setBinContent(iWedge,iEta,-1.0);
+      reportSummaryMap_->setBinContent(iWedge,iEta,1.0);
    }   
 }
 
@@ -730,7 +729,7 @@ void HLXMonitor::FillEventInfo(const LUMI_SECTION & section)
       }   
       
       overall /= (float)NUM_HLX;
-      if( overall > 1.0 ) overall = -1.0;
+      if( overall > 1.0 ) overall = 0.0;
       //std::cout << "Filling report summary! Main. " << overall << std::endl;
       reportSummary_->Fill(overall);
 
