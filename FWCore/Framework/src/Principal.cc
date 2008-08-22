@@ -12,21 +12,18 @@
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ProductStatus.h"
 #include "DataFormats/Common/interface/BasicHandle.h"
-#include "DataFormats/Common/interface/OutputHandle.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
-#include "FWCore/Framework/interface/Group.h"
 #include "FWCore/Framework/interface/Selector.h"
 //using boost::lambda::_1;
 
 namespace edm {
 
-  template <typename T>
-  Principal<T>::Principal(boost::shared_ptr<ProductRegistry const> reg,
+  Principal::Principal(boost::shared_ptr<ProductRegistry const> reg,
 		       ProcessConfiguration const& pc,
 		       ProcessHistoryID const& hist,
-		       boost::shared_ptr<Mapper> mapper,
+		       boost::shared_ptr<BranchMapper> mapper,
 		       boost::shared_ptr<DelayedReader> rtrv) :
     EDProductGetter(),
     processHistoryID_(hist),
@@ -46,21 +43,18 @@ namespace edm {
     }
   }
 
-  template <typename T>
-  Principal<T>::~Principal() {
+  Principal::~Principal() {
   }
 
-  template <typename T>
-  GroupT<T>*
-  Principal<T>::getExistingGroup(GroupT<T> const& group) {
-    typename GroupCollection::const_iterator it = groups_.find(group.productDescription().branchID());
+  Group*
+  Principal::getExistingGroup(Group const& group) {
+    GroupCollection::const_iterator it = groups_.find(group.productDescription().branchID());
     if (it == groups_.end()) return 0;
     return it->second.get();
   }
 
-  template <typename T>
   void 
-  Principal<T>::addGroup_(typename std::auto_ptr<GroupT<T> > group) {
+  Principal::addGroup_(std::auto_ptr<Group> group) {
     ConstBranchDescription const& bd = group->productDescription();
     assert (!bd.className().empty());
     assert (!bd.friendlyClassName().empty());
@@ -70,9 +64,8 @@ namespace edm {
     groups_.insert(std::make_pair(bd.branchID(), g));
   }
 
-  template <typename T>
   void 
-  Principal<T>::replaceGroup(typename std::auto_ptr<GroupT<T> > group) {
+  Principal::replaceGroup(std::auto_ptr<Group> group) {
     ConstBranchDescription const& bd = group->productDescription();
     assert (!bd.className().empty());
     assert (!bd.friendlyClassName().empty());
@@ -82,9 +75,8 @@ namespace edm {
     groups_[bd.branchID()]->replace(*g);
   }
 
-  template <typename T>
   void
-  Principal<T>::addToProcessHistory() const {
+  Principal::addToProcessHistory() const {
     if (processHistoryModified_) return;
     ProcessHistory& ph = *processHistoryPtr_;
     std::string const& processName = processConfiguration_.processName();
@@ -108,16 +100,14 @@ namespace edm {
     processHistoryModified_ = true;
   }
 
-  template <typename T>
   ProcessHistory const&
-  Principal<T>::processHistory() const {
+  Principal::processHistory() const {
     return *processHistoryPtr_;
   }
 
-  template <typename T>
-  typename Principal<T>::SharedConstGroupPtr const
-  Principal<T>::getGroup(BranchID const& bid, bool resolveProd, bool resolveProv, bool fillOnDemand) const {
-    typename GroupCollection::const_iterator it = groups_.find(bid);
+  Principal::SharedConstGroupPtr const
+  Principal::getGroup(BranchID const& bid, bool resolveProd, bool resolveProv, bool fillOnDemand) const {
+    GroupCollection::const_iterator it = groups_.find(bid);
     if (it == groups_.end()) {
       return SharedConstGroupPtr();
     }
@@ -131,27 +121,8 @@ namespace edm {
     return g;
   }
 
-  template <typename T>
-  OutputHandle<T>
-  Principal<T>::getForOutput(BranchID const& bid, bool getProd) const {
-    SharedConstGroupPtr const& g = getGroup(bid, getProd, true, false);
-    if (g.get() == 0) {
-      return OutputHandle<T>();
-    }
-    if (getProd && (g->product() == 0 || !g->product()->isPresent()) &&
-	    g->productDescription().branchType() == InEvent &&
-            productstatus::present(g->entryInfoPtr()->productStatus())) {
-        throw edm::Exception(edm::errors::LogicError, "Principal::getForOutput\n")
-         << "A product with a status of 'present' is not actually present.\n"
-         << "The branch name is " << g->productDescription().branchName() << "\n"
-         << "Contact a framework developer.\n";
-    }
-    return OutputHandle<T>(g->product(), &g->productDescription(), g->entryInfoPtr());
-  }
-
-  template <typename T>
   BasicHandle
-  Principal<T>::getBySelector(TypeID const& productType, 
+  Principal::getBySelector(TypeID const& productType, 
 			   SelectorBase const& sel) const {
 
     BasicHandleVec results;
@@ -177,9 +148,8 @@ namespace edm {
     return results[0];
   }
 
-  template <typename T>
   BasicHandle
-  Principal<T>::getByLabel(TypeID const& productType, 
+  Principal::getByLabel(TypeID const& productType, 
 			std::string const& label,
 			std::string const& productInstanceName) const {
     BasicHandleVec results;
@@ -212,9 +182,8 @@ namespace edm {
     return results[0];
   }
 
-  template <typename T>
   BasicHandle
-  Principal<T>::getByLabel(TypeID const& productType,
+  Principal::getByLabel(TypeID const& productType,
 			std::string const& label,
 			std::string const& productInstanceName,
 			std::string const& processName) const
@@ -254,9 +223,8 @@ namespace edm {
   }
  
 
-  template <typename T>
   void 
-  Principal<T>::getMany(TypeID const& productType, 
+  Principal::getMany(TypeID const& productType, 
 		     SelectorBase const& sel,
 		     BasicHandleVec& results) const {
 
@@ -269,9 +237,8 @@ namespace edm {
     return;
   }
 
-  template <typename T>
   BasicHandle
-  Principal<T>::getByType(TypeID const& productType) const {
+  Principal::getByType(TypeID const& productType) const {
 
     BasicHandleVec results;
 
@@ -298,9 +265,8 @@ namespace edm {
     return results[0];
   }
 
-  template <typename T>
   void 
-  Principal<T>::getManyByType(TypeID const& productType, 
+  Principal::getManyByType(TypeID const& productType, 
 			   BasicHandleVec& results) const {
 
     edm::MatchAllSelector sel;
@@ -313,9 +279,8 @@ namespace edm {
     return;
   }
 
-  template <typename T>
   size_t
-  Principal<T>::getMatchingSequence(TypeID const& typeID,
+  Principal::getMatchingSequence(TypeID const& typeID,
 				 SelectorBase const& selector,
 				 BasicHandleVec& results,
 				 bool stopIfProcessHasMatch) const {
@@ -329,10 +294,9 @@ namespace edm {
                       stopIfProcessHasMatch);
   }
 
-  template <typename T>
   void
-  Principal<T>::readImmediate() const {
-    for (typename Principal<T>::const_iterator i = begin(), iEnd = end(); i != iEnd; ++i) {
+  Principal::readImmediate() const {
+    for (Principal::const_iterator i = begin(), iEnd = end(); i != iEnd; ++i) {
       if (i->second->provenanceAvailable()) {
 	resolveProvenance(*i->second);
       }
@@ -342,9 +306,8 @@ namespace edm {
     }
   }
 
-  template <typename T>
   size_t
-  Principal<T>::findGroups(TypeID const& typeID,
+  Principal::findGroups(TypeID const& typeID,
 			TypeLookup const& typeLookup,
 			SelectorBase const& selector,
 			BasicHandleVec& results,
@@ -393,9 +356,8 @@ namespace edm {
     return results.size();
   }
 
-  template <typename T>
   void 
-  Principal<T>::findGroupsForProcess(std::string const& processName,
+  Principal::findGroupsForProcess(std::string const& processName,
 				  ProcessLookup const& processLookup,
 				  SelectorBase const& selector,
 				  BasicHandleVec& results) const {
@@ -436,9 +398,8 @@ namespace edm {
     return;
   }
 
-  template <typename T>
   void
-  Principal<T>::resolveProduct(GroupT<T> const& g, bool fillOnDemand) const {
+  Principal::resolveProduct(Group const& g, bool fillOnDemand) const {
     if (g.productUnavailable()) {
       throw edm::Exception(errors::ProductNotFound,"InaccessibleProduct")
 	<< "resolve_: product is not accessible\n"
@@ -461,9 +422,8 @@ namespace edm {
     g.setProduct(edp);
   }
 
-  template <typename T>
   void
-  Principal<T>::recombine(Principal & other, std::vector<BranchID> const& bids) {
+  Principal::recombine(Principal & other, std::vector<BranchID> const& bids) {
     for (std::vector<BranchID>::const_iterator it = bids.begin(), itEnd = bids.end(); it != itEnd; ++it) {
       groups_[*it].swap(other.groups_[*it]);
     }
@@ -471,9 +431,8 @@ namespace edm {
     branchMapperPtr_->mergeMappers(other.branchMapperPtr());
   }
 
-  template <typename T>
   EDProduct const*
-  Principal<T>::getIt(ProductID const& pid) const {
+  Principal::getIt(ProductID const& pid) const {
     assert(0);
     return 0;
   }

@@ -10,7 +10,7 @@ such code sees the Run class, which is a proxy for RunPrincipal.
 The major internal component of the RunPrincipal
 is the DataBlock.
 
-$Id: RunPrincipal.h,v 1.24 2008/05/12 18:14:07 wmtan Exp $
+$Id: RunPrincipal.h,v 1.25 2008/06/24 23:25:39 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -23,19 +23,17 @@ $Id: RunPrincipal.h,v 1.24 2008/05/12 18:14:07 wmtan Exp $
 
 namespace edm {
   class UnscheduledHandler;
-  class RunPrincipal : public Principal<RunLumiEntryInfo> {
+  class RunPrincipal : public Principal {
   public:
     typedef RunAuxiliary Auxiliary;
-    typedef LumiEntryInfo EntryInfo;
-    typedef BranchMapper<EntryInfo> Mapper;
-    typedef std::vector<EntryInfo> EntryInfoVector;
-    typedef Principal<EntryInfo> Base;
+    typedef std::vector<RunEntryInfo> EntryInfoVector;
+    typedef Principal Base;
 
     RunPrincipal(RunAuxiliary const& aux,
 	boost::shared_ptr<ProductRegistry const> reg,
 	ProcessConfiguration const& pc,
 	ProcessHistoryID const& hist = ProcessHistoryID(),
-	boost::shared_ptr<Mapper> mapper = boost::shared_ptr<Mapper>(new Mapper),
+	boost::shared_ptr<BranchMapper> mapper = boost::shared_ptr<BranchMapper>(new BranchMapper),
 	boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader)) :
 	  Base(reg, pc, hist, mapper, rtrv),
 	  aux_(aux) {}
@@ -77,13 +75,13 @@ namespace edm {
     getAllProvenance(std::vector<Provenance const *> & provenances) const;
 
     void put(std::auto_ptr<EDProduct> edp,
-	     ConstBranchDescription const& bd, std::auto_ptr<RunLumiEntryInfo> entryInfo);
+	     ConstBranchDescription const& bd, std::auto_ptr<EventEntryInfo> entryInfo);
 
     void addGroup(ConstBranchDescription const& bd);
 
-    void addGroup(std::auto_ptr<EDProduct> prod, ConstBranchDescription const& bd, std::auto_ptr<RunLumiEntryInfo> entryInfo);
+    void addGroup(std::auto_ptr<EDProduct> prod, ConstBranchDescription const& bd, std::auto_ptr<EventEntryInfo> entryInfo);
 
-    void addGroup(ConstBranchDescription const& bd, std::auto_ptr<RunLumiEntryInfo> entryInfo);
+    void addGroup(ConstBranchDescription const& bd, std::auto_ptr<EventEntryInfo> entryInfo);
 
   private:
 

@@ -13,8 +13,7 @@
 
 namespace edm {
 
-  template <typename T>
-  DataViewImpl<T>::DataViewImpl(Principal<T> & pcpl,
+  DataViewImpl::DataViewImpl(Principal & pcpl,
 	ModuleDescription const& md,
 	BranchType const& branchType)  :
     putProducts_(),
@@ -27,47 +26,41 @@ namespace edm {
     void operator()(std::pair<EDProduct*, ConstBranchDescription const*> const p) const { delete p.first; }
   };
 
-  template <typename T>
-  DataViewImpl<T>::~DataViewImpl() {
+  DataViewImpl::~DataViewImpl() {
     // anything left here must be the result of a failure
     // let's record them as failed attempts in the event principal
     for_all(putProducts_, deleter());
   }
 
-  template <typename T>
   size_t
-  DataViewImpl<T>::size() const {
+  DataViewImpl::size() const {
     return putProducts_.size() + principal_.size();
   }
 
-  template <typename T>
   BasicHandle
-  DataViewImpl<T>::get_(TypeID const& tid, SelectorBase const& sel) const
+  DataViewImpl::get_(TypeID const& tid, SelectorBase const& sel) const
   {
     return principal_.getBySelector(tid, sel);
   }
 
-  template <typename T>
   BasicHandle
-  DataViewImpl<T>::getByLabel_(TypeID const& tid,
+  DataViewImpl::getByLabel_(TypeID const& tid,
 		     std::string const& label,
                      std::string const& productInstanceName) const
   {
     return principal_.getByLabel(tid, label, productInstanceName);
   }
 
-  template <typename T>
   void
-  DataViewImpl<T>::getMany_(TypeID const& tid,
+  DataViewImpl::getMany_(TypeID const& tid,
 		  SelectorBase const& sel,
 		  BasicHandleVec& results) const
   {
     principal_.getMany(tid, sel, results);
   }
 
-  template <typename T>
   BasicHandle
-  DataViewImpl<T>::getByLabel_(TypeID const& tid,
+  DataViewImpl::getByLabel_(TypeID const& tid,
                      std::string const& label,
   	             std::string const& productInstanceName,
   	             std::string const& processName) const
@@ -75,24 +68,21 @@ namespace edm {
     return principal_.getByLabel(tid, label, productInstanceName, processName);
   }
 
-  template <typename T>
   BasicHandle
-  DataViewImpl<T>::getByType_(TypeID const& tid) const
+  DataViewImpl::getByType_(TypeID const& tid) const
   {
     return principal_.getByType(tid);
   }
 
-  template <typename T>
   void
-  DataViewImpl<T>::getManyByType_(TypeID const& tid,
+  DataViewImpl::getManyByType_(TypeID const& tid,
 		  BasicHandleVec& results) const
   {
     principal_.getManyByType(tid, results);
   }
 
-  template <typename T>
   int
-  DataViewImpl<T>::getMatchingSequence_(TypeID const& typeID,
+  DataViewImpl::getMatchingSequence_(TypeID const& typeID,
                                      SelectorBase const& selector,
                                      BasicHandleVec& results,
                                      bool stopIfProcessHasMatch) const
@@ -103,9 +93,8 @@ namespace edm {
                                     stopIfProcessHasMatch);
   }
 
-  template <typename T>
   int
-  DataViewImpl<T>::getMatchingSequenceByLabel_(TypeID const& typeID,
+  DataViewImpl::getMatchingSequenceByLabel_(TypeID const& typeID,
                                             std::string const& label,
                                             std::string const& productInstanceName,
                                             BasicHandleVec& results,
@@ -121,9 +110,8 @@ namespace edm {
     return n;
   }
 
-  template <typename T>
   int
-  DataViewImpl<T>::getMatchingSequenceByLabel_(TypeID const& typeID,
+  DataViewImpl::getMatchingSequenceByLabel_(TypeID const& typeID,
                                             std::string const& label,
                                             std::string const& productInstanceName,
                                             std::string const& processName,
@@ -141,16 +129,14 @@ namespace edm {
     return n;
   }
 
-  template <typename T>
   ProcessHistory const&
-  DataViewImpl<T>::processHistory() const
+  DataViewImpl::processHistory() const
   {
     return principal_.processHistory();
   }
 
-  template <typename T>
   ConstBranchDescription const&
-  DataViewImpl<T>::getBranchDescription(TypeID const& type,
+  DataViewImpl::getBranchDescription(TypeID const& type,
 				     std::string const& productInstanceName) const {
     std::string friendlyClassName = type.friendlyClassName();
         BranchKey bk(friendlyClassName, md_.moduleLabel(), productInstanceName, md_.processName());
@@ -185,9 +171,8 @@ namespace edm {
     return it->second;
   }
 
-  template <typename T>
   EDProductGetter const*
-  DataViewImpl<T>::prodGetter() const{
+  DataViewImpl::prodGetter() const{
     return principal_.prodGetter();
   }
 }

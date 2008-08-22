@@ -11,9 +11,7 @@ using ROOT::Reflex::TypeTemplate;
 
 namespace edm {
 
-  template <typename T>
-  inline
-  GroupT<T>::GroupT() :
+  Group::Group() :
     product_(),
     branchDescription_(),
     entryInfo_(),
@@ -21,9 +19,7 @@ namespace edm {
     dropped_(false),
     onDemand_(false) {}
 
-  template <typename T>
-  inline
-  GroupT<T>::GroupT(std::auto_ptr<EDProduct> edp, ConstBranchDescription const& bd, std::auto_ptr<T> entryInfo) :
+  Group::Group(std::auto_ptr<EDProduct> edp, ConstBranchDescription const& bd, std::auto_ptr<EventEntryInfo> entryInfo) :
     product_(edp.release()),
     branchDescription_(new ConstBranchDescription(bd)),
     entryInfo_(entryInfo.release()),
@@ -32,9 +28,7 @@ namespace edm {
     onDemand_(false) {
   }
 
-  template <typename T>
-  inline
-  GroupT<T>::GroupT(ConstBranchDescription const& bd, std::auto_ptr<T> entryInfo) :
+  Group::Group(ConstBranchDescription const& bd, std::auto_ptr<EventEntryInfo> entryInfo) :
     product_(),
     branchDescription_(new ConstBranchDescription(bd)),
     entryInfo_(entryInfo.release()),
@@ -43,9 +37,7 @@ namespace edm {
     onDemand_(false) {
   }
 
-  template <typename T>
-  inline
-  GroupT<T>::GroupT(std::auto_ptr<EDProduct> edp, ConstBranchDescription const& bd, boost::shared_ptr<T> entryInfo) :
+  Group::Group(std::auto_ptr<EDProduct> edp, ConstBranchDescription const& bd, boost::shared_ptr<EventEntryInfo> entryInfo) :
     product_(edp.release()),
     branchDescription_(new ConstBranchDescription(bd)),
     entryInfo_(entryInfo),
@@ -54,9 +46,7 @@ namespace edm {
     onDemand_(false) {
   }
 
-  template <typename T>
-  inline
-  GroupT<T>::GroupT(ConstBranchDescription const& bd, boost::shared_ptr<T> entryInfo) :
+  Group::Group(ConstBranchDescription const& bd, boost::shared_ptr<EventEntryInfo> entryInfo) :
     product_(),
     branchDescription_(new ConstBranchDescription(bd)),
     entryInfo_(entryInfo),
@@ -65,9 +55,7 @@ namespace edm {
     onDemand_(false) {
   }
 
-  template <typename T>
-  inline
-  GroupT<T>::GroupT(ConstBranchDescription const& bd, bool demand) :
+  Group::Group(ConstBranchDescription const& bd, bool demand) :
     product_(),
     branchDescription_(new ConstBranchDescription(bd)),
     entryInfo_(),
@@ -76,9 +64,7 @@ namespace edm {
     onDemand_(demand) {
   }
 
-  template <typename T>
-  inline
-  GroupT<T>::GroupT(ConstBranchDescription const& bd) :
+  Group::Group(ConstBranchDescription const& bd) :
     product_(),
     branchDescription_(new ConstBranchDescription(bd)),
     entryInfo_(),
@@ -87,15 +73,11 @@ namespace edm {
     onDemand_(false) {
   }
 
-  template <typename T>
-  inline
-  GroupT<T>::~GroupT() {
+  Group::~Group() {
   }
 
-  template <typename T>
-  inline
   ProductStatus
-  GroupT<T>::status() const {
+  Group::status() const {
     if (dropped_) return productstatus::dropped();
     if (!entryInfo_) {
       if (product_) return product_->isPresent() ? productstatus::present() : productstatus::neverCreated();
@@ -108,17 +90,13 @@ namespace edm {
     return entryInfo_->productStatus();
   }
 
-  template <typename T>
-  inline
   bool
-  GroupT<T>::onDemand() const {
+  Group::onDemand() const {
     return onDemand_;
   }
 
-  template <typename T>
-  inline
   bool 
-  GroupT<T>::productUnavailable() const { 
+  Group::productUnavailable() const { 
     if (onDemand()) return false;
     if (dropped_) return true;
     if (productstatus::unknown(status())) return false;
@@ -126,26 +104,20 @@ namespace edm {
 
   }
 
-  template <typename T>
-  inline
   bool 
-  GroupT<T>::provenanceAvailable() const { 
+  Group::provenanceAvailable() const { 
     if (onDemand()) return false;
     return true;    
   }
 
-  template <typename T>
-  inline
   void 
-  GroupT<T>::setProduct(std::auto_ptr<EDProduct> prod) const {
+  Group::setProduct(std::auto_ptr<EDProduct> prod) const {
     assert (product() == 0);
     product_.reset(prod.release());  // Group takes ownership
   }
   
-  template <typename T>
-  inline
   void 
-  GroupT<T>::setProvenance(boost::shared_ptr<T> entryInfo) const {
+  Group::setProvenance(boost::shared_ptr<EventEntryInfo> entryInfo) const {
     entryInfo_ = entryInfo;  // Group takes ownership
     if (entryInfo_) {
       prov_.reset(new Provenance(*branchDescription_, entryInfo_));
@@ -154,10 +126,8 @@ namespace edm {
     }
   }
 
-  template <typename T>
-  inline
   void  
-  GroupT<T>::swap(GroupT& other) {
+  Group::swap(Group& other) {
     std::swap(product_, other.product_);
     std::swap(branchDescription_, other.branchDescription_);
     std::swap(entryInfo_, other.entryInfo_);
@@ -166,25 +136,19 @@ namespace edm {
     std::swap(onDemand_, other.onDemand_);
   }
 
-  template <typename T>
-  inline
   void
-  GroupT<T>::replace(GroupT& g) {
+  Group::replace(Group& g) {
     this->swap(g);
   }
 
-  template <typename T>
-  inline
   Type
-  GroupT<T>::productType() const
+  Group::productType() const
   {
     return Type::ByTypeInfo(typeid(*product()));
   }
 
-  template <typename T>
-  inline
   bool
-  GroupT<T>::isMatchingSequence(Type const& wantedElementType) const
+  Group::isMatchingSequence(Type const& wantedElementType) const
   {
     Type value_type;
     bool is_sequence = is_sequence_wrapper(productType(), value_type);
@@ -203,35 +167,29 @@ namespace edm {
       : false;      
   }
 
-  template <typename T>
-  inline
   Provenance const *
-  GroupT<T>::provenance() const {
+  Group::provenance() const {
     if (!entryInfo_) {
       prov_.reset(new Provenance(*branchDescription_, entryInfo_));
     }
     return prov_.get();
   }
 
-  template <typename T>
-  inline
   void
-  GroupT<T>::write(std::ostream& os) const 
+  Group::write(std::ostream& os) const 
   {
     // This is grossly inadequate. It is also not critical for the
     // first pass.
-    os << std::string("GroupT for product with ID: ")
+    os << std::string("Group for product with ID: ")
        << entryInfo_->productID();
   }
 
-  template <typename T>
-  inline
   void
-  GroupT<T>::mergeGroup(GroupT * newGroup) {
+  Group::mergeGroup(Group * newGroup) {
 
     if (status() != newGroup->status()) {
       throw edm::Exception(edm::errors::Unknown, "Merging")
-        << "GroupT<T>::mergeGroup(), Trying to merge two run products or two lumi products.\n"
+        << "Group::mergeGroup(), Trying to merge two run products or two lumi products.\n"
         << "The products have different creation status's.\n"
         << "For example \"present\" and \"notCreated\"\n"
         << "The Framework does not currently support this and probably\n"
@@ -267,7 +225,7 @@ namespace edm {
 
         if (!product_->isProductEqual(newGroup->product_.get())) {
           edm::LogWarning  ("RunLumiMerging") 
-            << "GroupT::mergeGroup\n" 
+            << "Group::mergeGroup\n" 
             << "Two run/lumi products for the same run/lumi which should be equal are not\n"
             << "Using the first, ignoring the second\n"
             << "className = " << branchDescription_->className() << "\n"
@@ -278,7 +236,7 @@ namespace edm {
       }
       else {
         edm::LogWarning  ("RunLumiMerging") 
-          << "GroupT::mergeGroup\n" 
+          << "Group::mergeGroup\n" 
           << "Run/lumi product has neither a mergeProduct nor isProductEqual function\n"
           << "Using the first, ignoring the second in merge\n"
           << "className = " << branchDescription_->className() << "\n"

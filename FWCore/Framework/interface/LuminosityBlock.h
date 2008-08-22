@@ -16,7 +16,7 @@ For its usage, see "FWCore/Framework/interface/DataViewImpl.h"
 */
 /*----------------------------------------------------------------------
 
-$Id: LuminosityBlock.h,v 1.16.2.2 2008/05/12 15:33:08 wmtan Exp $
+$Id: LuminosityBlock.h,v 1.17 2008/05/12 18:14:07 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -31,13 +31,13 @@ $Id: LuminosityBlock.h,v 1.16.2.2 2008/05/12 15:33:08 wmtan Exp $
 
 namespace edm {
 
-  class LuminosityBlock : private DataViewImpl<RunLumiEntryInfo>
+  class LuminosityBlock : private DataViewImpl
   {
   public:
     LuminosityBlock(LuminosityBlockPrincipal& lbp, const ModuleDescription& md);
     ~LuminosityBlock() {}
 
-    typedef DataViewImpl<RunLumiEntryInfo> Base;
+    typedef DataViewImpl Base;
     // AUX functions.
     LuminosityBlockNumber_t luminosityBlock() const {return aux_.luminosityBlock();}
 
