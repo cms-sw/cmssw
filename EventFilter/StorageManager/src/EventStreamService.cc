@@ -1,4 +1,4 @@
-// $Id: EventStreamService.cc,v 1.3 2008/08/20 13:20:47 loizides Exp $
+// $Id: EventStreamService.cc,v 1.4 2008/08/21 09:00:39 loizides Exp $
 
 #include <EventFilter/StorageManager/interface/EventStreamService.h>
 #include <EventFilter/StorageManager/interface/ProgressMarker.h>
@@ -84,30 +84,33 @@ void EventStreamService::stop()
 // 
 void EventStreamService::closeTimedOutFiles(int lumi, double timeoutdiff)
 {
+   // just mark what the code should have done
   for (OutputMapIterator it = outputMap_.begin(); it != outputMap_.end(); ) {
-
-    // do not touch files from current lumi section
-    if (it->first->lumiSection() == lumi) {
-      ++it;
-      continue;
-    }
 
     int reason = lumi*100000 + it->first->lumiSection()*10;
 
-//    if (it->first->lumiSection() < lumi-1) {
-//      it->first->setWhyClosed(reason+2);  // close old (N-2) lumi sections in any case
-//    } else 
-    if (timeoutdiff > lumiSectionTimeOut_) {
-      it->first->setWhyClosed(reason+3);  // check if timeout reached for previous (N-1) lumi sections
-    } else {
-      ++it;
+    // do not touch files from current lumi section
+    if (it->first->lumiSection() == lumi) {
+      it->first->setWhyClosed(reason);
       continue;
     }
 
-    // close the file
-    boost::shared_ptr<FileRecord> fd(it->first);
-    outputMap_.erase(it++);
-    fillOutputSummaryClosed(fd);
+    if (it->first->lumiSection() < lumi-1) {
+      it->first->setWhyClosed(reason+2);  // close old (N-2) lumi sections in any case
+    } else if (timeoutdiff > lumiSectionTimeOut_) {
+      it->first->setWhyClosed(reason+3);  // check if timeout reached for previous (N-1) lumi sections
+    }
+  }
+
+  // code from rev 1.10 
+  double currentTime = getCurrentTime();
+  for (OutputMapIterator it = outputMap_.begin(); it != outputMap_.end(); ) {
+     if (currentTime - it->second->lastEntry() > lumiSectionTimeOut_) {
+        boost::shared_ptr<FileRecord> fd(it->first);
+        outputMap_.erase(it++);
+        fillOutputSummaryClosed(fd);
+     } else 
+        ++it;
   }
 }
 
