@@ -67,8 +67,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2008/07/31 19:33:57 $ 
- **  $Revision: 1.6 $
+ **  $Date: 2008/08/08 13:53:54 $ 
+ **  $Revision: 1.7 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -889,7 +889,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	  theConvTP_.push_back( tp );	
 	}
       }
-      std::cout << " PhotonValidator  theConvTP_ size " <<   theConvTP_.size() << std::endl;	
+      //      std::cout << " PhotonValidator  theConvTP_ size " <<   theConvTP_.size() << std::endl;	
 
       if ( theConvTP_.size() == 2 )   visibleConversionsWithTwoSimTracks=true;
       goodSimConversion=false;
@@ -1025,8 +1025,13 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
     float e3x3=   EcalClusterTools::e3x3(  *(  matchingPho.superCluster()->seed()  ), &ecalRecHitCollection, &(*topology)); 
     float r9 =e3x3/( matchingPho.superCluster()->rawEnergy()+ matchingPho.superCluster()->preshowerEnergy());
 
-    float photonE=matchingPho.superCluster()->energy();
-    float photonEt= matchingPho.superCluster()->energy()/cosh( matchingPho.superCluster()->eta()) ;
+    //    float photonE=matchingPho.superCluster()->energy();
+    // float photonEt= matchingPho.superCluster()->energy()/cosh( matchingPho.superCluster()->eta()) ;
+
+    float photonE = matchingPho.energy();
+    float photonEt= matchingPho.energy()/cosh( matchingPho.eta()) ;
+
+
 
     if ( r9 < 0.93 && phoIsInEndcap) { 
       //      photonE = matchingPho.energy() +  matchingPho.superCluster()->preshowerEnergy();
@@ -1067,7 +1072,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
  
     if ( photonE/(*mcPho).fourMomentum().e()  < 0.3 &&   photonE/(*mcPho).fourMomentum().e() > 0.1 ) {
-      std::cout << " Eta sim " << mcEta_ << " sc eta " << matchingPho.superCluster()->eta() << " pho eta " << matchingPho.eta() << std::endl;
+      //      std::cout << " Eta sim " << mcEta_ << " sc eta " << matchingPho.superCluster()->eta() << " pho eta " << matchingPho.eta() << std::endl;
  
     }
 
@@ -1138,18 +1143,18 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
       nRecConv_++;
 
-      h_convEta_[type]->Fill( aConv->caloCluster()[0]->eta() );
-      h_convPhi_[type]->Fill( aConv->caloCluster()[0]->phi() );
+      h_convEta_[0]->Fill( aConv->caloCluster()[0]->eta() );
+      h_convPhi_[0]->Fill( aConv->caloCluster()[0]->phi() );
       h_convERes_[0][0]->Fill( aConv->caloCluster()[0]->energy() / (*mcPho).fourMomentum().e() );
-      h_r9VsNofTracks_[type][0]->Fill( r9, aConv->nTracks() ) ; 
+      h_r9VsNofTracks_[0][0]->Fill( r9, aConv->nTracks() ) ; 
 
       if ( phoIsInBarrel )  {
 	h_convERes_[0][1]->Fill(aConv->caloCluster()[0]->energy() / (*mcPho).fourMomentum().e() );
-	h_r9VsNofTracks_[type][1]->Fill( r9, aConv->nTracks() ) ; 
+	h_r9VsNofTracks_[0][1]->Fill( r9, aConv->nTracks() ) ; 
       }
       if ( phoIsInEndcap ) {
 	h_convERes_[0][2]->Fill(aConv->caloCluster()[0]->energy() / (*mcPho).fourMomentum().e() );
-	h_r9VsNofTracks_[type][2]->Fill( r9, aConv->nTracks() ) ; 
+	h_r9VsNofTracks_[0][2]->Fill( r9, aConv->nTracks() ) ; 
       }
 
 
@@ -1165,7 +1170,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       float py=0;
       float pz=0;
       float e=0;
-      std::cout << " Before loop on tracks  tracks size " << tracks.size() << " or " << aConv->tracks().size() <<  " nAssT2 " << nAssT2 << std::endl;
+      //std::cout << " Before loop on tracks  tracks size " << tracks.size() << " or " << aConv->tracks().size() <<  " nAssT2 " << nAssT2 << std::endl;
       for (unsigned int i=0; i<tracks.size(); i++) {
 
         type =0;
@@ -1181,6 +1186,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 		      tracks[i]->innerMomentum().z()*tracks[i]->innerMomentum().z() +
 		      +  mElec*mElec ) ;
 
+	
 	/////////// fill my local track - trackingparticle association map
 	TrackingParticleRef myTP;
 	for (size_t j = 0; j < RtoSCollPtrs.size(); j++) {          
@@ -1192,7 +1198,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	    std::vector<std::pair<TrackingParticleRef, double> > tp = q[myTk];
 	    for (int itp=0; itp<tp.size(); itp++) {
 	      myTP=tp[itp].first;
-	      //std::cout << " associated with TP " << myTP->pdgId() << " pt " << sqrt(myTP->momentum().perp2()) << std::endl;
+	      //      std::cout << " associated with TP " << myTP->pdgId() << " pt " << sqrt(myTP->momentum().perp2()) << std::endl;
 	      myAss.insert( std::make_pair ( aConv->tracks()[i]  , myTP) );
 	      nAssT2++;
 	    }
@@ -1204,6 +1210,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       }
 
 
+    
 
       float totP = sqrt(px*px +py*py + pz*pz);
       float invM=  (e + totP) * (e-totP) ;
@@ -1382,7 +1389,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	}
 	
 	
-
+	
 
 	///////////  Quantities per track
 	for (unsigned int i=0; i<tracks.size(); i++) {
@@ -1395,13 +1402,14 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	  h2_Chi2VsEta_[0] ->Fill(  mcEta_, tracks[i]->normalizedChi2() ); 
 	  h2_Chi2VsR_[0] ->Fill(  mcConvR_, tracks[i]->normalizedChi2() ); 
 
-
+	  
 
           float simPt = sqrt( ((*itAss).second)->momentum().perp2() );
 	  float recPt =   sqrt( aConv->tracks()[i]->innerMomentum().Perp2() ) ;
 	  float ptres= recPt - simPt ;
 	  float pterror = aConv->tracks()[i]->ptError();
 	  h2_PtRecVsPtSim_[0]->Fill ( simPt, recPt);
+
 
 
           h_TkPtPull_[0] ->Fill(ptres/pterror);
@@ -1420,8 +1428,11 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	    h2_PtRecVsPtSim_[2]->Fill ( simPt, recPt);
 	    if ( aConv->bcMatchingWithTracks()[i].isNonnull() ) hBCEnergyOverTrackPout_[2]->Fill  ( aConv->bcMatchingWithTracks()[i]->energy()/sqrt(aConv->tracks()[i]->outerMomentum().Mag2())  );
 	  }
+	  
+
 
 	} // end loop over track
+
 
 
       } // end analysis of two associated tracks
@@ -1430,10 +1441,9 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
 
 
-
     } // loop over conversions
 
-    
+
     
   } // End loop over simulated Photons
  
@@ -1447,15 +1457,20 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
   ///////////////////  Measure fake rate
   for( reco::PhotonCollection::const_iterator  iPho = photonCollection.begin(); iPho != photonCollection.end(); iPho++) {
     reco::Photon aPho = reco::Photon(*iPho);
+
     
     std::vector<reco::ConversionRef> conversions = aPho.conversions();
     for (unsigned int iConv=0; iConv<conversions.size(); iConv++) {
-      
+    
+
       reco::ConversionRef aConv=conversions[iConv];
       std::vector<reco::TrackRef> tracks = aConv->tracks();
+
       if (tracks.size() < 2 ) continue;
       //      if ( fabs( aConv->pairCotThetaSeparation() ) > 0.05) continue;
 
+
+      
       
       for (unsigned int f=0; f<etaintervalslarge_.size()-1; f++){
 	if (aPho.eta()>etaintervalslarge_[f]&&
@@ -1485,6 +1500,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       }
 
       
+      
       int  nAssT2=0;
 
       std::map<reco::TrackRef,TrackingParticleRef> myAss;
@@ -1500,7 +1516,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	    std::vector<std::pair<TrackingParticleRef, double> > tp = q[myTk];
 	    for (int itp=0; itp<tp.size(); itp++) {
 	      myTP=tp[itp].first;
-	      std::cout << " associated with TP " << myTP->pdgId() << " pt " << sqrt(myTP->momentum().perp2()) << std::endl;
+	      //	      std::cout << " associated with TP " << myTP->pdgId() << " pt " << sqrt(myTP->momentum().perp2()) << std::endl;
 	      myAss.insert( std::make_pair ( aConv->tracks()[i]  , myTP) );
 	      nAssT2++;
 	    }
