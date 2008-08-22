@@ -38,7 +38,7 @@ class RecoMuonValidator : public edm::EDAnalyzer
   MuonServiceProxy * theMuonService;
   DQMStore * theDQM;
   
-  std::map<std::string, MonitorElement*> meMap_;
+  std::map<int, MonitorElement*> meMap_;
 
   bool doAbsEta_;
   bool doAssoc_;
@@ -47,4 +47,4 @@ class RecoMuonValidator : public edm::EDAnalyzer
 };
 
 #endif
-
+/* vim:set ts=2 sts=2 sw=2 expandtab: */
