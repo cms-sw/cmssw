@@ -17,7 +17,7 @@ process.AlignmentProducer.algoConfig.minimumNumberOfHits = 15
 process.AlignmentProducer.algoConfig.maxRelParameterError = '1e99'
 process.AlignmentProducer.algoConfig.outpath = '<PATH>/main/'
 
-"""
+
 # this part only needed for survey constraint
 process.survey = cms.ESSource("PoolDBESSource",
     process.CondDBSetup,
@@ -30,10 +30,10 @@ process.survey = cms.ESSource("PoolDBESSource",
             record = cms.string('TrackerSurveyErrorRcd'),
             tag = cms.string('errorTag')
         )),
-    connect = cms.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/HIP/surveyObjects/measurementSurvey_207.db')
+    connect = cms.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/HIP/surveyObjects/surveyRcd_stripSurvey-FBPix_214_inflTIBTOBTIDTECErrs.db')
 )
-
-process.AlignmentProducer.algoConfig.surveyResiduals = ['Det']
+process.AlignmentProducer.algoConfig.surveyResiduals = ['DetUnit','Det','TOBHalfBarrel','TOBRod','TOBLayer','TECPetal','TECRing','TIDRing','TIDSide']
+#process.AlignmentProducer.algoConfig.surveyResiduals = ['Det']
 process.AlignmentProducer.useSurvey = True
 # end of survey constraint part
-"""
+

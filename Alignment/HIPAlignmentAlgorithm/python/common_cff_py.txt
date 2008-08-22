@@ -56,6 +56,8 @@ process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource","trackerAlign
 process.AlignmentProducer.applyDbAlignment = True
 # Set parameters to align
 #process.AlignmentProducer.ParameterBuilder.Selector.alignParams = ['TIBSSDets,100001','TIBDSDets,110001','TOBSSDets,100001','TOBDSDets,110001']
+process.AlignmentProducer.ParameterBuilder.Selector.alignParams = ['TIBDets,111111','TOBDets,111111','TIDDets,111111','TECDets,111111']
+"""
 process.AlignmentProducer.ParameterBuilder.Selector = cms.PSet(
                                                     alignParams = cms.vstring('PXECDets,110001',
                                                                  'TIBSSDets,100001',
@@ -83,7 +85,6 @@ process.AlignmentProducer.ParameterBuilder.Selector = cms.PSet(
                                                                        xRanges=cms.vdouble(),
                                                                        yRanges=cms.vdouble()
                                                                        )
-
 						     )
-
+"""
 
