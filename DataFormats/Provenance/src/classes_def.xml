@@ -40,7 +40,9 @@
    <field name="parentLookup_" transient="true"/>
  </class>
  <class name="edm::EventEntryInfo">
+   <field name="ModuleDescriptionID_" transient="true"/>
    <field name="entryDescriptionPtr_" transient="true"/>
+   <field name="noEntryDescription_" transient="true"/>
  </class>
  <class name="edm::RunLumiEntryInfo"/>
  <class name="std::vector<edm::EventEntryInfo>"/>
