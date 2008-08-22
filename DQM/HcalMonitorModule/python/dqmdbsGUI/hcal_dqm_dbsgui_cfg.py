@@ -6,14 +6,24 @@ process.load("DQMServices.Core.DQM_cfg")
 # The number of events and file names will get overwritten when runoptions_cfi.py is loaded
 
 ###<<<<<<<<<< Don't remove this line -- it's used by the gui when updating/replacing file names!
-process.maxEvents=cms.untracked.PSet(input = cms.untracked.int32(1000))
+process.maxEvents=cms.untracked.PSet(input = cms.untracked.int32(200))
 process.source = cms.Source("PoolSource",
 	fileNames= cms.untracked.vstring(
-		'/store/data/CRUZET3/Cosmics/RAW/v1/000/051/503/B8A8F592-7751-DD11-9823-000423D6C8EE.root',
-		'/store/data/CRUZET3/Cosmics/RAW/v1/000/051/503/BC6FE216-7851-DD11-876B-000423D98804.root',
-		'/store/data/CRUZET3/Cosmics/RAW/v1/000/051/503/485509C5-7751-DD11-8C1F-001617C3B706.root',
-		'/store/data/CRUZET3/Cosmics/RAW/v1/000/051/503/188B380B-7A51-DD11-A3AA-001617DBCF90.root',
-		'/store/data/CRUZET3/Cosmics/RAW/v1/000/051/503/84E447F7-7751-DD11-B54E-000423D6B444.root')
+		'/store/data/Commissioning08/Cosmics/RAW/CRUZET4_v1/000/057/764/8CEF3AF9-256E-DD11-A619-001617E30E2C.root',
+		'/store/data/Commissioning08/Cosmics/RAW/CRUZET4_v1/000/057/764/5A5AA7D6-256E-DD11-B3B4-001617E30F48.root',
+		'/store/data/Commissioning08/Cosmics/RAW/CRUZET4_v1/000/057/764/C6884D22-266E-DD11-89AC-000423D985E4.root',
+		'/store/data/Commissioning08/Cosmics/RAW/CRUZET4_v1/000/057/764/5A5AA7D6-256E-DD11-B3B4-001617E30F48.root',
+		'/store/data/Commissioning08/Cosmics/RAW/CRUZET4_v1/000/057/764/0A9EEDFA-266E-DD11-A83C-001617C3B64C.root',
+		'/store/data/Commissioning08/Cosmics/RAW/CRUZET4_v1/000/057/764/5803EA38-2A6E-DD11-9F44-001617C3B6E8.root',
+		'/store/data/Commissioning08/Cosmics/RAW/CRUZET4_v1/000/057/764/5A5AA7D6-256E-DD11-B3B4-001617E30F48.root',
+		'/store/data/Commissioning08/Cosmics/RAW/CRUZET4_v1/000/057/764/92C93CF9-256E-DD11-AF88-001617E30D4A.root',
+		'/store/data/Commissioning08/Cosmics/RAW/CRUZET4_v1/000/057/764/5C529842-246E-DD11-9C5F-0019DB29C614.root',
+		'/store/data/Commissioning08/Cosmics/RAW/CRUZET4_v1/000/057/764/92C93CF9-256E-DD11-AF88-001617E30D4A.root',
+		'/store/data/Commissioning08/Cosmics/RAW/CRUZET4_v1/000/057/764/C6884D22-266E-DD11-89AC-000423D985E4.root',
+		'/store/data/Commissioning08/Cosmics/RAW/CRUZET4_v1/000/057/764/8CEF3AF9-256E-DD11-A619-001617E30E2C.root',
+		'/store/data/Commissioning08/Cosmics/RAW/CRUZET4_v1/000/057/764/5C529842-246E-DD11-9C5F-0019DB29C614.root',
+		'/store/data/Commissioning08/Cosmics/RAW/CRUZET4_v1/000/057/764/0A9EEDFA-266E-DD11-A83C-001617C3B64C.root',
+		'/store/data/Commissioning08/Cosmics/RAW/CRUZET4_v1/000/057/764/8CEF3AF9-256E-DD11-A619-001617E30E2C.root')
 	)
 ###>>>>>>>>>>>  Don't remove this line!
 
@@ -99,7 +109,8 @@ process.dqmEnv.subSystemFolder = 'Hcal'
 # This works at FNAL, as of 8/8/08:
 #This works at FNAL
 process.GlobalTag.connect = 'frontier://Frontier/CMS_COND_21X_GLOBALTAG'
-process.GlobalTag.globaltag = 'STARTUP_V4::All'
+process.GlobalTag.globaltag = 'CRUZET4_V2::All'
+
 # For running at p5:
 #process.GlobalTag.connect = "frontier://(proxyurl=http://localhost:3128)(serverurl=http://frontier1.cms:8000/FrontierOnProd)(serverurl=http://frontier2.cms:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_20X_GLOBALTAG"
 #process.GlobalTag.globaltag = 'CRUZET3_V6::All' # or any other appropriate
