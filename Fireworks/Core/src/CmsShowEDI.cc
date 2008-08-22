@@ -8,7 +8,7 @@
 //
 // Original Author:  Joshua Berger  
 //         Created:  Mon Jun 23 15:48:11 EDT 2008
-// $Id: CmsShowEDI.cc,v 1.9 2008/08/20 23:54:44 dmytro Exp $
+// $Id: CmsShowEDI.cc,v 1.10 2008/08/21 21:12:08 chrjones Exp $
 //
 
 // system include files
@@ -380,8 +380,10 @@ CmsShowEDI::runFilter() {
          m_item->setFilterExpression(filter);
       }catch( const FWExpressionException& e) {
          m_filterError->AddLine(e.what().c_str());
-         std::cout << e.what()<<std::endl;
          m_filterError->Update();
+         if(e.column() > -1) {
+            m_filterExpressionEntry->SetCursorPosition(e.column());
+         }
       }
    }
 }
@@ -397,6 +399,9 @@ CmsShowEDI::runSelection() {
       }catch( const FWExpressionException& e) {
          m_selectError->AddLine(e.what().c_str());
          m_selectError->Update();
+         if(e.column() > -1) {
+            m_selectExpressionEntry->SetCursorPosition(e.column());
+         }
       }
    }
 }
