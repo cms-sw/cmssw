@@ -258,7 +258,7 @@ def getPrereqRoot(rootdir,rootfile):
         print "ERROR: We can not run QCD profiling please create root file %s to run QCD profiling." % (rootdir + "/" + rootfile)
 
 
-def checkQcdConditions(isAllCandles,candles,TimeSizeEvents,rootdir,rootfile):
+def checkQcdConditions(candles,TimeSizeEvents,rootdir,rootfile):
     if TimeSizeEvents < MIN_REQ_TS_EVENTS :
         print "WARNING: TimeSizeEvents is less than %s but QCD needs at least that to run. PILE-UP will be ignored" % MIN_REQ_TS_EVENTS
         
@@ -510,9 +510,8 @@ def main(argv):
     #Here the real performance suite starts
     #List of Candles
 
-    #Sort the candles to make sure MinBias is executed before QCD_80_120, otherwise DIGI PILEUP would not find its MinBias root files
+
     AllCandles=Candles
-    AllCandles.sort()
 
     isAllCandles = candleoption == ""
     candles = {}
@@ -521,14 +520,12 @@ def main(argv):
     else:
         candles=candleoption.split(",")
 
-    qcdWillRun = isAllCandles or ((not isAllCandles) and "QCD_80_120" in candles )
+    qcdWillRun = (not isAllCandles) and "QCD_80_120" in candles 
     if qcdWillRun:
-        candles = checkQcdConditions(isAllCandles,
-                                     candles,
+        candles = checkQcdConditions(candles,
                                      TimeSizeEvents,
                                      "./%s_%s" % ("MinBias","TimeSize"),
-                                     "%s_cfi_GEN_SIM.root" % "MinBias")  
-
+                                     "%s_cfi_GEN_SIM.root" % "MinBias")
 
     #TimeSize tests:
     if TimeSizeEvents > 0:

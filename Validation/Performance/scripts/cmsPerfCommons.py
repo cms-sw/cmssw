@@ -1,6 +1,7 @@
 MIN_REQ_TS_EVENTS = 50
-Candles=["HiggsZZ4LM200"      ,
-         "MinBias"            ,
+#Sort the candles to make sure MinBias is executed before QCD_80_120, otherwise DIGI PILEUP would not find its MinBias root files
+Candles=["MinBias"            ,
+         "HiggsZZ4LM200"      ,         
          "SingleElectronE1000",
          "SingleMuMinusPt10"  ,
          "SinglePiMinusE1000" ,

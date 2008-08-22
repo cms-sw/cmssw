@@ -404,10 +404,10 @@ foreach (@Candle)
 #After digi pileup steps:
 #Freeze this for now since we will only run by default the GEN-SIM,DIGI and DIGI pileup steps
 @AfterPileUpSteps=(
-		   #"L1",
-		   #"DIGI2RAW",
-		   #"HLT",
-		   #"RAW2DIGI,RECO"
+		   "L1",
+		   "DIGI2RAW",
+		   "HLT",
+		   "RAW2DIGI,RECO"
 		   );
     if ($candle eq "QCD -e 80_120")
     {

@@ -66,15 +66,16 @@ FileName = {}
 KeywordToCfi = {}
 for x in range(len(Candles)):
     
-    configs = ['H200ZZ4L.cfi',
-               'MinBias.cfi',               
+    configs = ['MinBias.cfi',               
+               'H200ZZ4L.cfi',
                'SingleElectronE1000.cfi',
                'SingleMuPt10.cfi',
                'SinglePiE1000.cfi',
                'TTbar.cfi',               
                'QCD_Pt_80_120.cfi']
-    filenames = ['HZZLLLL_200',
-                 'MINBIAS_',
+    filenames = [
+                 'MINBIAS_',        
+                 'HZZLLLL_200',
                  'E_1000',                 
                  'MU-_pt10',
                  'PI-_1000',
@@ -383,11 +384,14 @@ def getProfileArray(ProfileCode):
 
 def writeStepHead(simcandles,acandle,step,qcd=False):
     simcandles.write('#%s\n' % FileName[acandle])
+    out = step
     if qcd:
         simcandles.write('#Step %s PILE-UP\n' % step)
+        out += " PILEUP"        
     else :
         simcandles.write('#Step %s\n' % step)
-    print step
+    print out
+
 
 def determineNewProfile(step,Profile,SavedProfile):
     if 'DIGI2RAW' in step:
@@ -699,16 +703,16 @@ def writeCommandsToReport(simcandles,Candle,Profile,debug,NumberOfEvents,cmsDriv
             # Very messy solution for now:
             # Setting the stepIndex variable to 2, i.e. RECO step
             
-            FileIn = {}
-            FileIn['RECO'] = '--filein file:'
-            writeCommands(simcandles,
-                          Profile,
-                          acandle,
-                          AfterPileUpSteps,
-                          NumberOfEvents,
-                          cmsDriverOptions,
-                          0, # start at step index 2, RECO Step
-                          True)
+        FileIn = {}
+        FileIn['RECO'] = '--filein file:'
+        writeCommands(simcandles,
+                      Profile,
+                      acandle,
+                      AfterPileUpSteps,
+                      NumberOfEvents,
+                      cmsDriverOptions,
+                      0, # start at step index 2, RECO Step
+                      True)
     elif NumberOfEvents < MIN_REQ_TS_EVENTS:
         print " WARNING: QCD PileUp steps will not be run because the number of events is less than %s" % MIN_REQ_TS_EVENTS
         
