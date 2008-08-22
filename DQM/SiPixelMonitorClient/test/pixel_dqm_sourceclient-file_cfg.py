@@ -17,7 +17,28 @@ process.siPixelDigis.IncludeErrors = True
 
 process.load("RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizer_cfi")
 
-#process.load("RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi")
+process.load("RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi")
+process.load("RecoLocalTracker.SiPixelRecHits.PixelCPEESProducers_cff")
+
+process.load("EventFilter.SiStripRawToDigi.SiStripRawToDigis_standard_cff")
+process.siStripDigis.ProductLabel = 'source'
+
+#process.load("RecoLocalTracker.SiStripClusterizer.SiStripClusterizer_cfi")
+#process.load("RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi")
+#process.load("RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitMatcher_cfi")
+#process.load("RecoLocalTracker.SiStripRecHitConverter.StripCPEfromTrackAngle_cfi")
+#process.load("RecoLocalTracker.SiStripZeroSuppression.SiStripZeroSuppression_cfi")
+
+#process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
+#process.load("RecoPixelVertexing.Configuration.RecoPixelVertexing_cff")
+#process.load("RecoTracker.Configuration.RecoTrackerP5_cff")
+  
+
+
+
+
+
+
 
 process.load("DQM.SiPixelMonitorRawData.SiPixelMonitorRawData_cfi")
 process.SiPixelRawDataErrorSource.saveFile = False
@@ -58,6 +79,13 @@ process.SiPixelRecHitSource.bladeOn = False
 process.SiPixelRecHitSource.ringOn = False
 process.SiPixelRecHitSource.diskOn = False
 
+process.load("DQM.SiPixelMonitorTrack.SiPixelMonitorTrack_cfi")
+process.SiPixelTrackResidualSource.TrackCandidateProducer = 'ckfTrackCandidatesP5'
+process.SiPixelTrackResidualSource.TrackProducer = 'ALCARECOTkAlCosmicsCosmicTF0T'
+process.SiPixelTrackResidualSource.debug = True
+process.SiPixelTrackResidualSource.outputFile = '/tmp/merkelp/Pixel_DQM_TrackResidual_cosmictrackfinderP5.root'
+
+
 process.load("DQMServices.Core.DQM_cfg")
 
 process.load("DQMServices.Components.DQMEnvironment_cfi")
@@ -82,7 +110,7 @@ process.source = cms.Source("PoolSource",
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(500)
 )
 process.MessageLogger = cms.Service("MessageLogger",
     debugModules = cms.untracked.vstring('siPixelDigis', 
@@ -116,14 +144,14 @@ process.LockService = cms.Service("LockService",
     labels = cms.untracked.vstring('source')
 )
 
-process.Reco = cms.Sequence(process.siPixelDigis*process.siPixelClusters)
+process.Reco = cms.Sequence(process.siPixelDigis*process.siPixelClusters*process.siPixelRecHits)
 process.RAWmonitor = cms.Sequence(process.SiPixelRawDataErrorSource)
 process.DIGImonitor = cms.Sequence(process.SiPixelDigiSource)
 process.CLUmonitor = cms.Sequence(process.SiPixelClusterSource)
 process.HITmonitor = cms.Sequence(process.SiPixelRecHitSource)
 #process.DQMmodules = cms.Sequence(process.qTester*process.dqmEnv*process.dqmSaver)
 process.DQMmodules = cms.Sequence(process.dqmEnv*process.dqmSaver)
-process.p = cms.Path(process.Reco*process.DQMmodules*process.RAWmonitor*process.DIGImonitor*process.CLUmonitor*process.sipixelEDAClient)
+process.p = cms.Path(process.Reco*process.DQMmodules*process.RAWmonitor*process.DIGImonitor*process.CLUmonitor*process.HITmonitor*process.sipixelEDAClient)
 #process.p = cms.Path(process.DQMmodules*process.DIGImonitor*process.sipixelEDAClient)
 process.DQM.collectorHost = ''
 process.dqmSaver.convention = 'Online'
@@ -134,3 +162,12 @@ process.dqmSaver.saveByLumiSection = -1
 process.dqmSaver.saveByRun = 1
 process.dqmSaver.saveAtJobEnd = True
 
+#process.siPixelLocalReco = cms.Sequence(process.siPixelRecHits) 
+#process.siStripLocalReco = cms.Sequence(process.siStripMatchedRecHits)
+#process.trackerLocalReco = cms.Sequence(process.siPixelLocalReco*process.siStripLocalReco)
+#process.trackReconstruction = cms.Sequence(process.trackerLocalReco*process.offlineBeamSpot*process.recopixelvertexing*process.tracksP5) #*process.rstracks 
+
+#process.monitorTrack = cms.Sequence(process.SiPixelTrackResidualSource)
+#process.monitors = cms.Sequence(process.SiPixelRawDataErrorSource*process.SiPixelDigiSource*process.SiPixelClusterSource*process.SiPixelRecHitSource*process.SiPixelTrackResidualSource)
+
+#process.pathTrack = cms.Path(process.trackReconstruction*process.DQMmodules*process.monitors*process.sipixelEDAClient) 
