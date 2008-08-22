@@ -43,7 +43,7 @@ def customise(process):
             analyzer.DT_outputFile="pippo.root"
 
     #process.MessageLogger.categories=cms.untracked.vstring('DQMStore'
-                                                           )
+    #                                                       )
     #Configuring the standard output
     #process.MessageLogger.cout =  cms.untracked.PSet(
     #    noTimeStamps = cms.untracked.bool(True)
