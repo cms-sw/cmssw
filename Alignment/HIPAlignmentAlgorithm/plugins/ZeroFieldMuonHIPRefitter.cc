@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Wed Dec 12 13:31:55 CST 2007
-// $Id: ZeroFieldMuonHIPRefitter.cc,v 1.1 2008/07/01 21:57:52 pivarski Exp $
+// $Id: ZeroFieldMuonHIPRefitter.cc,v 1.2 2008/07/01 22:00:22 pivarski Exp $
 //
 //
 
@@ -36,9 +36,6 @@
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
-#include "DataFormats/MuonDetId/interface/DTChamberId.h"
-#include "DataFormats/MuonDetId/interface/DTLayerId.h"
-#include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
@@ -50,13 +47,6 @@
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 #include "CondFormats/Alignment/interface/Definitions.h"
 #include "DataFormats/GeometrySurface/interface/Surface.h"
-#include "TrackingTools/TrackRefitter/interface/TrackTransformer.h"
-#include "TrackingTools/GeomPropagators/interface/Propagator.h"
-#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
-
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
-#include "TH1F.h"
 
 // products
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
@@ -77,11 +67,9 @@ class ZeroFieldMuonHIPRefitter : public edm::EDProducer {
       virtual void endJob() ;
       
       // ----------member data ---------------------------
-      TrackTransformer *m_trackTransformer;
-
       edm::InputTag m_input;
       int m_minDOF;
-      std::string m_propagator;
+      double m_minRedChi2, m_maxRedChi2;
 };
 
 //
@@ -98,10 +86,9 @@ class ZeroFieldMuonHIPRefitter : public edm::EDProducer {
 ZeroFieldMuonHIPRefitter::ZeroFieldMuonHIPRefitter(const edm::ParameterSet& iConfig)
    : m_input(iConfig.getParameter<edm::InputTag>("input"))
    , m_minDOF(iConfig.getParameter<int>("minDOF"))
-   , m_propagator(iConfig.getParameter<std::string>("propagator"))
+   , m_minRedChi2(iConfig.getParameter<double>("minRedChi2"))
+   , m_maxRedChi2(iConfig.getParameter<double>("maxRedChi2"))
 {
-   m_trackTransformer = new TrackTransformer(iConfig.getParameter<edm::ParameterSet>("TrackerTrackTransformer"));
-
    produces<std::vector<Trajectory> >();
    produces<TrajTrackAssociationCollection>();
 }
@@ -124,11 +111,6 @@ ZeroFieldMuonHIPRefitter::~ZeroFieldMuonHIPRefitter()
 void
 ZeroFieldMuonHIPRefitter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   m_trackTransformer->setServices(iSetup);
-
-   edm::ESHandle<Propagator> propagator;
-   iSetup.get<TrackingComponentsRecord>().get(m_propagator, propagator);
-
    edm::Handle<reco::TrackCollection> tracks;
    iEvent.getByLabel(m_input, tracks);
 
@@ -182,9 +164,9 @@ ZeroFieldMuonHIPRefitter::produce(edm::Event& iEvent, const edm::EventSetup& iSe
    align::RotationType coordrot(             cos(theta1),  sin(theta1),             0.,
                                  sin(theta1)*sin(theta2), -cos(theta1)*sin(theta2), cos(theta2),
                                 -sin(theta1)*cos(theta2),  cos(theta1)*cos(theta2), sin(theta2));
-   align::RotationType coordrotinv(cos(theta1),  sin(theta1)*sin(theta2), -sin(theta1)*cos(theta2),
-                                   sin(theta1), -cos(theta1)*sin(theta2),  cos(theta1)*cos(theta2),
-                                            0.,              cos(theta2),              sin(theta2));
+//    align::RotationType coordrotinv(cos(theta1),  sin(theta1)*sin(theta2), -sin(theta1)*cos(theta2),
+//                                    sin(theta1), -cos(theta1)*sin(theta2),  cos(theta1)*cos(theta2),
+//                                             0.,              cos(theta2),              sin(theta2));
 
    // these x and y values are perpendicular to the direction-of-momentum axis
    std::vector<const TrackingRecHit*> hits;
@@ -265,15 +247,15 @@ ZeroFieldMuonHIPRefitter::produce(edm::Event& iEvent, const edm::EventSetup& iSe
    double d = (SzzXX*(SzXY*((SyzYY + SxzXY)*SXY + SyXY*SzYY + SxXX*SzYY) + (-SyXY*SzzYY - SxXX*SzzYY)*SXY + ((SyYY + SxXY)*SzzYY + (-SyzYY - SxzXY)*SzYY)*SXX + (-SyYY - SxXY)*pow(SzXY,2)) + SzzXY*(SzXX*((-SyzYY - SxzXY)*SXY - SyXY*SzYY - SxXX*SzYY) + SzXY*(-SyzXY*SXY - SxzXX*SXY + (SyzYY + SxzXY)*SXX + (2*SyYY + 2*SxXY)*SzXX) + SyzXY*SzYY*SXX + SxzXX*SzYY*SXX + (-SyXY - SxXX)*pow(SzXY,2)) + SzXX*(SyzXY*SzzYY*SXY + SxzXX*SzzYY*SXY) + pow(SzzXY,2)*((SyXY + SxXX)*SXY + (-SyYY - SxXY)*SXX) + SzXY*(-SyzXY*SzzYY*SXX - SxzXX*SzzYY*SXX + SzXX*(SyXY*SzzYY + SxXX*SzzYY - SyzXY*SzYY - SxzXX*SzYY)) + pow(SzXX,2)*((-SyYY - SxXY)*SzzYY + (SyzYY + SxzXY)*SzYY) + (SyzXY + SxzXX)*pow(SzXY,3) + (-SyzYY - SxzXY)*SzXX*pow(SzXY,2))/denom;
 
    GlobalVector fitslope = GlobalVector(a, c, 1.) / sqrt(pow(a,2) + pow(c,2) + 1.);
-   GlobalPoint fitpoint(b, d, 0.);
+//   GlobalPoint fitpoint(b, d, 0.);
 
    // left-multiply by the inverse rotation
    fitslope = GlobalVector(coordrot.xx() * fitslope.x() + coordrot.yx() * fitslope.y() + coordrot.zx() * fitslope.z(),
 			   coordrot.xy() * fitslope.x() + coordrot.yy() * fitslope.y() + coordrot.zy() * fitslope.z(),
 			   coordrot.xz() * fitslope.x() + coordrot.yz() * fitslope.y() + coordrot.zz() * fitslope.z());
-   fitpoint = GlobalPoint(coordrot.xx() * fitpoint.x() + coordrot.yx() * fitpoint.y() + coordrot.zx() * fitpoint.z(),
-			  coordrot.xy() * fitpoint.x() + coordrot.yy() * fitpoint.y() + coordrot.zy() * fitpoint.z(),
-			  coordrot.xz() * fitpoint.x() + coordrot.yz() * fitpoint.y() + coordrot.zz() * fitpoint.z());
+//    fitpoint = GlobalPoint(coordrot.xx() * fitpoint.x() + coordrot.yx() * fitpoint.y() + coordrot.zx() * fitpoint.z(),
+// 			  coordrot.xy() * fitpoint.x() + coordrot.yy() * fitpoint.y() + coordrot.zy() * fitpoint.z(),
+// 			  coordrot.xz() * fitpoint.x() + coordrot.yz() * fitpoint.y() + coordrot.zz() * fitpoint.z());
 
    double chi2 = 0.;
    int dof = 0;
@@ -286,13 +268,6 @@ ZeroFieldMuonHIPRefitter::produce(edm::Event& iEvent, const edm::EventSetup& iSe
    std::vector<double>::const_iterator YY = listYY.begin();
 
    for (;  hit != hits.end();  ++hit, ++xi, ++yi, ++zi, ++XX, ++XY, ++YY) {
-      GlobalPoint realspace = GlobalPoint(b, d, 0.) + GlobalVector(a, c, 1.) * (*zi);
-      realspace = GlobalPoint(coordrot.xx() * realspace.x() + coordrot.yx() * realspace.y() + coordrot.zx() * realspace.z(),
-			      coordrot.xy() * realspace.x() + coordrot.yy() * realspace.y() + coordrot.zy() * realspace.z(),
-			      coordrot.xz() * realspace.x() + coordrot.yz() * realspace.y() + coordrot.zz() * realspace.z());
-
-      GlobalPoint realhit = trackerGeometry->idToDet((*hit)->geographicalId())->toGlobal((*hit)->localPosition());
-
       double x = a * (*zi) + b;
       double y = c * (*zi) + d;
 
@@ -302,10 +277,87 @@ ZeroFieldMuonHIPRefitter::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       else dof += 2;
 
 //      std::cout << "x y " << x << " " << y << " xresid " << (x - (*xi)) << " +- " << sqrt(1./(*XX)) << " yresid " << (y - (*yi)) << " +- " << sqrt(1./(*YY)) << " xyresid " << (2*(x - (*xi))*(y - (*yi))) << " +- " << (1./(*XY)) << " chi2i = " << chi2i << std::endl;
-
    }
    dof -= 4;
 
+   if (dof >= m_minDOF  &&  chi2 / dof > m_minRedChi2  &&  chi2 / dof > m_maxRedChi2) {
+      // these must be in lock-step
+      edm::OwnVector<TrackingRecHit> clonedHits;
+      std::vector<TrajectoryMeasurement::ConstRecHitPointer> transHits;
+      std::vector<TrajectoryStateOnSurface> TSOSes;
+
+      for (trackingRecHit_iterator hit = best_track->recHitsBegin();  hit != best_track->recHitsEnd();  ++hit) {
+	 DetId id = (*hit)->geographicalId();
+	 if (id.det() == DetId::Muon  &&  (id.subdetId() == MuonSubdetId::DT  ||  id.subdetId() == MuonSubdetId::CSC)) {
+	    LocalPoint localPoint = (*hit)->localPosition(); // always in local coordinates
+
+	    const Surface *surface = NULL;
+	    if (id.subdetId() == MuonSubdetId::DT) surface = &(dtGeometry->idToDet(id)->surface());
+	    else surface = &(cscGeometry->idToDet(id)->surface());
+
+	    // position is the hit position in rotated coordinates
+	    GlobalPoint position = surface->toGlobal(localPoint);
+	    position = GlobalPoint(coordrot.xx()*position.x() + coordrot.xy()*position.y() + coordrot.xz()*position.z(),
+				   coordrot.yx()*position.x() + coordrot.yy()*position.y() + coordrot.yz()*position.z(),
+				   coordrot.zx()*position.x() + coordrot.zy()*position.y() + coordrot.zz()*position.z());
+
+	    // realspace is the projected track position, rotated back into normal coordinates
+	    GlobalPoint realspace = GlobalPoint(b, d, 0.) + GlobalVector(a, c, 1.) * position.z();
+	    realspace = GlobalPoint(coordrot.xx() * realspace.x() + coordrot.yx() * realspace.y() + coordrot.zx() * realspace.z(),
+				    coordrot.xy() * realspace.x() + coordrot.yy() * realspace.y() + coordrot.zy() * realspace.z(),
+				    coordrot.xz() * realspace.x() + coordrot.yz() * realspace.y() + coordrot.zz() * realspace.z());
+
+
+	    // now proceed as usual
+	    TrajectoryMeasurement::ConstRecHitPointer hitPtr(muonTransBuilder.build(&**hit, globalGeometry));
+
+	    GlobalTrajectoryParameters globalTrajectoryParameters(realspace, fitslope, best_track->charge(), &*magneticField);
+	    AlgebraicSymMatrix66 error;
+	    error(0,0) = 1e-6 * realspace.x();
+	    error(1,1) = 1e-6 * realspace.y();
+	    error(2,2) = 1e-6 * realspace.z();
+	    error(3,3) = 1e-6 * fitslope.x();
+	    error(4,4) = 1e-6 * fitslope.y();
+	    error(5,5) = 1e-6 * fitslope.z();
+
+	    // these must be in lock-step
+	    clonedHits.push_back((*hit)->clone());
+	    transHits.push_back(hitPtr);
+	    TSOSes.push_back(TrajectoryStateOnSurface(globalTrajectoryParameters, CartesianTrajectoryError(error), *surface));
+	 } // end if it's a muon hit
+      } // end loop over hits
+
+      assert(clonedHits.size() == transHits.size());
+      assert(transHits.size() == TSOSes.size());
+
+      // build the trajectory
+      if (clonedHits.size() > 0) {
+	 PTrajectoryStateOnDet *PTraj = transformer.persistentState(*(TSOSes.begin()), clonedHits.begin()->geographicalId().rawId());
+	 TrajectorySeed trajectorySeed(*PTraj, clonedHits, alongMomentum);
+	 Trajectory trajectory(trajectorySeed, alongMomentum);
+
+	 edm::OwnVector<TrackingRecHit>::const_iterator clonedHit = clonedHits.begin();
+	 std::vector<TrajectoryMeasurement::ConstRecHitPointer>::const_iterator transHitPtr = transHits.begin();
+	 std::vector<TrajectoryStateOnSurface>::const_iterator TSOS = TSOSes.begin();
+	 for (;  clonedHit != clonedHits.end();  ++clonedHit, ++transHitPtr, ++TSOS) {
+	    trajectory.push(TrajectoryMeasurement(*TSOS, *TSOS, *TSOS, (*transHitPtr)));
+	 }
+
+	 trajectoryCollection->push_back(trajectory);
+      } // end if there are any clonedHits/TSOSes to work with
+
+   } // end if this is a good chi^2 track
+
+   // insert the trajectories into the Event
+   unsigned int numTrajectories = trajectoryCollection->size();
+   edm::OrphanHandle<std::vector<Trajectory> > ohTrajs = iEvent.put(trajectoryCollection);
+
+   // also insert a trajectory <-> track association map
+   std::auto_ptr<TrajTrackAssociationCollection> trajTrackMap(new TrajTrackAssociationCollection());
+   if (numTrajectories == 1) {
+      trajTrackMap->insert(edm::Ref<std::vector<Trajectory> >(ohTrajs, 1), edm::Ref<reco::TrackCollection>(tracks, 1));
+   }
+   iEvent.put(trajTrackMap);
 }
 
 // ------------ method called once each job just before starting event loop  ------------
