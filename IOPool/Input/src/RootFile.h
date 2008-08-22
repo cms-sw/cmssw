@@ -132,7 +132,7 @@ namespace edm {
     bool selected(BranchDescription const& desc) const;
 
     template <typename T>
-    boost::shared_ptr<BranchMapper<T> > makeBranchMapper(RootTree & rootTree, BranchType const& type) const;
+    boost::shared_ptr<BranchMapper> makeBranchMapper(RootTree & rootTree, BranchType const& type) const;
 
     std::string const file_;
     std::string const logicalFile_;
@@ -176,13 +176,13 @@ namespace edm {
   }; // class RootFile
 
   template <typename T>
-  boost::shared_ptr<BranchMapper<T> >
+  boost::shared_ptr<BranchMapper>
   RootFile::makeBranchMapper(RootTree & rootTree, BranchType const& type) const {
     if (fileFormatVersion_.value_ >= 8) {
       return rootTree.makeBranchMapper<T>();
     } 
     // backward compatibility
-    boost::shared_ptr<BranchMapper<T> > mapper(new BranchMapper<T>);
+    boost::shared_ptr<BranchMapper> mapper(new BranchMapper);
     if (fileFormatVersion_.value_ >= 7) {
       rootTree.fillStatus();
       for(ProductRegistry::ProductList::const_iterator it = productRegistry_->productList().begin(),
@@ -198,7 +198,7 @@ namespace edm {
           br->GetEntry(rootTree.entryNumber());
           br->SetAddress(0);
 	  std::vector<ProductStatus>::size_type index = it->second.oldProductID().id() - 1;
-	  T entry(it->second.branchID(),
+	  EventEntryInfo entry(it->second.branchID(),
 		  rootTree.productStatuses()[index], it->second.oldProductID(), *pb);
 	  mapper->insert(entry);
         }
@@ -215,7 +215,7 @@ namespace edm {
           std::auto_ptr<EntryDescription> entryDesc = pb->convertToEntryDescription();
 	  ProductStatus status = (ppb->creatorStatus() == BranchEntryDescription::Success ? productstatus::present() : productstatus::neverCreated());
 	  // Throws parents away for now.
-	  T entry(it->second.branchID(), status, entryDesc->moduleDescriptionID_, it->second.oldProductID());
+	  EventEntryInfo entry(it->second.branchID(), status, entryDesc->moduleDescriptionID_, it->second.oldProductID());
 	  mapper->insert(entry);
        }
       }
