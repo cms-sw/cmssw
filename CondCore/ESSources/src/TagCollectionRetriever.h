@@ -9,7 +9,9 @@
 */
 //
 // Author:      Zhen Xie
+// $Id$
 //
+
 #include <set>
 #include <string>
 #include "CondCore/DBCommon/interface/TagMetadata.h"
@@ -31,5 +33,5 @@ namespace cond{
     std::pair<std::string,std::string> parseglobaltag(const std::string& globaltag);
     cond::CoralTransaction* m_coraldb;
   };
-}
+}//ns cond
 #endif
