@@ -232,9 +232,9 @@ namespace cms{
 	 
 	 PTrajectoryStateOnDet* state =0 ;
 	 if(useSplitting && (initState.second != thits.front()->det()) ){	 
-	   state = TrajectoryStateTransform().persistentState(
-							      thePropagator->propagate(initState.first,
-										       thits.front()->det()->surface()),
+	   TrajectoryStateOnSurface propagated = thePropagator->propagate(initState.first,thits.front()->det()->surface());
+	   if (!propagated.isValid()) continue;
+	   state = TrajectoryStateTransform().persistentState(propagated,
 							      thits.front()->det()->geographicalId().rawId());
 	 }
 	 
