@@ -807,9 +807,9 @@ void HcalNumberingFromDDD::loadGeometry(DDFilteredView fv) {
 	ze[lay] += fabs(t.z());
 	if (thke[lay] <= 0) thke[lay] = dz;
       }
-      if (copy[nsiz-1] == 10) {
-	int iz = copy[nsiz-6];
-	int fi = copy[nsiz-4];
+      if (copy[nsiz-1] == 21) {
+	int iz = copy[nsiz-7];
+	int fi = copy[nsiz-5];
 	unsigned int it1 = find(iz, ize);
 	if (it1 == ize.size())  ize.push_back(iz);
 	unsigned int it2 = find(fi, phie);
@@ -858,6 +858,19 @@ void HcalNumberingFromDDD::loadGeometry(DDFilteredView fv) {
       ze[i] /= (double)(ie[i]);
       iemx   = i+1;
     }
+#ifdef DebugLog
+    LogDebug("HCalGeom") << "Index " << i << " Barrel " << ib[i] << " "
+			 << rb[i] << " Endcap " << ie[i] << " " << ze[i];
+#endif
+  }
+  for (int i = 4; i >= 0; i--) {
+    if (ib[i] == 0) {rb[i] = rb[i+1]; thkb[i] = thkb[i+1];}
+    if (ie[i] == 0) {ze[i] = ze[i+1]; thke[i] = thke[i+1];}
+#ifdef DebugLog
+    if (ib[i] == 0 || ie[i] == 0)
+      LogDebug("HCalGeom") << "Index " << i << " Barrel " << ib[i] << " "
+			   << rb[i] << " Endcap " << ie[i] << " " << ze[i];
+#endif
   }
 
 #ifdef DebugLog
