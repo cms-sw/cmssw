@@ -118,7 +118,12 @@ map<string, MonitorElement*> RPCMonitorDigi::bookDetUnitME(RPCDetId & detId, con
   MonitorElement * myMe;
 
   os.str("");
-  os<<"RPC/RecHits/Barrel/Wheel_"<<ring<<"/SummaryBySectors/";
+  if(detId.region()==0)
+    os<<"RPC/RecHits/Barrel/Wheel_"<<ring<<"/SummaryBySectors/";
+  else if (detId.region()==1)
+    os<<"RPC/RecHits/Endcap+/Disk_"<<ring<<"/SummaryBySectors/";
+  else 
+    os<<"RPC/RecHits/Endcap-/Disk_"<<ring<<"/SummaryBySectors/";
   string WheelSummary = os.str();
   dbe->setCurrentFolder(WheelSummary);
   
@@ -136,6 +141,8 @@ map<string, MonitorElement*> RPCMonitorDigi::bookDetUnitME(RPCDetId & detId, con
 	meMap[os.str()] = dbe->book2D(os.str(), os.str(),  96, 0.5, 96.5, 21, 0.5, 21.5);
       else
 	meMap[os.str()] = dbe->book2D(os.str(), os.str(), 96, 0.5,  96.5, 17, 0.5, 17.5);
+    }else{//Endcap
+	meMap[os.str()] = dbe->book2D(os.str(), os.str(), 96, 0.5,96.5, 18, 0.5, 18.5);
     }
   }
   
