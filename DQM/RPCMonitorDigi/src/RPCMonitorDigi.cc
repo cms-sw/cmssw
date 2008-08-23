@@ -262,7 +262,7 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
       }else{
 	Yaxis.erase(0,8);
       }
-      meMap[os.str()]->setBinLabel(nr, Yaxis, 2);
+        meMap[os.str()]->setBinLabel(nr, Yaxis, 2);
   
       os.str("");
       os<<"Occupancy_"<<nameRoll;

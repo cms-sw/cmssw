@@ -94,8 +94,8 @@ namespace rpcdqm{
 	  nseg=18;
 	}
 	
-	seg =(_id.sector()-1)*nsub + _id.subsector() ;
-	  _cnr = (seg-1)*3+_id.roll()+(_id.ring()*nsub*3); 
+	//	seg =(_id.sector()-1)*nsub + _id.subsector() ;
+	  _cnr = (_id.subsector()-1)*3+_id.roll()+(_id.ring()-1)*nsub*3; 
       }
 	return _cnr;
     }
