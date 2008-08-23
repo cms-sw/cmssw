@@ -13,14 +13,15 @@
 //
 // Original Author:  Jacob Ribnik
 //         Created:  Wed Apr 18 13:48:08 CDT 2007
-// $Id: MuonIdVal.h,v 1.1 2007/11/29 18:34:09 jribnik Exp $
+// $Id: MuonIdVal.h,v 1.2 2008/02/29 20:48:57 ksmith Exp $
 //
 //
 
+#ifndef Validation_MuonIdentification_MuonIdVal_h
+#define Validation_MuonIdentification_MuonIdVal_h
+
 // system include files
-#include <map>
 #include <string>
-#include <utility>
 #include <vector>
 
 // user include files
@@ -31,10 +32,12 @@
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -48,7 +51,6 @@
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 class MuonIdVal : public edm::EDAnalyzer {
    public:
@@ -67,7 +69,13 @@ class MuonIdVal : public edm::EDAnalyzer {
       edm::InputTag inputTrackCollection_;
       edm::InputTag inputDTRecSegment4DCollection_;
       edm::InputTag inputCSCSegmentCollection_;
-      std::string outputFile_;
+      bool useTrackerMuons_;
+      bool useGlobalMuons_;
+      bool makeEnergyPlots_;
+      bool makeIsoPlots_;
+      bool make2DPlots_;
+      bool makeAllChamberPlots_;
+      std::string baseFolder_;
 
       edm::Handle<reco::MuonCollection> muonCollectionH_;
       edm::Handle<reco::TrackCollection> trackCollectionH_;
@@ -75,30 +83,38 @@ class MuonIdVal : public edm::EDAnalyzer {
       edm::Handle<CSCSegmentCollection> cscSegmentCollectionH_;
       edm::ESHandle<GlobalTrackingGeometry> geometry_;
 
-      MonitorElement* hNumChambers;
-      MonitorElement* hNumMatches;
-      MonitorElement* hCaloCompat;
+      // trackerMuon == 0; globalMuon == 1
+      MonitorElement* hNumChambers[2];
+      MonitorElement* hNumMatches[2];
+      MonitorElement* hCaloCompat[2];
+      MonitorElement* hSegmentCompat[2];
+      MonitorElement* hCaloSegmentCompat[2];
+      MonitorElement* hGlobalMuonPromptTightBool[2];
+      MonitorElement* hTMLastStationLooseBool[2];
+      MonitorElement* hTMLastStationTightBool[2];
+      MonitorElement* hTM2DCompatibilityLooseBool[2];
+      MonitorElement* hTM2DCompatibilityTightBool[2];
 
-      MonitorElement* hEnergyEMBarrel;
-      MonitorElement* hEnergyHABarrel;
-      MonitorElement* hEnergyHO;
-      MonitorElement* hEnergyEMEndcap;
-      MonitorElement* hEnergyHAEndcap;
+      MonitorElement* hEnergyEMBarrel[2];
+      MonitorElement* hEnergyHABarrel[2];
+      MonitorElement* hEnergyHO[2];
+      MonitorElement* hEnergyEMEndcap[2];
+      MonitorElement* hEnergyHAEndcap[2];
 
-      MonitorElement* hIso03sumPt;
-      MonitorElement* hIso03emEt;
-      MonitorElement* hIso03hadEt;
-      MonitorElement* hIso03hoEt;
-      MonitorElement* hIso03nTracks;
-      MonitorElement* hIso03nJets;
-      MonitorElement* hIso05sumPt;
-      MonitorElement* hIso05emEt;
-      MonitorElement* hIso05hadEt;
-      MonitorElement* hIso05hoEt;
-      MonitorElement* hIso05nTracks;
-      MonitorElement* hIso05nJets;
+      MonitorElement* hIso03sumPt[2];
+      MonitorElement* hIso03emEt[2];
+      MonitorElement* hIso03hadEt[2];
+      MonitorElement* hIso03hoEt[2];
+      MonitorElement* hIso03nTracks[2];
+      MonitorElement* hIso03nJets[2];
+      MonitorElement* hIso05sumPt[2];
+      MonitorElement* hIso05emEt[2];
+      MonitorElement* hIso05hadEt[2];
+      MonitorElement* hIso05hoEt[2];
+      MonitorElement* hIso05nTracks[2];
+      MonitorElement* hIso05nJets[2];
 
-      // by station
+      // by station, trackerMuons only
       MonitorElement* hDTNumSegments[4];
       MonitorElement* hDTDx[4];
       MonitorElement* hDTPullx[4];
@@ -139,8 +155,12 @@ class MuonIdVal : public edm::EDAnalyzer {
       MonitorElement* hSegmentIsAssociatedXY;
       MonitorElement* hSegmentIsNotAssociatedRZ;
       MonitorElement* hSegmentIsNotAssociatedXY;
+      MonitorElement* hSegmentIsBestDrAssociatedRZ;
+      MonitorElement* hSegmentIsBestDrAssociatedXY;
+      MonitorElement* hSegmentIsBestDrNotAssociatedRZ;
+      MonitorElement* hSegmentIsBestDrNotAssociatedXY;
 
-      // by chamber
+      // by chamber, trackerMuons only
       // DT:  [station][wheel][sector]
       // CSC: [endcap][station][ring][chamber]
       MonitorElement* hDTChamberDx[4][5][14];
@@ -156,3 +176,5 @@ class MuonIdVal : public edm::EDAnalyzer {
       MonitorElement* hCSCChamberEdgeYWithSegment[2][4][4][36];
       MonitorElement* hCSCChamberEdgeYWithNoSegment[2][4][4][36];
 };
+
+#endif
