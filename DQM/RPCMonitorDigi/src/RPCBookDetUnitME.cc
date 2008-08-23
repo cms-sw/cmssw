@@ -17,10 +17,10 @@ map<string, MonitorElement*> RPCMonitorDigi::bookDetUnitME(RPCDetId & detId, con
     ring = detId.ring();
   }else if (detId.region() == -1){  
     ringType =  "Disk";
-    ring = detId.region()*detId.layer();
+    ring = detId.region()*detId.station();
   }else {
     ringType =  "Disk";
-    ring = detId.layer();
+    ring = detId.station();
   }
 
   RPCBookFolderStructure *  folderStr = new RPCBookFolderStructure();
@@ -142,7 +142,7 @@ map<string, MonitorElement*> RPCMonitorDigi::bookDetUnitME(RPCDetId & detId, con
       else
 	meMap[os.str()] = dbe->book2D(os.str(), os.str(), 96, 0.5,  96.5, 17, 0.5, 17.5);
     }else{//Endcap
-	meMap[os.str()] = dbe->book2D(os.str(), os.str(), 96, 0.5,96.5, 18, 0.5, 18.5);
+	meMap[os.str()] = dbe->book2D(os.str(), os.str(), 96, 0.5,96.5, 54, 0.5, 54.5);
     }
   }
   
