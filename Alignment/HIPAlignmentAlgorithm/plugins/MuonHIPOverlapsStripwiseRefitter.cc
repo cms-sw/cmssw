@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Wed Dec 12 13:31:55 CST 2007
-// $Id: MuonHIPOverlapsStripwiseRefitter.cc,v 1.2 2008/08/13 00:40:19 pivarski Exp $
+// $Id: MuonHIPOverlapsStripwiseRefitter.cc,v 1.3 2008/08/22 19:25:34 pivarski Exp $
 //
 //
 
@@ -192,7 +192,7 @@ MuonHIPOverlapsStripwiseRefitter::produce(edm::Event& iEvent, const edm::EventSe
 	    }
 
 	    current_station.push_back(&**hit);
-	    if (cscId.chamber() == 0) current_evenhits++;
+	    if (cscId.chamber() % 2 == 0) current_evenhits++;
 	    else current_oddhits++;
 
 	    last_station = station;
