@@ -39,6 +39,7 @@
 #include "Fireworks/Core/interface/CSGAction.h"
 #include "Fireworks/Core/interface/CmsShowMainFrame.h"
 #include "Fireworks/Core/interface/FWGlimpseViewManager.h"
+#include "Fireworks/Core/src/FWGUIValidatingTextEntry.h"
 
 namespace {
    struct Fireworks_Core {
