@@ -16,7 +16,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Mon Jun 23 15:48:42 EDT 2008
-// $Id: CmsShowEDI.h,v 1.2 2008/07/07 00:19:28 chrjones Exp $
+// $Id: CmsShowEDI.h,v 1.3 2008/08/21 21:12:08 chrjones Exp $
 //
 
 // system include files
@@ -36,6 +36,10 @@ class TGCheckButton;
 class TGTextEntry;
 class TGTextButton;
 class TGTextView;
+class TGComboBoxPopup;
+class TGListBox;
+class FWGUIValidatingTextEntry;
+class FWExpressionValidator;
 
 class CmsShowEDI : public TGTransientFrame
 {
@@ -72,8 +76,8 @@ class CmsShowEDI : public TGTransientFrame
       TGTextButton* m_removeButton;
       FWColorSelect* m_colorSelectWidget;
       TGCheckButton* m_isVisibleButton;
-      TGTextEntry* m_filterExpressionEntry;
-      TGTextEntry* m_selectExpressionEntry;
+      FWGUIValidatingTextEntry* m_filterExpressionEntry;
+      FWGUIValidatingTextEntry* m_selectExpressionEntry;
       TGTextButton* m_filterButton;
       TGTextButton* m_selectButton;
       TGTextButton* m_selectAllButton;
@@ -88,7 +92,7 @@ class CmsShowEDI : public TGTransientFrame
       sigc::connection m_destroyedConn;
       TGTextView* m_filterError;
       TGTextView* m_selectError;
-
+      FWExpressionValidator* m_validator;
 };
 
 
