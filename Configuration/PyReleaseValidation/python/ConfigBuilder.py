@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.73 $"
+__version__ = "$Revision: 1.74 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -24,7 +24,6 @@ pileupMap = {'LowLumiPileUp': 7.1,
 	     'InitialPileUp': 3.8,
 	     'HighLumiPileUp': 25.4
 	     }
-    
 
 # some helper routines
 def dumpPython(process,name):
@@ -226,6 +225,7 @@ class ConfigBuilder(object):
             if len(conditionsSP)>1:
                 self.loadAndRemember('FastSimulation/Configuration/CommonInputs_cff')
                 # Apply ECAL and HCAL miscalibration
+                self.additionalCommands.append('\n# Choose between hcalmiscalib_startup.xml , hcalmiscalib_1pb.xml , hcalmiscalib_10pb.xml (startup is the default)')
                 self.additionalCommands.append('process.caloRecHits.RecHitsFactory.HCAL.fileNameHcal = "hcalmiscalib_startup.xml"')
                 if "IDEAL" in conditionsSP:
                     self.additionalCommands.append("process.caloRecHits.RecHitsFactory.doMiscalib = False")
@@ -428,8 +428,8 @@ class ConfigBuilder(object):
             self.additionalCommands.append("process.famosSimHits.SimulateTracking = True")
 
             # the settings have to be the same as for the generator to stay consistent  
-            print 'Set comEnergy to famos decay processing to 10 TeV. Please edit by hand if it needs to be different.'
-            print 'The pile up is taken from 10 TeV files. To switch to other files remove the inclusion of "PileUpSimulator10TeV_cfi"'
+            print '  Set comEnergy to famos decay processing to 10 TeV. Please edit by hand if it needs to be different.'
+            print '  The pile up is taken from 10 TeV files. To switch to other files remove the inclusion of "PileUpSimulator10TeV_cfi"'
             self.additionalCommands.append('process.famosSimHits.ActivateDecays.comEnergy = 10000')
             self.loadAndRemember("FastSimulation.PileUpProducer.PileUpSimulator10TeV_cfi")
 	    self.additionalCommands.append('process.famosPileUp.PileUpSimulator = process.PileUpSimulatorBlock.PileUpSimulator')
@@ -453,13 +453,27 @@ class ConfigBuilder(object):
             self.additionalCommands.append("process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True")
         else:
              print "FastSim setting", sequence, "unknown."
-             raise
-                  
+             raise ValueError
+        # the vertex smearing settings
+        beamspotName = 'process.%sVtxSmearingParameters' %(self._options.beamspot)
+	if 'Flat' in self._options.beamspot:
+	    beamspotType = 'Flat'
+	elif 'Gauss' in self._options.beamspot:
+	    beamspotType = 'Gaussian'
+	else:
+	    print "  Assuming vertex smearing engine as BetaFunc"	
+            beamspotType = 'BetaFunc'	      
+        self.loadAndRemember('IOMC.EventVertexGenerators.VtxSmearedParameters_cfi')
+	beamspotName = 'process.%sVtxSmearingParameters' %(self._options.beamspot)
+        self.additionalCommands.append('\n# set correct vertex smearing') 
+        self.additionalCommands.append(beamspotName+'.type = cms.string("%s")'%(beamspotType)) 
+        self.additionalCommands.append('process.famosSimHits.VertexGenerator = '+beamspotName)
+	self.additionalCommands.append('process.famosPileUp.VertexGenerator = '+beamspotName)
         
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.73 $"),
+              (version=cms.untracked.string("$Revision: 1.74 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
