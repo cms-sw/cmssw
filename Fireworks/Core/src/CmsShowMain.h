@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: CmsShowMain.h,v 1.5 2008/07/30 15:54:50 chrjones Exp $
+// $Id: CmsShowMain.h,v 1.6 2008/08/20 21:02:05 chrjones Exp $
 //
 
 // system include files
@@ -79,6 +79,7 @@ public:
   static void   guessFieldIsOn( bool guess );
   static double getCaloScale() { return m_caloScale; }
   static void   setCaloScale(double var) { m_caloScale = var; }
+  static void setBrightness(unsigned int value);
 
   // ---------- member functions ---------------------------
   //  int draw(const fwlite::Event& );
@@ -86,7 +87,7 @@ public:
   void registerPhysicsObject(const FWPhysicsObjectDesc&);
   void registerDetailView (const std::string &item_name, FWDetailView *view);
    
-   void notified(TSocket*);
+  void notified(TSocket*);
 private:
   CmsShowMain(const CmsShowMain&); // stop default
   
