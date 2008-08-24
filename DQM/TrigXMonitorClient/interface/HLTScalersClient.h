@@ -2,9 +2,14 @@
 // 
 // Client class for HLT Scalers module.
 // 
-// $Id$
+// $Id: HLTScalersClient.h,v 1.1 2008/08/22 20:56:55 wittich Exp $
 
-// $Log$
+// $Log: HLTScalersClient.h,v $
+// Revision 1.1  2008/08/22 20:56:55  wittich
+// - add client for HLT Scalers
+// - Move rate calculation to HLTScalersClient and slim down the
+//   filter-farm part of HLTScalers
+//
 
 #ifndef HLTSCALERSCLIENT_H
 #define HLTSCALERSCLIENT_H
@@ -17,11 +22,14 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
-// HARD CODE THE NUMBER OF HISTOGRAMS TO 200
+// HARD CODE THE NUMBER OF HISTOGRAMS TO 200, LENGTH OF MONITOR to 2000 
+// segments
 #define MAX_PATHS 200
+#define MAX_LUMI_SEG 2000
 
 class HLTScalersClient: public edm::EDAnalyzer
 {
+public:
   /// Constructors
   HLTScalersClient(const edm::ParameterSet& ps);
   

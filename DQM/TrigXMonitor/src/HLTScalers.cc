@@ -1,6 +1,11 @@
-// $Id: HLTScalers.cc,v 1.11 2008/08/15 15:39:45 wteo Exp $
+// $Id: HLTScalers.cc,v 1.12 2008/08/22 20:56:55 wittich Exp $
 // 
 // $Log: HLTScalers.cc,v $
+// Revision 1.12  2008/08/22 20:56:55  wittich
+// - add client for HLT Scalers
+// - Move rate calculation to HLTScalersClient and slim down the
+//   filter-farm part of HLTScalers
+//
 // Revision 1.11  2008/08/15 15:39:45  wteo
 // split hltScalers into smaller histos, calculate rates
 //
@@ -12,36 +17,6 @@
 // - add counter for number of lumi sections
 // - attempt to hlt label histo axes locally; disabled (it's illegible)
 //
-// Revision 1.8  2008/03/01 00:40:16  lat
-// DQM core migration.
-//
-// Revision 1.7  2008/01/22 19:02:43  muzaffar
-// include cleanup. Only for cc/cpp files
-//
-// Revision 1.6  2007/12/11 17:24:55  wittich
-// - add extra monitoring histos (eg hlt exceptions and correlations)
-//
-// Revision 1.5  2007/12/04 20:24:33  wittich
-// - make hlt histograms variable width depending on path
-// - add strings for path names
-// - add int for nprocessed
-// - add L1 scaler locally derived on Kaori's suggestion
-//   + updates to cfi file for this, need to include unpacking of GT
-//
-// Revision 1.4  2007/12/01 19:28:56  wittich
-// - fix cfi file (debug -> verbose, HLT -> FU for TriggerResults  label)
-// - handle multiple beginRun for same run (don't call reset on DQM )
-// - remove PathTimerService from cfg file in test subdir
-//
-// Revision 1.3  2007/11/26 19:43:37  wittich
-// add cfi, add Reset() on endRun, cfg add tweaks
-//
-// Revision 1.2  2007/11/26 18:24:21  wittich
-// fix bug in cfg handling
-//
-// Revision 1.1  2007/11/26 16:37:50  wittich
-// Prototype HLT scaler information.
-//
 
 #include <iostream>
 
@@ -52,6 +27,8 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 
 // HLT
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -134,16 +111,14 @@ void HLTScalers::analyze(const edm::Event &e, const edm::EventSetup &c)
   edm::Handle<TriggerResults> hltResults;
   bool b = e.getByLabel(trigResultsSource_, hltResults);
   if ( !b ) {
-    edm::LogInfo("HLTScalers") << "HLTScalers::analyze: getByLabel"
-			       << " for TriggerResults failed"
-			       << " with label " << trigResultsSource_;
+    edm::LogInfo("Product") << "getByLabel for TriggerResults failed"
+			   << " with label " << trigResultsSource_;
     return;
   }
   TriggerNames names(*hltResults);
   
   
   int npath = hltResults->size();
-  LogDebug("Parameter")  << "npath = " << npath ;
 
   // on the first event of a new run we book new ME's
   if (resetMe_ ) {
@@ -203,9 +178,9 @@ void HLTScalers::analyze(const edm::Event &e, const edm::EventSetup &c)
   for ( int i = 0; i < npath; ++i ) {
     // state returns 0 on ready, 1 on accept, 2 on fail, 3 on exception.
     // these are defined in HLTEnums.h
-    LogDebug("Parameter") << "i = " << i << ", result = " 
-			  << hltResults->accept(i)
-			  << ", index = " << hltResults->index(i) ;
+//     LogDebug("Parameter") << "i = " << i << ", result = " 
+// 			  << hltResults->accept(i)
+// 			  << ", index = " << hltResults->index(i) ;
     for ( unsigned int j = 0; j < hltResults->index(i); ++j ) {
       detailedScalers_->Fill(i,j);
     }
@@ -230,8 +205,8 @@ void HLTScalers::analyze(const edm::Event &e, const edm::EventSetup &c)
   edm::Handle<L1GlobalTriggerReadoutRecord> myGTReadoutRecord;
   bool t = e.getByLabel(l1GtDataSource_,myGTReadoutRecord);
   if ( ! t ) {
-    edm::LogInfo("HLTScalers") << "can't find L1GlobalTriggerReadoutRecord "
-			       << "with label " << l1GtDataSource_.label() ;
+    edm::LogInfo("Product") << "can't find L1GlobalTriggerReadoutRecord "
+			   << "with label " << l1GtDataSource_.label() ;
   }
   else {
     // vector of bool
@@ -257,7 +232,7 @@ void HLTScalers::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 {
   // put this in as a first-pass for figuring out the rate
   // each lumi block is 93 seconds in length
-  nLumiBlocks_->Fill(++nLumi_);
+  nLumiBlocks_->Fill(lumiSeg.id().luminosityBlock());
  
   LogDebug("Status") << "End of luminosity block." ;
 
