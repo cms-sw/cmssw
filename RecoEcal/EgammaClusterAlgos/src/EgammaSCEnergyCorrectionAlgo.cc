@@ -1,5 +1,5 @@
 //
-// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.30 2008/04/30 11:30:03 dlevans Exp $
+// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.31 2008/05/14 14:08:54 ferriff Exp $
 // Author: David Evans, Bristol
 //
 #include "RecoEcal/EgammaClusterAlgos/interface/EgammaSCEnergyCorrectionAlgo.h"
@@ -35,7 +35,7 @@ EgammaSCEnergyCorrectionAlgo::~EgammaSCEnergyCorrectionAlgo()
 reco::SuperCluster EgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::SuperCluster &cl, 
 								 const EcalRecHitCollection &rhc, reco::AlgoId theAlgo, const CaloSubdetectorGeometry* geometry)
 {	
-	
+
   // Insert the recHits into map	
   // (recHits needed as number of crystals in the seed cluster
   //  with energy above 2sigma noise required)
@@ -151,6 +151,7 @@ reco::SuperCluster EgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::Sup
     math::XYZPoint(cl.position().X(), cl.position().Y(), cl.position().Z()),
     cl.seed(), clusters_v, cl.preshowerEnergy());
 
+
   corrCl.setPhiWidth(phiWidth);
   corrCl.setEtaWidth(etaWidth);
   // Return the corrected cluster
@@ -214,13 +215,15 @@ double EgammaSCEnergyCorrectionAlgo::fEtEta(double et, double eta)
 
   double fCorr = 0.;
   
-  double p0 = fEtEta_[0] + fEtEta_[1]/(et + fEtEta_[2]) + fEtEta_[3]/(et*et);
-  double p1 = fEtEta_[4]/(et + fEtEta_[5]) + fEtEta_[6]/(et*et);
+  double p0 = fEtEta_[0] + fEtEta_[1]/(et + fEtEta_[ 2]) + fEtEta_[ 3]/(et*et);
+  double p1 = fEtEta_[4] + fEtEta_[5]/(et + fEtEta_[ 6]) + fEtEta_[ 7]/(et*et);
+  double p2 = fEtEta_[8] + fEtEta_[9]/(et + fEtEta_[10]) + fEtEta_[11]/(et*et);
 
-  fCorr = p0 
-    + fEtEta_[11] * p1*atan(fEtEta_[7]*(fEtEta_[8]-fabs(eta))) 
-    + fEtEta_[9] * fabs(eta)
-    + fEtEta_[12] * p1*(fabs(eta) - fEtEta_[10])*(fabs(eta) - fEtEta_[10]); 
+  fCorr = 
+    p0 + 
+    p1 * atan(fEtEta_[12]*(fEtEta_[13]-fabs(eta))) + fEtEta_[14] * fabs(eta) + 
+    p1 * fEtEta_[15] * fabs(eta) +
+    p2 * fEtEta_[16] * eta * eta; 
  
   if ( fCorr < 0.5 ) fCorr = 0.5;
 
