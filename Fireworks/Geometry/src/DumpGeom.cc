@@ -66,16 +66,17 @@
 
 #include <DetectorDescription/Core/interface/DDFilter.h>
 #include <DetectorDescription/Core/interface/DDFilteredView.h>
-#include "Geometry/MuonNumbering/interface/MuonDDDNumbering.h"
-#include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
-#include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
-#include "Geometry/MuonNumbering/interface/DTNumberingScheme.h"
-#include <Geometry/CSCGeometry/src/CSCWireGroupPackage.h>
-#include "Geometry/MuonNumbering/interface/CSCNumberingScheme.h"
-#include <DataFormats/MuonDetId/interface/CSCDetId.h>
-#include "Geometry/Records/interface/MuonNumberingRecord.h"
 
-#include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
+#include <Geometry/CSCGeometry/interface/CSCGeometry.h>
+#include <Geometry/MuonNumbering/interface/MuonDDDNumbering.h>
+#include <Geometry/MuonNumbering/interface/MuonBaseNumber.h>
+#include <Geometry/MuonNumbering/interface/DTNumberingScheme.h>
+#include <Geometry/MuonNumbering/interface/CSCNumberingScheme.h>
+#include <Geometry/Records/interface/MuonNumberingRecord.h>
+#include <Geometry/RPCGeometry/interface/RPCGeometry.h>
+#include <Geometry/MuonNumbering/interface/RPCNumberingScheme.h>
+
+#include <Geometry/TrackerNumberingBuilder/interface/GeometricDet.h>
 
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
@@ -126,6 +127,8 @@ class DumpGeom : public edm::EDAnalyzer {
 			      const GeometricDet& gd);
       void mapEcalGeometry(const DDCompactView& cview,
 			      const CaloGeometry& cg);
+      void mapRPCGeometry(const DDCompactView& cview,
+			 const MuonDDDConstants& muonConstants);
 
       // ----------member data ---------------------------
       int level_;
@@ -194,7 +197,7 @@ DumpGeom::createShape(const std::string& iName,
    if(0==rSolid) {
    
       const std::vector<double>& params = iSolid.parameters();
-      std::cout <<"  shape "<<iSolid<<std::endl;
+      //      std::cout <<"  shape "<<iSolid<<std::endl;
       switch(iSolid.shape()) {
 	 case ddbox:
 	    rSolid = new TGeoBBox(
@@ -880,6 +883,64 @@ void DumpGeom::mapEcalGeometry(const DDCompactView& cview,
 
 }
 
+void DumpGeom::mapRPCGeometry(const DDCompactView& cview,
+			     const MuonDDDConstants& muonConstants)
+{
+   // filter out everythin but DT muon geometry
+   std::string attribute = "ReadOutName"; 
+   std::string value     = "MuonRPCHits";
+   DDValue val(attribute, value, 0.0);
+
+   // Asking only for the Muon DTs
+   DDSpecificsFilter filter;
+   filter.setCriteria(val,  // name & value of a variable 
+		      DDSpecificsFilter::matches,
+		      DDSpecificsFilter::AND, 
+		      true, // compare strings otherwise doubles
+		      true  // use merged-specifics or simple-specifics
+		      );
+   DDFilteredView fview(cview);
+   fview.addFilter(filter);
+   
+   bool doChamber = fview.firstChild();
+
+   // Loop on low-level "hit" detId so chamber "repeats" but map will be fine (just re-write same info more than once)
+   // so this could be better in sense of faster (but do we care?) if it really was a "do chamber" kind of loop ... 
+   int detid = 0;
+   RPCNumberingScheme rpcnum(muonConstants);
+   MuonDDDNumbering mdddnum(muonConstants);
+   while (doChamber){
+     // Get the Base Muon Number
+     MuonBaseNumber   mbn=mdddnum.geoHistoryToBaseNumber(fview.geoHistory());
+     // Get the The Rpc det Id 
+     detid = 0;
+     detid = rpcnum.baseNumberToUnitNumber(mbn);
+     RPCDetId rpcid(detid);
+     //     RPCDetId chid(rpcid.region(),rpcid.ring(),rpcid.station(),rpcid.sector(),rpcid.layer(),rpcid.subsector(),0);
+     RPCDetId chid(rpcid.region(),rpcid.ring(),rpcid.station(),rpcid.sector(),rpcid.layer(),rpcid.subsector(),0);
+
+      std::stringstream s;
+      s << "/cms:World_1";
+      DDGeoHistory::const_iterator ancestor = fview.geoHistory().begin();
+      ++ancestor; // skip the first ancestor
+      //      ++ancestor; // skip the first TWO ancestors
+      for ( ; ancestor != fview.geoHistory().end() - 1; ++ ancestor )
+	s << "/" << ancestor->logicalPart().name() << "_" << ancestor->copyno();
+      
+      std::string name = s.str();
+      
+      //Chamber level?      unsigned int rawid = chid.rawId();
+      unsigned int rawid = rpcid.rawId();
+
+      //      std::cout << idToName_.size() << " " << "RPC chamber id: " << rawid << " \tname: " << name << std::endl;
+      
+      idToName_[rawid] = name;
+      //      std::cout << " " << idToName_.size() << std::endl;
+      
+      doChamber = fview.nextSibling(); // go to next chamber
+   }
+}
+
 
 // ------------ method called to for each event  ------------
 void
@@ -1060,6 +1121,8 @@ DumpGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    std::cout << "In the DumpGeom::analyze method...done with Tracker" << std::endl;
    mapEcalGeometry(*viewH, *pG);
    std::cout << "In the DumpGeom::analyze method...done with Ecal" << std::endl;
+   mapRPCGeometry(*viewH, *mdc);
+   std::cout << "In the DumpGeom::analyze method...done with RPC" << std::endl;
    
    TCanvas * canvas = new TCanvas( );
    top->Draw("ogle");
