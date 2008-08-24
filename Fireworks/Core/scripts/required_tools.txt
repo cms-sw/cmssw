@@ -1,2 +1,4 @@
 gsl
 boost_program_options
+castor
+dcap
