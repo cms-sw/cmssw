@@ -1,4 +1,4 @@
-#include "CaloOnlineTools/HcalOnlineDb/interface/HcalTPGAnalyzer.h"
+#include "CaloOnlineTools/HcalOnlineDb/interface/HcalLutGenerator.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
@@ -13,21 +13,21 @@ using std::cerr;
 using std::cout;
 using std::endl;
 
-HcalTPGAnalyzer::HcalTPGAnalyzer(const edm::ParameterSet& iConfig)
+HcalLutGenerator::HcalLutGenerator(const edm::ParameterSet& iConfig)
 {
-  cout << " --> HcalTPGAnalyzer::HcalTPGAnalyzer()" << endl;
-
+  cout << " --> HcalLutGenerator::HcalLutGenerator()" << endl;
+  _tag = iConfig.getParameter<string>("tag");
 }
 
-HcalTPGAnalyzer::~HcalTPGAnalyzer()
+HcalLutGenerator::~HcalLutGenerator()
 {
 }
 
 
-void HcalTPGAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+void HcalLutGenerator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   
-  cout << " --> HcalTPGAnalyzer::analyze()" << endl;
+  cout << " --> HcalLutGenerator::analyze()" << endl;
 
   edm::ESHandle<HcalTPGCoder> inputCoder;
   iSetup.get<HcalTPGRecord>().get(inputCoder);
@@ -37,7 +37,7 @@ void HcalTPGAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
   HcalLutManager manager;
   bool split_by_crate = true;
-  string _tag = "CRUZET_part4_physics";
+  //string _tag = "CRUZET_part4_physics";
   manager . createAllLutXmlFilesFromCoder( *inputCoder, _tag, split_by_crate );
 
 
@@ -64,6 +64,6 @@ void HcalTPGAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 }
 
 
-void HcalTPGAnalyzer::endJob() {
+void HcalLutGenerator::endJob() {
 
 }

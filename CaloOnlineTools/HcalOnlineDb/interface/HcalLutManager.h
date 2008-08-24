@@ -50,6 +50,7 @@ class HcalLutManager{
   std::map<int, shared_ptr<LutXml> > getLutXmlFromAsciiMaster( string _filename, string _tag, int _crate = -1, bool split_by_crate = true );
   std::map<int, shared_ptr<LutXml> > getCompressionLutXmlFromAsciiMaster( string _filename, string _tag, int _crate = -1, bool split_by_crate = true );
   std::map<int, shared_ptr<LutXml> > getLinearizationLutXmlFromCoder( const HcalTPGCoder & _coder, string _tag, bool split_by_crate = true );
+  std::map<int, shared_ptr<LutXml> > getLinearizationLutXmlFromCoderEmap( const HcalTPGCoder & _coder, string _tag, bool split_by_crate = true );
   std::map<int, shared_ptr<LutXml> > getCompressionLutXmlFromCoder( string _tag, bool split_by_crate = true );
 
   // add two std::maps with LUTs. Designed mainly for joining compression LUTs to linearization ones.
@@ -63,8 +64,10 @@ class HcalLutManager{
   int createAllLutXmlFiles( string _tag, string _lin_file, string _comp_file, bool split_by_crate = true );
   int createAllLutXmlFilesFromCoder( const HcalTPGCoder & _coder, string _tag, bool split_by_crate = true );
 
-  // tests reading LUTs from a local XML
+  // tests
+  //    reading LUTs from a local XML
   int test_xml_access( string _tag, string _filename );
+  void test_emap(void);
   
   // connect to local XML file with LUTs and local ASCII file with LMAP
   // connection interface through protected members db and lmap

@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Oct 23 14:30:20 CDT 2007
-// $Id: LMap.cc,v 1.3 2008/04/16 13:31:25 kukartse Exp $
+// $Id: LMap.cc,v 1.4 2008/05/18 12:29:56 kukartse Exp $
 //
 
 // system include files
@@ -195,6 +195,8 @@ int EMap::read_map( std::string filename )
       aRow . topbottom .append( fpga );
       
       map . push_back( aRow );
+      //cout << "DEBUG: " << _row << endl;
+      //cout << "DEBUG: " << aRow.ieta << endl;
     }  
   }
   inFile.close();

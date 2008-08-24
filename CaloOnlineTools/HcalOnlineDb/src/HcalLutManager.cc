@@ -16,7 +16,7 @@
 #include "CaloOnlineTools/HcalOnlineDb/interface/HcalQIEManager.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/LMap.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/XMLLUTLoader.h"
-//#include "CaloOnlineTools/HcalOnlineDb/interface/RooGKCounter.h"
+#include "CaloOnlineTools/HcalOnlineDb/interface/RooGKCounter.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
 #include "CalibCalorimetry/CaloTPG/src/CaloTPGTranscoderULUT.h"
@@ -127,6 +127,7 @@ int HcalLutManager_test::getLutSetFromFile_test( string _filename )
     }
     cout << "---> " << j << endl;
   }
+  return 0;
 }
 
 
@@ -214,104 +215,6 @@ HcalLutSet HcalLutManager::getLutSetFromFile( string _filename, int _type )
   return _lutset;
 }
 
-std::map<int, shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXmlFromCoder( const HcalTPGCoder & _coder, string _tag, bool split_by_crate )
-{
-  cout << "Generating linearization (input) LUTs from HcaluLUTTPGCoder..." << endl;
-  map<int, shared_ptr<LutXml> > _xml; // index - crate number
-
-  //EMap _emap("../../../CondFormats/HcalObjects/data/official_emap_v5_080208.txt");
-  //std::vector<EMap::EMapRow> & _map = _emap.get_map();
-  //cout << "EMap contains " << _map . size() << " entries" << endl;
-
-  LMap _lmap;
-  _lmap . read( "backup/HCALmapHBEF.txt", "HBEF" );
-  // HO is not part of trigger, so TPGCoder cannot generate LUTs for it
-  //_lmap . read( "backup/HCALmapHO.txt", "HO" );
-  map<int,LMapRow> & _map = _lmap.get_map();
-  cout << "LMap contains " << _map . size() << " channels" << endl;
-
-  // FIXME: looking for the init file for HcaluLUTTPGCoder in local and global release areas.
-  // FIXME: The coder initialization should not require hardcoded file in future (promised by Greg Landsberg).
-  // FIXME: UPDATE: coder is initialized through EventSetup, so must be provided as a parameter
-  /*
-  string _coder_calib_filename;
-  char * _base = getenv("CMSSW_BASE");
-  string _base_filename(_base);
-  _base_filename.append("/src/CalibCalorimetry/HcalTPGAlgos/data/RecHit-TPG-calib.dat");
-  struct stat buf_;
-  if (stat(_base_filename.c_str(),&buf_)==0){
-    _coder_calib_filename=_base_filename;
-  }
-  else{
-    char * _release_base = getenv("CMSSW_RELEASE_BASE");
-    string _release_base_filename(_release_base);
-    _release_base_filename.append("/src/CalibCalorimetry/HcalTPGAlgos/data/RecHit-TPG-calib.dat");  
-    _coder_calib_filename=_release_base_filename;
-  }
-  HcaluLUTTPGCoder _coder(_coder_calib_filename.c_str(),false);
-  */
-
-  // read LUTs and their eta/phi/depth/subdet ranges
-  //HcalLutSet _set = getLinearizationLutSetFromCoder();
-  //int lut_set_size = _set.lut.size(); // number of different luts
-
-  //loop over all HCAL channels
-  for( map<int,LMapRow>::const_iterator row=_map.begin(); row!=_map.end(); row++ ){
-    LutXml::Config _cfg;
-    
-    if ( _xml.count(row->second.crate) == 0 && split_by_crate ){
-      _xml.insert( pair<int,shared_ptr<LutXml> >(row->second.crate,shared_ptr<LutXml>(new LutXml())) );
-    }
-    else if ( _xml.count(0) == 0 ){
-      _xml.insert( pair<int,shared_ptr<LutXml> >(0,shared_ptr<LutXml>(new LutXml())) );
-    }
-    _cfg.ieta = row->second.side*row->second.eta;
-    _cfg.iphi = row->second.phi;
-    _cfg.depth = row->second.depth;
-    _cfg.crate = row->second.crate;
-    _cfg.slot = row->second.htr;
-    if (row->second.fpga . find("top") != string::npos) _cfg.topbottom = 1;
-    else if (row->second.fpga . find("bot") != string::npos) _cfg.topbottom = 0;
-    else cout << "Warning! fpga out of range..." << endl;
-    // FIXME: probably fixed. fiber==htr_fi, not rm_fi in LMAP notation.
-    //_cfg.fiber = row->second.rm_fi;
-    _cfg.fiber = row->second.htr_fi;
-    _cfg.fiberchan = row->second.fi_ch;
-    _cfg.lut_type = 1;
-    _cfg.creationtag = _tag;
-    _cfg.creationstamp = get_time_stamp( time(0) );
-    _cfg.targetfirmware = "1.0.0";
-    _cfg.formatrevision = "1"; //???
-    // "original" definition of GENERALIZEDINDEX from Mike Weinberger
-    //    int generalizedIndex=id.ietaAbs()+1000*id.depth()+10000*id.iphi()+
-    //        ((id.ieta()<0)?(0):(100))+((id.subdet()==HcalForward && id.ietaAbs()==29)?(4*10000):(0));
-    _cfg.generalizedindex =
-      _cfg.iphi*10000 + _cfg.depth*1000 +
-      (row->second.side>0)*100 + row->second.eta +
-      ((row->second.det==HcalForward && row->second.eta==29)?(4*10000):(0));
-
-    //HcalDetId _detid(row->first);
-    HcalDetId _detid(row->second.det, row->second.side*row->second.eta, row->second.phi, row->second.depth);
-    //cout << "### DEBUG: rawid = " << _detid.rawId() << endl;    
-
-    //cout << "### DEBUG: subdetector = " << row->second.det << endl;    
-    std::vector<unsigned short>  coder_lut = _coder . getLinearizationLUT(_detid);
-    for (std::vector<unsigned short>::const_iterator _i=coder_lut.begin(); _i!=coder_lut.end();_i++){
-      unsigned int _temp = (unsigned int)(*_i);
-      //if (_temp!=0) cout << "DEBUG non-zero LUT!!!!!!!!!!!!!!!" << (*_i) << "     " << _temp << endl;
-      //unsigned int _temp = 0;
-      _cfg.lut.push_back(_temp);
-    }
-    if (split_by_crate ){
-      _xml[row->second.crate]->addLut( _cfg, lut_checksums_xml );  
-    }
-    else{
-      _xml[0]->addLut( _cfg, lut_checksums_xml );  
-    }
-  }
-  cout << "Generating linearization (input) LUTs from HcaluLUTTPGCoder...DONE" << endl;
-  return _xml;
-}
 
 
 std::map<int, shared_ptr<LutXml> > HcalLutManager::getLutXmlFromAsciiMaster( string _filename, string _tag, int _crate, bool split_by_crate )
@@ -395,6 +298,386 @@ std::map<int, shared_ptr<LutXml> > HcalLutManager::getLutXmlFromAsciiMaster( str
 }
 
 
+std::map<int, shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFromAsciiMaster( string _filename, string _tag, int _crate, bool split_by_crate )
+{
+  cout << "Generating compression (output) LUTs from ascii master file..." << endl;
+  map<int, shared_ptr<LutXml> > _xml; // index - crate number
+
+  cout << "instantiating CaloTPGTranscoderULUT in order to check the validity of (ieta,iphi)..." << endl;
+  CaloTPGTranscoderULUT _coder;
+
+  EMap _emap("../../../CondFormats/HcalObjects/data/official_emap_v5_080208.txt");
+  std::vector<EMap::EMapRow> & _map = _emap.get_map();
+  cout << "EMap contains " << _map . size() << " channels" << endl;
+
+  // read LUTs and their eta/phi/depth/subdet ranges
+  HcalLutSet _set = getLutSetFromFile( _filename, 2 );
+  int lut_set_size = _set.lut.size(); // number of different luts
+
+  //loop over all EMap channels
+  for( std::vector<EMap::EMapRow>::const_iterator row=_map.begin(); row!=_map.end(); row++ ){
+    LutXml::Config _cfg;
+
+    // search for the correct LUT for a given channel,
+    // higher LUT numbers have priority in case of overlapping
+    int lut_index=-1;
+    for ( int i=0; i<lut_set_size; i++ ){
+      if ( row->subdet . find("HT") != string::npos &&
+	   (row->crate == _crate || _crate == -1) && // -1 stands for all crates
+	   _set.eta_min[i] <= row->ieta &&
+	   _set.eta_max[i] >= row->ieta &&
+	   _set.phi_min[i] <= row->iphi &&
+	   _set.phi_max[i] >= row->iphi &&
+	   _coder.HTvalid(row->ieta, row->iphi) ){
+	lut_index=i;
+      }
+    }
+    if ( lut_index >= 0 ){
+      if ( _xml.count(row->crate) == 0 && split_by_crate ){
+	_xml.insert( pair<int,shared_ptr<LutXml> >(row->crate,shared_ptr<LutXml>(new LutXml())) );
+      }
+      else if ( _xml.count(0) == 0 ){
+	_xml.insert( pair<int,shared_ptr<LutXml> >(0,shared_ptr<LutXml>(new LutXml())) );
+      }
+      _cfg.ieta = row->ieta;
+      _cfg.iphi = row->iphi;
+      _cfg.depth = row->idepth;
+      _cfg.crate = row->crate;
+      _cfg.slot = row->slot;
+      if (row->topbottom . find("t") != string::npos) _cfg.topbottom = 1;
+      else if (row->topbottom . find("b") != string::npos) _cfg.topbottom = 0;
+      else cout << "Warning! fpga out of range..." << endl;
+      _cfg.fiber = row->fiber;
+      _cfg.fiberchan = row->fiberchan;
+      if (_set.lut[lut_index].size() == 128) _cfg.lut_type = 1;
+      else _cfg.lut_type = 2;
+      _cfg.creationtag = _tag;
+      _cfg.creationstamp = get_time_stamp( time(0) );
+      _cfg.targetfirmware = "1.0.0";
+      _cfg.formatrevision = "1"; //???
+      // "original" definition of GENERALIZEDINDEX from Mike Weinberger
+      //   int generalizedIndex=id.ietaAbs()+10000*id.iphi()+
+      //       ((id.ieta()<0)?(0):(100));
+      _cfg.generalizedindex =
+	_cfg.iphi*10000+
+	(row->ieta>0)*100+abs(row->ieta);
+      _cfg.lut = _set.lut[lut_index];
+      if (split_by_crate ){
+	_xml[row->crate]->addLut( _cfg, lut_checksums_xml );  
+      }
+      else{
+	_xml[0]->addLut( _cfg, lut_checksums_xml );  
+      }
+    }
+  }
+  cout << "Generating compression (output) LUTs from ascii master file...DONE" << endl;
+  return _xml;
+}
+
+
+std::map<int, shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXmlFromCoder( const HcalTPGCoder & _coder, string _tag, bool split_by_crate )
+{
+  cout << "Generating linearization (input) LUTs from HcaluLUTTPGCoder..." << endl;
+  map<int, shared_ptr<LutXml> > _xml; // index - crate number
+
+  //EMap _emap("../../../CondFormats/HcalObjects/data/official_emap_v5_080208.txt");
+  //std::vector<EMap::EMapRow> & _map = _emap.get_map();
+  //cout << "EMap contains " << _map . size() << " entries" << endl;
+
+  LMap _lmap;
+  _lmap . read( "backup/HCALmapHBEF.txt", "HBEF" );
+  // HO is not part of trigger, so TPGCoder cannot generate LUTs for it
+  //_lmap . read( "backup/HCALmapHO.txt", "HO" );
+  map<int,LMapRow> & _map = _lmap.get_map();
+  cout << "LMap contains " << _map . size() << " channels" << endl;
+
+  // FIXME: looking for the init file for HcaluLUTTPGCoder in local and global release areas.
+  // FIXME: The coder initialization should not require hardcoded file in future (promised by Greg Landsberg).
+  // FIXME: UPDATE: coder is initialized through EventSetup, so must be provided as a parameter
+  /*
+  string _coder_calib_filename;
+  char * _base = getenv("CMSSW_BASE");
+  string _base_filename(_base);
+  _base_filename.append("/src/CalibCalorimetry/HcalTPGAlgos/data/RecHit-TPG-calib.dat");
+  struct stat buf_;
+  if (stat(_base_filename.c_str(),&buf_)==0){
+    _coder_calib_filename=_base_filename;
+  }
+  else{
+    char * _release_base = getenv("CMSSW_RELEASE_BASE");
+    string _release_base_filename(_release_base);
+    _release_base_filename.append("/src/CalibCalorimetry/HcalTPGAlgos/data/RecHit-TPG-calib.dat");  
+    _coder_calib_filename=_release_base_filename;
+  }
+  HcaluLUTTPGCoder _coder(_coder_calib_filename.c_str(),false);
+  */
+
+  // read LUTs and their eta/phi/depth/subdet ranges
+  //HcalLutSet _set = getLinearizationLutSetFromCoder();
+  //int lut_set_size = _set.lut.size(); // number of different luts
+
+  //loop over all HCAL channels
+  RooGKCounter _counter;
+  for( map<int,LMapRow>::const_iterator row=_map.begin(); row!=_map.end(); row++ ){
+    _counter.count();
+    LutXml::Config _cfg;
+    
+    if ( _xml.count(row->second.crate) == 0 && split_by_crate ){
+      _xml.insert( pair<int,shared_ptr<LutXml> >(row->second.crate,shared_ptr<LutXml>(new LutXml())) );
+    }
+    else if ( _xml.count(0) == 0 ){
+      _xml.insert( pair<int,shared_ptr<LutXml> >(0,shared_ptr<LutXml>(new LutXml())) );
+    }
+    _cfg.ieta = row->second.side*row->second.eta;
+    _cfg.iphi = row->second.phi;
+    _cfg.depth = row->second.depth;
+    _cfg.crate = row->second.crate;
+    _cfg.slot = row->second.htr;
+    if (row->second.fpga . find("top") != string::npos) _cfg.topbottom = 1;
+    else if (row->second.fpga . find("bot") != string::npos) _cfg.topbottom = 0;
+    else cout << "Warning! fpga out of range..." << endl;
+    // FIXME: probably fixed. fiber==htr_fi, not rm_fi in LMAP notation.
+    //_cfg.fiber = row->second.rm_fi;
+    _cfg.fiber = row->second.htr_fi;
+    _cfg.fiberchan = row->second.fi_ch;
+    _cfg.lut_type = 1;
+    _cfg.creationtag = _tag;
+    _cfg.creationstamp = get_time_stamp( time(0) );
+    _cfg.targetfirmware = "1.0.0";
+    _cfg.formatrevision = "1"; //???
+    // "original" definition of GENERALIZEDINDEX from Mike Weinberger
+    //    int generalizedIndex=id.ietaAbs()+1000*id.depth()+10000*id.iphi()+
+    //        ((id.ieta()<0)?(0):(100))+((id.subdet()==HcalForward && id.ietaAbs()==29)?(4*10000):(0));
+    _cfg.generalizedindex =
+      _cfg.iphi*10000 + _cfg.depth*1000 +
+      (row->second.side>0)*100 + row->second.eta +
+      ((row->second.det==HcalForward && row->second.eta==29)?(4*10000):(0));
+
+    //HcalDetId _detid(row->first);
+    HcalDetId _detid(row->second.det, row->second.side*row->second.eta, row->second.phi, row->second.depth);
+    //cout << "### DEBUG: rawid = " << _detid.rawId() << endl;    
+
+    //cout << "### DEBUG: subdetector = " << row->second.det << endl;    
+    std::vector<unsigned short>  coder_lut = _coder . getLinearizationLUT(_detid);
+    for (std::vector<unsigned short>::const_iterator _i=coder_lut.begin(); _i!=coder_lut.end();_i++){
+      unsigned int _temp = (unsigned int)(*_i);
+      //if (_temp!=0) cout << "DEBUG non-zero LUT!!!!!!!!!!!!!!!" << (*_i) << "     " << _temp << endl;
+      //unsigned int _temp = 0;
+      _cfg.lut.push_back(_temp);
+    }
+    if (split_by_crate ){
+      _xml[row->second.crate]->addLut( _cfg, lut_checksums_xml );  
+    }
+    else{
+      _xml[0]->addLut( _cfg, lut_checksums_xml );  
+    }
+  }
+  cout << "Generated LUTs: " << _counter.getCount() << endl;
+  cout << "Generating linearization (input) LUTs from HcaluLUTTPGCoder...DONE" << endl;
+  return _xml;
+}
+
+
+std::map<int, shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXmlFromCoderEmap( const HcalTPGCoder & _coder, string _tag, bool split_by_crate )
+{
+  cout << "Generating linearization (input) LUTs from HcaluLUTTPGCoder..." << endl;
+  map<int, shared_ptr<LutXml> > _xml; // index - crate number
+
+  EMap _emap("../../../CondFormats/HcalObjects/data/official_emap_v6.03_080817.txt");
+  std::vector<EMap::EMapRow> & _map = _emap.get_map();
+  cout << "EMap contains " << _map . size() << " entries" << endl;
+
+  //LMap _lmap;
+  //_lmap . read( "backup/HCALmapHBEF.txt", "HBEF" );
+  // HO is not part of trigger, so TPGCoder cannot generate LUTs for it
+  //_lmap . read( "backup/HCALmapHO.txt", "HO" );
+  //map<int,LMapRow> & _map = _lmap.get_map();
+  //cout << "LMap contains " << _map . size() << " channels" << endl;
+
+  // FIXME: looking for the init file for HcaluLUTTPGCoder in local and global release areas.
+  // FIXME: The coder initialization should not require hardcoded file in future (promised by Greg Landsberg).
+  // FIXME: UPDATE: coder is initialized through EventSetup, so must be provided as a parameter
+  /*
+  string _coder_calib_filename;
+  char * _base = getenv("CMSSW_BASE");
+  string _base_filename(_base);
+  _base_filename.append("/src/CalibCalorimetry/HcalTPGAlgos/data/RecHit-TPG-calib.dat");
+  struct stat buf_;
+  if (stat(_base_filename.c_str(),&buf_)==0){
+    _coder_calib_filename=_base_filename;
+  }
+  else{
+    char * _release_base = getenv("CMSSW_RELEASE_BASE");
+    string _release_base_filename(_release_base);
+    _release_base_filename.append("/src/CalibCalorimetry/HcalTPGAlgos/data/RecHit-TPG-calib.dat");  
+    _coder_calib_filename=_release_base_filename;
+  }
+  HcaluLUTTPGCoder _coder(_coder_calib_filename.c_str(),false);
+  */
+
+  // read LUTs and their eta/phi/depth/subdet ranges
+  //HcalLutSet _set = getLinearizationLutSetFromCoder();
+  //int lut_set_size = _set.lut.size(); // number of different luts
+
+  RooGKCounter _counter;
+  //loop over all HCAL channels
+  //for( map<int,LMapRow>::const_iterator row=_map.begin(); row!=_map.end(); row++ ){
+  //loop over all EMap channels
+  for( std::vector<EMap::EMapRow>::const_iterator row=_map.begin(); row!=_map.end(); row++ ){
+    if( (row->subdet.find("HB")!=string::npos ||
+	 row->subdet.find("HE")!=string::npos ||
+	 row->subdet.find("HF")!=string::npos ) &&
+	row->subdet.size()==2
+       ){
+      _counter.count();
+      LutXml::Config _cfg;
+      
+      if ( _xml.count(row->crate) == 0 && split_by_crate ){
+	_xml.insert( pair<int,shared_ptr<LutXml> >(row->crate,shared_ptr<LutXml>(new LutXml())) );
+      }
+      else if ( _xml.count(0) == 0 ){
+	_xml.insert( pair<int,shared_ptr<LutXml> >(0,shared_ptr<LutXml>(new LutXml())) );
+      }
+      _cfg.ieta = row->ieta;
+      _cfg.iphi = row->iphi;
+      _cfg.depth = row->idepth;
+      _cfg.crate = row->crate;
+      _cfg.slot = row->slot;
+      if (row->topbottom . find("t") != string::npos) _cfg.topbottom = 1;
+      else if (row->topbottom . find("b") != string::npos) _cfg.topbottom = 0;
+      else cout << "Warning! fpga out of range..." << endl;
+      // FIXME: probably fixed. fiber==htr_fi, not rm_fi in LMAP notation.
+      //_cfg.fiber = row->second.rm_fi;
+      _cfg.fiber = row->fiber;
+      _cfg.fiberchan = row->fiberchan;
+      _cfg.lut_type = 1;
+      _cfg.creationtag = _tag;
+      _cfg.creationstamp = get_time_stamp( time(0) );
+      _cfg.targetfirmware = "1.0.0";
+      _cfg.formatrevision = "1"; //???
+      // "original" definition of GENERALIZEDINDEX from Mike Weinberger
+      //    int generalizedIndex=id.ietaAbs()+1000*id.depth()+10000*id.iphi()+
+      //        ((id.ieta()<0)?(0):(100))+((id.subdet()==HcalForward && id.ietaAbs()==29)?(4*10000):(0));
+      _cfg.generalizedindex =
+	_cfg.iphi*10000 + _cfg.depth*1000 +
+	(row->ieta>0)*100 + abs(row->ieta) +
+	(((row->subdet.find("HF")!=string::npos) && abs(row->ieta)==29)?(4*10000):(0));
+      
+      //HcalDetId _detid(row->first);
+      HcalSubdetector _subdet;
+      if ( row->subdet.find("HB")!=string::npos ) _subdet = HcalBarrel;
+      else if ( row->subdet.find("HE")!=string::npos ) _subdet = HcalEndcap;
+      else if ( row->subdet.find("HO")!=string::npos ) _subdet = HcalOuter;
+      else if ( row->subdet.find("HF")!=string::npos ) _subdet = HcalForward;
+      else _subdet = HcalOther;
+      HcalDetId _detid(_subdet, row->ieta, row->iphi, row->idepth);
+      cout << "### DEBUG: rawid = " << _detid.rawId() << ", " << _subdet << endl;    
+      
+      cout << "### DEBUG: subdetector = " << row->subdet << endl;    
+      std::vector<unsigned short>  coder_lut = _coder . getLinearizationLUT(_detid);
+      for (std::vector<unsigned short>::const_iterator _i=coder_lut.begin(); _i!=coder_lut.end();_i++){
+	unsigned int _temp = (unsigned int)(*_i);
+	//if (_temp!=0) cout << "DEBUG non-zero LUT!!!!!!!!!!!!!!!" << (*_i) << "     " << _temp << endl;
+	//unsigned int _temp = 0;
+	_cfg.lut.push_back(_temp);
+      }
+      if (split_by_crate ){
+	_xml[row->crate]->addLut( _cfg, lut_checksums_xml );  
+      }
+      else{
+	_xml[0]->addLut( _cfg, lut_checksums_xml );  
+      }
+    }
+  }
+  cout << "Generated LUTs: " << _counter.getCount() << endl;
+  cout << "Generating linearization (input) LUTs from HcaluLUTTPGCoder...DONE" << endl;
+  return _xml;
+}
+
+
+
+std::map<int, shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFromCoder( string _tag, bool split_by_crate )
+{
+  cout << "Generating compression (output) LUTs from CaloTPGTranscoderULUT" << endl;
+  map<int, shared_ptr<LutXml> > _xml; // index - crate number
+
+  //EMap _emap("../../../CondFormats/HcalObjects/data/official_emap_v5_080208.txt");
+  EMap _emap("../../../CondFormats/HcalObjects/data/official_emap_v6.03_080817.txt");
+
+  std::vector<EMap::EMapRow> & _map = _emap.get_map();
+  cout << "EMap contains " << _map . size() << " channels" << endl;
+
+  // read LUTs and their eta/phi/depth/subdet ranges
+  //HcalLutSet _set = getLutSetFromFile( _filename, 2 );
+  //int lut_set_size = _set.lut.size(); // number of different luts
+
+  CaloTPGTranscoderULUT _coder;
+
+  //loop over all EMap channels
+  RooGKCounter _counter;
+  for( std::vector<EMap::EMapRow>::const_iterator row=_map.begin(); row!=_map.end(); row++ ){
+    LutXml::Config _cfg;
+
+    // only trigger tower channels
+    // and valid (ieta,iphi)
+    if ( row->subdet . find("HT") != string::npos && _coder.HTvalid(row->ieta, row->iphi) ){
+      _counter.count();
+      if ( _xml.count(row->crate) == 0 && split_by_crate ){
+	_xml.insert( pair<int,shared_ptr<LutXml> >(row->crate,shared_ptr<LutXml>(new LutXml())) );
+      }
+      else if ( _xml.count(0) == 0 ){
+	_xml.insert( pair<int,shared_ptr<LutXml> >(0,shared_ptr<LutXml>(new LutXml())) );
+      }
+      _cfg.ieta = row->ieta;
+      _cfg.iphi = row->iphi;
+      _cfg.depth = row->idepth;
+      _cfg.crate = row->crate;
+      _cfg.slot = row->slot;
+      if (row->topbottom . find("t") != string::npos) _cfg.topbottom = 1;
+      else if (row->topbottom . find("b") != string::npos) _cfg.topbottom = 0;
+      else cout << "Warning! fpga out of range..." << endl;
+      _cfg.fiber = row->fiber;
+      _cfg.fiberchan = row->fiberchan;
+      _cfg.lut_type = 2;
+      _cfg.creationtag = _tag;
+      _cfg.creationstamp = get_time_stamp( time(0) );
+      _cfg.targetfirmware = "1.0.0";
+      _cfg.formatrevision = "1"; //???
+      // "original" definition of GENERALIZEDINDEX from Mike Weinberger
+      //   int generalizedIndex=id.ietaAbs()+10000*id.iphi()+
+      //       ((id.ieta()<0)?(0):(100));
+      _cfg.generalizedindex =
+	_cfg.iphi*10000+
+	(row->ieta>0)*100+abs(row->ieta);
+      
+      // FIXME: work around bug in emap v6: rawId wasn't filled
+      //HcalTrigTowerDetId _detid(row->rawId);
+      HcalTrigTowerDetId _detid(row->ieta, row->iphi);
+      
+      std::vector<unsigned char> coder_lut = _coder.getCompressionLUT(_detid);
+      for (std::vector<unsigned char>::const_iterator _i=coder_lut.begin(); _i!=coder_lut.end();_i++){
+	unsigned int _temp = (unsigned int)(*_i);
+	//if (_temp!=0) cout << "DEBUG non-zero LUT!!!!!!!!!!!!!!!" << (*_i) << "     " << _temp << endl;
+	//unsigned int _temp = 0;
+	_cfg.lut.push_back(_temp);
+      }
+      //_cfg.lut = _set.lut[lut_index];
+      
+      if (split_by_crate ){
+	_xml[row->crate]->addLut( _cfg, lut_checksums_xml );  
+      }
+      else{
+	_xml[0]->addLut( _cfg, lut_checksums_xml );  
+      }
+    }
+  }
+  cout << "LUTs generated: " << _counter.getCount() << endl;
+  cout << "Generating compression (output) LUTs from CaloTPGTranscoderULUT...DONE" << endl;
+  return _xml;
+}
+
+
+
 int HcalLutManager::writeLutXmlFiles( std::map<int, shared_ptr<LutXml> > & _xml, string _tag, bool split_by_crate )
 {
   for (map<int,shared_ptr<LutXml> >::const_iterator cr = _xml.begin(); cr != _xml.end(); cr++){
@@ -442,7 +725,8 @@ int HcalLutManager::createAllLutXmlFilesFromCoder( const HcalTPGCoder & _coder, 
     lut_checksums_xml = new XMLDOMBlock( "CFGBrick", 1 );
   }
   
-  addLutMap( xml, getLinearizationLutXmlFromCoder( _coder, _tag, split_by_crate ) );
+  //addLutMap( xml, getLinearizationLutXmlFromCoder( _coder, _tag, split_by_crate ) );
+  addLutMap( xml, getLinearizationLutXmlFromCoderEmap( _coder, _tag, split_by_crate ) );
   addLutMap( xml, getCompressionLutXmlFromCoder( _tag, split_by_crate ) );
 
   writeLutXmlFiles( xml, _tag, split_by_crate );
@@ -467,155 +751,6 @@ void HcalLutManager::addLutMap(std::map<int, shared_ptr<LutXml> > & result, cons
   }
 }
 
-
-std::map<int, shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFromAsciiMaster( string _filename, string _tag, int _crate, bool split_by_crate )
-{
-  cout << "Generating compression (output) LUTs from ascii master file..." << endl;
-  map<int, shared_ptr<LutXml> > _xml; // index - crate number
-
-  EMap _emap("../../../CondFormats/HcalObjects/data/official_emap_v5_080208.txt");
-  std::vector<EMap::EMapRow> & _map = _emap.get_map();
-  cout << "EMap contains " << _map . size() << " channels" << endl;
-
-  // read LUTs and their eta/phi/depth/subdet ranges
-  HcalLutSet _set = getLutSetFromFile( _filename, 2 );
-  int lut_set_size = _set.lut.size(); // number of different luts
-
-  //loop over all EMap channels
-  for( std::vector<EMap::EMapRow>::const_iterator row=_map.begin(); row!=_map.end(); row++ ){
-    LutXml::Config _cfg;
-
-    // search for the correct LUT for a given channel,
-    // higher LUT numbers have priority in case of overlapping
-    int lut_index=-1;
-    for ( int i=0; i<lut_set_size; i++ ){
-      if ( row->subdet . find("HT") != string::npos &&
-	   (row->crate == _crate || _crate == -1) && // -1 stands for all crates
-	   _set.eta_min[i] <= row->ieta &&
-	   _set.eta_max[i] >= row->ieta &&
-	   _set.phi_min[i] <= row->iphi &&
-	   _set.phi_max[i] >= row->iphi ){
-	lut_index=i;
-      }
-    }
-    if ( lut_index >= 0 ){
-      if ( _xml.count(row->crate) == 0 && split_by_crate ){
-	_xml.insert( pair<int,shared_ptr<LutXml> >(row->crate,shared_ptr<LutXml>(new LutXml())) );
-      }
-      else if ( _xml.count(0) == 0 ){
-	_xml.insert( pair<int,shared_ptr<LutXml> >(0,shared_ptr<LutXml>(new LutXml())) );
-      }
-      _cfg.ieta = row->ieta;
-      _cfg.iphi = row->iphi;
-      _cfg.depth = row->idepth;
-      _cfg.crate = row->crate;
-      _cfg.slot = row->slot;
-      if (row->topbottom . find("t") != string::npos) _cfg.topbottom = 1;
-      else if (row->topbottom . find("b") != string::npos) _cfg.topbottom = 0;
-      else cout << "Warning! fpga out of range..." << endl;
-      _cfg.fiber = row->fiber;
-      _cfg.fiberchan = row->fiberchan;
-      if (_set.lut[lut_index].size() == 128) _cfg.lut_type = 1;
-      else _cfg.lut_type = 2;
-      _cfg.creationtag = _tag;
-      _cfg.creationstamp = get_time_stamp( time(0) );
-      _cfg.targetfirmware = "1.0.0";
-      _cfg.formatrevision = "1"; //???
-      // "original" definition of GENERALIZEDINDEX from Mike Weinberger
-      //   int generalizedIndex=id.ietaAbs()+10000*id.iphi()+
-      //       ((id.ieta()<0)?(0):(100));
-      _cfg.generalizedindex =
-	_cfg.iphi*10000+
-	(row->ieta>0)*100+abs(row->ieta);
-      _cfg.lut = _set.lut[lut_index];
-      if (split_by_crate ){
-	_xml[row->crate]->addLut( _cfg, lut_checksums_xml );  
-      }
-      else{
-	_xml[0]->addLut( _cfg, lut_checksums_xml );  
-      }
-    }
-  }
-  cout << "Generating compression (output) LUTs from ascii master file...DONE" << endl;
-  return _xml;
-}
-
-
-std::map<int, shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFromCoder( string _tag, bool split_by_crate )
-{
-  cout << "Generating compression (output) LUTs from CaloTPGTranscoderULUT" << endl;
-  map<int, shared_ptr<LutXml> > _xml; // index - crate number
-
-  //EMap _emap("../../../CondFormats/HcalObjects/data/official_emap_v5_080208.txt");
-  EMap _emap("../../../CondFormats/HcalObjects/data/official_emap_v6.03_080817.txt");
-
-  std::vector<EMap::EMapRow> & _map = _emap.get_map();
-  cout << "EMap contains " << _map . size() << " channels" << endl;
-
-  // read LUTs and their eta/phi/depth/subdet ranges
-  //HcalLutSet _set = getLutSetFromFile( _filename, 2 );
-  //int lut_set_size = _set.lut.size(); // number of different luts
-
-  CaloTPGTranscoderULUT _coder;
-
-  //loop over all EMap channels
-  for( std::vector<EMap::EMapRow>::const_iterator row=_map.begin(); row!=_map.end(); row++ ){
-    LutXml::Config _cfg;
-
-    // only trigger tower channels
-    if ( row->subdet . find("HT") != string::npos ) break;
-
-    if ( _xml.count(row->crate) == 0 && split_by_crate ){
-      _xml.insert( pair<int,shared_ptr<LutXml> >(row->crate,shared_ptr<LutXml>(new LutXml())) );
-    }
-    else if ( _xml.count(0) == 0 ){
-      _xml.insert( pair<int,shared_ptr<LutXml> >(0,shared_ptr<LutXml>(new LutXml())) );
-    }
-    _cfg.ieta = row->ieta;
-    _cfg.iphi = row->iphi;
-    _cfg.depth = row->idepth;
-    _cfg.crate = row->crate;
-    _cfg.slot = row->slot;
-    if (row->topbottom . find("t") != string::npos) _cfg.topbottom = 1;
-    else if (row->topbottom . find("b") != string::npos) _cfg.topbottom = 0;
-    else cout << "Warning! fpga out of range..." << endl;
-    _cfg.fiber = row->fiber;
-    _cfg.fiberchan = row->fiberchan;
-    _cfg.lut_type = 2;
-    _cfg.creationtag = _tag;
-    _cfg.creationstamp = get_time_stamp( time(0) );
-    _cfg.targetfirmware = "1.0.0";
-    _cfg.formatrevision = "1"; //???
-    // "original" definition of GENERALIZEDINDEX from Mike Weinberger
-    //   int generalizedIndex=id.ietaAbs()+10000*id.iphi()+
-    //       ((id.ieta()<0)?(0):(100));
-    _cfg.generalizedindex =
-      _cfg.iphi*10000+
-      (row->ieta>0)*100+abs(row->ieta);
-
-    // FIXME: work around bug in emap v6: rawId wasn't filled
-    //HcalTrigTowerDetId _detid(row->rawId);
-    HcalTrigTowerDetId _detid(row->ieta, row->iphi);
-
-    std::vector<unsigned char> coder_lut = _coder.getCompressionLUT(_detid);
-    for (std::vector<unsigned char>::const_iterator _i=coder_lut.begin(); _i!=coder_lut.end();_i++){
-      unsigned int _temp = (unsigned int)(*_i);
-      //if (_temp!=0) cout << "DEBUG non-zero LUT!!!!!!!!!!!!!!!" << (*_i) << "     " << _temp << endl;
-      //unsigned int _temp = 0;
-      _cfg.lut.push_back(_temp);
-    }
-    //_cfg.lut = _set.lut[lut_index];
-
-    if (split_by_crate ){
-      _xml[row->crate]->addLut( _cfg, lut_checksums_xml );  
-    }
-    else{
-      _xml[0]->addLut( _cfg, lut_checksums_xml );  
-    }
-  }
-  cout << "Generating compression (output) LUTs from CaloTPGTranscoderULUT...DONE" << endl;
-  return _xml;
-}
 
 
 
@@ -792,7 +927,7 @@ std::map<int, shared_ptr<LutXml> > HcalLutManager::get_brickSet_from_oracle( std
 
   cout << "Preparing to request the LUT CLOBs from the database..." << endl;
 
-  int crate = 0;
+  //int crate = 0;
 
   std::string query = ("SELECT TRIG_PRIM_LOOKUPTBL_DATA_CLOB, CRATE FROM CMS_HCL_HCAL_CONDITION_OWNER.V_HCAL_TRIG_LOOKUP_TABLES");
   //query+=toolbox::toString(" WHERE TAG_NAME='%s' AND CRATE=%d", tag.c_str(), crate);
@@ -903,3 +1038,24 @@ int HcalLutManager::create_lut_loader( string file_list, string _prefix, string 
   return 0;
 }
 
+void HcalLutManager::test_emap( void ){
+  //EMap _emap("../../../CondFormats/HcalObjects/data/official_emap_v5_080208.txt");
+  EMap _emap("../../../CondFormats/HcalObjects/data/official_emap_v6.03_080817.txt");
+  std::vector<EMap::EMapRow> & _map = _emap.get_map();
+  cout << "EMap contains " << _map . size() << " channels" << endl;
+  
+  //loop over all EMap channels
+  //RooGKCounter _c;
+  for( std::vector<EMap::EMapRow>::const_iterator row=_map.begin(); row!=_map.end(); row++ ){
+    
+    // only trigger tower channels
+    if ( row->subdet . find("HT") != string::npos ){
+      cout << " -----> Subdet = " << row->subdet << endl;
+      
+      if (abs(row->ieta)>28){
+	//if (row->iphi == 71){
+	cout << " ==> (ieta,iphi) = " << row->ieta << ",	" << row->iphi << endl;
+      }
+    }
+  }
+}

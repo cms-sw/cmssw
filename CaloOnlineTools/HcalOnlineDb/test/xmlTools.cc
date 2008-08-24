@@ -141,8 +141,11 @@ int main( int argc, char **argv )
       cout << "Testing emap stuff..." << "\n";
       string _accessor = vm["test-emap"].as<string>();
       cout << "Electronic map accessor string: " << _accessor << "\n";
-      EMap_test test;
-      test . test_read_map( _accessor );
+      //EMap_test test;
+      //test . test_read_map( _accessor );
+      //
+      HcalLutManager _m;
+      _m . test_emap();
       return 0;
     }
     
