@@ -277,6 +277,14 @@ L1TDEMON::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<L1DataEmulRecord> deRecord;
   iEvent.getByLabel(DEsource_, deRecord);
   
+  if (!deRecord.isValid()) {
+    edm::LogInfo("DataNotFound") 
+      << "Cannot find L1DataEmulRecord with label "
+      << gmtSource_.label() 
+      << " Please verrify that comparator was successfully executed."
+      return;
+  }
+
   bool deMatch[DEnsys];
   deRecord->get_status(deMatch);  
   if(verbose()) {
