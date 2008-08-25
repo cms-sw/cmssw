@@ -70,7 +70,7 @@
      <MonElement name="ROCNmbr"></MonElement> 
      <MonElement name="TBMMessage"></MonElement> 
      <MonElement name="ndigis">         </MonElement> 
-     <MonElement name="ndigis_FREQ">         </MonElement> 
+     <MonElement name="ndigisFREQ">         </MonElement> 
      <MonElement name="adc">            </MonElement> 
      <MonElement name="nclusters"></MonElement>
      <MonElement name="y">	</MonElement>
@@ -129,7 +129,7 @@
      <MonElement name="ROCNmbr"></MonElement> 
      <MonElement name="TBMMessage"></MonElement> 
      <MonElement name="ndigis">         </MonElement> 
-     <MonElement name="ndigis_FREQ">         </MonElement> 
+     <MonElement name="ndigisFREQ">         </MonElement> 
      <MonElement name="adc">            </MonElement> 
      <MonElement name="nclusters"></MonElement>
      <MonElement name="y">	</MonElement>

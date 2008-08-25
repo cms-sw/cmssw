@@ -250,11 +250,11 @@ void SiPixelActionExecutor::fillBarrelSummary(DQMStore* bei,
 	MonitorElement* temp = getSummaryME(bei, tag);
         sum_mes.push_back(temp);
         if((*iv)=="ndigis"){
-	  tag = prefix + "_" + (*iv) + "_FREQ_" 
+	  tag = prefix + "_" + (*iv) + "FREQ_" 
                                 + currDir.substr(currDir.find(dir_name));
+          temp = getSummaryME(bei, tag);
+          sum_mes.push_back(temp);
 	}
-        temp = getSummaryME(bei, tag);
-        sum_mes.push_back(temp);
       }
     }
     if (sum_mes.size() == 0) {
@@ -279,6 +279,7 @@ void SiPixelActionExecutor::fillBarrelSummary(DQMStore* bei,
           string sname = ((*isum)->getName());
 	  string tname = " ";
           tname = sname.substr(7,(sname.find("_",7)-6));
+	  if(tname.find("FREQ")!=string::npos) tname = "ndigis_";
 	  if (((*im)).find(tname) == 0) {
 	    string fullpathname = bei->pwd() + "/" + (*im); 
 
@@ -293,7 +294,7 @@ void SiPixelActionExecutor::fillBarrelSummary(DQMStore* bei,
 		float nall = me->getEntries();
 	        (*isum)->Fill(ndet, nlast/nall);
               }else if (sname.find("_NCalibErrors_")!=string::npos ||
-	                sname.find("_FREQ_")!=string::npos){
+	                sname.find("FREQ_")!=string::npos){
 		float nall = me->getEntries();
 		(*isum)->Fill(ndet, nall);
 	      }else{
@@ -308,7 +309,7 @@ void SiPixelActionExecutor::fillBarrelSummary(DQMStore* bei,
                 title = "FracOfPerfectPix " + sname.substr(7,(sname.find("_",7)-7)) + " per module"; 
 	      }else if(sname.find("_NCalibErrors_")!=string::npos){
 		title = "Number of CalibErrors " + sname.substr(7,(sname.find("_",7)-7)) + " per module"; 
-              }else if (sname.find("_FREQ_")!=string::npos){
+              }else if (sname.find("FREQ_")!=string::npos){
 		title = "NEvents with digis per module"; 
               }else{
 	        if(prefix=="SUMOFF") title = "Mean " + sname.substr(7,(sname.find("_",7)-7)) + " per Ladder"; 
@@ -406,15 +407,14 @@ void SiPixelActionExecutor::fillEndcapSummary(DQMStore* bei,
         sum_mes.push_back(temp);
       }else{
         string tag = prefix + "_" + (*iv) + "_" + currDir.substr(currDir.find(dir_name));
-//	cout<<"In : "<<bei->pwd()<<" , tag = "<<tag<<endl;
 	MonitorElement* temp = getSummaryME(bei, tag);
         sum_mes.push_back(temp);
         if((*iv)=="ndigis"){
-	  tag = prefix + "_" + (*iv) + "_FREQ_" 
+	  tag = prefix + "_" + (*iv) + "FREQ_" 
                                 + currDir.substr(currDir.find(dir_name));
+          temp = getSummaryME(bei, tag);
+          sum_mes.push_back(temp);
 	}
-        temp = getSummaryME(bei, tag);
-        sum_mes.push_back(temp);
       }
     }
     if (sum_mes.size() == 0) {
@@ -438,9 +438,9 @@ void SiPixelActionExecutor::fillEndcapSummary(DQMStore* bei,
           string sname = ((*isum)->getName());
 	  string tname = " ";
           tname = sname.substr(7,(sname.find("_",7)-6));
+	  if(tname.find("FREQ")!=string::npos) tname = "ndigis_";
 	  if (((*im)).find(tname) == 0) {
 	    string fullpathname = bei->pwd() + "/" + (*im); 
-
 	    MonitorElement *  me = bei->get(fullpathname);
 	    
 	    if (me){ 
@@ -451,7 +451,7 @@ void SiPixelActionExecutor::fillEndcapSummary(DQMStore* bei,
 		float nall = me->getEntries();
 	        (*isum)->Fill(ndet, nlast/nall);
               }else if (sname.find("_NCalibErrors_")!=string::npos ||
-	                sname.find("_FREQ_")!=string::npos){
+	                sname.find("FREQ_")!=string::npos){
 		float nall = me->getEntries();
 		(*isum)->Fill(ndet, nall);
 	      }else{
@@ -466,7 +466,7 @@ void SiPixelActionExecutor::fillEndcapSummary(DQMStore* bei,
                 title = "FracOfPerfectPix " + sname.substr(7,(sname.find("_",7)-7)) + " per module"; 
               }else if (sname.find("_NCalibErrors_")!=string::npos){
 		title = "NCalibErrors " + sname.substr(7,(sname.find("_",7)-7)) + " per module"; 
-              }else if (sname.find("_FREQ_")!=string::npos){
+              }else if (sname.find("FREQ_")!=string::npos){
 		title = "NEvents with digis per module"; 
 	      }else{
                 if(prefix=="SUMOFF") title = "Mean " + sname.substr(7,(sname.find("_",7)-7)) + " per Blade"; 
@@ -671,7 +671,7 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DQMStore* bei,
 	   (*iv)=="TBMMessage"||(*iv)=="Type36Hitmap") 
 	    prefix="SUMRAW";
 	  else if((*iv)=="ndigis"||(*iv)=="adc" ||
-	     (*iv)=="ndigis_FREQ")
+	     (*iv)=="ndigisFREQ")
 	    prefix="SUMDIG";
 	  else if((*iv)=="nclusters"||(*iv)=="x"||(*iv)=="y"||(*iv)=="charge"||
 	     (*iv)=="size"||(*iv)=="sizeX"||(*iv)=="sizeY"||(*iv)=="minrow"||
@@ -755,9 +755,9 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DQMStore* bei,
                  }
 	       }
 	       for (int k = 1; k < nbin_subdir+1; k++) {
-		  if((*igm)->getName().find("ndigis_FREQ")==string::npos){  
+		  if((*igm)->getName().find("ndigisFREQ")==string::npos){  
 		    (*igm)->setBinContent(k+nbin_i, me->getBinContent(k));
-		  }else if(me->getName().find("ndigis_FREQ")!=string::npos){
+		  }else if(me->getName().find("ndigisFREQ")!=string::npos){
 		    (*igm)->setBinContent(k+nbin_i, me->getBinContent(k));
 		  }
 	       }
@@ -796,7 +796,6 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore* bei,
        it != subdirs.end(); it++) {
     cnt++;
     bei->cd(*it);
-    //if(bei->pwd()=="Pixel/Endcap/HalfCylinder_mI/Disk_1/Blade_01")cout<<"I am in "<<bei->pwd()<<" now!"<<endl;
     vector<string> contents = bei->getMEs();
    
     bei->goUp();
@@ -821,7 +820,7 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore* bei,
 	   (*iv)=="TBMMessage"||(*iv)=="Type36Hitmap") 
 	    prefix="SUMRAW";
 	  else if((*iv)=="ndigis"||(*iv)=="adc" ||
-	     (*iv)=="ndigis_FREQ")
+	     (*iv)=="ndigisFREQ")
 	    prefix="SUMDIG";
 	  else if((*iv)=="nclusters"||(*iv)=="x"||(*iv)=="y"||(*iv)=="charge"||
 	     (*iv)=="size"||(*iv)=="sizeX"||(*iv)=="sizeY"||(*iv)=="minrow"||
@@ -845,22 +844,17 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore* bei,
 	    prefix="SUMCAL"; 
         }
 	string var = "_" + (*iv) + "_";
-	//if(bei->pwd()=="Pixel/Endcap/HalfCylinder_mI/Disk_1/Blade_01")cout<<"prefix is "<<prefix<<" , and var is "<<var<<" , looking in "<<(*im)<<endl;
 	if ((*im).find(var) != string::npos) {
 	   string full_path = (*it) + "/" +(*im);
 
 	   MonitorElement * me = bei->get(full_path.c_str());
 	   
 	   if (!me) continue; 
-	   //if((*it)=="Pixel/Endcap/HalfCylinder_mI/Disk_1/Blade_01/Panel_2") cout<<"PANEL"<<endl;
 	   int actual_size = gsum_mes.size();
 	   int wanted_size = me_names.size();
-	   //cout<<"Found the ME and have "<<actual_size<<" , "<<wanted_size<<endl;
-	   //if (dir_name=="Endcap") wanted_size = wanted_size * 2.;
            if (actual_size !=  wanted_size) {
 	     nbin = me->getTH1F()->GetNbinsX();        
              string me_name = prefix + "_" + (*iv) + "_" + dir_name;
-	     //cout<<"nbin for ME "<<me_name<<" is "<<nbin<<endl;
              if(prefix=="SUMOFF" && dir_name=="Endcap") nbin=96;
              else if(dir_name=="Endcap") nbin=672;
 	     else if(prefix=="SUMOFF" && dir_name.find("HalfCylinder")!=string::npos) nbin=24;
@@ -870,22 +864,16 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore* bei,
 	     else if(dir_name.find("Blade")!=string::npos) nbin=7;
 	     else if(dir_name.find("Panel_1")!=string::npos) nbin=4;
 	     else if(dir_name.find("Panel_2")!=string::npos) nbin=3;
-	     //cout<<"now: me_name="<<me_name<<" , nbins="<<nbin<<" , creating histogram now!"<<endl;
 	     getGrandSummaryME(bei, nbin, me_name, gsum_mes);
-	     //if (dir_name.find("Endcap")!=string::npos){
-	     //  bei->goUp(); 
-	     //  getGrandSummaryME(bei, nbin, me_name, gsum_mes);
-	     //  bei->cd("Endcap");
-	     //}
 	   }
 	   for (vector<MonitorElement*>::const_iterator igm = gsum_mes.begin();
-		igm != gsum_mes.end(); igm++) {
+		igm != gsum_mes.end(); igm++) { 
              if ((*igm)->getName().find(var) != string::npos) {
                if(prefix=="SUMOFF") (*igm)->setAxisTitle("Blades",1);
                else (*igm)->setAxisTitle("Modules",1);
                string title="";
                if(prefix=="SUMOFF") title = "mean " + (*iv) + " per Blade"; 
-               else if((*igm)->getName().find("_FREQ_") != string::npos) title = "NEvents with digis per Module"; 
+               else if((*igm)->getName().find("FREQ_") != string::npos) title = "NEvents with digis per Module"; 
                else title = "mean " + (*iv) + " per Module"; 
 	       (*igm)->setAxisTitle(title,2);
 	       nbin_i=0; 
@@ -920,13 +908,8 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore* bei,
                  }
 	       }
 	       for (int k = 1; k < nbin_subdir+1; k++) {
-	         //if((*igm)->getName()=="SUMDIG_ndigis_FREQ_Blade_01" &&
-		     //me->getName()=="SUMDIG_ndigis_FREQ_Panel_2" &&
-		   //  bei->pwd().find("HalfCylinder_mI/Disk_1/Blade_01")!=string::npos 
-		    //)cout<<"HERE: "<<(*igm)->getName()<<","<<k<<","<<k+nbin_i<<","<<me->getBinContent(k)<<endl;
-		  if((*igm)->getName().find("ndigis_FREQ")==string::npos){  
-		    (*igm)->setBinContent(k+nbin_i, me->getBinContent(k));
-		  }else if(me->getName().find("ndigis_FREQ")!=string::npos){
+		  if(((*igm)->getName().find("ndigisFREQ")==string::npos && me->getName().find("ndigisFREQ")==string::npos) ||
+		     ((*igm)->getName().find("ndigisFREQ")!=string::npos && me->getName().find("ndigisFREQ")!=string::npos)){  
 		    (*igm)->setBinContent(k+nbin_i, me->getBinContent(k));
 		  }
 	       }
@@ -934,9 +917,9 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore* bei,
            }
 	}
       }
-    }
+    } 
     iDir++;
-  }
+  } 
 }
 //=============================================================================================================
 //
