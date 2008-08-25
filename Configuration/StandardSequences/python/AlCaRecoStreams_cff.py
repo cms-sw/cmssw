@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# last update: $Date: 2008/08/25 11:34:31 $ by $Author: futyand $
+# last update: $Date: 2008/08/25 12:45:31 $ by $Author: futyand $
 
 # AlCaReco sequence definitions:
 
@@ -39,8 +39,6 @@ from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalHO_cff import *
 from Alignment.CommonAlignmentProducer.ALCARECOMuAlStandAloneCosmics_cff import *
 from Alignment.CommonAlignmentProducer.ALCARECOMuAlGlobalCosmics_cff import *
 from Alignment.CommonAlignmentProducer.ALCARECOMuAlZeroFieldGlobalCosmics_cff import *
-# Muon calibration with minbias
-from Alignment.CommonAlignmentProducer.ALCARECOMuCaliMinBias_cff import *
 # Muon Alignment with isolated muons
 from Alignment.CommonAlignmentProducer.ALCARECOMuAlCalIsolatedMu_cff import *
 # Muon Alignment using CSC overlaps
@@ -70,7 +68,6 @@ pathALCARECOEcalCalElectron = cms.Path(seqALCARECOEcalCalElectron)
 pathALCARECOHcalCalDijets = cms.Path(seqALCARECOHcalCalDijets)
 pathALCARECOHcalCalGammaJet = cms.Path(seqALCARECOHcalCalGammaJet)
 pathALCARECOHcalCalHO = cms.Path(seqALCARECOHcalCalHO)
-pathALCARECOMuCaliMinBias = cms.Path(seqALCARECOMuCaliMinBias)
 pathALCARECOMuAlCalIsolatedMu = cms.Path(seqALCARECOMuAlCalIsolatedMu)
 pathALCARECOMuAlOverlaps = cms.Path(seqALCARECOMuAlOverlaps)
 pathALCARECORpcCalHLT = cms.Path(seqALCARECORpcCalHLT)
@@ -81,15 +78,15 @@ pathALCARECOTkAlLAS = cms.Path(seqALCARECOTkAlLAS)
 pathALCARECOTkAlCosmicsCTF = cms.Path(seqALCARECOTkAlCosmicsCTF)
 pathALCARECOTkAlCosmicsCosmicTF = cms.Path(seqALCARECOTkAlCosmicsCosmicTF)
 pathALCARECOTkAlCosmicsRS = cms.Path(seqALCARECOTkAlCosmicsRS)
-pathALCARECOTkAlCosmicsCTF0T = cms.Path(seqALCARECOTkAlCosmicsCTF0T)
-pathALCARECOTkAlCosmicsCosmicTF0T = cms.Path(seqALCARECOTkAlCosmicsCosmicTF0T)
-pathALCARECOTkAlCosmicsRS0T = cms.Path(seqALCARECOTkAlCosmicsRS0T) 
+pathALCARECOTkAlCosmicsCTF0T = cms.Path(seqALCARECOTkAlCosmicsCTF0T*ALCARECOTkAlCosmicsCTF0TDQM)
+pathALCARECOTkAlCosmicsCosmicTF0T = cms.Path(seqALCARECOTkAlCosmicsCosmicTF0T*ALCARECOTkAlCosmicsCosmicTF0TDQM)
+pathALCARECOTkAlCosmicsRS0T = cms.Path(seqALCARECOTkAlCosmicsRS0T*ALCARECOTkAlCosmicsRS0TDQM)
 pathALCARECOTkAlCosmicsCTFHLT = cms.Path(seqALCARECOTkAlCosmicsCTFHLT)
 pathALCARECOTkAlCosmicsCosmicTFHLT = cms.Path(seqALCARECOTkAlCosmicsCosmicTFHLT)
 pathALCARECOTkAlCosmicsRSHLT = cms.Path(seqALCARECOTkAlCosmicsRSHLT)
-pathALCARECOTkAlCosmicsCTF0THLT = cms.Path(seqALCARECOTkAlCosmicsCTF0THLT)
-pathALCARECOTkAlCosmicsCosmicTF0THLT = cms.Path(seqALCARECOTkAlCosmicsCosmicTF0THLT)
-pathALCARECOTkAlCosmicsRS0THLT = cms.Path(seqALCARECOTkAlCosmicsRS0THLT)
+pathALCARECOTkAlCosmicsCTF0THLT = cms.Path(seqALCARECOTkAlCosmicsCTF0THLT*ALCARECOTkAlCosmicsCTF0TDQM)
+pathALCARECOTkAlCosmicsCosmicTF0THLT = cms.Path(seqALCARECOTkAlCosmicsCosmicTF0THLT*ALCARECOTkAlCosmicsCosmicTF0TDQM)
+pathALCARECOTkAlCosmicsRS0THLT = cms.Path(seqALCARECOTkAlCosmicsRS0THLT*ALCARECOTkAlCosmicsRS0TDQM)
 pathALCARECOMuAlStandAloneCosmics = cms.Path(seqALCARECOMuAlStandAloneCosmics)
 pathALCARECOMuAlGlobalCosmics = cms.Path(seqALCARECOMuAlGlobalCosmics)
 pathALCARECOMuAlZeroFieldGlobalCosmics = cms.Path(seqALCARECOMuAlZeroFieldGlobalCosmics)
@@ -196,15 +193,6 @@ ALCARECOStreamHcalCalHO = cms.FilteredStream(
 	paths  = (pathALCARECOHcalCalHO),
 	content = OutALCARECOHcalCalHO.outputCommands,
 	selectEvents = OutALCARECOHcalCalHO.SelectEvents,
-	dataTier = cms.untracked.string('ALCARECO')
-	)
-
-ALCARECOStreamMuCaliMinBias = cms.FilteredStream(
-	responsible = 'Jim Pivarski',
-	name = 'ALCARECOMuCaliMinBias',
-	paths  = (pathALCARECOMuCaliMinBias),
-	content = OutALCARECOMuCaliMinBias.outputCommands,
-	selectEvents = OutALCARECOMuCaliMinBias.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
