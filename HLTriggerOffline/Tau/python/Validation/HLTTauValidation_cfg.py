@@ -37,6 +37,9 @@ process.DQMStore = cms.Service("DQMStore")
 #Load the Validation
 process.load("HLTriggerOffline.Tau.Validation.HLTTauValidation_cff")
 
+process.p = cms.Path(process.HLTTauVal)
+
+
 #Uncomment to save root output
 #process.DoubleTauPathVal.OutputFileName = cms.untracked.string('test.root')
 

@@ -33,7 +33,7 @@ L1TauVal = cms.EDAnalyzer("HLTTauL1DQMOfflineSource",
     RefMuonMaxAbsEta = cms.double(2.5),
 
     TriggerTag = cms.string("HLT/HLTTAU/L1"),
-    OutputFileName = cms.string("")
+    OutputFileName = cms.string('')
 )
 
 
