@@ -1,8 +1,8 @@
 /**
  *  See header file for a description of this class.
  *
- *  $Date: 2007/11/09 02:04:11 $
- *  $Revision: 1.22 $
+ *  $Date: 2008/03/13 19:39:41 $
+ *  $Revision: 1.23 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author porting  R. Bellan
  *
@@ -23,7 +23,9 @@ typedef MuonTransientTrackingRecHit::MuonRecHitPointer MuonRecHitPointer;
 typedef MuonTransientTrackingRecHit::ConstMuonRecHitPointer ConstMuonRecHitPointer;
 typedef MuonTransientTrackingRecHit::MuonRecHitContainer MuonRecHitContainer;
 
-MuonSeedFinder::MuonSeedFinder(){
+MuonSeedFinder::MuonSeedFinder(const edm::ParameterSet & pset):
+  thePtExtractor(pset)
+{
   
   // FIXME put it in a pSet
   // theMinMomentum = pset.getParameter<double>("EndCapSeedMinPt");  //3.0
@@ -39,6 +41,7 @@ vector<TrajectorySeed> MuonSeedFinder::seeds(const edm::EventSetup& eSetup) cons
   vector<TrajectorySeed> theSeeds;
 
   MuonDTSeedFromRecHits barrel(eSetup);
+  barrel.setPtExtractor(&thePtExtractor);
   MuonOverlapSeedFromRecHits overlap(eSetup);
 
   int num_bar = 0;
