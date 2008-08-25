@@ -13,7 +13,7 @@ using namespace std;
 using namespace reco;
 
                    
-  void trajectoryRawHits(const edm::Ref<std::vector<Trajectory> >& trajectory, vector<RawHits>& hits)
+  void trajectoryRawHits(const edm::Ref<std::vector<Trajectory> >& trajectory, vector<RawHits>& hits, bool usePixel, bool useStrip)
   {
 
     //    vector<RawHits> hits;
@@ -24,16 +24,15 @@ using namespace reco;
       //FIXME: check that "updated" State is the best one (wrt state in the middle) 
       TrajectoryStateOnSurface trajState=it->updatedState();
       if( !trajState.isValid()) continue;
-
-
      
       const TrackingRecHit * recHit=(*it->recHit()).hit();
 
        LocalVector trackDirection = trajState.localDirection();
        double cosine = trackDirection.z()/trackDirection.mag();
-      
-       if(const SiStripMatchedRecHit2D* matchedHit=dynamic_cast<const SiStripMatchedRecHit2D*>(recHit))
-	 {
+              
+       if(const SiStripMatchedRecHit2D* matchedHit=dynamic_cast<const SiStripMatchedRecHit2D*>(recHit)){
+	   if(!useStrip) continue;
+
 	   RawHits mono,stereo; 
 	   mono.trajectoryMeasurement = &(*it);
 	   stereo.trajectoryMeasurement = &(*it);
@@ -51,48 +50,46 @@ using namespace reco;
 	   hits.push_back(mono);
 	   hits.push_back(stereo);
 
-	 } 
-       else {
-	 if(const ProjectedSiStripRecHit2D* projectedHit=dynamic_cast<const ProjectedSiStripRecHit2D*>(recHit))
-	   {
-	     const SiStripRecHit2D* singleHit=&(projectedHit->originalHit());
-	     RawHits mono;
+        }else if(const ProjectedSiStripRecHit2D* projectedHit=dynamic_cast<const ProjectedSiStripRecHit2D*>(recHit)) {
+           if(!useStrip) continue;
 
-	     mono.trajectoryMeasurement = &(*it);
+           const SiStripRecHit2D* singleHit=&(projectedHit->originalHit());
+           RawHits mono;
 
-	     mono.angleCosine = cosine; 
-	     const std::vector<uint8_t> & amplitudes = singleHit->cluster()->amplitudes();
-	     mono.charge = accumulate(amplitudes.begin(), amplitudes.end(), 0);
-	     mono.detId= singleHit->geographicalId();
-	     hits.push_back(mono);
+           mono.trajectoryMeasurement = &(*it);
+
+           mono.angleCosine = cosine; 
+           const std::vector<uint8_t> & amplitudes = singleHit->cluster()->amplitudes();
+           mono.charge = accumulate(amplitudes.begin(), amplitudes.end(), 0);
+           mono.detId= singleHit->geographicalId();
+           hits.push_back(mono);
       
-	   }
-	 else 
-	   if(const SiStripRecHit2D* singleHit=dynamic_cast<const SiStripRecHit2D*>(recHit))
-	     {
-	       RawHits mono;
+        }else if(const SiStripRecHit2D* singleHit=dynamic_cast<const SiStripRecHit2D*>(recHit)){
+           if(!useStrip) continue;
+
+           RawHits mono;
 	       
-	       mono.trajectoryMeasurement = &(*it);
+           mono.trajectoryMeasurement = &(*it);
 
-	       mono.angleCosine = cosine; 
-	       const std::vector<uint8_t> & amplitudes = singleHit->cluster()->amplitudes();
-	       mono.charge = accumulate(amplitudes.begin(), amplitudes.end(), 0);
-	       mono.detId= singleHit->geographicalId();
-	       hits.push_back(mono);
+           mono.angleCosine = cosine; 
+           const std::vector<uint8_t> & amplitudes = singleHit->cluster()->amplitudes();
+           mono.charge = accumulate(amplitudes.begin(), amplitudes.end(), 0);
+           mono.detId= singleHit->geographicalId();
+           hits.push_back(mono);
       
-	     }
-	   else  if(const SiPixelRecHit* pixelHit=dynamic_cast<const SiPixelRecHit*>(recHit))
-	     {
-	       RawHits pixel;
+        }else if(const SiPixelRecHit* pixelHit=dynamic_cast<const SiPixelRecHit*>(recHit)){
+           if(!usePixel) continue;
 
-	       pixel.trajectoryMeasurement = &(*it);
+           RawHits pixel;
 
-	       pixel.angleCosine = cosine; 
-	       pixel.charge = pixelHit->cluster()->charge();;
-	       pixel.detId= pixelHit->geographicalId();
-	       hits.push_back(pixel);
-	     }
+           pixel.trajectoryMeasurement = &(*it);
+
+           pixel.angleCosine = cosine; 
+           pixel.charge = pixelHit->cluster()->charge();;
+           pixel.detId= pixelHit->geographicalId();
+           hits.push_back(pixel);
        }
+       
     }
     // return hits;
   }

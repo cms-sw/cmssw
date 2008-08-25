@@ -309,7 +309,7 @@ DeDxDiscriminatorProducer::ComputeChargeOverPath(const SiStripRecHit2D* sistrips
    stModInfo* MOD                      = MODsColl[DetId];
 
 
-   if(!IsFarFromBorder(trajState,DetId, iSetup)){printf("tooCloseFromBorder\n");return -1;}
+   if(!IsFarFromBorder(trajState,DetId, iSetup)){/*printf("tooCloseFromBorder\n");*/return -1;}
 
 
    if(FirstStrip==0                                  )Overlaping=true;
@@ -338,7 +338,7 @@ DeDxDiscriminatorProducer::ComputeChargeOverPath(const SiStripRecHit2D* sistrips
    double path                    = (10.0*MOD->Thickness)/fabs(cosine);
    double ClusterChargeOverPath   = (double)Charge / path ;
 
-   if(Ampls.size()>MaxNrStrips)      {printf("tooMuchStrips\n");return -1;}
+   if(Ampls.size()>MaxNrStrips)      {/*printf("tooMuchStrips\n");*/return -1;}
 //   if(!DiscriminatorMode && Saturation && !AllowSaturation){printf("Saturation\n");return -1;}
 
    if(!DiscriminatorMode){

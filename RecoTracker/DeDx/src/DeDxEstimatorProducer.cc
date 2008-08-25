@@ -15,7 +15,7 @@
 //         Created:  Thu May 31 14:09:02 CEST 2007
 //    Code Updates:  loic Quertenmont (querten)
 //         Created:  Thu May 10 14:09:02 CEST 2008
-// $Id: DeDxEstimatorProducer.cc,v 1.16 2008/07/09 15:08:59 gbruno Exp $
+// $Id: DeDxEstimatorProducer.cc,v 1.17 2008/08/06 06:12:53 querten Exp $
 //
 //
 
@@ -102,7 +102,7 @@ void DeDxEstimatorProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 
      DeDxHitCollection dedxHits;
      vector<DeDxTools::RawHits> hits; 
-     DeDxTools::trajectoryRawHits(traj, hits);
+     DeDxTools::trajectoryRawHits(traj, hits, usePixel, useStrip);
   
      for(size_t i=0; i < hits.size(); i++)
      {
