@@ -1,6 +1,11 @@
-// $Id: HLTScalersClient.cc,v 1.1 2008/08/22 20:56:57 wittich Exp $
+// $Id: HLTScalersClient.cc,v 1.2 2008/08/24 16:34:56 wittich Exp $
 // 
 // $Log: HLTScalersClient.cc,v $
+// Revision 1.2  2008/08/24 16:34:56  wittich
+// - rate calculation cleanups
+// - fix error logging with LogDebug
+// - report the actual lumi segment number that we think it might be
+//
 // Revision 1.1  2008/08/22 20:56:57  wittich
 // - add client for HLT Scalers
 // - Move rate calculation to HLTScalersClient and slim down the
@@ -14,6 +19,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
+
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -80,7 +86,6 @@ void HLTScalersClient::endRun(const edm::Run& run, const edm::EventSetup& c)
 void HLTScalersClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
 			const edm::EventSetup& c)
 {
-  std::cout << "--------------> in endLumiBlock" << std::endl;
   nLumi_ = lumiSeg.id().luminosityBlock();
   MonitorElement *scalers = dbe_->get("HLT/HLTScalers/hltScalers");
   if ( scalers == 0 ) {
@@ -90,13 +95,11 @@ void HLTScalersClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 
   int npaths = scalers->getNbinsX();
   if ( npaths > MAX_PATHS ) npaths = MAX_PATHS; // HARD CODE FOR NOW
-  std::cout << "--------------> in endLumiBlock 2 " 
-	    << nLumi_
-	    << std::endl;
 
   MonitorElement *nLumi = dbe_->get("HLT/HLTScalers/nLumiBlocks");
+  int testval = (nLumi!=0?nLumi->getIntValue():-1);
   LogDebug("Parameter") << "Lumi Block from DQM: "
-			<< (nLumi!=0?nLumi->getIntValue():-1)
+			<< testval
 			<< ", local is " << nLumi_;
   int nL = (nLumi!=0?nLumi->getIntValue():nLumi_);
   if ( nL > MAX_LUMI_SEG ) {
