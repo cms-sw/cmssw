@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# last update: $Date: 2008/08/14 08:28:12 $ by $Author: futyand $
+# last update: $Date: 2008/08/25 11:34:31 $ by $Author: futyand $
 
 # AlCaReco sequence definitions:
 
@@ -99,8 +99,6 @@ pathALCARECOMuAlZeroFieldGlobalCosmics = cms.Path(seqALCARECOMuAlZeroFieldGlobal
 from Configuration.EventContent.AlCaRecoOutput_cff import *
 
 # AlCaReco stream definitions:
-
-cms.FilteredStream = FilteredStream
 
 ALCARECOStreamTkAlMinBias = cms.FilteredStream(
 	responsible = 'Gero Flucke',
