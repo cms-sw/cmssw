@@ -25,46 +25,23 @@
 std::map<std::string, MonitorElement*> RPCEfficiencyFromTrack::bookDetUnitTrackEff(RPCDetId & detId, const edm::EventSetup & iSetup) {
   
   std::map<std::string, MonitorElement*> meMap;
-  std::string regionName;
-  
-
-  std::string ringType;
-  int ring;
-  if(detId.region() == 0) {
-    ringType = "Wheel";  
-    ring = detId.ring();
-  }else if (detId.region() == -1){  
-    ringType =  "Disk";
-    ring = detId.region()*detId.station();
-  }else {
-    ringType =  "Disk";
-    ring = detId.station();
-  }
-
-
-  if (detId.region()!=0) ring = ring*detId.region();
-
-
-  if(detId.region()==0){
-    regionName = "Barrel";
-  }else if (detId.region()==1){
-    regionName = "Endcap+";
-  }else{
-    regionName = "Endcap-";
-  }
-
 
   char  folder[120];
-  sprintf(folder,"RPC/EfficiencyFromTrack/%s/%s_%d/station_%d/sector_%d",regionName.c_str(),ringType.c_str(),
-	  ring,detId.station(),detId.sector());
+  if(detId.region() ==  0)
+  sprintf(folder,"RPC/EfficiencyFromTrack/Barrel/Wheel_%d/station_%d/sector_%d",
+	  detId.ring(),detId.station(),detId.sector());
+  else if(detId.region() == -1) 
+  sprintf(folder,"RPC/EfficiencyFromTrack/Endcap-/Disk_%d/station_%d/sector_%d",
+	  detId.station(),detId.ring(),detId.sector());
+  else if(detId.region() ==  1) 
+  sprintf(folder,"RPC/EfficiencyFromTrack/Endcap+/Disk_%d/station_%d/sector_%d",
+	  detId.station(),detId.ring(),detId.sector());
+  else  std::cout <<"Region "<<detId.region()<< "not found!!! --- ERROR"<<std::endl;
 
   dbe->setCurrentFolder(folder);
 
 
   int strips = 0; double lastvalue = 0.;
-
-
-
 
   edm::ESHandle<RPCGeometry> rpcgeo;
   iSetup.get<MuonGeometryRecord>().get(rpcgeo);
