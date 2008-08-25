@@ -7,7 +7,7 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.load("Configuration.StandardSequences.FakeConditions_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryIdeal_cff")
 process.load("RecoBTag.Analysis.bTagAnalysis_cfi")
 
 process.load("SimTracker.TrackHistory.JetVetoedTracksAssociator_cfi")

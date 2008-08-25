@@ -1,8 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("MCCand")
-process.load("PhysicsTools.HepMCCandAlgos.genParticles_cfi")
 
+process.load("Configuration.StandardSequences.FakeConditions_cff")
+process.load("Configuration.StandardSequences.GeometryIdeal_cff")
+process.load("PhysicsTools.HepMCCandAlgos.genParticles_cfi")
 process.load("SimTracker.TrackHistory.GenTrackMatcher_cfi")
 
 process.maxEvents = cms.untracked.PSet(
