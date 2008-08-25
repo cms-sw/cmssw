@@ -365,12 +365,12 @@ void AnalyseBNL(char element[2], char list[10], char ene[6], char part[4]="p", c
 	    double pt = ((*px)[k])*((*px)[k])+((*pz)[k])*((*pz)[k]);
 	    double pp = (pt+pl*pl);
 	    double mt = sqrt (pt + massp*massp);
-	    double mtp= (mt - massp)/1000.;
+	    double mtp= (mt - std::abs(massp))/1000.;
 	    double ee = sqrt(pp+massp*massp);
 	    double yv = 0.5*log((ee+pl)/(ee-pl));
 	    pp        = sqrt (pp);
 	    double cth= (pp == 0. ? -2. : (pl/pp));
-	    double wt = (mt == 0. ?  0. : (1000.*ee/(2.*mt*(ee+pl))));
+	    double wt = (mt == 0. ?  0. : (1000./mt));
 	    if (ninter <10) std::cout << "Entry " << i << " Secondary " << k << " yv " << yv << " mtp " << mtp << " WT " << wt << "\n";
 	    hiK0->Fill(mtp);
 	    hiC0->Fill(cth);
@@ -444,7 +444,7 @@ void AnalyseBNL(char element[2], char list[10], char ene[6], char part[4]="p", c
       std::cout << "Bin " << ii << " yv " << yv << " Bin " << xbin << " Scale " << scale << " " << title << "\n";
       sprintf (title, "Reduced Transverse mass of %s (GeV)", fpart.c_str());
       hiKE2[ii]->GetXaxis()->SetTitle(title);
-      sprintf (title, "Events (scaled by #frac{E}{2(E+pl)mT})/%6.3f GeV",xbin);
+      sprintf (title, "Events (scaled by #frac{1}{mT})/%6.3f GeV",xbin);
       hiKE2[ii]->GetYaxis()->SetTitle(title);
       sprintf (name, "KE0%s%s%sGeVy%4.2f", element, list, ene, yv);
       hiKE0[ii] = (TH1F*)hiKE2[ii]->Clone();
@@ -490,6 +490,7 @@ double rhoL(char element[2]) {
   else if (element == "Cd")  tmp = 8.630 * 30.;
   else if (element == "Sn")  tmp = 7.310 * 35.;
   else if (element == "Ta")  tmp = 16.65 * 20.;
+  else if (element == "Au")  tmp = 18.85 * 20.;
   else if (element == "Pb")  tmp = 11.35 * 30.;
   else if (element == "U")   tmp = 18.95 * 20.;
   return tmp;
@@ -509,6 +510,7 @@ double atomicWt(char element[2]) {
   else if (element == "Cd")  tmp = 112.41;
   else if (element == "Sn")  tmp = 118.69;
   else if (element == "Ta")  tmp = 180.9479;
+  else if (element == "Au")  tmp = 196.97;
   else if (element == "Pb")  tmp = 207.19;
   else if (element == "U")   tmp = 238.03;
   return tmp;

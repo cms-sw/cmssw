@@ -5,7 +5,7 @@ process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 
 process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
 
-process.load("SimG4Core.CheckSecondary.AlTarget_cfi")
+process.load("SimG4Core.CheckSecondary.AuTarget_cfi")
 
 process.load("SimG4Core.Application.g4SimHits_cfi")
 
@@ -82,7 +82,7 @@ process.g4SimHits.Physics = cms.PSet(
 )
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     CheckSecondary = cms.PSet(
-        SaveInFile    = cms.untracked.string('AlBertini14.6GeV.root'),
+        SaveInFile    = cms.untracked.string('AuBertini14.6GeV.root'),
         Verbosity     = cms.untracked.int32(0),
         MinimumDeltaE = cms.untracked.double(0.0),
         KillAfter     = cms.untracked.int32(1)

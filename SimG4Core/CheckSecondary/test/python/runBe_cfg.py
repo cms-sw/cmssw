@@ -10,21 +10,21 @@ process.load("SimG4Core.CheckSecondary.BeTarget_cfi")
 process.load("SimG4Core.Application.g4SimHits_cfi")
 
 process.MessageLogger = cms.Service("MessageLogger",
+    destinations = cms.untracked.vstring('cout'),
+    categories = cms.untracked.vstring('SimG4CoreGeometry', 
+                                       'CheckSecondary'),
     cout = cms.untracked.PSet(
         threshold = cms.untracked.string('INFO'),
         default = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
+            limit = cms.untracked.int32(-1)
         ),
         CheckSecondary = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
+            limit = cms.untracked.int32(0)
         ),
         SimG4CoreGeometry = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
+            limit = cms.untracked.int32(0)
         )
-    ),
-    categories = cms.untracked.vstring('SimG4CoreGeometry', 
-        'CheckSecondary'),
-    destinations = cms.untracked.vstring('cout')
+    )
 )
 
 process.maxEvents = cms.untracked.PSet(
@@ -33,12 +33,12 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("FlatRandomEGunSource",
     PGunParameters = cms.untracked.PSet(
         PartID = cms.untracked.vint32(2212),
-        MaxEta = cms.untracked.double(0.0),
-        MaxPhi = cms.untracked.double(1.57079632679),
         MinEta = cms.untracked.double(0.0),
-        MinE = cms.untracked.double(7.5585),
+        MaxEta = cms.untracked.double(0.0),
         MinPhi = cms.untracked.double(1.57079632679),
-        MaxE = cms.untracked.double(7.5585)
+        MaxPhi = cms.untracked.double(1.57079632679),
+        MinE = cms.untracked.double(14.63),
+        MaxE = cms.untracked.double(14.63)
     ),
     Verbosity = cms.untracked.int32(0)
 )
@@ -59,33 +59,33 @@ process.VtxSmeared.SigmaY = 0.00001
 process.VtxSmeared.SigmaZ = 0.00001
 process.g4SimHits.UseMagneticField = False
 process.g4SimHits.Physics = cms.PSet(
-    GFlash          = cms.PSet(
-      GflashHistogram = cms.bool(False),
-      GflashEMShowerModel = cms.bool(False),
-      GflashHadronPhysics = cms.string('QGSP_BERT_EMV'),
+    GFlash           = cms.PSet(
+      GflashHistogram         = cms.bool(False),
+      GflashEMShowerModel     = cms.bool(False),
+      GflashHadronPhysics     = cms.string('QGSP_BERT_EMV'),
       GflashHadronShowerModel = cms.bool(False)
     ),
-    G4BremsstrahlungThreshold = cms.double(0.5),
+    type            = cms.string('SimG4Core/Physics/CMSModel'),
     DefaultCutValue = cms.double(1.0),
     CutsPerRegion   = cms.bool(True),
+    DummyEMPhysics  = cms.bool(False),
+    G4BremsstrahlungThreshold = cms.double(0.5),
     Verbosity       = cms.untracked.int32(0),
+    Model           = cms.untracked.string('Bertini'),
     EMPhysics       = cms.untracked.bool(False),
     HadPhysics      = cms.untracked.bool(True),
     QuasiElastic    = cms.untracked.bool(True),
     FlagBERT        = cms.untracked.bool(False),
     FlagCHIPS       = cms.untracked.bool(False),
     FlagFTF         = cms.untracked.bool(False),
-    FlagGlauber     = cms.untracked.bool(False),
-    Model           = cms.untracked.string('Bertini'),
-    type            = cms.string('SimG4Core/Physics/QGSP_BERT'),
-    DummyEMPhysics  = cms.bool(False)
+    FlagGlauber     = cms.untracked.bool(False)
 )
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     CheckSecondary = cms.PSet(
-        SaveInFile = cms.untracked.string('BeQGSP_BERT7.5GeV.root'),
-        Verbosity = cms.untracked.int32(0),
+        SaveInFile    = cms.untracked.string('BeBertini14.6GeV.root'),
+        Verbosity     = cms.untracked.int32(0),
         MinimumDeltaE = cms.untracked.double(0.0),
-        KillAfter = cms.untracked.int32(1)
+        KillAfter     = cms.untracked.int32(1)
     ),
     type = cms.string('CheckSecondary')
 ), 
