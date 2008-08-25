@@ -1,6 +1,6 @@
 /*
- *  $Date: 2008/08/19 12:37:31 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/05/05 20:05:09 $
+ *  $Revision: 1.5 $
  *  
  *  Filip Moorgat & Hector Naves 
  *  26/10/05
@@ -133,7 +133,7 @@ PythiaProducer::PythiaProducer( const ParameterSet & pset) :
   fCOMEnergy(pset.getParameter<double>("comEnergy")),
   pythiaPylistVerbosity_ (pset.getUntrackedParameter<int>("pythiaPylistVerbosity",0)),
   pythiaHepMCVerbosity_ (pset.getUntrackedParameter<bool>("pythiaHepMCVerbosity",false)),
-  fakeLeptonOption_ (pset.getUntrackedParameter<int>("fakeLeptonOption",0)),
+  imposeProperTimes_ (pset.getUntrackedParameter<bool>("imposeProperTimes",false)),
   maxEventsToPrint_ (pset.getUntrackedParameter<int>("maxEventsToPrint",1)),
   extCrossSect(pset.getUntrackedParameter<double>("crossSection", -1.)),
   extFilterEff(pset.getUntrackedParameter<double>("filterEfficiency", -1.)),
@@ -497,8 +497,14 @@ void PythiaProducer::produce(Event & e, const EventSetup& es) {
     
     evt->weights().push_back( pyint1.vint[96] );
 
-    if (fakeLeptonOption_==1) {
+    if (imposeProperTimes_) {
       int dumm;
+      double radmin = -1.;
+      double zmin = -1.;
+      if (pydat1.mstj[21]==4) {
+            radmin = pydat1.parj[72]; 
+            zmin = pydat1.parj[73]; 
+      }
       HepMC::GenEvent::vertex_const_iterator vbegin = evt->vertices_begin();
       HepMC::GenEvent::vertex_const_iterator vend = evt->vertices_end();
       HepMC::GenEvent::vertex_const_iterator vitr = vbegin;
@@ -510,50 +516,30 @@ void PythiaProducer::produce(Event & e, const EventSetup& es) {
                   if ((*pitr)->end_vertex()) continue;
                   if ((*pitr)->status()!=1) continue;
                   int pdgcode= abs((*pitr)->pdg_id());
-                  if (pdgcode!=211 && pdgcode!=321 && pdgcode!=130 ) continue;
+                  if (pdgcode!=211 && pdgcode!=321 && pdgcode!=130) continue;
                   double ctau = pydat2.pmas[3][PYCOMP(pdgcode)-1];
-                  double unif_rand = pyr_(&dumm);
-                  // Value of 0 is excluded, so log(unif_rand) should be OK
-                  double proper_length = - ctau * log(unif_rand);
                   HepMC::FourVector mom = (*pitr)->momentum();
-                  double factor = proper_length/mom.m();
                   HepMC::FourVector vin = (*vitr)->position();
-                  double x = vin.x() + factor * mom.px();
-                  double y = vin.y() + factor * mom.py();
-                  double z = vin.z() + factor * mom.pz();
-                  double t = vin.t() + factor * mom.e();
+                  double x = 0.;
+                  double y = 0.;
+                  double z = 0.;
+                  double t = 0.;
+                  bool decayOutsideCylinder = false;
+                  while (decayOutsideCylinder==false) {
+                        double unif_rand = pyr_(&dumm);
+                        // Value of 0 is excluded, so following line is OK
+                        double proper_length = - ctau * log(unif_rand);
+                        double factor = proper_length/mom.m();
+                        x = vin.x() + factor * mom.px();
+                        y = vin.y() + factor * mom.py();
+                        z = vin.z() + factor * mom.pz();
+                        t = vin.t() + factor * mom.e();
+                        if (sqrt(x*x+y*y)>radmin || abs(z)>zmin) decayOutsideCylinder = true;
+                  }
+                  
                   HepMC::GenVertex* vdec = new HepMC::GenVertex(HepMC::FourVector(x,y,z,t));
                   evt->add_vertex(vdec);
                   vdec->add_particle_in((*pitr));
-            }
-      }
-    } else if (fakeLeptonOption_==2) {
-      HepMC::GenEvent::vertex_const_iterator vitr = evt->vertices_begin();
-      HepMC::GenEvent::vertex_const_iterator vend = evt->vertices_end();
-      for (; vitr != vend; ++vitr) {
-            double x = (*vitr)->position().x();
-            double y = (*vitr)->position().y();
-            double z = (*vitr)->position().z();
-            double r = sqrt(x*x+y*y);
-            if (r<rMaxFakes_ && abs(z)<zMaxFakes_) continue;
-            HepMC::GenVertex::particles_in_const_iterator pbegin = (*vitr)->particles_in_const_begin();
-            HepMC::GenVertex::particles_in_const_iterator pend = (*vitr)->particles_in_const_end();
-            HepMC::GenVertex::particles_in_const_iterator pitr = pbegin;
-            bool is_meson = false;
-            for (; pitr != pend; ++pitr) {
-                  if ((*pitr)->status()!=2) continue;
-                  int pdgcode= abs((*pitr)->pdg_id());
-                  if (pdgcode!=211 && pdgcode!=321 && pdgcode!=130 ) continue;
-                  is_meson = true; break;
-            }
-            if (is_meson) {
-                  HepMC::GenVertex::particles_out_const_iterator qitr = (*vitr)->particles_out_const_begin();
-                  HepMC::GenVertex::particles_out_const_iterator qend = (*vitr)->particles_out_const_end();
-                  for (; qitr != qend; ++qitr) {
-                        HepMC::GenParticle* qp = (*vitr)->remove_particle((*qitr));
-                        HepMC::GenVertex* qv = qp->end_vertex();
-                        if (qv) evt->remove_vertex(qv);
-                  }
             }
       }
     }
