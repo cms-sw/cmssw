@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Tue Jun 10 14:56:46 EDT 2008
-// $Id: CmsShowNavigator.cc,v 1.13 2008/08/18 06:23:30 dmytro Exp $
+// $Id: CmsShowNavigator.cc,v 1.14 2008/08/20 21:02:54 chrjones Exp $
 //
 
 // hacks
@@ -23,7 +23,7 @@
 #include "TEventList.h"
 #include "TError.h"
 #include "TGTextEntry.h"
-
+#include "TGNumberEntry.h"
 // user include files
 #include "Fireworks/Core/interface/CmsShowNavigator.h"
 #include "Fireworks/Core/interface/CSGAction.h"
@@ -192,9 +192,10 @@ CmsShowNavigator::firstEvent()
 }
 
 void
-CmsShowNavigator::goToRun(Double_t run)
+CmsShowNavigator::goToRun(CSGAction* action)
 {
-   Int_t entry = realEntry(static_cast<UInt_t>(run), 0);
+   Long_t run = action->getNumberEntry()->GetIntNumber();
+   Int_t entry = realEntry(run, 0);
    if ( entry < 0 ) {
       oldEvent.emit(*m_event);
       return;
@@ -213,9 +214,10 @@ CmsShowNavigator::goToRun(Double_t run)
 }
 
 void
-CmsShowNavigator::goToEvent(Double_t event)
+CmsShowNavigator::goToEvent(CSGAction* action)
 {
-   Int_t entry = realEntry(m_event->id().run(), static_cast<UInt_t>(event));
+   Long_t event = action->getNumberEntry()->GetIntNumber();
+   Int_t entry = realEntry(m_event->id().run(), event);
    if ( entry < 0 ) {
       oldEvent.emit(*m_event);
       return;

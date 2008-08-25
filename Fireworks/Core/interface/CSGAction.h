@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 18:15:56 CDT 2008
-// $Id: CSGAction.h,v 1.3 2008/07/20 17:51:28 chrjones Exp $
+// $Id: CSGAction.h,v 1.4 2008/07/30 15:40:53 chrjones Exp $
 //
 
 // system include files
@@ -35,6 +35,7 @@ class TGMenuBar;
 class TString;
 
 class TGTextEntry;
+class TGNumberEntryField;
 
 class CSGAction : public sigc::trackable {
 
@@ -48,6 +49,7 @@ public:
    TString getSCCombo() const;
    TGTextButton *getTextButton() const;
    TGTextEntry  *getTextEntry() const { return m_textEntry; }
+   TGNumberEntryField *getNumberEntry() const { return m_numberEntry; }
    TGPictureButton *getPictureButton() const;
    Int_t getKeycode() const;
    Int_t getModcode() const;
@@ -65,6 +67,7 @@ public:
    void setToolTip(const std::string& tip);
    void createTextButton(TGCompositeFrame* p, TGLayoutHints* l = 0, Int_t id = -1, GContext_t norm = TGButton::GetDefaultGC()(), FontStruct_t font = TGTextButton::GetDefaultFontStruct(), UInt_t option = kRaisedFrame|kDoubleBorder);
    void createTextEntry(TGCompositeFrame* p, TGLayoutHints* l = 0, const char* text = 0, Int_t id = -1);
+   void createNumberEntry(TGCompositeFrame* p,  bool intType, TGLayoutHints* l = 0, Int_t id = -1); 
    void createPictureButton(TGCompositeFrame* p, const TGPicture* pic, TGLayoutHints* l = 0, Int_t id = -1, GContext_t norm = TGButton::GetDefaultGC()(), UInt_t option = kRaisedFrame|kDoubleBorder);
    void createShortcut(UInt_t key, const char *mod);
    void createMenuEntry(TGPopupMenu *menu);
@@ -106,6 +109,7 @@ private:
    Bool_t m_enabled;
    Bool_t m_globalEnabled;
    TGTextEntry* m_textEntry;
+   TGNumberEntryField* m_numberEntry;
 };
 
 

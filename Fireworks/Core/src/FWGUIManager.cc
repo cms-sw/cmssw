@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.71 2008/07/30 15:49:29 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.72 2008/08/20 14:34:50 chrjones Exp $
 //
 
 // system include files
@@ -334,7 +334,7 @@ FWGUIManager::getRunEntry()
   return m_cmsShowMainFrame->getRunEntry();
 }
 
-CSGNumAction*
+CSGAction*
 FWGUIManager::getEventEntry()
 {
   return m_cmsShowMainFrame->getEventEntry();

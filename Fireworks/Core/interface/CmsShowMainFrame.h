@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 18:11:16 CDT 2008
-// $Id: CmsShowMainFrame.h,v 1.7 2008/07/26 00:01:26 chrjones Exp $
+// $Id: CmsShowMainFrame.h,v 1.8 2008/07/30 15:45:25 chrjones Exp $
 //
 
 // system include files
@@ -56,7 +56,7 @@ public:
    // ---------- const member functions ---------------------
    const std::vector<CSGAction*>& getListOfActions() const;
    CSGNumAction* getRunEntry() const;
-   CSGNumAction* getEventEntry() const;
+   CSGAction* getEventEntry() const;
    //delay for tooltips
    Long_t getDelay() const;
    
@@ -96,7 +96,7 @@ private:
    FWGUIManager *m_manager;
    Long_t m_delay;
    CSGNumAction *m_runEntry;
-   CSGNumAction *m_eventEntry;
+   CSGAction *m_eventEntry;
    TGLabel* m_timeText;
    CSGAction *m_nextEvent;
    CSGAction *m_previousEvent;

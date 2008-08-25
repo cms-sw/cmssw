@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.37 2008/07/26 00:03:02 chrjones Exp $
+// $Id: FWGUIManager.h,v 1.38 2008/07/30 15:49:29 chrjones Exp $
 //
 
 // system include files
@@ -125,7 +125,7 @@ class FWGUIManager : public FWConfigurable
       // ---------- const member functions ---------------------
       //      bool waitingForUserAction() const;
       CSGNumAction* getRunEntry();
-      CSGNumAction* getEventEntry();
+      CSGAction* getEventEntry();
 
       CSGContinuousAction* playEventsAction();
       CSGContinuousAction* playEventsBackwardsAction();

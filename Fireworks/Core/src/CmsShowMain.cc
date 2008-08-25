@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.38 2008/08/20 21:02:05 chrjones Exp $
+// $Id: CmsShowMain.cc,v 1.39 2008/08/24 13:22:55 dmytro Exp $
 //
 
 // system include files
@@ -743,16 +743,17 @@ CmsShowMain::setupDataHandling()
    if (m_guiManager->getAction(cmsshow::sPreviousEvent) != 0) m_guiManager->getAction(cmsshow::sPreviousEvent)->activated.connect(sigc::mem_fun(*m_navigator, &CmsShowNavigator::previousEvent));
    if (m_guiManager->getAction(cmsshow::sGotoFirstEvent) != 0) m_guiManager->getAction(cmsshow::sGotoFirstEvent)->activated.connect(sigc::mem_fun(*m_navigator, &CmsShowNavigator::firstEvent));
    if (m_guiManager->getAction(cmsshow::sQuit) != 0) m_guiManager->getAction(cmsshow::sQuit)->activated.connect(sigc::mem_fun(*this, &CmsShowMain::quit));
-   if (m_guiManager->getRunEntry() != 0) m_guiManager->getRunEntry()->activated.connect(sigc::mem_fun(*m_navigator, &CmsShowNavigator::goToRun));
-   if (m_guiManager->getEventEntry() != 0) m_guiManager->getEventEntry()->activated.connect(sigc::mem_fun(*m_navigator, &CmsShowNavigator::goToEvent));
    m_guiManager->playEventsAction()->started_.connect(sigc::mem_fun(*this,&CmsShowMain::playForward));
    m_guiManager->playEventsAction()->stopped_.connect(sigc::mem_fun(*this,&CmsShowMain::stopPlaying));
    m_guiManager->playEventsBackwardsAction()->started_.connect(sigc::mem_fun(*this,&CmsShowMain::playBackward));
    m_guiManager->playEventsBackwardsAction()->stopped_.connect(sigc::mem_fun(*this,&CmsShowMain::stopPlaying));
+   if (CSGAction* action = m_guiManager->getAction("Run Entry"))
+     action->activated.connect(boost::bind(&CmsShowNavigator::goToRun,m_navigator, action));
+   if (CSGAction* action = m_guiManager->getAction("Event Entry"))
+     action->activated.connect(boost::bind(&CmsShowNavigator::goToEvent,m_navigator, action));
    if (CSGAction* action = m_guiManager->getAction("Event Filter")) 
-      action->activated.connect(boost::bind(&CmsShowNavigator::filterEvents,m_navigator,action));
-   else
-      printf("Why?\n\n\n\n\n\n");
+     action->activated.connect(boost::bind(&CmsShowNavigator::filterEvents,m_navigator,action));
+     
    {
       SignalTimer* timer = new SignalTimer();
       timer->timeout_.connect(m_guiManager->getAction(cmsshow::sNextEvent)->activated);
@@ -761,6 +762,7 @@ CmsShowMain::setupDataHandling()
       timer->timeout_.connect(m_guiManager->getAction(cmsshow::sPreviousEvent)->activated);
       m_playBackTimer=timer;
    }
+   
    if(m_inputFileName.size()) {
       m_guiManager->updateStatus("loading data file...");
       m_navigator->loadFile(m_inputFileName);

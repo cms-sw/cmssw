@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.16 2008/07/26 00:01:28 chrjones Exp $
+// $Id: CmsShowMainFrame.cc,v 1.17 2008/07/30 15:46:49 chrjones Exp $
 //
 
 // system include files
@@ -90,7 +90,9 @@ TGMainFrame(p, w, h)
    CSGAction *help = new CSGAction(this, cmsshow::sHelp.c_str());
    CSGAction *keyboardShort = new CSGAction(this, cmsshow::sKeyboardShort.c_str());
    m_runEntry = new CSGNumAction(this, "Run Entry");
-   m_eventEntry = new CSGNumAction(this, "Event Entry");
+   // m_eventEntry = new CSGNumAction(this, "Event Entry");
+   m_eventEntry = new CSGAction(this, "Event Entry");
+   addToActionMap(m_eventEntry);
    CSGAction *eventFilter = new CSGAction(this, "Event Filter");
    addToActionMap(eventFilter);
    m_nextEvent = nextEvent;
@@ -351,7 +353,7 @@ void CmsShowMainFrame::defaultAction() {
 
 void CmsShowMainFrame::loadEvent(const fwlite::Event& event) {
   m_runEntry->setNumber(event.id().run());
-  m_eventEntry->setNumber(event.id().event());
+  m_eventEntry->getNumberEntry()->SetIntNumber(event.id().event());
   m_timeText->SetText( fw::getTimeGMT( event ).c_str() );
   // loadEvent gets called before the special cases [at beginning, at end, etc]
   // so we can enable all our event controls here
@@ -512,7 +514,7 @@ CmsShowMainFrame::getRunEntry() const {
   return m_runEntry;
 }
 
-CSGNumAction* 
+CSGAction* 
 CmsShowMainFrame::getEventEntry() const {
   return m_eventEntry;
 }

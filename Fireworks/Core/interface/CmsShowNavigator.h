@@ -16,7 +16,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Tue Jun 10 14:56:34 EDT 2008
-// $Id: CmsShowNavigator.h,v 1.8 2008/08/18 06:23:29 dmytro Exp $
+// $Id: CmsShowNavigator.h,v 1.9 2008/08/20 21:02:54 chrjones Exp $
 //
 
 // system include files
@@ -53,8 +53,8 @@ class CmsShowNavigator
       void previousEvent();
       void firstEvent();
       void filterEvents(CSGAction* action);
-      void goToRun(Double_t run);  // FIXME, run is integer
-      void goToEvent(Double_t event); // FIXME, event is integer
+      void goToRun(CSGAction* action);
+      void goToEvent(CSGAction* action);
       
       bool autoRewind() const { return m_loopMode; }
       void setAutoRewind( bool mode ) { m_loopMode = mode; }
