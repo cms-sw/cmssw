@@ -23,7 +23,7 @@
 
 import sys, os, re, operator
 import optparse as opt 
-from cmsPerfCommons import Candles, MIN_REQ_TS_EVENTS
+from cmsPerfCommons import Candles, MIN_REQ_TS_EVENTS, CandDesc
 
 ################
 # Global variables
@@ -66,15 +66,15 @@ FileName = {}
 KeywordToCfi = {}
 for x in range(len(Candles)):
     
-    configs = ['MinBias.cfi',               
-               'H200ZZ4L.cfi',
-               'SingleElectronE1000.cfi',
-               'SingleMuPt10.cfi',
-               'SinglePiE1000.cfi',
-               'TTbar.cfi',               
-               'QCD_Pt_80_120.cfi']
-    filenames = [
-                 'MINBIAS_',        
+    configs   = ['MinBias.cfi',               
+                 'H200ZZ4L.cfi',
+                 'SingleElectronE1000.cfi',
+                 'SingleMuPt10.cfi',
+                 'SinglePiE1000.cfi',
+                 'TTbar.cfi',               
+                 'QCD_Pt_80_120.cfi']
+    
+    filenames = ['MINBIAS_',        
                  'HZZLLLL_200',
                  'E_1000',                 
                  'MU-_pt10',
@@ -139,21 +139,19 @@ def getSteps(userSteps):
         
 def optionparse():
     global _noprof
+    explanations = map(lambda x: "          " + x, Candles)
+    explanation  = ""
+    for x in range(len(explanations)):
+        explanation += "%-*s %s\n" % (30, explanations[x],CandDesc[x])
     parser = opt.OptionParser(usage=("""%s NUM_EVENTS_PER_CFG CANDLES PROFILE [--cmsdriver=cmsDriverOptions] [--usersteps=processingStepsOption]
 
     Arguments:
         NUM_EVENTS_PER_CFG - The number of events per config file
 
         CANDLES - The simulation type to perform profiling on
-          Candles         Description
-          AllCandles
-          \"HZZLLLL\"       Higgs boson
-          \"MINBIAS\"       Minimum Bias
-          \"E -e 1000\"     
-          \"MU- -e pt10\"   Muon
-          \"PI- -e 1000\"   Pion
-          \"TTBAR\"         TTbar
-          \"QCD -e 80_120\" Quantum Chromodynamics
+          Candles              Description
+          AllCandles           Run all of the candles below
+%s
 
         PROFILE - the type of profiling to perform (multiple codes can be used):
           Code  Profile Type
@@ -177,7 +175,7 @@ def optionparse():
         ./%s 100 \"TTBAR\" 45 --cmsdriver=\"--conditions FakeConditions\"
        Perform ValgrindFCE ValgrindMemCheck profiling for Minimum bias and 100 events. Only on gensim and digi steps.
         ./%s 100 \"MINBIAS\" 89 --cmsdriver=\"--conditions FakeConditions\" \"--usersteps=GEN-SIM,DIGI"""
-      % ( THIS_PROG_NAME, THIS_PROG_NAME,THIS_PROG_NAME,THIS_PROG_NAME,THIS_PROG_NAME)))
+      % ( THIS_PROG_NAME, explanation, THIS_PROG_NAME,THIS_PROG_NAME,THIS_PROG_NAME,THIS_PROG_NAME)))
     
     devel  = opt.OptionGroup(parser, "Developer Options",
                                      "Caution: use these options at your own risk."
@@ -290,7 +288,7 @@ def setupProgramParameters(options,args):
         userSteps = options.userSteps
         steps = getSteps(userSteps)
 
-    if WhichCandles.upper() == 'allcandles':
+    if WhichCandles.lower() == 'allcandles':
         Candle = Candles
         print 'ALL standard simulation candles will be PROCESSED:'
     else:
@@ -382,15 +380,10 @@ def getProfileArray(ProfileCode):
                 
     return Profile
 
-def writeStepHead(simcandles,acandle,step,qcd=False):
+def writeStepHead(simcandles,acandle,step):
     simcandles.write('#%s\n' % FileName[acandle])
-    out = step
-    if qcd:
-        simcandles.write('#Step %s PILE-UP\n' % step)
-        out += " PILEUP"        
-    else :
-        simcandles.write('#Step %s\n' % step)
-    print out
+    simcandles.write('#Step %s\n' % step)
+    print step
 
 
 def determineNewProfile(step,Profile,SavedProfile):
@@ -427,8 +420,7 @@ def setInputFile(steps,step,acandle,stepIndex,qcd=False):
         InputFileOption = "--filein file:%s_%s" % ( FileName[acandle],steps[stepIndex - 1] )
         
     if qcd:
-#        OutputStep      += "_PILEUP"
-        InputFileOption += "_PILEUP"
+        pass
     else :
         if 'GEN,SIM' in step:  # there is no input file for GEN,SIM!
             InputFileOption = ''
@@ -474,13 +466,8 @@ def writePrerequisteSteps(simcandles,steps,acandle,NumberOfEvents,cmsDriverOptio
     writeUnprofiledSteps(simcandles, CustomisePythonFragment, cmsDriverOptions,AllSteps[0:fstIdx],acandle,NumberOfEvents, 0)        
     return fstIdx
 
-def setOutputFileOption(acandle,endstep,qcd):
-
-    OutputFileOption = "--fileout=%s_%s" % ( FileName[acandle],endstep)
-    if qcd:
-        OutputFileOption += "_PILEUP"
-    OutputFileOption += ".root"
-    return OutputFileOption
+def setOutputFileOption(acandle,endstep):
+    return "--fileout=%s_%s.root" % ( FileName[acandle],endstep)
 
 def writeCommands(simcandles,
                  Profile,
@@ -530,9 +517,15 @@ def writeCommands(simcandles,
         if stepIndex >= stopIndex:
             break
         step = steps[stepIndex]
-        stepToRun = step
-        befStep = step
-        aftStep = step
+        # One shot Profiling variables
+        befStep     = step
+        aftStep     = step
+        # We need this in case we are running one-shot profiling or for DIGI-PILEUP
+        stepToWrite = step 
+        if qcd:
+            pureg = re.compile("(.*)_PILEUP")
+            groups = pureg.search(step).groups()
+            stepToWrite = pureg.sub(groups[0],step)
         
         #(Profile , SavedProfile) = determineNewProfile(step,Profile,SavedProfile)
         CustomisePythonFragment = pythonFragment(step)
@@ -543,22 +536,19 @@ def writeCommands(simcandles,
 
             hypMatch = filter(lambda x: "-" in x,filter(lambda x: step == x.split("-")[0],userSteps))
             if not len(hypMatch) == 0 :
-                hypsteps = expandHyphens(hypMatch[0])
-                stepToRun = ",".join(hypsteps)
-                befStep = hypsteps[0]
-                aftStep = hypsteps[-1]
+                hypsteps    = expandHyphens(hypMatch[0])
+                stepToWrite = ",".join(hypsteps)
+                befStep     = hypsteps[0]
+                aftStep     = hypsteps[-1]
                 oneShotProf = True
 
 
-            writeStepHead(simcandles,acandle,stepToRun,qcd)
-            OutputFileOption = setOutputFileOption(acandle,aftStep,qcd)
+            writeStepHead(simcandles,acandle,step)
+            OutputFileOption = setOutputFileOption(acandle,aftStep)
             
             for prof in Profile:
                 if 'EdmSize' in prof:
-                    EdmFile = "%s_%s" % (FileName[acandle],step)
-                    if qcd:
-                        EdmFile += "_PILEUP"
-                    EdmFile += ".root "
+                    EdmFile = "%s_%s.root" % (FileName[acandle],step)
                     
                     if prof == Profile[0] and not os.path.exists("./" + EdmFile):
                         # insert command to generate required state ( need to run one more step
@@ -574,7 +564,7 @@ def writeCommands(simcandles,
                                            % (cmsDriver,
                                               KeywordToCfi[acandle],
                                               NumberOfEvents,
-                                              stepToRun,
+                                              stepToWrite,
                                               InputFileOption,
                                               OutputFileOption,
                                               CustomisePythonFragment,
@@ -588,8 +578,6 @@ def writeCommands(simcandles,
                         # Adding a fileout option too to avoid dependence on future convention changes in cmsDriver.py:
 
             
-                    OutputStep = step
-
                         # Use --filein (have to for L1, DIGI2RAW, HLT) to add robustness
 
                     InputFileOption = setInputFile(steps,befStep,acandle,stepIndex,qcd)#OutputStep,qcd)
@@ -598,7 +586,7 @@ def writeCommands(simcandles,
                                cmsDriver,
                                KeywordToCfi[acandle],
                                NumberOfEvents,
-                               stepToRun,
+                               stepToWrite,
                                InputFileOption,
                                OutputFileOption,
                                CustomisePythonFragment,
@@ -611,7 +599,7 @@ def writeCommands(simcandles,
                     simcandles.write("%s @@@ %s @@@ %s_%s_%s\n" % (Command,
                                                                    Profiler[prof],
                                                                    FileName[acandle],
-                                                                   OutputStep,
+                                                                   step,
                                                                    prof))
 
                 if debug:
@@ -708,7 +696,7 @@ def writeCommandsToReport(simcandles,Candle,Profile,debug,NumberOfEvents,cmsDriv
         writeCommands(simcandles,
                       Profile,
                       acandle,
-                      AfterPileUpSteps,
+                      map(lambda x: x + "_PILEUP",AfterPileUpSteps),
                       NumberOfEvents,
                       cmsDriverOptions,
                       0, # start at step index 2, RECO Step

@@ -1,34 +1,4 @@
 #!/usr/bin/env python
-'''
-Usage: ./cmsPerfSuite.py [options]
-       
-Options:
-
-Examples:
-./cmsPerfSuite.py
-(this will run with the default options)
-OR
-./cmsPerfSuite.py -o "/castor/cern.ch/user/y/yourusername/yourdirectory/"
-(this will archive the results in a tarball on /castor/cern.ch/user/y/yourusername/yourdirectory/)
-OR
-./cmsPerfSuite.py -t 5 -i 2 -v 1
-(this will run the suite with 5 events for TimeSize tests, 2 for IgProf tests, 1 for Valgrind tests)
-OR
-./cmsPerfSuite.py -t 200 --candle QCD_80_120 --cmsdriver="--conditions FakeConditions"
-(this will run the performance tests only on candle QCD_80_120, running 200 TimeSize evts, default IgProf and Valgrind evts. It will also add the option "--conditions FakeConditions" to all cmsDriver.py commands executed by the suite)
-OR
-./cmsPerfSuite.py -t 200 --candle QCD_80_120 --cmsdriver="--conditions=FakeConditions --eventcontent=FEVTDEBUGHLT" --step=GEN-SIM,DIGI
-(this will run the performance tests only on candle QCD_80_120, running 200 TimeSize evts, default IgProf and Valgrind evts. It will also add the option "--conditions=FakeConditions" and the option "--eventcontent=FEVTDEBUGHLT" to all cmsDriver.py commands executed by the suite. In addition it will run only 2 cmsDriver.py "steps": "GEN,SIM" and "DIGI". Note the syntax GEN-SIM for combined cmsDriver.py steps)
-
-Legal entries for individual candles (--candle option):
-HiggsZZ4LM200
-MinBias
-SingleElectronE1000
-SingleMuMinusPt10
-SinglePiMinusE1000
-TTbar
-QCD_80_120
-'''
 import os, time, sys, re
 import optparse as opt
 from cmsPerfCommons import Candles, MIN_REQ_TS_EVENTS
@@ -56,7 +26,27 @@ AuxiliaryScripts=["cmsScimarkLaunch.csh","cmsScimarkParser.py","cmsScimarkStop.p
 
 #Options handling
 def optionParse():
-    parser = opt.OptionParser(usage=usage())
+    parser = opt.OptionParser(usage='''./cmsPerfSuite.py [options]
+       
+Examples:
+./cmsPerfSuite.py
+(this will run with the default options)
+OR
+./cmsPerfSuite.py -o "/castor/cern.ch/user/y/yourusername/yourdirectory/"
+(this will archive the results in a tarball on /castor/cern.ch/user/y/yourusername/yourdirectory/)
+OR
+./cmsPerfSuite.py -t 5 -i 2 -v 1
+(this will run the suite with 5 events for TimeSize tests, 2 for IgProf tests, 1 for Valgrind tests)
+OR
+./cmsPerfSuite.py -t 200 --candle QCD_80_120 --cmsdriver="--conditions FakeConditions"
+(this will run the performance tests only on candle QCD_80_120, running 200 TimeSize evts, default IgProf and Valgrind evts. It will also add the option "--conditions FakeConditions" to all cmsDriver.py commands executed by the suite)
+OR
+./cmsPerfSuite.py -t 200 --candle QCD_80_120 --cmsdriver="--conditions=FakeConditions --eventcontent=FEVTDEBUGHLT" --step=GEN-SIM,DIGI
+(this will run the performance tests only on candle QCD_80_120, running 200 TimeSize evts, default IgProf and Valgrind evts. It will also add the option "--conditions=FakeConditions" and the option "--eventcontent=FEVTDEBUGHLT" to all cmsDriver.py commands executed by the suite. In addition it will run only 2 cmsDriver.py "steps": "GEN,SIM" and "DIGI". Note the syntax GEN-SIM for combined cmsDriver.py steps)
+
+Legal entries for individual candles (--candle option):
+%s
+''' % ("\n".join(Candles)))
 
     parser.set_defaults(TimeSizeEvents   = 100,
                         IgProfEvents     = 5,
@@ -66,13 +56,18 @@ def optionParse():
                         cmsdriverOptions = "",
                         stepOptions      = "",
                         candleOptions    = "",
+                        quicktest        = False,
                         unittest         = False,
                         verbose          = True,
                         castordir = "/castor/cern.ch/cms/store/relval/performance/",
                         cores     = 4, #Number of cpu cores on the machine
                         cpu       = 1) #Cpu core on which the suite is run:
 
-    parser.add_option(
+    devel  = opt.OptionGroup(parser, "Developer Options",
+                                     "Caution: use these options at your own risk."
+                                     "It is believed that some of them bite.\n")
+
+    devel.add_option(
         '-d',
         '--debug',
         action='store_true',
@@ -80,6 +75,22 @@ def optionParse():
         help='Debug',
         #metavar='<DIR>',
         )
+
+    devel.add_option(
+        '--quicktest',
+        action="store_true",
+        dest='quicktest',
+        help='Quick overwrite all the defaults to small numbers so that we can run a quick test of our chosing.',
+        #metavar='<#EVENTS>',
+        )  
+
+    devel.add_option(
+        '--test',
+        action="store_true",
+        dest='unittest',
+        help='Perform a simple test, overrides other options. Overrides verbosity and sets it to false.',
+        #metavar='<#EVENTS>',
+        )    
 
     parser.add_option(
         '-o',
@@ -96,14 +107,6 @@ def optionParse():
         dest='TimeSizeEvents',
         help='specify the number of events for the TimeSize tests',
         metavar='<#EVENTS>',
-        )
-
-    parser.add_option(
-        '--test',
-        action="store_true",
-        dest='unittest',
-        help='Perform a simple test, overrides other options. Overrides verbosity and sets it to false.',
-        #metavar='<#EVENTS>',
         )
 
     parser.add_option(
@@ -189,6 +192,8 @@ def optionParse():
         help='specify the number of cores of the machine (can be used with 0 to stop cmsScimark from running on the other cores)',
         metavar='<OPTION_STR>',
         )
+
+    parser.add_option_group(devel)        
 
     return parser.parse_args()
 
@@ -397,11 +402,19 @@ def main(argv):
     cmsScimarkLarge  = options.cmsScimarkLarge
     cmsdriverOptions = options.cmsdriverOptions
     stepOptions      = options.stepOptions
+    quicktest        = options.quicktest
     candleoption     = options.candleOptions.upper()
     cpu              = options.cpu
     cores            = options.cores
     _unittest        = options.unittest 
     _verbose         = options.verbose
+
+    if quicktest:
+        TimeSizeEvents = 1
+        IgProfEvents = 1
+        ValgrindEvents = 0
+        cmsScimark = 1
+        cmsScimarkLarge = 1
 
     if _unittest:
         _verbose = False
@@ -583,7 +596,7 @@ def main(argv):
     printFlush(os.popen4(tarcmd)[1].read())
     
     #Archive it on CASTOR
-    castorcmd="rfcp " + TarFile + ".gz " + castordir + TarFile+".gz"
+    castorcmd="rfcp %s.gz %s.gz" % (TarFile,os.path.join(castordir,TarFile))
     
     printFlush(castorcmd)
     printFlush(os.popen4(castorcmd)[1].read())

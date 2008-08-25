@@ -38,6 +38,9 @@ DirName=( #These need to match the candle directory names ending (depending on t
 # Small functions
 #
 
+class ReldirExcept(Exception):
+    "Relative directory could not be determined"
+
 def fail(errstr=""):
     print errstr
     delTmpDir()
@@ -84,8 +87,8 @@ def main():
             LOG.write("They were run in %s" % LocalPath)
             LOG.write("Results of showtags -r in the local release:\n%s" % ShowTagsResult)
             LOG.close()
-        except IOError:
-            print "Could not correct create the log file for some reason"
+        except IOError, detail:
+            print "WARNING: Could not correct create the log file because %s" % detail
 
     # Print Program header
     print_header()
@@ -145,8 +148,8 @@ def get_environ():
         HOST=os.environ['HOST']
         USER=os.environ['USER']
         CMSSW_WORK = os.path.join(CMSSW_BASE,"work/Results")
-    except KeyError:
-        fail("ERROR: Could not retrieve some necessary environment variables. Have you ran scramv1 runtime -csh yet?")
+    except KeyError, detail:
+        fail("ERROR: Could not retrieve some necessary environment variables. Have you ran scramv1 runtime -csh yet?. Details: %s" % detail)
 
     LocalPath=getcmdBasic("pwd")
     ShowTagsResult=getcmdBasic("showtags -r")
@@ -173,17 +176,17 @@ def optionparse():
     parser = opt.OptionParser(usage=("""%s [HOST:]DEST_PATH [Options]
 
     Arguments:
-        WEB_AREA - local, relval, covms or ...
+        [HOST:]DEST_PATH - This is where the report should be published, you can specify a local path or a directory on a remote machine (HOST is optional)
 
     Examples:  
-       Perform 
+       Publish report to default local directory
         ./%s 
-       Perform 
-        ./%s 
-       Perform 
-        ./%s 
-       Perform 
-        ./%s """
+       Publish report to \"/some/local/dir\"
+        ./%s /some/local/dir
+       Publish report to \"/some/other/dir\" remote host \"hal.cern.ch\" 
+        ./%s hal.cern.ch:/some/other/dir
+       Publish report to default relval location (this could be remote or local depending on the hardcoded default)
+        ./%s --relval"""
       % ( PROG_NAME, PROG_NAME,PROG_NAME,PROG_NAME,PROG_NAME)))
     
     devel  = opt.OptionGroup(parser, "Developer Options",
@@ -217,7 +220,7 @@ def optionparse():
         )
 
     parser.add_option(
-        '--report-in',
+        '--input',
         type="string",
         dest='repdir',
         help='The location of the report files to be published',
@@ -581,8 +584,8 @@ def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDat
                 CAND.write(line)
 
         CAND.close()
-    except IOError:
-        fail("ERROR: Could not write candle html %s" % os.path.basename(candlHTML))
+    except IOError, detail:
+        print "ERROR: Could not write candle html %s because %s" % (os.path.basename(candlHTML),detail)
         
 #####################
 #
@@ -677,8 +680,8 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
 
         #End of while loop on template html file
         INDEX.close()
-    except IOError:
-        fail("Error: Could not create index Html file for some reason, check position")
+    except IOError, detail:
+        print "Error: Could not create index Html file for some reason, check position. Details : %s" % detail
 
 ########################
 #
@@ -756,7 +759,7 @@ def getRelativeDir(parent,child,keepTop=True):
             cwalk.next()
     except StopIteration:
         print "ERROR: Unable to determine relative dir"
-        sys.exit()
+        raise ReldirExcept
 
     relpath = ""
     try:
@@ -765,6 +768,12 @@ def getRelativeDir(parent,child,keepTop=True):
     except StopIteration:
         pass
     return relpath
+
+def docopy(src,dest):
+    try:
+        copy2(src,dest)
+    except IOError:
+        print "WARNING: Could not copy %s to %s" % (src,dest)
 
 def copytree4(src,dest,keepTop=True):
     def _getNewLocation(source,child,dst,keepTop=keepTop):
@@ -779,34 +788,41 @@ def copytree4(src,dest,keepTop=True):
             if dontFilter:
                 node = os.path.join(curdir,node) # convert to absolute path
                 newnode = _getNewLocation(source,node,dst)
+
                 if dirs:
                     os.mkdir(newnode)                
                 else:
                     copy2(node,newnode)
+                    
     gen  = os.walk(src)
-    newloc = _getNewLocation(src,src,dest)
-
-    os.mkdir(newloc)
-
     try:
-        while True:
-            step   = gen.next()
-            curdir = step[0]
-            dirs   = step[1]
-            files  = step[2]
-            _copyFilter(src,dest,curdir,dirs,cpDirFilter,dirs=True)
-            _copyFilter(src,dest,curdir,files,cpFileFilter)        
+        newloc = _getNewLocation(src,src,dest)
 
-    except StopIteration:
-        pass
+        os.mkdir(newloc)
+        try:
+            while True:
+                step   = gen.next()
+                curdir = step[0]
+                dirs   = step[1]
+                files  = step[2]
 
+                _copyFilter(src,dest,curdir,dirs,cpDirFilter,dirs=True)
+                _copyFilter(src,dest,curdir,files,cpFileFilter)
+
+        except StopIteration:
+            pass        
+    except IOError, detail:
+        print "WARNING: Could not copy %s to %s because %s" % (src,dest,detail)
+    except ReldirExcept:
+        print "WARNING: Could not determine the new location for source %s into destination %s" % (src,dest)
+        
 def syscp(srcs,dest):
     if type(srcs) == type(""):
         if os.path.exists(srcs):
             if os.path.isdir(srcs):
                 copytree4(srcs,dest)
             else:
-                copy2(srcs,dest)
+                docopy(srcs,dest)
         else:
             print "ERROR: file to be copied %s does not exist" % foo            
     else:
@@ -816,7 +832,7 @@ def syscp(srcs,dest):
                 #copy tree
                     copytree4(src,dest)
                 else:
-                    copy2(src,dest)
+                    docopy(src,dest)
             else:
                 print "ERROR: file to be copied %s does not exist" % foo
             

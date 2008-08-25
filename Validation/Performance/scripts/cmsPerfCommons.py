@@ -8,3 +8,11 @@ Candles=["MinBias"            ,
          "TTbar"              ,
          "QCD_80_120"         
 ]
+
+CandDesc=["Minimum Bias",
+          "Higgs Boson",
+          "Electron",
+          "Muon",
+          "Pion",
+          "TTBar",
+          "QCD Jets"]
