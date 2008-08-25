@@ -26,20 +26,37 @@ std::map<std::string, MonitorElement*> RPCEfficiencyFromTrack::bookDetUnitTrackE
   
   std::map<std::string, MonitorElement*> meMap;
   std::string regionName;
-  std::string ringType;
-  if(detId.region()==0) {
-    regionName="Barrel";
-    ringType="Wheel";
-  }
-  else{
-    ringType="Disk";
-    if(detId.region() == -1) regionName="Endcap-";
-    if(detId.region() ==  1) regionName="Endcap+";
-  }
   
+
+  std::string ringType;
+  int ring;
+  if(detId.region() == 0) {
+    ringType = "Wheel";  
+    ring = detId.ring();
+  }else if (detId.region() == -1){  
+    ringType =  "Disk";
+    ring = detId.region()*detId.station();
+  }else {
+    ringType =  "Disk";
+    ring = detId.station();
+  }
+
+
+  if (detId.region()!=0) ring = ring*detId.region();
+
+
+  if(detId.region()==0){
+    regionName = "Barrel";
+  }else if (detId.region()==1){
+    regionName = "Endcap+";
+  }else{
+    regionName = "Endcap-";
+  }
+
+
   char  folder[120];
   sprintf(folder,"RPC/EfficiencyFromTrack/%s/%s_%d/station_%d/sector_%d",regionName.c_str(),ringType.c_str(),
-	  detId.ring(),detId.station(),detId.sector());
+	  ring,detId.station(),detId.sector());
 
   dbe->setCurrentFolder(folder);
 
