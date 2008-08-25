@@ -29,6 +29,8 @@ sys.path.insert(0, os.path.join(os.environ['CMSSW_BASE'],
 #process.load("run080515_095949_cfi")
 #process.load("run080528_190406_cfi")
 process.load("run080609_103605_cfi")
+#process.load("run080625_103525_cfi")
+#process.load("run51792_cfi")
 
 #    source = PoolSource {
 #	untracked vstring fileNames = {"file:/data0/slava/data/csc_00014419.root"}
@@ -64,6 +66,11 @@ process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 # flags for modelling of CSC geometry
 # ===================================
 process.load("Geometry.CSCGeometry.cscGeometry_cfi")
+
+#process.load("Configuration.StandardSequences.FakeConditions_cff")
+process.load("Configuration/StandardSequences/FrontierConditions_GlobalTag_cff")
+process.GlobalTag.globaltag = 'STARTUP_V5::All'
+process.prefer("GlobalTag")
 
 # magnetic field (do I need it?)
 # ==============================
@@ -120,6 +127,8 @@ process.lctreader.isMTCCData = False
 # ======
 process.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string("/data0/slava/test/lcts_080609_103605.root"),
+    #fileName = cms.untracked.string("/data0/slava/test/lcts_run080625_103525.root"),
+    #fileName = cms.untracked.string("/data0/slava/test/lcts_run51792.root"),
     outputCommands = cms.untracked.vstring("keep *", 
         "drop *_DaqSource_*_*")
 )

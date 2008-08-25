@@ -7,7 +7,7 @@ process = cms.Process("MuonCSCTriggerPrimitives")
 
 process.source = cms.Source("PoolSource",
     # fileNames = cms.untracked.vstring("file:cscdigis.root"),
-    fileNames = cms.untracked.vstring("file:/data0/slava/test/muminus_pt50_CMSSW_2_1_0_pre5.root"),
+    fileNames = cms.untracked.vstring("file:/data0/slava/test/muminus_pt50_CMSSW_2_1_4+.root"),
     debugVebosity = cms.untracked.uint32(10),
     debugFlag = cms.untracked.bool(True)
 )
@@ -47,15 +47,9 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 # es_source of ideal geometry
 # ===========================
-# endcap muon only...
-process.load("Geometry.MuonCommonData.muonEndcapIdealGeometryXML_cfi")
-
-# Needed according to Mike Case's e-mail from 27/03.
-process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
-
-# flags for modelling of CSC geometry
-# ===================================
-process.load("Geometry.CSCGeometry.cscGeometry_cfi")
+process.load('Configuration/StandardSequences/GeometryPilot2_cff')
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.GlobalTag.globaltag = 'IDEAL_V6::All'
 
 # magnetic field (do I need it?)
 # ==============================
@@ -91,7 +85,7 @@ process.cscTriggerPrimitiveDigis.clctParamMTCC2.verbosity = 2
 
 process.out = cms.OutputModule("PoolOutputModule",
     # fileName = cms.untracked.string("lcts.root"),
-    fileName = cms.untracked.string("/data0/slava/test/lcts_muminus_pt50_emul_CMSSW_2_1_0_pre5.root"),
+    fileName = cms.untracked.string("/data0/slava/test/lcts_muminus_pt50_emul_CMSSW_2_1_4+.root"),
     outputCommands = cms.untracked.vstring("keep *", 
         "drop *_DaqSource_*_*")
 )

@@ -7,8 +7,8 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string("$Revision: 1.7 $"),
-    name = cms.untracked.string("$Source: /cvs_server/repositories/CMSSW/CMSSW/L1Trigger/CSCTriggerPrimitives/test/EvtGen+DetSim+Digi+CscLCTs.cfg,v $"),
+    version = cms.untracked.string("$Revision: 1.1 $"),
+    name = cms.untracked.string("$Source: /cvs_server/repositories/CMSSW/CMSSW/L1Trigger/CSCTriggerPrimitives/test/EvtGen+DetSim+Digi+CscLCTs_cfg.py,v $"),
     annotation = cms.untracked.string("SV: single particle gun mu- 50 GeV")
 )
 
@@ -48,13 +48,15 @@ process.source = cms.Source("FlatRandomPtGunSource",
         MaxPhi = cms.untracked.double(3.14159265359),
         MinPt = cms.untracked.double(49.99),
         MaxPt = cms.untracked.double(50.01)
-
     ),
     Verbosity = cms.untracked.int32(0) ## set to 1 (or greater) for printouts
 )
 
-process.load("Configuration.StandardSequences.FakeConditions_cff")
-#process.load("Configuration.StandardSequences.FrontierConditions_cff")
+#process.load("Configuration.StandardSequences.FakeConditions_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.GlobalTag.globaltag = 'IDEAL_V6::All'
+#process.GlobalTag.globaltag = 'STARTUP_V5::All'
+#process.prefer("GlobalTag")
 
 # Event vertex smearing - applies only once (internal check)
 # Note : all internal generators will always do (0,0,0) vertex
@@ -63,6 +65,10 @@ process.load("Configuration.StandardSequences.VtxSmearedGauss_cff")
 
 process.load("Configuration.StandardSequences.Simulation_cff")
 
+process.load('Configuration/StandardSequences/GeometryPilot2_cff')
+
+process.load("Configuration.StandardSequences.MagneticField_cff")
+
 process.load("Configuration.StandardSequences.MixingNoPileUp_cff")
 
 process.load("Configuration.StandardSequences.Reconstruction_cff")
@@ -70,7 +76,7 @@ process.load("Configuration.StandardSequences.Reconstruction_cff")
 # Output module
 #
 process.GENSIMDIGI = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string("/data0/slava/test/muminus_pt50_CMSSW_2_1_0_pre5.root"),
+    fileName = cms.untracked.string("/data0/slava/test/muminus_pt50_CMSSW_2_1_4+.root"),
     outputCommands = cms.untracked.vstring("keep *", 
          # "drop *_simSiPixelDigis_*_*",
          # "drop *_simSiStripDigis_*_*",

@@ -9,7 +9,7 @@ process = cms.Process("L1CSCTriggerPrimitivesReader")
 
 process.source = cms.Source("PoolSource",
     # fileNames = cms.untracked.vstring("file:lcts.root"),
-    fileNames = cms.untracked.vstring("file:/data0/slava/test/lcts_muminus_pt50_emul_CMSSW_2_1_0_pre5.root"),
+    fileNames = cms.untracked.vstring("file:/data0/slava/test/lcts_muminus_pt50_emul_CMSSW_2_1_4+.root"),
     # fileNames = cms.untracked.vstring("file:/data0/slava/test/lcts_14419l.root.sav"),
     debugVebosity = cms.untracked.uint32(10),
     debugFlag = cms.untracked.bool(False)
@@ -39,11 +39,9 @@ process.MessageLogger = cms.Service("MessageLogger",
     debugModules = cms.untracked.vstring("lctreader")
 )
 
-process.load("Geometry.MuonCommonData.muonIdealGeometryXML_cfi")
-
-process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
-
-process.load("Geometry.CSCGeometry.cscGeometry_cfi")
+process.load('Configuration/StandardSequences/GeometryPilot2_cff')
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.GlobalTag.globaltag = 'IDEAL_V6::All'
 
 # Enable floating point exceptions
 #process.EnableFloatingPointExceptions = cms.Service("EnableFloatingPointExceptions")
