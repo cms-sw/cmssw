@@ -68,9 +68,7 @@ namespace edm
     /// HepMC verbosity flag
     bool pythiaHepMCVerbosity_;
     /// Impose proper times for pions/kaons at generator level
-    int fakeLeptonOption_;
-    double rMaxFakes_;
-    double zMaxFakes_;
+    bool imposeProperTimes_;
     /// Events to print if verbosity
     unsigned int maxEventsToPrint_;    
    
