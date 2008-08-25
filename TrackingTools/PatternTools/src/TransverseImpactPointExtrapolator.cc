@@ -9,6 +9,9 @@
 #include "DataFormats/GeometryVector/interface/Vector2DBase.h"
 #include "DataFormats/GeometrySurface/interface/PlaneBuilder.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+
 TransverseImpactPointExtrapolator::TransverseImpactPointExtrapolator () :
   thePropagator(0) {}
 
@@ -74,6 +77,23 @@ TransverseImpactPointExtrapolator::doExtrapolation (const TrajectoryStateOnSurfa
   //
   // Compute tip surface
   //
+  if (fabs(tsos.freeState()->transverseCurvature())<1.E-6){
+    LogDebug("TransverseImpactPointExtrapolator")<< "negligeable curvature: using a trick to extrapolate:\n"<<tsos;
+
+    //0T field probably
+    //x is perpendicular to the momentum
+    GlobalVector xLocal = GlobalVector(-tsos.globalMomentum().y(),tsos.globalMomentum().x(),0).unit();
+    //y along global Z
+    GlobalVector yLocal(0.,0.,1.);
+    //z accordingly
+    GlobalVector zLocal(xLocal.cross(yLocal));
+
+    Surface::PositionType origin(vtx);
+    Surface::RotationType rotation(xLocal,yLocal,zLocal);
+    ReferenceCountingPointer<BoundPlane> surface =  PlaneBuilder().plane(origin,rotation);
+    
+    return p.propagate(*tsos.freeState(),*surface);
+  }else{
   ReferenceCountingPointer<BoundPlane> surface = 
     tipSurface(tsos.globalPosition(),tsos.globalMomentum(),
 	       1./tsos.transverseCurvature(),vtx);
@@ -81,6 +101,7 @@ TransverseImpactPointExtrapolator::doExtrapolation (const TrajectoryStateOnSurfa
   // propagate
   //
   return p.propagate(tsos,*surface);
+  }
 }
 
 TrajectoryStateOnSurface 
@@ -91,6 +112,23 @@ TransverseImpactPointExtrapolator::doExtrapolation (const FreeTrajectoryState& f
   //
   // Compute tip surface
   //
+  if (fabs(fts.transverseCurvature())<1.E-6){
+    LogDebug("TransverseImpactPointExtrapolator")<< "negligeable curvature: using a trick to extrapolate:\n"<<fts;
+
+    //0T field probably
+    //x is perpendicular to the momentum
+    GlobalVector xLocal = GlobalVector(-fts.momentum().y(),fts.momentum().x(),0).unit();
+    //y along global Z
+    GlobalVector yLocal(0.,0.,1.);
+    //z accordingly
+    GlobalVector zLocal(xLocal.cross(yLocal));
+
+    Surface::PositionType origin(vtx);
+    Surface::RotationType rotation(xLocal,yLocal,zLocal);
+    ReferenceCountingPointer<BoundPlane> surface =  PlaneBuilder().plane(origin,rotation);
+    
+    return p.propagate(fts,*surface);
+  }else{
   ReferenceCountingPointer<BoundPlane> surface = 
     tipSurface(fts.position(),fts.momentum(),
 	       1./fts.transverseCurvature(),vtx);
@@ -98,6 +136,7 @@ TransverseImpactPointExtrapolator::doExtrapolation (const FreeTrajectoryState& f
   // propagate
   //
   return p.propagate(fts,*surface);
+  }
 }
 
 ReferenceCountingPointer<BoundPlane>
@@ -106,6 +145,12 @@ TransverseImpactPointExtrapolator::tipSurface (const GlobalPoint& position,
 					       const double& signedTransverseRadius,
 					       const GlobalPoint& vertex) const
 {
+
+  edm::LogError("TransverseImpactPointExtrapolator")<< position<<"\n"
+						    <<momentum<<"\n"
+						    <<"signedTransverseRadius : "<<signedTransverseRadius<<"\n"
+						    <<vertex;
+
   typedef Point2DBase<double,GlobalTag> PositionType2D;
   typedef Vector2DBase<double,GlobalTag> DirectionType2D;
   
