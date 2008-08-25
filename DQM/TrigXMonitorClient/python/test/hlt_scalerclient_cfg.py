@@ -1,4 +1,9 @@
-# $Log$
+# $Log: hlt_scalerclient_cfg.py,v $
+# Revision 1.2  2008/08/24 16:34:56  wittich
+# - rate calculation cleanups
+# - fix error logging with LogDebug
+# - report the actual lumi segment number that we think it might be
+#
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("DQM")
@@ -48,26 +53,30 @@ process.source = cms.Source("PoolSource",
 )
 # from cff file
 process.PoolSource.fileNames = cms.untracked.vstring(
-    '/store/data/Commissioning08/HLTDebug/RAW/CRUZET4_v1/000/058/042/0ECC6BE3-5F6F-DD11-A328-0019DB29C614.root',
-    '/store/data/Commissioning08/HLTDebug/RAW/CRUZET4_v1/000/058/042/26FD1D12-5E6F-DD11-8C6B-000423D6CA42.root',
-    '/store/data/Commissioning08/HLTDebug/RAW/CRUZET4_v1/000/058/042/3E414179-5E6F-DD11-B6DA-001617DBD472.root',
-    '/store/data/Commissioning08/HLTDebug/RAW/CRUZET4_v1/000/058/042/4E825423-5F6F-DD11-A891-001617C3B778.root',
-    '/store/data/Commissioning08/HLTDebug/RAW/CRUZET4_v1/000/058/042/6C5C8A15-5D6F-DD11-9D27-000423D985E4.root',
-    '/store/data/Commissioning08/HLTDebug/RAW/CRUZET4_v1/000/058/042/7A04421E-5F6F-DD11-8681-000423D992A4.root',
-    '/store/data/Commissioning08/HLTDebug/RAW/CRUZET4_v1/000/058/042/7C3DC3B1-5F6F-DD11-8D31-001617C3B70E.root',
-    '/store/data/Commissioning08/HLTDebug/RAW/CRUZET4_v1/000/058/042/8684AADF-5D6F-DD11-9082-001617DBD332.root',
-    '/store/data/Commissioning08/HLTDebug/RAW/CRUZET4_v1/000/058/042/98F7037F-5D6F-DD11-88FE-000423D98DB4.root',
-    '/store/data/Commissioning08/HLTDebug/RAW/CRUZET4_v1/000/058/042/A8C09AA5-5D6F-DD11-9DC8-000423D6B358.root',
-    '/store/data/Commissioning08/HLTDebug/RAW/CRUZET4_v1/000/058/042/AC2B1871-5F6F-DD11-9949-001617C3B654.root',
-    '/store/data/Commissioning08/HLTDebug/RAW/CRUZET4_v1/000/058/042/B499AEAB-5E6F-DD11-A84B-001617C3B6C6.root',
-    '/store/data/Commissioning08/HLTDebug/RAW/CRUZET4_v1/000/058/042/CA095D4A-5E6F-DD11-A6DD-000423D6B48C.root',
-    '/store/data/Commissioning08/HLTDebug/RAW/CRUZET4_v1/000/058/042/E884D9E4-5D6F-DD11-88AD-000423D6C8E6.root',
-    '/store/data/Commissioning08/HLTDebug/RAW/CRUZET4_v1/000/058/042/EC646647-626F-DD11-A9AA-000423D98804.root')
+   'file:/tmp/wittich/0ECC6BE3-5F6F-DD11-A328-0019DB29C614.root',
+   'file:/tmp/wittich/26FD1D12-5E6F-DD11-8C6B-000423D6CA42.root',
+   'file:/tmp/wittich/3E414179-5E6F-DD11-B6DA-001617DBD472.root'
+#    '/store/data/Commissioning08/HLTDebug/RAW/CRUZET4_v1/000/058/042/0ECC6BE3-5F6F-DD11-A328-0019DB29C614.root',
+#    '/store/data/Commissioning08/HLTDebug/RAW/CRUZET4_v1/000/058/042/26FD1D12-5E6F-DD11-8C6B-000423D6CA42.root',
+#    '/store/data/Commissioning08/HLTDebug/RAW/CRUZET4_v1/000/058/042/3E414179-5E6F-DD11-B6DA-001617DBD472.root',
+#    '/store/data/Commissioning08/HLTDebug/RAW/CRUZET4_v1/000/058/042/4E825423-5F6F-DD11-A891-001617C3B778.root',
+#    '/store/data/Commissioning08/HLTDebug/RAW/CRUZET4_v1/000/058/042/6C5C8A15-5D6F-DD11-9D27-000423D985E4.root',
+#    '/store/data/Commissioning08/HLTDebug/RAW/CRUZET4_v1/000/058/042/7A04421E-5F6F-DD11-8681-000423D992A4.root',
+#    '/store/data/Commissioning08/HLTDebug/RAW/CRUZET4_v1/000/058/042/7C3DC3B1-5F6F-DD11-8D31-001617C3B70E.root',
+#    '/store/data/Commissioning08/HLTDebug/RAW/CRUZET4_v1/000/058/042/8684AADF-5D6F-DD11-9082-001617DBD332.root',
+#    '/store/data/Commissioning08/HLTDebug/RAW/CRUZET4_v1/000/058/042/98F7037F-5D6F-DD11-88FE-000423D98DB4.root',
+#    '/store/data/Commissioning08/HLTDebug/RAW/CRUZET4_v1/000/058/042/A8C09AA5-5D6F-DD11-9DC8-000423D6B358.root',
+#    '/store/data/Commissioning08/HLTDebug/RAW/CRUZET4_v1/000/058/042/AC2B1871-5F6F-DD11-9949-001617C3B654.root',
+#    '/store/data/Commissioning08/HLTDebug/RAW/CRUZET4_v1/000/058/042/B499AEAB-5E6F-DD11-A84B-001617C3B6C6.root',
+#    '/store/data/Commissioning08/HLTDebug/RAW/CRUZET4_v1/000/058/042/CA095D4A-5E6F-DD11-A6DD-000423D6B48C.root',
+#    '/store/data/Commissioning08/HLTDebug/RAW/CRUZET4_v1/000/058/042/E884D9E4-5D6F-DD11-88AD-000423D6C8E6.root',
+#    '/store/data/Commissioning08/HLTDebug/RAW/CRUZET4_v1/000/058/042/EC646647-626F-DD11-A9AA-000423D98804.root'
+)
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(2000)
+    #input = cms.untracked.int32(2000)
     #input = cms.untracked.int32(10)
-    #input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(-1)
 )
 process.ModuleWebRegistry = cms.Service("ModuleWebRegistry")
 
@@ -77,6 +86,7 @@ process.LockService = cms.Service("LockService",
 
 process.MessageLogger = cms.Service("MessageLogger",
    debugModules = cms.untracked.vstring('hltsClient', 'hlts'),
+   #debugModules = cms.untracked.vstring('*'),
                                     categories = cms.untracked.vstring('Status', 'Parameter'),
                                     noLineBreaks = cms.untracked.bool(True),
                                     destinations = cms.untracked.vstring('detailedInfo', 
