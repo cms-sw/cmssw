@@ -11,6 +11,7 @@ from RecoMuon.MuonSeedGenerator.ptSeedParameterization_38T_cfi import *
 
 # module standAloneMuonSeeds = MuonSeedGenerator {
 ancientMuonSeed = cms.EDProducer("MuonSeedGenerator",
+                                 ptSeedParameterization,
                                  CSCRecSegmentLabel = cms.InputTag("cscSegments"),
                                  DTRecSegmentLabel = cms.InputTag("dt4DSegments"),
                                  EnableDTMeasurement = cms.bool(True),
