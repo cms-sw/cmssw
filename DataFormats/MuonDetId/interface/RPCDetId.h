@@ -5,9 +5,9 @@
  * 
  *  DetUnit identifier for RPCs
  *
- *  $Date: 2007/08/07 22:41:15 $
- *  \version $Id: RPCDetId.h,v 1.21 2007/08/07 22:41:15 ratnik Exp $
- *  $Revision: 1.21 $
+ *  $Date: 2008/06/05 15:01:31 $
+ *  \version $Id: RPCDetId.h,v 1.22 2008/06/05 15:01:31 mmaggi Exp $
+ *  $Revision: 1.22 $
  *  \author Ilaria Segoni
  */
 
@@ -38,7 +38,7 @@ class RPCDetId :public DetId {
 	   int subsector,
 	   int roll);
 	   
-  /// Sort Operator
+  /// Sort Operator based on the raw detector id
   bool operator < (const RPCDetId& r) const{
     if (r.station() == this->station()){
       if (this->layer() == r.layer()){
@@ -62,13 +62,15 @@ class RPCDetId :public DetId {
   void buildfromTrIndex(int trIndex);
 
   /// Region id: 0 for Barrel, +/-1 For +/- Endcap
-
   int region() const{
     return int((id_>>RegionStartBit_) & RegionMask_) + minRegionId;
   }
 
 
-  /// Ring id: Wheel number in Barrel (from -2 to +2) Disk Number in Endcap (from 1 to 3)
+  /// Ring id: Wheel number in Barrel (from -2 to +2) Ring Number in Endcap (from 1 to 3)
+  /// Ring has a different meaning in Barrel and Endcap! In Barrel it is wheel, in Endcap 
+  /// it is the physical ring located on a disk (a disk contains three rings). In Endcap 
+  /// the ring is the group of chambers with same r (distance of beam axis) and increasing phi
   int ring() const{
   
     int ring_= (id_>>RingStartBit_) & RingMask_;
@@ -91,7 +93,8 @@ class RPCDetId :public DetId {
     }
   }
 
-  /// Station id : the four group of chambers at same r (distance from beam axis) and increasing phi
+  /// Station id : For Barrel: the four groups of chambers at same r (distance from beam axis) and increasing phi
+  ///              For Endcap: the three groups of chambers at same z (distance from interaction point), i.e. the disk
   int station() const{
     return int((id_>>StationStartBit_) & StationMask_) + minStationId;
   }
@@ -103,6 +106,7 @@ class RPCDetId :public DetId {
   }
 
   /// Layer id: each station can have two layers of chambers: layer 1 is the inner chamber and layer 2 is the outer chamber (when present)  
+  /// Only in Barrel: RB1 and RB2.
   int layer() const{
     return int((id_>>LayerStartBit_) & LayerMask_) + minLayerId;
   }
@@ -113,8 +117,8 @@ class RPCDetId :public DetId {
     return int((id_>>SubSectorStartBit_) & SubSectorMask_) + (minSubSectorId+1);
   }
 
-  /// Roll id  (also known as eta partition): each chamber is divided along the strip direction in  
- ///  two or three parts (rolls)
+ /// Roll id  (also known as eta partition): each chamber is divided along the strip direction in  
+ /// two or three parts (rolls) for Barrel and two, three or four parts for endcap
   int roll() const{
     return int((id_>>RollStartBit_) & RollMask_); // value 0 is used as wild card
   }
