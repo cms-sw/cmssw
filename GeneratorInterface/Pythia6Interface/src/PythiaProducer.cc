@@ -1,6 +1,6 @@
 /*
- *  $Date: 2008/05/05 20:05:09 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/08/25 12:21:22 $
+ *  $Revision: 1.8 $
  *  
  *  Filip Moorgat & Hector Naves 
  *  26/10/05
@@ -497,14 +497,8 @@ void PythiaProducer::produce(Event & e, const EventSetup& es) {
     
     evt->weights().push_back( pyint1.vint[96] );
 
-    if (imposeProperTimes_) {
+    if (imposeProperTimes_ || pydat1.mstj[21]==3 || pydat1.mstj[21]==4 ) {
       int dumm;
-      double radmin = -1.;
-      double zmin = -1.;
-      if (pydat1.mstj[21]==4) {
-            radmin = pydat1.parj[72]; 
-            zmin = pydat1.parj[73]; 
-      }
       HepMC::GenEvent::vertex_const_iterator vbegin = evt->vertices_begin();
       HepMC::GenEvent::vertex_const_iterator vend = evt->vertices_end();
       HepMC::GenEvent::vertex_const_iterator vitr = vbegin;
@@ -516,7 +510,9 @@ void PythiaProducer::produce(Event & e, const EventSetup& es) {
                   if ((*pitr)->end_vertex()) continue;
                   if ((*pitr)->status()!=1) continue;
                   int pdgcode= abs((*pitr)->pdg_id());
-                  if (pdgcode!=211 && pdgcode!=321 && pdgcode!=130) continue;
+                  // Do nothing if the particle is not expected to decay
+                  if (pydat3.mdcy[0][PYCOMP(pdgcode)-1]!=1) continue;
+
                   double ctau = pydat2.pmas[3][PYCOMP(pdgcode)-1];
                   HepMC::FourVector mom = (*pitr)->momentum();
                   HepMC::FourVector vin = (*vitr)->position();
@@ -524,8 +520,8 @@ void PythiaProducer::produce(Event & e, const EventSetup& es) {
                   double y = 0.;
                   double z = 0.;
                   double t = 0.;
-                  bool decayOutsideCylinder = false;
-                  while (decayOutsideCylinder==false) {
+                  bool decayInRange = false;
+                  while (!decayInRange) {
                         double unif_rand = pyr_(&dumm);
                         // Value of 0 is excluded, so following line is OK
                         double proper_length = - ctau * log(unif_rand);
@@ -534,7 +530,16 @@ void PythiaProducer::produce(Event & e, const EventSetup& es) {
                         y = vin.y() + factor * mom.py();
                         z = vin.z() + factor * mom.pz();
                         t = vin.t() + factor * mom.e();
-                        if (sqrt(x*x+y*y)>radmin || abs(z)>zmin) decayOutsideCylinder = true;
+                        // Decay must be happen outside a cylindrical region
+                        if (pydat1.mstj[21]==4) {
+                              if (sqrt(x*x+y*y)>pydat1.parj[72] || abs(z)>pydat1.parj[73]) decayInRange = true;
+                        // Decay must be happen outside a given sphere
+                        } else if (pydat1.mstj[21]==3) {
+                              if (sqrt(x*x+y*y+z*z)>pydat1.parj[71]) decayInRange = true;
+                        // Decay is always OK otherwise
+                        } else {
+                              decayInRange = true;
+                        }
                   }
                   
                   HepMC::GenVertex* vdec = new HepMC::GenVertex(HepMC::FourVector(x,y,z,t));
@@ -543,6 +548,7 @@ void PythiaProducer::produce(Event & e, const EventSetup& es) {
             }
       }
     }
+    
     
     //******** Verbosity ********
     
