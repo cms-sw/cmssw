@@ -13,7 +13,9 @@
 #include "CondFormats/RPCObjects/interface/RPCEMap.h"
 #include "CondFormats/DataRecord/interface/RPCEMapRcd.h"
 #include "CondFormats/RPCObjects/interface/RPCdbData.h"
+#include "CondFormats/RPCObjects/interface/RPCGas.h"
 #include "CondFormats/DataRecord/interface/RPCdbDataRcd.h"
+#include "CondFormats/DataRecord/interface/RPCGasRcd.h"
 #include "CondFormats/RPCObjects/interface/RPCStripNoises.h"
 #include "CondFormats/DataRecord/interface/RPCStripNoisesRcd.h"
 #include "CondFormats/RPCObjects/interface/L1RPCHwConfig.h"
@@ -23,5 +25,6 @@ DEFINE_SEAL_MODULE();
 REGISTER_PLUGIN(RPCReadOutMappingRcd,RPCReadOutMapping);
 REGISTER_PLUGIN(RPCEMapRcd,RPCEMap);
 REGISTER_PLUGIN(RPCdbDataRcd,RPCdbData);
+REGISTER_PLUGIN(RPCGasRcd,RPCGas);
 REGISTER_PLUGIN(RPCStripNoisesRcd,RPCStripNoises);
 REGISTER_PLUGIN(L1RPCHwConfigRcd,L1RPCHwConfig);
