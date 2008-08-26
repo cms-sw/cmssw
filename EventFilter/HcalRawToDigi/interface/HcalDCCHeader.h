@@ -10,8 +10,8 @@ class HcalHTRData;
  *  Interpretive class for an HcalDCCHeader
  *   
  *
- *  $Date: 2007/11/06 14:36:57 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/04/23 01:14:14 $
+ *  $Revision: 1.5 $
  *  \author J. Mans - UMD
  */
 
@@ -78,8 +78,11 @@ class HcalDCCHeader {
   /** Get a given spigot summary from the DCC Header **/
   inline int getSpigotSummary(int nspigot) const { return spigotInfo[nspigot]; }
 
-  /** Load the given decoder with the pointer and length from this spigot */
-  void getSpigotData(int nspigot, HcalHTRData& decodeTool) const;
+  /** Load the given decoder with the pointer and length from this spigot 
+      Returns 0 on success
+      Returns -1 if spigot points to data area beyond validSize
+   */
+  int getSpigotData(int nspigot, HcalHTRData& decodeTool, int validSize) const;
 
   /** Get the size (in 32-bit words) of the data from this spigot */
   inline unsigned int getSpigotDataLength(int nspigot) const { return (nspigot>=15)?(0):(spigotInfo[nspigot]&0x3ff); }
@@ -94,6 +97,8 @@ class HcalDCCHeader {
   inline bool getSpigotValid(unsigned int nspigot) const { return (nspigot>=15)?(false):(spigotInfo[nspigot]&0x1000); }
   /** \brief Read the "TRUNCATED" bit for this spigot; LRB truncated data (took too long) */
   inline bool getSpigotDataTruncated(unsigned int nspigot) const { return (nspigot>=15)?(false):(spigotInfo[nspigot]&0x0800); }
+  /** \brief Read the "CRC-Mismatch" bit for this spigot */
+  inline bool getSpigotCRCError(unsigned int nspigot) const { return (nspigot>=15)?(false):(spigotInfo[nspigot]&0x0400); }
   /** \brief Access the HTR error bits (decoding tbd) */
   inline unsigned char getSpigotErrorBits(unsigned int nspigot) const { return (nspigot>=15)?(0):((unsigned char)(spigotInfo[nspigot]>>24)); }
   /** \brief Access the Link Receiver Board error bits (decoding tbd) */

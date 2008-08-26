@@ -1,6 +1,6 @@
 /*  
- *  $Date: 2007/02/19 04:05:40 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/03/25 15:36:11 $
+ *  $Revision: 1.3 $
  *  \author J. Mans -- UMD
  */
 #ifndef HTBDAQ_DATA_STANDALONE
@@ -24,14 +24,17 @@ unsigned int HcalDCCHeader::getTotalLengthBytes() const {
   return totalSize;
 }
 
-void HcalDCCHeader::getSpigotData(int nspigot, HcalHTRData& decodeTool) const {
+int HcalDCCHeader::getSpigotData(int nspigot, HcalHTRData& decodeTool, int validSize) const {
   const unsigned short* base=((unsigned short*)this)+sizeof(HcalDCCHeader)/sizeof(unsigned short);
   int offset=0,i,len=0;
   for (i=0; i<=nspigot; i++) {
     offset+=len;
     len=(spigotInfo[i]&0x3FF)*2;
   }
-  decodeTool.adoptData(base+offset,len);
+  if ((offset+len+sizeof(HcalDCCHeader)/sizeof(unsigned short))<(validSize/sizeof(unsigned short))) {
+    decodeTool.adoptData(base+offset,len);
+    return 0;
+  } else { return -1; }
 }
 
 void HcalDCCHeader::clear() {

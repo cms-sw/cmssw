@@ -20,6 +20,7 @@ HcalRawToDigi::HcalRawToDigi(edm::ParameterSet const& conf):
   firstFED_(conf.getUntrackedParameter<int>("HcalFirstFED",FEDNumbering::getHcalFEDIds().first)),
   unpackCalib_(conf.getUntrackedParameter<bool>("UnpackCalib",false)),
   unpackZDC_(conf.getUntrackedParameter<bool>("UnpackZDC",false)),
+  silent_(conf.getUntrackedParameter<bool>("silent",true)),
   complainEmptyData_(conf.getUntrackedParameter<bool>("ComplainEmptyData",false))
 {
   if (fedUnpackList_.empty()) {
@@ -97,21 +98,21 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
     const FEDRawData& fed = rawraw->FEDData(*i);
     if (fed.size()==0) {
       if (complainEmptyData_) {
-	edm::LogWarning("EmptyData") << "No data for FED " << *i;
+	if (!silent_) edm::LogWarning("EmptyData") << "No data for FED " << *i;
 	report->addError(*i);
       }
     } else if (fed.size()<8*3) {
-      edm::LogWarning("EmptyData") << "Tiny data " << fed.size() << " for FED " << *i;
+      if (!silent_) edm::LogWarning("EmptyData") << "Tiny data " << fed.size() << " for FED " << *i;
       report->addError(*i);
     } else {
       try {
-	unpacker_.unpack(fed,*readoutMap,colls, *report);
+	unpacker_.unpack(fed,*readoutMap,colls, *report,silent_);
 	report->addUnpacked(*i);
       } catch (cms::Exception& e) {
-	edm::LogWarning("Unpacking error") << e.what();
+	if (!silent_) edm::LogWarning("Unpacking error") << e.what();
 	report->addError(*i);
       } catch (...) {
-	edm::LogWarning("Unpacking exception");
+	if (!silent_) edm::LogWarning("Unpacking exception");
 	report->addError(*i);
       }
     }
@@ -186,6 +187,12 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
   if (unpackZDC_) {
     std::auto_ptr<ZDCDigiCollection> prod(new ZDCDigiCollection());
     prod->swap_contents(zdc);
+    
+    if (filter_.active()) {
+      ZDCDigiCollection filtered_zdc=filter_.filter(*prod,*report);
+      prod->swap(filtered_zdc);
+    }
+
     prod->sort();
     e.put(prod);
   }

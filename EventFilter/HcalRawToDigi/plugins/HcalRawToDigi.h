@@ -37,7 +37,7 @@ private:
   std::vector<int> fedUnpackList_;
   int firstFED_;
   bool unpackCalib_, unpackZDC_;
-  bool complainEmptyData_;
+  bool silent_,complainEmptyData_;
 
   struct Statistics {
     int max_hbhe, ave_hbhe;

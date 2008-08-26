@@ -51,10 +51,10 @@ struct HOUnrolledTP { // parts of an HO trigger primitive, unpacked
 };
 
 void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
-			  Collections& colls, HcalUnpackerReport& report) {
+			  Collections& colls, HcalUnpackerReport& report, bool silent) {
 
   if (raw.size()<16) {
-    edm::LogWarning("Invalid Data") << "Empty/invalid DCC data, size = " << raw.size();
+    if (!silent) edm::LogWarning("Invalid Data") << "Empty/invalid DCC data, size = " << raw.size();
     return;
   }
 
@@ -72,15 +72,23 @@ void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
   for (int spigot=0; spigot<HcalDCCHeader::SPIGOT_COUNT; spigot++) {
     if (!dccHeader->getSpigotPresent(spigot)) continue;
 
-    dccHeader->getSpigotData(spigot,htr);
+    int retval=dccHeader->getSpigotData(spigot,htr,raw.size());
+    if (retval!=0) {
+      if (retval==-1) {
+	if (!silent) edm::LogWarning("Invalid Data") << "Invalid HTR data (data beyond payload size) observed on spigot " << spigot << " of DCC with source id " << dccHeader->getSourceId();
+	report.countSpigotFormatError();
+      }
+      continue;
+    }
     // check
     if (!htr.check()) {
-      edm::LogWarning("Invalid Data") << "Invalid HTR data observed on spigot " << spigot << " of DCC with source id " << dccHeader->getSourceId();
+      if (!silent) 
+edm::LogWarning("Invalid Data") << "Invalid HTR data observed on spigot " << spigot << " of DCC with source id " << dccHeader->getSourceId();
       report.countSpigotFormatError();
       continue;
     }  
     if (htr.isHistogramEvent()) {
-      edm::LogWarning("Invalid Data") << "Histogram data passed to non-histogram unpacker on spigot " << spigot << " of DCC with source id " << dccHeader->getSourceId();
+      if (!silent) edm::LogWarning("Invalid Data") << "Histogram data passed to non-histogram unpacker on spigot " << spigot << " of DCC with source id " << dccHeader->getSourceId();
       continue;
     }
     if (htr.getFirmwareFlavor()==0x81) {
@@ -88,7 +96,7 @@ void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
       continue;
     }
     if (htr.getFirmwareFlavor()>=0x80) {
-      edm::LogWarning("HcalUnpacker") << "Skipping data on spigot " << spigot << " of DCC with source id " << dccHeader->getSourceId() << " which is of unknown flavor " << htr.getFirmwareFlavor();
+      if (!silent) edm::LogWarning("HcalUnpacker") << "Skipping data on spigot " << spigot << " of DCC with source id " << dccHeader->getSourceId() << " which is of unknown flavor " << htr.getFirmwareFlavor();
       continue;
     }
 
@@ -172,7 +180,7 @@ void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
 	  if (did.null()) {
 	    report.countUnmappedTPDigi();
 	    if (unknownIdsTrig_.find(eid)==unknownIdsTrig_.end()) {
-	      edm::LogWarning("HCAL") << "HcalUnpacker: No trigger primitive match found for electronics id :" << eid;
+	      if (!silent) edm::LogWarning("HCAL") << "HcalUnpacker: No trigger primitive match found for electronics id :" << eid;
 	      unknownIdsTrig_.insert(eid);
 	    }
 	    valid=false;
@@ -265,7 +273,7 @@ void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
       } else {
 	report.countUnmappedDigi();
 	if (unknownIds_.find(eid)==unknownIds_.end()) {
-	  edm::LogWarning("HCAL") << "HcalUnpacker: No match found for electronics id :" << eid;
+	  if (!silent) edm::LogWarning("HCAL") << "HcalUnpacker: No match found for electronics id :" << eid;
 	  unknownIds_.insert(eid);
 	}
 	for (int fiberC=qie_work->fiberAndChan();
@@ -322,9 +330,9 @@ void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
   for (int spigot=0; spigot<HcalDCCHeader::SPIGOT_COUNT; spigot++) {
     if (!dccHeader->getSpigotPresent(spigot)) continue;
     
-    dccHeader->getSpigotData(spigot,htr);
+    int retval=dccHeader->getSpigotData(spigot,htr,raw.size());
     // check
-    if (!htr.check()) {
+    if (retval || !htr.check()) {
       edm::LogWarning("Invalid Data") << "Invalid HTR data observed on spigot " << spigot << " of DCC with source id " << dccHeader->getSourceId();
       continue;
     }

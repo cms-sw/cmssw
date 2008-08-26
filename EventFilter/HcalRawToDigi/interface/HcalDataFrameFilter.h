@@ -13,8 +13,8 @@
     As these are applied in units proportional to energy, rather than
     transverse energy, and no calibration is applied, care should be used.
    
-   $Date: 2005/10/04 20:37:50 $
-   $Revision: 1.2 $
+   $Date: 2006/10/09 15:22:32 $
+   $Revision: 1.3 $
    \author J. Mans - Minnesota
 */
 class HcalDataFrameFilter {
@@ -26,6 +26,8 @@ public:
   HFDigiCollection filter(const HFDigiCollection& incol, HcalUnpackerReport& r);
   /// filter HO data frames
   HODigiCollection filter(const HODigiCollection& incol, HcalUnpackerReport& r);
+  /// filter ZDC data frames
+  ZDCDigiCollection filter(const ZDCDigiCollection& incol, HcalUnpackerReport& r);
   /// whether any filters are on
   bool active() const;
 private:
