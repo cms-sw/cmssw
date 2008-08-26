@@ -179,7 +179,7 @@ RPCEfficiency::RPCEfficiency(const edm::ParameterSet& iConfig){
   dbe = edm::Service<DQMStore>().operator->();
   _idList.clear(); 
   
-  std::string folder = "RPC/MuonSegEff/";
+  std::string folder = "Muons/MuonSegEff/";
   dbe->setCurrentFolder(folder);
   statistics = dbe->book1D("Statistics","All Statistics",33,0.5,33.5);
   
@@ -219,7 +219,7 @@ RPCEfficiency::RPCEfficiency(const edm::ParameterSet& iConfig){
   statistics->setBinLabel(16+16,"Events with 14 CSC segments",1);
   statistics->setBinLabel(16+17,"Events with 15 CSC segments",1);
   
-  folder = "RPC/MuonSegEff/Residuals";
+  folder = "Muons/MuonSegEff/Residuals";
   dbe->setCurrentFolder(folder);
   hGlobalResClu1La1 = dbe->book1D("GlobalResidualsClu1La1","RPC Residuals Layer 1 Cluster Size 1",100,-10.,10.);
   hGlobalResClu1La2 = dbe->book1D("GlobalResidualsClu1La2","RPC Residuals Layer 2 Cluster Size 1",100,-10.,10.);

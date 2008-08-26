@@ -251,7 +251,7 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	  std::string detUnitLabel, meIdRPC,meIdDT, bxDistroId, meIdRealRPC  ;
 	 
 	  RPCBookFolderStructure *  folderStr = new RPCBookFolderStructure(); //Anna
-	  std::string folder = "RPC/MuonSegEff/" +  folderStr->folderStructure(rpcId);
+	  std::string folder = "Muons/MuonSegEff/" +  folderStr->folderStructure(rpcId);
 		
 	  meIdRPC = folder +"/RPCDataOccupancyFromDT_"+ rpcsrv.name();	
 	  meIdDT =folder+"/ExpectedOccupancyFromDT_"+ rpcsrv.name();
@@ -539,7 +539,7 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	  std::string detUnitLabel, meIdRPC,meIdCSC, bxDistroId, meIdRealRPC  ;
 	 
 	  RPCBookFolderStructure *  folderStr = new RPCBookFolderStructure(); //Anna
-	  std::string folder = "RPC/MuonSegEff/" +  folderStr->folderStructure(rpcId);
+	  std::string folder = "Muons/MuonSegEff/" +  folderStr->folderStructure(rpcId);
 		
 	  meIdRPC = folder +"/RPCDataOccupancyFromCSC_"+ rpcsrv.name();	
 	  meIdCSC =folder+"/ExpectedOccupancyFromCSC_"+ rpcsrv.name();
