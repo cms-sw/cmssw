@@ -14,7 +14,7 @@
 // Original Author:  Evan Klose Friis
 //    additions by:  Freya Blekman
 //         Created:  Tue Nov  6 17:27:19 CET 2007
-// $Id: SiPixelOfflineCalibAnalysisBase.cc,v 1.12 2008/07/04 12:42:50 fblekman Exp $
+// $Id: SiPixelOfflineCalibAnalysisBase.cc,v 1.13 2008/07/25 09:39:08 fblekman Exp $
 //
 //
 
@@ -109,10 +109,7 @@ SiPixelOfflineCalibAnalysisBase::analyze(const edm::Event& iEvent, const edm::Ev
    
 }
 
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-SiPixelOfflineCalibAnalysisBase::beginJob(const edm::EventSetup& iSetup)
+void SiPixelOfflineCalibAnalysisBase::beginRun(const edm::Run &, const edm::EventSetup &iSetup)
 {
    //load the calibration information from the database
    iSetup.get<SiPixelCalibConfigurationRcd>().get(calib_);
@@ -122,13 +119,18 @@ SiPixelOfflineCalibAnalysisBase::beginJob(const edm::EventSetup& iSetup)
    calibrationMode_ 	= calib_->getCalibrationMode();
    nTriggers_ 		= calib_->getNTriggers();
    vCalValues_		= calib_->getVCalValues();
-
+   std::cout << "!!!! in beginRun" << std::endl;
    edm::LogInfo("SiPixelOfflineCalibAnalysisBase") << "Calibration file loaded. Mode: " << calibrationMode_ << " nTriggers: " << nTriggers_ << " Vcal steps: " << vCalValues_.size() << std::endl;
    theHistogramIdWorker_ = new SiPixelHistogramId(siPixelCalibDigiProducer_.label());
    //call calibrationSetup virtual function
    this->calibrationSetup(iSetup);
+}
+void 
+SiPixelOfflineCalibAnalysisBase::beginJob(const edm::EventSetup& iSetup)
+{
 
 }
+// ------------ method called once each job just before starting event loop  ------------
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
