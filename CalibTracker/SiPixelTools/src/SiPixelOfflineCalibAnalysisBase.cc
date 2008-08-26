@@ -14,7 +14,7 @@
 // Original Author:  Evan Klose Friis
 //    additions by:  Freya Blekman
 //         Created:  Tue Nov  6 17:27:19 CET 2007
-// $Id: SiPixelOfflineCalibAnalysisBase.cc,v 1.13 2008/07/25 09:39:08 fblekman Exp $
+// $Id: SiPixelOfflineCalibAnalysisBase.cc,v 1.14 2008/08/26 10:03:30 fblekman Exp $
 //
 //
 
@@ -63,6 +63,8 @@ SiPixelOfflineCalibAnalysisBase::analyze(const edm::Event& iEvent, const edm::Ev
 {
    using namespace edm;
 
+   iSetup.get<TrackerDigiGeometryRecord>().get( geom_ );
+   iSetup.get<SiPixelFedCablingMapRcd>().get(theCablingMap_);
    // check first if you're analyzing the right type of calibration
    if(!checkCorrectCalibrationType())
      return;
@@ -121,9 +123,9 @@ void SiPixelOfflineCalibAnalysisBase::beginRun(const edm::Run &, const edm::Even
    vCalValues_		= calib_->getVCalValues();
    std::cout << "!!!! in beginRun" << std::endl;
    edm::LogInfo("SiPixelOfflineCalibAnalysisBase") << "Calibration file loaded. Mode: " << calibrationMode_ << " nTriggers: " << nTriggers_ << " Vcal steps: " << vCalValues_.size() << std::endl;
-   theHistogramIdWorker_ = new SiPixelHistogramId(siPixelCalibDigiProducer_.label());
    //call calibrationSetup virtual function
    this->calibrationSetup(iSetup);
+   theHistogramIdWorker_ = new SiPixelHistogramId(siPixelCalibDigiProducer_.label());
 }
 void 
 SiPixelOfflineCalibAnalysisBase::beginJob(const edm::EventSetup& iSetup)
