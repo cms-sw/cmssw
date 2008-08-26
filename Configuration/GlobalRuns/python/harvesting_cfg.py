@@ -9,8 +9,7 @@ process.GlobalTag.connect = "frontier://PromptProd/CMS_COND_21X_GLOBALTAG"
 process.GlobalTag.globaltag = "CRUZET4_V2P::All"
 process.prefer("GlobalTag")
 
-process.load("Geometry.EcalMapping.EcalMapping_cfi")
-process.load("Geometry.EcalMapping.EcalMappingRecord_cfi")
+process.load("Configuration.StandardSequences.Geometry_cff")
 
 process.load("DQMOffline.Configuration.DQMOffline_SecondStep_cff")
 
