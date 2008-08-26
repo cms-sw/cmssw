@@ -151,19 +151,20 @@ double PFBenchmarkAlgo::deltaPhi(const T *c1, const U *c2) {
   if (c1 == NULL || c2 == NULL)
     throw cms::Exception("Invalid Arg") << "attempted to calculate deltaPhi for invalid Candidate(s)";
 
+  
   double phi1 = c1->phi();
   if (phi1 > M_PI) phi1 -= ceil((phi1 - M_PI) / (2 * M_PI)) * 2 * M_PI;
-  if (phi1 <= - M_PI) phi1 += ceil((phi1 - M_PI) / (2 * M_PI)) * 2 * M_PI;
+  if (phi1 <= - M_PI) phi1 += ceil((phi1 + M_PI) / (-2. * M_PI)) * 2. * M_PI;
 
   double phi2 = c2->phi();
   if (phi2 > M_PI) phi2 -= ceil((phi2 - M_PI) / (2 * M_PI)) * 2 * M_PI;
-  if (phi2 <= - M_PI) phi2 += ceil((phi2 - M_PI) / (2 * M_PI)) * 2 * M_PI;
+  if (phi2 <= - M_PI) phi2 += ceil((phi2 + M_PI) / (-2. * M_PI)) * 2 * M_PI;
 
   // alternative method:
   // while (phi > M_PI) phi -= 2 * M_PI;
   // while (phi <= - M_PI) phi += 2 * M_PI;
 
-  return phi1 - phi2;
+  return ( (fabs(phi1 - phi2)<M_PI)?(phi1-phi2):(2*M_PI - fabs(phi1 - phi2) ) );
 
 }
  
