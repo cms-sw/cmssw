@@ -7,6 +7,7 @@
 #include "RecoTracker/TkTrackingRegions/interface/GlobalTrackingRegion.h"
 #include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/Event.h"
 
 #include "DataFormats/Common/interface/DetSetVector.h"    
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
@@ -32,7 +33,7 @@ public:
     double yDir         = regionPSet.getParameter<double>("directionYCoord");
     double zDir         = regionPSet.getParameter<double>("directionZCoord");
     thePrecise          = regionPSet.getParameter<bool>("precise"); 
-    theSiPixelRecHits   = regionPSet.getParameter<string>("siPixelRecHits");
+    theSiPixelRecHits   = regionPSet.getParameter<std::string>("siPixelRecHits");
     theOrigin = GlobalPoint(xPos,yPos,zPos);
     theDirection = GlobalVector(xDir, yDir, zDir);
   }   
@@ -119,7 +120,7 @@ result;
   }
 
 private:
-  string theSiPixelRecHits;
+  std::string theSiPixelRecHits;
   double thePtMin; 
   GlobalPoint theOrigin;
   double theOriginRadius; 
