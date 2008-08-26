@@ -67,6 +67,7 @@ class MuonSeedPtExtractor {
  std::vector<double>  smb32(){ return SMB32; }
 
  private:
+  int stationCode(MuonTransientTrackingRecHit::ConstMuonRecHitPointer hit) const;
   // seed parameters vectors
   std::vector<double> DT12;
   std::vector<double> DT13;

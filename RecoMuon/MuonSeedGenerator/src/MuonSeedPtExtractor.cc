@@ -164,104 +164,8 @@ std::vector<double> MuonSeedPtExtractor::pT_extract(MuonTransientTrackingRecHit:
   DetId  detId_first = firstHit->hit()->geographicalId();
   DetId  detId_second = secondHit->hit()->geographicalId();
 
-  if( firstHit->isDT() ){
-    DTChamberId dtCh(detId_first);
-    std::cout<<"first (DT) St/W/S = "<<dtCh.station()<<"/"<<dtCh.wheel()<<"/"<<dtCh.sector()<<"/"<<std::endl;
-    switch (dtCh.station()){
-    case 1:
-      stationCoded[0] = -1;
-      break;
-    case 2:
-      stationCoded[0] = -2;
-      break;
-    case 3:
-      stationCoded[0] = -3;
-      break;
-    case 4:
-      stationCoded[0] = -4;
-      break;
-    default:
-      stationCoded[0] = -99;
-      break;
-    }
-  }
-  else if( firstHit->isCSC() ){
-    CSCDetId cscID(detId_first);
-    std::cout<<"first (CSC) E/S/R/C = "<<cscID.endcap()<<"/"<<cscID.station()<<"/"<<cscID.ring()<<"/"<<cscID.chamber()<<std::endl;
-    switch ( cscID.station() ){
-    case 1:
-      if ( 1 == cscID.ring() ||  4 == cscID.ring()){
-        stationCoded[0] = 0;
-      }
-      else{
-        stationCoded[0] = 1;
-      }
-      break;
-    case 2:
-      stationCoded[0] = 2;
-      break;
-    case 3:
-      stationCoded[0] = 3;
-      break;
-    case 4:
-      stationCoded[0] = 4;
-      break;
-    default:
-      stationCoded[0] = 99;
-      break;
-    }
-  }
-  else if(firstHit->isRPC()){
-  }
-  if(secondHit->isDT()){
-    DTChamberId dtCh(detId_second);
-    std::cout<<"second (DT) St/W/S = "<<dtCh.station()<<"/"<<dtCh.wheel()<<"/"<<dtCh.sector()<<std::endl;
-    switch (dtCh.station()){
-    case 1:
-      stationCoded[1] = -1;
-      break;
-    case 2:
-      stationCoded[1] = -2;
-      break;
-    case 3:
-      stationCoded[1] = -3;
-      break;
-    case 4:
-      stationCoded[1] = -4;
-      break;
-    default:
-      stationCoded[1] = -99;
-      break;
-    }
-  }
-  else if( secondHit->isCSC() ){
-    CSCDetId cscID(detId_second);
-    std::cout<<"second (CSC) E/S/R/C = "<<cscID.endcap()<<"/"<<cscID.station()<<"/"<<cscID.ring()<<"/"<<cscID.chamber()<<std::endl;
-    switch ( cscID.station() ){
-    case 1:
-      if ( 1 == cscID.ring() ||  4 == cscID.ring()){
-        stationCoded[1] = 0;
-      }
-      else{
-        stationCoded[1] = 1;
-      }
-      break;
-    case 2:
-      stationCoded[1] = 2;
-      break;
-    case 3:
-      stationCoded[1] = 3;
-      break;
-    case 4:
-      stationCoded[1] = 4;
-      break;
-    default:
-      stationCoded[1] = 99;
-      break;
-    }
-  }
-  else if(secondHit->isRPC()){
-  }
+  stationCoded[0] = stationCode(firstHit);
+  stationCoded[1] = stationCode(secondHit);
 
   std::ostringstream os0 ;
   std::ostringstream os1 ;
@@ -479,6 +383,62 @@ std::vector<double> MuonSeedPtExtractor::pT_extract(MuonTransientTrackingRecHit:
   return pTestimate;
 }
 
+
+int MuonSeedPtExtractor::stationCode(MuonTransientTrackingRecHit::ConstMuonRecHitPointer hit) const
+{
+  DetId detId(hit->hit()->geographicalId());
+  int result = -999;
+  if(hit->isDT() ){
+    DTChamberId dtCh(detId);
+    //std::cout<<"first (DT) St/W/S = "<<dtCh.station()<<"/"<<dtCh.wheel()<<"/"<<dtCh.sector()<<"/"<<std::endl;
+    switch (dtCh.station()){
+    case 1:
+      result = -1;
+      break;
+    case 2:
+      result = -2;
+      break;
+    case 3:
+      result = -3;
+      break;
+    case 4:
+      result = -4;
+      break;
+    default:
+      result = -99;
+      break;
+    }
+  }
+  else if( hit->isCSC() ){
+    CSCDetId cscID(detId);
+    //std::cout<<"first (CSC) E/S/R/C = "<<cscID.endcap()<<"/"<<cscID.station()<<"/"<<cscID.ring()<<"/"<<cscID.chamber()<<std::endl;
+    switch ( cscID.station() ){
+    case 1:
+      if ( 1 == cscID.ring() ||  4 == cscID.ring()){
+        result = 0;
+      }
+      else{
+        result = 1;
+      }
+      break;
+    case 2:
+      result = 2;
+      break;
+    case 3:
+      result = 3;
+      break;
+    case 4:
+      result = 4;
+      break;
+    default:
+      result = 99;
+      break;
+    }
+  }
+  else if(hit->isRPC()){
+  }
+  return result;
+}
 
 // it is a copy from the Seed code - call it from there?
 std::vector<double> MuonSeedPtExtractor::getPt(std::vector<double> vPara, double eta, double dPhi ) {
