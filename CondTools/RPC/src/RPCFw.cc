@@ -1,8 +1,8 @@
  /* 
  *  See header file for a description of this class.
  *
- *  $Date: 2008/07/17 16:33:19 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/07/31 14:48:30 $
+ *  $Revision: 1.4 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 
@@ -208,6 +208,127 @@ std::vector<RPCdbData::Item> RPCFw::createSTATUS(int from)
 }
 
 
+
+//------------------------------ G A S ---------------------------------------------------------------------
+std::vector<RPCGas::GasItem> RPCFw::createGAS(int from)
+{
+  thr = UTtoT(from);
+  std::cout <<">> Processing since: "<<thr.day()<<"/"<<thr.month()<<"/"<<thr.year()<<" "<<thr.hour()<<":"<<thr.minute()<<"."<<thr.second()<< std::endl;
+
+  coral::ISession* session = this->connect( m_connectionString,
+                                            m_userName, m_password );
+  session->transaction().start( true );
+  coral::ISchema& schema = session->nominalSchema();
+  int nRows = 0;
+  std::cout << ">> creating GAS object..." << std::endl;
+  coral::IQuery* queryS = schema.newQuery();
+  queryS->addToTableList( "RPCGASCHANNEL" );
+  queryS->addToOutputList( "RPCGASCHANNEL.DPID", "DPID" );
+  queryS->addToOutputList( "RPCGASCHANNEL.CHANGE_DATE", "TSTAMP" );
+  queryS->addToOutputList( "RPCGASCHANNEL.FLOWIN", "FLOWIN" );
+  queryS->addToOutputList( "RPCGASCHANNEL.FLOWOUT", "FLOWOUT" );
+  std::string condS = "RPCGASCHANNEL.FLOWIN is not NULL";
+
+  std::string condition = "RPCGASCHANNEL.FLOWIN is not NULL AND RPCGASCHANNEL.CHANGE_DATE >:tmax";
+  coral::AttributeList conditionData;
+  conditionData.extend<coral::TimeStamp>( "tmax" );
+  queryS->setCondition( condition, conditionData );
+  conditionData[0].data<coral::TimeStamp>() = thr;
+  coral::ICursor& cursorS = queryS->execute();
+
+  RPCGas::GasItem gastemp;
+  std::vector<RPCGas::GasItem> gasarray;
+  while ( cursorS.next() ) {
+    const coral::AttributeList& row = cursorS.currentRow();
+    float idoub = row["DPID"].data<float>();
+    int id = static_cast<int>(idoub);
+    float valin = row["FLOWIN"].data<float>();
+    float valout = row["FLOWOUT"].data<float>();
+    coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
+    int ndate = (ts.day() * 10000) + (ts.month() * 100) + (ts.year()-2000);
+    int ntime = (ts.hour() * 10000) + (ts.minute() * 100) + ts.second();
+
+    gastemp.dpid = id;
+    gastemp.flowin = valin;
+    gastemp.flowout = valout;
+    gastemp.day = ndate;
+    gastemp.time = ntime;
+    gasarray.push_back(gastemp);
+
+    ++nRows;
+  }
+  std::cout << ">> Gas array --> size: " << gasarray.size() << " >> done." << std::endl << std::endl << std::endl;
+
+  delete queryS;
+  session->transaction().commit();
+  delete session;
+
+  return gasarray;
+
+}
+
+
+
+//------------------------------ T E M P E R A T U R E ---------------------------------------------------------------------
+std::vector<RPCGas::TempItem> RPCFw::createT(int from)
+{
+  thr = UTtoT(from);
+  std::cout <<">> Processing since: "<<thr.day()<<"/"<<thr.month()<<"/"<<thr.year()<<" "<<thr.hour()<<":"<<thr.minute()<<"."<<thr.second()<< std::endl;
+
+  coral::ISession* session = this->connect( m_connectionString,
+                                            m_userName, m_password );
+  session->transaction().start( true );
+  coral::ISchema& schema = session->nominalSchema();
+  int nRows = 0;
+  std::cout << ">> creating TEMPERATURE object..." << std::endl;
+  coral::IQuery* queryS = schema.newQuery();
+  queryS->addToTableList( "FWCAENCHANNELADC" );
+  queryS->addToOutputList( "FWCAENCHANNELADC.DPID", "DPID" );
+  queryS->addToOutputList( "FWCAENCHANNELADC.CHANGE_DATE", "TSTAMP" );
+  queryS->addToOutputList( "FWCAENCHANNELADC.ACTUAL_TEMPERATURE", "TEMPERATURE" );
+  std::string condS = "FWCAENCHANNELADC.ACTUAL_TEMPERATURE is not NULL";
+
+  std::string condition = "FWCAENCHANNELADC.ACTUAL_TEMPERATURE is not NULL AND FWCAENCHANNELADC.CHANGE_DATE >:tmax";
+  coral::AttributeList conditionData;
+  conditionData.extend<coral::TimeStamp>( "tmax" );
+  queryS->setCondition( condition, conditionData );
+  conditionData[0].data<coral::TimeStamp>() = thr;
+  coral::ICursor& cursorS = queryS->execute();
+
+  RPCGas::TempItem Ttemp;
+  std::vector<RPCGas::TempItem> temparray;
+  while ( cursorS.next() ) {
+    const coral::AttributeList& row = cursorS.currentRow();
+    float idoub = row["DPID"].data<float>();
+    int id = static_cast<int>(idoub);
+    float val = row["TEMPERATURE"].data<float>();
+    coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
+    int ndate = (ts.day() * 10000) + (ts.month() * 100) + (ts.year()-2000);
+    int ntime = (ts.hour() * 10000) + (ts.minute() * 100) + ts.second();
+
+    Ttemp.dpid = id;
+    Ttemp.value = val;
+    Ttemp.day = ndate;
+    Ttemp.time = ntime;
+    temparray.push_back(Ttemp);
+
+    ++nRows;
+  }
+  std::cout << ">> Temperature array --> size: " << temparray.size() << " >> done." << std::endl << std::endl << std::endl;
+
+  delete queryS;
+  session->transaction().commit();
+  delete session;
+
+  return temparray;
+
+}
+
+
+
+
+
+//----------------------------------------------------------------------------------------------
 coral::TimeStamp RPCFw::UTtoT(int utime) 
 {
   int yea = static_cast<int>(trunc(utime/31536000) + 1970);
