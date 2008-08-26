@@ -2,12 +2,11 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("SIPIXELDQM")
 process.load("Geometry.TrackerSimData.trackerSimGeometryXML_cfi")
-
 process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
-
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
-
+#process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
+#process.load("Configuration.GlobalRuns.ForceZeroTeslaField_cff")
 
 ##process.load("Configuration.StandardSequences.Reconstruction_cff")
 
@@ -20,8 +19,8 @@ process.load("RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizer_cfi")
 process.load("RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi")
 process.load("RecoLocalTracker.SiPixelRecHits.PixelCPEESProducers_cff")
 
-process.load("EventFilter.SiStripRawToDigi.SiStripRawToDigis_standard_cff")
-process.siStripDigis.ProductLabel = 'source'
+#process.load("EventFilter.SiStripRawToDigi.SiStripRawToDigis_standard_cff")
+#process.siStripDigis.ProductLabel = 'source'
 
 #process.load("RecoLocalTracker.SiStripClusterizer.SiStripClusterizer_cfi")
 #process.load("RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi")
@@ -106,6 +105,8 @@ process.source = cms.Source("PoolSource",
                                       'rfio:/castor/cern.ch/cms/store/data/Commissioning08/Cosmics/RAW/MW33_v1/000/056/742/B0319435-4C6A-DD11-9B18-000423D952C0.root',
                                       'rfio:/castor/cern.ch/cms/store/data/Commissioning08/Cosmics/RAW/MW33_v1/000/056/742/B428FF51-4C6A-DD11-87D8-000423D986C4.root',
                                       'rfio:/castor/cern.ch/cms/store/data/Commissioning08/Cosmics/RAW/MW33_v1/000/056/742/DEAB1B33-4C6A-DD11-B83D-000423D99BF2.root'
+    #'rfio:/castor/cern.ch/cms/store/cmscaf/alca/alignment/CRUZET4-TkAlCosmics/57553/ALCARECOTkAlCosmics0T_1.root', 
+    #rfio:/castor/cern.ch/cms/store/cmscaf/alca/alignment/CRUZET4-TkAlCosmics/57553/ALCARECOTkAlCosmics0T_2.root'
 				      )
 )
 
@@ -128,8 +129,9 @@ process.MessageLogger = cms.Service("MessageLogger",
 process.AdaptorConfig = cms.Service("AdaptorConfig")
 
 process.sipixelEDAClient = cms.EDFilter("SiPixelEDAClient",
-    FileSaveFrequency = cms.untracked.int32(50),
-    StaticUpdateFrequency = cms.untracked.int32(10)
+    EventOffsetForInit = cms.untracked.int32(10),
+    ActionOnLumiSection = cms.untracked.bool(False),
+    ActionOnRunEnd = cms.untracked.bool(True)
 )
 
 process.qTester = cms.EDFilter("QualityTester",
@@ -144,6 +146,7 @@ process.LockService = cms.Service("LockService",
     labels = cms.untracked.vstring('source')
 )
 
+#process.Reco = cms.Sequence(process.siPixelRecHits)
 process.Reco = cms.Sequence(process.siPixelDigis*process.siPixelClusters*process.siPixelRecHits)
 process.RAWmonitor = cms.Sequence(process.SiPixelRawDataErrorSource)
 process.DIGImonitor = cms.Sequence(process.SiPixelDigiSource)
