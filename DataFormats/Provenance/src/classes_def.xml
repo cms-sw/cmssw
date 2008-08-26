@@ -75,8 +75,9 @@
  <class name="edm::FileIndex::Element"/>
  <class name="std::vector<edm::FileIndex::Element>"/>
  <class name="edm::FileIndex">
-   <field name="eventsSorted_" transient="true"/>
-   <field name="sortedCached_" transient="true"/>
+   <field name="allEventsInEntryOrder_" transient="true"/>
+   <field name="resultCached_" transient="true"/>
+   <field name="sortState_" transient="true"/>
  </class>
  <class name="edm::EventProcessHistoryID"/>
  <class name="std::vector<edm::EventProcessHistoryID>"/>

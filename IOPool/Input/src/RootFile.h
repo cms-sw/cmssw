@@ -66,6 +66,7 @@ namespace edm {
 	     InputSource::ProcessingMode processingMode,
 	     int forcedRunOffset,
 	     std::vector<EventID> const& whichEventsToProcess,
+             bool noEventSort,
              bool dropMetaData,
 	     GroupSelectorRules const& groupSelectorRules);
     void reportOpened();
@@ -155,6 +156,7 @@ namespace edm {
     std::vector<LuminosityBlockID> whichLumisToSkip_;
     std::vector<EventID> whichEventsToProcess_;
     std::vector<EventID>::const_iterator eventListIter_;
+    bool noEventSort_;
     bool fastClonable_;
     bool dropMetaData_;
     GroupSelector groupSelector_;

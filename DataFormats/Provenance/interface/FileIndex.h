@@ -5,7 +5,7 @@
 
 FileIndex.h 
 
-$Id: FileIndex.h,v 1.4 2008/03/11 21:10:31 wmtan Exp $
+$Id: FileIndex.h,v 1.5 2008/07/31 23:13:24 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -52,7 +52,8 @@ namespace edm {
 
       typedef std::vector<Element>::const_iterator const_iterator;
 
-      void sort();
+      void sortBy_Run_Lumi_Event();
+      void sortBy_Run_Lumi_EventEntry();
 
       const_iterator
       findPosition(RunNumber_t run, LuminosityBlockNumber_t lumi = 0U, EventNumber_t event = 0U) const;
@@ -74,16 +75,6 @@ namespace edm {
 	return findEventPosition(run, lumi, event, exact) != entries_.end();
       }
 
-      bool
-      containsLumi(RunNumber_t run, LuminosityBlockNumber_t lumi, bool exact) const {
-	return findLumiPosition(run, lumi, exact) != entries_.end();
-      }
-
-      bool
-      containsLumi(RunNumber_t run, bool exact) const {
-	return findRunPosition(run, exact) != entries_.end();
-      }
-
       const_iterator begin() const {return entries_.begin();}
 
       const_iterator end() const {return entries_.end();}
@@ -92,12 +83,16 @@ namespace edm {
 
       bool empty() const {return entries_.empty();}
 
-      bool eventsSorted() const;
+      bool allEventsInEntryOrder() const;
 
     private:
+
+      enum SortState { kNotSorted, kSorted_Run_Lumi_Event, kSorted_Run_Lumi_EventEntry};
+
       std::vector<Element> entries_;
-      mutable bool eventsSorted_; //! transient
-      mutable bool sortedCached_; //! transient
+      mutable bool allEventsInEntryOrder_; //! transient
+      mutable bool resultCached_; //! transient
+      mutable SortState sortState_; //! transient
   };
 
   bool operator<(FileIndex::Element const& lh, FileIndex::Element const& rh);
@@ -116,6 +111,12 @@ namespace edm {
 
   inline
   bool operator!=(FileIndex::Element const& lh, FileIndex::Element const& rh) {return lh < rh || rh < lh;}
+
+  class Compare_Run_Lumi_EventEntry {
+  public:
+    bool operator()(FileIndex::Element const& lh, FileIndex::Element const& rh);
+  };
+
 }
 
 #endif
