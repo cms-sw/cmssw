@@ -245,7 +245,6 @@ PFElecTkProducer::FindPfRef(const reco::PFRecTrackCollection  & PfRTkColl,
 bool 
 PFElecTkProducer::otherElId(const reco::GsfTrackCollection  & GsfColl, 
 			    reco::GsfTrack GsfTk){
-
   int nhits=GsfTk.numberOfValidHits();
   GsfTrackCollection::const_iterator igs=GsfColl.begin();
   GsfTrackCollection::const_iterator igs_end=GsfColl.end();  

@@ -56,7 +56,10 @@ class GoodSeedProducer : public edm::EDProducer {
       int getBin(float);
       void PSforTMVA(math::XYZTLorentzVector mom,
 		     math::XYZTLorentzVector pos);
-      bool IsIsolated(reco::Track, edm::Event&, uint,uint);
+      bool IsIsolated(float  charge,float P,
+	              math::XYZPointF, 
+                      const reco::PFClusterCollection &ecalColl,
+                      const reco::PFClusterCollection &hcalColl);
       // ----------member data ---------------------------
 
       ///Vector of clusters of the PreShower
@@ -85,8 +88,16 @@ class GoodSeedProducer : public edm::EDProducer {
       double minPt_;
       double maxPt_;
       double maxEta_;
-      double maxDr_;
-      double maxIsol_;
+      
+      ///ISOLATION REQUEST AS DONE IN THE TAU GROUP
+      double HcalIsolWindow_;
+      double EcalStripSumE_minClusEnergy_;
+      double EcalStripSumE_deltaEta_;
+      double EcalStripSumE_deltaPhiOverQ_minValue_;
+      double EcalStripSumE_deltaPhiOverQ_maxValue_;
+      double minEoverP_;
+      double maxHoverP_;
+      ///
 
       ///Cut on the energy of the clusters
       double clusThreshold_;
@@ -109,6 +120,7 @@ class GoodSeedProducer : public edm::EDProducer {
       edm::ParameterSet conf_;
       edm::InputTag pfCLusTagPSLabel_;
       edm::InputTag pfCLusTagECLabel_;
+      edm::InputTag pfCLusTagHCLabel_;
       std::vector<edm::InputTag> tracksContainers_;
       
 
