@@ -36,14 +36,14 @@ globalTkMap = cms.EDFilter( "TrivialDeltaRViewMatcher",
 	distMin = cms.double(0.3))
 
 globalTkStaMatched = cms.EDFilter( "RecoChargedCandidateMatchedProbeMaker", 
-                                   CandidateSource   = src.InputTag( "tkStaMatched" ),
-                                   ResMatchMapSource = src.InputTag( "globalTkMap" ),
-                                   ReferenceSource   = src.InputTag( "globalMuons" ),
-                                   Matched = src.bool(True))
+                                   CandidateSource   = cms.InputTag( "tkStaMatched" ),
+                                   ResMatchMapSource = cms.InputTag( "globalTkMap" ),
+                                   ReferenceSource   = cms.InputTag( "globalMuons" ),
+                                   Matched = cms.bool(True))
 
 muonTagProbeMap = cms.EDProducer( "TagProbeProducer", 
                                   TagCollection   = cms.InputTag( "globalMuons" ),
-                                  ProbeCollection = cms.InputTage( "tkStaMatched" ),
+                                  ProbeCollection = cms.InputTag( "tkStaMatched" ),
                                   MassMinCut = cms.double(50.0),
                                   MassMaxCut = cms.double(120.0))
 
