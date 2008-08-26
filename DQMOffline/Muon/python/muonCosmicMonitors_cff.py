@@ -14,14 +14,13 @@ from DQMOffline.Muon.CSCMonitor_cfi import *
 import DQMOffline.Muon.muonAnalyzer_cfi
 muonStandAloneCosmicAnalyzer = DQMOffline.Muon.muonAnalyzer_cfi.muonAnalyzer.clone()
 #dedicated clients for offline dqm
-from DQMOffline.Muon.rpcClient_cfi import *
 from DQMOffline.Muon.muonQualityTests_cff import *
 muonTrackCosmicAnalyzers = cms.Sequence(standAloneCosmicMuonsMonitors*MonitorTrackTKCosmicMuons*MonitorTrackGLBCosmicMuons)
 muonTrackCosmicAnalyzersHLT = cms.Sequence(MonitorTrackSTACosmicMuonsHLTDT*MonitorTrackSTACosmicMuonsHLTCSC)
 muonCosmicMonitors = cms.Sequence(muonTrackCosmicAnalyzers*dtSegmentsMonitor*rpcSource*cscMonitor*muonCosmicAnalyzer)
 muonCosmicMonitors_woCSC = cms.Sequence(cms.SequencePlaceholder("muonTrackAnalyzers")*dtSegmentsMonitor*rpcSource*muonCosmicMonitors)
 muonStandAloneCosmicMonitors = cms.Sequence(MonitorTrackSTACosmicMuons*dtSegmentsMonitor*cscMonitor*rpcSource*muonStandAloneCosmicAnalyzer)
-muonCosmicMonitorsAndQualityTests = cms.Sequence(muonCosmicMonitors*rpcClient*muonQualityTests)
+muonCosmicMonitorsAndQualityTests = cms.Sequence(muonCosmicMonitors*muonQualityTests)
 muonStandAloneCosmicAnalyzer.DoMuonRecoAnalysis = False
 
 
