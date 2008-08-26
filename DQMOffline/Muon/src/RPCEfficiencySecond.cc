@@ -37,6 +37,7 @@ camilo.carrilloATcern.ch
 RPCEfficiencySecond::RPCEfficiencySecond(const edm::ParameterSet& iConfig){
   SaveFile  = iConfig.getUntrackedParameter<bool>("SaveFile", false); 
   NameFile  = iConfig.getUntrackedParameter<std::string>("NameFile","RPCEfficiency.root"); 
+  debug = iConfig.getUntrackedParameter<bool>("debug",false); 
 }
 
 RPCEfficiencySecond::~RPCEfficiencySecond(){}
@@ -186,9 +187,11 @@ void RPCEfficiencySecond::beginJob(const edm::EventSetup&){
 void RPCEfficiencySecond::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){ }
 
 void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetup){
-  std::cout<<"Begin End Run"<<std::endl;
+  if(debug)
+    std::cout<<"Begin End Run"<<std::endl;
 
-  std::cout <<"\t Getting the RPC Geometry"<<std::endl;
+  if(debug)
+    std::cout <<"\t Getting the RPC Geometry"<<std::endl;
   edm::ESHandle<RPCGeometry> rpcGeo;
   iSetup.get<MuonGeometryRecord>().get(rpcGeo);
   
@@ -223,29 +226,30 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	RPCGeomServ rpcsrv(rpcId);
 	int sector = rpcId.sector();	
 	
-	std::cout<<rpcId<<std::endl;
-	//printing indexes
-	std::cout<<"indexWheel=";
-	for(int j=0;j<5;j++){
-	  std::cout<<indexWheel[j]<<" ";
+	if(debug){
+	  std::cout<<rpcId<<std::endl;
+	  //printing indexes
+	  std::cout<<"indexWheel=";
+	  for(int j=0;j<5;j++){
+	    std::cout<<indexWheel[j]<<" ";
+	  }
+	  std::cout<<std::endl;
+	  std::cout<<"indexWheelf=";
+	  for(int j=0;j<5;j++){
+	    std::cout<<indexWheelf[j]<<" ";
+	  }
+	  std::cout<<std::endl;
+	  std::cout<<"indexDisk=";
+	  for(int j=0;j<6;j++){
+	    std::cout<<indexDisk[j]<<" ";
+	  }
+	  std::cout<<std::endl;
+	  std::cout<<"indexDiskf=";
+	  for(int j=0;j<6;j++){
+	    std::cout<<indexDiskf[j]<<" ";
+	  }
+	  std::cout<<std::endl;
 	}
-	std::cout<<std::endl;
-	std::cout<<"indexWheelf=";
-	for(int j=0;j<5;j++){
-	  std::cout<<indexWheelf[j]<<" ";
-	}
-	std::cout<<std::endl;
-	std::cout<<"indexDisk=";
-	for(int j=0;j<6;j++){
-	  std::cout<<indexDisk[j]<<" ";
-	}
-  	std::cout<<std::endl;
-	std::cout<<"indexDiskf=";
-	for(int j=0;j<6;j++){
-	  std::cout<<indexDiskf[j]<<" ";
-	}
-	std::cout<<std::endl;
-
   	
 	if(rpcId.region()==0){
 	  std::string detUnitLabel, meIdRPC,meIdDT, bxDistroId, meIdRealRPC  ;
@@ -281,7 +285,8 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	  int NumberStripsPointed = 0;
 
 	  if(histoRPC && histoDT && BXDistribution && histoRealRPC){
-	    std::cout <<rpcsrv.name()<<std::endl;
+	    if(debug)
+	      std::cout <<rpcsrv.name()<<std::endl;
 
 	    for(int i=1;i<=int((*r)->nstrips());++i){
 	      if(histoRealRPC->getBinContent(i)==0) NumberMasked++;
@@ -569,7 +574,8 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	  int NumberStripsPointed = 0;
 
 	  if(histoRPC && histoCSC && BXDistribution && histoRealRPC){
-	    std::cout <<rpcsrv.name()<<std::endl;
+	    if(debug)
+	      std::cout <<rpcsrv.name()<<std::endl;
 
 	    for(int i=1;i<=int((*r)->nstrips());++i){
 	      if(histoRealRPC->getBinContent(i)==0) NumberMasked++;
@@ -1116,8 +1122,8 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
   NoPredictionD2far->setAxisTitle("%",2);
   NoPredictionD3far->setAxisTitle("%",2);
 
-
-  std::cout<<"Saving RootFile"<<std::endl;
+  if(debug)
+    std::cout<<"Saving RootFile"<<std::endl;
   //dbe->rmdir("RPC");
   if(SaveFile)dbe->save(NameFile);
 
