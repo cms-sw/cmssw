@@ -67,11 +67,12 @@ SiPixelEDAClient::SiPixelEDAClient(const edm::ParameterSet& ps) :
   actionOnLumiSec_       = ps.getUntrackedParameter<bool>("ActionOnLumiSection",false);
   actionOnRunEnd_        = ps.getUntrackedParameter<bool>("ActionOnRunEnd",true);
   evtOffsetForInit_      = ps.getUntrackedParameter<int>("EventOffsetForInit",10);
+  summaryXMLfile_        = ps.getUntrackedParameter<std::string>("SummaryXMLFileName","DQM/SiPixelMonitorClient/test/sipixel_monitorelement_config.xml");
 
   // instantiate web interface
   sipixelWebInterface_ = new SiPixelWebInterface(bei_);
-  sipixelInformationExtractor_ = new SiPixelInformationExtractor();
-  sipixelActionExecutor_ = new SiPixelActionExecutor();
+  sipixelInformationExtractor_ = new SiPixelInformationExtractor(summaryXMLfile_);
+  sipixelActionExecutor_ = new SiPixelActionExecutor(summaryXMLfile_);
   
  //cout<<"...leaving  SiPixelEDAClient::SiPixelEDAClient. "<<endl;
 }

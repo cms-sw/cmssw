@@ -66,6 +66,7 @@ private:
   bool actionOnLumiSec_;
   bool actionOnRunEnd_;
   int evtOffsetForInit_;
+  std::string summaryXMLfile_;
 
   std::ostringstream html_out_;
 };

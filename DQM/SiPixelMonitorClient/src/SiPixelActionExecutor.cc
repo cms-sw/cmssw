@@ -17,7 +17,7 @@ using namespace std;
 //
 // -- Constructor
 // 
-SiPixelActionExecutor::SiPixelActionExecutor() {
+SiPixelActionExecutor::SiPixelActionExecutor(std::string summaryXMLfileName) : summaryXMLfileName_(summaryXMLfileName) {
   edm::LogInfo("SiPixelActionExecutor") << 
     " Creating SiPixelActionExecutor " << "\n" ;
   configParser_ = 0;
@@ -42,7 +42,8 @@ SiPixelActionExecutor::~SiPixelActionExecutor() {
 // -- Read Configuration File
 //
 void SiPixelActionExecutor::readConfiguration() {
-  string localPath = string("DQM/SiPixelMonitorClient/test/sipixel_monitorelement_config.xml");
+//  string localPath = string("DQM/SiPixelMonitorClient/test/sipixel_monitorelement_config.xml");
+  string localPath = summaryXMLfileName_;
   if (configParser_ == 0) {
     configParser_ = new SiPixelConfigParser();
     configParser_->getDocument(edm::FileInPath(localPath).fullPath());
@@ -61,7 +62,8 @@ bool SiPixelActionExecutor::readConfiguration(int& tkmap_freq,
 					      int& source_type_,
 					      int& calib_type_) {
 //cout<<"Entering SiPixelActionExecutor::readConfiguration..."<<endl;
-  string localPath = string("DQM/SiPixelMonitorClient/test/sipixel_monitorelement_config.xml");
+//  string localPath = string("DQM/SiPixelMonitorClient/test/sipixel_monitorelement_config.xml");
+  string localPath = summaryXMLfileName_;
   if (configParser_ == 0) {
     configParser_ = new SiPixelConfigParser();
     configParser_->getDocument(edm::FileInPath(localPath).fullPath());
@@ -105,7 +107,8 @@ bool SiPixelActionExecutor::readConfiguration(int& tkmap_freq,
 //=============================================================================================================
 bool SiPixelActionExecutor::readConfiguration(int& tkmap_freq, int& summary_freq) {
 //cout<<"Entering SiPixelActionExecutor::readConfiguration..."<<endl;
-  string localPath = string("DQM/SiPixelMonitorClient/test/sipixel_monitorelement_config.xml");
+//  string localPath = string("DQM/SiPixelMonitorClient/test/sipixel_monitorelement_config.xml");
+  string localPath = summaryXMLfileName_;
   if (configParser_ == 0) {
     configParser_ = new SiPixelConfigParser();
     configParser_->getDocument(edm::FileInPath(localPath).fullPath());
