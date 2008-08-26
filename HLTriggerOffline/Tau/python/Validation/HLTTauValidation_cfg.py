@@ -34,14 +34,38 @@ process.source = cms.Source("PoolSource",
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.DQMStore = cms.Service("DQMStore")
 
+#Load DQM Services
+process.load("DQMServices.Core.DQM_cfg")
+process.load("DQMServices.Components.DQMEnvironment_cfi")
+
+
+#Reconfigure Environment and saver
+#process.dqmEnv.subSystemFolder = cms.untracked.string('HLT/HLTTAU')
+#process.DQM.collectorPort = 9091
+#process.DQM.collectorHost = cms.untracked.string('pcwiscms10')
+
+process.dqmSaver.saveByRun = cms.untracked.int32(-1)
+process.dqmSaver.saveAtJobEnd = cms.untracked.bool(True)
+process.dqmSaver.workflow = cms.untracked.string('/A/N/C')
+process.dqmSaver.forceRunNumber = cms.untracked.int32(123)
+
+
 #Load the Validation
 process.load("HLTriggerOffline.Tau.Validation.HLTTauValidation_cff")
 
-process.p = cms.Path(process.HLTTauVal)
+#Load The Post processor
+process.load("HLTriggerOffline.Tau.Validation.HLTTauPostValidation_cfi")
 
 
-#Uncomment to save root output
-#process.DoubleTauPathVal.OutputFileName = cms.untracked.string('test.root')
+#Define the Paths
+process.validation = cms.Path(process.HLTTauVal)
+
+process.postProcess = cms.EndPath(process.HLTTauPostVal+process.dqmSaver)
+
+process.schedule = cms.Schedule(process.validation,process.postProcess)
+
+
+
 
 
 
