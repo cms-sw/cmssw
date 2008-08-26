@@ -250,7 +250,7 @@ void PhotonProducer::fillPhotonCollection(
     
     // compute position of ECAL shower
     float e3x3=   EcalClusterTools::e3x3(  *(scRef->seed()), &(*hits), &(*topology)); 
-    float r9 =e3x3/(scRef->rawEnergy()+scRef->preshowerEnergy());
+    float r9 =e3x3/(scRef->rawEnergy());
     float e5x5= EcalClusterTools::e5x5( *(scRef->seed()), &(*hits), &(*topology)); 
 
     math::XYZPoint caloPosition;
