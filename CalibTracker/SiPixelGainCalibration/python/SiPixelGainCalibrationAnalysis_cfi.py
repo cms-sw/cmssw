@@ -22,7 +22,7 @@ from CondTools.SiPixel.SiPixelGainCalibrationService_cfi import *
 #  CMSSW configuration init file for pixel gain calibrations in CMSSW>=180
 #  Original Author:  Freya Blekman
 #          Created:  November 15 2007  
-#  $Id: SiPixelGainCalibrationAnalysis_cfi.py,v 1.4 2008/08/18 10:49:27 fblekman Exp $
+#  $Id: SiPixelGainCalibrationAnalysis_cfi.py,v 1.5 2008/08/19 15:05:51 fblekman Exp $
 #
 #
 siPixelGainCalibrationAnalysis = cms.EDFilter("SiPixelGainCalibrationAnalysis",
@@ -32,6 +32,7 @@ siPixelGainCalibrationAnalysis = cms.EDFilter("SiPixelGainCalibrationAnalysis",
     maxChi2InHist = cms.untracked.double(50.0),
     savePixelLevelHists = cms.untracked.bool(False),
     saveAllHistograms = cms.untracked.bool(False),
+    listOfDetIDs = cms.untracked.vuint32(),                                         
     # try to create database. 'true' setting for expert use only.
     writeDatabase = cms.untracked.bool(False),
     record = cms.string('SiPixelGainCalibrationRcd'),
