@@ -12,18 +12,18 @@ process.MessageLogger = cms.Service( "MessageLogger",
 )
 
 # Magnetic Field
-# process.load( "Configuration.GlobalRuns.ForceZeroTeslaField_cff" )
-process.localUniform = cms.ESProducer( "UniformMagneticFieldESProducer",
-    ZFieldInTesla = cms.double( 0.0 )
-)
-process.prefer( "UniformMagneticFieldESProducer" )
+process.load( "Configuration.GlobalRuns.ForceZeroTeslaField_cff" )
+# process.localUniform = cms.ESProducer( "UniformMagneticFieldESProducer",
+#     ZFieldInTesla = cms.double( 0.0 )
+# )
+# process.prefer( "UniformMagneticFieldESProducer" )
 
 # Geometry
 process.load( "Configuration.StandardSequences.Geometry_cff" )
 
 # Calibration 
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.connect = "frontier://FrontierProd/CMS_COND_21X_GLOBALTAG"
+process.load( "Configuration.StandardSequences.FrontierConditions_GlobalTag_cff" )
+process.GlobalTag.connect   = "frontier://FrontierProd/CMS_COND_21X_GLOBALTAG"
 process.GlobalTag.globaltag = "CRUZET4_V2P::All"
 process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 
@@ -48,7 +48,8 @@ HLT_FILTER
     process.SiStripDQMRecoGlobalRunCAF           *
     process.SiStripDQMSourceGlobalRunCAF_reduced *
     process.SiStripDQMClientGlobalRunCAF         *
-    process.qTester * process.dqmSaver
+    process.qTester                              *
+    process.dqmSaver
 )
 
 # Input

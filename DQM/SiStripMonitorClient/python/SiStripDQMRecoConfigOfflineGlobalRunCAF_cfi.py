@@ -25,10 +25,10 @@ rsWithMaterialTracksP5Refitter.TrajectoryInEvent = True
 # Scheduling
 
 SiStripDQMRecoFromRaw = cms.Sequence(
-    siStripDigis          *
-    siPixelDigis          *
-    offlineBeamSpot       *
-    trackerlocalreco      *
+    siStripDigis     *
+    siPixelDigis     *
+    offlineBeamSpot  *
+    trackerlocalreco *
     tracksP5
 )
 
