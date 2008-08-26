@@ -34,7 +34,7 @@ process.source.processingMode = "RunsAndLumis"
 
 process.DQMStore.referenceFileName = ''
 process.dqmSaver.convention = 'Offline'
-process.dqmSaver.workflow = '/GlobalCruzet3-A/CMSSW_2_1_2-Testing/RECO'
+process.dqmSaver.workflow = '/GlobalCruzet4-A/CMSSW_2_1_X-Testing/RECO'
 
 process.DQMStore.collateHistograms = False
 process.EDMtoMEConverter.convertOnEndLumi = True
