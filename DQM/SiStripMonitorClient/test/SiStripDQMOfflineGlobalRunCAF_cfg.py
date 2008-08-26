@@ -18,34 +18,10 @@ process.load( "Configuration.GlobalRuns.ForceZeroTeslaField_cff" )
 process.load( "Configuration.StandardSequences.Geometry_cff" )
 
 # Calibration 
-import CalibTracker.Configuration.Common.PoolDBESSource_cfi
-process.siStripCond = CalibTracker.Configuration.Common.PoolDBESSource_cfi.poolDBESSource.clone()
-process.siStripCond.toGet = cms.VPSet(
-    cms.PSet( record = cms.string( 'SiStripPedestalsRcd' ) , tag = cms.string( 'SiStripPedestals_TKCC_21X_v3_hlt' )      ), 
-    cms.PSet( record = cms.string( 'SiStripNoisesRcd' )    , tag = cms.string( 'SiStripNoise_TKCC_21X_v3_hlt' )          ),
-    cms.PSet( record = cms.string( 'SiStripBadFiberRcd' )  , tag = cms.string( 'SiStripBadChannel_TKCC_21X_v2_offline' ) ),
-    cms.PSet( record = cms.string( 'SiStripBadChannelRcd' ), tag = cms.string( 'SiStripBadChannel_TKCC_21X_v3_hlt' )     ),
-    cms.PSet( record = cms.string( 'SiStripFedCablingRcd' ), tag = cms.string( 'SiStripFedCabling_TKCC_21X_v3_hlt' )     )
-)
-# uncomment for Oracle access at CERN
-process.siStripCond.connect                         = 'oracle://cms_orcoff_prod/CMS_COND_21X_STRIP'
-process.siStripCond.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb'
-
-process.sistripconn = cms.ESProducer( "SiStripConnectivity" )
-
-process.load("CalibTracker.SiStripESProducers.SiStripQualityESProducer_cfi")
-process.SiStripQualityESProducer.ListOfRecordToMerge = cms.VPSet(
-    cms.PSet( record = cms.string( 'SiStripDetCablingRcd' ), tag = cms.string( '' ) ),
-    cms.PSet( record = cms.string( 'SiStripBadChannelRcd' ), tag = cms.string( '' ) ),
-    cms.PSet( record = cms.string( 'SiStripBadFiberRcd' )  , tag = cms.string( '' ) )
-)
-
-# Fake Conditions
-process.load( "CalibTracker.Configuration.SiStripGain.SiStripGain_Fake_cff" )
-process.siStripGainFakeESSource.appendToDataLabel=cms.string('')
-process.load( "CalibTracker.Configuration.SiStripLorentzAngle.SiStripLorentzAngle_Fake_cff" )
-process.load( "CalibTracker.Configuration.SiPixelLorentzAngle.SiPixelLorentzAngle_Fake_cff" )
-process.load( "CalibTracker.Configuration.TrackerAlignment.TrackerAlignment_Fake_cff" )
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.GlobalTag.connect = "frontier://FrontierProd/CMS_COND_21X_GLOBALTAG"
+process.GlobalTag.globaltag = "CRUZET4_V2P::All"
+process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 
 # SiStrip DQM
 process.load( "DQM.SiStripMonitorClient.SiStripDQMOfflineGlobalRunCAF_cff" )
