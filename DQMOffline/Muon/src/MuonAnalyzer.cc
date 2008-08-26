@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/06/09 13:41:20 $
- *  $Revision: 1.16 $
+ *  $Date: 2008/07/16 09:56:41 $
+ *  $Revision: 1.17 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -103,8 +103,7 @@ void MuonAnalyzer::beginJob(edm::EventSetup const& iSetup) {
 
   LogTrace(metname)<<"[MuonAnalyzer] Parameters initialization";
   theDbe = edm::Service<DQMStore>().operator->();
-  theDbe->setVerbose(1);
-
+ 
   if(theMuEnergyAnalyzerFlag) theMuEnergyAnalyzer->beginJob(iSetup, theDbe);
   if(theSeedsAnalyzerFlag) theSeedsAnalyzer->beginJob(iSetup, theDbe);
   if(theMuonRecoAnalyzerFlag) theMuonRecoAnalyzer->beginJob(iSetup, theDbe);
