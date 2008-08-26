@@ -18,17 +18,18 @@
 #=============BEGIN CONFIGURATION=================
 
 #Input root trees for the two cases to be compared 
-setenv NEWFILE ~/scratch0/CMSSW_2_0_0_pre4/src/RecoEgamma/Examples/test/gsfElectronHistos_RelVal200pre4SingleElectronPt10.root 
-setenv OLDFILE ~/scratch0/CMSSW_1_6_7/src/RecoEgamma/Examples/test/gsfElectronHistos_RelVal167SingleElectronPt10.root
+setenv NEWFILE ~/scratch0/CMSSW_2_1_2/src/RecoEgamma/Examples/test/gsfElectronHistos_fake_RelVal212QCD_Pt_80_120_ideal.root 
+#setenv OLDFILE ~/scratch0/CMSSW_2_1_2/src/RecoEgamma/Examples/test/gsfElectronHistos_RelVal212SingleElectronPt35_ideal_V6_10TeV_v1.root 
+setenv OLDFILE ~/scratch0/CMSSW_2_1_0/src/RecoEgamma/Examples/test/gsfElectronHistos_fake_RelVal210QCD_Pt_80_120_ideal.root
 
 
 #Release versions to be compared (affects output directory name and html description only)
-setenv NEWRELEASE 200pre4
-setenv OLDRELEASE 167
+setenv NEWRELEASE 212IDEAL
+setenv OLDRELEASE 210
 #Name of sample (affects output directory name and html description only)
-setenv SAMPLE RelValSingleElectronPt10
+setenv SAMPLE RelValQCD_Pt_80_120
 #TYPE must be one of GsfElectron, GsfElectronFake, Photon or ConvertedPhoton
-setenv TYPE GsfElectron
+setenv TYPE GsfElectronFake
 
 #==============END BASIC CONFIGURATION==================
 
@@ -37,6 +38,7 @@ setenv TYPE GsfElectron
 
 setenv CURRENTDIR $PWD
 setenv OUTPATH /afs/cern.ch/cms/Physics/egamma/www/validation
+#setenv OUTPATH /afs/cern.ch/user/c/charlot/scratch0/CMSSW_2_1_2/src/RecoEgamma/Examples/test/validation
 cd $OUTPATH
 if (! -d $NEWRELEASE) then
   mkdir $NEWRELEASE
@@ -54,7 +56,7 @@ cd $OUTDIR
 
 #The list of histograms to be compared for each TYPE can be configured below:
 
-if ( $TYPE == GsfElectron || $TYPE == GsfElectronFake ) then
+if ( $TYPE == GsfElectron ) then
 
 cat > scaledhistos <<EOF
   h_ele_PoPtrue   
@@ -100,6 +102,53 @@ cat > unscaledhistos <<EOF
   h_ele_PoPtrueVsPhi_pfx   
   h_ele_EtaMnEtaTrueVsEta_pfx  
   h_ele_PhiMnPhiTrueVsEta_pfx 
+  h_ele_vertexPtVsEta_pfx 
+  h_ele_EoPVsEta_pfx 
+  h_ele_EoPoutVsEta_pfx 
+  h_ele_HoEVsEta_pfx 
+  h_ele_chi2VsEta_pfx 
+  h_ele_foundHitsVsEta_pfx 
+  h_ele_fbremvsEtamean
+  h_ele_fbremvsEtamode
+  h_ele_eta_bbremFrac 
+  h_ele_eta_goldenFrac 
+  h_ele_eta_narrowFrac 
+  h_ele_eta_showerFrac 
+EOF
+
+else if ($TYPE == GsfElectronFake ) then
+
+cat > scaledhistos <<EOF
+  h_ele_vertexP 
+  h_ele_vertexPt 
+  h_ele_outerP_mode 
+  h_ele_outerPt_mode 
+  h_ele_vertexX 
+  h_ele_vertexY 
+  h_ele_vertexZ 
+  h_ele_EoP 
+  h_ele_EoPout 
+  h_ele_dEtaCl_propOut 
+  h_ele_dEtaSc_propVtx 
+  h_ele_dPhiCl_propOut 
+  h_ele_dPhiSc_propVtx 
+  h_ele_HoE 
+  h_ele_chi2 
+  h_ele_foundHits 
+  h_ele_lostHits 
+  h_ele_classes 
+  h_ele_charge
+  h_recEleNum
+EOF
+
+cat > unscaledhistos <<EOF
+  h_ele_absetaEff
+  h_ele_etaEff
+  h_ele_ptEff
+  h_ele_phiEff
+  h_ele_zEff
+  h_ele_etaEff_all
+  h_ele_ptEff_all
   h_ele_vertexPtVsEta_pfx 
   h_ele_EoPVsEta_pfx 
   h_ele_EoPoutVsEta_pfx 
