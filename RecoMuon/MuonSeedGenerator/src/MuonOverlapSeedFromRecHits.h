@@ -20,6 +20,10 @@ public:
                 MuonTransientTrackingRecHit::ConstMuonRecHitPointer endcapHit,
                 TrajectorySeed & result) const;
 
+  bool makeSeed2(MuonTransientTrackingRecHit::ConstMuonRecHitPointer barrelHit,
+                MuonTransientTrackingRecHit::ConstMuonRecHitPointer endcapHit,
+                TrajectorySeed & result) const;
+
 
 private:
 
