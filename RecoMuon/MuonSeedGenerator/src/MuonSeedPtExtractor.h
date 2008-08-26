@@ -20,51 +20,51 @@ class MuonSeedPtExtractor {
 
 
   std::vector<double> pT_extract(MuonTransientTrackingRecHit::ConstMuonRecHitPointer firstHit,
-                                       MuonTransientTrackingRecHit::ConstMuonRecHitPointer secondHit);
+                                 MuonTransientTrackingRecHit::ConstMuonRecHitPointer secondHit) const;
 
- std::vector<double> getPt(std::vector<double> vPara, double eta, double dPhi ); 
+ std::vector<double> getPt(const std::vector<double> & vPara, double eta, double dPhi ) const; 
 
- std::vector<double>  dt12(){ return DT12; }
- std::vector<double>  dt13(){ return DT13; }
- std::vector<double>  dt14(){ return DT14; }
- std::vector<double>  dt23(){ return DT23; }
- std::vector<double>  dt24(){ return DT24; }
- std::vector<double>  dt34(){ return DT34; }
+ std::vector<double>  dt12() const { return DT12; }
+ std::vector<double>  dt13() const { return DT13; }
+ std::vector<double>  dt14() const { return DT14; }
+ std::vector<double>  dt23() const { return DT23; }
+ std::vector<double>  dt24() const { return DT24; }
+ std::vector<double>  dt34() const { return DT34; }
  
- std::vector<double>  csc01(){ return CSC01; }
- std::vector<double>  csc12(){ return CSC12; }
- std::vector<double>  csc02(){ return CSC02; }
- std::vector<double>  csc13(){ return CSC13; }
- std::vector<double>  csc03(){ return CSC03; }
- std::vector<double>  csc14(){ return CSC14; }
- std::vector<double>  csc23(){ return CSC23; }
- std::vector<double>  csc24(){ return CSC24; }
- std::vector<double>  csc34(){ return CSC34; }
+ std::vector<double>  csc01() const { return CSC01; }
+ std::vector<double>  csc12() const { return CSC12; }
+ std::vector<double>  csc02() const { return CSC02; }
+ std::vector<double>  csc13() const { return CSC13; }
+ std::vector<double>  csc03() const { return CSC03; }
+ std::vector<double>  csc14() const { return CSC14; }
+ std::vector<double>  csc23() const { return CSC23; }
+ std::vector<double>  csc24() const { return CSC24; }
+ std::vector<double>  csc34() const { return CSC34; }
 
- std::vector<double>  ol1213(){ return OL1213; }
- std::vector<double>  ol1222(){ return OL1222; }
- std::vector<double>  ol1232(){ return OL1232; }
- std::vector<double>  ol2213(){ return OL2213; }
- std::vector<double>  ol2222(){ return OL2222; }
+ std::vector<double>  ol1213() const { return OL1213; }
+ std::vector<double>  ol1222() const { return OL1222; }
+ std::vector<double>  ol1232() const { return OL1232; }
+ std::vector<double>  ol2213() const { return OL2213; }
+ std::vector<double>  ol2222() const { return OL2222; }
 
- std::vector<double>  sme11(){ return SME11; }
- std::vector<double>  sme12(){ return SME12; }
- std::vector<double>  sme13(){ return SME13; }
- std::vector<double>  sme21(){ return SME21; }
- std::vector<double>  sme22(){ return SME22; }
- std::vector<double>  sme31(){ return SME31; }
- std::vector<double>  sme32(){ return SME32; }
- std::vector<double>  sme41(){ return SME41; } 
+ std::vector<double>  sme11() const { return SME11; }
+ std::vector<double>  sme12() const { return SME12; }
+ std::vector<double>  sme13() const { return SME13; }
+ std::vector<double>  sme21() const { return SME21; }
+ std::vector<double>  sme22() const { return SME22; }
+ std::vector<double>  sme31() const { return SME31; }
+ std::vector<double>  sme32() const { return SME32; }
+ std::vector<double>  sme41() const { return SME41; } 
 
- std::vector<double>  smb10(){ return SMB10; }
- std::vector<double>  smb11(){ return SMB11; }
- std::vector<double>  smb12(){ return SMB12; }
- std::vector<double>  smb20(){ return SMB20; }
- std::vector<double>  smb21(){ return SMB21; }
- std::vector<double>  smb22(){ return SMB22; }
- std::vector<double>  smb30(){ return SMB30; }
- std::vector<double>  smb31(){ return SMB31; }
- std::vector<double>  smb32(){ return SMB32; }
+ std::vector<double>  smb10() const { return SMB10; }
+ std::vector<double>  smb11() const { return SMB11; }
+ std::vector<double>  smb12() const { return SMB12; }
+ std::vector<double>  smb20() const { return SMB20; }
+ std::vector<double>  smb21() const { return SMB21; }
+ std::vector<double>  smb22() const { return SMB22; }
+ std::vector<double>  smb30() const { return SMB30; }
+ std::vector<double>  smb31() const { return SMB31; }
+ std::vector<double>  smb32() const { return SMB32; }
 
  private:
   int stationCode(MuonTransientTrackingRecHit::ConstMuonRecHitPointer hit) const;

@@ -1,8 +1,8 @@
 /**
  *  See header file for a description of this class.
  *
- *  $Date: 2008/03/13 19:39:41 $
- *  $Revision: 1.23 $
+ *  $Date: 2008/08/25 22:00:06 $
+ *  $Revision: 1.24 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author porting  R. Bellan
  *
@@ -43,6 +43,7 @@ vector<TrajectorySeed> MuonSeedFinder::seeds(const edm::EventSetup& eSetup) cons
   MuonDTSeedFromRecHits barrel(eSetup);
   barrel.setPtExtractor(&thePtExtractor);
   MuonOverlapSeedFromRecHits overlap(eSetup);
+  overlap.setPtExtractor(&thePtExtractor);
 
   int num_bar = 0;
   for ( MuonRecHitContainer::const_iterator iter = theRhits.begin(); iter!= theRhits.end(); iter++ ){
@@ -66,6 +67,8 @@ vector<TrajectorySeed> MuonSeedFinder::seeds(const edm::EventSetup& eSetup) cons
   
   
   MuonCSCSeedFromRecHits endcap(eSetup);
+  endcap.setPtExtractor(&thePtExtractor);
+
   int num_endcap = 0;
   for ( MuonRecHitContainer::const_iterator iter = theRhits.begin(); iter!= theRhits.end(); iter++ ){
     if ( (*iter)->isCSC() )

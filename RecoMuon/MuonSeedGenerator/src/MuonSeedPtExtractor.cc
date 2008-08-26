@@ -65,7 +65,8 @@ MuonSeedPtExtractor::~MuonSeedPtExtractor(){
 
 
 std::vector<double> MuonSeedPtExtractor::pT_extract(MuonTransientTrackingRecHit::ConstMuonRecHitPointer firstHit,
-                                                                      MuonTransientTrackingRecHit::ConstMuonRecHitPointer secondHit){
+                                                    MuonTransientTrackingRecHit::ConstMuonRecHitPointer secondHit) const
+{
   //std::vector<double> vPara;
   
   std::map <std::string, std::vector<double> > chamberCombination;
@@ -441,7 +442,7 @@ int MuonSeedPtExtractor::stationCode(MuonTransientTrackingRecHit::ConstMuonRecHi
 }
 
 // it is a copy from the Seed code - call it from there?
-std::vector<double> MuonSeedPtExtractor::getPt(std::vector<double> vPara, double eta, double dPhi ) {
+std::vector<double> MuonSeedPtExtractor::getPt(const std::vector<double> & vPara, double eta, double dPhi ) const {
   std::cout<<" eta = "<<eta<<" dPhi = "<<dPhi<<" vPara[0] = "<<vPara[0]<<" vPara[1] = "<<vPara[1]<<" vPara[2] = "<<vPara[2]<<std::endl;
   double h  = fabs(eta);
   double estPt  = ( vPara[0] + vPara[1]*h + vPara[2]*h*h ) / dPhi;
