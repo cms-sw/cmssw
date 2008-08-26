@@ -21,11 +21,19 @@ class RPCGas {
     int time;
   };
 
+  struct TempItem {
+    int dpid;
+    float value;
+    int day;
+    int time;
+  };
+
   std::vector<GasItem> Gas_rpc;
+  std::vector<TempItem> Temp_rpc;
 
   RPCGas(){
     
-    std::cout << ">> creating RPC Gas object" << std::endl;
+    std::cout << ">> creating RPC Gas-Temp object" << std::endl;
 
 }
   virtual ~RPCGas(){}
