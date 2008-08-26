@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.76 $"
+__version__ = "$Revision: 1.77 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -47,9 +47,19 @@ def availableFileOptions(nameTemplate, path="Configuration/StandardSequences" ):
 class ConfigBuilder(object):
     """The main building routines """
     
-    def __init__(self,options, process = None ):
+    def __init__(self, options, process = None ):
         """options taken from old cmsDriver and optparse """
+        # do we need to apply special scenarios?
+	if not options.scenario or options.scenario == "pp":
+		self.scenario_pp(options)
+	elif options.scenario == "cosmics":
+		self.scenario_cosmics(options)
+	else:
+	    print "scenario % unknown" %options.scenario
+	    raise ValueError
+
         self._options = options
+
 	if process == None:
             self.process = cms.Process(self._options.name)
         else:
@@ -189,13 +199,8 @@ class ConfigBuilder(object):
         # the magnetic field
         magneticFieldFilename = 'Configuration/StandardSequences/MagneticField_'+self._options.magField.replace('.','')+'_cff'
         magneticFieldFilename = magneticFieldFilename.replace("__",'_')
-	if self._options.magField == '0T':
-           self.imports.append("Configuration.StandardSequences.MagneticField_cff")
-	   self.imports.append("Configuration.GlobalRuns.ForceZeroTeslaField_cff")
-	else:	
-            self.imports.append(magneticFieldFilename)
+        self.imports.append(magneticFieldFilename)
    
-                                                        
         # what steps are provided by this class?
         stepList = [methodName.lstrip("prepare_") for methodName in ConfigBuilder.__dict__ if methodName.startswith('prepare_')]
 
@@ -265,7 +270,24 @@ class ConfigBuilder(object):
 
         return final_snippet + "\n\nprocess = customise(process)"
 
-    
+
+    #----------------------------------------------------------------------------
+    # adjust settings for different scenarios like pp, cosmics, heavyIons
+    #----------------------------------------------------------------------------
+    @staticmethod
+    def scenario_pp(options):
+        """ Apply pp scenario """
+	pass # pp mode is default
+
+    @staticmethod
+    def scenario_cosmics(options): 
+        """ Apply cosmics scenario """
+        #options.magField = "0T"
+        # this one is fragile and needs a better implementation
+	options.step = options.step.replace('RECO','RECO:Configuration/StandardSequences/ReconstructionCosmics_cff:reconstructionCosmics')
+	options.eventcontent = 'Configuration/EventContent/EventContentCosmics_cff,RECO'
+        #options.conditions = <the right global tag for cosmics>
+     
     #----------------------------------------------------------------------------
     # here the methods to create the steps. Of course we are doing magic here ;)
     # prepare_STEPNAME modifies self.process and what else's needed.
@@ -404,7 +426,15 @@ class ConfigBuilder(object):
         """ In case people would like to have this"""
         pass
 
+
+    def prepare_VALIDATION(self, sequence = None):
+        self.loadAndRemember("Configuration/StandardSequences/Validation_cff")
+        self.process.validation_step = cms.Path( self.process.validation )
+        self.process.schedule.append(self.process.validation_step)
+
+		
     def prepare_DQM(self, sequence = None):
+        # this one needs replacement
         self.loadAndRemember("Configuration/StandardSequences/Validation_cff")
         self.process.validation_step = cms.Path( self.process.validation )
         self.process.schedule.append(self.process.validation_step)
@@ -473,7 +503,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.76 $"),
+              (version=cms.untracked.string("$Revision: 1.77 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )

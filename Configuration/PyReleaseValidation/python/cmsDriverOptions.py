@@ -154,6 +154,12 @@ expertSettings.add_option("--writeraw",
                           default=False,
                           dest="writeraw")
 
+expertSettings.add_option("--scenario",
+                          help="Select scenario overriding standard settings (available: pp, cosmics)",
+                          default='',
+                          dest="scenario")
+
+
 parser.add_option("--no_exec",
                   help="Do not exec cmsRun. Just prepare the python config file.",
                   action="store_true",
