@@ -1,6 +1,9 @@
-// $Id: HLTScalersClient.cc,v 1.2 2008/08/24 16:34:56 wittich Exp $
+// $Id: HLTScalersClient.cc,v 1.3 2008/08/25 00:38:27 wittich Exp $
 // 
 // $Log: HLTScalersClient.cc,v $
+// Revision 1.3  2008/08/25 00:38:27  wittich
+// Remove defunct couts
+//
 // Revision 1.2  2008/08/24 16:34:56  wittich
 // - rate calculation cleanups
 // - fix error logging with LogDebug
@@ -29,6 +32,8 @@ using edm::LogInfo;
 using edm::LogWarning;
 
 #define SECS_PER_LUMI_SECTION 93.3
+const int kPerHisto = 20;
+const int kNumHistos = MAX_PATHS/kPerHisto; // this hasta be w/o remainders
 
 
 /// Constructors
@@ -36,7 +41,8 @@ HLTScalersClient::HLTScalersClient(const edm::ParameterSet& ps):
   dbe_(0),
   nLumi_(0),
   currentRate_(0),
-  currentLumiBlockNumber_(0)
+  currentLumiBlockNumber_(0),
+  first_(true)
 {
   LogDebug("Status") << "constructor" ;
   // get back-end interface
@@ -56,7 +62,19 @@ HLTScalersClient::HLTScalersClient(const edm::ParameterSet& ps):
     rateHistories_[i] = dbe_->book1D(name, name, MAX_LUMI_SEG, 
 				     -0.5, MAX_LUMI_SEG-0.5);
   }
-  
+
+  // split hlt scalers up into groups of 20, assuming total of 200 paths
+  char metitle[40]; //histo name
+  char mename[40]; //ME name
+  for( int k = 0; k < kNumHistos; k++ ) {
+    int npath_low = kPerHisto*k;
+    int npath_high = kPerHisto*(k+1)-1;
+    snprintf(mename, 40, "hltScalers_%0d", k);
+    snprintf(metitle, 40, "HLT scalers - Paths %d to %d", npath_low, 
+	     npath_high);
+    hltCurrentRate_[k]= dbe_->book1D(mename, metitle, kPerHisto, 
+				     -0.5 + npath_low, npath_high+0.5);
+  }
 }
 
 
@@ -93,8 +111,31 @@ void HLTScalersClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
     return;
   }
 
+
   int npaths = scalers->getNbinsX();
   if ( npaths > MAX_PATHS ) npaths = MAX_PATHS; // HARD CODE FOR NOW
+
+  // set the bin labels on the first go-through
+  if ( first_) {
+    for ( int i = 0; i < npaths; ++i ) {
+      int whichHisto = i/kPerHisto;
+      int whichBin = i%kPerHisto + 1;
+      char pname[256];
+      snprintf(pname, 256, "HLT/HLTScalers/path%03d", i);
+      MonitorElement *name = dbe_->get(pname);
+      std::string sname;
+      if ( name ) {
+	sname = std::string (name->getStringValue());
+      }
+      else {
+	sname = std::string("unknown");
+      }
+      hltCurrentRate_[whichHisto]->setBinLabel(whichBin, sname.c_str());
+      snprintf(pname, 256, "Rate - path %s (Path # %03d)", sname.c_str(), i);
+      rateHistories_[i]->setTitle(pname);
+    }
+    first_ = false;
+  }
 
   MonitorElement *nLumi = dbe_->get("HLT/HLTScalers/nLumiBlocks");
   int testval = (nLumi!=0?nLumi->getIntValue():-1);
@@ -116,9 +157,9 @@ void HLTScalersClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
       LogDebug("Parameter") << "rate path " << i << " is " << rate;
     }
     currentRate_->setBinContent(i, rate);
+    hltCurrentRate_[i/kPerHisto]->setBinContent(i%kPerHisto+1, rate);
     //currentRate_->setBinError(i, error);
     scalerCounters_[i-1] = ulong(current_count);
-    
     rateHistories_[i-1]->setBinContent(nL, rate);
   }
   currentLumiBlockNumber_ = nL;
