@@ -13,7 +13,7 @@
 //
 // Original Author:  Rizzi Andrea
 //         Created:  Mon Sep 24 09:30:06 CEST 2007
-// $Id: HSCPAnalyzer.cc,v 1.24 2008/03/17 17:44:56 ptraczyk Exp $
+// $Id: HSCPAnalyzer.cc,v 1.25 2008/04/07 14:02:17 ptraczyk Exp $
 //
 //
 
@@ -542,7 +542,7 @@ Handle< double > genFilterEff;
 
       if(dedx[i].first->normalizedChi2() < 5 && dedx[i].first->numberOfValidHits()>8 && usedhits >= 9)
        {
-         float dedxVal= dedx[i].second;
+         float dedxVal= dedx[i].second.value();
          float dedxFitVal= dedxFit[i];
          float p= dedx[i].first->p();
 

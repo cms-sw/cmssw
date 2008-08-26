@@ -13,7 +13,7 @@
 //
 // Original Author:  Rizzi Andrea
 //         Created:  Wed Oct 10 12:01:28 CEST 2007
-// $Id: HSCParticleProducer.cc,v 1.3 2008/01/18 15:42:29 arizzi Exp $
+// $Id: HSCParticleProducer.cc,v 1.4 2008/01/31 13:11:45 arizzi Exp $
 //
 //
 
@@ -169,7 +169,7 @@ using namespace susybsm;
 
        if(dedx[i].first->normalizedChi2() < 5 && dedx[i].first->numberOfValidHits()>8 && usedhits >= 9)
        {
-        float dedxVal= dedx[i].second;
+        float dedxVal= dedx[i].second.value();
         float dedxFitVal= dedxFit[i];
         float k=0.4;  //919/2.75*0.0012;
         float k2=0.432; //919/2.55*0.0012;
