@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 # Fake for condition data that are not in DB
 #
 from CalibTracker.SiStripESProducers.SiStripPedestalsFakeSource_cfi import *
-from CalibTracker.SiStripESProducers.SiStripQualityFakeESSource_cfi import *
+#from CalibTracker.SiStripESProducers.SiStripQualityFakeESSource_cfi import *
 #
 # Dependent Records
 #
@@ -33,5 +33,13 @@ from RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitMatcher_cfi import *
 sistripconn = cms.ESProducer("SiStripConnectivity")
 
 TrackerDigiGeometryESModule.applyAlignment = True
+
+##add quality info
+from CalibTracker.SiStripESProducers.SiStripQualityESProducer_cfi import *
+SiStripQualityESProducer.ListOfRecordToMerge = cms.VPSet(
+     cms.PSet( record = cms.string("SiStripFedCablingRcd"), tag    = cms.string("") ),
+     cms.PSet( record = cms.string("SiStripBadChannelRcd"), tag    = cms.string("") ),
+     cms.PSet( record = cms.string("SiStripBadFiberRcd"),   tag    = cms.string("") )
+)
 
 
