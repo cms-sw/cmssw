@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Wed Dec 12 13:31:55 CST 2007
-// $Id: ZeroFieldStandAloneMuonHIPTrackJoiner.cc,v 1.1 2008/06/18 22:19:33 pivarski Exp $
+// $Id: ZeroFieldStandAloneMuonHIPTrackJoiner.cc,v 1.1 2008/08/27 03:43:09 pivarski Exp $
 //
 //
 
@@ -101,8 +101,8 @@ ZeroFieldStandAloneMuonHIPTrackJoiner::ZeroFieldStandAloneMuonHIPTrackJoiner(con
    , m_minZmeasuring(iConfig.getUntrackedParameter<int>("minZmeasuring", 4))
    , m_minCSChits(iConfig.getParameter<unsigned int>("minCSChits"))
    , m_minPdot(iConfig.getParameter<double>("minPdot"))
-   , m_station1(iConfig.getParameter<int>("station1"))
-   , m_station2(iConfig.getParameter<int>("station2"))
+   , m_station1(iConfig.getParameter<int>("stationA"))
+   , m_station2(iConfig.getParameter<int>("stationB"))
 {
    produces<reco::TrackCollection>();
    produces<reco::TrackExtraCollection>();
@@ -151,6 +151,7 @@ ZeroFieldStandAloneMuonHIPTrackJoiner::produce(edm::Event& iEvent, const edm::Ev
       for (reco::TrackCollection::const_iterator track1 = tracks->begin();  track1 != tracks->end();  ++track1) {
 	 int xmeasuring = 0;
 	 int zmeasuring = 0;
+	 int dthits = 0;
 	 for (trackingRecHit_iterator hit = track1->recHitsBegin();  hit != track1->recHitsEnd();  ++hit) {
 	    DetId id = (*hit)->geographicalId();
 	    if (id.det() == DetId::Muon  &&  id.subdetId() == MuonSubdetId::DT) {
@@ -158,13 +159,12 @@ ZeroFieldStandAloneMuonHIPTrackJoiner::produce(edm::Event& iEvent, const edm::Ev
 	       
 	       if (dtId.superlayer() == 2) zmeasuring++;
 	       else xmeasuring++;
+	       dthits++;
 	    }
 	 }
 
 	 if (xmeasuring >= m_minXmeasuring  &&  zmeasuring >= m_minZmeasuring) {
 	    math::XYZVector momentum1 = track1->momentum();
-
-	    std::cout << "momentum1 " << momentum1 << std::endl;
 
 	    math::XYZVector momentum2;
 	    CSCSegmentCollection::const_iterator bestsegment = segments->end();
@@ -176,18 +176,12 @@ ZeroFieldStandAloneMuonHIPTrackJoiner::produce(edm::Event& iEvent, const edm::Ev
 		  math::XYZVector momentum(momentum_GlobalVector.x(), momentum_GlobalVector.y(), momentum_GlobalVector.z());
 		  double momentum_dotproduct = fabs(momentum1.Dot(momentum)) / sqrt(momentum1.Mag2()) / sqrt(momentum.Mag2());
 
-		  std::cout << "    momentum " << momentum << " dotproduct = " << momentum_dotproduct << std::endl;
-
 		  if (bestsegment == segments->end()  ||  momentum_dotproduct > fabs(momentum1.Dot(momentum2)) / sqrt(momentum1.Mag2()) / sqrt(momentum2.Mag2())) {
 		     momentum2 = momentum;
 		     bestsegment = segment2;
 		  }
 	       } // end if this is the CSC station we're looking for
 	    } // end loop over segments
-
-	    if (bestsegment != segments->end()) {
-	       std::cout << "momentum2 = " << momentum2 << " dotproduct = " << fabs(momentum1.Dot(momentum2)) / sqrt(momentum1.Mag2()) / sqrt(momentum2.Mag2()) << std::endl;
-	    }
 	    
 	    if (bestsegment != segments->end()  &&  fabs(momentum1.Dot(momentum2)) / sqrt(momentum1.Mag2()) / sqrt(momentum2.Mag2()) > m_minPdot) {
 	       double e[] = { 1.1, 1.2, 2.2, 1.3, 2.3, 3.3, 1.4, 2.4, 3.4, 4.4, 1.5, 2.5, 3.5, 4.5, 5.5 };
@@ -201,9 +195,12 @@ ZeroFieldStandAloneMuonHIPTrackJoiner::produce(edm::Event& iEvent, const edm::Ev
 // 	       newtrack->setExtra(reco::TrackExtraRef(refTrackExtra, refTrackExtraIndex++));
 
 	       for (trackingRecHit_iterator hit = track1->recHitsBegin();  hit != track1->recHitsEnd();  ++hit) {
-		  TrackingRecHit *myhit = (*hit)->clone();
-		  trackingRecHitCollection->push_back(myhit);
-		  newtrackExtra->add(TrackingRecHitRef(refTrackingRecHits, refTrackingRecHitsIndex++));
+		  DetId id((*hit)->geographicalId());
+		  if (id.det() == DetId::Muon  &&  id.subdetId() == MuonSubdetId::DT) {
+		     TrackingRecHit *myhit = (*hit)->clone();
+		     trackingRecHitCollection->push_back(myhit);
+		     newtrackExtra->add(TrackingRecHitRef(refTrackingRecHits, refTrackingRecHitsIndex++));
+		  }
 	       }
 
 	       std::vector<const TrackingRecHit*> segmenthits2 = bestsegment->recHits();
@@ -215,7 +212,6 @@ ZeroFieldStandAloneMuonHIPTrackJoiner::produce(edm::Event& iEvent, const edm::Ev
 
 	       trackCollection->push_back(*newtrack);
 	       trackExtraCollection->push_back(*newtrackExtra);
-
 	    } // end DT track is parallel to CSC segment
 	 } // end if enough DT hits
       } // end loop over tracks
