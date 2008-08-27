@@ -18,8 +18,8 @@
 #define HCAL_HLX_MAX_BUNCHES 4096
 #define HCAL_HLX_MAX_HLXS 36
 
-#define HCAL_HLX_NUM_BUNCHES 3564
-#define HCAL_HLX_NUM_HLXS 36
+//#define HCAL_HLX_NUM_BUNCHES 3564
+//#define HCAL_HLX_NUM_HLXS 36
 
 // Changes
 // Namespace for the HCAL HLX
@@ -34,16 +34,16 @@ namespace HCAL_HLX
 
     float InstantLumi;
     float InstantLumiErr;
-    u8 InstantLumiQlty;
+    i16 InstantLumiQlty;
 
     float InstantETLumi;
     float InstantETLumiErr;
-    u8 InstantETLumiQlty;
+    i16 InstantETLumiQlty;
     float ETNormalization;  // Calculated
 
     float InstantOccLumi[2];
     float InstantOccLumiErr[2];
-    u8 InstantOccLumiQlty[2];
+    i16 InstantOccLumiQlty[2];
     float OccNormalization[2];
 
     float lumiNoise[2];
@@ -54,12 +54,12 @@ namespace HCAL_HLX
 
     float ETLumi[HCAL_HLX_MAX_BUNCHES];
     float ETLumiErr[HCAL_HLX_MAX_BUNCHES];
-    u8 ETLumiQlty[HCAL_HLX_MAX_BUNCHES];
+    i16 ETLumiQlty[HCAL_HLX_MAX_BUNCHES];
     float ETBXNormalization[HCAL_HLX_MAX_BUNCHES];
 
     float OccLumi[2][HCAL_HLX_MAX_BUNCHES];
     float OccLumiErr[2][HCAL_HLX_MAX_BUNCHES];
-    u8 OccLumiQlty[2][HCAL_HLX_MAX_BUNCHES];
+    i16 OccLumiQlty[2][HCAL_HLX_MAX_BUNCHES];
     float OccBXNormalization[2][HCAL_HLX_MAX_BUNCHES];
   };
 
