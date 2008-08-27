@@ -10,6 +10,7 @@
 
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "FWCore/Framework/interface/TriggerNames.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 
@@ -88,8 +89,16 @@ FourVectorHLTOffline::FourVectorHLTOffline(const edm::ParameterSet& iConfig):
       "list will be ignored." ;
     hltPaths_.clear();
   }
+
+  if (hltPaths_.size() > 0)
+    {
+      // book a histogram of scalers
+     scalersSelect = dbe_->book1D("selectedScalers","Selected Scalers", hltPaths_.size(), 0.0, (double)hltPaths_.size());
+    }
   triggerSummaryLabel_ = 
     iConfig.getParameter<edm::InputTag>("triggerSummaryLabel");
+  triggerResultsLabel_ = 
+    iConfig.getParameter<edm::InputTag>("triggerResultsLabel");
  
   
 }
@@ -118,6 +127,16 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   ++nev_;
   LogDebug("FourVectorHLTOffline")<< "FourVectorHLTOffline: analyze...." ;
   
+  edm::Handle<TriggerResults> triggerResults;
+  iEvent.getByLabel(triggerResultsLabel_,triggerResults);
+  if(!triggerResults.isValid()) { 
+    edm::LogInfo("FourVectorHLTOffline") << "TriggerResults not found, "
+      "skipping event"; 
+    return;
+  }
+    
+
+
   edm::Handle<TriggerEvent> triggerObj;
   iEvent.getByLabel(triggerSummaryLabel_,triggerObj); 
   if(!triggerObj.isValid()) { 
@@ -133,7 +152,10 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     for(PathInfoCollection::iterator v = hltPaths_.begin();
 	v!= hltPaths_.end(); ++v ) 
 { 
-      
+  // fill scaler histograms
+           
+
+
       const int index = triggerObj->filterIndex(v->getTag());
       if ( index >= triggerObj->sizeFilters() ) {
 	//        cout << "WTF no index "<< index << " of that name "

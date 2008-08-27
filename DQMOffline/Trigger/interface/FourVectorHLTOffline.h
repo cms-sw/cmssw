@@ -33,6 +33,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -83,9 +84,11 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
       bool monitorDaemon_;
       int theHLTOutputType;
       edm::InputTag triggerSummaryLabel_;
-      edm::InputTag triggerResultLabel_;
+      edm::InputTag triggerResultsLabel_;
+      // data across paths
+      MonitorElement* scalersSelect;
+      // helper class to store the data path
 
-      // helper class to store the data
       class PathInfo {
 	PathInfo():
 	  pathIndex_(-1), pathName_("unset"), filterName_("unset"), objectType_(-1)

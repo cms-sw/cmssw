@@ -431,18 +431,19 @@ HLTTauL1DQMOfflineSource::getL1extraObjects(const edm::Event& iEvent)
     _L1METs.push_back(p);
   }
   }
-  /*
-  Handle<L1EtMissParticle> l1MetHandle;
-  iEvent.getByLabel(_L1extraMETSource,l1MetHandle);
-  LV p(l1MetHandle->px(),l1MetHandle->py(),l1MetHandle->pz(),l1MetHandle->energy());
-  _L1METs.push_back(p);
-  */
-  /*
+  
+  //  Handle<L1EtMissParticle> l1MetHandle;
+  //  iEvent.getByLabel(_L1extraMETSource,l1MetHandle);
+  // if (l1MetHandle.isValid()){
+  // LV p(l1MetHandle->px(),l1MetHandle->py(),l1MetHandle->pz(),l1MetHandle->energy());
+  // _L1METs.push_back(p);
+  //  }
+  
   // Dummy
-  LV p(0.,0.,0.,0.);
-  _L1METs.push_back(p);
-  */
- 
+//  LV p(0.,0.,0.,0.);
+//  _L1METs.push_back(p);
+  
+  
 }
 
 
@@ -492,6 +493,10 @@ HLTTauL1DQMOfflineSource::fillL1MCTauMatchedHists(const edm::Event& iEvent) {
 
   Handle<LVColl> RefTauH; //Handle To The Truth!!!!
   iEvent.getByLabel(_refTauColl,RefTauH);
+  if (!RefTauH.isValid())
+    {
+      return;
+    }
   LVColl RefTau = *RefTauH;
 
   int nfidTauHads = 0; // count in fiducial region

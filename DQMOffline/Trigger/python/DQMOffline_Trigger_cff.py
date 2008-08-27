@@ -25,5 +25,5 @@ from Geometry.CaloEventSetup.CaloTopology_cfi import *
 from DQM.L1TMonitor.L1TDEMON_cfi import *
 l1temumonitor = cms.Sequence(l1demon) 
 
-triggerOfflineDQMSource = cms.Sequence(l1temumonitor*l1tmonitor*hltResults*egammaHLTDQM)
+triggerOfflineDQMSource = cms.Sequence(l1temumonitor*l1tmonitor*hltResults*egammaHLTDQM*HLTTauDQMOffline)
 
