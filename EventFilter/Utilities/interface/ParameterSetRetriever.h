@@ -10,9 +10,13 @@ namespace evf {
   public:
     ParameterSetRetriever(const std::string& in);
     std::string getAsString() const; 
-
+    std::string getHostString(const std::string &in) const; 
   private:
     std::string pset;
+    static const std::string fileheading;
+    static const std::string dbheading;  
+    static const std::string webheading;
+
   };
 
 } // evf
