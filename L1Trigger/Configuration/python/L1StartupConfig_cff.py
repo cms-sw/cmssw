@@ -20,7 +20,7 @@ l1CaloScales.L1CaloEmThresholds = cms.vdouble(
         30.0, 30.5, 31.0, 31.5)
 
 # RCT Regions
-RCTConfigProducers.jetMETLSB = cms.double(0.25),
+RCTConfigProducers.jetMETLSB = cms.double(0.25)
 l1CaloScales.L1CaloRegionEtScaleLSB = cms.double(0.25)
 
 # GCT jet corrections
