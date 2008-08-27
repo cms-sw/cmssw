@@ -180,7 +180,7 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
   reco::ElectronPixelSeedCollection pixelSeeds;
   theEvent.getByLabel(pixelSeedProducer_, pixelSeedHandle);
   if (!pixelSeedHandle.isValid()) {
-    if ( nEvt_%100==0 ) std::cout << " PhotonProducer Can't get the product ElectronPixelSeedHandle but Photons will be produced anyway with pixel seed flag set to false "<< "\n";
+    //if ( nEvt_%100==0 ) std::cout << " PhotonProducer Can't get the product ElectronPixelSeedHandle but Photons will be produced anyway with pixel seed flag set to false "<< "\n";
     validPixelSeeds_=false;
   }
   if ( validPixelSeeds_) pixelSeeds = *(pixelSeedHandle.product());
