@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.74 2008/08/17 23:18:58 hcheung Exp $
+// $Id: StorageManager.cc,v 1.75 2008/08/18 20:07:42 biery Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -316,7 +316,8 @@ void StorageManager::receiveRegistryMessage(toolbox::mem::Reference *ref)
 
   FDEBUG(10) << "StorageManager: Received registry message from HLT " << msg->hltURL
              << " application " << msg->hltClassName << " id " << msg->hltLocalId
-             << " instance " << msg->hltInstance << " tid " << msg->hltTid << std::endl;
+             << " instance " << msg->hltInstance << " tid " << msg->hltTid
+             << " fuID " << msg->fuID << " outModID " << msg->outModID << std::endl;
   FDEBUG(10) << "StorageManager: registry size " << msg->dataSize << "\n";
 
   // *** check the Storage Manager is in the Ready or Enabled state first!
@@ -511,7 +512,8 @@ void StorageManager::receiveDataMessage(toolbox::mem::Reference *ref)
     (I2O_SM_DATA_MESSAGE_FRAME*)stdMsg;
   FDEBUG(10)   << "StorageManager: Received data message from HLT at " << msg->hltURL 
 	       << " application " << msg->hltClassName << " id " << msg->hltLocalId
-	       << " instance " << msg->hltInstance << " tid " << msg->hltTid << std::endl;
+	       << " instance " << msg->hltInstance << " tid " << msg->hltTid
+	       << " fuID " << msg->fuID << " outModID " << msg->outModID << std::endl;
   FDEBUG(10)   << "                 for run " << msg->runID << " event " << msg->eventID
 	       << " total frames = " << msg->numFrames << std::endl;
   FDEBUG(10)   << "StorageManager: Frame " << msg->frameCount << " of " 
@@ -4365,6 +4367,11 @@ bool StorageManager::enabling(toolbox::task::WorkLoop* wl)
     lastEventSeen_ = 0;
     lastErrorEventSeen_ = 0;
     jc_->start();
+
+    boost::shared_ptr<InitMsgCollection> initMsgCollection = jc_->getInitMsgCollection();
+    if (initMsgCollection.get() != 0) {
+      initMsgCollection->clear();
+    }
 
     LOG4CPLUS_INFO(getApplicationLogger(),"Finished enabling!");
     
