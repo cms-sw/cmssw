@@ -76,7 +76,14 @@ void CastorUnpacker::unpack(const FEDRawData& raw, const CastorElectronicsMap& e
   for (int spigot=0; spigot<HcalDCCHeader::SPIGOT_COUNT; spigot++) {
     if (!dccHeader->getSpigotPresent(spigot)) continue;
 
-    dccHeader->getSpigotData(spigot,htr);
+    int retval=dccHeader->getSpigotData(spigot,htr,raw.size());
+    if (retval!=0) {
+      if (retval==-1) {
+	edm::LogWarning("Invalid Data") << "Invalid HTR data (data beyond payload size) observed on spigot " << spigot << " of DCC with source id " << dccHeader->getSourceId();
+	report.countSpigotFormatError();
+      }
+      continue;
+    }
     // check
     if (!htr.check()) {
       edm::LogWarning("Invalid Data") << "Invalid HTR data observed on spigot " << spigot << " of DCC with source id " << dccHeader->getSourceId();
