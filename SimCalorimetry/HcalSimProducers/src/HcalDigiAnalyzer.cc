@@ -9,7 +9,7 @@ HcalDigiAnalyzer::HcalDigiAnalyzer(edm::ParameterSet const& conf)
   simParameterMap_(),
   hbheFilter_(),
   hoFilter_(),
-  hfFilter_(),
+  hfFilter_(true),
   hbheHitAnalyzer_("HBHEDigi", 1., &simParameterMap_, &hbheFilter_),
   hoHitAnalyzer_("HODigi", 1., &simParameterMap_, &hoFilter_),
   hfHitAnalyzer_("HFDigi", 1., &simParameterMap_, &hfFilter_),

@@ -147,7 +147,7 @@ int main() {
 
   HBHEHitFilter hbheHitFilter;
   HOHitFilter hoHitFilter;
-  HFHitFilter hfHitFilter;
+  HFHitFilter hfHitFilter(true);
   ZDCHitFilter zdcHitFilter;
 
   hbheResponse.setHitFilter(&hbheHitFilter);
