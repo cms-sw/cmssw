@@ -326,16 +326,15 @@ template<class C> float EcalUncalibRecHitFixedAlphaBetaAlgo<C>::PerformAnalyticF
   
   //!      results of the fit are calculated
 
-  //!   protection again diverging fit 
-  if( variation_func_max > 2000. || variation_func_max < -1000. ) {
-    //! use the first guess
-    InitFitParameters(samples,max_sample);
-    return -102 ;
-  }
-   
   fAmp_max_ += variation_func_max ;
   fTim_max_ += variation_tim_max ;
   fPed_max_ += variation_ped_max ;
+
+  //!   protection again diverging fit 
+  if( fAmp_max_ > 5. * max_sample || fAmp_max_ < -1000 || fabs(fTim_max_+0.5) > 4.5 ) {
+          InitFitParameters(samples,max_sample);
+          return -102 ;
+  }
 
   //std::cout <<"chi2: "<<chi2<<" ampl: "<<fAmp_max_<<" time: "<<fTim_max_<<" pede: "<<fPed_max_<<std::endl;
   return chi2;
