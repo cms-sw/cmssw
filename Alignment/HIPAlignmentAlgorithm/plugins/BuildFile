@@ -142,3 +142,24 @@
  <use name=Geometry/TrackerGeometryBuilder>
  <flags EDM_PLUGIN=1>
 </library>
+
+<library name="ZeroFieldStandAloneMuonHIPTrackJoiner" file="ZeroFieldStandAloneMuonHIPTrackJoiner.cc">
+ <use name=DataFormats/GeometrySurface>
+ <use name=DataFormats/MuonDetId>
+ <use name=DataFormats/TrackingRecHit>
+ <use name=DataFormats/TrackReco>
+ <use name=Geometry/CommonDetUnit>
+ <use name=Geometry/CSCGeometry>
+ <use name=Geometry/DTGeometry>
+ <use name=Geometry/Records>
+ <use name=MagneticField/Engine>
+ <use name=MagneticField/Records>
+ <use name=RecoMuon/TransientTrackingRecHit>
+ <use name=TrackingTools/PatternTools>
+ <use name=TrackingTools/TrajectoryState>
+ <use name=DataFormats/CSCRecHit>
+ <use name=FWCore/ServiceRegistry>
+ <use name=PhysicsTools/UtilAlgos>
+ <use name=root>
+ <flags EDM_PLUGIN=1>
+</library>
