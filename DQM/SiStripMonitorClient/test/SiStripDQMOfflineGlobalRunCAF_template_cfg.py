@@ -45,6 +45,7 @@ process.hltFilter = cms.EDFilter( "HLTHighLevel",
 process.p = cms.Path(
 RECO_FROM_RAW
 HLT_FILTER
+DQM_FROM_RAW
     process.SiStripDQMRecoGlobalRunCAF           *
     process.SiStripDQMSourceGlobalRunCAF_reduced *
     process.SiStripDQMClientGlobalRunCAF         *

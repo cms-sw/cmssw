@@ -11,6 +11,10 @@ process.MessageLogger = cms.Service( "MessageLogger",
     )
 )
 
+process.options = cms.untracked.PSet(
+    wantSummary = cms.untracked.bool( True )
+)
+
 # Magnetic Field
 process.load( "Configuration.GlobalRuns.ForceZeroTeslaField_cff" )
 # process.localUniform = cms.ESProducer( "UniformMagneticFieldESProducer",
@@ -43,8 +47,9 @@ process.hltFilter = cms.EDFilter( "HLTHighLevel",
 
 # Scheduling
 process.p = cms.Path(
-#     process.SiStripDQMRecoFromRaw                * # comment this out when running from RECO or with full reconstruction
+    process.SiStripDQMRecoFromRaw                * # comment this out when running from RECO or with full reconstruction
 #     process.hltFilter                            * # comment this out to switch off the HLT pre-selection
+    process.SiStripDQMSourceGlobalRunCAF_fromRAW * # comment this out when running from RECO or with full reconstruction
     process.SiStripDQMRecoGlobalRunCAF           *
     process.SiStripDQMSourceGlobalRunCAF_reduced *
     process.SiStripDQMClientGlobalRunCAF         *
@@ -55,10 +60,10 @@ process.p = cms.Path(
 # Input
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-#       # RAW from MW33 run 56493
-#       '/store/data/Commissioning08/Cosmics/RAW/MW33_v1/000/056/493/0053249A-456A-DD11-83FE-001D09F24448.root' # 25730 events
-      # RECO from MW33 run 56493
-      '/store/data/Commissioning08/Cosmics/RECO/MW33_v1/000/056/493/02DAAD57-616A-DD11-BBAB-001617E30E28.root' # 25773 events
+      # RAW from CRUZET4 run 58733
+      '/store/data/Commissioning08/Cosmics/RAW/CRUZET4_v1/000/058/733/08D4E065-5E72-DD11-BB0A-0019B9F7310E.root' # 21279 events
+#       # RECO from CRUZET4 run 58733
+#       '/store/data/Commissioning08/Cosmics/RECO/CRUZET4_v1/000/058/733/127A54D3-6D72-DD11-84DF-000423D951D4.root' # 21221 events
     )
 )
 process.maxEvents = cms.untracked.PSet(
