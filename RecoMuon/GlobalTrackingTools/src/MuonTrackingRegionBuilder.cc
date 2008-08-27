@@ -3,8 +3,8 @@
  *
  *  Build a TrackingRegion around a standalone muon 
  *
- *  $Date: 2008/03/20 18:18:55 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/06/30 16:27:00 $
+ *  $Revision: 1.9 $
  *
  *  \author A. Everett - Purdue University
  *  \author A. Grelli -  Purdue University, Pavia University
@@ -30,7 +30,7 @@
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-
+#include "TrackingTools/PatternTools/interface/TrajectoryStateClosestToBeamLineBuilder.h"
 using namespace std;
 
 //
@@ -69,7 +69,6 @@ MuonTrackingRegionBuilder::MuonTrackingRegionBuilder(const edm::ParameterSet& pa
   theDeltaR = par.getParameter<double>("DeltaR");
 
   // perigee reference point
-  theVertexPos = GlobalPoint(0.0,0.0,0.0);
 
   theOnDemand = par.getParameter<double>("OnDemand");
 }
@@ -125,8 +124,11 @@ MuonTrackingRegionBuilder::region(const reco::Track& staTrack) const {
   edm::Handle<reco::BeamSpot> bsHandle;
   bool bsHandleFlag = theEvent->getByLabel(theBeamSpotTag, bsHandle);
   // check the validity, otherwise vertexing
+  // inizialization of BS
+  //if(bsHandle.isValid()) const reco::BeamSpot& bs = *bsHandle;
+  const reco::BeamSpot& bs = *bsHandle;
+
   if ( bsHandleFlag && !useVertex ) {
-    const reco::BeamSpot& bs = *bsHandle;
     vertexPos = GlobalPoint(bs.x0(), bs.y0(), bs.z0());
   } else {
     // get originZPos from list of reconstructed vertices (first or all)
@@ -142,18 +144,23 @@ MuonTrackingRegionBuilder::region(const reco::Track& staTrack) const {
     }
   }
 
-  TrajectoryStateClosestToPoint tscp = tscpBuilder(muFTS,theVertexPos);
-  const PerigeeTrajectoryError& covar = tscp.perigeeError();
-  const PerigeeTrajectoryParameters& param = tscp.perigeeParameters();
+  // take into account the correct beanspot rotation
+
+  TrajectoryStateClosestToBeamLineBuilder tscblBuilder;
+  TrajectoryStateClosestToBeamLine tscbl = tscblBuilder(muFTS,bs);
+
+  PerigeeConversions tspConverter;
+  PerigeeTrajectoryError trackPerigeeErrors = tspConverter.ftsToPerigeeError(tscbl.trackStateAtPCA());
+  GlobalVector pTrack = tscbl.trackStateAtPCA().momentum();
 
   // calculate deltaEta from deltaTheta
-  double deltaTheta = covar.thetaError();
-  double theta      = param.theta();
+  double deltaTheta = trackPerigeeErrors.thetaError();
+  double theta      = pTrack.theta();
   double sin_theta  = sin(theta);
 
   // get dEta and dPhi
   double deta = theNsigmaEta*(1/fabs(sin_theta))*deltaTheta;
-  double dphi = theNsigmaPhi*(covar.phiError());
+  double dphi = theNsigmaPhi*(trackPerigeeErrors.phiError());
 
   /* Region_Parametrizations to take into account possible 
      L2 error matrix inconsistencies. Detailed Explanation in TWIKI
