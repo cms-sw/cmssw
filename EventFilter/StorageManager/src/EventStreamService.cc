@@ -1,4 +1,4 @@
-// $Id: EventStreamService.cc,v 1.5 2008/08/22 14:09:29 loizides Exp $
+// $Id: EventStreamService.cc,v 1.6 2008/08/22 19:07:12 biery Exp $
 
 #include <EventFilter/StorageManager/interface/EventStreamService.h>
 #include <EventFilter/StorageManager/interface/ProgressMarker.h>
@@ -100,6 +100,8 @@ void EventStreamService::closeTimedOutFiles(int lumi, double timeoutdiff)
       it->first->setWhyClosed(reason+2);  // close old (N-2) lumi sections in any case
     } else if (timeoutdiff > lumiSectionTimeOut_) {
       it->first->setWhyClosed(reason+3);  // check if timeout reached for previous (N-1) lumi sections
+    } else {
+      it->first->setWhyClosed(reason+9);  // default value to catch race condition
     }
 
     ++it;
