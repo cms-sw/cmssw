@@ -3,6 +3,7 @@
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/TrackReco>
+<use name=DataFormats/MuonReco>
 <use name=DataFormats/VertexReco>
 <use name=DataFormats/TrackingRecHit>
 <use name=DataFormats/SiStripCluster>
@@ -15,6 +16,7 @@
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>
   <use name=DataFormats/TrackReco>
+  <use name=DataFormats/MuonReco>
   <use name=DataFormats/VertexReco>
   <use name=DataFormats/TrackingRecHit>
   <use name=DataFormats/SiStripCluster>
