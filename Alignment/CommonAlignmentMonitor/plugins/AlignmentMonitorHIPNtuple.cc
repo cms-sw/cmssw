@@ -41,6 +41,7 @@ class AlignmentMonitorHIPNtuple: public AlignmentMonitorBase {
    private:
       TTree *m_ntuple;
       Int_t m_ntuple_rawid;
+      Float_t m_ntuple_hitx, m_ntuple_hity, m_ntuple_resx, m_ntuple_resy;
       Float_t m_ntuple_p1, m_ntuple_p2, m_ntuple_p3, m_ntuple_p4, m_ntuple_p5, m_ntuple_p6;
       Float_t m_ntuple_e1, m_ntuple_e2, m_ntuple_e3, m_ntuple_e4, m_ntuple_e5, m_ntuple_e6;
 //       Float_t m_ntuple_c12, m_ntuple_c13, m_ntuple_c14, m_ntuple_c15, m_ntuple_c16;
@@ -76,6 +77,11 @@ AlignmentMonitorHIPNtuple::AlignmentMonitorHIPNtuple(const edm::ParameterSet& cf
 void AlignmentMonitorHIPNtuple::book() {
    m_ntuple = directory("/iterN/")->make<TTree>("params", "params");
    m_ntuple->Branch("rawid", &m_ntuple_rawid, "rawid/I");
+   m_ntuple->Branch("hitx", &m_ntuple_hitx, "hitx/F");
+   m_ntuple->Branch("hity", &m_ntuple_hity, "hity/F");
+   m_ntuple->Branch("resx", &m_ntuple_resx, "resx/F");
+   m_ntuple->Branch("resy", &m_ntuple_resy, "resy/F");
+
    m_ntuple->Branch("ring", &m_ntuple_ring, "ring/I");
    m_ntuple->Branch("chamber", &m_ntuple_chamber, "chamber/I");
    m_ntuple->Branch("tanTheta", &m_ntuple_tanTheta, "tanTheta/F");
@@ -242,6 +248,11 @@ void AlignmentMonitorHIPNtuple::event(const edm::EventSetup &iSetup, const Const
 	       AlgebraicVector thisjtve(npar);
 	       thisjtvj=covmat.similarity(derivs);
 	       thisjtve=derivs * covmat * (pos-coor);
+
+	       m_ntuple_hitx = coor[0];
+	       m_ntuple_hity = coor[1];
+	       m_ntuple_resx = (pos[0] - coor[0]);
+	       m_ntuple_resy = (pos[1] - coor[1]);
 
 	       assert( npar == m_npar );  // yeah, that should be a ConfigError exception
 
