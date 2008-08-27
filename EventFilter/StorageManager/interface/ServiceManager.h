@@ -1,10 +1,9 @@
 #ifndef _SERVICEMANAGER_H_
 #define _SERVICEMANAGER_H_
 
-// $Id: ServiceManager.h,v 1.8 2008/08/14 12:10:15 loizides Exp $
+// $Id: ServiceManager.h,v 1.9 2008/08/22 14:09:29 loizides Exp $
 
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
-#include "FWCore/Framework/interface/EventSelector.h"
 
 #include "IOPool/Streamer/interface/InitMessage.h"
 #include "IOPool/Streamer/interface/EventMessage.h"
@@ -54,7 +53,6 @@ namespace edm
     
     std::vector<ParameterSet>              outModPSets_;
     Streams                                managedOutputs_;  
-    boost::shared_ptr<edm::EventSelector>  eventSelector_;
     std::list<std::string>                 filelist_;
     std::list<std::string>                 currfiles_;
     Strings                                psetHLTOutputLabels_;
