@@ -1,3 +1,23 @@
+2008-08-27  Kurt Biery <biery@fnal.gov>
+
+	* tag V03-14-08
+	* Added variable reinitialization to the ServiceManager::stop() method.
+	  With this change and a fix to clear the contents of the InitMsgCollection
+	  in StorageManager::enabling(), hopefully the SM will correctly handle
+	  Stop/Enable transitions (with regard to output file handling).
+
+2008-08-22  Kurt Biery <biery@fnal.gov>
+
+	* tag V03-14-07
+	* Fixed bug in looping over output files.
+
+2008-08-22  Constantin Loizides <loizides@mit.edu>
+
+	* tag V03-14-06
+	* Rolled back the algorithm for closing files - it only depends on
+	  a time interval with this change - there is no dependence on lumi
+	  section number.
+
 2008-08-18  Kurt Biery <biery@fnal.gov>
 
 	* tag V03-14-03
