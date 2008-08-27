@@ -4,32 +4,33 @@
  */
 #include "HLTriggerOffline/Tau/interface/HLTMuonRate.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
-#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-//#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "DataFormats/Common/interface/Handle.h"
-
+#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
+#include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <TH1F.h>
+#include "TFile.h"
+#include "TDirectory.h"
+#include "TH1F.h"
 #include <iostream>
 using namespace std;
 using namespace edm;
+using namespace math;
 using namespace reco;
 using namespace trigger;
 using namespace l1extra;
 typedef std::vector< edm::ParameterSet > Parameters;
-
 HLTMuonRate::HLTMuonRate(const ParameterSet& pset, int Index)
 {
   InputLabel = pset.getUntrackedParameter<InputTag>("InputLabel");
@@ -70,28 +71,25 @@ HLTMuonRate::HLTMuonRate(const ParameterSet& pset, int Index)
     dbe_->setCurrentFolder("HLT/Muon/Distributions");
   }
 }
-
 HLTMuonRate::~HLTMuonRate(){}
 
 void HLTMuonRate::analyze(const Event & event ){
   this_event_weight=1;
   NumberOfEvents->Fill(++theNumberOfEvents);
   LogTrace("HLTMuonVal")<<"In analyze for L1 trigger "<<theL1CollectionLabel<<" Event:"<<theNumberOfEvents;  
-  // Get the muon with maximum pt at generator level or reconstruction, depending on the choice
   bool refmuon_found = false;
   double ptuse = -1;
     Handle<vector<XYZTLorentzVectorD> > refVector;
     event.getByLabel(InputLabel,refVector);
 for(unsigned int i = 0; i < refVector->size(); i++){
-	  double pt1 = refVector->at(i).pt();
-	  hEtaNor->Fill(refVector->at(i).eta());
-	  hPhiNor->Fill(refVector->at(i).phi());
-	  if (pt1>ptuse) {
-	    refmuon_found = true;
-	    ptuse = pt1;
-	  }
+      double pt1 = refVector->at(i).pt();
+      hEtaNor->Fill(refVector->at(i).eta());
+      hPhiNor->Fill(refVector->at(i).phi());
+      if (pt1>ptuse) {
+        refmuon_found = true;
+        ptuse = pt1;
+      }
     } 
-  
   if (ptuse > 0 ) hPtNor->Fill(ptuse,this_event_weight);
   // Get the L1 collection
   Handle<TriggerFilterObjectWithRefs> l1candsHandle;
@@ -102,7 +100,6 @@ for(unsigned int i = 0; i < refVector->size(); i++){
       event.getByLabel(theHLTCollectionLabels[i], hltcandsHandle[i]);
       if (hltcandsHandle[i].failedToGet()) break;
   }
-
   vector<L1MuonParticleRef> l1cands;
   l1candsHandle->getObjects(81,l1cands);
   unsigned hltsize=theHLTCollectionLabels.size();
@@ -121,16 +118,16 @@ for(unsigned int i = 0; i < refVector->size(); i++){
     if (ptLUT+epsilon>theL1ReferenceThreshold) {
       nL1FoundRef++;
       hL1pt->Fill(ptLUT);
-	pair<double,double> angularInfo=getAngle(l1cands.at(k)->eta(),l1cands.at(k)->phi(), refVector );
-	LogTrace("HLTMuonVal")<<"Filling L1 histos....";
-	if ( angularInfo.first < 999.){
-	  hL1Eta->Fill(angularInfo.first);
-	  hL1Phi->Fill(angularInfo.second);
+    pair<double,double> angularInfo=getAngle(l1cands.at(k)->eta(),l1cands.at(k)->phi(), refVector );
+    LogTrace("HLTMuonVal")<<"Filling L1 histos....";
+    if ( angularInfo.first < 999.){
+      hL1Eta->Fill(angularInfo.first);
+      hL1Phi->Fill(angularInfo.second);
           float dphi=angularInfo.second-l1cands.at(k)->phi();
           float deta=angularInfo.first-l1cands.at(k)->eta();
           hL1DR->Fill(sqrt(dphi*dphi+deta*deta));
-	  LogTrace("HLTMuonVal")<<"Filling done";
-	}
+      LogTrace("HLTMuonVal")<<"Filling done";
+    }
     }
   }
   if (nL1FoundRef>=theNumberOfObjects){
@@ -142,13 +139,13 @@ for(unsigned int i = 0; i < refVector->size(); i++){
       double ptcut = theHLTReferenceThreshold;
       unsigned nFound = 0;
       for (unsigned int k=0; k<hltcands[i].size(); k++) {
-	RecoChargedCandidateRef candref = RecoChargedCandidateRef(hltcands[i][k]);
-	reco::TrackRef tk = candref->get<reco::TrackRef>();
-	double pt = tk->pt();
-	if (pt>ptcut) nFound++;
+    RecoChargedCandidateRef candref = RecoChargedCandidateRef(hltcands[i][k]);
+    reco::TrackRef tk = candref->get<reco::TrackRef>();
+    double pt = tk->pt();
+    if (pt>ptcut) nFound++;
       }
       if (nFound>=theNumberOfObjects){
-	hSteps->Fill(2+i); 
+    hSteps->Fill(2+i); 
       }
     }
   }
@@ -168,31 +165,31 @@ for(unsigned int i = 0; i < refVector->size(); i++){
     for (unsigned int i=0; i<modules_in_this_event; i++) {
       unsigned nFound = 0;
       for (unsigned int k=0; k<hltcands[i].size(); k++) {
-	RecoChargedCandidateRef candref = RecoChargedCandidateRef(hltcands[i][k]);
-	reco::TrackRef tk = candref->get<reco::TrackRef>();
-	double pt = tk->pt();
-	if ( ptcut == thePtMin ) {
-	  hHLTpt[i]->Fill(pt);
-	    pair<double,double> angularInfo=getAngle(candref->eta(),candref->phi(), refVector );
-	    if ( angularInfo.first < 999.){
-	      float dphi=angularInfo.second-candref->phi();
-	      float deta=angularInfo.first-candref->eta();
-	      float d=sqrt(dphi*dphi+deta*deta);
-	      if (i==0)hL2DR->Fill(d);
-	      if ((modules_in_this_event==2 && i==1)||i==2 )hL3DR->Fill(d);
-	      LogTrace("HLTMuonVal")<<"Filling done";
-	    }
-	}
-	double err0 = tk->error(0);
-	double abspar0 = fabs(tk->parameter(0));
-	// convert to 90% efficiency threshold
-	if (abspar0>0) pt += theNSigmas[i]*err0/abspar0*pt;
-	if (pt>ptcut) nFound++;
+    RecoChargedCandidateRef candref = RecoChargedCandidateRef(hltcands[i][k]);
+    reco::TrackRef tk = candref->get<reco::TrackRef>();
+    double pt = tk->pt();
+    if ( ptcut == thePtMin ) {
+      hHLTpt[i]->Fill(pt);
+        pair<double,double> angularInfo=getAngle(candref->eta(),candref->phi(), refVector );
+        if ( angularInfo.first < 999.){
+          float dphi=angularInfo.second-candref->phi();
+          float deta=angularInfo.first-candref->eta();
+          float d=sqrt(dphi*dphi+deta*deta);
+          if (i==0)hL2DR->Fill(d);
+          if ((modules_in_this_event==2 && i==1)||i==2 )hL3DR->Fill(d);
+          LogTrace("HLTMuonVal")<<"Filling done";
+        }
+    }
+    double err0 = tk->error(0);
+    double abspar0 = fabs(tk->parameter(0));
+    // convert to 90% efficiency threshold
+    if (abspar0>0) pt += theNSigmas[i]*err0/abspar0*pt;
+    if (pt>ptcut) nFound++;
       }
       if (nFound>=theNumberOfObjects) {
-	hHLTeff[i]->Fill(ptcut,this_event_weight);
+    hHLTeff[i]->Fill(ptcut,this_event_weight);
       } else {
-	break;
+    break;
       }
     }
   }
@@ -209,7 +206,7 @@ pair<double,double> HLTMuonRate::getAngle(double eta, double phi, Handle< vector
       double Dphi=phi - refVector->at(i).phi();
       double deltaR = sqrt(Deta*Deta+Dphi*Dphi);
       if ( deltaR < candDeltaR ) {
-	candDeltaR=deltaR;
+    candDeltaR=deltaR;
         angle.first  = refVector->at(i).eta();
         angle.second = refVector->at(i).phi();
     }
@@ -249,11 +246,10 @@ void HLTMuonRate::BookHistograms(){
     snprintf(chtitle, 255, "Events passing the HLT filters, label=%s", mylabel);
     hSteps= BookIt(chname, chtitle,5, 0.5, 5.5);
     snprintf(chname, 255, "eff_%s", mylabel);
-    snprintf(chtitle, 255, "Efficiency (%%) vs L1 Pt threshold (GeV), label=%s", mylabel);
+    snprintf(chtitle, 255, "Efficiency (%%) vs L1 Pt threshold (GeV/c), label=%s", mylabel);
     hL1eff = BookIt(chname, chtitle, theNbins, thePtMin, thePtMax);
-
     snprintf(chname, 255, "rate_%s", mylabel);
-    snprintf(chtitle, 255, "Rate (Hz) vs L1 Pt threshold (GeV), label=%s, L=%.2E (cm^{-2} s^{-1})", mylabel, theLuminosity*1.e33);
+    snprintf(chtitle, 255, "Rate (Hz) vs L1 Pt threshold (GeV/c), label=%s, L=%.2E (cm^{-2} s^{-1})", mylabel, theLuminosity*1.e33);
     hL1rate =   BookIt(chname, chtitle, theNbins, thePtMin, thePtMax);
     dbe_->cd();
     snprintf(str3,99, "HLT/Muon/Distributions/%s",mydirlabel);
@@ -261,7 +257,6 @@ void HLTMuonRate::BookHistograms(){
     snprintf(chname, 255, "pt_%s", mylabel);
     snprintf(chtitle, 255, "L1 Pt distribution label=%s", mylabel);
     hL1pt = BookIt(chname, chtitle, theNbins, thePtMin, thePtMax);
-
       snprintf(chtitle, 255, "L1 max ref pt distribution label=%s", mylabel);
       snprintf(chname, 255, "ptNorm_%s", mylabel);
       hPtNor = BookIt(chname, chtitle, theNbins, thePtMin, thePtMax);
@@ -277,7 +272,6 @@ void HLTMuonRate::BookHistograms(){
       snprintf(chname, 255, "phi_%s", mylabel);
       snprintf(chtitle, 255, "L1 Phi distribution label=%s", mylabel);
       hL1Phi = BookIt(chname, chtitle, 50, -3.3, 3.3);
-
     for (unsigned int i=0; i<theHLTCollectionLabels.size(); i++) {
       dbe_->cd();
       snprintf(str3,99, "HLT/Muon/RateEfficiencies/%s",mydirlabel);
@@ -285,10 +279,10 @@ void HLTMuonRate::BookHistograms(){
       snprintf(str, 99, "%s",theHLTCollectionLabels[i].encode().c_str() );
       mylabel = strtok(str,":");
       snprintf(chname, 255, "eff_%s",mylabel );
-      snprintf(chtitle, 255, "Efficiency (%%) vs HLT Pt threshold (GeV), label=%s", mylabel);
+      snprintf(chtitle, 255, "Efficiency (%%) vs HLT Pt threshold (GeV/c), label=%s", mylabel);
       hHLTeff.push_back(BookIt(chname, chtitle, theNbins, thePtMin, thePtMax));
       snprintf(chname, 255, "rate_%s", mylabel);
-      snprintf(chtitle, 255, "Rate (Hz) vs HLT Pt threshold (GeV), label=%s, L=%.2E (cm^{-2} s^{-1})", mylabel, theLuminosity*1.e33);
+      snprintf(chtitle, 255, "Rate (Hz) vs HLT Pt threshold (GeV/c), label=%s, L=%.2E (cm^{-2} s^{-1})", mylabel, theLuminosity*1.e33);
       hHLTrate.push_back(BookIt(chname, chtitle, theNbins, thePtMin, thePtMax));
       dbe_->cd();
       snprintf(str3,99, "HLT/Muon/Distributions/%s",mydirlabel);
@@ -299,16 +293,15 @@ void HLTMuonRate::BookHistograms(){
     }
     hSteps->setAxisTitle("Trigger Filtering Step");
     hSteps->setAxisTitle("Events passing Trigger Step",2);
-    hL1eff->setAxisTitle("90% Muon Pt threshold (GeV)");
-    hL1rate->setAxisTitle("90% Muon Pt threshold (GeV)");
+    hL1eff->setAxisTitle("90% Muon Pt threshold (GeV/c)");
+    hL1rate->setAxisTitle("90% Muon Pt threshold (GeV/c)");
     hL1rate->setAxisTitle("Rate (Hz)",2);
-    hL1pt->setAxisTitle("Muon Pt (GeV)");
-
+    hL1pt->setAxisTitle("Muon Pt (GeV/c)");
     for (unsigned int i=0; i<theHLTCollectionLabels.size(); i++) {
-      hHLTeff[i]->setAxisTitle("90% Muon Pt threshold (GeV)");
+      hHLTeff[i]->setAxisTitle("90% Muon Pt threshold (GeV/c)");
       hHLTrate[i]->setAxisTitle("Rate (Hz)",2);
-      hHLTrate[i]->setAxisTitle("90% Muon Pt threshold (GeV)",1);
-      hHLTpt[i]->setAxisTitle("HLT Muon Pt (GeV)",1);
+      hHLTrate[i]->setAxisTitle("90% Muon Pt threshold (GeV/c)",1);
+      hHLTpt[i]->setAxisTitle("HLT Muon Pt (GeV/c)",1);
     }
   }
 }

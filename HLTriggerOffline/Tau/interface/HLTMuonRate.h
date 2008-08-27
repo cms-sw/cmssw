@@ -1,11 +1,13 @@
 #ifndef HLTriggerOffline_Muon_HLTMuonRate_H
 #define HLTriggerOffline_Muon_HLTMuonRate_H
+
 /** \class HLTMuonRate
  *  Get L1/HLT efficiency/rate plots
+ *
  *  \author  Sho Maruyama  (copied from J. Alcaraz
  */
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+
+// Base Class Headers
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -14,15 +16,17 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "DataFormats/Common/interface/RefToBase.h"
+#include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
+#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include <vector>
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
-using namespace std;
 using namespace edm;
-using namespace reco;
+using namespace std;
 using namespace math;
-
 class HLTMuonRate {
 public:
   HLTMuonRate(const edm::ParameterSet& pset, int Index);
