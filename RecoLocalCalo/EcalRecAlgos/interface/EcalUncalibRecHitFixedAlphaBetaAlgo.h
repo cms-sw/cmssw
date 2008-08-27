@@ -297,6 +297,7 @@ template<class C> float EcalUncalibRecHitFixedAlphaBetaAlgo<C>::PerformAnalyticF
       if(fail != 0.) {
       //just a guess from the value of the parameters in the previous interaction;
       //printf("wH4PulseFitWithFunction =====> determinant error --> No Fit Provided !\n") ;
+      InitFitParameters(samples,max_sample);
       return -101 ;
     }
 /*     for(int i1=0 ; i1<3 ; i1++) { */
@@ -313,6 +314,7 @@ template<class C> float EcalUncalibRecHitFixedAlphaBetaAlgo<C>::PerformAnalyticF
     // +-inf value in the matrix DM1_ after inversion
     // (which is nevertheless flagged as successfull...)
     if ( isnan( PROD[0] ) ) {
+            InitFitParameters(samples,max_sample);
             return -103 ;
     }
 
