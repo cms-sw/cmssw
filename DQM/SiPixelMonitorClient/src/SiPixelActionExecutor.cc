@@ -932,7 +932,7 @@ void SiPixelActionExecutor::getGrandSummaryME(DQMStore* bei,
                                               int nbin, 
 					      string& me_name, 
 					      vector<MonitorElement*> & mes) {
-
+  if((bei->pwd()).find("Pixel")==string::npos) return;
   vector<string> contents = bei->getMEs();
       
   for (vector<string>::const_iterator it = contents.begin();
@@ -963,6 +963,7 @@ MonitorElement* SiPixelActionExecutor::getSummaryME(DQMStore* bei,
                                                     string me_name) {
 //cout<<"Entering SiPixelActionExecutor::getSummaryME..."<<endl;
   MonitorElement* me = 0;
+  if((bei->pwd()).find("Pixel")==string::npos) return me;
   vector<string> contents = bei->getMEs();    
   
   for (vector<string>::const_iterator it = contents.begin();
