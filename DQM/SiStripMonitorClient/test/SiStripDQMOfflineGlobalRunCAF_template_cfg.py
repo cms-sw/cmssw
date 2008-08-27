@@ -48,8 +48,8 @@ HLT_FILTER
 DQM_FROM_RAW
     process.SiStripDQMRecoGlobalRunCAF           *
     process.SiStripDQMSourceGlobalRunCAF_reduced *
-    process.SiStripDQMClientGlobalRunCAF         *
-    process.qTester                              *
+#     process.SiStripDQMClientGlobalRunCAF         *
+#     process.qTester                              *
     process.dqmSaver
 )
 
