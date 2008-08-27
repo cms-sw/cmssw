@@ -1,9 +1,10 @@
-// $Id: ServiceManager.cc,v 1.13 2008/08/20 13:20:47 loizides Exp $
+// $Id: ServiceManager.cc,v 1.14 2008/08/22 14:09:29 loizides Exp $
 
 #include <EventFilter/StorageManager/interface/ServiceManager.h>
 #include "EventFilter/StorageManager/interface/Configurator.h"
 #include <EventFilter/StorageManager/interface/EventStreamService.h>
 #include <EventFilter/StorageManager/interface/FRDStreamService.h>
+#include "FWCore/Framework/interface/EventSelector.h"
 #include <FWCore/Utilities/interface/Exception.h>
 #include <typeinfo>
 
@@ -44,6 +45,21 @@ void ServiceManager::stop()
       it != itEnd; ++it) {
       (*it)->stop();
   }
+
+  psetHLTOutputLabels_.clear();
+  for (unsigned int idx = 0; idx < outModPSets_.size(); idx++) {
+    psetHLTOutputLabels_.push_back(std::string());  // empty string
+  }
+
+  managedOutputs_.clear();
+  outputModuleIds_.clear();
+  storedEvents_.clear();
+  storedNames_.clear();
+
+  currentlumi_ = 0;
+  timeouttime_ = 0;
+  lasttimechecked_ = 0;
+  errorStreamCreated_ = false;
 }
 
 
@@ -266,7 +282,7 @@ std::list<std::string>& ServiceManager::get_currfiles()
       it != itEnd; ++it) {
       std::list<std::string> sub_list = (*it)->getCurrentFileList();
       if(sub_list.size() > 0)
-	filelist_.insert(filelist_.end(), sub_list.begin(), sub_list.end());
+	currfiles_.insert(currfiles_.end(), sub_list.begin(), sub_list.end());
   }
   return currfiles_;  
 }
