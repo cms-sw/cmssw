@@ -1,3 +1,10 @@
+
+# This is the same as testRunMergeTEST except the noEventSort
+# option is set in the PoolSource, which changes the order
+# events are processed.  Within a LuminosityBlock, they are
+# in entry order instead of event number order.  The RunLumiEventAnalyzer
+# module checks this.
+
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
@@ -22,6 +29,7 @@ process.source = cms.Source("PoolSource",
         'file:testRunMerge2.root', 
         'file:testRunMerge3.root'
     ),
+    noEventSort = cms.untracked.bool(True)
 )
 
 process.out = cms.OutputModule("PoolOutputModule",
@@ -162,17 +170,17 @@ process.test = cms.EDFilter("TestMergeResults",
     verbose = cms.untracked.bool(False),
 
     expectedParents = cms.untracked.vstring(
-        'm3', 'm3', 'm3', 'm3', 'm3',
-        'm3', 'm3', 'm3', 'm3', 'm3',
         'm1', 'm1', 'm1', 'm1', 'm1',
         'm1', 'm1', 'm1', 'm1', 'm1',
         'm2', 'm2', 'm2', 'm2', 'm2',
+        'm3', 'm3', 'm3', 'm3', 'm3',
+        'm3', 'm3', 'm3', 'm3', 'm3',
         'm2', 'm2', 'm2', 'm2', 'm2',
-        'm3', 'm3', 'm3', 'm3', 'm3',
-        'm3', 'm3', 'm3', 'm3', 'm3',
         'm1', 'm1', 'm1', 'm1', 'm1',
         'm1', 'm1', 'm1', 'm1', 'm1',
         'm2', 'm2', 'm2', 'm2', 'm2',
+        'm3', 'm3', 'm3', 'm3', 'm3',
+        'm3', 'm3', 'm3', 'm3', 'm3',
         'm2', 'm2', 'm2', 'm2', 'm2'
    )
 )
@@ -182,16 +190,6 @@ process.test2 = cms.EDAnalyzer('RunLumiEventAnalyzer',
     expectedRunLumiEvents = cms.untracked.vuint32(
 1, 0, 0,
 1, 1, 0,
-1, 1, 1,
-1, 1, 2,
-1, 1, 3,
-1, 1, 4,
-1, 1, 5,
-1, 1, 6,
-1, 1, 7,
-1, 1, 8,
-1, 1, 9,
-1, 1, 10,
 1, 1, 11,
 1, 1, 12,
 1, 1, 13,
@@ -207,6 +205,16 @@ process.test2 = cms.EDAnalyzer('RunLumiEventAnalyzer',
 1, 1, 23,
 1, 1, 24,
 1, 1, 25,
+1, 1, 1,
+1, 1, 2,
+1, 1, 3,
+1, 1, 4,
+1, 1, 5,
+1, 1, 6,
+1, 1, 7,
+1, 1, 8,
+1, 1, 9,
+1, 1, 10,
 1, 1, 0,
 1, 0, 0,
 2, 0, 0,
@@ -220,16 +228,6 @@ process.test2 = cms.EDAnalyzer('RunLumiEventAnalyzer',
 2, 0, 0,
 1, 0, 0,
 1, 1, 0,
-1, 1, 1,
-1, 1, 2,
-1, 1, 3,
-1, 1, 4,
-1, 1, 5,
-1, 1, 6,
-1, 1, 7,
-1, 1, 8,
-1, 1, 9,
-1, 1, 10,
 1, 1, 11,
 1, 1, 12,
 1, 1, 13,
@@ -245,6 +243,16 @@ process.test2 = cms.EDAnalyzer('RunLumiEventAnalyzer',
 1, 1, 23,
 1, 1, 24,
 1, 1, 25,
+1, 1, 1,
+1, 1, 2,
+1, 1, 3,
+1, 1, 4,
+1, 1, 5,
+1, 1, 6,
+1, 1, 7,
+1, 1, 8,
+1, 1, 9,
+1, 1, 10,
 1, 1, 0,
 1, 0, 0,
 2, 0, 0,
