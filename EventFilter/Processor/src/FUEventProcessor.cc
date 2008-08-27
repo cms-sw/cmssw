@@ -24,6 +24,9 @@
 #include "FWCore/Utilities/interface/Presence.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include "xdaq/ApplicationDescriptorImpl.h"
+#include "xdaq/ContextDescriptor.h"
+
 #include "xcept/tools.h"
 #include "xgi/Method.h"
 
@@ -109,12 +112,13 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   , asMonitoring_(0)
   , watching_(false)
   , reasonForFailedState_()
+  , squidnet_(3128,"http://frontier1.cms:8000/RELEASE-NOTES.txt")
 {
   //list of variables for scalers flashlist
   names_.push_back("lumiSectionIndex");
   names_.push_back("prescaleSetIndex");
   names_.push_back("scalersTable");
-
+  squidPresent_ = squidnet_.check();
 
   // bind relevant callbacks to finite state machine
   fsm_.initialize<evf::FUEventProcessor>(this);
@@ -192,6 +196,8 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   
   monitorInfoSpace_->fireItemAvailable("macroStateLegend",      &macro_state_legend_);
   monitorInfoSpace_->fireItemAvailable("microStateLegend",      &micro_state_legend_);
+
+  monitorInfoSpace_->fireItemAvailable("squidPresent",      &squidPresent_);
 
   std::stringstream oss3;
   oss3<<"urn:xdaq-scalers-"<<class_.toString();
@@ -958,6 +964,16 @@ void FUEventProcessor::defaultWebPage(xgi::Input  *in, xgi::Output *out)
   *out << monSleepSec_.toString() << endl;
   *out << "</td>" << endl;
   *out << "</tr>"                                            << endl;
+  *out << "<tr>" << endl;
+  *out << "<td >" << endl;
+  *out << "Squid Present " << endl;
+  *out << "</td>" << endl;
+  *out << "<td>" << endl;
+  *out << squidPresent_.toString() << endl;
+  *out << "</td>" << endl;
+  *out << "</tr>"                                            << endl;
+
+
   *out << "</table>" << endl;
   *out << "</tr>"                                            << endl;
 
@@ -1443,6 +1459,7 @@ void FUEventProcessor::startMonitoringWorkLoop() throw (evf::Exception)
 bool FUEventProcessor::scalers(toolbox::task::WorkLoop* wl)
 {
   edm::ServiceRegistry::Operate operate(serviceToken_);
+  squidPresent_ = squidnet_.check();
   if(evtProcessor_)
     {
       ::sleep(1);
@@ -1604,7 +1621,7 @@ bool FUEventProcessor::fireScalersUpdate()
   // locate input BU
   AppDescSet_t rcms=
     getApplicationContext()->getDefaultZone()->
-    getApplicationDescriptors("MonitorReceiver");
+    getApplicationDescriptors("RCMSStateListener");
   if(rcms.size()==0) 
     {
 	LOG4CPLUS_INFO(getApplicationLogger(),
@@ -1612,7 +1629,11 @@ bool FUEventProcessor::fireScalersUpdate()
 	return false;
     }
   AppDescIter_t it = rcms.begin();
-
+  
+  toolbox::net::URL url((*it)->getContextDescriptor()->getURL());
+  toolbox::net::URL properurl(url.getProtocol(),url.getHost(),url.getPort(),"/rcms/servlet/monitorreceiver");
+  xdaq::ContextDescriptor *ctxdsc = new xdaq::ContextDescriptor(properurl.toString());
+  xdaq::ApplicationDescriptor *appdesc = new xdaq::ApplicationDescriptorImpl(ctxdsc,(*it)->getClassName(),(*it)->getLocalId(), "pippo");
   xdata::exdr::Serializer serializer;
   toolbox::net::URL at(getApplicationContext()->getContextDescriptor()->getURL() + "/" + getApplicationDescriptor()->getURN());
   xoap::MessageReference msg = xoap::createMessage();
@@ -1663,13 +1684,15 @@ bool FUEventProcessor::fireScalersUpdate()
   msg->addAttachmentPart(attachment);
   //  msg->writeTo(std::cout);
   try{
-    this->getApplicationContext()->postSOAP(msg,*(getApplicationDescriptor()),*(*it));
+    this->getApplicationContext()->postSOAP(msg,*(getApplicationDescriptor()),*appdesc);
   }
   catch(xdaq::exception::Exception &ex)
     {
 	LOG4CPLUS_WARN(getApplicationLogger(),
 		       "exception when posting SOAP message to MonitorReceiver");
     }
+  delete appdesc; 
+  delete ctxdsc;
   return true;
 }
 

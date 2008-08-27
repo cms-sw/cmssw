@@ -7,7 +7,7 @@
 #include "EventFilter/Utilities/interface/RunBase.h"
 #include "EventFilter/Utilities/interface/Css.h"
 #include "EventFilter/Utilities/interface/Exception.h"
-
+#include "EventFilter/Utilities/interface/SquidNet.h"
 
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/Framework/interface/TriggerReport.h"
@@ -197,6 +197,9 @@ namespace evf
     xdata::InfoSpace                *scalersInfoSpace_;
     xdata::Table                     scalersComplete_;
 
+    // flashlist variables, squids
+    xdata::Boolean                   squidPresent_; 
+
     
     // HyperDAQ related
     Css                              css_;
@@ -205,6 +208,7 @@ namespace evf
     std::string                      reasonForFailedState_;
     fuep::TriggerReportHelpers       trh_;
     std::list<std::string>           names_;
+    SquidNet                         squidnet_;
   };
   
 } // namespace evf
