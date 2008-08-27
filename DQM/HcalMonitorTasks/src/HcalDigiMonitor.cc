@@ -1108,8 +1108,7 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 				   const HFDigiCollection& hf,
 				   const HcalDbService& cond,
 				   const HcalUnpackerReport& report)
-{
-  
+{ 
   if(!m_dbe) { 
     if(fVerbosity) printf("HcalDigiMonitor::processEvent   DQMStore not instantiated!!!\n");  
     return; 
@@ -1197,7 +1196,7 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
       
       // Fill some diagnostic histograms only every N events
       fill_Nevents(hbHists);
-      fill_Nevents(hbHists);
+      fill_Nevents(heHists);
       fill_Nevents(hoHists);
       fill_Nevents(hfHists);
       if (showTiming)
@@ -1703,6 +1702,7 @@ void HcalDigiMonitor::HBHEDigiCheck(const HBHEDigiCollection& hbhe, DigiHists& h
 	      // We will only fill the histograms every N events.  
 	      // The rest of the time, we just store values in temp variables
 	      hbHists.temp_QIE_CAPID[digi.sample(i).capid()]++;
+
 	      hbHists.temp_QIE_ADC[int(digi.sample(i).adc())]++;
 
 	      //Timing plot: skipping ped. subtraction and fC conversion, just lin.adc counts
