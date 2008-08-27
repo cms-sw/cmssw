@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Wed Dec 12 13:31:55 CST 2007
-// $Id: ZeroFieldStandAloneMuonHIPTrackJoiner.cc,v 1.1 2008/08/27 03:43:09 pivarski Exp $
+// $Id: ZeroFieldStandAloneMuonHIPTrackJoiner.cc,v 1.2 2008/08/27 20:28:49 pivarski Exp $
 //
 //
 
@@ -108,7 +108,7 @@ ZeroFieldStandAloneMuonHIPTrackJoiner::ZeroFieldStandAloneMuonHIPTrackJoiner(con
    produces<reco::TrackExtraCollection>();
    produces<TrackingRecHitCollection>();
 
-   if (m_station1 >= m_station2) throw cms::Exception("We must have station1 < station2");
+   if (abs(m_station1) >= abs(m_station2)) throw cms::Exception("We must have |station1| < |station2| (so that station2 is never the barrel)");
 }
 
 
