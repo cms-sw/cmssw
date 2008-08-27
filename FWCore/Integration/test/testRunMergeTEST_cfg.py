@@ -21,7 +21,7 @@ process.source = cms.Source("PoolSource",
         'file:testRunMerge1.root', 
         'file:testRunMerge2.root', 
         'file:testRunMerge3.root'
-    ),
+    )
 )
 
 process.out = cms.OutputModule("PoolOutputModule",
