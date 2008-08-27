@@ -2,9 +2,14 @@
 // 
 // Client class for HLT Scalers module.
 // 
-// $Id: HLTScalersClient.h,v 1.1 2008/08/22 20:56:55 wittich Exp $
+// $Id: HLTScalersClient.h,v 1.2 2008/08/24 16:34:56 wittich Exp $
 
 // $Log: HLTScalersClient.h,v $
+// Revision 1.2  2008/08/24 16:34:56  wittich
+// - rate calculation cleanups
+// - fix error logging with LogDebug
+// - report the actual lumi segment number that we think it might be
+//
 // Revision 1.1  2008/08/22 20:56:55  wittich
 // - add client for HLT Scalers
 // - Move rate calculation to HLTScalersClient and slim down the
@@ -61,8 +66,6 @@ public:
 
 private:
   DQMStore * dbe_;
-//   edm::InputTag trigResultsSource_;
-//   edm::InputTag l1GtDataSource_; // L1 Scalers
 
   int nev_; // Number of events processed
   int nLumi_; // number of lumi blocks
@@ -72,6 +75,9 @@ private:
   MonitorElement *currentRate_;
   int currentLumiBlockNumber_;
   MonitorElement *rateHistories_[MAX_PATHS]; // HARD CODE FOR NOW
+
+  MonitorElement *hltCurrentRate_[MAX_PATHS];
+  bool first_;
 };
 
 
