@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Aug 22 20:42:51 EDT 2008
-// $Id$
+// $Id: FWExpressionValidator.cc,v 1.1 2008/08/24 00:19:12 chrjones Exp $
 //
 
 // system include files
@@ -16,10 +16,12 @@
 #include <algorithm>
 #include "Reflex/Type.h"
 #include "Reflex/Member.h"
+#include "Reflex/Base.h"
+
 
 // user include files
 #include "Fireworks/Core/src/FWExpressionValidator.h"
-
+#include "PhysicsTools/Utilities/src/returnType.h"
 
 //
 // constants, enums and typedefs
@@ -35,6 +37,16 @@ namespace fireworks {
          return *iLHS < *iRHS;
       }
    };
+   
+   template< class T>
+   struct OptionNodePtrEqual {
+      bool operator()(const T& iLHS,
+                      const T& iRHS) const
+      {
+         return iLHS->description() == iRHS->description();
+      }
+   };
+   
    
    class OptionNode {
    public:
@@ -52,6 +64,14 @@ namespace fireworks {
       const std::vector<boost::shared_ptr<OptionNode> >& options() const {
          if(m_hasSubOptions && m_subOptions.empty()) {
             fillOptionForType(m_type, m_subOptions);
+            std::sort(m_subOptions.begin(),m_subOptions.end(),
+                      fireworks::OptionNodePtrCompare<boost::shared_ptr<OptionNode> >());
+            std::vector<boost::shared_ptr<OptionNode> >::iterator it= 
+            std::unique(m_subOptions.begin(),m_subOptions.end(),
+                        fireworks::OptionNodePtrEqual<boost::shared_ptr<OptionNode> >());
+            m_subOptions.erase(it,  m_subOptions.end());
+            
+            m_hasSubOptions = !m_subOptions.empty();
          }
          return m_subOptions;
       }
@@ -67,7 +87,7 @@ namespace fireworks {
       mutable std::string m_description;
       mutable std::string::size_type m_endOfName;
       mutable std::vector<boost::shared_ptr<OptionNode> > m_subOptions;
-      bool m_hasSubOptions;
+      mutable bool m_hasSubOptions;
       static bool typeHasOptions(const ROOT::Reflex::Type& iType);
    };
    
@@ -81,17 +101,55 @@ namespace fireworks {
    {
    }
    
-   OptionNode::OptionNode(const ROOT::Reflex::Member& ) {
+   namespace {
+      std::string descriptionFromMember(const ROOT::Reflex::Member& iMember)
+      {
+         std::string typeString = iMember.TypeOf().Name();
+         std::string::size_type index = typeString.find_first_of("(");
+         if(index == std::string::npos) {
+            return iMember.Name()+":"+typeString;
+         } else {
+            return iMember.Name()+typeString.substr(index,std::string::npos)+":"+
+            typeString.substr(0,index);
+         }
+      }
+   }
+   
+   OptionNode::OptionNode(const ROOT::Reflex::Member& iMember):
+   m_type(reco::returnType(iMember)),
+   m_description(descriptionFromMember(iMember)),
+   m_endOfName(iMember.Name().size()),
+   m_hasSubOptions(typeHasOptions(m_type))
+   {
    }
 
    
    void OptionNode::fillOptionForType( const ROOT::Reflex::Type& iType,
-                                      std::vector<boost::shared_ptr<OptionNode> >& )
+                                      std::vector<boost::shared_ptr<OptionNode> >& oOptions)
    {
+      ROOT::Reflex::Type type = iType;
+      if(type.IsPointer()) {
+         type = type.ToType();
+      }
+      // first look in base scope
+      oOptions.reserve(oOptions.size()+type.FunctionMemberSize());
+      for(ROOT::Reflex::Member_Iterator m = type.FunctionMember_Begin(); m != type.FunctionMember_End(); ++m ) {
+         if(!m->TypeOf().IsConst() ||
+            m->IsConstructor() ||
+            m->IsDestructor() ||
+            m->IsOperator() ||
+            !m->IsPublic() ||
+            m->Name().substr(0,2)=="__") {continue;}
+         oOptions.push_back(boost::shared_ptr<OptionNode>(new OptionNode(*m)));
+      }
+                            
+      for(ROOT::Reflex::Base_Iterator b = type.Base_Begin(); b != type.Base_End(); ++ b) {
+         fillOptionForType(b->ToType(),oOptions);
+      }
    }
    
    bool OptionNode::typeHasOptions(const ROOT::Reflex::Type& iType) {
-      return false;
+      return iType.IsClass();
    }
 
 }
@@ -169,6 +227,12 @@ FWExpressionValidator::setType(const ROOT::Reflex::Type& iType)
    m_options.clear();
    m_options=m_builtins;
    OptionNode::fillOptionForType(iType, m_options);
+   std::sort(m_options.begin(),m_options.end(),
+             fireworks::OptionNodePtrCompare<boost::shared_ptr<OptionNode> >());
+   std::vector<boost::shared_ptr<OptionNode> >::iterator it= 
+   std::unique(m_options.begin(),m_options.end(),
+               fireworks::OptionNodePtrEqual<boost::shared_ptr<OptionNode> >());
+   m_options.erase(it,  m_options.end());
 }
 
 //
