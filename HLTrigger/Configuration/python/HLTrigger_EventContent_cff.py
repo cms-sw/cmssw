@@ -24,7 +24,7 @@ HLTriggerRECO = cms.PSet(
 HLTriggerAOD = cms.PSet(
     outputCommands = cms.vstring()
 )
-HLTNoFEDRawData = cmsPSet(
+HLTNoFEDRawData = cms.PSet(
     outputCommands = cms.vstring( 'drop FEDRawDataCollection_*_*_*' )
 )
 #
