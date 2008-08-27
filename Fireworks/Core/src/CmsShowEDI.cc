@@ -8,7 +8,7 @@
 //
 // Original Author:  Joshua Berger  
 //         Created:  Mon Jun 23 15:48:11 EDT 2008
-// $Id: CmsShowEDI.cc,v 1.11 2008/08/22 16:56:38 chrjones Exp $
+// $Id: CmsShowEDI.cc,v 1.12 2008/08/24 00:29:51 chrjones Exp $
 //
 
 // system include files
@@ -281,7 +281,7 @@ CmsShowEDI::fillEDIFrame(FWEventItem* iItem) {
     m_objectLabel->SetText(iItem->name().c_str());
     m_colorSelectWidget->SetColor(gVirtualX->GetPixel(iItem->defaultDisplayProperties().color()),kFALSE);
     m_isVisibleButton->SetDisabledAndSelected(iItem->defaultDisplayProperties().isVisible());
-     m_validator->setType(ROOT::Reflex::Type::ByTypeInfo(*(iItem->type()->GetTypeInfo())));
+     m_validator->setType(ROOT::Reflex::Type::ByTypeInfo(*(iItem->modelType()->GetTypeInfo())));
      m_filterExpressionEntry->SetText(iItem->filterExpression().c_str());
     m_filterError->Clear();
     m_selectError->Clear();
