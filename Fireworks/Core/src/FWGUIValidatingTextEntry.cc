@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Aug 22 18:13:39 EDT 2008
-// $Id$
+// $Id: FWGUIValidatingTextEntry.cc,v 1.1 2008/08/24 00:19:12 chrjones Exp $
 //
 
 // system include files
@@ -111,7 +111,7 @@ FWGUIValidatingTextEntry::showOptions() {
    if(0!=m_validator) {
       const char* text = GetText();
       std::string subText(text,text+GetCursorPosition());
-      std::cout <<subText<<std::endl;
+      //std::cout <<subText<<std::endl;
       
       typedef std::vector<std::pair<boost::shared_ptr<std::string>, std::string> > Options;
       m_validator->fillOptions(text, text+GetCursorPosition(), m_options);
@@ -133,6 +133,8 @@ FWGUIValidatingTextEntry::showOptions() {
          m_list->GetItemVsize();
          if(h && (h<100)) {
             m_list->Resize(m_list->GetWidth(),h);
+         } else {
+            m_list->Resize(m_list->GetWidth(),100);
          }
       }
       
