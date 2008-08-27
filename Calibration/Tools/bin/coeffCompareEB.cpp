@@ -53,24 +53,31 @@ int main (int argc, char* argv[])
     
     int EBetaStart = 1 ;
     int EBetaEnd = 86 ;
-    int EBphiStart = 20 ;
-    int EBphiEnd = 60 ;
-    int power = 1 ;
+    int EBphiStart = 0 ;
+    int EBphiEnd = 360 ;
+    int power = -1 ;
     
     
     std::string filename = "coeffcompareEB.root" ;
    
-    std::string NameDBOracle1 = "oracle://cms_orcoff_int2r/CMS_COND_ECAL";
-    std::string TagDBOracle1 = "EcalIntercalibConstants_startup_csa08_mc";  
+//     std::string NameDBOracle1 = "oracle://cms_orcoff_int2r/CMS_COND_ECAL";
+//     std::string TagDBOracle1 = "EcalIntercalibConstants_startup_csa08_mc";  
     
-    std::string NameDBOracle2 = "oracle://cms_orcoff_int2r/CMS_COND_ECAL";
-    std::string TagDBOracle2 = "EcalIntercalibConstants_inv_startup_csa08_mc";  
+//     std::string NameDBOracle2 = "oracle://cms_orcoff_int2r/CMS_COND_ECAL";
+//     std::string TagDBOracle2 = "EcalIntercalibConstants_inv_startup_csa08_mc";  
+ 
     
+    std::string NameDBOracle1 = "oracle://cms_orcoff_prod/CMS_COND_20X_ECAL";
+    std::string TagDBOracle1 = "EcalIntercalibConstants_phi_Zee_csa08_s156_mc";  
+    
+    std::string NameDBOracle2 = "oracle://cms_orcoff_prod/CMS_COND_20X_ECAL";
+    std::string TagDBOracle2 = "EcalIntercalibConstants_startup_csa08_mc";  
+ 
+       
     
      //---- location of the xml file ----      
     std::string calibFile = "/afs/cern.ch/user/a/amassiro/scratch0/CMSSW_2_1_2/src/CalibCalorimetry/CaloMiscalibTools/data/miscalib_barrel_startup_csa08.xml";
  
-    
     
     
     if (argc == 1) {
@@ -156,11 +163,14 @@ int main (int argc, char* argv[])
    
     std::string Command2LineStr2 = "cmscond_export_iov -s " + NameDBOracle2 + " -d sqlite_file:Due.db -D CondFormatsEcalObjects -t " + TagDBOracle2 + " -P /afs/cern.ch/cms/DB/conddb/";
             
+    std::cout << Command2LineStr1 << std::endl;
+    std::cout << Command2LineStr2 << std::endl;
+    
     
     gSystem->Exec(Command2LineStr1.c_str());
     
     //---- now the second set analysed through xml file ----
-    //  gSystem->Exec(Command2LineStr2.c_str());
+     gSystem->Exec(Command2LineStr2.c_str());
    
     
     
@@ -184,10 +194,10 @@ int main (int argc, char* argv[])
   //---- Second Database Analyzed -----
   //-----------------------------------
   
-//   NameDB = "sqlite_file:Due.db";  
-//   FileData = TagDBOracle2;
-//   CondIter<EcalIntercalibConstants> Iterator2;
-//   Iterator2.create(NameDB,FileData);
+  NameDB = "sqlite_file:Due.db";  
+  FileData = TagDBOracle2;
+  CondIter<EcalIntercalibConstants> Iterator2;
+  Iterator2.create(NameDB,FileData);
 
   //---------------------------------------------------------------------
   
@@ -206,9 +216,9 @@ int main (int argc, char* argv[])
  
   
   
-//   const EcalIntercalibConstants* EBconstants2;
-//   EBconstants2 = Iterator2.next();
-//   EcalIntercalibConstantMap iEBscalibMap = EBconstants2->getMap () ;
+  const EcalIntercalibConstants* EBconstants2;
+  EBconstants2 = Iterator2.next();
+  EcalIntercalibConstantMap iEBscalibMap = EBconstants2->getMap () ;
 
   
   
@@ -220,12 +230,12 @@ int main (int argc, char* argv[])
   
  
   
-  CaloMiscalibMapEcal EBscalibMap ;
-  EBscalibMap.prefillMap () ;
-  MiscalibReaderFromXMLEcalBarrel barrelreader (EBscalibMap) ;
-  if (!calibFile.empty ()) barrelreader.parseXMLMiscalibFile (calibFile) ;
-  EcalIntercalibConstants* EBconstants = new EcalIntercalibConstants (EBscalibMap.get ()) ;
-  EcalIntercalibConstantMap iEBscalibMap = EBconstants->getMap () ;  //MF prende i vecchi coeff
+//   CaloMiscalibMapEcal EBscalibMap ;
+//   EBscalibMap.prefillMap () ;
+//   MiscalibReaderFromXMLEcalBarrel barrelreader (EBscalibMap) ;
+//   if (!calibFile.empty ()) barrelreader.parseXMLMiscalibFile (calibFile) ;
+//   EcalIntercalibConstants* EBconstants = new EcalIntercalibConstants (EBscalibMap.get ()) ;
+//   EcalIntercalibConstantMap iEBscalibMap = EBconstants->getMap () ;  //MF prende i vecchi coeff
 
   
   
@@ -264,9 +274,10 @@ int main (int argc, char* argv[])
   //PG fill the histograms
   //PG -------------------
   
-  // ECAL barrel
+  
+   // ECAL barrel
   TH1F EBCompareCoeffDistr ("EBCompareCoeff","EBCompareCoeff",1000,0,2) ;
-  TH2F EBCompareCoeffMap ("EBCompareCoeffMap","EBCompareCoeffMap",171,-85,86,360,1,361) ;
+  TH2F EBCompareCoeffMap ("EBCompareCoeffMap","EBCompareCoeffMap",360,1,361,171,-85,86) ;
   TH2F EBCompareCoeffEtaTrend ("EBCompareCoeffEtaTrend","EBCompareCoeffEtaTrend",
                                171,-85,86,500,0,2) ;
   TProfile EBCompareCoeffEtaProfile ("EBCompareCoeffEtaProfile","EBCompareCoeffEtaProfile",
@@ -280,67 +291,52 @@ int main (int argc, char* argv[])
   
   //PG loop over eta
   for (int ieta = EBetaStart ; ieta < EBetaEnd ; ++ieta)
-    {
-<<<<<<< coeffCompareEB.cpp
-      if (!EBDetId::validDetId (ieta,iphi)) continue ;
-      EBDetId det = EBDetId (ieta,iphi,EBDetId::ETAPHIMODE) ;
-      double factor = *(iEBcalibMap.find (det.rawId ())) / 
-                      *(iEBscalibMap.find (det.rawId ())) ;
-      if (power != 1 && factor != 0) 
-        factor = *(iEBcalibMap.find (det.rawId ())) / 
-                 *(iEBscalibMap.find (det.rawId ()));
-      
-//       std::cout << " iEBcalibMap ieta = " << ieta  << " iphi = " << iphi << " --> " << *(iEBcalibMap.find (det.rawId ()));
-//       std::cout << " iEBscalibMap --> " << *(iEBscalibMap.find (det.rawId ())) << std::endl;
-      
-      
-      EBCompareCoeffDistr.Fill (factor) ;
-      EBCompareCoeffMap.Fill (ieta,iphi,factor) ;
-      EBCompareCoeffEtaTrend.Fill (ieta,factor) ;
-      EBCompareCoeffEtaProfile.Fill (ieta,factor) ;
-      if (abs(ieta) < 26) EBCompareCoeffDistr_M1.Fill (factor) ;
-      else if (abs(ieta) < 46) EBCompareCoeffDistr_M2.Fill (factor) ;
-      else if (abs(ieta) < 66) EBCompareCoeffDistr_M3.Fill (factor) ;
-      else EBCompareCoeffDistr_M4.Fill (factor) ;
-    } // ECAL barrel
-    
-=======
+  {
       double phiSum = 0. ; 
       double phiSumSq = 0. ; 
       double N = 0. ;
       for (int iphi = EBphiStart ; iphi <= EBphiEnd ; ++iphi)
-        {
+      {
           if (!EBDetId::validDetId (ieta,iphi)) continue ;
           EBDetId det = EBDetId (ieta,iphi,EBDetId::ETAPHIMODE) ;
           double factor = *(iEBcalibMap.find (det.rawId ())) * 
-                          *(iEBscalibMap.find (det.rawId ())) ;
+                      *(iEBscalibMap.find (det.rawId ())) ;
           if (power != 1 && factor != 0) 
-            factor = *(iEBcalibMap.find (det.rawId ())) / 
-                     *(iEBscalibMap.find (det.rawId ()));
+              factor = *(iEBcalibMap.find (det.rawId ())) / 
+                      *(iEBscalibMap.find (det.rawId ()));
+          
+//           std::cout << " ieta = " << ieta  << " iphi = " << iphi << " iEBcalibMap --> " << *(iEBcalibMap.find (det.rawId ()));
+//       std::cout << " iEBscalibMap --> " << *(iEBscalibMap.find (det.rawId ())) << std::endl;
+
+          
           phiSum += factor ;
           phiSumSq += factor * factor ;
           N += 1. ;
           EBCompareCoeffDistr.Fill (factor) ;
-          EBCompareCoeffMap.Fill (ieta,iphi,factor) ;
+          EBCompareCoeffMap.Fill (iphi,ieta,factor) ;
           EBCompareCoeffEtaTrend.Fill (ieta,factor) ;
           EBCompareCoeffEtaProfile.Fill (ieta,factor) ;
           if (abs(ieta) < 26) EBCompareCoeffDistr_M1.Fill (factor) ;
           else if (abs(ieta) < 46) EBCompareCoeffDistr_M2.Fill (factor) ;
           else if (abs(ieta) < 66) EBCompareCoeffDistr_M3.Fill (factor) ;
           else EBCompareCoeffDistr_M4.Fill (factor) ;
-        } //PG loop over phi
-       double phiMean = phiSum / N ;
-       double phiRMS = sqrt (phiSumSq / N - phiMean * phiMean) ;        
-    } //PG loop over eta
+      } //PG loop over phi
+      double phiMean = phiSum / N ;
+      double phiRMS = sqrt (phiSumSq / N - phiMean * phiMean) ;        
+  } //PG loop over eta
 
   // trend vs eta FIXME to be renormalized
-  TH1D * EBEtaTrend = EBCompareCoeffMap.ProjectionX () ;
+  TH1D * EBEtaTrend = EBCompareCoeffMap.ProjectionY () ;
   // trend vs phi FIXME to be renormalized
-  TH1D * EBPhiTrend = EBCompareCoeffMap.ProjectionY () ;
+  TH1D * EBPhiTrend = EBCompareCoeffMap.ProjectionX () ;
 
->>>>>>> 1.3
+
   TFile out (filename.c_str (),"recreate") ;
+  
+  EBCompareCoeffMap.GetXaxis()->SetTitle("i#phi");
+  EBCompareCoeffMap.GetYaxis()->SetTitle("i#eta");
   EBCompareCoeffMap.Write () ;
+  
   EBCompareCoeffDistr.Write () ;  
   EBCompareCoeffEtaTrend.Write () ;
   EBCompareCoeffEtaProfile.Write () ;

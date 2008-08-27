@@ -50,17 +50,25 @@ int main (int argc, char* argv[])
    
     int EEradStart = 15 ;
     int EEradEnd = 50 ;
-    int EEphiStart = 15 ;
-    int EEphiEnd = 45 ;
+    int EEphiStart = 0 ;
+    int EEphiEnd = 360 ;
 
     std::string filename = "coeffcompareEE.root" ;
      
-    std::string NameDBOracle1 = "oracle://cms_orcoff_int2r/CMS_COND_ECAL";
-    std::string TagDBOracle1 = "EcalIntercalibConstants_startup_csa08_mc";  
-    
-    std::string NameDBOracle2 = "oracle://cms_orcoff_int2r/CMS_COND_ECAL";
-    std::string TagDBOracle2 = "EcalIntercalibConstants_inv_startup_csa08_mc";  
+//     std::string NameDBOracle1 = "oracle://cms_orcoff_int2r/CMS_COND_ECAL";
+//     std::string TagDBOracle1 = "EcalIntercalibConstants_startup_csa08_mc";  
+//     
+//     std::string NameDBOracle2 = "oracle://cms_orcoff_int2r/CMS_COND_ECAL";
+//     std::string TagDBOracle2 = "EcalIntercalibConstants_inv_startup_csa08_mc";  
 
+    std::string NameDBOracle1 = "oracle://cms_orcoff_prod/CMS_COND_20X_ECAL";
+    std::string TagDBOracle1 = "EcalIntercalibConstants_phi_Zee_csa08_s156_mc";  
+    
+    std::string NameDBOracle2 = "oracle://cms_orcoff_prod/CMS_COND_20X_ECAL";
+    std::string TagDBOracle2 = "EcalIntercalibConstants_startup_csa08_mc";  
+    
+    
+    
     //---- location of the xml file ----
     std::string calibFile = "/afs/cern.ch/user/a/amassiro/scratch0/CMSSW_2_1_2/src/CalibCalorimetry/CaloMiscalibTools/data/miscalib_endcap_startup_csa08.xml";
  
@@ -150,7 +158,7 @@ int main (int argc, char* argv[])
     gSystem->Exec(Command2LineStr1.c_str());
 
     //---- now the second set analysed through xml file ----
-    //     gSystem->Exec(Command2LineStr2.c_str());
+        gSystem->Exec(Command2LineStr2.c_str());
    
     
     
@@ -174,10 +182,10 @@ int main (int argc, char* argv[])
   //---- Second Database Analyzed -----
   //-----------------------------------
   
-//   NameDB = "sqlite_file:Due.db";
-//   FileData = TagDBOracle2;
-//   CondIter<EcalIntercalibConstants> Iterator2;
-//   Iterator2.create(NameDB,FileData);
+  NameDB = "sqlite_file:Due.db";
+  FileData = TagDBOracle2;
+  CondIter<EcalIntercalibConstants> Iterator2;
+  Iterator2.create(NameDB,FileData);
 
   //---------------------------------------------------------------------
   
@@ -195,9 +203,9 @@ int main (int argc, char* argv[])
  
   
   
-//   const EcalIntercalibConstants* EEconstants2;
-//   EEconstants2 = Iterator2.next();
-//   EcalIntercalibConstantMap iEEscalibMap = EEconstants2->getMap () ;
+  const EcalIntercalibConstants* EEconstants2;
+  EEconstants2 = Iterator2.next();
+  EcalIntercalibConstantMap iEEscalibMap = EEconstants2->getMap () ;
 
   
   
@@ -211,12 +219,12 @@ int main (int argc, char* argv[])
   //---- load form xml file ----
   //---- name of the xml file defined at the beginning ----
   
-  CaloMiscalibMapEcal EEscalibMap ;
-  EEscalibMap.prefillMap () ;
-  MiscalibReaderFromXMLEcalEndcap endcapreader (EEscalibMap) ;
-  if (!calibFile.empty ()) endcapreader.parseXMLMiscalibFile (calibFile) ;
-  EcalIntercalibConstants* EEconstants = new EcalIntercalibConstants (EEscalibMap.get ()) ;
-  EcalIntercalibConstantMap iEEscalibMap = EEconstants->getMap () ;  //MF prende i vecchi coeff
+//   CaloMiscalibMapEcal EEscalibMap ;
+//   EEscalibMap.prefillMap () ;
+//   MiscalibReaderFromXMLEcalEndcap endcapreader (EEscalibMap) ;
+//   if (!calibFile.empty ()) endcapreader.parseXMLMiscalibFile (calibFile) ;
+//   EcalIntercalibConstants* EEconstants = new EcalIntercalibConstants (EEscalibMap.get ()) ;
+//   EcalIntercalibConstantMap iEEscalibMap = EEconstants->getMap () ;  //MF prende i vecchi coeff
     
   
   
@@ -326,7 +334,7 @@ int main (int argc, char* argv[])
       int phi = static_cast<int> ( phiTemp * 180 / PI_GRECO) ;
       if (!EEDetId::validDetId (ix,iy,-1)) continue ;
       EEDetId det = EEDetId (ix, iy, -1, EEDetId::XYMODE) ;
-      double factor = *(iEEcalibMap.find (det.rawId ())) /
+      double factor = *(iEEcalibMap.find (det.rawId ())) *
                   *(iEEscalibMap.find (det.rawId ())) ;
       EEMCompareCoeffDistr.Fill (factor) ;
       EEMCompareCoeffMap.Fill (ix,iy,factor) ;
