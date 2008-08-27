@@ -2,12 +2,50 @@ import FWCore.ParameterSet.Config as cms
 
 doubleElectronDQM = cms.EDFilter("EmDQM",
     genEtaAcc = cms.double(2.5),
-    HLTCollectionLabels = cms.VInputTag(cms.InputTag("l1seedDouble"), cms.InputTag("hltL1IsoDoubleElectronL1MatchFilterRegional"), cms.InputTag("hltL1IsoDoubleElectronEtFilter"), cms.InputTag("hltL1IsoDoubleElectronHcalIsolFilter"), cms.InputTag("hltL1IsoDoubleElectronPixelMatchFilter"), 
-        cms.InputTag("hltL1IsoDoubleElectronEoverpFilter"), cms.InputTag("hltL1IsoDoubleElectronTrackIsolFilter")),
     genEtAcc = cms.double(2.0),
-    theHLTOutputTypes = cms.vint32(83, 100, 100, 100, 100, 
-        92, 92),
     reqNum = cms.uint32(2),
+    filters = cms.VPSet(cms.PSet(
+        PlotBounds = cms.vdouble(0.0, 0.0),
+        HLTCollectionLabels = cms.InputTag("hltL1seedDouble","","HLT"),
+        IsoCollections = cms.VInputTag(cms.InputTag("none")),
+        theHLTOutputTypes = cms.uint32(83)
+    ), 
+        cms.PSet(
+            PlotBounds = cms.vdouble(0.0, 0.0),
+            HLTCollectionLabels = cms.InputTag("hltL1IsoDoubleElectronL1MatchFilterRegional","","HLT"),
+            IsoCollections = cms.VInputTag(cms.InputTag("none")),
+            theHLTOutputTypes = cms.uint32(100)
+        ), 
+        cms.PSet(
+            PlotBounds = cms.vdouble(0.0, 0.0),
+            HLTCollectionLabels = cms.InputTag("hltL1IsoDoubleElectronEtFilter","","HLT"),
+            IsoCollections = cms.VInputTag(cms.InputTag("none")),
+            theHLTOutputTypes = cms.uint32(100)
+        ), 
+        cms.PSet(
+            PlotBounds = cms.vdouble(0.0, 10.0),
+            HLTCollectionLabels = cms.InputTag("hltL1IsoDoubleElectronHcalIsolFilter","","HLT"),
+            IsoCollections = cms.VInputTag(cms.InputTag("hltL1IsolatedElectronHcalIsol","","HLT")),
+            theHLTOutputTypes = cms.uint32(100)
+        ), 
+        cms.PSet(
+            PlotBounds = cms.vdouble(0.0, 0.0),
+            HLTCollectionLabels = cms.InputTag("hltL1IsoDoubleElectronPixelMatchFilter","","HLT"),
+            IsoCollections = cms.VInputTag(cms.InputTag("none")),
+            theHLTOutputTypes = cms.uint32(100)
+        ), 
+        cms.PSet(
+            PlotBounds = cms.vdouble(0.0, 0.0),
+            HLTCollectionLabels = cms.InputTag("hltL1IsoDoubleElectronEoverpFilter","","HLT"),
+            IsoCollections = cms.VInputTag(cms.InputTag("none")),
+            theHLTOutputTypes = cms.uint32(92)
+        ), 
+        cms.PSet(
+            PlotBounds = cms.vdouble(0.0, 10.0),
+            HLTCollectionLabels = cms.InputTag("hltL1IsoDoubleElectronTrackIsolFilter","","HLT"),
+            IsoCollections = cms.VInputTag(cms.InputTag("hltL1IsoElectronTrackIsol","","HLT")),
+            theHLTOutputTypes = cms.uint32(92)
+        )),
     PtMax = cms.untracked.double(200.0),
     pdgGen = cms.int32(11)
 )
