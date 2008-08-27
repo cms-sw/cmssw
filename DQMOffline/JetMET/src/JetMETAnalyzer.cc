@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/04/30 16:11:38 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/08/26 19:17:30 $
+ *  $Revision: 1.3 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -87,7 +87,7 @@ void JetMETAnalyzer::beginJob(edm::EventSetup const& iSetup) {
 
   LogTrace(metname)<<"[JetMETAnalyzer] Parameters initialization";
   dbe = edm::Service<DQMStore>().operator->();
-  dbe->setVerbose(1);
+  dbe->setVerbose(0);
 
   if(theJetAnalyzerFlag) { 
     //    theJetAnalyzer->beginJob(iSetup, dbe);
