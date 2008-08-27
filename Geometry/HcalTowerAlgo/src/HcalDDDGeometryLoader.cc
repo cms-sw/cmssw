@@ -104,8 +104,7 @@ void HcalDDDGeometryLoader::fill(HcalSubdetector          subdet,
 #endif
       HcalDetId id(subdet, etaRing, iphi, depthBin);
       hcalIds.push_back(id);
-      const CaloCellGeometry * geometry = makeCell(id,hcalCells[i],phi,dphi,geom);
-      geom->addCell(id, geometry);
+      geom->addCell( id, makeCell(id,hcalCells[i],phi,dphi,geom) );
       if (hcalCells[i].nHalves() > 1) {
 #ifdef DebugLog
 	LogDebug("HCalGeom") << "HcalDDDGeometryLoader::fill Cell " << i
@@ -115,8 +114,7 @@ void HcalDDDGeometryLoader::fill(HcalSubdetector          subdet,
 #endif
 	HcalDetId id(subdet, -etaRing, iphi, depthBin);
 	hcalIds.push_back(id);
-	const CaloCellGeometry * geometry = makeCell(id,hcalCells[i],phi,dphi,geom);
-	geom->addCell(id, geometry);
+	geom->addCell( id, makeCell(id,hcalCells[i],phi,dphi,geom) );
       }
       iphi += phiInc;
       phi  += dphi;
@@ -127,11 +125,12 @@ void HcalDDDGeometryLoader::fill(HcalSubdetector          subdet,
 			   << " is " << hcalIds.size();
 }
 
-const CaloCellGeometry* HcalDDDGeometryLoader::makeCell(const HcalDetId& detId,
-							HcalCellType::HcalCellType hcalCell,
-							double phi, 
-							double dphi,
-							CaloSubdetectorGeometry* geom) const {
+CaloCellGeometry* 
+HcalDDDGeometryLoader::makeCell( const HcalDetId& detId,
+				 HcalCellType::HcalCellType hcalCell,
+				 double phi, 
+				 double dphi,
+				 CaloSubdetectorGeometry* geom) const {
 
   // the two eta boundaries of the cell
   double          eta1   = hcalCell.etaMin();

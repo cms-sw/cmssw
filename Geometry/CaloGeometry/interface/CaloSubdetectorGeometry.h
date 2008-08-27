@@ -15,8 +15,8 @@ Base class for a geometry container for a specific calorimetry
 subdetector.
 
 
-$Date: 2008/06/25 22:18:23 $
-$Revision: 1.16 $
+$Date: 2008/06/26 14:44:54 $
+$Revision: 1.17 $
 \author J. Mans - Minnesota
 */
 class CaloSubdetectorGeometry {
@@ -43,8 +43,8 @@ class CaloSubdetectorGeometry {
       const CellCont& cellGeometries() const { return m_cellG ; }  
 
       /// Add a cell to the geometry
-      void addCell( const DetId&            id, 
-		    const CaloCellGeometry* ccg ) ;
+      void addCell( const DetId&      id, 
+		    CaloCellGeometry* ccg ) ;
 
       /// is this detid present in the geometry?
       virtual bool present( const DetId& id ) const;

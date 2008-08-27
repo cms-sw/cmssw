@@ -14,8 +14,8 @@ CaloSubdetectorGeometry::~CaloSubdetectorGeometry()
 }
 
 void 
-CaloSubdetectorGeometry::addCell( const DetId&            id  , 
-				  const CaloCellGeometry* ccg   )
+CaloSubdetectorGeometry::addCell( const DetId&      id  , 
+				  CaloCellGeometry* ccg   )
 {
    const CaloGenericDetId cdid ( id ) ;
 /*   if( cdid.validDetId() )

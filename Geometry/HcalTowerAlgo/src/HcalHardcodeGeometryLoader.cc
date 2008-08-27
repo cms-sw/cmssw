@@ -115,15 +115,14 @@ HcalHardcodeGeometryLoader::fill( HcalSubdetector subdet,
    for(std::vector<HcalDetId>::const_iterator hcalIdItr = hcalIds.begin();
        hcalIdItr != hcalIds.end(); ++hcalIdItr)
    {
-      const CaloCellGeometry * geometry = makeCell(*hcalIdItr,geom);
-      geom->addCell(*hcalIdItr, geometry);
+      geom->addCell( *hcalIdItr, makeCell(*hcalIdItr,geom) );
    }
 }
      
 
 inline double theta_from_eta(double eta){return (2.0*atan(exp(-eta)));}
 
-const CaloCellGeometry* 
+CaloCellGeometry* 
 HcalHardcodeGeometryLoader::makeCell( const HcalDetId& detId ,
 				      ReturnType       geom    ) const 
 {
