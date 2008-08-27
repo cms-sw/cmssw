@@ -1389,6 +1389,7 @@ DQMStore::save(const std::string &filename,
 	       const std::string &path /* = "" */,
 	       const std::string &pattern /* = "" */,
 	       const std::string &rewrite /* = "" */,
+	       SaveReferenceTag ref /* = SaveWithReferenceForQTest */,
 	       int minStatus /* = dqm::qstatus::STATUS_OK */)
 {
   std::set<std::string>::iterator di, de;
@@ -1419,10 +1420,21 @@ DQMStore::save(const std::string &filename,
   if (! pattern.empty())
     rxpat.reset(new lat::Regexp(pattern.c_str()));
 
+  // Prepare a path for the reference object selection.
+  std::string refpath;
+  refpath.reserve(s_referenceDirName.size() + path.size() + 2);
+  refpath += s_referenceDirName;
+  refpath += '/';
+  refpath += path;
+
   // Loop over the directory structure.
   for (di = dirs_.begin(), de = dirs_.end(); di != de; ++di)
   {
-    if (! path.empty() && ! isSubdirectory(path, *di))
+    // Check if we should process this directory.  We process the
+    // requested part of the object tree, including references.
+    if (! path.empty()
+	&& ! isSubdirectory(path, *di)
+	&& ! isSubdirectory(refpath, *di))
       continue;
 
     // Loop over monitor elements in this directory.
@@ -1433,21 +1445,45 @@ DQMStore::save(const std::string &filename,
       if (mi->second.path_ != *di)
 	continue;
 
-      // Store reference histograms only if a quality test is attached.
-      if (isSubdirectory(s_referenceDirName, mi->first))
+      // Handle reference histograms, with three distinct cases:
+      // 1) Skip all references entirely on saving.
+      // 2) Blanket saving of all references.
+      // 3) Save only references for monitor elements with qtests.
+      // The latter two are affected by "path" sub-tree selection,
+      // i.e. references are saved only in the selected tree part.
+      if (isSubdirectory(refpath, mi->first))
       {
-	std::string mname(mi->first, s_referenceDirName.size()+1, std::string::npos);
-	MonitorElement *master = get(mname);
-	if (! master || master->qreports_.empty())
-	{
-	  if (verbose_)
-	    std::cout << "DQMStore: skipping monitor element '"
-		      << mi->first << "' while saving\n";
+	if (ref == SaveWithoutReference)
+	  // Skip the reference entirely.
 	  continue;
-	}
+        else if (ref == SaveWithReference)
+	  // Save all references regardless of qtests.
+	  ;
+	else if (ref == SaveWithReferenceForQTest)
+        {
+	  // Save only references for monitor elements with qtests
+	  // with an optional cut on minimum quality test result.
+	  int status = -1;
+	  std::string mname(mi->first, s_referenceDirName.size()+1, std::string::npos);
+	  MonitorElement *master = get(mname);
+	  if (master)
+	    for (size_t i = 0, e = master->data_.qreports.size(); i != e; ++i)
+	      status = std::max(status, master->data_.qreports[i].code);
+
+	  if (! master || status < minStatus)
+	  {
+	    if (verbose_)
+	      std::cout << "DQMStore: skipping monitor element '"
+		        << mi->first << "' while saving, status is "
+			<< status << ", required minimum status is "
+			<< minStatus << std::endl;
+	    continue;
+	  }
+        }
       }
 
-      if (verbose_) std::cout << "DQMStore: saving monitor element '"
+      if (verbose_)
+	std::cout << "DQMStore: saving monitor element '"
 		  << mi->first << "'\n";
 
       // Create the directory.
