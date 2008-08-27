@@ -76,7 +76,6 @@ deGmt = cms.Sequence(valGmtDigis)
 deGt = cms.Sequence(valGtDigis)
 #replace l1compare.COMPARE_COLLS= { 0,0,0,0,0,0,0,0,0,0,0,0 }
 #compareMode  {ETP,HTP,RCT,GCT, DTP,DTF,CTP,CTF,RPC, LTC,GMT,GT};
-L1HardwareValidation = cms.Sequence(deEcal+deHcal+deRct+deGct+deDt+deDttf+deCsc+deCsctf+deRpc+deGmt+deGt*l1compare)
 valEcalTriggerPrimitiveDigis.Label = 'ecalDigis'
 valEcalTriggerPrimitiveDigis.InstanceEB = 'ebDigis'
 valEcalTriggerPrimitiveDigis.InstanceEE = 'eeDigis'
@@ -103,4 +102,7 @@ valGmtDigis.RPCfCandidates = cms.InputTag("gtDigis","RPCf")
 valGtDigis.GmtInputTag = 'gtDigis'
 valGtDigis.GctInputTag = 'gctDigis'
 
+L1HardwareValidation = cms.Sequence(deEcal+deHcal+deRct+deGct+deDt+deDttf+deCsc+deCsctf+deRpc+deGmt+deGt*l1compare)
+
+L1HardwareValidation_woGT = cms.Sequence(deEcal+deHcal+deRct+deGct+deDt+deDttf+deCsc+deCsctf+deRpc+deGmt+l1compare)
 
