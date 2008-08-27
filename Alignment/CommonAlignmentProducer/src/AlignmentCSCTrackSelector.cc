@@ -48,9 +48,10 @@ AlignmentCSCTrackSelector::select(const Tracks& tracks, const edm::Event& evt) c
 	 }
 	 else if (id.det() == DetId::Muon  &&  id.subdetId() == MuonSubdetId::CSC) {
 	    CSCDetId cscid(id.rawId());
+	    int station = (cscid.endcap() == 1 ? 1 : -1) * cscid.station();
 
-	    if (cscid.station() == m_stationA) hitsOnStationA++;
-	    if (cscid.station() == m_stationB) hitsOnStationB++;
+	    if (station == m_stationA) hitsOnStationA++;
+	    if (station == m_stationB) hitsOnStationB++;
 
 	 } // end if CSC
       } // end loop over hits
