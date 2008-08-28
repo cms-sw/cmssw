@@ -1,8 +1,8 @@
  /* 
  *  See header file for a description of this class.
  *
- *  $Date: 2008/08/26 17:12:22 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/08/28 10:31:37 $
+ *  $Revision: 1.6 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 
@@ -208,7 +208,6 @@ std::vector<RPCdbData::Item> RPCFw::createSTATUS(int from)
 }
 
 
-<<<<<<< RPCFw.cc
 
 //------------------------------ G A S ---------------------------------------------------------------------
 std::vector<RPCGasT::GasItem> RPCFw::createGAS(int from)

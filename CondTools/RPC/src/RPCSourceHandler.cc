@@ -1,8 +1,8 @@
 /*
  *  See headers for a description
  *
- *  $Date: 2008/07/17 16:33:22 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/07/31 14:48:25 $
+ *  $Revision: 1.6 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 
@@ -18,9 +18,6 @@ popcon::RpcData::RpcData(const edm::ParameterSet& pset) :
   host(pset.getUntrackedParameter<std::string>("host", "source db host")),
   user(pset.getUntrackedParameter<std::string>("user", "source username")),
   passw(pset.getUntrackedParameter<std::string>("passw", "source password")),
-  Ohost(pset.getUntrackedParameter<std::string>("host", "dest db host")),
-  Ouser(pset.getUntrackedParameter<std::string>("user", "dest username")),
-  Opassw(pset.getUntrackedParameter<std::string>("passw", "dest password")),
   m_since(pset.getUntrackedParameter<unsigned long long>("since",5)){
 }
 
@@ -53,7 +50,7 @@ void popcon::RpcData::getNewObjects() {
   //-----------------------------
 
 
-  if (snc > 0) { niov = utime;} else { exit(1); snc = m_since; niov = utime; }
+  if (snc > 0) { niov = utime;} else { snc = m_since; niov = utime; }
 
   std::cout << "New IOV: since is = " << niov << std::endl;
 
