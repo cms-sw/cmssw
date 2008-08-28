@@ -5,6 +5,8 @@ import optparse as opt
 #from ROOT import gROOT, TCanvas, TF1
 import ROOT
 
+_cmsver = os.environ['CMSSW_VERSION']
+
 def getParameters():
     parser = opt.OptionParser()
     #
@@ -81,9 +83,14 @@ def getDataFromTimingLog(logfile_name):
         
     return data
 
-def newGraphAndHisto(histoleg,leg,npoints,nbins,min_val,max_val,data,graph_num):
+def newGraphAndHisto(histoleg,leg,npoints,nbins,min_val,max_val,data,graph_num,prevrev=""):
+    
     colors = [2,4]
-    releaseNames = ["Previous","This"]
+    prevRevName = "???"
+    if not prevrev == "":
+        (head, tail) = os.path.split(prevrev)
+        prevRevName  = os.path.basename(tail)
+    releaseNames = ["Previous (%s)" % prevRevName,_cmsver]
 
     histo=ROOT.TH1F("Seconds per event (histo: %s)" % graph_num,'Seconds per event',nbins,min_val,max_val)
 
@@ -121,7 +128,7 @@ def newGraphAndHisto(histoleg,leg,npoints,nbins,min_val,max_val,data,graph_num):
     if graph_num == 0 :
         histo.SetFillColor(colors[graph_num])
 
-    return (graph,histo)
+    return (graph,histo,mean)
 
 def getLimits(data,secsperbin):
     min_val=get_min(data,1)
@@ -154,9 +161,8 @@ def setupSuperimpose(graph1,graph2,last_event,max_val):
     graph2.GetXaxis().SetLimits(0,last_event)    
     graph2.GetYaxis().SetRangeUser(0,max_val)    
 
-def getMeanLines(histo,last_event,graph_num):
+def getMeanLines(avg,last_event,graph_num):
     colors = [2,4]
-    avg=histo.GetMean()
     avg_line=ROOT.TLine(1,avg,last_event,avg)
     avg_line.SetLineColor(colors[graph_num])
     avg_line.SetLineWidth(2)
@@ -219,7 +225,7 @@ def getDiff(data1,data2,npoints,last_event,orig_max_val):
     #graph.GetYaxis().SetTitle("s")
     graph.GetXaxis().SetLimits(0,last_event)
     graph.GetYaxis().SetRangeUser(min_val,max_val)
-    leg = ROOT.TLegend(0.7,0.8,0.89,0.89)
+    leg = ROOT.TLegend(0.5,0.7,0.89,0.89)
     leg.AddEntry(graph, "Mean: %s" % str(mean), "l")            
     leg.AddEntry(graph, "RMS : %s" % str(rms) , "l")
     leg.AddEntry(graph, "Peak: %s" % str(peak), "l")
@@ -234,6 +240,9 @@ def drawGraphs(graph1,graph2,avg1,avg2,leg):
     graph2.Draw("LP")
     avg1.Draw("Same")
     avg2.Draw("Same")
+#    legPad = ROOT.TPad("legend","Trans pad",0,0,1,1)
+#    legPad.cd()
+#    legPad.Draw()
     leg.Draw()
     return graph_canvas
 
@@ -261,11 +270,12 @@ def getTwoGraphLimits(last_event1,max_val1,last_event2,max_val2):
         biggestMaxval  = max_val2
     return (biggestLastEvt,biggestMaxval)
 
-def regressCompare(rootfilename,outdir,file1,file2,secsperbin,batch=True):
+def regressCompare(rootfilename,outdir,oldLogfile,newLogfile,secsperbin,batch=True,prevrev=""):
     
-    data1 = getDataFromTimingLog(file1)
-    data2 = getDataFromTimingLog(file2)
+    data1 = getDataFromTimingLog(oldLogfile)
+    data2 = getDataFromTimingLog(newLogfile)
 
+    newrootfile = None
     if batch:
         newrootfile = createROOT(outdir,rootfilename)
 
@@ -273,37 +283,66 @@ def regressCompare(rootfilename,outdir,file1,file2,secsperbin,batch=True):
     (min_val2,max_val2,nbins2,npoints2,last_event2) = getLimits(data2,secsperbin)
 
     hsStack = ROOT.THStack("hsStack","Histograms Comparison")
-    leg      = ROOT.TLegend(0.7,0.8,0.89,0.89)
+    leg      = ROOT.TLegend(0.6,0.99,0.89,0.8)
     histoleg = ROOT.TLegend(0.7,0.8,0.89,0.89)    
     #if not nbins1 == nbins2:
     #    print "ERRORL bin1 %s is not the same size as bin2 %s" % (nbins1,nbins2)
 
-    (graph1,histo1) = newGraphAndHisto(histoleg,leg,npoints1,nbins1,min_val1,max_val1,data1,0)
+    (graph1,histo1,mean1) = newGraphAndHisto(histoleg,leg,npoints1,nbins1,min_val1,max_val1,data1,0,prevrev)
     hsStack.Add(histo1)
-    (graph2,histo2) = newGraphAndHisto(histoleg,leg,npoints2,nbins2,min_val2,max_val2,data2,1)
+    (graph2,histo2,mean2) = newGraphAndHisto(histoleg,leg,npoints2,nbins2,min_val2,max_val2,data2,1,prevrev)
     hsStack.Add(histo2)
 
     (biggestLastEvt,biggestMaxval) = getTwoGraphLimits(last_event1,max_val1,last_event2,max_val2)
     
     (changegraph,chgleg) = getDiff(data1,data2,npoints2,biggestLastEvt,biggestMaxval)
     setupSuperimpose(graph1,graph2,biggestLastEvt,biggestMaxval)
-    avg_line1 = getMeanLines(histo1,last_event1,0)
-    avg_line2 = getMeanLines(histo2,last_event2,1)
+    avg_line1 = getMeanLines(mean1,last_event1,0)
+    avg_line2 = getMeanLines(mean2,last_event2,1)
 
-    graph_canvas   = drawGraphs(graph1,graph2,avg_line1,avg_line2,leg)
-    changes_canvas = drawChanges(changegraph,chgleg)
-    histo1.GetXaxis().SetTitle("s")        
-    histo_canvas   = drawHistos(hsStack,histoleg)
+
     
     #
     # Create a one dimensional function and draw it
     #
 
     if batch:
-        pass
+        #Graphs
+        graph_canvas   = drawGraphs(graph1,graph2,avg_line1,avg_line2,leg)
+        graph_canvas.Print("%s/graph.gif" %outdir,"gif")
+        graph_canvas.Write()    # to file
+        #Changes
+        changes_canvas = drawChanges(changegraph,chgleg)
+        changes_canvas.Print("%s/changes.gif" % outdir,"gif")
+        changes_canvas.Write()
+        #Histograms
+        histo1.GetXaxis().SetTitle("s")        
+        histo_canvas   = drawHistos(hsStack,histoleg)        
+        histo_canvas.Print("%s/histo.gif" % outdir,"gif")
+        histo_canvas.Write() 
+        newrootfile.Close()   
+
+        # The html page!------------------------------------------------------------------------------
+
+        titlestring='<b>Report executed with release %s on %s.</b>\n<br>\n<hr>\n'\
+                                       %(_cmsver,time.asctime())
+
+        #html_file_name='%s/%s.html' %(outdir,logfile_name[:-4])# a way to say the string until its last but 4th char
+        #html_file=open(html_file_name,'w')
+        #html_file.write('<html>\n<body>\n'+\
+        #                titlestring)
+        htmlstring = ("<td><img src=\"%s/graph.gif\"   /></td>" % outdir +
+                      "<td><img src=\"%s/changes.gif\" /></td>" % outdir +                        
+                      "<td><img src=\"%s/histo.gif\"   /></td>" % outdir )
+        return htmlstring
     else:
+        graph_canvas   = drawGraphs(graph1,graph2,avg_line1,avg_line2,leg)
+        changes_canvas = drawChanges(changegraph,chgleg)
+        histo1.GetXaxis().SetTitle("s")        
+        histo_canvas   = drawHistos(hsStack,histoleg)        
         while graph_canvas or histo_canvas or changes_canvas:
             time.sleep(2.5)
+        return 0
 
 def main():
     rootfilename = "regression.root"
