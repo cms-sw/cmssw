@@ -1,4 +1,4 @@
-from Mixins import _ConfigureComponent
+from Mixins import _ConfigureComponent, saveOrigin
 from Mixins import _Unlabelable, _Labelable
 from Mixins import _TypedParameterizable, _Parameterizable, PrintOptions
 from SequenceTypes import _Sequenceable
@@ -117,7 +117,8 @@ class _Module(_ConfigureComponent,_TypedParameterizable,_Labelable,_Sequenceable
     def __init__(self,type_,*arg,**kargs):
         super(_Module,self).__init__(type_,*arg,**kargs)
         if _Module.__isStrict__:
-            self.setIsFrozen()            
+            self.setIsFrozen()
+        saveOrigin(self, 2)    
     def _clonesequence(self, lookuptable):
         try:
             return lookuptable[id(self)]
