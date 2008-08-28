@@ -45,9 +45,9 @@ process.FEVT.outputCommands.append('keep recoCandidatesOwned_caloTowersOpt_*_*')
 process.FEVT.outputCommands.append('keep RPCDetIdRPCDigiMuonDigiCollection_muonRPCDigis_*_*')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.11 $'),
-    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/GlobalRuns/python/recoT0DQM_EvContent_30T_cfg.py,v $'),
-    annotation = cms.untracked.string('CRUZET Prompt Reco with DQM with Mag field at 3T')
+    version = cms.untracked.string('$Revision: 1.12 $'),
+    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/GlobalRuns/python/recoT0DQM_EvContent_cfg.py,v $'),
+    annotation = cms.untracked.string('CRUZET Prompt Reco with DQM with Mag field at 0T')
 )
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) ) ## default is false
 
@@ -58,8 +58,8 @@ process.GlobalTag.connect = "frontier://PromptProd/CMS_COND_21X_GLOBALTAG"
 process.GlobalTag.globaltag = "CRUZET4_V2P::All"
 process.prefer("GlobalTag")
 
-# Magnetic fiuld: force mag field to be 3.0 tesla
-process.load("Configuration.StandardSequences.MagneticField_30T_cff")
+# Magnetic fiuld: force mag field to be 0 tesla
+process.load("Configuration.StandardSequences.MagneticField_0T_cff")
 
 #Geometry
 process.load("Configuration.StandardSequences.Geometry_cff")
