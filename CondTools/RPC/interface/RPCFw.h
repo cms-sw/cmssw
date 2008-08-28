@@ -5,8 +5,8 @@
  * \class RPCFw
  *  Reads data from OMDS and creates conditioning objects
  *
- *  $Date: 2008/07/31 14:49:53 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/08/26 17:10:57 $
+ *  $Revision: 1.2 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 
@@ -40,9 +40,8 @@ public:
   std::vector<RPCdbData::Item> createIMON(int from);
   std::vector<RPCdbData::Item> createVMON(int from); 
   std::vector<RPCdbData::Item> createSTATUS(int from); 
-  std::vector<RPCGas::GasItem> createGAS(int from);
-  std::vector<RPCGas::TempItem> createT(int from);
-
+  std::vector<RPCGasT::GasItem> createGAS(int from);
+  std::vector<RPCGasT::TempItem> createT(int from);
   
 private:
   std::string m_connectionString;
