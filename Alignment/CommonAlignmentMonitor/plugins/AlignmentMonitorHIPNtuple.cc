@@ -35,12 +35,13 @@ class AlignmentMonitorHIPNtuple: public AlignmentMonitorBase {
       ~AlignmentMonitorHIPNtuple() {};
 
       void book();
-      void event(const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection& iTrajTracks);
+      void event(const edm::Event &iEvent, const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection& iTrajTracks);
       void afterAlignment(const edm::EventSetup &iSetup);
 
    private:
       TTree *m_ntuple;
       Int_t m_ntuple_rawid;
+      Long_t m_ntuple_time;
       Float_t m_ntuple_hitx, m_ntuple_hity, m_ntuple_resx, m_ntuple_resy;
       Float_t m_ntuple_p1, m_ntuple_p2, m_ntuple_p3, m_ntuple_p4, m_ntuple_p5, m_ntuple_p6;
       Float_t m_ntuple_e1, m_ntuple_e2, m_ntuple_e3, m_ntuple_e4, m_ntuple_e5, m_ntuple_e6;
@@ -77,6 +78,7 @@ AlignmentMonitorHIPNtuple::AlignmentMonitorHIPNtuple(const edm::ParameterSet& cf
 void AlignmentMonitorHIPNtuple::book() {
    m_ntuple = directory("/iterN/")->make<TTree>("params", "params");
    m_ntuple->Branch("rawid", &m_ntuple_rawid, "rawid/I");
+   m_ntuple->Branch("time", &m_ntuple_time, "time/L");
    m_ntuple->Branch("hitx", &m_ntuple_hitx, "hitx/F");
    m_ntuple->Branch("hity", &m_ntuple_hity, "hity/F");
    m_ntuple->Branch("resx", &m_ntuple_resx, "resx/F");
@@ -126,7 +128,7 @@ void AlignmentMonitorHIPNtuple::book() {
    }
 }
 
-void AlignmentMonitorHIPNtuple::event(const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection& tracks) {
+void AlignmentMonitorHIPNtuple::event(const edm::Event &iEvent, const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection& tracks) {
    TrajectoryStateCombiner tsoscomb;
    AlignableNavigator *theAlignableDetAccessor = pNavigator();
    AlignmentParameterStore *theAlignmentParameterStore = pStore();
@@ -348,6 +350,7 @@ void AlignmentMonitorHIPNtuple::event(const edm::EventSetup &iSetup, const Const
 // 	       }
 
 	       m_ntuple_rawid = ali->id();
+	       m_ntuple_time = iEvent.time().value();
 	       m_ntuple_p1 = m_ntuple_p2 = m_ntuple_p3 = m_ntuple_p4 = m_ntuple_p5 = m_ntuple_p6 = 0.;
 	       m_ntuple_e1 = m_ntuple_e2 = m_ntuple_e3 = m_ntuple_e4 = m_ntuple_e5 = m_ntuple_e6 = 0.;
 // 	       m_ntuple_c12 = m_ntuple_c13 = m_ntuple_c14 = m_ntuple_c15 = m_ntuple_c16 = 0.;
