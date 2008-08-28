@@ -24,8 +24,8 @@ HLTriggerRECO = cms.PSet(
 HLTriggerAOD = cms.PSet(
     outputCommands = cms.vstring()
 )
-HLTNoFEDRawData = cms.PSet(
-    outputCommands = cms.vstring( 'drop FEDRawDataCollection_*_*_*' )
+HLTAddFEDRawData = cms.PSet(
+    outputCommands = cms.vstring( 'keep FEDRawDataCollection_*_*_*' )
 )
 #
 HLTDebugRAW = cms.PSet(
@@ -36,10 +36,9 @@ HLTDebugFEVT = cms.PSet(
 )
 #
 HLTriggerRAW.outputCommands.extend(block_hltDefaultOutput.outputCommands)
+HLTriggerRAW.outputCommands.extend(HLTAddFEDRawData.outputCommands)
 HLTriggerRECO.outputCommands.extend(block_hltDefaultOutput.outputCommands)
-HLTriggerRECO.outputCommands.extend(HLTNoFEDRawData.outputCommands)
 HLTriggerAOD.outputCommands.extend(block_hltDefaultOutput.outputCommands)
-HLTriggerAOD.outputCommands.extend(HLTNoFEDRawData.outputCommands)
 #
 HLTDebugRAW.outputCommands.extend(block_hltDebugWithAlCaOutput.outputCommands)
 HLTDebugFEVT.outputCommands.extend(block_hltDebugWithAlCaOutput.outputCommands)
