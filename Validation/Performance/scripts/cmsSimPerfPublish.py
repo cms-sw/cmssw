@@ -729,7 +729,7 @@ def syncToRemoteLoc(stage,drive,path,port):
     cmd = "rsync"
     # We must, MUST, do os.path.normpath otherwise rsync will dump the files in the directory
     # we specify on the remote server, rather than creating the CMS_VERSION directory
-    args = "--port=%s %s %s:%s" % (port,os.path.normpath(stage),drive,path)
+    args = "--rsh=\"ssh -l relval\" --port=%s %s %s:%s" % (port,os.path.normpath(stage),drive,path)
     retval = -1
     if _dryrun:
         print              cmd + " --dry-run " + args 
@@ -794,8 +794,10 @@ def getRelativeDir(parent,child,keepTop=True):
 def docopy(src,dest):
     try:
         copy2(src,dest)
-    except IOError:
-        print "WARNING: Could not copy %s to %s" % (src,dest)
+    except OSError, detail:
+        print "WARNING: Could not copy %s to %s because %s" % (src,dest,detail)        
+    except IOError, detail:
+        print "WARNING: Could not copy %s to %s because %s" % (src,dest,detail)
 
 def copytree4(src,dest,keepTop=True):
     def _getNewLocation(source,child,dst,keepTop=keepTop):
@@ -816,7 +818,9 @@ def copytree4(src,dest,keepTop=True):
                     else:
                         copy2(node,newnode)
                 except IOError, detail:
-                    print "WARNING: Could not copy %s to %s because %s" % (node,newnode,detail)                    
+                    print "WARNING: Could not copy %s to %s because %s" % (node,newnode,detail)
+                except OSError, detail:
+                    print "WARNING: Could not copy %s to %s because %s" % (src,dest,detail)                    
                 except ReldirExcept:
                     print "WARNING: Could not determine new location for source %s into destination %s" % (source,dst)
                     
@@ -839,6 +843,8 @@ def copytree4(src,dest,keepTop=True):
             pass        
     except IOError, detail:
         print "WARNING: Could not copy %s to %s because %s" % (src,dest,detail)
+    except OSError, detail:
+        print "WARNING: Could not copy %s to %s because %s" % (src,dest,detail)        
     except ReldirExcept:
         print "WARNING: Could not determine the new location for source %s into destination %s" % (src,dest)
         
