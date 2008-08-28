@@ -76,6 +76,8 @@ class PhotonIDSimpleAnalyzer : public edm::EDAnalyzer {
       TH1F* h_photonScPhi_;
       TH1F* h_photonScEtaWidth_;
 
+      TH1F* h_photonInAnyGap_;
+      TH1F* h_nPassingPho_;
       TH1F* h_nPho_;
 };
 #endif
