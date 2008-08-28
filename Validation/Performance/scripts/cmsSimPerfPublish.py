@@ -102,7 +102,7 @@ def main():
 
     # Determine program parameters and input/staging locations
     print "\n Determining locations for input and staging..."
-    (drive,path,remote,stage,port,repdir) = getStageRepDirs(options,args)
+    (drive,path,remote,stage,port,repdir,prevrev) = getStageRepDirs(options,args)
 
     print "\n Scan report directory..."
     # Retrieve some directories and information about them
@@ -118,7 +118,7 @@ def main():
 
     print "\n Creating HTML files..."
     # create HTML files
-    createWebReports(stage,repdir,ExecutionDate,LogFiles,cmsScimarkResults,date)
+    createWebReports(stage,repdir,ExecutionDate,LogFiles,cmsScimarkResults,date,prevrev)
 
     print "\n Copy profiling logs to staging directory..."
     # Copy over profiling logs...
@@ -187,7 +187,7 @@ def optionparse():
         ./%s hal.cern.ch:/some/other/dir
        Publish report to default relval location (this could be remote or local depending on the hardcoded default)
         ./%s --relval"""
-      % ( PROG_NAME, PROG_NAME,PROG_NAME,PROG_NAME,PROG_NAME)))
+      % ( PROG_NAME, PROG_NAME, PROG_NAME, PROG_NAME, PROG_NAME)))
     
     devel  = opt.OptionGroup(parser, "Developer Options",
                                      "Caution: use these options at your own risk."
@@ -218,6 +218,15 @@ def optionparse():
         help='Use the default simulation location',
         #metavar='<STEPS>',
         )
+
+    parser.add_option(
+        '--prev',
+        type="string",
+        dest='previousrev',
+        help='The directory where the previous revision is located: for comparisons.',
+        metavar='<LAST_REV_DIR>',
+        default="",
+        )    
 
     parser.add_option(
         '--input',
@@ -282,6 +291,12 @@ def getStageRepDirs(options,args):
 
     repdir = os.path.abspath(options.repdir)
     repdir = addtrailingslash(repdir)
+
+    previousrev = ""
+    if not options.previousrev == "":
+        previousrev = os.path.abspath(previousrev)
+        if not os.path.exists(previousrev):
+            fail("ERROR: The previous revision directory (%s) that was specified does not exist " % previousrev)
 
     if not os.path.exists(repdir):
         fail("ERROR: The specified report directory %s to retrieve report information from does not exist, exiting" % repdir)
@@ -376,7 +391,7 @@ def getStageRepDirs(options,args):
     StagingArea="%s/%s" % (StagingArea,CMSSW_VERSION)
     os.system("mkdir -p %s" % StagingArea)
 
-    return (drive,path,remote,StagingArea,port,repdir)
+    return (drive,path,remote,StagingArea,port,repdir,previousrev)
 
 ####################
 #
@@ -400,6 +415,7 @@ def scanReportArea(repdir):
         #htmlfiles = map(lambda x : dir + "/" + x,htmlfiles)
         map(cmsScimarkResults.append,htmlfiles)
 
+    ExecutionDateLast = ""
     ExecutionDate = ""
     ExecutionDateSec=0
     cmsreg = re.compile("^cmsCreateSimPerfTest")
@@ -412,6 +428,9 @@ def scanReportArea(repdir):
             if (ExecutionDateLastSec > ExecutionDateSec):
                 ExecutionDateSec = ExecutionDateLastSec
                 ExecutionDate    = ExecutionDateLast
+                
+    if ExecutionDate == "":
+        ExecutionDate = ExecutionDateLast
 
     return (ExecutionDate,LogFiles,date,cmsScimarkResults,cmsScimarkDir)
 
@@ -591,7 +610,7 @@ def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDat
 #
 # Create web report index and create  HTML file for each candle
 #
-def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,date):
+def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,date,prevrev):
 
     #Some nomenclature
 
@@ -671,8 +690,11 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
             elif candhreg.search(NewFileLine):
                 for acandle in Candle:
                     candlHTML = "%s.html" % acandle
+                    #INDEX.write("<table><th colspan=\"3\">")
                     INDEX.write("<a href=\"./%s\"> %s </a>" % (candlHTML,acandle))
                     INDEX.write("<br /><br />\n")
+                   # INDEX.write("</th><tr><td>")
+                    
                     candlHTML="%s/%s" % (WebArea,candlHTML)
                     createCandlHTML(CandlTmpltHTML,candlHTML,acandle,WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,date)
             else:
