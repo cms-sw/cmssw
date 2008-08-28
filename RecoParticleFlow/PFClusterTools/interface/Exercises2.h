@@ -6,10 +6,15 @@
 #include "RecoParticleFlow/PFClusterTools/interface/CalibrationTarget.h"
 #include "RecoParticleFlow/PFClusterTools/interface/DetectorElement.h"
 #include "RecoParticleFlow/PFClusterTools/interface/CalibrationProvenance.h"
+#include "RecoParticleFlow/PFClusterTools/interface/SpaceManager.h"
+#include "RecoParticleFlow/PFClusterTools/interface/IO.h"
+#include "RecoParticleFlow/PFClusterTools/interface/PFClusterCalibration.h"
+
 #include <string>
 #include <vector>
 #include <TFile.h>
 #include <TTree.h>
+#include <fstream>
 
 namespace pftools {
 class Exercises2 {
@@ -17,36 +22,52 @@ public:
 	
 	
 
-	Exercises2(double lowE = 0, double highE = 100, unsigned divE = 1,
-			double lowEta = -5, double highEta = 5, double divEta = 1,
-			double lowPhi = -3.2, double highPhi = 3.2, unsigned divPhi = 1,
-			bool withOffset = false);
+//	Exercises2(double lowE = 0, double highE = 100, unsigned divE = 1,
+//			double lowEta = -5, double highEta = 5, double divEta = 1,
+//			double lowPhi = -3.2, double highPhi = 3.2, unsigned divPhi = 1,
+//			bool withOffset = false);
+	
+	Exercises2(IO* options);
+	
+//	Exercises2(CalibrationTarget t, bool withOffset = false, unsigned threshold = 50, double p0 = 0.0, 
+//double p1 = 1.0, double p2 = 0.0);
 
 	virtual ~Exercises2();
 
 	void calibrateCalibratables(const std::string& sourcefile,
 			const std::string& exercisefile);
 
-	void gaussianFits(TFile& exercisefile, std::vector<Calibratable>& calibs);
+	//void gaussianFits(TFile& exercisefile, std::vector<Calibratable>& calibs);
 
-	void evaluateCalibrator(CalibratorPtr c, TTree& tree,
+	void evaluateCalibrator(SpaceManagerPtr s, CalibratorPtr c, TTree& tree,
 			Calibratable* calibrated, DetectorElementPtr ecal,
-			DetectorElementPtr hcal, CalibrationProvenance cp);
+			DetectorElementPtr hcal, DetectorElementPtr offset, CalibrationProvenance cp, CalibrationProvenance cpCorr = NONE);
 
-	//makes performance comparisons for the CalibrationResultWrappers in the source file,
-	//and compares calibrations for each target supplied
-	void doPlots(const std::string& sourcefile,
-			std::vector<CalibrationTarget>& targets);
+	
+	void evaluateSpaceManager(SpaceManagerPtr s, std::vector<DetectorElementPtr> detEls);
+
+	void determineCorrection(TFile& f, TTree& tree, TF1*& f1, TF1*& f2);
 	
 	void setTarget(CalibrationTarget t) {
 		target_ = t;
 	}
+	
+	
+	void getCalibrations(SpaceManagerPtr s);
 
 private:
-	double lowE_, highE_, lowEta_, highEta_, lowPhi_, highPhi_;
-	unsigned divE_, divEta_, divPhi_;
+	Exercises2(const Exercises2&);
+	void operator=(const Exercises2&);
+//	double lowE_, highE_, lowEta_, highEta_, lowPhi_, highPhi_;
+//	unsigned divE_, divEta_, divPhi_;
 	bool withOffset_;
 	CalibrationTarget target_;
+	unsigned threshold_;
+	std::vector<DetectorElementPtr> elements_;
+	IO* options_;
+	std::ofstream calibResultsFile_;
+	unsigned debug_;
+	PFClusterCalibration clusterCalibration_;
 
 };
 }

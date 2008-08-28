@@ -20,6 +20,9 @@
 #include "RecoParticleFlow/PFClusterTools/interface/Calibratable.h"
 #include "RecoParticleFlow/PFClusterTools/interface/Calibration.h"
 #include "RecoParticleFlow/PFClusterTools/interface/LinearCalibration.h"
+#include "RecoParticleFlow/PFClusterTools/interface/IO.h"
+#include "RecoParticleFlow/PFClusterTools/interface/Utils.h"
+#include "RecoParticleFlow/PFClusterTools/interface/PFClusterCalibration.h"
 
 namespace { 
   namespace {
@@ -32,5 +35,6 @@ namespace {
 	std::vector<pftools::CandidateWrapper> svcw;
 	pftools::Calibration calib;
 	pftools::LinearCalibration linCalib;
+	
   }
 }

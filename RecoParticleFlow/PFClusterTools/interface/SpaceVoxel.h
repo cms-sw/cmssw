@@ -40,6 +40,14 @@ public:
 
 	virtual bool containsEnergy(const double& energy) const;
 	
+	double minEnergy() const {
+		return myEnergyMin;
+	}
+	
+	double maxEnergy() const {
+		return myEnergyMax;
+	}
+	
 	virtual bool ecalValid() const {
 		return ecalValid_;
 	}
@@ -60,6 +68,10 @@ public:
 
 	friend std::ostream& operator<<(std::ostream& s,
 			const pftools::SpaceVoxel& sv);
+	
+	bool operator()(const SpaceVoxel& sv1, const SpaceVoxel& sv2) ;
+	
+	bool operator()(const boost::shared_ptr<SpaceVoxel>& sv1, const boost::shared_ptr<SpaceVoxel>& sv2) ;
 	
 
 private:

@@ -45,6 +45,18 @@ double ParticleDeposit::getRecEnergy(const DetectorElementPtr de) const {
 	return energy;
 }
 
+void ParticleDeposit::setRecEnergy(const DetectorElementPtr de, double energy) {
+	for (std::vector<Deposition>::const_iterator cit = myRecDepositions.begin(); cit
+			!= myRecDepositions.end(); ++cit) {
+		Deposition d = *cit;
+
+		if (d.getDetectorElement()->getType() == de->getType()) {
+			d.setEnergy(energy);
+		}
+
+	}
+}
+
 double ParticleDeposit::getTruthEnergy(const DetectorElementPtr de) const {
 	double energy(0);
 	for (std::vector<Deposition>::const_iterator

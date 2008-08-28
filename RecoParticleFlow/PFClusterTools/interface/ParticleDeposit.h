@@ -43,6 +43,8 @@ public:
 	virtual double getRecEnergy(const DetectorElementPtr de) const;
 
 	virtual double getRecEnergy() const;
+	
+	virtual void setRecEnergy(const DetectorElementPtr de, double energy);
 
 	virtual double getEnergyResolution() const;
 

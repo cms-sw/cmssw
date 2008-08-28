@@ -2,10 +2,16 @@
 #define SPACEMANAGER_HH_
 #include "RecoParticleFlow/PFClusterTools/interface/SpaceVoxel.h"
 #include "RecoParticleFlow/PFClusterTools/interface/Calibrator.h"
+#include "RecoParticleFlow/PFClusterTools/interface/DetectorElement.h"
+#include "RecoParticleFlow/PFClusterTools/interface/Region.h"
 #include <map>
 #include <vector>
 #include <boost/shared_ptr.hpp>
-
+#include <iostream>
+#include <TGraph.h>
+#include <TF1.h>
+#include <TF2.h>
+#include <string>
 namespace pftools {
 /**
  \class SpaceManager 
@@ -16,9 +22,13 @@ namespace pftools {
  */
 class SpaceManager {
 public:
-	SpaceManager();
+	SpaceManager(std::string name);
 
 	virtual ~SpaceManager();
+	
+	std::string getName() {
+		return name_;
+	}
 
 	/*
 	 * Initialises the internal map of calibrators and space voxels according to the
@@ -35,6 +45,8 @@ public:
 			const double etaMin, const double etaMax, const unsigned nPhi,
 			const double phiMin, const double phiMax, const unsigned nEnergy,
 			const double energyMin, const double energyMax) throw(PFToolsException&);
+	
+	void createCalibrators(const Calibrator& toClone);
 
 	std::map<SpaceVoxelPtr, CalibratorPtr>* getCalibrators() {
 		std::map<SpaceVoxelPtr, CalibratorPtr>* ptr = &myAddressBook;
@@ -55,14 +67,60 @@ public:
 	CalibratorPtr findCalibrator(const double eta, const double phi,
 			const double energy = 0) const;
 	
+	void assignCalibration(CalibratorPtr c, std::map<DetectorElementPtr, double> result);
+	
+	std::map<DetectorElementPtr, double> getCalibration(CalibratorPtr c);
+	
+	std::ostream& printCalibrations(std::ostream& stream);
+	
+	void extractTruthEvolution(DetectorElementPtr det, Region r, TGraph& gr, TF1* f1);
+	
+	TH1* extractEvolution(DetectorElementPtr det, Region region, TF1& f1);
+
+	void addEvolution(DetectorElementPtr det, Region region, TF1 f) {
+		if(region == BARREL_POS)
+			barrelPosEvolutions_[det] = f;
+		if(region == ENDCAP_POS)
+			endcapPosEvolutions_[det] = f;
+	}
+	
+	double interpolateCoefficient(DetectorElementPtr det, double energy, double eta, double  phi);
+	
+	double evolveCoefficient(DetectorElementPtr det, double energy, double eta, double  phi);
+	
+	int getNCalibrations() {
+		return calibrationCoeffs_.size();
+	}
 	void clear();
+	
+	void makeInverseAddressBook();
 
 private:
+	
+	std::string name_;
+	
+	double barrelLimit_;
+	double transitionLimit_;
+	double endcapLimit_;
+	
 	std::map<SpaceVoxelPtr, CalibratorPtr> myAddressBook;
+	std::map<CalibratorPtr, SpaceVoxelPtr> inverseAddressBook_;
+	std::map<CalibratorPtr, std::map<DetectorElementPtr, double> > calibrationCoeffs_;
 	std::vector<SpaceVoxelPtr> myKnownSpaceVoxels;
+	
+	std::vector<SpaceVoxelPtr> barrelPosRegion_;
+	std::vector<SpaceVoxelPtr> transitionPosRegion_;
+	std::vector<SpaceVoxelPtr> endcapPosRegion_;
+	
+	std::map<DetectorElementPtr, TF1> barrelPosEvolutions_;
+	std::map<DetectorElementPtr, TF1> endcapPosEvolutions_;
+	
+	std::map<Region, std::vector<SpaceVoxelPtr> > regionsToSVs_;
+	
+	
 };
 
-
+typedef boost::shared_ptr<SpaceManager> SpaceManagerPtr;
 
 }
 #endif /*SPACEMANAGER_HH_*/

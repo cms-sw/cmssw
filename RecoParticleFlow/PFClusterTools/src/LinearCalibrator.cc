@@ -97,8 +97,9 @@ std::map<DetectorElementPtr, double> LinearCalibrator::getCalibrationCoefficient
 
 	bool ok(true);
 	calibsSolved = lu.Solve(proj, ok);
-	if (ok)
-		std::cout << "\tLU reports ok.\n";
+	if (ok) {
+		//std::cout << "\tLU reports ok.\n";
+	}
 	else {
 		std::cout << "\tWARNING: LU reports NOT ok.\n";
 		//This usually happens when you've asked the calibrator to solve for the 'a' term, without including
@@ -115,8 +116,8 @@ std::map<DetectorElementPtr, double> LinearCalibrator::getCalibrationCoefficient
 		throw me;
 	}
 
-	std::cout << "\tCalibrations: \n";
-	printVec(std::cout, calibsSolved);
+	//std::cout << "\tCalibrations: \n";
+	//printVec(std::cout, calibsSolved);
 
 	std::map<DetectorElementPtr, double> answers;
 	for (std::map<DetectorElementPtr, unsigned>::iterator it =
@@ -128,7 +129,7 @@ std::map<DetectorElementPtr, double> LinearCalibrator::getCalibrationCoefficient
 }
 
 void LinearCalibrator::initEijMatrix(TMatrixD& eij, TVectorD& truthE) {
-	std::cout << __PRETTY_FUNCTION__ << "\n";
+	//std::cout << __PRETTY_FUNCTION__ << "\n";
 	//std::cout << "\tGetting detector element indices...\n";
 	populateDetElIndex();
 	eij.Clear();
@@ -154,7 +155,7 @@ void LinearCalibrator::initEijMatrix(TMatrixD& eij, TVectorD& truthE) {
 			eij[index][myDetElIndex[de]] = p->getRecEnergy(de);
 			//truthE[p->getId()] += p->getTruthEnergy(de);
 		}
-		truthE[index] += p->getTruthEnergy();
+		truthE[index] = p->getTruthEnergy();
 		++index;
 	}
 

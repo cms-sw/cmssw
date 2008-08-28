@@ -39,6 +39,7 @@ bool SpaceVoxel::containsEta(const double& eta) const {
 		return true;
 	if (eta < myEtaMax && eta >= myEtaMin)
 		return true;
+	//::cout << "\teta fails!\n";
 	return false;
 }
 
@@ -47,6 +48,7 @@ bool SpaceVoxel::containsPhi(const double& phi) const {
 		return true;
 	if (phi < myPhiMax && phi >= myPhiMin)
 		return true;
+	//std::cout << "\tphi fails!\n";
 	return false;
 
 }
@@ -56,6 +58,7 @@ bool SpaceVoxel::containsEnergy(const double& energy) const {
 		return true;
 	if (energy < myEnergyMax && energy >= myEnergyMin)
 		return true;
+	//std::cout << "\tenergy fails!: input " << energy << " not in " << myEnergyMin << ", " << myEnergyMax <<"\n";
 	return false;
 }
 
@@ -89,6 +92,22 @@ void SpaceVoxel::getName(std::string& s) const {
 	s.append(", ");
 	s.append(toString(myEnergyMax));
 	s.append("]");
+}
+
+bool SpaceVoxel::operator()(const SpaceVoxel& sv1, const SpaceVoxel& sv2)  {
+	if(sv1.minEnergy() < sv2.maxEnergy())
+		return true;
+	
+	return false;
+}
+
+bool SpaceVoxel::operator()(const SpaceVoxelPtr& svp1, const SpaceVoxelPtr& svp2)  {
+	SpaceVoxel sv1 = *svp1;
+	SpaceVoxel sv2 = *svp2;
+	if(sv1.minEnergy() < sv2.maxEnergy())
+			return true;
+		
+		return false;
 }
 
 std::ostream& pftools::operator<<(std::ostream& s, const pftools::SpaceVoxel& sv) {

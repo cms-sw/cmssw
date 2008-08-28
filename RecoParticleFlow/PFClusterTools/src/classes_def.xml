@@ -10,7 +10,6 @@
   <class name="pftools::ParticleDeposit"/>
   <class name="pftools::SpaceVoxel"/>
   <class name="pftools::SingleParticleWrapper"/>
-  <!-- class name="pftools::Exercises"/-->
   <class name="pftools::Exercises2"/>
   <class name="pftools::CalibrationResultWrapper"/>
   <class name="pftools::Calibratable" />
@@ -18,6 +17,8 @@
   <class name="pftools::LinearCalibration" />
   <class name="pftools::CalibratableElement" />
   <class name="pftools::CandidateWrapper" />
+  <class name="pftools::IO" />
+  <class name="pftools::PFClusterCalibration" />
   <class name="std::vector<pftools::CalibratableElement>" />
   <class name="std::vector<pftools::CandidateWrapper>" />
   <class name="std::vector<pftools::CalibrationResultWrapper> "/>

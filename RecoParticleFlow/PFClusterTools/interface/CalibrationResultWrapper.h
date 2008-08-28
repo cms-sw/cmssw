@@ -78,6 +78,10 @@ public:
 	* Target function contribution
 	*/
 	double targetFuncContrib_;
+	
+	double a_;
+	double b_;
+	double c_;
 
 private:
 	
@@ -94,6 +98,9 @@ private:
 		target_ = UNDEFINED;
 		bias_ = 0;
 		targetFuncContrib_ = 0;
+		a_ = 0.0;
+		b_ = 1.0;
+		c_ = 1.0;
 	}
 
 };
