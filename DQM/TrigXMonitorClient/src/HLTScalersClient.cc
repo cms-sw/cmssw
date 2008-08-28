@@ -1,6 +1,9 @@
-// $Id: HLTScalersClient.cc,v 1.3 2008/08/25 00:38:27 wittich Exp $
+// $Id: HLTScalersClient.cc,v 1.4 2008/08/26 01:38:55 wittich Exp $
 // 
 // $Log: HLTScalersClient.cc,v $
+// Revision 1.4  2008/08/26 01:38:55  wittich
+// re-add Don's 20 entry histograms with full bin labels
+//
 // Revision 1.3  2008/08/25 00:38:27  wittich
 // Remove defunct couts
 //
@@ -105,6 +108,7 @@ void HLTScalersClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 			const edm::EventSetup& c)
 {
   nLumi_ = lumiSeg.id().luminosityBlock();
+
   MonitorElement *scalers = dbe_->get("HLT/HLTScalers/hltScalers");
   if ( scalers == 0 ) {
     LogInfo("Status") << "cannot get hlt scalers histogram, bailing out.";
@@ -114,6 +118,7 @@ void HLTScalersClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 
   int npaths = scalers->getNbinsX();
   if ( npaths > MAX_PATHS ) npaths = MAX_PATHS; // HARD CODE FOR NOW
+  LogDebug("Status") << "I see " << npaths << " paths. ";
 
   // set the bin labels on the first go-through
   if ( first_) {
@@ -144,11 +149,18 @@ void HLTScalersClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 			<< ", local is " << nLumi_;
   int nL = (nLumi!=0?nLumi->getIntValue():nLumi_);
   if ( nL > MAX_LUMI_SEG ) {
-    LogWarning("Status") << "Too many Lumi segments, "
-			 << nL << " is greater than MAX_LUMI_SEG";
-    nL = MAX_LUMI_SEG;
+    LogInfo("Status") << "Too many Lumi segments, "
+		      << nL << " is greater than MAX_LUMI_SEG,"
+		      << " wrapping to " 
+		      << (nL%MAX_LUMI_SEG);
+    //nL = MAX_LUMI_SEG;
+    nL = nL%MAX_LUMI_SEG;
   }
   float delta_t = (nL - currentLumiBlockNumber_)*SECS_PER_LUMI_SECTION;
+  if ( delta_t < 0 ) {
+    LogDebug("Status") << " time is negative ... " << delta_t;
+    delta_t = -delta_t;
+  }
   // fill in the rates
   for ( int i = 1; i <= npaths; ++i ) { // bins start at 1
     float current_count = scalers->getBinContent(i);
