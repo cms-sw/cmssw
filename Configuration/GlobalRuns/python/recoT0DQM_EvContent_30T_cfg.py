@@ -7,7 +7,7 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
 
 
-process.maxEvents = cms.untracked.PSet(  input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet(  input = cms.untracked.int32(10) )
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
      '/store/data/Commissioning08/Cosmics/RAW/CRUZET4_v1/000/058/555/02E4041E-1571-DD11-98CE-001D09F241B9.root'
@@ -19,7 +19,7 @@ process.source = cms.Source("PoolSource",
 process.load("Configuration.EventContent.EventContentCosmics_cff")
 
 process.FEVT = cms.OutputModule("PoolOutputModule",
-    process.RECOEventContent,
+    process.FEVTEventContent,
     dataset = cms.untracked.PSet(dataTier = cms.untracked.string('RECO')),
     fileName = cms.untracked.string('promptrecoCosmics.root')
 )
@@ -45,7 +45,7 @@ process.FEVT.outputCommands.append('keep recoCandidatesOwned_caloTowersOpt_*_*')
 process.FEVT.outputCommands.append('keep RPCDetIdRPCDigiMuonDigiCollection_muonRPCDigis_*_*')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
+    version = cms.untracked.string('$Revision: 1.2 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/GlobalRuns/python/recoT0DQM_EvContent_30T_cfg.py,v $'),
     annotation = cms.untracked.string('CRUZET Prompt Reco with DQM with Mag field at 3T')
 )
