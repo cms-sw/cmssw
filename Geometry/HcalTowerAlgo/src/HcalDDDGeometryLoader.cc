@@ -145,20 +145,34 @@ HcalDDDGeometryLoader::makeCell( const HcalDetId& detId,
   bool isBarrel = (subdet == HcalBarrel || subdet == HcalOuter);
 
   double          z, r, thickness;
-
+#ifdef DebugLog
+  double          r0, r1, r2;
+#endif
   if (rzType) {
     r          = hcalCell.depthMin();
     if (isBarrel) {
       z         = r * sinh(eta); // sinh(eta) == 1/tan(theta)
       thickness = (hcalCell.depthMax() - r) * cosh(eta); // cosh(eta) == 1/sin(theta)
+#ifdef DebugLog
+      r1        = r;
+      r2        = hcalCell.depthMax();
+      r0        = 0.5*(r1+r2);
+#endif
     } else {
       z         = r * sinh(eta2);
       thickness = 2. * hcalCell.halfSize();
+      r         = z/sinh(std::abs(eta));
+#ifdef DebugLog
+      r0        = z/sinh(std::abs(eta));
+      r1        = z/sinh(std::abs(eta)+0.5*deta);
+      r2        = z/sinh(std::abs(eta)-0.5*deta);
+#endif
     }
 #ifdef DebugLog
     LogDebug("HCalGeom") << "HcalDDDGeometryLoader::makeCell SubDet " << subdet
 			 << " eta = " << eta << " theta = " << theta
-			 << " r = " << r << " thickness = " << thickness;
+			 << " r = " << r << " thickness = " << thickness
+                         << " r0-r2 (" << r0 << ":" << r1 << ":" << r2 << ")";
 #endif
   } else {
     z          = hcalCell.depthMin();
@@ -167,10 +181,14 @@ HcalDDDGeometryLoader::makeCell( const HcalDetId& detId,
     r          = z * tan(theta);
     thickness /= std::abs(cos(theta));
 #ifdef DebugLog
+    r0         = z/sinh(std::abs(eta));
+    r1         = z/sinh(std::abs(eta)+0.5*deta);
+    r2         = z/sinh(std::abs(eta)-0.5*deta);
     LogDebug("HCalGeom") << "HcalDDDGeometryLoader::makeCell SubDet " << subdet
-			 << " eta = " << eta << " theta = " << theta
-			 << " z = " << z << " r = " << r << " thickness = "
-			 << thickness;
+                         << " eta = " << eta << " theta = " << theta
+                         << " z = " << z << " r = " << r << " thickness = "
+                         << thickness << " r0-r2 (" << r0 << ":" << r1 << ":"
+                         << r2 << ")";    
 #endif
   }
 
