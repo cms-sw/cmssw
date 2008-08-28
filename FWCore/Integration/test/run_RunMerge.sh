@@ -16,6 +16,8 @@ pushd ${LOCAL_TMP_DIR}
 
   cmsRun -p ${LOCAL_TEST_DIR}/${test}TEST_cfg.py || die "cmsRun ${test}TEST_cfg.py" $?
 
+  cmsRun -p ${LOCAL_TEST_DIR}/${test}TEST1_cfg.py || die "cmsRun ${test}TEST1_cfg.py" $?
+
 popd
 
 exit 0

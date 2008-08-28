@@ -4,8 +4,8 @@
  *
  * \author Giuseppe Cerati, INFN
  *
- *  $Date: 2008/07/24 09:12:02 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/11/13 10:46:04 $
+ *  $Revision: 1.1 $
  *
  */
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
@@ -22,10 +22,6 @@ public:
   
   /// Operator() performs the selection: e.g. if (tPSelector(tp)) {...}
   bool operator()( const TrackingParticle & tp ) const { 
-
-    //quickly reject if it is from pile-up
-    if (signalOnly_ && !(tp.eventId().bunchCrossing()==0 && tp.eventId().event()==0) )return false;
-
     if (chargedOnly_ && tp.charge()==0) return false;//select only if charge!=0
     bool testId = false;
     unsigned int idSize = pdgId_.size();
@@ -33,13 +29,16 @@ public:
     else for (unsigned int it=0;it!=idSize;++it){
       if (tp.pdgId()==pdgId_[it]) testId = true;
     }
+    bool signal = true;
+    if (signalOnly_) signal = (tp.eventId().bunchCrossing()== 0 && tp.eventId().event() == 0);
     return (
 	    tp.matchedHit() >= minHit_ &&
 	    sqrt(tp.momentum().perp2()) >= ptMin_ && 
 	    tp.momentum().eta() >= minRapidity_ && tp.momentum().eta() <= maxRapidity_ && 
 	    sqrt(tp.vertex().perp2()) <= tip_ &&
 	    fabs(tp.vertex().z()) <= lip_ &&
-	    testId
+	    testId &&
+	    signal
 	    );
   }
   

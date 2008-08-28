@@ -16,7 +16,7 @@ namespace edm {
 class TFileService : public TFileDirectory {
 public:
   /// constructor
-  TFileService(const edm::ParameterSet &, edm::ActivityRegistry &);
+  TFileService( const edm::ParameterSet &, edm::ActivityRegistry & );
   /// destructor
   ~TFileService();
   /// return opened TFile
@@ -30,7 +30,6 @@ private:
   TFile * file_;
   std::string fileName_;
   bool fileNameRecorded_;
-  bool closeFileFast_;
   // set current directory according to module name and prepair to create directory
   void setDirectoryName( const edm::ModuleDescription & desc );
 };

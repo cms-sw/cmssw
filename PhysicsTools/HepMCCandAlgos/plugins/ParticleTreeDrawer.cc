@@ -104,7 +104,9 @@ void ParticleTreeDrawer::printInfo( const Candidate & c ) const {
 void ParticleTreeDrawer::printDecay( const Candidate & c, const string & pre ) const {
   int id = c.pdgId();
   const ParticleData * pd = pdt_->particle( id );  
-  cout << (pd != 0? pd->name():"???") << endl; 
+  assert( pd != 0 );
+
+  cout << pd->name(); 
   printInfo( c );
   cout << endl;
 
@@ -129,7 +131,8 @@ void ParticleTreeDrawer::printDecay( const Candidate & c, const string & pre ) c
       const Candidate * d = c.daughter( i );
       if ( accept( * d ) ) {
 	const ParticleData * pd = pdt_->particle( d->pdgId() );  
-	cout << (pd != 0? pd->name():"???") << endl; 
+	assert( pd != 0 );
+	cout << pd->name();
 	printInfo( * d );
 	if ( vd != validDau - 1 )
 	  cout << " ";

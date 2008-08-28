@@ -783,7 +783,7 @@ void PhotonAnalyzer::endJob()
 
 
 
-  dbe_->showDirStructure();
+  
   bool outputMEsInRootFile = parameters_.getParameter<bool>("OutputMEsInRootFile");
   std::string outputFileName = parameters_.getParameter<std::string>("OutputFileName");
   if(outputMEsInRootFile){

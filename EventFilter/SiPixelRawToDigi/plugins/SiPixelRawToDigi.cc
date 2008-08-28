@@ -82,7 +82,6 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
     edm::ESHandle<SiPixelFedCablingMap> map;
     es.get<SiPixelFedCablingMapRcd>().get( map );
     LogDebug("map version:")<< map->version();
-    delete fedCablingMap_;
     fedCablingMap_ = map.product();
     typedef std::vector<const sipixelobjects::PixelFEDCabling *>::iterator FLI;
     std::vector<const sipixelobjects::PixelFEDCabling *> feds = map.product()->fedList();
@@ -108,6 +107,7 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
   formatter.setErrorStatus(includeErrors, checkOrder);
 
   if (theTimer) theTimer->start();
+  bool errorsInEvent = false;
 
   typedef std::vector<int>::iterator IF;
   for (IF theFed = fedList_.begin(); theFed != fedList_.end(); theFed++) {
@@ -120,7 +120,7 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
     const FEDRawData& fedRawData = buffers->FEDData( fedId );
 
     //convert data to digi and strip off errors
-    formatter.interpretRawData( fedId, fedRawData, digis, errors);
+    formatter.interpretRawData( errorsInEvent, fedId, fedRawData, digis, errors);
 
     //pack digi into collection
     typedef PixelDataFormatter::Digis::iterator ID;
@@ -130,7 +130,7 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
       edm::DetSet<PixelDigi>& detSet = collection->find_or_insert(detid);
 //      detSet.data = it->data;
       detSet.data = it->second;
-    } 
+    } // end digi loop over detIds
     //pack errors into collection
     if(includeErrors) {
       typedef PixelDataFormatter::Errors::iterator IE;
@@ -140,9 +140,10 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
 	edm::DetSet<SiPixelRawDataError>& errorDetSet = errorcollection->find_or_insert(errordetid);
 	//      detSet.data = is->data;
 	errorDetSet.data = is->second;
-      } 
-    }
-  }
+      } // end error loop over detIds
+    } // end if(includeErrors)
+  } // end loop over feds
+  if (errorsInEvent) edm::LogError("SiPixelRawToDigi") << "Error words were stored in this event, see Debug printout for more details";
 
   if (theTimer) {
     theTimer->stop();

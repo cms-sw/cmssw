@@ -18,4 +18,3 @@ muonRoadTrajectoryBuilderESProducer = cms.ESProducer("MuonRoadTrajectoryBuilderE
 )
 
 
-

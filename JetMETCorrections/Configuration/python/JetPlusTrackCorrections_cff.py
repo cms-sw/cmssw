@@ -12,9 +12,6 @@ JetPlusTrackZSPCorrectorIcone5 = cms.ESSource("JetPlusTrackCorrectionService",
     JetTrackCollectionAtCalo = cms.InputTag("iterativeCone5JetTracksAssociatorAtCaloFace"),
     respalgo = cms.int32(5),
     JetTrackCollectionAtVertex = cms.InputTag("iterativeCone5JetTracksAssociatorAtVertex"),
-    AddOutOfConeTracks = cms.bool(True),
-    NonEfficiencyFile = cms.string('CMSSW_167_TrackNonEff'),
-    NonEfficiencyFileResp = cms.string('CMSSW_167_TrackNonEffLeakage'),
     label = cms.string('JetPlusTrackZSPCorrectorIcone5')
 )
 

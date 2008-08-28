@@ -89,18 +89,6 @@ namespace pat {
     PhysVarHisto * h_emEtInEE_;            
     PhysVarHisto * h_emEtInHF_;            
 
-    PhysVarHisto* jetME_;
-
-    PhysVarHisto* hNevents_;
-    PhysVarHisto* hCaloMEx_;
-    PhysVarHisto* hCaloMEy_;
-    PhysVarHisto* hCaloEz_;
-    PhysVarHisto* hCaloMET_;
-    PhysVarHisto* hCaloMETPhi_;
-    PhysVarHisto* hCaloHadEtInEB_;
-    PhysVarHisto* hCaloHadEtInEE_;
-
-
   };
 
 }

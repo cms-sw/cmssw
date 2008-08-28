@@ -1,5 +1,5 @@
-#ifndef AlCaDiJetsProducer_h
-#define AlCaDiJetsProducer_h
+#ifndef AlCaDiJetsProducer_AlCaHcalProducers_h
+#define AlCaDiJetsProducer_AlCaHcalProducers_h
 
 
 // -*- C++ -*-
@@ -37,21 +37,23 @@ namespace cms
 
 class AlCaDiJetsProducer : public edm::EDProducer {
    public:
-     explicit AlCaDiJetsProducer(const edm::ParameterSet&);
-     ~AlCaDiJetsProducer();
+      explicit AlCaDiJetsProducer(const edm::ParameterSet&);
+      ~AlCaDiJetsProducer();
 
-     virtual void beginJob(const edm::EventSetup& ) ;
+      virtual void beginJob(const edm::EventSetup& ) ;
 
-     virtual void produce(edm::Event &, const edm::EventSetup&);
+      virtual void produce(edm::Event &, const edm::EventSetup&);
    private:
       // ----------member data ---------------------------
-     edm::InputTag jetsInput_;
      std::vector<edm::InputTag> ecalLabels_;
+     std::vector<edm::InputTag> mInputCalo_;
+     bool allowMissingInputs_;
      edm::InputTag hbheInput_;
      edm::InputTag hoInput_;
      edm::InputTag hfInput_;
-
-     bool allowMissingInputs_;
+     std::string m_inputTrackLabel;
+ // Calo geometry
+  const CaloGeometry* geo;
 
 };
 }// end namespace cms

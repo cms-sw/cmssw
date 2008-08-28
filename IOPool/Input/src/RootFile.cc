@@ -56,6 +56,7 @@ namespace edm {
 		     InputSource::ProcessingMode processingMode,
 		     int forcedRunOffset,
 		     std::vector<EventID> const& whichEventsToProcess,
+                     bool noEventSort,
 		     bool dropMetaData,
 		     GroupSelectorRules const& groupSelectorRules) :
       file_(fileName),
@@ -79,6 +80,7 @@ namespace edm {
       whichLumisToSkip_(whichLumisToSkip),
       whichEventsToProcess_(whichEventsToProcess),
       eventListIter_(whichEventsToProcess_.begin()),
+      noEventSort_(noEventSort),
       fastClonable_(false),
       dropMetaData_(dropMetaData),
       groupSelector_(),
@@ -153,6 +155,8 @@ namespace edm {
     readEntryDescriptionTree();
 
     validateFile();
+
+    if (noEventSort_) fileIndex_.sortBy_Run_Lumi_EventEntry();
     fileIndexIter_ = fileIndexBegin_ = fileIndex_.begin();
     fileIndexEnd_ = fileIndex_.end();
     eventProcessHistoryIter_ = eventProcessHistoryIDs_.begin();
@@ -320,7 +324,7 @@ namespace edm {
   bool
   RootFile::setIfFastClonable(int remainingEvents, int remainingLumis) const {
     if (fileFormatVersion_.value_ < 8) return false; 
-    if (!fileIndex_.eventsSorted()) return false; 
+    if (!fileIndex_.allEventsInEntryOrder()) return false; 
     if (!whichEventsToProcess_.empty()) return false; 
     if (eventsToSkip_ != 0) return false; 
     if (remainingEvents >= 0 && eventTree_.entries() > remainingEvents) return false;
@@ -467,12 +471,12 @@ namespace edm {
       // Skip any lumis before the first lumi specified, startAtLumi_.
       assert(correctedCurrentRun >= startAtRun_);
       if (correctedCurrentRun == startAtRun_ && currentLumi < startAtLumi_) {
-        fileIndexIter_ = fileIndex_.findPosition(currentRun, startAtLumi_, 0U);      
+        fileIndexIter_ = fileIndex_.findLumiOrRunPosition(currentRun, startAtLumi_);      
 	return getNextEntryTypeWanted();
       }
       // Skip the lumi if it is in whichLumisToSkip_.
       if (binary_search_all(whichLumisToSkip_, LuminosityBlockID(correctedCurrentRun, currentLumi))) {
-        fileIndexIter_ = fileIndex_.findPosition(currentRun, currentLumi + 1, 0U);      
+        fileIndexIter_ = fileIndex_.findLumiOrRunPosition(currentRun, currentLumi + 1);      
 	return getNextEntryTypeWanted();
       }
       return FileIndex::kLumi;
@@ -572,7 +576,7 @@ namespace edm {
       }
       runTree_.setEntryNumber(-1);
     }
-    fileIndex_.sort();
+    fileIndex_.sortBy_Run_Lumi_Event();
   }
 
   void

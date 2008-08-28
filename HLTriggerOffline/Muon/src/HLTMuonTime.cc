@@ -3,7 +3,7 @@
  *
  *  \author M. Vander Donckt  
  */
-//
+
 #include "HLTriggerOffline/Muon/interface/HLTMuonTime.h"
 
 // Collaborating Class Header

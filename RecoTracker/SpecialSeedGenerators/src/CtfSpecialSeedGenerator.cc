@@ -40,7 +40,7 @@ CtfSpecialSeedGenerator::~CtfSpecialSeedGenerator(){
     }
 }
 
-void CtfSpecialSeedGenerator::beginJob(const edm::EventSetup& iSetup){
+void CtfSpecialSeedGenerator::beginRun(edm::Run &, const edm::EventSetup& iSetup){
 	std::string builderName = conf_.getParameter<std::string>("TTRHBuilder");
         iSetup.get<TransientRecHitRecord>().get(builderName,theBuilder);
 

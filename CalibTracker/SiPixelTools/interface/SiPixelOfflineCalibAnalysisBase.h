@@ -14,7 +14,7 @@
 // Original Author:  Evan Klose Friis
 //    additions by:  Freya Blekman
 //         Created:  Tue Nov  6 17:27:19 CET 2007
-// $Id: SiPixelOfflineCalibAnalysisBase.h,v 1.12 2008/04/21 19:56:31 fblekman Exp $
+// $Id: SiPixelOfflineCalibAnalysisBase.h,v 1.11 2008/03/03 09:52:53 chiochia Exp $
 //
 //
 
@@ -94,7 +94,6 @@ public:
   bool				        setDQMDirectory(uint32_t detID); //automatically create directory hierachy based on DetID
   static TF1*                           fitFunction_;
   static const std::vector<short>*      getVcalValues();
-  std::vector<uint32_t> &               getRunNumbers() { return runnumbers_;}
   
 protected:
 
@@ -115,9 +114,7 @@ private:
   SiPixelHistogramId * theHistogramIdWorker_;
   std::string outputFileName_;
   bool createOutputFile_;
-
-  std::vector<uint32_t> runnumbers_;
-
+  
   //store set of detIDs that have been encountered
   //second int argument can be a derived class result flag
   std::map<uint32_t, int> detIdsEntered_;

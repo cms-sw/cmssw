@@ -5,8 +5,8 @@
  *
  *  base class for all DQM monitor sources
  *
- *  $Date:$
- *  $Revision:$
+ *  $Date: 2008/04/30 02:14:43 $
+ *  $Revision: 1.1 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -36,7 +36,8 @@ class CaloMETAnalyzerBase {
   virtual void beginJob(edm::EventSetup const& iSetup,  DQMStore* dbe)= 0;
 
   /// Get the analysis of the muon properties
-  void analyze(const edm::Event&, const edm::EventSetup&, reco::CaloMET& caloMET){}
+  void analyze(const edm::Event&, const edm::EventSetup&, 
+	       reco::CaloMET& caloMET, reco::CaloMET& caloMETNoHF){}
 
  private:
   // ----------member data ---------------------------

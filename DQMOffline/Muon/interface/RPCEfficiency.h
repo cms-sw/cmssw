@@ -2,8 +2,8 @@
  *
  * Class for RPC Monitoring using RPCDigi and DT and CSC Segments.
  *
- *  $Date: 2008/07/03 16:25:04 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/07/06 18:21:20 $
+ *  $Revision: 1.4 $
  *
  * \author Camilo Carrillo (Uniandes)
  *
@@ -110,7 +110,6 @@ class RPCEfficiency : public edm::EDAnalyzer {
       virtual void endJob() ;
       std::map<std::string, MonitorElement*> bookDetUnitSeg(RPCDetId & detId,int nstrips);
       virtual void endRun(const edm::Run& r, const edm::EventSetup& iSetup);
-      std::set<RPCDetId>  allrollstoreBarrel;    
       std::map<DTStationIndex,std::set<RPCDetId> > rollstoreDT;
       std::map<CSCStationIndex,std::set<RPCDetId> > rollstoreCSC;
       edm::ESHandle<RPCGeometry> rpcGeo;
@@ -120,13 +119,10 @@ class RPCEfficiency : public edm::EDAnalyzer {
       std::vector<std::map<RPCDetId, int> > counter;
       std::vector<int> totalcounter;
       std::ofstream ofrej;
-      std::ofstream ofeff;
       bool incldt;
       bool incldtMB4;
       bool inclcsc;
-      bool prodImages;
-      bool calcEffi;
-      bool mydqm;
+      bool debug;
       double MinimalResidual;
       double MinimalResidualRB4;
       double MinCosAng;
@@ -134,13 +130,13 @@ class RPCEfficiency : public edm::EDAnalyzer {
       double MaxDrb4;
       double MaxStripToCountInAverage;
       double MaxStripToCountInAverageRB4;
+      int dupli;
       std::string muonRPCDigis;
       std::string cscSegments;
       std::string dt4DSegments;
       std::string rejected;
       std::string rollseff;
       
-      //Giuseppe
       std::map<std::string, std::map<std::string, MonitorElement*> >  meCollection;
       MonitorElement * statistics;
 
@@ -166,7 +162,6 @@ class RPCEfficiency : public edm::EDAnalyzer {
       MonitorElement * hGlobalResClu3La6;
 
       bool EffSaveRootFile;
-      int  EffSaveRootFileEventsInterval;
       std::string EffRootFileName;
       std::string nameInLog;
       DQMStore * dbe;

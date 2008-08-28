@@ -7,7 +7,7 @@
  *  Container for ECAL specific DCC Header information
  *
  *
- *  $Id: EcalDCCHeaderBlock.h,v 1.17 2008/02/13 09:01:07 franzoni Exp $
+ *  $Id: EcalDCCHeaderBlock.h,v 1.16 2008/02/07 10:21:10 franzoni Exp $
  */
 
 #include <vector>
@@ -107,7 +107,6 @@ class EcalDCCHeaderBlock
   void setOrbit(const int& orbit){orbitNumber_ = orbit;}
   void setEventSettings(const  EcalDCCEventSettings& EventSettings) { EventSettings_=EventSettings; };
   void setRunType(const short& runType) { runType_=runType; };
-    void setZs(const short& zs) { zs_=zs;};
   void setBasicTriggerType(const short& triggerType) { basic_trigger_type_=triggerType; };
   //void setSequence(const short& sequence) { sequence_=sequence; } ;
   void setRtHalf(const short& rtHalf) { rtHalf_=rtHalf; } ;
@@ -131,7 +130,6 @@ class EcalDCCHeaderBlock
   int getOrbit() const {return orbitNumber_;}
   EcalDCCEventSettings getEventSettings() const { return EventSettings_;}
   short getRunType() const {return runType_ ;}
-  short getZs() const {return zs_ ;}
   short getBasicTriggerType() const {return basic_trigger_type_ ;}
 
   short getRtHalf() const { return rtHalf_; } 
@@ -152,7 +150,6 @@ class EcalDCCHeaderBlock
   int dccInTTCCommand_;
   int orbitNumber_;
   short runType_;
-  short zs_;
 
   short basic_trigger_type_;
 

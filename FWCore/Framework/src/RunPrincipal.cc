@@ -31,14 +31,14 @@ namespace edm {
   void
   RunPrincipal::addGroup(std::auto_ptr<EDProduct> prod,
 	ConstBranchDescription const& bd,
-	std::auto_ptr<RunLumiEntryInfo> entryInfo) {
+	std::auto_ptr<EventEntryInfo> entryInfo) {
     std::auto_ptr<Group> g(new Group(prod, bd, entryInfo));
     addOrReplaceGroup(g);
   }
 
   void
   RunPrincipal::addGroup(ConstBranchDescription const& bd,
-	std::auto_ptr<RunLumiEntryInfo> entryInfo) {
+	std::auto_ptr<EventEntryInfo> entryInfo) {
     std::auto_ptr<Group> g(new Group(bd, entryInfo));
     addOrReplaceGroup(g);
   }
@@ -46,7 +46,7 @@ namespace edm {
   void 
   RunPrincipal::put(std::auto_ptr<EDProduct> edp,
 		ConstBranchDescription const& bd,
-		std::auto_ptr<RunLumiEntryInfo> entryInfo) {
+		std::auto_ptr<EventEntryInfo> entryInfo) {
 
     if (edp.get() == 0) {
       throw edm::Exception(edm::errors::InsertFailure,"Null Pointer")

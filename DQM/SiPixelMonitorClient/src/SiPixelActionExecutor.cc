@@ -17,7 +17,7 @@ using namespace std;
 //
 // -- Constructor
 // 
-SiPixelActionExecutor::SiPixelActionExecutor() {
+SiPixelActionExecutor::SiPixelActionExecutor(std::string summaryXMLfileName) : summaryXMLfileName_(summaryXMLfileName) {
   edm::LogInfo("SiPixelActionExecutor") << 
     " Creating SiPixelActionExecutor " << "\n" ;
   configParser_ = 0;
@@ -42,7 +42,8 @@ SiPixelActionExecutor::~SiPixelActionExecutor() {
 // -- Read Configuration File
 //
 void SiPixelActionExecutor::readConfiguration() {
-  string localPath = string("DQM/SiPixelMonitorClient/test/sipixel_monitorelement_config.xml");
+//  string localPath = string("DQM/SiPixelMonitorClient/test/sipixel_monitorelement_config.xml");
+  string localPath = summaryXMLfileName_;
   if (configParser_ == 0) {
     configParser_ = new SiPixelConfigParser();
     configParser_->getDocument(edm::FileInPath(localPath).fullPath());
@@ -61,7 +62,8 @@ bool SiPixelActionExecutor::readConfiguration(int& tkmap_freq,
 					      int& source_type_,
 					      int& calib_type_) {
 //cout<<"Entering SiPixelActionExecutor::readConfiguration..."<<endl;
-  string localPath = string("DQM/SiPixelMonitorClient/test/sipixel_monitorelement_config.xml");
+//  string localPath = string("DQM/SiPixelMonitorClient/test/sipixel_monitorelement_config.xml");
+  string localPath = summaryXMLfileName_;
   if (configParser_ == 0) {
     configParser_ = new SiPixelConfigParser();
     configParser_->getDocument(edm::FileInPath(localPath).fullPath());
@@ -105,7 +107,8 @@ bool SiPixelActionExecutor::readConfiguration(int& tkmap_freq,
 //=============================================================================================================
 bool SiPixelActionExecutor::readConfiguration(int& tkmap_freq, int& summary_freq) {
 //cout<<"Entering SiPixelActionExecutor::readConfiguration..."<<endl;
-  string localPath = string("DQM/SiPixelMonitorClient/test/sipixel_monitorelement_config.xml");
+//  string localPath = string("DQM/SiPixelMonitorClient/test/sipixel_monitorelement_config.xml");
+  string localPath = summaryXMLfileName_;
   if (configParser_ == 0) {
     configParser_ = new SiPixelConfigParser();
     configParser_->getDocument(edm::FileInPath(localPath).fullPath());
@@ -178,9 +181,9 @@ void SiPixelActionExecutor::createSummary(DQMStore* bei) {
     fillFEDErrorSummary(bei, federror_structure_name, federror_me_names);
     bei->cd();
   }
-  createLayout(bei);
-  string fname = "test.xml";
-  configWriter_->write(fname);
+  //createLayout(bei);
+  //string fname = "test.xml";
+ // configWriter_->write(fname);
   if (configWriter_) delete configWriter_;
   configWriter_ = 0;
 //cout<<"leaving SiPixelActionExecutor::createSummary..."<<endl;
@@ -219,7 +222,7 @@ void SiPixelActionExecutor::fillBarrelSummary(DQMStore* bei,
 	  prefix="SUMCLU";
 	else if((*iv)=="residualX"||(*iv)=="residualY")
           prefix="SUMRES";
-	else if((*iv)=="ClusX"||(*iv)=="ClusY")
+	else if((*iv)=="ClustX"||(*iv)=="ClustY")
 	  prefix="SUMHIT";
 	else if((*iv)=="Gain1d"||(*iv)=="GainChi2NDF1d"||
 	   (*iv)=="GainChi2Prob1d"||(*iv)=="Pedestal1d"||
@@ -249,6 +252,12 @@ void SiPixelActionExecutor::fillBarrelSummary(DQMStore* bei,
         string tag = prefix + "_" + (*iv) + "_" + currDir.substr(currDir.find(dir_name));
 	MonitorElement* temp = getSummaryME(bei, tag);
         sum_mes.push_back(temp);
+        if((*iv)=="ndigis"){
+	  tag = prefix + "_" + (*iv) + "FREQ_" 
+                                + currDir.substr(currDir.find(dir_name));
+          temp = getSummaryME(bei, tag);
+          sum_mes.push_back(temp);
+	}
       }
     }
     if (sum_mes.size() == 0) {
@@ -273,6 +282,7 @@ void SiPixelActionExecutor::fillBarrelSummary(DQMStore* bei,
           string sname = ((*isum)->getName());
 	  string tname = " ";
           tname = sname.substr(7,(sname.find("_",7)-6));
+	  if(tname.find("FREQ")!=string::npos) tname = "ndigis_";
 	  if (((*im)).find(tname) == 0) {
 	    string fullpathname = bei->pwd() + "/" + (*im); 
 
@@ -286,7 +296,8 @@ void SiPixelActionExecutor::fillBarrelSummary(DQMStore* bei,
 		float nlast = me->getBinContent(me->getNbinsX());
 		float nall = me->getEntries();
 	        (*isum)->Fill(ndet, nlast/nall);
-              }else if (sname.find("_NCalibErrors_")!=string::npos){
+              }else if (sname.find("_NCalibErrors_")!=string::npos ||
+	                sname.find("FREQ_")!=string::npos){
 		float nall = me->getEntries();
 		(*isum)->Fill(ndet, nall);
 	      }else{
@@ -301,6 +312,8 @@ void SiPixelActionExecutor::fillBarrelSummary(DQMStore* bei,
                 title = "FracOfPerfectPix " + sname.substr(7,(sname.find("_",7)-7)) + " per module"; 
 	      }else if(sname.find("_NCalibErrors_")!=string::npos){
 		title = "Number of CalibErrors " + sname.substr(7,(sname.find("_",7)-7)) + " per module"; 
+              }else if (sname.find("FREQ_")!=string::npos){
+		title = "NEvents with digis per module"; 
               }else{
 	        if(prefix=="SUMOFF") title = "Mean " + sname.substr(7,(sname.find("_",7)-7)) + " per Ladder"; 
                 else title = "Mean " + sname.substr(7,(sname.find("_",7)-7)) + " per Module"; 
@@ -369,7 +382,7 @@ void SiPixelActionExecutor::fillEndcapSummary(DQMStore* bei,
 	  prefix="SUMCLU";
 	else if((*iv)=="residualX"||(*iv)=="residualY")
           prefix="SUMRES";
-	else if((*iv)=="ClusX"||(*iv)=="ClusY")
+	else if((*iv)=="ClustX"||(*iv)=="ClustY")
 	  prefix="SUMHIT";
 	else if((*iv)=="Gain1d"||(*iv)=="GainChi2NDF1d"||
 	   (*iv)=="GainChi2Prob1d"||(*iv)=="Pedestal1d"||
@@ -397,9 +410,14 @@ void SiPixelActionExecutor::fillEndcapSummary(DQMStore* bei,
         sum_mes.push_back(temp);
       }else{
         string tag = prefix + "_" + (*iv) + "_" + currDir.substr(currDir.find(dir_name));
-//	cout<<"In : "<<bei->pwd()<<" , tag = "<<tag<<endl;
 	MonitorElement* temp = getSummaryME(bei, tag);
         sum_mes.push_back(temp);
+        if((*iv)=="ndigis"){
+	  tag = prefix + "_" + (*iv) + "FREQ_" 
+                                + currDir.substr(currDir.find(dir_name));
+          temp = getSummaryME(bei, tag);
+          sum_mes.push_back(temp);
+	}
       }
     }
     if (sum_mes.size() == 0) {
@@ -423,9 +441,9 @@ void SiPixelActionExecutor::fillEndcapSummary(DQMStore* bei,
           string sname = ((*isum)->getName());
 	  string tname = " ";
           tname = sname.substr(7,(sname.find("_",7)-6));
+	  if(tname.find("FREQ")!=string::npos) tname = "ndigis_";
 	  if (((*im)).find(tname) == 0) {
 	    string fullpathname = bei->pwd() + "/" + (*im); 
-
 	    MonitorElement *  me = bei->get(fullpathname);
 	    
 	    if (me){ 
@@ -435,7 +453,8 @@ void SiPixelActionExecutor::fillEndcapSummary(DQMStore* bei,
 		float nlast = me->getBinContent(me->getNbinsX());
 		float nall = me->getEntries();
 	        (*isum)->Fill(ndet, nlast/nall);
-              }else if (sname.find("_NCalibErrors_")!=string::npos){
+              }else if (sname.find("_NCalibErrors_")!=string::npos ||
+	                sname.find("FREQ_")!=string::npos){
 		float nall = me->getEntries();
 		(*isum)->Fill(ndet, nall);
 	      }else{
@@ -450,6 +469,8 @@ void SiPixelActionExecutor::fillEndcapSummary(DQMStore* bei,
                 title = "FracOfPerfectPix " + sname.substr(7,(sname.find("_",7)-7)) + " per module"; 
               }else if (sname.find("_NCalibErrors_")!=string::npos){
 		title = "NCalibErrors " + sname.substr(7,(sname.find("_",7)-7)) + " per module"; 
+              }else if (sname.find("FREQ_")!=string::npos){
+		title = "NEvents with digis per module"; 
 	      }else{
                 if(prefix=="SUMOFF") title = "Mean " + sname.substr(7,(sname.find("_",7)-7)) + " per Blade"; 
                 else title = "Mean " + sname.substr(7,(sname.find("_",7)-7)) + " per Module"; 
@@ -652,7 +673,8 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DQMStore* bei,
 	     (*iv)=="ROCId"||(*iv)=="DCOLId"||(*iv)=="PXId"||(*iv)=="ROCNmbr"||
 	   (*iv)=="TBMMessage"||(*iv)=="Type36Hitmap") 
 	    prefix="SUMRAW";
-	  else if((*iv)=="ndigis"||(*iv)=="adc")
+	  else if((*iv)=="ndigis"||(*iv)=="adc" ||
+	     (*iv)=="ndigisFREQ")
 	    prefix="SUMDIG";
 	  else if((*iv)=="nclusters"||(*iv)=="x"||(*iv)=="y"||(*iv)=="charge"||
 	     (*iv)=="size"||(*iv)=="sizeX"||(*iv)=="sizeY"||(*iv)=="minrow"||
@@ -661,7 +683,7 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DQMStore* bei,
 	  else if((*iv)=="residualX_mean"||(*iv)=="residualY_mean"||
 	          (*iv)=="residualX_RMS"||(*iv)=="residualY_RMS")
             prefix="SUMRES";
-	  else if((*iv)=="ClusX"||(*iv)=="ClusY")
+	  else if((*iv)=="ClustX"||(*iv)=="ClustY")
 	    prefix="SUMHIT";
 	  else if((*iv)=="Gain1d_mean"||(*iv)=="GainChi2NDF1d_mean"||
 	     (*iv)=="GainChi2Prob1d_mean"||(*iv)=="Pedestal1d_mean"||
@@ -736,7 +758,11 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DQMStore* bei,
                  }
 	       }
 	       for (int k = 1; k < nbin_subdir+1; k++) {
-		 (*igm)->setBinContent(k+nbin_i, me->getBinContent(k));
+		  if((*igm)->getName().find("ndigisFREQ")==string::npos){  
+		    (*igm)->setBinContent(k+nbin_i, me->getBinContent(k));
+		  }else if(me->getName().find("ndigisFREQ")!=string::npos){
+		    (*igm)->setBinContent(k+nbin_i, me->getBinContent(k));
+		  }
 	       }
              }
            }
@@ -773,7 +799,6 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore* bei,
        it != subdirs.end(); it++) {
     cnt++;
     bei->cd(*it);
-    //cout<<"I am in "<<bei->pwd()<<" now!"<<endl;
     vector<string> contents = bei->getMEs();
    
     bei->goUp();
@@ -797,7 +822,8 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore* bei,
 	     (*iv)=="ROCId"||(*iv)=="DCOLId"||(*iv)=="PXId"||(*iv)=="ROCNmbr"||
 	   (*iv)=="TBMMessage"||(*iv)=="Type36Hitmap") 
 	    prefix="SUMRAW";
-	  else if((*iv)=="ndigis"||(*iv)=="adc")
+	  else if((*iv)=="ndigis"||(*iv)=="adc" ||
+	     (*iv)=="ndigisFREQ")
 	    prefix="SUMDIG";
 	  else if((*iv)=="nclusters"||(*iv)=="x"||(*iv)=="y"||(*iv)=="charge"||
 	     (*iv)=="size"||(*iv)=="sizeX"||(*iv)=="sizeY"||(*iv)=="minrow"||
@@ -806,7 +832,7 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore* bei,
 	  else if((*iv)=="residualX_mean"||(*iv)=="residualY_mean"||
 	          (*iv)=="residualX_RMS"||(*iv)=="residualY_RMS")
             prefix="SUMRES";
-	  else if((*iv)=="ClusX"||(*iv)=="ClusY")
+	  else if((*iv)=="ClustX"||(*iv)=="ClustY")
 	    prefix="SUMHIT";
 	  else if((*iv)=="Gain1d_mean"||(*iv)=="GainChi2NDF1d_mean"||
 	     (*iv)=="GainChi2Prob1d_mean"||(*iv)=="Pedestal1d_mean"||
@@ -821,7 +847,6 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore* bei,
 	    prefix="SUMCAL"; 
         }
 	string var = "_" + (*iv) + "_";
-	//cout<<"prefix is "<<prefix<<" , and var is "<<var<<" , looking in "<<(*im)<<endl;
 	if ((*im).find(var) != string::npos) {
 	   string full_path = (*it) + "/" +(*im);
 
@@ -830,12 +855,9 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore* bei,
 	   if (!me) continue; 
 	   int actual_size = gsum_mes.size();
 	   int wanted_size = me_names.size();
-	   //cout<<"Found the ME and have "<<actual_size<<" , "<<wanted_size<<endl;
-	   //if (dir_name=="Endcap") wanted_size = wanted_size * 2.;
            if (actual_size !=  wanted_size) {
 	     nbin = me->getTH1F()->GetNbinsX();        
              string me_name = prefix + "_" + (*iv) + "_" + dir_name;
-	     //cout<<"nbin for ME "<<me_name<<" is "<<nbin<<endl;
              if(prefix=="SUMOFF" && dir_name=="Endcap") nbin=96;
              else if(dir_name=="Endcap") nbin=672;
 	     else if(prefix=="SUMOFF" && dir_name.find("HalfCylinder")!=string::npos) nbin=24;
@@ -845,23 +867,18 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore* bei,
 	     else if(dir_name.find("Blade")!=string::npos) nbin=7;
 	     else if(dir_name.find("Panel_1")!=string::npos) nbin=4;
 	     else if(dir_name.find("Panel_2")!=string::npos) nbin=3;
-	     //cout<<"now: me_name="<<me_name<<" , nbins="<<nbin<<" , creating histogram now!"<<endl;
 	     getGrandSummaryME(bei, nbin, me_name, gsum_mes);
-	     //if (dir_name.find("Endcap")!=string::npos){
-	     //  bei->goUp(); 
-	     //  getGrandSummaryME(bei, nbin, me_name, gsum_mes);
-	     //  bei->cd("Endcap");
-	     //}
 	   }
 	   for (vector<MonitorElement*>::const_iterator igm = gsum_mes.begin();
-		igm != gsum_mes.end(); igm++) {
+		igm != gsum_mes.end(); igm++) { 
              if ((*igm)->getName().find(var) != string::npos) {
                if(prefix=="SUMOFF") (*igm)->setAxisTitle("Blades",1);
                else (*igm)->setAxisTitle("Modules",1);
                string title="";
                if(prefix=="SUMOFF") title = "mean " + (*iv) + " per Blade"; 
+               else if((*igm)->getName().find("FREQ_") != string::npos) title = "NEvents with digis per Module"; 
                else title = "mean " + (*iv) + " per Module"; 
-               (*igm)->setAxisTitle(title,2);
+	       (*igm)->setAxisTitle(title,2);
 	       nbin_i=0; 
 	       if((*igm)->getName().find("Panel_1") != string::npos){
 		 nbin_subdir=4;
@@ -894,15 +911,18 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore* bei,
                  }
 	       }
 	       for (int k = 1; k < nbin_subdir+1; k++) {
-		 (*igm)->setBinContent(k+nbin_i, me->getBinContent(k));
+		  if(((*igm)->getName().find("ndigisFREQ")==string::npos && me->getName().find("ndigisFREQ")==string::npos) ||
+		     ((*igm)->getName().find("ndigisFREQ")!=string::npos && me->getName().find("ndigisFREQ")!=string::npos)){  
+		    (*igm)->setBinContent(k+nbin_i, me->getBinContent(k));
+		  }
 	       }
              }
            }
 	}
       }
-    }
+    } 
     iDir++;
-  }
+  } 
 }
 //=============================================================================================================
 //
@@ -912,7 +932,7 @@ void SiPixelActionExecutor::getGrandSummaryME(DQMStore* bei,
                                               int nbin, 
 					      string& me_name, 
 					      vector<MonitorElement*> & mes) {
-
+  if((bei->pwd()).find("Pixel")==string::npos) return;
   vector<string> contents = bei->getMEs();
       
   for (vector<string>::const_iterator it = contents.begin();
@@ -943,6 +963,7 @@ MonitorElement* SiPixelActionExecutor::getSummaryME(DQMStore* bei,
                                                     string me_name) {
 //cout<<"Entering SiPixelActionExecutor::getSummaryME..."<<endl;
   MonitorElement* me = 0;
+  if((bei->pwd()).find("Pixel")==string::npos) return me;
   vector<string> contents = bei->getMEs();    
   
   for (vector<string>::const_iterator it = contents.begin();
@@ -1101,6 +1122,8 @@ void SiPixelActionExecutor::fillEndcapOccupancy(DQMStore* bei) {
 		   i>26 && i<=52 && j>0 && j<=40) continue;
 	        if(currDir.find("Pixel/Endcap/HalfCylinder_pI/Disk_1/Blade_10/Panel_2/Module_3")!=string::npos &&
 		   i>26 && i<=52 && j>0 && j<=40) continue;
+	        if(currDir.find("Pixel/Endcap/HalfCylinder_pI/Disk_1/Blade_09/Panel_1/Module_4")!=string::npos &&
+		   i>52 && i<=78 && j>0 && j<=40) continue;
 	        float before = EndcapOccupancyMap->getBinContent(i,j);
 	        float now = me->getBinContent(i,j);
 	        float newcontent = before + now;

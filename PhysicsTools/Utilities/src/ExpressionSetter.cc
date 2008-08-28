@@ -2,12 +2,12 @@
 #include "PhysicsTools/Utilities/src/AndCombiner.h"
 #include "PhysicsTools/Utilities/src/OrCombiner.h"
 #include "PhysicsTools/Utilities/src/NotCombiner.h"
-#include "PhysicsTools/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 using namespace reco::parser;
 
-void ExpressionSetter::operator()( const char *begin, const char * ) const {
+void ExpressionSetter::operator()( const char *, const char * ) const {
   if ( exprStack_.size() == 0 ) 
-    throw Exception( begin )
-      << "Grammar error: When trying parse an expression, expression stack is empty! Please contact a developer.";
+    throw edm::Exception( edm::errors::LogicError )
+      << "When trying parse an expression, expression stack is empty!";
   expr_ = exprStack_.back();
 }

@@ -14,7 +14,7 @@ BranchMapperWithReader: The mapping from per event product ID's to BranchID's.
 class TBranch;
 namespace edm {
   template <typename T>
-  class BranchMapperWithReader : public BranchMapper<T> {
+  class BranchMapperWithReader : public BranchMapper {
   public:
     BranchMapperWithReader(TBranch * branch, input::EntryNumber entryNumber);
 
@@ -31,7 +31,7 @@ namespace edm {
   
   template <typename T>
   BranchMapperWithReader<T>::BranchMapperWithReader(TBranch * branch, input::EntryNumber entryNumber) :
-	 BranchMapper<T>(true),
+	 BranchMapper(true),
 	 branchPtr_(branch), entryNumber_(entryNumber),
 	 infoVector_(), pInfoVector_(&infoVector_)
   { }
@@ -45,7 +45,7 @@ namespace edm {
     BranchMapperWithReader<T> * me = const_cast<BranchMapperWithReader<T> *>(this);
     for (typename std::vector<T>::const_iterator it = infoVector_.begin(), itEnd = infoVector_.end();
       it != itEnd; ++it) {
-      me->insert(*it);
+      me->insert(it->makeEntryInfo());
     }
   }
 

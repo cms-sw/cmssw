@@ -7,7 +7,7 @@
  * \author original version: Chris Jones, Cornell, 
  *         extended by Luca Lista, INFN
  *
- * \version $Revision: 1.15 $
+ * \version $Revision: 1.11 $
  *
  */
 #include "boost/spirit/core.hpp"
@@ -22,7 +22,6 @@
 #include "PhysicsTools/Utilities/src/IntSetter.h"
 #include "PhysicsTools/Utilities/src/CombinerStack.h"
 #include "PhysicsTools/Utilities/src/MethodStack.h"
-#include "PhysicsTools/Utilities/src/MethodArgumentStack.h"
 #include "PhysicsTools/Utilities/src/TypeStack.h"
 #include "PhysicsTools/Utilities/src/IntStack.h"
 #include "PhysicsTools/Utilities/src/CombinerSetter.h"
@@ -31,16 +30,12 @@
 #include "PhysicsTools/Utilities/src/ExpressionSetter.h"
 #include "PhysicsTools/Utilities/src/ExpressionBinaryOperatorSetter.h"
 #include "PhysicsTools/Utilities/src/ExpressionUnaryOperatorSetter.h"
-#include "PhysicsTools/Utilities/src/ExpressionSelectorSetter.h"
 #include "PhysicsTools/Utilities/src/MethodSetter.h"
-#include "PhysicsTools/Utilities/src/MethodArgumentSetter.h"
-#include "PhysicsTools/Utilities/interface/Exception.h"
 // #include "PhysicsTools/Utilities/src/Abort.h"
 
 namespace reco {
   namespace parser {    
     struct Grammar : public boost::spirit::grammar<Grammar> {
-       
       SelectorPtr dummySel_;
       ExpressionPtr dummyExpr_;
       SelectorPtr * sel_; 
@@ -50,8 +45,7 @@ namespace reco {
       mutable SelectorStack selStack;
       mutable CombinerStack cmbStack;
       mutable FunctionStack funStack;
-      mutable MethodStack         methStack;
-      mutable MethodArgumentStack methArgStack;
+      mutable MethodStack methStack;
       mutable TypeStack typeStack;
       mutable IntStack intStack;
       template<typename T>
@@ -64,22 +58,13 @@ namespace reco {
 	sel_(& dummySel_), expr_(& expr) { 
 	typeStack.push_back(ROOT::Reflex::Type::ByTypeInfo(typeid(T)));
       }
-      Grammar(SelectorPtr & sel, const ROOT::Reflex::Type& iType) : 
-   	sel_(& sel), expr_(& dummyExpr_) { 
-   	typeStack.push_back(iType);
-         }
-         template<typename T>
-         Grammar(ExpressionPtr & expr, const ROOT::Reflex::Type& iType) : 
-   	sel_(& dummySel_), expr_(& expr) { 
-   	typeStack.push_back(iType);
-         }
       template <typename ScannerT>
       struct definition : 
 	public boost::spirit::grammar_def<boost::spirit::rule<ScannerT>, 
 					  boost::spirit::same, 
 					  boost::spirit::same>{  
 	typedef boost::spirit::rule<ScannerT> rule;
-	rule number, var, metharg, method, term, power, factor, function1, function2, expression, 
+	rule number, var, method, term, power, factor, function1, function2, expression, 
 	  comparison_op, binary_comp, trinary_comp,
 	  logical_combiner, logical_expression, logical_factor, logical_term,
 	  or_op, and_op, cut, fun;
@@ -90,8 +75,7 @@ namespace reco {
 	  ExpressionNumberSetter number_s(self.exprStack);
 	  IntSetter int_s(self.intStack);
 	  ExpressionVarSetter var_s(self.exprStack, self.methStack, self.typeStack);
-	  MethodArgumentSetter methodArg_s(self.methArgStack);
-	  MethodSetter method_s(self.methStack, self.typeStack, self.methArgStack);
+	  MethodSetter method_s(self.methStack, self.typeStack, self.intStack);
 	  ComparisonSetter<less_equal<double> > less_equal_s(self.cmpStack);
 	  ComparisonSetter<less<double> > less_s(self.cmpStack);
 	  ComparisonSetter<equal_to<double> > equal_to_s(self.cmpStack);
@@ -111,7 +95,6 @@ namespace reco {
 	    tanh_s(kTanh, self.funStack);
 	  TrinarySelectorSetter trinary_s(self.selStack, self.cmpStack, self.exprStack);
 	  BinarySelectorSetter binary_s(self.selStack, self.cmpStack, self.exprStack);
-     ExpressionSelectorSetter expr_sel_s(self.selStack, self.exprStack);
 	  CutSetter cut_s(* self.sel_, self.selStack, self.cmbStack);
 	  ExpressionSetter expr_s(* self.expr_, self.exprStack);
 	  ExpressionBinaryOperatorSetter<plus<double> > plus_s(self.exprStack);
@@ -122,42 +105,15 @@ namespace reco {
 	  ExpressionUnaryOperatorSetter<negate<double> > negate_s(self.exprStack);
 	  ExpressionFunctionSetter fun_s(self.exprStack, self.funStack);
 	  //	  Abort abort_s;
-     BOOST_SPIRIT_DEBUG_RULE(var);
-     BOOST_SPIRIT_DEBUG_RULE(method);
-     BOOST_SPIRIT_DEBUG_RULE(logical_expression);
-     BOOST_SPIRIT_DEBUG_RULE(logical_term);
-     BOOST_SPIRIT_DEBUG_RULE(logical_factor);
-     BOOST_SPIRIT_DEBUG_RULE(number);
-     BOOST_SPIRIT_DEBUG_RULE(metharg);
-     BOOST_SPIRIT_DEBUG_RULE(function1);
-     BOOST_SPIRIT_DEBUG_RULE(function2);
-     BOOST_SPIRIT_DEBUG_RULE(expression);
-     BOOST_SPIRIT_DEBUG_RULE(term);
-     BOOST_SPIRIT_DEBUG_RULE(power);
-     BOOST_SPIRIT_DEBUG_RULE(factor);
-     BOOST_SPIRIT_DEBUG_RULE(or_op);
-     BOOST_SPIRIT_DEBUG_RULE(and_op);
-     BOOST_SPIRIT_DEBUG_RULE(comparison_op);
-     BOOST_SPIRIT_DEBUG_RULE(binary_comp);
-     BOOST_SPIRIT_DEBUG_RULE(trinary_comp);
-     BOOST_SPIRIT_DEBUG_RULE(cut);
-     BOOST_SPIRIT_DEBUG_RULE(fun);
-  
-     boost::spirit::assertion<SyntaxErrors> expectParenthesis(kMissingClosingParenthesis);
-     boost::spirit::assertion<SyntaxErrors> expect(kSyntaxError);
   
 	  number = 
 	    real_p [ number_s ];
-          metharg = ( strict_real_p [ methodArg_s ] ) |
-                    ( int_p [ methodArg_s ] ) |
-                    ( ch_p('"' ) >> *(~ch_p('"' ))  >> ch_p('"' ) ) [ methodArg_s ] |
-                    ( ch_p('\'') >> *(~ch_p('\''))  >> ch_p('\'') ) [ methodArg_s ];
 	  var = 
 	    (alpha_p >> * alnum_p >> 
-	      ch_p('(') >> metharg >> * (ch_p(',') >> metharg ) >> expectParenthesis(ch_p(')'))) [ method_s ] |
-	    ( (alpha_p >> * alnum_p) [ method_s ] >> ! (ch_p('(') >> ch_p(')')) ) ;
+	      ch_p('(') >> int_p [ int_s ] >> * (ch_p(',') >> int_p [ int_s ]) >> ch_p(')')) [ method_s ] |
+	    (alpha_p >> * alnum_p) [ method_s ];
 	  method = 
-	    (var >> * ((ch_p('.') >> expect(var)))) [ var_s ];
+	    (var >> * ((ch_p('.') >> var))) [ var_s ];
 	  function1 = 
 	    chseq_p("abs") [ abs_s ] | chseq_p("acos") [ acos_s ] | chseq_p("asin") [ asin_s ] |
 	    chseq_p("atan") [ atan_s ] | chseq_p("cos") [ cos_s ] | chseq_p("cosh") [ cosh_s ] |
@@ -168,26 +124,19 @@ namespace reco {
 	    chseq_p("atan2") [ atan2_s ] | chseq_p("chi2prob") [ chi2prob_s ] | chseq_p("pow") [ pow_s ] |
             chseq_p("min") [ min_s ] | chseq_p("max") [ max_s ];
 	  expression = 
-	    term >> * (('+' >> expect(term)) [ plus_s ] |
-		       ('-' >> expect(term)) [ minus_s ]);
+	    term >> * (('+' >> term) [ plus_s ] |
+		       ('-' >> term) [ minus_s ]);
 	  term = 
-	    power >> * (('*' >> expect(power)) [ multiplies_s ] |
-			('/' >> expect(power)) [ divides_s ]);
+	    power >> * (('*' >> power) [ multiplies_s ] |
+			('/' >> power) [ divides_s ]);
 	  power = 
-	    factor >> * (('^' >> expect(factor)) [ power_of_s ]);
+	    factor >> * (('^' >> factor) [ power_of_s ]);
 	  factor = 
 	    number | 
-	    (function1 >> expect(ch_p('(')) >> expect(expression) >> expectParenthesis(ch_p(')'))) [ fun_s ] |
-	    (function2 >> expect(ch_p('(')) >> expect(expression) >> expect(ch_p(',')) >> expect(expression) >> expectParenthesis(ch_p(')'))) [ fun_s ] |
+	    (function1 >> ch_p('(') >> expression >> ch_p(')')) [ fun_s ] |
+	    (function2 >> ch_p('(') >> expression >> ch_p(',') >> expression >> ch_p(')')) [ fun_s ] |
 	    method | 
-	    //NOTE: no 'expectedParenthesis around ending ')' because at this point the partial phrase
-	    //       "(a"
-	    //could refer to an expression, e.g., "(a+b)*c" or a logical expression "(a<1) &&"
-	    //so we need to allow the parser to 'backup' and try a different approach.
-	    //NOTE: if the parser were changed so a logical expression could be used as an expression,e.g.
-	    //  (a<b)+1 <2
-	    // then we could remove such an ambiguity.
-	    '(' >> expression >> ch_p(')') |   
+	    '(' >> expression >> ')' |   
 	    ('-' >> factor) [ negate_s ] |
 	    ('+' >> factor);
 	  comparison_op = 
@@ -199,23 +148,23 @@ namespace reco {
 	    (ch_p('>')              [ greater_s       ]) | 
 	    (ch_p('!') >> ch_p('=') [ not_equal_to_s  ]);
 	  binary_comp = 
-	    expression >> comparison_op >> expect(expression);
+	    expression >> comparison_op >> expression;
 	  trinary_comp = 
-	    expression >> comparison_op >> expect(expression) >> comparison_op >> expect(expression);
+	    expression >> comparison_op >> expression >> comparison_op >> expression;
 	  or_op = (ch_p('|') >> ch_p('|') [ or_s ]) |
 	    (ch_p('|') [ or_s ]);
 	  and_op = (ch_p('&') >> ch_p('&') [ and_s ]) |
 	    (ch_p('&') [ and_s ]); 
 	  logical_expression = 
-            logical_term >> * (or_op >> expect(logical_term));
-	  logical_term = 
-            logical_factor >> * (and_op >> expect(logical_factor));
+            logical_term >> * (or_op >> logical_term);
+          logical_term = 
+            logical_factor >> * (and_op >> logical_factor);
 	  logical_factor =
 	    (trinary_comp [ trinary_s ] | 
 	     binary_comp [ binary_s ] |
-	     (ch_p('!') [ not_s ] >> expect(logical_factor)) |  expression [expr_sel_s] ) [ cut_s ] |
-	     '(' >> logical_expression >> expectParenthesis(ch_p(')'))
-	    ;
+	     (ch_p('!') [ not_s ] >> logical_factor)) [ cut_s ] |
+	    '(' >> logical_expression >> ')' |
+	    logical_expression;
 	  cut = logical_expression;
 	  fun = expression [ expr_s ];
 	  start_parsers(cut, fun);

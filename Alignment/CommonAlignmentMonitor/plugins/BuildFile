@@ -44,7 +44,6 @@
 
 <library name="AlignmentMonitorTracksFromTrajectories" file="AlignmentMonitorTracksFromTrajectories.cc">
  <use name=Alignment/CommonAlignmentMonitor>
- <use name=DataFormats/BeamSpot>
  <use name=RecoMuon/TrackingTools>
  <flags EDM_PLUGIN=1>
 </library>

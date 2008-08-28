@@ -6,7 +6,6 @@
 <use name=DataFormats/JetReco>
 <use name=DataFormats/METReco>
 <use name=DataFormats/EgammaCandidates>
-<use name=DataFormats/ParticleFlowCandidate>
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/HepMCCandidate>
 <use name=DataFormats/BTauReco>

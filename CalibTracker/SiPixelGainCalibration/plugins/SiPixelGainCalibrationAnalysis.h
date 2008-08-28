@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Nov 14 15:02:06 CET 2007
-// $Id: SiPixelGainCalibrationAnalysis.h,v 1.17 2008/08/12 15:39:11 fblekman Exp $
+// $Id: SiPixelGainCalibrationAnalysis.h,v 1.14 2008/04/21 12:39:04 fblekman Exp $
 //
 //
 
@@ -40,7 +40,7 @@ Implementation:
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "TLinearFitter.h"
-#include "TGraphErrors.h"
+
 //
 // class decleration
 //
@@ -74,16 +74,11 @@ private:
   int nfitparameters_;
   std::string fitfunction_;
   TF1 *func_;
-  TGraphErrors *graph_;
 
-  std::vector<uint32_t> listofdetids_;
   // flags
-
   bool reject_badpoints_;
   bool reject_plateaupoints_;
   bool reject_single_entries_;
-  double plateau_max_slope_;
-  bool reject_first_point_;
   double reject_badpoints_frac_;
   bool bookBIGCalibPayload_;
   bool savePixelHists_;
@@ -109,5 +104,4 @@ private:
   float gainhi_;
   float pedlow_;
   float pedhi_;
-  uint16_t min_nentries_;
 };

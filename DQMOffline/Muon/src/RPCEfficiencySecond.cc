@@ -4,7 +4,6 @@ Camilo Carrillo
 Universidad de los Andes Bogota Colombia
 camilo.carrilloATcern.ch
 
-Anna Cimmino
 ****************************************/
 
 #include <memory>
@@ -38,6 +37,7 @@ Anna Cimmino
 RPCEfficiencySecond::RPCEfficiencySecond(const edm::ParameterSet& iConfig){
   SaveFile  = iConfig.getUntrackedParameter<bool>("SaveFile", false); 
   NameFile  = iConfig.getUntrackedParameter<std::string>("NameFile","RPCEfficiency.root"); 
+  debug = iConfig.getUntrackedParameter<bool>("debug",false); 
 }
 
 RPCEfficiencySecond::~RPCEfficiencySecond(){}
@@ -47,6 +47,7 @@ void RPCEfficiencySecond::beginJob(const edm::EventSetup&){
 
   dbe = edm::Service<DQMStore>().operator->();
 
+  //Barrel 
   dbe->setCurrentFolder("Muons/RPCEfficiency/Wheel_-2");
   EffGlobWm2=dbe->book1D("GlobEfficiencyWheel_-2near","Efficiency Near Side Wheel -2 ",101,0.5,101.5);
   EffGlobWm2far=dbe->book1D("GlobEfficiencyWheel_-2far","Efficiency Far Side Wheel -2",105,0.5,105.5);
@@ -106,14 +107,91 @@ void RPCEfficiencySecond::beginJob(const edm::EventSetup&){
   AverageEffW2far=dbe->book1D("AverageEfficiencyWheel_2far","Average Efficiency Far Side Wheel 2 ",105,0.5,105.5);
   NoPredictionW2=dbe->book1D("NoPredictionWheel_2near","No Predictions Near Side Wheel 2 ",101,0.5,101.5);
   NoPredictionW2far=dbe->book1D("NoPredictionWheel_2far","No Predictions Efficiency Far Side Wheel 2 ",105,0.5,105.5);
+
+  //EndCap
+
+  dbe->setCurrentFolder("Muons/RPCEfficiency/Disk_3");
+  EffGlobD3 = dbe->book1D("GlobEfficiencyDisk_3near","Efficiency Near Side Disk 3",109,0.5,109.5);
+  EffGlobD3far =dbe->book1D("GlobEfficiencyDisk_3far","Efficiency Far Side Disk 3",109,0.5,109.5);
+  BXGlobD3 = dbe->book1D("GlobBXDisk_3near","BX Near Side Disk 3",109,0.5,109.5);
+  BXGlobD3far = dbe->book1D("GlobBXDisk_3far","BX Far Side Disk 3",109,0.5,109.5);
+  MaskedGlobD3 = dbe->book1D("GlobMaskedDisk_3near","Masked Near Side Disk 3",109,0.5,109.5);
+  MaskedGlobD3far = dbe->book1D("GlobMaskedDisk_3far","Masked Far Side Disk 3",109,0.5,109.5);
+  AverageEffD3=dbe->book1D("AverageEfficiencyDisk_3near","Average Efficiency Near Side Disk 3 ",109,0.5,109.5);
+  AverageEffD3far=dbe->book1D("AverageEfficiencyDisk_3far","Average Efficiency Far Side Disk 3 ",109,0.5,109.5);
+  NoPredictionD3=dbe->book1D("NoPredictionDisk_3near","No Predictions Near Side Disk 3 ",109,0.5,109.5);
+  NoPredictionD3far=dbe->book1D("NoPredictionDisk_3far","No Predictions Efficiency Far Side Disk 3 ",109,0.5,109.5);
+
+  dbe->setCurrentFolder("Muons/RPCEfficiency/Disk_2");
+  EffGlobD2 = dbe->book1D("GlobEfficiencyDisk_2near","Efficiency Near Side Disk 2",109,0.5,109.5);
+  EffGlobD2far =dbe->book1D("GlobEfficiencyDisk_2far","Efficiency Far Side Disk 2",109,0.5,109.5);
+  BXGlobD2 = dbe->book1D("GlobBXDisk_2near","BX Near Side Disk 2",109,0.5,109.5);
+  BXGlobD2far = dbe->book1D("GlobBXDisk_2far","BX Far Side Disk 2",109,0.5,109.5);
+  MaskedGlobD2 = dbe->book1D("GlobMaskedDisk_2near","Masked Near Side Disk 2",109,0.5,109.5);
+  MaskedGlobD2far = dbe->book1D("GlobMaskedDisk_2far","Masked Far Side Disk 2",109,0.5,109.5);
+  AverageEffD2=dbe->book1D("AverageEfficiencyDisk_2near","Average Efficiency Near Side Disk 2 ",109,0.5,109.5);
+  AverageEffD2far=dbe->book1D("AverageEfficiencyDisk_2far","Average Efficiency Far Side Disk 2 ",109,0.5,109.5);
+  NoPredictionD2=dbe->book1D("NoPredictionDisk_2near","No Predictions Near Side Disk 2 ",109,0.5,109.5);
+  NoPredictionD2far=dbe->book1D("NoPredictionDisk_2far","No Predictions Efficiency Far Side Disk 2 ",109,0.5,109.5);
+
+  dbe->setCurrentFolder("Muons/RPCEfficiency/Disk_1");
+  EffGlobD1 = dbe->book1D("GlobEfficiencyDisk_1near","Efficiency Near Side Disk 1",109,0.5,109.5);
+  EffGlobD1far =dbe->book1D("GlobEfficiencyDisk_1far","Efficiency Far Side Disk 1",109,0.5,109.5);
+  BXGlobD1 = dbe->book1D("GlobBXDisk_1near","BX Near Side Disk 1",109,0.5,109.5);
+  BXGlobD1far = dbe->book1D("GlobBXDisk_1far","BX Far Side Disk 1",109,0.5,109.5);
+  MaskedGlobD1 = dbe->book1D("GlobMaskedDisk_1near","Masked Near Side Disk 1",109,0.5,109.5);
+  MaskedGlobD1far = dbe->book1D("GlobMaskedDisk_1far","Masked Far Side Disk 1",109,0.5,109.5);
+  AverageEffD1=dbe->book1D("AverageEfficiencyDisk_1near","Average Efficiency Near Side Disk 1 ",109,0.5,109.5);
+  AverageEffD1far=dbe->book1D("AverageEfficiencyDisk_1far","Average Efficiency Far Side Disk 1 ",109,0.5,109.5);
+  NoPredictionD1=dbe->book1D("NoPredictionDisk_1near","No Predictions Near Side Disk 1 ",109,0.5,109.5);
+  NoPredictionD1far=dbe->book1D("NoPredictionDisk_1far","No Predictions Efficiency Far Side Disk 1 ",109,0.5,109.5);
+
+  dbe->setCurrentFolder("Muons/RPCEfficiency/Disk_-1");
+  EffGlobDm1 = dbe->book1D("GlobEfficiencyDisk_m1near","Efficiency Near Side Disk -1",109,0.5,109.5);
+  EffGlobDm1far =dbe->book1D("GlobEfficiencyDisk_m1far","Efficiency Far Side Disk -1",109,0.5,109.5);
+  BXGlobDm1 = dbe->book1D("GlobBXDisk_m1near","BX Near Side Disk -1",109,0.5,109.5);
+  BXGlobDm1far = dbe->book1D("GlobBXDisk_m1far","BX Far Side Disk -1",109,0.5,109.5);
+  MaskedGlobDm1 = dbe->book1D("GlobMaskedDisk_m1near","Masked Near Side Disk -1",109,0.5,109.5);
+  MaskedGlobDm1far = dbe->book1D("GlobMaskedDisk_m1far","Masked Far Side Disk -1",109,0.5,109.5);
+  AverageEffDm1=dbe->book1D("AverageEfficiencyDisk_m1near","Average Efficiency Near Side Disk -1 ",109,0.5,109.5);
+  AverageEffDm1far=dbe->book1D("AverageEfficiencyDisk_m1far","Average Efficiency Far Side Disk -1 ",109,0.5,109.5);
+  NoPredictionDm1=dbe->book1D("NoPredictionDisk_m1near","No Predictions Near Side Disk -1 ",109,0.5,109.5);
+  NoPredictionDm1far=dbe->book1D("NoPredictionDisk_m1far","No Predictions Efficiency Far Side Disk -1 ",109,0.5,109.5);
+
+  dbe->setCurrentFolder("Muons/RPCEfficiency/Disk_-2");
+  EffGlobDm2 = dbe->book1D("GlobEfficiencyDisk_m2near","Efficiency Near Side Disk -2",109,0.5,109.5);
+  EffGlobDm2far =dbe->book1D("GlobEfficiencyDisk_m2far","Efficiency Far Side Disk -2",109,0.5,109.5);
+  BXGlobDm2 = dbe->book1D("GlobBXDisk_m2near","BX Near Side Disk -2",109,0.5,109.5);
+  BXGlobDm2far = dbe->book1D("GlobBXDisk_m2far","BX Far Side Disk -2",109,0.5,109.5);
+  MaskedGlobDm2 = dbe->book1D("GlobMaskedDisk_m2near","Masked Near Side Disk -2",109,0.5,109.5);
+  MaskedGlobDm2far = dbe->book1D("GlobMaskedDisk_m2far","Masked Far Side Disk -2",109,0.5,109.5);
+  AverageEffDm2=dbe->book1D("AverageEfficiencyDisk_m2near","Average Efficiency Near Side Disk -2 ",109,0.5,109.5);
+  AverageEffDm2far=dbe->book1D("AverageEfficiencyDisk_m2far","Average Efficiency Far Side Disk -2 ",109,0.5,109.5);
+  NoPredictionDm2=dbe->book1D("NoPredictionDisk_m2near","No Predictions Near Side Disk -2 ",109,0.5,109.5);
+  NoPredictionDm2far=dbe->book1D("NoPredictionDisk_m2far","No Predictions Efficiency Far Side Disk -2 ",109,0.5,109.5);
+
+  dbe->setCurrentFolder("Muons/RPCEfficiency/Disk_-3");
+  EffGlobDm3 = dbe->book1D("GlobEfficiencyDisk_m3near","Efficiency Near Side Disk -3",109,0.5,109.5);
+  EffGlobDm3far =dbe->book1D("GlobEfficiencyDisk_m3far","Efficiency Far Side Disk -3",109,0.5,109.5);
+  BXGlobDm3 = dbe->book1D("GlobBXDisk_m3near","BX Near Side Disk -3",109,0.5,109.5);
+  BXGlobDm3far = dbe->book1D("GlobBXDisk_m3far","BX Far Side Disk -3",109,0.5,109.5);
+  MaskedGlobDm3 = dbe->book1D("GlobMaskedDisk_m3near","Masked Near Side Disk -3",109,0.5,109.5);
+  MaskedGlobDm3far = dbe->book1D("GlobMaskedDisk_m3far","Masked Far Side Disk -3",109,0.5,109.5);
+  AverageEffDm3=dbe->book1D("AverageEfficiencyDisk_m3near","Average Efficiency Near Side Disk -3 ",109,0.5,109.5);
+  AverageEffDm3far=dbe->book1D("AverageEfficiencyDisk_m3far","Average Efficiency Far Side Disk -3 ",109,0.5,109.5);
+  NoPredictionDm3=dbe->book1D("NoPredictionDisk_m3near","No Predictions Near Side Disk -3 ",109,0.5,109.5);
+  NoPredictionDm3far=dbe->book1D("NoPredictionDisk_m3far","No Predictions Efficiency Far Side Disk -3 ",109,0.5,109.5);
+
 }
 
 void RPCEfficiencySecond::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){ }
 
 void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetup){
-  std::cout<<"Begin End Run"<<std::endl;
+  if(debug)
+    std::cout<<"Begin End Run"<<std::endl;
 
-  std::cout <<"\t Getting the RPC Geometry"<<std::endl;
+  if(debug)
+    std::cout <<"\t Getting the RPC Geometry"<<std::endl;
   edm::ESHandle<RPCGeometry> rpcGeo;
   iSetup.get<MuonGeometryRecord>().get(rpcGeo);
   
@@ -127,21 +205,57 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
     indexWheelf[j]=0;
   }
 
-  for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
-    if( dynamic_cast< RPCChamber* >( *it ) != 0 ){
+  int indexDisk[6];
+  for(int j=0;j<6;j++){
+    indexDisk[j]=0;
+  }
+  
+  int indexDiskf[6];
+  for(int j=0;j<6;j++){
+    indexDiskf[j]=0;
+  }
+
+
+  for(TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
+    if(dynamic_cast< RPCChamber* >( *it ) != 0 ){
       RPCChamber* ch = dynamic_cast< RPCChamber* >( *it ); 
       std::vector< const RPCRoll*> roles = (ch->rolls());
       for(std::vector<const RPCRoll*>::const_iterator r = roles.begin();r != roles.end(); ++r){
+
 	RPCDetId rpcId = (*r)->id();
 	RPCGeomServ rpcsrv(rpcId);
-		
-	int sector = rpcId.sector();
+	int sector = rpcId.sector();	
+	
+	if(debug){
+	  std::cout<<rpcId<<std::endl;
+	  //printing indexes
+	  std::cout<<"indexWheel=";
+	  for(int j=0;j<5;j++){
+	    std::cout<<indexWheel[j]<<" ";
+	  }
+	  std::cout<<std::endl;
+	  std::cout<<"indexWheelf=";
+	  for(int j=0;j<5;j++){
+	    std::cout<<indexWheelf[j]<<" ";
+	  }
+	  std::cout<<std::endl;
+	  std::cout<<"indexDisk=";
+	  for(int j=0;j<6;j++){
+	    std::cout<<indexDisk[j]<<" ";
+	  }
+	  std::cout<<std::endl;
+	  std::cout<<"indexDiskf=";
+	  for(int j=0;j<6;j++){
+	    std::cout<<indexDiskf[j]<<" ";
+	  }
+	  std::cout<<std::endl;
+	}
   	
 	if(rpcId.region()==0){
 	  std::string detUnitLabel, meIdRPC,meIdDT, bxDistroId, meIdRealRPC  ;
 	 
 	  RPCBookFolderStructure *  folderStr = new RPCBookFolderStructure(); //Anna
-	  std::string folder = "RPC/MuonSegEff/" +  folderStr->folderStructure(rpcId);
+	  std::string folder = "Muons/MuonSegEff/" +  folderStr->folderStructure(rpcId);
 		
 	  meIdRPC = folder +"/RPCDataOccupancyFromDT_"+ rpcsrv.name();	
 	  meIdDT =folder+"/ExpectedOccupancyFromDT_"+ rpcsrv.name();
@@ -171,7 +285,8 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	  int NumberStripsPointed = 0;
 
 	  if(histoRPC && histoDT && BXDistribution && histoRealRPC){
-	    std::cout <<rpcsrv.name()<<std::endl;
+	    if(debug)
+	      std::cout <<rpcsrv.name()<<std::endl;
 
 	    for(int i=1;i<=int((*r)->nstrips());++i){
 	      if(histoRealRPC->getBinContent(i)==0) NumberMasked++;
@@ -424,10 +539,344 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
               NoPredictionW2far->setBinLabel(indexWheelf[4],camera,1);
 	    }
 	  }
+	}else{//EndCap
+
+	  std::string detUnitLabel, meIdRPC,meIdCSC, bxDistroId, meIdRealRPC  ;
+	 
+	  RPCBookFolderStructure *  folderStr = new RPCBookFolderStructure(); //Anna
+	  std::string folder = "Muons/MuonSegEff/" +  folderStr->folderStructure(rpcId);
+		
+	  meIdRPC = folder +"/RPCDataOccupancyFromCSC_"+ rpcsrv.name();	
+	  meIdCSC =folder+"/ExpectedOccupancyFromCSC_"+ rpcsrv.name();
+	  bxDistroId =folder+"/BXDistribution_"+ rpcsrv.name();
+	  meIdRealRPC =folder+"/RealDetectedOccupancyFromCSC_"+ rpcsrv.name();
+	  
+	  histoRPC= dbe->get(meIdRPC);
+	  histoCSC= dbe->get(meIdCSC);
+	  BXDistribution = dbe->get(bxDistroId);
+	  histoRealRPC = dbe->get(meIdRealRPC);
+
+	  int NumberMasked=0;
+	  int NumberWithOutPrediction=0;
+	  double p = 0;
+	  double o = 0;
+	  float mybxhisto = 0;
+	  float mybxerror = 0;
+	  float ef =0;
+	  float er =0;
+	  float buffef = 0;
+	  float buffer = 0;
+	  float sumbuffef = 0;
+	  float sumbuffer = 0;
+	  float averageeff = 0;
+	  float averageerr = 0;
+
+	  int NumberStripsPointed = 0;
+
+	  if(histoRPC && histoCSC && BXDistribution && histoRealRPC){
+	    if(debug)
+	      std::cout <<rpcsrv.name()<<std::endl;
+
+	    for(int i=1;i<=int((*r)->nstrips());++i){
+	      if(histoRealRPC->getBinContent(i)==0) NumberMasked++;
+	      
+	      if(histoCSC->getBinContent(i)!=0){
+		buffef = float(histoRPC->getBinContent(i))/float(histoCSC->getBinContent(i));
+		buffer = sqrt(buffef*(1.-buffef)/float(histoCSC->getBinContent(i)));
+		sumbuffef=sumbuffef+buffef;
+		sumbuffer = sumbuffer + buffer*buffer;
+		NumberStripsPointed++;
+	      }else{
+  		NumberWithOutPrediction++;
+	      }
+	      
+	      //std::cout<<"\t Strip="<<i<<" RealRPC="<<histoRealRPC->getBinContent(i)<<" RPC="<<histoRPC->getBinContent(i)<<" DT="<<histoDT->getBinContent(i)<<" buffef="<<buffef<<" buffer="<<buffer<<" sumbuffef="<<sumbuffef<<" sumbuffer="<<sumbuffer<<" NumberStripsPointed="<<NumberStripsPointed<<" NumberWithOutPrediction"<<NumberWithOutPrediction<<" Number Masked="<<NumberMasked<<std::endl;
+	    }
+	    p=histoCSC->getTH1F()->Integral();
+	    o=histoRPC->getTH1F()->Integral();
+
+	    if(NumberStripsPointed!=0){
+	      averageeff = (sumbuffef/float(NumberStripsPointed))*100.;
+	      averageerr = sqrt(sumbuffer/float(NumberStripsPointed))*100.;
+	    }
+	    
+	    mybxhisto = 50.+BXDistribution->getMean()*10;
+	    mybxerror = BXDistribution->getRMS()*10;
+	    
+
+	  }
+	  
+	  int Disk = rpcId.station()*rpcId.region();
+
+	  if(p!=0){
+	    ef = float(o)/float(p); 
+	    er = sqrt(ef*(1.-ef)/float(p));
+	  }
+	    
+	  ef=ef*100;
+	  er=er*100;
+	    
+	  std::string camera = rpcsrv.name();
+	    
+	  float maskedratio = (float(NumberMasked)/float((*r)->nstrips()))*100.;
+	  float nopredictionsratio = (float(NumberWithOutPrediction)/float((*r)->nstrips()))*100.;
+	  
+	  /*std::cout<<"p="<<p<<" o="<<o<<std::endl;
+	  std::cout<<"ef="<<ef<<" +/- er="<<er<<std::endl;
+	  std::cout<<"averageeff="<<averageeff<<" +/- averageerr="<<averageerr<<std::endl;
+	  std::cout<<"maskedratio="<<maskedratio<<std::endl;
+	  std::cout<<"nopredictionsratio="<<nopredictionsratio<<std::endl;
+	  */
+ 	  //Near Side
+
+	  if(sector==1||sector==2||sector==6){
+
+	    if(Disk==-3){
+	      indexDisk[0]++;  
+	      EffGlobDm3->setBinContent(indexDisk[0],ef);  
+	      EffGlobDm3->setBinError(indexDisk[0],er);  
+	      EffGlobDm3->setBinLabel(indexDisk[0],camera,1);
+
+	      BXGlobDm3->setBinContent(indexDisk[0],mybxhisto);  
+	      BXGlobDm3->setBinError(indexDisk[0],mybxerror);  
+	      BXGlobDm3->setBinLabel(indexDisk[0],camera,1);
+	      
+	      MaskedGlobDm3->setBinContent(indexDisk[0],maskedratio);  
+	      MaskedGlobDm3->setBinLabel(indexDisk[0],camera,1);
+
+	      AverageEffDm3->setBinContent(indexDisk[0],averageeff);
+	      AverageEffDm3->setBinError(indexDisk[0],averageerr);  
+	      AverageEffDm3->setBinLabel(indexDisk[0],camera,1);
+	      
+	      NoPredictionDm3->setBinContent(indexDisk[0],nopredictionsratio);
+              NoPredictionDm3->setBinLabel(indexDisk[0],camera,1);
+	    }else if(Disk==-2){
+	      indexDisk[1]++;  
+	      EffGlobDm2->setBinContent(indexDisk[1],ef);  
+	      EffGlobDm2->setBinError(indexDisk[1],er);  
+	      EffGlobDm2->setBinLabel(indexDisk[1],camera,1);
+
+	      BXGlobDm2->setBinContent(indexDisk[1],mybxhisto);  
+	      BXGlobDm2->setBinError(indexDisk[1],mybxerror);  
+	      BXGlobDm2->setBinLabel(indexDisk[1],camera,1);
+	      
+	      MaskedGlobDm2->setBinContent(indexDisk[1],maskedratio);  
+	      MaskedGlobDm2->setBinLabel(indexDisk[1],camera,1);
+
+	      AverageEffDm2->setBinContent(indexDisk[1],averageeff);
+	      AverageEffDm2->setBinError(indexDisk[1],averageerr);  
+	      AverageEffDm2->setBinLabel(indexDisk[1],camera,1);
+	      
+	      NoPredictionDm2->setBinContent(indexDisk[1],nopredictionsratio);
+              NoPredictionDm2->setBinLabel(indexDisk[1],camera,1);
+	    }else if(Disk==-1){
+	      indexDisk[2]++;  
+	      EffGlobDm1->setBinContent(indexDisk[2],ef);  
+	      EffGlobDm1->setBinError(indexDisk[2],er);  
+	      EffGlobDm1->setBinLabel(indexDisk[2],camera,1);  
+	      
+	      BXGlobDm1->setBinContent(indexDisk[2],mybxhisto);  
+	      BXGlobDm1->setBinError(indexDisk[2],mybxerror);  
+	      BXGlobDm1->setBinLabel(indexDisk[2],camera,1);
+	      
+	      MaskedGlobDm1->setBinContent(indexDisk[2],maskedratio);  
+	      MaskedGlobDm1->setBinLabel(indexDisk[2],camera,1);
+
+	      AverageEffDm1->setBinContent(indexDisk[2],averageeff);
+	      AverageEffDm1->setBinError(indexDisk[2],averageerr);  
+	      AverageEffDm1->setBinLabel(indexDisk[2],camera,1);
+	      
+	      NoPredictionDm1->setBinContent(indexDisk[2],nopredictionsratio);
+              NoPredictionDm1->setBinLabel(indexDisk[2],camera,1);
+
+	    }else if(Disk==1){
+	      indexDisk[3]++;  
+	      EffGlobD1->setBinContent(indexDisk[3],ef);  
+	      EffGlobD1->setBinError(indexDisk[3],er);  
+	      EffGlobD1->setBinLabel(indexDisk[3],camera,1);  
+	      
+	      BXGlobD1->setBinContent(indexDisk[3],mybxhisto);  
+	      BXGlobD1->setBinError(indexDisk[3],mybxerror);  
+	      BXGlobD1->setBinLabel(indexDisk[3],camera,1);
+
+	      MaskedGlobD1->setBinContent(indexDisk[3],maskedratio);  
+	      MaskedGlobD1->setBinLabel(indexDisk[3],camera,1);
+
+	      AverageEffD1->setBinContent(indexDisk[3],averageeff);
+	      AverageEffD1->setBinError(indexDisk[3],averageerr);  
+	      AverageEffD1->setBinLabel(indexDisk[3],camera,1);
+	      
+	      NoPredictionD1->setBinContent(indexDisk[3],nopredictionsratio);
+              NoPredictionD1->setBinLabel(indexDisk[3],camera,1);	      
+	    }else if(Disk==2){
+	      indexDisk[4]++;
+	      EffGlobD2->setBinContent(indexDisk[4],ef);
+	      EffGlobD2->setBinError(indexDisk[4],er);
+	      EffGlobD2->setBinLabel(indexDisk[4],camera,1);
+
+	      BXGlobD2->setBinContent(indexDisk[4],mybxhisto);  
+	      BXGlobD2->setBinError(indexDisk[4],mybxerror);  
+	      BXGlobD2->setBinLabel(indexDisk[4],camera,1);
+	      
+	      MaskedGlobD2->setBinContent(indexDisk[4],maskedratio);  
+	      MaskedGlobD2->setBinLabel(indexDisk[4],camera,1);
+
+	      AverageEffD2->setBinContent(indexDisk[4],averageeff);
+	      AverageEffD2->setBinError(indexDisk[4],averageerr);  
+	      AverageEffD2->setBinLabel(indexDisk[4],camera,1);
+	      
+	      NoPredictionD2->setBinContent(indexDisk[4],nopredictionsratio);
+              NoPredictionD2->setBinLabel(indexDisk[4],camera,1);	      
+	    }else if(Disk==3){
+	      indexDisk[5]++;
+	      EffGlobD3->setBinContent(indexDisk[5],ef);
+	      EffGlobD3->setBinError(indexDisk[5],er);
+	      EffGlobD3->setBinLabel(indexDisk[5],camera,1);
+
+	      BXGlobD3->setBinContent(indexDisk[5],mybxhisto);  
+	      BXGlobD3->setBinError(indexDisk[5],mybxerror);  
+	      BXGlobD3->setBinLabel(indexDisk[5],camera,1);
+	      
+	      MaskedGlobD3->setBinContent(indexDisk[5],maskedratio);  
+	      MaskedGlobD3->setBinLabel(indexDisk[5],camera,1);
+
+	      AverageEffD3->setBinContent(indexDisk[5],averageeff);
+	      AverageEffD3->setBinError(indexDisk[5],averageerr);  
+	      AverageEffD3->setBinLabel(indexDisk[5],camera,1);
+	      
+	      NoPredictionD3->setBinContent(indexDisk[5],nopredictionsratio);
+              NoPredictionD3->setBinLabel(indexDisk[5],camera,1);	      
+	    }
+	  }else{//Far Side 
+	    
+	    if(Disk==-3){
+	      indexDiskf[0]++;  
+	      EffGlobDm3far->setBinContent(indexDiskf[0],ef);  
+	      EffGlobDm3far->setBinError(indexDiskf[0],er);  
+	      EffGlobDm3far->setBinLabel(indexDiskf[0],camera,1);
+
+	      BXGlobDm3far->setBinContent(indexDiskf[0],mybxhisto);  
+	      BXGlobDm3far->setBinError(indexDiskf[0],mybxerror);  
+	      BXGlobDm3far->setBinLabel(indexDiskf[0],camera);
+	      
+	      MaskedGlobDm3far->setBinContent(indexDiskf[0],maskedratio);
+	      MaskedGlobDm3far->setBinLabel(indexDiskf[0],camera,1);
+	      
+	      AverageEffDm3far->setBinContent(indexDiskf[0],averageeff);
+              AverageEffDm3far->setBinError(indexDiskf[0],averageerr);
+              AverageEffDm3far->setBinLabel(indexDiskf[0],camera,1);
+
+              NoPredictionDm3->setBinContent(indexDisk[0],nopredictionsratio);
+              NoPredictionDm3->setBinLabel(indexDisk[0],camera,1);
+
+	    }
+	    else if(Disk==-2){
+	      indexDiskf[1]++;  
+	      EffGlobDm2far->setBinContent(indexDiskf[1],ef);  
+	      EffGlobDm2far->setBinError(indexDiskf[1],er);  
+	      EffGlobDm2far->setBinLabel(indexDiskf[1],camera,1);
+
+	      BXGlobDm2far->setBinContent(indexDiskf[1],mybxhisto);  
+	      BXGlobDm2far->setBinError(indexDiskf[1],mybxerror);  
+	      BXGlobDm2far->setBinLabel(indexDiskf[1],camera);
+	      
+	      MaskedGlobDm2far->setBinContent(indexDiskf[1],maskedratio);
+	      MaskedGlobDm2far->setBinLabel(indexDiskf[1],camera,1);
+	      
+	      AverageEffDm2far->setBinContent(indexDiskf[1],averageeff);
+              AverageEffDm2far->setBinError(indexDiskf[1],averageerr);
+              AverageEffDm2far->setBinLabel(indexDiskf[1],camera,1);
+
+              NoPredictionDm2->setBinContent(indexDisk[1],nopredictionsratio);
+              NoPredictionDm2->setBinLabel(indexDisk[1],camera,1);
+
+	    }else if(Disk==-1){
+	      indexDiskf[2]++;  
+	      EffGlobDm1far->setBinContent(indexDiskf[2],ef);  
+	      EffGlobDm1far->setBinError(indexDiskf[2],er);  
+	      EffGlobDm1far->setBinLabel(indexDiskf[2],camera,1);  
+	      
+	      BXGlobDm1far->setBinContent(indexDiskf[2],mybxhisto);  
+	      BXGlobDm1far->setBinError(indexDiskf[2],mybxerror);  
+	      BXGlobDm1far->setBinLabel(indexDiskf[2],camera,1);
+	      
+	      MaskedGlobDm1far->setBinContent(indexDiskf[2],maskedratio);
+	      MaskedGlobDm1far->setBinLabel(indexDiskf[2],camera,1);
+
+	      AverageEffDm1far->setBinContent(indexDiskf[2],averageeff);
+              AverageEffDm1far->setBinError(indexDiskf[2],averageerr);
+              AverageEffDm1far->setBinLabel(indexDiskf[2],camera,1);
+
+              NoPredictionDm1far->setBinContent(indexDiskf[2],nopredictionsratio);
+              NoPredictionDm1far->setBinLabel(indexDiskf[2],camera,1);
+
+	    }else if(Disk==1){
+	      indexDiskf[3]++;  
+	      EffGlobD1far->setBinContent(indexDiskf[3],ef);  
+	      EffGlobD1far->setBinError(indexDiskf[3],er);  
+	      EffGlobD1far->setBinLabel(indexDiskf[3],camera,1);  
+	      
+	      BXGlobD1far->setBinContent(indexDiskf[3],mybxhisto);  
+	      BXGlobD1far->setBinError(indexDiskf[3],mybxerror);  
+	      BXGlobD1far->setBinLabel(indexDiskf[3],camera,1);
+
+	      MaskedGlobD1far->setBinContent(indexDiskf[3],maskedratio);
+	      MaskedGlobD1far->setBinLabel(indexDiskf[3],camera,1);
+	      
+	      AverageEffD1far->setBinContent(indexDiskf[3],averageeff);
+              AverageEffD1far->setBinError(indexDiskf[3],averageerr);
+              AverageEffD1far->setBinLabel(indexDiskf[3],camera,1);
+
+              NoPredictionD1far->setBinContent(indexDiskf[3],nopredictionsratio);
+              NoPredictionD1far->setBinLabel(indexDiskf[3],camera,1);
+
+	    }else if(Disk==2){
+	      indexDiskf[4]++;
+	      EffGlobD2far->setBinContent(indexDiskf[4],ef);
+	      EffGlobD2far->setBinError(indexDiskf[4],er);
+	      EffGlobD2far->setBinLabel(indexDiskf[4],camera,1);
+
+	      BXGlobD2far->setBinContent(indexDiskf[4],mybxhisto);  
+	      BXGlobD2far->setBinError(indexDiskf[4],mybxerror);  
+	      BXGlobD2far->setBinLabel(indexDiskf[4],camera,1);
+	      
+	      MaskedGlobD2far->setBinContent(indexDiskf[4],maskedratio);
+	      MaskedGlobD2far->setBinLabel(indexDiskf[4],camera,1);
+
+	      AverageEffD2far->setBinContent(indexDiskf[4],averageeff);
+              AverageEffD2far->setBinError(indexDiskf[4],averageerr);
+              AverageEffD2far->setBinLabel(indexDiskf[4],camera,1);
+
+              NoPredictionD2far->setBinContent(indexDiskf[4],nopredictionsratio);
+              NoPredictionD2far->setBinLabel(indexDiskf[4],camera,1);
+	    }else if(Disk==3){
+	      indexDiskf[5]++;
+	      EffGlobD3far->setBinContent(indexDiskf[5],ef);
+	      EffGlobD3far->setBinError(indexDiskf[5],er);
+	      EffGlobD3far->setBinLabel(indexDiskf[5],camera,1);
+
+	      BXGlobD3far->setBinContent(indexDiskf[5],mybxhisto);  
+	      BXGlobD3far->setBinError(indexDiskf[5],mybxerror);  
+	      BXGlobD3far->setBinLabel(indexDiskf[5],camera,1);
+	      
+	      MaskedGlobD3far->setBinContent(indexDiskf[5],maskedratio);
+	      MaskedGlobD3far->setBinLabel(indexDiskf[5],camera,1);
+
+	      AverageEffD3far->setBinContent(indexDiskf[5],averageeff);
+              AverageEffD3far->setBinError(indexDiskf[5],averageerr);
+              AverageEffD3far->setBinLabel(indexDiskf[5],camera,1);
+
+              NoPredictionD3far->setBinContent(indexDiskf[5],nopredictionsratio);
+              NoPredictionD3far->setBinLabel(indexDiskf[5],camera,1);
+	    }
+	  }//Finishing EndCap
 	}
       }
     }
   }
+
+  //Ranges for Both
+  //Barrel
   
   EffGlobWm2->setAxisRange(0.,100.,2);
   EffGlobWm1->setAxisRange(0.,100.,2);
@@ -476,8 +925,82 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
   NoPredictionW0far->setAxisRange(0.,100.,2);
   NoPredictionW1far->setAxisRange(0.,100.,2);
   NoPredictionW2far->setAxisRange(0.,100.,2);
+  
+  //EndCap
+   
+  EffGlobDm3->setAxisRange(0.,100.,2);
+  EffGlobDm2->setAxisRange(0.,100.,2);
+  EffGlobDm1->setAxisRange(0.,100.,2);
+  EffGlobD1->setAxisRange(0.,100.,2);
+  EffGlobD2->setAxisRange(0.,100.,2);
+  EffGlobD3->setAxisRange(0.,100.,2);
 
-  //Title
+  EffGlobDm3far->setAxisRange(0.,100.,2);
+  EffGlobDm2far->setAxisRange(0.,100.,2);
+  EffGlobDm1far->setAxisRange(0.,100.,2);
+  EffGlobD1far->setAxisRange(0.,100.,2);
+  EffGlobD2far->setAxisRange(0.,100.,2);
+  EffGlobD3far->setAxisRange(0.,100.,2);
+
+  BXGlobDm3->setAxisRange(0.,100.,2);
+  BXGlobDm2->setAxisRange(0.,100.,2);
+  BXGlobDm1->setAxisRange(0.,100.,2);
+  BXGlobD1->setAxisRange(0.,100.,2);
+  BXGlobD2->setAxisRange(0.,100.,2);
+  BXGlobD3->setAxisRange(0.,100.,2);
+  
+  BXGlobDm3far->setAxisRange(0.,100.,2);
+  BXGlobDm2far->setAxisRange(0.,100.,2);
+  BXGlobDm1far->setAxisRange(0.,100.,2);
+  BXGlobD1far->setAxisRange(0.,100.,2);
+  BXGlobD2far->setAxisRange(0.,100.,2);
+  BXGlobD3far->setAxisRange(0.,100.,2);
+
+  MaskedGlobDm3->setAxisRange(0.,100.,2);
+  MaskedGlobDm2->setAxisRange(0.,100.,2);
+  MaskedGlobDm1->setAxisRange(0.,100.,2);
+  MaskedGlobD1->setAxisRange(0.,100.,2);
+  MaskedGlobD2->setAxisRange(0.,100.,2);
+  MaskedGlobD3->setAxisRange(0.,100.,2);
+  
+  MaskedGlobDm3far->setAxisRange(0.,100.,2);
+  MaskedGlobDm2far->setAxisRange(0.,100.,2);
+  MaskedGlobDm1far->setAxisRange(0.,100.,2);
+  MaskedGlobD1far->setAxisRange(0.,100.,2);
+  MaskedGlobD2far->setAxisRange(0.,100.,2);
+  MaskedGlobD3far->setAxisRange(0.,100.,2);
+
+  AverageEffDm3->setAxisRange(0.,100.,2);
+  AverageEffDm2->setAxisRange(0.,100.,2);
+  AverageEffDm1->setAxisRange(0.,100.,2);
+  AverageEffD1->setAxisRange(0.,100.,2);
+  AverageEffD2->setAxisRange(0.,100.,2);
+  AverageEffD3->setAxisRange(0.,100.,2);
+
+  AverageEffDm3far->setAxisRange(0.,100.,2);
+  AverageEffDm2far->setAxisRange(0.,100.,2);
+  AverageEffDm1far->setAxisRange(0.,100.,2);
+  AverageEffD1far->setAxisRange(0.,100.,2);
+  AverageEffD2far->setAxisRange(0.,100.,2);
+  AverageEffD3far->setAxisRange(0.,100.,2);
+
+  NoPredictionDm3->setAxisRange(0.,100.,2);
+  NoPredictionDm2->setAxisRange(0.,100.,2);
+  NoPredictionDm1->setAxisRange(0.,100.,2);
+  NoPredictionD1->setAxisRange(0.,100.,2);
+  NoPredictionD2->setAxisRange(0.,100.,2);
+  NoPredictionD3->setAxisRange(0.,100.,2);
+
+  NoPredictionDm3far->setAxisRange(0.,100.,2);
+  NoPredictionDm2far->setAxisRange(0.,100.,2);
+  NoPredictionDm1far->setAxisRange(0.,100.,2);
+  NoPredictionD1far->setAxisRange(0.,100.,2);
+  NoPredictionD2far->setAxisRange(0.,100.,2);
+  NoPredictionD3far->setAxisRange(0.,100.,2);
+
+
+  //Title for Both
+  //Barrel
 
   EffGlobWm2->setAxisTitle("%",2);
   EffGlobWm1->setAxisTitle("%",2);
@@ -527,7 +1050,80 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
   NoPredictionW1far->setAxisTitle("%",2);
   NoPredictionW2far->setAxisTitle("%",2);
 
-  std::cout<<"Saving RootFile"<<std::endl;
+  //EndCap
+
+  EffGlobDm3->setAxisTitle("%",2);
+  EffGlobDm2->setAxisTitle("%",2);
+  EffGlobDm1->setAxisTitle("%",2);
+  EffGlobD1->setAxisTitle("%",2);
+  EffGlobD2->setAxisTitle("%",2);
+  EffGlobD3->setAxisTitle("%",2);
+
+  EffGlobDm3far->setAxisTitle("%",2);
+  EffGlobDm2far->setAxisTitle("%",2);
+  EffGlobDm1far->setAxisTitle("%",2);
+  EffGlobD1far->setAxisTitle("%",2);
+  EffGlobD2far->setAxisTitle("%",2);
+  EffGlobD3far->setAxisTitle("%",2);
+
+  BXGlobDm3->setAxisTitle("%",2);
+  BXGlobDm2->setAxisTitle("%",2);
+  BXGlobDm1->setAxisTitle("%",2);
+  BXGlobD1->setAxisTitle("%",2);
+  BXGlobD2->setAxisTitle("%",2);
+  BXGlobD3->setAxisTitle("%",2);
+  
+  BXGlobDm3far->setAxisTitle("%",2);
+  BXGlobDm2far->setAxisTitle("%",2);
+  BXGlobDm1far->setAxisTitle("%",2);
+  BXGlobD1far->setAxisTitle("%",2);
+  BXGlobD2far->setAxisTitle("%",2);
+  BXGlobD3far->setAxisTitle("%",2);
+
+  MaskedGlobDm3->setAxisTitle("%",2);
+  MaskedGlobDm2->setAxisTitle("%",2);
+  MaskedGlobDm1->setAxisTitle("%",2);
+  MaskedGlobD1->setAxisTitle("%",2);
+  MaskedGlobD2->setAxisTitle("%",2);
+  MaskedGlobD3->setAxisTitle("%",2);
+  
+  MaskedGlobDm3far->setAxisTitle("%",2);
+  MaskedGlobDm2far->setAxisTitle("%",2);
+  MaskedGlobDm1far->setAxisTitle("%",2);
+  MaskedGlobD1far->setAxisTitle("%",2);
+  MaskedGlobD2far->setAxisTitle("%",2);
+  MaskedGlobD3far->setAxisTitle("%",2);
+
+  AverageEffDm3->setAxisTitle("%",2);
+  AverageEffDm2->setAxisTitle("%",2);
+  AverageEffDm1->setAxisTitle("%",2);
+  AverageEffD1->setAxisTitle("%",2);
+  AverageEffD2->setAxisTitle("%",2);
+  AverageEffD3->setAxisTitle("%",2);
+
+  AverageEffDm3far->setAxisTitle("%",2);
+  AverageEffDm2far->setAxisTitle("%",2);
+  AverageEffDm1far->setAxisTitle("%",2);
+  AverageEffD1far->setAxisTitle("%",2);
+  AverageEffD2far->setAxisTitle("%",2);
+  AverageEffD3far->setAxisTitle("%",2);
+
+  NoPredictionDm3->setAxisTitle("%",2);
+  NoPredictionDm2->setAxisTitle("%",2);
+  NoPredictionDm1->setAxisTitle("%",2);
+  NoPredictionD1->setAxisTitle("%",2);
+  NoPredictionD2->setAxisTitle("%",2);
+  NoPredictionD3->setAxisTitle("%",2);
+
+  NoPredictionDm3far->setAxisTitle("%",2);
+  NoPredictionDm2far->setAxisTitle("%",2);
+  NoPredictionDm1far->setAxisTitle("%",2);
+  NoPredictionD1far->setAxisTitle("%",2);
+  NoPredictionD2far->setAxisTitle("%",2);
+  NoPredictionD3far->setAxisTitle("%",2);
+
+  if(debug)
+    std::cout<<"Saving RootFile"<<std::endl;
   //dbe->rmdir("RPC");
   if(SaveFile)dbe->save(NameFile);
 

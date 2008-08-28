@@ -7,7 +7,7 @@
  *
  * \author Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
  *
- * \version $Id: BeamSpotObjects.h,v 1.4 2008/02/01 17:16:26 yumiceva Exp $
+ * \version $Id: BeamSpotObjects.h,v 1.3 2007/03/30 18:28:37 yumiceva Exp $
  *
  */
 
@@ -20,8 +20,7 @@ class BeamSpotObjects {
   public:
 
 	/// default constructor
-	BeamSpotObjects(): sigmaZ_(0), beamwidth_(0),
-		dxdz_(0), dydz_(0), type_(-1) {
+	BeamSpotObjects(): sigmaZ_(0), beamwidth_(0), dxdz_(0), dydz_(0) {
 		
 		std::memset(position_, 0, sizeof position_);
 		std::memset(covariance_, 0, sizeof covariance_);
@@ -47,8 +46,6 @@ class BeamSpotObjects {
 	void SetCovariance(int i, int j, double val) {
 		covariance_[i][j] = val;
 	}
-	/// set beam type
-	void SetType(int type) { type_ = type; }
 
 	/// get X beam position
 	double GetX() const { return position_[0]; }
@@ -80,9 +77,6 @@ class BeamSpotObjects {
 	double GetdxdzError() const { return sqrt(covariance_[4][4]); }
 	/// get dydz slope, crossing angle in YZ Error
 	double GetdydzError() const { return sqrt(covariance_[5][5]); }
-	/// get beam type
-	int GetBeamType() const { return type_; }
-	
 	/// print beam spot parameters
 	void print(std::stringstream& ss) const;
 
@@ -94,7 +88,6 @@ class BeamSpotObjects {
 	double dxdz_;
 	double dydz_;
 	double covariance_[7][7];
-	int type_;
 	
 };
 

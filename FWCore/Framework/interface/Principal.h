@@ -29,23 +29,22 @@ pointer to a Group, when queried.
 #include "DataFormats/Provenance/interface/BranchMapper.h"
 #include "DataFormats/Provenance/interface/EventEntryInfo.h"
 #include "DataFormats/Common/interface/EDProductGetter.h"
+#include "DataFormats/Common/interface/OutputHandle.h"
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "DataFormats/Provenance/interface/ProductStatus.h"
+#include "FWCore/Framework/interface/Group.h"
 #include "FWCore/Framework/interface/NoDelayedReader.h"
 
 
 namespace edm {
-  template <typename T>
   class Principal : public EDProductGetter {
   public:
-    typedef GroupT<T> Group;
-    typedef BranchMapper<T> Mapper;
     typedef std::map<BranchID, boost::shared_ptr<Group> > GroupCollection;
-    typedef typename GroupCollection::const_iterator const_iterator;
+    typedef GroupCollection::const_iterator const_iterator;
     typedef ProcessHistory::const_iterator ProcessNameConstIterator;
     typedef boost::shared_ptr<const Group> SharedConstGroupPtr;
-    typedef typename std::vector<BasicHandle> BasicHandleVec;
-    typedef typename GroupCollection::size_type      size_type;
+    typedef std::vector<BasicHandle> BasicHandleVec;
+    typedef GroupCollection::size_type      size_type;
 
     typedef boost::shared_ptr<Group> SharedGroupPtr;
     typedef std::string ProcessName;
@@ -53,13 +52,14 @@ namespace edm {
     Principal(boost::shared_ptr<ProductRegistry const> reg,
 	      ProcessConfiguration const& pc,
               ProcessHistoryID const& hist = ProcessHistoryID(),
-              boost::shared_ptr<Mapper> mapper = boost::shared_ptr<Mapper>(new Mapper),
+              boost::shared_ptr<BranchMapper> mapper = boost::shared_ptr<BranchMapper>(new BranchMapper),
               boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader));
 
     virtual ~Principal();
 
     EDProductGetter const* prodGetter() const {return this;}
 
+    template <typename T>
     OutputHandle<T>  getForOutput(BranchID const& bid, bool getProd) const;
 
     BasicHandle  getBySelector(TypeID const& tid,
@@ -109,7 +109,7 @@ namespace edm {
 
     boost::shared_ptr<DelayedReader> store() const {return store_;}
 
-    boost::shared_ptr<Mapper> branchMapperPtr() const {return branchMapperPtr_;}
+    boost::shared_ptr<BranchMapper> branchMapperPtr() const {return branchMapperPtr_;}
 
     // ----- Mark this Principal as having been updated in the
     // current Process.
@@ -184,13 +184,30 @@ namespace edm {
 
     // Pointer to the 'mapper' that will get provenance information
     // from the persistent store.
-    boost::shared_ptr<Mapper> branchMapperPtr_;
+    boost::shared_ptr<BranchMapper> branchMapperPtr_;
 
     // Pointer to the 'source' that will be used to obtain EDProducts
     // from the persistent store.
     boost::shared_ptr<DelayedReader> store_;
   };
-}
 
-#include "Principal.icc"
+  template <typename T>
+  OutputHandle<T>
+  Principal::getForOutput(BranchID const& bid, bool getProd) const {
+    SharedConstGroupPtr const& g = getGroup(bid, getProd, true, false);
+    if (g.get() == 0) {
+      return OutputHandle<T>();
+    }
+    if (getProd && (g->product() == 0 || !g->product()->isPresent()) &&
+	    g->productDescription().branchType() == InEvent &&
+            productstatus::present(g->entryInfoPtr()->productStatus())) {
+        throw edm::Exception(edm::errors::LogicError, "Principal::getForOutput\n")
+         << "A product with a status of 'present' is not actually present.\n"
+         << "The branch name is " << g->productDescription().branchName() << "\n"
+         << "Contact a framework developer.\n";
+    }
+    return OutputHandle<T>(g->product(), &g->productDescription(), g->entryInfoPtr());
+  }
+
+}
 #endif

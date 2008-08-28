@@ -17,17 +17,21 @@
 // Includes
 // -------------------------------------------------------------------------
 #include "DDLRotationAndReflection.h"
+#include "DDLElementRegistry.h"
 
 // DDCore dependencies
+#include "DetectorDescription/Core/interface/DDPosPart.h"
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
+#include "DetectorDescription/Base/interface/DDException.h"
 
 #include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
 
 //CLHEP dependency
 #include "CLHEP/Units/SystemOfUnits.h"
 
+#include <string>
 #include <cmath>
 
 // CMSSW Framework Dependency

@@ -8,8 +8,8 @@
 
 /** \class HcalRecHitMonitor
   *  
-  * $Date: 2008/08/17 15:15:20 $
-  * $Revision: 1.18 $
+  * $Date: 2008/03/01 00:39:58 $
+  * $Revision: 1.16 $
   * \author W. Fisher - FNAL
   */
 class HcalRecHitMonitor: public HcalBaseMonitor {
@@ -19,8 +19,6 @@ public:
 
   void setup(const edm::ParameterSet& ps, DQMStore* dbe);
   void processEvent(const HBHERecHitCollection& hbHits, const HORecHitCollection& hoHits, const HFRecHitCollection& hfHits);
-  // For now, keep the ZDC stuff separate from the rest of the processEvent code.  Merge it once ZDC is stable
-  void processZDC(const ZDCRecHitCollection& zdcHits);
   void reset();
 
 private:  ///Monitoring elements
@@ -67,19 +65,6 @@ private:  ///Monitoring elements
   MonitorElement* hfshort_meRECHIT_E_low;
   MonitorElement* hfshort_meRECHIT_T_all;
 
-  // ZDC plots
-  // TH1F
-  MonitorElement* ZDCtanAlpha;
-  MonitorElement* ZDCaverageX;
-  // TH2F
-  MonitorElement* ZDCxplusVSxminus;
-  MonitorElement* ZDChadVSem_plus;
-  MonitorElement* ZDChadVSem_minus;
-  MonitorElement* ZDCenergy_plusVSminus;
-  
-  // TProfile
-  MonitorElement* ZDCenergyVSlayer_plus;
-  MonitorElement* ZDCenergyVSlayer_minus;
 
 };
 

@@ -5,4 +5,3 @@ MuonTransientTrackingRecHitBuilderESProducer = cms.ESProducer("MuonTransientTrac
 )
 
 
-

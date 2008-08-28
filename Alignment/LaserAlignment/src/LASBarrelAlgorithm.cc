@@ -38,7 +38,7 @@ LASBarrelAlignmentParameterSet LASBarrelAlgorithm::CalculateParameters( LASGloba
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////
   // for testing..
-  //ReadMisalignmentFromFile( "misalign-var.txt", measuredCoordinates, nominalCoordinates );
+  ReadMisalignmentFromFile( "misalign-var.txt", measuredCoordinates, nominalCoordinates );
   ///////////////////////////////////////////////////////////////////////////////////////////////////
     
 
@@ -84,14 +84,14 @@ LASBarrelAlignmentParameterSet LASBarrelAlgorithm::CalculateParameters( LASGloba
 
   // step sizes: to be tuned, to be evacuated to cfg
   static float _vstep[52] = { 
-    0.001, 0.001, 0.1, 0.1, 0.1, 0.1, // subdet for TIB+
-    0.001, 0.001, 0.1, 0.1, 0.1, 0.1, // subdet for TIB-
-    0.001, 0.001, 0.1, 0.1, 0.1, 0.1, // subdet for TOB+
-    0.001, 0.001, 0.1, 0.1, 0.1, 0.1, // subdet for TOB-
-    0.001, 0.001, 0.1, 0.1, 0.1, 0.1, // subdet for TEC+
-    0.001, 0.001, 0.1, 0.1, 0.1, 0.1, // subdet for TEC-
-    0.001, 0.001, 0.001, 0.001,  0.001, 0.001,  0.001, 0.001, // beams 0-3
-    0.001, 0.001, 0.001, 0.001,  0.001, 0.001,  0.001, 0.001  // beams 4-7
+    0.0001, 0.0001, 0.1, 0.1, 0.1, 0.1, // subdet for TIB+
+    0.0001, 0.0001, 0.1, 0.1, 0.1, 0.1, // subdet for TIB-
+    0.0001, 0.0001, 0.1, 0.1, 0.1, 0.1, // subdet for TOB+
+    0.0001, 0.0001, 0.1, 0.1, 0.1, 0.1, // subdet for TOB-
+    0.0001, 0.0001, 0.1, 0.1, 0.1, 0.1, // subdet for TEC+
+    0.0001, 0.0001, 0.1, 0.1, 0.1, 0.1, // subdet for TEC-
+    0.0001, 0.0001,  0.0001, 0.0001,  0.0001, 0.0001,  0.0001, 0.0001, // beams 0-3
+    0.0001, 0.0001,  0.0001, 0.0001,  0.1000, 0.0001,  0.0001, 0.0001  // beams 4-7
   };
 
 
@@ -233,34 +233,25 @@ LASBarrelAlignmentParameterSet LASBarrelAlgorithm::CalculateParameters( LASGloba
   // as a reference system (pars 25,27,29 & 30,32,34)
   // note: minuit numbering is fortran style...
   arglist[0] = 26; arglist[1] = 28; arglist[2] = 30;
-  //  minuit->mnexcm( "FIX", arglist ,3, _ierflg ); // TEC+
+  minuit->mnexcm( "FIX", arglist ,3, _ierflg ); // TEC+
   arglist[0] = 31; arglist[1] = 33; arglist[2] = 35;
-  //  minuit->mnexcm( "FIX", arglist ,3, _ierflg ); // TEC-
-
-
+  minuit->mnexcm( "FIX", arglist ,3, _ierflg ); // TEC-
 
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////
   // DEBUG: FIX BEAM PARAMETERS /////////////////////////////////////////////////////////////////////
-    double parlist[16];
-    for( int par = 37; par <= 52; ++par ) parlist[par-37] = par;
-    minuit->mnexcm( "FIX", parlist ,16, _ierflg );
+//   double parlist[16];
+//   for( int par = 37; par <= 52; ++par ) parlist[par-37] = par;
+//   minuit->mnexcm( "FIX", parlist ,16, _ierflg );
   ///////////////////////////////////////////////////////////////////////////////////////////////////
-
-  ///////////////////////////////////////////////////////////////////////////////////////////////////
-  // DEBUG: FIX ALGN PARAMETERS /////////////////////////////////////////////////////////////////////
-//   double parlist[36];
-//   for( int par = 1; par <= 36; ++par ) parlist[par-1] = par;
-//   minuit->mnexcm( "FIX", parlist ,36, _ierflg );
-  ///////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 
   // now ready for minimization step
-  arglist[0] = 10000;
-  arglist[1] = 0.1;
-  minuit->mnexcm( "MIGRAD", arglist , 2, _ierflg ); // minimizer
-  //  minuit->mnexcm( "MINOS", arglist , 1, _ierflg ); // error recalculation
+  arglist[0] = 5000;
+  arglist[1] = 0.01;
+  minuit->mnexcm( "MIGRAD", arglist , 2, _ierflg );
+
+  Dump();
 
   // now fill the result vector.
   // turned out that the parameter numbering is stupid, change this later..
@@ -368,11 +359,12 @@ void fcn( int &npar, double *gin, double &f, double *par, int iflag )  {
   endFaceZPositions.at( 3 ).at( 0 ).at( 0 ) = 300.;   // TOB,  +, small z
   endFaceZPositions.at( 3 ).at( 0 ).at( 1 ) = 1090.;  // TOB,  +, large z
 
-  // the z positions of the virtual planes at which the beam parameters are measured
+  // the z positions of the TEC outer disks (9) in mm
+  // (in priciple one could also use the above vector set here, but it's more compact)
   std::vector<double> disk9EndFaceZPositions( 2, 0. );
   disk9EndFaceZPositions.at( 0 ) = -2595.; // TEC- disk9
   disk9EndFaceZPositions.at( 1 ) =  2595.; // TEC+ disk9
-  
+
   // reduced z positions of the beam spots ( z'_{k,j}, z"_{k,j} )
   double detReducedZ[2] = { 0., 0. };
   // reduced beam splitter positions ( zt'_{k,j}, zt"_{k,j} )
@@ -384,11 +376,7 @@ void fcn( int &npar, double *gin, double &f, double *par, int iflag )  {
 
     // define the side: 0 for TIB+/TOB+ and 1 for TIB-/TOB-
     const int theSide = pos<3 ? 0 : 1;
-
-    // this is the path the beam has to travel radially after being reflected 
-    // by the AT mirrors (TIB:50mm, TOB:36mm) -> used for beam parameters
-    const double radialOffset = det==2 ? 50. : 36.;
-
+    
     // reduced module's z position with respect to the subdetector endfaces
     detReducedZ[0] = aMeasuredCoordinates->GetTIBTOBEntry( det, beam, pos ).GetZ() - endFaceZPositions.at( det ).at( theSide ).at( 0 );
     detReducedZ[0] /= ( endFaceZPositions.at( det ).at( theSide ).at( 1 ) - endFaceZPositions.at( det ).at( theSide ).at( 0 ) );
@@ -396,11 +384,10 @@ void fcn( int &npar, double *gin, double &f, double *par, int iflag )  {
     detReducedZ[1] /= ( endFaceZPositions.at( det ).at( theSide ).at( 1 ) - endFaceZPositions.at( det ).at( theSide ).at( 0 ) );
 
     // reduced module's z position with respect to the tec disks +-9 (for the beam parameters)
-    beamReducedZ[0] = ( aMeasuredCoordinates->GetTIBTOBEntry( det, beam, pos ).GetZ() - radialOffset ) - disk9EndFaceZPositions.at( 0 );
+    beamReducedZ[0] = aMeasuredCoordinates->GetTIBTOBEntry( det, beam, pos ).GetZ() - disk9EndFaceZPositions.at( 0 );
     beamReducedZ[0] /= ( disk9EndFaceZPositions.at( 1 ) - disk9EndFaceZPositions.at( 0 ) );
-    beamReducedZ[1] = disk9EndFaceZPositions.at( 1 ) - ( aMeasuredCoordinates->GetTIBTOBEntry( det, beam, pos ).GetZ() - radialOffset );
+    beamReducedZ[1] = disk9EndFaceZPositions.at( 1 ) - aMeasuredCoordinates->GetTIBTOBEntry( det, beam, pos ).GetZ();
     beamReducedZ[1] /= ( disk9EndFaceZPositions.at( 1 ) - disk9EndFaceZPositions.at( 0 ) );
-
 
     // phi residual for this module as measured
     const double measuredResidual = aMeasuredCoordinates->GetTIBTOBEntry( det, beam, pos ).GetPhi() - //&
@@ -457,7 +444,7 @@ void fcn( int &npar, double *gin, double &f, double *par, int iflag )  {
     calculatedResidual += beamReducedZ[1] * par[indexBase];
 
     // ("beamRot2"): rotation around z at zt2
-    calculatedResidual += beamReducedZ[0] * par[indexBase+1];
+    calculatedResidual +=  beamReducedZ[0] * par[indexBase+1];
  
 
     // now calculate the chisquare
@@ -532,7 +519,7 @@ void fcn( int &npar, double *gin, double &f, double *par, int iflag )  {
     calculatedResidual += beamReducedZ[1] * par[indexBase];
 
     // par[7] ("beamRot2"): rotation around z at zt2
-    calculatedResidual += beamReducedZ[0] * par[indexBase+1];
+    calculatedResidual +=  beamReducedZ[0] * par[indexBase+1];
  
 
     // now calculate the chisquare 
@@ -605,7 +592,7 @@ void LASBarrelAlgorithm::Dump( void ) {
   for( int beam = 0; beam < 8; ++beam ) {
     std::cout << " " << beam << "  ";
     for( int z = 0; z < 2; ++z ) {
-      minuit->GetParameter( 36 + 2 * beam + z, value, error );
+      minuit->GetParameter( 36 + beam + z, value, error );
       std::cout << std::setw( 12 ) << std::setprecision( 6 ) << std::fixed << value;
     }
     std::cout << std::endl;
@@ -615,7 +602,7 @@ void LASBarrelAlgorithm::Dump( void ) {
   for( int beam = 0; beam < 8; ++beam ) {
     std::cout << " " << beam << "  ";
     for( int z = 0; z < 2; ++z ) {
-      minuit->GetParameter( 36 + 2 * beam + z, value, error );
+      minuit->GetParameter( 36 + beam + z, value, error );
       std::cout << std::setw( 12 ) << std::setprecision( 6 ) << std::fixed << error;
     }
     std::cout << std::endl;
@@ -642,7 +629,7 @@ void LASBarrelAlgorithm::Dump( void ) {
   file.open( "/afs/cern.ch/user/o/olzem/public/parameters_beam.txt" );
   for( int beam = 0; beam < 8; ++beam ) {
     for( int z = 0; z < 2; ++z ) {
-      minuit->GetParameter( 36 + 2 * beam + z, value, error );
+      minuit->GetParameter( 36 + beam + z, value, error );
       file << std::setw( 12 ) << std::setprecision( 6 ) << std::fixed << value;
     }
     file << std::endl;

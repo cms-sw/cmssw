@@ -317,8 +317,8 @@ namespace edm {
 						   sd->processHistory().id()));
     // no process name list handling
 
-    SendProds const& sps = sd->products();
-    for(SendProds::const_iterator spi = sps.begin(), spe = sps.end(); spi != spe; ++spi) {
+    SendProds & sps = sd->products();
+    for(SendProds::iterator spi = sps.begin(), spe = sps.end(); spi != spe; ++spi) {
         FDEBUG(10) << "check prodpair" << std::endl;
         if(spi->desc() == 0)
           throw cms::Exception("StreamTranslation","Empty Provenance");
@@ -347,6 +347,7 @@ namespace edm {
           ep->addGroup(branchDesc, eventEntryDesc);
           FDEBUG(10) << "addgroup empty done" << std::endl;
         }
+        spi->clear();
     }
 
     FDEBUG(10) << "Size = " << ep->size() << std::endl;

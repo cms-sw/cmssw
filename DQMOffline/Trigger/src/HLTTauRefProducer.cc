@@ -168,19 +168,18 @@ HLTTauRefProducer::doElectrons(edm::Event& iEvent,const edm::EventSetup& iES)
   
   edm::Handle<reco::ElectronIDAssociationCollection> pEleID;
   if(e_doID_){//UGLY HACK UNTIL GET ELETRON ID WORKING IN 210
-    try{
+   
       iEvent.getByLabel(e_idAssocProd_,pEleID);
-    }
-    catch (cms::Exception){
-      edm::LogError("")<< "Error! Can't get electronIDAssocProducer by label. ";
+    
+    if (!pEleID.isValid()){
+      edm::LogInfo("")<< "Error! Can't get electronIDAssocProducer by label. ";
     }
   }
   edm::Handle<reco::TrackCollection> pCtfTracks;
-  try{
-    iEvent.getByLabel(e_ctfTrackCollection_, pCtfTracks);
-  } 
-  catch(cms::Exception){
-    edm::LogError("")<< "Error! Can't get " << e_ctfTrackCollection_.label() << " by label. ";
+  iEvent.getByLabel(e_ctfTrackCollection_, pCtfTracks);
+  if (!pCtfTracks.isValid()) {
+  edm::LogInfo("")<< "Error! Can't get " << e_ctfTrackCollection_.label() << " by label. ";
+  return;
   }
   const reco::TrackCollection * ctfTracks = pCtfTracks.product();
   edm::Handle<GsfElectronCollection> electrons;

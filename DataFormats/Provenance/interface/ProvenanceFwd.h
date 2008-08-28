@@ -24,7 +24,7 @@ namespace edm {
   class RunAuxiliary;
   class RunID;
   class Timestamp;
-  template <typename T> class BranchMapper;
+  class BranchMapper;
 }
 #include "DataFormats/Provenance/interface/EntryDescriptionID.h"
 #include "DataFormats/Provenance/interface/PassID.h"

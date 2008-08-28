@@ -237,7 +237,7 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack) {
   
   // The preshower
   PreshowerHitMaker * myPreshower = NULL ;
-  if(simulatePreshower_ && (onLayer1 || onLayer2))
+  if(onLayer1 || onLayer2)
     {
       XYZPoint layer1entrance,layer2entrance;
       XYZVector dir1,dir2;
@@ -350,7 +350,6 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack) {
   myGrid.setPulledPadSurvivalProbability(pulledPadSurvivalProbability_);
   myGrid.setCrackPadSurvivalProbability(crackPadSurvivalProbability_);
   myGrid.setRadiusFactor(radiusFactor_);
-  myGrid.setPreshowerPresent(simulatePreshower_);
   
   // The shower simulation
   myGrid.setTrackParameters(myPart.Vect().Unit(),X0depth,myTrack);
@@ -825,18 +824,12 @@ void CalorimetryManager::readParameters(const edm::ParameterSet& fastCalo) {
   RTFactor_ = ECALparameters.getParameter<double>("RTFactor");
   radiusFactor_ = ECALparameters.getParameter<double>("RadiusFactor");
   
-  simulatePreshower_ = ECALparameters.getParameter<bool>("SimulatePreshower");
-
   if(gridSize_ <1) gridSize_= 7;
   if(pulledPadSurvivalProbability_ <0. || pulledPadSurvivalProbability_>1 ) pulledPadSurvivalProbability_= 1.;
   if(crackPadSurvivalProbability_ <0. || crackPadSurvivalProbability_>1 ) crackPadSurvivalProbability_= 0.9;
   
   LogInfo("FastCalorimetry") << " Fast ECAL simulation parameters " << std::endl;
   LogInfo("FastCalorimetry") << " =============================== " << std::endl;
-  if(simulatePreshower_)
-    LogInfo("FastCalorimetry") << " The preshower is present " << std::endl;
-  else
-    LogInfo("FastCalorimetry") << " The preshower is NOT present " << std::endl;
   LogInfo("FastCalorimetry") << " Grid Size : " << gridSize_  << std::endl; 
   if(spotFraction_>0.) 
     LogInfo("FastCalorimetry") << " Spot Fraction : " << spotFraction_ << std::endl;

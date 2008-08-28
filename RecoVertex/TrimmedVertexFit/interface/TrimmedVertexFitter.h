@@ -23,9 +23,6 @@ public:
   virtual CachingVertex<5> vertex(const vector<reco::TransientTrack> & tracks) const;
 
   virtual CachingVertex<5> vertex(const vector<RefCountedVertexTrack> & tracks) const;
-  
-  virtual CachingVertex<5> vertex(const vector<RefCountedVertexTrack> & tracks,
-      const reco::BeamSpot & spot ) const;
 
   virtual CachingVertex<5> vertex(const vector<reco::TransientTrack> & tracks,
   			const GlobalPoint& linPoint) const;

@@ -16,8 +16,5 @@
   <use name=RecoBTag/MCTools>
   <use name=JetMETCorrections/Objects>
   <use name=TrackingTools/TransientTrack>
-  <use name=SimDataFormats/Track>
-  <use name=SimDataFormats/Vertex>
-  <use name=SimGeneral/HepPDTRecord>
   <use name=root>
 </library>

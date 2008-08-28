@@ -4,7 +4,7 @@
 /** \class HcalGenericDetId
     \author F.Ratnikov, UMd
    Generic HCAL detector ID suitable for all Hcal subdetectors
-   $Id: HcalGenericDetId.h,v 1.5 2008/03/03 16:50:24 rofierzy Exp $
+   $Id: HcalGenericDetId.h,v 1.4 2007/10/03 01:39:13 mansj Exp $
    
    R.Ofierzynski, 22.02.2008, added hashedId
 */
@@ -30,7 +30,7 @@ class HcalGenericDetId : public DetId {
 
   // delivers hashed id for this cell
   // hashed id's are determined separately for each subdetector !
-  int hashedId(bool h2mode_ = false) const;
+  int hashedId() const;
 };
 
 std::ostream& operator<<(std::ostream&,const HcalGenericDetId& id);

@@ -88,6 +88,13 @@ ConvertedPhotonProducer::ConvertedPhotonProducer(const edm::ParameterSet& config
   theTrackPairFinder_ = new ConversionTrackPairFinder ();
   // instantiate the Vertex Finder algorithm
   theVertexFinder_ = new ConversionVertexFinder ();
+
+
+  // Inizilize my global event counter
+  nEvt_=0;
+
+
+  theEcalImpactPositionFinder_ =0;
   
 }
 
@@ -101,21 +108,32 @@ ConvertedPhotonProducer::~ConvertedPhotonProducer() {
 }
 
 
-void  ConvertedPhotonProducer::beginJob (edm::EventSetup const & theEventSetup) {
+
+
+//void  ConvertedPhotonProducer::beginJob (edm::EventSetup const & theEventSetup) {
   
-  // Inizilize my global event counter
-  nEvt_=0;
+
+//  // instantiate the algorithm for finding the position of the track extrapolation at the Ecal front face
+//  theEcalImpactPositionFinder_ = new   ConversionTrackEcalImpactPoint ( &(*theMF_) );
   
-  //get magnetic field
+//}
+
+void  ConvertedPhotonProducer::beginRun (edm::Run& r, edm::EventSetup const & theEventSetup) {
+ 
+
+    //get magnetic field
   edm::LogInfo("ConvertedPhotonProducer") << " get magnetic field" << "\n";
   theEventSetup.get<IdealMagneticFieldRecord>().get(theMF_);  
 
-  // instantiate the algorithm for finding the position of the track extrapolation at the Ecal front face
-  theEcalImpactPositionFinder_ = new   ConversionTrackEcalImpactPoint ( &(*theMF_) );
+  if ( ! theEcalImpactPositionFinder_) {
+    std::cout << " Creating theEcalImpactPositionFinder " << std::endl;
+     // instantiate the algorithm for finding the position of the track extrapolation at the Ecal front face
+    theEcalImpactPositionFinder_ = new   ConversionTrackEcalImpactPoint ( &(*theMF_) );
+  }  
 
-  
-  
 }
+
+
 
 
 void  ConvertedPhotonProducer::endJob () {

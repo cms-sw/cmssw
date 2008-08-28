@@ -62,14 +62,6 @@ CachingVertex<5> ConfigurableVertexFitter::vertex(
 }
 
 CachingVertex<5> ConfigurableVertexFitter::vertex(
-  const vector<RefCountedVertexTrack> & tracks,
-  const reco::BeamSpot & spot ) const
-{
-  return theFitter->vertex ( tracks, spot );
-}
-
-
-CachingVertex<5> ConfigurableVertexFitter::vertex(
   const vector<reco::TransientTrack> & tracks, const GlobalPoint& linPoint) const
 {
   return theFitter->vertex ( tracks, linPoint );

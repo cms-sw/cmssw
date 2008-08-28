@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 # magnetic field
-from MagneticField.Engine.uniformMagneticField_cfi import *
 # cms geometry
 # tracker geometry
 # tracker numbering

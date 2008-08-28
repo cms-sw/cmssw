@@ -15,13 +15,13 @@ TrajectoryFactoryBase::TrajectoryFactoryBase( const edm::ParameterSet & config )
   const std::string strPropagationDirection = config.getParameter< std::string >( "PropagationDirection" );
   thePropDir = this->propagationDirection( strPropagationDirection );
 
-  theUseWithoutDet = config.getParameter< bool >( "UseHitWithoutDet" );
   theUseInvalidHits = config.getParameter< bool >( "UseInvalidHits" );
   theUseProjectedHits = config.getParameter< bool >( "UseProjectedHits" );
 }
 
 
 TrajectoryFactoryBase::~TrajectoryFactoryBase( void ) {}
+
 
 
 const TrajectoryFactoryBase::TrajectoryInput
@@ -54,8 +54,7 @@ TrajectoryFactoryBase::innermostStateAndRecHits( const ConstTrajTrackPair & trac
 }
 
 
-const Trajectory::DataContainer
-TrajectoryFactoryBase::orderedTrajectoryMeasurements( const Trajectory & trajectory ) const
+const Trajectory::DataContainer TrajectoryFactoryBase::orderedTrajectoryMeasurements( const Trajectory & trajectory ) const
 {
   const PropagationDirection dir = trajectory.direction();
   const bool hitsAreReverse = ( ( dir == thePropDir || thePropDir == anyDirection ) ? false : true );
@@ -64,13 +63,9 @@ TrajectoryFactoryBase::orderedTrajectoryMeasurements( const Trajectory & traject
 
   if ( hitsAreReverse )
   {
-    // Simply use this line instead of the copying by hand?
-    // const Trajectory::DataContainer reordered(original.rbegin(), original.rend());
     Trajectory::DataContainer reordered;
     reordered.reserve( original.size() );
-
-    Trajectory::DataContainer::const_reverse_iterator itM;
-    for ( itM = original.rbegin(); itM != original.rend(); ++itM )
+    for ( Trajectory::DataContainer::const_reverse_iterator itM = original.rbegin(); itM != original.rend(); ++itM )
     {
       reordered.push_back( *itM );
     }
@@ -83,32 +78,27 @@ TrajectoryFactoryBase::orderedTrajectoryMeasurements( const Trajectory & traject
 
 bool TrajectoryFactoryBase::sameSurface( const Surface& s1, const Surface& s2 ) const
 {
-  // - Should use perp2() instead of perp()
-  // - Should not rely on floating point equality, but make a minimal range, e.g. 1.e-6 ?
   return ( s1.eta() == s2.eta() ) && ( s1.phi() == s2.phi() ) && ( s1.position().perp() == s2.position().perp() );
 }
 
 
-bool
-TrajectoryFactoryBase::useRecHit( const TransientTrackingRecHit::ConstRecHitPointer& hitPtr ) const
+bool TrajectoryFactoryBase::useRecHit( const TransientTrackingRecHit::ConstRecHitPointer& hitPtr ) const
 {
-  const GeomDet* det = hitPtr->det();
-  if ( !det && !theUseWithoutDet ) return false;
+  bool useHit = true;
 
-  if ( !( theUseInvalidHits || hitPtr->isValid() ) ) return false;
+  if ( !( theUseInvalidHits || hitPtr->isValid() ) ) useHit = false;
 
   if ( !theUseProjectedHits )
   {
     const ProjectedRecHit2D* projectedHit = dynamic_cast< const ProjectedRecHit2D* >( hitPtr.get() );
-    if ( projectedHit != 0 ) return false;
+    if ( projectedHit != 0 ) useHit = false;
   }
 
-  return true;
+  return useHit;
 }
 
 
-const TrajectoryFactoryBase::MaterialEffects
-TrajectoryFactoryBase::materialEffects( const std::string & strME ) const
+const TrajectoryFactoryBase::MaterialEffects TrajectoryFactoryBase::materialEffects( const std::string & strME ) const
 {
   if ( strME == "MultipleScattering" ) return ReferenceTrajectoryBase::multipleScattering;
   if ( strME == "EnergyLoss" ) return ReferenceTrajectoryBase::energyLoss;
@@ -120,8 +110,7 @@ TrajectoryFactoryBase::materialEffects( const std::string & strME ) const
 }
 
 
-const PropagationDirection
-TrajectoryFactoryBase::propagationDirection( const std::string & strPD ) const
+const PropagationDirection TrajectoryFactoryBase::propagationDirection( const std::string & strPD ) const
 {
   if ( strPD == "oppositeToMomentum" ) return oppositeToMomentum;
   if ( strPD == "alongMomentum" ) return alongMomentum;

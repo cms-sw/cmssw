@@ -30,9 +30,9 @@ EgammaHLTOffline::EgammaHLTOffline(const edm::ParameterSet& iConfig)
   triggerSummaryLabel_ = iConfig.getParameter<edm::InputTag>("triggerSummaryLabel");
 
   
-  dirName_=iConfig.getParameter<std::string>("DQMDirName");//"HLT/EgammaHLTOffline_" + iConfig.getParameter<std::string>("@module_label");
+  dirName_=iConfig.getParameter<std::string>("DQMDirName");
 
-  if(dbe_) dbe_->setCurrentFolder(dirName_);
+  if(dbe_ != 0 ) dbe_->setCurrentFolder("HLTOffline/EgammaHLT");
  
   egHelper_.setup(iConfig);
 }

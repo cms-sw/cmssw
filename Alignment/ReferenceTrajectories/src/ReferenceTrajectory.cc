@@ -1,7 +1,7 @@
 //  Author     : Gero Flucke (based on code by Edmund Widl replacing ORCA's TkReferenceTrack)
 //  date       : 2006/09/17
-//  last update: $Date: 2008/02/21 12:31:07 $
-//  by         : $Author: ewidl $
+//  last update: $Date: 2008/05/08 13:56:23 $
+//  by         : $Author: flucke $
 
 #include "Alignment/ReferenceTrajectories/interface/ReferenceTrajectory.h"
 #include "DataFormats/GeometrySurface/interface/Surface.h" 
@@ -22,11 +22,13 @@
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "TrackingTools/TrajectoryState/interface/SurfaceSideDefinition.h"
 
 #include "TrackingTools/MaterialEffects/interface/MultipleScatteringUpdator.h"
 #include "TrackingTools/MaterialEffects/interface/EnergyLossUpdator.h"
 #include "TrackingTools/MaterialEffects/interface/CombinedMaterialEffectsUpdator.h"
 
+using namespace SurfaceSideDefinition; // for beforeSurface etc.
 
 //__________________________________________________________________________________
 
@@ -72,7 +74,6 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
 				    double mass, MaterialEffects materialEffects,
 				    const PropagationDirection propDir, const MagneticField *magField)
 {
-  const SurfaceSide surfaceSide = this->surfaceSide(propDir);
   MaterialEffectsUpdator *aMaterialEffectsUpdator = this->createUpdator(materialEffects, mass);
   if (!aMaterialEffectsUpdator) return false;
 
@@ -126,13 +127,12 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
     // take material effects into account. since trajectory-state is constructed with errors equal zero,
     // the updated state contains only the uncertainties due to interactions in the current layer.
     const TrajectoryStateOnSurface tmpTsos(theTsosVec.back().localParameters(), zeroErrors,
-					   theTsosVec.back().surface(), magField, surfaceSide);
+					   theTsosVec.back().surface(), magField, beforeSurface);
     const TrajectoryStateOnSurface updatedTsos = aMaterialEffectsUpdator->updateState(tmpTsos, propDir);
-
-    if ( !updatedTsos.isValid() ) return false;
-
-    if ( theTsosVec.back().localParameters().charge() )
-    {
+    if (!updatedTsos.isValid()) {
+      return false;
+    }
+    if (theTsosVec.back().localParameters().charge()) {
       previousChangeInCurvature[0][0] = updatedTsos.localParameters().signedInverseMomentum() 
 	/ theTsosVec.back().localParameters().signedInverseMomentum();
     }
@@ -149,7 +149,7 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
     //  - no error propagation needed here.
     previousHitPtr = hitPtr;
     previousTsos   = TrajectoryStateOnSurface(updatedTsos.globalParameters(),
-					      updatedTsos.surface(), surfaceSide);
+					      updatedTsos.surface(), beforeSurface);
 
     this->fillDerivatives(allProjections.back(), fullJacobian, iRow);
 
@@ -342,4 +342,19 @@ void ReferenceTrajectory::addMaterialEffectsCov(const std::vector<AlgebraicMatri
   }
 
   theMeasurementsCov += materialEffectsCov;
+}
+
+
+unsigned int ReferenceTrajectory::numberOfUsedRecHits( const TransientTrackingRecHit::ConstRecHitContainer &recHits ) const
+{
+  unsigned int nUsedHits = 0;
+  TransientTrackingRecHit::ConstRecHitContainer::const_iterator itHit;
+  for ( itHit = recHits.begin(); itHit != recHits.end(); ++itHit ) if ( useRecHit( *itHit ) ) ++nUsedHits;
+  return nUsedHits;
+}
+
+
+bool ReferenceTrajectory::useRecHit( const TransientTrackingRecHit::ConstRecHitPointer& hitPtr ) const
+{
+  return hitPtr->isValid();
 }

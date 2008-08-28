@@ -26,7 +26,6 @@
 #include <DQM/HcalMonitorClient/interface/HcalRecHitClient.h>
 #include <DQM/HcalMonitorClient/interface/HcalPedestalClient.h>
 #include <DQM/HcalMonitorClient/interface/HcalLEDClient.h>
-#include <DQM/HcalMonitorClient/interface/HcalLaserClient.h>
 #include <DQM/HcalMonitorClient/interface/HcalHotCellClient.h>
 #include <DQM/HcalMonitorClient/interface/HcalDeadCellClient.h>
 #include <DQM/HcalMonitorClient/interface/HcalTrigPrimClient.h>
@@ -175,7 +174,6 @@ public:
   HcalRecHitClient* rechit_client_;
   HcalPedestalClient* pedestal_client_;
   HcalLEDClient* led_client_;
-  HcalLaserClient* laser_client_;
   HcalHotCellClient* hot_client_;
   HcalDeadCellClient* dead_client_;
   HcalTrigPrimClient* tp_client_;

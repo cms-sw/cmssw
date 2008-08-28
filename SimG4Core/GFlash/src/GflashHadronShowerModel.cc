@@ -19,10 +19,10 @@
 #include "SimG4Core/GFlash/interface/GflashTrajectory.h"
 #include "SimG4Core/GFlash/interface/GflashTrajectoryPoint.h"
 
-GflashHadronShowerModel::GflashHadronShowerModel(G4String modelName, G4Region* envelope, edm::ParameterSet parSet)
-  : G4VFastSimulationModel(modelName, envelope), theParSet(parSet)
+GflashHadronShowerModel::GflashHadronShowerModel(G4String modelName, G4Region* envelope)
+  : G4VFastSimulationModel(modelName, envelope)
 {
-  theProfile = new GflashHadronShowerProfile(envelope,parSet);
+  theProfile = new GflashHadronShowerProfile(envelope);
   theHisto = GflashHistogram::instance();
 
   theGflashStep = new G4Step();
@@ -150,27 +150,12 @@ G4bool GflashHadronShowerModel::isFirstInelasticInteraction(const G4FastTrack& f
 
     G4double energy = fastTrack.GetPrimaryTrack()->GetKineticEnergy();
 
-    //skip to the second interaction if the first inelastic is a quasi-elastic like interaction
-    //@@@ the cut may be optimized later
-
-    const G4TrackVector* fSecondaryVector = fastTrack.GetPrimaryTrack()->GetStep()->GetSecondary();
-    G4double leadingEnergy = 0.0;
-
-    //loop over 'all' secondaries including those produced by continuous processes.
-    //@@@may require an additional condition only for hadron interaction with the process name,
-    //but it will not change the result anyway
-
-    for (unsigned int isec = 0 ; isec < fSecondaryVector->size() ; isec++) {
-      G4Track* fSecondaryTrack = (*fSecondaryVector)[isec];
-      G4double secondaryEnergy = fSecondaryTrack->GetKineticEnergy();
-
-      if(secondaryEnergy > leadingEnergy ) {
-        leadingEnergy = secondaryEnergy;
-      }
+    G4double ratio = 0.0;
+    if (energy > 0) {
+      ratio = fabs(fastTrack.GetPrimaryTrack()->GetStep()->GetDeltaEnergy()/energy);
     }
 
-    if((preStep->GetTotalEnergy()!=0) && 
-       (leadingEnergy/preStep->GetTotalEnergy() < Gflash::QuasiElasticLike)) isFirst = true;
+    if(ratio > 0.1) isFirst=true;
 
     //Fill debugging histograms and check information on secondaries -
     //remove after final implimentation
@@ -181,7 +166,6 @@ G4bool GflashHadronShowerModel::isFirstInelasticInteraction(const G4FastTrack& f
       theHisto->deltaStep->Fill((postStep->GetPosition() - preStep->GetPosition()).getRho()/cm);
       theHisto->kineticEnergy->Fill(energy);
       theHisto->energyLoss->Fill(fabs(fastTrack.GetPrimaryTrack()->GetStep()->GetDeltaEnergy()/GeV));
-      theHisto->energyRatio->Fill(leadingEnergy/preStep->GetTotalEnergy());
     }
 
  }
@@ -194,37 +178,31 @@ G4bool GflashHadronShowerModel::excludeDetectorRegion(const G4FastTrack& fastTra
   
   //exclude regions where geometry are complicated 
   G4double eta =   fastTrack.GetPrimaryTrack()->GetMomentum().pseudoRapidity() ;
-  if(fabs(eta) > Gflash::EtaMax[Gflash::kESPM] && fabs(eta) < Gflash::EtaMin[Gflash::kENCA]) {
-    //@@@remove this print statement later
-    std::cout << "GflashHadronShowerModel: excluding region of eta = " << eta << std::endl;
+  if(fabs(eta) > 1.30 && fabs(eta) < 1.57) {
+    std::cout << "excluding region of eta = " << eta << std::endl;
     return true;  
   }
-  else {
-    G4StepPoint* postStep = fastTrack.GetPrimaryTrack()->GetStep()->GetPostStepPoint();
+  //exclude the region where the shower starting point is too close to the end of 
+  //the hadronic envelopes (may need to be optimized further!)
 
-    Gflash::CalorimeterNumber kCalor = theProfile->getCalorimeterNumber(postStep->GetPosition().getRho()/cm);
-    G4double distOut = 9999.0;
-    //exclude the region where the shower starting point is outside parameterization envelopes
-    if(kCalor==Gflash::kNULL) {
+  /*
+  Gflash::CalorimeterNumber kColor = theProfile->getCalorimeterNumber(fastTrack);
+
+  //@@@ need a proper scale
+  const G4double minDistantToOut = 10.;
+  
+
+  if(kColor == kHB || kColor == kHE) {
+    G4double distOut = fastTrack.GetEnvelopeSolid()->
+      DistanceToOut(fastTrack.GetPrimaryTrackLocalPosition(),
+		    fastTrack.GetPrimaryTrackLocalDirection());
+
+    if (distOut < minDistantToOut ) {
+      std::cout << "excluding region for dsitOut = " << distOut << std::endl;
       isExcluded = true;
     }
-    //@@@exclude the region where the shower starting point is too close to the end of
-    //the hadronic envelopes (may need to be optimized further!)
-    //@@@if we extend parameterization including Magnet/HO, we need to change this strategy
-    else if(kCalor == Gflash::kHB) {
-      distOut =  Gflash::Rmax[Gflash::kHB] - postStep->GetPosition().getRho()/cm;
-      if (distOut < Gflash::MinDistanceToOut ) isExcluded = true;
-    }
-    else if(kCalor == Gflash::kHE) {
-      distOut =  Gflash::Zmax[Gflash::kHE] - std::fabs(postStep->GetPosition().getZ()/cm);
-      if (distOut < Gflash::MinDistanceToOut ) isExcluded = true;
-    }
-    //@@@remove this print statement later
-    if(isExcluded) {
-      std::cout << "GflashHadronShowerModel: skipping kCalor = " << kCalor << 
-	" DistanceToOut " << distOut << std::endl;
-    }
   }
+  */
 
   return isExcluded;
 }

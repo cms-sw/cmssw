@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.h
  *
- * $Date: 2008/08/17 15:16:22 $
- * $Revision: 1.31 $
+ * $Date: 2008/06/19 22:55:32 $
+ * $Revision: 1.27 $
  * \author W. Fisher
  *
 */
@@ -34,16 +34,12 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 
-#include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DQM/HcalMonitorModule/interface/HcalMonitorSelector.h"
 #include "DQM/HcalMonitorTasks/interface/HcalDigiMonitor.h"
 #include "DQM/HcalMonitorTasks/interface/HcalDataFormatMonitor.h"
 #include "DQM/HcalMonitorTasks/interface/HcalRecHitMonitor.h"
-#include "DQM/HcalMonitorTasks/interface/HcalBeamMonitor.h"
 #include "DQM/HcalMonitorTasks/interface/HcalPedestalMonitor.h"
 #include "DQM/HcalMonitorTasks/interface/HcalLEDMonitor.h"
-#include "DQM/HcalMonitorTasks/interface/HcalLaserMonitor.h"
 #include "DQM/HcalMonitorTasks/interface/HcalMTCCMonitor.h"
 #include "DQM/HcalMonitorTasks/interface/HcalHotCellMonitor.h"
 #include "DQM/HcalMonitorTasks/interface/HcalDeadCellMonitor.h"
@@ -128,6 +124,7 @@ public:
   bool showTiming_; 
   edm::CPUTimer cpu_timer; // 
 
+
   /// counters and flags
   int nevt_;
   int nlumisecs_;
@@ -157,16 +154,7 @@ public:
   edm::InputTag inputLabelRecHitHBHE_;
   edm::InputTag inputLabelRecHitHF_;
   edm::InputTag inputLabelRecHitHO_;
-  edm::InputTag inputLabelRecHitZDC_;
-
   edm::InputTag inputLabelCaloTower_;
-  edm::InputTag inputLabelLaser_;
-
-  // Maps of readout hardware unit to calorimeter channel
-  std::map<uint32_t, std::vector<HcalDetId> > DCCtoCell;
-  std::map<uint32_t, std::vector<HcalDetId> > ::iterator thisDCC;
-  std::map<pair <int,int> , std::vector<HcalDetId> > HTRtoCell;
-  std::map<pair <int,int> , std::vector<HcalDetId> > ::iterator thisHTR;
 
   MonitorElement* meFEDS_;
   MonitorElement* meStatus_;
@@ -176,14 +164,13 @@ public:
   MonitorElement* meLatency_;
   MonitorElement* meQuality_;
   
+
   HcalMonitorSelector*    evtSel_;
   HcalDigiMonitor*        digiMon_;
   HcalDataFormatMonitor*  dfMon_;
   HcalRecHitMonitor*      rhMon_;
-  HcalBeamMonitor*        beamMon_;
   HcalPedestalMonitor*    pedMon_;
   HcalLEDMonitor*         ledMon_;
-  HcalLaserMonitor*       laserMon_;
   HcalMTCCMonitor*        mtccMon_;
   HcalHotCellMonitor*     hotMon_;
   HcalDeadCellMonitor*    deadMon_;

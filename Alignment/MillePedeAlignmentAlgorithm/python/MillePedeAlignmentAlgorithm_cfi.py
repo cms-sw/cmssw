@@ -24,7 +24,6 @@ MillePedeAlignmentAlgorithm = cms.PSet(
     pedeSteerer = cms.PSet(
         fileDir = cms.untracked.string(''),
         steerFile = cms.string('pedeSteer'), ## beginning of steering file names
-        steerFileDebug = cms.untracked.bool(False),
         # If MillePedeAlignmentAlgorithm.mode causes pede to run (e.g. 'full', 'pede' etc.),
         # the pede command line is constructed as:
         #    'pedeCommand' 'steerFile'Master.txt 

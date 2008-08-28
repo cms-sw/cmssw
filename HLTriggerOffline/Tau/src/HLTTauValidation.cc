@@ -5,7 +5,7 @@ HLTTauValidation::HLTTauValidation(const edm::ParameterSet& ps) :
   triggerEventObject_(ps.getUntrackedParameter<edm::InputTag>("triggerEventObject")),
   refCollection_(ps.getUntrackedParameter<edm::InputTag>("refTauCollection")),
   refLeptonCollection_(ps.getUntrackedParameter<edm::InputTag>("refLeptonCollection")),
-  triggerTag_(ps.getUntrackedParameter<std::string>("DQMFolder","DoubleTau")),
+  triggerTag_(ps.getUntrackedParameter<std::string>("TriggerTag","DoubleTau")),
   l1seedFilter_(ps.getUntrackedParameter<edm::InputTag>("L1SeedFilter")),
   l2filter_(ps.getUntrackedParameter<edm::InputTag>("L2EcalIsolFilter")),
   l25filter_(ps.getUntrackedParameter<edm::InputTag>("L25PixelIsolFilter")),
@@ -41,7 +41,7 @@ HLTTauValidation::HLTTauValidation(const edm::ParameterSet& ps) :
   if(store)
     {
       //Create the histograms
-      store->setCurrentFolder(triggerTag_);
+      store->setCurrentFolder("HLTTau_"+triggerTag_);
       l1eteff = store->book1D("l1eteff","L1 Efficiency vs E_{t}",100,0,200);
       l2eteff = store->book1D("l2eteff","L2 Efficiency vs E_{t}",100,0,200);
       l25eteff = store->book1D("l25eteff","L25 Efficiency vs E_{t}",100,0,200);
@@ -153,7 +153,7 @@ HLTTauValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	  double et=0.;
 	  double eta=0.;
 	  
-	  for(size_t j = 0;j<refC->size();++j)
+	  for(size_t j = 0;j<=refC->size();++j)
 	    {
 	      if((*refC)[j].Et()>et)
 		{
@@ -200,59 +200,14 @@ HLTTauValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       unsigned Leptons = 0;
       unsigned Leptons_Matched = 0;
 
-      unsigned L1Leptons = 0;
-      unsigned L1Leptons_Matched = 0;
 
-
-
-
-      //L1 electrons
-      size_t L1ELID=0;
-      L1ELID =trigEv->filterIndex(l1seedFilter_);
-      if(L1ELID!=trigEv->size())
-	{
-	  VRl1em electrons;
-	  trigEv->getObjects(L1ELID,trigger::TriggerL1IsoEG,electrons);
-	  L1Leptons+= electrons.size();
-
-	  if(doRefAnalysis_)
-	  for(size_t i = 0;i<electrons.size();++i)
-	    {
-	      if(match((*electrons[i]).p4(),*refCL,matchDeltaRL1_))
-		L1Leptons_Matched++;
-	    } 
-
-
-	}
-
-      //L1 muons
-      size_t L1MUID=0;
-      L1MUID =trigEv->filterIndex(l1seedFilter_);
-      if(L1MUID!=trigEv->size())
-	{
-	  VRl1muon muons;
-	  trigEv->getObjects(L1MUID,trigger::TriggerL1Mu,muons);
-	  L1Leptons+= muons.size();
-
-	  if(doRefAnalysis_)
-	  for(size_t i = 0;i<muons.size();++i)
-	    {
-	      if(match((*muons[i]).p4(),*refCL,matchDeltaRL1_))
-		L1Leptons_Matched++;
-	    } 
-
-
-	}
-
-
-
-      //hlt electrons
+      //electrons
       size_t ELID=0;
       ELID =trigEv->filterIndex(electronFilter_);
       if(ELID!=trigEv->size())
 	{
 	  VRelectron electrons;
-	  trigEv->getObjects(ELID,trigger::TriggerElectron,electrons);
+	  trigEv->getObjects(ELID,92,electrons);
 	  Leptons+= electrons.size();
 
 	  if(doRefAnalysis_)
@@ -265,13 +220,13 @@ HLTTauValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
 	}
 
-      //hlt muons
+      //muons
       size_t MUID=0;
       MUID =trigEv->filterIndex(muonFilter_);
       if(MUID!=trigEv->size())
 	{
 	  VRmuon muons;
-	  trigEv->getObjects(MUID,trigger::TriggerMuon,muons);
+	  trigEv->getObjects(MUID,93,muons);
 	  Leptons+= muons.size();
 
 	  if(doRefAnalysis_)
@@ -302,9 +257,9 @@ HLTTauValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	{
 	  //Get L1Objects
 	  VRl1jet L1Taus;
-	  trigEv->getObjects(L1ID,trigger::TriggerL1TauJet,L1Taus);
+	  trigEv->getObjects(L1ID,86,L1Taus);
 	  //Check if the number of L1 Taus is OK
-	  if(L1Taus.size()>=nTriggeredTaus_&& L1Leptons>=nTriggeredLeptons_)
+	  if(L1Taus.size()>=nTriggeredTaus_&& Leptons>=nTriggeredLeptons_)
 	  {
 	    NL1Events++;
 	    	   
@@ -323,7 +278,7 @@ HLTTauValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 		   
 		}
 	  }  
-	  if(jets_matched>=nTriggeredTaus_&&L1Leptons_Matched>=nTriggeredLeptons_)
+	  if(jets_matched>=nTriggeredTaus_&&Leptons_Matched>=nTriggeredLeptons_)
 	    {
 	      NL1Events_Matched++;
 	      l1eteff->Fill(RefEt);
@@ -344,7 +299,7 @@ HLTTauValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	{
 	  //Get L2Objects
 	  VRjet L2Taus;
-	  trigEv->getObjects(L2ID,trigger::TriggerTau,L2Taus);
+	  trigEv->getObjects(L2ID,94,L2Taus);
 	  if(L2Taus.size()>=nTriggeredTaus_&&Leptons>=nTriggeredLeptons_)
 	    {
 	      NL2Events++;
@@ -383,7 +338,7 @@ HLTTauValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	{
 	  //Get L25Objects
 	  VRjet L25Taus;
-	  trigEv->getObjects(L25ID,trigger::TriggerTau,L25Taus);
+	  trigEv->getObjects(L25ID,94,L25Taus);
 	  if(L25Taus.size()>=nTriggeredTaus_&&Leptons>=nTriggeredLeptons_)
 	    {
 	      NL25Events++;
@@ -420,7 +375,7 @@ HLTTauValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	{
 	  //Get L3Objects
 	  VRjet L3Taus;
-	  trigEv->getObjects(L3ID,trigger::TriggerTau,L3Taus);
+	  trigEv->getObjects(L3ID,94,L3Taus);
 	  if(L3Taus.size()>=nTriggeredTaus_&&Leptons>=nTriggeredLeptons_)
 	    {
 	      NL3Events++;

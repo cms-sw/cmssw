@@ -14,13 +14,11 @@ namespace cond {
   
   class IOVElement {
   public:
-    IOVElement() : m_since(0), m_till(0), m_db(0){}
-    IOVElement(PoolTransaction * idb) : m_since(0), m_till(0), m_db(idb){}
+    IOVElement() : m_since(0), m_till(0){}
     IOVElement(cond::Time_t is,
 	       cond::Time_t it,
-	       std::string const& itoken,
-	       PoolTransaction * idb) :
-      m_since(is), m_till(it), m_token(itoken), m_db(idb){}
+	       std::string const& itoken ) :
+      m_since(is), m_till(it), m_token(itoken){}
     
     void set(cond::Time_t is,
 	     cond::Time_t it,
@@ -33,12 +31,11 @@ namespace cond {
     cond::Time_t since() const {return m_since;}
     cond::Time_t till() const {return m_till;}
     std::string const & payloadToken() const {return m_token;}
-    PoolTransaction * db() const { return m_db;}
+
   private:
     cond::Time_t m_since;
     cond::Time_t m_till;
     std::string  m_token;
-    PoolTransaction * m_db;
   };
   
   
@@ -55,11 +52,11 @@ namespace cond {
     ~IOVProxy();
     
     IOVProxy(cond::PoolTransaction& db,
-	     const std::string & token, bool nolib);
+	     const std::string & token);
     
     struct IterHelp {
       typedef IOVElement result_type;
-      IterHelp(impl::IOVImpl & in);
+      IterHelp(IOV const & iv) : iov(iv){}
       
       result_type const & operator()(int i) const {
 	elem.set(iov,i);
@@ -74,26 +71,22 @@ namespace cond {
     typedef boost::transform_iterator<IterHelp,boost::counting_iterator<int> > const_iterator;
     
     const_iterator begin() const {
-      return  boost::make_transform_iterator(boost::counting_iterator<int>(m_low),
-					     IterHelp(*m_iov));
+      return  boost::make_transform_iterator(boost::counting_iterator<int>(0),
+					     IterHelp(iov()));
     }
     
     const_iterator end() const {
-      return  boost::make_transform_iterator(boost::counting_iterator<int>(m_high),
-					     IterHelp(*m_iov));
+      return  boost::make_transform_iterator(boost::counting_iterator<int>(size()),
+					     IterHelp(iov()));
     }
     
-
-    void setRange(cond::Time_t since, cond::Time_t  till) const;
-
+    
     int size() const;
     IOV const & iov() const;
     TimeType timetype() const;
     
   private:
     boost::shared_ptr<impl::IOVImpl> m_iov;
-    mutable int m_low;
-    mutable int m_high;
     
   };
 }

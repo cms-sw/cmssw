@@ -1,5 +1,7 @@
 //
 //#include "Utilities/Configuration/interface/Architecture.h"
+#include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/PluginManager/interface/standard.h"
 #include "DetectorDescription/Algorithm/interface/DDAlgorithmHandler.h"
 #include "DetectorDescription/Algorithm/interface/DDAlgorithmFactory.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"

@@ -32,6 +32,7 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
     DoCaloMETAnalysis = cms.untracked.bool(True),
     DoJetAnalysis = cms.untracked.bool(True),
     CaloMETCollectionLabel = cms.InputTag("met"),
+    CaloMETNoHFCollectionLabel = cms.InputTag("metNoHF"),
     ICJetsCollectionLabel = cms.InputTag("iterativeCone5CaloJets")
 )
 

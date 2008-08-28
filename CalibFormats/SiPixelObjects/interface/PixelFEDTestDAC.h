@@ -1,12 +1,5 @@
 #ifndef _PixelFEDTestDAC_h_
 #define _PixelFEDTestDAC_h_
-/**
-*   \file CalibFormats/SiPixelObjects/interface/PixelFEDTestDAC.h
-*   \brief This class implements..
-*
-*   This class specifies which FED boards
-*   are used and how they are addressed
-*/
 
 #include <iostream>
 #include <string>
@@ -17,20 +10,10 @@
 
 namespace pos{
 
-/*! \ingroup CalibrationObjects
-*
-*   @{
-*
-*   \class PixelFEDTestDAC PixelFEDTestDAC.h "interface/PixelFEDTestDAC.h"
-*   \brief This class implements..
-*
-*   A longer explanation will be placed here later
-*/
   class PixelFEDTestDAC : public PixelCalibBase{
 
   public:
     PixelFEDTestDAC(std::string filename);
-    PixelFEDTestDAC(std::vector< std::vector<std::string> > &);
     std::string mode() {return mode_;}
     std::vector<unsigned int> dacs() {return dacs_;}
 
@@ -42,7 +25,6 @@ namespace pos{
 
   };
 }
-/* @} */
 #endif
 
 

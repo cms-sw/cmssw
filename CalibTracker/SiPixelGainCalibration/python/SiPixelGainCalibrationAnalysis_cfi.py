@@ -20,7 +20,7 @@ import FWCore.ParameterSet.Config as cms
 #  CMSSW configuration init file for pixel gain calibrations in CMSSW>=180
 #  Original Author:  Freya Blekman
 #          Created:  November 15 2007  
-#  $Id: SiPixelGainCalibrationAnalysis_cfi.py,v 1.2 2008/04/21 00:27:31 rpw Exp $
+#  $Id: SiPixelGainCalibrationAnalysis.cfi,v 1.20 2008/02/22 13:30:57 fblekman Exp $
 #
 #
 siPixelGainCalibrationAnalysis = cms.EDFilter("SiPixelGainCalibrationAnalysis",
@@ -37,11 +37,10 @@ siPixelGainCalibrationAnalysis = cms.EDFilter("SiPixelGainCalibrationAnalysis",
     #parameters common to SiPixelOfflineCalibAnalysisBase 
     DetSetVectorSiPixelCalibDigiTag = cms.InputTag("siPixelCalibDigis"),
     outputFileName = cms.string('Pixel_DQM_Calibration.root'),
-    suppressZeroAndPlateausInFitFrac = cms.untracked.double(0.2),
+    suppressZeroAndPlateausInFitFrac = cms.untracked.double(0.05),
     suppressPlateauInFit = cms.untracked.bool(True),
     minChi2NDFforHistSave = cms.untracked.double(25.0),
     minChi2ProbforHistSave = cms.untracked.double(0.001),
-    plateauSlopeMax = cms.untracked.double(1.0),
     appendDatabaseMode = cms.untracked.bool(False),
     # maxGainInHist fixes the range of the 1D gain summary plots to [0,maxGainInHist]
     maxGainInHist = cms.untracked.double(3.0)

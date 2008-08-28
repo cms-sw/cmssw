@@ -23,12 +23,7 @@ PixelLTCConfig::PixelLTCConfig(std::string filename):
 	std::cout << "Opened:"<<filename<<std::endl;
     }
 
-    //ltcConfigPath_ = filename;
-    string line;
-    while (!in.eof()) {
-       getline (in,line);
-       ltcConfigStream_ << line << endl;
-    }
+    ltcConfigPath_ = filename;
 
 } 
 
@@ -38,16 +33,22 @@ void PixelLTCConfig::writeASCII(std::string dir) const {
   std::string filename=dir+"LTCConfiguration.txt";
   std::ofstream out(filename.c_str());
 
-  //std::ifstream in(ltcConfigPath_.c_str());
-  //assert(in.good());
+  std::ifstream in(ltcConfigPath_.c_str());
+  assert(in.good());
 
-  string configstr = ltcConfigStream_.str();
-
-  out << configstr << endl;
+  string line;
+  while (!in.eof()) {
+    getline (in,line);
+    out << line << endl;
+  }
 
   out.close();
 
 }
 
+
+std::string PixelLTCConfig::getLTCConfigPath() {
+  return ltcConfigPath_;
+}
    
  
