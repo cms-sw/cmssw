@@ -48,7 +48,6 @@
   <class name="RPCdbData::Item"/>
   <class name="std::vector<RPCdbData::Item>"/>
 
-<<<<<<< classes_def.xml
   <class name="RPCGasT"/>
   <class name="RPCGasT::GasItem"/>
   <class name="std::vector<RPCGasT::GasItem>"/>
@@ -56,15 +55,6 @@
   <class name="std::vector<RPCGasT::TempItem>"/>
 
 
-=======
-  <class name="RPCGas"/>
-  <class name="RPCGas::GasItem"/>
-  <class name="std::vector<RPCGas::GasItem>"/>
-  <class name="RPCGas::TempItem"/>
-  <class name="std::vector<RPCGas::TempItem>"/>
-
-
->>>>>>> 1.27
   <class name="RPCStripNoises"/>
   <class name="RPCStripNoises::NoiseItem"/>
   <class name="std::vector<RPCStripNoises::NoiseItem>"/>
