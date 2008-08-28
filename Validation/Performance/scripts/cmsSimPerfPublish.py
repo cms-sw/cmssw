@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 #G.Benelli Jan 22 2007, J. Nicolson 12 Aug 2008
 #A little script to move Simulation Performance Suite
 #relevant html and log files into our public area
