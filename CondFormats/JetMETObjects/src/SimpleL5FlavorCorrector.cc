@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Dec 27, 2006
-// $Id: SimpleL5FlavorCorrector.cc,v 1.3.2.3 2008/08/21 13:36:12 kkousour Exp $
+// $Id: SimpleL5FlavorCorrector.cc,v 1.4 2008/08/28 19:09:34 kkousour Exp $
 //
 // MC Jet Corrector
 //
@@ -25,8 +25,8 @@ SimpleL5FlavorCorrector::SimpleL5FlavorCorrector ()
   : mParameters (0) 
 {}
 
-SimpleL5FlavorCorrector::SimpleL5FlavorCorrector (const std::string& fDataFile) 
-  : mParameters (new SimpleJetCorrectorParameters (fDataFile)) 
+SimpleL5FlavorCorrector::SimpleL5FlavorCorrector (const std::string& fDataFile, const std::string& fSection) 
+  : mParameters (new SimpleJetCorrectorParameters (fDataFile, fSection)) 
 {}
 
 SimpleL5FlavorCorrector::~SimpleL5FlavorCorrector () {
