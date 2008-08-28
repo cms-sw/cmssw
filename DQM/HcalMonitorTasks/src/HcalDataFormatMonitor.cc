@@ -57,25 +57,51 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
 					   IPHIMAX - IPHIMIN + 1, IPHIMIN-0.5, IPHIMAX+0.5);
     DATAFORMAT_PROBLEM_MAP-> setAxisTitle("ieta",1);
     DATAFORMAT_PROBLEM_MAP-> setAxisTitle("iphi",2);
-
     type = "00 DataFormat Problem Zoo";
-    DATAFORMAT_PROBLEM_ZOO = m_dbe->book1D(type, type, 16, 1, 16);   
-    DATAFORMAT_PROBLEM_ZOO-> setBinLabel(1,"EE - HTR lost",1);      //HTR sent Empty Event
-    DATAFORMAT_PROBLEM_ZOO-> setBinLabel(2,"TR - LRB lost",1);	    //LRB truncated data
-    DATAFORMAT_PROBLEM_ZOO-> setBinLabel(3,"FEE",1);		    //CapID or DV not set correctly
-    DATAFORMAT_PROBLEM_ZOO-> setBinLabel(4,"HAM",1);		    //Corr. & Uncorr. Hamm.
-    DATAFORMAT_PROBLEM_ZOO-> setBinLabel(5,"HTR CRC",1);	    //DCC found HTR CRC err
-    DATAFORMAT_PROBLEM_ZOO-> setBinLabel(6,"CMS EvFmt",1);	    //Common Data Format failed check
-    DATAFORMAT_PROBLEM_ZOO-> setBinLabel(7,"DCC EvFmt",1);	    //DCC Event format failed check
-    DATAFORMAT_PROBLEM_ZOO-> setBinLabel(8,"HTR EvFmt",1);	    //HTR Event Format failed check
-    DATAFORMAT_PROBLEM_ZOO-> setBinLabel(9,"DCC OFW",1);	    //DCC Overflow Warning
-    DATAFORMAT_PROBLEM_ZOO-> setBinLabel(10,"DCC BSY",1);	    //DCC Busy 
-    DATAFORMAT_PROBLEM_ZOO-> setBinLabel(11,"HTR OFW",1);	    //HTR Overflow Warning
-    DATAFORMAT_PROBLEM_ZOO-> setBinLabel(12,"HTR BSY",1);	    //HTR Busy 
-    DATAFORMAT_PROBLEM_ZOO-> setBinLabel(13,"RL1A",1);		    //HTR Rejected L1A
-    DATAFORMAT_PROBLEM_ZOO-> setBinLabel(14,"BE",1);		    //HTR Bunchcount Error
-    DATAFORMAT_PROBLEM_ZOO-> setBinLabel(15,"OD",1);		    //Optical Data error  
-    DATAFORMAT_PROBLEM_ZOO-> setBinLabel(16,"CK",1);		    //Clock Error from HTR
+    DATAFORMAT_PROBLEM_ZOO = m_dbe->book1D(type, type, 16, 0, 16);   
+    labelthezoo(DATAFORMAT_PROBLEM_ZOO);
+
+    
+    m_dbe->setCurrentFolder(baseFolder_ + "/01 SubDets");
+    type = "HB DataIntegrity Problem Map";
+    HB_DATAFORMAT_PROBLEM_MAP = m_dbe->book2D(type, type, 
+					   IETAMAX - IETAMIN + 1, IETAMIN-0.5, IETAMAX+0.5,
+					   IPHIMAX - IPHIMIN + 1, IPHIMIN-0.5, IPHIMAX+0.5);
+    HB_DATAFORMAT_PROBLEM_MAP-> setAxisTitle("ieta",1);
+    HB_DATAFORMAT_PROBLEM_MAP-> setAxisTitle("iphi",2);
+    type = "HE DataIntegrity Problem Map";
+    HE_DATAFORMAT_PROBLEM_MAP = m_dbe->book2D(type, type, 
+					   IETAMAX - IETAMIN + 1, IETAMIN-0.5, IETAMAX+0.5,
+					   IPHIMAX - IPHIMIN + 1, IPHIMIN-0.5, IPHIMAX+0.5);
+    HE_DATAFORMAT_PROBLEM_MAP-> setAxisTitle("ieta",1);
+    HE_DATAFORMAT_PROBLEM_MAP-> setAxisTitle("iphi",2);
+    type = "HO DataIntegrity Problem Map";
+    HO_DATAFORMAT_PROBLEM_MAP = m_dbe->book2D(type, type, 
+					   IETAMAX - IETAMIN + 1, IETAMIN-0.5, IETAMAX+0.5,
+					   IPHIMAX - IPHIMIN + 1, IPHIMIN-0.5, IPHIMAX+0.5);
+    HO_DATAFORMAT_PROBLEM_MAP-> setAxisTitle("ieta",1);
+    HO_DATAFORMAT_PROBLEM_MAP-> setAxisTitle("iphi",2);
+    type = "HF DataIntegrity Problem Map";
+    HF_DATAFORMAT_PROBLEM_MAP = m_dbe->book2D(type, type, 
+					   IETAMAX - IETAMIN + 1, IETAMIN-0.5, IETAMAX+0.5,
+					   IPHIMAX - IPHIMIN + 1, IPHIMIN-0.5, IPHIMAX+0.5);
+    HF_DATAFORMAT_PROBLEM_MAP-> setAxisTitle("ieta",1);
+    HF_DATAFORMAT_PROBLEM_MAP-> setAxisTitle("iphi",2);
+
+    type = "HB DataIntegrity Problem Zoo";
+    HB_DATAFORMAT_PROBLEM_ZOO = m_dbe->book1D(type, type, 16, 0, 16);   
+    labelthezoo(HB_DATAFORMAT_PROBLEM_ZOO);
+    type = "HE DataIntegrity Problem Zoo";
+    HE_DATAFORMAT_PROBLEM_ZOO = m_dbe->book1D(type, type, 16, 0, 16);   
+    labelthezoo(HE_DATAFORMAT_PROBLEM_ZOO);
+    type = "HF DataIntegrity Problem Zoo";
+    HF_DATAFORMAT_PROBLEM_ZOO = m_dbe->book1D(type, type, 16, 0, 16);   
+    labelthezoo(HF_DATAFORMAT_PROBLEM_ZOO);
+    type = "HO DataIntegrity Problem Zoo";
+    HO_DATAFORMAT_PROBLEM_ZOO = m_dbe->book1D(type, type, 16, 0, 16);   
+    labelthezoo(HO_DATAFORMAT_PROBLEM_ZOO);
+    
+
 
     m_dbe->setCurrentFolder(baseFolder_ + "/DCC Plots");
 
@@ -378,28 +404,28 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     meEVT_ = m_dbe->bookInt("Data Format Task Event Number");
     meEVT_->Fill(ievt_);
 
- /* Disable these histos for now
-     type = "Fiber 1 Orbit Message BCN";
-     meFib1OrbMsgBCN_= m_dbe->book2D(type,type,40,-0.25,19.75,18,-0.5,17.5);
-     type = "Fiber 2 Orbit Message BCN";
-     meFib2OrbMsgBCN_= m_dbe->book2D(type,type,40,-0.25,19.75,18,-0.5,17.5);
-     type = "Fiber 3 Orbit Message BCN";
-     meFib3OrbMsgBCN_= m_dbe->book2D(type,type,40,-0.25,19.75,18,-0.5,17.5);
-     type = "Fiber 4 Orbit Message BCN";
-     meFib4OrbMsgBCN_= m_dbe->book2D(type,type,40,-0.25,19.75,18,-0.5,17.5);
-     type = "Fiber 5 Orbit Message BCN";
-     meFib5OrbMsgBCN_= m_dbe->book2D(type,type,40,-0.25,19.75,18,-0.5,17.5);
-     type = "Fiber 6 Orbit Message BCN";
-     meFib6OrbMsgBCN_= m_dbe->book2D(type,type,40,-0.25,19.75,18,-0.5,17.5);
-     type = "Fiber 7 Orbit Message BCN";
-     meFib7OrbMsgBCN_= m_dbe->book2D(type,type,40,-0.25,19.75,18,-0.5,17.5);
-     type = "Fiber 8 Orbit Message BCN";
-     meFib8OrbMsgBCN_= m_dbe->book2D(type,type,40,-0.25,19.75,18,-0.5,17.5);
+    /* Disable these histos for now
+       type = "Fiber 1 Orbit Message BCN";
+       meFib1OrbMsgBCN_= m_dbe->book2D(type,type,40,-0.25,19.75,18,-0.5,17.5);
+       type = "Fiber 2 Orbit Message BCN";
+       meFib2OrbMsgBCN_= m_dbe->book2D(type,type,40,-0.25,19.75,18,-0.5,17.5);
+       type = "Fiber 3 Orbit Message BCN";
+       meFib3OrbMsgBCN_= m_dbe->book2D(type,type,40,-0.25,19.75,18,-0.5,17.5);
+       type = "Fiber 4 Orbit Message BCN";
+       meFib4OrbMsgBCN_= m_dbe->book2D(type,type,40,-0.25,19.75,18,-0.5,17.5);
+       type = "Fiber 5 Orbit Message BCN";
+       meFib5OrbMsgBCN_= m_dbe->book2D(type,type,40,-0.25,19.75,18,-0.5,17.5);
+       type = "Fiber 6 Orbit Message BCN";
+       meFib6OrbMsgBCN_= m_dbe->book2D(type,type,40,-0.25,19.75,18,-0.5,17.5);
+       type = "Fiber 7 Orbit Message BCN";
+       meFib7OrbMsgBCN_= m_dbe->book2D(type,type,40,-0.25,19.75,18,-0.5,17.5);
+       type = "Fiber 8 Orbit Message BCN";
+       meFib8OrbMsgBCN_= m_dbe->book2D(type,type,40,-0.25,19.75,18,-0.5,17.5);
     */
   
-   }
+  }
 
-   return;
+  return;
 }
 
 void HcalDataFormatMonitor::processEvent(const FEDRawDataCollection& rawraw, 
@@ -422,11 +448,30 @@ void HcalDataFormatMonitor::processEvent(const FEDRawDataCollection& rawraw,
   lastEvtN_ = -1;
   lastBCN_ = -1;
 
+  // Loop over all FEDs reporting the event, unpacking if good.
   for (vector<int>::const_iterator i=fedUnpackList_.begin();i!=fedUnpackList_.end(); i++) {
     const FEDRawData& fed = rawraw.FEDData(*i);
     if (fed.size()<12) continue; // Was 16. How do such tiny events even get here?
     unpack(fed,emap);
   }
+
+  // Any problem worth mapping, anywhere?
+  for (unsigned int i =0 ; i < problemhere.size(); i++) {
+    for (unsigned int j =0 ; j < problemhere[i].size(); j++) {
+      if (problemhere[i][j]) {
+	phatmap[i][j] +=1;
+	//cout << "We got problemhere:" << i << ", " << j << " -> phatmap:";
+	//cout << phatmap[i][j] << endl;
+      }
+    }
+  }
+  UpdateMap();
+  for (unsigned int i =0 ; i < problemhere.size(); i++) {
+    for (unsigned int j =0 ; j < problemhere[i].size(); j++) {
+      problemhere[i][j] =false;
+    }
+  }  
+
 
   for(unsigned int i=0; i<report.getFedsError().size(); i++){
     // Take the ith entry in the vector of FED IDs
@@ -439,7 +484,7 @@ void HcalDataFormatMonitor::processEvent(const FEDRawDataCollection& rawraw,
     meFEDerrorMap_->Fill(dccid);
   }
 
-   return;
+  return;
 }
 
 // Process one FED's worth (one DCC's worth) of the event data.
@@ -498,7 +543,7 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
   CDFEvT_it = CDFEventType_list.find(dccid);
   if (CDFEvT_it  == CDFEventType_list.end()) {
     CDFEventType_list.insert(pair<int,short>
-				 (dccid,dccHeader->getCDFEventType() ) );
+			     (dccid,dccHeader->getCDFEventType() ) );
     CDFEvT_it = CDFEventType_list.find(dccid);
   } // then check against it.
   if (dccHeader->getCDFEventType()!= CDFEvT_it->second) {
@@ -519,7 +564,7 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
   CDFReservedBits_it = CDFReservedBits_list.find(dccid);
   if (CDFReservedBits_it  == CDFReservedBits_list.end()) {
     CDFReservedBits_list.insert(pair<int,short>
-				 (dccid,dccHeader->getSlink64ReservedBits() ) );
+				(dccid,dccHeader->getSlink64ReservedBits() ) );
     CDFReservedBits_it = CDFReservedBits_list.find(dccid);
   } // then check against it.
   if ((int) dccHeader->getSlink64ReservedBits()!= CDFReservedBits_it->second) {
@@ -552,37 +597,34 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
     DATAFORMAT_PROBLEM_ZOO->Fill(6);
     cout << "CDF Problem to indicate, DCC no. " << dccid -700 << endl;
     //Set the problem flag for the ieta, iphi of any channel in this DCC
-    for (std::vector<HcalDetId>::iterator thishdi = DCCtoCell[dccid -700].begin(); 
-	 thishdi != DCCtoCell[dccid-700].end(); thishdi++) {
-      problemhere[thishdi->ieta() - IETAMIN][thishdi->iphi()] = true;
-      //cout << "DCCid-700 and eta phi" << dccid-700 << thishdi->ieta() - IETAMIN ", " thishdi->iphi() << endl;
-    }
+    mapDCCproblem(dccid);
   }
-  CDFProbThisDCC = false;
+  CDFProbThisDCC = false;  // reset for the next go-round.
   
   char CRC_err;
   for(int i=0; i<HcalDCCHeader::SPIGOT_COUNT; i++) {
     CRC_err = ((dccHeader->getSpigotSummary(i) << 10) & 0x00000001);
     if (CRC_err) {
       DATAFORMAT_PROBLEM_ZOO->Fill(5);
-      cout << "CRC Problem to indicate, DCC no. " << dccid -700 << " spigot " << i << endl;
       //Set the problem flag for the ieta, iphi of any channel in this DCC
-      pair <int,int> thishtr = pair <int,int> (dccid-700, i);
-      for (std::vector<HcalDetId>::iterator thishdi = HTRtoCell[thishtr].begin(); 
-	   thishdi != HTRtoCell[thishtr].end(); thishdi++) {
-	problemhere[thishdi->ieta() - IETAMIN][thishdi->iphi()] = true;
-	//cout << "DCCid-700 and eta phi" << dccid-700 << thishdi->ieta() - IETAMIN ", " thishdi->iphi() << endl;
-      }
-      
+      mapHTRproblem(dccid, i);  
     }
   }
- 
+  
+  char TTS_state=(char) dccHeader->getAcceptTimeTTS();
+  if (TTS_state & 0x4) /*BSY*/ {
+    DATAFORMAT_PROBLEM_ZOO-> Fill(10);
+  }
+  if (TTS_state & 0x1) /*OFW*/ {
+    DATAFORMAT_PROBLEM_ZOO-> Fill(9);
+    mapDCCproblem(dccid);
+  }
   ////////// Histogram problems with DCC Event Format compliance;////////////
   /* 1 */ //Make sure a reference value of the DCC Event Format version has been noted for this dcc.
   DCCEvtFormat_it = DCCEvtFormat_list.find(dccid);
   if (DCCEvtFormat_it == DCCEvtFormat_list.end()) {
     DCCEvtFormat_list.insert(pair<int,short>
-				 (dccid,dccHeader->getDCCDataFormatVersion() ) );
+			     (dccid,dccHeader->getDCCDataFormatVersion() ) );
     DCCEvtFormat_it = DCCEvtFormat_list.find(dccid);
   } // then check against it.
   if (dccHeader->getDCCDataFormatVersion()!= DCCEvtFormat_it->second) 
@@ -591,7 +633,7 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
   if (false) //dccHeader->getByte1Zeroes() || dccHeader->getByte3Zeroes() || dccHeader->getByte567Zeroes()) 
     meDCCEventFormatError_->Fill(dccid,2);
   /* 3 */ //Check that there are zeros following the HTR Status words.
-        int SpigotPad = HcalDCCHeader::SPIGOT_COUNT;
+  int SpigotPad = HcalDCCHeader::SPIGOT_COUNT;
   if (  ((uint64_t) dccHeader->getSpigotSummary(SpigotPad)  ) 
 	| ((uint64_t) dccHeader->getSpigotSummary(SpigotPad+1)) 
 	| ((uint64_t) dccHeader->getSpigotSummary(SpigotPad+2))  != 0)
@@ -629,21 +671,60 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
   /* [1:8] */ //Histogram HTR Error Bits in the DCC Headers
   bool FoundOne;
   unsigned char WholeErrorList=0; 
-  for (int i=0; i<8; i++) {
-    FoundOne=false;
-    for(int j=0; j<HcalDCCHeader::SPIGOT_COUNT; j++) {
-      WholeErrorList=dccHeader->getSpigotErrorBits((unsigned int) j);
-      if ((WholeErrorList>>i)&0x01) FoundOne=true;}
-    if (FoundOne) meDCCSummariesOfHTRs_->Fill(dccid, i+1);
+  for(int j=0; j<HcalDCCHeader::SPIGOT_COUNT; j++) {
+    WholeErrorList=dccHeader->getSpigotErrorBits((unsigned int) j);
+    if ((WholeErrorList>>0)&0x01) { //HTR OFW
+      meDCCSummariesOfHTRs_->Fill(dccid, 1);
+      DATAFORMAT_PROBLEM_ZOO->Fill(11);
+    }
+    if ((WholeErrorList>>1)&0x01) { //HTR BSY
+      meDCCSummariesOfHTRs_->Fill(dccid, 2);
+      DATAFORMAT_PROBLEM_ZOO->Fill(12);
+    }
+    if ((WholeErrorList>>2)&0x01) { //EE
+      meDCCSummariesOfHTRs_->Fill(dccid, 3);
+      mapHTRproblem(dccid, j);
+      DATAFORMAT_PROBLEM_ZOO->Fill(1);
+    }
+    if ((WholeErrorList>>3)&0x01) { //Trigger Rule Viol.
+      meDCCSummariesOfHTRs_->Fill(dccid, 4);
+      DATAFORMAT_PROBLEM_ZOO->Fill(13);
+    }
+    if ((WholeErrorList>>4)&0x01) { //Latency Err
+      meDCCSummariesOfHTRs_->Fill(dccid, 5);
+    }
+    if ((WholeErrorList>>5)&0x01) { //Latency Warn
+      meDCCSummariesOfHTRs_->Fill(dccid, 6);
+    }
+    if ((WholeErrorList>>6)&0x01) { //OD
+      meDCCSummariesOfHTRs_->Fill(dccid, 7);
+      DATAFORMAT_PROBLEM_ZOO->Fill(15);
+    }
+    if ((WholeErrorList>>7)&0x01) { //CK
+      meDCCSummariesOfHTRs_->Fill(dccid, 8);
+      DATAFORMAT_PROBLEM_ZOO->Fill(16);
+    }
   }
   /* [9:16] */ //Histogram LRB Error Bits in the DCC Headers
   WholeErrorList=0; 
-  for (int i=0; i<8; i++) {
-    FoundOne=false;
-    for(int j=0; j<HcalDCCHeader::SPIGOT_COUNT; j++) {
-      WholeErrorList=dccHeader->getLRBErrorBits((unsigned int) j);
-      if ((WholeErrorList>>i)&0x01) FoundOne=true;}
-    if (FoundOne) meDCCSummariesOfHTRs_->Fill(dccid, i+9);
+  for(int j=0; j<HcalDCCHeader::SPIGOT_COUNT; j++) {
+    WholeErrorList=dccHeader->getLRBErrorBits((unsigned int) j);
+    if ((WholeErrorList>>0)&0x03) { //HammingCode Corrected & Uncorr
+      DATAFORMAT_PROBLEM_ZOO->Fill(4);
+      mapHTRproblem (dccid, j);
+      if ((WholeErrorList>>0)&0x01)  //HammingCode Corrected 
+	meDCCSummariesOfHTRs_->Fill(dccid, 9);
+      if ((WholeErrorList>>1)&0x01)  //HammingCode Uncorr
+	meDCCSummariesOfHTRs_->Fill(dccid, 10);
+    }
+    for (int i=2; i<8; i++) {
+      FoundOne=false;
+      if ((WholeErrorList>>i)&0x01) {
+	meDCCSummariesOfHTRs_->Fill(dccid, 9+i);
+	FoundOne = true;
+      }
+    }
+    if (FoundOne) mapHTRproblem(dccid, j);
   }
   /* [17:20] */ //Histogram condition of Enabled Spigots without data Present
   bool FoundEnotP=false;
@@ -677,9 +758,14 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
     // check min length, correct wordcount, empty event, or total length if histo event.
     if (!htr.check()) {
       meInvHTRData_ -> Fill(spigot,dccid);
+      DATAFORMAT_PROBLEM_ZOO->Fill(8);
+      mapHTRproblem(dccid,spigot);
       continue; }
     //    if (dccid ==709) cout << "Passed HTR Check,  Spigot =  " << spigot << endl;
     if (htr.isHistogramEvent()) continue;
+
+    if ( !(htr.getErrorsWord() >> 8) & 0x00000001) 
+      DATAFORMAT_PROBLEM_ZOO->Fill(14);
     
     int cratenum = htr.readoutVMECrateId();
     float slotnum = htr.htrSlot() + 0.5*htr.htrTopBottom();
@@ -707,14 +793,14 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
     meFibBCN_->Fill(fib7BCN);
     meFibBCN_->Fill(fib8BCN);
     /* Disable for now
-    meFib1OrbMsgBCN_->Fill(slotnum, cratenum, fib1BCN);
-    meFib2OrbMsgBCN_->Fill(slotnum, cratenum, fib2BCN);
-    meFib3OrbMsgBCN_->Fill(slotnum, cratenum, fib3BCN);
-    meFib4OrbMsgBCN_->Fill(slotnum, cratenum, fib4BCN);
-    meFib5OrbMsgBCN_->Fill(slotnum, cratenum, fib5BCN);
-    meFib6OrbMsgBCN_->Fill(slotnum, cratenum, fib6BCN);
-    meFib7OrbMsgBCN_->Fill(slotnum, cratenum, fib7BCN);
-    meFib8OrbMsgBCN_->Fill(slotnum, cratenum, fib8BCN);
+       meFib1OrbMsgBCN_->Fill(slotnum, cratenum, fib1BCN);
+       meFib2OrbMsgBCN_->Fill(slotnum, cratenum, fib2BCN);
+       meFib3OrbMsgBCN_->Fill(slotnum, cratenum, fib3BCN);
+       meFib4OrbMsgBCN_->Fill(slotnum, cratenum, fib4BCN);
+       meFib5OrbMsgBCN_->Fill(slotnum, cratenum, fib5BCN);
+       meFib6OrbMsgBCN_->Fill(slotnum, cratenum, fib6BCN);
+       meFib7OrbMsgBCN_->Fill(slotnum, cratenum, fib7BCN);
+       meFib8OrbMsgBCN_->Fill(slotnum, cratenum, fib8BCN);
     */  
 
     unsigned int htrFWVer = htr.getFirmwareRevision() & 0xFF;
@@ -723,9 +809,9 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
     ///check that all HTRs have the same L1A number
     unsigned int refEvtNum = dccEvtNum;
     /*Could use Evt # from dcc as reference, but not now.
-    if(htr.getL1ANumber()!=refEvtNum) {meEvtNumberSynch_->Fill(slotnum,cratenum);
+      if(htr.getL1ANumber()!=refEvtNum) {meEvtNumberSynch_->Fill(slotnum,cratenum);
       if (prtlvl_ == 1)cout << "++++ Evt # out of sync, ref, this HTR: "<< refEvtNum << "  "<<htr.getL1ANumber() <<endl;
- }
+      }
     */
 
     if(lastEvtN_==-1) {lastEvtN_ = htrEvtN;  ///the first one will be the reference
@@ -737,17 +823,17 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
       if((int) htrEvtN!=lastEvtN_) {meEvtNumberSynch_->Fill(slotnum,cratenum);
       if (prtlvl_ == 1)cout << "++++ Evt # out of sync, ref, this HTR: "<< lastEvtN_ << "  "<<htrEvtN <<endl;}
 
-}
+    }
 
     ///check that all HTRs have the same BCN
 
     unsigned int refBCN = dccBCN;
     /*Could use BCN from dcc as reference, but not now.
-    if(htr.getBunchNumber()!=refBCN) {meBCNSynch_->Fill(slotnum,cratenum);
-    if (prtlvl_==1)cout << "++++ BCN # out of sync, ref, this HTR: "<< refBCN << "  "<<htrBCN <<endl;
-}
+      if(htr.getBunchNumber()!=refBCN) {meBCNSynch_->Fill(slotnum,cratenum);
+      if (prtlvl_==1)cout << "++++ BCN # out of sync, ref, this HTR: "<< refBCN << "  "<<htrBCN <<endl;
+      }
     */
- // Use 1st HTR as reference
+    // Use 1st HTR as reference
     if(lastBCN_==-1) {lastBCN_ = htrBCN;  ///the first one will be the reference
     refBCN = lastBCN_;
     int BCNdiff = htrBCN-dccBCN;
@@ -791,57 +877,40 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
 	}
       }
     }    
-     int errWord = htr.getErrorsWord() & 0x1FFFF;
-     if(tmpErr!=NULL){
-       for(int i=0; i<16; i++){
-	 int errbit = errWord&(0x01<<i);
-	 // Bit 15 should always be 1; consider it an error if it isn't.
-	 if (i==15) errbit = errbit - 0x8000;
-	 if (errbit !=0){
-	   tmpErr->Fill(i);
-	   if (i==5 && prtlvl_ != -1) continue; // Skip latency warning for now
-	   meErrWdCrate_->Fill(cratenum,i);
-	   if (cratenum ==0)meCrate0HTRErr_ -> Fill(slotnum,i);
-	   else if (cratenum ==1)meCrate1HTRErr_ -> Fill(slotnum,i);
-	   else if (cratenum ==2)meCrate2HTRErr_ -> Fill(slotnum,i);
-	   else if (cratenum ==3)meCrate3HTRErr_ -> Fill(slotnum,i);
-	   else if (cratenum ==4)meCrate4HTRErr_ -> Fill(slotnum,i);
-	   else if (cratenum ==5)meCrate5HTRErr_ -> Fill(slotnum,i);
-	   else if (cratenum ==6)meCrate6HTRErr_ -> Fill(slotnum,i);
-	   else if (cratenum ==7)meCrate7HTRErr_ -> Fill(slotnum,i);
-	   else if (cratenum ==8)meCrate8HTRErr_ -> Fill(slotnum,i);
-	   else if (cratenum ==9)meCrate9HTRErr_ -> Fill(slotnum,i);
-	   else if (cratenum ==10)meCrate10HTRErr_ -> Fill(slotnum,i);
-	   else if (cratenum ==11)meCrate11HTRErr_ -> Fill(slotnum,i);
-	   else if (cratenum ==12)meCrate12HTRErr_ -> Fill(slotnum,i);
-	   else if (cratenum ==13)meCrate13HTRErr_ -> Fill(slotnum,i);
-	   else if (cratenum ==14)meCrate14HTRErr_ -> Fill(slotnum,i);
-	   else if (cratenum ==15)meCrate15HTRErr_ -> Fill(slotnum,i);
-	   else if (cratenum ==16)meCrate16HTRErr_ -> Fill(slotnum,i);
-	   else if (cratenum ==17)meCrate17HTRErr_ -> Fill(slotnum,i);
-	 } 
-       }
-     }    
-   }
-
-  // Any problem worth mapping, anywhere?
-  for (unsigned int i =0 ; i < problemhere.size(); i++) {
-    for (unsigned int j =0 ; j < problemhere[i].size(); j++) {
-      if (problemhere[i][j]) {
-	phatmap[i][j] +=1;
-	//cout << "We got problemhere:" << i << ", " << j << " -> phatmap:";
-	//cout << phatmap[i][j] << endl;
+    int errWord = htr.getErrorsWord() & 0x1FFFF;
+    if(tmpErr!=NULL){
+      for(int i=0; i<16; i++){
+	int errbit = errWord&(0x01<<i);
+	// Bit 15 should always be 1; consider it an error if it isn't.
+	if (i==15) errbit = errbit - 0x8000;
+	if (errbit !=0){
+	  tmpErr->Fill(i);
+	  if (i==5 && prtlvl_ != -1) continue; // Skip latency warning for now
+	  meErrWdCrate_->Fill(cratenum,i);
+	  if (cratenum ==0)meCrate0HTRErr_ -> Fill(slotnum,i);
+	  else if (cratenum ==1)meCrate1HTRErr_ -> Fill(slotnum,i);
+	  else if (cratenum ==2)meCrate2HTRErr_ -> Fill(slotnum,i);
+	  else if (cratenum ==3)meCrate3HTRErr_ -> Fill(slotnum,i);
+	  else if (cratenum ==4)meCrate4HTRErr_ -> Fill(slotnum,i);
+	  else if (cratenum ==5)meCrate5HTRErr_ -> Fill(slotnum,i);
+	  else if (cratenum ==6)meCrate6HTRErr_ -> Fill(slotnum,i);
+	  else if (cratenum ==7)meCrate7HTRErr_ -> Fill(slotnum,i);
+	  else if (cratenum ==8)meCrate8HTRErr_ -> Fill(slotnum,i);
+	  else if (cratenum ==9)meCrate9HTRErr_ -> Fill(slotnum,i);
+	  else if (cratenum ==10)meCrate10HTRErr_ -> Fill(slotnum,i);
+	  else if (cratenum ==11)meCrate11HTRErr_ -> Fill(slotnum,i);
+	  else if (cratenum ==12)meCrate12HTRErr_ -> Fill(slotnum,i);
+	  else if (cratenum ==13)meCrate13HTRErr_ -> Fill(slotnum,i);
+	  else if (cratenum ==14)meCrate14HTRErr_ -> Fill(slotnum,i);
+	  else if (cratenum ==15)meCrate15HTRErr_ -> Fill(slotnum,i);
+	  else if (cratenum ==16)meCrate16HTRErr_ -> Fill(slotnum,i);
+	  else if (cratenum ==17)meCrate17HTRErr_ -> Fill(slotnum,i);
+	} 
       }
-    }
-  }
-  UpdateMap();
-  for (unsigned int i =0 ; i < problemhere.size(); i++) {
-    for (unsigned int j =0 ; j < problemhere[i].size(); j++) {
-      problemhere[i][j] =false;
-    }
-  }
+    }    
+  } //  for (int spigot=0; spigot<HcalDCCHeader::SPIGOT_COUNT; spigot++) 
 
-   return;
+  return;
 } // void HcalDataFormatMonitor::unpack(
 
 void HcalDataFormatMonitor::HTRPrint(const HcalHTRData& htr,int prtlvl){
@@ -859,7 +928,7 @@ void HcalDataFormatMonitor::HTRPrint(const HcalHTRData& htr,int prtlvl){
     float slotnum = htr.htrSlot() + 0.5*htr.htrTopBottom();
     printf("Crate, Slot:%3i %4.1f \n", cratenum,slotnum);
     //    printf("  Ext Hdr: %4X %4X %4X %4X %4X %4X %4X %4X \n",htr.getExtHdr1(),htr.getExtHdr2(),htr.getExtHdr3(),htr.getExtHdr4(),htr.getExtHdr5(),htr.getExtHdr6(),htr.getExtHdr7(),htr.getExtHdr8());
-}
+  }
 
   else if (prtlvl == 3){
     int cratenum = htr.readoutVMECrateId();
@@ -868,7 +937,7 @@ void HcalDataFormatMonitor::HTRPrint(const HcalHTRData& htr,int prtlvl){
     printf(" FibOrbMsgBCNs: %4X %4X %4X %4X %4X %4X %4X %4X \n",htr.getFib1OrbMsgBCN(),htr.getFib2OrbMsgBCN(),htr.getFib3OrbMsgBCN(),htr.getFib4OrbMsgBCN(),htr.getFib5OrbMsgBCN(),htr.getFib6OrbMsgBCN(),htr.getFib7OrbMsgBCN(),htr.getFib8OrbMsgBCN());
   }
 
-return;
+  return;
 }
 void HcalDataFormatMonitor::labelHTRBits(MonitorElement* mePlot,unsigned int axisType) {
 
@@ -894,10 +963,29 @@ void HcalDataFormatMonitor::labelHTRBits(MonitorElement* mePlot,unsigned int axi
   return;
 }
 
+void HcalDataFormatMonitor::labelthezoo(MonitorElement* zoo) {
+  zoo-> setBinLabel(1,"EE - HTR lost",1);    //HTR sent Empty Event
+  zoo-> setBinLabel(2,"LRB lost",1);	    //LRB truncated data
+  zoo-> setBinLabel(3,"FEE",1);		    //CapID or DV not set correctly
+  zoo-> setBinLabel(4,"HAM",1);		    //Corr. & Uncorr. Hamm.
+  zoo-> setBinLabel(5,"HTR CRC",1);	    //DCC found HTR CRC err
+  zoo-> setBinLabel(6,"CMS EvFmt",1);	    //Common Data Format failed check
+  zoo-> setBinLabel(7,"DCC EvFmt",1);	    //DCC Event format failed check
+  zoo-> setBinLabel(8,"HTR EvFmt",1);	    //HTR Event Format failed check
+  zoo-> setBinLabel(9,"DCC OFW",1);	    //DCC Overflow Warning
+  zoo-> setBinLabel(10,"DCC BSY",1);	    //DCC Busy 
+  zoo-> setBinLabel(11,"HTR OFW",1);	    //HTR Overflow Warning
+  zoo-> setBinLabel(12,"HTR BSY",1);	    //HTR Busy 
+  zoo-> setBinLabel(13,"RL1A",1);	    //HTR Rejected L1A
+  zoo-> setBinLabel(14,"BE",1);		    //HTR Bunchcount Error
+  zoo-> setBinLabel(15,"OD",1);		    //Optical Data error  
+  zoo-> setBinLabel(16,"CK",1);		    //Clock Error from HTR              
+}
+
 // Public function so HcalMonitorModule can slip in a 
 // logical map digest or two. 
 void HcalDataFormatMonitor::smuggleMaps(std::map<uint32_t, std::vector<HcalDetId> >& givenDCCtoCell,
-		std::map<pair <int,int> , std::vector<HcalDetId> >& givenHTRtoCell) {
+					std::map<pair <int,int> , std::vector<HcalDetId> >& givenHTRtoCell) {
   DCCtoCell = givenDCCtoCell;
   HTRtoCell = givenHTRtoCell;
   return;

@@ -2,8 +2,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2008/08/17 23:11:02 $
- * $Revision: 1.70 $
+ * $Date: 2008/08/21 13:43:51 $
+ * $Revision: 1.71 $
  * \author W Fisher
  *
 */
@@ -229,6 +229,7 @@ void HcalMonitorModule::beginJob(const edm::EventSetup& c){
 
     //Get the HcalDetId from the HcalElectronicsId
     detid_ = readoutMap_->lookup(*eid);
+    
 
     // NULL if illegal; ignore
     if (!detid_.null()) {
@@ -276,8 +277,10 @@ void HcalMonitorModule::beginJob(const edm::EventSetup& c){
       }
     } // fi (!detid_.null()) 
   } 
-  cout << "About to smuggle from beginJob()" << endl;
-  dfMon_->smuggleMaps(DCCtoCell, HTRtoCell);
+  if (dfMon_) {
+    cout << "About to smuggle from beginJob()" << endl;
+    dfMon_->smuggleMaps(DCCtoCell, HTRtoCell);
+  }
   //get conditions
   c.get<HcalDbRecord>().get(conditions_);
 

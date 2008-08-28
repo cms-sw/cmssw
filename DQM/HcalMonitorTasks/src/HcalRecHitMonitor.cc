@@ -217,18 +217,18 @@ void HcalRecHitMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
     ZDCxplusVSxminus = m_dbe->book2D("ZDC_EM_Xplus_Vs_Xminus","ZDC EM <X+> vs <X->",
 				     147,-73,74,147,-73,74);
     // Adjust these limits later
-    ZDChadVSem_plus = m_dbe->book2D("ZDCplus_HAD_vs_EM","ZDC+ HAD vs EM",200,0,100,200,0,100);
-    ZDChadVSem_minus = m_dbe->book2D("ZDCminus_HAD_vs_EM","ZDC- HAD vs EM",200,0,100,200,0,100);
+    ZDChadVSem_plus = m_dbe->book2D("ZDCplus_HAD_vs_EM","ZDC+ HAD vs EM",400,-100,100,400,-100,100);
+    ZDChadVSem_minus = m_dbe->book2D("ZDCminus_HAD_vs_EM","ZDC- HAD vs EM",400,-100,100,400,-100,100);
     ZDCenergy_plusVSminus = m_dbe->book2D("ZDC_energy_plus_vs_minus","ZDC Energy Plus vs Minus",
-					  200,0,200,200,0,200);
-    ZDCenergyVSlayer_plus = m_dbe->bookProfile("ZDC_plus_energy_vs_layer", "ZDC Plus Energy vs Layer",5,0,5,200,0,200);
+					  400,-200,200,400,-200,200);
+    ZDCenergyVSlayer_plus = m_dbe->bookProfile("ZDC_plus_energy_vs_layer", "ZDC Plus Energy vs Layer",5,0,5,400,-200,200);
     ZDCenergyVSlayer_plus->setBinLabel(1,"EM");
     ZDCenergyVSlayer_plus->setBinLabel(2,"HAD0");
     ZDCenergyVSlayer_plus->setBinLabel(3,"HAD1");
     ZDCenergyVSlayer_plus->setBinLabel(4,"HAD2");
     ZDCenergyVSlayer_plus->setBinLabel(5,"HAD3");
     
-    ZDCenergyVSlayer_minus = m_dbe->bookProfile("ZDC_minus_energy_vs_layer", "ZDC Minus Energy vs Layer",5,0,5,200,0,200);
+    ZDCenergyVSlayer_minus = m_dbe->bookProfile("ZDC_minus_energy_vs_layer", "ZDC Minus Energy vs Layer",5,0,5,400,-200,200);
     ZDCenergyVSlayer_minus->setBinLabel(1,"EM");
     ZDCenergyVSlayer_minus->setBinLabel(2,"HAD0");
     ZDCenergyVSlayer_minus->setBinLabel(3,"HAD1");
