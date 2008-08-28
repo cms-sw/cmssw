@@ -225,6 +225,7 @@ def getDiff(data1,data2,npoints,last_event,orig_max_val):
     #graph.GetYaxis().SetTitle("s")
     graph.GetXaxis().SetLimits(0,last_event)
     graph.GetYaxis().SetRangeUser(min_val,max_val)
+    #leg = ROOT.TLegend(0.7,0.8,1.2,0.89)
     leg = ROOT.TLegend(0.5,0.7,0.89,0.89)
     leg.AddEntry(graph, "Mean: %s" % str(mean), "l")            
     leg.AddEntry(graph, "RMS : %s" % str(rms) , "l")
