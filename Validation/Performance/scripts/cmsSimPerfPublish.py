@@ -13,7 +13,7 @@
 #            functionality.
 import tempfile as tmp
 import optparse as opt
-import re, os, sys, time, glob, socket, fnmatch
+import re, os, sys, time, glob, socket, fnmatch, cmsPerfRegress
 from shutil import copy2, copystat
 from stat   import *
 
@@ -787,12 +787,16 @@ def copytree4(src,dest,keepTop=True):
                 dontFilter = reduce(lambda x,y: x or y,map(lambda x: fnmatch.fnmatch(node,x),filter))
             if dontFilter:
                 node = os.path.join(curdir,node) # convert to absolute path
-                newnode = _getNewLocation(source,node,dst)
-
-                if dirs:
-                    os.mkdir(newnode)                
-                else:
-                    copy2(node,newnode)
+                try:
+                    newnode = _getNewLocation(source,node,dst)
+                    if dirs:
+                        os.mkdir(newnode)                
+                    else:
+                        copy2(node,newnode)
+                except IOError, detail:
+                    print "WARNING: Could not copy %s to %s because %s" % (node,newnode,detail)                    
+                except ReldirExcept:
+                    print "WARNING: Could not determine new location for source %s into destination %s" % (source,node,dst)
                     
     gen  = os.walk(src)
     try:
