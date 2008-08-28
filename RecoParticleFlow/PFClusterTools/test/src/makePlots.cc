@@ -6,124 +6,169 @@ void makePlots() {
 	file.cd("/plots");
 
 	plots->mkdir("linearity");
+	plots->mkdir("targetFunction");
+	plots->mkdir("bias");
+
 	file.cd("/plots/linearity");
 
 	tv__tree->Draw(
 			"calibrations_.particleEnergy_:sim_energyEvent_>>uncalibrated",
 			"calibrations_.provenance_ == 0", "box");
-	TH2D* uncalibrated = (TH2D*) gDirectory->Get("uncalibrated");
-	uncalibrated->FitSlicesY();
-	uncalibrated->ProfileX();
-	TProfile
-			* uncalibrated_pfx = (TProfile*) gDirectory->Get("uncalibrated_pfx");
-	uncalibrated_pfx->Write();
-	TH1D* uncalibrated_1 = (TH1D*) gDirectory->Get("uncalibrated_1");
-	uncalibrated_1->SetTitle("Uncalibrated fitted mean");
-	uncalibrated_1->SetXTitle("sim_energyEvent_");
-	uncalibrated_1->SetYTitle("calibrations_.particleEnergy_");
-	uncalibrated_1->SetMarkerStyle(21);
-	uncalibrated_1->SetMarkerColor(kRed);
-	uncalibrated_1->Write();
-	uncalibrated->Write();
+	doLinearityPlots(file, "uncalibrated", "Uncalibrated", kRed);
+	doRatioPlots(file, "uncalibrated", "Uncalibrated", kRed);
+	doTargetFunctions(file, "uncalibrated", "Uncalibrated", kRed);
 
+	file.cd("/plots/linearity");
 	tv__tree->Draw(
 			"calibrations_.particleEnergy_:sim_energyEvent_>>calibrated",
-			"calibrations_.provenance_ != 0", "box");
-	TH2D* calibrated = (TH2D*) gDirectory->Get("calibrated");
-	calibrated->FitSlicesY();
-	calibrated->ProfileX();
-	TProfile* calibrated_pfx = (TProfile*) gDirectory->Get("calibrated_pfx");
-	calibrated_pfx->Write();
-	TH1D* calibrated_1 = (TH1D*) gDirectory->Get("calibrated_1");
-	calibrated_1->SetTitle("Calibrated fitted mean");
-	calibrated_1->SetXTitle("sim_energyEvent_");
-	calibrated_1->SetYTitle("calibrations_.particleEnergy_");
-	calibrated_1->SetMarkerStyle(22);
-	calibrated_1->SetMarkerColor(kViolet + 7);
-	calibrated_1->Write();
-	calibrated->Write();
+			"calibrations_.provenance_ > 0", "box");
+	doLinearityPlots(file, "calibrated", "Calibrated",  kBlue);
+	doRatioPlots(file, "calibrated", "Calibrated",  kBlue);
+	doTargetFunctions(file, "calibrated", "Calibrated", kBlue);
 
-	file.cd("/");
-	plots->mkdir("bias");
+	file.cd("/plots/linearity");
+	tv__tree->Draw(
+			"calibrations_.particleEnergy_:sim_energyEvent_>>calibratedCorr",
+			"calibrations_.provenance_ < 0", "box");
+	doLinearityPlots(file, "calibratedCorr", "Calibrated and corrected", kViolet);
+	doRatioPlots(file, "calibratedCorr", "Calibrated and corrected", kViolet);
+	doTargetFunctions(file, "calibratedCorr", "Calibrated and corrected", kViolet);
+
 	file.cd("/plots/bias");
+	tv__tree->Draw("calibrations_.bias_:sim_energyEvent_>>calibrated_bias",
+			"calibrations_.provenance_ > 0", "box");
+	doBiasPlots(file, "calibrated_bias", "Calibrated", kBlue);
 
-	tv__tree->Draw("calibrations_.bias_:sim_energyEvent_>>calibbias",
-			"calibrations_.provenance_ != 0", "box");
-	TH2D* calibbias = (TH2D*) gDirectory->Get("calibbias");
-	calibbias->FitSlicesY();
-	calibbias->ProfileX();
-	TProfile* calibbias_pfx = (TProfile*) gDirectory->Get("calibbias_pfx");
-	calibbias_pfx->Write();
-	TH1D* calibbias_1 = (TH1D*) gDirectory->Get("calibbias_1");
-	calibbias_1->SetTitle("Calibrated bias");
-	calibbias_1->SetXTitle("sim_energyEvent_");
-	calibbias_1->SetYTitle("calibrations_.bias_");
-	calibbias_1->SetMarkerStyle(21);
-	calibbias_1->SetMarkerColor(kViolet+7);
-	calibbias_1->Write();
-	calibbias->Write();
+	tv__tree->Draw("calibrations_.bias_:sim_energyEvent_>>calibratedCorr_bias",
+			"calibrations_.provenance_ < 0", "box");
+	doBiasPlots(file, "calibratedCorr_bias", "Calibrated and corrected", kViolet);
 
-	tv__tree->Draw("calibrations_.bias_:sim_energyEvent_>>uncalibbias",
+	tv__tree->Draw("calibrations_.bias_:sim_energyEvent_>>uncalibrated_bias",
 			"calibrations_.provenance_ == 0", "box");
-	TH2D* uncalibbias = (TH2D*) gDirectory->Get("uncalibbias");
-	uncalibbias->FitSlicesY();
-	uncalibbias->ProfileX();
-	TProfile* uncalibbias_pfx = (TProfile*) gDirectory->Get("uncalibbias_pfx");
-	uncalibbias_pfx->Write();
-	TH1D* uncalibbias_1 = (TH1D*) gDirectory->Get("uncalibbias_1");
-	uncalibbias_1->SetTitle("Uncalibrated bias");
-	uncalibbias_1->SetXTitle("sim_energyEvent_");
-	uncalibbias_1->SetYTitle("calibrations_.bias_");
-	uncalibbias_1->SetMarkerStyle(22);
-	uncalibbias_1->SetMarkerColor(kRed);
-	uncalibbias_1->Write();
-	uncalibbias->Write();
+	doBiasPlots(file, "uncalibrated_bias", "Uncalibrated", kRed);
 
-	//Now deal with target functions
-	file.cd("/");
-	plots->mkdir("targetfn");
-	file.cd("/plots/targetfn");
+}
 
-	tv__tree->Draw(
-			"calibrations_.targetFuncContrib_:calibrations_.truthEnergy_>>calibtarg",
-			"calibrations_.provenance_ !=0 ", "box");
-	TH2D* calibtarg = (TH2D*) gDirectory->Get("calibtarg");
-	calibtarg->Rebin2D(3, 1);
-	double start = calibtarg->GetBinLowEdge(1);
-	double width = calibtarg->GetBinWidth(1);
-	double end = calibtarg->GetBinLowEdge(calibtarg->GetNbinsX() + 1);
-	TH1F
-			* calibtargfn = new TH1F("calibtargfn", "Calibrated target function;true energy;target", calibtarg->GetNbinsX(), start, end);
-	TProfile* calibtarg_pfx = calibtarg->ProfileX();
-	for (unsigned k(1); k < calibtarg_pfx->GetNbinsX() + 1; ++k) {
-		double targfn = sqrt(calibtarg_pfx->GetBinContent(k)
-				/(calibtarg_pfx->GetBinCenter(k)));
-		calibtargfn->Fill(calibtarg_pfx->GetBinCenter(k), targfn);
-		std::cout << "k: "<< k << ":\t"<< k * width << " = \t"<< targfn<< "\n";
+void doLinearityPlots(TFile& f, std::string leadingName, std::string title, Color_t color = kBlack) {
 
+	std::string leadingName_1(leadingName);
+	leadingName_1.append("_1");
+	std::string leadingName_2(leadingName);
+	leadingName_2.append("_2");
+	std::string leadingName_profile(leadingName);
+	leadingName_profile.append("_pfx");
+	std::string titleCpy(title);
+
+	TH2D* source = (TH2D*) gDirectory->Get(leadingName.c_str());
+	source->FitSlicesY();
+	source->ProfileX();
+	TProfile
+			* profile = (TProfile*) gDirectory->Get(leadingName_profile.c_str());
+	title.append(" sample mean");
+	profile->SetTitle(title.c_str());
+	profile->SetMarkerStyle(22);
+	profile->SetMarkerColor(color);
+	profile->Write();
+	TH1D* source_1 = (TH1D*) gDirectory->Get(leadingName_1.c_str());
+	titleCpy.append(" fitted mean");
+	source_1->SetTitle(titleCpy.c_str());
+	source_1->SetXTitle("E_{true} (GeV)");
+	source_1->SetYTitle("calibrations_.particleEnergy_");
+	source_1->SetMarkerStyle(22);
+	source_1->SetMarkerColor(color);
+	source_1->Write();
+	source->Write();
+	TH1D* source_2 = (TH1D*) gDirectory->Get(leadingName_2.c_str());
+	source_2->SetMarkerStyle(22);
+	source_2->SetMarkerColor(color);
+	source_2->Write();
+}
+
+void doBiasPlots(TFile& f, std::string leadingName, std::string title, Color_t color = kBlack) {
+	f.cd("/plots/bias");
+	std::string leadingName_1(leadingName);
+	leadingName_1.append("_1");
+	std::string leadingName_profile(leadingName);
+	leadingName_profile.append("_pfx");
+	std::string titleCpy(title);
+	
+	TH2D* bias = (TH2D*) gDirectory->Get(leadingName.c_str());
+	bias->FitSlicesY();
+	bias->ProfileX();
+	TProfile
+			* profile = (TProfile*) gDirectory->Get(leadingName_profile.c_str());
+	title.append(" sample bias");
+	profile->SetTitle(title.c_str());
+	profile->SetXTitle("E_{true} (GeV)");
+	profile->SetYTitle("calibrations_.bias_");
+	profile->SetMarkerStyle(22);
+	profile->SetMarkerColor(color);
+	profile->Write();
+	TH1D* bias_1 = (TH1D*) gDirectory->Get(leadingName_1.c_str());
+	titleCpy.append(" fitted bias");
+	bias_1->SetTitle(titleCpy.c_str());
+	bias_1->SetXTitle("E_{true} (GeV)");
+	bias_1->SetYTitle("calibrations_.bias_");
+	bias_1->SetMarkerStyle(22);
+	bias_1->SetMarkerColor(color);
+	bias_1->Write();
+	bias->Write();
+}
+
+void doRatioPlots(TFile& f, std::string leadingName, std::string title, Color_t color = kBlack) {
+	std::string leadingName_ratio(leadingName);
+	leadingName_ratio.append("_ratio");
+	std::string leadingName_1(leadingName);
+	leadingName_1.append("_pfx");
+
+	TH1D* source = (TH1D*) gDirectory->Get(leadingName_1.c_str());
+
+	double start = source->GetBinLowEdge(1);
+	double width = source->GetBinWidth(1);
+	double end = source->GetBinLowEdge(source->GetNbinsX() + 1);
+
+	TH1F* ratio = new TH1F(leadingName_ratio.c_str(), title.c_str(), source->GetNbinsX(), start, end);
+	ratio->SetXTitle("E_{true} (GeV)");
+	ratio->SetYTitle("E_{reco}/E_{true}");
+	for (unsigned k(1); k < source->GetNbinsX() + 1; ++k) {
+		double ratioVal = source->GetBinContent(k)/(width * k + start);
+		ratio->Fill(width * k + start, ratioVal);
 	}
-	calibtargfn->SetFillColor(kViolet+7);
-	calibtargfn->Write();
+	ratio->SetMarkerStyle(22);
+	ratio->SetMarkerColor(color);
+	ratio->Write();
+}
 
-	tv__tree->Draw(
-			"calibrations_.targetFuncContrib_:calibrations_.truthEnergy_>>uncalibtarg",
-			"calibrations_.provenance_==0", "box");
-	TH2D* uncalibtarg = (TH2D*) gDirectory->Get("uncalibtarg");
-	uncalibtarg->Rebin2D(3, 1);
-	start = uncalibtarg->GetBinLowEdge(1);
-	width = uncalibtarg->GetBinWidth(1);
-	end = uncalibtarg->GetBinLowEdge(uncalibtarg->GetNbinsX() + 1);
-	TH1F
-			* uncalibtargfn = new TH1F("uncalibtargfn", "Uncalibrated target function;true energy;target", uncalibtarg->GetNbinsX(), start, end);
-	TProfile* uncalibtarg_pfx = uncalibtarg->ProfileX();
-	for (unsigned k(1); k < uncalibtarg_pfx->GetNbinsX() + 1; ++k) {
-		double targfn = sqrt(uncalibtarg_pfx->GetBinContent(k)
-				/(uncalibtarg_pfx->GetBinCenter(k)));
-		uncalibtargfn->Fill(uncalibtarg_pfx->GetBinCenter(k), targfn);
-		std::cout << "k: "<< k << ":\t"<< k * width << " = \t"<< targfn<< "\n";
+void doTargetFunctions(TFile& f, std::string leadingName, std::string title, Color_t color = kBlack) {
 
+	//for each in [un]calibrated(Corr)_1, _2, divide bin entry in _2 by _1 bin entry. Multiply by sqrt of bin center.
+
+	std::string leadingName_1(leadingName);
+	std::string leadingName_2(leadingName);
+	std::string leadingName_targ(leadingName);
+	leadingName_1.append("_1");
+	leadingName_2.append("_2");
+	leadingName_targ.append("_targ");
+
+	TH1D* source = (TH1D*) gDirectory->Get(leadingName_2.c_str());
+	TH1D* means = (TH1D*) gDirectory->Get(leadingName_1.c_str());
+	f.cd("/plots/targetFunction");
+	double start = source->GetBinLowEdge(1);
+	double width = source->GetBinWidth(1);
+	double end = source->GetBinLowEdge(source->GetNbinsX() + 1);
+
+	TH1F* targ = new TH1F(leadingName_targ.c_str(), title.c_str(), source->GetNbinsX(), start, end);
+	targ->SetXTitle("E_{true} (GeV)");
+	targ->SetYTitle("Target function");
+	for (unsigned k(1); k < source->GetNbinsX() + 1; ++k) {
+		if (means->GetBinContent(k) != 0) {
+			double targVal = source->GetBinContent(k)/ means->GetBinContent(k)
+					* sqrt(width * k + start);
+			targ->Fill(width * k + start, targVal);
+		}
 	}
-	uncalibtargfn->SetFillColor(kRed);
-	uncalibtargfn->Write();
+	targ->SetMarkerStyle(22);
+	targ->SetMarkerColor(color);
+	targ->Write();
 
 }
