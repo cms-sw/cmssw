@@ -5,15 +5,18 @@
 // 
 /**\class PhotonIDSimpleAnalyzer PhotonIDSimpleAnalyzer.cc RecoEgamma/PhotonIdentification/test/PhotonIDSimpleAnalyzer.cc
 
- Description: Here I generate various histograms for cuts and important photon ID parameters using a data sample of photons in QCD events.
+ Description: Here I generate various histograms for cuts and important 
+              photon ID parameters using a data sample of photons in QCD events.
 
  Implementation:
      <Notes on implementation>
 */
 //
 // Original Author:  J. Stilley, A. Askew
+//  Editing Author:  M.B. Anderson
+//
 //         Created:  Fri May 9 11:03:51 CDT 2008
-// $Id$
+// $Id: PhotonIDSimpleAnalyzer.cc,v 1.1 2008/05/09 16:05:59 askew Exp $
 //
 ///////////////////////////////////////////////////////////////////////
 //                    header file for this analyzer                  //
@@ -58,10 +61,17 @@ using namespace std;
 ///////////////////////////////////////////////////////////////////////
 PhotonIDSimpleAnalyzer::PhotonIDSimpleAnalyzer(const edm::ParameterSet& ps)
 {
+  // Read Parameters from configuration file
 
-// initialize output file
+  // output filename
   outputFile_   = ps.getParameter<std::string>("outputFile");
-// open output file to store histograms
+  // Read variables that must be passed to allow a 
+  //  supercluster to be placed in histograms as a photon.
+  minPhotonEt_     = ps.getParameter<double>("minPhotonEt");
+  minPhotonR9_     = ps.getParameter<double>("minPhotonR9");
+  maxPhotonHoverE_ = ps.getParameter<double>("maxPhotonHoverE");
+
+  // open output file to store histograms
   rootFile_ = TFile::Open(outputFile_.c_str(),"RECREATE");
 }
 
@@ -86,24 +96,32 @@ void
 PhotonIDSimpleAnalyzer::beginJob(edm::EventSetup const&)
 {
 
-// go to *OUR* rootfile
+  // go to *OUR* rootfile
   rootFile_->cd();
-// book histograms
-  h_isoEcalRecHit_ = new TH1F("ecalhit","Ecal Rec Hit Isolation",300,0,300);
-  h_isoHcalRecHit_ = new TH1F("hcalhit","Hcal Rec Hit Isolation",300,0,300);
-  h_trk_pt_solid_ = new TH1F("ptsolid", "Sum of track pT in a cone of dR" , 300, 0, 300);
-  h_trk_pt_hollow_ = new TH1F("pthollow", "Sum of track pT in a hollow cone" , 300, 0, 300);
-  h_ntrk_solid_ = new TH1F("ntrksol","number of tracks in a cone of dR",100,0,100);
-  h_ntrk_hollow_ = new TH1F("ntrkhol","number of tracks in a hollow cone",100,0,100);
-  h_r9_ = new TH1F("r9","r9 variable",300,0,3);
-  h_ebgap_ = new TH1F("ebgap","EB gap flag",100,0,2);
-  h_hadoverem_ = new TH1F("hadoverem","Hadronic over EM",1000,0,10);
-  h_etawidth_ = new TH1F("etawidth","#eta-width",100,0,.1);
-  h_nPho_ = new TH1F("nPho","Number of photons in event",10,0,10);
-  h_photonEt_ = new TH1F("photonEt","Photon E_{T}",200,0,200);
-  h_photonEta_ = new TH1F("photonEta","Photon #eta",400,-2,2);
-  h_photonPhi_ = new TH1F("photonPhi","Photon #phi",628, -1.*TMath::Pi(), TMath::Pi());
 
+  // book histograms
+  h_isoEcalRecHit_ = new TH1F("photonEcalIso",          "Ecal Rec Hit Isolation",300,0,300);
+  h_isoHcalRecHit_ = new TH1F("photonHcalIso",          "Hcal Rec Hit Isolation",300,0,300);
+  h_trk_pt_solid_  = new TH1F("photonTrackSolidIso",    "Sum of track pT in a cone of #DeltaR" , 300, 0, 300);
+  h_trk_pt_hollow_ = new TH1F("photonTrackHollowIso",   "Sum of track pT in a hollow cone" , 300, 0, 300);
+  h_ntrk_solid_    = new TH1F("photonTrackCountSolid",  "Number of tracks in a cone of #DeltaR",100,0,100);
+  h_ntrk_hollow_   = new TH1F("photonTrackCountHollow", "Number of tracks in a hollow cone",100,0,100);
+  h_ebgap_         = new TH1F("photonInEBgap",          "Ecal Barrel gap flag",  2, -0.5,1.5);
+  h_eeGap_         = new TH1F("photonInEEgap",          "Ecal Endcap gap flag",  2, -0.5,1.5);
+  h_ebeeGap_       = new TH1F("photonInEEgap",          "Ecal Barrel/Endcap gap flag",  2, -0.5,1.5);
+  h_r9_            = new TH1F("photonR9",               "R9 = E(3x3) / E(SuperCluster)",300,0,3);
+
+  h_photonEt_      = new TH1F("photonEt",     "Photon E_{T}"             , 200, 0, 200);
+  h_photonEta_     = new TH1F("photonEta",    "Photon #eta",800,-4,4);
+  h_photonPhi_     = new TH1F("photonPhi",    "Photon #phi",628, -1.*TMath::Pi(), TMath::Pi());
+  h_hadoverem_     = new TH1F("photonHoverE", "Hadronic over EM", 200,0,1);
+
+  h_photonScEt_       = new TH1F("photonScEt",  "Photon SuperCluster E_{T}", 200, 0, 200);
+  h_photonScEta_      = new TH1F("photonScEta", "Photon #eta",800,-4,4);
+  h_photonScPhi_      = new TH1F("photonScPhi", "Photon #phi",628, -1.*TMath::Pi(), TMath::Pi());
+  h_photonScEtaWidth_ = new TH1F("photonScEtaWidth","#eta-width",100,0,.1);
+
+  h_nPho_             = new TH1F("numPhotons", "Number of photons in event", 10, 0,  10);
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -116,48 +134,63 @@ PhotonIDSimpleAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& es
   using namespace std;
   using namespace edm;
   
-// grab photons
+  // grab photons
   Handle<reco::PhotonCollection> photonColl;
   evt.getByLabel("photons","",photonColl);
 
-// grab PhotonId objects  
+  // grab PhotonId objects  
   Handle<reco::PhotonIDAssociationCollection> photonIDMapColl;
   evt.getByLabel("PhotonIDProd","PhotonAssociatedID", photonIDMapColl);
 
-// create reference to the object types we are interested in
+  // create reference to the object types we are interested in
   const reco::PhotonCollection *photons = photonColl.product();  
   const reco::PhotonIDAssociationCollection *phoMap = photonIDMapColl.product();
 
-   int counter = 0;
+  int counter = 0;
      
-   for (int i=0;i<int(photons->size());i++){   
+  for (int i=0; i<int(photons->size()); i++)
+  {   
        
-     edm::Ref<reco::PhotonCollection> photonref(photonColl, i);
-     reco::PhotonIDAssociationCollection::const_iterator photonIter = phoMap->find(photonref);
-     const reco::PhotonIDRef &phtn = photonIter->val;
-     const reco::PhotonRef &pho = photonIter->key;
+    edm::Ref<reco::PhotonCollection> photonref(photonColl, i);
+    reco::PhotonIDAssociationCollection::const_iterator photonIter = phoMap->find(photonref);
+    const reco::PhotonIDRef &phtn = photonIter->val;
+    const reco::PhotonRef &pho = photonIter->key;
 
-     float scEt = (pho->superCluster()->energy())/(cosh(pho->superCluster()->position().eta()));
-     if (scEt>20){
-       h_isoEcalRecHit_->Fill((phtn)->isolationEcalRecHit());
-       h_isoHcalRecHit_->Fill((phtn)->isolationHcalRecHit());
-       h_trk_pt_solid_->Fill((phtn)->isolationSolidTrkCone());
-       h_trk_pt_hollow_->Fill((phtn)->isolationHollowTrkCone());
-       h_ntrk_solid_->Fill((phtn)->nTrkSolidCone());
-       h_ntrk_hollow_->Fill((phtn)->nTrkHollowCone());
-       h_ebgap_->Fill((phtn)->isEBGap());
-       h_hadoverem_->Fill(pho->hadronicOverEm());
-       h_etawidth_->Fill(pho->superCluster()->etaWidth());
-       h_r9_->Fill((phtn)->r9());
-       //Get photon object
-       h_photonEt_->Fill(scEt);
-       h_photonEta_->Fill(pho->superCluster()->position().eta());
-       h_photonPhi_->Fill(pho->superCluster()->position().phi());
+    float photonEt       = pho->et();
+    float superClusterEt = (pho->superCluster()->energy())/(cosh(pho->superCluster()->position().eta()));
 
-       counter++;
-     }	 
-   }
-   h_nPho_->Fill(counter);
+    // Only store photons (SuperClusters) that pass some simple cuts
+    if ( (photonEt > minPhotonEt_) && ((phtn)->r9() > minPhotonR9_) && (pho->hadronicOverEm() < maxPhotonHoverE_) )
+    {
+      std::cout << photonEt << endl;
+      // PhotonID Variables
+      h_isoEcalRecHit_->Fill((phtn)->isolationEcalRecHit());
+      h_isoHcalRecHit_->Fill((phtn)->isolationHcalRecHit());
+      h_trk_pt_solid_ ->Fill((phtn)->isolationSolidTrkCone());
+      h_trk_pt_hollow_->Fill((phtn)->isolationHollowTrkCone());
+      h_ntrk_solid_->   Fill((phtn)->nTrkSolidCone());
+      h_ntrk_hollow_->  Fill((phtn)->nTrkHollowCone());
+      h_ebgap_->        Fill((phtn)->isEBGap());
+      h_eeGap_->        Fill((phtn)->isEEGap()); 
+      h_ebeeGap_->      Fill((phtn)->isEBEEGap());
+      h_r9_->           Fill((phtn)->r9());
+
+      // Photon Variables
+      h_photonEt_->  Fill(photonEt);
+      h_photonEta_-> Fill(pho->eta());
+      h_photonPhi_-> Fill(pho->phi());
+      h_hadoverem_-> Fill(pho->hadronicOverEm());
+
+      // Photon's SuperCluster Variables
+      h_photonScEt_->      Fill(superClusterEt);
+      h_photonScEta_->     Fill(pho->superCluster()->position().eta());
+      h_photonScPhi_->     Fill(pho->superCluster()->position().phi());
+      h_photonScEtaWidth_->Fill(pho->superCluster()->etaWidth());
+
+      counter++;
+    }	 
+  }
+  h_nPho_->Fill(counter);
 
 }
 
@@ -171,20 +204,31 @@ PhotonIDSimpleAnalyzer::endJob()
 // go to *OUR* root file and store histograms
   rootFile_->cd();
 
+  // PhotonID Variables
   h_isoEcalRecHit_->Write();
   h_isoHcalRecHit_->Write();
-  h_trk_pt_solid_->Write();
+  h_trk_pt_solid_-> Write();
   h_trk_pt_hollow_->Write();
-  h_ntrk_solid_->Write();
-  h_ntrk_hollow_->Write();
-  h_r9_->Write();
-  h_ebgap_->Write();
-  h_hadoverem_->Write();
-  h_etawidth_->Write();
-  h_photonEt_->Write();
-  h_photonEta_->Write();
-  h_photonPhi_->Write();
-  h_nPho_->Write();
+  h_ntrk_solid_->   Write();
+  h_ntrk_hollow_->  Write();
+  h_ebgap_->     Write();
+  h_eeGap_->     Write();
+  h_ebeeGap_->   Write();
+  h_r9_->        Write();
+
+  // Photon Variables
+  h_photonEt_->  Write();
+  h_photonEta_-> Write();
+  h_photonPhi_-> Write();
+  h_hadoverem_-> Write();
+
+  // Photon's SuperCluster Variables
+  h_photonScEt_->      Write();
+  h_photonScEta_->     Write();
+  h_photonScPhi_->     Write();
+  h_photonScEtaWidth_->Write();
+
+  h_nPho_->      Write();
 
   rootFile_->Close();
 
