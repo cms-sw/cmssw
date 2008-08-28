@@ -818,7 +818,7 @@ def copytree4(src,dest,keepTop=True):
                 except IOError, detail:
                     print "WARNING: Could not copy %s to %s because %s" % (node,newnode,detail)                    
                 except ReldirExcept:
-                    print "WARNING: Could not determine new location for source %s into destination %s" % (source,node,dst)
+                    print "WARNING: Could not determine new location for source %s into destination %s" % (source,dst)
                     
     gen  = os.walk(src)
     try:
