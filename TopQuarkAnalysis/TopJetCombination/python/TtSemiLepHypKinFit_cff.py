@@ -6,7 +6,7 @@ import FWCore.ParameterSet.Config as cms
 #
 
 ## std sequence to perform kinematic fit
-from TopQuarkAnalysis.TopKinFitter.TtSemiKinFitProducer_Muons_cfi import *
+from TopQuarkAnalysis.TopKinFitter.TtSemiLepKinFitProducer_Muons_cfi import *
 
 ## configure kinFit hypothesis
 from TopQuarkAnalysis.TopJetCombination.TtSemiLepHypKinFit_cfi import *

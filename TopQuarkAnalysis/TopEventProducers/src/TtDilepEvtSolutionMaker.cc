@@ -1,11 +1,11 @@
 //
-// $Id: TtDilepEvtSolutionMaker.cc,v 1.19 2008/06/20 15:58:42 rwolf Exp $
+// $Id: TtDilepEvtSolutionMaker.cc,v 1.20 2008/07/24 10:38:54 rwolf Exp $
 //
 
 #include "PhysicsTools/Utilities/interface/deltaR.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "TopQuarkAnalysis/TopKinFitter/interface/TtDilepKinSolver.h"
+#include "TopQuarkAnalysis/TopKinFitter/interface/TtFullLepKinSolver.h"
 #include "TopQuarkAnalysis/TopEventSelection/interface/TtDilepLRSignalSelObservables.h"
 
 #include "AnalysisDataFormats/TopObjects/interface/TtDilepEvtSolution.h"
@@ -360,7 +360,7 @@ void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup
 	} 
 	// If asked, use the kin fitter to compute the top mass
         if (calcTopMass_) {
-          TtDilepKinSolver solver(tmassbegin_, tmassend_, tmassstep_, xconstraint, yconstraint);
+          TtFullLepKinSolver solver(tmassbegin_, tmassend_, tmassstep_, xconstraint, yconstraint);
 	  solver.useWeightFromMC(useMCforBest_);
           asol = solver.addKinSolInfo(&asol);
         }

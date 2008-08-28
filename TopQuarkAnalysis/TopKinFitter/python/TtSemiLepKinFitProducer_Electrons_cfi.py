@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-kinFitTtSemiEvent = cms.EDProducer("TtSemiKinFitProducerElectron",
+kinFitTtSemiEvent = cms.EDProducer("TtSemiLepKinFitProducerElectron",
     jets = cms.InputTag("selectedLayer1Jets"),
     leps = cms.InputTag("selectedLayer1Electrons"),
     mets = cms.InputTag("selectedLayer1METs"),
@@ -36,7 +36,7 @@ kinFitTtSemiEvent = cms.EDProducer("TtSemiKinFitProducerElectron",
     # 1: Whad-mass, 2: Wlep-mass
     # 3: thad-mass, 4: tlep-mass, 5: nu-mass
     # ------------------------------------------------                                   
-    constraints = cms.vint32(1, 2)
+    constraints = cms.vuint32(1, 2)
 )
 
 

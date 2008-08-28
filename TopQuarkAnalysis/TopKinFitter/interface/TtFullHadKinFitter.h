@@ -1,9 +1,5 @@
-#ifndef TtHadKinFitter_h
-#define TtHadKinFitter_h
-//
-// $Id: TtHadKinFitter.h,v 1.2 2007/10/15 23:51:12 lowette Exp $
-// Adapted TtSemiKinFitter.h,v 1.3 2007/09/19 23:08:09 lowette Exp 
-// for fully hadronic channel 
+#ifndef TtFullHadKinFitter_h
+#define TtFullHadKinFitter_h
 
 #include "AnalysisDataFormats/TopObjects/interface/TtHadEvtSolution.h"
 
@@ -17,7 +13,7 @@ class TKinFitter;
 class TAbsFitParticle;
 class TFitConstraintM;
 
-class TtHadKinFitter {
+class TtFullHadKinFitter {
 
  public:
   
@@ -25,10 +21,10 @@ class TtHadKinFitter {
   
  public:
   
-  TtHadKinFitter();
-  TtHadKinFitter(int jetParam, int maxNrIter, double maxDeltaS, double maxF, std::vector<int> constraints);
-  TtHadKinFitter(Parametrization jetParam, int maxNrIter, double maxDeltaS, double maxF, std::vector<int> constraints);
-  ~TtHadKinFitter();
+  TtFullHadKinFitter();
+  TtFullHadKinFitter(int jetParam, int maxNrIter, double maxDeltaS, double maxF, std::vector<int> constraints);
+  TtFullHadKinFitter(Parametrization jetParam, int maxNrIter, double maxDeltaS, double maxF, std::vector<int> constraints);
+  ~TtFullHadKinFitter();
   
   TtHadEvtSolution addKinFitInfo(TtHadEvtSolution * asol);
   

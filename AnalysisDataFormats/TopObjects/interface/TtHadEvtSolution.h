@@ -1,7 +1,7 @@
 #ifndef TopObjects_TtHadEvtSolution_h
 #define TopObjects_TtHadEvtSolution_h
 //
-// $Id: TtHadEvtSolution.h,v 1.6 2008/01/25 13:32:14 vadler Exp $
+// $Id: TtHadEvtSolution.h,v 1.7 2008/02/15 12:10:47 rwolf Exp $
 // adapted TtSemiEvtSolution.h,v 1.14 2007/07/06 03:07:47 lowette Exp 
 // for fully hadronic channel
 
@@ -22,7 +22,7 @@
 class TtHadEvtSolution {
   
   friend class TtHadEvtSolutionMaker;
-  friend class TtHadKinFitter;
+  friend class TtFullHadKinFitter;
   friend class TtHadLRJetCombObservables;
   friend class TtHadLRJetCombCalc;
   /*

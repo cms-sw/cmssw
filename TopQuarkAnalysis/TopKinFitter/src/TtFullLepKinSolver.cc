@@ -1,8 +1,8 @@
 //based on a code by Jan Valenta
-#include "TopQuarkAnalysis/TopKinFitter/interface/TtDilepKinSolver.h"
+#include "TopQuarkAnalysis/TopKinFitter/interface/TtFullLepKinSolver.h"
 #include "TF2.h"
 
-TtDilepKinSolver::TtDilepKinSolver() 
+TtFullLepKinSolver::TtFullLepKinSolver() 
 {
   // That crude parametrisation has been obtained from a fit of O(1000) pythia events.
   // It is normalized to 1.
@@ -10,8 +10,7 @@ TtDilepKinSolver::TtDilepKinSolver()
   EventShape_->SetParameters(30.7137,56.2880,23.0744,59.1015,24.9145);
 }
 
-TtDilepKinSolver::TtDilepKinSolver(double b, double e, double s,
-				   double xx, double yy) 
+TtFullLepKinSolver::TtFullLepKinSolver(double b, double e, double s, double xx, double yy) 
 {
   topmass_begin = b;
   topmass_end = e;
@@ -31,12 +30,12 @@ TtDilepKinSolver::TtDilepKinSolver(double b, double e, double s,
 //
 // destructor
 //
-TtDilepKinSolver::~TtDilepKinSolver() 
+TtFullLepKinSolver::~TtFullLepKinSolver() 
 {
   delete EventShape_;
 }
 
-TtDilepEvtSolution TtDilepKinSolver::addKinSolInfo(TtDilepEvtSolution * asol) 
+TtDilepEvtSolution TtFullLepKinSolver::addKinSolInfo(TtDilepEvtSolution * asol) 
 {
   TtDilepEvtSolution fitsol(*asol);
   
@@ -126,7 +125,7 @@ TtDilepEvtSolution TtDilepKinSolver::addKinSolInfo(TtDilepEvtSolution * asol)
   return fitsol;
 }
 
-void TtDilepKinSolver::FindCoeff(const TLorentzVector al, 
+void TtFullLepKinSolver::FindCoeff(const TLorentzVector al, 
                                const TLorentzVector l,
 	                       const TLorentzVector b_al,
 	                       const TLorentzVector b_l,
@@ -219,7 +218,7 @@ double l1, l2, l3, l4, l5, l6, k15, k25, k35, k45;
   koeficienty[4]=koeficienty[4]/TMath::Power(10,moc);
 }
 
-void TtDilepKinSolver::TopRec(const TLorentzVector al, 
+void TtFullLepKinSolver::TopRec(const TLorentzVector al, 
                             const TLorentzVector l,
 	                    const TLorentzVector b_al,
 	                    const TLorentzVector b_l, double sol) {
@@ -252,7 +251,7 @@ void TtDilepKinSolver::TopRec(const TLorentzVector al,
   LV_tt_t.Boost(t_ttboost); 
 }
 
-double TtDilepKinSolver::WeightSolfromMC() {
+double TtFullLepKinSolver::WeightSolfromMC() {
 
   double weight = 1;
   weight = ((LV_n.E() > genLV_n.E())? genLV_n.E()/LV_n.E(): LV_n.E()/genLV_n.E())
@@ -261,14 +260,14 @@ double TtDilepKinSolver::WeightSolfromMC() {
 
 }
 
-double TtDilepKinSolver::WeightSolfromShape() {
+double TtFullLepKinSolver::WeightSolfromShape() {
   
   // Use the parametrized event shape to obtain the solution weight.
   return EventShape_->Eval(LV_n.E(),LV_n_.E());
 
 }
 		     
-int TtDilepKinSolver::quartic(double *koeficienty, double* koreny) {
+int TtFullLepKinSolver::quartic(double *koeficienty, double* koreny) {
   int i, nreal;
   double w, b0, b1, b2;
   double c[4];
@@ -329,7 +328,7 @@ int TtDilepKinSolver::quartic(double *koeficienty, double* koreny) {
 
 }
 
-int TtDilepKinSolver::cubic(double *coeffs, double* koreny) {
+int TtFullLepKinSolver::cubic(double *coeffs, double* koreny) {
   int i, nreal;
   double w, p, q, dis, h, phi;
   
@@ -405,7 +404,7 @@ int TtDilepKinSolver::cubic(double *coeffs, double* koreny) {
 }
 
 
-void  TtDilepKinSolver::SWAP(double& realone, double& realtwo) {
+void  TtFullLepKinSolver::SWAP(double& realone, double& realtwo) {
   if (realtwo < realone) {
     double aux = realtwo;
     realtwo = realone;

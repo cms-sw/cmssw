@@ -1,5 +1,5 @@
 //
-// $Id: TtDilepEvtSolution.h,v 1.18 2008/02/15 12:10:47 rwolf Exp $
+// $Id: TtDilepEvtSolution.h,v 1.19 2008/03/16 17:11:28 delaer Exp $
 //
 
 #ifndef TopObjects_TtDilepEvtSolution_h
@@ -25,7 +25,7 @@
 
 class TtDilepEvtSolution {
   
-  friend class TtDilepKinSolver;
+  friend class TtFullLepKinSolver;
   friend class TtDilepEvtSolutionMaker;
   friend class TtDilepLRSignalSelObservables;
   friend class TtLRSignalSelCalc;
@@ -101,7 +101,7 @@ class TtDilepEvtSolution {
   
   //-------------------------------------------
   // get info on the outcome of the signal 
-  //selection LR
+  // selection LR
   //-------------------------------------------
   double getLRSignalEvtObsVal(unsigned int) const;
   double getLRSignalEvtLRval() const { return lrSignalEvtLRval_; }

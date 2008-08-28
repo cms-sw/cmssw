@@ -1,6 +1,4 @@
-// $Id: TtHadKinFitter.cc,v 1.6 2008/03/16 17:14:33 delaer Exp $ 
-
-#include "TopQuarkAnalysis/TopKinFitter/interface/TtHadKinFitter.h"
+#include "TopQuarkAnalysis/TopKinFitter/interface/TtFullHadKinFitter.h"
 
 #include "PhysicsTools/KinFitter/interface/TKinFitter.h"
 #include "PhysicsTools/KinFitter/interface/TAbsFitParticle.h"
@@ -9,13 +7,9 @@
 #include "PhysicsTools/KinFitter/interface/TFitParticleEScaledMomDev.h"
 #include "PhysicsTools/KinFitter/interface/TFitParticleEtEtaPhi.h"
 #include "PhysicsTools/KinFitter/interface/TFitParticleEtThetaPhi.h"
-/* other parametrizations and constraints - for later maybe?
-#include "PhysicsTools/KinFitter/interface/TFitParticleESpher.h"
-#include "PhysicsTools/KinFitter/interface/TFitParticleMCPInvSpher.h"
-#include "PhysicsTools/KinFitter/interface/TFitConstraintMGaus.h"
-#include "PhysicsTools/KinFitter/interface/TFitConstraintEp.h"*/
 
-TtHadKinFitter::TtHadKinFitter() :
+
+TtFullHadKinFitter::TtFullHadKinFitter() :
     jetParam_(EMom), 
     maxNrIter_(200), 
     maxDeltaS_(5e-5), 
@@ -24,7 +18,7 @@ TtHadKinFitter::TtHadKinFitter() :
   setupFitter();
 }
 
-TtHadKinFitter::TtHadKinFitter(int jetParam, int maxNrIter, double maxDeltaS, double maxF, std::vector<int> constraints) :
+TtFullHadKinFitter::TtFullHadKinFitter(int jetParam, int maxNrIter, double maxDeltaS, double maxF, std::vector<int> constraints) :
   jetParam_((Parametrization) jetParam), 
   maxNrIter_(maxNrIter), 
   maxDeltaS_(maxDeltaS),
@@ -34,7 +28,7 @@ TtHadKinFitter::TtHadKinFitter(int jetParam, int maxNrIter, double maxDeltaS, do
   setupFitter();
 }
 
-TtHadKinFitter::TtHadKinFitter(Parametrization jetParam, int maxNrIter, double maxDeltaS, double maxF, std::vector<int> constraints) :
+TtFullHadKinFitter::TtFullHadKinFitter(Parametrization jetParam, int maxNrIter, double maxDeltaS, double maxF, std::vector<int> constraints) :
   jetParam_(jetParam), 
   maxNrIter_(maxNrIter), 
   maxDeltaS_(maxDeltaS), 
@@ -44,7 +38,7 @@ TtHadKinFitter::TtHadKinFitter(Parametrization jetParam, int maxNrIter, double m
   setupFitter();
 }
 
-TtHadKinFitter::~TtHadKinFitter() 
+TtFullHadKinFitter::~TtFullHadKinFitter() 
 {
   delete cons1_; delete cons2_; delete cons3_; delete cons4_;
   delete fitHadb_; delete fitHadp_; delete fitHadq_;
@@ -52,7 +46,7 @@ TtHadKinFitter::~TtHadKinFitter()
   delete theFitter_;
 }
 
-TtHadEvtSolution TtHadKinFitter::addKinFitInfo(TtHadEvtSolution * asol) 
+TtHadEvtSolution TtFullHadKinFitter::addKinFitInfo(TtHadEvtSolution * asol) 
 {
   TtHadEvtSolution fitsol(*asol);
 
@@ -304,7 +298,7 @@ TtHadEvtSolution TtHadKinFitter::addKinFitInfo(TtHadEvtSolution * asol)
 
 }
 
-void TtHadKinFitter::setupFitter() 
+void TtFullHadKinFitter::setupFitter() 
 {
   
   // FIXME: replace by messagelogger!!!
@@ -382,7 +376,7 @@ void TtHadKinFitter::setupFitter()
 
 }
 
-vector<float> TtHadKinFitter::translateCovM(TMatrixD &V){
+vector<float> TtFullHadKinFitter::translateCovM(TMatrixD &V){
   vector<float> covM; 
   for(int ii=0; ii<V.GetNrows(); ii++){
     for(int jj=0; jj<V.GetNcols(); jj++) covM.push_back(V(ii,jj));

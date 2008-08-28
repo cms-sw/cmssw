@@ -1,5 +1,5 @@
 //
-// $Id: TtSemiEvtSolutionMaker.cc,v 1.37 2008/07/03 19:29:06 rwolf Exp $
+// $Id: TtSemiEvtSolutionMaker.cc,v 1.38 2008/07/24 10:38:54 rwolf Exp $
 //
 
 #include "TopQuarkAnalysis/TopEventProducers/interface/TtSemiEvtSolutionMaker.h"
@@ -8,9 +8,8 @@
 
 #include "PhysicsTools/Utilities/interface/deltaR.h"
 
-#include "AnalysisDataFormats/TopObjects/interface/TtSemiEvtSolution.h"
 #include "TopQuarkAnalysis/TopTools/interface/JetPartonMatching.h"
-#include "TopQuarkAnalysis/TopKinFitter/interface/TtSemiKinFitter.h"
+#include "AnalysisDataFormats/TopObjects/interface/TtSemiEvtSolution.h"
 #include "TopQuarkAnalysis/TopJetCombination/interface/TtSemiSimpleBestJetComb.h"
 #include "TopQuarkAnalysis/TopJetCombination/interface/TtSemiLRJetCombObservables.h"
 #include "TopQuarkAnalysis/TopJetCombination/interface/TtSemiLRJetCombCalc.h"
@@ -43,7 +42,7 @@ TtSemiEvtSolutionMaker::TtSemiEvtSolutionMaker(const edm::ParameterSet & iConfig
   jetParam_        = iConfig.getParameter<int>              ("jetParametrisation");
   lepParam_        = iConfig.getParameter<int>              ("lepParametrisation");
   metParam_        = iConfig.getParameter<int>              ("metParametrisation");
-  constraints_     = iConfig.getParameter<std::vector<int> >("constraints");
+  constraints_     = iConfig.getParameter<std::vector<unsigned> >("constraints");
   matchToGenEvt_   = iConfig.getParameter<bool>             ("matchToGenEvt");
   matchingAlgo_    = iConfig.getParameter<int>              ("matchingAlgorithm");
   useMaxDist_      = iConfig.getParameter<bool>             ("useMaximalDistance");
@@ -51,7 +50,9 @@ TtSemiEvtSolutionMaker::TtSemiEvtSolutionMaker(const edm::ParameterSet & iConfig
   maxDist_         = iConfig.getParameter<double>           ("maximalDistance");
 
   // define kinfitter
-  if(doKinFit_)        myKinFitter       = new TtSemiKinFitter(jetParam_, lepParam_, metParam_, maxNrIter_, maxDeltaS_, maxF_, constraints_);
+  if(doKinFit_){
+    myKinFitter = new TtSemiLepKinFitter(param(jetParam_), param(lepParam_), param(metParam_), maxNrIter_, maxDeltaS_, maxF_, constraints(constraints_));
+  }
 
   // define jet combinations related calculators
   mySimpleBestJetComb                    = new TtSemiSimpleBestJetComb();
@@ -269,5 +270,46 @@ void TtSemiEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup 
     std::auto_ptr<std::vector<TtSemiEvtSolution> > pOut(evtsols);
     iEvent.put(pOut);
   }
-
 }
+
+TtSemiLepKinFitter::Param TtSemiEvtSolutionMaker::param(unsigned val) 
+{
+  TtSemiLepKinFitter::Param result;
+  switch(val){
+  case 0 : result=TtSemiLepKinFitter::kEMom;       break;
+  case 1 : result=TtSemiLepKinFitter::kEtEtaPhi;   break;
+  case 2 : result=TtSemiLepKinFitter::kEtThetaPhi; break;
+  default: 
+    throw cms::Exception("WrongConfig") 
+      << "Chosen jet parametrization is not supported: " << val << "\n";
+    break;
+  }
+  return result;
+} 
+
+TtSemiLepKinFitter::Constraint TtSemiEvtSolutionMaker::constraint(unsigned val) 
+{
+  TtSemiLepKinFitter::Constraint result;
+  switch(val){
+  case 0 : result=TtSemiLepKinFitter::kWHadMass;     break;
+  case 1 : result=TtSemiLepKinFitter::kWLepMass;     break;
+  case 2 : result=TtSemiLepKinFitter::kTopHadMass;   break;
+  case 3 : result=TtSemiLepKinFitter::kTopLepMass;   break;
+  case 4 : result=TtSemiLepKinFitter::kNeutrinoMass; break;
+  default: 
+    throw cms::Exception("WrongConfig") 
+      << "Chosen fit contraint is not supported: " << val << "\n";
+    break;
+  }
+  return result;
+} 
+
+std::vector<TtSemiLepKinFitter::Constraint> TtSemiEvtSolutionMaker::constraints(std::vector<unsigned>& val)
+{
+  std::vector<TtSemiLepKinFitter::Constraint> result;
+  for(unsigned i=0; i<val.size(); ++i){
+    result.push_back(constraint(val[i]));
+  } 
+  return result;
+}
+

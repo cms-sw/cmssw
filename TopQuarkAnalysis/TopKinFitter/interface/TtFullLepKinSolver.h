@@ -1,6 +1,6 @@
 //based on a code by Jan Valenta
-#ifndef TtDilepKinSolver_h
-#define TtDilepKinSolver_h
+#ifndef TtFullLepKinSolver_h
+#define TtFullLepKinSolver_h
 
 #include "AnalysisDataFormats/TopObjects/interface/TtDilepEvtSolution.h"
 
@@ -10,13 +10,13 @@
 
 class TF2;
 
-class TtDilepKinSolver {
+class TtFullLepKinSolver {
 
  public:
   
-  TtDilepKinSolver();
-  TtDilepKinSolver(double,double,double, double xx = 0, double yy = 0);
-  ~TtDilepKinSolver();
+  TtFullLepKinSolver();
+  TtFullLepKinSolver(double,double,double, double xx = 0, double yy = 0);
+  ~TtFullLepKinSolver();
   
   inline void useWeightFromMC(bool useMC) { useMCforBest_ = useMC; }
   TtDilepEvtSolution addKinSolInfo(TtDilepEvtSolution * asol);

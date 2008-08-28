@@ -1,20 +1,19 @@
 //
-// $Id: TtSemiEvtSolutionMaker.h,v 1.17.2.1 2008/04/11 11:43:54 rwolf Exp $
+// $Id: TtSemiEvtSolutionMaker.h,v 1.19 2008/04/11 12:00:24 rwolf Exp $
 //
 
 #ifndef TopEventProducers_TtSemiEvtSolutionMaker_h
 #define TopEventProducers_TtSemiEvtSolutionMaker_h
 
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "TopQuarkAnalysis/TopKinFitter/interface/TtSemiLepKinFitter.h"
 
 #include <vector>
 #include <string>
 
-
-class TtSemiKinFitter;
 class TtSemiSimpleBestJetComb;
 class TtSemiLRJetCombObservables;
 class TtSemiLRJetCombCalc;
@@ -30,7 +29,14 @@ class TtSemiEvtSolutionMaker : public edm::EDProducer {
   ~TtSemiEvtSolutionMaker();
   
   virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
-  
+
+  // convert unsigned to Param
+  TtSemiLepKinFitter::Param param(unsigned);
+  // convert unsigned to Param
+  TtSemiLepKinFitter::Constraint constraint(unsigned);
+  // convert unsigned to Param
+  std::vector<TtSemiLepKinFitter::Constraint> constraints(std::vector<unsigned>&);
+
  private:
   
   // configurables
@@ -49,9 +55,10 @@ class TtSemiEvtSolutionMaker : public edm::EDProducer {
   int maxNrIter_;
   double maxDeltaS_, maxF_;
   int jetParam_, lepParam_, metParam_;
-  std::vector<int> lrSignalSelObs_, lrJetCombObs_, constraints_;
+  std::vector<int> lrSignalSelObs_, lrJetCombObs_;
+  std::vector<unsigned> constraints_;
   // tools
-  TtSemiKinFitter              * myKinFitter;
+  TtSemiLepKinFitter           * myKinFitter;
   TtSemiSimpleBestJetComb      * mySimpleBestJetComb;
   TtSemiLRJetCombObservables   * myLRJetCombObservables;
   TtSemiLRJetCombCalc          * myLRJetCombCalc;
