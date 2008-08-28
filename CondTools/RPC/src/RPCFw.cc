@@ -1,8 +1,8 @@
  /* 
  *  See header file for a description of this class.
  *
- *  $Date: 2008/07/31 14:48:30 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/08/26 17:12:22 $
+ *  $Revision: 1.5 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 
@@ -208,9 +208,10 @@ std::vector<RPCdbData::Item> RPCFw::createSTATUS(int from)
 }
 
 
+<<<<<<< RPCFw.cc
 
 //------------------------------ G A S ---------------------------------------------------------------------
-std::vector<RPCGas::GasItem> RPCFw::createGAS(int from)
+std::vector<RPCGasT::GasItem> RPCFw::createGAS(int from)
 {
   thr = UTtoT(from);
   std::cout <<">> Processing since: "<<thr.day()<<"/"<<thr.month()<<"/"<<thr.year()<<" "<<thr.hour()<<":"<<thr.minute()<<"."<<thr.second()<< std::endl;
@@ -236,8 +237,8 @@ std::vector<RPCGas::GasItem> RPCFw::createGAS(int from)
   conditionData[0].data<coral::TimeStamp>() = thr;
   coral::ICursor& cursorS = queryS->execute();
 
-  RPCGas::GasItem gastemp;
-  std::vector<RPCGas::GasItem> gasarray;
+  RPCGasT::GasItem gastemp;
+  std::vector<RPCGasT::GasItem> gasarray;
   while ( cursorS.next() ) {
     const coral::AttributeList& row = cursorS.currentRow();
     float idoub = row["DPID"].data<float>();
@@ -270,7 +271,7 @@ std::vector<RPCGas::GasItem> RPCFw::createGAS(int from)
 
 
 //------------------------------ T E M P E R A T U R E ---------------------------------------------------------------------
-std::vector<RPCGas::TempItem> RPCFw::createT(int from)
+std::vector<RPCGasT::TempItem> RPCFw::createT(int from)
 {
   thr = UTtoT(from);
   std::cout <<">> Processing since: "<<thr.day()<<"/"<<thr.month()<<"/"<<thr.year()<<" "<<thr.hour()<<":"<<thr.minute()<<"."<<thr.second()<< std::endl;
@@ -295,8 +296,8 @@ std::vector<RPCGas::TempItem> RPCFw::createT(int from)
   conditionData[0].data<coral::TimeStamp>() = thr;
   coral::ICursor& cursorS = queryS->execute();
 
-  RPCGas::TempItem Ttemp;
-  std::vector<RPCGas::TempItem> temparray;
+  RPCGasT::TempItem Ttemp;
+  std::vector<RPCGasT::TempItem> temparray;
   while ( cursorS.next() ) {
     const coral::AttributeList& row = cursorS.currentRow();
     float idoub = row["DPID"].data<float>();
