@@ -299,13 +299,13 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(G4Step * aStep,
       if(backward) r3 = G4UniformRand();
 
 #ifdef DebugLog
-      LogDebug("HFShower") << "  rLimits " << rInside(r)
+      LogDebug("HFShower") << "HFShowerLibrary: rLimits " << rInside(r)
 			   << " attenuation " << r1 <<":" << exp(-p*zv) 
 			   << " r2 " << r2 << " r3 " << r3 << " rDfi "  
                            << gpar[5] << " zz " 
 			   << zz << " zLim " << gpar[4] << ":" 
-			   << gpar[4]+gpar[1];
-      LogDebug("HFShower") << "  rInside(r) :" << rInside(r) 
+			   << gpar[4]+gpar[1] << "\n"
+			   << "  rInside(r) :" << rInside(r) 
                            << "  r1 <= exp(-p*zv) :" <<  (r1 <= exp(-p*zv))
                            << "  r2 <= probMax :"    <<  (r2 <= probMax)
 			   << "  r3 <= backProb :"   <<  (r3 <= backProb) 
@@ -328,7 +328,7 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(G4Step * aStep,
 	nHit++;
       }
 #ifdef DebugLog
-      else  LogDebug("HFShower") << " REJECTED !!!";
+      else  LogDebug("HFShower") << "HFShowerLibrary: REJECTED !!!";
 #endif
     }
   }
@@ -525,8 +525,8 @@ void HFShowerLibrary::extrapolate(int type, double pin) {
 	}
       }
 #ifdef DebugLog
-      LogDebug("HFShower") << "Record [" << ir << "] = " << irc[ir] 
-			   << " npold = " << npold;
+      LogDebug("HFShower") << "HFShowerLibrary: Record [" << ir << "] = " 
+			   << irc[ir] << " npold = " << npold;
 #endif
     }
   }

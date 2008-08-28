@@ -330,7 +330,7 @@ double HCalSD::getEnergyDeposit(G4Step* aStep) {
 	if ((pdg == 2112) && (ke < kmaxNeutron))    weight = 0;
 #ifdef DebugLog
 	if (weight == 0) 
-	  LogDebug("HcalSim") << "Ignore Track " << theTrack->GetTrackID()
+	  LogDebug("HcalSim") << "HCalSD:Ignore Track " << theTrack->GetTrackID()
 			      << " Type " << theTrack->GetDefinition()->GetParticleName()
 			      << " Kinetic Energy " << ke << " MeV";
 #endif

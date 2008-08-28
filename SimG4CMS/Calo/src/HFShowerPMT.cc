@@ -159,7 +159,7 @@ double HFShowerPMT::getRadius() {
 #endif
   if (indexF == 2)  r =-r;
 #ifdef DebugLog
-  LogDebug("HFShower") << "HFShower: Radius (" << indexR << "/" << indexF 
+  LogDebug("HFShower") << "HFShowerPMT: Radius (" << indexR << "/" << indexF 
 		       << ") " << r;
 #endif
   return r;
@@ -179,7 +179,7 @@ std::vector<double> HFShowerPMT::getDDDArray(const std::string & str,
     const std::vector<double> & fvec = value.doubles();
     int nval = fvec.size();
     if (nval < 2) {
-      edm::LogError("HFShower") << "HFShowerPMT : # of " << str 
+      edm::LogError("HFShower") << "HFShowerPMT: # of " << str 
 				<< " bins " << nval << " < 2 ==> illegal";
       throw cms::Exception("Unknown", "HFShowerPMT")
 	<< "nval < 2 for array " << str << "\n";
@@ -187,7 +187,7 @@ std::vector<double> HFShowerPMT::getDDDArray(const std::string & str,
 
     return fvec;
   } else {
-    edm::LogError("HFShower") << "HFShowerPMT : cannot get array " << str;
+    edm::LogError("HFShower") << "HFShowerPMT: cannot get array " << str;
     throw cms::Exception("Unknown", "HFShowerPMT") 
       << "cannot get array " << str << "\n";
   }
