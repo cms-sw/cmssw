@@ -37,6 +37,7 @@ HLTDebugFEVT = cms.PSet(
 #
 HLTriggerRAW.outputCommands.extend(block_hltDefaultOutput.outputCommands)
 HLTriggerRECO.outputCommands.extend(block_hltDefaultOutput.outputCommands)
+HLTriggerRECO.outputCommands.extend(HLTNoFEDRawData.outputCommands)
 HLTriggerAOD.outputCommands.extend(block_hltDefaultOutput.outputCommands)
 HLTriggerAOD.outputCommands.extend(HLTNoFEDRawData.outputCommands)
 #
