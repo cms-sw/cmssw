@@ -44,6 +44,9 @@ class PhotonIDSimpleAnalyzer : public edm::EDAnalyzer {
       virtual void endJob();
  private:
 
+      double minPhotonEt_;     // minimum photon Et
+      double minPhotonR9_;     // minimum R9 = E(3x3)/E(SuperCluster)
+      double maxPhotonHoverE_; // maximum HCAL / ECAL 
       std::string outputFile_; // output file
 
       // root file to store histograms
@@ -58,16 +61,21 @@ class PhotonIDSimpleAnalyzer : public edm::EDAnalyzer {
       TH1F* h_trk_pt_hollow_;
       TH1F* h_ntrk_solid_;
       TH1F* h_ntrk_hollow_;
-      TH1F* h_r9_;
-      TH1F* h_hadoverem_;
-      TH1F* h_etawidth_;
       TH1F* h_ebgap_;
+      TH1F* h_eeGap_;
+      TH1F* h_ebeeGap_;
+      TH1F* h_r9_;
+
       TH1F* h_photonEt_;
       TH1F* h_photonEta_;
       TH1F* h_photonPhi_;
+      TH1F* h_hadoverem_;
+
+      TH1F* h_photonScEt_;       
+      TH1F* h_photonScEta_;      
+      TH1F* h_photonScPhi_;
+      TH1F* h_photonScEtaWidth_;
+
       TH1F* h_nPho_;
-
-
-
 };
 #endif
