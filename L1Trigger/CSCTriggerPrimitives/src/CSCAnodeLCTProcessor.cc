@@ -20,8 +20,8 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Date: 2008/07/29 10:56:05 $
-//   $Revision: 1.26 $
+//   $Date: 2008/07/30 08:38:21 $
+//   $Revision: 1.27 $
 //
 //   Modifications: 
 //
@@ -502,9 +502,10 @@ bool CSCAnodeLCTProcessor::getDigis(const CSCWireDigiCollection* wiredc) {
 
     if (infoV > 1) LogTrace("CSCAnodeLCTProcessor")
       << "found " << rwired.second - rwired.first
-      << " wire digi(s) in layer " << i_layer << "; " << theEndcap << " "
-      << theStation << " " << theRing << " " << theSector << "("
-      << theSubsector << ") " << theChamber << "(" << theTrigChamber << ")";
+      << " wire digi(s) in layer " << i_layer << " of ME"
+      << ((theEndcap == 1) ? "+" : "-") << theStation << "/" << theRing
+      << "/" << theChamber << " (trig. sector " << theSector
+      << " subsector " << theSubsector << " id " << theTrigChamber << ")";
 
     for (CSCWireDigiCollection::const_iterator digiIt = rwired.first;
 	 digiIt != rwired.second; ++digiIt) {
@@ -951,29 +952,27 @@ void CSCAnodeLCTProcessor::lctSearch() {
       bestALCT[bx].setTrknmb(1);
       if (infoV > 0) {
 	LogDebug("CSCAnodeLCTProcessor")
-	  << "\n" << bestALCT[bx] << " found in endcap " << theEndcap
-	  << " station " << theStation << " sector " << theSector
-	  << " (" << theSubsector
-	  << ") ring " << CSCTriggerNumbering::ringFromTriggerLabels(theStation,
-								     theTrigChamber)
-	  << " chamber "
+	  << "\n" << bestALCT[bx] << " found in ME"
+	  << ((theEndcap == 1) ? "+" : "-") << theStation << "/"
+	  << CSCTriggerNumbering::ringFromTriggerLabels(theStation,
+							theTrigChamber) << "/"
 	  << CSCTriggerNumbering::chamberFromTriggerLabels(theSector,
-							   theSubsector, theStation, theTrigChamber)
-	  << " (trig id. " << theTrigChamber << ")" << "\n";
+			      theSubsector, theStation, theTrigChamber)
+	  << " (sector " << theSector << " subsector " << theSubsector
+	  << " trig id. " << theTrigChamber << ")" << "\n";
       }
       if (secondALCT[bx].isValid()) {
 	secondALCT[bx].setTrknmb(2);
 	if (infoV > 0) {
 	  LogDebug("CSCAnodeLCTProcessor")
-	    << secondALCT[bx] << " found in endcap " << theEndcap
-	    << " station " << theStation << " sector " << theSector
-	    << " (" << theSubsector
-	    << ") ring "<< CSCTriggerNumbering::ringFromTriggerLabels(theStation,
-								      theTrigChamber)
-	    << " chamber "
+	    << secondALCT[bx] << " found in ME"
+	    << ((theEndcap == 1) ? "+" : "-") << theStation << "/"
+	    << CSCTriggerNumbering::ringFromTriggerLabels(theStation,
+							  theTrigChamber) <<"/"
 	    << CSCTriggerNumbering::chamberFromTriggerLabels(theSector,
-							     theSubsector, theStation, theTrigChamber)
-	    << " (trig id. " << theTrigChamber << ")" << "\n";
+			        theSubsector, theStation, theTrigChamber)
+	    << " (sector " << theSector << " subsector " << theSubsector
+	    << " trig id. " << theTrigChamber << ")" << "\n";
 	}
       }
     }
@@ -1271,11 +1270,10 @@ void CSCAnodeLCTProcessor::dumpConfigParams() const {
 // Dump of digis on wire groups.
 void CSCAnodeLCTProcessor::dumpDigis(const int wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]) const {
   LogDebug("CSCAnodeLCTProcessor")
-    << "Endcap " << theEndcap << " station " << theStation << " ring "
+    << "ME" << ((theEndcap == 1) ? "+" : "-") << theStation << "/"
     << CSCTriggerNumbering::ringFromTriggerLabels(theStation, theTrigChamber)
-    << " chamber "
-    << CSCTriggerNumbering::chamberFromTriggerLabels(theSector, theSubsector,
-						    theStation, theTrigChamber)
+    << "/" << CSCTriggerNumbering::chamberFromTriggerLabels(theSector,
+                                    theSubsector, theStation, theTrigChamber)
     << " nWiregroups " << numWireGroups;
 
   std::ostringstream strstrm;

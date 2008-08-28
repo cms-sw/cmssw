@@ -22,8 +22,8 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Date: 2008/07/29 10:56:05 $
-//   $Revision: 1.28 $
+//   $Date: 2008/07/30 08:38:21 $
+//   $Revision: 1.29 $
 //
 //   Modifications: 
 //
@@ -759,30 +759,28 @@ void CSCCathodeLCTProcessor::run(int triad[CSCConstants::NUM_LAYERS][CSCConstant
     bestCLCT.setTrknmb(1);
     if (infoV > 0) {
       LogDebug("CSCCathodeLCTProcessor")
-	<< bestCLCT << " found in endcap " << theEndcap
-	<< " station " << theStation << " sector " << theSector
-	<< " (" << theSubsector
-	<< ") ring " << CSCTriggerNumbering::ringFromTriggerLabels(theStation,
-						        theTrigChamber)
-	<< " chamber " 
+	<< bestCLCT << " found in ME" << ((theEndcap == 1) ? "+" : "-")
+	<< theStation << "/"
+	<< CSCTriggerNumbering::ringFromTriggerLabels(theStation,
+						      theTrigChamber) << "/"
 	<< CSCTriggerNumbering::chamberFromTriggerLabels(theSector,
-                              theSubsector, theStation, theTrigChamber)
-	<< " (trig id. " << theTrigChamber << ")" << "\n";
+			    theSubsector, theStation, theTrigChamber)
+	<< " (sector " << theSector << " subsector " << theSubsector
+	<< " trig id. " << theTrigChamber << ")" << "\n";
     }
   }
   if (secondCLCT.isValid()) {
     secondCLCT.setTrknmb(2);
     if (infoV > 0) {
       LogDebug("CSCCathodeLCTProcessor")
-	<< secondCLCT << " found in endcap " << theEndcap
-	<< " station " << theStation << " sector " << theSector
-	<< " (" << theSubsector
-	<< ") ring " << CSCTriggerNumbering::ringFromTriggerLabels(theStation,
-						        theTrigChamber)
-	<< " chamber "
+	<< secondCLCT << " found in ME" << ((theEndcap == 1) ? "+" : "-")
+	<< theStation << "/"
+	<< CSCTriggerNumbering::ringFromTriggerLabels(theStation,
+						      theTrigChamber) << "/"
 	<< CSCTriggerNumbering::chamberFromTriggerLabels(theSector,
-                              theSubsector, theStation, theTrigChamber)
-	<< " (trig id. " << theTrigChamber << ")" << "\n";
+			    theSubsector, theStation, theTrigChamber)
+	<< " (sector " << theSector << " subsector " << theSubsector
+	<< " trig id. " << theTrigChamber << ")" << "\n";
     }
   }
   // Now that we have our 2 best CLCTs, they get correlated with the 2 best
@@ -816,9 +814,10 @@ bool CSCCathodeLCTProcessor::getDigis(const CSCComparatorDigiCollection* compdc)
 
     if (infoV > 1) LogTrace("CSCCathodeLCTProcessor")
       << "found " << rcompd.second - rcompd.first
-      << " comparator digi(s) in layer " << i_layer << "; " << theEndcap << " "
-      << theStation << " " << theRing << " " << theSector << "("
-      << theSubsector << ") " << theChamber << "(" << theTrigChamber << ")";
+      << " comparator digi(s) in layer " << i_layer << " of ME"
+      << ((theEndcap == 1) ? "+" : "-") << theStation << "/" << theRing
+      << "/" << theChamber << " (trig. sector " << theSector
+      << " subsector " << theSubsector << " id " << theTrigChamber << ")";
 
     for (CSCComparatorDigiCollection::const_iterator digiIt = rcompd.first;
 	 digiIt != rcompd.second; ++digiIt) {
@@ -2094,11 +2093,10 @@ void CSCCathodeLCTProcessor::dumpConfigParams() const {
 void CSCCathodeLCTProcessor::dumpDigis(const int strip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS], const int stripType, const int nStrips) const
 {
   LogDebug("CSCCathodeLCTProcessor")
-    << "Endcap " << theEndcap << " station " << theStation << " ring "
+    << "ME" << ((theEndcap == 1) ? "+" : "-") << theStation << "/"
     << CSCTriggerNumbering::ringFromTriggerLabels(theStation, theTrigChamber)
-    << " chamber "
-    << CSCTriggerNumbering::chamberFromTriggerLabels(theSector, theSubsector,
-						    theStation, theTrigChamber)
+    << "/" << CSCTriggerNumbering::chamberFromTriggerLabels(theSector,
+                                    theSubsector, theStation, theTrigChamber)
     << " strip type " << stripType << " nStrips " << nStrips;
 
   std::ostringstream strstrm;

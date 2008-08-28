@@ -8,8 +8,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2008/07/06 05:17:01 $
-//   $Revision: 1.13 $
+//   $Date: 2008/07/29 10:56:05 $
+//   $Revision: 1.14 $
 //
 //   Modifications:
 //
@@ -235,12 +235,11 @@ void CSCTriggerPrimitivesBuilder::build(const CSCWireDigiCollection* wiredc,
   for (; itr != result.end(); itr++) {
     oc_sorted_lct.insertDigi(CSCDetId(itr->getDetId().rawId()), *(itr->getDigi()));
     LogDebug("L1CSCTrigger")
-      << "MPC " << *(itr->getDigi()) << " found in"
-      << " endcap "    << itr->endcap()
-      << " station "   << itr->station()
-      << " sector "    << itr->sector()
-      << " ring "      << CSCDetId(itr->getDetId().rawId()).ring()
-      << " chamber "   << CSCDetId(itr->getDetId().rawId()).chamber()
-      << " (trig id. " << itr->cscid() << ")" << "\n";
+      << "MPC " << *(itr->getDigi()) << " found in ME"
+      << ((itr->endcap() == 1) ? "+" : "-") << itr->station() << "/"
+      << CSCDetId(itr->getDetId().rawId()).ring() << "/"
+      << CSCDetId(itr->getDetId().rawId()).chamber()
+      << " (sector " << itr->sector()
+      << " trig id. " << itr->cscid() << ")" << "\n";
   }
 }
