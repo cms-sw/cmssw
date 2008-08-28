@@ -32,13 +32,13 @@ caloRecHits = cms.EDProducer("CaloRecHitsProducer",
             MixedSimHits = cms.InputTag("mix","famosSimHitsHcalHits"),
             EnableSaturation = cms.bool(True),
 
-            NoiseHB = cms.double(0.23),
+            NoiseHB = cms.double(0.25),
             ThresholdHB = cms.double(-0.5),
 
-            NoiseHE = cms.double(0.31),
+            NoiseHE = cms.double(0.38),
             ThresholdHE = cms.double(-0.5),
             
-            NoiseHO = cms.double(0.17),
+            NoiseHO = cms.double(0.67),
             ThresholdHO = cms.double(-0.5),
 
             NoiseHF = cms.double(0.0),
