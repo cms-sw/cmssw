@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: mkvol.sh,v 1.5 2008/06/12 13:29:17 loizides Exp $
+# $Id: mkvol.sh,v 1.6 2008/08/17 18:15:41 loizides Exp $
 
 if test -e "/etc/profile.d/sm_env.sh"; then 
     source /etc/profile.d/sm_env.sh;
@@ -15,6 +15,8 @@ if test -z "$vol"; then
     echo "Error: $0 volname satabeast array volume"
     exit 1
 fi
+
+/sbin/multipath
 
 dpath=/dev/mapper/`/sbin/multipath -l | grep -i $id | cut -d" " -f1`
 mlabel=sata`printf "%02d" $sb`a`printf "%02d" $ar`v`printf "%02d" $vol`
@@ -76,6 +78,9 @@ echo "mkdir -p $i/$j"
 	chmod 777 $i/$j;
     done
 done
+
+
+/sbin/multipath -F
 
 output=$mpoint/creation_info.txt
 echo "Info: `date`" >> $output
