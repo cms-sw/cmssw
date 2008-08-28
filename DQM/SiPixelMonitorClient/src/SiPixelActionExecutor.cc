@@ -181,9 +181,9 @@ void SiPixelActionExecutor::createSummary(DQMStore* bei) {
     fillFEDErrorSummary(bei, federror_structure_name, federror_me_names);
     bei->cd();
   }
-  createLayout(bei);
-  string fname = "test.xml";
-  configWriter_->write(fname);
+  //createLayout(bei);
+  //string fname = "test.xml";
+ // configWriter_->write(fname);
   if (configWriter_) delete configWriter_;
   configWriter_ = 0;
 //cout<<"leaving SiPixelActionExecutor::createSummary..."<<endl;
