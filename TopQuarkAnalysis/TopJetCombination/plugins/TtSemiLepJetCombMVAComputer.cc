@@ -1,13 +1,13 @@
 #include "PhysicsTools/JetMCUtils/interface/combination.h"
 
-#include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiJetCombMVAComputer.h"
+#include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepJetCombMVAComputer.h"
 #include "TopQuarkAnalysis/TopTools/interface/TtSemiLepEvtPartons.h"
 #include "TopQuarkAnalysis/TopTools/interface/TtSemiLepJetCombEval.h"
 
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 
-TtSemiJetCombMVAComputer::TtSemiJetCombMVAComputer(const edm::ParameterSet& cfg):
+TtSemiLepJetCombMVAComputer::TtSemiLepJetCombMVAComputer(const edm::ParameterSet& cfg):
   leptons_ (cfg.getParameter<edm::InputTag>("leptons")),
   jets_    (cfg.getParameter<edm::InputTag>("jets")),
   nJetsMax_(cfg.getParameter<int>("nJetsMax"))
@@ -17,25 +17,25 @@ TtSemiJetCombMVAComputer::TtSemiJetCombMVAComputer(const edm::ParameterSet& cfg)
   produces< double           >("Disc");
 }
 
-TtSemiJetCombMVAComputer::~TtSemiJetCombMVAComputer()
+TtSemiLepJetCombMVAComputer::~TtSemiLepJetCombMVAComputer()
 {
 }
 
 void
-TtSemiJetCombMVAComputer::produce(edm::Event& evt, const edm::EventSetup& setup)
+TtSemiLepJetCombMVAComputer::produce(edm::Event& evt, const edm::EventSetup& setup)
 {
   std::auto_ptr< std::vector<int> > pOutCombi(new std::vector<int>);
   std::auto_ptr< std::string >      pOutMeth (new std::string);
   std::auto_ptr< double >           pOutDisc (new double);
 
-  mvaComputer.update<TtSemiJetCombMVARcd>(setup, "ttSemiJetCombMVA");
+  mvaComputer.update<TtSemiLepJetCombMVARcd>(setup, "ttSemiLepJetCombMVA");
 
   // read name of the last processor in the MVA calibration
   // (to be used as meta information)
   edm::ESHandle<PhysicsTools::Calibration::MVAComputerContainer> calibContainer;
-  setup.get<TtSemiJetCombMVARcd>().get( calibContainer );
+  setup.get<TtSemiLepJetCombMVARcd>().get( calibContainer );
   std::vector<PhysicsTools::Calibration::VarProcessor*> processors
-    = (calibContainer->find("ttSemiJetCombMVA")).getProcessors();
+    = (calibContainer->find("ttSemiLepJetCombMVA")).getProcessors();
   *pOutMeth = ( processors[ processors.size()-1 ] )->getInstanceName();
   evt.put(pOutMeth, "Meth");
 
@@ -106,16 +106,16 @@ TtSemiJetCombMVAComputer::produce(edm::Event& evt, const edm::EventSetup& setup)
 }
 
 void 
-TtSemiJetCombMVAComputer::beginJob(const edm::EventSetup&)
+TtSemiLepJetCombMVAComputer::beginJob(const edm::EventSetup&)
 {
 }
 
 void 
-TtSemiJetCombMVAComputer::endJob()
+TtSemiLepJetCombMVAComputer::endJob()
 {
 }
 
 // implement the plugins for the computer container
-// -> register TtSemiJetCombMVARcd
-// -> define TtSemiJetCombMVAFileSource
-MVA_COMPUTER_CONTAINER_IMPLEMENT(TtSemiJetCombMVA);
+// -> register TtSemiLepJetCombMVARcd
+// -> define TtSemiLepJetCombMVAFileSource
+MVA_COMPUTER_CONTAINER_IMPLEMENT(TtSemiLepJetCombMVA);

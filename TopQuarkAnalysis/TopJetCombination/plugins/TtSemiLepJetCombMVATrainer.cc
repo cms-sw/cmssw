@@ -5,14 +5,14 @@
 #include "PhysicsTools/MVATrainer/interface/HelperMacros.h"
 #include "PhysicsTools/JetMCUtils/interface/combination.h"
 
-#include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiJetCombMVATrainer.h"
+#include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepJetCombMVATrainer.h"
 #include "TopQuarkAnalysis/TopTools/interface/TtSemiLepJetCombEval.h"
 #include "TopQuarkAnalysis/TopTools/interface/TtSemiLepEvtPartons.h"
 
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 
-TtSemiJetCombMVATrainer::TtSemiJetCombMVATrainer(const edm::ParameterSet& cfg):
+TtSemiLepJetCombMVATrainer::TtSemiLepJetCombMVATrainer(const edm::ParameterSet& cfg):
   leptons_   (cfg.getParameter<edm::InputTag>("leptons")),
   jets_      (cfg.getParameter<edm::InputTag>("jets")),
   matching_  (cfg.getParameter<edm::InputTag>("matching")),
@@ -21,14 +21,14 @@ TtSemiJetCombMVATrainer::TtSemiJetCombMVATrainer(const edm::ParameterSet& cfg):
 {
 }
 
-TtSemiJetCombMVATrainer::~TtSemiJetCombMVATrainer()
+TtSemiLepJetCombMVATrainer::~TtSemiLepJetCombMVATrainer()
 {
 }
 
 void
-TtSemiJetCombMVATrainer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
+TtSemiLepJetCombMVATrainer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
 {
-  mvaComputer.update<TtSemiJetCombMVARcd>("trainer", setup, "ttSemiJetCombMVA");
+  mvaComputer.update<TtSemiLepJetCombMVARcd>("trainer", setup, "ttSemiLepJetCombMVA");
 
   // can occur in the last iteration when the 
   // MVATrainer is about to save the result
@@ -108,7 +108,7 @@ TtSemiJetCombMVATrainer::analyze(const edm::Event& evt, const edm::EventSetup& s
 }
 
 // implement the plugins for the trainer
-// -> defines TtSemiJetCombMVAContainerSaveCondDB
-// -> defines TtSemiJetCombMVASaveFile
-// -> defines TtSemiJetCombMVATrainerLooper
-MVA_TRAINER_IMPLEMENT(TtSemiJetCombMVA);
+// -> defines TtSemiLepJetCombMVAContainerSaveCondDB
+// -> defines TtSemiLepJetCombMVASaveFile
+// -> defines TtSemiLepJetCombMVATrainerLooper
+MVA_TRAINER_IMPLEMENT(TtSemiLepJetCombMVA);

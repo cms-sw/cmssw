@@ -1,5 +1,5 @@
-#ifndef TtSemiJetCombMVATrainer_h
-#define TtSemiJetCombMVATrainer_h
+#ifndef TtSemiLepJetCombMVATrainer_h
+#define TtSemiLepJetCombMVATrainer_h
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -13,17 +13,17 @@
 #include "PhysicsTools/MVAComputer/interface/HelperMacros.h"
 #include "PhysicsTools/MVAComputer/interface/MVAComputerCache.h"
 
-#ifndef TtSemiJetCombMVARcd_defined  // to avoid conflicts with the TtSemiJetCombMVAComputer
-#define TtSemiJetCombMVARcd_defined
-MVA_COMPUTER_CONTAINER_DEFINE(TtSemiJetCombMVA);  // defines TtSemiJetCombMVARcd
+#ifndef TtSemiLepJetCombMVARcd_defined  // to avoid conflicts with the TtSemiLepJetCombMVAComputer
+#define TtSemiLepJetCombMVARcd_defined
+MVA_COMPUTER_CONTAINER_DEFINE(TtSemiLepJetCombMVA);  // defines TtSemiLepJetCombMVARcd
 #endif
 
-class TtSemiJetCombMVATrainer : public edm::EDAnalyzer {
+class TtSemiLepJetCombMVATrainer : public edm::EDAnalyzer {
   
  public:
   
-  explicit TtSemiJetCombMVATrainer(const edm::ParameterSet&);
-  ~TtSemiJetCombMVATrainer();
+  explicit TtSemiLepJetCombMVATrainer(const edm::ParameterSet&);
+  ~TtSemiLepJetCombMVATrainer();
   
  private:
   
