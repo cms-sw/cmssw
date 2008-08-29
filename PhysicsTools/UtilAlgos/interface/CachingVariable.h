@@ -170,21 +170,40 @@ class VarSplitter : public Splitter{
   std::vector<double> slots_;
 };
 
+template <typename Object> class sortByStringFunction  {
+ public:
+  sortByStringFunction(StringObjectFunction<Object> * f) : f_(f){}
+  ~sortByStringFunction(){}
+  
+  bool operator() (const Object * o1, const Object * o2) {
+    return (*f_)(*o1) > (*f_)(*o2);
+  }
+ private:
+  StringObjectFunction<Object> * f_;
+};
 
 template <typename Object, const char * label> 
 class ExpressionVariable : public CachingVariable {
  public:
   ExpressionVariable(std::string n, const edm::ParameterSet & iConfig) :
     CachingVariable(std::string(label)+"ExpressionVariable",n,iConfig) {
-    src_=InputTagDistributor::retrieve("src",iConfig);
+    src_=edm::Service<InputTagDistributorService>()->retrieve("src",iConfig);
     std::string expr=iConfig.getParameter<std::string>("expr");
     index_=iConfig.getParameter<uint>("index");
     f_ = new StringObjectFunction<Object>(expr);
-    
+    if (iConfig.exists("order")){
+      std::string order=iConfig.getParameter<std::string>("order");
+      forder_ = new StringObjectFunction<Object>(order);
+    }
+    else forder_ =0;
     addDescriptionLine("calculating: "+expr);
     std::stringstream ss;
     ss<<"on object at index: "<<index_<<" of: "<<src_;
     addDescriptionLine(ss.str());	ss.str("");
+  }
+  ~ExpressionVariable(){
+    delete f_;
+    if (forder_) delete forder_;
   }
 
   CachingVariable::evalType eval(const edm::Event & iEvent) const {
@@ -194,14 +213,30 @@ class ExpressionVariable : public CachingVariable {
       LogDebug(method())<<"fail to get object at index: "<<index_<<" in collection: "<<src_;
       return std::make_pair(false,0);
     }
-    const Object & o = (*oH)[index_];
-    return std::make_pair(true,(*f_)(o));
+
+    //get the ordering right first. if required
+    if (forder_){
+      std::vector<const Object*> copyToSort(oH->size());
+      for (uint i=0;i!=oH->size();++i)
+	copyToSort[i]= &(*oH)[index_];
+      
+      std::sort(copyToSort.begin(), copyToSort.end(), sortByStringFunction<Object>(forder_));
+      
+      //    const Object & o = (*oH)[index_];
+      const Object * o = copyToSort[index_];
+      return std::make_pair(true,(*f_)(*o));
+    }
+    else{
+      const Object & o = (*oH)[index_];
+      return std::make_pair(true,(*f_)(o));
+    }
   }
 
  private:
   edm::InputTag src_;
   uint index_;
   StringObjectFunction<Object> * f_;
+  StringObjectFunction<Object> * forder_;
 };
 
 
@@ -211,9 +246,9 @@ public:
   TwoObjectVariable(std::string n, const edm::ParameterSet& iConfig) :
     //    CachingVariable(std::string(lLHS)+std::string(lRHS)+Calculator::calculationType,n,iConfig),
     CachingVariable(Calculator::calculationType()+std::string(lLHS)+std::string(lRHS),n,iConfig),
-    srcLhs_(InputTagDistributor::retrieve("srcLhs",iConfig)),
+    srcLhs_(edm::Service<InputTagDistributorService>()->retrieve("srcLhs",iConfig)),
     indexLhs_(iConfig.getParameter<uint>("indexLhs")),
-    srcRhs_(InputTagDistributor::retrieve("srcRhs",iConfig)),
+    srcRhs_(edm::Service<InputTagDistributorService>()->retrieve("srcRhs",iConfig)),
     indexRhs_(iConfig.getParameter<uint>("indexRhs"))
       {
 	std::stringstream ss;
@@ -304,7 +339,7 @@ class SimpleValueVariable : public CachingVariable {
  public:
   SimpleValueVariable(std::string & n,const edm::ParameterSet & iConfig) :
     CachingVariable("SimpleValueVariable",n,iConfig),
-    src_(InputTagDistributor::retrieve("src",iConfig)) {}
+    src_(edm::Service<InputTagDistributorService>()->retrieve("src",iConfig)) {}
   CachingVariable::evalType eval(const edm::Event & iEvent) const{
     edm::Handle<TYPE> value;
     try{    iEvent.getByLabel(src_,value);   }  
@@ -321,7 +356,7 @@ class SimpleValueVectorVariable : public CachingVariable {
  public:
   SimpleValueVectorVariable(std::string & n,const edm::ParameterSet & iConfig) :
     CachingVariable("SimpleValueVectorVariable",n,iConfig),
-    src_(InputTagDistributor::retrieve("src",iConfig)),
+    src_(edm::Service<InputTagDistributorService>()->retrieve("src",iConfig)),
     index_(iConfig.getParameter<uint>("index")) {}
   CachingVariable::evalType eval(const edm::Event & iEvent) const{
     edm::Handle<std::vector<TYPE> > values;
@@ -344,7 +379,7 @@ class HLTBitVariable : public CachingVariable {
  public:
   HLTBitVariable(std::string & n,const edm::ParameterSet & iConfig) :
     CachingVariable("HLTBitVariable",n,iConfig),
-    src_(InputTagDistributor::retrieve("src",iConfig)),
+    src_(edm::Service<InputTagDistributorService>()->retrieve("src",iConfig)),
     bitName_(n){}
     CachingVariable::evalType eval(const edm::Event & iEvent) const{
       edm::Handle<edm::TriggerResults> hltHandle;

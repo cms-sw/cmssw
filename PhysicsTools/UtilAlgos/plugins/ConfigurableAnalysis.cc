@@ -13,7 +13,7 @@
 //
 // Original Author:  Jean-Roch Vlimant
 //         Created:  Mon Apr 14 11:39:51 CEST 2008
-// $Id: ConfigurableAnalysis.cc,v 1.1 2008/06/21 11:43:27 vlimant Exp $
+// $Id: ConfigurableAnalysis.cc,v 1.2 2008/06/21 11:46:20 vlimant Exp $
 //
 //
 
@@ -29,12 +29,14 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "PhysicsTools/UtilAlgos/interface/Selections.h"
 #include "PhysicsTools/UtilAlgos/interface/Plotter.h"
 #include "PhysicsTools/UtilAlgos/interface/NTupler.h"
+#include "PhysicsTools/UtilAlgos/interface/InputTagDistributor.h"
 
 //
 // class decleration
@@ -78,10 +80,10 @@ ConfigurableAnalysis::ConfigurableAnalysis(const edm::ParameterSet& iConfig) :
 
   //configure inputag distributor
   if (iConfig.exists("InputTags"))
-    InputTagDistributor::init(vHelperInstance_,iConfig.getParameter<edm::ParameterSet>("InputTags"));
+    edm::Service<InputTagDistributorService>()->init(vHelperInstance_,iConfig.getParameter<edm::ParameterSet>("InputTags"));
 
   //configure the variable helper
-  VariableHelperInstance::init(vHelperInstance_,iConfig.getParameter<edm::ParameterSet>("Variables"));
+  edm::Service<VariableHelperService>()->init(vHelperInstance_,iConfig.getParameter<edm::ParameterSet>("Variables"));
 
   //list of selections
   selections_ = new Selections(iConfig.getParameter<edm::ParameterSet>("Selections"));
@@ -131,8 +133,8 @@ bool ConfigurableAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSe
   //will the filter pass or not.
   bool majorGlobalAccept=false;
 
-  InputTagDistributor::set(vHelperInstance_);
-
+  edm::Service<InputTagDistributorService>()->set(vHelperInstance_);
+  
   std::auto_ptr<std::vector<bool> > passedProduct(new std::vector<bool>(flows_.size(),false));
   bool filledOnce=false;  
 

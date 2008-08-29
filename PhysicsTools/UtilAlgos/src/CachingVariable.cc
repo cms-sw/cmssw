@@ -4,7 +4,7 @@
 
 
 CachingVariable::evalType VarSplitter::eval(const edm::Event & iEvent) const{
-  const CachingVariable * var=VariableHelperInstance::get().variable(var_);
+  const CachingVariable * var=edm::Service<VariableHelperService>()->get().variable(var_);
   if (!var->compute(iEvent)) return std::make_pair(false,0);
 
   double v=(*var)(iEvent);
@@ -31,7 +31,7 @@ CachingVariable::evalType VarSplitter::eval(const edm::Event & iEvent) const{
 
 
 CachingVariable::evalType Power::eval( const edm::Event & iEvent) const {
-  const CachingVariable * var=VariableHelperInstance::get().variable(var_);
+  const CachingVariable * var=edm::Service<VariableHelperService>()->get().variable(var_);
   if (!var->compute(iEvent)) return std::make_pair(false,0);
 
   double v=(*var)(iEvent);

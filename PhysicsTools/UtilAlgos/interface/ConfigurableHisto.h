@@ -64,7 +64,7 @@ class ConfigurableHisto {
     std::string title=conf_.getParameter<std::string>("title");
     edm::ParameterSet xAxisPSet=conf_.getParameter<edm::ParameterSet>("xAxis");
     ConfigurableAxis xAxis(xAxisPSet);
-    x_=VariableHelperInstance::get().variable(xAxisPSet.getParameter<std::string>("var"));
+    x_=edm::Service<VariableHelperService>()->get().variable(xAxisPSet.getParameter<std::string>("var"));
 
     std::string yLabel="";    
     bool yVBin=false;
@@ -75,7 +75,7 @@ class ConfigurableHisto {
       yLabel=yAxis.Label();
       //at least TH2 or TProfile
       if (yAxisPSet.exists("var"))
-	y_=VariableHelperInstance::get().variable(yAxisPSet.getParameter<std::string>("var"));
+	y_=edm::Service<VariableHelperService>()->get().variable(yAxisPSet.getParameter<std::string>("var"));
       yVBin=yAxis.variableSize();
     }
     
@@ -146,7 +146,7 @@ class ConfigurableHisto {
     
     if (conf_.exists("weight"))
       {
-	w_=VariableHelperInstance::get().variable(conf_.getParameter<std::string>("weight"));
+	w_=edm::Service<VariableHelperService>()->get().variable(conf_.getParameter<std::string>("weight"));
       }
   }
   
@@ -234,7 +234,7 @@ class SplittingConfigurableHisto : public ConfigurableHisto {
       //---      std::cout<<splitters.size()<<" splitters"<<std::endl;
       for (uint s=0;s!=splitters.size();++s){
 	//---	std::cout<<"trying with "<<splitters[s]<<std::endl;
-	const CachingVariable * v=VariableHelperInstance::get().variable(splitters[s]);
+	const CachingVariable * v=edm::Service<VariableHelperService>()->get().variable(splitters[s]);
 	const Splitter * splitter = dynamic_cast<const Splitter*>(v);
 	if (!splitter){
 	  edm::LogError("SplittingConfigurableHisto")<<"for: "<<name_<<" the splitting variable: "<<splitters[s]<<" is not a Splitter";
@@ -262,7 +262,7 @@ class SplittingConfigurableHisto : public ConfigurableHisto {
     else{
       //single splitter
       //get the splitting variable
-      const CachingVariable * v=VariableHelperInstance::get().variable(pset.getParameter<std::string>("splitter"));
+      const CachingVariable * v=edm::Service<VariableHelperService>()->get().variable(pset.getParameter<std::string>("splitter"));
       //---    std::cout<<"trying to cast"<<std::endl;
       splitter_ = dynamic_cast<const Splitter*>(v);
       if (!splitter_){

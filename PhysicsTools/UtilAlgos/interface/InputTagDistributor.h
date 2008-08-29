@@ -4,15 +4,12 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 
 #include <map>
 #include <iostream>
 
 class InputTagDistributor{
- private:
-  static InputTagDistributor* SetInputTagDistributorUniqueInstance_;
-  static std::map<std::string, InputTagDistributor*> multipleInstance_;
-  
  public:
   InputTagDistributor(const edm::ParameterSet & pset){
     std::vector< std::string > inpuTags = pset.getParameterNamesForType<edm::InputTag>();
@@ -32,7 +29,21 @@ class InputTagDistributor{
     return inputTags_[s];
   }
 
-  static InputTagDistributor & init(std::string user, const edm::ParameterSet & iConfig){
+ private:
+  std::map<std::string, edm::InputTag> inputTags_;
+};
+
+
+class InputTagDistributorService{
+ private:
+  InputTagDistributor* SetInputTagDistributorUniqueInstance_;
+  std::map<std::string, InputTagDistributor*> multipleInstance_;
+
+ public:
+  InputTagDistributorService(const edm::ParameterSet & iConfig,edm::ActivityRegistry & r ){};
+  ~InputTagDistributorService(){};
+
+  InputTagDistributor & init(std::string user, const edm::ParameterSet & iConfig){
     if (multipleInstance_.find(user)!=multipleInstance_.end()){
       std::cerr<<user<<" InputTagDistributor user already defined."<<std::endl;
       throw;}
@@ -40,22 +51,22 @@ class InputTagDistributor{
     multipleInstance_[user] = SetInputTagDistributorUniqueInstance_;
     return (*SetInputTagDistributorUniqueInstance_);
   }
-  static InputTagDistributor & set(std::string & user){
+  InputTagDistributor & set(std::string & user){
     if (multipleInstance_.find(user)==multipleInstance_.end()){
       std::cerr<<user<<" InputTagDistributor  user not defined. but it does not matter."<<std::endl;
       //      throw;}
     }
     else return (*SetInputTagDistributorUniqueInstance_);
   }
-  static InputTagDistributor & get(){
+  InputTagDistributor & get(){
     if (!SetInputTagDistributorUniqueInstance_){
       std::cerr<<" SetInputTagDistributorUniqueInstance_ is not valid."<<std::endl;
       throw;
     }
     else{ return (*SetInputTagDistributorUniqueInstance_);}
   }
-  
-  static edm::InputTag retrieve(std::string src,const edm::ParameterSet & pset){
+
+  edm::InputTag retrieve(std::string src,const edm::ParameterSet & pset){
     //if used without setting any InputTag mapping
     if (multipleInstance_.size()==0)
       return pset.getParameter<edm::InputTag>(src);
@@ -77,10 +88,9 @@ class InputTagDistributor{
       return which.inputTag(pset.getParameter<std::string>(src));
     else
       return pset.getParameter<edm::InputTag>(src);
-  }
-
- private:
-  std::map<std::string, edm::InputTag> inputTags_;
+  }    
 };
+
+
 
 #endif

@@ -7,7 +7,12 @@
 
 class VariableHelper {
  public:
-  VariableHelper(const edm::ParameterSet & iConfig);  
+  VariableHelper(const edm::ParameterSet & iConfig);
+  ~VariableHelper() {
+    for (std::map<std::string, CachingVariable*>::iterator it = variables_.begin() ; it!=variables_.end() ;++it){
+      delete it->second;
+    }
+  }
   typedef std::map<std::string, CachingVariable*>::const_iterator iterator;
 
   const CachingVariable* variable(std::string name)const ;
@@ -24,14 +29,19 @@ class VariableHelper {
 
 
 
-class VariableHelperInstance {
+class VariableHelperService {
  private:
-  static VariableHelper * SetVariableHelperUniqueInstance_;
-  static std::map<std::string, VariableHelper* > multipleInstance_;
+  VariableHelper * SetVariableHelperUniqueInstance_;
+  std::map<std::string, VariableHelper* > multipleInstance_;
 
  public:
-
-  static VariableHelper & init(std::string user, const edm::ParameterSet & iConfig){
+  VariableHelperService(const edm::ParameterSet & iConfig,edm::ActivityRegistry & r ){}
+  ~VariableHelperService(){
+    for (std::map<std::string, VariableHelper* > :: iterator it=multipleInstance_.begin(); it!=multipleInstance_.end(); ++it){
+      delete it->second;
+    }
+  }
+  VariableHelper & init(std::string user, const edm::ParameterSet & iConfig){
     if (multipleInstance_.find(user)!=multipleInstance_.end()){
       std::cerr<<user<<" VariableHelper user already defined."<<std::endl;
       throw;}
@@ -43,7 +53,7 @@ class VariableHelperInstance {
     return (*SetVariableHelperUniqueInstance_);
   }
   
-  static VariableHelper & get(){
+  VariableHelper & get(){
     if (!SetVariableHelperUniqueInstance_)
       {
 	std::cerr<<" none of VariableHelperUniqueInstance_ or SetVariableHelperUniqueInstance_ is valid."<<std::endl;
@@ -52,7 +62,7 @@ class VariableHelperInstance {
     else return (*SetVariableHelperUniqueInstance_);
   }
 
-  static VariableHelper & set(std::string user){
+  VariableHelper & set(std::string user){
     std::map<std::string, VariableHelper* >::iterator f=multipleInstance_.find(user);
     if (f == multipleInstance_.end()){
       std::cerr<<user<<" VariableHelper user not defined."<<std::endl;

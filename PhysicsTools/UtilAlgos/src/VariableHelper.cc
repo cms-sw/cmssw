@@ -4,8 +4,6 @@
 #include "PhysicsTools/UtilAlgos/interface/VariableHelper.h"
 #include "PhysicsTools/UtilAlgos/interface/CachingVariable.h"
 
-VariableHelper * VariableHelperInstance::SetVariableHelperUniqueInstance_=0;
-std::map<std::string, VariableHelper* > VariableHelperInstance::multipleInstance_ = std::map<std::string, VariableHelper* >();
 
 VariableHelper::VariableHelper(const edm::ParameterSet & iConfig){
   std::vector<std::string> psetNames;
