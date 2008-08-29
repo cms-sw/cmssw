@@ -14,7 +14,7 @@
 // Original Author:  Evan Klose Friis
 //    additions by:  Freya Blekman
 //         Created:  Tue Nov  6 17:27:19 CET 2007
-// $Id: SiPixelOfflineCalibAnalysisBase.cc,v 1.14 2008/08/26 10:03:30 fblekman Exp $
+// $Id: SiPixelOfflineCalibAnalysisBase.cc,v 1.15 2008/08/26 15:14:21 fblekman Exp $
 //
 //
 
@@ -33,7 +33,7 @@ TF1* SiPixelOfflineCalibAnalysisBase::fitFunction_ = NULL;
 std::vector<short>  SiPixelOfflineCalibAnalysisBase::vCalValues_(0);
 // constructors and destructor
 //
-SiPixelOfflineCalibAnalysisBase::SiPixelOfflineCalibAnalysisBase(const edm::ParameterSet& iConfig):runnumbers_(0)
+SiPixelOfflineCalibAnalysisBase::SiPixelOfflineCalibAnalysisBase(const edm::ParameterSet& iConfig):runnumbers_(0),eventCounter_(0)
 {
    siPixelCalibDigiProducer_ = iConfig.getParameter<edm::InputTag>("DetSetVectorSiPixelCalibDigiTag");
    createOutputFile_ = iConfig.getUntrackedParameter<bool>("saveFile",false);
@@ -65,6 +65,11 @@ SiPixelOfflineCalibAnalysisBase::analyze(const edm::Event& iEvent, const edm::Ev
 
    iSetup.get<TrackerDigiGeometryRecord>().get( geom_ );
    iSetup.get<SiPixelFedCablingMapRcd>().get(theCablingMap_);
+   iSetup.get<SiPixelCalibConfigurationRcd>().get(calib_);
+   if(eventCounter_==0)
+     this->calibrationSetup(iSetup);
+   eventCounter_++;
+     
    // check first if you're analyzing the right type of calibration
    if(!checkCorrectCalibrationType())
      return;

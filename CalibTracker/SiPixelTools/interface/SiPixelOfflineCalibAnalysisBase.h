@@ -14,7 +14,7 @@
 // Original Author:  Evan Klose Friis
 //    additions by:  Freya Blekman
 //         Created:  Tue Nov  6 17:27:19 CET 2007
-// $Id: SiPixelOfflineCalibAnalysisBase.h,v 1.13 2008/07/25 09:39:07 fblekman Exp $
+// $Id: SiPixelOfflineCalibAnalysisBase.h,v 1.14 2008/08/26 10:03:29 fblekman Exp $
 //
 //
 
@@ -106,6 +106,7 @@ protected:
   std::string calibrationMode_;
   short nTriggers_;
   static std::vector<short> vCalValues_;
+  uint32_t & EventNumber() { return eventCounter_;}
   
 
 private:
@@ -117,6 +118,7 @@ private:
   bool createOutputFile_;
 
   std::vector<uint32_t> runnumbers_;
+  uint32_t eventCounter_;
 
   //store set of detIDs that have been encountered
   //second int argument can be a derived class result flag
