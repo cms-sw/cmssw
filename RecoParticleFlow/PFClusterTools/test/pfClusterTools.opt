@@ -1,115 +1,60 @@
 //Options file for PFClusterTools
 
+//Include 'a' term when computing calibrations (leave as false; it doesn't work well).
 exercises		withOffset				false
+//How many particles required to create a calibration?
 exercises		threshold				30
-exercises		debug					5
 
+exercises		debug					5
 
 //Apply corrections?
 correction		doCorrection			true
 //Bulk correction parameters
-correction		globalP0 				-2.694401
-correction		globalP1 				1.017471
+correction		globalP0 				-2.935
+correction		globalP1 				1.0534
 correction		globalP2 				0.0
 //Low energy correction parameters
-correction		correctionLowLimit		10.96
-correction		lowEP0					0.656
-correction		lowEP1					0.702
+correction		correctionLowLimit		9.523
+correction		lowEP0					6.0549e-01
+correction		lowEP1					6.816e-01
 correction		lowEP2					0.0
 
+correction		correctionSuperLowLimit	0.0
+correction		superLowEP1				1.0
+
 //How to split between ecalOnly, hcalOnly and ecalHcal
-exercises		ecalECut				0.5
+exercises		ecalECut				0.3
 exercises		hcalECut				0.5
 
 //Auto fit evolution function to data
 evolution		autoFit					0
 evolution		basePlots				0
+evolution		basePlotsUseTruth		1
 
-evolution		ecalECut				0.5
+evolution		ecalECut				0.3
 evolution		hcalECut				0.5
 evolution		giveUpCut				0.0
 evolution		barrelEndcapEtaDiv		1.0
 
 //Use hand fitted parameters specified below
 //P1 adjusts the height of the peak
-evolution		ecalOnlyEcalBarrel		-13.5	0.13	1.90	0.74	1.40	1.75
+evolution		ecalOnlyEcalBarrel		-13.5	0.00	1.96	0.74	1.40	1.75	1.00	1.0 	30
+evolution 		ecalOnlyEcalEndcap		-12.0	0.00	2.42	0.71	1.30	1.64	0.71	1.8		30
+evolution		hcalOnlyHcalBarrel		-10.1	0.00	3.20	0.72	1.27	1.41	0.50	2 		30
+evolution 		hcalOnlyHcalEndcap		-13.5	0.00	3.50	0.70	1.29	1.43	0.50	2		30
+evolution		ecalHcalEcalBarrel		-35.8	0.00	4.80	0.13	1.20	1.39	0.30	2		15
+evolution 		ecalHcalEcalEndcap		-49.0	0.00	6.84	0.10	1.19	1.47	0.20	2		15
+evolution 		ecalHcalHcalBarrel		-17.0	0.00	3.73	0.66	1.33	1.39	0.53	2		30
+evolution		ecalHcalHcalEndcap		-13.6	0.00	4.34	0.85	1.50	1.47	0.34 	4		30
 
-evolution 		ecalOnlyP0Barrel		-13.5
-evolution 		ecalOnlyP1Barrel		0.13
-evolution 		ecalOnlyP2Barrel		1.90
-evolution 		ecalOnlyP3Barrel		0.74
-evolution 		ecalOnlyP4Barrel		1.4
-evolution 		ecalOnlyP5Barrel		1.75
-
-evolution 		ecalOnlyEcalEndcap		-10.0	0.96	1.75	0.74	1.30	1.64
-
-evolution 		ecalOnlyP0Endcap		-10.0
-evolution 		ecalOnlyP1Endcap		0.96
-evolution 		ecalOnlyP2Endcap		1.75
-evolution 		ecalOnlyP3Endcap		0.74
-evolution 		ecalOnlyP4Endcap		1.3
-evolution 		ecalOnlyP5Endcap		1.64
-
-evolution		hcalOnlyHcalBarrel		-10.9	0.52	2.86	0.72	1.30	1.41
-
-evolution 		hcalOnlyP0Barrel		-10.9
-evolution 		hcalOnlyP1Barrel		0.52
-evolution 		hcalOnlyP2Barrel		2.86
-evolution 		hcalOnlyP3Barrel		0.72
-evolution 		hcalOnlyP4Barrel		1.3
-evolution 		hcalOnlyP5Barrel		1.41
-
-evolution 		hcalOnlyHcalEndcap		-9.1	1.64	1.56	0.74	1.30	1.43
-
-evolution 		hcalOnlyP0Endcap		-9.1
-evolution 		hcalOnlyP1Endcap		1.64
-evolution 		hcalOnlyP2Endcap		1.56
-evolution 		hcalOnlyP3Endcap		0.74
-evolution 		hcalOnlyP4Endcap		1.3
-evolution 		hcalOnlyP5Endcap		1.43
-
-evolution		 ecalHcalEcalBarrel		-4.26	1.98	1.21	0.74	1.16	1.39
-
-//this one needs special attention - viz P1!
-evolution 		ecalHcalP0EcalBarrel	-4.26
-evolution 		ecalHcalP1EcalBarrel	1.98
-evolution 		ecalHcalP2EcalBarrel	1.21
-evolution 		ecalHcalP3EcalBarrel	0.74
-evolution 		ecalHcalP4EcalBarrel	1.16
-evolution 		ecalHcalP5EcalBarrel	1.39
-
-evolution 		ecalHcalEcalEndcap		-6.37	4.84	2.39	0.74	1.19	1.47
-
-evolution 		ecalHcalP0EcalEndcap	-6.37
-evolution 		ecalHcalP1EcalEndcap	4.84
-evolution 		ecalHcalP2EcalEndcap	2.39
-evolution 		ecalHcalP3EcalEndcap	0.74
-evolution 		ecalHcalP4EcalEndcap	1.19
-evolution 		ecalHcalP5EcalEndcap	1.47
-
-evolution 		ecalHcalHcalBarrel		-11.04	2.52	1.94	0.74	1.31	1.39
-
-evolution 		ecalHcalP0HcalBarrel	-11.04
-evolution 		ecalHcalP1HcalBarrel	2.52
-evolution 		ecalHcalP2HcalBarrel	1.94
-evolution 		ecalHcalP3HcalBarrel	0.74
-evolution 		ecalHcalP4HcalBarrel	1.31
-evolution 		ecalHcalP5HcalBarrel	1.39
-
-evolution		ecalHcalHcalEndcap		-22.3	-3.64	8.00	0.77	1.50	1.47
-
-evolution 		ecalHcalP0HcalEndcap	-22.3
-evolution 		ecalHcalP1HcalEndcap	-3.64
-evolution 		ecalHcalP2HcalEndcap	8.0
-evolution 		ecalHcalP3HcalEndcap	0.77
-evolution 		ecalHcalP4HcalEndcap	1.5
-evolution 		ecalHcalP5HcalEndcap	1.47
-
+//(Currently ignored)
 evolution		evolutionFunctionMinE 	0.5
+//Energy beyond which calibration is to be considered constant
 evolution		evolutionFunctionMaxE	30
 
 //What kind of interpolation is used for evaluating particle energy
-// 0 = none, 1 = simple bilinear, 2 = fitted function to truth, 3 fitted function to reco
+// 0 = none, 1 = simple bilinear, 2 = fitted function to truth, 3 fitted function to reco, 4 = magic!
 spaceManager	interpolationMode		4
 
+//Creates a file, but this isn't used yet.
 results			calibParamOutput		calibParams.txt

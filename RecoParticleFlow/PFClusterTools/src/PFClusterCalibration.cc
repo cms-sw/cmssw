@@ -9,26 +9,31 @@ using namespace pftools;
 
 PFClusterCalibration::PFClusterCalibration(IO* options) :
 	options_(options), correction_("correction",
-			"((x-[0])/[1])*(x>[4])+((x-[2])/[3])*(x<[4])") {
-
+			"((x-[0])/[1])*(x>[4])+((x-[2])/[3])*(x<[4] && x>[6]) +(x/[5])*(x<[6])") {
+	std::cout << __PRETTY_FUNCTION__ << std::endl;
 	//read in and initialise!
 	options_->GetOpt("evolution", "ecalECut", ecalOnlyDiv_);
 	options_->GetOpt("evolution", "hcalECut", hcalOnlyDiv_);
 	options_->GetOpt("evolution", "giveUpCut", giveUpCut_);
 	options_->GetOpt("evolution", "barrelEndcapEtaDiv", barrelEndcapEtaDiv_);
 	options_->GetOpt("evolution", "evolutionFunctionMaxE", flatlineEvoEnergy_);
+	options_->GetOpt("evolution", "doCorrection", doCorrection_);
 
 	options_->GetOpt("correction", "globalP0", globalP0_);
 	options_->GetOpt("correction", "globalP1", globalP1_);
 	options_->GetOpt("correction", "lowEP0", lowEP0_);
 	options_->GetOpt("correction", "lowEP1", lowEP1_);
 	options_->GetOpt("correction", "correctionLowLimit", correctionLowLimit_);
+	options_->GetOpt("correction", "correctionSuperLowLimit", correctionSuperLowLimit_);
+	options_->GetOpt("correction", "superLowEP1", superLowEP1_);
 
 	correction_.FixParameter(0, globalP0_);
 	correction_.FixParameter(1, globalP1_);
 	correction_.FixParameter(2, lowEP0_);
 	correction_.FixParameter(3, lowEP1_);
 	correction_.FixParameter(4, correctionLowLimit_);
+	correction_.FixParameter(5, superLowEP1_);
+	correction_.FixParameter(6, correctionSuperLowLimit_);
 
 	std::string eoeb("ecalOnlyEcalBarrel");
 	names_.push_back(eoeb);
@@ -49,7 +54,7 @@ PFClusterCalibration::PFClusterCalibration(IO* options) :
 	names_.push_back(ehhe);
 
 	char
-			* funcString("([0]*[5]*x*([1]-[5]*x)/pow(([2]+[5]*x),3)+[3]*pow([5]*x, 0.1))*([5]*x<[6])+[4]*([5]*x>[6])");
+			* funcString("([0]*[5]*x*([1]-[5]*x)/pow(([2]+[5]*x),3)+[3]*pow([5]*x, 0.1))*([5]*x<[8] && [5]*x>[7])+[4]*([5]*x>[8])+([6]*[5]*x)*([5]*x<[7])");
 
 	//Create functions for each sector
 	for (std::vector<std::string>::const_iterator cit = names_.begin(); cit
@@ -65,16 +70,16 @@ PFClusterCalibration::PFClusterCalibration(IO* options) :
 		for (std::vector<double>::const_iterator dit = params.begin(); dit
 				!= params.end(); ++dit) {
 			func.FixParameter(count, *dit);
-			std::cout << "\t"<< count << ": "<< *dit << "\n";
+			std::cout << "\t"<< count << ": " << *dit << "\n";
 			++count;
 		}
-		assert(count == 6);
-		//Last parameters is common to all functions (for now).
-		func.FixParameter(count, flatlineEvoEnergy_);
+		
+		func.SetMinimum(0);
 		//Store in map
 		namesAndFunctions_[name] = func;
 
 	}
+	std::cout << "Initialisation complete!" << std::endl;
 }
 
 double PFClusterCalibration::getCalibratedEcalEnergy(double totalE,
@@ -152,8 +157,14 @@ double PFClusterCalibration::getCalibratedEnergy(double totalE, double ecalE,
 		return answer;
 	}
 
-	//apply correction
-	return correction_.Eval(answer);
+	//apply correction?
+	if(!doCorrection_)
+		return answer;
+	if(correction_.Eval(answer) > 0)
+		return correction_.Eval(answer);
+	
+	return 0;
+	
 }
 
 const void PFClusterCalibration::calibrate(Calibratable& c) {

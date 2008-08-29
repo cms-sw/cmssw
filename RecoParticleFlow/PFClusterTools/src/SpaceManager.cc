@@ -215,36 +215,7 @@ std::map<DetectorElementPtr, double> SpaceManager::getCalibration(
 	return calibrationCoeffs_[c];
 }
 
-void SpaceManager::extractTruthEvolution(DetectorElementPtr det, Region r, TGraph& gr,
-		TF1* f1) {
-	std::sort(myKnownSpaceVoxels.begin(), myKnownSpaceVoxels.end(),
-			SpaceVoxel());
-	int count(0);
-	std::string detElName = DetElNames[det->getType()];
-	gr.SetTitle(detElName.c_str());
-	double minE(1000);
-	double maxE(0);
-	for (std::vector<SpaceVoxelPtr>::iterator i = myKnownSpaceVoxels.begin(); i
-			!= myKnownSpaceVoxels.end(); ++i) {
-		SpaceVoxelPtr s = *i;
-		double midE = (s->maxEnergy() + s->minEnergy()) / 2.0;
-		if (s->maxEnergy() > maxE)
-			maxE = s->maxEnergy();
-		if (s->minEnergy() < minE)
-			minE = s->minEnergy();
-		CalibratorPtr c = myAddressBook[s];
-		double coeff = calibrationCoeffs_[c][det];
-		if (coeff != 0.0) {
-			gr.SetPoint(count, midE, coeff);
-			++count;
-		}
-	}
-	//f1.SetRange(minE, maxE);
-	gr.Fit(f1, "R");
-
-}
-
-TH1* SpaceManager::extractEvolution(DetectorElementPtr det, Region r, TF1& f1) {
+TH1* SpaceManager::extractEvolution(DetectorElementPtr det, Region r, TF1& f1, bool useTruth) {
 
 	std::vector<SpaceVoxelPtr> region;
 	if (r == BARREL_POS)
@@ -282,7 +253,10 @@ TH1* SpaceManager::extractEvolution(DetectorElementPtr det, Region r, TF1& f1) {
 			std::vector<ParticleDepositPtr> particles = c->getParticles();
 			for (std::vector<ParticleDepositPtr>::iterator
 					it = particles.begin(); it != particles.end(); ++it) {
-				hDist.Fill((*it)->getRecEnergy(), coeff);
+				if(useTruth)
+					hDist.Fill((*it)->getTruthEnergy(), coeff);
+				else
+					hDist.Fill((*it)->getRecEnergy(), coeff);
 			}
 		}
 	}

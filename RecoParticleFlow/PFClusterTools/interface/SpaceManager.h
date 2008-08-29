@@ -73,9 +73,7 @@ public:
 	
 	std::ostream& printCalibrations(std::ostream& stream);
 	
-	void extractTruthEvolution(DetectorElementPtr det, Region r, TGraph& gr, TF1* f1);
-	
-	TH1* extractEvolution(DetectorElementPtr det, Region region, TF1& f1);
+	TH1* extractEvolution(DetectorElementPtr det, Region region, TF1& f1, bool useTruth = true);
 
 	void addEvolution(DetectorElementPtr det, Region region, TF1 f) {
 		if(region == BARREL_POS)

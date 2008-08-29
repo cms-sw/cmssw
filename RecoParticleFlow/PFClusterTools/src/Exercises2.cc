@@ -366,10 +366,11 @@ void Exercises2::evaluateSpaceManager(SpaceManagerPtr s,
 	int autoFit(0);
 	options_->GetOpt("evolution", "autoFit", autoFit);
 	std::cout << "AutoFit option = "<< autoFit << "\n";
-	double ecalBarrel[6];
-	double ecalEndcap[6];
-	double hcalBarrel[6];
-	double hcalEndcap[6];
+
+	std::vector<double> ecalBarrel;
+	std::vector<double> ecalEndcap;
+	std::vector<double> hcalBarrel;
+	std::vector<double> hcalEndcap;
 
 	double minE, maxE;
 	options_->GetOpt("evolution", "evolutionFunctionMinE", minE);
@@ -377,6 +378,9 @@ void Exercises2::evaluateSpaceManager(SpaceManagerPtr s,
 
 	int basePlots(0);
 	options_->GetOpt("evolution", "basePlots", basePlots);
+	
+	int useTruth(1);
+	options_->GetOpt("evolution", "basePlotsUseTruth", useTruth);
 
 	if (debug_ > 1&& basePlots > 0)
 		std::cout << "Option to generate evolution plots invoked.\n";
@@ -384,63 +388,20 @@ void Exercises2::evaluateSpaceManager(SpaceManagerPtr s,
 	if (autoFit == 0) {
 		std::cout << "Fixing parameters for evolution functions.\n";
 		if (s->getName() == "ecalOnly") {
-			options_->GetOpt("evolution", "ecalOnlyP0Barrel", ecalBarrel[0]);
-			options_->GetOpt("evolution", "ecalOnlyP1Barrel", ecalBarrel[1]);
-			options_->GetOpt("evolution", "ecalOnlyP2Barrel", ecalBarrel[2]);
-			options_->GetOpt("evolution", "ecalOnlyP3Barrel", ecalBarrel[3]);
-			options_->GetOpt("evolution", "ecalOnlyP4Barrel", ecalBarrel[4]);
-			options_->GetOpt("evolution", "ecalOnlyP5Barrel", ecalBarrel[5]);
-
-			options_->GetOpt("evolution", "ecalOnlyP0Endcap", ecalEndcap[0]);
-			options_->GetOpt("evolution", "ecalOnlyP1Endcap", ecalEndcap[1]);
-			options_->GetOpt("evolution", "ecalOnlyP2Endcap", ecalEndcap[2]);
-			options_->GetOpt("evolution", "ecalOnlyP3Endcap", ecalEndcap[3]);
-			options_->GetOpt("evolution", "ecalOnlyP4Endcap", ecalEndcap[4]);
-			options_->GetOpt("evolution", "ecalOnlyP5Endcap", ecalEndcap[5]);
-
+			options_->GetOpt("evolution", "ecalOnlyEcalBarrel", ecalBarrel);
+			options_->GetOpt("evolution", "ecalOnlyEcalEndcap", ecalEndcap);
+			assert(ecalBarrel.size() == 9 && ecalEndcap.size() == 9);
 		} else if (s->getName() == "hcalOnly") {
-			options_->GetOpt("evolution", "hcalOnlyP0Barrel", hcalBarrel[0]);
-			options_->GetOpt("evolution", "hcalOnlyP1Barrel", hcalBarrel[1]);
-			options_->GetOpt("evolution", "hcalOnlyP2Barrel", hcalBarrel[2]);
-			options_->GetOpt("evolution", "hcalOnlyP3Barrel", hcalBarrel[3]);
-			options_->GetOpt("evolution", "hcalOnlyP4Barrel", hcalBarrel[4]);
-			options_->GetOpt("evolution", "hcalOnlyP5Barrel", hcalBarrel[5]);
-
-			options_->GetOpt("evolution", "hcalOnlyP0Endcap", hcalEndcap[0]);
-			options_->GetOpt("evolution", "hcalOnlyP1Endcap", hcalEndcap[1]);
-			options_->GetOpt("evolution", "hcalOnlyP2Endcap", hcalEndcap[2]);
-			options_->GetOpt("evolution", "hcalOnlyP3Endcap", hcalEndcap[3]);
-			options_->GetOpt("evolution", "hcalOnlyP4Endcap", hcalEndcap[4]);
-			options_->GetOpt("evolution", "hcalOnlyP5Endcap", hcalEndcap[5]);
-
+			options_->GetOpt("evolution", "hcalOnlyHcalBarrel", hcalBarrel);
+			options_->GetOpt("evolution", "hcalOnlyHcalEndcap", hcalEndcap);
+			assert(hcalBarrel.size() == 9 && hcalEndcap.size() == 9);
 		} else {
-			options_->GetOpt("evolution", "ecalHcalP0EcalBarrel", ecalBarrel[0]);
-			options_->GetOpt("evolution", "ecalHcalP1EcalBarrel", ecalBarrel[1]);
-			options_->GetOpt("evolution", "ecalHcalP2EcalBarrel", ecalBarrel[2]);
-			options_->GetOpt("evolution", "ecalHcalP3EcalBarrel", ecalBarrel[3]);
-			options_->GetOpt("evolution", "ecalHcalP4EcalBarrel", ecalBarrel[4]);
-			options_->GetOpt("evolution", "ecalHcalP5EcalBarrel", ecalBarrel[5]);
-
-			options_->GetOpt("evolution", "ecalHcalP0EcalEndcap", ecalEndcap[0]);
-			options_->GetOpt("evolution", "ecalHcalP1EcalEndcap", ecalEndcap[1]);
-			options_->GetOpt("evolution", "ecalHcalP2EcalEndcap", ecalEndcap[2]);
-			options_->GetOpt("evolution", "ecalHcalP3EcalEndcap", ecalEndcap[3]);
-			options_->GetOpt("evolution", "ecalHcalP4EcalEndcap", ecalEndcap[4]);
-			options_->GetOpt("evolution", "ecalHcalP5EcalEndcap", ecalEndcap[5]);
-
-			options_->GetOpt("evolution", "ecalHcalP0HcalBarrel", hcalBarrel[0]);
-			options_->GetOpt("evolution", "ecalHcalP1HcalBarrel", hcalBarrel[1]);
-			options_->GetOpt("evolution", "ecalHcalP2HcalBarrel", hcalBarrel[2]);
-			options_->GetOpt("evolution", "ecalHcalP3HcalBarrel", hcalBarrel[3]);
-			options_->GetOpt("evolution", "ecalHcalP4HcalBarrel", hcalBarrel[4]);
-			options_->GetOpt("evolution", "ecalHcalP5HcalBarrel", hcalBarrel[5]);
-
-			options_->GetOpt("evolution", "ecalHcalP0HcalEndcap", hcalEndcap[0]);
-			options_->GetOpt("evolution", "ecalHcalP1HcalEndcap", hcalEndcap[1]);
-			options_->GetOpt("evolution", "ecalHcalP2HcalEndcap", hcalEndcap[2]);
-			options_->GetOpt("evolution", "ecalHcalP3HcalEndcap", hcalEndcap[3]);
-			options_->GetOpt("evolution", "ecalHcalP4HcalEndcap", hcalEndcap[4]);
-			options_->GetOpt("evolution", "ecalHcalP5HcalEndcap", hcalEndcap[5]);
+			options_->GetOpt("evolution", "ecalHcalEcalBarrel", ecalBarrel);
+			options_->GetOpt("evolution", "ecalHcalEcalEndcap", ecalEndcap);
+			options_->GetOpt("evolution", "ecalHcalHcalBarrel", hcalBarrel);
+			options_->GetOpt("evolution", "ecalHcalHcalEndcap", hcalEndcap);
+			assert(ecalBarrel.size() == 9 && ecalEndcap.size() == 9);
+			assert(hcalBarrel.size() == 9 && hcalEndcap.size() == 9);
 		}
 
 		for (std::vector<DetectorElementPtr>::iterator i = detEls.begin(); i
@@ -450,8 +411,9 @@ void Exercises2::evaluateSpaceManager(SpaceManagerPtr s,
 			int mode(0);
 			options_->GetOpt("spaceManager", "interpolationMode", mode);
 
-			std::string name("Func");
+			std::string name("Func_");
 			name.append(DetElNames[d->getType()]);
+			name.append("_");
 
 			/* Fitting for barrel */
 			std::string barrelName(name);
@@ -460,18 +422,34 @@ void Exercises2::evaluateSpaceManager(SpaceManagerPtr s,
 			TF1
 					fBarrel(
 							barrelName.c_str(),
-							"([0]*[5]*x*([1]-[5]*x)/pow(([2]+[5]*x),3)+[3]*pow([5]*x, 0.1))*([5]*x<[6])+[4]*([5]*x>[6])");
-			for (unsigned p(0); p < 6; ++p) {
-				if (d->getType() == ECAL)
-					fBarrel.FixParameter(p, ecalBarrel[p]);
-				else
-					fBarrel.FixParameter(p, hcalBarrel[p]);
+							"([0]*[5]*x*([1]-[5]*x)/pow(([2]+[5]*x),3)+[3]*pow([5]*x, 0.1))*([5]*x<[8] && [5]*x>[7])+[4]*([5]*x>[8])+([6]*[5]*x)*([5]*x<[7])");
+
+			if (d->getType() == ECAL) {
+				unsigned count(0);
+				for (std::vector<double>::const_iterator
+						dit = ecalBarrel.begin(); dit!= ecalBarrel.end(); ++dit) {
+					fBarrel.FixParameter(count, *dit);
+					++count;
+				}
+				
 			}
-			fBarrel.FixParameter(6, maxE);
+			if (d->getType() == HCAL) {
+				unsigned count(0);
+				for (std::vector<double>::const_iterator
+						dit = hcalBarrel.begin(); dit!= hcalBarrel.end(); ++dit) {
+					fBarrel.FixParameter(count, *dit);
+					++count;
+				}
+				
+			}
+			if(useTruth)
+				fBarrel.FixParameter(5, 1.0);
+
+			fBarrel.SetMinimum(0);
 			s->addEvolution(d, BARREL_POS, fBarrel);
 
 			if (basePlots > 0) {
-				TH1* slices = s->extractEvolution(d, BARREL_POS, fBarrel);
+				TH1* slices = s->extractEvolution(d, BARREL_POS, fBarrel, useTruth);
 				slices->Write();
 			}
 			fBarrel.Write();
@@ -483,17 +461,33 @@ void Exercises2::evaluateSpaceManager(SpaceManagerPtr s,
 			TF1
 					fEndcap(
 							endcapName.c_str(),
-							"([0]*[5]*x*([1]-[5]*x)/pow(([2]+[5]*x),3)+[3]*pow([5]*x, 0.1))*([5]*x<[6])+[4]*([5]*x>[6])");
-			for (unsigned q(0); q< 6; ++q) {
-				if (d->getType() == ECAL)
-					fEndcap.FixParameter(q, ecalEndcap[q]);
-				else
-					fEndcap.FixParameter(q, hcalEndcap[q]);
+							"([0]*[5]*x*([1]-[5]*x)/pow(([2]+[5]*x),3)+[3]*pow([5]*x, 0.1))*([5]*x<[8] && [5]*x>[7])+[4]*([5]*x>[8])+([6]*[5]*x)*([5]*x<[7])");
+
+			if (d->getType() == ECAL) {
+				unsigned count(0);
+				for (std::vector<double>::const_iterator
+						dit = ecalEndcap.begin(); dit!= ecalEndcap.end(); ++dit) {
+					fEndcap.FixParameter(count, *dit);
+					++count;
+				}
+				
 			}
-			fEndcap.FixParameter(6, maxE);
+			if (d->getType() == HCAL) {
+				unsigned count(0);
+				for (std::vector<double>::const_iterator
+						dit = hcalEndcap.begin(); dit!= hcalEndcap.end(); ++dit) {
+					fEndcap.FixParameter(count, *dit);
+					++count;
+				}
+				
+			}
+			if(useTruth)
+				fEndcap.FixParameter(5, 1.0);
+			
+			fEndcap.SetMinimum(0);
 			s->addEvolution(d, ENDCAP_POS, fEndcap);
 			if (basePlots > 0) {
-				TH1* slices = s->extractEvolution(d, ENDCAP_POS, fEndcap);
+				TH1* slices = s->extractEvolution(d, ENDCAP_POS, fEndcap, useTruth);
 				slices->Write();
 			}
 			fEndcap.Write();
@@ -516,12 +510,9 @@ void Exercises2::evaluateSpaceManager(SpaceManagerPtr s,
 			std::cout << "\tFitting "<< RegionNames[BARREL_POS]<< "\n";
 			TF1 fBarrel(barrelName.c_str(),
 					"[0]*x*([1]-x)/pow(([2]+x),3)+[3]*pow(x, 0.1)");
-
-			//TF1 fBarrel(barrelName.c_str(), "(pol2(0)+[2])*(x<6)+(expo(3)+[5])*(x>6)");
-			//TF1 fBarrel(barrelName.c_str(), "(x<[0])*([1]*x)+(x>[0])*(expo(2)+[4])");
 			barrelName.append("Slices");
 
-			TH1* slices = s->extractEvolution(d, BARREL_POS, fBarrel);
+			TH1* slices = s->extractEvolution(d, BARREL_POS, fBarrel, useTruth);
 			slices->Write();
 			fBarrel.Write();
 
@@ -545,11 +536,10 @@ void Exercises2::evaluateSpaceManager(SpaceManagerPtr s,
 			std::cout << "\nFitting "<< RegionNames[ENDCAP_POS]<< "\n";
 			TF1 fEndcap(endcapName.c_str(),
 					"[0]*x*([1]-x)/pow(([2]+x),3)+[3]*pow(x, 0.1)");
-			//TF1 fEndcap(endcapName.c_str(), "(pol2(0)+[2])*(x<6)+(expo(3)+[5])*(x>6)");
-			//TF1 fEndcap(endcapName.c_str(), "(x<[0])*([1]*x)+(x>[0])*(expo(2)+[4])");
+
 			endcapName.append("Slices");
 
-			TH1* slicesEndcap = s->extractEvolution(d, ENDCAP_POS, fEndcap);
+			TH1* slicesEndcap = s->extractEvolution(d, ENDCAP_POS, fEndcap, useTruth);
 			slicesEndcap->Write();
 			fEndcap.Write();
 
@@ -582,9 +572,9 @@ void Exercises2::evaluateCalibrator(SpaceManagerPtr s, CalibratorPtr c,
 
 		std::vector<ParticleDepositPtr> csParticles = c->getParticles();
 		unsigned count(0);
-		for (std::vector<ParticleDepositPtr>::iterator pit = csParticles.begin(); pit
-				!= csParticles.end(); ++pit) {
-			ParticleDepositPtr pd = *pit;
+		for (std::vector<ParticleDepositPtr >::iterator
+				zit = csParticles.begin(); zit!= csParticles.end(); ++zit) {
+			ParticleDepositPtr pd = *zit;
 			calibrated->reset();
 			calibrated->rechits_meanEcal_.energy_ = pd->getRecEnergy(ecal);
 			calibrated->rechits_meanHcal_.energy_ = pd->getRecEnergy(hcal);
@@ -646,51 +636,46 @@ void Exercises2::evaluateCalibrator(SpaceManagerPtr s, CalibratorPtr c,
 				//crwCorr.hcalEnergy_ = pd->getRecEnergy(hcal);
 				crwCorr.ecalEnergy_
 						= clusterCalibration_.getCalibratedEcalEnergy(
-								crwPre.particleEnergy_,
-								crwPre.ecalEnergy_,
-								crwPre.hcalEnergy_, pd->getEta(),
-								pd->getPhi());
+								crwPre.particleEnergy_, crwPre.ecalEnergy_,
+								crwPre.hcalEnergy_, pd->getEta(), pd->getPhi());
 				crwCorr.hcalEnergy_
-							= clusterCalibration_.getCalibratedHcalEnergy(
-												crwPre.particleEnergy_,
-												crwPre.ecalEnergy_,
-												crwPre.hcalEnergy_, pd->getEta(),
-												pd->getPhi());
-				crwCorr.particleEnergy_ = clusterCalibration_.getCalibratedEnergy(
-						crwPre.particleEnergy_,
-						crwPre.ecalEnergy_,
-						crwPre.hcalEnergy_, pd->getEta(),
-						pd->getPhi());
-				
+						= clusterCalibration_.getCalibratedHcalEnergy(
+								crwPre.particleEnergy_, crwPre.ecalEnergy_,
+								crwPre.hcalEnergy_, pd->getEta(), pd->getPhi());
+				crwCorr.particleEnergy_
+						= clusterCalibration_.getCalibratedEnergy(
+								crwPre.particleEnergy_, crwPre.ecalEnergy_,
+								crwPre.hcalEnergy_, pd->getEta(), pd->getPhi());
+
 				crwCorr.b_ = ecal->getCalib();
 				crwCorr.c_ = hcal->getCalib();
-//
-//				bool doCorrection(true);
-//				options_->GetOpt("correction", "doCorrection", doCorrection);
-//				double correctionLowLimit(0);
-//				options_->GetOpt("correction", "correctionLowLimit",
-//						correctionLowLimit);
-//
-//				if (doCorrection) {
-//					double p0_, p1_, p2_, lowEP0_, lowEP1_, lowEP2_;
-//					options_->GetOpt("correction", "globalP0", p0_);
-//					options_->GetOpt("correction", "globalP1", p1_);
-//					options_->GetOpt("correction", "globalP0", p2_);
-//
-//					options_->GetOpt("correction", "lowEP0", lowEP0_);
-//					options_->GetOpt("correction", "lowEP1", lowEP1_);
-//					options_->GetOpt("correction", "lowEP2", lowEP2_);
-//
-//					if (pd->getRecEnergy() > correctionLowLimit) {
-//						//if (p2_ == 0.0)
-//						crwCorr.particleEnergy_= (pd->getRecEnergy() -p0_)/ p1_;
-//					} else {
-//						crwCorr.particleEnergy_
-//								= (pd->getRecEnergy() - lowEP0_ ) / lowEP1_;
-//					}
-//				} else {
-//					crwCorr.particleEnergy_ = pd->getRecEnergy();
-//				}
+				//
+				//				bool doCorrection(true);
+				//				options_->GetOpt("correction", "doCorrection", doCorrection);
+				//				double correctionLowLimit(0);
+				//				options_->GetOpt("correction", "correctionLowLimit",
+				//						correctionLowLimit);
+				//
+				//				if (doCorrection) {
+				//					double p0_, p1_, p2_, lowEP0_, lowEP1_, lowEP2_;
+				//					options_->GetOpt("correction", "globalP0", p0_);
+				//					options_->GetOpt("correction", "globalP1", p1_);
+				//					options_->GetOpt("correction", "globalP0", p2_);
+				//
+				//					options_->GetOpt("correction", "lowEP0", lowEP0_);
+				//					options_->GetOpt("correction", "lowEP1", lowEP1_);
+				//					options_->GetOpt("correction", "lowEP2", lowEP2_);
+				//
+				//					if (pd->getRecEnergy() > correctionLowLimit) {
+				//						//if (p2_ == 0.0)
+				//						crwCorr.particleEnergy_= (pd->getRecEnergy() -p0_)/ p1_;
+				//					} else {
+				//						crwCorr.particleEnergy_
+				//								= (pd->getRecEnergy() - lowEP0_ ) / lowEP1_;
+				//					}
+				//				} else {
+				//					crwCorr.particleEnergy_ = pd->getRecEnergy();
+				//				}
 
 				crwCorr.truthEnergy_ = pd->getTruthEnergy();
 				crwCorr.provenance_ = cpCorr;
