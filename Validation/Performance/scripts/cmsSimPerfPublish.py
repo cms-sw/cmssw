@@ -556,7 +556,7 @@ def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDat
                         syscp(CandleLogFiles,WebArea + "/")
                         base = os.path.basename(LocalPath)
                         for cand in CandleLogFiles:
-                            cand = os.path.basename(cand)
+                            cand = os.path.basename(cand)                            
                             if _verbose:
                                 print "Found %s in %s\n" % (cand,LocalPath)
                             CAND.write("<a href=\"./%s/%s\">%s </a>" % (base,cand,cand))
