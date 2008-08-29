@@ -280,7 +280,7 @@ HcalCellType::HcalCell HcalNumberingFromDDD::cell(int det, int zside,
 	laymin = 1;
 	if (idet==static_cast<int>(HcalEndcap)) laymin = 2;
 	laymax = depth0;
-	if (nOff.size() > 11) {
+	if (nOff.size() > 12) {
 	  if (etaR == nOff[6]) {
 	    laymin = nOff[7];
 	    laymax = nOff[8];
@@ -293,7 +293,10 @@ HcalCellType::HcalCell HcalNumberingFromDDD::cell(int det, int zside,
         laymax = depth2[etaR-1];
 	if (etaR==etaMax[0] && idet==static_cast<int>(HcalBarrel) &&
 	    nOff.size()>3) laymax = nOff[3];
-	if (nOff.size() > 11 && etaR == nOff[9]) laymax = nOff[11];
+	if (nOff.size() > 12) {
+	  if (etaR == nOff[9]) laymax = nOff[11];
+	  if (etaR == nOff[6]) laymax = nOff[12];
+	}
       } else  if (depth == 3) {
 	laymin = depth2[etaR-1]+1;
         laymax = depth3[etaR-1];
