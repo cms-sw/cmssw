@@ -28,7 +28,7 @@
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidate.h"
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidateFwd.h"
 
-#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
 
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
@@ -63,32 +63,33 @@ double getDist(double eta1, double phi1, double eta2, double phi2)
   return dr;
 }
 
-bool checkHLTMatch(edm::Event& iEvent, double eta, double phi)
+bool checkHLTMatch(edm::Event& iEvent, edm::InputTag hltObjTag, double eta, double phi, double pthr_, double pTnearthr_, bool filterE)
 {
   bool match =false;
-  edm::Handle<trigger::TriggerFilterObjectWithRefs> fiCand;
-  iEvent.getByLabel("hltIsolPixelTrackFilterL3",fiCand);
-  
-  std::vector< edm::Ref<reco::IsolatedPixelTrackCandidateCollection> > isoPixTrackRefs;
-  
-  fiCand->getObjects(trigger::TriggerTrack, isoPixTrackRefs);
-  
-  int nCand=isoPixTrackRefs.size();
+
+  //reproduce trigger decision as a temporary fix
+
+  edm::Handle<reco::IsolatedPixelTrackCandidateCollection> hltTracks;
+  iEvent.getByLabel(hltObjTag,hltTracks);
 
   double minDDD=100;
-  for (int p=0; p<nCand; p++)
+  for (reco::IsolatedPixelTrackCandidateCollection::const_iterator hit=hltTracks->begin(); hit!=hltTracks->end(); hit++)
     {
-      double iptEta=isoPixTrackRefs[p]->track()->eta();
-      double iptPhi=isoPixTrackRefs[p]->track()->phi();
-      double dHit=getDist(iptEta,iptPhi,eta,phi);
-      if (dHit<minDDD)
+      double iptEta=hit->track()->eta();
+      double iptPhi=hit->track()->phi();
+      if ((!filterE&&hit->pt()>pthr_&&hit->maxPtPxl()<pTnearthr_)||(filterE&&(hit->pt()*cosh(hit->track()->eta()))>pthr_&&hit->maxPtPxl()<pTnearthr_))
 	{
-	  minDDD=dHit;
-	}
+          double dHit=getDist(iptEta,iptPhi,eta,phi);
+          if (dHit<minDDD)
+	    {
+	      minDDD=dHit;
+	    }
+        }
     }
   if (minDDD>0.4) match=false;
   else match=true;
   return match;
+
 }
 
 
@@ -121,7 +122,12 @@ AlCaIsoTracksProducer::AlCaIsoTracksProducer(const edm::ParameterSet& iConfig)
   ringRad_ = iConfig.getParameter<double>("ECALOuterRingRadius");
 
   checkHLTMatch_=iConfig.getParameter<bool>("CheckHLTMatch");
-
+  hltObjTag_=iConfig.getParameter<edm::InputTag>("hltCollectionLabel");  
+  //temporary:
+  hltPcut_=iConfig.getUntrackedParameter<double>("hltPcut",20);
+  hltMaxNearCut_=iConfig.getUntrackedParameter<double>("hltMaxNearCut",2);
+  hltFilterE_=iConfig.getUntrackedParameter<bool>("hltFilterE",false);	    
+  //////////
 //
 // Parameters for track associator   ===========================
 //  
@@ -228,7 +234,8 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     double thetaecal = 2*atan(exp(-etaecal));
 
     //check matching to HLT object to make sure that ecal FEDs are present (optional)
-    if (checkHLTMatch_&&!checkHLTMatch(iEvent, etaecal,phiecal)) continue;
+
+    if (checkHLTMatch_&&!checkHLTMatch(iEvent, hltObjTag_, etaecal, phiecal,hltPcut_,hltMaxNearCut_,hltFilterE_)) continue;
     
     if (fabs(etaecal)>etaMax_) continue;
     
