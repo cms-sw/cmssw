@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Oct 31 15:28:52 CET 2007
-// $Id: SiPixelCalibDigiProducer.cc,v 1.14 2008/04/21 12:00:11 fblekman Exp $
+// $Id: SiPixelCalibDigiProducer.cc,v 1.15 2008/08/26 15:13:31 fblekman Exp $
 //
 //
 
@@ -131,12 +131,12 @@ SiPixelCalibDigiProducer::fill(edm::Event& iEvent, const edm::EventSetup& iSetup
 // this is the function where we check the cabling map and see if we can assign a fed id to the det ID. 
 // returns false if no fed <-> detid association was found
 bool SiPixelCalibDigiProducer::checkFED(uint32_t detid){
-  edm::LogInfo("SiPixelCalibProducer") << "in checkFED" << std::endl;
+  //  edm::LogInfo("SiPixelCalibProducer") << "in checkFED" << std::endl;
 
   if(detid_to_fedid_[detid])
     return true;
   for(int fedid=0; fedid<=40; ++fedid){
-    edm::LogInfo("SiPixelCalibProducer") << " looking at fedid " << fedid << std::endl;
+    //    edm::LogInfo("SiPixelCalibProducer") << " looking at fedid " << fedid << std::endl;
     SiPixelFrameConverter converter(theCablingMap_.product(),fedid);
     if(converter.hasDetUnit(detid)){
       detid_to_fedid_[detid]=fedid;
@@ -153,7 +153,7 @@ bool SiPixelCalibDigiProducer::checkFED(uint32_t detid){
 void SiPixelCalibDigiProducer::fillPixel(uint32_t detid, short row, short col, short ipoint, short adc){
   //  edm::LogInfo("SiPixelCalibProducer") << " in fillpixel()" << std::endl;
  
-  edm::LogInfo("SiPixelCalibProducer") << "in fillPixel " << detid << " " << row << " " << col << " " << ipoint << " " << adc << std::endl;
+  //  edm::LogInfo("SiPixelCalibProducer") << "in fillPixel " << detid << " " << row << " " << col << " " << ipoint << " " << adc << std::endl;
   if(!checkFED(detid)){
     edm::LogError("SiPixelCalibDigiProducer") << " was unable to match detid " << detid << " to a FED!" << std::endl;
     return;
@@ -269,7 +269,7 @@ SiPixelCalibDigiProducer::setPattern(){
 void
 SiPixelCalibDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  edm::LogInfo("SiPixelCalibDigiProducer") <<"in produce() " << std::endl;
+  //  edm::LogInfo("SiPixelCalibDigiProducer") <<"in produce() " << std::endl;
   using namespace edm;
   iSetup.get<SiPixelCalibConfigurationRcd>().get(calib_);
   iSetup.get<TrackerDigiGeometryRecord>().get( theGeometry_ );
@@ -283,9 +283,9 @@ SiPixelCalibDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   if(iEventCounter_%pattern_repeat_==1)
     setPattern();
   
-  edm::LogInfo("SiPixelCalibDigiProducer") << "now starting fill..." << std::endl;
+  //  edm::LogInfo("SiPixelCalibDigiProducer") << "now starting fill..." << std::endl;
   fill(iEvent,iSetup); // fill method where the actual looping over the digis is done.
-  edm::LogInfo("SiPixelCalibDigiProducer") << "done filling..." << std::endl;
+  //  edm::LogInfo("SiPixelCalibDigiProducer") << "done filling..." << std::endl;
   std::auto_ptr<edm::DetSetVector<SiPixelCalibDigi> > pOut(new edm::DetSetVector<SiPixelCalibDigi>);
   std::auto_ptr<edm::DetSetVector<SiPixelCalibDigiError> > pErr (new edm::DetSetVector<SiPixelCalibDigiError> );
   

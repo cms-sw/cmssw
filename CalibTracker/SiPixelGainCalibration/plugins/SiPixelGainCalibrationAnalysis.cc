@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Nov 14 15:02:06 CET 2007
-// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.28 2008/08/18 10:49:26 fblekman Exp $
+// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.29 2008/08/18 11:15:02 fblekman Exp $
 //
 //
 
@@ -284,6 +284,12 @@ SiPixelGainCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixelCalibD
      
     }
     // convert the gain and pedestal parameters to functional form y= x/gain+ ped
+    if(fabs(slope)>0.0000001)
+      slope = 1./slope;
+    else{
+      slope=0;
+      result = -5;
+    }
 
     if(slope<0)
       makehistopersistent=true;
@@ -352,17 +358,17 @@ SiPixelGainCalibrationAnalysis::newDetID(uint32_t detid)
   std::string tempname=translateDetIdToString(detid);
   bookkeeper_[detid]["gain_1d"] = bookDQMHistogram1D(detid,"Gain1d","gain for "+tempname,100,0.,maxGainInHist_);
   bookkeeper_[detid]["gain_2d"] = bookDQMHistoPlaquetteSummary2D(detid, "Gain2d","gain for "+tempname);
-  bookkeeper_[detid]["ped_1d"] = bookDQMHistogram1D(detid,"Pedestal1d","pedestal for "+tempname,256,0.,256.);
+  bookkeeper_[detid]["ped_1d"] = bookDQMHistogram1D(detid,"Pedestal1d","pedestal for "+tempname,256,0.,256.0);
   bookkeeper_[detid]["ped_2d"] = bookDQMHistoPlaquetteSummary2D(detid,"Pedestal2d","pedestal for "+tempname);
   bookkeeper_[detid]["chi2_1d"] = bookDQMHistogram1D(detid,"GainChi2NDF1d","#chi^{2}/NDOF for "+tempname,100,0.,maxChi2InHist_);
   bookkeeper_[detid]["chi2_2d"] = bookDQMHistoPlaquetteSummary2D(detid,"GainChi2NDF2d","#chi^{2}/NDOF for "+tempname);
   bookkeeper_[detid]["prob_1d"] = bookDQMHistogram1D(detid,"GainChi2Prob1d","P(#chi^{2},NDOF) for "+tempname,100,0.,1.0);
   bookkeeper_[detid]["prob_2d"] = bookDQMHistoPlaquetteSummary2D(detid,"GainChi2Prob2d","P(#chi^{2},NDOF) for "+tempname);
   bookkeeper_[detid]["status_2d"] = bookDQMHistoPlaquetteSummary2D(detid,"GainFitResult2d","Fit result for "+tempname);
-  bookkeeper_[detid]["endpoint_1d"]= bookDQMHistogram1D(detid,"GainEndPoint1d","point where fit meets ADC=255 for "+tempname,256,0.,256.);
-  bookkeeper_[detid]["lowpoint_1d"]= bookDQMHistogram1D(detid,"GainLowPoint1d","lowest fit point for "+tempname,256,0.,256.);
-  bookkeeper_[detid]["highpoint_1d"]= bookDQMHistogram1D(detid,"GainHighPoint1d","highest fit point for "+tempname,256,0.,256.);
-  bookkeeper_[detid]["nfitpoints_1d"]= bookDQMHistogram1D(detid,"GainNPoints1d","number of fit point for "+tempname,256,0.,256.);
+  bookkeeper_[detid]["endpoint_1d"]= bookDQMHistogram1D(detid,"GainEndPoint1d","point where fit meets ADC=255 for "+tempname,256,0.,256.*scalarVcalHigh_VcalLow_);
+  bookkeeper_[detid]["lowpoint_1d"]= bookDQMHistogram1D(detid,"GainLowPoint1d","lowest fit point for "+tempname,256,0.,256.*scalarVcalHigh_VcalLow_);
+  bookkeeper_[detid]["highpoint_1d"]= bookDQMHistogram1D(detid,"GainHighPoint1d","highest fit point for "+tempname,256,0.,256.*scalarVcalHigh_VcalLow_);
+  bookkeeper_[detid]["nfitpoints_1d"]= bookDQMHistogram1D(detid,"GainNPoints1d","number of fit point for "+tempname,20,0.,20);
 
 }
 //define this as a plug-in
