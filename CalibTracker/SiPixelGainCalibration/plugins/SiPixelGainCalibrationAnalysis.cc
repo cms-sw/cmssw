@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Nov 14 15:02:06 CET 2007
-// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.29 2008/08/18 11:15:02 fblekman Exp $
+// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.30 2008/08/29 14:59:27 fblekman Exp $
 //
 //
 
@@ -284,15 +284,15 @@ SiPixelGainCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixelCalibD
      
     }
     // convert the gain and pedestal parameters to functional form y= x/gain+ ped
-    if(fabs(slope)>0.0000001)
+    if(slope>0.0000001)
       slope = 1./slope;
     else{
       slope=0;
       result = -5;
+      makehistopersistent=true;
     }
 
-    if(slope<0)
-      makehistopersistent=true;
+
     if(chi2>chi2Threshold_ && chi2Threshold_>=0)
       makehistopersistent=true;
     if(prob<chi2ProbThreshold_)
@@ -310,6 +310,8 @@ SiPixelGainCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixelCalibD
       if(intercept<pedlow_)
 	pedlow_=intercept;
       bookkeeper_[detid]["gain_1d"]->Fill(slope);
+      if(slope>maxGainInHist_)
+	edm::LogWarning("SiPixelGainCalibration") << "For DETID " << detid << "pixel row,col " << ipix->row() << "," << ipix->col() << " Gain was measured to be " << slope << " which is outside the range of the summary plot (" <<maxGainInHist_ << ") !!!! " << std::endl;
       bookkeeper_[detid]["gain_2d"]->setBinContent(ipix->col()+1,ipix->row()+1,slope);
       bookkeeper_[detid]["ped_1d"]->Fill(intercept);
       bookkeeper_[detid]["ped_2d"]->setBinContent(ipix->col()+1,ipix->row()+1,intercept);
