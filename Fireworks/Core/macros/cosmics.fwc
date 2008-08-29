@@ -223,7 +223,7 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaa(0);
-  topaaa.addValue("$.isStandAloneMuon()");
+  topaaa.addValue("");
   topaa.addKeyValue("filterExpression", topaaa);
 }
 {
@@ -560,12 +560,12 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaa(0);
-  topaaa.addValue("184");
+  topaaa.addValue("189");
   topaa.addKeyValue("x", topaaa);
 }
 {
   FWConfiguration topaaa(0);
-  topaaa.addValue("63");
+  topaaa.addValue("84");
   topaa.addKeyValue("y", topaaa);
 }
   topa.addKeyValue("main window", topaa);
