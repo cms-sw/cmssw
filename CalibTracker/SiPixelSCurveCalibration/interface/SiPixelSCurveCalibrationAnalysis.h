@@ -14,7 +14,7 @@
 //
 // Original Author:  Evan Klose Friis
 //         Created:  Tue Nov 13 13:59:09 CET 2007
-// $Id: SiPixelSCurveCalibrationAnalysis.h,v 1.16 2008/07/21 13:07:54 fblekman Exp $
+// $Id: SiPixelSCurveCalibrationAnalysis.h,v 1.17 2008/07/29 11:20:11 fblekman Exp $
 //
 //
 
@@ -87,6 +87,7 @@ class SiPixelSCurveCalibrationAnalysis : public SiPixelOfflineCalibAnalysisBase 
       bool                      writeZeroes_;
       std::string               thresholdfilename_;
       std::map<uint32_t, bool>  detIDsToSave_;      
+
 
       //parameters that define "bad curves"
       double                     minimumChi2prob_;
