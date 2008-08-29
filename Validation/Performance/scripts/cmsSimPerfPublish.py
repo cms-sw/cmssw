@@ -88,7 +88,8 @@ def main():
             LOG.write("Results of showtags -r in the local release:\n%s" % ShowTagsResult)
             LOG.close()
         except IOError, detail:
-            print "WARNING: Could not correct create the log file because %s" % detail
+            print "WARNING: Can't create log file"            
+            print detail
 
     # Print Program header
     print_header()
@@ -436,7 +437,7 @@ def scanReportArea(repdir):
     ExecutionDateLast = ""
     ExecutionDate = ""
     ExecutionDateSec=0
-    cmsreg = re.compile("^cmsCreateSimPerfTest")
+    cmsreg = re.compile("^cmsPerfSuite")
     for logf in LogFiles:
         if cmsreg.search(logf):
             ExecutionDateLastSec = os.stat(logf)[ST_CTIME]
@@ -456,7 +457,7 @@ def scanReportArea(repdir):
 #
 # Create HTML pages for candles
 
-def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,date):
+def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,date,prevrev):
     def _getProfileReportLink(CurrentCandle,CurDir,step,CurrentProfile,Profiler):
 
         ProfileTemplate="%s_%s/*_%s_%s*/%s" % (CurrentCandle,CurDir,step,CurrentProfile,Profiler)
@@ -531,19 +532,17 @@ def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDat
            "RECO_PILEUP"
            )
 
-
-
     candnreg  = re.compile("CandleName")
     candhreg  = re.compile("CandlesHere")
     try:
         CAND = open(candlHTML,"w")
         for line in open(tmplfile):
             if candhreg.search(line):
-                CAND.write("<table cellpadding=\"20px\" border=\"1\"><tr><td>\n")
+                CAND.write("<table><tr><td>\n")
                 CAND.write("<h2>")
                 CAND.write(CurrentCandle)
                 CAND.write("</h2>\n")
-                CAND.write("<div style=\"font-size: 13\"> \n")
+                CAND.write("<div> \n")
                 for CurDir in DirName:
 
                     LocalPath = "%s%s_%s" % (repdir,CurrentCandle,CurDir)
@@ -555,12 +554,34 @@ def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDat
                         CAND.write("<p><strong>Logfiles for %s</strong></p>\n" % CurDir)
                         syscp(CandleLogFiles,WebArea + "/")
                         base = os.path.basename(LocalPath)
+                        lfileshtml = ""
                         for cand in CandleLogFiles:
-                            cand = os.path.basename(cand)                            
+                            cand = os.path.basename(cand)
                             if _verbose:
                                 print "Found %s in %s\n" % (cand,LocalPath)
-                            CAND.write("<a href=\"./%s/%s\">%s </a>" % (base,cand,cand))
-                            CAND.write("<br />\n")
+                            lfileshtml += "<a href=\"./%s/%s\">%s </a>" % (base,cand,cand)
+                            lfileshtml += "<br />\n"
+
+                            rootf  = "%s/%s/regression.root" % (repdir,base)
+                            outd   = "%s/%s" % (WebArea,base)
+                            oldLog = "%s/%s/%s" % (prevrev,base,cand)
+                            newLog = "%s/%s/%s" % (repdir,base,cand)
+                            oldRelName = os.path.basename(prevrev)
+
+                            if _debug > 0:
+                                assert os.path.exists(newLog), "The current release logfile %s that we were using to perform regression analysis was not found (even though we just found it!!)" % newLog
+                                
+                            if "TimingReport" in cand and (not prevrev == "") and os.path.exists(oldLog):
+                                CAND.write("<table><tr>\n")                                                            
+                                # cmsPerfRegress(rootfilename, outdir, oldLogFile, newLogfile, secsperbin, batch, prevrev)
+                                htmNames = cmsPerfRegress.regressCompare(rootf, outd, oldLog, newLog, 1, prevrev = oldRelName)
+                                html = map(lambda x: "<td><a href=\"./%s/%s\"><img src=\"./%s/%s\" /></a></td>" % (base,x,base,x), htmNames)
+                                CAND.write("\n".join(html))
+                                CAND.write("\n</tr></table>")
+                            elif "TimingReport" in cand and (not prevrev == "") and not os.path.exists(oldLog):
+                                print "WARNING: Could not find an equivalent logfile for %s in the previous release dir" % newLog
+                            
+                        CAND.write(lfileshtml)
 
                     PrintedOnce = False
                     for CurrentProfile in Profile:
@@ -720,7 +741,7 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
                    # INDEX.write("</th><tr><td>")
                     
                     candlHTML="%s/%s" % (WebArea,candlHTML)
-                    createCandlHTML(CandlTmpltHTML,candlHTML,acandle,WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,date)
+                    createCandlHTML(CandlTmpltHTML,candlHTML,acandle,WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,date,prevrev)
             else:
                 INDEX.write(NewFileLine)
 
