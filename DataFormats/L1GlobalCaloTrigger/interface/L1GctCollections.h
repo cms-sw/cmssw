@@ -28,6 +28,8 @@ typedef std::vector<L1GctJetCand> L1GctJetCandCollection;
 typedef std::vector<L1GctEtHad> L1GctEtHadCollection;
 typedef std::vector<L1GctEtMiss> L1GctEtMissCollection;
 typedef std::vector<L1GctEtTotal> L1GctEtTotalCollection;
+typedef std::vector<L1GctHFRingEtSum> L1GctHFRingEtSumCollection;
+typedef std::vector<L1GctHFBitCount> L1GctHFBitCountCollection;
 typedef std::vector<L1GctJetCounts> L1GctJetCountsCollection;
 
 #endif
