@@ -55,8 +55,9 @@ void CSCSummary::Reset() {
     for (adr.chamber = 1; adr.chamber <= N_CHAMBERS; adr.chamber++) {
        for (adr.cfeb = 1; adr.cfeb <= N_CFEBS; adr.cfeb++) {
           for (adr.hv = 1; adr.hv <= N_HVS; adr.hv++) {
-            HWStatusBitSet *set = &(map[adr.side - 1][adr.station - 1][adr.ring - 1][adr.chamber - 1][adr.layer - 1][adr.cfeb - 1][adr.hv - 1]);
-            set->reset();
+            for (unsigned int bit = 0; bit < HWSTATUSBITSETSIZE; bit++) { 
+              ReSetValue(adr, (HWStatusBit) bit);
+            }
           }
        }
     }
