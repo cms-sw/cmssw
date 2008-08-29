@@ -28,7 +28,6 @@ private:
   double etaCut_;
   bool isRelativeIso_;
   double isoCut03_;
-  double isoCut05_;
   double massTMin_;
   double massTMax_;
   double ptThrForZCount_;
@@ -103,7 +102,6 @@ WMuNuAnalyzer::WMuNuAnalyzer(const ParameterSet& pset) :
       etaCut_(pset.getUntrackedParameter<double>("EtaCut", 2.1)),
       isRelativeIso_(pset.getUntrackedParameter<bool>("IsRelativeIso", true)),
       isoCut03_(pset.getUntrackedParameter<double>("IsoCut03", 0.1)),
-      isoCut05_(pset.getUntrackedParameter<double>("IsoCut05", 999999.)),
       massTMin_(pset.getUntrackedParameter<double>("MassTMin", 50.)),
       massTMax_(pset.getUntrackedParameter<double>("MassTMax", 200.)),
       ptThrForZCount_(pset.getUntrackedParameter<double>("PtThrForZCount", 20.)),
@@ -309,7 +307,6 @@ void WMuNuAnalyzer::analyze(const Event & event, const EventSetup& eventSetup){
       hTMass_PtSum->Fill(ptsum,massT);
       LogTrace("") << "\t... Isol, Track pt= " << mu->pt() << " GeV, " << " ptsum = " << ptsum;
       if (ptsum/pt > isoCut03_) muon_sel = false;
-      if (mu->isolationR05().sumPt/pt > isoCut05_) muon_sel = false;
 
       if (muon_sel) {
         nmuons++;
