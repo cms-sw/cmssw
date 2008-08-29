@@ -45,7 +45,7 @@ process.FEVT.outputCommands.append('keep recoCandidatesOwned_caloTowersOpt_*_*')
 process.FEVT.outputCommands.append('keep RPCDetIdRPCDigiMuonDigiCollection_muonRPCDigis_*_*')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.2 $'),
+    version = cms.untracked.string('$Revision: 1.3 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/GlobalRuns/python/recoT0DQM_EvContent_30T_cfg.py,v $'),
     annotation = cms.untracked.string('CRUZET Prompt Reco with DQM with Mag field at 3T')
 )
@@ -89,7 +89,11 @@ process.SiStripQualityESProducer.ListOfRecordToMerge = cms.VPSet(
 )
 process.prefer("SiStripQualityESProducer")
 
+#workaround for RPC DQM module
+process.muonCosmicMonitors_fix = cms.Sequence(process.muonTrackCosmicAnalyzers*process.dtSegmentsMonitor*process.cscMonitor*process.muonCosmicAnalyzer)
+process.DQMOfflineCosmics_fix = cms.Sequence(process.SiStripDQMTier0*process.ecal_dqm_source_offline*process.muonCosmicMonitors_fix*process.jetMETAnalyzer*process.hcalOfflineDQMSource*process.l1tmonitor*process.siPixelOfflineDQM_source*process.egammaCosmicPhotonMonitors)
+
 #Paths
-process.allPath = cms.Path( process.RawToDigi_woGCT * process.reconstructionCosmics *  process.DQMOfflineCosmics * process.MEtoEDMConverter)
+process.allPath = cms.Path( process.RawToDigi_woGCT * process.reconstructionCosmics *  process.DQMOfflineCosmics_fix * process.MEtoEDMConverter)
 
 process.outpath = cms.EndPath(process.FEVT)
