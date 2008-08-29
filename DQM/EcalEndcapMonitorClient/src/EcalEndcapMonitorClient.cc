@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2008/07/23 06:31:53 $
- * $Revision: 1.196 $
+ * $Date: 2008/08/11 07:24:15 $
+ * $Revision: 1.197 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1515,7 +1515,9 @@ void EcalEndcapMonitorClient::analyze(void) {
   // use the run number from the ECAL DCC header
   if ( run_ <= 0 ) run_ = ecal_run;
 
-  if ( ! mergeRuns_ && run_ != last_run_ ) forced_update_ = true;
+  if ( run_ != -1 && evt_ != -1 && runType_ != -1 ) {
+    if ( ! mergeRuns_ && run_ != last_run_ ) forced_update_ = true;
+  }
 
   bool update = ( prescaleFactor_ != 1              ) ||
                 ( jevt_ <   10                      ) ||

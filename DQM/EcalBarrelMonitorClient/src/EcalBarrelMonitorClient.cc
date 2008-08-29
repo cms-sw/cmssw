@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2008/07/23 06:18:00 $
- * $Revision: 1.436 $
+ * $Date: 2008/07/23 06:31:52 $
+ * $Revision: 1.437 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1475,7 +1475,9 @@ void EcalBarrelMonitorClient::analyze(void) {
   // use the run number from the ECAL DCC header
   if ( run_ <= 0 ) run_ = ecal_run;
 
-  if ( ! mergeRuns_ && run_ != last_run_ ) forced_update_ = true;
+  if ( run_ != -1 && evt_ != -1 && runType_ != -1 ) {
+    if ( ! mergeRuns_ && run_ != last_run_ ) forced_update_ = true;
+  }
 
   bool update = ( prescaleFactor_ != 1              ) ||
                 ( jevt_ <   10                      ) ||
