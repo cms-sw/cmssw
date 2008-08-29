@@ -6,7 +6,6 @@
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
-#include "RecoMuon/MuonIsolation/interface/Cuts.h"
 
 class TFile;
 class TH1F;
@@ -23,18 +22,19 @@ public:
 private:
   edm::InputTag muonTag_;
   edm::InputTag metTag_;
-  edm::InputTag isoTag_;
   edm::InputTag jetTag_;
-  double ptThrForZCount_;
+  bool useOnlyGlobalMuons_;
   double ptCut_;
   double etaCut_;
-  double isoCone_;
-  double isoCut_;
+  bool isRelativeIso_;
+  double isoCut03_;
+  double isoCut05_;
   double massTMin_;
   double massTMax_;
+  double ptThrForZCount_;
+  double acopCut_;
   double eJetMin_;
   int nJetMax_;
-  double acopCut_;
 
 // Histograms
   TH1F *hNMu;
@@ -65,8 +65,6 @@ private:
 
   unsigned int numberOfEvents;
   unsigned int numberOfMuons;
-
-  void Puts(const char* fmt, ...);
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -78,9 +76,10 @@ private:
 #include "FWCore/Utilities/interface/EDMException.h"
 
 #include "DataFormats/METReco/interface/CaloMET.h"
+#include "DataFormats/METReco/interface/CaloMETFwd.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuIsoDeposit.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/GeometryVector/interface/Phi.h"
 
 #include "TFile.h"
@@ -96,21 +95,22 @@ using namespace reco;
 
 /// Constructor
 WMuNuAnalyzer::WMuNuAnalyzer(const ParameterSet& pset) :
-  muonTag_(pset.getParameter<edm::InputTag> ("MuonTag")),
-  metTag_(pset.getParameter<edm::InputTag> ("METTag")),
-  isoTag_(pset.getParameter<edm::InputTag> ("IsolationTag")),
-  jetTag_(pset.getParameter<edm::InputTag> ("JetTag")),
-  ptThrForZCount_(pset.getParameter<double>("PtThrForZCount")),
-  ptCut_(pset.getParameter<double>("PtCut")),
-  etaCut_(pset.getParameter<double>("EtaCut")),
-  isoCone_(pset.getParameter<double>("IsoCone")),
-  isoCut_(pset.getParameter<double>("IsoCut")),
-  massTMin_(pset.getParameter<double>("MassTMin")),
-  massTMax_(pset.getParameter<double>("MassTMax")),
-  eJetMin_(pset.getParameter<double>("EJetMin")),
-  nJetMax_(pset.getParameter<int>("NJetMax")),
-  acopCut_(pset.getParameter<double>("AcopCut")),
-  theRootFileName(pset.getUntrackedParameter<string>("rootFileName")) 
+      muonTag_(pset.getUntrackedParameter<edm::InputTag> ("MuonTag", edm::InputTag("muons"))),
+      metTag_(pset.getUntrackedParameter<edm::InputTag> ("METTag", edm::InputTag("met"))),
+      jetTag_(pset.getUntrackedParameter<edm::InputTag> ("JetTag", edm::InputTag("iterativeCone5CaloJets"))),
+      useOnlyGlobalMuons_(pset.getUntrackedParameter<bool>("UseOnlyGlobalMuons", true)),
+      ptCut_(pset.getUntrackedParameter<double>("PtCut", 25.)),
+      etaCut_(pset.getUntrackedParameter<double>("EtaCut", 2.1)),
+      isRelativeIso_(pset.getUntrackedParameter<bool>("IsRelativeIso", true)),
+      isoCut03_(pset.getUntrackedParameter<double>("IsoCut03", 0.1)),
+      isoCut05_(pset.getUntrackedParameter<double>("IsoCut05", 999999.)),
+      massTMin_(pset.getUntrackedParameter<double>("MassTMin", 50.)),
+      massTMax_(pset.getUntrackedParameter<double>("MassTMax", 200.)),
+      ptThrForZCount_(pset.getUntrackedParameter<double>("PtThrForZCount", 20.)),
+      acopCut_(pset.getUntrackedParameter<double>("AcopCut", 999999.)),
+      eJetMin_(pset.getUntrackedParameter<double>("EJetMin", 999999.)),
+      nJetMax_(pset.getUntrackedParameter<int>("NJetMax", 999999)),
+      theRootFileName(pset.getUntrackedParameter<string>("rootFileName")) 
 
 {
   LogDebug("WMuNuAnalyzer")<<" WMuNuAnalyzer constructor called";
@@ -154,9 +154,9 @@ void WMuNuAnalyzer::beginJob(const EventSetup& eventSetup){
 }
 
 void WMuNuAnalyzer::endJob(){
-  Puts("WMuNuAnalyzer>>> FINAL PRINTOUTS -> BEGIN");
-  Puts("WMuNuAnalyzer>>> Number of analyzed events= %d", numberOfEvents);
-  Puts("WMuNuAnalyzer>>> Number of analyzed muons= %d", numberOfMuons);
+  LogVerbatim("") << "WMuNuAnalyzer>>> FINAL PRINTOUTS -> BEGIN";
+  LogVerbatim("") << "WMuNuAnalyzer>>> Number of analyzed events= " << numberOfEvents;
+  LogVerbatim("") << "WMuNuAnalyzer>>> Number of analyzed muons= " << numberOfMuons;
 
   // Write the histos to file
   theRootFile->cd();
@@ -185,7 +185,7 @@ void WMuNuAnalyzer::endJob(){
 
   theRootFile->Close();
 
-  Puts("WMuNuAnalyzer>>> FINAL PRINTOUTS -> END");
+  LogVerbatim("") << "WMuNuAnalyzer>>> FINAL PRINTOUTS -> END";
 }
  
 
@@ -206,22 +206,30 @@ void WMuNuAnalyzer::analyze(const Event & event, const EventSetup& eventSetup){
    double met_py = 0.;
 
   // Get the Muon Track collection from the event
-   Handle<reco::TrackCollection> muonCollection;
+   Handle<reco::MuonCollection> muonCollection;
    event.getByLabel(muonTag_, muonCollection);
-
-   LogTrace("Analyzer")<<"Reconstructed Muon tracks: " << muonCollection->size() << endl;
+   if (event.getByLabel(muonTag_, muonCollection)) {
+      LogTrace("Analyzer")<<"Reconstructed Muon tracks: " << muonCollection->size() << endl;
+   } else {
+      LogTrace("") << ">>> Muon collection does not exist !!!";
+      return;
+   }
 
    numberOfMuons+=muonCollection->size();
   
    for (unsigned int i=0; i<muonCollection->size(); i++) {
-      TrackRef mu(muonCollection,i);
+      MuonRef mu(muonCollection,i);
+      if (useOnlyGlobalMuons_ && !mu->isGlobalMuon()) continue;
       met_px -= mu->px();
       met_py -= mu->py();
    }
 
   // Get the MET collection from the event
    Handle<CaloMETCollection> metCollection;
-   event.getByLabel(metTag_, metCollection);
+   if (!event.getByLabel(metTag_, metCollection)) {
+      LogTrace("") << ">>> MET collection does not exist !!!";
+      return;
+   }
 
    CaloMETCollection::const_iterator caloMET = metCollection->begin();
    LogTrace("") << ">>> CaloMET_et, CaloMET_py, CaloMET_py= " << caloMET->et() << ", " << caloMET->px() << ", " << caloMET->py();;
@@ -232,7 +240,10 @@ void WMuNuAnalyzer::analyze(const Event & event, const EventSetup& eventSetup){
 
   // Get the Jet collection from the event
    Handle<CaloJetCollection> jetCollection;
-   event.getByLabel(jetTag_, jetCollection);
+   if (!event.getByLabel(jetTag_, jetCollection)) {
+      LogTrace("") << ">>> CALOJET collection does not exist !!!";
+      return;
+   }
 
    CaloJetCollection::const_iterator jet = jetCollection->begin();
    int njets = 0;
@@ -245,9 +256,6 @@ void WMuNuAnalyzer::analyze(const Event & event, const EventSetup& eventSetup){
 
    if (njets>nJetMax_) event_sel = false;
 
-   Handle<MuIsoDepositAssociationMap> isodepMap_;
-   event.getByLabel(isoTag_, isodepMap_);
-
    unsigned int nmuons = 0;
    unsigned int nmuonsForZ = 0;
 
@@ -257,8 +265,9 @@ void WMuNuAnalyzer::analyze(const Event & event, const EventSetup& eventSetup){
    for (unsigned int i=0; i<muonCollection->size(); i++) {
       bool muon_sel = true;
 
-      TrackRef mu(muonCollection,i);
-      LogTrace("") << "> Processing muon number " << i << "...";
+      MuonRef mu(muonCollection,i);
+      if (useOnlyGlobalMuons_ && !mu->isGlobalMuon()) continue;
+      LogTrace("") << "> Processing (global) muon number " << i << "...";
 // pt
       double pt = mu->pt();
       hPtMu->Fill(pt);
@@ -294,13 +303,13 @@ void WMuNuAnalyzer::analyze(const Event & event, const EventSetup& eventSetup){
       if (massT>massTMax_) muon_sel = false;
 
 // Isolation
-      const reco::MuIsoDeposit dep = (*isodepMap_)[mu];
-      float ptsum = dep.depositWithin(isoCone_);
+      double ptsum = mu->isolationR03().sumPt;
       hPtSum->Fill(ptsum);
       hPtSumN->Fill(ptsum/pt);
       hTMass_PtSum->Fill(ptsum,massT);
       LogTrace("") << "\t... Isol, Track pt= " << mu->pt() << " GeV, " << " ptsum = " << ptsum;
-      if (ptsum >= isoCut_) muon_sel = false;
+      if (ptsum/pt > isoCut03_) muon_sel = false;
+      if (mu->isolationR05().sumPt/pt > isoCut05_) muon_sel = false;
 
       if (muon_sel) {
         nmuons++;
@@ -349,17 +358,6 @@ void WMuNuAnalyzer::analyze(const Event & event, const EventSetup& eventSetup){
       }
 
   
-}
-
-void WMuNuAnalyzer::Puts(const char* va_(fmt), ...) {
-      // Do not write more than 256 characters
-      const unsigned int bufsize = 256; 
-      char chout[bufsize] = "";
-      va_list ap;
-      va_start(ap, va_(fmt));
-      vsnprintf(chout, bufsize, va_(fmt), ap);
-      va_end(ap);
-      LogVerbatim("") << chout;
 }
 
 DEFINE_FWK_MODULE(WMuNuAnalyzer);
