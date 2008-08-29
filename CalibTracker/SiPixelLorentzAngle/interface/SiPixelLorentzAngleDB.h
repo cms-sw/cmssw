@@ -40,14 +40,10 @@ class SiPixelLorentzAngleDB : public edm::EDAnalyzer
   std::vector< std::pair<uint32_t, float> > detid_la;
   edm::ParameterSet conf_;
   double magneticField_;
-//   double appliedVoltage_;
-//   double chargeMobility_;
-//   double temperature_;
-//   double temperatureerror_;
-//   double rhall_;
-//   double holeBeta_;
-//   double holeSaturationVelocity_;
-//   SiStripLorentzAngleAlgorithm *siStripLorentzAngleAlgorithm_;
+	float bPixLorentzAnglePerTesla_;
+	float fPixLorentzAnglePerTesla_;
+	std::string fileName_;
+	bool useFile_;
 };
 
 
