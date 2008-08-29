@@ -143,22 +143,22 @@ void CSCMonitorModule::updateFracHistos() {
 
     if (MEEMU("CSC_Format_Errors", me2)) {
       TH2* err = dynamic_cast<TH2*>(me2->getTH1());
-      summary.ReadErrorChambers(rep, err, 0.1, 5.0);
+      summary.ReadErrorChambers(rep, err, FORMAT_ERR, 0.1, 5.0);
     }
 
     if (MEEMU("CSC_L1A_out_of_sync", me2)) {
       TH2* err = dynamic_cast<TH2*>(me2->getTH1());
-      summary.ReadErrorChambers(rep, err, 0.1, 5.0);
+      summary.ReadErrorChambers(rep, err, L1SYNC_ERR, 0.1, 5.0);
     }
 
     if (MEEMU("CSC_DMB_input_fifo_full", me2)) {
       TH2* err = dynamic_cast<TH2*>(me2->getTH1());
-      summary.ReadErrorChambers(rep, err, 0.1, 5.0);
+      summary.ReadErrorChambers(rep, err, FIFOFULL_ERR, 0.1, 5.0);
     }
 
     if (MEEMU("CSC_DMB_input_timeout", me2)) {
       TH2* err = dynamic_cast<TH2*>(me2->getTH1());
-      summary.ReadErrorChambers(rep, err, 0.1, 5.0);
+      summary.ReadErrorChambers(rep, err, INPUTTO_ERR, 0.1, 5.0);
     }
   }
 

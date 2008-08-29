@@ -55,7 +55,7 @@ void CSCSummary::Reset() {
     for (adr.chamber = 1; adr.chamber <= N_CHAMBERS; adr.chamber++) {
        for (adr.cfeb = 1; adr.cfeb <= N_CFEBS; adr.cfeb++) {
           for (adr.hv = 1; adr.hv <= N_HVS; adr.hv++) {
-            SetValue(adr, 0);
+            map[adr.side - 1][adr.station - 1][adr.ring - 1][adr.chamber - 1][adr.layer - 1][adr.cfeb - 1][adr.hv - 1].reset();
           }
        }
     }
@@ -80,9 +80,9 @@ void CSCSummary::ReadReportingChambers(TH2*& h2, const double threshold) {
         z = h2->GetBinContent(x, y);
         if(ChamberCoords(x, y, adr)) {
           if(z >= threshold) {
-            SetValue(adr, 1);
+            SetValue(adr, DATA);
           } else {
-            SetValue(adr, 0);
+            ReSetValue(adr, DATA);
           }
         }
       }
@@ -120,7 +120,6 @@ void CSCSummary::ReadReportingChambersRef(TH2*& h2, TH2*& refh2, const double co
 
     CSCAddress adr;
     unsigned int N = 0, n = 0;
-    int val = 1;
 
     for(unsigned int x = 1; x <= 36; x++) {
       for(unsigned int y = 1; y <= 18; y++) {
@@ -129,12 +128,16 @@ void CSCSummary::ReadReportingChambersRef(TH2*& h2, TH2*& refh2, const double co
         n = int(h2->GetBinContent(x, y));
 
         if(ChamberCoords(x, y, adr)) {
-          val = 1;
+          
+          // Reset some bits
+          ReSetValue(adr, HOT);
+          ReSetValue(adr, COLD);
 
           // No data? Still not reporting...
           if (n == 0) {
-            val = 0;
+            ReSetValue(adr, DATA);
           } else if (N > 0) {
+            SetValue(adr, DATA);
 
             eps_meas = (1.0 * n) / (1.0 * N);
             double S = 0;
@@ -143,7 +146,7 @@ void CSCSummary::ReadReportingChambersRef(TH2*& h2, TH2*& refh2, const double co
             if (eps_meas < cold_coef) {
               S = SignificanceLevel(N, n, cold_coef);
               if (S > cold_Sfail) {
-                val = -1;
+                SetValue(adr, COLD);
               }
             } else
             
@@ -151,26 +154,11 @@ void CSCSummary::ReadReportingChambersRef(TH2*& h2, TH2*& refh2, const double co
             if (eps_meas > hot_coef) {
               S = SignificanceLevelHot(N, n);
               if (S > hot_Sfail) {
-                val = -1;
+                SetValue(adr, HOT);
               }
             }
 
-            if (eps_meas < cold_coef || eps_meas > hot_coef) { 
-              LOGINFO("ReadReportingChambersRef") << "(x, y) = (" << x << ", " << y << ")" <<
-                                                    ", cold_coef  = " << cold_coef << 
-                                                    ", cold_Sfail = " << cold_Sfail << 
-                                                    ", hot_coef   = " << hot_coef << 
-                                                    ", hot_Sfail  = " << hot_Sfail << 
-                                                    ", eps_meas   = " << eps_meas << 
-                                                    ", N = " << N << 
-                                                    ", n = " << n << 
-                                                    ", S = " << S << 
-                                                    ", value = " << val <<
-                                                    ": " << (val < 0 ? "ERROR" : "OK");
-            }
-
           }
-          SetValue(adr, val);
         }
 
       }
@@ -183,11 +171,12 @@ void CSCSummary::ReadReportingChambersRef(TH2*& h2, TH2*& refh2, const double co
  * @brief  Read Error data for Chambers
  * @param  evs Histogram for number of events (total)
  * @param  err Histogram for number of errors
+ * @param  bit Error bit to set
  * @param  eps_max Maximum tolerance of errors (rate)
  * @param  Sfail Significance threshold for failure report
  * @return 
  */
-void CSCSummary::ReadErrorChambers(TH2*& evs, TH2*& err, const double eps_max, const double Sfail) {
+void CSCSummary::ReadErrorChambers(TH2*& evs, TH2*& err, const HWStatusBit bit, const double eps_max, const double Sfail) {
 
   if(evs->GetXaxis()->GetXmin() <= 1 && evs->GetXaxis()->GetXmax() >= 36 &&
      evs->GetYaxis()->GetXmin() <= 1 && evs->GetYaxis()->GetXmax() >= 18 &&
@@ -203,8 +192,9 @@ void CSCSummary::ReadErrorChambers(TH2*& evs, TH2*& err, const double eps_max, c
         n = int(err->GetBinContent(x, y));
         if(ChamberCoords(x, y, adr)) {
           if(SignificanceLevel(N, n, eps_max) > Sfail) { 
-            //LOGINFO("ReadErrorChambers") << " N = " << N << ", n = " << n << ", Salpha = " << SignificanceLevel(N, n, eps_max, true);
-            SetValue(adr, -1);
+            SetValue(adr, bit);
+          } else {
+            ReSetValue(adr, bit);
           }
         }
       }
@@ -234,7 +224,7 @@ void CSCSummary::Write(TH2*& h2, const unsigned int station) const {
 
     unsigned int x = 1 + (box->adr.side - 1) * 9 + (box->adr.ring - 1) * 3 + (box->adr.hv - 1);
     unsigned int y = 1 + (box->adr.chamber - 1) * 5 + (box->adr.cfeb - 1);
-    h2->SetBinContent(x, y, GetValue(box->adr));
+    h2->SetBinContent(x, y, GetValue(box->adr).to_ulong());
 
   }
 
@@ -303,63 +293,84 @@ const float CSCSummary::WriteMap(TH2*& h2) const {
 }
 
 /**
+ * @brief  ReSetValue for the whole of detector
+ * @param  bit Status bit to set
+ * @return 
+ */
+void CSCSummary::ReSetValue(const HWStatusBit bit) {
+  SetValue(bit, 0);
+}
+
+/**
  * @brief  SetValue for the whole of detector
+ * @param  bit Status bit to set
  * @param  value Value to set
  * @return 
  */
-void CSCSummary::SetValue(const int value) {
+void CSCSummary::SetValue(const HWStatusBit bit, const int value) {
   CSCAddress adr;
   adr.mask.side = adr.mask.station = adr.mask.ring = adr.mask.chamber = adr.mask.layer = adr.mask.cfeb = adr.mask.hv = false;
-  SetValue(adr, value);
+  SetValue(adr, bit, value);
+}
+
+/**
+ * @brief  ReSet value recursivelly by following the supplied address
+ * @param  adr CSCAddress to be updated
+ * @param  bit Status bit to set
+ * @return 
+ */
+void CSCSummary::ReSetValue(CSCAddress adr, const HWStatusBit bit) {
+  SetValue(adr, bit, 0);
 }
 
 /**
  * @brief  Set value recursivelly by following the supplied address
  * @param  adr CSCAddress to be updated
+ * @param  bit Status bit to set
  * @param  value Value to be set
  * @return 
  */
-void CSCSummary::SetValue(CSCAddress adr, const int value) {
+void CSCSummary::SetValue(CSCAddress adr, const HWStatusBit bit, const int value) {
 
   if (!adr.mask.side) {
     adr.mask.side = true;
-    for (adr.side = 1; adr.side <= N_SIDES; adr.side++) SetValue(adr, value);
+    for (adr.side = 1; adr.side <= N_SIDES; adr.side++) SetValue(adr, bit, value);
     return;
   }
 
   if (!adr.mask.station) {
     adr.mask.station = true;
-    for (adr.station = 1; adr.station <= N_STATIONS; adr.station++) SetValue(adr, value);
+    for (adr.station = 1; adr.station <= N_STATIONS; adr.station++) SetValue(adr, bit, value);
     return;
   }
 
   if (!adr.mask.ring) {
     adr.mask.ring = true;
-    for (adr.ring = 1; adr.ring <= detector.NumberOfRings(adr.station); adr.ring++) SetValue(adr, value);
+    for (adr.ring = 1; adr.ring <= detector.NumberOfRings(adr.station); adr.ring++) SetValue(adr, bit, value);
     return;
   }
 
   if (!adr.mask.chamber) {
     adr.mask.chamber = true;
-    for (adr.chamber = 1; adr.chamber <= detector.NumberOfChambers(adr.station, adr.ring); adr.chamber++) SetValue(adr, value);
+    for (adr.chamber = 1; adr.chamber <= detector.NumberOfChambers(adr.station, adr.ring); adr.chamber++) SetValue(adr, bit, value);
     return;
   }
 
   if (!adr.mask.layer) {
     adr.mask.layer = true;
-    for (adr.layer = 1; adr.layer <= N_LAYERS; adr.layer++) SetValue(adr, value);
+    for (adr.layer = 1; adr.layer <= N_LAYERS; adr.layer++) SetValue(adr, bit, value);
     return;
   }
 
   if (!adr.mask.cfeb) {
     adr.mask.cfeb = true;
-    for (adr.cfeb = 1; adr.cfeb <= detector.NumberOfChamberCFEBs(adr.station, adr.ring); adr.cfeb++) SetValue(adr, value);
+    for (adr.cfeb = 1; adr.cfeb <= detector.NumberOfChamberCFEBs(adr.station, adr.ring); adr.cfeb++) SetValue(adr, bit, value);
     return;
   }
 
   if (!adr.mask.hv) {
     adr.mask.hv = true;
-    for (adr.hv = 1; adr.hv <= detector.NumberOfChamberHVs(adr.station, adr.ring); adr.hv++) SetValue(adr, value);
+    for (adr.hv = 1; adr.hv <= detector.NumberOfChamberHVs(adr.station, adr.ring); adr.hv++) SetValue(adr, bit, value);
     return;
   }
 
@@ -367,9 +378,7 @@ void CSCSummary::SetValue(CSCAddress adr, const int value) {
       adr.ring > 0 && adr.ring <= N_RINGS && adr.chamber > 0 && adr.chamber <= N_CHAMBERS && 
       adr.layer > 0 && adr.layer <= N_LAYERS && adr.cfeb > 0 && adr.cfeb <= N_CFEBS && adr.hv > 0 && adr.hv <= N_HVS) {
 
-    if (map[adr.side - 1][adr.station - 1][adr.ring - 1][adr.chamber - 1][adr.layer - 1][adr.cfeb - 1][adr.hv - 1] != 2 ){
-      map[adr.side - 1][adr.station - 1][adr.ring - 1][adr.chamber - 1][adr.layer - 1][adr.cfeb - 1][adr.hv - 1] = value;
-    }
+    map[adr.side - 1][adr.station - 1][adr.ring - 1][adr.chamber - 1][adr.layer - 1][adr.cfeb - 1][adr.hv - 1].set(bit, value);
 
   }
 
@@ -385,7 +394,7 @@ void CSCSummary::SetValue(CSCAddress adr, const int value) {
  * @return 1 if this polygon is ok for physics and reporting, 0 - if it is ok
  * but does not report, -1 - otherwise
  */
-const int CSCSummary::IsPhysicsReady(const float xmin, const float xmax, const float ymin, const float ymax) const {
+const unsigned long CSCSummary::IsPhysicsReady(const float xmin, const float xmax, const float ymin, const float ymax) const {
 
   float xpmin = (xmin < xmax ? xmin : xmax);
   float xpmax = (xmax > xmin ? xmax : xmin);
@@ -401,10 +410,8 @@ const int CSCSummary::IsPhysicsReady(const float xmin, const float xmax, const f
   adr.mask.side = adr.mask.station = true;
   adr.side = (xmin > 0 ? 1 : 2);
 
-  unsigned int rep_sum = 0;
-  unsigned int nul_sum = 0;
-  unsigned int err_sum = 0;
-  unsigned int mas_sum = 0;
+  HWStatusBitSet status;
+  status.reset();
 
   for (adr.station = 1; adr.station <= N_STATIONS; adr.station++) {
 
@@ -419,35 +426,13 @@ const int CSCSummary::IsPhysicsReady(const float xmin, const float xmax, const f
       if ((xpmin < xboxmin && xpmax < xboxmin) || (xpmin > xboxmax && xpmax > xboxmax)) continue;
       if ((ypmin < yboxmin && ypmax < yboxmin) || (ypmin > yboxmax && ypmax > yboxmax)) continue;
 
-      //std::cout << "Request: " << xmin << ", " << xmax << ", " << ymin << ", " << ymax << std::endl;
-      //std::cout << "Respons: " << box->xmin << ", " << box->xmax << ", " << box->ymin << ", " << box->ymax << std::endl;
-      //detector.PrintAddress(box->adr);
-
-      switch(GetValue(box->adr)) {
-        case -1:
-          err_sum++;
-          break;
-        case 0:
-          nul_sum++;
-          break;
-        case 1:
-          rep_sum++;
-          break;
-        case 2:
-          mas_sum++;
-      }
-      break;
+      status |= GetValue(box->adr);
 
     }
 
-    if (rep_sum >= 2) return 1;
-
   }
 
-  if (err_sum >= 1) return -1;
-  if (mas_sum >= 1) return 2;
-
-  return 0;
+  return status.to_ulong();
 
 }
 
@@ -536,8 +521,8 @@ const double CSCSummary::GetEfficiencyHW(CSCAddress adr) const {
   }
 
   // if not error - then OK!
-  if (GetValue(adr) >= 0) return 1.0;
-
+  HWStatusBitSet status = GetValue(adr); 
+  if (ANYERROR(status)) return 1.0;
   return 0.0;
 
 }
@@ -622,10 +607,10 @@ const double CSCSummary::GetReportingArea(CSCAddress adr) const {
   adr.mask.layer = false;
    
   // NOT errorous! 
-  if (GetValue(adr) >= 0) {
+  HWStatusBitSet status = GetValue(adr);
+  if (!ANYERROR(status)) {
     return detector.Area(adr);
   }
-
   return 0.0;
 
 }
@@ -637,7 +622,10 @@ const double CSCSummary::GetReportingArea(CSCAddress adr) const {
  * @param  adr Address of atomic element to return value from
  * @return Value of the requested element
  */
-const int CSCSummary::GetValue(const CSCAddress& adr) const {
+const HWStatusBitSet CSCSummary::GetValue(const CSCAddress& adr) const {
+
+  HWStatusBitSet status;
+  status.reset();
 
   if ( adr.mask.side && adr.mask.station && adr.mask.ring && 
       adr.mask.chamber && adr.mask.cfeb && adr.mask.hv &&
@@ -653,32 +641,13 @@ const int CSCSummary::GetValue(const CSCAddress& adr) const {
         return map[adr.side - 1][adr.station - 1][adr.ring - 1][adr.chamber - 1][adr.layer - 1][adr.cfeb - 1][adr.hv - 1];
       }
     } else {
-      unsigned int n_live_layers = 0;
-      unsigned int n_err_layers  = 0;
-      unsigned int n_off_layers  = 0;
       for (unsigned int layer = 1; layer < N_LAYERS; layer++) {
-        int value = map[adr.side - 1][adr.station - 1][adr.ring - 1][adr.chamber - 1][layer - 1][adr.cfeb - 1][adr.hv - 1];
-        switch (value) {
-          case 1:
-            n_live_layers ++;
-            break;
-          case -1:
-            n_err_layers++;
-            break;
-          case 2:
-            n_off_layers++;
-            break;
-        }
+        status |= map[adr.side - 1][adr.station - 1][adr.ring - 1][adr.chamber - 1][layer - 1][adr.cfeb - 1][adr.hv - 1];
       }
-
-      if (n_live_layers >= 2) return  1;
-      if (n_err_layers  >= 2) return -1;
-      if (n_off_layers  >= 2) return  2;
-
     }
   }
 
-  return 0;
+  return status;
 
 }
 
@@ -693,7 +662,7 @@ const unsigned int CSCSummary::setMaskedHWElements(std::vector<std::string>& tok
     std::string token = (std::string) tokens.at(r);
     CSCAddress adr;
     if (detector.AddressFromString(token, adr)) {
-      SetValue(adr, 2);
+      SetValue(adr, MASKED);
       applied++; 
     }
   }
