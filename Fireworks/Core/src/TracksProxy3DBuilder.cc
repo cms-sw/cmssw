@@ -14,7 +14,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: TracksProxy3DBuilder.cc,v 1.14 2008/07/20 18:28:02 dmytro Exp $
+// $Id: TracksProxy3DBuilder.cc,v 1.15 2008/08/18 06:28:41 dmytro Exp $
 //
 
 // system include files
@@ -100,218 +100,6 @@ void TracksProxy3DBuilder::build(const FWEventItem* iItem, TEveElementList** pro
     }
 }
 
-
-std::vector<TEveTrack*> 
-TracksProxy3DBuilder::prepareTrack(const reco::Track& track, 
-				   TEveTrackPropagator* propagator,
-				   TEveElement* trackList,
-				   Color_t color)
-{
-   // We always propagate each track from its point of closest 
-   // approach wrt 0,0,0. If extra information is available, we try
-   // to make use of it
-   // Due to restrictions in the projections are created, all track
-   // fragments have to fly outward without crossing Y=0
-
-   // cases to considere:
-   // 1) track passes POCA and crosses the detector
-   // 2) track moves inward
-   //   a) one side
-   //   b) cross the detector (excluding 1)
-   // 3) normal pp collisions
-   // 4) AOD only information (single state)
-
-   const float zeroOffset = 1e-6;
-   std::vector<TEveTrack*> result;
-   
-   if ( ! track.extra().isAvailable() )
-     return prepareSimpleTrack(track,propagator,trackList,color);
-   
-   // weird case, crossed tracker, but effectively only 2 states
-   // screw it.
-   if ( track.innerPosition().y()*track.outerPosition().y() < 0	&&
-	(
-	 ( fabs(track.vx()-track.innerPosition().x())<0.01 &&
-	   fabs(track.vy()-track.innerPosition().y())<0.01 &&
-	   fabs(track.vz()-track.innerPosition().z())<0.01 ) ||
-	 ( fabs(track.vx()-track.outerPosition().x())<0.01 &&
-	   fabs(track.vy()-track.outerPosition().y())<0.01 &&
-	   fabs(track.vz()-track.outerPosition().z())<0.01 ) ) )
-     return prepareSimpleTrack(track,propagator,trackList,color);
-   
-   /*
-     {
-	// AOD case, draw what we can
-      TEveRecTrack t;
-      t.fBeta = 1.;
-      if ( track.vy()*track.py() > 0 )
-	t.fV = TEveVector(track.vx(), track.vy(), track.vz());
-      else
-	t.fV = TEveVector(track.vx()-track.px()/track.py()*track.vy(),
-			  track.py()>0?zeroOffset:-zeroOffset,
-			  track.vz()-track.pz()/track.py()*track.vy());
-      t.fP = TEveVector(track.px(), track.py(), track.pz());
-      t.fSign = track.charge();
-      TEveTrack* trk = new TEveTrack(&t,propagator);
-      trk->SetMainColor(color);
-      trk->MakeTrack();
-      trackList->AddElement( trk );
-      return trk;
-   } // Done with AOD
-    */
-
-   TEvePathMark mark1( TEvePathMark::kDaughter );
-   mark1.fV = TEveVector( track.innerPosition().x(), 
-			  track.innerPosition().y(), 
-			  track.innerPosition().z() );
-	       
-   TEvePathMark mark2( TEvePathMark::kDaughter );
-   mark2.fV = TEveVector( track.outerPosition().x(), 
-			  track.outerPosition().y(), 
-			  track.outerPosition().z() );
-   TEvePathMark markPOCA( TEvePathMark::kDaughter );
-   markPOCA.fV = TEveVector( track.vx(), track.vy(), track.vz() );
-
-   TEvePointSet* states = new TEvePointSet("states");
-   states->SetMarkerStyle(2);
-   states->SetMarkerSize(0.2); //cm?
-   states->SetMarkerColor(color);
-   states->SetNextPoint( track.innerPosition().x(),
-			 track.innerPosition().y(),
-			 track.innerPosition().z() );
-   states->SetNextPoint( track.outerPosition().x(),
-			 track.outerPosition().y(),
-			 track.outerPosition().z() );
-   trackList->AddElement( states );
-   // if track crossed POCA and 
-   // track points outside-in from initial point
-   if ( ( track.innerPosition().x()*track.outerPosition().x() +
-	  track.innerPosition().y()*track.outerPosition().y() < 0 )
-	&&
-	( track.innerPosition().x()*track.px() +  
-	  track.innerPosition().y()*track.py() < 0 ) )
-     { 
-	// std::cout << "Track " << track.pt() << " crossed the detector" << std::endl;
-	// track crossed the detector, POCA is in between inner 
-	// and outer states and states are properly ordered, i.e.
-	// momentum is pointing from inner state toward POCA and 
-	// outerstate
-	// we make two track fragments
-	   
-	bool crossedY0 = (track.innerPosition().y()*track.outerPosition().y() < 0);
-	
-	if ( ! crossedY0 )  {
-	   TEveRecTrack t;
-	   t.fBeta = 1.;
-	   t.fV = TEveVector(track.vx(), track.vy(), track.vz());
-	   
-	   t.fP = TEveVector(track.px(), track.py(), track.pz());
-	   t.fSign = track.charge();
-	   TEveTrack* trkAlong = new TEveTrack(&t,propagator);
-	   mark2.fType = TEvePathMark::kDecay;
-	   trkAlong->AddPathMark( mark2 );
-	   trkAlong->SetMainColor(color);
-	   // trkAlong->MakeTrack();
-	   // trackList->AddElement(trkAlong);
-	   result.push_back(trkAlong);
-	      
-	   t.fP = TEveVector(-track.px(), -track.py(), -track.pz());
-	   t.fSign = -track.charge();
-	   TEveTrack* trkOpposite = new TEveTrack(&t,propagator);
-	   mark1.fType = TEvePathMark::kDecay;
-	   trkOpposite->AddPathMark( mark1 );
-	   trkOpposite->SetMainColor(color);
-	   // trkOpposite->MakeTrack();
-	   // trackList->AddElement(trkOpposite);
-	   result.push_back(trkOpposite);
-	   return result;
-	} else {
-	   // find intersection point with y=0 
-	   // (straight line propagation along/oppisite to momentum
-	   TEveRecTrack t;
-	   t.fBeta = 1.;
-	   t.fV = TEveVector(track.vx()-track.px()/track.py()*track.vy(),
-			     track.py()>0?zeroOffset:-zeroOffset,
-			     track.vz()-track.pz()/track.py()*track.vy());
-	   t.fP = TEveVector(track.px(), track.py(), track.pz());
-	   t.fSign = track.charge();
-	   TEveTrack* trkAlong = new TEveTrack(&t,propagator);
-	   mark2.fType = TEvePathMark::kDecay;
-	   trkAlong->AddPathMark( mark2 );
-	   trkAlong->SetMainColor(color);
-	   // trkAlong->MakeTrack();
-	   // trackList->AddElement(trkAlong);
-	   result.push_back(trkAlong);
-	   
-	   t.fV = TEveVector(track.vx()-track.px()/track.py()*track.vy(),
-			     track.py()>0?-zeroOffset:zeroOffset,
-			     track.vz()-track.pz()/track.py()*track.vy());
-	   t.fP = TEveVector(-track.px(), -track.py(), -track.pz());
-	   t.fSign = -track.charge();
-	   TEveTrack* trkOpposite = new TEveTrack(&t,propagator);
-	   mark1.fType = TEvePathMark::kDecay;
-	   trkOpposite->AddPathMark( mark1 );
-	   trkOpposite->SetMainColor(color);
-	   // trkOpposite->MakeTrack();
-	   // trackList->AddElement(trkOpposite);
-	   result.push_back(trkOpposite);
-	   return result;
-	}
-     } 
-      
-   // --------------------------------------- 
-   //           done with case 1)
-   // ---------------------------------------
-      
-   TEveRecTrack t;
-   t.fBeta = 1.;
-   if ( track.innerPosition().x()*track.px() +
-	track.innerPosition().y()*track.py() < 0 )
-     {
-	// inward moving tracks
-	// flip momentum and change order of states.
-	// std::cout << "Track " << track.pt() << "\tis inward moving" << std::endl;
-	t.fP = TEveVector(-track.px(), -track.py(), -track.pz());
-	if ( track.vy()*track.innerPosition().y() > 0 )
-	  t.fV = TEveVector(track.vx(), track.vy(), track.vz());
-	   else
-	  t.fV = TEveVector(track.vx()-track.px()/track.py()*track.vy(),
-			    track.py()>0?-zeroOffset:zeroOffset,
-			    track.vz()-track.pz()/track.py()*track.vy());
-	t.fSign = -track.charge();
-     } 
-   else
-     {
-	// outward moving tracks
-	t.fP = TEveVector(track.px(), track.py(), track.pz());
-	if ( track.vy()*track.innerPosition().y() > 0 )
-	  t.fV = TEveVector(track.vx(), track.vy(), track.vz());
-	else
-	  t.fV = TEveVector(track.vx()-track.px()/track.py()*track.vy(),
-			    track.py()>0?zeroOffset:-zeroOffset,
-			    track.vz()-track.pz()/track.py()*track.vy());
-	t.fSign = track.charge();
-     }
-   TEveTrack* trk = new TEveTrack(&t,propagator);
-   // now we have to make sure that the order of states is right
-   if ( track.innerPosition().Rho() < track.outerPosition().Rho() ) {
-      trk->AddPathMark( mark1 );
-      mark2.fType = TEvePathMark::kDecay;
-      trk->AddPathMark( mark2 );
-   } else {
-      // std::cout << "Track " << track.pt() << "\tstates are inward ordered" << std::endl;
-      trk->AddPathMark( mark2 );
-      mark1.fType = TEvePathMark::kDecay;
-      trk->AddPathMark( mark1 );
-   }
-   trk->SetMainColor(color);
-   // trk->MakeTrack();
-   // trackList->AddElement( trk );
-   result.push_back( trk );
-   return result;
-}
-   
-
 std::vector<TEveTrack*> 
 TracksProxy3DBuilder::prepareSimpleTrack(const reco::Track& track, 
 						    TEveTrackPropagator* propagator,
@@ -332,6 +120,50 @@ TracksProxy3DBuilder::prepareSimpleTrack(const reco::Track& track,
    return result;
 }
 
+std::vector<TEveTrack*> 
+TracksProxy3DBuilder::prepareTrack(const reco::Track& track, 
+				      TEveTrackPropagator* propagator,
+				      TEveElement* trackList,
+				      Color_t color)
+{
+   // To make use of all available information, we have to order states 
+   // properly first. Propagator should take care of y=0 transition.
+   
+   std::vector<TEveTrack*> result;
+   
+   if ( ! track.extra().isAvailable() )
+     return prepareSimpleTrack(track,propagator,trackList,color);
+   
+   // we have 3 states for sure, bust some of them may overlap.
+   // POCA can be either initial point of trajector if we deal 
+   // with normal track or just one more state.
+   // 
+   // ignore POCA for a sec.
+   
+   TEveRecTrack t;
+   t.fBeta = 1.;
 
+   t.fV = TEveVector( track.innerPosition().x(), 
+		      track.innerPosition().y(), 
+		      track.innerPosition().z() );
+   t.fP = TEveVector( track.innerMomentum().x(), 
+		      track.innerMomentum().y(), 
+		      track.innerMomentum().z() );
+   
+   t.fSign = track.charge();
+   TEveTrack* trk = new TEveTrack(&t,propagator);
+   trk->SetMainColor(color);
+   
+   TEvePathMark mark1( TEvePathMark::kDecay );
+   mark1.fV = TEveVector( track.outerPosition().x(), 
+			  track.outerPosition().y(), 
+			  track.outerPosition().z() );
+   
+   trk->AddPathMark( mark1 );
+   // trk->MakeTrack();
+   // trackList->AddElement( trk );
+   result.push_back( trk );
+   return result;
+}
 
 REGISTER_FWRPZDATAPROXYBUILDER(TracksProxy3DBuilder,reco::TrackCollection,"Tracks");

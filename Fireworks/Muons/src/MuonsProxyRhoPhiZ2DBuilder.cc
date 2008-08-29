@@ -148,7 +148,7 @@ void MuonsProxyRhoPhiZ2DBuilder::build(const FWEventItem* iItem,
 	   for ( std::vector<TEveTrack*>::iterator trk = innerTracks.begin(); 
 		 trk != innerTracks.end(); ++ trk )
 	     {
-		// if track moves away from muon limit propagation by tracker volume
+		// if track moves away from muon, limit propagation by tracker volume
 		// otherwise propagate up to the solinoid and stich tracks
 		// properly
 		if ( location.fX * (*trk)->GetMomentum().fX +
@@ -156,6 +156,28 @@ void MuonsProxyRhoPhiZ2DBuilder::build(const FWEventItem* iItem,
 		   (*trk)->SetPropagator( trackerPropagator );
 		   (*trk)->MakeTrack();
 		   muonList->AddElement( *trk );
+		   if ( innerTracks.size() == 1 ) {
+		      // we have only one track, which points away from us
+		      // we use it's initial point as the origin of the outer
+		      // track with flipped momentum
+		      if ( muon->track()->extra().isAvailable() ) {
+			 outerRecTrack.fP = TEveVector( -muon->track()->innerMomentum().x(),
+							-muon->track()->innerMomentum().y(),
+							-muon->track()->innerMomentum().z() );
+			 outerRecTrack.fV = TEveVector( muon->track()->innerPosition().x(), 
+							muon->track()->innerPosition().y(), 
+							muon->track()->innerPosition().z() );
+			 outerRecTrack.fSign = muon->charge();
+		      } else {
+			 outerRecTrack.fP = TEveVector( -muon->track()->px(),
+							-muon->track()->py(),
+							-muon->track()->pz() );
+			 outerRecTrack.fV = TEveVector( muon->track()->vertex().x(), 
+							muon->track()->vertex().y(), 
+							muon->track()->vertex().z() );
+			 outerRecTrack.fSign = muon->charge();
+		      }
+		   } // else we expect the other track to point toward us
 		} else {
 		   // change last pathmark type
 		   (*trk)->RefPathMarks().back().fType = TEvePathMark::kDaughter;
