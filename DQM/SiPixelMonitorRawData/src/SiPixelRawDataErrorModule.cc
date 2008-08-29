@@ -86,7 +86,7 @@ void SiPixelRawDataErrorModule::book(const edm::ParameterSet& iConfig) {
   DQMStore* theDMBE = edm::Service<DQMStore>().operator->();
   // Types of errors
   hid = theHistogramId->setHistoId("errorType",id_);
-  meErrorType_ = theDMBE->book1D(hid,"Type of errors",14,24.5,38.5);
+  meErrorType_ = theDMBE->book1D(hid,"Type of errors",15,24.5,39.5);
   meErrorType_->setAxisTitle("Type of errors",1);
   // Number of errors
   hid = theHistogramId->setHistoId("NErrors",id_);
@@ -139,7 +139,7 @@ void SiPixelRawDataErrorModule::bookFED(const edm::ParameterSet& iConfig) {
   DQMStore* theDMBE = edm::Service<DQMStore>().operator->();
   // Types of errors
   hid = theHistogramId->setHistoId("errorType",id_);
-  meErrorType_ = theDMBE->book1D(hid,"Type of errors",14,24.5,38.5);
+  meErrorType_ = theDMBE->book1D(hid,"Type of errors",15,24.5,39.5);
   meErrorType_->setAxisTitle("Type of errors",1);
   // Number of errors
   hid = theHistogramId->setHistoId("NErrors",id_);
