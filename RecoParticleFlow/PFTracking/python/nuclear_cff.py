@@ -1,8 +1,8 @@
+
 import FWCore.ParameterSet.Config as cms
 
 from RecoVertex.NuclearInteractionProducer.NuclearInteraction_cff import *
 import RecoTracker.NuclearSeedGenerator.NuclearSeed_cfi
-# FIRST NUCLEAR
 firstnuclearSeed = RecoTracker.NuclearSeedGenerator.NuclearSeed_cfi.nuclearSeed.clone()
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 firstnuclearTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone()
@@ -10,68 +10,12 @@ import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
 firstnuclearWithMaterialTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
 import RecoVertex.NuclearInteractionProducer.NuclearInteraction_cfi
 firstnuclearInteractionMaker = RecoVertex.NuclearInteractionProducer.NuclearInteraction_cfi.nuclearInteractionMaker.clone()
-import RecoTracker.NuclearSeedGenerator.NuclearSeed_cfi
-# SECOND NUCLEAR
-secondnuclearSeed = RecoTracker.NuclearSeedGenerator.NuclearSeed_cfi.nuclearSeed.clone()
-import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
-secondnuclearTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone()
-import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
-secondnuclearWithMaterialTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
-import RecoVertex.NuclearInteractionProducer.NuclearInteraction_cfi
-secondnuclearInteractionMaker = RecoVertex.NuclearInteractionProducer.NuclearInteraction_cfi.nuclearInteractionMaker.clone()
-import RecoTracker.NuclearSeedGenerator.NuclearSeed_cfi
-# THIRD NUCLEAR
-thirdnuclearSeed = RecoTracker.NuclearSeedGenerator.NuclearSeed_cfi.nuclearSeed.clone()
-import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
-thirdnuclearTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone()
-import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
-thirdnuclearWithMaterialTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
-import RecoVertex.NuclearInteractionProducer.NuclearInteraction_cfi
-thirdnuclearInteractionMaker = RecoVertex.NuclearInteractionProducer.NuclearInteraction_cfi.nuclearInteractionMaker.clone()
-import RecoTracker.NuclearSeedGenerator.NuclearSeed_cfi
-# second fourth
-fourthnuclearSeed = RecoTracker.NuclearSeedGenerator.NuclearSeed_cfi.nuclearSeed.clone()
-import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
-fourthnuclearTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone()
-import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
-fourthnuclearWithMaterialTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
-import RecoVertex.NuclearInteractionProducer.NuclearInteraction_cfi
-fourthnuclearInteractionMaker = RecoVertex.NuclearInteractionProducer.NuclearInteraction_cfi.nuclearInteractionMaker.clone()
-firstnuclear = cms.Sequence(firstnuclearSeed*firstnuclearTrackCandidates*firstnuclearWithMaterialTracks*firstnuclearInteractionMaker)
-secondnuclear = cms.Sequence(secondnuclearSeed*secondnuclearTrackCandidates*secondnuclearWithMaterialTracks*secondnuclearInteractionMaker)
-thirdnuclear = cms.Sequence(thirdnuclearSeed*thirdnuclearTrackCandidates*thirdnuclearWithMaterialTracks*thirdnuclearInteractionMaker)
-fourthnuclear = cms.Sequence(fourthnuclearSeed*fourthnuclearTrackCandidates*fourthnuclearWithMaterialTracks*fourthnuclearInteractionMaker)
-nuclear = cms.Sequence(firstnuclear*secondnuclear*thirdnuclear*fourthnuclear)
-firstnuclearSeed.producer = 'firstvtxFilt'
+nuclear = cms.Sequence(firstnuclearSeed*firstnuclearTrackCandidates*firstnuclearWithMaterialTracks*firstnuclearInteractionMaker)
+firstnuclearSeed.producer = 'generalTracks'
 firstnuclearTrackCandidates.SeedProducer = 'firstnuclearSeed'
 firstnuclearTrackCandidates.TrajectoryBuilder = 'nuclearCkfTrajectoryBuilder'
 firstnuclearTrackCandidates.RedundantSeedCleaner = 'none'
 firstnuclearWithMaterialTracks.src = 'firstnuclearTrackCandidates'
-firstnuclearInteractionMaker.primaryProducer = 'firstvtxFilt'
+firstnuclearInteractionMaker.primaryProducer = 'generalTracks'
 firstnuclearInteractionMaker.seedsProducer = 'firstnuclearSeed'
 firstnuclearInteractionMaker.secondaryProducer = 'firstnuclearWithMaterialTracks'
-secondnuclearSeed.producer = 'secondvtxFilt'
-secondnuclearTrackCandidates.SeedProducer = 'secondnuclearSeed'
-secondnuclearTrackCandidates.TrajectoryBuilder = 'nuclearCkfTrajectoryBuilder'
-secondnuclearTrackCandidates.RedundantSeedCleaner = 'none'
-secondnuclearWithMaterialTracks.src = 'secondnuclearTrackCandidates'
-secondnuclearInteractionMaker.primaryProducer = 'secondvtxFilt'
-secondnuclearInteractionMaker.seedsProducer = 'secondnuclearSeed'
-secondnuclearInteractionMaker.secondaryProducer = 'secondnuclearWithMaterialTracks'
-thirdnuclearSeed.producer = 'thirdvtxFilt'
-thirdnuclearTrackCandidates.SeedProducer = 'thirdnuclearSeed'
-thirdnuclearTrackCandidates.TrajectoryBuilder = 'nuclearCkfTrajectoryBuilder'
-thirdnuclearTrackCandidates.RedundantSeedCleaner = 'none'
-thirdnuclearWithMaterialTracks.src = 'thirdnuclearTrackCandidates'
-thirdnuclearInteractionMaker.primaryProducer = 'thirdvtxFilt'
-thirdnuclearInteractionMaker.seedsProducer = 'thirdnuclearSeed'
-thirdnuclearInteractionMaker.secondaryProducer = 'thirdnuclearWithMaterialTracks'
-fourthnuclearSeed.producer = 'fourthvtxFilt'
-fourthnuclearTrackCandidates.SeedProducer = 'fourthnuclearSeed'
-fourthnuclearTrackCandidates.TrajectoryBuilder = 'nuclearCkfTrajectoryBuilder'
-fourthnuclearTrackCandidates.RedundantSeedCleaner = 'none'
-fourthnuclearWithMaterialTracks.src = 'fourthnuclearTrackCandidates'
-fourthnuclearInteractionMaker.primaryProducer = 'fourthvtxFilt'
-fourthnuclearInteractionMaker.seedsProducer = 'fourthnuclearSeed'
-fourthnuclearInteractionMaker.secondaryProducer = 'fourthnuclearWithMaterialTracks'
-
