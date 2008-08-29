@@ -16,7 +16,7 @@
 //  Editing Author:  M.B. Anderson
 //
 //         Created:  Fri May 9 11:03:51 CDT 2008
-// $Id: PhotonIDSimpleAnalyzer.cc,v 1.2 2008/08/28 18:43:22 anderson Exp $
+// $Id: PhotonIDSimpleAnalyzer.cc,v 1.3 2008/08/28 21:19:18 anderson Exp $
 //
 ///////////////////////////////////////////////////////////////////////
 //                    header file for this analyzer                  //
@@ -68,6 +68,8 @@ PhotonIDSimpleAnalyzer::PhotonIDSimpleAnalyzer(const edm::ParameterSet& ps)
   // Read variables that must be passed to allow a 
   //  supercluster to be placed in histograms as a photon.
   minPhotonEt_     = ps.getParameter<double>("minPhotonEt");
+  minPhotonAbsEta_ = ps.getParameter<double>("minPhotonAbsEta");
+  maxPhotonAbsEta_ = ps.getParameter<double>("maxPhotonAbsEta");
   minPhotonR9_     = ps.getParameter<double>("minPhotonR9");
   maxPhotonHoverE_ = ps.getParameter<double>("maxPhotonHoverE");
 
@@ -87,7 +89,6 @@ PhotonIDSimpleAnalyzer::~PhotonIDSimpleAnalyzer()
   delete rootFile_;
 
 }
-
 
 ///////////////////////////////////////////////////////////////////////
 //    method called once each job just before starting event loop    //
@@ -125,9 +126,9 @@ PhotonIDSimpleAnalyzer::beginJob(edm::EventSetup const&)
   h_photonScEtaWidth_ = new TH1F("photonScEtaWidth","#eta-width",            100,  0,  .1);
 
   // Composite or Other Histograms
-  h_photonInAnyGap_   = new TH1F("photonInAnyGap",    "Photon in any gap flag",  2, -0.5, 1.5);
-  h_nPassingPho_      = new TH1F("numPassingPhotons", "Total number photons (0=NotPassing, 1=Passing)", 2, -0.5, 1.5);
-  h_nPho_             = new TH1F("numPhotons",        "Number of photons passing cuts in event",  10,  0,  10);
+  h_photonInAnyGap_   = new TH1F("photonInAnyGap",     "Photon in any gap flag",  2, -0.5, 1.5);
+  h_nPassingPho_      = new TH1F("photonPassingCount", "Total number photons (0=NotPassing, 1=Passing)", 2, -0.5, 1.5);
+  h_nPho_             = new TH1F("photonCount",        "Number of photons passing cuts in event",  10,  0,  10);
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -165,11 +166,13 @@ PhotonIDSimpleAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& es
     float photonEt       = pho->et();
     float superClusterEt = (pho->superCluster()->energy())/(cosh(pho->superCluster()->position().eta()));
 
+    // Only store photon candidates (SuperClusters) that pass some simple cuts
     bool passCuts = (              photonEt > minPhotonEt_     ) &&
+                    (      fabs(pho->eta()) > minPhotonAbsEta_ ) &&
+                    (      fabs(pho->eta()) < maxPhotonAbsEta_ ) &&
                     (          (phtn)->r9() > minPhotonR9_     ) &&
                     ( pho->hadronicOverEm() < maxPhotonHoverE_ ) ;
 
-    // Only store photons (SuperClusters) that pass some simple cuts
     if ( passCuts )
     {
       // PhotonID Variables

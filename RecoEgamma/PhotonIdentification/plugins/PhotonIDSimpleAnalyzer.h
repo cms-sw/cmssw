@@ -45,6 +45,8 @@ class PhotonIDSimpleAnalyzer : public edm::EDAnalyzer {
  private:
 
       double minPhotonEt_;     // minimum photon Et
+      double minPhotonAbsEta_; // min and
+      double maxPhotonAbsEta_; // max abs(eta)
       double minPhotonR9_;     // minimum R9 = E(3x3)/E(SuperCluster)
       double maxPhotonHoverE_; // maximum HCAL / ECAL 
       std::string outputFile_; // output file
