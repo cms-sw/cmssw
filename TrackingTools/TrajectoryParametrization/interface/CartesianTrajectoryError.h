@@ -48,6 +48,16 @@ public:
     theCovarianceMatrix *= factor;
   }
 
+  void zeroFieldScaling(double factor){
+    double root_of_factor = sqrt(factor);
+    //scale the 0 indexed covariance by the factor
+    for (uint i=1;i!=5;++i)      theCovarianceMatrix(i,0)*=root_of_factor;
+
+    //scale all others by the scared factor
+    for (uint i=1;i!=5;++i)  for (uint j=i;j!=5;++j) theCovarianceMatrix(i,j)*=factor;
+    //term 0,0 is not scaled at all
+  }
+
   /// Position error submatrix
 
   /** Returning (3x3) submatrix of error matrix containing information about the errors
