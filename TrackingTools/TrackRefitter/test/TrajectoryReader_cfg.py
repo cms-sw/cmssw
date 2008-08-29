@@ -18,6 +18,7 @@ process.GlobalTag.globaltag = 'IDEAL_V6::All'
 
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 
+process.load("RecoLocalTracker.SiPixelRecHits.PixelCPEGeneric_cfi")
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring('/store/relval/CMSSW_2_1_4/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V6_v1/0004/10A6F0EE-286C-DD11-AAE9-001617C3B70E.root')
