@@ -1,20 +1,26 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
-process.load("MagneticField.Engine.volumeBasedMagneticField_cfi")
 
-process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cff")
 
 process.load("Geometry.CommonDetUnit.globalTrackingGeometry_cfi")
-
 process.load("TrackingTools.TrackRefitter.globalMuonTrajectories_cff")
-
 process.load("TrackingTools.TrackRefitter.standAloneMuonTrajectories_cff")
-
 process.load("TrackingTools.TrackRefitter.ctfWithMaterialTrajectories_cff")
 
+process.load("Configuration.StandardSequences.Services_cff")
+
+process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.MagneticField_38T_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.GlobalTag.globaltag = 'IDEAL_V6::All'
+
+
+process.load("Configuration.StandardSequences.Reconstruction_cff")
+
+
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('/store/RelVal/2007/7/20/RelVal-RelVal152SingleMuMinusPt10-1184918084/0000/0480715D-B636-DC11-A279-000423D6B1CC.root')
+    fileNames = cms.untracked.vstring('/store/relval/CMSSW_2_1_4/RelValSingleMuPt10/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V6_v1/0004/10A6F0EE-286C-DD11-AAE9-001617C3B70E.root')
 )
 
 process.maxEvents = cms.untracked.PSet(
@@ -56,12 +62,13 @@ process.STATrajectoriesReader = cms.EDFilter("TrajectoryReader",
 
 process.CTFTrajectoriesReader = cms.EDFilter("TrajectoryReader",
     rootFileName = cms.untracked.string('CTFTajectoriesReader.root'),
-    InputLabel = cms.InputTag("ctfWithMaterialTracks")
+    InputLabel = cms.InputTag("generalTracks")
 )
 
 process.glbMuons = cms.Sequence(process.globalMuons*process.GLBTrajectoriesReader)
 process.staMuons = cms.Sequence(process.standAloneMuons*process.STATrajectoriesReader)
 process.ctf = cms.Sequence(process.ctfWithMaterialTracks*process.CTFTrajectoriesReader)
-process.testSTA = cms.Path(process.staMuons)
+
+process.testSTA = cms.Path(process.glbMuons)
 
 
