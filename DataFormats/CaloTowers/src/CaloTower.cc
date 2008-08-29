@@ -1,5 +1,6 @@
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 
+
 CaloTower::CaloTower() {
   emE_=0;
   hadE_=0;
@@ -12,19 +13,19 @@ CaloTower::CaloTower(const CaloTowerDetId& id,
 		     double emE, double hadE, double outerE,
 		     int ecal_tp, int hcal_tp,
 		     const PolarLorentzVector p4,
-         GlobalPoint emPos, GlobalPoint hadPos) : 
+		     GlobalPoint emPos, GlobalPoint hadPos) : 
   LeafCandidate(0, p4, Point(0,0,0)),  
   id_(id),
   emE_(emE), hadE_(hadE), outerE_(outerE),
   emLvl1_(ecal_tp), hadLvl1_(hcal_tp),
   emPosition_(emPos), hadPosition_(hadPos)  {}
-  
+
 
 CaloTower::CaloTower(const CaloTowerDetId& id,
 		     double emE, double hadE, double outerE,
 		     int ecal_tp, int hcal_tp,
 		     const LorentzVector p4,
-         GlobalPoint emPos, GlobalPoint hadPos) : 
+		     GlobalPoint emPos, GlobalPoint hadPos) : 
   LeafCandidate(0, p4, Point(0,0,0)),  
   id_(id),
   emE_(emE), hadE_(hadE), outerE_(outerE),
@@ -72,6 +73,43 @@ math::PtEtaPhiMLorentzVector CaloTower::emP4(double vtxZ) const {
 }
 
 
+// reacalculated momentum-related quantities wrt user provided 3D vertex 
+
+
+math::PtEtaPhiMLorentzVector CaloTower::hadP4(Point v) const {
+
+  math::PtEtaPhiMLorentzVector newP4(0,0,0,0);
+
+  GlobalPoint p(v.x(), v.y(), v.z());
+
+  // note: for now we use the same position for HO as for the other detectors
+
+  double hcalTot;
+  if (abs(ieta())<16) hcalTot = (energy() - emE_);
+  else hcalTot = hadE_;
+
+  if (hcalTot>0) {
+    math::XYZVector dir = math::XYZVector(hadPosition_ - p);
+    newP4 = math::PtEtaPhiMLorentzVector(hcalTot * sin(dir.theta()), dir.eta(), dir.phi(), 0.0);  
+  }
+  
+  return newP4;
+}
+
+math::PtEtaPhiMLorentzVector CaloTower::emP4(Point v) const {
+
+  math::PtEtaPhiMLorentzVector newP4(0,0,0,0);
+
+  GlobalPoint p(v.x(), v.y(), v.z());
+
+  if (emE_>0) {
+    math::XYZVector dir = math::XYZVector(emPosition_ - p);
+    newP4 = math::PtEtaPhiMLorentzVector(emE_ * sin(dir.theta()), dir.eta(), dir.phi(), 0.0);   
+  }
+  
+  return newP4;
+}
+
 
 math::PtEtaPhiMLorentzVector CaloTower::p4(double vtxZ) const {
 
@@ -82,6 +120,18 @@ math::PtEtaPhiMLorentzVector CaloTower::p4(double vtxZ) const {
 
   return newP4;
 }
+
+
+math::PtEtaPhiMLorentzVector CaloTower::p4(Point v) const {
+
+  math::PtEtaPhiMLorentzVector newP4(0,0,0,0);
+
+  newP4 += emP4(v);
+  newP4 += hadP4(v);
+
+  return newP4;
+}
+
 
 
 

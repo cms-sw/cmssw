@@ -13,8 +13,8 @@
 
 /** \class CaloTower
     
-$Date: 2008/07/10 16:29:01 $
-$Revision: 1.9 $
+$Date: 2008/08/21 15:15:28 $
+$Revision: 1.10 $
 \author J. Mans - Minnesota
 */
 
@@ -79,14 +79,21 @@ public:
   double p (double vtxZ) const { return p4(vtxZ).P(); }
   double et(double vtxZ) const { return p4(vtxZ).Et(); }
 
-  math::PtEtaPhiMLorentzVector hadP4(double vtxZ) const;
-  math::PtEtaPhiMLorentzVector emP4(double vtxZ) const;
-
   double emEt(double vtxZ)  const { return  emE_ * sin(p4(vtxZ).theta()); }
   double hadEt(double vtxZ) const { return  hadE_ * sin(p4(vtxZ).theta()); }
-  double outerEt(double vtxZ) const { return (id_.ietaAbs()<16)? hadE_ * sin(p4(vtxZ).theta()) : 0.0; }
+  double outerEt(double vtxZ) const { return (id_.ietaAbs()<16)? outerE_ * sin(p4(vtxZ).theta()) : 0.0; }
 
+  // recalculated wrt vertex provided as 3D point
 
+  math::PtEtaPhiMLorentzVector p4(Point v) const;
+  double p (Point v) const { return p4(v).P(); }
+  double et(Point v) const { return p4(v).Et(); }
+
+  double emEt(Point v)  const { return  emE_ * sin(p4(v).theta()); }
+  double hadEt(Point v) const { return  hadE_ * sin(p4(v).theta()); }
+  double outerEt(Point v) const { return (id_.ietaAbs()<16)? outerE_ * sin(p4(v).theta()) : 0.0; }
+
+  // the reference poins in ECAL and HCAL for direction determination
   const GlobalPoint& emPosition()  const { return emPosition_ ; }
   const GlobalPoint& hadPosition() const { return hadPosition_ ; }
 
@@ -121,6 +128,16 @@ private:
 
   int emLvl1_,hadLvl1_;
   std::vector<DetId> constituents_;
+
+  // vertex correction of EM and HAD momentum components:
+
+  // for 3D vertex
+  math::PtEtaPhiMLorentzVector hadP4(Point v) const;
+  math::PtEtaPhiMLorentzVector emP4(Point v) const;
+
+  // taking only z-component
+  math::PtEtaPhiMLorentzVector hadP4(double vtxZ) const;
+  math::PtEtaPhiMLorentzVector emP4(double vtxZ) const;
 };
 
 std::ostream& operator<<(std::ostream& s, const CaloTower& ct);
