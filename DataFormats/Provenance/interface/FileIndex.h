@@ -5,7 +5,7 @@
 
 FileIndex.h 
 
-$Id: FileIndex.h,v 1.5 2008/07/31 23:13:24 wmtan Exp $
+$Id: FileIndex.h,v 1.6 2008/08/26 21:23:44 wdd Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -14,6 +14,8 @@ $Id: FileIndex.h,v 1.5 2008/07/31 23:13:24 wmtan Exp $
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/Provenance/interface/EventID.h"
+
+#include <iosfwd>
 
 namespace edm {
 
@@ -117,6 +119,8 @@ namespace edm {
     bool operator()(FileIndex::Element const& lh, FileIndex::Element const& rh);
   };
 
+  std::ostream&
+  operator<< (std::ostream& os, FileIndex const& fileIndex);
 }
 
 #endif

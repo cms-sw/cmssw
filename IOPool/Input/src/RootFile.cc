@@ -323,7 +323,7 @@ namespace edm {
 
   bool
   RootFile::setIfFastClonable(int remainingEvents, int remainingLumis) const {
-    if (fileFormatVersion_.value_ < 8) return false; 
+    if (!fileFormatVersion_.fastCopyPossible()) return false; 
     if (!fileIndex_.allEventsInEntryOrder()) return false; 
     if (!whichEventsToProcess_.empty()) return false; 
     if (eventsToSkip_ != 0) return false; 
