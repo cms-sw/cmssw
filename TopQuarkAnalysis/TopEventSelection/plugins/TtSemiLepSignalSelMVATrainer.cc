@@ -7,7 +7,7 @@
 
 #include "TopQuarkAnalysis/TopEventSelection/plugins/TtSemiLepSignalSelMVATrainer.h"
 #include "TopQuarkAnalysis/TopTools/interface/TtSemiLepSignalSelEval.h"
-#include "TopQuarkAnalysis/TopTools/interface/TtSemiEvtPartons.h"
+#include "TopQuarkAnalysis/TopTools/interface/TtSemiLepEvtPartons.h"
 
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
