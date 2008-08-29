@@ -1,11 +1,11 @@
-#ifndef L1GCTINTERNHFRINGETSUMS_H
-#define L1GCTINTERNHFRINGETSUMS_H
+#ifndef L1GCTHFRINGETSUMS_H
+#define L1GCTHFRINGETSUMS_H
 
 #include <ostream>
 #include <string>
 
 
-/// \class L1GctInternHFRingEtSums
+/// \class L1GctHFRingEtSums
 /// \brief L1 GCT HF ring Et sums
 /// \author Jim Brooke
 /// \date August 2008
@@ -14,24 +14,24 @@
 /// 
 
 
-class L1GctInternHFRingEtSums {
+class L1GctHFRingEtSums {
 
  public:
 
   /// default constructor (for vector initialisation etc.)
-  L1GctInternHFRingEtSums();
+  L1GctHFRingEtSums();
 
   /// destructor
-  ~L1GctInternHFRingEtSums();
+  ~L1GctHFRingEtSums();
 
   // named ctor for unpacker
-  static L1GctInternHFRingEtSums fromConcRingSums(const uint16_t capBlock,
+  static L1GctHFRingEtSums fromConcRingSums(const uint16_t capBlock,
 						  const uint16_t capIndex,
 						  const uint8_t bx,
 						  const uint16_t data);
 
   // named ctor for GCT emulator
-  static L1GctInternHFRingEtSums fromGctEmulator(const uint8_t bx,
+  static L1GctHFRingEtSums fromGctEmulator(const uint8_t bx,
 						 const uint16_t etSumPosEtaRing1,
 						 const uint16_t etSumPosEtaRing2,
 						 const uint16_t etSumNegEtaRing1,
@@ -39,7 +39,7 @@ class L1GctInternHFRingEtSums {
   
   // optional named ctor for GT if required
   // arguments to be defined
-  // static L1GctInternHfRingEtSums fromGtPsb()
+  // static L1GctHfRingEtSums fromGtPsb()
   
   
   // metadata

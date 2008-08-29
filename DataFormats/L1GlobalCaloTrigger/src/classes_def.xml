@@ -11,6 +11,8 @@
   <class name="L1GctEtHad"/>
   <class name="L1GctEtMiss"/>
   <class name="L1GctJetCounts"/>
+  <class name="L1GctHFRingEtSums"/>
+  <class name="L1GctHFBitCounts"/>
   <class name="std::vector<L1GctInternEmCand>"/>
   <class name="std::vector<L1GctInternJetData>"/>
   <class name="std::vector<L1GctInternEtSum>"/>
@@ -22,6 +24,8 @@
   <class name="std::vector<L1GctEtMiss>"/>
   <class name="std::vector<L1GctEtTotal>"/>
   <class name="std::vector<L1GctJetCounts>"/>
+  <class name="std::vector<L1GctHFRingEtSums>"/>
+  <class name="std::vector<L1GctHFBitCounts>"/>
   <class name="edm::Ref<std::vector<L1GctEmCand>,L1GctEmCand,edm::refhelper::FindUsingAdvance<std::vector<L1GctEmCand>,L1GctEmCand>>"/>
   <class name="edm::Ref<std::vector<L1GctJetCand>,L1GctJetCand,edm::refhelper::FindUsingAdvance<std::vector<L1GctJetCand>,L1GctJetCand>>"/>
   <class name="edm::Ref<std::vector<L1GctEtHad>,L1GctEtHad,edm::refhelper::FindUsingAdvance<std::vector<L1GctEtHad>,L1GctEtHad>>"/>
@@ -45,4 +49,6 @@
   <class name="edm::Wrapper<std::vector<L1GctEtMiss>>" splitLevel="0"/>
   <class name="edm::Wrapper<std::vector<L1GctEtTotal>>" splitLevel="0"/>
   <class name="edm::Wrapper<std::vector<L1GctJetCounts>>" splitLevel="0"/>
+  <class name="edm::Wrapper<std::vector<L1GctHFRingEtSums>>" splitLevel="0"/>
+  <class name="edm::Wrapper<std::vector<L1GctHFBitCounts>>" splitLevel="0"/>
 </lcgdict>

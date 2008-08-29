@@ -1,5 +1,5 @@
-#ifndef L1GCTINTERNHFBITCOUNTS_H
-#define L1GCTINTERNHFBITCOUNTS_H
+#ifndef L1GCTHFBITCOUNTS_H
+#define L1GCTHFBITCOUNTS_H
 
 #include <ostream>
 #include <string>
@@ -32,14 +32,14 @@ class L1GctHFBitCounts {
   
   // named ctor for GCT emulator
   static L1GctHFBitCounts fromGctEmulator(const uint8_t bx,
-					  const uint16_t bitCountPosRapRing1,
-					  const uint16_t bitCountPosRapRing2,
-					  const uint16_t bitCountNegRapRing1,
-					  const uint16_t bitCountNegRapRing2);
+					  const uint16_t bitCountPosEtaRing1,
+					  const uint16_t bitCountNegEtaRing1,
+					  const uint16_t bitCountPosEtaRing2,
+					  const uint16_t bitCountNegEtaRing2);
   
   // optional named ctor for GT if required
   // arguments to be defined
-  // static L1GctInternHFBitCounts fromGtPsb()
+  // static L1GctHFBitCounts fromGtPsb()
   
   
   // metadata
@@ -92,7 +92,7 @@ class L1GctHFBitCounts {
   void setBx(uint16_t bx) { bx_ = bx; }
 
   /// set a sum
-  void setEtSum(unsigned i, uint16_t et);
+  void setBitCount(unsigned i, uint16_t c);
 
   /// set the raw data
   void setData(uint32_t data) { data_ = data; }

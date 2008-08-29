@@ -39,17 +39,19 @@ L1GctInternHFData L1GctInternHFData::fromConcBitCounts(const uint16_t capBlock,
 
 /// get the et sums
 uint16_t L1GctInternHFData::et(unsigned const i) {
-  return (data_<<(i*8)) & 0xff;
+  return (data_>>(i*8)) & 0xff;
 }
 
 /// get the counts
 uint16_t L1GctInternHFData::count(unsigned const i) {
-  return (data_<<(i*8)) & 0xff;
+  return (data_>>(i*8)) & 0xff;
 } 
 
 
 /// equality operator
-bool L1GctInternHFData::operator==(const L1GctInternHFData& c) const { }
+bool L1GctInternHFData::operator==(const L1GctInternHFData& c) const {
+  return ( this->raw() == c.raw() );
+}
 
 
 /// set the sum
