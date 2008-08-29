@@ -4,8 +4,8 @@
 /** \class RPCTrigger
  *  \brief Implements RPC trigger emulation
  *
- *  $Date: 2008/02/21 12:49:19 $
- *  $Revision: 1.13 $
+ *  $Date: 2008/03/03 14:34:58 $
+ *  $Revision: 1.14 $
  *  \author Tomasz Fruboes
  */
 
@@ -72,7 +72,8 @@ class RPCTrigger : public edm::EDProducer {
     bool m_buildOwnLinkSystem; ///< Tells, if RPCTrigger should build its own connections, or use those from es
     int m_triggerDebug;
     unsigned long long m_cacheID;
-    std::vector<L1MuRegionalCand> giveFinallCandindates(L1RpcTBMuonsVec finalMuons, short type);
+    std::vector<L1MuRegionalCand> giveFinallCandindates(L1RpcTBMuonsVec finalMuons, int type, int bx);
+
 
     std::string m_label;
 
