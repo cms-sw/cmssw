@@ -1,3 +1,4 @@
+
 // -*- C++ -*-
 //
 // Package:    SiStripMonitorCluster
@@ -58,8 +59,9 @@ SiStripOfflineDQM::SiStripOfflineDQM(edm::ParameterSet const& pSet) {
   // get back-end interface
   dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  createSummary_       = pSet.getUntrackedParameter<bool>("CreateSummary",true);
-  inputFileName_       = pSet.getUntrackedParameter<std::string>("InputFileName","");
+  createSummary_  = pSet.getUntrackedParameter<bool>("CreateSummary",true);
+  inputFileName_  = pSet.getUntrackedParameter<std::string>("InputFileName","");
+  outputFileName_ = pSet.getUntrackedParameter<std::string>("OutputFileName","");
 
   nEvents_  = 0;
 }
@@ -134,9 +136,9 @@ void SiStripOfflineDQM::endJob() {
   if (createSummary_)       actionExecutor_->createSummaryOffline(dqmStore_);
 
   // Save Output file
-  std::string outputFileName = inputFileName_.replace(inputFileName_.find("-standAlone"), 11, "");
+  //  std::string outputFileName = inputFileName_.replace(inputFileName_.find("-standAlone"), 11, "");
   dqmStore_->cd();
-  dqmStore_->save(outputFileName, "","","");
+  dqmStore_->save(outputFileName_, "","","");
 }
 /** 
 * @brief 

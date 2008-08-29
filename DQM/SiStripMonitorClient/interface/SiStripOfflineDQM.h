@@ -55,7 +55,7 @@ class SiStripOfflineDQM: public edm::EDAnalyzer {
   /// BeginRun
   void beginRun(edm::Run const& run, edm::EventSetup const& eSetup);
 
-  /// Analyze                                                                                                                                                         
+  /// Analyze                                                                                                                                               
   void analyze(edm::Event const& e, edm::EventSetup const& eSetup);
 
   /// Endjob
@@ -72,6 +72,7 @@ private:
   unsigned long long m_cacheID_;
   bool createSummary_;
   std::string inputFileName_;
+  std::string outputFileName_;
 
   int nEvents_;
 
