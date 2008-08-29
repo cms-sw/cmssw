@@ -18,6 +18,7 @@ standAloneMuons = cms.EDFilter("TracksToTrajectories",
     TrackTransformer = cms.PSet(
         DoPredictionsOnly = cms.bool(False),
         Fitter = cms.string('KFFitterForRefitInsideOut'),
+#        TrackerRecHitBuilder = cms.string('WithTrackAngleAndTemplate'),
         TrackerRecHitBuilder = cms.string('WithTrackAngle'),
         Smoother = cms.string('KFSmootherForRefitInsideOut'),
         MuonRecHitBuilder = cms.string('MuonRecHitBuilder'),
