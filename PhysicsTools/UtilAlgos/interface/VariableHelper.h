@@ -16,6 +16,7 @@ class VariableHelper {
   iterator end() { return variables_.end();}
 
   void setHolder(std::string hn);
+  void print();
  private:
   std::map<std::string, CachingVariable*> variables_;
 };
@@ -37,6 +38,8 @@ class VariableHelperInstance {
     else SetVariableHelperUniqueInstance_ = new VariableHelper(iConfig);
     multipleInstance_[user] = SetVariableHelperUniqueInstance_;
     SetVariableHelperUniqueInstance_->setHolder(user);
+
+    SetVariableHelperUniqueInstance_->print();
     return (*SetVariableHelperUniqueInstance_);
   }
   

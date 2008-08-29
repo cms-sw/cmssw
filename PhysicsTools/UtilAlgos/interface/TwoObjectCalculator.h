@@ -7,6 +7,7 @@ struct CosDphiCalculator {
     return cdphi;    
   }  
   static std::string calculationType(){ return "CosDphiCalculator";}
+  static std::string description() { return " calculate cos(Delta Phi(Obj1, Obj2))";}
 };
 
 #endif

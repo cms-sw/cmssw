@@ -21,7 +21,7 @@ class Description {
  public:
   Description(){}
   Description(std::vector<std::string> & d) : d_(d){}
-  std::string text(){
+  std::string text() const {
     std::string text;
     for (uint i=0;i!=d_.size();++i) 
       text+=d_[i]+"\n";
@@ -58,6 +58,10 @@ class CachingVariable {
   const std::string & holderName() const { return holderName_;}
   void setHolder(std::string hn) const { holderName_=hn;}
 
+  void print() const {
+    //    std::cout<< description().text() <<std::endl;
+    edm::LogVerbatim("CachingVariable")<<description().text();
+  }
  protected:
 
   //  mutable valueType cache_;
@@ -176,6 +180,11 @@ class ExpressionVariable : public CachingVariable {
     std::string expr=iConfig.getParameter<std::string>("expr");
     index_=iConfig.getParameter<uint>("index");
     f_ = new StringObjectFunction<Object>(expr);
+    
+    addDescriptionLine("calculating: "+expr);
+    std::stringstream ss;
+    ss<<"on object at index: "<<index_<<" of: "<<src_;
+    addDescriptionLine(ss.str());	ss.str("");
   }
 
   CachingVariable::evalType eval(const edm::Event & iEvent) const {
@@ -201,16 +210,14 @@ class TwoObjectVariable : public CachingVariable {
 public:
   TwoObjectVariable(std::string n, const edm::ParameterSet& iConfig) :
     //    CachingVariable(std::string(lLHS)+std::string(lRHS)+Calculator::calculationType,n,iConfig),
-    CachingVariable(std::string(lLHS)+std::string(lRHS),n,iConfig),
+    CachingVariable(Calculator::calculationType()+std::string(lLHS)+std::string(lRHS),n,iConfig),
     srcLhs_(InputTagDistributor::retrieve("srcLhs",iConfig)),
     indexLhs_(iConfig.getParameter<uint>("indexLhs")),
     srcRhs_(InputTagDistributor::retrieve("srcRhs",iConfig)),
     indexRhs_(iConfig.getParameter<uint>("indexRhs"))
       {
 	std::stringstream ss;
-	addDescriptionLine("cos delta phi variable: ");
-	ss<<"Cos(DeltaPhi( Obj1, Oj2 )) ";
-	addDescriptionLine(ss.str());	ss.str("");
+	addDescriptionLine(Calculator::description());
 	ss<<"with Obj1 at index: "<<indexLhs_<<" of: "<<srcLhs_;
 	addDescriptionLine(ss.str());	ss.str("");
 	ss<<"with Obj2 at index: "<<indexRhs_<<" of: "<<srcRhs_;
@@ -291,6 +298,69 @@ class Power : public CachingVariable {
   std::string var_;
 };
 
+
+template <typename TYPE>
+class SimpleValueVariable : public CachingVariable {
+ public:
+  SimpleValueVariable(std::string & n,const edm::ParameterSet & iConfig) :
+    CachingVariable("SimpleValueVariable",n,iConfig),
+    src_(InputTagDistributor::retrieve("src",iConfig)) {}
+  CachingVariable::evalType eval(const edm::Event & iEvent) const{
+    edm::Handle<TYPE> value;
+    try{    iEvent.getByLabel(src_,value);   }  
+    catch(...){ return std::make_pair(false,0); }
+    if (value.failedToGet() || !value.isValid()) return std::make_pair(false,0);
+    else return std::make_pair(true, *value);
+  }
+ private:
+  edm::InputTag src_;
+};
+
+template <typename TYPE>
+class SimpleValueVectorVariable : public CachingVariable {
+ public:
+  SimpleValueVectorVariable(std::string & n,const edm::ParameterSet & iConfig) :
+    CachingVariable("SimpleValueVectorVariable",n,iConfig),
+    src_(InputTagDistributor::retrieve("src",iConfig)),
+    index_(iConfig.getParameter<uint>("index")) {}
+  CachingVariable::evalType eval(const edm::Event & iEvent) const{
+    edm::Handle<std::vector<TYPE> > values;
+    try { iEvent.getByLabel(src_,values);} 
+    catch(...){ return std::make_pair(false,0); }
+    if (values.failedToGet() || !values.isValid()) return std::make_pair(false,0);
+    else if (index_>=values->size()) return std::make_pair(false,0);
+    else return std::make_pair(true, (*values)[index_]);
+  }
+  
+ private:
+  edm::InputTag src_;
+  uint index_;
+};
+
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "FWCore/Framework/interface/TriggerNames.h"
+
+class HLTBitVariable : public CachingVariable {
+ public:
+  HLTBitVariable(std::string & n,const edm::ParameterSet & iConfig) :
+    CachingVariable("HLTBitVariable",n,iConfig),
+    src_(InputTagDistributor::retrieve("src",iConfig)),
+    bitName_(n){}
+    CachingVariable::evalType eval(const edm::Event & iEvent) const{
+      edm::Handle<edm::TriggerResults> hltHandle;
+      iEvent.getByLabel(src_, hltHandle);
+      if (hltHandle.failedToGet()) return std::make_pair(false,0);
+      edm::TriggerNames trgNames;
+      trgNames.init(*hltHandle);
+      unsigned int index = trgNames.triggerIndex(bitName_);
+      if ( index==trgNames.size() ) return std::make_pair(false,0);
+      else return std::make_pair(true, hltHandle->accept(index));
+
+    }
+ private:
+  edm::InputTag src_;
+  std::string bitName_;
+};
 
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"

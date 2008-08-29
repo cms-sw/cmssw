@@ -26,15 +26,21 @@ typedef StringCutEventSelector<pat::Muon> MuonEventSelector;
 typedef StringCutsEventSelector<pat::Muon> MuonSEventSelector;
 typedef StringCutEventSelector<pat::MET> METEventSelector;
 typedef StringCutsEventSelector<pat::MET> METSEventSelector;
+typedef StringCutEventSelector<pat::Electron> ElectronEventSelector;
+typedef StringCutsEventSelector<pat::Electron> ElectronSEventSelector;
+typedef StringCutEventSelector<pat::Photon> PhotonEventSelector;
+typedef StringCutsEventSelector<pat::Photon> PhotonSEventSelector;
 
-//DEFINE_EDM_PLUGIN(EventSelectorFactory, JetMetDphiEventSelector, "JetMetDphiEventSelector");
-//DEFINE_EDM_PLUGIN(EventSelectorFactory, JetJetDphiEventSelector, "JetJetDphiEventSelector");
 DEFINE_EDM_PLUGIN(EventSelectorFactory, JetEventSelector, "JetEventSelector");
 DEFINE_EDM_PLUGIN(EventSelectorFactory, JetSEventSelector, "JetSEventSelector");
 DEFINE_EDM_PLUGIN(EventSelectorFactory, METEventSelector, "METEventSelector");
 DEFINE_EDM_PLUGIN(EventSelectorFactory, METSEventSelector, "METSEventSelector");
 DEFINE_EDM_PLUGIN(EventSelectorFactory, MuonEventSelector, "MuonEventSelector");
 DEFINE_EDM_PLUGIN(EventSelectorFactory, MuonSEventSelector, "MuonSEventSelector");
+DEFINE_EDM_PLUGIN(EventSelectorFactory, ElectronEventSelector, "ElectronEventSelector");
+DEFINE_EDM_PLUGIN(EventSelectorFactory, ElectronSEventSelector, "ElectronSEventSelector");
+DEFINE_EDM_PLUGIN(EventSelectorFactory, PhotonEventSelector, "PhotonEventSelector");
+DEFINE_EDM_PLUGIN(EventSelectorFactory, PhotonSEventSelector, "PhotonSEventSelector");
 
 #include "PhysicsTools/UtilAlgos/interface/CachingVariable.h"
 

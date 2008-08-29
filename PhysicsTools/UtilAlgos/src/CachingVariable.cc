@@ -38,3 +38,4 @@ CachingVariable::evalType Power::eval( const edm::Event & iEvent) const {
   double p=exp(power_*log(v));
   return std::make_pair(true,p);
 }
+

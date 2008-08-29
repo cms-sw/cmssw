@@ -16,5 +16,15 @@ DEFINE_EDM_PLUGIN(EventSelectorFactory, VariableEventSelector, "VariableEventSel
 DEFINE_EDM_PLUGIN(CachingVariableFactory, Power, "Power");
 DEFINE_EDM_PLUGIN(CachingVariableFactory, VarSplitter, "VarSplitter");
 
+typedef SimpleValueVariable<double> DoubleVar;
+typedef SimpleValueVariable<bool> BoolVar;
+typedef SimpleValueVectorVariable<bool> DoubleVVar;
+typedef SimpleValueVectorVariable<bool> BoolVVar;
+DEFINE_EDM_PLUGIN(CachingVariableFactory, DoubleVar, "DoubleVar");
+DEFINE_EDM_PLUGIN(CachingVariableFactory, BoolVar, "BoolVar");
+DEFINE_EDM_PLUGIN(CachingVariableFactory, DoubleVVar, "DoubleVVar");
+DEFINE_EDM_PLUGIN(CachingVariableFactory, BoolVVar, "BoolVVar");
+DEFINE_EDM_PLUGIN(CachingVariableFactory, HLTBitVariable, "HLTBitVariable");
+
 #include "PhysicsTools/UtilAlgos/interface/Plotter.h"
 DEFINE_EDM_PLUGIN(PlotterFactory, VariablePlotter, "VariablePlotter");
