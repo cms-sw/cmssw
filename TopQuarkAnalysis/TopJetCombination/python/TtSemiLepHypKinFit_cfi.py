@@ -7,11 +7,11 @@ ttSemiLepHypKinFit = cms.EDProducer("TtSemiLepHypKinFit",
     jets  = cms.InputTag("selectedLayer1Jets"),
     leps  = cms.InputTag("selectedLayer1Muons"),
     mets  = cms.InputTag("selectedLayer1METs"),
-    match = cms.InputTag("kinFitTtSemiEvent"),
-    status    = cms.InputTag("kinFitTtSemiEvent","Status"),
-    partons   = cms.InputTag("kinFitTtSemiEvent","Partons"),
-    leptons   = cms.InputTag("kinFitTtSemiEvent","Leptons"),
-    neutrinos = cms.InputTag("kinFitTtSemiEvent","Neutrinos")
+    match = cms.InputTag("kinFitTtSemiLepEvent"),
+    status    = cms.InputTag("kinFitTtSemiLepEvent","Status"),
+    partons   = cms.InputTag("kinFitTtSemiLepEvent","Partons"),
+    leptons   = cms.InputTag("kinFitTtSemiLepEvent","Leptons"),
+    neutrinos = cms.InputTag("kinFitTtSemiLepEvent","Neutrinos")
 )
 
 

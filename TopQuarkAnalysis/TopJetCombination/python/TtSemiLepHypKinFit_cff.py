@@ -12,6 +12,6 @@ from TopQuarkAnalysis.TopKinFitter.TtSemiLepKinFitProducer_Muons_cfi import *
 from TopQuarkAnalysis.TopJetCombination.TtSemiLepHypKinFit_cfi import *
 
 ## make hypothesis
-makeHypothesis_kinFit = cms.Sequence(kinFitTtSemiEvent *
+makeHypothesis_kinFit = cms.Sequence(kinFitTtSemiLepEvent *
                                      ttSemiLepHypKinFit)
 

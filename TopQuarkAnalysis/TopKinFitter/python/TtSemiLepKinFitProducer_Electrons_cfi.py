@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-kinFitTtSemiEvent = cms.EDProducer("TtSemiLepKinFitProducerElectron",
+kinFitTtSemiLepEvent = cms.EDProducer("TtSemiLepKinFitProducerElectron",
     jets = cms.InputTag("selectedLayer1Jets"),
     leps = cms.InputTag("selectedLayer1Electrons"),
     mets = cms.InputTag("selectedLayer1METs"),
@@ -15,7 +15,7 @@ kinFitTtSemiEvent = cms.EDProducer("TtSemiLepKinFitProducerElectron",
     # option to take only a given jet combination
     # instead of going through the full combinatorics
     # ------------------------------------------------
-    match = cms.InputTag("findTtSemiJetCombMVA"),
+    match = cms.InputTag("findTtSemiLepJetCombMVA"),
     useOnlyMatch = cms.bool(False),
 
     # ------------------------------------------------
