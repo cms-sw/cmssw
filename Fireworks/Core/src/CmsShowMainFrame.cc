@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.17 2008/07/30 15:46:49 chrjones Exp $
+// $Id: CmsShowMainFrame.cc,v 1.18 2008/08/25 00:08:29 dmytro Exp $
 //
 
 // system include files
@@ -89,8 +89,8 @@ TGMainFrame(p, w, h)
    CSGAction *showAddCollection = new CSGAction(this, cmsshow::sShowAddCollection.c_str());
    CSGAction *help = new CSGAction(this, cmsshow::sHelp.c_str());
    CSGAction *keyboardShort = new CSGAction(this, cmsshow::sKeyboardShort.c_str());
-   m_runEntry = new CSGNumAction(this, "Run Entry");
-   // m_eventEntry = new CSGNumAction(this, "Event Entry");
+   m_runEntry = new CSGAction(this, "Run Entry");
+   addToActionMap(m_runEntry);
    m_eventEntry = new CSGAction(this, "Event Entry");
    addToActionMap(m_eventEntry);
    CSGAction *eventFilter = new CSGAction(this, "Event Filter");
@@ -352,7 +352,7 @@ void CmsShowMainFrame::defaultAction() {
 }
 
 void CmsShowMainFrame::loadEvent(const fwlite::Event& event) {
-  m_runEntry->setNumber(event.id().run());
+  m_runEntry->getNumberEntry()->SetIntNumber(event.id().run());
   m_eventEntry->getNumberEntry()->SetIntNumber(event.id().event());
   m_timeText->SetText( fw::getTimeGMT( event ).c_str() );
   // loadEvent gets called before the special cases [at beginning, at end, etc]
@@ -376,7 +376,7 @@ CmsShowMainFrame::getAction(const std::string& name)
     if ((*it_act)->getName() == name)
       return *it_act;
   }
-  printf("None Found!\n");
+   std::cout << "No action is found with name \"" << name << "\"" << std::endl;
   return 0;
 }
 
@@ -509,7 +509,7 @@ const std::vector<CSGAction *>& CmsShowMainFrame::getListOfActions() const {
    return m_actionList;
 }
 
-CSGNumAction* 
+CSGAction* 
 CmsShowMainFrame::getRunEntry() const {
   return m_runEntry;
 }

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 18:11:16 CDT 2008
-// $Id: CmsShowMainFrame.h,v 1.8 2008/07/30 15:45:25 chrjones Exp $
+// $Id: CmsShowMainFrame.h,v 1.9 2008/08/25 00:08:28 dmytro Exp $
 //
 
 // system include files
@@ -37,7 +37,6 @@ class TGStatusBar;
 class TTimer;
 class CSGAction;
 class CSGContinuousAction;
-class CSGNumAction;
 class FWGUIManager;
 class TGPopupMenu;
 class TGTextEntry;
@@ -55,7 +54,7 @@ public:
    
    // ---------- const member functions ---------------------
    const std::vector<CSGAction*>& getListOfActions() const;
-   CSGNumAction* getRunEntry() const;
+   CSGAction* getRunEntry() const;
    CSGAction* getEventEntry() const;
    //delay for tooltips
    Long_t getDelay() const;
@@ -95,7 +94,7 @@ private:
    std::vector<CSGAction*> m_actionList;
    FWGUIManager *m_manager;
    Long_t m_delay;
-   CSGNumAction *m_runEntry;
+   CSGAction *m_runEntry;
    CSGAction *m_eventEntry;
    TGLabel* m_timeText;
    CSGAction *m_nextEvent;

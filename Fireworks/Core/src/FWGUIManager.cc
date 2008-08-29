@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.72 2008/08/20 14:34:50 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.73 2008/08/25 00:08:29 dmytro Exp $
 //
 
 // system include files
@@ -328,7 +328,7 @@ FWGUIManager::getAction(const std::string name)
   return m_cmsShowMainFrame->getAction(name);
 }
 
-CSGNumAction*
+CSGAction*
 FWGUIManager::getRunEntry()
 {
   return m_cmsShowMainFrame->getRunEntry();
