@@ -206,6 +206,9 @@ namespace edm {
          << "The branch name is " << g->productDescription().branchName() << "\n"
          << "Contact a framework developer.\n";
     }
+    if (!g->product() && !g->entryInfoPtr()) {
+      return OutputHandle<T>();
+    }
     return OutputHandle<T>(g->product(), &g->productDescription(), g->entryInfoPtr());
   }
 
