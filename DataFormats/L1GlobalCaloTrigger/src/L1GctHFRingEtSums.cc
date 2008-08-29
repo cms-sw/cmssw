@@ -18,24 +18,27 @@ L1GctHFRingEtSums::~L1GctHFRingEtSums()
 
 // named ctor for unpacker
 L1GctHFRingEtSums L1GctHFRingEtSums::fromConcRingSums(const uint16_t capBlock,
-							     const uint16_t capIndex,
-							     const uint8_t bx,
-							     const uint16_t data)
+						      const uint16_t capIndex,
+						      const uint8_t bx,
+						      const uint32_t data)
 {
   L1GctHFRingEtSums s;
   s.setCapBlock(capBlock);
   s.setCapIndex(capIndex);
   s.setBx(bx);
-  s.setData(data);
+  s.setEtSum(0, (data>>12)&0x7 );
+  s.setEtSum(1, (data>>16)&0x7 );
+  s.setEtSum(2, (data>>19)&0x7 );
+  s.setEtSum(3, (data>>22)&0x7 );
   return s;
 }
 
 // named ctor for GCT emulator
 L1GctHFRingEtSums L1GctHFRingEtSums::fromGctEmulator(const uint8_t bx,
-							    const uint16_t etSumPosEtaRing1,
-							    const uint16_t etSumNegEtaRing1,
-							    const uint16_t etSumPosEtaRing2,
-							    const uint16_t etSumNegEtaRing2)
+						     const uint16_t etSumPosEtaRing1,
+						     const uint16_t etSumNegEtaRing1,
+						     const uint16_t etSumPosEtaRing2,
+						     const uint16_t etSumNegEtaRing2)
 {
   L1GctHFRingEtSums s;
   s.setBx(bx);
@@ -52,7 +55,7 @@ L1GctHFRingEtSums L1GctHFRingEtSums::fromGctEmulator(const uint8_t bx,
 ///    1   :  Ring 1 Negative Rapidity HF Et sum
 ///    2   :  Ring 2 Positive Rapidity HF Et sum
 ///    3   :  Ring 2 Negative Rapidity HF Et sum
-uint16_t L1GctHFRingEtSums::etSum(unsigned const i) {
+uint16_t L1GctHFRingEtSums::etSum(unsigned const i) const {
   return (data_>>(i*3)) & 0xff;
 }
 
@@ -69,5 +72,11 @@ void L1GctHFRingEtSums::setEtSum(unsigned i, uint16_t et) {
 }
 
 std::ostream& operator<<(std::ostream& s, const L1GctHFRingEtSums& cand) {
-
+  s << "L1GctHFRingEtSums :";
+  s << " ring1 eta+=" << cand.etSum(0);
+  s << " ring1 eta-=" << cand.etSum(1);
+  s << " ring2 eta+=" << cand.etSum(2);
+  s << " ring2 eta-=" << cand.etSum(3);
+  s << std::endl;
+  return s;
 }

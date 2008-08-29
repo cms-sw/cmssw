@@ -18,13 +18,13 @@ L1GctHFBitCounts::~L1GctHFBitCounts()
 L1GctHFBitCounts L1GctHFBitCounts::fromConcHFBitCounts(const uint16_t capBlock,
 						       const uint16_t capIndex,
 						       const uint8_t bx,
-						       const uint16_t data)
+						       const uint32_t data)
 {
   L1GctHFBitCounts c;
   c.setCapBlock(capBlock);
   c.setCapIndex(capIndex);
   c.setBx(bx);
-  c.setData(data);
+  c.setData(data&0xfff);
   return c;
 }
 
@@ -52,7 +52,7 @@ L1GctHFBitCounts L1GctHFBitCounts::fromGctEmulator(const uint8_t bx,
 ///    1   :  Ring 1 Negative Rapidity HF bit count
 ///    2   :  Ring 2 Positive Rapidity HF bit count
 ///    3   :  Ring 2 Negative Rapidity HF bit count
-uint16_t L1GctHFBitCounts::bitCount(unsigned const i) {
+uint16_t L1GctHFBitCounts::bitCount(unsigned const i) const {
   return (data_>>(i*3)) & 0x7;
 }
 
@@ -71,5 +71,11 @@ void L1GctHFBitCounts::setBitCount(unsigned i, uint16_t c) {
 
 
 std::ostream& operator<<(std::ostream& s, const L1GctHFBitCounts& cand) {
-
+  s << "L1GctHFBitCounts :";
+  s << " ring1 eta+=" << cand.bitCount(0);
+  s << " ring1 eta-=" << cand.bitCount(1);
+  s << " ring2 eta+=" << cand.bitCount(2);
+  s << " ring2 eta-=" << cand.bitCount(3);
+  s << std::endl;
+  return s;
 }

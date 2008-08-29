@@ -24,18 +24,20 @@ class L1GctHFRingEtSums {
   /// destructor
   ~L1GctHFRingEtSums();
 
-  // named ctor for unpacker
+  /// named ctor for unpacker
+  /// note that this expects a 32 bit word that also contains
+  /// the HF bit counts, which are ignored
   static L1GctHFRingEtSums fromConcRingSums(const uint16_t capBlock,
-						  const uint16_t capIndex,
-						  const uint8_t bx,
-						  const uint16_t data);
-
-  // named ctor for GCT emulator
+					    const uint16_t capIndex,
+					    const uint8_t bx,
+					    const uint32_t data);
+  
+  /// named ctor for GCT emulator
   static L1GctHFRingEtSums fromGctEmulator(const uint8_t bx,
-						 const uint16_t etSumPosEtaRing1,
-						 const uint16_t etSumPosEtaRing2,
-						 const uint16_t etSumNegEtaRing1,
-						 const uint16_t etSumNegEtaRing2);
+					   const uint16_t etSumPosEtaRing1,
+					   const uint16_t etSumPosEtaRing2,
+					   const uint16_t etSumNegEtaRing1,
+					   const uint16_t etSumNegEtaRing2);
   
   // optional named ctor for GT if required
   // arguments to be defined
@@ -68,7 +70,7 @@ class L1GctHFRingEtSums {
   ///    1   :  Ring 1 Negative Rapidity HF Et sum
   ///    2   :  Ring 2 Positive Rapidity HF Et sum
   ///    3   :  Ring 2 Negative Rapidity HF Et sum
-  uint16_t etSum(unsigned const i);
+  uint16_t etSum(unsigned const i) const;
 
 
   /// operators
