@@ -13,7 +13,7 @@
 //
 // Original Author:  Traczyk Piotr
 //         Created:  Thu Oct 11 15:01:28 CEST 2007
-// $Id: BetaFromTOF.cc,v 1.17 2008/06/24 12:49:49 ptraczyk Exp $
+// $Id: BetaFromTOF.cc,v 1.18 2008/08/06 12:17:51 arizzi Exp $
 //
 //
 
@@ -289,8 +289,8 @@ BetaFromTOF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
             const DTRecSegment2D* segm;
   	    if (phi) segm = dynamic_cast<const DTRecSegment2D*>(rechit->phiSegment()); 
   	      else segm = dynamic_cast<const DTRecSegment2D*>(rechit->zSegment());
-  	    if(segm == 0){cout << "skip this" << endl;  continue; }   
-            cout << "spec " << segm->specificRecHits().size() << endl;
+  	    if(segm == 0){  continue; }   
+//         cout << "spec " << segm->specificRecHits().size() << endl;
   	    if (!segm->specificRecHits().size()) continue;
 
             const GeomDet* geomDet = theTrackingGeometry->idToDet(segm->geographicalId());
@@ -300,7 +300,10 @@ BetaFromTOF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     	    for (vector<DTRecHit1D>::const_iterator hiti=hits1d.begin(); hiti!=hits1d.end(); hiti++) {
 
             if (((*hi)->localPosition() - hiti->localPosition()).mag()>0.01)
-             { cout << "skip because dist > 0.01  " <<  ((*hi)->localPosition() - hiti->localPosition()).mag() << endl;  continue;}
+             { 
+                   //cout << "skip because dist > 0.01  " <<  ((*hi)->localPosition() - hiti->localPosition()).mag() << endl; 
+              continue;
+               }
 
 
   	      const GeomDet* dtcell = theTrackingGeometry->idToDet(hiti->geographicalId());
@@ -312,7 +315,7 @@ BetaFromTOF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
               thisHit.posInLayer = geomDet->toLocal(dtcell->toGlobal(hiti->localPosition())).x();
               thisHit.distIP = dtcell->toGlobal(hiti->localPosition()).mag();
               thisHit.station = station;
-              cout << "push" << endl;      
+              //cout << "push" << endl;      
               tof.timeMeasurements.push_back(thisHit);
             }
 
