@@ -225,7 +225,6 @@ def getDiff(data1,data2,npoints,last_event,orig_max_val):
     #graph.GetYaxis().SetTitle("s")
     graph.GetXaxis().SetLimits(0,last_event)
     graph.GetYaxis().SetRangeUser(min_val,max_val)
-    #leg = ROOT.TLegend(0.7,0.8,1.2,0.89)
     leg = ROOT.TLegend(0.5,0.7,0.89,0.89)
     leg.AddEntry(graph, "Mean: %s" % str(mean), "l")            
     leg.AddEntry(graph, "RMS : %s" % str(rms) , "l")
@@ -308,18 +307,19 @@ def regressCompare(rootfilename,outdir,oldLogfile,newLogfile,secsperbin,batch=Tr
     #
 
     if batch:
+        names = ["graph.gif","changes.gif","histo.gif"]
         #Graphs
         graph_canvas   = drawGraphs(graph1,graph2,avg_line1,avg_line2,leg)
-        graph_canvas.Print("%s/graph.gif" %outdir,"gif")
+        graph_canvas.Print("%s/%s" % (outdir,names[0]),"gif")
         graph_canvas.Write()    # to file
         #Changes
         changes_canvas = drawChanges(changegraph,chgleg)
-        changes_canvas.Print("%s/changes.gif" % outdir,"gif")
+        changes_canvas.Print("%s/%s" % (outdir,names[1]),"gif")
         changes_canvas.Write()
         #Histograms
         histo1.GetXaxis().SetTitle("s")        
         histo_canvas   = drawHistos(hsStack,histoleg)        
-        histo_canvas.Print("%s/histo.gif" % outdir,"gif")
+        histo_canvas.Print("%s/%s" % (outdir,names[2]),"gif")
         histo_canvas.Write() 
         newrootfile.Close()   
 
@@ -332,10 +332,8 @@ def regressCompare(rootfilename,outdir,oldLogfile,newLogfile,secsperbin,batch=Tr
         #html_file=open(html_file_name,'w')
         #html_file.write('<html>\n<body>\n'+\
         #                titlestring)
-        htmlstring = ("<td><img src=\"%s/graph.gif\"   /></td>" % outdir +
-                      "<td><img src=\"%s/changes.gif\" /></td>" % outdir +                        
-                      "<td><img src=\"%s/histo.gif\"   /></td>" % outdir )
-        return htmlstring
+        #return map (lambda x: "%s/%s" % (outdir,x),names)
+        return names
     else:
         graph_canvas   = drawGraphs(graph1,graph2,avg_line1,avg_line2,leg)
         changes_canvas = drawChanges(changegraph,chgleg)

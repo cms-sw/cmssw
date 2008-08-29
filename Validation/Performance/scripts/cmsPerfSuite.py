@@ -298,8 +298,8 @@ def displayErrors(file):
             if "cerr" in line:
                 print "ERROR: %s" % line
                 ERRORS += 1
-    except IOError:
-        print "WARNING: The log file could not be open for some reason"
+    except IOError, detail:
+        print "WARNING: %s" % detail
         ERRORS += 1
     
 
