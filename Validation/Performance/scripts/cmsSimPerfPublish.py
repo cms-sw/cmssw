@@ -538,11 +538,11 @@ def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDat
         CAND = open(candlHTML,"w")
         for line in open(tmplfile):
             if candhreg.search(line):
-                CAND.write("<table><tr><td>\n")
+                CAND.write('<div id="content">')                
                 CAND.write("<h2>")
                 CAND.write(CurrentCandle)
                 CAND.write("</h2>\n")
-                CAND.write("<div> \n")
+
                 for CurDir in DirName:
 
                     LocalPath = "%s%s_%s" % (repdir,CurrentCandle,CurDir)
@@ -634,10 +634,10 @@ def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDat
                     if PrintedOnce:
                         CAND.write("</ul>\n")
                     PrintedOnce=False
-                CAND.write("</div>\n")
+
                 CAND.write("<hr />")
                 CAND.write("<br />\n")
-                CAND.write("</td></tr></table>\n")
+                CAND.write("</div>\n")
             elif candnreg.search(line):
                 CAND.write(CurrentCandle)
             else:
