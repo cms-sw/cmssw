@@ -380,7 +380,16 @@ def getStageRepDirs(options,args):
         print "**User chose to publish results in a local directory**" 
         StagingArea = path
         if not os.path.exists(path):
-            os.system("mkdir -p %s" % path)
+            try:
+                os.mkdir("%s" % path)
+            except OSError, detail:
+                if   detail.errno == 13:
+                    fail("ERROR: Failed to create staging area %s because permission was denied " % StagingArea)
+                elif detail.errno == 17:
+                    #If the directory already exists just carry on
+                    pass
+                else:
+                    fail("ERROR: There was some problem (%s) when creating the staging directory" % detail)            
 
     IS_TMP = not TMP_DIR == ""
     ######
@@ -389,7 +398,16 @@ def getStageRepDirs(options,args):
     # This is why when we create a Tmp dir we get the version(tmpname)/version
     # structure. We should remove this if we don't want it but i dont think it matters
     StagingArea="%s/%s" % (StagingArea,CMSSW_VERSION)
-    os.system("mkdir -p %s" % StagingArea)
+    try:
+        os.mkdir("%s" % StagingArea)
+    except OSError, detail:
+        if   detail.errno == 13:
+            fail("ERROR: Failed to create staging area %s because permission was denied " % StagingArea)
+        elif detail.errno == 17:
+            #If the directory already exists just carry on
+            pass
+        else:
+            fail("ERROR: There was some problem (%s) when creating the staging directory" % detail)
 
     return (drive,path,remote,StagingArea,port,repdir,previousrev)
 
@@ -536,10 +554,12 @@ def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDat
                     if (len(CandleLogFiles)>0):
                         CAND.write("<p><strong>Logfiles for %s</strong></p>\n" % CurDir)
                         syscp(CandleLogFiles,WebArea + "/")
+                        base = os.path.basename(LocalPath)
                         for cand in CandleLogFiles:
+                            cand = os.path.basename(cand)
                             if _verbose:
                                 print "Found %s in %s\n" % (cand,LocalPath)
-                            CAND.write("<a href=\"%s\">%s </a>" % (cand,cand))
+                            CAND.write("<a href=\"./%s/%s\">%s </a>" % (base,cand,cand))
                             CAND.write("<br />\n")
 
                     PrintedOnce = False
@@ -670,19 +690,23 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
             elif logfreg.search(NewFileLine):
                 INDEX.write("<br />\n")
                 for log in LogFiles:
-                    INDEX.write("<a href=\"%s\"> %s </a>" % (log,log))
+                    log = os.path.basename(log)
+                    if _verbose:
+                        print "linking log file %s" % log
+                    INDEX.write("<a href=\"./%s\"> %s </a>" % (log,log))
                     INDEX.write("<br /><br />\n")
                 #Add the cmsScimark results here:
                 INDEX.write("Results for cmsScimark2 benchmark (running on the other cores) available at:\n")
                 INDEX.write("<br /><br />\n")
                 for cmssci in cmsScimarkResults:
+                    cmssci = os.path.basename(cmssci)
                     INDEX.write("<a href=\"%s\"> %s </a>" % (cmssci,cmssci))
                     INDEX.write("<br /><br />\n")
 
 
             elif dirbreg.search(NewFileLine):
                 #Create a subdirectory DirectoryBrowsing to circumvent the fact the dir is not browsable if there is an index.html in it.
-                os.system("mkdir %s/DirectoryBrowsing" % WebArea)
+                os.symlink("./","%s/DirectoryBrowsing" % WebArea)
                 INDEX.write("Click <a href=\"./DirectoryBrowsing/\">here</a> to browse the directory containing all results (except the root files)\n")
 
             elif pubdreg.search(NewFileLine):
