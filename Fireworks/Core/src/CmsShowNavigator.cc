@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Tue Jun 10 14:56:46 EDT 2008
-// $Id: CmsShowNavigator.cc,v 1.14 2008/08/20 21:02:54 chrjones Exp $
+// $Id: CmsShowNavigator.cc,v 1.15 2008/08/25 00:08:29 dmytro Exp $
 //
 
 // hacks
@@ -278,7 +278,14 @@ CmsShowNavigator::filterEventsAndReset(const char* sel)
 	  m_eventTree->SetEventList( m_eventList );
      }	
      m_nEntries = m_event->size();
-     if ( m_eventTree->GetEventList() ) m_nEntries = m_eventList->GetN();
+     if ( m_eventTree->GetEventList() ){
+	m_nEntries = m_eventList->GetN();
+	if ( m_nEntries < 1 ) {
+	   std::cout << "WARNING: No events passed selection: " << sel << std::endl;
+	   m_eventTree->SetEventList(0);
+	   m_nEntries = m_event->size();
+	}
+     }
      m_event->to(realEntry(0));
      m_firstID = m_event->id();
      m_event->to(realEntry(m_nEntries - 1));
