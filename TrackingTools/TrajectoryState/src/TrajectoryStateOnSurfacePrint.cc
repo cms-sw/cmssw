@@ -2,7 +2,6 @@
 #include <ostream>
 
 using namespace std;
-using namespace SurfaceSideDefinition;
 
 ostream& operator<<(std::ostream& os, const TrajectoryStateOnSurface& tsos) {
   os << "global parameters" << endl;
@@ -59,9 +58,14 @@ ostream& operator<<(std::ostream& os, const TrajectoryStateOnSurface& tsos) {
     }
   }
   os << "Defined at ";
-  if ( tsos.surfaceSide()==beforeSurface )  os << "beforeSurface";
-  else if ( tsos.surfaceSide()==afterSurface )  os << "afterSurface";
+  if ( tsos.surfaceSide()==SurfaceSideDefinition::beforeSurface )  os << "beforeSurface";
+  else if ( tsos.surfaceSide()==SurfaceSideDefinition::afterSurface )  os << "afterSurface";
   else  os << "atCenterOfSurface";
   os << endl;
+
+  // magnetic field
+  os << "Magnetic field in inverse GeV: " << tsos.globalParameters().magneticFieldInInverseGeV(tsos.globalPosition());
+  os <<endl;
+
   return os;
 }
