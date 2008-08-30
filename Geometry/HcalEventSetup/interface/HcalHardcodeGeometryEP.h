@@ -7,18 +7,14 @@
 #include "boost/shared_ptr.hpp"
 
 // user include files
-#include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/Records/interface/HcalGeometryRecord.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/HcalTowerAlgo/interface/HcalHardcodeGeometryLoader.h"
 
-//
-// class decleration
-//
+// class declarations
+class CaloSubdetectorGeometry;
+class IdealGeometryRecord;
+class HcalGeometryRecord;
+
 
 class HcalHardcodeGeometryEP : public edm::ESProducer 
 {
@@ -32,13 +28,6 @@ class HcalHardcodeGeometryEP : public edm::ESProducer
       ReturnType produceAligned( const HcalGeometryRecord& );
 
       void       idealRecordCallBack( const IdealGeometryRecord& );
-
-   private:
-      // ----------member data ---------------------------
-
-      HcalHardcodeGeometryLoader* m_loader ;
-
-      bool m_applyAlignment ;
 };
 
 
