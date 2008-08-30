@@ -2,7 +2,7 @@
  *
  *  \author M. Vander Donckt  (copied from J. Alcaraz)
  */
-//
+
 #include "HLTriggerOffline/Muon/interface/HLTMuonOverlap.h"
 
 // Collaborating Class Header

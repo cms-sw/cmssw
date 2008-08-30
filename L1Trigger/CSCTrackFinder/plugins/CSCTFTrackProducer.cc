@@ -31,7 +31,7 @@ CSCTFTrackProducer::CSCTFTrackProducer(const edm::ParameterSet& pset)
   TMB07 = pset.getParameter<bool>("isTMB07");
   m_scalesCacheID = 0ULL ;
   m_ptScaleCacheID = 0ULL ;
-  my_builder = 0 ;
+  my_builder = NULL ;
   produces<L1CSCTrackCollection>();
   produces<CSCTriggerContainer<csctf::TrackStub> >();
 }
@@ -39,7 +39,7 @@ CSCTFTrackProducer::CSCTFTrackProducer(const edm::ParameterSet& pset)
 CSCTFTrackProducer::~CSCTFTrackProducer()
 {
   delete my_builder;
-  my_builder = 0;
+  my_builder = NULL;
 }
 
 void CSCTFTrackProducer::beginJob(const edm::EventSetup& es){
@@ -53,7 +53,7 @@ void CSCTFTrackProducer::produce(edm::Event & e, const edm::EventSetup& c)
   if(  c.get< L1MuTriggerScalesRcd >().cacheIdentifier() != m_scalesCacheID ||
        c.get< L1MuTriggerPtScaleRcd >().cacheIdentifier() != m_ptScaleCacheID )
     {
-      if(my_builder) delete my_builder ;
+      delete my_builder ;
 
       edm::ESHandle< L1MuTriggerScales > scales ;
       c.get< L1MuTriggerScalesRcd >().get( scales ) ;
@@ -84,7 +84,24 @@ void CSCTFTrackProducer::produce(edm::Event & e, const edm::EventSetup& c)
   if(useDT)
     e.getByLabel(dt_producer.label(),dt_producer.instance(), dttrig);
 
-  my_builder->buildTracks(LCTs.product(), (useDT?dttrig.product():0), track_product.get(), dt_stubs.get());
+  const CSCCorrelatedLCTDigiCollection *lcts = LCTs.product();
+/*  if(TMB07){ // translate new quality codes to conventional ones
+     for(CSCCorrelatedLCTDigiCollection::DigiRangeIterator csc=lcts->begin(); csc!=lcts->end(); csc++){
+        CSCCorrelatedLCTDigiCollection::Range range = lcts->get((*csc).first);
+        for(CSCCorrelatedLCTDigiCollection::const_iterator lct=range.first; lct!=range.second; lct++){
+           int quality = 0;
+           if(!lct->getStrip() ) quality = 3;
+           if(!lct->getKeyWG() ) quality = 4;
+           if( lct->getStrip() && lct->getKeyWG() )
+              quality = lct->getQuality() - (lct->getPattern()<=7?4:9) + 9;
+///std::cout<<"Translation quality: "<<lct->getQuality()<<" -> "<<quality<<std::endl;
+              CSCCorrelatedLCTDigi &_lct = const_cast<CSCCorrelatedLCTDigi&>(*lct);
+              _lct.setQuality(quality);
+        }
+     }
+  }
+*/
+  my_builder->buildTracks(lcts, (useDT?dttrig.product():0), track_product.get(), dt_stubs.get());
 
   e.put(track_product);
   e.put(dt_stubs);

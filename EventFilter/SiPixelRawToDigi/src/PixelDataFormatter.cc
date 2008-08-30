@@ -58,7 +58,7 @@ void PixelDataFormatter::setErrorStatus(bool ErrorStatus, bool OrderStatus)
   errorcheck.setErrorStatus(includeErrors);
 }
 
-void PixelDataFormatter::interpretRawData(int fedId, const FEDRawData& rawData, Digis& digis, Errors& errors)
+void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const FEDRawData& rawData, Digis& digis, Errors& errors)
 {
     int nWords = rawData.size()/sizeof(Word64);
     if (nWords==0) return;
@@ -72,7 +72,7 @@ void PixelDataFormatter::interpretRawData(int fedId, const FEDRawData& rawData, 
     while (moreHeaders) {
       header++;
       LogTrace("")<<"HEADER:  " <<  print(*header);
-      bool headerStatus = errorcheck.checkHeader(fedId, header, errors);
+      bool headerStatus = errorcheck.checkHeader(errorsInEvent, fedId, header, errors);
       moreHeaders = headerStatus;
     }
 
@@ -82,7 +82,7 @@ void PixelDataFormatter::interpretRawData(int fedId, const FEDRawData& rawData, 
     while (moreTrailers) {
       trailer--;
       LogTrace("")<<"TRAILER: " <<  print(*trailer);
-      bool trailerStatus = errorcheck.checkTrailer(fedId, nWords, trailer, errors);
+      bool trailerStatus = errorcheck.checkTrailer(errorsInEvent, fedId, nWords, trailer, errors);
       moreTrailers = trailerStatus;
     }
 
@@ -98,21 +98,23 @@ void PixelDataFormatter::interpretRawData(int fedId, const FEDRawData& rawData, 
       if (w2==0) theWordCounter--;
 
       // check status of word...
-      bool notErrorROC1 = errorcheck.checkROC(fedId, converter, w1, errors);
+      bool notErrorROC1 = errorcheck.checkROC(errorsInEvent, fedId, converter, w1, errors);
       if (notErrorROC1) {
         int status1 = word2digi(converter, includeErrors, w1, digis);
         if (status1) {
-	  LogError("PixelDataFormatter::interpretRawData") 
-                    << "error #" <<status1<<" returned for word1";
+	  LogDebug("PixelDataFormatter::interpretRawData") 
+                    << "status #" <<status1<<" returned for word1";
+          errorsInEvent = true;
 	  errorcheck.conversionError(fedId, converter, status1, w1, errors);
 	}
       }
-      bool notErrorROC2 = errorcheck.checkROC(fedId, converter, w2, errors);
+      bool notErrorROC2 = errorcheck.checkROC(errorsInEvent, fedId, converter, w2, errors);
       if (notErrorROC2) {
         int status2 = word2digi(converter, includeErrors, w2, digis);
         if (status2) {
-	  LogError("PixelDataFormatter::interpretRawData") 
-                    << "error #" <<status2<<" returned for word2";
+	  LogDebug("PixelDataFormatter::interpretRawData") 
+                    << "status #" <<status2<<" returned for word2";
+          errorsInEvent = true;
 	  errorcheck.conversionError(fedId, converter, status2, w2, errors);
 	}
       }

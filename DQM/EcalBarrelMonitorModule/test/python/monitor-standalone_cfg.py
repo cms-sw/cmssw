@@ -26,8 +26,6 @@ process.load("DQM.EcalBarrelMonitorTasks.EcalBarrelMonitorTasks_cfi")
 
 process.load("DQM.EcalBarrelMonitorClient.EcalBarrelMonitorClient_cfi")
 
-process.load("FWCore.Modules.printContent_cfi")
-
 process.load("CalibCalorimetry.EcalLaserCorrection.ecalLaserCorrectionService_cfi")
 
 process.load("DQMServices.Core.DQM_cfg")

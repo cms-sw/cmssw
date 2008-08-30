@@ -5,9 +5,20 @@
 #include "FWCore/MessageLogger/interface/ELseverityLevel.h"
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
 
+#include <map>
+
+// Change log
+//
+//  1  mf 8/25/08	error summary information for
+//			LoggedErrorsSummary()
+//			
 
 namespace edm
 {
+
+typedef std::pair<std::string, std::string> ErrorSummaryMapKey;
+typedef std::map<ErrorSummaryMapKey, unsigned int>::iterator 
+						ErrorSummaryMapIterator;
 
 class MessageSender
 {
@@ -29,6 +40,11 @@ public:
     return *this;
   }
 
+  // static data:						// change log 1
+  static bool errorSummaryIsBeingKept;
+  static bool freshError;
+  static std::map<ErrorSummaryMapKey, unsigned int> errorSummaryMap;
+  
 private:
   // no copying:
   MessageSender( MessageSender const & );

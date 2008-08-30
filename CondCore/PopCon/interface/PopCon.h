@@ -9,8 +9,8 @@
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "CondCore/DBCommon/interface/TagInfo.h"
-#include "CondCore/DBCommon/interface/LogDBEntry.h"
+#include "CondCore/DBOutputService/interface/TagInfo.h"
+#include "CondCore/DBOutputService/interface/LogDBEntry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
@@ -68,18 +68,14 @@ namespace popcon {
     
     bool m_LoggingOn;
     
-    bool m_IsDestDbCheckedInQueryLog;
-
     std::string m_tag;
+
+    bool m_IsDestDbCheckedInQueryLog;
     
     cond::TagInfo m_tagInfo;
     
     cond::LogDBEntry m_logDBEntry;
-  
-    
-    
-    
-    
+      
   };
 
 
@@ -106,7 +102,7 @@ namespace popcon {
    
     for (it = payloads.begin(); it != payloads.end(); it++){
       i++; 
-      if (i ==1)   s<<  (sinceAppend ? "Since " :" Till ") << (*it).second <<  "; " ;
+      if (i ==1)   s<< "\n payload valid " << (sinceAppend ? "Since " :" Till ") << (*it).second <<  " ; " ;
     }
    
     // when more than one payload are transferred;  
@@ -114,8 +110,8 @@ namespace popcon {
       ss << "\n transferred " << i << " payloads:\n "  ;
       for (it = payloads.begin(); it != payloads.end(); it++){
 	j++;
-	if (j==1) ss <<   " first payload " << (sinceAppend ? "Since " :" Till ") << (*it).second <<  ";\n " ;
-	if (j==i) ss<< " last payload " << (sinceAppend ? "Since " :" Till ") << (*it).second <<  ";\n " ;  
+	if (j==1) ss <<   " first payload valid " << (sinceAppend ? "Since " :" Till ") << (*it).second <<  " ;\n " ;
+	if (j==i) ss<< " last payload valid " << (sinceAppend ? "Since " :" Till ") << (*it).second <<  " ;\n " ;  
       }  
     } 
     

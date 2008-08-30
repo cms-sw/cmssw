@@ -9,6 +9,7 @@
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/EntryDescriptionRegistry.h"
 #include "DataFormats/Provenance/interface/EventEntryDescription.h"
+#include "DataFormats/Provenance/interface/EventEntryInfo.h"
 #include "DataFormats/Provenance/interface/ModuleDescriptionRegistry.h"
 #include "TClass.h"
 #include "IOPool/Streamer/interface/ClassFiller.h"
@@ -149,7 +150,7 @@ namespace edm
       BranchDescription const& desc = **i;
       BranchID const& id = desc.branchID();
 
-      OutputHandle<EventEntryInfo> const oh = eventPrincipal.getForOutput(id, true);
+      OutputHandle<EventEntryInfo> const oh = eventPrincipal.getForOutput<EventEntryInfo>(id, true);
       if (!oh.entryInfo()) {
 	// No product with this ID was put in the event.
 	// Create and write the provenance.

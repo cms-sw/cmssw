@@ -38,7 +38,7 @@ void testEcalTPGScale::analyze(const edm::Event& evt, const edm::EventSetup& evt
   vector<DetId>::const_iterator it ;
 
   // EB
-  const std::vector<DetId>& ebCells = theBarrelGeometry_->getValidDetIds(DetId::Ecal, EcalBarrel);
+  std::vector<DetId> ebCells = theBarrelGeometry_->getValidDetIds(DetId::Ecal, EcalBarrel);
   it = ebCells.begin() ;
   const EBDetId idEB(*it) ;
   const EcalTrigTowerDetId towidEB = idEB.tower();
@@ -54,7 +54,7 @@ void testEcalTPGScale::analyze(const edm::Event& evt, const edm::EventSetup& evt
   }
 
   // EE
-  const std::vector<DetId>& eeCells = theEndcapGeometry_->getValidDetIds(DetId::Ecal, EcalEndcap);
+  std::vector<DetId> eeCells = theEndcapGeometry_->getValidDetIds(DetId::Ecal, EcalEndcap);
   it = eeCells.begin() ;
   const EEDetId idEE(*it);
   const EcalTrigTowerDetId towidEE = (*eTTmap_).towerOf(idEE) ;

@@ -16,7 +16,7 @@ class SiPixelActionExecutor {
 
  public:
 
-  SiPixelActionExecutor();
+  SiPixelActionExecutor(            std::string                    summaryXMLfileName);
  ~SiPixelActionExecutor();
 
  void createSummary(    	    DQMStore    		 * bei);
@@ -85,6 +85,7 @@ private:
   int source_type_;
   int calib_type_;  
   int ndet_;
+  std::string summaryXMLfileName_;
   
   QTestHandle* qtHandler_;
   

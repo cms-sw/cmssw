@@ -1,16 +1,15 @@
-#ifndef SiStripMonitorCluster_SiStripOfflineDQM_h
-#define SiStripMonitorCluster_SiStripOfflineDQM_h
+#ifndef SiStripMonitorClient_SiStripOfflineDQM_h
+#define SiStripMonitorClient_SiStripOfflineDQM_h
 // -*- C++ -*-
 //
-// Package:     SiStripMonitorCluster
+// Package:     SiStripMonitorClient
 // Class  :     SiStripOfflineDQM
 // 
 /**\class SiStripOfflineDQM SiStripOfflineDQM.h DQM/SiStripMonitorCluster/interface/SiStripOfflineDQM.h
 
  Description: 
-   Offline version of Online DQM - perform the same functionality but in
-   offline mode.
-
+   DQM class to perform Summary creation Quality Test on a merged Root file
+   after CAF processing
  Usage:
     <usage>
 
@@ -22,34 +21,59 @@
 
 #include <string>
 
-// Forward classes declarations
-#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 
-#include "DQM/SiStripMonitorClient/interface/SiStripActionExecutorQTest.h"
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <vector>
+#include <map>
 
 class DQMStore;
+class SiStripActionExecutor;
 
 class SiStripOfflineDQM: public edm::EDAnalyzer {
-  public:
-    explicit SiStripOfflineDQM( const edm::ParameterSet &roPARAMETER_SET);
-    virtual ~SiStripOfflineDQM();
 
-    virtual void analyze( const edm::Event	    &roEVENT, 
-			                    const edm::EventSetup &roEVENT_SETUP);
-    virtual void beginJob( const edm::EventSetup &roEVENT);
-    virtual void endJob();
-    virtual void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup);
- 
+ public:
 
+  /// Constructor
+  SiStripOfflineDQM(const edm::ParameterSet& ps);
+  
+  /// Destructor
+  virtual ~SiStripOfflineDQM();
 
+ protected:
 
-  private:
-    const bool        bVERBOSE_;
-    bool          bCreateSummary_;
-    DQMStore       *poDQMStore_;
-    SiStripActionExecutorQTest  oActionExecutor_;
+  /// BeginJob
+  void beginJob(edm::EventSetup const& eSetup);
+
+  /// BeginRun
+  void beginRun(edm::Run const& run, edm::EventSetup const& eSetup);
+
+  /// Analyze                                                                                                                                                         
+  void analyze(edm::Event const& e, edm::EventSetup const& eSetup);
+
+  /// Endjob
+  void endJob();
+
+private:
+
+  bool openInputFile();
+
+  DQMStore* dqmStore_;
+
+  SiStripActionExecutor* actionExecutor_;
+
+  unsigned long long m_cacheID_;
+  bool createSummary_;
+  std::string inputFileName_;
+
+  int nEvents_;
+
 };
-
 #endif

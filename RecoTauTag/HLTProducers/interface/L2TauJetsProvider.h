@@ -16,6 +16,7 @@
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 //#include "DataFormats/HLTReco/interface/TriggerRefsCollections.h"
 
+
 #include <map>
 #include <vector>
 
@@ -26,6 +27,11 @@ class L2TauJetsProvider: public edm::EDProducer {
   virtual void produce(edm::Event&, const edm::EventSetup&);
 
  private:
+  std::vector<l1extra::L1JetParticleRef> tauCandRefVec;
+std::vector<l1extra::L1JetParticleRef> jetCandRefVec;
+  std::vector<l1extra::L1JetParticleRef> objL1CandRefVec;
+  l1extra::L1JetParticleRef tauCandRef;
+    
   typedef std::vector<edm::InputTag> vtag;
   vtag jetSrc;
   edm::InputTag l1ParticlesTau;

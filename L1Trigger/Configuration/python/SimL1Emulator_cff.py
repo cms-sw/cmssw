@@ -2,41 +2,44 @@ import FWCore.ParameterSet.Config as cms
 
 # L1 Emulator sequence for simulation use-case
 # Jim Brooke, 24 April 2008
-
-# RCT emulator
+# Emulator configuration
+from L1Trigger.Configuration.L1Config_cff import *
 import L1Trigger.RegionalCaloTrigger.rctDigis_cfi
+# RCT emulator
 simRctDigis = L1Trigger.RegionalCaloTrigger.rctDigis_cfi.rctDigis.clone()
-# GCT emulator
 import L1Trigger.GlobalCaloTrigger.gctDigis_cfi
+# GCT emulator
 simGctDigis = L1Trigger.GlobalCaloTrigger.gctDigis_cfi.gctDigis.clone()
 # DT Trigger emulator
 import L1Trigger.DTTrigger.dtTriggerPrimitiveDigis_cfi
 simDtTriggerPrimitiveDigis = L1Trigger.DTTrigger.dtTriggerPrimitiveDigis_cfi.dtTriggerPrimitiveDigis.clone()
-# DT Track Finder emulator
 import L1Trigger.DTTrackFinder.dttfDigis_cfi
+# DT Track Finder emulator
 simDttfDigis = L1Trigger.DTTrackFinder.dttfDigis_cfi.dttfDigis.clone()
 # CSC Trigger emulator
 from L1Trigger.CSCCommonTrigger.CSCCommonTrigger_cfi import *
 import L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigis_cfi
 simCscTriggerPrimitiveDigis = L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigis_cfi.cscTriggerPrimitiveDigis.clone()
-# CSC Track Finder emulator
 import L1Trigger.CSCTrackFinder.csctfTrackDigis_cfi
+# CSC Track Finder emulator
 simCsctfTrackDigis = L1Trigger.CSCTrackFinder.csctfTrackDigis_cfi.csctfTrackDigis.clone()
 import L1Trigger.CSCTrackFinder.csctfDigis_cfi
 simCsctfDigis = L1Trigger.CSCTrackFinder.csctfDigis_cfi.csctfDigis.clone()
 # RPC Trigger emulator
 import L1Trigger.RPCTrigger.rpcTriggerDigis_cfi
 simRpcTriggerDigis = L1Trigger.RPCTrigger.rpcTriggerDigis_cfi.rpcTriggerDigis.clone()
-# Global Muon Trigger emulator
 import L1Trigger.GlobalMuonTrigger.gmtDigis_cfi
+# Global Muon Trigger emulator
 simGmtDigis = L1Trigger.GlobalMuonTrigger.gmtDigis_cfi.gmtDigis.clone()
-# Global Trigger emulator
 import L1Trigger.GlobalTrigger.gtDigis_cfi
+# Global Trigger emulator
 simGtDigis = L1Trigger.GlobalTrigger.gtDigis_cfi.gtDigis.clone()
+import EventFilter.L1GlobalTriggerRawToDigi.l1GtRecord_cfi
 # Global Trigger AOD producer
+simL1GtRecord = EventFilter.L1GlobalTriggerRawToDigi.l1GtRecord_cfi.l1GtRecord.clone()
 SimL1MuTriggerPrimitives = cms.Sequence(simCscTriggerPrimitiveDigis+simDtTriggerPrimitiveDigis)
 SimL1MuTrackFinders = cms.Sequence(simCsctfTrackDigis*simCsctfDigis*simDttfDigis)
-SimL1Emulator = cms.Sequence(simRctDigis*simGctDigis*SimL1MuTriggerPrimitives*SimL1MuTrackFinders*simRpcTriggerDigis*simGmtDigis*simGtDigis)
+SimL1Emulator = cms.Sequence(simRctDigis*simGctDigis*SimL1MuTriggerPrimitives*SimL1MuTrackFinders*simRpcTriggerDigis*simGmtDigis*simGtDigis*simL1GtRecord)
 simRctDigis.ecalDigisLabel = 'simEcalTriggerPrimitiveDigis'
 simRctDigis.hcalDigisLabel = 'simHcalTriggerPrimitiveDigis'
 simGctDigis.inputLabel = 'simRctDigis'
@@ -45,7 +48,7 @@ simDttfDigis.DTDigi_Source = 'simDtTriggerPrimitiveDigis'
 simDttfDigis.CSCStub_Source = 'simCsctfTrackDigis'
 simCscTriggerPrimitiveDigis.CSCComparatorDigiProducer = cms.InputTag("simMuonCSCDigis","MuonCSCComparatorDigi")
 simCscTriggerPrimitiveDigis.CSCWireDigiProducer = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigi")
-simCsctfTrackDigis.SectorReceiverInput = cms.untracked.InputTag("simCscTriggerPrimitiveDigis","MPCSORTED")
+simCsctfTrackDigis.SectorReceiverInput = cms.InputTag("simCscTriggerPrimitiveDigis","MPCSORTED")
 simCsctfTrackDigis.DTproducer = 'simDtTriggerPrimitiveDigis'
 simCsctfDigis.CSCTrackProducer = 'simCsctfTrackDigis'
 simRpcTriggerDigis.label = 'simMuonRPCDigis'
@@ -57,4 +60,5 @@ simGmtDigis.MipIsoData = 'simRctDigis'
 simGtDigis.GmtInputTag = 'simGmtDigis'
 simGtDigis.GctInputTag = 'simGctDigis'
 simGtDigis.TechnicalTriggersInputTag = 'simTechTrigDigis'
+simL1GtRecord.L1GtReadoutRecordTag = 'simGtDigis'
 

@@ -114,8 +114,6 @@ namespace edm {
 
     void print(std::ostream& os) const;
 
-    void deleteDroppedProducts();
-
     bool anyProducts(BranchType const brType) const;
 
   private:

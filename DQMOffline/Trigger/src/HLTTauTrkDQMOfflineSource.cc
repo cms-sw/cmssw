@@ -119,11 +119,11 @@ void HLTTauTrkDQMOfflineSource::beginJob(const edm::EventSetup&){
 void HLTTauTrkDQMOfflineSource::endJob() {
    // Get the efficiency plots
 
-   l25IsoJetEta->getTH1F()->Sumw2();
+     l25IsoJetEta->getTH1F()->Sumw2();
    jetEta->getTH1F()->Sumw2();
    
-   l25IsoJetEt->getTH1F()->Sumw2();
-   jetEt->getTH1F()->Sumw2();
+    l25IsoJetEt->getTH1F()->Sumw2();
+    jetEt->getTH1F()->Sumw2();
 
       
    //Write file

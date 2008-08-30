@@ -131,25 +131,6 @@ double IsoDeposit::depositWithin(double coneSize, const AbsVetos& vetos, bool sk
 	return depositAndCountWithin(coneSize, vetos, skipDepositVeto).first;
 }
 
-double IsoDeposit::countWithin(double coneSize, const AbsVetos& vetos, bool skipDepositVeto) const 
-{
-	return algoWithin<CountAlgo>(coneSize, vetos, skipDepositVeto);
-}
-double IsoDeposit::sumWithin(double coneSize, const AbsVetos& vetos, bool skipDepositVeto) const 
-{
-	return algoWithin<SumAlgo>(coneSize, vetos, skipDepositVeto);
-}
-double IsoDeposit::sum2Within(double coneSize, const AbsVetos& vetos, bool skipDepositVeto) const 
-{
-	return algoWithin<Sum2Algo>(coneSize, vetos, skipDepositVeto);
-}
-double IsoDeposit::maxWithin(double coneSize, const AbsVetos& vetos, bool skipDepositVeto) const 
-{
-	return algoWithin<MaxAlgo>(coneSize, vetos, skipDepositVeto);
-}
-
-
-
 
 
 std::string IsoDeposit::print() const

@@ -2,7 +2,6 @@
 #define RecoTauTag_RecoTau_PFRecoTauAlgorithm_H
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
@@ -27,12 +26,12 @@ class  PFRecoTauAlgorithm  {
   PFRecoTauAlgorithm(const ParameterSet&);
   ~PFRecoTauAlgorithm(){}
   void setTransientTrackBuilder(const TransientTrackBuilder*);
+  bool checkPos(std::vector<math::XYZPoint> CalPos,math::XYZPoint CandPos) const;
   
   // PFRecTrackCollection: Temporary until integrated to PFCandidate
   PFTau buildPFTau(const PFTauTagInfoRef&,const Vertex&); 
  private:
   const TransientTrackBuilder* TransientTrackBuilder_;
-  bool checkPos(std::vector<math::XYZPoint>,math::XYZPoint) const;
 
   double LeadChargedHadrCand_minPt_;
   double ChargedHadrCand_minPt_;

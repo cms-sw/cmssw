@@ -17,84 +17,78 @@ PixelFEDConfig::PixelFEDConfig(std::vector<std::vector<std::string> >& tableMat 
   std::vector< std::string > ins = tableMat[0];
   std::map<std::string , int > colM;
    std::vector<std::string > colNames;
-   colNames.push_back("PIXEL_FED"    ); //0
-   colNames.push_back("CRATE_NUMBER" ); //1
-   colNames.push_back("VME_ADDRS_HEX"); //2
+   colNames.push_back("FED");//0
+   colNames.push_back("CRATE");//1
+   colNames.push_back("VME_ADDRS");//2
 
-   for(unsigned int c = 0 ; c < tableMat[0].size() ; c++)
-     {
-       for(unsigned int n=0; n<colNames.size(); n++)
-	 {
-	   if(tableMat[0][c] == colNames[n])
-	     {
-	       colM[colNames[n]] = c;
-	       break;
-	     }
-	 }
-     }//end for
-   for(unsigned int n=0; n<colNames.size(); n++)
-     {
-       if(colM.find(colNames[n]) == colM.end())
-	 {
-	   std::cerr << "[PixelFECConfig::PixelFECConfig()]\tCouldn't find in the database the column with name " << colNames[n] << std::endl;
-	   assert(0);
-	 }
+for(unsigned int c = 0 ; c < ins.size() ; c++){
+   for(unsigned int n=0; n<colNames.size(); n++){
+     if(tableMat[0][c] == colNames[n]){
+       colM[colNames[n]] = c;
+       break;
      }
+   }
+ }//end for
+ for(unsigned int n=0; n<colNames.size(); n++){
+   if(colM.find(colNames[n]) == colM.end()){
+     std::cerr << "[PixelFECConfig::PixelFECConfig()]\tCouldn't find in the database the column with name " << colNames[n] << std::endl;
+     assert(0);
+   }
+ }
+
+  std::string fedname = "";
+  unsigned int fednum = 0;
+  fedconfig_.clear();
+  bool flag = false;
+  for(unsigned int r = 1 ; r < tableMat.size() ; r++){    //Goes to every row of the Matrix
+
+    fedname = tableMat[r][colM[colNames[0]]]; //This is not going to work if you change in the database "PxlFed_#" in the FED column.Im removing "PlxFed_" and store the number
+    //becuase the PixelFecConfig class ask for the fec number not the name.  
+    fedname.erase(0,7); 
+    fednum = (unsigned int)atoi(fedname.c_str()) ;
+  
+    if(fedconfig_.empty()){
+  
+      PixelFEDParameters tmp;
+  
+      tmp.setFEDParameters( fednum, (unsigned int)atoi(tableMat[r][colM[colNames[1]]].c_str()) , 
+			    (unsigned int)atoi(tableMat[r][colM[colNames[2]]].c_str()));   
+  
+      fedconfig_.push_back(tmp);
+  
+    }
+    else{
+ 
+      for( unsigned int y = 0; y < fedconfig_.size() ; y++){
+	if (fedconfig_[y].getFEDNumber() == fednum){    // This is for check is they are Pixel Feds already in the vector because
+	  // in the view of the database that I'm reading are repeated.
+	  flag =true;					// This ensure that the are no objects in the fecconfig vector with repeated values.
+	  break;
+	}else flag= false;
+      }
    
-   std::string fedname = "";
-   unsigned int fednum = 0;
-   fedconfig_.clear();
-   bool flag = false;
-   for(unsigned int r = 1 ; r < tableMat.size() ; r++){    //Goes to every row of the Matrix
-     
-     fedname = tableMat[r][colM["PIXEL_FED"]]; //This is not going to work if you change in the database "PxlFed_#" in the FED column.Im removing "PlxFed_" and store the number
-     //becuase the PixelFecConfig class ask for the fec number not the name.  
-     // 01234567
-     // PxlFED_XX
-     fedname.erase(0,7); 
-     fednum = (unsigned int)atoi(fedname.c_str()) ;
-     
-     if(fedconfig_.empty())
-       {
-       PixelFEDParameters tmp;
-       unsigned int vme_base_address = 0 ;
-       string hexVMEAddr = tableMat[r][colM["VME_ADDRS_HEX"]] ;
-       sscanf(hexVMEAddr.c_str(), "%x", &vme_base_address) ;
-       tmp.setFEDParameters( fednum, (unsigned int)atoi(tableMat[r][colM["CRATE_NUMBER"]].c_str()) , 
-			     vme_base_address);   
-       fedconfig_.push_back(tmp);
-     }
-     else
-       {
-	 for( unsigned int y = 0; y < fedconfig_.size() ; y++)
-	   {
-	     if (fedconfig_[y].getFEDNumber() == fednum)    // This is to check if there are Pixel Feds already in the vector because
-	       {	                                    // in the view of the database that I'm reading there are many repeated entries (AS FAR AS THESE PARAMS ARE CONCERNED).
-		 flag = true;				    // This ensure that there are no objects in the fedconfig vector with repeated values.
-		 break;
-	       }
-	     else flag = false;
-	   }
-	 
-	 if(flag == false)
-	   {
-	     PixelFEDParameters tmp;
-	     tmp.setFEDParameters( fednum, (unsigned int)atoi(tableMat[r][colM["CRATE_NUMBER"]].c_str()) , 
-				   (unsigned int)atoi(tableMat[r][colM["VME_ADDRS_HEX"]].c_str()));   
-	     fedconfig_.push_back(tmp); 
-	   }
-       }//end else 
-   }//end for r
-   
-   std::cout<<std::endl;
-   
-   for( unsigned int x = 0 ; x < fedconfig_.size() ; x++)
-     {
-       std::cout<<fedconfig_[x]<<std::endl;
-     }
-   
-   std::cout<<fedconfig_.size()<<std::endl;
-   
+      if(flag == false){
+	PixelFEDParameters tmp;
+  
+	tmp.setFEDParameters( fednum, (unsigned int)atoi(tableMat[r][colM[colNames[1]]].c_str()) , 
+			      (unsigned int)atoi(tableMat[r][colM[colNames[2]]].c_str()));   
+  
+	fedconfig_.push_back(tmp); 
+      }
+  
+    }//end else 
+  
+  }//end for r
+  
+  std::cout<<std::endl;
+
+  for( unsigned int x = 0 ; x < fedconfig_.size() ; x++){
+    std::cout<<fedconfig_[x]<<std::endl;
+
+  }
+
+  std::cout<<fedconfig_.size()<<std::endl;
+
 }//end Constructor
 
 
@@ -110,11 +104,11 @@ PixelFEDConfig::PixelFEDConfig(std::string filename):
     std::ifstream in(filename.c_str());
 
     if (!in.good()){
-      std::cout << "Could not open:"<<filename.c_str()<<std::endl;
+      std::cout << "Could not open:"<<filename<<std::endl;
       assert(0);
     }
     else {
-      std::cout << "Opened:"<<filename.c_str()<<std::endl;
+      std::cout << "Opened:"<<filename<<std::endl;
     }
 
     std::string dummy;

@@ -17,8 +17,8 @@ class DetId;
 
 /** \class CaloTowersCreationAlgo
   *  
-  * $Date: 2008/04/22 13:47:40 $
-  * $Revision: 1.11 $
+  * $Date: 2008/04/14 06:30:41 $
+  * $Revision: 1.10 $
   * \author R. Wilkinson - Caltech
   */
 
@@ -80,11 +80,6 @@ public:
   void process(const CaloTowerCollection& ctc);
 
   void finish(CaloTowerCollection& destCollection);
-
-  // modified rescale method
-  void rescaleTowers(const CaloTowerCollection& ctInput, CaloTowerCollection& ctResult);
-
-
   void setEBEScale(double scale);
   void setEEEScale(double scale);
   void setHBEScale(double scale);
@@ -107,21 +102,10 @@ public:
   GlobalPoint emCrystalShwrPos (DetId detId, float fracDepth); 
   GlobalPoint hadSegmentShwrPos(DetId detId, float fracDepth);
   // "effective" point for the EM/HAD shower in CaloTower
-  //  position based on non-zero energy cells
   GlobalPoint hadShwrPos(std::vector<std::pair<DetId,double> >& metaContains,
     float fracDepth, double hadE);
   GlobalPoint emShwrPos(std::vector<std::pair<DetId,double> >& metaContains, 
     float fracDepth, double totEmE);
-
-  // overloaded function to get had position based on all had cells in the tower
-  GlobalPoint hadShwrPos(CaloTowerDetId id, float fracDepth);
-  GlobalPoint hadShwPosFromCells(DetId frontCell, DetId backCell, float fracDepth);
-
-  // for Chris
-  GlobalPoint emShwrLogWeightPos(std::vector<std::pair<DetId,double> >& metaContains, 
-    float fracDepth, double totEmE);
-
-
 
 private:
 

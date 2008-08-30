@@ -1,3 +1,21 @@
+2008-08-18  Kurt Biery <biery@fnal.gov>
+
+	* tag V03-14-03
+	* Flashlist fixes: Uncommented fireItemAvailable of storedEvents in
+	  StorageManager.cc for Constantin/Emilio. Updated forgotten conversion
+	  of connectedFUs to connectedRBs in test/sm.flash.
+
+2008-08-17  Harry Cheung <cheung@fnal.gov>
+
+	* tag V03-14-02
+	* Fix for handling large INIT message (multiple I2O frames).
+
+2008-08-14  Constantin Loizides <loizides@mit.edu>
+
+	* tag V03-14-01
+	* Script changes.
+	* Fix to lumi file closing and minor change to Error stream handling.
+
 2008-08-13  Kurt Biery <biery@fnal.gov>
 
 	* tag V03-14-00

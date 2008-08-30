@@ -1,12 +1,6 @@
 #ifndef DQM_HCALMONITORTASKS_HCALDATAFORMATMONITOR_H
 #define DQM_HCALMONITORTASKS_HCALDATAFORMATMONITOR_H
 
-#define  IETAMIN -43
-#define  IETAMAX 43
-#define  IPHIMIN 0
-#define  IPHIMAX 72
-
-
 #include "DQM/HcalMonitorTasks/interface/HcalBaseMonitor.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalUnpacker.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalHTRData.h"
@@ -16,8 +10,8 @@
 
 /** \class Hcaldataformatmonitor
  *
- * $Date: 2008/08/12 16:44:11 $
- * $Revision: 1.27 $
+ * $Date: 2008/04/22 21:38:59 $
+ * $Revision: 1.25 $
  * \author W. Fisher - FNAL
  */
 class HcalDataFormatMonitor: public HcalBaseMonitor {
@@ -35,41 +29,25 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
 
   void HTRPrint(const HcalHTRData& htr,int prtlvl);
   void labelHTRBits(MonitorElement* mePlot,unsigned int axisType);
- public: //Electronics map -> geographic channel map
-  void smuggleMaps(std::map<uint32_t, std::vector<HcalDetId> >& givenDCCtoCell,
-		  std::map<pair <int,int> , std::vector<HcalDetId> >& givenHTRtoCell);
- 
-  std::map<uint32_t, std::vector<HcalDetId> > DCCtoCell;
-  std::map<uint32_t, std::vector<HcalDetId> > ::iterator thisDCC;
-  std::map<pair <int,int> , std::vector<HcalDetId> > HTRtoCell;
-  std::map<pair <int,int> , std::vector<HcalDetId> > ::iterator thisHTR;
 
-  
+ private: // Data accessors
+   vector<int> fedUnpackList_;
+   vector<int> dccCrate_;
+   vector<HcalSubdetector> dccSubdet_;
+   int firstFED_;
+   int ievt_;
+   int lastEvtN_;
+   int lastBCN_;
+   //   int dccnum_;
+   //int cratenum_;
+   
+   int prtlvl_;
 
- private: 
-  //backstage accounting mechanism
-  uint64_t phatmap[IETAMAX-IETAMIN+1][IPHIMAX-IPHIMIN];  // iphi/ieta projection of all hcal cells
-  // The array indeces begin at 0, which corresponds to ieta = -43. Messy.
-  uint64_t* phatmapat(int ieta, int iphi) { return ( & phatmap[ieta - IETAMIN][iphi] ); }
-
-  // Data accessors
-  vector<int> fedUnpackList_;
-  vector<int> dccCrate_;
-  vector<HcalSubdetector> dccSubdet_;
-  int firstFED_;
-  int ievt_;
-  int lastEvtN_;
-  int lastBCN_;
-  //   int dccnum_;
-  //int cratenum_;
-  
-  int prtlvl_;
-  
  private:  //Monitoring elements
    
-  MonitorElement* meEVT_;
-  MonitorElement* DATAFORMAT_PROBLEM_MAP;
-  MonitorElement* DATAFORMAT_PROBLEM_ZOO;
+   MonitorElement* meEVT_;
+   MonitorElement* DATAFORMAT_PROBLEM_MAP;
+   MonitorElement* DATAFORMAT_PROBLEM_ZOO;
    
    //MEs for hcalunpacker report info
    MonitorElement* meSpigotFormatErrors_;
@@ -153,10 +131,6 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
      std::map<int, short>::iterator DCCEvtFormat_it;
      std::map<int, short> DCCRsvdBits_list;
      std::map<int, short>::iterator DCCRsvdBits_it;
-     
-     // Special Functions for the ProblemMap
-     void FillMap(std::pair <int, int> & spigot);
-     void FillMap(int & dcc);
      
 };
 

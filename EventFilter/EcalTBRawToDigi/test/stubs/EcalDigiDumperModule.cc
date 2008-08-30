@@ -3,8 +3,8 @@
  * dummy module  for the test of  DaqFileInputService
  *   
  * 
- * $Date: 2007/10/20 10:58:02 $
- * $Revision: 1.19 $
+ * $Date: 2007/08/17 13:58:23 $
+ * $Revision: 1.18 $
  * \author N. Amapane - S. Argiro'
  * \author G. Franzoni
  *
@@ -16,6 +16,8 @@
 #include <DataFormats/EcalDigi/interface/EcalDigiCollections.h>
 #include <DataFormats/EcalDetId/interface/EcalDetIdCollections.h>
 
+#include <DataFormats/EcalDigi/interface/EcalTriggerPrimitiveDigi.h>
+#include <DataFormats/EcalDigi/interface/EcalTriggerPrimitiveSample.h>
 
 #include <iostream>
 #include <vector>

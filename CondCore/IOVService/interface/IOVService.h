@@ -13,7 +13,8 @@ namespace cond{
     static const bool backwardIter=!forwardIter;
 
 
-    IOVService( cond::PoolTransaction& pooldb);
+    IOVService( cond::PoolTransaction& pooldb,
+		cond::TimeType timetype=cond::runnumber );
 
     virtual ~IOVService();
 
@@ -42,7 +43,11 @@ namespace cond{
     */
     IOVEditor* newIOVEditor( const std::string& token="" );
 
-   /**
+    cond::TimeType timeType() const;
+    cond::Time_t globalSince() const;
+    cond::Time_t globalTill() const;
+
+    /**
        export IOV selected by token and associated payload to another database
        return new iov token string 
     */
@@ -63,6 +68,5 @@ namespace cond{
     cond::PoolTransaction* m_pooldb;
     cond::IOVServiceImpl* m_impl;
   };
-
 }//ns cond
 #endif

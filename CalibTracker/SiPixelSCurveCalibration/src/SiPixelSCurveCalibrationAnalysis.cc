@@ -1,80 +1,9 @@
 #include "CalibTracker/SiPixelSCurveCalibration/interface/SiPixelSCurveCalibrationAnalysis.h"
 #include "TMath.h"
 
-#include <iostream>
-#include <fstream>
-
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "DataFormats/SiPixelDigi/interface/SiPixelCalibDigiError.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelFrameConverter.h"
-#include "CondFormats/SiPixelObjects/interface/ElectronicIndex.h"
-#include "CondFormats/SiPixelObjects/interface/DetectorIndex.h"
-#include "CondFormats/SiPixelObjects/interface/LocalPixel.h"
-#include <sstream>
-
 //initialize static members
 std::vector<float> SiPixelSCurveCalibrationAnalysis::efficiencies_(0);
 std::vector<float> SiPixelSCurveCalibrationAnalysis::effErrors_(0);
-
-
-void SiPixelSCurveCalibrationAnalysis::calibrationEnd(){
-  if(printoutthresholds_)
-    makeThresholdSummary();
-}
-
-void SiPixelSCurveCalibrationAnalysis::makeThresholdSummary(void){
-  ofstream myfile;
-  myfile.open (thresholdfilename_.c_str());
-  for(detIDHistogramMap::iterator  thisDetIdHistoGrams= histograms_.begin();  thisDetIdHistoGrams != histograms_.end(); ++thisDetIdHistoGrams){
-   // loop over det id (det id = number (unsigned int) of pixel module 
-    const MonitorElement *sigmahist = (*thisDetIdHistoGrams).second[kSigmas];
-    const MonitorElement *thresholdhist = (*thisDetIdHistoGrams).second[kThresholds];  
-    uint32_t detid = (*thisDetIdHistoGrams).first;
-    std::string name = sigmahist->getTitle();
-    std::string rocname = name.substr(0,name.size()-7);
-    rocname+="_ROC";
-    int total_rows = sigmahist ->getNbinsY();
-    int total_columns = sigmahist->getNbinsX();
-    //loop over all rows on columns on all ROCs 
-    for (int irow=0; irow<total_rows; ++irow){
-      for (int icol=0; icol<total_columns; ++icol){
-	float threshold_error = sigmahist->getBinContent(icol+1,irow+1); // +1 because root bins start at 1
-       	if(writeZeroes_ ||(!writeZeroes_ && threshold_error>0)){	     
-	  //changing from offline to online numbers
-	  int realfedID=-1;
-	  for(int fedid=0; fedid<=40; ++fedid){
-	    SiPixelFrameConverter converter(theCablingMap_.product(),fedid);
-	    if(converter.hasDetUnit(detid)){
-	      realfedID=fedid;
-	      break;   
-	    }
-	  }
-	  if (realfedID==-1){
-	    std::cout<<"error: could not obtain real fed ID"<<std::endl;
-	  }
-	  sipixelobjects::DetectorIndex detector ={detid,irow,icol};
-	  sipixelobjects::ElectronicIndex cabling; 
-	  SiPixelFrameConverter formatter(theCablingMap_.product(),realfedID);
-	  formatter.toCabling(cabling,detector);
-	  // cabling should now contain cabling.roc and cabling.dcol  and cabling.pxid
-	  // however, the coordinates now need to be converted from dcl,pxid to the row,col coordinates used in the calibration info 
-	  sipixelobjects::LocalPixel::DcolPxid loc;
-	  loc.dcol = cabling.dcol;
-	  loc.pxid = cabling.pxid;
-	  const sipixelobjects::PixelFEDCabling *theFed= theCablingMap_.product()->fed(realfedID);
-	  const sipixelobjects::PixelFEDLink * link = theFed->link(cabling.link);
-	  const sipixelobjects::PixelROC *theRoc = link->roc(cabling.roc);
-	  sipixelobjects::LocalPixel locpixel(loc);
-	  int newrow= locpixel.rocRow();
-	  int newcol = locpixel.rocCol();
-	  myfile<<rocname<<theRoc->idInDetUnit()<<" "<<newcol<<" "<<newrow<<" "<<thresholdhist->getBinContent(icol+1, irow+1)<<" "<<threshold_error;  // +1 because root bins start at 1
-	  myfile<<"\n";
-	}
-      }
-    }
-  }
-  myfile.close();
-}
 
 //used for TMinuit fitting
 void chi2toMinimize(int &npar, double* grad, double &fcnval, double* xval, int iflag)
@@ -106,8 +35,6 @@ SiPixelSCurveCalibrationAnalysis::doSetup(const edm::ParameterSet& iConfig)
    maxCurvesToSave_             = iConfig.getUntrackedParameter<uint32_t>("maxCurvesToSave", 1000);
    write2dHistograms_           = iConfig.getUntrackedParameter<bool>("write2dHistograms", true);
    write2dFitResult_            = iConfig.getUntrackedParameter<bool>("write2dFitResult", true);
-   printoutthresholds_          = iConfig.getUntrackedParameter<bool>("writeOutThresholdSummary",true);
-   thresholdfilename_           = iConfig.getUntrackedParameter<std::string>("thresholdOutputFileName","thresholds.txt");  
    minimumChi2prob_             = iConfig.getUntrackedParameter<double>("minimumChi2prob", 0);
    minimumThreshold_            = iConfig.getUntrackedParameter<double>("minimumThreshold", -10);
    maximumThreshold_            = iConfig.getUntrackedParameter<double>("maximumThreshold", 300);
@@ -118,11 +45,10 @@ SiPixelSCurveCalibrationAnalysis::doSetup(const edm::ParameterSet& iConfig)
    maximumSigmaBin_             = iConfig.getUntrackedParameter<double>("maximumSigmaBin", 10);
    maximumThresholdBin_         = iConfig.getUntrackedParameter<double>("maximumThresholdBin", 255);
 
-   writeZeroes_= iConfig.getUntrackedParameter<bool>("alsoWriteZeroThresholds", false);
-
    // convert the vector into a map for quicker lookups.
    for(unsigned int i = 0; i < detIDsToSaveVector_.size(); i++)
       detIDsToSave_.insert( std::make_pair(detIDsToSaveVector_[i], true) );
+
 }
 
 SiPixelSCurveCalibrationAnalysis::~SiPixelSCurveCalibrationAnalysis()
@@ -375,15 +301,15 @@ bool SiPixelSCurveCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixe
       //always fill fit result
       (*thisDetIdHistoGrams).second[kFitResultSummary]->Fill(errorFlag);
       if (write2dFitResult_)
-         (*thisDetIdHistoGrams).second[kFitResults]->setBinContent(col+1, row+1, errorFlag); // +1 because root bins start at 1
+         (*thisDetIdHistoGrams).second[kFitResults]->setBinContent(col, row, errorFlag);
 
       // fill sigma/threshold result
       (*thisDetIdHistoGrams).second[kSigmaSummary]->Fill(sigma);
       (*thisDetIdHistoGrams).second[kThresholdSummary]->Fill(threshold);
       if (write2dHistograms_)
       {
-         (*thisDetIdHistoGrams).second[kSigmas]->setBinContent(col+1, row+1, sigma); // +1 because root bins start at 1
-         (*thisDetIdHistoGrams).second[kThresholds]->setBinContent(col+1, row+1, threshold); // +1 because root bins start at 1
+         (*thisDetIdHistoGrams).second[kSigmas]->setBinContent(col, row, sigma);
+         (*thisDetIdHistoGrams).second[kThresholds]->setBinContent(col, row, threshold);
       }
       // fill chi2
       (*thisDetIdHistoGrams).second[kChi2Summary]->Fill(chi2probability);

@@ -1,22 +1,14 @@
 #ifndef PixelROCMaskBits_h
 #define PixelROCMaskBits_h
-/*! \file CalibFormats/SiPixelObjects/interface/PixelROCMaskBits.h
-*   \brief This class implements..
-*
-*   A longer explanation will be placed here later
-*/
+//
+//
+//
 
-#include <sstream>
 #include <fstream>
 #include <string>
 #include "CalibFormats/SiPixelObjects/interface/PixelROCName.h"
 
 namespace pos{
-/*! \class PixelROCMaskBits PixelROCMaskBits.h "interface/PixelROCMaskBits.h"
-*   \brief This class implements..
-*
-*   A longer explanation will be placed here later
-*/
   class PixelROCMaskBits {
 
   public:
@@ -26,7 +18,6 @@ namespace pos{
     void setROCMaskBits(PixelROCName& rocid ,std::string bits);
 
     int read(const PixelROCName& rocid, std::ifstream& in);
-    int read(const PixelROCName& rocid, std::istringstream& in);
 
     int readBinary(const PixelROCName& rocid, std::ifstream& in);
 
@@ -37,7 +28,6 @@ namespace pos{
     void writeBinary(std::ofstream& out) const;
 
     void writeASCII(std::ofstream& out) const;
-//    void writeXML(pos::PixelConfigKey key, int version, std::string path) const {;}
 
     PixelROCName name() const {return rocid_;}
 

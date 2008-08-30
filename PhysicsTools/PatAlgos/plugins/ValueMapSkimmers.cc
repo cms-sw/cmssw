@@ -4,7 +4,6 @@
 //#include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
 #include "DataFormats/PatCandidates/interface/JetCorrFactors.h"
-#include "DataFormats/PatCandidates/interface/Vertexing.h"
 
 using namespace pat::helper;
 
@@ -43,8 +42,6 @@ typedef ValueMapSkimmer<Measurement1DFloat>   CandValueMapSkimmerMeasurement1DFl
 #include "DataFormats/EgammaCandidates/interface/PhotonID.h"
 typedef ValueMapSkimmer<reco::PhotonID>  CandValueMapSkimmerPhotonID;
 
-typedef ValueMapSkimmer<pat::VertexAssociation>  CandValueMapSkimmerVertexAssociation;
-
 #include "FWCore/Framework/interface/MakerMacros.h"
 //DEFINE_FWK_MODULE(CandValueMapSkimmerDouble);
 DEFINE_FWK_MODULE(CandValueMapSkimmerFloat);
@@ -67,4 +64,3 @@ DEFINE_FWK_MODULE(CandValueMapSkimmerMeasurement1DFloat);
 
 DEFINE_FWK_MODULE(CandValueMapSkimmerPhotonID);
 
-DEFINE_FWK_MODULE(CandValueMapSkimmerVertexAssociation);

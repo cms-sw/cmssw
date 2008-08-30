@@ -7,7 +7,7 @@ eidRobustLoose = RecoEgamma.ElectronIdentification.electronIdCutBasedExt_cfi.eid
 
 import RecoEgamma.ElectronIdentification.electronIdCutBasedExt_cfi
 eidRobustTight = RecoEgamma.ElectronIdentification.electronIdCutBasedExt_cfi.eidCutBasedExt.clone()
-eidRobustTight.robustEleIDCuts.barrel = [0.015, 0.0092, 0.020, 0.0025]
+eidRobustTight.robustEleIDCuts.barrel = [0.015, 0.092, 0.020, 0.0025]
 eidRobustTight.robustEleIDCuts.endcap = [0.018, 0.025, 0.020, 0.0040]
 
 import RecoEgamma.ElectronIdentification.electronIdCutBasedExt_cfi

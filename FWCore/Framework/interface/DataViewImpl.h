@@ -101,6 +101,7 @@ edm::Ref<AppleCollection> ref(refApples, index);
 
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "DataFormats/Provenance/interface/ConstBranchDescription.h"
+#include "DataFormats/Provenance/interface/EventEntryInfo.h"
 #include "DataFormats/Common/interface/traits.h"
 
 #include "DataFormats/Common/interface/Handle.h"
@@ -112,10 +113,9 @@ edm::Ref<AppleCollection> ref(refApples, index);
 
 namespace edm {
 
-  template <typename T>
   class DataViewImpl {
   public:
-    DataViewImpl(Principal<T> & pcpl,
+    DataViewImpl(Principal & pcpl,
 		 ModuleDescription const& md,
 		 BranchType const& branchType);
 
@@ -163,8 +163,8 @@ namespace edm {
     typedef std::vector<std::pair<EDProduct*, ConstBranchDescription const *> >  ProductPtrVec;
   protected:
 
-    Principal<T> & principal() {return principal_;}
-    Principal<T> const& principal() const {return principal_;}
+    Principal & principal() {return principal_;}
+    Principal const& principal() const {return principal_;}
 
     ProductPtrVec & putProducts() {return putProducts_;}
     ProductPtrVec const& putProducts() const {return putProducts_;}
@@ -256,7 +256,7 @@ namespace edm {
 
     // Each DataViewImpl must have an associated Principal, used as the
     // source of all 'gets' and the target of 'puts'.
-    Principal<T> & principal_;
+    Principal & principal_;
 
     // Each DataViewImpl must have a description of the module executing the
     // "transaction" which the DataViewImpl represents.
@@ -265,6 +265,16 @@ namespace edm {
     // Is this an Event, a LuminosityBlock, or a Run.
     BranchType const branchType_;
   };
+
+  template <typename PROD>
+  inline
+  std::ostream& 
+  operator<<(std::ostream& os, Handle<PROD> const& h)
+  {
+    os << h.product() << " " << h.provenance() << " " << h.id();
+    return os;
+  }
+
 
   //------------------------------------------------------------
   // Metafunction support for compile-time selection of code used in
@@ -331,16 +341,14 @@ namespace edm {
     void operator()(T*) const { }
   };
 
-  //------------------------------------------------------------
-  //
   // Implementation of  DataViewImpl  member templates. See  DataViewImpl.cc for the
   // implementation of non-template members.
   //
 
-  template <typename T>
   template <typename PROD>
+  inline
   bool 
-  DataViewImpl<T>::get(SelectorBase const& sel,
+  DataViewImpl::get(SelectorBase const& sel,
 		    Handle<PROD>& result) const
   {
     result.clear();
@@ -352,21 +360,20 @@ namespace edm {
     return true;
   }
   
-  template <typename T>
   template <typename PROD>
   inline
   bool
-  DataViewImpl<T>::getByLabel(std::string const& label,
+  DataViewImpl::getByLabel(std::string const& label,
 			   Handle<PROD>& result) const
   {
     result.clear();
     return getByLabel(label, std::string(), result);
   }
 
-  template <typename T>
   template <typename PROD>
+  inline
   bool
-  DataViewImpl<T>::getByLabel(InputTag const& tag, Handle<PROD>& result) const
+  DataViewImpl::getByLabel(InputTag const& tag, Handle<PROD>& result) const
   {
     result.clear();
     if (tag.process().empty()) {
@@ -380,10 +387,10 @@ namespace edm {
     return true;
   }
 
-  template <typename T>
   template <typename PROD>
+  inline
   bool
-  DataViewImpl<T>::getByLabel(std::string const& label,
+  DataViewImpl::getByLabel(std::string const& label,
 			   std::string const& productInstanceName,
 			   Handle<PROD>& result) const
   {
@@ -397,17 +404,9 @@ namespace edm {
   }
 
   template <typename PROD>
-  std::ostream& 
-  operator<<(std::ostream& os, Handle<PROD> const& h)
-  {
-    os << h.product() << " " << h.provenance() << " " << h.id();
-    return os;
-  }
-
-  template <typename T>
-  template <typename PROD>
+  inline
   void 
-  DataViewImpl<T>::getMany(SelectorBase const& sel,
+  DataViewImpl::getMany(SelectorBase const& sel,
 			std::vector<Handle<PROD> >& results) const
   { 
     BasicHandleVec bhv;
@@ -439,10 +438,10 @@ namespace edm {
     results.swap(products);
   }
 
-  template <typename T>
   template <typename PROD>
+  inline
   bool
-  DataViewImpl<T>::getByType(Handle<PROD>& result) const
+  DataViewImpl::getByType(Handle<PROD>& result) const
   {
     result.clear();
     BasicHandle bh = this->getByType_(TypeID(typeid(PROD)));
@@ -453,10 +452,10 @@ namespace edm {
     return true;
   }
 
-  template <typename T>
   template <typename PROD>
+  inline
   void 
-  DataViewImpl<T>::getManyByType(std::vector<Handle<PROD> >& results) const
+  DataViewImpl::getManyByType(std::vector<Handle<PROD> >& results) const
   { 
     BasicHandleVec bhv;
     this->getManyByType_(TypeID(typeid(PROD)), bhv);
@@ -487,5 +486,4 @@ namespace edm {
     results.swap(products);
   }
 }
-#include "DataViewImpl.icc"
 #endif

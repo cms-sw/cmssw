@@ -1,9 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoPixelVertexing.PixelVertexFinding.PixelVertexes_cfi import *
-
 from RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi import *
-
 import RecoPixelVertexing.PixelLowPtUtilities.AllPixelTracks_cfi
 pixel3ProtoTracks = RecoPixelVertexing.PixelLowPtUtilities.AllPixelTracks_cfi.allPixelTracks.clone()
 import RecoPixelVertexing.PixelLowPtUtilities.AllPixelTracks_cfi

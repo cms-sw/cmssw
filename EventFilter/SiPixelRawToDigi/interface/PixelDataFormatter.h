@@ -64,7 +64,7 @@ public:
   int nDigis() const { return theDigiCounter; }
   int nWords() const { return theWordCounter; }
 
-  void interpretRawData(int fedId,  const FEDRawData & data, Digis & digis, Errors & errors);
+  void interpretRawData(bool& errorsInEvent, int fedId,  const FEDRawData & data, Digis & digis, Errors & errors);
 
   FEDRawData * formatData( unsigned int lvl1_ID, int fedId, const Digis & digis);
 

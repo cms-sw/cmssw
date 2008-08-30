@@ -1,10 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-#
-# L1 trigger
-#
-from L1Trigger.Configuration.L1Trigger_FakeConditions_cff import *
-#
 # Tracker alignment and calib
 # from a single entry point
 from CalibTracker.Configuration.Tracker_FakeConditions_cff import *

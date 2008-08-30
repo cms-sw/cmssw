@@ -15,10 +15,6 @@
 #include "CondFormats/Calibration/interface/Pedestals.h"
 int main(){
   try{
-    // for runnumber
-    cond::TimeType timetype = cond::runnumber;
-    cond::Time_t globalSince = cond::timeTypeSpecs[timetype].beginValue;
-
     cond::DBSession* session=new cond::DBSession;
     session->configuration().setMessageLevel(cond::Error);
     cond::Connection myconnection("sqlite_file:mytest.db",-1);
@@ -28,7 +24,7 @@ int main(){
     cond::IOVService iovmanager(pooldb);
     cond::IOVEditor* ioveditor=iovmanager.newIOVEditor();
     pooldb.start(false);
-    ioveditor->create(globalSince,timetype);
+    ioveditor->create(iovmanager.globalSince());
     std::string mytestiovtoken;
     for(unsigned int i=0; i<3; ++i){ //inserting 3 payloads
       Pedestals* myped=new Pedestals;
@@ -63,7 +59,7 @@ int main(){
     std::string mypedestalsiovtoken;
     cond::IOVEditor* ioveditor2=iovmanager.newIOVEditor();
     pooldb.start(false);
-    ioveditor2->create(globalSince,timetype);
+    ioveditor2->create(iovmanager.globalSince());
     for(unsigned int i=0; i<2; ++i){ //inserting 3 payloads
       Pedestals* myped=new Pedestals;
       for(int ichannel=1; ichannel<=5; ++ichannel){
@@ -88,7 +84,7 @@ int main(){
     std::string anothermytestiovtoken;
     cond::IOVEditor* anotherioveditor=iovmanager.newIOVEditor();
     pooldb.start(false);
-    anotherioveditor->create(globalSince,timetype);
+    anotherioveditor->create(iovmanager.globalSince());
     for(unsigned int i=0; i<2; ++i){ //inserting 2 payloads to another Rcd
       Pedestals* myped=new Pedestals;
       for(int ichannel=1; ichannel<=3; ++ichannel){

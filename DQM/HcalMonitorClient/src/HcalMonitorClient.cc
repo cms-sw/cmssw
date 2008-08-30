@@ -18,7 +18,6 @@ HcalMonitorClient::~HcalMonitorClient(){
   if( rechit_client_ )     delete rechit_client_;
   if( pedestal_client_ )   delete pedestal_client_;
   if( led_client_ )        delete led_client_;
-  if( laser_client_ )      delete laser_client_;
   if( hot_client_ )        delete hot_client_;
   if( dead_client_ )       delete dead_client_;
   if( tp_client_ )         delete tp_client_;
@@ -44,7 +43,7 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
   summary_client_ = 0;
   dataformat_client_ = 0; digi_client_ = 0;
   rechit_client_ = 0; pedestal_client_ = 0;
-  led_client_ = 0; laser_client_ = 0; hot_client_ = 0; dead_client_=0;
+  led_client_ = 0; hot_client_ = 0; dead_client_=0;
   tp_client_=0;
   ct_client_=0;
   lastResetTime_=0;
@@ -143,11 +142,6 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
     led_client_          = new HcalLEDClient();
     led_client_->init(ps, dbe_,"LEDClient"); 
   }
-  if( ps.getUntrackedParameter<bool>("LaserClient", false) ){
-    if(debug_)   cout << "===>DQM Laser Client is ON" << endl;
-    laser_client_          = new HcalLaserClient();
-    laser_client_->init(ps, dbe_,"LaserClient"); 
-  }
   if( ps.getUntrackedParameter<bool>("HotCellClient", false) ){
     if(debug_)   cout << "===>DQM HotCell Client is ON" << endl;
     hot_client_          = new HcalHotCellClient();
@@ -226,7 +220,6 @@ void HcalMonitorClient::resetAllME() {
   if( rechit_client_ )     rechit_client_->resetAllME();
   if( pedestal_client_ )   pedestal_client_->resetAllME();
   if( led_client_ )        led_client_->resetAllME();
-  if( laser_client_ )      laser_client_->resetAllME();
   if( hot_client_ )        hot_client_->resetAllME();
   if( dead_client_ )       dead_client_->resetAllME();
   if( tp_client_ )         tp_client_->resetAllME();
@@ -247,7 +240,6 @@ void HcalMonitorClient::beginJob(const EventSetup& c){
   if( rechit_client_ )     rechit_client_->beginJob();
   if( pedestal_client_ )   pedestal_client_->beginJob(c);
   if( led_client_ )        led_client_->beginJob(c);
-  if( laser_client_ )      laser_client_->beginJob(c);
   if( hot_client_ )        hot_client_->beginJob();
   if( dead_client_ )       dead_client_->beginJob();
   if( tp_client_ )         tp_client_->beginJob();
@@ -267,7 +259,6 @@ void HcalMonitorClient::beginRun(const Run& r, const EventSetup& c) {
   if( rechit_client_ )     rechit_client_->beginRun();
   if( pedestal_client_ )   pedestal_client_->beginRun();
   if( led_client_ )        led_client_->beginRun();
-  if( laser_client_ )      laser_client_->beginRun();
   if( hot_client_ )        hot_client_->beginRun();
   if( dead_client_ )       dead_client_->beginRun();
   if( tp_client_ )         tp_client_->beginRun();
@@ -288,7 +279,6 @@ void HcalMonitorClient::endJob(void) {
   if( dead_client_ )           dead_client_->endJob();
   if( pedestal_client_ )       pedestal_client_->endJob();
   if( led_client_ )            led_client_->endJob();
-  if( laser_client_ )          laser_client_->endJob();
   if( tp_client_ )             tp_client_->endJob();
   if( ct_client_ )             ct_client_->endJob();
 
@@ -376,7 +366,6 @@ void HcalMonitorClient::endRun(const Run& r, const EventSetup& c) {
   if( rechit_client_ )      rechit_client_->endRun();
   if( pedestal_client_ )    pedestal_client_->endRun();
   if( led_client_ )         led_client_->endRun();
-  if( laser_client_ )       laser_client_->endRun();
   if( tp_client_ )          tp_client_->endRun();
   if( ct_client_ )          ct_client_->endRun();
 
@@ -509,14 +498,6 @@ void HcalMonitorClient::analyze(){
       cpu_timer.reset(); cpu_timer.start(); 
     } 
 
-  if( laser_client_ )        laser_client_->analyze(); 
-  if (showTiming_) 
-    { 
-      cpu_timer.stop(); 
-      if (laser_client_) cout <<"TIMER:: LASER CLIENT ->"<<cpu_timer.cpuTime()<<endl; 
-      cpu_timer.reset(); cpu_timer.start(); 
-    } 
-
   if( hot_client_ )        hot_client_->analyze(); 
   if (showTiming_) 
     { 
@@ -571,7 +552,6 @@ void HcalMonitorClient::createTests(void){
   if( rechit_client_ )     rechit_client_->createTests(); 
   if( pedestal_client_ )   pedestal_client_->createTests(); 
   if( led_client_ )        led_client_->createTests(); 
-  if( laser_client_ )      laser_client_->createTests(); 
   if( hot_client_ )        hot_client_->createTests(); 
   if( dead_client_ )       dead_client_->createTests(); 
   if( tp_client_ )         tp_client_->createTests(); 
@@ -594,7 +574,6 @@ void HcalMonitorClient::report(bool doUpdate) {
   if( dataformat_client_ ) dataformat_client_->report();
   if( digi_client_ ) digi_client_->report();
   if( led_client_ ) led_client_->report();
-  if( laser_client_ ) laser_client_->report();
   if( pedestal_client_ ) pedestal_client_->report();
   if( rechit_client_ ) rechit_client_->report();
   if( hot_client_ ) hot_client_->report();
@@ -617,7 +596,6 @@ void HcalMonitorClient::errorSummary(){
   if( hot_client_ )        hot_client_->getTestResults(nTests,errE,errW,errO);
   if( dead_client_ )       dead_client_->getTestResults(nTests,errE,errW,errO);
   if( led_client_ )        led_client_->getTestResults(nTests,errE,errW,errO);
-  if( laser_client_ )      laser_client_->getTestResults(nTests,errE,errW,errO);
   if( tp_client_ )         tp_client_->getTestResults(nTests,errE,errW,errO);
   if( pedestal_client_ )   pedestal_client_->getTestResults(nTests,errE,errW,errO);
   if( digi_client_ )       digi_client_->getTestResults(nTests,errE,errW,errO);
@@ -776,20 +754,6 @@ void HcalMonitorClient::htmlOutput(void){
     htmlFile << "</tr></table>" << endl;
   }
   
-  if( laser_client_) {
-    htmlName = "HcalLaserClient.html";
-    laser_client_->htmlOutput(irun_, htmlDir, htmlName);
-    htmlFile << "<table border=0 WIDTH=\"50%\"><tr>" << endl;
-    htmlFile << "<td WIDTH=\"35%\"><a href=\"" << htmlName << "\">Laser Monitor</a></td>" << endl;
-    
-    if(laser_client_->hasErrors()) htmlFile << "<td bgcolor=red align=center>This monitor task has errors.</td>" << endl;
-    else if(laser_client_->hasWarnings()) htmlFile << "<td bgcolor=yellow align=center>This monitor task has warnings.</td>" << endl;
-    else if(laser_client_->hasOther()) htmlFile << "<td bgcolor=aqua align=center>This monitor task has messages.</td>" << endl;
-    else htmlFile << "<td bgcolor=lime align=center>This monitor task has no problems</td>" << endl;
-    
-    htmlFile << "</tr></table>" << endl;
-  }
-  
   if( summary_client_) {
     summary_client_->analyze();  // Do analyze just before making html (which relies on analyze results)
     htmlName = "HcalSummaryCellClient.html";
@@ -825,7 +789,7 @@ void HcalMonitorClient::offlineSetup(){
   /*
   dataformat_client_ = 0; digi_client_ = 0;
   rechit_client_ = 0; pedestal_client_ = 0;
-  led_client_ = 0;  hot_client_ = 0; laser_client_ = 0;
+  led_client_ = 0;  hot_client_ = 0;
   dead_client_=0;
 
   // base Html output directory
@@ -839,7 +803,6 @@ void HcalMonitorClient::offlineSetup(){
   digi_client_         = new HcalDigiClient();
   pedestal_client_     = new HcalPedestalClient();
   led_client_          = new HcalLEDClient();
-  laser_client_        = new HcalLaserClient();
   */
   return;
 }
@@ -890,8 +853,7 @@ void HcalMonitorClient::loadHistograms(TFile* infile, const char* fname){
   if(digi_client_) digi_client_->loadHistograms(infile);
   if(pedestal_client_) pedestal_client_->loadHistograms(infile);
   if(led_client_) led_client_->loadHistograms(infile);
-  if(laser_client_) laser_client_->loadHistograms(infile);
- */
+  */
   return;
 
 }
@@ -910,7 +872,6 @@ void HcalMonitorClient::dumpHistograms(int& runNum, vector<TH1F*> &hist1d,vector
   if(digi_client_) digi_client_->dumpHistograms(names,meanX,meanY,rmsX,rmsY);
   if(pedestal_client_) pedestal_client_->dumpHistograms(names,meanX,meanY,rmsX,rmsY);
   if(led_client_) led_client_->dumpHistograms(names,meanX,meanY,rmsX,rmsY);
-  if(laser_client_) laser_client_->dumpHistograms(names,meanX,meanY,rmsX,rmsY);
   */
  return;
 }

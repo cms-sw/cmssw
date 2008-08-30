@@ -21,7 +21,9 @@
 // DDCore dependencies
 #include "DetectorDescription/Base/interface/DDdebug.h"
 
+#include <string>
 #include <algorithm>
+#include <map>
 #include <vector>
 #include <iostream>
 

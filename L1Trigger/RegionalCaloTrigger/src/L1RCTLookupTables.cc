@@ -272,7 +272,9 @@ unsigned int L1RCTLookupTables::eGammaETCode(float ecal, float hcal, int iAbsEta
   if(rctParameters_ == 0)
     throw cms::Exception("L1RCTParameters Invalid")
       << "L1RCTParameters should be set every event" << rctParameters_;
-  float etLinear = rctParameters_->EGammaTPGSum(ecal,hcal,iAbsEta);
+  float etLinear = 
+    rctParameters_->eGammaECalScaleFactors()[iAbsEta-1] * ecal +
+    rctParameters_->eGammaHCalScaleFactors()[iAbsEta-1] * hcal;
   return convertToInteger(etLinear, rctParameters_->eGammaLSB(), 7);
 }
 
@@ -281,6 +283,8 @@ unsigned int L1RCTLookupTables::jetMETETCode(float ecal, float hcal, int iAbsEta
   if(rctParameters_ == 0)
     throw cms::Exception("L1RCTParameters Invalid")
       << "L1RCTParameters should be set every event" << rctParameters_;
-  float etLinear = rctParameters_->JetMETTPGSum(ecal,hcal,iAbsEta);
+  float etLinear = 
+    rctParameters_->jetMETECalScaleFactors()[iAbsEta-1] * ecal +
+    rctParameters_->jetMETHCalScaleFactors()[iAbsEta-1] * hcal;
   return convertToInteger(etLinear, rctParameters_->jetMETLSB(), 9);
 }

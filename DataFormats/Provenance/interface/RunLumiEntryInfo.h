@@ -25,8 +25,10 @@ and how it came into existence, plus the product identifier and the status.
 namespace edm {
   class RunLumiEntryInfo {
   public:
+    typedef std::vector<RunLumiEntryInfo> EntryInfoVector;
     RunLumiEntryInfo();
     explicit RunLumiEntryInfo(BranchID const& bid);
+    explicit RunLumiEntryInfo(EventEntryInfo const& ei);
     RunLumiEntryInfo(BranchID const& bid,
 		    ProductStatus status);
     RunLumiEntryInfo(BranchID const& bid,
@@ -41,6 +43,8 @@ namespace edm {
 		    EntryDescriptionID const& edid);
 
     ~RunLumiEntryInfo() {}
+
+    EventEntryInfo makeEntryInfo() const;
 
     void write(std::ostream& os) const;
 
@@ -78,8 +82,5 @@ namespace edm {
 
   typedef RunLumiEntryInfo LumiEntryInfo;
   typedef RunLumiEntryInfo RunEntryInfo;
-  typedef std::vector<RunLumiEntryInfo> RunLumiEntryInfoVector;
-  typedef std::vector<RunLumiEntryInfo> LumiEntryInfoVector;
-  typedef std::vector<RunLumiEntryInfo> RunEntryInfoVector;
 }
 #endif

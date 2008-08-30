@@ -2,8 +2,8 @@
 #     R. Mankel, DESY Hamburg     03-Jul-2007
 #     A. Parenti, DESY Hamburg    24-Apr-2008
 #
-#     $Revision: 1.16 $
-#     $Date: 2008/07/30 14:07:45 $
+#     $Revision: 1.17 $
+#     $Date: 2008/08/12 21:46:04 $
 #
 #  produce cfg file for merging run
 #
@@ -113,12 +113,13 @@ $saveAlignmentConstants = "from CondCore.DBCommon.CondDBSetup_cfi import *\n"
                         . "            record = cms.string('TrackerAlignmentErrorRcd'),\n"
                         . "            tag = cms.string('AlignmentErrors')\n"
                         . "        ))\n"
-                         .")";
+                        . ")\n"
+                        . "process.AlignmentProducer.saveToDB = True";
 
-$nn = ($body =~ /AlignmentProducer\.saveToDB.+?false/);
+$nn = ($body =~ /AlignmentProducer\.saveToDB.+?False/);
 if ($nn != 1) {
   $replaceBlock = "$replaceBlock\n$saveAlignmentConstants";
-  print "No AlignmentProducer.saveToDB directive found, adding saveToDB=true to replace block\n";
+  print "No AlignmentProducer.saveToDB directive found, adding saveToDB=True to replace block\n";
 }
 
 # change mode to pede

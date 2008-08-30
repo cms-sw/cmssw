@@ -49,16 +49,16 @@ PixelHdwAddress::PixelHdwAddress(int fecnumber, int mfec, int mfecchannel,
 
 std::ostream& pos::operator<<(std::ostream& s, const PixelHdwAddress& pixelroc){
 
-    s<< "[PixelHdwAddress::operator<<]"           <<std::endl;
-    s<< "fecnumber   :" << pixelroc.fecnumber_    <<std::endl;
-    s<< "mfec        :" << pixelroc.mfec_	  <<std::endl;
-    s<< "mfecchannel :" << pixelroc.mfecchannel_  <<std::endl;
-    s<< "portaddress :" << pixelroc.portaddress_  <<std::endl;
-    s<< "hubaddress  :" << pixelroc.hubaddress_   <<std::endl;
-    s<< "rocid       :" << pixelroc.rocid_	  <<std::endl;
-    s<< "fednumber   :" << pixelroc.fednumber_    <<std::endl;
-    s<< "fedchannel  :" << pixelroc.fedchannel_   <<std::endl;
-    s<< "fedrocnumber:" << pixelroc.fedrocnumber_ <<std::endl;
+
+    s<< "fecnumber   :"<<pixelroc.fecnumber_<<std::endl;
+    s<< "mfec        :"<<pixelroc.mfec_<<std::endl;
+    s<< "mfecchannel :"<<pixelroc.mfecchannel_<<std::endl;
+    s<< "portaddress :"<<pixelroc.portaddress_<<std::endl;
+    s<< "hubaddress  :"<<pixelroc.hubaddress_<<std::endl;
+    s<< "rocid       :"<<pixelroc.rocid_<<std::endl;
+    s<< "fednumber   :"<<pixelroc.fednumber_<<std::endl;
+    s<< "fedchannel  :"<<pixelroc.fedchannel_<<std::endl;
+    s<< "fedrocnumber:"<<pixelroc.fedrocnumber_<<std::endl;
 
     return s;
 }
@@ -108,15 +108,4 @@ void PixelHdwAddress::setAddress(std::string what, int value)
                 << " (invalid keyword)" << std::endl ;
       assert(0) ;
     }
-}
-
-bool PixelHdwAddress::operator()(const PixelHdwAddress& roc1, const PixelHdwAddress& roc2) const{
-
-  if (roc1.fednumber_<roc2.fednumber_) return true;
-  if (roc1.fednumber_>roc2.fednumber_) return false;
-  if (roc1.fedchannel_<roc2.fedchannel_) return true;
-  if (roc1.fedchannel_>roc2.fedchannel_) return false;
-
-  return (roc1.fedrocnumber_<roc2.fedrocnumber_);
-
 }

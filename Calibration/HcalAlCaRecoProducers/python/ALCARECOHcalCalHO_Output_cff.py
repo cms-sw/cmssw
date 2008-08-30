@@ -11,4 +11,3 @@ OutALCARECOHcalCalHO = cms.PSet(
         'keep HOCalibVariabless_*_*_*')
 )
 
-

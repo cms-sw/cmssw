@@ -2,7 +2,7 @@
 //
 // Original Author:  Gero FLUCKE
 //         Created:  Mon Mar  5 16:32:01 CET 2007
-// $Id: CosmicGenFilterHelix.cc,v 1.7 2008/01/22 20:58:35 muzaffar Exp $
+// $Id: CosmicGenFilterHelix.cc,v 1.6 2007/05/10 21:18:49 flucke Exp $
 
 #include "GeneratorInterface/GenFilters/interface/CosmicGenFilterHelix.h"
 
@@ -18,7 +18,6 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
-#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
@@ -30,8 +29,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include <TMath.h>
-#include <TH1.h> // include checker: don't touch!
-#include <TH2.h> // include checker: don't touch!
+#include <TH2F.h>
 
 #include <utility> // for std::pair
 #include <string>
@@ -46,9 +44,9 @@ CosmicGenFilterHelix::CosmicGenFilterHelix(const edm::ParameterSet& cfg)
   : theSrc(cfg.getParameter<edm::InputTag>("src")),
     theIds(cfg.getParameter<std::vector<int> >("pdgIds")),
     theCharges(cfg.getParameter<std::vector<int> >("charges")),
-    thePropagatorName(cfg.getParameter<std::string>("propagator")),
-    theMinP2(cfg.getParameter<double>("minP")*cfg.getParameter<double>("minP")),
-    theMinPt2(cfg.getParameter<double>("minPt")*cfg.getParameter<double>("minPt")),
+    theIgnoreMaterial(cfg.getParameter<bool>("ignoreMaterial")),
+    theMinP(cfg.getParameter<double>("minP")),
+    theMinPt(cfg.getParameter<double>("minPt")),
     theDoMonitor(cfg.getUntrackedParameter<bool>("doMonitor"))
 {
   if (theIds.size() != theCharges.size()) {
@@ -87,8 +85,7 @@ bool CosmicGenFilterHelix::filter(edm::Event &iEvent, const edm::EventSetup &iSe
   iEvent.getByLabel(theSrc, hepMCEvt);
   const HepMC::GenEvent *mCEvt = hepMCEvt->GetEvent();
   const MagneticField *bField = this->getMagneticField(iSetup); // should be fast (?)
-  const Propagator *propagator = this->getPropagator(iSetup);
-
+  
   ++theNumTotal;
   bool result = false;
   for (HepMC::GenEvent::particle_const_iterator iPart = mCEvt->particles_begin(),
@@ -104,7 +101,7 @@ bool CosmicGenFilterHelix::filter(edm::Event &iEvent, const edm::EventSetup &iSe
 
     if (theDoMonitor) this->monitorStart(vert, mom, charge, theHistsBefore);
 
-    if (this->propagateToCutCylinder(vert, mom, charge, bField, propagator)) {
+    if (this->propagateToCutCylinder(vert, mom, charge, bField)) {
       result = true;
     }
   }
@@ -116,43 +113,46 @@ bool CosmicGenFilterHelix::filter(edm::Event &iEvent, const edm::EventSetup &iSe
 //_________________________________________________________________________________________________
 bool CosmicGenFilterHelix::propagateToCutCylinder(const GlobalPoint &vertStart,
 						  const GlobalVector &momStart,
-						  int charge, const MagneticField *field,
-                                                  const Propagator *propagator)
+						  int charge, const MagneticField *field)
 {
   typedef std::pair<TrajectoryStateOnSurface, double> TsosPath;
+
+  SteppingHelixPropagator propagator(field); // should we somehow take it from ESetup???
+  propagator.setMaterialMode(theIgnoreMaterial); // no material effects if set to true
+  propagator.setNoErrorPropagation(true);
 
   const FreeTrajectoryState fts(GlobalTrajectoryParameters(vertStart, momStart, charge, field));
 
   bool result = true;
-  TsosPath aTsosPath(propagator->propagateWithPath(fts, *theTargetCylinder));
+  TsosPath aTsosPath(propagator.propagateWithPath(fts, *theTargetCylinder));
   if (!aTsosPath.first.isValid()) {
     result = false;
   } else if (aTsosPath.first.globalPosition().z() < theTargetPlaneMin->position().z()) {
     // If on cylinder, but outside minimum z, try minimum z-plane:
-    // (Would it be possible to miss radius on plane, but reach cylinder afterwards in z-range?
+    // (Would it be possible to miss rdius on plane, but reach cylinder afterwards in z-range?
     //  No, at least not in B-field parallel to z-axis which is cylinder axis.)
-    aTsosPath = propagator->propagateWithPath(fts, *theTargetPlaneMin);
+    aTsosPath = propagator.propagateWithPath(fts, *theTargetPlaneMin);
     if (!aTsosPath.first.isValid()
 	|| aTsosPath.first.globalPosition().perp() > theTargetCylinder->radius()) {
       result = false;
     }
   } else if (aTsosPath.first.globalPosition().z() > theTargetPlaneMax->position().z()) {
     // Analog for outside maximum z:
-    aTsosPath = propagator->propagateWithPath(fts, *theTargetPlaneMax);
+    aTsosPath = propagator.propagateWithPath(fts, *theTargetPlaneMax);
     if (!aTsosPath.first.isValid()
 	|| aTsosPath.first.globalPosition().perp() > theTargetCylinder->radius()) {
       result = false;
     }
   }
 
-  if (result) {
+  if (result && theDoMonitor) {
     const GlobalVector momEnd(aTsosPath.first.globalMomentum());
-    if (momEnd.perp2() < theMinPt2 || momEnd.mag2() < theMinP2) {
-      result = false;
-    } else if (theDoMonitor) {
+    if (momEnd.perp2() >= theMinPt*theMinPt && momEnd.mag2() >= theMinP*theMinP) {
       const GlobalPoint vertEnd(aTsosPath.first.globalPosition());
       this->monitorStart(vertStart, momStart, charge, theHistsAfter);
       this->monitorEnd(vertEnd, momEnd, vertStart, momStart, aTsosPath.second, theHistsAfter);
+    } else {
+      result = false;
     }
   }
 
@@ -203,8 +203,6 @@ void CosmicGenFilterHelix::createHistsStart(const char *dirName, TObjArray &hist
                           50, -1600., 1600., 50, 1.5, 1000.));
   hists.Add(fd.make<TH2F>("thetaVsZ", "#theta vs z (start);z [cm];#theta",
                           50, -1600., 1600., 50, 0., TMath::Pi()));
-  hists.Add(fd.make<TH2F>("thetaYvsZ", "#theta_{y} vs z (start);z [cm];#theta",
-                          50, -1600., 1600., 50, 0., TMath::PiOver2()));
   hists.Add(fd.make<TH2F>("yVsThetaY", "#theta_{y}(#mu) vs y (start);#theta_{y};y [cm]",
                           50, 0., TMath::Pi()/2., 50, -1000., 1000.));
   hists.Add(fd.make<TH2F>("yVsThetaYnoR", "#theta_{y}(#mu) vs y (start, barrel);#theta_{y};y [cm]",
@@ -303,7 +301,9 @@ void CosmicGenFilterHelix::endJob()
 			 << theTargetPlaneMin->position().z() << " < z < " 
 			 << theTargetPlaneMax->position().z() << " cm."
 			 << line << "Minimal required (transverse) momentum was "
-			 << TMath::Sqrt(theMinP2) << " (" << TMath::Sqrt(theMinPt2) << ") GeV."
+			 << theMinP << " (" << theMinPt << ") GeV,"
+			 << line << (theIgnoreMaterial ? "not " : "") 
+			 << "taking into account average energy loss in material."
 			 << "\n" << border;
 }
 
@@ -331,20 +331,6 @@ const MagneticField* CosmicGenFilterHelix::getMagneticField(const edm::EventSetu
   return fieldHandle.product();
 }
 
-//_________________________________________________________________________________________________
-const Propagator* CosmicGenFilterHelix::getPropagator(const edm::EventSetup &setup) const
-{
-  edm::ESHandle<Propagator> propHandle;
-  setup.get<TrackingComponentsRecord>().get(thePropagatorName, propHandle);
-
-  const Propagator *prop = propHandle.product();
-  if (!dynamic_cast<const SteppingHelixPropagator*>(prop)) {
-    edm::LogWarning("BadConfig") << "@SUB=CosmicGenFilterHelix::getPropagator"
-                                 << "Not a SteppingHelixPropagator!";
-
-  }
-  return prop;
-}
 
 //_________________________________________________________________________________________________
 void CosmicGenFilterHelix::monitorStart(const GlobalPoint &vert, const GlobalVector &mom,
@@ -388,8 +374,6 @@ void CosmicGenFilterHelix::monitorStart(const GlobalPoint &vert, const GlobalVec
   static_cast<TH2*>(hists[iMomVsZ])->Fill(z, scalarMom);
   static int iThetaVsZ = hists.IndexOf(hists.FindObject("thetaVsZ"));
   static_cast<TH2*>(hists[iThetaVsZ])->Fill(z, theta);
-  static int iThetaYvsZ = hists.IndexOf(hists.FindObject("thetaYvsZ"));
-  static_cast<TH2*>(hists[iThetaYvsZ])->Fill(z, thetaY);
   static int iYvsThetaY = hists.IndexOf(hists.FindObject("yVsThetaY"));
   static_cast<TH2*>(hists[iYvsThetaY])->Fill(thetaY, vert.y());
   static int iYvsThetaYnoR = hists.IndexOf(hists.FindObject("yVsThetaYnoR"));

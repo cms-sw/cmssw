@@ -10,7 +10,6 @@
 <use name=CalibMuon/DTDigiSync>
 <use name=CalibMuon/DTCalibration>
 <use name=rootgraphics>
-<lib name=Spectrum>
 
  <library file="*.cc" name=CalibMuonDTCalibrationPlugins>
 	<flags EDM_PLUGIN=1> 
