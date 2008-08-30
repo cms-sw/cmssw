@@ -7,6 +7,21 @@ import ROOT
 
 _cmsver = os.environ['CMSSW_VERSION']
 
+class Error(Exception):
+    """Base class for exceptions in this module."""
+    pass
+
+class TimingParseErr(Error):
+    """Exception raised when Could not parse TimingReport Log.
+
+    Attributes:
+        expression -- input expression in which the error occurred
+        message -- explanation of the error
+    """
+
+    def __init__(self, message):
+        self.message = message
+
 def getParameters():
     parser = opt.OptionParser()
     #
@@ -144,6 +159,7 @@ def getLimits(data,secsperbin):
     npoints=len(data)
 
     last_event=data[-1][0]
+
     #print 'last event =',last_event    
 
     return (min_val,max_val,interval,npoints,last_event)
@@ -273,18 +289,21 @@ def getTwoGraphLimits(last_event1,max_val1,last_event2,max_val2):
 def regressCompare(rootfilename,outdir,oldLogfile,newLogfile,secsperbin,batch=True,prevrev=""):
     
     data1 = getDataFromTimingLog(oldLogfile)
-    data2 = getDataFromTimingLog(newLogfile)
+    data2 = getDataFromTimingLog(newLogfile)        
+        
+    try:
+        (min_val1,max_val1,nbins1,npoints1,last_event1) = getLimits(data1,secsperbin)
+    except IndexError, detail:
+        raise TimingParseErr(oldLogfile)
+    
+    try:
+        (min_val2,max_val2,nbins2,npoints2,last_event2) = getLimits(data2,secsperbin)
+    except IndexError, detail:
+        raise TimingParseErr(oldLogfile)
 
-    newrootfile = None
-    if batch:
-        newrootfile = createROOT(outdir,rootfilename)
-
-    (min_val1,max_val1,nbins1,npoints1,last_event1) = getLimits(data1,secsperbin)
-    (min_val2,max_val2,nbins2,npoints2,last_event2) = getLimits(data2,secsperbin)
-
-    hsStack = ROOT.THStack("hsStack","Histograms Comparison")
+    hsStack  = ROOT.THStack("hsStack","Histograms Comparison")
     leg      = ROOT.TLegend(0.6,0.99,0.89,0.8)
-    histoleg = ROOT.TLegend(0.7,0.8,0.89,0.89)    
+    histoleg = ROOT.TLegend(0.5,0.8,0.89,0.89)    
     #if not nbins1 == nbins2:
     #    print "ERRORL bin1 %s is not the same size as bin2 %s" % (nbins1,nbins2)
 
@@ -300,14 +319,13 @@ def regressCompare(rootfilename,outdir,oldLogfile,newLogfile,secsperbin,batch=Tr
     avg_line1 = getMeanLines(mean1,last_event1,0)
     avg_line2 = getMeanLines(mean2,last_event2,1)
 
-
-    
     #
     # Create a one dimensional function and draw it
     #
-
+    newrootfile = None
     if batch:
-        names = ["graph.gif","changes.gif","histo.gif"]
+        newrootfile = createROOT(outdir,rootfilename) 
+        names = ["graphs.gif","changes.gif","histos.gif"]
         #Graphs
         graph_canvas   = drawGraphs(graph1,graph2,avg_line1,avg_line2,leg)
         graph_canvas.Print("%s/%s" % (outdir,names[0]),"gif")
@@ -347,8 +365,12 @@ def main():
     rootfilename = "regression.root"
     outdir = os.getcwd()
     
-    (file1,file2,secsperbin)  = getParameters()    
-    regressCompare(rootfilename,outdir,file1,file2,secsperbin,False)
+    (file1,file2,secsperbin)  = getParameters()
+
+    try:
+        regressCompare(rootfilename,outdir,file1,file2,secsperbin,False)
+    except TimingParseErr, detail:
+        "WARNING: Could not parse data from log file %s; not performing regression" % detail.message
 
 if __name__ == "__main__":
     main()

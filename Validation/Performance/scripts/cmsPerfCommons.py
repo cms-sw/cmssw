@@ -1,3 +1,5 @@
+import os, re
+
 MIN_REQ_TS_EVENTS = 50
 #Sort the candles to make sure MinBias is executed before QCD_80_120, otherwise DIGI PILEUP would not find its MinBias root files
 Candles=["MinBias"            ,
@@ -56,3 +58,14 @@ for x in range(len(Candles)):
     FileName[Candles[x]]     = filenames[x]
 
 
+def getVerFromLog(previous):
+    prevlog = os.path.join(previous,"cmsPerfSuite.log")
+    if os.path.exists(prevlog):
+        for line in open(prevlog):
+            if "Test Release based on:" in line:
+                verreg = re.compile("^.*Test Release based on: (.*)$")
+                match = verreg.search(line)
+                if match:
+                    return match.groups()[0]
+        
+    return "Unknown_prev_release"

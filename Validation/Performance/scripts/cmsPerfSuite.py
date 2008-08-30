@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 import os, time, sys, re, glob
-import cmsPerfRegress as cpr
 import optparse as opt
-from cmsPerfCommons import Candles, MIN_REQ_TS_EVENTS, CandFname
+import cmsRelRegress as crr
+from cmsPerfCommons import Candles, MIN_REQ_TS_EVENTS, CandFname, getVerFromLog
 
 global ERRORS 
 ERRORS = 0
@@ -107,6 +107,7 @@ Legal entries for individual candles (--candle option):
         '--prevrel',
         type='string',
         dest='previousrel',
+        default="",
         help='Top level dir of previous release for regression analysis',
         metavar='<DIR>',
         )
@@ -374,18 +375,9 @@ def runCmsInput(dir,numevents,candle,cmsdrvopts,stepopt,profiler):
     if _unittest and (not exitstat == None):
         print "ERROR: CMS Report Input returned a non-zero exit status " 
 
-def simpleGenReport(NumEvents,candles,cmsdriverOptions,stepOptions,cmssw_version,Name,prevrel=""):
+def simpleGenReport(NumEvents,candles,cmsdriverOptions,stepOptions,cmssw_version,Name):
     valgrind = Name == "Valgrind"
-    Profs = []
-    if valgrind:
-        Profs = ["memcheck"]
-    elif Name == "TimeSize":
-        Profs = [ "TimingReport",
-                  "TimeReport",
-                  "SimpleMemoryCheck",
-                  "EdmSize"]
-    elif Name == "IgProf":
-        Profs = [ "IgProf" ]
+
         
     for candle in candles:
         adir = mkCandleDir(candle,Name)
@@ -406,64 +398,6 @@ def simpleGenReport(NumEvents,candles,cmsdriverOptions,stepOptions,cmssw_version
                 valFilterReport(adir,cmssw_version)             
             runCmsReport(adir,cmssw_version,candle)
             displayErrors("%s/%s_%s.log" % (adir,candle,Name))
-            
-        if not prevrel == "":
-            for prof in Profs:
-                if prof == "EdmSize":
-                    stepLogs = glob.glob("%s/%s_*_%s"       % (adir,CandFname[candle],prof))
-                else:
-                    stepLogs = glob.glob("%s/%s_*_%s.log"   % (adir,CandFname[candle],prof))
-
-                profdir = os.path.basename(adir)
-                candreg = re.compile("%s_([^_]*)_%s(.log)?" % (CandFname[candle],prof))
-                for log in stepLogs:
-                    base = os.path.basename(log)
-                    searchob = candreg.search(base)
-                    if searchob:
-                        step = searchob.groups()[0]
-                        logdir = "%s_%s_%s" % (CandFname[candle],step,prof)
-                        if prof == "EdmSize":
-                            logdir = "%s_outdir" % logdir
-                            
-                        outd   = "%s/%s" % (adir,logdir)
-                        rootf  = "%s/regression.root" % outd
-                        oldLog = "%s/%s/%s" % (prevrev,profdir,base)
-                        newLog = "%s" % log
-                        oldRelName = os.path.basename(prevrev)
-                        if not "CMSSW" in oldRelName:
-                            oldRelName = ""
-
-                        if _debug > 0:
-                            assert os.path.exists(newLog), "The current release logfile %s that we were using to perform regression analysis was not found (even though we just found it!!)" % newLog
-
-                        if "TimingReport" in cand and (not prevrev == "") and os.path.exists(oldLog):
-                            CAND.write("<table><tr>\n")                                                            
-                            # cmsPerfRegress(rootfilename, outdir, oldLogFile, newLogfile, secsperbin, batch, prevrev)
-                            htmNames = cmsPerfRegress.regressCompare(rootf, outd, oldLog, newLog, 1, prevrev = oldRelName)
-                            html = map(lambda x: "<td><a href=\"./%s/%s\"><img src=\"./%s/%s\" /></a></td>" % (base,x,base,x), htmNames)
-                            CAND.write("\n".join(html))
-                            CAND.write("\n</tr></table>")
-                        elif "TimingReport" in cand and (not prevrev == "") and not os.path.exists(oldLog):
-                            print "WARNING: Could not find an equivalent logfile for %s in the previous release dir" % newLog                        
-                    else:
-                        continue
-
-def gogetit(adir,Name):
-    valgrind = Name == "Valgrind"
-    Profs = []
-    if valgrind:
-        Profs = ["memcheck"]
-    elif Name == "TimeSize":
-        Profs = [ "TimingReport",
-                  "TimeReport",
-                  "SimpleMemoryCheck",
-                  "EdmSize"]
-    elif Name == "IgProf":
-        Profs = [ "IgProf" ]
-    
-
-
-                
 
 def main(argv):
     #Some default values:
@@ -488,6 +422,13 @@ def main(argv):
     cores            = options.cores
     _unittest        = options.unittest 
     _verbose         = options.verbose
+    prevrel          = options.previousrel
+
+    if not prevrel == "":
+        prevrel = os.path.abspath(prevrel)
+        if not os.path.exists(prevrel):
+            print "ERROR: Previous release dir %s could not be found" % prevrel
+            sys.exit()
 
     if quicktest:
         TimeSizeEvents = 1
@@ -518,6 +459,7 @@ def main(argv):
     path=os.path.abspath(".")
     print "Performance Suite started running at %s on %s in directory %s, run by user %s" % (getDate(),host,path,user)
     showtags=os.popen4("showtags -r")[1].read()
+    print showtags
     
     #For the log:
     if _verbose:
@@ -668,6 +610,10 @@ def main(argv):
     print "Stopping all cmsScimark jobs"
     printFlush(AuxiliaryScripts[2])
     printFlush(os.popen4(AuxiliaryScripts[2])[1].read())
+
+    if not prevrel == "":
+        crr.compareLogs(prevrel,os.path.abspath("./"),oldRelName = getVerFromLog(prevrel))
+        os.system("touch REGRESSION.%s.vs.%s" % (cmssw_version,getVerFromLog(prevrel)))
 
     #Create a tarball of the work directory
     TarFile = cmssw_version + "_"     +     host    + "_"     + user + ".tar"

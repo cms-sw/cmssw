@@ -21,7 +21,7 @@ PROG_NAME  = os.path.basename(sys.argv[0])
 DEF_RELVAL = "/afs/cern.ch/cms/sdt/web/performance/RelVal"
 DEF_SIMUL  = "/afs/cern.ch/cms/sdt/web/performance/simulation"
 TMP_DIR    = ""
-cpFileFilter = ( "*.root" ) # Unix pattern matching not regex
+cpFileFilter = ( "*.root", ) # Unix pattern matching not regex
 cpDirFilter  = (          ) # Unix pattern matching not regex
 
 TimeSizeNumOfEvents = 100
@@ -224,8 +224,8 @@ def optionparse():
         '--prev',
         type="string",
         dest='previousrev',
-        help='The directory where the previous revision is located: for comparisons.',
-        metavar='<LAST_REV_DIR>',
+        help='The override the name of the previous release. Default is the string obtain from the identification file REGRESSION.<prevrel>.vs.<newrel>',
+        metavar='<NAME>',
         default="",
         )    
 
@@ -286,21 +286,32 @@ def optionparse():
 # Determine locations of staging and report dirs 
 #
 def getStageRepDirs(options,args):
-    global TMP_DIR, IS_TMP, DEF_LOCAL
+    global TMP_DIR, IS_TMP, DEF_LOCAL, CMSSW_VERSION
     DEF_LOCAL = CMSSW_WORK
     numofargs = len(args)
 
     repdir = os.path.abspath(options.repdir)
     repdir = addtrailingslash(repdir)
 
-    previousrev = ""
-    if not options.previousrev == "":
-        previousrev = os.path.abspath(previousrev)
-        if not os.path.exists(previousrev):
-            fail("ERROR: The previous revision directory (%s) that was specified does not exist " % previousrev)
-
     if not os.path.exists(repdir):
         fail("ERROR: The specified report directory %s to retrieve report information from does not exist, exiting" % repdir)
+
+    previousrev = options.previousrev
+    if previousrev == "":
+        regressfiles = glob.glob("%s/REGRESSION.*.vs.*" % repdir)
+        if not len(regressfiles) == 0:
+            regressID   = regressfiles[0]
+            base        = os.path.basename(regressID)
+            split       = base.split(".")
+            previousrev = split[1]
+            currentrel  = split[3]
+            #if not currentrel == CMSSW_VERSION:
+            #    CMSSW_VERSION = currentrel
+            print "Regression Identification file exists, renaming report title for regression report. Old ver: %s" % previousrev
+        else:
+            print "No regression ID file exists and previous release name was not specified. Producing normal report."
+    else:
+        print "Previous release name was specified, renaming report title for regression report. Old ver %s" % previousrev
     
     uri = ""
     defaultlocal = False
@@ -453,6 +464,31 @@ def scanReportArea(repdir):
 
     return (ExecutionDate,LogFiles,date,cmsScimarkResults,cmsScimarkDir)
 
+def createRegressHTML(reghtml,repdir,outd,CurrentCandle,htmNames):
+    RegressTmplHTML="%s/doc/regress.html" % BASE_PERFORMANCE
+    candnreg  = re.compile("CandleName")
+    candhreg  = re.compile("CandlesHere")
+    try:
+        REGR = open(reghtml,"w")
+        for line in open(RegressTmplHTML):
+            if candhreg.search(line):
+                html = "<table>"
+                
+                for x in htmNames:
+                    abspath = os.path.join(repdir,outd)
+                    if os.path.exists(abspath):
+                        html += "<tr><td><a href=\"./%s/%s\"><img src=\"./%s/%s\" /></a></td></tr>\n" % (outd,x,outd,x)
+                    else:
+                        html += "<tr><td> %s does not exist probably because the log file for the previous release was missing</td></tr>" % (abspath)
+                html += "</table>"
+                REGR.write(html)
+            elif candnreg.search(line):
+                REGR.write(CurrentCandle)
+            else:
+                REGR.write(line)
+    except IOError, detail:
+        print "ERROR: Could not write regression html %s because %s" % (os.path.basename(reghtml),detail)                
+
 ######################
 #
 # Create HTML pages for candles
@@ -551,10 +587,12 @@ def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDat
 
 
                     if (len(CandleLogFiles)>0):
-                        CAND.write("<p><strong>Logfiles for %s</strong></p>\n" % CurDir)
+                        
                         syscp(CandleLogFiles,WebArea + "/")
                         base = os.path.basename(LocalPath)
                         lfileshtml = ""
+                        if not prevrev == "":
+                            CAND.write("<p><strong>%s</strong></p>\n" % "Regression Analysis")                        
                         for cand in CandleLogFiles:
                             cand = os.path.basename(cand)
                             if _verbose:
@@ -562,25 +600,45 @@ def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDat
                             lfileshtml += "<a href=\"./%s/%s\">%s </a>" % (base,cand,cand)
                             lfileshtml += "<br />\n"
 
-                            rootf  = "%s/%s/regression.root" % (repdir,base)
-                            outd   = "%s/%s" % (WebArea,base)
-                            oldLog = "%s/%s/%s" % (prevrev,base,cand)
-                            newLog = "%s/%s/%s" % (repdir,base,cand)
-                            oldRelName = os.path.basename(prevrev)
+                            if not prevrev == "":
+                                #print "printing regression table"
+                                outd   = ""
+                                if "EdmSize" in cand:
+                                    outd = "%s/%s_outdir" % (base,cand)
+                                else:
+                                    logreg  = re.compile("(.*)\.log$")
+                                    matches = logreg.search(cand)
+                                    logdir  = logreg.sub(matches.groups()[0],cand)
+                                    outd    = "%s/%s" % (base,logdir)
 
-                            if _debug > 0:
-                                assert os.path.exists(newLog), "The current release logfile %s that we were using to perform regression analysis was not found (even though we just found it!!)" % newLog
-                                
-                            if "TimingReport" in cand and (not prevrev == "") and os.path.exists(oldLog):
-                                CAND.write("<table><tr>\n")                                                            
-                                # cmsPerfRegress(rootfilename, outdir, oldLogFile, newLogfile, secsperbin, batch, prevrev)
-                                htmNames = cmsPerfRegress.regressCompare(rootf, outd, oldLog, newLog, 1, prevrev = oldRelName)
-                                html = map(lambda x: "<td><a href=\"./%s/%s\"><img src=\"./%s/%s\" /></a></td>" % (base,x,base,x), htmNames)
-                                CAND.write("\n".join(html))
-                                CAND.write("\n</tr></table>")
-                            elif "TimingReport" in cand and (not prevrev == "") and not os.path.exists(oldLog):
-                                print "WARNING: Could not find an equivalent logfile for %s in the previous release dir" % newLog
-                            
+                                #if _debug > 0:
+                                #    assert os.path.exists(newLog), "The current release logfile %s that we were using to perform regression analysis was not found (even though we just found it!!)" % newLog
+
+                                if "TimingReport" in cand :
+                                    CAND.write("<h4>%s</h4>\n" % cand)
+                                    htmNames   = ["changes.gif"]
+                                    otherNames = ["graphs.gif" , "histos.gif"] 
+                                    regressHTML= "%s-regress.html" % CurrentCandle
+                                    pathsExist = reduce (lambda x,y: x or y,map(os.path.exists,map(lambda x: os.path.join(repdir,outd,x),otherNames)))
+                                    html = ""
+                                    if pathsExist:
+                                        html = "<p>Performance graphs and histograms superimposed for %s are <a href=\"%s\">here</a></p>\n" % (cand,regressHTML)
+                                    else:
+                                        html = "<p>No change in performance graph available</p>\n"
+                                    regressHTML="%s/%s" % (WebArea,regressHTML)
+                                    
+                                    for x in htmNames:
+                                        abspath = os.path.join(repdir,outd,x)
+                                        if os.path.exists(abspath):
+                                            html += "<p><a href=\"./%s/%s\"><img src=\"./%s/%s\" /></a></p>\n" % (outd,x,outd,x)
+                                        else:
+                                            html += "<p>%s does not exist probably because the log file for the previous release was missing</p>" % (abspath)
+
+                                    createRegressHTML(regressHTML,repdir,outd,CurrentCandle,otherNames)
+                                    CAND.write(html)
+                                    CAND.write("\n</tr></table>")
+                                    
+                        CAND.write("<p><strong>Logfiles for %s</strong></p>\n" % CurDir)    
                         CAND.write(lfileshtml)
 
                     PrintedOnce = False
@@ -701,7 +759,10 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
         INDEX = open(IndexFile,"w") 
         for NewFileLine in open(TemplateHtml) :
             if cmsverreg.search(NewFileLine):
-                INDEX.write(CMSSW_VERSION + "\n")
+                if prevrev == "":
+                    INDEX.write("Simulation Performance Reports for %s\n" % CMSSW_VERSION)
+                else:
+                    INDEX.write("Simulation Performance Reports with regression: %s VS %s\n" % (prevrev,CMSSW_VERSION))
             elif hostreg.search(NewFileLine):
                 INDEX.write(HOST + "\n")
             elif lpathreg.search(NewFileLine):
@@ -843,6 +904,9 @@ def docopy(src,dest):
         print "WARNING: Could not copy %s to %s because %s" % (src,dest,detail)        
     except IOError, detail:
         print "WARNING: Could not copy %s to %s because %s" % (src,dest,detail)
+    else:
+        if _verbose:
+            print "Copied %s to %s" % (src,dest)
 
 def copytree4(src,dest,keepTop=True):
     def _getNewLocation(source,child,dst,keepTop=keepTop):
@@ -853,7 +917,11 @@ def copytree4(src,dest,keepTop=True):
             dontFilter = True
             filterExist = not len(filter) == 0
             if filterExist:
-                dontFilter = reduce(lambda x,y: x or y,map(lambda x: fnmatch.fnmatch(node,x),filter))
+                #for patt in filter:
+                #    if fnmatch.fnmatch(node,patt):
+                #        dontFilter = False
+                #        break
+                dontFilter = not reduce(lambda x,y: x or y,map(lambda x: fnmatch.fnmatch(node,x),filter))
             if dontFilter:
                 node = os.path.join(curdir,node) # convert to absolute path
                 try:
@@ -868,6 +936,18 @@ def copytree4(src,dest,keepTop=True):
                     print "WARNING: Could not copy %s to %s because %s" % (src,dest,detail)                    
                 except ReldirExcept:
                     print "WARNING: Could not determine new location for source %s into destination %s" % (source,dst)
+                else:
+                    if len(filter) > 0:
+                        try:
+                            match = fnmatch.fnmatch(node,filter[0])
+                            assert not match
+                        except AssertionError, detail:
+                            print node, filter[0], match
+                            raise RuntimeError
+                    if _verbose:
+                        if "root" in node:                            
+                            print "Filter %s Copied %s to %s" % (dontFilter,node,newnode)
+                            print "fnmatch %s" % fnmatch.fnmatch(node,cpFileFilter[0]) 
                     
     gen  = os.walk(src)
     try:
