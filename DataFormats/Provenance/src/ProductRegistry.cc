@@ -65,6 +65,9 @@ namespace edm {
   void
   ProductRegistry::setProductIDs(unsigned int startingID) {
     throwIfNotFrozen();
+    if (nextID_ <= productList_.size()) {
+      nextID_ = productList_.size() + 1 ;
+    }
     if (startingID < nextID_) {
       startingID = nextID_;
     }
@@ -77,22 +80,6 @@ namespace edm {
     }
     setNextID(startingID + 1);
     initializeTransients();
-  }
-
-  void
-  ProductRegistry::deleteDroppedProducts() {
-    throwIfFrozen();
-    ProductList::iterator it = productList_.begin(), itEnd = productList_.end();
-    // Deleting an entry in a map does not invalidate an iterator pointing to another entry.
-    while (it != itEnd) {
-      if (it->second.present() == false) {
-	ProductList::iterator itDrop = it;
-	++it;
-	productList_.erase(itDrop);
-      } else {
-	++it;
-      }
-    }
   }
 
   bool
