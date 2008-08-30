@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.79 $"
+__version__ = "$Revision: 1.80 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -177,9 +177,6 @@ class ConfigBuilder(object):
 
         # no fast sim   
         else:
-
-            self.imports.append(self.magFieldCFF)
-
             # load the pile up file
             try: 
                 self.loadAndRemember(self.PileupCFF)
@@ -193,6 +190,8 @@ class ConfigBuilder(object):
             except ImportError:
                 print "Geometry option",self._options.geometry,"unknown."
                 raise 
+
+        self.imports.append(self.magFieldCFF)
 
    
         # what steps are provided by this class?
@@ -561,7 +560,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.79 $"),
+              (version=cms.untracked.string("$Revision: 1.80 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
