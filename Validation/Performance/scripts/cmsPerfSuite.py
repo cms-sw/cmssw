@@ -1,7 +1,8 @@
 #!/usr/bin/env python
-import os, time, sys, re
+import os, time, sys, re, glob
+import cmsPerfRegress as cpr
 import optparse as opt
-from cmsPerfCommons import Candles, MIN_REQ_TS_EVENTS
+from cmsPerfCommons import Candles, MIN_REQ_TS_EVENTS, CandFname
 
 global ERRORS 
 ERRORS = 0
@@ -100,6 +101,16 @@ Legal entries for individual candles (--candle option):
         help='specify the wanted CASTOR directory where to store the results tarball',
         metavar='<DIR>',
         )
+
+    parser.add_option(
+        '-r',
+        '--prevrel',
+        type='string',
+        dest='previousrel',
+        help='Top level dir of previous release for regression analysis',
+        metavar='<DIR>',
+        )
+        
     parser.add_option(
         '-t',
         '--timesize',
@@ -363,8 +374,19 @@ def runCmsInput(dir,numevents,candle,cmsdrvopts,stepopt,profiler):
     if _unittest and (not exitstat == None):
         print "ERROR: CMS Report Input returned a non-zero exit status " 
 
-def simpleGenReport(adir,NumEvents,candles,cmsdriverOptions,stepOptions,cmssw_version,Name):
+def simpleGenReport(NumEvents,candles,cmsdriverOptions,stepOptions,cmssw_version,Name,prevrel=""):
     valgrind = Name == "Valgrind"
+    Profs = []
+    if valgrind:
+        Profs = ["memcheck"]
+    elif Name == "TimeSize":
+        Profs = [ "TimingReport",
+                  "TimeReport",
+                  "SimpleMemoryCheck",
+                  "EdmSize"]
+    elif Name == "IgProf":
+        Profs = [ "IgProf" ]
+        
     for candle in candles:
         adir = mkCandleDir(candle,Name)
         if valgrind:
@@ -384,6 +406,64 @@ def simpleGenReport(adir,NumEvents,candles,cmsdriverOptions,stepOptions,cmssw_ve
                 valFilterReport(adir,cmssw_version)             
             runCmsReport(adir,cmssw_version,candle)
             displayErrors("%s/%s_%s.log" % (adir,candle,Name))
+            
+        if not prevrel == "":
+            for prof in Profs:
+                if prof == "EdmSize":
+                    stepLogs = glob.glob("%s/%s_*_%s"       % (adir,CandFname[candle],prof))
+                else:
+                    stepLogs = glob.glob("%s/%s_*_%s.log"   % (adir,CandFname[candle],prof))
+
+                profdir = os.path.basename(adir)
+                candreg = re.compile("%s_([^_]*)_%s(.log)?" % (CandFname[candle],prof))
+                for log in stepLogs:
+                    base = os.path.basename(log)
+                    searchob = candreg.search(base)
+                    if searchob:
+                        step = searchob.groups()[0]
+                        logdir = "%s_%s_%s" % (CandFname[candle],step,prof)
+                        if prof == "EdmSize":
+                            logdir = "%s_outdir" % logdir
+                            
+                        outd   = "%s/%s" % (adir,logdir)
+                        rootf  = "%s/regression.root" % outd
+                        oldLog = "%s/%s/%s" % (prevrev,profdir,base)
+                        newLog = "%s" % log
+                        oldRelName = os.path.basename(prevrev)
+                        if not "CMSSW" in oldRelName:
+                            oldRelName = ""
+
+                        if _debug > 0:
+                            assert os.path.exists(newLog), "The current release logfile %s that we were using to perform regression analysis was not found (even though we just found it!!)" % newLog
+
+                        if "TimingReport" in cand and (not prevrev == "") and os.path.exists(oldLog):
+                            CAND.write("<table><tr>\n")                                                            
+                            # cmsPerfRegress(rootfilename, outdir, oldLogFile, newLogfile, secsperbin, batch, prevrev)
+                            htmNames = cmsPerfRegress.regressCompare(rootf, outd, oldLog, newLog, 1, prevrev = oldRelName)
+                            html = map(lambda x: "<td><a href=\"./%s/%s\"><img src=\"./%s/%s\" /></a></td>" % (base,x,base,x), htmNames)
+                            CAND.write("\n".join(html))
+                            CAND.write("\n</tr></table>")
+                        elif "TimingReport" in cand and (not prevrev == "") and not os.path.exists(oldLog):
+                            print "WARNING: Could not find an equivalent logfile for %s in the previous release dir" % newLog                        
+                    else:
+                        continue
+
+def gogetit(adir,Name):
+    valgrind = Name == "Valgrind"
+    Profs = []
+    if valgrind:
+        Profs = ["memcheck"]
+    elif Name == "TimeSize":
+        Profs = [ "TimingReport",
+                  "TimeReport",
+                  "SimpleMemoryCheck",
+                  "EdmSize"]
+    elif Name == "IgProf":
+        Profs = [ "IgProf" ]
+    
+
+
+                
 
 def main(argv):
     #Some default values:
@@ -545,7 +625,7 @@ def main(argv):
         print "Launching the TimeSize tests (TimingReport, TimeReport, SimpleMemoryCheck, EdmSize) with %s events each" % TimeSizeEvents
         printDate()
         sys.stdout.flush()
-        simpleGenReport(dir,TimeSizeEvents,candles,cmsdriverOptions,stepOptions,cmssw_version,"TimeSize")
+        simpleGenReport(TimeSizeEvents,candles,cmsdriverOptions,stepOptions,cmssw_version,"TimeSize")
 
     #IgProf tests:
     if IgProfEvents > 0:
@@ -556,7 +636,7 @@ def main(argv):
         #By default run IgProf only on QCD_80_120 candle
         if isAllCandles:
             IgCandles = [ "QCD_80_120" ]
-        simpleGenReport(dir,IgProfEvents,IgCandles,cmsdriverOptions,stepOptions,cmssw_version,"IgProf")
+        simpleGenReport(IgProfEvents,IgCandles,cmsdriverOptions,stepOptions,cmssw_version,"IgProf")
 
     #Valgrind tests:
     if ValgrindEvents > 0:
@@ -574,7 +654,7 @@ def main(argv):
         valCandles.append("SingleMuMinusPt10")
         #In the user-defined candles a different behavior: do Valgrind for all specified candles (usually it will only be 1)
         #usercandles=candleoption.split(",")
-        simpleGenReport(dir,ValgrindEvents,valCandles,cmsdriverOptions,stepOptions,cmssw_version,"Valgrind")
+        simpleGenReport(ValgrindEvents,valCandles,cmsdriverOptions,stepOptions,cmssw_version,"Valgrind")
 
     if benching and not _unittest:
     #Ending the performance suite with the cmsScimark benchmarks again: 

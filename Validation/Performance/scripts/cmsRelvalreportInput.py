@@ -23,7 +23,7 @@
 
 import sys, os, re, operator
 import optparse as opt 
-from cmsPerfCommons import Candles, MIN_REQ_TS_EVENTS, CandDesc
+from cmsPerfCommons import Candles, MIN_REQ_TS_EVENTS, CandDesc, FileName, KeywordToCfi
 
 ################
 # Global variables
@@ -59,32 +59,7 @@ Profiler = {
     'None'                    : 'None',
 }
 
-# Need a little hash to match the candle with the ROOT name used by cmsDriver.py.
 
-FileName = {}
-# Hash to switch from keyword to .cfi use of cmsDriver.py:
-KeywordToCfi = {}
-for x in range(len(Candles)):
-    
-    configs   = ['MinBias.cfi',               
-                 'H200ZZ4L.cfi',
-                 'SingleElectronE1000.cfi',
-                 'SingleMuPt10.cfi',
-                 'SinglePiE1000.cfi',
-                 'TTbar.cfi',               
-                 'QCD_Pt_80_120.cfi']
-    
-    filenames = ['MINBIAS_',        
-                 'HZZLLLL_200',
-                 'E_1000',                 
-                 'MU-_pt10',
-                 'PI-_1000',
-                 'TTBAR_',                 
-                 'QCD_80_120']
-
-
-    KeywordToCfi[Candles[x]] = configs[x]
-    FileName[Candles[x]]     = filenames[x]
 
 def getFstOccur(item, list):
     return filter(item.__eq__,list)[0]
