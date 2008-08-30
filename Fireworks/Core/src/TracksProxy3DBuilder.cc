@@ -14,7 +14,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: TracksProxy3DBuilder.cc,v 1.15 2008/08/18 06:28:41 dmytro Exp $
+// $Id: TracksProxy3DBuilder.cc,v 1.16 2008/08/29 02:31:27 dmytro Exp $
 //
 
 // system include files
@@ -87,26 +87,21 @@ void TracksProxy3DBuilder::build(const FWEventItem* iItem, TEveElementList** pro
        trkList->SetRnrSelf(     iItem->defaultDisplayProperties().isVisible() );
        trkList->SetRnrChildren( iItem->defaultDisplayProperties().isVisible() );
        
-       std::vector<TEveTrack*> list = 
-	 prepareTrack( *it, propagator, trkList, iItem->defaultDisplayProperties().color() );
-       for ( std::vector<TEveTrack*>::iterator trk = list.begin(); trk != list.end(); ++ trk )
-	 {	    
-	    (*trk)->MakeTrack();
-	    trkList->AddElement( *trk );
-	 }
+       TEveTrack* trk = prepareTrack( *it, propagator, trkList, iItem->defaultDisplayProperties().color() );
+       trk->MakeTrack();
+       trkList->AddElement( trk );
        
        gEve->AddElement(trkList,tList);
       // printf("track pt: %.1f, eta: %0.1f => B: %0.2f T\n", it->pt(), it->eta(), fw::estimate_field(*it));
     }
 }
 
-std::vector<TEveTrack*> 
+TEveTrack*
 TracksProxy3DBuilder::prepareSimpleTrack(const reco::Track& track, 
 						    TEveTrackPropagator* propagator,
 						    TEveElement* trackList,
 						    Color_t color)
 {
-   std::vector<TEveTrack*> result;
    TEveRecTrack t;
    t.fBeta = 1.;
    t.fV = TEveVector(track.vx(), track.vy(), track.vz());
@@ -114,13 +109,10 @@ TracksProxy3DBuilder::prepareSimpleTrack(const reco::Track& track,
    t.fSign = track.charge();
    TEveTrack* trk = new TEveTrack(&t,propagator);
    trk->SetMainColor(color);
-   // trk->MakeTrack();
-   // trackList->AddElement( trk );
-   result.push_back( trk );
-   return result;
+   return trk;
 }
 
-std::vector<TEveTrack*> 
+TEveTrack*
 TracksProxy3DBuilder::prepareTrack(const reco::Track& track, 
 				      TEveTrackPropagator* propagator,
 				      TEveElement* trackList,
@@ -128,8 +120,6 @@ TracksProxy3DBuilder::prepareTrack(const reco::Track& track,
 {
    // To make use of all available information, we have to order states 
    // properly first. Propagator should take care of y=0 transition.
-   
-   std::vector<TEveTrack*> result;
    
    if ( ! track.extra().isAvailable() )
      return prepareSimpleTrack(track,propagator,trackList,color);
@@ -160,10 +150,7 @@ TracksProxy3DBuilder::prepareTrack(const reco::Track& track,
 			  track.outerPosition().z() );
    
    trk->AddPathMark( mark1 );
-   // trk->MakeTrack();
-   // trackList->AddElement( trk );
-   result.push_back( trk );
-   return result;
+   return trk;
 }
 
 REGISTER_FWRPZDATAPROXYBUILDER(TracksProxy3DBuilder,reco::TrackCollection,"Tracks");

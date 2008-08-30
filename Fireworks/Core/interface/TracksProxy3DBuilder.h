@@ -3,7 +3,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: TracksProxy3DBuilder.h,v 1.2 2008/06/09 19:54:03 chrjones Exp $
+// $Id: TracksProxy3DBuilder.h,v 1.3 2008/07/20 18:28:02 dmytro Exp $
 //
 
 // system include files
@@ -31,14 +31,14 @@ class TracksProxy3DBuilder : public FWRPZDataProxyBuilder
       // ---------- const member functions ---------------------
 
       // ---------- static member functions --------------------
-      static std::vector<TEveTrack*> prepareTrack(const reco::Track& track,
-						  TEveTrackPropagator* propagator,
-						  TEveElement* trackList,
-						  Color_t color);
-      static std::vector<TEveTrack*> prepareSimpleTrack(const reco::Track& track,
-							TEveTrackPropagator* propagator,
-							TEveElement* trackList,
-							Color_t color);
+      static TEveTrack* prepareTrack(const reco::Track& track,
+				     TEveTrackPropagator* propagator,
+				     TEveElement* trackList,
+				     Color_t color);
+      static TEveTrack* prepareSimpleTrack(const reco::Track& track,
+					   TEveTrackPropagator* propagator,
+					   TEveElement* trackList,
+					   Color_t color);
 
       // ---------- member functions ---------------------------
       REGISTER_PROXYBUILDER_METHODS();
