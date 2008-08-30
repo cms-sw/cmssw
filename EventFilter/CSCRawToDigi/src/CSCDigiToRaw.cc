@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/08/04 18:27:21 $
- *  $Revision: 1.30 $
+ *  $Date: 2008/08/07 23:27:45 $
+ *  $Revision: 1.31 $
  *  \author A. Tumanov - Rice
  */
 
@@ -40,6 +40,11 @@ void CSCDigiToRaw::beginEvent(const CSCChamberMap* electronicsMap)
 CSCEventData & CSCDigiToRaw::findEventData(const CSCDetId & cscDetId) 
 {
   CSCDetId chamberID = cscDetId.chamberId();
+  // translate ME1A to ME11
+  if(chamberID.ring() ==4)
+  {
+    chamberID = CSCDetId(chamberID.endcap(), chamberID.station(), 1, chamberID.chamber(), 0);
+  }
   //std::cout<<"wire id"<<cscDetId<<std::endl;
   // find the entry into the map
   map<CSCDetId, CSCEventData>::iterator chamberMapItr = theChamberDataMap.find(chamberID);
@@ -208,7 +213,6 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
         int dduId = mapping->ddu(chamberItr->first);
         int dduSlot = mapping->dduSlot(chamberItr->first);
         int dmbId = mapping->dmb(chamberItr->first);
-
         dccMapItr->second.addChamber(chamberItr->second, dduId, dduSlot, dmbId);
       }
     }
