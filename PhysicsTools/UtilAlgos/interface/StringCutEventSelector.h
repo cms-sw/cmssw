@@ -71,7 +71,8 @@ class  StringCutsEventSelector : public EventSelector {
 	      description_.push_back(ss.str());           ss.str("");
 	    }
       }
-    
+ ~StringCutsEventSelector(){uint i=0; for (;i!=f_.size();i++) if (f_[i]){ delete f_[i];f_[i]=0;}}
+ 
     bool select (const edm::Event& e) const{
       edm::Handle<edm::View<Object> > oH;
       e.getByLabel(src_, oH);

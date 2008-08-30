@@ -9,3 +9,4 @@ EDM_REGISTER_PLUGINFACTORY(PlotterFactory, "PlotterFactory");
 
 #include "PhysicsTools/UtilAlgos/interface/CachingVariable.h"
 EDM_REGISTER_PLUGINFACTORY(CachingVariableFactory, "CachingVariableFactory");
+EDM_REGISTER_PLUGINFACTORY(VariableComputerFactory, "VariableComputerFactory");

@@ -9,11 +9,11 @@ class VariableHelper {
  public:
   VariableHelper(const edm::ParameterSet & iConfig);
   ~VariableHelper() {
-    for (std::map<std::string, CachingVariable*>::iterator it = variables_.begin() ; it!=variables_.end() ;++it){
+    for (iterator it = variables_.begin() ; it!=variables_.end() ;++it){
       delete it->second;
     }
   }
-  typedef std::map<std::string, CachingVariable*>::const_iterator iterator;
+  typedef std::map<std::string,const CachingVariable*>::const_iterator iterator;
 
   const CachingVariable* variable(std::string name)const ;
 
@@ -23,7 +23,7 @@ class VariableHelper {
   void setHolder(std::string hn);
   void print();
  private:
-  std::map<std::string, CachingVariable*> variables_;
+  std::map<std::string,const CachingVariable*> variables_;
 };
 
 

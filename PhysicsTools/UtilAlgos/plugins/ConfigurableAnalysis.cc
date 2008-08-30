@@ -13,7 +13,7 @@
 //
 // Original Author:  Jean-Roch Vlimant
 //         Created:  Mon Apr 14 11:39:51 CEST 2008
-// $Id: ConfigurableAnalysis.cc,v 1.2 2008/06/21 11:46:20 vlimant Exp $
+// $Id: ConfigurableAnalysis.cc,v 1.3 2008/08/29 22:24:35 vlimant Exp $
 //
 //
 
@@ -117,7 +117,7 @@ ConfigurableAnalysis::ConfigurableAnalysis(const edm::ParameterSet& iConfig) :
 
 ConfigurableAnalysis::~ConfigurableAnalysis()
 {
-  
+  delete selections_;
 }
 
 
@@ -134,6 +134,7 @@ bool ConfigurableAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSe
   bool majorGlobalAccept=false;
 
   edm::Service<InputTagDistributorService>()->set(vHelperInstance_);
+  edm::Service<VariableHelperService>()->set(vHelperInstance_);
   
   std::auto_ptr<std::vector<bool> > passedProduct(new std::vector<bool>(flows_.size(),false));
   bool filledOnce=false;  

@@ -13,6 +13,8 @@ VariableHelper::VariableHelper(const edm::ParameterSet & iConfig){
     edm::ParameterSet vPset=iConfig.getParameter<edm::ParameterSet>(psetNames[i]);
     std::string method=vPset.getParameter<std::string>("method");
 
+    CachingVariableFactory::get()->create(method,CachingVariable::CachingVariableFactoryArg(vname,variables_,vPset));
+    /*
     std::map<std::string, edm::Entry> indexEntry;
     if (vname.find("_N")!=std::string::npos){
       //will have to loop over indexes
@@ -43,7 +45,6 @@ VariableHelper::VariableHelper(const edm::ParameterSet & iConfig){
 
     if (indexEntry.empty() && varEntry.empty())
     {
-      //std::string type=vPset.getParameter<std::string>("type");
       std::string type="helper";
       if (type=="helper"){
 	variables_[vname]=CachingVariableFactory::get()->create(method,vname,vPset);
@@ -92,31 +93,25 @@ VariableHelper::VariableHelper(const edm::ParameterSet & iConfig){
       }
 
     }//multiple variable per Pset finished
+    */
   }
+
 }
 
 void VariableHelper::setHolder(std::string hn){
-  std::map<std::string, CachingVariable*> ::const_iterator it = variables_.begin();
-  std::map<std::string, CachingVariable*> ::const_iterator it_end = variables_.end();
+  iterator it = variables_.begin();
+  iterator it_end = variables_.end();
   for (;it!=it_end;++it)  it->second->setHolder(hn);
 }
 
 void VariableHelper::print(){
-  std::map<std::string, CachingVariable*> ::const_iterator it = variables_.begin();
-  std::map<std::string, CachingVariable*> ::const_iterator it_end = variables_.end();
+  iterator it = variables_.begin();
+  iterator it_end = variables_.end();
   for (;it!=it_end;++it)  it->second->print();
 }
 
-/*
-void VariableHelper::update(const edm::Event & e, const edm::EventSetup & es) const
-{
-  ev_=&e;
-  es_=&es;
-}
-*/
-
 const CachingVariable* VariableHelper::variable(std::string name) const{ 
-  std::map<std::string, CachingVariable*> ::const_iterator v=variables_.find(name);
+  iterator v=variables_.find(name);
   if (v!=variables_.end())
     return v->second;
   else
@@ -125,16 +120,3 @@ const CachingVariable* VariableHelper::variable(std::string name) const{
       return 0;
     }
 }
-
-
-/*
-double VariableHelper::operator() (std::string & name,const edm::Event & iEvent) const{  
-  const CachingVariable* v = variable(name);
-  return (*v)();
-}
-
-double VariableHelper::operator() (std::string name) const{
-  const CachingVariable* v = variable(name);
-  return (*v)();
-}
-*/

@@ -30,5 +30,9 @@ DEFINE_EDM_PLUGIN(CachingVariableFactory, DoubleVVar, "DoubleVVar");
 DEFINE_EDM_PLUGIN(CachingVariableFactory, BoolVVar, "BoolVVar");
 DEFINE_EDM_PLUGIN(CachingVariableFactory, HLTBitVariable, "HLTBitVariable");
 
+DEFINE_EDM_PLUGIN(CachingVariableFactory, ComputedVariable, "ComputedVariable");
+
+DEFINE_EDM_PLUGIN(VariableComputerFactory, VariableComputer, "VariableComputer");
+
 #include "PhysicsTools/UtilAlgos/interface/Plotter.h"
 DEFINE_EDM_PLUGIN(PlotterFactory, VariablePlotter, "VariablePlotter");
