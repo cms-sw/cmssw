@@ -199,6 +199,7 @@ namespace edm {
       return OutputHandle<T>();
     }
     if (getProd && (g->product() == 0 || !g->product()->isPresent()) &&
+	    g->productDescription().present() &&
 	    g->productDescription().branchType() == InEvent &&
             productstatus::present(g->entryInfoPtr()->productStatus())) {
         throw edm::Exception(edm::errors::LogicError, "Principal::getForOutput\n")
