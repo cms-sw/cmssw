@@ -114,10 +114,15 @@ public:
     return theCurvilinearError;
   }
   void rescaleError(double factor) {
-    if (theCartesianErrorValid)
-      theCartesianError *= (factor*factor);
-    if (theCurvilinearErrorValid)
-      theCurvilinearError *= (factor*factor);
+    bool zeroField = parameters().magneticFieldInInverseGeV(position()).mag()==0;
+    if (theCartesianErrorValid){
+      if (zeroField)  theCartesianError.zeroFieldScaling(factor*factor);
+      else theCartesianError *= (factor*factor);
+    }
+    if (theCurvilinearErrorValid){
+      if (zeroField)  theCurvilinearError.zeroFieldScaling(factor*factor);
+      else theCurvilinearError *= (factor*factor);
+    }
   }
 
   void setCartesianError(const CartesianTrajectoryError &err) {
