@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.77 $"
+__version__ = "$Revision: 1.78 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -15,7 +15,7 @@ defaultOptions = Options()
 defaultOptions.pileup = 'NoPileUp'
 defaultOptions.geometry = 'Pilot2'
 defaultOptions.beamspot = 'Early10TeVCollision'
-defaultOptions.magField = '38T'
+defaultOptions.magField = 'Default'
 defaultOptions.conditions = 'FrontierConditions_GlobalTag,STARTUP_V5::All'
 
 # the pile up map
@@ -50,15 +50,17 @@ class ConfigBuilder(object):
     def __init__(self, options, process = None ):
         """options taken from old cmsDriver and optparse """
         # do we need to apply special scenarios?
-	if not options.scenario or options.scenario == "pp":
-		self.scenario_pp(options)
-	elif options.scenario == "cosmics":
-		self.scenario_cosmics(options)
-	else:
-	    print "scenario % unknown" %options.scenario
-	    raise ValueError
+	#if not options.scenario or options.scenario == "pp":
+	#	self.scenario_pp(options)
+	#elif options.scenario == "cosmics":
+	#	self.scenario_cosmics(options)
+	#else:
+	#    print "scenario % unknown" %options.scenario
+	#    raise ValueError
 
         self._options = options
+
+        self.define_Configs()
 
 	if process == None:
             self.process = cms.Process(self._options.name)
@@ -68,8 +70,7 @@ class ConfigBuilder(object):
         # we are doing three things here:
         # creating a process to catch errors
         # building the code to re-create the process
-        # check the code at the very end
-        self.imports = []  #could we use a set instead?
+
         self.additionalCommands = []
         # TODO: maybe a list of to be dumped objects would help as well        
         self.blacklist_paths = [] 
@@ -122,7 +123,7 @@ class ConfigBuilder(object):
     def addOutput(self):
         """ Add output module to the process """    
         
-        self.loadAndRemember(self.contentFile)
+        self.loadAndRemember(self.EVTCONTDefaultCFF)
         theEventContent = getattr(self.process, self._options.eventcontent.split(',')[-1]+"EventContent")
  
         output = cms.OutputModule("PoolOutputModule",
@@ -176,30 +177,23 @@ class ConfigBuilder(object):
 
         # no fast sim   
         else:
-            # this may get overriden by the user setting of --eventcontent
-            self.contentFile = "Configuration/EventContent/EventContent_cff"
-            self.imports=['Configuration/StandardSequences/Services_cff',
-                          #'Configuration/StandardSequences/Geometry_cff',
-                          'FWCore/MessageService/MessageLogger_cfi']
+
+            self.imports.append(self.magFieldCFF)
 
             # load the pile up file
             try: 
-                self.loadAndRemember('Configuration/StandardSequences/Mixing'+self._options.pileup+'_cff')
+                self.loadAndRemember(self.PileupCFF)
             except ImportError:
                 print "Pile up option",self._options.pileup,"unknown."
                 raise
 
             # load the geometry file
             try:
-                self.loadAndRemember('Configuration/StandardSequences/Geometry'+self._options.geometry+'_cff')
+                self.loadAndRemember(self.GeometryCFF)
             except ImportError:
                 print "Geometry option",self._options.geometry,"unknown."
                 raise 
 
-        # the magnetic field
-        magneticFieldFilename = 'Configuration/StandardSequences/MagneticField_'+self._options.magField.replace('.','')+'_cff'
-        magneticFieldFilename = magneticFieldFilename.replace("__",'_')
-        self.imports.append(magneticFieldFilename)
    
         # what steps are provided by this class?
         stepList = [methodName.lstrip("prepare_") for methodName in ConfigBuilder.__dict__ if methodName.startswith('prepare_')]
@@ -211,7 +205,7 @@ class ConfigBuilder(object):
             if stepName not in stepList:
                 raise ValueError("Step "+stepName+" unknown")
             if len(stepParts)==1:
-                getattr(self,"prepare_"+step)()            
+                getattr(self,"prepare_"+step)(sequence = getattr(self,step+"DefaultSeq"))            
             elif len(stepParts)==2:
                 getattr(self,"prepare_"+stepName)(sequence = stepParts[1])
             elif len(stepParts)==3:
@@ -274,19 +268,79 @@ class ConfigBuilder(object):
     #----------------------------------------------------------------------------
     # adjust settings for different scenarios like pp, cosmics, heavyIons
     #----------------------------------------------------------------------------
-    @staticmethod
-    def scenario_pp(options):
-        """ Apply pp scenario """
-	pass # pp mode is default
+#    @staticmethod
+#    def scenario_pp(options):
+#        """ Apply pp scenario """
+#	pass # pp mode is default
+#
+#    @staticmethod
+#    def scenario_cosmics(options): 
+#        """ Apply cosmics scenario """
+#        #options.magField = "0T"
+#        # this one is fragile and needs a better implementation
+#	options.step = options.step.replace('RECO','RECO:Configuration/StandardSequences/ReconstructionCosmics_cff:reconstructionCosmics')
+#	options.eventcontent = 'Configuration/EventContent/EventContentCosmics_cff,RECO'
+#        #options.conditions = <the right global tag for cosmics>
 
-    @staticmethod
-    def scenario_cosmics(options): 
-        """ Apply cosmics scenario """
-        #options.magField = "0T"
-        # this one is fragile and needs a better implementation
-	options.step = options.step.replace('RECO','RECO:Configuration/StandardSequences/ReconstructionCosmics_cff:reconstructionCosmics')
-	options.eventcontent = 'Configuration/EventContent/EventContentCosmics_cff,RECO'
-        #options.conditions = <the right global tag for cosmics>
+    #----------------------------------------------------------------------------
+    # here the methods to define the python includes for each step or
+    # conditions
+    #----------------------------------------------------------------------------
+    def define_Configs(self):
+        self.imports=['Configuration/StandardSequences/Services_cff',
+		      'FWCore/MessageService/MessageLogger_cfi']
+
+	self.ALCADefaultCFF="Configuration/StandardSequences/AlCaRecoStreams_cff"    
+	self.GENDefaultCFF="Configuration/StandardSequences/Generator_cff"
+	self.SIMDefaultCFF="Configuration/StandardSequences/Sim_cff"
+	self.DIGIDefaultCFF="Configuration/StandardSequences/Digi_cff"
+	self.DIGI2RAWDefaultCFF="Configuration/StandardSequences/DigiToRaw_cff"
+	self.L1EMDefaultCFF='Configuration/StandardSequences/SimL1Emulator_cff'
+	self.L1MENUDefaultCFF='L1TriggerConfig/L1GtConfigProducers/Luminosity/lumi1030.L1Menu2008_2E30_Unprescaled_cff'
+	self.HLTDefaultCFF="HLTrigger/Configuration/HLT_2E30_cff"
+	self.RAW2DIGIDefaultCFF="Configuration/StandardSequences/RawToDigi_cff"
+	self.RECODefaultCFF="Configuration/StandardSequences/Reconstruction_cff"
+	self.POSTRECODefaultCFF="Configuration/StandardSequences/PostRecoGenerator_cff"
+	self.VALIDATIONDefaultCFF="Configuration/StandardSequences/Validation_cff"
+	self.DQMOFFLINEDefaultCFF="DQMOffline/Configuration/DQMOffline_cff"
+
+	self.ALCADefaultSeq=None
+	self.SIMDefaultSeq=None
+	self.GENDefaultSeq=None
+	self.DIGIDefaultSeq=None
+	self.DIGI2RAWDefaultSeq=None
+	self.HLTDefaultSeq=None
+	self.L1DefaultSeq=None
+	self.RAW2DIGIDefaultSeq='RawToDigi'
+	self.RAW2DIGIDATADefaultSeq='RawToDigiData'
+	self.RECODefaultSeq='reconstruction'
+	self.POSTRECODefaultSeq=None
+	self.DQMDefaultSeq='DQMOffline'
+	self.FASTSIMDefaultSeq='all'
+	self.VALIDATIONDefaultSeq='all'
+	self.PATLayer0DefaultSeq='all'
+	
+
+	self.EVTCONTDefaultCFF="Configuration/EventContent/EventContent_cff"
+	self.defaultMagField='38T'
+
+	if self._options.scenario=='cosmics':
+	    self.RECODefaultCFF="Configuration/StandardSequences/ReconstructionCosmics_cff"	
+    	    self.EVTCONTDefaultCFF="Configuration/EventContent/EventContentCosmics_cff"
+  	    self.DQMOFFLINEDefaultCFF="DQMOffline/Configuration/DQMOfflineCosmics_cff"
+	    self.defaultMagField='0T'
+   	    self.RECODefaultSeq='reconstructionCosmics'
+	    self.DQMDefaultSeq='DQMOfflineCosmics'
+
+
+        # the magnetic field
+	if self._options.magField=='Default':
+	    self._options.magField=self.defaultMagField	
+        self.magFieldCFF = 'Configuration/StandardSequences/MagneticField_'+self._options.magField.replace('.','')+'_cff'
+        self.magFieldCFF = self.magFieldCFF.replace("__",'_')
+
+	self.GeometryCFF='Configuration/StandardSequences/Geometry'+self._options.geometry+'_cff'
+	self.PileupCFF='Configuration/StandardSequences/Mixing'+self._options.pileup+'_cff'
      
     #----------------------------------------------------------------------------
     # here the methods to create the steps. Of course we are doing magic here ;)
@@ -296,7 +350,7 @@ class ConfigBuilder(object):
     def prepare_ALCA(self, sequence = None):
         """ Enrich the process with alca streams """
         if ( len(sequence.split(','))==1 ):
-            alcaConfig = self.loadAndRemember("Configuration/StandardSequences/AlCaRecoStreams_cff")
+            alcaConfig = self.loadAndRemember(self.ALCADefaultCFF)
         else:
             alcaConfig = self.loadAndRemember(sequence.split(',')[0])
             sequence = sequence.split(',')[1]				
@@ -333,7 +387,7 @@ class ConfigBuilder(object):
 
     def prepare_GEN(self, sequence = None):
         """ Enrich the schedule with the generation step """    
-        self.loadAndRemember("Configuration/StandardSequences/Generator_cff")
+        self.loadAndRemember(self.GENDefaultCFF)
         
         # replace the VertexSmearing placeholder by a concrete beamspot definition
         try: 
@@ -354,41 +408,41 @@ class ConfigBuilder(object):
 
     def prepare_SIM(self, sequence = None):
         """ Enrich the schedule with the simulation step"""
-        self.loadAndRemember("Configuration/StandardSequences/Sim_cff")
+        self.loadAndRemember(self.SIMDefaultCFF)
         self.process.simulation_step = cms.Path( self.process.psim )
         self.process.schedule.append(self.process.simulation_step)
         return     
 
     def prepare_DIGI(self, sequence = None):
         """ Enrich the schedule with the digitisation step"""
-        self.loadAndRemember("Configuration/StandardSequences/Digi_cff")
+        self.loadAndRemember(self.DIGIDefaultCFF)
         self.process.digitisation_step = cms.Path(self.process.pdigi)    
         self.process.schedule.append(self.process.digitisation_step)
         return
 
     def prepare_DIGI2RAW(self, sequence = None):
-        self.loadAndRemember("Configuration/StandardSequences/DigiToRaw_cff")
+        self.loadAndRemember(self.DIGI2RAWDefaultCFF)
         self.process.digi2raw_step = cms.Path( self.process.DigiToRaw )
         self.process.schedule.append(self.process.digi2raw_step)
         return
 
     def prepare_L1(self, sequence = None):
         """ Enrich the schedule with the L1 simulation step"""
-        self.loadAndRemember('Configuration/StandardSequences/SimL1Emulator_cff') 
-        self.loadAndRemember('L1TriggerConfig/L1GtConfigProducers/Luminosity/lumi1030.L1Menu2008_2E30_Unprescaled_cff')
+        self.loadAndRemember(self.L1EMDefaultCFF) 
+        self.loadAndRemember(self.L1MENUDefaultCFF)
         self.process.L1simulation_step = cms.Path(self.process.SimL1Emulator)
         self.process.schedule.append(self.process.L1simulation_step)
 
     def prepare_HLT(self, sequence = None):
         """ Enrich the schedule with the HLT simulation step"""
-        self.loadAndRemember("HLTrigger/Configuration/HLT_2E30_cff")
+        self.loadAndRemember(self.HLTDefaultCFF)
 
         self.process.schedule.extend(self.process.HLTSchedule)
         [self.blacklist_paths.append(path) for path in self.process.HLTSchedule if isinstance(path,(cms.Path,cms.EndPath))]
   
     def prepare_RAW2DIGI(self, sequence = "RawToDigi"):
         if ( len(sequence.split(','))==1 ):
-            self.loadAndRemember("Configuration/StandardSequences/RawToDigi_cff")
+            self.loadAndRemember(self.RAW2DIGIDefaultCFF)
         else:    
             self.loadAndRemember(sequence.split(',')[0])
         self.process.raw2digi_step = cms.Path( getattr(self.process, sequence.split(',')[-1]) )
@@ -407,7 +461,7 @@ class ConfigBuilder(object):
     def prepare_RECO(self, sequence = "reconstruction"):
         ''' Enrich the schedule with reconstruction '''
         if ( len(sequence.split(','))==1 ):
-            self.loadAndRemember("Configuration/StandardSequences/Reconstruction_cff")
+            self.loadAndRemember(self.RECODefaultCFF)
         else:    
             self.loadAndRemember(sequence.split(',')[0])
         self.process.reconstruction_step = cms.Path( getattr(self.process, sequence.split(',')[-1]) )
@@ -416,7 +470,7 @@ class ConfigBuilder(object):
 
     def prepare_POSTRECO(self, sequence = None):
         """ Enrich the schedule with the postreco step """
-        self.loadAndRemember("Configuration/StandardSequences/PostRecoGenerator_cff")
+        self.loadAndRemember(self.POSTRECODefaultCFF)
         self.process.postreco_step = cms.Path( self.process.postreco_generator )
         self.process.schedule.append(self.process.postreco_step)
         return                         
@@ -428,16 +482,19 @@ class ConfigBuilder(object):
 
 
     def prepare_VALIDATION(self, sequence = None):
-        self.loadAndRemember("Configuration/StandardSequences/Validation_cff")
+        self.loadAndRemember(self.VALIDATIONDefaultCFF)
         self.process.validation_step = cms.Path( self.process.validation )
         self.process.schedule.append(self.process.validation_step)
 
-		
-    def prepare_DQM(self, sequence = None):
+    def prepare_DQM(self, sequence = 'DQMOffline'):
         # this one needs replacement
-        self.loadAndRemember("Configuration/StandardSequences/Validation_cff")
-        self.process.validation_step = cms.Path( self.process.validation )
-        self.process.schedule.append(self.process.validation_step)
+
+        if ( len(sequence.split(','))==1 ):
+            self.loadAndRemember(self.DQMOFFLINEDefaultCFF)
+        else:    
+            self.loadAndRemember(sequence.split(',')[0])
+        self.process.dqmoffline_step = cms.Path( getattr(self.process, sequence.split(',')[-1]) )
+        self.process.schedule.append(self.process.dqmoffline_step)
 
 
     def prepare_FASTSIM(self, sequence = "all"):
@@ -503,7 +560,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.77 $"),
+              (version=cms.untracked.string("$Revision: 1.78 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
@@ -630,7 +687,7 @@ def installPromptReco(process, recoOutputModule, aodOutputModule = None):
     cb._options.step = 'RAW2DIGI,RECO'
     cb.addStandardSequences()
     cb.addConditions()
-    process.load('Configuration.EventContent.EventContent_cff')
+    process.load(self.EVTCONTDefault)
     recoOutputModule.eventContent = process.RECOEventContent
     if aodOutputModule != None:
         aodOutputModule.eventContent = process.AODEventContent
