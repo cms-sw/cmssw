@@ -164,17 +164,11 @@ namespace edm {
     readEventHistoryTree();
 
     // Set product presence information in the product registry.
-    // We must do this before calling deleteDroppedProducts().
     ProductRegistry::ProductList const& pList = tempReg.productList();
     for (ProductRegistry::ProductList::const_iterator it = pList.begin(), itEnd = pList.end();
         it != itEnd; ++it) {
       BranchDescription const& prod = it->second;
       treePointers_[prod.branchType()]->setPresence(prod);
-    }
-
-    if (dropMetaData_) {
-      // delete all dropped products from the registry.
-      tempReg.deleteDroppedProducts();
     }
 
     // freeze our temporary product registry
