@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.80 $"
+__version__ = "$Revision: 1.81 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -449,15 +449,6 @@ class ConfigBuilder(object):
         self.process.schedule.append(self.process.raw2digi_step)
         return
 
-    def prepare_RAW2DIGIDATA(self, sequence = "RawToDigi"):
-	if ( len(sequence.split(','))==1 ):
-	    self.loadAndRemember("Configuration/StandardSequences/RawToDigi_Data_cff")
-	else:
-	    self.loadAndRemember(sequence.split(',')[0])
-	self.process.raw2digi_step = cms.Path( getattr(self.process, sequence.split(',')[-1]) )
-	self.process.schedule.append(self.process.raw2digi_step)
-	return
-
     def prepare_RECO(self, sequence = "reconstruction"):
         ''' Enrich the schedule with reconstruction '''
         if ( len(sequence.split(','))==1 ):
@@ -560,7 +551,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.80 $"),
+              (version=cms.untracked.string("$Revision: 1.81 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
