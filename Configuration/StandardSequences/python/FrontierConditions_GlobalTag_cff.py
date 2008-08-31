@@ -18,3 +18,8 @@ es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
         'channelQuality', 
         'ZSThresholds')
 )
+
+# L1 Fake conditions
+# included for backwards compatibility with existing Global Tags
+# To be removed in CMSSW 22X series
+from L1Trigger.Configuration.L1Trigger_FakeConditions_cff import *
