@@ -1,7 +1,7 @@
 #!/bin/sh
 
 MYPATH="Configuration/GenProduction"
-CONDITIONS="FrontierConditions_GlobalTag,IDEAL_V5::All"
+CONDITIONS="FrontierConditions_GlobalTag,IDEAL_V8::All"
 
 CMSOPTS="-n 100 --eventcontent RAWSIM --conditions $CONDITIONS $CMSOPTS --no_exec"
 CUSTOMS="--customise=$MYPATH/customSource.py"

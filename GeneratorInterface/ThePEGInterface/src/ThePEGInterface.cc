@@ -1,5 +1,5 @@
 /** \class ThePEGInterface
- *  $Id: ThePEGInterface.cc,v 1.6 2008/07/17 08:26:18 stober Exp $
+ *  $Id: ThePEGInterface.cc,v 1.7 2008/08/06 10:02:37 stober Exp $
  *  
  *  Oliver Oberst <oberst@ekp.uni-karlsruhe.de>
  *  Fred-Markus Stober <stober@ekp.uni-karlsruhe.de>
@@ -186,6 +186,13 @@ void ThePEGInterface::initRepository(const edm::ParameterSet &pset) const
 
 	// Read CMSSW config file parameter sets starting from "parameterSets"
 	readParameterSet(pset, "parameterSets");
+	if (!dumpConfig_.empty())
+	{
+		ofstream cfgDump;
+		cfgDump.open(dumpConfig_.c_str(), ios_base::app);
+		cfgDump << "saverun " << run_ << " " << generator_ << endl;
+		cfgDump.close();
+	}
 
 	// Print the directories where ThePEG looks for libs
 	vector<string> libdirlist = ThePEG::DynamicLoader::allPaths();
