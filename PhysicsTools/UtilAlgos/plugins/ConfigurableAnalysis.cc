@@ -13,7 +13,7 @@
 //
 // Original Author:  Jean-Roch Vlimant
 //         Created:  Mon Apr 14 11:39:51 CEST 2008
-// $Id: ConfigurableAnalysis.cc,v 1.3 2008/08/29 22:24:35 vlimant Exp $
+// $Id: ConfigurableAnalysis.cc,v 1.4 2008/08/30 19:52:51 vlimant Exp $
 //
 //
 
@@ -58,7 +58,6 @@ class ConfigurableAnalysis : public edm::EDFilter {
 
   std::vector<std::string> flows_;
   bool workAsASelector_;
-  std::string vHelperInstance_;
 };
 
 //
@@ -76,14 +75,14 @@ ConfigurableAnalysis::ConfigurableAnalysis(const edm::ParameterSet& iConfig) :
   selections_(0), plotter_(0), ntupler_(0)
 {
 
-  vHelperInstance_ = iConfig.getParameter<std::string>("@module_label");
+  std::string moduleLabel = iConfig.getParameter<std::string>("@module_label");
 
   //configure inputag distributor
   if (iConfig.exists("InputTags"))
-    edm::Service<InputTagDistributorService>()->init(vHelperInstance_,iConfig.getParameter<edm::ParameterSet>("InputTags"));
+    edm::Service<InputTagDistributorService>()->init(moduleLabel,iConfig.getParameter<edm::ParameterSet>("InputTags"));
 
   //configure the variable helper
-  edm::Service<VariableHelperService>()->init(vHelperInstance_,iConfig.getParameter<edm::ParameterSet>("Variables"));
+  edm::Service<VariableHelperService>()->init(moduleLabel,iConfig.getParameter<edm::ParameterSet>("Variables"));
 
   //list of selections
   selections_ = new Selections(iConfig.getParameter<edm::ParameterSet>("Selections"));
@@ -133,9 +132,6 @@ bool ConfigurableAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSe
   //will the filter pass or not.
   bool majorGlobalAccept=false;
 
-  edm::Service<InputTagDistributorService>()->set(vHelperInstance_);
-  edm::Service<VariableHelperService>()->set(vHelperInstance_);
-  
   std::auto_ptr<std::vector<bool> > passedProduct(new std::vector<bool>(flows_.size(),false));
   bool filledOnce=false;  
 

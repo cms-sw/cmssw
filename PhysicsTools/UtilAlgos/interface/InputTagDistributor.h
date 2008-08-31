@@ -5,6 +5,7 @@
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
 
 #include <map>
 #include <iostream>
@@ -40,7 +41,9 @@ class InputTagDistributorService{
   std::map<std::string, InputTagDistributor*> multipleInstance_;
 
  public:
-  InputTagDistributorService(const edm::ParameterSet & iConfig,edm::ActivityRegistry & r ){};
+  InputTagDistributorService(const edm::ParameterSet & iConfig,edm::ActivityRegistry & r ){
+    r.watchPreModule(this, &InputTagDistributorService::preModule );
+  };
   ~InputTagDistributorService(){};
 
   InputTagDistributor & init(std::string user, const edm::ParameterSet & iConfig){
@@ -51,12 +54,24 @@ class InputTagDistributorService{
     multipleInstance_[user] = SetInputTagDistributorUniqueInstance_;
     return (*SetInputTagDistributorUniqueInstance_);
   }
+  void preModule(const edm::ModuleDescription& desc){
+    //does a set with the module name, except that it does not throw on non-configured modules
+    std::map<std::string, InputTagDistributor*>::iterator f=multipleInstance_.find(desc.moduleLabel());
+    if (f != multipleInstance_.end()) SetInputTagDistributorUniqueInstance_ = f->second;
+    else{
+      //do not say anything but set it to zero to get a safe crash in get() if ever called
+      SetInputTagDistributorUniqueInstance_=0;}
+  }
   InputTagDistributor & set(std::string & user){
-    if (multipleInstance_.find(user)==multipleInstance_.end()){
+    std::map<std::string, InputTagDistributor*>::iterator f=multipleInstance_.find(user);
+    if (f == multipleInstance_.end()){
       std::cerr<<user<<" InputTagDistributor  user not defined. but it does not matter."<<std::endl;
       //      throw;}
     }
-    else return (*SetInputTagDistributorUniqueInstance_);
+    else {
+      SetInputTagDistributorUniqueInstance_ = f->second;
+      return (*SetInputTagDistributorUniqueInstance_);
+    }
   }
   InputTagDistributor & get(){
     if (!SetInputTagDistributorUniqueInstance_){

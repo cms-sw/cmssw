@@ -4,6 +4,7 @@
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "PhysicsTools/UtilAlgos/interface/CachingVariable.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
 
 class VariableHelper {
  public:
@@ -35,12 +36,15 @@ class VariableHelperService {
   std::map<std::string, VariableHelper* > multipleInstance_;
 
  public:
-  VariableHelperService(const edm::ParameterSet & iConfig,edm::ActivityRegistry & r ){}
+  VariableHelperService(const edm::ParameterSet & iConfig,edm::ActivityRegistry & r ){
+    r.watchPreModule(this, &VariableHelperService::preModule );
+  }
   ~VariableHelperService(){
     for (std::map<std::string, VariableHelper* > :: iterator it=multipleInstance_.begin(); it!=multipleInstance_.end(); ++it){
       delete it->second;
     }
   }
+
   VariableHelper & init(std::string user, const edm::ParameterSet & iConfig){
     if (multipleInstance_.find(user)!=multipleInstance_.end()){
       std::cerr<<user<<" VariableHelper user already defined."<<std::endl;
@@ -60,6 +64,15 @@ class VariableHelperService {
 	throw;
       }
     else return (*SetVariableHelperUniqueInstance_);
+  }
+
+  void preModule(const edm::ModuleDescription& desc){
+    //does a set with the module name, except that it does not throw on non-configured modules
+    std::map<std::string, VariableHelper* >::iterator f=multipleInstance_.find(desc.moduleLabel());
+    if (f != multipleInstance_.end())  SetVariableHelperUniqueInstance_ = (f->second);
+    else { 
+      //do not say anything but set it to zero to get a safe crash in get() if ever called
+      SetVariableHelperUniqueInstance_ =0;}
   }
 
   VariableHelper & set(std::string user){
