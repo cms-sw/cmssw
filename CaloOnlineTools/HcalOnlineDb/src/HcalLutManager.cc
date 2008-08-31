@@ -224,8 +224,8 @@ std::map<int, shared_ptr<LutXml> > HcalLutManager::getLutXmlFromAsciiMaster( str
   map<int, shared_ptr<LutXml> > _xml; // index - crate number
 
   LMap _lmap;
-  _lmap . read( "HCALmapHBEF.txt", "HBEF" );
-  _lmap . read( "HCALmapHO.txt", "HO" );
+  _lmap . read( "./backup/HCALmapHBEF.txt", "HBEF" );
+  _lmap . read( "./backup/HCALmapHO.txt", "HO" );
   map<int,LMapRow> & _map = _lmap.get_map();
   cout << "LMap contains " << _map . size() << " channels" << endl;
 
@@ -693,6 +693,25 @@ int HcalLutManager::writeLutXmlFiles( std::map<int, shared_ptr<LutXml> > & _xml,
   return 0;
 }
 
+int HcalLutManager::createLinLutXmlFiles( string _tag, string _lin_file, bool split_by_crate )
+{
+  //cout << "DEBUG1: split_by_crate = " << split_by_crate << endl;
+  std::map<int, shared_ptr<LutXml> > xml;
+  if ( !lut_checksums_xml ){
+    lut_checksums_xml = new XMLDOMBlock( "CFGBrick", 1 );
+  }
+  
+  if ( _lin_file.size() != 0 ){
+    addLutMap( xml, getLutXmlFromAsciiMaster( _lin_file, _tag, -1, split_by_crate ) );
+  }
+  writeLutXmlFiles( xml, _tag, split_by_crate );
+
+  string checksums_file = _tag + "_checksums.xml";
+  lut_checksums_xml -> write( checksums_file . c_str() );
+
+  return 0;
+}
+
 int HcalLutManager::createAllLutXmlFiles( string _tag, string _lin_file, string _comp_file, bool split_by_crate )
 {
   //cout << "DEBUG1: split_by_crate = " << split_by_crate << endl;
@@ -729,6 +748,26 @@ int HcalLutManager::createAllLutXmlFilesFromCoder( const HcalTPGCoder & _coder, 
   addLutMap( xml, getLinearizationLutXmlFromCoderEmap( _coder, _tag, split_by_crate ) );
   addLutMap( xml, getCompressionLutXmlFromCoder( _tag, split_by_crate ) );
 
+  writeLutXmlFiles( xml, _tag, split_by_crate );
+
+  string checksums_file = _tag + "_checksums.xml";
+  lut_checksums_xml -> write( checksums_file . c_str() );
+
+  return 0;
+}
+
+int HcalLutManager::createAllLutXmlFilesLinAsciiCompCoder( string _tag, string _lin_file, bool split_by_crate )
+{
+  //cout << "DEBUG1: split_by_crate = " << split_by_crate << endl;
+  std::map<int, shared_ptr<LutXml> > xml;
+  if ( !lut_checksums_xml ){
+    lut_checksums_xml = new XMLDOMBlock( "CFGBrick", 1 );
+  }
+  
+  if ( _lin_file.size() != 0 ){
+    addLutMap( xml, getLutXmlFromAsciiMaster( _lin_file, _tag, -1, split_by_crate ) );
+  }
+  addLutMap( xml, getCompressionLutXmlFromCoder( _tag, split_by_crate ) );
   writeLutXmlFiles( xml, _tag, split_by_crate );
 
   string checksums_file = _tag + "_checksums.xml";

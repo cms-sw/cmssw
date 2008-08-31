@@ -26,6 +26,7 @@
 #include "CaloOnlineTools/HcalOnlineDb/interface/HcalQIEManager.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/HcalLutManager.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/RooGKCounter.h"
+#include "CaloOnlineTools/HcalOnlineDb/interface/HcalTriggerKey.h"
 
 #include "xgi/Utils.h"
 #include "toolbox/string.h"
@@ -83,9 +84,12 @@ int main( int argc, char **argv )
     ("file-list", po::value<string>(), "list of files for further processing")
     ("crate", po::value<int>(&crate)->default_value( -1 ), "crate number")
     ("lut-type", po::value<int>(&crate)->default_value( 1 ), "LUT type: 1 - linearization, 2 - compression")
+    ("create-lin-lut-xml", "create XML file(s) input LUTs from ASCII master")
     ("create-lut-xml", "create XML file(s) with LUTs from ASCII master")
     ("create-lut-xml-from-coder", "create XML file(s) with LUTs from TPG coder")
+    ("create-lut-xml-lin-ascii-comp-coder", "create XML file(s) with linearizer LUTs from ASCII master and compression LUTs from coder")
     ("create-lut-loader", "create XML database loader for LUTs, and zip everything ready for uploading to the DB")
+    ("create-trigger-key", "create a trigger key entry")
     ("get-lut-xml-from-oracle", "Get LUTs from Oracle database")
     ("database-accessor", po::value<string>(&db_accessor)->default_value("occi://CMS_HCL_PRTTYPE_HCAL_READER@anyhost/int2r?PASSWORD=HCAL_Reader_88,LHWM_VERSION=22"), "Database accessor string")
     ("lin-lut-master-file", po::value<string>(), "Linearizer LUT ASCII master file name")
@@ -217,6 +221,30 @@ int main( int argc, char **argv )
       return 0;
     }
     
+    if (vm.count("create-lin-lut-xml")) {
+      while(1){
+	cout << "Creating XML with LUTs for all channels..." << "\n";
+	int _cr = vm["crate"].as<int>();
+	string lin_master_file, comp_master_file;
+	if (!vm.count("lin-lut-master-file")){
+	  cout << "Linearizer LUT master file name is not specified..." << endl;
+	  lin_master_file = "";
+	}
+	else{
+	  lin_master_file = vm["lin-lut-master-file"].as<string>();
+	}
+	if (!vm.count("tag-name")){
+	  cout << "tag name is not specified...exiting" << endl;
+	  break;
+	}
+	string _tag = vm["tag-name"].as<string>();
+	HcalLutManager manager;
+	manager . createLinLutXmlFiles( _tag, lin_master_file, !vm.count("do-not-split-by-crate") );
+	break;
+      }
+      return 0;
+    }
+
     if (vm.count("create-lut-xml")) {
       while(1){
 	cout << "Creating XML with LUTs for all channels..." << "\n";
@@ -257,6 +285,51 @@ int main( int argc, char **argv )
       string _tag = vm["tag-name"].as<string>();
       HcalLutManager manager;
       //manager . createAllLutXmlFilesFromCoder( _tag, !vm.count("do-not-split-by-crate") );
+      return 0;
+    }
+    
+
+
+    if (vm.count("create-lut-xml-lin-ascii-comp-coder")) {
+      while(1){
+	cout << "Creating XML with LUTs for all channels..." << "\n";
+	int _cr = vm["crate"].as<int>();
+	string lin_master_file, comp_master_file;
+	if (!vm.count("lin-lut-master-file")){
+	  cout << "Linearizer LUT master file name is not specified..." << endl;
+	  lin_master_file = "";
+	}
+	else{
+	  lin_master_file = vm["lin-lut-master-file"].as<string>();
+	}
+	if (!vm.count("tag-name")){
+	  cout << "tag name is not specified...exiting" << endl;
+	  break;
+	}
+	string _tag = vm["tag-name"].as<string>();
+	HcalLutManager manager;
+	manager . createAllLutXmlFilesLinAsciiCompCoder( _tag, lin_master_file, !vm.count("do-not-split-by-crate") );
+	break;
+      }
+      return 0;
+    }
+
+
+
+    if (vm.count("create-trigger-key")) {
+      cout << "Creating trigger key XML..." << "\n";
+      /*
+      if (!vm.count("tag-name")){
+	cout << "tag name is not specified...exiting" << endl;
+	exit(-1);
+      }
+      string _tag = vm["tag-name"].as<string>();
+      */
+      HcalTriggerKey _key;
+      _key.write("HCAL_trigger_key.xml");
+      _key.add_data("aaa","bbb","ccc");
+      //_key.add_data("aaa","bbb","ccc");
+      //_key.add_data("aaa","bbb","ccc");
       return 0;
     }
     

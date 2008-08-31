@@ -16,7 +16,7 @@
 //
 // Original Author:  Gena Kukartsev
 //         Created:  Thu Sep 27 01:46:46 CEST 2007
-// $Id: XMLDOMBlock.h,v 1.4 2008/04/16 18:51:04 kukartse Exp $
+// $Id: XMLDOMBlock.h,v 1.5 2008/05/18 12:29:56 kukartse Exp $
 //
 
 
@@ -58,6 +58,8 @@ class XMLDOMBlock
   int setTagValue( const string & tagName, const int & tagValue, int _item = 0, DOMDocument * _document = NULL );
   int setTagAttribute( const string & tagName, const string & attrName, const string & attrValue, int _item = 0 );
   string getTimestamp( time_t _time );  
+
+  void parse( InputSource & _source );
 
   XMLDOMBlock & operator+=( const XMLDOMBlock & other);
 

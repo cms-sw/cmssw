@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev
 //         Created:  Thu Sep 27 01:43:42 CEST 2007
-// $Id: XMLDOMBlock.cc,v 1.4 2008/04/16 18:51:05 kukartse Exp $
+// $Id: XMLDOMBlock.cc,v 1.5 2008/05/18 12:29:56 kukartse Exp $
 //
 
 // system include files
@@ -68,6 +68,50 @@ XMLDOMBlock::XMLDOMBlock( string _root, int rootElementName )
 
 
 XMLDOMBlock::XMLDOMBlock( InputSource & _source )
+{
+
+  theProcessor = XMLProcessor::getInstance();
+
+  //theFileName = xmlFileName;
+
+  // initialize the parser
+  parser = new XercesDOMParser();
+  parser->setValidationScheme(XercesDOMParser::Val_Always);    
+  parser->setDoNamespaces(true);    // optional
+  
+  errHandler = (ErrorHandler*) new HandlerBase();
+  parser->setErrorHandler(errHandler);
+
+  // parse the input xml file
+  try
+    {
+      parser->parse( _source );
+    }
+  catch (const XMLException& toCatch) {
+    char* message = XMLString::transcode(toCatch.getMessage());
+    cout << "Exception message is: \n"
+	 << message << "\n";
+    XMLString::release(&message);
+    //return -1;
+  }
+  catch (const DOMException& toCatch) {
+    char* message = XMLString::transcode(toCatch.msg);
+    cout << "Exception message is: \n"
+	 << message << "\n";
+    XMLString::release(&message);
+    //return -1;
+  }
+  catch (...) {
+    cout << "Unexpected Exception \n" ;
+    //return -1;
+  }
+
+  //get the XML document
+  document = parser -> getDocument();
+}
+
+
+void XMLDOMBlock::parse( InputSource & _source )
 {
 
   theProcessor = XMLProcessor::getInstance();

@@ -61,8 +61,10 @@ class HcalLutManager{
 
   int writeLutXmlFiles( std::map<int, shared_ptr<LutXml> > & _xml, string _tag = "default_tag", bool split_by_crate = true );
 
+  int createLinLutXmlFiles( string _tag, string _lin_file, bool split_by_crate = true );
   int createAllLutXmlFiles( string _tag, string _lin_file, string _comp_file, bool split_by_crate = true );
   int createAllLutXmlFilesFromCoder( const HcalTPGCoder & _coder, string _tag, bool split_by_crate = true );
+  int createAllLutXmlFilesLinAsciiCompCoder( string _tag, string _lin_file, bool split_by_crate = true );
 
   // tests
   //    reading LUTs from a local XML
