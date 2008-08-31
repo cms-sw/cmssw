@@ -60,7 +60,7 @@ def compareLogPair(log,candle,step,prof,profdir,latrev,prevrev,oldRelName=""):
     if   "TimingReport" in prof and os.path.exists(oldLog):
         # cmsPerfRegress(rootfilename, outdir, oldLogFile, newLogfile, secsperbin, batch, prevrev)
         try:
-            htmNames = cpr.regressCompare(rootf, outd, oldLog, newLog, 1, prevrev = oldRelName)
+            htmNames = cpr.cmpTimingReport(rootf, outd, oldLog, newLog, 1, prevrev = oldRelName)
         except cpr.TimingParseErr, detail:
             print "WARNING: Could not parse data from log file %s; not performing regression" % detail.message
         else:
@@ -69,7 +69,7 @@ def compareLogPair(log,candle,step,prof,profdir,latrev,prevrev,oldRelName=""):
     elif "TimingReport" in prof and not os.path.exists(oldLog):
         print "WARNING: Could not find an equivalent logfile for %s in the previous release dir %s" % (newLog,oldLog)                            
 
-def compareLogs(olddir,newdir,oldRelName = ""):
+def regressTimingReport(olddir,newdir,oldRelName = ""):
     profSets = ["Valgrind", "IgProf", "TimeSize"]
     for candle in Candles:
         for profset in profSets:
@@ -105,7 +105,7 @@ def compareLogs(olddir,newdir,oldRelName = ""):
 
 def _main():
     (oldpath,newpath) = getParameters()
-    compareLogs(oldpath,newpath,oldRelName=getVerFromLog(oldpath))
+    regressTimingReport(oldpath,newpath,oldRelName=getVerFromLog(oldpath))
     os.system("touch %s/REGRESSION.%s.vs.%s" % (newpath,getVerFromLog(oldpath),getVerFromLog(newpath)))
               
 if __name__ == "__main__":

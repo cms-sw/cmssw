@@ -397,7 +397,16 @@ def simpleGenReport(NumEvents,candles,cmsdriverOptions,stepOptions,cmssw_version
             if valgrind:
                 valFilterReport(adir,cmssw_version)             
             runCmsReport(adir,cmssw_version,candle)
-            displayErrors("%s/%s_%s.log" % (adir,candle,Name))
+            proflogs = []
+            if   Name == "TimeSize":
+                proflogs = [ "TimingReport" ]
+            elif Name == "Valgrind":
+                pass
+            elif Name == "IgProf":
+                pass
+                
+            for proflog in proflogs:
+                displayErrors("%s/%s_%s.log" % (adir,candle,proflog))
 
 def main(argv):
     #Some default values:
