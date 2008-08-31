@@ -10,10 +10,10 @@
 template<typename RecHitType, typename ClusterRefType>
 void 
 helper::MuonCollectionStoreManager::ClusterHitRecord<RecHitType,ClusterRefType>::
-    rekey(TrackingRecHitCollection &hits, const ClusterRefType &newRef) const  
+    rekey(const ClusterRefType &newRef) const  
 {
-    //std::cout << "Rekeying hit with index " << index_ << ", detid = " << detid_ << std::endl;
-    TrackingRecHit & genericHit = hits[index_]; 
+    std::cout << "Rekeying hit with vector " << hitVector_ << ", index " << index_ << ", detid = " << detid_ << std::endl;
+    TrackingRecHit & genericHit = (*hitVector_)[index_]; 
     RecHitType * hit = 0;
     if (genericHit.geographicalId().rawId() == detid_) { // a hit on this det, so it's simple
         hit = static_cast<RecHitType *>(&genericHit);
@@ -93,39 +93,7 @@ namespace helper
   	  selTracksHits_->push_back( (*hit)->clone() );
           TrackingRecHit * newHit = & (selTracksHits_->back());
 	  tx.add( TrackingRecHitRef( rHits_, hidx_ ++ ) );
-        //--- Skip the rest for this hit if we don't want to clone the cluster.
-        //--- The copy constructer in the rec hit will copy the link properly.
-        //
-        if (cloneClusters() == false)
-            continue;       // go to the next hit on the track
-
-        //std::cout << "|   I'm cloing clusters" << std::endl;
-
-        const DetId detId( (*hit)->geographicalId() );
-        if (newHit->isValid() && (detId.det() == DetId::Tracker)) {
-            //std::cout << "|   It is a tracker hit" << std::endl;
-
-            const std::type_info & hit_type = typeid(*newHit);
-            if (hit_type == typeid(SiPixelRecHit)) {
-                //std::cout << "|  It is a Pixel hit !!" << std::endl;
-                pixelClusterRecords_.push_back( PixelClusterHitRecord( static_cast<SiPixelRecHit &>(*newHit), hidx_ - 1) );
-            } else if (hit_type == typeid(SiStripRecHit2D)) {
-                //std::cout << "|   It is a SiStripRecHit2D hit !!" << std::endl;
-                stripClusterRecords_.push_back( StripClusterHitRecord( static_cast<SiStripRecHit2D &>(*newHit), hidx_ - 1) );
-            } else if (hit_type == typeid(SiStripMatchedRecHit2D)) {      
-                //std::cout << "|   It is a SiStripMatchedRecHit2D hit !!" << std::endl;
-                SiStripMatchedRecHit2D & mhit = static_cast<SiStripMatchedRecHit2D &>(*newHit);
-                stripClusterRecords_.push_back( StripClusterHitRecord( *mhit.monoHit()  , hidx_ - 1) );
-                stripClusterRecords_.push_back( StripClusterHitRecord( *mhit.stereoHit(), hidx_ - 1) );
-            } else if (hit_type == typeid(ProjectedSiStripRecHit2D)) {
-                //std::cout << "|   It is a ProjectedSiStripRecHit2D hit !!" << std::endl;
-                ProjectedSiStripRecHit2D & phit = static_cast<ProjectedSiStripRecHit2D &>(*newHit);
-                stripClusterRecords_.push_back( StripClusterHitRecord( phit.originalHit(), hidx_ - 1) );
-            } else {
-                //std::cout << "|   It is a " << hit_type.name() << " hit !?" << std::endl;
-                // do nothing. We might end up here for FastSim hits.
-            } // end 'switch' on hit type
-        } // end if it was a tracker hit
+          if (cloneClusters()) processHit( newHit, *selTracksHits_ );
 	} // end of for loop over tracking rec hits on this track
 	
 	trk.setExtra( TrackExtraRef( rTrackExtras_, idx_ ++ ) );
@@ -145,8 +113,10 @@ namespace helper
 						trk.innerStateCovariance(), trk.innerDetId(), trk.seedDirection() ) );
 	TrackExtra & tx = selGlobalMuonTracksExtras_->back();
 	for( trackingRecHit_iterator hit = trk.recHitsBegin(); hit != trk.recHitsEnd(); ++ hit ) {
-	  selGlobalMuonTracksHits_->push_back( (*hit)->clone() );
-	  tx.add( TrackingRecHitRef( rGBHits_, higbdx_ ++ ) );
+            selGlobalMuonTracksHits_->push_back( (*hit)->clone() );
+            TrackingRecHit * newHit = & (selGlobalMuonTracksHits_->back()); 
+            tx.add( TrackingRecHitRef( rGBHits_, higbdx_ ++ ) );
+            if (cloneClusters()) processHit( newHit, *selGlobalMuonTracksHits_ );
 	}
 	trk.setExtra( TrackExtraRef( rGBTrackExtras_, igbdx_ ++ ) );
 
@@ -172,7 +142,47 @@ namespace helper
 
 	} // SA trkRef.isNonnull()
       }// end of track, and function
-      
+
+  //------------------------------------------------------------------
+  //!  Process a single muon.  
+  //------------------------------------------------------------------
+  void
+  MuonCollectionStoreManager::
+  processHit( const TrackingRecHit * hit, edm::OwnVector<TrackingRecHit> &hits ) {
+        //--- Skip the rest for this hit if we don't want to clone the cluster.
+        //--- The copy constructer in the rec hit will copy the link properly.
+        //
+
+        std::cout << "|   I'm cloing clusters, hit vector = " << (&hits) << std::endl;
+
+        const DetId detId( hit->geographicalId() );
+        if (hit->isValid() && (detId.det() == DetId::Tracker)) {
+            std::cout << "|   It is a tracker hit" << std::endl;
+
+            const std::type_info & hit_type = typeid(*hit);
+            if (hit_type == typeid(SiPixelRecHit)) {
+                std::cout << "|  It is a Pixel hit !!" << std::endl;
+                pixelClusterRecords_.push_back( PixelClusterHitRecord( static_cast<const SiPixelRecHit &>(*hit), &hits, hits.size() - 1) );
+            } else if (hit_type == typeid(SiStripRecHit2D)) {
+                std::cout << "|   It is a SiStripRecHit2D hit !!" << std::endl;
+                stripClusterRecords_.push_back( StripClusterHitRecord( static_cast<const SiStripRecHit2D &>(*hit), &hits, hits.size() - 1) );
+            } else if (hit_type == typeid(SiStripMatchedRecHit2D)) {      
+                std::cout << "|   It is a SiStripMatchedRecHit2D hit !!" << std::endl;
+                const SiStripMatchedRecHit2D & mhit = static_cast<const SiStripMatchedRecHit2D &>(*hit);
+                stripClusterRecords_.push_back( StripClusterHitRecord( *mhit.monoHit()  , &hits, hits.size() - 1) );
+                stripClusterRecords_.push_back( StripClusterHitRecord( *mhit.stereoHit(), &hits, hits.size() - 1) );
+            } else if (hit_type == typeid(ProjectedSiStripRecHit2D)) {
+                std::cout << "|   It is a ProjectedSiStripRecHit2D hit !!" << std::endl;
+                const ProjectedSiStripRecHit2D & phit = static_cast<const ProjectedSiStripRecHit2D &>(*hit);
+                stripClusterRecords_.push_back( StripClusterHitRecord( phit.originalHit(), &hits, hits.size() - 1) );
+            } else {
+                std::cout << "|   It is a " << hit_type.name() << " hit !?" << std::endl;
+                // do nothing. We might end up here for FastSim hits.
+            } // end 'switch' on hit type
+        } // end if it was a tracker hit
+
+  }
+ 
   void
   MuonCollectionStoreManager::
   processAllClusters() 
@@ -217,7 +227,7 @@ namespace helper
                   newRef = typename HitType::ClusterRef( refprod, clusters++ );
               } 
               // then fixup the reference
-              it->rekey( *selTracksHits_, newRef );
+              it->rekey( newRef );
 
           } // end of the loop on a single detid
 
@@ -245,6 +255,10 @@ namespace helper
       evt.put( selStandAloneTracks_ ,"StandAlone");
       evt.put( selStandAloneTracksExtras_ ,"StandAlone");
       evt.put( selStandAloneTracksHits_ ,"StandAlone");
+      if (cloneClusters()) {
+          evt.put( selStripClusters_ );
+          evt.put( selPixelClusters_ );
+      }
       return h; 
     }
 

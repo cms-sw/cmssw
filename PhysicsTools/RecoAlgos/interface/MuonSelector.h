@@ -10,7 +10,7 @@
  *
  * \version $Revision: 1.8 $
  *
- * $Id: MuonSelector.h,v 1.8 2008/08/27 18:37:50 jfernan2 Exp $
+ * $Id: MuonSelector.h,v 1.8 2008/08/27 21:42:34 jfernan2 Exp $
  *
  */
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -71,8 +71,8 @@ namespace helper {
     class ClusterHitRecord {
         public:
             /// Create a record for a hit with a given index in the TrackingRecHitCollection
-            ClusterHitRecord(const RecHitType &hit, size_t idx) : 
-                detid_(hit.geographicalId().rawId()), index_(idx), ref_(hit.cluster()) {}
+            ClusterHitRecord(const RecHitType &hit, edm::OwnVector<TrackingRecHit> * hitVector, size_t idx) : 
+                detid_(hit.geographicalId().rawId()), hitVector_(hitVector), index_(idx), ref_(hit.cluster()) {}
             /// returns the detid
             uint32_t detid() const { return detid_; }
             /// this method is to be able to compare and see if two refs are the same
@@ -83,9 +83,10 @@ namespace helper {
             }
             /// correct the corresponding hit in the TrackingRecHitCollection with the new cluster ref
             /// will not modify the ref stored in this object
-            void rekey(TrackingRecHitCollection &hits, const ClusterRefType &newRef) const ;
+            void rekey(const ClusterRefType &newRef) const ;
         private:
             uint32_t detid_;
+            edm::OwnVector<TrackingRecHit> * hitVector_;
             size_t   index_;
             ClusterRefType ref_;
     };
@@ -137,9 +138,15 @@ namespace helper {
     
     //--- Methods
     //------------------------------------------------------------------
-    //!  Process a single track.  
+    //!  Process a single muon.  
     //------------------------------------------------------------------
     void processMuon( const reco::Muon & mu );
+
+    //------------------------------------------------------------------
+    //!  Process a single hit.  
+    //------------------------------------------------------------------
+    void processHit( const TrackingRecHit * hit, edm::OwnVector<TrackingRecHit> &hits );
+
 
     //------------------------------------------------------------------
     //!  Processes all the clusters of the tracks 
@@ -177,10 +184,10 @@ namespace helper {
 
       //--- New: save clusters too
       rStripClusters_ 
-          = evt.template getRefBeforePut< edmNew::DetSetVector<SiStripCluster> >("TrackerOnly");
+          = evt.template getRefBeforePut< edmNew::DetSetVector<SiStripCluster> >();
 
       rPixelClusters_ 
-          = evt.template getRefBeforePut< edmNew::DetSetVector<SiPixelCluster> >("TrackerOnly");
+          = evt.template getRefBeforePut< edmNew::DetSetVector<SiPixelCluster> >();
 
       id_=0; igbd_=0; isad_=0; 
       idx_ = 0; igbdx_=0; isadx_=0; 
@@ -213,8 +220,8 @@ namespace helper {
       //--- New: save clusters too
       // FIXME: For the following two, need to check what names
       // FIXME: of the output collections are needed downstream.
-      produces< edmNew::DetSetVector<SiPixelCluster> >("TrackerOnly").setBranchAlias( alias + "PixelClusters" );
-      produces< edmNew::DetSetVector<SiStripCluster> >("TrackerOnly").setBranchAlias( alias + "StripClusters" );
+      produces< edmNew::DetSetVector<SiPixelCluster> >().setBranchAlias( alias + "PixelClusters" );
+      produces< edmNew::DetSetVector<SiStripCluster> >().setBranchAlias( alias + "StripClusters" );
       produces<reco::TrackCollection>("GlobalMuon").setBranchAlias( alias + "GlobalMuonTracks" );
       produces<reco::TrackExtraCollection>("GlobalMuon").setBranchAlias( alias + "GlobalMuonExtras" );
       produces<TrackingRecHitCollection>("GlobalMuon").setBranchAlias( alias + "GlobalMuonHits" );
