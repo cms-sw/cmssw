@@ -44,7 +44,7 @@ class L1GctHFBitCounts {
   // static L1GctHFBitCounts fromGtPsb()
   
   
-  // metadata
+  // getters
   
   /// get GCT unpacker capture block
   uint16_t capBlock() const { return capBlock_; }
@@ -58,10 +58,7 @@ class L1GctHFBitCounts {
   /// is the sum non-zero
   bool empty() const { return (data_ == 0); }
 
-
-  // the actual data
-
-  /// get the raw data
+  /// the raw data
   uint16_t raw() const { return data_; }
   
   /// get a bit count
@@ -73,16 +70,7 @@ class L1GctHFBitCounts {
   uint16_t bitCount(unsigned const i) const;
 
 
-  /// operators
-
-  /// equality operator
-  bool operator==(const L1GctHFBitCounts& c) const;
-  
-  /// inequality operator
-  bool operator!=(const L1GctHFBitCounts& c) const { return !(*this == c); }
-  
-  // private methods
- private:
+  // setters
   
   /// set cap block
   void setCapBlock(uint16_t capBlock) { capBlock_ = capBlock; }
@@ -100,6 +88,14 @@ class L1GctHFBitCounts {
   void setData(uint32_t data) { data_ = data; }
 
 
+  /// operators
+
+  /// equality operator
+  bool operator==(const L1GctHFBitCounts& c) const;
+  
+  /// inequality operator
+  bool operator!=(const L1GctHFBitCounts& c) const { return !(*this == c); }
+ 
  private:
 
   // source of the data

@@ -44,7 +44,7 @@ class L1GctHFRingEtSums {
   // static L1GctHfRingEtSums fromGtPsb()
   
   
-  // metadata
+  // getters
   
   /// get GCT unpacker capture block
   uint16_t capBlock() const { return capBlock_; }
@@ -58,9 +58,6 @@ class L1GctHFRingEtSums {
   /// is the sum non-zero
   bool empty() const { return (data_ == 0); }
 
-
-  // the actual data
-
   /// get the raw data
   uint16_t raw() const { return data_; }
   
@@ -73,16 +70,7 @@ class L1GctHFRingEtSums {
   uint16_t etSum(unsigned const i) const;
 
 
-  /// operators
-
-  /// equality operator
-  bool operator==(const L1GctHFRingEtSums& c) const;
-  
-  /// inequality operator
-  bool operator!=(const L1GctHFRingEtSums& c) const { return !(*this == c); }
-  
-  // private methods
- private:
+  // setters
   
   /// set cap block
   void setCapBlock(uint16_t capBlock) { capBlock_ = capBlock; }
@@ -100,6 +88,15 @@ class L1GctHFRingEtSums {
   void setData(uint32_t data) { data_ = data; }
 
 
+  /// operators
+
+  /// equality operator
+  bool operator==(const L1GctHFRingEtSums& c) const;
+  
+  /// inequality operator
+  bool operator!=(const L1GctHFRingEtSums& c) const { return !(*this == c); }
+
+  
  private:
 
   // source of the data

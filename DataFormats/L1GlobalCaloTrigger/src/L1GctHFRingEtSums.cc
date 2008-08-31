@@ -56,7 +56,7 @@ L1GctHFRingEtSums L1GctHFRingEtSums::fromGctEmulator(const uint8_t bx,
 ///    2   :  Ring 2 Positive Rapidity HF Et sum
 ///    3   :  Ring 2 Negative Rapidity HF Et sum
 uint16_t L1GctHFRingEtSums::etSum(unsigned const i) const {
-  return (data_>>(i*3)) & 0xff;
+  return (data_>>(i*3)) & 0x7;
 }
 
 
