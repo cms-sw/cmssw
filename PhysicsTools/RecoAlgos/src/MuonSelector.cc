@@ -12,7 +12,7 @@ void
 helper::MuonCollectionStoreManager::ClusterHitRecord<RecHitType,ClusterRefType>::
     rekey(const ClusterRefType &newRef) const  
 {
-    std::cout << "Rekeying hit with vector " << hitVector_ << ", index " << index_ << ", detid = " << detid_ << std::endl;
+    //std::cout << "Rekeying hit with vector " << hitVector_ << ", index " << index_ << ", detid = " << detid_ << std::endl;
     TrackingRecHit & genericHit = (*hitVector_)[index_]; 
     RecHitType * hit = 0;
     if (genericHit.geographicalId().rawId() == detid_) { // a hit on this det, so it's simple
@@ -153,30 +153,30 @@ namespace helper
         //--- The copy constructer in the rec hit will copy the link properly.
         //
 
-        std::cout << "|   I'm cloing clusters, hit vector = " << (&hits) << std::endl;
+        //std::cout << "|   I'm cloing clusters, hit vector = " << (&hits) << std::endl;
 
         const DetId detId( hit->geographicalId() );
         if (hit->isValid() && (detId.det() == DetId::Tracker)) {
-            std::cout << "|   It is a tracker hit" << std::endl;
+            //std::cout << "|   It is a tracker hit" << std::endl;
 
             const std::type_info & hit_type = typeid(*hit);
             if (hit_type == typeid(SiPixelRecHit)) {
-                std::cout << "|  It is a Pixel hit !!" << std::endl;
+                //std::cout << "|  It is a Pixel hit !!" << std::endl;
                 pixelClusterRecords_.push_back( PixelClusterHitRecord( static_cast<const SiPixelRecHit &>(*hit), &hits, hits.size() - 1) );
             } else if (hit_type == typeid(SiStripRecHit2D)) {
-                std::cout << "|   It is a SiStripRecHit2D hit !!" << std::endl;
+                //std::cout << "|   It is a SiStripRecHit2D hit !!" << std::endl;
                 stripClusterRecords_.push_back( StripClusterHitRecord( static_cast<const SiStripRecHit2D &>(*hit), &hits, hits.size() - 1) );
             } else if (hit_type == typeid(SiStripMatchedRecHit2D)) {      
-                std::cout << "|   It is a SiStripMatchedRecHit2D hit !!" << std::endl;
+                //std::cout << "|   It is a SiStripMatchedRecHit2D hit !!" << std::endl;
                 const SiStripMatchedRecHit2D & mhit = static_cast<const SiStripMatchedRecHit2D &>(*hit);
                 stripClusterRecords_.push_back( StripClusterHitRecord( *mhit.monoHit()  , &hits, hits.size() - 1) );
                 stripClusterRecords_.push_back( StripClusterHitRecord( *mhit.stereoHit(), &hits, hits.size() - 1) );
             } else if (hit_type == typeid(ProjectedSiStripRecHit2D)) {
-                std::cout << "|   It is a ProjectedSiStripRecHit2D hit !!" << std::endl;
+                //std::cout << "|   It is a ProjectedSiStripRecHit2D hit !!" << std::endl;
                 const ProjectedSiStripRecHit2D & phit = static_cast<const ProjectedSiStripRecHit2D &>(*hit);
                 stripClusterRecords_.push_back( StripClusterHitRecord( phit.originalHit(), &hits, hits.size() - 1) );
             } else {
-                std::cout << "|   It is a " << hit_type.name() << " hit !?" << std::endl;
+                //std::cout << "|   It is a " << hit_type.name() << " hit !?" << std::endl;
                 // do nothing. We might end up here for FastSim hits.
             } // end 'switch' on hit type
         } // end if it was a tracker hit
