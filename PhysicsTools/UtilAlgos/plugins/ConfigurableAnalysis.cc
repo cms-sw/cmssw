@@ -13,7 +13,7 @@
 //
 // Original Author:  Jean-Roch Vlimant
 //         Created:  Mon Apr 14 11:39:51 CEST 2008
-// $Id: ConfigurableAnalysis.cc,v 1.4 2008/08/30 19:52:51 vlimant Exp $
+// $Id: ConfigurableAnalysis.cc,v 1.5 2008/08/31 16:03:06 vlimant Exp $
 //
 //
 
@@ -153,9 +153,9 @@ bool ConfigurableAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSe
     std::string separator="";
     std::string cumulative="";
     std::string allButOne="allBut_";
-    std::string fullAccept="fullAccept_";
+    std::string fullAccept="fullAccept";
+    std::string fullContent="fullContent";
 
-    std::string fullContent="fullContent_";
     if (selection->makeContentPlots() && plotter_)
       plotter_->fill(fullContent,iEvent);
 
