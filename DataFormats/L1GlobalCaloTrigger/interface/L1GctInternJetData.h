@@ -70,7 +70,7 @@ public:
   virtual ~L1GctInternJetData();
 
 
-  /// metadata
+  // getters
 
   /// 'type' of object
   L1GctInternJetData::L1GctInternJetType type() const { return type_; }
@@ -89,8 +89,6 @@ public:
 
   /// get BX number
   int16_t bx() const { return bx_; }
-
-  /// get the actual bits
 
   /// get the raw data
   uint32_t raw() const { return data_; }
@@ -116,16 +114,9 @@ public:
   /// get sign of eta
   uint16_t sgnEta() const { return (data_>>29) & 0x1; }
 
-  /// operators
 
-  /// equality operator
-  bool operator==(const L1GctInternJetData& c) const;
-  
-  /// inequality operator
-  bool operator!=(const L1GctInternJetData& c) const { return !(*this == c); }
-  
- private:
-  
+  // setters
+
   /// set region
   void setRegionId(L1CaloRegionDetId rgn) { regionId_ = rgn; }
 
@@ -152,6 +143,16 @@ public:
 	       uint8_t phi,
 	       uint8_t tauVeto,
 	       uint8_t rank);
+
+
+  // operators
+
+  /// equality operator
+  bool operator==(const L1GctInternJetData& c) const;
+  
+  /// inequality operator
+  bool operator!=(const L1GctInternJetData& c) const { return !(*this == c); }
+  
 
  private:
 

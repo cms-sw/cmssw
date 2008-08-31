@@ -3,6 +3,8 @@
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctHFBitCounts.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctHFRingEtSums.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctInternHFData.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctInternEtSum.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctInternJetData.h"
 
 
 #include <iostream>
@@ -79,6 +81,49 @@ int main() {
   }
 
 
+  // test intern Et Sum
+  L1GctInternJetData jd;
+  for (unsigned rank=0; rank<0x3f; ++rank) {
+    for (unsigned tauVeto=0; tauVeto<2; ++tauVeto) {
+      for (unsigned phi=0; phi<18; ++phi) {
+	for (unsigned eta=0; eta<11; ++eta) {
+	  for (unsigned et=0; et<0xfff; ++et) {
+	    for (unsigned oflow=0; oflow<2; ++oflow) {
+	      for (unsigned sgnEta=0; sgnEta<2; ++sgnEta) {
+		jd.setData(sgnEta,
+			   oflow,
+			   et,
+			   eta,
+			   phi,
+			   tauVeto,
+			   rank);
+		
+		if ( jd.sgnEta() != sgnEta ||
+		     jd.oflow() != oflow ||
+		     jd.et() != et ||
+		     jd.eta() != eta ||
+		     jd.phi() != phi||
+		     jd.tauVeto() != tauVeto ||
+		     jd.rank() != rank) {
+		  std::cout << "L1GctInternEtSum failed : " << std::endl;
+		  std::cout << "Expected sgnEta=" << sgnEta;
+		  std::cout << " oflow="<<oflow;
+		  std::cout << " et="<<et;
+		  std::cout << " eta="<<eta;
+		  std::cout << " phi="<<phi;
+		  std::cout << " tauVeto="<<tauVeto;
+		  std::cout << " rank="<<rank << std::endl;
+		  std:: cout <<"Got " << jd << std::endl;
+		  exit(1);
+		}
+	      }
+	    }
+	  }
+	}
+      }
+    }
+  }
+
+  exit(0);
 
 }
-
