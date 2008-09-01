@@ -1,5 +1,5 @@
 //
-// $Id: PATGenericParticleProducer.cc,v 1.4 2008/07/08 21:24:50 gpetrucc Exp $
+// $Id: PATGenericParticleProducer.cc,v 1.5 2008/07/22 12:47:02 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATGenericParticleProducer.h"
@@ -26,13 +26,18 @@ PATGenericParticleProducer::PATGenericParticleProducer(const edm::ParameterSet &
   
   // MC matching configurables
   addGenMatch_   = iConfig.getParameter<bool>( "addGenMatch" );
-  embedGenMatch_ = iConfig.getParameter<bool>( "embedGenMatch" );
-  genPartSrc_    = iConfig.getParameter<edm::InputTag>( "genParticleMatch" );
-#if 0
+  if (addGenMatch_) {
+      embedGenMatch_ = iConfig.getParameter<bool>         ( "embedGenMatch" );
+      if (iConfig.existsAs<edm::InputTag>("genParticleMatch")) {
+          genMatchSrc_.push_back(iConfig.getParameter<edm::InputTag>( "genParticleMatch" ));
+      } else {
+          genMatchSrc_ = iConfig.getParameter<std::vector<edm::InputTag> >( "genParticleMatch" );
+      }
+  }
+ 
   // Trigger matching configurables
   addTrigMatch_  = iConfig.getParameter<bool>( "addTrigMatch" );
   trigPrimSrc_   = iConfig.getParameter<std::vector<edm::InputTag> >( "trigPrimMatch" );
-#endif
 
   // quality
   addQuality_ = iConfig.getParameter<bool>("addQuality");
@@ -88,8 +93,12 @@ void PATGenericParticleProducer::produce(edm::Event & iEvent, const edm::EventSe
   }
 
   // prepare the MC matching
-  edm::Handle<edm::Association<reco::GenParticleCollection> > genMatch;
-  if (addGenMatch_) iEvent.getByLabel(genPartSrc_, genMatch);
+  std::vector<edm::Handle<edm::Association<reco::GenParticleCollection> > > genMatches(genMatchSrc_.size());
+  if (addGenMatch_) {
+        for (size_t j = 0, nd = genMatchSrc_.size(); j < nd; ++j) {
+            iEvent.getByLabel(genMatchSrc_[j], genMatches[j]);
+        }
+  }
 
   // prepare the quality
   edm::Handle<edm::ValueMap<float> > qualities;
@@ -114,7 +123,6 @@ void PATGenericParticleProducer::produce(edm::Event & iEvent, const edm::EventSe
     if (embedSuperCluster_) aGenericParticle.embedSuperCluster();
     if (embedCaloTower_)    aGenericParticle.embedCaloTower();
 
-#if 0
     // matches to fired trigger primitives
     if ( addTrigMatch_ ) {
       for ( size_t i = 0; i < trigPrimSrc_.size(); ++i ) {
@@ -126,7 +134,7 @@ void PATGenericParticleProducer::produce(edm::Event & iEvent, const edm::EventSe
         }
       }
     }
-#endif
+
     // isolation
     if (isolator_.enabled()) {
         isolator_.fill(*cands, idx, isolatorTmpStorage_);
@@ -142,12 +150,13 @@ void PATGenericParticleProducer::produce(edm::Event & iEvent, const edm::EventSe
         aGenericParticle.setIsoDeposit(isoDepositLabels_[j].first, (*deposits[j])[candRef]);
     }
 
-    // match to generated final state particle
+    // store the match to the generated final state muons
     if (addGenMatch_) {
-      reco::GenParticleRef genGenericParticle = (*genMatch)[candRef];
-      if (genGenericParticle.isNonnull() && genGenericParticle.isAvailable() ) {
-        aGenericParticle.setGenParticleRef(genGenericParticle, embedGenMatch_);
-      } 
+      for(size_t i = 0, n = genMatches.size(); i < n; ++i) {
+          reco::GenParticleRef genGenericParticle = (*genMatches[i])[candRef];
+          aGenericParticle.addGenParticleRef(genGenericParticle);
+      }
+      if (embedGenMatch_) aGenericParticle.embedGenParticle();
     }
 
     if (addQuality_) {

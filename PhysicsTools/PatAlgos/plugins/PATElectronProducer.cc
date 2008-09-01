@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.cc,v 1.12 2008/07/10 12:21:18 fronga Exp $
+// $Id: PATElectronProducer.cc,v 1.13 2008/07/21 17:18:38 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATElectronProducer.h"
@@ -35,8 +35,14 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet & iConfig) :
   
   // MC matching configurables
   addGenMatch_      = iConfig.getParameter<bool>          ( "addGenMatch" );
-  embedGenMatch_    = iConfig.getParameter<bool>          ( "embedGenMatch" );
-  genMatchSrc_       = iConfig.getParameter<edm::InputTag>( "genParticleMatch" );
+  if (addGenMatch_) {
+      embedGenMatch_ = iConfig.getParameter<bool>         ( "embedGenMatch" );
+      if (iConfig.existsAs<edm::InputTag>("genParticleMatch")) {
+          genMatchSrc_.push_back(iConfig.getParameter<edm::InputTag>( "genParticleMatch" ));
+      } else {
+          genMatchSrc_ = iConfig.getParameter<std::vector<edm::InputTag> >( "genParticleMatch" );
+      }
+  }
   
   // trigger matching configurables
   addTrigMatch_     = iConfig.getParameter<bool>         ( "addTrigMatch" );
@@ -145,9 +151,11 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
   }
 
   // prepare the MC matching
-  edm::Handle<edm::Association<reco::GenParticleCollection> > genMatch;
+  std::vector<edm::Handle<edm::Association<reco::GenParticleCollection> > > genMatches(genMatchSrc_.size());
   if (addGenMatch_) {
-    iEvent.getByLabel(genMatchSrc_, genMatch);
+        for (size_t j = 0, nd = genMatchSrc_.size(); j < nd; ++j) {
+            iEvent.getByLabel(genMatchSrc_[j], genMatches[j]);
+        }
   }
 
   // prepare ID extraction 
@@ -172,12 +180,13 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
     if (embedSuperCluster_) anElectron.embedSuperCluster();
     if (embedTrack_) anElectron.embedTrack();
 
-    // store the match to the generated final state electrons
+    // store the match to the generated final state muons
     if (addGenMatch_) {
-      reco::GenParticleRef genElectron = (*genMatch)[elecsRef];
-      if (genElectron.isNonnull() && genElectron.isAvailable() ) {
-        anElectron.setGenLepton(genElectron, embedGenMatch_);
-      } // leave empty if no match found
+      for(size_t i = 0, n = genMatches.size(); i < n; ++i) {
+          reco::GenParticleRef genElectron = (*genMatches[i])[elecsRef];
+          anElectron.addGenParticleRef(genElectron);
+      }
+      if (embedGenMatch_) anElectron.embedGenParticle();
     }
     
     // matches to trigger primitives
