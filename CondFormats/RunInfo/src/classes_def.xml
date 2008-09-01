@@ -1,6 +1,10 @@
 <lcgdict>
- <class name="RunNumber::Item"/>
- <class name="std::vector<RunNumber::Item>"/>
- <class name="RunNumber" class_version="0"/>
+ <class name="runinfo_test::RunNumber::Item"/>
+ <class name="std::vector<runinfo_test::RunNumber::Item>"/>
+ <class name="runinfo_test::RunNumber" class_version="0"/>
+
+ <class name="L1TriggerScaler::Lumi"/>
+ <class name="std::vector<L1TriggerScaler::Lumi>"/>
+ <class name="L1TriggerScaler" class_version="0"/>
  
 </lcgdict>  
