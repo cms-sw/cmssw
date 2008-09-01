@@ -212,7 +212,7 @@ void CSCSummary::ReadErrorChambers(TH2*& evs, TH2*& err, const HWStatusBit bit, 
  */
 void CSCSummary::Write(TH2*& h2, const unsigned int station) const {
   const CSCAddressBox* box;
-  CSCAddress adr;
+  CSCAddress adr, tadr;
 
   if(station < 1 || station > N_STATIONS) return; 
 
@@ -226,7 +226,8 @@ void CSCSummary::Write(TH2*& h2, const unsigned int station) const {
 
     unsigned int x = 1 + (box->adr.side - 1) * 9 + (box->adr.ring - 1) * 3 + (box->adr.hv - 1);
     unsigned int y = 1 + (box->adr.chamber - 1) * 5 + (box->adr.cfeb - 1);
-    HWStatusBitSet status = GetValue(const_cast<CSCAddress&>(box->adr));
+    tadr = box->adr;
+    HWStatusBitSet status = GetValue(tadr);
     if (HWSTATUSANYERROR(status)) {
       h2->SetBinContent(x, y, -1.0);
     } else
@@ -451,7 +452,7 @@ const int CSCSummary::IsPhysicsReady(const float xmin, const float xmax, const f
 
   if (xmin >= -1.0 && xmax <= 1.0) return 0; 
 
-  CSCAddress adr;
+  CSCAddress adr, tadr;
   const CSCAddressBox *box;
 
   adr.mask.ring = adr.mask.chamber = adr.mask.layer = adr.mask.cfeb = adr.mask.hv = false;
@@ -474,7 +475,8 @@ const int CSCSummary::IsPhysicsReady(const float xmin, const float xmax, const f
       if ((xpmin < xboxmin && xpmax < xboxmin) || (xpmin > xboxmax && xpmax > xboxmax)) continue;
       if ((ypmin < yboxmin && ypmax < yboxmin) || (ypmin > yboxmax && ypmax > yboxmax)) continue;
 
-      status |= GetValue(const_cast<CSCAddress&>(box->adr));
+      tadr = box->adr;
+      status |= GetValue(tadr);
 
     }
 
