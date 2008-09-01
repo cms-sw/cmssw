@@ -5,14 +5,8 @@
 #include "TestBase.h"
 #include "CoralBase/TimeStamp.h"
 #include "CondFormats/RunInfo/interface/RunNumber.h"
-/*
- *  \class RunNumberRead
- *  
- *  coral application for reading  runnumber info from Run Control account in OMDS and filling the object
- *  
- *  \author Michele de Gruttola (degrutto) - INFN Naples / CERN (June-25-2008)
- *
-*/
+
+using namespace runinfo_test;
 
 class RunNumberRead : virtual public TestBase
 {

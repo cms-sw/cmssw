@@ -84,7 +84,8 @@ RunNumberRead::readData(const std::string & table, const std::string &column, co
      select  string_value from cms_runinfo.runsession_parameter where cms_runinfo.runsession_parameter.runnumber=r_number AND   cms_runinfo.runsession_parameter.name='CMS.LVL0:SEQ_NAME'
      
 2) to extract the number 
-select string_value from cms_runinfo.runsession_parameter where cms_runinfo.runsession_parameter.runnumber=runnumber AND   cms_runinfo.runsession_parameter.name='CMS.LVL0:SEQ_NUMBER'
+select string_value from cms_runinfo.runsession_parameter where cms_runinfo.runsession_parameter.runnumber=runnumber  AND   cms_runinfo.runsession_parameter.name='CMS.LVL0:SEQ_NUMBER'
+
 
 3) to extract the start_time 
 
@@ -100,10 +101,10 @@ select string_value from cms_runinfo.runsession_parameter where cms_runinfo.runs
 
 5) to extract the lumisections number for the run
 select MAX(lsnumber)   FROM cms_runinfo.hlt_supervisor_lumisections where cms_runinfo.hlt_supervisor_lumisections.runnr=runnumber
-  */
-  
 
-  
+6) for extract subdt_joined:
+select  string_value from cms_runinfo.runsession_parameter   where cms_runinfo.runsession_parameter.runnumber=51770 AND cms_runinfo.runsession_parameter.name LIKE 'CMS.LVL0%' RPC, ECAL,....
+  */  
 
 
   std::cout<< "entering readData" << std::endl;
@@ -144,6 +145,7 @@ std::string m_start_time_str;
 signed long long m_stop_time_sll;
 std::string m_stop_time_str;
 int  m_lumisections;
+std::vector<std::string> subdt_joined;
 .....
 
   */
@@ -379,6 +381,156 @@ int  m_lumisections;
  std::cout<<" leaving the query  "<< std::endl;  
  delete queryV;
  
+ // new queries to obtain the subdetector joining or not
+
+coral::IQuery* queryVIPIXEL = schema.tableHandle( m_tableToRead).newQuery();  
+  queryVIPIXEL->addToOutputList( m_tableToRead + "." +  m_columnToRead, m_columnToRead  );
+  //  condition 
+  std::string condition6PIXEL = m_tableToRead + ".runnumber=:n_run AND " +  m_tableToRead +  ".name='CMS.LVL0:PIXEL'";
+  queryVIPIXEL->setCondition( condition6PIXEL, conditionData );
+  coral::ICursor& cursorVIPIXEL = queryVIPIXEL->execute();
+  
+  if ( cursorVIPIXEL.next()!=0  ) {
+    const coral::AttributeList& row = cursorVIPIXEL.currentRow();
+    
+    Itemp.m_subdt_joined.push_back("PIXEL:" + row[m_columnToRead].data<std::string>());
+    if (row[m_columnToRead].data<std::string>()=="In") Itemp.m_subdt_in.push_back(Itemp.PIXEL) ;
+    
+  }
+  else{
+    Itemp.m_subdt_joined.push_back("PIXEL:null");
+    
+  }
+   delete queryVIPIXEL;
+
+coral::IQuery* queryVITRACKER = schema.tableHandle( m_tableToRead).newQuery();  
+  queryVITRACKER->addToOutputList( m_tableToRead + "." +  m_columnToRead, m_columnToRead  );
+  //  condition 
+  std::string condition6TRACKER = m_tableToRead + ".runnumber=:n_run AND " +  m_tableToRead +  ".name='CMS.LVL0:TRACKER'";
+  queryVITRACKER->setCondition( condition6TRACKER, conditionData );
+  coral::ICursor& cursorVITRACKER = queryVITRACKER->execute();
+  
+  if ( cursorVITRACKER.next()!=0  ) {
+    const coral::AttributeList& row = cursorVITRACKER.currentRow();
+    
+    Itemp.m_subdt_joined.push_back("TRACKER:" + row[m_columnToRead].data<std::string>());
+    if (row[m_columnToRead].data<std::string>()=="In") Itemp.m_subdt_in.push_back(Itemp.TRACKER) ;
+  }
+  else{
+    Itemp.m_subdt_joined.push_back("TRACKER:null");
+    
+  }
+   delete queryVITRACKER;
+
+coral::IQuery* queryVIECAL = schema.tableHandle( m_tableToRead).newQuery();  
+  queryVIECAL->addToOutputList( m_tableToRead + "." +  m_columnToRead, m_columnToRead  );
+  //  condition 
+  std::string condition6ECAL = m_tableToRead + ".runnumber=:n_run AND " +  m_tableToRead +  ".name='CMS.LVL0:ECAL'";
+  queryVIECAL->setCondition( condition6ECAL, conditionData );
+  coral::ICursor& cursorVIECAL = queryVIECAL->execute();
+  
+  if ( cursorVIECAL.next()!=0  ) {
+    const coral::AttributeList& row = cursorVIECAL.currentRow();
+    
+    Itemp.m_subdt_joined.push_back("ECAL:" + row[m_columnToRead].data<std::string>());
+    if (row[m_columnToRead].data<std::string>()=="In") Itemp.m_subdt_in.push_back(Itemp.ECAL) ;
+  }
+  else{
+    Itemp.m_subdt_joined.push_back("ECAL:null");
+    
+  }
+   delete queryVIECAL;
+
+coral::IQuery* queryVIHCAL = schema.tableHandle( m_tableToRead).newQuery();  
+  queryVIHCAL->addToOutputList( m_tableToRead + "." +  m_columnToRead, m_columnToRead  );
+  //  condition 
+  std::string condition6HCAL = m_tableToRead + ".runnumber=:n_run AND " +  m_tableToRead +  ".name='CMS.LVL0:HCAL'";
+  queryVIHCAL->setCondition( condition6HCAL, conditionData );
+  coral::ICursor& cursorVIHCAL = queryVIHCAL->execute();
+  
+  if ( cursorVIHCAL.next()!=0  ) {
+    const coral::AttributeList& row = cursorVIHCAL.currentRow();
+    
+    Itemp.m_subdt_joined.push_back("HCAL:" + row[m_columnToRead].data<std::string>());
+    if (row[m_columnToRead].data<std::string>()=="In") Itemp.m_subdt_in.push_back(Itemp.HCAL) ;
+  }
+  else{
+    Itemp.m_subdt_joined.push_back("HCAL:null");
+    
+  }
+   delete queryVIHCAL;
+
+
+coral::IQuery* queryVIDT = schema.tableHandle( m_tableToRead).newQuery();  
+  queryVIDT->addToOutputList( m_tableToRead + "." +  m_columnToRead, m_columnToRead  );
+  //  condition 
+  std::string condition6DT = m_tableToRead + ".runnumber=:n_run AND " +  m_tableToRead +  ".name='CMS.LVL0:DT'";
+  queryVIDT->setCondition( condition6DT, conditionData );
+  coral::ICursor& cursorVIDT = queryVIDT->execute();
+  
+  if ( cursorVIDT.next()!=0  ) {
+    const coral::AttributeList& row = cursorVIDT.currentRow();
+    
+    Itemp.m_subdt_joined.push_back("DT:" + row[m_columnToRead].data<std::string>());
+    if (row[m_columnToRead].data<std::string>()=="In") Itemp.m_subdt_in.push_back(Itemp.DT) ;
+  }
+  else{
+    Itemp.m_subdt_joined.push_back("DT:null");
+    
+  }
+   delete queryVIDT;
+
+coral::IQuery* queryVICSC = schema.tableHandle( m_tableToRead).newQuery();  
+  queryVICSC->addToOutputList( m_tableToRead + "." +  m_columnToRead, m_columnToRead  );
+  //  condition 
+  std::string condition6CSC = m_tableToRead + ".runnumber=:n_run AND " +  m_tableToRead +  ".name='CMS.LVL0:CSC'";
+  queryVICSC->setCondition( condition6CSC, conditionData );
+  coral::ICursor& cursorVICSC = queryVICSC->execute();
+  
+  if ( cursorVICSC.next()!=0  ) {
+    const coral::AttributeList& row = cursorVICSC.currentRow();
+    
+    Itemp.m_subdt_joined.push_back("CSC:" + row[m_columnToRead].data<std::string>());
+    if (row[m_columnToRead].data<std::string>()=="In") Itemp.m_subdt_in.push_back(Itemp.CSC) ;
+  }
+  else{
+    Itemp.m_subdt_joined.push_back("CSC:null");
+    
+  }
+   delete queryVICSC;
+
+coral::IQuery* queryVIRPC = schema.tableHandle( m_tableToRead).newQuery();  
+  queryVIRPC->addToOutputList( m_tableToRead + "." +  m_columnToRead, m_columnToRead  );
+  //  condition 
+  std::string condition6RPC = m_tableToRead + ".runnumber=:n_run AND " +  m_tableToRead +  ".name='CMS.LVL0:RPC'";
+  queryVIRPC->setCondition( condition6RPC, conditionData );
+  coral::ICursor& cursorVIRPC = queryVIRPC->execute();
+  
+  if ( cursorVIRPC.next()!=0  ) {
+    const coral::AttributeList& row = cursorVIRPC.currentRow();
+    
+    Itemp.m_subdt_joined.push_back("RPC:" + row[m_columnToRead].data<std::string>());
+    if (row[m_columnToRead].data<std::string>()=="In") Itemp.m_subdt_in.push_back(Itemp.RPC) ;
+  }
+  else{
+    Itemp.m_subdt_joined.push_back("RPC:null");
+    
+  }
+   delete queryVIRPC;
+
+
+
+
+
+
+
+   for (size_t pos=0; pos<  Itemp.m_subdt_joined.size(); ++pos){ 
+     std::cout <<" value for subdetector joined extracted " <<Itemp.m_subdt_joined[pos] << std::endl;
+     }
+
+
+
+
  session->transaction().commit();
  delete session;
  

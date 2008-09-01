@@ -30,19 +30,11 @@
 
 
 
-/*
- *  \class RunNumberHandler
- *  
- *  popcon handler for holding  runnumber info from Run Control
- *  
- *  \author Michele de Gruttola (degrutto) - INFN Naples / CERN (June-25-2008)
- *
-*/
 
 
 using namespace std;
 
-
+using namespace runinfo_test;
 
   class RunNumberHandler : public popcon::PopConSourceHandler<RunNumber>{
   public:
