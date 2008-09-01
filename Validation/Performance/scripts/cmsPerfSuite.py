@@ -621,7 +621,7 @@ def main(argv):
     printFlush(os.popen4(AuxiliaryScripts[2])[1].read())
 
     if not prevrel == "":
-        crr.compareLogs(prevrel,os.path.abspath("./"),oldRelName = getVerFromLog(prevrel))
+        crr.regressReports(prevrel,os.path.abspath("./"),oldRelName = getVerFromLog(prevrel))
         os.system("touch REGRESSION.%s.vs.%s" % (cmssw_version,getVerFromLog(prevrel)))
 
     #Create a tarball of the work directory
