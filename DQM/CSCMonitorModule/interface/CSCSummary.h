@@ -25,25 +25,30 @@
 #include <bitset>
 #include "DQM/CSCMonitorModule/interface/CSCDetector.h"
 
-#define HWSTATUSBITSETSIZE    11
-#define HWSTATUSERRORBITS     0x8fe
+#define HWSTATUSBITSETSIZE    12
+#define HWSTATUSERRORBITS     0xffe
 #define HWSTATUSEQUALS(s, m)  (((std::bitset<HWSTATUSBITSETSIZE>) m & s) == m)
 #define HWSTATUSANY(s, m)     (((std::bitset<HWSTATUSBITSETSIZE>) m & s).any())
 #define HWSTATUSANYERROR(s)   (HWSTATUSANY(s, HWSTATUSERRORBITS))
 
 
 enum HWStatusBit {
+
   DATA,         // Data available (reporting)
   MASKED,       // HW element was masked out (not in readout)
   HOT,          // HW element is hot by comparing with reference histogram 
   COLD,         // HW element is cold comparing with reference histogram
+
   FORMAT_ERR,   // Format errors
   L1SYNC_ERR,   // L1A out of sync errors
   FIFOFULL_ERR, // DMB FIFO full error
   INPUTTO_ERR,  // DMB Input timeout error
+
   NODATA_ALCT,  // No ALCT data
   NODATA_CLCT,  // No CLCT data
-  NODATA_CFEB   // No CFEB data
+  NODATA_CFEB,  // No CFEB data
+  CFEB_BWORDS   // Data with CFEB BWORDS
+
 };
 
 typedef std::bitset<HWSTATUSBITSETSIZE> HWStatusBitSet;

@@ -141,25 +141,52 @@ void CSCMonitorModule::updateFracHistos() {
       summary.ReadReportingChambers(rep, 1.0);
     }
 
+    double threshold = effParameters.getUntrackedParameter<double>("threshold_err", 0.1);
+    double sigfail   = effParameters.getUntrackedParameter<double>("sigfail_err", 5.0);
+
     if (MEEMU("CSC_Format_Errors", me2)) {
       TH2* err = dynamic_cast<TH2*>(me2->getTH1());
-      summary.ReadErrorChambers(rep, err, FORMAT_ERR, 0.1, 5.0);
+      summary.ReadErrorChambers(rep, err, FORMAT_ERR, threshold, sigfail);
     }
 
     if (MEEMU("CSC_L1A_out_of_sync", me2)) {
       TH2* err = dynamic_cast<TH2*>(me2->getTH1());
-      summary.ReadErrorChambers(rep, err, L1SYNC_ERR, 0.1, 5.0);
+      summary.ReadErrorChambers(rep, err, L1SYNC_ERR, threshold, sigfail);
     }
 
     if (MEEMU("CSC_DMB_input_fifo_full", me2)) {
       TH2* err = dynamic_cast<TH2*>(me2->getTH1());
-      summary.ReadErrorChambers(rep, err, FIFOFULL_ERR, 0.1, 5.0);
+      summary.ReadErrorChambers(rep, err, FIFOFULL_ERR, threshold, sigfail);
     }
 
     if (MEEMU("CSC_DMB_input_timeout", me2)) {
       TH2* err = dynamic_cast<TH2*>(me2->getTH1());
-      summary.ReadErrorChambers(rep, err, INPUTTO_ERR, 0.1, 5.0);
+      summary.ReadErrorChambers(rep, err, INPUTTO_ERR, threshold, sigfail);
     }
+
+    threshold = effParameters.getUntrackedParameter<double>("threshold_nodata", 0.9);
+    sigfail   = effParameters.getUntrackedParameter<double>("sigfail_nodata", 5.0);
+
+    if (MEEMU("CSC_wo_ALCT", me2)) {
+      TH2* err = dynamic_cast<TH2*>(me2->getTH1());
+      summary.ReadErrorChambers(rep, err, NODATA_ALCT, threshold, sigfail);
+    }
+
+    if (MEEMU("CSC_wo_CLCT", me2)) {
+      TH2* err = dynamic_cast<TH2*>(me2->getTH1());
+      summary.ReadErrorChambers(rep, err, NODATA_CLCT, threshold, sigfail);
+    }
+
+    if (MEEMU("CSC_wo_CFEB", me2)) {
+      TH2* err = dynamic_cast<TH2*>(me2->getTH1());
+      summary.ReadErrorChambers(rep, err, NODATA_CFEB, threshold, sigfail);
+    }
+
+    if (MEEMU("CSC_Format_Warnings", me2)) {
+      TH2* err = dynamic_cast<TH2*>(me2->getTH1());
+      summary.ReadErrorChambers(rep, err, CFEB_BWORDS, threshold, sigfail);
+    }
+
   }
 
   //
@@ -176,6 +203,46 @@ void CSCMonitorModule::updateFracHistos() {
     TH2* tmp = dynamic_cast<TH2*>(me1->getTH1());
     summary.WriteChamberState(tmp, 0x4, 2, true, false);
     summary.WriteChamberState(tmp, 0x8, 1, false, false);
+  }
+
+  if (MEEMU("CSC_STATS_format_err", me1)){
+    TH2* tmp = dynamic_cast<TH2*>(me1->getTH1());
+    summary.WriteChamberState(tmp, 0x10, 1, true, false);
+  }
+
+  if (MEEMU("CSC_STATS_l1sync_err", me1)){
+    TH2* tmp = dynamic_cast<TH2*>(me1->getTH1());
+    summary.WriteChamberState(tmp, 0x20, 1, true, false);
+  }
+
+  if (MEEMU("CSC_STATS_fifofull_err", me1)){
+    TH2* tmp = dynamic_cast<TH2*>(me1->getTH1());
+    summary.WriteChamberState(tmp, 0x40, 1, true, false);
+  }
+
+  if (MEEMU("CSC_STATS_inputto_err", me1)){
+    TH2* tmp = dynamic_cast<TH2*>(me1->getTH1());
+    summary.WriteChamberState(tmp, 0x80, 1, true, false);
+  }
+
+  if (MEEMU("CSC_STATS_wo_alct", me1)){
+    TH2* tmp = dynamic_cast<TH2*>(me1->getTH1());
+    summary.WriteChamberState(tmp, 0x100, 1, true, false);
+  }
+
+  if (MEEMU("CSC_STATS_wo_clct", me1)){
+    TH2* tmp = dynamic_cast<TH2*>(me1->getTH1());
+    summary.WriteChamberState(tmp, 0x200, 1, true, false);
+  }
+
+  if (MEEMU("CSC_STATS_wo_cfeb", me1)){
+    TH2* tmp = dynamic_cast<TH2*>(me1->getTH1());
+    summary.WriteChamberState(tmp, 0x400, 1, true, false);
+  }
+
+  if (MEEMU("CSC_STATS_cfeb_bwords", me1)){
+    TH2* tmp = dynamic_cast<TH2*>(me1->getTH1());
+    summary.WriteChamberState(tmp, 0x800, 1, true, false);
   }
 
   //

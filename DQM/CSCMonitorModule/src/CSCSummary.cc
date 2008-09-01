@@ -311,7 +311,7 @@ const float CSCSummary::WriteMap(TH2*& h2) const {
  * @param  reset should all chamber states be reseted to 0?
  * @return 
  */
-void CSCSummary::WriteChamberState(TH2*& h2, const int mask, const int value, const bool reseti, const bool op_any) const {
+void CSCSummary::WriteChamberState(TH2*& h2, const int mask, const int value, const bool reset, const bool op_any) const {
   if(h2->GetXaxis()->GetXmin() <= 1 && h2->GetXaxis()->GetXmax() >= 36 &&
      h2->GetYaxis()->GetXmin() <= 1 && h2->GetYaxis()->GetXmax() >= 18) {
 
