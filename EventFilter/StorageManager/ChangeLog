@@ -1,3 +1,10 @@
+2008-09-01  Harry Cheung <cheung@fnal.gov>
+
+	* tag V03-14-09
+	* Temporary solution for stored events statistics, gathered in workloop instead
+	  and also removed temporarily the RB senders web page link that was causing
+	  problems until we can reproduce it in a test setup
+
 2008-08-27  Kurt Biery <biery@fnal.gov>
 
 	* tag V03-14-08

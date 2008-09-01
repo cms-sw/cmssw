@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.75 2008/08/18 20:07:42 biery Exp $
+// $Id: StorageManager.cc,v 1.76 2008/08/27 22:46:39 biery Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -1219,6 +1219,9 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
           *out << "</tr>" << endl;
         }
         *out << "<tr><td bgcolor=\"#999933\" height=\"1\" colspan=\"2\"></td></tr>" << endl;
+/*  Take the value from the last monitoring workloop (every 10 sec) as
+    this piece of code doesn't seem to work always for all SM instances?
+
         if(fsm_.stateName()->value_ == "Enabled")
         {
           if(jc_.get() != NULL) {
@@ -1239,9 +1242,10 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
             }
           }
         }
+*/
         *out << "<tr class=\"special\">" << endl;
           *out << "<td >" << endl;
-          *out << "Events Stored for this Run" << endl;
+          *out << "Events Stored for this Run (updated only every 10 sec)" << endl;
           *out << "</td>" << endl;
           *out << "<td align=right>" << endl;
           *out << storedEvents_ << endl;
@@ -1337,7 +1341,7 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
         }
     *out << "  <tr>"                                                   << endl;
     *out << "    <th colspan=4>"                                       << endl;
-    *out << "      " << "Streams (updated only every 30 sec)"          << endl;
+    *out << "      " << "Streams (updated only every 10 sec)"          << endl;
     *out << "    </th>"                                                << endl;
     *out << "  </tr>"                                                  << endl;
         *out << "<tr class=\"special\">"			       << endl;
@@ -1544,9 +1548,13 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
   *out << "<hr/>"                                                 << endl;
   std::string url = getApplicationDescriptor()->getContextDescriptor()->getURL();
   std::string urn = getApplicationDescriptor()->getURN();
+/*  problem with RBsenders page but cannot reproduce to debug in test setup
+    so temporarily remove for running
+
   *out << "<a href=\"" << url << "/" << urn << "/rbsenderlist" << "\">" 
        << "RB Sender list web page" << "</a>" << endl;
   *out << "<hr/>"                                                 << endl;
+*/
   *out << "<a href=\"" << url << "/" << urn << "/streameroutput" << "\">" 
        << "Streamer Output Status web page" << "</a>" << endl;
   *out << "<hr/>"                                                 << endl;
@@ -4047,6 +4055,8 @@ void StorageManager::actionPerformed(xdata::Event& e)
         receivedEventsFromOutMod_.push_back(receivedEventsMap_[oi->second]);
         namesOfOutMod_.push_back(oi->second);
       }
+/* removed for temporary solution of using the monitoring loop
+
     } else if (item == "storedEvents" || item == "storedEventsInStream" || item == "namesOfStream") {
       // only clear and get values if in enabled state so latest values available if fail/stop
       if(jc_.get() != NULL) {
@@ -4066,6 +4076,7 @@ void StorageManager::actionPerformed(xdata::Event& e)
               namesOfStream_.push_back(*it);
         }
       }
+*/
     } else if (item == "progressMarker")
       progressMarker_ = ProgressMarker::instance()->status();
     is->unlock();
@@ -4606,7 +4617,7 @@ bool StorageManager::monitoring(toolbox::task::WorkLoop* wl)
     return false; // stop monitoring workloop after going to failed state
   }
 
-  ::sleep(30);
+  ::sleep(10);
   if(jc_.get() != NULL && jc_->getInitMsgCollection().get() != NULL &&
      jc_->getInitMsgCollection()->size() > 0) {
     boost::mutex::scoped_lock sl(halt_lock_);
@@ -4616,6 +4627,29 @@ bool StorageManager::monitoring(toolbox::task::WorkLoop* wl)
       oss << "urn:xdaq-monitorable:" << class_.value_ << ":" << instance_.value_;
       xdata::InfoSpace *is = xdata::InfoSpace::get(oss.str());  
       is->lock();
+
+      // now for separate stored events via monitoring loop (temporary solution?)
+      // following is thread safe as size of all_storedEvents is fixed (number of streams)
+      std::vector<uint32> all_storedEvents = jc_->get_storedEvents();
+      if(all_storedEvents.begin() != all_storedEvents.end())
+      {
+        // only reset if there are stored events otherwise on stop stats are reset to zero
+        // we want to keep them for retrieval
+        storedEvents_ = 0;
+        storedEventsInStream_.clear();
+        namesOfStream_.clear();
+        std::vector<std::string> all_storedNames = jc_->get_storedNames();
+        for(std::vector<uint32>::iterator it = all_storedEvents.begin(), itEnd = all_storedEvents.end();
+            it != itEnd; ++it) {
+              storedEvents_ = storedEvents_ + (*it);
+              storedEventsInStream_.push_back(*it);
+        }
+        for(std::vector<std::string>::iterator it = all_storedNames.begin(), itEnd = all_storedNames.end();
+            it != itEnd; ++it) {
+              namesOfStream_.push_back(*it);
+        }
+      }
+      // end temporary solution
       
       std::list<std::string>& files = jc_->get_filelist();
 
