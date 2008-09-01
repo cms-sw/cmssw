@@ -8,8 +8,8 @@
  *  The t0 of wires in odd layers are corrected for the relative difference between 
  *  odd and even layers 
  *
- *  $Date: 2008/02/19 15:13:01 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/08/06 15:23:11 $
+ *  $Revision: 1.1 $
  *  \author S. Bolognesi - INFN Torino
  */
 
@@ -72,6 +72,9 @@ private:
 
   //Acceptance of t0 w.r.t. reference peak
   double tpPeakWidth;
+
+  //Acceptance of t0 w.r.t. reference peak
+  double tpPeakWidthPerLayer;
 
   //Size of timeBox 
   unsigned int timeBoxWidth; 

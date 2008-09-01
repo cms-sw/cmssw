@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/02/19 15:13:21 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/08/06 15:23:11 $
+ *  $Revision: 1.1 $
  *  \author S. Bolognesi - INFN Torino
  *  06/08/2008 Mofified by Antonio.Vilela.Pereira@cern.ch
  */
@@ -84,6 +84,7 @@ DTT0CalibrationNew::DTT0CalibrationNew(const edm::ParameterSet& pset) {
   eventsForLayerT0 = pset.getParameter<unsigned int>("eventsForLayerT0");
   eventsForWireT0 = pset.getParameter<unsigned int>("eventsForWireT0");
   tpPeakWidth = pset.getParameter<double>("tpPeakWidth");
+  tpPeakWidthPerLayer = pset.getParameter<double>("tpPeakWidthPerLayer");
   timeBoxWidth = pset.getParameter<unsigned int>("timeBoxWidth"); 
   rejectDigiFromPeak = pset.getParameter<unsigned int>("rejectDigiFromPeak"); 
 
@@ -272,7 +273,9 @@ void DTT0CalibrationNew::analyze(const edm::Event & event, const edm::EventSetup
 	cout<<"Reading histogram "<<(*lHisto).second->GetName()<<" with mean "<<(*lHisto).second->GetMean()<<" and RMS "<<(*lHisto).second->GetRMS() << endl;
 
       //Find peaks
-      int npeaks = spectrum->Search((*lHisto).second,0.5,"goff");
+      //int npeaks = spectrum->Search((*lHisto).second,0.5,"goff");
+      //int npeaks = spectrum->Search((*lHisto).second,(tpPeakWidthPerLayer/2.),"goff",0.3);
+      int npeaks = spectrum->Search((*lHisto).second,(tpPeakWidthPerLayer/2.),"",0.3);
 
       float *peaks = spectrum->GetPositionX();	
       //Put in a std::vector<float>
@@ -325,7 +328,7 @@ void DTT0CalibrationNew::analyze(const edm::Event & event, const edm::EventSetup
 
 	//Reject peaks with RMS larger than specified
 	//if(fitrms > tpPeakWidth) continue;
-	if(rms_seed > tpPeakWidth) continue;
+	if(rms_seed > tpPeakWidthPerLayer) continue;
 
 	if(fabs(mean - timeBoxCenter) < fabs(*tpPeak - timeBoxCenter)) tpPeak = it;
       }	
