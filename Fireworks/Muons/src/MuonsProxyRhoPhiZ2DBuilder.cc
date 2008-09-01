@@ -227,6 +227,8 @@ void MuonsProxyRhoPhiZ2DBuilder::build(const FWEventItem* iItem,
 	   
 	   // add muon segments
 	   addMatchInformation( &(*muon), iItem, outerTrack, muonList, showEndcap );
+	   // change last pathmark type
+	   outerTrack->RefPathMarks().back().fType = TEvePathMark::kDecay;
 	   outerTrack->MakeTrack();
 	   muonList->AddElement( outerTrack );
 	}
