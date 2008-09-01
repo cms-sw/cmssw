@@ -694,7 +694,7 @@ def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDat
                                         pathsExist = reduce (lambda x,y: x or y,map(os.path.exists,map(lambda x: os.path.join(repdir,LocalDirname,outd,x),otherNames)))
                                         html = ""
                                         if pathsExist:
-                                            html = "<p>Performance graphs and histograms superimposed for %s are <a href=\"%s\">here</a></p>\n" % (reportName,regressHTML)
+                                            html = "<p>Superimposed memory performance graphs for %s are <a href=\"%s\">here</a></p>\n" % (reportName,regressHTML)
                                         else:
                                             html = "<p>No change in performance graph available</p>\n"
                                         regressHTML="%s/%s" % (WebArea,regressHTML)
