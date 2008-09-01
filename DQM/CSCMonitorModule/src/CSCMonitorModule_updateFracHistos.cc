@@ -273,7 +273,7 @@ void CSCMonitorModule::updateFracHistos() {
 
     TH2* tmp=dynamic_cast<TH2*>(me1->getTH1());
     float rs = summary.WriteMap(tmp);
-    TString title = Form("EMU Status: Physics Efficiency %.2f%", rs * 100);
+    TString title = Form("EMU Status: Physics Efficiency %.2f%%", rs * 100.0);
     tmp->SetTitle(title);
 
     // Filling in the main summary number

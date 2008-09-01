@@ -238,7 +238,7 @@ void CSCSummary::Write(TH2*& h2, const unsigned int station) const {
 
   }
 
-  TString title = Form("ME%d Status: Physics Efficiency %.2f%", station, GetEfficiencyArea(adr) * 100);
+  TString title = Form("ME%d Status: Physics Efficiency %.2f%%", station, GetEfficiencyArea(adr) * 100.0);
   h2->SetTitle(title);
 
 }
@@ -576,8 +576,8 @@ const double CSCSummary::GetEfficiencyHW(CSCAddress adr) const {
 
   // if not error - then OK!
   HWStatusBitSet status = GetValue(adr); 
-  if (HWSTATUSANYERROR(status)) return 1.0;
-  return 0.0;
+  if (HWSTATUSANYERROR(status)) return 0.0;
+  return 1.0;
 
 }
 
