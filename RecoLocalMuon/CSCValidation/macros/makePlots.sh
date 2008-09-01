@@ -23,10 +23,10 @@ cat > ${MACRO}<<EOF
   f1 = OpenFiles(Path);
 
   //produce occupancy plots
-  Draw2DTempPlot("Digis/hOWires", f1, "hOWires.gif");
-  Draw2DTempPlot("Digis/hOStrips", f1, "hOStrips.gif");
-  Draw2DTempPlot("recHits/hORecHits", f1, "hORecHits.gif");
-  Draw2DTempPlot("Segments/hOSegments", f1, "hOSegments.gif");
+  Draw2DTempPlot("Digis/hOWires", f1, true, "hOWires.gif");
+  Draw2DTempPlot("Digis/hOStrips", f1, true, "hOStrips.gif");
+  Draw2DTempPlot("recHits/hORecHits", f1, true, "hORecHits.gif");
+  Draw2DTempPlot("Segments/hOSegments", f1, true, "hOSegments.gif");
 
   //Make global position graphs from trees
   GlobalPosfromTree("Global recHit positions ME+1", f1, 1, 1, "rechit", "rHglobal_station_+1.gif");
@@ -61,6 +61,11 @@ cat > ${MACRO}<<EOF
   //efficiency plots
   makeEffGif("Efficiency/hRHEff", f1, "RecHit Efficiecy", "Efficiency_hRHEff.gif");
   makeEffGif("Efficiency/hSEff", f1, "Segment Efficiecy", "Efficiency_hSEff.gif");
+  Draw2DTempPlot("Efficiency/hRHEff2", f1, false, "Efficiency_hRHEff2.gif");
+  Draw2DTempPlot("Efficiency/hSEff2", f1, false, "Efficiency_hSEff2.gif");
+  Draw2DTempPlot("Efficiency/hWireEff2", f1, false, "Efficiency_hWireEff2.gif");
+  Draw2DTempPlot("Efficiency/hStripEff2", f1, false, "Efficiency_hStripEff2.gif");
+  Draw2DTempPlot("Efficiency/hSensitiveAreaEvt", f1, false, "Efficiency_hEvts2.gif");
 
   
   //produce wire timing plots
