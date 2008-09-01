@@ -163,6 +163,21 @@ void CSCMonitorModule::updateFracHistos() {
   }
 
   //
+  // Write Global DQM shifter chamber error maps 
+  //
+   
+  if (MEEMU("CSC_STATS_top", me1)){
+    TH2* tmp = dynamic_cast<TH2*>(me1->getTH1());
+    summary.WriteChamberState(tmp, HWSTATUSERRORBITS, 1, true);
+  }
+
+  if (MEEMU("CSC_STATS_occupancy", me1)){
+    TH2* tmp = dynamic_cast<TH2*>(me1->getTH1());
+    summary.WriteChamberState(tmp, 0x4, 2, true);
+    summary.WriteChamberState(tmp, 0x8, 1, false);
+  }
+
+  //
   // Write summary information
   //
 
@@ -186,11 +201,11 @@ void CSCMonitorModule::updateFracHistos() {
     summary.Write(tmp, 4);
   }
 
-  if (MEEventInfo("reportSummaryMap", me1)){
+  if (MEEventInfo("reportSummaryMap", me1)) {
 
     TH2* tmp=dynamic_cast<TH2*>(me1->getTH1());
     float rs = summary.WriteMap(tmp);
-    TString title = Form("EMU Status: Physics Efficiency %.2f", rs);
+    TString title = Form("EMU Status: Physics Efficiency %.2f%", rs * 100);
     tmp->SetTitle(title);
 
     // Filling in the main summary number
@@ -216,11 +231,15 @@ void CSCMonitorModule::updateFracHistos() {
         if(MEReportSummaryContents(summary.Detector().AddressName(adr), me1)) 
           me1->Fill(summary.GetEfficiencyHW(adr));
 
-        adr.mask.ring = true;
-        for (adr.ring = 1; adr.ring <= summary.Detector().NumberOfRings(adr.station); adr.ring++) {
+        if (summary.Detector().NumberOfRings(adr.station) > 1) {
 
-          if(MEReportSummaryContents(summary.Detector().AddressName(adr), me1)) 
-            me1->Fill(summary.GetEfficiencyHW(adr));
+          adr.mask.ring = true;
+          for (adr.ring = 1; adr.ring <= summary.Detector().NumberOfRings(adr.station); adr.ring++) {
+
+            if(MEReportSummaryContents(summary.Detector().AddressName(adr), me1)) 
+              me1->Fill(summary.GetEfficiencyHW(adr));
+
+          }
 
         }
       }

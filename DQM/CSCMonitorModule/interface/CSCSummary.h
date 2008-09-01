@@ -26,17 +26,11 @@
 #include "DQM/CSCMonitorModule/interface/CSCDetector.h"
 
 #define HWSTATUSBITSETSIZE    11
-#define ANYERROR(s)           (\
-                                s.test(HOT) || \
-                                s.test(COLD) || \
-                                s.test(FORMAT_ERR) || \
-                                s.test(L1SYNC_ERR) || \
-                                s.test(FIFOFULL_ERR) || \
-                                s.test(INPUTTO_ERR) || \
-                                s.test(NODATA_ALCT) || \
-                                s.test(NODATA_CLCT) || \
-                                s.test(NODATA_CFEB)\
-                              )
+#define HWSTATUSERRORBITS     0xffe
+#define HWSTATUSEQUALS(s, m)  (((std::bitset<HWSTATUSBITSETSIZE>) m & s) == m)
+#define HWSTATUSANY(s, m)     (((std::bitset<HWSTATUSBITSETSIZE>) m & s).any())
+#define HWSTATUSANYERROR(s)   (HWSTATUSANY(s, HWSTATUSERRORBITS))
+
 
 enum HWStatusBit {
   DATA,         // Data available (reporting)
@@ -73,14 +67,15 @@ class CSCSummary {
 
     void Write(TH2*& h2, const unsigned int station) const;
     const float WriteMap(TH2*& h2) const;
+    void WriteChamberState(TH2*& h2, const int mask, const int value = 1, const bool reset = true) const;
 
     void ReSetValue(const HWStatusBit bit);
     void ReSetValue(CSCAddress adr, const HWStatusBit bit);
     void SetValue(const HWStatusBit bit, const int value = 1);
     void SetValue(CSCAddress adr, const HWStatusBit bit, const int value = 1);
 
-    const HWStatusBitSet GetValue(const CSCAddress& adr) const;
-    const unsigned long IsPhysicsReady(const float xmin, const float xmax, const float ymin, const float ymax) const;
+    const HWStatusBitSet GetValue(CSCAddress& adr) const;
+    const int IsPhysicsReady(const float xmin, const float xmax, const float ymin, const float ymax) const;
 
     const double GetEfficiencyHW() const;
     const double GetEfficiencyHW(const unsigned int station) const;
@@ -90,7 +85,8 @@ class CSCSummary {
 
   private:
 
-    const bool ChamberCoords(const unsigned int x, const unsigned int y, CSCAddress& adr) const;
+    const bool ChamberCoordsToAddress(const unsigned int x, const unsigned int y, CSCAddress& adr) const;
+    const bool ChamberAddressToCoords(const CSCAddress& adr, unsigned int& x, unsigned int& y) const;
     const double GetReportingArea(CSCAddress adr) const; 
     const double SignificanceLevel(const unsigned int N, const unsigned int n, const double eps) const;
     const double SignificanceLevelHot(const unsigned int N, const unsigned int n) const;

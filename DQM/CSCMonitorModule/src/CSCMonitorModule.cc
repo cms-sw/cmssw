@@ -128,10 +128,12 @@ void CSCMonitorModule::setup() {
       adr.mask.ring = false;
       dbe->bookFloat(summary.Detector().AddressName(adr));
       me->Fill(-1.0);
-      adr.mask.ring = true;
-      for (adr.ring = 1; adr.ring <= summary.Detector().NumberOfRings(adr.station); adr.ring++) {
-        dbe->bookFloat(summary.Detector().AddressName(adr));
-        me->Fill(-1.0);
+      if (summary.Detector().NumberOfRings(adr.station) > 1) {
+        adr.mask.ring = true;
+        for (adr.ring = 1; adr.ring <= summary.Detector().NumberOfRings(adr.station); adr.ring++) {
+          dbe->bookFloat(summary.Detector().AddressName(adr));
+          me->Fill(-1.0);
+        }
       }
     }
   }

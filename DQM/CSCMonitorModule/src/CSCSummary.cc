@@ -80,7 +80,7 @@ void CSCSummary::ReadReportingChambers(TH2*& h2, const double threshold) {
     for(unsigned int x = 1; x <= 36; x++) {
       for(unsigned int y = 1; y <= 18; y++) {
         z = h2->GetBinContent(x, y);
-        if(ChamberCoords(x, y, adr)) {
+        if(ChamberCoordsToAddress(x, y, adr)) {
           if(z >= threshold) {
             SetValue(adr, DATA);
           } else {
@@ -129,7 +129,7 @@ void CSCSummary::ReadReportingChambersRef(TH2*& h2, TH2*& refh2, const double co
         N = int(refh2->GetBinContent(x, y) * factor);
         n = int(h2->GetBinContent(x, y));
 
-        if(ChamberCoords(x, y, adr)) {
+        if(ChamberCoordsToAddress(x, y, adr)) {
           
           // Reset some bits
           ReSetValue(adr, HOT);
@@ -192,7 +192,7 @@ void CSCSummary::ReadErrorChambers(TH2*& evs, TH2*& err, const HWStatusBit bit, 
       for(unsigned int y = 1; y <= 18; y++) {
         N = int(evs->GetBinContent(x, y));
         n = int(err->GetBinContent(x, y));
-        if(ChamberCoords(x, y, adr)) {
+        if (ChamberCoordsToAddress(x, y, adr)) {
           if(SignificanceLevel(N, n, eps_max) > Sfail) { 
             SetValue(adr, bit);
           } else {
@@ -226,11 +226,18 @@ void CSCSummary::Write(TH2*& h2, const unsigned int station) const {
 
     unsigned int x = 1 + (box->adr.side - 1) * 9 + (box->adr.ring - 1) * 3 + (box->adr.hv - 1);
     unsigned int y = 1 + (box->adr.chamber - 1) * 5 + (box->adr.cfeb - 1);
-    h2->SetBinContent(x, y, GetValue(box->adr).to_ulong());
+    HWStatusBitSet status = GetValue(const_cast<CSCAddress&>(box->adr));
+    if (HWSTATUSANYERROR(status)) {
+      h2->SetBinContent(x, y, -1.0);
+    } else
+    if (status.test(DATA)) {
+      h2->SetBinContent(x, y, 1.0);
+    } else
+      h2->SetBinContent(x, y, 0.0);
 
   }
 
-  TString title = Form("ME%d Status: Physics Efficiency %.2f", station, GetEfficiencyArea(adr));
+  TString title = Form("ME%d Status: Physics Efficiency %.2f%", station, GetEfficiencyArea(adr) * 100);
   h2->SetTitle(title);
 
 }
@@ -292,6 +299,45 @@ const float CSCSummary::WriteMap(TH2*& h2) const {
 
   return (csc_el == 0 ? 0.0 : (1.0 * rep_el) / csc_el);
 
+}
+
+
+/**
+ * @brief  Write State information to chamber histogram
+ * @param  h2 histogram to write to
+ * @param  mask mask of errors to check while writing
+ * @param  value to write to if state fits mask
+ * @param  reset should all chamber states be reseted to 0?
+ * @return 
+ */
+void CSCSummary::WriteChamberState(TH2*& h2, const int mask, const int value, const bool reset) const {
+  if(h2->GetXaxis()->GetXmin() <= 1 && h2->GetXaxis()->GetXmax() >= 36 &&
+     h2->GetYaxis()->GetXmin() <= 1 && h2->GetYaxis()->GetXmax() >= 18) {
+
+    unsigned int x, y;
+    CSCAddress adr;
+
+    adr.mask.side = adr.mask.station = adr.mask.ring = adr.mask.chamber = true;
+    adr.mask.layer = adr.mask.cfeb = adr.mask.hv = false;
+
+    for (adr.side = 1; adr.side <= N_SIDES; adr.side++) {
+      for (adr.station = 1; adr.station <= N_STATIONS; adr.station++) {
+        for (adr.ring = 1; adr.ring <= detector.NumberOfRings(adr.station); adr.ring++) {
+          for (adr.chamber = 1; adr.chamber <= detector.NumberOfChambers(adr.station, adr.ring); adr.chamber++) {
+            if (ChamberAddressToCoords(adr, x, y)) {
+              if (HWSTATUSEQUALS(GetValue(adr), mask)) {
+                h2->SetBinContent(x, y, value);
+              } if (reset) {
+                h2->SetBinContent(x, y, 0);
+              }
+            }
+          }
+        }
+      }
+    }
+
+
+  }
 }
 
 /**
@@ -396,7 +442,7 @@ void CSCSummary::SetValue(CSCAddress adr, const HWStatusBit bit, const int value
  * @return 1 if this polygon is ok for physics and reporting, 0 - if it is ok
  * but does not report, -1 - otherwise
  */
-const unsigned long CSCSummary::IsPhysicsReady(const float xmin, const float xmax, const float ymin, const float ymax) const {
+const int CSCSummary::IsPhysicsReady(const float xmin, const float xmax, const float ymin, const float ymax) const {
 
   float xpmin = (xmin < xmax ? xmin : xmax);
   float xpmax = (xmax > xmin ? xmax : xmin);
@@ -428,13 +474,16 @@ const unsigned long CSCSummary::IsPhysicsReady(const float xmin, const float xma
       if ((xpmin < xboxmin && xpmax < xboxmin) || (xpmin > xboxmax && xpmax > xboxmax)) continue;
       if ((ypmin < yboxmin && ypmax < yboxmin) || (ypmin > yboxmax && ypmax > yboxmax)) continue;
 
-      status |= GetValue(box->adr);
+      status |= GetValue(const_cast<CSCAddress&>(box->adr));
 
     }
 
   }
 
-  return status.to_ulong();
+  if (HWSTATUSANYERROR(status))  return -1;
+  if (status.test(DATA)) return 1;
+
+  return 0;
 
 }
 
@@ -524,7 +573,7 @@ const double CSCSummary::GetEfficiencyHW(CSCAddress adr) const {
 
   // if not error - then OK!
   HWStatusBitSet status = GetValue(adr); 
-  if (ANYERROR(status)) return 1.0;
+  if (HWSTATUSANYERROR(status)) return 1.0;
   return 0.0;
 
 }
@@ -610,25 +659,68 @@ const double CSCSummary::GetReportingArea(CSCAddress adr) const {
    
   // NOT errorous! 
   HWStatusBitSet status = GetValue(adr);
-  if (!ANYERROR(status)) {
+  if (!HWSTATUSANYERROR(status)) {
     return detector.Area(adr);
   }
   return 0.0;
 
 }
 /**
- * @brief  Get value of some address (address must be fully filled except layers! otherwise function returns 0) 
- * If layer is ommited then function returns 1 if at least two layers for the HW element are live. 
- * If layer is ommited then function returns -1 if at least two layers for the HW element are errorous. 
- * If layer is ommited then function returns 2 if at least two layers for the HW element are off. 
+ * @brief  Get value of some address 
  * @param  adr Address of atomic element to return value from
  * @return Value of the requested element
  */
-const HWStatusBitSet CSCSummary::GetValue(const CSCAddress& adr) const {
+const HWStatusBitSet CSCSummary::GetValue(CSCAddress& adr) const {
 
-  HWStatusBitSet status;
-  status.reset();
+  HWStatusBitSet state;
+  state.reset();
 
+  if (!adr.mask.side) {
+    adr.mask.side = true;
+    for (adr.side = 1; adr.side <= N_SIDES; adr.side++) state |= GetValue(adr);
+    return state;
+  }
+
+  if (!adr.mask.station) {
+    adr.mask.station = true;
+    for (adr.station = 1; adr.station <= N_STATIONS; adr.station++) state |= GetValue(adr);
+    return state;
+  } 
+
+  if (!adr.mask.ring) {
+    adr.mask.ring = true;
+    for (adr.ring = 1; adr.ring <= detector.NumberOfRings(adr.station); adr.ring++) state |= GetValue(adr);
+    return state;
+  }
+
+  if (!adr.mask.chamber) {
+    adr.mask.chamber = true;
+    for (adr.chamber = 1; adr.chamber <= detector.NumberOfChambers(adr.station, adr.ring); adr.chamber++) state |= GetValue(adr);
+    return state;
+  }
+
+  if (!adr.mask.layer) {
+    adr.mask.layer = true;
+    for (adr.layer = 1; adr.layer <= N_LAYERS; adr.layer++) state |= GetValue(adr);
+    return state;
+  }
+
+  if (!adr.mask.cfeb) {
+    adr.mask.cfeb = true;
+    for (adr.cfeb = 1; adr.cfeb <= detector.NumberOfChamberCFEBs(adr.station, adr.ring); adr.cfeb++) state |= GetValue(adr);
+    return state;
+  }
+
+  if (!adr.mask.hv) {
+    adr.mask.hv = true;
+    for (adr.hv = 1; adr.hv <= detector.NumberOfChamberHVs(adr.station, adr.ring); adr.hv++) state |= GetValue(adr);
+    return state;
+  }
+
+  return map[adr.side - 1][adr.station - 1][adr.ring - 1][adr.chamber - 1][adr.layer - 1][adr.cfeb - 1][adr.hv - 1];
+
+  /*
+   * Old variation of get value operation
   if ( adr.mask.side && adr.mask.station && adr.mask.ring && 
       adr.mask.chamber && adr.mask.cfeb && adr.mask.hv &&
       adr.side > 0 && adr.side <= N_SIDES && 
@@ -648,8 +740,7 @@ const HWStatusBitSet CSCSummary::GetValue(const CSCAddress& adr) const {
       }
     }
   }
-
-  return status;
+  */
 
 }
 
@@ -678,7 +769,7 @@ const unsigned int CSCSummary::setMaskedHWElements(std::vector<std::string>& tok
  * @param  adr CSCAddress to be filled in and returned
  * @return true if address was found and filled, false - otherwise
  */
-const bool CSCSummary::ChamberCoords(const unsigned int x, const unsigned int y, CSCAddress& adr) const {
+const bool CSCSummary::ChamberCoordsToAddress(const unsigned int x, const unsigned int y, CSCAddress& adr) const {
 
   if( x < 1 || x > 36 || y < 1 || y > 18) return false;
 
@@ -726,6 +817,44 @@ const bool CSCSummary::ChamberCoords(const unsigned int x, const unsigned int y,
     adr.station = 1;
     adr.ring    = 1;
   }
+
+  return true;
+
+}
+
+/**
+ * @brief  Calculate CSCChamberMap histogram coordinates from CSCAddress
+ * @param  adr CSCAddress
+ * @param  x X coordinate of histogram to be returned
+ * @param  y Y coordinate of histogram to be returned
+ * @return true if coords filled, false - otherwise
+ */
+const bool CSCSummary::ChamberAddressToCoords(const CSCAddress& adr, unsigned int& x, unsigned int& y) const {
+
+  if (!adr.mask.side || !adr.mask.station || !adr.mask.ring || !adr.mask.chamber) return false;
+
+  x = adr.chamber;
+  y = 0;
+
+  if (adr.station == 4) {
+    y = 1;
+    if (adr.ring == 1) y = 2;
+  } else
+  if (adr.station == 3) {
+    y = 3;
+    if (adr.ring == 1) y = 4;
+  } else
+  if (adr.station == 2) {
+    y = 5;
+    if (adr.ring == 1) y = 6;
+  } else
+  if (adr.station == 1) {
+    y = 7;
+    if (adr.ring == 2) y = 8;
+    if (adr.ring == 1) y = 9;
+  }
+
+  if (adr.side == 1) y = 19 - y;
 
   return true;
 

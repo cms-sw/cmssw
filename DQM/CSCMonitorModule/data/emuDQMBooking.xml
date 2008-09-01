@@ -5,6 +5,72 @@
 # EMU Level histograms
 ============================================================================================= -->
 
+<!-- Start of Gloabl DQM shifter histograms -->
+
+          <Histogram>
+                <Type>h2</Type>
+                <Prefix>EMU</Prefix>
+                <Name>CSC_STATS_top</Name>
+                <SetOption>colz</SetOption>
+                <XMin>1</XMin>
+                <XMax>37</XMax>
+                <XBins>36</XBins>
+                <XTitle>Chamber</XTitle>
+                <YMin>0</YMin>
+                <YMax>18</YMax>
+                <YBins>18</YBins>
+                <SetOptStat>e</SetOptStat>
+                <Title>CSC Chamber Status</Title>
+                <SetNdivisionsX>36</SetNdivisionsX>
+                <SetLabelSizeX>0.02</SetLabelSizeX>
+                <SetStats>0</SetStats>
+                <SetGridx>1</SetGridx>
+                <SetGridy>1</SetGridy>
+                <SetLabelSizeZ>0.02</SetLabelSizeZ>
+                <SetYLabels>1='ME-4/2'|2='ME-4/1'|3='ME-3/2'|4='ME-3/1'|5='ME-2/2'|6='ME-2/1'|7='ME-1/3'|8='ME-1/2'|9='ME-1/1'|10='ME+1/1'|11=ME+1/2'|12='ME+1/3'|13='ME+2/1'|14='ME+2/2'|15='ME+3/1'|16='ME+3/2'|17='ME+4/1'|18='ME+4/2'|</SetYLabels>
+                <Descr>
+                The occupancy histogram shows CSCs reporting data, regardless of whether data format was intact or broken. Chambers within one raw belong to one 360&#61616;- ring of chamber. 
+                The rainbow pattern of color within one row is due to directionality of cosmic rays. 
+                %BR% 
+                %ICON{"warning"}% At LHC, all chambers within one row should have equal occupancy. 
+                %BR% 
+                %ICON{"tip"}% One should check that there are no new empty cells (check for the list of currently disabled CSCs) and there are no hot CSCs.
+                </Descr>
+          </Histogram>
+
+          <Histogram>
+                <Type>h2</Type>
+                <Prefix>EMU</Prefix>
+                <Name>CSC_STATS_occupancy</Name>
+                <SetOption>colz</SetOption>
+                <XMin>1</XMin>
+                <XMax>37</XMax>
+                <XBins>36</XBins>
+                <XTitle>Chamber</XTitle>
+                <YMin>0</YMin>
+                <YMax>18</YMax>
+                <YBins>18</YBins>
+                <SetOptStat>e</SetOptStat>
+                <Title>CSC Chamber Occupancy</Title>
+                <SetNdivisionsX>36</SetNdivisionsX>
+                <SetLabelSizeX>0.02</SetLabelSizeX>
+                <SetStats>0</SetStats>
+                <SetGridx>1</SetGridx>
+                <SetGridy>1</SetGridy>
+                <SetLabelSizeZ>0.02</SetLabelSizeZ>
+                <SetYLabels>1='ME-4/2'|2='ME-4/1'|3='ME-3/2'|4='ME-3/1'|5='ME-2/2'|6='ME-2/1'|7='ME-1/3'|8='ME-1/2'|9='ME-1/1'|10='ME+1/1'|11=ME+1/2'|12='ME+1/3'|13='ME+2/1'|14='ME+2/2'|15='ME+3/1'|16='ME+3/2'|17='ME+4/1'|18='ME+4/2'|</SetYLabels>
+                <Descr>
+                The occupancy histogram shows CSCs reporting data, regardless of whether data format was intact or broken. Chambers within one raw belong to one 360&#61616;- ring of chamber. 
+                The rainbow pattern of color within one row is due to directionality of cosmic rays. 
+                %BR% 
+                %ICON{"warning"}% At LHC, all chambers within one row should have equal occupancy. 
+                %BR% 
+                %ICON{"tip"}% One should check that there are no new empty cells (check for the list of currently disabled CSCs) and there are no hot CSCs.
+                </Descr>
+          </Histogram>
+
+<!-- End of Gloabl DQM shifter histograms -->
+
           <Histogram>
 		<Type>h2</Type>
 		<Prefix>EMU</Prefix>
