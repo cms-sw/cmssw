@@ -2,8 +2,8 @@
 /*
  * \file EEIntegrityClient.cc
  *
- * $Date: 2008/06/25 17:34:37 $
- * $Revision: 1.83 $
+ * $Date: 2008/08/11 07:24:14 $
+ * $Revision: 1.84 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -43,8 +43,6 @@
 #include "DQM/EcalCommon/interface/Numbers.h"
 
 #include <DQM/EcalEndcapMonitorClient/interface/EEIntegrityClient.h>
-
-#include <DataFormats/EcalDetId/interface/EEDetId.h>
 
 using namespace cms;
 using namespace edm;
