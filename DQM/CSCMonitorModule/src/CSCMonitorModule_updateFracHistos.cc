@@ -168,7 +168,8 @@ void CSCMonitorModule::updateFracHistos() {
    
   if (MEEMU("CSC_STATS_top", me1)){
     TH2* tmp = dynamic_cast<TH2*>(me1->getTH1());
-    summary.WriteChamberState(tmp, HWSTATUSERRORBITS, 1, true);
+    summary.WriteChamberState(tmp, 0x1, 1, true);
+    summary.WriteChamberState(tmp, HWSTATUSERRORBITS, -1, false);
   }
 
   if (MEEMU("CSC_STATS_occupancy", me1)){
