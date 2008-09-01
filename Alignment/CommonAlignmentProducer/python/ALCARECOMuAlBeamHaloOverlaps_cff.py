@@ -12,7 +12,7 @@ from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *
 import RecoLocalMuon.CSCSegment.cscSegments_cfi
 cscSegmentsALCARECOBHO = RecoLocalMuon.CSCSegment.cscSegments_cfi.cscSegments.clone()
 cscSegmentsALCARECOBHO.algo_type = 4 # Choice of the building algo: 1 SK, 2 TC, 3 DF, 4 ST, ...
-cscSegmentsALCARECOBHO.inputObjects = 'hltCsc2DRecHits'
+cscSegmentsALCARECOBHO.inputObjects = 'csc2DRecHits'
 
 import RecoMuon.MuonSeedGenerator.CosmicMuonSeedProducer_cfi
 CosmicMuonSeedALCARECOBHO = RecoMuon.MuonSeedGenerator.CosmicMuonSeedProducer_cfi.CosmicMuonSeed.clone()
