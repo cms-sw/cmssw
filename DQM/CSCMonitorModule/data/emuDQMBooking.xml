@@ -11,7 +11,7 @@
                 <Type>h2</Type>
                 <Prefix>EMU</Prefix>
                 <Name>CSC_STATS_top</Name>
-                <SetOption>colz</SetOption>
+                <SetOption>col</SetOption>
                 <XMin>1</XMin>
                 <XMax>37</XMax>
                 <XBins>36</XBins>
@@ -40,7 +40,7 @@
                 <Type>h2</Type>
                 <Prefix>EMU</Prefix>
                 <Name>CSC_STATS_occupancy</Name>
-                <SetOption>colz</SetOption>
+                <SetOption>col</SetOption>
                 <XMin>1</XMin>
                 <XMax>37</XMax>
                 <XBins>36</XBins>
@@ -69,7 +69,7 @@
                 <Type>h2</Type>
                 <Prefix>EMU</Prefix>
                 <Name>CSC_STATS_format_err</Name>
-                <SetOption>colz</SetOption>
+                <SetOption>col</SetOption>
                 <XMin>1</XMin>
                 <XMax>37</XMax>
                 <XBins>36</XBins>
@@ -98,7 +98,7 @@
                 <Type>h2</Type>
                 <Prefix>EMU</Prefix>
                 <Name>CSC_STATS_l1sync_err</Name>
-                <SetOption>colz</SetOption>
+                <SetOption>col</SetOption>
                 <XMin>1</XMin>
                 <XMax>37</XMax>
                 <XBins>36</XBins>
@@ -127,7 +127,7 @@
                 <Type>h2</Type>
                 <Prefix>EMU</Prefix>
                 <Name>CSC_STATS_fifofull_err</Name>
-                <SetOption>colz</SetOption>
+                <SetOption>col</SetOption>
                 <XMin>1</XMin>
                 <XMax>37</XMax>
                 <XBins>36</XBins>
@@ -156,7 +156,7 @@
                 <Type>h2</Type>
                 <Prefix>EMU</Prefix>
                 <Name>CSC_STATS_inputto_err</Name>
-                <SetOption>colz</SetOption>
+                <SetOption>col</SetOption>
                 <XMin>1</XMin>
                 <XMax>37</XMax>
                 <XBins>36</XBins>
@@ -185,7 +185,7 @@
                 <Type>h2</Type>
                 <Prefix>EMU</Prefix>
                 <Name>CSC_STATS_wo_alct</Name>
-                <SetOption>colz</SetOption>
+                <SetOption>col</SetOption>
                 <XMin>1</XMin>
                 <XMax>37</XMax>
                 <XBins>36</XBins>
@@ -214,7 +214,7 @@
                 <Type>h2</Type>
                 <Prefix>EMU</Prefix>
                 <Name>CSC_STATS_wo_clct</Name>
-                <SetOption>colz</SetOption>
+                <SetOption>col</SetOption>
                 <XMin>1</XMin>
                 <XMax>37</XMax>
                 <XBins>36</XBins>
@@ -243,7 +243,7 @@
                 <Type>h2</Type>
                 <Prefix>EMU</Prefix>
                 <Name>CSC_STATS_wo_cfeb</Name>
-                <SetOption>colz</SetOption>
+                <SetOption>col</SetOption>
                 <XMin>1</XMin>
                 <XMax>37</XMax>
                 <XBins>36</XBins>
@@ -272,7 +272,7 @@
                 <Type>h2</Type>
                 <Prefix>EMU</Prefix>
                 <Name>CSC_STATS_cfeb_bwords</Name>
-                <SetOption>colz</SetOption>
+                <SetOption>col</SetOption>
                 <XMin>1</XMin>
                 <XMax>37</XMax>
                 <XBins>36</XBins>
