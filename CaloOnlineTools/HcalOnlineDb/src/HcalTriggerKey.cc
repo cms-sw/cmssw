@@ -92,6 +92,10 @@ int HcalTriggerKey::init( void )
 
 int HcalTriggerKey::add_data( string id, string type, string value){
   XMLDOMBlock data_block( *_data );
+  data_block.setTagValue("TRIGGER_KEY_ID",id);
+  data_block.setTagValue("TRIGGER_KEY_CONFIG_TYPE",type);
+  data_block.setTagValue("TRIGGER_KEY_CONFIG_VALUE",value);
+
   DOMDocument * data_doc = data_block . getDocument();
 
   DOMElement * data_set_elem = (DOMElement *)(document -> getElementsByTagName( XMLProcessor::_toXMLCh( "DATA_SET" ) ) -> item(0));
@@ -99,7 +103,40 @@ int HcalTriggerKey::add_data( string id, string type, string value){
   DOMNode * clone_data = document -> importNode( data_doc -> getDocumentElement(), true );
   data_set_elem -> appendChild( clone_data );
 
-  write("stdout");
+  //write("stdout");
 
+  return 0;
+}
+
+
+int HcalTriggerKey::fill_key( string key_id, map<string, string> & key){
+  int _c=0;
+  for(map<string,string>::const_iterator key_pair=key.begin(); key_pair!=key.end(); key_pair++){
+    add_data(key_id, key_pair->first, key_pair->second);
+    _c++;
+  }
+  
+  return _c;
+}
+
+int HcalTriggerKey::compose_key_dialogue( void ){
+  map<string, string> _key;
+  string _id, _type, _value;
+
+  cout << endl << "Creating the trigger key..." << endl;
+  cout << endl << "Enter the key ID (or tag if you would): " << endl;
+  std::getline(cin, _id);
+  while(1){
+    cout << "Enter the next config type (or type exit if the trigger key is complete): " << endl;
+    std::getline(cin, _type);
+    if (_type.find("exit") != string::npos) break;
+    cout << "Enter the config value: " << endl;
+    std::getline(cin, _value);
+    _key.insert(pair<string, string>(_type, _value));
+  }
+
+  fill_key(_id, _key);
+
+  cout << endl << "Creating the trigger key... done" << endl;
   return 0;
 }

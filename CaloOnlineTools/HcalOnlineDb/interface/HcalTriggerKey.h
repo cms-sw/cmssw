@@ -16,16 +16,13 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Nov 06 14:30:33 CDT 2007
-// $Id: HcalTriggerKey.h,v 1.2 2008/03/07 02:49:13 kukartse Exp $
+// $Id: HcalTriggerKey.h,v 1.1 2008/08/31 20:40:21 kukartse Exp $
 //
 
-// system include files
+#include <map>
 
-// user include files
 #include "CaloOnlineTools/HcalOnlineDb/interface/XMLDOMBlock.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/XMLProcessor.h"
-
-// forward declarations
 
 class HcalTriggerKey : public XMLDOMBlock
 {
@@ -37,6 +34,9 @@ class HcalTriggerKey : public XMLDOMBlock
 
   int init(void);
   int add_data( string id, string type, string value);
+  // fills the XML document with the key. Returns number of configs in the key
+  int fill_key( string key_id, std::map<string, string> & key);  
+  int compose_key_dialogue( void );
   
  protected:
 

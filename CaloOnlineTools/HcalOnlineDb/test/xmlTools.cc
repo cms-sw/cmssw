@@ -326,8 +326,9 @@ int main( int argc, char **argv )
       string _tag = vm["tag-name"].as<string>();
       */
       HcalTriggerKey _key;
+      _key.compose_key_dialogue();
       _key.write("HCAL_trigger_key.xml");
-      _key.add_data("aaa","bbb","ccc");
+      //_key.add_data("aaa","bbb","ccc");
       //_key.add_data("aaa","bbb","ccc");
       //_key.add_data("aaa","bbb","ccc");
       return 0;
