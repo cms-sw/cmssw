@@ -311,7 +311,7 @@ const float CSCSummary::WriteMap(TH2*& h2) const {
  * @param  reset should all chamber states be reseted to 0?
  * @return 
  */
-void CSCSummary::WriteChamberState(TH2*& h2, const int mask, const int value, const bool reset) const {
+void CSCSummary::WriteChamberState(TH2*& h2, const int mask, const int value, const bool reseti, const bool op_any) const {
   if(h2->GetXaxis()->GetXmin() <= 1 && h2->GetXaxis()->GetXmax() >= 36 &&
      h2->GetYaxis()->GetXmin() <= 1 && h2->GetYaxis()->GetXmax() >= 18) {
 
@@ -326,10 +326,11 @@ void CSCSummary::WriteChamberState(TH2*& h2, const int mask, const int value, co
         for (adr.ring = 1; adr.ring <= detector.NumberOfRings(adr.station); adr.ring++) {
           for (adr.chamber = 1; adr.chamber <= detector.NumberOfChambers(adr.station, adr.ring); adr.chamber++) {
             if (ChamberAddressToCoords(adr, x, y)) {
-              if (HWSTATUSEQUALS(GetValue(adr), mask)) {
-                h2->SetBinContent(x, y, value);
-              } if (reset) {
-                h2->SetBinContent(x, y, 0);
+              bool hit = (op_any ? HWSTATUSANY(GetValue(adr), mask) : HWSTATUSEQUALS(GetValue(adr), mask));
+              if (hit) {
+                h2->SetBinContent(x, y, 1.0 * value);
+              } else if (reset) {
+                h2->SetBinContent(x, y, 0.0);
               }
             }
           }

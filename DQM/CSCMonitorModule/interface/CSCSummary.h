@@ -26,7 +26,7 @@
 #include "DQM/CSCMonitorModule/interface/CSCDetector.h"
 
 #define HWSTATUSBITSETSIZE    11
-#define HWSTATUSERRORBITS     0xffe
+#define HWSTATUSERRORBITS     0x8fe
 #define HWSTATUSEQUALS(s, m)  (((std::bitset<HWSTATUSBITSETSIZE>) m & s) == m)
 #define HWSTATUSANY(s, m)     (((std::bitset<HWSTATUSBITSETSIZE>) m & s).any())
 #define HWSTATUSANYERROR(s)   (HWSTATUSANY(s, HWSTATUSERRORBITS))
@@ -67,7 +67,7 @@ class CSCSummary {
 
     void Write(TH2*& h2, const unsigned int station) const;
     const float WriteMap(TH2*& h2) const;
-    void WriteChamberState(TH2*& h2, const int mask, const int value = 1, const bool reset = true) const;
+    void WriteChamberState(TH2*& h2, const int mask, const int value = 1, const bool reset = true, const bool op_any = false) const;
 
     void ReSetValue(const HWStatusBit bit);
     void ReSetValue(CSCAddress adr, const HWStatusBit bit);
