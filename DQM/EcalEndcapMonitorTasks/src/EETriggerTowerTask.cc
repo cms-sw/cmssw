@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerTask.cc
  *
- * $Date: 2008/05/11 09:35:13 $
- * $Revision: 1.37 $
+ * $Date: 2008/07/13 08:49:56 $
+ * $Revision: 1.38 $
  * \author C. Bernet
  * \author G. Della Ricca
  * \author E. Di Marco
@@ -122,8 +122,6 @@ void EETriggerTowerTask::setup(void){
   init_ = true;
 
   if ( dqmStore_ ) {
-    // dqmStore_->showDirStructure();
-
     setup( "Real Digis",
            (prefixME_ + "/EETriggerTowerTask").c_str(), false );
 

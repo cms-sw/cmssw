@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2008/05/11 09:35:09 $
- * $Revision: 1.73 $
+ * $Date: 2008/07/13 08:49:55 $
+ * $Revision: 1.74 $
  * \author C. Bernet
  * \author G. Della Ricca
  * \author E. Di Marco
@@ -120,8 +120,6 @@ void EBTriggerTowerTask::setup(void){
   init_ = true;
 
   if ( dqmStore_ ) {
-    // dqmStore_->showDirStructure();
-
     setup( "Real Digis",
            (prefixME_ + "/EBTriggerTowerTask").c_str(), false );
 
