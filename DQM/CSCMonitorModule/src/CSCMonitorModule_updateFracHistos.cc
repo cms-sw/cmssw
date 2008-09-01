@@ -195,54 +195,54 @@ void CSCMonitorModule::updateFracHistos() {
    
   if (MEEMU("CSC_STATS_top", me1)){
     TH2* tmp = dynamic_cast<TH2*>(me1->getTH1());
-    summary.WriteChamberState(tmp, 0x1, 1, true, false);
-    summary.WriteChamberState(tmp, HWSTATUSERRORBITS, -1, false, true);
+    summary.WriteChamberState(tmp, 0x1, 3, true, false);
+    summary.WriteChamberState(tmp, HWSTATUSERRORBITS, 2, false, true);
   }
 
   if (MEEMU("CSC_STATS_occupancy", me1)){
     TH2* tmp = dynamic_cast<TH2*>(me1->getTH1());
-    summary.WriteChamberState(tmp, 0x4, 2, true, false);
+    summary.WriteChamberState(tmp, 0x4, 4, true, false);
     summary.WriteChamberState(tmp, 0x8, 1, false, false);
   }
 
   if (MEEMU("CSC_STATS_format_err", me1)){
     TH2* tmp = dynamic_cast<TH2*>(me1->getTH1());
-    summary.WriteChamberState(tmp, 0x10, 1, true, false);
+    summary.WriteChamberState(tmp, 0x10, 2, true, false);
   }
 
   if (MEEMU("CSC_STATS_l1sync_err", me1)){
     TH2* tmp = dynamic_cast<TH2*>(me1->getTH1());
-    summary.WriteChamberState(tmp, 0x20, 1, true, false);
+    summary.WriteChamberState(tmp, 0x20, 2, true, false);
   }
 
   if (MEEMU("CSC_STATS_fifofull_err", me1)){
     TH2* tmp = dynamic_cast<TH2*>(me1->getTH1());
-    summary.WriteChamberState(tmp, 0x40, 1, true, false);
+    summary.WriteChamberState(tmp, 0x40, 2, true, false);
   }
 
   if (MEEMU("CSC_STATS_inputto_err", me1)){
     TH2* tmp = dynamic_cast<TH2*>(me1->getTH1());
-    summary.WriteChamberState(tmp, 0x80, 1, true, false);
+    summary.WriteChamberState(tmp, 0x80, 2, true, false);
   }
 
   if (MEEMU("CSC_STATS_wo_alct", me1)){
     TH2* tmp = dynamic_cast<TH2*>(me1->getTH1());
-    summary.WriteChamberState(tmp, 0x100, 1, true, false);
+    summary.WriteChamberState(tmp, 0x100, 2, true, false);
   }
 
   if (MEEMU("CSC_STATS_wo_clct", me1)){
     TH2* tmp = dynamic_cast<TH2*>(me1->getTH1());
-    summary.WriteChamberState(tmp, 0x200, 1, true, false);
+    summary.WriteChamberState(tmp, 0x200, 2, true, false);
   }
 
   if (MEEMU("CSC_STATS_wo_cfeb", me1)){
     TH2* tmp = dynamic_cast<TH2*>(me1->getTH1());
-    summary.WriteChamberState(tmp, 0x400, 1, true, false);
+    summary.WriteChamberState(tmp, 0x400, 2, true, false);
   }
 
   if (MEEMU("CSC_STATS_cfeb_bwords", me1)){
     TH2* tmp = dynamic_cast<TH2*>(me1->getTH1());
-    summary.WriteChamberState(tmp, 0x800, 1, true, false);
+    summary.WriteChamberState(tmp, 0x800, 2, true, false);
   }
 
   //
