@@ -15,5 +15,3 @@ prescaleTriggerType = copy.deepcopy(hltPrescaler)
 # resulting Sequence without L1 seed filter
 #
 sequenceTriggerType = cms.Sequence(cms.SequencePlaceholder("hltBegin")+prescaleTriggerType+cms.SequencePlaceholder("filterTriggerType"))
-prescaleTriggerType.prescaleFactor = 1
-
