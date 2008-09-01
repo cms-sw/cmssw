@@ -1,4 +1,4 @@
-# /dev/CMSSW_2_1_5/HLT/V1 (CMSSW_2_1_5)
+# /dev/CMSSW_2_1_5/HLT/V2 (CMSSW_2_1_5_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -9450,6 +9450,9 @@ hltAlCaPi0RegRecHits = cms.EDFilter( "HLTPi0RecHitsFilter",
     l1IsolatedTag = cms.InputTag( 'hltL1extraParticles','Isolated' ),
     l1NonIsolatedTag = cms.InputTag( 'hltL1extraParticles','NonIsolated' ),
     l1SeedFilterTag = cms.InputTag( "hltL1sAlCaEcalPi0" ),
+    debugLevel = cms.int32( 0 ),
+    storeIsoClusRecHit = cms.bool( True ),
+    ptMinForIsolation = cms.double( 0.9 ),
     ptMinEMObj = cms.double( 5.0 ),
     EMregionEtaMargin = cms.double( 0.25 ),
     EMregionPhiMargin = cms.double( 0.4 )
