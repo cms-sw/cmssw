@@ -13,7 +13,7 @@
  *
 */
 
-
+namespace runinfo_test{
 class RunNumber {
 public:
   struct Item {
@@ -29,10 +29,18 @@ public:
     signed long long m_stop_time_sll;
     std::string m_stop_time_str;
     int  m_lumisections;
+    std::vector<std::string> m_subdt_joined;
+    std::vector<int> m_subdt_in;
+    enum subdet { PIXEL, TRACKER, ECAL, HCAL, DT, CSC,RPC };  
   };
+
+ 
+ 
   RunNumber();
   virtual ~RunNumber(){}
   typedef std::vector<Item>::const_iterator ItemIterator;
   std::vector<Item>  m_runnumber;
 };
+
+}
 #endif

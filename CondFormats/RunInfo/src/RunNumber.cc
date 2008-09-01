@@ -1,4 +1,4 @@
 #include "CondFormats/RunInfo/interface/RunNumber.h"
-RunNumber::RunNumber(){
+runinfo_test::RunNumber::RunNumber(){
   m_runnumber.reserve(600000);
 }
