@@ -10,8 +10,8 @@ herwigDefaultsBlock = cms.PSet(
 
 	cmsDefaults = cms.vstring(
 		'+basicSetup',
-		'+pdfCTEQ6L1',
 		'+cm14TeV',
+		'+pdfMRST2001',
 		'+setParticlesStableForDetector',
 	),
 
@@ -24,6 +24,9 @@ herwigDefaultsBlock = cms.PSet(
 		'cd /',
 	),
 
+	pdfMRST2001 = cms.vstring(
+		''
+	),	
 	pdfCTEQ5L = cms.vstring(
 		'mkdir /LHAPDF',
 		'cd /LHAPDF',
