@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/08/26 19:17:30 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/08/27 20:10:06 $
+ *  $Revision: 1.4 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -87,7 +87,6 @@ void JetMETAnalyzer::beginJob(edm::EventSetup const& iSetup) {
 
   LogTrace(metname)<<"[JetMETAnalyzer] Parameters initialization";
   dbe = edm::Service<DQMStore>().operator->();
-  dbe->setVerbose(0);
 
   if(theJetAnalyzerFlag) { 
     //    theJetAnalyzer->beginJob(iSetup, dbe);
@@ -184,10 +183,10 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
 void JetMETAnalyzer::endJob(void) {
   LogTrace(metname)<<"[JetMETAnalyzer] Saving the histos";
-  dbe->showDirStructure();
   bool outputMEsInRootFile   = parameters.getParameter<bool>("OutputMEsInRootFile");
   std::string outputFileName = parameters.getParameter<std::string>("OutputFileName");
   if(outputMEsInRootFile){
+    dbe->showDirStructure();
     dbe->save(outputFileName);
   }
 }
