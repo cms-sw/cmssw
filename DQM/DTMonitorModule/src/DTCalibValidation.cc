@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/04/08 14:15:40 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/05/14 14:38:46 $
+ *  $Revision: 1.4 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -91,10 +91,10 @@ void DTCalibValidation::endJob(){
  cout<<"Segments used to compute residuals: "<<rightSegment<<endl;
  cout<<"Segments not used to compute residuals: "<<wrongSegment<<endl;
 
- theDbe->showDirStructure();
  bool outputMEsInRootFile = parameters.getParameter<bool>("OutputMEsInRootFile");
  std::string outputFileName = parameters.getParameter<std::string>("OutputFileName");
  if(outputMEsInRootFile){
+   theDbe->showDirStructure();
    theDbe->save(outputFileName);
  }
  
