@@ -39,14 +39,30 @@ def getParameters():
         print "Error: one of the paths does not exist"
         sys.exit()
 
-def compareLogPair(log,candle,step,prof,profdir,latrev,prevrev,oldRelName=""):
+def compareSimMemPair(newLog,profdir,curdir,candle,olddir,oldRelName=""):
+    if oldRelName == "":
+        oldRelName = os.path.basename(olddir)
+        if not "CMSSW" in oldRelName:
+            oldRelName = ""    
+    base = os.path.basename(newLog)
+    oldlog = os.path.join(olddir,curdir,base)
+    rootf  = "simpmem-regress.root"
+    try:
+        cpr.cmpSimpMemReport(rootf,curdir,oldlog,newLog,1,True,candle,prevrev = oldRelName)
+    except cpr.SimpMemParseErr, detail:
+        print "WARNING: Could not parse data from log file %s; not performing regression" % detail.message
+    else:
+        print "Successfully compared %s and %s" % (oldlog,newLog)        
+        
+
+def compareTimingLogPair(log,candle,step,prof,profdir,latrev,prevrev,oldRelName=""):
     base = os.path.basename(log)
     logdir = "%s_%s_%s" % (CandFname[candle],step,prof)
     if prof == "EdmSize":
         logdir = "%s_outdir" % logdir
 
     outd   = "%s/%s" % (latrev,logdir)
-    rootf  = "regression.root" 
+    rootf  = "timing-regress.root" 
     oldLog = "%s/%s/%s" % (prevrev,profdir,base)
     newLog = "%s" % log
     if oldRelName == "":
@@ -69,7 +85,7 @@ def compareLogPair(log,candle,step,prof,profdir,latrev,prevrev,oldRelName=""):
     elif "TimingReport" in prof and not os.path.exists(oldLog):
         print "WARNING: Could not find an equivalent logfile for %s in the previous release dir %s" % (newLog,oldLog)                            
 
-def regressTimingReport(olddir,newdir,oldRelName = ""):
+def regressReports(olddir,newdir,oldRelName = ""):
     profSets = ["Valgrind", "IgProf", "TimeSize"]
     for candle in Candles:
         for profset in profSets:
@@ -87,25 +103,32 @@ def regressTimingReport(olddir,newdir,oldRelName = ""):
                     Profs = [ "IgProf" ]
 
                 for prof in Profs:
-                    if prof == "EdmSize":
+                    if   prof == "EdmSize":
                         stepLogs = glob.glob("%s/%s_*_%s"       % (adir,CandFname[candle],prof))
+                    elif prof == "SimpleMemoryCheck":
+                        stepLogs = os.path.join(adir,"%s.log" % candle)
                     else:
                         stepLogs = glob.glob("%s/%s_*_%s.log"   % (adir,CandFname[candle],prof))
 
                     profdir = os.path.basename(adir)
-                    candreg = re.compile("%s_([^_]*)_%s(.log)?" % (CandFname[candle],prof))
-                    for log in stepLogs:
-                        base = os.path.basename(log)
-                        searchob = candreg.search(base)
-                        if searchob:
-                            step = searchob.groups()[0]
-                            compareLogPair(log,candle,step,prof,profdir,adir,olddir,oldRelName = oldRelName)
-                        else:
-                            continue
+
+                    if prof == "TimingReport" or prof == "EdmSize":
+                        candreg = re.compile("%s_([^_]*)_%s(.log)?" % (CandFname[candle],prof))
+                        for log in stepLogs:
+                            base = os.path.basename(log)
+                            searchob = candreg.search(base)
+                            if searchob:
+                                step = searchob.groups()[0]
+                                compareTimingLogPair(log,candle,step,prof,profdir,adir,olddir,oldRelName = oldRelName)
+                            else:
+                                continue
+                    elif prof == "SimpleMemoryCheck":
+                        compareSimMemPair(stepLogs,candle,profdir,adir,olddir,oldRelName= oldRelName)
+
 
 def _main():
     (oldpath,newpath) = getParameters()
-    regressTimingReport(oldpath,newpath,oldRelName=getVerFromLog(oldpath))
+    regressReports(oldpath,newpath,oldRelName=getVerFromLog(oldpath))
     os.system("touch %s/REGRESSION.%s.vs.%s" % (newpath,getVerFromLog(oldpath),getVerFromLog(newpath)))
               
 if __name__ == "__main__":

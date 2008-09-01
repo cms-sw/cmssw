@@ -2,6 +2,7 @@
 
 import time, os, sys, math, re
 import optparse as opt
+from cmsPerfCommons import CandFname
 #from ROOT import gROOT, TCanvas, TF1
 import ROOT
 
@@ -82,7 +83,7 @@ def get_min(data,index=1):
             min_time=sec
     return min_time  
 
-def createROOT(outdir,filename):
+def setBatch():
     __argv=sys.argv # trick for a strange behaviour of the TApp..
     sys.argv=sys.argv[:1]
     ROOT.gROOT.SetStyle("Plain") # style paranoia
@@ -90,10 +91,12 @@ def createROOT(outdir,filename):
     #Cannot use this option when the logfile includes
     #a large number of events... PyRoot seg-faults.
     #Set ROOT in batch mode to avoid canvases popping up!
-    ROOT.gROOT.SetBatch(1)
+    ROOT.gROOT.SetBatch(1)    
+
+def createROOT(outdir,filename):
 
     # Save in file
-    rootfilename='%s/%s' %(outdir,filename)
+    rootfilename = os.path.join(outdir,filename)
     myfile=ROOT.TFile(rootfilename,'RECREATE')
     return myfile
 
@@ -406,24 +409,16 @@ def getNpoints(data):
 
     return (data,len(data))
 
-def newSimplGraph(graph,value,graph_num):
-    colors = [2,4]   
-    graph.SetTitle(value)
-    #graph.SetName('%s_graph' % value)
-    graph.SetLineColor(colors[graph_num])
-    graph.SetMarkerStyle(8)
-    graph.SetMarkerSize(.7)
-    graph.SetMarkerColor(1)
-    graph.SetLineWidth(3)
-    graph.GetXaxis().SetTitle("Event")
-    graph.GetYaxis().SetTitleOffset(1.3)
-    graph.GetYaxis().SetTitle("MB")
-
-def createSimplMemGraphs(data,npoints,graph_num):
- 
+def createSimplMemGraphs(data,npoints,graph_num,legs,prevrev=""):
+    colors = [2,4]    
     values = ["vsize", "rss"]
     
-
+    prevRevName = "???"
+    if not prevrev == "":
+        (head, tail) = os.path.split(prevrev)
+        prevRevName  = os.path.basename(tail)
+        
+    releaseNames = ["Previous (%s)" % prevRevName,_cmsver]        
     #rss_graph  = ROOT.TGraph(npoints)
     #newSimplGraph(rss_graph,values[1],graph_num)
 
@@ -433,10 +428,25 @@ def createSimplMemGraphs(data,npoints,graph_num):
     peak   = -1
     peaks  = []
     minims = []
+    idx = 0
     for value in values:
-        point_counter=0
+        leg = legs[idx]
+
         graph = ROOT.TGraph(npoints)
-        newSimplGraph(graph,value,graph_num)
+        graph.SetTitle(value)
+        #graph.SetName('%s_graph' % value)
+        graph.SetLineColor(colors[graph_num])
+        graph.SetMarkerStyle(8)
+        graph.SetMarkerSize(.7)
+        graph.SetMarkerColor(1)
+        graph.SetLineWidth(3)
+        graph.GetXaxis().SetTitle("Event")
+        graph.GetYaxis().SetTitleOffset(1.3)
+        graph.GetYaxis().SetTitle("MB")
+
+        total = 0
+        point_counter=0
+        rms   = 0
         first = True
         for event_number,vals_dict in data:
             if first:
@@ -450,14 +460,24 @@ def createSimplMemGraphs(data,npoints,graph_num):
             #if value == values[0]:
             graph.SetPoint(point_counter, event_number, vals_dict[value])
             #else:
-            #rss_graph.SetPoint(point_counter, event_number, vals_dict["rss"])                                
+            #rss_graph.SetPoint(point_counter, event_number, vals_dict["rss"])
+            total += vals_dict[value]
+            rms   += vals_dict[value] * vals_dict[value]
             point_counter+=1
-        
+
+        rms  = math.sqrt(rms / float(point_counter))
+        mean = total / float(point_counter)
         last_event=data[-1][0]
         peaks.append(peak)
         minims.append(minim)
         graph.GetXaxis().SetRangeUser(0,last_event+1)
+        leg.AddEntry(graph     , "%s release" % releaseNames[graph_num], "l")
+        leg.AddEntry(graph     , "Mean: %s" % str(mean)                , "l")            
+        leg.AddEntry(graph     , "RMS : %s" % str(rms)                 , "l")
+        leg.AddEntry(graph     , "Peak: %s" % str(peak)                , "l")
+        leg.AddEntry(graph     , "Total memory: %s" % str(total)         , "l")                            
         graphs.append(graph)
+        idx += 1
         #rss_graph.GetXaxis().SetRangeUser(0,last_event+1)    
 
     return (graphs[0] , last_event, peaks[0], minims[0], graphs[1], last_event, peaks[1], minims[1])
@@ -529,27 +549,29 @@ def getMemDiff(data1,data2,npoints,last_event,orig_max_val,stepname,rss=False):
     #graph.GetYaxis().SetTitle("s")
     graph.GetXaxis().SetLimits(0,last_event)
     graph.GetYaxis().SetRangeUser(min_val,max_val)
-    #leg = ROOT.TLegend(0.5,0.7,0.89,0.89)
-    #leg.AddEntry(graph, "Mean: %s" % str(mean), "l")            
-    #leg.AddEntry(graph, "RMS : %s" % str(rms) , "l")
-    #leg.AddEntry(graph, "Peak: %s" % str(peak), "l")
-    #leg.AddEntry(graph, "Total time change: %s" % str(total)  , "l")                    
+    leg = ROOT.TLegend(0.5,0.7,0.89,0.89)
+    leg.AddEntry(graph, "Mean: %s" % str(mean), "l")            
+    leg.AddEntry(graph, "RMS : %s" % str(rms) , "l")
+    leg.AddEntry(graph, "Peak: %s" % str(peak), "l")
+    leg.AddEntry(graph, "Total memory change: %s" % str(total)  , "l")                    
 
-    return graph
+    return (graph,leg)
 
-def drawMemGraphs(graph1,graph2,memtype,stepname):
+def drawMemGraphs(graph1,graph2,leg,memtype,stepname):
     graph_canvas=ROOT.TCanvas("%s_%s_canvas" % (memtype,stepname))
     graph_canvas.cd()
     graph1.Draw("ALP")
     graph2.Draw("LP" )
+    leg.Draw()    
     graph_canvas.ForceUpdate()
     graph_canvas.Flush()
     return graph_canvas
 
-def drawMemChangeGraphs(graph,memtype,stepname):
+def drawMemChangeGraphs(graph,leg,memtype,stepname):
     graph_canvas=ROOT.TCanvas("%s_%s_change_canvas" % (memtype,stepname))
     graph_canvas.cd()
     graph.Draw("ALP" )
+    leg.Draw()    
     graph_canvas.ForceUpdate()
     graph_canvas.Flush()
     return graph_canvas
@@ -563,23 +585,39 @@ def getMemOrigScale(fst_min,snd_min,fst_max,snd_max):
         maxim = snd_max
     return (minim,maxim)
         
-def cmpSimpMemReport(rootfilename,outdir,oldLogfile,newLogfile,startevt,batch=True,prevrev=""):
-    
+def cmpSimpMemReport(rootfilename,outdir,oldLogfile,newLogfile,startevt,batch=True,candle="Unknown-candle",prevrev=""):
+    if batch:
+        setBatch()
     # the fundamental structure: the key is the evt number the value is a list containing
     # VSIZE deltaVSIZE RSS deltaRSS
-    info1 = getSimpleMemLogData(oldLogfile,startevt)
-    info2 = getSimpleMemLogData(newLogfile,startevt)
-    if len(info1) == 0:
+    try:
+        info1 = getSimpleMemLogData(oldLogfile,startevt)
+        if len(info1) == 0:
+            raise IndexError
+    except IndexError:
         raise SimpMemParseErr(oldLogfile)
-    if len(info2) == 0:
+    except IOError:
+        raise SimpMemParseErr(oldLogfile)        
+    
+    try:
+        info2 = getSimpleMemLogData(newLogfile,startevt)
+        if len(info2) == 0:
+            raise IndexError
+    except IndexError:
         raise SimpMemParseErr(newLogfile)
+    except IOError:
+        raise SimpMemParseErr(newLogfile)        
+
     canvases = []
     # skim the second entry when the event number is the same BUG!!!!!!!
     # i take elements in couples!
 
+    candreg = re.compile("(.*)(?:\.log)")
     vsize_canvas = None
     rss_canvas = None
     i = 0
+    firstRoot = True
+    newrootfile = None
     while ( i < len(info1) and i < len(info2)):
         curinfo1 = info1[i]
         curinfo2 = info2[i]
@@ -591,14 +629,18 @@ def cmpSimpMemReport(rootfilename,outdir,oldLogfile,newLogfile,startevt,batch=Tr
             print " Searching for next occurence"
             x = 1
             if not (i + 1) > len(info1):
+                found = False
                 for info in info1[i + 1:]:
                     (stepname,trash) = info
                     if stepname == stepname2:
                         i += x
                         print " Next occurence found, skipping in-between steps"
                         assert i < len(info1)
-                        continue
+                        notFound = True
+                        break
                     x += 1
+                if found:
+                    continue
             print " No more occurences of this step, continuing" 
             i += 1
             continue
@@ -606,6 +648,12 @@ def cmpSimpMemReport(rootfilename,outdir,oldLogfile,newLogfile,startevt,batch=Tr
         (data1,npoints1) = getNpoints(data1)
         (data2,npoints2) = getNpoints(data2)
 
+        legs = []
+        leg      = ROOT.TLegend(0.6,0.99,0.89,0.8)
+        legs.append(leg)
+        leg      = ROOT.TLegend(0.6,0.99,0.89,0.8)
+        legs.append(leg)
+        
         try:
             if len(data1) == 0:
                 raise IndexError
@@ -616,7 +664,7 @@ def cmpSimpMemReport(rootfilename,outdir,oldLogfile,newLogfile,startevt,batch=Tr
              rss_graph1,
              rss_lstevt1,
              rss_peak1,
-             rss_minim1) = createSimplMemGraphs(data1,npoints1,0)
+             rss_minim1) = createSimplMemGraphs(data1,npoints1,0,legs,prevrev=prevrev)
         except IndexError:
             raise SimpMemParseErr(oldLogfile)
 
@@ -630,9 +678,10 @@ def cmpSimpMemReport(rootfilename,outdir,oldLogfile,newLogfile,startevt,batch=Tr
              rss_graph2,
              rss_lstevt2,
              rss_peak2,
-             rss_minim2) = createSimplMemGraphs(data2,npoints2,1)
+             rss_minim2) = createSimplMemGraphs(data2,npoints2,1,legs,prevrev=prevrev)
         except IndexError:
             raise SimpMemParseErr(newLogfile)  
+
 
         (vsize_lstevt, trash_this) = getTwoGraphLimits(vsize_lstevt1, 0, vsize_lstevt2, 0)
         (rss_lstevt  , trash_this) = getTwoGraphLimits(rss_lstevt1  , 0, rss_lstevt2  , 0)    
@@ -653,29 +702,63 @@ def cmpSimpMemReport(rootfilename,outdir,oldLogfile,newLogfile,startevt,batch=Tr
                          reporttype = 1,
                          title = "%s_rss"  %  stepname2)
 
-        vsizePerfDiffgraph = getMemDiff(data1,data2,npoints2,vsize_lstevt, (vsize_max - vsize_min), stepname1, rss=False)
-        rssPerfDiffgraph   = getMemDiff(data1,data2,npoints2,rss_lstevt  , (rss_max - rss_min)    , stepname1, rss=True )        
+        (vsizePerfDiffgraph, vsizeleg) = getMemDiff(data1,data2,npoints2,vsize_lstevt, (vsize_max - vsize_min), stepname1, rss=False)
+        (rssPerfDiffgraph, rssleg)     = getMemDiff(data1,data2,npoints2,rss_lstevt  , (rss_max - rss_min)    , stepname1, rss=True )        
         
-    ##     (vsize_diffgr,rss_diffgr) = getMemDiff(data1,data2,npoints2,biggestLastEvt,biggestMaxval)
     ##     avg_line1 = getMeanLines(mean1,last_event1,0)
     ##     avg_line2 = getMeanLines(mean2,last_event2,1)
 
-        vsize_canvas = drawMemGraphs(vsize_graph1,vsize_graph2,"vsize",stepname1)
-        rss_canvas   = drawMemGraphs(rss_graph1,rss_graph2,"rss"  ,stepname1)
-        vsize_change_canvas = drawMemChangeGraphs(vsizePerfDiffgraph, "vsize", stepname1)         
-        rss_change_canvas   = drawMemChangeGraphs(rssPerfDiffgraph  , "rss"  , stepname1)         
+        vsize_canvas = drawMemGraphs(vsize_graph1, vsize_graph2, legs[0], "vsize", stepname1)
+        rss_canvas   = drawMemGraphs(rss_graph1  , rss_graph2  , legs[1], "rss"  , stepname1)
+        vsize_change_canvas = drawMemChangeGraphs(vsizePerfDiffgraph, vsizeleg, "vsize", stepname1)         
+        rss_change_canvas   = drawMemChangeGraphs(rssPerfDiffgraph  , rssleg  , "rss"  , stepname1)         
 
-        canvases.append(rss_canvas)
-        canvases.append(vsize_canvas)
-        canvases.append(vsize_change_canvas)
-        canvases.append(rss_change_canvas)
-        if not batch:
+        if batch:
+
+            
+            logcandle = ""
+            candFilename = ""            
+            found = candreg.search(os.path.basename(newLogfile))
+            
+            if found:
+                logcandle = found.groups()[0]
+                
+            if   CandFname.has_key(candle):
+                candFilename = CandFname[candle]
+            elif CandFname.has_key(logcandle):
+                candFilename = CandFname[logcandle]
+            else:
+                candFilename = "Unknown-candle"
+
+            outputdir = "%s_%s_SimpleMemReport" % (candFilename,stepname1)
+            outputdir = os.path.join(outdir,outputdir)
+
+            if not os.path.exists(outputdir):
+                os.mkdir(outputdir)
+
+            #print the graphs as files :)
+
+            newrootfile = createROOT(outputdir,rootfilename)                
+            
+            vsize_canvas.Print(       os.path.join(outputdir,"vsize_graphs.gif"), "gif")
+            rss_canvas.Print(         os.path.join(outputdir,"rss_graphs.gif"  ), "gif")
+            vsize_change_canvas.Print(os.path.join(outputdir,"vsize_change.gif"), "gif")
+            rss_change_canvas.Print(  os.path.join(outputdir,"rss_change.gif"  ), "gif")
+            # write it on file
+            map(lambda x: x.Write(), [vsize_graph1,vsize_graph2, rss_graph1, rss_graph2, vsizePerfDiffgraph, rssPerfDiffgraph])
+            map(lambda x: x.Write(), [vsize_canvas,rss_canvas,vsize_change_canvas,rss_change_canvas])
+            newrootfile.Close()
+        else:
             # we have to do this if we are running the application standalone
             # For some reason it will not draw some graphs at all if there is more than
             # one step.
             # If we wait between iterations of this loop the graphs will be drawn correctly.
             # Perhaps a graphics buffer problem with ROOT?
             # Perhaps a garbage collection problem in python? (Doubt it)
+            canvases.append(rss_canvas)
+            canvases.append(vsize_canvas)
+            canvases.append(vsize_change_canvas)
+            canvases.append(rss_change_canvas)            
             time.sleep(5.0)
 
         i += 1
@@ -683,22 +766,14 @@ def cmpSimpMemReport(rootfilename,outdir,oldLogfile,newLogfile,startevt,batch=Tr
     #
     # Create a one dimensional function and draw it
     #
-    newrootfile = None
+
     if batch:
-        #print the graphs as files :)
-        newrootfile = createROOT(outdir,rootfilename)
-##         mycanvas.Print("%s/%s_graph.gif"%(outdir,value),"gif")
-
-##         # write it on file
-##         graph.Write()
-##         mycanvas.Write()
-
-##         myfile.Close()         
+        pass
     else:
         if len(canvases) > 0:
             while reduce(lambda x,y: x or y ,canvases):
                 time.sleep(2.5)
-        return 0            
+    return 0            
         
     #os.system('pwd') 
                 
@@ -729,6 +804,8 @@ def cmpSimpMemReport(rootfilename,outdir,oldLogfile,newLogfile,startevt,batch=Tr
         
 
 def cmpTimingReport(rootfilename,outdir,oldLogfile,newLogfile,secsperbin,batch=True,prevrev=""):
+    if batch:
+        setBatch()
     
     data1 = getTimingLogData(oldLogfile)
     data2 = getTimingLogData(newLogfile)        
@@ -743,7 +820,7 @@ def cmpTimingReport(rootfilename,outdir,oldLogfile,newLogfile,secsperbin,batch=T
     except IndexError, detail:
         raise TimingParseErr(newLogfile)
 
-    hsStack  = ROOT.THStack("hsStack","Histograms Comparison")
+    hsStack  = ROOT.THStack("hsStack","Histogram Comparison")
     leg      = ROOT.TLegend(0.6,0.99,0.89,0.8)
     histoleg = ROOT.TLegend(0.5,0.8,0.89,0.89)    
     #if not nbins1 == nbins2:
@@ -764,36 +841,34 @@ def cmpTimingReport(rootfilename,outdir,oldLogfile,newLogfile,secsperbin,batch=T
     #
     # Create a one dimensional function and draw it
     #
+    histo1.GetXaxis().SetTitle("s")            
+    graph_canvas   = drawGraphs(graph1,graph2,avg_line1,avg_line2,leg)
+    changes_canvas = drawChanges(changegraph,chgleg)
+    histo_canvas   = drawHistos(hsStack,histoleg)
+    
     newrootfile = None
     if batch:
         newrootfile = createROOT(outdir,rootfilename) 
         names = ["graphs.gif","changes.gif","histos.gif"]
-        #Graphs
-        graph_canvas   = drawGraphs(graph1,graph2,avg_line1,avg_line2,leg)
-        graph_canvas.Print("%s/%s" % (outdir,names[0]),"gif")
+        
+        graph_canvas.Print(  os.path.join(outdir,names[0]),"gif")
+        changes_canvas.Print(os.path.join(outdir,names[1]),"gif")
+        histo_canvas.Print(  os.path.join(outdir,names[2]),"gif")
+        
+        map(lambda x:x.Write(),[graph1,graph2,changegraph,hsStack,histo1,histo2])
+        
         graph_canvas.Write()    # to file
-        #Changes
-        changes_canvas = drawChanges(changegraph,chgleg)
-        changes_canvas.Print("%s/%s" % (outdir,names[1]),"gif")
         changes_canvas.Write()
-        #Histograms
-        histo1.GetXaxis().SetTitle("s")        
-        histo_canvas   = drawHistos(hsStack,histoleg)        
-        histo_canvas.Print("%s/%s" % (outdir,names[2]),"gif")
         histo_canvas.Write() 
         newrootfile.Close()   
 
         # The html page!------------------------------------------------------------------------------
 
         titlestring='<b>Report executed with release %s on %s.</b>\n<br>\n<hr>\n'\
-                                       %(_cmsver,time.asctime())
-        
+                                       %(_cmsver,time.asctime())    
         return names
     else:
-        graph_canvas   = drawGraphs(graph1,graph2,avg_line1,avg_line2,leg)
-        changes_canvas = drawChanges(changegraph,chgleg)
-        histo1.GetXaxis().SetTitle("s")        
-        histo_canvas   = drawHistos(hsStack,histoleg)        
+        
         while graph_canvas or histo_canvas or changes_canvas:
             time.sleep(2.5)
         return 0

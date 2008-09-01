@@ -16,6 +16,7 @@ import optparse as opt
 import re, os, sys, time, glob, socket, fnmatch, cmsPerfRegress
 from shutil import copy2, copystat
 from stat   import *
+from cmsPerfCommons import CandFname
 
 PROG_NAME  = os.path.basename(sys.argv[0])
 DEF_RELVAL = "/afs/cern.ch/cms/sdt/web/performance/RelVal"
@@ -33,6 +34,22 @@ DirName=( #These need to match the candle directory names ending (depending on t
           "IgProf",
           "Valgrind"
           )
+
+Step=(
+       "GEN,SIM",
+       "DIGI",
+       "L1",
+       "DIGI2RAW",
+       "HLT",
+       "RAW2DIGI",
+       "RECO",
+       "DIGI_PILEUP",
+       "L1_PILEUP",
+       "DIGI2RAW_PILEUP",
+       "HLT_PILEUP",
+       "RAW2DIGI_PILEUP",
+       "RECO_PILEUP"
+           )
 ##################
 #
 # Small functions
@@ -465,7 +482,7 @@ def scanReportArea(repdir):
     return (ExecutionDate,LogFiles,date,cmsScimarkResults,cmsScimarkDir)
 
 def createRegressHTML(reghtml,repdir,outd,CurrentCandle,htmNames):
-    RegressTmplHTML="%s/doc/regress.html" % BASE_PERFORMANCE
+    RegressTmplHTML="%s/doc/regress.html" % (BASE_PERFORMANCE)
     candnreg  = re.compile("CandleName")
     candhreg  = re.compile("CandlesHere")
     try:
@@ -488,6 +505,38 @@ def createRegressHTML(reghtml,repdir,outd,CurrentCandle,htmNames):
                 REGR.write(line)
     except IOError, detail:
         print "ERROR: Could not write regression html %s because %s" % (os.path.basename(reghtml),detail)                
+
+def getOutputNames(base,reportName):
+    logreg   = re.compile("(.*)\.log$")
+    matches  = logreg.search(reportName)
+    logdir   = logreg.sub(matches.groups()[0],reportName)
+    outd     = os.path.join(base,logdir)
+    nologext = matches.groups()[0]
+    return (nologext,outd)
+
+def step_cmp(x,y):
+    xstr = os.path.basename(x)
+    ystr = os.path.basename(y)
+    x_idx = -1
+    y_idx = -1
+    for i in range(len(Step)):
+        if Step[i] in xstr and x_idx == -1:
+            x_idx = i
+        if Step[i] in ystr and y_idx == -1:
+            y_idx = i
+        if not ( x_idx == -1 or y_idx == -1):
+            break
+        
+    if x_idx == -1 or y_idx == -1:
+        print "WARNING: No steps could be found in SimpleMemReport names when sorting for correcting the order of the graphs."
+    
+    if x_idx < y_idx:
+        return -1
+    elif x_idx == y_idx:
+        return 0
+    elif y_idx < x_idx:
+        return 1
+        
 
 ######################
 #
@@ -552,21 +601,7 @@ def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDat
                  Profile[8] : "overall.html", #This is always the same (for all candles)
                  Profile[9] : "beginjob.html" #This is complicated there are 3 html to link here too... (see Valgrind MemCheck below)
                  }
-    Step=(
-           "GEN,SIM",
-           "DIGI",
-           "L1",
-           "DIGI2RAW",
-           "HLT",
-           "RAW2DIGI",
-           "RECO",
-           "DIGI_PILEUP",
-           "L1_PILEUP",
-           "DIGI2RAW_PILEUP",
-           "HLT_PILEUP",
-           "RAW2DIGI_PILEUP",
-           "RECO_PILEUP"
-           )
+
 
     candnreg  = re.compile("CandleName")
     candhreg  = re.compile("CandlesHere")
@@ -581,9 +616,107 @@ def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDat
 
                 for CurDir in DirName:
 
-                    LocalPath = "%s%s_%s" % (repdir,CurrentCandle,CurDir)
-                    CandleLogFiles = getcmd("sh -c 'find %s -name \"*.log\" 2> /dev/null'" % LocalPath)
-                    CandleLogFiles = filter("".__ne__,CandleLogFiles.strip().split("\n"))
+                    LocalPath = os.path.join(repdir,"%s_%s" % (CurrentCandle,CurDir))
+                    LocalDirname = os.path.basename(LocalPath)
+
+                    if not prevrev == "":
+
+                        profs = []
+                        if   CurDir == DirName[0]:
+                            profs = Profile[0:3]
+                        elif CurDir == DirName[1]:
+                            profs = Profile[4:7]
+                        elif CurDir == DirName[2]:
+                            profs = Profile[8:9]
+                            
+                        for prof in profs:
+                            printed = False
+                            fullprof = (CurrentCandle,prof)
+                            outd     = ""
+                            nologext = ""                            
+                            if prof == "TimingReport":
+                                timeReports = glob.glob(os.path.join(LocalPath,"%s_*_%s.log" % (CandFname[CurrentCandle],prof)))
+                                if len(timeReports) > 0:
+                                    if not printed:
+                                        CAND.write("<p><strong>%s %s</strong></p>\n" % (prof,"Regression Analysis"))                                        
+                                        printed = True
+                                    for log in timeReports:
+                                        reportName = os.path.basename(log)
+                                        (nologext, outd) = getOutputNames(LocalDirname,reportName) 
+                                        CAND.write("<h4>%s</h4>\n" % reportName)
+                                        htmNames   = ["changes.gif"]
+                                        otherNames = ["graphs.gif" , "histos.gif"] 
+                                        regressHTML= "%s-regress.html" % nologext
+                                        pathsExist = reduce (lambda x,y: x or y,map(os.path.exists,map(lambda x: os.path.join(repdir,outd,x),otherNames)))
+                                        html = ""
+                                        if pathsExist:
+                                            html = "<p>Performance graphs and histograms superimposed for %s are <a href=\"%s\">here</a></p>\n" % (reportName,regressHTML)
+                                        else:
+                                            html = "<p>No change in performance graph available</p>\n"
+                                        regressHTML="%s/%s" % (WebArea,regressHTML)
+
+                                        for x in htmNames:
+                                            abspath = os.path.join(repdir,outd,x)
+                                            if os.path.exists(abspath):
+                                                html += "<p><a href=\"./%s/%s\"><img src=\"./%s/%s\" /></a></p>\n" % (outd,x,outd,x)
+                                            else:
+                                                html += "<p>%s does not exist probably because the log file for the previous release was missing</p>" % (abspath)
+
+                                        createRegressHTML(regressHTML,repdir,outd,CurrentCandle,otherNames)
+                                        CAND.write(html)
+                                        CAND.write("\n</tr></table>")                                
+
+                            
+                            elif prof == "EdmSize":
+                                outd = "%s/%s_outdir" % (base,cand)
+
+
+                            #if _debug > 0:
+                            #    assert os.path.exists(newLog), "The current release logfile %s that we were using to perform regression analysis was not found (even though we just found it!!)" % newLog
+
+
+
+                            elif prof == "SimpleMemReport":
+                                simMemReports = glob.glob(os.path.join(LocalPath,"%s_*_%s" % (CandFname[CurrentCandle],prof)))
+                                simMemReports.sort(cmp=step_cmp)
+                                if len(simMemReports) > 0:
+                                    if not printed:
+                                        CAND.write("<p><strong>%s %s</strong></p>\n" % (prof,"Regression Analysis"))
+                                        printed = True                                    
+                                    for adir in simMemReports:
+                                        reportName = os.path.basename(adir)
+                                        CAND.write("<h4>%s</h4>\n" % reportName)
+                                        htmNames   = ["vsize_change.gif", "rss_change.gif"]
+                                        otherNames = ["vsize_graphs.gif","rss_graphs.gif"]
+                                        nologext = reportName
+                                        outd     = reportName
+                                        regressHTML= "%s-regress.html" % nologext
+                                        pathsExist = reduce (lambda x,y: x or y,map(os.path.exists,map(lambda x: os.path.join(repdir,LocalDirname,outd,x),otherNames)))
+                                        html = ""
+                                        if pathsExist:
+                                            html = "<p>Performance graphs and histograms superimposed for %s are <a href=\"%s\">here</a></p>\n" % (reportName,regressHTML)
+                                        else:
+                                            html = "<p>No change in performance graph available</p>\n"
+                                        regressHTML="%s/%s" % (WebArea,regressHTML)
+
+                                        for x in htmNames:
+                                            abspath = os.path.join(repdir,LocalDirname,outd,x)
+                                            if os.path.exists(abspath):
+                                                html += "<p><a href=\"./%s/%s/%s\"><img src=\"./%s/%s/%s\" /></a></p>\n" % (LocalDirname,outd,x,LocalDirname,outd,x)
+                                            else:
+                                                html += "<p>%s does not exist probably because the log file for the previous release was missing</p>" % (abspath)
+
+                                        createRegressHTML(regressHTML,repdir,"%s/%s" % (LocalDirname,outd),CurrentCandle,otherNames)
+                                        CAND.write(html)
+                                        CAND.write("\n</tr></table>")   
+                                
+                    
+                    #CandleLogFiles = getcmd("sh -c 'find %s -name \"*.log\" 2> /dev/null'" % LocalPath)
+                    CandleLogFiles = []
+                    if os.path.exists(LocalPath):
+                        thedir = os.listdir(LocalPath)
+                        CandleLogFiles = filter(lambda x: (x.endswith(".log") or x.endswith("EdmSize")) and not os.path.isdir(x) and os.path.exists(x), map(lambda x: os.path.abspath(os.path.join(LocalPath,x)),thedir))                    
+                    #CandleLogFiles = filter("".__ne__,CandleLogFiles.strip().split("\n"))
 
 
                     if (len(CandleLogFiles)>0):
@@ -591,52 +724,15 @@ def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDat
                         syscp(CandleLogFiles,WebArea + "/")
                         base = os.path.basename(LocalPath)
                         lfileshtml = ""
-                        if not prevrev == "":
-                            CAND.write("<p><strong>%s</strong></p>\n" % "Regression Analysis")                        
+                     
                         for cand in CandleLogFiles:
                             cand = os.path.basename(cand)
                             if _verbose:
                                 print "Found %s in %s\n" % (cand,LocalPath)
-                            lfileshtml += "<a href=\"./%s/%s\">%s </a>" % (base,cand,cand)
-                            lfileshtml += "<br />\n"
-
-                            if not prevrev == "":
-                                #print "printing regression table"
-                                outd   = ""
-                                if "EdmSize" in cand:
-                                    outd = "%s/%s_outdir" % (base,cand)
-                                else:
-                                    logreg  = re.compile("(.*)\.log$")
-                                    matches = logreg.search(cand)
-                                    logdir  = logreg.sub(matches.groups()[0],cand)
-                                    outd    = "%s/%s" % (base,logdir)
-
-                                #if _debug > 0:
-                                #    assert os.path.exists(newLog), "The current release logfile %s that we were using to perform regression analysis was not found (even though we just found it!!)" % newLog
-
-                                if "TimingReport" in cand :
-                                    CAND.write("<h4>%s</h4>\n" % cand)
-                                    htmNames   = ["changes.gif"]
-                                    otherNames = ["graphs.gif" , "histos.gif"] 
-                                    regressHTML= "%s-regress.html" % CurrentCandle
-                                    pathsExist = reduce (lambda x,y: x or y,map(os.path.exists,map(lambda x: os.path.join(repdir,outd,x),otherNames)))
-                                    html = ""
-                                    if pathsExist:
-                                        html = "<p>Performance graphs and histograms superimposed for %s are <a href=\"%s\">here</a></p>\n" % (cand,regressHTML)
-                                    else:
-                                        html = "<p>No change in performance graph available</p>\n"
-                                    regressHTML="%s/%s" % (WebArea,regressHTML)
-                                    
-                                    for x in htmNames:
-                                        abspath = os.path.join(repdir,outd,x)
-                                        if os.path.exists(abspath):
-                                            html += "<p><a href=\"./%s/%s\"><img src=\"./%s/%s\" /></a></p>\n" % (outd,x,outd,x)
-                                        else:
-                                            html += "<p>%s does not exist probably because the log file for the previous release was missing</p>" % (abspath)
-
-                                    createRegressHTML(regressHTML,repdir,outd,CurrentCandle,otherNames)
-                                    CAND.write(html)
-                                    CAND.write("\n</tr></table>")
+                                
+                            if not "EdmSize" in cand:
+                                lfileshtml += "<a href=\"./%s/%s\">%s </a>" % (base,cand,cand)
+                                lfileshtml += "<br />\n"
                                     
                         CAND.write("<p><strong>Logfiles for %s</strong></p>\n" % CurDir)    
                         CAND.write(lfileshtml)
