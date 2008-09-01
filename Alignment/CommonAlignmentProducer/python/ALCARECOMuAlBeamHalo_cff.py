@@ -2,9 +2,9 @@
 
 import FWCore.ParameterSet.Config as cms
 
-import HLTrigger.HLTfilters.hltHighLevel_cfi
-ALCARECOMuAlBeamHaloHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
-ALCARECOMuAlBeamHaloHLT.HLTPaths = ['HLT_CSCBeamHalo', 'HLT_CSCBeamHaloRing2or3']
+# import HLTrigger.HLTfilters.hltHighLevel_cfi
+# ALCARECOMuAlBeamHaloHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
+# ALCARECOMuAlBeamHaloHLT.HLTPaths = ['HLT_CSCBeamHalo', 'HLT_CSCBeamHaloRing2or3']
 
 from Geometry.CommonDetUnit.bareGlobalTrackingGeometry_cfi import *
 from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *
@@ -34,5 +34,6 @@ ALCARECOMuAlBeamHalo = cms.EDFilter("AlignmentCSCBeamHaloSelectorModule",
     minHitsPerStation = cms.uint32(4)
 )
 
-seqALCARECOMuAlBeamHalo = cms.Sequence(ALCARECOMuAlBeamHaloHLT + reconstructAsCosmicMuonsALCARECOBH * ALCARECOMuAlBeamHalo)
+# seqALCARECOMuAlBeamHalo = cms.Sequence(ALCARECOMuAlBeamHaloHLT + reconstructAsCosmicMuonsALCARECOBH * ALCARECOMuAlBeamHalo)
+seqALCARECOMuAlBeamHalo = cms.Sequence(reconstructAsCosmicMuonsALCARECOBH * ALCARECOMuAlBeamHalo)
 

@@ -2,9 +2,9 @@
 
 import FWCore.ParameterSet.Config as cms
 
-import HLTrigger.HLTfilters.hltHighLevel_cfi
-ALCARECOMuAlBeamHaloOverlapsHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
-ALCARECOMuAlBeamHaloOverlapsHLT.HLTPaths = ['HLT_CSCBeamHaloOverlapRing1', 'HLT_CSCBeamHaloOverlapRing2']
+# import HLTrigger.HLTfilters.hltHighLevel_cfi
+# ALCARECOMuAlBeamHaloOverlapsHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
+# ALCARECOMuAlBeamHaloOverlapsHLT.HLTPaths = ['HLT_CSCBeamHaloOverlapRing1', 'HLT_CSCBeamHaloOverlapRing2']
 
 from Geometry.CommonDetUnit.bareGlobalTrackingGeometry_cfi import *
 from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *
@@ -41,5 +41,6 @@ ALCARECOMuAlBeamHaloOverlaps = cms.EDFilter("AlignmentCSCOverlapSelectorModule",
     station = cms.int32(0) # all stations: I'll need to split it by station (8 subsamples) offline
 )
 
-seqALCARECOMuAlBeamHaloOverlaps = cms.Sequence(ALCARECOMuAlBeamHaloOverlapsHLT + reconstructAsCosmicMuonsALCARECOBHO * ALCARECOMuAlBeamHaloOverlapsEnergyCut * ALCARECOMuAlBeamHaloOverlaps)
+# seqALCARECOMuAlBeamHaloOverlaps = cms.Sequence(ALCARECOMuAlBeamHaloOverlapsHLT + reconstructAsCosmicMuonsALCARECOBHO * ALCARECOMuAlBeamHaloOverlapsEnergyCut * ALCARECOMuAlBeamHaloOverlaps)
+seqALCARECOMuAlBeamHaloOverlaps = cms.Sequence(reconstructAsCosmicMuonsALCARECOBHO * ALCARECOMuAlBeamHaloOverlapsEnergyCut * ALCARECOMuAlBeamHaloOverlaps)
 
