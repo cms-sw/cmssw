@@ -13,7 +13,7 @@
 //
 // Original Author:  Erik Butz
 //         Created:  Tue Dec 11 14:03:05 CET 2007
-// $Id: TrackerOfflineValidation.cc,v 1.9 2008/08/18 11:55:12 jdraeger Exp $
+// $Id: TrackerOfflineValidation.cc,v 1.10 2008/08/18 13:04:00 jdraeger Exp $
 //
 //
 
@@ -76,11 +76,14 @@ public:
  
   
 private:
-  virtual void beginJob(const edm::EventSetup&) ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob();
+  virtual void checkBookHists(const edm::EventSetup &setup);
+
+
   const edm::ParameterSet parset_;
   edm::ESHandle<TrackerGeometry> tkGeom_;
+  const TrackerGeometry *bareTkGeomPtr_; // ugly hack to book hists only once, but check 
   edm::ParameterSet parameters_;
   
   struct ModuleHistos{
@@ -189,7 +192,7 @@ int TrackerOfflineValidation::GetIndex(const std::vector<OBJECT_TYPE*> &vec, con
 // constructors and destructor
 //
 TrackerOfflineValidation::TrackerOfflineValidation(const edm::ParameterSet& iConfig)
-  :   parset_(iConfig)
+  : parset_(iConfig), bareTkGeomPtr_(0)
 {
    //now do what ever initialization is needed
  
@@ -215,33 +218,38 @@ TrackerOfflineValidation::~TrackerOfflineValidation()
 
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
-TrackerOfflineValidation::beginJob(const edm::EventSetup& es)
+void
+TrackerOfflineValidation::checkBookHists(const edm::EventSetup &es)
 {
   es.get<TrackerDigiGeometryRecord>().get( tkGeom_ );
-  edm::Service<TFileService> fs;    
-  AlignableObjectId aliobjid;
+  const TrackerGeometry *newBareTkGeomPtr = &(*tkGeom_);
+  if (newBareTkGeomPtr == bareTkGeomPtr_) return; // already booked hists, nothing changed
 
-  // construct alignable tracker to get access to alignable hierarchy 
-  // -> no backward compatibility below 1_8_X
+  if (!bareTkGeomPtr_) { // pointer not yet set: called the first time => book hists
+    edm::Service<TFileService> fs;    
+    AlignableObjectId aliobjid;
+    
+    // construct alignable tracker to get access to alignable hierarchy 
+    AlignableTracker aliTracker(&(*tkGeom_));
+    
+    edm::LogInfo("TrackerOfflineValidation") << "There are " << newBareTkGeomPtr->detIds().size()
+					     << " detUnits in the Geometry record";
+    
+    //
+    // Book Histogramms for global track quantities
+    TFileDirectory trackglobal = fs->mkdir("GlobalTrackVariables");  
+    this->bookGlobalHists(trackglobal);
+    
+    this->bookSubDetResiduals(static_cast<TFileDirectory&>(*fs));
+    
+    // recursively book histogramms on lowest level
+    this->bookDirHists(static_cast<TFileDirectory&>(*fs), aliTracker, aliobjid);  
+  } else { // histograms booked, but changed TrackerGeometry?
+    edm::LogWarning("GeometryChange") << "@SUB=checkBookHists"
+				      << "TrackerGeometry changed, but will not re-book hists!";
+  }
 
-  AlignableTracker aliTracker(&(*tkGeom_));
-  
-  edm::LogInfo("TrackerOfflineValidation") << "There are " << (*tkGeom_).detIds().size() 
-					   << " detUnits in the Geometry record" << std::endl;
-  
-
-  //
-  // Book Histogramms for global track quantities
-  TFileDirectory trackglobal = fs->mkdir("GlobalTrackVariables");  
-  this->bookGlobalHists(trackglobal);
-  
-
-  this->bookSubDetResiduals(static_cast<TFileDirectory&>(*fs));
- 
-  // recursively book histogramms on lowest level
-  this->bookDirHists(static_cast<TFileDirectory&>(*fs), aliTracker, aliobjid);  
-
+  bareTkGeomPtr_ = newBareTkGeomPtr;
 }
 
 
@@ -531,6 +539,7 @@ TrackerOfflineValidation::ModuleHistos& TrackerOfflineValidation::GetHistStructF
 void
 TrackerOfflineValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+  this->checkBookHists(iSetup); // check whether hists are are booked and do so if not yet done
   
   //using namespace edm;
   TrackerValidationVariables avalidator_(iSetup,parset_);
@@ -653,8 +662,8 @@ TrackerOfflineValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
-TrackerOfflineValidation::endJob() {
-  
+TrackerOfflineValidation::endJob()
+{
   AlignableTracker aliTracker(&(*tkGeom_));
   edm::Service<TFileService> fs;   
   AlignableObjectId aliobjid;
