@@ -133,7 +133,9 @@ private:
   void  doSimHits(edm::Handle<CSCRecHit2DCollection> recHits, edm::Handle<edm::PSimHitContainer> simHits);
   void  doPedestalNoise(edm::Handle<CSCStripDigiCollection> strips);
   void  doSegments(edm::Handle<CSCSegmentCollection> cscSegments, edm::ESHandle<CSCGeometry> cscGeom);
-  void  doEfficiencies(edm::Handle<CSCRecHit2DCollection> recHits, edm::Handle<CSCSegmentCollection> cscSegments);
+  void  doEfficiencies(edm::Handle<CSCWireDigiCollection> wires, edm::Handle<CSCStripDigiCollection> strips,
+                       edm::Handle<CSCRecHit2DCollection> recHits, edm::Handle<CSCSegmentCollection> cscSegments,
+                       edm::ESHandle<CSCGeometry> cscGeom);
   void  doGasGain(const CSCWireDigiCollection &, const CSCStripDigiCollection &, const CSCRecHit2DCollection &);
   void  doCalibrations(const edm::EventSetup& eventSetup);
   void  doAFEBTiming(const CSCWireDigiCollection &);
@@ -154,6 +156,16 @@ private:
   void  fillEfficiencyHistos(int bin, int flag);
   void  getEfficiency(float bin, float Norm, std::vector<float> &eff);
   void  histoEfficiency(TH1F *readHisto, TH1F *writeHisto);
+  double lineParametrization(double z1Position, double z2Position, double z1Direction){
+    double parameterLine = (z2Position-z1Position)/z1Direction;
+    return parameterLine;
+  }
+  double extrapolate1D(double initPosition, double initDirection, double parameterOfTheLine){
+    double extrapolatedPosition = initPosition + initDirection*parameterOfTheLine;
+    return extrapolatedPosition; 
+  }
+  bool withinSensitiveRegion(LocalPoint localPos, const std::vector<float> layerBounds, int station, int ring, float shiftFromEdge, float shiftFromDeadZone);
+
 
   // counters
   int nEventsAnalyzed;
@@ -197,6 +209,17 @@ private:
   TH1F *hRHSTE;
   TH1F *hSEff;
   TH1F *hRHEff;
+  TH2F *hSSTE2;
+  TH2F *hRHSTE2;
+  TH2F *hStripSTE2;
+  TH2F *hWireSTE2;
+  TH2F *hSEff2;
+  TH2F *hRHEff2;
+  TH2F *hStripEff2;
+  TH2F *hWireEff2;
+  TH2F *hEffDenominator;
+  TH2F *hSensitiveAreaEvt;
+
 
   /// Maps and vectors for module doGasGain()
   std::vector<int>     nmbhvsegm;

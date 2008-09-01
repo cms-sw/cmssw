@@ -51,11 +51,34 @@ CSCValidation::CSCValidation(const ParameterSet& pset){
   // Create object of class CSCValHists to manage histograms
   histos = new CSCValHists();
 
-  // book histos Eff histos
+  // book Eff histos
   hSSTE = new TH1F("hSSTE","hSSTE",40,0,40);
   hRHSTE = new TH1F("hRHSTE","hRHSTE",40,0,40);
   hSEff = new TH1F("hSEff","Segment Efficiency",20,0.5,20.5);
   hRHEff = new TH1F("hRHEff","recHit Efficiency",20,0.5,20.5);
+
+  const int nChambers = 36; 
+  const int nTypes = 18;
+  float nCH_min = 0.5;
+  float nCh_max = float(nChambers) + 0.5;
+  float nT_min = 0.5;
+  float nT_max = float(nTypes) + 0.5;
+
+  hSSTE2 = new TH2F("hSSTE2","hSSTE2",nChambers,nCH_min,nCh_max, nTypes, nT_min, nT_max);
+  hRHSTE2 = new TH2F("hRHSTE2","hRHSTE2",nChambers,nCH_min,nCh_max, nTypes, nT_min, nT_max);
+  hStripSTE2 = new TH2F("hStripSTE2","hStripSTE2",nChambers,nCH_min,nCh_max, nTypes, nT_min, nT_max);
+  hWireSTE2 = new TH2F("hWireSTE2","hWireSTE2",nChambers,nCH_min,nCh_max, nTypes, nT_min, nT_max);
+  
+
+  hEffDenominator = new TH2F("hRHSTE2","hRHSTE2",nChambers,nCH_min,nCh_max, nTypes, nT_min, nT_max);
+  hSEff2 = new TH2F("hSEff2","Segment Efficiency 2D",nChambers,nCH_min,nCh_max, nTypes, nT_min, nT_max);
+  hRHEff2 = new TH2F("hRHEff2","recHit Efficiency 2D",nChambers,nCH_min,nCh_max, nTypes, nT_min, nT_max);
+
+  hStripEff2 = new TH2F("hStripEff2","strip Efficiency 2D",nChambers,nCH_min,nCh_max, nTypes, nT_min, nT_max);
+  hWireEff2 = new TH2F("hWireEff2","wire Efficiency 2D",nChambers,nCH_min,nCh_max, nTypes, nT_min, nT_max);
+
+  hSensitiveAreaEvt = new TH2F("hSensitiveAreaEvt","events in sensitive area",nChambers,nCH_min,nCh_max, nTypes, nT_min, nT_max);
+
 
   // setup trees to hold global position data for rechits and segments
   histos->setupTrees();
@@ -71,8 +94,21 @@ CSCValidation::~CSCValidation(){
   // produce final efficiency histograms
   histoEfficiency(hRHSTE,hRHEff);
   histoEfficiency(hSSTE,hSEff);
+  hSEff2->Divide(hSSTE2,hEffDenominator,1.,1.,"B");
+  hRHEff2->Divide(hRHSTE2,hEffDenominator,1.,1.,"B");
+  hStripEff2->Divide(hStripSTE2,hEffDenominator,1.,1.,"B");
+  hWireEff2->Divide(hWireSTE2,hEffDenominator,1.,1.,"B");
+
   histos->insertPlot(hSEff,"hSEff","Efficiency");
   histos->insertPlot(hRHEff,"hRHEff","Efficiency");
+
+  histos->insertPlot(hSEff2,"hSEff2","Efficiency");
+  histos->insertPlot(hRHEff2,"hRHEff2","Efficiency");
+  histos->insertPlot(hStripEff2,"hStripff2","Efficiency");
+  histos->insertPlot(hWireEff2,"hWireff2","Efficiency");
+  
+  histos->insertPlot(hSensitiveAreaEvt,"","Efficiency");
+
   
   // write histos to the specified file
   histos->writeHists(theFile);
@@ -156,7 +192,7 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
   if (makePedNoisePlots) doPedestalNoise(strips);
   
   // look at recHit and segment efficiencies
-  if (makeEfficiencyPlots) doEfficiencies(recHits, cscSegments);
+  if (makeEfficiencyPlots) doEfficiencies(wires,strips, recHits, cscSegments,cscGeom);
 
   // gas gain
   if (makeGasGainPlots) doGasGain(*wires,*strips,*recHits);
@@ -869,10 +905,15 @@ float CSCValidation::getTiming(const CSCStripDigiCollection& stripdigis, CSCDetI
 // Author: S. Stoynev
 //----------------------------------------------------------------------------
 
-void CSCValidation::doEfficiencies(edm::Handle<CSCRecHit2DCollection> recHits, edm::Handle<CSCSegmentCollection> cscSegments){
+void CSCValidation::doEfficiencies(edm::Handle<CSCWireDigiCollection> wires, edm::Handle<CSCStripDigiCollection> strips,
+                                   edm::Handle<CSCRecHit2DCollection> recHits, edm::Handle<CSCSegmentCollection> cscSegments,
+                                   edm::ESHandle<CSCGeometry> cscGeom){
 
+  bool allWires[2][4][4][36][6];
+  bool allStrips[2][4][4][36][6];
   bool AllRecHits[2][4][4][36][6];
   bool AllSegments[2][4][4][36];
+  
   //bool MultiSegments[2][4][4][36];
   for(int iE = 0;iE<2;iE++){
     for(int iS = 0;iS<4;iS++){
@@ -881,6 +922,8 @@ void CSCValidation::doEfficiencies(edm::Handle<CSCRecHit2DCollection> recHits, e
           AllSegments[iE][iS][iR][iC] = false;
           //MultiSegments[iE][iS][iR][iC] = false;
           for(int iL=0;iL<6;iL++){
+	    allWires[iE][iS][iR][iC][iL] = false;
+	    allStrips[iE][iS][iR][iC][iL] = false;
             AllRecHits[iE][iS][iR][iC][iL] = false;
           }
         }
@@ -888,23 +931,99 @@ void CSCValidation::doEfficiencies(edm::Handle<CSCRecHit2DCollection> recHits, e
     }
   }
   
+  
+  // Wires
+  for (CSCWireDigiCollection::DigiRangeIterator dWDiter=wires->begin(); dWDiter!=wires->end(); dWDiter++) {
+    CSCDetId idrec = (CSCDetId)(*dWDiter).first;
+    std::vector<CSCWireDigi>::const_iterator wireIter = (*dWDiter).second.first;
+    std::vector<CSCWireDigi>::const_iterator lWire = (*dWDiter).second.second;
+    for( ; wireIter != lWire; ++wireIter) {
+      allWires[idrec.endcap() -1][idrec.station() -1][idrec.ring() -1][idrec.chamber() -1][idrec.layer() -1] = true;
+      break;
+    }
+  }
+
+  //---- STRIPS
+  for (CSCStripDigiCollection::DigiRangeIterator dSDiter=strips->begin(); dSDiter!=strips->end(); dSDiter++) {
+    CSCDetId idrec = (CSCDetId)(*dSDiter).first;
+    std::vector<CSCStripDigi>::const_iterator stripIter = (*dSDiter).second.first;
+    std::vector<CSCStripDigi>::const_iterator lStrip = (*dSDiter).second.second;
+    for( ; stripIter != lStrip; ++stripIter) {
+      std::vector<int> myADCVals = stripIter->getADCCounts();
+      bool thisStripFired = false;
+      float thisPedestal = 0.5*(float)(myADCVals[0]+myADCVals[1]);
+      float threshold = 13.3 ;
+      float diff = 0.;
+      for (unsigned int iCount = 0; iCount < myADCVals.size(); iCount++) {
+        diff = (float)myADCVals[iCount]-thisPedestal;
+        if (diff > threshold) {
+          thisStripFired = true;
+	  break;
+        }
+      }
+      if(thisStripFired){
+	allStrips[idrec.endcap() -1][idrec.station() -1][idrec.ring() -1][idrec.chamber() -1][idrec.layer() -1] = true;
+	break;
+      }
+    }
+  }
+
+  // Rechits
   for (CSCRecHit2DCollection::const_iterator recEffIt = recHits->begin(); recEffIt != recHits->end(); recEffIt++) {
     //CSCDetId idrec = (CSCDetId)(*recIt).cscDetId();
     CSCDetId  idrec = (CSCDetId)(*recEffIt).cscDetId();
     AllRecHits[idrec.endcap() -1][idrec.station() -1][idrec.ring() -1][idrec.chamber() -1][idrec.layer() -1] = true;
 
   }
-   
 
+  std::vector <uint> seg_ME2(2,0) ;
+  std::vector <uint> seg_ME3(2,0) ;
+  std::vector < pair <CSCDetId, CSCSegment> > theSegments(4);
+  // Segments
   for(CSCSegmentCollection::const_iterator segEffIt=cscSegments->begin(); segEffIt != cscSegments->end(); segEffIt++) {
     CSCDetId idseg  = (CSCDetId)(*segEffIt).cscDetId();
     //if(AllSegments[idrec.endcap() -1][idrec.station() -1][idrec.ring() -1][idrec.chamber()]){
     //MultiSegments[idrec.endcap() -1][idrec.station() -1][idrec.ring() -1][idrec.chamber()] = true;
     //}
     AllSegments[idseg.endcap() -1][idseg.station() -1][idseg.ring() -1][idseg.chamber() -1] = true;
+    // "Intrinsic" efficiency measurement relies on "good" segment extrapolation - we need the pre-selection below
+    // station 2 "good" segment will be used for testing efficiencies in ME1 and ME3
+    // station 3 "good" segment will be used for testing efficiencies in ME2 and ME4
+    if(2==idseg.station() || 3==idseg.station()){
+      uint seg_tmp ; 
+      if(2==idseg.station()){
+	++seg_ME2[idseg.endcap() -1];
+	seg_tmp = seg_ME2[idseg.endcap() -1];
+      }
+      else{
+	++seg_ME3[idseg.endcap() -1];
+	seg_tmp = seg_ME3[idseg.endcap() -1];
+      }
+      // is the segment good
+      if(1== seg_tmp&& 6==(*segEffIt).nRecHits() && (*segEffIt).chi2()/(*segEffIt).degreesOfFreedom()<3.){
+	pair <CSCDetId, CSCSegment> specSeg = make_pair( (CSCDetId)(*segEffIt).cscDetId(),*segEffIt);
+	theSegments[2*(idseg.endcap()-1)+(idseg.station() -2)] = specSeg;
+      }
+    }
+    /*
+    if(2==idseg.station()){
+	++seg_ME2[idseg.endcap() -1];
+       if(1==seg_ME2[idseg.endcap() -1] && 6==(*segEffIt).nRecHits() && (*segEffIt).chi2()/(*segEffIt).degreesOfFreedom()<3.){
+           pair <CSCDetId, CSCSegment> specSeg = make_pair( (CSCDetId)(*segEffIt).cscDetId(),*segEffIt);
+           theSegments[2*(idseg.endcap()-1)+(idseg.station() -2)] = specSeg;
+       }
+    }
+    else if(3==idseg.station()){
+	++seg_ME3[idseg.endcap() -1];
+	if(1==seg_ME3[idseg.endcap() -1] && 6==(*segEffIt).nRecHits() && (*segEffIt).chi2()/(*segEffIt).degreesOfFreedom()<3.){
+         pair <CSCDetId, CSCSegment> specSeg = make_pair( (CSCDetId)(*segEffIt).cscDetId(),*segEffIt);
+	 theSegments[2*(idseg.endcap()-1)+(idseg.station() -2)] = specSeg;
+       }
+    }
+    */
+    
   }
-
-  
+  // Simple efficiency calculations
   for(int iE = 0;iE<2;iE++){
     for(int iS = 0;iS<4;iS++){
       for(int iR = 0; iR<4;iR++){
@@ -941,6 +1060,143 @@ void CSCValidation::doEfficiencies(edm::Handle<CSCRecHit2DCollection> recHits, e
     }
   }
 
+// pick a segment only if there are no others in the station
+  std::vector < pair <CSCDetId, CSCSegment> * > theSeg;
+  if(1==seg_ME2[0]) theSeg.push_back(&theSegments[0]);
+  if(1==seg_ME3[0]) theSeg.push_back(&theSegments[1]);
+  if(1==seg_ME2[1]) theSeg.push_back(&theSegments[2]);
+  if(1==seg_ME3[1]) theSeg.push_back(&theSegments[3]);
+
+  // Needed for plots
+  // at the end the chamber types will be numbered as 1 to 18 
+  // (ME-4/1, -ME3/2, -ME3/1, ..., +ME3/1, +ME3/2, ME+4/1 ) 
+  std::map <std::string, float> chamberTypes;
+  chamberTypes["ME1/a"] = 0.5;
+  chamberTypes["ME1/b"] = 1.5;
+  chamberTypes["ME1/2"] = 2.5;
+  chamberTypes["ME1/3"] = 3.5;
+  chamberTypes["ME2/1"] = 4.5;
+  chamberTypes["ME2/2"] = 5.5;
+  chamberTypes["ME3/1"] = 6.5;
+  chamberTypes["ME3/2"] = 7.5;
+  chamberTypes["ME4/1"] = 8.5;
+
+  if(theSeg.size()){
+    std::map <int , GlobalPoint> extrapolatedPoint;
+    std::map <int , GlobalPoint>::iterator it;
+    const std::vector<CSCChamber*> ChamberContainer = cscGeom->chambers();
+    // Pick which chamber with which segment to test
+    for(unsigned int nCh=0;nCh<ChamberContainer.size();nCh++){
+      const CSCChamber *cscchamber = ChamberContainer[nCh];
+      pair <CSCDetId, CSCSegment> * thisSegment = 0;
+      for(uint iSeg =0;iSeg<theSeg.size();++iSeg ){
+        if(cscchamber->id().endcap() == theSeg[iSeg]->first.endcap()){ 
+          if(1==cscchamber->id().station() || 3==cscchamber->id().station() ){
+	    if(2==theSeg[iSeg]->first.station()){
+	      thisSegment = theSeg[iSeg];
+	    }
+	  }
+	  else if (2==cscchamber->id().station() || 4==cscchamber->id().station()){
+	    if(3==theSeg[iSeg]->first.station()){
+	      thisSegment = theSeg[iSeg];
+	    }
+	  }
+	}
+      }
+      // this chamber is to be tested with thisSegment
+      if(thisSegment){
+	CSCSegment * seg = &(thisSegment->second);
+	const CSCChamber *segChamber = cscGeom->chamber(thisSegment->first);
+	LocalPoint localCenter(0.,0.,0);
+	GlobalPoint cscchamberCenter =  cscchamber->toGlobal(localCenter);
+	// try to save some time (extrapolate a segment to a certain position only once)
+	it = extrapolatedPoint.find(int(cscchamberCenter.z()));
+	if(it==extrapolatedPoint.end()){
+	  GlobalPoint segPos = segChamber->toGlobal(seg->localPosition());
+	  GlobalVector segDir = segChamber->toGlobal(seg->localDirection());
+	  double paramaterLine = lineParametrization(segPos.z(),cscchamberCenter.z() , segDir.z());
+	  double xExtrapolated = extrapolate1D(segPos.x(),segDir.x(), paramaterLine);
+	  double yExtrapolated = extrapolate1D(segPos.y(),segDir.y(), paramaterLine);
+	  GlobalPoint globP (xExtrapolated, yExtrapolated, cscchamberCenter.z());
+	  extrapolatedPoint[int(cscchamberCenter.z())] = globP;
+	}
+	// Where does the extrapolated point lie in the (tested) chamber local frame? Here: 
+	LocalPoint extrapolatedPointLocal = cscchamber->toLocal(extrapolatedPoint[int(cscchamberCenter.z())]);
+	const CSCLayer *layer_p = cscchamber->layer(1);//layer 1
+	const CSCLayerGeometry *layerGeom = layer_p->geometry ();
+	const std::vector<float> layerBounds = layerGeom->parameters ();
+	float shiftFromEdge = 15.;//cm
+	float shiftFromDeadZone = 10.;
+	// is the extrapolated point within a sensitive region
+	bool pass = withinSensitiveRegion(extrapolatedPointLocal, layerBounds, 
+					  cscchamber->id().station(), cscchamber->id().ring(), 
+					  shiftFromEdge, shiftFromDeadZone);
+	if(pass){// the extrapolation point of the segment lies within sensitive region of that chamber
+	  // how many rechit layers are there in the chamber?
+	  // 0 - maybe the muon died or is deflected at large angle? do not use that case
+	  // 1 - could be noise...
+	  // 2 or more - this is promissing; this is our definition of a reliable signal; use it below
+	  // is other definition better? 
+	  int nRHLayers = 0;
+	  for(int iL =0;iL<6;++iL){
+	    if(AllRecHits[cscchamber->id().endcap()-1]
+	       [cscchamber->id().station()-1]
+	       [cscchamber->id().ring()-1][cscchamber->id().chamber()-1][iL]){
+	      ++nRHLayers;
+	    }
+	  }
+	  //std::cout<<" nRHLayers = "<<nRHLayers<<std::endl;
+	  float verticalScale = chamberTypes[cscchamber->specs()->chamberTypeName()];
+	  if(cscchamberCenter.z()<0){
+	    verticalScale = - verticalScale;
+	  } 
+	  verticalScale +=9.5;
+	  hSensitiveAreaEvt->Fill(float(cscchamber->id().chamber()),verticalScale);
+	  if(nRHLayers>1){// this chamber contains a reliable signal
+	    //chamberTypes[cscchamber->specs()->chamberTypeName()];
+	    // "intrinsic" efficiencies
+	    //std::cout<<" verticalScale = "<<verticalScale<<" chType = "<<cscchamber->specs()->chamberTypeName()<<std::endl;
+	    // this is the denominator forr all efficiencies
+	    hEffDenominator->Fill(float(cscchamber->id().chamber()),verticalScale);
+	    // Segment efficiency
+	    if(AllSegments[cscchamber->id().endcap()-1]
+	       [cscchamber->id().station()-1]
+	       [cscchamber->id().ring()-1][cscchamber->id().chamber()-1]){
+	      hSSTE2->Fill(float(cscchamber->id().chamber()),float(verticalScale));
+	    }
+	  
+	    for(int iL =0;iL<6;++iL){
+	      float weight = 1./6.;
+	      // one shold account for the weight in the efficiency...
+	      // Rechit efficiency
+	      if(AllRecHits[cscchamber->id().endcap()-1]
+		 [cscchamber->id().station()-1]
+		 [cscchamber->id().ring()-1][cscchamber->id().chamber()-1][iL]){
+		hRHSTE2->Fill(float(cscchamber->id().chamber()),float(verticalScale),weight);
+	      }
+	      // Wire efficiency
+	      if(allWires[cscchamber->id().endcap()-1]
+		 [cscchamber->id().station()-1]
+		 [cscchamber->id().ring()-1][cscchamber->id().chamber()-1][iL]){
+		// one shold account for the weight in the efficiency...
+		hWireSTE2->Fill(float(cscchamber->id().chamber()),float(verticalScale),weight);
+	      }
+	      // Strip efficiency
+	      if(allStrips[cscchamber->id().endcap()-1]
+		 [cscchamber->id().station()-1]
+		 [cscchamber->id().ring()-1][cscchamber->id().chamber()-1][iL]){
+		// one shold account for the weight in the efficiency...
+		hStripSTE2->Fill(float(cscchamber->id().chamber()),float(verticalScale),weight);
+	      }
+	    }
+	  }
+	}
+      }
+    }
+  }
+  //
+  
+  
 }
 
 void CSCValidation::getEfficiency(float bin, float Norm, std::vector<float> &eff){
@@ -975,6 +1231,106 @@ void CSCValidation::histoEfficiency(TH1F *readHisto, TH1F *writeHisto){
     writeHisto->SetBinError(i+1, EffError[i]);
   }
 }
+
+bool CSCValidation::withinSensitiveRegion(LocalPoint localPos, const std::vector<float> layerBounds, int station, int ring, float shiftFromEdge, float shiftFromDeadZone){
+//---- check if it is in a good local region (sensitive area - geometrical and HV boundaries excluded) 
+  bool pass = false;
+
+  float y_center = 0.;
+  double yUp = layerBounds[3] + y_center;
+  double yDown = - layerBounds[3] + y_center;
+  double xBound1Shifted = layerBounds[0] - shiftFromEdge;//
+  double xBound2Shifted = layerBounds[1] - shiftFromEdge;//
+  double lineSlope = (yUp - yDown)/(xBound2Shifted-xBound1Shifted);
+  double lineConst = yUp - lineSlope*xBound2Shifted;
+  double yBorder =  lineSlope*abs(localPos.x()) + lineConst;
+      
+  //bool withinChamberOnly = false;// false = "good region"; true - boundaries only
+  std::vector <float> deadZoneCenter(6);
+  float cutZone = shiftFromDeadZone;//cm
+  //---- hardcoded... not good
+  if(station>1 && station<5){
+    if(2==ring){
+      deadZoneCenter[0]= -162.48 ;
+      deadZoneCenter[1] = -81.8744;
+      deadZoneCenter[2] = -21.18165;
+      deadZoneCenter[3] = 39.51105;
+      deadZoneCenter[4] = 100.2939;
+      deadZoneCenter[5] = 160.58;
+      
+      if(localPos.y() >yBorder &&
+	 ((localPos.y()> deadZoneCenter[0] + cutZone && localPos.y()< deadZoneCenter[1] - cutZone) ||
+	  (localPos.y()> deadZoneCenter[1] + cutZone && localPos.y()< deadZoneCenter[2] - cutZone) ||
+	  (localPos.y()> deadZoneCenter[2] + cutZone && localPos.y()< deadZoneCenter[3] - cutZone) ||
+	  (localPos.y()> deadZoneCenter[3] + cutZone && localPos.y()< deadZoneCenter[4] - cutZone) ||
+	  (localPos.y()> deadZoneCenter[4] + cutZone && localPos.y()< deadZoneCenter[5] - cutZone))){
+	pass = true;
+      }
+    }
+    else if(1==ring){
+      if(2==station){
+	deadZoneCenter[0]= -95.80 ;
+	deadZoneCenter[1] = -27.47;
+	deadZoneCenter[2] = 33.67;
+	deadZoneCenter[3] = 90.85;
+        }
+      else if(3==station){
+	deadZoneCenter[0]= -89.305 ;
+	deadZoneCenter[1] = -39.705;
+	deadZoneCenter[2] = 20.195;
+	deadZoneCenter[3] = 77.395;
+      }
+      else if(4==station){
+	deadZoneCenter[0]= -75.645;
+	deadZoneCenter[1] = -26.055;
+	deadZoneCenter[2] = 23.855;
+	deadZoneCenter[3] = 70.575;
+      }
+      if(localPos.y() >yBorder &&
+	 ((localPos.y()> deadZoneCenter[0] + cutZone && localPos.y()< deadZoneCenter[1] - cutZone) ||
+	  (localPos.y()> deadZoneCenter[1] + cutZone && localPos.y()< deadZoneCenter[2] - cutZone) ||
+	  (localPos.y()> deadZoneCenter[2] + cutZone && localPos.y()< deadZoneCenter[3] - cutZone))){
+	pass = true;
+      }
+    }
+  }
+  else if(1==station){
+    if(3==ring){
+      deadZoneCenter[0]= -83.155 ;
+      deadZoneCenter[1] = -22.7401;
+      deadZoneCenter[2] = 27.86665;
+      deadZoneCenter[3] = 81.005;
+      if(localPos.y() > yBorder &&
+	 ((localPos.y()> deadZoneCenter[0] + cutZone && localPos.y()< deadZoneCenter[1] - cutZone) ||
+	  (localPos.y()> deadZoneCenter[1] + cutZone && localPos.y()< deadZoneCenter[2] - cutZone) ||
+	  (localPos.y()> deadZoneCenter[2] + cutZone && localPos.y()< deadZoneCenter[3] - cutZone))){
+	pass = true;
+      }
+    }
+    else if(2==ring){
+      deadZoneCenter[0]= -86.285 ;
+      deadZoneCenter[1] = -32.88305;
+      deadZoneCenter[2] = 32.867423;
+      deadZoneCenter[3] = 88.205;
+      if(localPos.y() > (yBorder) &&
+	 ((localPos.y()> deadZoneCenter[0] + cutZone && localPos.y()< deadZoneCenter[1] - cutZone) ||
+	  (localPos.y()> deadZoneCenter[1] + cutZone && localPos.y()< deadZoneCenter[2] - cutZone) ||
+	  (localPos.y()> deadZoneCenter[2] + cutZone && localPos.y()< deadZoneCenter[3] - cutZone))){
+	pass = true;
+      }
+    }
+    else{
+      deadZoneCenter[0]= -81.0;
+      deadZoneCenter[1] = 81.0;
+      if(localPos.y() > (yBorder) &&
+	 (localPos.y()> deadZoneCenter[0] + cutZone && localPos.y()< deadZoneCenter[1] - cutZone )){
+	pass = true;
+      }
+    }
+  }
+  return pass;
+}
+
 
 
 //---------------------------------------------------------------------------------------
