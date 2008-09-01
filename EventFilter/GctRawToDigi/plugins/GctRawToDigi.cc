@@ -80,6 +80,8 @@ GctRawToDigi::GctRawToDigi(const edm::ParameterSet& iConfig) :
   produces<L1GctEtHadCollection>();
   produces<L1GctEtMissCollection>();
   produces<L1GctJetCountsCollection>();
+  produces<L1GctHFBitCountsCollection>();
+  produces<L1GctHFRingEtSumsCollection>();
   produces<L1GctFibreCollection>();
   produces<L1GctInternJetDataCollection>();
   produces<L1GctInternEtSumCollection>();
@@ -143,6 +145,8 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, const bool invalid
   std::auto_ptr<L1GctJetCandCollection> gctCenJets ( new L1GctJetCandCollection() ); gctCenJets->reserve(4);
   std::auto_ptr<L1GctJetCandCollection> gctForJets ( new L1GctJetCandCollection() ); gctForJets->reserve(4);
   std::auto_ptr<L1GctJetCandCollection> gctTauJets ( new L1GctJetCandCollection() ); gctTauJets->reserve(4);
+  std::auto_ptr<L1GctHFBitCountsCollection> hfBitCounts( new L1GctHFBitCountsCollection() );
+  std::auto_ptr<L1GctHFRingEtSumsCollection> hfRingEtSums( new L1GctHFRingEtSumsCollection() );
   std::auto_ptr<L1GctJetCountsCollection> jetCounts( new L1GctJetCountsCollection() );
   std::auto_ptr<L1GctEtTotalCollection> etTotResult( new L1GctEtTotalCollection() );
   std::auto_ptr<L1GctEtHadCollection> etHadResult( new L1GctEtHadCollection() );
@@ -164,6 +168,8 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, const bool invalid
     blockUnpacker_->setForwardJetCollection( gctForJets.get() );
     blockUnpacker_->setTauJetCollection( gctTauJets.get() );
     blockUnpacker_->setJetCountsCollection( jetCounts.get() );
+    blockUnpacker_->setHFBitCountsCollection( hfBitCounts.get() );
+    blockUnpacker_->setHFRingEtSumsCollection( hfRingEtSums.get() );
     blockUnpacker_->setEtTotalCollection( etTotResult.get() );
     blockUnpacker_->setEtHadCollection( etHadResult.get() );
     blockUnpacker_->setEtMissCollection( etMissResult.get() );
@@ -241,6 +247,8 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, const bool invalid
     e.put(gctForJets,"forJets");
     e.put(gctTauJets,"tauJets");
     e.put(jetCounts);
+    e.put(hfBitCounts);
+    e.put(hfRingEtSums);
   }
   if (hltMode_ || doEtSums_)
   {
