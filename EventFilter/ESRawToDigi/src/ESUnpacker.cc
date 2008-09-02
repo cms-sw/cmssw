@@ -97,7 +97,7 @@ void ESUnpacker::interpretRawData(int fedId, const FEDRawData & rawData, ESDigiC
     ++header;
     FEDHeader ESHeader( reinterpret_cast<const unsigned char*>(header) );
     if ( !ESHeader.check() ) {
-      edm::LogWarning("Invalid Data")<<"ES : Failed header check !";
+      if (debug_) edm::LogWarning("Invalid Data")<<"ES : Failed header check !";
       return;
     } 
 
@@ -115,7 +115,7 @@ void ESUnpacker::interpretRawData(int fedId, const FEDRawData & rawData, ESDigiC
     moreHeaders = ESHeader.moreHeaders();
   }
   if (fedId_ != fedId) {
-    edm::LogWarning("Invalid Data")<<"Invalid ES data with source id " <<fedId_;
+    if (debug_) edm::LogWarning("Invalid Data")<<"Invalid ES data with source id " <<fedId_;
     return;
   }
 
@@ -128,11 +128,11 @@ void ESUnpacker::interpretRawData(int fedId, const FEDRawData & rawData, ESDigiC
     if ( !ESTrailer.check()) { ++trailer; break; } 
 
     if ( ESTrailer.lenght() != nWords) {
-      edm::LogWarning("Invalid Data")<<"Invalid ES data : the length is not correct !";
+      if (debug_) edm::LogWarning("Invalid Data")<<"Invalid ES data : the length is not correct !";
       return;
     }
     if ( ESTrailer.lenght() < 8) {
-      edm::LogWarning("Invalid Data")<<"Invalid ES data : the length is not correct !";
+      if (debug_) edm::LogWarning("Invalid Data")<<"Invalid ES data : the length is not correct !";
       return;
     }
 
@@ -158,12 +158,12 @@ void ESUnpacker::interpretRawData(int fedId, const FEDRawData & rawData, ESDigiC
     dccLine = (*word >> 56) & m4;
     dccLineCount++;
     if (dccLine != dccLineCount) {
-      edm::LogWarning("Invalid Data")<<"Invalid ES data : DCC header order is not correct !";
+      if (debug_) edm::LogWarning("Invalid Data")<<"Invalid ES data : DCC header order is not correct !";
       return; 
     }
   }
   if (dccHeaderCount != 6) {
-    edm::LogWarning("Invalid Data")<<"Invalid ES data : DCC header lines are "<<dccHeaderCount;
+    if (debug_) edm::LogWarning("Invalid Data")<<"Invalid ES data : DCC header lines are "<<dccHeaderCount;
     return;
   }
   
