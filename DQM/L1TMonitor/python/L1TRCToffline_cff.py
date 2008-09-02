@@ -1,5 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
+emap_from_ascii = cms.ESSource("HcalTextCalibrations",
+    input = cms.VPSet(cms.PSet(
+        object = cms.string('ElectronicsMap'),
+        file = cms.FileInPath('official_emap_v5_080208.txt.new_trig')
+    ))
+)
+#es_prefer = cms.ESPrefer("HcalTextCalibrations","emap_from_ascii")
 
 #global configuration
 from Configuration.StandardSequences.FrontierConditions_GlobalTag_cff import *
@@ -10,6 +17,7 @@ GlobalTag.connect = 'frontier://FrontierProd/CMS_COND_21X_GLOBALTAG'
 #on-line
 #GlobalTag.globaltag = 'CRZT210_V1H::All'
 #GlobalTag.connect = 'frontier://(proxyurl=http://localhost:3128)(serverurl=http://frontier1.cms:8000/FrontierOnProd)(serverurl=http://frontier2.cms:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_21X_GLOBALTAG'
+
 
 #add'n
 from Configuration.StandardSequences.Geometry_cff import *
@@ -32,21 +40,22 @@ rctEmulDigis = cms.EDProducer("L1RCTProducer",
     useEcalCosmicTiming = cms.bool(False),
     postSamples = cms.uint32(0),
     preSamples = cms.uint32(0),
-    useHcalCosmicTiming = cms.bool(False),
-    useEcal = cms.bool(False),
+    useHcalCosmicTiming = cms.bool(True),
+    useEcal = cms.bool(True),
     useHcal = cms.bool(True),
     ecalDigisLabel = cms.InputTag("ecalTriggerPrimitiveDigis"),
     useCorrectionsLindsey = cms.bool(False)
 )
 
 rctEmulDigis.hcalDigisLabel='hcalDigis'
-rctEmulDigis.ecalDigisLabel='ecalEBunpacker'
+#rctEmulDigis.ecalDigisLabel='ecalEBunpacker'
+rctEmulDigis.ecalDigisLabel='ecalDigis:EcalTriggerPrimitives'
 
 l1tderct = cms.EDFilter("L1TdeRCT",
     rctSourceData = cms.InputTag("l1GctHwDigis"),
     HistFolder = cms.untracked.string('L1TEMU/L1TdeRCT/'),
     outputFile = cms.untracked.string('./L1TDQM.root'),
-    verbose = cms.untracked.bool(True),
+    verbose = cms.untracked.bool(False),
     DQMStore = cms.untracked.bool(True),
     singlechannelhistos = cms.untracked.bool(False),
     ecalTPGData = cms.InputTag("",""),
@@ -57,7 +66,8 @@ l1tderct = cms.EDFilter("L1TdeRCT",
 
 l1tderct.rctSourceData = 'gctDigis'
 l1tderct.rctSourceEmul = 'rctEmulDigis'
-l1tderct.ecalTPGData = 'ecalEBunpacker'
+#l1tderct.ecalTPGData = 'ecalEBunpacker:EcalTriggerPrimitives'
+l1tderct.ecalTPGData = 'ecalDigis:EcalTriggerPrimitives'
 l1tderct.hcalTPGData = 'hcalDigis'
 
 l1trct = cms.EDFilter("L1TRCT",
