@@ -184,6 +184,9 @@ void SiPixelEDAClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
     sipixelWebInterface_->performAction();
     bool init=true;
     sipixelInformationExtractor_->fillGlobalQualityPlot(bei_,init,eSetup);
+    //cout << " Checking for new noisy pixels " << endl;
+    sipixelWebInterface_->setActionFlag(SiPixelWebInterface::NoisyPixels);
+    sipixelWebInterface_->performAction();
   }   
          
   // -- Create TrackerMap  according to the frequency
@@ -229,6 +232,9 @@ void SiPixelEDAClient::endRun(edm::Run const& run, edm::EventSetup const& eSetup
     sipixelWebInterface_->performAction();
     bool init=true;
     sipixelInformationExtractor_->fillGlobalQualityPlot(bei_,init,eSetup);
+    //cout << " Checking for new noisy pixels " << endl;
+    sipixelWebInterface_->setActionFlag(SiPixelWebInterface::NoisyPixels);
+    sipixelWebInterface_->performAction();
   }
   
   //cout<<"...leaving SiPixelEDAClient::endRun. "<<endl;

@@ -103,6 +103,8 @@ class SiPixelInformationExtractor {
                                  bool                                     init,
                                  edm::EventSetup const                  & eSetup);
   
+  void findNoisyPixels (         DQMStore                               * bei);
+  
   void createImages             (DQMStore                               * bei);
   
  private:
