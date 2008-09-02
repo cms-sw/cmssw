@@ -4,6 +4,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("Test")
 # "old-style" ECAL scale
 process.load("CalibCalorimetry.EcalTPGTools.ecalTPGScale_cff")
+process.EcalTrigPrimESProducer.DatabaseFile = cms.untracked.string('TPG_startup.txt.gz')
 
 # "old-style" HCAL scale
 process.load("SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff")
