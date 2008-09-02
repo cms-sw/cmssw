@@ -115,13 +115,20 @@ public:
   }
   void rescaleError(double factor) {
     bool zeroField = parameters().magneticFieldInInverseGeV(position()).mag()==0;
-    if (theCartesianErrorValid){
-      if (zeroField)  theCartesianError.zeroFieldScaling(factor*factor);
-      else theCartesianError *= (factor*factor);
-    }
-    if (theCurvilinearErrorValid){
-      if (zeroField)  theCurvilinearError.zeroFieldScaling(factor*factor);
-      else theCurvilinearError *= (factor*factor);
+    if (zeroField) {
+      if (theCartesianErrorValid){
+	if (!theCurvilinearErrorValid) createCurvilinearError();
+	theCurvilinearError.zeroFieldScaling(factor*factor);
+	createCartesianError();
+      }else
+	if (theCurvilinearErrorValid) theCurvilinearError.zeroFieldScaling(factor*factor);
+    } else{
+      if (theCartesianErrorValid){
+	theCartesianError *= (factor*factor);
+      }
+      if (theCurvilinearErrorValid){
+	theCurvilinearError *= (factor*factor);
+      }
     }
   }
 
