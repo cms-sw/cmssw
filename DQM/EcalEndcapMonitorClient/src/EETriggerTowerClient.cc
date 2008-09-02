@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerClient.cc
  *
- * $Date: 2008/06/25 14:16:17 $
- * $Revision: 1.72 $
+ * $Date: 2008/06/25 15:08:20 $
+ * $Revision: 1.73 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -460,9 +460,9 @@ void EETriggerTowerClient::analyze(const char* nameext,
         int jx = ix + Numbers::ix0EE(ism);
         int jy = iy + Numbers::iy0EE(ism);
 
-        for (int j = 1; j <= 256; j++) {
-          if ( h01_[ism-1] ) me_h01_[ism-1]->Fill(jx-0.5, jy-0.5, j-0.5, h01_[ism-1]->GetBinContent(ix, iy, j));
-          if ( h02_[ism-1] ) me_h02_[ism-1]->Fill(jx-0.5, jy-0.5, j-0.5, h02_[ism-1]->GetBinContent(ix, iy, j));
+        for (int j = 0; j <= 256; j++) {
+          if ( h01_[ism-1] ) me_h01_[ism-1]->Fill(jx-0.5, jy-0.5, j-0.5, h01_[ism-1]->GetBinContent(ix, iy, j+1));
+          if ( h02_[ism-1] ) me_h02_[ism-1]->Fill(jx-0.5, jy-0.5, j-0.5, h02_[ism-1]->GetBinContent(ix, iy, j+1));
         }
         for (int j=0; j<2; j++) {
           if ( i01_[ism-1] ) me_i01_[ism-1][j]->Fill(jx-0.5, jy-0.5, i01_[ism-1]->GetBinContent(ix, iy, j+1));

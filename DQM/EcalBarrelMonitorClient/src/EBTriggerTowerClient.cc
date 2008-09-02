@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2008/06/25 14:16:16 $
- * $Revision: 1.105 $
+ * $Date: 2008/06/25 15:08:18 $
+ * $Revision: 1.106 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -454,9 +454,9 @@ void EBTriggerTowerClient::analyze(const char* nameext,
     for (int ie = 1; ie <= 17; ie++) {
       for (int ip = 1; ip <= 4; ip++) {
 
-        for (int j = 1; j <= 256; j++) {
-          if ( h01_[ism-1] ) me_h01_[ism-1]->Fill(ie-0.5, ip-0.5, j-0.5, h01_[ism-1]->GetBinContent(ie, ip, j));
-          if ( h02_[ism-1] ) me_h02_[ism-1]->Fill(ie-0.5, ip-0.5, j-0.5, h02_[ism-1]->GetBinContent(ie, ip, j));
+        for (int j = 0; j <= 256; j++) {
+          if ( h01_[ism-1] ) me_h01_[ism-1]->Fill(ie-0.5, ip-0.5, j-0.5, h01_[ism-1]->GetBinContent(ie, ip, j+1));
+          if ( h02_[ism-1] ) me_h02_[ism-1]->Fill(ie-0.5, ip-0.5, j-0.5, h02_[ism-1]->GetBinContent(ie, ip, j+1));
         }
         for (int j=0; j<2; j++) {
           if ( i01_[ism-1] ) me_i01_[ism-1][j]->Fill(ie-0.5, ip-0.5, i01_[ism-1]->GetBinContent(ie, ip, j+1));
