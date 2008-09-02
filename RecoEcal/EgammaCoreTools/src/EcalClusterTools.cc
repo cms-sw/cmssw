@@ -54,7 +54,18 @@ float EcalClusterTools::recHitEnergy(DetId id, const EcalRecHitCollection *recHi
 }
 
 
-
+// Returns the energy in a rectangle of crystals
+// specified in eta by ixMin and ixMax
+//       and in phi by iyMin and iyMax
+//
+// Reference picture (X=seed crystal)
+//    iy ___________
+//     2 |_|_|_|_|_|
+//     1 |_|_|_|_|_|
+//     0 |_|_|X|_|_|
+//    -1 |_|_|_|_|_|
+//    -2 |_|_|_|_|_|
+//      -2 -1 0 1 2 ix
 float EcalClusterTools::matrixEnergy( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology, DetId id, int ixMin, int ixMax, int iyMin, int iyMax )
 {
         // fast version
@@ -188,7 +199,7 @@ float EcalClusterTools::e2x5Left( const reco::BasicCluster &cluster, const EcalR
 }
 
 
-
+// 
 float EcalClusterTools::e2x5Top( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology )
 {
         DetId id = getMaximum( cluster.getHitsByDetId(), recHits ).first;
@@ -200,9 +211,25 @@ float EcalClusterTools::e2x5Top( const reco::BasicCluster &cluster, const EcalRe
 float EcalClusterTools::e2x5Bottom( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology )
 {
         DetId id = getMaximum( cluster.getHitsByDetId(), recHits ).first;
-        return matrixEnergy( cluster, recHits, topology, id, -2, -2, -2, -1 );
+        return matrixEnergy( cluster, recHits, topology, id, -2, 2, -2, -1 );
 }
 
+// Energy in 2x5 strip containing the max crystal.
+// Adapted from code by Sam Harper
+float EcalClusterTools::e2x5Max( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology )
+{
+  DetId id =      getMaximum( cluster.getHitsByDetId(), recHits ).first;
+  
+  // 1x5 strip left of seed
+  float left   = matrixEnergy( cluster, recHits, topology, id, -1, -1, -2, 2 );
+  // 1x5 strip right of seed
+  float right  = matrixEnergy( cluster, recHits, topology, id,  1,  1, -2, 2 );
+  // 1x5 strip containing seed
+  float centre = matrixEnergy( cluster, recHits, topology, id,  0,  0, -2, 2 );
+
+  // Return the maximum of (left+center) or (right+center) strip
+  return left > right ? left+centre : right+centre;
+}
 
 
 float EcalClusterTools::e1x5( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology )
