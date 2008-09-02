@@ -13,7 +13,7 @@
 //
 // Original Author:  Tomasz Maciej Frueboes
 //         Created:  Tue Mar 18 15:15:30 CET 2008
-// $Id: WriteVHDL.cc,v 1.2 2008/04/17 12:17:10 fruboes Exp $
+// $Id: WriteVHDL.cc,v 1.3 2008/07/17 14:54:52 michals Exp $
 //
 //
 
@@ -122,8 +122,11 @@ WriteVHDL::~WriteVHDL()
 
 // ------------ method called to for each event  ------------
 void
-WriteVHDL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{}
+WriteVHDL::beginJob(const edm::EventSetup& evtSetup) 
+{
+
+
+}
 
 
 // ------------ method called once each job just before starting event loop  ------------
@@ -136,15 +139,13 @@ XXS -- Patterns
 XXG -- ghostbuster
 */
 void 
-WriteVHDL::beginJob(const edm::EventSetup& evtSetup) {
-
+WriteVHDL::analyze(const edm::Event& iEvent, const edm::EventSetup& evtSetup)
+{
   for (int tw = m_towerBeg; tw <= m_towerEnd; ++tw ){
     for (int sec = m_sectorBeg; sec <=m_sectorEnd; ++sec){
       writePats(evtSetup,tw,sec);
     }
   }
-
-
 }
 
 
