@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.24 $
- *  $Date: 2008/07/31 15:49:18 $
+ *  $Revision: 1.25 $
+ *  $Date: 2008/07/31 16:37:13 $
  *  (last update by $Author: flucke $)
  */
 
@@ -20,6 +20,7 @@
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterSelector.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/SelectionUserVariables.h"
+#include "Alignment/CommonAlignmentParametrization/interface/AlignmentParametersFactory.h"
 #include "Alignment/CommonAlignmentParametrization/interface/RigidBodyAlignmentParameters.h"
 
 #include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
@@ -246,6 +247,10 @@ int PedeSteerer::fixParameter(Alignable *ali, unsigned int iParam, char selector
   int result = 0;
   float fixAt = 0.;
   if (selector == 'c' || selector == 'C') {
+    if (ali->alignmentParameters()->type() != AlignmentParametersFactory::kRigidBody) {
+      throw cms::Exception("BadConfig") 
+	<< "PedeSteerer::fixParameter: correction (c/C) possible only for RigidBodyParameters";
+    }
     fixAt = -this->parameterSign() * RigidBodyAlignmentParameters(ali, true).parameters()[iParam];
     result = -1;
   } else if (selector == 'f' || selector == 'F') {
