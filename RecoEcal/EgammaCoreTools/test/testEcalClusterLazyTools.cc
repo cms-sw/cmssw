@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  "Federico Ferri federi
 //         Created:  Mon Apr  7 14:11:00 CEST 2008
-// $Id: testEcalClusterLazyTools.cc,v 1.2 2008/04/22 10:06:24 ferriff Exp $
+// $Id: testEcalClusterLazyTools.cc,v 1.1 2008/05/15 23:59:56 ferriff Exp $
 //
 //
 
@@ -112,6 +112,7 @@ void testEcalClusterLazyTools::analyze(const edm::Event& ev, const edm::EventSet
                 std::cout << "e2x5Left................. " << lazyTools.e2x5Left( *it ) << std::endl;
                 std::cout << "e2x5Top.................. " << lazyTools.e2x5Top( *it ) << std::endl;
                 std::cout << "e2x5Bottom............... " << lazyTools.e2x5Bottom( *it ) << std::endl;
+		std::cout << "e2x5Max.................. " << lazyTools.e2x5Max( *it ) << std::endl;
                 std::cout << "eMax..................... " << lazyTools.eMax( *it ) << std::endl;
                 std::cout << "e2nd..................... " << lazyTools.e2nd( *it ) << std::endl;
                 std::vector<float> vEta = lazyTools.energyBasketFractionEta( *it );
