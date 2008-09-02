@@ -66,9 +66,8 @@ def main(argv) :
         if opt in ('--intbld',): # note: trailing comma needed for single arg to indicate tuple
             intBld = True
 
-    hltSuffix = ''
     if hlt:
-        hltSuffix = '_hlt'
+        print "\nWARNING: option --hlt is deprecated as this is now default.\n"
 
     if inFile:
         commands_standard_file=open(inFile,'r')
@@ -76,13 +75,13 @@ def main(argv) :
         commands_standard_file.close()
         lines=lines_standard
     else:
-        commands_standard_file=open('cmsDriver_standard'+hltSuffix+'.txt','r')
+        commands_standard_file=open('cmsDriver_standard_hlt.txt','r')
         lines_standard=commands_standard_file.readlines()
         commands_standard_file.close()
         lines=lines_standard
 
         if doHighStat==1:
-            commands_highstat_file=open('cmsDriver_highstats'+hltSuffix+'.txt','r')
+            commands_highstat_file=open('cmsDriver_highstats_hlt.txt','r')
             lines_highstat=commands_highstat_file.readlines()
             commands_highstat_file.close()
 
@@ -162,6 +161,8 @@ def main(argv) :
     runall_report.write(report)
     runall_report.close()
     
+    if hlt:
+        print "\nWARNING: option --hlt is deprecated as this is now default.\n"
 
 if __name__ == '__main__' :
     main(sys.argv[1:])
