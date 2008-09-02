@@ -13,5 +13,6 @@
 	Exercises2 ex(io);
 	std::cout << "Constructed exercises and options, calibrating...\n";
 	ex.calibrateCalibratables("../../../UserCode/JamieBallin/test/DipionDelV2_famosPions_0to50GeV_threshApp_100k.root","Exercises.root");
-
+	gROOT->ProcessLine(".L src/makePlots.cc");
+	gROOT->ProcessLine("makePlots()");
 }

@@ -8,6 +8,7 @@ void makePlots() {
 	plots->mkdir("linearity");
 	plots->mkdir("targetFunction");
 	plots->mkdir("bias");
+	plots->mkdir("ratios");
 
 	file.cd("/plots/linearity");
 
@@ -22,17 +23,32 @@ void makePlots() {
 	tv__tree->Draw(
 			"calibrations_.particleEnergy_:sim_energyEvent_>>calibrated",
 			"calibrations_.provenance_ > 0", "box");
-	doLinearityPlots(file, "calibrated", "Calibrated",  kBlue);
-	doRatioPlots(file, "calibrated", "Calibrated",  kBlue);
+	doLinearityPlots(file, "calibrated", "Calibrated", kBlue);
+	doRatioPlots(file, "calibrated", "Calibrated", kBlue);
 	doTargetFunctions(file, "calibrated", "Calibrated", kBlue);
 
 	file.cd("/plots/linearity");
 	tv__tree->Draw(
 			"calibrations_.particleEnergy_:sim_energyEvent_>>calibratedCorr",
 			"calibrations_.provenance_ < 0", "box");
-	doLinearityPlots(file, "calibratedCorr", "Calibrated and corrected", kViolet);
+	doLinearityPlots(file, "calibratedCorr", "Calibrated and corrected",
+			kViolet);
 	doRatioPlots(file, "calibratedCorr", "Calibrated and corrected", kViolet);
-	doTargetFunctions(file, "calibratedCorr", "Calibrated and corrected", kViolet);
+	doTargetFunctions(file, "calibratedCorr", "Calibrated and corrected",
+			kViolet);
+
+	file.cd("/plots/ratios");
+	tv__tree->Draw("calibrations_.ratio_:sim_energyEvent_>>calibratedCorr_fullRatio","calibrations_.provenance_ < 0", "col");
+	doFullRatioPlots(file, "calibratedCorr", "Corrected", kViolet);
+	tv__tree->Draw(
+			"calibrations_.ratio_:sim_energyEvent_>>calibrated_fullRatio",
+			"calibrations_.provenance_ > 0", "col");
+	doFullRatioPlots(file, "calibrated", "Calibrated", kBlue);
+
+	tv__tree->Draw(
+			"calibrations_.ratio_:sim_energyEvent_>>uncalibrated_fullRatio",
+			"calibrations_.provenance_ == 0", "col");
+	doFullRatioPlots(file, "uncalibrated", "Uncalibrated", kRed);
 
 	file.cd("/plots/bias");
 	tv__tree->Draw("calibrations_.bias_:sim_energyEvent_>>calibrated_bias",
@@ -41,7 +57,8 @@ void makePlots() {
 
 	tv__tree->Draw("calibrations_.bias_:sim_energyEvent_>>calibratedCorr_bias",
 			"calibrations_.provenance_ < 0", "box");
-	doBiasPlots(file, "calibratedCorr_bias", "Calibrated and corrected", kViolet);
+	doBiasPlots(file, "calibratedCorr_bias", "Calibrated and corrected",
+			kViolet);
 
 	tv__tree->Draw("calibrations_.bias_:sim_energyEvent_>>uncalibrated_bias",
 			"calibrations_.provenance_ == 0", "box");
@@ -49,7 +66,31 @@ void makePlots() {
 
 }
 
-void doLinearityPlots(TFile& f, std::string leadingName, std::string title, Color_t color = kBlack) {
+void doFullRatioPlots(TFile& f, std::string leadingName, std::string title,
+		Color_t color = kBlack) {
+	std::string leadingName_1(leadingName);
+	leadingName_1.append("_fullRatio");
+	TH2D* source = (TH2D*) gDirectory->Get(leadingName_1.c_str());
+	source->SetTitle(title.c_str());
+	std::string leadingName_profile(leadingName_1);
+	leadingName_profile.append("_pfx");
+	source->ProfileX();
+	TProfile
+			* profile = (TProfile*) gDirectory->Get(leadingName_profile.c_str());
+	profile->SetTitle(title.c_str());
+	profile->SetMarkerStyle(22);
+	profile->SetMarkerColor(color);
+	profile->SetXTitle("E_{true}");
+	profile->SetYTitle("E_{reco}/E_{true}");
+	source->SetXTitle("E_{true}");
+	source->SetYTitle("E_{reco}/E_{true}");
+	profile->Write();
+	source->Write();
+	
+}
+
+void doLinearityPlots(TFile& f, std::string leadingName, std::string title,
+		Color_t color = kBlack) {
 
 	std::string leadingName_1(leadingName);
 	leadingName_1.append("_1");
@@ -84,14 +125,15 @@ void doLinearityPlots(TFile& f, std::string leadingName, std::string title, Colo
 	source_2->Write();
 }
 
-void doBiasPlots(TFile& f, std::string leadingName, std::string title, Color_t color = kBlack) {
+void doBiasPlots(TFile& f, std::string leadingName, std::string title,
+		Color_t color = kBlack) {
 	f.cd("/plots/bias");
 	std::string leadingName_1(leadingName);
 	leadingName_1.append("_1");
 	std::string leadingName_profile(leadingName);
 	leadingName_profile.append("_pfx");
 	std::string titleCpy(title);
-	
+
 	TH2D* bias = (TH2D*) gDirectory->Get(leadingName.c_str());
 	bias->FitSlicesY();
 	bias->ProfileX();
@@ -115,7 +157,8 @@ void doBiasPlots(TFile& f, std::string leadingName, std::string title, Color_t c
 	bias->Write();
 }
 
-void doRatioPlots(TFile& f, std::string leadingName, std::string title, Color_t color = kBlack) {
+void doRatioPlots(TFile& f, std::string leadingName, std::string title,
+		Color_t color = kBlack) {
 	std::string leadingName_ratio(leadingName);
 	leadingName_ratio.append("_ratio");
 	std::string leadingName_1(leadingName);
@@ -139,7 +182,8 @@ void doRatioPlots(TFile& f, std::string leadingName, std::string title, Color_t 
 	ratio->Write();
 }
 
-void doTargetFunctions(TFile& f, std::string leadingName, std::string title, Color_t color = kBlack) {
+void doTargetFunctions(TFile& f, std::string leadingName, std::string title,
+		Color_t color = kBlack) {
 
 	//for each in [un]calibrated(Corr)_1, _2, divide bin entry in _2 by _1 bin entry. Multiply by sqrt of bin center.
 

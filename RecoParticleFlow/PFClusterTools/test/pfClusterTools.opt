@@ -10,14 +10,15 @@ exercises		debug					5
 //Apply corrections?
 correction		doCorrection			true
 //Bulk correction parameters
-correction		globalP0 				-2.935
-correction		globalP1 				1.0534
+correction		globalP0 				-2.961247
+correction		globalP1 				1.054608
 correction		globalP2 				0.0
 //Low energy correction parameters
-correction		correctionLowLimit		9.523
-correction		lowEP0					6.0549e-01
-correction		lowEP1					6.816e-01
+correction		correctionLowLimit		9.9768
+correction		lowEP0					1.164003e-01
+correction		lowEP1					7.475560e-01
 correction		lowEP2					0.0
+correction		allowNegativeEnergy		0
 
 correction		correctionSuperLowLimit	0.0
 correction		superLowEP1				1.0
