@@ -13,7 +13,6 @@
 //
 // Original Author:  Tomasz Maciej Frueboes
 //         Created:  Tue Mar 18 15:15:30 CET 2008
-// $Id: WriteVHDL.cc,v 1.3 2008/07/17 14:54:52 michals Exp $
 //
 //
 
@@ -49,7 +48,6 @@
 
 
 
-
 #include <fstream>
 //
 // class decleration
@@ -71,6 +69,7 @@ class WriteVHDL : public edm::EDAnalyzer {
       int   m_sectorBeg;
       int   m_sectorEnd;
       std::string m_templateName;  
+      std::string m_outdirName;  
 
 
       void writePats(const edm::EventSetup& evtSetup,int tower, int logsector);
@@ -104,6 +103,7 @@ WriteVHDL::WriteVHDL(const edm::ParameterSet& iConfig)
    m_sectorBeg = iConfig.getParameter<int>("minSector");
    m_sectorEnd = iConfig.getParameter<int>("maxSector");
    m_templateName = iConfig.getParameter<std::string>("templateName");
+   m_outdirName = iConfig.getParameter<std::string>("outDir");
 
 
 }
@@ -123,10 +123,7 @@ WriteVHDL::~WriteVHDL()
 // ------------ method called to for each event  ------------
 void
 WriteVHDL::beginJob(const edm::EventSetup& evtSetup) 
-{
-
-
-}
+{}
 
 
 // ------------ method called once each job just before starting event loop  ------------
@@ -141,11 +138,14 @@ XXG -- ghostbuster
 void 
 WriteVHDL::analyze(const edm::Event& iEvent, const edm::EventSetup& evtSetup)
 {
+
   for (int tw = m_towerBeg; tw <= m_towerEnd; ++tw ){
     for (int sec = m_sectorBeg; sec <=m_sectorEnd; ++sec){
       writePats(evtSetup,tw,sec);
     }
   }
+
+
 }
 
 
@@ -155,7 +155,7 @@ WriteVHDL::writePats(const edm::EventSetup& evtSetup,int tower, int logsector) {
 
   std::ifstream inputfile(m_templateName.c_str());
   std::stringstream fname;
-  fname << "pac_t" << tower << "_sec" << logsector << ".vhd"; 
+  fname << m_outdirName << "/pac_t" << tower << "_sec" << logsector << ".vhd"; 
 
   std::ofstream fout( fname.str().c_str() );
   
@@ -268,8 +268,8 @@ std::string WriteVHDL::writeCNT(std::string pacT){
    else
       throw cms::Exception("") << "Unknown PAC type \n";
    
-   ret << "constant TT_EPACS_COUNT         :natural := " << nE << std::endl;
-   ret << "constant TT_TPACS_COUNT         :natural := " << nT << std::endl;
+   ret << "constant TT_EPACS_COUNT         :natural := " << nE << ";" <<  std::endl;
+   ret << "constant TT_TPACS_COUNT         :natural := " << nT << ";" <<  std::endl;
    
    return ret.str();
 }
@@ -319,7 +319,13 @@ std::string WriteVHDL::writeQualTable(const edm::EventSetup& iSetup, int tower, 
   bool first = true;
   RPCPattern::TQualityVec::const_iterator it = qvec->begin();
   RPCPattern::TQualityVec::const_iterator itEnd = qvec->end();
-  
+
+  int ppt = conf.product()->getPPT();
+  if (ppt == 1) {
+    sector = 0;
+  }
+
+ 
   for (;it!=itEnd;++it) {
      
      // there is only one PACCellQuality for 12 comparators!
@@ -349,6 +355,7 @@ std::string WriteVHDL::writePatterns(const edm::EventSetup& iSetup,
                                      int tower, int sector, std::string pacT)
 {
 
+
   std::stringstream ret;
   
   tower = std::abs(tower);
@@ -360,6 +367,10 @@ std::string WriteVHDL::writePatterns(const edm::EventSetup& iSetup,
   int ppt = conf.product()->getPPT();
   int segment = 0;
   
+  if (ppt == 1) {
+    sector = 0;
+  }
+
   const RPCPattern::RPCPatVec::const_iterator itEnd = pats->end();
   RPCPattern::RPCPatVec::const_iterator it;
   int to[6], globalPatNo=0;
@@ -449,10 +460,28 @@ std::string WriteVHDL::writeConeDef(const edm::EventSetup& evtSetup, int tower, 
     evtSetup.get<MuonGeometryRecord>().get(rpcGeom);
 
 
-    edm::ESHandle<RPCEMap> nmap;
-    evtSetup.get<RPCEMapRcd>().get(nmap);
-    const RPCEMap* eMap=nmap.product();
-    edm::ESHandle<RPCReadOutMapping>  map = eMap->convert();
+    static edm::ESHandle<RPCReadOutMapping>  map;
+    static bool isMapValid = false;
+
+    if (!isMapValid){ 
+      edm::ESHandle<RPCEMap> nmap;
+      evtSetup.get<RPCEMapRcd>().get(nmap);
+      const RPCEMap* eMap=nmap.product();
+      map = eMap->convert(); //*/
+      isMapValid = true;
+    }
+
+   /*
+   static edm::ESWatcher<RPCEMapRcd> recordWatcher;
+   const RPCReadOutMapping* map = 0;
+
+   if (recordWatcher.check(evtSetup)) {  
+    delete map; 
+    edm::ESHandle<RPCEMap> readoutMapping;
+    evtSetup.get<RPCEMapRcd>().get(readoutMapping);
+    map = readoutMapping->convert();
+   }*/
+
 
 
     bool beg = true;
@@ -527,6 +556,9 @@ std::string WriteVHDL::writeConeDef(const edm::EventSetup& evtSetup, int tower, 
 
   } // roll iteration
 
+
+
+  ret << "\n );";
 
   return ret.str();
 
