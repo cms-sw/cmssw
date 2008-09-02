@@ -9,7 +9,5 @@ from DQM.SiPixelCommon.SiPixelOfflineDQM_source_cff import *
 from DQMOffline.EGamma.cosmicPhotonAnalyzer_cff import *
 from DQMOffline.Trigger.DQMOffline_Trigger_cff import *
 
-DQMOffline_wHLT = cms.Sequence(SiStripDQMTier0*ecal_dqm_source_offline*muonCosmicMonitors*jetMETAnalyzer*hcalOfflineDQMSource*triggerOfflineDQMSource*siPixelOfflineDQM_source*egammaCosmicPhotonMonitors)
-
-DQMOffline = cms.Sequence(SiStripDQMTier0*ecal_dqm_source_offline*muonCosmicMonitors*jetMETAnalyzer*hcalOfflineDQMSource*l1tmonitor*siPixelOfflineDQM_source*egammaCosmicPhotonMonitors)
+DQMOffline = cms.Sequence(SiStripDQMTier0*ecal_dqm_source_offline*muonCosmicMonitors*jetMETAnalyzer*hcalOfflineDQMSource*triggerOfflineDQMSource*siPixelOfflineDQM_source*egammaCosmicPhotonMonitors)
 
