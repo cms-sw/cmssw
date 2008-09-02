@@ -13,6 +13,7 @@
 #include "CondFormats/RPCObjects/interface/RPCEMap.h"
 #include "CondFormats/DataRecord/interface/RPCEMapRcd.h"
 #include "CondFormats/RPCObjects/interface/RPCdbData.h"
+#include "CondFormats/RPCObjects/interface/RPCdbDataRcd.h"
 #include "CondFormats/RPCObjects/interface/RPCGasT.h"
 #include "CondFormats/DataRecord/interface/RPCGasTRcd.h"
 #include "CondFormats/RPCObjects/interface/RPCStripNoises.h"
