@@ -2,7 +2,7 @@
 <TkMap name="Summary Map" update_frequency="200">
 </TkMap>
 <SummaryPlot>
-<SubStructureBarrelLevel name="Layer_" update_frequency="300"> 
+<SubStructureBarrelLevel name="Ladder_" update_frequency="300"> 
      <MonElement name="ndigis"></MonElement> 
      <MonElement name="adc"></MonElement> 
      <MonElement name="nclusters"></MonElement>
@@ -20,8 +20,9 @@
      <MonElement name="ClustY"> </MonElement>
      <MonElement name="nRecHits"> </MonElement>
 </SubStructureBarrelLevel> 
-<SubStructureGrandBarrelLevel name="Ladder_" update_frequency="300"> 
+<SubStructureGrandBarrelLevel name="Layer_" update_frequency="300"> 
      <MonElement name="ndigis"></MonElement> 
+     <MonElement name="ndigisFREQ"></MonElement> 
      <MonElement name="adc"></MonElement> 
      <MonElement name="nclusters"></MonElement>
      <MonElement name="y">	</MonElement>
@@ -38,7 +39,7 @@
      <MonElement name="ClustY"> </MonElement>
      <MonElement name="nRecHits"> </MonElement>
 </SubStructureGrandBarrelLevel> 
-<SubStructureEndcapLevel name="Disk_" update_frequency="300"> 
+<SubStructureEndcapLevel name="Panel_" update_frequency="300"> 
      <MonElement name="ndigis"></MonElement> 
      <MonElement name="adc"></MonElement> 
      <MonElement name="nclusters"></MonElement>
@@ -58,6 +59,7 @@
 </SubStructureEndcapLevel> 
 <SubStructureGrandEndcapLevel name="Blade_" update_frequency="300"> 
      <MonElement name="ndigis"></MonElement> 
+     <MonElement name="ndigisFREQ"></MonElement> 
      <MonElement name="adc"></MonElement> 
      <MonElement name="nclusters"></MonElement>
      <MonElement name="y">	</MonElement>
@@ -74,6 +76,17 @@
      <MonElement name="ClustY"> </MonElement>
      <MonElement name="nRecHits"> </MonElement>
 </SubStructureGrandEndcapLevel> 
+<SubStructureNonDetId name="AdditionalPixelErrors" update_frequency="300"> 
+     <MonElement name="errorType"></MonElement> 
+     <MonElement name="fullType"></MonElement> 
+     <MonElement name="NErrors"></MonElement> 
+     <MonElement name="TBMType"></MonElement> 
+     <MonElement name="EvtNbr"></MonElement> 
+     <MonElement name="TBMMessage"></MonElement> 
+     <MonElement name="chanNmbr"></MonElement> 
+     <MonElement name="evtSize"></MonElement> 
+     <MonElement name="linkId"></MonElement> 
+</SubStructureNonDetId> 
 </SummaryPlot>
 
 <QTests>
@@ -82,7 +95,7 @@
 </QTests>
 
 <Source>
-<SourceType name="source" code="20">
+<SourceType name="source" code="5">
 </SourceType>
 </Source>
 
