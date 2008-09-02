@@ -2,9 +2,10 @@
 
 import time, os, sys, math, re
 import optparse as opt
-from cmsPerfCommons import CandFname, revCFname
+from cmsPerfCommons import CandFname
 #from ROOT import gROOT, TCanvas, TF1
 import ROOT
+from array import array
 
 _cmsver = os.environ['CMSSW_VERSION']
 values_set=('vsize','delta_vsize','rss','delta_rss')
@@ -703,7 +704,7 @@ def cmpSimpMemReport(rootfilename,outdir,oldLogfile,newLogfile,startevt,batch=Tr
 
 
         (vsize_lstevt, vsize_max_val, vsize_min_val) = getTwoGraphLimits(vsize_lstevt1, vsize_peak1, vsize_lstevt2, vsize_peak2, vsize_minim1, vsize_minim2)
-        (rss_lstevt  , rss_max_val  , rss_min_val)   = getTwoGraphLimits(rss_lstevt1  , rss_peak1, rss_lstevt2  , rss_peak2, rss_minim1,   rss_minm2)    
+        (rss_lstevt  , rss_max_val  , rss_min_val)   = getTwoGraphLimits(rss_lstevt1  , rss_peak1, rss_lstevt2  , rss_peak2, rss_minim1,   rss_minim2)    
 
         (vsize_min,vsize_max) = getMemOrigScale(vsize_minim1,vsize_minim2,vsize_peak1,vsize_peak2)
         (rss_min  ,rss_max  ) = getMemOrigScale(rss_minim1,rss_minim2,rss_peak1,rss_peak2)
@@ -795,7 +796,7 @@ def cmpSimpMemReport(rootfilename,outdir,oldLogfile,newLogfile,startevt,batch=Tr
     return 0            
         
 
-def cmpTimingReport(rootfilename,outdir,oldLogfile,newLogfile,secsperbin,batch=True,candle="", step = "",prevrev=""):
+def cmpTimingReport(rootfilename,outdir,oldLogfile,newLogfile,secsperbin,batch=True,prevrev=""):
     if batch:
         setBatch()
     
@@ -841,38 +842,23 @@ def cmpTimingReport(rootfilename,outdir,oldLogfile,newLogfile,secsperbin,batch=T
     newrootfile = None
     if batch:
 
-        logstep   = ""
-        logcandle = ""
-        candname  = ""
-        stepname  = ""
-        candstepreg = re.compile("(.*)_([^_]*)_.*.log")
-        found = candreg.search(os.path.basename(newLogfile))
-
-        if found:
-            logcandle = found.groups()[0]
-            logstep   = found.groups()[1]
-
-        if   CandFname.has_key(candle):
-            candname = candle
-        elif CandFname.has_key(logcandle):
-            candname = revCFname[logcandle]
-        else:
-            candname = "Unknown-candle"
-
-        if   Step.index(step) >= 0:
-            stepname = step
-        elif Step.index(logstep) >= 0:
-            stepname = step
-        else:
-            stepname = "Unknown-step"
-            
         newrootfile = createROOT(outdir,rootfilename)
 
         cputime_tuple = None
 
-        cput = ROOT.TNtuple()
-        cput.Fill(total1,total2)
-        cput.Write("%s_%s_timetuple" % (candname,stepname),ROOT.TObject.kOverwrite)
+        cput = ROOT.TTree()
+        #  array(typecode, initializer)
+        #  typecode is i for int, f for float etc.
+        tot_a1 = array( "f", [ 0 ] )
+        tot_a2 = array( "f", [ 0 ] )
+
+        tot_a1[0] = total1
+        tot_a2[0] = total2
+
+        cput.Branch("total1",tot_a1,"total1/F")
+        cput.Branch("total2",tot_a2,"total2/F")
+        cput.Fill()
+        cput.Write("cpu_time_tuple",ROOT.TObject.kOverwrite)
         
         names = ["graphs.gif","changes.gif","histos.gif"]
         

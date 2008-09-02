@@ -21,6 +21,31 @@ CandFname={
     Candles[6]:"QCD_80_120"
     }
 
+Step=[
+       "GEN,SIM",
+       "DIGI",
+       "L1",
+       "DIGI2RAW",
+       "HLT",
+       "RAW2DIGI",
+       "RECO",
+       "DIGI_PILEUP",
+       "L1_PILEUP",
+       "DIGI2RAW_PILEUP",
+       "HLT_PILEUP",
+       "RAW2DIGI_PILEUP",
+       "RECO_PILEUP"
+           ]
+
+revCFname = {
+    "MINBIAS_"    : Candles[0],
+    "HZZLLLL_200" : Candles[1],    
+    "E_1000"      : Candles[2],
+    "MU-_pt10"    : Candles[3],
+    "PI-_1000"    : Candles[4],
+    "TTBAR_"      : Candles[5],
+    "QCD_80_120"  : Candles[6] }
+
 CandDesc=["Minimum Bias",
           "Higgs Boson",
           "Electron",

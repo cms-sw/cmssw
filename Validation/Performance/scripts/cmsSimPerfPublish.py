@@ -16,7 +16,8 @@ import optparse as opt
 import re, os, sys, time, glob, socket, fnmatch, cmsPerfRegress
 from shutil import copy2, copystat
 from stat   import *
-from cmsPerfCommons import CandFname
+from cmsPerfCommons import CandFname, Step, Candles
+import ROOT
 
 PROG_NAME  = os.path.basename(sys.argv[0])
 DEF_RELVAL = "/afs/cern.ch/cms/sdt/web/performance/RelVal"
@@ -35,21 +36,6 @@ DirName=( #These need to match the candle directory names ending (depending on t
           "Valgrind"
           )
 
-Step=(
-       "GEN,SIM",
-       "DIGI",
-       "L1",
-       "DIGI2RAW",
-       "HLT",
-       "RAW2DIGI",
-       "RECO",
-       "DIGI_PILEUP",
-       "L1_PILEUP",
-       "DIGI2RAW_PILEUP",
-       "HLT_PILEUP",
-       "RAW2DIGI_PILEUP",
-       "RECO_PILEUP"
-           )
 ##################
 #
 # Small functions
@@ -79,6 +65,52 @@ def getcmd(command):
     if _debug > 2:
         print command
     return os.popen4(command)[1].read().strip()
+
+class cpuRow(object):
+
+    def __init__(self,table):
+        self.table   = table
+        self.coldata = {}
+        
+    def __str__(self):
+        return str(self.coldata)
+    
+    def addEntry(self,colname,value):
+        self.table._newCol(colname)
+        self.coldata[colname] = value
+
+    def getRowDict(self):
+        return self.coldata
+
+class cpuTable(object):
+    
+    def __init__(self):
+        self.colNames = []
+        self.keys     = [None]
+        self.rows     = {None: self.colNames}
+
+    def __str__(self):
+        out = self.keys
+        out += "\n" + self.rows
+        return out
+
+    def _newCol(self,name):
+        if name in self.colNames:
+            pass
+        else:
+            self.colNames.append(name)
+
+    def newRow(self,name):
+        if name in self.rows.keys():
+            pass
+        else:
+            self.keys.append(name)
+            self.rows[name] = cpuRow(self)
+            
+        return self.rows[name]
+
+    def getTable(self):
+        return (self.keys, self.rows)
 
 ######################
 #
@@ -800,7 +832,7 @@ def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDat
         CAND.close()
     except IOError, detail:
         print "ERROR: Could not write candle html %s because %s" % (os.path.basename(candlHTML),detail)
-        
+
 #####################
 #
 # Create web report index and create  HTML file for each candle
@@ -835,6 +867,7 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
     cmsverreg = re.compile("CMSSW_VERSION")
     hostreg   = re.compile("HOST")
     lpathreg  = re.compile("LocalPath")
+    cpureg    = re.compile("CPUTable")    
     proddreg  = re.compile("ProductionDate")
     logfreg   = re.compile("LogfileLinks")
     dirbreg   = re.compile("DirectoryBrowsing")
@@ -861,6 +894,75 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
                     INDEX.write("Simulation Performance Reports with regression: %s VS %s\n" % (prevrev,CMSSW_VERSION))
             elif hostreg.search(NewFileLine):
                 INDEX.write(HOST + "\n")
+            elif cpureg.search(NewFileLine):
+                cpu_time_tab = cpuTable()
+                for cand in Candles:
+                    fname = CandFname[cand]
+                    globpath = os.path.join(repdir,"%s_TimeSize" % cand,"%s_*_TimingReport" % fname)
+                    stepDirs = glob.glob(globpath)
+                    stepDirs.sort(cmp=step_cmp)
+                    stepreg = re.compile("%s_([^_]*)_TimingReport" % fname)
+                    createNewRow = True
+                    curRow = None
+                    for stepdir in stepDirs:
+                        base  = os.path.basename(stepdir)
+                        found = stepreg.search(base)
+                        step  = "Unknown-step"
+                        if found:
+                            step = found.groups()[0]
+                        rootf = os.path.join(stepdir,"timing-regress.root")
+                        if os.path.exists(rootf):
+                            f = ROOT.TFile(rootf)
+                            cpu_time_tree = ROOT.TTree()
+                            f.GetObject("cpu_time_tuple;1",cpu_time_tree)
+                            if cpu_time_tree:
+                                if cpu_time_tree.InheritsFrom("TTree"):
+                                    leaf1 = ROOT.TLeafF()
+                                    leaf2 = ROOT.TLeafF()
+                                    leaf1 = cpu_time_tree.GetLeaf("total1")
+                                    leaf2 = cpu_time_tree.GetLeaf("total2")
+                                    leaf1.GetValuePointer()
+                                    leaf2.GetValuePointer()
+                                    leaf1.PrintValue()
+                                    leaf2.PrintValue()
+                                    if leaf1 and leaf2:
+                                        if leaf1.InheritsFrom("TLeafF") and leaf2.InheritsFrom("TLeafF"):
+                                            if createNewRow:
+                                                createNewRow = False
+                                                curRow = cpu_time_tab.newRow(cand)
+                                            data1 = leaf1.GetValue()
+                                            data2 = leaf2.GetValue()
+                                            data_tuple = (data1,data2)
+                                            curRow.addEntry(step,data_tuple)
+                            f.Close()
+                                
+                (ordered_keys,table_dict) = cpu_time_tab.getTable()
+                INDEX.write("<table>\n")
+                for key in ordered_keys:
+                    INDEX.write("<tr>")
+                    if key == None:
+                        INDEX.write("<th></th>")
+                    else:
+                        INDEX.write("<td>")
+                        INDEX.write(key)
+                        INDEX.write("</td>")
+                    for col in table_dict[None]:
+                        if key == None:
+                            INDEX.write("<th>")
+                            INDEX.write(col)
+                            INDEX.write("</th>")                            
+                        else:
+                            INDEX.write("<td>")
+                            rowdict = table_dict[key].getRowDict()
+                            if rowdict.has_key(col):
+                                INDEX.write(str(rowdict[col]))
+                            else:
+                                INDEX.write("N/A")
+                            INDEX.write("</td>")
+                    INDEX.write("</tr>\n")
+                INDEX.write("</table>")
+                        
+                    
             elif lpathreg.search(NewFileLine):
                 INDEX.write(repdir + "\n")
             elif proddreg.search(NewFileLine):
