@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  "Federico Ferri federi
 //         Created:  Mon Apr  7 14:11:00 CEST 2008
-// $Id: testEcalClusterTools.cc,v 1.3 2008/04/28 19:27:51 meridian Exp $
+// $Id: testEcalClusterTools.cc,v 1.4 2008/05/15 19:53:11 heltsley Exp $
 //
 //
 
@@ -126,6 +126,7 @@ void testEcalClusterTools::analyze(const edm::Event& ev, const edm::EventSetup& 
                 std::cout << "e2x5Left................. " << EcalClusterTools::e2x5Left( *it, ebRecHits, topology ) << std::endl;
                 std::cout << "e2x5Top.................. " << EcalClusterTools::e2x5Top( *it, ebRecHits, topology ) << std::endl;
                 std::cout << "e2x5Bottom............... " << EcalClusterTools::e2x5Bottom( *it, ebRecHits, topology ) << std::endl;
+		std::cout << "e2x5Max.................. " << EcalClusterTools::e2x5Max( *it, ebRecHits, topology ) << std::endl;
                 std::cout << "eMax..................... " << EcalClusterTools::eMax( *it, ebRecHits ) << std::endl;
                 std::cout << "e2nd..................... " << EcalClusterTools::e2nd( *it, ebRecHits ) << std::endl;
                 std::vector<float> vEta = EcalClusterTools::energyBasketFractionEta( *it, ebRecHits );
