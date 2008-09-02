@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 #
-# $Id$
+# $Id: submitDQMOfflineCAF.py,v 1.9 2008/09/02 18:14:33 vadler Exp $
 #
 
 ## CMSSW/DQM/SiStripMonitorClient/scripts/submitDQMOfflineCAF.py
@@ -29,6 +29,12 @@ OCT_rwx_r_r = 0744
 STR_default              = 'DEFAULT'
 STR_nameInputFilesJobCff = 'inputFiles_cff'
 STR_nameCmsswPackage     = 'DQM/SiStripMonitorClient'
+STR_magField0            = '0T'
+STR_magField20           = '20T'
+STR_magField30           = '30T'
+STR_magField35           = '35T'
+STR_magField38           = '38T'
+STR_magField40           = '40T'
 STR_textUsage            = """ CMSSW/DQM/SiStripMonitorClient/scripts/submitDQMOfflineCAF.py
  
  This script submits batch jobs to the CAF in order to process the full
@@ -331,12 +337,17 @@ if dict_arguments.has_key(LSTR_optionLetters[6])        and\
   str_dataset = dict_arguments[LSTR_optionLetters[6]]
 else:   
   str_dataset = STR_dataset
+# FIXME: more sophisticated LFN determination for dataset
 if not DICT_datasets.has_key(str_dataset):
   print '> submitDQMOfflineCAF.py > dataset "%s" not registered' %(str_dataset)
   print '                           exit'
   print
   sys.exit(1)
 str_datatier = string.split(str_dataset, '/')[-1]
+# FIXME: more sophisticated magn. field determination for dataset
+str_magField = STR_magField0
+if str_dataset in DICT_datasets.keys()[:4]:
+  str_magField = STR_magField30
 if not str_datatier in LSTR_datatiers:
   print '> submitDQMOfflineCAF.py > datatier "%s" not processable' %(str_datatier)
   print '                           exit'
@@ -467,15 +478,18 @@ if bool_CRAB:
   # create main configuration file
   str_sedCommand = 'sed '
   if bool_filtersOn:
-    str_sedCommand += '-e \"s#HLT_FILTER#    process.hltFilter *#g\" '
+    str_sedCommand += '-e \"s#xHLT_FILTERx#    process.hltFilter *#g\" '
   else:
-    str_sedCommand += '-e \"s#HLT_FILTER#\#     process.hltFilter *#g\" '
+    str_sedCommand += '-e \"s#xHLT_FILTERx#\#     process.hltFilter *#g\" '
   if str_datatier == 'RECO':
-    str_sedCommand += '-e \"s#RECO_FROM_RAW#\#     process.SiStripDQMRecoFromRaw *#g\" -e \"s#DQM_FROM_RAW#\#     process.SiStripDQMSourceGlobalRunCAF_fromRAW *#g\" '
+    str_sedCommand += '-e \"s#xRECO_FROM_RAWx#\#     process.SiStripDQMRecoFromRaw *#g\" '
+    str_sedCommand += '-e \"s#xDQM_FROM_RAWx#\#     process.SiStripDQMSourceGlobalRunCAF_fromRAW *#g\" '
   else:
-    str_sedCommand += '-e \"s#RECO_FROM_RAW#    process.SiStripDQMRecoFromRaw *#g\" -e \"s#DQM_FROM_RAW#    process.SiStripDQMSourceGlobalRunCAF_fromRAW *#g\" '
-  str_sedCommand += '-e \"s#INCLUDE_DIRECTORY#' + str_includeDirPy + '#g\" '
-  str_sedCommand += '-e \"s#INPUT_FILES#' + str_includeDirPy + '.' + STR_nameInputFilesJobCff + '#g\" '
+    str_sedCommand += '-e \"s#xRECO_FROM_RAWx#    process.SiStripDQMRecoFromRaw *#g\" '
+    str_sedCommand += '-e \"s#xDQM_FROM_RAWx#    process.SiStripDQMSourceGlobalRunCAF_fromRAW *#g\" '
+  str_sedCommand += '-e \"s#xMAG_FIELDx#'         + str_magField                                      + '#g\" '
+  str_sedCommand += '-e \"s#xINCLUDE_DIRECTORYx#' + str_includeDirPy + '#g\" '
+  str_sedCommand += '-e \"s#xINPUT_FILESx#'       + str_includeDirPy + '.' + STR_nameInputFilesJobCff + '#g\" '
   str_sedCommand += str_pathCmsswBasePackage + '/test/SiStripDQMOfflineGlobalRunCAF_template_cfg.py > SiStripDQMOfflineGlobalRunCAF_cfg.py'
   os.system(str_sedCommand)
   # create included input files list
@@ -533,15 +547,18 @@ else:
     # create main configuration file
     str_sedCommand = 'sed '
     if bool_filtersOn:
-      str_sedCommand += '-e \"s#HLT_FILTER#    process.hltFilter *#g\" '
+      str_sedCommand += '-e \"s#xHLT_FILTERx#    process.hltFilter *#g\" '
     else:
-      str_sedCommand += '-e \"s#HLT_FILTER#\#     process.hltFilter *#g\" '
+      str_sedCommand += '-e \"s#xHLT_FILTERx#\#     process.hltFilter *#g\" '
     if str_datatier == 'RECO':
-      str_sedCommand += '-e \"s#RECO_FROM_RAW#\#     process.SiStripDQMRecoFromRaw *#g\" -e \"s#DQM_FROM_RAW#\#     process.SiStripDQMSourceGlobalRunCAF_fromRAW *#g\" '
+      str_sedCommand += '-e \"s#xRECO_FROM_RAWx#\#     process.SiStripDQMRecoFromRaw *#g\" '
+      str_sedCommand += '-e \"s#xDQM_FROM_RAWx#\#     process.SiStripDQMSourceGlobalRunCAF_fromRAW *#g\" '
     else:
-      str_sedCommand += '-e \"s#RECO_FROM_RAW#    process.SiStripDQMRecoFromRaw *#g\" -e \"s#DQM_FROM_RAW#    process.SiStripDQMSourceGlobalRunCAF_fromRAW *#g\" '
-    str_sedCommand += '-e \"s#INCLUDE_DIRECTORY#' + str_includeDirPy + '#g\" '
-    str_sedCommand += '-e \"s#INPUT_FILES#' + str_includeDirPy + '.' + STR_nameInputFilesJobCff + '#g\" '
+      str_sedCommand += '-e \"s#xRECO_FROM_RAWx#    process.SiStripDQMRecoFromRaw *#g\" '
+      str_sedCommand += '-e \"s#xDQM_FROM_RAWx#    process.SiStripDQMSourceGlobalRunCAF_fromRAW *#g\" '
+    str_sedCommand += '-e \"s#xMAG_FIELDx#'         + str_magField                                      + '#g\" '
+    str_sedCommand += '-e \"s#xINCLUDE_DIRECTORYx#' + str_includeDirPy                                  + '#g\" '
+    str_sedCommand += '-e \"s#xINPUT_FILESx#'       + str_includeDirPy + '.' + STR_nameInputFilesJobCff + '#g\" '
     str_sedCommand += str_pathCmsswBasePackage + '/test/SiStripDQMOfflineGlobalRunCAF_template_cfg.py > SiStripDQMOfflineGlobalRunCAF_cfg.py'
     os.system(str_sedCommand)
     # prepare job include dir

@@ -12,7 +12,7 @@ process.MessageLogger = cms.Service( "MessageLogger",
 )
 
 # Magnetic Field
-process.load( "Configuration.StandardSequences.MagneticField_0T_cff" )
+process.load( "Configuration.StandardSequences.MagneticField_xMAG_FIELDx_cff" )
 
 # Geometry
 process.load( "Configuration.StandardSequences.Geometry_cff" )
@@ -24,7 +24,7 @@ process.GlobalTag.globaltag = "CRUZET4_V3P::All"
 process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 
 # SiStrip DQM
-process.load( "INCLUDE_DIRECTORY.SiStripDQMOfflineGlobalRunCAF_cff" )
+process.load( "xINCLUDE_DIRECTORYx.SiStripDQMOfflineGlobalRunCAF_cff" )
 
 # HLT Filter
 process.hltFilter = cms.EDFilter( "HLTHighLevel",
@@ -39,9 +39,9 @@ process.hltFilter = cms.EDFilter( "HLTHighLevel",
 
 # Scheduling
 process.p = cms.Path(
-RECO_FROM_RAW
-HLT_FILTER
-DQM_FROM_RAW
+xRECO_FROM_RAWx
+xHLT_FILTERx
+xDQM_FROM_RAWx
     process.SiStripDQMRecoGlobalRunCAF           *
     process.SiStripDQMSourceGlobalRunCAF_reduced *
 #     process.SiStripDQMClientGlobalRunCAF         *
@@ -50,7 +50,7 @@ DQM_FROM_RAW
 )
 
 # Input
-process.load( "INPUT_FILES" )
+process.load( "xINPUT_FILESx" )
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32( -1 )
 )
