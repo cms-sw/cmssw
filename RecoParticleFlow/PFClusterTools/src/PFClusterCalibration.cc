@@ -148,20 +148,8 @@ double PFClusterCalibration::getCalibratedEnergy(double ecalE, double hcalE,
 	if (totalE < giveUpCut_)
 		return totalE;
 
-//	if (ecalE > ecalOnlyDiv_ && hcalE > hcalOnlyDiv_) {
-//		//ecalHcal class
 		answer = getCalibratedEcalEnergy(ecalE, hcalE, eta, phi)
 				+ getCalibratedHcalEnergy(ecalE, hcalE, eta, phi);
-//	} else if (ecalE < ecalOnlyDiv_ && hcalE > hcalOnlyDiv_) {
-//		//hcalOnly class
-//		answer = getCalibratedHcalEnergy(ecalE, hcalE, eta, phi);
-//	} else if (ecalE > ecalOnlyDiv_ && hcalE < hcalOnlyDiv_) {
-//		//ecalOnly
-//		answer = getCalibratedEcalEnergy(ecalE, hcalE, eta, phi);
-//	} else {
-//		//else, too little energy, give up
-//		return answer;
-//	}
 
 	//apply correction?
 	if (!doCorrection_)
