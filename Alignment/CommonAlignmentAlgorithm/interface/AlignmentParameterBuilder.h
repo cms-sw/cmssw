@@ -5,12 +5,13 @@
  *
  *  Build Alignment Parameter Structure 
  *
- *  $Date: 2007/01/23 16:07:08 $
- *  $Revision: 1.7 $
- *  (last update by $Author: fronga $)
+ *  $Date: 2007/10/08 14:38:15 $
+ *  $Revision: 1.8 $
+ *  (last update by $Author: cklae $)
  */
 
 #include "Alignment/CommonAlignment/interface/Utilities.h"
+#include "Alignment/CommonAlignmentParametrization/interface/AlignmentParametersFactory.h"
 
 namespace edm {
   class ParameterSet;
@@ -22,7 +23,6 @@ class AlignmentParameters;
 class AlignmentParameterBuilder 
 {
 public:
-
   /// Constructor from tracker only
   explicit AlignmentParameterBuilder( AlignableTracker *alignableTracker );
 
@@ -40,19 +40,25 @@ public:
 
   /// destructor 
   virtual ~AlignmentParameterBuilder() {};
+  /// master initialisation method, PSet must have form as constructor wants it 
+  void addAllSelections(const edm::ParameterSet &pSet);
 
   /// Add selections of Alignables, using AlignmenParameterSelector::addSelections.
-  /// For each Alignable, (Composite)RigidBodyAlignmentParameters will be attached
+  /// For each Alignable, AlignmentParameters of type parType will be attached
   /// using the selection of active parameters done in AlignmenParameterSelector,
-  /// e.g. a selection string '11100' selects the degrees of freedom in (x,y,z), 
-  /// but not (alpha,beta,gamma).
+  /// e.g. for RigidBody a selection string '11100' selects the degrees of freedom in
+  /// (x,y,z), but not (alpha,beta,gamma).
   /// Returns number of added selections 
-  unsigned int addSelections(const edm::ParameterSet &pset);
+  unsigned int addSelections(const edm::ParameterSet &pset,
+			     AlignmentParametersFactory::ParametersType parType);
 
   /// Add arbitrary selection of Alignables, return number of higher level Alignables
-  unsigned int add(const align::Alignables &alignables, const std::vector<bool> &sel);
+  unsigned int add(const align::Alignables &alignables,
+		   AlignmentParametersFactory::ParametersType parType,
+		   const std::vector<bool> &sel);
   /// Add a single Alignable, true if it is higher level, false if it is an AlignableDet 
-  bool add(Alignable *alignable, const std::vector<bool> &sel);
+  bool add(Alignable *alignable, AlignmentParametersFactory::ParametersType parType,
+	   const std::vector<bool> &sel);
 
   /// Get list of alignables for which AlignmentParameters are built 
   const align::Alignables& alignables() const { return theAlignables; };
