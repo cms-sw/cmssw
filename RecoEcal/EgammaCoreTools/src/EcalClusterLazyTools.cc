@@ -159,6 +159,12 @@ float EcalClusterLazyTools::e2x5Bottom( const reco::BasicCluster &cluster )
         return EcalClusterTools::e2x5Bottom( cluster, getEcalRecHitCollection(cluster), topology_ );
 }
 
+// Energy in 2x5 strip containing the max crystal.
+float EcalClusterLazyTools::e2x5Max( const reco::BasicCluster &cluster )
+{
+        return EcalClusterTools::e2x5Max( cluster, getEcalRecHitCollection(cluster), topology_ );
+}
+
 
 float EcalClusterLazyTools::eLeft( const reco::BasicCluster &cluster )
 {

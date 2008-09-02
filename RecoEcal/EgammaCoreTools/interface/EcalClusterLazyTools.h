@@ -34,10 +34,20 @@ class EcalClusterLazyTools {
                 float e3x3( const reco::BasicCluster &cluster );
                 float e4x4( const reco::BasicCluster &cluster );
                 float e5x5( const reco::BasicCluster &cluster );
+                // energy in the 2x5 strip right of the max crystal (does not contain max crystal)
+                // 2 crystals wide in eta, 5 wide in phi.
                 float e2x5Right( const reco::BasicCluster &cluster );
+                // energy in the 2x5 strip left of the max crystal (does not contain max crystal)
                 float e2x5Left( const reco::BasicCluster &cluster );
+                // energy in the 5x2 strip above the max crystal (does not contain max crystal)
+                // 5 crystals wide in eta, 2 wide in phi.
                 float e2x5Top( const reco::BasicCluster &cluster );
+                // energy in the 5x2 strip below the max crystal (does not contain max crystal)
                 float e2x5Bottom( const reco::BasicCluster &cluster );
+                // energy in a 2x5 strip containing the seed (max) crystal.
+                // 2 crystals wide in eta, 5 wide in phi.
+                // it is the maximum of either (1x5left + 1x5center) or (1x5right + 1x5center)
+                static float e2x5Max( const reco::BasicCluster &cluster );
                 // energies in the crystal left, right, top, bottom w.r.t. to the most energetic crystal
                 float eLeft( const reco::BasicCluster &cluster );
                 float eRight( const reco::BasicCluster &cluster );
