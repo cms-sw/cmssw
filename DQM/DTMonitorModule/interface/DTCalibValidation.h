@@ -5,8 +5,8 @@
  *  Analysis on DT residuals to validate the kFactor
  *
  *
- *  $Date: 2008/04/08 14:16:01 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/05/14 14:38:56 $
+ *  $Revision: 1.2 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -116,8 +116,9 @@ class DTCalibValidation: public edm::EDAnalyzer{
   void bookHistos(DTSuperLayerId slId, int step);
   // Fill a set of histograms for a give chamber 
   void fillHistos(DTSuperLayerId slId,
-		  float position,
+		  float distance,
 		  float residualOnDistance,
+		  float position,
 		  float residualOnPosition,
 		  int step);
 

@@ -91,6 +91,7 @@ void DTCalibValidation::endJob(){
  cout<<"Segments used to compute residuals: "<<rightSegment<<endl;
  cout<<"Segments not used to compute residuals: "<<wrongSegment<<endl;
 
+ //theDbe->showDirStructure();
  bool outputMEsInRootFile = parameters.getParameter<bool>("OutputMEsInRootFile");
  std::string outputFileName = parameters.getParameter<std::string>("OutputFileName");
  if(outputMEsInRootFile){
@@ -466,9 +467,10 @@ void DTCalibValidation::compute(const DTGeometry *dtGeom,
 
 	// Fill the histos
 	if(sl == 1 || sl == 3)
-	  fillHistos(wireId.superlayerId(), segPosAtZWire.x(), residualOnDistance, residualOnPosition, step);
+	  //fillHistos(wireId.superlayerId(), segPosAtZWire.x(), residualOnDistance, residualOnPosition, step);
+	  fillHistos(wireId.superlayerId(), SegmDistance, residualOnDistance, (wirePosInChamber.x() - segPosAtZWire.x()), residualOnPosition, step);
 	else
-	  fillHistos(wireId.superlayerId(), segPosAtZWire.y(), residualOnDistance, residualOnPosition, step);
+	  fillHistos(wireId.superlayerId(), SegmDistance, residualOnDistance, (wirePosInChamber.y() - segPosAtZWire.y()), residualOnPosition, step);
 	  
 	
       }
@@ -526,8 +528,9 @@ void DTCalibValidation::bookHistos(DTSuperLayerId slId, int step) {
 
 // Fill a set of histograms for a given SL 
 void DTCalibValidation::fillHistos(DTSuperLayerId slId,
-				     float position,
+				     float distance,
 				     float residualOnDistance,
+				     float position,	
 				     float residualOnPosition,
 				     int step) {
   // FIXME: optimization of the number of searches
@@ -536,7 +539,7 @@ void DTCalibValidation::fillHistos(DTSuperLayerId slId,
   }
   vector<MonitorElement *> histos =  histosPerSL[make_pair(slId,step)];                          
   histos[0]->Fill(residualOnDistance);
-  histos[1]->Fill(fabs(position), residualOnDistance);
+  histos[1]->Fill(distance, residualOnDistance);
   histos[2]->Fill(residualOnPosition);
   histos[3]->Fill(position, residualOnPosition);
 }
