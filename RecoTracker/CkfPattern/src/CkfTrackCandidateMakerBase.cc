@@ -66,10 +66,6 @@ namespace cms{
 
   void CkfTrackCandidateMakerBase::beginJobBase (EventSetup const & es)
   {
-    // get nested parameter set for the TransientInitialStateEstimator
-    ParameterSet tise_params = conf_.getParameter<ParameterSet>("TransientInitialStateEstimatorParameters") ;
-    theInitialState          = new TransientInitialStateEstimator( es,tise_params);
-   
     std::string cleaner = conf_.getParameter<std::string>("RedundantSeedCleaner");
     if (cleaner == "SeedCleanerByHitPosition") {
         theSeedCleaner = new SeedCleanerByHitPosition();
@@ -87,9 +83,17 @@ namespace cms{
   }
 
   void CkfTrackCandidateMakerBase::setEventSetup( const edm::EventSetup& es ) {
+
     //services
     es.get<TrackerRecoGeometryRecord>().get( theGeomSearchTracker );
     es.get<IdealMagneticFieldRecord>().get( theMagField );
+
+    if (!theInitialState){
+      // constructor uses the EventSetup, it must be in the setEventSetup were it has a proper value.
+      // get nested parameter set for the TransientInitialStateEstimator
+      ParameterSet tise_params = conf_.getParameter<ParameterSet>("TransientInitialStateEstimatorParameters") ;
+      theInitialState          = new TransientInitialStateEstimator( es,tise_params);
+    }
 
     theInitialState->setEventSetup( es );
 
