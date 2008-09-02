@@ -4,7 +4,7 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: CaloJetTester.h,v 1.3 2008/07/21 21:57:26 chlebana Exp $
+// $Id: CaloJetTester.h,v 1.5 2008/08/19 13:28:28 chlebana Exp $
 
 #include <string>
 
@@ -96,9 +96,19 @@ private:
   MonitorElement* mHadEnergyInHB;
   MonitorElement* mHadEnergyInHF;
   MonitorElement* mHadEnergyInHE;
+  MonitorElement* mHadEnergyInHO_80;
+  MonitorElement* mHadEnergyInHB_80;
+  MonitorElement* mHadEnergyInHE_80;
+  MonitorElement* mHadEnergyInHO_3000;
+  MonitorElement* mHadEnergyInHB_3000;
+  MonitorElement* mHadEnergyInHE_3000;
   MonitorElement* mEmEnergyInEB;
   MonitorElement* mEmEnergyInEE;
   MonitorElement* mEmEnergyInHF;
+  MonitorElement* mEmEnergyInEB_80;
+  MonitorElement* mEmEnergyInEE_80;
+  MonitorElement* mEmEnergyInEB_3000;
+  MonitorElement* mEmEnergyInEE_3000;
   MonitorElement* mEnergyFractionHadronic;
   MonitorElement* mEnergyFractionEm;
   MonitorElement* mHFTotal;
@@ -111,6 +121,17 @@ private:
   MonitorElement* mHFShort_80;
   MonitorElement* mHFShort_3000;
   MonitorElement* mN90;
+
+  // GenJet Generic Jet Parameters
+  MonitorElement* mGenEta;
+  MonitorElement* mGenPhi;
+  MonitorElement* mGenPt;
+  MonitorElement* mGenPt_80;
+  MonitorElement* mGenPt_3000;
+
+  // GenJet Leading Jet Parameters
+  MonitorElement* mGenEtaFirst;
+  MonitorElement* mGenPhiFirst;
 
   // CaloJet<->GenJet matching
   MonitorElement* mAllGenJetsPt;
