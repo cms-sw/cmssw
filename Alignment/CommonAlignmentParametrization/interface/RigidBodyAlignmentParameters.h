@@ -2,6 +2,7 @@
 #define Alignment_CommonAlignment_RigidBodyAlignmentParameters_h
 
 #include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 
 /// \class RigidBodyAlignmentParameters
 ///
@@ -9,9 +10,13 @@
 /// [derived from AlignmentParameters]. The number of parameters
 /// N_PARAM is fixed to 6 (3 translations + 3 rotations)
 ///
-///  $Date: 2007/07/12 12:54:31 $
-///  $Revision: 1.11 $
-/// (last update by $Author: flucke $)
+///  $Date: 2007/10/08 15:56:00 $
+///  $Revision: 1.12 $
+/// (last update by $Author: cklae $)
+
+class Alignable;
+class AlignableDetOrUnitPtr;
+class TrajectoryStateOnSurface;
 
 class RigidBodyAlignmentParameters : public AlignmentParameters 
 {
@@ -42,6 +47,8 @@ public:
 
   /// Destructor 
   virtual ~RigidBodyAlignmentParameters() {};
+  virtual void apply();
+  virtual int type() const;
 
   /// Clone all parameters (for update of parameters)
   virtual RigidBodyAlignmentParameters* clone( const AlgebraicVector& parameters, 
