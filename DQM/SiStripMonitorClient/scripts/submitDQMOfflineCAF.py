@@ -346,7 +346,7 @@ if not DICT_datasets.has_key(str_dataset):
 str_datatier = string.split(str_dataset, '/')[-1]
 # FIXME: more sophisticated magn. field determination for dataset
 str_magField = STR_magField0
-if str_dataset in DICT_datasets.keys()[:4]:
+if str_dataset.find('_3T_') >= 0:
   str_magField = STR_magField30
 if not str_datatier in LSTR_datatiers:
   print '> submitDQMOfflineCAF.py > datatier "%s" not processable' %(str_datatier)
