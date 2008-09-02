@@ -35,6 +35,7 @@ process.SiPixelDigiSource.isPIB = False
 process.SiPixelDigiSource.slowDown = False
 process.SiPixelDigiSource.modOn = True
 process.SiPixelDigiSource.twoDimOn = True
+process.SiPixelDigiSource.hiRes = False
 process.SiPixelDigiSource.ladOn = False
 process.SiPixelDigiSource.layOn = False
 process.SiPixelDigiSource.phiOn = False

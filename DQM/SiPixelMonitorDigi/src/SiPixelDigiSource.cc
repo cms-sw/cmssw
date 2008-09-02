@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiSource.cc,v 1.24 2008/08/08 13:33:33 merkelp Exp $
+// $Id: SiPixelDigiSource.cc,v 1.25 2008/08/12 11:26:03 merkelp Exp $
 //
 //
 #include "DQM/SiPixelMonitorDigi/interface/SiPixelDigiSource.h"
@@ -48,6 +48,7 @@ SiPixelDigiSource::SiPixelDigiSource(const edm::ParameterSet& iConfig) :
   slowDown( conf_.getUntrackedParameter<bool>("slowDown",false) ),
   modOn( conf_.getUntrackedParameter<bool>("modOn",true) ),
   twoDimOn( conf_.getUntrackedParameter<bool>("twoDimOn",true) ),
+  hiRes( conf_.getUntrackedParameter<bool>("hiRes",false) ),
   ladOn( conf_.getUntrackedParameter<bool>("ladOn",false) ), 
   layOn( conf_.getUntrackedParameter<bool>("layOn",false) ), 
   phiOn( conf_.getUntrackedParameter<bool>("phiOn",false) ), 
@@ -76,7 +77,7 @@ void SiPixelDigiSource::beginJob(const edm::EventSetup& iSetup){
   LogInfo ("PixelDQM") << "Blade/Disk/Ring" << bladeOn << "/" << diskOn << "/" 
 		       << ringOn << std::endl;
   
-  LogInfo ("PixelDQM") << "2DIM IS " << twoDimOn << "\n";
+  LogInfo ("PixelDQM") << "2DIM IS " << twoDimOn << " and set to high resolution? " << hiRes << "\n";
 
   eventNo = 0;
   // Build map
@@ -200,7 +201,7 @@ void SiPixelDigiSource::bookMEs(){
     /// Create folder tree and book histograms 
     if(modOn){
       if(theSiPixelFolder.setModuleFolder((*struct_iter).first)){
-	(*struct_iter).second->book( conf_,0,twoDimOn);
+	(*struct_iter).second->book( conf_,0,twoDimOn,hiRes);
       } else {
 
 	if(!isPIB) throw cms::Exception("LogicError")
@@ -209,7 +210,7 @@ void SiPixelDigiSource::bookMEs(){
     }
     if(ladOn){
       if(theSiPixelFolder.setModuleFolder((*struct_iter).first,1)){
-	(*struct_iter).second->book( conf_,1,twoDimOn);
+	(*struct_iter).second->book( conf_,1,twoDimOn,hiRes);
 	} else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH LADDER-FOLDER\n";
       }
@@ -217,7 +218,7 @@ void SiPixelDigiSource::bookMEs(){
     }
     if(layOn){
       if(theSiPixelFolder.setModuleFolder((*struct_iter).first,2)){
-	(*struct_iter).second->book( conf_,2,twoDimOn);
+	(*struct_iter).second->book( conf_,2,twoDimOn,hiRes);
 	} else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH LAYER-FOLDER\n";
       }
@@ -225,28 +226,28 @@ void SiPixelDigiSource::bookMEs(){
 
     if(phiOn){
       if(theSiPixelFolder.setModuleFolder((*struct_iter).first,3)){
-	(*struct_iter).second->book( conf_,3,twoDimOn);
+	(*struct_iter).second->book( conf_,3,twoDimOn,hiRes);
 	} else {
         LogDebug ("PixelDQM") << "PROBLEM WITH PHI-FOLDER\n";
       }
     }
     if(bladeOn){
       if(theSiPixelFolder.setModuleFolder((*struct_iter).first,4)){
-	(*struct_iter).second->book( conf_,4,twoDimOn);
+	(*struct_iter).second->book( conf_,4,twoDimOn,hiRes);
 	} else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH BLADE-FOLDER\n";
       }
     }
     if(diskOn){
       if(theSiPixelFolder.setModuleFolder((*struct_iter).first,5)){
-	(*struct_iter).second->book( conf_,5,twoDimOn);
+	(*struct_iter).second->book( conf_,5,twoDimOn,hiRes);
       } else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH DISK-FOLDER\n";
       }
     }
     if(ringOn){
       if(theSiPixelFolder.setModuleFolder((*struct_iter).first,6)){
-	(*struct_iter).second->book( conf_,6,twoDimOn);
+	(*struct_iter).second->book( conf_,6,twoDimOn,hiRes);
       } else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH RING-FOLDER\n";
       }

@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiModule.h,v 1.9 2008/06/06 15:51:46 merkelp Exp $
+// $Id: SiPixelDigiModule.h,v 1.10 2008/08/08 13:33:11 merkelp Exp $
 //
 //
 //  Updated by: Lukas Wehrli
@@ -43,7 +43,7 @@ class SiPixelDigiModule {
   typedef edm::DetSet<PixelDigi>::const_iterator    DigiIterator;
 
   /// Book histograms
-  void book(const edm::ParameterSet& iConfig, int type=0, bool twoD=true);
+  void book(const edm::ParameterSet& iConfig, int type=0, bool twoD=true, bool hiRes=false);
   /// Fill histograms
   void fill(const edm::DetSetVector<PixelDigi> & input, bool modon=true, bool ladon=false, bool layon=false, bool phion=false, bool bladeon=false, bool diskon=false, bool ringon=false, bool twoD=true);
   
