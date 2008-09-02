@@ -2,7 +2,7 @@
 
 import time, os, sys, math, re
 import optparse as opt
-from cmsPerfCommons import CandFname
+from cmsPerfCommons import CandFname, revCFname
 #from ROOT import gROOT, TCanvas, TF1
 import ROOT
 
@@ -97,7 +97,12 @@ def createROOT(outdir,filename):
 
     # Save in file
     rootfilename = os.path.join(outdir,filename)
-    myfile=ROOT.TFile(rootfilename,'RECREATE')
+    myfile = None
+    exists = os.path.exists(rootfilename)
+    if exists:
+        myfile=ROOT.TFile(rootfilename,'UPDATE')
+    else:
+        myfile=ROOT.TFile(rootfilename,'RECREATE')        
     return myfile
 
 def getTimingLogData(logfile_name):
@@ -222,7 +227,7 @@ def newGraphAndHisto(histoleg,leg,npoints,nbins,min_val,max_val,data,graph_num,p
     if graph_num == 0 :
         histo.SetFillColor(colors[graph_num])
 
-    return (graph,histo,mean)
+    return (graph,histo,mean,total)
 
 def getLimits(data,secsperbin):
     min_val=get_min(data,1)
@@ -332,6 +337,11 @@ def getTimingDiff(data1,data2,npoints,last_event,orig_max_val):
     graph.GetYaxis().SetTitle("Change in processing time between revs (s)")    
     graph.GetYaxis().SetTitleOffset(1.3)
     #graph.GetYaxis().SetTitle("s")
+    graph.SetLineColor(2)
+    graph.SetMarkerStyle(8)
+    graph.SetMarkerSize(.7)
+    graph.SetMarkerColor(1)
+    graph.SetLineWidth(3)        
     graph.GetXaxis().SetLimits(0,last_event)
     graph.GetYaxis().SetRangeUser(min_val,max_val)
     leg = ROOT.TLegend(0.5,0.7,0.89,0.89)
@@ -369,15 +379,18 @@ def drawChanges(graph,chgleg):
     chgleg.Draw()
     return graph_canvas    
 
-def getTwoGraphLimits(last_event1,max_val1,last_event2,max_val2):
+def getTwoGraphLimits(last_event1,max_val1,last_event2,max_val2,min_val1=-1,min_val2=-1):
     biggestLastEvt = last_event1
     biggestMaxval  = max_val1
+    lowest_val     = min_val1
     
+    if min_val2 < lowest_val:
+        lowest_val = min_val2
     if last_event2 > biggestLastEvt:
         biggestLastEvt = last_event2
     if max_val2 > biggestMaxval:
         biggestMaxval  = max_val2
-    return (biggestLastEvt,biggestMaxval)
+    return (biggestLastEvt,biggestMaxval,lowest_val)
 
 def getNpoints(data):
     new_data=[]
@@ -546,6 +559,11 @@ def getMemDiff(data1,data2,npoints,last_event,orig_max_val,stepname,rss=False):
     graph.GetXaxis().SetTitle("Event Number")
     graph.GetYaxis().SetTitle("Change in memory usage between revs (MBs)")    
     graph.GetYaxis().SetTitleOffset(1.3)
+    graph.SetLineColor(2)
+    graph.SetMarkerStyle(8)
+    graph.SetMarkerSize(.7)
+    graph.SetMarkerColor(1)
+    graph.SetLineWidth(3)    
     #graph.GetYaxis().SetTitle("s")
     graph.GetXaxis().SetLimits(0,last_event)
     graph.GetYaxis().SetRangeUser(min_val,max_val)
@@ -553,13 +571,14 @@ def getMemDiff(data1,data2,npoints,last_event,orig_max_val,stepname,rss=False):
     leg.AddEntry(graph, "Mean: %s" % str(mean), "l")            
     leg.AddEntry(graph, "RMS : %s" % str(rms) , "l")
     leg.AddEntry(graph, "Peak: %s" % str(peak), "l")
-    leg.AddEntry(graph, "Total memory change: %s" % str(total)  , "l")                    
+    leg.AddEntry(graph, "Trough: %s" % str(minum)  , "l")                    
 
     return (graph,leg)
 
-def drawMemGraphs(graph1,graph2,leg,memtype,stepname):
+def drawMemGraphs(graph1,graph2,min_val,max_val,leg,memtype,stepname):
     graph_canvas=ROOT.TCanvas("%s_%s_canvas" % (memtype,stepname))
     graph_canvas.cd()
+    graph1.GetYaxis().SetRangeUser(min_val,max_val)    
     graph1.Draw("ALP")
     graph2.Draw("LP" )
     leg.Draw()    
@@ -585,7 +604,7 @@ def getMemOrigScale(fst_min,snd_min,fst_max,snd_max):
         maxim = snd_max
     return (minim,maxim)
         
-def cmpSimpMemReport(rootfilename,outdir,oldLogfile,newLogfile,startevt,batch=True,candle="Unknown-candle",prevrev=""):
+def cmpSimpMemReport(rootfilename,outdir,oldLogfile,newLogfile,startevt,batch=True,candle="",prevrev=""):
     if batch:
         setBatch()
     # the fundamental structure: the key is the evt number the value is a list containing
@@ -683,8 +702,8 @@ def cmpSimpMemReport(rootfilename,outdir,oldLogfile,newLogfile,startevt,batch=Tr
             raise SimpMemParseErr(newLogfile)  
 
 
-        (vsize_lstevt, trash_this) = getTwoGraphLimits(vsize_lstevt1, 0, vsize_lstevt2, 0)
-        (rss_lstevt  , trash_this) = getTwoGraphLimits(rss_lstevt1  , 0, rss_lstevt2  , 0)    
+        (vsize_lstevt, vsize_max_val, vsize_min_val) = getTwoGraphLimits(vsize_lstevt1, vsize_peak1, vsize_lstevt2, vsize_peak2, vsize_minim1, vsize_minim2)
+        (rss_lstevt  , rss_max_val  , rss_min_val)   = getTwoGraphLimits(rss_lstevt1  , rss_peak1, rss_lstevt2  , rss_peak2, rss_minim1,   rss_minm2)    
 
         (vsize_min,vsize_max) = getMemOrigScale(vsize_minim1,vsize_minim2,vsize_peak1,vsize_peak2)
         (rss_min  ,rss_max  ) = getMemOrigScale(rss_minim1,rss_minim2,rss_peak1,rss_peak2)
@@ -708,16 +727,16 @@ def cmpSimpMemReport(rootfilename,outdir,oldLogfile,newLogfile,startevt,batch=Tr
     ##     avg_line1 = getMeanLines(mean1,last_event1,0)
     ##     avg_line2 = getMeanLines(mean2,last_event2,1)
 
-        vsize_canvas = drawMemGraphs(vsize_graph1, vsize_graph2, legs[0], "vsize", stepname1)
-        rss_canvas   = drawMemGraphs(rss_graph1  , rss_graph2  , legs[1], "rss"  , stepname1)
+        vsize_canvas = drawMemGraphs(vsize_graph1, vsize_graph2, vsize_min_val, vsize_max_val, legs[0], "vsize", stepname1)
+        rss_canvas   = drawMemGraphs(rss_graph1  , rss_graph2  , rss_min_val, rss_max_val, legs[1], "rss"  , stepname1)
         vsize_change_canvas = drawMemChangeGraphs(vsizePerfDiffgraph, vsizeleg, "vsize", stepname1)         
         rss_change_canvas   = drawMemChangeGraphs(rssPerfDiffgraph  , rssleg  , "rss"  , stepname1)         
 
         if batch:
 
-            
+
             logcandle = ""
-            candFilename = ""            
+            candname  = ""            
             found = candreg.search(os.path.basename(newLogfile))
             
             if found:
@@ -775,35 +794,8 @@ def cmpSimpMemReport(rootfilename,outdir,oldLogfile,newLogfile,startevt,batch=Tr
                 time.sleep(2.5)
     return 0            
         
-    #os.system('pwd') 
-                
-    # The html page!------------------------------------------------------------------------------
-    
-##     titlestring='<b>Report executed with release %s on %s.</b>\n<br>\n<hr>\n'\
-##                                    %(os.environ['CMSSW_VERSION'],time.asctime())
-##     #Introducing this if to catch the cmsRelvalreport.py use case of "reuse" of TimingReport
-##     #profile when doing the SimpleMemReport... otherwise the filename for the html
-##     #would be misleadingly TimingReport...
-##     if len(logfile_name)>16 and 'TimingReport.log' in logfile_name[-16:]:
-##         file_name=logfile_name[:-16]+"_SimpleMemReport"
-##     else:
-##         file_name=logfile_name[:-4]+"_SimpleMemReport"
-##     html_file_name='%s/%s.html' %(outdir,file_name)
-##     html_file=open(html_file_name,'w')
-##     html_file.write('<html>\n<body>\n'+\
-##                     titlestring)
-##     html_file.write('<table>\n'+\
-##                     '<tr><td><img  src=vsize_graph.gif></img></td>'+\
-##                     '<td><img src=rss_graph.gif></img></td></tr>'+\
-##                     '<tr><td><img  src=delta_vsize_graph.gif></img></td>'+\
-##                     '<td><img  src=delta_rss_graph.gif></img></td></tr>' +\
-##                     '</table>\n')
-    
-##     html_file.write('\n</body>\n</html>')
-##     html_file.close()    
-        
 
-def cmpTimingReport(rootfilename,outdir,oldLogfile,newLogfile,secsperbin,batch=True,prevrev=""):
+def cmpTimingReport(rootfilename,outdir,oldLogfile,newLogfile,secsperbin,batch=True,candle="", step = "",prevrev=""):
     if batch:
         setBatch()
     
@@ -826,12 +818,12 @@ def cmpTimingReport(rootfilename,outdir,oldLogfile,newLogfile,secsperbin,batch=T
     #if not nbins1 == nbins2:
     #    print "ERRORL bin1 %s is not the same size as bin2 %s" % (nbins1,nbins2)
 
-    (graph1,histo1,mean1) = newGraphAndHisto(histoleg,leg,npoints1,nbins1,min_val1,max_val1,data1,0,prevrev)
+    (graph1,histo1,mean1,total1) = newGraphAndHisto(histoleg,leg,npoints1,nbins1,min_val1,max_val1,data1,0,prevrev)
     hsStack.Add(histo1)
-    (graph2,histo2,mean2) = newGraphAndHisto(histoleg,leg,npoints2,nbins2,min_val2,max_val2,data2,1,prevrev)
+    (graph2,histo2,mean2,total2) = newGraphAndHisto(histoleg,leg,npoints2,nbins2,min_val2,max_val2,data2,1,prevrev)
     hsStack.Add(histo2)
 
-    (biggestLastEvt,biggestMaxval) = getTwoGraphLimits(last_event1,max_val1,last_event2,max_val2)
+    (biggestLastEvt,biggestMaxval, trashthis) = getTwoGraphLimits(last_event1,max_val1,last_event2,max_val2,min_val1,min_val2)
     
     (changegraph,chgleg) = getTimingDiff(data1,data2,npoints2,biggestLastEvt,biggestMaxval)
     setupSuperimpose(graph1,graph2,biggestLastEvt,biggestMaxval)
@@ -848,7 +840,40 @@ def cmpTimingReport(rootfilename,outdir,oldLogfile,newLogfile,secsperbin,batch=T
     
     newrootfile = None
     if batch:
-        newrootfile = createROOT(outdir,rootfilename) 
+
+        logstep   = ""
+        logcandle = ""
+        candname  = ""
+        stepname  = ""
+        candstepreg = re.compile("(.*)_([^_]*)_.*.log")
+        found = candreg.search(os.path.basename(newLogfile))
+
+        if found:
+            logcandle = found.groups()[0]
+            logstep   = found.groups()[1]
+
+        if   CandFname.has_key(candle):
+            candname = candle
+        elif CandFname.has_key(logcandle):
+            candname = revCFname[logcandle]
+        else:
+            candname = "Unknown-candle"
+
+        if   Step.index(step) >= 0:
+            stepname = step
+        elif Step.index(logstep) >= 0:
+            stepname = step
+        else:
+            stepname = "Unknown-step"
+            
+        newrootfile = createROOT(outdir,rootfilename)
+
+        cputime_tuple = None
+
+        cput = ROOT.TNtuple()
+        cput.Fill(total1,total2)
+        cput.Write("%s_%s_timetuple" % (candname,stepname),ROOT.TObject.kOverwrite)
+        
         names = ["graphs.gif","changes.gif","histos.gif"]
         
         graph_canvas.Print(  os.path.join(outdir,names[0]),"gif")
@@ -862,10 +887,6 @@ def cmpTimingReport(rootfilename,outdir,oldLogfile,newLogfile,secsperbin,batch=T
         histo_canvas.Write() 
         newrootfile.Close()   
 
-        # The html page!------------------------------------------------------------------------------
-
-        titlestring='<b>Report executed with release %s on %s.</b>\n<br>\n<hr>\n'\
-                                       %(_cmsver,time.asctime())    
         return names
     else:
         

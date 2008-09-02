@@ -76,7 +76,7 @@ def compareTimingLogPair(log,candle,step,prof,profdir,latrev,prevrev,oldRelName=
     if   "TimingReport" in prof and os.path.exists(oldLog):
         # cmsPerfRegress(rootfilename, outdir, oldLogFile, newLogfile, secsperbin, batch, prevrev)
         try:
-            htmNames = cpr.cmpTimingReport(rootf, outd, oldLog, newLog, 1, prevrev = oldRelName)
+            cpr.cmpTimingReport(rootf, outd, oldLog, newLog, 1, batch = True, candle = candle, step = step, prevrev = oldRelName)
         except cpr.TimingParseErr, detail:
             print "WARNING: Could not parse data from log file %s; not performing regression" % detail.message
         else:
