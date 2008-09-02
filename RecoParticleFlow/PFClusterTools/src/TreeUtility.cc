@@ -64,7 +64,7 @@ unsigned TreeUtility::convertCalibratablesToParticleDeposits(
 		}
 
 		if (target == CLUSTER) {
-			if (c.cluster_ecal_.size() == 0&& c.cluster_hcal_.size() ==0)
+			if (c.cluster_ecal_.size() == 0 && c.cluster_hcal_.size() ==0)
 				veto = true;
 			//			if (c.cluster_numEcal_ > 1|| c.cluster_numHcal_ > 1)
 			//				veto = true;

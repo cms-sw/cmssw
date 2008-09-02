@@ -565,8 +565,7 @@ void Exercises2::evaluateCalibrator(SpaceManagerPtr s, CalibratorPtr c,
 		TTree& tree, Calibratable* calibrated, DetectorElementPtr ecal,
 		DetectorElementPtr hcal, DetectorElementPtr offset,
 		CalibrationProvenance cp, CalibrationProvenance cpCorr) {
-	//get results for each calibrator
-	//std::cout << "Calibrator has "<< c->hasParticles() << " particles.\n";
+
 	if (c->hasParticles() > static_cast<int>(threshold_)) {
 		std::map<DetectorElementPtr, double>calibs = s->getCalibration(c);
 
@@ -594,7 +593,8 @@ void Exercises2::evaluateCalibrator(SpaceManagerPtr s, CalibratorPtr c,
 			crwPre.truthEnergy_ = pd->getTruthEnergy();
 			crwPre.provenance_ = UNCALIBRATED;
 			crwPre.target_ = target_;
-			crwPre.bias_ = crwPre.bias();
+			
+			crwPre.compute();
 			crwPre.targetFuncContrib_ = pd->getTargetFunctionContrib();
 			calibrated->calibrations_.push_back(crwPre);
 
@@ -624,7 +624,8 @@ void Exercises2::evaluateCalibrator(SpaceManagerPtr s, CalibratorPtr c,
 			crwPos.particleEnergy_ = pd->getRecEnergy();
 			crwPos.truthEnergy_ = pd->getTruthEnergy();
 			crwPos.provenance_ = cp;
-			crwPos.bias_ = crwPos.bias();
+			crwPos.compute();
+			
 			crwPos.targetFuncContrib_ = pd->getTargetFunctionContrib();
 			crwPos.target_ = target_;
 			calibrated->calibrations_.push_back(crwPos);
@@ -632,66 +633,32 @@ void Exercises2::evaluateCalibrator(SpaceManagerPtr s, CalibratorPtr c,
 			//same again, but applying correction
 			if (cpCorr != NONE) {
 				CalibrationResultWrapper crwCorr;
-				//crwCorr.ecalEnergy_ = pd->getRecEnergy(ecal);
-				//crwCorr.hcalEnergy_ = pd->getRecEnergy(hcal);
+
 				crwCorr.ecalEnergy_
-						= clusterCalibration_.getCalibratedEcalEnergy(
-								crwPre.particleEnergy_, crwPre.ecalEnergy_,
+						= clusterCalibration_.getCalibratedEcalEnergy(crwPre.ecalEnergy_,
 								crwPre.hcalEnergy_, pd->getEta(), pd->getPhi());
 				crwCorr.hcalEnergy_
-						= clusterCalibration_.getCalibratedHcalEnergy(
-								crwPre.particleEnergy_, crwPre.ecalEnergy_,
+						= clusterCalibration_.getCalibratedHcalEnergy(crwPre.ecalEnergy_,
 								crwPre.hcalEnergy_, pd->getEta(), pd->getPhi());
 				crwCorr.particleEnergy_
-						= clusterCalibration_.getCalibratedEnergy(
-								crwPre.particleEnergy_, crwPre.ecalEnergy_,
+						= clusterCalibration_.getCalibratedEnergy(crwPre.ecalEnergy_,
 								crwPre.hcalEnergy_, pd->getEta(), pd->getPhi());
 
 				crwCorr.b_ = ecal->getCalib();
 				crwCorr.c_ = hcal->getCalib();
-				//
-				//				bool doCorrection(true);
-				//				options_->GetOpt("correction", "doCorrection", doCorrection);
-				//				double correctionLowLimit(0);
-				//				options_->GetOpt("correction", "correctionLowLimit",
-				//						correctionLowLimit);
-				//
-				//				if (doCorrection) {
-				//					double p0_, p1_, p2_, lowEP0_, lowEP1_, lowEP2_;
-				//					options_->GetOpt("correction", "globalP0", p0_);
-				//					options_->GetOpt("correction", "globalP1", p1_);
-				//					options_->GetOpt("correction", "globalP0", p2_);
-				//
-				//					options_->GetOpt("correction", "lowEP0", lowEP0_);
-				//					options_->GetOpt("correction", "lowEP1", lowEP1_);
-				//					options_->GetOpt("correction", "lowEP2", lowEP2_);
-				//
-				//					if (pd->getRecEnergy() > correctionLowLimit) {
-				//						//if (p2_ == 0.0)
-				//						crwCorr.particleEnergy_= (pd->getRecEnergy() -p0_)/ p1_;
-				//					} else {
-				//						crwCorr.particleEnergy_
-				//								= (pd->getRecEnergy() - lowEP0_ ) / lowEP1_;
-				//					}
-				//				} else {
-				//					crwCorr.particleEnergy_ = pd->getRecEnergy();
-				//				}
 
 				crwCorr.truthEnergy_ = pd->getTruthEnergy();
 				crwCorr.provenance_ = cpCorr;
-				crwCorr.bias_ = crwCorr.bias();
 				crwCorr.targetFuncContrib_ = pd->getTargetFunctionContrib();
 				crwCorr.target_ = target_;
+				crwCorr.compute();
 				calibrated->calibrations_.push_back(crwCorr);
 			}
 			tree.Fill();
 			++count;
 
 		}
-	} //else {
-	//std::cout<< "WARNING: Calibrator had less than "<< threshold_
-	//		<< " particles; skipping."<< std::endl;
-	//}
+	} 
 }
 
 void Exercises2::determineCorrection(TFile& f, TTree& tree, TF1*& f1, TF1*& f2) {

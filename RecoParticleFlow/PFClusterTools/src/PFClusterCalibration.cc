@@ -8,8 +8,9 @@
 using namespace pftools;
 
 PFClusterCalibration::PFClusterCalibration(IO* options) :
-	options_(options), correction_("correction",
-			"((x-[0])/[1])*(x>[4])+((x-[2])/[3])*(x<[4] && x>[6]) +(x/[5])*(x<[6])") {
+			options_(options),
+			correction_("correction",
+					"((x-[0])/[1])*(x>[4])+((x-[2])/[3])*(x<[4] && x>[6]) +(x/[5])*(x<[6])") {
 	std::cout << __PRETTY_FUNCTION__ << std::endl;
 	//read in and initialise!
 	options_->GetOpt("evolution", "ecalECut", ecalOnlyDiv_);
@@ -18,13 +19,15 @@ PFClusterCalibration::PFClusterCalibration(IO* options) :
 	options_->GetOpt("evolution", "barrelEndcapEtaDiv", barrelEndcapEtaDiv_);
 	options_->GetOpt("evolution", "evolutionFunctionMaxE", flatlineEvoEnergy_);
 	options_->GetOpt("evolution", "doCorrection", doCorrection_);
+	options_->GetOpt("evolution", "allowNegativeEnergy", allowNegativeEnergy_);
 
 	options_->GetOpt("correction", "globalP0", globalP0_);
 	options_->GetOpt("correction", "globalP1", globalP1_);
 	options_->GetOpt("correction", "lowEP0", lowEP0_);
 	options_->GetOpt("correction", "lowEP1", lowEP1_);
 	options_->GetOpt("correction", "correctionLowLimit", correctionLowLimit_);
-	options_->GetOpt("correction", "correctionSuperLowLimit", correctionSuperLowLimit_);
+	options_->GetOpt("correction", "correctionSuperLowLimit",
+			correctionSuperLowLimit_);
 	options_->GetOpt("correction", "superLowEP1", superLowEP1_);
 
 	correction_.FixParameter(0, globalP0_);
@@ -70,20 +73,20 @@ PFClusterCalibration::PFClusterCalibration(IO* options) :
 		for (std::vector<double>::const_iterator dit = params.begin(); dit
 				!= params.end(); ++dit) {
 			func.FixParameter(count, *dit);
-			std::cout << "\t"<< count << ": " << *dit << "\n";
+			std::cout << "\t"<< count << ": "<< *dit << "\n";
 			++count;
 		}
-		
+
 		func.SetMinimum(0);
 		//Store in map
 		namesAndFunctions_[name] = func;
 
 	}
-	std::cout << "Initialisation complete!" << std::endl;
+	std::cout << "Initialisation complete!"<< std::endl;
 }
 
-double PFClusterCalibration::getCalibratedEcalEnergy(double totalE,
-		double ecalE, double hcalE, double eta, double phi) {
+double PFClusterCalibration::getCalibratedEcalEnergy(double ecalE,
+		double hcalE, double eta, double phi) {
 	TF1* theFunction(0);
 	if (ecalE > ecalOnlyDiv_ && hcalE > hcalOnlyDiv_) {
 		//ecalHcal class
@@ -105,12 +108,13 @@ double PFClusterCalibration::getCalibratedEcalEnergy(double totalE,
 		return ecalE;
 	}
 	assert(theFunction != 0);
+	double totalE(ecalE + hcalE);
 	double bCoeff = theFunction->Eval(totalE);
 	return ecalE * bCoeff;
 }
 
-double PFClusterCalibration::getCalibratedHcalEnergy(double totalE,
-		double ecalE, double hcalE, double eta, double phi) {
+double PFClusterCalibration::getCalibratedHcalEnergy(double ecalE,
+		double hcalE, double eta, double phi) {
 	TF1* theFunction(0);
 	if (ecalE > ecalOnlyDiv_ && hcalE > hcalOnlyDiv_) {
 		//ecalHcal class
@@ -131,40 +135,41 @@ double PFClusterCalibration::getCalibratedHcalEnergy(double totalE,
 		//either ecal only or too litte energy, in any case,
 		return hcalE;
 	}
+	double totalE(ecalE + hcalE);
 	assert(theFunction != 0);
 	double cCoeff = theFunction->Eval(totalE);
 	return hcalE * cCoeff;
 }
 
-double PFClusterCalibration::getCalibratedEnergy(double totalE, double ecalE,
-		double hcalE, double eta, double phi) {
+double PFClusterCalibration::getCalibratedEnergy(double ecalE, double hcalE,
+		double eta, double phi) {
+	double totalE(ecalE + hcalE);
 	double answer(totalE);
 	if (totalE < giveUpCut_)
 		return totalE;
 
-	if (ecalE > ecalOnlyDiv_ && hcalE > hcalOnlyDiv_) {
-		//ecalHcal class
-		answer = getCalibratedEcalEnergy(totalE, ecalE, hcalE, eta, phi)
-				+ getCalibratedHcalEnergy(totalE, ecalE, hcalE, eta, phi);
-	} else if (ecalE < ecalOnlyDiv_ && hcalE > hcalOnlyDiv_) {
-		//hcalOnly class
-		answer = getCalibratedHcalEnergy(totalE, ecalE, hcalE, eta, phi);
-	} else if (ecalE > ecalOnlyDiv_ && hcalE < hcalOnlyDiv_) {
-		//ecalOnly
-		answer = getCalibratedEcalEnergy(totalE, ecalE, hcalE, eta, phi);
-	} else {
-		//else, too little energy, give up
-		return answer;
-	}
+//	if (ecalE > ecalOnlyDiv_ && hcalE > hcalOnlyDiv_) {
+//		//ecalHcal class
+		answer = getCalibratedEcalEnergy(ecalE, hcalE, eta, phi)
+				+ getCalibratedHcalEnergy(ecalE, hcalE, eta, phi);
+//	} else if (ecalE < ecalOnlyDiv_ && hcalE > hcalOnlyDiv_) {
+//		//hcalOnly class
+//		answer = getCalibratedHcalEnergy(ecalE, hcalE, eta, phi);
+//	} else if (ecalE > ecalOnlyDiv_ && hcalE < hcalOnlyDiv_) {
+//		//ecalOnly
+//		answer = getCalibratedEcalEnergy(ecalE, hcalE, eta, phi);
+//	} else {
+//		//else, too little energy, give up
+//		return answer;
+//	}
 
 	//apply correction?
-	if(!doCorrection_)
+	if (!doCorrection_)
 		return answer;
-	if(correction_.Eval(answer) > 0)
-		return correction_.Eval(answer);
-	
-	return 0;
-	
+	if (!allowNegativeEnergy_ && correction_.Eval(answer) < 0)
+		return 0;
+	return correction_.Eval(answer);
+
 }
 
 const void PFClusterCalibration::calibrate(Calibratable& c) {
@@ -177,17 +182,15 @@ const void PFClusterCalibration::calibrate(Calibratable& c) {
 const void PFClusterCalibration::getCalibrationResultWrapper(
 		const Calibratable& c, CalibrationResultWrapper& crw) {
 
-	double totalE = c.cluster_energyEcal_ + c.cluster_energyHcal_;
-
-	crw.ecalEnergy_ = getCalibratedEcalEnergy(totalE, c.cluster_energyEcal_,
+	crw.ecalEnergy_ = getCalibratedEcalEnergy(c.cluster_energyEcal_,
 			c.cluster_energyHcal_, fabs(c.cluster_meanEcal_.eta_),
 			fabs(c.cluster_meanEcal_.phi_));
 
-	crw.hcalEnergy_ = getCalibratedHcalEnergy(totalE, c.cluster_energyEcal_,
+	crw.hcalEnergy_ = getCalibratedHcalEnergy(c.cluster_energyEcal_,
 			c.cluster_energyHcal_, fabs(c.cluster_meanEcal_.eta_),
 			fabs(c.cluster_meanEcal_.phi_));
 
-	crw.particleEnergy_ = getCalibratedEnergy(totalE, c.cluster_energyEcal_,
+	crw.particleEnergy_ = getCalibratedEnergy(c.cluster_energyEcal_,
 			c.cluster_energyHcal_, fabs(c.cluster_meanEcal_.eta_),
 			fabs(c.cluster_meanEcal_.phi_));
 
@@ -199,17 +202,19 @@ const void PFClusterCalibration::getCalibrationResultWrapper(
 }
 
 void PFClusterCalibration::calibrateTree(TTree* input) {
-	std::cout << __PRETTY_FUNCTION__ << ": WARNING! This isn't working properly yet!\n";
+	std::cout << __PRETTY_FUNCTION__
+			<< ": WARNING! This isn't working properly yet!\n";
 	TBranch* calibBr = input->GetBranch("Calibratable");
 	Calibratable* calib_ptr = new Calibratable();
 	calibBr->SetAddress(&calib_ptr);
-	
-	TBranch* newBranch = input->Branch("NewCalibratable", "pftools::Calibratable", &calib_ptr, 32000, 2);
-	
-	std::cout << "Looping over tree's "<< input->GetEntries() << " entries...\n";
+
+	TBranch* newBranch = input->Branch("NewCalibratable",
+			"pftools::Calibratable", &calib_ptr, 32000, 2);
+
+	std::cout << "Looping over tree's "<< input->GetEntries()<< " entries...\n";
 	for (unsigned entries(0); entries < 20000; entries++) {
-		if(entries % 10000 == 0)
-			std::cout << "\tProcessing entry " << entries << "\n";
+		if (entries % 10000== 0)
+			std::cout << "\tProcessing entry "<< entries << "\n";
 		input->GetEntry(entries);
 		calibrate(*calib_ptr);
 		input->Fill();

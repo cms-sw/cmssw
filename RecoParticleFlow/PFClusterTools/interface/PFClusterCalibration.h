@@ -21,11 +21,11 @@ public:
 	
 	virtual ~PFClusterCalibration() {};
 	
-	double getCalibratedEcalEnergy(double totalE, double ecalE, double hcalE, double eta, double phi);
+	double getCalibratedEcalEnergy(double ecalE, double hcalE, double eta, double phi);
 	
-	double getCalibratedHcalEnergy(double totalE, double ecalE, double hcalE, double eta, double phi);
+	double getCalibratedHcalEnergy(double ecalE, double hcalE, double eta, double phi);
 	
-	double getCalibratedEnergy(double totalE, double ecalE, double hcalE, double eta, double phi);
+	double getCalibratedEnergy(double ecalE, double hcalE, double eta, double phi);
 	
 	const void calibrate(Calibratable& c);
 	
@@ -44,6 +44,7 @@ private:
 	double hcalOnlyDiv_;
 	
 	bool doCorrection_;
+	bool allowNegativeEnergy_;
 	
 	//the energy below which we don't bother (a temporary solution to the <2GeV madness)
 	double giveUpCut_;
