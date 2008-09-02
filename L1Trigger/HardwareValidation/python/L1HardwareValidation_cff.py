@@ -18,7 +18,7 @@ valEcalTriggerPrimitiveDigis = SimCalorimetry.EcalTrigPrimProducers.ecalTriggerP
 
 # HCAL sequence
 # requires hcalDigis only
-import SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff
+from SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff import *
 valHcalTriggerPrimitiveDigis = SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cfi.simHcalTriggerPrimitiveDigis.clone()
 
 # RCT sequence
