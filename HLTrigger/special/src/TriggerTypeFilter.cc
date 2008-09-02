@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Giovanni FRANZONI
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: TriggerTypeFilter.cc,v 1.5 2008/07/22 13:24:39 mzanetti Exp $
+// $Id: TriggerTypeFilter.cc,v 1.6 2008/09/02 07:50:12 gruen Exp $
 //
 //
 
@@ -108,6 +108,8 @@ TriggerTypeFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
 
+if (iEvent.isRealData()) {
+
   edm::Handle<FEDRawDataCollection> rawdata;  
   iEvent.getByLabel(DataLabel_,rawdata);
 
@@ -127,11 +129,11 @@ TriggerTypeFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     edm::LogVerbatim ("TriggerTypeFilter")<<"[TriggerTypeFilter] trigger type mismatch. FED="<<triggerTypeFED
 					  <<", TCS="<<triggerType;
 
-  if (iEvent.isRealData()) {
-    return (triggerType == SelectedTriggerType_);
-  } else {
-    return true;
-  }
+  return (triggerType == SelectedTriggerType_);
+
+} else {
+  return true;
+}
 
 }
 
