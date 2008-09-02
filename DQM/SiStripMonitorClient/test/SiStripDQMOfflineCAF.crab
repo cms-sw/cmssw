@@ -1,0 +1,42 @@
+[CRAB]
+
+jobtype     = cmssw
+scheduler   = caf
+server_name = lnl2
+
+[CMSSW]
+
+datasetpath  = /Cosmics/Commissioning08-CRUZET4_v1/RECO
+runselection = 58733
+# datasetpath  = /Cosmics/Commissioning08-CRUZET4_v1/RAW
+# runselection = 58733
+# datasetpath  = /Cosmics/CRUZET4_v1_CRZT210_V1_TrackerPointing_v1/RECO
+# runselection = 58614
+
+pset = SiStripDQMOfflineGlobalRunCAF_cfg.py
+
+total_number_of_events = 10000
+number_of_jobs         =    10
+
+output_file = DQM_SiStrip_R000058733.root
+
+[USER]
+
+eMail          = volker.adler@cern.ch
+# eMail          = volker.adler@cern.ch,volker.adler@gmx.net # FIXME Is a list allowed here? To be tested.
+thresholdLevel = 100
+
+# additional_input_files = file1, file2, /full/path/file3 # FIXME Is this needed for dynamically created files in CMSSW work area? (Guess: no)
+# ui_working_dir         = /full/path/Name_of_Directory # FIXME Not used here, but in the template.
+
+return_data = 0
+# outputdir = /full/path/yourOutDir
+# logdir    = /full/path/yourLogDir
+
+copy_data       = 1
+storage_element = srm.cern.ch
+storage_path    = /castor/cern.ch/user/v/vadler/cms/SiStripDQM/OfflineDQM/test0/
+
+# publish_data            = 0
+# publish_data_name       = yourDataName
+# dbs_url_for_publication = http://cmssrv17.fnal.gov:8989/DBS108LOC1/servlet/DBSServlet # FIXME Do I need to adjust this?

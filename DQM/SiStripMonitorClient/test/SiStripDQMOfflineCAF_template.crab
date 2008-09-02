@@ -1,0 +1,35 @@
+[CRAB]
+
+jobtype     = cmssw
+scheduler   = caf
+server_name = xSERVER_NAMEx
+
+[CMSSW]
+
+datasetpath  = xDATASETPATHx
+runselection = xRUNSELECTIONx
+
+pset = SiStripDQMOfflineGlobalRunCAF_cfg.py
+
+total_number_of_events = -1
+number_of_jobs         = xNUMBER_OF_JOBSx
+
+output_file = DQM_SiStrip_xOUTPUT_FILEx.root
+
+[USER]
+
+eMail          = xEMAILx
+# eMail          = volker.adler@cern.ch,volker.adler@gmx.net # FIXME Is a list allowed here? To be tested.
+thresholdLevel = 100
+
+ui_working_dir = xUI_WORKING_DIRx
+
+return_data = 0
+
+copy_data       = xCOPY_DATAx
+storage_element = srm.cern.ch
+storage_path    = xSTORAGE_PATHx
+
+[EDG]
+virtual_organization    = cms
+group                   = becms
