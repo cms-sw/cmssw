@@ -5,6 +5,7 @@
 
 #include "Alignment/CommonAlignment/interface/AlignmentParametersData.h"
 #include "Alignment/CommonAlignment/interface/AlignmentUserVariables.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 
 /// \class AlignmentParameters 
 ///
@@ -19,8 +20,8 @@
 /// parameters/derivatives/covariance as subvector/submatrix
 /// of reduced size.
 ///
-///  $Date: 2007/04/30 11:33:56 $
-///  $Revision: 1.5.2.1 $
+///  $Date: 2007/06/21 16:18:27 $
+///  $Revision: 1.7 $
 /// (last update by $Author: flucke $)
 
 // include and not forward declare to ensure automatic conversion from AlignableDet(Unit): 
@@ -53,6 +54,11 @@ public:
 
   /// Destructor
   virtual ~AlignmentParameters();
+
+  /// apply parameters to alignable
+  virtual void apply() = 0;
+  /// tell type (AlignmentParametersFactory::ParametersType - but no circular dependency)
+  virtual int type() const = 0;
 
   /// Enforce clone methods in derived classes
   virtual AlignmentParameters* clone(const AlgebraicVector& par,
