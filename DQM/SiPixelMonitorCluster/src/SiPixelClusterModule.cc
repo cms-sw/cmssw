@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia & Andrew York
 //         Created:  
-// $Id: SiPixelClusterModule.cc,v 1.14 2008/06/23 15:06:13 merkelp Exp $
+// $Id: SiPixelClusterModule.cc,v 1.17 2008/08/08 14:36:32 merkelp Exp $
 //
 //
 // Updated by: Lukas Wehrli
@@ -62,7 +62,7 @@ SiPixelClusterModule::~SiPixelClusterModule() {}
 //
 // Book histograms
 //
-void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, int type, bool twoD) {
+void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, int type, bool twoD, bool reducedSet) {
   
   bool barrel = DetId::DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
   bool endcap = DetId::DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
@@ -88,26 +88,11 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, int type, bool
     hid = theHistogramId->setHistoId("charge",id_);
     meCharge_ = theDMBE->book1D(hid,"Cluster charge",500,0.,500.);
     meCharge_->setAxisTitle("Charge size (MeV)",1);
-    // Cluster barycenter X position
-    hid = theHistogramId->setHistoId("x",id_);
-    meX_ = theDMBE->book1D(hid,"Cluster barycenter X (row #)",200,0.,200.);
-    meX_->setAxisTitle("Barycenter x-position (row #)",1);
-    // Cluster barycenter Y position
-    hid = theHistogramId->setHistoId("y",id_);
-    meY_ = theDMBE->book1D(hid,"Cluster barycenter Y (column #)",500,0.,500.);
-    meY_->setAxisTitle("Barycenter y-position (column #)",1);
     // Total cluster size (in pixels)
     hid = theHistogramId->setHistoId("size",id_);
     meSize_ = theDMBE->book1D(hid,"Total cluster size",100,0.,100.);
     meSize_->setAxisTitle("Cluster size (in pixels)",1);
-    // Cluster width on the x-axis
-    hid = theHistogramId->setHistoId("sizeX",id_);
-    meSizeX_ = theDMBE->book1D(hid,"Cluster x-width (rows)",10,0.,10.);
-    meSizeX_->setAxisTitle("Cluster x-size (rows)",1);
-    // Cluster width on the y-axis
-    hid = theHistogramId->setHistoId("sizeY",id_);
-    meSizeY_ = theDMBE->book1D(hid,"Cluster y-width (columns)",20,0.,20.);
-    meSizeY_->setAxisTitle("Cluster y-size (columns)",1);
+    if(!reducedSet){
     // Lowest cluster row
     hid = theHistogramId->setHistoId("minrow",id_);
     meMinRow_ = theDMBE->book1D(hid,"Lowest cluster row",200,0.,200.);
@@ -124,6 +109,23 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, int type, bool
     hid = theHistogramId->setHistoId("maxcol",id_);
     meMaxCol_ = theDMBE->book1D(hid,"Highest cluster column",500,0.,500.);
     meMaxCol_->setAxisTitle("Highest cluster column",1);
+    // Cluster barycenter X position
+    hid = theHistogramId->setHistoId("x",id_);
+    meX_ = theDMBE->book1D(hid,"Cluster barycenter X (row #)",200,0.,200.);
+    meX_->setAxisTitle("Barycenter x-position (row #)",1);
+    // Cluster barycenter Y position
+    hid = theHistogramId->setHistoId("y",id_);
+    meY_ = theDMBE->book1D(hid,"Cluster barycenter Y (column #)",500,0.,500.);
+    meY_->setAxisTitle("Barycenter y-position (column #)",1);
+    // Cluster width on the x-axis
+    hid = theHistogramId->setHistoId("sizeX",id_);
+    meSizeX_ = theDMBE->book1D(hid,"Cluster x-width (rows)",10,0.,10.);
+    meSizeX_->setAxisTitle("Cluster x-size (rows)",1);
+    // Cluster width on the y-axis
+    hid = theHistogramId->setHistoId("sizeY",id_);
+    meSizeY_ = theDMBE->book1D(hid,"Cluster y-width (columns)",20,0.,20.);
+    meSizeY_->setAxisTitle("Cluster y-size (columns)",1);
+    }
     int nbinx = ncols_/2;
     int nbiny = nrows_/2;
     hid = theHistogramId->setHistoId("hitmap",id_);
@@ -460,7 +462,7 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, int type, bool
 //
 // Fill histograms
 //
-void SiPixelClusterModule::fill(const edmNew::DetSetVector<SiPixelCluster>& input,bool modon, bool ladon, bool layon, bool phion, bool bladeon, bool diskon, bool ringon, bool twoD) {
+void SiPixelClusterModule::fill(const edmNew::DetSetVector<SiPixelCluster>& input,bool modon, bool ladon, bool layon, bool phion, bool bladeon, bool diskon, bool ringon, bool twoD, bool reducedSet) {
   
   bool barrel = DetId::DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
   bool endcap = DetId::DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
@@ -491,15 +493,17 @@ void SiPixelClusterModule::fill(const edmNew::DetSetVector<SiPixelCluster>& inpu
       
       if(modon){
 	(meCharge_)->Fill((float)charge);
- 	(meX_)->Fill((float)x);
-	(meY_)->Fill((float)y);
 	(meSize_)->Fill((int)size);
-	(meSizeX_)->Fill((int)sizeX);
-	(meSizeY_)->Fill((int)sizeY);
-	(meMinRow_)->Fill((int)minPixelRow);
-	(meMaxRow_)->Fill((int)maxPixelRow);
-	(meMinCol_)->Fill((int)minPixelCol);
-	(meMaxCol_)->Fill((int)maxPixelCol);
+	if(!reducedSet){
+	  (meMinRow_)->Fill((int)minPixelRow);
+	  (meMaxRow_)->Fill((int)maxPixelRow);
+	  (meMinCol_)->Fill((int)minPixelCol);
+	  (meMaxCol_)->Fill((int)maxPixelCol);
+	  (meSizeX_)->Fill((int)sizeX);
+	  (meSizeY_)->Fill((int)sizeY);
+ 	  (meX_)->Fill((float)x);
+	  (meY_)->Fill((float)y);
+	}
 	if(twoD)(mePixClusters_)->Fill((float)y,(float)x);
 	else{
 	  (mePixClusters_px_)->Fill((float)y);

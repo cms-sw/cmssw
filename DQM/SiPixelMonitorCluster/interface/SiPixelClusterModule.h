@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincenzo Chiochia & Andrew York
 //         Created:  
-// $Id: SiPixelClusterModule.h,v 1.7 2008/06/23 15:05:50 merkelp Exp $
+// $Id: SiPixelClusterModule.h,v 1.9 2008/08/08 14:36:17 merkelp Exp $
 //
 //
 //  Updated by: Lukas Wehrli
@@ -43,7 +43,7 @@ class SiPixelClusterModule {
   typedef edmNew::DetSet<SiPixelCluster>::const_iterator    ClusterIterator;
 
   /// Book histograms
-  void book(const edm::ParameterSet& iConfig, int type=0, bool twoD=true);
+  void book(const edm::ParameterSet& iConfig, int type=0, bool twoD=true, bool reducedSet=false);
   /// Fill histograms
   void fill(const edmNew::DetSetVector<SiPixelCluster> & input, 
             bool modon=true, 
@@ -53,7 +53,8 @@ class SiPixelClusterModule {
 	    bool bladeon=false, 
 	    bool diskon=false, 
 	    bool ringon=false, 
-	    bool twoD=true);
+	    bool twoD=true,
+	    bool reducedSet=false);
   
  private:
 

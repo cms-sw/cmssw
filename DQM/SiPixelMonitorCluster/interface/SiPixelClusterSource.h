@@ -19,7 +19,7 @@
 // Updated by: Lukas Wehrli
 // for pixel offline DQM 
 //         Created:  
-// $Id: SiPixelClusterSource.h,v 1.9 2008/06/26 08:27:27 merkelp Exp $
+// $Id: SiPixelClusterSource.h,v 1.11 2008/08/08 14:36:23 merkelp Exp $
 
 #include <memory>
 
@@ -74,6 +74,7 @@
        std::map<uint32_t,SiPixelClusterModule*> thePixelStructure;
        bool modOn; 
        bool twoDimOn;
+       bool reducedSet;
        //barrel:
        bool ladOn, layOn, phiOn;
        //forward:
