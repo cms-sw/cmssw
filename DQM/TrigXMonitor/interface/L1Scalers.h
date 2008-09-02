@@ -1,5 +1,7 @@
+// -*-c++-*-
 #ifndef L1Scalers_H
 #define L1Scalers_H
+// $Id$
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -21,7 +23,7 @@ public:
   /// BeginJob
   void beginJob(const edm::EventSetup& c);
 
-//   /// Endjob
+   // Endjob
    void endJob(void);
   
   /// BeginRun
@@ -31,9 +33,6 @@ public:
   void endRun(const edm::Run& run, const edm::EventSetup& c);
 
   
-//   /// Begin LumiBlock
-//   void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-//                             const edm::EventSetup& c) ;
 
   /// End LumiBlock
   /// DQM Client Diagnostic should be performed here
@@ -45,51 +44,20 @@ public:
 
 private:
   DQMStore * dbe_;
+  int nev_; // Number of events processed
   edm::InputTag scalersSource_;
-//  edm::InputTag triggerScalersSource_;
-//  edm::InputTag triggerRatesSource_;
-//  edm::InputTag lumiScalersSource_;
   
   std::string outputFile_;	//file name for ROOT ouput
   bool verbose_, monitorDaemon_;
-  int nev_; // Number of events processed
-//  const L1TriggerScalers *previousTrig;
-
-
-  MonitorElement * orbitNum;
-  MonitorElement * trigNum;
-  MonitorElement * eventNum;
-  MonitorElement * finalTrig;
-  MonitorElement * randTrig;
-  MonitorElement * numberResets;
-  MonitorElement * deadTime;
-  MonitorElement * lostFinalTriggers;
-
-  MonitorElement * trigNumRate;
-  MonitorElement * eventNumRate;
-  MonitorElement * finalTrigRate;
-  MonitorElement * randTrigRate;
-  MonitorElement * orbitNumRate;
-  MonitorElement * numberResetsRate;
-  MonitorElement * deadTimePercent;
-  MonitorElement * lostFinalTriggersPercent;
-  
-
-  MonitorElement *  instLumi;
-  MonitorElement *  instLumiErr; 
-  MonitorElement *  instLumiQlty; 
-  MonitorElement *  instEtLumi; 
-  MonitorElement *  instEtLumiErr; 
-  MonitorElement *  instEtLumiQlty; 
-  MonitorElement *  sectionNum; 
-  MonitorElement *  startOrbit; 
-  MonitorElement *  numOrbits; 
-
-  //
   edm::InputTag l1GtDataSource_; // L1 Scalers
   MonitorElement *l1scalers_;
   MonitorElement *l1techScalers_;
   MonitorElement *l1Correlations_;
+  MonitorElement *bxNum_;
+
+  // 2d versions
+  MonitorElement *l1scalersBx_;
+  MonitorElement *l1techScalersBx_;
 
 
 };
