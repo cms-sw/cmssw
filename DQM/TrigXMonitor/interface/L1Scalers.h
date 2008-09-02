@@ -85,6 +85,13 @@ private:
   MonitorElement *  startOrbit; 
   MonitorElement *  numOrbits; 
 
+  //
+  edm::InputTag l1GtDataSource_; // L1 Scalers
+  MonitorElement *l1scalers_;
+  MonitorElement *l1techScalers_;
+  MonitorElement *l1Correlations_;
+
+
 };
 
 #endif // L1Scalers_H
