@@ -25,18 +25,26 @@ camilo.carrilloATcern.ch
 #include "TString.h"
 
 void RPCEfficiency::beginJob(const edm::EventSetup& iSetup){
+  std::cout<<"Getting RPC Geometry"<<std::endl;
   iSetup.get<MuonGeometryRecord>().get(rpcGeo);
+  std::cout<<"Getting DT Geometry"<<std::endl;
   iSetup.get<MuonGeometryRecord>().get(dtGeo);
+  std::cout<<"Getting CSC Geometry"<<std::endl;
   iSetup.get<MuonGeometryRecord>().get(cscGeo);
-  
+  std::cout<<"got geometry"<<std::endl;
   for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
-    if( dynamic_cast< RPCChamber* >( *it ) != 0 ){
+    if(dynamic_cast< RPCChamber* >( *it ) != 0 ){
       RPCChamber* ch = dynamic_cast< RPCChamber* >( *it ); 
       std::vector< const RPCRoll*> roles = (ch->rolls());
       for(std::vector<const RPCRoll*>::const_iterator r = roles.begin();r != roles.end(); ++r){
-	RPCDetId rpcId = (*r)->id();
 	
+	RPCDetId rpcId = (*r)->id();
 	int region=rpcId.region();
+	//booking all histograms
+	RPCGeomServ rpcsrv(rpcId);
+	std::string nameRoll = rpcsrv.name();
+	std::cout<<"Booking for "<<nameRoll<<std::endl;
+	meCollection[nameRoll] = bookDetUnitSeg(rpcId,(*r)->nstrips());
 	
 	if(region==0&&(incldt||incldtMB4)){
 	  //std::cout<<"--Filling the dtstore"<<rpcId<<std::endl;
@@ -48,6 +56,7 @@ void RPCEfficiency::beginJob(const edm::EventSetup& iSetup){
 	  if (rollstoreDT.find(ind)!=rollstoreDT.end()) myrolls=rollstoreDT[ind];
 	  myrolls.insert(rpcId);
 	  rollstoreDT[ind]=myrolls;
+
 	}
 	if(region!=0 && inclcsc){
 	  //std::cout<<"--Filling the cscstore"<<rpcId<<std::endl;
@@ -74,7 +83,8 @@ void RPCEfficiency::beginJob(const edm::EventSetup& iSetup){
           
           myrolls.insert(rpcId);
           rollstoreCSC[ind]=myrolls;
-        }
+
+	}
       }
     }
   }
@@ -145,10 +155,15 @@ void RPCEfficiency::beginJob(const edm::EventSetup& iSetup){
           
           myrolls.insert(rpcId);
           rollstoreCSC[ind]=myrolls;
+
         }
       }
     }
   }
+  
+  
+  //booking global histograms
+  
 }
 
 
@@ -175,9 +190,10 @@ RPCEfficiency::RPCEfficiency(const edm::ParameterSet& iConfig){
   nameInLog = iConfig.getUntrackedParameter<std::string>("moduleLogName", "RPC_Eff");
   EffSaveRootFile  = iConfig.getUntrackedParameter<bool>("EffSaveRootFile", false); 
   EffRootFileName  = iConfig.getUntrackedParameter<std::string>("EffRootFileName", "RPCEfficiencyFirst.root"); 
+
+
   //Interface
   dbe = edm::Service<DQMStore>().operator->();
-  _idList.clear(); 
   
   std::string folder = "Muons/MuonSegEff/";
   dbe->setCurrentFolder(folder);
@@ -242,7 +258,11 @@ RPCEfficiency::RPCEfficiency(const edm::ParameterSet& iConfig){
   hGlobalResClu3La5 = dbe->book1D("GlobalResidualsClu3La5","RPC Residuals Layer 5 Cluster Size 3",100,-10.,10.);
   hGlobalResClu3La6 = dbe->book1D("GlobalResidualsClu3La6","RPC Residuals Layer 6 Cluster Size 3",100,-10.,10.);
 
+
+
   if(debug) ofrej.open("rejected.txt");
+
+
 
 }
 
@@ -402,32 +422,16 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		
 		  RPCGeomServ rpcsrv(rollId);
 		  std::string nameRoll = rpcsrv.name();
+
 		  if(debug) std::cout<<"DT  \t \t \t \t The RPCName is "<<nameRoll<<std::endl;
-		  //if(_idList.at(nameRoll)==null) 
-		  bool deja=false;
-		  std::vector<std::string>::iterator meIt;
-		  for(meIt = _idList.begin(); meIt != _idList.end(); ++meIt){
-		    if(*meIt==nameRoll){ 
-		      deja=true;
-		      break;
-		    }
-		  }
-		  if(!deja){
-		    _idList.push_back(nameRoll);
-		  }
-		
+
 		  char detUnitLabel[128];
 		  sprintf(detUnitLabel ,"%s",nameRoll.c_str());
 		  sprintf(layerLabel ,"%s",nameRoll.c_str());
-		
-		  std::map<std::string, std::map<std::string,MonitorElement*> >::iterator meItr = meCollection.find(nameRoll);
-				
-		  if (meItr == meCollection.end()){
-		    meCollection[nameRoll] = bookDetUnitSeg(rollId,rollasociated->nstrips());
-		  }
-		
+
 		  std::map<std::string, MonitorElement*> meMap=meCollection[nameRoll];
-		
+
+		  if(debug) std::cout<<"DT \t \t \t \t Filling Expected"<<std::endl;
 		  sprintf(meIdDT,"ExpectedOccupancyFromDT_%s",detUnitLabel);
 		  meMap[meIdDT]->Fill(stripPredicted);
 		
@@ -678,57 +682,37 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 			if(debug) std::cout<<"MB4 \t \t \t \t Candidate"<<rollId<<" "<<"(from DT Segment) STRIP---> "<<stripPredicted<< std::endl;
 		    
 
-			//--------- HISTOGRAM STRIP PREDICTED FROM DT  -------------------
+			//--------- HISTOGRAM STRIP PREDICTED FROM DT  MB4 -------------------
 		  
 			RPCGeomServ rpcsrv(rollId);
 			std::string nameRoll = rpcsrv.name();
 
-			if(debug) std::cout<<"MB4 \t \t \t \t The RPCName is "<<nameRoll<<std::endl;
+			if(debug) std::cout<<"MB4 \t \t \t \t \t The RPCName is "<<nameRoll<<std::endl;
 			
-			bool deja=false;
-			std::vector<std::string>::iterator meIt;
-			for(meIt = _idList.begin(); meIt != _idList.end(); ++meIt){
-			  if(*meIt==nameRoll){ 
-			    deja=true;
-			    break;
-			  }
-			}
-			if(!deja){
-			  if(debug) std::cout<<"MB4 \t \t \t \t NOT Found in Id List!"<<nameRoll<<std::endl;
-			  _idList.push_back(nameRoll);
-			  if(debug) std::cout<<"MB4 \t \t \t \t Filling Id List with "<<nameRoll<<std::endl;
-			  if(debug) std::cout<<"MB4 \t \t \t \t Id List Size "<<_idList.size()<<std::endl;
-			}
-		    
 			char detUnitLabel[128];
 			sprintf(detUnitLabel ,"%s",nameRoll.c_str());
 			sprintf(layerLabel ,"%s",nameRoll.c_str());
 		    
-		    
-			std::map<std::string, std::map<std::string,MonitorElement*> >::iterator meItr = meCollection.find(nameRoll);
-			if (meItr == meCollection.end()){
-			  meCollection[nameRoll] = bookDetUnitSeg(rollId,rollasociated->nstrips());
-			}
-		    
 			std::map<std::string, MonitorElement*> meMap=meCollection[nameRoll];
-		    
+			
+			if(debug) std::cout<<"MB4 \t \t \t \t \t Filling Expected"<<std::endl;
 			sprintf(meIdDT,"ExpectedOccupancyFromDT_%s",detUnitLabel);
 			meMap[meIdDT]->Fill(stripPredicted);
-		    
-		    
+			
+			
 			//-------------------------------------------------
-		    
+			
 			bool anycoincidence=false;
 			double sumStripDetected = 0.;  
-		    
+			
 			int stripDetected = 0;
 			int stripCounter = 0;
-
+			
 			if(debug) std::cout<<"MB4 \t \t \t \t Getting Digis in Roll Asociated"<<std::endl;
 			RPCDigiCollection::Range rpcRangeDigi = rpcDigis->get(rollasociated->id());
-		    
+			
 			if(debug) std::cout<<"MB4 \t \t \t \t \t Loop over the digis in this roll looking for the Average"<<std::endl;
-
+			
 			for (RPCDigiCollection::const_iterator digiIt = rpcRangeDigi.first;digiIt!=rpcRangeDigi.second;++digiIt){
 			  stripDetected=digiIt->strip(); 
 			  if(fabs((float)stripDetected-stripPredicted)<MaxStripToCountInAverageRB4){
@@ -1041,32 +1025,13 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		    
 		    if(debug) std::cout<<"CSC \t \t \t \t The RPCName is "<<nameRoll<<std::endl;
 
-		    bool deja=false;
-		    std::vector<std::string>::iterator meIt;
-		    for(meIt = _idList.begin(); meIt != _idList.end(); ++meIt){
-		      if(*meIt==nameRoll){ 
-			deja=true;
-			break;
-		      }
-		    }
-		    if(!deja){
-		      _idList.push_back(nameRoll);
-		    }
-
 		    char detUnitLabel[128];
 		    sprintf(detUnitLabel ,"%s",nameRoll.c_str());
 		    sprintf(layerLabel ,"%s",nameRoll.c_str());
-		
-	      
-		    std::map<std::string, std::map<std::string,MonitorElement*> >::iterator meItr = meCollection.find(nameRoll);
 
-		    if (meItr == meCollection.end()){
-		      meCollection[nameRoll] = bookDetUnitSeg(rollId,rollasociated->nstrips());
-		    }
-	      
 		    std::map<std::string, MonitorElement*> meMap=meCollection[nameRoll];
 
-		    if(debug) std::cout<<"CSC Filling Expected"<<std::endl;
+		    if(debug) std::cout<<"CSC \t \t \t \t Filling Expected"<<std::endl;
 		    sprintf(meIdCSC,"ExpectedOccupancyFromCSC_%s",detUnitLabel);
 		    meMap[meIdCSC]->Fill(stripPredicted);
 

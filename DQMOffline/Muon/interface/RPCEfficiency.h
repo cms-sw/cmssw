@@ -2,8 +2,8 @@
  *
  * Class for RPC Monitoring using RPCDigi and DT and CSC Segments.
  *
- *  $Date: 2008/07/06 18:21:20 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/08/19 06:14:47 $
+ *  $Revision: 1.5 $
  *
  * \author Camilo Carrillo (Uniandes)
  *
@@ -115,29 +115,7 @@ class RPCEfficiency : public edm::EDAnalyzer {
       edm::ESHandle<RPCGeometry> rpcGeo;
       edm::ESHandle<DTGeometry> dtGeo;
       edm::ESHandle<CSCGeometry> cscGeo;
-   private:
-      std::vector<std::map<RPCDetId, int> > counter;
-      std::vector<int> totalcounter;
-      std::ofstream ofrej;
-      bool incldt;
-      bool incldtMB4;
-      bool inclcsc;
-      bool debug;
-      double MinimalResidual;
-      double MinimalResidualRB4;
-      double MinCosAng;
-      double MaxD;
-      double MaxDrb4;
-      double MaxStripToCountInAverage;
-      double MaxStripToCountInAverageRB4;
-      int dupli;
-      std::string muonRPCDigis;
-      std::string cscSegments;
-      std::string dt4DSegments;
-      std::string rejected;
-      std::string rollseff;
-      
-      std::map<std::string, std::map<std::string, MonitorElement*> >  meCollection;
+
       MonitorElement * statistics;
 
       MonitorElement * hGlobalResClu1La1;
@@ -161,9 +139,32 @@ class RPCEfficiency : public edm::EDAnalyzer {
       MonitorElement * hGlobalResClu3La5;
       MonitorElement * hGlobalResClu3La6;
 
+   private:
+      std::vector<std::map<RPCDetId, int> > counter;
+      std::vector<int> totalcounter;
+      std::ofstream ofrej;
+      bool incldt;
+      bool incldtMB4;
+      bool inclcsc;
+      bool debug;
+      double MinimalResidual;
+      double MinimalResidualRB4;
+      double MinCosAng;
+      double MaxD;
+      double MaxDrb4;
+      double MaxStripToCountInAverage;
+      double MaxStripToCountInAverageRB4;
+      int dupli;
+      std::string muonRPCDigis;
+      std::string cscSegments;
+      std::string dt4DSegments;
+      std::string rejected;
+      std::string rollseff;
+      
+      std::map<std::string, std::map<std::string, MonitorElement*> >  meCollection;
+      
       bool EffSaveRootFile;
       std::string EffRootFileName;
       std::string nameInLog;
       DQMStore * dbe;
-      std::vector<std::string> _idList;
 };
