@@ -1,12 +1,17 @@
 // -*-c++-*-
 // 
 //
-// $Id: HLTScalers.h,v 1.8 2008/08/15 15:40:57 wteo Exp $
+// $Id: HLTScalers.h,v 1.9 2008/08/22 20:56:55 wittich Exp $
 // Class to collect HLT scaler information 
 // for Trigger Cross Section Monitor
 // [wittich 11/07] 
 
 // $Log: HLTScalers.h,v $
+// Revision 1.9  2008/08/22 20:56:55  wittich
+// - add client for HLT Scalers
+// - Move rate calculation to HLTScalersClient and slim down the
+//   filter-farm part of HLTScalers
+//
 // Revision 1.8  2008/08/15 15:40:57  wteo
 // split hltScalers into smaller histos, calculate rates
 //
@@ -91,22 +96,15 @@ private:
   MonitorElement *scalersException_;
   MonitorElement *hltCorrelations_;
   MonitorElement *detailedScalers_;
-  MonitorElement *l1scalers_;
-  MonitorElement *l1Correlations_;
   MonitorElement *nProc_;
   MonitorElement *nLumiBlocks_;
   std::vector<MonitorElement*> hltPathNames_;
   edm::InputTag trigResultsSource_;
-  edm::InputTag l1GtDataSource_; // L1 Scalers
   bool resetMe_, monitorDaemon_; 
 
   int nev_; // Number of events processed
   int nLumi_; // number of lumi blocks
   int currentRun_;
-  //double lumiBlock_;
-  //unsigned int nHitsPresentLumiBlock_[200];
-  //unsigned int nHitsPreviousLumiBlock_[200];
-  //double rate_[200];
 
 };
 

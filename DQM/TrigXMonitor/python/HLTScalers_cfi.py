@@ -1,8 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
 # HLT scalers. wittich 11/07
-# $Id: HLTScalers_cfi.py,v 1.3 2008/08/15 15:44:01 wteo Exp $
+# $Id: HLTScalers_cfi.py,v 1.4 2008/08/24 16:34:57 wittich Exp $
 # $Log: HLTScalers_cfi.py,v $
+# Revision 1.4  2008/08/24 16:34:57  wittich
+# - rate calculation cleanups
+# - fix error logging with LogDebug
+# - report the actual lumi segment number that we think it might be
+#
 # Revision 1.3  2008/08/15 15:44:01  wteo
 # translated new config
 #
@@ -23,7 +28,6 @@ hlts = cms.EDFilter("HLTScalers",
     #  				'HLT2MuonIso',
     #  				'HLT2MuonNonIso'}
     triggerResults = cms.InputTag("TriggerResults","","HLT"),
-    l1GtData = cms.InputTag("l1GtUnpack","","HLT"),
     verbose = cms.untracked.bool(False)
 )
 

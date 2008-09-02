@@ -1,6 +1,11 @@
-// $Id: HLTScalers.cc,v 1.12 2008/08/22 20:56:55 wittich Exp $
+// $Id: HLTScalers.cc,v 1.13 2008/08/24 16:34:57 wittich Exp $
 // 
 // $Log: HLTScalers.cc,v $
+// Revision 1.13  2008/08/24 16:34:57  wittich
+// - rate calculation cleanups
+// - fix error logging with LogDebug
+// - report the actual lumi segment number that we think it might be
+//
 // Revision 1.12  2008/08/22 20:56:55  wittich
 // - add client for HLT Scalers
 // - Move rate calculation to HLTScalersClient and slim down the
@@ -35,8 +40,6 @@
 #include "DataFormats/Common/interface/HLTenums.h"
 #include "FWCore/Framework/interface/TriggerNames.h"
 
-// L1
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 
 #include "DQM/TrigXMonitor/interface/HLTScalers.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -51,12 +54,10 @@ HLTScalers::HLTScalers(const edm::ParameterSet &ps):
   dbe_(0),
   scalersException_(0),
   hltCorrelations_(0),
-  detailedScalers_(0), l1scalers_(0), 
-  l1Correlations_(0),
+  detailedScalers_(0), 
   nProc_(0),
   nLumiBlocks_(0),
   trigResultsSource_( ps.getParameter< edm::InputTag >("triggerResults")),
-  l1GtDataSource_( ps.getParameter< edm::InputTag >("l1GtData")),
   resetMe_(true),
   monitorDaemon_(ps.getUntrackedParameter<bool>("MonitorDaemon", false)),
   nev_(0), 
@@ -90,13 +91,6 @@ void HLTScalers::beginJob(const edm::EventSetup& c)
     nProc_ = dbe_->bookInt("nProcessed");
     nLumiBlocks_ = dbe_->bookInt("nLumiBlocks");
 
-    // fixed - only for 128 algo bits right now
-    l1scalers_ = dbe_->book1D("l1Scalers", "L1 scalers (locally derived)",
-			      128, -0.5, 127.5);
-    l1Correlations_ = dbe_->book2D("l1Correlations", "L1 scaler correlations"
-				   " (locally derived)", 
-				   128, -0.5, 127.5,
-				   128, -0.5, 127.5);
     // other ME's are now found on the first event of the new run, 
     // when we know more about the HLT configuration.
   
@@ -129,6 +123,8 @@ void HLTScalers::analyze(const edm::Event &e, const edm::EventSetup &c)
     int maxModules = 200;
     //int npaths=hltResults->size();
 
+    dbe_->setCurrentFolder("HLT/HLTScalers");
+
 
     detailedScalers_ = dbe_->book2D("detailedHltScalers", "HLT Scalers", 
 				    npath, -0.5, npath-0.5,
@@ -145,8 +141,6 @@ void HLTScalers::analyze(const edm::Event &e, const edm::EventSetup &c)
 		         	npath, -0.5, npath-0.5,
 				npath, -0.5, npath-0.5);
 
-    l1scalers_->Reset(); // should never have any effect?
-    l1Correlations_->Reset(); // should never have any effect?
     resetMe_ = false;
     // save path names in DQM-accessible format
     int q =0;
@@ -156,31 +150,18 @@ void HLTScalers::analyze(const edm::Event &e, const edm::EventSetup &c)
       
       LogDebug("Parameter") << q << ": " << *j ;
       char pname[256];
-      snprintf(pname, 256, "path%02d", q);
-      // setting these here is a nice idea but it's totally illegible
-      //scalers_[q/20]->setBinLabel(q+1, *j); 
+      snprintf(pname, 256, "path%03d", q);
       ++q;
       MonitorElement *e = dbe_->bookString(pname, *j);
       hltPathNames_.push_back(e);  // I don't ever use these....
     }
   } // end resetme_ - pseudo-end-run record
   
-//   unsigned int n=0;
-//   if(specifyPaths_)
-//     {
-//       n = pathNames_.size();
-//       for (unsigned int i=0; i!=n; i++) {
-//      	pathNamesIndex_.push_back(names.triggerIndex(pathNames_[i]));
-//       }
-//     }
 
 
   for ( int i = 0; i < npath; ++i ) {
     // state returns 0 on ready, 1 on accept, 2 on fail, 3 on exception.
     // these are defined in HLTEnums.h
-//     LogDebug("Parameter") << "i = " << i << ", result = " 
-// 			  << hltResults->accept(i)
-// 			  << ", index = " << hltResults->index(i) ;
     for ( unsigned int j = 0; j < hltResults->index(i); ++j ) {
       detailedScalers_->Fill(i,j);
     }
@@ -198,32 +179,6 @@ void HLTScalers::analyze(const edm::Event &e, const edm::EventSetup &c)
     }
   }
   
-  // now the L1 equivalent. snarfed from L1TGT.cc
-  // get Global Trigger decision and the decision word
-  // these are locally derived; the HW scaler information is 
-  // the definitive source for this data.
-  edm::Handle<L1GlobalTriggerReadoutRecord> myGTReadoutRecord;
-  bool t = e.getByLabel(l1GtDataSource_,myGTReadoutRecord);
-  if ( ! t ) {
-    edm::LogInfo("Product") << "can't find L1GlobalTriggerReadoutRecord "
-			   << "with label " << l1GtDataSource_.label() ;
-  }
-  else {
-    // vector of bool
-    DecisionWord gtDecisionWord = myGTReadoutRecord->decisionWord();
-    if ( ! gtDecisionWord.empty() ) { // if board not there this is zero
-      for ( int i = 0; i < 127; ++i ) {
-	if ( gtDecisionWord[i] ) {
-	  l1scalers_->Fill(i);
-	  for ( int j = i + 1; j < 127; ++j ) {
-	    if ( gtDecisionWord[j] )
-	      l1Correlations_->Fill(i,j);
-	      l1Correlations_->Fill(j,i);
-	  }
-	}
-      }
-    }
-  }
 }
 
 

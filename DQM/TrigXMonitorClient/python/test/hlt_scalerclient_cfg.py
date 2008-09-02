@@ -1,4 +1,7 @@
 # $Log: hlt_scalerclient_cfg.py,v $
+# Revision 1.3  2008/08/25 21:07:15  wittich
+# updated py config file
+#
 # Revision 1.2  2008/08/24 16:34:56  wittich
 # - rate calculation cleanups
 # - fix error logging with LogDebug
@@ -40,6 +43,8 @@ process.load("Geometry.MuonCommonData.muonIdealGeometryXML_cfi")
 process.load("DQM.TrigXMonitor.HLTScalers_cfi")
 process.load("DQM.TrigXMonitorClient.HLTScalersClient_cfi")
 
+process.load("DQM.TrigXMonitor.L1Scalers_cfi")
+
 process.load("DQMServices.Core.DQM_cfg")
 
 process.load("DQMServices.Components.DQMEnvironment_cfi")
@@ -75,7 +80,7 @@ process.PoolSource.fileNames = cms.untracked.vstring(
 
 process.maxEvents = cms.untracked.PSet(
     #input = cms.untracked.int32(2000)
-    #input = cms.untracked.int32(10)
+    #input = cms.untracked.int32(200)
     input = cms.untracked.int32(-1)
 )
 process.ModuleWebRegistry = cms.Service("ModuleWebRegistry")
@@ -85,7 +90,8 @@ process.LockService = cms.Service("LockService",
 )
 
 process.MessageLogger = cms.Service("MessageLogger",
-   debugModules = cms.untracked.vstring('hltsClient', 'hlts'),
+   debugModules = cms.untracked.vstring('l1s', 'hlts', 'hltsClient', 'main_input'),
+   #debugModules = cms.untracked.vstring('hltsClient', 'hlts', 'main_input'),
    #debugModules = cms.untracked.vstring('*'),
                                     categories = cms.untracked.vstring('Status', 'Parameter'),
                                     noLineBreaks = cms.untracked.bool(True),
@@ -113,12 +119,17 @@ process.options = cms.untracked.PSet(
 #process.assist = cms.Path(process.l1GtUnpack+process.l1tgt)
 
 process.p = cms.EndPath(process.hlts+process.hltsClient)
+process.p3 = cms.EndPath(process.l1s)
 
 process.dqmWork = cms.Path(process.dqmEnv+process.dqmSaver)
 
+# process.eca = cms.EDAnalyzer("EventContentAnalyzer")
+# process.p4 = cms.Path(process.eca)
+
 #process.hlts.verbose = True
-#process.hlts.l1GtData = cms.InputTag("l1GtUnpack","","DQM")
-process.hlts.l1GtData = cms.InputTag("hltGtDigis","","")
+process.hlts.l1GtData = cms.InputTag("hltGtDigis","","HLT")
+process.l1s.l1GtData = cms.InputTag("hltGtDigis","","HLT")
+#process.hlts.l1GtData = cms.InputTag("hltGtDigis","","")
 
 ###########################
 ###   DQM Environment   ###
