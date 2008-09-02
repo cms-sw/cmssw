@@ -1425,6 +1425,28 @@ void SiPixelInformationExtractor::computeGlobalQualityFlag(DQMStore * bei,
 	
         if(me->getEntries()>0){
 	
+	  full_path = full_path.replace(full_path.find("NErrors"),9,"errorType");
+	  me = bei->get(full_path);
+	  if(!me) continue;
+	  bool type30=false; bool othererror=false; bool reset=false;
+	  for(int jj=1; jj<16; jj++){
+	    if(me->getBinContent(jj)>0.){
+	      if(jj!=6) othererror=true;
+              else type30=true;
+	    }
+	  }
+	  if(type30){
+	    full_path = full_path.replace(full_path.find("errorType"),10,"TBMMessage");
+	    me = bei->get(full_path);
+	    if(!me) continue;
+	    for(int kk=1; kk<9; kk++){
+              if(me->getBinContent(kk)>0.){
+		if(kk!=6 && kk!=7) othererror=true;
+		else reset=true;
+	      }
+	    }
+	  }
+	  
     //if you want to check for QTest results instead:
     //vector<string> meVec = bei->getMEs();
     //bool gotcha = false;
@@ -1440,6 +1462,7 @@ void SiPixelInformationExtractor::computeGlobalQualityFlag(DQMStore * bei,
        // if(image_name!="images/LI_green.gif") {
        
        //   if(!gotcha){
+	  if(othererror || (type30 && !reset)){
             if(currDir.find("Pixel")!=string::npos) errorMods_++;
             if(currDir.find("Barrel")!=string::npos) err_bpix_mods_++;
             if(currDir.find("Shell_mI")!=string::npos) err_shellmI_mods_++;
@@ -1451,7 +1474,7 @@ void SiPixelInformationExtractor::computeGlobalQualityFlag(DQMStore * bei,
             if(currDir.find("HalfCylinder_mO")!=string::npos) err_hcylmO_mods_++;
             if(currDir.find("HalfCylinder_pI")!=string::npos) err_hcylpI_mods_++;
             if(currDir.find("HalfCylinder_pO")!=string::npos) err_hcylpO_mods_++;
-	//  }
+	  }
 	//  gotcha = true;
         }	
       }
@@ -1652,7 +1675,35 @@ void SiPixelInformationExtractor::fillGlobalQualityPlot(DQMStore * bei, bool ini
         MonitorElement * me = bei->get(full_path);
         if (!me) continue;
         //use only presence of any FED error as error flag here:
-        if(full_path.find("NErrors")!=string::npos) if(me->getEntries()>0) anyerr=true;
+        if(full_path.find("NErrors")!=string::npos && me->getEntries()>0){
+	  full_path = full_path.replace(full_path.find("NErrors"),9,"errorType");
+	  me = bei->get(full_path);
+	  if(!me) anyerr=true;
+	  else{
+	    bool type30=false;
+	    for(int jj=1; jj<16; jj++){
+	      if(me->getBinContent(jj)>0.){
+	        if(jj!=6) anyerr=true;
+		else type30=true;
+	      }
+	    }
+	    if(type30){
+	      full_path = full_path.replace(full_path.find("errorType"),10,"TBMMessage");
+	      me = bei->get(full_path);
+	      if(!me) anyerr=true;
+	      else{
+	        for(int kk=1; kk<9; kk++){
+		  if(me->getBinContent(kk)>0.){
+		    if(kk!=6 && kk!=7) anyerr=true;
+		    else anyerr=false;
+		  }
+		}
+	      }
+	    }
+	  }
+	}// if NErrors
+	      
+	      
         //use QTest results for error flag here:
         //if(me->hasError()||me->hasWarning()||me->hasOtherReport()) anyerr=true;
       }
@@ -1699,6 +1750,12 @@ void SiPixelInformationExtractor::fillGlobalQualityPlot(DQMStore * bei, bool ini
   if(errmodsMap) errmodsMap->Clear();
   //cout<<"counters: "<<count<<" , "<<errcount<<endl;
 }
+
+void SiPixelInformationExtractor::findNoisyPixels(DQMStore * bei)
+{
+// nothing for now; need to implement Freya's method to find, convert to online and write out ascii file!
+}
+
 
 //
 // -- Create Images 
