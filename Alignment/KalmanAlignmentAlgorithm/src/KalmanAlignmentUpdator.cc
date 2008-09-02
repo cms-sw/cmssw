@@ -1,6 +1,7 @@
 
 #include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentUpdator.h"
 #include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentUserVariables.h"
+#include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
 
 
 void KalmanAlignmentUpdator::updateUserVariables( const std::vector< Alignable* > & alignables ) const
@@ -19,7 +20,7 @@ void KalmanAlignmentUpdator::updateUserVariables( const std::vector< Alignable* 
       if ( userVariables != 0 ) userVariables->update();
     }
 
-    itAlignable++;
+    ++itAlignable;
   }
 }
 
