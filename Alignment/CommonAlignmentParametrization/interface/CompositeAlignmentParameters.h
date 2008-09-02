@@ -1,18 +1,30 @@
 #ifndef Alignment_CommonAlignmentParametrization_CompositeAlignmentParameters_h
 #define Alignment_CommonAlignmentParametrization_CompositeAlignmentParameters_h
 
-// #include <map>
 
-#include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
+#include "Alignment/CommonAlignment/interface/AlignmentParametersData.h"
+#include "Alignment/CommonAlignment/interface/AlignableDetOrUnitPtr.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+
+#include <map>
+#include <vector>
 
 /// \class CompositeAlignmentParameters
 ///
-/// Concrete class for 'concatenated' alignment parameters and associated
+/// Class for 'concatenated' alignment parameters and associated
 /// Quantities for a set of Alignables. Provided by AlignmentParameterStore.
+/// It does not inherit from AligmentParameters since it does not need to be attached
+/// to an Alignable, so it does not need to have implementations of the apply(..) method.
+/// It neither needs AlignmentUservariables attached. 
+///
+///  $Date: 2007/10/08 15:56:00 $
+///  $Revision: 1.12 $
+/// (last update by $Author: cklae $)
 
 class AlignableDet;
+class Alignable;
 
-class CompositeAlignmentParameters : public AlignmentParameters 
+class CompositeAlignmentParameters
 {
 
 public:
@@ -23,6 +35,8 @@ public:
   typedef std::map<AlignableDetOrUnitPtr,Alignable*> AlignableDetToAlignableMap;
   typedef std::map<Alignable*,int> Aliposmap;
   typedef std::map<Alignable*,int> Alilenmap;
+
+  typedef AlignmentParametersData::DataContainer DataContainer;
 
   /// constructors 
 
@@ -40,26 +54,21 @@ public:
   /// destructor 
   virtual ~CompositeAlignmentParameters();
 
-  /// Clone method (for compatibility with base class)
-  CompositeAlignmentParameters* clone( const AlgebraicVector& par, 
-				       const AlgebraicSymMatrix& cov) const;
+  /// Get alignment parameters
+  const AlgebraicVector& parameters() const { return theData->parameters();}
 
-  /// Clone method (for compatibility with base class, same as clone())
-  CompositeAlignmentParameters* cloneFromSelected( const AlgebraicVector& par, 
-						   const AlgebraicSymMatrix& cov) const;
+  /// Get parameter covariance matrix
+  const AlgebraicSymMatrix& covariance() const { return theData->covariance();}
 
   /// Clone parameters
-  CompositeAlignmentParameters* clone( const AlgebraicVector& par, const AlgebraicSymMatrix& cov, 
-				       const AlignableDetToAlignableMap& alimap, 
+  CompositeAlignmentParameters* clone( const AlgebraicVector& par,
+				       const AlgebraicSymMatrix& cov) const;
+
+  /// Clone parameters
+  CompositeAlignmentParameters* clone( const AlgebraicVector& par, const AlgebraicSymMatrix& cov,
+				       const AlignableDetToAlignableMap& alimap,
 				       const Aliposmap& aliposmap,
 				       const Alilenmap& alilenmap) const;
-
-  /// Clone parameters (same as clone())
-  CompositeAlignmentParameters* cloneFromSelected( const AlgebraicVector& par, 
-						   const AlgebraicSymMatrix& cov, 
-						   const AlignableDetToAlignableMap& alimap,
-						   const Aliposmap& aliposmap,
-						   const Alilenmap& alilenmap) const;
 
   /// Get vector of alignable components 
   Components components() const;
@@ -111,6 +120,9 @@ public:
   /// Extract covariance matrix elements between two subsets of alignables
   AlgebraicMatrix covarianceSubset ( const std::vector<Alignable*>& veci,
                                      const std::vector<Alignable*>& vecj ) const;
+
+protected:
+  DataContainer theData;
 
 private:
 
