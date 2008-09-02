@@ -49,6 +49,8 @@ process.SiPixelDigiSource.saveFile = False
 process.SiPixelDigiSource.isPIB = False
 process.SiPixelDigiSource.slowDown = False
 process.SiPixelDigiSource.modOn = True
+process.SiPixelDigiSource.twoDimOn = True
+process.SiPixelDigiSource.hiRes = True
 process.SiPixelDigiSource.ladOn = False
 process.SiPixelDigiSource.layOn = False
 process.SiPixelDigiSource.phiOn = False
@@ -111,7 +113,7 @@ process.source = cms.Source("PoolSource",
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1000)
+    input = cms.untracked.int32(2000)
 )
 process.MessageLogger = cms.Service("MessageLogger",
     debugModules = cms.untracked.vstring('siPixelDigis', 
