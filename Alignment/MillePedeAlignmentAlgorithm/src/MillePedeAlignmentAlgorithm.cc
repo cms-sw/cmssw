@@ -3,10 +3,12 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.37 $
- *  $Date: 2008/04/21 22:33:10 $
+ *  $Revision: 1.39 $
+ *  $Date: 2008/08/12 18:23:15 $
  *  (last update by $Author: flucke $)
  */
+
+#include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeAlignmentAlgorithm.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -15,7 +17,6 @@
 // end in header, too
 
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeMonitor.h"
-#include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeAlignmentAlgorithm.h"
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeVariables.h"
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeVariablesIORoot.h"
 #include "Mille.h"       // 'unpublished' interface located in src
@@ -29,6 +30,7 @@
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentIORoot.h"
 
+#include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
 #include "Alignment/CommonAlignment/interface/AlignableNavigator.h"
 #include "Alignment/CommonAlignment/interface/AlignableDetOrUnitPtr.h"
 
