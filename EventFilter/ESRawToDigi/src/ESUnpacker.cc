@@ -131,10 +131,6 @@ void ESUnpacker::interpretRawData(int fedId, const FEDRawData & rawData, ESDigiC
       if (debug_) edm::LogWarning("Invalid Data")<<"Invalid ES data : the length is not correct !";
       return;
     }
-    if ( ESTrailer.lenght() < 8) {
-      if (debug_) edm::LogWarning("Invalid Data")<<"Invalid ES data : the length is not correct !";
-      return;
-    }
 
     if (debug_)  {
       cout<<"[ESUnpacker]: FED Trailer candidate. Is trailer? "<<ESTrailer.check();
@@ -147,24 +143,8 @@ void ESUnpacker::interpretRawData(int fedId, const FEDRawData & rawData, ESDigiC
   }
 
   // DCC data
-  int dccHeaderCount = 0;
-  int dccLineCount = 0;
-  int dccHead, dccLine;
-  Word64 m4  = ~(~Word64(0) << 4);
   for (const Word64* word=(header+1); word!=(header+dccWords+1); ++word) {
     if (debug_) cout<<"DCC   : "<<print(*word)<<endl;
-    dccHead = (*word >> 60) & m4;
-    if (dccHead == 3) dccHeaderCount++;
-    dccLine = (*word >> 56) & m4;
-    dccLineCount++;
-    if (dccLine != dccLineCount) {
-      if (debug_) edm::LogWarning("Invalid Data")<<"Invalid ES data : DCC header order is not correct !";
-      return; 
-    }
-  }
-  if (dccHeaderCount != 6) {
-    if (debug_) edm::LogWarning("Invalid Data")<<"Invalid ES data : DCC header lines are "<<dccHeaderCount;
-    return;
   }
   
   // Event data
