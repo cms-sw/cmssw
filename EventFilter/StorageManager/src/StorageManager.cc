@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.77 2008/09/01 16:22:01 hcheung Exp $
+// $Id: StorageManager.cc,v 1.78 2008/09/03 00:03:59 hcheung Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -4669,6 +4669,9 @@ void StorageManager::startMonitoringWorkLoop() throw (evf::Exception)
 
 bool StorageManager::monitoring(toolbox::task::WorkLoop* wl)
 {
+  // @@EM if state is already "failed" then no reason to firefailed again 
+  //      (in fact it will cause problems) so bail out !
+  if(fsm_.stateName()->toString() == "Failed") return false;
   // @@EM Look for exceptions in the FragmentCollector thread, do a state transition if present
   if(stor::getSMFC_exceptionStatus()) {
     edm::LogError("StorageManager") << "Fatal BURP in FragmentCollector thread detected! \n"
