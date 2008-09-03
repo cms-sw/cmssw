@@ -28,10 +28,10 @@ CSCDetector::CSCDetector() {
 
   for (unsigned int px = 0; px < PARTITIONX; px++) {
     for (unsigned int py = 0; py < PARTITIONY; py++) {
-      partitions[px][py].xmin = -2.5 + (5/PARTITIONX * px);
-      partitions[px][py].xmax = partitions[px][py].xmin + (5/PARTITIONX);
-      partitions[px][py].ymin = ((2.0 * 3.14159)/PARTITIONY) * py;
-      partitions[px][py].ymax = partitions[px][py].ymin + ((2.0 * 3.14159)/PARTITIONY);
+      partitions[px][py].xmin = -2.5 + ((5.0 / PARTITIONX) * px);
+      partitions[px][py].xmax = -2.5 + ((5.0 / PARTITIONX) * (px + 1));
+      partitions[px][py].ymin = ((2.0 * 3.14159) / PARTITIONY) * py;
+      partitions[px][py].ymax = ((2.0 * 3.14159) / PARTITIONY) * (py + 1);
     }
   }
 

@@ -288,11 +288,9 @@ void CSCSummary::WriteMap(TH2*& h2) const {
           case -1:
             h2->SetBinContent(x + 1, y + 1, -1);
             break;
-          case 0:
-            rep_el++;
-            break;
           case 1:
             h2->SetBinContent(x + 1, y + 1, 1);
+          case 0:
             rep_el++;
             break;
           case 2:
