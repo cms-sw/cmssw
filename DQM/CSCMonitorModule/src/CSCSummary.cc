@@ -276,7 +276,7 @@ void CSCSummary::WriteMap(TH2*& h2) const {
 
       for(unsigned int y = 0; y < NTICS; y++) {
 
-        h2->SetBinContent(x + 1, y + 1, 0);
+        double value = 0.0; 
 
         if (xmin == -2.5 || xmax == 2.5) continue;
         if (xmin >= -1 && xmax <= 1)     continue;
@@ -286,18 +286,22 @@ void CSCSummary::WriteMap(TH2*& h2) const {
 
         switch(IsPhysicsReady(xmin, xmax, ymin, ymax)) {
           case -1:
-            h2->SetBinContent(x + 1, y + 1, -1);
+            value = -1.0;
+            break;
+          case 0:
+            value = 0.0;
+            rep_el++;
             break;
           case 1:
-            h2->SetBinContent(x + 1, y + 1, 1);
-          case 0:
+            value = 1.0;
             rep_el++;
             break;
           case 2:
-            h2->SetBinContent(x + 1, y + 1, 2);
+            value = 2.0;
             rep_el++;
         }
 
+        h2->SetBinContent(x + 1, y + 1, value);
         csc_el++;
 
       }
