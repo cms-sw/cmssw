@@ -1,4 +1,4 @@
-#include "PhysicsTools/UtilAlgos/interface/UpdaterService.h"
+#include "FWCore/Services/interface/UpdaterService.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 
