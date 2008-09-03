@@ -5,8 +5,8 @@
  * \file HcalSummaryClient.h
  *
  * Code ported from DQM/EcalBarrelMonitorClient/interface/EBSummaryClient.h
- * $Date: 2008/07/02 22:26:03 $
- * $Revision: 1.10 $
+ * $Date: 2008/07/17 17:24:08 $
+ * $Revision: 1.11 $
  * \author Jeff Temple
  *
 */
@@ -100,6 +100,7 @@ class HcalSummaryClient : public HcalBaseClient {
   int totalcells_; // stores total possible # of cells being checked
 
   // Individual status values for each task by subdetector
+  float status_dataformat[4];
   float status_digi[4];
   float status_deadcell[4];
   float status_hotcell[4];

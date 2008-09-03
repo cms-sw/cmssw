@@ -233,6 +233,7 @@ void HcalSummaryClient::setup(void)
   for (int i=0;i<4;++i)
     {
       // All values set to unknown by default
+      status_dataformat[i]=-1;
       status_digi[i]=-1;
       status_deadcell[i]=-1;
       status_hotcell[i]=-1;
@@ -429,9 +430,23 @@ float HcalSummaryClient::analyze_everything(std::string subdetname, int type, fl
   
   char name[150];
 
+  MonitorElement* me_dataformat=0;
   MonitorElement* me_digi=0;
   MonitorElement* me_hotcell=0;
   MonitorElement* me_deadcell=0;
+
+  // Check for histogram containing known DataFormat problems.  (Formed & filled in DataFormatMonitor task)
+  if (dataFormatClient_)
+    {
+      sprintf(name,"%s/DatFormatMonitor/00 DataFormat Problem Map",prefixME_.c_str());
+      //subdetname.c_str(),subdetname.c_str());  // form histogram name
+      me_dataformat = dqmStore_->get(name);
+      if (!me_dataformat) 
+	{
+	  if (debug_) cout <<"<HcalSummaryClient>  Could not find DataFormatMonitor histogram named: "<<name<<endl;
+	  return status; // histogram couldn't be found
+	}
+    }
 
   // Check for histogram containing known Digi problems.  (Formed & filled in DigiMonitor task)
   if (digiClient_)
@@ -504,6 +519,7 @@ float HcalSummaryClient::analyze_everything(std::string subdetname, int type, fl
 
 	  newbincontent=0;
 	  // Now check for errors from each client histogram:
+
 	  if (digiClient_) 
 	    {
 	      tempval=me_digi->getBinContent(ieta,iphi);
