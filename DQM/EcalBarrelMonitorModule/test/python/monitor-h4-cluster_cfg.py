@@ -49,7 +49,6 @@ process.dqmQTestEB = cms.EDFilter("QualityTester",
 
 process.dqmSaverEB = cms.EDFilter("DQMFileSaver",
     dirName = cms.untracked.string('.'),
-    fileName = cms.untracked.string('EcalBarrel'),
     convention = cms.untracked.string('Online'),
 # special fix for H4 cosmic runs
     saveByRun = cms.untracked.int32(2)

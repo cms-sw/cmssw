@@ -48,7 +48,6 @@ process.dqmQTestEB = cms.EDFilter("QualityTester",
 )
 
 process.dqmSaverEB = cms.EDFilter("DQMFileSaver",
-    fileName = cms.untracked.string('EcalBarrel'),
     dirName = cms.untracked.string('.'),
     convention = cms.untracked.string('Online')
 )

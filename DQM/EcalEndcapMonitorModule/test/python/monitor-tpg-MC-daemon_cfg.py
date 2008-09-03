@@ -56,7 +56,6 @@ process.dqmQTestEE = cms.EDFilter("QualityTester",
 )
 
 process.dqmSaverEE = cms.EDFilter("DQMFileSaver",
-    fileName = cms.untracked.string('EcalEndcap'),
     dirName = cms.untracked.string('.'),
     convention = cms.untracked.string('Online')
 )
