@@ -84,7 +84,7 @@ void ConfigurationRecord::parse(){
 	asisText.push_back(asis);
 	source_.replace(i,e+2-i,placeOlder);
 	i = source_.find("@{",i);
-      } else throw Capri::Fatal("ConfigurationRecord: unmatched @{");
+      } else throw cms::Exception("ConfigurationRecord: unmatched @{");
     }
   }
 
@@ -99,7 +99,7 @@ void ConfigurationRecord::parse(){
 	if (!evarN.empty()) evarV = envUtil(evarN.c_str()).getEnv();
 	source_.replace(i,e+1-i,evarV);
 	i = source_.find("${",i);
-      } else throw Capri::Fatal("ConfigurationRecord: unmatched ${");
+      } else throw cms::Exception("ConfigurationRecord: unmatched ${");
     }
   }  
 
@@ -180,7 +180,7 @@ void ConfigurationRecord::parse(){
     while(i!=string::npos) {
       size_t e = source_.find_last_of(string(" \n"),i);
       if (e==string::npos) 
-	throw Capri::Severe("ConfigurationRecord: wrong parsing of configuration");
+	throw cms::Exception("ConfigurationRecord: wrong parsing of configuration");
       else e++;
       source_.insert(e,sillySep);
       i = source_.find(keys.separator(),i+3+keys.separator().size());
@@ -198,7 +198,7 @@ void ConfigurationRecord::parse(){
   // cout << "\nSOURCE:" << endl;
   // cout << source_ << endl << endl;
   
-  // if nothing left return...
+  // if nothng left return...
   if (source_.empty()) return;
 
   // tokenize and insert in the dictionary
