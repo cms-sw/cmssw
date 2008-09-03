@@ -55,7 +55,7 @@ process.dqmHarvesing = cms.EDFilter("SiStripOfflineDQM",
 ## Scheduling
 #-------------------------------------------------
 process.p = cms.Path(
-    process.qTester *
+    process.qTester      *
     process.dqmHarvesing
 )
 

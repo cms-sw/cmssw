@@ -1,13 +1,13 @@
 #!/bin/tcsh
-cd CMSSW_BASE/src
+cd xCMSSW_BASEx/src
 cmsenv
 setenv STAGE_SVCCLASS cmscaf
-set run=RUN_NAME
-set job=JOB_NAME
+set run=xRUN_NAMEx
+set job=xJOB_NAMEx
 set tmpdir=/tmp/$USER/$run/$job
 mkdir -p $tmpdir
-cd CURRENT_DIR/$run/$job
-cmsRun SiStripDQMOfflineGlobalRunCAF_cfg.py >! DQM_SiStrip_${run}.log
-COPY $tmpdir/DQM_SiStrip_${run}.root OUTPUT_DIR/DQM_SiStrip_${job}.root
-COPY DQM_SiStrip_${run}.log OUTPUT_DIR/DQM_SiStrip_${job}.log
+cd xCURRENT_DIRx/$run/$job
+cmsRun SiStripDQMOfflineGlobalRunCAFxSUFFIXx >! DQM_SiStrip_${run}.log
+xCOPYx $tmpdir/DQM_SiStrip_${run}.root xOUTPUT_DIRx/DQM_SiStrip_${job}.root
+xCOPYx DQM_SiStrip_${run}.log xOUTPUT_DIRx/DQM_SiStrip_${job}.log
 rm -rf $tmpdir

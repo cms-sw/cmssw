@@ -9,7 +9,7 @@ server_name = xSERVER_NAMEx
 datasetpath  = xDATASETPATHx
 runselection = xRUNSELECTIONx
 
-pset = SiStripDQMOfflineGlobalRunCAF_cfg.py
+pset = SiStripDQMOfflineGlobalRunCAFxSUFFIXx
 
 total_number_of_events = -1
 number_of_jobs         = xNUMBER_OF_JOBSx

@@ -9,7 +9,7 @@ DQM.collectorHost = ''
 #  DQM File Saving and Environment
 from DQMServices.Components.DQMEnvironment_cfi import *
 dqmSaver.convention   = 'Online'
-dqmSaver.dirName      = 'OUTPUT_DIRECTORY'
+dqmSaver.dirName      = 'xOUTPUT_DIRECTORYx'
 dqmSaver.producer     = 'DQM'
 dqmSaver.saveByRun    = 1
 dqmSaver.saveAtJobEnd = True

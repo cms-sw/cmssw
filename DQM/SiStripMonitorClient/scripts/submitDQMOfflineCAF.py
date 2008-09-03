@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 #
-# $Id: submitDQMOfflineCAF.py,v 1.11 2008/09/02 19:01:10 vadler Exp $
+# $Id: submitDQMOfflineCAF.py,v 1.12 2008/09/03 08:59:39 vadler Exp $
 #
 
 ## CMSSW/DQM/SiStripMonitorClient/scripts/submitDQMOfflineCAF.py
@@ -508,7 +508,7 @@ if bool_CRAB:
   file_inputFilesJobCff.close()
   # create included configuration file
   str_sedCommand = 'sed '
-  str_sedCommand += '-e \"s#OUTPUT_DIRECTORY#' + str_outputDir + '#g\" '
+  str_sedCommand += '-e \"s#xOUTPUT_DIRECTORxY#' + str_outputDir + '#g\" '
   str_sedCommand += str_pathCmsswBasePackage + '/python/SiStripDQMOfflineGlobalRunCAF_template_cff.py > ' + str_pathRunIncludeDir + '/SiStripDQMOfflineGlobalRunCAF_cff.py'
   os.system(str_sedCommand)
   for int_iJob in range(int_nJobs):
@@ -574,6 +574,7 @@ else:
       # protections vs. those annoying DBS output format changes come here:
 #       str_linesInput = lstr_linesInput[n_iActualLine]
       str_linesInput = lstr_linesInput[n_iActualLine].replace(') );',',')
+      # fix commata and end of line
       str_actualLine = str_linesInput
       if (n_iActualLine+1)%nInputFilesJob == 0 or int_nLinesRead == int_nInputFiles-1:
         str_actualLine = string.split(str_linesInput, ',')[0] + '\n'
@@ -591,20 +592,21 @@ else:
     file_mergeScript.write(str_lineMergeScript)
     # create included configuration file
     str_sedCommand = 'sed '
-    str_sedCommand += '-e \"s#OUTPUT_DIRECTORY#' + str_outputDir + '#g\" '
+    str_sedCommand += '-e \"s#xOUTPUT_DIRECTORYx#' + str_outputDir + '#g\" '
     str_sedCommand += str_pathCmsswBasePackage + '/python/SiStripDQMOfflineGlobalRunCAF_template_cff.py > ' + str_pathJobIncludeDir + '/SiStripDQMOfflineGlobalRunCAF_cff.py'
     os.system(str_sedCommand)
     # create job script
     str_sedCommand = 'sed '
-    str_sedCommand += '-e \"s#CMSSW_BASE#' + str_pathCmsswBase + '#g\" '
-    str_sedCommand += '-e \"s#RUN_NAME#' + str_nameRun + '#g\" '
-    str_sedCommand += '-e \"s#JOB_NAME#' + str_nameJob + '#g\" '
-    str_sedCommand += '-e \"s#CURRENT_DIR#' + str_pathCurrentDir + '#g\" '
+    str_sedCommand += '-e \"s#xCMSSW_BASEx#' + str_pathCmsswBase   + '#g\" '
+    str_sedCommand += '-e \"s#xRUN_NAMEx#'    + str_nameRun        + '#g\" '
+    str_sedCommand += '-e \"s#xJOB_NAMEx#'    + str_nameJob        + '#g\" '
+    str_sedCommand += '-e \"s#xCURRENT_DIRx#' + str_pathCurrentDir + '#g\" '
+    str_sedCommand += '-e \"s#xSUFFIXx#'      + '_cfg.py'          + '#g\" '
     if bool_useCastor:
-      str_sedCommand += '-e \"s#COPY#rfcp#g\" '
+      str_sedCommand += '-e \"s#xCOPYx#rfcp#g\" '
     else:
-      str_sedCommand += '-e \"s#COPY#cp#g\" '
-    str_sedCommand += '-e \"s#OUTPUT_DIR#' + str_pathOut + '#g\" '
+      str_sedCommand += '-e \"s#xCOPYx#cp#g\" '
+    str_sedCommand += '-e \"s#xOUTPUT_DIRx#' + str_pathOut + '#g\" '
     str_sedCommand += str_pathCmsswBasePackage + '/scripts/SiStripDQMOfflineCAF_template.job > SiStripDQMOfflineCAF.job'
     os.system(str_sedCommand)
     # finalize job creation
@@ -621,6 +623,7 @@ else:
 os.chdir(str_pathCmsswBasePackage)
 os.system('scramv1 b python')
 os.chdir(str_pathCurrentDir)
+print
     
 # finish scripts
     
@@ -640,6 +643,7 @@ if bool_CRAB:
   str_sedCommand += '-e \"s#xOUTPUT_FILEx#'        + str_nameRun   + '#g\" '
   str_sedCommand += '-e \"s#xUI_WORKING_DIRx#crab' + str_nameRun   + '#g\" '
   str_sedCommand += '-e \"s#xSTORAGE_PATHx#'       + str_pathOut   + '#g\" '
+  str_sedCommand += '-e \"s#xSUFFIXx#'             + '_cfg.py'     + '#g\" '
   if bool_useCastor:
     str_sedCommand += '-e \"s#xCOPY_DATAx#1#g\" '
   else:
