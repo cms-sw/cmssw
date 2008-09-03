@@ -104,8 +104,8 @@ void HLTMCtruth::analyze(const CandidateView& mctruth,
 	    const Candidate & d = *p.daughter(j);
 	    if ((d.pdgId()==11)||(d.pdgId()==-11)){wel += 1;}
 	    if ((d.pdgId()==13)||(d.pdgId()==-13)){wmu += 1;}
-	    if ( (abs(d.pdgId())!=24) && ((mcpid[nmc])*(d.pdgId())>0) ) 
-	      {cout << "Wrong sign between mother-W and daughter !" << "\n";}
+// 	    if ( (abs(d.pdgId())!=24) && ((mcpid[nmc])*(d.pdgId())>0) ) 
+// 	      {cout << "Wrong sign between mother-W and daughter !" << endl;}
 	  }
 	}
 	if (mcpid[nmc]==23) { // Checking Z -> 2 e/mu
@@ -144,9 +144,9 @@ void HLTMCtruth::analyze(const CandidateView& mctruth,
     nwenu = wel;
     nwmunu = wmu;
     if((zee%3)==0){nzee = zee/3;}
-    else {cout << "Z does not decay in e+ e- !" << "\n";}
+//     else {cout << "Z does not decay in e+ e- !" << endl;}
     if ((zmumu%3)==0){nzmumu = zmumu/3;}
-    else {cout << "Z does not decay in mu+ mu- !" << "\n";}
+//     else {cout << "Z does not decay in mu+ mu- !" << endl;}
 
   }
 

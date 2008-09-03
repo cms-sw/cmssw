@@ -18,36 +18,35 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
   // variables. Example as follows:
   std::cout << " Beginning HLTAnalyzer Analysis " << std::endl;
 
-  recjets_    = conf.getParameter<edm::InputTag> ("recjets");
-  genjets_    = conf.getParameter<edm::InputTag> ("genjets");
-  recmet_     = conf.getParameter<edm::InputTag> ("recmet");
-  genmet_     = conf.getParameter<edm::InputTag> ("genmet");
-  ht_         = conf.getParameter<edm::InputTag> ("ht");
-  calotowers_ = conf.getParameter<edm::InputTag> ("calotowers");
-  Electron_   = conf.getParameter<edm::InputTag> ("Electron");
-  Photon_     = conf.getParameter<edm::InputTag> ("Photon");
-  muon_       = conf.getParameter<edm::InputTag> ("muon");
+  recjets_          = conf.getParameter<edm::InputTag> ("recjets");
+  genjets_          = conf.getParameter<edm::InputTag> ("genjets");
+  recmet_           = conf.getParameter<edm::InputTag> ("recmet");
+  genmet_           = conf.getParameter<edm::InputTag> ("genmet");
+  ht_               = conf.getParameter<edm::InputTag> ("ht");
+  calotowers_       = conf.getParameter<edm::InputTag> ("calotowers");
+  Electron_         = conf.getParameter<edm::InputTag> ("Electron");
+  Photon_           = conf.getParameter<edm::InputTag> ("Photon");
+  muon_             = conf.getParameter<edm::InputTag> ("muon");
 
-  mctruth_    = conf.getParameter<edm::InputTag> ("mctruth");
-  genEventScale_ = conf.getParameter<edm::InputTag> ("genEventScale");
+  mctruth_          = conf.getParameter<edm::InputTag> ("mctruth");
+  genEventScale_    = conf.getParameter<edm::InputTag> ("genEventScale");
 
-  l1extramc_  = conf.getParameter<std::string> ("l1extramc");
-  hltresults_ = conf.getParameter<edm::InputTag> ("hltresults");
-  gtReadoutRecord_ = conf.getParameter<edm::InputTag> ("l1GtReadoutRecord");
-  gtObjectMap_ = conf.getParameter<edm::InputTag> ("l1GtObjectMapRecord");
-  gctCounts_ = conf.getParameter< edm::InputTag >("l1GctCounts");
+  l1extramc_        = conf.getParameter<std::string>   ("l1extramc");
+  hltresults_       = conf.getParameter<edm::InputTag> ("hltresults");
+  gtReadoutRecord_  = conf.getParameter<edm::InputTag> ("l1GtReadoutRecord");
+  gtObjectMap_      = conf.getParameter<edm::InputTag> ("l1GtObjectMapRecord");
+  gctCounts_        = conf.getParameter<edm::InputTag> ("l1GctCounts");
 
-  MuCandTag2_ = conf.getParameter<edm::InputTag> ("MuCandTag2");
-  MuIsolTag2_ = conf.getParameter<edm::InputTag> ("MuIsolTag2");
-  MuCandTag3_ = conf.getParameter<edm::InputTag> ("MuCandTag3");
-  MuIsolTag3_ = conf.getParameter<edm::InputTag> ("MuIsolTag3");
-  MuLinkTag_ = conf.getParameter<edm::InputTag> ("MuLinkTag");
+  MuCandTag2_       = conf.getParameter<edm::InputTag> ("MuCandTag2");
+  MuIsolTag2_       = conf.getParameter<edm::InputTag> ("MuIsolTag2");
+  MuCandTag3_       = conf.getParameter<edm::InputTag> ("MuCandTag3");
+  MuIsolTag3_       = conf.getParameter<edm::InputTag> ("MuIsolTag3");
+  MuLinkTag_        = conf.getParameter<edm::InputTag> ("MuLinkTag");
+  myHLTTau_         = conf.getParameter<edm::InputTag> ("HLTTau");
 
-  myHLTTau_ = conf.getParameter<edm::InputTag> ("HLTTau");
+  errCnt = 0;
 
-  errCnt=0;
-
-  edm::ParameterSet myAnaParams = conf.getParameter<edm::ParameterSet>("RunParameters") ;
+  edm::ParameterSet myAnaParams = conf.getParameter<edm::ParameterSet> ("RunParameters") ;
   vector<std::string> parameterNames = myAnaParams.getParameterNames() ;
   for ( vector<std::string>::iterator iParam = parameterNames.begin();
 	iParam != parameterNames.end(); iParam++ ){
@@ -74,12 +73,12 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
 
   // Setup the different analysis
   jet_analysis_.setup(conf, HltTree);
+  bjet_analysis_.setup(conf, HltTree);
   elm_analysis_.setup(conf, HltTree);
   muon_analysis_.setup(conf, HltTree);
   mct_analysis_.setup(conf, HltTree);
   hlt_analysis_.setup(conf, HltTree);
   evt_header_.setup(HltTree);
-
 }
 
 // Boiler-plate "analyze" method declaration for an analyzer module.
@@ -116,9 +115,8 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   edm::Handle<RecoChargedCandidateCollection> mucands2,mucands3,mucands2Dummy,mucands3Dummy;
   edm::Handle<edm::ValueMap <bool> > isoMap2,isoMap3,isoMap2Dummy,isoMap3Dummy;
   edm::Handle<MuonTrackLinksCollection> mulinks,mulinksDummy;
-
   edm::Handle<reco::HLTTauCollection> myHLTTau,myHLTTauDummy;
-  
+
   // Extract objects (event fragments)
   // Reco Jets and Missing ET
   iEvent.getByLabel(recjets_,recjets);
@@ -191,9 +189,8 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   if (! isoMap3.isValid()    ) { errMsg += "  -- No L3 muon isolation map"; isoMap3 = isoMap3Dummy;}
   if (! mulinks.isValid()    ) { errMsg += "  -- No L3 muon link"; mulinks = mulinksDummy;}
 
-  if (! myHLTTau.isValid()  ) { errMsg +="  -- No Tau candidates"; myHLTTau = myHLTTauDummy;}
+  if (! myHLTTau.isValid()   ) { errMsg += "  -- No Tau candidates"; myHLTTau = myHLTTauDummy;}
 
-  
   if ((errMsg != "") && (errCnt < errMax())){
     errCnt=errCnt+1;
     errMsg=errMsg + ".";
@@ -204,7 +201,6 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     }
   }
 
-
   // run the analysis, passing required event fragments
   jet_analysis_.analyze(*recjets,*genjets, *recmet,*genmet, *ht, *myHLTTau, *caloTowers, HltTree);
   muon_analysis_.analyze(*muon, *mucands2, *isoMap2, *mucands3, *isoMap3, *mulinks, HltTree);
@@ -212,6 +208,8 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   mct_analysis_.analyze(*mctruth,*genEventScale,HltTree);
   hlt_analysis_.analyze(*hltresults,*l1extemi,*l1extemn,*l1extmu,*l1extjetc,*l1extjetf,*l1exttaujet,*l1extmet,
 			*l1GtRR.product(),*l1GtOMRec.product(),*l1GctCounts,HltTree);
+  bjet_analysis_.analyze(iEvent, iSetup, HltTree);
+
   evt_header_.analyze(iEvent, HltTree);
 
   // std::cout << " Ending Event Analysis" << std::endl;

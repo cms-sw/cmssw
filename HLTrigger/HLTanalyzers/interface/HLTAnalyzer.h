@@ -3,6 +3,7 @@
 #include "HLTrigger/HLTanalyzers/interface/HLTEgamma.h"
 #include "HLTrigger/HLTanalyzers/interface/HLTInfo.h"
 #include "HLTrigger/HLTanalyzers/interface/HLTJets.h"
+#include "HLTrigger/HLTanalyzers/interface/HLTBJet.h"
 #include "HLTrigger/HLTanalyzers/interface/HLTMCtruth.h"
 #include "HLTrigger/HLTanalyzers/interface/HLTMuon.h"
 #include "HLTrigger/HLTanalyzers/interface/EventHeader.h"
@@ -45,11 +46,12 @@ private:
   ///Default analyses
 
   EventHeader evt_header_;
-  HLTJets jet_analysis_;
-  HLTMuon muon_analysis_;
-  HLTEgamma elm_analysis_;
-  HLTMCtruth mct_analysis_;
-  HLTInfo hlt_analysis_;
+  HLTJets     jet_analysis_;
+  HLTBJet     bjet_analysis_;
+  HLTMuon     muon_analysis_;
+  HLTEgamma   elm_analysis_;
+  HLTMCtruth  mct_analysis_;
+  HLTInfo     hlt_analysis_;
 
   edm::InputTag recjets_,genjets_,recmet_,genmet_,ht_, calotowers_,hltresults_,genEventScale_;
   edm::InputTag Electron_,Photon_,muon_;
