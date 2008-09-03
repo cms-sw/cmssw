@@ -17,8 +17,8 @@ class DetId;
 
 /** \class CaloTowersCreationAlgo
   *  
-  * $Date: 2008/04/22 13:47:40 $
-  * $Revision: 1.11 $
+  * $Date: 2008/07/18 01:46:03 $
+  * $Revision: 1.12 $
   * \author R. Wilkinson - Caltech
   */
 
@@ -41,9 +41,10 @@ public:
     double EcutTower, double EBSumThreshold, double EESumThreshold, bool useHO,
     // (for momentum reconstruction algorithm)
     int momConstrMethod,
-    double momEmDepth,
-    double momHadDepth,
-    double momTotDepth
+    double momHBDepth,
+    double momHEDepth,
+    double momEBDepth,
+    double momEEDepth
     );
   
   CaloTowersCreationAlgo(double EBthreshold, double EEthreshold, double HcalThreshold,
@@ -63,9 +64,10 @@ public:
     double EcutTower, double EBSumThreshold, double EESumThreshold, bool useHO,
     // (for momentum reconstruction algorithm)
     int momConstrMethod,
-    double momEmDepth,
-    double momHadDepth,
-    double momTotDepth
+    double momHBDepth,
+    double momHEDepth,
+    double momEBDepth,
+    double momEEDepth
     );
   
   void setGeometry(const CaloTowerConstituentsMap* cttopo, const HcalTopology* htopo, const CaloGeometry* geo);
@@ -93,13 +95,6 @@ public:
   void setHOEScale(double scale);
   void setHF1EScale(double scale);
   void setHF2EScale(double scale);
-/*
-   // set momentum construction method and parameters
-  void setMomConstrMethod(int methodId);
-  void setMomEmDepth(double momEmDepth);
-  void setMomHadDepth(double momHadDepth);
-  void setMomTotDepth(double momTotDepth);
-*/
 
 
   // Add methods to get the seperate positions for ECAL/HCAL 
@@ -180,7 +175,12 @@ private:
   int theMomConstrMethod;
   double theMomEmDepth;
   double theMomHadDepth;
-  double theMomTotDepth;
+
+  double theMomHBDepth;
+  double theMomHEDepth;
+  double theMomEBDepth;
+  double theMomEEDepth;
+
 
  // compactify timing info
   

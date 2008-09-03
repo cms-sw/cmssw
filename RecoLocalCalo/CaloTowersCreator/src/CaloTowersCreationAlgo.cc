@@ -52,136 +52,140 @@ CaloTowersCreationAlgo::CaloTowersCreationAlgo()
    theHOIsUsed(true),
    // (for momentum reconstruction algorithm)
    theMomConstrMethod(0),
-   theMomEmDepth(0.),
-   theMomHadDepth(0.),
-   theMomTotDepth(0.)
+   theMomHBDepth(0.),
+   theMomHEDepth(0.),
+   theMomEBDepth(0.),
+   theMomEEDepth(0.)
+
 {
 }
 
 CaloTowersCreationAlgo::CaloTowersCreationAlgo(double EBthreshold, double EEthreshold, double HcalThreshold,
-    double HBthreshold, double HESthreshold, double  HEDthreshold,
-    double HOthreshold, double HF1threshold, double HF2threshold,
-    double EBweight, double EEweight,
-    double HBweight, double HESweight, double HEDweight,
-    double HOweight, double HF1weight, double HF2weight,
-    double EcutTower, double EBSumThreshold, double EESumThreshold,
-    bool useHO,
+					       double HBthreshold, double HESthreshold, double  HEDthreshold,
+					       double HOthreshold, double HF1threshold, double HF2threshold,
+					       double EBweight, double EEweight,
+					       double HBweight, double HESweight, double HEDweight,
+					       double HOweight, double HF1weight, double HF2weight,
+					       double EcutTower, double EBSumThreshold, double EESumThreshold,
+					       bool useHO,
+					       // (momentum reconstruction algorithm)
+					       int momConstrMethod,
+					       double momHBDepth,
+					       double momHEDepth,
+					       double momEBDepth,
+					       double momEEDepth)
+  : theEBthreshold(EBthreshold),
+    theEEthreshold(EEthreshold),
+    theHcalThreshold(HcalThreshold),
+    theHBthreshold(HBthreshold),
+    theHESthreshold(HESthreshold),
+    theHEDthreshold(HEDthreshold),
+    theHOthreshold(HOthreshold),
+    theHF1threshold(HF1threshold),
+    theHF2threshold(HF2threshold),
+    theEBGrid(std::vector<double>(5,10.)),
+    theEBWeights(std::vector<double>(5,1.)),
+    theEEGrid(std::vector<double>(5,10.)),
+    theEEWeights(std::vector<double>(5,1.)),
+    theHBGrid(std::vector<double>(5,10.)),
+    theHBWeights(std::vector<double>(5,1.)),
+    theHESGrid(std::vector<double>(5,10.)),
+    theHESWeights(std::vector<double>(5,1.)),
+    theHEDGrid(std::vector<double>(5,10.)),
+    theHEDWeights(std::vector<double>(5,1.)),
+    theHOGrid(std::vector<double>(5,10.)),
+    theHOWeights(std::vector<double>(5,1.)),
+    theHF1Grid(std::vector<double>(5,10.)),
+    theHF1Weights(std::vector<double>(5,1.)),
+    theHF2Grid(std::vector<double>(5,10.)),
+    theHF2Weights(std::vector<double>(5,1.)),
+    theEBweight(EBweight),
+    theEEweight(EEweight),
+    theHBweight(HBweight),
+    theHESweight(HESweight),
+    theHEDweight(HEDweight),
+    theHOweight(HOweight),
+    theHF1weight(HF1weight),
+    theHF2weight(HF2weight),
+    theEcutTower(EcutTower),
+    theEBSumThreshold(EBSumThreshold),
+    theEESumThreshold(EESumThreshold),
+    theHOIsUsed(useHO),
     // (momentum reconstruction algorithm)
-    int momConstrMethod,
-    double momEmDepth,
-    double momHadDepth,
-    double momTotDepth)
+    theMomConstrMethod(momConstrMethod),
+    theMomHBDepth(momHBDepth),
+    theMomHEDepth(momHEDepth),
+    theMomEBDepth(momEBDepth),
+    theMomEEDepth(momEEDepth)
 
- : theEBthreshold(EBthreshold),
-   theEEthreshold(EEthreshold),
-   theHcalThreshold(HcalThreshold),
-   theHBthreshold(HBthreshold),
-   theHESthreshold(HESthreshold),
-   theHEDthreshold(HEDthreshold),
-   theHOthreshold(HOthreshold),
-   theHF1threshold(HF1threshold),
-   theHF2threshold(HF2threshold),
-   theEBGrid(std::vector<double>(5,10.)),
-   theEBWeights(std::vector<double>(5,1.)),
-   theEEGrid(std::vector<double>(5,10.)),
-   theEEWeights(std::vector<double>(5,1.)),
-   theHBGrid(std::vector<double>(5,10.)),
-   theHBWeights(std::vector<double>(5,1.)),
-   theHESGrid(std::vector<double>(5,10.)),
-   theHESWeights(std::vector<double>(5,1.)),
-   theHEDGrid(std::vector<double>(5,10.)),
-   theHEDWeights(std::vector<double>(5,1.)),
-   theHOGrid(std::vector<double>(5,10.)),
-   theHOWeights(std::vector<double>(5,1.)),
-   theHF1Grid(std::vector<double>(5,10.)),
-   theHF1Weights(std::vector<double>(5,1.)),
-   theHF2Grid(std::vector<double>(5,10.)),
-   theHF2Weights(std::vector<double>(5,1.)),
-   theEBweight(EBweight),
-   theEEweight(EEweight),
-   theHBweight(HBweight),
-   theHESweight(HESweight),
-   theHEDweight(HEDweight),
-   theHOweight(HOweight),
-   theHF1weight(HF1weight),
-   theHF2weight(HF2weight),
-   theEcutTower(EcutTower),
-   theEBSumThreshold(EBSumThreshold),
-   theEESumThreshold(EESumThreshold),
-   theHOIsUsed(useHO),
-   // (momentum reconstruction algorithm)
-   theMomConstrMethod(momConstrMethod),
-   theMomEmDepth(momEmDepth),
-   theMomHadDepth(momHadDepth),
-   theMomTotDepth(momTotDepth)
 {
 }
 
 CaloTowersCreationAlgo::CaloTowersCreationAlgo(double EBthreshold, double EEthreshold, double HcalThreshold,
-    double HBthreshold, double HESthreshold, double  HEDthreshold,
-    double HOthreshold, double HF1threshold, double HF2threshold,
-    std::vector<double> EBGrid, std::vector<double> EBWeights,
-    std::vector<double> EEGrid, std::vector<double> EEWeights,
-    std::vector<double> HBGrid, std::vector<double> HBWeights,
-    std::vector<double> HESGrid, std::vector<double> HESWeights,
-    std::vector<double> HEDGrid, std::vector<double> HEDWeights,
-    std::vector<double> HOGrid, std::vector<double> HOWeights,
-    std::vector<double> HF1Grid, std::vector<double> HF1Weights,
-    std::vector<double> HF2Grid, std::vector<double> HF2Weights,
-    double EBweight, double EEweight,
-    double HBweight, double HESweight, double HEDweight,
-    double HOweight, double HF1weight, double HF2weight,
-    double EcutTower, double EBSumThreshold, double EESumThreshold,
-    bool useHO,
-    // (for the momentum construction algorithm)
-    int momConstrMethod,
-    double momEmDepth,
-    double momHadDepth,
-    double momTotDepth
-    )
-
- : theEBthreshold(EBthreshold),
-   theEEthreshold(EEthreshold),
-   theHcalThreshold(HcalThreshold),
-   theHBthreshold(HBthreshold),
-   theHESthreshold(HESthreshold),
-   theHEDthreshold(HEDthreshold),
-   theHOthreshold(HOthreshold),
-   theHF1threshold(HF1threshold),
-   theHF2threshold(HF2threshold),
-   theEBGrid(EBGrid),
-   theEBWeights(EBWeights),
-   theEEGrid(EEGrid),
-   theEEWeights(EEWeights),
-   theHBGrid(HBGrid),
-   theHBWeights(HBWeights),
-   theHESGrid(HESGrid),
-   theHESWeights(HESWeights),
-   theHEDGrid(HEDGrid),
-   theHEDWeights(HEDWeights),
-   theHOGrid(HOGrid),
-   theHOWeights(HOWeights),
-   theHF1Grid(HF1Grid),
-   theHF1Weights(HF1Weights),
-   theHF2Grid(HF2Grid),
-   theHF2Weights(HF2Weights),
-   theEBweight(EBweight),
-   theEEweight(EEweight),
-   theHBweight(HBweight),
-   theHESweight(HESweight),
-   theHEDweight(HEDweight),
-   theHOweight(HOweight),
-   theHF1weight(HF1weight),
-   theHF2weight(HF2weight),
-   theEcutTower(EcutTower),
-   theEBSumThreshold(EBSumThreshold),
-   theEESumThreshold(EESumThreshold),
-   theHOIsUsed(useHO),
-   // (momentum reconstruction algorithm)
-   theMomConstrMethod(momConstrMethod),
-   theMomEmDepth(momEmDepth),
-   theMomHadDepth(momHadDepth),
-   theMomTotDepth(momTotDepth)
+					       double HBthreshold, double HESthreshold, double  HEDthreshold,
+					       double HOthreshold, double HF1threshold, double HF2threshold,
+					       std::vector<double> EBGrid, std::vector<double> EBWeights,
+					       std::vector<double> EEGrid, std::vector<double> EEWeights,
+					       std::vector<double> HBGrid, std::vector<double> HBWeights,
+					       std::vector<double> HESGrid, std::vector<double> HESWeights,
+					       std::vector<double> HEDGrid, std::vector<double> HEDWeights,
+					       std::vector<double> HOGrid, std::vector<double> HOWeights,
+					       std::vector<double> HF1Grid, std::vector<double> HF1Weights,
+					       std::vector<double> HF2Grid, std::vector<double> HF2Weights,
+					       double EBweight, double EEweight,
+					       double HBweight, double HESweight, double HEDweight,
+					       double HOweight, double HF1weight, double HF2weight,
+					       double EcutTower, double EBSumThreshold, double EESumThreshold,
+					       bool useHO,
+					       // (for the momentum construction algorithm)
+					       int momConstrMethod,
+					       double momHBDepth,
+					       double momHEDepth,
+					       double momEBDepth,
+					       double momEEDepth)
+  : theEBthreshold(EBthreshold),
+    theEEthreshold(EEthreshold),
+    theHcalThreshold(HcalThreshold),
+    theHBthreshold(HBthreshold),
+    theHESthreshold(HESthreshold),
+    theHEDthreshold(HEDthreshold),
+    theHOthreshold(HOthreshold),
+    theHF1threshold(HF1threshold),
+    theHF2threshold(HF2threshold),
+    theEBGrid(EBGrid),
+    theEBWeights(EBWeights),
+    theEEGrid(EEGrid),
+    theEEWeights(EEWeights),
+    theHBGrid(HBGrid),
+    theHBWeights(HBWeights),
+    theHESGrid(HESGrid),
+    theHESWeights(HESWeights),
+    theHEDGrid(HEDGrid),
+    theHEDWeights(HEDWeights),
+    theHOGrid(HOGrid),
+    theHOWeights(HOWeights),
+    theHF1Grid(HF1Grid),
+    theHF1Weights(HF1Weights),
+    theHF2Grid(HF2Grid),
+    theHF2Weights(HF2Weights),
+    theEBweight(EBweight),
+    theEEweight(EEweight),
+    theHBweight(HBweight),
+    theHESweight(HESweight),
+    theHEDweight(HEDweight),
+    theHOweight(HOweight),
+    theHF1weight(HF1weight),
+    theHF2weight(HF2weight),
+    theEcutTower(EcutTower),
+    theEBSumThreshold(EBSumThreshold),
+    theEESumThreshold(EESumThreshold),
+    theHOIsUsed(useHO),
+    // (momentum reconstruction algorithm)
+    theMomConstrMethod(momConstrMethod),
+    theMomHBDepth(momHBDepth),
+    theMomHEDepth(momHEDepth),
+    theMomEBDepth(momEBDepth),
+    theMomEEDepth(momEEDepth)
 {
 }
 
@@ -309,7 +313,7 @@ void CaloTowersCreationAlgo::rescaleTowers(const CaloTowerCollection& ctc, CaloT
     double f_em  = 1.0/cosh(emPoint.eta());
     double f_had = 1.0/cosh(hadPoint.eta());
 
-    CaloTower::LorentzVector towerP4;
+    CaloTower::PolarLorentzVector towerP4;
 
     if (ctcItr->ietaAbs()<30) {
       if (newE_em>0)     towerP4 += CaloTower::PolarLorentzVector(newE_em*f_em,   emPoint.eta(),  emPoint.phi(),  0); 
@@ -526,8 +530,21 @@ CaloTower CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTo
     double E_had=mt.E_had;
     double E_outer=mt.E_outer;
 
+    // conditional assignment of depths for barrel/endcap
+    // Some additional tuning may be required in the transitional region
+    // 14<|iEta|<19
+    if (id.ietaAbs()<=17) {
+      theMomHadDepth = theMomHBDepth;
+      theMomEmDepth  = theMomEBDepth;
+    }
+    else {
+      theMomHadDepth = theMomHEDepth;
+      theMomEmDepth  = theMomEEDepth;
+    }
+
+
     // Note: E_outer is used to save HO energy OR energy in the outermost depths in endcap region
-    // In the methods with separate treatment of EM and HAd components:
+    // In the methods with separate treatment of EM and HAD components:
     //  - HO is not used to determine direction, however HO energy is added to get "total had energy"
     //  => Check if the tower is within HO coverage before adding E_outer to the "total had" energy
     //     else the energy will be double counted
@@ -566,7 +583,9 @@ CaloTower CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTo
     // create CaloTower using the selected algorithm
 
     GlobalPoint emPoint, hadPoint;
-    CaloTower::LorentzVector towerP4;
+
+    CaloTower::PolarLorentzVector towerP4;
+    
 
   switch (theMomConstrMethod) {
 
@@ -609,72 +628,6 @@ CaloTower CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTo
     break;
 
   case 2:
-    {   // use ECAL, HCAL shower position to get weighted overall position, assign full energy to get the 4-vector of the tower (massless tower)
-      if (id.ietaAbs()<=29) {
-        if (E_em>0)  emPoint = emShwrPos(metaContains, theMomEmDepth, E_em);
-        double E_had_tot = (theHOIsUsed && id.ietaAbs()<16)? E_had+E_outer : E_had; 
-        if (E_had>0) hadPoint  = hadShwrPos(metaContains, theMomHadDepth, E_had_tot);
-
-        // common point for EM/HAD components based on predefined depths
-        GlobalPoint p = GlobalPoint( 
-          (E_em*emPoint.x()+E_had_tot*hadPoint.x())/E,
-          (E_em*emPoint.y()+E_had_tot*hadPoint.y())/E,
-          (E_em*emPoint.z()+E_had_tot*hadPoint.z())/E
-          );
-
-        double sumPf = 1.0/cosh(p.eta());
-        if (E>0) towerP4 = CaloTower::PolarLorentzVector(E*sumPf, p.eta(), p.phi(), 0); 
-
-        emPoint  = p;   
-        hadPoint = p;
-
-      }
-      else {  // forward detector: use the CaloTower position 
-        GlobalPoint p=theTowerGeometry->getGeometry(id)->getPosition();
-        double pf=1.0/cosh(p.eta());
-        if (E>0) towerP4 = CaloTower::PolarLorentzVector(E*pf, p.eta(), p.phi(), 0);  // simple momentum assignment, same position
-        emPoint  = p;   
-        hadPoint = p;
-      }
-    }  // end case 2
-    break;
-
-  case 3:
-    {   // separate 4-vectors for ECAL crystals, and HCAL; add to get the 4-vector of the tower (tower has mass!)
-      if (id.ietaAbs()<=29) {
-        if (E_em>0) {
-          
-          emPoint   = emShwrPos(metaContains, theMomEmDepth, E_em);
-          for (std::vector<std::pair<DetId,double> >::iterator mc_it = metaContains.begin(); 
-            mc_it!=metaContains.end(); ++mc_it) {
-              if (mc_it->first.det() == DetId::Ecal) {
-                GlobalPoint p = emCrystalShwrPos(mc_it->first.det(), theMomEmDepth);
-                double pf=1.0/cosh(p.eta());
-                double e = mc_it->second;
-                towerP4 += CaloTower::PolarLorentzVector(e*pf, p.eta(), p.phi(), 0); 
-              }
-          }                    
-          emPoint   = emShwrPos(metaContains, theMomEmDepth, E_em);
-        }
-        if (E_had>0) {
-          double E_had_tot = (theHOIsUsed && id.ietaAbs()<16)? E_had+E_outer : E_had; 
-//          hadPoint = hadShwrPos(metaContains, theMomHadDepth, E_had_tot);
-          hadPoint  = hadShwrPos(id, theMomHadDepth);
-          double hadPf = 1.0/cosh(hadPoint.eta());
-          towerP4 += CaloTower::PolarLorentzVector(E_had_tot*hadPf, hadPoint.eta(), hadPoint.phi(), 0); 
-        }
-      }
-      else {  // forward detector: use the CaloTower position 
-        GlobalPoint p=theTowerGeometry->getGeometry(id)->getPosition();
-        double pf=1.0/cosh(p.eta());
-        towerP4 = CaloTower::PolarLorentzVector(E*pf, p.eta(), p.phi(), 0);  // simple momentum assignment, same position
-        emPoint  = p;   
-        hadPoint = p;
-      }
-    }  // end case 3
-    break;
-
-  case 4:
     {   // use ECAL position for the tower (when E_cal>0), else default CaloTower position (massless tower)
       if (id.ietaAbs()<=29) {
         if (E_em>0)  emPoint = emShwrLogWeightPos(metaContains, theMomEmDepth, E_em);
@@ -692,13 +645,11 @@ CaloTower CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTo
         emPoint  = p;   
         hadPoint = p;
       }
-    }   // end case 4
+    }   // end case 2
     break;
 
   }  // end of decision on p4 reconstruction method
 
-
-//    CaloTower::LorentzVector lv = caloTowerMomentum(id, metaContains, E, E_em, E_had, E_outer);
 
     CaloTower retval(id, E_em, E_had, E_outer, -1, -1, towerP4, emPoint, hadPoint);
 

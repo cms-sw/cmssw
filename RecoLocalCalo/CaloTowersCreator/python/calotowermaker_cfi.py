@@ -1,8 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 calotowermaker = cms.EDFilter("CaloTowersCreator",
-    # Depth, fraction of the respective calorimeter [0,1]
-    MomEmDepth = cms.double(0.0),
     # Energy threshold for EB 5x5 crystal inclusion [GeV]
     EBSumThreshold = cms.double(0.2),
     # Weighting factor for HF short-fiber readouts
@@ -26,8 +24,6 @@ calotowermaker = cms.EDFilter("CaloTowersCreator",
     EEGrid = cms.untracked.vdouble(-1.0, 1.0, 10.0, 100.0, 1000.0),
     # Weighting factor for HE 10-degree cells   
     HEDWeight = cms.double(1.0),
-    # Method for momentum reconstruction
-    MomConstrMethod = cms.int32(0),
     # Weighting factor for EE   
     EEWeight = cms.double(1.0),
     # HO on/off flag for tower energy reconstruction
@@ -60,12 +56,9 @@ calotowermaker = cms.EDFilter("CaloTowersCreator",
     hoInput = cms.InputTag("horeco"),
     HESGrid = cms.untracked.vdouble(-1.0, 1.0, 10.0, 100.0, 1000.0),
     #
-    MomTotDepth = cms.double(0.0),
     HESWeights = cms.untracked.vdouble(1.0, 1.0, 1.0, 1.0, 1.0),
     # Energy threshold for 10-degree (phi) HE cel inclusion [GeV]
     HEDThreshold = cms.double(1.4),
-    #
-    MomHadDepth = cms.double(0.0),
     # Global energy threshold on tower [GeV]
     EcutTower = cms.double(-1000.0),
     HEDGrid = cms.untracked.vdouble(-1.0, 1.0, 10.0, 100.0, 1000.0),
@@ -75,7 +68,17 @@ calotowermaker = cms.EDFilter("CaloTowersCreator",
     HBWeight = cms.double(1.0),
     HOGrid = cms.untracked.vdouble(-1.0, 1.0, 10.0, 100.0, 1000.0),
     # Energy dependent weights and energy scale to be used
-    EBGrid = cms.untracked.vdouble(-1.0, 1.0, 10.0, 100.0, 1000.0)
+    EBGrid = cms.untracked.vdouble(-1.0, 1.0, 10.0, 100.0, 1000.0),
+    #
+    #
+    # momentum assignment
+    # Method for momentum reconstruction
+    MomConstrMethod = cms.int32(1),                           
+    # Depth, fraction of the respective calorimeter [0,1]
+    MomHBDepth = cms.double(0.2),
+    MomHEDepth = cms.double(0.4),   
+    MomEBDepth = cms.double(0.3),
+    MomEEDepth = cms.double(0.0)
 )
 
 
