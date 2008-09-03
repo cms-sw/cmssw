@@ -5,7 +5,7 @@
  *
  *  Original Authors: Jim Kowalkowski 13-01-06
  *                    Martin Grunewald
- *  $Id: TriggerResults.h,v 1.9 2007/12/21 22:46:51 wmtan Exp $
+ *  $Id: TriggerResults.h,v 1.10 2008/05/16 00:29:10 paterno Exp $
  *
  *  The trigger path results are maintained here as a sequence of
  *  entries, one per trigger path.  They are assigned in the order
@@ -22,6 +22,7 @@
  *  no longer used.  It is kept for backward compatibility reasons.
  *  In early versions of the code, the trigger results paths names
  *  were stored there.
+ *  NOTE: In the latest code, this data member has been removed.
  *
  */
 
@@ -43,21 +44,16 @@ namespace edm
     /// Parameter set id
     edm::ParameterSetID psetid_;
 
-    /// Not used anymore
-    Strings             names_;
 
   public:
 
     /// Trivial contructor
-    TriggerResults() : HLTGlobalStatus(), psetid_(), names_() { }
+    TriggerResults() : HLTGlobalStatus(), psetid_() { }
 
     /// Standard contructor
     TriggerResults(const HLTGlobalStatus& hlt, const edm::ParameterSetID& psetid)
-      : HLTGlobalStatus(hlt), psetid_(psetid), names_() { }
+      : HLTGlobalStatus(hlt), psetid_(psetid) { }
 
-    /// Not used anymore
-    TriggerResults(const HLTGlobalStatus& hlt, const Strings& names)
-      : HLTGlobalStatus(hlt), psetid_(), names_(names) { }
 
     /// Get stored parameter set id
     const ParameterSetID& parameterSetID() const { return psetid_; }
@@ -66,8 +62,6 @@ namespace edm
     void swap(TriggerResults& other) {
       this->HLTGlobalStatus::swap(other);
       psetid_.swap(other.psetid_);
-      // next line not used any more
-      names_.swap(other.names_);
     }
 
     /// Copy assignment using swap.
@@ -77,21 +71,6 @@ namespace edm
       return *this;
     }
 
-    // The next three functions are OBSOLETE and should only be used for backward
-    // compatibility to older data.  The names_ vector is always empty in new data.
-
-    /// Obsolete
-    const std::vector<std::string>& getTriggerNames() const { return names_; }
-
-    /// Obsolete
-    const std::string& name(unsigned int i) const {return names_.at(i);}
-
-    /// Obsolete
-    unsigned int find (const std::string& name) const {
-      const unsigned int n(size());
-      for (unsigned int i = 0; i != n; ++i) if (names_[i] == name) return i;
-      return n;
-    }
   };
 
   // Free swap function
