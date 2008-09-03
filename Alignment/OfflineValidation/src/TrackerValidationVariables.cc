@@ -48,7 +48,7 @@ TrackerValidationVariables::TrackerValidationVariables(){}
 
 
 TrackerValidationVariables::TrackerValidationVariables(const edm::EventSetup& es, const edm::ParameterSet& iSetup) 
-  : conf_(iSetup), fBfield(4.06)
+  : conf_(iSetup)
 {
   es.get<TrackerDigiGeometryRecord>().get( tkGeom_ );
   es.get<IdealMagneticFieldRecord>().get(magneticField_);
@@ -65,7 +65,7 @@ TrackerValidationVariables::fillHitQuantities(const edm::Event& iEvent,
   iEvent.getByLabel(conf_.getParameter<std::string>("trajectoryInput"),trajCollectionHandle);
   
   TrajectoryStateCombiner tsoscomb;
-  edm::LogVerbatim("TrackerValidationVariables") << "trajColl->size(): " << trajCollectionHandle->size() ;
+  LogDebug("TrackerValidationVariables") << "trajColl->size(): " << trajCollectionHandle->size() ;
   for(std::vector<Trajectory>::const_iterator it = trajCollectionHandle->begin(), itEnd = trajCollectionHandle->end(); 
       it!=itEnd;++it){
     std::vector<TrajectoryMeasurement> tmColl = it->measurements();
@@ -103,7 +103,7 @@ TrackerValidationVariables::fillHitQuantities(const edm::Event& iEvent,
 	// begin partly copied from Tifanalyser 
 
 	const GeomDetUnit* detUnit = hit->detUnit();
-	double dPhi = -999, dR = -999, dZ = -999, phiorientation = -999;
+	double dPhi = -999, dR = -999, dZ = -999, phiorientation = -999, zorientation = -999;
 	double R = 0.;
 	double origintointersect = 0.;	
 
@@ -118,7 +118,7 @@ TrackerValidationVariables::fillHitQuantities(const edm::Event& iEvent,
 	    gPhiDirection  = surface.toGlobal(lPhiDirection),
 	    gROrZDirection = surface.toGlobal(lROrZDirection);
 	  phiorientation = deltaPhi(gPhiDirection.phi(),gPModule.phi()) >= 0 ? +1. : -1.;
-
+	  zorientation = gROrZDirection.z() - gPModule.z() >= 0 ? +1. : -1.;
 	  dPhi = tsos.globalPosition().phi() - hit->globalPosition().phi();
 	  
 	  if(IntSubDetID == PixelSubdetector::PixelBarrel || IntSubDetID == PixelSubdetector::PixelEndcap || 
@@ -126,6 +126,8 @@ TrackerValidationVariables::fillHitQuantities(const edm::Event& iEvent,
 	     IntSubDetID == StripSubdetector::TOB) {
 	    hitStruct.resXprime = (res.x())*(phiorientation );
 	    hitStruct.resXprimeErr = errX;
+	    hitStruct.resYprime = (res.y())*(zorientation );
+	    hitStruct.resYprimeErr = errY;
 	    dZ = gROrZDirection.z() - gPModule.z();
 	  } else if (IntSubDetID == StripSubdetector::TID || IntSubDetID == StripSubdetector::TEC) {
 	    const RadialStripTopology* theTopol = dynamic_cast<const RadialStripTopology*>(&(detUnit->topology()));
@@ -140,8 +142,10 @@ TrackerValidationVariables::fillHitQuantities(const edm::Event& iEvent,
 	    MeasurementError theMeasStateErr = theTopol->measurementError(tsos.localPosition(),err1);
 
 	    double localPitch = theTopol->localPitch(hit->localPosition());
+	    double localStripLength =  theTopol->localStripLength(hit->localPosition());
 	    float xPrime = residual.x()*localPitch ;
 	    float measErr = std::sqrt( theMeasHitErr.uu()+theMeasStateErr.uu()) *localPitch;
+	    float measErrY = std::sqrt( theMeasHitErr.vv()+theMeasStateErr.vv()) *localStripLength;
 
 	    R = origintointersect;
 	    dR = theTopol->yDistanceToIntersection( tsos.localPosition().y()) - 
@@ -149,6 +153,9 @@ TrackerValidationVariables::fillHitQuantities(const edm::Event& iEvent,
 	    
 	    hitStruct.resXprime = xPrime;
 	    hitStruct.resXprimeErr = measErr;
+	    hitStruct.resYprime = residual.y()*localStripLength;
+	    hitStruct.resYprimeErr =  measErrY * localStripLength;
+	    
 	  } else {
 	    edm::LogWarning("TrackerValidationVariables") << "@SUB=TrackerValidationVariables::fillHitQuantities" 
 							  << "No valid tracker subdetector " << IntSubDetID;
@@ -166,6 +173,7 @@ TrackerValidationVariables::fillHitQuantities(const edm::Event& iEvent,
 	hitStruct.phi = tsos.globalDirection().phi();
 
 	// first try for overlapp residuals
+	// based on Code from Keith and Wolfgang
 	if(itTraj+1 != itTrajEnd) {
 	  TransientTrackingRecHit::ConstRecHitPointer hit2 = (itTraj+1)->recHit();
 	  TrackerAlignableId ali1, ali2;
@@ -235,7 +243,7 @@ TrackerValidationVariables::fillTrackQuantities(const edm::Event& iEvent,
   edm::InputTag TkTag = conf_.getParameter<edm::InputTag>("Tracks");
   edm::Handle<reco::TrackCollection> RecoTracks;
   iEvent.getByLabel(TkTag,RecoTracks);
-  edm::LogInfo("TrackInfoAnalyzerExample")<<"track collection size "<< RecoTracks->size();
+  LogDebug("TrackerValidationVariables")<<"track collection size "<< RecoTracks->size();
   
   // Put here all track based quantities such as eta, phi, pt,.... 
   int i=0;
