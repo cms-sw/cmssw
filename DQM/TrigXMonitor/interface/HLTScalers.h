@@ -1,12 +1,17 @@
 // -*-c++-*-
 // 
 //
-// $Id: HLTScalers.h,v 1.10 2008/09/02 02:37:21 wittich Exp $
+// $Id: HLTScalers.h,v 1.11 2008/09/03 02:13:47 wittich Exp $
 // Class to collect HLT scaler information 
 // for Trigger Cross Section Monitor
 // [wittich 11/07] 
 
 // $Log: HLTScalers.h,v $
+// Revision 1.11  2008/09/03 02:13:47  wittich
+// - bug fix in L1Scalers
+// - configurable dqm directory in L1SCalers
+// - other minor tweaks in HLTScalers
+//
 // Revision 1.10  2008/09/02 02:37:21  wittich
 // - split L1 code from HLTScalers into L1Scalers
 // - update cfi file accordingly
@@ -101,6 +106,7 @@ private:
   MonitorElement *scalersException_;
   MonitorElement *hltCorrelations_;
   MonitorElement *detailedScalers_;
+  std::string folderName_; // dqm folder name
   MonitorElement *nProc_;
   MonitorElement *nLumiBlock_;
   std::vector<MonitorElement*> hltPathNames_;

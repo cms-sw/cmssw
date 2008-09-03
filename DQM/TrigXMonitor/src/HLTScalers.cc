@@ -1,6 +1,11 @@
-// $Id: HLTScalers.cc,v 1.14 2008/09/02 02:37:22 wittich Exp $
+// $Id: HLTScalers.cc,v 1.15 2008/09/03 02:13:47 wittich Exp $
 // 
 // $Log: HLTScalers.cc,v $
+// Revision 1.15  2008/09/03 02:13:47  wittich
+// - bug fix in L1Scalers
+// - configurable dqm directory in L1SCalers
+// - other minor tweaks in HLTScalers
+//
 // Revision 1.14  2008/09/02 02:37:22  wittich
 // - split L1 code from HLTScalers into L1Scalers
 // - update cfi file accordingly
@@ -10,22 +15,6 @@
 // - rate calculation cleanups
 // - fix error logging with LogDebug
 // - report the actual lumi segment number that we think it might be
-//
-// Revision 1.12  2008/08/22 20:56:55  wittich
-// - add client for HLT Scalers
-// - Move rate calculation to HLTScalersClient and slim down the
-//   filter-farm part of HLTScalers
-//
-// Revision 1.11  2008/08/15 15:39:45  wteo
-// split hltScalers into smaller histos, calculate rates
-//
-// Revision 1.10  2008/08/01 14:37:14  bjbloom
-// Added ability to specify which paths are cross-correlated
-//
-// Revision 1.9  2008/07/04 15:57:18  wittich
-// - move histograms to HLT directory (was in L1T)
-// - add counter for number of lumi sections
-// - attempt to hlt label histo axes locally; disabled (it's illegible)
 //
 
 #include <iostream>
@@ -60,6 +49,8 @@ HLTScalers::HLTScalers(const edm::ParameterSet &ps):
   scalersException_(0),
   hltCorrelations_(0),
   detailedScalers_(0), 
+  folderName_( ps.getUntrackedParameter< std::string>("dqmFolder", 
+					  std::string("HLT/HLTScalers_EvF"))),
   nProc_(0),
   nLumiBlock_(0),
   trigResultsSource_( ps.getParameter< edm::InputTag >("triggerResults")),
@@ -77,7 +68,7 @@ HLTScalers::HLTScalers(const edm::ParameterSet &ps):
   dbe_ = Service<DQMStore>().operator->();
   dbe_->setVerbose(0);
   if (dbe_ ) {
-    dbe_->setCurrentFolder("HLT/HLTScalers");
+    dbe_->setCurrentFolder(folderName_);
   }
   
 
@@ -90,7 +81,7 @@ void HLTScalers::beginJob(const edm::EventSetup& c)
   LogDebug("Status") << "HLTScalers::beginJob()..." << std::endl;
 
   if (dbe_) {
-    dbe_->setCurrentFolder("HLT/HLTScalers");
+    dbe_->setCurrentFolder(folderName_);
 
 
     nProc_ = dbe_->bookInt("nProcessed");
@@ -128,7 +119,7 @@ void HLTScalers::analyze(const edm::Event &e, const edm::EventSetup &c)
     int maxModules = 200;
     //int npaths=hltResults->size();
 
-    dbe_->setCurrentFolder("HLT/HLTScalers");
+    dbe_->setCurrentFolder(folderName_);
 
 
     detailedScalers_ = dbe_->book2D("detailedHltScalers", "HLT Scalers", 
