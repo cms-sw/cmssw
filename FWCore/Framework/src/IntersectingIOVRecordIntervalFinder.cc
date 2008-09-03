@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Aug 19 13:20:41 EDT 2008
-// $Id$
+// $Id: IntersectingIOVRecordIntervalFinder.cc,v 1.1 2008/08/19 20:30:07 chrjones Exp $
 //
 
 // system include files
@@ -75,6 +75,7 @@ IntersectingIOVRecordIntervalFinder::setIntervalFor(const EventSetupRecordKey& i
    }
    
    bool haveAValidRecord = false;
+   bool haveUnknownEnding = false;
    ValidityInterval newInterval(IOVSyncValue::beginOfTime(), IOVSyncValue::endOfTime());
 
    for(std::vector<boost::shared_ptr<EventSetupRecordIntervalFinder> >::iterator it = finders_.begin(),
@@ -88,12 +89,21 @@ IntersectingIOVRecordIntervalFinder::setIntervalFor(const EventSetupRecordKey& i
          if(newInterval.last() > test.last()) {
             newInterval.setLast(test.last());
          }
+         if(test.last() == IOVSyncValue::invalidIOVSyncValue()) {
+            haveUnknownEnding=true;
+         }
+      } else {
+         //if it is invalid then we must check on each new IOVSyncValue so that 
+         // we can find the time when it is valid
+         haveUnknownEnding=true;
       }
    }
    
    if(!haveAValidRecord) {
       //If no Finder has a valid time, then this record is also invalid for this time
       newInterval = ValidityInterval::invalidInterval();
+   } else if(haveUnknownEnding) {
+      newInterval.setLast(IOVSyncValue::invalidIOVSyncValue());
    }
    oInterval = newInterval;
 }
