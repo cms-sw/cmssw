@@ -466,31 +466,28 @@ const int CSCSummary::IsPhysicsReady(const float xmin, const float xmax, const f
   for (adr.station = 1; adr.station <= N_STATIONS; adr.station++) {
 
     unsigned int i = 0;
-    bool was = false;
-    while(detector.NextAddressBox(i, box, adr)) {
-      
-      float xboxmin = (box->xmin < box->xmax ? box->xmin : box->xmax);
-      float xboxmax = (box->xmax > box->xmin ? box->xmax : box->xmin);
-      float yboxmin = (box->ymin < box->ymax ? box->ymin : box->ymax);
-      float yboxmax = (box->ymax > box->ymin ? box->ymax : box->ymin);
-
+    unsigned int px = 0, py = 0;
+    //bool was = false;
+    //while(detector.NextAddressBox(i, box, adr)) {
+    while(detector.NextAddressBoxByPartition(i, px, py, box, adr, xpmin, xpmax, ypmin, ypmax)) {
+      /*
       if (!was) {
-        if ((xpmin < xboxmin && xpmax < xboxmin) || (xpmin > xboxmax && xpmax > xboxmax)) continue;
-        if ((ypmin < yboxmin && ypmax < yboxmin) || (ypmin > yboxmax && ypmax > yboxmax)) continue;
+        if ((xpmin < box->xmin && xpmax < box->xmin) || (xpmin > box->xmax && xpmax > box->xmax)) continue;
+        if ((ypmin < box->ymin && ypmax < box->ymin) || (ypmin > box->ymax && ypmax > box->ymax)) continue;
       } else {
         bool fit = true;
-        if ((xpmin < xboxmin && xpmax < xboxmin) || (xpmin > xboxmax && xpmax > xboxmax)) fit = false;
-        if ((ypmin < yboxmin && ypmax < yboxmin) || (ypmin > yboxmax && ypmax > yboxmax)) {
+        if ((xpmin < box->xmin && xpmax < box->xmin) || (xpmin > box->xmax && xpmax > box->xmax)) fit = false;
+        if ((ypmin < box->ymin && ypmax < box->ymin) || (ypmin > box->ymax && ypmax > box->ymax)) {
           if (!fit) break;
           continue;
         }
         if (!fit) continue;
       }
-
+      */
       tadr = box->adr;
       status[adr.station - 1] |= GetValue(tadr);
 
-      was = true;
+      //was = true;
 
     }
 

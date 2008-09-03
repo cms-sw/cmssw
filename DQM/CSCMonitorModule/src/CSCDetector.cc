@@ -26,6 +26,15 @@
  */
 CSCDetector::CSCDetector() {
 
+  for (unsigned int px = 0; px < PARTITIONX; px++) {
+    for (unsigned int py = 0; py < PARTITIONY; py++) {
+      partitions[px][py].xmin = -2.5 + (5/PARTITIONX * px);
+      partitions[px][py].xmax = partitions[px][py].xmin + (5/PARTITIONX);
+      partitions[px][py].ymin = ((2.0 * 3.14159)/PARTITIONY) * py;
+      partitions[px][py].ymax = partitions[px][py].ymin + ((2.0 * 3.14159)/PARTITIONY);
+    }
+  }
+
   unsigned int i = 0; 
   CSCAddress adr;
 
@@ -63,10 +72,25 @@ CSCDetector::CSCDetector() {
                 float y_max = PhiToY(phi_max);
                 
                 boxes[i].adr = adr;
-                boxes[i].xmin = x_min;
-                boxes[i].xmax = x_max;
-                boxes[i].ymin = y_min;
-                boxes[i].ymax = y_max;
+
+                float xboxmin = (x_min < x_max ? x_min : x_max);
+                float xboxmax = (x_max > x_min ? x_max : x_min);
+                float yboxmin = (y_min < y_max ? y_min : y_max);
+                float yboxmax = (y_max > y_min ? y_max : y_min);
+
+                boxes[i].xmin = xboxmin;
+                boxes[i].xmax = xboxmax;
+                boxes[i].ymin = yboxmin;
+                boxes[i].ymax = yboxmax;
+
+                for (unsigned int px = 0; px < PARTITIONX; px++) {
+                  for (unsigned int py = 0; py < PARTITIONY; py++) {
+                    if ((partitions[px][py].xmin < xboxmin && partitions[px][py].xmax < xboxmin) || (partitions[px][py].xmin > xboxmax && partitions[px][py].xmax > xboxmax)) continue;
+                    if ((partitions[px][py].ymin < yboxmin && partitions[px][py].ymax < yboxmin) || (partitions[px][py].ymin > yboxmax && partitions[px][py].ymax > yboxmax)) continue;
+                    partitions[px][py].boxes.push_back(i);
+                  }
+                }
+
                 i++;
 
               }
@@ -238,6 +262,34 @@ const bool CSCDetector::NextAddressBox(unsigned int& i, const CSCAddressBox*& bo
         i++;
         return true; 
       }
+  }
+  return false;
+}
+
+const bool CSCDetector::NextAddressBoxByPartition (
+    unsigned int& i,
+    unsigned int& px,
+    unsigned int& py,
+    const CSCAddressBox*& box,
+    const CSCAddress& mask,
+    const float xmin, const float xmax,
+    const float ymin, const float ymax) const {
+
+  for(; px < PARTITIONX; px++ ) {
+    for(; py < PARTITIONY; py++ ) {
+      if ((partitions[px][py].xmin < xmin && partitions[px][py].xmax < xmin) || (partitions[px][py].xmin > xmax && partitions[px][py].xmax > xmax)) continue;
+      if ((partitions[px][py].ymin < ymin && partitions[px][py].ymax < ymin) || (partitions[px][py].ymin > ymax && partitions[px][py].ymax > ymax)) continue;
+      for(; i < partitions[px][py].boxes.size(); i++ ) {
+        unsigned int index = partitions[px][py].boxes.at(i);
+        if (boxes[index].adr == mask) {
+          if ((xmin < boxes[index].xmin && xmax < boxes[index].xmin) || (xmin > boxes[index].xmax && xmax > boxes[index].xmax)) continue;
+          if ((ymin < boxes[index].ymin && ymax < boxes[index].ymin) || (ymin > boxes[index].ymax && ymax > boxes[index].ymax)) continue;
+          box = &boxes[index];
+          i++;
+          return true; 
+        }
+      }
+    }
   }
   return false;
 }

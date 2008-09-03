@@ -39,6 +39,8 @@
 #define ADDR_SIZE  7
 
 #define N_ELEMENTS 7740
+#define PARTITIONX 50
+#define PARTITIONY 50
 
 struct CSCAddressMask {
   bool side;
@@ -101,6 +103,14 @@ struct CSCAddressBox {
   float ymax;
 };
 
+struct CSCAddressBoxPartition {
+  float xmin;
+  float xmax;
+  float ymin;
+  float ymax;
+  std::vector<unsigned int> boxes;
+};
+
 class CSCDetector {
 
   public:
@@ -109,6 +119,7 @@ class CSCDetector {
 
     const bool NextAddress(unsigned int& i, const CSCAddress*& adr, const CSCAddress& mask) const;
     const bool NextAddressBox(unsigned int& i, const CSCAddressBox*& box, const CSCAddress& mask) const;
+    const bool NextAddressBoxByPartition(unsigned int& i, unsigned int& px, unsigned int& py, const CSCAddressBox*& box, const CSCAddress& mask, const float xmin, const float xmax, const float ymin, const float ymax) const;
 
     const float Area(const unsigned int station) const;
     const float Area(const CSCAddress& adr) const;
@@ -134,6 +145,7 @@ class CSCDetector {
     const float PhiMaxCFEB(const int station, const int ring, const int chamber, const int cfeb) const;
 
     CSCAddressBox boxes[N_ELEMENTS];
+    CSCAddressBoxPartition partitions[PARTITIONX][PARTITIONY];
     float station_area[N_STATIONS];
 
 };
