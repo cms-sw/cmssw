@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Aug 19 14:14:42 EDT 2008
-// $Id$
+// $Id: intersectingiovrecordintervalfinder_t.cppunit.cc,v 1.1 2008/08/19 20:30:07 chrjones Exp $
 //
 
 // system include files
@@ -113,6 +113,8 @@ testintersectingiovrecordintervalfinder::intersectionTest()
    }
    
    {
+      finders.clear();
+      
       const edm::EventID eID_1(1, 1);
       const edm::IOVSyncValue sync_1(eID_1);
       const edm::EventID eID_3(1, 3);
@@ -129,9 +131,94 @@ testintersectingiovrecordintervalfinder::intersectionTest()
       boost::shared_ptr<DummyFinder> dummyFinder2(new DummyFinder);
       dummyFinder2->setInterval(edm::ValidityInterval(sync_3, sync_5));
       finders.push_back(dummyFinder2);
+      IntersectingIOVRecordIntervalFinder intFinder(dummyRecordKey);
       intFinder.swapFinders(finders);
 
       CPPUNIT_ASSERT(edm::ValidityInterval(sync_3,sync_4) ==
                      intFinder.findIntervalFor(dummyRecordKey, sync_3));
    }
+   
+   {
+      finders.clear();
+      const edm::EventID eID_1(1, 1);
+      const edm::IOVSyncValue sync_1(eID_1);
+      const edm::EventID eID_3(1, 3);
+      const edm::IOVSyncValue sync_3(eID_3);
+      const edm::EventID eID_4(1, 4);
+      const edm::IOVSyncValue sync_4(eID_4);
+      const edm::EventID eID_5(1, 5);
+      const edm::IOVSyncValue sync_5(eID_5);
+      const edm::ValidityInterval definedInterval(sync_1, 
+                                                  sync_4);
+      dummyFinder->setInterval(definedInterval);
+      finders.push_back(dummyFinder);
+      
+      boost::shared_ptr<DummyFinder> dummyFinder2(new DummyFinder);
+      dummyFinder2->setInterval(edm::ValidityInterval::invalidInterval());
+      finders.push_back(dummyFinder2);
+      IntersectingIOVRecordIntervalFinder intFinder(dummyRecordKey);
+      intFinder.swapFinders(finders);
+      
+      CPPUNIT_ASSERT(edm::ValidityInterval::invalidInterval() ==
+                     dummyFinder2->findIntervalFor(dummyRecordKey,sync_3));
+      
+      CPPUNIT_ASSERT(edm::ValidityInterval(sync_1,edm::IOVSyncValue::invalidIOVSyncValue()) ==
+                     intFinder.findIntervalFor(dummyRecordKey, sync_3));
+   }
+   
+   {
+      finders.clear();
+      const edm::EventID eID_1(1, 1);
+      const edm::IOVSyncValue sync_1(eID_1);
+      const edm::EventID eID_3(1, 3);
+      const edm::IOVSyncValue sync_3(eID_3);
+      const edm::EventID eID_4(1, 4);
+      const edm::IOVSyncValue sync_4(eID_4);
+      const edm::ValidityInterval definedInterval(sync_1, 
+                                                  sync_4);
+      dummyFinder->setInterval(definedInterval);
+      finders.push_back(dummyFinder);
+      
+      boost::shared_ptr<DummyFinder> dummyFinder2(new DummyFinder);
+      dummyFinder2->setInterval(edm::ValidityInterval(sync_3, edm::IOVSyncValue::invalidIOVSyncValue()));
+      finders.push_back(dummyFinder2);
+      IntersectingIOVRecordIntervalFinder intFinder(dummyRecordKey);
+      intFinder.swapFinders(finders);
+      
+      CPPUNIT_ASSERT(edm::ValidityInterval(sync_3,edm::IOVSyncValue::invalidIOVSyncValue()) ==
+                     dummyFinder2->findIntervalFor(dummyRecordKey,sync_3));
+      
+      CPPUNIT_ASSERT(edm::ValidityInterval(sync_3,edm::IOVSyncValue::invalidIOVSyncValue()) ==
+                     intFinder.findIntervalFor(dummyRecordKey, sync_3));
+   }
+
+   {
+      //reverse order so invalid ending is first in list
+      finders.clear();
+      const edm::EventID eID_1(1, 1);
+      const edm::IOVSyncValue sync_1(eID_1);
+      const edm::EventID eID_3(1, 3);
+      const edm::IOVSyncValue sync_3(eID_3);
+      const edm::EventID eID_4(1, 4);
+      const edm::IOVSyncValue sync_4(eID_4);
+      const edm::ValidityInterval definedInterval(sync_1, 
+                                                  sync_4);
+      
+      boost::shared_ptr<DummyFinder> dummyFinder2(new DummyFinder);
+      dummyFinder2->setInterval(edm::ValidityInterval(sync_3, edm::IOVSyncValue::invalidIOVSyncValue()));
+      finders.push_back(dummyFinder2);
+
+      dummyFinder->setInterval(definedInterval);
+      finders.push_back(dummyFinder);
+
+      IntersectingIOVRecordIntervalFinder intFinder(dummyRecordKey);
+      intFinder.swapFinders(finders);
+      
+      CPPUNIT_ASSERT(edm::ValidityInterval(sync_3,edm::IOVSyncValue::invalidIOVSyncValue()) ==
+                     dummyFinder2->findIntervalFor(dummyRecordKey,sync_3));
+      
+      CPPUNIT_ASSERT(edm::ValidityInterval(sync_3,edm::IOVSyncValue::invalidIOVSyncValue()) ==
+                     intFinder.findIntervalFor(dummyRecordKey, sync_3));
+   }
+   
 }
