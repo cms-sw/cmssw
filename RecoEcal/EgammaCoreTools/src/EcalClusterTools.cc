@@ -571,7 +571,6 @@ std::vector<float> EcalClusterTools::localCovariances(const reco::BasicCluster &
                                 float energy = recHitEnergy( *cursor, recHits );
 
                                 if ( energy <= 0 ) continue;
-				GlobalPoint pos = geometry->getSubdetectorGeometry(*cursor)->getGeometry(*cursor)->getPosition();
 			
 				double dPhi = northNr*barrelCrysSize -dPhiSeedMean;
                                 if (dPhi > + Geom::pi()) { dPhi = Geom::twoPi() - dPhi; }
@@ -581,7 +580,6 @@ std::vector<float> EcalClusterTools::localCovariances(const reco::BasicCluster &
 
                                 double w = 0.;
                                 w = std::max(0.0, w0 + log( energy / e_5x5 ));
-				EBDetId cellId(*cursor);
 
                                 denominator += w;
                                 numeratorEtaEta += w * dEta * dEta;
