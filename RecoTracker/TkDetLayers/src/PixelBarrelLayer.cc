@@ -46,11 +46,11 @@ PixelBarrelLayer::PixelBarrelLayer(vector<const PixelRod*>& innerRods,
 
   //--------- DEBUG INFO --------------
   LogDebug("TkDetLayers") << "==== DEBUG PixelBarrelLayer =====" ; 
-  LogDebug("TkDetLayers") << "PixelBarrelLayer innerCyl r,lenght"
+  LogDebug("TkDetLayers") << "PixelBarrelLayer innerCyl r,lenght: "
                           << theInnerCylinder->radius() << " , "
                           << theInnerCylinder->bounds().length();
 
-  LogDebug("TkDetLayers") << "PixelBarrelLayer outerCyl r,lenght" 
+  LogDebug("TkDetLayers") << "PixelBarrelLayer outerCyl r,lenght: " 
 			  << theOuterCylinder->radius() << " , "
 			  << theOuterCylinder->bounds().length();
 
