@@ -5,7 +5,7 @@
 // 
 /**\class PhotonIDSimpleAnalyzer PhotonIDSimpleAnalyzer.cc RecoEgamma/PhotonIdentification/test/PhotonIDSimpleAnalyzer.cc
 
- Description: Here I generate various histograms for cuts and important 
+ Description: Generate various histograms for cuts and important 
               photon ID parameters using a data sample of photons in QCD events.
 
  Implementation:
@@ -16,7 +16,7 @@
 //  Editing Author:  M.B. Anderson
 //
 //         Created:  Fri May 9 11:03:51 CDT 2008
-// $Id: PhotonIDSimpleAnalyzer.cc,v 1.3 2008/08/28 21:19:18 anderson Exp $
+// $Id: PhotonIDSimpleAnalyzer.cc,v 1.4 2008/08/29 18:26:47 anderson Exp $
 //
 ///////////////////////////////////////////////////////////////////////
 //                    header file for this analyzer                  //
@@ -72,6 +72,10 @@ PhotonIDSimpleAnalyzer::PhotonIDSimpleAnalyzer(const edm::ParameterSet& ps)
   maxPhotonAbsEta_ = ps.getParameter<double>("maxPhotonAbsEta");
   minPhotonR9_     = ps.getParameter<double>("minPhotonR9");
   maxPhotonHoverE_ = ps.getParameter<double>("maxPhotonHoverE");
+
+  // Read variable to that decidedes whether
+  // a TTree of photons is created or not
+  createPhotonTTree_ = ps.getParameter<bool>("createPhotonTTree");
 
   // open output file to store histograms
   rootFile_ = TFile::Open(outputFile_.c_str(),"RECREATE");
@@ -129,6 +133,12 @@ PhotonIDSimpleAnalyzer::beginJob(edm::EventSetup const&)
   h_photonInAnyGap_   = new TH1F("photonInAnyGap",     "Photon in any gap flag",  2, -0.5, 1.5);
   h_nPassingPho_      = new TH1F("photonPassingCount", "Total number photons (0=NotPassing, 1=Passing)", 2, -0.5, 1.5);
   h_nPho_             = new TH1F("photonCount",        "Number of photons passing cuts in event",  10,  0,  10);
+
+  // Create a TTree of photons if set to 'True' in config file
+  if ( createPhotonTTree_ ) {
+    tree_PhotonAll_     = new TTree("TreePhotonAll", "Reconstructed Photon");
+    tree_PhotonAll_->Branch("recPhoton", &recPhoton.isolationEcalRecHit, "isolationEcalRecHit/F:isolationHcalRecHit:isolationSolidTrkCone:isolationHollowTrkCone:nTrkSolidCone:nTrkHollowCone:isEBGap:isEEGap:isEBEEGap:r9:et:eta:phi:hadronicOverEm");
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -175,6 +185,9 @@ PhotonIDSimpleAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& es
 
     if ( passCuts )
     {
+      ///////////////////////////////////////////////////////
+      //                fill histograms                    //
+      ///////////////////////////////////////////////////////
       // PhotonID Variables
       h_isoEcalRecHit_->Fill((phtn)->isolationEcalRecHit());
       h_isoHcalRecHit_->Fill((phtn)->isolationHcalRecHit());
@@ -203,6 +216,30 @@ PhotonIDSimpleAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& es
 
       // It passed photon cuts, mark it
       h_nPassingPho_->Fill(1.0);
+
+      ///////////////////////////////////////////////////////
+      //                fill TTree (optional)              //
+      ///////////////////////////////////////////////////////
+      if ( createPhotonTTree_ ) {
+	recPhoton.isolationEcalRecHit    = (phtn)->isolationEcalRecHit();
+	recPhoton.isolationHcalRecHit    = (phtn)->isolationHcalRecHit();
+	recPhoton.isolationSolidTrkCone  = (phtn)->isolationSolidTrkCone();
+	recPhoton.isolationHollowTrkCone = (phtn)->isolationHollowTrkCone();
+	recPhoton.nTrkSolidCone          = (phtn)->nTrkSolidCone();
+	recPhoton.nTrkHollowCone         = (phtn)->nTrkHollowCone();
+	recPhoton.isEBGap                = (phtn)->isEBGap();
+	recPhoton.isEEGap                = (phtn)->isEEGap();
+	recPhoton.isEBEEGap              = (phtn)->isEBEEGap();
+        recPhoton.r9                     = (phtn)->r9();
+        recPhoton.et                     = pho->et();
+        recPhoton.eta                    = pho->eta();
+        recPhoton.phi                    = pho->phi();
+        recPhoton.hadronicOverEm         = pho->hadronicOverEm();
+
+        // Fill the tree (this records all the recPhoton.* since
+        // tree_PhotonAll_ was set to point at that.
+        tree_PhotonAll_->Fill();
+      }
 
       // Record whether it was near any module gap.
       // Very convoluted at the moment.
@@ -265,6 +302,8 @@ PhotonIDSimpleAnalyzer::endJob()
   h_nPassingPho_->   Write();
   h_nPho_->          Write();
 
+  // Write the root file (really writes the TTree)
+  rootFile_->Write();
   rootFile_->Close();
 
 }

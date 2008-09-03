@@ -43,7 +43,12 @@ process.photonIDAna = cms.EDAnalyzer("PhotonIDSimpleAnalyzer",
     # Minimum R9 = E(3x3) / E(SuperCluster)
     minPhotonR9     = cms.double(0.3),
     # Maximum HCAL / ECAL Energy
-    maxPhotonHoverE = cms.double(0.2)
+    maxPhotonHoverE = cms.double(0.2),
+
+    # Optionally produce a TTree of photons (set to False or True).
+    # This slows down the analyzer, and if running
+    # over 100,000+ events, this can create a large ROOT file
+    createPhotonTTree  = cms.bool(False)
 )
 
 process.p = cms.Path(process.photonIDSequence*process.photonIDAna)
