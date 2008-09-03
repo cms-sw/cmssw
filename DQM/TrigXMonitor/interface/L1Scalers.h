@@ -1,7 +1,7 @@
 // -*-c++-*-
 #ifndef L1Scalers_H
 #define L1Scalers_H
-// $Id$
+// $Id: L1Scalers.h,v 1.6 2008/09/02 02:35:32 wittich Exp $
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -45,11 +45,10 @@ public:
 private:
   DQMStore * dbe_;
   int nev_; // Number of events processed
-  edm::InputTag scalersSource_;
   
-  std::string outputFile_;	//file name for ROOT ouput
-  bool verbose_, monitorDaemon_;
+  bool verbose_;
   edm::InputTag l1GtDataSource_; // L1 Scalers
+  std::string folderName_; // dqm folder name
   MonitorElement *l1scalers_;
   MonitorElement *l1techScalers_;
   MonitorElement *l1Correlations_;
@@ -58,6 +57,9 @@ private:
   // 2d versions
   MonitorElement *l1scalersBx_;
   MonitorElement *l1techScalersBx_;
+
+  // Int
+  MonitorElement *nLumiBlock_;
 
 
 };

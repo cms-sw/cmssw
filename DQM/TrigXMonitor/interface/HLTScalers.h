@@ -1,12 +1,17 @@
 // -*-c++-*-
 // 
 //
-// $Id: HLTScalers.h,v 1.9 2008/08/22 20:56:55 wittich Exp $
+// $Id: HLTScalers.h,v 1.10 2008/09/02 02:37:21 wittich Exp $
 // Class to collect HLT scaler information 
 // for Trigger Cross Section Monitor
 // [wittich 11/07] 
 
 // $Log: HLTScalers.h,v $
+// Revision 1.10  2008/09/02 02:37:21  wittich
+// - split L1 code from HLTScalers into L1Scalers
+// - update cfi file accordingly
+// - make sure to cd to correct directory before booking ME's
+//
 // Revision 1.9  2008/08/22 20:56:55  wittich
 // - add client for HLT Scalers
 // - Move rate calculation to HLTScalersClient and slim down the
@@ -97,7 +102,7 @@ private:
   MonitorElement *hltCorrelations_;
   MonitorElement *detailedScalers_;
   MonitorElement *nProc_;
-  MonitorElement *nLumiBlocks_;
+  MonitorElement *nLumiBlock_;
   std::vector<MonitorElement*> hltPathNames_;
   edm::InputTag trigResultsSource_;
   bool resetMe_, monitorDaemon_; 

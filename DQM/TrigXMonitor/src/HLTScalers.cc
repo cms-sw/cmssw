@@ -1,6 +1,11 @@
-// $Id: HLTScalers.cc,v 1.13 2008/08/24 16:34:57 wittich Exp $
+// $Id: HLTScalers.cc,v 1.14 2008/09/02 02:37:22 wittich Exp $
 // 
 // $Log: HLTScalers.cc,v $
+// Revision 1.14  2008/09/02 02:37:22  wittich
+// - split L1 code from HLTScalers into L1Scalers
+// - update cfi file accordingly
+// - make sure to cd to correct directory before booking ME's
+//
 // Revision 1.13  2008/08/24 16:34:57  wittich
 // - rate calculation cleanups
 // - fix error logging with LogDebug
@@ -56,7 +61,7 @@ HLTScalers::HLTScalers(const edm::ParameterSet &ps):
   hltCorrelations_(0),
   detailedScalers_(0), 
   nProc_(0),
-  nLumiBlocks_(0),
+  nLumiBlock_(0),
   trigResultsSource_( ps.getParameter< edm::InputTag >("triggerResults")),
   resetMe_(true),
   monitorDaemon_(ps.getUntrackedParameter<bool>("MonitorDaemon", false)),
@@ -89,7 +94,7 @@ void HLTScalers::beginJob(const edm::EventSetup& c)
 
 
     nProc_ = dbe_->bookInt("nProcessed");
-    nLumiBlocks_ = dbe_->bookInt("nLumiBlocks");
+    nLumiBlock_ = dbe_->bookInt("nLumiBlock");
 
     // other ME's are now found on the first event of the new run, 
     // when we know more about the HLT configuration.
@@ -187,7 +192,7 @@ void HLTScalers::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 {
   // put this in as a first-pass for figuring out the rate
   // each lumi block is 93 seconds in length
-  nLumiBlocks_->Fill(lumiSeg.id().luminosityBlock());
+  nLumiBlock_->Fill(lumiSeg.id().luminosityBlock());
  
   LogDebug("Status") << "End of luminosity block." ;
 

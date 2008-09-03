@@ -1,6 +1,11 @@
-// $Id: HLTScalersClient.cc,v 1.4 2008/08/26 01:38:55 wittich Exp $
+// $Id: HLTScalersClient.cc,v 1.5 2008/08/28 22:22:13 wittich Exp $
 // 
 // $Log: HLTScalersClient.cc,v $
+// Revision 1.5  2008/08/28 22:22:13  wittich
+// - make delta_t absolute value
+// - add some more LogDebug statements
+// tested in full chain on .cms network
+//
 // Revision 1.4  2008/08/26 01:38:55  wittich
 // re-add Don's 20 entry histograms with full bin labels
 //
@@ -142,14 +147,14 @@ void HLTScalersClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
     first_ = false;
   }
 
-  MonitorElement *nLumi = dbe_->get("HLT/HLTScalers/nLumiBlocks");
+  MonitorElement *nLumi = dbe_->get("HLT/HLTScalers/nLumiBlock");
   int testval = (nLumi!=0?nLumi->getIntValue():-1);
   LogDebug("Parameter") << "Lumi Block from DQM: "
 			<< testval
 			<< ", local is " << nLumi_;
   int nL = (nLumi!=0?nLumi->getIntValue():nLumi_);
   if ( nL > MAX_LUMI_SEG ) {
-    LogInfo("Status") << "Too many Lumi segments, "
+    LogDebug("Status") << "Too many Lumi segments, "
 		      << nL << " is greater than MAX_LUMI_SEG,"
 		      << " wrapping to " 
 		      << (nL%MAX_LUMI_SEG);

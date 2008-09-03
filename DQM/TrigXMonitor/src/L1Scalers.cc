@@ -1,4 +1,4 @@
-// $Id$
+// $Id: L1Scalers.cc,v 1.7 2008/09/02 02:35:32 wittich Exp $
 #include <iostream>
 
 
@@ -11,6 +11,7 @@
 // L1
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 
 
 #include "DataFormats/Scalers/interface/L1TriggerScalers.h"
@@ -26,13 +27,19 @@ using namespace edm;
 
 L1Scalers::L1Scalers(const edm::ParameterSet &ps):
   dbe_(0), nev_(0),
-  scalersSource_( ps.getParameter< edm::InputTag >("scalersResults")),
   verbose_(ps.getUntrackedParameter < bool > ("verbose", false)),
-  l1GtDataSource_( ps.getParameter< edm::InputTag >("l1GtData"))
+  l1GtDataSource_( ps.getParameter< edm::InputTag >("l1GtData")),
+  folderName_( ps.getUntrackedParameter< std::string>("dqmFolder", 
+					  std::string("L1T/L1Scalers_EvF"))),
+  l1scalers_(0),
+  l1techScalers_(0),
+  l1Correlations_(0),
+  bxNum_(0),
+  l1scalersBx_(0),
+  l1techScalersBx_(0),
+  nLumiBlock_(0)
 {
   LogDebug("Status") << "constructor" ;
-
-  
 } 
 
 
@@ -45,20 +52,15 @@ void L1Scalers::beginJob(const edm::EventSetup& iSetup)
   dbe_ = Service<DQMStore>().operator->();
   if (dbe_ ) {
     dbe_->setVerbose(0);
-    dbe_->setCurrentFolder("L1T/L1Scalers");
+    dbe_->setCurrentFolder(folderName_);
 
-    if ( verbose_ ) {
-      dbe_->setVerbose(1);
-    }
-    dbe_->setCurrentFolder("L1T/L1Scalers");
 
     l1scalers_ = dbe_->book1D("l1Scalers", "L1 scalers",
 			      128, -0.5, 127.5);
     l1scalersBx_ = dbe_->book2D("l1ScalersBx", "L1 scalers vs Bunch Number",
 				3600, -0.5, 3599.5,
 				128, -0.5, 127.5);
-    l1Correlations_ = dbe_->book2D("l1Correlations", "L1 scaler correlations"
-				   " (locally derived)", 
+    l1Correlations_ = dbe_->book2D("l1Correlations", "L1 scaler correlations",
 				   128, -0.5, 127.5,
 				   128, -0.5, 127.5);
     l1techScalers_ = dbe_->book1D("l1TechScalers", "L1 Technical Trigger "
@@ -69,6 +71,9 @@ void L1Scalers::beginJob(const edm::EventSetup& iSetup)
 				    3600, -0.5, 3599.5, 64, -0.5, 63.5);
     bxNum_ = dbe_->book1D("bxNum", "Bunch number from GTFE",
 			  3600, -0.5, 3599.5);
+
+    nLumiBlock_ = dbe_->bookInt("nLumiBlock");
+
 
   }
   
@@ -132,17 +137,7 @@ void L1Scalers::analyze(const edm::Event &e, const edm::EventSetup &iSetup)
 	}
       } 
     } // ! tw.empty
-
-
-
-
-    // now, the non-default BX numbers
-    for ( int bx = 0; bx < 3600; ++bx ) {
-      DecisionWord gtDecisionWord = gtRecord->decisionWord(bx);
-      TechnicalTriggerWord tw = gtRecord->technicalTriggerWord(bx);
-      
-    }
-  }
+  } // getbylabel succeeded
     
 
   return;
@@ -152,6 +147,7 @@ void L1Scalers::analyze(const edm::Event &e, const edm::EventSetup &iSetup)
 void L1Scalers::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
 				    const edm::EventSetup& iSetup)
 {
+  nLumiBlock_->Fill(lumiSeg.id().luminosityBlock());
 
 }
 
