@@ -65,6 +65,7 @@
 #include "TH1F.h"
 #include "TH2F.h"
 #include "TString.h"
+#include "TGraphAsymmErrors.h"
 
 #include <iostream>
 #include <iomanip>
