@@ -461,12 +461,12 @@ const int CSCSummary::IsPhysicsReady(const float xmin, const float xmax, const f
   adr.mask.side = adr.mask.station = true;
   adr.side = (xmin > 0 ? 1 : 2);
 
-  HWStatusBitSet status;
-  status.reset();
+  HWStatusBitSet status[N_STATIONS];
 
   for (adr.station = 1; adr.station <= N_STATIONS; adr.station++) {
 
     unsigned int i = 0;
+    bool was = false;
     while(detector.NextAddressBox(i, box, adr)) {
       
       float xboxmin = (box->xmin < box->xmax ? box->xmin : box->xmax);
@@ -474,19 +474,45 @@ const int CSCSummary::IsPhysicsReady(const float xmin, const float xmax, const f
       float yboxmin = (box->ymin < box->ymax ? box->ymin : box->ymax);
       float yboxmax = (box->ymax > box->ymin ? box->ymax : box->ymin);
 
-      if ((xpmin < xboxmin && xpmax < xboxmin) || (xpmin > xboxmax && xpmax > xboxmax)) continue;
-      if ((ypmin < yboxmin && ypmax < yboxmin) || (ypmin > yboxmax && ypmax > yboxmax)) continue;
+      if (!was) {
+        if ((xpmin < xboxmin && xpmax < xboxmin) || (xpmin > xboxmax && xpmax > xboxmax)) continue;
+        if ((ypmin < yboxmin && ypmax < yboxmin) || (ypmin > yboxmax && ypmax > yboxmax)) continue;
+      } else {
+        bool fit = true;
+        if ((xpmin < xboxmin && xpmax < xboxmin) || (xpmin > xboxmax && xpmax > xboxmax)) fit = false;
+        if ((ypmin < yboxmin && ypmax < yboxmin) || (ypmin > yboxmax && ypmax > yboxmax)) {
+          if (!fit) break;
+          continue;
+        }
+        if (!fit) continue;
+      }
 
       tadr = box->adr;
-      status |= GetValue(tadr);
+      status[adr.station - 1] |= GetValue(tadr);
+
+      was = true;
 
     }
 
   }
 
-  if (HWSTATUSANYERROR(status))  return -1;
-  if (status.test(DATA)) return 1;
+  unsigned int cdata = 0, cerror = 0, cmask = 0;
+  for (unsigned int i = 0; i < N_STATIONS; i++) {
+    if (HWSTATUSANYERROR(status[i])) {
+      cerror++;
+    } else {
+      if (status[i].test(MASKED)) cmask++;
+      if (status[i].test(DATA)) cdata++;
+    }
+  }
 
+  // If at least 2 stations with data and without errors = OK
+  if (cdata > 1)  return 1;
+  // Else, if at least one station errorous = ERROR
+  if (cerror > 0) return -1;
+  // Else, if at least one station masked = MASKED
+  if (cmask > 0)  return 2;
+  // Else, not sufficient data = OK
   return 0;
 
 }
