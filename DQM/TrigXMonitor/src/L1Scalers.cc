@@ -1,4 +1,4 @@
-// $Id: L1Scalers.cc,v 1.7 2008/09/02 02:35:32 wittich Exp $
+// $Id: L1Scalers.cc,v 1.8 2008/09/03 02:13:47 wittich Exp $
 #include <iostream>
 
 
@@ -55,24 +55,27 @@ void L1Scalers::beginJob(const edm::EventSetup& iSetup)
     dbe_->setCurrentFolder(folderName_);
 
 
-    l1scalers_ = dbe_->book1D("l1Scalers", "L1 scalers",
+    l1scalers_ = dbe_->book1D("l1AlgoBits", "L1 Algorithm Bits",
 			      128, -0.5, 127.5);
-    l1scalersBx_ = dbe_->book2D("l1ScalersBx", "L1 scalers vs Bunch Number",
-				3600, -0.5, 3599.5,
+    l1scalersBx_ = dbe_->book2D("l1AlgoBits_Vs_Bx", "L1 Algorithm Bits vs Bunch Number",
+				360, -0.5, 3599.5,
 				128, -0.5, 127.5);
-    l1Correlations_ = dbe_->book2D("l1Correlations", "L1 scaler correlations",
+    l1Correlations_ = dbe_->book2D("l1Correlations", "L1 Algorithm Bits " 
+                                    "Correlations",
 				   128, -0.5, 127.5,
 				   128, -0.5, 127.5);
-    l1techScalers_ = dbe_->book1D("l1TechScalers", "L1 Technical Trigger "
-				  "scalers ",
+    l1techScalers_ = dbe_->book1D("l1TechAlgoBits", "L1 Tech. Trigger Bits",
 				  64, -0.5, 63.5);
-    l1techScalersBx_ = dbe_->book2D("l1TechScalersBx", "L1 Technical Trigger "
-				    "scalers vs Bunch Number",
-				    3600, -0.5, 3599.5, 64, -0.5, 63.5);
+    l1techScalersBx_ = dbe_->book2D("l1TechAlgoBits_Vs_Bx", "L1 Technical Trigger "
+				    "Bits vs Bunch Number",
+				    360, -0.5, 3599.5, 64, -0.5, 63.5);
     bxNum_ = dbe_->book1D("bxNum", "Bunch number from GTFE",
 			  3600, -0.5, 3599.5);
 
     nLumiBlock_ = dbe_->bookInt("nLumiBlock");
+
+//
+
 
 
   }
