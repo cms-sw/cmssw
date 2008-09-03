@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 #
-# $Id: submitDQMOfflineCAF.py,v 1.9 2008/09/02 18:14:33 vadler Exp $
+# $Id: submitDQMOfflineCAF.py,v 1.11 2008/09/02 19:01:10 vadler Exp $
 #
 
 ## CMSSW/DQM/SiStripMonitorClient/scripts/submitDQMOfflineCAF.py
@@ -44,6 +44,9 @@ STR_textUsage            = """ CMSSW/DQM/SiStripMonitorClient/scripts/submitDQMO
  Usage(): submitDQMOfflineCAF.py (-s, --submit | -c, --create |
                                   -h, --help)
                                  [-r, --run]
+                                 [-C, --CRAB]
+                                 [-S, --server]
+                                 [-e, --email]
                                  [-j, --jobs]
                                  [-f, --filter]
                                  [-d, --dataset]
