@@ -563,7 +563,6 @@ std::vector<float> EcalClusterTools::localCovariances(const reco::BasicCluster &
 		double dEtaSeedMean = meanPosition.eta() - seedPos.eta();
 		double dPhiSeedMean = meanPosition.phi() - seedPos.phi();
                 CaloNavigator<DetId> cursor = CaloNavigator<DetId>( id, topology->getSubdetectorTopology( id ) );
-		EBDetId ebId(id);
                 for ( int eastNr = -2; eastNr <= 2; ++eastNr ) { //east is eta in barrel
 		  for ( int northNr = -2; northNr <= 2; ++northNr ) { //north is phi in barrel
                                 cursor.home();
