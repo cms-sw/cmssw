@@ -305,11 +305,11 @@
                 <Name>Physics_EMU</Name>
                 <SetOption>col</SetOption>
                 <XMin>1</XMin>
-                <XMax>18</XMax>
-                <XBins>18</XBins>
+                <XMax>100</XMax>
+                <XBins>100</XBins>
                 <YMin>1</YMin>
-                <YMax>180</YMax>
-                <YBins>180</YBins>
+                <YMax>100</YMax>
+                <YBins>100</YBins>
                 <SetOptStat>e</SetOptStat>
                 <Title>EMU physics status</Title>
                 <SetStats>0</SetStats>
