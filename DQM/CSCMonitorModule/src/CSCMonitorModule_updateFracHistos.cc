@@ -19,6 +19,7 @@
 
 #include "DQM/CSCMonitorModule/interface/CSCMonitorModule.h"
 #include "CSCUtilities.cc"
+#include <time.h>
 
 void CSCMonitorModule::updateFracHistos() {
 
@@ -125,8 +126,14 @@ void CSCMonitorModule::updateFracHistos() {
   //
   // Set detector information
   //
+  
+  int dbg = 0;
+  long dbgt0 = clock();
 
   if (MEEMU("CSC_Reporting", me1)) {
+
+    LOGINFO("debug") << "#" << dbg++ << ", elapsed = " << dbgt0 - clock();
+    dbgt0 = clock();
 
     // Getting reference and reporting histograms for CSC_Reporting
     TH2* ref = dynamic_cast<TH2*>(me1->getRefRootObject());
@@ -141,28 +148,52 @@ void CSCMonitorModule::updateFracHistos() {
       summary.ReadReportingChambers(rep, 1.0);
     }
 
+
+    LOGINFO("debug") << "#" << dbg++ << ", elapsed = " << dbgt0 - clock();
+    dbgt0 = clock();
+
     double threshold = effParameters.getUntrackedParameter<double>("threshold_err", 0.1);
     double sigfail   = effParameters.getUntrackedParameter<double>("sigfail_err", 5.0);
+
+    LOGINFO("debug") << "#" << dbg++ << ", elapsed = " << dbgt0 - clock();
+    dbgt0 = clock();
+
 
     if (MEEMU("CSC_Format_Errors", me2)) {
       TH2* err = dynamic_cast<TH2*>(me2->getTH1());
       summary.ReadErrorChambers(rep, err, FORMAT_ERR, threshold, sigfail);
     }
 
+    LOGINFO("debug") << "#" << dbg++ << ", elapsed = " << dbgt0 - clock();
+    dbgt0 = clock();
+
+
     if (MEEMU("CSC_L1A_out_of_sync", me2)) {
       TH2* err = dynamic_cast<TH2*>(me2->getTH1());
       summary.ReadErrorChambers(rep, err, L1SYNC_ERR, threshold, sigfail);
     }
+
+    LOGINFO("debug") << "#" << dbg++ << ", elapsed = " << dbgt0 - clock();
+    dbgt0 = clock();
+
 
     if (MEEMU("CSC_DMB_input_fifo_full", me2)) {
       TH2* err = dynamic_cast<TH2*>(me2->getTH1());
       summary.ReadErrorChambers(rep, err, FIFOFULL_ERR, threshold, sigfail);
     }
 
+    LOGINFO("debug") << "#" << dbg++ << ", elapsed = " << dbgt0 - clock();
+    dbgt0 = clock();
+
+
     if (MEEMU("CSC_DMB_input_timeout", me2)) {
       TH2* err = dynamic_cast<TH2*>(me2->getTH1());
       summary.ReadErrorChambers(rep, err, INPUTTO_ERR, threshold, sigfail);
     }
+
+    LOGINFO("debug") << "#" << dbg++ << ", elapsed = " << dbgt0 - clock();
+    dbgt0 = clock();
+
 
     threshold = effParameters.getUntrackedParameter<double>("threshold_nodata", 0.9);
     sigfail   = effParameters.getUntrackedParameter<double>("sigfail_nodata", 5.0);
@@ -172,20 +203,36 @@ void CSCMonitorModule::updateFracHistos() {
       summary.ReadErrorChambers(rep, err, NODATA_ALCT, threshold, sigfail);
     }
 
+    LOGINFO("debug") << "#" << dbg++ << ", elapsed = " << dbgt0 - clock();
+    dbgt0 = clock();
+
+
     if (MEEMU("CSC_wo_CLCT", me2)) {
       TH2* err = dynamic_cast<TH2*>(me2->getTH1());
       summary.ReadErrorChambers(rep, err, NODATA_CLCT, threshold, sigfail);
     }
+
+    LOGINFO("debug") << "#" << dbg++ << ", elapsed = " << dbgt0 - clock();
+    dbgt0 = clock();
+
 
     if (MEEMU("CSC_wo_CFEB", me2)) {
       TH2* err = dynamic_cast<TH2*>(me2->getTH1());
       summary.ReadErrorChambers(rep, err, NODATA_CFEB, threshold, sigfail);
     }
 
+    LOGINFO("debug") << "#" << dbg++ << ", elapsed = " << dbgt0 - clock();
+    dbgt0 = clock();
+
+
     if (MEEMU("CSC_Format_Warnings", me2)) {
       TH2* err = dynamic_cast<TH2*>(me2->getTH1());
       summary.ReadErrorChambers(rep, err, CFEB_BWORDS, threshold, sigfail);
     }
+
+    LOGINFO("debug") << "#" << dbg++ << ", elapsed = " << dbgt0 - clock();
+    dbgt0 = clock();
+
 
   }
 
@@ -199,51 +246,91 @@ void CSCMonitorModule::updateFracHistos() {
     summary.WriteChamberState(tmp, HWSTATUSERRORBITS, 2, false, true);
   }
 
+    LOGINFO("debug") << "#" << dbg++ << ", elapsed = " << dbgt0 - clock();
+    dbgt0 = clock();
+
+
   if (MEEMU("CSC_STATS_occupancy", me1)){
     TH2* tmp = dynamic_cast<TH2*>(me1->getTH1());
     summary.WriteChamberState(tmp, 0x4, 4, true, false);
     summary.WriteChamberState(tmp, 0x8, 1, false, false);
   }
 
+    LOGINFO("debug") << "#" << dbg++ << ", elapsed = " << dbgt0 - clock();
+    dbgt0 = clock();
+
+
   if (MEEMU("CSC_STATS_format_err", me1)){
     TH2* tmp = dynamic_cast<TH2*>(me1->getTH1());
     summary.WriteChamberState(tmp, 0x10, 2, true, false);
   }
+
+    LOGINFO("debug") << "#" << dbg++ << ", elapsed = " << dbgt0 - clock();
+    dbgt0 = clock();
+
 
   if (MEEMU("CSC_STATS_l1sync_err", me1)){
     TH2* tmp = dynamic_cast<TH2*>(me1->getTH1());
     summary.WriteChamberState(tmp, 0x20, 2, true, false);
   }
 
+    LOGINFO("debug") << "#" << dbg++ << ", elapsed = " << dbgt0 - clock();
+    dbgt0 = clock();
+
+
   if (MEEMU("CSC_STATS_fifofull_err", me1)){
     TH2* tmp = dynamic_cast<TH2*>(me1->getTH1());
     summary.WriteChamberState(tmp, 0x40, 2, true, false);
   }
+
+    LOGINFO("debug") << "#" << dbg++ << ", elapsed = " << dbgt0 - clock();
+    dbgt0 = clock();
+
 
   if (MEEMU("CSC_STATS_inputto_err", me1)){
     TH2* tmp = dynamic_cast<TH2*>(me1->getTH1());
     summary.WriteChamberState(tmp, 0x80, 2, true, false);
   }
 
+    LOGINFO("debug") << "#" << dbg++ << ", elapsed = " << dbgt0 - clock();
+    dbgt0 = clock();
+
+
   if (MEEMU("CSC_STATS_wo_alct", me1)){
     TH2* tmp = dynamic_cast<TH2*>(me1->getTH1());
     summary.WriteChamberState(tmp, 0x100, 2, true, false);
   }
+
+    LOGINFO("debug") << "#" << dbg++ << ", elapsed = " << dbgt0 - clock();
+    dbgt0 = clock();
+
 
   if (MEEMU("CSC_STATS_wo_clct", me1)){
     TH2* tmp = dynamic_cast<TH2*>(me1->getTH1());
     summary.WriteChamberState(tmp, 0x200, 2, true, false);
   }
 
+    LOGINFO("debug") << "#" << dbg++ << ", elapsed = " << dbgt0 - clock();
+    dbgt0 = clock();
+
+
   if (MEEMU("CSC_STATS_wo_cfeb", me1)){
     TH2* tmp = dynamic_cast<TH2*>(me1->getTH1());
     summary.WriteChamberState(tmp, 0x400, 2, true, false);
   }
 
+    LOGINFO("debug") << "#" << dbg++ << ", elapsed = " << dbgt0 - clock();
+    dbgt0 = clock();
+
+
   if (MEEMU("CSC_STATS_cfeb_bwords", me1)){
     TH2* tmp = dynamic_cast<TH2*>(me1->getTH1());
     summary.WriteChamberState(tmp, 0x800, 2, true, false);
   }
+
+    LOGINFO("debug") << "#" << dbg++ << ", elapsed = " << dbgt0 - clock();
+    dbgt0 = clock();
+
 
   //
   // Write summary information
@@ -254,20 +341,36 @@ void CSCMonitorModule::updateFracHistos() {
     summary.Write(tmp, 1);
   }
 
+    LOGINFO("debug") << "#" << dbg++ << ", elapsed = " << dbgt0 - clock();
+    dbgt0 = clock();
+
+
   if (MEEMU("Physics_ME2", me1)){
     TH2* tmp = dynamic_cast<TH2*>(me1->getTH1());
     summary.Write(tmp, 2);
   }
+
+    LOGINFO("debug") << "#" << dbg++ << ", elapsed = " << dbgt0 - clock();
+    dbgt0 = clock();
+
 
   if (MEEMU("Physics_ME3", me1)){
     TH2* tmp = dynamic_cast<TH2*>(me1->getTH1());
     summary.Write(tmp, 3);
   }
 
+    LOGINFO("debug") << "#" << dbg++ << ", elapsed = " << dbgt0 - clock();
+    dbgt0 = clock();
+
+
   if (MEEMU("Physics_ME4", me1)){
     TH2* tmp = dynamic_cast<TH2*>(me1->getTH1());
     summary.Write(tmp, 4);
   }
+
+    LOGINFO("debug") << "#" << dbg++ << ", elapsed = " << dbgt0 - clock();
+    dbgt0 = clock();
+
 
   if (MEEMU("Physics_EMU", me1)) {
     TH2* tmp=dynamic_cast<TH2*>(me1->getTH1());
@@ -281,6 +384,10 @@ void CSCMonitorModule::updateFracHistos() {
 
   if(MEEventInfo("reportSummary", me1))
     me1->Fill(summary.GetEfficiencyHW(adr));
+
+    LOGINFO("debug") << "#" << dbg++ << ", elapsed = " << dbgt0 - clock();
+    dbgt0 = clock();
+
 
   adr.mask.side = true;
   for (adr.side = 1; adr.side <= N_SIDES; adr.side++) {
@@ -309,6 +416,10 @@ void CSCMonitorModule::updateFracHistos() {
       }
     }
   }
+
+    LOGINFO("debug") << "#" << dbg++ << ", elapsed = " << dbgt0 - clock();
+    dbgt0 = clock();
+
 
 }
 
