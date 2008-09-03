@@ -2,7 +2,7 @@
 
 jobtype     = cmssw
 scheduler   = caf
-server_name = lnl2
+server_name = None
 
 [CMSSW]
 
@@ -12,6 +12,7 @@ runselection = 58733
 # runselection = 58733
 # datasetpath  = /Cosmics/CRUZET4_v1_CRZT210_V1_TrackerPointing_v1/RECO
 # runselection = 58614
+# dbs_url = http://cmsdoc.cern.ch/cms/test/aprom/DBS/CGIServer/prodquery
 
 pset = SiStripDQMOfflineGlobalRunCAF_cfg.py
 
@@ -22,20 +23,19 @@ output_file = DQM_SiStrip_R000058733.root
 
 [USER]
 
-eMail          = volker.adler@cern.ch
-# eMail          = volker.adler@cern.ch,volker.adler@gmx.net # FIXME Is a list allowed here? To be tested.
-thresholdLevel = 100
+# eMail          = your_Email_Address
+# thresholdLevel = 100
 
 # additional_input_files = file1, file2, /full/path/file3 # FIXME Is this needed for dynamically created files in CMSSW work area? (Guess: no)
 # ui_working_dir         = /full/path/Name_of_Directory # FIXME Not used here, but in the template.
 
-return_data = 0
+return_data = 1
 # outputdir = /full/path/yourOutDir
 # logdir    = /full/path/yourLogDir
 
-copy_data       = 1
+copy_data       = 0
 storage_element = srm.cern.ch
-storage_path    = /castor/cern.ch/user/v/vadler/cms/SiStripDQM/OfflineDQM/test0/
+storage_path    = /castor/cern.ch/user/u/user
 
 # publish_data            = 0
 # publish_data_name       = yourDataName
