@@ -362,6 +362,16 @@ void CSCSummary::ReSetValue(const HWStatusBit bit) {
 }
 
 /**
+ * @brief  ReSet value recursivelly by following the supplied address
+ * @param  adr CSCAddress to be updated
+ * @param  bit Status bit to set
+ * @return 
+ */
+void CSCSummary::ReSetValue(CSCAddress adr, const HWStatusBit bit) {
+  SetValue(adr, bit, 0);
+}
+
+/**
  * @brief  SetValue for the whole of detector
  * @param  bit Status bit to set
  * @param  value Value to set
@@ -371,16 +381,6 @@ void CSCSummary::SetValue(const HWStatusBit bit, const int value) {
   CSCAddress adr;
   adr.mask.side = adr.mask.station = adr.mask.ring = adr.mask.chamber = adr.mask.layer = adr.mask.cfeb = adr.mask.hv = false;
   SetValue(adr, bit, value);
-}
-
-/**
- * @brief  ReSet value recursivelly by following the supplied address
- * @param  adr CSCAddress to be updated
- * @param  bit Status bit to set
- * @return 
- */
-void CSCSummary::ReSetValue(CSCAddress adr, const HWStatusBit bit) {
-  SetValue(adr, bit, 0);
 }
 
 /**

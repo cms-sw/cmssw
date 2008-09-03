@@ -357,43 +357,36 @@ dbgt0 = clock();
   // Looping via addresses (scope: side->station->ring) and
   // filling in HW efficiencies
   CSCAddress adr;
-  adr.mask.side = adr.mask.chamber = adr.mask.layer = adr.mask.cfeb = adr.mask.hv = false;
-
-  if(MEEventInfo("reportSummary", me1))
-    me1->Fill(summary.GetEfficiencyHW(adr));
-
-LOGINFO("debug") << "#" << dbg++ << ", elapsed = " << clock() - dbgt0;
-dbgt0 = clock();
-
+  adr.mask.station = adr.mask.ring = adr.mask.chamber = adr.mask.layer = adr.mask.cfeb = adr.mask.hv = false;
   adr.mask.side = true;
+  double e = 0, e0 = 0, e1 = 0, e2 = 0;
+
   for (adr.side = 1; adr.side <= N_SIDES; adr.side++) {
-    adr.mask.station = adr.mask.ring = false;
-
-    if(MEReportSummaryContents(summary.Detector().AddressName(adr), me1)) 
-      me1->Fill(summary.GetEfficiencyHW(adr));
-
-    adr.mask.station = true; 
+    e1 = 0;
+    adr.mask.station = true;
     for (adr.station = 1; adr.station <= N_STATIONS; adr.station++) {
-      adr.mask.ring = false;
-
-      if(MEReportSummaryContents(summary.Detector().AddressName(adr), me1)) 
-        me1->Fill(summary.GetEfficiencyHW(adr));
-
-      if (summary.Detector().NumberOfRings(adr.station) > 1) {
-
-        adr.mask.ring = true;
-        for (adr.ring = 1; adr.ring <= summary.Detector().NumberOfRings(adr.station); adr.ring++) {
-
+      e2 = 0;
+      adr.mask.ring = true;
+      for (adr.ring = 1; adr.ring <= summary.Detector().NumberOfRings(adr.station); adr.ring++) {
+        e = summary.GetEfficiencyHW(adr);
+        e2 += e;
+        if(summary.Detector().NumberOfRings(adr.station) > 1)
           if(MEReportSummaryContents(summary.Detector().AddressName(adr), me1)) 
-            me1->Fill(summary.GetEfficiencyHW(adr));
-
-        }
-
+            me1->Fill(e);
       }
+      adr.mask.ring = false;
+      e1 += e2 /= summary.Detector().NumberOfRings(adr.station);
+      if(MEReportSummaryContents(summary.Detector().AddressName(adr), me1)) me1->Fill(e2);
     }
+    adr.mask.station = false;
+    e0 += e1 /= N_STATIONS;
+    if(MEReportSummaryContents(summary.Detector().AddressName(adr), me1)) me1->Fill(e1);
   }
 
-LOGINFO("debug") << "#" << dbg++ << ", elapsed = " << clock() - dbgt0;
+  e0 /= N_SIDES;
+  if(MEEventInfo("reportSummary", me1)) me1->Fill(e0);
+
+LOGINFO("debug") << "#" << dbg++ << ", elapsed = " << clock() - dbgt0 << ", was 70K";
 dbgt0 = clock();
 
 }
