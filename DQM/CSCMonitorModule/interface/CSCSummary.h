@@ -71,7 +71,7 @@ class CSCSummary {
     const unsigned int setMaskedHWElements(std::vector<std::string>& tokens);
 
     void Write(TH2*& h2, const unsigned int station) const;
-    const float WriteMap(TH2*& h2) const;
+    void WriteMap(TH2*& h2) const;
     void WriteChamberState(TH2*& h2, const int mask, const int value = 1, const bool reset = true, const bool op_any = false) const;
 
     void ReSetValue(const HWStatusBit bit);

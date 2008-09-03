@@ -193,7 +193,7 @@ void CSCMonitorModule::updateFracHistos() {
   // Write Global DQM shifter chamber error maps 
   //
    
-  if (MEEMU("CSC_STATS_top", me1)){
+  if (MEEventInfo("reportSummaryMap", me1)) {
     TH2* tmp = dynamic_cast<TH2*>(me1->getTH1());
     summary.WriteChamberState(tmp, 0x1, 3, true, false);
     summary.WriteChamberState(tmp, HWSTATUSERRORBITS, 2, false, true);
@@ -249,70 +249,65 @@ void CSCMonitorModule::updateFracHistos() {
   // Write summary information
   //
 
-  if (MEEMU("Summary_ME1", me1)){
+  if (MEEMU("Physics_ME1", me1)){
     TH2* tmp = dynamic_cast<TH2*>(me1->getTH1());
     summary.Write(tmp, 1);
   }
 
-  if (MEEMU("Summary_ME2", me1)){
+  if (MEEMU("Physics_ME2", me1)){
     TH2* tmp = dynamic_cast<TH2*>(me1->getTH1());
     summary.Write(tmp, 2);
   }
 
-  if (MEEMU("Summary_ME3", me1)){
+  if (MEEMU("Physics_ME3", me1)){
     TH2* tmp = dynamic_cast<TH2*>(me1->getTH1());
     summary.Write(tmp, 3);
   }
 
-  if (MEEMU("Summary_ME4", me1)){
+  if (MEEMU("Physics_ME4", me1)){
     TH2* tmp = dynamic_cast<TH2*>(me1->getTH1());
     summary.Write(tmp, 4);
   }
 
-  if (MEEventInfo("reportSummaryMap", me1)) {
-
+  if (MEEMU("Physics_EMU", me1)) {
     TH2* tmp=dynamic_cast<TH2*>(me1->getTH1());
-    float rs = summary.WriteMap(tmp);
-    TString title = Form("EMU Status: Physics Efficiency %.2f%%", rs * 100.0);
-    tmp->SetTitle(title);
+    summary.WriteMap(tmp);
+  }
 
-    // Filling in the main summary number
-    // Note: this uses a different approach then summary contents numbers
-    // This one uses Physics efficinency
-    if(MEEventInfo("reportSummary", me1))  me1->Fill(rs);
+  // Looping via addresses (scope: side->station->ring) and
+  // filling in HW efficiencies
+  CSCAddress adr;
+  adr.mask.side = adr.mask.chamber = adr.mask.layer = adr.mask.cfeb = adr.mask.hv = false;
 
-    // Looping via addresses (scope: side->station->ring) and
-    // filling in HW efficiencies
-    CSCAddress adr;
-    adr.mask.chamber = adr.mask.layer = adr.mask.cfeb = adr.mask.hv = false;
-    adr.mask.side = true;
-    for (adr.side = 1; adr.side <= N_SIDES; adr.side++) {
-      adr.mask.station = adr.mask.ring = false;
+  if(MEEventInfo("reportSummary", me1))
+    me1->Fill(summary.GetEfficiencyHW(adr));
+
+  adr.mask.side = true;
+  for (adr.side = 1; adr.side <= N_SIDES; adr.side++) {
+    adr.mask.station = adr.mask.ring = false;
+
+    if(MEReportSummaryContents(summary.Detector().AddressName(adr), me1)) 
+      me1->Fill(summary.GetEfficiencyHW(adr));
+
+    adr.mask.station = true; 
+    for (adr.station = 1; adr.station <= N_STATIONS; adr.station++) {
+      adr.mask.ring = false;
 
       if(MEReportSummaryContents(summary.Detector().AddressName(adr), me1)) 
         me1->Fill(summary.GetEfficiencyHW(adr));
 
-      adr.mask.station = true; 
-      for (adr.station = 1; adr.station <= N_STATIONS; adr.station++) {
-        adr.mask.ring = false;
+      if (summary.Detector().NumberOfRings(adr.station) > 1) {
 
-        if(MEReportSummaryContents(summary.Detector().AddressName(adr), me1)) 
-          me1->Fill(summary.GetEfficiencyHW(adr));
+        adr.mask.ring = true;
+        for (adr.ring = 1; adr.ring <= summary.Detector().NumberOfRings(adr.station); adr.ring++) {
 
-        if (summary.Detector().NumberOfRings(adr.station) > 1) {
-
-          adr.mask.ring = true;
-          for (adr.ring = 1; adr.ring <= summary.Detector().NumberOfRings(adr.station); adr.ring++) {
-
-            if(MEReportSummaryContents(summary.Detector().AddressName(adr), me1)) 
-              me1->Fill(summary.GetEfficiencyHW(adr));
-
-          }
+          if(MEReportSummaryContents(summary.Detector().AddressName(adr), me1)) 
+            me1->Fill(summary.GetEfficiencyHW(adr));
 
         }
+
       }
     }
-
   }
 
 }

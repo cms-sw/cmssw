@@ -9,8 +9,8 @@
 
           <Histogram>
                 <Type>h2</Type>
-                <Prefix>EMU</Prefix>
-                <Name>CSC_STATS_top</Name>
+                <Prefix>EventInfo</Prefix>
+                <Name>reportSummaryMap</Name>
                 <SetOption>col</SetOption>
                 <XMin>1</XMin>
                 <XMax>37</XMax>
@@ -297,7 +297,119 @@
                 </Descr>
           </Histogram>
 
-<!-- End of Gloabl DQM shifter histograms -->
+<!-- Start of Global DQM physics summary map histograms -->
+
+          <Histogram>
+                <Type>h2</Type>
+                <Prefix>EMU</Prefix>
+                <Name>Physics_EMU</Name>
+                <SetOption>col</SetOption>
+                <XMin>1</XMin>
+                <XMax>18</XMax>
+                <XBins>18</XBins>
+                <YMin>1</YMin>
+                <YMax>180</YMax>
+                <YBins>180</YBins>
+                <SetOptStat>e</SetOptStat>
+                <Title>EMU physics status</Title>
+                <SetStats>0</SetStats>
+                <Descr>
+                %BR% 
+                %ICON{"warning"}% 
+                %BR% 
+                %ICON{"tip"}%
+                </Descr>
+          </Histogram>
+
+          <Histogram>
+                <Type>h2</Type>
+                <Prefix>EMU</Prefix>
+                <Name>Physics_ME1</Name>
+                <SetOption>col</SetOption>
+                <XMin>1</XMin>
+                <XMax>18</XMax>
+                <XBins>18</XBins>
+                <YMin>1</YMin>
+                <YMax>180</YMax>
+                <YBins>180</YBins>
+                <SetOptStat>e</SetOptStat>
+                <Title>EMU physics status: ME1</Title>
+                <SetStats>0</SetStats>
+                <Descr>
+                %BR% 
+                %ICON{"warning"}% 
+                %BR% 
+                %ICON{"tip"}%
+                </Descr>
+          </Histogram>
+
+          <Histogram>
+                <Type>h2</Type>
+                <Prefix>EMU</Prefix>
+                <Name>Physics_ME2</Name>
+                <SetOption>col</SetOption>
+                <XMin>1</XMin>
+                <XMax>18</XMax>
+                <XBins>18</XBins>
+                <YMin>1</YMin>
+                <YMax>180</YMax>
+                <YBins>180</YBins>
+                <SetOptStat>e</SetOptStat>
+                <Title>EMU physics status: ME2</Title>
+                <SetStats>0</SetStats>
+                <Descr>
+                %BR% 
+                %ICON{"warning"}% 
+                %BR% 
+                %ICON{"tip"}%
+                </Descr>
+          </Histogram>
+
+          <Histogram>
+                <Type>h2</Type>
+                <Prefix>EMU</Prefix>
+                <Name>Physics_ME3</Name>
+                <SetOption>col</SetOption>
+                <XMin>1</XMin>
+                <XMax>18</XMax>
+                <XBins>18</XBins>
+                <YMin>1</YMin>
+                <YMax>180</YMax>
+                <YBins>180</YBins>
+                <SetOptStat>e</SetOptStat>
+                <Title>EMU physics status: ME3</Title>
+                <SetStats>0</SetStats>
+                <Descr>
+                %BR% 
+                %ICON{"warning"}% 
+                %BR% 
+                %ICON{"tip"}%
+                </Descr>
+          </Histogram>
+
+          <Histogram>
+                <Type>h2</Type>
+                <Prefix>EMU</Prefix>
+                <Name>Physics_ME4</Name>
+                <SetOption>col</SetOption>
+                <XMin>1</XMin>
+                <XMax>18</XMax>
+                <XBins>18</XBins>
+                <YMin>1</YMin>
+                <YMax>180</YMax>
+                <YBins>180</YBins>
+                <SetOptStat>e</SetOptStat>
+                <Title>EMU physics status: ME4</Title>
+                <SetStats>0</SetStats>
+                <Descr>
+                %BR% 
+                %ICON{"warning"}% 
+                %BR% 
+                %ICON{"tip"}%
+                </Descr>
+          </Histogram>
+
+<!-- End of Global DQM physics summary map histograms -->
 
           <Histogram>
 		<Type>h2</Type>

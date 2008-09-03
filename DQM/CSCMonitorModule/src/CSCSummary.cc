@@ -246,9 +246,9 @@ void CSCSummary::Write(TH2*& h2, const unsigned int station) const {
 /**
  * @brief  Write PhysicsReady Map to H2 histogram
  * @param  h2 Histogram to write map to
- * @return Fraction of active area 
+ * @return  
  */
-const float CSCSummary::WriteMap(TH2*& h2) const {
+void CSCSummary::WriteMap(TH2*& h2) const {
 
   const unsigned int NTICS = 100;
   unsigned int rep_el = 0, csc_el = 0;
@@ -298,7 +298,8 @@ const float CSCSummary::WriteMap(TH2*& h2) const {
 
   }
 
-  return (csc_el == 0 ? 0.0 : (1.0 * rep_el) / csc_el);
+  TString title = Form("EMU Status: Physics Efficiency %.2f%%", (csc_el == 0 ? 0.0 : (1.0 * rep_el) / csc_el) * 100.0);
+  h2->SetTitle(title);
 
 }
 
