@@ -21,9 +21,8 @@ from TrackingTools.GeomPropagators.BeamHaloPropagator_cff import *
 # TrackerTrajectoryBuilders
 # to get the dependencies
 from RecoTracker.CkfPattern.CkfTrajectoryBuilderESProducer_cff import *
-import copy
-from TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi import *
-ckfTrajectoryFilterBeamHaloMuon = copy.deepcopy(trajectoryFilterESProducer)
+import  TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
+ckfTrajectoryFilterBeamHaloMuon = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone()
 import copy
 from RecoTracker.CkfPattern.CkfTrajectoryBuilderESProducer_cfi import *
 #include "RecoTracker/CkfPattern/data/GroupedCkfTrajectoryBuilderESProducer.cff"
