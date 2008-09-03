@@ -1,11 +1,14 @@
 /*
  * \file L1TGCT.cc
  *
- * $Date: 2008/06/09 11:07:52 $
- * $Revision: 1.30 $
+ * $Date: 2008/08/14 16:45:49 $
+ * $Revision: 1.31 $
  * \author J. Berryhill
  *
  * $Log: L1TGCT.cc,v $
+ * Revision 1.31  2008/08/14 16:45:49  jad
+ * updated collection names and added at(0). where necessary to point to first in vector - should fix empty DQM plots
+ *
  * Revision 1.30  2008/06/09 11:07:52  tapper
  * Removed electron sub-folders with histograms per eta and phi bin.
  *
@@ -164,16 +167,15 @@ L1TGCT::L1TGCT(const edm::ParameterSet & ps) :
     dbe->setVerbose(0);
   }
 
-  outputFile_ = ps.getUntrackedParameter < std::string > ("outputFile", "l1tgct.root");
+  outputFile_ = ps.getUntrackedParameter < std::string > ("outputFile", "");
   if (outputFile_.size() != 0) {
     std::cout << "L1T Monitoring histograms will be saved to "
 	      << outputFile_ << std::endl;
   }
 
-  bool disable =
-    ps.getUntrackedParameter < bool > ("disableROOToutput", false);
-  if (disable) {
-    outputFile_ = "";
+  bool disable = ps.getUntrackedParameter<bool>("disableROOToutput", false);
+  if(disable){
+    outputFile_="";
   }
 
   if (dbe != NULL) {
