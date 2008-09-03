@@ -7,8 +7,8 @@
 
 #include "Utilities/General/interface/MutexUtils.h"
 #include <iosfwd>
-namespace seal {
-  class Error;
+namespace cms {
+   class Exception;
 }
 
 /**
@@ -17,14 +17,14 @@ class UncatchedException {
 public:
 
   UncatchedException();
-  explicit UncatchedException(const seal::Error & err);
+  explicit UncatchedException(const cms::Exception & err);
   static void dump(std::ostream & o, bool det=false);
   static void rethrow();
   static int count();
 
 private:
 
-  static seal::Error * it;
+  static cms::Exception * it;
 
   static LockMutex::Mutex mutex;
   static int count_; 

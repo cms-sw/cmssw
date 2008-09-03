@@ -4,24 +4,25 @@
 
 LockMutex::Mutex UncatchedException::mutex;
 int UncatchedException::count_=0; 
-seal::Error * UncatchedException::it=0;
+cms::Exception * UncatchedException::it=0;
 
 UncatchedException::UncatchedException() {
   LockMutex a(mutex);
   count_++;
 }
 
-UncatchedException::UncatchedException(const seal::Error & err) {
+UncatchedException::UncatchedException(const cms::Exception & err) {
   LockMutex a(mutex);
   count_++;
-  it = err.clone();
+  //this is bad but needed in order to make transition
+  it = new cms::Exception(err);
 }
 
 void UncatchedException::dump(std::ostream & o, bool det) {
   if (!it) return;
   Genexception * exp = dynamic_cast<Genexception*>(it);
   if (exp) exp->dump(o,det);
-  else o << it->explain() << std::endl;
+  else o << it->what() << std::endl;
 }
 
 void UncatchedException::rethrow() {
@@ -29,7 +30,10 @@ void UncatchedException::rethrow() {
   std::string mess("found "); mess+=toa()(count());
   mess+= " uncaught exceptions";
   if (!it) throw Genexception(mess);
-  it->rethrow();
+
+  //bad but needed in order to make transition to standard CMS exceptions
+  throw *it;
+  //it->rethrow();
   
 }
 
