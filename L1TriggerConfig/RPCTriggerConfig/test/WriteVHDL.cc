@@ -321,9 +321,9 @@ std::string WriteVHDL::writeQualTable(const edm::EventSetup& iSetup, int tower, 
   RPCPattern::TQualityVec::const_iterator itEnd = qvec->end();
 
   int ppt = conf.product()->getPPT();
-  if (ppt == 1) {
+ // if (ppt == 1) {
     sector = 0;
-  }
+ // }
 
  
   for (;it!=itEnd;++it) {
@@ -367,9 +367,10 @@ std::string WriteVHDL::writePatterns(const edm::EventSetup& iSetup,
   int ppt = conf.product()->getPPT();
   int segment = 0;
   
-  if (ppt == 1) {
+  if (ppt == 1 || ppt == 12) {
     sector = 0;
   }
+
 
   const RPCPattern::RPCPatVec::const_iterator itEnd = pats->end();
   RPCPattern::RPCPatVec::const_iterator it;
@@ -378,8 +379,7 @@ std::string WriteVHDL::writePatterns(const edm::EventSetup& iSetup,
   
   for ( int iPAC = 0; iPAC < 12 ; ++iPAC){
   
-    if (ppt == 144) segment = iPAC; // if ppt!=144 each of 12 comparators present in same PACchip
-                                    // have same patterns
+    if (ppt == 144 || ppt == 12) segment = iPAC; 
     
     for (it = pats->begin(); it!=itEnd; ++it){
        
