@@ -717,10 +717,6 @@ def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDat
                                         CAND.write(html)
                                         CAND.write("\n</tr></table>")                                
 
-                            
-                            elif prof == "EdmSize":
-                                outd = "%s/%s_outdir" % (base,cand)
-
 
                             #if _debug > 0:
                             #    assert os.path.exists(newLog), "The current release logfile %s that we were using to perform regression analysis was not found (even though we just found it!!)" % newLog
@@ -760,7 +756,24 @@ def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDat
                                         createRegressHTML(regressHTML,repdir,"%s/%s" % (LocalDirname,outd),CurrentCandle,otherNames)
                                         CAND.write(html)
                                         CAND.write("\n</tr></table>")   
-                                
+
+                            elif prof == "EdmSize":
+                                edmRegresPath = os.path.join(LocalPath,"%s_*_%s_regression" % (CandFname[CurrentCandle],prof))
+                                edmRegresses  = glob.glob(edmRegresPath)
+                                stepreg = re.compile("%s_([^_]*)_%s_regression")
+                                if len(edmRegresses) > 0:
+                                    if not printed:
+                                        CAND.write("<p><strong>%s %s</strong></p>\n" % (prof,"Regression Analysis"))                                        
+                                        printed = True                                    
+                                    edmRegresses.sort(cmp=step_cmp)
+                                    for edmRep in edmRegresses:
+                                        base  = os.path.basename(edmRep)
+                                        found = stepreg.search(base)
+                                        step = "Unknown-step"
+                                        if found:
+                                            step = found.groups()[0]
+                                        
+                                        
                     
                     #CandleLogFiles = getcmd("sh -c 'find %s -name \"*.log\" 2> /dev/null'" % LocalPath)
                     CandleLogFiles = []
@@ -914,6 +927,11 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
             elif hostreg.search(NewFileLine):
                 INDEX.write(HOST + "\n")
             elif cpureg.search(NewFileLine):
+
+                ####
+                #
+                # Create the table data structure
+                #
                 cpu_time_tab = cpuTable()
                 for cand in Candles:
                     fname = CandFname[cand]
@@ -948,16 +966,21 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
                                         data_tuple = (data1,data2)
                                         curRow.addEntry(step,data_tuple)
                             f.Close()
-                                
+
+                ###########
+                #
+                # Create HTML table from table data structure
+                #
+
                 (ordered_keys,table_dict) = cpu_time_tab.getTable()
                 cols = len(ordered_keys)
                 if len(table_dict) > 1 and cols > 0:
                     totcols = (cols * 3) + 1
-                    INDEX.write("<h3>CPU times</h3>\n")
+                    INDEX.write("<h3>Release CPU times</h3>\n")
                     #INDEX.write("<p>Table showing previous release CPU times, t1, latest times, t2, and the difference between them &#x0394; in secs.</p>\n")
                     INDEX.write("<table>\n")
                     INDEX.write("<caption>Table showing previous release CPU times, t1, latest times, t2, and the difference between them &#x0394; in secs.</caption>\n")
-                    INDEX.write("<thead><tr><th></th><th colspan=\"%s\" scope=\"colgroup\">CPU Times</th></tr></thead>" % (totcols - 1)) 
+                    INDEX.write("<thead><tr><th></th><th colspan=\"%s\" scope=\"colgroup\">CPU Times (s)</th></tr></thead>" % (totcols - 1)) 
                     INDEX.write("<tbody>\n")
                     for key in ordered_keys:
                         INDEX.write("<tr>")

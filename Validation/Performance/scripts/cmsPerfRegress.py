@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
-import time, os, sys, math, re
+import time, os, sys, math, re, gzip
+import tempfile as tmp
 import optparse as opt
 from cmsPerfCommons import CandFname
 #from ROOT import gROOT, TCanvas, TF1
@@ -34,7 +35,29 @@ class SimpMemParseErr(Error):
     """
 
     def __init__(self, message):
-        self.message = message        
+        self.message = message
+
+class EdmSizeErr(Error):
+    """Exception raised when Could not parse TimingReport Log.
+
+    Attributes:
+        expression -- input expression in which the error occurred
+        message -- explanation of the error
+    """
+
+    def __init__(self, message):
+        self.message = message            
+
+class PerfReportErr(Error):
+    """Exception raised when Could not parse TimingReport Log.
+
+    Attributes:
+        expression -- input expression in which the error occurred
+        message -- explanation of the error
+    """
+
+    def __init__(self, message):
+        self.message = message 
 
 def getParameters():
     parser = opt.OptionParser()
@@ -49,7 +72,7 @@ def getParameters():
     parser.add_option('-t',
                       '--report-type',
                       type="choice",
-                      choices= ("Timing", "SimpleMemory"),
+                      choices= ("timing", "simplememory","edmsize","igprof","callgrind",""),
                       #store = "store_choices",#["Timing","SimpleMemory"],
                       help='Type of report to perform regrssion on. Default is TimingReport.' ,
                       default="Timing",
@@ -228,7 +251,7 @@ def newGraphAndHisto(histoleg,leg,npoints,nbins,min_val,max_val,data,graph_num,p
     if graph_num == 0 :
         histo.SetFillColor(colors[graph_num])
 
-    return (graph,histo,mean,total)
+    return (graph,histo,mean)
 
 def getLimits(data,secsperbin):
     min_val=get_min(data,1)
@@ -489,7 +512,6 @@ def createSimplMemGraphs(data,npoints,graph_num,legs,prevrev=""):
         leg.AddEntry(graph     , "Mean: %s" % str(mean)                , "l")            
         leg.AddEntry(graph     , "RMS : %s" % str(rms)                 , "l")
         leg.AddEntry(graph     , "Peak: %s" % str(peak)                , "l")
-        leg.AddEntry(graph     , "Total memory: %s" % str(total)         , "l")                            
         graphs.append(graph)
         idx += 1
         #rss_graph.GetXaxis().SetRangeUser(0,last_event+1)    
@@ -576,10 +598,11 @@ def getMemDiff(data1,data2,npoints,last_event,orig_max_val,stepname,rss=False):
 
     return (graph,leg)
 
-def drawMemGraphs(graph1,graph2,min_val,max_val,leg,memtype,stepname):
+def drawMemGraphs(graph1,graph2,min_val,max_val,last_event,leg,memtype,stepname):
     graph_canvas=ROOT.TCanvas("%s_%s_canvas" % (memtype,stepname))
     graph_canvas.cd()
-    graph1.GetYaxis().SetRangeUser(min_val,max_val)    
+    graph1.GetYaxis().SetRangeUser(min_val,max_val)
+    graph1.GetXaxis().SetRangeUser(0,last_event)        
     graph1.Draw("ALP")
     graph2.Draw("LP" )
     leg.Draw()    
@@ -728,8 +751,8 @@ def cmpSimpMemReport(rootfilename,outdir,oldLogfile,newLogfile,startevt,batch=Tr
     ##     avg_line1 = getMeanLines(mean1,last_event1,0)
     ##     avg_line2 = getMeanLines(mean2,last_event2,1)
 
-        vsize_canvas = drawMemGraphs(vsize_graph1, vsize_graph2, vsize_min_val, vsize_max_val, legs[0], "vsize", stepname1)
-        rss_canvas   = drawMemGraphs(rss_graph1  , rss_graph2  , rss_min_val, rss_max_val, legs[1], "rss"  , stepname1)
+        vsize_canvas = drawMemGraphs(vsize_graph1, vsize_graph2, vsize_min_val, vsize_max_val, vsize_lstevt, legs[0], "vsize", stepname1)
+        rss_canvas   = drawMemGraphs(rss_graph1  , rss_graph2  , rss_min_val, rss_max_val, rss_lstevt, legs[1], "rss"  , stepname1)
         vsize_change_canvas = drawMemChangeGraphs(vsizePerfDiffgraph, vsizeleg, "vsize", stepname1)         
         rss_change_canvas   = drawMemChangeGraphs(rssPerfDiffgraph  , rssleg  , "rss"  , stepname1)         
 
@@ -819,9 +842,9 @@ def cmpTimingReport(rootfilename,outdir,oldLogfile,newLogfile,secsperbin,batch=T
     #if not nbins1 == nbins2:
     #    print "ERRORL bin1 %s is not the same size as bin2 %s" % (nbins1,nbins2)
 
-    (graph1,histo1,mean1,total1) = newGraphAndHisto(histoleg,leg,npoints1,nbins1,min_val1,max_val1,data1,0,prevrev)
+    (graph1,histo1,mean1) = newGraphAndHisto(histoleg,leg,npoints1,nbins1,min_val1,max_val1,data1,0,prevrev)
     hsStack.Add(histo1)
-    (graph2,histo2,mean2,total2) = newGraphAndHisto(histoleg,leg,npoints2,nbins2,min_val2,max_val2,data2,1,prevrev)
+    (graph2,histo2,mean2) = newGraphAndHisto(histoleg,leg,npoints2,nbins2,min_val2,max_val2,data2,1,prevrev)
     hsStack.Add(histo2)
 
     (biggestLastEvt,biggestMaxval, trashthis) = getTwoGraphLimits(last_event1,max_val1,last_event2,max_val2,min_val1,min_val2)
@@ -852,8 +875,8 @@ def cmpTimingReport(rootfilename,outdir,oldLogfile,newLogfile,secsperbin,batch=T
         tot_a1 = array( "f", [ 0 ] )
         tot_a2 = array( "f", [ 0 ] )
 
-        tot_a1[0] = total1
-        tot_a2[0] = total2
+        tot_a1[0] = mean1
+        tot_a2[0] = mean2
 
         cput.Branch("total1",tot_a1,"total1/F")
         cput.Branch("total2",tot_a2,"total2/F")
@@ -880,22 +903,96 @@ def cmpTimingReport(rootfilename,outdir,oldLogfile,newLogfile,secsperbin,batch=T
             time.sleep(2.5)
         return 0
 
+def perfreport(perftype,file1,file2,outdir):
+    src = ""
+    try:
+        src = os.environ["CMSSW_SEARCH_PATH"]
+    except KeyError , detail:
+        print "ERROR: scramv1 environment could not be located", detail 
+
+    vars = src.split(":")
+    loc  = vars[0]
+
+    proftype = ""
+    if   perftype == 0: # EdmSize
+        proftype = "-fe"
+    elif perftype == 1: # IgProf
+        proftype = "-ff"
+    else:               # Callgrind
+        proftype = "-fi"
+
+    perfcmd = "perfreport %s -i %s -r %s -o %s" % (proftype,file2,file1,outdir)
+
+    cmd = "tcsh -c \"cd %s ; eval `scramv1 runtime -csh`  ; source $CMSSW_DATA_PATH/perfreport/2.0.0/etc/profile.d/init.csh; cd - ; %s\"" % (loc,perfcmd)
+    process  = os.popen(cmd)
+    cmdout   = process.read()
+    exitstat = process.close()
+
+    if False:
+        print cmd
+        print cmdout
+
+    if not exitstat == None:
+        sig     = exitstat >> 16    # Get the top 16 bits
+        xstatus = exitstat & 0xffff # Mask out all bits except the first 16
+        raise PerfReportErr("ERROR: PerfReport returned a non-zero exit status (%s, SIG_INT = %s) run %s" % (perfcmd,xstatus,sig))
+    
+    
+def cmpEdmSizeReport(outdir,file1,file2):
+    perfreport(0,file1,file2,outdir)
+
+def cmpIgProfReport(outdir,file1,file2):
+    try:
+        (th1,tfile1) = tmp.mkstemp(prefix=os.path.join("/tmp","vgrindRegressRep."))
+        for line in gzip.open(file1,"r"):
+            os.write(th1,str(line) + "\n")
+        os.close(th1)
+        
+        (th2, tfile2) = tmp.mkstemp(prefix=os.path.join("/tmp","vgrindRegressRep."))
+        for line in gzip.open(file2,"r"):
+            os.write(th2,str(line) + "\n")
+        os.close(th2)
+        
+        perfreport(1,tfile1,tfile2,outdir)
+
+        os.remove(tfile1)
+        os.remove(tfile2)
+        
+    except IOError, detail:
+        print detail
+        raise PerfReportErr("")
+    except OSError, detail:
+        print detail
+        raise PerfReportErr("")
+
+
+def cmpCallgrindReport(outdir,file1,file2):
+    perfreport(2,file1,file2,outdir)
+
 def _main():
     outdir = os.getcwd()
     
     (file1,file2,secsperbin,reporttype)  = getParameters()
 
     try:
-        if   reporttype == "Timing":
+        if   reporttype == "timing":
             rootfilename = "timingrep-regression.root"
             cmpTimingReport(rootfilename ,outdir,file1,file2,secsperbin,False)
-        elif reporttype == "SimpleMemory":
+        elif reporttype == "simplememory":
             rootfilename = "simpmem-regression.root"
             cmpSimpMemReport(rootfilename,outdir,file1,file2,secsperbin,False)
+        elif reporttype == "edmsize":
+            cmpEdmSizeReport(outdir,file1,file2)
+        elif reporttype == "callgrind":
+            cmpCallgrindReport(outdir,file1,file2)
+        elif reporttype == "igprof":
+            cmpIgProfReport(outdir,file1,file2)            
     except TimingParseErr, detail:
-        "WARNING: Could not parse data from log file %s; not performing regression" % detail.message
+        print "WARNING: Could not parse data from Timing report file %s; not performing regression" % detail.message
     except SimpMemParseErr, detail:
-        "WARNING: Could not parse data from log file %s; not performing regression" % detail.message
+        print "WARNING: Could not parse data from Memory report file %s; not performing regression" % detail.message
+    except PerfReportErr     , detail:
+        print "WARNING: Could not parse data from Edm file %s; not performing regression" % detail.message        
 
 if __name__ == "__main__":
     _main()

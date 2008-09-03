@@ -89,37 +89,64 @@ def regressReports(olddir,newdir,oldRelName = ""):
     profSets = ["Valgrind", "IgProf", "TimeSize"]
     for candle in Candles:
         for profset in profSets:
-            adir = "%s/%s_%s" % (newdir,candle,profset)
+            adir = os.path.join(newdir,"%s_%s" % (candle,profset))
             if os.path.exists(adir):
                 Profs = []
                 if   profset == "Valgrind":
-                    Profs = ["memcheck"]
+                    Profs = ["valgrind"] # callgrind actually
                 elif profset == "TimeSize":
                     Profs = [ "TimingReport",
                               "TimeReport",
                               "SimpleMemoryCheck",
                               "EdmSize"]
-                elif profset == "IgProf":
-                    Profs = [ "IgProf" ]
-
+                if profset == "IgProf":
+                    Profs = [ "IgProfMemTotal",
+                              "IgProfMemLive"]
+                    
                 for prof in Profs:
-                    if   prof == "EdmSize":
+                    if   prof == "EdmSize" or prof == "valgrind":
                         stepLogs = glob.glob("%s/%s_*_%s"       % (adir,CandFname[candle],prof))
+                    elif prof == "IgProfMemLive" or prof == "IgProfMemTotal":
+                        stepLogs = glob.glob("%s/%s_*_%s.gz"       % (adir,CandFname[candle],prof))                        
                     elif prof == "SimpleMemoryCheck":
                         stepLogs = os.path.join(adir,"%s.log" % candle)
-                    else:
+                    elif prof == "TimingReport":
                         stepLogs = glob.glob("%s/%s_*_%s.log"   % (adir,CandFname[candle],prof))
 
                     profdir = os.path.basename(adir)
 
-                    if prof == "TimingReport" or prof == "EdmSize":
-                        candreg = re.compile("%s_([^_]*)_%s(.log)?" % (CandFname[candle],prof))
+
+                    if prof == "TimingReport" or prof == "EdmSize" or prof == "valgrind" or prof == "IgProfMemTotal" or prof == "IgProfMemLive":
+                        stepreg = re.compile("%s_([^_]*)_%s((.log)|(.gz))?" % (CandFname[candle],prof))
                         for log in stepLogs:
                             base = os.path.basename(log)
-                            searchob = candreg.search(base)
+                            searchob = stepreg.search(base)
                             if searchob:
                                 step = searchob.groups()[0]
-                                compareTimingLogPair(log,candle,step,prof,profdir,adir,olddir,oldRelName = oldRelName)
+                                if prof == "TimingReport": 
+                                    compareTimingLogPair(log,candle,step,prof,profdir,adir,olddir,oldRelName = oldRelName)
+                                elif prof == "EdmSize" or prof == "valgrind" or prof == "IgProfMemTotal" or prof == "IgProfMemSize":
+                                    outpath = os.path.join(adir,"%s_regression" % base)
+                                    oldlog  = os.path.join(olddir,"%s_%s" % (candle,profset),base)
+                                    if not os.path.exists(outpath):
+                                        os.mkdir(outpath)
+                                    if os.path.exists(oldlog):
+                                        try:
+                                            try:
+                                                if   prof == "EdmSize":
+                                                    cpr.cmpEdmSizeReport(outpath,oldlog,log)
+                                                elif prof == "valgrind":
+                                                    cpr.cmpCallgrindReport(outpath,oldlog,log)
+                                                elif prof == "IgProfMemTotal" or prof == "IgProfMemSize":
+                                                    cpr.cmpIgProfReport(outpath,oldlog,log)
+                                            except cpr.PerfReportErr,detail:
+                                                print "WARNING: Perfreport return non-zero exit status when comparing %s and %s because perfreport" % (oldlog,log)
+                                        finally:
+                                            print "Successfully compared %s and %s" % (oldlog,log)                                            
+                                    else:
+                                        print "WARNING: Could not find an equivalent logfile for %s in the previous release dir %s " % (log,oldlog)
+                                        
+                                                            
                             else:
                                 continue
                     elif prof == "SimpleMemoryCheck":
