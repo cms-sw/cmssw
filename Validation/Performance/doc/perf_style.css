@@ -1,36 +1,28 @@
 body{ 
     font-family: Trebuchet MS, Lucida Sans Unicode, Arial, sans-serif;
-    /*margin-left:29%;
-    margin-top:5%;
-    margin-right:29%;
-    margin-bottom:5%;*/
     padding:0px;
     height:100%;
-    /*line-height:80%;*/
     background-color:#E2EBED; 
-    /*font-size:12;*/
 }   
 
 h1 {
  font-family:arial, "Lucida Grande", verdana, sans-serif;
- /*font-size:26;*/
  font-weight: bold;
  text-align: center
 }
 h2 {
  font-family:arial, "Lucida Grande", verdana, sans-serif;
- /*font-size:18;*/
 }
 
 h3 {
  font-family:arial, "Lucida Grande", verdana, sans-serif;
- /*font-size:15;*/
 }
 
 p {
  font-family:arial, "Lucida Grande", verdana, sans-serif;
- /*font-size:13;*/
 }
+
+#data { text-align: right }
 
 #content {width: 80%; 
      margin-left: auto;
@@ -39,12 +31,13 @@ p {
      border: medium solid black;
      background-color: #FFFFFF}
 
-table {width: 100%;
-       border-width: 1px;
-       border-color: #FFFFFF}*/
+table {
+       border-spacing: 0px;
+       border: thin solid black;
+       border-color: #000000}
 
+ td {background-color: #FFFFFF ; padding: 4px; border: thin solid black }
+ 
  li.c2 {list-style: none}
- /*ul.c1 {font-size: 13}*/
- td {background-color: #FFFFFE ; width : 25%}
 
 img { border:none;} 

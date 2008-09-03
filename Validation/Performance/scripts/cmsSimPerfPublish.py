@@ -110,6 +110,25 @@ class cpuTable(object):
         return self.rows[name]
 
     def getTable(self):
+        name = "Total"
+        
+        for key in self.keys:
+            if  key == None:
+                pass
+            else:
+                total1 = 0
+                total2 = 0                
+                rowobj  = self.rows[key]
+                rowdict = rowobj.getRowDict()
+                for col in self.colNames:
+                    if col == None:
+                        pass
+                    elif rowdict.has_key(col) and not col == name:
+                        (step_tot1, step_tot2) = rowdict[col]
+                        total1 += step_tot1
+                        total2 += step_tot2
+                rowobj.addEntry(name,(total1,total2))
+                
         return (self.keys, self.rows)
 
 ######################
@@ -917,50 +936,70 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
                             f.GetObject("cpu_time_tuple;1",cpu_time_tree)
                             if cpu_time_tree:
                                 if cpu_time_tree.InheritsFrom("TTree"):
-                                    leaf1 = ROOT.TLeafF()
-                                    leaf2 = ROOT.TLeafF()
-                                    leaf1 = cpu_time_tree.GetLeaf("total1")
-                                    leaf2 = cpu_time_tree.GetLeaf("total2")
-                                    leaf1.GetValuePointer()
-                                    leaf2.GetValuePointer()
-                                    leaf1.PrintValue()
-                                    leaf2.PrintValue()
-                                    if leaf1 and leaf2:
-                                        if leaf1.InheritsFrom("TLeafF") and leaf2.InheritsFrom("TLeafF"):
-                                            if createNewRow:
-                                                createNewRow = False
-                                                curRow = cpu_time_tab.newRow(cand)
-                                            data1 = leaf1.GetValue()
-                                            data2 = leaf2.GetValue()
-                                            data_tuple = (data1,data2)
-                                            curRow.addEntry(step,data_tuple)
+                                    data1 = None
+                                    data2 = None
+                                    for t in cpu_time_tree:
+                                        data1 = t.total1
+                                        data2 = t.total2
+                                    if data1 and data2:
+                                        if createNewRow:
+                                            createNewRow = False
+                                            curRow = cpu_time_tab.newRow(cand)
+                                        data_tuple = (data1,data2)
+                                        curRow.addEntry(step,data_tuple)
                             f.Close()
                                 
                 (ordered_keys,table_dict) = cpu_time_tab.getTable()
-                INDEX.write("<table>\n")
-                for key in ordered_keys:
-                    INDEX.write("<tr>")
-                    if key == None:
-                        INDEX.write("<th></th>")
-                    else:
-                        INDEX.write("<td>")
-                        INDEX.write(key)
-                        INDEX.write("</td>")
-                    for col in table_dict[None]:
+                cols = len(ordered_keys)
+                if len(table_dict) > 1 and cols > 0:
+                    totcols = (cols * 3) + 1
+                    INDEX.write("<h3>CPU times</h3>\n")
+                    #INDEX.write("<p>Table showing previous release CPU times, t1, latest times, t2, and the difference between them &#x0394; in secs.</p>\n")
+                    INDEX.write("<table>\n")
+                    INDEX.write("<caption>Table showing previous release CPU times, t1, latest times, t2, and the difference between them &#x0394; in secs.</caption>\n")
+                    INDEX.write("<thead><tr><th></th><th colspan=\"%s\" scope=\"colgroup\">CPU Times</th></tr></thead>" % (totcols - 1)) 
+                    INDEX.write("<tbody>\n")
+                    for key in ordered_keys:
+                        INDEX.write("<tr>")
                         if key == None:
-                            INDEX.write("<th>")
-                            INDEX.write(col)
-                            INDEX.write("</th>")                            
+                            INDEX.write("<th></th>")
                         else:
-                            INDEX.write("<td>")
-                            rowdict = table_dict[key].getRowDict()
-                            if rowdict.has_key(col):
-                                INDEX.write(str(rowdict[col]))
-                            else:
-                                INDEX.write("N/A")
+                            INDEX.write("<td scope=\"row\">")
+                            INDEX.write(key)
                             INDEX.write("</td>")
-                    INDEX.write("</tr>\n")
-                INDEX.write("</table>")
+                        for col in table_dict[None]:
+                            if key == None:
+                                INDEX.write("<th colspan=\"3\" scope=\"col\">")
+                                INDEX.write(col)
+                                INDEX.write("</th>")                            
+                            else:
+                                rowdict = table_dict[key].getRowDict()
+                                if rowdict.has_key(col):
+                                    (data1, data2) = rowdict[col]
+                                    seq = [ data1, data2, (data2 - data1 ) ]
+                                    for dat in seq:
+                                        INDEX.write("<td id=\"data\">") 
+                                        INDEX.write("%6.2f" % dat)
+                                        INDEX.write("</td>")
+                                else:
+                                    for i in range(3):
+                                        INDEX.write("<td>")                                    
+                                        INDEX.write("N/A")
+                                        INDEX.write("</td>")
+                        INDEX.write("</tr>\n")
+                        # write an additional row if this row is the header row
+                        # we need to describe the sub columns
+                        if key == None:
+                            INDEX.write("<tr>")
+                            INDEX.write("<th>Candles</th>")
+                            for col in table_dict[None]:
+                                INDEX.write("<th>t1</th>")
+                                INDEX.write("<th>t2</th>")
+                                INDEX.write("<th>&#x0394;</th>")
+                            INDEX.write("</tr>\n")
+                    INDEX.write("</tbody></table>\n")
+
+                    INDEX.write("<br />")
                         
                     
             elif lpathreg.search(NewFileLine):
