@@ -386,11 +386,6 @@ void HcalTrigPrimClient::htmlOutput(int runNo, string htmlDir, string htmlName){
   htmlFile << "</tr>" << endl;
   
   htmlFile << "<tr align=\"left\">" << endl;
-  histoHTML(runNo,MAX_ADC_,"ADC","raw ADC", 92, htmlFile,htmlDir);
-  histoHTML(runNo,TS_MAX_,"TS","num at TS", 100, htmlFile,htmlDir);
-  htmlFile << "</tr>" << endl;
-  
-  htmlFile << "<tr align=\"left\">" << endl;
   histoHTML(runNo,TPTimingTop_,"","time", 92, htmlFile,htmlDir);
   histoHTML(runNo,TPTimingBot_,"","time", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
