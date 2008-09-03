@@ -55,10 +55,10 @@ process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) ) #
 # Conditions (Global Tag is used here):
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.connect = "frontier://PromptProd/CMS_COND_21X_GLOBALTAG"
-process.GlobalTag.globaltag = "CRUZET4_V2P::All"
+process.GlobalTag.globaltag = "CRUZET4_V4P::All"
 process.prefer("GlobalTag")
 
-# Magnetic field: force mag field to be 0 tesla
+# Magnetic fiuld: force mag field to be 0 tesla
 process.load("Configuration.StandardSequences.MagneticField_0T_cff")
 
 #Geometry
@@ -89,12 +89,16 @@ process.SiStripQualityESProducer.ListOfRecordToMerge = cms.VPSet(
 )
 process.prefer("SiStripQualityESProducer")
 
-#workaround for RPC DQM module
+#workaround for RPC and EE DQM modules
 process.muonCosmicMonitors_fix = cms.Sequence(process.muonTrackCosmicAnalyzers*process.dtSegmentsMonitor*process.cscMonitor*process.muonCosmicAnalyzer)
 
-process.DQMOfflineCosmics_fix = cms.Sequence(process.SiStripDQMTier0*process.ecal_dqm_source_offline*process.muonCosmicMonitors_fix*process.jetMETAnalyzer*process.hcalOfflineDQMSource*process.l1tmonitor*process.siPixelOfflineDQM_source*process.egammaCosmicPhotonMonitors)
+process.ee_dqm_source_offline_fix = cms.Sequence(process.ecalEndcapMonitorModule*process.dqmInfoEE*process.ecalEndcapOccupancyTask*process.ecalEndcapIntegrityTask*process.ecalEndcapStatusFlagsTask*process.ecalEndcapPedestalOnlineTask*process.ecalEndcapCosmicTask*process.ecalEndcapClusterTask)
+
+process.ecal_dqm_source_offline_fix = cms.Sequence(process.ee_dqm_source_offline_fix*process.eb_dqm_source_offline) 
+
+process.DQMOfflineCosmics_fix = cms.Sequence(process.SiStripDQMTier0*process.ecal_dqm_source_offline_fix*process.muonCosmicMonitors_fix*process.jetMETAnalyzer*process.hcalOfflineDQMSource*process.l1tmonitor*process.siPixelOfflineDQM_source*process.egammaCosmicPhotonMonitors)
 
 #Paths
-process.allPath = cms.Path( process.RawToDigi_woGCT * process.reconstructionCosmics * process.DQMOfflineCosmics_fix * process.MEtoEDMConverter)
+process.allPath = cms.Path( process.RawToDigi_woGCT * process.reconstructionCosmics *  process.DQMOfflineCosmics_fix * process.MEtoEDMConverter)
 
 process.outpath = cms.EndPath(process.FEVT)
