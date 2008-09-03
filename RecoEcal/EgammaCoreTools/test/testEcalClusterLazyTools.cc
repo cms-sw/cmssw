@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  "Federico Ferri federi
 //         Created:  Mon Apr  7 14:11:00 CEST 2008
-// $Id: testEcalClusterLazyTools.cc,v 1.1 2008/05/15 23:59:56 ferriff Exp $
+// $Id: testEcalClusterLazyTools.cc,v 1.2 2008/09/02 03:59:31 anderson Exp $
 //
 //
 
@@ -130,7 +130,9 @@ void testEcalClusterLazyTools::analyze(const edm::Event& ev, const edm::EventSet
                 std::vector<float> vLat = lazyTools.lat( *it );
                 std::cout << "lat...................... " << vLat[0] << " " << vLat[1] << " " << vLat[2] << std::endl;
                 std::vector<float> vCov = lazyTools.covariances( *it );
-                std::cout << "covariances.............. " << vCov[0] << " " << vCov[1] << " " << vCov[2] << std::endl;
+                std::cout << "covariances.............. " << vCov[0] << " " << vCov[1] << " " << vCov[2] << std::endl;  
+		std::vector<float> vLocCov = lazyTools.localCovariances( *it );
+                std::cout << "local covariances........ " << vLocCov[0] << " " << vLocCov[1] << " " << vLocCov[2] << std::endl;
                 std::cout << "zernike20................ " << lazyTools.zernike20( *it ) << std::endl;
                 std::cout << "zernike42................ " << lazyTools.zernike42( *it ) << std::endl;
         }
@@ -157,7 +159,9 @@ void testEcalClusterLazyTools::analyze(const edm::Event& ev, const edm::EventSet
                 std::vector<float> vLat = lazyTools.lat( *it );
                 std::cout << "lat...................... " << vLat[0] << " " << vLat[1] << " " << vLat[2] << std::endl;
                 std::vector<float> vCov = lazyTools.covariances( *it );
-                std::cout << "covariances.............. " << vCov[0] << " " << vCov[1] << " " << vCov[2] << std::endl;
+                std::cout << "covariances.............. " << vCov[0] << " " << vCov[1] << " " << vCov[2] << std::endl; 
+		std::vector<float> vLocCov = lazyTools.localCovariances( *it );
+                std::cout << "local covariances........ " << vLocCov[0] << " " << vLocCov[1] << " " << vLocCov[2] << std::endl;
                 std::cout << "zernike20................ " << lazyTools.zernike20( *it ) << std::endl;
                 std::cout << "zernike42................ " << lazyTools.zernike42( *it ) << std::endl;
         }

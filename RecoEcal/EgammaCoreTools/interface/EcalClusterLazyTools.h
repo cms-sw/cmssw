@@ -65,7 +65,13 @@ class EcalClusterLazyTools {
                 std::vector<float> lat( const reco::BasicCluster &cluster, bool logW = true, float w0 = 4.7 );
                 // return a vector v with v[0] = covEtaEta, v[1] = covEtaPhi, v[2] = covPhiPhi
                 std::vector<float> covariances(const reco::BasicCluster &cluster, float w0 = 4.7 );
-
+                // return a vector v with v[0] = covIEtaIEta, v[1] = covIEtaIPhi, v[2] = covIPhiIPhi
+                //this function calculates differences in eta/phi in units of crystals not global eta/phi
+                //this is gives better performance in the crack regions of the calorimeter but gives otherwise identical results to covariances function
+                //this is only defined for the barrel, it returns covariances when the cluster is in the endcap
+                //Warning: covIEtaIEta has been studied by egamma, but so far covIPhiIPhi hasnt been studied extensively so there could be a bug in 
+                //         the covIPhiIEta or covIPhiIPhi calculations. I dont think there is but as it hasnt been heavily used, there might be one
+                std::vector<float> localCovariances(const reco::BasicCluster &cluster, float w0 = 4.7);
                 double zernike20( const reco::BasicCluster &cluster, double R0 = 6.6, bool logW = true, float w0 = 4.7 );
                 double zernike42( const reco::BasicCluster &cluster, double R0 = 6.6, bool logW = true, float w0 = 4.7 );
 

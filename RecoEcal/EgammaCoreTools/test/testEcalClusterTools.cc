@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  "Federico Ferri federi
 //         Created:  Mon Apr  7 14:11:00 CEST 2008
-// $Id: testEcalClusterTools.cc,v 1.4 2008/05/15 19:53:11 heltsley Exp $
+// $Id: testEcalClusterTools.cc,v 1.5 2008/09/02 03:37:05 anderson Exp $
 //
 //
 
@@ -145,6 +145,8 @@ void testEcalClusterTools::analyze(const edm::Event& ev, const edm::EventSetup& 
                 std::cout << "lat...................... " << vLat[0] << " " << vLat[1] << " " << vLat[2] << std::endl;
                 std::vector<float> vCov = EcalClusterTools::covariances( *it, ebRecHits, topology, geometry );
                 std::cout << "covariances.............. " << vCov[0] << " " << vCov[1] << " " << vCov[2] << std::endl;
+		std::vector<float> vLocCov = EcalClusterTools::localCovariances( *it, ebRecHits, topology, geometry );
+                std::cout << "local covariances........ " << vLocCov[0] << " " << vLocCov[1] << " " << vLocCov[2] << std::endl;
                 std::cout << "zernike20................ " << EcalClusterTools::zernike20( *it, ebRecHits, geometry ) << std::endl;
                 std::cout << "zernike42................ " << EcalClusterTools::zernike42( *it, ebRecHits, geometry ) << std::endl;
         }
@@ -172,6 +174,8 @@ void testEcalClusterTools::analyze(const edm::Event& ev, const edm::EventSetup& 
                 std::cout << "lat...................... " << vLat[0] << " " << vLat[1] << " " << vLat[2] << std::endl;
                 std::vector<float> vCov = EcalClusterTools::covariances( *it, eeRecHits, topology, geometry );
                 std::cout << "covariances.............. " << vCov[0] << " " << vCov[1] << " " << vCov[2] << std::endl;
+		std::vector<float> vLocCov = EcalClusterTools::localCovariances( *it, eeRecHits, topology, geometry );
+                std::cout << "local covariances........ " << vLocCov[0] << " " << vLocCov[1] << " " << vLocCov[2] << std::endl;
                 std::cout << "zernike20................ " << EcalClusterTools::zernike20( *it, eeRecHits, geometry ) << std::endl;
                 std::cout << "zernike42................ " << EcalClusterTools::zernike42( *it, eeRecHits, geometry ) << std::endl;
         }
