@@ -49,7 +49,7 @@ process.dqmInfoEB = cms.EDFilter("DQMEventInfo",
     subSystemFolder = cms.untracked.string('EcalBarrel')
 )
 
-process.dqmSaverEB = cms.EDFilter("DQMFileSaver",
+process.dqmSaver = cms.EDFilter("DQMFileSaver",
     dirName = cms.untracked.string('.'),
     convention = cms.untracked.string('Online')
 )
@@ -198,9 +198,9 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 
 process.ecalDataSequence = cms.Sequence(process.preScaler*process.ecalEBunpacker*process.ecal2006TBHodoscopeReconstructor*process.ecal2006TBTDCReconstructor*process.ecalUncalibHit*process.ecalRecHit*process.simEcalTriggerPrimitiveDigis*process.simEcalTriggerPrimitiveDigis2)
-process.ecalBarrelMonitorSequence = cms.Sequence(process.ecalBarrelMonitorModule*process.dqmInfoEB*process.ecalBarrelMonitorClient*process.dqmSaverEB)
+process.ecalBarrelMonitorSequence = cms.Sequence(process.ecalBarrelMonitorModule*process.dqmInfoEB*process.ecalBarrelMonitorClient)
 
-process.p = cms.Path(process.ecalDataSequence*process.ecalBarrelMonitorSequence)
+process.p = cms.Path(process.ecalDataSequence*process.ecalBarrelMonitorSequence*process.dqmSaver)
 process.q = cms.EndPath(process.ecalBarrelTestBeamTasksSequence)
 
 process.ecal2006TBHodoscopeReconstructor.rawInfoProducer = 'ecalEBunpacker'

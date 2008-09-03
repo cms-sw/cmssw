@@ -54,7 +54,7 @@ process.dqmQTestEB = cms.EDFilter("QualityTester",
     getQualityTestsFromFile = cms.untracked.bool(True)
 )
 
-process.dqmSaverEB = cms.EDFilter("DQMFileSaver",
+process.dqmSaver = cms.EDFilter("DQMFileSaver",
     dirName = cms.untracked.string('.'),
     convention = cms.untracked.string('Online')
 )
@@ -105,9 +105,9 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 
 process.ecalDataSequence = cms.Sequence(process.preScaler*process.ecalUncalibHit*process.ecalRecHit*process.simEcalTriggerPrimitiveDigis*process.simEcalTriggerPrimitiveDigis2*process.hybridSuperClusters*process.correctedHybridSuperClusters*process.multi5x5BasicClusters*process.multi5x5SuperClusters)
-process.ecalBarrelMonitorSequence = cms.Sequence(process.ecalBarrelMonitorModule*process.dqmInfoEB*process.ecalBarrelMonitorClient*process.dqmQTestEB*process.dqmSaverEB)
+process.ecalBarrelMonitorSequence = cms.Sequence(process.ecalBarrelMonitorModule*process.dqmInfoEB*process.ecalBarrelMonitorClient*process.dqmQTestEB)
 
-process.p = cms.Path(process.ecalDataSequence*process.ecalBarrelMonitorSequence)
+process.p = cms.Path(process.ecalDataSequence*process.ecalBarrelMonitorSequence*process.dqmSaver)
 process.q = cms.EndPath(process.ecalBarrelDefaultTasksSequence*process.ecalBarrelClusterTask)
 
 process.ecalUncalibHit.MinAmplBarrel = 12.
