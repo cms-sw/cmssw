@@ -5,7 +5,12 @@
 #define  IETAMAX 43
 #define  IPHIMIN 0
 #define  IPHIMAX 71
-
+#define  HBHE_LO_DCC 700
+#define  HBHE_HI_DCC 717
+#define  HF_LO_DCC   718
+#define  HF_HI_DCC   724
+#define  HO_LO_DCC   725
+#define  HO_HI_DCC   731
 
 #include "DQM/HcalMonitorTasks/interface/HcalBaseMonitor.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalUnpacker.h"
@@ -16,8 +21,8 @@
 
 /** \class Hcaldataformatmonitor
  *
- * $Date: 2008/08/21 13:41:47 $
- * $Revision: 1.29 $
+ * $Date: 2008/08/28 17:03:51 $
+ * $Revision: 1.30 $
  * \author W. Fisher - FNAL
  */
 class HcalDataFormatMonitor: public HcalBaseMonitor {
@@ -49,22 +54,19 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
   //backstage accounting mechanisms for the ProblemMap
   static size_t iphirange; // = IPHIMAX - IPHIMIN;
   static size_t ietarange; // = IETAMAX - IETAMIN;
-  std::vector<std::vector<bool> > problemhere;  // 
-  void mapHTRproblem (int dcc, int spigot) {
-    pair <int,int> thishtr = pair <int,int> (dcc-700, spigot);
-    for (std::vector<HcalDetId>::iterator thishdi = HTRtoCell[thishtr].begin(); 
-	 thishdi != HTRtoCell[thishtr].end(); thishdi++) {
-      problemhere[thishdi->ieta() - IETAMIN][thishdi->iphi()] = true;
-    }   
-  }
-  void mapDCCproblem(int dcc) {
-    for (std::vector<HcalDetId>::iterator thishdi = DCCtoCell[dcc -700].begin(); 
-	 thishdi != DCCtoCell[dcc-700].end(); thishdi++) {
-      problemhere[thishdi->ieta() - IETAMIN][thishdi->iphi()] = true;
-    }
-  }
-
+  std::vector<std::vector<bool> > problemhere;  // Whole HCAL
+  std::vector<std::vector<bool> > problemHB;    //  
+  std::vector<std::vector<bool> > problemHE;    //  
+  std::vector<std::vector<bool> > problemHF;    // Includes ZDC?
+  std::vector<std::vector<bool> > problemHO;    //  
+  void mapHTRproblem (int dcc, int spigot) ;
+  void mapDCCproblem(int dcc) ;
+  void fillzoos(int bin, int dccid);
   std::vector<std::vector<uint64_t> > phatmap;  // iphi/ieta projection of all hcal cells
+  std::vector<std::vector<uint64_t> > HBmap;  // iphi/ieta projection of hb
+  std::vector<std::vector<uint64_t> > HEmap;  // iphi/ieta projection of he
+  std::vector<std::vector<uint64_t> > HFmap;  // iphi/ieta projection of hf
+  std::vector<std::vector<uint64_t> > HOmap;  // iphi/ieta projection of ho
   void UpdateMap();
 
   // Data accessors
@@ -86,9 +88,8 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
   MonitorElement* DATAFORMAT_PROBLEM_MAP;
   MonitorElement* DATAFORMAT_PROBLEM_ZOO;
   MonitorElement* HB_DATAFORMAT_PROBLEM_MAP;
-  MonitorElement* HB_DATAFORMAT_PROBLEM_ZOO;
+  MonitorElement* HBHE_DATAFORMAT_PROBLEM_ZOO;
   MonitorElement* HE_DATAFORMAT_PROBLEM_MAP;
-  MonitorElement* HE_DATAFORMAT_PROBLEM_ZOO;
   MonitorElement* HF_DATAFORMAT_PROBLEM_MAP;
   MonitorElement* HF_DATAFORMAT_PROBLEM_ZOO;
   MonitorElement* HO_DATAFORMAT_PROBLEM_MAP;
