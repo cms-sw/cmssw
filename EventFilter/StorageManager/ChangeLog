@@ -1,3 +1,10 @@
+2008-09-02  Harry Cheung <cheung@fnal.gov>
+
+	* tag V03-14-10
+	* Possible fix for problem seen with running more FU instances
+	  by properly taking into account non-unique fuID, need proper
+	  fix when moving INIT message to FragmentCollector
+
 2008-09-01  Harry Cheung <cheung@fnal.gov>
 
 	* tag V03-14-09

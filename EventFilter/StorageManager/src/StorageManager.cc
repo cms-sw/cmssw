@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.76 2008/08/27 22:46:39 biery Exp $
+// $Id: StorageManager.cc,v 1.77 2008/09/01 16:22:01 hcheung Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -164,10 +164,12 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
             &StorageManager::receiveErrorDataMessage,
             I2O_SM_ERROR,
             XDAQ_ORGANIZATION_ID);
+  /* no longer used it seems? Don't delete yet
   i2o::bind(this,
             &StorageManager::receiveOtherMessage,
             I2O_SM_OTHER,
             XDAQ_ORGANIZATION_ID);
+  */
   i2o::bind(this,
             &StorageManager::receiveDQMMessage,
             I2O_SM_DQM,
@@ -355,19 +357,22 @@ void StorageManager::receiveRegistryMessage(toolbox::mem::Reference *ref)
   {
   // a quick fix for registration problem TODO find real problem and fix!
   boost::mutex::scoped_lock sl(rblist_lock_);
+  
+  // TODO for local transfers should break the I2O chain and feed these in each frame
+  //      but beware of the discard for local transfers!
 
   int status = smrbsenders_.registerDataSender(&msg->hltURL[0], &msg->hltClassName[0],
                  msg->hltLocalId, msg->hltInstance, msg->hltTid,
-                 msg->frameCount, msg->numFrames, ref, dmoduleLabel, dmoduleId);
+                 msg->frameCount, msg->numFrames, ref, dmoduleLabel, dmoduleId, msg->fuID);
   // see if this completes the registry data for this data sender
   // if so then: if first copy it, if subsequent test it (mark which is first?)
   // should test on -1 as problems
   if(status == 1)
   {
     char* regPtr = smrbsenders_.getRegistryData(&msg->hltURL[0], &msg->hltClassName[0],
-                 msg->hltLocalId, msg->hltInstance, msg->hltTid, dmoduleLabel);
+                 msg->hltLocalId, msg->hltInstance, msg->hltTid, dmoduleLabel, msg->fuID);
     unsigned int regSz = smrbsenders_.getRegistrySize(&msg->hltURL[0], &msg->hltClassName[0],
-                 msg->hltLocalId, msg->hltInstance, msg->hltTid, dmoduleLabel);
+                 msg->hltLocalId, msg->hltInstance, msg->hltTid, dmoduleLabel, msg->fuID);
 
     // attempt to add the INIT message to our collection
     // of INIT messages.  (This assumes that we have a full INIT message
@@ -400,7 +405,7 @@ void StorageManager::receiveRegistryMessage(toolbox::mem::Reference *ref)
         b.commit(sizeof(stor::FragEntry));
         // this is checked ok by default
         smrbsenders_.setRegCheckedOK(&msg->hltURL[0], &msg->hltClassName[0],
-                                     msg->hltLocalId, msg->hltInstance, msg->hltTid, dmoduleLabel);
+                                     msg->hltLocalId, msg->hltInstance, msg->hltTid, dmoduleLabel, msg->fuID);
 
         // add this output module to the monitoring
         bool alreadyStoredOutMod = false;
@@ -466,7 +471,7 @@ void StorageManager::receiveRegistryMessage(toolbox::mem::Reference *ref)
         // there was no exception.
         FDEBUG(9) << "copyAndTestRegistry: Duplicate registry is okay" << std::endl;
         smrbsenders_.setRegCheckedOK(&msg->hltURL[0], &msg->hltClassName[0],
-                                     msg->hltLocalId, msg->hltInstance, msg->hltTid, dmoduleLabel);
+                                     msg->hltLocalId, msg->hltInstance, msg->hltTid, dmoduleLabel, msg->fuID);
       }
     }
     catch(cms::Exception& excpt)
@@ -789,17 +794,19 @@ void StorageManager::receiveErrorDataMessage(toolbox::mem::Reference *ref)
          }
          // for data sender list update
          // msg->frameCount start from 0, but in EventMsg header it starts from 1!
-         bool isLocal = true;
+         //bool isLocal = true;
 
          //update last error event seen
          lastErrorEventSeen_ = msg->eventID;
 
          // TODO need to fix this as the outModId is not valid for error events
+         /*
          int status = 
 	   smrbsenders_.updateSender4data(&msg->hltURL[0], &msg->hltClassName[0],
 					    msg->hltLocalId, msg->hltInstance, msg->hltTid,
 					    msg->runID, msg->eventID, msg->frameCount+1, msg->numFrames,
 					    msg->originalSize, isLocal, msg->outModID);
+         */
 
          // 13-Aug-2008, KAB - for now, increment the receivedErrorEvent counter
          // independent of the result of the updateFUSender4data() call since we
@@ -808,6 +815,7 @@ void StorageManager::receiveErrorDataMessage(toolbox::mem::Reference *ref)
            ++(receivedErrorEvents_.value_);
          //}
 
+         /*
          if(status == -1) {
            LOG4CPLUS_ERROR(this->getApplicationLogger(),
                     "updateSender4data: Cannot find RB in Data Sender list!"
@@ -815,6 +823,7 @@ void StorageManager::receiveErrorDataMessage(toolbox::mem::Reference *ref)
                     << msg->hltURL << " class " << msg->hltClassName  << " instance "
                     << msg->hltInstance << " Tid " << msg->hltTid);
          }
+         */
       }
 
     } else {
@@ -855,13 +864,15 @@ void StorageManager::receiveErrorDataMessage(toolbox::mem::Reference *ref)
 
     // for data sender list update
     // msg->frameCount start from 0, but in EventMsg header it starts from 1!
-    bool isLocal = false;
+    //bool isLocal = false;
     // TODO need to fix this as the outModId is not valid for error events
+    /*
     int status = 
       smrbsenders_.updateSender4data(&msg->hltURL[0], &msg->hltClassName[0],
 				       msg->hltLocalId, msg->hltInstance, msg->hltTid,
 				       msg->runID, msg->eventID, msg->frameCount+1, msg->numFrames,
 				       msg->originalSize, isLocal, msg->outModID);
+    */
     
     // 13-Aug-2008, KAB - for now, increment the receivedErrorEvent counter
     // independent of the result of the updateFUSender4data() call since we
@@ -869,6 +880,7 @@ void StorageManager::receiveErrorDataMessage(toolbox::mem::Reference *ref)
     //if(status == 1) {
       ++(receivedErrorEvents_.value_);
     //}
+    /*
     if(status == -1) {
       LOG4CPLUS_ERROR(this->getApplicationLogger(),
 		      "updateSender4data: Cannot find RB in Data Sender list!"
@@ -876,6 +888,7 @@ void StorageManager::receiveErrorDataMessage(toolbox::mem::Reference *ref)
 		      << msg->hltURL << " class " << msg->hltClassName  << " instance "
 		      << msg->hltInstance << " Tid " << msg->hltTid);
     }
+    */
   }
 
   if (  msg->frameCount == msg->numFrames-1 )
@@ -888,6 +901,7 @@ void StorageManager::receiveErrorDataMessage(toolbox::mem::Reference *ref)
     }
 }
 
+/*
 void StorageManager::receiveOtherMessage(toolbox::mem::Reference *ref)
 {
   // get the memory pool pointer for statistics if not already set
@@ -923,10 +937,17 @@ void StorageManager::receiveOtherMessage(toolbox::mem::Reference *ref)
   LOG4CPLUS_INFO(this->getApplicationLogger(),"removing data sender at " << msg->hltURL);
   bool didErase = smrbsenders_.removeDataSender(&msg->hltURL[0], &msg->hltClassName[0],
 		 msg->hltLocalId, msg->hltInstance, msg->hltTid);
+  //  
+  //  can only remove one (first) entry matching URL etc. as there is no real FU id.
+  //  Since this is called multiple times, once for each FU on an RB, we are effectively
+  //  only counting we have removed the right number of FUs per RB
+  //  TODO to be fixed when moving INIT message to FragmentCollector
+  //
+
   if(!didErase)
   {
     LOG4CPLUS_ERROR(this->getApplicationLogger(),
-                    "Spurious end-of-run received for RB not in Sender list!"
+                    "Too many end-of-run received for RB/FU or RB not in Sender list!"
                     << " With URL "
                     << msg->hltURL << " class " << msg->hltClassName  << " instance "
                     << msg->hltInstance << " Tid " << msg->hltTid);
@@ -941,6 +962,7 @@ void StorageManager::receiveOtherMessage(toolbox::mem::Reference *ref)
   unsigned long actualFrameSize = (unsigned long)sizeof(I2O_SM_OTHER_MESSAGE_FRAME);
   addMeasurement(actualFrameSize);
 }
+*/
 
 void StorageManager::receiveDQMMessage(toolbox::mem::Reference *ref)
 {
@@ -1536,6 +1558,22 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
           *out << "Number of RB Senders" << endl;
           *out << "</td>" << endl;
           *out << "<td>" << endl;
+          *out << smrbsenders_.numberOfRB() << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "Number of OM per FU" << endl;
+          *out << "</td>" << endl;
+          *out << "<td>" << endl;
+          *out << smrbsenders_.numberOfOM() << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "Sanity check number in sender list" << endl;
+          *out << "</td>" << endl;
+          *out << "<td>" << endl;
           *out << smrbsenders_.size() << endl;
           *out << "</td>" << endl;
         *out << "  </tr>" << endl;
@@ -1652,7 +1690,7 @@ void StorageManager::rbsenderWebPage(xgi::Input *in, xgi::Output *out)
   *out << "<colgroup> <colgroup align=\"rigth\">"                    << endl;
     *out << "  <tr>"                                                   << endl;
     *out << "    <th colspan=2>"                                       << endl;
-    *out << "      " << "RB Sender List"                            << endl;
+    *out << "      " << "RBxFUxOM Sender List"                            << endl;
     *out << "    </th>"                                                << endl;
     *out << "  </tr>"                                                  << endl;
 
@@ -1668,7 +1706,23 @@ void StorageManager::rbsenderWebPage(xgi::Input *in, xgi::Output *out)
           *out << "<td >" << endl;
           *out << "Number of RB Senders" << endl;
           *out << "</td>" << endl;
-          *out << "<td align=right>" << endl;
+          *out << "<td>" << endl;
+          *out << smrbsenders_.numberOfRB() << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "Number of OM per FU" << endl;
+          *out << "</td>" << endl;
+          *out << "<td>" << endl;
+          *out << smrbsenders_.numberOfOM() << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "Number in list of senders" << endl;
+          *out << "</td>" << endl;
+          *out << "<td>" << endl;
           *out << smrbsenders_.size() << endl;
           *out << "</td>" << endl;
         *out << "  </tr>" << endl;
@@ -1725,6 +1779,14 @@ void StorageManager::rbsenderWebPage(xgi::Input *in, xgi::Output *out)
           *out << "</td>" << endl;
           *out << "<td align=right>" << endl;
           *out << (*pos)->hltTid_ << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "FU Sender id (shared memory id!)" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << (*pos)->fuID_ << endl;
           *out << "</td>" << endl;
         *out << "  </tr>" << endl;
         *out << "<tr>" << endl;
