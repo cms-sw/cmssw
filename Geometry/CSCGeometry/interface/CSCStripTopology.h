@@ -49,6 +49,11 @@ public:
    */
   std::pair<float, float> equationOfStrip( float strip ) const;
 
+  /**
+   * Return local y limits of strip plane
+   */
+  std::pair<float, float> yLimitsOfStripPlane() const;
+
   virtual CSCStripTopology* clone() const = 0;
 
   /**
