@@ -1,12 +1,14 @@
-#ifndef Alignment_CommonAlignment_AlignmentParametersFactory_h 
-#define Alignment_CommonAlignment_AlignmentParametersFactory_h 
-
+#ifndef Alignment_CommonAlignmentParametrization_AlignmentParametersFactory_h 
+#define Alignment_CommonAlignmentParametrization_AlignmentParametersFactory_h 
 
 /// \namespace AlignmentParametersFactory
+///  
+/// Factory interface to create AlignmentParameters for the known types,
+/// defined by the enum AlignmentParametersFactory::ParametersType.
 ///
-///  $Date: 2007/10/08 15:56:00 $
-///  $Revision: 1.12 $
-/// (last update by $Author: cklae $)
+///  $Date: 2008/09/02 15:18:19 $
+///  $Revision: 1.1 $
+/// (last update by $Author: flucke $)
 
 #include <vector>
 #include <string>
