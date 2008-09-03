@@ -111,6 +111,11 @@ struct CSCAddressBoxPartition {
   std::vector<unsigned int> boxes;
 };
 
+struct CSCAddressBoxStationPartition {
+  unsigned int from[2];
+  unsigned int to[2];
+};
+
 class CSCDetector {
 
   public:
@@ -145,8 +150,11 @@ class CSCDetector {
     const float PhiMaxCFEB(const int station, const int ring, const int chamber, const int cfeb) const;
 
     CSCAddressBox boxes[N_ELEMENTS];
-    CSCAddressBoxPartition partitions[PARTITIONX][PARTITIONY];
     float station_area[N_STATIONS];
+
+    // To improve performance
+    CSCAddressBoxPartition partitions[PARTITIONX][PARTITIONY];
+    CSCAddressBoxStationPartition station_partitions[N_STATIONS];
 
 };
 

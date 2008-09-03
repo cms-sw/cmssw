@@ -46,57 +46,59 @@ CSCDetector::CSCDetector() {
     float sign = +1.0;
     if(adr.side == 2) sign = -1.0;
     for (adr.station = 1; adr.station <= N_STATIONS; adr.station++) {
-       for (adr.ring = 1; adr.ring <= NumberOfRings(adr.station); adr.ring++) { 
-          for (adr.chamber = 1; adr.chamber <= NumberOfChambers(adr.station, adr.ring); adr.chamber++) {
-            for (adr.cfeb = 1; adr.cfeb <= NumberOfChamberCFEBs(adr.station, adr.ring); adr.cfeb++) {
-              for (adr.hv = 1; adr.hv <= NumberOfChamberHVs(adr.station, adr.ring); adr.hv++) {
+      station_partitions[adr.station - 1].from[adr.side - 1] = i;
+      for (adr.ring = 1; adr.ring <= NumberOfRings(adr.station); adr.ring++) { 
+        for (adr.chamber = 1; adr.chamber <= NumberOfChambers(adr.station, adr.ring); adr.chamber++) {
+          for (adr.cfeb = 1; adr.cfeb <= NumberOfChamberCFEBs(adr.station, adr.ring); adr.cfeb++) {
+            for (adr.hv = 1; adr.hv <= NumberOfChamberHVs(adr.station, adr.ring); adr.hv++) {
 
-                float z = Z(adr.station, adr.ring);
-                float r_min = RMinHV(adr.station, adr.ring, adr.hv);
-                float r_max = RMaxHV(adr.station, adr.ring, adr.hv);
-                float eta_min = sign * Eta(r_min, z);
-                float eta_max = sign * Eta(r_max, z);
-                float x_min = EtaToX(eta_min);
-                float x_max = EtaToX(eta_max);
-                float phi_min = 0;
-                float phi_max = 0;
+              float z = Z(adr.station, adr.ring);
+              float r_min = RMinHV(adr.station, adr.ring, adr.hv);
+              float r_max = RMaxHV(adr.station, adr.ring, adr.hv);
+              float eta_min = sign * Eta(r_min, z);
+              float eta_max = sign * Eta(r_max, z);
+              float x_min = EtaToX(eta_min);
+              float x_max = EtaToX(eta_max);
+              float phi_min = 0;
+              float phi_max = 0;
 
-                if(adr.station == 1 && adr.ring == 1 && adr.hv == 1) {
-                  phi_min = PhiMinCFEB(adr.station, adr.ring, adr.chamber, 1);
-                  phi_max = PhiMaxCFEB(adr.station, adr.ring, adr.chamber, NumberOfChamberCFEBs(adr.station, adr.ring));
-                } else {
-                  phi_min = PhiMinCFEB(adr.station, adr.ring, adr.chamber, adr.cfeb);
-                  phi_max = PhiMaxCFEB(adr.station, adr.ring, adr.chamber, adr.cfeb);
-                }
-                float y_min = PhiToY(phi_min);
-                float y_max = PhiToY(phi_max);
-                
-                boxes[i].adr = adr;
-
-                float xboxmin = (x_min < x_max ? x_min : x_max);
-                float xboxmax = (x_max > x_min ? x_max : x_min);
-                float yboxmin = (y_min < y_max ? y_min : y_max);
-                float yboxmax = (y_max > y_min ? y_max : y_min);
-
-                boxes[i].xmin = xboxmin;
-                boxes[i].xmax = xboxmax;
-                boxes[i].ymin = yboxmin;
-                boxes[i].ymax = yboxmax;
-
-                for (unsigned int px = 0; px < PARTITIONX; px++) {
-                  for (unsigned int py = 0; py < PARTITIONY; py++) {
-                    if ((partitions[px][py].xmin < xboxmin && partitions[px][py].xmax < xboxmin) || (partitions[px][py].xmin > xboxmax && partitions[px][py].xmax > xboxmax)) continue;
-                    if ((partitions[px][py].ymin < yboxmin && partitions[px][py].ymax < yboxmin) || (partitions[px][py].ymin > yboxmax && partitions[px][py].ymax > yboxmax)) continue;
-                    partitions[px][py].boxes.push_back(i);
-                  }
-                }
-
-                i++;
-
+              if(adr.station == 1 && adr.ring == 1 && adr.hv == 1) {
+                phi_min = PhiMinCFEB(adr.station, adr.ring, adr.chamber, 1);
+                phi_max = PhiMaxCFEB(adr.station, adr.ring, adr.chamber, NumberOfChamberCFEBs(adr.station, adr.ring));
+              } else {
+                phi_min = PhiMinCFEB(adr.station, adr.ring, adr.chamber, adr.cfeb);
+                phi_max = PhiMaxCFEB(adr.station, adr.ring, adr.chamber, adr.cfeb);
               }
+              float y_min = PhiToY(phi_min);
+              float y_max = PhiToY(phi_max);
+                
+              boxes[i].adr = adr;
+
+              float xboxmin = (x_min < x_max ? x_min : x_max);
+              float xboxmax = (x_max > x_min ? x_max : x_min);
+              float yboxmin = (y_min < y_max ? y_min : y_max);
+              float yboxmax = (y_max > y_min ? y_max : y_min);
+
+              boxes[i].xmin = xboxmin;
+              boxes[i].xmax = xboxmax;
+              boxes[i].ymin = yboxmin;
+              boxes[i].ymax = yboxmax;
+
+              for (unsigned int px = 0; px < PARTITIONX; px++) {
+                for (unsigned int py = 0; py < PARTITIONY; py++) {
+                  if ((partitions[px][py].xmin < xboxmin && partitions[px][py].xmax < xboxmin) || (partitions[px][py].xmin > xboxmax && partitions[px][py].xmax > xboxmax)) continue;
+                  if ((partitions[px][py].ymin < yboxmin && partitions[px][py].ymax < yboxmin) || (partitions[px][py].ymin > yboxmax && partitions[px][py].ymax > yboxmax)) continue;
+                  partitions[px][py].boxes.push_back(i);
+                }
+              }
+
+              i++;
+
             }
           }
-       }
+        }
+      }
+      station_partitions[adr.station - 1].to[adr.side - 1] = i - 1;
     }
   }
 
@@ -256,6 +258,26 @@ const bool CSCDetector::NextAddress(unsigned int& i, const CSCAddress*& adr, con
 }
 
 const bool CSCDetector::NextAddressBox(unsigned int& i, const CSCAddressBox*& box, const CSCAddress& mask) const {
+
+  if (mask.mask.station) {
+    unsigned int side = 1;
+    if (mask.mask.side) side = mask.side;
+    if (i == 0) 
+      i = station_partitions[mask.station - 1].from[side - 1];
+    else {
+      if (mask.mask.side) {
+        if (i > station_partitions[mask.station - 1].to[side - 1])
+          i = N_ELEMENTS;
+      } else {
+        if (i > station_partitions[mask.station - 1].to[0] && i < station_partitions[mask.station - 1].from[1])
+          i = station_partitions[mask.station - 1].from[1];
+        else
+          if (i > station_partitions[mask.station - 1].to[1])
+            i = N_ELEMENTS;
+      }
+    }    
+  }
+
   for(; i < N_ELEMENTS; i++ ) {
     if (boxes[i].adr == mask) {
         box = &boxes[i];

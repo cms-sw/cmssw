@@ -465,30 +465,10 @@ const int CSCSummary::IsPhysicsReady(const float xmin, const float xmax, const f
 
   for (adr.station = 1; adr.station <= N_STATIONS; adr.station++) {
 
-    unsigned int i = 0;
-    unsigned int px = 0, py = 0;
-    //bool was = false;
-    //while(detector.NextAddressBox(i, box, adr)) {
+    unsigned int i = 0, px = 0, py = 0;
     while(detector.NextAddressBoxByPartition(i, px, py, box, adr, xpmin, xpmax, ypmin, ypmax)) {
-      /*
-      if (!was) {
-        if ((xpmin < box->xmin && xpmax < box->xmin) || (xpmin > box->xmax && xpmax > box->xmax)) continue;
-        if ((ypmin < box->ymin && ypmax < box->ymin) || (ypmin > box->ymax && ypmax > box->ymax)) continue;
-      } else {
-        bool fit = true;
-        if ((xpmin < box->xmin && xpmax < box->xmin) || (xpmin > box->xmax && xpmax > box->xmax)) fit = false;
-        if ((ypmin < box->ymin && ypmax < box->ymin) || (ypmin > box->ymax && ypmax > box->ymax)) {
-          if (!fit) break;
-          continue;
-        }
-        if (!fit) continue;
-      }
-      */
       tadr = box->adr;
       status[adr.station - 1] |= GetValue(tadr);
-
-      //was = true;
-
     }
 
   }
