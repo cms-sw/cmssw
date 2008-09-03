@@ -9,13 +9,15 @@ camilo.carrilloATcern.ch
 #include <memory>
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include <DataFormats/RPCDigi/interface/RPCDigiCollection.h>
-#include <Geometry/RPCGeometry/interface/RPCGeomServ.h>
+#include <DataFormats/MuonDetId/interface/RPCDetId.h>
 #include <DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h>
 #include <DataFormats/CSCRecHit/interface/CSCSegmentCollection.h>
+#include <Geometry/RPCGeometry/interface/RPCGeomServ.h>
 #include <Geometry/CommonDetUnit/interface/GeomDet.h>
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
 #include <Geometry/CommonTopologies/interface/RectangularStripTopology.h>
 #include <Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h>
+
 #include <cmath>
 #include "TFile.h"
 #include "TH1F.h"
@@ -24,14 +26,24 @@ camilo.carrilloATcern.ch
 #include "TAxis.h"
 #include "TString.h"
 
+int mySegment(RPCDetId rpcId){
+  int seg=0;
+  int nsec=36;
+  int nsub=6;
+  if (rpcId.ring()==1 && rpcId.station() > 1) {
+    nsub=3;
+    nsec=18;
+  }
+  seg =rpcId.subsector()+nsub*(rpcId.sector()-1);
+  if(seg==nsec+1)seg=1;
+  return seg;
+}
+
 void RPCEfficiency::beginJob(const edm::EventSetup& iSetup){
-  std::cout<<"Getting RPC Geometry"<<std::endl;
   iSetup.get<MuonGeometryRecord>().get(rpcGeo);
-  std::cout<<"Getting DT Geometry"<<std::endl;
   iSetup.get<MuonGeometryRecord>().get(dtGeo);
-  std::cout<<"Getting CSC Geometry"<<std::endl;
   iSetup.get<MuonGeometryRecord>().get(cscGeo);
-  std::cout<<"got geometry"<<std::endl;
+
   for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
     if(dynamic_cast< RPCChamber* >( *it ) != 0 ){
       RPCChamber* ch = dynamic_cast< RPCChamber* >( *it ); 
@@ -43,7 +55,7 @@ void RPCEfficiency::beginJob(const edm::EventSetup& iSetup){
 	//booking all histograms
 	RPCGeomServ rpcsrv(rpcId);
 	std::string nameRoll = rpcsrv.name();
-	std::cout<<"Booking for "<<nameRoll<<std::endl;
+	//std::cout<<"Booking for "<<nameRoll<<std::endl;
 	meCollection[nameRoll] = bookDetUnitSeg(rpcId,(*r)->nstrips());
 	
 	if(region==0&&(incldt||incldtMB4)){
@@ -66,7 +78,8 @@ void RPCEfficiency::beginJob(const edm::EventSetup& iSetup){
           int cscring=ring;
           int cscstation=station;
 	  RPCGeomServ rpcsrv(rpcId);
-	  int rpcsegment = rpcsrv.segment();
+	  int rpcsegment = mySegment(rpcId); //This replace rpcsrv.segment();
+	  //std::cout<<"My segment="<<mySegment(rpcId)<<" GeomServ="<<rpcsrv.segment()<<std::endl;
 	  int cscchamber = rpcsegment;//FIX THIS ACCORDING TO RPCGeomServ::segment()Definition
           if((station==2||station==3)&&ring==3){//Adding Ring 3 of RPC to the CSC Ring 2
             cscring = 2;
@@ -138,7 +151,7 @@ void RPCEfficiency::beginJob(const edm::EventSetup& iSetup){
           int cscring=sidering;
           int cscstation=station;
 	  RPCGeomServ rpcsrv(rpcId);
-	  int rpcsegment = rpcsrv.segment();
+	  int rpcsegment = mySegment(rpcId);
 	  int cscchamber = rpcsegment;//FIX THIS ACCORDING TO RPCGeomServ::segment()Definition
           if((station==2||station==3)&&ring==3){//Adding Ring 3 of RPC to the CSC Ring 2
             cscring = 2;
@@ -939,7 +952,7 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		      <<" cscphi="<<cscphi*180/3.14159265
 		      <<"\t RPC Station= "<<rpcId.station()
 		      <<" ring= "<<rpcId.ring()
-		      <<" segment =-> "<<rpcsrv.segment()
+		      <<" segment =-> "<<mySegment(rpcId)
 		      <<" rollphi="<<rpcphi*180/3.14159265
 		      <<"\t dfg="<<dfg
 		      <<" dz="<<dz
