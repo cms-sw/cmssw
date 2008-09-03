@@ -8,6 +8,7 @@
 //     <Notes on implementation>
 //
 // Author:      Zhen Xie
+// $Id$
 //
 // system include files
 #include "boost/shared_ptr.hpp"
@@ -92,7 +93,7 @@ fillRecordToTypeMap(std::multimap<std::string, std::string>& oToFill){
 //static cond::ConnectionHandler& conHandler=cond::ConnectionHandler::Instance();
 
 PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
-  m_session( new cond::DBSession ),initcall(true)
+  m_session( new cond::DBSession )
 {		
   //std::cout<<"PoolDBESSource::PoolDBESSource"<<std::endl;
   /*parameter set parsing and pool environment setting
@@ -239,11 +240,6 @@ PoolDBESSource::~PoolDBESSource()
 void 
 PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey, const edm::IOVSyncValue& iTime, edm::ValidityInterval& oInterval ){
   //std::cout<<"PoolDBESSource::setIntervalFor"<<std::endl;
-  if (initcall) {
-    //std::cout<<"first call do nothing"<<std::endl;
-    initcall=false;
-    return;
-  }
   //LogDebug ("PoolDBESSource")<<iKey.name();
   std::string recordname=iKey.name();
   std::string objectname("");
@@ -285,7 +281,7 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
   if( !iovservice.isValid(leadingToken,abtime) ){
     os<<abtime;
     //throw cond::noDataForRequiredTimeException("PoolDBESSource::setIntervalFor",iKey.name(),os.str());
-    //std::cout<<"setting invalidInterval"<<std::endl;
+    pooldb.commit();
     oInterval = edm::ValidityInterval::invalidInterval();
     return;
   }
