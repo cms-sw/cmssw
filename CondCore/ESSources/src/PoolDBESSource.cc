@@ -8,7 +8,7 @@
 //     <Notes on implementation>
 //
 // Author:      Zhen Xie
-// $Id$
+// $Id: PoolDBESSource.cc,v 1.103 2008/09/03 12:56:42 xiezhen Exp $
 //
 // system include files
 #include "boost/shared_ptr.hpp"
@@ -292,7 +292,7 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
     stop=edm::IOVSyncValue( edm::Timestamp(validity.second) );
   }else{
     start=edm::IOVSyncValue( edm::EventID(validity.first,0) );
-    stop=edm::IOVSyncValue( edm::EventID(validity.second,0) );
+    stop=edm::IOVSyncValue( edm::EventID(validity.second,edm::EventID::maxEventNumber()) );
   }
   //std::cout<<"setting validity "<<validity.first<<" "<<validity.second<<" for ibtime "<<abtime<< std::endl;
   oInterval = edm::ValidityInterval( start, stop );
