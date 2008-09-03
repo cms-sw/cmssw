@@ -39,8 +39,108 @@ int mySegment(RPCDetId rpcId){
   return seg;
 }
 
-void RPCEfficiency::beginJob(const edm::EventSetup& iSetup){
-  iSetup.get<MuonGeometryRecord>().get(rpcGeo);
+void RPCEfficiency::beginJob(){
+   
+}
+
+RPCEfficiency::RPCEfficiency(const edm::ParameterSet& iConfig){
+  if(debug) std::cout<<"Begin Constructor"<<std::endl;
+  
+  incldt=iConfig.getUntrackedParameter<bool>("incldt",true);
+  incldtMB4=iConfig.getUntrackedParameter<bool>("incldtMB4",true);
+  inclcsc=iConfig.getUntrackedParameter<bool>("inclcsc",true);
+  debug=iConfig.getUntrackedParameter<bool>("debug",false);
+  MinimalResidual= iConfig.getUntrackedParameter<double>("MinimalResidual",2.);
+  dupli = iConfig.getUntrackedParameter<int>("DuplicationCorrection",2); 
+  MinimalResidualRB4=iConfig.getUntrackedParameter<double>("MinimalResidualRB4",4.);
+  MinCosAng=iConfig.getUntrackedParameter<double>("MinCosAng",0.9999);
+  MaxD=iConfig.getUntrackedParameter<double>("MaxD",20.);
+  MaxDrb4=iConfig.getUntrackedParameter<double>("MaxDrb4",30.);
+  MaxStripToCountInAverage=iConfig.getUntrackedParameter<double>("MaxStripToCountInAverage",5.);
+  MaxStripToCountInAverageRB4=iConfig.getUntrackedParameter<double>("MaxStripToCountInAverageRB4",7.);
+  muonRPCDigis=iConfig.getUntrackedParameter<std::string>("muonRPCDigis","muonRPCDigis");
+  cscSegments=iConfig.getUntrackedParameter<std::string>("cscSegments","cscSegments");
+  dt4DSegments=iConfig.getUntrackedParameter<std::string>("dt4DSegments","dt4DSegments");
+
+  // Giuseppe
+  nameInLog = iConfig.getUntrackedParameter<std::string>("moduleLogName", "RPC_Eff");
+  EffSaveRootFile  = iConfig.getUntrackedParameter<bool>("EffSaveRootFile", false); 
+  EffRootFileName  = iConfig.getUntrackedParameter<std::string>("EffRootFileName", "RPCEfficiencyFirst.root"); 
+
+
+  //Interface
+  dbe = edm::Service<DQMStore>().operator->();
+  
+  std::string folder = "Muons/MuonSegEff/";
+  dbe->setCurrentFolder(folder);
+  statistics = dbe->book1D("Statistics","All Statistics",33,0.5,33.5);
+  
+  if(debug) std::cout<<"booking Global histograms"<<std::endl;
+
+  statistics->setBinLabel(1,"Events ",1);
+  statistics->setBinLabel(2,"Events with DT segments",1);
+  statistics->setBinLabel(3,"Events with 1 DT segment",1);
+  statistics->setBinLabel(4,"Events with 2 DT segments",1);
+  statistics->setBinLabel(5,"Events with 3 DT segments",1);
+  statistics->setBinLabel(6,"Events with 4 DT segments",1);
+  statistics->setBinLabel(7,"Events with 5 DT segments",1);
+  statistics->setBinLabel(8,"Events with 6 DT segments",1);
+  statistics->setBinLabel(9,"Events with 7 DT segments",1);
+  statistics->setBinLabel(10,"Events with 8 DT segments",1);
+  statistics->setBinLabel(11,"Events with 9 DT segments",1);
+  statistics->setBinLabel(12,"Events with 10 DT segments",1);
+  statistics->setBinLabel(13,"Events with 11 DT segments",1);
+  statistics->setBinLabel(14,"Events with 12 DT segments",1);
+  statistics->setBinLabel(15,"Events with 13 DT segments",1);
+  statistics->setBinLabel(16,"Events with 14 DT segments",1);
+  statistics->setBinLabel(17,"Events with 15 DT segments",1);
+  statistics->setBinLabel(18,"Events with CSC segments",1);
+  statistics->setBinLabel(16+3,"Events with 1 CSC segment",1);
+  statistics->setBinLabel(16+4,"Events with 2 CSC segments",1);
+  statistics->setBinLabel(16+5,"Events with 3 CSC segments",1);
+  statistics->setBinLabel(16+6,"Events with 4 CSC segments",1);
+  statistics->setBinLabel(16+7,"Events with 5 CSC segments",1);
+  statistics->setBinLabel(16+8,"Events with 6 CSC segments",1);
+  statistics->setBinLabel(16+9,"Events with 7 CSC segments",1);
+  statistics->setBinLabel(16+10,"Events with 8 CSC segments",1);
+  statistics->setBinLabel(16+11,"Events with 9 CSC segments",1);
+  statistics->setBinLabel(16+12,"Events with 10 CSC segments",1);
+  statistics->setBinLabel(16+13,"Events with 11 CSC segments",1);
+  statistics->setBinLabel(16+14,"Events with 12 CSC segments",1);
+  statistics->setBinLabel(16+15,"Events with 13 CSC segments",1);
+  statistics->setBinLabel(16+16,"Events with 14 CSC segments",1);
+  statistics->setBinLabel(16+17,"Events with 15 CSC segments",1);
+  
+  folder = "Muons/MuonSegEff/Residuals";
+  dbe->setCurrentFolder(folder);
+  hGlobalResClu1La1 = dbe->book1D("GlobalResidualsClu1La1","RPC Residuals Layer 1 Cluster Size 1",100,-10.,10.);
+  hGlobalResClu1La2 = dbe->book1D("GlobalResidualsClu1La2","RPC Residuals Layer 2 Cluster Size 1",100,-10.,10.);
+  hGlobalResClu1La3 = dbe->book1D("GlobalResidualsClu1La3","RPC Residuals Layer 3 Cluster Size 1",100,-10.,10.);
+  hGlobalResClu1La4 = dbe->book1D("GlobalResidualsClu1La4","RPC Residuals Layer 4 Cluster Size 1",100,-10.,10.);
+  hGlobalResClu1La5 = dbe->book1D("GlobalResidualsClu1La5","RPC Residuals Layer 5 Cluster Size 1",100,-10.,10.);
+  hGlobalResClu1La6 = dbe->book1D("GlobalResidualsClu1La6","RPC Residuals Layer 6 Cluster Size 1",100,-10.,10.);
+
+  hGlobalResClu2La1 = dbe->book1D("GlobalResidualsClu2La1","RPC Residuals Layer 1 Cluster Size 2",100,-10.,10.);
+  hGlobalResClu2La2 = dbe->book1D("GlobalResidualsClu2La2","RPC Residuals Layer 2 Cluster Size 2",100,-10.,10.);
+  hGlobalResClu2La3 = dbe->book1D("GlobalResidualsClu2La3","RPC Residuals Layer 3 Cluster Size 2",100,-10.,10.);
+  hGlobalResClu2La4 = dbe->book1D("GlobalResidualsClu2La4","RPC Residuals Layer 4 Cluster Size 2",100,-10.,10.);
+  hGlobalResClu2La5 = dbe->book1D("GlobalResidualsClu2La5","RPC Residuals Layer 5 Cluster Size 2",100,-10.,10.);
+  hGlobalResClu2La6 = dbe->book1D("GlobalResidualsClu2La6","RPC Residuals Layer 6 Cluster Size 2",100,-10.,10.);
+
+  hGlobalResClu3La1 = dbe->book1D("GlobalResidualsClu3La1","RPC Residuals Layer 1 Cluster Size 3",100,-10.,10.);
+  hGlobalResClu3La2 = dbe->book1D("GlobalResidualsClu3La2","RPC Residuals Layer 2 Cluster Size 3",100,-10.,10.);
+  hGlobalResClu3La3 = dbe->book1D("GlobalResidualsClu3La3","RPC Residuals Layer 3 Cluster Size 3",100,-10.,10.);
+  hGlobalResClu3La4 = dbe->book1D("GlobalResidualsClu3La4","RPC Residuals Layer 4 Cluster Size 3",100,-10.,10.);
+  hGlobalResClu3La5 = dbe->book1D("GlobalResidualsClu3La5","RPC Residuals Layer 5 Cluster Size 3",100,-10.,10.);
+  hGlobalResClu3La6 = dbe->book1D("GlobalResidualsClu3La6","RPC Residuals Layer 6 Cluster Size 3",100,-10.,10.);
+
+
+
+  if(debug) ofrej.open("rejected.txt");
+}
+
+void RPCEfficiency::beginRun(const edm::Run& run, const edm::EventSetup& iSetup){
+   iSetup.get<MuonGeometryRecord>().get(rpcGeo);
   iSetup.get<MuonGeometryRecord>().get(dtGeo);
   iSetup.get<MuonGeometryRecord>().get(cscGeo);
 
@@ -177,107 +277,11 @@ void RPCEfficiency::beginJob(const edm::EventSetup& iSetup){
   
   //booking global histograms
   
-}
-
-
-RPCEfficiency::RPCEfficiency(const edm::ParameterSet& iConfig){
-  if(debug) std::cout<<"Begin Constructor"<<std::endl;
-  
-  incldt=iConfig.getUntrackedParameter<bool>("incldt",true);
-  incldtMB4=iConfig.getUntrackedParameter<bool>("incldtMB4",true);
-  inclcsc=iConfig.getUntrackedParameter<bool>("inclcsc",true);
-  debug=iConfig.getUntrackedParameter<bool>("debug",false);
-  MinimalResidual= iConfig.getUntrackedParameter<double>("MinimalResidual",2.);
-  dupli = iConfig.getUntrackedParameter<int>("DuplicationCorrection",2); 
-  MinimalResidualRB4=iConfig.getUntrackedParameter<double>("MinimalResidualRB4",4.);
-  MinCosAng=iConfig.getUntrackedParameter<double>("MinCosAng",0.9999);
-  MaxD=iConfig.getUntrackedParameter<double>("MaxD",20.);
-  MaxDrb4=iConfig.getUntrackedParameter<double>("MaxDrb4",30.);
-  MaxStripToCountInAverage=iConfig.getUntrackedParameter<double>("MaxStripToCountInAverage",5.);
-  MaxStripToCountInAverageRB4=iConfig.getUntrackedParameter<double>("MaxStripToCountInAverageRB4",7.);
-  muonRPCDigis=iConfig.getUntrackedParameter<std::string>("muonRPCDigis","muonRPCDigis");
-  cscSegments=iConfig.getUntrackedParameter<std::string>("cscSegments","cscSegments");
-  dt4DSegments=iConfig.getUntrackedParameter<std::string>("dt4DSegments","dt4DSegments");
-
-  // Giuseppe
-  nameInLog = iConfig.getUntrackedParameter<std::string>("moduleLogName", "RPC_Eff");
-  EffSaveRootFile  = iConfig.getUntrackedParameter<bool>("EffSaveRootFile", false); 
-  EffRootFileName  = iConfig.getUntrackedParameter<std::string>("EffRootFileName", "RPCEfficiencyFirst.root"); 
-
-
-  //Interface
-  dbe = edm::Service<DQMStore>().operator->();
-  
-  std::string folder = "Muons/MuonSegEff/";
-  dbe->setCurrentFolder(folder);
-  statistics = dbe->book1D("Statistics","All Statistics",33,0.5,33.5);
-  
-  if(debug) std::cout<<"booking Global histograms"<<std::endl;
-
-  statistics->setBinLabel(1,"Events ",1);
-  statistics->setBinLabel(2,"Events with DT segments",1);
-  statistics->setBinLabel(3,"Events with 1 DT segment",1);
-  statistics->setBinLabel(4,"Events with 2 DT segments",1);
-  statistics->setBinLabel(5,"Events with 3 DT segments",1);
-  statistics->setBinLabel(6,"Events with 4 DT segments",1);
-  statistics->setBinLabel(7,"Events with 5 DT segments",1);
-  statistics->setBinLabel(8,"Events with 6 DT segments",1);
-  statistics->setBinLabel(9,"Events with 7 DT segments",1);
-  statistics->setBinLabel(10,"Events with 8 DT segments",1);
-  statistics->setBinLabel(11,"Events with 9 DT segments",1);
-  statistics->setBinLabel(12,"Events with 10 DT segments",1);
-  statistics->setBinLabel(13,"Events with 11 DT segments",1);
-  statistics->setBinLabel(14,"Events with 12 DT segments",1);
-  statistics->setBinLabel(15,"Events with 13 DT segments",1);
-  statistics->setBinLabel(16,"Events with 14 DT segments",1);
-  statistics->setBinLabel(17,"Events with 15 DT segments",1);
-  statistics->setBinLabel(18,"Events with CSC segments",1);
-  statistics->setBinLabel(16+3,"Events with 1 CSC segment",1);
-  statistics->setBinLabel(16+4,"Events with 2 CSC segments",1);
-  statistics->setBinLabel(16+5,"Events with 3 CSC segments",1);
-  statistics->setBinLabel(16+6,"Events with 4 CSC segments",1);
-  statistics->setBinLabel(16+7,"Events with 5 CSC segments",1);
-  statistics->setBinLabel(16+8,"Events with 6 CSC segments",1);
-  statistics->setBinLabel(16+9,"Events with 7 CSC segments",1);
-  statistics->setBinLabel(16+10,"Events with 8 CSC segments",1);
-  statistics->setBinLabel(16+11,"Events with 9 CSC segments",1);
-  statistics->setBinLabel(16+12,"Events with 10 CSC segments",1);
-  statistics->setBinLabel(16+13,"Events with 11 CSC segments",1);
-  statistics->setBinLabel(16+14,"Events with 12 CSC segments",1);
-  statistics->setBinLabel(16+15,"Events with 13 CSC segments",1);
-  statistics->setBinLabel(16+16,"Events with 14 CSC segments",1);
-  statistics->setBinLabel(16+17,"Events with 15 CSC segments",1);
-  
-  folder = "Muons/MuonSegEff/Residuals";
-  dbe->setCurrentFolder(folder);
-  hGlobalResClu1La1 = dbe->book1D("GlobalResidualsClu1La1","RPC Residuals Layer 1 Cluster Size 1",100,-10.,10.);
-  hGlobalResClu1La2 = dbe->book1D("GlobalResidualsClu1La2","RPC Residuals Layer 2 Cluster Size 1",100,-10.,10.);
-  hGlobalResClu1La3 = dbe->book1D("GlobalResidualsClu1La3","RPC Residuals Layer 3 Cluster Size 1",100,-10.,10.);
-  hGlobalResClu1La4 = dbe->book1D("GlobalResidualsClu1La4","RPC Residuals Layer 4 Cluster Size 1",100,-10.,10.);
-  hGlobalResClu1La5 = dbe->book1D("GlobalResidualsClu1La5","RPC Residuals Layer 5 Cluster Size 1",100,-10.,10.);
-  hGlobalResClu1La6 = dbe->book1D("GlobalResidualsClu1La6","RPC Residuals Layer 6 Cluster Size 1",100,-10.,10.);
-
-  hGlobalResClu2La1 = dbe->book1D("GlobalResidualsClu2La1","RPC Residuals Layer 1 Cluster Size 2",100,-10.,10.);
-  hGlobalResClu2La2 = dbe->book1D("GlobalResidualsClu2La2","RPC Residuals Layer 2 Cluster Size 2",100,-10.,10.);
-  hGlobalResClu2La3 = dbe->book1D("GlobalResidualsClu2La3","RPC Residuals Layer 3 Cluster Size 2",100,-10.,10.);
-  hGlobalResClu2La4 = dbe->book1D("GlobalResidualsClu2La4","RPC Residuals Layer 4 Cluster Size 2",100,-10.,10.);
-  hGlobalResClu2La5 = dbe->book1D("GlobalResidualsClu2La5","RPC Residuals Layer 5 Cluster Size 2",100,-10.,10.);
-  hGlobalResClu2La6 = dbe->book1D("GlobalResidualsClu2La6","RPC Residuals Layer 6 Cluster Size 2",100,-10.,10.);
-
-  hGlobalResClu3La1 = dbe->book1D("GlobalResidualsClu3La1","RPC Residuals Layer 1 Cluster Size 3",100,-10.,10.);
-  hGlobalResClu3La2 = dbe->book1D("GlobalResidualsClu3La2","RPC Residuals Layer 2 Cluster Size 3",100,-10.,10.);
-  hGlobalResClu3La3 = dbe->book1D("GlobalResidualsClu3La3","RPC Residuals Layer 3 Cluster Size 3",100,-10.,10.);
-  hGlobalResClu3La4 = dbe->book1D("GlobalResidualsClu3La4","RPC Residuals Layer 4 Cluster Size 3",100,-10.,10.);
-  hGlobalResClu3La5 = dbe->book1D("GlobalResidualsClu3La5","RPC Residuals Layer 5 Cluster Size 3",100,-10.,10.);
-  hGlobalResClu3La6 = dbe->book1D("GlobalResidualsClu3La6","RPC Residuals Layer 6 Cluster Size 3",100,-10.,10.);
+ 
+}//beginRun
 
 
 
-  if(debug) ofrej.open("rejected.txt");
-
-
-
-}
 
 RPCEfficiency::~RPCEfficiency()
 {
