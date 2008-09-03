@@ -213,6 +213,7 @@ void CSCSummary::ReadErrorChambers(TH2*& evs, TH2*& err, const HWStatusBit bit, 
 void CSCSummary::Write(TH2*& h2, const unsigned int station) const {
   const CSCAddressBox* box;
   CSCAddress adr, tadr;
+  float area_all = 0.0, area_rep = 0.0;
 
   if(station < 1 || station > N_STATIONS) return; 
 
@@ -226,19 +227,27 @@ void CSCSummary::Write(TH2*& h2, const unsigned int station) const {
 
     unsigned int x = 1 + (box->adr.side - 1) * 9 + (box->adr.ring - 1) * 3 + (box->adr.hv - 1);
     unsigned int y = 1 + (box->adr.chamber - 1) * 5 + (box->adr.cfeb - 1);
+
     tadr = box->adr;
     HWStatusBitSet status = GetValue(tadr);
+
+    float area_box = fabs((box->xmax - box->xmin) * (box->ymax - box->ymin));
+    area_all += area_box;
+
     if (HWSTATUSANYERROR(status)) {
       h2->SetBinContent(x, y, -1.0);
-    } else
-    if (status.test(DATA)) {
-      h2->SetBinContent(x, y, 1.0);
-    } else
-      h2->SetBinContent(x, y, 0.0);
+    } else {
+      area_rep += area_box;
+      if (status.test(DATA)) {
+        h2->SetBinContent(x, y, 1.0);
+      } else {
+        h2->SetBinContent(x, y, 0.0);
+      }
+    }
 
   }
 
-  TString title = Form("ME%d Status: Physics Efficiency %.2f%%", station, GetEfficiencyArea(adr) * 100.0);
+  TString title = Form("ME%d Status: Physics Efficiency %.2f%%", station, (area_rep / area_all) * 100.0);
   h2->SetTitle(title);
 
 }
