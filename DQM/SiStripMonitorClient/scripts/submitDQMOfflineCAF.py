@@ -630,7 +630,7 @@ if Bool_CRAB:
   file_inputFilesJobCff.close()
   # create included configuration file
   str_sedCommand = 'sed '
-  str_sedCommand += '-e \"s#xOUTPUT_DIRECTORxY#' + str_outputDir + '#g\" '
+  str_sedCommand += '-e \"s#xOUTPUT_DIRECTORYx#' + str_outputDir + '#g\" '
   str_sedCommand += str_pathCmsswBasePackage + '/' + str_nameIncludePath + '/SiStripDQMOfflineGlobalRunCAF_template' + str_suffixCff + ' > ' + str_pathRunIncludeDir + '/SiStripDQMOfflineGlobalRunCAF' + str_suffixCff
   os.system(str_sedCommand)
   for int_iJob in range(Int_jobs):
