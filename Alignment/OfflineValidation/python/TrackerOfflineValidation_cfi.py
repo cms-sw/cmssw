@@ -56,7 +56,7 @@ TrackerOfflineValidation = cms.EDFilter("TrackerOfflineValidation",
     ),
     # X residuals native coordinates (Pixel)                                        
     TH1XprimeResPixelModules = cms.PSet(
-        Nbinx = cms.int32(100), xmin = cms.double(-0.5), xmax = cms.double(3.0)
+        Nbinx = cms.int32(100), xmin = cms.double(-0.5), xmax = cms.double(0.5)
     ),                                        
     # Normalized Y residuals native coordinates (Pixel)                                         
     TH1NormYResPixelModules = cms.PSet(
