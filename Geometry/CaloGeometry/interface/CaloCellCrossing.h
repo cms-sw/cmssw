@@ -23,7 +23,8 @@ class CaloCellCrossing
 			const CaloSubdetectorGeometry* sg ,
 			DetId::Detector                det ,
 			int                            subdet,
-			double                         small  = 1.e-10 ) ;
+			double                         small  = 1.e-10,
+			bool                           onewayonly = false ) ;
 
       virtual ~CaloCellCrossing() {} ;
 
@@ -31,6 +32,7 @@ class CaloCellCrossing
       const GlobalVector& gv() const { return m_gv ; }
 
       const DetIds&  detIds()    const { return m_detId ; }
+      const Points&  centers()   const { return m_ctr   ; }
       const Points&  entrances() const { return m_entr  ; }
       const Points&  exits()     const { return m_exit  ; }
       const Lengths& lengths()   const { return m_len   ; }
@@ -38,12 +40,14 @@ class CaloCellCrossing
    private:
 
       CaloCellCrossing( const CaloCellCrossing& ) ;
-      bool operator=( const CaloCellCrossing& ) ;
+      CaloCellCrossing operator=( const CaloCellCrossing& ) ;
 
       GlobalPoint  m_gp ;
       GlobalVector m_gv ;
 
-      DetIds    m_detId ;
+      DetIds  m_detId ;
+
+      Points  m_ctr  ;
 
       Points  m_entr ;
       Points  m_exit ;

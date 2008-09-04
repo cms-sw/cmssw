@@ -7,13 +7,15 @@ CaloCellCrossing::CaloCellCrossing( const GlobalPoint&              gp ,
 				    const CaloSubdetectorGeometry*  sg ,
 				    DetId::Detector                 det ,
 				    int                             subdet,
-				    double                          small   ) :
+				    double                          small,
+				    bool                            onewayonly ) :
    m_gp ( gp ) ,
    m_gv ( gv ) 
 {
-   const double eps ( fabs( small ) ) ;
+   const double eps ( fabs( small ) > 1.e-15 ? fabs( small ) : 1.e-10 ) ;
    static unsigned int k_rlen ( 30 ) ;
    m_detId.reserve( k_rlen ) ;
+   m_ctr  .reserve( k_rlen ) ;
    m_entr .reserve( k_rlen ) ;
    m_exit .reserve( k_rlen ) ;
 //------------------------------------------------------------
@@ -35,7 +37,9 @@ CaloCellCrossing::CaloCellCrossing( const GlobalPoint&              gp ,
 			    cg.getPosition().z()  ) ;
       const double bCut2 ( ( gc[0] - gc[6] ).mag2() ) ;
 
-      if( bCut2 > line.dist2( fr ) ) // first loose cut
+      if( ( !onewayonly ||
+	    eps < HepVector3D( fr - line.pt() ).dot( line.uv() ) ) &&
+	  bCut2 > line.dist2( fr ) ) // first loose cut
       {
 //	 std::cout<<"*** fr="<<fr<<", bCut ="<<sqrt(bCut2)<<", dis="<<line.dist(fr)<<std::endl ;
 	 const HepPoint3D cv[8] = 
@@ -87,7 +91,8 @@ CaloCellCrossing::CaloCellCrossing( const GlobalPoint&              gp ,
 			{
 			   ++found ;
 			   m_detId.push_back( dId ) ;
-			   m_entr.push_back( GlobalPoint( pt.x(), pt.y(), pt.z() ) ) ;
+			   m_ctr .push_back( GlobalPoint( ctr.x(), ctr.y(), ctr.z() ) ) ;
+			   m_entr.push_back( GlobalPoint(  pt.x(),  pt.y(),  pt.z() ) ) ;
 			}
 			else
 			{
@@ -127,6 +132,7 @@ CaloCellCrossing::CaloCellCrossing( const GlobalPoint&              gp ,
    }
 //------------------------------------------------------------
    assert( m_detId.size() == m_entr.size() &&
+	   m_detId.size() == m_ctr .size() &&
 	   m_detId.size() == m_exit.size()    ) ;
 
    m_len.reserve( m_entr.size() ) ;
