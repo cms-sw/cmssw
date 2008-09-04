@@ -108,15 +108,17 @@ L1Comparator::L1Comparator(const edm::ParameterSet& iConfig) {
   m_FEDsource[1] = 
     iConfig.getUntrackedParameter<edm::InputTag>("FEDsourceEmul",edm::InputTag());
 
-  m_dumpFileName = iConfig.getUntrackedParameter<std::string>("DumpFile","");
-  m_dumpFile.open(m_dumpFileName.c_str(), std::ios::out);
-  if(!m_dumpFile.good())
-    throw cms::Exception("L1ComparatorDumpFileOpenError")
-      << " L1Comparator::L1Comparator() : "
-      << " couldn't open dump file " << m_dumpFileName.c_str() << std::endl;
 
   /// dump level:  -1(all),0(none),1(disagree),2(loc.disagree),3(loc.agree)
   m_dumpMode = iConfig.getUntrackedParameter<int>("DumpMode",0);  
+  m_dumpFileName = iConfig.getUntrackedParameter<std::string>("DumpFile","");
+  if(m_dumpMode) {
+    m_dumpFile.open(m_dumpFileName.c_str(), std::ios::out);
+    if(!m_dumpFile.good())
+      edm::LogInfo("L1ComparatorDumpFileOpenError")
+	<< " L1Comparator::L1Comparator() : "
+	<< " couldn't open dump file " << m_dumpFileName.c_str() << std::endl;
+  }
 
   m_match = true;
   dumpEvent_ = true;
@@ -312,8 +314,8 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	   vit != ctp_ano_data_->get((*mit).first).second; vit++) 
 	ctp_ano_data_v.push_back(*vit);
     for (mapIt mit = ctp_ano_emul_->begin(); mit != ctp_ano_emul_->end(); mit++)
-      for (vecIt vit = ctp_ano_data_->get((*mit).first).first; 
-	   vit != ctp_ano_data_->get((*mit).first).second; vit++)
+      for (vecIt vit = ctp_ano_emul_->get((*mit).first).first; 
+	   vit != ctp_ano_emul_->get((*mit).first).second; vit++)
 	ctp_ano_emul_v.push_back(*vit);
   }
   ctp_ano_data =&ctp_ano_data_v;
@@ -328,8 +330,8 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	   vit != ctp_cat_data_->get((*mit).first).second; vit++) 
 	ctp_cat_data_v.push_back(*vit);
     for (mapIt mit = ctp_cat_emul_->begin(); mit != ctp_cat_emul_->end(); mit++)
-      for (vecIt vit = ctp_cat_data_->get((*mit).first).first; 
-	   vit != ctp_cat_data_->get((*mit).first).second; vit++)
+      for (vecIt vit = ctp_cat_emul_->get((*mit).first).first; 
+	   vit != ctp_cat_emul_->get((*mit).first).second; vit++)
 	ctp_cat_emul_v.push_back(*vit);
   }
   ctp_cat_data =&ctp_cat_data_v;
@@ -349,8 +351,8 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	   vit != ctp_lct_data_->get((*mit).first).second; vit++) 
 	ctp_lct_data_v.push_back(*vit);
     for (mapIt mit = ctp_lct_emul_->begin(); mit != ctp_lct_emul_->end(); mit++)
-      for (vecIt vit = ctp_lct_data_->get((*mit).first).first; 
-	   vit != ctp_lct_data_->get((*mit).first).second; vit++)
+      for (vecIt vit = ctp_lct_emul_->get((*mit).first).first; 
+	   vit != ctp_lct_emul_->get((*mit).first).second; vit++)
 	ctp_lct_emul_v.push_back(*vit);
   }
   ctp_lct_data =&ctp_lct_data_v;
@@ -650,6 +652,7 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 		 << ")\n"       << std::flush;
       dumpEvent_=false;
     }
+
     m_dumpFile << "\n  GT...\n";
 
     if(glt_rdt_data.isValid() && glt_rdt_emul.isValid()) {
