@@ -29,6 +29,13 @@ L1TdeECAL::L1TdeECAL(const edm::ParameterSet& iConfig) {
   if(iConfig.getUntrackedParameter<bool> ("disableROOToutput", true))
     histFile_ = "";
 
+  if (histFile_.size()!=0) {
+    edm::LogInfo("OutputRootFile") 
+      << "L1TEmulator ECAL specific histograms will be saved to " 
+      << histFile_.c_str() 
+      << std::endl;
+  }
+
   if(dbe!=NULL)
     dbe->setCurrentFolder(histFolder_);
   
@@ -121,7 +128,16 @@ void
   /// get the comparison results
   edm::Handle<L1DataEmulRecord> deRecord;
   iEvent.getByLabel(DEsource_, deRecord);
-  
+
+  if (!deRecord.isValid()) {
+    edm::LogInfo("DataNotFound") 
+      << "Cannot find L1DataEmulRecord with label "
+      << DEsource_.label() 
+      << " Please verrify that comparator was successfully executed."
+      << std::endl;
+    return;
+  }
+
   bool isComp = deRecord->get_isComp(ETP);
   if(!isComp) {
     if(verbose()) 
