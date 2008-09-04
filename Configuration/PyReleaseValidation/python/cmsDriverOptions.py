@@ -35,8 +35,8 @@ parser.add_option("--conditions",
                   dest="conditions")
 
 parser.add_option("--eventcontent",
-                  help="What event content to write out. Default=FEVTDEBUG",
-                  default="FEVTDEBUG",
+                  help="What event content to write out. Default=FEVTDEBUG, or RECO (for cosmics)",
+                  default=None,
                   dest="eventcontent")
 
 parser.add_option("--filein",
@@ -303,7 +303,7 @@ if options.isData and options.isMC:
 if not options.isData and not options.isMC:
     if 'SIM' in trimmedStep:
         options.isMC=True
-    if 'SIM' in options.eventcontent or 'FEVT' in options.eventcontent:
+    if 'SIM' in options.eventcontent:
         options.isMC=True
     if 'SIM' in options.datatier:
         options.isMC=True

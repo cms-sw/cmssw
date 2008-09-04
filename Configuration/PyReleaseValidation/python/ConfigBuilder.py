@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.86 $"
+__version__ = "$Revision: 1.87 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -16,7 +16,7 @@ defaultOptions.pileup = 'NoPileUp'
 defaultOptions.geometry = 'Pilot2'
 defaultOptions.magField = 'Default'
 defaultOptions.conditions = 'FrontierConditions_GlobalTag,STARTUP_V5::All'
-defaultOptions.scenarioOptions=['pp','nocoll']
+defaultOptions.scenarioOptions=['pp','cosmics','nocoll']
 
 # the pile up map
 pileupMap = {'LowLumiPileUp': 7.1,
@@ -115,7 +115,7 @@ class ConfigBuilder(object):
         """ Add output module to the process """    
         
         self.loadAndRemember(self.EVTCONTDefaultCFF)
-        theEventContent = getattr(self.process, self._options.eventcontent.split(',')[-1]+"EventContent")
+        theEventContent = getattr(self.process, self.eventcontent.split(',')[-1]+"EventContent")
  
         output = cms.OutputModule("PoolOutputModule",
                                   theEventContent,
@@ -138,7 +138,7 @@ class ConfigBuilder(object):
 
             # ATTENTION: major tweaking to avoid inlining of event content
             # should we do that?
-            def dummy(instance,label = "process."+self._options.eventcontent.split(',')[-1]+"EventContent.outputCommands"):
+            def dummy(instance,label = "process."+self.eventcontent.split(',')[-1]+"EventContent.outputCommands"):
                 return label
         
             self.process.output.outputCommands.__dict__["dumpPython"] = dummy
@@ -300,22 +300,27 @@ class ConfigBuilder(object):
 	self.EVTCONTDefaultCFF="Configuration/EventContent/EventContent_cff"
 	self.defaultMagField='38T'
 	self.defaultBeamSpot='Early10TeVCollision'
+	self.eventcontent='FEVTDEBUG'
 	
 # if its MC then change the raw2digi
 	if self._options.isMC==True:
 		self.RAW2DIGIDefaultCFF="Configuration/StandardSequences/RawToDigi_cff"
 
 # now for #%#$#! different scenarios
-	if self._options.scenario=='nocoll':
+
+	if self._options.scenario=='nocoll' or self._options.scenario=='cosmics':
 	    self.SIMDefaultCFF="Configuration/StandardSequences/SimNOBEAM_cff"	
 	    self.RECODefaultCFF="Configuration/StandardSequences/ReconstructionCosmics_cff"	
     	    self.EVTCONTDefaultCFF="Configuration/EventContent/EventContentCosmics_cff"
   	    self.DQMOFFLINEDefaultCFF="DQMOffline/Configuration/DQMOfflineCosmics_cff"
-
-	    self.defaultMagField='0T'
    	    self.RECODefaultSeq='reconstructionCosmics'
 	    self.DQMDefaultSeq='DQMOfflineCosmics'
 	    self.defaultBeamSpot='NoSmear'
+	    self.eventcontent='RECO'
+	    self.defaultMagField='0T'
+
+        if self._options.scenario=='cosmics':
+            self.DIGIDefaultCFF="Configuration/StandardSequences/DigiCosmics_cff" 		
 	    
         # the magnetic field
 	if self._options.magField=='Default':
@@ -413,6 +418,9 @@ class ConfigBuilder(object):
     def prepare_SIM(self, sequence = None):
         """ Enrich the schedule with the simulation step"""
         self.loadAndRemember(self.SIMDefaultCFF)
+	if self._options.magField=='0T':
+	    self.additionalCommands.append("process.g4SimHits.UseMagneticField = cms.bool(False)")
+				
         self.process.simulation_step = cms.Path( self.process.psim )
         self.process.schedule.append(self.process.simulation_step)
         return     
@@ -554,7 +562,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.86 $"),
+              (version=cms.untracked.string("$Revision: 1.87 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
