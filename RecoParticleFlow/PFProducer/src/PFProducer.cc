@@ -52,8 +52,32 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
     = iConfig.getParameter<double>("pf_calib_HCAL_offset");
   double h_damping 
     = iConfig.getParameter<double>("pf_calib_HCAL_damping");
+
+  //PFElectrons Configuration
+  double chi2EcalGSF
+    = iConfig.getParameter<double>("final_chi2cut_gsfecal");  
+  double chi2EcalBrem
+    = iConfig.getParameter<double>("final_chi2cut_bremecal");  
+  double chi2HcalGSF
+    = iConfig.getParameter<double>("final_chi2cut_gsfhcal");  
+  double chi2HcalBrem
+    = iConfig.getParameter<double>("final_chi2cut_bremhcal");  
+  double chi2PsGSF
+    = iConfig.getParameter<double>("final_chi2cut_gsfps");
+  double chi2PsBrem
+    = iConfig.getParameter<double>("final_chi2cut_bremps");
   
+
+  double mvaEleCut
+    = iConfig.getParameter<double>("pf_electron_mvaCut");
+  bool usePFElectrons
+    = iConfig.getParameter<bool>("usePFElectrons");  
+  string mvaWeightFileEleID
+    = iConfig.getParameter<string>("pf_electronID_mvaWeightFile");
+  edm::FileInPath path_mvaWeightFileEleID( mvaWeightFileEleID.c_str() );
   
+  // End PFElectrons Configuration
+
 
   shared_ptr<PFEnergyCalibration> 
     calibration( new PFEnergyCalibration( e_slope,
@@ -90,15 +114,25 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
   default:
     assert(0);
   }
-
+  
   pfAlgo_->setParameters( nSigmaECAL, 
-			 nSigmaHCAL,
-			 calibration,
-			 clusterRecovery,
-			 PSCut, 
-			 mvaCut, 
-			 path_mvaWeightFile.fullPath().c_str() );
-
+			  nSigmaHCAL,
+			  calibration,
+			  clusterRecovery,
+			  PSCut, 
+			  mvaCut, 
+			  path_mvaWeightFile.fullPath().c_str() );
+  //PFElectrons: call the method setpfeleparameters
+  pfAlgo_->setPFEleParameters(chi2EcalGSF,
+			      chi2EcalBrem,
+			      chi2HcalGSF,
+			      chi2HcalBrem,
+			      chi2PsGSF,
+			      chi2PsBrem,
+			      mvaEleCut,
+			      path_mvaWeightFileEleID.fullPath(),
+			      usePFElectrons);
+  
   verbose_ = 
     iConfig.getUntrackedParameter<bool>("verbose",false);
 
