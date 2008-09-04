@@ -265,6 +265,7 @@ HcalPedestalsAnalysis::analyze(const edm::Event& e, const edm::EventSetup& iSetu
       bunch_it->usedflag = true;
       for(int ts = firstTS; ts != lastTS+1; ts++)
       {
+         if(digi.sample(ts).adc() > 15) continue;
          const HcalQIECoder* coder = conditions->getHcalCoder(digi.id().rawId());
          bunch_it->num[digi.sample(ts).capid()][digi.sample(ts).capid()] += 1;
          bunch_it->cap[digi.sample(ts).capid()] += digi.sample(ts).adc();
@@ -273,18 +274,21 @@ HcalPedestalsAnalysis::analyze(const edm::Event& e, const edm::EventSetup& iSetu
          bunch_it->prod[digi.sample(ts).capid()][digi.sample(ts).capid()] += (digi.sample(ts).adc() * digi.sample(ts).adc());
          bunch_it->prodfc[digi.sample(ts).capid()][digi.sample(ts).capid()] += charge1 * charge1;
          if((ts+1 < digi.size()) && (ts+1 < lastTS)){
+            if(digi.sample(ts+1).adc() > 15) continue;
             bunch_it->prod[digi.sample(ts).capid()][digi.sample(ts+1).capid()] += digi.sample(ts).adc()*digi.sample(ts+1).adc();
             double charge2 = coder->charge(*shape, digi.sample(ts+1).adc(), digi.sample(ts+1).capid());
             bunch_it->prodfc[digi.sample(ts).capid()][digi.sample(ts+1).capid()] += charge1*charge2;
             bunch_it->num[digi.sample(ts).capid()][digi.sample(ts+1).capid()] += 1;
          }
          if((ts+2 < digi.size()) && (ts+2 < lastTS)){
+            if(digi.sample(ts+2).adc() > 15) continue;
             bunch_it->prod[digi.sample(ts).capid()][digi.sample(ts+2).capid()] += digi.sample(ts).adc()*digi.sample(ts+2).adc();
             double charge2 = coder->charge(*shape, digi.sample(ts+2).adc(), digi.sample(ts+2).capid());
             bunch_it->prodfc[digi.sample(ts).capid()][digi.sample(ts+2).capid()] += charge1*charge2;
             bunch_it->num[digi.sample(ts).capid()][digi.sample(ts+2).capid()] += 1;
          }
          if((ts+3 < digi.size()) && (ts+3 < lastTS)){
+            if(digi.sample(ts+3).adc() > 15) continue;
             bunch_it->prod[digi.sample(ts).capid()][digi.sample(ts+3).capid()] += digi.sample(ts).adc()*digi.sample(ts+3).adc();
             double charge2 = coder->charge(*shape, digi.sample(ts+3).adc(), digi.sample(ts+3).capid());
             bunch_it->prodfc[digi.sample(ts).capid()][digi.sample(ts+3).capid()] += charge1*charge2;
@@ -301,6 +305,7 @@ HcalPedestalsAnalysis::analyze(const edm::Event& e, const edm::EventSetup& iSetu
       bunch_it->usedflag = true;
       for(int ts = firstTS; ts <= lastTS; ts++)
       {
+         if(digi.sample(ts).adc() > 15) continue;
          const HcalQIECoder* coder = conditions->getHcalCoder(digi.id().rawId());
          bunch_it->num[digi.sample(ts).capid()][digi.sample(ts).capid()] += 1;
          bunch_it->cap[digi.sample(ts).capid()] += digi.sample(ts).adc();
@@ -309,18 +314,21 @@ HcalPedestalsAnalysis::analyze(const edm::Event& e, const edm::EventSetup& iSetu
          bunch_it->prod[digi.sample(ts).capid()][digi.sample(ts).capid()] += (digi.sample(ts).adc() * digi.sample(ts).adc());
          bunch_it->prodfc[digi.sample(ts).capid()][digi.sample(ts).capid()] += charge1 * charge1;
          if((ts+1 < digi.size()) && (ts+1 < lastTS)){
+            if(digi.sample(ts+1).adc() > 15) continue;
             bunch_it->prod[digi.sample(ts).capid()][digi.sample(ts+1).capid()] += digi.sample(ts).adc()*digi.sample(ts+1).adc();
             double charge2 = coder->charge(*shape, digi.sample(ts+1).adc(), digi.sample(ts+1).capid());
             bunch_it->prodfc[digi.sample(ts).capid()][digi.sample(ts+1).capid()] += charge1*charge2;
             bunch_it->num[digi.sample(ts).capid()][digi.sample(ts+1).capid()] += 1;
          }
          if((ts+2 < digi.size()) && (ts+2 < lastTS)){
+            if(digi.sample(ts+2).adc() > 15) continue;
             bunch_it->prod[digi.sample(ts).capid()][digi.sample(ts+2).capid()] += digi.sample(ts).adc()*digi.sample(ts+2).adc();
             double charge2 = coder->charge(*shape, digi.sample(ts+2).adc(), digi.sample(ts+2).capid());
             bunch_it->prodfc[digi.sample(ts).capid()][digi.sample(ts+2).capid()] += charge1*charge2;
             bunch_it->num[digi.sample(ts).capid()][digi.sample(ts+2).capid()] += 1;
          }
          if((ts+3 < digi.size()) && (ts+3 < lastTS)){
+            if(digi.sample(ts+3).adc() > 15) continue;
             bunch_it->prod[digi.sample(ts).capid()][digi.sample(ts+3).capid()] += digi.sample(ts).adc()*digi.sample(ts+3).adc();
             double charge2 = coder->charge(*shape, digi.sample(ts+3).adc(), digi.sample(ts+3).capid());
             bunch_it->prodfc[digi.sample(ts).capid()][digi.sample(ts+3).capid()] += charge1*charge2;
@@ -337,6 +345,7 @@ HcalPedestalsAnalysis::analyze(const edm::Event& e, const edm::EventSetup& iSetu
       bunch_it->usedflag = true;
       for(int ts = firstTS; ts <= lastTS; ts++)
       {
+         if(digi.sample(ts).adc() > 15) continue;
          const HcalQIECoder* coder = conditions->getHcalCoder(digi.id().rawId());
          bunch_it->num[digi.sample(ts).capid()][digi.sample(ts).capid()] += 1;
          bunch_it->cap[digi.sample(ts).capid()] += digi.sample(ts).adc();
@@ -345,18 +354,21 @@ HcalPedestalsAnalysis::analyze(const edm::Event& e, const edm::EventSetup& iSetu
          bunch_it->prod[digi.sample(ts).capid()][digi.sample(ts).capid()] += (digi.sample(ts).adc() * digi.sample(ts).adc());
          bunch_it->prodfc[digi.sample(ts).capid()][digi.sample(ts).capid()] += charge1 * charge1;
          if((ts+1 < digi.size()) && (ts+1 < lastTS)){
+            if(digi.sample(ts+1).adc() > 15) continue;
             bunch_it->prod[digi.sample(ts).capid()][digi.sample(ts+1).capid()] += digi.sample(ts).adc()*digi.sample(ts+1).adc();
             double charge2 = coder->charge(*shape, digi.sample(ts+1).adc(), digi.sample(ts+1).capid());
             bunch_it->prodfc[digi.sample(ts).capid()][digi.sample(ts+1).capid()] += charge1*charge2;
             bunch_it->num[digi.sample(ts).capid()][digi.sample(ts+1).capid()] += 1;
          }
          if((ts+2 < digi.size()) && (ts+2 < lastTS)){
+            if(digi.sample(ts+2).adc() > 15) continue;
             bunch_it->prod[digi.sample(ts).capid()][digi.sample(ts+2).capid()] += digi.sample(ts).adc()*digi.sample(ts+2).adc();
             double charge2 = coder->charge(*shape, digi.sample(ts+2).adc(), digi.sample(ts+2).capid());
             bunch_it->prodfc[digi.sample(ts).capid()][digi.sample(ts+2).capid()] += charge1*charge2;
             bunch_it->num[digi.sample(ts).capid()][digi.sample(ts+2).capid()] += 1;
          }
          if((ts+3 < digi.size()) && (ts+3 < lastTS)){
+            if(digi.sample(ts+3).adc() > 15) continue;
             bunch_it->prod[digi.sample(ts).capid()][digi.sample(ts+3).capid()] += digi.sample(ts).adc()*digi.sample(ts+3).adc();
             double charge2 = coder->charge(*shape, digi.sample(ts+3).adc(), digi.sample(ts+3).capid());
             bunch_it->prodfc[digi.sample(ts).capid()][digi.sample(ts+3).capid()] += charge1*charge2;
