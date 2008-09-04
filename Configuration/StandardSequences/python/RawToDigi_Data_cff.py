@@ -13,17 +13,18 @@ from CondCore.DBCommon.CondDBSetup_cfi import *
 #-------------------------#
 
 import EventFilter.CSCTFRawToDigi.csctfunpacker_cfi
-#--- CSC TF ---#
 csctfDigis = EventFilter.CSCTFRawToDigi.csctfunpacker_cfi.csctfunpacker.clone()
+#--- CSC TF ---#
 import EventFilter.DTTFRawToDigi.dttfunpacker_cfi
-#--- DT TF ---#
 dttfDigis = EventFilter.DTTFRawToDigi.dttfunpacker_cfi.dttfunpacker.clone()
+#--- DT TF ---#
 import EventFilter.GctRawToDigi.l1GctHwDigis_cfi
-#--- GCT/GMT ---#
 gctDigis = EventFilter.GctRawToDigi.l1GctHwDigis_cfi.l1GctHwDigis.clone()
+#--- GCT/GMT ---#
 import EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi
 gtDigis = EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi.l1GtUnpack.clone()
-#--- SiPixel ---#
+import EventFilter.L1GlobalTriggerRawToDigi.l1GtEvmUnpack_cfi
+gtEvmDigis = EventFilter.L1GlobalTriggerRawToDigi.l1GtEvmUnpack_cfi.l1GtEvmUnpack.clone()#--- SiPixel ---#
 from EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi import *
 #--- SiStrip ---#
 from EventFilter.SiStripRawToDigi.SiStripDigis_cfi import *
@@ -46,11 +47,12 @@ from EventFilter.DTRawToDigi.dtunpacker_cfi import *
 import EventFilter.RPCRawToDigi.rpcUnpacker_cfi
 #--- RPC ---#
 muonRPCDigis = EventFilter.RPCRawToDigi.rpcUnpacker_cfi.rpcunpacker.clone()
-RawToDigi = cms.Sequence(csctfDigis+dttfDigis+gctDigis+gtDigis+siPixelDigis+siStripDigis+ecalDigis+ecalPreshowerDigis+hcalDigis+muonCSCDigis+muonDTDigis+muonRPCDigis)
+RawToDigi = cms.Sequence(csctfDigis+dttfDigis+gctDigis+gtDigis+gtEvmDigis+siPixelDigis+siStripDigis+ecalDigis+ecalPreshowerDigis+hcalDigis+muonCSCDigis+muonDTDigis+muonRPCDigis)
 
-RawToDigi_woGCT = cms.Sequence(csctfDigis+dttfDigis+gtDigis+siPixelDigis+siStripDigis+ecalDigis+ecalPreshowerDigis+hcalDigis+muonCSCDigis+muonDTDigis+muonRPCDigis)
+RawToDigi_woGCT = cms.Sequence(csctfDigis+dttfDigis+gtDigis+gtEvmDigis+siPixelDigis+siStripDigis+ecalDigis+ecalPreshowerDigis+hcalDigis+muonCSCDigis+muonDTDigis+muonRPCDigis)
 
 gtDigis.DaqGtInputTag = 'source'
+gtEvmDigis.EvmGtInputTag = 'source'
 siPixelDigis.InputLabel = 'source'
 siStripDigis.ProductLabel = 'source'
 ecalDigis.DoRegional = False
