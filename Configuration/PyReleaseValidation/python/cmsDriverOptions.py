@@ -66,8 +66,8 @@ parser.add_option("--data",
 
 # expert settings
 expertSettings.add_option("--beamspot",
-                          help="What beam spot to use (from Configuration/StandardSequences). Default=Early10TeVCollision",
-                          default=defaultOptions.beamspot,
+                          help="What beam spot to use (from Configuration/StandardSequences). Default depends on scenario",
+                          default=None,
                           dest="beamspot")
 
 expertSettings.add_option("--customise",
@@ -165,7 +165,7 @@ expertSettings.add_option("--writeraw",
                           dest="writeraw")
 
 expertSettings.add_option("--scenario",
-                          help="Select scenario overriding standard settings (available: pp, cosmics)",
+                          help="Select scenario overriding standard settings (available:"+str(defaultOptions.scenarioOptions)+")",
                           default='',
                           dest="scenario")
 

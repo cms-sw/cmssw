@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.83 $"
+__version__ = "$Revision: 1.84 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -14,9 +14,9 @@ class Options:
 defaultOptions = Options()
 defaultOptions.pileup = 'NoPileUp'
 defaultOptions.geometry = 'Pilot2'
-defaultOptions.beamspot = 'Early10TeVCollision'
 defaultOptions.magField = 'Default'
 defaultOptions.conditions = 'FrontierConditions_GlobalTag,STARTUP_V5::All'
+defaultOptions.scenarioOptions=['pp','cosmics']
 
 # the pile up map
 pileupMap = {'LowLumiPileUp': 7.1,
@@ -259,6 +259,10 @@ class ConfigBuilder(object):
     # conditions
     #----------------------------------------------------------------------------
     def define_Configs(self):
+	if ( self._options.scenario not in default.scenarioOptions):
+		print 'Invalid scenario provided. Options are:'
+		print defaultOptions.scenarioOptions
+
         self.imports=['Configuration/StandardSequences/Services_cff',
 		      'FWCore/MessageService/MessageLogger_cfi']
 
@@ -294,7 +298,8 @@ class ConfigBuilder(object):
 
 	self.EVTCONTDefaultCFF="Configuration/EventContent/EventContent_cff"
 	self.defaultMagField='38T'
-
+	self.defaultBeamSpot='Early10TeVCollision'
+	
 # if its MC then change the raw2digi
 	if self._options.isMC==True:
 		self.RAW2DIGIDefaultCFF="Configuration/StandardSequences/RawToDigi_cff"
@@ -308,7 +313,8 @@ class ConfigBuilder(object):
 	    self.defaultMagField='0T'
    	    self.RECODefaultSeq='reconstructionCosmics'
 	    self.DQMDefaultSeq='DQMOfflineCosmics'
-
+	    self.defaultBeamSpot='NoSmearing'
+	    
         # the magnetic field
 	if self._options.magField=='Default':
 	    self._options.magField=self.defaultMagField	
@@ -318,6 +324,11 @@ class ConfigBuilder(object):
 	self.GeometryCFF='Configuration/StandardSequences/Geometry'+self._options.geometry+'_cff'
 	self.PileupCFF='Configuration/StandardSequences/Mixing'+self._options.pileup+'_cff'
 
+	#beamspot
+	if self._options.beamspot != None:
+	    self.beamspot=self._options.beamspot
+	else:
+	    self.beamspot=self.defaultBeamSpot	
 
 # for alca, skims, etc
     def addExtraStream(self,name,stream):
@@ -382,9 +393,9 @@ class ConfigBuilder(object):
         
         # replace the VertexSmearing placeholder by a concrete beamspot definition
         try: 
-            self.loadAndRemember('Configuration/StandardSequences/VtxSmeared'+self._options.beamspot+'_cff')
+            self.loadAndRemember('Configuration/StandardSequences/VtxSmeared'+self.beamspot+'_cff')
         except ImportError:
-            print "VertexSmearing type or beamspot",self._options.beamspot, "unknown."
+            print "VertexSmearing type or beamspot",self.beamspot, "unknown."
             raise
         self.process.generation_step = cms.Path( self.process.pgen )
         self.process.schedule.append(self.process.generation_step)
@@ -523,16 +534,16 @@ class ConfigBuilder(object):
              print "FastSim setting", sequence, "unknown."
              raise ValueError
         # the vertex smearing settings
-        beamspotName = 'process.%sVtxSmearingParameters' %(self._options.beamspot)
-	if 'Flat' in self._options.beamspot:
+        beamspotName = 'process.%sVtxSmearingParameters' %(self.beamspot)
+	if 'Flat' in self.beamspot:
 	    beamspotType = 'Flat'
-	elif 'Gauss' in self._options.beamspot:
+	elif 'Gauss' in self.beamspot:
 	    beamspotType = 'Gaussian'
 	else:
 	    print "  Assuming vertex smearing engine as BetaFunc"	
             beamspotType = 'BetaFunc'	      
         self.loadAndRemember('IOMC.EventVertexGenerators.VtxSmearedParameters_cfi')
-	beamspotName = 'process.%sVtxSmearingParameters' %(self._options.beamspot)
+	beamspotName = 'process.%sVtxSmearingParameters' %(self.beamspot)
         self.additionalCommands.append('\n# set correct vertex smearing') 
         self.additionalCommands.append(beamspotName+'.type = cms.string("%s")'%(beamspotType)) 
         self.additionalCommands.append('process.famosSimHits.VertexGenerator = '+beamspotName)
@@ -541,7 +552,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.83 $"),
+              (version=cms.untracked.string("$Revision: 1.84 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
