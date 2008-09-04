@@ -20,7 +20,7 @@ IsoProd = cms.EDProducer("AlCaIsoTracksProducer",
     MinTrackP = cms.double(15.0),
     CheckHLTMatch=cms.bool(True),
     hltTriggerEventLabel = cms.InputTag("hltTriggerSummaryAOD"),
-    hltL3FilterLabel = cms.InputTag("hltIsolPixelTrackFilter::HLT2")
+    hltL3FilterLabel = cms.InputTag("hltIsolPixelTrackFilter::HLT")
 )
 
 
