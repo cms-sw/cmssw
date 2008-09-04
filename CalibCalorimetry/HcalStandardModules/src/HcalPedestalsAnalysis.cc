@@ -66,25 +66,25 @@ HcalPedestalsAnalysis::~HcalPedestalsAnalysis()
       bunch_it->sigfc[2][3] = (bunch_it->prodfc[2][3]/(bunch_it->num[2][3]))-(bunch_it->capfc[2]*bunch_it->capfc[3]);
 
       if(bunch_it->detid.subdet() == 1){
-         for(int i = 0; i != 3; i++){
+         for(int i = 0; i != 4; i++){
             HBMeans->Fill(bunch_it->cap[i]);
             HBWidths->Fill(bunch_it->sig[i][i]);
          }
       }
       if(bunch_it->detid.subdet() == 2){
-         for(int i = 0; i != 3; i++){
+         for(int i = 0; i != 4; i++){
             HEMeans->Fill(bunch_it->cap[i]);
             HEWidths->Fill(bunch_it->sig[i][i]);
          }
       }
       if(bunch_it->detid.subdet() == 3){
-         for(int i = 0; i != 3; i++){
+         for(int i = 0; i != 4; i++){
             HOMeans->Fill(bunch_it->cap[i]);
             HOWidths->Fill(bunch_it->sig[i][i]);
          }
       }
       if(bunch_it->detid.subdet() == 4){
-         for(int i = 0; i != 3; i++){
+         for(int i = 0; i != 4; i++){
             HFMeans->Fill(bunch_it->cap[i]);
             HFWidths->Fill(bunch_it->sig[i][i]);
          }
@@ -231,11 +231,6 @@ HcalPedestalsAnalysis::analyze(const edm::Event& e, const edm::EventSetup& iSetu
             HcalDetId chanid(mygenid.rawId());
             a.detid = chanid;
             a.usedflag = false;
-            string type;
-            if(chanid.subdet() == 1) type = "HB";
-            if(chanid.subdet() == 2) type = "HE";
-            if(chanid.subdet() == 3) type = "HO";
-            if(chanid.subdet() == 4) type = "HF";
             for(int i = 0; i != 4; i++)
             {
                a.cap[i] = 0;
