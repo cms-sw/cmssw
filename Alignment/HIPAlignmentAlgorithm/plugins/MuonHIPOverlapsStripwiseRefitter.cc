@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Wed Dec 12 13:31:55 CST 2007
-// $Id: MuonHIPOverlapsStripwiseRefitter.cc,v 1.3 2008/08/22 19:25:34 pivarski Exp $
+// $Id: MuonHIPOverlapsStripwiseRefitter.cc,v 1.4 2008/08/24 19:09:23 pivarski Exp $
 //
 //
 
@@ -392,19 +392,30 @@ MuonHIPOverlapsStripwiseRefitter::produce(edm::Event& iEvent, const edm::EventSe
 		  // now proceed as usual
 		  GlobalPoint position = chamberSurface->toGlobal(LocalPoint(x, y, chamberPoint.z()));
 
-		  GlobalTrajectoryParameters globalTrajectoryParameters(position, momentum, track->charge(), &*magneticField);
-		  AlgebraicSymMatrix66 error;
-		  error(0,0) = 1e-6 * position.x();
-		  error(1,1) = 1e-6 * position.y();
-		  error(2,2) = 1e-6 * position.z();
-		  error(3,3) = 1e-6 * momentum.x();
-		  error(4,4) = 1e-6 * momentum.y();
-		  error(5,5) = 1e-6 * momentum.z();
+		  LocalPoint layerPosition = layerSurface.toLocal(position);
+		  LocalVector layerMomentum = layerSurface.toLocal(momentum);
+
+		  AlgebraicVector params(5);
+		  params[0] = 1.;
+		  params[1] = layerMomentum.x()/layerMomentum.z();
+		  params[2] = layerMomentum.y()/layerMomentum.z();
+		  params[3] = layerPosition.x();
+		  params[4] = layerPosition.y();
+		  LocalTrajectoryParameters localTrajectoryParameters(params, 1., false);
+
+		  double xx = (*hit)->localPositionError().xx();
+		  double xy = (*hit)->localPositionError().xy();
+		  double yy = (*hit)->localPositionError().yy();
+		  double striperr2 = xx*cos(angle)*cos(angle) + 2.*xy*sin(angle)*cos(angle) + yy*sin(angle)*sin(angle);
+
+		  // we want the residual uncertainty to be isotropic, so it has to dominate over the hit error
+		  // the total magnitude doesn't matter (except for alignment uncertainties, which we don't use anyway)
+		  LocalTrajectoryError localTrajectoryError(1000.*sqrt(striperr2), 1000.*sqrt(striperr2), 0.001, 0.001, 0.001);
 
 		  // these must be in lock-step
 		  clonedHits.push_back((*hit)->clone());
 		  transHits.push_back(hitPtr);
-		  TSOSes.push_back(TrajectoryStateOnSurface(globalTrajectoryParameters, CartesianTrajectoryError(error), cscGeometry->idToDet(id)->surface()));
+		  TSOSes.push_back(TrajectoryStateOnSurface(localTrajectoryParameters, localTrajectoryError, layerSurface, &*magneticField));
 
 	       } // end if this is not a hit for fitting
 	    } // end loop over hits
