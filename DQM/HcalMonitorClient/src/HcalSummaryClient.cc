@@ -52,6 +52,7 @@ HcalSummaryClient::HcalSummaryClient(const ParameterSet& ps)
   phiMax_ = ps.getUntrackedParameter<double>("MaxPhi", 73.5);
   phiMin_ = ps.getUntrackedParameter<double>("MinPhi", -0.5);
 
+
   for(int i=0; i<4; i++) subDetsOn_[i] = false;
 
 
@@ -89,6 +90,7 @@ HcalSummaryClient::HcalSummaryClient(const ParameterSet& ps)
   // All initial status floats set to 1 (good)
   // For the moment, these are just local variables; if we want to keep
   // them in the root file, we need to book them as MonitorElements
+  // Should probably set them to -1 (unknown), since they get set to that at the start of each analyze call anyway.
   status_HB_=1;
   status_HE_=1;
   status_HO_=1;
@@ -426,8 +428,10 @@ float HcalSummaryClient::analyze_everything(std::string subdetname, int type, fl
   me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryMap");
 
   if (!me)
-    return status;
-  
+    {
+      return status;
+    }
+
   char name[150];
 
   MonitorElement* me_dataformat=0;
@@ -458,8 +462,8 @@ float HcalSummaryClient::analyze_everything(std::string subdetname, int type, fl
 	{
 	  if (debug_) cout <<"<HcalSummaryClient>  Could not find DigiMonitor histogram named: "<<name<<endl;
 	  return status; // histogram couldn't be found
-	}
-    }
+	} // if (!me_digi)
+    } // if (digiClient_)
 
   //Check for histogram containing known HotCell problems
   if (hotCellClient_)
@@ -544,6 +548,7 @@ float HcalSummaryClient::analyze_everything(std::string subdetname, int type, fl
 	  //if (newbincontent==0) continue; 
 	   
 	  newbincontent/=ievt_; // normalize to number of events
+
 	  if (newbincontent>0)
 	    {
 	      /* now don't let avg number of bad events/bin be greater than
@@ -590,7 +595,8 @@ float HcalSummaryClient::analyze_everything(std::string subdetname, int type, fl
 	    me->setBinContent(ieta,iphi,1-newbincontent);
 	  else
 	    {
-	      tempval=tempval-newbincontent;
+	      //tempval=tempval-newbincontent; // why was I doing this subtraction?  newbincontent is summed over all events.  
+	      tempval=newbincontent;
 	      if (tempval<0) tempval=0;
 	      //if (tempval<=0) tempval=0.00001;
 	      me->setBinContent(ieta,iphi,tempval);
@@ -616,13 +622,17 @@ float HcalSummaryClient::analyze_everything(std::string subdetname, int type, fl
 
   // didn't find subdet in map -- return -1
   if (it==subdetCells_.end())
-    return -1;
+    {
+      return -1;
+    }
 
   // Map claims that subdetector has no cells, or fewer cells than # of bad cells found:  return -1
   if (it->second == 0 || (it->second)<badcells)
-    return -1;
+    {
+      return -1;
+    }
 
-
+  // normalize to # of bad cells per event
   baddigis/=ievt_;
   badhotcells/=ievt_;
   baddeadcells/=ievt_;
@@ -642,19 +652,17 @@ float HcalSummaryClient::analyze_everything(std::string subdetname, int type, fl
 /* 
 bad cells now treated "almost" properly --each  bad cell = (baddigi+badhotcell+baddeadcell)/(Max depth/cell), so that bad value for individual cell should never be greater than depth of cell.  We still run into the problem of having, for instance, one digi and dead cell bad for HF.  The # of bad cells will be counted as 2 (digi +dead), even if the digi and dead cell are from the same depth.  But this is close to a true measure of the overall bad cell rate.
 */
+
   status = 1. - (1.*badcells)/it->second;  
 
-  // Set subdetector status to 'status' value
-  subdet=status;
-
   // New version:  status is average over all cells (this means scaling each subdetector status value by its fractional contribution (it->second)/totalcells_ )
-  if (status==-1)
-    return status;  // don't modify global status if subdet status is unknown -- correct behavior?
 
+  // status_global = 1 - (bad HB + bad HE + bad HO + bad HF)/totalcells_;
   if (status_global_==-1)
-    status_global_=1.*status*(it->second)/totalcells_;
+    status_global_=1.-1.*badcells/totalcells_;
   else
-    status_global_+=1.*status*(it->second)/totalcells_;
+    status_global_-=1.*badcells/totalcells_;
+    //status_global_+=1.*status*(it->second)/totalcells_;
 
   //cout <<subdetname.c_str()<<" SUBDET STATUS = "<<status<<"  GLOBAL = "<<status_global_<<"   (scale factor = "<<(it->second)<<"/"<<totalcells_<<" = "<<(1.*(it->second)/totalcells_)<<")"<<endl;
 
