@@ -104,6 +104,10 @@ class HcalPedestalsAnalysis : public edm::EDAnalyzer
 
    TFile *theFile;
    bool firsttime;
+   HcalPedestals* rawPedsItem;
+   HcalPedestalWidths* rawWidthsItem;
+   HcalPedestals* rawPedsItemfc;
+   HcalPedestalWidths* rawWidthsItemfc;
 };
 #endif
 
