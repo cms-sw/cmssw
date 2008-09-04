@@ -12,16 +12,22 @@ L1TDEMON::L1TDEMON(const edm::ParameterSet& iConfig) {
     std::cout << "L1TDEMON::L1TDEMON()...\n" << std::flush;
   
   DEsource_ = iConfig.getParameter<edm::InputTag>("DataEmulCompareSource");
-  histFile_ = iConfig.getUntrackedParameter<std::string>("HistFile", "");
   histFolder_ = iConfig.getUntrackedParameter<std::string>("HistFolder", "L1TEMU/");
+  histFile_ = iConfig.getUntrackedParameter<std::string>("HistFile", "");
   
-  nEvt_     = 0;
+  if (histFile_.size()!=0) {
+    edm::LogInfo("OutputRootFile") 
+      << "L1TEmulator Monitoring histograms will be saved to " 
+      << histFile_.c_str() 
+      << std::endl;
+  }
+
+  nEvt_ = 0;
   for(int i=0; i<DEnsys; i++) {
     deSysCount[i]=0;
     nEvtWithSys[i]=0;
   }
   
-
   dbe = NULL;
   if (iConfig.getUntrackedParameter<bool>("DQMStore", false)) { 
     dbe = edm::Service<DQMStore>().operator->();
