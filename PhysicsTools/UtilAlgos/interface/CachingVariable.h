@@ -103,15 +103,20 @@ class ComputedVariable;
 class VariableComputer{
  public:
   VariableComputer(CachingVariable::CachingVariableFactoryArg arg);
-  ~VariableComputer(){
-    //do not have to delete the pointer in the map since they are already register elsewhere.
-  }
-  void compute(const edm::Event & iEvent) const;
+  virtual ~VariableComputer(){}
+
+  virtual void compute(const edm::Event & iEvent) const = 0;
   const std::string & name() const { return name_;}
+  void declare(std::string var);
+  void assign(std::string  var, double & value) const;
+  void doesNotCompute() const;
+  void doesNotCompute(std::string var) const;
 
  protected:
+  CachingVariable::CachingVariableFactoryArg & arg_;
   std::string name_;
-  std::map<std::string ,const ComputedVariable *> iCompute_;
+  std::string method_;
+  mutable std::map<std::string ,const ComputedVariable *> iCompute_;
   std::string separator_;
 };
 
@@ -125,8 +130,9 @@ typedef edmplugin::PluginFactory< VariableComputer* (CachingVariable::CachingVar
 class ComputedVariable : public CachingVariable {
  public:
   ComputedVariable(CachingVariableFactoryArg arg );
-  ComputedVariable(std::string & M, std::string & N, edm::ParameterSet & P, const VariableComputer * c) : 
+  ComputedVariable(const std::string & M, std::string & N, edm::ParameterSet & P, const VariableComputer * c) : 
     CachingVariable(M,N,P), myComputer(c){}
+  virtual ~ComputedVariable(){};
 
   virtual evalType eval(const edm::Event & iEvent) const {
     if (edm::Service<UpdaterService>()->checkOnce(myComputer->name()+":"+holderName_))
@@ -137,6 +143,13 @@ class ComputedVariable : public CachingVariable {
   const VariableComputer * myComputer;
 };
 
+class VariableComputerTest : public VariableComputer {
+ public:
+  VariableComputerTest(CachingVariable::CachingVariableFactoryArg arg) ;
+  ~VariableComputerTest(){};
+
+  void compute(const edm::Event & iEvent) const;
+};
 
 class Splitter : public CachingVariable {
  public:
