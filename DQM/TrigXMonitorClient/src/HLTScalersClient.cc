@@ -1,6 +1,11 @@
-// $Id: HLTScalersClient.cc,v 1.5 2008/08/28 22:22:13 wittich Exp $
+// $Id: HLTScalersClient.cc,v 1.6 2008/09/03 02:13:48 wittich Exp $
 // 
 // $Log: HLTScalersClient.cc,v $
+// Revision 1.6  2008/09/03 02:13:48  wittich
+// - bug fix in L1Scalers
+// - configurable dqm directory in L1SCalers
+// - other minor tweaks in HLTScalers
+//
 // Revision 1.5  2008/08/28 22:22:13  wittich
 // - make delta_t absolute value
 // - add some more LogDebug statements
@@ -56,7 +61,7 @@ HLTScalersClient::HLTScalersClient(const edm::ParameterSet& ps):
   // get back-end interface
   dbe_ = edm::Service<DQMStore>().operator->();
   assert(dbe_ != 0); // blammo!
-  dbe_->setCurrentFolder("HLT/HLTScalers");
+  dbe_->setCurrentFolder("HLT/HLTScalers_EvF");
 
   currentRate_ = dbe_->book1D("cur_rate", 
 			      "current lumi section rate per path",
@@ -91,7 +96,7 @@ void HLTScalersClient::beginJob(const edm::EventSetup& c)
 {
   LogDebug("Status") << "beingJob" ;
   if (dbe_) {
-    dbe_->setCurrentFolder("HLT/HLTScalers");
+    dbe_->setCurrentFolder("HLT/HLTScalers_EvF");
   }
 }
 
@@ -114,7 +119,7 @@ void HLTScalersClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 {
   nLumi_ = lumiSeg.id().luminosityBlock();
 
-  MonitorElement *scalers = dbe_->get("HLT/HLTScalers/hltScalers");
+  MonitorElement *scalers = dbe_->get("HLT/HLTScalers_EvF/hltScalers");
   if ( scalers == 0 ) {
     LogInfo("Status") << "cannot get hlt scalers histogram, bailing out.";
     return;
@@ -131,7 +136,7 @@ void HLTScalersClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
       int whichHisto = i/kPerHisto;
       int whichBin = i%kPerHisto + 1;
       char pname[256];
-      snprintf(pname, 256, "HLT/HLTScalers/path%03d", i);
+      snprintf(pname, 256, "HLT/HLTScalers_EvF/path%03d", i);
       MonitorElement *name = dbe_->get(pname);
       std::string sname;
       if ( name ) {
@@ -147,7 +152,7 @@ void HLTScalersClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
     first_ = false;
   }
 
-  MonitorElement *nLumi = dbe_->get("HLT/HLTScalers/nLumiBlock");
+  MonitorElement *nLumi = dbe_->get("HLT/HLTScalers_EvF/nLumiBlock");
   int testval = (nLumi!=0?nLumi->getIntValue():-1);
   LogDebug("Parameter") << "Lumi Block from DQM: "
 			<< testval
