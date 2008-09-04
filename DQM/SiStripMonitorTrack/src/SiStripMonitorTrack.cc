@@ -132,12 +132,15 @@ void SiStripMonitorTrack::analyze(const edm::Event& e, const edm::EventSetup& es
   if (tracksCollection_in_EventTree && trackAssociatorCollection_in_EventTree) trackStudy(es);
   
   //Perform Cluster Study (irrespectively to tracks)
-  if (dsv_SiStripCluster.isValid() && OffHisto_On_){
-    AllClusters(es);//analyzes the off Track Clusters
-  }else{
-    edm::LogError("SiStripMonitorTrack")<< "ClusterCollection is not valid!!" << std::endl;
+
+  if(OffHisto_On_){
+    if (dsv_SiStripCluster.isValid()){
+      AllClusters(es);//analyzes the off Track Clusters
+    }else{
+      edm::LogError("SiStripMonitorTrack")<< "ClusterCollection is not valid!!" << std::endl;
+    }
   }
-  
+
   //Summary Counts of clusters
   std::map<TString, MonitorElement*>::iterator iME;
   std::map<TString, ModMEs>::iterator          iModME ;
