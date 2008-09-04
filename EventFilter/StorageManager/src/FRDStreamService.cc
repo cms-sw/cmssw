@@ -1,4 +1,4 @@
-// $Id: FRDStreamService.cc,v 1.1 2008/08/13 22:48:12 biery Exp $
+// $Id: FRDStreamService.cc,v 1.2 2008/08/14 12:10:15 loizides Exp $
 
 #include <EventFilter/StorageManager/interface/FRDStreamService.h>
 #include <EventFilter/StorageManager/interface/ProgressMarker.h>
@@ -78,8 +78,21 @@ void FRDStreamService::stop()
 // *** close all output service of the previous lumi-section 
 // *** when lumiSectionTimeOut seconds have passed since the
 // *** appearance of the new lumi section and make a record of the file
+// !!! Deprecated - use closeTimedOutFiles() instead !!!
 // 
 void FRDStreamService::closeTimedOutFiles(int lumi, double timeoutdiff)
+{
+  // since we are currently storing all events in a single file,
+  // we never close files at lumi section boundaries
+
+  return;
+}
+
+// 
+// *** close all output service when lumiSectionTimeOut seconds have passed
+// *** since the most recent event was added
+// 
+void FRDStreamService::closeTimedOutFiles()
 {
   // since we are currently storing all events in a single file,
   // we never close files at lumi section boundaries

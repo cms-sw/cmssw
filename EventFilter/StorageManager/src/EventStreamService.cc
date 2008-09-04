@@ -1,4 +1,4 @@
-// $Id: EventStreamService.cc,v 1.6 2008/08/22 19:07:12 biery Exp $
+// $Id: EventStreamService.cc,v 1.7 2008/08/27 22:37:10 biery Exp $
 
 #include <EventFilter/StorageManager/interface/EventStreamService.h>
 #include <EventFilter/StorageManager/interface/ProgressMarker.h>
@@ -81,6 +81,7 @@ void EventStreamService::stop()
 // *** close all output service of the previous lumi-section 
 // *** when lumiSectionTimeOut seconds have passed since the
 // *** appearance of the new lumi section and make a record of the file
+// !!! Deprecated - use closeTimedOutFiles() instead !!!
 // 
 void EventStreamService::closeTimedOutFiles(int lumi, double timeoutdiff)
 {
@@ -116,6 +117,25 @@ void EventStreamService::closeTimedOutFiles(int lumi, double timeoutdiff)
         fillOutputSummaryClosed(fd);
      } else 
         ++it;
+  }
+}
+
+
+// 
+// *** close all output service when lumiSectionTimeOut seconds have passed
+// *** since the most recent event was added
+// 
+void EventStreamService::closeTimedOutFiles()
+{
+  double currentTime = getCurrentTime();
+  for (OutputMapIterator it = outputMap_.begin(); it != outputMap_.end(); ) {
+     if (currentTime - it->second->lastEntry() > lumiSectionTimeOut_) {
+        boost::shared_ptr<FileRecord> fd(it->first);
+        outputMap_.erase(it++);
+        fillOutputSummaryClosed(fd);
+     } else {
+        ++it;
+     }
   }
 }
 
