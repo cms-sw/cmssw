@@ -32,14 +32,12 @@
 #include "CondTools/Hcal/interface/HcalDbOnline.h"
 
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
-//#include "CalibCalorimetry/HcalAlgos/interface/HcalDbXml.h"
 #include "TBDataFormats/HcalTBObjects/interface/HcalTBTriggerData.h"
 
 #include "TFile.h"
 #include "TProfile.h"
 #include "TH1.h"
 #include "TH2.h"
-#include "TF1.h"
 #include <math.h>
 #include <iostream>
 #include <map>
@@ -54,9 +52,8 @@ namespace edm {
   class EventSetup;
 }
 
-   struct NewPedBunch
+   struct NewPedBunchVal
    {
-      HcalGenericDetId genid;
       HcalDetId detid;
       bool usedflag;
       float cap[4];
@@ -83,9 +80,7 @@ class HcalPedestalWidthsValidation : public edm::EDAnalyzer
 
    private:
    //Container for data, 1 per channel
-   std::vector<NewPedBunch> Bunches;
-   //Flag for saving histos
-   bool verboseflag;
+   std::vector<NewPedBunchVal> BunchVales;
    int runnum;
    int firstTS;
    int lastTS;
@@ -106,12 +101,10 @@ class HcalPedestalWidthsValidation : public edm::EDAnalyzer
 
    TFile *theFile;
    bool firsttime;
-
    HcalPedestals* rawPedsItem;
    HcalPedestalWidths* rawWidthsItem;
    HcalPedestals* rawPedsItemfc;
    HcalPedestalWidths* rawWidthsItemfc;
-//   HcalZSThresholds* ZSItem;
 };
 #endif
 
