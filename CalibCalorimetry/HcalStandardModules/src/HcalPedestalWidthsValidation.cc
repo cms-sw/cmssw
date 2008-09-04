@@ -235,14 +235,11 @@ HcalPedestalWidthsValidation::analyze(const edm::Event& e, const edm::EventSetup
       iSetup.get<HcalElectronicsMapRcd>().get(refEMap);
       const HcalElectronicsMap* myRefEMap = refEMap.product();
       std::vector<HcalGenericDetId> listEMap = myRefEMap->allPrecisionId();
-      int nl = 0;
       for (std::vector<HcalGenericDetId>::const_iterator it = listEMap.begin(); it != listEMap.end(); it++)
       {     
          HcalGenericDetId mygenid(it->rawId());
-         std::cout << " Pre  ";
          if(mygenid.isHcalDetId())
          {
-std::cout << ++nl << std::endl;
             NewPedBunch a;
             HcalDetId chanid(mygenid.rawId());
             a.detid = chanid;
@@ -256,11 +253,9 @@ std::cout << ++nl << std::endl;
             std::string histnamedetid = tempstringout.str();
 	    tempstringout.clear();
 	    histnamedetid += " Covariance matrix";
-	    std::cout << "Got to here #1\n";
 	    a.covarhistADC = new TH2F(histnamedetid.c_str(), histname.c_str(), 4, -.5, 3.5, 4, -.5, 3.5);
 	    histnamedetid += " fC";
 	    a.covarhistfC = new TH2F(histnamedetid.c_str(), histname.c_str(), 4, -.5, 3.5, 4, -.5, 3.5);
-std::cout << "   before loop  ";
             for(int i = 0; i != 4; i++)
             {
                a.cap[i] = 0;
@@ -273,7 +268,6 @@ std::cout << "   before loop  ";
 	       tempstringout.clear();
 	       tempstringout << std::hex << (mygenid.rawId()) << std::dec;
 	       std::string histnamedetid = tempstringout.str();
-	       std::cout << "Got to here #" << i << std::endl;
                a.hist[i] = new TH1F(histnamedetid.c_str(), histname.c_str(), 16, -.5, 15.5);
                for(int j = 0; j != 4; j++)
                {
