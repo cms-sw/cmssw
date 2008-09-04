@@ -245,7 +245,6 @@ HcalPedestalWidthsValidation::analyze(const edm::Event& e, const edm::EventSetup
             a.detid = chanid;
             a.genid = mygenid;
             a.usedflag = false;
-            std::cout << "  after used  " ;
             tempstringout << mygenid;
             std::string histname = tempstringout.str();
             tempstringout.clear();
