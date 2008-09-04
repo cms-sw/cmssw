@@ -7,6 +7,7 @@ import FWCore.ParameterSet.Config as cms
 #
 # TimeOffset in nanoseconds
 # spacial displacement in cm
+
 # common parameters
 VtxSmearedCommon = cms.PSet(
     src = cms.InputTag("source")
@@ -31,6 +32,7 @@ FlatVtxSmearingParameters = cms.PSet(
     MinZ = cms.double(-5.3),
     TimeOffset = cms.double(0.0)
 )
+#############################################
 # Beta functions smearing (pp 7+7 TeV)
 #
 # Values taken from LHC optics simulation V6.5:
@@ -38,9 +40,24 @@ FlatVtxSmearingParameters = cms.PSet(
 # alpha = angle of the crossing plane 0 degrees means XZ plane
 # phi = half-crossing beam angle
 #
+# Emittance is the no normalized emittance in cm
+#
 # length variables are in cm
 #
-# 10 TeV collisions, beam size = 46 microns
+
+# 900 GeV collisions, transverse beam size = 283.2 microns 
+Early900GeVCollisionVtxSmearingParameters = cms.PSet(
+    Phi = cms.double(0.0),
+    BetaStar = cms.double(1100.0),
+    Emittance = cms.double(7.29e-07),
+    Alpha = cms.double(0.0),
+    SigmaZ = cms.double(7.4),
+    TimeOffset = cms.double(0.0),
+    Y0 = cms.double(0.0),
+    X0 = cms.double(0.0322),
+    Z0 = cms.double(0.0)
+)
+# 10 TeV collisions, transverse beam size = 46 microns
 Early10TeVCollisionVtxSmearingParameters = cms.PSet(
     Phi = cms.double(0.0),
     BetaStar = cms.double(300.0),
