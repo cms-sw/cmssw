@@ -165,6 +165,24 @@ std::vector<CSCComparatorDigi>  CSCCLCTData::comparatorDigis(int layer)
 }
 
 
+void CSCCLCTData::add(const CSCComparatorDigi & digi, int layer)
+{
+  //FIXME do flipping
+  int strip = digi.getStrip();
+  int halfStrip = (strip-1)*2 + digi.getComparator();
+  int cfeb = strip/16;
+  int distrip = (strip%16) / 2;
+  assert(distrip < 8 && cfeb < 6 && halfStrip < 161);
+
+  std::vector<int> timeBinsOn = digi.getTimeBinsOn();
+  for(std::vector<int>::const_iterator tbinItr = timeBinsOn.begin();
+      tbinItr != timeBinsOn.end(); ++tbinItr)
+  {
+    dataWord(cfeb, *tbinItr, layer).set(distrip, true);
+  }
+}
+
+
 bool CSCCLCTData::check() const 
 {
   bool result = true;

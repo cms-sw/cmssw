@@ -38,8 +38,8 @@ public:
   int sizeInWords() const { return size_;}
   int nlines() const { return ncfebs_*ntbins_*6; }
 
-  ///TODO for packing
-  void add(const CSCComparatorDigi & digi, int layer) {}
+  ///TODO for packing.  Doesn't do flipping yet
+  void add(const CSCComparatorDigi & digi, int layer);
 
   CSCCLCTDataWord & dataWord(int iline) const {
 #ifdef ASSERTS
