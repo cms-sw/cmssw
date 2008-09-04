@@ -147,7 +147,7 @@ void PFRootEventManager::readOptions(const char* file,
       // cout<<"don't do tree"<<endl;
     }
   }
-  // PFJet benchmark options and output jetfile to be open before input file!!!--
+// PFJet benchmark options and output jetfile to be open before input file!!!--
 
   doPFJetBenchmark_ = false;
   options_->GetOpt("pfjet_benchmark", "on/off", doPFJetBenchmark_);
@@ -525,6 +525,54 @@ void PFRootEventManager::readOptions(const char* file,
     exit(1);
   }
 
+  // PFElectrons options -----------------------------
+  double chi2EcalGSF = 900;
+  options_->GetOpt("particle_flow", "final_chi2cut_gsfecal", chi2EcalGSF);
+
+  double chi2EcalBrem = 25;
+  options_->GetOpt("particle_flow", "final_chi2cut_bremecal", chi2EcalBrem);
+
+  double chi2HcalGSF = 100;
+  options_->GetOpt("particle_flow", "final_chi2cut_gsfhcal", chi2HcalGSF);
+
+  double chi2HcalBrem = 25;
+  options_->GetOpt("particle_flow", "final_chi2cut_bremhcal", chi2HcalBrem);
+
+  double chi2PsGSF = 100;
+  options_->GetOpt("particle_flow", "final_chi2cut_gsfps", chi2PsGSF);
+
+  double chi2PsBrem = 25;
+  options_->GetOpt("particle_flow", "final_chi2cut_bremps", chi2PsBrem);
+
+
+  double mvaEleCut = -1.;  // if = -1. get all the pre-id electrons
+  options_->GetOpt("particle_flow", "electron_mvaCut", mvaEleCut);
+
+  bool usePFElectrons = false;   // set true to use PFElectrons
+  options_->GetOpt("particle_flow", "usePFElectrons", usePFElectrons);
+
+  string mvaWeightFileEleID = "";
+  options_->GetOpt("particle_flow", "electronID_mvaWeightFile", 
+		   mvaWeightFileEleID);
+  mvaWeightFileEleID = expand(mvaWeightFileEleID);
+
+  try { 
+    pfAlgo_.setPFEleParameters(chi2EcalGSF,
+			       chi2EcalBrem,
+			       chi2HcalGSF,
+			       chi2HcalBrem,
+			       chi2PsGSF,
+			       chi2PsBrem,
+			       mvaEleCut,
+			       mvaWeightFileEleID,
+			       usePFElectrons);
+  }
+  catch( std::exception& err ) {
+    cerr<<"exception setting PFAlgo Electron parameters: "
+        <<err.what()<<". terminating."<<endl;
+    exit(1);
+  }
+
   int    algo = 2;
   options_->GetOpt("particle_flow", "algorithm", algo);
 
@@ -849,6 +897,22 @@ void PFRootEventManager::connect( const char* infilename ) {
           <<genParticleCandBranchName<< endl;
     }  
   }
+       
+  // calo tower base candidates 
+  string caloTowerCandBranchName;
+  caloTowerBaseCandidatesBranch_ = 0;
+  options_->GetOpt("root","caloTowerBaseCandidates_branch", 
+		   caloTowerCandBranchName);
+  if(!caloTowerCandBranchName.empty() ){  
+    caloTowerBaseCandidatesBranch_= 
+      tree_->GetBranch(caloTowerCandBranchName.c_str()); 
+    if(!caloTowerBaseCandidatesBranch_) {
+      cerr<<"PFRootEventanager::ReadOptions : "
+	  <<"caloTowerBaseCandidates_branch not found : "
+          <<caloTowerCandBranchName<< endl;
+    }  
+  }
+
       
   string genJetBranchName; 
   options_->GetOpt("root","genJetBranchName", genJetBranchName);
