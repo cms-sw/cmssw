@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.84 $"
+__version__ = "$Revision: 1.85 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -16,7 +16,7 @@ defaultOptions.pileup = 'NoPileUp'
 defaultOptions.geometry = 'Pilot2'
 defaultOptions.magField = 'Default'
 defaultOptions.conditions = 'FrontierConditions_GlobalTag,STARTUP_V5::All'
-defaultOptions.scenarioOptions=['pp','cosmics']
+defaultOptions.scenarioOptions=['pp','nocoll']
 
 # the pile up map
 pileupMap = {'LowLumiPileUp': 7.1,
@@ -305,7 +305,7 @@ class ConfigBuilder(object):
 		self.RAW2DIGIDefaultCFF="Configuration/StandardSequences/RawToDigi_cff"
 
 # now for #%#$#! different scenarios
-	if self._options.scenario=='cosmics':
+	if self._options.scenario=='nocoll':
 	    self.RECODefaultCFF="Configuration/StandardSequences/ReconstructionCosmics_cff"	
     	    self.EVTCONTDefaultCFF="Configuration/EventContent/EventContentCosmics_cff"
   	    self.DQMOFFLINEDefaultCFF="DQMOffline/Configuration/DQMOfflineCosmics_cff"
@@ -552,7 +552,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.84 $"),
+              (version=cms.untracked.string("$Revision: 1.85 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
