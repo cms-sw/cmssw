@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.82 $"
+__version__ = "$Revision: 1.83 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -49,17 +49,8 @@ class ConfigBuilder(object):
     
     def __init__(self, options, process = None ):
         """options taken from old cmsDriver and optparse """
-        # do we need to apply special scenarios?
-	#if not options.scenario or options.scenario == "pp":
-	#	self.scenario_pp(options)
-	#elif options.scenario == "cosmics":
-	#	self.scenario_cosmics(options)
-	#else:
-	#    print "scenario % unknown" %options.scenario
-	#    raise ValueError
 
         self._options = options
-
         self.define_Configs()
 
 	if process == None:
@@ -263,24 +254,6 @@ class ConfigBuilder(object):
 
         return final_snippet + "\n\nprocess = customise(process)"
 
-
-    #----------------------------------------------------------------------------
-    # adjust settings for different scenarios like pp, cosmics, heavyIons
-    #----------------------------------------------------------------------------
-#    @staticmethod
-#    def scenario_pp(options):
-#        """ Apply pp scenario """
-#	pass # pp mode is default
-#
-#    @staticmethod
-#    def scenario_cosmics(options): 
-#        """ Apply cosmics scenario """
-#        #options.magField = "0T"
-#        # this one is fragile and needs a better implementation
-#	options.step = options.step.replace('RECO','RECO:Configuration/StandardSequences/ReconstructionCosmics_cff:reconstructionCosmics')
-#	options.eventcontent = 'Configuration/EventContent/EventContentCosmics_cff,RECO'
-#        #options.conditions = <the right global tag for cosmics>
-
     #----------------------------------------------------------------------------
     # here the methods to define the python includes for each step or
     # conditions
@@ -297,7 +270,7 @@ class ConfigBuilder(object):
 	self.L1EMDefaultCFF='Configuration/StandardSequences/SimL1Emulator_cff'
 	self.L1MENUDefaultCFF='L1TriggerConfig/L1GtConfigProducers/Luminosity/lumi1030.L1Menu2008_2E30_Unprescaled_cff'
 	self.HLTDefaultCFF="HLTrigger/Configuration/HLT_2E30_cff"
-	self.RAW2DIGIDefaultCFF="Configuration/StandardSequences/RawToDigi_cff"
+	self.RAW2DIGIDefaultCFF="Configuration/StandardSequences/RawToDigi_Data_cff"
 	self.RECODefaultCFF="Configuration/StandardSequences/Reconstruction_cff"
 	self.POSTRECODefaultCFF="Configuration/StandardSequences/PostRecoGenerator_cff"
 	self.VALIDATIONDefaultCFF="Configuration/StandardSequences/Validation_cff"
@@ -311,7 +284,6 @@ class ConfigBuilder(object):
 	self.HLTDefaultSeq=None
 	self.L1DefaultSeq=None
 	self.RAW2DIGIDefaultSeq='RawToDigi'
-	self.RAW2DIGIDATADefaultSeq='RawToDigiData'
 	self.RECODefaultSeq='reconstruction'
 	self.POSTRECODefaultSeq=None
 	self.DQMDefaultSeq='DQMOffline'
@@ -323,11 +295,15 @@ class ConfigBuilder(object):
 	self.EVTCONTDefaultCFF="Configuration/EventContent/EventContent_cff"
 	self.defaultMagField='38T'
 
+# if its MC then change the raw2digi
+	if self._options.isMC==True:
+		self.RAW2DIGIDefaultCFF="Configuration/StandardSequences/RawToDigi_cff"
+
+# now for #%#$#! different scenarios
 	if self._options.scenario=='cosmics':
 	    self.RECODefaultCFF="Configuration/StandardSequences/ReconstructionCosmics_cff"	
     	    self.EVTCONTDefaultCFF="Configuration/EventContent/EventContentCosmics_cff"
   	    self.DQMOFFLINEDefaultCFF="DQMOffline/Configuration/DQMOfflineCosmics_cff"
-	    self.RAW2DIGIDefaultCFF="Configuration/StandardSequences/RawToDigi_Data_cff"
 
 	    self.defaultMagField='0T'
    	    self.RECODefaultSeq='reconstructionCosmics'
@@ -341,6 +317,34 @@ class ConfigBuilder(object):
 
 	self.GeometryCFF='Configuration/StandardSequences/Geometry'+self._options.geometry+'_cff'
 	self.PileupCFF='Configuration/StandardSequences/Mixing'+self._options.pileup+'_cff'
+
+
+# for alca, skims, etc
+    def addExtraStream(self,name,stream):
+# sanity checks
+	if ( not hasattr(stream,'name') or not hasattr(stream,'dataTier') or 
+	     not hasattr(stream,'content') or not hasattr(stream,'selectEvents') or
+	     not hasattr(stream,'paths')):
+	    print 'Configuration error in addExtraStream. Missing one or more needed attributes'
+	    sys.exit(1)
+# define output module and go from there
+        output = cms.OutputModule("PoolOutputModule")
+	output.SelectEvents = stream.selectEvents
+	output.outputCommands = stream.content
+	output.fileName = cms.untracked.string(stream.name+'.root')
+	output.dataset  = cms.untracked.PSet( dataTier = stream.dataTier, 
+					      filterName = cms.untracked.string('Stream'+stream.name))
+	if isinstance(stream.paths,tuple):
+            for path in stream.paths:
+	        self.process.schedule.append(path)
+	else:		
+	    self.process.schedule.append(stream.paths)
+                # in case of relvals we don't want to have additional outputs  
+	if not self._options.relval: 
+	    self.additionalOutputs[name] = output
+            setattr(self.process,name,output) 
+
+
      
     #----------------------------------------------------------------------------
     # here the methods to create the steps. Of course we are doing magic here ;)
@@ -360,20 +364,7 @@ class ConfigBuilder(object):
             alcastream = getattr(alcaConfig,name)
             shortName = name.replace('ALCARECOStream','')
             if shortName in alcaList and isinstance(alcastream,cms.FilteredStream):
-                alcaOutput = cms.OutputModule("PoolOutputModule")
-                alcaOutput.SelectEvents = alcastream.selectEvents
-                alcaOutput.outputCommands = alcastream.content
-                alcaOutput.fileName = cms.untracked.string(alcastream.name+'.root')
-                alcaOutput.dataset  = cms.untracked.PSet( dataTier = alcastream.dataTier, filterName = cms.untracked.string('Stream'+alcastream.name))
-		if isinstance(alcastream.paths,tuple):
-                    for path in alcastream.paths:
-		        self.process.schedule.append(path)
-                else:		
-		    self.process.schedule.append(alcastream.paths)
-                # in case of relvals we don't want to have additional outputs  
-		if not self._options.relval: 
-                    self.additionalOutputs[name] = alcaOutput
-                    setattr(self.process,name,alcaOutput) 
+		self.addExtraStream(name,alcastream)    
                 alcaList.remove(shortName)
             # DQM needs a special handling
             elif name == 'pathALCARECODQM' and 'DQM' in alcaList:
@@ -487,7 +478,6 @@ class ConfigBuilder(object):
         self.process.dqmoffline_step = cms.Path( getattr(self.process, sequence.split(',')[-1]) )
         self.process.schedule.append(self.process.dqmoffline_step)
 
-
     def prepare_FASTSIM(self, sequence = "all"):
         """Enrich the schedule with fastsim"""
         self.loadAndRemember("FastSimulation/Configuration/FamosSequences_cff")
@@ -551,7 +541,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.82 $"),
+              (version=cms.untracked.string("$Revision: 1.83 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )

@@ -54,6 +54,16 @@ parser.add_option("-n", "--number",
                   default="1",
                   dest="number")
 
+parser.add_option("--mc",
+                  help="Specify that simulation is to be processed (default = guess based on options",
+                  default=False,
+                  dest="isMC")
+parser.add_option("--data",
+                  help="Specify that data is to be processed (default = guess based on options",
+                  default=False,
+                  dest="isData")
+
+
 # expert settings
 expertSettings.add_option("--beamspot",
                           help="What beam spot to use (from Configuration/StandardSequences). Default=Early10TeVCollision",
@@ -284,5 +294,23 @@ if options.name in ('POSTRECO,ALCA,DQM') and 'RECO' in trimmedStep:
 if 'HLT' in trimmedStep:
     options.name = 'HLT'
 
+# sanity check options specifying data or mc
+if options.isData and options.isMC:
+    print "You may specify only --data or --mc, not both"
+    sys.exit(1)
+
+# if not specified by user try to guess
+if not options.isData and not options.isMC:
+    if 'SIM' in trimmedStep:
+        options.isMC=True
+    if 'SIM' in options.eventcontent or 'FEVT' in options.eventcontent:
+        options.isMC=True
+    if 'SIM' in options.datatier:
+        options.isMC=True
+    if options.isMC:
+        print 'We have determined that this is simulation (if not, rerun with --data)'
+    else:
+        print 'We have determined that this is real data (if not, rerun with --mc)'
+    
 options.outfile_name = options.dirout+options.fileout
 
