@@ -70,6 +70,8 @@ namespace stor
 
     collector_.reset(coll.release());
     //ep_runner_.reset(ep.release());
+
+    fileClosingTestInterval_ = 5;  // usually overwritten by SM
   }
 
 /*
@@ -117,22 +119,50 @@ namespace stor
 
   void JobController::processCommands()
   {
+    time_t fileCheckIntervalStart = time(0);
     // called with this jobcontrollers own thread.
-    // just wait for command messages now
+    // wait for command messages, and periodically send "file check"
+    // messages to the FragmentCollector
     while(1)
       {
-	//edm::EventBuffer::ConsumerBuffer cb(ep_runner_->getInfo()->getCommandQueue());
-	edm::EventBuffer::ConsumerBuffer cb(collector_->getCommandQueue());
-	MsgCode mc(cb.buffer(),cb.size());
+        // 02-Sep-2008, KAB: avoid the creation of a consumer buffer
+        // (which blocks) if there are no messages on the queue
+        if(!(collector_->getCommandQueue().empty()))
+          {
+            //edm::EventBuffer::ConsumerBuffer cb(ep_runner_->getInfo()->getCommandQueue());
+            edm::EventBuffer::ConsumerBuffer cb(collector_->getCommandQueue());
+            MsgCode mc(cb.buffer(),cb.size());
 
-	if(mc.getCode()==MsgCode::DONE) break;
+            if(mc.getCode()==MsgCode::DONE) break;
 
-	// if this is an intialization message, then it is a new system
-	// attempting to connect or an old system reconnecting
-	// we must verify that the configuration in the HLTInfo object
-	// is consistent with this new one.
+            // if this is an intialization message, then it is a new system
+            // attempting to connect or an old system reconnecting
+            // we must verify that the configuration in the HLTInfo object
+            // is consistent with this new one.
 
-	// right now we will ignore all messages
+            // right now we will ignore all messages
+          }
+        else
+          {
+            // sleep for a small amount of time, and then check if it is time
+            // to check if files need closed.  If it is time for a check,
+            // we send a special message to the FragmentCollector that tells
+            // it to run the check.
+            sleep(1);
+            time_t now = time(0);
+            if ((now - fileCheckIntervalStart) >= fileClosingTestInterval_) {
+              fileCheckIntervalStart = now;
+              EventBuffer::ProducerBuffer fragQBuff(getFragmentQueue());
+              // 03-Sep-2008, KAB: the use of the NEW_INIT_AVAILABLE message code
+              // here is a hack until the new FILE_CLOSE_REQUEST message code is
+              // ready (in IOPool/Streamer/MsgHeader).  As soon as FILE_CLOSE_REQUEST
+              // is ready, it should replace NEW_INIT_AVAILABLE.
+              new (fragQBuff.buffer()) stor::FragEntry(0, 0, 0, 1, 1,
+                                                       Header::NEW_INIT_AVAILABLE,
+                                                       0, 0, 0);
+              fragQBuff.commit(sizeof(stor::FragEntry));
+            }
+          }
       }    
 
     // do not exit the thread until all subthreads are complete
