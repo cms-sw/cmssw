@@ -166,7 +166,7 @@ expertSettings.add_option("--writeraw",
 
 expertSettings.add_option("--scenario",
                           help="Select scenario overriding standard settings (available:"+str(defaultOptions.scenarioOptions)+")",
-                          default='',
+                          default='pp',
                           dest="scenario")
 
 

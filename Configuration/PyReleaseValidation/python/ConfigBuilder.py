@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.85 $"
+__version__ = "$Revision: 1.86 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -259,10 +259,11 @@ class ConfigBuilder(object):
     # conditions
     #----------------------------------------------------------------------------
     def define_Configs(self):
-	if ( self._options.scenario not in default.scenarioOptions):
+	if ( self._options.scenario not in defaultOptions.scenarioOptions):
 		print 'Invalid scenario provided. Options are:'
 		print defaultOptions.scenarioOptions
-
+		sys.exit(-1)
+		
         self.imports=['Configuration/StandardSequences/Services_cff',
 		      'FWCore/MessageService/MessageLogger_cfi']
 
@@ -306,6 +307,7 @@ class ConfigBuilder(object):
 
 # now for #%#$#! different scenarios
 	if self._options.scenario=='nocoll':
+	    self.SIMDefaultCFF="Configuration/StandardSequences/SimNOBEAM_cff"	
 	    self.RECODefaultCFF="Configuration/StandardSequences/ReconstructionCosmics_cff"	
     	    self.EVTCONTDefaultCFF="Configuration/EventContent/EventContentCosmics_cff"
   	    self.DQMOFFLINEDefaultCFF="DQMOffline/Configuration/DQMOfflineCosmics_cff"
@@ -313,7 +315,7 @@ class ConfigBuilder(object):
 	    self.defaultMagField='0T'
    	    self.RECODefaultSeq='reconstructionCosmics'
 	    self.DQMDefaultSeq='DQMOfflineCosmics'
-	    self.defaultBeamSpot='NoSmearing'
+	    self.defaultBeamSpot='NoSmear'
 	    
         # the magnetic field
 	if self._options.magField=='Default':
@@ -337,7 +339,7 @@ class ConfigBuilder(object):
 	     not hasattr(stream,'content') or not hasattr(stream,'selectEvents') or
 	     not hasattr(stream,'paths')):
 	    print 'Configuration error in addExtraStream. Missing one or more needed attributes'
-	    sys.exit(1)
+	    sys.exit(-1)
 # define output module and go from there
         output = cms.OutputModule("PoolOutputModule")
 	output.SelectEvents = stream.selectEvents
@@ -552,7 +554,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.85 $"),
+              (version=cms.untracked.string("$Revision: 1.86 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
