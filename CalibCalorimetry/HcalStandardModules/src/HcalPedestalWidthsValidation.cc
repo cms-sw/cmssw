@@ -77,40 +77,54 @@ HcalPedestalWidthsValidation::~HcalPedestalWidthsValidation()
       bunch_it->sigfc[3][2] = (bunch_it->prodfc[3][2]/(bunch_it->num[3][2]))-(bunch_it->capfc[3]*bunch_it->capfc[2]);
 
       for(int i = 0; i != 4; i++){
-         bunch_it->hist[i]->Write();
          for(int j = 0; j != 4; j++){
 	    bunch_it->covarhistADC->Fill(i,j,bunch_it->sig[i][j]);
 	    bunch_it->covarhistfC->Fill(i,j,bunch_it->sigfc[i][j]);
 	 }
       }
 
-      bunch_it->covarhistADC->Write();
-      bunch_it->covarhistfC->Write();
-
       if(bunch_it->detid.subdet() == 1){
+         theFile->cd("HB");
+         bunch_it->covarhistADC->Write();
+         bunch_it->covarhistfC->Write();
          for(int i = 0; i != 4; i++){
+            bunch_it->hist[i]->Write();
             HBMeans->Fill(bunch_it->cap[i]);
-            HBWidths->Fill(bunch_it->sig[i][i]);
+            HBWidths->Fill(sqrt(bunch_it->sig[i][i]));
          }
       }
       if(bunch_it->detid.subdet() == 2){
+         theFile->cd("HE");
+         bunch_it->covarhistADC->Write();
+         bunch_it->covarhistfC->Write();
          for(int i = 0; i != 4; i++){
+            bunch_it->hist[i]->Write();
             HEMeans->Fill(bunch_it->cap[i]);
-            HEWidths->Fill(bunch_it->sig[i][i]);
+            HEWidths->Fill(sqrt(bunch_it->sig[i][i]));
          }
       }
       if(bunch_it->detid.subdet() == 3){
+         theFile->cd("HO");
+         bunch_it->covarhistADC->Write();
+         bunch_it->covarhistfC->Write();
          for(int i = 0; i != 4; i++){
+            bunch_it->hist[i]->Write();
             HOMeans->Fill(bunch_it->cap[i]);
-            HOWidths->Fill(bunch_it->sig[i][i]);
+            HOWidths->Fill(sqrt(bunch_it->sig[i][i]));
          }
       }
       if(bunch_it->detid.subdet() == 4){
+         theFile->cd("HF");
+         bunch_it->covarhistADC->Write();
+         bunch_it->covarhistfC->Write();
          for(int i = 0; i != 4; i++){
+            bunch_it->hist[i]->Write();
             HFMeans->Fill(bunch_it->cap[i]);
-            HFWidths->Fill(bunch_it->sig[i][i]);
+            HFWidths->Fill(sqrt(bunch_it->sig[i][i]));
          }
       }
+
+      theFile->cd();
 
       const HcalPedestal item(bunch_it->detid, bunch_it->cap[0], bunch_it->cap[1], bunch_it->cap[2], bunch_it->cap[3]);
       rawPedsItem->addValues(item);
@@ -243,13 +257,14 @@ HcalPedestalWidthsValidation::analyze(const edm::Event& e, const edm::EventSetup
 	    std::ostringstream s1;
             s1 << mygenid;
             std::string histname = s1.str();
-            std::ostringstream s2;
-            s2 << std::hex << (mygenid.rawId()) << std::dec;
-            std::string histnamedetid = s2.str();
-	    histnamedetid += " Covariance matrix";
-	    a.covarhistADC = new TH2F(histnamedetid.c_str(), histname.c_str(), 4, -.5, 3.5, 4, -.5, 3.5);
-	    histnamedetid += " fC";
-	    a.covarhistfC = new TH2F(histnamedetid.c_str(), histname.c_str(), 4, -.5, 3.5, 4, -.5, 3.5);
+	    histname += " Covariance Matrix";
+	    a.covarhistADC = new TH2F(histname.c_str(), histname.c_str(), 4, -.5, 3.5, 4, -.5, 3.5);
+	    a.covarhistADC->SetOption("TEXT");
+	    a.covarhistADC->SetStats(0);
+	    histname += " fC";
+	    a.covarhistfC = new TH2F(histname.c_str(), histname.c_str(), 4, -.5, 3.5, 4, -.5, 3.5);
+	    a.covarhistfC->SetOption("TEXT");
+	    a.covarhistfC->SetStats(0);
             for(int i = 0; i != 4; i++)
             {
                a.cap[i] = 0;
@@ -263,7 +278,7 @@ HcalPedestalWidthsValidation::analyze(const edm::Event& e, const edm::EventSetup
 	       std::ostringstream s5;
 	       s5 << std::hex << (mygenid.rawId()) << std::dec;
 	       std::string histnamedetid = s5.str();
-               a.hist[i] = new TH1F(histnamedetid.c_str(), histname.c_str(), 16, -.5, 15.5);
+               a.hist[i] = new TH1F(histname.c_str(), histnamedetid.c_str(), 16, -.5, 15.5);
                for(int j = 0; j != 4; j++)
                {
                   a.sig[i][j] = 0;
@@ -274,6 +289,7 @@ HcalPedestalWidthsValidation::analyze(const edm::Event& e, const edm::EventSetup
                }
             }
             BunchVales.push_back(a);
+//	    theFile->cd();
          }
       }
       firsttime = false;
