@@ -50,7 +50,7 @@ xDQM_FROM_RAWx
 )
 
 # Input
-process.load( "xINPUT_FILESx" )
+process.load( "xINCLUDE_DIRECTORYx.xINPUT_FILESx" )
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32( -1 )
 )
