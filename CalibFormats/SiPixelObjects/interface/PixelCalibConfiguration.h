@@ -38,6 +38,7 @@ namespace pos{
   //This class contains info about a ROC
   class PixelROCInfo {    
   public:
+    bool use_;
     const PixelHdwAddress* hdwadd_;
     //FIXME these should be const but it has ripple effects...
     PixelROCTrimBits* trims_;

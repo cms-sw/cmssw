@@ -892,9 +892,20 @@ void PixelCalibConfiguration::nextFECState(std::map<unsigned int, PixelFECConfig
     for(unsigned int i=0;i<rocs_.size();i++){
       const PixelHdwAddress* hdwadd=trans->getHdwAddress(rocs_[i]);
       PixelROCInfo rocInfo;
-      rocInfo.hdwadd_=hdwadd;
+      rocInfo.use_=true;
       //FIXME This is very inefficient
       PixelModuleName module(rocs_[i].rocname());
+
+      std::map<pos::PixelModuleName,pos::PixelMaskBase*>::const_iterator foundMask = masks->find(module);
+      if (foundMask==masks->end()){
+	rocInfo.use_=false;
+	rocInfo_.push_back(rocInfo);
+	continue;
+      }
+      
+
+
+      rocInfo.hdwadd_=hdwadd;
       rocInfo.trims_=(*trims)[module]->getTrimBits(rocs_[i]);
       rocInfo.masks_=(*masks)[module]->getMaskBits(rocs_[i]);
 
@@ -957,6 +968,8 @@ void PixelCalibConfiguration::nextFECState(std::map<unsigned int, PixelFECConfig
 
     for(unsigned int i=0;i<rocs_.size();i++){
 
+      if (!rocInfo_[i].use_) continue;
+
       PixelHdwAddress theROC=*rocInfo_[i].hdwadd_;
       PixelROCTrimBits* rocTrims=rocInfo_[i].trims_;
 
@@ -987,6 +1000,8 @@ void PixelCalibConfiguration::nextFECState(std::map<unsigned int, PixelFECConfig
     unsigned int i_col_previous=colCounter(previousState);
 
     for(unsigned int i=0;i<rocs_.size();i++){
+
+      if (!rocInfo_[i].use_) continue;
 
       PixelHdwAddress theROC=*rocInfo_[i].hdwadd_;
 
@@ -1032,6 +1047,9 @@ void PixelCalibConfiguration::nextFECState(std::map<unsigned int, PixelFECConfig
   
   // Set each ROC with the new settings for this state.
   for(unsigned int i=0;i<rocs_.size();i++){
+
+    if (!rocInfo_[i].use_) continue;
+
 
     PixelHdwAddress theROC=*rocInfo_[i].hdwadd_;
 
@@ -1171,6 +1189,8 @@ void PixelCalibConfiguration::nextFECState(std::map<unsigned int, PixelFECConfig
   
   if (changedWBC){
     for(unsigned int i=0;i<rocs_.size();i++){
+
+      if (!rocInfo_[i].use_) continue;
       
       PixelHdwAddress theROC=*rocInfo_[i].hdwadd_;
       
