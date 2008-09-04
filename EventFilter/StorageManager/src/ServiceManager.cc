@@ -1,4 +1,4 @@
-// $Id: ServiceManager.cc,v 1.14 2008/08/22 14:09:29 loizides Exp $
+// $Id: ServiceManager.cc,v 1.15 2008/08/27 22:41:10 biery Exp $
 
 #include <EventFilter/StorageManager/interface/ServiceManager.h>
 #include "EventFilter/StorageManager/interface/Configurator.h"
@@ -188,20 +188,6 @@ void ServiceManager::manageEventMsg(EventMsgView& msg)
       timeouttime_ = (*it)->getCurrentTime();
     }
   }
-
-  // close time-out open files from previous lumi-section 
-  if(currentlumi_>0) {
-    StreamsIterator itBeg = managedOutputs_.begin();
-    StreamsIterator itEnd = managedOutputs_.end();
-    if (itBeg != itEnd) {
-      double tnow = (*itBeg)->getCurrentTime();
-      if (tnow - lasttimechecked_ < 1) return; 
-      lasttimechecked_ = tnow;
-      double tdiff = tnow - timeouttime_;
-      for(StreamsIterator it = itBeg; it != itEnd; ++it) 
-        (*it)->closeTimedOutFiles(currentlumi_, tdiff);
-    }
-  }
 }
 
 void ServiceManager::manageErrorEventMsg(std::string catalog, uint32 disks, std::string sourceId, FRDEventMsgView& msg)
@@ -255,6 +241,15 @@ void ServiceManager::manageErrorEventMsg(std::string catalog, uint32 disks, std:
   }
 }
 
+
+void ServiceManager::closeFilesIfNeeded()
+{
+  StreamsIterator itBeg = managedOutputs_.begin();
+  StreamsIterator itEnd = managedOutputs_.end();
+  for(StreamsIterator it = itBeg; it != itEnd; ++it) {
+    (*it)->closeTimedOutFiles();
+  }
+}
 
 //
 // *** get all files from all streams

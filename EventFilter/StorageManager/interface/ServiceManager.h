@@ -1,7 +1,7 @@
 #ifndef _SERVICEMANAGER_H_
 #define _SERVICEMANAGER_H_
 
-// $Id: ServiceManager.h,v 1.9 2008/08/22 14:09:29 loizides Exp $
+// $Id: ServiceManager.h,v 1.10 2008/08/27 22:34:41 biery Exp $
 
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
 
@@ -41,6 +41,8 @@ namespace edm
 
     void manageErrorEventMsg(std::string catalog, uint32 disks, std::string sourceId, FRDEventMsgView& msg);
     
+    void closeFilesIfNeeded();
+
     std::list<std::string>& get_filelist();
     std::list<std::string>& get_currfiles();
     std::vector<uint32>& get_storedEvents();
