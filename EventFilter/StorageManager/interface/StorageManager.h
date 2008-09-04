@@ -10,7 +10,7 @@
 
      See CMS EventFilter wiki page for further notes.
 
-   $Id: StorageManager.h,v 1.38 2008/08/13 16:23:52 biery Exp $
+   $Id: StorageManager.h,v 1.39 2008/09/03 00:03:58 hcheung Exp $
 */
 
 #include <string>
@@ -152,6 +152,7 @@ namespace stor {
     xdata::Double  lumiSectionTimeOut_;
     xdata::String  fileCatalog_;
     xdata::Boolean exactFileSizeTest_;
+    xdata::Integer fileClosingTestInterval_;
 
     bool pushMode_;
     std::string smConfigString_;

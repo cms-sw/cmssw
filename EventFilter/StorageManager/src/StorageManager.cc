@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.78 2008/09/03 00:03:59 hcheung Exp $
+// $Id: StorageManager.cc,v 1.79 2008/09/03 23:18:35 hcheung Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -100,6 +100,7 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   reasonForFailedState_(),
   ah_(0), 
   exactFileSizeTest_(false),
+  fileClosingTestInterval_(5),
   pushMode_(false), 
   collateDQM_(false),
   archiveDQM_(false),
@@ -223,6 +224,7 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   ispace->fireItemAvailable("highWaterMark",      &highWaterMark_);
   ispace->fireItemAvailable("lumiSectionTimeOut", &lumiSectionTimeOut_);
   ispace->fireItemAvailable("exactFileSizeTest",  &exactFileSizeTest_);
+  ispace->fireItemAvailable("fileClosingTestInterval",&fileClosingTestInterval_);
 
   // added for Event Server
   maxESEventRate_ = 100.0;  // hertz
@@ -4019,6 +4021,7 @@ void StorageManager::setupFlashList()
   is->fireItemAvailable("highWaterMark",        &highWaterMark_);
   is->fireItemAvailable("lumiSectionTimeOut",   &lumiSectionTimeOut_);
   is->fireItemAvailable("exactFileSizeTest",    &exactFileSizeTest_);
+  is->fireItemAvailable("fileClosingTestInterval",&fileClosingTestInterval_);
   is->fireItemAvailable("maxESEventRate",       &maxESEventRate_);
   is->fireItemAvailable("maxESDataRate",        &maxESDataRate_);
   is->fireItemAvailable("activeConsumerTimeout",&activeConsumerTimeout_);
@@ -4075,6 +4078,7 @@ void StorageManager::setupFlashList()
   is->addItemRetrieveListener("highWaterMark",        this);
   is->addItemRetrieveListener("lumiSectionTimeOut",   this);
   is->addItemRetrieveListener("exactFileSizeTest",    this);
+  is->addItemRetrieveListener("fileClosingTestInterval",this);
   is->addItemRetrieveListener("maxESEventRate",       this);
   is->addItemRetrieveListener("maxESDataRate",        this);
   is->addItemRetrieveListener("activeConsumerTimeout",this);
@@ -4366,6 +4370,7 @@ bool StorageManager::configuring(toolbox::task::WorkLoop* wl)
       jc_->setFilePrefixDQM(filePrefixDQM_);
       jc_->setUseCompressionDQM(useCompressionDQM_);
       jc_->setCompressionLevelDQM(compressionLevelDQM_);
+      jc_->setFileClosingTestInterval(fileClosingTestInterval_);
       
       boost::shared_ptr<EventServer>
 	eventServer(new EventServer(maxESEventRate_, maxESDataRate_,
