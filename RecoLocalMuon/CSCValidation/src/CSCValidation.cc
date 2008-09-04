@@ -70,7 +70,7 @@ CSCValidation::CSCValidation(const ParameterSet& pset){
   hWireSTE2 = new TH2F("hWireSTE2","hWireSTE2",nChambers,nCH_min,nCh_max, nTypes, nT_min, nT_max);
   
 
-  hEffDenominator = new TH2F("hRHSTE2","hRHSTE2",nChambers,nCH_min,nCh_max, nTypes, nT_min, nT_max);
+  hEffDenominator = new TH2F("hEffDenominator","hEffDenominator",nChambers,nCH_min,nCh_max, nTypes, nT_min, nT_max);
   hSEff2 = new TH2F("hSEff2","Segment Efficiency 2D",nChambers,nCH_min,nCh_max, nTypes, nT_min, nT_max);
   hRHEff2 = new TH2F("hRHEff2","recHit Efficiency 2D",nChambers,nCH_min,nCh_max, nTypes, nT_min, nT_max);
 
