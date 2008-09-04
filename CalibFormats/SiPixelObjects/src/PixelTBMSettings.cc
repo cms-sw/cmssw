@@ -279,6 +279,8 @@ void PixelTBMSettings::generateConfiguration(PixelFECConfigInterface* pixelFEC,
 
     //pixelFEC->synccontrolregister(mfec);
 
+    //Reset TBM and reset ROC
+    pixelFEC->tbmcmd(mfec, mfecchannel, tbmchannel, hubaddress, 4, 2, 0x14, 0);
     //setting speed to 40MHz
     pixelFEC->tbmcmd(mfec, mfecchannel, tbmchannel, hubaddress, 4, 0, 1, 0);
     if (physics) {
@@ -286,8 +288,6 @@ void PixelTBMSettings::generateConfiguration(PixelFECConfigInterface* pixelFEC,
     } else {
       pixelFEC->tbmcmd(mfec, mfecchannel, tbmchannel, hubaddress, 4, 1, 0xc0, 0);
     }
-    //Reset TBM and reset ROC
-    pixelFEC->tbmcmd(mfec, mfecchannel, tbmchannel, hubaddress, 4, 2, 0x14, 0);
     //Enable token and analog output
     pixelFEC->tbmcmd(mfec, mfecchannel, tbmchannel, hubaddress, 4, 4, 0x0, 0);
 
