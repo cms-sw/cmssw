@@ -16,10 +16,10 @@ HcalPedestalsAnalysis::HcalPedestalsAnalysis(const edm::ParameterSet& ps)
    lastTS = ps.getUntrackedParameter<int>("lastTS", 9);   
    firsttime = true;
 
-   HcalPedestals* rawPedsItem = new HcalPedestals();
-   HcalPedestalWidths* rawWidthsItem = new HcalPedestalWidths();
-   HcalPedestals* rawPedsItemfc = new HcalPedestals();
-   HcalPedestalWidths* rawWidthsItemfc = new HcalPedestalWidths();
+   rawPedsItem = new HcalPedestals();
+   rawWidthsItem = new HcalPedestalWidths();
+   rawPedsItemfc = new HcalPedestals();
+   rawWidthsItemfc = new HcalPedestalWidths();
 }
 
 
