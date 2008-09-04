@@ -7,8 +7,8 @@ dtSegmentAnalysisMonitor = cms.EDAnalyzer("DTSegmentAnalysisTask",
     recHits4DLabel = cms.string('dt4DSegments'),
     # skip segments with noisy cells (reads from DB)
     checkNoisyChannels = cms.untracked.bool(True),
-    # switch for local-mode runs
-    localrun = cms.untracked.bool(True)
+    # switch off uneeded histograms
+    detailedAnalysis = cms.untracked.bool(False)
 )
 
 
