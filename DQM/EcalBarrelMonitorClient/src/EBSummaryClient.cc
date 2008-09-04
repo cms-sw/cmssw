@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2008/08/20 15:42:54 $
- * $Revision: 1.167 $
+ * $Date: 2008/09/02 14:23:02 $
+ * $Revision: 1.168 $
  * \author G. Della Ricca
  *
 */
@@ -1103,7 +1103,8 @@ void EBSummaryClient::analyze(void) {
         float val_ls = meLaserL1_->getBinContent(ipx,iex);
         float val_tm = meTiming_->getBinContent(ipx,iex);
         float val_sf = meStatusFlags_->getBinContent((ipx-1)/5+1,(iex-1)/5+1);
-        float val_ee = meTriggerTowerEmulError_->getBinContent((ipx-1)/5+1,(iex-1)/5+1);
+	// float val_ee = meTriggerTowerEmulError_->getBinContent((ipx-1)/5+1,(iex-1)/5+1); // removed from the global summary temporarily
+	float val_ee = 1;
 
         // turn each dark color (masked channel) to bright green
         // for laser & timing & trigger turn also yellow into bright green

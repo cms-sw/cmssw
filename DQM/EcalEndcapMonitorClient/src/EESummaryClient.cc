@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2008/08/20 16:15:02 $
- * $Revision: 1.149 $
+ * $Date: 2008/09/02 14:23:02 $
+ * $Revision: 1.150 $
  * \author G. Della Ricca
  *
 */
@@ -1243,7 +1243,8 @@ void EESummaryClient::analyze(void) {
         float val_ls = meLaserL1_[0]->getBinContent(jx,jy);
         float val_tm = meTiming_[0]->getBinContent(jx,jy);
         float val_sf = meStatusFlags_[0]->getBinContent(jx,jy);
-        float val_ee = meTriggerTowerEmulError_[0]->getBinContent(jx,jy);
+	// float val_ee = meTriggerTowerEmulError_[0]->getBinContent(jx,jy); // removed temporarily from the global summary
+	float val_ee = 1;
 
         // turn each dark color (masked channel) to bright green
         // for laser & timing & trigger turn also yellow into bright green
@@ -1321,7 +1322,8 @@ void EESummaryClient::analyze(void) {
         float val_ls = meLaserL1_[1]->getBinContent(jx,jy);
         float val_tm = meTiming_[1]->getBinContent(jx,jy);
         float val_sf = meStatusFlags_[1]->getBinContent(jx,jy);
-        float val_ee = meTriggerTowerEmulError_[1]->getBinContent(jx,jy);
+        // float val_ee = meTriggerTowerEmulError_[1]->getBinContent(jx,jy); // removed temporarily from the global summary
+	float val_ee = 1;
 
         // turn each dark color to bright green
         // for laser & timing & trigger turn also yellow into bright green
