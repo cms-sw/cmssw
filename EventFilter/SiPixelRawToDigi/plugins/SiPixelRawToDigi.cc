@@ -143,7 +143,7 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
       } // end error loop over detIds
     } // end if(includeErrors)
   } // end loop over feds
-  if (errorsInEvent) edm::LogError("SiPixelRawToDigi") << "Error words were stored in this event, see Debug printout for more details";
+  if (errorsInEvent) LogDebug("SiPixelRawToDigi") << "Error words were stored in this event";
 
   if (theTimer) {
     theTimer->stop();
