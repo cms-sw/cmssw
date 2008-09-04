@@ -11,7 +11,7 @@ Description: Analyse the timing of all of the GCT pipelines
 //
 // Original Author:  Alex Tapper
 //         Created:  Mon Apr 21 14:21:06 CEST 2008
-// $Id: GctTimingAnalyzer.cc,v 1.6 2008/08/01 15:04:04 tapper Exp $
+// $Id: GctTimingAnalyzer.cc,v 1.7 2008/08/14 17:25:28 jad Exp $
 //
 //
 
@@ -20,18 +20,17 @@ Description: Analyse the timing of all of the GCT pipelines
 
 GctTimingAnalyzer::GctTimingAnalyzer(const edm::ParameterSet& iConfig):
   m_outputFileName(iConfig.getUntrackedParameter<std::string>("outFile", "gctTiming.txt")),
+  m_gctSource(iConfig.getUntrackedParameter<edm::InputTag>("gctSource")),
   m_isoEmSource(iConfig.getUntrackedParameter<edm::InputTag>("isoEmSource")),
   m_nonIsoEmSource(iConfig.getUntrackedParameter<edm::InputTag>("nonIsoEmSource")),
-  m_internEmSource(iConfig.getUntrackedParameter<edm::InputTag>("internEmSource")),
-  m_internJetSource(iConfig.getUntrackedParameter<edm::InputTag>("internJetSource")),
   m_cenJetsSource(iConfig.getUntrackedParameter<edm::InputTag>("cenJetsSource")),
   m_forJetsSource(iConfig.getUntrackedParameter<edm::InputTag>("forJetsSource")),
   m_tauJetsSource(iConfig.getUntrackedParameter<edm::InputTag>("tauJetsSource")),
-  m_eSumsSource(iConfig.getUntrackedParameter<edm::InputTag>("eSumsSource")),
-  m_fibreSource(iConfig.getUntrackedParameter<edm::InputTag>("fibreSource")),
-  m_rctSource(iConfig.getUntrackedParameter<edm::InputTag>("rctSource")),
-  m_EtSumSwitch(iConfig.getUntrackedParameter<bool>("EtSumSwitch")),
-  m_testConfig(iConfig.getUntrackedParameter<bool>("testConfig")),
+  m_doInternal(iConfig.getUntrackedParameter<bool>("doInternal")),
+  m_doElectrons(iConfig.getUntrackedParameter<bool>("doElectrons")),
+  m_doJets(iConfig.getUntrackedParameter<bool>("doJets")),
+  m_doHFRings(iConfig.getUntrackedParameter<bool>("doHFRings")),
+  m_doESums(iConfig.getUntrackedParameter<bool>("doESums")),
   m_evtNum(0)
 {
   m_outputFile.open(m_outputFileName.c_str());
@@ -47,186 +46,181 @@ void GctTimingAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
   using namespace edm;
   using namespace std;
   
-  if(!m_testConfig){
-  // Isolated EM cands in GCT output
-  Handle<L1GctEmCandCollection> isoEm; 
-  iEvent.getByLabel(m_isoEmSource,isoEm);    
+  // Electrons
+  if(m_doElectrons){
 
-  for (L1GctEmCandCollection::const_iterator em=isoEm->begin(); em!=isoEm->end(); em++){
-    if (em->rank()>0) {
-      m_outputFile << "BX = " << dec << m_evtNum << " " << (*em) << std::endl; 
+    // Isolated EM cands in GCT output
+    Handle<L1GctEmCandCollection> isoEm; 
+    iEvent.getByLabel(m_isoEmSource,isoEm);    
+
+    for (L1GctEmCandCollection::const_iterator em=isoEm->begin(); em!=isoEm->end(); em++){
+      if (em->rank()>0) {
+        m_outputFile << "BX = " << dec << m_evtNum << " " << (*em) << std::endl; 
+      }
     }
-  }
   
-  // Non-Isolated EM cands in GCT output
-  Handle<L1GctEmCandCollection> nonIsoEm; 
-  iEvent.getByLabel(m_nonIsoEmSource,nonIsoEm);    
+    // Non-Isolated EM cands in GCT output
+    Handle<L1GctEmCandCollection> nonIsoEm; 
+    iEvent.getByLabel(m_nonIsoEmSource,nonIsoEm);    
+    
+    for (L1GctEmCandCollection::const_iterator em=nonIsoEm->begin(); em!=nonIsoEm->end(); em++){
+      if (em->rank()>0) {
+        m_outputFile << "BX = " << dec << m_evtNum << " " << (*em) << std::endl; 
+      }
+    }
 
-  for (L1GctEmCandCollection::const_iterator em=nonIsoEm->begin(); em!=nonIsoEm->end(); em++){
-    if (em->rank()>0) {
-      m_outputFile << "BX = " << dec << m_evtNum << " " << (*em) << std::endl; 
+    if (m_doInternal){
+      // Internal GCT EM cands
+      Handle<L1GctInternEmCandCollection> internEm; 
+      iEvent.getByLabel(m_gctSource,internEm);    
+      
+      for (L1GctInternEmCandCollection::const_iterator em=internEm->begin(); em!=internEm->end(); em++){
+        if (em->rank()>0) {
+          m_outputFile << "BX = " << dec << m_evtNum << " " << (*em) << std::endl; 
+        }
+      }
+    }
+
+    // RCT EM cands
+    Handle<L1CaloEmCollection> rctEm; 
+    iEvent.getByLabel(m_gctSource,rctEm);    
+    
+    for (L1CaloEmCollection::const_iterator em=rctEm->begin(); em!=rctEm->end(); em++){
+      if (em->rank()>0) {
+        m_outputFile << "BX = " << dec << m_evtNum << " " << (*em) << std::endl; 
+      }
+    }
+  }     
+
+  // Jets
+  if (m_doJets){
+
+    // Central jet cands in GCT output
+    Handle<L1GctJetCandCollection> cenJets; 
+    iEvent.getByLabel(m_cenJetsSource,cenJets);    
+
+    for (L1GctJetCandCollection::const_iterator cj=cenJets->begin(); cj!=cenJets->end(); cj++){
+      if (cj->rank()>0) {
+        m_outputFile << "BX = " << dec << m_evtNum << " " << (*cj) << std::endl; 
+      }
+    }
+    
+    // Forward jet cands in GCT output
+    Handle<L1GctJetCandCollection> forJets; 
+    iEvent.getByLabel(m_forJetsSource,forJets);    
+    
+    for (L1GctJetCandCollection::const_iterator fj=forJets->begin(); fj!=forJets->end(); fj++){
+      if (fj->rank()>0) {
+        m_outputFile << "BX = " << dec << m_evtNum << " " << (*fj) << std::endl; 
+      }
+    }
+    
+    // Tau jet cands in GCT output
+    Handle<L1GctJetCandCollection> tauJets; 
+    iEvent.getByLabel(m_tauJetsSource,tauJets);    
+    
+    for (L1GctJetCandCollection::const_iterator tj=tauJets->begin(); tj!=tauJets->end(); tj++){
+      if (tj->rank()>0) {
+        m_outputFile << "BX = " << dec << m_evtNum << " " << (*tj) << std::endl; 
+      }
+    }
+
+    if (m_doInternal){
+
+      // Internal GCT jet cands
+      Handle<L1GctInternJetDataCollection> internJets; 
+      iEvent.getByLabel(m_gctSource,internJets);    
+
+      for (L1GctInternJetDataCollection::const_iterator j=internJets->begin(); j!=internJets->end(); j++){
+        if ((j->et()>0) || (j->rank()>0)) {
+          m_outputFile << "BX = " << dec << m_evtNum << " " << (*j) << std::endl; 
+        }
+      }
+    }
+
+    // RCT regions
+    Handle<L1CaloRegionCollection> rctRn; 
+    iEvent.getByLabel(m_gctSource,rctRn);    
+    
+    for (L1CaloRegionCollection::const_iterator rn=rctRn->begin(); rn!=rctRn->end(); rn++){
+      if (rn->et()>0) {
+        m_outputFile << "BX = " << dec << m_evtNum << " " << (*rn) << std::endl; 
+      }
     }
   }
 
-  // Internal GCT EM cands
-  Handle<L1GctInternEmCandCollection> internEm; 
-  iEvent.getByLabel(m_internEmSource,internEm);    
+  // HF Rings
+  if (m_doHFRings){
 
-  for (L1GctInternEmCandCollection::const_iterator em=internEm->begin(); em!=internEm->end(); em++){
-    if (em->rank()>0) {
-      m_outputFile << "BX = " << dec << m_evtNum << " " << (*em) << std::endl; 
+    // HFRing counts
+    Handle<L1GctHFBitCountsCollection> hfBitCnt;
+    iEvent.getByLabel(m_gctSource,hfBitCnt);
+
+    for (L1GctHFBitCountsCollection::const_iterator jc=hfBitCnt->begin(); jc!=hfBitCnt->end(); jc++){
+      if (jc->bitCount(0) || jc->bitCount(1) || jc->bitCount(2) || jc->bitCount(3)){
+        m_outputFile << "BX = " << dec << m_evtNum << " " << (*jc) << std::endl; 
+      }
     }
+
+    // HFRing Et sums
+    Handle<L1GctHFRingEtSumsCollection> hfEtSums;
+    iEvent.getByLabel(m_gctSource,hfEtSums);
+
+    for (L1GctHFRingEtSumsCollection::const_iterator js=hfEtSums->begin(); js!=hfEtSums->end(); js++){
+      if (js->etSum(0) || js->etSum(1) || js->etSum(2) || js->etSum(3)){
+        m_outputFile << "BX = " << dec << m_evtNum << " " << (*js) << std::endl; 
+      }
+    }
+
   }
 
-  // RCT EM cands
-  Handle<L1CaloEmCollection> rctEm; 
-  iEvent.getByLabel(m_rctSource,rctEm);    
+  // HT, MET and ET
+  if (m_doESums){
 
-  for (L1CaloEmCollection::const_iterator em=rctEm->begin(); em!=rctEm->end(); em++){
-    if (em->rank()>0) {
-      m_outputFile << "BX = " << dec << m_evtNum << " " << (*em) << std::endl; 
+    // MET
+    Handle<L1GctEtMissCollection> missEt;
+    iEvent.getByLabel(m_gctSource,missEt);
+
+    for (L1GctEtMissCollection::const_iterator met=missEt->begin(); met!=missEt->end(); met++){
+      if (met->et()>0){
+        m_outputFile << "BX = " << dec << m_evtNum << " " << (*met) << std::endl; 
+      }
     }
-  }
 
-  // Central jet cands in GCT output
-  Handle<L1GctJetCandCollection> cenJets; 
-  iEvent.getByLabel(m_cenJetsSource,cenJets);    
-
-  for (L1GctJetCandCollection::const_iterator cj=cenJets->begin(); cj!=cenJets->end(); cj++){
-    if (cj->rank()>0) {
-      m_outputFile << "BX = " << dec << m_evtNum << " " << (*cj) << std::endl; 
+    // Total Et
+    Handle<L1GctEtTotalCollection> totEt;
+    iEvent.getByLabel(m_gctSource,totEt);
+    
+    for (L1GctEtTotalCollection::const_iterator tet=totEt->begin(); tet!=totEt->end(); tet++){
+      if (tet->et()>0){
+        m_outputFile << "BX = " << dec << m_evtNum << " " << (*tet) << std::endl; 
+      }
     }
-  }
+    
+    // Ht
+    Handle<L1GctEtHadCollection> hadEt;
+    iEvent.getByLabel(m_gctSource,hadEt);
 
-  // Forward jet cands in GCT output
-  Handle<L1GctJetCandCollection> forJets; 
-  iEvent.getByLabel(m_forJetsSource,forJets);    
-
-  for (L1GctJetCandCollection::const_iterator fj=forJets->begin(); fj!=forJets->end(); fj++){
-    if (fj->rank()>0) {
-      m_outputFile << "BX = " << dec << m_evtNum << " " << (*fj) << std::endl; 
+    for (L1GctEtHadCollection::const_iterator ht=hadEt->begin(); ht!=hadEt->end(); ht++){
+      if (ht->et()>0){
+        m_outputFile << "BX = " << dec << m_evtNum << " " << (*ht) << std::endl; 
+      }
     }
-  }
 
-  // Tau jet cands in GCT output
-  Handle<L1GctJetCandCollection> tauJets; 
-  iEvent.getByLabel(m_tauJetsSource,tauJets);    
+    if (m_doInternal){
 
-  for (L1GctJetCandCollection::const_iterator tj=tauJets->begin(); tj!=tauJets->end(); tj++){
-    if (tj->rank()>0) {
-      m_outputFile << "BX = " << dec << m_evtNum << " " << (*tj) << std::endl; 
-    }
-  }
-
-  // Missing Et
-  Handle<L1GctEtMissCollection> missEt;
-  iEvent.getByLabel(m_eSumsSource,missEt);
-
-  for (L1GctEtMissCollection::const_iterator met=missEt->begin(); met!=missEt->end(); met++){
-    if (met->et()>0){
-      m_outputFile << "BX = " << dec << m_evtNum << " " << (*met) << std::endl; 
-    }
-  }
-
-  // Total Et
-  Handle<L1GctEtTotalCollection> totEt;
-  iEvent.getByLabel(m_eSumsSource,totEt);
-
-  for (L1GctEtTotalCollection::const_iterator tet=totEt->begin(); tet!=totEt->end(); tet++){
-    if (tet->et()>0){
-      m_outputFile << "BX = " << dec << m_evtNum << " " << (*tet) << std::endl; 
-    }
-  }
-
-  // Ht
-  Handle<L1GctEtHadCollection> hadEt;
-  iEvent.getByLabel(m_eSumsSource,hadEt);
-
-  for (L1GctEtHadCollection::const_iterator ht=hadEt->begin(); ht!=hadEt->end(); ht++){
-    if (ht->et()>0){
-      //      m_outputFile << "BX = " << dec << m_evtNum << " " << (*ht) << std::endl; 
-    }
-  }
-
-  // Jet counts
-  Handle<L1GctJetCountsCollection> jetCnts;
-  iEvent.getByLabel(m_eSumsSource,jetCnts);
-
-  for (L1GctJetCountsCollection::const_iterator jc=jetCnts->begin(); jc!=jetCnts->end(); jc++){
-    if (jc->raw0() || jc->raw1()){
-      m_outputFile << "BX = " << dec << m_evtNum << " " << (*jc) << std::endl; 
-    }
-  }
-
-  // RCT regions
-  Handle<L1CaloRegionCollection> rctRn; 
-  iEvent.getByLabel(m_rctSource,rctRn);    
-
-  for (L1CaloRegionCollection::const_iterator rn=rctRn->begin(); rn!=rctRn->end(); rn++){
-    if (rn->et()>0) {
-      m_outputFile << "BX = " << dec << m_evtNum << " " << (*rn) << std::endl; 
-    }
-  }
-
-  // Internal GCT jet cands
-  Handle<L1GctInternJetDataCollection> internJets; 
-  iEvent.getByLabel(m_internJetSource,internJets);    
-
-  for (L1GctInternJetDataCollection::const_iterator j=internJets->begin(); j!=internJets->end(); j++){
-    if ((j->et()>0) || (j->rank()>0)) {
-      // if (j->capBlock() == 0xb03)
-       m_outputFile << "BX = " << dec << m_evtNum << " " << (*j) << std::endl; 
-    }
-  }
-
-  // Internal GCT Et sums
-  if(m_EtSumSwitch){
-  Handle<L1GctInternEtSumCollection> Et;
-  iEvent.getByLabel(m_eSumsSource,Et);
-
-  for (L1GctInternEtSumCollection::const_iterator e=Et->begin(); e!=Et->end(); e++){
-    if (e->et()>0){
-      m_outputFile << "BX = " << dec << m_evtNum << " " << (*e) << std::endl;
-    }
-  }
+      // Internal GCT Et sums
+      Handle<L1GctInternEtSumCollection> Et;
+      iEvent.getByLabel(m_gctSource,Et);
+      
+      for (L1GctInternEtSumCollection::const_iterator e=Et->begin(); e!=Et->end(); e++){
+        if (e->et()>0){
+          m_outputFile << "BX = " << dec << m_evtNum << " " << (*e) << std::endl;
+        }
+      }
+    }    
   }
 
   m_evtNum++;
 
-  }else{
-
-  // Central jet cands in GCT output
-  Handle<L1GctJetCandCollection> cenJets; 
-  iEvent.getByLabel(m_cenJetsSource,cenJets);    
-
-  for (L1GctJetCandCollection::const_iterator cj=cenJets->begin(); cj!=cenJets->end(); cj++){
-    if (cj->rank()>0) {
-      m_outputFile  << " " << cj->rank() << " " << cj->etaIndex() << " " <<  cj->phiIndex() << " " <<  "central" <<  std::endl; 
-  
-      }
-  }
-
-  // Forward jet cands in GCT output
-  Handle<L1GctJetCandCollection> forJets; 
-  iEvent.getByLabel(m_forJetsSource,forJets);    
-
-  for (L1GctJetCandCollection::const_iterator fj=forJets->begin(); fj!=forJets->end(); fj++){
-    if (fj->rank()>0) {
-      m_outputFile << " " << fj->rank() << " " << fj->etaIndex() << " " << fj->phiIndex() << " " << "forward" << std::endl; 
-    }
-  }
-
-  // Tau jet cands in GCT output
-  Handle<L1GctJetCandCollection> tauJets; 
-  iEvent.getByLabel(m_tauJetsSource,tauJets);    
-
-  for (L1GctJetCandCollection::const_iterator tj=tauJets->begin(); tj!=tauJets->end(); tj++){
-    if (tj->rank()>0) {
-      m_outputFile << " " << tj->rank() << " " << tj->etaIndex() << " " << tj->phiIndex() << " " << "tau"  << std::endl; 
-    }
-  }
-
-
-
-  }
 }

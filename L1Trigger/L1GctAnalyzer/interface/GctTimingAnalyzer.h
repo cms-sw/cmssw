@@ -14,7 +14,7 @@ Description: Analyse the timing of all of the GCT pipelines
 //
 // Original Author:  Alex Tapper
 //         Created:  Mon Apr 21 14:21:06 CEST 2008
-// $Id: GctTimingAnalyzer.h,v 1.4 2008/07/14 12:40:01 tapper Exp $
+// $Id: GctTimingAnalyzer.h,v 1.5 2008/08/14 17:26:26 jad Exp $
 //
 //
 
@@ -45,21 +45,23 @@ class GctTimingAnalyzer : public edm::EDAnalyzer {
 
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
-  std::string m_outputFileName;
+  std::string m_outputFileName; // Output file
   std::ofstream m_outputFile;
-  edm::InputTag m_isoEmSource;
+
+  edm::InputTag m_gctSource; // General source label
+  edm::InputTag m_isoEmSource;   
   edm::InputTag m_nonIsoEmSource;
-  edm::InputTag m_internEmSource;
-  edm::InputTag m_internJetSource;
   edm::InputTag m_cenJetsSource;
   edm::InputTag m_forJetsSource;
   edm::InputTag m_tauJetsSource;
-  edm::InputTag m_eSumsSource;
-  edm::InputTag m_fibreSource;
-  edm::InputTag m_rctSource;
+
+  bool m_doInternal;  // Do internal pipelines
+  bool m_doElectrons;
+  bool m_doJets;
+  bool m_doHFRings;
+  bool m_doESums;
+
   unsigned m_evtNum;
-  bool m_EtSumSwitch;
-  bool m_testConfig;
 
 };
 
