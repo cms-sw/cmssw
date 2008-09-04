@@ -21,7 +21,6 @@
 #include "CondFormats/HcalObjects/interface/HcalQIECoder.h"
 #include "CondFormats/HcalObjects/interface/HcalQIEData.h"
 #include "CondFormats/HcalObjects/interface/HcalQIEShape.h"
-#include "CondFormats/HcalObjects/src/HcalQIEShape.cc"
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 #include "CondFormats/HcalObjects/interface/AllObjects.h"
 
@@ -39,7 +38,6 @@
 #include "TFile.h"
 #include "TProfile.h"
 #include "TH1.h"
-#include "TF1.h"
 #include <math.h>
 #include <iostream>
 #include <map>
@@ -56,9 +54,7 @@ namespace edm {
 
    struct NewPedBunch
    {
-      HcalGenericDetId genid;
       HcalDetId detid;
-      HcalZDCDetId zdcid;
       bool usedflag;
       float cap[4];
       float capfc[4];
@@ -67,7 +63,6 @@ namespace edm {
       float prod[4][4];
       float prodfc[4][4];
       int num[4][4];
-      TH1F * zdchists[4];
    };
 
 class HcalPedestalsAnalysis : public edm::EDAnalyzer
@@ -106,16 +101,9 @@ class HcalPedestalsAnalysis : public edm::EDAnalyzer
    TH1F *HFWidths;
    TH1F *HOMeans;
    TH1F *HOWidths;
-   TH1F *ZDCMeans;
-   TH1F *ZDCWidths;
 
    TFile *theFile;
    bool firsttime;
-
-   HcalPedestals* rawPedsItem;
-   HcalPedestalWidths* rawWidthsItem;
-   HcalPedestals* rawPedsItemfc;
-   HcalPedestalWidths* rawWidthsItemfc;
 };
 #endif
 
