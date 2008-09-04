@@ -6,7 +6,7 @@ process.load("DQMServices.Components.EDMtoMEConverter_cff")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.connect = "frontier://PromptProd/CMS_COND_21X_GLOBALTAG"
-process.GlobalTag.globaltag = "CRUZET4_V2P::All"
+process.GlobalTag.globaltag = "CRUZET4_V4P::All"
 process.prefer("GlobalTag")
 
 process.load("Configuration.StandardSequences.Geometry_cff")
