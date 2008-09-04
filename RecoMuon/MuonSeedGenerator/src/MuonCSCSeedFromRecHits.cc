@@ -1,5 +1,4 @@
 #include "RecoMuon/MuonSeedGenerator/src/MuonCSCSeedFromRecHits.h"
-#include "RecoMuon/MuonSeedGenerator/src/MuonSeedPtExtractor.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "Geometry/CSCGeometry/interface/CSCChamberSpecs.h"
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
@@ -47,7 +46,7 @@ TrajectorySeed MuonCSCSeedFromRecHits::seed() const
   TrajectorySeed result;
   //@@ doesn't handle overlap between ME11 and ME12 correctly
   // sort by station
-  MuonRecHitContainer station1Hits, station2Hits, station3Hits;
+  MuonRecHitContainer station1Hits, station2Hits, station3Hits, station4Hits;
   for ( MuonRecHitContainer::const_iterator iter = theRhits.begin(), end = theRhits.end();
         iter != end; ++iter)
   {
@@ -64,25 +63,48 @@ TrajectorySeed MuonCSCSeedFromRecHits::seed() const
     {
       station3Hits.push_back(*iter);
     }
+    else if(station == 4)
+    {
+      station4Hits.push_back(*iter);
+    }
   }
 
   //std::cout << "Station hits " << station1Hits.size() << " " 
   //                             << station2Hits.size() << " "
   //                             << station3Hits.size() << std::endl;
 
+  // see whether station 2 or station 3 is better
+  MuonRecHitContainer * betterSecondHits = &station2Hits; 
+  MuonRecHitContainer * notAsGoodSecondHits = &station3Hits;
+  if(!station2Hits.empty() && !station3Hits.empty())
+  { 
+std::cout << "QUALK2 " << segmentQuality(station2Hits[0]) << " QUAL3 " << segmentQuality(station3Hits[0]) << std::endl;
+    // swap if station 3 has better quailty
+    if(segmentQuality(station3Hits[0]) < segmentQuality(station2Hits[0]))
+    {
+      betterSecondHits = &station3Hits;
+      notAsGoodSecondHits = &station2Hits; 
+    }
+  }
+
   // now try to make pairs
-  if(makeSeed2(station1Hits, station2Hits, result))
+  if(makeSeed(station1Hits, *betterSecondHits, result))
   {
     return result;
   }
-  if(makeSeed2(station1Hits, station3Hits, result))
+  if(makeSeed(station1Hits, *notAsGoodSecondHits, result))
   {
     return result;
   }
-  if(makeSeed2(station2Hits, station3Hits, result))
+  if(makeSeed(station2Hits, station3Hits, result))
   {
     return result;
   }
+  if(makeSeed(station1Hits, station4Hits, result))
+  {
+    return result;
+  }
+
 
 
   // no luck
@@ -144,7 +166,7 @@ bool MuonCSCSeedFromRecHits::makeSeed(const MuonRecHitContainer & hits1, const M
           ConstMuonRecHitPointer bestSeg = bestSegment();
           seed = createSeed(pt, sigmapt, bestSeg);
 
-          //std::cout << "FITTED TIMESPT " << pt << " dphi " << dphi << " eta " << eta << std::endl;
+          std::cout << "FITTED TIMESPT " << pt << " dphi " << dphi << " eta " << eta << std::endl;
           return true;
         }
 
@@ -157,58 +179,6 @@ bool MuonCSCSeedFromRecHits::makeSeed(const MuonRecHitContainer & hits1, const M
   return false;
 }
 
-
-bool MuonCSCSeedFromRecHits::makeSeed2(const MuonRecHitContainer & hits1, const MuonRecHitContainer & hits2,
-                                      TrajectorySeed & seed) const
-{
-  for ( MuonRecHitContainer::const_iterator itr1 = hits1.begin(), end1 = hits1.end();
-        itr1 != end1; ++itr1)
-  {
-    CSCDetId cscId1((*itr1)->geographicalId().rawId());
-    int type1 = CSCChamberSpecs::whatChamberType(cscId1.station(), cscId1.ring());
-
-    for ( MuonRecHitContainer::const_iterator itr2 = hits2.begin(), end2 = hits2.end();
-          itr2 != end2; ++itr2)
-    {
-
-      CSCDetId cscId2((*itr2)->geographicalId().rawId());
-      int type2 = CSCChamberSpecs::whatChamberType(cscId2.station(), cscId2.ring());
-
-        // take the first pair that comes along.  Probably want to rank them later
-      std::vector<double> pts = thePtExtractor->pT_extract(*itr1, *itr2);
-        
-        double pt = pts[0];
-        double sigmapt = pts[1];
-        double minpt = 3.;
-
-        // if too small, probably an error.  Keep trying.
-        if(fabs(pt) > minpt)
-        {
-          double maxpt = 2000.;
-          if(pt > maxpt) {
-            pt = maxpt;
-            sigmapt = maxpt;
-          }
-          if(pt < -maxpt) {
-            pt = -maxpt;
-            sigmapt = maxpt;
-          }
-
-          // get the position and direction from the higher-quality segment
-          ConstMuonRecHitPointer bestSeg = bestSegment();
-          seed = createSeed(pt, sigmapt, bestSeg);
-
-          //std::cout << "FITTED TIMESPT " << pt << " dphi " << dphi << " eta " << eta << std::endl;
-          return true;
-        }
-
-    }
-  }
-
-  // guess it didn't find one
-//std::cout << "NOTHING FOUND ! " << std::endl;
-  return false;
-}
 
 //typedef MuonTransientTrackingRecHit::MuonRecHitContainer MuonRecHitContainer;
 int MuonCSCSeedFromRecHits::segmentQuality(ConstMuonRecHitPointer  segment) const
