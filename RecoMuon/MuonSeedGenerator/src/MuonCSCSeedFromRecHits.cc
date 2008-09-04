@@ -78,7 +78,6 @@ TrajectorySeed MuonCSCSeedFromRecHits::seed() const
   MuonRecHitContainer * notAsGoodSecondHits = &station3Hits;
   if(!station2Hits.empty() && !station3Hits.empty())
   { 
-std::cout << "QUALK2 " << segmentQuality(station2Hits[0]) << " QUAL3 " << segmentQuality(station3Hits[0]) << std::endl;
     // swap if station 3 has better quailty
     if(segmentQuality(station3Hits[0]) < segmentQuality(station2Hits[0]))
     {
