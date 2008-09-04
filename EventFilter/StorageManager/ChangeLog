@@ -1,3 +1,9 @@
+2008-09-04  Kurt Biery <biery@fnal.gov>
+
+	* tag V03-14-12
+	* Modified the file closing logic so that it periodically tests whether files
+	  need to be closed independent of whether events are being received or not.
+
 2008-09-03  Harry Cheung <cheung@fnal.gov>
 
 	* tag V03-14-11
