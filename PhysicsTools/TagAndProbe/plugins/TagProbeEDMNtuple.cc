@@ -13,7 +13,7 @@
 //
 // Original Author:  Nadia Adam
 //         Created:  Mon May  5 08:47:29 CDT 2008
-// $Id: TagProbeEDMNtuple.cc,v 1.1.2.1 2008/07/30 13:29:26 srappocc Exp $
+// $Id: TagProbeEDMNtuple.cc,v 1.2 2008/07/30 13:38:25 srappocc Exp $
 //
 //
 
@@ -547,17 +547,15 @@ void TagProbeEDMNtuple::fillMCInfo()
 
 		     int    pid = pdg;
 		     int    barcode = 0;
-		     double p   = p4.mag();
 		     double px = p4.px();
 		     double py = p4.py();
 		     double pz = p4.pz();
 		     double pt = p4.pt();
+		     double p  = sqrt(px*px + py*py + pz*pz);
 		     double e  = p4.e();
 		     double phi = p4.phi() ;
 		     double eta = -log(tan(p4.theta()/2.));
-		     double mass = e*e - p*p;
-		     if( mass > 0 ) mass = sqrt(mass);
-		     else           mass = -sqrt(fabs(mass));
+		     double mass = p4.mass();
 
 		     // Get the parent barcode (in general there
 		     // can be more than one parent, but for now
