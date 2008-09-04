@@ -7,36 +7,17 @@
 
 using namespace pftools;
 
-PFClusterCalibration::PFClusterCalibration(IO* options) :
-			options_(options),
-			correction_("correction",
-					"((x-[0])/[1])*(x>[4])+((x-[2])/[3])*(x<[4] && x>[6]) +(x/[5])*(x<[6])") {
+PFClusterCalibration::PFClusterCalibration() :
+	barrelEndcapEtaDiv_(1.0), ecalOnlyDiv_(0.3), hcalOnlyDiv_(0.5),
+			doCorrection_(1), globalP0_(0.0), globalP1_(1.0), lowEP0_(0.0),
+			lowEP1_(1.0), allowNegativeEnergy_(0), correction_("correction",
+					"((x-[0])/[1])*(x>[4])+((x-[2])/[3])*(x<[4])") {
 	std::cout << __PRETTY_FUNCTION__ << std::endl;
-	//read in and initialise!
-	options_->GetOpt("evolution", "ecalECut", ecalOnlyDiv_);
-	options_->GetOpt("evolution", "hcalECut", hcalOnlyDiv_);
-	options_->GetOpt("evolution", "giveUpCut", giveUpCut_);
-	options_->GetOpt("evolution", "barrelEndcapEtaDiv", barrelEndcapEtaDiv_);
-	options_->GetOpt("evolution", "evolutionFunctionMaxE", flatlineEvoEnergy_);
-	options_->GetOpt("evolution", "doCorrection", doCorrection_);
-	options_->GetOpt("evolution", "allowNegativeEnergy", allowNegativeEnergy_);
-
-	options_->GetOpt("correction", "globalP0", globalP0_);
-	options_->GetOpt("correction", "globalP1", globalP1_);
-	options_->GetOpt("correction", "lowEP0", lowEP0_);
-	options_->GetOpt("correction", "lowEP1", lowEP1_);
-	options_->GetOpt("correction", "correctionLowLimit", correctionLowLimit_);
-	options_->GetOpt("correction", "correctionSuperLowLimit",
-			correctionSuperLowLimit_);
-	options_->GetOpt("correction", "superLowEP1", superLowEP1_);
-
 	correction_.FixParameter(0, globalP0_);
 	correction_.FixParameter(1, globalP1_);
 	correction_.FixParameter(2, lowEP0_);
 	correction_.FixParameter(3, lowEP1_);
 	correction_.FixParameter(4, correctionLowLimit_);
-	correction_.FixParameter(5, superLowEP1_);
-	correction_.FixParameter(6, correctionSuperLowLimit_);
 
 	std::string eoeb("ecalOnlyEcalBarrel");
 	names_.push_back(eoeb);
@@ -64,45 +45,72 @@ PFClusterCalibration::PFClusterCalibration(IO* options) :
 			!= names_.end(); ++cit) {
 		std::string name = *cit;
 		TF1 func(name.c_str(), funcString);
-
-		//Extract parameters from option file
-		std::vector<double> params;
-		options_->GetOpt("evolution", name.c_str(), params);
-		unsigned count(0);
-		std::cout << "Fixing for "<< name << "\n";
-		for (std::vector<double>::const_iterator dit = params.begin(); dit
-				!= params.end(); ++dit) {
-			func.FixParameter(count, *dit);
-			std::cout << "\t"<< count << ": "<< *dit << "\n";
-			++count;
-		}
-
+		//some sensible defaults
+		func.FixParameter(5, 1);
+		func.FixParameter(6, 1);
+		func.FixParameter(7, 0);
 		func.SetMinimum(0);
 		//Store in map
 		namesAndFunctions_[name] = func;
 
 	}
-	std::cout << "Initialisation complete!"<< std::endl;
+	std::cout
+			<< "WARNING! Evolution functions have not yet been initialised - ensure this is done.\n";
+	std::cout << "PFClusterCalibration construction complete."<< std::endl;
+
 }
 
-double PFClusterCalibration::getCalibratedEcalEnergy(double ecalE,
-		double hcalE, double eta, double phi) {
-	TF1* theFunction(0);
+void PFClusterCalibration::setEvolutionParameters(const std::string& sector,
+		std::vector<double> params) {
+	TF1* func = &(namesAndFunctions_.find(sector)->second);
+	unsigned count(0);
+	std::cout << "Fixing for "<< sector << "\n";
+	for (std::vector<double>::const_iterator dit = params.begin(); dit
+			!= params.end(); ++dit) {
+		func->FixParameter(count, *dit);
+		std::cout << "\t"<< count << ": "<< *dit;
+		++count;
+	}
+	std::cout << std::endl;
+	func->SetMinimum(0);
+}
+
+void PFClusterCalibration::setCorrections(const double& lowEP0,
+		const double& lowEP1, const double& globalP0, const double& globalP1) {
+	globalP0_ = globalP0;
+	globalP1_ = globalP1;
+	lowEP0_ = lowEP0;
+	lowEP1_ = lowEP1;
+	correctionLowLimit_ = (lowEP0_ - globalP0_)/(globalP1_ - lowEP1_);
+
+	correction_.FixParameter(0, globalP0_);
+	correction_.FixParameter(1, globalP1_);
+	correction_.FixParameter(2, lowEP0_);
+	correction_.FixParameter(3, lowEP1_);
+	correction_.FixParameter(4, correctionLowLimit_);
+
+	std::cout << __PRETTY_FUNCTION__ << ": setting correctionLowLimit_ = "
+			<< correctionLowLimit_ << "\n";
+}
+
+double PFClusterCalibration::getCalibratedEcalEnergy(const double& ecalE,
+		const double& hcalE, const double& eta, const double& phi) const {
+	const TF1* theFunction(0);
 	if (ecalE > ecalOnlyDiv_ && hcalE > hcalOnlyDiv_) {
 		//ecalHcal class
 		if (fabs(eta) < barrelEndcapEtaDiv_) {
 			//barrel
-			theFunction = &namesAndFunctions_["ecalHcalEcalBarrel"];
+			theFunction = &(namesAndFunctions_.find("ecalHcalEcalBarrel")->second);
 		} else {
 			//endcap
-			theFunction = &namesAndFunctions_["ecalHcalEcalEndcap"];
+			theFunction = &(namesAndFunctions_.find("ecalHcalEcalEndcap")->second);
 		}
 	} else if (ecalE > ecalOnlyDiv_ && hcalE < hcalOnlyDiv_) {
 		//ecalOnly class
 		if (fabs(eta) < barrelEndcapEtaDiv_)
-			theFunction = &namesAndFunctions_["ecalOnlyEcalBarrel"];
+			theFunction = &(namesAndFunctions_.find("ecalOnlyEcalBarrel")->second);
 		else
-			theFunction = &namesAndFunctions_["ecalOnlyEcalEndcap"];
+			theFunction = &(namesAndFunctions_.find("ecalOnlyEcalEndcap")->second);
 	} else {
 		//either hcal only or too litte energy, in any case,
 		return ecalE;
@@ -113,24 +121,24 @@ double PFClusterCalibration::getCalibratedEcalEnergy(double ecalE,
 	return ecalE * bCoeff;
 }
 
-double PFClusterCalibration::getCalibratedHcalEnergy(double ecalE,
-		double hcalE, double eta, double phi) {
-	TF1* theFunction(0);
+double PFClusterCalibration::getCalibratedHcalEnergy(const double& ecalE,
+		const double& hcalE, const double& eta, const double& phi) const {
+	const TF1* theFunction(0);
 	if (ecalE > ecalOnlyDiv_ && hcalE > hcalOnlyDiv_) {
 		//ecalHcal class
 		if (fabs(eta) < barrelEndcapEtaDiv_) {
 			//barrel
-			theFunction = &namesAndFunctions_["ecalHcalHcalBarrel"];
+			theFunction = &(namesAndFunctions_.find("ecalHcalHcalBarrel")->second);
 		} else {
 			//endcap
-			theFunction = &namesAndFunctions_["ecalHcalHcalEndcap"];
+			theFunction = &(namesAndFunctions_.find("ecalHcalHcalEndcap")->second);
 		}
-	} else if (ecalE < ecalOnlyDiv_ && hcalE > hcalOnlyDiv_) {
+	} else if (ecalE < ecalOnlyDiv_ && hcalE> hcalOnlyDiv_) {
 		//hcalOnly class
 		if (fabs(eta) < barrelEndcapEtaDiv_)
-			theFunction = &namesAndFunctions_["hcalOnlyHcalBarrel"];
+		theFunction = &(namesAndFunctions_.find("hcalOnlyHcalBarrel")->second);
 		else
-			theFunction = &namesAndFunctions_["hcalOnlyHcalEndcap"];
+		theFunction = &(namesAndFunctions_.find("hcalOnlyHcalEndcap")->second);
 	} else {
 		//either ecal only or too litte energy, in any case,
 		return hcalE;
@@ -141,15 +149,13 @@ double PFClusterCalibration::getCalibratedHcalEnergy(double ecalE,
 	return hcalE * cCoeff;
 }
 
-double PFClusterCalibration::getCalibratedEnergy(double ecalE, double hcalE,
-		double eta, double phi) {
+double PFClusterCalibration::getCalibratedEnergy(const double& ecalE,
+		const double& hcalE, const double& eta, const double& phi) const {
 	double totalE(ecalE + hcalE);
 	double answer(totalE);
-	if (totalE < giveUpCut_)
-		return totalE;
 
-		answer = getCalibratedEcalEnergy(ecalE, hcalE, eta, phi)
-				+ getCalibratedHcalEnergy(ecalE, hcalE, eta, phi);
+	answer = getCalibratedEcalEnergy(ecalE, hcalE, eta, phi)
+			+ getCalibratedHcalEnergy(ecalE, hcalE, eta, phi);
 
 	//apply correction?
 	if (!doCorrection_)
@@ -196,8 +202,8 @@ void PFClusterCalibration::calibrateTree(TTree* input) {
 	Calibratable* calib_ptr = new Calibratable();
 	calibBr->SetAddress(&calib_ptr);
 
-	TBranch* newBranch = input->Branch("NewCalibratable",
-			"pftools::Calibratable", &calib_ptr, 32000, 2);
+//	TBranch* newBranch = input->Branch("NewCalibratable",
+//			"pftools::Calibratable", &calib_ptr, 32000, 2);
 
 	std::cout << "Looping over tree's "<< input->GetEntries()<< " entries...\n";
 	for (unsigned entries(0); entries < 20000; entries++) {
@@ -208,5 +214,15 @@ void PFClusterCalibration::calibrateTree(TTree* input) {
 		input->Fill();
 	}
 	//input.Write("",TObject::kOverwrite);
+}
+
+std::ostream& pftools::operator<<(std::ostream& s, const PFClusterCalibration& cc) {
+	s << "PFClusterCalibration: dump...\n";
+	s << "barrelEndcapEtaDiv:\t" << cc.barrelEndcapEtaDiv_ << ", ecalOnlyDiv:\t" << cc.ecalOnlyDiv_;
+	s << ", \nhcalOnlyDiv:\t" << cc.hcalOnlyDiv_ << ", doCorrection:\t" << cc.doCorrection_;
+	s << ", \nallowNegativeEnergy:\t" << cc.allowNegativeEnergy_;
+	s << ", \ncorrectionLowLimit:\t" << cc.correctionLowLimit_ << ",parameters:\t" << cc.globalP0_ << ", ";
+	s << cc.globalP1_ << ", " << cc.lowEP0_ << ", " << cc.lowEP1_;
+	return s;
 }
 
