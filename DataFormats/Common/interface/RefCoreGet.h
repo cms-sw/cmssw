@@ -5,7 +5,7 @@
   
 RefCoreGet: Free function to get the pointer to a referenced product.
 
-$Id: RefCoreGet.h,v 1.4 2007/11/10 05:39:46 wmtan Exp $
+$Id: RefCoreGet.h,v 1.5 2008/02/15 05:57:03 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -27,6 +27,7 @@ namespace edm {
 	throw edm::Exception(errors::ProductNotFound)
 	  << "RefCore: A request to resolve a reference to a product of type: "
 	  << typeid(T).name()
+          << "with ProductID "<<ref.id()
 	  << "\ncan not be satisfied because the product cannot be found."
 	  << "\nProbably the branch containing the product is not stored in the input file.\n";
       }
@@ -35,9 +36,11 @@ namespace edm {
       if (wrapper == 0) { 
 	throw edm::Exception(errors::InvalidReference,"WrongType")
 	  << "RefCore: A request to convert a contained product of type: "
-	  << typeid(product).name() << "\n"
+	  << typeid(*product).name() << "\n"
 	  << " to type " << typeid(T).name()
-	  << "\ncan not be satisfied\n";
+	  << "\nfor ProductID "<<ref.id()
+	  << " can not be satisfied\n";
+
       }
       ref.setProductPtr(wrapper->product());
       return wrapper->product();
