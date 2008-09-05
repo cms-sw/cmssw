@@ -11,9 +11,12 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 
-#include "TFile.h" 
-#include "TH1.h"
-#include "TH2.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+
+//#include "TFile.h" 
+//#include "TH1.h"
+//#include "TH2.h"
 
 class EcalTBValidation : public edm::EDAnalyzer {
  public:
@@ -25,9 +28,13 @@ class EcalTBValidation : public edm::EDAnalyzer {
   virtual void endJob();
   
  private:
+
+  bool verbose_;
+  DQMStore* dbe_;
+
   int data_;
   int xtalInBeam_;
-  std::string rootfile_;
+  //std::string rootfile_;
   std::string digiCollection_;
   std::string digiProducer_;
   std::string hitCollection_;
@@ -40,16 +47,41 @@ class EcalTBValidation : public edm::EDAnalyzer {
   std::string eventHeaderProducer_;
   
   // histos
-  TH2F *h_xib,   *h_ampltdc, *h_Shape;
-  TH1F *h_hodoX, *h_hodoY;
-  TH1F *h_e1x1, *h_e3x3,  *h_e5x5;
-  TH1F *h_e1e9, *h_e1e25, *h_e9e25;
-  TH1F *h_e1x1_center, *h_e3x3_center,  *h_e5x5_center;
-  TH2F *h_e1vsX,      *h_e1vsY;
-  TH2F *h_e1e9vsX,    *h_e1e9vsY;
-  TH2F *h_e1e25vsX,   *h_e1e25vsY;
-  TH2F *h_e9e25vsX,   *h_e9e25vsY;
+  //TH2F *h_xib,   *h_ampltdc, *h_Shape;
+  //TH1F *h_hodoX, *h_hodoY;
+  //TH1F *h_e1x1, *h_e3x3,  *h_e5x5;
+  //TH1F *h_e1e9, *h_e1e25, *h_e9e25;
+  //TH1F *h_e1x1_center, *h_e3x3_center,  *h_e5x5_center;
+  //TH2F *h_e1vsX,      *h_e1vsY;
+  //TH2F *h_e1e9vsX,    *h_e1e9vsY;
+  //TH2F *h_e1e25vsX,   *h_e1e25vsY;
+  //TH2F *h_e9e25vsX,   *h_e9e25vsY;
+
+  MonitorElement* meETBxib_;
+  MonitorElement* meETBampltdc_;
+  MonitorElement* meETBShape_;
+  MonitorElement* meETBhodoX_;
+  MonitorElement* meETBhodoY_;
+  MonitorElement* meETBe1x1_;
+  MonitorElement* meETBe3x3_;
+  MonitorElement* meETBe5x5_;
+  MonitorElement* meETBe1e9_;
+  MonitorElement* meETBe1e25_;
+  MonitorElement* meETBe9e25_;
+  MonitorElement* meETBe1x1_center_;
+  MonitorElement* meETBe3x3_center_;
+  MonitorElement* meETBe5x5_center_;
+  MonitorElement* meETBe1vsX_;
+  MonitorElement* meETBe1vsY_;
+  MonitorElement* meETBe1e9vsX_;
+  MonitorElement* meETBe1e9vsY_;
+  MonitorElement* meETBe1e25vsX_;
+  MonitorElement* meETBe1e25vsY_;
+  MonitorElement* meETBe9e25vsX_;
+  MonitorElement* meETBe9e25vsY_;
+
 };
+
 
 
 
