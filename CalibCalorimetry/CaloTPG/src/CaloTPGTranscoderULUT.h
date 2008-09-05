@@ -27,6 +27,7 @@ public:
   virtual double hcaletValue(const int& ieta, const int& compressedValue) const;
   virtual double hcaletValue(const int& ieta, const int& iphi, const int& compressedValue) const;
   virtual double hcaletValue(const HcalTrigTowerDetId& hid, const HcalTriggerPrimitiveSample& hc) const;
+  virtual bool HTvalid(const int ieta, const int iphi) const;
   virtual std::vector<unsigned char> getCompressionLUT(HcalTrigTowerDetId id) const;
 
  private:
@@ -41,12 +42,12 @@ public:
   static const int LUTfactor[NR];
   static const double nominal_gain;
   static const double RCTLSB;
+  static const bool newHFphi = true;
 //
   void loadHCALCompress(void); //Analytical compression tables
   void loadHCALCompress(const std::string& filename); //Compression tables from file
   void loadHCALUncompress(void) const; //Analytical decompression
   void loadHCALUncompress(const std::string& filename) const; //Decompression tables from file
-  virtual bool HTvalid(const int ieta, const int iphi) const;
   virtual int GetOutputLUTId(const int ieta, const int iphi) const;
 
   typedef std::vector<unsigned char> LUTType;
@@ -66,5 +67,4 @@ const int CaloTPGTranscoderULUT::ZS[NR]    = { 4,  2,  1,  0};
 const int CaloTPGTranscoderULUT::LUTfactor[NR] = { 1,  2,  5,  0};
 const double CaloTPGTranscoderULUT::nominal_gain = 0.177;
 const double CaloTPGTranscoderULUT::RCTLSB = 0.25;
-
 #endif
