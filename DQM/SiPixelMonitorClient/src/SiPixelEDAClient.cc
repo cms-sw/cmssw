@@ -68,6 +68,7 @@ SiPixelEDAClient::SiPixelEDAClient(const edm::ParameterSet& ps) :
   actionOnRunEnd_        = ps.getUntrackedParameter<bool>("ActionOnRunEnd",true);
   evtOffsetForInit_      = ps.getUntrackedParameter<int>("EventOffsetForInit",10);
   summaryXMLfile_        = ps.getUntrackedParameter<std::string>("SummaryXMLFileName","DQM/SiPixelMonitorClient/test/sipixel_monitorelement_config.xml");
+  hiRes_                 = ps.getUntrackedParameter<bool>("HighResolutionOccupancy",false);
 
   // instantiate web interface
   sipixelWebInterface_ = new SiPixelWebInterface(bei_);
@@ -147,7 +148,7 @@ void SiPixelEDAClient::analyze(const edm::Event& e, const edm::EventSetup& eSetu
     sipixelWebInterface_->setActionFlag(SiPixelWebInterface::Summary);
     sipixelWebInterface_->performAction();
     //cout << " Creating occupancy plots" << endl;
-    sipixelActionExecutor_->bookOccupancyPlots(bei_);
+    sipixelActionExecutor_->bookOccupancyPlots(bei_, hiRes_);
     //cout << " Booking summary report ME's" << endl;
     sipixelInformationExtractor_->bookGlobalQualityFlag(bei_);
   }
@@ -175,7 +176,7 @@ void SiPixelEDAClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
     sipixelWebInterface_->setActionFlag(SiPixelWebInterface::QTestResult);
     sipixelWebInterface_->performAction();
      //cout << " Updating occupancy plots" << endl;
-    sipixelActionExecutor_->bookOccupancyPlots(bei_);
+    sipixelActionExecutor_->bookOccupancyPlots(bei_, hiRes_);
     sipixelWebInterface_->setActionFlag(SiPixelWebInterface::Occupancy);
     sipixelWebInterface_->performAction();
     //cout  << " Checking Pixel quality flags " << endl;;
@@ -223,7 +224,7 @@ void SiPixelEDAClient::endRun(edm::Run const& run, edm::EventSetup const& eSetup
     sipixelWebInterface_->setActionFlag(SiPixelWebInterface::QTestResult);
     sipixelWebInterface_->performAction();
     //cout << " Updating occupancy plots" << endl;
-    sipixelActionExecutor_->bookOccupancyPlots(bei_);
+    sipixelActionExecutor_->bookOccupancyPlots(bei_, hiRes_);
     sipixelWebInterface_->setActionFlag(SiPixelWebInterface::Occupancy);
     sipixelWebInterface_->performAction();
     //cout  << " Checking Pixel quality flags " << endl;;

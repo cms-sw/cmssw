@@ -67,6 +67,7 @@ private:
   bool actionOnRunEnd_;
   int evtOffsetForInit_;
   std::string summaryXMLfile_;
+  bool hiRes_;
 
   std::ostringstream html_out_;
 };

@@ -1753,7 +1753,37 @@ void SiPixelInformationExtractor::fillGlobalQualityPlot(DQMStore * bei, bool ini
 
 void SiPixelInformationExtractor::findNoisyPixels(DQMStore * bei)
 {
-// nothing for now; need to implement Freya's method to find, convert to online and write out ascii file!
+  bei->cd();
+  bei->setCurrentFolder("Pixel/EventInfo");
+  MonitorElement * me0 = bei->get("Pixel/EventInfo/iEvent");
+  int nevents=-1;
+  if(me0) nevents = me0->getIntValue(); 
+  if(nevents==0) nevents=-1;
+  //cout<<"nevents: "<<nevents<<endl;
+  //nevents=1000;
+  bei->cd();
+  bei->setCurrentFolder("Pixel/Endcap");
+  EndcapNdigisFREQProjection = bei->book1D("endcapNdigisFREQProjection","Endcap: Digi event rate per module",1000,0.,1.);
+  EndcapNdigisFREQProjection = bei->get("Pixel/Endcap/endcapNdigisFREQProjection");
+  MonitorElement * me1 = bei->get("Pixel/Endcap/SUMDIG_ndigisFREQ_Endcap");
+  if(me1){
+    for(int i=1; i!=673; i++){
+      //cout<<"entries: "<<me1->getBinContent(i)/float(nevents)<<" in bin "<<i<<endl;
+      EndcapNdigisFREQProjection->Fill(me1->getBinContent(i)/float(nevents));
+      //if(i>63&&i<90) cout<<"noisy edges: "<<me1->getBinContent(i)/float(nevents)<<endl;
+    }
+  }
+  
+  bei->cd();
+  bei->setCurrentFolder("Pixel/Barrel");
+  BarrelNdigisFREQProjection = bei->book1D("barrelNdigisFREQProjection","Barrel: Digi event rate per module",1000,0.,1.);
+  BarrelNdigisFREQProjection = bei->get("Pixel/Barrel/barrelNdigisFREQProjection");
+  MonitorElement * me2 = bei->get("Pixel/Barrel/SUMDIG_ndigisFREQ_Barrel");
+  if(me2){
+    for(int i=1; i!=769; i++){
+      BarrelNdigisFREQProjection->Fill(me2->getBinContent(i)/float(nevents));
+    }
+  }
 }
 
 

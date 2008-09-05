@@ -203,6 +203,10 @@ class SiPixelInformationExtractor {
   MonitorElement * SummaryHCpI;
   MonitorElement * SummaryHCpO;
   
+  MonitorElement * EndcapNdigisFREQProjection;
+  MonitorElement * BarrelNdigisFREQProjection;
+  
+  
   SiPixelHistoPlotter* histoPlotter_;
 };
 #endif
