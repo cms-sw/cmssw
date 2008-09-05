@@ -48,6 +48,7 @@ namespace HcalDeadCellCheck
 			 bool pedsInFC=false)
   {
 
+    //cout <<"DEAD HIST.TYPE = "<<hist.type<<"  CHECK = "<<hist.check<<endl;
     if (!hist.check) return;
 
     // Timing doesn't work well on individual digis -- times almost always come out as 0.
@@ -477,12 +478,18 @@ void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
   mindiff_ = ps.getUntrackedParameter<double>("deadcellmindiff",0.5);
 
   // Set up subdetector histograms 
-  hbHists.check=ps.getUntrackedParameter<bool>("checkHB", 1); 
-  heHists.check=ps.getUntrackedParameter<bool>("checkHE", 1); 
-  hoHists.check=ps.getUntrackedParameter<bool>("checkHO", 1); 
-  hfHists.check=ps.getUntrackedParameter<bool>("checkHF", 1); 
-  hcalHists.check=(hbHists.check || heHists.check || hoHists.check || hfHists.check); 
-  
+  hbHists.origcheck=ps.getUntrackedParameter<bool>("checkHB", 1); 
+  heHists.origcheck=ps.getUntrackedParameter<bool>("checkHE", 1); 
+  hoHists.origcheck=ps.getUntrackedParameter<bool>("checkHO", 1); 
+  hfHists.origcheck=ps.getUntrackedParameter<bool>("checkHF", 1); 
+  hcalHists.origcheck=(hbHists.origcheck || heHists.origcheck || hoHists.origcheck || hfHists.origcheck); 
+  hbHists.check=hbHists.origcheck;
+  heHists.check=heHists.origcheck;
+  hoHists.check=hoHists.origcheck;
+  hfHists.check=hfHists.origcheck;
+  hcalHists.check=(hbHists.check || heHists.check || hoHists.check || hfHists.check);  
+ 
+
   hcalHists.makeDiagnostics=ps.getUntrackedParameter<bool>("MakeDeadCellDiagnosticPlots",makeDiagnostics);
   hbHists.makeDiagnostics=hcalHists.makeDiagnostics;
   heHists.makeDiagnostics=hcalHists.makeDiagnostics; 
@@ -1166,6 +1173,17 @@ void HcalDeadCellMonitor::clearME()
   return;
 } // void HcalDeadCellMonitor::clearME()
 
+void HcalDeadCellMonitor::setSubDetectors(bool hb, bool he, bool ho, bool hf)
+{
+  //cout <<"hbHists orig = "<<hbHists.origcheck<<"  HBpresent = "<<hb<<endl;
+  //cout <<"\t he, ho, hf = "<<he<<" "<<ho<<" "<<hf<<endl;
+  hbHists.check=hbHists.origcheck && hb;
+  heHists.check=heHists.origcheck && he;
+  hoHists.check=hoHists.origcheck && ho;
+  hfHists.check=hfHists.origcheck && hf;
+  
+  return;
+} // void HcalDeadCellMonitor::setSubDetectors(...)
 
 void HcalDeadCellMonitor::done()
 {
@@ -1184,21 +1202,29 @@ void HcalDeadCellMonitor::done()
 	  
 	  for (int d=0;d<4;++d)
 	    {
+	      if (hbHists.problemDeadCells_depth[d]==NULL)
+		continue;
 	      binval=hbHists.problemDeadCells_depth[d]->getBinContent(ieta,iphi);
 	      if (fVerbosity && binval>0) cout <<"Dead Cell "<<"HB("<<eta<<", "<<phi<<", "<<d+1<<") in "<<binval<<"/"<<ievt_<<" events"<<endl;
 	    }
 	  for (int d=0;d<4;++d)
 	    {
+	      if (heHists.problemDeadCells_depth[d]==NULL) 
+                continue; 
 	      binval=heHists.problemDeadCells_depth[d]->getBinContent(ieta,iphi);
 	      if (fVerbosity && binval>0) cout <<"Dead Cell "<<"HE("<<eta<<", "<<phi<<", "<<d+1<<") in "<<binval<<"/"<<ievt_<<" events"<<endl;
 	    }
 	  for (int d=0;d<4;++d)
 	    {
+	      if (hoHists.problemDeadCells_depth[d]==NULL) 
+                continue; 
 	      binval=hoHists.problemDeadCells_depth[d]->getBinContent(ieta,iphi);
 	      if (fVerbosity && binval>0) cout <<"Dead Cell "<<"HO("<<eta<<", "<<phi<<", "<<d+1<<") in "<<binval<<"/"<<ievt_<<" events"<<endl;
 	    }
 	  for (int d=0;d<4;++d)
 	    {
+	      if (hfHists.problemDeadCells_depth[d]==NULL) 
+                continue; 
 	      binval=hfHists.problemDeadCells_depth[d]->getBinContent(ieta,iphi);
 	      if (fVerbosity && binval>0) cout <<"Dead Cell "<<"HF("<<eta<<", "<<phi<<", "<<d+1<<") in "<<binval<<"/"<<ievt_<<" events"<<endl;
 	    }

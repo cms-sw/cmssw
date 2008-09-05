@@ -291,8 +291,9 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
     // HB Plots
     m_dbe->setCurrentFolder(baseFolder_+"/HB");
 
-    hbHists.check=ps.getUntrackedParameter<bool>("checkHB","true");
-    
+    hbHists.origcheck=ps.getUntrackedParameter<bool>("checkHB","true");
+    hbHists.check=hbHists.origcheck;
+
     hbHists.SHAPE_tot =  m_dbe->book1D("HB Digi Shape","HB Digi Shape",10,-0.5,9.5);
     hbHists.SHAPE_THR_tot =  m_dbe->book1D("HB Digi Shape - over thresh","HB Digi Shape - over thresh",10,-0.5,9.5);
 
@@ -385,8 +386,8 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
       }
 
     m_dbe->setCurrentFolder(baseFolder_+"/HE");
-    heHists.check=ps.getUntrackedParameter<bool>("checkHE","true");
-
+    heHists.origcheck=ps.getUntrackedParameter<bool>("checkHE","true");
+    heHists.check=heHists.origcheck;
 
     heHists.SHAPE_tot =  m_dbe->book1D("HE Digi Shape","HE Digi Shape",10,-0.5,9.5);
     heHists.SHAPE_THR_tot =  m_dbe->book1D("HE Digi Shape - over thresh","HE Digi Shape - over thresh",10,-0.5,9.5);
@@ -477,7 +478,9 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
       }
 
     m_dbe->setCurrentFolder(baseFolder_+"/HF");
-    hfHists.check=ps.getUntrackedParameter<bool>("checkHF","true");
+    hfHists.origcheck=ps.getUntrackedParameter<bool>("checkHF","true");
+    hfHists.check=hfHists.origcheck;
+
     hfHists.SHAPE_tot =  m_dbe->book1D("HF Digi Shape","HF Digi Shape",10,-0.5,9.5);
     hfHists.SHAPE_THR_tot =  m_dbe->book1D("HF Digi Shape - over thresh","HF Digi Shape - over thresh",10,-0.5,9.5);
     hfHists.DIGI_NUM =  m_dbe->book1D("HF # of Digis","HF # of Digis",1800,-0.5,1799.5);
@@ -568,7 +571,8 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
       }
 
     m_dbe->setCurrentFolder(baseFolder_+"/HO");
-    hoHists.check=ps.getUntrackedParameter<bool>("checkHO","true");
+    hoHists.origcheck=ps.getUntrackedParameter<bool>("checkHO","true");
+    hoHists.check=hoHists.origcheck;
     hoHists.SHAPE_tot =  m_dbe->book1D("HO Digi Shape","HO Digi Shape",10,-0.5,9.5);
     hoHists.SHAPE_THR_tot =  m_dbe->book1D("HO Digi Shape - over thresh","HO Digi Shape - over thresh",10,-0.5,9.5);
     hoHists.DIGI_NUM =  m_dbe->book1D("HO # of Digis","HO # of Digis",2200,-0.5,2199.5);
@@ -2240,3 +2244,12 @@ void HcalDigiMonitor::HFDigiCheck(const HFDigiCollection& hf, DigiHists& hfHists
 } // void HcalDigiMonitor::HFDigiCheck()
 
 
+void HcalDigiMonitor::setSubDetectors(bool hb, bool he, bool ho, bool hf)
+{
+  hbHists.check=hbHists.origcheck && hb;
+  heHists.check=heHists.origcheck && he;
+  hoHists.check=hoHists.origcheck && ho;
+  hfHists.check=hfHists.origcheck && hf;
+  
+  return;
+} // void HcalDigiMonitor::setSubDetectors(...)

@@ -30,7 +30,7 @@ void HcalDeadCellClient::init(const ParameterSet& ps, DQMStore* dbe,string clien
 
   for(int i=0; i<4; ++i) subDetsOn_[i] = false;
 
-  
+
   vector<string> subdets = ps.getUntrackedParameter<vector<string> >("subDetsOn");
   for(unsigned int i=0; i<subdets.size(); ++i){
     if(subdets[i]=="HB"){
@@ -278,7 +278,7 @@ void HcalDeadCellClient::getSubDetHistograms(DeadCellHists& hist)
   sprintf(name,"DeadCellMonitor/%s/expertPlots/%s_ADCdist",type.c_str(),type.c_str());
   if (debug_) cout <<"Histogram name = "<<name<<endl;
   hist.ADCdist = getAnyHisto(new TH1F(), name, process_, dbe_,debug_,cloneME_);  
-  
+
   for (int d=0;d<4;++d)
     {
       sprintf(name,"DeadCellMonitor/%s/Diagnostics/Depth%i/%s_DeadADCmap_Depth%i",type.c_str(),d+1,type.c_str(),d+1);
@@ -589,14 +589,18 @@ void HcalDeadCellClient::htmlOutput(int runNo, string htmlDir, string htmlName)
 
   // Form hcal hists by adding other subdetector histograms
   // (except for problem cell histogram which is automatically filled by the Task each event)
-  if (debug_) cout <<"\t<HcalDeadCellClient::htmlOutput>:   combining SubDetHistograms"<<endl;
+  if (debug_) 
+    cout <<"\t<HcalDeadCellClient::htmlOutput>:   combining SubDetHistograms"<<endl;
+
   combineSubDetHistograms(hcalhists, hbhists, hehists, hohists, hfhists);
 
-  if (debug_) cout <<"\t<HcalDeadCellClient::htmlOutput>:   running htmlErrors"<<endl;
+  if (debug_) 
+    cout <<"\t<HcalDeadCellClient::htmlOutput>:   running htmlErrors"<<endl;
   htmlErrors(runNo,htmlDir,client,process_,dbe_,dqmReportMapErr_,dqmReportMapWarn_,dqmReportMapOther_);
   
   //ofstream htmlFile;
-  if (debug_) cout <<"\t<HcalDeadCellClient::htmlOutput>:  Writing html file"<<endl;
+  if (debug_) 
+    cout <<"\t<HcalDeadCellClient::htmlOutput>:  Writing html file"<<endl;
   htmlFile.open((htmlDir + htmlName).c_str());
 
   // html page header
@@ -675,9 +679,11 @@ void HcalDeadCellClient::htmlOutput(int runNo, string htmlDir, string htmlName)
 
   htmlFile << "<tr align=\"center\">" << endl;
 
-  
-  hcalhists.problemDeadCells->Scale(1./ievt_);
-  hcalhists.problemDeadCells->SetMinimum(errorFrac_);
+  if (hcalhists.problemDeadCells!=NULL)
+    {
+      hcalhists.problemDeadCells->Scale(1./ievt_);
+      hcalhists.problemDeadCells->SetMinimum(errorFrac_);
+    }
   htmlAnyHisto(runNo,hcalhists.problemDeadCells,"i#eta","i#phi", 92, htmlFile,htmlDir);
   htmlFile<<"</tr>"<<endl;
 
@@ -798,7 +804,8 @@ void HcalDeadCellClient::htmlOutput(int runNo, string htmlDir, string htmlName)
   htmlFile << "</html> " << endl;
   htmlFile.close();
 
-  if (debug_) cout <<"\t<HcalDeadCellClient::htmlOutput>:   Finished htmlOutput subroutine"<<endl;
+  if (debug_) 
+    cout <<"\t<HcalDeadCellClient::htmlOutput>:   Finished htmlOutput subroutine"<<endl;
 
   return;
 } //void HcalDeadCellClient::htmlOutput()

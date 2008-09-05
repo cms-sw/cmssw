@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.h
  *
- * $Date: 2008/08/17 15:16:22 $
- * $Revision: 1.31 $
+ * $Date: 2008/08/17 23:11:02 $
+ * $Revision: 1.32 $
  * \author W. Fisher
  *
 */
@@ -103,6 +103,11 @@ public:
   /// Boolean prescale test for this event
   bool prescale();
 
+  // Check which subdetectors have FED data
+  void CheckSubdetectorStatus(const FEDRawDataCollection& rawraw, 
+			      const HcalUnpackerReport& report, 
+			      const HcalElectronicsMap& emap);
+    
  private:
   /********************************************************/
   //  The following member variables can be specified in  //
@@ -195,6 +200,18 @@ public:
   const HcalElectronicsMap*    readoutMap_;
 
   ofstream m_logFile;
+
+  // Decide whether individual subdetectors should be checked
+  bool checkHB_;
+  bool checkHE_;
+  bool checkHO_;
+  bool checkHF_;
+
+  // Determine which subdetectors are in the run (using FED info)
+  bool HBpresent_;
+  bool HEpresent_;
+  bool HOpresent_;
+  bool HFpresent_;
 
 };
 

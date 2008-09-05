@@ -660,25 +660,30 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
   setupHists(hcalHists,dbe);
   // ID which subdetectors should be checked
 
-  hbHists.check=ps.getUntrackedParameter<bool>("checkHB","true");
+  hbHists.origcheck=ps.getUntrackedParameter<bool>("checkHB","true");
+  hbHists.check=hbHists.origcheck;
   if (hbHists.check)
     {
       setupVals(hbHists,1,hcalHists,ps);
       setupHists(hbHists,dbe);
     }
-  heHists.check=ps.getUntrackedParameter<bool>("checkHE","true");
+  heHists.origcheck=ps.getUntrackedParameter<bool>("checkHE","true");
+  heHists.check=heHists.origcheck; 
+
   if (heHists.check)
     {
       setupVals(heHists,2,hcalHists,ps);
       setupHists(heHists,dbe);
     }
-  hoHists.check=ps.getUntrackedParameter<bool>("checkHO","true");
+  hoHists.origcheck=ps.getUntrackedParameter<bool>("checkHO","true");
+  hoHists.check=hoHists.origcheck;
   if (hoHists.check)
     {
       setupVals(hoHists,3,hcalHists,ps);
       setupHists(hoHists,dbe);
     }
-  hfHists.check=ps.getUntrackedParameter<bool>("checkHF","true");
+  hfHists.origcheck=ps.getUntrackedParameter<bool>("checkHF","true");
+  hfHists.check=hfHists.origcheck;
   if (hfHists.check)
     {
       setupVals(hfHists,4,hcalHists,ps);
@@ -1357,3 +1362,14 @@ void HcalHotCellMonitor::processEvent_digi(const HBHEDigiCollection& hbhedigi,
   return;
 
 } // void HcalHotCellMonitor::processEvent_digi
+
+
+void HcalHotCellMonitor::setSubDetectors(bool hb, bool he, bool ho, bool hf)
+{
+  hbHists.check=hbHists.origcheck && hb;
+  heHists.check=heHists.origcheck && he;
+  hoHists.check=hoHists.origcheck && ho;
+  hfHists.check=hfHists.origcheck && hf;
+  
+  return;
+} // void HcalHotCellMonitor::setSubDetectors(...)
