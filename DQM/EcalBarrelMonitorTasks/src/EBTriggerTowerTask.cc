@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2008/09/05 13:37:08 $
- * $Revision: 1.76 $
+ * $Date: 2008/09/05 16:01:11 $
+ * $Revision: 1.77 $
  * \author C. Bernet
  * \author G. Della Ricca
  * \author E. Di Marco
@@ -39,6 +39,9 @@ EBTriggerTowerTask::EBTriggerTowerTask(const ParameterSet& ps) {
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
   mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
+
+  meEtMapReal_ = 0;
+  meEtMapEmul_ = 0;
 
   reserveArray(meVetoReal_);
   reserveArray(meFlagsReal_);

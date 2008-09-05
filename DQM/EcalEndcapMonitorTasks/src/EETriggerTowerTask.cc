@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerTask.cc
  *
- * $Date: 2008/09/05 13:38:06 $
- * $Revision: 1.40 $
+ * $Date: 2008/09/05 16:01:11 $
+ * $Revision: 1.41 $
  * \author C. Bernet
  * \author G. Della Ricca
  * \author E. Di Marco
@@ -41,6 +41,9 @@ EETriggerTowerTask::EETriggerTowerTask(const ParameterSet& ps) {
   mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
+
+  meEtMapReal_ = 0;
+  meEtMapEmul_ = 0;
 
   reserveArray(meVetoReal_);
   reserveArray(meFlagsReal_);
