@@ -665,6 +665,9 @@ def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDat
                 CAND.write(CurrentCandle)
                 CAND.write("</h2>\n")
 
+                if _verbose:
+                    print "Producing candles html: ", CurrentCandle
+                
                 for CurDir in DirName:
 
                     LocalPath = os.path.join(repdir,"%s_%s" % (CurrentCandle,CurDir))
@@ -674,13 +677,16 @@ def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDat
 
                         profs = []
                         if   CurDir == DirName[0]:
-                            profs = Profile[0:3]
+                            profs = Profile[0:4]
                         elif CurDir == DirName[1]:
-                            profs = Profile[4:7]
+                            profs = Profile[4:8]
                         elif CurDir == DirName[2]:
                             profs = Profile[8:9]
                             
                         for prof in profs:
+                            if _verbose:
+                                print "Scanning for profile information for: ", prof
+                                
                             printed = False
                             fullprof = (CurrentCandle,prof)
                             outd     = ""
@@ -757,21 +763,22 @@ def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDat
                                         CAND.write(html)
                                         CAND.write("\n</tr></table>")   
 
-                            elif prof == "EdmSize":
-                                edmRegresPath = os.path.join(LocalPath,"%s_*_%s_regression" % (CandFname[CurrentCandle],prof))
-                                edmRegresses  = glob.glob(edmRegresPath)
-                                stepreg = re.compile("%s_([^_]*)_%s_regression")
-                                if len(edmRegresses) > 0:
+                            elif prof == "EdmSize" or prof == "IgProfMemTotal" or prof == "IgProfMemLive" or prof == "valgrind":
+                                regresPath = os.path.join(LocalPath,"%s_*_%s_regression" % (CandFname[CurrentCandle],prof))
+                                regresses  = glob.glob(regresPath)
+                                stepreg = re.compile("%s_([^_]*)_%s_regression" % (CandFname[CurrentCandle],prof))
+                                if len(regresses) > 0:
                                     if not printed:
                                         CAND.write("<p><strong>%s %s</strong></p>\n" % (prof,"Regression Analysis"))                                        
                                         printed = True                                    
-                                    edmRegresses.sort(cmp=step_cmp)
-                                    for edmRep in edmRegresses:
-                                        base  = os.path.basename(edmRep)
+                                    regresses.sort(cmp=step_cmp)
+                                    for rep in regresses:
+                                        base  = os.path.basename(rep)
                                         found = stepreg.search(base)
                                         step = "Unknown-step"
                                         if found:
                                             step = found.groups()[0]
+                                        CAND.write("<a href=\"%s/%s/objects_pp.html\">%s %s regression report</a><br/>\n" % (LocalDirname,base,prof,step))
                                         
                                         
                     

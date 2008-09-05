@@ -115,7 +115,9 @@ def setBatch():
     #Cannot use this option when the logfile includes
     #a large number of events... PyRoot seg-faults.
     #Set ROOT in batch mode to avoid canvases popping up!
-    ROOT.gROOT.SetBatch(1)    
+    ROOT.gROOT.SetBatch(1)
+    #ROOT.gEnv.SetValue("Root.MemStat",0)
+    #ROOT.gEnv.SetValue("Root.ObjectStat",0)    
 
 def createROOT(outdir,filename):
 
@@ -902,6 +904,27 @@ def cmpTimingReport(rootfilename,outdir,oldLogfile,newLogfile,secsperbin,batch=T
         while graph_canvas or histo_canvas or changes_canvas:
             time.sleep(2.5)
         return 0
+    
+def rmtree(path):
+    try:
+        os.remove(path)
+    except OSError, detail:
+        if detail.errno == 39:
+            try:
+                gen = os.walk(path)
+                nodes    = gen.next()
+                nodes[0] = par
+                nodes[1] = dirs
+                nodes[2] = files
+                for f in files:
+                    os.remove(os.path.join(path,f))
+                for d in dirs:
+                    rmtree(os.path.join(path,d))
+            except OSError, detail:
+                print detail
+            except IOError, detail:
+                print detail
+            os.remove(path)
 
 def perfreport(perftype,file1,file2,outdir):
     src = ""
@@ -917,53 +940,108 @@ def perfreport(perftype,file1,file2,outdir):
     if   perftype == 0: # EdmSize
         proftype = "-fe"
     elif perftype == 1: # IgProf
-        proftype = "-ff"
-    else:               # Callgrind
         proftype = "-fi"
+    else:               # Callgrind
+        proftype = "-ff"
 
-    perfcmd = "perfreport %s -i %s -r %s -o %s" % (proftype,file2,file1,outdir)
+    # -c xml.file
+    #
 
-    cmd = "tcsh -c \"cd %s ; eval `scramv1 runtime -csh`  ; source $CMSSW_DATA_PATH/perfreport/2.0.0/etc/profile.d/init.csh; cd - ; %s\"" % (loc,perfcmd)
+    cmssw_base = ""
+    cmssw_data = ""
+    try:
+        cmssw_base = os.environ['CMSSW_BASE']
+        cmssw_data = os.environ['CMSSW_DATA_PATH']
+    except KeyError, detail:
+        raise PerfReportErr
+
+    xmlfile = os.path.join(cmssw_base,"src","Validation","Performance","doc","regress.xml")
+
+    prRoot = "/build/nicolson/perfreport/2.0.1"
+
+    # this might be useful at some point
+    #cd %s ; eval `scramv1 runtime -csh`  ; source $CMSSW_DATA_PATH/perfreport/2.0.0/etc/profile.d/init.csh; cd - ; %s\"" % (loc,perfcmd)
+
+    # Before adding Danilo's 2.1 we did this
+    #perfcmd = "perfreport -tmp %s -i %s -r %s -o %s" % (proftype,file2,file1,outdir)    
+    #cmd = "tcsh -c \"source %s/perfreport/2.0.0/etc/profile.d/init.csh; cd - ; %s\"" % (cmssw_data,perfcmd)
+
+    # now we do
+
+    tmpdir  = tmp.mkdtemp(prefix=os.path.join(outdir,"tmp"))
+
+    perfcmd = "%s %s -c %s -t%s -i %s -r %s -o %s" % (os.path.join(prRoot,"bin","perfreport"),proftype,xmlfile,tmpdir,file2,file1,outdir)            
+    cmd     = "tcsh -c \"cd %s ; eval `scramv1 runtime -csh` ; cd - ;source %s/etc/profile.d/init.csh ; %s\"" % (loc,prRoot,perfcmd)
+    
     process  = os.popen(cmd)
     cmdout   = process.read()
     exitstat = process.close()
 
-    if False:
+
+    try:
+        rmtree(tmpdir)        
+        os.rmdir(tmpdir)
+    except IOError, detail:
+        print "WARNING: Could not remove dir because %s" % detail                
+    except OSError, detail:
+        print "WARNING: Could not remove dir because %s" % detail                
+
+    if True:
         print cmd
         print cmdout
 
     if not exitstat == None:
         sig     = exitstat >> 16    # Get the top 16 bits
-        xstatus = exitstat & 0xffff # Mask out all bits except the first 16
-        raise PerfReportErr("ERROR: PerfReport returned a non-zero exit status (%s, SIG_INT = %s) run %s" % (perfcmd,xstatus,sig))
+        xstatus = exitstat & 0xffff # Mask out all bits except the bottom 16
+        raise PerfReportErr("ERROR: PerfReport returned a non-zero exit status (%s, SIG_INT = %s) run %s. Dump follows: \n%s" % (perfcmd,xstatus,sig,cmdout))
     
     
 def cmpEdmSizeReport(outdir,file1,file2):
     perfreport(0,file1,file2,outdir)
 
+def ungzip(inf,outh):
+    gzf = gzip.open(inf,"r")
+    print "ungzipping"
+    for char in gzf:
+        os.write(outh,char)
+    os.close(outh)
+    print "finish ungzipping"
+    gzf.close()
+
+def ungzip2(inf,out):
+    os.system("gzip -c -d %s > %s" % (inf,out)) 
+
 def cmpIgProfReport(outdir,file1,file2):
+    (tfile1, tfile2) = ("", "")
     try:
-        (th1,tfile1) = tmp.mkstemp(prefix=os.path.join("/tmp","vgrindRegressRep."))
-        for line in gzip.open(file1,"r"):
-            os.write(th1,str(line) + "\n")
+        # don't make temp files in /tmp because it's never bloody big enough
+        (th1, tfile1) = tmp.mkstemp(prefix=os.path.join(outdir,"igprofRegressRep."))
+        (th2, tfile2) = tmp.mkstemp(prefix=os.path.join(outdir,"igprofRegressRep."))
         os.close(th1)
-        
-        (th2, tfile2) = tmp.mkstemp(prefix=os.path.join("/tmp","vgrindRegressRep."))
-        for line in gzip.open(file2,"r"):
-            os.write(th2,str(line) + "\n")
         os.close(th2)
-        
+        os.remove(tfile1)
+        os.remove(tfile2)
+        #ungzip(file1,th1)
+        #ungzip(file2,th2)
+        ungzip2(file1,tfile1)
+        ungzip2(file2,tfile2)        
+
         perfreport(1,tfile1,tfile2,outdir)
 
         os.remove(tfile1)
         os.remove(tfile2)
-        
-    except IOError, detail:
-        print detail
-        raise PerfReportErr("")
     except OSError, detail:
-        print detail
-        raise PerfReportErr("")
+        raise PerfReportErr("WARNING: The OS returned the following error when comparing %s and %s\n%s" % (file1,file2,str(detail)))
+        if os.path.exists(tfile1):
+            os.remove(tfile1)
+        if os.path.exists(tfile2):
+            os.remove(tfile2)
+    except IOError, detail:
+        raise PerfReportErr("IOError: When comparing %s and %s using temporary files %s and %s. Error message:\n%s" % (file1,file2,tfile1,tfile2,str(detail)))
+        if os.path.exists(tfile1):
+            os.remove(tfile1)
+        if os.path.exists(tfile2):
+            os.remove(tfile2)        
 
 
 def cmpCallgrindReport(outdir,file1,file2):
@@ -992,7 +1070,11 @@ def _main():
     except SimpMemParseErr, detail:
         print "WARNING: Could not parse data from Memory report file %s; not performing regression" % detail.message
     except PerfReportErr     , detail:
-        print "WARNING: Could not parse data from Edm file %s; not performing regression" % detail.message        
+        print "WARNING: Could not parse data from Edm file %s; not performing regression" % detail.message
+    except IOError, detail:
+        print detail
+    except OSError, detail:
+        print detail
 
 if __name__ == "__main__":
     _main()

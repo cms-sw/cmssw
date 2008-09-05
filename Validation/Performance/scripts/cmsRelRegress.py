@@ -39,11 +39,15 @@ def getParameters():
         print "Error: one of the paths does not exist"
         sys.exit()
 
-def compareSimMemPair(newLog,profdir,curdir,candle,olddir,oldRelName=""):
+def getOldRelName(oldRelName,adir):
     if oldRelName == "":
-        oldRelName = os.path.basename(olddir)
+        oldRelName = os.path.basename(adir)
         if not "CMSSW" in oldRelName:
-            oldRelName = ""    
+            oldRelName = ""
+    return oldRelName
+
+def compareSimMemPair(newLog,profdir,curdir,candle,olddir,oldRelName=""):
+    oldRelName = getOldRelName(oldRelName,olddir)
     base = os.path.basename(newLog)
     oldlog = os.path.join(olddir,curdir,base)
     rootf  = "simpmem-regress.root"
@@ -54,37 +58,6 @@ def compareSimMemPair(newLog,profdir,curdir,candle,olddir,oldRelName=""):
     else:
         print "Successfully compared %s and %s" % (oldlog,newLog)        
         
-
-def compareTimingLogPair(log,candle,step,prof,profdir,latrev,prevrev,oldRelName=""):
-    base = os.path.basename(log)
-    logdir = "%s_%s_%s" % (CandFname[candle],step,prof)
-    if prof == "EdmSize":
-        logdir = "%s_outdir" % logdir
-
-    outd   = "%s/%s" % (latrev,logdir)
-    rootf  = "timing-regress.root" 
-    oldLog = "%s/%s/%s" % (prevrev,profdir,base)
-    newLog = "%s" % log
-    if oldRelName == "":
-        oldRelName = os.path.basename(prevrev)
-        if not "CMSSW" in oldRelName:
-            oldRelName = ""
-
-    if _debug > 0:
-        assert os.path.exists(newLog), "The current release logfile %s that we were using to perform regression analysis was not found (even though we just found it!!)" % newLog
-#    print "regressCompare", rootf, outd, oldLog,newLog,1, oldRelName
-    if   "TimingReport" in prof and os.path.exists(oldLog):
-        # cmsPerfRegress(rootfilename, outdir, oldLogFile, newLogfile, secsperbin, batch, prevrev)
-        try:
-            cpr.cmpTimingReport(rootf, outd, oldLog, newLog, 1, batch = True, prevrev = oldRelName)
-        except cpr.TimingParseErr, detail:
-            print "WARNING: Could not parse data from log file %s; not performing regression" % detail.message
-        else:
-            print "Successfully compared %s and %s" % (oldLog,newLog)
-            
-    elif "TimingReport" in prof and not os.path.exists(oldLog):
-        print "WARNING: Could not find an equivalent logfile for %s in the previous release dir %s" % (newLog,oldLog)                            
-
 def regressReports(olddir,newdir,oldRelName = ""):
     profSets = ["Valgrind", "IgProf", "TimeSize"]
     for candle in Candles:
@@ -120,31 +93,53 @@ def regressReports(olddir,newdir,oldRelName = ""):
                         stepreg = re.compile("%s_([^_]*)_%s((.log)|(.gz))?" % (CandFname[candle],prof))
                         for log in stepLogs:
                             base = os.path.basename(log)
+                            if prof == "IgProfMemTotal" or prof == "IgProfMemLive":
+                                base = base.split(".gz")[0]
                             searchob = stepreg.search(base)
                             if searchob:
                                 step = searchob.groups()[0]
-                                if prof == "TimingReport": 
-                                    compareTimingLogPair(log,candle,step,prof,profdir,adir,olddir,oldRelName = oldRelName)
-                                elif prof == "EdmSize" or prof == "valgrind" or prof == "IgProfMemTotal" or prof == "IgProfMemSize":
-                                    outpath = os.path.join(adir,"%s_regression" % base)
-                                    oldlog  = os.path.join(olddir,"%s_%s" % (candle,profset),base)
-                                    if not os.path.exists(outpath):
-                                        os.mkdir(outpath)
-                                    if os.path.exists(oldlog):
-                                        try:
-                                            try:
-                                                if   prof == "EdmSize":
-                                                    cpr.cmpEdmSizeReport(outpath,oldlog,log)
-                                                elif prof == "valgrind":
-                                                    cpr.cmpCallgrindReport(outpath,oldlog,log)
-                                                elif prof == "IgProfMemTotal" or prof == "IgProfMemSize":
-                                                    cpr.cmpIgProfReport(outpath,oldlog,log)
-                                            except cpr.PerfReportErr,detail:
-                                                print "WARNING: Perfreport return non-zero exit status when comparing %s and %s because perfreport" % (oldlog,log)
-                                        finally:
-                                            print "Successfully compared %s and %s" % (oldlog,log)                                            
+                                outpath = os.path.join(adir,"%s_regression" % base)
+                                oldlog  = os.path.join(olddir,"%s_%s" % (candle,profset),base)
+                                if prof == "IgProfMemTotal" or prof == "IgProfMemLive":
+                                    oldlog  = os.path.join(olddir,"%s_%s" % (candle,profset),base + ".gz")
+                                if not os.path.exists(outpath):
+                                    os.mkdir(outpath)
+                                if os.path.exists(oldlog):
+                                    try:
+                                        print ""
+                                        print "** "
+                                        if not prof == "TimingReport":
+                                            print "** Comparing", candle, step, prof, "previous release: %s, latest release %s" % (oldlog,log)
+                                            print "**"
+
+                                        if   prof == "EdmSize":
+                                            cpr.cmpEdmSizeReport(outpath,oldlog,log)
+                                        elif prof == "TimingReport":
+                                            logdir = "%s_%s_%s" % (CandFname[candle],step,prof)
+                                            outd   = os.path.join(adir,logdir)
+                                            rootf  = "timing-regress.root" 
+                                            oldlog = os.path.join(olddir,profdir,base)
+                                            print "** Comparing", candle, step, prof, "previous release: %s and latest release: %s" % (oldlog,log)
+                                            print "**"
+                                            oldRelName = getOldRelName(oldRelName,olddir)                                                                                            
+                                            cpr.cmpTimingReport(rootf, outd, oldlog, log, 1, batch = True, prevrev = oldRelName)                                                    
+                                        elif prof == "valgrind":
+                                            cpr.cmpCallgrindReport(outpath,oldlog,log)
+                                        elif prof == "IgProfMemTotal" or prof == "IgProfMemSize":
+                                            cpr.cmpIgProfReport(outpath,oldlog,log)
+                                    except cpr.PerfReportErr,detail:
+                                        print "WARNING: Perfreport return non-zero exit status when comparing %s and %s. Perfreport output follows" % (oldlog,log)
+                                        print detail.message
+                                    except cpr.TimingParseErr,detail:
+                                        print "WARNING: Could not parse data from log file %s; not performing regression" % detail.message                                            
+                                    except OSError, detail:
+                                        print "WARNING: The OS returned the following error when comparing %s and %s" % (oldlog,log), detail
+                                    except IOError, detail:
+                                        print "IOError:", detail
                                     else:
-                                        print "WARNING: Could not find an equivalent logfile for %s in the previous release dir %s " % (log,oldlog)
+                                        print "Successfully compared %s and %s" % (oldlog,log)                                            
+                                else:
+                                    print "WARNING: Could not find an equivalent logfile for %s in the previous release dir %s " % (log,oldlog)
                                         
                                                             
                             else:
