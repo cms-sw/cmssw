@@ -4,8 +4,8 @@
 /*
  * \file EBTriggerTowerClient.h
  *
- * $Date: 2008/06/25 14:16:15 $
- * $Revision: 1.36 $
+ * $Date: 2008/06/25 15:08:17 $
+ * $Revision: 1.37 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -107,8 +107,8 @@ MonitorElement* mel01_[36];
 MonitorElement* mem01_[36];
 MonitorElement* men01_[36];
 
-TH3F* h01_[36];
-TH3F* h02_[36];
+TH2F* h01_;
+TH2F* h02_;
 TH3F* i01_[36];
 TH3F* i02_[36];
 TH3F* j01_[36];

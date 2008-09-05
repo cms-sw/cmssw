@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2008/06/25 15:08:18 $
- * $Revision: 1.106 $
+ * $Date: 2008/09/02 14:23:02 $
+ * $Revision: 1.107 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -15,6 +15,8 @@
 
 #include "TCanvas.h"
 #include "TStyle.h"
+
+#include <DataFormats/EcalDetId/interface/EBDetId.h>
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
@@ -49,12 +51,13 @@ EBTriggerTowerClient::EBTriggerTowerClient(const ParameterSet& ps) {
   for ( unsigned int i = 1; i <= 36; i++ ) superModules_.push_back(i);
   superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
 
+  h01_ = 0;
+  h02_ = 0;
+ 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
-    h01_[ism-1] = 0;
-    h02_[ism-1] = 0;
     i01_[ism-1] = 0;
     i02_[ism-1] = 0;
     j01_[ism-1] = 0;
@@ -232,13 +235,17 @@ void EBTriggerTowerClient::cleanup(void) {
 
   if ( ! enableCleanup_ ) return;
 
+  if ( h01_ ) delete h01_;
+  if ( h02_ ) delete h02_;
+
+  h01_ = 0;
+  h02_ = 0;
+
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
     if ( cloneME_ ) {
-      if ( h01_[ism-1] ) delete h01_[ism-1];
-      if ( h02_[ism-1] ) delete h02_[ism-1];
       if ( i01_[ism-1] ) delete i01_[ism-1];
       if ( i02_[ism-1] ) delete i02_[ism-1];
       if ( j01_[ism-1] ) delete j01_[ism-1];
@@ -248,8 +255,6 @@ void EBTriggerTowerClient::cleanup(void) {
       if ( n01_[ism-1] ) delete n01_[ism-1];
     }
 
-    h01_[ism-1] = 0;
-    h02_[ism-1] = 0;
     i01_[ism-1] = 0;
     i02_[ism-1] = 0;
     j01_[ism-1] = 0;
@@ -369,20 +374,18 @@ void EBTriggerTowerClient::analyze(const char* nameext,
 
   MonitorElement* me;
 
+  sprintf(histo, (prefixME_ + "/%s/EBTTT Et map %s").c_str(), folder, nameext);
+  me = dqmStore_->get(histo);
+  if(!emulated) {
+    h01_ = UtilsClient::getHisto<TH2F*>( me, cloneME_, h01_ );
+  }
+  else {
+    h02_ = UtilsClient::getHisto<TH2F*>( me, cloneME_, h02_ );
+  }
+
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
-
-    sprintf(histo, (prefixME_ + "/%s/EBTTT Et map %s %s").c_str(), folder, nameext, Numbers::sEB(ism).c_str());
-    me = dqmStore_->get(histo);
-    if(!emulated) {
-      h01_[ism-1] = UtilsClient::getHisto<TH3F*>( me, cloneME_, h01_[ism-1] );
-      meh01_[ism-1] = me;
-    }
-    else {
-      h02_[ism-1] = UtilsClient::getHisto<TH3F*>( me, cloneME_, h02_[ism-1] );
-      meh02_[ism-1] = me;
-    }
 
     sprintf(histo, (prefixME_ + "/%s/EBTTT FineGrainVeto %s %s").c_str(), folder, nameext, Numbers::sEB(ism).c_str());
     me = dqmStore_->get(histo);
@@ -454,10 +457,6 @@ void EBTriggerTowerClient::analyze(const char* nameext,
     for (int ie = 1; ie <= 17; ie++) {
       for (int ip = 1; ip <= 4; ip++) {
 
-        for (int j = 0; j <= 256; j++) {
-          if ( h01_[ism-1] ) me_h01_[ism-1]->Fill(ie-0.5, ip-0.5, j-0.5, h01_[ism-1]->GetBinContent(ie, ip, j+1));
-          if ( h02_[ism-1] ) me_h02_[ism-1]->Fill(ie-0.5, ip-0.5, j-0.5, h02_[ism-1]->GetBinContent(ie, ip, j+1));
-        }
         for (int j=0; j<2; j++) {
           if ( i01_[ism-1] ) me_i01_[ism-1][j]->Fill(ie-0.5, ip-0.5, i01_[ism-1]->GetBinContent(ie, ip, j+1));
           if ( i02_[ism-1] ) me_i02_[ism-1][j]->Fill(ie-0.5, ip-0.5, i02_[ism-1]->GetBinContent(ie, ip, j+1));
@@ -506,6 +505,21 @@ void EBTriggerTowerClient::analyze(const char* nameext,
         }
 
       }
+    }
+
+  }
+
+  for(int xttindex = 0; xttindex<68*36; xttindex++) {
+    
+    int ism = xttindex/68 + 1;
+    int ttindex = xttindex%68;
+    
+    int ie = (ttindex-1)/4 + 1;
+    int ip = (ttindex-1)%4 + 1;
+
+    for (int j = 0; j <= 256; j++) {
+      if ( h01_ ) me_h01_[ism-1]->Fill(ie-0.5, ip-0.5, j-0.5, h01_->GetBinContent(xttindex, j+1));
+      if ( h02_ ) me_h02_[ism-1]->Fill(ie-0.5, ip-0.5, j-0.5, h02_->GetBinContent(xttindex, j+1));
     }
 
   }

@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerClient.cc
  *
- * $Date: 2008/06/25 15:08:20 $
- * $Revision: 1.73 $
+ * $Date: 2008/09/02 14:23:02 $
+ * $Revision: 1.74 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -17,6 +17,8 @@
 #include "TStyle.h"
 #include "TGraph.h"
 #include "TLine.h"
+
+#include <DataFormats/EcalDetId/interface/EEDetId.h>
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
@@ -51,12 +53,13 @@ EETriggerTowerClient::EETriggerTowerClient(const ParameterSet& ps) {
   for ( unsigned int i = 1; i <= 18; i++ ) superModules_.push_back(i);
   superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
 
+  h01_ = 0;
+  h02_ = 0;
+
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
-    h01_[ism-1] = 0;
-    h02_[ism-1] = 0;
     i01_[ism-1] = 0;
     i02_[ism-1] = 0;
     j01_[ism-1] = 0;
@@ -234,13 +237,17 @@ void EETriggerTowerClient::cleanup(void) {
 
   if ( ! enableCleanup_ ) return;
 
+  if ( h01_ ) delete h01_;
+  if ( h02_ ) delete h02_;
+
+  h01_ = 0;
+  h02_ = 0;
+
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
     if ( cloneME_ ) {
-      if ( h01_[ism-1] ) delete h01_[ism-1];
-      if ( h02_[ism-1] ) delete h02_[ism-1];
       if ( i01_[ism-1] ) delete i01_[ism-1];
       if ( i02_[ism-1] ) delete i02_[ism-1];
       if ( j01_[ism-1] ) delete j01_[ism-1];
@@ -250,8 +257,6 @@ void EETriggerTowerClient::cleanup(void) {
       if ( n01_[ism-1] ) delete n01_[ism-1];
     }
 
-    h01_[ism-1] = 0;
-    h02_[ism-1] = 0;
     i01_[ism-1] = 0;
     i02_[ism-1] = 0;
     j01_[ism-1] = 0;
@@ -371,21 +376,20 @@ void EETriggerTowerClient::analyze(const char* nameext,
 
   MonitorElement* me;
 
+  sprintf(histo, (prefixME_ + "/%s/EETTT Et map %s").c_str(), folder, nameext);
+  me = dqmStore_->get(histo);
+  if(!emulated) {
+    h01_ = UtilsClient::getHisto<TH2F*>( me, cloneME_, h01_ );
+  }
+  else {
+    h02_ = UtilsClient::getHisto<TH2F*>( me, cloneME_, h02_ );
+  }
+  
+  
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
+    
     int ism = superModules_[i];
-
-    sprintf(histo, (prefixME_ + "/%s/EETTT Et map %s %s").c_str(), folder, nameext, Numbers::sEE(ism).c_str());
-    me = dqmStore_->get(histo);
-    if(!emulated) {
-      h01_[ism-1] = UtilsClient::getHisto<TH3F*>( me, cloneME_, h01_[ism-1] );
-      meh01_[ism-1] = me;
-    }
-    else {
-      h02_[ism-1] = UtilsClient::getHisto<TH3F*>( me, cloneME_, h02_[ism-1] );
-      meh02_[ism-1] = me;
-    }
-
+    
     sprintf(histo, (prefixME_ + "/%s/EETTT FineGrainVeto %s %s").c_str(), folder, nameext, Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     if(!emulated) {
@@ -426,19 +430,19 @@ void EETriggerTowerClient::analyze(const char* nameext,
 
     }
 
-//     for (int j=0; j<34; j++) {
-//
-//       sprintf(histo, (prefixME_ + "/EETriggerTowerTask/EnergyMaps/EETTT Et T %s TT%02d").c_str(), ism, j+1);
-//       me = dqmStore_->get(histo);
-//       k01_[ism-1][j] = UtilsClient::getHisto<TH1F*>( me, cloneME_, k01_[ism-1][j] );
-//       mek01_[ism-1][j] = me;
-//
-//       sprintf(histo, (prefixME_ + "/EETriggerTowerTask/EnergyMaps/EETTT Et R %s TT%02d").c_str(), ism, j+1);
-//       me = dqmStore_->get(histo);
-//       k02_[ism-1][j] = UtilsClient::getHisto<TH1F*>( me, cloneME_, k02_[ism-1][j] );
-//       mek02_[ism-1][j] = me;
-//
-//     }
+    //     for (int j=0; j<34; j++) {
+    //
+    //       sprintf(histo, (prefixME_ + "/EETriggerTowerTask/EnergyMaps/EETTT Et T %s TT%02d").c_str(), ism, j+1);
+    //       me = dqmStore_->get(histo);
+    //       k01_[ism-1][j] = UtilsClient::getHisto<TH1F*>( me, cloneME_, k01_[ism-1][j] );
+    //       mek01_[ism-1][j] = me;
+    //
+    //       sprintf(histo, (prefixME_ + "/EETriggerTowerTask/EnergyMaps/EETTT Et R %s TT%02d").c_str(), ism, j+1);
+    //       me = dqmStore_->get(histo);
+    //       k02_[ism-1][j] = UtilsClient::getHisto<TH1F*>( me, cloneME_, k02_[ism-1][j] );
+    //       mek02_[ism-1][j] = me;
+    //
+    //     }
 
     if ( me_h01_[ism-1] ) me_h01_[ism-1]->Reset();
     if ( me_h02_[ism-1] ) me_h02_[ism-1]->Reset();
@@ -453,67 +457,114 @@ void EETriggerTowerClient::analyze(const char* nameext,
       if ( me_m01_[ism-1][j] ) me_m01_[ism-1][j]->Reset();
     }
 
-
     for (int ix = 1; ix <= 50; ix++) {
       for (int iy = 1; iy <= 50; iy++) {
 
-        int jx = ix + Numbers::ix0EE(ism);
-        int jy = iy + Numbers::iy0EE(ism);
+	int jx = ix + Numbers::ix0EE(ism);
+	int jy = iy + Numbers::iy0EE(ism);
 
-        for (int j = 0; j <= 256; j++) {
-          if ( h01_[ism-1] ) me_h01_[ism-1]->Fill(jx-0.5, jy-0.5, j-0.5, h01_[ism-1]->GetBinContent(ix, iy, j+1));
-          if ( h02_[ism-1] ) me_h02_[ism-1]->Fill(jx-0.5, jy-0.5, j-0.5, h02_[ism-1]->GetBinContent(ix, iy, j+1));
-        }
-        for (int j=0; j<2; j++) {
-          if ( i01_[ism-1] ) me_i01_[ism-1][j]->Fill(jx-0.5, jy-0.5, i01_[ism-1]->GetBinContent(ix, iy, j+1));
-          if ( i02_[ism-1] ) me_i02_[ism-1][j]->Fill(jx-0.5, jy-0.5, i02_[ism-1]->GetBinContent(ix, iy, j+1));
-          if ( n01_[ism-1] ) me_n01_[ism-1][j]->Fill(jx-0.5, jy-0.5, n01_[ism-1]->GetBinContent(ix, iy, j+1));
-        }
-        for (int j=0; j<6; j++) {
-          if ( j == 0 ) {
-            if ( j01_[ism-1] ) me_j01_[ism-1][j]->Fill(jx-0.5, jy-0.5, j01_[ism-1]->GetBinContent(ix, iy, j+1));
-            if ( j02_[ism-1] ) me_j02_[ism-1][j]->Fill(jx-0.5, jy-0.5, j02_[ism-1]->GetBinContent(ix, iy, j+1));
-            if ( m01_[ism-1] ) me_m01_[ism-1][j]->Fill(jx-0.5, jy-0.5, m01_[ism-1]->GetBinContent(ix, iy, j+1));
-          }
-          if ( j == 1 ) {
-            if ( j01_[ism-1] ) me_j01_[ism-1][j]->Fill(jx-0.5, jy-0.5, j01_[ism-1]->GetBinContent(ix, iy, j+1));
-            if ( j02_[ism-1] ) me_j02_[ism-1][j]->Fill(jx-0.5, jy-0.5, j02_[ism-1]->GetBinContent(ix, iy, j+1));
-            if ( m01_[ism-1] ) me_m01_[ism-1][j]->Fill(jx-0.5, jy-0.5, m01_[ism-1]->GetBinContent(ix, iy, j+1));
-          }
-          if ( j == 2 ) {
-            if ( j01_[ism-1] ) me_j01_[ism-1][j]->Fill(jx-0.5, jy-0.5, j01_[ism-1]->GetBinContent(ix, iy, j+2));
-            if ( j02_[ism-1] ) me_j02_[ism-1][j]->Fill(jx-0.5, jy-0.5, j02_[ism-1]->GetBinContent(ix, iy, j+2));
-            if ( m01_[ism-1] ) me_m01_[ism-1][j]->Fill(jx-0.5, jy-0.5, m01_[ism-1]->GetBinContent(ix, iy, j+2));
-          }
-          if ( j == 3 ) {
-            if ( j01_[ism-1] ) me_j01_[ism-1][j]->Fill(jx-0.5, jy-0.5, j01_[ism-1]->GetBinContent(ix, iy, j+2));
-            if ( j02_[ism-1] ) me_j02_[ism-1][j]->Fill(jx-0.5, jy-0.5, j02_[ism-1]->GetBinContent(ix, iy, j+2));
-            if ( m01_[ism-1] ) me_m01_[ism-1][j]->Fill(jx-0.5, jy-0.5, m01_[ism-1]->GetBinContent(ix, iy, j+2));
-          }
-          if ( j == 4 ) {
-            if ( j01_[ism-1] ) me_j01_[ism-1][j]->Fill(jx-0.5, jy-0.5, j01_[ism-1]->GetBinContent(ix, iy, j+2));
-            if ( j02_[ism-1] ) me_j02_[ism-1][j]->Fill(jx-0.5, jy-0.5, j02_[ism-1]->GetBinContent(ix, iy, j+2));
-            if ( m01_[ism-1] ) me_m01_[ism-1][j]->Fill(jx-0.5, jy-0.5, m01_[ism-1]->GetBinContent(ix, iy, j+2));
-          }
-          if ( j == 5 ) {
-            if ( j01_[ism-1] ) {
-              me_j01_[ism-1][j]->Fill(jx-0.5, jy-0.5, j01_[ism-1]->GetBinContent(ix, iy, j+2));
-              me_j01_[ism-1][j]->Fill(jx-0.5, jy-0.5, j01_[ism-1]->GetBinContent(ix, iy, j+3));
-            }
-            if ( j02_[ism-1] ) {
-              me_j02_[ism-1][j]->Fill(jx-0.5, jy-0.5, j02_[ism-1]->GetBinContent(ix, iy, j+2));
-              me_j02_[ism-1][j]->Fill(jx-0.5, jy-0.5, j02_[ism-1]->GetBinContent(ix, iy, j+3));
-            }
-            if ( m01_[ism-1] ) {
-              me_m01_[ism-1][j]->Fill(jx-0.5, jy-0.5, m01_[ism-1]->GetBinContent(ix, iy, j+2));
-              me_m01_[ism-1][j]->Fill(jx-0.5, jy-0.5, m01_[ism-1]->GetBinContent(ix, iy, j+3));
-            }
-          }
-        }
+	for (int j=0; j<2; j++) {
+	  if ( i01_[ism-1] ) me_i01_[ism-1][j]->Fill(jx-0.5, jy-0.5, i01_[ism-1]->GetBinContent(ix, iy, j+1));
+	  if ( i02_[ism-1] ) me_i02_[ism-1][j]->Fill(jx-0.5, jy-0.5, i02_[ism-1]->GetBinContent(ix, iy, j+1));
+	  if ( n01_[ism-1] ) me_n01_[ism-1][j]->Fill(jx-0.5, jy-0.5, n01_[ism-1]->GetBinContent(ix, iy, j+1));
+	}
+	for (int j=0; j<6; j++) {
+	  if ( j == 0 ) {
+	    if ( j01_[ism-1] ) me_j01_[ism-1][j]->Fill(jx-0.5, jy-0.5, j01_[ism-1]->GetBinContent(ix, iy, j+1));
+	    if ( j02_[ism-1] ) me_j02_[ism-1][j]->Fill(jx-0.5, jy-0.5, j02_[ism-1]->GetBinContent(ix, iy, j+1));
+	    if ( m01_[ism-1] ) me_m01_[ism-1][j]->Fill(jx-0.5, jy-0.5, m01_[ism-1]->GetBinContent(ix, iy, j+1));
+	  }
+	  if ( j == 1 ) {
+	    if ( j01_[ism-1] ) me_j01_[ism-1][j]->Fill(jx-0.5, jy-0.5, j01_[ism-1]->GetBinContent(ix, iy, j+1));
+	    if ( j02_[ism-1] ) me_j02_[ism-1][j]->Fill(jx-0.5, jy-0.5, j02_[ism-1]->GetBinContent(ix, iy, j+1));
+	    if ( m01_[ism-1] ) me_m01_[ism-1][j]->Fill(jx-0.5, jy-0.5, m01_[ism-1]->GetBinContent(ix, iy, j+1));
+	  }
+	  if ( j == 2 ) {
+	    if ( j01_[ism-1] ) me_j01_[ism-1][j]->Fill(jx-0.5, jy-0.5, j01_[ism-1]->GetBinContent(ix, iy, j+2));
+	    if ( j02_[ism-1] ) me_j02_[ism-1][j]->Fill(jx-0.5, jy-0.5, j02_[ism-1]->GetBinContent(ix, iy, j+2));
+	    if ( m01_[ism-1] ) me_m01_[ism-1][j]->Fill(jx-0.5, jy-0.5, m01_[ism-1]->GetBinContent(ix, iy, j+2));
+	  }
+	  if ( j == 3 ) {
+	    if ( j01_[ism-1] ) me_j01_[ism-1][j]->Fill(jx-0.5, jy-0.5, j01_[ism-1]->GetBinContent(ix, iy, j+2));
+	    if ( j02_[ism-1] ) me_j02_[ism-1][j]->Fill(jx-0.5, jy-0.5, j02_[ism-1]->GetBinContent(ix, iy, j+2));
+	    if ( m01_[ism-1] ) me_m01_[ism-1][j]->Fill(jx-0.5, jy-0.5, m01_[ism-1]->GetBinContent(ix, iy, j+2));
+	  }
+	  if ( j == 4 ) {
+	    if ( j01_[ism-1] ) me_j01_[ism-1][j]->Fill(jx-0.5, jy-0.5, j01_[ism-1]->GetBinContent(ix, iy, j+2));
+	    if ( j02_[ism-1] ) me_j02_[ism-1][j]->Fill(jx-0.5, jy-0.5, j02_[ism-1]->GetBinContent(ix, iy, j+2));
+	    if ( m01_[ism-1] ) me_m01_[ism-1][j]->Fill(jx-0.5, jy-0.5, m01_[ism-1]->GetBinContent(ix, iy, j+2));
+	  }
+	  if ( j == 5 ) {
+	    if ( j01_[ism-1] ) {
+	      me_j01_[ism-1][j]->Fill(jx-0.5, jy-0.5, j01_[ism-1]->GetBinContent(ix, iy, j+2));
+	      me_j01_[ism-1][j]->Fill(jx-0.5, jy-0.5, j01_[ism-1]->GetBinContent(ix, iy, j+3));
+	    }
+	    if ( j02_[ism-1] ) {
+	      me_j02_[ism-1][j]->Fill(jx-0.5, jy-0.5, j02_[ism-1]->GetBinContent(ix, iy, j+2));
+	      me_j02_[ism-1][j]->Fill(jx-0.5, jy-0.5, j02_[ism-1]->GetBinContent(ix, iy, j+3));
+	    }
+	    if ( m01_[ism-1] ) {
+	      me_m01_[ism-1][j]->Fill(jx-0.5, jy-0.5, m01_[ism-1]->GetBinContent(ix, iy, j+2));
+	      me_m01_[ism-1][j]->Fill(jx-0.5, jy-0.5, m01_[ism-1]->GetBinContent(ix, iy, j+3));
+	    }
+	  }
+	}
 
       }
     }
 
+  }
+
+  for(int xttindex = 0; xttindex<28*72; xttindex++) {
+    
+    int tccindex=xttindex/28 + 1;
+    if (tccindex > 36 ) tccindex += 36;
+    int ttindex=xttindex%28 + 1;
+    
+    int dcc=0;
+    int offset = 0;
+    int tccid = tccindex;
+    if (tccid >= 73) {
+      tccid = tccid-72;
+      offset = 45;
+    }
+    if (tccid == 24 || tccid == 25 || tccid == 6 || tccid == 7)  dcc=4;
+    if (tccid == 26 || tccid == 27 || tccid == 8 || tccid == 9)  dcc=5;
+    if (tccid == 28 || tccid == 29 || tccid == 10 || tccid == 11)  dcc=6;
+    if (tccid == 30 || tccid == 31 || tccid == 12 || tccid == 13)  dcc=7;
+    if (tccid == 32 || tccid == 33 || tccid == 14 || tccid == 15)  dcc=8;
+    if (tccid == 34 || tccid == 35 || tccid == 16 || tccid == 17)  dcc=9;
+    if (tccid == 36 || tccid == 19 || tccid == 18 || tccid == 1)  dcc=1;
+    if (tccid == 20 || tccid == 21 || tccid == 2 || tccid == 3)  dcc=2;
+    if (tccid == 22 || tccid == 23 || tccid == 4 || tccid == 5)  dcc=3;
+    dcc += offset;
+    
+    int ism=0;
+    // EE-
+    if( dcc >=  1 && dcc <=  9 ) ism = dcc;
+    
+    // EE+
+    if( dcc >= 46 && dcc <= 54 ) ism = dcc - 45 + 9;
+
+    std::vector<DetId> crystalsInTT = Numbers::crystals( EcalEndcap, tccindex, ttindex );
+    std::vector<DetId>::iterator icryintt;
+
+    for(icryintt=crystalsInTT.begin(); icryintt!=crystalsInTT.end(); icryintt++) {
+    
+      EEDetId id = (EEDetId)(*icryintt);
+    
+      int jx = id.ix();
+      int jy = id.iy();
+    
+      if ( ism >= 1 && ism <= 9 ) jx = 101 - jx;
+
+      for (int j = 0; j <= 256; j++) {
+     	if ( h01_ ) me_h01_[ism-1]->Fill(jx-0.5, jy-0.5, j-0.5, h01_->GetBinContent(xttindex, j+1));
+     	if ( h02_ ) me_h02_[ism-1]->Fill(jx-0.5, jy-0.5, j-0.5, h02_->GetBinContent(xttindex, j+1));
+      }
+    
+    }
+    
   }
 
 }
