@@ -20,10 +20,10 @@
  
     \brief interface to the L3Univ class for testing  
 
-    $Date: 2008/01/23 11:04:54 $
-    $Revision: 1.1.2.1 $
-    $Id: L3CalibBlock.h,v 1.1.2.1 2008/01/23 11:04:54 govoni Exp $ 
-    \author $Author: govoni $
+    $Date: 2008/02/25 17:50:39 $
+    $Revision: 1.2 $
+    $Id: L3CalibBlock.h,v 1.2 2008/02/25 17:50:39 malberti Exp $ 
+    \author $Author: malberti $
 */
 class L3CalibBlock : public VEcalCalibBlock
 {
@@ -41,12 +41,12 @@ class L3CalibBlock : public VEcalCalibBlock
                double pSubtract,
                double sigma = 1.) ;
 
-    //! reset the chi2 matrices
+    //! reset the calib objects
     void reset () ;
     //! To retrieve the coefficients
     double at ( int);
-    //! solve the chi2 linear system
-    void solve (int usingBlockSolver, double min, double max) ;
+    //! get the coefficients
+    int solve (int usingBlockSolver, double min, double max) ;
   
   private :  
 

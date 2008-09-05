@@ -1,8 +1,8 @@
 /**
-    $Date: 2008/02/25 17:53:09 $
-    $Revision: 1.2 $
-    $Id: IMACalibBlock.cc,v 1.2 2008/02/25 17:53:09 malberti Exp $ 
-    \author $Author: malberti $
+    $Date: 2008/03/10 13:29:48 $
+    $Revision: 1.3 $
+    $Id: IMACalibBlock.cc,v 1.3 2008/03/10 13:29:48 elmer Exp $ 
+    \author $Author: elmer $
 */
 
 #include "Calibration/EcalCalibAlgos/interface/IMACalibBlock.h"
@@ -96,34 +96,37 @@ IMACalibBlock::complete ()
 // ------------------------------------------------------------
 
 
-void
+int
 IMACalibBlock::solve (int usingBlockSolver, double min, double max)
 {
- complete () ;
-
- CLHEP::HepMatrix kaliMatrix (m_numberOfElements,m_numberOfElements) ;
- riempiMtr (m_kaliMatrix , kaliMatrix) ;
- CLHEP::HepVector kaliVector (m_numberOfElements) ;
- riempiVtr (m_kaliVector , kaliVector) ;
- //PG linear system solution
- CLHEP::HepVector result = CLHEP::solve (kaliMatrix,kaliVector) ;
- if (result.normsq () < min * kaliMatrix.num_row () ||
-     result.normsq () > max * kaliMatrix.num_row ()) 
-   {
-   if (usingBlockSolver)  
-     {
-        edm::LogWarning ("IML") << "using  blocSlover " << std::endl ;
-        BlockSolver() (kaliMatrix,kaliVector,result) ;
-     }
-   else 
-     {
-       edm::LogWarning ("IML") <<"coeff out of range " <<std::endl;
-       for (int i = 0 ; i < kaliVector.num_row () ; ++i)
-             result[i] = 1. ;
-     }
-   }
- fillMap(result);
- return ;
+  complete () ;
+ 
+  int returnCode = 0 ;
+  CLHEP::HepMatrix kaliMatrix (m_numberOfElements,m_numberOfElements) ;
+  riempiMtr (m_kaliMatrix , kaliMatrix) ;
+  CLHEP::HepVector kaliVector (m_numberOfElements) ;
+  riempiVtr (m_kaliVector , kaliVector) ;
+  //PG linear system solution
+  CLHEP::HepVector result = CLHEP::solve (kaliMatrix,kaliVector) ;
+  if (result.normsq () < min * kaliMatrix.num_row () ||
+      result.normsq () > max * kaliMatrix.num_row ()) 
+    {
+      if (usingBlockSolver)  
+        {
+           edm::LogWarning ("IML") << "using  blocSlover " << std::endl ;
+           BlockSolver() (kaliMatrix,kaliVector,result) ;
+           returnCode = 1 ;
+        }
+      else 
+        {
+          edm::LogWarning ("IML") <<"coeff out of range " <<std::endl;
+          for (int i = 0 ; i < kaliVector.num_row () ; ++i)
+                result[i] = 1. ;
+          returnCode = 2 ;
+        }
+    }
+  fillMap (result) ;
+  return returnCode ;
 }
 
 
