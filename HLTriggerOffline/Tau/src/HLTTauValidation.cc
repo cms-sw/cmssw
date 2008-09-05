@@ -358,7 +358,7 @@ HLTTauValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     //L2Analysis Seed
       size_t L2ID=0;
       L2ID =trigEv->filterIndex(l2filter_);
-      printf("L2id = %d\n",L2ID);
+      LogDebug("HLTTauValidation") << "L2id = " << L2ID << std::endl;
    
       if(L2ID!=trigEv->size())
 	{
