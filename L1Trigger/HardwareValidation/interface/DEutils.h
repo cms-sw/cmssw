@@ -23,8 +23,8 @@ struct DEutils {
   public:
   
   DEutils() {
-    if(de_type()>16)
-      throw cms::Exception("ERROR") 
+    if(de_type()>30)
+      edm::LogError("L1ComparatorDeutilsCollType") //throw cms::Exception("ERROR") 
 	<< "DEutils::DEutils() :: "
 	<< "specialization is still missing for collection of type:" 
 	<< de_type() << std::endl;
@@ -1027,13 +1027,28 @@ std::string DEutils<T>::GetName(int i=0) const {
     str[1] = "L1CaloRegionCollection";
     str[2] = "L1CaloRegion";
     break;
-  case dedefs::GCTem:
-    str[0] = "GCT em";
+  case dedefs::GCTisolaem:
+    str[0] = "GCT em isolated";
     str[1] = "L1GctEmCandCollection";
     str[2] = "L1GctEmCand";
    break;
-  case dedefs::GCTjet:
-    str[0] = "GCT jet";
+  case dedefs::GCTnoisoem:
+    str[0] = "GCT em non-isolated";
+    str[1] = "L1GctEmCandCollection";
+    str[2] = "L1GctEmCand";
+   break;
+  case dedefs::GCTcenjets:
+    str[0] = "GCT central jet";
+    str[1] = "L1GctJetCandCollection";
+    str[2] = "L1GctJetCand";
+   break;
+  case dedefs::GCTforjets:
+    str[0] = "GCT forward jet";
+    str[1] = "L1GctJetCandCollection";
+    str[2] = "L1GctJetCand";
+   break;
+  case dedefs::GCTtaujets:
+    str[0] = "GCT tau jet";
     str[1] = "L1GctJetCandCollection";
     str[2] = "L1GctJetCand";
    break;

@@ -53,9 +53,14 @@ namespace dedefs {
   };
 
   enum ColList {
-    ECALtp, HCALtp, RCTem, RCTrgn, GCTem, GCTjet, 
+    ECALtp, HCALtp, 
+    RCTem, RCTrgn, 
+    GCTem, GCTjet, GCTisolaem, GCTnoisoem, GCTcenjets, GCTforjets, GCTtaujets, 
     DTtpPh, DTtpTh, CSCtpa, CSCtpc, CSCtpl, CSCsta, 
-    MUrtf, LTCi, GMTcnd, GMTrdt, GTdword
+    MUrtf, DTtf, DTtftrk, CSCtf, CSCtftrk, CSCtftrc, CSCtfsta, RPCcen, RPCfor, 
+    LTCi, 
+    GMTmain, GMTcnd, GMTrdt, 
+    GTdword
   };
 
 }
