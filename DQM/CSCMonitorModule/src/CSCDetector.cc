@@ -24,16 +24,10 @@
  * @param  
  * @return 
  */
-CSCDetector::CSCDetector() {
+CSCDetector::CSCDetector(const unsigned int p_partitions_x, const unsigned int p_partitions_y) {
 
-  for (unsigned int px = 0; px < PARTITIONX; px++) {
-    for (unsigned int py = 0; py < PARTITIONY; py++) {
-      partitions[px][py].xmin = -2.5 + ((5.0 / PARTITIONX) * px);
-      partitions[px][py].xmax = -2.5 + ((5.0 / PARTITIONX) * (px + 1));
-      partitions[px][py].ymin = ((2.0 * 3.14159) / PARTITIONY) * py;
-      partitions[px][py].ymax = ((2.0 * 3.14159) / PARTITIONY) * (py + 1);
-    }
-  }
+  partitions_x = p_partitions_x;
+  partitions_y = p_partitions_y;
 
   unsigned int i = 0; 
   CSCAddress adr;
@@ -84,11 +78,24 @@ CSCDetector::CSCDetector() {
               boxes[i].ymin = yboxmin;
               boxes[i].ymax = yboxmax;
 
-              for (unsigned int px = 0; px < PARTITIONX; px++) {
-                for (unsigned int py = 0; py < PARTITIONY; py++) {
-                  if ((partitions[px][py].xmin < xboxmin && partitions[px][py].xmax < xboxmin) || (partitions[px][py].xmin > xboxmax && partitions[px][py].xmax > xboxmax)) continue;
-                  if ((partitions[px][py].ymin < yboxmin && partitions[px][py].ymax < yboxmin) || (partitions[px][py].ymin > yboxmax && partitions[px][py].ymax > yboxmax)) continue;
-                  partitions[px][py].boxes.push_back(i);
+              unsigned int x1 = int(floor(xboxmin / PARTITION_STEP_X)) + int(partitions_x / 2);
+              unsigned int x2 = int( ceil(xboxmax / PARTITION_STEP_X)) + int(partitions_x / 2);
+              unsigned int y1 = int(floor(yboxmin / PARTITION_STEP_Y));
+              unsigned int y2 = int( ceil(yboxmax / PARTITION_STEP_Y));
+
+              for (unsigned int x = x1; x < x2; x++) {
+                for (unsigned int y = y1; y < y2; y++) {
+                  
+                  unsigned int index = PARTITION_INDEX(x, y);
+                  PartitionMapIterator iter = partitions.find(index);
+                  if (iter == partitions.end()) {
+                    std::vector<unsigned int> v;
+                    partitions.insert(std::make_pair(index, v));
+                  }
+                  partitions[index].push_back(i);
+
+                  //LOGINFO("Debug") << index << " = " << partitions[index]->size();
+
                 }
               }
 
@@ -100,6 +107,7 @@ CSCDetector::CSCDetector() {
       }
       station_partitions[adr.station - 1].to[adr.side - 1] = i - 1;
     }
+
   }
 
   // Cached the most frequently used areas
@@ -113,6 +121,7 @@ CSCDetector::CSCDetector() {
   station_area[2] = Area(adr);
   adr.station = 4;
   station_area[3] = Area(adr);
+
 }
 
 /**
@@ -259,6 +268,7 @@ const bool CSCDetector::NextAddress(unsigned int& i, const CSCAddress*& adr, con
 
 const bool CSCDetector::NextAddressBox(unsigned int& i, const CSCAddressBox*& box, const CSCAddress& mask) const {
 
+  /*
   if (mask.mask.station) {
     unsigned int side = 1;
     if (mask.mask.side) side = mask.side;
@@ -277,6 +287,7 @@ const bool CSCDetector::NextAddressBox(unsigned int& i, const CSCAddressBox*& bo
       }
     }    
   }
+  */
 
   for(; i < N_ELEMENTS; i++ ) {
     if (boxes[i].adr == mask) {
@@ -288,6 +299,9 @@ const bool CSCDetector::NextAddressBox(unsigned int& i, const CSCAddressBox*& bo
   return false;
 }
 
+const bool CSCDetector::NextAddressBoxByPartition (unsigned int& i, const unsigned int px, const unsigned int py, CSCAddressBox*& box) {
+
+/*
 const bool CSCDetector::NextAddressBoxByPartition (
     unsigned int& i,
     unsigned int& px,
@@ -295,25 +309,31 @@ const bool CSCDetector::NextAddressBoxByPartition (
     const CSCAddressBox*& box,
     const CSCAddress& mask,
     const float xmin, const float xmax,
-    const float ymin, const float ymax) const {
+    const float ymin, const float ymax) {
 
-  for(; px < PARTITIONX; px++ ) {
-    for(; py < PARTITIONY; py++ ) {
-      if ((partitions[px][py].xmin < xmin && partitions[px][py].xmax < xmin) || (partitions[px][py].xmin > xmax && partitions[px][py].xmax > xmax)) continue;
-      if ((partitions[px][py].ymin < ymin && partitions[px][py].ymax < ymin) || (partitions[px][py].ymin > ymax && partitions[px][py].ymax > ymax)) continue;
-      for(; i < partitions[px][py].boxes.size(); i++ ) {
-        unsigned int index = partitions[px][py].boxes.at(i);
-        if (boxes[index].adr == mask) {
-          if ((xmin < boxes[index].xmin && xmax < boxes[index].xmin) || (xmin > boxes[index].xmax && xmax > boxes[index].xmax)) continue;
-          if ((ymin < boxes[index].ymin && ymax < boxes[index].ymin) || (ymin > boxes[index].ymax && ymax > boxes[index].ymax)) continue;
-          box = &boxes[index];
-          i++;
-          return true; 
-        }
-      }
+  for(; i < N_ELEMENTS; i++ ) {
+    if (boxes[i].adr == mask); else continue; 
+    if ((xmin < boxes[i].xmin && xmax < boxes[i].xmin) || (xmin > boxes[i].xmax && xmax > boxes[i].xmax)) continue;
+    if ((ymin < boxes[i].ymin && ymax < boxes[i].ymin) || (ymin > boxes[i].ymax && ymax > boxes[i].ymax)) continue;
+    box = &boxes[i];
+    i++;
+    return true; 
+  }
+  return false;
+  */
+
+  unsigned int index = PARTITION_INDEX(px, py);
+
+  PartitionMapIterator iter = partitions.find(index);
+  if (iter != partitions.end()) {
+    if (i < partitions[index].size()) {
+      box = &boxes[partitions[index].at(i)];
+      i++;
+      return true; 
     }
   }
   return false;
+
 }
 
 const float CSCDetector::Eta(const float r, const float z) const {

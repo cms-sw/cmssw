@@ -31,6 +31,7 @@
 #define HWSTATUSANY(s, m)     (((std::bitset<HWSTATUSBITSETSIZE>) m & s).any())
 #define HWSTATUSANYERROR(s)   (HWSTATUSANY(s, HWSTATUSERRORBITS))
 
+#define NTICS                 100
 
 enum HWStatusBit {
 
@@ -71,7 +72,7 @@ class CSCSummary {
     const unsigned int setMaskedHWElements(std::vector<std::string>& tokens);
 
     void Write(TH2*& h2, const unsigned int station) const;
-    void WriteMap(TH2*& h2) const;
+    void WriteMap(TH2*& h2);
     void WriteChamberState(TH2*& h2, const int mask, const int value = 1, const bool reset = true, const bool op_any = false) const;
 
     void ReSetValue(const HWStatusBit bit);
@@ -80,7 +81,8 @@ class CSCSummary {
     void SetValue(CSCAddress adr, const HWStatusBit bit, const int value = 1);
 
     const HWStatusBitSet GetValue(CSCAddress& adr) const;
-    const int IsPhysicsReady(const float xmin, const float xmax, const float ymin, const float ymax) const;
+    const int IsPhysicsReady(const unsigned int px, const unsigned int py);
+    //const int IsPhysicsReady(const float xmin, const float xmax, const float ymin, const float ymax) const;
 
     const double GetEfficiencyHW() const;
     const double GetEfficiencyHW(const unsigned int station) const;

@@ -25,7 +25,7 @@
  * @param  
  * @return 
  */
-CSCSummary::CSCSummary() {
+CSCSummary::CSCSummary() : detector(NTICS, NTICS) {
   Reset();
 }
 
@@ -257,9 +257,8 @@ void CSCSummary::Write(TH2*& h2, const unsigned int station) const {
  * @param  h2 Histogram to write map to
  * @return  
  */
-void CSCSummary::WriteMap(TH2*& h2) const {
+void CSCSummary::WriteMap(TH2*& h2) {
 
-  const unsigned int NTICS = 100;
   unsigned int rep_el = 0, csc_el = 0;
 
   if(h2->GetXaxis()->GetXmin() <= 1 && h2->GetXaxis()->GetXmax() >= NTICS &&
@@ -284,7 +283,7 @@ void CSCSummary::WriteMap(TH2*& h2) const {
         ymin = yd * y;
         ymax = ymin + yd;
 
-        switch(IsPhysicsReady(xmin, xmax, ymin, ymax)) {
+        switch(IsPhysicsReady(x, y)) {
           case -1:
             value = -1.0;
             break;
@@ -456,32 +455,15 @@ void CSCSummary::SetValue(CSCAddress adr, const HWStatusBit bit, const int value
  * @return 1 if this polygon is ok for physics and reporting, 0 - if it is ok
  * but does not report, -1 - otherwise
  */
-const int CSCSummary::IsPhysicsReady(const float xmin, const float xmax, const float ymin, const float ymax) const {
+const int CSCSummary::IsPhysicsReady(const unsigned int px, const unsigned int py) {
 
-  float xpmin = (xmin < xmax ? xmin : xmax);
-  float xpmax = (xmax > xmin ? xmax : xmin);
-  float ypmin = (ymin < ymax ? ymin : ymax);
-  float ypmax = (ymax > ymin ? ymax : ymin);
-
-  if (xmin >= -1.0 && xmax <= 1.0) return 0; 
-
-  CSCAddress adr, tadr;
-  const CSCAddressBox *box;
-
-  adr.mask.ring = adr.mask.chamber = adr.mask.layer = adr.mask.cfeb = adr.mask.hv = false;
-  adr.mask.side = adr.mask.station = true;
-  adr.side = (xmin > 0 ? 1 : 2);
+  CSCAddressBox *box;
 
   HWStatusBitSet status[N_STATIONS];
 
-  for (adr.station = 1; adr.station <= N_STATIONS; adr.station++) {
-
-    unsigned int i = 0, px = 0, py = 0;
-    while(detector.NextAddressBoxByPartition(i, px, py, box, adr, xpmin, xpmax, ypmin, ypmax)) {
-      tadr = box->adr;
-      status[adr.station - 1] |= GetValue(tadr);
-    }
-
+  unsigned int i = 0;
+  while(detector.NextAddressBoxByPartition(i, px, py, box)) {
+    status[box->adr.station - 1] |= GetValue(box->adr);
   }
 
   unsigned int cdata = 0, cerror = 0, cmask = 0;

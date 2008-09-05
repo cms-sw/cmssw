@@ -21,7 +21,6 @@
 
 #include <math.h>
 #include <float.h>
-#include <string>
 #include <map>
 #include <vector>
 #include <iostream>
@@ -39,8 +38,13 @@
 #define ADDR_SIZE  7
 
 #define N_ELEMENTS 7740
-#define PARTITIONX 50
-#define PARTITIONY 50
+
+#define PARTITION_INDEX(x,y)  (x * partitions_y + y)
+#define PARTITION_STEP_X      (5.0 / partitions_x)
+#define PARTITION_STEP_Y      ((2.0 * 3.14159) / partitions_y)
+
+//#define P_X(i)        int(i / partitions_y)
+//#define P_Y(i,x)      (i - x * partitions_y)
 
 struct CSCAddressMask {
   bool side;
@@ -103,28 +107,24 @@ struct CSCAddressBox {
   float ymax;
 };
 
-struct CSCAddressBoxPartition {
-  float xmin;
-  float xmax;
-  float ymin;
-  float ymax;
-  std::vector<unsigned int> boxes;
-};
-
 struct CSCAddressBoxStationPartition {
   unsigned int from[2];
   unsigned int to[2];
 };
 
+typedef std::map<const unsigned int, std::vector<unsigned int> > PartitionMap;
+typedef PartitionMap::iterator PartitionMapIterator;
+
 class CSCDetector {
 
   public:
 
-    CSCDetector();
+    CSCDetector(const unsigned int p_partitions_x = 0, const unsigned int p_partitions_y = 0);
 
     const bool NextAddress(unsigned int& i, const CSCAddress*& adr, const CSCAddress& mask) const;
     const bool NextAddressBox(unsigned int& i, const CSCAddressBox*& box, const CSCAddress& mask) const;
-    const bool NextAddressBoxByPartition(unsigned int& i, unsigned int& px, unsigned int& py, const CSCAddressBox*& box, const CSCAddress& mask, const float xmin, const float xmax, const float ymin, const float ymax) const;
+    //const bool NextAddressBoxByPartition(unsigned int& i, unsigned int& px, unsigned int& py, const CSCAddressBox*& box, const CSCAddress& mask, const float xmin, const float xmax, const float ymin, const float ymax);
+    const bool NextAddressBoxByPartition (unsigned int& i, const unsigned int px, const unsigned int py, CSCAddressBox*& box);
 
     const float Area(const unsigned int station) const;
     const float Area(const CSCAddress& adr) const;
@@ -152,8 +152,12 @@ class CSCDetector {
     CSCAddressBox boxes[N_ELEMENTS];
     float station_area[N_STATIONS];
 
+    unsigned int partitions_x;
+    unsigned int partitions_y;
+    unsigned int partitions_offset;
+
     // To improve performance
-    CSCAddressBoxPartition partitions[PARTITIONX][PARTITIONY];
+    PartitionMap partitions;
     CSCAddressBoxStationPartition station_partitions[N_STATIONS];
 
 };
