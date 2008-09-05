@@ -8,13 +8,14 @@
 
 /** \class HcalDeadCellMonitor
   *  
-  * $Date: 2008/07/07 20:12:16 $
-  * $Revision: 1.13 $
+  * $Date: 2008/07/21 22:55:06 $
+  * $Revision: 1.14 $
   * \author J. Temple - Univ. of Maryland
   */
 
 struct DeadCellHists{
 
+  bool origcheck;
   bool check; // determine whether to run DeadCell checks on this subdetector
   int fVerbosity; // not yet implemented for subdetectors -- use later?
   bool makeDiagnostics; // determine whether or not to make diagnostic plots
@@ -64,6 +65,7 @@ class HcalDeadCellMonitor: public HcalBaseMonitor {
   ~HcalDeadCellMonitor(); 
 
   void setup(const edm::ParameterSet& ps, DQMStore* dbe);
+  void setSubDetectors(bool hb, bool he, bool ho, bool hf);
   void done(); // overrides base class function 
   void clearME(); // overrides base class function
 

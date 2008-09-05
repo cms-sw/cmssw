@@ -12,8 +12,8 @@
 
 /** \class HcalBeamMonitor
   *
-  * $Date: 2008/08/17 23:10:08 $
-  * $Revision: 1.1 $
+  * $Date: 2008/08/18 11:20:28 $
+  * $Revision: 1.2 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -25,14 +25,15 @@ class HcalBeamMonitor:  public HcalBaseMonitor {
   void setup(const edm::ParameterSet& ps, DQMStore* dbe);
   void processEvent(const  HBHERecHitCollection& hbHits,
 		    const HORecHitCollection& hoHits, 
-		    const HFRecHitCollection& hfHits
+		    const HFRecHitCollection& hfHits,
+                     const HFDigiCollection& hf
 		    //const ZDCRecHitCollection& zdcHits
 		    );
   void reset();
   void clearME();
 
  private:
-  
+  float occThresh_;  
   int ievt_;
   MonitorElement* meEVT_;
 
@@ -54,6 +55,36 @@ class HcalBeamMonitor:  public HcalBaseMonitor {
   MonitorElement* HOCenterOfEnergy;
   MonitorElement* HFCenterOfEnergyRadius;
   MonitorElement* HFCenterOfEnergy;
+
+  MonitorElement* Etsum_eta_L;
+  MonitorElement* Etsum_eta_S;
+  MonitorElement* Etsum_phi_L;
+  MonitorElement* Etsum_phi_S;
+  MonitorElement* Etsum_ratio_p;
+  MonitorElement* Etsum_ratio_m;
+  MonitorElement* Etsum_map_L;
+  MonitorElement* Etsum_map_S;
+  MonitorElement* Etsum_ratio_map;
+  MonitorElement* Etsum_rphi_L;
+  MonitorElement* Etsum_rphi_S;
+  MonitorElement* Energy_Occ;
+
+  MonitorElement* Occ_rphi_L;
+  MonitorElement* Occ_rphi_S;
+  MonitorElement* Occ_eta_L;
+  MonitorElement* Occ_eta_S;
+  MonitorElement* Occ_phi_L;
+  MonitorElement* Occ_phi_S;
+  MonitorElement* Occ_map_L;
+  MonitorElement* Occ_map_S;
+  
+  MonitorElement* HFlumi_ETsum_perwedge;
+  MonitorElement* HFlumi_Occupancy_above_thr_r1;
+  MonitorElement* HFlumi_Occupancy_between_thrs_r1;
+  MonitorElement* HFlumi_Occupancy_below_thr_r1;
+  MonitorElement* HFlumi_Occupancy_above_thr_r2;
+  MonitorElement* HFlumi_Occupancy_between_thrs_r2;
+  MonitorElement* HFlumi_Occupancy_below_thr_r2;
 
   const int ETA_OFFSET_HB;
 

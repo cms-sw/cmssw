@@ -11,8 +11,8 @@
 
 /** \class HcalDigiMonitor
   *  
-  * $Date: 2008/07/10 23:55:37 $
-  * $Revision: 1.28 $
+  * $Date: 2008/08/20 17:52:28 $
+  * $Revision: 1.29 $
   * \author W. Fisher - FNAL
   */
 
@@ -20,6 +20,7 @@
 struct DigiHists
 {
   // check whether to create histograms for each subdetector
+  bool origcheck;
   bool check;
   
   bool makeDiagnostics; // determine whether or not to make diagnostic plots
@@ -98,7 +99,7 @@ public:
 		    const HFDigiCollection& hf,
 		    const HcalDbService& cond,
 		    const HcalUnpackerReport& report);
-
+  void setSubDetectors(bool hb, bool he, bool ho, bool hf);
   void reset();
 
 private:  ///Methods

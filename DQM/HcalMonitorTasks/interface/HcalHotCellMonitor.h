@@ -11,8 +11,8 @@
 
 /** \class HcalHotCellMonitor
   *  
-  * $Date: 2008/07/16 22:07:54 $
-  * $Revision: 1.19 $
+  * $Date: 2008/07/21 22:55:06 $
+  * $Revision: 1.20 $
   * \author W. Fisher - FNAL
   * \ updated by J. Temple - Univ. of Maryland
   */
@@ -20,6 +20,7 @@
 
 // Structure holds all hot cell data for a subdetector
 struct HotCellHists{
+  bool origcheck;
   bool check;
 
   // Main problem cell histogram
@@ -128,6 +129,7 @@ public:
 			 const HFDigiCollection& hfdigi,
 			 const HcalDbService& cond);
 
+  void setSubDetectors(bool hb, bool he, bool ho, bool hf);
   void reset();
   void setupVals(HotCellHists& h, int type, HotCellHists& base, const edm::ParameterSet& ps);
   void setupHists(HotCellHists& h, DQMStore* dbe);
