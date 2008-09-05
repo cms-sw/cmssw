@@ -11,7 +11,3 @@ from DQMOffline.Trigger.DQMOffline_Trigger_cff import *
 
 DQMOfflineCosmics = cms.Sequence(SiStripDQMTier0*ecal_dqm_source_offline*muonCosmicMonitors*jetMETAnalyzer*hcalOfflineDQMSource*triggerOfflineDQMSource*siPixelOfflineDQM_source*egammaCosmicPhotonMonitors)
 
-triggerOfflineDQMSource_woEmul = cms.Sequence(l1tmonitor*hltResults*egammaHLTDQM*HLTTauDQMOffline)
-
-DQMOfflineCosmics_woEmul = cms.Sequence(SiStripDQMTier0*ecal_dqm_source_offline*muonCosmicMonitors*jetMETAnalyzer*hcalOfflineDQMSource*triggerOfflineDQMSource_woEmul*siPixelOfflineDQM_source*egammaCosmicPhotonMonitors)
-
