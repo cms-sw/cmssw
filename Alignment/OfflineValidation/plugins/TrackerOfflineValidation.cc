@@ -13,7 +13,7 @@
 //
 // Original Author:  Erik Butz
 //         Created:  Tue Dec 11 14:03:05 CET 2007
-// $Id: TrackerOfflineValidation.cc,v 1.12 2008/09/02 18:08:54 ebutz Exp $
+// $Id: TrackerOfflineValidation.cc,v 1.13 2008/09/04 12:42:10 ebutz Exp $
 //
 //
 
@@ -75,15 +75,7 @@ public:
 			YprimeResidual, NormYprimeResidual};
   
 private:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
-  virtual void checkBookHists(const edm::EventSetup &setup);
 
-
-  const edm::ParameterSet parset_;
-  edm::ESHandle<TrackerGeometry> tkGeom_;
-  const TrackerGeometry *bareTkGeomPtr_; // ugly hack to book hists only once, but check 
-  edm::ParameterSet parameters_;
   
   struct ModuleHistos{
     ModuleHistos() :  ResHisto(), NormResHisto(), ResXprimeHisto(), NormResXprimeHisto(), 
@@ -113,11 +105,10 @@ private:
     TH1* sumNormYResiduals_;
     TH1* summaryNormYResiduals_;
   };
-
-
- struct TreeVariables{
-   TreeVariables(): meanLocalX_(), meanNormLocalX_(), meanX_(), meanNormX_(), 
-		    rmsLocalX_(), rmsNormLocalX_(), rmsX_(), rmsNormX_(), 
+  
+  struct TreeVariables{
+    TreeVariables(): meanLocalX_(), meanNormLocalX_(), meanX_(), meanNormX_(), 
+		     rmsLocalX_(), rmsNormLocalX_(), rmsX_(), rmsNormX_(), 
 		     posR_(), posPhi_(), posEta_(),
 		     posX_(), posY_(), posZ_(),
 		     entries_(), moduleId_(), subDetId_(),
@@ -126,38 +117,27 @@ private:
 		     isDoubleSide_(),
 		     histNameLocalX_(), histNameNormLocalX_(), histNameX_(), histNameNormX_()  {} 
     Float_t meanLocalX_, meanNormLocalX_, meanX_,meanNormX_,    //mean value read out from modul histograms
-            rmsLocalX_, rmsNormLocalX_, rmsX_, rmsNormX_,      //rms value read out from modul histograms
-            posR_, posPhi_, posEta_,                     //global coordiantes    
-            posX_, posY_, posZ_;             //global coordiantes 
-   UInt_t   entries_, moduleId_, subDetId_,          //number of entries for each modul //modul Id = detId and subdetector Id
-             layer_, side_, rod_, 
-             ring_, petal_, 
-             blade_, panel_, 
-             outerInner_; //orientation of modules in TIB:1/2= int/ext string, TID:1/2=back/front ring, TEC 1/2=back/front petal 
+      rmsLocalX_, rmsNormLocalX_, rmsX_, rmsNormX_,      //rms value read out from modul histograms
+      posR_, posPhi_, posEta_,                     //global coordiantes    
+      posX_, posY_, posZ_;             //global coordiantes 
+    UInt_t  entries_, moduleId_, subDetId_,          //number of entries for each modul //modul Id = detId and subdetector Id
+      layer_, side_, rod_, 
+      ring_, petal_, 
+      blade_, panel_, 
+      outerInner_; //orientation of modules in TIB:1/2= int/ext string, TID:1/2=back/front ring, TEC 1/2=back/front petal 
     Bool_t isDoubleSide_;
     std::string histNameLocalX_, histNameNormLocalX_, histNameX_, histNameNormX_;
   };
 
-  bool lCoorHistOn_;
-  bool moduleLevelHistsTransient_;
-  bool overlappOn_;
-  bool stripYResiduals_;
-  bool useFwhm_;
 
-  ModuleHistos& getHistStructFromMap(const DetId& detid);
+  // 
+  // ------------- private member function -------------
+  // 
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void endJob();
+  virtual void checkBookHists(const edm::EventSetup &setup);
 
-  std::map< std::pair<uint32_t, uint32_t >, TH1*> hOverlappResidual;
 
-  std::vector<TH1*> vTrackHistos_;
-  std::vector<TProfile*> vTrackProfiles_;
-  std::vector<TH2*> vTrack2DHistos_;
-  
-  std::map<int,TrackerOfflineValidation::ModuleHistos> mPxbResiduals_;
-  std::map<int,TrackerOfflineValidation::ModuleHistos> mPxeResiduals_;
-  std::map<int,TrackerOfflineValidation::ModuleHistos> mTibResiduals_;
-  std::map<int,TrackerOfflineValidation::ModuleHistos> mTidResiduals_;
-  std::map<int,TrackerOfflineValidation::ModuleHistos> mTobResiduals_;
-  std::map<int,TrackerOfflineValidation::ModuleHistos> mTecResiduals_;
 
   void bookGlobalHists(TFileDirectory &tfd);
   void bookDirHists(TFileDirectory &tfd, const Alignable& ali, const AlignableObjectId &aliobjid);
@@ -170,16 +150,16 @@ private:
   
   void bookTree(TTree &tree, struct TrackerOfflineValidation::TreeVariables &treeMem);
   
-  void fillTree(TTree &tree,const std::map<int, TrackerOfflineValidation::ModuleHistos> &moduleHist_, 
-		struct TrackerOfflineValidation::TreeVariables &treeMem, 
-		const TrackerGeometry &tkgeom );
-
-
+  void fillTree(TTree &tree, const std::map<int, TrackerOfflineValidation::ModuleHistos> &moduleHist_, 
+		struct TrackerOfflineValidation::TreeVariables &treeMem, const TrackerGeometry &tkgeom );
+  
   TrackerOfflineValidation::SummaryContainer bookSummaryHists(TFileDirectory &tfd, 
 							      const Alignable& ali, 
 							      align::StructureType type, int i, 
 							      const AlignableObjectId &aliobjid); 
- 
+
+  ModuleHistos& getHistStructFromMap(const DetId& detid); 
+
   bool isBarrel(uint32_t subDetId);
   bool isEndCap(uint32_t subDetId);
   bool isPixel(uint32_t subDetId);
@@ -187,9 +167,6 @@ private:
 
   TH1* bookTH1F(bool isTransient, TFileDirectory& tfd, const char* histName, const char* histTitle, 
 		int nBinsX, float lowX, float highX);
-
-  // a vector to keep track which pointers should be deleted at the very end
-  std::vector<TH1*> vDeleteObjects;
 
   void getBinning(uint32_t subDetId, TrackerOfflineValidation::HistogrammType residualtype, 
 		  int &nBinsX, double &lowerBoundX, double &upperBoundX);
@@ -202,20 +179,52 @@ private:
 
   void setSummaryBin(int bin, TH1* targetHist, TH1* sourceHist);
     
-
   float Fwhm(const TH1* hist);
 
   // From MillePedeAlignmentMonitor: Get Index for Arbitary vector<class> by name
   template <class OBJECT_TYPE>  
   int GetIndex(const std::vector<OBJECT_TYPE*> &vec, const TString &name);
-  
 
-  // ----------member data ---------------------------
+  // ---------- member data ---------------------------
+
+
+  const edm::ParameterSet parset_;
+  edm::ESHandle<TrackerGeometry> tkGeom_;
+  const TrackerGeometry *bareTkGeomPtr_; // ugly hack to book hists only once, but check 
+
+  
+  // parameters from cfg to steer
+  bool lCoorHistOn_;
+  bool moduleLevelHistsTransient_;
+  bool overlappOn_;
+  bool stripYResiduals_;
+  bool useFwhm_;
+
+  std::map< std::pair<uint32_t, uint32_t >, TH1*> hOverlappResidual;
+
+  // a vector to keep track which pointers should be deleted at the very end
+  std::vector<TH1*> vDeleteObjects_;
+
+  // 
+  std::vector<TH1*> vTrackHistos_;
+  std::vector<TProfile*> vTrackProfiles_;
+  std::vector<TH2*> vTrack2DHistos_;
+  
+  std::map<int,TrackerOfflineValidation::ModuleHistos> mPxbResiduals_;
+  std::map<int,TrackerOfflineValidation::ModuleHistos> mPxeResiduals_;
+  std::map<int,TrackerOfflineValidation::ModuleHistos> mTibResiduals_;
+  std::map<int,TrackerOfflineValidation::ModuleHistos> mTidResiduals_;
+  std::map<int,TrackerOfflineValidation::ModuleHistos> mTobResiduals_;
+  std::map<int,TrackerOfflineValidation::ModuleHistos> mTecResiduals_;
+
+
+
 };
 
 //
 // constants, enums and typedefs
 //
+
 //
 // static data member definitions
 //
@@ -240,8 +249,6 @@ TrackerOfflineValidation::TrackerOfflineValidation(const edm::ParameterSet& iCon
     stripYResiduals_(parset_.getParameter<bool>("stripYResiduals")), useFwhm_(parset_.getParameter<bool>("useFwhm"))
 {
    //now do what ever initialization is needed
- 
-  
 }
 
 
@@ -250,10 +257,9 @@ TrackerOfflineValidation::~TrackerOfflineValidation()
  
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
-  for( std::vector<TH1*>::const_iterator it = vDeleteObjects.begin(), itEnd = vDeleteObjects.end(); 
+  for( std::vector<TH1*>::const_iterator it = vDeleteObjects_.begin(), itEnd = vDeleteObjects_.end(); 
        it != itEnd; ++it) delete *it;
     
-
 }
 
 
@@ -300,37 +306,102 @@ void
 TrackerOfflineValidation::bookGlobalHists(TFileDirectory &tfd )
 {
 
-  vTrackHistos_.push_back(tfd.make<TH1F>("h_tracketa","Track #eta;#eta_{Track};Number of Tracks",90,-3.,3.));	       
-  vTrackHistos_.push_back(tfd.make<TH1F>("h_curvature","Curvature #kappa;#kappa_{Track};Number of Tracks",100,-.05,.05));
-  vTrackHistos_.push_back(tfd.make<TH1F>("h_curvature_pos","Curvature |#kappa| Positive Tracks;|#kappa_{pos Track}|;Number of Tracks",100,.0,.05));
-  vTrackHistos_.push_back(tfd.make<TH1F>("h_curvature_neg","Curvature |#kappa| Negative Tracks;|#kappa_{neg Track}|;Number of Tracks",100,.0,.05));
-  vTrackHistos_.push_back(tfd.make<TH1F>("h_diff_curvature","Curvature |#kappa| Tracks Difference;|#kappa_{Track}|;# Pos Tracks - # Neg Tracks",100,.0,.05));
-  vTrackHistos_.push_back(tfd.make<TH1F>("h_chi2","#chi^{2};#chi^{2}_{Track};Number of Tracks",500,-0.01,500.));	       
-  vTrackHistos_.push_back(tfd.make<TH1F>("h_normchi2","#chi^{2}/ndof;#chi^{2}/ndof;Number of Tracks",100,-0.01,10.));     
-  vTrackHistos_.push_back(tfd.make<TH1F>("h_pt","p_{T}^{track};p_{T}^{track} [GeV];Number of Tracks",100,0.,2500));                     
+  vTrackHistos_.push_back(tfd.make<TH1F>("h_tracketa",
+					 "Track #eta;#eta_{Track};Number of Tracks",
+					 90,-3.,3.));
+  vTrackHistos_.push_back(tfd.make<TH1F>("h_curvature",
+					 "Curvature #kappa;#kappa_{Track};Number of Tracks",
+					 100,-.05,.05));
+  vTrackHistos_.push_back(tfd.make<TH1F>("h_curvature_pos",
+					 "Curvature |#kappa| Positive Tracks;|#kappa_{pos Track}|;Number of Tracks",
+					 100,.0,.05));
+  vTrackHistos_.push_back(tfd.make<TH1F>("h_curvature_neg",
+					 "Curvature |#kappa| Negative Tracks;|#kappa_{neg Track}|;Number of Tracks",
+					 100,.0,.05));
+  vTrackHistos_.push_back(tfd.make<TH1F>("h_diff_curvature",
+					 "Curvature |#kappa| Tracks Difference;|#kappa_{Track}|;# Pos Tracks - # Neg Tracks",
+					 100,.0,.05));
+  vTrackHistos_.push_back(tfd.make<TH1F>("h_chi2",
+					 "#chi^{2};#chi^{2}_{Track};Number of Tracks",
+					 500,-0.01,500.));	       
+  vTrackHistos_.push_back(tfd.make<TH1F>("h_normchi2",
+					 "#chi^{2}/ndof;#chi^{2}/ndof;Number of Tracks",
+					 100,-0.01,10.));     
+  vTrackHistos_.push_back(tfd.make<TH1F>("h_pt",
+					 "p_{T}^{track};p_{T}^{track} [GeV];Number of Tracks",
+					 100,0.,2500));           
+  vTrackHistos_.push_back(tfd.make<TH1F>("h_ptResolution",
+					 "#delta{p_{T}/p_{T}^{track}};#delta_{p_{T}/p_{T}^{track}};Number of Tracks",
+					 100,0.,0.5));           
 
-  vTrackProfiles_.push_back(tfd.make<TProfile>("p_d0_vs_phi","Transverse Impact Parameter vs. #phi;#phi_{Track};#LT d_{0} #GT [cm]",100,-3.15,3.15));
-  vTrackProfiles_.push_back(tfd.make<TProfile>("p_dz_vs_phi","Longitudinal Impact Parameter vs. #phi;#phi_{Track};#LT d_{z} #GT [cm]",100,-3.15,3.15));
-  vTrackProfiles_.push_back(tfd.make<TProfile>("p_d0_vs_eta","Transverse Impact Parameter vs. #eta;#eta_{Track};#LT d_{0} #GT [cm]",100,-3.15,3.15));
-  vTrackProfiles_.push_back(tfd.make<TProfile>("p_dz_vs_eta","Longitudinal Impact Parameter vs. #eta;#eta_{Track};#LT d_{z} #GT [cm]",100,-3.15,3.15));
-  vTrackProfiles_.push_back(tfd.make<TProfile>("p_chi2_vs_phi","#chi^{2} vs. #phi;#phi_{Track};#LT #chi^{2} #GT",100,-3.15,3.15));
-  vTrackProfiles_.push_back(tfd.make<TProfile>("p_normchi2_vs_phi","#chi^{2}/ndof vs. #phi;#phi_{Track};#LT #chi^{2}/ndof #GT",100,-3.15,3.15));
-  vTrackProfiles_.push_back(tfd.make<TProfile>("p_chi2_vs_eta","#chi^{2} vs. #eta;#eta_{Track};#LT #chi^{2} #GT",100,-3.15,3.15));  
-  vTrackProfiles_.push_back(tfd.make<TProfile>("p_normchi2_vs_eta","#chi^{2}/ndof vs. #eta;#eta_{Track};#LT #chi^{2}/ndof #GT",100,-3.15,3.15));
-  vTrackProfiles_.push_back(tfd.make<TProfile>("p_kappa_vs_phi","#kappa vs. #phi;#phi_{Track};#kappa",100,-3.15,3.15));
-  vTrackProfiles_.push_back(tfd.make<TProfile>("p_kappa_vs_eta","#kappa vs. #eta;#eta_{Track};#kappa",100,-3.15,3.15));
+  vTrackProfiles_.push_back(tfd.make<TProfile>("p_d0_vs_phi",
+					       "Transverse Impact Parameter vs. #phi;#phi_{Track};#LT d_{0} #GT [cm]",
+					       100,-3.15,3.15));
+  vTrackProfiles_.push_back(tfd.make<TProfile>("p_dz_vs_phi",
+					       "Longitudinal Impact Parameter vs. #phi;#phi_{Track};#LT d_{z} #GT [cm]",
+					       100,-3.15,3.15));
+  vTrackProfiles_.push_back(tfd.make<TProfile>("p_d0_vs_eta",
+					       "Transverse Impact Parameter vs. #eta;#eta_{Track};#LT d_{0} #GT [cm]",
+					       100,-3.15,3.15));
+  vTrackProfiles_.push_back(tfd.make<TProfile>("p_dz_vs_eta",
+					       "Longitudinal Impact Parameter vs. #eta;#eta_{Track};#LT d_{z} #GT [cm]",
+					       100,-3.15,3.15));
+  vTrackProfiles_.push_back(tfd.make<TProfile>("p_chi2_vs_phi",
+					       "#chi^{2} vs. #phi;#phi_{Track};#LT #chi^{2} #GT",
+					       100,-3.15,3.15));
+  vTrackProfiles_.push_back(tfd.make<TProfile>("p_normchi2_vs_phi",
+					       "#chi^{2}/ndof vs. #phi;#phi_{Track};#LT #chi^{2}/ndof #GT",
+					       100,-3.15,3.15));
+  vTrackProfiles_.push_back(tfd.make<TProfile>("p_chi2_vs_eta",
+					       "#chi^{2} vs. #eta;#eta_{Track};#LT #chi^{2} #GT",
+					       100,-3.15,3.15));  
+  vTrackProfiles_.push_back(tfd.make<TProfile>("p_normchi2_vs_eta",
+					       "#chi^{2}/ndof vs. #eta;#eta_{Track};#LT #chi^{2}/ndof #GT",
+					       100,-3.15,3.15));
+  vTrackProfiles_.push_back(tfd.make<TProfile>("p_kappa_vs_phi",
+					       "#kappa vs. #phi;#phi_{Track};#kappa",
+					       100,-3.15,3.15));
+  vTrackProfiles_.push_back(tfd.make<TProfile>("p_kappa_vs_eta",
+					       "#kappa vs. #eta;#eta_{Track};#kappa",
+					       100,-3.15,3.15));
+  vTrackProfiles_.push_back(tfd.make<TProfile>("p_ptResolution_vs_phi",
+					       "#delta_{p_{T}}/p_{T}^{track};#phi^{track};#delta_{p_{T}}/p_{T}^{track}",
+					       100, -3.15,3.15));
+  vTrackProfiles_.push_back(tfd.make<TProfile>("p_ptResolution_vs_eta",
+					       "#delta_{p_{T}}/p_{T}^{track};#eta^{track};#delta_{p_{T}}/p_{T}^{track}",
+					       100, -3.15,3.15));
 
 
-  vTrack2DHistos_.push_back(tfd.make<TH2F>("h2_d0_vs_phi","Transverse Impact Parameter vs. #phi;#phi_{Track};d_{0} [cm]",100, -3.15, 3.15, 100,-1.,1.) );
-  vTrack2DHistos_.push_back(tfd.make<TH2F>("h2_dz_vs_phi","Longitudinal Impact Parameter vs. #phi;#phi_{Track};d_{z} [cm]",100, -3.15, 3.15, 100,-100.,100.));
-  vTrack2DHistos_.push_back(tfd.make<TH2F>("h2_d0_vs_eta","Transverse Impact Parameter vs. #eta;#eta_{Track};d_{0} [cm]",100, -3.15, 3.15, 100,-1.,1.));
-  vTrack2DHistos_.push_back(tfd.make<TH2F>("h2_dz_vs_eta","Longitudinal Impact Parameter vs. #eta;#eta_{Track};d_{z} [cm]",100, -3.15, 3.15, 100,-100.,100.));
-  vTrack2DHistos_.push_back(tfd.make<TH2F>("h2_chi2_vs_phi","#chi^{2} vs. #phi;#phi_{Track};#chi^{2}",100, -3.15, 3.15, 500, 0., 500.));
-  vTrack2DHistos_.push_back(tfd.make<TH2F>("h2_normchi2_vs_phi","#chi^{2}/ndof vs. #phi;#phi_{Track};#chi^{2}/ndof",100, -3.15, 3.15, 100, 0., 10.));
-  vTrack2DHistos_.push_back(tfd.make<TH2F>("h2_chi2_vs_eta","#chi^{2} vs. #eta;#eta_{Track};#chi^{2}",100, -3.15, 3.15, 500, 0., 500.));  
-  vTrack2DHistos_.push_back(tfd.make<TH2F>("h2_normchi2_vs_eta","#chi^{2}/ndof vs. #eta;#eta_{Track};#chi^{2}/ndof",100,-3.15,3.15, 100, 0., 10.));
-  vTrack2DHistos_.push_back(tfd.make<TH2F>("h2_kappa_vs_phi","#kappa vs. #phi;#phi_{Track};#kappa",100,-3.15,3.15, 100, .0,.05));
-  vTrack2DHistos_.push_back(tfd.make<TH2F>("h2_kappa_vs_eta","#kappa vs. #eta;#eta_{Track};#kappa",100,-3.15,3.15, 100, .0,.05));
+  vTrack2DHistos_.push_back(tfd.make<TH2F>("h2_d0_vs_phi",
+					   "Transverse Impact Parameter vs. #phi;#phi_{Track};d_{0} [cm]",
+					   100, -3.15, 3.15, 100,-1.,1.) );
+  vTrack2DHistos_.push_back(tfd.make<TH2F>("h2_dz_vs_phi",
+					   "Longitudinal Impact Parameter vs. #phi;#phi_{Track};d_{z} [cm]",
+					   100, -3.15, 3.15, 100,-100.,100.));
+  vTrack2DHistos_.push_back(tfd.make<TH2F>("h2_d0_vs_eta",
+					   "Transverse Impact Parameter vs. #eta;#eta_{Track};d_{0} [cm]",
+					   100, -3.15, 3.15, 100,-1.,1.));
+  vTrack2DHistos_.push_back(tfd.make<TH2F>("h2_dz_vs_eta",
+					   "Longitudinal Impact Parameter vs. #eta;#eta_{Track};d_{z} [cm]",
+					   100, -3.15, 3.15, 100,-100.,100.));
+  vTrack2DHistos_.push_back(tfd.make<TH2F>("h2_chi2_vs_phi",
+					   "#chi^{2} vs. #phi;#phi_{Track};#chi^{2}",
+					   100, -3.15, 3.15, 500, 0., 500.));
+  vTrack2DHistos_.push_back(tfd.make<TH2F>("h2_normchi2_vs_phi",
+					   "#chi^{2}/ndof vs. #phi;#phi_{Track};#chi^{2}/ndof",
+					   100, -3.15, 3.15, 100, 0., 10.));
+  vTrack2DHistos_.push_back(tfd.make<TH2F>("h2_chi2_vs_eta",
+					   "#chi^{2} vs. #eta;#eta_{Track};#chi^{2}",
+					   100, -3.15, 3.15, 500, 0., 500.));  
+  vTrack2DHistos_.push_back(tfd.make<TH2F>("h2_normchi2_vs_eta",
+					   "#chi^{2}/ndof vs. #eta;#eta_{Track};#chi^{2}/ndof",
+					   100,-3.15,3.15, 100, 0., 10.));
+  vTrack2DHistos_.push_back(tfd.make<TH2F>("h2_kappa_vs_phi",
+					   "#kappa vs. #phi;#phi_{Track};#kappa",
+					   100,-3.15,3.15, 100, .0,.05));
+  vTrack2DHistos_.push_back(tfd.make<TH2F>("h2_kappa_vs_eta",
+					   "#kappa vs. #eta;#eta_{Track};#kappa",
+					   100,-3.15,3.15, 100, .0,.05));
  
 
 }
@@ -468,8 +539,8 @@ TH1* TrackerOfflineValidation::bookTH1F(bool isTransient, TFileDirectory& tfd, c
 		int nBinsX, float lowX, float highX)
 {
   if(isTransient) {
-    vDeleteObjects.push_back(new TH1F(histName, histTitle, nBinsX, lowX, highX));
-    return vDeleteObjects.back(); // return last element of vector
+    vDeleteObjects_.push_back(new TH1F(histName, histTitle, nBinsX, lowX, highX));
+    return vDeleteObjects_.back(); // return last element of vector
   }
   else
     return tfd.make<TH1F>(histName, histTitle, nBinsX, lowX, highX);
@@ -658,7 +729,10 @@ TrackerOfflineValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
     vTrackHistos_[chi2index]->Fill(it->chi2);
     static const int ptindex = this->GetIndex(vTrackHistos_,"h_pt");
     vTrackHistos_[ptindex]->Fill(it->pt);
-    
+    if(it->ptError != 0.) {
+      static const int ptResolutionindex = this->GetIndex(vTrackHistos_,"h_ptResolution");
+      vTrackHistos_[ptResolutionindex]->Fill(it->ptError/it->pt);
+    }
     // Fill track profiles
     static const int d0phiindex = this->GetIndex(vTrackProfiles_,"p_d0_vs_phi");
     vTrackProfiles_[d0phiindex]->Fill(it->phi,it->d0);
@@ -680,6 +754,10 @@ TrackerOfflineValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
     vTrackProfiles_[kappaphiindex]->Fill(it->phi,it->kappa);
     static const int kappaetaindex = this->GetIndex(vTrackProfiles_,"p_kappa_vs_eta");
     vTrackProfiles_[kappaetaindex]->Fill(it->eta,it->kappa);
+    static const int ptResphiindex = this->GetIndex(vTrackProfiles_,"p_ptResolution_vs_phi");
+    vTrackProfiles_[ptResphiindex]->Fill(it->phi,it->ptError/it->pt);
+    static const int ptResetaindex = this->GetIndex(vTrackProfiles_,"p_ptResolution_vs_eta");
+    vTrackProfiles_[ptResetaindex]->Fill(it->eta,it->ptError/it->pt);
 
     // Fill 2D track histos
     static const int d0phiindex_2d = this->GetIndex(vTrack2DHistos_,"h2_d0_vs_phi");
@@ -852,7 +930,7 @@ TrackerOfflineValidation::bookSummaryHists(TFileDirectory &tfd, const Alignable&
 				Form("Summary for substructures in %s %d (normalized X' - coordinate);%s ;#LT #Delta x #GT",
 				     aliobjid.typeToName(alitype).c_str(),i,aliobjid.typeToName(subtype).c_str()),
 				subsize,0.5,subsize+0.5)  ;
-
+    
     sumContainer.summaryYResiduals_ = tfd.make<TH1F>(Form("h_summaryY%s_%d",aliobjid.typeToName(alitype).c_str(),i), 
 				Form("Summary for substructures in %s %d (Y' - coordinate);%s;#LT #Delta y #GT",
 				     aliobjid.typeToName(alitype).c_str(),i,aliobjid.typeToName(subtype).c_str()),
@@ -874,7 +952,7 @@ TrackerOfflineValidation::bookSummaryHists(TFileDirectory &tfd, const Alignable&
 				Form("Summary for substructures in %s %d (normalized X' - coordinate);%s;#LT #Delta x #GT",
 				     aliobjid.typeToName(alitype).c_str(),i,aliobjid.typeToName(subtype).c_str()),
 				(2*subsize),0.5,2*subsize+0.5)  ;  
-
+    
     sumContainer.summaryYResiduals_ = tfd.make<TH1F>(Form("h_summaryY%s_%d",aliobjid.typeToName(alitype).c_str(),i), 
 				Form("Summary for substructures in %s %d (Y' - coordinate);%s;#LT #Delta y #GT",
 				     aliobjid.typeToName(alitype).c_str(),i,aliobjid.typeToName(subtype).c_str()),
