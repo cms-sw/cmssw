@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2008/07/13 08:49:55 $
- * $Revision: 1.74 $
+ * $Date: 2008/09/01 07:57:01 $
+ * $Revision: 1.75 $
  * \author C. Bernet
  * \author G. Della Ricca
  * \author E. Di Marco
@@ -40,10 +40,8 @@ EBTriggerTowerTask::EBTriggerTowerTask(const ParameterSet& ps) {
 
   mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
 
-  reserveArray(meEtMapReal_);
   reserveArray(meVetoReal_);
   reserveArray(meFlagsReal_);
-  reserveArray(meEtMapEmul_);
   reserveArray(meVetoEmul_);
   reserveArray(meFlagsEmul_);
   reserveArray(meEmulError_);
@@ -99,12 +97,13 @@ void EBTriggerTowerTask::endRun(const Run& r, const EventSetup& c) {
 
 void EBTriggerTowerTask::reset(void) {
 
+  if( meEtMapReal_ ) meEtMapReal_->Reset();
+  if( meEtMapEmul_ ) meEtMapEmul_->Reset();
+
   for (int i = 0; i < 36; i++) {
 
-    if ( meEtMapReal_[i] ) meEtMapReal_[i]->Reset();
     if ( meVetoReal_[i] ) meVetoReal_[i]->Reset();
     if ( meFlagsReal_[i] ) meFlagsReal_[i]->Reset();
-    if ( meEtMapEmul_[i] ) meEtMapEmul_[i]->Reset();
     if ( meVetoEmul_[i] ) meVetoEmul_[i]->Reset();
     if ( meFlagsEmul_[i] ) meFlagsEmul_[i]->Reset();
     if ( meEmulError_[i] ) meEmulError_[i]->Reset();
@@ -136,12 +135,10 @@ void EBTriggerTowerTask::setup( const char* nameext,
                                 const char* folder,
                                 bool emulated ) {
 
-  array1*  meEtMap = &meEtMapReal_;
   array1*  meVeto = &meVetoReal_;
   array1*  meFlags = &meFlagsReal_;
 
   if( emulated ) {
-    meEtMap = &meEtMapEmul_;
     meVeto = &meVetoEmul_;
     meFlags= &meFlagsEmul_;
   }
@@ -161,18 +158,23 @@ void EBTriggerTowerTask::setup( const char* nameext,
   string emulFineGrainVetoErrorName = "EBTTT EmulFineGrainVetoError";
   string emulFlagErrorName = "EBTTT EmulFlagError";
 
+  if ( !emulated ) {
+    meEtMapReal_ = dqmStore_->book2D(etMapName.c_str(), etMapName.c_str(),
+				     68*36, 0, 68*36, 
+				     256, 0, 256.);
+    meEtMapReal_->setAxisTitle("iTT", 1);
+    meEtMapReal_->setAxisTitle("compressed E_{T}", 2);
+  }
+
+  if ( emulated ) {
+    meEtMapEmul_ = dqmStore_->book2D(etMapName.c_str(), etMapName.c_str(),
+				     68*36, 0, 68*36,
+				     256, 0, 256.);
+    meEtMapEmul_->setAxisTitle("iTT", 1);
+    meEtMapEmul_->setAxisTitle("compressed E_{T}", 2);
+  }
+
   for (int i = 0; i < 36; i++) {
-
-    string etMapNameSM = etMapName;
-    etMapNameSM += " " + Numbers::sEB(i+1);
-
-    (*meEtMap)[i] = dqmStore_->book3D(etMapNameSM.c_str(), etMapNameSM.c_str(),
-                                nTTEta, 0, nTTEta,
-                                nTTPhi, 0, nTTPhi,
-                                256, 0, 256.);
-    (*meEtMap)[i]->setAxisTitle("ieta'", 1);
-    (*meEtMap)[i]->setAxisTitle("iphi'", 2);
-    dqmStore_->tag((*meEtMap)[i], i+1);
 
     string  fineGrainVetoNameSM = fineGrainVetoName;
     fineGrainVetoNameSM += " " + Numbers::sEB(i+1);
@@ -308,13 +310,13 @@ void EBTriggerTowerTask::analyze(const Event& e, const EventSetup& c){
 void
 EBTriggerTowerTask::processDigis( const Handle<EcalTrigPrimDigiCollection>&
                                   digis,
-                                  array1& meEtMap,
+                                  MonitorElement* meEtMap,
                                   array1& meVeto,
                                   array1& meFlags,
                                   const Handle<EcalTrigPrimDigiCollection>&
                                   compDigis ) {
 
-  LogDebug("EBTriggerTowerTask")<<"processing "<<meEtMap[0]->getName()<<endl;
+  LogDebug("EBTriggerTowerTask")<<"processing "<<meEtMapReal_->getName()<<endl;
 
   ostringstream  str;
   for ( EcalTrigPrimDigiCollection::const_iterator tpdigiItr = digis->begin();
@@ -328,6 +330,9 @@ EBTriggerTowerTask::processDigis( const Handle<EcalTrigPrimDigiCollection>&
     int ismt = Numbers::iSM( idt );
 
     int itt = Numbers::iTT( idt );
+    int itcc = Numbers::TCCid(idt);
+
+    int xitt = 68*(itcc-37)+itt-1;
 
     int iet = abs(idt.ieta());
     int ipt = idt.iphi();
@@ -350,8 +355,8 @@ EBTriggerTowerTask::processDigis( const Handle<EcalTrigPrimDigiCollection>&
     float xval;
 
     xval = data.compressedEt();
-    if ( meEtMap[ismt-1] ) {
-      meEtMap[ismt-1]->Fill(xiet, xipt, xval);
+    if ( meEtMap ) {
+      meEtMap->Fill(xitt, xval);
     }
     else {
       LogError("EBTriggerTowerTask")<<"histo does not exist "<<endl;
