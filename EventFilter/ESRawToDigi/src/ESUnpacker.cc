@@ -156,7 +156,7 @@ void ESUnpacker::interpretRawData(int fedId, const FEDRawData & rawData, ESDigiC
       vmajor = (*word >> 48) & 0x00ff;
     }
   }
-  cout<<"ES version : "<<vmajor<<" "<<vminor<<endl;
+  //cout<<"ES version : "<<vmajor<<" "<<vminor<<endl;
   // DCC data
   int dccHeaderCount = 0;
   dccLineCount = 0;
