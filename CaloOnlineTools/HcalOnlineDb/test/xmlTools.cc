@@ -270,7 +270,12 @@ int main( int argc, char **argv )
 	}
 	string _tag = vm["tag-name"].as<string>();
 	HcalLutManager manager;
-	manager . createAllLutXmlFiles( _tag, lin_master_file, comp_master_file, !vm.count("do-not-split-by-crate") );
+	if (comp_master_file.find("nofile")==string::npos){
+	  manager . createAllLutXmlFiles( _tag, lin_master_file, comp_master_file, !vm.count("do-not-split-by-crate") );
+	}
+	else{
+	  manager . createLinLutXmlFiles( _tag, lin_master_file, !vm.count("do-not-split-by-crate") );
+	}
 	break;
       }
       return 0;
@@ -284,7 +289,7 @@ int main( int argc, char **argv )
       }
       string _tag = vm["tag-name"].as<string>();
       HcalLutManager manager;
-      //manager . createAllLutXmlFilesFromCoder( _tag, !vm.count("do-not-split-by-crate") );
+      manager . createCompLutXmlFilesFromCoder( _tag, !vm.count("do-not-split-by-crate") );
       return 0;
     }
     

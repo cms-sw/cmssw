@@ -47,9 +47,12 @@ class HcalLutManager{
   std::string & getLutXml( std::vector<unsigned int> & _lut );
 
   // crate=-1 stands for all crates
+  // legacy - use old LMAP. Use the xxxEmap method instead
   std::map<int, shared_ptr<LutXml> > getLutXmlFromAsciiMaster( string _filename, string _tag, int _crate = -1, bool split_by_crate = true );
-  std::map<int, shared_ptr<LutXml> > getCompressionLutXmlFromAsciiMaster( string _filename, string _tag, int _crate = -1, bool split_by_crate = true );
   std::map<int, shared_ptr<LutXml> > getLinearizationLutXmlFromCoder( const HcalTPGCoder & _coder, string _tag, bool split_by_crate = true );
+
+  std::map<int, shared_ptr<LutXml> > getLinearizationLutXmlFromAsciiMasterEmap( string _filename, string _tag, int _crate, bool split_by_crate = true );
+  std::map<int, shared_ptr<LutXml> > getCompressionLutXmlFromAsciiMaster( string _filename, string _tag, int _crate = -1, bool split_by_crate = true );
   std::map<int, shared_ptr<LutXml> > getLinearizationLutXmlFromCoderEmap( const HcalTPGCoder & _coder, string _tag, bool split_by_crate = true );
   std::map<int, shared_ptr<LutXml> > getCompressionLutXmlFromCoder( string _tag, bool split_by_crate = true );
 
@@ -62,6 +65,7 @@ class HcalLutManager{
   int writeLutXmlFiles( std::map<int, shared_ptr<LutXml> > & _xml, string _tag = "default_tag", bool split_by_crate = true );
 
   int createLinLutXmlFiles( string _tag, string _lin_file, bool split_by_crate = true );
+  int createCompLutXmlFilesFromCoder( string _tag, bool split_by_crate = true );
   int createAllLutXmlFiles( string _tag, string _lin_file, string _comp_file, bool split_by_crate = true );
   int createAllLutXmlFilesFromCoder( const HcalTPGCoder & _coder, string _tag, bool split_by_crate = true );
   int createAllLutXmlFilesLinAsciiCompCoder( string _tag, string _lin_file, bool split_by_crate = true );

@@ -240,13 +240,21 @@ genLutXml()
 	echo -n 'Linearization LUT master file:'
 	read lin_master
 	echo ''
-	echo -n 'Compression LUT master file:'
+	echo -n 'Compression LUT master file (enter if none):'
 	read comp_master
+	if [ -z "$comp_master" ]
+	then
+	    comp_master=nofile
+	fi
 	echo ''
 #    echo -n 'Split XML files by crate? (y/n)'
 #    read split_by_crate
 #    echo ''
     dialog --title "Question" --yesno "Split XML files by crate?" 0 0 || split_by_crate=0
+    if [ -z "$split_by_crate" ]
+    then
+	split_by_crate=1
+    fi
 
     if [ $split_by_crate -eq 0 ]
     then
@@ -276,11 +284,9 @@ lutXml()
 {
   echo ''
   echo '  -- LUT menu'
-#  echo ' 1. Generate linearization (input) LUT XML'
-#  echo ' 2. Generate compression (output) LUT XML'
   echo ' 1. Generate a set of LUT XML from master files'
-  echo ' 2. Generate a set of LUT XML from HcaluLUTTPGCoder (no master files needed)'
-  echo ' 3. Prepare LUTs for uploading to the database'
+  echo ' 2. Generate a set of compression LUT XML from the TPG coder (no master files needed)'
+  echo ' 9. Prepare LUTs for uploading to the database'
   echo ' 0. Main menu'
   
   echo ''
@@ -296,12 +302,12 @@ lutXml()
         genLutXml
 	;;
       2)
-        echo 'Generating a set of LUT XML from HcaluLUTTPGCoder...'
+        echo 'Generating a set of compression LUT XML from the TPG coder...'
 	echo ''
         _type=3        
         genLutXmlFromCoder
 	;;
-      3)
+      9)
         lutMenu
 	;;
       0)
