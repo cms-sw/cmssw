@@ -8,6 +8,8 @@
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiEvtSolution.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiMassSolution.h"
 #include "AnalysisDataFormats/TopObjects/interface/JetRejObs.h"
+#include "AnalysisDataFormats/TopObjects/interface/CATopJetTagInfo.h"
+#include "DataFormats/JetReco/interface/BasicJet.h"
 
 #include "DataFormats/Common/interface/Wrapper.h"
 
@@ -68,6 +70,22 @@ namespace {
     edm::Wrapper<std::vector<TtDilepEvtSolution> > w_v_ttdilep;
     edm::Wrapper<std::vector<TtSemiEvtSolution> > w_v_ttsemi;
     edm::Wrapper<std::vector<TtHadEvtSolution> > w_v_tthad;
-    edm::Wrapper<std::vector<StEvtSolution> > w_v_st;    
+    edm::Wrapper<std::vector<StEvtSolution> > w_v_st;   
+
+
+    edm::reftobase::Holder<reco::Jet, reco::BasicJetRef> hbj;
+    edm::reftobase::RefHolder<reco::BasicJetRef> rhbj;
+
+    reco::CATopJetProperties                                            catopjetp;
+    std::pair<edm::RefToBase<reco::Jet>, reco::CATopJetProperties>      catopjetp_p;
+
+    reco::CATopJetTagInfo                                               catopjet;
+    reco::CATopJetTagInfoCollection                                     catopjet_c;
+    reco::CATopJetTagInfoRef                                            catopjet_r;
+    reco::CATopJetTagInfoRefProd                                        catopjet_rp;
+    reco::CATopJetTagInfoRefVector                                      catopjet_rv;
+    edm::Wrapper<reco::CATopJetTagInfoCollection>                       catopjet_wc;
+    edm::reftobase::Holder<reco::BaseTagInfo, reco::CATopJetTagInfoRef> rb_catopjet;
+    edm::reftobase::RefHolder<reco::CATopJetTagInfoRef>                 rbh_catopjet; 
   }
 }
