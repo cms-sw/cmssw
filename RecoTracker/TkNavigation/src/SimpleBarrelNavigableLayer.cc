@@ -217,6 +217,19 @@ SimpleBarrelNavigableLayer::nextLayers( const FreeTrajectoryState& fts,
      }	
      wellInside(ftsWithoutErrors, dir, theOuterBarrelLayers.begin(), theOuterBarrelLayers.end(), result);	
   }
+
+  bool goingIntoTheBarrel = (!isInOutTrackBarrel && dir==alongMomentum) || (isInOutTrackBarrel && dir==oppositeToMomentum) ;
+  if (theSelfSearch){
+    if (!goingIntoTheBarrel){     LogDebug("SimpleBarrelNavigableLayer")<<" state is not going toward the center of the barrel. not adding self search.";}
+    else{
+      const BarrelDetLayer * bl = dynamic_cast<const BarrelDetLayer *>(detLayer());      uint before=result.size();
+      LogDebug("SimpleBarrelNavigableLayer")<<" I am trying to added myself as a next layer.";
+      wellInside(ftsWithoutErrors, dir, bl, result);
+      uint after=result.size();
+      if (before!=after)
+	LogDebug("SimpleBarrelNavigableLayer")<<" I have added myself as a next layer.";
+    }
+  }
   
   return result;
 }

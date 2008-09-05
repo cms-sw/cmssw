@@ -23,6 +23,7 @@ public:
   typedef std::vector<ForwardDetLayer*>             FDLC;
 
   SimpleNavigableLayer( const MagneticField* field,float eps,bool checkCrossingSide=true) :
+    theSelfSearch(false),
     theEpsilon(eps),thePropagator(field),theCheckCrossingSide(checkCrossingSide) {}
 
   virtual void setInwardLinks(const BDLC&, const FDLC&) = 0;
@@ -31,6 +32,7 @@ public:
 
   void setCheckCrossingSide(bool docheck) {theCheckCrossingSide = docheck;}
 
+  bool theSelfSearch;
 
 protected:
 
