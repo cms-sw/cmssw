@@ -13,8 +13,8 @@ cosmicsNavigationSchoolESProducer = cms.ESProducer("SkippingLayerCosmicNavigatio
                                                    noTID = cms.bool(False),
                                                    noTOB = cms.bool(False),
                                                    noTEC = cms.bool(False),
-                                                   selfSearch = cms.bool(False),
-                                                   allSelf = cms.bool(False)
+                                                   selfSearch = cms.bool(True),
+                                                   allSelf = cms.bool(True)
                                                    )
 
 
