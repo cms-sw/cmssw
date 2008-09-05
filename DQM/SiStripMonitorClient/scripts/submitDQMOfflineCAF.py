@@ -21,6 +21,7 @@ import math
 import urllib
 import time
 import datetime
+import smtplib
 
 # Constants
 
@@ -106,17 +107,7 @@ STR_textUsage            = """ CMSSW/DQM/SiStripMonitorClient/scripts/submitDQMO
       
      -d, --dataset PRIMARY_DATASET
          specify dataset for DBS query;
-         available: /Cosmics/EW35_3T_v1_CRUZET4_V3P_SuperPointing_v1/RECO
-                    /Cosmics/EW35_3T_v1_CRUZET4_V3P_TrackerPointing_v1/RECO
-                    /Cosmics/Commissioning08-EW35_3T_v1/RECO                         (default)
-                    /Cosmics/Commissioning08-EW35_3T_v1/RAW
-                    /Cosmics/CRUZET4_v1_CRZT210_V1_SuperPointing_v1/RECO
-                    /Cosmics/CRUZET4_v1_CRZT210_V1_TrackerPointing_v1/RECO
-                    /Cosmics/Commissioning08_CRUZET4_V2P_CRUZET4_InterimReco_v3/RECO
-                    /Cosmics/Commissioning08-CRUZET4_v1/RECO
-                    /Cosmics/Commissioning08-CRUZET4_v1/RAW
-                    /Cosmics/Commissioning08-MW33_v1/RECO
-                    /Cosmics/Commissioning08-MW33_v1/RAW
+         default: /Cosmics/Commissioning08-EW35_3T_v1/RECO
                     
      -o, --outpath PATH
          path to copy job output *.root files to;
@@ -142,17 +133,6 @@ STR_email      = 'volker.adler@cern.ch'
 INT_jobs       = 10
 BOOL_filter    = False
 STR_dataset    = '/Cosmics/Commissioning08-EW35_3T_v1/RECO'
-DICT_datasets = { '/Cosmics/EW35_3T_v1_CRUZET4_V3P_SuperPointing_v1/RECO'           :'/store/data/EW35_3T_v1/Cosmics/RECO/CRUZET4_V3P_SuperPointing_v1'           ,
-                  '/Cosmics/EW35_3T_v1_CRUZET4_V3P_TrackerPointing_v1/RECO'         :'/store/data/EW35_3T_v1/Cosmics/RECO/CRUZET4_V3P_TrackerPointing_v1'         ,
-                  STR_dataset                                                       :'/store/data/Commissioning08/Cosmics/RECO/EW35_3T_v1'                        ,
-                  '/Cosmics/Commissioning08-EW35_3T_v1/RAW'                         :'/store/data/Commissioning08/Cosmics/RAW/EW35_3T_v1'                         ,
-                  '/Cosmics/CRUZET4_v1_CRZT210_V1_SuperPointing_v1/RECO'            :'/store/data/CRUZET4_v1/Cosmics/RECO/CRZT210_V1_SuperPointing_v1'            ,
-                  '/Cosmics/CRUZET4_v1_CRZT210_V1_TrackerPointing_v1/RECO'          :'/store/data/CRUZET4_v1/Cosmics/RECO/CRZT210_V1_TrackerPointing_v1'          ,
-                  '/Cosmics/Commissioning08_CRUZET4_V2P_CRUZET4_InterimReco_v3/RECO':'/store/data/Commissioning08/Cosmics/RECO/CRUZET4_V2P_CRUZET4_InterimReco_v3',
-                  '/Cosmics/Commissioning08-CRUZET4_v1/RECO'                        :'/store/data/Commissioning08/Cosmics/RECO/CRUZET4_v1'                        ,
-                  '/Cosmics/Commissioning08-CRUZET4_v1/RAW'                         :'/store/data/Commissioning08/Cosmics/RAW/CRUZET4_v1'                         ,
-                  '/Cosmics/Commissioning08-MW33_v1/RECO'                           :'/store/data/Commissioning08/Cosmics/RECO/MW33_v1'                           ,
-                  '/Cosmics/Commissioning08-MW33_v1/RAW'                            :'/store/data/Commissioning08/Cosmics/RAW/MW33_v1'                            }
 STR_outpath    = '/castor/cern.ch/user/c/cctrack/DQM'
 BOOL_useCastor = True
 STR_mergepath  = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_TRACKER/DQM/SiStrip/jobs/merged'
@@ -172,6 +152,31 @@ DICT_optionLetters   = {'--run'      :LSTR_optionLetters[0],
                         '--dataset'  :LSTR_optionLetters[7],
                         '--outpath'  :LSTR_optionLetters[8],
                         '--mergepath':LSTR_optionLetters[9]}
+STR_mailSmtp        = 'localhost'
+STR_mailServer      = '@mail.cern.ch'
+STR_mailTextOpener  = """Dear """ + os.getenv('USER').capitalize() + """,
+
+on """ + str(time.ctime()) + """, you have submitted run """
+STR_mailTextExplain = """
+for SiStrip offline DQM at the CAF.
+Unfortunately, this needed to be done from your private account. So, only you
+are able to finalize this submission -- even after the end of your shift."""
+STR_mailTextCRABNo  = """
+To do so, please forward all emails from the LSF batch system referring to the
+respective jobs to the list  t h i s  message was sent to."""
+STR_mailTextFinish  = """
+-- and then your shift is  r e a l l y  done :-)
+
+We are very sorry for the inconvenience.
+Thanks a lot!
+
+Best regards,
+your SiStrip DQM team
+
+P.S.:
+To reply to this email, simply use the "Reply to all" function of your email
+client.
+"""
                         
 # Globals
 
@@ -453,25 +458,26 @@ elif Str_server == LSTR_server[2]: # FIXME: put "bari" back as soon as available
 elif not Str_server == STR_server: # FIXME: CRAB server submission disabled at the moment. 
   print '> submitDQMOfflineCAF.py > CRAB server submission disabled at the moment'
   Func_Exit()
+# on number of jobs
+if Int_jobs == 0:
+  Int_jobs = 1
+  print '> submitDQMOfflineCAF.py > number of requested jobs was 0'
+  print '                           set to 1'
 # on primary dataset
 # data tier
-# FIXME: more sophisticated LFN determination for dataset
-if not DICT_datasets.has_key(Str_dataset):
-  print '> submitDQMOfflineCAF.py > dataset "%s" not registered' %(Str_dataset)
-  Func_Exit()
-Str_datatier = string.split(Str_dataset, '/')[-1]
+Str_datatier = Str_dataset.split('/')[-1]
 if not Str_datatier in LSTR_datatiers:
   print '> submitDQMOfflineCAF.py > datatier "%s" not processable' %(Str_datatier)
   Func_Exit()
 # on path for job output
 # use CASTOR
-if string.split(Str_outpath,'/')[1] == 'afs':
+if Str_outpath.split('/')[1] == 'afs':
   Bool_useCastor = False
-elif string.split(Str_outpath,'/')[1] != 'castor':
+elif Str_outpath.split('/')[1] != 'castor':
   print '> submitDQMOfflineCAF.py > output path not accepted'
   Func_ExitUsage()
 # on path for merged output
-if string.split(Str_mergepath,'/')[1] != 'afs':
+if Str_mergepath.split('/')[1] != 'afs':
   print '> submitDQMOfflineCAF.py > merge path not accepted'
   Func_ExitUsage()
   
@@ -497,25 +503,31 @@ str_nameInputFilesFile = str_nameRun + '/' + str_nameRun + '.txt'
 int_nInputFiles    = 0
 file_inputFilesCff = file(str_nameInputFilesFile, 'w')
 # DBS query for list of input files
-str_dbsParams    = urllib.urlencode({'dbsInst':'cms_dbs_prod_global', 'blockName':'*', 'dataset':Str_dataset, 'userMode':'user', 'run':Str_run, 'what':str_suffixDBS})
-lstr_dbsOutput   = urllib.urlopen("https://cmsweb.cern.ch/dbs_discovery/getLFN_txt", str_dbsParams)
-str_pathDbsStore = DICT_datasets[Str_dataset]
-for str_iLine in lstr_dbsOutput.readlines():
-  if str_iLine.find(str_pathDbsStore) > -1:
-    int_nInputFiles += 1
-    file_inputFilesCff.write(str_iLine)
+str_dbsParams  = urllib.urlencode({'dbsInst':'cms_dbs_prod_global', 'blockName':'*', 'dataset':Str_dataset, 'userMode':'user', 'run':Str_run, 'what':str_suffixDBS})
+file_dbsOutput = urllib.urlopen("https://cmsweb.cern.ch/dbs_discovery/getLFN_txt", str_dbsParams)
+for str_iLine in file_dbsOutput.readlines():
+  lstr_wordsLine = str_iLine.split("/")
+  if len(lstr_wordsLine) >= 5:
+    if                  lstr_wordsLine[1]  == 'store'      and\
+                        lstr_wordsLine[2]  == 'data'       and\
+       Str_dataset.find(lstr_wordsLine[3]) >= 0            and\
+       Str_dataset.find(lstr_wordsLine[4]) >= 0            and\
+                        lstr_wordsLine[5]  == Str_datatier and\
+       Str_dataset.find(lstr_wordsLine[6]) >= 0            and\
+                    len(lstr_wordsLine[7]) == 3               :
+      int_nInputFiles += 1
+      file_inputFilesCff.write(str_iLine)
 if int_nInputFiles == 0:
-  print '> submitDQMOfflineCAF.py > no input files found in DBS for run ' + Str_run
+  print '> submitDQMOfflineCAF.py > no input files found in DBS for run ' + Str_run + ' in dataset ' + Str_dataset
   Func_Exit()
 file_inputFilesCff.close()
 if int_nInputFiles <= Int_jobs:
   Int_jobs = int_nInputFiles
-if Int_jobs == 0:
-  Int_jobs = 1
-nInputFilesJob = int(int_nInputFiles/Int_jobs) + 1
+# FIXME: following calculation have to be reviewed
+int_nInputFilesJob = int(int_nInputFiles/Int_jobs) + 1
 if int_nInputFiles%Int_jobs == 0:
-  nInputFilesJob -= 1
-if int_nInputFiles == nInputFilesJob*(Int_jobs-1) and Int_jobs > 1:
+  int_nInputFilesJob -= 1
+if int_nInputFiles == int_nInputFilesJob*(Int_jobs-1) and Int_jobs > 1:
   Int_jobs -= 1
 str_nJobs = str(Int_jobs)
 print '> submitDQMOfflineCAF.py > input files for run ' + Str_run + ':   ' + str(int_nInputFiles)
@@ -524,10 +536,10 @@ print
 # magnetic field
 # extract time stamps of the run
 str_cmsmonParams  = urllib.urlencode({'RUN':Str_run})
-lstr_cmsmonOutput = urllib.urlopen("http://cmsmon.cern.ch/cmsdb/servlet/RunSummary", str_cmsmonParams)
+file_cmsmonOutput = urllib.urlopen("http://cmsmon.cern.ch/cmsdb/servlet/RunSummary", str_cmsmonParams)
 str_timeBegin     = ''
 str_timeEnd       = ''
-for str_cmsmonOutput in lstr_cmsmonOutput.readlines():
+for str_cmsmonOutput in file_cmsmonOutput.readlines():
   if str_cmsmonOutput.find('HREF=Component?RUN=60302&NAME=TRACKER') >= 0:
     lstr_timeQuery = str_cmsmonOutput.split('HREF=Component?RUN=60302&NAME=TRACKER&')[1].split('>TRACKER')[0].split('&')
     for str_timeQuery in lstr_timeQuery:
@@ -543,9 +555,9 @@ for str_cmsmonOutput in lstr_cmsmonOutput.readlines():
         str_timeEnd = str_timeStamp
 # get magnetic field itself
 str_cmsmonParams  = urllib.urlencode({'TIME_BEGIN':str_timeBegin, 'TIME_END':str_timeEnd})
-lstr_cmsmonOutput = urllib.urlopen("http://cmsmon.cern.ch/cmsdb/servlet/MagnetHistory", str_cmsmonParams)
+file_cmsmonOutput = urllib.urlopen("http://cmsmon.cern.ch/cmsdb/servlet/MagnetHistory", str_cmsmonParams)
 float_avMagMeasure = -999.0
-for str_cmsmonOutput in lstr_cmsmonOutput.readlines():
+for str_cmsmonOutput in file_cmsmonOutput.readlines():
   if str_cmsmonOutput.find('BFIELD, Tesla') >= 0:
     float_avMagMeasure = float(str_cmsmonOutput.split('</A>')[0].split('>')[-1])
 # determine corresponding configuration file to be included
@@ -634,7 +646,7 @@ if Bool_CRAB:
   str_sedCommand += str_pathCmsswBasePackage + '/' + str_nameIncludePath + '/SiStripDQMOfflineGlobalRunCAF_template' + str_suffixCff + ' > ' + str_pathRunIncludeDir + '/SiStripDQMOfflineGlobalRunCAF' + str_suffixCff
   os.system(str_sedCommand)
   for int_iJob in range(Int_jobs):
-    for n_iActualLine in range(int_nLinesRead, min(int_nLinesRead+nInputFilesJob, int_nInputFiles)):
+    for n_iActualLine in range(int_nLinesRead, min(int_nLinesRead+int_nInputFilesJob, int_nInputFiles)):
       int_nLinesRead += 1
     # extend merge script
     str_nJobs = str(int_iJob+1)
@@ -696,25 +708,25 @@ else:
     file_inputFilesJobCff = file(str_pathInputFilesJobCff, 'w')
     if Bool_Python:
       file_inputFilesJobCff.write('import FWCore.ParameterSet.Config as cms\n\nsource = cms.Source ("PoolSource",\n    fileNames = cms.untracked.vstring (\n')
-      for n_iActualLine in range(int_nLinesRead, min(int_nLinesRead+nInputFilesJob, int_nInputFiles)):
+      for n_iActualLine in range(int_nLinesRead, min(int_nLinesRead+int_nInputFilesJob, int_nInputFiles)):
         # protections vs. those annoying DBS output format changes come here:
 #         str_linesInput = lstr_linesInput[n_iActualLine]
         str_linesInput = lstr_linesInput[n_iActualLine].replace(') );',',')
         # fix commata and end of line
         str_actualLine = str_linesInput
-        if (n_iActualLine+1)%nInputFilesJob == 0 or int_nLinesRead == int_nInputFiles-1:
-          str_actualLine = string.split(str_linesInput, ',')[0] + '\n'
+        if (n_iActualLine+1)%int_nInputFilesJob == 0 or int_nLinesRead == int_nInputFiles-1:
+          str_actualLine = str_linesInput.split(',')[0] + '\n'
         file_inputFilesJobCff.write(str_actualLine)
         int_nLinesRead += 1
       file_inputFilesJobCff.write('    )\n)\n')
     else:
       file_inputFilesJobCff.write('  source = PoolSource {\n    untracked vstring fileNames = {\n')
-      for n_iActualLine in range(int_nLinesRead, min(int_nLinesRead+nInputFilesJob, int_nInputFiles)):
+      for n_iActualLine in range(int_nLinesRead, min(int_nLinesRead+int_nInputFilesJob, int_nInputFiles)):
         str_linesInput = lstr_linesInput[n_iActualLine]
         # fix commata and end of line
         str_actualLine = str_linesInput
-        if (n_iActualLine+1)%nInputFilesJob == 0 or int_nLinesRead == int_nInputFiles-1:
-          str_actualLine = string.split(str_linesInput, ',')[0] + '\n'
+        if (n_iActualLine+1)%int_nInputFilesJob == 0 or int_nLinesRead == int_nInputFiles-1:
+          str_actualLine = str_linesInput.split(',')[0] + '\n'
         file_inputFilesJobCff.write(str_actualLine)
         int_nLinesRead += 1
       file_inputFilesJobCff.write('    }\n  }\n')
@@ -791,7 +803,7 @@ if Bool_CRAB:
   os.system('crab -create')
   os.chdir(str_pathCurrentDir)
 
-# submit jobs
+# Submit jobs
 
 if Dict_arguments.has_key(LSTR_functionLetters[0]):
   if Bool_CRAB:
@@ -822,3 +834,41 @@ if Dict_arguments.has_key(LSTR_functionLetters[0]):
     time.sleep(5)
     os.system('bjobs -q cmscaf')
   os.chmod(str_nameRun + '/' + str_nameMergeScript,OCT_rwx_r_r)
+
+# Send reminder email to submitter
+    
+if Dict_arguments.has_key(LSTR_functionLetters[0]):
+  str_mailFrom    = os.getenv('USER') + STR_mailServer
+  str_mailTo      = [str_mailFrom,
+                     'volker.adler@cern.ch',
+                     'suchandra.dutta@cern.ch',
+                     'domenico.giordano@cern.ch',
+                     'vitaliano.ciulli@cern.ch']
+  str_mailSubject = 'Your SiStrip offline DQM shift on ' + str(datetime.date.today()) + ', run ' + Str_run
+  str_mailText    = STR_mailTextOpener + Str_run + STR_mailTextExplain
+  if Bool_CRAB:
+    str_mailText += """
+To do so, please login on lxplus and then:
+
+$ cd """ + str_pathCurrentDir + '/' + str_nameRun + """
+$ cmsenv
+$ source /afs/cern.ch/cms/ccs/wm/scripts/Crab/crab.[SHELL]
+$ crab -status -c crab""" + str_nameRun + """
+
+As soon as all jobs are in 'Done' status, retrieve the output with
+
+$ crab -getoutput -c crab""" + str_nameRun + """
+"""
+  else:
+    str_mailText += STR_mailTextCRABNo
+  str_mailText += STR_mailTextFinish
+  str_mailMessage = """From: %s
+To: %s
+Subject: %s
+
+%s
+"""  % (str_mailFrom, ", ".join(str_mailTo), str_mailSubject, str_mailText)   
+  server = smtplib.SMTP(STR_mailSmtp)
+  server.sendmail(str_mailFrom, str_mailTo, str_mailMessage)
+  server.quit()
+
