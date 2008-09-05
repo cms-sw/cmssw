@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan 17 19:13:46 EST 2008
-// $Id: FWModelChangeManager.cc,v 1.6 2008/07/22 15:31:15 chrjones Exp $
+// $Id: FWModelChangeManager.cc,v 1.7 2008/07/29 13:22:28 chrjones Exp $
 //
 
 // system include files
@@ -97,15 +97,15 @@ FWModelChangeManager::endChanges()
 {
    assert(m_depth !=0);
    //makes sure that 'changeSignalsAreDone is called if changeSignalsAreComing_ is sent
-   boost::shared_ptr<void> guard;
+   bool guard(false);
    if(0 == --m_depth) {
+      unsigned int index = 0;
       for(std::set<const FWEventItem*>::iterator itChanges = m_itemChanges.begin();
           itChanges != m_itemChanges.end();
-          ++itChanges) {
-         if(0 == guard.get()) {
-            boost::shared_ptr<FWModelChangeManager> done(this,
-                                                           &sendChangeSignalsAreDone);
-            guard = done;
+          ++itChanges,++index) {
+         if( ! guard ) {
+            // boost::shared_ptr<FWModelChangeManager> done(this, &sendChangeSignalsAreDone);
+            guard = true;
             changeSignalsAreComing_();
          }
          m_itemChangeSignals[(*itChanges)->id()](*itChanges);
@@ -117,10 +117,9 @@ FWModelChangeManager::endChanges()
           itChanges != m_changes.end();
           ++itChanges,++itSignal) {
          if(not itChanges->empty()) {
-            if(0 == guard.get()) {
-               boost::shared_ptr<FWModelChangeManager> done(this,
-                                                              &sendChangeSignalsAreDone);
-               guard = done;
+            if( ! guard ) {
+               // boost::shared_ptr<FWModelChangeManager> done(this, &sendChangeSignalsAreDone);
+               guard = true;
                changeSignalsAreComing_();
             }
             (*itSignal)(*itChanges);
@@ -128,6 +127,7 @@ FWModelChangeManager::endChanges()
          }
       }
    }
+   if (guard) sendChangeSignalsAreDone(this);
 }
 
 void 
