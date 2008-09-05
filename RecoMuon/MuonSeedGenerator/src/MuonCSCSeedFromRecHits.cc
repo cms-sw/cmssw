@@ -165,7 +165,7 @@ bool MuonCSCSeedFromRecHits::makeSeed(const MuonRecHitContainer & hits1, const M
           ConstMuonRecHitPointer bestSeg = bestSegment();
           seed = createSeed(pt, sigmapt, bestSeg);
 
-          std::cout << "FITTED TIMESPT " << pt << " dphi " << dphi << " eta " << eta << std::endl;
+          //std::cout << "FITTED TIMESPT " << pt << " dphi " << dphi << " eta " << eta << std::endl;
           return true;
         }
 
