@@ -19,19 +19,19 @@ process.source = cms.Source("PoolSource",
 process.calo = cms.EDAnalyzer("CaloJetPlotsExample",
     JetAlgorithm  = cms.string('iterativeCone5CaloJets'),
     HistoFileName = cms.string('CaloJetPlotsExample.root'),
-    NJets         = cms.int32(100)
+    NJets         = cms.int32(2)
 )
 #############   Gen Jets   ###########################
 process.gen = cms.EDAnalyzer("GenJetPlotsExample",
     JetAlgorithm  = cms.string('iterativeCone5GenJets'),
     HistoFileName = cms.string('GenJetPlotsExample.root'),
-    NJets         = cms.int32(100)
+    NJets         = cms.int32(2)
 )
 #############   PF Jets    ###########################
 process.pf = cms.EDAnalyzer("PFJetPlotsExample",
     JetAlgorithm  = cms.string('iterativeCone5PFJets'),
     HistoFileName = cms.string('PFJetPlotsExample.root'),
-    NJets         = cms.int32(100)
+    NJets         = cms.int32(2)
 )
 #############   Path       ###########################
 process.p = cms.Path(process.calo*process.gen*process.pf)
