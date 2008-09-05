@@ -1,4 +1,4 @@
-// $Id: EventStreamService.cc,v 1.7 2008/08/27 22:37:10 biery Exp $
+// $Id: EventStreamService.cc,v 1.8 2008/09/04 17:44:18 biery Exp $
 
 #include <EventFilter/StorageManager/interface/EventStreamService.h>
 #include <EventFilter/StorageManager/interface/ProgressMarker.h>
@@ -251,7 +251,7 @@ boost::shared_ptr<FileRecord> EventStreamService::generateFileRecord()
 	 << "." << setfill('0') << std::setw(4) << lumiSection_
 	 << "." << streamLabel_ 
 	 << "." << fileName_
-         << "." << sourceId_;
+	 << "." << setfill('0') << std::setw(2) << sourceId_;
   string fileName = oss.str();
 
   shared_ptr<FileRecord> fd = shared_ptr<FileRecord>(new FileRecord(lumiSection_, fileName, filePath_));    

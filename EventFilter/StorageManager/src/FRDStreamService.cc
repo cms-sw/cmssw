@@ -1,4 +1,4 @@
-// $Id: FRDStreamService.cc,v 1.2 2008/08/14 12:10:15 loizides Exp $
+// $Id: FRDStreamService.cc,v 1.3 2008/09/04 17:44:18 biery Exp $
 
 #include <EventFilter/StorageManager/interface/FRDStreamService.h>
 #include <EventFilter/StorageManager/interface/ProgressMarker.h>
@@ -171,7 +171,7 @@ boost::shared_ptr<FileRecord> FRDStreamService::generateFileRecord()
 	 << "." << setfill('0') << std::setw(4) << lumiSection_
 	 << "." << streamLabel_ 
 	 << "." << fileName_
-         << "." << sourceId_;
+	 << "." << setfill('0') << std::setw(2) << sourceId_;
   string fileName = oss.str();
 
   shared_ptr<FileRecord> fd = shared_ptr<FileRecord>(new FileRecord(lumiSection_, fileName, filePath_));    
