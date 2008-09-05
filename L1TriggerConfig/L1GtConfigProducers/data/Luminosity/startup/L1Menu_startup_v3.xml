@@ -4081,6 +4081,11 @@
         <output_pin nr="77" pin="a" />
         <output_pin nr="77" pin="a" />
       </L1_DoubleIsoEGTopBottomCen>
+      <L1_DoubleMuTopBottom>
+        DoubleMu_0_TopBottom
+        <output_pin nr="88" pin="a" />
+        <output_pin nr="88" pin="a" />
+      </L1_DoubleMuTopBottom>
       <L1_DoubleNoIsoEGTopBottom>
         SingleNoIsoEG_1_Top AND SingleNoIsoEG_1_Bottom
         <output_pin nr="74" pin="a" />
@@ -4393,6 +4398,73 @@
       </L1_SingleTauJet80_noEE>
     </prealgos>
     <conditions>
+    <DoubleMu_0_TopBottom condition="muon" particle="muon" type="2_s">
+      <pt_h_threshold max="1f" min="00">
+      <ge_eq mode="bit">
+        1
+      </ge_eq>
+      <value>
+        01
+      </value>
+      <value>
+        01
+      </value>
+      </pt_h_threshold>
+      <pt_l_threshold max="1f" min="00">
+      <value>01<en_mip mode="bit">0</en_mip>
+            <en_iso mode="bit">
+        0
+      </en_iso>
+      <request_iso mode="bit">
+        0
+      </request_iso>
+      </value>
+      <value>01<en_mip mode="bit">0</en_mip>
+            <en_iso mode="bit">
+        0
+      </en_iso>
+      <request_iso mode="bit">
+        0
+      </request_iso>
+      </value>
+      </pt_l_threshold>
+            <eta max="ffffffffffffffff" min="0000000000000000">
+      <value>
+        FFFFFFFFFFFFFFFF
+      </value>
+      <value>
+        FFFFFFFFFFFFFFFF
+      </value>
+      </eta>
+            <phi_h max="8f" min="00">
+      <value>
+        47
+      </value>
+      <value>
+        8f
+      </value>
+      </phi_h>
+            <phi_l max="ffffffffffffffff" min="0000000000000000">
+      <value>
+        00
+      </value>
+      <value>
+        48
+      </value>
+      </phi_l>
+      <charge_correlation max="7" min="1">
+      1
+      </charge_correlation>
+            <quality max="ff" min="00">
+      <value>
+        fc
+      </value>
+      <value>
+        fc
+      </value>
+      </quality>
+      <location>A0</location>
+    </DoubleMu_0_TopBottom>
     <ETM_20 condition="esums" particle="etm" type="etm">
       <et_threshold max="fff" min="000">
       <ge_eq mode="bit">
