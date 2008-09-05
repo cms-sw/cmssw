@@ -222,9 +222,11 @@ namespace helper
               if (it->clusterRef() != lastRef) { 
                   lastRef = it->clusterRef();
                   // clone cluster
+                  if(lastRef.isAvailable()){
                   filler.push_back( *lastRef );  
                   // make new ref
                   newRef = typename HitType::ClusterRef( refprod, clusters++ );
+		  }
               } 
               // then fixup the reference
               it->rekey( newRef );
