@@ -16,8 +16,10 @@ process.MessageLogger = cms.Service("MessageLogger",
 #     ignoreTotal = cms.untracked.int32(-1) ## default is one
 # )
 
+# process.Tracer = cms.Service("Tracer")
+
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(1)
 )
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring('file:HLTFromPureRaw.root')
@@ -32,8 +34,9 @@ import HLTrigger.HLTcore.triggerSummaryAnalyzerAOD_cfi
 process.tsaAOD = HLTrigger.HLTcore.triggerSummaryAnalyzerAOD_cfi.triggerSummaryAnalyzerAOD.clone()
 import HLTrigger.HLTcore.triggerSummaryAnalyzerRAW_cfi
 process.tsaRAW = HLTrigger.HLTcore.triggerSummaryAnalyzerRAW_cfi.triggerSummaryAnalyzerRAW.clone()
-
-process.tsa = cms.Path(process.tsaAOD+process.tsaRAW)
+import HLTrigger.HLTanalyzers.hlTrigReport_cfi
+process.hltReport = HLTrigger.HLTanalyzers.hlTrigReport_cfi.hlTrigReport.clone()
+process.tsa = cms.Path(process.tsaAOD+process.tsaRAW+process.hltReport)
 
 
 process.aom = cms.OutputModule("AsciiOutputModule")
@@ -44,4 +47,7 @@ process.anal1 = cms.EDFilter("HLTAnalFilt",
 
 process.eca = cms.EDAnalyzer("EventContentAnalyzer")
 
-process.final = cms.EndPath(process.aom+process.anal1+process.eca)
+import HLTrigger.HLTcore.hltEventAnalyzerAOD_cfi
+process.hltAnalyzer = HLTrigger.HLTcore.hltEventAnalyzerAOD_cfi.hltEventAnalyzerAOD.clone()
+
+process.final = cms.EndPath(process.hltAnalyzer+process.aom+process.anal1+process.eca)
