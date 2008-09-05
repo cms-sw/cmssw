@@ -1,10 +1,21 @@
 #!/bin/bash
-# $Id: makeall.sh,v 1.2 2008/06/11 13:58:04 loizides Exp $ 
+# $Id: makeall.sh,v 1.3 2008/06/12 13:29:17 loizides Exp $ 
+
+## *** added security feature: MUST give argument "makefilesys"
+## or else file system will NOT be re-made ***
+
+nofs=$1
+
+if [ $nofs = "makefilesys" ] ; then
+    echo " **** You have asked for the file system to be re-made.."
+    echo " ...destroying all files on the SataBeast!...."
+    sleep 3;
+fi
 
 hname=`hostname | cut -d. -f1`
 echo "Host I am running on: $hname"
 
-exec 10< satamap.txt
+exec 10< ~smpro/configuration/script-generated/satamap.txt
 
 while read LINE <&10; do
 
@@ -25,7 +36,7 @@ while read LINE <&10; do
         dpath=/dev/mapper/`/sbin/multipath -l | grep -i $id | cut -d" " -f1`
         echo "Path   $dpath"
         echo "mkvol.sh $id $sata $arr $vol"
-        ./mkvol.sh $id $sata $arr $vol
+        ./mkvol.sh $id $sata $arr $vol $nofs
     fi
 done
 
