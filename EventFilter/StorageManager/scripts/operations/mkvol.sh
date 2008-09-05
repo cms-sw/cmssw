@@ -1,5 +1,8 @@
 #!/bin/bash
-# $Id: mkvol.sh,v 1.6 2008/08/17 18:15:41 loizides Exp $
+# $Id: mkvol.sh,v 1.7 2008/08/28 08:57:51 gbauer Exp $
+
+## *** added security feature: 5th argument MUST BE 'makefilesys' 
+## or else file system will NOT be made ***
 
 if test -e "/etc/profile.d/sm_env.sh"; then 
     source /etc/profile.d/sm_env.sh;
@@ -51,18 +54,31 @@ if test "$mpoint" = "$testmpoint"; then
 fi
 
 mkdir -p $mpoint
-if test -z "$nofs"; then
+if test "$nofs" = "makefilesys"; then
 #    exstr="/sbin/mkfs.ext3 -F -T largefile -m 0 -L $mlabel $dpath"
     exstr="/sbin/mkfs.xfs -f -L $mlabel $dpath"
-    echo "Executing $exstr"
     echo
-    $exstr
-
-    if test "$?" != "0"; then
-	echo "Error: Problem formatting disk, please check status!!!"
-	exit 4;
+    echo " ***********************************************************"
+    echo " ************* !! REMAKING FILE SYSTEM !! ******************"
+    echo -e "Do you REALLY want to destroy files by making a new file system? (yes/no): \c "
+    read  answer
+    if test "$answer" = "yes"; then
+	
+	echo " **===>  Executing:  $exstr"
+	echo " ***********************************************************"
+	echo
+	$exstr
+	
+	if test "$?" != "0"; then
+	    echo "Error: Problem formatting disk, please check status!!!"
+	    exit 4;
+	fi	
     fi
+
+        echo " ***********************************************************"
+        echo " ***********************************************************"
 fi
+
 
 mkdir -p $mpoint && /bin/mount -L $mlabel $mpoint
 if test "$?" != "0"; then
