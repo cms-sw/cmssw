@@ -158,6 +158,8 @@ void PFConversionsProducer::produce( edm::Event& e, const edm::EventSetup& )
 
     if (debug_) std::cout<< " Best conv " << iBestConv << std::endl;
     std::vector<reco::TrackRef> tracks = conversions[iBestConv]->tracks();
+    if ( tracks.size() < 2 ) continue;
+
     std::vector<reco::PFRecTrackRef> pfRecTracksRef;
     
     for (unsigned int i=0; i<tracks.size(); i++) {
@@ -174,11 +176,11 @@ void PFConversionsProducer::produce( edm::Event& e, const edm::EventSetup& )
 	
 	if ( &(*iTk) != &(*tracks[i]) ) continue; 
 	nFound++;
-	if (debug_) std::cout << " Found the correspnding trajectory " << std::endl;
+	if (debug_) std::cout << " Found the corresponding trajectory " << std::endl;
 	
-	reco::PFRecTrack pftrack( double(tracks[i]->charge()), reco::PFRecTrack::KF, i, tracks[i] );
+	reco::PFRecTrack pftrack( double(tracks[i]->charge()), reco::PFRecTrack::KF_ELCAND, i, tracks[i] );
 	
-	//	Trajectory FakeTraj;
+	
 	bool valid = pfTransformer_->addPoints( pftrack, *tracks[i], traj);
 	
 	if(valid) {
