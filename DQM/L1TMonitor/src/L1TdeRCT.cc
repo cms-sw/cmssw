@@ -377,11 +377,11 @@ void L1TdeRCT::beginJob(const EventSetup & c)
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
     rctRegDeltaEt2D_ =
-      dbe->book2D("rctRegDeltaEt2D", "2D region \Delta E_{T}",
+      dbe->book2D("rctRegDeltaEt2D", "2D region \\Delta E_{T}",
       CHNLBINS, CHNLMIN, CHNLMAX, 100, -50., 50.);
 
     rctRegDeltaEtOcc2D_ =
-      dbe->book2D("rctRegDeltaEtOcc2D", "2D region occupancy for \Delta E_{T}",
+      dbe->book2D("rctRegDeltaEtOcc2D", "2D region occupancy for \\Delta E_{T}",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
     // bit information
