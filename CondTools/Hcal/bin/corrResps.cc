@@ -24,7 +24,8 @@ int main (int argn, char* argv []) {
   std::vector<DetId> channels = respIn.getAllChannels ();
   for (unsigned i = 0; i < channels.size(); i++) {
     DetId id = channels[i];
-    float scale = corrsIn.getValues(id)->getValue();
+    float scale = 1.0;
+    if (corrsIn.exists(id)) scale = corrsIn.getValues(id)->getValue();
     HcalRespCorr item (id, respIn.getValues(id)->getValue() * scale);
     respOut.addValues(item);
   }
