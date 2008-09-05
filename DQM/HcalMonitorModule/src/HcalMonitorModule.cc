@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2008/08/28 17:03:29 $
- * $Revision: 1.72 $
+ * $Date: 2008/09/05 21:07:32 $
+ * $Revision: 1.73 $
  * \author W Fisher
  *
 */
@@ -447,7 +447,6 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   HOpresent_ = false;
   HFpresent_ = false;
   CheckSubdetectorStatus(*rawraw,*report,*readoutMap_);
-  cout <<"Present? HB: "<<HBpresent_<<" HE: "<<HEpresent_<<" HO: "<<HOpresent_<<" HF: "<<HFpresent_<<endl;
 
   
   // try to get digis
