@@ -10,5 +10,6 @@ int main()
   CSCTMBData::selfTest();
   CSCTMBTrailer::selfTest();
   CSCEventData::selfTest();
+  CSCCLCTData::selfTest();
 }
 
