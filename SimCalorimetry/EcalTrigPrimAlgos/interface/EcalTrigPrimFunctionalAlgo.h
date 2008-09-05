@@ -177,9 +177,10 @@ void EcalTrigPrimFunctionalAlgo::run_part2(const edm::EventSetup &setup,Coll con
       if (isInInnerRings)
         {
           nrTowers=2;
-          int phi=2*((thisTower.iphi()+1)/2)-1;
-          tptow[0]=EcalTriggerPrimitiveDigi(EcalTrigTowerDetId(thisTower.zside(),thisTower.subDet(),thisTower.ietaAbs(),phi));
-          tptow[1]=EcalTriggerPrimitiveDigi(EcalTrigTowerDetId(thisTower.zside(),thisTower.subDet(),thisTower.ietaAbs(),phi+1));
+          int phi=2*((thisTower.iphi()-1)/2);
+          tptow[0]=EcalTriggerPrimitiveDigi(EcalTrigTowerDetId(thisTower.zside(),thisTower.subDet(),thisTower.ietaAbs(),phi+1));
+          tptow[1]=EcalTriggerPrimitiveDigi(EcalTrigTowerDetId(thisTower.zside(),thisTower.subDet(),thisTower.ietaAbs(),phi+2));
+
 	  if (tcpFormat_){
 	    tptowTcp[0]=EcalTriggerPrimitiveDigi(EcalTrigTowerDetId(thisTower.zside(),thisTower.subDet(),thisTower.ietaAbs(),phi+1));
 	    tptowTcp[1]=EcalTriggerPrimitiveDigi(EcalTrigTowerDetId(thisTower.zside(),thisTower.subDet(),thisTower.ietaAbs(),phi+2));
@@ -201,9 +202,9 @@ void EcalTrigPrimFunctionalAlgo::run_part2(const edm::EventSetup &setup,Coll con
         for (int i=firstSample;i<=lastSample;++i) {
 	  tptow[nrt].setSample(isam++,EcalTriggerPrimitiveSample(towtp_[i]));
         }
- 	nrTP++;
+	nrTP++; 
         LogDebug("EcalTPG") <<" For tower "<<itow<<" created TP nr "<<nrTP<<" with Et "<<tptow[nrt].compressedEt();
-        result.push_back(tptow[nrt]);
+	result.push_back(tptow[nrt]);
       }
 
       if (tcpFormat_) {
