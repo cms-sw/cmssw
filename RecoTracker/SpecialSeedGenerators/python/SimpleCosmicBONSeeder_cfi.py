@@ -46,6 +46,7 @@ simpleCosmicBONSeeds = cms.EDProducer("SimpleCosmicBONSeeder",
         layerList = makeSimpleCosmicSeedLayers('ALL'),
         debugLevel = cms.untracked.uint32(0),  # debug triplet finding (0 to 3)
     ),
+    rescaleError    = cms.double(1),   # rescale seed error (a factor 50 was used historically for cosmics)
     writeTriplets   = cms.bool(False), # write the triplets to the Event as OwnVector<TrackingRecHit>
     helixDebugLevel = cms.untracked.uint32(0), # debug FastHelix (0 to 2)
     seedDebugLevel  = cms.untracked.uint32(0), # debug seed building (0 to 3)
