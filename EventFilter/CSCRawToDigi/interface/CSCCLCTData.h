@@ -60,6 +60,8 @@ public:
   // checks that the CFEB number and time bins are correct
   bool check() const;
 
+  // checks packing and unpacking
+  static void selfTest();
 
 
  private:
