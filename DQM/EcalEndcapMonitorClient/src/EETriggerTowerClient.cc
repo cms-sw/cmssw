@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerClient.cc
  *
- * $Date: 2008/09/02 14:23:02 $
- * $Revision: 1.74 $
+ * $Date: 2008/09/05 13:38:05 $
+ * $Revision: 1.75 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -384,12 +384,11 @@ void EETriggerTowerClient::analyze(const char* nameext,
   else {
     h02_ = UtilsClient::getHisto<TH2F*>( me, cloneME_, h02_ );
   }
-  
-  
+
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-    
+
     int ism = superModules_[i];
-    
+
     sprintf(histo, (prefixME_ + "/%s/EETTT FineGrainVeto %s %s").c_str(), folder, nameext, Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     if(!emulated) {
@@ -460,55 +459,55 @@ void EETriggerTowerClient::analyze(const char* nameext,
     for (int ix = 1; ix <= 50; ix++) {
       for (int iy = 1; iy <= 50; iy++) {
 
-	int jx = ix + Numbers::ix0EE(ism);
-	int jy = iy + Numbers::iy0EE(ism);
+        int jx = ix + Numbers::ix0EE(ism);
+        int jy = iy + Numbers::iy0EE(ism);
 
-	for (int j=0; j<2; j++) {
-	  if ( i01_[ism-1] ) me_i01_[ism-1][j]->Fill(jx-0.5, jy-0.5, i01_[ism-1]->GetBinContent(ix, iy, j+1));
-	  if ( i02_[ism-1] ) me_i02_[ism-1][j]->Fill(jx-0.5, jy-0.5, i02_[ism-1]->GetBinContent(ix, iy, j+1));
-	  if ( n01_[ism-1] ) me_n01_[ism-1][j]->Fill(jx-0.5, jy-0.5, n01_[ism-1]->GetBinContent(ix, iy, j+1));
-	}
-	for (int j=0; j<6; j++) {
-	  if ( j == 0 ) {
-	    if ( j01_[ism-1] ) me_j01_[ism-1][j]->Fill(jx-0.5, jy-0.5, j01_[ism-1]->GetBinContent(ix, iy, j+1));
-	    if ( j02_[ism-1] ) me_j02_[ism-1][j]->Fill(jx-0.5, jy-0.5, j02_[ism-1]->GetBinContent(ix, iy, j+1));
-	    if ( m01_[ism-1] ) me_m01_[ism-1][j]->Fill(jx-0.5, jy-0.5, m01_[ism-1]->GetBinContent(ix, iy, j+1));
-	  }
-	  if ( j == 1 ) {
-	    if ( j01_[ism-1] ) me_j01_[ism-1][j]->Fill(jx-0.5, jy-0.5, j01_[ism-1]->GetBinContent(ix, iy, j+1));
-	    if ( j02_[ism-1] ) me_j02_[ism-1][j]->Fill(jx-0.5, jy-0.5, j02_[ism-1]->GetBinContent(ix, iy, j+1));
-	    if ( m01_[ism-1] ) me_m01_[ism-1][j]->Fill(jx-0.5, jy-0.5, m01_[ism-1]->GetBinContent(ix, iy, j+1));
-	  }
-	  if ( j == 2 ) {
-	    if ( j01_[ism-1] ) me_j01_[ism-1][j]->Fill(jx-0.5, jy-0.5, j01_[ism-1]->GetBinContent(ix, iy, j+2));
-	    if ( j02_[ism-1] ) me_j02_[ism-1][j]->Fill(jx-0.5, jy-0.5, j02_[ism-1]->GetBinContent(ix, iy, j+2));
-	    if ( m01_[ism-1] ) me_m01_[ism-1][j]->Fill(jx-0.5, jy-0.5, m01_[ism-1]->GetBinContent(ix, iy, j+2));
-	  }
-	  if ( j == 3 ) {
-	    if ( j01_[ism-1] ) me_j01_[ism-1][j]->Fill(jx-0.5, jy-0.5, j01_[ism-1]->GetBinContent(ix, iy, j+2));
-	    if ( j02_[ism-1] ) me_j02_[ism-1][j]->Fill(jx-0.5, jy-0.5, j02_[ism-1]->GetBinContent(ix, iy, j+2));
-	    if ( m01_[ism-1] ) me_m01_[ism-1][j]->Fill(jx-0.5, jy-0.5, m01_[ism-1]->GetBinContent(ix, iy, j+2));
-	  }
-	  if ( j == 4 ) {
-	    if ( j01_[ism-1] ) me_j01_[ism-1][j]->Fill(jx-0.5, jy-0.5, j01_[ism-1]->GetBinContent(ix, iy, j+2));
-	    if ( j02_[ism-1] ) me_j02_[ism-1][j]->Fill(jx-0.5, jy-0.5, j02_[ism-1]->GetBinContent(ix, iy, j+2));
-	    if ( m01_[ism-1] ) me_m01_[ism-1][j]->Fill(jx-0.5, jy-0.5, m01_[ism-1]->GetBinContent(ix, iy, j+2));
-	  }
-	  if ( j == 5 ) {
-	    if ( j01_[ism-1] ) {
-	      me_j01_[ism-1][j]->Fill(jx-0.5, jy-0.5, j01_[ism-1]->GetBinContent(ix, iy, j+2));
-	      me_j01_[ism-1][j]->Fill(jx-0.5, jy-0.5, j01_[ism-1]->GetBinContent(ix, iy, j+3));
-	    }
-	    if ( j02_[ism-1] ) {
-	      me_j02_[ism-1][j]->Fill(jx-0.5, jy-0.5, j02_[ism-1]->GetBinContent(ix, iy, j+2));
-	      me_j02_[ism-1][j]->Fill(jx-0.5, jy-0.5, j02_[ism-1]->GetBinContent(ix, iy, j+3));
-	    }
-	    if ( m01_[ism-1] ) {
-	      me_m01_[ism-1][j]->Fill(jx-0.5, jy-0.5, m01_[ism-1]->GetBinContent(ix, iy, j+2));
-	      me_m01_[ism-1][j]->Fill(jx-0.5, jy-0.5, m01_[ism-1]->GetBinContent(ix, iy, j+3));
-	    }
-	  }
-	}
+        for (int j=0; j<2; j++) {
+          if ( i01_[ism-1] ) me_i01_[ism-1][j]->Fill(jx-0.5, jy-0.5, i01_[ism-1]->GetBinContent(ix, iy, j+1));
+          if ( i02_[ism-1] ) me_i02_[ism-1][j]->Fill(jx-0.5, jy-0.5, i02_[ism-1]->GetBinContent(ix, iy, j+1));
+          if ( n01_[ism-1] ) me_n01_[ism-1][j]->Fill(jx-0.5, jy-0.5, n01_[ism-1]->GetBinContent(ix, iy, j+1));
+        }
+        for (int j=0; j<6; j++) {
+          if ( j == 0 ) {
+            if ( j01_[ism-1] ) me_j01_[ism-1][j]->Fill(jx-0.5, jy-0.5, j01_[ism-1]->GetBinContent(ix, iy, j+1));
+            if ( j02_[ism-1] ) me_j02_[ism-1][j]->Fill(jx-0.5, jy-0.5, j02_[ism-1]->GetBinContent(ix, iy, j+1));
+            if ( m01_[ism-1] ) me_m01_[ism-1][j]->Fill(jx-0.5, jy-0.5, m01_[ism-1]->GetBinContent(ix, iy, j+1));
+          }
+          if ( j == 1 ) {
+            if ( j01_[ism-1] ) me_j01_[ism-1][j]->Fill(jx-0.5, jy-0.5, j01_[ism-1]->GetBinContent(ix, iy, j+1));
+            if ( j02_[ism-1] ) me_j02_[ism-1][j]->Fill(jx-0.5, jy-0.5, j02_[ism-1]->GetBinContent(ix, iy, j+1));
+            if ( m01_[ism-1] ) me_m01_[ism-1][j]->Fill(jx-0.5, jy-0.5, m01_[ism-1]->GetBinContent(ix, iy, j+1));
+          }
+          if ( j == 2 ) {
+            if ( j01_[ism-1] ) me_j01_[ism-1][j]->Fill(jx-0.5, jy-0.5, j01_[ism-1]->GetBinContent(ix, iy, j+2));
+            if ( j02_[ism-1] ) me_j02_[ism-1][j]->Fill(jx-0.5, jy-0.5, j02_[ism-1]->GetBinContent(ix, iy, j+2));
+            if ( m01_[ism-1] ) me_m01_[ism-1][j]->Fill(jx-0.5, jy-0.5, m01_[ism-1]->GetBinContent(ix, iy, j+2));
+          }
+          if ( j == 3 ) {
+            if ( j01_[ism-1] ) me_j01_[ism-1][j]->Fill(jx-0.5, jy-0.5, j01_[ism-1]->GetBinContent(ix, iy, j+2));
+            if ( j02_[ism-1] ) me_j02_[ism-1][j]->Fill(jx-0.5, jy-0.5, j02_[ism-1]->GetBinContent(ix, iy, j+2));
+            if ( m01_[ism-1] ) me_m01_[ism-1][j]->Fill(jx-0.5, jy-0.5, m01_[ism-1]->GetBinContent(ix, iy, j+2));
+          }
+          if ( j == 4 ) {
+            if ( j01_[ism-1] ) me_j01_[ism-1][j]->Fill(jx-0.5, jy-0.5, j01_[ism-1]->GetBinContent(ix, iy, j+2));
+            if ( j02_[ism-1] ) me_j02_[ism-1][j]->Fill(jx-0.5, jy-0.5, j02_[ism-1]->GetBinContent(ix, iy, j+2));
+            if ( m01_[ism-1] ) me_m01_[ism-1][j]->Fill(jx-0.5, jy-0.5, m01_[ism-1]->GetBinContent(ix, iy, j+2));
+          }
+          if ( j == 5 ) {
+            if ( j01_[ism-1] ) {
+              me_j01_[ism-1][j]->Fill(jx-0.5, jy-0.5, j01_[ism-1]->GetBinContent(ix, iy, j+2));
+              me_j01_[ism-1][j]->Fill(jx-0.5, jy-0.5, j01_[ism-1]->GetBinContent(ix, iy, j+3));
+            }
+            if ( j02_[ism-1] ) {
+              me_j02_[ism-1][j]->Fill(jx-0.5, jy-0.5, j02_[ism-1]->GetBinContent(ix, iy, j+2));
+              me_j02_[ism-1][j]->Fill(jx-0.5, jy-0.5, j02_[ism-1]->GetBinContent(ix, iy, j+3));
+            }
+            if ( m01_[ism-1] ) {
+              me_m01_[ism-1][j]->Fill(jx-0.5, jy-0.5, m01_[ism-1]->GetBinContent(ix, iy, j+2));
+              me_m01_[ism-1][j]->Fill(jx-0.5, jy-0.5, m01_[ism-1]->GetBinContent(ix, iy, j+3));
+            }
+          }
+        }
 
       }
     }
@@ -516,11 +515,11 @@ void EETriggerTowerClient::analyze(const char* nameext,
   }
 
   for(int xttindex = 0; xttindex<28*72; xttindex++) {
-    
+
     int tccindex=xttindex/28 + 1;
     if (tccindex > 36 ) tccindex += 36;
     int ttindex=xttindex%28 + 1;
-    
+
     int dcc=0;
     int offset = 0;
     int tccid = tccindex;
@@ -538,11 +537,11 @@ void EETriggerTowerClient::analyze(const char* nameext,
     if (tccid == 20 || tccid == 21 || tccid == 2 || tccid == 3)  dcc=2;
     if (tccid == 22 || tccid == 23 || tccid == 4 || tccid == 5)  dcc=3;
     dcc += offset;
-    
+
     int ism=0;
     // EE-
     if( dcc >=  1 && dcc <=  9 ) ism = dcc;
-    
+
     // EE+
     if( dcc >= 46 && dcc <= 54 ) ism = dcc - 45 + 9;
 
@@ -550,21 +549,21 @@ void EETriggerTowerClient::analyze(const char* nameext,
     std::vector<DetId>::iterator icryintt;
 
     for(icryintt=crystalsInTT.begin(); icryintt!=crystalsInTT.end(); icryintt++) {
-    
+
       EEDetId id = (EEDetId)(*icryintt);
-    
+
       int jx = id.ix();
       int jy = id.iy();
-    
+
       if ( ism >= 1 && ism <= 9 ) jx = 101 - jx;
 
       for (int j = 0; j <= 256; j++) {
-     	if ( h01_ ) me_h01_[ism-1]->Fill(jx-0.5, jy-0.5, j-0.5, h01_->GetBinContent(xttindex, j+1));
-     	if ( h02_ ) me_h02_[ism-1]->Fill(jx-0.5, jy-0.5, j-0.5, h02_->GetBinContent(xttindex, j+1));
+             if ( h01_ ) me_h01_[ism-1]->Fill(jx-0.5, jy-0.5, j-0.5, h01_->GetBinContent(xttindex, j+1));
+             if ( h02_ ) me_h02_[ism-1]->Fill(jx-0.5, jy-0.5, j-0.5, h02_->GetBinContent(xttindex, j+1));
       }
-    
+
     }
-    
+
   }
 
 }

@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2008/09/02 14:23:02 $
- * $Revision: 1.107 $
+ * $Date: 2008/09/05 13:36:02 $
+ * $Revision: 1.108 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -53,7 +53,7 @@ EBTriggerTowerClient::EBTriggerTowerClient(const ParameterSet& ps) {
 
   h01_ = 0;
   h02_ = 0;
- 
+
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
@@ -510,10 +510,10 @@ void EBTriggerTowerClient::analyze(const char* nameext,
   }
 
   for(int xttindex = 0; xttindex<68*36; xttindex++) {
-    
+
     int ism = xttindex/68 + 1;
     int ttindex = xttindex%68;
-    
+
     int ie = (ttindex-1)/4 + 1;
     int ip = (ttindex-1)%4 + 1;
 

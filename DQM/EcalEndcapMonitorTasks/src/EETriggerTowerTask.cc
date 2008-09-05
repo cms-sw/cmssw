@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerTask.cc
  *
- * $Date: 2008/09/01 07:57:01 $
- * $Revision: 1.39 $
+ * $Date: 2008/09/05 13:38:06 $
+ * $Revision: 1.40 $
  * \author C. Bernet
  * \author G. Della Ricca
  * \author E. Di Marco
@@ -162,16 +162,16 @@ void EETriggerTowerTask::setup( const char* nameext,
 
   if ( !emulated ) {
     meEtMapReal_ = dqmStore_->book2D(etMapName.c_str(), etMapName.c_str(),
-				     28*72, 0, 28*72, // 36 TCC/EE with max 28 TT/TCC
-				     256, 0, 256.);
+                                     28*72, 0, 28*72, // 36 TCC/EE with max 28 TT/TCC
+                                     256, 0, 256.);
     meEtMapReal_->setAxisTitle("iTT", 1);
     meEtMapReal_->setAxisTitle("compressed E_{T}", 2);
   }
 
   if ( emulated ) {
     meEtMapEmul_ = dqmStore_->book2D(etMapName.c_str(), etMapName.c_str(),
-				     28*72, 0, 28*72, // 36 TCC/EE with max 28 TT/TCC
-				     256, 0, 256.);
+                                     28*72, 0, 28*72, // 36 TCC/EE with max 28 TT/TCC
+                                     256, 0, 256.);
     meEtMapEmul_->setAxisTitle("iTT", 1);
     meEtMapEmul_->setAxisTitle("compressed E_{T}", 2);
   }
@@ -290,7 +290,7 @@ void EETriggerTowerTask::analyze(const Event& e, const EventSetup& c){
                   meFlagsReal_);
 
   } else {
-    LogWarning("EETriggerTowerTask") << realCollection_ << " not available"; 
+    LogWarning("EETriggerTowerTask") << realCollection_ << " not available";
   }
 
   Handle<EcalTrigPrimDigiCollection> emulDigis;

@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2008/09/01 07:57:01 $
- * $Revision: 1.75 $
+ * $Date: 2008/09/05 13:37:08 $
+ * $Revision: 1.76 $
  * \author C. Bernet
  * \author G. Della Ricca
  * \author E. Di Marco
@@ -160,16 +160,16 @@ void EBTriggerTowerTask::setup( const char* nameext,
 
   if ( !emulated ) {
     meEtMapReal_ = dqmStore_->book2D(etMapName.c_str(), etMapName.c_str(),
-				     68*36, 0, 68*36, 
-				     256, 0, 256.);
+                                     68*36, 0, 68*36,
+                                     256, 0, 256.);
     meEtMapReal_->setAxisTitle("iTT", 1);
     meEtMapReal_->setAxisTitle("compressed E_{T}", 2);
   }
 
   if ( emulated ) {
     meEtMapEmul_ = dqmStore_->book2D(etMapName.c_str(), etMapName.c_str(),
-				     68*36, 0, 68*36,
-				     256, 0, 256.);
+                                     68*36, 0, 68*36,
+                                     256, 0, 256.);
     meEtMapEmul_->setAxisTitle("iTT", 1);
     meEtMapEmul_->setAxisTitle("compressed E_{T}", 2);
   }
@@ -288,7 +288,7 @@ void EBTriggerTowerTask::analyze(const Event& e, const EventSetup& c){
                   meFlagsReal_);
 
   } else {
-    LogWarning("EBTriggerTowerTask") << realCollection_ << " not available"; 
+    LogWarning("EBTriggerTowerTask") << realCollection_ << " not available";
   }
 
   Handle<EcalTrigPrimDigiCollection> emulDigis;
