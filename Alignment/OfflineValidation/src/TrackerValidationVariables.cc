@@ -251,6 +251,7 @@ TrackerValidationVariables::fillTrackQuantities(const edm::Event& iEvent,
        RecoTrack !=RecoTrackEnd ; ++i, ++RecoTrack) {
     AVTrackStruct trackStruct;
     trackStruct.pt = RecoTrack->pt();
+    trackStruct.ptError = RecoTrack->ptError();
     trackStruct.px = RecoTrack->px();
     trackStruct.py = RecoTrack->py();
     trackStruct.pz = RecoTrack->pz();
