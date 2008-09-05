@@ -7,8 +7,8 @@
  *   studies
  *
  *
- *   $Date: 2008/03/04 00:13:30 $
- *   $Revision: 1.9 $
+ *   $Date: 2008/06/30 13:45:04 $
+ *   $Revision: 1.10 $
  *
  *   \author C. Battilana
  */
@@ -85,19 +85,19 @@ void DTTrigTest::endJob(){
 
 void DTTrigTest::beginJob(const EventSetup & iEventSetup){   
     
-  //get DTConfigManager
-  ESHandle< DTConfigManager > confManager ;
-  iEventSetup.get< DTConfigManagerRcd >().get( confManager ) ;
+  // get DTConfigManager
+  // ESHandle< DTConfigManager > confManager ;
+  // iEventSetup.get< DTConfigManagerRcd >().get( confManager ) ;
 
   //for testing purpose....
   //DTBtiId btiid(1,1,1,1,1);
   //confManager->getDTConfigBti(btiid)->print();
 
-  my_trig = new DTTrig(confManager.product(),my_params);
+//   my_trig = new DTTrig(my_params);
 
-  my_trig->createTUs(iEventSetup);
-  if (my_debug) 
-    cout << "[DTTrigTest] TU's Created" << endl;
+//   my_trig->createTUs(iEventSetup);
+//   if (my_debug) 
+//     cout << "[DTTrigTest] TU's Created" << endl;
   
   // BOOKING of the tree's varables
   // GENERAL block branches
@@ -199,6 +199,19 @@ void DTTrigTest::beginJob(const EventSetup & iEventSetup){
   my_tree->Branch("scthqual",scthqual,"scthqual[Nsctheta][7]/I");
 
 }
+
+void DTTrigTest::beginRun(edm::Run& iRun, const edm::EventSetup& iEventSetup) {
+
+  if (!my_trig) {
+    my_trig = new DTTrig(my_params);
+    my_trig->createTUs(iEventSetup);
+    if (my_debug)
+      cout << "[DTTrigTest] TU's Created" << endl;
+  }
+
+}
+
+
 
 void DTTrigTest::analyze(const Event & iEvent, const EventSetup& iEventSetup){
   

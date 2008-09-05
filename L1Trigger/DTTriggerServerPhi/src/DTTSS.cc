@@ -33,7 +33,7 @@
 //----------------
 // Constructors --
 //----------------
-DTTSS::DTTSS(DTConfigTSPhi* config, int n) : _config(config), _n(n), _ignoreSecondTrack(0) {
+DTTSS::DTTSS(int n) : _n(n), _ignoreSecondTrack(0) {
 
   // reserve the appropriate amount of space for vectors
   //_tctrig[0].reserve(DTConfigTSPhi::NTCTSS);

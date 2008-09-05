@@ -4,8 +4,8 @@
  *    Implementation of TSS trigger algorithm
  *
  *
- *   $Date: 2006/07/19 10:41:15 $
- *   $Revision: 1.1 $
+ *   $Date: 2007/02/09 11:22:02 $
+ *   $Revision: 1.2 $
  *
  *   \author C. Grandi, D. Bonacorsi, S. Marcellini
  */
@@ -40,13 +40,16 @@ class DTTSS {
   public:
 
     /// Constructor
-    DTTSS(DTConfigTSPhi*, int);
+    DTTSS(int);
   
     /// Destructor 
     ~DTTSS();
 
     /// Add a TS candidate to the TSS, ifs is first/second track flag
     void addDTTSCand(DTTSCand* cand);
+
+    /// Set configuration
+    void setConfig(DTConfigTSPhi *config) {  _config=config; }
 
     /// Set a flag to skip sort2
     void ignoreSecondTrack() { _ignoreSecondTrack=1; }

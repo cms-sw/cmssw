@@ -4,8 +4,8 @@
  *     Main EDProducer for the DTTPG
  *
  *
- *   $Date: 2008/03/04 00:13:30 $
- *   $Revision: 1.10 $
+ *   $Date: 2008/06/30 13:45:04 $
+ *   $Revision: 1.11 $
  *
  *   \author C. Battilana
  *
@@ -56,29 +56,40 @@ DTTrigProd::DTTrigProd(const ParameterSet& pset) : my_trig(0) {
 
 DTTrigProd::~DTTrigProd(){
 
-  if (my_trig != 0) delete my_trig;
+  if (my_trig) delete my_trig;
 
 }
 
-void DTTrigProd::beginJob(const EventSetup & iEventSetup){
+// void DTTrigProd::beginJob(const EventSetup & iEventSetup){
 
 
-  //get DTConfigManager
-  ESHandle< DTConfigManager > confManager ;
-  iEventSetup.get< DTConfigManagerRcd >().get( confManager ) ;
-   
-  my_BXoffset = confManager->getBXOffset();
-  my_trig = new DTTrig(confManager.product(),my_params);
+//   // get DTConfigManager
+//   // ESHandle< DTConfigManager > confManager ;
+//   // iEventSetup.get< DTConfigManagerRcd >().get( confManager ) ;
+//   // my_BXoffset = confManager->getBXOffset();
 
-  my_trig->createTUs(iEventSetup);
-  if (my_debug)
-    cout << "[DTTrigProd] TU's Created" << endl;
+//   if (my_debug)
+//     cout << "[DTTrigProd] DTTrig istance Created" << endl;
+
+// }
+
+void DTTrigProd::beginRun(edm::Run& iRun, const edm::EventSetup& iEventSetup) {
+
+  if (!my_trig) {
+    my_trig = new DTTrig(my_params);
+    my_trig->createTUs(iEventSetup);
+    if (my_debug)
+      cout << "[DTTrigProd] TU's Created" << endl;
+  }
 
 }
+
 
 void DTTrigProd::produce(Event & iEvent, const EventSetup& iEventSetup){
 
   my_trig->triggerReco(iEvent,iEventSetup);
+  my_BXoffset = my_trig->getBXOffset();
+  
   if (my_debug)
     cout << "[DTTrigProd] Trigger algorithm run for " <<iEvent.id() << endl;
   
@@ -89,7 +100,7 @@ void DTTrigProd::produce(Event & iEvent, const EventSetup& iEventSetup){
 
   SectCollPhiColl_iterator SCPCend = myPhiSegments.end();
   for (SectCollPhiColl_iterator it=myPhiSegments.begin();it!=SCPCend;++it){
-    int step = (*it).step() - my_BXoffset; // This moves correct BX to 0 (useful for DTTF)
+    int step = (*it).step() - my_BXoffset; // Shift correct BX to 0 (needed for DTTF data processing)
     int sc_sector = (*it).SCId().sector();
     if (my_DTTFnum == true) sc_sector--; // Modified for DTTF numbering [0-11]
     outPhi.push_back(L1MuDTChambPhDigi(step,
@@ -116,7 +127,7 @@ void DTTrigProd::produce(Event & iEvent, const EventSetup& iEventSetup){
       pos[i] =(*it).position(i);
       qual[i]=(*it).quality(i);
     }
-    int step =(*it).step() - my_BXoffset; // This moves correct BX to 0 (useful for DTTF)
+    int step =(*it).step() - my_BXoffset; // Shift correct BX to 0 (needed for DTTF data processing)
     int sc_sector =  (*it).SCId().sector();
     if (my_DTTFnum == true) sc_sector--; // Modified for DTTF numbering [0-11]
     outTheta.push_back(L1MuDTChambThDigi( step,

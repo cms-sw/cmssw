@@ -7,8 +7,8 @@
  *   studies
  *
  *
- *   $Date: 2007/04/10 09:54:34 $
- *   $Revision: 1.5 $
+ *   $Date: 2008/03/04 00:13:30 $
+ *   $Revision: 1.6 $
  *
  *   \author C. Battilana
  */
@@ -41,10 +41,13 @@ public:
   ~DTTrigTest();
 
   //! Create tree and Branches
-  void endJob();
+  void beginJob(const edm::EventSetup & iEventSetup);
 
   //! Close Tree and write File
-  void beginJob(const edm::EventSetup & iEventSetup);
+  void endJob();
+
+  //! Create DTTrig instance and TUs
+  void beginRun(edm::Run& iRun, const edm::EventSetup& iEventSetup);
   
   //! Analyze function executed on all the events
   void analyze(const edm::Event & iEvent, const edm::EventSetup& iEventSetup);

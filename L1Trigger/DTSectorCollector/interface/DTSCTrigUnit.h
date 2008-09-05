@@ -3,8 +3,8 @@
 /**  \class  DTSCTrigUnit
  *     Muon Barrel Sector Collector Trigger Unit (Chamber trigger)
  *
- *   $Date: 2008/03/04 00:10:43 $
- *   $Revision: 1.6 $
+ *   $Date: 2008/06/30 13:44:28 $
+ *   $Revision: 1.7 $
  *
  *   \author C.Grandi, S. Marcellini
  */
@@ -58,7 +58,7 @@ class DTSCTrigUnit {
 
     /// Constructor
     //DTSCTrigUnit(DTChamber* stat, edm::ParameterSet& tu_pset) ;
-    DTSCTrigUnit(DTChamber *stat, const DTConfigManager *conf, DTTTrigBaseSync *sync) ;  
+    DTSCTrigUnit(DTChamber *stat, DTTTrigBaseSync *sync) ;  
 
     /// Destructor 
     ~DTSCTrigUnit() ;
@@ -66,8 +66,14 @@ class DTSCTrigUnit {
     /// The associated geometry
     inline DTTrigGeom* geom() const { return _geom; }
 
+    /// Set geometry
+    void setGeom(const DTChamber* stat) { _geom->setGeom(stat); }
+
+    /// Set configuration
+    void setConfig(const DTConfigManager *conf);
+
     /// The associated chamber
-    inline DTChamber* stat() const { return _geom->stat(); }
+    inline const DTChamber* stat() const { return _geom->stat(); }
 
     /// Identifier of the associated chamber
     inline DTChamberId statId() const { return _geom->statId(); }

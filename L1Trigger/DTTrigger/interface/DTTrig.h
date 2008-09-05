@@ -4,8 +4,8 @@
  *     Steering routine for L1 trigger simulation in a muon barrel station
  *
  *
- *   $Date: 2008/04/24 17:29:50 $
- *   $Revision: 1.8 $
+ *   $Date: 2008/06/30 13:45:03 $
+ *   $Revision: 1.9 $
  *
  *   \author C.Grandi
  */
@@ -70,13 +70,16 @@ class DTTrig {
   public:
   
     //! Constructors
-    DTTrig(const DTConfigManager *conf, const edm::ParameterSet &params);
+    DTTrig(const edm::ParameterSet &params);
 
     //! Destructor
     ~DTTrig();
     
     //! Create the trigger units and store them in the cache
     void createTUs(const edm::EventSetup& iSetup);
+
+    //! update the eventsetup info
+    void updateES(const edm::EventSetup& iSetup);
 
     //! Run the whole trigger reconstruction chain
     void triggerReco(const edm::Event& iEvent, const edm::EventSetup& iSetup);
@@ -174,6 +177,9 @@ class DTTrig {
     //! Dump the geometry
     void dumpGeom();
 
+    //! Get BX Offset
+    int getBXOffset() { return _conf_manager->getBXOffset(); }
+
     // Methods to access intermediate results
 
     //! Return a copy of all the BTI triggers
@@ -242,7 +248,12 @@ class DTTrig {
     DTTTrigBaseSync *_digi_sync;
     edm::InputTag _digitag;
     bool _debug;                        // Debug flag
+    bool _usesyncdb;
 
+    unsigned long long _configid;
+    unsigned long long _geomid;
+    unsigned long long _t0id;
+    unsigned long long _ttrigid;
 
 };
 

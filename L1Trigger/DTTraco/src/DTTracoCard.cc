@@ -46,13 +46,13 @@
 //----------------
 
 DTTracoCard::DTTracoCard(DTTrigGeom* geo, DTBtiCard* bticard,
-  DTTSTheta* tstheta, const DTConfigManager * _conf_manager) : DTGeomSupplier(geo) , 
+  DTTSTheta* tstheta) : DTGeomSupplier(geo) , 
   _bticard(bticard), _tstheta(tstheta) { 
 
   // get traco configuration map
-  DTChamberId sid = geom()->statId();
-  _debug = _conf_manager->getDTTPGDebug();
-  _conf_traco_map = _conf_manager->getDTConfigTracoMap(sid);	
+  // DTChamberId sid = geom()->statId();
+  // _debug = _conf_manager->getDTTPGDebug();
+  // _conf_traco_map = _conf_manager->getDTConfigTracoMap(sid);	
 
 }
 
@@ -75,6 +75,15 @@ DTTracoCard::clearCache(){
 
   TRACOCache::clearCache();
   localClear();
+
+}
+
+void
+DTTracoCard::setConfig(const DTConfigManager *conf){
+  
+	DTChamberId sid = ChamberId();
+	_conf_traco_map = conf->getDTConfigTracoMap(sid);	
+	_debug = conf->getDTTPGDebug();
 
 }
 

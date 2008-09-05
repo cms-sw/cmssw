@@ -39,7 +39,7 @@
 // Constructors --
 //----------------
 
-DTSC::DTSC(DTConfigSectColl* config, int istat) : _config(config), _ignoreSecondTrack(0) ,_stat(istat){
+DTSC::DTSC(int istat) : _ignoreSecondTrack(0) ,_stat(istat){
 
   // reserve the appropriate amount of space for vectors
   // test _incand[0].reserve(DTConfigSectColl::NTSMSC);

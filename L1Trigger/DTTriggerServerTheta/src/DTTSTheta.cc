@@ -34,11 +34,8 @@
 //----------------
 // Constructors --
 //----------------
-DTTSTheta::DTTSTheta(DTTrigGeom* geom, DTBtiCard* bticard, const DTConfigManager * _conf_manager) : 
-                                 DTGeomSupplier(geom),  _bticard(bticard) {
-
-  DTChamberId sid = ChamberId();
-  _config = _conf_manager->getDTConfigTSTheta(sid);
+DTTSTheta::DTTSTheta(DTTrigGeom* geom, DTBtiCard* bticard) : 
+  DTGeomSupplier(geom),  _bticard(bticard) {
 
   for(int i=0;i<DTConfigTSTheta::NSTEPL-DTConfigTSTheta::NSTEPF+1;i++){
     _trig[i].zero();
@@ -71,6 +68,14 @@ DTTSTheta::localClear() {
     _ntrig[is] = 0;
     _nHtrig[is] = 0;
   }
+}
+
+void
+DTTSTheta::setConfig(const DTConfigManager *conf){
+  
+	DTChamberId sid = ChamberId();
+	_config = conf->getDTConfigTSTheta(sid);
+
 }
 
 void 

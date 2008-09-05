@@ -3,7 +3,7 @@
 /**   \class: DTSC.h
  *
  *
- *   $Date: 2007/02/09 11:24:32 $
+ *   $Date: 2007/03/09 15:17:40 $
  *
  *   Implementation of Sector Collector trigger algorithm
  *
@@ -45,12 +45,15 @@ class DTSC{
  public:
 
   //!  Constructor
-  DTSC(DTConfigSectColl*, int istat);
+  DTSC(int istat);
  
   //!  Destructor 
   ~DTSC();
 
   // non-const methods
+
+    /// Set configuration
+  void setConfig(DTConfigSectColl *conf) { _config=conf; };
 
   //! Add a TSM candidate to the Sect Coll, ifs is first/second track flag
   void addPhCand(DTSectCollPhCand* cand);

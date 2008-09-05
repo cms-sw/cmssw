@@ -4,8 +4,8 @@
  *     Main EDProducer for the DTTPG
  *
  *
- *   $Date: 2007/04/10 09:54:34 $
- *   $Revision: 1.4 $
+ *   $Date: 2008/03/04 00:13:30 $
+ *   $Revision: 1.5 $
  *
  *   \author C. Battilana
  *
@@ -36,7 +36,8 @@ public:
   ~DTTrigProd();
 
   //! Create Trigger Units before starting event processing
-  void beginJob(const edm::EventSetup & iEventSetup);
+  //void beginJob(const edm::EventSetup & iEventSetup);
+  void beginRun(edm::Run& iRun, const edm::EventSetup& iEventSetup);
   
   //! Producer: process every event and generates trigger data
   void produce(edm::Event & iEvent, const edm::EventSetup& iEventSetup);

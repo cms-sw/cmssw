@@ -30,6 +30,12 @@
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "Geometry/DTGeometry/interface/DTChamber.h"
+#include "CondFormats/DTObjects/interface/DTT0.h"
+#include "CondFormats/DataRecord/interface/DTT0Rcd.h"
+#include "CondFormats/DTObjects/interface/DTTtrig.h"
+#include "CondFormats/DataRecord/interface/DTTtrigRcd.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManager.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManagerRcd.h"
 
 //---------------
 // C++ Headers --
@@ -46,10 +52,12 @@
 // Constructors --
 //----------------
 
-DTTrig::DTTrig(const DTConfigManager *conf, const  edm::ParameterSet &params) : _conf_manager(conf) {
+DTTrig::DTTrig(const  edm::ParameterSet &params) : 
+  _configid(0) , _geomid(0) , _t0id(0) , _ttrigid(0) {
 
   // Set configuration parameters
-  _debug = _conf_manager->getDTTPGDebug();
+  // _debug = _conf_manager->getDTTPGDebug();
+  _debug = params.getUntrackedParameter<bool>("debug"); // CB FIXME: update when debug will be fully configured from parameter set
 
   if(_debug){
     std::cout << std::endl;
@@ -61,6 +69,7 @@ DTTrig::DTTrig(const DTConfigManager *conf, const  edm::ParameterSet &params) : 
   _digitag   = params.getParameter<edm::InputTag>("digiTag");
   _digi_sync = DTTTrigSyncFactory::get()->create(params.getParameter<std::string>("tTrigMode"),
 					      params.getParameter<edm::ParameterSet>("tTrigModeConfig"));
+  _usesyncdb = params.getParameter<std::string>("tTrigMode")!="DTTTrigSyncTOFCorr";
 }
 
 
@@ -77,10 +86,6 @@ DTTrig::~DTTrig(){
 void 
 DTTrig::createTUs(const edm::EventSetup& iSetup ){
   
-  if (_debug)
-    std::cout << "DTTrig::createTUs configuring synchronizer" << std::endl;
-  _digi_sync->setES(iSetup);
-
   // build up Sector Collectors and then
   // build the trrigger units (one for each chamber)
   for(int iwh=-2;iwh<=2;iwh++){ 
@@ -94,11 +99,11 @@ DTTrig::createTUs(const edm::EventSetup& iSetup ){
 	continue;
       }    
       // add a sector collector to the map
-//       SCConf_iterator scit = _scconf.find(scid);
+      // SCConf_iterator scit = _scconf.find(scid);
       //edm::ParameterSet sc_pset = _conf_pset.getParameter<edm::ParameterSet>("SectCollParameters");
       DTSectColl* sc;
       //sc = new DTSectColl(sc_pset);
-      sc = new DTSectColl(_conf_manager,scid);
+      sc = new DTSectColl(scid);
 
       //  if ( scit != _scconf.end()){
       // 	sc = new DTSectColl( (*scit).second);
@@ -139,7 +144,7 @@ DTTrig::createTUs(const edm::EventSetup& iSetup ){
     // add a trigger unit to the map with a link to the station
     //edm::ParameterSet tu_pset = _conf_pset.getParameter<edm::ParameterSet>("TUParameters");
     //DTSCTrigUnit* tru = new DTSCTrigUnit(chamb,tu_pset);
-    DTSCTrigUnit* tru = new DTSCTrigUnit(chamb,_conf_manager,_digi_sync);
+    DTSCTrigUnit* tru = new DTSCTrigUnit(chamb,_digi_sync);
     _cache[chid] = tru;
     
     //----------- add TU to corresponding SC
@@ -175,6 +180,9 @@ DTTrig::createTUs(const edm::EventSetup& iSetup ){
 
 void 
 DTTrig::triggerReco(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+
+  updateES(iSetup);
+
   DTDigiMap digiMap;
   //Sort digis by chamber so they can be used by BTIs
   edm::Handle<DTDigiCollection> dtDigis;
@@ -275,6 +283,61 @@ DTTrig::triggerReco(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   }
 
 }
+
+void
+DTTrig::updateES(const edm::EventSetup& iSetup){
+
+  // Check for updatets in config
+  edm::ESHandle<DTConfigManager> confHandle;
+  edm::ESHandle<DTGeometry> geomHandle;
+  edm::ESHandle<DTT0> t0Handle;
+  edm::ESHandle<DTTtrig> ttrigHandle;
+
+  if (iSetup.get<DTConfigManagerRcd>().cacheIdentifier()!=_configid) {
+    
+    if (_debug)
+    std::cout << "DTTrig::updateES updating DTTPG configuration" << std::endl;
+    
+    _configid = iSetup.get<DTConfigManagerRcd>().cacheIdentifier();
+    iSetup.get<DTConfigManagerRcd>().get(confHandle);
+    _conf_manager = confHandle.product();
+    for (TU_iterator it=_cache.begin();it!=_cache.end();it++){
+      (*it).second->setConfig(_conf_manager);
+    }
+    for (SC_iterator it=_cache1.begin();it!=_cache1.end();it++){
+    (*it).second->setConfig(_conf_manager);
+    }
+
+  }
+
+  if (iSetup.get<MuonGeometryRecord>().cacheIdentifier()!=_configid) {
+
+    if (_debug)
+    std::cout << "DTTrig::updateES updating muon geometry" << std::endl;
+
+    _geomid = iSetup.get<MuonGeometryRecord>().cacheIdentifier();
+    iSetup.get<MuonGeometryRecord>().get(geomHandle);
+    for (TU_iterator it=_cache.begin();it!=_cache.end();it++){
+      (*it).second->setGeom(geomHandle->chamber((*it).second->statId()));
+    }
+
+  }
+
+  if (_usesyncdb &&
+      (iSetup.get<DTT0Rcd>().cacheIdentifier()!=_t0id || 
+      iSetup.get<DTTtrigRcd>().cacheIdentifier()!=_ttrigid)) {
+
+    if (_debug)
+    std::cout << "DTTrig::updateES updating synchronizer" << std::endl;
+
+    _t0id    = iSetup.get<DTT0Rcd>().cacheIdentifier();
+    _ttrigid = iSetup.get<DTTtrigRcd>().cacheIdentifier();
+    _digi_sync->setES(iSetup);
+
+  }
+
+} 
+
 
 void
 DTTrig::clear() {

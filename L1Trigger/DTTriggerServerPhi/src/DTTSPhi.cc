@@ -41,12 +41,8 @@
 //----------------
 // Constructors --
 //----------------
-DTTSPhi::DTTSPhi(DTTrigGeom* geom, DTTracoCard* tracocard, const DTConfigManager * _conf_manager) : 
-                               DTGeomSupplier(geom), _tracocard(tracocard){
-
-
-  DTChamberId sid = ChamberId();
-  _config = _conf_manager->getDTConfigTSPhi(sid);
+DTTSPhi::DTTSPhi(DTTrigGeom* geom, DTTracoCard* tracocard) : 
+  DTGeomSupplier(geom), _tracocard(tracocard){
 
   // reserve the appropriate amount of space for vectors
   int i=0;
@@ -60,13 +56,13 @@ DTTSPhi::DTTSPhi(DTTrigGeom* geom, DTTracoCard* tracocard, const DTConfigManager
 
     // create DTTSSs  
     for(int itss=1; itss<=DTConfigTSPhi::NTSSTSM; itss++) {
-      DTTSS* tss = new DTTSS(config(), itss);
+      DTTSS* tss = new DTTSS(itss);
       _tss[is].push_back(tss);
     }
 
     // create DTTSMs     SM double TSM  
     for(int itsmd=1; itsmd<=DTConfigTSPhi::NTSMD; itsmd++) {
-      DTTSM* tsm = new DTTSM(config(), itsmd);
+      DTTSM* tsm = new DTTSM(itsmd);
       _tsm[is].push_back(tsm);
     }
   }
@@ -125,6 +121,29 @@ DTTSPhi::localClear() {
       (*ptsm)->clear();
     }
   }
+}
+
+void
+DTTSPhi::setConfig (const DTConfigManager *conf){
+
+  DTChamberId sid = ChamberId();
+  _config = conf->getDTConfigTSPhi(sid);
+
+  for(int is=0;is<DTConfigTSPhi::NSTEPL-DTConfigTSPhi::NSTEPF+1;is++) {
+
+    // set TSS config
+    std::vector<DTTSS*>::iterator ptss;
+    for (ptss = _tss[is].begin(); ptss != _tss[is].end(); ptss++){
+      (*ptss)->setConfig(config());
+    }
+    // set TSM config
+    std::vector<DTTSM*>::iterator ptsm;
+    for (ptsm = _tsm[is].begin(); ptsm != _tsm[is].end(); ptsm++){
+      (*ptsm)->setConfig(config());
+    }
+
+  }
+
 }
 
 void

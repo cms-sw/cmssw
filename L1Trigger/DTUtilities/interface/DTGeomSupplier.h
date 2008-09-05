@@ -4,8 +4,8 @@
  *   Defines the ability to calculate coordinates 
  *   of L1DT Trigger objects
  *
- *   $Date: 2007/02/09 11:18:46 $
- *   $Revision: 1.2 $
+ *   $Date: 2007/03/09 15:17:45 $
+ *   $Revision: 1.3 $
  *
  *   \author C.Grandi
  */
@@ -56,7 +56,7 @@ class DTGeomSupplier {
   inline DTTrigGeom* geom() const { return _geom; }
 
   /// Associated chamber
-  inline DTChamber* stat() const { return _geom->stat(); }
+  inline const DTChamber* stat() const { return _geom->stat(); }
 
   /// Identifier of the associated chamber
   inline DTChamberId ChamberId() const { return _geom->statId(); }

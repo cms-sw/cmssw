@@ -5,7 +5,7 @@
  *
  *
  *
- *    $Date: 2007/04/27 08:45:51 $
+ *    $Date: 2008/06/30 13:44:28 $
  *
  *    \author D. Bonacorsi, S. Marcellini
  */
@@ -60,10 +60,13 @@ class DTSectColl : public DTSCPhCache, public DTSCThCache  {
 
   //!  Constructor
   //DTSectColl(edm::ParameterSet& sc_pset);
-  DTSectColl(const DTConfigManager * _conf_manager, DTSectCollId id);
+  DTSectColl(DTSectCollId id);
   
   //!  Destructor 
   ~DTSectColl();
+
+  /// Set configuration
+  void setConfig(const DTConfigManager *conf);
 
   //! Return TSPhi
   inline DTTSPhi* getTSPhi(int istat) const { return _tsphi[istat-1]; }

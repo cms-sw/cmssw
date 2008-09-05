@@ -4,8 +4,8 @@
  *     Contains active DTBtiChips
  *
  *
- *   $Date: 2008/03/04 00:08:10 $
- *   $Revision: 1.8 $
+ *   $Date: 2008/06/30 13:41:36 $
+ *   $Revision: 1.9 $
  *
  *   \author C. Grandi, S. Vanini
  *
@@ -64,13 +64,16 @@ class DTBtiCard : public BTICache, public DTGeomSupplier {
 
     /// Constructor
     //DTBtiCard(DTTrigGeom*,edm::ParameterSet&);
-    DTBtiCard(DTTrigGeom *, const DTConfigManager *, DTTTrigBaseSync *);
+    DTBtiCard(DTTrigGeom *, DTTTrigBaseSync *);
 
     /// Destructor 
     ~DTBtiCard();
 
     /// Clear all BTI stuff (map & cache)
     void clearCache();
+
+    /// Set configuration
+    void setConfig(const DTConfigManager *conf);
 
     /// Return TU debug flag
     inline bool debug() const {return _debug;}

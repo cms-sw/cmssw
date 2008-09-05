@@ -4,8 +4,8 @@
  *   Contains active DTTracoChips
  *
  *
- *   $Date: 2007/04/27 08:41:29 $
- *   $Revision: 1.7 $
+ *   $Date: 2008/06/30 13:42:21 $
+ *   $Revision: 1.8 $
  *
  *   \author C. Grandi, S. Vanini 
  *
@@ -62,13 +62,16 @@ class DTTracoCard : public TRACOCache, public DTGeomSupplier {
 
     /// Constructor
     //DTTracoCard(DTTrigGeom*, DTBtiCard*, DTTSTheta*,edm::ParameterSet&);
-    DTTracoCard(DTTrigGeom*, DTBtiCard*, DTTSTheta*, const DTConfigManager *);
+    DTTracoCard(DTTrigGeom*, DTBtiCard*, DTTSTheta*);
 
     /// Destructor 
     ~DTTracoCard();
 
     /// Clear all traco stuff (cache & map)
     void clearCache();
+
+    /// Set configuration
+    void setConfig(const DTConfigManager *conf);
 
     /// Return TU debug flag
     inline bool debug() {return _debug;}

@@ -58,18 +58,19 @@ using namespace edm;
 // Constructors --
 //----------------
 
-DTBtiCard::DTBtiCard(DTTrigGeom *geom, const DTConfigManager *conf_manager, DTTTrigBaseSync *sync) : 
+DTBtiCard::DTBtiCard(DTTrigGeom *geom, DTTTrigBaseSync *sync) : 
   DTGeomSupplier(geom), _digi_sync(sync) {
 
         //_configBti = new DTConfigBti(bti_pset);
 	//_configBti->print();
 
-	DTChamberId sid = ChamberId();
-	_conf_bti_map = conf_manager->getDTConfigBtiMap(sid);	
-	_debug = conf_manager->getDTTPGDebug();
+	//DTChamberId sid = ChamberId();
+	//_conf_bti_map = conf_manager->getDTConfigBtiMap(sid);	
+	//_debug = conf_manager->getDTTPGDebug();
 
-	_finedelay   = conf_manager->getDTConfigTrigUnit(sid)->MCSetupTime();
+	//_finedelay   = conf_manager->getDTConfigTrigUnit(sid)->MCSetupTime();
   	//_MCdelay     = conf_manager->getDTConfigTrigUnit(sid)->MCDigiOffset();
+
 }
 
 //--------------
@@ -94,6 +95,17 @@ DTBtiCard::clearCache(){
   localClear();
   
 }
+
+void
+DTBtiCard::setConfig(const DTConfigManager *conf){
+  
+	DTChamberId sid = ChamberId();
+	_conf_bti_map = conf->getDTConfigBtiMap(sid);	
+	_debug = conf->getDTTPGDebug();
+	_finedelay   = conf->getDTConfigTrigUnit(sid)->MCSetupTime();
+
+}
+
 
 void
 DTBtiCard::localClear(){

@@ -3,8 +3,8 @@
 /**  \class DTTSTheta
  *    Implementation of TS Theta L1Trigger algorithm
  *
- *   $Date: 2007/04/27 09:00:08 $
- *   $Revision: 1.5 $
+ *   $Date: 2008/06/30 13:42:53 $
+ *   $Revision: 1.6 $
  *
  *   \author C.Grandi
  */
@@ -49,13 +49,16 @@ class DTTSTheta : public DTTSThetaManager, public DTGeomSupplier {
 
     ///  Constructor
     //DTTSTheta(DTTrigGeom*, DTBtiCard*, edm::ParameterSet&);
-    DTTSTheta(DTTrigGeom*, DTBtiCard*, const DTConfigManager *);
+    DTTSTheta(DTTrigGeom*, DTBtiCard*);
 
     ///  Destructor 
     ~DTTSTheta();
 
     /// Return configuration
     inline DTConfigTSTheta* config() const { return _config; }
+
+    /// Set configuration
+    void setConfig(const DTConfigManager *conf);
 
     /// Return number of TStheta segments (just 1)
     int nSegm(int step);

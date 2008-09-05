@@ -35,7 +35,7 @@
 // Constructors --
 //----------------
 // DBSM-doubleTSM
-DTTSM::DTTSM(DTConfigTSPhi* config, int n) : _config(config), _n(n), _ignoreSecondTrack(0) {
+DTTSM::DTTSM(int n) : _n(n), _ignoreSecondTrack(0) {
   // reserve the appropriate amount of space for vectors
   _incand[0].reserve(DTConfigTSPhi::NTSSTSM);
   _incand[1].reserve(DTConfigTSPhi::NTSSTSM);

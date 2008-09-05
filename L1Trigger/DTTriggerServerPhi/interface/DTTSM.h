@@ -4,8 +4,8 @@
  *    Implementation of TSM trigger algorithm
  *
  *
- *   $Date: 2006/07/19 10:41:15 $
- *   $Revision: 1.1 $
+ *   $Date: 2007/02/09 11:22:02 $
+ *   $Revision: 1.2 $
  *
  *   \author C. Grandi, D. Bonacorsi, S. Marcellini
  */
@@ -43,13 +43,16 @@ class DTTSM {
 
     ///  Constructor
     // SM double TSM 
-    DTTSM(DTConfigTSPhi*, int);   
+    DTTSM(int);   
 
     /// Destructor 
     ~DTTSM();
   
     /// Return identifier
     inline int number() const { return _n; }
+
+    /// Set configuration
+    void setConfig(DTConfigTSPhi *config) {  _config=config; }
 
     /// Add a TSS candidate to the TSM, ifs is first/second track flag
     void addCand(DTTSCand* cand);

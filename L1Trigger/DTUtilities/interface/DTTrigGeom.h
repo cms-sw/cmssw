@@ -4,8 +4,8 @@
  *     Muon Barrel Trigger Geometry
  *
  *
- *   $Date: 2007/04/27 09:05:05 $
- *   $Revision: 1.5 $
+ *   $Date: 2008/06/30 13:41:04 $
+ *   $Revision: 1.6 $
  *
  *   \author C.Grandi
  *   \modifications S.Vanini
@@ -51,10 +51,13 @@ class DTTrigGeom {
     ~DTTrigGeom();
  
     /// Associated chamber
-    inline DTChamber* stat() const { return _stat; }
+    inline const DTChamber* stat() const { return _stat; }
 
     /// Identifier of the associated chamber
     inline DTChamberId statId() const { return _stat->id(); }
+
+    /// Set/Update Geometry
+    void setGeom(const DTChamber* stat);
 
     /// Return wheel number
     inline int wheel() const { return _stat->id().wheel(); }
@@ -193,11 +196,11 @@ class DTTrigGeom {
   private:
 
     /// Get the geometry from the station
-    void getGeom(bool debug);
+    void getGeom();
 
   private:
 
-    DTChamber* _stat;     // Pointer to the chamber
+    const DTChamber* _stat;     // Pointer to the chamber
 
     // geometrical parameters
     float _PHICH;       // angle of normal to the chamber in CMS frame (rad)
@@ -205,6 +208,7 @@ class DTTrigGeom {
     float _PITCH;       // width of a cell (cm)
     float _ZSL[3];      // Z coordinate of SL centers
     int _NCELL[3];      // number of cells (BTI) in SL each SL
+    bool _debug;
 
 };
 

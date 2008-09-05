@@ -45,15 +45,14 @@
 // Constructors --
 //----------------
 
-DTSectColl::DTSectColl(const DTConfigManager * _conf_manager, DTSectCollId id) : _sectcollid(id){
+DTSectColl::DTSectColl(DTSectCollId id) : _sectcollid(id){
 
-
-  _config = _conf_manager->getDTConfigSectColl(_sectcollid);
+  //_config = _conf_manager->getDTConfigSectColl(_sectcollid);
   
   // create SC Chips
   for(int istat=0;istat<4;istat++){
     for(int istep=0;istep<DTConfigSectColl::NSTEPL-DTConfigSectColl::NSTEPF+1;istep++) {
-      _tsc[istep][istat] = new DTSC(_config,istat+1);
+      _tsc[istep][istat] = new DTSC(istat+1);
     }
   }
   for (int istat=0;istat<5;istat++) _tsphi[istat]=0;
@@ -109,6 +108,19 @@ DTSectColl::localClear() {
   
   _outcand_th.clear();
   
+}
+
+void
+DTSectColl::setConfig (const DTConfigManager *conf){
+
+  _config = conf->getDTConfigSectColl(_sectcollid);
+
+  for(int istat=0;istat<4;istat++){
+    for(int istep=0;istep<DTConfigSectColl::NSTEPL-DTConfigSectColl::NSTEPF+1;istep++){
+      _tsc[istep][istat]->setConfig(config());
+    }
+  }
+
 }
 
 

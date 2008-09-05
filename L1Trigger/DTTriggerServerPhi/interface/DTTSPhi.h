@@ -4,8 +4,8 @@
  *    Implementation of TS Phi trigger algorithm
  *
  *
- *   $Date: 2007/04/27 08:55:47 $
- *   $Revision: 1.5 $
+ *   $Date: 2008/06/30 13:43:31 $
+ *   $Revision: 1.6 $
  *
  *   \author C. Grandi, D. Bonacorsi, S. Marcellini
  */
@@ -57,14 +57,16 @@ class DTTSPhi : public DTTSPhiManager, public DTGeomSupplier {
  public:
   
   /// Constructor
-  //DTTSPhi(DTTrigGeom*, DTTracoCard*, edm::ParameterSet&);
-  DTTSPhi(DTTrigGeom*, DTTracoCard*, const DTConfigManager *);
+  DTTSPhi(DTTrigGeom*, DTTracoCard*);
 
   /// Destructor 
   ~DTTSPhi();
 
   /// Return the configuration class
   inline DTConfigTSPhi* config() const {return _config; }
+
+  /// Set configuration
+  void setConfig(const DTConfigManager *conf);
   
   /// Return number of DTTSPhi segments  
   int nSegm(int step);
