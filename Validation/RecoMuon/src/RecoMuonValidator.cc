@@ -2,6 +2,8 @@
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h"
@@ -35,7 +37,7 @@ namespace MEIdx {
     ErrP_vs_P, ErrPt_vs_Pt, ErrQPt_vs_Pt, ErrEta_vs_Eta,
     PullPt, PullEta, PullPhi, PullQPt, PullDxy, PullDz,
     PullPt_vs_Eta, PullPt_vs_Pt, PullEta_vs_Eta, PullPhi_vs_Eta, PullEta_vs_Pt,
-    NSim, NReco,
+    NSim, NReco, NMuon,
     NDof, Chi2, Chi2Norm, Chi2Prob,
     NDof_vs_Eta, Chi2_vs_Eta, Chi2Norm_vs_Eta, Chi2Prob_vs_Eta,
     MisQPt, MisQEta,
@@ -46,7 +48,16 @@ namespace MEIdx {
     NRecoHits,
     NSimHits_vs_Pt, NSimHits_vs_Eta,
     NRecoHits_vs_Pt, NRecoHits_vs_Eta,
-    NLostHits, NLostHits_vs_Pt, NLostHits_vs_Eta
+    NLostHits, NLostHits_vs_Pt, NLostHits_vs_Eta,
+    NValidTrackerHits, NValidTrackerHits_vs_Pt, NValidTrackerHits_vs_Eta,
+    NValidMuonHits, NValidMuonHits_vs_Pt, NValidMuonHits_vs_Eta,
+
+    TrkNTrackerHits, TrkNTrackerHits_vs_Pt, TrkNTrackerHits_vs_Eta,
+    GlbNTrackerHits, GlbNTrackerHits_vs_Pt, GlbNTrackerHits_vs_Eta,
+    TrkGlbDiffNTrackerHits,
+    StaNMuonHits, StaNMuonHits_vs_Pt, StaNMuonHits_vs_Eta,
+    GlbNMuonHits, GlbNMuonHits_vs_Pt, GlbNMuonHits_vs_Eta,
+    StaGlbDiffNMuonHits
   }; 
 }
 
@@ -106,6 +117,7 @@ RecoMuonValidator::RecoMuonValidator(const ParameterSet& pset)
   // Labels for simulation and reconstruction tracks
   simLabel_  = pset.getParameter<InputTag>("simLabel" );
   recoLabel_ = pset.getParameter<InputTag>("recoLabel");
+  muonLabel_ = pset.getParameter<InputTag>("muonLabel");
 
   // Labels for sim-reco association
   doAssoc_ = pset.getUntrackedParameter<bool>("doAssoc", true);
@@ -252,6 +264,18 @@ RecoMuonValidator::RecoMuonValidator(const ParameterSet& pset)
   meMap_[MEIdx::NLostHits_vs_Eta] = theDQM->book2D("NLostHits_vs_Eta", "Number of lost Hits vs #eta",
                                               nBinEta, minEta, maxEta, nHits, 0, nHits);
 
+  meMap_[MEIdx::NValidTrackerHits] = theDQM->book1D("NValidTrackerHits", "Number of valid tracker hits", nHits, 0, nHits);
+  meMap_[MEIdx::NValidTrackerHits_vs_Pt] = theDQM->book2D("NValidTrackerHits_vs_Pt", "Number of valid traker hits vs p_{T}",
+                                                          nBinPt, minPt, maxPt, nHits, 0, nHits);
+  meMap_[MEIdx::NValidTrackerHits_vs_Eta] = theDQM->book2D("NValidTrackerHits_vs_Eta", "Number of valid tracker hits vs #eta",
+                                                           nBinEta, minEta, maxEta, nHits, 0, nHits);
+
+  meMap_[MEIdx::NValidMuonHits] = theDQM->book1D("NValidMuonHits", "Number of valid muon hits", nHits, 0, nHits);
+  meMap_[MEIdx::NValidMuonHits_vs_Pt] = theDQM->book2D("NValidMuonHits_vs_Pt", "Number of valid muon hits vs p_{T}",
+                                                       nBinPt, minPt, maxPt, nHits, 0, nHits);
+  meMap_[MEIdx::NValidMuonHits_vs_Eta] = theDQM->book2D("NValidMuonHits_vs_Eta", "Number of valid muon hits vs #eta",
+                                                        nBinEta, minEta, maxEta, nHits, 0, nHits);
+
   meMap_[MEIdx::NDof] = theDQM->book1D("NDof", "Number of DoF", nDof, 0, nDof);
   meMap_[MEIdx::Chi2] = theDQM->book1D("Chi2", "#Chi^{2}", 200, 0, 200);
   meMap_[MEIdx::Chi2Norm] = theDQM->book1D("Chi2Norm", "Normalized #Chi^{2}", nBinErr, 0, 100);
@@ -265,6 +289,34 @@ RecoMuonValidator::RecoMuonValidator(const ParameterSet& pset)
                                              nBinEta, minEta, maxEta, nBinErr, 0, 100);
   meMap_[MEIdx::Chi2Prob_vs_Eta] = theDQM->book2D("Chi2Prob_vs_Eta", "Prob(#Chi^{2}) vs #eta",
                                              nBinEta, minEta, maxEta, nBinErr, 0, 1);
+
+  meMap_[MEIdx::TrkNTrackerHits] = theDQM->book1D("TrkNTrackerHits", "Number of tracker hits of tracker muon", nHits, 0, nHits);
+  meMap_[MEIdx::TrkNTrackerHits_vs_Pt] = theDQM->book2D("TrkNTrackerHits_vs_Pt", "Number of tracker hits of tracker muon vs p_{T}",
+                                                        nBinPt, minPt, maxPt, nHits, 0, nHits);
+  meMap_[MEIdx::TrkNTrackerHits_vs_Eta] = theDQM->book2D("TrkNTrackerHits_vs_Eta", "Number of tracker hits of tracker muon vs #eta",
+                                                        nBinEta, minEta, maxEta, nHits, 0, nHits);
+
+  meMap_[MEIdx::GlbNTrackerHits] = theDQM->book1D("GlbNTrackerHits", "Number of tracker hits of global muon", nHits, 0, nHits);
+  meMap_[MEIdx::GlbNTrackerHits_vs_Pt] = theDQM->book2D("GlbNTrackerHits_vs_Pt", "Number of tracker hits of global muon vs p_{T}",
+                                                        nBinPt, minPt, maxPt, nHits, 0, nHits);
+  meMap_[MEIdx::GlbNTrackerHits_vs_Eta] = theDQM->book2D("GlbNTrackerHits_vs_Eta", "Number of tracker hits of global muon vs #eta",
+                                                        nBinPt, minPt, maxPt, nHits, 0, nHits);
+
+  meMap_[MEIdx::TrkGlbDiffNTrackerHits] = theDQM->book1D("TrkGlbDiffNTrackerHits", "Difference of number of tracker hits (tkMuon - globalMuon)", nHits, 0, nHits);
+
+  meMap_[MEIdx::StaNMuonHits] = theDQM->book1D("StaNMuonHits", "Number of muon hits of standalone muon", nHits, 0, nHits);
+  meMap_[MEIdx::StaNMuonHits_vs_Pt] = theDQM->book2D("StaNMuonHits_vs_Pt", "Number of muon hits of standalone muon vs p_{T}",
+                                                        nBinPt, minPt, maxPt, nHits, 0, nHits);
+  meMap_[MEIdx::StaNMuonHits_vs_Eta] = theDQM->book2D("StaNMuonHits_vs_Eta", "Number of muon hits of standalone muon vs #eta",
+                                                        nBinPt, minPt, maxPt, nHits, 0, nHits);
+
+  meMap_[MEIdx::GlbNMuonHits] = theDQM->book1D("GlbNMuonHits", "Number of muon hits of global muon", nHits, 0, nHits);
+  meMap_[MEIdx::GlbNMuonHits_vs_Pt] = theDQM->book2D("GlbNMuonHits_vs_Pt", "Number of muon hits of global muon vs p_{T}",
+                                                        nBinPt, minPt, maxPt, nHits, 0, nHits);
+  meMap_[MEIdx::GlbNMuonHits_vs_Eta] = theDQM->book2D("GlbNMuonHits_vs_Eta", "Number of muon hits of global muon vs #eta",
+                                                        nBinPt, minPt, maxPt, nHits, 0, nHits);
+
+  meMap_[MEIdx::StaGlbDiffNMuonHits] = theDQM->book1D("StaGlbDiffNMuonHits", "Difference of number of muon hits (staMuon - globalMuon", nHits, 0, nHits);
 }
 
 RecoMuonValidator::~RecoMuonValidator()
@@ -307,6 +359,11 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
   //const TrackCollection recoColl = *(recoHandle.product());
   View<Track> recoColl = *(recoHandle.product());
 
+  // Get Muons
+  Handle<View<Muon> > muonHandle;
+  event.getByLabel(muonLabel_, muonHandle);
+  View<Muon> muonColl = *(muonHandle.product());
+
   // Get Association maps
   SimToRecoCollection simToRecoColl;
   RecoToSimCollection recoToSimColl;
@@ -330,9 +387,47 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
   const TrackCollection::size_type nReco = recoColl.size();
   meMap_[MEIdx::NReco]->Fill(static_cast<double>(nReco));
 
+  const MuonCollection::size_type nMuon = muonColl.size();
+  meMap_[MEIdx::NMuon]->Fill(static_cast<double>(nMuon));
+
   meMap_[MEIdx::NAssocSimToReco]->Fill(simToRecoColl.size());
   meMap_[MEIdx::NAssocRecoToSim]->Fill(recoToSimColl.size());
 
+  // Analyzer reco::Muon
+  for(View<Muon>::const_iterator iMuon = muonColl.begin();
+      iMuon != muonColl.end(); ++iMuon) {
+    const TrackRef trkTrack = iMuon->track();
+    const TrackRef staTrack = iMuon->standAloneMuon();
+    const TrackRef glbTrack = iMuon->combinedMuon();
+
+    const int trkNTrackerHits = trkTrack->hitPattern().numberOfValidTrackerHits();
+    const int glbNTrackerHits = glbTrack->hitPattern().numberOfValidTrackerHits();
+
+    const int staNMuonHits = staTrack->hitPattern().numberOfValidMuonHits();
+    const int glbNMuonHits = glbTrack->hitPattern().numberOfValidMuonHits();
+
+    meMap_[MEIdx::TrkNTrackerHits]->Fill(trkNTrackerHits);
+    meMap_[MEIdx::TrkNTrackerHits_vs_Pt]->Fill(trkTrack->pt(), trkNTrackerHits);
+    meMap_[MEIdx::TrkNTrackerHits_vs_Eta]->Fill(trkTrack->eta(), trkNTrackerHits);
+
+    meMap_[MEIdx::GlbNTrackerHits]->Fill(glbNTrackerHits);
+    meMap_[MEIdx::GlbNTrackerHits_vs_Pt]->Fill(glbTrack->pt(), glbNTrackerHits);
+    meMap_[MEIdx::GlbNTrackerHits_vs_Eta]->Fill(glbTrack->eta(), glbNTrackerHits);
+
+    meMap_[MEIdx::TrkGlbDiffNTrackerHits]->Fill(trkNTrackerHits-glbNTrackerHits);
+
+    meMap_[MEIdx::StaNMuonHits]->Fill(staNMuonHits);
+    meMap_[MEIdx::StaNMuonHits_vs_Pt]->Fill(staTrack->pt(), staNMuonHits);
+    meMap_[MEIdx::StaNMuonHits_vs_Eta]->Fill(staTrack->eta(), staNMuonHits);
+
+    meMap_[MEIdx::GlbNMuonHits]->Fill(glbNMuonHits);
+    meMap_[MEIdx::GlbNMuonHits_vs_Pt]->Fill(glbTrack->pt(), glbNMuonHits);
+    meMap_[MEIdx::GlbNMuonHits_vs_Eta]->Fill(glbTrack->eta(), glbNMuonHits);
+
+    meMap_[MEIdx::StaGlbDiffNMuonHits]->Fill(staNMuonHits-glbNMuonHits);
+  }
+
+  // Analyzer reco::Track
   for(TrackingParticleCollection::size_type i=0; i<nSim; i++) {
     TrackingParticleRef simRef(simHandle, i);
 //    if ( !tpSelector(*simRef) ) continue;
@@ -403,6 +498,18 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
       meMap_[MEIdx::NLostHits]->Fill(nLostHits);
       meMap_[MEIdx::NLostHits_vs_Pt ]->Fill(simPt , nLostHits);
       meMap_[MEIdx::NLostHits_vs_Eta]->Fill(simEta, nLostHits);
+
+      // Number of muon hits
+      const int nValidTrackerHits = recoRef->hitPattern().numberOfValidTrackerHits(); 
+      const int nValidMuonHits = recoRef->hitPattern().numberOfValidMuonHits();
+
+      meMap_[MEIdx::NValidTrackerHits]->Fill(nValidTrackerHits);
+      meMap_[MEIdx::NValidTrackerHits_vs_Pt]->Fill(simPt, nValidTrackerHits);
+      meMap_[MEIdx::NValidTrackerHits_vs_Eta]->Fill(simEta, nValidTrackerHits);
+
+      meMap_[MEIdx::NValidMuonHits]->Fill(nValidMuonHits);
+      meMap_[MEIdx::NValidMuonHits_vs_Pt]->Fill(simPt, nValidMuonHits);
+      meMap_[MEIdx::NValidMuonHits_vs_Eta]->Fill(simEta, nValidMuonHits);
 
       const double recoNDof = recoRef->ndof();
       const double recoChi2 = recoRef->chi2();

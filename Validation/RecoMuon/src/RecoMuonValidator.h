@@ -29,6 +29,7 @@ class RecoMuonValidator : public edm::EDAnalyzer
  protected:
   edm::InputTag simLabel_;
   edm::InputTag recoLabel_;
+  edm::InputTag muonLabel_;
 
   edm::InputTag assocLabel_;
   
