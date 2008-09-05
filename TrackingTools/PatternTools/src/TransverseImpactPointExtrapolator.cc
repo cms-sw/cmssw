@@ -146,7 +146,7 @@ TransverseImpactPointExtrapolator::tipSurface (const GlobalPoint& position,
 					       const GlobalPoint& vertex) const
 {
 
-  edm::LogError("TransverseImpactPointExtrapolator")<< position<<"\n"
+  LogDebug("TransverseImpactPointExtrapolator")<< position<<"\n"
 						    <<momentum<<"\n"
 						    <<"signedTransverseRadius : "<<signedTransverseRadius<<"\n"
 						    <<vertex;
