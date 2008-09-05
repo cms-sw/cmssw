@@ -1,9 +1,11 @@
 #include <DQM/HcalMonitorModule/src/HcalMonitorModule.h>
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2008/08/21 13:43:51 $
- * $Revision: 1.71 $
+ * $Date: 2008/08/28 17:03:29 $
+ * $Revision: 1.72 $
  * \author W Fisher
  *
 */
@@ -36,6 +38,11 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
   inputLabelRecHitZDC_   = ps.getParameter<edm::InputTag>("zdcRecHitLabel");
   inputLabelCaloTower_   = ps.getParameter<edm::InputTag>("caloTowerLabel");
   inputLabelLaser_       = ps.getParameter<edm::InputTag>("hcalLaserLabel");
+
+  checkHB_=ps.getUntrackedParameter<bool>("checkHB", 1); 
+  checkHE_=ps.getUntrackedParameter<bool>("checkHE", 1);  
+  checkHO_=ps.getUntrackedParameter<bool>("checkHO", 1);  
+  checkHF_=ps.getUntrackedParameter<bool>("checkHF", 1);   
   
   evtSel_ = new HcalMonitorSelector(ps);
   
@@ -342,7 +349,6 @@ void HcalMonitorModule::endJob(void) {
   if (ctMon_!=NULL) ctMon_->done();
   if (beamMon_!=NULL) beamMon_->done();
   if(tempAnalysis_!=NULL) tempAnalysis_->done();
-  
   return;
 }
 
@@ -417,6 +423,8 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   if (!rawraw.isValid()) {
     rawOK_=false;
   }
+
+
   edm::Handle<HcalUnpackerReport> report;  
 
   e.getByType(report);
@@ -431,6 +439,16 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
       fedsListed_ = true;
     }
   }
+
+  // check which Subdetectors are on by seeing which are reading out FED data
+  // Assume subdetectors aren't present, unless we explicitly find otherwise
+  HBpresent_ = false;
+  HEpresent_ = false;
+  HOpresent_ = false;
+  HFpresent_ = false;
+  CheckSubdetectorStatus(*rawraw,*report,*readoutMap_);
+  cout <<"Present? HB: "<<HBpresent_<<" HE: "<<HEpresent_<<" HO: "<<HOpresent_<<" HF: "<<HFpresent_<<endl;
+
   
   // try to get digis
   edm::Handle<HBHEDigiCollection> hbhe_digi;
@@ -522,7 +540,11 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
     }
   // Digi monitor task
   if((digiMon_!=NULL) && (evtMask&DO_HCAL_DIGIMON) && digiOK_) 
-   digiMon_->processEvent(*hbhe_digi,*ho_digi,*hf_digi,*conditions_,*report);
+    {
+      digiMon_->setSubDetectors(HBpresent_,HEpresent_, HOpresent_, HFpresent_);
+      digiMon_->processEvent(*hbhe_digi,*ho_digi,*hf_digi,
+			     *conditions_,*report);
+    }
   if (showTiming_)
     {
       cpu_timer.stop();
@@ -580,7 +602,7 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   
   if ((beamMon_ != NULL) && (evtMask&DO_HCAL_RECHITMON) && rechitOK_)
     {
-      beamMon_->processEvent(*hb_hits,*ho_hits,*hf_hits);
+      beamMon_->processEvent(*hb_hits,*ho_hits,*hf_hits,*hf_digi);
     }
   if (showTiming_)
     {
@@ -592,8 +614,11 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
 
   // Hot Cell monitor task
   if((hotMon_ != NULL) && (evtMask&DO_HCAL_RECHITMON) && rechitOK_) 
-    hotMon_->processEvent(*hb_hits,*ho_hits,*hf_hits, 
-			  *hbhe_digi,*ho_digi,*hf_digi,*conditions_);
+    {
+      hotMon_->processEvent(*hb_hits,*ho_hits,*hf_hits, 
+			    *hbhe_digi,*ho_digi,*hf_digi,*conditions_);
+      hotMon_->setSubDetectors(HBpresent_,HEpresent_, HOpresent_, HFpresent_);
+    }
   if (showTiming_)
     {
       cpu_timer.stop();
@@ -602,8 +627,11 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
     }
   // Dead Cell monitor task -- may end up using both rec hits and digis?
   if((deadMon_ != NULL) && (evtMask&DO_HCAL_RECHITMON) && rechitOK_ && digiOK_) 
-    deadMon_->processEvent(*hb_hits,*ho_hits,*hf_hits,
-			   *hbhe_digi,*ho_digi,*hf_digi,*conditions_);			     
+    {
+      deadMon_->setSubDetectors(HBpresent_,HEpresent_, HOpresent_, HFpresent_);
+      deadMon_->processEvent(*hb_hits,*ho_hits,*hf_hits,
+			     *hbhe_digi,*ho_digi,*hf_digi,*conditions_); 
+    }
   if (showTiming_)
     {
       cpu_timer.stop();
@@ -653,7 +681,8 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
 }
 
 //--------------------------------------------------------
-bool HcalMonitorModule::prescale(){
+bool HcalMonitorModule::prescale()
+{
   ///Return true if this event should be skipped according to the prescale condition...
   ///    Accommodate a logical "OR" of the possible tests
   if (debug_) cout <<"HcalMonitorModule::prescale"<<endl;
@@ -683,18 +712,106 @@ bool HcalMonitorModule::prescale(){
       timePS = false;  //timestamp veto
       psTime_.vetoTime = psTime_.updateTime;
     }
-  }
+  } //if (timePS)
   //  if(prescaleUpdate_>0 && (nupdates_%prescaleUpdate_)==0) updatePS=false; ///need to define what "updates" means
   
   if (debug_) printf("HcalMonitorModule::prescale  evt: %d/%d, ls: %d/%d, time: %f/%d\n",
 		     ievent_,evtPS,
 		     ilumisec_,lsPS,
 		     psTime_.updateTime - psTime_.vetoTime,timePS);
-
+  
   // if any criteria wants to keep the event, do so
   if(evtPS || lsPS || timePS) return false; //FIXME updatePS left out for now
   return true;
-}
+} // HcalMonitorModule::prescale(...)
+
+
+void HcalMonitorModule::CheckSubdetectorStatus(const FEDRawDataCollection& rawraw, 
+					       const HcalUnpackerReport& report, 
+					       const HcalElectronicsMap& emap)
+{
+  vector<int> fedUnpackList;
+  for (int i=FEDNumbering::getHcalFEDIds().first; 
+       i<=FEDNumbering::getHcalFEDIds().second; 
+       i++) 
+    {
+      fedUnpackList.push_back(i);
+    }
+  
+  for (vector<int>::const_iterator i=fedUnpackList.begin();
+       i!=fedUnpackList.end(); 
+       ++i) 
+    {
+      const FEDRawData& fed = rawraw.FEDData(*i);
+      if (fed.size()<12) continue; // Was 16. How do such tiny events even get here?
+      
+      // get the DCC header
+      const HcalDCCHeader* dccHeader=(const HcalDCCHeader*)(fed.data());
+      if (!dccHeader) return;
+      int dccid=dccHeader->getSourceId();
+      // check for HF
+      if (dccid>717 && dccid<724)
+	{
+	  HFpresent_ = true;
+	  continue;
+	}
+      // check for HO
+      if (dccid>723)
+	{
+	  HOpresent_ = true;
+	  continue;
+	}
+
+      // Looking at HB and HE is more complicated, since they're combined into HBHE
+      // walk through the HTR data...
+      HcalHTRData htr;  
+      for (int spigot=0; spigot<HcalDCCHeader::SPIGOT_COUNT; spigot++) {    
+	if (!dccHeader->getSpigotPresent(spigot)) continue;
+	
+	// Load the given decoder with the pointer and length from this spigot.
+	dccHeader->getSpigotData(spigot,htr); 
+	
+	// check min length, correct wordcount, empty event, or total length if histo event.
+	if (!htr.check()) continue;
+	if (htr.isHistogramEvent()) continue;
+	
+	int firstFED =  FEDNumbering::getHcalFEDIds().first; 
+
+	for(int fchan=0; fchan<3; ++fchan)
+	  {
+	    for(int fib=0; fib<9; ++fib)
+	      {
+		HcalElectronicsId eid(fchan,fib,spigot,dccid-firstFED);
+		eid.setHTR(htr.readoutVMECrateId(),
+			   htr.htrSlot(),htr.htrTopBottom());
+		DetId did=emap.lookup(eid);
+		if (!did.null()) 
+		  {
+		    
+		    switch (((HcalSubdetector)did.subdetId()))
+		      {
+		      case (HcalBarrel): {
+			HBpresent_ = true;
+		      } break;
+		      case (HcalEndcap): {
+			HEpresent_ = true;
+		      } break;
+		      case (HcalOuter): { // shouldn't reach these last two cases
+			HOpresent_ = true;
+			return;
+		      } break;
+		      case (HcalForward): {
+			HFpresent_ = true;
+		      } break;
+		      default: break;
+		      }
+		  } // if (!did.null())
+	      } // for (int fib=0;...)
+	  } // for (int fchan = 0;...)
+	
+      } // for (int spigot=0;...)
+    } // for (vector<int>::const_iterator i=fedUnpackList.begin();...)
+} // void HcalMonitorModule::CheckSubdetectorStatus(...)
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include <DQM/HcalMonitorModule/src/HcalMonitorModule.h>
