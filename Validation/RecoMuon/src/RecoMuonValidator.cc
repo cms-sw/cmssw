@@ -230,6 +230,7 @@ RecoMuonValidator::RecoMuonValidator(const ParameterSet& pset)
   // - Misc variables
   meMap_[MEIdx::NSim]  = theDQM->book1D("NSim" , "Number of particles per event"  , nTrks, 0, nTrks);
   meMap_[MEIdx::NReco] = theDQM->book1D("NReco", "Number of reco tracks per event", nTrks, 0, nTrks);
+  meMap_[MEIdx::NMuon] = theDQM->book1D("NMuon", "Number of muons per event", nTrks, 0, nTrks);
 
   meMap_[MEIdx::MisQPt ] = theDQM->book1D("MisQPt" , "Charge mis-id vs Pt" , nBinPt , minPt , maxPt );
   meMap_[MEIdx::MisQEta] = theDQM->book1D("MisQEta", "Charge mis-id vs Eta", nBinEta, minEta, maxEta);
