@@ -9,6 +9,7 @@
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimatorBase.h"
 #include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilter.h"
+#include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
 
 #include <sstream>
 
@@ -62,9 +63,24 @@ std::string dumpMeasurements(const std::vector<TrajectoryMeasurement> & v)
 }
 
 
-void MuonCkfTrajectoryBuilder::collectMeasurement(const std::vector<const DetLayer*>& nl,const TrajectoryStateOnSurface & currentState, std::vector<TM>& result,int& invalidHits, const Propagator * prop) const{
+void MuonCkfTrajectoryBuilder::collectMeasurement(const DetLayer* layer,const std::vector<const DetLayer*>& nl,const TrajectoryStateOnSurface & currentState, std::vector<TM>& result,int& invalidHits, const Propagator * prop) const{
   for (std::vector<const DetLayer*>::const_iterator il = nl.begin();
        il != nl.end(); il++) {
+
+    TSOS stateToUse = currentState;
+    
+    if (layer == (*il)){
+      LogDebug("CkfPattern")<<" self propagating in findCompatibleMeasurements.\n from: \n"<<stateToUse;
+      //self navigation case
+      // go to a middle point first
+      TransverseImpactPointExtrapolator middle;
+      GlobalPoint center(0,0,0);
+      stateToUse = middle.extrapolate(stateToUse, center, *prop);
+
+      if (!stateToUse.isValid()) continue;
+      LogDebug("CkfPattern")<<"to: "<<stateToUse;
+    }
+
     std::vector<TM> tmp =
       theLayerMeasurements->measurements((**il),currentState, *prop, *theEstimator);
     
@@ -122,7 +138,7 @@ MuonCkfTrajectoryBuilder::findCompatibleMeasurements( const TempTrajectory& traj
 	  //get the measurements on the layer first
 	  LogDebug("CkfPattern")<<"using the layer of the seed first.";
           nl.push_back(l);
-          collectMeasurement(nl,currentState,result,invalidHits,theProximityPropagator);
+          collectMeasurement(l,nl,currentState,result,invalidHits,theProximityPropagator);
         }
 	
         //if fails: try to rescale locally the state to find measurements
@@ -133,7 +149,7 @@ MuonCkfTrajectoryBuilder::findCompatibleMeasurements( const TempTrajectory& traj
 	    TrajectoryStateOnSurface rescaledCurrentState = currentState;
 	    rescaledCurrentState.rescaleError(theRescaleErrorIfFail);
 	    invalidHits=0;
-	    collectMeasurement(nl,rescaledCurrentState,result,invalidHits,theProximityPropagator);
+	    collectMeasurement(l,nl,rescaledCurrentState,result,invalidHits,theProximityPropagator);
           }
       }
 
@@ -151,7 +167,7 @@ MuonCkfTrajectoryBuilder::findCompatibleMeasurements( const TempTrajectory& traj
             nl = l->nextLayers(((traj.direction()==alongMomentum)?insideOut:outsideIn));
           }
           invalidHits=0;
-          collectMeasurement(nl,currentState,result,invalidHits,theForwardPropagator);
+          collectMeasurement(l,nl,currentState,result,invalidHits,theForwardPropagator);
         }
 
       //if fails: this is on the next layers already, try rescaling locally the state
@@ -162,7 +178,7 @@ MuonCkfTrajectoryBuilder::findCompatibleMeasurements( const TempTrajectory& traj
           TrajectoryStateOnSurface rescaledCurrentState = currentState;
           rescaledCurrentState.rescaleError(theRescaleErrorIfFail);
           invalidHits=0;
-          collectMeasurement(nl,rescaledCurrentState, result,invalidHits,theForwardPropagator);
+          collectMeasurement(l,nl,rescaledCurrentState, result,invalidHits,theForwardPropagator);
         }
 
     }
@@ -174,7 +190,7 @@ MuonCkfTrajectoryBuilder::findCompatibleMeasurements( const TempTrajectory& traj
       nl = traj.lastLayer()->nextLayers( *currentState.freeState(), traj.direction());
       if (nl.empty()){LogDebug("CkfPattern")<<" no next layers... going "<<traj.direction()<<"\n from: \n"<<currentState<<"\n from detId: "<<traj.lastMeasurement().recHit()->geographicalId().rawId(); return ;}
 
-      collectMeasurement(nl,currentState,result,invalidHits,theForwardPropagator);
+      collectMeasurement(traj.lastLayer(),nl,currentState,result,invalidHits,theForwardPropagator);
     }
 
 
