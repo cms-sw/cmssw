@@ -12,14 +12,13 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
 #include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
-#include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFConversion.h"
 #include "DataFormats/ParticleFlowReco/interface/PFConversionFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrackFwd.h"
+#include "RecoEgamma/EgammaTools/interface/ConversionLikelihoodCalculator.h"
 //
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 //
@@ -83,13 +82,13 @@ void PFConversionsProducer::produce( edm::Event& e, const edm::EventSetup& )
   nEvt_++;  
   
   ///// Get the externally reconstructed  conversions
-  Handle<reco::PhotonCollection> conversionHandle; 
+  Handle<reco::ConversionCollection> conversionHandle; 
   e.getByLabel(conversionCollectionProducer_, conversionCollection_ , conversionHandle);
   if (! conversionHandle.isValid()) {
     edm::LogError("PFConversionsProducer") << "Error! Can't get the product "<<conversionCollection_.c_str();
     return;
   }
-  const reco::PhotonCollection conversionCollection = *(conversionHandle.product());
+  const reco::ConversionCollection conversionCollection = *(conversionHandle.product());
   //  std::cout  << "PFConversionsProducer  input conversions collection size " << conversionCollection.size() << "\n";
 
 
@@ -119,24 +118,54 @@ void PFConversionsProducer::produce( edm::Event& e, const edm::EventSetup& )
   reco::PFRecTrackCollection pfConversionRecTrackCollection;
   std::auto_ptr<reco::PFRecTrackCollection> pfConversionRecTrackCollection_p(new reco::PFRecTrackCollection);
 
-
+  
   reco::PFRecTrackRefProd pfTrackRefProd = e.getRefBeforePut<reco::PFRecTrackCollection>(PFConversionRecTracks_);
-
-
+  
+  
   int iPfTk=0;
-  for( reco::PhotonCollection::const_iterator  iPho = conversionCollection.begin(); iPho != conversionCollection.end(); iPho++) {
-    if ( !(*iPho).isConverted() ) continue;
-    std::vector<reco::ConversionRef> conversions = (*iPho).conversions();
+  std::vector<reco::ConversionRef> tmp;
+  std::map<reco::CaloClusterPtr, std::vector<reco::ConversionRef> > aMap;
+  
+  
+  
+  for( unsigned int icp = 0;  icp < conversionHandle->size(); icp++) {
+    reco::ConversionRef cpRef(reco::ConversionRef(conversionHandle,icp));
+    std::vector<reco::TrackRef> tracks = cpRef->tracks();
+    if ( tracks.size() < 2 ) continue;
+    reco::CaloClusterPtr aClu = cpRef->caloCluster()[0];
+     
+    tmp.clear();
+    for( unsigned int jcp = icp;  jcp < conversionHandle->size(); jcp++) {
+      reco::ConversionRef cp2Ref(reco::ConversionRef(conversionHandle,jcp));
+      std::vector<reco::TrackRef> tracks2 = cp2Ref->tracks();
+      if ( tracks.size() < 2 ) continue;
+ 
+      
+      if ( cpRef->caloCluster()[0] == cp2Ref ->caloCluster()[0] ) {
+	if (debug_) std::cout << " PFConversionProducer Pushing back SC Energy " << aClu->energy() << " eta " << aClu->eta() << " phi " << aClu->phi() << " E/P " << cp2Ref->EoverP() << std::endl;     	
+	tmp.push_back(cp2Ref);    
+      }
 
 
 
+    }
+ 
+    aMap.insert(make_pair(  aClu, tmp ));   
+  }
+
+    
+  
+  for (  std::map<reco::CaloClusterPtr, std::vector<reco::ConversionRef> >::iterator iMap = aMap.begin(); iMap!= aMap.end(); ++iMap) {
+    std::vector<reco::ConversionRef> conversions = iMap->second;
+    
+    
     float epMin=999;
     unsigned int iBestConv=0;
-    for (unsigned int iConv=0; iConv<conversions.size(); iConv++) {
-      
-      std::vector<reco::TrackRef> tracks = conversions[iConv]->tracks();
-      if (debug_) std::cout << " PFConversionProducer This conversion candidate has track size " << tracks.size() << std::endl;
-      if (debug_) std::cout << " PFConversionProducer SC Energy " << (*iPho).superCluster()->energy() << " eta " << (*iPho).superCluster()->eta() << " phi " << (*iPho).superCluster()->phi() << std::endl;
+    for( unsigned int icp = 0;  icp < conversions.size(); icp++) {
+      reco::ConversionRef cpRef = conversions[icp];
+      std::vector<reco::TrackRef> tracks = cpRef->tracks();
+      if (debug_) std::cout << " PFConversionProducer This conversion candidate has track size " << tracks.size() << " E/P " << cpRef->EoverP() << std::endl;
+      if (debug_) std::cout << " PFConversionProducer SC Energy " << cpRef->caloCluster()[0]->energy() << " eta " << cpRef->caloCluster()[0]->eta() << " phi " << cpRef->caloCluster()[0]->phi() << std::endl;
       
       float px=0;
       float py=0;
@@ -147,24 +176,25 @@ void PFConversionsProducer::produce( edm::Event& e, const edm::EventSetup& )
 	pz+=tracks[i]->innerMomentum().z();
       }
       float p=sqrt(px*px+py*py+pz*pz);
-      float ep=fabs(1.-(*iPho).superCluster()->energy()/p);
-       if (debug_) std::cout << "iConv " << iConv  << " 1-E/P = " << ep << std::endl; 
+      float ep=fabs(1.-cpRef->caloCluster()[0]->energy()/p);
+      if (debug_) std::cout << "icp " << icp  << " 1-E/P = " << ep << " E/P " << cpRef->caloCluster()[0]->energy()/p << std::endl; 
       if ( ep<epMin) {
 	epMin=ep;
-	iBestConv=iConv;
+	iBestConv=icp;
       }
       
     }
-
+    
+  
     if (debug_) std::cout<< " Best conv " << iBestConv << std::endl;
     std::vector<reco::TrackRef> tracks = conversions[iBestConv]->tracks();
-    if ( tracks.size() < 2 ) continue;
-
-    std::vector<reco::PFRecTrackRef> pfRecTracksRef;
     
+    
+    /////////////////////// Transform trajectories from conversion tracks in to PFRecTracks
+    std::vector<reco::PFRecTrackRef> pfRecTracksRef;
     for (unsigned int i=0; i<tracks.size(); i++) {
       
-      if (debug_) std::cout << " PFConversionProducer Track charge " <<  tracks[i]->charge() << " pt " << tracks[i]->pt() << " eta " << tracks[i]->eta() << " phi " << tracks[i]->phi() << std::endl;        
+      //  if (debug_) std::cout << " PFConversionProducer Track charge " <<  tracks[i]->charge() << " pt " << tracks[i]->pt() << " eta " << tracks[i]->eta() << " phi " << tracks[i]->phi() << std::endl;        
       
       
       int nFound=0;
@@ -215,25 +245,19 @@ void PFConversionsProducer::produce( edm::Event& e, const edm::EventSetup& )
 	  }
 	  
 	}
-	
-	
-	
       }
-      
-      
-      
     }
     
-
+    
     reco::PFConversion  pfConversion(conversions[iBestConv], pfRecTracksRef);
     outputConversionCollection.push_back(pfConversion);
-
-    //   } // loop over conversions 
-
+    
+    
+    
   }  /// loop over photons
-
-
-
+  
+  
+  
   // put the products in the event
   if (debug_) std::cout << " PFConversionProducer putting PFConversions in the event " << outputConversionCollection.size() <<  std::endl; 
   outputConversionCollection_p->assign(outputConversionCollection.begin(),outputConversionCollection.end());
