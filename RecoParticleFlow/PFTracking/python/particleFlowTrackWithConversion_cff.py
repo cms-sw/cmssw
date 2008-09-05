@@ -12,6 +12,8 @@ import TrackingTools.GsfTracking.GsfElectronFit_cfi
 gsfPFtracks = TrackingTools.GsfTracking.GsfElectronFit_cfi.GsfGlobalElectronTest.clone()
 from RecoParticleFlow.PFTracking.pfTrackElec_cfi import *
 from RecoEgamma.EgammaPhotonProducers.softConversionSequence_cff import *
+from RecoParticleFlow.PFTracking.pfConversions_cfi import *
+
 
 particleFlowTrackWithConversion =cms.Sequence(
     elecPreId*
@@ -19,7 +21,11 @@ particleFlowTrackWithConversion =cms.Sequence(
     gsfElCandidates*
     gsfPFtracks*
     pfTrackElec*
-    softConversionSequence)
+    softConversionSequence*
+    pfConversions
+    )
+
+
 gsfElCandidates.TrajectoryBuilder = 'TrajectoryBuilderForPixelMatchGsfElectrons'
 gsfElCandidates.SeedProducer = 'gsfSeedclean'
 gsfElCandidates.SeedLabel = ''
