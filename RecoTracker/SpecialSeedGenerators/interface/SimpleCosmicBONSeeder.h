@@ -64,6 +64,9 @@ class SimpleCosmicBONSeeder : public edm::EDProducer
   GlobalTrackingRegion region;
   bool writeTriplets_;
 
+  bool   seedOnMiddle_; 
+  double rescaleError_;
+
   uint32_t tripletsVerbosity_,seedVerbosity_, helixVerbosity_;
  
   edm::ESHandle<MagneticField>                  magfield;

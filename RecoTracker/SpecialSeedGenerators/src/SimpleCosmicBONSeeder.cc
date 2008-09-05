@@ -13,6 +13,8 @@ SimpleCosmicBONSeeder::SimpleCosmicBONSeeder(edm::ParameterSet const& conf) :
   conf_(conf),
   theLsb(conf.getParameter<edm::ParameterSet>("TripletsPSet")),
   writeTriplets_(conf.getParameter<bool>("writeTriplets")),
+  seedOnMiddle_(conf.existsAs<bool>("seedOnMiddle") ? conf.getParameter<bool>("seedOnMiddle") : false),
+  rescaleError_(conf.existsAs<double>("rescaleError") ? conf.getParameter<double>("rescaleError") : 1.0),
   tripletsVerbosity_(conf.getParameter<edm::ParameterSet>("TripletsPSet").getUntrackedParameter<uint32_t>("debugLevel",0)),
   seedVerbosity_(conf.getUntrackedParameter<uint32_t>("seedDebugLevel",0)),
   helixVerbosity_(conf.getUntrackedParameter<uint32_t>("helixDebugLevel",0)),
@@ -381,6 +383,10 @@ void SimpleCosmicBONSeeder::seedsOutIn(TrajectorySeedCollection &output, const e
         TSOS propagated, updated;
         bool fail = false;
         for (size_t ih = 0; ih < 3; ++ih) {
+            if ((ih == 2) && seedOnMiddle_) {
+                if (seedVerbosity_ > 2) 
+                    std::cout << "Stopping at middle hit, as requested." << std::endl;
+            }
             if (seedVerbosity_ > 2)
                 std::cout << "Processing triplet " << it << ", hit " << ih << "." << std::endl;
             if (ih == 0) {
@@ -411,6 +417,13 @@ void SimpleCosmicBONSeeder::seedsOutIn(TrajectorySeedCollection &output, const e
         }
 
         if (!fail) {
+            if (rescaleError_ != 1.0) {
+                if (seedVerbosity_ > 2) {
+                    std::cout << "Processing triplet " << it << ", rescale error by " << rescaleError_ << ": state BEFORE rescaling " << updated;
+                    std::cout << "    Cartesian error (X,P) before rescaling= \n" << updated.cartesianError().matrix() << std::endl;
+                }
+                updated.rescaleError(rescaleError_);
+            }
             if (seedVerbosity_ > 0) {
                 std::cout << "Processed  triplet " << it << ": success: " << inner << " + " << middle << " + " << outer << std::endl;
                 std::cout << "    pt = " << updated.globalMomentum().perp() <<
