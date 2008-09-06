@@ -1341,12 +1341,16 @@ DQMNet::run(void)
 
     // Check if flush is required.  Flush only if one is needed.
     // Always sends the full object list, but only rarely.
+    // Compact objects no longer in active use before sending
+    // out the update.
     if (flush_ && now > nextFlush)
     {
       flush_ = false;
-      nextFlush = now + TimeSpan(0, 0, 0, 60 /* seconds */, 0);
+      nextFlush = now + TimeSpan(0, 0, 0, 15 /* seconds */, 0);
 
       lock();
+      purgeDeadObjects(now - TimeSpan(0, 0, 2 /* minutes */, 0, 0),
+		       now - TimeSpan(0, 0, 20 /* minutes */, 0, 0));
       sendObjectListToPeers(true);
       unlock();
     }
@@ -1371,10 +1375,6 @@ DQMNet::run(void)
       else
 	++i;
     }
-
-    // Compact objects no longer in active use.
-    purgeDeadObjects(now - TimeSpan(0, 0, 2 /* minutes */, 0, 0),
-		     now - TimeSpan(0, 0, 20 /* minutes */, 0, 0));
     unlock();
   }
 }
