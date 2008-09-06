@@ -328,8 +328,10 @@ protected:
 	    purgeDeadObject(o);
 	  }
 
-	  // Remove if dead and unused.
-	  if (o.lastreq < deadobj && (o.flags & DQM_FLAG_DEAD))
+	  // Remove if dead, old and unused.
+	  if (o.lastreq < deadobj
+	      && o.version < deadobj
+	      && (o.flags & DQM_FLAG_DEAD))
 	  {
 	    if (debug_)
 	      logme()

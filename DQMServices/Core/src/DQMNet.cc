@@ -28,6 +28,11 @@
 #include <iostream>
 #include <cassert>
 
+#define MESSAGE_SIZE_LIMIT	(2*1024*1024)
+#define SOCKET_BUF_SIZE		(8*1024*1024)
+#define SOCKET_READ_SIZE	(SOCKET_BUF_SIZE/8)
+#define SOCKET_READ_GROWTH	(SOCKET_BUF_SIZE)
+
 using namespace lat;
 
 static const Regexp s_rxmeval ("<(.*)>(i|f|s|qr)=(.*)</\\1>");
@@ -551,6 +556,7 @@ DQMNet::onMessage(Bucket *msg, Peer *p, unsigned char *data, size_t len)
       Object *o = findObject(0, name, &owner);
       if (o)
       {
+	o->lastreq = Time::current();
 	if (o->rawdata.empty())
 	  waitForData(p, name, "", owner);
 	else
@@ -837,9 +843,9 @@ DQMNet::onPeerData(IOSelectEvent *ev, Peer *p)
     IOSize sz;
     try
     {
-      unsigned char buf [1024];
+      std::vector<unsigned char> buf(SOCKET_READ_SIZE);
       do
-	if ((sz = ev->source->read(buf, sizeof(buf))))
+	if ((sz = ev->source->read(&buf[0], buf.size())))
 	{
 	  if (debug_)
 	    logme()
@@ -847,8 +853,8 @@ DQMNet::onPeerData(IOSelectEvent *ev, Peer *p)
 	      << p->peeraddr << std::endl;
 	  DataBlob &data = p->incoming;
 	  if (data.capacity () < data.size () + sz)
-	    data.reserve (data.size() + 8*1024*1024);
-	  data.insert (data.end(), buf, buf + sz);
+	    data.reserve (data.size() + SOCKET_READ_GROWTH);
+	  data.insert (data.end(), &buf[0], &buf[0] + sz);
 	}
       while (sz == sizeof (buf));
     }
@@ -872,7 +878,7 @@ DQMNet::onPeerData(IOSelectEvent *ev, Peer *p)
       uint32_t msglen;
       memcpy (&msglen, &data[0]+consumed, sizeof(msglen));
 
-      if (msglen >= 512*1024)
+      if (msglen >= MESSAGE_SIZE_LIMIT)
 	return losePeer("WARNING: excessively large message from ", p, ev);
 
       if (data.size()-consumed >= msglen)
@@ -1116,6 +1122,8 @@ DQMNet::startLocalServer(int port)
   try
   {
     server_ = new InetServerSocket(InetAddress (port), 10);
+    server_->setopt(lat::SocketConst::OptSockSendBuffer, SOCKET_BUF_SIZE);
+    server_->setopt(lat::SocketConst::OptSockReceiveBuffer, SOCKET_BUF_SIZE);
     server_->setBlocking(false);
     sel_.attach(server_, IOAccept, CreateHook(this, &DQMNet::onPeerConnect));
   }
@@ -1259,6 +1267,8 @@ DQMNet::run(void)
 	  s = new InetSocket (SocketConst::TypeStream);
 	  s->setBlocking (false);
 	  s->connect(InetAddress (ap->host.c_str(), ap->port));
+	  s->setopt(lat::SocketConst::OptSockSendBuffer, SOCKET_BUF_SIZE);
+	  s->setopt(lat::SocketConst::OptSockReceiveBuffer, SOCKET_BUF_SIZE);
 	}
 	catch (Error &e)
 	{
@@ -1364,7 +1374,7 @@ DQMNet::run(void)
 
     // Compact objects no longer in active use.
     purgeDeadObjects(now - TimeSpan(0, 0, 2 /* minutes */, 0, 0),
-		     now - TimeSpan(0, 0, 5 /* minutes */, 0, 0));
+		     now - TimeSpan(0, 0, 20 /* minutes */, 0, 0));
     unlock();
   }
 }
