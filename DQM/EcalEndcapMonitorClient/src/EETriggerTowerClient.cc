@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerClient.cc
  *
- * $Date: 2008/09/05 13:38:05 $
- * $Revision: 1.75 $
+ * $Date: 2008/09/05 16:01:11 $
+ * $Revision: 1.76 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -18,12 +18,12 @@
 #include "TGraph.h"
 #include "TLine.h"
 
-#include <DataFormats/EcalDetId/interface/EEDetId.h>
-
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
+
+#include <DataFormats/EcalDetId/interface/EEDetId.h>
 
 #include <DQM/EcalEndcapMonitorClient/interface/EETriggerTowerClient.h>
 
@@ -237,8 +237,10 @@ void EETriggerTowerClient::cleanup(void) {
 
   if ( ! enableCleanup_ ) return;
 
-  if ( h01_ ) delete h01_;
-  if ( h02_ ) delete h02_;
+  if ( cloneME_ ) {
+    if ( h01_ ) delete h01_;
+    if ( h02_ ) delete h02_;
+  }
 
   h01_ = 0;
   h02_ = 0;
