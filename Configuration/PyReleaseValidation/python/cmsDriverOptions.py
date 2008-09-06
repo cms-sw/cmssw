@@ -36,7 +36,7 @@ parser.add_option("--conditions",
 
 parser.add_option("--eventcontent",
                   help="What event content to write out. Default=FEVTDEBUG, or FEVT (for cosmics)",
-                  default='FEVTDEBUG',
+                  default=None,
                   dest="eventcontent")
 
 parser.add_option("--filein",
@@ -312,9 +312,9 @@ if not options.isData and not options.isMC:
     if 'SIM' in options.datatier:
         options.isMC=True
     if options.isMC:
-        print 'We have determined that this is simulation (if not, rerun with --data)'
+        print 'We have determined that this is simulation (if not, rerun cmsDriver.py with --data)'
     else:
-        print 'We have determined that this is real data (if not, rerun with --mc)'
+        print 'We have determined that this is real data (if not, rerun cmsDriver.py with --mc)'
     
 options.outfile_name = options.dirout+options.fileout
 

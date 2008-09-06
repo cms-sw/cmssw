@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.88 $"
+__version__ = "$Revision: 1.89 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -115,7 +115,7 @@ class ConfigBuilder(object):
         """ Add output module to the process """    
         
         self.loadAndRemember(self.EVTCONTDefaultCFF)
-        theEventContent = getattr(self.process, self._options.eventcontent.split(',')[-1]+"EventContent")
+        theEventContent = getattr(self.process, self.eventcontent.split(',')[-1]+"EventContent")
  
         output = cms.OutputModule("PoolOutputModule",
                                   theEventContent,
@@ -138,7 +138,7 @@ class ConfigBuilder(object):
 
             # ATTENTION: major tweaking to avoid inlining of event content
             # should we do that?
-            def dummy(instance,label = "process."+self._options.eventcontent.split(',')[-1]+"EventContent.outputCommands"):
+            def dummy(instance,label = "process."+self.eventcontent.split(',')[-1]+"EventContent.outputCommands"):
                 return label
         
             self.process.output.outputCommands.__dict__["dumpPython"] = dummy
@@ -318,8 +318,7 @@ class ConfigBuilder(object):
   	    self.DQMOFFLINEDefaultCFF="DQMOffline/Configuration/DQMOfflineCosmics_cff"
    	    self.RECODefaultSeq='reconstructionCosmics'
 	    self.DQMDefaultSeq='DQMOfflineCosmics'
-	    self._options.eventcontent='FEVT'
-	    self.defaultMagField='0T'
+	    self.eventcontent='FEVT'
 	    
         # the magnetic field
 	if self._options.magField=='Default':
@@ -335,6 +334,10 @@ class ConfigBuilder(object):
 	    self.beamspot=self._options.beamspot
 	else:
 	    self.beamspot=self.defaultBeamSpot	
+
+	if self._options.eventcontent != None:
+	    self.eventcontent=self._options.eventcontent	
+
 
 # for alca, skims, etc
     def addExtraStream(self,name,stream):
@@ -561,7 +564,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.88 $"),
+              (version=cms.untracked.string("$Revision: 1.89 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
