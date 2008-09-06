@@ -35,6 +35,7 @@ public:
   static const uint32_t DQM_FLAG_REPORT_WARNING	= 0x2;
   static const uint32_t DQM_FLAG_REPORT_OTHER	= 0x4;
   static const uint32_t DQM_FLAG_SCALAR		= 0x8;
+  static const uint32_t DQM_FLAG_ZOMBIE		= 0x08000000;
   static const uint32_t DQM_FLAG_TEXT		= 0x10000000;
   static const uint32_t DQM_FLAG_RECEIVED	= 0x20000000;
   static const uint32_t DQM_FLAG_NEW		= 0x40000000;
@@ -156,7 +157,8 @@ protected:
   bool			reinstateObject(DQMStore *store, Object &o);
   virtual Object *	findObject(Peer *p, const std::string &name, Peer **owner = 0) = 0;
   virtual Object *	makeObject(Peer *p, const std::string &name) = 0;
-  virtual void		markAllObjectsDead(Peer *p) = 0;
+  virtual void		markObjectsZombies(Peer *p) = 0;
+  virtual void		markObjectsDead(Peer *p) = 0;
   virtual void		purgeDeadObjects(lat::Time oldobj, lat::Time deadobj) = 0;
 
   virtual Peer *	getPeer(lat::Socket *s) = 0;
@@ -291,14 +293,30 @@ protected:
       return o;
     }
 
-  // Mark all objects as dead.
+  // Mark all the objects as zombies.  This is intended to be used
+  // when starting to process a complete list of objects, in order
+  // to flag the objects that need to be killed at the end.  After
+  // call to this method, revive all live objects by removing the
+  // DQM_FLAG_ZOMBIE flag, then call markObjectsDead() at the end
+  // to flag dead as all remaining zombies.
   virtual void
-  markAllObjectsDead(Peer *p)
+  markObjectsZombies(Peer *p)
     {
       ImplPeer *ip = static_cast<ImplPeer *>(p);
       typename ObjectMap::iterator i, e;
       for (i = ip->objs.begin(), e = ip->objs.end(); i != e; ++i)
-	i->second.flags |= DQM_FLAG_DEAD;
+	i->second.flags |= DQM_FLAG_ZOMBIE;
+    }
+
+  // Mark remaining zombie objects as dead.  See markObjectsZombies().
+  virtual void
+  markObjectsDead(Peer *p)
+    {
+      ImplPeer *ip = static_cast<ImplPeer *>(p);
+      typename ObjectMap::iterator i, e;
+      for (i = ip->objs.begin(), e = ip->objs.end(); i != e; ++i)
+	if (i->second.flags & DQM_FLAG_ZOMBIE)
+	  i->second.flags = (i->second.flags & ~DQM_FLAG_ZOMBIE) | DQM_FLAG_DEAD;
     }
 
   // Purge all old and dead objects.

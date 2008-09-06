@@ -431,7 +431,7 @@ DQMNet::extractScalarData(DataBlob &objdata, Object &o)
 void
 DQMNet::sendObjectToPeer(Bucket *msg, Object &o, bool data, bool text)
 {
-  uint32_t flags = o.flags;
+  uint32_t flags = o.flags & ~DQM_FLAG_ZOMBIE;
   DataBlob objdata;
 
   if (text && extractScalarData(objdata, o))
@@ -604,7 +604,7 @@ DQMNet::onMessage(Bucket *msg, Peer *p, unsigned char *data, size_t len)
       if (flags)
       {
 	lock();
-	markAllObjectsDead(p);
+	markObjectsZombies(p);
 	unlock();
       }
     }
@@ -623,6 +623,17 @@ DQMNet::onMessage(Bucket *msg, Peer *p, unsigned char *data, size_t len)
       // Get the update status: whether this is a full update.
       uint32_t flags;
       memcpy(&flags, data + 3*sizeof(uint32_t), sizeof(uint32_t));
+
+      // If we received a full list of objects, flag all zombie objects
+      // now dead. We need to do this in two stages in case we receive
+      // updates in many parts, and end up sending updates to others in
+      // between; this avoids us lying live objects are dead.
+      if (flags)
+      {
+	lock();
+	markObjectsDead(p);
+	unlock();
+      }
 
       if (debug_)
 	logme()
