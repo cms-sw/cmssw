@@ -1,6 +1,11 @@
 #ifndef PFConversionsProducer_H
 #define PFConversionsProducer_H
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "DataFormats/EgammaCandidates/interface/Conversion.h"
+#include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFConversion.h"
+#include "DataFormats/ParticleFlowReco/interface/PFConversionFwd.h"
+
 
 #include <map>
 #include <vector>
@@ -23,6 +28,17 @@ class PFConversionsProducer : public edm::EDProducer
       virtual void endJob ();
 
    private:
+
+      void fillPFConversions ( reco::ConversionRef& ,
+			       const edm::Handle<reco::TrackCollection> & outInTrkHandle, 
+			       const edm::Handle<reco::TrackCollection> & inOutTrkHandle, 
+			       const edm::Handle<std::vector<Trajectory> > &   outInTrajectoryHandle, 
+			       const edm::Handle<std::vector<Trajectory> > &   inOutTrajectoryHandle, 
+                               int ipfTk,
+			       reco::PFRecTrackRefProd& tkRefProd, 
+			       reco::PFConversionCollection& pfconv, 
+			       reco::PFRecTrackCollection& pfrectrack );
+
 
      int nEvt_;
      std::string conversionCollectionProducer_;       

@@ -10,12 +10,8 @@
 #include "FWCore/Utilities/interface/Exception.h"
 //
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/EgammaCandidates/interface/Conversion.h"
-#include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-#include "DataFormats/ParticleFlowReco/interface/PFConversion.h"
-#include "DataFormats/ParticleFlowReco/interface/PFConversionFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrackFwd.h"
 #include "RecoEgamma/EgammaTools/interface/ConversionLikelihoodCalculator.h"
@@ -93,13 +89,13 @@ void PFConversionsProducer::produce( edm::Event& e, const edm::EventSetup& )
 
 
    //read collections of trajectories
-  Handle<std::vector<Trajectory> > outInTrajectoryCollection;
-  e.getByLabel("ckfOutInTracksFromConversions",outInTrajectoryCollection); 
-  std::vector<Trajectory> tjOIvec= *(outInTrajectoryCollection.product());
+  Handle<std::vector<Trajectory> > outInTrajectoryHandle;
+  e.getByLabel("ckfOutInTracksFromConversions",outInTrajectoryHandle); 
+  //  
 
-  Handle<std::vector<Trajectory> > inOutTrajectoryCollection; 
-  e.getByLabel("ckfInOutTracksFromConversions",inOutTrajectoryCollection); 
-  std::vector<Trajectory> tjIOvec= *(inOutTrajectoryCollection.product());
+  Handle<std::vector<Trajectory> > inOutTrajectoryHandle; 
+  e.getByLabel("ckfInOutTracksFromConversions",inOutTrajectoryHandle); 
+
 
   // read collections of tracks
   Handle<reco::TrackCollection> outInTrkHandle; 
@@ -187,8 +183,48 @@ void PFConversionsProducer::produce( edm::Event& e, const edm::EventSetup& )
     
   
     if (debug_) std::cout<< " Best conv " << iBestConv << std::endl;
+    reco::ConversionRef cpRef = conversions[iBestConv];
     std::vector<reco::TrackRef> tracks = conversions[iBestConv]->tracks();
+
+    fillPFConversions ( cpRef, outInTrkHandle, inOutTrkHandle, outInTrajectoryHandle, inOutTrajectoryHandle, iPfTk,  pfTrackRefProd, outputConversionCollection,  pfConversionRecTrackCollection);
     
+    
+  }  /// loop over photons
+  
+  
+  
+  // put the products in the event
+  if (debug_) std::cout << " PFConversionProducer putting PFConversions in the event " << outputConversionCollection.size() <<  std::endl; 
+  outputConversionCollection_p->assign(outputConversionCollection.begin(),outputConversionCollection.end());
+  e.put( outputConversionCollection_p, PFConversionCollection_ );
+
+  if (debug_)  std::cout << " PFConversionProducer putting pfRecTracks in the event " << pfConversionRecTrackCollection.size() <<  std::endl; 
+  pfConversionRecTrackCollection_p->assign(pfConversionRecTrackCollection.begin(),pfConversionRecTrackCollection.end());
+  e.put( pfConversionRecTrackCollection_p, PFConversionRecTracks_ );
+
+  
+
+
+}
+
+
+
+void PFConversionsProducer:: fillPFConversions ( reco::ConversionRef& cpRef, 
+						 const edm::Handle<reco::TrackCollection> & outInTrkHandle,
+						 const edm::Handle<reco::TrackCollection> & inOutTrkHandle, 
+                                                 const edm::Handle<std::vector<Trajectory> > &   outInTrajectoryHandle, 
+						 const edm::Handle<std::vector<Trajectory> > &   inOutTrajectoryHandle,
+                                                 int iPfTk,
+						 reco::PFRecTrackRefProd& pfTrackRefProd,
+						 reco::PFConversionCollection& outputConversionCollection,
+						 reco::PFRecTrackCollection& pfConversionRecTrackCollection ) {
+
+
+  std::vector<Trajectory> tjOIvec= *(outInTrajectoryHandle.product());
+  std::vector<Trajectory> tjIOvec= *(inOutTrajectoryHandle.product());
+
+
+    std::vector<reco::TrackRef> tracks = cpRef->tracks();
     
     /////////////////////// Transform trajectories from conversion tracks in to PFRecTracks
     std::vector<reco::PFRecTrackRef> pfRecTracksRef;
@@ -249,29 +285,13 @@ void PFConversionsProducer::produce( edm::Event& e, const edm::EventSetup& )
     }
     
     
-    reco::PFConversion  pfConversion(conversions[iBestConv], pfRecTracksRef);
+    reco::PFConversion  pfConversion(cpRef, pfRecTracksRef);
     outputConversionCollection.push_back(pfConversion);
     
-    
-    
-  }  /// loop over photons
-  
-  
-  
-  // put the products in the event
-  if (debug_) std::cout << " PFConversionProducer putting PFConversions in the event " << outputConversionCollection.size() <<  std::endl; 
-  outputConversionCollection_p->assign(outputConversionCollection.begin(),outputConversionCollection.end());
-  e.put( outputConversionCollection_p, PFConversionCollection_ );
 
-  if (debug_)  std::cout << " PFConversionProducer putting pfRecTracks in the event " << pfConversionRecTrackCollection.size() <<  std::endl; 
-  pfConversionRecTrackCollection_p->assign(pfConversionRecTrackCollection.begin(),pfConversionRecTrackCollection.end());
-  e.put( pfConversionRecTrackCollection_p, PFConversionRecTracks_ );
-
-  
 
 
 }
-
 
 
 
