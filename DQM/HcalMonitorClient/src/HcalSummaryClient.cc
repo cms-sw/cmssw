@@ -429,6 +429,7 @@ float HcalSummaryClient::analyze_everything(std::string subdetname, int type, fl
 
   if (!me)
     {
+      cout <<"SUMMARY:  NO ME!"<<endl;
       return status;
     }
 
@@ -442,13 +443,14 @@ float HcalSummaryClient::analyze_everything(std::string subdetname, int type, fl
   // Check for histogram containing known DataFormat problems.  (Formed & filled in DataFormatMonitor task)
   if (dataFormatClient_)
     {
-      sprintf(name,"%s/DatFormatMonitor/00 DataFormat Problem Map",prefixME_.c_str());
+      sprintf(name,"%s/DataFormatMonitor/00 DataFormat Problem Map",prefixME_.c_str());
       //subdetname.c_str(),subdetname.c_str());  // form histogram name
       me_dataformat = dqmStore_->get(name);
       if (!me_dataformat) 
 	{
-	  if (debug_) cout <<"<HcalSummaryClient>  Could not find DataFormatMonitor histogram named: "<<name<<endl;
-	  return status; // histogram couldn't be found
+	  if (debug_) 
+	    cout <<"<HcalSummaryClient>  Could not find DataFormatMonitor histogram named: "<<name<<endl;
+	    //return status; // histogram couldn't be found
 	}
     }
 
@@ -460,7 +462,8 @@ float HcalSummaryClient::analyze_everything(std::string subdetname, int type, fl
       me_digi = dqmStore_->get(name);
       if (!me_digi) 
 	{
-	  if (debug_) cout <<"<HcalSummaryClient>  Could not find DigiMonitor histogram named: "<<name<<endl;
+	  if (debug_) 
+	    cout <<"<HcalSummaryClient>  Could not find DigiMonitor histogram named: "<<name<<endl;
 	  return status; // histogram couldn't be found
 	} // if (!me_digi)
     } // if (digiClient_)
@@ -473,7 +476,8 @@ float HcalSummaryClient::analyze_everything(std::string subdetname, int type, fl
       me_hotcell = dqmStore_->get(name); // get Monitor Element named 'name'
       if (!me_hotcell) 
 	{
-	  if (debug_) cout <<"<HcalSummaryClient>  Could not find HotCellMonitor histogram named: "<<name<<endl;
+	  if (debug_) 
+	    cout <<"<HcalSummaryClient>  Could not find HotCellMonitor histogram named: "<<name<<endl;
 	  return status;
 	}
     }
@@ -486,7 +490,8 @@ float HcalSummaryClient::analyze_everything(std::string subdetname, int type, fl
       me_deadcell = dqmStore_->get(name); // get Monitor Element named 'name'
       if (!me_deadcell) 
 	{
-	  if (debug_) cout <<"<HcalSummaryClient>  Could not find DeadCellMonitor histogram named: "<<name<<endl;
+	  if (debug_) 
+	    cout <<"<HcalSummaryClient>  Could not find DeadCellMonitor histogram named: "<<name<<endl;
 	  return status;
 	}
     }
@@ -654,7 +659,7 @@ bad cells now treated "almost" properly --each  bad cell = (baddigi+badhotcell+b
 */
 
   status = 1. - (1.*badcells)/it->second;  
-
+  subdet=status; // Sets global variable
   // New version:  status is average over all cells (this means scaling each subdetector status value by its fractional contribution (it->second)/totalcells_ )
 
   // status_global = 1 - (bad HB + bad HE + bad HO + bad HF)/totalcells_;
@@ -666,6 +671,7 @@ bad cells now treated "almost" properly --each  bad cell = (baddigi+badhotcell+b
 
   //cout <<subdetname.c_str()<<" SUBDET STATUS = "<<status<<"  GLOBAL = "<<status_global_<<"   (scale factor = "<<(it->second)<<"/"<<totalcells_<<" = "<<(1.*(it->second)/totalcells_)<<")"<<endl;
 
+  // cout <<"STATUS = "<<status<<endl;
   return status;
 } // float HcalSummaryClient::analyze_everything
 

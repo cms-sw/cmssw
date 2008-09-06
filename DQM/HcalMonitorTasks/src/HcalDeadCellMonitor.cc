@@ -1181,6 +1181,7 @@ void HcalDeadCellMonitor::setSubDetectors(bool hb, bool he, bool ho, bool hf)
   heHists.check=heHists.origcheck && he;
   hoHists.check=hoHists.origcheck && ho;
   hfHists.check=hfHists.origcheck && hf;
+  //cout <<" CHECKS = "<<hbHists.check << " "<<heHists.check<< " "<<hoHists.check<<endl;
   
   return;
 } // void HcalDeadCellMonitor::setSubDetectors(...)
