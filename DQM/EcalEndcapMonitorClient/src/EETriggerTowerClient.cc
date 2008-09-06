@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerClient.cc
  *
- * $Date: 2008/09/06 08:01:50 $
- * $Revision: 1.78 $
+ * $Date: 2008/09/06 08:57:29 $
+ * $Revision: 1.79 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -555,12 +555,11 @@ void EETriggerTowerClient::analyze(const char* nameext,
     vector<int>::const_iterator iter = find(superModules_.begin(), superModules_.end(), ism);
     if ( iter == superModules_.end() ) continue;
 
-    vector<DetId> crystalsInTT = Numbers::crystals( EcalEndcap, tccindex, ttindex );
-    vector<DetId>::iterator icryintt;
+    vector<DetId> crystals = Numbers::crystals( EcalEndcap, tccindex, ttindex );
 
-    for (icryintt=crystalsInTT.begin(); icryintt!=crystalsInTT.end(); icryintt++) {
+    for ( unsigned int i=0; i<crystals.size(); i++ ) {
 
-      EEDetId id = (EEDetId)(*icryintt);
+      EEDetId id = crystals[i];
 
       int jx = id.ix();
       int jy = id.iy();
