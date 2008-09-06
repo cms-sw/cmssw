@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2008/07/09 13:04:11 $
- *  $Revision: 1.27 $
+ *  $Date: 2008/09/05 17:05:32 $
+ *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
  *
@@ -17,7 +17,6 @@ bool HLTConfigProvider::init(const std::string& processName)
 {
    using namespace std;
    using namespace edm;
-
 
    // clear and initialise
 
@@ -47,7 +46,7 @@ bool HLTConfigProvider::init(const std::string& processName)
    // Obtain ParameterSet from ParameterSetID
    if (!(registry_->getMapped(ProcessPSetID,ProcessPSet_))) return false;
 
-   // Extract trigger paths, which are paths but with endpaths
+   // Extract trigger paths, which are paths but with endpaths to be
    // removed, from ParameterSet
    pathNames_   = ProcessPSet_.getParameter<vector<string> >("@paths");
    endpathNames_= ProcessPSet_.getParameter<vector<string> >("@end_paths");
@@ -75,7 +74,6 @@ bool HLTConfigProvider::init(const std::string& processName)
    }
 
    // Fill index maps for fast lookup
-   triggerIndex_.clear();
    moduleIndex_.resize(n);
    for (unsigned int i=0; i!=n; ++i) {
      triggerIndex_[triggerNames_[i]]=i;
@@ -92,7 +90,7 @@ bool HLTConfigProvider::init(const std::string& processName)
 void HLTConfigProvider::dump (const std::string& what) const {
    using namespace std;
    using namespace edm;
-   cout << endl;
+
    if (what=="processName") {
      cout << "HLTConfigProvider::dump: ProcessName = " << processName_ << endl;
    } else if (what=="ProcessPSet") {
@@ -142,11 +140,9 @@ unsigned int HLTConfigProvider::size(const std::string& trigger) const {
 const std::vector<std::string>& HLTConfigProvider::triggerNames() const {
   return triggerNames_;
 }
-
 const std::string& HLTConfigProvider::triggerName(unsigned int trigger) const {
   return triggerNames_.at(trigger);
 }
-
 unsigned int HLTConfigProvider::triggerIndex(const std::string& trigger) const {
   const std::map<std::string,unsigned int>::const_iterator index(triggerIndex_.find(trigger));
   if (index==triggerIndex_.end()) {
@@ -156,22 +152,18 @@ unsigned int HLTConfigProvider::triggerIndex(const std::string& trigger) const {
   }
 }
 
-const std::string& HLTConfigProvider::moduleLabel(const std::string& trigger, unsigned int module) const {
-  return moduleLabels_.at(triggerIndex(trigger)).at(module);
-}
-const std::string& HLTConfigProvider::moduleLabel(unsigned int trigger, unsigned int module) const {
-  return moduleLabels_.at(trigger).at(module);
-}
-
-const std::vector<std::string>& HLTConfigProvider::moduleLabels(const std::string& trigger) const {
-  return moduleLabels_.at(triggerIndex(trigger));
-}
 const std::vector<std::string>& HLTConfigProvider::moduleLabels(unsigned int trigger) const {
   return moduleLabels_.at(trigger);
 }
+const std::vector<std::string>& HLTConfigProvider::moduleLabels(const std::string& trigger) const {
+  return moduleLabels_.at(triggerIndex(trigger));
+}
 
-unsigned int HLTConfigProvider::moduleIndex(const std::string& trigger, const std::string& module) const {
-  return moduleIndex(triggerIndex(trigger),module);
+const std::string& HLTConfigProvider::moduleLabel(unsigned int trigger, unsigned int module) const {
+  return moduleLabels_.at(trigger).at(module);
+}
+const std::string& HLTConfigProvider::moduleLabel(const std::string& trigger, unsigned int module) const {
+  return moduleLabels_.at(triggerIndex(trigger)).at(module);
 }
 
 unsigned int HLTConfigProvider::moduleIndex(unsigned int trigger, const std::string& module) const {
@@ -182,10 +174,14 @@ unsigned int HLTConfigProvider::moduleIndex(unsigned int trigger, const std::str
     return index->second;
   }
 }
+unsigned int HLTConfigProvider::moduleIndex(const std::string& trigger, const std::string& module) const {
+  return moduleIndex(triggerIndex(trigger),module);
+}
+
+const std::string HLTConfigProvider::moduleType(const std::string& module) const {
+  return modulePSet(module).getParameter<std::string>("@module_type");
+}
 
 const edm::ParameterSet HLTConfigProvider::modulePSet(const std::string& module) const {
   return ProcessPSet_.getParameter<edm::ParameterSet>(module);
-}
-const std::string HLTConfigProvider::moduleType(const std::string& module) const {
-  return modulePSet(module).getParameter<std::string>("@module_type");
 }

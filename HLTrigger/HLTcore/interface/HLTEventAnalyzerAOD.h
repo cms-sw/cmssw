@@ -6,8 +6,8 @@
  *  
  *  This class is an EDAnalyzer analyzing the combined HLT information for AOD
  *
- *  $Date: 2008/04/11 18:09:11 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/09/05 17:05:31 $
+ *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
  *
@@ -34,15 +34,16 @@ class HLTEventAnalyzerAOD : public edm::EDAnalyzer {
   virtual void analyzeTrigger(const std::string& triggerName);
 
  private:
-  /// Process name of HLT process to analyze
+
+  /// module config parameters
   std::string   processName_;
   std::string   triggerName_;
   edm::InputTag triggerResultsTag_;
   edm::InputTag triggerEventTag_;
+
+  /// additional class data memebers
   edm::Handle<edm::TriggerResults>   triggerResultsHandle_;
   edm::Handle<trigger::TriggerEvent> triggerEventHandle_;
-
-  /// HLTConfigProvider
   HLTConfigProvider hltConfig_;
 
 };

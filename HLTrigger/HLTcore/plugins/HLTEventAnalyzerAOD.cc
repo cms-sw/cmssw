@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2008/05/19 13:16:47 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/09/05 17:05:32 $
+ *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
  *
@@ -47,10 +47,10 @@ HLTEventAnalyzerAOD::beginRun(edm::Run const &, edm::EventSetup const&)
   
   // HLT config does not change within runs!
   if (hltConfig_.init(processName_)) {
-    // check if trigger name still in config
-    if (triggerName_!="@") { // "@" means: analyze all triggers available
+    // check if trigger name in (new) config
+    if (triggerName_!="@") { // "@" means: analyze all triggers in config
       const unsigned int n(hltConfig_.size());
-      const unsigned int triggerIndex(hltConfig_.triggerIndex(triggerName_));    
+      const unsigned int triggerIndex(hltConfig_.triggerIndex(triggerName_));
       if (triggerIndex>=n) {
 	cout << "HLTEventAnalyzerAOD::beginRun:"
 	     << " TriggerName " << triggerName_ 
@@ -115,25 +115,25 @@ void HLTEventAnalyzerAOD::analyzeTrigger(const std::string& triggerName) {
   
   // abort on invalid trigger name
   if (triggerIndex>=n) {
-    cout << "HLTEventAnalyzerAOD::analyzeTrigger: "
-	 << triggerName_ << " - not found!" << endl;
+    cout << "HLTEventAnalyzerAOD::analyzeTrigger: path "
+	 << triggerName << " - not found!" << endl;
     return;
   }
   
-  cout << "HLTEventAnalyzerAOD::analyzeTrigger: "
+  cout << "HLTEventAnalyzerAOD::analyzeTrigger: path "
        << triggerName << " [" << triggerIndex << "]" << endl;
   // modules on this trigger path
   const unsigned int m(hltConfig_.size(triggerIndex));
   const vector<string> moduleLabels(hltConfig_.moduleLabels(triggerIndex));
 
   // Results from TriggerResults product
-  cout << " Trigger status:"
+  cout << " Trigger path status:"
        << " WasRun=" << triggerResultsHandle_->wasrun(triggerIndex)
        << " Accept=" << triggerResultsHandle_->accept(triggerIndex)
        << " Error =" << triggerResultsHandle_->error(triggerIndex)
        << endl;
   const unsigned int moduleIndex(triggerResultsHandle_->index(triggerIndex));
-  cout << " Last active module label/type: "
+  cout << " Last active module - label/type: "
        << moduleLabels[moduleIndex] << "/" << hltConfig_.moduleType(moduleLabels[moduleIndex])
        << " [" << moduleIndex << " out of 0-" << (m-1) << " on this path]"
        << endl;
@@ -147,7 +147,7 @@ void HLTEventAnalyzerAOD::analyzeTrigger(const std::string& triggerName) {
     // check whether the module is packed up in TriggerEvent product
     const unsigned int filterIndex(triggerEventHandle_->filterIndex(InputTag(moduleLabel,"",processName_)));
     if (filterIndex<triggerEventHandle_->sizeFilters()) {
-      cout << " 'L3' filter in slot " << j << " with label/type " << moduleLabel << "/" << moduleType << endl;
+      cout << " 'L3' filter in slot " << j << " - label/type " << moduleLabel << "/" << moduleType << endl;
       const Vids& VIDS (triggerEventHandle_->filterIds(filterIndex));
       const Keys& KEYS(triggerEventHandle_->filterKeys(filterIndex));
       const size_type nI(VIDS.size());

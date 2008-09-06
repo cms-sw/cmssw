@@ -6,8 +6,8 @@
  *  
  *  This class provides access routines to get hold of the HLT Configuration
  *
- *  $Date: 2008/07/08 07:06:23 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/09/05 17:05:31 $
+ *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
  *
@@ -27,30 +27,46 @@ class HLTConfigProvider {
   
  public:
 
+  /// init everytime the HLT config changes (eg, beginRun)
   bool init(const std::string& processName);
 
+  /// dump config aspects to cout
   void dump(const std::string& what) const;
 
+  /// accessors
+
+  /// number of trigger paths in trigger table
   unsigned int size() const;
+  /// number of modules on a specific trigger path
   unsigned int size(unsigned int trigger) const;
   unsigned int size(const std::string& trigger) const;
 
+  /// names of trigger paths
   const std::vector<std::string>& triggerNames() const;
   const std::string& triggerName(unsigned int triggerIndex) const;
+  /// slot position of trigger path in trigger table (0 - size-1)
   unsigned int triggerIndex(const std::string& triggerName) const;
 
-  const std::string& moduleLabel(const std::string& trigger, unsigned int module) const;
-  const std::string& moduleLabel(unsigned int trigger, unsigned int module) const;
-  const std::vector<std::string>& moduleLabels(const std::string& trigger) const;
+  /// label(s) of module(s) on a trigger path
   const std::vector<std::string>& moduleLabels(unsigned int trigger) const;
-  unsigned int moduleIndex(const std::string& trigger, const std::string& module) const;
-  unsigned int moduleIndex(unsigned int trigger, const std::string& module) const;
+  const std::vector<std::string>& moduleLabels(const std::string& trigger) const;
+  const std::string& moduleLabel(unsigned int trigger, unsigned int module) const;
+  const std::string& moduleLabel(const std::string& trigger, unsigned int module) const;
 
+  /// slot position of module on trigger path (0 - size-1)
+  unsigned int moduleIndex(unsigned int trigger, const std::string& module) const;
+  unsigned int moduleIndex(const std::string& trigger, const std::string& module) const;
+
+  /// C++ class name of module
   const std::string moduleType(const std::string& module) const;
+
+  /// ParameterSet of module
   const edm::ParameterSet modulePSet(const std::string& module) const;
+
 
  private:
   std::string processName_;
+
   const edm::pset::Registry * registry_;
 
   edm::ParameterSet ProcessPSet_;
