@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2008/09/06 07:36:36 $
- * $Revision: 1.110 $
+ * $Date: 2008/09/06 08:01:50 $
+ * $Revision: 1.111 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -515,13 +515,17 @@ void EBTriggerTowerClient::analyze(const char* nameext,
 
   }
 
-  for(int xttindex = 0; xttindex<68*36; xttindex++) {
+  for (int xttindex = 0; xttindex<68*36; xttindex++) {
 
-    int ism = xttindex/68 + 1;
     int ttindex = xttindex%68;
 
     int ie = (ttindex-1)/4 + 1;
     int ip = (ttindex-1)%4 + 1;
+
+    int ism = xttindex/68 + 1;
+
+    vector<int>::const_iterator iter = find(superModules_.begin(), superModules_.end(), ism);
+    if ( iter == superModules_.end() ) continue;
 
     for (int j = 0; j <= 256; j++) {
       if ( h01_ ) me_h01_[ism-1]->Fill(ie-0.5, ip-0.5, j-0.5, h01_->GetBinContent(xttindex, j+1));

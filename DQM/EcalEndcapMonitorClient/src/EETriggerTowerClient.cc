@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerClient.cc
  *
- * $Date: 2008/09/06 07:36:36 $
- * $Revision: 1.77 $
+ * $Date: 2008/09/06 08:01:50 $
+ * $Revision: 1.78 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -526,35 +526,39 @@ void EETriggerTowerClient::analyze(const char* nameext,
     if (tccindex > 36 ) tccindex += 36;
     int ttindex=xttindex%28 + 1;
 
-    int dcc=0;
+    int dcc = 0;
     int offset = 0;
     int tccid = tccindex;
     if (tccid >= 73) {
       tccid = tccid-72;
       offset = 45;
     }
-    if (tccid == 24 || tccid == 25 || tccid == 6 || tccid == 7)  dcc=4;
-    if (tccid == 26 || tccid == 27 || tccid == 8 || tccid == 9)  dcc=5;
-    if (tccid == 28 || tccid == 29 || tccid == 10 || tccid == 11)  dcc=6;
-    if (tccid == 30 || tccid == 31 || tccid == 12 || tccid == 13)  dcc=7;
-    if (tccid == 32 || tccid == 33 || tccid == 14 || tccid == 15)  dcc=8;
-    if (tccid == 34 || tccid == 35 || tccid == 16 || tccid == 17)  dcc=9;
-    if (tccid == 36 || tccid == 19 || tccid == 18 || tccid == 1)  dcc=1;
-    if (tccid == 20 || tccid == 21 || tccid == 2 || tccid == 3)  dcc=2;
-    if (tccid == 22 || tccid == 23 || tccid == 4 || tccid == 5)  dcc=3;
+    if (tccid == 24 || tccid == 25 || tccid ==  6 || tccid ==  7) dcc = 4;
+    if (tccid == 26 || tccid == 27 || tccid ==  8 || tccid ==  9) dcc = 5;
+    if (tccid == 28 || tccid == 29 || tccid == 10 || tccid == 11) dcc = 6;
+    if (tccid == 30 || tccid == 31 || tccid == 12 || tccid == 13) dcc = 7;
+    if (tccid == 32 || tccid == 33 || tccid == 14 || tccid == 15) dcc = 8;
+    if (tccid == 34 || tccid == 35 || tccid == 16 || tccid == 17) dcc = 9;
+    if (tccid == 36 || tccid == 19 || tccid == 18 || tccid ==  1) dcc = 1;
+    if (tccid == 20 || tccid == 21 || tccid ==  2 || tccid ==  3) dcc = 2;
+    if (tccid == 22 || tccid == 23 || tccid ==  4 || tccid ==  5) dcc = 3;
     dcc += offset;
 
-    int ism=0;
+    int ism = 0;
+
     // EE-
     if( dcc >=  1 && dcc <=  9 ) ism = dcc;
 
     // EE+
     if( dcc >= 46 && dcc <= 54 ) ism = dcc - 45 + 9;
 
-    std::vector<DetId> crystalsInTT = Numbers::crystals( EcalEndcap, tccindex, ttindex );
-    std::vector<DetId>::iterator icryintt;
+    vector<int>::const_iterator iter = find(superModules_.begin(), superModules_.end(), ism);
+    if ( iter == superModules_.end() ) continue;
 
-    for(icryintt=crystalsInTT.begin(); icryintt!=crystalsInTT.end(); icryintt++) {
+    vector<DetId> crystalsInTT = Numbers::crystals( EcalEndcap, tccindex, ttindex );
+    vector<DetId>::iterator icryintt;
+
+    for (icryintt=crystalsInTT.begin(); icryintt!=crystalsInTT.end(); icryintt++) {
 
       EEDetId id = (EEDetId)(*icryintt);
 
@@ -564,8 +568,8 @@ void EETriggerTowerClient::analyze(const char* nameext,
       if ( ism >= 1 && ism <= 9 ) jx = 101 - jx;
 
       for (int j = 0; j <= 256; j++) {
-             if ( h01_ ) me_h01_[ism-1]->Fill(jx-0.5, jy-0.5, j-0.5, h01_->GetBinContent(xttindex, j+1));
-             if ( h02_ ) me_h02_[ism-1]->Fill(jx-0.5, jy-0.5, j-0.5, h02_->GetBinContent(xttindex, j+1));
+        if ( h01_ ) me_h01_[ism-1]->Fill(jx-0.5, jy-0.5, j-0.5, h01_->GetBinContent(xttindex, j+1));
+        if ( h02_ ) me_h02_[ism-1]->Fill(jx-0.5, jy-0.5, j-0.5, h02_->GetBinContent(xttindex, j+1));
       }
 
     }
