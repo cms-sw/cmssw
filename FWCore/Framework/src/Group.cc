@@ -169,7 +169,7 @@ namespace edm {
 
   Provenance const *
   Group::provenance() const {
-    if (!entryInfo_) {
+    if (!prov_.get()) {
       prov_.reset(new Provenance(*branchDescription_, entryInfo_));
     }
     return prov_.get();
