@@ -69,10 +69,10 @@ PFRootEventManager::PFRootEventManager(const char* file)
   //   iEvent_=0;
   h_deltaETvisible_MCEHT_ 
     = new TH1F("h_deltaETvisible_MCEHT","Jet Et difference CaloTowers-MC"
-               ,100,-100,100);
+               ,1000,-50.,50.);
   h_deltaETvisible_MCPF_  
     = new TH1F("h_deltaETvisible_MCPF" ,"Jet Et difference ParticleFlow-MC"
-               ,100,-100,100);
+               ,1000,-50.,50.);
 
   readOptions(file, true, true);
  
@@ -1014,7 +1014,10 @@ bool PFRootEventManager::processEntry(int entry) {
   if( outEvent_ ) outEvent_->setNumber(entry);
 
   if(verbosity_ == VERBOSE  || 
-     entry%10 == 0) 
+     entry < 10 ||
+     entry < 100 && entry%10 == 0 || 
+     entry < 1000 && entry%100 == 0 || 
+     entry%1000 == 0 ) 
     cout<<"process entry "<< entry << endl;
   
   bool goodevent =  readFromSimulation(entry);
@@ -1075,12 +1078,25 @@ bool PFRootEventManager::processEntry(int entry) {
           <<" resNeutralHadEnergy Max " << resNeutralHadEnergy
           << " resNeutralEmEnergy Max "<< resNeutralEmEnergy << endl;
     } // end debug print
+
+    // PJ : printout for bad events (selected by the "if")
+    if ( resPt < -1. ) { 
+      cout << " =====================PFJetBenchmark =================" << endl;
+      cout<<"process entry "<< entry << endl;
+      cout<<"Resol Pt max "<<resPt
+	  <<" resChargedHadEnergy Max " << resChargedHadEnergy
+	  <<" resNeutralHadEnergy Max " << resNeutralHadEnergy
+	  << " resNeutralEmEnergy Max "<< resNeutralEmEnergy 
+	  << " Jet pt " << genJets_[0].pt() << endl;
+      // return true;
+    } else { 
+      // return false;
+    }
     //   if (resNeutralEmEnergy>0.5) return true;
     //   else return false;
   }// end PFJet Benchmark
-  
-  // evaluate tau Benchmark 
-  
+    
+  // evaluate tau Benchmark   
   if( goodevent && doTauBenchmark_) { // start tau Benchmark
     double deltaEt = 0.;
     deltaEt  = tauBenchmark( *pfCandidates_ ); 
