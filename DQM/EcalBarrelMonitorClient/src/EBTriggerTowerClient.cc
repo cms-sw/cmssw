@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2008/09/05 16:01:10 $
- * $Revision: 1.109 $
+ * $Date: 2008/09/06 07:36:36 $
+ * $Revision: 1.110 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -67,8 +67,9 @@ EBTriggerTowerClient::EBTriggerTowerClient(const ParameterSet& ps) {
     m01_[ism-1] = 0;
     n01_[ism-1] = 0;
 
-    meh01_[ism-1] = 0;
-    meh02_[ism-1] = 0;
+    meh01_ = 0;
+    meh02_ = 0;
+
     mei01_[ism-1] = 0;
     mei02_[ism-1] = 0;
     mej01_[ism-1] = 0;
@@ -266,8 +267,9 @@ void EBTriggerTowerClient::cleanup(void) {
     m01_[ism-1] = 0;
     n01_[ism-1] = 0;
 
-    meh01_[ism-1] = 0;
-    meh02_[ism-1] = 0;
+    meh01_ = 0;
+    meh02_ = 0;
+
     mei01_[ism-1] = 0;
     mei02_[ism-1] = 0;
     mej01_[ism-1] = 0;
@@ -380,9 +382,11 @@ void EBTriggerTowerClient::analyze(const char* nameext,
   me = dqmStore_->get(histo);
   if(!emulated) {
     h01_ = UtilsClient::getHisto<TH2F*>( me, cloneME_, h01_ );
+    meh01_ = me;
   }
   else {
     h02_ = UtilsClient::getHisto<TH2F*>( me, cloneME_, h02_ );
+    meh02_ = me;
   }
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
