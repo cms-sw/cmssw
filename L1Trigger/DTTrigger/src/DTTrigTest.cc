@@ -7,8 +7,8 @@
  *   studies
  *
  *
- *   $Date: 2008/06/30 13:45:04 $
- *   $Revision: 1.10 $
+ *   $Date: 2008/09/05 16:06:35 $
+ *   $Revision: 1.11 $
  *
  *   \author C. Battilana
  */
@@ -200,7 +200,7 @@ void DTTrigTest::beginJob(const EventSetup & iEventSetup){
 
 }
 
-void DTTrigTest::beginRun(edm::Run& iRun, const edm::EventSetup& iEventSetup) {
+void DTTrigTest::beginRun(const edm::Run& iRun, const edm::EventSetup& iEventSetup) {
 
   if (!my_trig) {
     my_trig = new DTTrig(my_params);

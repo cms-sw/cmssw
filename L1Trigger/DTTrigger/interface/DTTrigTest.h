@@ -7,8 +7,8 @@
  *   studies
  *
  *
- *   $Date: 2008/03/04 00:13:30 $
- *   $Revision: 1.6 $
+ *   $Date: 2008/09/05 16:06:35 $
+ *   $Revision: 1.7 $
  *
  *   \author C. Battilana
  */
@@ -47,7 +47,7 @@ public:
   void endJob();
 
   //! Create DTTrig instance and TUs
-  void beginRun(edm::Run& iRun, const edm::EventSetup& iEventSetup);
+  void beginRun(const edm::Run& iRun, const edm::EventSetup& iEventSetup);
   
   //! Analyze function executed on all the events
   void analyze(const edm::Event & iEvent, const edm::EventSetup& iEventSetup);
