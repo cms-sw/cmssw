@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/07/09 18:36:21 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/07/24 12:24:50 $
+ *  $Revision: 1.7 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -145,7 +145,7 @@ void DTSummaryClients::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventS
       int nFailingChambers = 0;
       for(int sector=1; sector<=12; sector++){ // loop over sectors
 	for(int station = 1; station != 5; ++station) { // loop over stations
-	  if(wheelOccupancySummary->getBinContent(sector, wheel+3) != 4) {
+	  if(wheelOccupancySummary->getBinContent(sector, station) != 4) {
 	    summaryReportMap->Fill(sector, wheel, 0.25);
 	  } else {
 	    nFailingChambers++;
