@@ -7,7 +7,7 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
 
 
-process.maxEvents = cms.untracked.PSet(  input = cms.untracked.int32(10) )
+process.maxEvents = cms.untracked.PSet(  input = cms.untracked.int32(-1) )
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
      '/store/data/Commissioning08/Cosmics/RAW/CRUZET4_v1/000/058/555/02E4041E-1571-DD11-98CE-001D09F241B9.root'
@@ -45,7 +45,7 @@ process.FEVT.outputCommands.append('keep recoCandidatesOwned_caloTowersOpt_*_*')
 process.FEVT.outputCommands.append('keep RPCDetIdRPCDigiMuonDigiCollection_muonRPCDigis_*_*')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.5 $'),
+    version = cms.untracked.string('$Revision: 1.6 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/GlobalRuns/python/recoT0DQM_EvContent_30T_cfg.py,v $'),
     annotation = cms.untracked.string('CRUZET Prompt Reco with DQM with Mag field at 3T')
 )
@@ -55,7 +55,7 @@ process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) ) #
 # Conditions (Global Tag is used here):
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.connect = "frontier://PromptProd/CMS_COND_21X_GLOBALTAG"
-process.GlobalTag.globaltag = "CRUZET4_V2P::All"
+process.GlobalTag.globaltag = "CRUZET4_V4P::All"
 process.prefer("GlobalTag")
 
 # Magnetic field: force mag field to be 3.0 tesla
@@ -89,12 +89,7 @@ process.SiStripQualityESProducer.ListOfRecordToMerge = cms.VPSet(
 )
 process.prefer("SiStripQualityESProducer")
 
-#workaround for RPC DQM module
-process.muonCosmicMonitors_fix = cms.Sequence(process.muonTrackCosmicAnalyzers*process.dtSegmentsMonitor*process.cscMonitor*process.muonCosmicAnalyzer)
-
-process.DQMOfflineCosmics_fix = cms.Sequence(process.SiStripDQMTier0*process.ecal_dqm_source_offline*process.muonCosmicMonitors_fix*process.jetMETAnalyzer*process.hcalOfflineDQMSource*process.l1tmonitor*process.siPixelOfflineDQM_source*process.egammaCosmicPhotonMonitors)
-
 #Paths
-process.allPath = cms.Path( process.RawToDigi_woGCT * process.reconstructionCosmics * process.DQMOfflineCosmics_fix * process.MEtoEDMConverter)
+process.allPath = cms.Path( process.RawToDigi_woGCT * process.reconstructionCosmics * process.DQMOfflineCosmics * process.MEtoEDMConverter)
 
 process.outpath = cms.EndPath(process.FEVT)
