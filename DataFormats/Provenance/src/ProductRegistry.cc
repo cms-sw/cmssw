@@ -185,6 +185,10 @@ namespace edm {
 	++j;
       }
     }
+    if (other.nextID() > nextID()) {
+      setNextID(other.nextID());
+      setProductIDs(other.nextID());
+    }
     initializeTransients();
     return differences.str();
   }
