@@ -70,6 +70,7 @@
        bool saveFile;
        bool isPIB;
        bool slowDown;
+       bool reducedSet;
        int eventNo;
        DQMStore* theDMBE;
        std::map<uint32_t,SiPixelRawDataErrorModule*> thePixelStructure;

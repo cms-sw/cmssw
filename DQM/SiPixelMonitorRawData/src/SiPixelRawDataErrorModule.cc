@@ -76,7 +76,7 @@ SiPixelRawDataErrorModule::~SiPixelRawDataErrorModule() {}
 //
 // Book histograms for errors with detId
 //
-void SiPixelRawDataErrorModule::book(const edm::ParameterSet& iConfig) {
+void SiPixelRawDataErrorModule::book(const edm::ParameterSet& iConfig, bool reducedSet) {
 
   std::string hid;
   // Get collection name and instantiate Histo Id builder
@@ -95,6 +95,7 @@ void SiPixelRawDataErrorModule::book(const edm::ParameterSet& iConfig) {
   // For error type 30, the type of problem encoded in the TBM trailer
   // 0 = stack full, 1 = Pre-cal issued, 2 = clear trigger counter, 3 = sync trigger, 
   // 4 = sync trigger error, 5 = reset ROC, 6 = reset TBM, 7 = no token bit pass
+  if(!reducedSet){
   hid = theHistogramId->setHistoId("TBMMessage",id_);
   meTBMMessage_ = theDMBE->book1D(hid,"TBM trailer message",8,-0.5,7.5);
   meTBMMessage_->setAxisTitle("TBM message",1);
@@ -123,7 +124,7 @@ void SiPixelRawDataErrorModule::book(const edm::ParameterSet& iConfig) {
   hid = theHistogramId->setHistoId("ROCNmbr",id_);
   meROCNmbr_ = theDMBE->book1D(hid,"ROC number for error type 38",25,-0.5,24.5);
   meROCNmbr_->setAxisTitle("ROC number on DetUnit",1);
-
+  }
   delete theHistogramId;
 }
 //
@@ -189,7 +190,7 @@ void SiPixelRawDataErrorModule::bookFED(const edm::ParameterSet& iConfig) {
 //
 // Fill histograms
 //
-void SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError>& input) {
+void SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError>& input, bool reducedSet ) {
   
   edm::DetSetVector<SiPixelRawDataError>::const_iterator isearch = input.find(id_); // search  errors of detid
   
@@ -203,6 +204,7 @@ void SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError
       numberOfErrors++;
       int errorType = di->getType();               // type of error
       (meErrorType_)->Fill((int)errorType);
+      if(!reducedSet){
       if((errorType == 32)||(errorType == 33)||(errorType == 34)) {
 	long long errorWord = di->getWord64();     // for 64-bit error words
 	if(errorType == 34) {
@@ -271,6 +273,7 @@ void SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError
 	  break; }
 	default : break;
 	};
+      }
       }
     }
     

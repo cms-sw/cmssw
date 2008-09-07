@@ -19,7 +19,7 @@ process.load("IORawData.SiPixelInputSources.PixelSLinkDataInputSource_cfi")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.connect ="sqlite_file:/afs/cern.ch/user/m/malgeri/public/globtag/CRUZET3_V7.db"
-process.GlobalTag.globaltag = "CRUZET3_V7::All"
+process.GlobalTag.globaltag = "CRUZET4_V4P::All"
 process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 
 process.maxEvents = cms.untracked.PSet(
@@ -55,5 +55,6 @@ process.siPixelDigis.IncludeErrors = True
 process.SiPixelRawDataErrorSource.saveFile = True
 process.SiPixelRawDataErrorSource.isPIB = False
 process.SiPixelRawDataErrorSource.slowDown = False
+process.SiPixelRawDataErrorSource.reducedSet = False
 process.DQM.collectorHost = ''
 

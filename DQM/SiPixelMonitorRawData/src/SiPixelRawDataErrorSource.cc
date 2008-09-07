@@ -51,7 +51,8 @@ SiPixelRawDataErrorSource::SiPixelRawDataErrorSource(const edm::ParameterSet& iC
   src_( conf_.getParameter<edm::InputTag>( "src" ) ),
   isPIB( conf_.getUntrackedParameter<bool>("isPIB",false) ),
   saveFile( conf_.getUntrackedParameter<bool>("saveFile",false) ),
-  slowDown( conf_.getUntrackedParameter<bool>("slowDown",false) )
+  slowDown( conf_.getUntrackedParameter<bool>("slowDown",false) ),
+  reducedSet( conf_.getUntrackedParameter<bool>("reducedSet",false) )
 {
    theDMBE = edm::Service<DQMStore>().operator->();
    LogInfo ("PixelDQM") << "SiPixelRawDataErrorSource::SiPixelRawDataErrorSource: Got DQM BackEnd interface"<<endl;
@@ -107,7 +108,7 @@ SiPixelRawDataErrorSource::analyze(const edm::Event& iEvent, const edm::EventSet
 
   for (struct_iter = thePixelStructure.begin() ; struct_iter != thePixelStructure.end() ; struct_iter++) {
     
-    (*struct_iter).second->fill(*input);
+    (*struct_iter).second->fill(*input, reducedSet);
     
   }
 
@@ -209,7 +210,7 @@ void SiPixelRawDataErrorSource::bookMEs(){
   for(struct_iter = thePixelStructure.begin(); struct_iter != thePixelStructure.end(); struct_iter++){
     /// Create folder tree and book histograms 
     if(theSiPixelFolder.setModuleFolder((*struct_iter).first)) {
-      (*struct_iter).second->book( conf_ );
+      (*struct_iter).second->book( conf_, reducedSet );
     }
     else {
       //std::cout<<"PIB! not booking histograms for non-PIB modules!"<<std::endl;
