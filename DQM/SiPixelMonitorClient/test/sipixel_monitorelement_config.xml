@@ -5,68 +5,28 @@
 <SubStructureBarrelLevel name="Ladder_" update_frequency="300"> 
      <MonElement name="errorType"></MonElement> 
      <MonElement name="NErrors"></MonElement> 
-     <MonElement name="TBMType"></MonElement> 
-     <MonElement name="EvtNbr"></MonElement> 
-     <MonElement name="ROCId"></MonElement> 
-     <MonElement name="DCOLId"></MonElement> 
-     <MonElement name="PXId"></MonElement> 
-     <MonElement name="ROCNmbr"></MonElement> 
-     <MonElement name="TBMMessage"></MonElement> 
      <MonElement name="ndigis"></MonElement> 
      <MonElement name="adc"></MonElement> 
-     <MonElement name="nclusters"></MonElement>
-     <MonElement name="charge"> </MonElement>
-     <MonElement name="size">	</MonElement>
 </SubStructureBarrelLevel> 
 <SubStructureGrandBarrelLevel name="Layer_" update_frequency="300"> 
      <MonElement name="errorType"></MonElement> 
      <MonElement name="NErrors"></MonElement> 
-     <MonElement name="TBMType"></MonElement> 
-     <MonElement name="EvtNbr"></MonElement> 
-     <MonElement name="ROCId"></MonElement> 
-     <MonElement name="DCOLId"></MonElement> 
-     <MonElement name="PXId"></MonElement> 
-     <MonElement name="ROCNmbr"></MonElement> 
-     <MonElement name="TBMMessage"></MonElement> 
      <MonElement name="ndigis"></MonElement> 
      <MonElement name="ndigisFREQ"></MonElement> 
      <MonElement name="adc"></MonElement> 
-     <MonElement name="nclusters"></MonElement>
-     <MonElement name="charge"> </MonElement>
-     <MonElement name="size">	</MonElement>
 </SubStructureGrandBarrelLevel> 
 <SubStructureEndcapLevel name="Panel_" update_frequency="300"> 
      <MonElement name="errorType"></MonElement> 
      <MonElement name="NErrors"></MonElement> 
-     <MonElement name="TBMType"></MonElement> 
-     <MonElement name="EvtNbr"></MonElement> 
-     <MonElement name="ROCId"></MonElement> 
-     <MonElement name="DCOLId"></MonElement> 
-     <MonElement name="PXId"></MonElement> 
-     <MonElement name="ROCNmbr"></MonElement> 
-     <MonElement name="TBMMessage"></MonElement> 
      <MonElement name="ndigis"></MonElement> 
      <MonElement name="adc"></MonElement> 
-     <MonElement name="nclusters"></MonElement>
-     <MonElement name="charge"> </MonElement>
-     <MonElement name="size">	</MonElement>
 </SubStructureEndcapLevel> 
 <SubStructureGrandEndcapLevel name="Blade_" update_frequency="300"> 
      <MonElement name="errorType"></MonElement> 
      <MonElement name="NErrors"></MonElement> 
-     <MonElement name="TBMType"></MonElement> 
-     <MonElement name="EvtNbr"></MonElement> 
-     <MonElement name="ROCId"></MonElement> 
-     <MonElement name="DCOLId"></MonElement> 
-     <MonElement name="PXId"></MonElement> 
-     <MonElement name="ROCNmbr"></MonElement> 
-     <MonElement name="TBMMessage"></MonElement> 
      <MonElement name="ndigis"></MonElement> 
      <MonElement name="ndigisFREQ"></MonElement> 
      <MonElement name="adc"></MonElement> 
-     <MonElement name="nclusters"></MonElement>
-     <MonElement name="charge"> </MonElement>
-     <MonElement name="size">	</MonElement>
 </SubStructureGrandEndcapLevel> 
 <SubStructureNonDetId name="AdditionalPixelErrors" update_frequency="300"> 
      <MonElement name="errorType"></MonElement> 
