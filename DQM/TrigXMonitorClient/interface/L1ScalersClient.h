@@ -69,6 +69,14 @@ private:
   MonitorElement *l1TechTrigRateHistories_[MAX_TT]; // HARD CODE FOR NOW
   MonitorElement *l1TechTrigCurrentRatePerAlgo_[MAX_TT];
 
+  // this is a selected list of guys
+  MonitorElement *selected_;
+  MonitorElement *bxSelected_ ;
+  std::vector<int> algoSelected_;
+  std::vector<int> techSelected_;
+  std::string folderName_;
+  int numSelected_;
+
   int currentLumiBlockNumber_;
   bool first_algo;
   bool first_tt;
