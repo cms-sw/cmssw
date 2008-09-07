@@ -175,13 +175,25 @@ namespace edm {
     TTree * eventHistoryTree_;
     History history_;    
     boost::shared_ptr<BranchChildren> branchChildren_;
+    mutable bool nextIDfixup_;
   }; // class RootFile
 
   template <typename T>
   boost::shared_ptr<BranchMapper>
   RootFile::makeBranchMapper(RootTree & rootTree, BranchType const& type) const {
     if (fileFormatVersion_.value_ >= 8) {
-      return rootTree.makeBranchMapper<T>();
+      boost::shared_ptr<BranchMapper> bm = rootTree.makeBranchMapper<T>();
+      // The following block handles files originating from the repacker where the max product ID was not
+      // set correctly in the registry.
+      if (fileFormatVersion_.value_ <= 9) {
+        ProductID pid = bm->maxProductID();
+        if (pid.id() >= productRegistry_->nextID()) {
+          ProductRegistry* pr = const_cast<ProductRegistry*>(productRegistry_.get());
+          pr->setProductIDs(pid.id() + 1);
+          nextIDfixup_ = true;
+        }
+      }
+      return bm;
     } 
     // backward compatibility
     boost::shared_ptr<BranchMapper> mapper(new BranchMapper);

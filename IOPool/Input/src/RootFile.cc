@@ -97,7 +97,8 @@ namespace edm {
       forcedRunOffset_(forcedRunOffset),
       newBranchToOldBranch_(),
       eventHistoryTree_(0),
-      branchChildren_(new BranchChildren) {
+      branchChildren_(new BranchChildren),
+      nextIDfixup_(false) {
     eventTree_.setCacheSize(treeCacheSize);
 
     eventTree_.setTreeMaxVirtualSize(treeMaxVirtualSize);
@@ -770,6 +771,17 @@ namespace edm {
 		makeBranchMapper<EventEntryInfo>(eventTree_, InEvent),
 		eventTree_.makeDelayedReader()));
     thisEvent->setHistory(history_);
+    // The following block handles files originating from the repacker where the max product ID was not
+    // set correctly in the registry.
+    if (nextIDfixup_) {
+      ProductRegistry* pr = const_cast<ProductRegistry*>(pReg.get());
+      pr->setProductIDs(productRegistry_->nextID());
+      nextIDfixup_ = false;
+      edm::LogError("MetaDataError")
+           << "'nextID' for the ProductRegistry in the input file is less than the largest\n"
+			     << "ProductID used in a previous process.\n"
+			     << "Updating the ProductRegistry to attempt to correct the problem\n";
+    }
 
     // Create a group in the event for each product
     eventTree_.fillGroups(*thisEvent);
