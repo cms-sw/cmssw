@@ -5,8 +5,6 @@
 
 DEFINE_SEAL_MODULE();
 
-#include "PhysicsTools/UtilAlgos/interface/UpdaterService.h"
-DEFINE_FWK_SERVICE( UpdaterService );
 #include "PhysicsTools/UtilAlgos/interface/VariableHelper.h"
 DEFINE_FWK_SERVICE( VariableHelperService );
 #include "PhysicsTools/UtilAlgos/interface/InputTagDistributor.h"
