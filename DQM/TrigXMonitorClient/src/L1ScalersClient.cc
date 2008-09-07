@@ -230,6 +230,10 @@ void L1ScalersClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
     LogDebug("Status") << " time is negative ... " << delta_t;
     delta_t = -delta_t;
   }
+  else if ( nL == currentLumiBlockNumber_ ) { // divide-by-zero
+    LogInfo("Status") << "divide by zero: same lumi section 2x " << nL;
+    return;
+  }
   // selected ---------------------  fill in the rates for th 
   int currSlot = 1; // for selected bits histogram
   MonitorElement *algoBx = dbe_->get(folderName_+

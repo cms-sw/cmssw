@@ -1,6 +1,9 @@
-// $Id: HLTScalersClient.cc,v 1.6 2008/09/03 02:13:48 wittich Exp $
+// $Id: HLTScalersClient.cc,v 1.7 2008/09/04 11:06:02 lorenzo Exp $
 // 
 // $Log: HLTScalersClient.cc,v $
+// Revision 1.7  2008/09/04 11:06:02  lorenzo
+// changed to _EvF folder
+//
 // Revision 1.6  2008/09/03 02:13:48  wittich
 // - bug fix in L1Scalers
 // - configurable dqm directory in L1SCalers
@@ -171,6 +174,10 @@ void HLTScalersClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
     LogDebug("Status") << " time is negative ... " << delta_t;
     delta_t = -delta_t;
   }
+  else if ( nL == currentLumiBlockNumber_ ) { // divide-by-zero
+    LogInfo("Status") << "divide by zero: same lumi section 2x " << nL;
+    return;
+  }
   // fill in the rates
   for ( int i = 1; i <= npaths; ++i ) { // bins start at 1
     float current_count = scalers->getBinContent(i);
@@ -186,8 +193,6 @@ void HLTScalersClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
   }
   currentLumiBlockNumber_ = nL;
 
-//   MonitorElement *l1scalers = dbe_->get("HLT/HLTScalers/l1Scalers");
-//   // check which of the histograms are empty
 }
 
 // unused
