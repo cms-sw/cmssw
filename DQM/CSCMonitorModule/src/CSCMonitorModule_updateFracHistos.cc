@@ -165,7 +165,7 @@ void CSCMonitorModule::updateFracHistos() {
       summary.ReadErrorChambers(rep, err, INPUTTO_ERR, threshold, sigfail);
     }
 
-    threshold = effParameters.getUntrackedParameter<double>("threshold_nodata", 0.9);
+    threshold = effParameters.getUntrackedParameter<double>("threshold_nodata", 1.0);
     sigfail   = effParameters.getUntrackedParameter<double>("sigfail_nodata", 5.0);
 
     if (MEEMU("CSC_wo_ALCT", me2)) {

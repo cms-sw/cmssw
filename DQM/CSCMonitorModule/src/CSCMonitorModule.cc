@@ -129,6 +129,26 @@ void CSCMonitorModule::setup() {
     }
   }
   
+  // Write down STATS parameters
+  dbe->setCurrentFolder(rootDir + EVENTINFO_FOLDER + "effParameters");
+  std::vector<std::string> effParamNames = effParameters.getParameterNamesForType<float>(false);
+  for (std::vector<std::string>::iterator iter = effParamNames.begin(); iter != effParamNames.end(); iter++) {
+    me = dbe->bookFloat(*iter);
+    me->Fill(effParameters.getUntrackedParameter<double>(*iter, -1.0));
+  }
+
+  /*
+  threshold_cold   = cms.untracked.double(0.1),
+  threshold_hot    = cms.untracked.double(2.0),
+  threshold_err    = cms.untracked.double(0.1),
+  threshold_nodata = cms.untracked.double(1.0),
+  sigfail_cold     = cms.untracked.double(5.0),
+  sigfail_hot      = cms.untracked.double(5.0),
+  sigfail_err      = cms.untracked.double(5.0),
+  sigfail_nodata   = cms.untracked.double(5.0)
+  */
+
+
   LOGINFO("Fraction histograms") << " updateKey = " << fractUpdateKey << ", update on events (freq) = " << fractUpdateEvF;
 
   this->init = true;
