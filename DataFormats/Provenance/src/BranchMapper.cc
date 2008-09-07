@@ -90,4 +90,18 @@ namespace edm {
     return it->second->branchID();
   }
 
+  static bool fpred(const BranchMapper::eiSet::value_type &a, const BranchMapper::eiSet::value_type &b) {
+    return a.productID() < b.productID();
+  }
+
+  ProductID
+  BranchMapper::maxProductID() const {
+    readProvenance();
+    if (entryInfoSet_.empty()) {
+      return ProductID(0);
+    } else {
+      eiSet::const_iterator it = std::max_element(entryInfoSet_.begin(), entryInfoSet_.end(), fpred);
+      return it->productID();
+    }
+  }
 }

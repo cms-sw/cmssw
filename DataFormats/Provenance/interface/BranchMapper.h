@@ -40,6 +40,7 @@ namespace edm {
 
     void mergeMappers(boost::shared_ptr<BranchMapper> other) {nextMapper_ = other;}
 
+    ProductID maxProductID() const;
 
   private:
     void readProvenance() const;
