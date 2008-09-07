@@ -1,4 +1,4 @@
-// $Id: L1Scalers.cc,v 1.8 2008/09/03 02:13:47 wittich Exp $
+// $Id: L1Scalers.cc,v 1.9 2008/09/03 10:38:06 lorenzo Exp $
 #include <iostream>
 
 
@@ -58,7 +58,7 @@ void L1Scalers::beginJob(const edm::EventSetup& iSetup)
     l1scalers_ = dbe_->book1D("l1AlgoBits", "L1 Algorithm Bits",
 			      128, -0.5, 127.5);
     l1scalersBx_ = dbe_->book2D("l1AlgoBits_Vs_Bx", "L1 Algorithm Bits vs Bunch Number",
-				360, -0.5, 3599.5,
+				3600, -0.5, 3599.5,
 				128, -0.5, 127.5);
     l1Correlations_ = dbe_->book2D("l1Correlations", "L1 Algorithm Bits " 
                                     "Correlations",
@@ -68,7 +68,7 @@ void L1Scalers::beginJob(const edm::EventSetup& iSetup)
 				  64, -0.5, 63.5);
     l1techScalersBx_ = dbe_->book2D("l1TechAlgoBits_Vs_Bx", "L1 Technical Trigger "
 				    "Bits vs Bunch Number",
-				    360, -0.5, 3599.5, 64, -0.5, 63.5);
+				    3600, -0.5, 3599.5, 64, -0.5, 63.5);
     bxNum_ = dbe_->book1D("bxNum", "Bunch number from GTFE",
 			  3600, -0.5, 3599.5);
 
