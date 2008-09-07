@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/07/02 14:34:22 $
- *  $Revision: 1.13 $
+ *  $Date: 2008/07/24 12:24:17 $
+ *  $Revision: 1.14 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -68,6 +68,9 @@ void DTSegmentAnalysisTest::beginJob(const edm::EventSetup& context){
   // Get the geometry
   context.get<MuonGeometryRecord>().get(muonGeom);
 
+  // book the histos
+  bookHistos();  
+
 }
 
 
@@ -75,8 +78,6 @@ void DTSegmentAnalysisTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg,
 
   edm::LogVerbatim ("segment") <<"[DTSegmentAnalysisTest]: Begin of LS transition";
 
-  // book the histos
-  bookHistos();  
   // Get the run number
   run = lumiSeg.run();
 
