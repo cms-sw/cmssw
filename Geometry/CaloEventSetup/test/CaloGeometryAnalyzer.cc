@@ -37,7 +37,6 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
-#include "Geometry/CaloGeometry/interface/CaloGenericDetId.h"
 #include <fstream>
 #include <iomanip>
 #include <iterator>
@@ -416,7 +415,6 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg      ,
    for( std::vector<DetId>::iterator i ( ids.begin() ) ; i != ids.end(); ++i ) 
    {
       ++n;
-//      std::cout<<"starting for cell i = "<<int(i-ids.begin())<<std::endl ;
       const CaloCellGeometry* cell ( geom->getGeometry(*i) ) ;
 
       ctrcor( det,
@@ -425,15 +423,6 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg      ,
 	      *cell,
 	      fCtr,
 	      fCor  ) ;
-
-      const DetId      id ( *i ) ;
-      const CaloGenericDetId cid ( id ) ;
-
-      assert( cid.validDetId() ) ;
-
-      assert( CaloGenericDetId( id.det(),
-				id.subdetId(),
-				cid.denseIndex() ) == id ) ;
 
       if( det == DetId::Ecal )
       {
@@ -451,6 +440,7 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg      ,
 
 	    f << "  // Return position is " << closestCell << std::endl;
 	    assert( closestCell == EBDetId(*i) );
+ 
 	    // test getCells against base class version every so often
 	    if( 0 == closestCell.hashedIndex()%100 )
 	    {
@@ -611,16 +601,15 @@ CaloGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& 
    if (pass_==0) {
      build(*pG,DetId::Ecal,EcalBarrel,"eb");
      build(*pG,DetId::Ecal,EcalEndcap,"ee");
-     build(*pG,DetId::Ecal,EcalPreshower,"es");
-     build(*pG,DetId::Hcal,HcalBarrel,"hb");
-     build(*pG,DetId::Hcal,HcalEndcap,"he");
-     build(*pG,DetId::Hcal,HcalOuter ,"ho");
-     build(*pG,DetId::Hcal,HcalForward,"hf");
-     build(*pG,DetId::Calo,CaloTowerDetId::SubdetId     ,"ct");
-     build(*pG,DetId::Calo,HcalZDCDetId::SubdetectorId  ,"zd");
      //Test eeGetClosestCell in Florian Point
      std::cout << "Checking getClosestCell for position" << GlobalPoint(-38.9692,-27.5548,-317) << std::endl;
      std::cout << "Position of Closest Cell in EE " << dynamic_cast<const TruncatedPyramid*>(pG->getGeometry(EEDetId((*pG).getSubdetectorGeometry(DetId::Ecal,EcalEndcap)->getClosestCell(GlobalPoint(-38.9692,-27.5548,-317)))))->getPosition(0.) << std::endl;
+     build(*pG,DetId::Ecal,EcalPreshower,"es");
+     build(*pG,DetId::Hcal,HcalBarrel,"hb");
+     build(*pG,DetId::Hcal,HcalEndcap,"he");
+     build(*pG,DetId::Hcal,HcalOuter,"ho");
+     build(*pG,DetId::Hcal,HcalForward,"hf");
+     
    }
 
    pass_++;

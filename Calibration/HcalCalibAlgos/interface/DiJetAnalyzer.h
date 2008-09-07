@@ -21,21 +21,8 @@
 
 #include "CondFormats/HcalObjects/interface/HcalRespCorrs.h"
 
-/*
 #include "TFile.h"
 #include "TTree.h"
-*/
-
-#include "TString.h"
-#include "TFile.h"
-#include "TTree.h"
-#include "TObject.h"
-#include "TObjArray.h"
-#include "TClonesArray.h"
-#include "TRefArray.h"
-#include "TLorentzVector.h"
-
-#include "TCell.h"
 
 
 //
@@ -54,44 +41,64 @@ class DiJetAnalyzer : public edm::EDAnalyzer {
       virtual void endJob() ;
 
       // ----------member data ---------------------------
-
-
-      edm::InputTag jets_; 
-      edm::InputTag ec_;
-      edm::InputTag hbhe_; 
-      edm::InputTag ho_;
-      edm::InputTag hf_; 
-
-
+      std::string  jets_;
+      std::string  jet_product;
+      std::string ec_;
+      std::string hbhe_; 
+      std::string ho_;
+      std::string hf_; 
 
   //  output file name with histograms
-      std::string fOutputFileName ;
+     std::string fOutputFileName ;
+
+     float et_jet_centr, phi_jet_centr, eta_jet_centr;
+     float et_jet_forw, phi_jet_forw, eta_jet_forw;  
+
+     int nHits; 
+     float hitE[5000], hitEt[5000], hitEta[5000], hitPhi[5000];
+
+     TFile*      hOutputFile ;
+     TTree * myTree;
 
 
-      TFile*      hOutputFile ;
-
-      TTree* tree; 
-  
-      UInt_t  eventNumber;
-      UInt_t  runNumber;
-      Int_t   iEtaHit;
-      UInt_t  iPhiHit;
-
-      TClonesArray* cells;
-
-      Float_t emEnergy;
-      Float_t targetE;  
-
-      Float_t etVetoJet; 
-      TLorentzVector* tagJetP4;
-      TLorentzVector* probeJetP4;  
-      Float_t tagJetEmFrac; 
-      Float_t probeJetEmFrac; 
 
 
-      bool allowMissingInputs_;
+// jets with |eta| < eta_1  are assumed to be calibrated 
+     double eta_1; 
 
-      HcalRespCorrs* oldRespCorrs; 
+// jets with |eta| > eta_2 are used for calibration transfer
+     double eta_2; 
+
+// jet radius 
+     double jet_R; 
+
+// Et threshold for central jets taken for di-jet calibration
+     double et_threshold; 
+
+// max Et for the third jet 
+     double et_veto; 
+
+//  root output 
+     int m_histoFlag; 
+
+
+// energy matrix for min L3 algorithm 
+     std::vector< std::vector<float> > eventMatrix; 
+
+// vector  with energy of central jet 
+     std::vector<float> energyVector; 
+
+// number of iterations 
+     int nIter; 
+
+     std::map<DetId,int> NDetEntries;
+
+     std::vector<DetId> did_selected; 
+
+     bool allowMissingInputs_;
+     const CaloGeometry* geo;
+
+     HcalRespCorrs* oldRespCorrs; 
 
 };
 }

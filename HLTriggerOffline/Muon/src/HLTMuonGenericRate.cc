@@ -124,7 +124,7 @@ void HLTMuonGenericRate::analyze( const Event & event )
     Handle<HepMCProduct> genProduct;
     event.getByLabel(theGenLabel, genProduct);
     if ( genProduct.failedToGet() ){
-      LogWarning("HLTMuonVal") << "No generator input to compare to";
+      LogDebug("HLTMuonVal") << "No generator input to compare to";
       useMuonFromGenerator = false;
     } else {
       evt = genProduct->GetEvent();
@@ -151,7 +151,7 @@ void HLTMuonGenericRate::analyze( const Event & event )
     reco::TrackCollection::const_iterator muon;
     event.getByLabel(theRecoLabel.label(), muTracks);    
     if  ( muTracks.failedToGet() ) {
-      LogWarning("HLTMuonVal") << "No reco tracks to compare to";
+      LogDebug("HLTMuonVal") << "No reco tracks to compare to";
       useMuonFromReco = false;
     } else {
       for ( muon = muTracks->begin(); muon != muTracks->end(); ++muon ) {
@@ -179,7 +179,7 @@ void HLTMuonGenericRate::analyze( const Event & event )
   event.getByLabel("hltTriggerSummaryRAW", triggerObj); 
 
   if( !triggerObj.isValid() ) { 
-    edm::LogWarning("HLTMuonVal") << "RAW-type HLT results not found, skipping event";
+    LogDebug("HLTMuonVal") << "RAW-type HLT results not found, skipping event";
     return;
   }
 

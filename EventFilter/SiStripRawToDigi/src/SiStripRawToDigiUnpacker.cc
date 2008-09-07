@@ -174,7 +174,7 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
    
     // Check if EventSummary ("trigger FED info") needs updating
     if ( first_fed ) {
-      updateEventSummary( fedEvent_, summary );
+      //updateEventSummary( fedEvent_, summary ); //@@ temporarily suppress statements from SiStripEventSummary!
       first_fed = false;
     }
     
@@ -403,7 +403,9 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
   if ( ! zs_work_registry_.empty() ) {
         std::sort( zs_work_registry_.begin(), zs_work_registry_.end() );
         std::vector< edm::DetSet<SiStripDigi> > sorted_and_merged;
-        sorted_and_merged.reserve(  std::min(zs_work_registry_.size(), 17000u) );
+        sorted_and_merged.reserve(  std::min(zs_work_registry_.size(), size_t(17000)) );
+
+        bool errorInData = false;
         std::vector<DetSet_SiStripDig_registry>::iterator it = zs_work_registry_.begin(), it2 = it+1, end = zs_work_registry_.end();
         while (it < end) {
             sorted_and_merged.push_back( edm::DetSet<SiStripDigi>(it->detid) );
@@ -420,10 +422,19 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
             it = it2;
         }
         // check sorting
-        assert( __gnu_cxx::is_sorted( sorted_and_merged.begin(), sorted_and_merged.end()  ) ); 
+        if (!__gnu_cxx::is_sorted( sorted_and_merged.begin(), sorted_and_merged.end() )) {
+            // this is an error in the code: i DID sort it already!
+            throw cms::Exception("Bug Found") << "Container must be already sorted!\nat " << __FILE__ << ", line " << __LINE__ <<"\n";
+        }
         std::vector< edm::DetSet<SiStripDigi> >::iterator iii = sorted_and_merged.begin();
         std::vector< edm::DetSet<SiStripDigi> >::iterator jjj = sorted_and_merged.end(); 
-        for ( ; iii != jjj; ++iii ) { assert( __gnu_cxx::is_sorted( iii->begin(), iii->end()) ); }
+        for ( ; iii != jjj; ++iii ) { 
+            if ( ! __gnu_cxx::is_sorted( iii->begin(), iii->end() ) ) {
+                // this might be an error in the data, if the raws from one FED are not sorted
+                iii->clear(); errorInData = true;
+            }
+        }
+        if (errorInData) { edm::LogWarning("CorruptData") << "Some modules contained corrupted ZS raw data, and have been skipped in unpacking\n"; }
         // make output DetSetVector
         edm::DetSetVector<SiStripDigi> zero_suppr_dsv( sorted_and_merged, true ); 
         zero_suppr.swap( zero_suppr_dsv );
@@ -434,30 +445,38 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
       std::sort( virgin_work_registry_.begin(), virgin_work_registry_.end() );
 
       std::vector< edm::DetSet<SiStripRawDigi> > sorted_and_merged;
-      sorted_and_merged.reserve( std::min(virgin_work_registry_.size(), 17000u) );
+      sorted_and_merged.reserve( std::min(virgin_work_registry_.size(), size_t(17000)) );
 
+      bool errorInData = false;
       std::vector<DetSet_SiStripDig_registry>::iterator it = virgin_work_registry_.begin(), it2, end = virgin_work_registry_.end();
       while (it < end) {
           sorted_and_merged.push_back( edm::DetSet<SiStripRawDigi>(it->detid) );
           std::vector<SiStripRawDigi> & digis = sorted_and_merged.back().data;
+
+          bool isDetOk = true; 
           // first count how many digis we have
-          assert(it->length == 256);
           int maxFirstStrip = it->first;
           for (it2 = it+1; (it2 != end) && (it2->detid == it->detid); ++it2) { 
-              assert(it2->length == 256);
-              assert(it2->first > maxFirstStrip);
-              maxFirstStrip = it2->first; 
+              if (it2->first <= maxFirstStrip) { isDetOk = false; continue; } // duplicated APV or data corruption. DO NOT 'break' here!
+              maxFirstStrip = it2->first;                           
           }
+          if (!isDetOk) { errorInData = true; it = it2; continue; } // skip whole det
           // make room for 256 * (max_apv_pair + 1) Raw Digis
           digis.resize(maxFirstStrip + 256);
           // push them in
           for (it2 = it+0; (it2 != end) && (it2->detid == it->detid); ++it2) {
+              if (it->length != 256)  { isDetOk = false; continue; } // data corruption. DO NOT 'break' here
               std::copy( & virgin_work_digis_[it2->index], & virgin_work_digis_[it2->index + it2->length], & digis[it2->first] );
           }
+          if (!isDetOk) { errorInData = true; digis.clear(); it = it2; continue; } // skip whole det
           it = it2;
       }
+      if (errorInData) { edm::LogWarning("CorruptData") << "Some modules contained corrupted virgin raw data, and have been skipped in unpacking\n"; }
       // check sorting
-      assert( __gnu_cxx::is_sorted( sorted_and_merged.begin(), sorted_and_merged.end()  ) ); 
+      if ( !__gnu_cxx::is_sorted( sorted_and_merged.begin(), sorted_and_merged.end()  ) ) {
+          // this is an error in the code: i DID sort it already!
+          throw cms::Exception("Bug Found") << "Container must be already sorted!\nat " << __FILE__ << ", line " << __LINE__ <<"\n";
+      }
       // make output DetSetVector
       edm::DetSetVector<SiStripRawDigi> virgin_raw_dsv( sorted_and_merged, true ); 
       virgin_raw.swap( virgin_raw_dsv );
@@ -468,29 +487,37 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
       std::sort( proc_work_registry_.begin(), proc_work_registry_.end() );
 
       std::vector< edm::DetSet<SiStripRawDigi> > sorted_and_merged;
-      sorted_and_merged.reserve( std::min(proc_work_registry_.size(), 17000u) );
+      sorted_and_merged.reserve( std::min(proc_work_registry_.size(), size_t(17000)) );
 
+      bool errorInData = false;
       std::vector<DetSet_SiStripDig_registry>::iterator it = proc_work_registry_.begin(), it2 = it+1, end = proc_work_registry_.end();
       while (it < end) {
           sorted_and_merged.push_back( edm::DetSet<SiStripRawDigi>(it->detid) );
           std::vector<SiStripRawDigi> & digis = sorted_and_merged.back().data;
+          bool isDetOk = true; 
           // first count how many digis we have
-          assert (it->length == 256);
           int maxFirstStrip = it->first;
           for (it2 = it+1; (it2 != end) && (it2->detid == it->detid); ++it2) { 
-              assert (it2->length == 256);
+              if (it2->first <= maxFirstStrip) { isDetOk = false; continue; } // duplicated APV or data corruption. DO NOT 'break' here!
               maxFirstStrip = it2->first; 
           }
+          if (!isDetOk) { errorInData = true; it = it2; continue; } // skip whole det
           // make room for 256 * (max_apv_pair + 1) Raw Digis
           digis.resize(maxFirstStrip + 256);
           // push them in
           for (it2 = it+0; (it2 != end) && (it2->detid == it->detid); ++it2) {
+              if (it->length != 256)  { isDetOk = false; continue; } // data corruption. DO NOT 'break' here
               std::copy( & proc_work_digis_[it2->index], & proc_work_digis_[it2->index + it2->length], & digis[it->first] );
           }
+          if (!isDetOk) { errorInData = true; digis.clear(); it = it2; continue; } // skip whole det
           it = it2;
       }
+      if (errorInData) { edm::LogWarning("CorruptData") << "Some modules contained corrupted processed raw data, and have been skipped in unpacking\n"; }
       // check sorting
-      assert( __gnu_cxx::is_sorted( sorted_and_merged.begin(), sorted_and_merged.end()  ) ); 
+      if ( !__gnu_cxx::is_sorted( sorted_and_merged.begin(), sorted_and_merged.end()  ) ) {
+          // this is an error in the code: i DID sort it already!
+          throw cms::Exception("Bug Found") << "Container must be already sorted!\nat " << __FILE__ << ", line " << __LINE__ <<"\n";
+      }
       // make output DetSetVector
       edm::DetSetVector<SiStripRawDigi> proc_raw_dsv( sorted_and_merged, true ); 
       proc_raw.swap( proc_raw_dsv );
@@ -503,6 +530,7 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
       std::vector< edm::DetSet<SiStripRawDigi> > sorted_and_merged;
       sorted_and_merged.reserve( scope_work_registry_.size() );
 
+      bool errorInData = false;
       std::vector<DetSet_SiStripDig_registry>::iterator it, end;
       for (it = scope_work_registry_.begin(), end = scope_work_registry_.end() ; it != end; ++it) {
           sorted_and_merged.push_back( edm::DetSet<SiStripRawDigi>(it->detid) );
@@ -510,11 +538,18 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
           digis.insert( digis.end(), & scope_work_digis_[it->index], & scope_work_digis_[it->index + it->length] );
 
           if ( (it +1 != end) && (it->detid == (it+1)->detid) ) {
-              throw cms::Exception("Duplicate Key") << "Duplicate key " << it->detid << " found in scope mode.\n"; 
+              errorInData = true; 
+              // let's skip *all* the detsets for that key, as we don't know which is the correct one!
+              do { ++it; } while ( ( it+1 != end) && (it->detid == (it+1)->detid) );
+              //throw cms::Exception("Duplicate Key") << "Duplicate key " << it->detid << " found in scope mode.\n"; 
           }
       }
+      if (errorInData) { edm::LogWarning("CorruptData") << "Some fed keys contained corrupted scope mode data, and have been skipped in unpacking\n"; }
       // check sorting
-      assert( __gnu_cxx::is_sorted( sorted_and_merged.begin(), sorted_and_merged.end()  ) ); 
+      if ( !__gnu_cxx::is_sorted( sorted_and_merged.begin(), sorted_and_merged.end()  ) ) {
+          // this is an error in the code: i DID sort it already!
+          throw cms::Exception("Bug Found") << "Container must be already sorted!\nat " << __FILE__ << ", line " << __LINE__ <<"\n";
+      }
       // make output DetSetVector
       edm::DetSetVector<SiStripRawDigi> scope_mode_dsv( sorted_and_merged, true ); 
       scope_mode.swap( scope_mode_dsv );

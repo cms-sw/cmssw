@@ -91,27 +91,21 @@ class L1GctInternEtSum {
   /// get the raw data
   uint32_t raw() const { return data_; }
   
+  /// get value
+  uint32_t value() const { return data_ & 0x7fffffff; }
+
   /// get et
-  uint32_t et() const { return data_ & 0x7fffffff; }
+  uint32_t et() const { return value(); }
 
   /// get count
-  uint32_t count() const { return data_ & 0x7fffffff; }
+  uint32_t count() const { return value(); }
 
   /// get oflow
   uint8_t oflow() const { return (data_>>31) & 0x1; }
 
 
-  /// operators
+  // setters
 
-  /// equality operator
-  bool operator==(const L1GctInternEtSum& c) const;
-  
-  /// inequality operator
-  bool operator!=(const L1GctInternEtSum& c) const { return !(*this == c); }
-  
-  // private methods
- private:
-  
   /// set cap block
   void setCapBlock(uint16_t capBlock) { capBlock_ = capBlock; }
 
@@ -124,13 +118,28 @@ class L1GctInternEtSum {
   /// set type
   void setType(L1GctInternEtSumType type) { type_ = type; }
 
+  /// set value
+  void setValue(uint32_t val);
+
   /// set Et sum
   void setEt(uint32_t et);
+
+  /// set count
+  void setCount(uint32_t count);
 
   /// set overflow bit
   void setOflow(uint8_t oflow);
 
-  // private data
+
+  /// operators
+
+  /// equality operator
+  bool operator==(const L1GctInternEtSum& c) const;
+  
+  /// inequality operator
+  bool operator!=(const L1GctInternEtSum& c) const { return !(*this == c); }
+  
+
  private:
 
   // type of data

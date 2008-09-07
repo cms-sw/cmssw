@@ -48,6 +48,7 @@ namespace cms
   // Functions that gets called by framework every event
   void CosmicTrackFinder::produce(edm::Event& e, const edm::EventSetup& es)
   {
+    using namespace std  ;
     edm::InputTag matchedrecHitsTag = conf_.getParameter<edm::InputTag>("matchedRecHits");
     edm::InputTag rphirecHitsTag = conf_.getParameter<edm::InputTag>("rphirecHits");
     edm::InputTag stereorecHitsTag = conf_.getParameter<edm::InputTag>("stereorecHits");
@@ -134,7 +135,8 @@ namespace cms
 	const Trajectory  theTraj = *(*tmpTraj.begin());
 	if(trinevents) outputTJ->push_back(theTraj);
 	bool seedplus=(theTraj.seed().direction()==alongMomentum);
-	PropagationDirection seedDir =theTraj.seed().direction();
+	//PropagationDirection seedDir =theTraj.seed().direction();
+
 	if (seedplus)
 	  LogDebug("CosmicTrackFinder")<<"Reconstruction along momentum ";
 	else
@@ -150,20 +152,29 @@ namespace cms
 	edm::OrphanHandle <TrackingRecHitCollection> ohRH  = e.put( outputRHColl );
 
 
-	TSOS UpState;
-	TSOS LowState;
-	unsigned int outerId, innerId;
+	TSOS firstState;
+	TSOS lastState;
+	unsigned int firstId, lastId;
 	if (seedplus){
-          UpState=theTraj.lastMeasurement().updatedState();
-          LowState=theTraj.firstMeasurement().updatedState();
-	  outerId = theTraj.lastMeasurement().recHit()->geographicalId().rawId();
-	  innerId = theTraj.firstMeasurement().recHit()->geographicalId().rawId();
+          firstState=theTraj.lastMeasurement().updatedState();
+          lastState=theTraj.firstMeasurement().updatedState();
+	  firstId = theTraj.lastMeasurement().recHit()->geographicalId().rawId();
+	  lastId = theTraj.firstMeasurement().recHit()->geographicalId().rawId();
         }else{
-          UpState=theTraj.firstMeasurement().updatedState();
-          LowState=theTraj.lastMeasurement().updatedState();
-	  outerId = theTraj.firstMeasurement().recHit()->geographicalId().rawId();
-	  innerId = theTraj.lastMeasurement().recHit()->geographicalId().rawId();
+          firstState=theTraj.firstMeasurement().updatedState();
+          lastState=theTraj.lastMeasurement().updatedState();
+	  firstId = theTraj.firstMeasurement().recHit()->geographicalId().rawId();
+	  lastId = theTraj.lastMeasurement().recHit()->geographicalId().rawId();
         }
+	
+	/*
+	cout << "firstState y, z: " << firstState.globalPosition().y() 
+	     << " , " << firstState.globalPosition().z() <<  endl;
+
+	cout << "lastState y, z: " << lastState.globalPosition().y() 
+	     << " , " << lastState.globalPosition().z() <<  endl;
+	*/
+
 
 	//Track construction
 	int ndof =theTraj.foundHits()-5;
@@ -171,12 +182,9 @@ namespace cms
 	if (ndof<0) ndof=0;
 
 	TSCPBuilderNoMaterial tscpBuilder;
-	TrajectoryStateClosestToPoint tscp=tscpBuilder(*(UpState.freeState()),
-						       UpState.globalPosition());
+	TrajectoryStateClosestToPoint tscp=tscpBuilder(*(firstState.freeState()),
+						       firstState.globalPosition());
 
-// 	PerigeeTrajectoryParameters::ParameterVector param = tscp.perigeeParameters();
-	
-// 	PerigeeTrajectoryError::CovarianceMatrix covar = tscp.perigeeError();
 	GlobalPoint vv = tscp.theState().position();
 	math::XYZPoint  pos( vv.x(), vv.y(), vv.z() );
 	GlobalVector pp = tscp.theState().momentum();
@@ -186,32 +194,29 @@ namespace cms
 	reco::Track theTrack(theTraj.chiSquared(),
 			     int(ndof),
 			     pos, mom, tscp.charge(), tscp.theState().curvilinearError());
-
-
-	
-// 	reco::Track theTrack(theTraj.chiSquared(),
-// 			     int(ndof),
-// 			     param,tscp.pt(),
-// 			     covar);
-
+      
 
 	//Track Extra
-	GlobalPoint v=UpState.globalPosition();
-	GlobalVector p=UpState.globalMomentum();
-	math::XYZVector outmom( p.x(), p.y(), p.z() );
-	math::XYZPoint  outpos( v.x(), v.y(), v.z() );   
-	v=LowState.globalPosition();
-	p=LowState.globalMomentum();
-	math::XYZVector inmom( p.x(), p.y(), p.z() );
-	math::XYZPoint  inpos( v.x(), v.y(), v.z() );   
-//	reco::TrackExtra *theTrackExtra = new reco::TrackExtra(outpos, outmom, true);
-	reco::TrackExtra *theTrackExtra = new reco::TrackExtra(outpos, outmom, true, inpos, inmom, true,
-							       UpState.curvilinearError(), outerId,
-							       LowState.curvilinearError(), innerId,seedDir);
+	GlobalPoint v=firstState.globalPosition();
+	GlobalVector p=firstState.globalMomentum();
+	math::XYZVector first_mom( p.x(), p.y(), p.z() );
+	math::XYZPoint  first_pos( v.x(), v.y(), v.z() );   
+	v=lastState.globalPosition();
+	p=lastState.globalMomentum();
+	math::XYZVector last_mom( p.x(), p.y(), p.z() );
+	math::XYZPoint  last_pos( v.x(), v.y(), v.z() );   
 
 
-	//HIT CORRECTLY ORDERED
-	//IN SUCH A WAY THAT ALSO THE REFITTER CAN BE USED 
+	// === the convention is to save always final tracks with hits sorted *along* momentum	
+	PropagationDirection fakeDir = alongMomentum;
+
+	reco::TrackExtra *theTrackExtra = new reco::TrackExtra(last_pos, last_mom, true,
+							       first_pos, first_mom, true,
+							       lastState.curvilinearError(), lastId,
+							       firstState.curvilinearError(), firstId,
+							       fakeDir);
+
+	// === the convention is to save always final tracks with hits sorted *along* momentum	
 	if (seedplus){
 	  for (uint cc=transHits.size();cc>0;cc--){
 	    theTrackExtra->add(TrackingRecHitRef(ohRH,cc-1));
@@ -222,6 +227,8 @@ namespace cms
 	    theTrackExtra->add(TrackingRecHitRef(ohRH,cc));
 	  }
 	}
+
+
 
 	outputTEColl->push_back(*theTrackExtra);
 	edm::OrphanHandle<reco::TrackExtraCollection> ohTE = e.put(outputTEColl);

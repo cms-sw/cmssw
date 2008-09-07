@@ -61,14 +61,15 @@ bool HLTPixelIsolTrackFilter::filter(edm::Event& iEvent, const edm::EventSetup& 
       if ((candref->maxPtPxl()<maxptnearby)&&((candref->pt())*cosh(candref->track()->eta())>minEnergy_)&&fabs(candref->track()->eta())<maxetatrack)
         {
           filterproduct->addObject(trigger::TriggerTrack, candref);
-          n++;
+	  n++;
         }
 	}
-
     }
   
   
   bool accept(n>0);
+
+  filterproduct->addCollectionTag(candTag_);
 
   iEvent.put(filterproduct);
 

@@ -77,6 +77,16 @@ public:
     theCovarianceMatrix *= factor;
   }
 
+  void zeroFieldScaling(double factor){
+    double root_of_factor = sqrt(factor);
+    //scale the 0 indexed covariance by the factor
+    for (uint i=1;i!=5;++i)      theCovarianceMatrix(i,0)*=root_of_factor;
+
+    //scale all others by the scared factor
+    for (uint i=1;i!=5;++i)  for (uint j=i;j!=5;++j) theCovarianceMatrix(i,j)*=factor;
+    //term 0,0 is not scaled at all
+  }
+
   operator MathCovarianceMatrix() { return theCovarianceMatrix; }
   operator const MathCovarianceMatrix &() const { return theCovarianceMatrix; }
 

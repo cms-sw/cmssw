@@ -49,7 +49,7 @@
 #include "DataFormats/Math/interface/deltaR.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "RecoTracker/MeasurementDet/interface/UpdaterService.h"
+#include "FWCore/Services/interface/UpdaterService.h"
 
 using namespace std;
 

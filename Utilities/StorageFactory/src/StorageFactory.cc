@@ -71,7 +71,7 @@ StorageFactory::getMaker (const std::string &proto)
   if (! edmplugin::PluginManager::isAvailable())
     edmplugin::PluginManager::configure(edmplugin::standard::config());
   if (! instance)
-    instance = StorageMakerFactory::get()->create (proto);
+    instance = StorageMakerFactory::get()->tryToCreate(proto);
   return instance;
 }
 

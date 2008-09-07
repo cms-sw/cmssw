@@ -18,7 +18,9 @@ IsoProd = cms.EDProducer("AlCaIsoTracksProducer",
     MaxTrackEta = cms.double(1.9),
     SkipNeutralIsoCheck = cms.untracked.bool(False),
     MinTrackP = cms.double(15.0),
-    CheckHLTMatch=cms.bool(True)
+    CheckHLTMatch=cms.bool(True),
+    hltTriggerEventLabel = cms.InputTag("hltTriggerSummaryAOD"),
+    hltL3FilterLabel = cms.InputTag("hltIsolPixelTrackFilter::HLT")
 )
 
 

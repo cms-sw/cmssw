@@ -41,14 +41,15 @@ void ErrorChecker::setErrorStatus(bool ErrorStatus)
   includeErrors = ErrorStatus;
 }
 
-bool ErrorChecker::checkHeader(int fedId, const Word64* header, Errors& errors)
+bool ErrorChecker::checkHeader(bool& errorsInEvent, int fedId, const Word64* header, Errors& errors)
 {
   FEDHeader fedHeader( reinterpret_cast<const unsigned char*>(header));
   if ( !fedHeader.check() ) return false; // throw exception?
   if ( fedHeader.sourceID() != fedId) { 
-    LogError("PixelDataFormatter::interpretRawData, fedHeader.sourceID() != fedId")
+    LogDebug("PixelDataFormatter::interpretRawData, fedHeader.sourceID() != fedId")
       <<", sourceID = " <<fedHeader.sourceID()
       <<", fedId = "<<fedId<<", errorType = 32"; 
+    errorsInEvent = true;
     if (includeErrors) {
       int errorType = 32;
       SiPixelRawDataError error(*header, errorType, fedId);
@@ -58,7 +59,7 @@ bool ErrorChecker::checkHeader(int fedId, const Word64* header, Errors& errors)
   return fedHeader.moreHeaders();
 }
 
-bool ErrorChecker::checkTrailer(int fedId, int nWords, const Word64* trailer, Errors& errors)
+bool ErrorChecker::checkTrailer(bool& errorsInEvent, int fedId, int nWords, const Word64* trailer, Errors& errors)
 {
   FEDTrailer fedTrailer(reinterpret_cast<const unsigned char*>(trailer));
   if ( !fedTrailer.check()) { 
@@ -67,12 +68,14 @@ bool ErrorChecker::checkTrailer(int fedId, int nWords, const Word64* trailer, Er
       SiPixelRawDataError error(*trailer, errorType, fedId);
       errors[dummyDetId].push_back(error);
     }
+    errorsInEvent = true;
     LogError("PixelDataFormatter::interpretRawData, fedTrailer.check: ")
       <<"fedTrailer.check failed, Fed: " << fedId << ", errorType = 33";
     return false; 
   } 
   if ( fedTrailer.lenght()!= nWords) {
     LogError("PROBLEM in PixelDataFormatter,  fedTrailer.lenght()!= nWords !!")<< " Fed: " << fedId << ", errorType = 34";
+    errorsInEvent = true;
     if(includeErrors) {
       int errorType = 34;
       SiPixelRawDataError error(*trailer, errorType, fedId);
@@ -82,38 +85,43 @@ bool ErrorChecker::checkTrailer(int fedId, int nWords, const Word64* trailer, Er
   return fedTrailer.moreTrailers();
 }
 
-bool ErrorChecker::checkROC(int fedId, const SiPixelFrameConverter* converter, Word32 errorWord, Errors& errors)
+bool ErrorChecker::checkROC(bool& errorsInEvent, int fedId, const SiPixelFrameConverter* converter, Word32& errorWord, Errors& errors)
 {
  static const Word32 ERROR_mask = ~(~Word32(0) << ROC_bits); 
  int errorType = (errorWord >> ROC_shift) & ERROR_mask;
 
  switch (errorType) {
     case(25) : {
-     LogTrace("")<<"  invalid ROC=25 found (errorType=25)";
+     LogDebug("")<<"  invalid ROC=25 found (errorType=25)";
+     errorsInEvent = true;
      break;
    }
    case(26) : {
-     //LogTrace("")<<"  gap word found (errorType=26)";
+     //LogDebug("")<<"  gap word found (errorType=26)";
      return false;
    }
    case(27) : {
-     //LogTrace("")<<"  dummy word found (errorType=27)";
+     //LogDebug("")<<"  dummy word found (errorType=27)";
      return false;
    }
    case(28) : {
-     LogTrace("")<<"  error fifo nearly full (errorType=28)";
+     LogDebug("")<<"  error fifo nearly full (errorType=28)";
+     errorsInEvent = true;
      break;
    }
    case(29) : {
-     LogTrace("")<<"  timeout on a channel (errorType=29)";
+     LogDebug("")<<"  timeout on a channel (errorType=29)";
+     errorsInEvent = true;
      break;
    }
    case(30) : {
-     LogTrace("")<<"  TBM error trailer (errorType=30)";
+     LogDebug("")<<"  TBM error trailer (errorType=30)";
+     errorsInEvent = true;
      break;
    }
    case(31) : {
-     LogTrace("")<<"  event number error (errorType=31)";
+     LogDebug("")<<"  event number error (errorType=31)";
+     errorsInEvent = true;
      break;
    }
    default: return true;
@@ -128,11 +136,11 @@ bool ErrorChecker::checkROC(int fedId, const SiPixelFrameConverter* converter, W
  return false;
 }
 
-void ErrorChecker::conversionError(int fedId, const SiPixelFrameConverter* converter, int status, Word32 errorWord, Errors& errors)
+void ErrorChecker::conversionError(int fedId, const SiPixelFrameConverter* converter, int status, Word32& errorWord, Errors& errors)
 {
   switch (status) {
   case(1) : {
-    LogError("PixelDataFormatter::interpretRawData") << " Fed: " << fedId << "  invalid channel Id (errorType=35)";
+    LogDebug("ErrorChecker::conversionError") << " Fed: " << fedId << "  invalid channel Id (errorType=35)";
     if(includeErrors) {
       int errorType = 35;
       SiPixelRawDataError error(errorWord, errorType, fedId);
@@ -142,7 +150,7 @@ void ErrorChecker::conversionError(int fedId, const SiPixelFrameConverter* conve
     break;
   }
   case(2) : {
-    LogError("PixelDataFormatter::interpretRawData")<< " Fed: " << fedId << "  invalid ROC Id (errorType=36)";
+    LogDebug("ErrorChecker::conversionError")<< " Fed: " << fedId << "  invalid ROC Id (errorType=36)";
     if(includeErrors) {
       int errorType = 36;
       SiPixelRawDataError error(errorWord, errorType, fedId);
@@ -152,7 +160,7 @@ void ErrorChecker::conversionError(int fedId, const SiPixelFrameConverter* conve
     break;
   }
   case(3) : {
-    LogError("PixelDataFormatter::interpretRawData")<< " Fed: " << fedId << "  invalid dcol/pixel value (errorType=37)";
+    LogDebug("ErrorChecker::conversionError")<< " Fed: " << fedId << "  invalid dcol/pixel value (errorType=37)";
     if(includeErrors) {
       int errorType = 37;
       SiPixelRawDataError error(errorWord, errorType, fedId);
@@ -162,7 +170,7 @@ void ErrorChecker::conversionError(int fedId, const SiPixelFrameConverter* conve
     break;
   }
   case(4) : {
-    LogError("PixelDataFormatter::interpretRawData")<< " Fed: " << fedId << "  dcol/pixel read out of order (errorType=38)";
+    LogDebug("ErrorChecker::conversionError")<< " Fed: " << fedId << "  dcol/pixel read out of order (errorType=38)";
     if(includeErrors) {
       int errorType = 38;
       SiPixelRawDataError error(errorWord, errorType, fedId);
@@ -171,7 +179,7 @@ void ErrorChecker::conversionError(int fedId, const SiPixelFrameConverter* conve
     }
     break;
   }
-  default: LogError("PixelDataFormatter::interpretRawData")<<"  cabling check returned unexpected result, status = "<< status;
+  default: LogDebug("ErrorChecker::conversionError")<<"  cabling check returned unexpected result, status = "<< status;
   };
 }
 

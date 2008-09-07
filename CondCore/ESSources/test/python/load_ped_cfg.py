@@ -17,10 +17,10 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
 )
 
 process.source = cms.Source("EmptyIOVSource",
-    lastValue = cms.uint64(4),
+    lastRun = cms.untracked.uint32(4),
     timetype = cms.string('runnumber'),
-    firstValue = cms.uint64(1),
-    interval = cms.uint64(1)
+    firstRun = cms.untracked.uint32(1),
+    interval = cms.uint32(1)
 )
 
 process.get = cms.EDAnalyzer("EventSetupRecordDataGetter",

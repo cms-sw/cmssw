@@ -22,7 +22,6 @@ For its usage, see "FWCore/Framework/interface/DataViewImpl.h"
 #include "boost/shared_ptr.hpp"
 
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
-#include "DataFormats/Provenance/interface/EventEntryInfo.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/History.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
@@ -48,7 +47,7 @@ namespace edm {
   // right collection.
   template <typename PROD>
   struct RecordInParentless {
-    typedef DataViewImpl<EventEntryInfo>::ProductPtrVec ptrvec_t;
+    typedef DataViewImpl::ProductPtrVec ptrvec_t;
     void do_it(ptrvec_t& ignored,
 	       ptrvec_t& used,
 	       Wrapper<PROD>* wp, 
@@ -59,7 +58,7 @@ namespace edm {
 
   template <typename PROD>
   struct RecordInParentfull {
-    typedef DataViewImpl<EventEntryInfo>::ProductPtrVec ptrvec_t;
+    typedef DataViewImpl::ProductPtrVec ptrvec_t;
 
     void do_it(ptrvec_t& used,
 	       ptrvec_t& ignored,
@@ -70,9 +69,9 @@ namespace edm {
   };
 
 
-  class Event : private DataViewImpl<EventEntryInfo> {
+  class Event : private DataViewImpl {
   public:
-    typedef DataViewImpl<EventEntryInfo> Base;
+    typedef DataViewImpl Base;
     Event(EventPrincipal& ep, const ModuleDescription& md);
     ~Event(){}
 

@@ -22,8 +22,72 @@
 
 #include "RecoTracker/CkfPattern/interface/IntermediateTrajectoryCleaner.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+#include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
 
 using namespace std;
+
+
+std::string dumpMeasurement(const TrajectoryMeasurement & tm)
+{
+  std::stringstream buffer;
+  buffer<<"layer pointer: "<<tm.layer()<<"\n"
+        <<"estimate: "<<tm.estimate()<<"\n"
+        <<"forward state: \n"
+        <<"x: "<<tm.forwardPredictedState().globalPosition()<<"\n"
+        <<"p: "<<tm.forwardPredictedState().globalMomentum()<<"\n"
+        <<"geomdet pointer from rechit: "<<tm.recHit()->det()<<"\n"
+        <<"detId: "<<tm.recHit()->geographicalId().rawId();
+  if (tm.recHit()->isValid()){
+    buffer<<"\n hit global x: "<<tm.recHit()->globalPosition()
+	  <<"\n hit global error: "<<tm.recHit()->globalPositionError().matrix()
+	  <<"\n hit local x:"<<tm.recHit()->localPosition()
+	  <<"\n hit local error"<<tm.recHit()->localPositionError();
+  }
+  return buffer.str();
+}
+std::string dumpMeasurements(const std::vector<TrajectoryMeasurement> & v)
+{
+  std::stringstream buffer;
+  buffer<<v.size()<<" total measurements\n";
+  for (std::vector<TrajectoryMeasurement>::const_iterator it = v.begin(); it!=v.end();++it){
+    buffer<<dumpMeasurement(*it);
+    buffer<<"\n";}
+  return buffer.str();
+}
+
+std::string dumpCandidates(CkfTrajectoryBuilder::TempTrajectoryContainer & candidates){
+  std::stringstream buffer;
+  uint ic=0;
+  for (CkfTrajectoryBuilder::TempTrajectoryContainer::const_iterator traj=candidates.begin();
+       traj!=candidates.end(); traj++) {  
+    buffer<<ic++<<"] ";
+    if (!traj->measurements().empty()){
+      const TrajectoryMeasurement & last = traj->lastMeasurement();
+      const TrajectoryStateOnSurface & tsos = last.updatedState();
+      buffer<<"with: "<<traj->measurements().size()<<" measurements. Last state\n x: "<<tsos.globalPosition()<<"\n p: "<<tsos.globalMomentum()<<"\n";
+    }
+    else{
+      buffer<<" no measurement. \n";}
+  }
+  return buffer.str();
+}
+std::string dumpCandidates(CkfTrajectoryBuilder::TrajectoryContainer & candidates){
+  std::stringstream buffer;
+  uint ic=0;
+  for (CkfTrajectoryBuilder::TrajectoryContainer::const_iterator traj=candidates.begin();
+       traj!=candidates.end(); traj++) {  
+    buffer<<ic++<<"] ";
+    if (!traj->measurements().empty()){
+      const TrajectoryMeasurement & last = traj->lastMeasurement();
+      const TrajectoryStateOnSurface & tsos = last.updatedState();
+      buffer<<"with: "<<traj->measurements().size()<<" measurements. Last state\n x: "<<tsos.globalPosition()<<"\n p: "<<tsos.globalMomentum()<<"\n";
+    }
+    else{
+      buffer<<" no measurement. \n";}
+  }
+  return buffer.str();
+}
+
 
 CkfTrajectoryBuilder::
   CkfTrajectoryBuilder(const edm::ParameterSet&              conf,
@@ -78,6 +142,7 @@ void CkfTrajectoryBuilder::
 limitedCandidates( TempTrajectory& startingTraj, 
 		   TrajectoryContainer& result) const
 {
+  uint nIter=1;
   TempTrajectoryContainer candidates; // = TrajectoryContainer();
   TempTrajectoryContainer newCand; // = TrajectoryContainer();
   candidates.push_back( startingTraj);
@@ -124,7 +189,7 @@ limitedCandidates( TempTrajectory& startingTraj,
 	  }
 	}
       }
-    
+
       if ((int)newCand.size() > theMaxCand) {
 	sort( newCand.begin(), newCand.end(), TrajCandLess<TempTrajectory>(theLostHitPenalty));
 	newCand.erase( newCand.begin()+theMaxCand, newCand.end());
@@ -134,6 +199,12 @@ limitedCandidates( TempTrajectory& startingTraj,
     if (theIntermediateCleaning) IntermediateTrajectoryCleaner::clean(newCand);
 
     candidates.swap(newCand);
+    
+    LogDebug("CkfPattern") <<result.size()<<" candidates after "<<nIter++<<" CKF iteration: \n"
+			   <<dumpCandidates(result)
+			   <<"\n "<<candidates.size()<<" running candidates are: \n"
+			   <<dumpCandidates(candidates);
+
   }
 }
 
@@ -166,10 +237,28 @@ CkfTrajectoryBuilder::findCompatibleMeasurements( const TempTrajectory& traj,
 
   vector<const DetLayer*>::iterator layerBegin = stateAndLayers.second.begin();
   vector<const DetLayer*>::iterator layerEnd  = stateAndLayers.second.end();
+  LogDebug("CkfPattern")<<"looping on "<< stateAndLayers.second.size()<<" layers.";
   for (vector<const DetLayer*>::iterator il = layerBegin; 
        il != layerEnd; il++) {
-    vector<TrajectoryMeasurement> tmp = theLayerMeasurements->measurements((**il),stateAndLayers.first, *theForwardPropagator, *theEstimator);
 
+    LogDebug("CkfPattern")<<"looping on a layer in findCompatibleMeasurements.\n last layer: "<<traj.lastLayer()<<" current layer: "<<(*il);
+
+    TSOS stateToUse = stateAndLayers.first;
+    if ((*il)==traj.lastLayer())
+      {
+	LogDebug("CkfPattern")<<" self propagating in findCompatibleMeasurements.\n from: \n"<<stateToUse;
+	//self navigation case
+	// go to a middle point first
+	TransverseImpactPointExtrapolator middle;
+	GlobalPoint center(0,0,0);
+	stateToUse = middle.extrapolate(stateToUse, center, *theForwardPropagator);
+	
+	if (!stateToUse.isValid()) continue;
+	LogDebug("CkfPattern")<<"to: "<<stateToUse;
+      }
+    
+    vector<TrajectoryMeasurement> tmp = theLayerMeasurements->measurements((**il),stateAndLayers.first, *theForwardPropagator, *theEstimator);
+    
     if ( !tmp.empty()) {
       if ( result.empty()) result = tmp;
       else {
@@ -184,6 +273,11 @@ CkfTrajectoryBuilder::findCompatibleMeasurements( const TempTrajectory& traj,
   if ( result.size() > 1) {
     sort( result.begin(), result.end()-invalidHits, TrajMeasLessEstim());
   }
+
+  LogDebug("CkfPattern")<<"starting from:\n"
+			<<"x: "<<stateAndLayers.first.globalPosition()<<"\n"
+			<<"p: "<<stateAndLayers.first.globalMomentum()<<"\n"
+			<<dumpMeasurements(result);
 
 #ifdef DEBUG_INVALID
   bool afterInvalid = false;

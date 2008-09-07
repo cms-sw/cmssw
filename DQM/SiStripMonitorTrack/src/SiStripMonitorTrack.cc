@@ -132,12 +132,15 @@ void SiStripMonitorTrack::analyze(const edm::Event& e, const edm::EventSetup& es
   if (tracksCollection_in_EventTree && trackAssociatorCollection_in_EventTree) trackStudy(es);
   
   //Perform Cluster Study (irrespectively to tracks)
-  if (dsv_SiStripCluster.isValid() && OffHisto_On_){
-    AllClusters(es);//analyzes the off Track Clusters
-  }else{
-    edm::LogError("SiStripMonitorTrack")<< "ClusterCollection is not valid!!" << std::endl;
+
+  if(OffHisto_On_){
+    if (dsv_SiStripCluster.isValid()){
+      AllClusters(es);//analyzes the off Track Clusters
+    }else{
+      edm::LogError("SiStripMonitorTrack")<< "ClusterCollection is not valid!!" << std::endl;
+    }
   }
-  
+
   //Summary Counts of clusters
   std::map<TString, MonitorElement*>::iterator iME;
   std::map<TString, ModMEs>::iterator          iModME ;
@@ -261,7 +264,7 @@ void SiStripMonitorTrack::bookModMEs(TString name, uint32_t id)//Histograms at M
     theModMEs.ClusterStoNCorr=bookME1D("TH1ClusterStoNCorr", hidmanager.createHistoId("ClusterStoNCorr_OnTrack",name.Data(),id).c_str());
     dbe->tag(theModMEs.ClusterStoNCorr,id); 
     // Cluster Position
-    theModMEs.ClusterPos=bookME1D("TH1ClusterPos", hidmanager.createHistoId("ClusterPosistion_OnTrack",name.Data(),id).c_str());  
+    theModMEs.ClusterPos=bookME1D("TH1ClusterPos", hidmanager.createHistoId("ClusterPosition_OnTrack",name.Data(),id).c_str());  
     dbe->tag(theModMEs.ClusterPos,id); 
     // Cluster PGV
     theModMEs.ClusterPGV=bookMEProfile("TProfileClusterPGV", hidmanager.createHistoId("PGV_OnTrack",name.Data(),id).c_str()); 

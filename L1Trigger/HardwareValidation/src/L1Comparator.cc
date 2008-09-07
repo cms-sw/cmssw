@@ -49,17 +49,45 @@ L1Comparator::L1Comparator(const edm::ParameterSet& iConfig) {
 
   if(verbose())
     std::cout << "[L1Comparator] debug print collection labels\n";
+
+  m_DEsource[ETP][0] = iConfig.getParameter<edm::InputTag>("ETPsourceData");
+  m_DEsource[ETP][1] = iConfig.getParameter<edm::InputTag>("ETPsourceEmul");
+  m_DEsource[HTP][0] = iConfig.getParameter<edm::InputTag>("HTPsourceData");
+  m_DEsource[HTP][1] = iConfig.getParameter<edm::InputTag>("HTPsourceEmul");
+  m_DEsource[RCT][0] = iConfig.getParameter<edm::InputTag>("RCTsourceData");
+  m_DEsource[RCT][1] = iConfig.getParameter<edm::InputTag>("RCTsourceEmul");
+  m_DEsource[GCT][0] = iConfig.getParameter<edm::InputTag>("GCTsourceData");
+  m_DEsource[GCT][1] = iConfig.getParameter<edm::InputTag>("GCTsourceEmul");
+  m_DEsource[DTP][0] = iConfig.getParameter<edm::InputTag>("DTPsourceData");
+  m_DEsource[DTP][1] = iConfig.getParameter<edm::InputTag>("DTPsourceEmul");
+  m_DEsource[DTF][0] = iConfig.getParameter<edm::InputTag>("DTFsourceData");
+  m_DEsource[DTF][1] = iConfig.getParameter<edm::InputTag>("DTFsourceEmul");
+  m_DEsource[CTP][0] = iConfig.getParameter<edm::InputTag>("CTPsourceData");
+  m_DEsource[CTP][1] = iConfig.getParameter<edm::InputTag>("CTPsourceEmul");
+  m_DEsource[CTF][0] = iConfig.getParameter<edm::InputTag>("CTFsourceData");
+  m_DEsource[CTF][1] = iConfig.getParameter<edm::InputTag>("CTFsourceEmul");
+  m_DEsource[CTF][2] = iConfig.getParameter<edm::InputTag>("CTTsourceData");
+  m_DEsource[CTF][3] = iConfig.getParameter<edm::InputTag>("CTTsourceEmul");
+  m_DEsource[RPC][0] = iConfig.getParameter<edm::InputTag>("RPCsourceData");
+  m_DEsource[RPC][1] = iConfig.getParameter<edm::InputTag>("RPCsourceEmul");
+  m_DEsource[LTC][0] = iConfig.getParameter<edm::InputTag>("LTCsourceData");
+  m_DEsource[LTC][1] = iConfig.getParameter<edm::InputTag>("LTCsourceEmul");
+  m_DEsource[GMT][0] = iConfig.getParameter<edm::InputTag>("GMTsourceData");
+  m_DEsource[GMT][1] = iConfig.getParameter<edm::InputTag>("GMTsourceEmul");
+  m_DEsource[GLT][0] = iConfig.getParameter<edm::InputTag>("GLTsourceData");
+  m_DEsource[GLT][1] = iConfig.getParameter<edm::InputTag>("GLTsourceEmul");
+
   for(int sys=0; sys<DEnsys; sys++) {
     std::string data_label = SystLabel[sys] + "sourceData";
     std::string emul_label = SystLabel[sys] + "sourceEmul";
-    m_DEsource[sys][0] = iConfig.getParameter<edm::InputTag>(data_label);
-    m_DEsource[sys][1] = iConfig.getParameter<edm::InputTag>(emul_label);
-    if(sys==CTF) {
-      std::string data_label(""); data_label+="CTTsourceData";
-      std::string emul_label(""); emul_label+="CTTsourceEmul";
-      m_DEsource[sys][2] = iConfig.getParameter<edm::InputTag>(data_label);
-      m_DEsource[sys][3] = iConfig.getParameter<edm::InputTag>(emul_label);
-    }
+    //m_DEsource[sys][0] = iConfig.getParameter<edm::InputTag>(data_label);
+    //m_DEsource[sys][1] = iConfig.getParameter<edm::InputTag>(emul_label);
+    //if(sys==CTF) {
+    //  std::string data_label(""); data_label+="CTTsourceData";
+    //  std::string emul_label(""); emul_label+="CTTsourceEmul";
+    //  m_DEsource[sys][2] = iConfig.getParameter<edm::InputTag>(data_label);
+    //  m_DEsource[sys][3] = iConfig.getParameter<edm::InputTag>(emul_label);
+    //}
     if(m_doSys[sys] && verbose()) {
       std::cout << " sys:"   << sys << " label:" << SystLabel[sys]  
 		<< "\n\tdt:" << data_label << " : " <<m_DEsource[sys][0]
@@ -72,6 +100,7 @@ L1Comparator::L1Comparator(const edm::ParameterSet& iConfig) {
       }
     }
   }
+
   
   m_fedId = iConfig.getUntrackedParameter<int>("FEDid", 0);
   m_FEDsource[0] = 
@@ -79,15 +108,17 @@ L1Comparator::L1Comparator(const edm::ParameterSet& iConfig) {
   m_FEDsource[1] = 
     iConfig.getUntrackedParameter<edm::InputTag>("FEDsourceEmul",edm::InputTag());
 
-  m_dumpFileName = iConfig.getUntrackedParameter<std::string>("DumpFile","");
-  m_dumpFile.open(m_dumpFileName.c_str(), std::ios::out);
-  if(!m_dumpFile.good())
-    throw cms::Exception("L1ComparatorDumpFileOpenError")
-      << " L1Comparator::L1Comparator() : "
-      << " couldn't open dump file " << m_dumpFileName.c_str() << std::endl;
 
   /// dump level:  -1(all),0(none),1(disagree),2(loc.disagree),3(loc.agree)
   m_dumpMode = iConfig.getUntrackedParameter<int>("DumpMode",0);  
+  m_dumpFileName = iConfig.getUntrackedParameter<std::string>("DumpFile","");
+  if(m_dumpMode) {
+    m_dumpFile.open(m_dumpFileName.c_str(), std::ios::out);
+    if(!m_dumpFile.good())
+      edm::LogInfo("L1ComparatorDumpFileOpenError")
+	<< " L1Comparator::L1Comparator() : "
+	<< " couldn't open dump file " << m_dumpFileName.c_str() << std::endl;
+  }
 
   m_match = true;
   dumpEvent_ = true;
@@ -283,8 +314,8 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	   vit != ctp_ano_data_->get((*mit).first).second; vit++) 
 	ctp_ano_data_v.push_back(*vit);
     for (mapIt mit = ctp_ano_emul_->begin(); mit != ctp_ano_emul_->end(); mit++)
-      for (vecIt vit = ctp_ano_data_->get((*mit).first).first; 
-	   vit != ctp_ano_data_->get((*mit).first).second; vit++)
+      for (vecIt vit = ctp_ano_emul_->get((*mit).first).first; 
+	   vit != ctp_ano_emul_->get((*mit).first).second; vit++)
 	ctp_ano_emul_v.push_back(*vit);
   }
   ctp_ano_data =&ctp_ano_data_v;
@@ -299,8 +330,8 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	   vit != ctp_cat_data_->get((*mit).first).second; vit++) 
 	ctp_cat_data_v.push_back(*vit);
     for (mapIt mit = ctp_cat_emul_->begin(); mit != ctp_cat_emul_->end(); mit++)
-      for (vecIt vit = ctp_cat_data_->get((*mit).first).first; 
-	   vit != ctp_cat_data_->get((*mit).first).second; vit++)
+      for (vecIt vit = ctp_cat_emul_->get((*mit).first).first; 
+	   vit != ctp_cat_emul_->get((*mit).first).second; vit++)
 	ctp_cat_emul_v.push_back(*vit);
   }
   ctp_cat_data =&ctp_cat_data_v;
@@ -320,8 +351,8 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	   vit != ctp_lct_data_->get((*mit).first).second; vit++) 
 	ctp_lct_data_v.push_back(*vit);
     for (mapIt mit = ctp_lct_emul_->begin(); mit != ctp_lct_emul_->end(); mit++)
-      for (vecIt vit = ctp_lct_data_->get((*mit).first).first; 
-	   vit != ctp_lct_data_->get((*mit).first).second; vit++)
+      for (vecIt vit = ctp_lct_emul_->get((*mit).first).first; 
+	   vit != ctp_lct_emul_->get((*mit).first).second; vit++)
 	ctp_lct_emul_v.push_back(*vit);
   }
   ctp_lct_data =&ctp_lct_data_v;
@@ -521,27 +552,27 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   isValidDE[ETP][0] =     ecal_tp_data .isValid(); isValidDE[ETP][1] =    ecal_tp_emul .isValid();
   isValidDE[HTP][0] =     hcal_tp_data .isValid(); isValidDE[HTP][1] =    hcal_tp_emul .isValid();
   isValidDE[RCT][0] =      rct_em_data .isValid(); isValidDE[RCT][1] =     rct_em_emul .isValid();
-//isValidDE[RCT][0]|=     rct_rgn_data .isValid(); isValidDE[RCT][1] =    rct_rgn_emul .isValid();
+  isValidDE[RCT][0]&=     rct_rgn_data .isValid(); isValidDE[RCT][1] =    rct_rgn_emul .isValid();
   isValidDE[GCT][0] = gct_isolaem_data .isValid(); isValidDE[GCT][1] =gct_isolaem_emul .isValid();
-//isValidDE[GCT][0]|= gct_noisoem_data .isValid(); isValidDE[GCT][1] =gct_noisoem_emul .isValid();
-//isValidDE[GCT][0]|= gct_cenjets_data .isValid(); isValidDE[GCT][1] =gct_cenjets_emul .isValid();
-//isValidDE[GCT][0]|= gct_forjets_data .isValid(); isValidDE[GCT][1] =gct_forjets_emul .isValid();
-//isValidDE[GCT][0]|= gct_taujets_data .isValid(); isValidDE[GCT][1] =gct_taujets_emul .isValid();
+  isValidDE[GCT][0]&= gct_noisoem_data .isValid(); isValidDE[GCT][1] =gct_noisoem_emul .isValid();
+  isValidDE[GCT][0]&= gct_cenjets_data .isValid(); isValidDE[GCT][1] =gct_cenjets_emul .isValid();
+  isValidDE[GCT][0]&= gct_forjets_data .isValid(); isValidDE[GCT][1] =gct_forjets_emul .isValid();
+  isValidDE[GCT][0]&= gct_taujets_data .isValid(); isValidDE[GCT][1] =gct_taujets_emul .isValid();
   isValidDE[DTP][0] =      dtp_ph_data_.isValid(); isValidDE[DTP][1] =     dtp_ph_emul_.isValid();
-  isValidDE[DTP][0]|=      dtp_th_data_.isValid(); isValidDE[DTP][1]|=     dtp_th_emul_.isValid();
+  isValidDE[DTP][0]&=      dtp_th_data_.isValid(); isValidDE[DTP][1]&=     dtp_th_emul_.isValid();
   isValidDE[DTF][0] =         dtf_data .isValid(); isValidDE[DTF][1] =        dtf_emul .isValid();
-//isValidDE[DTF][0]|=     dtf_trk_data_.isValid(); isValidDE[DTF][1] =    dtf_trk_emul_.isValid();
-//isValidDE[CTP][0]|=     ctp_ano_data_.isValid(); isValidDE[CTP][1] =    ctp_ano_emul_.isValid();
-//isValidDE[CTP][0]|=     ctp_cat_data_.isValid(); isValidDE[CTP][1] =    ctp_cat_emul_.isValid();
+//isValidDE[DTF][0]&=     dtf_trk_data_.isValid(); isValidDE[DTF][1] =    dtf_trk_emul_.isValid();
+//isValidDE[CTP][0]&=     ctp_ano_data_.isValid(); isValidDE[CTP][1] =    ctp_ano_emul_.isValid();
+//isValidDE[CTP][0]&=     ctp_cat_data_.isValid(); isValidDE[CTP][1] =    ctp_cat_emul_.isValid();
   isValidDE[CTP][0] =     ctp_lct_data_.isValid(); isValidDE[CTP][1] =    ctp_lct_emul_.isValid();
   isValidDE[CTF][0] =         ctf_data .isValid(); isValidDE[CTF][1] =        ctf_emul .isValid();
-//isValidDE[CTF][0]|=    ctf_trk_data_ .isValid(); isValidDE[CTF][1] =   ctf_trk_emul_ .isValid();
-//isValidDE[CTF][0]|=    ctf_sta_data_ .isValid(); isValidDE[CTF][1] =   ctf_sta_emul_ .isValid();
+//isValidDE[CTF][0]&=    ctf_trk_data_ .isValid(); isValidDE[CTF][1] =   ctf_trk_emul_ .isValid();
+//isValidDE[CTF][0]&=    ctf_sta_data_ .isValid(); isValidDE[CTF][1] =   ctf_sta_emul_ .isValid();
   isValidDE[RPC][0] =     rpc_cen_data .isValid(); isValidDE[RPC][1] =    rpc_cen_emul .isValid();
-  isValidDE[RPC][0]|=     rpc_for_data .isValid(); isValidDE[RPC][1]|=    rpc_for_emul .isValid();
+  isValidDE[RPC][0]&=     rpc_for_data .isValid(); isValidDE[RPC][1]&=    rpc_for_emul .isValid();
   isValidDE[LTC][0] =         ltc_data .isValid(); isValidDE[LTC][1] =        ltc_emul .isValid();
   isValidDE[GMT][0] =         gmt_data .isValid(); isValidDE[GMT][1] =        gmt_emul .isValid();
-//isValidDE[GMT][0]|=     gmt_rdt_data_.isValid(); isValidDE[GMT][1] =    gmt_rdt_emul_.isValid();
+//isValidDE[GMT][0]&=     gmt_rdt_data_.isValid(); isValidDE[GMT][1] =    gmt_rdt_emul_.isValid();
   isValidDE[GLT][0] =     glt_rdt_data .isValid(); isValidDE[GLT][1] =    glt_rdt_emul .isValid();
 //isValidDE[GLT][0]&=     glt_evm_data .isValid(); isValidDE[GLT][1] =    glt_evm_emul .isValid();
 //isValidDE[GLT][0]&=     glt_obj_data .isValid(); isValidDE[GLT][1] =    glt_obj_emul .isValid();
@@ -621,6 +652,7 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 		 << ")\n"       << std::flush;
       dumpEvent_=false;
     }
+
     m_dumpFile << "\n  GT...\n";
 
     if(glt_rdt_data.isValid() && glt_rdt_emul.isValid()) {

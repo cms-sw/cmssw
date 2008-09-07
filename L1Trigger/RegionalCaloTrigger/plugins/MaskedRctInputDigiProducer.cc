@@ -258,10 +258,8 @@ MaskedRctInputDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
        //if (i < 20) {std::cout << "ieta is " << ieta << ", absIeta is " << absIeta
        //		      << ", iphi is " << iphi << endl;}
 
-       EcalSubdetector subdet = ( absIeta <= 17 ) ? EcalBarrel : EcalEndcap ;
-
        EcalTriggerPrimitiveDigi
-	 ecalDigi(EcalTrigTowerDetId(sign, subdet, absIeta, iphi));
+	 ecalDigi(EcalTrigTowerDetId(sign, EcalTriggerTower, absIeta,iphi));
        ecalDigi.setSize(nEcalSamples);
 
        for (int nSample = 0; nSample < nEcalSamples; nSample++)

@@ -10,7 +10,7 @@
 
      See CMS EventFilter wiki page for further notes.
 
-   $Id: StorageManager.h,v 1.37 2008/08/01 15:54:19 biery Exp $
+   $Id: StorageManager.h,v 1.39 2008/09/03 00:03:58 hcheung Exp $
 */
 
 #include <string>
@@ -90,7 +90,7 @@ namespace stor {
     void receiveRegistryMessage(toolbox::mem::Reference *ref);
     void receiveDataMessage(toolbox::mem::Reference *ref);
     void receiveErrorDataMessage(toolbox::mem::Reference *ref);
-    void receiveOtherMessage(toolbox::mem::Reference *ref);
+    //void receiveOtherMessage(toolbox::mem::Reference *ref);
     void receiveDQMMessage(toolbox::mem::Reference *ref);
 
     void sendDiscardMessage(unsigned int, 
@@ -152,6 +152,7 @@ namespace stor {
     xdata::Double  lumiSectionTimeOut_;
     xdata::String  fileCatalog_;
     xdata::Boolean exactFileSizeTest_;
+    xdata::Integer fileClosingTestInterval_;
 
     bool pushMode_;
     std::string smConfigString_;

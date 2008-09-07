@@ -10,15 +10,9 @@ REGISTER_PLUGIN (JetCorrectionsRecord, JetCorrector);
 #include "FWCore/Framework/interface/SourceFactory.h"
 
 using namespace cms;
-using namespace reco;
 
-#include "DataFormats/JetReco/interface/CaloJet.h"
-#include "DataFormats/JetReco/interface/PFJet.h"
-#include "JetMETCorrections/Modules/src/JetCorrectionProducer.h"
-typedef JetCorrectionProducer<CaloJet> CaloJetCorrectionProducer;
-DEFINE_ANOTHER_FWK_MODULE(CaloJetCorrectionProducer);
-typedef JetCorrectionProducer<PFJet> PFJetCorrectionProducer;
-DEFINE_ANOTHER_FWK_MODULE(PFJetCorrectionProducer);
+#include "JetCorrectionProducer.h"
+DEFINE_ANOTHER_FWK_MODULE(JetCorrectionProducer);
 #include "PlotJetCorrections.h"
 DEFINE_ANOTHER_FWK_MODULE(PlotJetCorrections);
 #include "JetCorrectionServiceChain.h"

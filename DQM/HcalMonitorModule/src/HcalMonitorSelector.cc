@@ -3,8 +3,8 @@
 /*
  * \file HcalMonitorSelector.cc
  * 
- * $Date: 2008/01/03 23:58:47 $
- * $Revision: 1.9 $
+ * $Date: 2007/10/23 14:17:17 $
+ * $Revision: 1.8 $
  * \author W Fisher
  *
 */
@@ -26,7 +26,7 @@ void HcalMonitorSelector::processEvent(const edm::Event& e){
 
   ///Just pass these through for now...
   m_eventMask = DO_HCAL_DIGIMON|DO_HCAL_DFMON|DO_HCAL_RECHITMON;
-  m_eventMask = m_eventMask|DO_HCAL_PED_CALIBMON|DO_HCAL_LED_CALIBMON|DO_HCAL_LASER_CALIBMON; 
+  m_eventMask = m_eventMask|DO_HCAL_PED_CALIBMON|DO_HCAL_LED_CALIBMON; 
 
   return;
 
@@ -35,7 +35,7 @@ void HcalMonitorSelector::processEvent(const edm::Event& e){
   if (!triggerD.isValid()) {
     m_runNum=-1; 
     //If we don't have the trigger data, just activate everyone!
-    m_eventMask = m_eventMask|DO_HCAL_PED_CALIBMON|DO_HCAL_LED_CALIBMON|DO_HCAL_LASER_CALIBMON; 
+    m_eventMask = m_eventMask|DO_HCAL_PED_CALIBMON|DO_HCAL_LED_CALIBMON; 
     return; 
   }
   const HcalTBTriggerData trigger = *triggerD;

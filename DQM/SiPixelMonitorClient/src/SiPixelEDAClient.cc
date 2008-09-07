@@ -64,11 +64,15 @@ SiPixelEDAClient::SiPixelEDAClient(const edm::ParameterSet& ps) :
   summaryFrequency_      = ps.getUntrackedParameter<int>("SummaryCreationFrequency",20);
   tkMapFrequency_        = ps.getUntrackedParameter<int>("TkMapCreationFrequency",50); 
   staticUpdateFrequency_ = ps.getUntrackedParameter<int>("StaticUpdateFrequency",10);
+  actionOnLumiSec_       = ps.getUntrackedParameter<bool>("ActionOnLumiSection",false);
+  actionOnRunEnd_        = ps.getUntrackedParameter<bool>("ActionOnRunEnd",true);
+  evtOffsetForInit_      = ps.getUntrackedParameter<int>("EventOffsetForInit",10);
+  summaryXMLfile_        = ps.getUntrackedParameter<std::string>("SummaryXMLFileName","DQM/SiPixelMonitorClient/test/sipixel_monitorelement_config.xml");
 
   // instantiate web interface
   sipixelWebInterface_ = new SiPixelWebInterface(bei_);
-  sipixelInformationExtractor_ = new SiPixelInformationExtractor();
-  sipixelActionExecutor_ = new SiPixelActionExecutor();
+  sipixelInformationExtractor_ = new SiPixelInformationExtractor(summaryXMLfile_);
+  sipixelActionExecutor_ = new SiPixelActionExecutor(summaryXMLfile_);
   
  //cout<<"...leaving  SiPixelEDAClient::SiPixelEDAClient. "<<endl;
 }
@@ -101,6 +105,9 @@ void SiPixelEDAClient::beginJob(const edm::EventSetup& eSetup){
      edm::LogInfo ("SiPixelEDAClient") <<"[SiPixelEDAClient]: Error to read configuration file!! Summary will not be produced!!!";
      summaryFrequency_ = -1;
      tkMapFrequency_ = -1;
+     actionOnLumiSec_ = false;
+     actionOnRunEnd_ = true;
+     evtOffsetForInit_ = -1;
   }
   nLumiSecs_ = 0;
   nEvents_   = 0;
@@ -131,7 +138,7 @@ void SiPixelEDAClient::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
 void SiPixelEDAClient::analyze(const edm::Event& e, const edm::EventSetup& eSetup){
 //  cout<<"[SiPixelEDAClient::analyze()] "<<endl;
   nEvents_++;  
-  if(nEvents_==10){
+  if(nEvents_==evtOffsetForInit_){
 //  cout<<"Doing the initializing now!"<<endl;
     //cout << " Setting up QTests " << endl;
     sipixelWebInterface_->setActionFlag(SiPixelWebInterface::setupQTest);
@@ -139,9 +146,9 @@ void SiPixelEDAClient::analyze(const edm::Event& e, const edm::EventSetup& eSetu
     //cout << " Creating Summary Histos" << endl;
     sipixelWebInterface_->setActionFlag(SiPixelWebInterface::Summary);
     sipixelWebInterface_->performAction();
-     //cout << " Creating occupancy plots" << endl;
+    //cout << " Creating occupancy plots" << endl;
     sipixelActionExecutor_->bookOccupancyPlots(bei_);
-   //cout << " Booking summary report ME's" << endl;
+    //cout << " Booking summary report ME's" << endl;
     sipixelInformationExtractor_->bookGlobalQualityFlag(bei_);
   }
   sipixelWebInterface_->setActionFlag(SiPixelWebInterface::CreatePlots);
@@ -160,26 +167,24 @@ void SiPixelEDAClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
 
   edm::LogInfo("SiPixelEDAClient") << "====================================================== " << endl << " ===> Iteration # " << nLumiSecs_ << " " << lumiSeg.luminosityBlock() << endl  << "====================================================== " << endl;
 
-
-  // -- Create summary monitor elements according to the frequency
-  //cout << " Updating Summary " << endl;
-  sipixelWebInterface_->setActionFlag(SiPixelWebInterface::Summary);
-  sipixelWebInterface_->performAction();
-  //cout << " Checking QTest results " << endl;
-  sipixelWebInterface_->setActionFlag(SiPixelWebInterface::QTestResult);
-  sipixelWebInterface_->performAction();
-   //cout << " Updating occupancy plots" << endl;
-  sipixelActionExecutor_->bookOccupancyPlots(bei_);
-  sipixelWebInterface_->setActionFlag(SiPixelWebInterface::Occupancy);
-  sipixelWebInterface_->performAction();
-
-  //cout  << " Checking Pixel quality flags " << endl;;
-  bei_->cd();
-  sipixelWebInterface_->setActionFlag(SiPixelWebInterface::ComputeGlobalQualityFlag);
-  sipixelWebInterface_->performAction();
-  bool init=true;
-  sipixelInformationExtractor_->fillGlobalQualityPlot(bei_,init,eSetup);
-   
+  if(actionOnLumiSec_){
+    //cout << " Updating Summary " << endl;
+    sipixelWebInterface_->setActionFlag(SiPixelWebInterface::Summary);
+    sipixelWebInterface_->performAction();
+    //cout << " Checking QTest results " << endl;
+    sipixelWebInterface_->setActionFlag(SiPixelWebInterface::QTestResult);
+    sipixelWebInterface_->performAction();
+     //cout << " Updating occupancy plots" << endl;
+    sipixelActionExecutor_->bookOccupancyPlots(bei_);
+    sipixelWebInterface_->setActionFlag(SiPixelWebInterface::Occupancy);
+    sipixelWebInterface_->performAction();
+    //cout  << " Checking Pixel quality flags " << endl;;
+    bei_->cd();
+    sipixelWebInterface_->setActionFlag(SiPixelWebInterface::ComputeGlobalQualityFlag);
+    sipixelWebInterface_->performAction();
+    bool init=true;
+    sipixelInformationExtractor_->fillGlobalQualityPlot(bei_,init,eSetup);
+  }   
          
   // -- Create TrackerMap  according to the frequency
 //  if (tkMapFrequency_ != -1 && nLumiBlock%tkMapFrequency_ == 1) {
@@ -207,25 +212,25 @@ void SiPixelEDAClient::endRun(edm::Run const& run, edm::EventSetup const& eSetup
   //edm::LogVerbatim ("SiPixelEDAClient") <<"[SiPixelEDAClient]: End of Run, saving  DQM output ";
   //int iRun = run.run();
   
-  //cout << " Updating Summary " << endl;
-  sipixelWebInterface_->setActionFlag(SiPixelWebInterface::Summary);
-  sipixelWebInterface_->performAction();
-  //cout << " Checking QTest results " << endl;
-  sipixelWebInterface_->setActionFlag(SiPixelWebInterface::QTestResult);
-  sipixelWebInterface_->performAction();
-   //cout << " Updating occupancy plots" << endl;
-  sipixelActionExecutor_->bookOccupancyPlots(bei_);
-  sipixelWebInterface_->setActionFlag(SiPixelWebInterface::Occupancy);
-  sipixelWebInterface_->performAction();
-
-
-  //cout  << " Checking Pixel quality flags " << endl;;
-  bei_->cd();
-  sipixelWebInterface_->setActionFlag(SiPixelWebInterface::ComputeGlobalQualityFlag);
-  sipixelWebInterface_->performAction();
-  bool init=true;
-  sipixelInformationExtractor_->fillGlobalQualityPlot(bei_,init,eSetup);
-
+  if(actionOnRunEnd_){
+    //cout << " Updating Summary " << endl;
+    sipixelWebInterface_->setActionFlag(SiPixelWebInterface::Summary);
+    sipixelWebInterface_->performAction();
+    //cout << " Checking QTest results " << endl;
+    sipixelWebInterface_->setActionFlag(SiPixelWebInterface::QTestResult);
+    sipixelWebInterface_->performAction();
+    //cout << " Updating occupancy plots" << endl;
+    sipixelActionExecutor_->bookOccupancyPlots(bei_);
+    sipixelWebInterface_->setActionFlag(SiPixelWebInterface::Occupancy);
+    sipixelWebInterface_->performAction();
+    //cout  << " Checking Pixel quality flags " << endl;;
+    bei_->cd();
+    sipixelWebInterface_->setActionFlag(SiPixelWebInterface::ComputeGlobalQualityFlag);
+    sipixelWebInterface_->performAction();
+    bool init=true;
+    sipixelInformationExtractor_->fillGlobalQualityPlot(bei_,init,eSetup);
+  }
+  
   //cout<<"...leaving SiPixelEDAClient::endRun. "<<endl;
 }
 

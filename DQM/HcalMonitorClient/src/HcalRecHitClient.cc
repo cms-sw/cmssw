@@ -1,4 +1,7 @@
 #include <DQM/HcalMonitorClient/interface/HcalRecHitClient.h>
+#include <DQM/HcalMonitorClient/interface/HcalClientUtils.h>
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 HcalRecHitClient::HcalRecHitClient(){}
 
@@ -7,7 +10,7 @@ void HcalRecHitClient::init(const ParameterSet& ps, DQMStore* dbe, string client
   HcalBaseClient::init(ps,dbe,clientName);
   ievt_ = 0;
   jevt_ = 0;
-  for(int i=0; i<4; ++i){
+  for(int i=0; i<4; i++){
     occ_[i]=0; energy_[i]=0;
     energyT_[i]=0; time_[i]=0;
     tot_occ_[i]=0;
@@ -70,7 +73,7 @@ void HcalRecHitClient::setup(void) {
 void HcalRecHitClient::cleanup(void) {
   
   if(cloneME_){
-    for(int i=0; i<4; ++i){
+    for(int i=0; i<4; i++){
       if(occ_[i]) delete occ_[i];
       if(energy_[i]) delete energy_[i];
       if(energyT_[i]) delete energyT_[i];
@@ -84,19 +87,9 @@ void HcalRecHitClient::cleanup(void) {
     if(hfshort_T_all) delete hfshort_T_all;
     
     if(tot_energy_) delete tot_energy_;
-
-    // ZDC plots
-    if (ZDCtanAlpha) delete ZDCtanAlpha;
-    if (ZDCaverageX) delete ZDCaverageX;
-    if (ZDCxplusVSxminus) delete ZDCxplusVSxminus;
-    if (ZDChadVSem_plus) delete ZDChadVSem_plus;
-    if (ZDChadVSem_minus) delete ZDChadVSem_minus;
-    if (ZDCenergy_plusVSminus) delete ZDCenergy_plusVSminus;
-    if (ZDCenergyVSlayer_plus) delete ZDCenergyVSlayer_plus;
-    if (ZDCenergyVSlayer_minus) delete ZDCenergyVSlayer_minus;
-  } // if cloneME_
+  }  
   
-  for(int i=0; i<4; ++i){
+  for(int i=0; i<4; i++){
     occ_[i]=0; energy_[i]=0;
     energyT_[i]=0; time_[i]=0;
     tot_occ_[i]=0;
@@ -105,17 +98,9 @@ void HcalRecHitClient::cleanup(void) {
   hfshort_E_all=0;
   //hfshort_E_low=0;
   hfshort_T_all=0;
-  tot_energy_=0;
 
-  // ZDC plots
-  ZDCtanAlpha=0;
-  ZDCaverageX=0;
-  ZDCxplusVSxminus=0;
-  ZDChadVSem_plus=0;
-  ZDChadVSem_minus=0;
-  ZDCenergy_plusVSminus=0;
-  ZDCenergyVSlayer_plus=0;
-  ZDCenergyVSlayer_minus=0;
+  tot_energy_=0;
+  
 
   dqmReportMapErr_.clear(); dqmReportMapWarn_.clear(); dqmReportMapOther_.clear();
   dqmQtests_.clear();
@@ -159,12 +144,12 @@ void HcalRecHitClient::analyze(void){
 void HcalRecHitClient::getHistograms(){
   if(!dbe_) return;
   char name[150];    
-  for(int i=0; i<4; ++i){
+  for(int i=0; i<4; i++){
     sprintf(name,"RecHitMonitor/RecHit Depth %d Occupancy Map",i+1);
     tot_occ_[i] = getHisto2(name, process_, dbe_, debug_,cloneME_);
   }
 
-  for(int i=0; i<4; ++i){
+  for(int i=0; i<4; i++){
     if(!subDetsOn_[i]) continue;
     string type = "HB";
     if(i==1) type = "HE"; 
@@ -211,30 +196,6 @@ void HcalRecHitClient::getHistograms(){
   sprintf(name,"RecHitMonitor/RecHit Total Energy");   
   tot_energy_ = getHisto(name, process_,dbe_, debug_,cloneME_);
 
-
-  // ZDC plots
-  TH1F* dummy1D = new TH1F();
-  TH2F* dummy2D = new TH2F();
-  TProfile* dummyProfile = new TProfile();
-
-  sprintf(name,"RecHitMonitor/ZDC/ZDC_EM_tan_alpha");
-  ZDCtanAlpha=getAnyHisto(dummy1D, name, process_, dbe_, debug_, cloneME_);
-  sprintf(name,"RecHitMonitor/ZDC/ZDC_EM_avg_weighted_X_position");
-  ZDCaverageX=getAnyHisto(dummy1D, name, process_, dbe_, debug_, cloneME_);
-
-  sprintf(name,"RecHitMonitor/ZDC/ZDC_EM_Xplus_Vs_Xminus");
-  ZDCxplusVSxminus=getAnyHisto(dummy2D, name, process_, dbe_, debug_, cloneME_);
-  sprintf(name,"RecHitMonitor/ZDC/ZDCplus_HAD_vs_EM");
-  ZDChadVSem_plus=getAnyHisto(dummy2D, name, process_, dbe_, debug_, cloneME_);
-  sprintf(name,"RecHitMonitor/ZDC/ZDCminus_HAD_vs_EM");
-  ZDChadVSem_minus=getAnyHisto(dummy2D, name, process_, dbe_, debug_, cloneME_);
-  sprintf(name,"RecHitMonitor/ZDC/ZDC_energy_plus_vs_minus");
-  ZDCenergy_plusVSminus=getAnyHisto(dummy2D, name, process_, dbe_, debug_, cloneME_);
-  sprintf(name,"RecHitMonitor/ZDC/ZDC_plus_energy_vs_layer");
-  ZDCenergyVSlayer_plus=getAnyHisto(dummyProfile, name, process_, dbe_, debug_, cloneME_);
-  sprintf(name,"RecHitMonitor/ZDC/ZDC_minus_energy_vs_layer");
-  ZDCenergyVSlayer_minus=getAnyHisto(dummyProfile, name, process_, dbe_, debug_, cloneME_);
-
   return;
 }
 
@@ -244,7 +205,7 @@ void HcalRecHitClient::resetAllME(){
   
   sprintf(name,"%sHcal/RecHitMonitor/RecHit Total Energy",process_.c_str());
   resetME(name,dbe_);
-  for(int i=1; i<5; ++i){
+  for(int i=1; i<5; i++){
     sprintf(name,"%sHcal/RecHitMonitor/RecHit Depth %d Occupancy Map",process_.c_str(),i);
     resetME(name,dbe_);
     sprintf(name,"%sHcal/RecHitMonitor/RecHit Depth %d Energy Map",process_.c_str(),i);
@@ -259,7 +220,7 @@ void HcalRecHitClient::resetAllME(){
   sprintf(name,"%sHcal/RecHitMonitor/RecHit Phi Energy Map",process_.c_str());
   resetME(name,dbe_);
 
-  for(int i=0; i<4; ++i){
+  for(int i=0; i<4; i++){
     if(!subDetsOn_[i]) continue;
     string type = "HB";
     if(i==1) type = "HE"; 
@@ -294,24 +255,6 @@ void HcalRecHitClient::resetAllME(){
   //sprintf(name,"%sHcal/RecHitMonitor/HF/HF Short RecHit Energies - Low Region",process_.c_str());
   //resetME(name,dbe_);
   sprintf(name,"%sHcal/RecHitMonitor/HF/HF Short RecHit Times",process_.c_str());
-  resetME(name,dbe_);
-
-  // ZDC plots
-  sprintf(name,"RecHitMonitor/ZDC/ZDC_EM_tan_alpha");
-  resetME(name,dbe_);
-  sprintf(name,"RecHitMonitor/ZDC/ZDC_EM_avg_weighted_X_position");
-  resetME(name,dbe_);
-  sprintf(name,"RecHitMonitor/ZDC/ZDC_EM_Xplus_Vs_Xminus");
-  resetME(name,dbe_);
-  sprintf(name,"RecHitMonitor/ZDC/ZDCplus_HAD_vs_EM");
-  resetME(name,dbe_);
-  sprintf(name,"RecHitMonitor/ZDC/ZDCminus_HAD_vs_EM");
-  resetME(name,dbe_);
-  sprintf(name,"RecHitMonitor/ZDC/ZDC_energy_plus_vs_minus");
-  resetME(name,dbe_);
-  sprintf(name,"RecHitMonitor/ZDC/ZDC_plus_energy_vs_layer");
-  resetME(name,dbe_);
-  sprintf(name,"RecHitMonitor/ZDC/ZDC_minus_energy_vs_layer");
   resetME(name,dbe_);
 
   return;
@@ -386,7 +329,7 @@ void HcalRecHitClient::htmlOutput(int runNo, string htmlDir, string htmlName){
   //  htmlFile << "</tr>" << endl;
 
 
-  for(int i=0; i<4; ++i){
+  for(int i=0; i<4; i++){
     if(!subDetsOn_[i]) continue;
     string type = "HB";
     if(i==1) type = "HE"; 
@@ -421,25 +364,6 @@ void HcalRecHitClient::htmlOutput(int runNo, string htmlDir, string htmlName){
 
     htmlFile << "</tr>" << endl;	
   }
-  // ZDC plots
-  htmlFile <<"<tr align=\"left\">"<<endl;
-  htmlAnyHisto(runNo, ZDCtanAlpha,"tan #alpha", "# of entries",92, htmlFile, htmlDir);
-  htmlAnyHisto(runNo, ZDCaverageX,"Average X (mm)", "# of entries", 100, htmlFile, htmlDir);
-  htmlFile <<"</tr>"<<endl;
-  htmlFile <<"<tr align=\"left\">"<<endl;
-  htmlAnyHisto(runNo, ZDCxplusVSxminus,"Average X- (mm)", "Average X+ (mm)",92, htmlFile, htmlDir);
-  htmlAnyHisto(runNo, ZDCenergy_plusVSminus,"Total Energy (- end) (GeV)", "Total Energy (+ end) (GeV)", 100, htmlFile, htmlDir);
-  htmlFile <<"</tr>"<<endl;
-  htmlFile <<"<tr align=\"left\">"<<endl;
-  htmlAnyHisto(runNo, ZDChadVSem_plus,"EM Energy (+ end) (GeV)", "HAD Energy  (+ end) (GeV)",92, htmlFile, htmlDir);
-  htmlAnyHisto(runNo, ZDChadVSem_minus,"EM Energy (- end) (GeV)", "HAD Energy (- end) (GeV)",92, htmlFile, htmlDir);
-  htmlFile <<"</tr>"<<endl;
-  htmlFile <<"<tr align=\"left\">"<<endl;
-  htmlAnyHisto(runNo, ZDCenergyVSlayer_plus, "Layer", "Avg. Energy (GeV)",92, htmlFile, htmlDir);
-  htmlAnyHisto(runNo, ZDCenergyVSlayer_minus,"Layer", "Avg. Energy (GeV)",92, htmlFile, htmlDir);
-  htmlFile <<"</tr>"<<endl;
-
-
   htmlFile << "</table>" << endl;
   htmlFile << "<br>" << endl;
 
@@ -471,7 +395,7 @@ void HcalRecHitClient::loadHistograms(TFile* infile){
   }
 
   char name[150];    
-  for(int i=0; i<4; ++i){
+  for(int i=0; i<4; i++){
     if(!subDetsOn_[i]) continue;
     string type = "HB";
     if(i==1) type = "HE"; 
@@ -519,24 +443,6 @@ void HcalRecHitClient::loadHistograms(TFile* infile){
 
   sprintf(name,"DQMData/Hcal/RecHitMonitor/RecHit Total Energy");   
   tot_energy_ = (TH1F*)infile->Get(name);
-
- // ZDC plots
-  sprintf(name,"RecHitMonitor/ZDC/ZDC_EM_tan_alpha");
-  ZDCtanAlpha = (TH1F*)infile->Get(name);
-  sprintf(name,"RecHitMonitor/ZDC/ZDC_EM_avg_weighted_X_position");
-  ZDCaverageX = (TH1F*)infile->Get(name);
-  sprintf(name,"RecHitMonitor/ZDC/ZDC_EM_Xplus_Vs_Xminus");
-  ZDCxplusVSxminus = (TH2F*)infile->Get(name);
-  sprintf(name,"RecHitMonitor/ZDC/ZDCplus_HAD_vs_EM");
-  ZDChadVSem_plus = (TH2F*)infile->Get(name);
-  sprintf(name,"RecHitMonitor/ZDC/ZDCminus_HAD_vs_EM");
-  ZDChadVSem_minus = (TH2F*)infile->Get(name);
-  sprintf(name,"RecHitMonitor/ZDC/ZDC_energy_plus_vs_minus");
-  ZDCenergy_plusVSminus = (TH2F*)infile->Get(name);
-  sprintf(name,"RecHitMonitor/ZDC/ZDC_plus_energy_vs_layer");
-  ZDCenergyVSlayer_plus = (TProfile*)infile->Get(name);
-  sprintf(name,"RecHitMonitor/ZDC/ZDC_minus_energy_vs_layer");
-  ZDCenergyVSlayer_minus = (TProfile*)infile->Get(name);
 
   return;
 }

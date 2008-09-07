@@ -62,15 +62,12 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
    
   myPFTau.setpfTauTagInfoRef(myPFTauTagInfoRef);
   
-  // retrieve jet candidates
   PFCandidateRefVector myPFCands=(*myPFTauTagInfoRef).PFCands();
   PFCandidateRefVector myPFChargedHadrCands=(*myPFTauTagInfoRef).PFChargedHadrCands();
   PFCandidateRefVector myPFNeutrHadrCands=(*myPFTauTagInfoRef).PFNeutrHadrCands();
   PFCandidateRefVector myPFGammaCands=(*myPFTauTagInfoRef).PFGammaCands();
   
-  //initialize utility class used to build tau
   PFTauElementsOperators myPFTauElementsOperators(myPFTau);
-  //find lead track about jet axis
   TFormula myMatchingConeSizeTFormula=myPFTauElementsOperators.computeConeSizeTFormula(MatchingConeSizeFormula_,"Matching cone size");
   double myMatchingConeSize=myPFTauElementsOperators.computeConeSize(myMatchingConeSizeTFormula,MatchingConeSize_min_,MatchingConeSize_max_);
   PFCandidateRef myleadPFCand=myPFTauElementsOperators.leadPFChargedHadrCand(MatchingConeMetric_,myMatchingConeSize,LeadChargedHadrCand_minPt_);
@@ -79,7 +76,7 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
   double myPFTau_refInnerPosition_x=0.;
   double myPFTau_refInnerPosition_y=0.;
   double myPFTau_refInnerPosition_z=0.;
-  if(myleadPFCand.isNonnull()){ //lead track found, build PFTau
+  if(myleadPFCand.isNonnull()){
     myPFTau.setleadPFChargedHadrCand(myleadPFCand);
     TrackRef myleadPFCand_rectk=(*myleadPFCand).trackRef();
     if(myleadPFCand_rectk.isNonnull()){
@@ -91,16 +88,7 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
 	if(IPTools::signedTransverseImpactParameter(myleadPFCand_rectransienttk,myPFJetdir,myPV).first)
 	  myPFTau.setleadPFChargedHadrCandsignedSipt(IPTools::signedTransverseImpactParameter(myleadPFCand_rectransienttk,myPFJetdir,myPV).second.significance());
       }
-      // Track::innerOk(), ::innerPosition() make use of the TrackExtra object possibly wrongly -in RecoParticleFlow/PFTracking package- associated to the Track - Nov 25, 2007;
-      /*
-	if((*myleadPFCand_rectk).innerOk()){
-	myPFTau_refInnerPosition_x=(*myleadPFCand_rectk).innerPosition().x(); 
-	myPFTau_refInnerPosition_y=(*myleadPFCand_rectk).innerPosition().y(); 
-	myPFTau_refInnerPosition_z=(*myleadPFCand_rectk).innerPosition().z(); 
-	}
-      */
     }
-    //filter tracks by distance to DCA of lead track to PV, if desired
     if (UseChargedHadrCandLeadChargedHadrCand_tksDZconstraint_ && myleadPFCand_rectkavailable){
       PFCandidateRefVector myPFChargedHadrCandsbis;
       for(PFCandidateRefVector::const_iterator iPFCand=myPFChargedHadrCands.begin();iPFCand!=myPFChargedHadrCands.end();iPFCand++){
@@ -110,92 +98,29 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
       }
       myPFChargedHadrCands=myPFChargedHadrCandsbis;
     }
-
-    // candidate collections to insert into PFTau
-    PFCandidateRefVector mySignalPFChargedHadrCands,mySignalPFNeutrHadrCands,mySignalPFGammaCands,mySignalPFCands;
-    PFCandidateRefVector myUnfilteredIsolPFChargedHadrCands,myIsolPFNeutrHadrCands,myIsolPFGammaCands,myIsolPFCands;
-    PFCandidateRefVector myIsolPFChargedHadrCands;
-
-    // parse algorithm choice
-    bool useTrackerConeAlgo     = false;
-    bool useECALConeAlgo        = false; 
-    bool useHCALConeAlgo        = false;
-    bool useAConelessAlgo       = true;
-
-    if (!TrackerSignalConeMetric_.compare("DR") || !TrackerSignalConeMetric_.compare("angle") || !TrackerSignalConeMetric_.compare("area"))
-       useTrackerConeAlgo       = true;
-    if (!ECALSignalConeMetric_.compare("DR")    || !ECALSignalConeMetric_.compare("angle")    || !ECALSignalConeMetric_.compare("area"))
-       useECALConeAlgo          = true;
-    if (!HCALSignalConeMetric_.compare("DR")    || !HCALSignalConeMetric_.compare("angle")    || !HCALSignalConeMetric_.compare("area"))
-       useHCALConeAlgo          = true;
-    // if all three object types use a cone algo don't use a coneless
-    if (useTrackerConeAlgo && useECALConeAlgo && useHCALConeAlgo)
-       useAConelessAlgo         = false;
-
-
-    if (useAConelessAlgo)
-    {
-       // Do inside-out tau signal object identification
-       if (!TrackerSignalConeMetric_.compare("InsideOut") || !TrackerSignalConeMetric_.compare("InsideOutStaticAxis"))
-       {
-          //warn if necessary
-          if (useECALConeAlgo)
-             edm::LogWarning("PFRecoTauAlgorithm") << "Warning: Using Inside-Out signal algorithm, but ECAL is set to use another algorithm!";
-
-          bool shiftingAxis = true;
-          if ( !TrackerSignalConeMetric_.compare("InsideOutStaticAxis") )
-             shiftingAxis = false;
-
-          TFormula insideOutGrowthConstraint = myPFTauElementsOperators.computeConeSizeTFormula(TrackerSignalConeSizeFormula_,"Inside out growth constraint");
-          myPFTauElementsOperators.computeInsideOutContents(myPFChargedHadrCands, myPFGammaCands,
-                                                            myleadPFCand->momentum(), insideOutGrowthConstraint, TauTagTools::computeDeltaR, 
-                                                            TrackerSignalConeSize_min_, TrackerSignalConeSize_max_, ECALSignalConeSize_min_, ECALSignalConeSize_max_,
-                                                            ChargedHadrCand_minPt_, GammaCand_minPt_,
-                                                            TrackerIsolConeMetric_, TrackerIsolConeSize_max_,
-                                                            mySignalPFChargedHadrCands, myUnfilteredIsolPFChargedHadrCands,
-                                                            mySignalPFGammaCands, myIsolPFGammaCands, shiftingAxis);
-
-       }
-    }
     
-    if (useTrackerConeAlgo)
-    {
-       TFormula myTrackerSignalConeSizeTFormula=myPFTauElementsOperators.computeConeSizeTFormula(TrackerSignalConeSizeFormula_,"Tracker signal cone size");
-       double myTrackerSignalConeSize=myPFTauElementsOperators.computeConeSize(myTrackerSignalConeSizeTFormula,TrackerSignalConeSize_min_,TrackerSignalConeSize_max_);
-       TFormula myTrackerIsolConeSizeTFormula=myPFTauElementsOperators.computeConeSizeTFormula(TrackerIsolConeSizeFormula_,"Tracker isolation cone size");
-       double myTrackerIsolConeSize=myPFTauElementsOperators.computeConeSize(myTrackerIsolConeSizeTFormula,TrackerIsolConeSize_min_,TrackerIsolConeSize_max_);     	
-       if (UseChargedHadrCandLeadChargedHadrCand_tksDZconstraint_ && myleadPFCand_rectkavailable) mySignalPFChargedHadrCands=myPFTauElementsOperators.PFChargedHadrCandsInCone((*myleadPFCand).momentum(),TrackerSignalConeMetric_,myTrackerSignalConeSize,ChargedHadrCand_minPt_,ChargedHadrCandLeadChargedHadrCand_tksmaxDZ_,myleadPFCand_rectkDZ);
-       else mySignalPFChargedHadrCands=myPFTauElementsOperators.PFChargedHadrCandsInCone((*myleadPFCand).momentum(),TrackerSignalConeMetric_,myTrackerSignalConeSize,ChargedHadrCand_minPt_);
-       if (UseChargedHadrCandLeadChargedHadrCand_tksDZconstraint_ && myleadPFCand_rectkavailable) myUnfilteredIsolPFChargedHadrCands=myPFTauElementsOperators.PFChargedHadrCandsInAnnulus((*myleadPFCand).momentum(),TrackerSignalConeMetric_,myTrackerSignalConeSize,TrackerIsolConeMetric_,myTrackerIsolConeSize,ChargedHadrCand_minPt_,ChargedHadrCandLeadChargedHadrCand_tksmaxDZ_,myleadPFCand_rectkDZ);
-       else myUnfilteredIsolPFChargedHadrCands=myPFTauElementsOperators.PFChargedHadrCandsInAnnulus((*myleadPFCand).momentum(),TrackerSignalConeMetric_,myTrackerSignalConeSize,TrackerIsolConeMetric_,myTrackerIsolConeSize,ChargedHadrCand_minPt_);
-    }
-
-    if (useECALConeAlgo)
-    {
-       TFormula myECALSignalConeSizeTFormula=myPFTauElementsOperators.computeConeSizeTFormula(ECALSignalConeSizeFormula_,"ECAL signal cone size");
-       double myECALSignalConeSize=myPFTauElementsOperators.computeConeSize(myECALSignalConeSizeTFormula,ECALSignalConeSize_min_,ECALSignalConeSize_max_);
-       TFormula myECALIsolConeSizeTFormula=myPFTauElementsOperators.computeConeSizeTFormula(ECALIsolConeSizeFormula_,"ECAL isolation cone size");
-       double myECALIsolConeSize=myPFTauElementsOperators.computeConeSize(myECALIsolConeSizeTFormula,ECALIsolConeSize_min_,ECALIsolConeSize_max_);     	
-       mySignalPFGammaCands=myPFTauElementsOperators.PFGammaCandsInCone((*myleadPFCand).momentum(),ECALSignalConeMetric_,myECALSignalConeSize,GammaCand_minPt_);
-       myIsolPFGammaCands=myPFTauElementsOperators.PFGammaCandsInAnnulus((*myleadPFCand).momentum(),ECALSignalConeMetric_,myECALSignalConeSize,ECALIsolConeMetric_,myECALIsolConeSize,GammaCand_minPt_);  
-    }
-
-    if (useHCALConeAlgo)
-    {
-       TFormula myHCALSignalConeSizeTFormula=myPFTauElementsOperators.computeConeSizeTFormula(HCALSignalConeSizeFormula_,"HCAL signal cone size");
-       double myHCALSignalConeSize=myPFTauElementsOperators.computeConeSize(myHCALSignalConeSizeTFormula,HCALSignalConeSize_min_,HCALSignalConeSize_max_);
-       TFormula myHCALIsolConeSizeTFormula=myPFTauElementsOperators.computeConeSizeTFormula(HCALIsolConeSizeFormula_,"HCAL isolation cone size");
-       double myHCALIsolConeSize=myPFTauElementsOperators.computeConeSize(myHCALIsolConeSizeTFormula,HCALIsolConeSize_min_,HCALIsolConeSize_max_);     	
-       mySignalPFNeutrHadrCands=myPFTauElementsOperators.PFNeutrHadrCandsInCone((*myleadPFCand).momentum(),HCALSignalConeMetric_,myHCALSignalConeSize,NeutrHadrCand_minPt_);
-       myIsolPFNeutrHadrCands=myPFTauElementsOperators.PFNeutrHadrCandsInAnnulus((*myleadPFCand).momentum(),HCALSignalConeMetric_,myHCALSignalConeSize,HCALIsolConeMetric_,myHCALIsolConeSize,NeutrHadrCand_minPt_);
-    }
-
-    // set computed signal cone objects
+    TFormula myTrackerSignalConeSizeTFormula=myPFTauElementsOperators.computeConeSizeTFormula(TrackerSignalConeSizeFormula_,"Tracker signal cone size");
+    double myTrackerSignalConeSize=myPFTauElementsOperators.computeConeSize(myTrackerSignalConeSizeTFormula,TrackerSignalConeSize_min_,TrackerSignalConeSize_max_);
+    TFormula myTrackerIsolConeSizeTFormula=myPFTauElementsOperators.computeConeSizeTFormula(TrackerIsolConeSizeFormula_,"Tracker isolation cone size");
+    double myTrackerIsolConeSize=myPFTauElementsOperators.computeConeSize(myTrackerIsolConeSizeTFormula,TrackerIsolConeSize_min_,TrackerIsolConeSize_max_);     	
+    TFormula myECALSignalConeSizeTFormula=myPFTauElementsOperators.computeConeSizeTFormula(ECALSignalConeSizeFormula_,"ECAL signal cone size");
+    double myECALSignalConeSize=myPFTauElementsOperators.computeConeSize(myECALSignalConeSizeTFormula,ECALSignalConeSize_min_,ECALSignalConeSize_max_);
+    TFormula myECALIsolConeSizeTFormula=myPFTauElementsOperators.computeConeSizeTFormula(ECALIsolConeSizeFormula_,"ECAL isolation cone size");
+    double myECALIsolConeSize=myPFTauElementsOperators.computeConeSize(myECALIsolConeSizeTFormula,ECALIsolConeSize_min_,ECALIsolConeSize_max_);     	
+    TFormula myHCALSignalConeSizeTFormula=myPFTauElementsOperators.computeConeSizeTFormula(HCALSignalConeSizeFormula_,"HCAL signal cone size");
+    double myHCALSignalConeSize=myPFTauElementsOperators.computeConeSize(myHCALSignalConeSizeTFormula,HCALSignalConeSize_min_,HCALSignalConeSize_max_);
+    TFormula myHCALIsolConeSizeTFormula=myPFTauElementsOperators.computeConeSizeTFormula(HCALIsolConeSizeFormula_,"HCAL isolation cone size");
+    double myHCALIsolConeSize=myPFTauElementsOperators.computeConeSize(myHCALIsolConeSizeTFormula,HCALIsolConeSize_min_,HCALIsolConeSize_max_);     	
+    
+    PFCandidateRefVector mySignalPFChargedHadrCands,mySignalPFNeutrHadrCands,mySignalPFGammaCands,mySignalPFCands;
+    if (UseChargedHadrCandLeadChargedHadrCand_tksDZconstraint_ && myleadPFCand_rectkavailable) mySignalPFChargedHadrCands=myPFTauElementsOperators.PFChargedHadrCandsInCone((*myleadPFCand).momentum(),TrackerSignalConeMetric_,myTrackerSignalConeSize,ChargedHadrCand_minPt_,ChargedHadrCandLeadChargedHadrCand_tksmaxDZ_,myleadPFCand_rectkDZ);
+    else mySignalPFChargedHadrCands=myPFTauElementsOperators.PFChargedHadrCandsInCone((*myleadPFCand).momentum(),TrackerSignalConeMetric_,myTrackerSignalConeSize,ChargedHadrCand_minPt_);
     myPFTau.setsignalPFChargedHadrCands(mySignalPFChargedHadrCands);
+    mySignalPFNeutrHadrCands=myPFTauElementsOperators.PFNeutrHadrCandsInCone((*myleadPFCand).momentum(),HCALSignalConeMetric_,myHCALSignalConeSize,NeutrHadrCand_minPt_);
     myPFTau.setsignalPFNeutrHadrCands(mySignalPFNeutrHadrCands);
+    mySignalPFGammaCands=myPFTauElementsOperators.PFGammaCandsInCone((*myleadPFCand).momentum(),ECALSignalConeMetric_,myECALSignalConeSize,GammaCand_minPt_);
     myPFTau.setsignalPFGammaCands(mySignalPFGammaCands);
-
-    //compute charge
+    
     if((int)(mySignalPFChargedHadrCands.size())!=0){
       int mySignalPFChargedHadrCands_qsum=0;       
       for(int i=0;i<(int)mySignalPFChargedHadrCands.size();i++){
@@ -204,21 +129,25 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
       }
       myPFTau.setCharge(mySignalPFChargedHadrCands_qsum);    
     }
-
-    // merge signal charged and gammas into total signal cone collection
     for(int i=0;i<(int)mySignalPFNeutrHadrCands.size();i++) mySignalPFCands.push_back(mySignalPFNeutrHadrCands[i]);
     for(int i=0;i<(int)mySignalPFGammaCands.size();i++) mySignalPFCands.push_back(mySignalPFGammaCands[i]);
     myPFTau.setsignalPFCands(mySignalPFCands);
+    
+    PFCandidateRefVector myUnfilteredIsolPFChargedHadrCands,myIsolPFNeutrHadrCands,myIsolPFGammaCands,myIsolPFCands;
+    if (UseChargedHadrCandLeadChargedHadrCand_tksDZconstraint_ && myleadPFCand_rectkavailable) myUnfilteredIsolPFChargedHadrCands=myPFTauElementsOperators.PFChargedHadrCandsInAnnulus((*myleadPFCand).momentum(),TrackerSignalConeMetric_,myTrackerSignalConeSize,TrackerIsolConeMetric_,myTrackerIsolConeSize,ChargedHadrCand_minPt_,ChargedHadrCandLeadChargedHadrCand_tksmaxDZ_,myleadPFCand_rectkDZ);
+    else myUnfilteredIsolPFChargedHadrCands=myPFTauElementsOperators.PFChargedHadrCandsInAnnulus((*myleadPFCand).momentum(),TrackerSignalConeMetric_,myTrackerSignalConeSize,TrackerIsolConeMetric_,myTrackerIsolConeSize,ChargedHadrCand_minPt_);
 
-    // filter isolation annulus charged candidates with additional nHits quality cut (note that other cuts [pt, chi2, are already cut on])
+    // filter isolation annulus with additional nHits quality cut (note that other cuts [pt, chi2, are already cut on])
+    PFCandidateRefVector myIsolPFChargedHadrCands;
     myIsolPFChargedHadrCands = TauTagTools::filteredPFChargedHadrCandsByNumTrkHits(myUnfilteredIsolPFChargedHadrCands, ChargedHadrCand_IsolAnnulus_minNhits_); 
 
-    // set isolation objects
     myPFTau.setisolationPFChargedHadrCands(myIsolPFChargedHadrCands);
-    myPFTau.setisolationPFGammaCands(myIsolPFGammaCands);
-    myPFTau.setisolationPFNeutrHadrCands(myIsolPFNeutrHadrCands);
 
-    // compute discrimination quantities
+    myIsolPFNeutrHadrCands=myPFTauElementsOperators.PFNeutrHadrCandsInAnnulus((*myleadPFCand).momentum(),HCALSignalConeMetric_,myHCALSignalConeSize,HCALIsolConeMetric_,myHCALIsolConeSize,NeutrHadrCand_minPt_);
+    myPFTau.setisolationPFNeutrHadrCands(myIsolPFNeutrHadrCands);
+    myIsolPFGammaCands=myPFTauElementsOperators.PFGammaCandsInAnnulus((*myleadPFCand).momentum(),ECALSignalConeMetric_,myECALSignalConeSize,ECALIsolConeMetric_,myECALIsolConeSize,GammaCand_minPt_);  
+    myPFTau.setisolationPFGammaCands(myIsolPFGammaCands);
+
     float myIsolPFChargedHadrCands_Ptsum=0.;
     float myIsolPFGammaCands_Etsum=0.;
     for(int i=0;i<(int)myIsolPFChargedHadrCands.size();i++){
@@ -233,20 +162,9 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
     } 
     myPFTau.setisolationPFGammaCandsEtSum(myIsolPFGammaCands_Etsum);
     myPFTau.setisolationPFCands(myIsolPFCands);
-     
-    /*
-    float mymaximumHCALPFClusterEt=0.;
-        for(int i=0;i<(int)myPFCands.size();i++){ 
-      if (myPFCands[i]->blockRef()->elements().size()!=0){
-	for (OwnVector<PFBlockElement>::const_iterator iPFBlockElement=myPFCands[i]->blockRef()->elements().begin();iPFBlockElement!=myPFCands[i]->blockRef()->elements().end();iPFBlockElement++){
-	  if ((*iPFBlockElement).type()==PFBlockElement::HCAL && (*iPFBlockElement).clusterRef()->energy()*fabs(sin((*iPFBlockElement).clusterRef()->position().Theta()))>mymaximumHCALPFClusterEt) mymaximumHCALPFClusterEt=(*iPFBlockElement).clusterRef()->energy()*fabs(sin((*iPFBlockElement).clusterRef()->position().Theta()));
-	}
-      }
-    }
-    myPFTau.setmaximumHCALPFClusterEt(mymaximumHCALPFClusterEt);    
-    */    
+    
   }
-
+  
   math::XYZTLorentzVector alternatLorentzVect(0.,0.,0.,0.);
   for (PFCandidateRefVector::const_iterator iGammaCand=myPFGammaCands.begin();iGammaCand!=myPFGammaCands.end();iGammaCand++) alternatLorentzVect+=(**iGammaCand).p4();
   for (PFCandidateRefVector::const_iterator iChargedHadrCand=myPFChargedHadrCands.begin();iChargedHadrCand!=myPFChargedHadrCands.end();iChargedHadrCand++) alternatLorentzVect+=(**iChargedHadrCand).p4();  
@@ -278,9 +196,8 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
       myPFTau.setisolationTracks(myFilteredTracks);
     }
   }
-
   
-   /* For elecron rejection */
+  /* For elecron rejection */
   double myECALenergy=0.;
   double myHCALenergy=0.;
   double myHCALenergy3x3=0.;
@@ -371,10 +288,9 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
   }
   /* End elecron rejection */
   
+  
   return myPFTau;  
 }
-
-
 
 bool
 PFRecoTauAlgorithm::checkPos(std::vector<math::XYZPoint> CalPos,math::XYZPoint CandPos) const{
@@ -388,4 +304,3 @@ PFRecoTauAlgorithm::checkPos(std::vector<math::XYZPoint> CalPos,math::XYZPoint C
   return flag;
   //return false;
 }
-

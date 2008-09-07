@@ -72,6 +72,9 @@ namespace edm {
     //-------------------------------
     // Local types
     //
+    typedef EventEntryInfo::EntryInfoVector EventEntryInfoVector;
+    typedef LumiEntryInfo::EntryInfoVector LumiEntryInfoVector;
+    typedef RunEntryInfo::EntryInfoVector RunEntryInfoVector;
 
     //-------------------------------
     // Private functions
@@ -79,7 +82,7 @@ namespace edm {
     void setBranchAliases(TTree *tree, Selections const& branches) const;
 
     template <typename T>
-    void fillBranches(BranchType const& branchType, Principal<T> const& principal, std::vector<T> * entryInfoVecPtr);
+    void fillBranches(BranchType const& branchType, Principal const& principal, std::vector<T> * entryInfoVecPtr);
 
     //-------------------------------
     // Member data
@@ -118,7 +121,7 @@ namespace edm {
   template <typename T>
   void RootOutputFile::fillBranches(
 		BranchType const& branchType,
-		Principal<T> const& principal,
+		Principal const& principal,
 		std::vector<T> * entryInfoVecPtr) {
 
     std::vector<boost::shared_ptr<EDProduct> > dummies;
@@ -136,7 +139,7 @@ namespace edm {
 	 !fastCloning || treePointers_[branchType]->uncloned(i->branchDescription_->branchName()));
 
       EDProduct const* product = 0;
-      OutputHandle<T> const oh = principal.getForOutput(id, getProd);
+      OutputHandle<T> const oh = principal.getForOutput<T>(id, getProd);
       if (!oh.entryInfo()) {
 	// No product with this ID is in the event.
 	// Create and write the provenance.
@@ -173,7 +176,7 @@ namespace edm {
 
       BranchID const& id = i->branchDescription_->branchID();
 
-      OutputHandle<T> const oh = principal.getForOutput(id, false);
+      OutputHandle<T> const oh = principal.getForOutput<T>(id, false);
       if (!oh.entryInfo()) {
 	// No product with this ID is in the event.
 	// Create and write the provenance.

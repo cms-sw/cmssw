@@ -93,19 +93,30 @@ class mymf(modulefinder.ModuleFinder):
         self._depgraph = {}
         self._types = {}
         self._last_caller = None
+        #TODO - replace by environment variables CMSSW_BASE and CMSSW_RELEASE_BASE (*and* do it only if the global one is not empty like for IB areas)  
+        self._localarea = os.path.expandvars('$CMSSW_BASE')
+        self._globalarea = os.path.expandvars('$CMSSW_RELEASE_BASE')
         modulefinder.ModuleFinder.__init__(self,*args,**kwargs)
     def import_hook(self, name, caller=None, fromlist=None):
         old_last_caller = self._last_caller
         try:
             self._last_caller = caller
-            return modulefinder.ModuleFinder.import_hook(self,name,caller,fromlist)
+            return modulefinder.ModuleFinder.import_hook(self,name,caller,fromlist)  
         finally:
             self._last_caller = old_last_caller
+
     def import_module(self,partnam,fqname,parent):
+                              
         if partnam in ("FWCore","os"):
             r = None
         else:
             r = modulefinder.ModuleFinder.import_module(self,partnam,fqname,parent)
+            # since the modulefinder is not able to look into the global area when coming from the local area, we force a second try   
+            if parent and not r and self._localarea != '' and self._globalarea != '':
+                 parent.__file__ = parent.__file__.replace(self._localarea,self._globalarea)
+                 parent.__path__[0] = parent.__path__[0].replace(self._localarea,self._globalarea)
+            r = modulefinder.ModuleFinder.import_module(self,partnam,fqname,parent)
+                                                         
         if r is not None:
             self._depgraph.setdefault(self._last_caller.__name__,{})[r.__name__] = 1
         return r

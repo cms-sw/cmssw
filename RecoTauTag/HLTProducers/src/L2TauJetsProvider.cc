@@ -52,38 +52,11 @@ void L2TauJetsProvider::produce(edm::Event& iEvent, const edm::EventSetup& iES)
    }
    iL1Jet++;
  }
- 
- //Removing the collinear jets
- for(int iJet =0;iJet<iL1Jet;iJet++)
-   {
-     map<int, const reco::CaloJet>::const_iterator myL2itr = myL2L1JetsMap.find(iJet);
-     if(myL2itr!=myL2L1JetsMap.end()){
-       
-       const CaloJet my1stJet = myL2itr->second;
-       for(int i2Jet = iJet+1;i2Jet<iL1Jet;i2Jet++)
-	 {
-	   map<int, const reco::CaloJet>::const_iterator my2L2itr = myL2L1JetsMap.find(i2Jet);
-	   if(my2L2itr!=myL2L1JetsMap.end()){
-	     const CaloJet my2ndJet = my2L2itr->second;
-	     
-	     double deltaR = ROOT::Math::VectorUtil::DeltaR(my1stJet.p4().Vect(), my2ndJet.p4().Vect());
-	     if(deltaR < 0.1) 
-	       {
-		 //		 cout <<"Collinear jets "<<deltaR<<endl;
-		 myL2L1JetsMap.erase(my2L2itr->first);
-	       }
-	   }
-	 }
-     }
-   }
- 
-  auto_ptr<CaloJetCollection> tauL2jets(new CaloJetCollection);
-  
+ auto_ptr<CaloJetCollection> tauL2jets(new CaloJetCollection);
 
  //Loop over the jetSrc to select the proper jets
   
-
-  double deltaR;
+  double deltaR = 0.1;
   double matchingR = 0.01;
   //Loop over the Map to find which jets has fired the trigger
   //myL1Tau is the Collection of L1TauCandidates (from 0 to max  4 elements)
@@ -93,64 +66,83 @@ void L2TauJetsProvider::produce(edm::Event& iEvent, const edm::EventSetup& iES)
   
   iEvent.getByLabel( l1ParticlesTau, tauColl );
   iEvent.getByLabel(l1ParticlesJet, jetColl);
-  const L1JetParticleCollection & myL1Tau  = *(tauColl.product());
-  const L1JetParticleCollection & myL1Jet  = *(jetColl.product());
-  L1JetParticleCollection myL1Obj;
-  for(int i=0;i<myL1Tau.size();i++)
-    {
-      myL1Obj.push_back(myL1Tau[i]);
-    }
-  for(int i=0;i<myL1Jet.size();i++)
-    {
-      myL1Obj.push_back(myL1Jet[i]);
-    }
-  Handle<trigger::TriggerFilterObjectWithRefs> l1TriggeredTaus;
 
-  if(iEvent.getByLabel(tauTrigger,l1TriggeredTaus)){
+  const L1JetParticleCollection  myL1Tau = *(tauColl.product());
 
-    //    typedef std::vector<l1extra::L1JetParticleRef>     VRl1jet;
-    vector<L1JetParticleRef> tauCandRefVec;
-    vector<L1JetParticleRef> jetCandRefVec;
-    vector<L1JetParticleRef> objL1CandRefVec;
-    L1JetParticleRef tauCandRef;
+  const L1JetParticleCollection  myL1Jet = *(jetColl.product());  
+
+    L1JetParticleCollection myL1Obj;
+    myL1Obj.reserve(8);
+    
+    for(unsigned int i=0;i<myL1Tau.size();i++)
+      {
+	myL1Obj.push_back(myL1Tau[i]);
+      }
+    for(unsigned int j=0;j<myL1Jet.size();j++)
+      {
+	myL1Obj.push_back(myL1Jet[j]);
+      }
 
 
-	l1TriggeredTaus->getObjects( trigger::TriggerL1TauJet,tauCandRefVec);
-	l1TriggeredTaus->getObjects( trigger::TriggerL1CenJet,jetCandRefVec);
-	
-	for(int i=0;i<tauCandRefVec.size();i++)
-	  objL1CandRefVec.push_back(tauCandRefVec[i]);
-
-	for(int i=0;i<jetCandRefVec.size();i++)
-	    objL1CandRefVec.push_back(jetCandRefVec[i]);
-
-    for( unsigned int iL1Tau=0; iL1Tau <objL1CandRefVec.size();iL1Tau++)
+    Handle<trigger::TriggerFilterObjectWithRefs> l1TriggeredTaus;
+    if(iEvent.getByLabel(tauTrigger,l1TriggeredTaus)){
+    
+      
+      tauCandRefVec.clear();
+      jetCandRefVec.clear();
+      
+      l1TriggeredTaus->getObjects( trigger::TriggerL1TauJet,tauCandRefVec);
+      l1TriggeredTaus->getObjects( trigger::TriggerL1CenJet,jetCandRefVec);
+      
+      for( unsigned int iL1Tau=0; iL1Tau <tauCandRefVec.size();iL1Tau++)
+	{  
+	  for(unsigned int iJet=0;iJet<myL1Obj.size();iJet++)
+	    {
+	      //Find the relative L2TauJets, to see if it has been reconstructed
+	    map<int, const reco::CaloJet>::const_iterator myL2itr = myL2L1JetsMap.find(iJet);
+	    if(myL2itr!=myL2L1JetsMap.end()){
+	      //Calculate the DeltaR between L1TauCandidate and L1Tau which fired the trigger
+	      if(&tauCandRefVec[iL1Tau]) 
+		deltaR = ROOT::Math::VectorUtil::DeltaR(myL1Obj[iJet].p4().Vect(), (tauCandRefVec[iL1Tau]->p4()).Vect());
+	      if(deltaR < matchingR ) {
+	      //	      Getting back from the map the L2TauJet
+		const CaloJet myL2TauJet = myL2itr->second;
+		if(myL2TauJet.pt() > mEt_Min) tauL2jets->push_back(myL2TauJet);
+		myL2L1JetsMap.erase(myL2itr->first);
+		break;
+		
+	      }
+	    }
+	    
+	  }
+      }
+      
+    for(unsigned int iL1Tau=0; iL1Tau <jetCandRefVec.size();iL1Tau++)
       {  
-	tauCandRef = objL1CandRefVec[iL1Tau];
-	for(int iJet=0;iJet<myL1Obj.size();iJet++)
+	for(unsigned int iJet=0;iJet<myL1Obj.size();iJet++)
 	  {
-	    bool alreadyMatched = false;
 	    //Find the relative L2TauJets, to see if it has been reconstructed
 	    map<int, const reco::CaloJet>::const_iterator myL2itr = myL2L1JetsMap.find(iJet);
 	    if(myL2itr!=myL2L1JetsMap.end()){
-	      
-	    //Calculate the DeltaR between L1TauCandidate and L1Tau which fired the trigger
-	    deltaR = ROOT::Math::VectorUtil::DeltaR(myL1Tau[iJet].p4().Vect(), (tauCandRef->p4()).Vect());
-	    if(deltaR < matchingR) {
-	      //Getting back from the map the L2TauJet
-	      const CaloJet myL2TauJet = myL2itr->second;
-	      if(myL2TauJet.pt() > mEt_Min){
-		tauL2jets->push_back(myL2TauJet);
+	      //Calculate the DeltaR between L1TauCandidate and L1Tau which fired the trigger
+	      if(&jetCandRefVec[iL1Tau])
+	        deltaR = ROOT::Math::VectorUtil::DeltaR(myL1Obj[iJet].p4().Vect(), (jetCandRefVec[iL1Tau]->p4()).Vect());
+	      if(deltaR < matchingR) {
+		// Getting back from the map the L2TauJet
+		const CaloJet myL2TauJet = myL2itr->second;
+		
+		if(myL2TauJet.pt() > mEt_Min) tauL2jets->push_back(myL2TauJet);
+		myL2L1JetsMap.erase(myL2itr->first);
 		break;
+		
 	      }
 	    }
+	    
 	  }
-
-	}
-    }
-
+      }
+    
   }
-//    cout <<"Size of L2 jets "<<tauL2jets->size()<<endl;
+  //  cout <<"Size of L2 jets "<<tauL2jets->size()<<endl;
 
   iEvent.put(tauL2jets);
 

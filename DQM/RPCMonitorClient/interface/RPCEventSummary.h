@@ -6,8 +6,8 @@
  * *
  *  DQM Event Summary module for RPCs
  *
- *  $Date: 2008/06/30 12:13:45 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/05/27 18:26:47 $
+ *  $Revision: 1.2 $
  *  \author Anna Cimmino
  *   
  */
@@ -61,7 +61,7 @@ public:
   
   /// Get the ME name
   std::string getMEName(RPCDetId & detId);
-  void fillReportSummary(const std::map<int,std::map<int,std::pair<float,float> > >& sumMap, int region);
+  
   
  private:
   
@@ -74,9 +74,6 @@ public:
 
   int nLumiSegs_;
   
-  float allRolls_;
-  float allGood_;
-
   edm::ESHandle<RPCGeometry> muonGeom;
   //edm::ESHandle<DTTtrig> tTrigMap;
 

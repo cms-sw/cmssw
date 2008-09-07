@@ -80,6 +80,8 @@ private:
 
   bool skipNeutrals_;
   bool checkHLTMatch_;
+  edm::InputTag hltEventTag_;
+  edm::InputTag hltFiltTag_;
 
   double isolE_;
   double etaMax_;

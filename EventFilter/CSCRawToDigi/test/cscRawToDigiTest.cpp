@@ -8,7 +8,6 @@ int main()
   CSCTMBHeader::selfTest();
   CSCALCTHeader::selfTest();
   CSCTMBData::selfTest();
-  CSCTMBTrailer::selfTest();
   CSCEventData::selfTest();
 }
 

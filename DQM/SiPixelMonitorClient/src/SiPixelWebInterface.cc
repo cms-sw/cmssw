@@ -26,8 +26,8 @@ SiPixelWebInterface::SiPixelWebInterface(DQMStore* bei) : bei_(bei) {
   tkMapOptions_.push_back("Persistant");
   tkMapOptions_.push_back("Temporary");
   tkMapCreated = false;
-  if (actionExecutor_ == 0) actionExecutor_ = new SiPixelActionExecutor();
-  if (infoExtractor_ == 0) infoExtractor_ = new SiPixelInformationExtractor();
+  if (actionExecutor_ == 0) actionExecutor_ = new SiPixelActionExecutor("DQM/SiPixelMonitorClient/test/sipixel_monitorelement_config.xml");
+  if (infoExtractor_ == 0) infoExtractor_ = new SiPixelInformationExtractor("DQM/SiPixelMonitorClient/test/sipixel_monitorelement_config.xml");
 }
 
 //____________________________________________________________________________________________________

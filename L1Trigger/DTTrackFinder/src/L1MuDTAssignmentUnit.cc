@@ -5,8 +5,8 @@
 //   Description: Assignment Unit
 //
 //
-//   $Date: 2008/06/16 09:00:37 $
-//   $Revision: 1.7 $
+//   $Date: 2008/05/09 15:01:59 $
+//   $Revision: 1.5 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -171,18 +171,8 @@ void L1MuDTAssignmentUnit::PhiAU(const edm::EventSetup& c) {
     sector = forth->sector();
   }
 
-  int sector0 = m_sp.id().sector();
-
-  // convert sector difference to values in the range -6 to +5
-
-  int sectordiff = (sector - sector0)%12;
-  if ( sectordiff >= 6 ) sectordiff -= 12;
-  if ( sectordiff < -6 ) sectordiff += 12;
-  
-  assert( abs(sectordiff) <= 1 );
-
   // get sector center in 8 bit coding
-  int sector_8 = convertSector(sector0);
+  int sector_8 = convertSector(sector);
 
   // convert phi to 2.5 degree precision
   int phi_precision = 4096 >> sh_phi;
@@ -198,8 +188,6 @@ void L1MuDTAssignmentUnit::PhiAU(const edm::EventSetup& c) {
     int bend_angle = (forth->phib() >> sh_phib) << sh_phib;
     phi_8 = phi_8 + thePhiLUTs->getDeltaPhi(1,bend_angle);
   }
-
-  phi_8 += sectordiff*12;
 
   if (phi_8 >  15) phi_8 =  15;
   if (phi_8 < -16) phi_8 = -16;
@@ -481,14 +469,13 @@ int L1MuDTAssignmentUnit::getPtAddress(PtAssMethod method, int bendcharge) const
   }
 
   int signo = 1;
-  bendangle = (bendangle+8192)%4096;
-  if ( bendangle > 2047 ) bendangle -= 4096;
-  if ( bendangle < 0 ) signo = -1;
+  if (bendangle < 0) signo=-1;
+  bendangle = signo*bendangle;
+  bendangle = bendangle%1024;
+  if (bendangle > 511) bendangle=1024-bendangle;
+  bendangle = signo*bendangle;
 
   if (bendcharge) return signo;
-
-  bendangle = (bendangle+2048)%1024;
-  if ( bendangle > 511 ) bendangle -= 1024;
 
   return bendangle;
 

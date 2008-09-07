@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/04/30 02:14:43 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/08/27 20:10:06 $
+ *  $Revision: 1.4 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -38,7 +38,9 @@ JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& pSet) {
   //  theCaloJetCollectionLabel = parameters.getParameter<edm::InputTag>("CaloJetsCollectionLabel");
 
   thePFJetCollectionLabel   = parameters.getParameter<edm::InputTag>("PFJetsCollectionLabel");
-  theCaloMETCollectionLabel = parameters.getParameter<edm::InputTag>("CaloMETCollectionLabel");
+
+  theCaloMETCollectionLabel     = parameters.getParameter<edm::InputTag>("CaloMETCollectionLabel");
+  theCaloMETNoHFCollectionLabel = parameters.getParameter<edm::InputTag>("CaloMETNoHFCollectionLabel");
   
   //  theSCJetAnalyzerFlag      = parameters.getUntrackedParameter<bool>("DoSCJetAnalysis",true);
   //  theICJetAnalyzerFlag      = parameters.getUntrackedParameter<bool>("DoICJetAnalysis",true);
@@ -52,9 +54,10 @@ JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& pSet) {
     //    theJetAnalyzer    = new JetAnalyzer(parameters.getParameter<ParameterSet>("jetAnalysis"));
     //    theJetAnalyzer->setSource("CaloJets");
     theSCJetAnalyzer  = new JetAnalyzer(parameters.getParameter<ParameterSet>("jetAnalysis"));
-    theSCJetAnalyzer->setSource("IterativeConeJets");
+    theSCJetAnalyzer->setSource("SISConeJets");
     theICJetAnalyzer  = new JetAnalyzer(parameters.getParameter<ParameterSet>("jetAnalysis"));
-    theICJetAnalyzer->setSource("SISConeJets");
+    theICJetAnalyzer->setSource("IterativeConeJets");
+
   }
 
   // --- do the analysis on the PFJets
@@ -84,7 +87,6 @@ void JetMETAnalyzer::beginJob(edm::EventSetup const& iSetup) {
 
   LogTrace(metname)<<"[JetMETAnalyzer] Parameters initialization";
   dbe = edm::Service<DQMStore>().operator->();
-  dbe->setVerbose(1);
 
   if(theJetAnalyzerFlag) { 
     //    theJetAnalyzer->beginJob(iSetup, dbe);
@@ -155,20 +157,23 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   }
 
 
-  // **** Get the MET container
-
-  
+  // **** Get the MET container  
   edm::Handle<reco::CaloMETCollection> calometcoll;
   iEvent.getByLabel(theCaloMETCollectionLabel, calometcoll);
+  edm::Handle<reco::CaloMETCollection> calometNoHFcoll;
+  iEvent.getByLabel(theCaloMETNoHFCollectionLabel, calometNoHFcoll);
 
-  if(calometcoll.isValid()){
+  if(calometcoll.isValid() && calometNoHFcoll.isValid()){
     const CaloMETCollection *calometcol = calometcoll.product();
     const CaloMET *calomet;
     calomet = &(calometcol->front());
+    const CaloMETCollection *calometNoHFcol = calometNoHFcoll.product();
+    const CaloMET *calometNoHF;
+    calometNoHF = &(calometNoHFcol->front());
 
     if(theCaloMETAnalyzerFlag){
       LogTrace(metname)<<"[JetMETAnalyzer] Call to the CaloMET analyzer";
-      theCaloMETAnalyzer->analyze(iEvent, iSetup, *calomet);
+      theCaloMETAnalyzer->analyze(iEvent, iSetup, *calomet, *calometNoHF);
     }
   }
 
@@ -178,10 +183,10 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
 void JetMETAnalyzer::endJob(void) {
   LogTrace(metname)<<"[JetMETAnalyzer] Saving the histos";
-  dbe->showDirStructure();
   bool outputMEsInRootFile   = parameters.getParameter<bool>("OutputMEsInRootFile");
   std::string outputFileName = parameters.getParameter<std::string>("OutputFileName");
   if(outputMEsInRootFile){
+    dbe->showDirStructure();
     dbe->save(outputFileName);
   }
 }

@@ -34,7 +34,7 @@ class RPCTriggerGeo {
     void buildGeometry(edm::ESHandle<RPCGeometry> rpcGeom);
     bool isGeometryBuilt();
   
-    L1RpcLogConesVec getCones(edm::Handle<RPCDigiCollection> rpcDigis);
+    L1RpcLogConesVec getCones(edm::Handle<RPCDigiCollection> rpcDigis, int bx);
     void printLinks();   
 
     RPCRingFromRolls::RPCLinks getLinks() const {return m_links;};

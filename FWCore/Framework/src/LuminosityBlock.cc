@@ -13,7 +13,7 @@ namespace edm {
   }
 
   LuminosityBlock::LuminosityBlock(LuminosityBlockPrincipal& lbp, ModuleDescription const& md) :
-	DataViewImpl<RunLumiEntryInfo>(lbp, md, InLumi),
+	DataViewImpl(lbp, md, InLumi),
 	aux_(lbp.aux()),
 	run_(newRun(lbp, md)) {
   }
@@ -54,8 +54,8 @@ namespace edm {
 	pit->first = 0;
 
 	// set provenance
-	std::auto_ptr<RunLumiEntryInfo> lumiEntryInfoPtr(
-		new RunLumiEntryInfo(pit->second->branchID(),
+	std::auto_ptr<EventEntryInfo> lumiEntryInfoPtr(
+		new EventEntryInfo(pit->second->branchID(),
 				    productstatus::present(),
 				    pit->second->moduleDescriptionID()));
 	lbp.put(pr, *pit->second, lumiEntryInfoPtr);

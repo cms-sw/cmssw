@@ -1,11 +1,6 @@
-#include "FWCore/PluginManager/interface/PluginManager.h"
-#include "FWCore/PluginManager/interface/standard.h"
-#include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "CondCore/DBCommon/interface/CoralTransaction.h"
 #include "CondCore/DBCommon/interface/PoolTransaction.h"
-#include "CondCore/DBCommon/interface/ConnectionHandler.h"
+//#include "CondCore/DBCommon/interface/ConnectionHandler.h"
 #include "CondCore/DBCommon/interface/Connection.h"
 #include "CondCore/DBCommon/interface/AuthenticationMethod.h"
 #include "CondCore/DBCommon/interface/SessionConfiguration.h"
@@ -14,17 +9,12 @@
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/DBCommon/interface/FipProtocolParser.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
-
-#include "CondCore/DBCommon/interface/Time.h"
 #include "CondCore/IOVService/interface/IOVService.h"
 #include "CondCore/IOVService/interface/IOVIterator.h"
 #include <boost/program_options.hpp>
 #include <iterator>
 #include <iostream>
 int main( int argc, char** argv ){
-  edmplugin::PluginManager::configure(edmplugin::standard::config());
-
-
   boost::program_options::options_description desc("options");
   boost::program_options::options_description visible("Usage: cmscond_list_iov [options] \n");
   visible.add_options()
@@ -80,18 +70,6 @@ int main( int argc, char** argv ){
   if(vm.count("debug")){
     debug=true;
   }
-
-
-  std::vector<edm::ParameterSet> psets;
-
-  edm::ParameterSet pSet;
-  pSet.addParameter("@service_type",std::string("SiteLocalConfigService"));
-  psets.push_back(pSet);
-
-  edm::ServiceToken services(edm::ServiceRegistry::createSet(psets));
-  edm::ServiceRegistry::Operate operate(services);
-
-
   cond::DBSession* session=new cond::DBSession;
   if( !authPath.empty() ){
     session->configuration().setAuthenticationMethod( cond::XML );
@@ -118,11 +96,8 @@ int main( int argc, char** argv ){
     cond::FipProtocolParser p;
     connect=p.getRealConnect(connect);
   }
-  // cond::Connection myconnection(connect,-1);  
+  cond::Connection myconnection(connect,-1);  
   session->open();
-  cond::ConnectionHandler::Instance().registerConnection(connect,*session,-1);
-  cond::Connection & myconnection = *cond::ConnectionHandler::Instance().getConnection(connect);
-
   if( listAll ){
     try{
       myconnection.connect(session);
@@ -159,7 +134,7 @@ int main( int argc, char** argv ){
        unsigned int counter=0;
        std::string payloadContainer=iovservice.payloadContainerName(token);
        std::cout<<"Tag "<<tag
-       	        <<"\nTimeType " << cond::timeTypeSpecs[ioviterator->timetype()].name
+       	        <<"\nTime Type " << ioviterator->timetype()
                 <<"\nPayloadContainerName "<<payloadContainer<<"\n"
                 <<"since \t till \t payloadToken"<<std::endl;
        while( ioviterator->next() ){

@@ -2,8 +2,8 @@
  *
  * Class for RPC Monitoring using RPCDigi and DT and CSC Segments.
  *
- *  $Date: 2008/07/03 16:25:04 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/09/02 16:27:05 $
+ *  $Revision: 1.6 $
  *
  * \author Camilo Carrillo (Uniandes)
  *
@@ -105,43 +105,18 @@ class RPCEfficiency : public edm::EDAnalyzer {
    public:
       explicit RPCEfficiency(const edm::ParameterSet&);
       ~RPCEfficiency();
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
+      virtual void beginRun(const edm::Run&, const edm::EventSetup&);
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       std::map<std::string, MonitorElement*> bookDetUnitSeg(RPCDetId & detId,int nstrips);
       virtual void endRun(const edm::Run& r, const edm::EventSetup& iSetup);
-      std::set<RPCDetId>  allrollstoreBarrel;    
       std::map<DTStationIndex,std::set<RPCDetId> > rollstoreDT;
       std::map<CSCStationIndex,std::set<RPCDetId> > rollstoreCSC;
       edm::ESHandle<RPCGeometry> rpcGeo;
       edm::ESHandle<DTGeometry> dtGeo;
       edm::ESHandle<CSCGeometry> cscGeo;
-   private:
-      std::vector<std::map<RPCDetId, int> > counter;
-      std::vector<int> totalcounter;
-      std::ofstream ofrej;
-      std::ofstream ofeff;
-      bool incldt;
-      bool incldtMB4;
-      bool inclcsc;
-      bool prodImages;
-      bool calcEffi;
-      bool mydqm;
-      double MinimalResidual;
-      double MinimalResidualRB4;
-      double MinCosAng;
-      double MaxD;
-      double MaxDrb4;
-      double MaxStripToCountInAverage;
-      double MaxStripToCountInAverageRB4;
-      std::string muonRPCDigis;
-      std::string cscSegments;
-      std::string dt4DSegments;
-      std::string rejected;
-      std::string rollseff;
-      
-      //Giuseppe
-      std::map<std::string, std::map<std::string, MonitorElement*> >  meCollection;
+
       MonitorElement * statistics;
 
       MonitorElement * hGlobalResClu1La1;
@@ -165,10 +140,32 @@ class RPCEfficiency : public edm::EDAnalyzer {
       MonitorElement * hGlobalResClu3La5;
       MonitorElement * hGlobalResClu3La6;
 
+   private:
+      std::vector<std::map<RPCDetId, int> > counter;
+      std::vector<int> totalcounter;
+      std::ofstream ofrej;
+      bool incldt;
+      bool incldtMB4;
+      bool inclcsc;
+      bool debug;
+      double MinimalResidual;
+      double MinimalResidualRB4;
+      double MinCosAng;
+      double MaxD;
+      double MaxDrb4;
+      double MaxStripToCountInAverage;
+      double MaxStripToCountInAverageRB4;
+      int dupli;
+      std::string muonRPCDigis;
+      std::string cscSegments;
+      std::string dt4DSegments;
+      std::string rejected;
+      std::string rollseff;
+      
+      std::map<std::string, std::map<std::string, MonitorElement*> >  meCollection;
+      
       bool EffSaveRootFile;
-      int  EffSaveRootFileEventsInterval;
       std::string EffRootFileName;
       std::string nameInLog;
       DQMStore * dbe;
-      std::vector<std::string> _idList;
 };

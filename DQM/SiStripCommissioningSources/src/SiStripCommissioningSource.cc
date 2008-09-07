@@ -15,8 +15,8 @@
 #include "DQM/SiStripCommissioningSources/interface/OptoScanTask.h"
 #include "DQM/SiStripCommissioningSources/interface/VpspScanTask.h"
 #include "DQM/SiStripCommissioningSources/interface/PedestalsTask.h"
-#include "DQM/SiStripCommissioningSources/interface/PedsOnlyTask.h"
-#include "DQM/SiStripCommissioningSources/interface/NoiseTask.h"
+//#include "DQM/SiStripCommissioningSources/interface/PedsOnlyTask.h"
+//#include "DQM/SiStripCommissioningSources/interface/NoiseTask.h"
 #include "DQM/SiStripCommissioningSources/interface/DaqScopeModeTask.h"
 #include "DQM/SiStripCommissioningSources/interface/LatencyTask.h"
 #include "DQM/SiStripCommissioningSources/interface/FineDelayTask.h"
@@ -938,10 +938,10 @@ void SiStripCommissioningSource::createTasks( sistrip::RunType run_type, const e
           tasks_[iconn->fedId()][iconn->fedCh()] = new VpspScanTask( dqm(), *iconn );
         } else if ( task_ == sistrip::PEDESTALS ) { 
           tasks_[iconn->fedId()][iconn->fedCh()] = new PedestalsTask( dqm(), *iconn );
-        } else if ( task_ == sistrip::PEDS_ONLY ) { 
-          tasks_[iconn->fedId()][iconn->fedCh()] = new PedsOnlyTask( dqm(), *iconn );
-        } else if ( task_ == sistrip::NOISE ) { 
-          tasks_[iconn->fedId()][iconn->fedCh()] = new NoiseTask( dqm(), *iconn );
+//         } else if ( task_ == sistrip::PEDS_ONLY ) { 
+//           tasks_[iconn->fedId()][iconn->fedCh()] = new PedsOnlyTask( dqm(), *iconn );
+//         } else if ( task_ == sistrip::NOISE ) { 
+//           tasks_[iconn->fedId()][iconn->fedCh()] = new NoiseTask( dqm(), *iconn );
         } else if ( task_ == sistrip::DAQ_SCOPE_MODE ) { 
           tasks_[iconn->fedId()][iconn->fedCh()] = new DaqScopeModeTask( dqm(), *iconn );
 	} else if ( task_ == sistrip::APV_LATENCY ) { 

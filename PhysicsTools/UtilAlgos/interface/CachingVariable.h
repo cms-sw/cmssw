@@ -2,7 +2,7 @@
 #define ConfigurableAnalysis_CachingVariable_H
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "PhysicsTools/UtilAlgos/interface/UpdaterService.h"
+#include "FWCore/Services/interface/UpdaterService.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"

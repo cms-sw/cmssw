@@ -40,5 +40,5 @@ nuclearTrackCandidates.SeedProducer = 'nuclearSeed'
 nuclearTrackCandidates.TrajectoryBuilder = 'nuclearCkfTrajectoryBuilder'
 nuclearTrackCandidates.RedundantSeedCleaner = 'none'
 nuclearWithMaterialTracks.src = 'nuclearTrackCandidates'
-#FittingSmootherRK.MinNumberOfHits = 3
+FittingSmootherRK.MinNumberOfHits = 3
 

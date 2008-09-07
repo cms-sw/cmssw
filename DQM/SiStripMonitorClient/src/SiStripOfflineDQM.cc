@@ -13,19 +13,33 @@
 //
 // Original Author:  Samvel Khalatyan (ksamdev at gmail dot com)
 //         Created:  Wed Oct  5 16:42:34 CET 2006
-// $Id: SiStripOfflineDQM.cc,v 1.16 2008/02/21 23:17:49 dutta Exp $
+// $Id: SiStripOfflineDQM.cc,v 1.17 2008/03/01 00:37:15 dutta Exp $
 //
 //
 
-// Root UI that is used by original Client's SiStripActionExecuter
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 #include "DQMServices/Core/interface/DQMStore.h"
+
+#include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
+#include "DQM/SiStripMonitorClient/interface/SiStripWebInterface.h"
+#include "DQM/SiStripMonitorClient/interface/SiStripActionExecutor.h"
+#include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
 
 #include "DQM/SiStripMonitorClient/interface/SiStripOfflineDQM.h"
 
-using edm::LogInfo;
+#include <iostream>
+#include <iomanip>
+#include <stdio.h>
+#include <string>
+#include <sstream>
+#include <math.h>
 
 /** 
 * @brief 
@@ -34,88 +48,109 @@ using edm::LogInfo;
 * @param roPARAMETER_SET 
 *   Regular Parameter Set that represent read configuration file
 */
-SiStripOfflineDQM::SiStripOfflineDQM( const edm::ParameterSet &roPARAMETER_SET)
-  : bVERBOSE_( roPARAMETER_SET.getUntrackedParameter<bool>( "bVerbose")),
-    bCreateSummary_(false),
-    oActionExecutor_() {
-
+SiStripOfflineDQM::SiStripOfflineDQM(edm::ParameterSet const& pSet) {
   // Create MessageSender
-  LogInfo( "SiStripOfflineDQM");
+  edm::LogInfo( "SiStripOfflineDQM") << "SiStripOfflineDQM::Deleting SiStripOfflineDQM ";
 
-  poDQMStore_ = edm::Service<DQMStore>().operator->();
+  // Action Executor
+  actionExecutor_ = new SiStripActionExecutor();
 
+  // get back-end interface
+  dqmStore_ = edm::Service<DQMStore>().operator->();
+
+  createSummary_       = pSet.getUntrackedParameter<bool>("CreateSummary",true);
+  inputFileName_       = pSet.getUntrackedParameter<std::string>("InputFileName","");
+
+  nEvents_  = 0;
 }
-
-SiStripOfflineDQM::~SiStripOfflineDQM() {
-}
-
 /** 
 * @brief 
-*   Executed everytime once all events are processed
+*   Destructor
 * 
-* @param roEVENT_SETUP 
+*/
+SiStripOfflineDQM::~SiStripOfflineDQM() {
+  edm::LogInfo("SiStripOfflineDQM") << "SiStripOfflineDQM::Deleting SiStripOfflineDQM ";
+
+}
+/** 
+* @brief 
+*   Executed at the begining of application
+* 
+* @param eSetup
 *   Event Setup object
 */
-void SiStripOfflineDQM::beginJob( const edm::EventSetup &roEVENT_SETUP) {
+void SiStripOfflineDQM::beginJob( const edm::EventSetup &eSetup) {
+
   // Essential: reads xml file to get the histogram names to create summary
-  if (oActionExecutor_.readConfiguration()) bCreateSummary_ = true;
-
-  if( bVERBOSE_) {
-    LogInfo( "SiStripOfflineDQM") << "[beginJob] done";
+  // Read the summary configuration file
+  if (createSummary_) {  
+    if (!actionExecutor_->readConfiguration()) {
+      edm::LogInfo ("SiStripOfflineDQM") <<"SiStripOfflineDQM:: Error to read configuration file!! Summary will not be produced!!!";
+      createSummary_ = false;
+    }
   }
-}
 
+  edm::LogInfo("SiStripOfflineDQM") << "SiStripOfflineDQM::beginJob done";
+}
+/** 
+* @brief 
+*   Executed at the begining a Run
+* 
+* @param run
+*   Run  object
+* @param eSetup
+*  Event Setup object with Geometry, Magnetic Field, etc.
+*/
+//
+// -- Begin Run
+//
+void SiStripOfflineDQM::beginRun(edm::Run const& run, edm::EventSetup const& eSetup) {
+  edm::LogInfo ("SiStripOfflineDQM") <<"SiStripOfflineDQM:: Begining of Run";
+
+  if (!openInputFile()) createSummary_ = false;
+}
+/** 
+ * @brief
+ *
+ *  Executed at every Event
+ *
+ * @param Event                             
+ *   Event  
+ *                                                                                                                                                      
+ * @param eSetup                                                                                                                                                      *  Event Setup object with Geometry, Magnetic Field, etc.    
+ */
+void SiStripOfflineDQM::analyze(edm::Event const& e, edm::EventSetup const& eSetup){
+  nEvents_++;  
+}
 /** 
 * @brief 
 * 
-* @param roEVENT 
-*   Event Object that holds all collections
-* @param roEVENT_SETUP 
-*   Event Setup Object with Geometry, Magnetic Field, etc.
+* End Job
+*
 */
-void SiStripOfflineDQM::analyze( const edm::Event      &roEVENT, 
-				                         const edm::EventSetup &roEVENT_SETUP) {
-
-  if( bVERBOSE_) {
-    LogInfo( "SiStripOfflineDQM") << "[analyze] done";
-  }
-}
-void SiStripOfflineDQM::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) {
-  if (bCreateSummary_) { 
-    oActionExecutor_.createSummary( poDQMStore_);
-  }
-}
 void SiStripOfflineDQM::endJob() {
-  if( bVERBOSE_) {
-    LogInfo( "SiStripOfflineDQM") << "[endJob] start";
-  }
+  edm::LogInfo( "SiStripOfflineDQM") << "SiStripOfflineDQM::EndJob";
+  // create Summary Plots
+  if (createSummary_)       actionExecutor_->createSummaryOffline(dqmStore_);
 
-
-  LogInfo( "SiStripOfflineDQM")
-    << "Summary";
-  LogInfo( "SiStripOfflineDQM")
-    << oActionExecutor_.getQTestSummary( poDQMStore_);
-
-  LogInfo( "SiStripOfflineDQM")
-    << "SummaryLite";
-  LogInfo( "SiStripOfflineDQM")
-    << oActionExecutor_.getQTestSummaryLite( poDQMStore_);
-
-  LogInfo( "SiStripOfflineDQM")
-    << "SummaryXML";
-  LogInfo( "SiStripOfflineDQM")
-    << oActionExecutor_.getQTestSummaryXML( poDQMStore_);
-
-  LogInfo( "SiStripOfflineDQM")
-    << "SummaryXMLLite";
-  LogInfo( "SiStripOfflineDQM")
-    << oActionExecutor_.getQTestSummaryXMLLite( poDQMStore_);
-
-
-  if( bVERBOSE_) {
-    LogInfo( "SiStripOfflineDQM") << "[endJob] done";
-  }
+  // Save Output file
+  std::string outputFileName = inputFileName_.replace(inputFileName_.find("-standAlone"), 11, "");
+  dqmStore_->cd();
+  dqmStore_->save(outputFileName, "","","");
 }
+/** 
+* @brief 
+* 
+* Open Input File
+*
+*/
+bool SiStripOfflineDQM::openInputFile() { 
+  if (inputFileName_.size() == 0) return false;
+  edm::LogInfo("SiStripOfflineDQM") <<  "SiStripOfflineDQM::openInputFile: Accessing root File" << inputFileName_;
+  dqmStore_->setVerbose(0);
+  dqmStore_->open(inputFileName_, false); 
+  return true;
+}
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(SiStripOfflineDQM);
-

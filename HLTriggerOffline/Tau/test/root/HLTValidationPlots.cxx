@@ -1,34 +1,30 @@
-run(string fname1,string fname2,string v1,string v2,string path)
+run(string fname1,string fname2,string v1,string v2,string path,string folder  = "DQMData/Run 123/HLT/Run summary/HLTTAU" )
+{
+
+  gStyle->SetOptTitle(1);
+  L1Val(fname1,fname2,v1,v2,folder+"/L1");
+  L2Val(fname1,fname2,v1,v2,folder+"/"+path+"/L2");
+  L25Val(fname1,fname2,v1,v2,folder+"/"+path+"/L25");
+  if(path=="SingleTau"||path=="SingleTauMET")
+    L3Val(fname1,fname2,v1,v2,folder+"/"+path+"/L3");
+  if(path=="ElectronTau")
+    ElectronVal(fname1,fname2,v1,v2,folder+"/"+path+"/Electron");
+
+}
+
+
+draw(string fname1,string fname2,string v1,string v2,string path,string folder  = "DQMData/Run 123/HLT/Run summary/HLTTAU" )
 {
   gStyle->SetOptTitle(1);
-  L1Val(fname1,fname2,v1,v2,"DQMData/HLT/HLTTAU/L1");
-  L2Val(fname1,fname2,v1,v2,"DQMData/HLT/HLTTAU/"+path+"/L2");
-  L25Val(fname1,fname2,v1,v2,"DQMData/HLT/HLTTAU/"+path+"/L25");
+  L1Draw(fname1,fname2,v1,v2,folder+"/L1");
+  L2Draw(fname1,fname2,v1,v2,folder+"/"+path+"/L2");
+  L25Draw(fname1,fname2,v1,v2,folder+"/"+path+"/L25");
   if(path=="SingleTau"||path=="SingleTauMET")
-    L3Val(fname1,fname2,v1,v2,"DQMData/HLT/HLTTAU/"+path+"/L3");
-
+    L3Draw(fname1,fname2,v1,v2,folder+"/"+path+"/L3");
   if(path=="ElectronTau")
-    ElectronVal(fname1,fname2,v1,v2,"DQMData/HLT/HLTTAU/"+path+"/Electron");
+    ElectronDraw(fname1,fname2,v1,v2,folder+"/"+path+"/Electron");
 
 }
-
-draw(string fname1,string fname2,string v1,string v2,string path)
-{
- gStyle->SetOptTitle(1);
- 
-  L1Draw(fname1,fname2,v1,v2,"DQMData/HLT/HLTTAU/L1");
-  L2Draw(fname1,fname2,v1,v2,"DQMData/HLT/HLTTAU/"+path+"/L2");
-  L25Draw(fname1,fname2,v1,v2,"DQMData/HLT/HLTTAU/"+path+"/L25");
-
-  if(path=="SingleTau"||path=="SingleTauMET")
-    L3Draw(fname1,fname2,v1,v2,"DQMData/HLT/HLTTAU/"+path+"/L3");
-
-  if(path=="ElectronTau")
-    ElectronDraw(fname1,fname2,v1,v2,"DQMData/HLT/HLTTAU/"+path+"/Electron");
-
-}
-
-
 
 
 L1Draw(string fname1,string fname2,string v1,string v2,string folder)
@@ -79,25 +75,25 @@ L1Draw(string fname1,string fname2,string v1,string v2,string folder)
   DrawEffHistos(fname1,fname2, v1, v2,folder,"L1RefMatchedTauElecPhi","RefTauElecPhi","Ref #phi","Efficiency","Regional Eg Efficiency vs #phi");
   //Path Threshold Efficiency
   l1->cd(21);
-  DrawIntHistos(fname1,fname2,v1,v2,folder,"L1SingleTauEffEt","nfidCounter",1,"E_{t} Threshold","Efficiency","Single Tau Efficiency Vs Threshold");
+  DrawHistos(fname1,fname2,v1,v2,folder,"L1SingleTauEffEt","E_{t} Threshold","Efficiency","Single Tau Efficiency Vs Threshold",1,false);
   l1->cd(22);  
-  DrawIntHistos(fname1,fname2,v1,v2,folder,"L1SingleTauEffRefMatchEt","nfidCounter",2,"E_{t} Threshold","Efficiency","Single Tau Matched Efficiency Vs Threshold");
+  DrawHistos(fname1,fname2,v1,v2,folder,"L1SingleTauEffRefMatchEt","E_{t} Threshold","Efficiency","Single Tau Matched Efficiency Vs Threshold",1,false);
   l1->cd(23);
-  DrawIntHistos(fname1,fname2,v1,v2,folder,"L1TauMETfixEffEt","nfidCounter",1,"E_{t} Threshold","Efficiency","Single Tau +MET Efficiency Vs Threshold");
+  DrawHistos(fname1,fname2,v1,v2,folder,"L1TauMETfixEffEt","E_{t} Threshold","Efficiency","Single Tau +MET Efficiency Vs Threshold",1,false);
   l1->cd(24);  
-  DrawIntHistos(fname1,fname2,v1,v2,folder,"L1TauMETfixEffRefMatchEt","nfidCounter",2,"E_{t} Threshold","Efficiency","Single Tau +MET Matched Efficiency Vs Threshold");
+  DrawHistos(fname1,fname2,v1,v2,folder,"L1TauMETfixEffRefMatchEt","E_{t} Threshold","Efficiency","Single Tau +MET Matched Efficiency Vs Threshold",1,false);
   l1->cd(25);
-  DrawIntHistos(fname1,fname2,v1,v2,folder,"L1DoubleTauEffEt","nfidCounter",1,"E_{t} Threshold","Efficiency","Double Tau Efficiency Vs Threshold");
+  DrawHistos(fname1,fname2,v1,v2,folder,"L1DoubleTauEffEt","E_{t} Threshold","Efficiency","Double Tau Efficiency Vs Threshold",1,false);
   l1->cd(26);  
-  DrawIntHistos(fname1,fname2,v1,v2,folder,"L1DoubleTauEffRefMatchEt","nfidCounter",3,"E_{t} Threshold","Efficiency","Double Tau Matched Efficiency Vs Threshold");
+  DrawHistos(fname1,fname2,v1,v2,folder,"L1DoubleTauEffRefMatchEt","E_{t} Threshold","Efficiency","Double Tau Matched Efficiency Vs Threshold",1,false);
   l1->cd(27);
-  DrawIntHistos(fname1,fname2,v1,v2,folder,"L1TauIsoEgfixEffEt","nfidCounter",1,"E_{t} Threshold","Efficiency","EGamma+ Tau Efficiency Vs Threshold");
+  DrawHistos(fname1,fname2,v1,v2,folder,"L1TauIsoEgfixEffEt","E_{t} Threshold","Efficiency","EGamma+ Tau Efficiency Vs Threshold",1,false);
   l1->cd(28);  
-  DrawIntHistos(fname1,fname2,v1,v2,folder,"L1TauIsoEgfixEffRefMatchEt","nfidCounter",5,"E_{t} Threshold","Efficiency","EGamma+ Tau (Matched)Efficiency Vs Threshold");
+  DrawHistos(fname1,fname2,v1,v2,folder,"L1TauIsoEgfixEffRefMatchEt","E_{t} Threshold","Efficiency","EGamma+ Tau (Matched)Efficiency Vs Threshold",1,false);
   l1->cd(29);
-  DrawIntHistos(fname1,fname2,v1,v2,folder,"L1TauMuonfixEffEt","nfidCounter",1,"E_{t} Threshold","Efficiency","Muon+ Tau Efficiency Vs Threshold");
+  DrawHistos(fname1,fname2,v1,v2,folder,"L1TauMuonfixEffEt","E_{t} Threshold","Efficiency","Muon+ Tau Efficiency Vs Threshold",1,false);
   l1->cd(30);  
-  DrawIntHistos(fname1,fname2,v1,v2,folder,"L1TauMuonfixEffRefMatchEt","nfidCounter",4,"E_{t} Threshold","Efficiency","Muon+ Tau (Matched)Efficiency Vs Threshold");
+  DrawHistos(fname1,fname2,v1,v2,folder,"L1TauMuonfixEffRefMatchEt","E_{t} Threshold","Efficiency","Muon+ Tau (Matched)Efficiency Vs Threshold",1,false);
 
 
 
@@ -132,6 +128,20 @@ L1Val(string fname1,string fname2,string v1,string v2,string folder)
   GetEffHistos(fname1,fname2, v1, v2,folder,"L1RefMatchedTauElecEta","RefTauElecEta","Ref #eta","Efficiency","Regional Eg Efficiency vs #eta");
   GetEffHistos(fname1,fname2, v1, v2,folder,"L1RefMatchedTauElecPhi","RefTauElecPhi","Ref #phi","Efficiency","Regional Eg Efficiency vs #phi");
   GetIntHistos(fname1,fname2,v1,v2,folder,"L1SingleTauEffEt","nfidCounter",1,"E_{t} Threshold","Efficiency","Single Tau Efficiency Vs Threshold");
+
+  GetHistos(fname1,fname2,v1,v2,folder,"L1SingleTauEffEt","E_{t} Threshold","Efficiency","Single Tau Efficiency Vs Threshold",1,false);
+  GetHistos(fname1,fname2,v1,v2,folder,"L1SingleTauEffRefMatchEt","E_{t} Threshold","Efficiency","Single Tau Matched Efficiency Vs Threshold",1,false);
+  GetHistos(fname1,fname2,v1,v2,folder,"L1TauMETfixEffEt","E_{t} Threshold","Efficiency","Single Tau +MET Efficiency Vs Threshold",1,false);
+  GetHistos(fname1,fname2,v1,v2,folder,"L1TauMETfixEffRefMatchEt","E_{t} Threshold","Efficiency","Single Tau +MET Matched Efficiency Vs Threshold",1,false);
+  GetHistos(fname1,fname2,v1,v2,folder,"L1DoubleTauEffEt","E_{t} Threshold","Efficiency","Double Tau Efficiency Vs Threshold",1,false);
+  GetHistos(fname1,fname2,v1,v2,folder,"L1DoubleTauEffRefMatchEt","E_{t} Threshold","Efficiency","Double Tau Matched Efficiency Vs Threshold",1,false);
+  GetHistos(fname1,fname2,v1,v2,folder,"L1TauIsoEgfixEffEt","E_{t} Threshold","Efficiency","EGamma+ Tau Efficiency Vs Threshold",1,false);
+  GetHistos(fname1,fname2,v1,v2,folder,"L1TauIsoEgfixEffRefMatchEt","E_{t} Threshold","Efficiency","EGamma+ Tau (Matched)Efficiency Vs Threshold",1,false);
+  GetHistos(fname1,fname2,v1,v2,folder,"L1TauMuonfixEffEt","E_{t} Threshold","Efficiency","Muon+ Tau Efficiency Vs Threshold",1,false);
+  GetHistos(fname1,fname2,v1,v2,folder,"L1TauMuonfixEffRefMatchEt","E_{t} Threshold","Efficiency","Muon+ Tau (Matched)Efficiency Vs Threshold",1,false);
+
+
+
   GetIntHistos(fname1,fname2,v1,v2,folder,"L1SingleTauEffRefMatchEt","nfidCounter",2,"E_{t} Threshold","Efficiency","Single Tau Matched Efficiency Vs Threshold");
   GetIntHistos(fname1,fname2,v1,v2,folder,"L1TauMETfixEffEt","nfidCounter",1,"E_{t} Threshold","Efficiency","Single Tau +MET Efficiency Vs Threshold");
   GetIntHistos(fname1,fname2,v1,v2,folder,"L1TauMETfixEffRefMatchEt","nfidCounter",2,"E_{t} Threshold","Efficiency","Single Tau +MET Matched Efficiency Vs Threshold");

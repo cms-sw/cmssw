@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Mar  3 13:34:20 CET 2008
-// $Id: RPCConeBuilderFromES.cc,v 1.2 2008/04/09 15:17:36 fruboes Exp $
+// $Id: RPCConeBuilderFromES.cc,v 1.3 2008/04/10 13:38:08 fruboes Exp $
 //
 
 // system include files
@@ -43,7 +43,7 @@ RPCConeBuilderFromES::~RPCConeBuilderFromES()
 
 L1RpcLogConesVec RPCConeBuilderFromES::getConesFromES(edm::Handle<RPCDigiCollection> rpcDigis, 
                                                       edm::ESHandle<L1RPCConeBuilder> coneBuilder,
-                                                      edm::ESHandle<L1RPCHwConfig> hwConfig)
+                                                      edm::ESHandle<L1RPCHwConfig> hwConfig, int bx)
 {
   std::vector<RPCLogHit> logHits;
   
@@ -67,7 +67,7 @@ L1RpcLogConesVec RPCConeBuilderFromES::getConesFromES(edm::Handle<RPCDigiCollect
  
       
       //std::cout << "bx = " << digiIt->bx() << " " << hwConfig->getFirstBX() << " "  << hwConfig->getLastBX() <<std::endl;
-      if ( digiIt->bx() < hwConfig->getFirstBX() || digiIt->bx() > hwConfig->getLastBX()  ){
+      if ( digiIt->bx() < hwConfig->getFirstBX() + bx || digiIt->bx() > hwConfig->getLastBX() +bx  ){
       //  std::cout << "   -->skip" << std::endl;
         //std::cout << "Skip" << std::endl;
         continue;

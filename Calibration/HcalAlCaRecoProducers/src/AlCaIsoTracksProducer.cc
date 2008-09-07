@@ -28,7 +28,7 @@
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidate.h"
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidateFwd.h"
 
-#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
 
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
@@ -63,32 +63,34 @@ double getDist(double eta1, double phi1, double eta2, double phi2)
   return dr;
 }
 
-bool checkHLTMatch(edm::Event& iEvent, double eta, double phi)
+bool checkHLTMatch(edm::Event& iEvent, edm::InputTag hltEventTag_, edm::InputTag hltFilterTag_, double eta, double phi)
 {
   bool match =false;
-  edm::Handle<trigger::TriggerFilterObjectWithRefs> fiCand;
-  iEvent.getByLabel("hltIsolPixelTrackFilterL3",fiCand);
+  double minDDD=1000;
   
-  std::vector< edm::Ref<reco::IsolatedPixelTrackCandidateCollection> > isoPixTrackRefs;
+  edm::Handle<trigger::TriggerEvent> trEv;
+  iEvent.getByLabel(hltEventTag_,trEv);
+  const trigger::TriggerObjectCollection& TOCol(trEv->getObjects());
   
-  fiCand->getObjects(trigger::TriggerTrack, isoPixTrackRefs);
-  
-  int nCand=isoPixTrackRefs.size();
-
-  double minDDD=100;
-  for (int p=0; p<nCand; p++)
+  trigger::Keys KEYS;
+  const trigger::size_type nFilt(trEv->sizeFilters());
+  for (trigger::size_type iFilt=0; iFilt!=nFilt; iFilt++) 
     {
-      double iptEta=isoPixTrackRefs[p]->track()->eta();
-      double iptPhi=isoPixTrackRefs[p]->track()->phi();
-      double dHit=getDist(iptEta,iptPhi,eta,phi);
-      if (dHit<minDDD)
-	{
-	  minDDD=dHit;
-	}
+      if (trEv->filterTag(iFilt)==hltFilterTag_) KEYS=trEv->filterKeys(iFilt);
+    }
+  trigger::size_type nReg=KEYS.size();
+  for (trigger::size_type iReg=0; iReg<nReg; iReg++)
+    {
+      const trigger::TriggerObject& TObj(TOCol[KEYS[iReg]]);
+      double dHit=getDist(TObj.eta(),TObj.phi(),eta,phi); 
+      if (dHit<minDDD) minDDD=dHit;
     }
   if (minDDD>0.4) match=false;
   else match=true;
+     
   return match;
+
+
 }
 
 
@@ -121,7 +123,9 @@ AlCaIsoTracksProducer::AlCaIsoTracksProducer(const edm::ParameterSet& iConfig)
   ringRad_ = iConfig.getParameter<double>("ECALOuterRingRadius");
 
   checkHLTMatch_=iConfig.getParameter<bool>("CheckHLTMatch");
-
+  hltEventTag_=iConfig.getParameter<edm::InputTag>("hltTriggerEventLabel");  
+  hltFiltTag_=iConfig.getParameter<edm::InputTag>("hltL3FilterLabel");
+  //////////
 //
 // Parameters for track associator   ===========================
 //  
@@ -218,7 +222,7 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     double pz = track->pz();
     double ptrack = sqrt(px*px+py*py+pz*pz);
     
-     if (ptrack < m_pCut || track->pt() < m_ptCut ) continue; 
+    if (ptrack < m_pCut || track->pt() < m_ptCut ) continue; 
 	    
     TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup, trackAssociator_.getFreeTrajectoryState(iSetup, *track), parameters_);
     
@@ -228,7 +232,8 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     double thetaecal = 2*atan(exp(-etaecal));
 
     //check matching to HLT object to make sure that ecal FEDs are present (optional)
-    if (checkHLTMatch_&&!checkHLTMatch(iEvent, etaecal,phiecal)) continue;
+
+    if (checkHLTMatch_&&!checkHLTMatch(iEvent, hltEventTag_, hltFiltTag_, etaecal, phiecal)) continue;
     
     if (fabs(etaecal)>etaMax_) continue;
     
@@ -340,7 +345,7 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 		ecOutRingR+=ehit->energy();
 	      }
 	    //////////////////////////////////
-	    
+			    
 	    // check whether hit was used ot not, if not used push into usedHits
 	    bool hitIsUsed=false;
 	    int hitHashedIndex=-10000;

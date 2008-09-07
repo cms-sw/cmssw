@@ -94,12 +94,16 @@ class HLTTauValidation : public edm::EDAnalyzer {
   MonitorElement *refEt;
   MonitorElement *refEta;
 
-
-
   MonitorElement *l1etaeff;
   MonitorElement *l2etaeff;
   MonitorElement *l25etaeff;
   MonitorElement *l3etaeff;
+
+  MonitorElement *accepted_events;
+  MonitorElement *accepted_events_matched;
+
+
+
  
 
   //Define Numbers 

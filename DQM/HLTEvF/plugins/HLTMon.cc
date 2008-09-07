@@ -126,8 +126,8 @@ HLTMon::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    LogDebug("HLTMon")<< "HLTMon: analyze...." ;
 
   edm::Handle<trigger::TriggerEventWithRefs> triggerObj;
-  iEvent.getByLabel("hltTriggerSummaryRAW",triggerObj);   //Gets the data product which holds
-  if(!triggerObj.isValid()) {                             //all of the information. 
+  iEvent.getByLabel("hltTriggerSummaryRAW",triggerObj); 
+  if(!triggerObj.isValid()) { 
     edm::LogWarning("HLTMon") << "RAW-type HLT results not found, skipping event";
     return;
   }
@@ -135,7 +135,7 @@ HLTMon::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   // total event number
   total->Fill(theHLTCollectionLabels.size()+0.5);
 
-  //Each individual "Collection Label" has a numbered category that can be found on doxygen
+
   for(unsigned int n=0; n < theHLTCollectionLabels.size() ; n++) { //loop over filter modules
     switch(theHLTOutputTypes[n]){
     case 81: //L1 Muons
@@ -161,10 +161,6 @@ template <class T> void HLTMon::fillHistos(edm::Handle<trigger::TriggerEventWith
   
 
   std::vector<edm::Ref<T> > particlecands;
-  // To keep track of what particlecands have passed a filter in TriggerEventWithRefs
-  // it adds the name to a list of filter names. To check whether a filter got passed, 
-  // one just looks at its index  in the list...if it is not there it (for some reason) 
-  // returns the size of the list.
   if (!( triggerObj->filterIndex(theHLTCollectionLabels[n])>=triggerObj->size() )){ // only process if availabel  
     // retrieve saved filter objects
     triggerObj->getObjects(triggerObj->filterIndex(theHLTCollectionLabels[n]),theHLTOutputTypes[n],particlecands);
@@ -278,7 +274,6 @@ HLTMon::beginJob(const edm::EventSetup&)
 	thePtMaxTemp = thePtMax;
 	thePtMinTemp = thePtMin;
 	//}
-        // Formatting of various plots.
 	histoTitle = theHLTCollectionLabels[i].label() + " Et";
       tmphisto =  dbe->book1D(histoname.c_str(),histoTitle.c_str(),theNbins,thePtMinTemp,thePtMaxTemp);
       tmphisto->setAxisTitle("Number of Events", 2);

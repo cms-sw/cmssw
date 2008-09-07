@@ -4,8 +4,8 @@
 /*
  * \file L1TRPCTPG.h
  *
- * $Date: 2008/01/29 20:41:21 $
- * $Revision: 1.4 $
+ * $Date: 2008/03/01 00:40:00 $
+ * $Revision: 1.5 $
  * \author J. Berryhill
  *
 */
@@ -81,6 +81,15 @@ private:
 
   MonitorElement* rpctpgndigi[3];
   MonitorElement* rpctpgbx;
+
+  MonitorElement *  m_digiBxRPCBar;
+
+  MonitorElement *  m_digiBxRPCEnd;
+
+  MonitorElement *  m_digiBxDT;
+
+  MonitorElement *  m_digiBxCSC;
+  
   std::map<uint32_t, std::map<std::string, MonitorElement*> >  rpctpgmeCollection;
 
   int nev_; // Number of events processed
@@ -89,6 +98,8 @@ private:
   bool monitorDaemon_;
   ofstream logFile_;
   edm::InputTag rpctpgSource_;
+  edm::InputTag rpctfSource_ ;
+
 };
 
 #endif

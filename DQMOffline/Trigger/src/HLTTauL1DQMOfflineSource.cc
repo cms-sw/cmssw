@@ -53,7 +53,7 @@ HLTTauL1DQMOfflineSource::HLTTauL1DQMOfflineSource(const edm::ParameterSet& iCon
       //Create the histograms
       store->setCurrentFolder(_triggerTag);
       h_L1TauEt = store->book1D("L1TauEt","L1TauEt",50,0.,100.);
-      h_L1TauEt->getTH1F()->Sumw2();  
+      //      h_L1TauEt->getTH1F()->Sumw2();  
       h_L1TauEta = store->book1D("L1TauEta","L1TauEta",60,-4.,4.);
       h_L1TauEta->getTH1F()->Sumw2();
       h_L1TauPhi = store->book1D("L1TauPhi","L1TauPhi",50,-3.2,3.2);
@@ -169,7 +169,7 @@ HLTTauL1DQMOfflineSource::HLTTauL1DQMOfflineSource(const edm::ParameterSet& iCon
       h_L1MCMatchedTauMuonPhi->getTH1F()->Sumw2();
       
       // h_EffMCTauMuonEt = store->book1D("EffRefTauMuonEt","EffRefTauMuonEt",50,0.,100.);
-      //h_EffMCTauMuonEt->getTH1F()->Sumw2();
+      ///h_EffMCTauMuonEt->getTH1F()->Sumw2();
       //h_EffMCTauMuonEta = store->book1D("EffRefTauMuonEta","EffRefTauMuonEta",60,-4.,4.);
       //h_EffMCTauMuonEta->getTH1F()->Sumw2();
       //h_EffMCTauMuonPhi = store->book1D("EffRefTauMuonPhi","EffRefTauMuonPhi",50,-3.2,3.2);
@@ -201,7 +201,7 @@ HLTTauL1DQMOfflineSource::HLTTauL1DQMOfflineSource(const edm::ParameterSet& iCon
       
       h_L1SingleTauEffEt = store->book1D("L1SingleTauEffEt","L1SingleTauEffEt",
 					 50,0.,100.);
-      h_L1SingleTauEffEt->getTH1F()->Sumw2();
+       h_L1SingleTauEffEt->getTH1F()->Sumw2();
       h_L1DoubleTauEffEt = store->book1D("L1DoubleTauEffEt","L1DoubleTauEffEt",
 					 40,0.,80.);
       h_L1DoubleTauEffEt->getTH1F()->Sumw2();
@@ -232,7 +232,6 @@ HLTTauL1DQMOfflineSource::HLTTauL1DQMOfflineSource(const edm::ParameterSet& iCon
       h_L1TauIsoEgfixEffMCMatchEt = store->book1D("L1TauIsoEgfixEffRefMatchEt","L1TauIsoEgfixEffRefMatchEt",
 					 50,0.,100.);
       h_L1TauIsoEgfixEffMCMatchEt->getTH1F()->Sumw2();
-
       h_L1IsoEgTaufixEffEt = store->book1D("L1IsoEgTaufixEffEt","L1IsoEgTaufixEffEt",
 					 50,0.,100.);
       h_L1IsoEgTaufixEffEt->getTH1F()->Sumw2();
@@ -432,18 +431,19 @@ HLTTauL1DQMOfflineSource::getL1extraObjects(const edm::Event& iEvent)
     _L1METs.push_back(p);
   }
   }
-  /*
-  Handle<L1EtMissParticle> l1MetHandle;
-  iEvent.getByLabel(_L1extraMETSource,l1MetHandle);
-  LV p(l1MetHandle->px(),l1MetHandle->py(),l1MetHandle->pz(),l1MetHandle->energy());
-  _L1METs.push_back(p);
-  */
-  /*
+  
+  //  Handle<L1EtMissParticle> l1MetHandle;
+  //  iEvent.getByLabel(_L1extraMETSource,l1MetHandle);
+  // if (l1MetHandle.isValid()){
+  // LV p(l1MetHandle->px(),l1MetHandle->py(),l1MetHandle->pz(),l1MetHandle->energy());
+  // _L1METs.push_back(p);
+  //  }
+  
   // Dummy
-  LV p(0.,0.,0.,0.);
-  _L1METs.push_back(p);
-  */
- 
+//  LV p(0.,0.,0.,0.);
+//  _L1METs.push_back(p);
+  
+  
 }
 
 
@@ -493,6 +493,10 @@ HLTTauL1DQMOfflineSource::fillL1MCTauMatchedHists(const edm::Event& iEvent) {
 
   Handle<LVColl> RefTauH; //Handle To The Truth!!!!
   iEvent.getByLabel(_refTauColl,RefTauH);
+  if (!RefTauH.isValid())
+    {
+      return;
+    }
   LVColl RefTau = *RefTauH;
 
   int nfidTauHads = 0; // count in fiducial region

@@ -3,8 +3,6 @@
 
 #include "DQM/HcalMonitorClient/interface/HcalBaseClient.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQM/HcalMonitorClient/interface/HcalClientUtils.h"
-#include "DQM/HcalMonitorClient/interface/HcalHistoUtils.h"
 
 class HcalRecHitClient : public HcalBaseClient {
 
@@ -63,16 +61,6 @@ class HcalRecHitClient : public HcalBaseClient {
   TH1F* hfshort_E_all;
   //TH1F* hfshort_E_low;
   TH1F* hfshort_T_all;
-
-  TH1F* ZDCtanAlpha;
-  TH1F* ZDCaverageX;
-  TH2F* ZDCxplusVSxminus;
-  TH2F* ZDChadVSem_plus;
-  TH2F* ZDChadVSem_minus;
-  TH2F* ZDCenergy_plusVSminus;
-  
-  TProfile* ZDCenergyVSlayer_plus;
-  TProfile* ZDCenergyVSlayer_minus;
 
 };
 

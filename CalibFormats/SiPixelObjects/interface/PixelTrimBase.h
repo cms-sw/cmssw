@@ -1,19 +1,17 @@
 #ifndef PixelTrimBase_h
 #define PixelTrimBase_h
-/**
-* \file CalibFormats/SiPixelObjects/interface/PixelTrimBase.h
-* \brief This class provides a base class for the pixel trim data for the pixel FEC configuration
-* 
-*  This is a pure interface (abstract class) that
-*  needs to have an implementation.
-* 
-*  Need to figure out what is 'VMEcommand' below! 
-* 
-*  All applications should just use this 
-*  interface and not care about the specific
-*  implementation
-*
-*/
+//
+// This class provide a base class for the
+// pixel trim data for the pixel FEC configuration
+// This is a pure interface (abstract class) that
+// needs to have an implementation.
+//
+// Need to figure out what is 'VMEcommand' below! 
+//
+// All applications should just use this 
+// interface and not care about the specific
+// implementation
+//
 
 #include <string>
 #include "CalibFormats/SiPixelObjects/interface/PixelTrimOverrideBase.h"
@@ -25,24 +23,6 @@
 
 
 namespace pos{
-/*!  \defgroup TrimObjects "Trim Objects"
-*    \ingroup ConfigurationObjects "Configuration Objects"
-*    
-*  @{
-*
-*  \class PixelTrimBase PixelTrimBase.h
-*  \brief This class provides a base class for the pixel trim data for the pixel FEC configuration
-*
-*  This is a pure interface (abstract class) that
-*  needs to have an implementation.
-* 
-*  Need to figure out what is 'VMEcommand' below! 
-* 
-*  All applications should just use this 
-*  interface and not care about the specific
-*  implementation
-*
-*/
   class PixelTrimBase: public PixelConfigBase {
 
   public:
@@ -63,11 +43,7 @@ namespace pos{
 				       const PixelMaskBase& pixelMask) const =0;
     virtual void writeBinary(std::string filename) const =0;
 
-    virtual void writeASCII(std::string filename)  const =0;
-    virtual void writeXML(      pos::PixelConfigKey key, int version, std::string path)                     const {;}
-    virtual void writeXMLHeader(pos::PixelConfigKey key, int version, std::string path, std::ofstream *out) const {;}
-    virtual void writeXML(                                                              std::ofstream *out) const {;}
-    virtual void writeXMLTrailer(                                                       std::ofstream *out) const {;}
+    virtual void writeASCII(std::string filename) const =0;
 
     virtual PixelROCTrimBits getTrimBits(int ROCId) const =0;
 
@@ -82,5 +58,4 @@ namespace pos{
 
   };
 }
-/* @} */
 #endif

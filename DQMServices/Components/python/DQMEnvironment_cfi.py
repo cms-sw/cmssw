@@ -36,7 +36,10 @@ dqmSaver = cms.EDFilter("DQMFileSaver",
     saveAtJobEnd = cms.untracked.bool(False),
 
     # Ignore run number for MC data (-1: disabled)
-    forceRunNumber = cms.untracked.int32(-1)
+    forceRunNumber = cms.untracked.int32(-1),
+
+    # Control reference saving (default / skip / qtests / all)
+    referenceHandling = cms.untracked.string("qtests"),
+    # Control which references are saved for qtests (default: STATUS_OK)
+    referenceRequireStatus = cms.untracked.int32(100)
 )
-
-

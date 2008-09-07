@@ -64,18 +64,18 @@ HLTMuonTime::~HLTMuonTime(){
 }
 
 void HLTMuonTime::BookHistograms(){
-  LogWarning("HLTMuonVal")<<"directory "<<dbe->pwd();
+  LogDebug("HLTMuonVal")<<"directory "<<dbe->pwd();
   dbe->setCurrentFolder("HLT/Muon/Timing");
-  LogWarning("HLTMuonVal")<<"directory "<<dbe->pwd();
+  LogDebug("HLTMuonVal")<<"directory "<<dbe->pwd();
   if (theMuonDigiModules.size()){
     dbe->setCurrentFolder("HLT/Muon/Timing/UnpackingMuon");
-    LogWarning("HLTMuonVal")<<"directory "<<dbe->pwd();
+    LogDebug("HLTMuonVal")<<"directory "<<dbe->pwd();
     for ( vector<string>::iterator its=theMuonDigiModules.begin();its!=theMuonDigiModules.end();++its)
       CreateHistograms("MuonDigis",*its);
     NumberOfModules.push_back(theMuonDigiModules.size());
     TDirs.push_back("HLT/Muon/Timing/UnpackingMuon");
     dbe->setCurrentFolder("HLT/Muon/Timing");
-    LogWarning("HLTMuonVal")<<"directory "<<dbe->pwd();
+    LogDebug("HLTMuonVal")<<"directory "<<dbe->pwd();
     CreateGlobalHistograms("MuonDigiTime","Muon Unpacking Time");
   }
   if (theTrackerDigiModules.size()){
@@ -201,7 +201,7 @@ void HLTMuonTime::analyze(const Event & event ){
   LogDebug("HLTMuonVal") << "About to try"<< theTimerLabel;  
   event.getByLabel(theTimerLabel, evtTime); 
   if (evtTime.failedToGet()){
-    LogWarning("HLTMuonVal") << "!!!!!!!!! No timer run with label"<< theTimerLabel;
+    LogDebug("HLTMuonVal") << "!!!!!!!!! No timer run with label"<< theTimerLabel;
     TimerIn=false;
     return;
   }
@@ -265,7 +265,7 @@ void HLTMuonTime::CreateHistograms(string Type, string Module)
   snprintf(chextitle, 255, "Exclusive Timing for %s (%s)",Module.c_str(),Type.c_str()); 
   h=new TH1F(chname, chtitle, theNbins, 0., theTMax);
   h->Sumw2();
-  LogWarning("HLTMuonVal")<<"directory "<<dbe->pwd()<<" Name:"<<chname;
+  LogDebug("HLTMuonVal")<<"directory "<<dbe->pwd()<<" Name:"<<chname;
 
   hTimes.push_back(dbe->book1D(chname, h));
   delete h;   

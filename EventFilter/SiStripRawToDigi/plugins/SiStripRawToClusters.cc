@@ -38,8 +38,9 @@ SiStripRawToClusters::~SiStripRawToClusters() {
 }
 
 void SiStripRawToClusters::beginJob( const edm::EventSetup& setup) {
-  updateCabling( setup );  
-  clusterizer_->eventSetup(setup);
+  //@@ unstable behaviour if uncommented!
+  //updateCabling( setup );  
+  //clusterizer_->eventSetup(setup);
 }
 
 void SiStripRawToClusters::beginRun( edm::Run&, const edm::EventSetup& setup) {

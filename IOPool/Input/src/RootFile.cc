@@ -56,6 +56,7 @@ namespace edm {
 		     InputSource::ProcessingMode processingMode,
 		     int forcedRunOffset,
 		     std::vector<EventID> const& whichEventsToProcess,
+                     bool noEventSort,
 		     bool dropMetaData,
 		     GroupSelectorRules const& groupSelectorRules) :
       file_(fileName),
@@ -79,6 +80,7 @@ namespace edm {
       whichLumisToSkip_(whichLumisToSkip),
       whichEventsToProcess_(whichEventsToProcess),
       eventListIter_(whichEventsToProcess_.begin()),
+      noEventSort_(noEventSort),
       fastClonable_(false),
       dropMetaData_(dropMetaData),
       groupSelector_(),
@@ -95,7 +97,8 @@ namespace edm {
       forcedRunOffset_(forcedRunOffset),
       newBranchToOldBranch_(),
       eventHistoryTree_(0),
-      branchChildren_(new BranchChildren) {
+      branchChildren_(new BranchChildren),
+      nextIDfixup_(false) {
     eventTree_.setCacheSize(treeCacheSize);
 
     eventTree_.setTreeMaxVirtualSize(treeMaxVirtualSize);
@@ -153,6 +156,8 @@ namespace edm {
     readEntryDescriptionTree();
 
     validateFile();
+
+    if (noEventSort_) fileIndex_.sortBy_Run_Lumi_EventEntry();
     fileIndexIter_ = fileIndexBegin_ = fileIndex_.begin();
     fileIndexEnd_ = fileIndex_.end();
     eventProcessHistoryIter_ = eventProcessHistoryIDs_.begin();
@@ -160,17 +165,11 @@ namespace edm {
     readEventHistoryTree();
 
     // Set product presence information in the product registry.
-    // We must do this before calling deleteDroppedProducts().
     ProductRegistry::ProductList const& pList = tempReg.productList();
     for (ProductRegistry::ProductList::const_iterator it = pList.begin(), itEnd = pList.end();
         it != itEnd; ++it) {
       BranchDescription const& prod = it->second;
       treePointers_[prod.branchType()]->setPresence(prod);
-    }
-
-    if (dropMetaData_) {
-      // delete all dropped products from the registry.
-      tempReg.deleteDroppedProducts();
     }
 
     // freeze our temporary product registry
@@ -319,8 +318,8 @@ namespace edm {
 
   bool
   RootFile::setIfFastClonable(int remainingEvents, int remainingLumis) const {
-    if (fileFormatVersion_.value_ < 8) return false; 
-    if (!fileIndex_.eventsSorted()) return false; 
+    if (!fileFormatVersion_.fastCopyPossible()) return false; 
+    if (!fileIndex_.allEventsInEntryOrder()) return false; 
     if (!whichEventsToProcess_.empty()) return false; 
     if (eventsToSkip_ != 0) return false; 
     if (remainingEvents >= 0 && eventTree_.entries() > remainingEvents) return false;
@@ -467,12 +466,12 @@ namespace edm {
       // Skip any lumis before the first lumi specified, startAtLumi_.
       assert(correctedCurrentRun >= startAtRun_);
       if (correctedCurrentRun == startAtRun_ && currentLumi < startAtLumi_) {
-        fileIndexIter_ = fileIndex_.findPosition(currentRun, startAtLumi_, 0U);      
+        fileIndexIter_ = fileIndex_.findLumiOrRunPosition(currentRun, startAtLumi_);      
 	return getNextEntryTypeWanted();
       }
       // Skip the lumi if it is in whichLumisToSkip_.
       if (binary_search_all(whichLumisToSkip_, LuminosityBlockID(correctedCurrentRun, currentLumi))) {
-        fileIndexIter_ = fileIndex_.findPosition(currentRun, currentLumi + 1, 0U);      
+        fileIndexIter_ = fileIndex_.findLumiOrRunPosition(currentRun, currentLumi + 1);      
 	return getNextEntryTypeWanted();
       }
       return FileIndex::kLumi;
@@ -572,7 +571,7 @@ namespace edm {
       }
       runTree_.setEntryNumber(-1);
     }
-    fileIndex_.sort();
+    fileIndex_.sortBy_Run_Lumi_Event();
   }
 
   void
@@ -772,6 +771,17 @@ namespace edm {
 		makeBranchMapper<EventEntryInfo>(eventTree_, InEvent),
 		eventTree_.makeDelayedReader()));
     thisEvent->setHistory(history_);
+    // The following block handles files originating from the repacker where the max product ID was not
+    // set correctly in the registry.
+    if (nextIDfixup_) {
+      ProductRegistry* pr = const_cast<ProductRegistry*>(pReg.get());
+      pr->setProductIDs(productRegistry_->nextID());
+      nextIDfixup_ = false;
+      edm::LogError("MetaDataError")
+           << "'nextID' for the ProductRegistry in the input file is less than the largest\n"
+			     << "ProductID used in a previous process.\n"
+			     << "Updating the ProductRegistry to attempt to correct the problem\n";
+    }
 
     // Create a group in the event for each product
     eventTree_.fillGroups(*thisEvent);

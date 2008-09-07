@@ -40,7 +40,7 @@ CtfSpecialSeedGenerator::~CtfSpecialSeedGenerator(){
     }
 }
 
-void CtfSpecialSeedGenerator::beginJob(const edm::EventSetup& iSetup){
+void CtfSpecialSeedGenerator::beginRun(edm::Run &, const edm::EventSetup& iSetup){
 	std::string builderName = conf_.getParameter<std::string>("TTRHBuilder");
         iSetup.get<TransientRecHitRecord>().get(builderName,theBuilder);
 
@@ -139,17 +139,19 @@ void CtfSpecialSeedGenerator::beginJob(const edm::EventSetup& iSetup){
 
 void CtfSpecialSeedGenerator::produce(edm::Event& e, const edm::EventSetup& iSetup)
 {
-  	// get Inputs
-  	std::auto_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection);
-
-	//check on the number of clusters
-	ClusterChecker check(conf_);
-	if (!check.tooManyClusters(e)){
-	  run(iSetup, e, *output);
-	}
-
-	  edm::LogVerbatim("Algorithm Performance") << " number of seeds = "<< output->size();
-  	e.put(output);
+  // get Inputs
+  std::auto_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection);
+  
+  //check on the number of clusters
+  ClusterChecker check(conf_);
+  if ( (theMagfield->inTesla(GlobalPoint(0,0,0)).mag() == 0.00) &&
+       !check.tooManyClusters(e)){
+    run(iSetup, e, *output);
+  }
+  
+  
+  edm::LogVerbatim("Algorithm Performance") << " number of seeds = "<< output->size();
+  e.put(output);
 }
 
 void CtfSpecialSeedGenerator::run(const edm::EventSetup& iSetup,

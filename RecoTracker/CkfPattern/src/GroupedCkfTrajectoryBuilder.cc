@@ -26,7 +26,7 @@
 #include "TrackingTools/PatternTools/interface/TrajMeasLessEstim.h"
 #include "TrackingTools/TrajectoryState/interface/BasicSingleTrajectoryState.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
+#include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
 
 // only included for RecHit comparison operator:
 #include "TrackingTools/TrajectoryCleaning/interface/TrajectoryCleanerBySharedHits.h"
@@ -211,12 +211,46 @@ GroupedCkfTrajectoryBuilder::buildTrajectories (const TrajectorySeed& seed,
 
 
 
+std::string dumpCandidates(const GroupedCkfTrajectoryBuilder::TempTrajectoryContainer & candidates){
+  std::stringstream buffer;
+  uint ic=0;
+  for (GroupedCkfTrajectoryBuilder::TempTrajectoryContainer::const_iterator traj=candidates.begin();
+       traj!=candidates.end(); traj++) {  
+    buffer<<ic++<<"] ";
+    if (!traj->measurements().empty()){
+      const TrajectoryMeasurement & last = traj->lastMeasurement();
+      const TrajectoryStateOnSurface & tsos = last.updatedState();
+      buffer<<"with: "<<traj->measurements().size()<<" measurements. Last state\n x: "<<tsos.globalPosition()<<"\n p: "<<tsos.globalMomentum()<<"\n";
+    }
+    else{
+      buffer<<" no measurement. \n";}
+  }
+  return buffer.str();
+}
+std::string dumpCandidates(const GroupedCkfTrajectoryBuilder::TrajectoryContainer & candidates){
+  std::stringstream buffer;
+  uint ic=0;
+  for (GroupedCkfTrajectoryBuilder::TrajectoryContainer::const_iterator traj=candidates.begin();
+       traj!=candidates.end(); traj++) {  
+    buffer<<ic++<<"] ";
+    if (!traj->measurements().empty()){
+      const TrajectoryMeasurement & last = traj->lastMeasurement();
+      const TrajectoryStateOnSurface & tsos = last.updatedState();
+      buffer<<"with: "<<traj->measurements().size()<<" measurements. Last state\n x: "<<tsos.globalPosition()<<"\n p: "<<tsos.globalMomentum()<<"\n";
+    }
+    else{
+      buffer<<" no measurement. \n";}
+  }
+  return buffer.str();
+}
+
 void 
 GroupedCkfTrajectoryBuilder::groupedLimitedCandidates (TempTrajectory& startingTraj, 
 						       const TrajectoryFilter* regionalCondition,
 						       const Propagator* propagator, 
 						       TempTrajectoryContainer& result) const
 {
+  uint nIter=1;
   TempTrajectoryContainer candidates;
   TempTrajectoryContainer newCand;
   candidates.push_back( startingTraj);
@@ -280,6 +314,11 @@ GroupedCkfTrajectoryBuilder::groupedLimitedCandidates (TempTrajectory& startingT
     }	
     candidates.swap(newCand);
 
+    LogDebug("CkfPattern") <<result.size()<<" candidates after "<<nIter++<<" groupedCKF iteration: \n"
+      			   <<dumpCandidates(result)
+			   <<"\n "<<candidates.size()<<" running candidates are: \n"
+			   <<dumpCandidates(candidates);
+
 #ifdef DBG_GCTB
     cout << "candidates(3)";
     for ( TempTrajectoryContainer::const_iterator it=candidates.begin();
@@ -338,26 +377,51 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (TempTrajectory& traj,
   bool foundNewCandidates(false);
   for ( vector<const DetLayer*>::iterator il=layerBegin; 
 	il!=layerEnd; il++) {
+
+    TSOS stateToUse = stateAndLayers.first;
+    if ((*il)==traj.lastLayer())
+      {
+	LogDebug("CkfPattern")<<" self propagating in advanceOneLayer.\n from: \n"<<stateToUse;
+	//self navigation case
+	// go to a middle point first
+	TransverseImpactPointExtrapolator middle;
+	GlobalPoint center(0,0,0);
+	stateToUse = middle.extrapolate(stateToUse, center, *theForwardPropagator);
+	
+	if (!stateToUse.isValid()) continue;
+	LogDebug("CkfPattern")<<"to: "<<stateToUse;
+      }
+
     TrajectorySegmentBuilder layerBuilder(theMeasurementTracker,
 					  theLayerMeasurements,
 					  **il,*propagator,
 					  *theUpdator,*theEstimator,
 					  theLockHits,theBestHitOnly);
-    
+
 #ifdef DBG_GCTB
-    cout << "GCTB: starting from r / phi / z = " << stateAndLayers.first.globalPosition().perp()
-	 << " / " << stateAndLayers.first.globalPosition().phi()
-	 << " / " << stateAndLayers.first.globalPosition().z() << " , pt / pz = " 
-	 << stateAndLayers.first.globalMomentum().perp() << " / " 
-	 << stateAndLayers.first.globalMomentum().z() << " for layer at "
-	 << *il << endl;
+    cout << "GCTB: starting from r / z = " << stateToUse.globalPosition().perp()
+     << " / " << stateToUse.globalPosition().z() << " , pt / pz = "
+     << stateToUse.globalMomentum().perp() << " / "
+     << stateToUse.globalMomentum().z() << " for layer at "
+     << *il << endl;
     cout << "     errors:";
-    for ( int i=0; i<5; i++ )  cout << " " << sqrt(stateAndLayers.first.curvilinearError().matrix()(i,i));
+    for ( int i=0; i<5; i++ )  cout << " " << sqrt(stateToUse.curvilinearError().matrix()(i,i));
     cout << endl;
+
+    //cout << "GCTB: starting from r / phi / z = " << stateAndLayers.first.globalPosition().perp()
+	 //<< " / " << stateAndLayers.first.globalPosition().phi()
+	 //<< " / " << stateAndLayers.first.globalPosition().z() << " , pt / pz = " 
+	 //<< stateAndLayers.first.globalMomentum().perp() << " / " 
+	 //<< stateAndLayers.first.globalMomentum().z() << " for layer at "
+	 //<< *il << endl;
+    //cout << "     errors:";
+    //for ( int i=0; i<5; i++ )  cout << " " << sqrt(stateAndLayers.first.curvilinearError().matrix()(i,i));
+    //cout << endl;
 #endif
 
     TempTrajectoryContainer segments=
-      layerBuilder.segments(stateAndLayers.first);
+      //layerBuilder.segments(stateAndLayers.first);
+      layerBuilder.segments(stateToUse);
 
 #ifdef DBG_GCTB
     cout << "GCTB: number of segments = " << segments.size() << endl;

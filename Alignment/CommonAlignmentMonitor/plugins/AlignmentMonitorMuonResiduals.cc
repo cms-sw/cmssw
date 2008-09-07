@@ -36,7 +36,7 @@ class AlignmentMonitorMuonResiduals: public AlignmentMonitorBase {
       ~AlignmentMonitorMuonResiduals() {};
 
       void book();
-      void event(const edm::Event &iEvent, const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection& iTrajTracks);
+      void event(const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection& iTrajTracks);
       void afterAlignment(const edm::EventSetup &iSetup);
 
    private:
@@ -563,7 +563,7 @@ void AlignmentMonitorMuonResiduals::book() {
 
 }
 
-void AlignmentMonitorMuonResiduals::event(const edm::Event &iEvent, const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection& tracks) {
+void AlignmentMonitorMuonResiduals::event(const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection& tracks) {
    TrajectoryStateCombiner tsoscomb;
 
    for (ConstTrajTrackPairCollection::const_iterator it = tracks.begin();  it != tracks.end();  ++it) {

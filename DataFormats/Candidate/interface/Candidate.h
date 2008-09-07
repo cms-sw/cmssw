@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Candidate.h,v 1.45 2008/07/10 15:19:17 cbern Exp $
+ * \version $Id: Candidate.h,v 1.43 2008/04/22 10:59:31 cbern Exp $
  *
  */
 #include "DataFormats/Candidate/interface/Particle.h"
@@ -65,21 +65,17 @@ namespace reco {
     virtual const Candidate * daughter( size_type i ) const = 0;
     /// return daughter at a given position, i = 0, ... numberOfDaughters() - 1
     virtual Candidate * daughter( size_type i ) = 0;
-    /// return daughter with a specified role name
-    virtual Candidate * daughter(const std::string& s );
-    /// return daughter with a specified role name
-    virtual const Candidate * daughter(const std::string& s ) const;
     /// number of mothers (zero or one in most of but not all the cases)
     virtual size_type numberOfMothers() const = 0;
     /// return pointer to mother
     virtual const Candidate * mother( size_type i = 0 ) const = 0;
     /// return the number of source Candidates 
     /// ( the candidates used to construct this Candidate)
-    virtual size_t numberOfSourceCandidatePtrs() const { return 0;}
-    /// return a Ptr to one of the source Candidates 
+    virtual size_type numberOfSourceCandidateRefs() const {return 0;} 
+    /// return a RefToBase to one of the source Candidates 
     /// ( the candidates used to construct this Candidate)
-    virtual CandidatePtr sourceCandidatePtr( size_type i ) const {
-      return CandidatePtr();
+    virtual CandidateBaseRef sourceCandidateRef( size_type i ) const {
+      return CandidateBaseRef();
     }
     /// chi-squares
     virtual double vertexChi2() const;

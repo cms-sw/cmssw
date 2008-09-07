@@ -25,7 +25,6 @@ namespace{
     typedef std::pair<cond::Time_t, std::string> Item;
 
     std::string tag;
-    cond::TimeType timetype;
     std::string contName;
     std::vector<Item> values;
     cond::Time_t firstSince;
@@ -35,14 +34,11 @@ namespace{
       
       
       std::string dummy;
-      std::string timename;
       
       cond::Time_t since, till;
       std::string token;
       
       file >> dummy >> tag;
-      file >> dummy >> timename;
-      timetype = cond::findSpecs(timename).type;
       file >> dummy >> contName;
       char buff[1024];
       file.getline(buff,1024);
@@ -177,12 +173,10 @@ int main( int argc, char** argv ){
 
       coraldb.commit();
     }
-
-    // FIXME need to get timetype from input!!!!
     cond::IOVService iovmanager(pooldb);
     cond::IOVEditor* editor=iovmanager.newIOVEditor("");
     pooldb.start(false);
-    editor->create(parser.firstSince,parser.timetype);
+    editor->create(parser.firstSince);
     editor->bulkInsert(parser.values);
     iovtoken=editor->token();
     pooldb.commit();

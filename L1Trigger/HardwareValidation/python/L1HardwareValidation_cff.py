@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-import SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cfi
 # L1 Emulator-Hardware comparison sequences -- Global Run
 #
 # J. Brooke, N. Leonardo
@@ -8,57 +7,73 @@ import SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cfi
 # These sequences assume RawToDigi has run
 # Note that the emulator configuration also needs to be supplied
 # Either from dummy ES producers, or DB
+
 # ECAL sequence
 # requires ecalDigis only
+# fake conditions for ECAL/HCAL - should be moved out of here
+# and into Fake/rontierConditions
+from SimCalorimetry.EcalTrigPrimProducers.ecalTrigPrimESProducer_cff import *
+import SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cfi
 valEcalTriggerPrimitiveDigis = SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cfi.simEcalTriggerPrimitiveDigis.clone()
-import SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cfi
+
 # HCAL sequence
 # requires hcalDigis only
+from SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff import *
 valHcalTriggerPrimitiveDigis = SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cfi.simHcalTriggerPrimitiveDigis.clone()
-import L1Trigger.RegionalCaloTrigger.rctDigis_cfi
+
 # RCT sequence
 # requires ecalDigis and hcalDigis
+import L1Trigger.RegionalCaloTrigger.rctDigis_cfi
 valRctDigis = L1Trigger.RegionalCaloTrigger.rctDigis_cfi.rctDigis.clone()
-import L1Trigger.GlobalCaloTrigger.gctDigis_cfi
+
 # GCT sequence
 # requires gctDigis
+import L1Trigger.GlobalCaloTrigger.gctDigis_cfi
 valGctDigis = L1Trigger.GlobalCaloTrigger.gctDigis_cfi.gctDigis.clone()
-import L1Trigger.DTTrigger.dtTriggerPrimitiveDigis_cfi
+
 # DT TPG sequence
 # requires muonDTDigis only
+import L1Trigger.DTTrigger.dtTriggerPrimitiveDigis_cfi
 valDtTriggerPrimitiveDigis = L1Trigger.DTTrigger.dtTriggerPrimitiveDigis_cfi.dtTriggerPrimitiveDigis.clone()
-import L1Trigger.DTTrackFinder.dttfDigis_cfi
+
 # DT TF sequence
 # requires dttfDigis and csctfDigis
 # currently generates CSCTF stubs by running CSCTF emulator
+import L1Trigger.DTTrackFinder.dttfDigis_cfi
 valDttfDigis = L1Trigger.DTTrackFinder.dttfDigis_cfi.dttfDigis.clone()
-import L1Trigger.HardwareValidation.MuonCandProducerMon_cfi
 #replace valDttfDigis.CSCStub_Source = csctfDigis
+import L1Trigger.HardwareValidation.MuonCandProducerMon_cfi
 muonDtMon = L1Trigger.HardwareValidation.MuonCandProducerMon_cfi.muonCandMon.clone()
-import L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigis_cfi
+
 # CSC TPG sequence
 # requires muonCSCDigis only
+import L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigis_cfi
 valCscTriggerPrimitiveDigis = L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigis_cfi.cscTriggerPrimitiveDigis.clone()
-import L1Trigger.CSCTrackFinder.csctfTrackDigis_cfi
+
 # CSC TF sequence
 # requires csctfDigis and dttfDigis
+import L1Trigger.CSCTrackFinder.csctfTrackDigis_cfi
 valCsctfTrackDigis = L1Trigger.CSCTrackFinder.csctfTrackDigis_cfi.csctfTrackDigis.clone()
 import L1Trigger.CSCTrackFinder.csctfDigis_cfi
 valCsctfDigis = L1Trigger.CSCTrackFinder.csctfDigis_cfi.csctfDigis.clone()
 import L1Trigger.HardwareValidation.MuonCandProducerMon_cfi
 muonCscMon = L1Trigger.HardwareValidation.MuonCandProducerMon_cfi.muonCandMon.clone()
-import L1Trigger.RPCTrigger.rpcTriggerDigis_cfi
+
 # RPC sequence
 # requires muonRPCDigis only
+import L1Trigger.RPCTrigger.rpcTriggerDigis_cfi
 valRpcTriggerDigis = L1Trigger.RPCTrigger.rpcTriggerDigis_cfi.rpcTriggerDigis.clone()
-import L1Trigger.GlobalMuonTrigger.gmtDigis_cfi
+
 # GMT sequence
 # requires gtDigis only
+import L1Trigger.GlobalMuonTrigger.gmtDigis_cfi
 valGmtDigis = L1Trigger.GlobalMuonTrigger.gmtDigis_cfi.gmtDigis.clone()
-import L1Trigger.GlobalTrigger.gtDigis_cfi
+
 # GT sequence
 # requires gtDigis and gctDigis
+import L1Trigger.GlobalTrigger.gtDigis_cfi
 valGtDigis = L1Trigger.GlobalTrigger.gtDigis_cfi.gtDigis.clone()
+
 # the comparator module
 from L1Trigger.HardwareValidation.L1Comparator_cfi import *
 deEcal = cms.Sequence(valEcalTriggerPrimitiveDigis)
@@ -76,7 +91,7 @@ deGmt = cms.Sequence(valGmtDigis)
 deGt = cms.Sequence(valGtDigis)
 #replace l1compare.COMPARE_COLLS= { 0,0,0,0,0,0,0,0,0,0,0,0 }
 #compareMode  {ETP,HTP,RCT,GCT, DTP,DTF,CTP,CTF,RPC, LTC,GMT,GT};
-L1HardwareValidation = cms.Sequence(deEcal+deHcal+deRct+deGct+deDt+deDttf+deCsc+deCsctf+deRpc+deGmt+deGt*l1compare)
+
 valEcalTriggerPrimitiveDigis.Label = 'ecalDigis'
 valEcalTriggerPrimitiveDigis.InstanceEB = 'ebDigis'
 valEcalTriggerPrimitiveDigis.InstanceEE = 'eeDigis'
@@ -103,4 +118,8 @@ valGmtDigis.RPCfCandidates = cms.InputTag("gtDigis","RPCf")
 valGtDigis.GmtInputTag = 'gtDigis'
 valGtDigis.GctInputTag = 'gctDigis'
 
+# the sequences
+L1HardwareValidation = cms.Sequence(deEcal+deHcal+deRct+deGct+deDt+deDttf+deCsc+deCsctf+deRpc+deGmt+deGt*l1compare)
+
+L1HardwareValidation_woGT = cms.Sequence(deEcal+deHcal+deRct+deGct+deDt+deDttf+deCsc+deCsctf+deRpc+deGmt+l1compare)
 

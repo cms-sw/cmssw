@@ -15,12 +15,14 @@
 
 import FWCore.ParameterSet.Config as cms
 
+from CondTools.SiPixel.SiPixelGainCalibrationService_cfi import *
+
 #
 #  sipixelgaincalibrationanalysis.cfi
 #  CMSSW configuration init file for pixel gain calibrations in CMSSW>=180
 #  Original Author:  Freya Blekman
 #          Created:  November 15 2007  
-#  $Id: SiPixelGainCalibrationAnalysis_cfi.py,v 1.3 2008/07/23 11:32:13 fblekman Exp $
+#  $Id: SiPixelGainCalibrationAnalysis_cfi.py,v 1.6 2008/08/26 15:13:32 fblekman Exp $
 #
 #
 siPixelGainCalibrationAnalysis = cms.EDFilter("SiPixelGainCalibrationAnalysis",
@@ -30,6 +32,7 @@ siPixelGainCalibrationAnalysis = cms.EDFilter("SiPixelGainCalibrationAnalysis",
     maxChi2InHist = cms.untracked.double(50.0),
     savePixelLevelHists = cms.untracked.bool(False),
     saveAllHistograms = cms.untracked.bool(False),
+    listOfDetIDs = cms.untracked.vuint32(),                                         
     # try to create database. 'true' setting for expert use only.
     writeDatabase = cms.untracked.bool(False),
     record = cms.string('SiPixelGainCalibrationRcd'),
@@ -43,10 +46,11 @@ siPixelGainCalibrationAnalysis = cms.EDFilter("SiPixelGainCalibrationAnalysis",
     minChi2ProbforHistSave = cms.untracked.double(0.001),
     plateauSlopeMax = cms.untracked.double(1.0),
     appendDatabaseMode = cms.untracked.bool(False),
-    # maxGainInHist fixes the range of the 1D gain summary plots to [0,maxGainInHist]
-    maxGainInHist = cms.untracked.double(3.0),
-    useVCALHIGH = cms.bool(true),
-    # conversion factor to go from VCAL_HIGH to VCAL_LOW. Current best estimate: VCAL_HIGH = 7 * VCAL_LOW 
+    # the gain is defined as 1/slope of fit.
+    # maxGainInHist fixes the range of the 1D gain summary plots to [0,maxGainInHist]]
+    maxGainInHist = cms.untracked.double(10.),
+    useVCALHIGH = cms.bool(True),
+    # conversion factor to go from VCAL_HIGH to VCAL_LOW. Current best estimate: VCAL_HIGH = 7 * VCAL_LOW, which is encoded in the parameter below 
     vcalHighToLowConversionFac = cms.double(7.0)                                          
 )
 

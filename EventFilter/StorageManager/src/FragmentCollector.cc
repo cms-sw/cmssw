@@ -1,4 +1,4 @@
-// $Id: FragmentCollector.cc,v 1.39 2008/05/12 15:55:17 hcheung Exp $
+// $Id: FragmentCollector.cc,v 1.40 2008/08/13 22:48:12 biery Exp $
 
 #include "EventFilter/StorageManager/interface/FragmentCollector.h"
 #include "EventFilter/StorageManager/interface/ProgressMarker.h"
@@ -153,6 +153,16 @@ namespace stor
 	    {
 	      FR_DEBUG << "FragColl: Got an Error_Event" << endl;
 	      processErrorEvent(entry);
+	      break;
+	    }
+          // 03-Sep-2008, KAB: the use of the NEW_INIT_AVAILABLE message code
+          // here is a hack until the new FILE_CLOSE_REQUEST message code is
+          // ready (in IOPool/Streamer/MsgHeader).  As soon as FILE_CLOSE_REQUEST
+          // is ready, it should replace NEW_INIT_AVAILABLE.
+	  case Header::NEW_INIT_AVAILABLE:
+	    {
+              FR_DEBUG << "FragColl: Got a File Close Request message" << endl;
+              writer_->closeFilesIfNeeded();
 	      break;
 	    }
 	  default:

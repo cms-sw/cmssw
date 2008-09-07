@@ -3,11 +3,8 @@ import FWCore.ParameterSet.Config as cms
 hltMuonTauAnalyzer = cms.EDAnalyzer("HLTMuonTauAnalyzer",
     disableROOToutput = cms.untracked.bool(False),
     DQMStore = cms.untracked.bool(True),
-    RootFileName = cms.untracked.string("DQM_Higgs_210pre11.root"),
-    UseMuonFromGenerator = cms.bool(True),
-    GenLabel = cms.untracked.InputTag("source"),
-    UseMuonFromReco = cms.bool(True),
-    RecoLabel= cms.untracked.InputTag("globalMuons"),
+    RootFileName = cms.untracked.string("DQM_Higgs_214.root"),
+    InputLabel = cms.untracked.InputTag("Muons"),
     TriggerCollection = cms.VPSet(
           L1CollectionLabel = cms.InputTag("hltMuonTauL1Filtered"),
           HLTCollectionLabels = cms.VInputTag(

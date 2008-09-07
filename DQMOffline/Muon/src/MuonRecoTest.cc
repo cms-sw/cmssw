@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/07/12 10:48:17 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/07/16 13:02:53 $
+ *  $Revision: 1.2 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -39,7 +39,6 @@ MuonRecoTest::MuonRecoTest(const edm::ParameterSet& ps){
   parameters = ps;
 
   theDbe = edm::Service<DQMStore>().operator->();
-  theDbe->setVerbose(1);
 
   prescaleFactor = parameters.getUntrackedParameter<int>("diagnosticPrescale", 1);
 

@@ -1,3 +1,67 @@
+2008-09-04  Kurt Biery <biery@fnal.gov>
+
+	* tag V03-14-12
+	* Modified the file closing logic so that it periodically tests whether files
+	  need to be closed independent of whether events are being received or not.
+
+2008-09-03  Harry Cheung <cheung@fnal.gov>
+
+	* tag V03-14-11
+	* Put in Emilio's fix for his workloop code when in failed state
+	* Change the value of the real default for the file closing timeout to 45s
+
+2008-09-02  Harry Cheung <cheung@fnal.gov>
+
+	* tag V03-14-10
+	* Possible fix for problem seen with running more FU instances
+	  by properly taking into account non-unique fuID, need proper
+	  fix when moving INIT message to FragmentCollector
+
+2008-09-01  Harry Cheung <cheung@fnal.gov>
+
+	* tag V03-14-09
+	* Temporary solution for stored events statistics, gathered in workloop instead
+	  and also removed temporarily the RB senders web page link that was causing
+	  problems until we can reproduce it in a test setup
+
+2008-08-27  Kurt Biery <biery@fnal.gov>
+
+	* tag V03-14-08
+	* Added variable reinitialization to the ServiceManager::stop() method.
+	  With this change and a fix to clear the contents of the InitMsgCollection
+	  in StorageManager::enabling(), hopefully the SM will correctly handle
+	  Stop/Enable transitions (with regard to output file handling).
+
+2008-08-22  Kurt Biery <biery@fnal.gov>
+
+	* tag V03-14-07
+	* Fixed bug in looping over output files.
+
+2008-08-22  Constantin Loizides <loizides@mit.edu>
+
+	* tag V03-14-06
+	* Rolled back the algorithm for closing files - it only depends on
+	  a time interval with this change - there is no dependence on lumi
+	  section number.
+
+2008-08-18  Kurt Biery <biery@fnal.gov>
+
+	* tag V03-14-03
+	* Flashlist fixes: Uncommented fireItemAvailable of storedEvents in
+	  StorageManager.cc for Constantin/Emilio. Updated forgotten conversion
+	  of connectedFUs to connectedRBs in test/sm.flash.
+
+2008-08-17  Harry Cheung <cheung@fnal.gov>
+
+	* tag V03-14-02
+	* Fix for handling large INIT message (multiple I2O frames).
+
+2008-08-14  Constantin Loizides <loizides@mit.edu>
+
+	* tag V03-14-01
+	* Script changes.
+	* Fix to lumi file closing and minor change to Error stream handling.
+
 2008-08-13  Kurt Biery <biery@fnal.gov>
 
 	* tag V03-14-00

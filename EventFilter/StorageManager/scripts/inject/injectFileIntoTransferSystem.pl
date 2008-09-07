@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: injectFileIntoTransferSystem.pl,v 1.28 2008/08/15 14:16:51 loizides Exp $
+# $Id: injectFileIntoTransferSystem.pl,v 1.29 2008/08/15 14:23:03 loizides Exp $
 
 use strict;
 use DBI;
@@ -59,7 +59,7 @@ sub usage
   cmsdisk1, cmsmon, csc-daq00, vmepcS2B18-39 (tracker node) and the Storage Manager nodes.
  
   --------------------------------------------------------------------------------------------
-  If you are not sure about what you are doing please send an inquiry to hn-tier0-ops\@cern.ch.
+  If you are not sure about what you are doing please send an inquiry to hn-cms-tier0-operations\@cern.ch.
   --------------------------------------------------------------------------------------------
 
   Other parameters (leave out if you do not know what they mean):
@@ -405,7 +405,7 @@ if($filename=~/\.dat$/  && !$index) {
     $indfile =~ s/\.dat$/\.ind/;
     if (-e "$pathname/$indfile") { 
 	$index = $indfile;
-        $indexsize = -s "$index";
+        $indexsize = -s "$pathname/$index";
     } elsif($type eq 'streamer') {
 	print "Index file required for streamer files, not found in usual place please specify. Exiting!\n";
         usage();

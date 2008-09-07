@@ -1,17 +1,6 @@
-// $Id: HLTScalers.cc,v 1.10 2008/08/01 14:37:14 bjbloom Exp $
+// $Id: HLTScalers.cc,v 1.7 2008/01/22 19:02:43 muzaffar Exp $
 // 
 // $Log: HLTScalers.cc,v $
-// Revision 1.10  2008/08/01 14:37:14  bjbloom
-// Added ability to specify which paths are cross-correlated
-//
-// Revision 1.9  2008/07/04 15:57:18  wittich
-// - move histograms to HLT directory (was in L1T)
-// - add counter for number of lumi sections
-// - attempt to hlt label histo axes locally; disabled (it's illegible)
-//
-// Revision 1.8  2008/03/01 00:40:16  lat
-// DQM core migration.
-//
 // Revision 1.7  2008/01/22 19:02:43  muzaffar
 // include cleanup. Only for cc/cpp files
 //
@@ -69,26 +58,19 @@ using namespace edm;
 
 HLTScalers::HLTScalers(const edm::ParameterSet &ps):
   dbe_(0),
-  scalersException_(0),
+  scalers_(0), scalersException_(0),
   hltCorrelations_(0),
   detailedScalers_(0), l1scalers_(0), 
   l1Correlations_(0),
   nProc_(0),
-  nLumiBlocks_(0),
   trigResultsSource_( ps.getParameter< edm::InputTag >("triggerResults")),
   l1GtDataSource_( ps.getParameter< edm::InputTag >("l1GtData")),
   resetMe_(true),
   verbose_(ps.getUntrackedParameter < bool > ("verbose", false)),
   monitorDaemon_(ps.getUntrackedParameter<bool>("MonitorDaemon", false)),
-  specifyPaths_(ps.getUntrackedParameter<bool>("specifyPaths", false)),
   nev_(0), 
-  nLumi_(0),
   currentRun_(-1)
 {
-  if(specifyPaths_)
-  {
-     pathNames_ = ps.getUntrackedParameter<std::vector<std::string> >("pathNames");
-  }
   if ( verbose_ ) {
     std::cout << "HLTScalers::HLTScalers(ParameterSet) called...." 
 	      << std::endl;
@@ -100,15 +82,8 @@ HLTScalers::HLTScalers(const edm::ParameterSet &ps):
   dbe_ = Service<DQMStore>().operator->();
   dbe_->setVerbose(0);
   if (dbe_ ) {
-    dbe_->setCurrentFolder("HLT/HLTScalers");
+    dbe_->setCurrentFolder("L1T/HLTScalers");
   }
-  
-  //initialize path hit info
-  for(int i=0; i<200;i++){
-    nHitsPresentLumiBlock_[i] = 0;
-    nHitsPreviousLumiBlock_[i] = 0;
-  }
-  lumiBlock_ = 93.0;  
 
 }
 
@@ -124,11 +99,10 @@ void HLTScalers::beginJob(const edm::EventSetup& c)
     if ( verbose_ ) {
       dbe_->setVerbose(1);
     }
-    dbe_->setCurrentFolder("HLT/HLTScalers");
+    dbe_->setCurrentFolder("L1T/HLTScalers");
 
 
     nProc_ = dbe_->bookInt("nProcessed");
-    nLumiBlocks_ = dbe_->bookInt("nLumiBlocks");
 
     // fixed - only for 128 algo bits right now
     l1scalers_ = dbe_->book1D("l1Scalers", "L1 scalers (locally derived)",
@@ -156,7 +130,6 @@ void HLTScalers::analyze(const edm::Event &e, const edm::EventSetup &c)
 			       << " with label " << trigResultsSource_;
     return;
   }
-  TriggerNames names(*hltResults);
   
   
   int npath = hltResults->size();
@@ -180,99 +153,52 @@ void HLTScalers::analyze(const edm::Event &e, const edm::EventSetup &c)
     detailedScalers_ = dbe_->book2D("detailedHltScalers", "HLT Scalers", 
 				    npaths, -0.5, npaths-0.5,
 				    maxModules, 0, maxModules-1);
-
-
-    char hname[40];//histo name
-    char mename[40];//ME name
-  
-    int npath_low = 0;
-    int npath_high =0;
-
-    //split hlt scalers up into groups of 20, assuming total of 200 paths
-    for(int k=0; k<10; k++){
-      npath_low = 20*k;
-      npath_high = 20*(k+1)-1;
-      sprintf(hname,"hltScalers_%d",k);
-      sprintf(mename,"HLT scalers - Paths %d to %d",npath_low, npath_high);
-      scalers_[k]= dbe_->book1D(mename, hname,20, -0.5 + npath_low, npath_high+0.5);
-  
-    }
-
+    scalers_ = dbe_->book1D("hltScalers", "HLT scalers",
+			    npaths, -0.5, npaths-0.5);
     scalersException_ = dbe_->book1D("hltExceptions", "HLT Exception scalers",
 			    npaths, -0.5, npaths-0.5);
 
-    if(specifyPaths_)
-    {
-	npaths = pathNames_.size();
-    }
-
     hltCorrelations_ = dbe_->book2D("hltCorrelations", "HLT Scalers", 
-		         	npaths, -0.5, npaths-0.5,
-				npaths, -0.5, npaths-0.5);
+				    npaths, -0.5, npaths-0.5,
+				    npaths, -0.5, npaths-0.5);
 
     l1scalers_->Reset(); // should never have any effect?
     l1Correlations_->Reset(); // should never have any effect?
     resetMe_ = false;
     // save path names in DQM-accessible format
+    TriggerNames names(*hltResults);
     int q =0;
     for ( TriggerNames::Strings::const_iterator 
 	    j = names.triggerNames().begin();
 	  j !=names.triggerNames().end(); ++j ) {
-      
       if ( verbose_ )
 	std::cout << q << ": " << *j << std::endl;
       char pname[256];
-      snprintf(pname, 256, "path%02d", q);
-      // setting these here is a nice idea but it's totally illegible
-      //scalers_[q/20]->setBinLabel(q+1, *j); 
-
-      ++q;
+      snprintf(pname, 256, "path%02d", q++);
       MonitorElement *e = dbe_->bookString(pname, *j);
       hltPathNames_.push_back(e);  // I don't ever use these....
     }
   } // end resetme_ - pseudo-end-run record
-  
-  unsigned int n=0;
-  if(specifyPaths_)
-    {
-      n = pathNames_.size();
-      for (unsigned int i=0; i!=n; i++) {
-     	pathNamesIndex_.push_back(names.triggerIndex(pathNames_[i]));
-      }
-    }
 
-  //std::cout << "A_1" << std::endl;
-  int npathTest = hltResults->size();
-  for ( int i = 0; i < npathTest; ++i ) {
-    //std::cout << "A" << std::endl;
+  for ( int i = 0; i < npath; ++i ) {
     if ( verbose_ ) {
       // state returns 0 on ready, 1 on accept, 2 on fail, 3 on exception.
       // these are defined in HLTEnums.h
-      std::cout << "i = " << i << ", result = " << hltResults->accept(i)
+      std::cout << "i = " << i << ", result = " << hltResults->state(i)
 		<< ", index = " << hltResults->index(i) << std::endl;
     }
     for ( unsigned int j = 0; j < hltResults->index(i); ++j ) {
       detailedScalers_->Fill(i,j);
     }
     if ( hltResults->state(i) == hlt::Pass) {
-  
-      //scalers_[i/20]->Fill(i);
-      //calculate Trigger Rates
-      nHitsPresentLumiBlock_[i]++;
-      if(lumiBlock_)
-	rate_[i] = (nHitsPresentLumiBlock_[i] - nHitsPreviousLumiBlock_[i])/lumiBlock_;      
-      scalers_[i/20]->setBinContent(i%20+1,rate_[i]);
-
+      scalers_->Fill(i);
       // correlations
-      if(!specifyPaths_)
-      {
-      	for ( int j = i + 1; j < npath; ++j ) {
-		if ( hltResults->state(j) == hlt::Pass) {
-		  hltCorrelations_->Fill(i,j); // fill 
-		  hltCorrelations_->Fill(j,i);
-		}
-	      }
-       }
+      for ( int j = i + 1; j < npath; ++j ) {
+	if ( hltResults->state(j) == hlt::Pass ) {
+	  hltCorrelations_->Fill(i,j); // fill 
+	  hltCorrelations_->Fill(j,i);
+	}
+      }
     }
     else if ( hltResults->state(i) == hlt::Exception) {
       scalersException_->Fill(i);
@@ -305,41 +231,14 @@ void HLTScalers::analyze(const edm::Event &e, const edm::EventSetup &c)
       }
     }
   }
-  
-  if(specifyPaths_)
-  {
-    for(uint i=0; i < n; ++i){
-    	if ( hltResults->accept(pathNamesIndex_[i])){
-		for ( unsigned int j = i + 1; j < n; ++j ) {
-			if ( hltResults->accept(pathNamesIndex_[j])) {
-			  hltCorrelations_->Fill(i,j); // fill 
-			  hltCorrelations_->Fill(j,i);
-			}
-	      	}
-	}
-    }
-    for (uint i=0; i < n; ++i){
-      hltCorrelations_->setBinLabel(i+1,pathNames_[i], 1);
-      hltCorrelations_->setBinLabel(i+1,pathNames_[i], 2);
-    }
-  }
+
 }
 
 
 void HLTScalers::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
 				    const edm::EventSetup& c)
 {
-  // put this in as a first-pass for figuring out the rate
-  // each lumi block is 93 seconds in length
-  nLumiBlocks_->Fill(++nLumi_);
- 
-  for(int i=0; i<200;i++){
-    nHitsPreviousLumiBlock_[i] = nHitsPresentLumiBlock_[i];
-  }
-  if ( verbose_){
-    std::cout << "End of luminosity block." << std::endl;
-  }
-
+  // does nothing yet (TM)
 }
 
 

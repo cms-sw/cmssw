@@ -13,6 +13,7 @@ L1TriggerRAW = cms.PSet(
     'keep *_gctDigis_*_*', 
     'keep *_gmtDigis_*_*', 
     'keep *_gtDigis_*_*', 
+    'keep *_gtEvmDigis_*_*', 
     'keep *_valCscTriggerPrimitiveDigis_*_*', 
     'keep *_valDtTriggerPrimitiveDigis_*_*', 
     'keep *_valRpcTriggerDigis_*_*', 
@@ -41,6 +42,7 @@ L1TriggerRECO = cms.PSet(
     'keep *_gctDigis_*_*', 
     'keep *_gmtDigis_*_*', 
     'keep *_gtDigis_*_*', 
+    'keep *_gtEvmDigis_*_*', 
     'keep *_valCscTriggerPrimitiveDigis_*_*', 
     'keep *_valDtTriggerPrimitiveDigis_*_*', 
     'keep *_valRpcTriggerDigis_*_*', 
@@ -85,5 +87,6 @@ L1TriggerFEVTDEBUG = cms.PSet(
         'keep *_dttfDigis_*_*', 
         'keep *_gctDigis_*_*', 
         'keep *_gmtDigis_*_*', 
-        'keep *_gtDigis_*_*')
+        'keep *_gtDigis_*_*',
+        'keep *_gtEvmDigis_*_*')
 )

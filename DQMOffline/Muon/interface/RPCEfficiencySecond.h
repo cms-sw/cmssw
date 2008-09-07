@@ -2,8 +2,8 @@
  *
  * Class for RPC Monitoring using RPCDigi and DT and CSC Segments.
  *
- *  $Date: 2008/07/03 16:25:09 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/08/19 06:14:55 $
+ *  $Revision: 1.5 $
  *
  * \author Camilo Carrillo (Uniandes)
  *
@@ -45,7 +45,9 @@ class RPCEfficiencySecond : public edm::EDAnalyzer {
 
   MonitorElement * histoRPC;
   MonitorElement * histoDT;
+  MonitorElement * histoCSC;
   MonitorElement * histoeffIdRPC_DT;
+  MonitorElement * histoeffIdRPC_CSC;
   MonitorElement * BXDistribution;
   MonitorElement * histoRealRPC;
 
@@ -109,17 +111,90 @@ class RPCEfficiencySecond : public edm::EDAnalyzer {
   MonitorElement * NoPredictionW1far;
   MonitorElement * NoPredictionW2far;
 
+  //EndCap
 
-   private:
-      virtual void beginJob(const edm::EventSetup&) ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
-      virtual void endRun(const edm::Run& , const edm::EventSetup& );
+  MonitorElement * EffGlobDm3;
+  MonitorElement * EffGlobDm2;
+  MonitorElement * EffGlobDm1;
+  MonitorElement * EffGlobD1;
+  MonitorElement * EffGlobD2;
+  MonitorElement * EffGlobD3;
 
-      bool SaveFile;
-      std::string NameFile;
+  MonitorElement * EffGlobDm3far;
+  MonitorElement * EffGlobDm2far;
+  MonitorElement * EffGlobDm1far;
+  MonitorElement * EffGlobD1far;
+  MonitorElement * EffGlobD2far;
+  MonitorElement * EffGlobD3far;
 
-      DQMStore * dbe;
+  MonitorElement * BXGlobDm3;
+  MonitorElement * BXGlobDm2;
+  MonitorElement * BXGlobDm1;
+  MonitorElement * BXGlobD1;
+  MonitorElement * BXGlobD2;
+  MonitorElement * BXGlobD3;
+  
+  MonitorElement * BXGlobDm3far;
+  MonitorElement * BXGlobDm2far;
+  MonitorElement * BXGlobDm1far;
+  MonitorElement * BXGlobD1far;
+  MonitorElement * BXGlobD2far;
+  MonitorElement * BXGlobD3far;
 
+  MonitorElement * MaskedGlobDm3;
+  MonitorElement * MaskedGlobDm2;
+  MonitorElement * MaskedGlobDm1;
+  MonitorElement * MaskedGlobD1;
+  MonitorElement * MaskedGlobD2;
+  MonitorElement * MaskedGlobD3;
+  
+  MonitorElement * MaskedGlobDm3far;
+  MonitorElement * MaskedGlobDm2far;
+  MonitorElement * MaskedGlobDm1far;
+  MonitorElement * MaskedGlobD1far;
+  MonitorElement * MaskedGlobD2far;
+  MonitorElement * MaskedGlobD3far;
+
+  MonitorElement * AverageEffDm3;
+  MonitorElement * AverageEffDm2;
+  MonitorElement * AverageEffDm1;
+  MonitorElement * AverageEffD1;
+  MonitorElement * AverageEffD2;
+  MonitorElement * AverageEffD3;
+
+  MonitorElement * AverageEffDm3far;
+  MonitorElement * AverageEffDm2far;
+  MonitorElement * AverageEffDm1far;
+  MonitorElement * AverageEffD1far;
+  MonitorElement * AverageEffD2far;
+  MonitorElement * AverageEffD3far;
+
+  MonitorElement * NoPredictionDm3;
+  MonitorElement * NoPredictionDm2;
+  MonitorElement * NoPredictionDm1;
+  MonitorElement * NoPredictionD1;
+  MonitorElement * NoPredictionD2;
+  MonitorElement * NoPredictionD3;
+
+  MonitorElement * NoPredictionDm3far;
+  MonitorElement * NoPredictionDm2far;
+  MonitorElement * NoPredictionDm1far;
+  MonitorElement * NoPredictionD1far;
+  MonitorElement * NoPredictionD2far;
+  MonitorElement * NoPredictionD3far;
+
+  
+ private:
+  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void endJob() ;
+  virtual void endRun(const edm::Run& , const edm::EventSetup& );
+  
+  bool debug;
+  bool SaveFile;
+  std::string NameFile;
+  
+  DQMStore * dbe;
+  
 };
 

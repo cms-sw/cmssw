@@ -31,6 +31,8 @@
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include <string>
 #include <iostream>
 #include <set>
@@ -317,8 +319,9 @@ namespace edm {
 						   sd->processHistory().id()));
     // no process name list handling
 
-    SendProds const& sps = sd->products();
-    for(SendProds::const_iterator spi = sps.begin(), spe = sps.end(); spi != spe; ++spi) {
+    ProductID largestID;
+    SendProds & sps = sd->products();
+    for(SendProds::iterator spi = sps.begin(), spe = sps.end(); spi != spe; ++spi) {
         FDEBUG(10) << "check prodpair" << std::endl;
         if(spi->desc() == 0)
           throw cms::Exception("StreamTranslation","Empty Provenance");
@@ -337,6 +340,9 @@ namespace edm {
 				spi->productID(),
 				*spi->parents()));
 
+	if(spi->productID() > largestID) {
+	   largestID = spi->productID();
+	}
         if(spi->prod() != 0) {
           std::auto_ptr<EDProduct> aprod(const_cast<EDProduct*>(spi->prod()));
           FDEBUG(10) << "addgroup next " << spi->branchID() << std::endl;
@@ -347,8 +353,23 @@ namespace edm {
           ep->addGroup(branchDesc, eventEntryDesc);
           FDEBUG(10) << "addgroup empty done" << std::endl;
         }
+        spi->clear();
     }
 
+    if(largestID.id() >= productRegistry()->nextID()) {
+       edm::LogError("MetaDataError")<<"The input file has a critical problem, the 'nextID' for the ProductRegistry ("
+				     <<productRegistry()->nextID()
+				     <<")\n is less than the largest ProductID ("
+				     <<largestID.id()
+				     <<") used in a previous process.\n"
+	  " Will modify the ProductRegistry to attempt to correct the problem,\n"
+	  " although it is possible that edm::Ref*'s or edm::Ptr's may still fail.\n"
+	  " Please contact StreamerOutputModule developers.";
+       //NOTE: this works since only EDProducers get their ProductIDs for the event from
+       // the ProductRegistry and they do not do that until they 'put' their data
+       // so at this point no one has tried to use the ProductIDs yet
+       productRegistryUpdate().setProductIDs(largestID.id()+1);
+    }
     FDEBUG(10) << "Size = " << ep->size() << std::endl;
 
     return ep;     

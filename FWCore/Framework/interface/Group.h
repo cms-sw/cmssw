@@ -1,9 +1,9 @@
-#ifndef FWCore_Framework_GroupT_h
-#define FWCore_Framework_GroupT_h
+#ifndef FWCore_Framework_Group_h
+#define FWCore_Framework_Group_h
 
 /*----------------------------------------------------------------------
   
-GroupT: A collection of information related to a single EDProduct. This
+Group: A collection of information related to a single EDProduct. This
 is the storage unit of such information.
 
 ----------------------------------------------------------------------*/
@@ -16,39 +16,35 @@ is the storage unit of such information.
 
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Provenance/interface/ConstBranchDescription.h"
+#include "DataFormats/Provenance/interface/EventEntryInfo.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
 
-// In the future, the untemplated Provenance class should no longer be used here.
-// We still need it for now.
-
 namespace edm {
-  template <typename T>
-  class GroupT {
+  class Group {
   public:
+    Group();
 
-    GroupT();
+    Group(ConstBranchDescription const& bd, bool demand);
 
-    GroupT(ConstBranchDescription const& bd, bool demand);
+    explicit Group(ConstBranchDescription const& bd);
 
-    explicit GroupT(ConstBranchDescription const& bd);
-
-    GroupT(std::auto_ptr<EDProduct> edp,
+    Group(std::auto_ptr<EDProduct> edp,
 	  ConstBranchDescription const& bd,
-	  std::auto_ptr<T> entryInfo);
+	  std::auto_ptr<EventEntryInfo> entryInfo);
 
-    GroupT(ConstBranchDescription const& bd,
-	  std::auto_ptr<T> entryInfo);
+    Group(ConstBranchDescription const& bd,
+	  std::auto_ptr<EventEntryInfo> entryInfo);
 
-    GroupT(std::auto_ptr<EDProduct> edp,
+    Group(std::auto_ptr<EDProduct> edp,
 	  ConstBranchDescription const& bd,
-	  boost::shared_ptr<T> entryInfo);
+	  boost::shared_ptr<EventEntryInfo> entryInfo);
 
-    GroupT(ConstBranchDescription const& bd,
-	  boost::shared_ptr<T> entryInfo);
+    Group(ConstBranchDescription const& bd,
+	  boost::shared_ptr<EventEntryInfo> entryInfo);
 
-    ~GroupT();
+    ~Group();
 
-    void swap(GroupT& other);
+    void swap(Group& other);
 
     // product is not available (dropped or never created)
     bool productUnavailable() const;
@@ -61,7 +57,7 @@ namespace edm {
 
     EDProduct const* product() const { return product_.get(); }
 
-    boost::shared_ptr<T> entryInfoPtr() const {return entryInfo_;}
+    boost::shared_ptr<EventEntryInfo> entryInfoPtr() const {return entryInfo_;}
 
     ConstBranchDescription const& productDescription() const {return *branchDescription_;}
 
@@ -83,13 +79,13 @@ namespace edm {
     // The following is const because we can add the provenance
     // to the cache after creation of the Group, without changing the meaning
     // of the Group.
-    void setProvenance(boost::shared_ptr<T> entryInfo) const;
+    void setProvenance(boost::shared_ptr<EventEntryInfo> entryInfo) const;
 
     // Write the group to the stream.
     void write(std::ostream& os) const;
 
     // Replace the existing group with a new one
-    void replace(GroupT& g);
+    void replace(Group& g);
 
     // Return the type of the product stored in this Group.
     // We are relying on the fact that Type instances are small, and
@@ -103,37 +99,33 @@ namespace edm {
     // public base type.
     bool isMatchingSequence(ROOT::Reflex::Type const& wanted) const;
 
-    void mergeGroup(GroupT * newGroup);
+    void mergeGroup(Group * newGroup);
 
   private:
-    GroupT(const GroupT&);
-    void operator=(const GroupT&);
+    Group(const Group&);
+    void operator=(const Group&);
 
     mutable boost::shared_ptr<EDProduct> product_;
-    mutable boost::shared_ptr<ConstBranchDescription> branchDescription_;
-    mutable boost::shared_ptr<T> entryInfo_;
+    boost::shared_ptr<ConstBranchDescription> branchDescription_;
+    mutable boost::shared_ptr<EventEntryInfo> entryInfo_;
     mutable boost::shared_ptr<Provenance> prov_;
     bool    dropped_;
     bool    onDemand_;
   };
 
   // Free swap function
-  template <typename T>
   inline
   void
-  swap(GroupT<T>& a, GroupT<T>& b) {
+  swap(Group& a, Group& b) {
     a.swap(b);
   }
 
-  template <typename T>
   inline
   std::ostream&
-  operator<<(std::ostream& os, GroupT<T> const& g) {
+  operator<<(std::ostream& os, Group const& g) {
     g.write(os);
     return os;
   }
 
 }
-
-#include "Group.icc"
 #endif

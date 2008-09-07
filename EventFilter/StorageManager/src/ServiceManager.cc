@@ -1,9 +1,10 @@
-// $Id: ServiceManager.cc,v 1.11 2008/08/07 11:33:15 loizides Exp $
+// $Id: ServiceManager.cc,v 1.15 2008/08/27 22:41:10 biery Exp $
 
 #include <EventFilter/StorageManager/interface/ServiceManager.h>
 #include "EventFilter/StorageManager/interface/Configurator.h"
 #include <EventFilter/StorageManager/interface/EventStreamService.h>
 #include <EventFilter/StorageManager/interface/FRDStreamService.h>
+#include "FWCore/Framework/interface/EventSelector.h"
 #include <FWCore/Utilities/interface/Exception.h>
 #include <typeinfo>
 
@@ -20,6 +21,7 @@ ServiceManager::ServiceManager(const std::string& config):
   storedEvents_(0),
   currentlumi_(0),
   timeouttime_(0),
+  lasttimechecked_(0),
   errorStreamPSetIndex_(-1),
   errorStreamCreated_(false)
 {
@@ -43,6 +45,21 @@ void ServiceManager::stop()
       it != itEnd; ++it) {
       (*it)->stop();
   }
+
+  psetHLTOutputLabels_.clear();
+  for (unsigned int idx = 0; idx < outModPSets_.size(); idx++) {
+    psetHLTOutputLabels_.push_back(std::string());  // empty string
+  }
+
+  managedOutputs_.clear();
+  outputModuleIds_.clear();
+  storedEvents_.clear();
+  storedNames_.clear();
+
+  currentlumi_ = 0;
+  timeouttime_ = 0;
+  lasttimechecked_ = 0;
+  errorStreamCreated_ = false;
 }
 
 
@@ -171,19 +188,6 @@ void ServiceManager::manageEventMsg(EventMsgView& msg)
       timeouttime_ = (*it)->getCurrentTime();
     }
   }
-
-  // close time-out open files from previous lumi-section 
-  if(currentlumi_>0) {
-
-    StreamsIterator itBeg = managedOutputs_.begin();
-    StreamsIterator itEnd = managedOutputs_.end();
-    if (itBeg != itEnd) {
-      double tdiff = (*itBeg)->getCurrentTime() - timeouttime_;
-
-      for(StreamsIterator it = itBeg; it != itEnd; ++it) 
-        (*it)->closeTimedOutFiles(currentlumi_, tdiff);
-    }
-  }
 }
 
 void ServiceManager::manageErrorEventMsg(std::string catalog, uint32 disks, std::string sourceId, FRDEventMsgView& msg)
@@ -238,6 +242,15 @@ void ServiceManager::manageErrorEventMsg(std::string catalog, uint32 disks, std:
 }
 
 
+void ServiceManager::closeFilesIfNeeded()
+{
+  StreamsIterator itBeg = managedOutputs_.begin();
+  StreamsIterator itEnd = managedOutputs_.end();
+  for(StreamsIterator it = itBeg; it != itEnd; ++it) {
+    (*it)->closeTimedOutFiles();
+  }
+}
+
 //
 // *** get all files from all streams
 //
@@ -264,7 +277,7 @@ std::list<std::string>& ServiceManager::get_currfiles()
       it != itEnd; ++it) {
       std::list<std::string> sub_list = (*it)->getCurrentFileList();
       if(sub_list.size() > 0)
-	filelist_.insert(filelist_.end(), sub_list.begin(), sub_list.end());
+	currfiles_.insert(currfiles_.end(), sub_list.begin(), sub_list.end());
   }
   return currfiles_;  
 }

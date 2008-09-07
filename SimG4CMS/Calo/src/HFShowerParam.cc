@@ -16,8 +16,6 @@
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
-//#define DebugLog
-
 HFShowerParam::HFShowerParam(std::string & name, const DDCompactView & cpv,
 			     edm::ParameterSet const & p) : fibre(0) {
 
@@ -123,10 +121,8 @@ G4ThreeVector HFShowerParam::getPosHit(int i) {
 
   G4ThreeVector pos;
   if (i < static_cast<int>(hits.size())) pos = (hits[i].position);
-#ifdef DebugLog
   LogDebug("HFShower") << "HFShowerParam::getPosHit (" << i << "/" 
 		       << hits.size() << ") " << pos;
-#endif
   return pos;
 }
 
@@ -134,10 +130,8 @@ int HFShowerParam::getDepth(int i) {
 
   int depth = 0;
   if (i < static_cast<int>(hits.size())) depth = (hits[i].depth);
-#ifdef DebugLog
   LogDebug("HFShower") << "HFShowerParam::getDepth (" << i << "/" 
 		       << hits.size() << ") "  << depth;
-#endif
   return depth;
 }
  
@@ -145,24 +139,19 @@ double HFShowerParam::getTSlice(int i) {
    
   double tim = 0.;
   if (i < static_cast<int>(hits.size())) tim = (hits[i].time);
-#ifdef DebugLog
   LogDebug("HFShower") << "HFShowerParam::getTSlice (" << i << "/" 
 		       << hits.size()<< ") " << tim;
-#endif
   return tim;
 }
 
 std::vector<double> HFShowerParam::getDDDArray(const std::string & str, 
 					       const DDsvalues_type & sv) {
 
-#ifdef DebugLog
   LogDebug("HFShower") << "HFShowerParam:getDDDArray called for " << str;
-#endif
+
   DDValue value(str);
   if (DDfetch(&sv,value)) {
-#ifdef DebugLog
     LogDebug("HFShower") << value;
-#endif
     const std::vector<double> & fvec = value.doubles();
     int nval = fvec.size();
     if (nval < 2) {

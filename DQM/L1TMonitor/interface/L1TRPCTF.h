@@ -4,8 +4,8 @@
 /*
  * \file L1TRPCTF.h
  *
- * $Date: 2008/06/04 13:17:26 $
- * $Revision: 1.9 $
+ * $Date: 2008/06/05 12:36:26 $
+ * $Revision: 1.10 $
  * \author J. Berryhill
  *
 */
@@ -82,30 +82,39 @@ private:
   MonitorElement* rpctfquality[3];
   MonitorElement* rpctfntrack;
   MonitorElement* rpctfbx;
-  MonitorElement*  m_digiBx;
-  MonitorElement*  m_digiBxLast;
+//   MonitorElement*  m_digiBx;
+//   MonitorElement*  m_digiBxLast;
   MonitorElement* m_qualVsEta;
   MonitorElement* m_muonsEtaPhi;
   MonitorElement* m_phipacked;
   MonitorElement * m_phipackednorm;
   MonitorElement * m_muonsEtaPhiNorm;
-  MonitorElement * m_floatSynchro;
-  
+//   MonitorElement * m_floatSynchro;
+
+//   MonitorElement *  m_digiBxRPC;
+// 
+//   MonitorElement *  m_digiBxDT;
+// 
+//   MonitorElement *  m_digiBxCSC;
+
+  edm::InputTag rpctfSource_ ;
+  //edm::InputTag digiSource_ ;
   int nev_; // Number of events processed
   int nevRPC_; // Number of events processed where muon was found by rpc trigger
   std::string outputFile_; //file name for ROOT ouput
   bool verbose_;
   bool monitorDaemon_;
+  //bool m_rpcDigiFine;
+  //bool m_useRpcDigi;
   
   unsigned long m_ntracks;
   
   ofstream logFile_;
-  edm::InputTag rpctfSource_ ;
-  edm::InputTag digiSource_ ;
 
-  std::set<int> m_bxs;
-  int m_rpcDigiWithBX0;
-  int m_rpcDigiWithBXnon0;
+
+//   std::set<int> m_bxs;
+//   int m_rpcDigiWithBX0;
+//   int m_rpcDigiWithBXnon0;
 
 };
 

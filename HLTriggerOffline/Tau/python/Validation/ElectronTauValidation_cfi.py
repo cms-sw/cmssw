@@ -15,7 +15,7 @@ ElectronTauPathVal = cms.EDFilter("HLTTauValidation",
     NTriggeredLeptons     = cms.untracked.uint32(1),
     DoReferenceAnalysis   = cms.untracked.bool(True),
     OutputFileName        = cms.untracked.string(''),
-    LogFileName           = cms.untracked.string('ElectronTauValidation.log'),
+    LogFileName           = cms.untracked.string(''),
     MatchDeltaRL1         = cms.untracked.double(0.5),
     MatchDeltaRHLT        = cms.untracked.double(0.3)
 )

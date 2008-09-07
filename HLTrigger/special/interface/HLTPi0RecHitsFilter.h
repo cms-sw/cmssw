@@ -145,7 +145,7 @@ class HLTPi0RecHitsFilter : public HLTFilter {
  
 
 
- bool debug_; 
+ int debug_; 
  bool first_; 
  double EMregionEtaMargin_;
  double EMregionPhiMargin_;

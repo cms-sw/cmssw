@@ -43,46 +43,32 @@ L1CSCTriggerPrimitivesConfigProducer::L1CSCTriggerPrimitivesConfigProducer(const
   // get ALCT parameters from the config file
   edm::ParameterSet alctParams =
     iConfig.getParameter<edm::ParameterSet>(alctParamSet);
-  m_alct_fifo_tbins   =
-    alctParams.getParameter<unsigned int>("alctFifoTbins");
-  m_alct_fifo_pretrig =
-    alctParams.getParameter<unsigned int>("alctFifoPretrig");
-  m_alct_drift_delay  =
-    alctParams.getParameter<unsigned int>("alctDriftDelay");
-  m_alct_nplanes_hit_pretrig =
-    alctParams.getParameter<unsigned int>("alctNplanesHitPretrig");
-  m_alct_nplanes_hit_pattern =
-    alctParams.getParameter<unsigned int>("alctNplanesHitPattern");
-  m_alct_nplanes_hit_accel_pretrig =
-    alctParams.getParameter<unsigned int>("alctNplanesHitAccelPretrig");
-  m_alct_nplanes_hit_accel_pattern =
-    alctParams.getParameter<unsigned int>("alctNplanesHitAccelPattern");
-  m_alct_trig_mode  =
-    alctParams.getParameter<unsigned int>("alctTrigMode");
-  m_alct_accel_mode =
-    alctParams.getParameter<unsigned int>("alctAccelMode");
-  m_alct_l1a_window_width =
-    alctParams.getParameter<unsigned int>("alctL1aWindowWidth");
+  m_alct_fifo_tbins  = alctParams.getParameter<unsigned int>("alctFifoTbins");
+  m_alct_fifo_pretrig= alctParams.getParameter<unsigned int>("alctFifoPretrig");
+  m_alct_bx_width    = alctParams.getParameter<unsigned int>("alctBxWidth");
+  m_alct_drift_delay = alctParams.getParameter<unsigned int>("alctDriftDelay");
+  m_alct_nph_thresh  = alctParams.getParameter<unsigned int>("alctNphThresh");
+  m_alct_nph_pattern = alctParams.getParameter<unsigned int>("alctNphPattern");
+  m_alct_trig_mode   = alctParams.getParameter<unsigned int>("alctTrigMode");
+  m_alct_alct_amode  = alctParams.getParameter<unsigned int>("alctAlctAmode");
+  m_alct_l1a_window  = alctParams.getParameter<unsigned int>("alctL1aWindow");
 
   // get CLCT parameters from the config file
   edm::ParameterSet clctParams =
     iConfig.getParameter<edm::ParameterSet>(clctParamSet);
-  m_clct_fifo_tbins   =
-    clctParams.getParameter<unsigned int>("clctFifoTbins");
-  m_clct_fifo_pretrig =
-    clctParams.getParameter<unsigned int>("clctFifoPretrig");
-  m_clct_hit_persist  =
-    clctParams.getParameter<unsigned int>("clctHitPersist");
-  m_clct_drift_delay  =
-    clctParams.getParameter<unsigned int>("clctDriftDelay");
-  m_clct_nplanes_hit_pretrig =
-    clctParams.getParameter<unsigned int>("clctNplanesHitPretrig");
-  m_clct_nplanes_hit_pattern =
-    clctParams.getParameter<unsigned int>("clctNplanesHitPattern");
-  m_clct_pid_thresh_pretrig  =
-    clctParams.getParameter<unsigned int>("clctPidThreshPretrig");
-  m_clct_min_separation =
-    clctParams.getParameter<unsigned int>("clctMinSeparation");
+  m_clct_fifo_tbins  = clctParams.getParameter<unsigned int>("clctFifoTbins");
+  m_clct_fifo_pretrig= clctParams.getParameter<unsigned int>("clctFifoPretrig");
+  m_clct_bx_width    = clctParams.getParameter<unsigned int>("clctBxWidth");
+  m_clct_drift_delay = clctParams.getParameter<unsigned int>("clctDriftDelay");
+  m_clct_nph_pattern = clctParams.getParameter<unsigned int>("clctNphPattern");
+  m_clct_hs_thresh   = clctParams.getParameter<unsigned int>("clctHsThresh");
+  m_clct_ds_thresh   = clctParams.getParameter<unsigned int>("clctDsThresh");
+
+  // TMB07 parameters
+  m_clct_hit_thresh = clctParams.getParameter<unsigned int>("clctHitThresh");
+  m_clct_pid_thresh = clctParams.getParameter<unsigned int>("clctPidThresh");
+  m_clct_sep_src    = clctParams.getParameter<unsigned int>("clctSepSrc");
+  m_clct_sep_vme    = clctParams.getParameter<unsigned int>("clctSepVme");
 }
 
 //----------------
@@ -108,24 +94,27 @@ L1CSCTriggerPrimitivesConfigProducer::produce(const CSCL1TPParametersRcd& iRecor
   // Set ALCT parameters.
   pL1CSCTPParams->setAlctFifoTbins(m_alct_fifo_tbins);
   pL1CSCTPParams->setAlctFifoPretrig(m_alct_fifo_pretrig);
+  pL1CSCTPParams->setAlctBxWidth(m_alct_bx_width);
   pL1CSCTPParams->setAlctDriftDelay(m_alct_drift_delay);
-  pL1CSCTPParams->setAlctNplanesHitPretrig(m_alct_nplanes_hit_pretrig);
-  pL1CSCTPParams->setAlctNplanesHitPattern(m_alct_nplanes_hit_pattern);
-  pL1CSCTPParams->setAlctNplanesHitAccelPretrig(m_alct_nplanes_hit_accel_pretrig);
-  pL1CSCTPParams->setAlctNplanesHitAccelPattern(m_alct_nplanes_hit_accel_pattern);
+  pL1CSCTPParams->setAlctNphThresh(m_alct_nph_thresh);
+  pL1CSCTPParams->setAlctNphPattern(m_alct_nph_pattern);
   pL1CSCTPParams->setAlctTrigMode(m_alct_trig_mode);
-  pL1CSCTPParams->setAlctAccelMode(m_alct_accel_mode);
-  pL1CSCTPParams->setAlctL1aWindowWidth(m_alct_l1a_window_width);
+  pL1CSCTPParams->setAlctAlctAmode(m_alct_alct_amode);
+  pL1CSCTPParams->setAlctL1aWindow(m_alct_l1a_window);
 
   // Set CLCT parameters.
   pL1CSCTPParams->setClctFifoTbins(m_clct_fifo_tbins);
   pL1CSCTPParams->setClctFifoPretrig(m_clct_fifo_pretrig);
-  pL1CSCTPParams->setClctHitPersist(m_clct_hit_persist);
+  pL1CSCTPParams->setClctBxWidth(m_clct_bx_width);
   pL1CSCTPParams->setClctDriftDelay(m_clct_drift_delay);
-  pL1CSCTPParams->setClctNplanesHitPretrig(m_clct_nplanes_hit_pretrig);
-  pL1CSCTPParams->setClctNplanesHitPattern(m_clct_nplanes_hit_pattern);
-  pL1CSCTPParams->setClctPidThreshPretrig(m_clct_pid_thresh_pretrig);
-  pL1CSCTPParams->setClctMinSeparation(m_clct_min_separation);
+  pL1CSCTPParams->setClctNphPattern(m_clct_nph_pattern);
+  pL1CSCTPParams->setClctHsThresh(m_clct_hs_thresh);
+  pL1CSCTPParams->setClctDsThresh(m_clct_ds_thresh);
+
+  pL1CSCTPParams->setClctHitThresh(m_clct_hit_thresh);
+  pL1CSCTPParams->setClctPidThresh(m_clct_pid_thresh);
+  pL1CSCTPParams->setClctSepSrc(m_clct_sep_src);
+  pL1CSCTPParams->setClctSepVme(m_clct_sep_vme);
 
   //return pL1CSCTPProducer;
   return pL1CSCTPParams;

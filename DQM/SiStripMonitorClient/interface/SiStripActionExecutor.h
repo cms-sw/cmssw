@@ -31,6 +31,7 @@ class SiStripActionExecutor {
 
  void saveMEs(DQMStore * dqm_store, std::string fname);
  void createSummary(DQMStore* dqm_store);
+ void createSummaryOffline(DQMStore* dqm_store);
  void createTkMap(const edm::ParameterSet & tkmapPset, 
 		  const edm::ESHandle<SiStripFedCabling>& fedcabling, DQMStore* dqm_store);
 
@@ -44,6 +45,7 @@ class SiStripActionExecutor {
 		       int& error_me_subdet, unsigned int xbin);
  void fillSubDetStatus(DQMStore* dqm_store, std::string& dname, unsigned int xbin);
  void fillDummyGlobalStatus();
+ bool goToDir(DQMStore * dqm_store, std::string name);
 
 
   std::vector<std::string> tkMapMENames;

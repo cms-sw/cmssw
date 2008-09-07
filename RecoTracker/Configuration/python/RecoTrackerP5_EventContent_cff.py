@@ -18,7 +18,10 @@ RecoTrackerFEVT = cms.PSet(
         'keep TrackingRecHitsOwned_rsWithMaterialTracksP5_*_*', 
         'keep recoTracks_cosmictrackfinderP5_*_*', 
         'keep recoTrackExtras_cosmictrackfinderP5_*_*', 
-        'keep TrackingRecHitsOwned_cosmictrackfinderP5_*_*')
+        'keep TrackingRecHitsOwned_cosmictrackfinderP5_*_*',
+        'keep recoTracks_ctfWithMaterialTracksBeamHaloMuon_*_*',
+        'keep recoTrackExtras_ctfWithMaterialTracksBeamHaloMuon_*_*',
+        'keep TrackingRecHitsOwned_ctfWithMaterialTracksBeamHaloMuon_*_*')
 )
 #RECO content
 RecoTrackerRECO = cms.PSet(
@@ -30,12 +33,16 @@ RecoTrackerRECO = cms.PSet(
         'keep TrackingRecHitsOwned_rsWithMaterialTracksP5_*_*', 
         'keep recoTracks_cosmictrackfinderP5_*_*', 
         'keep recoTrackExtras_cosmictrackfinderP5_*_*', 
-        'keep TrackingRecHitsOwned_cosmictrackfinderP5_*_*')
+        'keep TrackingRecHitsOwned_cosmictrackfinderP5_*_*',
+        'keep recoTracks_ctfWithMaterialTracksBeamHaloMuon_*_*',
+        'keep recoTrackExtras_ctfWithMaterialTracksBeamHaloMuon_*_*',
+        'keep TrackingRecHitsOwned_ctfWithMaterialTracksBeamHaloMuon_*_*')
 )
 #AOD content
 RecoTrackerAOD = cms.PSet(
     outputCommands = cms.untracked.vstring('keep recoTracks_ctfWithMaterialTracksP5_*_*', 
         'keep recoTracks_rsWithMaterialTracksP5_*_*', 
-        'keep recoTracks_cosmictrackfinderP5_*_*')
+        'keep recoTracks_cosmictrackfinderP5_*_*',
+        'keep recoTracks_ctfWithMaterialTracksBeamHaloMuon_*_*')
 )
 

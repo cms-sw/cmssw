@@ -205,12 +205,12 @@ L1SubsystemParams = cms.PSet(
             type = cms.string('L1GtTriggerMask'),
             key = cms.string('dummy')
         ), 
-        cms.PSet(
-            record = cms.string('L1GtTriggerMenuRcd'),
-            tag = cms.string('L1GtTriggerMenu_IDEAL'),
-            type = cms.string('L1GtTriggerMenu'),
-            key = cms.string('dummy')
-        ), 
+#        cms.PSet(
+#            record = cms.string('L1GtTriggerMenuRcd'),
+#            tag = cms.string('L1GtTriggerMenu_IDEAL'),
+#            type = cms.string('L1GtTriggerMenu'),
+#            key = cms.string('dummy')
+#        ), 
         cms.PSet(
             record = cms.string('L1CaloGeometryRecord'),
             tag = cms.string('L1CaloGeometry_IDEAL'),
