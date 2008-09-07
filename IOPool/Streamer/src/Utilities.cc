@@ -215,7 +215,7 @@ namespace edm
       }
 
     std::auto_ptr<SendJobHeader> p = readHeaderFromStream(ist);
-    StreamerInputSource::mergeIntoRegistry(p->descs(), pr, false);
+    StreamerInputSource::mergeIntoRegistry(*p, pr, false);
     return pr;
   }
 

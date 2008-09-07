@@ -14,11 +14,13 @@
 #include "TClass.h"
 #include "IOPool/Streamer/interface/ClassFiller.h"
 #include "IOPool/Streamer/interface/InitMsgBuilder.h"
+#include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/Utilities/interface/WrappedClassName.h"
 #include "DataFormats/Streamer/interface/StreamedProducts.h"
 #include "DataFormats/Common/interface/OutputHandle.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "zlib.h"
 #include <cstdlib>
@@ -66,6 +68,8 @@ namespace edm
         FDEBUG(9) << "StreamOutput got product = " << (*i)->className()
                   << std::endl;
     }
+    edm::Service<edm::ConstProductRegistry> reg;
+    sd.setNextID(reg->nextID());
     sd.setModuleDescriptionMap(ModuleDescriptionRegistry::instance()->data());
     SendJobHeader::ParameterSetMap psetMap;
 

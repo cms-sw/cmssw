@@ -100,16 +100,19 @@ namespace edm {
     typedef std::map<ParameterSetID, ParameterSetBlob> ParameterSetMap;
     SendJobHeader() { }
     SendDescs const& descs() const {return descs_;}
+    unsigned int nextID() const {return nextID_;}
     ParameterSetMap const& processParameterSet() const {return processParameterSet_;}
     ModuleDescriptionMap const& moduleDescriptionMap() const {return moduleDescriptionMap_;}
     void push_back(BranchDescription const& bd) {descs_.push_back(bd);}
     void setModuleDescriptionMap(ModuleDescriptionMap const& mdMap) {moduleDescriptionMap_ = mdMap;}
     void setParameterSetMap(ParameterSetMap const& psetMap) {processParameterSet_ = psetMap;}
+    void setNextID(unsigned int next) {nextID_ = next;}
 
   private:
     SendDescs descs_;
     ParameterSetMap processParameterSet_;
     ModuleDescriptionMap moduleDescriptionMap_;
+    unsigned int nextID_;
     // trigger bit descriptions will be added here and permanent
     //  provenance values
   };

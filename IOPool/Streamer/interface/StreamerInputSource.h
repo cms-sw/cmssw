@@ -45,7 +45,7 @@ namespace edm {
     std::auto_ptr<EventPrincipal> deserializeEvent(EventMsgView const& eventView);
 
     static
-    void mergeIntoRegistry(SendDescs const& descs, ProductRegistry&, bool subsequent);
+    void mergeIntoRegistry(SendJobHeader const& header, ProductRegistry&, bool subsequent);
 
     /**
      * Uncompresses the data in the specified input buffer into the
@@ -79,6 +79,8 @@ namespace edm {
     virtual ItemType getNextItemType();
 
     virtual void setRun(RunNumber_t r);
+
+    virtual boost::shared_ptr<FileBlock> readFile_();
 
     bool newRun_;
     bool newLumi_;
