@@ -24,6 +24,7 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     #l1GtReadoutRecord = cms.InputTag("l1GmtEmulDigis"),
     l1GtReadoutRecord = cms.InputTag("hltGtDigis"),
     l1extramc = cms.string('hltL1extraParticles'),
+    l1extramu = cms.string('hltL1extraParticles'),
 ##    hltresults = cms.InputTag("TriggerResults"),
     hltresults = cms.InputTag("TriggerResults::HLT"),
     ### Muon OpenHLT objects                             
