@@ -178,6 +178,8 @@ namespace edm {
   void RootOutputFile::beginInputFile(FileBlock const& fb, bool fastClone) {
 
     currentlyFastCloning_ = om_->fastCloning() && fb.fastClonable() && fastClone;
+    if (currentlyFastCloning_) currentlyFastCloning_ = eventTree_.checkSplitLevelAndBasketSize(fb.tree());
+
     eventTree_.beginInputFile(currentlyFastCloning_);
     eventTree_.fastCloneTree(fb.tree());
   }
