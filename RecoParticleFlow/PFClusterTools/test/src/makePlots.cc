@@ -1,5 +1,5 @@
-void makePlots() {
-	TFile file("Exercises.root", "update");
+void makePlots(TFile& file) {
+	//TFile file("Exercises.root", "update");
 	TTree* tv__tree = (TTree *) gROOT->FindObject("CalibratedParticles");
 
 	TDirectory* plots = file.mkdir("plots");

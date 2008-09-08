@@ -20,7 +20,7 @@ namespace pftools {
  * \author Jamie Ballin, Imperial College London
  * \date September 2008
  * 
- * The ECAL and HCAL have been calibrated to 50 GeV electrons. Therefore, a calibration is required in
+ * The ECAL and HCAL have been calibrated to 50 GeV electrons. Therefore, a calibration is required 
  * to evaluate the correct hadronic response. This class will calibrate clusters belonging to a PFCandidate.
  * (Users should access these clusters from the blocks in the PFCandidate).
  * 
@@ -31,9 +31,9 @@ namespace pftools {
  * 	iv) do nothing when all tests fail
  * 
  * In each case, a linear calibration is evaluated, for barrel and endcap (call setBarrelBoundary(double eta)
- * to set this limit.
+ * to set this limit).
  * 
- * Sensible default values are set for all members, but in order to get sensible results, you must supply the
+ * Sensible default values are set for all members, but in order to get usable results, you must supply the
  * latest function parameters and corrections (seperately available) - see setCorrections() 
  * and setEvolutionParameters() documentation below.
  */

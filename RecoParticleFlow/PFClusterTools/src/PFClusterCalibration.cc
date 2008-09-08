@@ -19,6 +19,9 @@ PFClusterCalibration::PFClusterCalibration() :
 	correction_.FixParameter(3, lowEP1_);
 	correction_.FixParameter(4, correctionLowLimit_);
 
+	/* These are the types of calibration I know about:
+	 * ecalOnly_elementName
+	 * etc. Sorry, it's not very nice, but well, neither is ROOT... */
 	std::string eoeb("ecalOnlyEcalBarrel");
 	names_.push_back(eoeb);
 	std::string eoee("ecalOnlyEcalEndcap");
@@ -77,10 +80,13 @@ void PFClusterCalibration::setEvolutionParameters(const std::string& sector,
 
 void PFClusterCalibration::setCorrections(const double& lowEP0,
 		const double& lowEP1, const double& globalP0, const double& globalP1) {
+	//'a' term is -globalP0/globalP1
 	globalP0_ = globalP0;
 	globalP1_ = globalP1;
+	//Specifically for low energies...
 	lowEP0_ = lowEP0;
 	lowEP1_ = lowEP1;
+	//Intersection of two straight lines => matching at...
 	correctionLowLimit_ = (lowEP0_ - globalP0_)/(globalP1_ - lowEP1_);
 
 	correction_.FixParameter(0, globalP0_);
@@ -158,8 +164,13 @@ double PFClusterCalibration::getCalibratedEnergy(const double& ecalE,
 			+ getCalibratedHcalEnergy(ecalE, hcalE, eta, phi);
 
 	//apply correction?
-	if (!doCorrection_)
-		return answer;
+	//check for negative energies
+	if (!doCorrection_) {
+		if(!allowNegativeEnergy_ && answer < 0)
+			return 0;
+		else
+			return answer;
+	}
 	if (!allowNegativeEnergy_ && correction_.Eval(answer) < 0)
 		return 0;
 	return correction_.Eval(answer);
