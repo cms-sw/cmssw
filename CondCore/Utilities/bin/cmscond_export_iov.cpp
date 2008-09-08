@@ -28,6 +28,8 @@
 #include "CondCore/DBCommon/interface/ObjectRelationalMappingUtility.h"
 #include "CondCore/IOVService/interface/IOVNames.h"
 
+#include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/PluginManager/interface/standard.h"
 
 #include <boost/program_options.hpp>
 #include <iterator>
@@ -40,7 +42,7 @@
 
 
 int main( int argc, char** argv ){
-
+  
   boost::program_options::options_description desc("options");
   boost::program_options::options_description visible("Usage: cmscond_export_iov [options] \n");
   visible.add_options()
@@ -156,6 +158,9 @@ int main( int argc, char** argv ){
     std::cout<<"configFile:\t"<<configuration_filename<<std::endl;
   }
   //
+  edmplugin::PluginManager::Config config;
+  edmplugin::PluginManager::configure(edmplugin::standard::config());
+
   if (!dictlibrary.empty())
   try {
     seal::SharedLibrary::load( dictlibrary );
