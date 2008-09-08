@@ -14,7 +14,8 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
 # source
 process.source = cms.Source("PoolSource", 
-     fileNames = cms.untracked.vstring('file:/afs/cern.ch/cms/PRS/top/cmssw-data/relval200-for-pat-testing/FullSimTTBar-2_1_X_2008-07-08_STARTUP_V4-AODSIM.100.root')
+     #fileNames = cms.untracked.vstring('file:/afs/cern.ch/cms/PRS/top/cmssw-data/relval200-for-pat-testing/FullSimTTBar-2_1_X_2008-07-08_STARTUP_V4-AODSIM.100.root')
+     fileNames = cms.untracked.vstring('rfio:/castor/cern.ch/cms/store/relval/CMSSW_2_1_2/RelValWM/GEN-SIM-RECO/IDEAL_V6_v4/0000/0A2CF420-DA6E-DD11-8ABD-000423D94700.root')
 )
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 
