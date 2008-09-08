@@ -9,6 +9,7 @@
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
+#include "DataFormats/JetReco/interface/JetTracksAssociation.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -22,13 +23,14 @@ using namespace std;
 ////////////////////////////////////////////////////////////////////////////////////////
 JetValidation::JetValidation(edm::ParameterSet const& cfg)
 {
-  dRmatch       = cfg.getParameter<double> ("dRmatch");
-  PtMin         = cfg.getParameter<double> ("PtMin");
-  Njets         = cfg.getParameter<int> ("Njets");
-  MCarlo        = cfg.getParameter<bool> ("MCarlo");
-  genAlgo       = cfg.getParameter<string> ("genAlgo");
-  calAlgo       = cfg.getParameter<string> ("calAlgo");
-  histoFileName = cfg.getParameter<string> ("histoFileName");
+  dRmatch             = cfg.getParameter<double> ("dRmatch");
+  PtMin               = cfg.getParameter<double> ("PtMin");
+  Njets               = cfg.getParameter<int> ("Njets");
+  MCarlo              = cfg.getParameter<bool> ("MCarlo");
+  genAlgo             = cfg.getParameter<string> ("genAlgo");
+  calAlgo             = cfg.getParameter<string> ("calAlgo");
+  jetTracksAssociator = cfg.getParameter<string> ("jetTracksAssociator"); 
+  histoFileName       = cfg.getParameter<string> ("histoFileName");
 }
 ////////////////////////////////////////////////////////////////////////////////////////
 void JetValidation::beginJob(edm::EventSetup const& iSetup) 
@@ -40,6 +42,8 @@ void JetValidation::beginJob(edm::EventSetup const& iSetup)
   m_HistNames1D["etaCalo"] = new TH1F("etaCalo","#eta of CaloJets",100,-5.0,5.0);
   m_HistNames1D["phiCalo"] = new TH1F("phiCalo","#phi of CaloJets",72,-M_PI, M_PI);
   m_HistNames1D["m2jCalo"] = new TH1F("m2jCalo","Dijet Mass of leading CaloJets",7000,0,14000);
+  m_HistNames1D["nTracks"] = new TH1F("nTracks","Number of tracks associated with a jet",100,0,100);
+  m_HistNames1D["chargeFraction"] = new TH1F("chargeFraction","Fraction of charged tracks pt",500,0,5);
   m_HistNames1D["emEnergyFraction"] = new TH1F("emEnergyFraction","Jets EM Fraction",110,0,1.1);
   m_HistNames1D["emEnergyInEB"] = new TH1F("emEnergyInEB","Jets emEnergyInEB",7000,0,14000);
   m_HistNames1D["emEnergyInEE"] = new TH1F("emEnergyInEE","Jets emEnergyInEE",7000,0,14000);
@@ -77,14 +81,16 @@ void JetValidation::beginJob(edm::EventSetup const& iSetup)
 void JetValidation::analyze(edm::Event const& evt, edm::EventSetup const& iSetup) 
 {
   math::XYZTLorentzVector p4jet[2];
-  int jetInd,jetCounter;
-  double dRmin,dR,e,eta,emEB,emEE,emHF,hadHB,hadHE,hadHO,hadHF,pt,phi,pthat;
+  int jetInd,jetCounter,nTracks;
+  double dRmin,dR,e,eta,emEB,emEE,emHF,hadHB,hadHE,hadHO,hadHF,pt,phi,pthat,chf;
   Handle<CaloJetCollection> caljets;
   Handle<GenJetCollection> genjets;
-  Handle< double > genEventScale;
+  Handle<double> genEventScale;
+  Handle<JetTracksAssociation::Container> jetTracks;
   CaloJetCollection::const_iterator i_caljet;
   GenJetCollection::const_iterator i_genjet;
   evt.getByLabel(calAlgo,caljets);
+  evt.getByLabel(jetTracksAssociator,jetTracks);
   jetInd = 0;
   jetCounter = 0;
   if (caljets->size()==0)
@@ -102,6 +108,8 @@ void JetValidation::analyze(edm::Event const& evt, edm::EventSetup const& iSetup
       hadHE = i_caljet->hadEnergyInHE(); 
       hadHO = i_caljet->hadEnergyInHO(); 
       hadHF = i_caljet->hadEnergyInHF();  
+      nTracks = JetTracksAssociation::tracksNumber(*jetTracks,*i_caljet);
+      chf = (JetTracksAssociation::tracksP4(*jetTracks,*i_caljet)).pt()/pt;
       if (jetInd<2)
         p4jet[jetInd] = i_caljet->p4();
       if (pt>PtMin)
@@ -109,7 +117,9 @@ void JetValidation::analyze(edm::Event const& evt, edm::EventSetup const& iSetup
           FillHist1D("ptCalo",pt);
           FillHist1D("etaCalo",eta);
           FillHist1D("phiCalo",phi);
-          FillHist1D("emEnergyFraction",i_caljet->emEnergyFraction()); 
+          FillHist1D("emEnergyFraction",i_caljet->emEnergyFraction());
+	  FillHist1D("nTracks",nTracks);
+	  FillHist1D("chargeFraction",chf); 
           FillHist1D("emEnergyInEB",emEB); 
           FillHist1D("emEnergyInEE",emEE); 
           FillHist1D("emEnergyInHF",emHF); 

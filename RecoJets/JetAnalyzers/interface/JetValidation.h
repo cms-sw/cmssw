@@ -38,6 +38,7 @@ class JetValidation : public edm::EDAnalyzer
        std::string histoFileName; 
        std::string genAlgo;   
        std::string calAlgo;
+       std::string jetTracksAssociator; 
   };
 
 #endif
