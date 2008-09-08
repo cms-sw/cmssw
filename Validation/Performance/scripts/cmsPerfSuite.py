@@ -451,7 +451,7 @@ def main(argv):
         if candleoption == "":
             candleoption = "MinBias"
         if stepOptions == "":
-            stepOptions = "GEN-SIM,DIGI,DIGI2RAW,L1,HLT,RAW2DIGI,RECO"
+            stepOptions = "GEN-SIM,DIGI,L1,DIGI2RAW,HLT,RAW2DIGI,RECO"
         cmsScimark      = 0
         cmsScimarkLarge = 0
         ValgrindEvents  = 0
@@ -621,8 +621,7 @@ def main(argv):
     printFlush(os.popen4(AuxiliaryScripts[2])[1].read())
 
     if not prevrel == "":
-        crr.regressReports(prevrel,os.path.abspath("./"),oldRelName = getVerFromLog(prevrel))
-        os.system("touch REGRESSION.%s.vs.%s" % (cmssw_version,getVerFromLog(prevrel)))
+        crr.regressReports(prevrel,os.path.abspath("./"),oldRelName = getVerFromLog(prevrel),newRelName=cmssw_version)
 
     #Create a tarball of the work directory
     TarFile = cmssw_version + "_"     +     host    + "_"     + user + ".tar"

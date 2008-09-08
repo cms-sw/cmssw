@@ -66,7 +66,21 @@ def getcmd(command):
         print command
     return os.popen4(command)[1].read().strip()
 
-class cpuRow(object):
+def prettySize(size):
+    nega = size < 0
+    if nega:
+        size = -size
+    suffixes = [("B",2**10), ("K",2**20), ("M",2**30), ("G",2**40), ("T",2**50)]
+    for suf, lim in suffixes:
+        if size > lim:
+            continue
+        else:
+            if nega:
+                return "-" + round(size/float(lim/2**10),2).__str__() + suf
+            else:
+                return round(size/float(lim/2**10),2).__str__()+suf                
+
+class Row(object):
 
     def __init__(self,table):
         self.table   = table
@@ -82,7 +96,7 @@ class cpuRow(object):
     def getRowDict(self):
         return self.coldata
 
-class cpuTable(object):
+class Table(object):
     
     def __init__(self):
         self.colNames = []
@@ -100,12 +114,15 @@ class cpuTable(object):
         else:
             self.colNames.append(name)
 
+    def getCols(self):
+        return self.colNames
+
     def newRow(self,name):
         if name in self.rows.keys():
             pass
         else:
             self.keys.append(name)
-            self.rows[name] = cpuRow(self)
+            self.rows[name] = Row(self)
             
         return self.rows[name]
 
@@ -130,6 +147,19 @@ class cpuTable(object):
                 rowobj.addEntry(name,(total1,total2))
                 
         return (self.keys, self.rows)
+
+    def transpose(self):
+        transp = Table()
+        for col in self.colnames:
+            rowobj = transp.newRow(col)
+            for key in self.keys:
+                if key == None:
+                    pass
+                else:
+                    row_dict = self.rows[key].getRowDict()
+                    if row_dict.has_key(key):
+                        rowobj.addEntry(key,row_dict[col])
+        return transp
 
 ######################
 #
@@ -778,7 +808,12 @@ def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDat
                                         step = "Unknown-step"
                                         if found:
                                             step = found.groups()[0]
-                                        CAND.write("<a href=\"%s/%s/objects_pp.html\">%s %s regression report</a><br/>\n" % (LocalDirname,base,prof,step))
+                                        htmlpage = ""
+                                        if prof == "IgProfMemLive" or prof == "IgProfMemTotal" or prof == "valgrind":
+                                            htmlpage = "overall.html"
+                                        else:
+                                            htmlpage = "objects_pp.html"
+                                        CAND.write("<a href=\"%s/%s/%s\">%s %s regression report</a><br/>\n" % (LocalDirname,base,htmlpage,prof,step))
                                         
                                         
                     
@@ -872,6 +907,158 @@ def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDat
     except IOError, detail:
         print "ERROR: Could not write candle html %s because %s" % (os.path.basename(candlHTML),detail)
 
+
+def populateFromTupleRoot(tupname,repdir,rootf,dataVal):
+    table = Table()
+    for cand in Candles:
+        fname = CandFname[cand]
+        globpath = os.path.join(repdir,"%s_TimeSize" % cand,"%s_*_TimingReport" % fname)
+        stepDirs = glob.glob(globpath)
+        stepDirs.sort(cmp=step_cmp)
+        stepreg = re.compile("%s_(.*)_TimingReport" % fname)
+        createNewRow = True
+        curRow = None
+        for stepdir in stepDirs:
+            base  = os.path.basename(stepdir)
+            found = stepreg.search(base)
+            step  = "Unknown-step"
+            if found:
+                step = found.groups()[0]
+            rootf = os.path.join(stepdir,rootf)
+            if os.path.exists(rootf):
+                f = ROOT.TFile(rootf)
+                data_tree = ROOT.TTree()
+                f.GetObject("%s;1" % tupname,data_tree)
+                if data_tree:
+                    if data_tree.InheritsFrom("TTree"):
+                        data1 = None
+                        data2 = None
+                        for t in data_tree:
+                            if dataVal == "total":
+                                data1 = t.total1
+                                data2 = t.total2
+                            else:
+                                data1 = t.fsize1
+                                data2 = t.fsize2
+                        if data1 and data2:
+                            if createNewRow:
+                                createNewRow = False
+                                curRow = table.newRow(cand)
+                            data_tuple = (data1,data2)
+                            print cand , data_tuple
+                            curRow.addEntry(step,data_tuple)
+                f.Close()
+    return table
+
+## def transposeHTMLtab(INDEX,table,header,caption,name,thetype):
+##     transp = table.transpose()
+##     (ordered_keys,table_dict) = transp.getTableDict()
+##     #allCols = [None]
+##     #allCols.extend(colnames)
+##     #allCols = fsize_tab.getCols()
+##     #cols    = len(allCols)
+##     totcols = cols + 1
+##     INDEX.write("<h3>%s</h3>\n" % header)
+##     #INDEX.write("<p>Table showing previous release CPU times, t1, latest times, t2, and the difference between them &#x0394; in secs.</p>\n")
+##     INDEX.write("<table>\n")
+##     #INDEX.write("<caption>%s</caption>\n" % caption)
+##     #INDEX.write("<thead><tr><th></th><th colspan=\"%s\" scope=\"colgroup\">%s</th></tr></thead>" % ((totcols - 1),name)) 
+##     #INDEX.write("<tbody>\n")
+
+##     for key in ordered_keys:
+##             INDEX.write("<tr>")                                        
+##         if key == None:
+##             INDEX.write("<th></th>")
+##         else:
+##             INDEX.write("<tr>")            
+##             INDEX.write("<td rowspanscope=\"row\">")
+##             INDEX.write(key)
+##             INDEX.write("</td>")
+##         for i in range(3):
+##             for col in table_dict[None]:
+##                 if key == None:
+##                     INDEX.write("<th colspan=\"3\" scope=\"col\">")
+##                     INDEX.write(col)
+##                     INDEX.write("</th>")                            
+##                 else:
+##                     rowdict = table_dict[key].getRowDict()
+##                     if rowdict.has_key(col):
+##                         (data1, data2) = rowdict[col]
+                    
+
+
+
+def createHTMLtab(INDEX,table_dict,ordered_keys,header,caption,name,mode=0):
+    fslabels = ["fs1","fs2","&#x0394;"]
+    tlabels  = ["t1" ,"t2" ,"&#x0394;"]
+    labels = []
+    if mode == 1:
+        labels = fslabels
+    else:
+        labels = tlabels
+    cols = len(ordered_keys)
+    totcols = (cols * 3) + 1
+    INDEX.write("<h3>%s</h3>\n" % header)
+    #INDEX.write("<p>Table showing previous release CPU times, t1, latest times, t2, and the difference between them &#x0394; in secs.</p>\n")
+    INDEX.write("<table>\n")
+    INDEX.write("<caption>%s</caption>\n" % caption)
+    INDEX.write("<thead><tr><th></th><th colspan=\"%s\" scope=\"colgroup\">%s</th></tr></thead>" % ((totcols - 1),name)) 
+    INDEX.write("<tbody>\n")
+    for key in ordered_keys:
+        INDEX.write("<tr>")
+        if key == None:
+            INDEX.write("<th></th>")
+        else:
+            INDEX.write("<td scope=\"row\">")
+            INDEX.write(key)
+            INDEX.write("</td>")
+        for col in table_dict[None]:
+            if key == None:
+                INDEX.write("<th colspan=\"3\" scope=\"col\">")
+                INDEX.write(col)
+                INDEX.write("</th>")                            
+            else:
+                rowdict = table_dict[key].getRowDict()
+                if rowdict.has_key(col):
+                    (data1, data2) = rowdict[col]
+                    diff = data2 - data1
+                    print key, data1, data2
+                    if mode == 1:
+                        diff  = prettySize(diff)
+                        data1 = prettySize(data1)
+                        data2 = prettySize(data2)
+                        
+                    seq = [ data1, data2, diff ]
+                    for dat in seq:
+                        INDEX.write("<td id=\"data\">")
+                        if mode == 1:
+                            INDEX.write("%s" % dat) # %s if                            
+                        else:
+                            INDEX.write("%6.2f" % dat) # %s if                            
+
+                        INDEX.write("</td>")
+                else:
+                    for i in range(3):
+                        INDEX.write("<td>")                                    
+                        INDEX.write("N/A")
+                        INDEX.write("</td>")
+        INDEX.write("</tr>\n")
+        # write an additional row if this row is the header row
+        # we need to describe the sub columns
+        if key == None:
+            INDEX.write("<tr>")
+            INDEX.write("<th>Candles</th>")
+            for col in table_dict[None]:
+                INDEX.write("<th>%s</th>" % labels[0])
+                INDEX.write("<th>%s</th>" % labels[1])
+                INDEX.write("<th>%s</th>" % labels[2])
+            INDEX.write("</tr>\n")
+    INDEX.write("</tbody></table>\n")
+
+    INDEX.write("<br />")    
+
+
+
 #####################
 #
 # Create web report index and create  HTML file for each candle
@@ -880,24 +1067,10 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
 
     #Some nomenclature
 
-    Candle=( #These need to match the directory names in the work area
-        "HiggsZZ4LM200",
-        "MinBias",
-        "SingleElectronE1000",
-        "SingleMuMinusPt10",
-        "SinglePiMinusE1000",
-        "TTbar",
-        "QCD_80_120"
-        )
-    CmsDriverCandle={ #These need to match the cmsDriver.py output filenames
-        Candle[0] : "HZZLLLL_200",
-        Candle[1] : "MINBIAS",
-        Candle[2] : "E_1000",
-        Candle[3] : "MU-_pt_10",
-        Candle[4] : "PI-_1000",
-        Candle[5] : "TTBAR",
-        Candle[6] : "QCD_80_120"
-        }
+    Candle = Candles #These need to match the directory names in the work area
+
+    CmsDriverCandle = CandFname #{ #These need to match the cmsDriver.py output filenames
+
 
     #Produce a "small" index.html file to navigate the html reports/logs etc
     IndexFile="%s/index.html" % WebArea
@@ -906,6 +1079,7 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
     cmsverreg = re.compile("CMSSW_VERSION")
     hostreg   = re.compile("HOST")
     lpathreg  = re.compile("LocalPath")
+    fsizereg  = re.compile("FSizeTable")        
     cpureg    = re.compile("CPUTable")    
     proddreg  = re.compile("ProductionDate")
     logfreg   = re.compile("LogfileLinks")
@@ -933,103 +1107,170 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
                     INDEX.write("Simulation Performance Reports with regression: %s VS %s\n" % (prevrev,CMSSW_VERSION))
             elif hostreg.search(NewFileLine):
                 INDEX.write(HOST + "\n")
+            elif fsizereg.search(NewFileLine):
+                if prevrev == "":
+                    pass
+                else:
+
+                    try:
+                        idfile  = open(os.path.join(repdir,"REGRESSION.%s.vs.%s" % (CMSSW_VERSION,prevrev)))
+                        oldpath = ""
+                        for line in idfile:
+                            oldpath = line
+                        fsize_tab = Table()
+
+                        #populateFromTupleRoot(fsize_tab,"fsize_tuple",repdir,"timing-regress.root","fsize")
+                        #(ordered_keys,table_dict) = fsize_tab.getTable()
+                        #cols = len(ordered_keys)
+
+                        for cand in Candles:
+                            fname = CandFname[cand]
+                            globpath  = os.path.join(repdir,"%s_TimeSize" % cand,"%s_*.root" % fname)
+                            rootfiles = glob.glob(globpath)
+                            rootfiles.sort(cmp=step_cmp)
+                            stepreg = re.compile("%s_(.*).root" % fname)
+                            createNewRow = True
+                            curRow = None
+                            for rootf in rootfiles:
+                                base  = os.path.basename(rootf)
+                                found = stepreg.search(base)
+                                step  = "Unknown-step"
+                                if found:
+                                    step = found.groups()[0]
+
+                                try:
+                                    statinfo = os.stat(rootf)
+                                    fsize1   = statinfo.st_size
+                                    oldfile  = os.path.join(oldpath,"%s_TimeSize" % cand,base)
+                                    fsize2   = 0.0
+                                    if os.path.exists(oldfile):
+                                        statinfo = os.stat(oldfile)
+                                        fsize2   = statinfo.st_size
+                                    if createNewRow:
+                                        createNewRow = False
+                                        curRow = fsize_tab.newRow()
+                                    data_tuple = (fsize1,fsize2)
+                                    curRow.addEntry(step,data_tuple)
+                                except IOError, detail:
+                                    print detail
+                                except OSError, detail:
+                                    print detail
+                                    
+                        (ordered_keys,table_dict) = fsize_tab.getTable()
+                        cols = len(ordered_keys)
+                    
+                        if len(table_dict) > 1 and cols > 0:
+                            createHTMLtab(INDEX,table_dict,ordered_keys,"Release ROOT file sizes","ROOT Filesizes","Filesizes",1)
+                    except IOError, detail:
+                        print detail
+                    except OSError, detail:
+                        print detail
+                
             elif cpureg.search(NewFileLine):
+                if prevrev == "":
+                    pass
+                else:
 
-                ####
-                #
-                # Create the table data structure
-                #
-                cpu_time_tab = cpuTable()
-                for cand in Candles:
-                    fname = CandFname[cand]
-                    globpath = os.path.join(repdir,"%s_TimeSize" % cand,"%s_*_TimingReport" % fname)
-                    stepDirs = glob.glob(globpath)
-                    stepDirs.sort(cmp=step_cmp)
-                    stepreg = re.compile("%s_([^_]*)_TimingReport" % fname)
-                    createNewRow = True
-                    curRow = None
-                    for stepdir in stepDirs:
-                        base  = os.path.basename(stepdir)
-                        found = stepreg.search(base)
-                        step  = "Unknown-step"
-                        if found:
-                            step = found.groups()[0]
-                        rootf = os.path.join(stepdir,"timing-regress.root")
-                        if os.path.exists(rootf):
-                            f = ROOT.TFile(rootf)
-                            cpu_time_tree = ROOT.TTree()
-                            f.GetObject("cpu_time_tuple;1",cpu_time_tree)
-                            if cpu_time_tree:
-                                if cpu_time_tree.InheritsFrom("TTree"):
-                                    data1 = None
-                                    data2 = None
-                                    for t in cpu_time_tree:
-                                        data1 = t.total1
-                                        data2 = t.total2
-                                    if data1 and data2:
-                                        if createNewRow:
-                                            createNewRow = False
-                                            curRow = cpu_time_tab.newRow(cand)
-                                        data_tuple = (data1,data2)
-                                        curRow.addEntry(step,data_tuple)
-                            f.Close()
 
-                ###########
-                #
-                # Create HTML table from table data structure
-                #
+                    ####
+                    #
+                    # Create the table data structure
+                    #
+                    cpu_time_tab =  populateFromTupleRoot("cpu_time_tuple",repdir,"timing-regress.root","total")
+    ##                 for cand in Candles:
+    ##                     fname = CandFname[cand]
+    ##                     globpath = os.path.join(repdir,"%s_TimeSize" % cand,"%s_*_TimingReport" % fname)
+    ##                     stepDirs = glob.glob(globpath)
+    ##                     stepDirs.sort(cmp=step_cmp)
+    ##                     stepreg = re.compile("%s_([^_]*)_TimingReport" % fname)
+    ##                     createNewRow = True
+    ##                     curRow = None
+    ##                     for stepdir in stepDirs:
+    ##                         base  = os.path.basename(stepdir)
+    ##                         found = stepreg.search(base)
+    ##                         step  = "Unknown-step"
+    ##                         if found:
+    ##                             step = found.groups()[0]
+    ##                         rootf = os.path.join(stepdir,"timing-regress.root")
+    ##                         if os.path.exists(rootf):
+    ##                             f = ROOT.TFile(rootf)
+    ##                             cpu_time_tree = ROOT.TTree()
+    ##                             f.GetObject("cpu_time_tuple;1",cpu_time_tree)
+    ##                             if cpu_time_tree:
+    ##                                 if cpu_time_tree.InheritsFrom("TTree"):
+    ##                                     data1 = None
+    ##                                     data2 = None
+    ##                                     for t in cpu_time_tree:
+    ##                                         data1 = t.total1
+    ##                                         data2 = t.total2
+    ##                                     if data1 and data2:
+    ##                                         if createNewRow:
+    ##                                             createNewRow = False
+    ##                                             curRow = cpu_time_tab.newRow(cand)
+    ##                                         data_tuple = (data1,data2)
+    ##                                         curRow.addEntry(step,data_tuple)
+    ##                             f.Close()
 
-                (ordered_keys,table_dict) = cpu_time_tab.getTable()
-                cols = len(ordered_keys)
-                if len(table_dict) > 1 and cols > 0:
-                    totcols = (cols * 3) + 1
-                    INDEX.write("<h3>Release CPU times</h3>\n")
-                    #INDEX.write("<p>Table showing previous release CPU times, t1, latest times, t2, and the difference between them &#x0394; in secs.</p>\n")
-                    INDEX.write("<table>\n")
-                    INDEX.write("<caption>Table showing previous release CPU times, t1, latest times, t2, and the difference between them &#x0394; in secs.</caption>\n")
-                    INDEX.write("<thead><tr><th></th><th colspan=\"%s\" scope=\"colgroup\">CPU Times (s)</th></tr></thead>" % (totcols - 1)) 
-                    INDEX.write("<tbody>\n")
-                    for key in ordered_keys:
-                        INDEX.write("<tr>")
-                        if key == None:
-                            INDEX.write("<th></th>")
-                        else:
-                            INDEX.write("<td scope=\"row\">")
-                            INDEX.write(key)
-                            INDEX.write("</td>")
-                        for col in table_dict[None]:
-                            if key == None:
-                                INDEX.write("<th colspan=\"3\" scope=\"col\">")
-                                INDEX.write(col)
-                                INDEX.write("</th>")                            
-                            else:
-                                rowdict = table_dict[key].getRowDict()
-                                if rowdict.has_key(col):
-                                    (data1, data2) = rowdict[col]
-                                    seq = [ data1, data2, (data2 - data1 ) ]
-                                    for dat in seq:
-                                        INDEX.write("<td id=\"data\">") 
-                                        INDEX.write("%6.2f" % dat)
-                                        INDEX.write("</td>")
-                                else:
-                                    for i in range(3):
-                                        INDEX.write("<td>")                                    
-                                        INDEX.write("N/A")
-                                        INDEX.write("</td>")
-                        INDEX.write("</tr>\n")
-                        # write an additional row if this row is the header row
-                        # we need to describe the sub columns
-                        if key == None:
-                            INDEX.write("<tr>")
-                            INDEX.write("<th>Candles</th>")
-                            for col in table_dict[None]:
-                                INDEX.write("<th>t1</th>")
-                                INDEX.write("<th>t2</th>")
-                                INDEX.write("<th>&#x0394;</th>")
-                            INDEX.write("</tr>\n")
-                    INDEX.write("</tbody></table>\n")
+                    ###########
+                    #
+                    # Create HTML table from table data structure
+                    #
 
-                    INDEX.write("<br />")
+                    (ordered_keys,table_dict) = cpu_time_tab.getTable()
+                    cols = len(ordered_keys)
+                    if len(table_dict) > 1 and cols > 0:
+                        createHTMLtab(INDEX,table_dict,ordered_keys,
+                                      "Release CPU times",
+                                      "Table showing previous release CPU times, t1, latest times, t2, and the difference between them &#x0394; in secs.",
+                                      "CPU Times (s)")
+    ##                     totcols = (cols * 3) + 1
+    ##                     INDEX.write("<h3>Release CPU times</h3>\n")
+    ##                     #INDEX.write("<p>Table showing previous release CPU times, t1, latest times, t2, and the difference between them &#x0394; in secs.</p>\n")
+    ##                     INDEX.write("<table>\n")
+    ##                     INDEX.write("<caption>Table showing previous release CPU times, t1, latest times, t2, and the difference between them &#x0394; in secs.</caption>\n")
+    ##                     INDEX.write("<thead><tr><th></th><th colspan=\"%s\" scope=\"colgroup\">CPU Times (s)</th></tr></thead>" % (totcols - 1)) 
+    ##                     INDEX.write("<tbody>\n")
+    ##                     for key in ordered_keys:
+    ##                         INDEX.write("<tr>")
+    ##                         if key == None:
+    ##                             INDEX.write("<th></th>")
+    ##                         else:
+    ##                             INDEX.write("<td scope=\"row\">")
+    ##                             INDEX.write(key)
+    ##                             INDEX.write("</td>")
+    ##                         for col in table_dict[None]:
+    ##                             if key == None:
+    ##                                 INDEX.write("<th colspan=\"3\" scope=\"col\">")
+    ##                                 INDEX.write(col)
+    ##                                 INDEX.write("</th>")                            
+    ##                             else:
+    ##                                 rowdict = table_dict[key].getRowDict()
+    ##                                 if rowdict.has_key(col):
+    ##                                     (data1, data2) = rowdict[col]
+    ##                                     seq = [ data1, data2, (data2 - data1 ) ]
+    ##                                     for dat in seq:
+    ##                                         INDEX.write("<td id=\"data\">") 
+    ##                                         INDEX.write("%6.2f" % dat)
+    ##                                         INDEX.write("</td>")
+    ##                                 else:
+    ##                                     for i in range(3):
+    ##                                         INDEX.write("<td>")                                    
+    ##                                         INDEX.write("N/A")
+    ##                                         INDEX.write("</td>")
+    ##                         INDEX.write("</tr>\n")
+    ##                         # write an additional row if this row is the header row
+    ##                         # we need to describe the sub columns
+    ##                         if key == None:
+    ##                             INDEX.write("<tr>")
+    ##                             INDEX.write("<th>Candles</th>")
+    ##                             for col in table_dict[None]:
+    ##                                 INDEX.write("<th>t1</th>")
+    ##                                 INDEX.write("<th>t2</th>")
+    ##                                 INDEX.write("<th>&#x0394;</th>")
+    ##                             INDEX.write("</tr>\n")
+    ##                     INDEX.write("</tbody></table>\n")
+
+##                     INDEX.write("<br />")
                         
                     
             elif lpathreg.search(NewFileLine):

@@ -34,7 +34,7 @@ cmsDriver = 'cmsDriver.py'                    #cmsDriver.py path
 hypreg = re.compile('-')
 debug = False
 DEF_STEPS = ('GEN,SIM', 'DIGI')
-AllSteps  = ["GEN,SIM", "DIGI", "DIGI2RAW", "L1", "HLT", "RAW2DIGI", "RECO"]
+AllSteps  = ["GEN,SIM", "DIGI", "L1", "DIGI2RAW", "HLT", "RAW2DIGI", "RECO"]
 AfterPileUpSteps = AllSteps[2:]
 
 # Global variables used by writeCommandsToReport and dependents

@@ -58,7 +58,7 @@ def compareSimMemPair(newLog,profdir,curdir,candle,olddir,oldRelName=""):
     else:
         print "Successfully compared %s and %s" % (oldlog,newLog)        
         
-def regressReports(olddir,newdir,oldRelName = ""):
+def regressReports(olddir,newdir,oldRelName = "",newRelName=""):
     profSets = ["Valgrind", "IgProf", "TimeSize"]
     for candle in Candles:
         for profset in profSets:
@@ -146,12 +146,17 @@ def regressReports(olddir,newdir,oldRelName = ""):
                                 continue
                     elif prof == "SimpleMemoryCheck":
                         compareSimMemPair(stepLogs,candle,profdir,adir,olddir,oldRelName= oldRelName)
-
+                    
+    if newRelName == "":
+        newRelName = getVerFromLog(newdir)
+    open("%s/REGRESSION.%s.vs.%s" % (newdir,getVerFromLog(olddir),newRelName),"w")
+    os.write(olddir)
+    os.close()
 
 def _main():
     (oldpath,newpath) = getParameters()
     regressReports(oldpath,newpath,oldRelName=getVerFromLog(oldpath))
-    os.system("touch %s/REGRESSION.%s.vs.%s" % (newpath,getVerFromLog(oldpath),getVerFromLog(newpath)))
+
               
 if __name__ == "__main__":
     _main()
