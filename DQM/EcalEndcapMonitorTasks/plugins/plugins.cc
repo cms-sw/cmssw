@@ -50,3 +50,6 @@ DEFINE_ANOTHER_FWK_MODULE(EESelectiveReadoutTask);
 
 #include <DQM/EcalEndcapMonitorTasks/interface/EERawDataTask.h>
 DEFINE_ANOTHER_FWK_MODULE(EERawDataTask);
+
+#include <DQM/EcalEndcapMonitorTasks/interface/EEHltTask.h>
+DEFINE_ANOTHER_FWK_MODULE(EEHltTask);
