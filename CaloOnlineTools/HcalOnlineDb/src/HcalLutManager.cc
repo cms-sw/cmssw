@@ -306,7 +306,8 @@ std::map<int, shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXmlFromAsc
   cout << "Generating linearization (input) LUTs from ascii master file..." << endl;
   map<int, shared_ptr<LutXml> > _xml; // index - crate number
 
-  EMap _emap("../../../CondFormats/HcalObjects/data/official_emap_v6.03_080817.txt");
+  //EMap _emap("../../../CondFormats/HcalObjects/data/official_emap_v6.03_080817.txt");
+  EMap _emap("../../../CondFormats/HcalObjects/data/official_emap_v6.04_080905.txt");
   std::vector<EMap::EMapRow> & _map = _emap.get_map();
   cout << "EMap contains " << _map . size() << " entries" << endl;
 
@@ -396,7 +397,8 @@ std::map<int, shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFromAscii
   cout << "instantiating CaloTPGTranscoderULUT in order to check the validity of (ieta,iphi)..." << endl;
   CaloTPGTranscoderULUT _coder;
 
-  EMap _emap("../../../CondFormats/HcalObjects/data/official_emap_v6.03_080817.txt");
+  //EMap _emap("../../../CondFormats/HcalObjects/data/official_emap_v6.03_080817.txt");
+  EMap _emap("../../../CondFormats/HcalObjects/data/official_emap_v6.04_080905.txt");
   std::vector<EMap::EMapRow> & _map = _emap.get_map();
   cout << "EMap contains " << _map . size() << " channels" << endl;
 
@@ -558,7 +560,8 @@ std::map<int, shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXmlFromCod
   cout << "Generating linearization (input) LUTs from HcaluLUTTPGCoder..." << endl;
   map<int, shared_ptr<LutXml> > _xml; // index - crate number
 
-  EMap _emap("../../../CondFormats/HcalObjects/data/official_emap_v6.03_080817.txt");
+  //EMap _emap("../../../CondFormats/HcalObjects/data/official_emap_v6.03_080817.txt");
+  EMap _emap("../../../CondFormats/HcalObjects/data/official_emap_v6.04_080905.txt");
   std::vector<EMap::EMapRow> & _map = _emap.get_map();
   cout << "EMap contains " << _map . size() << " entries" << endl;
 
@@ -640,7 +643,8 @@ std::map<int, shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFromCoder
   map<int, shared_ptr<LutXml> > _xml; // index - crate number
 
   //EMap _emap("../../../CondFormats/HcalObjects/data/official_emap_v5_080208.txt");
-  EMap _emap("../../../CondFormats/HcalObjects/data/official_emap_v6.03_080817.txt");
+  //EMap _emap("../../../CondFormats/HcalObjects/data/official_emap_v6.03_080817.txt");
+  EMap _emap("../../../CondFormats/HcalObjects/data/official_emap_v6.04_080905.txt");
 
   std::vector<EMap::EMapRow> & _map = _emap.get_map();
   cout << "EMap contains " << _map . size() << " channels" << endl;
@@ -1137,7 +1141,8 @@ int HcalLutManager::create_lut_loader( string file_list, string _prefix, string 
 
 void HcalLutManager::test_emap( void ){
   //EMap _emap("../../../CondFormats/HcalObjects/data/official_emap_v5_080208.txt");
-  EMap _emap("../../../CondFormats/HcalObjects/data/official_emap_v6.03_080817.txt");
+  //EMap _emap("../../../CondFormats/HcalObjects/data/official_emap_v6.03_080817.txt");
+  EMap _emap("../../../CondFormats/HcalObjects/data/official_emap_v6.04_080905.txt");
   std::vector<EMap::EMapRow> & _map = _emap.get_map();
   cout << "EMap contains " << _map . size() << " channels" << endl;
   
