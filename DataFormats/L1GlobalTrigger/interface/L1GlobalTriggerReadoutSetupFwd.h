@@ -3,15 +3,15 @@
 
 /**
  * \class L1GlobalTriggerReadoutSetup
- * 
- * 
- * Description: group typedefs for GT readout record.  
+ *
+ *
+ * Description: group typedefs for GT readout record.
  *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
+ *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
- * 
+ *
  * $Date$
  * $Revision$
  *
@@ -53,6 +53,20 @@ typedef boost::uint32_t CaloMissingEtWord;
 typedef std::vector<unsigned> CaloJetCountsWord;
 
 /// GT objects
-enum L1GtObject { Mu, NoIsoEG, IsoEG, CenJet, ForJet, TauJet, ETM, ETT, HTT, JetCounts };
+enum L1GtObject
+{
+    Mu,
+    NoIsoEG,
+    IsoEG,
+    CenJet,
+    ForJet,
+    TauJet,
+    ETM,
+    ETT,
+    HTT,
+    JetCounts,
+    HfBitCounts,
+    HfRingEtSums
+};
 
 #endif /*L1GlobalTrigger_L1GlobalTriggerReadoutSetupFwd_h*/
