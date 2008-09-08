@@ -429,7 +429,7 @@ float HcalSummaryClient::analyze_everything(std::string subdetname, int type, fl
 
   if (!me)
     {
-      cout <<"SUMMARY:  NO ME!"<<endl;
+      if (debug_) cout <<"<HcalSummaryClient::analyze_everything>  No MonitorElement for "<<prefixME_<<endl;
       return status;
     }
 
@@ -450,7 +450,7 @@ float HcalSummaryClient::analyze_everything(std::string subdetname, int type, fl
 	{
 	  if (debug_) 
 	    cout <<"<HcalSummaryClient>  Could not find DataFormatMonitor histogram named: "<<name<<endl;
-	    //return status; // histogram couldn't be found
+	    return status; // histogram couldn't be found
 	}
     }
 
@@ -597,13 +597,15 @@ float HcalSummaryClient::analyze_everything(std::string subdetname, int type, fl
 	  // See if value has already been filled from other subdetector
 	  tempval=me->getBinContent(ieta,iphi);
 	  if (tempval==-1)
-	    me->setBinContent(ieta,iphi,1-newbincontent);
+	    {
+	      me->setBinContent(ieta,iphi,1-newbincontent);
+	    }
+
 	  else
 	    {
-	      //tempval=tempval-newbincontent; // why was I doing this subtraction?  newbincontent is summed over all events.  
-	      tempval=newbincontent;
+	      tempval=tempval-newbincontent; // why was I doing this subtraction?  newbincontent is summed over all events. 
+	      // Duh!  I was doing it because newbincontent represents the fraction of bad events.  To plot it correctly, I want to plot the fraction of good events.  tempval = 1 - sum(newbincontent), where the sum is over all errors from all subdetectors.
 	      if (tempval<0) tempval=0;
-	      //if (tempval<=0) tempval=0.00001;
 	      me->setBinContent(ieta,iphi,tempval);
 	    }
 	} // loop over iphi
