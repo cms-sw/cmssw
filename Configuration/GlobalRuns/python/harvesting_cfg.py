@@ -24,7 +24,7 @@ process.options = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
 #    dropMetaData = cms.untracked.bool(True),
     processingMode = cms.untracked.string("RunsLumisAndEvents"),
-    fileNames = cms.untracked.vstring('file:reco2.root')
+    fileNames = cms.untracked.vstring('file:promptrecoCosmics.root')
 )
 
 process.maxEvents.input = -1
