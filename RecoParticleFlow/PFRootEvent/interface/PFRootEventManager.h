@@ -595,6 +595,10 @@ class PFRootEventManager {
   /// debug printouts for jet algo on/off
   bool   jetsDebug_;
       
+
+  /// Fastsim or fullsim
+    bool  fastsim_;
+
   // MC Truth tools              ---------------------------------------
 
   /// particle data table.

@@ -166,6 +166,9 @@ void PFRootEventManager::readOptions(const char* file,
     options_->GetOpt("pfjet_benchmark", "deltaRMax", deltaRMax);
 
 
+    fastsim_=true;
+    options_->GetOpt("Simulation","Fast",fastsim_);
+ 
     PFJetBenchmark_.setup( outjetfilename, 
                            pfjBenchmarkDebug,
                            PlotAgainstReco,
@@ -1954,52 +1957,100 @@ PFRootEventManager::tauBenchmark( const reco::PFCandidateCollection& candidates)
   //the code was giving wrong results on non single tau events. 
 
   // first check that this is a single tau event. 
+
+  TLorentzVector partTOTMC;
   bool tauFound = false;
   bool tooManyTaus = false;
-  for ( unsigned i=0;  i < trueParticles_.size(); i++) {
-    const reco::PFSimParticle& ptc = trueParticles_[i];
-    if (abs(ptc.pdgCode()) == 15) {
-      // this is a tau
-      if( i ) tooManyTaus = true;
-      else tauFound=true;
+  if (fastsim_){
+
+    for ( unsigned i=0;  i < trueParticles_.size(); i++) {
+      const reco::PFSimParticle& ptc = trueParticles_[i];
+      if (abs(ptc.pdgCode()) == 15) {
+	// this is a tau
+	if( i ) tooManyTaus = true;
+	else tauFound=true;
+      }
+    }
+    
+    if(!tauFound || tooManyTaus ) {
+      cerr<<"PFRootEventManager::tauBenchmark : not a single tau event"<<endl;
+      return -9999;
+    }
+    
+    // loop on the daugthers of the tau
+    const std::vector<int>& ptcdaughters = trueParticles_[0].daughterIds();
+    
+    // will contain the sum of the lorentz vectors of the visible daughters
+    // of the tau.
+    
+    
+    for ( unsigned int dapt=0; dapt < ptcdaughters.size(); ++dapt) {
+      
+      const reco::PFTrajectoryPoint& tpatvtx 
+	= trueParticles_[ptcdaughters[dapt]].trajectoryPoint(0);
+      TLorentzVector partMC;
+      partMC.SetPxPyPzE(tpatvtx.momentum().Px(),
+			tpatvtx.momentum().Py(),
+			tpatvtx.momentum().Pz(),
+			tpatvtx.momentum().E());
+      
+      partTOTMC += partMC;
+      if (tauBenchmarkDebug_) {
+	//pdgcode
+	int pdgcode =  trueParticles_[ptcdaughters[dapt]].pdgCode();
+	cout << pdgcode << endl;
+	cout << tpatvtx << endl;
+	cout << partMC.Px() << " " << partMC.Py() << " " 
+	     << partMC.Pz() << " " << partMC.E()
+	     << " PT=" 
+	     << sqrt(partMC.Px()*partMC.Px()+partMC.Py()*partMC.Py()) 
+	     << endl;
+      }//debug
+    }//loop daughter
+  }else{
+
+    uint itau=0;
+    const HepMC::GenEvent* myGenEvent = MCTruth_.GetEvent();
+    for ( HepMC::GenEvent::particle_const_iterator 
+	    piter  = myGenEvent->particles_begin();
+	  piter != myGenEvent->particles_end(); 
+	  ++piter ) {
+      
+    
+      if (abs((*piter)->pdg_id())==15){
+	itau++;
+	tauFound=true;
+	for ( HepMC::GenVertex::particles_out_const_iterator bp =
+		(*piter)->end_vertex()->particles_out_const_begin();
+	      bp != (*piter)->end_vertex()->particles_out_const_end(); ++bp ) {
+	  uint nuId=abs((*bp)->pdg_id());
+	  bool isNeutrino=(nuId==12)||(nuId==14)||(nuId==16);
+	  if (!isNeutrino){
+	    
+
+	    TLorentzVector partMC;
+	    partMC.SetPxPyPzE((*bp)->momentum().x(),
+			      (*bp)->momentum().y(),
+			      (*bp)->momentum().z(),
+			      (*bp)->momentum().e());
+	    partTOTMC += partMC;
+	  }
+	}
+      }
+    }
+    if (itau>1) tooManyTaus=true;
+
+    if(!tauFound || tooManyTaus ) {
+      cerr<<"PFRootEventManager::tauBenchmark : not a single tau event"<<endl;
+      return -9999;
     }
   }
-  
-  if(!tauFound || tooManyTaus ) {
-    cerr<<"PFRootEventManager::tauBenchmark : not a single tau event"<<endl;
-    return -9999;
-  }
 
-  // loop on the daugthers of the tau
-  const std::vector<int>& ptcdaughters = trueParticles_[0].daughterIds();
 
-  // will contain the sum of the lorentz vectors of the visible daughters
-  // of the tau.
-  TLorentzVector partTOTMC;
 
-  for ( unsigned int dapt=0; dapt < ptcdaughters.size(); ++dapt) {
-    
-    const reco::PFTrajectoryPoint& tpatvtx 
-      = trueParticles_[ptcdaughters[dapt]].trajectoryPoint(0);
-    TLorentzVector partMC;
-    partMC.SetPxPyPzE(tpatvtx.momentum().Px(),
-		      tpatvtx.momentum().Py(),
-		      tpatvtx.momentum().Pz(),
-		      tpatvtx.momentum().E());
-    
-    partTOTMC += partMC;
-    if (tauBenchmarkDebug_) {
-      //pdgcode
-      int pdgcode =  trueParticles_[ptcdaughters[dapt]].pdgCode();
-      cout << pdgcode << endl;
-      cout << tpatvtx << endl;
-      cout << partMC.Px() << " " << partMC.Py() << " " 
-	   << partMC.Pz() << " " << partMC.E()
-	   << " PT=" 
-	   << sqrt(partMC.Px()*partMC.Px()+partMC.Py()*partMC.Py()) 
-	   << endl;
-    }//debug
-  }//loop daughter
+
+
+
 
   EventColin::Jet jetmc;
 
