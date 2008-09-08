@@ -68,6 +68,7 @@ class SimpleCosmicBONSeeder : public edm::EDProducer
   double rescaleError_;
 
   uint32_t tripletsVerbosity_,seedVerbosity_, helixVerbosity_;
+  std::vector<std::string> layerTripletNames_;
  
   edm::ESHandle<MagneticField>                  magfield;
   edm::ESHandle<TrackerGeometry>                tracker;
