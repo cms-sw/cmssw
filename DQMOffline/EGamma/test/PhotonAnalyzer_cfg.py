@@ -33,7 +33,9 @@ process.FEVT = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring("keep *_MEtoEDMConverter_*_*"),
     fileName = cms.untracked.string('photonsMEtoEDMConverter.root')
 )
+#process.p1 = cms.Path(process.MEtoEDMConverter)
 
-process.p1 = cms.Path(process.PhotonAnalysis*process.MEtoEDMConverter)
+#process.p1 = cms.Path(process.PhotonAnalysis*process.MEtoEDMConverter)
+process.p1 = cms.Path(process.PhotonAnalysis)
 process.schedule = cms.Schedule(process.p1)
 
