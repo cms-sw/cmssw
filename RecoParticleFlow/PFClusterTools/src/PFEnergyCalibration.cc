@@ -210,9 +210,12 @@ PFEnergyCalibration::dCrackPhi(double phi, double eta){
   
   //Location of the 18 phi-cracks
   static std::vector<double> cPhi;
-  cPhi.resize(18,0);
-  cPhi[0]=2.97025;
-  for(unsigned i=1;i<=17;i++) cPhi[i]=cPhi[0]-2*i*pi/18;
+  if(cPhi.size()==0)
+    {
+      cPhi.resize(18,0);
+      cPhi[0]=2.97025;
+      for(unsigned i=1;i<=17;++i) cPhi[i]=cPhi[0]-2*i*pi/18;
+    }
 
   //Shift of this location if eta<0
   static double delta_cPhi=0.00638;
