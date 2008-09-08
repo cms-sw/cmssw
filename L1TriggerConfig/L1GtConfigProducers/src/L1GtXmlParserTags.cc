@@ -1,16 +1,16 @@
 /**
  * \class L1GtXmlParserTags
- * 
- * 
- * Description: Tags for the Xerces-C XML parser for the L1 Trigger menu.  
+ *
+ *
+ * Description: Tags for the Xerces-C XML parser for the L1 Trigger menu.
  *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
+ *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
- * 
- * $Date: 2008/07/08 18:06:26 $
- * $Revision: 1.4 $
+ *
+ * $Date: 2008/07/21 19:37:41 $
+ * $Revision: 1.5 $
  *
  */
 
@@ -32,7 +32,7 @@ L1GtXmlParserTags::L1GtXmlParserTags() {
 L1GtXmlParserTags::~L1GtXmlParserTags() {
 
     // empty
-    
+
 }
 
 // static class members
@@ -53,6 +53,8 @@ const std::string L1GtXmlParserTags::m_xmlConditionAttrConditionCalo("calo");
 const std::string L1GtXmlParserTags::m_xmlConditionAttrConditionEnergySum("esums");
 const std::string L1GtXmlParserTags::m_xmlConditionAttrConditionJetCounts("jet_cnts");
 const std::string L1GtXmlParserTags::m_xmlConditionAttrConditionCastor("CondCastor");
+const std::string L1GtXmlParserTags::m_xmlConditionAttrConditionHfBitCounts("CondHfBitCounts");
+const std::string L1GtXmlParserTags::m_xmlConditionAttrConditionHfRingEtSums("CondHfRingEtSums");
 const std::string L1GtXmlParserTags::m_xmlConditionAttrConditionCorrelation("CondCorrelation");
 
 const std::string L1GtXmlParserTags::m_xmlConditionAttrObjectMu("muon");
@@ -65,6 +67,8 @@ const std::string L1GtXmlParserTags::m_xmlConditionAttrObjectETM("etm");
 const std::string L1GtXmlParserTags::m_xmlConditionAttrObjectETT("ett");
 const std::string L1GtXmlParserTags::m_xmlConditionAttrObjectHTT("htt");
 const std::string L1GtXmlParserTags::m_xmlConditionAttrObjectJetCounts("jet_cnts");
+const std::string L1GtXmlParserTags::m_xmlConditionAttrObjectHfBitCounts("HfBitCounts");
+const std::string L1GtXmlParserTags::m_xmlConditionAttrObjectHfRingEtSums("HfRingEtSums");
 const std::string L1GtXmlParserTags::m_xmlConditionAttrObjectCastor("Castor");
 
 const std::string L1GtXmlParserTags::m_xmlConditionAttrType1s("1_s");

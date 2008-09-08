@@ -3,17 +3,17 @@
 
 /**
  * \class L1GtXmlParserTags
- * 
- * 
- * Description: Tags for the Xerces-C XML parser for the L1 Trigger menu.  
+ *
+ *
+ * Description: Tags for the Xerces-C XML parser for the L1 Trigger menu.
  *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
+ *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
- * 
- * $Date: 2008/07/08 18:06:26 $
- * $Revision: 1.4 $
+ *
+ * $Date: 2008/07/21 19:37:41 $
+ * $Revision: 1.5 $
  *
  */
 
@@ -54,8 +54,10 @@ protected:
     static const std::string m_xmlConditionAttrConditionEnergySum;
     static const std::string m_xmlConditionAttrConditionJetCounts;
     static const std::string m_xmlConditionAttrConditionCastor;
+    static const std::string m_xmlConditionAttrConditionHfBitCounts;
+    static const std::string m_xmlConditionAttrConditionHfRingEtSums;
     static const std::string m_xmlConditionAttrConditionCorrelation;
-    
+
     static const std::string m_xmlConditionAttrObjectMu;
     static const std::string m_xmlConditionAttrObjectNoIsoEG;
     static const std::string m_xmlConditionAttrObjectIsoEG;
@@ -67,6 +69,8 @@ protected:
     static const std::string m_xmlConditionAttrObjectHTT;
     static const std::string m_xmlConditionAttrObjectJetCounts;
     static const std::string m_xmlConditionAttrObjectCastor;
+    static const std::string m_xmlConditionAttrObjectHfBitCounts;
+    static const std::string m_xmlConditionAttrObjectHfRingEtSums;
 
     static const std::string m_xmlConditionAttrType1s;
     static const std::string m_xmlConditionAttrType2s;

@@ -1,14 +1,14 @@
 /**
  * \class L1GtTriggerMenuXmlProducer
- * 
- * 
- * Description: ESProducer for the L1 Trigger Menu from an XML file .  
+ *
+ *
+ * Description: ESProducer for the L1 Trigger Menu from an XML file .
  *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
+ *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
- * 
+ *
  * $Date$
  * $Revision$
  *
@@ -132,13 +132,15 @@ boost::shared_ptr<L1GtTriggerMenu> L1GtTriggerMenuXmlProducer::produceGtTriggerM
 
     // transfer the condition map and algorithm map from parser to L1GtTriggerMenu
 
-    boost::shared_ptr<L1GtTriggerMenu> pL1GtTriggerMenu = boost::shared_ptr<L1GtTriggerMenu>( 
+    boost::shared_ptr<L1GtTriggerMenu> pL1GtTriggerMenu = boost::shared_ptr<L1GtTriggerMenu>(
                 new L1GtTriggerMenu(gtXmlParser.gtTriggerMenuName(), numberConditionChips,
-                        gtXmlParser.vecMuonTemplate(), 
-                        gtXmlParser.vecCaloTemplate(), 
-                        gtXmlParser.vecEnergySumTemplate(), 
+                        gtXmlParser.vecMuonTemplate(),
+                        gtXmlParser.vecCaloTemplate(),
+                        gtXmlParser.vecEnergySumTemplate(),
                         gtXmlParser.vecJetCountsTemplate(),
                         gtXmlParser.vecCastorTemplate(),
+                        gtXmlParser.vecHfBitCountsTemplate(),
+                        gtXmlParser.vecHfRingEtSumsTemplate(),
                         gtXmlParser.vecCorrelationTemplate(),
                         gtXmlParser.corMuonTemplate(),
                         gtXmlParser.corCaloTemplate(),

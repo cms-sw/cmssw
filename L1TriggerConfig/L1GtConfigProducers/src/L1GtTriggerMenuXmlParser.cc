@@ -141,6 +141,18 @@ void L1GtTriggerMenuXmlParser::setVecCastorTemplate(
     m_vecCastorTemplate = vecCastorTempl;
 }
 
+void L1GtTriggerMenuXmlParser::setVecHfBitCountsTemplate(
+        const std::vector<std::vector<L1GtHfBitCountsTemplate> >& vecHfBitCountsTempl) {
+
+    m_vecHfBitCountsTemplate = vecHfBitCountsTempl;
+}
+
+void L1GtTriggerMenuXmlParser::setVecHfRingEtSumsTemplate(
+        const std::vector<std::vector<L1GtHfRingEtSumsTemplate> >& vecHfRingEtSumsTempl) {
+
+    m_vecHfRingEtSumsTemplate = vecHfRingEtSumsTempl;
+}
+
 void L1GtTriggerMenuXmlParser::setVecCorrelationTemplate(
         const std::vector<std::vector<L1GtCorrelationTemplate> >& vecCorrelationTempl) {
 
@@ -198,6 +210,8 @@ void L1GtTriggerMenuXmlParser::parseXmlFile(const std::string& defXmlFile,
     m_vecEnergySumTemplate.resize(m_numberConditionChips);
     m_vecJetCountsTemplate.resize(m_numberConditionChips);
     m_vecCastorTemplate.resize(m_numberConditionChips);
+    m_vecHfBitCountsTemplate.resize(m_numberConditionChips);
+    m_vecHfRingEtSumsTemplate.resize(m_numberConditionChips);
 
     m_vecCorrelationTemplate.resize(m_numberConditionChips);
     m_corMuonTemplate.resize(m_numberConditionChips);
@@ -1484,20 +1498,8 @@ bool L1GtTriggerMenuXmlParser::parseMuon(XERCES_CPP_NAMESPACE::DOMNode* node,
         return false;
     }
 
-    /// <<<<<
-    // convert from GTgui format to correct bit number (bit number = GCT etaIndex())
-    // FIXME write it correctly in the new GTgui and remove this conversion block
-
-    int maxBitsReal = 64;
-
-    // maximum number of bits for eta range
-    int maxBitsLUT = 64;
-
-    /// >>>>>>
-
     for (int i = 0; i < nrObj; i++) {
 
-        //objParameter[i].etaRange = mirror(tmpValues[i], maxBitsLUT, maxBitsReal);
         objParameter[i].etaRange = tmpValues[i];
 
         //LogTrace("L1GtTriggerMenuXmlParser")
@@ -1758,24 +1760,9 @@ bool L1GtTriggerMenuXmlParser::parseCalo(XERCES_CPP_NAMESPACE::DOMNode* node,
         return false;
     }
 
-    /// <<<<<
-    // convert from GTgui format to correct bit number (bit number = GCT etaIndex())
-    // FIXME write it correctly in the new GTgui and remove this conversion block
-
-    int maxBitsReal = 14;
-
-    if (caloObjType == ForJet) {
-        maxBitsReal = 8;
-    }
-
-    // maximum number of bits for eta range
-    int maxBitsLUT = 16;
-
-    /// >>>>>>
 
     for (int i = 0; i < nrObj; i++) {
 
-        //objParameter[i].etaRange = static_cast<unsigned int> (mirror(tmpValues[i], maxBitsLUT, maxBitsReal));
         objParameter[i].etaRange = tmpValues[i];
 
         //LogTrace("L1GtTriggerMenuXmlParser")
@@ -2333,6 +2320,272 @@ bool L1GtTriggerMenuXmlParser::parseCastor(XERCES_CPP_NAMESPACE::DOMNode* node,
     return true;
 }
 
+
+/**
+ * parseHfBitCounts Parse a "HF bit counts" condition and
+ * insert an entry to the conditions map
+ *
+ * @param node The corresponding node.
+ * @param name The name of the condition.
+ * @param chipNr The number of the chip this condition is located.
+ *
+ * @return "true" if succeeded, "false" if an error occurred.
+ *
+ */
+
+bool L1GtTriggerMenuXmlParser::parseHfBitCounts(XERCES_CPP_NAMESPACE::DOMNode* node,
+    const std::string& name, unsigned int chipNr) {
+
+    XERCES_CPP_NAMESPACE_USE
+
+    // get condition, particle name and type name
+    std::string condition = getXMLAttribute(node, m_xmlConditionAttrCondition);
+    std::string particle = getXMLAttribute(node, m_xmlConditionAttrObject);
+    std::string type = getXMLAttribute(node, m_xmlConditionAttrType);
+
+    if (particle != m_xmlConditionAttrObjectHfBitCounts) {
+        edm::LogError("L1GtTriggerMenuXmlParser") << "Wrong particle for HfBitCounts condition ("
+            << particle << ")" << std::endl;
+        return false;
+    }
+
+    // object type and condition type
+    L1GtObject hfBitCountsObjType = HfBitCounts;
+    L1GtConditionType cType = TypeHfBitCounts;
+
+    // global object
+    int nrObj = 1;
+
+    // get greater equal flag
+
+    int intGEq = getGEqFlag(node, m_xmlTagCountThreshold);
+    if (intGEq < 0) {
+        edm::LogError("L1GtTriggerMenuXmlParser") << "Error getting \"greater or equal\" flag"
+            << std::endl;
+        return false;
+    }
+    // set the boolean value for the ge_eq mode
+    bool gEq = (intGEq != 0);
+
+    // get values
+
+    // temporary storage of the parameters
+    std::vector<L1GtHfBitCountsTemplate::ObjectParameter> objParameter(nrObj);
+
+    // get countIndex value and fill into structure
+    // they are expressed in  base 10
+    char* endPtr = const_cast<char*>(type.c_str());
+    long int typeInt = strtol(type.c_str(), &endPtr, 10); // base = 10
+    unsigned int typeIntUInt = static_cast<unsigned int>(typeInt);
+
+    if (*endPtr != 0) {
+
+        LogDebug("L1GtTriggerMenuXmlParser") << "Unable to convert " << type << " to dec."
+            << std::endl;
+
+        return false;
+    }
+
+    // test if count index is out of range FIXME introduce m_numberL1HfBitCounts?
+    //if ((typeIntUInt < 0) || (typeIntUInt > m_numberL1HfBitCounts)) {
+    //    LogDebug("L1GtTriggerMenuXmlParser") << "Count index " << typeIntUInt
+    //        << " outside range [0, " << m_numberL1HfBitCounts << "]" << std::endl;
+    //
+    //    return false;
+    //}
+
+    objParameter[0].countIndex = typeIntUInt;
+
+    // get count threshold values and fill into structure
+    std::vector<boost::uint64_t> tmpValues(nrObj);
+
+    if ( !getConditionChildValues(node, m_xmlTagCountThreshold, nrObj, tmpValues) ) {
+        return false;
+    }
+
+    for (int i = 0; i < nrObj; i++) {
+        objParameter[i].countThreshold = tmpValues[i];
+
+        //LogTrace("L1GtTriggerMenuXmlParser")
+        //<< "      HfBitCounts count threshold (hex) for HfBitCounts object " << i << " = "
+        //<< std::hex << objParameter[i].countThreshold << std::dec
+        //<< std::endl;
+
+    }
+
+    // object types - all same objType
+    std::vector<L1GtObject> objType(nrObj, hfBitCountsObjType);
+
+    // now create a new HfBitCounts condition
+
+    L1GtHfBitCountsTemplate hfBitCountsCond(name);
+
+    hfBitCountsCond.setCondType(cType);
+    hfBitCountsCond.setObjectType(objType);
+    hfBitCountsCond.setCondGEq(gEq);
+    hfBitCountsCond.setCondChipNr(chipNr);
+
+    hfBitCountsCond.setConditionParameter(objParameter);
+
+    if (edm::isDebugEnabled() ) {
+
+        std::ostringstream myCoutStream;
+        hfBitCountsCond.print(myCoutStream);
+        LogTrace("L1GtTriggerMenuXmlParser") << myCoutStream.str() << "\n" << std::endl;
+
+    }
+
+    // insert condition into the map
+    if ( !insertConditionIntoMap(hfBitCountsCond, chipNr)) {
+
+        edm::LogError("L1GtTriggerMenuXmlParser") << "    Error: duplicate condition (" << name
+            << ")" << std::endl;
+
+        return false;
+    } else {
+
+        (m_vecHfBitCountsTemplate[chipNr]).push_back(hfBitCountsCond);
+
+    }
+
+
+    //
+    return true;
+}
+
+
+/**
+ * parseHfRingEtSums Parse a "HF Ring ET sums" condition and
+ * insert an entry to the conditions map
+ *
+ * @param node The corresponding node.
+ * @param name The name of the condition.
+ * @param chipNr The number of the chip this condition is located.
+ *
+ * @return "true" if succeeded, "false" if an error occurred.
+ *
+ */
+
+bool L1GtTriggerMenuXmlParser::parseHfRingEtSums(XERCES_CPP_NAMESPACE::DOMNode* node,
+    const std::string& name, unsigned int chipNr) {
+
+    XERCES_CPP_NAMESPACE_USE
+
+    // get condition, particle name and type name
+    std::string condition = getXMLAttribute(node, m_xmlConditionAttrCondition);
+    std::string particle = getXMLAttribute(node, m_xmlConditionAttrObject);
+    std::string type = getXMLAttribute(node, m_xmlConditionAttrType);
+
+    if (particle != m_xmlConditionAttrObjectHfRingEtSums) {
+        edm::LogError("L1GtTriggerMenuXmlParser") << "Wrong particle for HfRingEtSums condition ("
+            << particle << ")" << std::endl;
+        return false;
+    }
+
+    // object type and condition type
+    L1GtObject hfRingEtSumsObjType = HfRingEtSums;
+    L1GtConditionType cType = TypeHfRingEtSums;
+
+    // global object
+    int nrObj = 1;
+
+    // get greater equal flag
+
+    int intGEq = getGEqFlag(node, m_xmlTagEtThreshold);
+    if (intGEq < 0) {
+        edm::LogError("L1GtTriggerMenuXmlParser") << "Error getting \"greater or equal\" flag"
+            << std::endl;
+        return false;
+    }
+    // set the boolean value for the ge_eq mode
+    bool gEq = (intGEq != 0);
+
+    // get values
+
+    // temporary storage of the parameters
+    std::vector<L1GtHfRingEtSumsTemplate::ObjectParameter> objParameter(nrObj);
+
+    // get etSumIndex value and fill into structure
+    // they are expressed in  base 10
+    char* endPtr = const_cast<char*>(type.c_str());
+    long int typeInt = strtol(type.c_str(), &endPtr, 10); // base = 10
+    unsigned int typeIntUInt = static_cast<unsigned int>(typeInt);
+
+    if (*endPtr != 0) {
+
+        LogDebug("L1GtTriggerMenuXmlParser") << "Unable to convert " << type << " to dec."
+            << std::endl;
+
+        return false;
+    }
+
+    // test if ET sum index is out of range FIXME introduce m_numberL1HfRingEtSums?
+    //if ((typeIntUInt < 0) || (typeIntUInt > m_numberL1HfRingEtSums)) {
+    //    LogDebug("L1GtTriggerMenuXmlParser") << "Count index " << typeIntUInt
+    //        << " outside range [0, " << m_numberL1HfRingEtSums << "]" << std::endl;
+    //
+    //    return false;
+    //}
+
+    objParameter[0].etSumIndex = typeIntUInt;
+
+    // get ET sum threshold values and fill into structure
+    std::vector<boost::uint64_t> tmpValues(nrObj);
+
+    if ( !getConditionChildValues(node, m_xmlTagEtThreshold, nrObj, tmpValues) ) {
+        return false;
+    }
+
+    for (int i = 0; i < nrObj; i++) {
+        objParameter[i].etSumThreshold = tmpValues[i];
+
+        //LogTrace("L1GtTriggerMenuXmlParser")
+        //<< "      HfRingEtSums count threshold (hex) for HfRingEtSums object " << i << " = "
+        //<< std::hex << objParameter[i].etSumThreshold << std::dec
+        //<< std::endl;
+
+    }
+
+    // object types - all same objType
+    std::vector<L1GtObject> objType(nrObj, hfRingEtSumsObjType);
+
+    // now create a new HfRingEtSums condition
+
+    L1GtHfRingEtSumsTemplate hfRingEtSumsCond(name);
+
+    hfRingEtSumsCond.setCondType(cType);
+    hfRingEtSumsCond.setObjectType(objType);
+    hfRingEtSumsCond.setCondGEq(gEq);
+    hfRingEtSumsCond.setCondChipNr(chipNr);
+
+    hfRingEtSumsCond.setConditionParameter(objParameter);
+
+    if (edm::isDebugEnabled() ) {
+
+        std::ostringstream myCoutStream;
+        hfRingEtSumsCond.print(myCoutStream);
+        LogTrace("L1GtTriggerMenuXmlParser") << myCoutStream.str() << "\n" << std::endl;
+
+    }
+
+    // insert condition into the map
+    if ( !insertConditionIntoMap(hfRingEtSumsCond, chipNr)) {
+
+        edm::LogError("L1GtTriggerMenuXmlParser") << "    Error: duplicate condition (" << name
+            << ")" << std::endl;
+
+        return false;
+    } else {
+
+        (m_vecHfRingEtSumsTemplate[chipNr]).push_back(hfRingEtSumsCond);
+
+    }
+
+
+    //
+    return true;
+}
+
 /**
  * parseCorrelation Parse a correlation condition and
  * insert an entry to the conditions map
@@ -2711,6 +2964,12 @@ bool L1GtTriggerMenuXmlParser::workCondition(XERCES_CPP_NAMESPACE::DOMNode* node
     }
     else if (condition == m_xmlConditionAttrConditionCastor) {
         return parseCastor(node, name, chipNr);
+    }
+    else if (condition == m_xmlConditionAttrConditionHfBitCounts) {
+        return parseHfBitCounts(node, name, chipNr);
+    }
+    else if (condition == m_xmlConditionAttrConditionHfRingEtSums) {
+        return parseHfRingEtSums(node, name, chipNr);
     }
     else if (condition == m_xmlConditionAttrConditionCorrelation) {
         return parseCorrelation(node, name, chipNr);

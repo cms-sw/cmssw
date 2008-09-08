@@ -3,16 +3,16 @@
 
 /**
  * \class L1GtTriggerMenuXmlParser
- * 
- * 
- * Description: Xerces-C XML parser for the L1 Trigger menu.  
+ *
+ *
+ * Description: Xerces-C XML parser for the L1 Trigger menu.
  *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
+ *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * \author  M. Eder            - HEPHY Vienna - ORCA version, reduced functionality
- * 
+ *
  * $Date$
  * $Revision$
  *
@@ -40,6 +40,8 @@
 #include "CondFormats/L1TObjects/interface/L1GtEnergySumTemplate.h"
 #include "CondFormats/L1TObjects/interface/L1GtJetCountsTemplate.h"
 #include "CondFormats/L1TObjects/interface/L1GtCastorTemplate.h"
+#include "CondFormats/L1TObjects/interface/L1GtHfBitCountsTemplate.h"
+#include "CondFormats/L1TObjects/interface/L1GtHfRingEtSumsTemplate.h"
 #include "CondFormats/L1TObjects/interface/L1GtCorrelationTemplate.h"
 
 // forward declarations
@@ -160,6 +162,26 @@ public:
 
     void setVecCastorTemplate(
             const std::vector<std::vector<L1GtCastorTemplate> >&);
+
+    //
+    inline const std::vector<std::vector<L1GtHfBitCountsTemplate> >&
+        vecHfBitCountsTemplate() const {
+
+        return m_vecHfBitCountsTemplate;
+    }
+
+    void setVecHfBitCountsTemplate(
+            const std::vector<std::vector<L1GtHfBitCountsTemplate> >&);
+
+    //
+    inline const std::vector<std::vector<L1GtHfRingEtSumsTemplate> >&
+        vecHfRingEtSumsTemplate() const {
+
+        return m_vecHfRingEtSumsTemplate;
+    }
+
+    void setVecHfRingEtSumsTemplate(
+            const std::vector<std::vector<L1GtHfRingEtSumsTemplate> >&);
 
     //
     inline const std::vector<std::vector<L1GtCorrelationTemplate> >& vecCorrelationTemplate() const {
@@ -330,6 +352,14 @@ private:
     bool parseCastor(XERCES_CPP_NAMESPACE::DOMNode* node,
             const std::string& name, unsigned int chipNr = 0);
 
+    /// parse a HfBitCounts condition
+    bool parseHfBitCounts(XERCES_CPP_NAMESPACE::DOMNode* node,
+            const std::string& name, unsigned int chipNr = 0);
+
+    /// parse a HfRingEtSums condition
+    bool parseHfRingEtSums(XERCES_CPP_NAMESPACE::DOMNode* node,
+            const std::string& name, unsigned int chipNr = 0);
+
     /// parse a correlation condition
     bool parseCorrelation(XERCES_CPP_NAMESPACE::DOMNode* node,
             const std::string& name, unsigned int chipNr = 0);
@@ -386,21 +416,23 @@ private:
 
 private:
 
-    /// map containing the conditions (per condition chip) - transient 
+    /// map containing the conditions (per condition chip) - transient
     std::vector<ConditionMap> m_conditionMap;
 
 private:
 
-    /// menu name 
+    /// menu name
     std::string m_triggerMenuName;
 
     /// vectors containing the conditions
-    /// explicit, due to persistency...    
+    /// explicit, due to persistency...
     std::vector<std::vector<L1GtMuonTemplate> > m_vecMuonTemplate;
     std::vector<std::vector<L1GtCaloTemplate> > m_vecCaloTemplate;
     std::vector<std::vector<L1GtEnergySumTemplate> > m_vecEnergySumTemplate;
     std::vector<std::vector<L1GtJetCountsTemplate> > m_vecJetCountsTemplate;
     std::vector<std::vector<L1GtCastorTemplate> > m_vecCastorTemplate;
+    std::vector<std::vector<L1GtHfBitCountsTemplate> > m_vecHfBitCountsTemplate;
+    std::vector<std::vector<L1GtHfRingEtSumsTemplate> > m_vecHfRingEtSumsTemplate;
 
     std::vector<std::vector<L1GtCorrelationTemplate> > m_vecCorrelationTemplate;
     std::vector<std::vector<L1GtMuonTemplate> > m_corMuonTemplate;
@@ -409,7 +441,7 @@ private:
 
     /// map containing the physics algorithms
     AlgorithmMap m_algorithmMap;
-    
+
     /// map containing the technical triggers
     AlgorithmMap m_technicalTriggerMap;
 
