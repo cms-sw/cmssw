@@ -24,8 +24,8 @@ CandFname={
 Step=[
        "GEN,SIM",
        "DIGI",
-       "L1",
        "DIGI2RAW",
+       "L1",       
        "HLT",
        "RAW2DIGI",
        "RECO",
