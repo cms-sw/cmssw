@@ -47,3 +47,6 @@ DEFINE_ANOTHER_FWK_MODULE(EBSelectiveReadoutTask);
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBRawDataTask.h>
 DEFINE_ANOTHER_FWK_MODULE(EBRawDataTask);
+
+#include <DQM/EcalBarrelMonitorTasks/interface/EBHltTask.h>
+DEFINE_ANOTHER_FWK_MODULE(EBHltTask);
