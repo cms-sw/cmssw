@@ -7,22 +7,22 @@ PhotonAnalysis = cms.EDAnalyzer("PhotonAnalyzer",
     phoProducer = cms.string('photons'),
     photonCollection = cms.string(''),
 
-    hbheModule = cms.string('hbhereco'),
-    hbheInstance = cms.string(''),
+ #   hbheModule = cms.string('hbhereco'),
+ #   hbheInstance = cms.string(''),
                                 
-    trackProducer = cms.InputTag("generalTracks"),
+ #   trackProducer = cms.InputTag("generalTracks"),
 
  ## for 2_1_4
-    bcBarrelProducer = cms.string("hybridSuperClusters"),
-    bcEndcapProducer = cms.string("multi5x5BasicClusters"),                                       
-    bcBarrelCollection = cms.string("hybridBarrelBasicClusters"),                            
-    bcEndcapCollection = cms.string("multi5x5EndcapBasicClusters"),
+#    bcBarrelProducer = cms.string("hybridSuperClusters"),
+#    bcEndcapProducer = cms.string("multi5x5BasicClusters"),                                       
+#    bcBarrelCollection = cms.string("hybridBarrelBasicClusters"),                            
+#    bcEndcapCollection = cms.string("multi5x5EndcapBasicClusters"),
 
-    scBarrelProducer = cms.InputTag('correctedHybridSuperClusters'),
-    scEndcapProducer = cms.InputTag('correctedMulti5x5SuperClustersWithPreshower'),
+ #   scBarrelProducer = cms.InputTag('correctedHybridSuperClusters'),
+ #   scEndcapProducer = cms.InputTag('correctedMulti5x5SuperClustersWithPreshower'),
 
-    barrelEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
-    endcapEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
+ #   barrelEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
+ #   endcapEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
 
 
 
