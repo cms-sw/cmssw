@@ -32,7 +32,7 @@ process.DQMStore = cms.Service("DQMStore")
 process.load("HLTriggerOffline.JetMET.Validation.HLTJetMETValidation_cff")
 
 #Pickk your favourite Boson (23 is Z , 25 is H0 , 37 is H+)
-process.TauMCProducer.BosonID = 25
+#process.JetMETMCProducer.BosonID = 25
 
 
 
