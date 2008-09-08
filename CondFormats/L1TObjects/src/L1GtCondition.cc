@@ -1,14 +1,14 @@
 /**
  * \class L1GtCondition
- * 
- * 
- * Description: base class for L1 Global Trigger object templates (condition).  
+ *
+ *
+ * Description: base class for L1 Global Trigger object templates (condition).
  *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
+ *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
- * 
+ *
  * $Date$
  * $Revision$
  *
@@ -72,7 +72,7 @@ const int L1GtCondition::nrObjects() const
 
     switch (m_condType) {
 
-        case TypeNull: 
+        case TypeNull:
         case TypeCastor: {
                 return 0;
             }
@@ -103,7 +103,9 @@ const int L1GtCondition::nrObjects() const
         case TypeETT:
         case TypeETM:
         case TypeHTT:
-        case TypeJetCounts: {
+        case TypeJetCounts:
+        case TypeHfBitCounts:
+        case TypeHfRingEtSums: {
                 return 1;
             }
 
@@ -185,6 +187,16 @@ void L1GtCondition::print(std::ostream& myCout) const
             }
 
             break;
+        case CondHfBitCounts: {
+                myCout << "  Condition category: " << "CondHfBitCounts"  << std::endl;
+            }
+
+            break;
+        case CondHfRingEtSums: {
+                myCout << "  Condition category: " << "CondHfRingEtSums"  << std::endl;
+            }
+
+            break;
         default: {
                 myCout << "  Condition category: " << m_condCategory
                 << "  - no such category defined. Check L1GtConditionCategory enum."
@@ -258,6 +270,16 @@ void L1GtCondition::print(std::ostream& myCout) const
             }
 
             break;
+        case TypeHfBitCounts: {
+                myCout << "  Condition type:     " << "TypeHfBitCounts"  << std::endl;
+            }
+
+            break;
+        case TypeHfRingEtSums: {
+                myCout << "  Condition type:     " << "TypeHfRingEtSums"  << std::endl;
+            }
+
+            break;
         default: {
                 myCout << "  Condition type:     " << m_condType
                 << " - no such type defined. Check L1GtConditionType enum."
@@ -319,6 +341,16 @@ void L1GtCondition::print(std::ostream& myCout) const
                 break;
             case JetCounts: {
                     myCout << " JetCounts ";
+                }
+
+                break;
+            case HfBitCounts: {
+                    myCout << " HfBitCounts ";
+                }
+
+                break;
+            case HfRingEtSums: {
+                    myCout << " HfRingEtSums ";
                 }
 
                 break;

@@ -3,15 +3,15 @@
 
 /**
  * \class L1GtTriggerMenu
- * 
- * 
- * Description: L1 trigger menu.  
+ *
+ *
+ * Description: L1 trigger menu.
  *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
+ *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
- * 
+ *
  * $Date$
  * $Revision$
  *
@@ -32,6 +32,8 @@
 #include "CondFormats/L1TObjects/interface/L1GtEnergySumTemplate.h"
 #include "CondFormats/L1TObjects/interface/L1GtJetCountsTemplate.h"
 #include "CondFormats/L1TObjects/interface/L1GtCastorTemplate.h"
+#include "CondFormats/L1TObjects/interface/L1GtHfBitCountsTemplate.h"
+#include "CondFormats/L1TObjects/interface/L1GtHfRingEtSumsTemplate.h"
 #include "CondFormats/L1TObjects/interface/L1GtCorrelationTemplate.h"
 
 // forward declarations
@@ -53,14 +55,22 @@ public:
             const std::vector<std::vector<L1GtEnergySumTemplate> >&,
             const std::vector<std::vector<L1GtJetCountsTemplate> >&,
             const std::vector<std::vector<L1GtCastorTemplate> >&,
+            const std::vector<std::vector<L1GtHfBitCountsTemplate> >&,
+            const std::vector<std::vector<L1GtHfRingEtSumsTemplate> >&,
             const std::vector<std::vector<L1GtCorrelationTemplate> >&,
             const std::vector<std::vector<L1GtMuonTemplate> >&,
             const std::vector<std::vector<L1GtCaloTemplate> >&,
             const std::vector<std::vector<L1GtEnergySumTemplate> >&
     );
 
+    // copy constructor
+    L1GtTriggerMenu(const L1GtTriggerMenu&);
+
     // destructor
     virtual ~L1GtTriggerMenu();
+
+    // assignment operator
+    L1GtTriggerMenu& operator=(const L1GtTriggerMenu&);
 
 public:
 
@@ -94,9 +104,9 @@ public:
     void setVecCaloTemplate(const std::vector<std::vector<L1GtCaloTemplate> >&);
 
     //
-    inline const std::vector<std::vector<L1GtEnergySumTemplate> >& 
+    inline const std::vector<std::vector<L1GtEnergySumTemplate> >&
         vecEnergySumTemplate() const {
-        
+
         return m_vecEnergySumTemplate;
     }
 
@@ -104,9 +114,9 @@ public:
             const std::vector<std::vector<L1GtEnergySumTemplate> >&);
 
     //
-    inline const std::vector<std::vector<L1GtJetCountsTemplate> >& 
+    inline const std::vector<std::vector<L1GtJetCountsTemplate> >&
         vecJetCountsTemplate() const {
-        
+
         return m_vecJetCountsTemplate;
     }
 
@@ -114,18 +124,40 @@ public:
             const std::vector<std::vector<L1GtJetCountsTemplate> >&);
 
     //
-    inline const std::vector<std::vector<L1GtCastorTemplate> >& 
+    inline const std::vector<std::vector<L1GtCastorTemplate> >&
         vecCastorTemplate() const {
-        
+
         return m_vecCastorTemplate;
     }
 
     void setVecCastorTemplate(
             const std::vector<std::vector<L1GtCastorTemplate> >&);
+
     //
-    inline const std::vector<std::vector<L1GtCorrelationTemplate> >& 
+    inline const std::vector<std::vector<L1GtHfBitCountsTemplate> >&
+        vecHfBitCountsTemplate() const {
+
+        return m_vecHfBitCountsTemplate;
+    }
+
+    void setVecHfBitCountsTemplate(
+            const std::vector<std::vector<L1GtHfBitCountsTemplate> >&);
+
+    //
+    inline const std::vector<std::vector<L1GtHfRingEtSumsTemplate> >&
+        vecHfRingEtSumsTemplate() const {
+
+        return m_vecHfRingEtSumsTemplate;
+    }
+
+    void setVecHfRingEtSumsTemplate(
+            const std::vector<std::vector<L1GtHfRingEtSumsTemplate> >&);
+
+    //
+    //
+    inline const std::vector<std::vector<L1GtCorrelationTemplate> >&
         vecCorrelationTemplate() const {
-        
+
         return m_vecCorrelationTemplate;
     }
 
@@ -148,9 +180,9 @@ public:
 
     // get / set the vectors containing the conditions for correlation templates
     //
-    inline const std::vector<std::vector<L1GtEnergySumTemplate> >& 
+    inline const std::vector<std::vector<L1GtEnergySumTemplate> >&
         corEnergySumTemplate() const {
-        
+
         return m_corEnergySumTemplate;
     }
 
@@ -179,28 +211,30 @@ public:
 public:
 
     /// get the result for algorithm with name algName
-    /// use directly the format of decisionWord (no typedef) 
+    /// use directly the format of decisionWord (no typedef)
     const bool gtAlgorithmResult(const std::string& algName,
             const std::vector<bool>& decWord) const;
-    
+
 private:
 
-    /// map containing the conditions (per condition chip) - transient 
+    /// map containing the conditions (per condition chip) - transient
     std::vector<ConditionMap> m_conditionMap;
 
 private:
 
-    /// menu name 
+    /// menu name
     std::string m_triggerMenuName;
-    
+
     /// vectors containing the conditions
-    /// explicit, due to persistency...    
+    /// explicit, due to persistency...
     std::vector<std::vector<L1GtMuonTemplate> > m_vecMuonTemplate;
     std::vector<std::vector<L1GtCaloTemplate> > m_vecCaloTemplate;
     std::vector<std::vector<L1GtEnergySumTemplate> > m_vecEnergySumTemplate;
     std::vector<std::vector<L1GtJetCountsTemplate> > m_vecJetCountsTemplate;
     std::vector<std::vector<L1GtCastorTemplate> > m_vecCastorTemplate;
-    
+    std::vector<std::vector<L1GtHfBitCountsTemplate> > m_vecHfBitCountsTemplate;
+    std::vector<std::vector<L1GtHfRingEtSumsTemplate> > m_vecHfRingEtSumsTemplate;
+
     std::vector<std::vector<L1GtCorrelationTemplate> > m_vecCorrelationTemplate;
     std::vector<std::vector<L1GtMuonTemplate> > m_corMuonTemplate;
     std::vector<std::vector<L1GtCaloTemplate> > m_corCaloTemplate;
@@ -208,10 +242,10 @@ private:
 
     /// map containing the physics algorithms
     AlgorithmMap m_algorithmMap;
-    
+
     /// map containing the technical triggers
     AlgorithmMap m_technicalTriggerMap;
-    
+
 
 };
 
