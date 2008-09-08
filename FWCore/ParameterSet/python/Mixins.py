@@ -273,11 +273,11 @@ class _TypedParameterizable(_Parameterizable):
                         myparams[key] =value
                     else:
                         myparams[key].setValue(value)
-            else:
-                if isinstance(value,_ParameterTypeBase):
-                    myparams[key]=value
                 else:
-                    self._Parameterizable__raiseBadSetAttr(self,key)
+                    if isinstance(value,_ParameterTypeBase):
+                        myparams[key]=value
+                    else:
+                        self._Parameterizable__raiseBadSetAttr(key)
 
         returnValue.__init__(self.__type,*args,
                              **myparams)
