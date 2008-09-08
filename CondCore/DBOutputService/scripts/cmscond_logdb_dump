@@ -38,20 +38,24 @@ class logDBReader:
         self.__parser.add_option("-v","--verbose",action="store_true",dest="verbose",help="verbose mode")
         self.__parser.set_defaults(connectstring='')
         self.__parser.set_defaults(verbose=False)
+        self.__parser.set_defaults(connectstring='')
+        self.__parser.set_defaults(user='')
+        self.__parser.set_defaults(password='')
+        self.__parser.set_defaults(authpath='')
         (options, args) = self.__parser.parse_args()
         self.__verbose=self.__parser.values.verbose
         self.__connectstring=self.__parser.values.connectstring
         if self.__parser.values.verbose is True:
             print 'connectstring: ',self.__connectstring
-        if self.__parser.values.user:
+        if len(self.__parser.values.user) !=0 :
             self.__user=self.__parser.values.user
             if self.__parser.values.verbose is True:
                 print 'user: ',self.__user
-        if self.__parser.values.password:
+        if len(self.__parser.values.password) !=0 :
             self.__password=self.__parser.values.password
             if self.__parser.values.verbose is True:
                 print 'password: ',self.__password
-        if self.__parser.values.authpath:
+        if len(self.__parser.values.authpath)!=0:
             self.__authpath=self.__parser.values.authpath
             if self.__parser.values.verbose is True:
                 print 'authpath: ',self.__authpath
@@ -71,7 +75,6 @@ class logDBReader:
             os.environ["CORAL_AUTH_PATH"]=self.__authpath
             config.setDefaultAuthenticationService('CORAL/Services/XMLAuthenticationService')
         else:
-            print 'here ',self.__user,self.__password
             os.environ["CORAL_AUTH_USER"]=self.__user
             os.environ["CORAL_AUTH_PASSWORD"]=self.__password
             config.setDefaultAuthenticationService('CORAL/Services/EnvironmentAuthenticationService')
