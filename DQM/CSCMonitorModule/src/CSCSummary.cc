@@ -193,10 +193,13 @@ void CSCSummary::ReadErrorChambers(TH2*& evs, TH2*& err, const HWStatusBit bit, 
         N = int(evs->GetBinContent(x, y));
         n = int(err->GetBinContent(x, y));
         if (ChamberCoordsToAddress(x, y, adr)) {
-          if(SignificanceLevel(N, n, eps_max) > Sfail) { 
-            SetValue(adr, bit);
-          } else {
-            ReSetValue(adr, bit);
+          double eps_meas = (1.0 * n) / (1.0 * N);
+          if (eps_meas > eps_max) { 
+            if(SignificanceLevel(N, n, eps_max) > Sfail) { 
+              SetValue(adr, bit);
+            } else {
+              ReSetValue(adr, bit);
+            }
           }
         }
       }
