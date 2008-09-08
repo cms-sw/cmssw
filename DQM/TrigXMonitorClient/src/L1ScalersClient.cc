@@ -177,7 +177,7 @@ void L1ScalersClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
   int nttbits = ttScalers->getNbinsX();
 
   if ( nalgobits > MAX_ALGOS ) nalgobits = MAX_ALGOS; // HARD CODE FOR NOW
-  if ( nttbits > MAX_TT ) nalgobits = MAX_TT; // HARD CODE FOR NOW
+  if ( nttbits > MAX_TT ) nttbits = MAX_TT; // HARD CODE FOR NOW
 
   LogDebug("Status") << "I see " << nalgobits << " algo paths. ";
   LogDebug("Status") << "I see " << nttbits << " tt paths. ";
