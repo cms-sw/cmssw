@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-photonAnalysis = cms.EDAnalyzer("PhotonAnalyzer",
+PhotonAnalysis = cms.EDAnalyzer("PhotonAnalyzer",
 
-    Name = cms.untracked.string('photonAnalysis'),
+    Name = cms.untracked.string('PhotonAnalysis'),
 
     phoProducer = cms.string('photons'),
     photonCollection = cms.string(''),
@@ -47,18 +47,7 @@ photonAnalysis = cms.EDAnalyzer("PhotonAnalyzer",
                                 # 3 provides output of the store step + 2
                                 
 
-    trkPtSumCut = cms.double(9999.0),                                
-    trkIsolInnR = cms.double(0.03),
-    trkIsolExtR = cms.double(0.3),
-    maxNumOfTracksInCone = cms.int32(3),
-
-    hcalEtSumCut = cms.double(6.0),                             
-    hcalIsolInnR = cms.double(0.0),
-    hcalIsolExtR = cms.double(0.3),
-
-    ecalEtSumCut = cms.double(5.0),
-    ecalIsolR = cms.double(0.35),
-
+ 
 
     eBin = cms.int32(250),
     eMin = cms.double(0.0),
@@ -89,8 +78,8 @@ photonAnalysis = cms.EDAnalyzer("PhotonAnalyzer",
     dPhiTracksMax = cms.double(0.5),
                                 
 
-    OutputMEsInRootFile = cms.bool(False),
-    OutputFileName = cms.string('/afs/cern.ch/user/l/lantonel/scratch0/CMSSW_2_1_4/src/DQMOffline/EGamma/rootfiles/TedsPhotonsTest1.root'),
+    OutputMEsInRootFile = cms.bool(True),
+    OutputFileName = cms.string('/afs/cern.ch/user/l/lantonel/scratch0/CMSSW_2_1_4/src/DQMOffline/EGamma/TedsPhotonsTest.root'),
 
 )
 
