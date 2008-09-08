@@ -97,7 +97,7 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.GlobalTag.connect ="sqlite_file:/afs/cern.ch/user/m/malgeri/public/globtag/CRZT210_V1.db"
 process.GlobalTag.connect = "frontier://FrontierProd/CMS_COND_21X_GLOBALTAG"
-process.GlobalTag.globaltag = "CRUZET4_V4P::All"
+process.GlobalTag.globaltag = "CRUZET4_V5P::All"
 process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 
 process.source = cms.Source("PoolSource",
@@ -188,7 +188,7 @@ process.dqmSaver.convention = 'Online'
 process.dqmSaver.producer = 'DQM'
 process.dqmEnv.subSystemFolder = 'Pixel'
 process.dqmSaver.dirName = '/tmp/merkelp/'
-process.dqmSaver.saveByLumiSection = 1
+process.dqmSaver.saveByLumiSection = -1
 process.dqmSaver.saveByRun = 1
 process.dqmSaver.saveAtJobEnd = True
 
