@@ -48,6 +48,8 @@
 
 #include <vector>
 
+//#define FAMOS_DEBUG
+
 ElectronGSPixelSeedGenerator::ElectronGSPixelSeedGenerator(
   const edm::ParameterSet &pset,
   double pTMin, 
@@ -70,6 +72,11 @@ ElectronGSPixelSeedGenerator::ElectronGSPixelSeedGenerator(
   //   theNavigationSchool(0)
   theSetup(0), theBeamSpot(beamSpot), pts_(0)
 {
+
+#ifdef FAMOS_DEBUG
+  std::cout << "FromTrackerSeeds  = " << fromTrackerSeeds_ << std::endl;
+#endif
+
   // Instantiate the pixel hit matcher
   searchInTIDTEC = pset.getParameter<bool>("searchInTIDTEC");
   myGSPixelMatcher = new GSPixelHitMatcher(pset.getParameter<double>("ePhiMin1"), 
@@ -153,6 +160,9 @@ void  ElectronGSPixelSeedGenerator::run(edm::Event& e,
   double sq=sqrt(sigmaZ*sigmaZ+sigmaZ0Error*sigmaZ0Error);
   double zmin1 = BSPosition_.z()-3*sq;
   double zmax1 = BSPosition_.z()+3*sq;
+#ifdef FAMOS_DEBUG
+  std::cout << "Z Range for pixel matcher : " << zmin1 << " " << BSPosition_.z() << " " << zmax1 << std::endl;
+#endif
   myGSPixelMatcher->set1stLayerZRange(zmin1,zmax1);
 
   // A map of vector of pixel seeds, for each clusters
@@ -234,6 +244,9 @@ void  ElectronGSPixelSeedGenerator::run(edm::Event& e,
   } else { 
 
     // Loop over the tracker seed
+#ifdef FAMOS_DEBUG
+    std::cout << "We have " << seeds->size() << " tracker seeds!" << std::endl;
+#endif
     for (unsigned int i=0;i<seeds->size();++i) {
       
       TrackerRecHit currentHit;
@@ -256,7 +269,9 @@ void  ElectronGSPixelSeedGenerator::run(edm::Event& e,
       for  (unsigned int i=0;i<csize;++i) {
 	
 	// Find the pixel seeds (actually only the best one is returned)
-	LogDebug ("run") << "new cluster, calling addAseedFromThisCluster";
+#ifdef FAMOS_DEBUG
+	std::cout << "new cluster, calling addAseedFromThisCluster" << std::endl;
+#endif
 	addASeedToThisCluster(sclRefs[i],theHits,theTrackerSeed,myPixelSeeds[i]);
 	
       } 
@@ -281,8 +296,13 @@ void  ElectronGSPixelSeedGenerator::run(edm::Event& e,
   LogDebug ("run") << ": For event "<<e.id();
   LogDebug ("run") <<"Nr of superclusters: "<<sclRefs.size()
 		   <<", no. of ElectronPixelSeeds found  = " << out.size();
+#ifdef FAMOS_DEBUG
+  std::cout << ": For event "<<e.id() << std::endl;
+  std::cout <<"Nr of superclusters: "<<sclRefs.size()
+	    <<", no. of ElectronPixelSeeds found  = " << out.size() << std::endl;
+#endif
   
-  }
+}
 
 void 
 ElectronGSPixelSeedGenerator::addASeedToThisCluster(edm::Ref<reco::SuperClusterCollection> seedCluster, 
@@ -297,10 +317,13 @@ ElectronGSPixelSeedGenerator::addASeedToThisCluster(edm::Ref<reco::SuperClusterC
 			 seedCluster->position().z());
   const GlobalPoint vertexPos(BSPosition_.x(),BSPosition_.y(),BSPosition_.z());
 
-  LogDebug("") << "[ElectronGSPixelSeedGenerator::seedsFromThisCluster] " 
-	       << "new supercluster with energy: " << clusterEnergy;
-  LogDebug("") << "[ElectronGSPixelSeedGenerator::seedsFromThisCluster] " 
-	       << "and position: " << clusterPos;
+#ifdef FAMOS_DEBUG
+  std::cout << "[ElectronGSPixelSeedGenerator::seedsFromThisCluster] " 
+	    << "new supercluster with energy: " << clusterEnergy << std::endl;
+  std::cout << "[ElectronGSPixelSeedGenerator::seedsFromThisCluster] " 
+	    << "and position: " << clusterPos << std::endl;
+  std::cout << "Vertex position : " << vertexPos << std::endl;
+#endif
 
   //Here change the deltaPhi window of the first pixel layer in function of the seed pT
   if (dynamicphiroad_) {
@@ -337,9 +360,10 @@ ElectronGSPixelSeedGenerator::addASeedToThisCluster(edm::Ref<reco::SuperClusterC
   
   // Create the Electron pixel seed.
   if (!compatPixelHits.empty() ) {
-    LogDebug("") << "[ElectronGSPixelSeedGenerator::seedsFromThisCluster] " 
-		 << " electron compatible hits found ";
-    
+#ifdef FAMOS_DEBUG
+    std::cout << "[ElectronGSPixelSeedGenerator::seedsFromThisCluster] " 
+	      << " electron compatible hits found " << std::endl;
+#endif
     // Pixel-matching case: create the seed from scratch
     if (!fromTrackerSeeds_) {
       
@@ -364,6 +388,11 @@ ElectronGSPixelSeedGenerator::addASeedToThisCluster(edm::Ref<reco::SuperClusterC
     }
 
   }
+#ifdef FAMOS_DEBUG
+    else
+      std::cout << "[ElectronGSPixelSeedGenerator::seedsFromThisCluster] " 
+      		<< " No electron compatible hits found " << std::endl;
+#endif
 
  
   // And return !

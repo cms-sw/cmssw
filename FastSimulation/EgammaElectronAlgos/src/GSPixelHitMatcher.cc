@@ -27,6 +27,8 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+//#define FAMOS_DEBUG
+
 GSPixelHitMatcher::GSPixelHitMatcher(float ephi1min, float ephi1max, 
 				     float pphi1min, float pphi1max, 
 				     float phi2min, float phi2max, 
@@ -85,7 +87,9 @@ GSPixelHitMatcher::compatibleHits(const GlobalPoint& thePos,
   
   std::vector< std::pair<GSPixelHitMatcher::ConstRecHitPointer, 
     GSPixelHitMatcher::ConstRecHitPointer> > result;
-  LogDebug("") << "[GSPixelHitMatcher::compatibleHits] entering .. ";
+#ifdef FAMOS_DEBUG
+  std::cout << "[GSPixelHitMatcher::compatibleHits] entering .. " << std::endl;
+#endif
   
   double zCluster = thePos.z();
   double rCluster = thePos.perp();
@@ -100,11 +104,17 @@ GSPixelHitMatcher::compatibleHits(const GlobalPoint& thePos,
   // The corresponding RawParticles (to be propagated for e- and e+
   ParticlePropagator myElec(theMom,theVert,-1.,theFieldMap);
   ParticlePropagator myPosi(theMom,theVert,+1.,theFieldMap); 
+#ifdef FAMOS_DEBUG
+  std::cout << "elec/posi before propagation " << std::endl << myElec << std::endl << myPosi << std::endl;
+#endif
   
   // Propagate the e- and the e+ hypothesis to the nominal vertex
   // by modifying the pT direction in an appropriate manner.
   myElec.propagateToNominalVertex(theNominalVertex);
   myPosi.propagateToNominalVertex(theNominalVertex);
+#ifdef FAMOS_DEBUG
+  std::cout << "elec/posi after propagation " << std::endl << myElec << std::endl << myPosi << std::endl;
+#endif
   
   // Look for an appropriate see in the pixel detector
   bool thereIsASeed = false;
@@ -119,6 +129,9 @@ GSPixelHitMatcher::compatibleHits(const GlobalPoint& thePos,
 			     theHits[firstHit],
 			     theHits[secondHit]);
 
+#ifdef FAMOS_DEBUG
+      std::cout << "Is there a seed with hits " << firstHit << " & "<< secondHit << "? " << thereIsASeed << std::endl;
+#endif
       if ( !thereIsASeed ) continue;
       
       ConstRecHitPointer theFirstHit = 
@@ -147,14 +160,23 @@ bool GSPixelHitMatcher::isASeed(const ParticlePropagator& myElec,
   
   // Check that the two hits are not on the same layer
   if ( hit2.isOnTheSameLayer(hit1) ) return false;
+#ifdef FAMOS_DEBUG
+  std::cout << "isASeed: The two hits are not on the same layer - OK " << std::endl;
+#endif
 
   // Check that the first hit is on PXB or PXD
   if ( hit1.subDetId() > 2 ) return false;
+#ifdef FAMOS_DEBUG
+  std::cout << "isASeed: The first hits is on the pixel detector " << std::endl;
+#endif
 
   // Impose the track to originate from zVertex = 0. and check the 
   // compatibility with the first hit (beam spot constraint)
   GlobalPoint firstHit = hit1.globalPosition();
   bool rzok = checkRZCompatibility(zCluster, rCluster, 0., z1min, z1max, firstHit, hit1.subDetId()>1);
+#ifdef FAMOS_DEBUG
+  std::cout << "isASeed: rzok (1) = " << rzok << std::endl;
+#endif
   if ( !rzok ) return false;
   
   // Refine the Z vertex by imposing the track to pass through the first RecHit, 
@@ -173,6 +195,9 @@ bool GSPixelHitMatcher::isASeed(const ParticlePropagator& myElec,
   } else { 
     rzok = checkRZCompatibility(zCluster, rCluster, vertex, rMinI, rMaxI, secondHit, true);
   }
+#ifdef FAMOS_DEBUG
+  std::cout << "isASeed: rzok (2) = " << rzok << std::endl;
+#endif
   if ( !rzok ) return false;
 
   // Propagate the inferred electron (positron) to the first layer,
@@ -180,23 +205,41 @@ bool GSPixelHitMatcher::isASeed(const ParticlePropagator& myElec,
   // to the nominal vertex with the hit constraint
   ParticlePropagator elec(myElec);
   ParticlePropagator posi(myPosi);
+#ifdef FAMOS_DEBUG
+  std::cout << "isASeed: elec1 to be propagated to first layer" << std::endl;
+#endif
   bool elec1 = propagateToLayer(elec,theVertex,firstHit,
 				ephi1min,ephi1max,hit1.cylinderNumber());
+#ifdef FAMOS_DEBUG
+  std::cout << "isASeed: posi1 to be propagated to first layer" << std::endl;
+#endif
   bool posi1 = propagateToLayer(posi,theVertex,firstHit,
 				pphi1min,pphi1max,hit1.cylinderNumber());
-  
+
+#ifdef FAMOS_DEBUG
+  std::cout << "isASeed: elec1 / posi1 " << elec1 << " " << posi1 << std::endl;
+#endif
   // Neither the electron not the positron hypothesis work...
   if ( !elec1 && !posi1 ) return false;
   
   // Otherwise, propagate to the second layer, check the compatibility
   // with the second hit and propagate back to the nominal vertex with 
   // the hit constraint
+#ifdef FAMOS_DEBUG
+  std::cout << "isASeed: elec2 to be propagated to second layer" << std::endl;
+#endif
   bool elec2 = elec1 && propagateToLayer(elec,theVertex,secondHit,
 					 phi2min,phi2max,hit2.cylinderNumber());
   
+#ifdef FAMOS_DEBUG
+  std::cout << "isASeed: posi2 to be propagated to second layer" << std::endl;
+#endif
   bool posi2 = posi1 && propagateToLayer(posi,theVertex,secondHit,
 					 phi2min,phi2max,hit2.cylinderNumber());
   
+#ifdef FAMOS_DEBUG
+  std::cout << "isASeed: elec2 / posi2 " << elec2 << " " << posi2 << std::endl;
+#endif
   if ( !elec2 && !posi2 ) return false;
 
   return true;
@@ -213,11 +256,26 @@ GSPixelHitMatcher::propagateToLayer(ParticlePropagator& myPart,
   // Set the z position of the particle to the predicted one
   XYZTLorentzVector theNominalVertex(theVertex.x(), theVertex.y(), vertex, 0.);
   myPart.setVertex(theNominalVertex);
+#ifdef FAMOS_DEBUG
+  std::cout << "propagateToLayer: propagateToLayer: Before propagation (0) " << myPart << std::endl;
+#endif
 
   // Propagate the inferred electron (positron) to the first layer
-  myPart.setPropagationConditions(*(thePixelLayers[layer]));
+  // Use the radius (barrel) or the z (forward) of the hit instead 
+  // of the inaccurate layer radius and z.
+  double rCyl = thePixelLayers[layer]->forward() ? 999. : theHit.perp();
+  double zCyl = thePixelLayers[layer]->forward() ? fabs(theHit.z()) : 999.;
+  BaseParticlePropagator* myBasePart = (BaseParticlePropagator*)(&myPart);
+  myBasePart->setPropagationConditions(rCyl,zCyl);
+  // myPart.setPropagationConditions(*(thePixelLayers[layer]));
 
-  bool success = myPart.propagateToBoundSurface(*(thePixelLayers[layer]));
+  // bool success = myPart.propagateToBoundSurface(*(thePixelLayers[layer]));
+  bool success = myPart.propagate();
+#ifdef FAMOS_DEBUG
+  std::cout << "propagateToLayer: Success ? " << success << std::endl;
+  std::cout << "propagateToLayer: After  propagation (1) " << myPart << std::endl;
+  std::cout << "propagateToLayer: The hit               " << theHit << std::endl; 
+#endif
       
   // Check that propagated particle is within the proper phi range.
   if ( success ) {
@@ -226,6 +284,9 @@ GSPixelHitMatcher::propagateToLayer(ParticlePropagator& myPart,
       dphi = dphi + 2.*M_PI;
     else if ( dphi > M_PI ) 
       dphi = dphi - 2.*M_PI;
+#ifdef FAMOS_DEBUG
+    std::cout << "propagateToLayer: Phi range ? " << phimin << " < " << dphi << " < " << phimax << std::endl; 
+#endif
     if ( dphi < phimin || dphi > phimax ) success = false;
   }
       
@@ -234,6 +295,9 @@ GSPixelHitMatcher::propagateToLayer(ParticlePropagator& myPart,
   if ( success ) {
     myPart.setVertex( XYZTLorentzVector(theHit.x(), theHit.y(), theHit.z(), 0.) );
     myPart.propagateToNominalVertex(theNominalVertex);
+#ifdef FAMOS_DEBUG
+    std::cout << "propagateToLayer: After  propagation (2) " << myPart << std::endl;
+#endif
   }
 
   return success;
