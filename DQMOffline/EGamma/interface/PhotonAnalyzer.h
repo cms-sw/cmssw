@@ -22,7 +22,7 @@
  **  
  **
  **  $Id: PhotonAnalyzer
- **  $Date: 2008/08/08 17:47:22 $ 
+ **  $Date: 2008/09/05 15:37:31 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -77,53 +77,35 @@ class PhotonAnalyzer : public edm::EDAnalyzer
            
   std::string photonProducer_;       
   std::string photonCollection_;
-
-  std::string  bcBarrelProducer_;
-  std::string  bcEndcapProducer_;
-  std::string  bcBarrelCollection_;
-  std::string  bcEndcapCollection_;
-  std::string hbheLabel_;
-  std::string hbheInstanceName_;
  
 
-  edm::InputTag scBarrelProducer_;
-  edm::InputTag scEndcapProducer_;
- 
-  edm::InputTag barrelEcalHits_;
-  edm::InputTag endcapEcalHits_;
-
-
-  edm::InputTag tracksInputTag_;
   
   double minPhoEtCut_;
-  double trkIsolExtRadius_;
-  double trkIsolInnRadius_;
-  double trkPtLow_;
+
+
   double lip_;
-  double ecalIsolRadius_;
+
   double ecalEtaStrip_;
-  double bcEtLow_;
-  double hcalIsolExtRadius_;
-  double hcalIsolInnRadius_;
-  double hcalHitEtLow_;
-  int  numOfTracksInCone_;
-  double trkPtSumCut_;
-  double ecalEtSumCut_;
-  double hcalEtSumCut_;
+
+
 
   double cutStep_;
   int numberOfSteps_;
   
-  std::vector<MonitorElement*> h_nTrackIsol_;
-  std::vector<MonitorElement*> h_trackPtSum_;
+  std::vector<MonitorElement*> h_nTrackIsolSolid_;
+  std::vector<MonitorElement*> h_trackPtSumSolid_;
   std::vector<MonitorElement*> h_ecalSum_;
   std::vector<MonitorElement*> h_hcalSum_;
 
-  std::vector<MonitorElement*> p_nTrackIsol_;
-  std::vector<MonitorElement*> p_trackPtSum_;
+  std::vector<MonitorElement*> p_nTrackIsolSolid_;
+  std::vector<MonitorElement*> p_trackPtSumSolid_;
   std::vector<MonitorElement*> p_ecalSum_;
   std::vector<MonitorElement*> p_hcalSum_;
 
+  std::vector<MonitorElement*> h_nTrackIsolHollow_;
+  std::vector<MonitorElement*> h_trackPtSumHollow_;
+  std::vector<MonitorElement*> p_nTrackIsolHollow_;
+  std::vector<MonitorElement*> p_trackPtSumHollow_;
 
   std::vector<MonitorElement*> h_phoE_part_;
   std::vector<std::vector<MonitorElement*> > h_phoE_isol_;
