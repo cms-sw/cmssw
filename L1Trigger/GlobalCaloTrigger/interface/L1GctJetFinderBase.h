@@ -67,23 +67,33 @@ public:
 
   struct hfTowerSumsType {
 
-    L1GctJetCount< L1GctJetCounts::kEtHfSumBits > etSum0;
-    L1GctJetCount< L1GctJetCounts::kEtHfSumBits > etSum1;
-    L1GctJetCount< 5 > nOverThreshold;
+    enum numberOfBits {
+      kEtHfSumBits     = 8,
+      kEtHfSumOFlowBit = 1 << kEtHfSumBits,
+      kEtHfSumMaxValue = kEtHfSumOFlowBit - 1
+    };
+
+    L1GctJetCount< kEtHfSumBits > etSum0;
+    L1GctJetCount< kEtHfSumBits > etSum1;
+    L1GctJetCount< 5 > nOverThreshold0;
+    L1GctJetCount< 5 > nOverThreshold1;
 
     // Define some constructors and an addition operator for our data type
-    hfTowerSumsType() : etSum0(0), etSum1(0), nOverThreshold(0) {}
-    hfTowerSumsType(unsigned e0, unsigned e1, unsigned n) : etSum0(e0), etSum1(e1), nOverThreshold(n) {}
-    hfTowerSumsType(L1GctJetCount< L1GctJetCounts::kEtHfSumBits > e0,
-                    L1GctJetCount< L1GctJetCounts::kEtHfSumBits > e1,
-                    L1GctJetCount< 5 > n) : etSum0(e0), etSum1(e1), nOverThreshold(n) {}
+    hfTowerSumsType() : etSum0(0), etSum1(0), nOverThreshold0(0)), nOverThreshold1(0) {}
+    hfTowerSumsType(unsigned e0, unsigned e1, unsigned n0, unsigned n1) : 
+      etSum0(e0), etSum1(e1), nOverThreshold0(n0), nOverThreshold1(n1) {}
+    hfTowerSumsType(L1GctJetCount< kEtHfSumBits > e0,
+                    L1GctJetCount< kEtHfSumBits > e1,
+                    L1GctJetCount< 5 > n0,
+                    L1GctJetCount< 5 > n1) : etSum0(e0), etSum1(e1), nOverThreshold0(n0), nOverThreshold1(n1) {}
 
-    void reset() { etSum0.reset(); etSum1.reset(); nOverThreshold.reset(); }
+    void reset() { etSum0.reset(); etSum1.reset(); nOverThreshold0.reset(); nOverThreshold1.reset(); }
 
     hfTowerSumsType operator+(const hfTowerSumsType& rhs) const {
       hfTowerSumsType temp( (this->etSum0+rhs.etSum0),
                             (this->etSum1+rhs.etSum1),
-                            (this->nOverThreshold+rhs.nOverThreshold) );
+                            (this->nOverThreshold0+rhs.nOverThreshold0) ),
+                            (this->nOverThreshold1+rhs.nOverThreshold1) );
       return temp;
     } 
 

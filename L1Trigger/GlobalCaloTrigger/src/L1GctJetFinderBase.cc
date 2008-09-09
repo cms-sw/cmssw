@@ -294,29 +294,25 @@ L1GctJetFinderBase::hfTowerSumsType L1GctJetFinderBase::calcHfSums() const
   static const UShort NUMBER_OF_INNER_RINGS = 2;
   std::vector<unsigned> et(NUMBER_OF_INNER_RINGS, 0);
   std::vector<bool>     of(NUMBER_OF_INNER_RINGS, false);
-  unsigned nt = 0;
+  std::vector<unsigned> nt(NUMBER_OF_INNER_RINGS, 0);
 
   UShort offset = COL_OFFSET*(centralCol0() + 1);
   for (UShort i=0; i < NUMBER_OF_FRWRD_RINGS; ++i) {
     offset--;
 
-    // Sum HF Et over "inner rings"
+    // Sum HF Et and count jets above threshold over "inner rings"
     if (i<NUMBER_OF_INNER_RINGS) {
       et.at(i) += m_inputRegions.at(offset).et();
       of.at(i) = of.at(i) || m_inputRegions.at(offset).overFlow();
 
       et.at(i) += m_inputRegions.at(offset+COL_OFFSET).et();
       of.at(i) = of.at(i) || m_inputRegions.at(offset+COL_OFFSET).overFlow();
+
+      if (m_inputRegions.at(offset).fineGrain()) nt.at(i)++;
+      if (m_inputRegions.at(offset+COL_OFFSET).fineGrain()) nt.at(i)++;
     }
-    // Count fine grain bits over the whole HF
-    //+++ Temporary change - only count the fine grain bits for the inner ring
-    if (i==0) {
-      if (m_inputRegions.at(offset).fineGrain()) nt++;
-      if (m_inputRegions.at(offset+COL_OFFSET).fineGrain()) nt++;
-    }
-    //+++ 
   }
-  hfTowerSumsType temp(et.at(0), et.at(1), nt);
+  hfTowerSumsType temp(et.at(0), et.at(1), nt.at(0), nt.at(1));
   temp.etSum0.setOverFlow(temp.etSum0.overFlow() || of.at(0));
   temp.etSum1.setOverFlow(temp.etSum1.overFlow() || of.at(1));
   return temp;
