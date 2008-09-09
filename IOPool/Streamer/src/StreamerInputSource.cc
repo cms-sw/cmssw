@@ -63,18 +63,10 @@ namespace edm {
   StreamerInputSource::~StreamerInputSource() {}
 
   // ---------------------------------------
-  boost::shared_ptr<FileBlock>
-  StreamerInputSource::readFile_() {
-    productRegistryUpdate().setProductIDs(productRegistry()->nextID());
-    return boost::shared_ptr<FileBlock>(new FileBlock);
-  }
 
   void
-  StreamerInputSource::mergeIntoRegistry(SendJobHeader const& header,
+  StreamerInputSource::mergeIntoRegistry(SendDescs const& descs,
 			 ProductRegistry& reg, bool subsequent) {
-
-    SendDescs const& descs = header.descs();
-
     SendDescs::const_iterator i(descs.begin()), e(descs.end());
 
     FDEBUG(6) << "mergeIntoRegistry: Product List: " << std::endl;
@@ -85,10 +77,7 @@ namespace edm {
 	pReg.copyProduct(*i);
 	FDEBUG(6) << "StreamInput prod = " << i->className() << std::endl;
       }
-      std::string mergeInfo = reg.merge(pReg, std::string(), BranchDescription::Permissive);
-      if (!mergeInfo.empty()) {
-        throw cms::Exception("MismatchedInput","RootInputFileSequence::previousEvent()") << mergeInfo;
-      }
+      reg.merge(pReg, std::string(), BranchDescription::Permissive);
     } else {
       declareStreamers(descs);
       buildClassCache(descs);
@@ -98,7 +87,6 @@ namespace edm {
 	FDEBUG(6) << "StreamInput prod = " << i->className() << std::endl;
       }
     }
-    reg.setNextID(header.nextID());
   }
 
   void
@@ -236,7 +224,7 @@ namespace edm {
   StreamerInputSource::deserializeAndMergeWithRegistry(InitMsgView const& initView, bool subsequent)
   {
      std::auto_ptr<SendJobHeader> sd = deserializeRegistry(initView);
-     mergeIntoRegistry(*sd, productRegistryUpdate(), subsequent);
+     mergeIntoRegistry(sd->descs(), productRegistryUpdate(), subsequent);
      ModuleDescriptionRegistry & moduleDescriptionRegistry = *ModuleDescriptionRegistry::instance();
      ModuleDescriptionMap const& mdMap = sd->moduleDescriptionMap();
      for (ModuleDescriptionMap::const_iterator k = mdMap.begin(), kEnd = mdMap.end(); k != kEnd; ++k) {
@@ -378,7 +366,6 @@ namespace edm {
        //NOTE: this works since only EDProducers get their ProductIDs for the event from
        // the ProductRegistry and they do not do that until they 'put' their data
        // so at this point no one has tried to use the ProductIDs yet
-       productRegistryUpdate().setNextID(largestID.id()+1);
        productRegistryUpdate().setProductIDs(largestID.id()+1);
     }
     FDEBUG(10) << "Size = " << ep->size() << std::endl;
