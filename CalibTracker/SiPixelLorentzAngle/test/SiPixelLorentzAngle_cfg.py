@@ -11,7 +11,7 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("RecoTracker.Configuration.RecoTracker_cff")
 
 process.load("RecoTracker.TrackProducer.RefitterWithMaterial_cff")
-process.TrackRefitter.src = "generalTracks"
+process.TrackRefitter.src = "ALCARECOTkAlJpsiMuMu"
 # process.TrackRefitter.src = "globalMuons"
 process.TrackRefitter.TrajectoryInEvent = True
 process.load("RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilderWithoutRefit_cfi")
@@ -33,12 +33,11 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(-1)
 )
 
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:2E5CADBF-7B6C-DD11-9888-0019DB29C614.root')
-# 	  fileNames = cms.untracked.vstring('file:/home/wilke/CMSSW_2_1_4/src/ALCARECOSiPixelLorentzAngle.root')	
+    fileNames = cms.untracked.vstring('file:/home/wilke/CMSSW_2_1_4/src/ALCARECOTkAlJpsiMuMu.root')    
 )
 
 process.lorentzAngle = cms.EDAnalyzer("SiPixelLorentzAngle",
@@ -52,7 +51,7 @@ process.lorentzAngle = cms.EDAnalyzer("SiPixelLorentzAngle",
 	fileName = cms.string("lorentzangle.root"),
 	fileNameFit	= cms.string("lorentzFit.txt"),
 	binsDepth	= cms.int32(50),
-	binsDrift =	cms.int32(60),
+	binsDrift =	cms.int32(200),
 	ptMin = cms.double(3),
 	#in case of MC set this to true to save the simhits
 	simData = cms.bool(False)
