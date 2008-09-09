@@ -19,7 +19,7 @@ pset = SiStripDQMOfflineGlobalRunCAF_cfg.py
 total_number_of_events = 10000
 number_of_jobs         =    10
 
-output_file = DQM_SiStrip_R000058733.root
+output_file = DQM_V0001_SiStrip_R000058733.root
 
 [USER]
 

@@ -14,7 +14,7 @@ pset = SiStripDQMOfflineGlobalRunCAFxSUFFIXx
 total_number_of_events = -1
 number_of_jobs         = xNUMBER_OF_JOBSx
 
-output_file = DQM_SiStrip_xOUTPUT_FILEx.root
+output_file = DQM_V0001_SiStrip_xOUTPUT_FILEx.root
 
 [USER]
 

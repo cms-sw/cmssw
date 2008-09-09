@@ -6,7 +6,7 @@
 
 ## CMSSW/DQM/SiStripMonitorClient/scripts/submitDQMOfflineCAF.py
 #
-#  This script submits batch jobs to the CAF in order to process the full
+#  This script submits CRAB/LSF jobs to the CAF in order to process the full
 #  granularity SiStrip offline DQM.
 #  Questions and comments to: volker.adler@cern.ch
 
@@ -85,11 +85,12 @@ STR_textUsage            = """ CMSSW/DQM/SiStripMonitorClient/scripts/submitDQMO
    
      -S, --server CRAB_SERVER
          CRAB server to use;
-         available: None (default)
-                    caf
-                    bari (currently not usable for submission due to drain mode,
+         available: None
+                    caf  (default)
+                    bari (CRAB version >= 2.3.2,
                           s. https://twiki.cern.ch/twiki/bin/view/CMS/CrabServer#Server_available_for_users)
-                    lnl2
+                    lnl2 (CRAB version <= 2.3.1,
+                          s. https://twiki.cern.ch/twiki/bin/view/CMS/CrabServer#Server_available_for_users)
                     
          NOTE: CRAB server submission is disabled at the moment.
          
@@ -127,8 +128,8 @@ LSTR_wordArgument = sys.argv[1:]
 # default arguments
 BOOL_Python    = True
 BOOL_CRAB      = True
-STR_server     = STR_none
-LSTR_server    = [STR_server,'caf','bari','lnl2']
+LSTR_server    = [STR_none,'bari','caf','lnl2'] # FIXME: add test of CRAB version
+STR_server     = LSTR_server[2]
 STR_email      = 'volker.adler@cern.ch'
 INT_jobs       = 10
 BOOL_filter    = False
@@ -451,13 +452,6 @@ if Bool_CRAB:
 if not Str_server in LSTR_server:
   print '> submitDQMOfflineCAF.py > CRAB server "%s" not available' %(Str_server)
   Func_Exit()
-elif Str_server == LSTR_server[2]: # FIXME: put "bari" back as soon as available for submission again (https://twiki.cern.ch/twiki/bin/view/CMS/CrabServer#Server_available_for_users).
-  print '> submitDQMOfflineCAF.py > CRAB server "%s" currently in drain mode' %(Str_server)
-  print '                           and not available for submission'
-  Func_Exit()
-elif not Str_server == STR_server: # FIXME: CRAB server submission disabled at the moment. 
-  print '> submitDQMOfflineCAF.py > CRAB server submission disabled at the moment'
-  Func_Exit()
 # on number of jobs
 if Int_jobs == 0:
   Int_jobs = 1
@@ -540,8 +534,8 @@ file_cmsmonOutput = urllib.urlopen("http://cmsmon.cern.ch/cmsdb/servlet/RunSumma
 str_timeBegin     = ''
 str_timeEnd       = ''
 for str_cmsmonOutput in file_cmsmonOutput.readlines():
-  if str_cmsmonOutput.find('HREF=Component?RUN=60302&NAME=TRACKER') >= 0:
-    lstr_timeQuery = str_cmsmonOutput.split('HREF=Component?RUN=60302&NAME=TRACKER&')[1].split('>TRACKER')[0].split('&')
+  if str_cmsmonOutput.find('HREF=Component?RUN=' + Str_run + '&NAME=TRACKER') >= 0:
+    lstr_timeQuery = str_cmsmonOutput.split('HREF=Component?RUN=' + Str_run + '&NAME=TRACKER&')[1].split('>TRACKER')[0].split('&')
     for str_timeQuery in lstr_timeQuery:
       str_nameStamp = str_timeQuery.split('=')[0]
       lstr_timeDate = str_timeQuery.split('=')[1].split('_')[0].split('.')
