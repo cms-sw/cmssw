@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.22 2008/05/20 16:44:57 uberthon Exp $
+// $Id: GsfElectronAlgo.cc,v 1.23 2008/05/21 13:10:46 uberthon Exp $
 //
 //
 
@@ -106,8 +106,6 @@ GsfElectronAlgo::GsfElectronAlgo(const edm::ParameterSet& conf,
   // get input collections
   hcalRecHits_ = conf.getParameter<edm::InputTag>("hcalRecHits");
   tracks_ = conf.getParameter<edm::InputTag>("tracks");  
-  barrelSuperClusters_ = conf.getParameter<edm::InputTag>("barrelSuperClusters");
-  endcapSuperClusters_ = conf.getParameter<edm::InputTag>("endcapSuperClusters");
 
 }
 
