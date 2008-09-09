@@ -6,7 +6,6 @@
  *
  * The collection of CSCWireHit's. 
  *
- * \author Dominique Fortin - UCR
  */
 
 #include <RecoLocalMuon/CSCRecHitD/src/CSCWireHit.h>

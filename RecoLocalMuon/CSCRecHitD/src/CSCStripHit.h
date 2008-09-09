@@ -4,15 +4,11 @@
 /**
  * \class CSCStripHit
  *
- * Yields the position in terms of 1/2 strip # of a 1-D reconstructed 
- * strip hit in one layer of an Endcap Muon CSC.
- * 
- *
- * \author Dominique Fortin - UCR
+ * A (1-dim) hit reconstructed from strip data alone
  *
  */
 
-#include <DataFormats/MuonDetId/interface/CSCDetId.h>
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
 
 #include <vector>
 #include <iosfwd>
@@ -38,13 +34,13 @@ public:
 
   ~CSCStripHit();
 
-  /// CSCStripHit base class interface
+  /// Required for storage in RangeMap
   CSCStripHit* clone() const { return new CSCStripHit( *this ); }
 
-  /// Strip Hit posion in terms of DetId
+  /// Strip Hit is in this DetId
   CSCDetId cscDetId() const { return theDetId; }
 
-  /// Strip hit position expressed in terms of 1/2 strip #
+  /// Strip hit position (centroid)
   float sHitPos() const { return theStripHitPosition; }
 
   /// Strip hit maximum time bin

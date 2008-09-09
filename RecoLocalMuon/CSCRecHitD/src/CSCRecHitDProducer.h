@@ -36,7 +36,6 @@ public:
   // Counting events processed
   unsigned iRun; 
   bool useCalib;
-  //bool isData;
 
   edm::InputTag stripDigiTag_;
   edm::InputTag wireDigiTag_;
