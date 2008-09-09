@@ -15,6 +15,10 @@ L1TDEMON::L1TDEMON(const edm::ParameterSet& iConfig) {
   histFolder_ = iConfig.getUntrackedParameter<std::string>("HistFolder", "L1TEMU/");
   histFile_ = iConfig.getUntrackedParameter<std::string>("HistFile", "");
   
+  if(iConfig.getUntrackedParameter<bool> ("disableROOToutput", true))
+    histFile_ = "";
+
+
   if (histFile_.size()!=0) {
     edm::LogInfo("OutputRootFile") 
       << "L1TEmulator Monitoring histograms will be saved to " 
@@ -36,6 +40,8 @@ L1TDEMON::L1TDEMON(const edm::ParameterSet& iConfig) {
   
   if(dbe!=NULL)
     dbe->setCurrentFolder(histFolder_);
+  
+  hasRecord_=true;
   
   if(verbose())
     std::cout << "L1TDEMON::L1TDEMON constructor...done.\n" << std::flush;
@@ -275,6 +281,9 @@ L1TDEMON::endJob() {
 void
 L1TDEMON::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   
+  if(!hasRecord_)
+    return;
+  
   if(verbose())
     std::cout << "L1TDEMON::analyze()  start\n" << std::flush;
 
@@ -288,9 +297,11 @@ L1TDEMON::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     edm::LogInfo("DataNotFound") 
       << "Cannot find L1DataEmulRecord with label "
       << DEsource_.label() 
-      << " Please verrify that comparator was successfully executed."
+      << " Please verify that comparator was successfully executed."
+      << " Emulator DQM will be skipped!"
       << std::endl;
-      return;
+    hasRecord_=false;
+    return;
   }
 
   bool deMatch[DEnsys];

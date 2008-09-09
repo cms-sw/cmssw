@@ -17,7 +17,7 @@ L1TdeECAL::L1TdeECAL(const edm::ParameterSet& iConfig) {
     std::cout << "L1TdeECAL::L1TdeECAL()...\n" << std::flush;
   
   DEsource_ = iConfig.getParameter<edm::InputTag>("DataEmulCompareSource");
-  histFolder_ = iConfig.getUntrackedParameter<std::string>("HistFolder", "L1TEMU/xpert/Ecal/");
+  histFolder_ = iConfig.getUntrackedParameter<std::string>("HistFolder", "L1TEMU//ECALexpert/");
   
   dbe = NULL;
   if (iConfig.getUntrackedParameter<bool>("DQMStore", false)) { 
@@ -39,6 +39,8 @@ L1TdeECAL::L1TdeECAL(const edm::ParameterSet& iConfig) {
   if(dbe!=NULL)
     dbe->setCurrentFolder(histFolder_);
   
+  hasRecord_=true;
+
   if(verbose())
     std::cout << "L1TdeECAL::L1TdeECAL()...done.\n" << std::flush;
 }
@@ -122,6 +124,9 @@ L1TdeECAL::endJob() {
 void
   L1TdeECAL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   
+  if(!hasRecord_)
+    return;
+
   if(verbose())
     std::cout << "L1TdeECAL::analyze()  start\n" << std::flush;
 
@@ -133,8 +138,10 @@ void
     edm::LogInfo("DataNotFound") 
       << "Cannot find L1DataEmulRecord with label "
       << DEsource_.label() 
-      << " Please verrify that comparator was successfully executed."
+      << " Please verify that comparator was successfully executed."
+      << " Emulator DQM for ECAL will be skipped!"
       << std::endl;
+    hasRecord_=false;
     return;
   }
 

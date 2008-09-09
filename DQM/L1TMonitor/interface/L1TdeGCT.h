@@ -1,13 +1,11 @@
-#ifndef L1TdeECAL_H
-#define L1TdeECAL_H
+#ifndef L1TdeGCT_H
+#define L1TdeGCT_H
 
-/*\class L1TdeECAL
- *\description ECAL TPG data|emulation comparison DQM interface 
+/*\class L1TdeGCT
+ *\description GCT data|emulation comparison DQM interface 
                produces expert level DQM monitorable elements
- *\authors P.Paganini, N.Leonardo
- *\note et trigger tower map inspired from code in
-        DQM/EcalBarrelMonitorTasks
- *\date 07.11
+ *\authors N.Leonardo, A.Tapper, J.Brooke, J.Marrouche 
+ *\date 08.09
  */
 
 // system, common includes
@@ -26,12 +24,12 @@
 // l1 dataformats, d|e record includes
 #include "L1Trigger/HardwareValidation/interface/DEtrait.h"
 
-class L1TdeECAL : public edm::EDAnalyzer {
+class L1TdeGCT : public edm::EDAnalyzer {
 
  public:
 
-  explicit L1TdeECAL(const edm::ParameterSet&);
-  ~L1TdeECAL();
+  explicit L1TdeGCT(const edm::ParameterSet&);
+  ~L1TdeGCT();
 
  protected:
 
@@ -39,12 +37,6 @@ class L1TdeECAL : public edm::EDAnalyzer {
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
 
- public:
-
-  static const int nSM    = 36; 
-  static const int nTTEta = 17; 
-  static const int nTTPhi = 4;
-  
  private:
 
   // input d|e record
@@ -65,18 +57,32 @@ class L1TdeECAL : public edm::EDAnalyzer {
   DQMStore* dbe;
   bool monitorDaemon_;
  
-  // et eta-phi map, for data and emul, for individual supermodules
-  std::vector<MonitorElement*> etmapData;
-  std::vector<MonitorElement*> etmapEmul;
-  std::vector<MonitorElement*> etmapDiff;
-  MonitorElement * EcalEtMapDiff ;
-  MonitorElement * EcalFGMapDiff ;
+  // (em) iso, no-iso, (jets) cen, for, tau
+  static const int nGctColl_ = dedefs::GCTtaujets-dedefs::GCTisolaem+1; 
+
+  // counters
+  int colCount[nGctColl_];
+  int nWithCol[nGctColl_];
+
+  // MEs
+  MonitorElement* sysrates;
+  MonitorElement* sysncand[2];
+  MonitorElement* errortype[nGctColl_];
+  // location
+  MonitorElement* etaphi [nGctColl_];
+  MonitorElement* eta    [nGctColl_];
+  MonitorElement* phi    [nGctColl_];
+  MonitorElement* etaData[nGctColl_];
+  MonitorElement* phiData[nGctColl_];
+  MonitorElement* rnkData[nGctColl_];
+
+  // trigger data word
+  MonitorElement* dword [nGctColl_];
+  MonitorElement* eword [nGctColl_];
+  MonitorElement* deword[nGctColl_];
+  MonitorElement* masked[nGctColl_];
 
  public:
-
-  //auxiliary converters
-  int iEtaiPhiToSMid(int, int);
-  int TCCidToSMid(int);
 
 };
 
