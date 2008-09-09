@@ -12,13 +12,15 @@ JetPlusTrackZSPCorrectorIcone5 = cms.ESSource("JetPlusTrackCorrectionService",
     JetTrackCollectionAtCalo = cms.InputTag("iterativeCone5JetTracksAssociatorAtCaloFace"),
     respalgo = cms.int32(5),
     JetTrackCollectionAtVertex = cms.InputTag("iterativeCone5JetTracksAssociatorAtVertex"),
+    muonSrc = cms.InputTag("muons"),
     AddOutOfConeTracks = cms.bool(True),
     NonEfficiencyFile = cms.string('CMSSW_167_TrackNonEff'),
-    NonEfficiencyFileResp = cms.string('CMSSW_167_TrackNonEffLeakage'),
+    NonEfficiencyFileResp = cms.string('CMSSW_167_TrackLeakage'),
+    ResponseFile = cms.string('CMSSW_167_response'),
     label = cms.string('JetPlusTrackZSPCorrectorIcone5')
 )
 
-JetPlusTrackZSPCorJetIcone5 = cms.EDProducer("CaloJetCorrectionProducer",
+JetPlusTrackZSPCorJetIcone5 = cms.EDProducer("JetCorrectionProducer",
     src = cms.InputTag("ZSPJetCorJetIcone5"),
     correctors = cms.vstring('JetPlusTrackZSPCorrectorIcone5'),
     alias = cms.untracked.string('JetPlusTrackZSPCorJetIcone5')
