@@ -1,14 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
-import HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi
 # HLT BTag Soft muon-based relaxed triggers analyers
-hlt_BTagMu_DoubleJet60_Relaxed = HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi.hltBtagLifetimeAnalyzer.clone()
 import HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi
-hlt_BTagMu_TripleJet40_Relaxed = HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi.hltBtagLifetimeAnalyzer.clone()
-import HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi
-hlt_BTagMu_QuadJet30_Relaxed = HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi.hltBtagLifetimeAnalyzer.clone()
-import HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi
-hlt_BTagMu_HT250_Relaxed = HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi.hltBtagLifetimeAnalyzer.clone()
+hlt_BTagMu_DoubleJet60_Relaxed  = HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi.hltBtagLifetimeAnalyzer.clone()
+hlt_BTagMu_TripleJet40_Relaxed  = HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi.hltBtagLifetimeAnalyzer.clone()
+hlt_BTagMu_QuadJet30_Relaxed    = HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi.hltBtagLifetimeAnalyzer.clone()
+hlt_BTagMu_HT250_Relaxed        = HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi.hltBtagLifetimeAnalyzer.clone()
+
 hltBSoftmuonRelaxed_modules = cms.PSet(
     modules = cms.vstring('hlt_BTagMu_DoubleJet60_Relaxed', 
         'hlt_BTagMu_TripleJet40_Relaxed', 

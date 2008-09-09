@@ -1,18 +1,16 @@
 import FWCore.ParameterSet.Config as cms
 
-import HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi
 # HLT BTag IP-based triggers analyers
-hlt_BTagIP_Jet180 = HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi.hltBtagLifetimeAnalyzer.clone()
 import HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi
+hlt_BTagIP_Jet180       = HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi.hltBtagLifetimeAnalyzer.clone()
 hlt_BTagIP_DoubleJet120 = HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi.hltBtagLifetimeAnalyzer.clone()
-import HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi
-hlt_BTagIP_TripleJet70 = HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi.hltBtagLifetimeAnalyzer.clone()
-import HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi
-hlt_BTagIP_QuadJet40 = HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi.hltBtagLifetimeAnalyzer.clone()
-import HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi
-hlt_BTagIP_HT470 = HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi.hltBtagLifetimeAnalyzer.clone()
+hlt_BTagIP_TripleJet70  = HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi.hltBtagLifetimeAnalyzer.clone()
+hlt_BTagIP_QuadJet40    = HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi.hltBtagLifetimeAnalyzer.clone()
+hlt_BTagIP_HT470        = HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi.hltBtagLifetimeAnalyzer.clone()
+  
 hltBLifetime_modules = cms.PSet(
-    modules = cms.vstring('hlt_BTagIP_Jet180', 
+    modules = cms.vstring(
+        'hlt_BTagIP_Jet180', 
         'hlt_BTagIP_DoubleJet120', 
         'hlt_BTagIP_TripleJet70', 
         'hlt_BTagIP_QuadJet40', 

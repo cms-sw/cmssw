@@ -1,16 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
-import HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi
 # HLT Btag Softmuon paths analyers
+import HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi
 hltb1jetmu = HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi.hltBtagLifetimeAnalyzer.clone()
-import HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi
 hltb2jetmu = HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi.hltBtagLifetimeAnalyzer.clone()
-import HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi
 hltb3jetmu = HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi.hltBtagLifetimeAnalyzer.clone()
-import HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi
 hltb4jetmu = HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi.hltBtagLifetimeAnalyzer.clone()
-import HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi
-hltbhtmu = HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi.hltBtagLifetimeAnalyzer.clone()
+hltbhtmu   = HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi.hltBtagLifetimeAnalyzer.clone()
+
 hltBSoftmuon_modules = cms.PSet(
     modules = cms.vstring('hltb1jetmu', 
         'hltb2jetmu', 

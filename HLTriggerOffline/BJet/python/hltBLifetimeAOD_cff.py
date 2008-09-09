@@ -1,16 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
-import HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi
 # HLT Btag Lifetime paths analyers
+import HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi
 hltb1jet = HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi.hltBtagLifetimeAnalyzer.clone()
-import HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi
 hltb2jet = HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi.hltBtagLifetimeAnalyzer.clone()
-import HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi
 hltb3jet = HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi.hltBtagLifetimeAnalyzer.clone()
-import HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi
 hltb4jet = HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi.hltBtagLifetimeAnalyzer.clone()
-import HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi
-hltbht = HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi.hltBtagLifetimeAnalyzer.clone()
+hltbht   = HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi.hltBtagLifetimeAnalyzer.clone()
+  
 hltBLifetime_modules = cms.PSet(
     modules = cms.vstring('hltb1jet', 
         'hltb2jet', 

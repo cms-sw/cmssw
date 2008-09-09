@@ -1,16 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
-import HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi
 # HLT BTag Soft muon-based triggers analyers
-hlt_BTagMu_Jet20_Calib = HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi.hltBtagLifetimeAnalyzer.clone()
 import HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi
+hlt_BTagMu_Jet20_Calib  = HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi.hltBtagLifetimeAnalyzer.clone()
 hlt_BTagMu_DoubleJet120 = HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi.hltBtagLifetimeAnalyzer.clone()
-import HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi
-hlt_BTagMu_TripleJet70 = HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi.hltBtagLifetimeAnalyzer.clone()
-import HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi
-hlt_BTagMu_QuadJet40 = HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi.hltBtagLifetimeAnalyzer.clone()
-import HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi
-hlt_BTagMu_HT370 = HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi.hltBtagLifetimeAnalyzer.clone()
+hlt_BTagMu_TripleJet70  = HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi.hltBtagLifetimeAnalyzer.clone()
+hlt_BTagMu_QuadJet40    = HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi.hltBtagLifetimeAnalyzer.clone()
+hlt_BTagMu_HT370        = HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi.hltBtagLifetimeAnalyzer.clone()
+
 hltBSoftmuon_modules = cms.PSet(
     modules = cms.vstring('hlt_BTagMu_Jet20_Calib', 
         'hlt_BTagMu_DoubleJet120', 
@@ -119,7 +116,7 @@ hlt_BTagMu_QuadJet40.levels = cms.VPSet(cms.PSet(
         name = cms.string('L3'),
         title = cms.string('L3')
     ))
-hlt_BTagMu_HT370.triggerPath = 'HLT_BTagMu_HT300'
+hlt_BTagMu_HT370.triggerPath = 'HLT_BTagMu_HT370'
 hlt_BTagMu_HT370.levels = cms.VPSet(cms.PSet(
     filter = cms.InputTag("hltBSoftmuonHTL1seeds","","HLT"),
     jets = cms.InputTag("hltIterativeCone5CaloJets","","HLT"),

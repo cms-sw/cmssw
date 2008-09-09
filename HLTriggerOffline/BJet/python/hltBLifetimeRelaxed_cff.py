@@ -1,24 +1,21 @@
 import FWCore.ParameterSet.Config as cms
 
-import HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi
 # HLT BTag IP-based relaxed triggers analyers
-hlt_BTagIP_Jet120_Relaxed = HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi.hltBtagLifetimeAnalyzer.clone()
 import HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi
-hlt_BTagIP_DoubleJet60_Relaxed = HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi.hltBtagLifetimeAnalyzer.clone()
-import HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi
-hlt_BTagIP_TripleJet40_Relaxed = HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi.hltBtagLifetimeAnalyzer.clone()
-import HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi
-hlt_BTagIP_QuadJet30_Relaxe = HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi.hltBtagLifetimeAnalyzer.clone()
-import HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi
-hlt_BTagIP_HT320_Relaxed = HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi.hltBtagLifetimeAnalyzer.clone()
+hlt_BTagIP_Jet120_Relaxed       = HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi.hltBtagLifetimeAnalyzer.clone()
+hlt_BTagIP_DoubleJet60_Relaxed  = HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi.hltBtagLifetimeAnalyzer.clone()
+hlt_BTagIP_TripleJet40_Relaxed  = HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi.hltBtagLifetimeAnalyzer.clone()
+hlt_BTagIP_QuadJet30_Relaxed    = HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi.hltBtagLifetimeAnalyzer.clone()
+hlt_BTagIP_HT320_Relaxed        = HLTriggerOffline.BJet.hltBtagLifetimeAnalyzer_cfi.hltBtagLifetimeAnalyzer.clone()
+  
 hltBLifetimeRelaxed_modules = cms.PSet(
     modules = cms.vstring('hlt_BTagIP_Jet120_Relaxed', 
         'hlt_BTagIP_DoubleJet60_Relaxed', 
         'hlt_BTagIP_TripleJet40_Relaxed', 
-        'hlt_BTagIP_QuadJet30_Relaxe', 
+        'hlt_BTagIP_QuadJet30_Relaxed', 
         'hlt_BTagIP_HT320_Relaxed')
 )
-hltBLifetimeRelaxed = cms.Sequence(hlt_BTagIP_Jet120_Relaxed+hlt_BTagIP_DoubleJet60_Relaxed+hlt_BTagIP_TripleJet40_Relaxed+hlt_BTagIP_QuadJet30_Relaxe+hlt_BTagIP_HT320_Relaxed)
+hltBLifetimeRelaxed = cms.Sequence(hlt_BTagIP_Jet120_Relaxed+hlt_BTagIP_DoubleJet60_Relaxed+hlt_BTagIP_TripleJet40_Relaxed+hlt_BTagIP_QuadJet30_Relaxed+hlt_BTagIP_HT320_Relaxed)
 hlt_BTagIP_Jet120_Relaxed.triggerPath = 'HLT_BTagIP_Jet120_Relaxed'
 hlt_BTagIP_Jet120_Relaxed.levels = cms.VPSet(cms.PSet(
     filter = cms.InputTag("hltBLifetimeL1seedsLowEnergy","","HLT"),
@@ -100,8 +97,8 @@ hlt_BTagIP_TripleJet40_Relaxed.levels = cms.VPSet(cms.PSet(
         name = cms.string('L3'),
         title = cms.string('L3')
     ))
-hlt_BTagIP_QuadJet30_Relaxe.triggerPath = 'HLT_BTagIP_QuadJet30_Relaxed'
-hlt_BTagIP_QuadJet30_Relaxe.levels = cms.VPSet(cms.PSet(
+hlt_BTagIP_QuadJet30_Relaxed.triggerPath = 'HLT_BTagIP_QuadJet30_Relaxed'
+hlt_BTagIP_QuadJet30_Relaxed.levels = cms.VPSet(cms.PSet(
     filter = cms.InputTag("hltBLifetimeL1seedsLowEnergy","","HLT"),
     jets = cms.InputTag("hltIterativeCone5CaloJets","","HLT"),
     name = cms.string('L1'),
