@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Aug 22 18:13:29 EDT 2008
-// $Id$
+// $Id: FWGUIValidatingTextEntry.h,v 1.1 2008/08/24 00:19:12 chrjones Exp $
 //
 
 // system include files
@@ -44,12 +44,15 @@ public:
    // ---------- member functions ---------------------------
    void setValidator(FWValidatorBase*);
    void showOptions();
+   void hideOptions();
    virtual Bool_t ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2);
    
+   void keyPressedInPopup(TGFrame*, UInt_t keysym, UInt_t mask);
 private:
    FWGUIValidatingTextEntry(const FWGUIValidatingTextEntry&); // stop default
    
    const FWGUIValidatingTextEntry& operator=(const FWGUIValidatingTextEntry&); // stop default
+   void insertTextOption(const std::string&);
    
    // ---------- member data --------------------------------
    TGComboBoxPopup* m_popup;

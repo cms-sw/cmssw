@@ -8,12 +8,15 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Aug 22 18:13:39 EDT 2008
-// $Id: FWGUIValidatingTextEntry.cc,v 1.1 2008/08/24 00:19:12 chrjones Exp $
+// $Id: FWGUIValidatingTextEntry.cc,v 1.2 2008/08/27 12:22:05 chrjones Exp $
 //
 
 // system include files
 #include <iostream>
 #include "TGComboBox.h"
+#include "KeySymbols.h"
+#include "TTimer.h"
+#include "TGWindow.h"
 
 // user include files
 #include "Fireworks/Core/src/FWGUIValidatingTextEntry.h"
@@ -45,6 +48,9 @@ m_validator(0)
    m_popup->Resize(m_popup->GetDefaultSize());
    m_list->GetContainer()->AddInput(kButtonPressMask | kButtonReleaseMask | kPointerMotionMask);
    m_list->SetEditDisabled(kEditDisable);
+   m_list->GetContainer()->Connect("KeyPressed(TGFrame*,UInt_t,UInt_t)", 
+                                   "FWGUIValidatingTextEntry", this,
+                                   "keyPressedInPopup(TGFrame*,UInt_t,UInt_t)");
    m_list->GetContainer()->SetEditDisabled(kEditDisable);
    Connect("TabPressed()", "FWGUIValidatingTextEntry", this, "showOptions()");
 
@@ -91,9 +97,9 @@ FWGUIValidatingTextEntry::ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2)
       case kC_COMMAND:
          switch (GET_SUBMSG(msg)) {
             case kCM_LISTBOX:
-               InsertText(m_options[m_list->GetSelected()].second.c_str(), GetCursorPosition());
-               m_popup->EndPopup();
-               fClient->NeedRedraw(this);
+               RequestFocus();
+               insertTextOption(m_options[m_list->GetSelected()].second);
+               hideOptions();
                break;
          }
          break;
@@ -104,6 +110,47 @@ FWGUIValidatingTextEntry::ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2)
    return kTRUE;
    
 }
+
+void 
+FWGUIValidatingTextEntry::keyPressedInPopup(TGFrame*, UInt_t keysym, UInt_t mask)
+{
+   switch(keysym) {
+      case kKey_Tab:
+      case kKey_Escape:
+         RequestFocus();
+         hideOptions();
+         break;
+      case kKey_Return:
+         RequestFocus();
+         //NOTE: If chosen from the keyboard, m_list->GetSelected() does not work, however
+         // m_list->GetSelectedEntries does work
+         TList selected;
+         m_list->GetSelectedEntries(&selected);
+         assert(selected.GetEntries() == 1);
+         const TGLBEntry* entry = dynamic_cast<TGLBEntry*> (selected.First());
+         assert(0!=entry);
+         insertTextOption(m_options[entry->EntryId()].second);
+         hideOptions();
+         break;
+   }
+}
+
+namespace {
+   class ChangeFocusTimer : public TTimer {
+   public:
+      ChangeFocusTimer::ChangeFocusTimer(TGWindow* iWindow) :
+      TTimer(100),
+      m_window(iWindow) {}
+      virtual Bool_t Notify() {
+         TurnOff();
+         m_window->RequestFocus();
+         return kTRUE;
+      }
+   private:
+      TGWindow* m_window;
+   };
+}
+
 
 void 
 FWGUIValidatingTextEntry::showOptions() {
@@ -117,9 +164,7 @@ FWGUIValidatingTextEntry::showOptions() {
       m_validator->fillOptions(text, text+GetCursorPosition(), m_options);
       if(m_options.empty()) { return;}
       if(m_options.size()==1) {
-         long pos = GetCursorPosition();
-         InsertText(m_options.front().second.c_str(), GetCursorPosition());
-         SetCursorPosition(pos + m_options.front().second.size());
+         insertTextOption(m_options.front().second);
          return;
       }
       m_list->RemoveAll();
@@ -137,16 +182,38 @@ FWGUIValidatingTextEntry::showOptions() {
             m_list->Resize(m_list->GetWidth(),100);
          }
       }
+      m_list->Select(0,kTRUE);
       
       int ax,ay;
       Window_t wdummy;
       gVirtualX->TranslateCoordinates(GetId(), m_popup->GetParent()->GetId(),
                                       0, GetHeight(), ax, ay, wdummy);
       
+      //Wait to change focus for when the popup has already openned
+      std::auto_ptr<TTimer> timer( new ChangeFocusTimer(m_list->GetContainer()) );
+      timer->TurnOn();
+      //NOTE: this call has its own internal GUI event loop and will not return
+      // until the popup has been shut down
       m_popup->PlacePopup(ax, ay, 
                           GetWidth()-2, m_popup->GetDefaultHeight());
    }
 }
+
+void 
+FWGUIValidatingTextEntry::hideOptions() {
+   m_popup->EndPopup();
+   fClient->NeedRedraw(this);
+}
+
+void
+FWGUIValidatingTextEntry::insertTextOption(const std::string& iOption)
+{
+   long pos = GetCursorPosition();
+   InsertText(iOption.c_str(), pos);
+   SetCursorPosition(pos + iOption.size());
+   
+}
+
 //
 // const member functions
 //
