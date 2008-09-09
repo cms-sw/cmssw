@@ -7,12 +7,13 @@
  * Wrap CSCConditions class for use in CSC local reconstruction, in analogy with wrapper classes
  * Rick uses in CSCDigitizer.
  *
- * CSCConditions encapsulates the conditions data (e.g. calibration data) from the database.
+ * CSCConditions encapsulates the conditions data (e.g. calibration data) from the database
+ * and presents it as CSCRecHitD requires (and that is somewhat historical!)
  *
  * All functions in public interface accept CSCDetId for ME1A (i.e. ring 4) with channel
  * number 1-16 (and not the raw ME11 channel 65-80).
  *
- * \author Tim Cox
+ * \author Tim Cox - UC Davis
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
