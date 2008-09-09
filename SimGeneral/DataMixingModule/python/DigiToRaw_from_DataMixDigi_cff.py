@@ -17,33 +17,11 @@ from EventFilter.RPCRawToDigi.rpcPacker_cfi import *
 from EventFilter.RawDataCollector.rawDataCollector_cfi import *
 DigiToRaw = cms.Sequence(csctfpacker*dttfpacker*gctDigiToRaw*l1GtPack*siPixelRawData*SiStripDigiToRaw*ecalPacker*esDigiToRaw*hcalRawData*cscpacker*dtpacker*rpcpacker*rawDataCollector)
 
-#
-# put replacements here:
-#
-# Have to read merged Digis or RecHits from DataMixer
-#
-# start with muons:
-csc2DRecHits.CSCDigiTag = 'mix'
-csc2DRecHits.CSCStripDigiTag = 'MuonCSCStripDigisDM'
-csc2DRecHits.CSCWireDigiTag = 'MuonCSCWireDigisDM'
-dt1DRecHits.dtDigiLabel = 'mix:muonDTDigisDM'
-dt1DRecHits.rpcDigiLabel = 'mix:muonRPCDigisDM'
-# Calo - using RecHits here
-islandBasicClusters.barrelHitCollection = 'EcalRecHitsEBDM'
-islandBasicClusters.endcapHitCollection = 'EcalRecHitsEEDM'
-towerMaker.hbheInput = 'mix:HBHERecHitCollectionDM'
-towerMaker.hoInput = 'mix:HORecHitCollectionDM'
-towerMaker.hfInput = 'mix:HFRecHitCollectionDM'
-towerMaker.ecalInputs = { 'mix:EcalRecHitsEBDM', 'mix:EcalRecHitsEEDM' }
-# Tracker
-siStripClusters.DigiProducersList???  { 'mix','SiStripDigisDM'}
-siPixelClusters.src = 'mix:siPixelDigisDM'
-#
 
 # packer replacements
 csctfpacker.lctProducer = "simCscTriggerPrimitiveDigis:MPCSORTED"
 csctfpacker.trackProducer = 'simCsctfTrackDigis'
-cscpacker.wireDigiTag = cms.InputTag("mix","MuonCSCWireDigiDM"),
+cscpacker.wireDigiTag = cms.InputTag("mix","MuonCSCWireDigiDM")
 cscpacker.stripDigiTag = cms.InputTag("mix","MuonCSCStripDigiDM")
 #
 dttfpacker.DTDigi_Source = 'simDtTriggerPrimitiveDigis'

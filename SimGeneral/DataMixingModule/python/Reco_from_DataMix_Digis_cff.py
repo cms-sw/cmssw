@@ -38,20 +38,22 @@ from RecoVertex.BeamSpotProducer.BeamSpot_cff import *
 # Have to read merged Digis or RecHits from DataMixer
 #
 # start with muons:
-csc2DRecHits.CSCDigiTag = 'mix'
-csc2DRecHits.CSCStripDigiTag = 'MuonCSCStripDigisDM'
-csc2DRecHits.CSCWireDigiTag = 'MuonCSCWireDigisDM'
+#csc2DRecHits.CSCDigiTag = 'mix'
+csc2DRecHits.stripDigiTag = 'mix:MuonCSCStripDigisDM'
+csc2DRecHits.wireDigiTag = 'mix:MuonCSCWireDigisDM'
 dt1DRecHits.dtDigiLabel = 'mix:muonDTDigisDM'
-dt1DRecHits.rpcDigiLabel = 'mix:muonRPCDigisDM'
+rpcRecHits.rpcDigiLabel = 'mix:muonRPCDigisDM'
 # Calo - using RecHits here
-islandBasicClusters.barrelHitCollection = 'EcalRecHitsEBDM'
-islandBasicClusters.endcapHitCollection = 'EcalRecHitsEEDM'
+hybridSuperClusters.ecalhitproducer = 'mix'
+hybridSuperClusters.ecalhitcollection = 'EcalRecHitsEBDM'
+#hybridSuperClusters.endcapHitCollection = 'EcalRecHitsEEDM'
 towerMaker.hbheInput = 'mix:HBHERecHitCollectionDM'
 towerMaker.hoInput = 'mix:HORecHitCollectionDM'
 towerMaker.hfInput = 'mix:HFRecHitCollectionDM'
-towerMaker.ecalInputs = { 'mix:EcalRecHitsEBDM', 'mix:EcalRecHitsEEDM' }
+towerMaker.ecalInputs = cms.VInputTag(cms.InputTag("mix","EcalRecHitsEBDM"), cms.InputTag(
+    "mix","EcalRecHitsEEDM"))
 # Tracker
-siStripClusters.DigiProducersList???  { 'mix','SiStripDigisDM'}
+#siStripClusters.DigiProducersList???  { 'mix','SiStripDigisDM'}
 siPixelClusters.src = 'mix:siPixelDigisDM'
 #
 #
@@ -82,5 +84,5 @@ reconstruction_woConv = cms.Sequence(localreco*globalreco_plusRS*highlevelreco_w
 # define a standard candle. please note I am picking up individual
 # modules instead of sequences
 #
-reconstruction_standard_candle = cms.Sequence(localreco*globalreco*vertexreco*recoJetAssociations*btagging*coneIsolationTauJetTags*electronSequence*photonSequence)
+reconstruction_standard_candle = cms.Sequence(localreco*globalreco*vertexreco*recoJetAssociations*btagging*electronSequence*photonSequence)
 

@@ -440,7 +440,7 @@ namespace edm
     DetId formerID = 0;
     DetId currentID;
 
-    HBHEDataFrame HB_old;
+    CaloSamples HB_old;
 
     double fC_new;
     double fC_old;
@@ -460,35 +460,47 @@ namespace edm
 
       if (currentID == formerID) { // we have to add these digis together
 
-        //loop over digi samples in each CaloSample                                                           
-
+        //loop over digi samples in each CaloSample                                                  
 
         uint sizenew = (iHB->second).size();
         uint sizeold = HB_old.size();
 
-        uint max_samp = max(sizenew, sizeold);
+	bool usenew = false;
 
-	HB_old.setSize(max_samp);
+	if(sizenew > sizeold) usenew = true;
 
-        // samples from different events can be of different lengths - sum all                               
-        // that overlap.                                                                                     
+	uint max_samp = max(sizenew, sizeold);
+
+	CaloSamples HB_bigger(currentID,max_samp);	
+
+	// HB_old.setSize(max_samp);  --> can't do this...
+
+        // samples from different events can be of different lengths - sum all                      
+	// that overlap.                
 
         for(uint isamp = 0; isamp<max_samp; isamp++) {
           if(isamp < sizenew) {
-            fC_new = (iHB->second)[isamp].nominal_fC();
+            fC_new = (iHB->second)[isamp]; // should return nominal_fC();
           }
           else { fC_new = 0;}
 
           if(isamp < sizeold) {
-	    fC_old = HB_old[isamp].nominal_fC();
+	    fC_old = HB_old[isamp];
           }
           else { fC_old = 0;}
 
-          // add values                                                                                      
+          // add values   
           fC_sum = fC_new + fC_old;
 	  
-          HB_old[isamp] = fC_sum;  // overwrite old sample, adding new info     
+	  //uint fCS = int(fC_sum);
+	  //const HcalQIESample fC(fCS); 
+	  //HB_old.setSample(isamp, fC);
+
+	  if(usenew) {HB_bigger[isamp] = fC_sum; }
+	  else { HB_old[isamp] = fC_sum; }  // overwrite old sample, adding new info     
+
         }
+	if(usenew) HB_old = HB_bigger; // save new, larger sized sample in "old" slot
 
       }
       else {
@@ -504,13 +516,13 @@ namespace edm
 
 	  uint sizeold = HB_old.size();
 	  for(uint isamp = 0; isamp<sizeold; isamp++) {
-	    coder.fC2adc(HB_old,(HBHEdigis->back()),HB_old[isamp].capid());
+	    coder.fC2adc(HB_old,(HBHEdigis->back()), 0 );   // as per simulation, capid=0???
 	  }
 	}
 	//save pointers for next iteration                                                                 
 	formerID = currentID;
 	HB_old = iHB->second;
-	OldUpAdd = HB_old.id(); 
+	//OldUpAdd = HB_old.id(); 
       }
 
       iHBchk = iHB;
@@ -527,8 +539,8 @@ namespace edm
 
         uint sizenew = (iHB->second).size();
 	for(uint isamp = 0; isamp<sizenew; isamp++) {
-	  coder.fC2adc(HB_old,(HBHEdigis->back()),(iHB->second)[isamp].data().capid());
-	}
+	  coder.fC2adc(HB_old,(HBHEdigis->back()), 0 );  // as per simulation, capid=0???
+  	}
       }
     }
 
@@ -537,7 +549,7 @@ namespace edm
 
     // loop over the maps we have, re-making individual hits or digis if necessary.
     formerID = 0;
-    HOCaloSample HO_old;
+    CaloSamples HO_old;
 
     HODigiMap::const_iterator iHOchk;
 
@@ -554,44 +566,73 @@ namespace edm
 
         uint max_samp = max(sizenew, sizeold);
 
+        CaloSamples HO_bigger(currentID,max_samp);
+
+        bool usenew = false;
+
+        if(sizenew > sizeold) usenew = true;
+
         // samples from different events can be of different lengths - sum all                               
         // that overlap.                                                                                     
 
         for(uint isamp = 0; isamp<max_samp; isamp++) {
           if(isamp < sizenew) {
-            fC_new = (iHO->second)[isamp].adc();
+            fC_new = (iHO->second)[isamp];
           }
           else { fC_new = 0;}
 
           if(isamp < sizeold) {
-	    fC_old = HO_old[isamp].adc();
+	    fC_old = HO_old[isamp];
           }
           else { fC_old = 0;}
 
           // add values                                                                                      
           fC_sum = fC_new + fC_old;
-	  fC_sum = min(fC_sum,127); //first 7 bits of (uint)                                             
-          // replace right bits of sample with new ADC
 
-          fC_sum = min(fC_sum,127); //first 7 bits of Sample                                             
-          data = OldUpAdd + fC_sum;  //add new data to old address
-          HO_old.setSample(isamp,data);  // overwrite old sample, adding new info                            
+	  if(usenew) {HO_bigger[isamp] = fC_sum; }
+	  else { HO_old[isamp] = fC_sum; }  // overwrite old sample, adding new info     
+
         }
-
+	if(usenew) HO_old = HO_bigger; // save new, larger sized sample in "old" slot
+      
       }
       else {
 	if(formerID>0) {
-	  HOdigis->push_back(HO_old);
+	  // make new digi
+	  HOdigis->push_back(HODataFrame(formerID));	  
+
+	  // set up information to convert back
+
+	  HcalDetId cell = HO_old.id();
+	  const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
+	  HcalCoderDb coder (*channelCoder, *shape);
+
+	  uint sizeold = HO_old.size();
+	  for(uint isamp = 0; isamp<sizeold; isamp++) {
+	    coder.fC2adc(HO_old,(HOdigis->back()), 0 );   // as per simulation, capid=0???
+	  }
 	}
 	//save pointers for next iteration                                                                 
 	formerID = currentID;
 	HO_old = iHO->second;
-	OldUpAdd = HO_old.id(); 
       }
 
       iHOchk = iHO;
       if((++iHOchk) == HODigiStorage_.end()) {  //make sure not to lose the last one                         
-	HOdigis->push_back((iHO->second));
+	  // make new digi
+	  HOdigis->push_back(HODataFrame(currentID));	  
+
+	  // set up information to convert back
+
+	  HcalDetId cell = (iHO->second).id();
+	  const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
+	  HcalCoderDb coder (*channelCoder, *shape);
+
+	  uint sizeold = (iHO->second).size();
+	  for(uint isamp = 0; isamp<sizeold; isamp++) {
+	    coder.fC2adc(HO_old,(HOdigis->back()), 0 );   // as per simulation, capid=0???
+	  }
+
       }
     }
 
@@ -599,7 +640,7 @@ namespace edm
 
     // loop over the maps we have, re-making individual hits or digis if necessary.
     formerID = 0;
-    HFCaloSample HF_old;
+    CaloSamples HF_old;
 
     HFDigiMap::const_iterator iHFchk;
 
@@ -616,52 +657,82 @@ namespace edm
 
         uint max_samp = max(sizenew, sizeold);
 
+        CaloSamples HF_bigger(currentID,max_samp);
+
+        bool usenew = false;
+
+        if(sizenew > sizeold) usenew = true;
+
         // samples from different events can be of different lengths - sum all                               
         // that overlap.                                                                                     
 
         for(uint isamp = 0; isamp<max_samp; isamp++) {
           if(isamp < sizenew) {
-            fC_new = (iHF->second)[isamp].adc();
+            fC_new = (iHF->second)[isamp];
           }
           else { fC_new = 0;}
 
           if(isamp < sizeold) {
-	    fC_old = HF_old[isamp].adc();
+	    fC_old = HF_old[isamp];
           }
           else { fC_old = 0;}
 
           // add values                                                                                      
           fC_sum = fC_new + fC_old;
-	  fC_sum = min(fC_sum,127); //first 7 bits of (uint)                                             
-          // replace right bits of sample with new ADC
 
-          fC_sum = min(fC_sum,127); //first 7 bits of Sample                                             
-          data = OldUpAdd + fC_sum;  //add new data to old address
-          HF_old.setSample(isamp,data);  // overwrite old sample, adding new info                            
+	  if(usenew) {HF_bigger[isamp] = fC_sum; }
+	  else { HF_old[isamp] = fC_sum; }  // overwrite old sample, adding new info     
+
         }
-
+	if(usenew) HF_old = HF_bigger; // save new, larger sized sample in "old" slot
+      
       }
       else {
 	if(formerID>0) {
-	  HFdigis->push_back(HF_old);
+	  // make new digi
+	  HFdigis->push_back(HFDataFrame(formerID));	  
+
+	  // set up information to convert back
+
+	  HcalDetId cell = HF_old.id();
+	  const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
+	  HcalCoderDb coder (*channelCoder, *shape);
+
+	  uint sizeold = HF_old.size();
+	  for(uint isamp = 0; isamp<sizeold; isamp++) {
+	    coder.fC2adc(HF_old,(HFdigis->back()), 0 );   // as per simulation, capid=0???
+	  }
 	}
 	//save pointers for next iteration                                                                 
 	formerID = currentID;
 	HF_old = iHF->second;
-	OldUpAdd = HF_old.id(); // mask off adc information
       }
 
       iHFchk = iHF;
       if((++iHFchk) == HFDigiStorage_.end()) {  //make sure not to lose the last one                         
-	HFdigis->push_back((iHF->second));
+	  // make new digi
+	  HFdigis->push_back(HFDataFrame(currentID));	  
+
+	  // set up information to convert back
+
+	  HcalDetId cell = (iHF->second).id();
+	  const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
+	  HcalCoderDb coder (*channelCoder, *shape);
+
+	  uint sizeold = (iHF->second).size();
+	  for(uint isamp = 0; isamp<sizeold; isamp++) {
+	    coder.fC2adc(HF_old,(HFdigis->back()), 0 );   // as per simulation, capid=0???
+	  }
+
       }
     }
+
 
     // ZDC next...
 
     // loop over the maps we have, re-making individual hits or digis if necessary.
     formerID = 0;
-    ZDCCaloSample ZDC_old;
+    CaloSamples ZDC_old;
 
     ZDCDigiMap::const_iterator iZDCchk;
 
@@ -678,46 +749,76 @@ namespace edm
 
         uint max_samp = max(sizenew, sizeold);
 
+        CaloSamples ZDC_bigger(currentID,max_samp);
+
+        bool usenew = false;
+
+        if(sizenew > sizeold) usenew = true;
+
         // samples from different events can be of different lengths - sum all                               
         // that overlap.                                                                                     
 
         for(uint isamp = 0; isamp<max_samp; isamp++) {
           if(isamp < sizenew) {
-            fC_new = (iZDC->second)[isamp].adc();
+            fC_new = (iZDC->second)[isamp];
           }
           else { fC_new = 0;}
 
           if(isamp < sizeold) {
-	    fC_old = ZDC_old[isamp].adc();
+	    fC_old = ZDC_old[isamp];
           }
           else { fC_old = 0;}
 
           // add values                                                                                      
           fC_sum = fC_new + fC_old;
-	  fC_sum = min(fC_sum,127); //first 7 bits of (uint)                                             
-          // replace right bits of sample with new ADC
 
-          fC_sum = min(fC_sum,127); //first 7 bits of Sample                                             
-          data = OldUpAdd + fC_sum;  //add new data to old address
-          ZDC_old.setSample(isamp,data);  // overwrite old sample, adding new info                            
+	  if(usenew) {ZDC_bigger[isamp] = fC_sum; }
+	  else { ZDC_old[isamp] = fC_sum; }  // overwrite old sample, adding new info     
+
         }
-
+	if(usenew) ZDC_old = ZDC_bigger; // save new, larger sized sample in "old" slot
+      
       }
       else {
 	if(formerID>0) {
-	  ZDCdigis->push_back(ZDC_old);
+	  // make new digi
+	  ZDCdigis->push_back(ZDCDataFrame(formerID));	  
+
+	  // set up information to convert back
+
+	  HcalDetId cell = ZDC_old.id();
+	  const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
+	  HcalCoderDb coder (*channelCoder, *shape);
+
+	  uint sizeold = ZDC_old.size();
+	  for(uint isamp = 0; isamp<sizeold; isamp++) {
+	    coder.fC2adc(ZDC_old,(ZDCdigis->back()), 0 );   // as per simulation, capid=0???
+	  }
 	}
 	//save pointers for next iteration                                                                 
 	formerID = currentID;
 	ZDC_old = iZDC->second;
-	OldUpAdd = ZDC_old.id(); // mask off adc information
       }
 
       iZDCchk = iZDC;
       if((++iZDCchk) == ZDCDigiStorage_.end()) {  //make sure not to lose the last one                         
-	ZDCdigis->push_back((iZDC->second));
+	  // make new digi
+	  ZDCdigis->push_back(ZDCDataFrame(currentID));	  
+
+	  // set up information to convert back
+
+	  HcalDetId cell = (iZDC->second).id();
+	  const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
+	  HcalCoderDb coder (*channelCoder, *shape);
+
+	  uint sizeold = (iZDC->second).size();
+	  for(uint isamp = 0; isamp<sizeold; isamp++) {
+	    coder.fC2adc(ZDC_old,(ZDCdigis->back()), 0 );   // as per simulation, capid=0???
+	  }
+
       }
     }
+
 
   
    //done merging

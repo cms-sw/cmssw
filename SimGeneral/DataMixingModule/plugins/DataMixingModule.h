@@ -23,6 +23,8 @@
 
 #include "SimGeneral/DataMixingModule/plugins/DataMixingEMWorker.h"
 #include "SimGeneral/DataMixingModule/plugins/DataMixingHcalWorker.h"
+#include "SimGeneral/DataMixingModule/plugins/DataMixingEMDigiWorker.h"
+#include "SimGeneral/DataMixingModule/plugins/DataMixingHcalDigiWorker.h"
 #include "SimGeneral/DataMixingModule/plugins/DataMixingMuonWorker.h"
 #include "SimGeneral/DataMixingModule/plugins/DataMixingSiStripWorker.h"
 #include "SimGeneral/DataMixingModule/plugins/DataMixingSiPixelWorker.h"
@@ -60,15 +62,31 @@ namespace edm
       std::string EERecHitCollectionDM_; // secondary name to be given to EE collection of hits
       std::string ESRecHitCollectionDM_; // secondary name to be given to EE collection of hits
 
+      edm::InputTag EBdigiCollection_; // secondary name given to collection of EB digis
+      edm::InputTag EEdigiCollection_; // secondary name given to collection of EE digis
+      edm::InputTag ESdigiCollection_; // secondary name given to collection of EE digis
+      std::string EBDigiCollectionDM_; // secondary name to be given to EB collection of hits
+      std::string EEDigiCollectionDM_; // secondary name to be given to EE collection of hits
+      std::string ESDigiCollectionDM_; // secondary name to be given to EE collection of hits
+
       // Hcal
-      edm::InputTag HBHErechitCollection_; // secondary name given to collection of EB rechits
-      edm::InputTag HOrechitCollection_  ; // secondary name given to collection of EB rechits
-      edm::InputTag HFrechitCollection_  ; // secondary name given to collection of EB rechits
-      edm::InputTag ZDCrechitCollection_ ; // secondary name given to collection of EB rechits
-      std::string HBHERecHitCollectionDM_; // secondary name to be given to EB collection of hits
-      std::string HORecHitCollectionDM_  ; // secondary name to be given to EB collection of hits
-      std::string HFRecHitCollectionDM_  ; // secondary name to be given to EB collection of hits
-      std::string ZDCRecHitCollectionDM_ ; // secondary name to be given to EB collection of hits
+      edm::InputTag HBHErechitCollection_; // secondary name given to collection of HBHE rechits
+      edm::InputTag HOrechitCollection_  ; // secondary name given to collection of HO rechits
+      edm::InputTag HFrechitCollection_  ; // secondary name given to collection of HF rechits
+      edm::InputTag ZDCrechitCollection_ ; // secondary name given to collection of ZDC rechits
+      std::string HBHERecHitCollectionDM_; // secondary name to be given to HBHE collection of hits
+      std::string HORecHitCollectionDM_  ; // secondary name to be given to HO collection of hits
+      std::string HFRecHitCollectionDM_  ; // secondary name to be given to HF collection of hits
+      std::string ZDCRecHitCollectionDM_ ; // secondary name to be given to ZDC collection of hits
+
+      edm::InputTag HBHEdigiCollection_; // secondary name given to collection of EB digis
+      edm::InputTag HOdigiCollection_  ; // secondary name given to collection of EB digis
+      edm::InputTag HFdigiCollection_  ; // secondary name given to collection of EB digis
+      edm::InputTag ZDCdigiCollection_ ; // secondary name given to collection of EB digis
+      std::string HBHEDigiCollectionDM_; // secondary name to be given to EB collection of hits
+      std::string HODigiCollectionDM_  ; // secondary name to be given to EB collection of hits
+      std::string HFDigiCollectionDM_  ; // secondary name to be given to EB collection of hits
+      std::string ZDCDigiCollectionDM_ ; // secondary name to be given to EB collection of hits
 
       // Muons
       edm::InputTag DTdigi_collection_;      // secondary name given to collection of DT digis
@@ -92,10 +110,14 @@ namespace edm
       // Submodules to handle the individual detectors
 
       DataMixingEMWorker *EMWorker_ ;
+      DataMixingEMDigiWorker *EMDigiWorker_ ;
+      bool MergeEMDigis_;
 
       // Hcal 
       
       DataMixingHcalWorker *HcalWorker_ ;
+      DataMixingHcalDigiWorker *HcalDigiWorker_ ;
+      bool MergeHcalDigis_;
 
       // Muons
 
@@ -116,6 +138,16 @@ namespace edm
       virtual void doPileUp(edm::Event &e);
       virtual void addPileups(const int bcr, edm::Event*,unsigned int EventId,unsigned int worker);
       virtual void getSubdetectorNames();
+
+      // copies, with EventSetup
+      virtual void put(edm::Event &e,const edm::EventSetup& ES) ;
+      void merge(const int bcr, const EventPrincipalVector& vec, unsigned int worker, const edm::EventSetup& ES);
+      void merge(const int bcr, const EventPrincipalVector& vec, unsigned int worker);
+      void produce(edm::Event& e, const edm::EventSetup& ES);
+      virtual void addSignals(const edm::Event &e, const edm::EventSetup& ES); 
+      virtual void doPileUp(edm::Event &e,const edm::EventSetup& ES);
+      virtual void addPileups(const int bcr, edm::Event*,unsigned int EventId,unsigned int worker,const edm::EventSetup& ES);
+  
 
       // internally used information : subdetectors present in input
       std::vector<std::string> Subdetectors_;
