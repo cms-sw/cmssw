@@ -33,7 +33,7 @@ public:
   
   virtual double correction (const reco::Jet& fJet, const edm::Event& fEvent, const edm::EventSetup& fSetup) const;
 
-  void setParameters( std::string fDataFile, std::string fDataFile );
+  void setParameters( std::string fDataFile, std::string fDataFile, std::string fDataFile);
   
   /// if correction needs event information
   virtual bool eventRequired () const {return true;}
@@ -41,22 +41,39 @@ public:
 private:
   edm::InputTag m_JetTracksAtVertex;
   edm::InputTag m_JetTracksAtCalo;
+  edm::InputTag m_muonsSrc;
+
+  // responce algo (will be absolete)
   int theResponseAlgo;
+  // add or not out of cone tracks (default: true)
   bool theAddOutOfConeTracks;
+  // tracker efficiency map
+  std::string theNonEfficiencyFile;
+  // corrections to responce of lost tracks
+  std::string theNonEfficiencyFileResp;
+  // single pion responce map for found fracks
+  std::string theResponseFile;
   
   SingleParticleJetResponse * theSingle;
+
+/// Tracking efficiency
   int netabin1,nptbin1;
   std::vector<double> etabin1;
   std::vector<double> ptbin1;
   std::vector<double> trkeff;
 
+/// Leakage corrections
   int netabin2,nptbin2;
   std::vector<double> etabin2;
   std::vector<double> ptbin2;
-  std::vector<double> trkeff_resp;
+  std::vector<double> eleakage;
+  //  std::vector<double> trkeff_resp;
 
-  std::string theNonEfficiencyFile;
-  std::string theNonEfficiencyFileResp;
+/// single particle responce
+  int netabin3,nptbin3;
+  std::vector<double> etabin3;
+  std::vector<double> ptbin3;
+  std::vector<double> response;
 
 };
 
