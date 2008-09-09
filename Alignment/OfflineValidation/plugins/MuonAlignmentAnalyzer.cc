@@ -571,19 +571,37 @@ void MuonAlignmentAnalyzer::beginJob(const EventSetup& eventSetup){
   hprofLocalPhiDT=fs->make<TH1F>("hprofLocalPhiDT","Local Phi DT", 280,0, 280);
   hprofLocalThetaDT=fs->make<TH1F>("hprofLocalThetaDT","Local Theta DT", 280,0, 280);
   hprofLocalYDT=fs->make<TH1F>("hprofLocalYDT","Local Y DT", 280,0, 280);
-  hprofLocalXCSC=fs->make<TH1F>("hprofLocalXCSC","Local X CSC", 1026,0, 1026);
-  hprofLocalPhiCSC=fs->make<TH1F>("hprofLocalPhiCSC","Local Phi CSC", 1026,0, 1026);
-  hprofLocalThetaCSC=fs->make<TH1F>("hprofLocalThetaCSC","Local Theta CSC", 1026,0, 1026);
-  hprofLocalYCSC=fs->make<TH1F>("hprofLocalYCSC","Local Y CSC", 1026,0, 1026);
+  hprofLocalXCSC=fs->make<TH1F>("hprofLocalXCSC","Local X CSC", 540,0, 540);
+  hprofLocalPhiCSC=fs->make<TH1F>("hprofLocalPhiCSC","Local Phi CSC", 540,0, 540);
+  hprofLocalThetaCSC=fs->make<TH1F>("hprofLocalThetaCSC","Local Theta CSC", 540,0, 540);
+  hprofLocalYCSC=fs->make<TH1F>("hprofLocalYCSC","Local Y CSC", 540,0, 540);
   hprofGlobalRPhiDT=fs->make<TH1F>("hprofGlobalRPhiDT","Global RPhi DT", 280,0, 280);
   hprofGlobalPhiDT=fs->make<TH1F>("hprofGlobalPhiDT","Global Phi DT", 280,0, 280);
   hprofGlobalThetaDT=fs->make<TH1F>("hprofGlobalThetaDT","Global Theta DT", 280,0, 280);
   hprofGlobalZDT=fs->make<TH1F>("hprofGlobalZDT","Global Z DT", 280,0, 280);
-  hprofGlobalRPhiCSC=fs->make<TH1F>("hprofGlobalRPhiCSC","Global RPhi CSC", 1026,0, 1026);
-  hprofGlobalPhiCSC=fs->make<TH1F>("hprofGlobalPhiCSC","Global Phi CSC", 1026,0, 1026);
-  hprofGlobalThetaCSC=fs->make<TH1F>("hprofGlobalThetaCSC","Global Theta CSC", 1026,0, 1026);
-  hprofGlobalRCSC=fs->make<TH1F>("hprofGlobalRCSC","Global R CSC", 1026,0, 1026);
+  hprofGlobalRPhiCSC=fs->make<TH1F>("hprofGlobalRPhiCSC","Global RPhi CSC", 540,0, 540);
+  hprofGlobalPhiCSC=fs->make<TH1F>("hprofGlobalPhiCSC","Global Phi CSC", 540,0, 540);
+  hprofGlobalThetaCSC=fs->make<TH1F>("hprofGlobalThetaCSC","Global Theta CSC", 540,0, 540);
+  hprofGlobalRCSC=fs->make<TH1F>("hprofGlobalRCSC","Global R CSC", 540,0, 540);
 
+  // TH1F options
+  hprofLocalXDT->GetXaxis()->SetLabelSize(0.025);
+  hprofLocalPhiDT->GetXaxis()->SetLabelSize(0.025);
+  hprofLocalThetaDT->GetXaxis()->SetLabelSize(0.025);
+  hprofLocalYDT->GetXaxis()->SetLabelSize(0.025);
+  hprofLocalXCSC->GetXaxis()->SetLabelSize(0.025);
+  hprofLocalPhiCSC->GetXaxis()->SetLabelSize(0.025);
+  hprofLocalThetaCSC->GetXaxis()->SetLabelSize(0.025);
+  hprofLocalYCSC->GetXaxis()->SetLabelSize(0.025);
+  hprofGlobalRPhiDT->GetXaxis()->SetLabelSize(0.025);
+  hprofGlobalPhiDT->GetXaxis()->SetLabelSize(0.025);
+  hprofGlobalThetaDT->GetXaxis()->SetLabelSize(0.025);
+  hprofGlobalZDT->GetXaxis()->SetLabelSize(0.025);
+  hprofGlobalRPhiCSC->GetXaxis()->SetLabelSize(0.025);
+  hprofGlobalPhiCSC->GetXaxis()->SetLabelSize(0.025);
+  hprofGlobalThetaCSC->GetXaxis()->SetLabelSize(0.025);
+  hprofGlobalRCSC->GetXaxis()->SetLabelSize(0.025);
+  
   // TH2F histos definition
   hprofGlobalPositionDT=fs->make<TH2F>("hprofGlobalPositionDT","Global DT position (cm) absolute MEAN residuals", 14,0, 14,40,0,40);
   hprofGlobalAngleDT=fs->make<TH2F>("hprofGlobalAngleDT","Global DT angle (rad) absolute MEAN residuals", 14,0, 14,40,0,40); 
@@ -608,35 +626,51 @@ void MuonAlignmentAnalyzer::beginJob(const EventSetup& eventSetup){
   hprofGlobalAngleDT->GetYaxis()->SetLabelSize(0.025);
   hprofGlobalPositionDT->GetZaxis()->SetTitle("(cm)");
   hprofGlobalAngleDT->GetZaxis()->SetTitle("(rad)");
+  hprofGlobalPositionDT->GetXaxis()->SetTitle("Sector");
+  hprofGlobalAngleDT->GetXaxis()->SetTitle("Sector");
   hprofGlobalPositionRmsDT->GetYaxis()->SetLabelSize(0.025);
   hprofGlobalAngleRmsDT->GetYaxis()->SetLabelSize(0.025);
   hprofGlobalPositionRmsDT->GetZaxis()->SetTitle("(cm)");
   hprofGlobalAngleRmsDT->GetZaxis()->SetTitle("(rad)");
+  hprofGlobalPositionRmsDT->GetXaxis()->SetTitle("Sector");
+  hprofGlobalAngleRmsDT->GetXaxis()->SetTitle("Sector");
   hprofLocalPositionDT->GetYaxis()->SetLabelSize(0.025);
   hprofLocalAngleDT->GetYaxis()->SetLabelSize(0.025);
   hprofLocalPositionDT->GetZaxis()->SetTitle("(cm)");
   hprofLocalAngleDT->GetZaxis()->SetTitle("(rad)");
+  hprofLocalPositionDT->GetXaxis()->SetTitle("Sector");
+  hprofLocalAngleDT->GetXaxis()->SetTitle("Sector");
   hprofLocalPositionRmsDT->GetYaxis()->SetLabelSize(0.025);
   hprofLocalAngleRmsDT->GetYaxis()->SetLabelSize(0.025);
   hprofLocalPositionRmsDT->GetZaxis()->SetTitle("(cm)");
   hprofLocalAngleRmsDT->GetZaxis()->SetTitle("(rad)");
+  hprofLocalPositionRmsDT->GetXaxis()->SetTitle("Sector");
+  hprofLocalAngleRmsDT->GetXaxis()->SetTitle("Sector");
 
   hprofGlobalPositionCSC->GetYaxis()->SetLabelSize(0.025);
   hprofGlobalAngleCSC->GetYaxis()->SetLabelSize(0.025);
   hprofGlobalPositionCSC->GetZaxis()->SetTitle("(cm)");
   hprofGlobalAngleCSC->GetZaxis()->SetTitle("(rad)");
+  hprofGlobalPositionCSC->GetXaxis()->SetTitle("Chamber");
+  hprofGlobalAngleCSC->GetXaxis()->SetTitle("Chamber");
   hprofGlobalPositionRmsCSC->GetYaxis()->SetLabelSize(0.025);
   hprofGlobalAngleRmsCSC->GetYaxis()->SetLabelSize(0.025);
   hprofGlobalPositionRmsCSC->GetZaxis()->SetTitle("(cm)");
   hprofGlobalAngleRmsCSC->GetZaxis()->SetTitle("(rad)");
+  hprofGlobalPositionRmsCSC->GetXaxis()->SetTitle("Chamber");
+  hprofGlobalAngleRmsCSC->GetXaxis()->SetTitle("Chamber");
   hprofLocalPositionCSC->GetYaxis()->SetLabelSize(0.025);
   hprofLocalAngleCSC->GetYaxis()->SetLabelSize(0.025);
   hprofLocalPositionCSC->GetZaxis()->SetTitle("(cm)");
   hprofLocalAngleCSC->GetZaxis()->SetTitle("(rad)");
+  hprofLocalPositionCSC->GetXaxis()->SetTitle("Chamber");
+  hprofLocalAngleCSC->GetXaxis()->SetTitle("Chamber");
   hprofLocalPositionRmsCSC->GetYaxis()->SetLabelSize(0.025);
   hprofLocalAngleRmsCSC->GetYaxis()->SetLabelSize(0.025);
   hprofLocalPositionRmsCSC->GetZaxis()->SetTitle("(cm)");
   hprofLocalAngleRmsCSC->GetZaxis()->SetTitle("(rad)");
+  hprofLocalPositionRmsCSC->GetXaxis()->SetTitle("Chamber");
+  hprofLocalAngleRmsCSC->GetXaxis()->SetTitle("Chamber");
 
   char binLabel[15];
   for (int i=1;i<15;i++){
@@ -750,16 +784,18 @@ void MuonAlignmentAnalyzer::endJob(){
 
 	Double_t MeanRPhi=unitsLocalX[i]->GetMean();
 	Double_t ErrorRPhi=unitsLocalX[i]->GetMeanError();
-	Int_t nstation;
 
-	if (station<=-1)
-	nstation=station+4;
-	else
-	nstation=station+3;
-	
-	Int_t nring=ring-1;
+	Int_t xbin=abs(station)*2+ring;
+	if(abs(station)==1) xbin=ring;
+	if (station>0) xbin=xbin+9;
+	else xbin = 10 -xbin;
 
-	Int_t xbin=36*4*nstation+36*nring+chamber;
+	// To avoid holes in xAxis, I can't imagine right now a simpler way...
+	if(xbin<5) xbin= 18*(((Int_t)(xbin/3))*2+(Int_t)(xbin/2))+chamber;
+	else if(xbin<6) xbin=108+chamber;
+	else if(xbin<14) xbin=126 +(xbin-6)*36+chamber;
+	else if(xbin<18) xbin=414+18*(((Int_t)(xbin-13)/3)*2+((Int_t)(xbin-13)/2))+chamber;
+	else xbin=522+chamber;
 
 	sprintf(binLabel, "ME%d/%dC%d", station, ring, chamber );
 
@@ -774,7 +810,7 @@ void MuonAlignmentAnalyzer::endJob(){
 	if(abs(station)==1) ybin=ring;
 	if (station>0) ybin=ybin+9;
 	else ybin = 10 -ybin;
-	ybin=2*ybin;
+	ybin=2*ybin-1;
 	hprofLocalPositionCSC->SetBinContent(chamber,ybin,fabs(MeanRPhi));
 	sprintf(binLabel, "ME%d/%d_LocalX", station,ring );
 	hprofLocalPositionCSC->GetYaxis()->SetBinLabel(ybin,binLabel);
@@ -858,17 +894,18 @@ void MuonAlignmentAnalyzer::endJob(){
 
 	Double_t MeanPhi=unitsLocalPhi[i]->GetMean();
 	Double_t ErrorPhi=unitsLocalPhi[i]->GetMeanError();
-	Int_t nstation;
 
-	if (station<=-1)
-	nstation=station+4;
-	else
-	nstation=station+3;
+	Int_t xbin=abs(station)*2+ring;
+	if(abs(station)==1) xbin=ring;
+	if (station>0) xbin=xbin+9;
+	else xbin = 10 -xbin;
 
-	Int_t nring=ring-1;
-
-
-	Int_t xbin=36*4*nstation+36*nring+chamber;
+	// To avoid holes in xAxis, I can't imagine right now a simpler way...
+	if(xbin<5) xbin= 18*(((Int_t)(xbin/3))*2+(Int_t)(xbin/2))+chamber;
+	else if(xbin<6) xbin=108+chamber;
+	else if(xbin<14) xbin=126 +(xbin-6)*36+chamber;
+	else if(xbin<18) xbin=414+18*(((Int_t)(xbin-13)/3)*2+((Int_t)(xbin-13)/2))+chamber;
+	else xbin=522+chamber;
 
 	sprintf(binLabel, "ME%d/%dC%d", station, ring, chamber );
 
@@ -883,7 +920,7 @@ void MuonAlignmentAnalyzer::endJob(){
 	if(abs(station)==1) ybin=ring;
 	if (station>0) ybin=ybin+9;
 	else ybin = 10 -ybin;
-	ybin=2*ybin;
+	ybin=2*ybin-1;
 	hprofLocalAngleCSC->SetBinContent(chamber,ybin,fabs(MeanPhi));
 	sprintf(binLabel, "ME%d/%d_LocalPhi", station,ring );
 	hprofLocalAngleCSC->GetYaxis()->SetBinLabel(ybin,binLabel);
@@ -900,17 +937,18 @@ void MuonAlignmentAnalyzer::endJob(){
 
 	Double_t MeanTheta=unitsLocalTheta[i]->GetMean();
 	Double_t ErrorTheta=unitsLocalTheta[i]->GetMeanError();
-	Int_t nstation;
 
-	if (station<=-1)
-	nstation=station+4;
-	else
-	nstation=station+3;
+	Int_t xbin=abs(station)*2+ring;
+	if(abs(station)==1) xbin=ring;
+	if (station>0) xbin=xbin+9;
+	else xbin = 10 -xbin;
 
-	Int_t nring=ring-1;
-
-
-	Int_t xbin=36*4*nstation+36*nring+chamber;
+	// To avoid holes in xAxis, I can't imagine right now a simpler way...
+	if(xbin<5) xbin= 18*(((Int_t)(xbin/3))*2+(Int_t)(xbin/2))+chamber;
+	else if(xbin<6) xbin=108+chamber;
+	else if(xbin<14) xbin=126 +(xbin-6)*36+chamber;
+	else if(xbin<18) xbin=414+18*(((Int_t)(xbin-13)/3)*2+((Int_t)(xbin-13)/2))+chamber;
+	else xbin=522+chamber;
 
 	sprintf(binLabel, "ME%d/%dC%d", station, ring, chamber );
 
@@ -925,7 +963,7 @@ void MuonAlignmentAnalyzer::endJob(){
 	if(abs(station)==1) ybin=ring;
 	if (station>0) ybin=ybin+9;
 	else ybin = 10 -ybin;
-	ybin=2*ybin+1;
+	ybin=2*ybin;
 	hprofLocalAngleCSC->SetBinContent(chamber,ybin,fabs(MeanTheta));
 	sprintf(binLabel, "ME%d/%d_LocalTheta", station,ring );
 	hprofLocalAngleCSC->GetYaxis()->SetBinLabel(ybin,binLabel);
@@ -976,17 +1014,18 @@ void MuonAlignmentAnalyzer::endJob(){
 
 	Double_t MeanR=unitsLocalY[i]->GetMean();
 	Double_t ErrorR=unitsLocalY[i]->GetMeanError();
-	Int_t nstation;
 
-	if (station<=-1)
-	nstation=station+4;
-	else
-	nstation=station+3;
+	Int_t xbin=abs(station)*2+ring;
+	if(abs(station)==1) xbin=ring;
+	if (station>0) xbin=xbin+9;
+	else xbin = 10 -xbin;
 
-	Int_t nring=ring-1;
-
-
-	Int_t xbin=36*4*nstation+36*nring+chamber;
+	// To avoid holes in xAxis, I can't imagine right now a simpler way...
+	if(xbin<5) xbin= 18*(((Int_t)(xbin/3))*2+(Int_t)(xbin/2))+chamber;
+	else if(xbin<6) xbin=108+chamber;
+	else if(xbin<14) xbin=126 +(xbin-6)*36+chamber;
+	else if(xbin<18) xbin=414+18*(((Int_t)(xbin-13)/3)*2+((Int_t)(xbin-13)/2))+chamber;
+	else xbin=522+chamber;
 
 	sprintf(binLabel, "ME%d/%dC%d", station, ring, chamber );
 
@@ -1001,7 +1040,7 @@ void MuonAlignmentAnalyzer::endJob(){
 	if(abs(station)==1) ybin=ring;
 	if (station>0) ybin=ybin+9;
 	else ybin = 10 -ybin;
-	ybin=2*ybin+1;
+	ybin=2*ybin;
 	hprofLocalPositionCSC->SetBinContent(chamber,ybin,fabs(MeanR));
 	sprintf(binLabel, "ME%d/%d_LocalY", station,ring );
 	hprofLocalPositionCSC->GetYaxis()->SetBinLabel(ybin,binLabel);
@@ -1049,16 +1088,18 @@ void MuonAlignmentAnalyzer::endJob(){
 
 	Double_t MeanRPhi=unitsGlobalRPhi[i]->GetMean();
 	Double_t ErrorRPhi=unitsGlobalRPhi[i]->GetMeanError();
-	Int_t nstation;
 
-	if (station<=-1)
-	nstation=station+4;
-	else
-	nstation=station+3;
-	
-	Int_t nring=ring-1;
+	Int_t xbin=abs(station)*2+ring;
+	if(abs(station)==1) xbin=ring;
+	if (station>0) xbin=xbin+9;
+	else xbin = 10 -xbin;
 
-	Int_t xbin=36*4*nstation+36*nring+chamber;
+	// To avoid holes in xAxis, I can't imagine right now a simpler way...
+	if(xbin<5) xbin= 18*(((Int_t)(xbin/3))*2+(Int_t)(xbin/2))+chamber;
+	else if(xbin<6) xbin=108+chamber;
+	else if(xbin<14) xbin=126 +(xbin-6)*36+chamber;
+	else if(xbin<18) xbin=414+18*(((Int_t)(xbin-13)/3)*2+((Int_t)(xbin-13)/2))+chamber;
+	else xbin=522+chamber;
 
 	sprintf(binLabel, "ME%d/%dC%d", station, ring, chamber );
 
@@ -1073,7 +1114,7 @@ void MuonAlignmentAnalyzer::endJob(){
 	if(abs(station)==1) ybin=ring;
 	if (station>0) ybin=ybin+9;
 	else ybin = 10 -ybin;
-	ybin=2*ybin;
+	ybin=2*ybin-1;
 	hprofGlobalPositionCSC->SetBinContent(chamber,ybin,fabs(MeanRPhi));
 	sprintf(binLabel, "ME%d/%d_GlobalRPhi", station,ring );
 	hprofGlobalPositionCSC->GetYaxis()->SetBinLabel(ybin,binLabel);
@@ -1156,17 +1197,18 @@ void MuonAlignmentAnalyzer::endJob(){
 
 	Double_t MeanPhi=unitsGlobalPhi[i]->GetMean();
 	Double_t ErrorPhi=unitsGlobalPhi[i]->GetMeanError();
-	Int_t nstation;
 
-	if (station<=-1)
-	nstation=station+4;
-	else
-	nstation=station+3;
+	Int_t xbin=abs(station)*2+ring;
+	if(abs(station)==1) xbin=ring;
+	if (station>0) xbin=xbin+9;
+	else xbin = 10 -xbin;
 
-	Int_t nring=ring-1;
-
-
-	Int_t xbin=36*4*nstation+36*nring+chamber;
+	// To avoid holes in xAxis, I can't imagine right now a simpler way...
+	if(xbin<5) xbin= 18*(((Int_t)(xbin/3))*2+(Int_t)(xbin/2))+chamber;
+	else if(xbin<6) xbin=108+chamber;
+	else if(xbin<14) xbin=126 +(xbin-6)*36+chamber;
+	else if(xbin<18) xbin=414+18*(((Int_t)(xbin-13)/3)*2+((Int_t)(xbin-13)/2))+chamber;
+	else xbin=522+chamber;
 
 	sprintf(binLabel, "ME%d/%dC%d", station, ring, chamber );
 
@@ -1181,7 +1223,7 @@ void MuonAlignmentAnalyzer::endJob(){
 	if(abs(station)==1) ybin=ring;
 	if (station>0) ybin=ybin+9;
 	else ybin = 10 -ybin;
-	ybin=2*ybin;
+	ybin=2*ybin-1;
 	hprofGlobalAngleCSC->SetBinContent(chamber,ybin,fabs(MeanPhi));
 	sprintf(binLabel, "ME%d/%d_GlobalPhi", station,ring );
 	hprofGlobalAngleCSC->GetYaxis()->SetBinLabel(ybin,binLabel);
@@ -1198,16 +1240,18 @@ void MuonAlignmentAnalyzer::endJob(){
 
 	Double_t MeanTheta=unitsGlobalTheta[i]->GetMean();
 	Double_t ErrorTheta=unitsGlobalTheta[i]->GetMeanError();
-	Int_t nstation;
 
-	if (station<=-1)
-	nstation=station+4;
-	else
-	nstation=station+3;
+	Int_t xbin=abs(station)*2+ring;
+	if(abs(station)==1) xbin=ring;
+	if (station>0) xbin=xbin+9;
+	else xbin = 10 -xbin;
 
-	Int_t nring=ring-1;
-
-	Int_t xbin=36*4*nstation+36*nring+chamber;
+	// To avoid holes in xAxis, I can't imagine right now a simpler way...
+	if(xbin<5) xbin= 18*(((Int_t)(xbin/3))*2+(Int_t)(xbin/2))+chamber;
+	else if(xbin<6) xbin=108+chamber;
+	else if(xbin<14) xbin=126 +(xbin-6)*36+chamber;
+	else if(xbin<18) xbin=414+18*(((Int_t)(xbin-13)/3)*2+((Int_t)(xbin-13)/2))+chamber;
+	else xbin=522+chamber;
 
 	sprintf(binLabel, "ME%d/%dC%d", station, ring, chamber );
 
@@ -1222,7 +1266,7 @@ void MuonAlignmentAnalyzer::endJob(){
 	if(abs(station)==1) ybin=ring;
 	if (station>0) ybin=ybin+9;
 	else ybin = 10 -ybin;
-	ybin=2*ybin+1;
+	ybin=2*ybin;
 	hprofGlobalAngleCSC->SetBinContent(chamber,ybin,fabs(MeanTheta));
 	sprintf(binLabel, "ME%d/%d_GlobalTheta", station,ring );
 	hprofGlobalAngleCSC->GetYaxis()->SetBinLabel(ybin,binLabel);
@@ -1274,16 +1318,18 @@ void MuonAlignmentAnalyzer::endJob(){
 
 	Double_t MeanR=unitsGlobalRZ[i]->GetMean();
 	Double_t ErrorR=unitsGlobalRZ[i]->GetMeanError();
-	Int_t nstation;
 
-	if (station<=-1)
-	nstation=station+4;
-	else
-	nstation=station+3;
+	Int_t xbin=abs(station)*2+ring;
+	if(abs(station)==1) xbin=ring;
+	if (station>0) xbin=xbin+9;
+	else xbin = 10 -xbin;
 
-	Int_t nring=ring-1;
-
-	Int_t xbin=36*4*nstation+36*nring+chamber;
+	// To avoid holes in xAxis, I can't imagine right now a simpler way...
+	if(xbin<5) xbin= 18*(((Int_t)(xbin/3))*2+(Int_t)(xbin/2))+chamber;
+	else if(xbin<6) xbin=108+chamber;
+	else if(xbin<14) xbin=126 +(xbin-6)*36+chamber;
+	else if(xbin<18) xbin=414+18*(((Int_t)(xbin-13)/3)*2+((Int_t)(xbin-13)/2))+chamber;
+	else xbin=522+chamber;
 
 	sprintf(binLabel, "ME%d/%dC%d", station, ring, chamber );
 
@@ -1298,7 +1344,7 @@ void MuonAlignmentAnalyzer::endJob(){
 	if(abs(station)==1) ybin=ring;
 	if (station>0) ybin=ybin+9;
 	else ybin = 10 -ybin;
-	ybin=2*ybin+1;
+	ybin=2*ybin;
 	hprofGlobalPositionCSC->SetBinContent(chamber,ybin,fabs(MeanR));
 	sprintf(binLabel, "ME%d/%d_GlobalR", station,ring );
 	hprofGlobalPositionCSC->GetYaxis()->SetBinLabel(ybin,binLabel);
@@ -1606,14 +1652,14 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
     reco::TransientTrack track(*staTrack,&*theMGField,theTrackingGeometry); 
     
 
-     if(staTrack->recHitsSize()>min1DTrackRecHitSize-1) {
+     if(staTrack->recHitsSize()>(min1DTrackRecHitSize-1)) {
 
     RecHitVector  my4DTrack = this->doMatching(*staTrack, all4DSegmentsDT, all4DSegmentsCSC, &indexCollectionDT, &indexCollectionCSC, theTrackingGeometry);
   
     
 //cut in number of segments
 
-   if(my4DTrack.size()>min4DTrackSegmentSize-1 ){
+   if(my4DTrack.size()>(min4DTrackSegmentSize-1) ){
 
 // start propagation
 //    TrajectoryStateOnSurface innerTSOS = track.impactPointState();
