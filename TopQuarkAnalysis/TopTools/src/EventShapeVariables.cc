@@ -24,7 +24,10 @@ EventShapeVariables::sphericity(const std::vector<TVector3>& p)
   }
   sph1=eVal(0);
   sph2=eVal(1);
-  if(eVal(2)<sph1) sph1=eVal(2);
+  if(eVal(2)<sph1) {
+    sph1=eVal(2);
+    if(eVal(0)<sph2) sph2=eVal(0);
+  }
   else if(eVal(2)<sph2) sph2=eVal(2);
   sph_=1.5*(sph1+sph2);
   return sph_;
@@ -45,8 +48,11 @@ EventShapeVariables::aplanarity(const std::vector<TVector3>& p)
       pT.EigenVectors(eVal);
   }
   apl=eVal(0);
-  if( eVal(1)<apl ) apl=eVal(1);
-  else if( eVal(1)<apl ) apl=eVal(2);
+  if( eVal(1)<apl ) {
+    apl=eVal(1);
+    if(eVal(2)<apl) apl=eVal(2);
+  }
+  else if( eVal(2)<apl ) apl=eVal(2);
   apl_=1.5*apl;
   return apl_;
 }
@@ -82,14 +88,20 @@ EventShapeVariables::circularity(const std::vector<TVector3>& p)
   // Description: Returns: C=1 for spherical and C=0 
   //              linear events in R-Phi.
   const double del=2*TMath::Pi()/nStep_;
+  double area = 0;
+  for(unsigned int i=0;i<p.size();i++) {
+    area += TMath::Sqrt(p[i].X()*p[i].X()+p[i].Y()*p[i].Y());
+  }
   double phi=0;
   for(int i=0; i<nStep_; ++i){
     phi+=del;
     double sum=0;
+    double cir_tmp=0.;
     for(int j=0; j<(int)p.size(); ++j){
-      sum+=TMath::Abs(TMath::Cos(phi)*p[j].X()+TMath::Sin(phi)*p[j].Y());
+      sum+= TMath::Abs(TMath::Cos(phi)*p[j].X()+TMath::Sin(phi)*p[j].Y());
     }
-    if( cir_<0 || sum<cir_ ) cir_=sum;
+    cir_tmp = TMath::Pi()/2*sum/area;
+    if( cir_<0 || cir_tmp<cir_ ) cir_=cir_tmp;
   }
   return cir_;
 }
