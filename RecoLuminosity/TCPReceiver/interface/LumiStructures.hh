@@ -149,6 +149,10 @@ namespace HCAL_HLX
   struct LUMI_SECTION_HEADER {
     u32  runNumber;   // Run number
     u32  sectionNumber; // Section number
+ 
+    u32  timestamp;
+    u32  timestamp_micros;
+    
     u32  startOrbit;  // Start orbit of lumi section
     u32  numOrbits;   // Total number of orbits recorded in lumi section
     u16  numBunches;  // Total number of bunches (from start of orbit)
