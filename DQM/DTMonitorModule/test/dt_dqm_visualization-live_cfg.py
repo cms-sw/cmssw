@@ -1,0 +1,29 @@
+import FWCore.ParameterSet.Config as cms
+
+process = cms.Process("VisDT")
+
+process.load("DQM.Integration.test.inputsource_cfi")
+
+process.maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32(-1)
+    )
+
+
+process.load("DQM.Integration.test.dt_dqm_visualization_common_cff")
+
+
+
+# message logger
+process.MessageLogger = cms.Service("MessageLogger",
+                                    destinations = cms.untracked.vstring('cout'),
+                                    cout = cms.untracked.PSet(threshold = cms.untracked.string('WARNING'))
+                                    )
+
+process.dtDQMPath = cms.Path(process.calibrationEventsFilter * process.reco)
+
+
+# f = file('aNewconfigurationFile.cfg', 'w')
+# f.write(process.dumpConfig())
+# f.close()
+
+
