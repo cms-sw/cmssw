@@ -14,7 +14,7 @@ TtSemiLepSignalSelMVAComputer::TtSemiLepSignalSelMVAComputer(const edm::Paramete
   METs_    (cfg.getParameter<edm::InputTag>("METs")),
   nJetsMax_(cfg.getParameter<int>("nJetsMax"))
 {
-  produces< double           >("DiscSel");
+  produces< double >("DiscSel");
 }
 
 TtSemiLepSignalSelMVAComputer::~TtSemiLepSignalSelMVAComputer()
@@ -44,7 +44,6 @@ TtSemiLepSignalSelMVAComputer::produce(edm::Event& evt, const edm::EventSetup& s
   edm::Handle< std::vector<pat::Jet> > jet_handle;
   evt.getByLabel(jets_, jet_handle);
   const std::vector<pat::Jet> jets = *jet_handle;
-  //std::sort(jets.begin(),jets.end(),JetETComparison);
 
   edm::Handle<edm::View<pat::MET> > MET_handle;
   evt.getByLabel(METs_,MET_handle);
@@ -69,7 +68,6 @@ TtSemiLepSignalSelMVAComputer::produce(edm::Event& evt, const edm::EventSetup& s
 
   *pOutDisc = discrim;
   evt.put(pOutDisc, "DiscSel");
-
 }
 
 void 

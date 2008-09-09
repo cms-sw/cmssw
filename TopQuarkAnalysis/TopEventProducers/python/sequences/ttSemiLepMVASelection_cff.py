@@ -1,0 +1,11 @@
+import FWCore.ParameterSet.Config as cms
+
+#
+# make mva event selection for semileptonic events
+#
+
+## std sequence to produce an mva discriminant
+from TopQuarkAnalysis.TopEventSelection.TtSemiLepSignalSelMVAComputer_Muons_cff import *
+
+## make mva discriminant for event selection
+makeTtSemiLepMVASelelection = cms.Sequence(findTtSemiLepSignalSelMVA)

@@ -10,6 +10,9 @@ from TopQuarkAnalysis.TopEventProducers.sequences.numLeptonFilter_ttSemiLeptonic
 ## apply objects count selection for jets
 from TopQuarkAnalysis.TopEventProducers.sequences.numJetFilter_ttSemiLeptonic_cff import *
 
+## produce mva discriminant for signal selection
+from TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepMVASelection_cff import *
+
 ## produce ttSemiEvent
 from TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepEvtBuilder_cff import *
 
@@ -17,24 +20,27 @@ from TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepEvtBuilder_cff import
 from TopQuarkAnalysis.TopEventProducers.producers.TtSemiEvtSolProducer_cfi import *
 
 
-
 ## make tqaf layer2
-tqafLayer2_ttSemiLeptonic = cms.Sequence(makeTtSemiLepEvent +
+tqafLayer2_ttSemiLeptonic = cms.Sequence(makeTtSemiLepMVASelelection +
+                                         makeTtSemiLepEvent +
                                          solutions
                                          )
 
 ## make tqaf layer2 filtered for full leptonic decays
-tqafLayer2_ttSemiLeptonic_fullLepFilter = cms.Sequence(makeTtSemiLepEvent_fullLepFilter +
+tqafLayer2_ttSemiLeptonic_fullLepFilter = cms.Sequence(makeTtSemiLepMVASelelection +
+                                                       makeTtSemiLepEvent_fullLepFilter +
                                                        solutions
                                                        )
 
 ## make tqaf layer2 filtered for semi-leptonic decays
-tqafLayer2_ttSemiLeptonic_semiLepFilter = cms.Sequence(makeTtSemiLepEvent_semiLepFilter +
+tqafLayer2_ttSemiLeptonic_semiLepFilter = cms.Sequence(makeTtSemiLepMVASelelection +
+                                                       makeTtSemiLepEvent_semiLepFilter +
                                                        solutions
                                                        )
 
 ## make tqaf layer2 filtered for full hadronic decays
-tqafLayer2_ttSemiLeptonic_fullHadFilter = cms.Sequence(makeTtSemiLepEvent_fullHadFilter +
+tqafLayer2_ttSemiLeptonic_fullHadFilter = cms.Sequence(makeTtSemiLepMVASelelection +
+                                                       makeTtSemiLepEvent_fullHadFilter +
                                                        solutions
                                                        )
 
