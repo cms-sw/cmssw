@@ -542,7 +542,7 @@ public:
     gPad->SetGridx();
     gPad->SetGridy();
     EEPlot_minus->Draw("colz");
-    labelGrid2.Draw("text,same");
+    labelGrid1.Draw("text,same");
 
     //drawing sector grid
     for ( int i=0; i<201; i=i+1) {
