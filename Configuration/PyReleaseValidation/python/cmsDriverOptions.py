@@ -303,12 +303,8 @@ if options.isData and options.isMC:
 if not options.isData and not options.isMC:
     if 'SIM' in trimmedStep:
         options.isMC=True
-    try:
-        if 'SIM' in options.eventcontent:
-            options.isMC=True
-    except:
-        print traceback.format_exc()
-        
+    if (not (options.eventcontent == None)) and 'SIM' in options.eventcontent:
+        options.isMC=True
     if 'SIM' in options.datatier:
         options.isMC=True
     if options.isMC:
