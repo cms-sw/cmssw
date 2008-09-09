@@ -30,6 +30,8 @@ class TopJetAnalyzer : public edm::EDAnalyzer {
   TH1F *energy_Jets;
   TH1F *eta_Jets;
   TH1F *phi_Jets;
+
+  TH1F *btag_Jets;
 };  
 
 #endif  

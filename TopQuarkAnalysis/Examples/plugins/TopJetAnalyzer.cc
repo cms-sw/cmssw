@@ -12,6 +12,8 @@ TopJetAnalyzer::TopJetAnalyzer(const edm::ParameterSet& cfg):
   energy_Jets=fs->make<TH1F> ("energy_of_Jets","energy_{Jets}",100,  0., 300.);
   eta_Jets   =fs->make<TH1F> ("eta_of_Jets",   "eta_{Jets}",   100, -3.,   3.);
   phi_Jets   =fs->make<TH1F> ("phi_of_Jets",   "phi_{Jets}",   100, -5.,   5.);
+
+  btag_Jets  =fs->make<TH1F> ("btag_of_Jets",  "btag_{Jet}",   400,-20.,  20.);
 }
 
 TopJetAnalyzer::~TopJetAnalyzer()
@@ -31,6 +33,8 @@ TopJetAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
     energy_Jets->Fill( jet->energy());
     eta_Jets   ->Fill( jet->eta()   );
     phi_Jets   ->Fill( jet->phi()   );
+
+    btag_Jets  ->Fill( jet->bDiscriminator("combinedSecondaryVertexBJetTags") );
   }    
 }
 
