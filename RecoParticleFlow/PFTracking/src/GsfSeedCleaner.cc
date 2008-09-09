@@ -6,7 +6,7 @@
 // Original Author:  Michele Pioppi
 
 #include "RecoParticleFlow/PFTracking/interface/GsfSeedCleaner.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
@@ -64,16 +64,16 @@ GsfSeedCleaner::produce(Event& iEvent, const EventSetup& iSetup)
     for (uint istr=0; istr<tracksContainers_.size();istr++){
       
       //Track collection
-      Handle<GsfTrackCollection> tkRefCollection;
-      iEvent.getByLabel(tracksContainers_[istr], tkRefCollection);
+      Handle<GsfElectronCollection> ElecCollection;
+      iEvent.getByLabel(tracksContainers_[istr], ElecCollection);
 
 
-      GsfTrackCollection::const_iterator itk = tkRefCollection->begin();
-      GsfTrackCollection::const_iterator itk_end = tkRefCollection->end();
+      GsfElectronCollection::const_iterator itk = ElecCollection->begin();
+      GsfElectronCollection::const_iterator itk_end = ElecCollection->end();
       for(;itk!=itk_end;++itk){
 
 	if (seed_not_used){
-	  seed_not_used=CompareHits(*itk,*isc);
+	  seed_not_used=CompareHits(*itk->gsfTrack(),*isc);
 	}
       }    
       
@@ -88,7 +88,7 @@ GsfSeedCleaner::produce(Event& iEvent, const EventSetup& iSetup)
 
 bool GsfSeedCleaner::CompareHits(const GsfTrack tk,const TrajectorySeed s){
 
-
+ 
   TrajectorySeed::const_iterator sh = s.recHits().first;
   TrajectorySeed::const_iterator sh_end = s.recHits().second;
   int hitinseed=0;
