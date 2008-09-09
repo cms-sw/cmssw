@@ -3,6 +3,9 @@
  <use name=TrackingTools/MeasurementDet>
  <use name=TrackingTools/TrajectoryState>
  <use name=RecoMuon/TransientTrackingRecHit>
+ <use name=DataFormats/RPCRecHits>
+ <use name=DataFormats/DTRecHits>
+ <use name=DataFormats/CSCRecHits>
 </export>
 
 <use name=TrackingTools/MeasurementDet>
