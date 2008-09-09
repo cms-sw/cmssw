@@ -18,11 +18,17 @@
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
+#include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
+#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include <vector>
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+
+#include "TFile.h"
+#include "TNtuple.h"
 
 
 class HLTMuonGenericRate {
@@ -36,6 +42,7 @@ public:
   // Operations
 
   void analyze(const edm::Event & event);
+  void endJob();
 
   void BookHistograms() ;
   void WriteHistograms() ;
@@ -49,7 +56,8 @@ private:
   std::string folderName;
   edm::InputTag theL1CollectionLabel, theGenLabel, theRecoLabel;
   std::vector<edm::InputTag> theHLTCollectionLabels;
-  double theL1ReferenceThreshold,theHLTReferenceThreshold;
+  double theL1ReferenceThreshold;
+  double theHLTReferenceThreshold;
   std::vector<double> theNSigmas;
   unsigned int theNumberOfObjects;
   bool useMuonFromGenerator,useMuonFromReco;
@@ -57,50 +65,49 @@ private:
   double theLuminosity;
   double thePtMin;
   double thePtMax;
+  double theMinPtCut;
+  double theMaxEtaCut;
   unsigned int theNbins;
   int thisEventWeight;
+  int motherParticleId;
+
+  // Struct for matching
+  struct MatchStruct {
+    HepMC::GenParticle* genCand;
+    const reco::Track*  recCand;
+    l1extra::L1MuonParticleRef                 l1Cand;
+    std::vector<reco::RecoChargedCandidateRef> hltCands;
+  };
+  std::vector<MatchStruct> genMatches;
+  std::vector<MatchStruct> recMatches;
 
   // Histograms
-  DQMStore* dbe_;  
-  MonitorElement* hL1DR, *hL2DR, *hL3DR;
-  MonitorElement* hL1eff;
-  MonitorElement* hMCMaxPtPassL1;
-  MonitorElement* hRECOMaxPtPassL1;
-  MonitorElement* hMCMaxPt;
-  MonitorElement* hMCphinor;
-  MonitorElement* hMCetanor;
-  MonitorElement* hRECOMaxPt;
-  MonitorElement* hRECOphinor;
-  MonitorElement* hRECOetanor;
-  MonitorElement* hL1rate;
-  MonitorElement* hL1pt;
-  MonitorElement* hL1etaMC;
-  MonitorElement* hL1phiMC;
-  MonitorElement* hL1etaRECO;
-  MonitorElement* hL1phiRECO;
-  MonitorElement* hSteps;
-  std::vector <MonitorElement*> hHLTeff;
-  std::vector <MonitorElement*> hHLTMCMaxPtPass;
-  std::vector <MonitorElement*> hHLTRECOMaxPtPass;
-  std::vector <MonitorElement*> hHLTrate;
-  std::vector <MonitorElement*> hHLTpt;
-  std::vector <MonitorElement*> hHLTetaMC;
-  std::vector <MonitorElement*> hHLTphiMC;
-  std::vector <MonitorElement*> hHLTetaRECO;
-  std::vector <MonitorElement*> hHLTphiRECO;
+  DQMStore* dbe_;
 
-  HepMC::GenEvent::particle_const_iterator theAssociatedGenPart;
-  reco::TrackCollection::const_iterator theAssociatedRecoPart;
-  const HepMC::GenEvent* evt;
+  std::vector <MonitorElement*> hPtPassGen;
+  std::vector <MonitorElement*> hEtaPassGen;
+  std::vector <MonitorElement*> hPhiPassGen;
+  std::vector <MonitorElement*> hPtPassRec;
+  std::vector <MonitorElement*> hEtaPassRec;
+  std::vector <MonitorElement*> hPhiPassRec;
 
-  std::pair<double,double> getAngles( double eta, double phi, 
-			   HepMC::GenEvent evt, double maxDeltaR );
-  std::pair<double,double> getAngles( double eta, double phi, 
-			   reco::TrackCollection tracks, double maxDeltaR );
+  //  HepMC::GenEvent::particle_const_iterator theAssociatedGenPart;
+  //  reco::TrackCollection::const_iterator theAssociatedRecoPart;
+  const HepMC::GenEvent* theGenEvent;
+  std::vector<const HepMC::GenParticle*> theGenMuons;
+  std::vector<const reco::Track*> theRecMuons;
+
+  int findGenMatch( double eta, double phi, double maxDeltaR );
+  int findRecMatch( double eta, double phi, double maxdeltaR );
 
   MonitorElement *NumberOfEvents, *NumberOfL1Events;
   int theNumberOfEvents,theNumberOfL1Events;
   std::string theRootFileName;
+
+  // ntuple
+  TNtuple *nt;
+  TFile *file;
+  float params[18];
 
 };
 #endif
