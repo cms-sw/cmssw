@@ -24,12 +24,6 @@ class L1GctJetCounts {
   static const unsigned MAX_TOTAL_COUNTS;
   static const unsigned MAX_TRUE_COUNTS;
 
-  enum numberOfBits {
-    kEtHfSumBits     = 5,
-    kEtHfSumOFlowBit = 1 << kEtHfSumBits,
-    kEtHfSumMaxValue = kEtHfSumOFlowBit - 1
-  };
-
   /// default constructor
   L1GctJetCounts();
 
@@ -79,14 +73,6 @@ class L1GctJetCounts {
   unsigned count09() const { return (MAX_TRUE_COUNTS<10 ? 0 : count(9)); }
   unsigned count10() const { return (MAX_TRUE_COUNTS<11 ? 0 : count(10)); }
   unsigned count11() const { return (MAX_TRUE_COUNTS<12 ? 0 : count(11)); }
-
-  /// Use some jet count bits for Hf information
-  unsigned hfTowerCountPositiveEta() const;
-  unsigned hfTowerCountNegativeEta() const;
-  unsigned hfRing0EtSumPositiveEta() const;
-  unsigned hfRing0EtSumNegativeEta() const;
-  unsigned hfRing1EtSumPositiveEta() const;
-  unsigned hfRing1EtSumNegativeEta() const;
 
   /// get bunch-crossing index
   int16_t bx() const { return m_bx; }

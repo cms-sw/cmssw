@@ -88,47 +88,6 @@ unsigned L1GctJetCounts::count(unsigned i) const
   else { return 0; }
 }
 
-//----------------------------------------------------------------------------------
-//
-// The remaining methods perform the combination of
-// bit-sliced 5-bit fields back into Hf information.
-//
-// NOTE: this reverses the bit-slicing operation that
-// is carried out in the L1GctGlobalEnergyAlgos object
-// (in L1Trigger/GlobalCaloTrigger).
-//
-
-/// Use some jet count bits for Hf information
-unsigned L1GctJetCounts::hfTowerCountPositiveEta() const
-{
-  return count(6);
-}
-
-unsigned L1GctJetCounts::hfTowerCountNegativeEta() const
-{
-  return count(7);
-}
-
-unsigned L1GctJetCounts::hfRing0EtSumPositiveEta() const
-{
-  return count(8);
-}
-
-unsigned L1GctJetCounts::hfRing0EtSumNegativeEta() const
-{
-  return count(9);
-}
-
-unsigned L1GctJetCounts::hfRing1EtSumPositiveEta() const
-{
-  return count(10);
-}
-
-unsigned L1GctJetCounts::hfRing1EtSumNegativeEta() const
-{
-  return count(11);
-}
-
 // pretty print
 ostream& operator<<(ostream& s, const L1GctJetCounts& c) {
   s << "L1GctJetCounts : ";
