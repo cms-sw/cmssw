@@ -54,10 +54,10 @@ bool first = true ;
 
 
 L1TdeRCT::L1TdeRCT(const ParameterSet & ps) :
-   ecalTPGData_( ps.getParameter< InputTag >("ecalTPGData") ),
-   hcalTPGData_( ps.getParameter< InputTag >("hcalTPGData") ),
+   rctSourceEmul_( ps.getParameter< InputTag >("rctSourceEmul") ),
    rctSourceData_( ps.getParameter< InputTag >("rctSourceData") ),
-   rctSourceEmul_( ps.getParameter< InputTag >("rctSourceEmul") )
+   ecalTPGData_( ps.getParameter< InputTag >("ecalTPGData") ),
+   hcalTPGData_( ps.getParameter< InputTag >("hcalTPGData") )
 
 {
 
