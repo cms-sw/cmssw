@@ -1,0 +1,20 @@
+
+<library file="RunNumberPyWrapper.cc" name=RunNumberPyInterface>
+<use name=CondCore/Utilities>
+<use name=CondFormats/RunInfo>
+<use name=boost>
+<use name=boost_filesystem>
+<use name=boost_python>
+<use name=boost_regex>
+<flags EDM_PLUGIN=1>
+</library>
+
+<library file=" L1TriggerScalerPyWrapper.cc" name= L1TriggerScalerPyInterface>
+<use name=CondCore/Utilities>
+<use name=CondFormats/RunInfo>
+<use name=boost>
+<use name=boost_filesystem>
+<use name=boost_python>
+<use name=boost_regex>
+<flags EDM_PLUGIN=1>
+</library>
