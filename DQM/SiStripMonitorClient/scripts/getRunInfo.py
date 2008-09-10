@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 #
-# $Id$
+# $Id:$
 #
 
 ## CMSSW/DQM/SiStripMonitorClient/scripts/getRunInfo.py
@@ -40,6 +40,7 @@ global Dict_cmsmonRunRegistry
 global Dict_cmsmonSubsystems
 global Dict_cmsmonRunSummary
 global Dict_dbsDatasets
+global Dict_dbsEvents
 global Lstr_hltPaths
 # initialise
 Str_run                = sys.argv[1]
@@ -47,6 +48,7 @@ Dict_cmsmonRunRegistry = {}
 Dict_cmsmonSubsystems  = {}
 Dict_cmsmonRunSummary  = {}
 Dict_dbsDatasets       = {}
+Dict_dbsEvents         = {}
 Lstr_hltPaths          = []
 
 ## FUNCTIONS
@@ -160,12 +162,17 @@ int_maxLenDbsDatasets = 0
 for str_dbsDatasets in lstr_dbsDatasets:
   str_dbsLFN  = urllib.urlencode({'dbsInst':'cms_dbs_prod_global', 'blockName':'*', 'dataset':str_dbsDatasets, 'userMode':'user', 'run':Str_run})
   file_dbsLFN = urllib.urlopen("https://cmsweb.cern.ch/dbs_discovery/getLFNlist", str_dbsLFN)
+  lstr_dbsLFN = []
+  int_events  = 0
   for str_dbsLFN in file_dbsLFN.readlines():
-    if str_dbsLFN.find('contians') >= 0 and str_dbsLFN.find('file(s)'):
+    lstr_dbsLFN.append(str_dbsLFN)
+    if str_dbsLFN.find('contians') >= 0 and str_dbsLFN.find('file(s)'): # FIXME: be careful, this typo might be corrected sometimes on the web page...
       Dict_dbsDatasets[str_dbsDatasets] = str_dbsLFN.split()[1]
+    if str_dbsLFN.startswith('/store/data/'):
+      int_events += int(Func_GetHtmlTagValue('td' ,lstr_dbsLFN[len(lstr_dbsLFN)-4]))
+  Dict_dbsEvents[str_dbsDatasets] = str(int_events)
   if len(str_dbsDatasets) > int_maxLenDbsDatasets:
     int_maxLenDbsDatasets = len(str_dbsDatasets)
-    
       
 # get run summary
 str_cmsmonRunSummary  = urllib.urlencode({'RUN':Str_run})
@@ -227,7 +234,6 @@ for str_cmsmonHLTConfig in file_cmsmonHLTConfig.readlines():
   if bool_foundPaths and str_cmsmonHLTConfig.startswith('<TR><TD ALIGN=RIGHT>'):
     Lstr_hltPaths.append(str_cmsmonHLTConfig.split('</TD>')[1].split('<TD>')[-1])
     
-    
 # Print information
 
 # from run registry
@@ -272,7 +278,7 @@ str_print += ' '
 print str_print + STR_headDatasets
 int_len = len(str_print+STR_headDatasets)
 str_print = '> '
-for int_i in range(int_len-2):
+for int_i in range(int_len+6):
   str_print += '-'
 print str_print
 for str_dbsDatasets in lstr_dbsDatasets:
@@ -282,7 +288,10 @@ for str_dbsDatasets in lstr_dbsDatasets:
   str_print += ' '
   for int_i in range(len(STR_headDatasets)/2-len(Dict_dbsDatasets[str_dbsDatasets])):
     str_print += ' '
-  print str_print + Dict_dbsDatasets[str_dbsDatasets]
+  str_print += Dict_dbsDatasets[str_dbsDatasets] + ' ('
+  for int_i in range(8-len(Dict_dbsEvents[str_dbsDatasets])):
+    str_print += ' '
+  print str_print + Dict_dbsEvents[str_dbsDatasets] + ' events)'
 print  
 # from run summary
 print '> getRunInfo.py > * information from run summary *'
