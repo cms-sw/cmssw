@@ -12,7 +12,6 @@ class InitMsgBuilder;
 class EventMsgBuilder;
 namespace edm {
   class StreamerOutputModuleBase : public OutputModule {
-    typedef std::vector<char> SBuffer;
   public:
     explicit StreamerOutputModuleBase(ParameterSet const& ps);  
     virtual ~StreamerOutputModuleBase();
@@ -38,9 +37,6 @@ namespace edm {
 
   private:
     Selections const* selections_;
-
-    SBuffer header_buf_;
-    SBuffer bufs_;
 
     int maxEventSize_;
     bool useCompression_;
