@@ -23,7 +23,8 @@
 using namespace ctfseeding;
 
 CtfSpecialSeedGenerator::CtfSpecialSeedGenerator(const edm::ParameterSet& conf): 
-  conf_(conf)
+  conf_(conf),
+  requireBOFF(conf.getParameter<bool>("requireBOFF"))
 {
   	useScintillatorsConstraint = conf_.getParameter<bool>("UseScintillatorsConstraint");
   	edm::LogVerbatim("CtfSpecialSeedGenerator") << "Constructing CtfSpecialSeedGenerator";
@@ -144,9 +145,10 @@ void CtfSpecialSeedGenerator::produce(edm::Event& e, const edm::EventSetup& iSet
   
   //check on the number of clusters
   ClusterChecker check(conf_);
-  if ( (theMagfield->inTesla(GlobalPoint(0,0,0)).mag() == 0.00) &&
-       !check.tooManyClusters(e)){
-    run(iSetup, e, *output);
+  if ( !requireBOFF || (theMagfield->inTesla(GlobalPoint(0,0,0)).mag() == 0.00) ) {
+      if (!check.tooManyClusters(e)){
+          run(iSetup, e, *output);
+      }
   }
   
   
