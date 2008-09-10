@@ -1,6 +1,6 @@
 // File: BaseJetProducer.cc
 // Author: F.Ratnikov UMd Aug 22, 2006
-// $Id: BaseJetProducer.cc,v 1.35 2008/07/15 17:43:04 elmer Exp $
+// $Id: BaseJetProducer.cc,v 1.36 2008/08/20 15:51:08 oehler Exp $
 //--------------------------------------------
 #include <memory>
 
@@ -11,6 +11,8 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
@@ -27,6 +29,11 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 #include "BaseJetProducer.h"
+#include <iostream>
+
+#include "RecoJets/JetAlgorithms/interface/TowerProjector.h"
+#include "DataFormats/Math/interface/LorentzVector.h"
+
 
 using namespace std;
 using namespace reco;
@@ -84,7 +91,9 @@ namespace cms
       mVerbose (conf.getUntrackedParameter<bool>("verbose", false)),
       mEtInputCut (conf.getParameter<double>("inputEtMin")),
       mEInputCut (conf.getParameter<double>("inputEMin")),
-      mJetPtMin (conf.getParameter<double>("jetPtMin"))
+      mJetPtMin (conf.getParameter<double>("jetPtMin")),
+      mVertexCaloJet(conf.getParameter<int>("vertexCaloJet")),
+      mPVCollection(conf.getParameter<edm::InputTag>("pvCollection"))
   {
     std::string alias = conf.getUntrackedParameter<string>( "alias", conf.getParameter<std::string>("@module_label"));
     if (makeCaloJet (mJetType)) {
@@ -94,6 +103,8 @@ namespace cms
     else if (makeGenJet (mJetType)) produces<GenJetCollection>().setBranchAlias (alias);
     else if (makeBasicJet (mJetType)) produces<BasicJetCollection>().setBranchAlias (alias);
 //     else if (makeGenericJet (mJetType)) produces<GenericJetCollection>().setBranchAlias (alias);
+    using namespace std;
+    cout<<"[BASEJETPRODUCER] configured vertexCaloJet: "<<mVertexCaloJet<<endl;
   }
 
   // Virtual destructor needed.
@@ -102,16 +113,48 @@ namespace cms
   // Functions that gets called by framework every event
   void BaseJetProducer::produce(edm::Event& e, const edm::EventSetup& fSetup)
   {
+    //getSignalVertex (when producing caloJets)
+    if (makeCaloJet(mJetType)) {
+      edm::Handle<reco::VertexCollection> thePrimaryVertexCollection;
+      e.getByLabel(mPVCollection,thePrimaryVertexCollection);
+      vertex = (*thePrimaryVertexCollection)[0].position();
+    }
+    
     // get input
     edm::Handle<edm::View <Candidate> > inputHandle; 
     e.getByLabel( mSrc, inputHandle);
     // convert to input collection
     JetReco::InputCollection input;
+    vector<Candidate*> garbageCollection;
+    garbageCollection.reserve(inputHandle->size());
     input.reserve (inputHandle->size());
     for (unsigned i = 0; i < inputHandle->size(); ++i) {
-      if ((mEtInputCut <= 0 || (*inputHandle)[i].et() > mEtInputCut) &&
-	  (mEInputCut <= 0 || (*inputHandle)[i].energy() > mEInputCut)) {
-	input.push_back (JetReco::InputItem (&((*inputHandle)[i]), i));
+      //cout<<"copy input: "<<endl;
+      JetReco::InputItem tmpInput(&((*inputHandle)[i]),i);
+      if (mVertexCaloJet==1) {
+	tmpInput.setOriginal(tmpInput.get());
+	const CaloTower *tower=dynamic_cast<const CaloTower*>(&(*inputHandle)[i]);
+	Candidate* tmpCandidate=new CaloTower(*tower);
+	garbageCollection.push_back(tmpCandidate);
+	reco::Particle::LorentzVector correctedP4;
+	reco::physicsP4(vertex,*tmpCandidate,correctedP4);
+	tmpCandidate->setP4(correctedP4);
+	tmpInput.setBase(tmpCandidate);
+      }
+      else if (mVertexCaloJet==3){
+	tmpInput.setOriginal(tmpInput.get());
+	const CaloTower *tower=dynamic_cast<const CaloTower*>(&(*inputHandle)[i]);
+	Candidate* tmpCandidate=new CaloTower(*tower);
+	math::PtEtaPhiMLorentzVector newCaloTowerVector(tower->p4(vertex));
+	reco::Particle::LorentzVector correctedP4(newCaloTowerVector.px(),newCaloTowerVector.py(),newCaloTowerVector.pz(),newCaloTowerVector.energy());
+	garbageCollection.push_back(tmpCandidate);
+	tmpCandidate->setP4(correctedP4);
+	tmpInput.setBase(tmpCandidate);
+      }
+      if ((mEtInputCut <= 0 || tmpInput->et() > mEtInputCut) &&
+        (mEInputCut <= 0 || tmpInput->energy() > mEInputCut)) {
+	input.push_back (tmpInput);
+	//input.push_back(JetReco::InputItem(&((*inputHandle)[i]),i));
       }
     }
     if (mVerbose) {
@@ -138,7 +181,7 @@ namespace cms
     if (mVerbose) {
       std::cout << "OUTPUT JET COLLECTION:" << std::endl;
     }
-    reco::Jet::Point vertex (0,0,0); // do not have true vertex yet, use default
+    //reco::Jet::Point vertex (0,0,0); // do not have true vertex yet, use default
     // make sure protojets are sorted
     sortByPt (&output);
     if (makeCaloJet (mJetType)) {
@@ -149,15 +192,30 @@ namespace cms
       auto_ptr<CaloJetCollection> jets (new CaloJetCollection);
       jets->reserve(output.size());
       for (unsigned iJet = 0; iJet < output.size (); ++iJet) {
-	ProtoJet* protojet = &(output [iJet]);
+	ProtoJet* protojet=0;
+	if (mVertexCaloJet==2){
+	  const reco::Particle fixInput(0,output[iJet].p4());
+	  const JetReco::InputCollection jetConstituents=output[iJet].getTowerList();
+	  reco::Particle::LorentzVector c;
+	  reco::physicsP4(vertex,fixInput,c);
+	  math::XYZTLorentzVector p4(c.px(),c.py(),c.pz(),c.energy());
+	  protojet=new ProtoJet(p4,jetConstituents);
+	  protojet->setJetArea (output[iJet].jetArea());
+	  protojet->setPileup (output[iJet].pileup());
+	}
+	else protojet = &(output [iJet]);
 	if (protojet->p4().pt()<mJetPtMin) continue;
+	
 	const JetReco::InputCollection& constituents = protojet->getTowerList();
 	CaloJet::Specific specific;
 	JetMaker::makeSpecific (constituents, *towerGeometry, &specific);
 	jets->push_back (CaloJet (protojet->p4(), vertex, specific));
 	Jet* newJet = &(jets->back());
-	copyConstituents (constituents, *inputHandle, newJet);
+	//if (mVertexCaloJets==1) copyModifiedConstituents (constituents,*inputHandle,newJet);
+        copyConstituents (constituents, *inputHandle, newJet);
 	copyVariables (*protojet, newJet);
+	if (mVertexCaloJet==2) delete protojet;
+	//aufraeumen bei mVertexCaloJet=1;
       }
       if (mVerbose) dumpJets (*jets);
       e.put(jets);
@@ -211,6 +269,11 @@ namespace cms
       if (mVerbose) dumpJets (*jets);
       e.put(jets);
     }
+      //clean up garbage from modified input:
+    for (vector<Candidate*>::iterator iter=garbageCollection.begin();iter!=garbageCollection.end();++iter){
+	delete *iter;
+      }
+
 //     else if (makeGenericJet (mJetType)) {
 //       auto_ptr<GenericJetCollection> jets (new GenericJetCollection);
 //       jets->reserve(output.size());
