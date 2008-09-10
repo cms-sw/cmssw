@@ -16,6 +16,33 @@
 <use name=DataFormats/HcalDetId>
 <use name=TBDataFormats/HcalTBObjects>
 <use name=SimDataFormats/HepMCProduct>
+
+<use name=DataFormats/BTauReco>
+<use name=DataFormats/TauReco>
+<use name=FWCore/ServiceRegistry>
+<use name=DQMServices/Core>
+<use name=DataFormats/Common>
+<use name=DataFormats/EgammaCandidates>
+<use name=DataFormats/EgammaReco>
+<use name=DataFormats/HLTReco>
+<use name=DataFormats/L1Trigger>
+<use name=DataFormats/L1GlobalTrigger>
+<use name=DataFormats/METReco>
+<use name=DataFormats/Math>
+<use name=DataFormats/MuonReco>
+<use name=DataFormats/TrackReco>
+<use name=DataFormats/VertexReco>
+<use name=FWCore/MessageLogger>
+<use name=PhysicsTools/UtilAlgos>
+<use name=SimDataFormats/HepMCProduct>
+<use name=Geometry/TrackerGeometryBuilder>
+<use name=TrackingTools/Records>
+<use name=clhep>
+<use name=hepmc>
+<use name=rootcore>
+<use name=rootmath>
+
+
 <export>
    <lib name=HLTriggerOfflineJetMET>
    <use name=FWCore/Framework>

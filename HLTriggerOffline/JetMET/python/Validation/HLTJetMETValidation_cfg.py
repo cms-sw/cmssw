@@ -4,7 +4,7 @@ process = cms.Process("TEST")
 
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(100)
 )
 
 
