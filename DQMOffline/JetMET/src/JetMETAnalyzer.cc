@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/08/27 20:10:06 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/09/01 14:24:57 $
+ *  $Revision: 1.5 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -126,6 +126,11 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     for (reco::CaloJetCollection::const_iterator cal = caloJets->begin(); cal!=caloJets->end(); ++cal){
       if(theJetAnalyzerFlag){
 	LogTrace(metname)<<"[JetMETAnalyzer] Call to the SC Jet analyzer";
+	if (cal == caloJets->begin()) {
+	  theSCJetAnalyzer->setLeadJetFlag(1);
+	} else {
+	  theSCJetAnalyzer->setLeadJetFlag(0);
+	}
 	theSCJetAnalyzer->analyze(iEvent, iSetup, *cal);
       }
     }
@@ -138,7 +143,12 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     for (reco::CaloJetCollection::const_iterator cal = caloJets->begin(); cal!=caloJets->end(); ++cal){
       if(theJetAnalyzerFlag){
 	LogTrace(metname)<<"[JetMETAnalyzer] Call to the IC Jet analyzer";
-	theICJetAnalyzer->analyze(iEvent, iSetup, *cal);
+	if (cal == caloJets->begin()) {
+	  theICJetAnalyzer->setLeadJetFlag(1);
+	} else {
+	  theICJetAnalyzer->setLeadJetFlag(0);
+	}
+	theICJetAnalyzer->analyze(iEvent, iSetup, *cal);	
       }
     }
   }

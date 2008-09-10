@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for Calo Jets
  *
- *  $Date: 2008/04/30 02:14:43 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/04/30 16:11:38 $
+ *  $Revision: 1.2 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -50,7 +50,12 @@ class JetAnalyzer : public JetAnalyzerBase {
     cout<<"[JetAnalyzer] source = " << _source << endl;
   }
 
-
+  void setLeadJetFlag(int flag) {
+    _leadJetFlag = flag;
+  }
+  int getLeadJetFlag() {
+    return  _leadJetFlag;
+  }
 
  private:
   // ----------member data ---------------------------
@@ -61,6 +66,8 @@ class JetAnalyzer : public JetAnalyzerBase {
   std::string _source;
   // Calo Jet Label
   edm::InputTag theCaloJetCollectionLabel;
+
+  int _leadJetFlag;
 
   //histo binning parameters
   int    etaBin;

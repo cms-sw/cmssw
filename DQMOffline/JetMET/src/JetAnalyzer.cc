@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/04/30 02:14:43 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/04/30 16:11:38 $
+ *  $Revision: 1.2 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -23,6 +23,7 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet) {
   cout<<"[JetAnalyzer] Constructor called!"<<endl;
   parameters = pSet;
 
+  _leadJetFlag = 0;
 }
 
 JetAnalyzer::~JetAnalyzer() { }
@@ -101,6 +102,13 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   jetME->Fill(1);
 
+  if (_leadJetFlag == 1) { // first jet
+    if (mEtaFirst) mEtaFirst->Fill (jet.eta());
+    if (mPhiFirst) mPhiFirst->Fill (jet.phi());
+    if (mEFirst)   mEFirst->Fill (jet.energy());
+    if (mPtFirst)  mPtFirst->Fill (jet.pt());
+  }
+
   if (mEta) mEta->Fill (jet.eta());
   if (mPhi) mPhi->Fill (jet.phi());
   if (mE) mE->Fill (jet.energy());
@@ -111,12 +119,6 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   if (mPt_3) mPt_3->Fill (jet.pt());
   if (mMass) mMass->Fill (jet.mass());
   if (mConstituents) mConstituents->Fill (jet.nConstituents());
-  //  if (jet == jet.begin ()) { // first jet
-  //    if (mEtaFirst) mEtaFirst->Fill (jet.eta());
-  //    if (mPhiFirst) mPhiFirst->Fill (jet.phi());
-  //    if (mEFirst) mEFirst->Fill (jet.energy());
-  //    if (mPtFirst) mPtFirst->Fill (jet.pt());
-  //  }
   if (mMaxEInEmTowers) mMaxEInEmTowers->Fill (jet.maxEInEmTowers());
   if (mMaxEInHadTowers) mMaxEInHadTowers->Fill (jet.maxEInHadTowers());
   if (mHadEnergyInHO) mHadEnergyInHO->Fill (jet.hadEnergyInHO());
