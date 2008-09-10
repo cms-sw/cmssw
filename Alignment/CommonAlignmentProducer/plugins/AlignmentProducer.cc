@@ -1,9 +1,9 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.26 $
-///  last update: $Date: 2008/05/12 17:34:13 $
-///  by         : $Author: flucke $
+///  Revision   : $Revision: 1.28 $
+///  last update: $Date: 2008/08/22 12:47:01 $
+///  by         : $Author: ntran $
 
 #include "AlignmentProducer.h"
 #include "FWCore/Framework/interface/LooperFactory.h" 
@@ -472,7 +472,7 @@ AlignmentProducer::duringLoop( const edm::Event& event,
     theAlignmentAlgo->run(  setup, trajTracks );
     
     for (std::vector<AlignmentMonitorBase*>::const_iterator monitor = theMonitors.begin();  monitor != theMonitors.end();  ++monitor) {
-      (*monitor)->duringLoop(setup, trajTracks);
+      (*monitor)->duringLoop(event, setup, trajTracks);
     }
   } else {
     edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::duringLoop" 
