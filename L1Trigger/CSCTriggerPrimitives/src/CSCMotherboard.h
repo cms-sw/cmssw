@@ -31,8 +31,8 @@
  * in ORCA).
  * Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch), May 2006.
  *
- * $Date: 2007/11/12 13:58:40 $
- * $Revision: 1.6 $
+ * $Date: 2008/07/06 05:17:00 $
+ * $Revision: 1.7 $
  *
  */
 
@@ -55,7 +55,7 @@ class CSCMotherboard
   ~CSCMotherboard();
 
   /** Test version of run function. */
-  void run(int time1[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES],
+  void run(std::vector<int> time1[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES],
 	   int time2[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_STRIPS],
 	   int triad[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_STRIPS]);
 

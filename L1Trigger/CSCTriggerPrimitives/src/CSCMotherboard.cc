@@ -27,8 +27,8 @@
 //                Based on code by Nick Wisniewski (nw@its.caltech.edu)
 //                and a framework by Darin Acosta (acosta@phys.ufl.edu).
 //
-//   $Date: 2008/07/06 05:17:00 $
-//   $Revision: 1.15 $
+//   $Date: 2008/08/25 16:28:42 $
+//   $Revision: 1.16 $
 //
 //   Modifications: Numerous later improvements by Jason Mumford and
 //                  Slava Valuev (see cvs in ORCA).
@@ -115,7 +115,7 @@ void CSCMotherboard::setConfigParameters(const CSCL1TPParameters* conf) {
 }
 
 void CSCMotherboard::run(
-           int time1[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES],
+           std::vector<int> time1[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES],
 	   int time2[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_STRIPS],
 	   int triad[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_STRIPS]) {
   // Debug version.  -JM
