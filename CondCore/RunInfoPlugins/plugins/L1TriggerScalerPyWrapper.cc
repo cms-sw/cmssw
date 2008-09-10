@@ -10,10 +10,10 @@
 namespace cond {
 
   template<>
-  class ValueExtractor< L1TriggerScaler>: public  BaseValueExtractor< L1TriggerScaler> {
+  class ValueExtractor<L1TriggerScaler>: public  BaseValueExtractor<L1TriggerScaler> {
   public:
 
-    typedef  L1TriggerScaler Class;
+    typedef L1TriggerScaler Class;
     typedef ExtractWhat<Class> What;
     static What what() { return What();}
 
@@ -31,21 +31,24 @@ namespace cond {
 
   template<>
   std::string
-  PayLoadInspector< L1TriggerScaler>::dump() const {
+  PayLoadInspector<L1TriggerScaler>::dump() const {
     std::stringstream ss;
     return ss.str();
     
   }
   
   template<>
-  std::string PayLoadInspector< L1TriggerScaler>::summary() const {
+  std::string PayLoadInspector<L1TriggerScaler>::summary() const {
     std::stringstream ss;
+    ss << object->m_run.back().m_rn;
+    ss << ", "
+    ss << object->m_run.back().m_lumisegment;
     return ss.str();
   }
   
 
   template<>
-  std::string PayLoadInspector< L1TriggerScaler>::plot(std::string const & filename,
+  std::string PayLoadInspector<L1TriggerScaler>::plot(std::string const & filename,
 						   std::string const &, 
 						   std::vector<int> const&, 
 						   std::vector<float> const& ) const {
@@ -57,4 +60,4 @@ namespace cond {
 
 }
 
-PYTHON_WRAPPER( L1TriggerScaler, L1TriggerScaler);
+PYTHON_WRAPPER(L1TriggerScaler,L1TriggerScaler);
