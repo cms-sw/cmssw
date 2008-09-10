@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Nov 14 15:02:06 CET 2007
-// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.30 2008/08/29 14:59:27 fblekman Exp $
+// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.31 2008/08/29 16:04:08 fblekman Exp $
 //
 //
 
@@ -169,13 +169,13 @@ SiPixelGainCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixelCalibD
   if(detidfinder!=listofdetids_.end())
     makehistopersistent=true;
   // first, fill the input arrays to the TLinearFitter.
-  double xvals[201];
-  double yvals[200];
-  double yerrvals[200];
-  double xvalsall[201];
-  float  xvalsasfloatsforDQM[201];
-  double yvalsall[200];
-  double yerrvalsall[200];
+  double xvals[257];
+  double yvals[256];
+  double yerrvals[256];
+  double xvalsall[257];
+  float  xvalsasfloatsforDQM[257];
+  double yvalsall[256];
+  double yerrvalsall[256];
   int npoints=0;
   int nallpoints=0;
   bool use_point=true;
@@ -232,98 +232,76 @@ SiPixelGainCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixelCalibD
     }
   }
   int result=-1;
+  int status=0;
   float chi2,slope,intercept,prob;
   prob=chi2=-1;
   slope=intercept=0;
-  TLinearFitter fitter(nfitparameters_,fitfunction_.c_str());
-  //  fitter.SetFitOption("V");
-  if(npoints<2)
-    result=-2;
-  else{
-    fitter.AssignData(npoints,1,xvals,yvals,yerrvals);
-    
-    // and do the fit:
-    result = fitter.Eval();
-    
-    if(result!=0)
-      result=-3;
-    else if(result==0)
-      result=1;
-    slope = fitter.GetParameter(1);
-    intercept = fitter.GetParameter(0);
-    chi2 = fitter.GetChisquare()/npoints;
-    prob = TMath::Prob(fitter.GetChisquare(),npoints);
-    
-    for(int i=0; i< func_->GetNpar();i++)
-      func_->SetParameter(i,fitter.GetParameter(i));
-    
-    //    if(1){
-    if(isnan(slope) || isnan(intercept) ){
-      //      std::cout << "fit result : "<< result << " "  << fitter.GetChisquare() << slope << " " << intercept << std::endl;
-      makehistopersistent=true;
-      //      for(int ibla=0; ibla<npoints; ibla++){
-      //	std::cout << ibla << " " << xvals[ibla] << " " << yvals[ibla] << std::endl;
-      //      }
-      // and do the fit another way:
-      graph_->Set(npoints);
-      for(int ipointtemp=0; ipointtemp<npoints; ++ipointtemp){
-	graph_->SetPoint(ipointtemp,xvals[ipointtemp],yvals[ipointtemp]);
-	graph_->SetPointError(ipointtemp,0,yerrvals[ipointtemp]);
+  
+
+  // now check on number of points. If bad just start taking the first few:
+
+  if(npoints<4){
+    npoints=0;
+    for(int ii=0; ii<nallpoints && npoints<4; ++ii){
+      if(yvalsall[ii]>0){
+	 xvals[npoints]=xvalsall[ii];
+	 yvals[npoints]=yvalsall[ii];
+	 yerrvals[npoints]=yerrvalsall[ii];
+	 npoints++;
       }
-      Int_t tempresult = graph_->Fit("func","Q0");
-      slope=func_->GetParameter(1);
-      intercept = func_->GetParameter(0);
-      if(tempresult==0)
-	result=2;
-      else
-	result = -4;
-      chi2=func_->GetChisquare()/npoints;
-      prob= TMath::Prob(func_->GetChisquare(),npoints);
-    
-      //      std::cout << "modified fit result : "<< result << " "  << gr.GetFunction("pol1")->GetChisquare() << slope << " " << intercept << std::endl;
-     
     }
-    // convert the gain and pedestal parameters to functional form y= x/gain+ ped
-    if(slope>0.0000001)
-      slope = 1./slope;
-    else{
-      slope=0;
-      result = -5;
-      makehistopersistent=true;
-    }
+  }
+  graph_->Set(npoints);
+  
+  func_->SetParameter(0,50.);
+  func_->SetParameter(1,0.25);
+  for(int ipointtemp=0; ipointtemp<npoints; ++ipointtemp){
+    graph_->SetPoint(ipointtemp,xvals[ipointtemp],yvals[ipointtemp]);
+    graph_->SetPointError(ipointtemp,0,yerrvals[ipointtemp]);
+  }
+  Int_t tempresult = graph_->Fit("func","Q0N");
+  slope=func_->GetParameter(1);
+  intercept = func_->GetParameter(0);
+  chi2=func_->GetChisquare()/((float)npoints-func_->GetNpar());
+  prob= TMath::Prob(func_->GetChisquare(),npoints-func_->GetNpar());
+  if(tempresult=0)
+    status=1;
+  else
+    status=0;
+  if(slope!=0)
+    slope = 1./slope;
+  else
+    status=-1;
+  if(chi2>chi2Threshold_ && chi2Threshold_>=0)
+    makehistopersistent=true;
+  if(prob<chi2ProbThreshold_)
+    makehistopersistent=true;
+  if(result<0)
+    makehistopersistent=true;
 
-
-    if(chi2>chi2Threshold_ && chi2Threshold_>=0)
-      makehistopersistent=true;
-    if(prob<chi2ProbThreshold_)
-      makehistopersistent=true;
-    if(result<0)
-      makehistopersistent=true;
-
-    if(result>0){
-      if(slope<gainlow_)
-	gainlow_=slope;
-      if(slope>gainhi_)
-	gainhi_=slope;
-      if(intercept>pedhi_)
-	pedhi_=intercept;
-      if(intercept<pedlow_)
-	pedlow_=intercept;
-      bookkeeper_[detid]["gain_1d"]->Fill(slope);
-      if(slope>maxGainInHist_)
-	edm::LogWarning("SiPixelGainCalibration") << "For DETID " << detid << "pixel row,col " << ipix->row() << "," << ipix->col() << " Gain was measured to be " << slope << " which is outside the range of the summary plot (" <<maxGainInHist_ << ") !!!! " << std::endl;
-      bookkeeper_[detid]["gain_2d"]->setBinContent(ipix->col()+1,ipix->row()+1,slope);
-      bookkeeper_[detid]["ped_1d"]->Fill(intercept);
-      bookkeeper_[detid]["ped_2d"]->setBinContent(ipix->col()+1,ipix->row()+1,intercept);
-      bookkeeper_[detid]["chi2_1d"]->Fill(chi2);
-      bookkeeper_[detid]["chi2_2d"]->setBinContent(ipix->col()+1,ipix->row()+1,chi2);
-      bookkeeper_[detid]["prob_1d"]->Fill(prob);
-      bookkeeper_[detid]["prob_2d"]->setBinContent(ipix->col()+1,ipix->row()+1,prob);
-      bookkeeper_[detid]["lowpoint_1d"]->Fill(xvals[0]);
-      bookkeeper_[detid]["highpoint_1d"]->Fill(xvals[npoints-1]);
-      bookkeeper_[detid]["nfitpoints_1d"]->Fill(npoints);
-      bookkeeper_[detid]["endpoint_1d"]->Fill((255 - intercept)/slope);
-    }
+  if(result>0){
+    if(slope<gainlow_)
+      gainlow_=slope;
+    if(slope>gainhi_)
+      gainhi_=slope;
+    if(intercept>pedhi_)
+      pedhi_=intercept;
+    if(intercept<pedlow_)
+      pedlow_=intercept;
+    bookkeeper_[detid]["gain_1d"]->Fill(slope);
+    if(slope>maxGainInHist_)
+      edm::LogWarning("SiPixelGainCalibration") << "For DETID " << detid << "pixel row,col " << ipix->row() << "," << ipix->col() << " Gain was measured to be " << slope << " which is outside the range of the summary plot (" <<maxGainInHist_ << ") !!!! " << std::endl;
+    bookkeeper_[detid]["gain_2d"]->setBinContent(ipix->col()+1,ipix->row()+1,slope);
+    bookkeeper_[detid]["ped_1d"]->Fill(intercept);
+    bookkeeper_[detid]["ped_2d"]->setBinContent(ipix->col()+1,ipix->row()+1,intercept);
+    bookkeeper_[detid]["chi2_1d"]->Fill(chi2);
+    bookkeeper_[detid]["chi2_2d"]->setBinContent(ipix->col()+1,ipix->row()+1,chi2);
+    bookkeeper_[detid]["prob_1d"]->Fill(prob);
+    bookkeeper_[detid]["prob_2d"]->setBinContent(ipix->col()+1,ipix->row()+1,prob);
+    bookkeeper_[detid]["lowpoint_1d"]->Fill(xvals[0]);
+    bookkeeper_[detid]["highpoint_1d"]->Fill(xvals[npoints-1]);
+    bookkeeper_[detid]["nfitpoints_1d"]->Fill(npoints);
+    bookkeeper_[detid]["endpoint_1d"]->Fill((255 - intercept)/slope);
   }
   bookkeeper_[detid]["status_2d"]->setBinContent(ipix->col()+1,ipix->row()+1,result);
   
