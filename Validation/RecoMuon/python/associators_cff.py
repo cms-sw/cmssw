@@ -9,7 +9,7 @@ from SimTracker.TrackAssociation.TrackAssociatorByHits_cfi import *
 from SimTracker.TrackAssociation.TrackAssociatorByPosition_cfi import *
 
 #TrackAssociation by DeltaR
-TrackAssociatorByPosDeltaR = cms.ESProducer("TrackAssociatorByPositionESProducer",
+TrackAssociatorByPosDeltaR = cms.ESProducer('TrackAssociatorByPositionESProducer',
     # QminCut not used
     QminCut = cms.double(120.0),
     MinIfNoMatch = cms.bool(False),
@@ -24,38 +24,46 @@ TrackAssociatorByPosDeltaR = cms.ESProducer("TrackAssociatorByPositionESProducer
     QCut = cms.double(0.5)
 )
 
-tpToTkmuTrackAssociation = cms.EDProducer("TrackAssociatorEDProducer",
+tpToTkmuTrackAssociation = cms.EDProducer('TrackAssociatorEDProducer',
     associator = cms.string('TrackAssociatorByHits'),
-#    label_tp = cms.InputTag("mergedtruth","MergedTrackTruth"),
-    label_tp = cms.InputTag("muonTP"),
-    label_tr = cms.InputTag("generalTracks")
+    label_tp = cms.InputTag('muonTP'),
+    label_tr = cms.InputTag('generalTracks')
 )
 
-tpToStaTrackAssociation = cms.EDProducer("TrackAssociatorEDProducer",
+tpToStaTrackAssociation = cms.EDProducer('TrackAssociatorEDProducer',
     associator = cms.string('TrackAssociatorByPosDeltaR'),
-#    label_tp = cms.InputTag("mergedtruth","MergedTrackTruth"),
-    label_tp = cms.InputTag("muonTP"),
-    label_tr = cms.InputTag("standAloneMuons","UpdatedAtVtx")
-#    label_tr = cms.InputTag("muonSta")
+    label_tp = cms.InputTag('muonTP'),
+    label_tr = cms.InputTag('standAloneMuons','UpdatedAtVtx')
+#    label_tr = cms.InputTag('muonSta')
 )
 
-tpToGlbTrackAssociation = cms.EDProducer("TrackAssociatorEDProducer",
+tpToGlbTrackAssociation = cms.EDProducer('TrackAssociatorEDProducer',
     associator = cms.string('TrackAssociatorByPosDeltaR'),
-#    label_tp = cms.InputTag("mergedtruth","MergedTrackTruth"),
-    label_tp = cms.InputTag("muonTP"),
-    label_tr = cms.InputTag("globalMuons")
-#    label_tr = cms.InputTag("muonGlb")
+    label_tp = cms.InputTag('muonTP'),
+    label_tr = cms.InputTag('globalMuons')
+#    label_tr = cms.InputTag('muonGlb')
 )
 
+tpToL2TrackAssociation = cms.EDProducer('TrackAssociatorEDProducer',
+    associator = cms.string('TrackAssociatorByPosDeltaR'),
+    label_tp = cms.InputTag('muonTP'),
+    label_tr = cms.InputTag('hltL2Muons','UpdatedAtVtx')
+)
+
+tpToL3TrackAssociation = cms.EDProducer("TrackAssociatorEDProducer",
+    associator = cms.string('TrackAssociatorByPosDeltaR'),
+    label_tp = cms.InputTag('muonTP'),
+    label_tr = cms.InputTag('hltL3Muons')
+)
 
 #MuonAssociation
 import SimMuon.MCTruth.MuonAssociatorByHits_cfi
-# Tracker muon association
+
 tpToTkMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
-# Standalone muon association
 tpToStaMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
-# Global muon association
 tpToGlbMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
+tpToL2MuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
+tpToL3MuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
 
 tpToTkMuonAssociation.tpTag = 'muonTP'
 tpToTkMuonAssociation.tracksTag = 'generalTracks'
@@ -80,6 +88,16 @@ tpToGlbMuonAssociation.PurityCut_muon = 0.5
 tpToGlbMuonAssociation.EfficiencyCut_track = 0.5
 tpToGlbMuonAssociation.PurityCut_track = 0.75
 
+tpToL2MuonAssociation.tpTag = 'muonTP'
+tpToL2MuonAssociation.tracksTag = 'hltL2Muons:UpdatedAtVtx'
+
+tpToL3MuonAssociation.tpTag = 'muonTP'
+tpToL3MuonAssociation.tracksTag = 'hltL3Muons'
+
 from SimGeneral.MixingModule.mixNoPU_cfi import *
 
-muonAssociation_seq = cms.Sequence(mix*(tpToTkMuonAssociation+tpToStaMuonAssociation+tpToGlbMuonAssociation)+(tpToTkmuTrackAssociation+tpToStaTrackAssociation+tpToGlbTrackAssociation))
+muonAssociation_seq = cms.Sequence(mix*(tpToTkMuonAssociation+tpToStaMuonAssociation+tpToGlbMuonAssociation)
+                                  +(tpToTkmuTrackAssociation+tpToStaTrackAssociation+tpToGlbTrackAssociation))
+
+muonAssociationHLT_seq = cms.Sequence(mix*(tpToL2MuonAssociation+tpToL3MuonAssociation)
+                                     +(tpToL2TrackAssociation+tpToL3TrackAssociation))
