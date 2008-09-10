@@ -41,7 +41,7 @@ namespace cond {
   std::string PayLoadInspector<L1TriggerScaler>::summary() const {
     std::stringstream ss;
     ss << object->m_run.back().m_rn;
-    ss << ", "
+    ss << ", ";
     ss << object->m_run.back().m_lumisegment;
     return ss.str();
   }
