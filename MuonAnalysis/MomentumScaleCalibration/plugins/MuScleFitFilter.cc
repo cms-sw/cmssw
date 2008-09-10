@@ -53,9 +53,12 @@ MuScleFitFilter::MuScleFitFilter(const ParameterSet& iConfig) {
   theMuonLabel = iConfig.getParameter<InputTag>("MuonLabel");
   theMuonType = iConfig.getParameter<int>("muonType");
 
-  Mmin =  iConfig.getUntrackedParameter<double>("Mmin",2.8);
-  Mmax =  iConfig.getUntrackedParameter<double>("Mmax",3.4);
+  Mmin = iConfig.getUntrackedParameter<vector<double> >("Mmin");
+  Mmax = iConfig.getUntrackedParameter<vector<double> >("Mmax");
   maxWrite = iConfig.getUntrackedParameter<int>("maxWrite",100000);
+
+  // The must have the same size and they must not be empty, otherwise abort.
+  if ( !(Mmin.size() == Mmax.size() && !Mmin.empty()) ) abort();
 
   // Count the total number of analyzed and written events
   // -----------------------------------------------------
@@ -174,14 +177,19 @@ bool MuScleFitFilter::filter(Event& event, const EventSetup& iSetup) {
 	if ( ((*muon1).charge()*(*muon2).charge())<0 ) { // This also gets rid of muon1==muon2
 	  //	  reco::Particle::LorentzVector Z (muonCorr1 + muonCorr2);
 	  reco::Particle::LorentzVector Z (muon1->p4()+muon2->p4());
-	  // Cut on invariant mass
-	  // ---------------------
-	  if (Z.mass()>Mmin && Z.mass()<Mmax) {
-	    resfound = true;
-	    if (debug) {
-	      cout << "One particle found with mass = " << Z.mass() << endl;
-	    }
-	  }
+	  // Loop on all the cuts on invariant mass.
+          // If it passes at least one of the cuts, the event will be accepted.
+	  // ------------------------------------------------------------------
+          vector<double>::const_iterator mMinCut = Mmin.begin();
+          vector<double>::const_iterator mMaxCut = Mmax.begin();
+          for( ; mMinCut != Mmin.end(); ++mMinCut, ++mMaxCut ) {
+            if (Z.mass()>*mMinCut && Z.mass()<*mMaxCut) {
+              resfound = true;
+              if (debug) {
+                cout << "One particle found with mass = " << Z.mass() << endl;
+              }
+            }
+          }
 	}
       }
     } else if (debug) {
