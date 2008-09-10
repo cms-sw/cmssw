@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 #
-# $Id$
+# $Id: submitDQMOfflineCAF.py,v 1.17 2008/09/09 10:41:11 vadler Exp $
 #
 
 ## CMSSW/DQM/SiStripMonitorClient/scripts/submitDQMOfflineCAF.py
@@ -580,12 +580,12 @@ file_mergeScript.write('#!/bin/tcsh\n')
 file_mergeScript.write('cd ' + str_pathCmsswBaseSrc + '\n')
 file_mergeScript.write('cmsenv\n')
 file_mergeScript.write('setenv STAGE_SVCCLASS cmscaf\n')
-file_mergeScript.write('hadd -f ' + Str_mergepath + '/DQM_SiStrip_' + str_nameRun + '-' + Str_datatier + '-CAF_' + str_nameCmsswRel +'-standAlone.root \\\n') # FIXME: make configurable
+file_mergeScript.write('hadd -f ' + Str_mergepath + '/DQM_V0001_SiStrip_' + str_nameRun + '-' + Str_datatier + '-CAF_' + str_nameCmsswRel +'-standAlone.root \\\n') # FIXME: make configurable
 # create harvesting config file
 str_sedCommand  = 'sed '
 str_sedCommand += '-e \"s#xRUN_NUMBERx#'         + Str_run + '#g\" '
-str_sedCommand += '-e \"s#xMERGED_INPUT_FILEx#'  + Str_mergepath + '/DQM_SiStrip_' + str_nameRun + '-' + Str_datatier + '-CAF_' + str_nameCmsswRel +'-standAlone.root#g\" '
-str_sedCommand += '-e \"s#xMERGED_OUTPUT_FILEx#' + Str_mergepath + '/DQM_SiStrip_' + str_nameRun + '-' + Str_datatier + '-CAF_' + str_nameCmsswRel +'.root#g\" '
+str_sedCommand += '-e \"s#xMERGED_INPUT_FILEx#'  + Str_mergepath + '/DQM_V0001_SiStrip_' + str_nameRun + '-' + Str_datatier + '-CAF_' + str_nameCmsswRel +'-standAlone.root#g\" '
+str_sedCommand += '-e \"s#xMERGED_OUTPUT_FILEx#' + Str_mergepath + '/DQM_V0001_SiStrip_' + str_nameRun + '-' + Str_datatier + '-CAF_' + str_nameCmsswRel +'.root#g\" '
 str_sedCommand += str_pathCmsswBasePackage + '/test/SiStripCAFHarvest_template' + str_suffixCfg + ' > ' + str_nameRun + '/SiStripCAFHarvest' + str_suffixCfg
 os.system(str_sedCommand)
 
@@ -644,7 +644,7 @@ if Bool_CRAB:
       int_nLinesRead += 1
     # extend merge script
     str_nJobs = str(int_iJob+1)
-    str_lineMergeScript = Str_outpath + '/DQM_SiStrip_' + str_nameRun + '_' + str_nJobs + '.root'
+    str_lineMergeScript = Str_outpath + '/DQM_V0001_SiStrip_' + str_nameRun + '_' + str_nJobs + '.root'
     if Bool_useCastor:
       str_lineMergeScript = 'rfio:' + str_lineMergeScript
     if int_nLinesRead < int_nInputFiles:
@@ -726,7 +726,7 @@ else:
       file_inputFilesJobCff.write('    }\n  }\n')
     file_inputFilesJobCff.close()
     # extend merge script
-    str_lineMergeScript = Str_outpath + '/DQM_SiStrip_' + str_nameJob + '.root'
+    str_lineMergeScript = Str_outpath + '/DQM_V0001_SiStrip_' + str_nameJob + '.root'
     if Bool_useCastor:
       str_lineMergeScript = 'rfio:' + str_lineMergeScript
     if int_nLinesRead < int_nInputFiles:
@@ -774,6 +774,7 @@ if Bool_Python:
 # finish merge script
 file_mergeScript.write('cd ' + str_pathCurrentDir + '/' + str_nameRun + '/\n')
 file_mergeScript.write('cmsRun SiStripCAFHarvest' + str_suffixCfg + '\n')
+file_mergeScript.write('rm ' + Str_mergepath + '/DQM_V0001_SiStrip_' + str_nameRun + '-' + Str_datatier + '-CAF_' + str_nameCmsswRel +'-standAlone.root' + '\n')
 file_mergeScript.close()
 # create CRAB configuration
 if Bool_CRAB:
