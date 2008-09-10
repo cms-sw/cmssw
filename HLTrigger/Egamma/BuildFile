@@ -16,4 +16,5 @@
 <use name=RecoEgamma/EgammaTools>
 <use name=MagneticField/Engine>
 <use name=MagneticField/Records>
+<use name=RecoEcal/EgammaCoreTools>
 <flags EDM_PLUGIN=1>
