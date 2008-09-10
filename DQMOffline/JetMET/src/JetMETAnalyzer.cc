@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/09/01 14:24:57 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/09/10 04:01:07 $
+ *  $Revision: 1.6 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -126,7 +126,8 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     for (reco::CaloJetCollection::const_iterator cal = caloJets->begin(); cal!=caloJets->end(); ++cal){
       if(theJetAnalyzerFlag){
 	LogTrace(metname)<<"[JetMETAnalyzer] Call to the SC Jet analyzer";
-	if (cal == caloJets->begin()) {
+	if (cal == caloJets->begin()) {	  
+	  theSCJetAnalyzer->setNJets(caloJets->size());
 	  theSCJetAnalyzer->setLeadJetFlag(1);
 	} else {
 	  theSCJetAnalyzer->setLeadJetFlag(0);
@@ -144,6 +145,7 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       if(theJetAnalyzerFlag){
 	LogTrace(metname)<<"[JetMETAnalyzer] Call to the IC Jet analyzer";
 	if (cal == caloJets->begin()) {
+	  theICJetAnalyzer->setNJets(caloJets->size());
 	  theICJetAnalyzer->setLeadJetFlag(1);
 	} else {
 	  theICJetAnalyzer->setLeadJetFlag(0);

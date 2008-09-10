@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for Calo Jets
  *
- *  $Date: 2008/04/30 16:11:38 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/09/10 04:01:07 $
+ *  $Revision: 1.3 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -56,6 +56,13 @@ class JetAnalyzer : public JetAnalyzerBase {
   int getLeadJetFlag() {
     return  _leadJetFlag;
   }
+  void setNJets(int njets) {
+    _NJets = njets;
+  }
+  int getNJets() {
+    return  _NJets;
+  }
+
 
  private:
   // ----------member data ---------------------------
@@ -68,6 +75,7 @@ class JetAnalyzer : public JetAnalyzerBase {
   edm::InputTag theCaloJetCollectionLabel;
 
   int _leadJetFlag;
+  int _NJets;
 
   //histo binning parameters
   int    etaBin;
@@ -115,12 +123,23 @@ class JetAnalyzer : public JetAnalyzerBase {
   MonitorElement* mPt_3;
   MonitorElement* mMass;
   MonitorElement* mConstituents;
+  MonitorElement* mNJets;
 
   // Leading Jet Parameters
   MonitorElement* mEtaFirst;
   MonitorElement* mPhiFirst;
   MonitorElement* mEFirst;
   MonitorElement* mPtFirst;
+
+  MonitorElement* mPt_Barrel;
+  MonitorElement* mPhi_Barrel;
+  MonitorElement* mE_Barrel;
+  MonitorElement* mPt_EndCap;
+  MonitorElement* mPhi_EndCap;
+  MonitorElement* mE_EndCap;
+  MonitorElement* mPt_Forward;
+  MonitorElement* mPhi_Forward;
+  MonitorElement* mE_Forward;
 
   // CaloJet specific
   MonitorElement* mMaxEInEmTowers;
