@@ -1,7 +1,5 @@
 #include "RecoParticleFlow/PFProducer/interface/PFProducer.h"
 #include "RecoParticleFlow/PFAlgo/interface/PFAlgo.h"
-#include "RecoParticleFlow/PFAlgo/interface/PFAlgoTestBenchElectrons.h"
-#include "RecoParticleFlow/PFAlgo/interface/PFAlgoTestBenchConversions.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
 
@@ -78,6 +76,11 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
   
   // End PFElectrons Configuration
 
+  bool usePFConversions
+    = iConfig.getParameter<bool>("usePFConversions");  
+  
+
+
 
   shared_ptr<PFEnergyCalibration> 
     calibration( new PFEnergyCalibration( e_slope,
@@ -105,13 +108,7 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
   case 0:
     pfAlgo_.reset( new PFAlgo);
     break;
-  case 1:
-    pfAlgo_.reset( new PFAlgoTestBenchElectrons);
-    break;
-  case 2:
-    pfAlgo_.reset( new PFAlgoTestBenchConversions);
-    break;
-  default:
+   default:
     assert(0);
   }
   
@@ -132,6 +129,9 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
 			      mvaEleCut,
 			      path_mvaWeightFileEleID.fullPath(),
 			      usePFElectrons);
+
+  pfAlgo_->setPFConversionParameters(usePFConversions);
+
   
   verbose_ = 
     iConfig.getUntrackedParameter<bool>("verbose",false);
