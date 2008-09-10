@@ -18,6 +18,8 @@ JetPlusTrackZSPCorrectorIcone5 = cms.ESSource("JetPlusTrackCorrectionService",
     NonEfficiencyFileResp = cms.string('CMSSW_167_TrackLeakage'),
     ResponseFile = cms.string('CMSSW_167_response'),
     label = cms.string('JetPlusTrackZSPCorrectorIcone5')
+# highPurity  TrackQuality
+# UseQuality true
 )
 
 JetPlusTrackZSPCorJetIcone5 = cms.EDProducer("JetCorrectionProducer",
