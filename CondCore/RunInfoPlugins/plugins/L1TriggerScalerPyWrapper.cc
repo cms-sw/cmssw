@@ -45,6 +45,7 @@ namespace cond {
       ss << object->m_run.back().m_rn;
       ss << ", ";
       ss << object->m_run.back().m_lumisegment;
+      ss << ", " << object->m_run.back().m_date;
     }
     return ss.str();
   }

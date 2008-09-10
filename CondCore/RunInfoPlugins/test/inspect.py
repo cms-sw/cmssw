@@ -22,7 +22,8 @@ try :
     print log.getState()
     iov = inspect.Iov(db,tag)
     print iov.list()
-    print iov.summaries()
+    for x in  iov.summaries():
+        print x[1],x[3]
     #        print iov.trend("",[0,2,12])
 except RuntimeError :
     print " no iov? in", tag
