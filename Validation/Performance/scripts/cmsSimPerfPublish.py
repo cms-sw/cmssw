@@ -1349,7 +1349,7 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
                     if len(table_dict) > 1 and cols > 0:
                         createHTMLtab(INDEX,table_dict,ordered_keys,
                                       "Release CPU times",
-                                      "Table showing current release CPU in secs.",
+                                      "Table showing current release CPU times in secs.",
                                       "CPU Times (s)",3)                        
                 else:
 
