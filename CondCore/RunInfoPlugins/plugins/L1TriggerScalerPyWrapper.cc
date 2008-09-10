@@ -42,6 +42,11 @@ namespace cond {
     std::stringstream ss;
     ss << object->m_run.size() <<", ";
     if (!object->m_run.empty()) {
+      ss << object->m_run.front).m_rn;
+      ss << ", ";
+      ss << object->m_run.front().m_lumisegment;
+      ss << ", " << object->m_run.front().m_date;
+      ss << "; ";
       ss << object->m_run.back().m_rn;
       ss << ", ";
       ss << object->m_run.back().m_lumisegment;
