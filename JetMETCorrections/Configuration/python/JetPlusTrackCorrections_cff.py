@@ -22,7 +22,7 @@ JetPlusTrackZSPCorrectorIcone5 = cms.ESSource("JetPlusTrackCorrectionService",
 # UseQuality true
 )
 
-JetPlusTrackZSPCorJetIcone5 = cms.EDProducer("JetCorrectionProducer",
+JetPlusTrackZSPCorJetIcone5 = cms.EDProducer("CaloJetCorrectionProducer",
     src = cms.InputTag("ZSPJetCorJetIcone5"),
     correctors = cms.vstring('JetPlusTrackZSPCorrectorIcone5'),
     alias = cms.untracked.string('JetPlusTrackZSPCorJetIcone5')
