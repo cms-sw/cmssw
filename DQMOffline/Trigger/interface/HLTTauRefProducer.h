@@ -15,6 +15,30 @@ in Offline Trigger DQM etc
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
+
+#include "TLorentzVector.h"
+// TAU includes
+#include "DataFormats/TauReco/interface/PFTau.h"
+#include "DataFormats/TauReco/interface/PFTauDiscriminatorByIsolation.h"
+#include "DataFormats/TauReco/interface/CaloTau.h"
+#include "DataFormats/TauReco/interface/CaloTauDiscriminatorByIsolation.h"
+// ELECTRON includes
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/Electron.h"
+#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
+#include "AnalysisDataFormats/Egamma/interface/ElectronIDAssociation.h"
+#include "AnalysisDataFormats/Egamma/interface/ElectronID.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+// MUON includes
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "TLorentzVector.h"
+#include "DataFormats/Math/interface/deltaR.h"
+
 #include <vector>
 #include <string>
 
@@ -52,7 +76,9 @@ public:
   double e_minIsoDR_;
   double e_maxIsoDR_;
   double e_isoMaxSumPt_;
-  
+  bool doElecFromZ_;
+  double e_zMmin_,e_zMmax_;
+  double e_FromZet_;
 
   edm::InputTag Muons_;
   bool doMuons_;
@@ -69,6 +95,8 @@ public:
   void doCaloTaus(edm::Event&,const edm::EventSetup&);
   void doMuons(edm::Event&,const edm::EventSetup&);
   void doElectrons(edm::Event&,const edm::EventSetup&);
+  void doElectronsFromZ(edm::Event&,const edm::EventSetup&,std::auto_ptr<LorentzVectorCollection>&);
+  double ElectronTrkIsolation(const reco::TrackCollection*, const reco::GsfElectron&);
   void doJets(edm::Event&,const edm::EventSetup&);
 
 };

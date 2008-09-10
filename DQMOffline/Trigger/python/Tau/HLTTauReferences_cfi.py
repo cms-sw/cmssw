@@ -29,7 +29,11 @@ TauRefProducer = cms.EDFilter("HLTTauRefProducer",
                             doTrackIso = cms.untracked.bool(True),
                             ptMinTrack = cms.untracked.double(1.5),
                             lipMinTrack = cms.untracked.double(0.2),
-                            IdCollection = cms.untracked.InputTag("elecIDext")
+                            IdCollection = cms.untracked.InputTag("electronIdCutBasedRobust"),
+                            doElecFromZ = cms.untracked.bool(False),
+                            MinZwindow = cms.untracked.double(70.),
+                            MaxZwindow = cms.untracked.double(110.),
+                            ElecEtFromZcut = cms.untracked.double(15.)
                             ),
                    Jets = cms.untracked.PSet(
                             JetCollection = cms.untracked.InputTag("iterativeCone5CaloJets"),
