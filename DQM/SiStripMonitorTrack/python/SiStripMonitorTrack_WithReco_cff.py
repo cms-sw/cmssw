@@ -6,11 +6,14 @@ import FWCore.ParameterSet.Config as cms
 # Real data raw to digi
 from EventFilter.SiStripRawToDigi.SiStripDigis_cfi import *
 siStripDigis.ProductLabel = 'source'
+
+# SiPixel data raw to digi
+from EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi import *
+siPixelDigis.InputLabel = 'source'
+
 # Local and Track Reconstruction
 from RecoLocalTracker.Configuration.RecoLocalTracker_Cosmics_cff import *
 from RecoTracker.Configuration.RecoTrackerP5_cff import *
-CTF_P5_MeasurementTracker.pixelClusterProducer = ''
-RS_P5_MeasurementTracker.pixelClusterProducer = ''
 from RecoVertex.BeamSpotProducer.BeamSpot_cff import *
 
 #-----------------------
@@ -29,5 +32,5 @@ SiStripMonitorTrack.FolderName          = cms.string('SiStrip/Tracks')
 #-----------------------
 #  Scheduling
 #-----------------------
-trackerGR = cms.Sequence(siStripDigis*offlineBeamSpot*striptrackerlocalreco*ctftracksP5)
+trackerGR = cms.Sequence(siPixelDigis*siStripDigis*offlineBeamSpot*trackerlocalreco*ctftracksP5)
 DQMSiStripMonitorTrack_Real = cms.Sequence(trackerGR*SiStripMonitorTrack)

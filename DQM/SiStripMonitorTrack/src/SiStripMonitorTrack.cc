@@ -197,10 +197,18 @@ void SiStripMonitorTrack::book()
     for (int j=0;j<off_Flag;j++) { // Loop on onTrack, offTrack
       name=flags[j]+"_TotalNumberOfClusters";
       if(MEMap.find(name)==MEMap.end()) {
-	MEMap[name]=bookME1D("TH1nClusters", name.Data()); 
+	if(flags[j] == "OnTrack"){
+	  MEMap[name]=bookME1D("TH1nClustersOn", name.Data());
+	}else{
+	  MEMap[name]=bookME1D("TH1nClustersOff", name.Data());
+	}
 	if(Trend_On_){
 	  name+="Trend";
-	  MEMap[name]=bookMETrend("TH1nClusters", name.Data());
+	  if(flags[j] == "OnTrack"){
+	    MEMap[name]=bookMETrend("TH1nClustersOn", name.Data());
+	  }else{
+	    MEMap[name]=bookMETrend("TH1nClustersOff", name.Data());
+	  }
 	}      
       }
     }// End Loop on onTrack, offTrack
@@ -397,9 +405,16 @@ void SiStripMonitorTrack::bookSubDetMEs(TString name,TString flag)//Histograms a
     LayerMEs theLayerMEs;
     
     // TotalNumber of Cluster 
-    sprintf(completeName,"Summary_TotalNumberOfClusters_%s",name.Data());
-    theLayerMEs.nClusters=bookME1D("TH1nClusters", completeName);
-    theLayerMEs.nClusters->getTH1()->StatOverflows(kTRUE);
+
+    if (flag=="OnTrack"){
+      sprintf(completeName,"Summary_TotalNumberOfClusters_%s",name.Data());
+      theLayerMEs.nClusters=bookME1D("TH1nClustersOn", completeName);
+      theLayerMEs.nClusters->getTH1()->StatOverflows(kTRUE);
+    }else{
+      sprintf(completeName,"Summary_TotalNumberOfClusters_%s",name.Data());
+      theLayerMEs.nClusters=bookME1D("TH1nClustersOff", completeName);
+      theLayerMEs.nClusters->getTH1()->StatOverflows(kTRUE);
+    }
     
     // Cluster Width
     sprintf(completeName,"Summary_ClusterWidth_%s",name.Data());
@@ -419,9 +434,14 @@ void SiStripMonitorTrack::bookSubDetMEs(TString name,TString flag)//Histograms a
 
 
     if(Trend_On_){
-      // TotalNumber of Cluster 
-      sprintf(completeName,"Trend_TotalNumberOfClusters_%s",name.Data());
-      theLayerMEs.nClustersTrend=bookMETrend("TH1nClusters", completeName);
+      if (flag=="OnTrack"){
+	// TotalNumber of Cluster 
+	sprintf(completeName,"Trend_TotalNumberOfClusters_%s",name.Data());
+	theLayerMEs.nClustersTrend=bookMETrend("TH1nClustersOn", completeName);
+      }else{
+	sprintf(completeName,"Trend_TotalNumberOfClusters_%s",name.Data());
+	theLayerMEs.nClustersTrend=bookMETrend("TH1nClustersOff", completeName);
+      }
       // Cluster Width
       sprintf(completeName,"Trend_ClusterWidth_%s",name.Data());
       theLayerMEs.ClusterWidthTrend=bookMETrend("TH1ClusterWidth", completeName);

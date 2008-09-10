@@ -77,8 +77,9 @@ process.Timing = cms.Service("Timing")
 # input
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
-    '/store/data/CRUZET3/Cosmics/RAW/v1/000/051/490/02D59D05-4151-DD11-9E79-001617DBD5AC.root', 
-    '/store/data/CRUZET3/Cosmics/RAW/v1/000/051/490/02E220B3-4451-DD11-8471-000423D98868.root'
+    '/store/data/Commissioning08/Cosmics/RAW/CRUZET4_v1/000/058/059/0E1028D9-696F-DD11-B244-001617E30E2C.root',
+    '/store/data/Commissioning08/Cosmics/RAW/CRUZET4_v1/000/058/059/0EB84F22-6A6F-DD11-98DD-001617E30D12.root',
+    
     )
                             )
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(500))
