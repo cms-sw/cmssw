@@ -153,8 +153,15 @@ class Table(object):
                 else:
                     rowobj.addEntry(name,(total1,total2))
                 
-        return (self.keys, self.rows)    
+        return (self.keys, self.rows)
 
+    def addRow(self,row,name):
+        if name in self.rows.keys():
+            pass
+        else:
+            self.keys.append(name)
+            self.rows[name] = row
+            
     def transpose(self):
         transp = Table()
         for col in self.colnames:
@@ -612,14 +619,25 @@ def step_cmp(x,y):
     ystr = os.path.basename(y)
     x_idx = -1
     y_idx = -1
+    bestx_idx = -1
+    besty_idx = -1
     for i in range(len(Step)):
         if Step[i] in xstr and x_idx == -1:
-            x_idx = i
+            bestx_idx = i
         if Step[i] in ystr and y_idx == -1:
+            besty_idx = i
+        if Step[i] == xstr and x_idx == -1:
+            x_idx = i
+        if Step[i] == ystr and y_idx == -1:
             y_idx = i
         if not ( x_idx == -1 or y_idx == -1):
             break
-        
+
+    if x_idx == -1:
+        x_idx = bestx_idx
+    if y_idx == -1:
+        y_idx = besty_idx
+    
     if x_idx == -1 or y_idx == -1:
         print "WARNING: No steps could be found in SimpleMemReport names when sorting for correcting the order of the graphs."
     
@@ -919,7 +937,7 @@ def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDat
         print "ERROR: Could not write candle html %s because %s" % (os.path.basename(candlHTML),detail)
 
 
-def populateFromTupleRoot(tupname,repdir,rootfile):
+def populateFromTupleRoot(tupname,repdir,rootfile,pureg):
     table = Table()
     for cand in Candles:
         fname = CandFname[cand]
@@ -929,13 +947,24 @@ def populateFromTupleRoot(tupname,repdir,rootfile):
         stepreg = re.compile("%s_(.*)_TimingReport" % fname)
         createNewRow = True
         curRow = None
+        createPURow = True
+        puRow = None
         for stepdir in stepDirs:
             base  = os.path.basename(stepdir)
             found = stepreg.search(base)
             step  = "Unknown-step"
             if found:
                 step = found.groups()[0]
+            realstep  = "Unknown-step"
+            if "PILEUP" in step:
+                found = pureg.search(step)
+                if found:
+                    realstep = found.groups()[0]
+                if createPURow:
+                    createPURow = False
+                    puRow = Row(table)                
             rootf = os.path.join(stepdir,rootfile)
+            
             if os.path.exists(rootf):
                 f = ROOT.TFile(rootf)
                 cpu_time_tree = ROOT.TTree()
@@ -952,8 +981,19 @@ def populateFromTupleRoot(tupname,repdir,rootfile):
                                 createNewRow = False
                                 curRow = table.newRow(cand)
                             data_tuple = (data1,data2)
-                            curRow.addEntry(step,data_tuple)
+                            if "PILEUP" in step:
+                                puRow.addEntry(realstep,data_tuple)
+                            else:
+                                if createNewRow:
+                                    createNewRow = False
+                                    curRow = table.newRow(cand)
+
+                                curRow.addEntry(step,data_tuple)
                 f.Close()
+        if puRow == None:
+            pass
+        else:
+            table.addRow(puRow,"%s PILEUP" %cand)                
     return table
                 
 
@@ -1088,7 +1128,7 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
         print "Template used: %s" % TemplateHtml
 
     syscp((BASE_PERFORMANCE + "/doc/perf_style.css"),WebArea + "/.")
-    
+    pureg = re.compile("(.*)_PILEUP")    
     try:
         INDEX = open(IndexFile,"w") 
         for NewFileLine in open(TemplateHtml) :
@@ -1115,25 +1155,45 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
                         stepreg = re.compile("%s_(.*).root" % fname)
                         createNewRow = True
                         curRow = None
+                        createPURow = True
+                        puRow = None                        
                         for rootf in rootfiles:
                             base  = os.path.basename(rootf)
                             found = stepreg.search(base)
                             step  = "Unknown-step"
                             if found:
                                 step = found.groups()[0]
-
+                            realstep  = "Unknown-step"
+                            if "PILEUP" in step:
+                                found = pureg.search(step)
+                                if found:
+                                    realstep = found.groups()[0]
+                                if createPURow:
+                                    createPURow = False
+                                    puRow = Row(fsize_tab)
                             try:
                                 statinfo = os.stat(rootf)
                                 fsize    = statinfo.st_size
                                 if createNewRow:
                                     createNewRow = False
                                     curRow = fsize_tab.newRow(cand)
-
-                                curRow.addEntry(step,fsize)       
+                                    
+                                if "PILEUP" in step:
+                                    puRow.addEntry(realstep,fsize)
+                                else:
+                                    if createNewRow:
+                                        createNewRow = False
+                                        curRow = fsize_tab.newRow(cand)
+                                        
+                                    curRow.addEntry(step,fsize)       
                             except IOError, detail:
                                 print detail
                             except OSError, detail:
                                 print detail
+                        if puRow == None:
+                            pass
+                        else:
+                            fsize_tab.addRow(puRow,"%s PILEUP" %cand)                                                                    
                     (ordered_keys,table_dict) = fsize_tab.getTable(1)
                     cols = len(ordered_keys)
                     
@@ -1164,13 +1224,23 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
                             stepreg = re.compile("%s_(.*).root" % fname)
                             createNewRow = True
                             curRow = None
+                            createPURow = True
+                            puRow = None                            
                             for rootf in rootfiles:
                                 base  = os.path.basename(rootf)
                                 found = stepreg.search(base)
                                 step  = "Unknown-step"
                                 if found:
                                     step = found.groups()[0]
-
+                                    
+                                realstep  = "Unknown-step"
+                                if "PILEUP" in step:
+                                    found = pureg.search(step)
+                                    if found:
+                                        realstep = found.groups()[0]
+                                    if createPURow:
+                                        createPURow = False
+                                        puRow = Row(fsize_tab)
                                 try:
                                     statinfo = os.stat(rootf)
                                     fsize2   = statinfo.st_size
@@ -1185,11 +1255,22 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
                                         curRow = fsize_tab.newRow(cand)
 
                                     data_tuple = (fsize1,fsize2)
-                                    curRow.addEntry(step,data_tuple)
+                                    if "PILEUP" in step:
+                                        puRow.addEntry(realstep,data_tuple)
+                                    else:
+                                        if createNewRow:
+                                            createNewRow = False
+                                            curRow = fsize_tab.newRow(cand)
+
+                                        curRow.addEntry(step,data_tuple)
                                 except IOError, detail:
                                     print detail
                                 except OSError, detail:
                                     print detail
+                            if puRow == None:
+                                pass
+                            else:
+                                fsize_tab.addRow(puRow,"%s PILEUP" %cand)                                    
                                     
                         (ordered_keys,table_dict) = fsize_tab.getTable()
                         cols = len(ordered_keys)
@@ -1220,6 +1301,8 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
                         stepreg = re.compile("%s_(.*)_TimingReport.log" % fname)
                         createNewRow = True
                         curRow = None
+                        createPURow = True
+                        puRow = None
                         for log in logfiles:
                             base  = os.path.basename(log)
                             found = stepreg.search(base)
@@ -1227,6 +1310,15 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
                             if found:
                                 step = found.groups()[0]
 
+                            realstep  = "Unknown-step"
+                            if "PILEUP" in step:
+                                found = pureg.search(step)
+                                if found:
+                                    realstep = found.groups()[0]
+                                if createPURow:
+                                    createPURow = False
+                                    puRow = Row(time_tab)
+                                
                             data = cpr.getTimingLogData(log)
                             mean = 0
                             i    = 0
@@ -1238,11 +1330,18 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
                             except ZeroDivisionError, detail:
                                 print "WARNING: Could not calculate mean CPU time in log", log
 
-                            if createNewRow:
-                                createNewRow = False
-                                curRow = time_tab.newRow(cand)
+                            if "PILEUP" in step:
+                                puRow.addEntry(realstep,mean)
+                            else:
+                                if createNewRow:
+                                    createNewRow = False
+                                    curRow = time_tab.newRow(cand)
 
-                            curRow.addEntry(step,mean)    
+                                curRow.addEntry(step,mean)                                
+                        if puRow == None:
+                            pass
+                        else:
+                            time_tab.addRow(puRow,"%s PILEUP" %cand)
 
                     (ordered_keys,table_dict) = time_tab.getTable(1)
                     cols = len(ordered_keys)
@@ -1259,7 +1358,7 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
                     #
                     # Create the table data structure
                     #
-                    cpu_time_tab =  populateFromTupleRoot("cpu_time_tuple",repdir,"timing-regress.root")
+                    cpu_time_tab =  populateFromTupleRoot("cpu_time_tuple",repdir,"timing-regress.root",pureg)
 
 
                     ###########
