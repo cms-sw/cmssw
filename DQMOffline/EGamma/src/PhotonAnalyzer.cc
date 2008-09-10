@@ -170,6 +170,7 @@ void PhotonAnalyzer::beginJob( const edm::EventSetup& setup)
 	  h_phoE_part_.push_back(dbe_->book1D("phoE"+parts[part],types[type]+" Photon Energy: "+parts[part], eBin,eMin, eMax));
 	  h_phoEt_part_.push_back(dbe_->book1D("phoEt"+parts[part],types[type]+" Photon Transverse Energy: "+parts[part], etBin,etMin, etMax));
 	  h_r9_part_.push_back(dbe_->book1D("r9"+parts[part],types[type]+" Photon r9: "+parts[part],r9Bin,r9Min, r9Max));
+	  h_hOverE_part_.push_back(dbe_->book1D("hOverE"+parts[part],types[type]+" Photon H/E: "+parts[part],r9Bin,r9Min, 1));
 	  h_nPho_part_.push_back(dbe_->book1D("nPho"+parts[part]," Number of "+types[type]+" Photons per Event: "+parts[part], 10,-0.5,9.5));
 	  
 	  if(part==0){
@@ -189,13 +190,21 @@ void PhotonAnalyzer::beginJob( const edm::EventSetup& setup)
 	h_phoEt_part_.clear();
 	h_r9_isol_.push_back(h_r9_part_);
 	h_r9_part_.clear();
+	h_hOverE_isol_.push_back(h_hOverE_part_);
+	h_hOverE_part_.clear();
 	h_nPho_isol_.push_back(h_nPho_part_);
 	h_nPho_part_.clear();
 	h_phoDistribution_isol_.push_back(h_phoDistribution_part_);
 	h_phoDistribution_part_.clear();
 
+
 	h_phoEta_isol_.push_back(dbe_->book1D("phoEta",types[type]+" Photon Eta ",etaBin,etaMin, etaMax)) ;
 	h_phoPhi_isol_.push_back(dbe_->book1D("phoPhi",types[type]+" Photon Phi ",phiBin,phiMin,phiMax)) ;
+	h_phoConvEta_isol_.push_back(dbe_->book1D("phoConvEta",types[type]+" Converted Photon Eta ",etaBin,etaMin, etaMax)) ;
+	h_phoConvPhi_isol_.push_back(dbe_->book1D("phoConvPhi",types[type]+" Converted Photon Phi ",phiBin,phiMin,phiMax)) ;
+
+	h_convVtxRvsZ_isol_.push_back(dbe_->book2D("convVtxRvsZ",types[type]+" Photon Reco conversion vtx position",100, 0., 280.,200,0., 120.));
+
 	p_r9VsEt_isol_.push_back(dbe_->bookProfile("r9VsEt",types[type]+" Photon r9 vs. Transverse Energy",etBin,etMin,etMax,r9Bin,r9Min,r9Max));
 
       }
@@ -206,6 +215,8 @@ void PhotonAnalyzer::beginJob( const edm::EventSetup& setup)
     h_phoEt_isol_.clear();
     h_r9_.push_back(h_r9_isol_);
     h_r9_isol_.clear();
+    h_hOverE_.push_back(h_hOverE_isol_);
+    h_hOverE_isol_.clear();
     h_nPho_.push_back(h_nPho_isol_);
     h_nPho_isol_.clear();
     h_phoDistribution_.push_back(h_phoDistribution_isol_);
@@ -216,6 +227,15 @@ void PhotonAnalyzer::beginJob( const edm::EventSetup& setup)
     h_phoEta_isol_.clear();
     h_phoPhi_.push_back(h_phoPhi_isol_);
     h_phoPhi_isol_.clear();
+
+    h_phoConvEta_.push_back(h_phoConvEta_isol_);
+    h_phoConvEta_isol_.clear();
+    h_phoConvPhi_.push_back(h_phoConvPhi_isol_);
+    h_phoConvPhi_isol_.clear();
+
+    h_convVtxRvsZ_.push_back(h_convVtxRvsZ_isol_);
+    h_convVtxRvsZ_isol_.clear();
+
     p_r9VsEt_.push_back(p_r9VsEt_isol_);
     p_r9VsEt_isol_.clear();
 
@@ -356,6 +376,7 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 	h_phoEt_[cut][0][0]->Fill( (*iPho).energy()/ cosh( (*iPho).superCluster()->eta()) );
 
 	h_r9_[cut][0][0]->Fill( r9 );
+	h_hOverE_[cut][0][0]->Fill( (*iPho).hadronicOverEm() );
 	h_phoDistribution_[cut][0][0]->Fill( (*iPho).superCluster()->phi(),(*iPho).superCluster()->eta() );
 	nPho[cut][0][0]++;
 
@@ -371,13 +392,14 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 	nPho[cut][type][0]++;
 	h_phoDistribution_[cut][type][0]->Fill( (*iPho).superCluster()->phi(),(*iPho).superCluster()->eta() );
 	h_r9_[cut][type][0]->Fill( r9 );
+	h_hOverE_[cut][type][0]->Fill( (*iPho).hadronicOverEm() );
 
 	h_phoEta_[cut][type]->Fill( (*iPho).superCluster()->eta() );
 	h_phoPhi_[cut][type]->Fill( (*iPho).superCluster()->phi() );      
 
 	p_r9VsEt_[cut][type]->Fill( (*iPho).energy()/ cosh( (*iPho).superCluster()->eta()), r9 );
 
-	//filling both types of histograms
+	//filling both types of histograms for different ecal parts
 
 	if ( phoIsInBarrel ) { 
 	  h_phoE_[cut][0][1]->Fill( (*iPho).energy() );
@@ -385,12 +407,14 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 	  nPho[cut][0][1]++;
 	  h_phoDistribution_[cut][0][1]->Fill( (*iPho).superCluster()->phi(),(*iPho).superCluster()->eta() );
 	  h_r9_[cut][0][1]->Fill( r9 );
-	  
+	  h_hOverE_[cut][0][1]->Fill( (*iPho).hadronicOverEm() );	 
+
 	  h_phoE_[cut][type][1]->Fill( (*iPho).energy() );
 	  h_phoEt_[cut][type][1]->Fill( (*iPho).energy()/ cosh( (*iPho).superCluster()->eta()) );
 	  nPho[cut][type][1]++;
 	  h_phoDistribution_[cut][type][1]->Fill( (*iPho).superCluster()->phi(),(*iPho).superCluster()->eta() );
 	  h_r9_[cut][type][1]->Fill( r9 );
+	  h_hOverE_[cut][type][1]->Fill( (*iPho).hadronicOverEm() );
 	}	  
 
 	int part = 0;
@@ -405,16 +429,38 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 	  nPho[cut][0][part]++;
 	  h_phoDistribution_[cut][0][part]->Fill( (*iPho).superCluster()->x(),(*iPho).superCluster()->y() );
 	  h_r9_[cut][0][part]->Fill( r9 );
+	  h_hOverE_[cut][0][part]->Fill( (*iPho).hadronicOverEm() );
+
 
 	  h_phoE_[cut][type][part]->Fill( (*iPho).energy() );
 	  h_phoEt_[cut][type][part]->Fill( (*iPho).energy()/ cosh( (*iPho).superCluster()->eta()) );
 	  nPho[cut][type][part]++;
 	  h_phoDistribution_[cut][type][part]->Fill( (*iPho).superCluster()->x(),(*iPho).superCluster()->y() );
 	  h_r9_[cut][type][part]->Fill( r9 );
+	  h_hOverE_[cut][type][part]->Fill( (*iPho).hadronicOverEm() );
 
 	}
       
+	//end of parts loop
+
+	std::vector<reco::ConversionRef> conversions = (*iPho).conversions();
+	for (unsigned int iConv=0; iConv<conversions.size(); iConv++) {
+
+	  //h_phoConvEta_[cut][type]->Fill( conversions[iConv]->caloCluster()->eta()  );
+	  //h_phoConvPhi_[cut][type]->Fill( conversions[iConv]->caloCluster()->eta()  );  
+
+	  if ( conversions[iConv]->conversionVertex().isValid() ) {
+	    cout << fabs (conversions[iConv]->conversionVertex().position().z()) << endl;
+	    h_convVtxRvsZ_[cut][type] ->Fill ( fabs (conversions[iConv]->conversionVertex().position().z() ),  
+					       sqrt(conversions[iConv]->conversionVertex().position().perp2())  ) ;
+	  }
+
+
+	}
+
       }
+
+
 
     }
 
@@ -445,7 +491,7 @@ void PhotonAnalyzer::endJob()
      doProfileX( h_trackPtSumHollow_[cut], p_trackPtSumHollow_[cut]);
      doProfileX( h_ecalSum_[cut], p_ecalSum_[cut]);
      doProfileX( h_hcalSum_[cut], p_hcalSum_[cut]);
-  
+
   }
 
 
