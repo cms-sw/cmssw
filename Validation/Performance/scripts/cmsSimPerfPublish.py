@@ -654,14 +654,21 @@ def step_cmp(x,y):
 # Create HTML pages for candles
 
 def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,date,prevrev):
-    def _getProfileReportLink(CurrentCandle,CurDir,step,CurrentProfile,Profiler):
+    def _getProfileReportLink(repdir,CurrentCandle,CurDir,step,CurrentProfile,Profiler):
 
-        ProfileTemplate="%s_%s/*_%s_%s*/%s" % (CurrentCandle,CurDir,step,CurrentProfile,Profiler)
+        ProfileTemplate=os.path.join(repdir, "%s_%s" % (CurrentCandle,CurDir), "*_%s_%s*" % (step,CurrentProfile),Profiler)
+
         #There was the issue of SIM vs sim (same for DIGI) between the previous RelVal based performance suite and the current.
-        ProfileTemplateLowCaps="%s_%s/*_%s_%s*/%s" % (CurrentCandle,CurDir,step.lower(),CurrentProfile,Profiler)
-        ProfileReportLink=getcmd("ls %s 2>/dev/null" % ProfileTemplate)
-        if ( CurrentCandle not in ProfileReportLink) : #no match with caps try low caps
-            ProfileReportLink=getcmd("ls %s 2>/dev/null" % ProfileTemplateLowCaps)
+        ProfileTemplateLowCaps=os.path.join(repdir, "%s_%s" % (CurrentCandle,CurDir), "*_%s_%s*" % (step.lower(),CurrentProfile),Profiler)        
+        ProfileReportLink = glob.glob(ProfileTemplate)
+        #print ProfileReportLink
+        #ProfileReportLink=getcmd("ls %s 2>/dev/null" % ProfileTemplate)
+        if len(ProfileReportLink) > 0:
+            if not reduce(lambda x,y: x or y,map(lambda x: CurrentCandle in x,ProfileReportLink)):# match with caps try low caps
+                ProfileReportLink = glob.glob(ProfileTemplateLowCaps)
+            #ProfileReportLink=getcmd("ls %s 2>/dev/null" % ProfileTemplateLowCaps)
+        else:
+            ProfileReportLink = glob.glob(ProfileTemplateLowCaps)
         return ProfileReportLink
 
     def _writeReportLink(INDEX,ProfileReportLink,CurrentProfile,step,NumOfEvents,Profiler=""):
@@ -877,13 +884,16 @@ def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDat
 
                         for step in Step :
 
-                            ProfileReportLink = _getProfileReportLink(CurrentCandle,
+                            ProfileReportLink = _getProfileReportLink(repdir,CurrentCandle,
                                                                      CurDir,
                                                                      step,
                                                                      CurrentProfile,
                                                                      OutputHtml[CurrentProfile])
+                            isProfinLink = False
+                            if len (ProfileReportLink) > 0:
+                                isProfinLink = reduce(lambda x,y: x or y,map(lambda x: CurrentProfile in x,ProfileReportLink))
 
-                            if (CurrentProfile in ProfileReportLink):
+                            if isProfinLink:
                                 #It could also not be there
 
                                 if (PrintedOnce==False): 
@@ -895,29 +905,39 @@ def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDat
                                     PrintedOnce=True
                                 #Special cases first (IgProf MemAnalyse and Valgrind MemCheck)
                                 if (CurrentProfile == Profile[7]):
-                                    for i in range(0,3,1):
-                                        ProfileReportLink = _getProfileReportLink(CurrentCandle,
+                                    for igprof in IgProfMemAnalyseOut:
+                                        ProfileReportLink = _getProfileReportLink(repdir,CurrentCandle,
                                                                                  CurDir,
                                                                                  step,
                                                                                  CurrentProfile,
-                                                                                 IgProfMemAnalyseOut[i])
-                                        if (CurrentProfile in ProfileReportLink ) :#It could also not be there
-                                            _writeReportLink(CAND,ProfileReportLink,CurrentProfile,step,NumOfEvents[CurDir],Profiler=IgProfMemAnalyseOut[i])
+                                                                                 igprof)
+                                        isProfinLink = False
+                                        if len (ProfileReportLink) > 0:
+                                            isProfinLink = reduce(lambda x,y: x or y,map(lambda x: CurrentProfile in x,ProfileReportLink))                                        
+                                        if isProfinLink :#It could also not be there
+                                            for prolink in ProfileReportLink:
+                                                _writeReportLink(CAND,prolink,CurrentProfile,step,NumOfEvents[CurDir],Profiler=igprof)
 
 
                                 elif (CurrentProfile == Profile[9]):
 
-                                    for i in range(0,3,1):
-                                        ProfileReportLink = _getProfileReportLink(CurrentCandle,
+                                    for memprof in memcheck_valgrindOut:
+                                        ProfileReportLink = _getProfileReportLink(repdir,CurrentCandle,
                                                                                  CurDir,
                                                                                  step,
                                                                                  CurrentProfile,
-                                                                                 memcheck_valgrindOut[i])
-                                        if (CurrentProfile in ProfileReportLink) : #It could also not be there
-                                            _writeReportLink(CAND,ProfileReportLink,CurrentProfile,step,NumOfEvents[CurDir],Profiler=memcheck_valgrindOut[i])
+                                                                                  
+                                                                                 memprof)
+                                        isProfinLink = False
+                                        if len (ProfileReportLink) > 0:
+                                            isProfinLink = reduce(lambda x,y: x or y,map(lambda x: CurrentProfile in x,ProfileReportLink))                                        
+                                        if isProfinLink :#It could also not be there                                        
+                                            for prolink in ProfileReportLink:
+                                                _writeReportLink(CAND,prolink,CurrentProfile,step,NumOfEvents[CurDir],Profiler=memprof)
 
                                 else:
-                                    _writeReportLink(CAND,ProfileReportLink,CurrentProfile,step,NumOfEvents[CurDir])
+                                    for prolink in ProfileReportLink:
+                                        _writeReportLink(CAND,prolink,CurrentProfile,step,NumOfEvents[CurDir])
 
 
                     if PrintedOnce:
