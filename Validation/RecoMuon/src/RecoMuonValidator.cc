@@ -416,11 +416,13 @@ RecoMuonValidator::RecoMuonValidator(const ParameterSet& pset)
   }
 
   subDir_ = pset.getUntrackedParameter<string>("subDir");
+  if ( subDir_.empty() ) subDir_ = "RecoMuonV/";
+  if ( subDir_[subDir_.size()-1] != '/' ) subDir_ += "/";
 
   // book histograms
   theDQM->cd();
 
-  theDQM->setCurrentFolder(subDir_+"/Muons/");
+  theDQM->setCurrentFolder(subDir_+"Muons/");
 
   commonME_ = new CommonME;
   trkMuME_ = new MuonME;
@@ -441,9 +443,17 @@ RecoMuonValidator::RecoMuonValidator(const ParameterSet& pset)
   commonME_->hStaToGlbDiffNMuonHits_ = theDQM->book1D("StaGlbDiffNMuonHits", "Difference of number of muon hits (staMuon - globalMuon", hDim.nHits, 0, hDim.nHits);
 
   // - histograms on tracking variables
-  trkMuME_->bookHistograms(theDQM, subDir_+"/TrackerMuons/", hDim);
-  staMuME_->bookHistograms(theDQM, subDir_+"/StandaloneMuons/", hDim);
-  glbMuME_->bookHistograms(theDQM, subDir_+"/GlobalMuons/", hDim);
+  string trkDirName = trkMuLabel_.label() + "_" + trkMuLabel_.instance() + "_" + trkMuAssocLabel_.label();
+  string staDirName = staMuLabel_.label() + "_" + staMuLabel_.instance() + "_" + staMuAssocLabel_.label();
+  string glbDirName = glbMuLabel_.label() + "_" + glbMuLabel_.instance() + "_" + glbMuAssocLabel_.label();
+
+  std::replace(trkDirName.begin(), trkDirName.end(), ':', '_');
+  std::replace(staDirName.begin(), staDirName.end(), ':', '_');
+  std::replace(glbDirName.begin(), glbDirName.end(), ':', '_');
+
+  trkMuME_->bookHistograms(theDQM, subDir_+trkDirName, hDim);
+  staMuME_->bookHistograms(theDQM, subDir_+staDirName, hDim);
+  glbMuME_->bookHistograms(theDQM, subDir_+glbDirName, hDim);
 
   theDQM->showDirStructure();
 
