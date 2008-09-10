@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 #
-# $Id:$
+# $Id: getRunInfo.py,v 1.2 2008/09/10 17:15:36 vadler Exp $
 #
 
 ## CMSSW/DQM/SiStripMonitorClient/scripts/getRunInfo.py
@@ -22,16 +22,17 @@ import datetime
 LSTR_arguments = sys.argv[1:]
 # numbers
 TD_shiftUTC = datetime.timedelta(hours = 2) # positive for timezones with later time than UTC
+INT_offset  = 8
 # strings
 STR_SiStrip             = 'SiStrip'
 STR_good                = 'SS_GOOD'
 STR_htmlL1Key           = '&lt;b>L1&amp;nbsp;Key:&lt;/b>'
 STR_htmlHLTKey          = '&lt;b>HLT&amp;nbsp;Key:&lt;/b>'
 STR_wwwDBSData          = 'https://cmsweb.cern.ch/dbs_discovery/getData'
-STR_headDatasets        = 'available data files'
+STR_headDatasets        = 'datasets'
+STR_headFiles           = 'available data files'
 LSTR_summaryKeys        = ['BField', 'HLT Version', 'L1 Rate', 'HLT Rate', 'L1 Triggers', 'HLT Triggers', 'LHC Fill', 'LHC Energy', 'Initial Lumi', 'Ending Lumi', 'Run Lumi', 'Run Live Lumi']
 LSTR_summaryKeysTrigger = ['L1 Key', 'HLT Key']   
-# STR_summaryHLTKey = 'HLT Key'</TH><TD><A HREF=HLTConfiguration?KEY=1551>/cdaq/cosmic/CRUZET3/HLTstartup_DTDataIntegrity/V1</A></TD></TR>
 
 # Globals
 
@@ -275,10 +276,10 @@ str_print = '> getRunInfo.py > ' + STR_headDatasets
 for int_i in range(int_maxLenDbsDatasets-len(STR_headDatasets)):
   str_print += ' '
 str_print += ' '
-print str_print + STR_headDatasets
-int_len = len(str_print+STR_headDatasets)
+int_length = len(str_print)
+print str_print + STR_headFiles
 str_print = '> '
-for int_i in range(int_len+6):
+for int_i in range(int_length+len(STR_headFiles)/2+INT_offset+8):
   str_print += '-'
 print str_print
 for str_dbsDatasets in lstr_dbsDatasets:
@@ -286,10 +287,10 @@ for str_dbsDatasets in lstr_dbsDatasets:
   for int_i in range(int_maxLenDbsDatasets-len(str_dbsDatasets)):
     str_print += ' '
   str_print += ' '
-  for int_i in range(len(STR_headDatasets)/2-len(Dict_dbsDatasets[str_dbsDatasets])):
+  for int_i in range(len(STR_headFiles)/2-len(Dict_dbsDatasets[str_dbsDatasets])):
     str_print += ' '
   str_print += Dict_dbsDatasets[str_dbsDatasets] + ' ('
-  for int_i in range(8-len(Dict_dbsEvents[str_dbsDatasets])):
+  for int_i in range(INT_offset-len(Dict_dbsEvents[str_dbsDatasets])):
     str_print += ' '
   print str_print + Dict_dbsEvents[str_dbsDatasets] + ' events)'
 print  
