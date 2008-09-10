@@ -8,8 +8,7 @@ pfConversions = cms.EDProducer("PFConversionsProducer",
     # outputs
     PFConversionCollection = cms.string(''),
     # inputs
-    #   string conversionProducer = "conversions"
-    conversionProducer = cms.string('photons'),
+    conversionProducer = cms.string('conversions'),
     #
     debug = cms.bool(True),
     PFRecTracksFromConversions = cms.string('pfRecTracksFromConversions')
