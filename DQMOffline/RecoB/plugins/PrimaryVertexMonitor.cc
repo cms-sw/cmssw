@@ -25,31 +25,32 @@ PrimaryVertexMonitor::PrimaryVertexMonitor(const edm::ParameterSet& pSet)
 //   xPos = dqmStore_->book1D ("xPos","x Coordinate" ,100, -0.1, 0.1);
 
   nbvtx      = dqmStore_->book1D("vtxNbr","Reconstructed Vertices in Event",20,-0.5,19.5);
-  nbtksinvtx[0] = dqmStore_->book1D("vtxTrksNbr","Reconstructed Tracks in Vertex",40,-0.5,99.5); 
-  trksWeight[0] = dqmStore_->book1D("vtxTrksWeight","Total weight of Tracks in Vertex",40,0,100.); 
-  vtxchi2[0]    = dqmStore_->book1D("vtxChi2","#chi^{2}",100,0.,200.);
-  vtxndf[0]     = dqmStore_->book1D("vtxNdf","ndof",100,0.,200.);
-  vtxprob[0]    = dqmStore_->book1D("vtxProb","#chi^{2} probability",100,0.,1.);
-  nans[0]        = dqmStore_->book1D("nans","Illegal values for x,y,z,xx,xy,xz,yy,yz,zz",9,0.5,9.5);
+
+  nbtksinvtx[0] = dqmStore_->book1D("otherVtxTrksNbr","Reconstructed Tracks in Vertex (other Vtx)",40,-0.5,99.5); 
+  trksWeight[0] = dqmStore_->book1D("otherVtxTrksWeight","Total weight of Tracks in Vertex (other Vtx)",40,0,100.); 
+  vtxchi2[0]    = dqmStore_->book1D("otherVtxChi2","#chi^{2} (other Vtx)",100,0.,200.);
+  vtxndf[0]     = dqmStore_->book1D("otherVtxNdf","ndof (other Vtx)",100,0.,200.);
+  vtxprob[0]    = dqmStore_->book1D("otherVtxProb","#chi^{2} probability (other Vtx)",100,0.,1.);
+  nans[0]       = dqmStore_->book1D("otherVtxNans","Illegal values for x,y,z,xx,xy,xz,yy,yz,zz (other Vtx)",9,0.5,9.5);
 
   nbtksinvtx[1] = dqmStore_->book1D("tagVtxTrksNbr","Reconstructed Tracks in Vertex (tagged Vtx)",100,-0.5,99.5); 
   trksWeight[1] = dqmStore_->book1D("tagVtxTrksWeight","Total weight of Tracks in Vertex (tagged Vtx)",100,0,100.); 
   vtxchi2[1]    = dqmStore_->book1D("tagVtxChi2","#chi^{2} (tagged Vtx)",100,0.,200.);
   vtxndf[1]     = dqmStore_->book1D("tagVtxNdf","ndof (tagged Vtx)",100,0.,200.);
   vtxprob[1]    = dqmStore_->book1D("tagVtxProb","#chi^{2} probability (tagged Vtx)",100,0.,1.);
-  nans[1]       = dqmStore_->book1D("tagNans","Illegal values for x,y,z,xx,xy,xz,yy,yz,zz (tagged Vtx)",9,0.5,9.5);
+  nans[1]       = dqmStore_->book1D("tagVtxNans","Illegal values for x,y,z,xx,xy,xz,yy,yz,zz (tagged Vtx)",9,0.5,9.5);
 
-  xrec[0]	 = dqmStore_->book1D("posX","Position x Coordinate",100,-0.1,0.1);
-  yrec[0]	 = dqmStore_->book1D("posY","Position y Coordinate",100,-0.1,0.1);
-  zrec[0]        = dqmStore_->book1D("posZ","Position z Coordinate",100,-20.,20.);
-  xDiff[0]	 = dqmStore_->book1D("diffX","X distance from BeamSpot",100,-500,500);
-  yDiff[0]	 = dqmStore_->book1D("diffY","Y distance from BeamSpot",100,-500,500);
-  xerr[0]	 = dqmStore_->book1D("errX","Uncertainty x Coordinate",100,-0.1,0.1);
-  yerr[0]	 = dqmStore_->book1D("errY","Uncertainty y Coordinate",100,-0.1,0.1);
-  zerr[0]        = dqmStore_->book1D("errZ","Uncertainty z Coordinate",100,-20.,20.);
-  xerrVsTrks[0]	 = dqmStore_->book2D("errVsWeightX","Uncertainty x Coordinate vs. track weight",100,0,100.,100,-0.1,0.1);
-  yerrVsTrks[0]	 = dqmStore_->book2D("errVsWeightY","Uncertainty y Coordinate vs. track weight",100,0,100.,100,-0.1,0.1);
-  zerrVsTrks[0]	 = dqmStore_->book2D("errVsWeightZ","Uncertainty z Coordinate vs. track weight",100,0,100.,100,-0.1,0.1);
+  xrec[0]	 = dqmStore_->book1D("otherPosX","Position x Coordinate (other Vtx)",100,-0.1,0.1);
+  yrec[0]	 = dqmStore_->book1D("otherPosY","Position y Coordinate (other Vtx)",100,-0.1,0.1);
+  zrec[0]        = dqmStore_->book1D("otherPosZ","Position z Coordinate (other Vtx)",100,-20.,20.);
+  xDiff[0]	 = dqmStore_->book1D("otherDiffX","X distance from BeamSpot (other Vtx)",100,-500,500);
+  yDiff[0]	 = dqmStore_->book1D("otherDiffY","Y distance from BeamSpot (other Vtx)",100,-500,500);
+  xerr[0]	 = dqmStore_->book1D("otherErrX","Uncertainty x Coordinate (other Vtx)",100,-0.1,0.1);
+  yerr[0]	 = dqmStore_->book1D("otherErrY","Uncertainty y Coordinate (other Vtx)",100,-0.1,0.1);
+  zerr[0]        = dqmStore_->book1D("otherErrZ","Uncertainty z Coordinate (other Vtx)",100,-20.,20.);
+  xerrVsTrks[0]	 = dqmStore_->book2D("otherErrVsWeightX","Uncertainty x Coordinate vs. track weight (other Vtx)",100,0,100.,100,-0.1,0.1);
+  yerrVsTrks[0]	 = dqmStore_->book2D("otherErrVsWeightY","Uncertainty y Coordinate vs. track weight (other Vtx)",100,0,100.,100,-0.1,0.1);
+  zerrVsTrks[0]	 = dqmStore_->book2D("otherErrVsWeightZ","Uncertainty z Coordinate vs. track weight (other Vtx)",100,0,100.,100,-0.1,0.1);
 
 
   xrec[1]     = dqmStore_->book1D("tagPosX","Position x Coordinate (tagged Vtx)",100,-0.1,0.1);
@@ -64,7 +65,7 @@ PrimaryVertexMonitor::PrimaryVertexMonitor(const edm::ParameterSet& pSet)
   yerrVsTrks[1]	 = dqmStore_->book2D("tagErrVsWeightY","Uncertainty y Coordinate vs. track weight (tagged Vtx)",100,0,100.,100,0.,100);
   zerrVsTrks[1]	 = dqmStore_->book2D("tagErrVsWeightZ","Uncertainty z Coordinate vs. track weight (tagged Vtx)",100,0,100.,100,0.,100);
 
-  type[0] = dqmStore_->book1D("type","Vertex type",3,-0.5,2.5);
+  type[0] = dqmStore_->book1D("otherType","Vertex type (other Vtx)",3,-0.5,2.5);
   type[1] = dqmStore_->book1D("tagType","Vertex type (tagged Vtx)",3,-0.5,2.5);
   for (int i=0;i<2;++i){
     type[i]->getTH1F()->GetXaxis()->SetBinLabel(1,"Valid, real");
