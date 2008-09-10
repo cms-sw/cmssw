@@ -27,101 +27,376 @@ using namespace reco;
 typedef TrajectoryStateOnSurface TSOS;
 typedef FreeTrajectoryState FTS;
 
-namespace MEIdx {
-  enum 
-  {
-    SimP, SimPt, SimEta, SimPhi,
-    RecoP, RecoPt, RecoEta, RecoPhi,
-    ErrP, ErrPt, ErrEta, ErrPhi, ErrDxy, ErrDz, 
-    ErrP_vs_Eta, ErrPt_vs_Eta, ErrQPt_vs_Eta, 
-    ErrP_vs_P, ErrPt_vs_Pt, ErrQPt_vs_Pt, ErrEta_vs_Eta,
-    PullPt, PullEta, PullPhi, PullQPt, PullDxy, PullDz,
-    PullPt_vs_Eta, PullPt_vs_Pt, PullEta_vs_Eta, PullPhi_vs_Eta, PullEta_vs_Pt,
-    NSim, NReco, NMuon,
-    NDof, Chi2, Chi2Norm, Chi2Prob,
-    NDof_vs_Eta, Chi2_vs_Eta, Chi2Norm_vs_Eta, Chi2Prob_vs_Eta,
-    MisQPt, MisQEta,
-    NAssocSimToReco, NAssocRecoToSim, 
-    NSimToReco,
-    SimNHits, 
-    RecoNHits, 
-    NRecoHits,
-    NSimHits_vs_Pt, NSimHits_vs_Eta,
-    NRecoHits_vs_Pt, NRecoHits_vs_Eta,
-    NLostHits, NLostHits_vs_Pt, NLostHits_vs_Eta,
-    NValidTrackerHits, NValidTrackerHits_vs_Pt, NValidTrackerHits_vs_Eta,
-    NValidMuonHits, NValidMuonHits_vs_Pt, NValidMuonHits_vs_Eta,
+struct HistoDimensions {
+  unsigned int nBinP;
+  double minP, maxP;
 
-    TrkNTrackerHits, TrkNTrackerHits_vs_Pt, TrkNTrackerHits_vs_Eta,
-    GlbNTrackerHits, GlbNTrackerHits_vs_Pt, GlbNTrackerHits_vs_Eta,
-    TrkGlbDiffNTrackerHits,
-    StaNMuonHits, StaNMuonHits_vs_Pt, StaNMuonHits_vs_Eta,
-    GlbNMuonHits, GlbNMuonHits_vs_Pt, GlbNMuonHits_vs_Eta,
-    StaGlbDiffNMuonHits
-  }; 
-}
+  unsigned int nBinPt;
+  double minPt, maxPt;
+
+  bool doAbsEta;
+  unsigned int nBinEta;
+  double minEta, maxEta;
+
+  unsigned int nBinPhi;
+  double minPhi, maxPhi;
+
+  unsigned int nBinPull;
+  double wPull;
+
+  unsigned int nBinErr;
+  double minErrP, maxErrP;
+  double minErrPt, maxErrPt;
+  double minErrQPt, maxErrQPt;
+  double minErrEta, maxErrEta;
+  double minErrPhi, maxErrPhi;
+  double minErrDxy, maxErrDxy;
+  double minErrDz, maxErrDz;
+
+  unsigned int nTrks, nAssoc;
+  unsigned int nHits;
+  unsigned int nDof;
+};
+
+struct RecoMuonValidator::MuonME {
+  void bookHistograms(DQMStore* dqm, const string& dirName, const HistoDimensions& hDim)
+  {
+    dqm->cd();
+    dqm->setCurrentFolder(dirName.c_str());
+
+    doAbsEta_ = hDim.doAbsEta;
+
+    hP_   = dqm->book1D("P"  , "p of recoTracks"    , hDim.nBinP  , hDim.minP  , hDim.maxP  );
+    hPt_  = dqm->book1D("Pt" , "p_{T} of recoTracks", hDim.nBinPt , hDim.minPt , hDim.maxPt );
+    hEta_ = dqm->book1D("Eta", "#eta of recoTracks" , hDim.nBinEta, hDim.minEta, hDim.maxEta);
+    hPhi_ = dqm->book1D("Phi", "#phi of recoTracks" , hDim.nBinPhi, hDim.minPhi, hDim.maxPhi);
+
+    // - Resolutions
+    hErrP_   = dqm->book1D("ErrP"  , "#Delta(p)/p"        , hDim.nBinErr, hDim.minErrP  , hDim.maxErrP  );
+    hErrPt_  = dqm->book1D("ErrPt" , "#Delta(p_{T})/p_{T}", hDim.nBinErr, hDim.minErrPt , hDim.maxErrPt );
+    hErrEta_ = dqm->book1D("ErrEta", "#sigma(#eta))"      , hDim.nBinErr, hDim.minErrEta, hDim.maxErrEta);
+    hErrPhi_ = dqm->book1D("ErrPhi", "#sigma(#phi)"       , hDim.nBinErr, hDim.minErrPhi, hDim.maxErrPhi);
+    hErrDxy_ = dqm->book1D("ErrDxy", "#sigma(d_{xy})"     , hDim.nBinErr, hDim.minErrDxy, hDim.maxErrDxy);
+    hErrDz_  = dqm->book1D("ErrDz" , "#sigma(d_{z})"      , hDim.nBinErr, hDim.minErrDz , hDim.maxErrDz );
+
+    // -- Resolutions vs Eta
+    hErrP_vs_Eta_   = dqm->book2D("ErrP_vs_Eta", "#Delta(p)/p vs #eta",
+                                  hDim.nBinEta, hDim.minEta, hDim.maxEta, hDim.nBinErr, hDim.minErrP, hDim.maxErrP);
+    hErrPt_vs_Eta_  = dqm->book2D("ErrPt_vs_Eta", "#Delta(p_{T})/p_{T} vs #eta",
+                                  hDim.nBinEta, hDim.minEta, hDim.maxEta, hDim.nBinErr, hDim.minErrPt, hDim.maxErrPt);
+    hErrQPt_vs_Eta_ = dqm->book2D("ErrQPt_vs_Eta", "#Delta(q/p_{T})/(q/p_{T}) vs #eta",
+                                  hDim.nBinEta, hDim.minEta, hDim.maxEta, hDim.nBinErr, hDim.minErrQPt, hDim.maxErrQPt);
+    hErrEta_vs_Eta_ = dqm->book2D("ErrEta_vs_Eta", "#sigma(#eta) vs #eta",
+                                  hDim.nBinEta, hDim.minEta, hDim.maxEta, hDim.nBinErr, hDim.minErrEta, hDim.maxErrEta);
+
+    // -- Resolutions vs momentum
+    hErrP_vs_P_    = dqm->book2D("ErrP_vs_P", "#Delta(p)/p vs p",
+                                 hDim.nBinP, hDim.minP, hDim.maxP, hDim.nBinErr, hDim.minErrP, hDim.maxErrP);
+
+    hErrPt_vs_Pt_  = dqm->book2D("ErrPt_vs_Pt", "#Delta(p_{T})/p_{T} vs p_{T}",
+                                 hDim.nBinPt, hDim.minPt, hDim.maxPt, hDim.nBinErr, hDim.minErrPt, hDim.maxErrPt);
+    hErrQPt_vs_Pt_ = dqm->book2D("ErrQPt_vs_Pt", "#Delta(q/p_{T})/(q/p_{T}) vs p_{T}",
+                                 hDim.nBinPt, hDim.minPt, hDim.maxPt, hDim.nBinErr, hDim.minErrQPt, hDim.maxErrQPt);
+
+
+    // - Pulls
+    hPullPt_  = dqm->book1D("PullPt" , "Pull(#p_{T})" , hDim.nBinPull, -hDim.wPull, hDim.wPull);
+    hPullEta_ = dqm->book1D("PullEta", "Pull(#eta)"   , hDim.nBinPull, -hDim.wPull, hDim.wPull);
+    hPullPhi_ = dqm->book1D("PullPhi", "Pull(#phi)"   , hDim.nBinPull, -hDim.wPull, hDim.wPull);
+    hPullQPt_ = dqm->book1D("PullQPt", "Pull(q/p_{T})", hDim.nBinPull, -hDim.wPull, hDim.wPull);
+    hPullDxy_ = dqm->book1D("PullDxy", "Pull(D_{xy})" , hDim.nBinPull, -hDim.wPull, hDim.wPull);
+    hPullDz_  = dqm->book1D("PullDz" , "Pull(D_{z})"  , hDim.nBinPull, -hDim.wPull, hDim.wPull);
+
+    // -- Pulls vs Eta
+    hPullPt_vs_Eta_  = dqm->book2D("PullPt_vs_Eta", "Pull(p_{T}) vs #eta",
+                                   hDim.nBinEta, hDim.minEta, hDim.maxEta, hDim.nBinPull, -hDim.wPull, hDim.wPull);
+    hPullEta_vs_Eta_ = dqm->book2D("PullEta_vs_Eta", "Pull(#eta) vs #eta",
+                                   hDim.nBinEta, hDim.minEta, hDim.maxEta, hDim.nBinPull, -hDim.wPull, hDim.wPull);
+    hPullPhi_vs_Eta_ = dqm->book2D("PullPhi_vs_Eta", "Pull(#phi) vs #eta",
+                                   hDim.nBinEta, hDim.minEta, hDim.maxEta, hDim.nBinPull, -hDim.wPull, hDim.wPull);
+
+    // -- Pulls vs Pt
+    hPullPt_vs_Pt_ = dqm->book2D("PullPt_vs_Pt", "Pull(p_{T}) vs p_{T}",
+                                 hDim.nBinPt, hDim.minPt, hDim.maxPt, hDim.nBinPull, -hDim.wPull, hDim.wPull);
+    hPullEta_vs_Pt_ = dqm->book2D("PullEta_vs_Pt", "Pull(#eta) vs p_{T}",
+                                  hDim.nBinPt, hDim.minPt, hDim.maxPt, hDim.nBinPull, -hDim.wPull, hDim.wPull);
+
+    // - Misc. variables
+    hNTrks_ = dqm->book1D("NTrks", "Number of reco tracks per event", hDim.nTrks, 0, hDim.nTrks);
+
+    hMisQPt_  = dqm->book1D("MisQPt" , "Charge mis-id vs Pt" , hDim.nBinPt , hDim.minPt , hDim.maxPt );
+    hMisQEta_ = dqm->book1D("MisQEta", "Charge mis-id vs Eta", hDim.nBinEta, hDim.minEta, hDim.maxEta);
+
+    // -- Number of Hits
+    hNHits_ = dqm->book1D("NHits", "Number of hits", hDim.nHits, 0, hDim.nHits);
+    hNHits_vs_Pt_  = dqm->book2D("NHits_vs_Pt", "Number of hits vs p_{T}",
+                                 hDim.nBinPt, hDim.minPt, hDim.maxPt, hDim.nHits, 0, hDim.nHits);
+    hNHits_vs_Eta_ = dqm->book2D("NHits_vs_Eta", "Number of hits vs #eta",
+                                 hDim.nBinEta, hDim.minEta, hDim.maxEta, hDim.nHits, 0, hDim.nHits);
+
+    hNSimHits_ = dqm->book1D("NSimHits", "Number of simHits", hDim.nHits, 0, hDim.nHits);
+
+    hNLostHits_ = dqm->book1D("NLostHits", "Number of Lost hits", hDim.nHits, 0, hDim.nHits);
+    hNLostHits_vs_Pt_  = dqm->book2D("NLostHits_vs_Pt", "Number of lost Hits vs p_{T}",
+                                     hDim.nBinPt, hDim.minPt, hDim.maxPt, hDim.nHits, 0, hDim.nHits);
+    hNLostHits_vs_Eta_ = dqm->book2D("NLostHits_vs_Eta", "Number of lost Hits vs #eta",
+                                     hDim.nBinEta, hDim.minEta, hDim.maxEta, hDim.nHits, 0, hDim.nHits);
+
+    hNTrackerHits_ = dqm->book1D("NTrackerHits", "Number of valid tracker hits", hDim.nHits, 0, hDim.nHits);
+    hNTrackerHits_vs_Pt_ = dqm->book2D("NTrackerHits_vs_Pt", "Number of valid traker hits vs p_{T}",
+                                       hDim.nBinPt, hDim.minPt, hDim.maxPt, hDim.nHits, 0, hDim.nHits);
+    hNTrackerHits_vs_Eta_ = dqm->book2D("NTrackerHits_vs_Eta", "Number of valid tracker hits vs #eta",
+                                        hDim.nBinEta, hDim.minEta, hDim.maxEta, hDim.nHits, 0, hDim.nHits);
+
+    hNMuonHits_ = dqm->book1D("NMuonHits", "Number of valid muon hits", hDim.nHits, 0, hDim.nHits);
+    hNMuonHits_vs_Pt_  = dqm->book2D("NMuonHits_vs_Pt", "Number of valid muon hits vs p_{T}",
+                                     hDim.nBinPt, hDim.minPt, hDim.maxPt, hDim.nHits, 0, hDim.nHits);
+    hNMuonHits_vs_Eta_ = dqm->book2D("NMuonHits_vs_Eta", "Number of valid muon hits vs #eta",
+                                     hDim.nBinEta, hDim.minEta, hDim.maxEta, hDim.nHits, 0, hDim.nHits);
+
+    hNDof_ = dqm->book1D("NDof", "Number of DoF", hDim.nDof, 0, hDim.nDof);
+    hChi2_ = dqm->book1D("Chi2", "#Chi^{2}", 200, 0, 200);
+    hChi2Norm_ = dqm->book1D("Chi2Norm", "Normalized #Chi^{2}", hDim.nBinErr, 0, 100);
+    hChi2Prob_ = dqm->book1D("Chi2Prob", "Prob(#Chi^{2})", hDim.nBinErr, 0, 1);
+
+    hNDof_vs_Eta_ = dqm->book2D("NDof_vs_Eta", "Number of DoF vs #eta",
+                                hDim.nBinEta, hDim.minEta, hDim.maxEta, hDim.nDof, 0, hDim.nDof);
+    hChi2_vs_Eta_ = dqm->book2D("Chi2_vs_Eta", "#Chi^{2} vs #eta",
+                                hDim.nBinEta, hDim.minEta, hDim.maxEta, 200, 0, 200);
+    hChi2Norm_vs_Eta_ = dqm->book2D("Chi2Norm_vs_Eta", "Normalized #Chi^{2} vs #eta",
+                                    hDim.nBinEta, hDim.minEta, hDim.maxEta, hDim.nBinErr, 0, 100);
+    hChi2Prob_vs_Eta_ = dqm->book2D("Chi2Prob_vs_Eta", "Prob(#Chi^{2}) vs #eta",
+                                    hDim.nBinEta, hDim.minEta, hDim.maxEta, hDim.nBinErr, 0, 1);
+
+    hNSimToReco_ = dqm->book1D("NSimToReco", "Number of associated reco tracks", hDim.nAssoc, 0, hDim.nAssoc);
+    hNRecoToSim_ = dqm->book1D("NRecoToSim", "Number of associated sim TP's", hDim.nAssoc, 0, hDim.nAssoc);
+  };
+
+  void fill(const TrackingParticle* simRef, const Track* recoRef)
+  {
+    const double simP   = simRef->p();
+    const double simPt  = simRef->pt();
+    const double simEta = doAbsEta_ ? fabs(simRef->eta()) : simRef->eta();
+    const double simPhi = simRef->phi();
+    const double simQ   = simRef->charge();
+    const double simQPt = simQ/simPt;
+
+    GlobalPoint  simVtx(simRef->vertex().x(), simRef->vertex().y(), simRef->vertex().z());
+    GlobalVector simMom(simRef->momentum().x(), simRef->momentum().y(), simRef->momentum().z());
+    const double simDxy = -simVtx.x()*sin(simPhi)+simVtx.y()*cos(simPhi);
+    const double simDz  = simVtx.z() - (simVtx.x()*simMom.x()+simVtx.y()*simMom.y())*simMom.z()/simMom.perp2();
+
+    const unsigned int nSimHits = simRef->pSimHit_end() - simRef->pSimHit_begin();
+
+    // Histograms for efficiency plots
+    hP_  ->Fill(simP  );
+    hPt_ ->Fill(simPt );
+    hEta_->Fill(simEta);
+    hPhi_->Fill(simPhi);
+    hNSimHits_->Fill(nSimHits);
+
+    // Number of reco-hits
+    const int nRecoHits = recoRef->numberOfValidHits();
+    const int nLostHits = recoRef->numberOfLostHits();
+
+    hNHits_->Fill(nRecoHits);
+    hNHits_vs_Pt_ ->Fill(simPt , nRecoHits);
+    hNHits_vs_Eta_->Fill(simEta, nRecoHits);
+
+    hNLostHits_->Fill(nLostHits);
+    hNLostHits_vs_Pt_ ->Fill(simPt , nLostHits);
+    hNLostHits_vs_Eta_->Fill(simEta, nLostHits);
+
+    const double recoNDof = recoRef->ndof();
+    const double recoChi2 = recoRef->chi2();
+    const double recoChi2Norm = recoRef->normalizedChi2();
+    const double recoChi2Prob = TMath::Prob(recoRef->chi2(), static_cast<int>(recoRef->ndof()));
+
+    hNDof_->Fill(recoNDof);
+    hChi2_->Fill(recoChi2);
+    hChi2Norm_->Fill(recoChi2Norm);
+    hChi2Prob_->Fill(recoChi2Prob);
+
+    hNDof_vs_Eta_->Fill(simEta, recoNDof);
+    hChi2_vs_Eta_->Fill(simEta, recoChi2);
+    hChi2Norm_vs_Eta_->Fill(simEta, recoChi2Norm);
+    hChi2Prob_vs_Eta_->Fill(simEta, recoChi2Prob);
+
+    const double recoQ   = recoRef->charge();
+    if ( simQ*recoQ < 0 ) {
+      hMisQPt_ ->Fill(simPt );
+      hMisQEta_->Fill(simEta);
+    }
+
+    const double recoP   = sqrt(recoRef->momentum().mag2());
+    const double recoPt  = sqrt(recoRef->momentum().perp2());
+    const double recoEta = recoRef->momentum().eta();
+    const double recoPhi = recoRef->momentum().phi();
+    const double recoQPt = recoQ/recoPt;
+
+    const double recoDxy = recoRef->dxy();
+    const double recoDz  = recoRef->dz();
+
+    const double errP   = (recoP-simP)/simP;
+    const double errPt  = (recoPt-simPt)/simPt;
+    const double errEta = (recoEta-simEta)/simEta;
+    const double errPhi = (recoPhi-simPhi)/simPhi;
+    const double errQPt = (recoQPt-simQPt)/simQPt;
+
+    const double errDxy = (recoDxy-simDxy)/simDxy;
+    const double errDz  = (recoDz-simDz)/simDz;
+
+    hErrP_  ->Fill(errP  );
+    hErrPt_ ->Fill(errPt );
+    hErrEta_->Fill(errEta);
+    hErrPhi_->Fill(errPhi);
+    hErrDxy_->Fill(errDxy);
+    hErrDz_ ->Fill(errDz );
+
+    hErrP_vs_Eta_  ->Fill(simEta, errP  );
+    hErrPt_vs_Eta_ ->Fill(simEta, errPt );
+    hErrQPt_vs_Eta_->Fill(simEta, errQPt);
+
+    hErrP_vs_P_   ->Fill(simP  , errP  );
+    hErrPt_vs_Pt_ ->Fill(simPt , errPt );
+    hErrQPt_vs_Pt_->Fill(simQPt, errQPt);
+
+    hErrEta_vs_Eta_->Fill(simEta, errEta);
+
+    const double pullPt  = (recoPt-simPt)/recoRef->ptError();
+    const double pullQPt = (recoQPt-simQPt)/recoRef->qoverpError();
+    const double pullEta = (recoEta-simEta)/recoRef->etaError();
+    const double pullPhi = (recoPhi-simPhi)/recoRef->phiError();
+    const double pullDxy = (recoDxy-simDxy)/recoRef->dxyError();
+    const double pullDz  = (recoDz-simDz)/recoRef->dzError();
+
+    hPullPt_ ->Fill(pullPt );
+    hPullEta_->Fill(pullEta);
+    hPullPhi_->Fill(pullPhi);
+    hPullQPt_->Fill(pullQPt);
+    hPullDxy_->Fill(pullDxy);
+    hPullDz_ ->Fill(pullDz );
+
+    hPullPt_vs_Eta_->Fill(simEta, pullPt);
+    hPullPt_vs_Pt_ ->Fill(simPt, pullPt);
+
+    hPullEta_vs_Eta_->Fill(simEta, pullEta);
+    hPullPhi_vs_Eta_->Fill(simEta, pullPhi);
+
+    hPullEta_vs_Pt_->Fill(simPt, pullEta);
+
+
+  };
+
+  bool doAbsEta_;
+
+  typedef MonitorElement* MEP;
+
+  MEP hP_, hPt_, hEta_, hPhi_;
+  MEP hErrP_, hErrPt_, hErrEta_, hErrPhi_;
+  MEP hErrDxy_, hErrDz_;
+
+  MEP hErrP_vs_Eta_, hErrPt_vs_Eta_, hErrQPt_vs_Eta_;
+  MEP hErrP_vs_P_, hErrPt_vs_Pt_, hErrQPt_vs_Pt_, hErrEta_vs_Eta_;
+
+  MEP hPullPt_, hPullEta_, hPullPhi_, hPullQPt_, hPullDxy_, hPullDz_;
+  MEP hPullPt_vs_Eta_, hPullPt_vs_Pt_, hPullEta_vs_Eta_, hPullPhi_vs_Eta_, hPullEta_vs_Pt_;
+
+  MEP hNDof_, hChi2_, hChi2Norm_, hChi2Prob_;
+  MEP hNDof_vs_Eta_, hChi2_vs_Eta_, hChi2Norm_vs_Eta_, hChi2Prob_vs_Eta_;
+
+  MEP hNTrks_;
+
+  MEP hMisQPt_, hMisQEta_;
+
+  MEP hNSimHits_;
+  MEP hNHits_, hNLostHits_, hNTrackerHits_, hNMuonHits_;
+  MEP hNHits_vs_Pt_, hNHits_vs_Eta_;
+  MEP hNLostHits_vs_Pt_, hNLostHits_vs_Eta_;
+  MEP hNTrackerHits_vs_Pt_, hNTrackerHits_vs_Eta_;
+  MEP hNMuonHits_vs_Pt_, hNMuonHits_vs_Eta_;
+
+  MEP hNSimToReco_, hNRecoToSim_;
+};
+
+struct RecoMuonValidator::CommonME {
+  typedef MonitorElement* MEP;
+
+  MEP hSimP_, hSimPt_, hSimEta_, hSimPhi_;
+  MEP hNSim_, hNMuon_;
+  MEP hNSimHits_;
+
+  MEP hTrkToGlbDiffNTrackerHits_, hStaToGlbDiffNMuonHits_;
+};
 
 RecoMuonValidator::RecoMuonValidator(const ParameterSet& pset)
 {
   outputFileName_ = pset.getUntrackedParameter<string>("outputFileName", "");
 
   // Set histogram dimensions
-  unsigned int nBinP = pset.getUntrackedParameter<unsigned int>("nBinP");
-  double minP = pset.getUntrackedParameter<double>("minP");
-  double maxP = pset.getUntrackedParameter<double>("maxP");
+  HistoDimensions hDim;
 
-  unsigned int nBinPt = pset.getUntrackedParameter<unsigned int>("nBinPt");
-  double minPt = pset.getUntrackedParameter<double>("minPt");
-  double maxPt = pset.getUntrackedParameter<double>("maxPt");
+  hDim.nBinP = pset.getUntrackedParameter<unsigned int>("nBinP");
+  hDim.minP = pset.getUntrackedParameter<double>("minP");
+  hDim.maxP = pset.getUntrackedParameter<double>("maxP");
+
+  hDim.nBinPt = pset.getUntrackedParameter<unsigned int>("nBinPt");
+  hDim.minPt = pset.getUntrackedParameter<double>("minPt");
+  hDim.maxPt = pset.getUntrackedParameter<double>("maxPt");
 
   doAbsEta_ = pset.getUntrackedParameter<bool>("doAbsEta");
-  unsigned int nBinEta  = pset.getUntrackedParameter<unsigned int>("nBinEta");
-  double minEta = pset.getUntrackedParameter<double>("minEta");
-  double maxEta = pset.getUntrackedParameter<double>("maxEta");
+  hDim.doAbsEta = doAbsEta_;
+  hDim.nBinEta  = pset.getUntrackedParameter<unsigned int>("nBinEta");
+  hDim.minEta = pset.getUntrackedParameter<double>("minEta");
+  hDim.maxEta = pset.getUntrackedParameter<double>("maxEta");
 
-  unsigned int nBinPhi  = pset.getUntrackedParameter<unsigned int>("nBinPhi");
-  double minPhi = pset.getUntrackedParameter<double>("minPhi", -TMath::Pi());
-  double maxPhi = pset.getUntrackedParameter<double>("maxPhi",  TMath::Pi());
+  hDim.nBinPhi  = pset.getUntrackedParameter<unsigned int>("nBinPhi");
+  hDim.minPhi = pset.getUntrackedParameter<double>("minPhi", -TMath::Pi());
+  hDim.maxPhi = pset.getUntrackedParameter<double>("maxPhi",  TMath::Pi());
 
-  unsigned int nBinErr  = pset.getUntrackedParameter<unsigned int>("nBinErr");
-  unsigned int nBinPull = pset.getUntrackedParameter<unsigned int>("nBinPull");
+  hDim.nBinErr  = pset.getUntrackedParameter<unsigned int>("nBinErr");
+  hDim.nBinPull = pset.getUntrackedParameter<unsigned int>("nBinPull");
 
-  double wPull = pset.getUntrackedParameter<double>("wPull");
+  hDim.wPull = pset.getUntrackedParameter<double>("wPull");
 
-  double minErrP = pset.getUntrackedParameter<double>("minErrP");
-  double maxErrP = pset.getUntrackedParameter<double>("maxErrP");
+  hDim.minErrP = pset.getUntrackedParameter<double>("minErrP");
+  hDim.maxErrP = pset.getUntrackedParameter<double>("maxErrP");
 
-  double minErrPt = pset.getUntrackedParameter<double>("minErrPt");
-  double maxErrPt = pset.getUntrackedParameter<double>("maxErrPt");
+  hDim.minErrPt = pset.getUntrackedParameter<double>("minErrPt");
+  hDim.maxErrPt = pset.getUntrackedParameter<double>("maxErrPt");
 
-  double minErrQPt = pset.getUntrackedParameter<double>("minErrQPt");
-  double maxErrQPt = pset.getUntrackedParameter<double>("maxErrQPt");
+  hDim.minErrQPt = pset.getUntrackedParameter<double>("minErrQPt");
+  hDim.maxErrQPt = pset.getUntrackedParameter<double>("maxErrQPt");
 
-  double minErrEta = pset.getUntrackedParameter<double>("minErrEta");
-  double maxErrEta = pset.getUntrackedParameter<double>("maxErrEta");
+  hDim.minErrEta = pset.getUntrackedParameter<double>("minErrEta");
+  hDim.maxErrEta = pset.getUntrackedParameter<double>("maxErrEta");
 
-  double minErrPhi = pset.getUntrackedParameter<double>("minErrPhi");
-  double maxErrPhi = pset.getUntrackedParameter<double>("maxErrPhi");
+  hDim.minErrPhi = pset.getUntrackedParameter<double>("minErrPhi");
+  hDim.maxErrPhi = pset.getUntrackedParameter<double>("maxErrPhi");
 
-  double minErrDxy = pset.getUntrackedParameter<double>("minErrDxy");
-  double maxErrDxy = pset.getUntrackedParameter<double>("maxErrDxy");
+  hDim.minErrDxy = pset.getUntrackedParameter<double>("minErrDxy");
+  hDim.maxErrDxy = pset.getUntrackedParameter<double>("maxErrDxy");
 
-  double minErrDz  = pset.getUntrackedParameter<double>("minErrDz" );
-  double maxErrDz  = pset.getUntrackedParameter<double>("maxErrDz" );
+  hDim.minErrDz  = pset.getUntrackedParameter<double>("minErrDz" );
+  hDim.maxErrDz  = pset.getUntrackedParameter<double>("maxErrDz" );
 
-  unsigned int nTrks = pset.getUntrackedParameter<unsigned int>("nTrks");
-  unsigned int nAssoc = pset.getUntrackedParameter<unsigned int>("nAssoc");
-  unsigned int nHits = pset.getUntrackedParameter<unsigned int>("nHits");
-  unsigned int nDof = pset.getUntrackedParameter<unsigned int>("nDof", 55);
+  hDim.nTrks = pset.getUntrackedParameter<unsigned int>("nTrks");
+  hDim.nAssoc = pset.getUntrackedParameter<unsigned int>("nAssoc");
+  hDim.nHits = pset.getUntrackedParameter<unsigned int>("nHits");
+  hDim.nDof = pset.getUntrackedParameter<unsigned int>("nDof", 55);
 
   // Labels for simulation and reconstruction tracks
   simLabel_  = pset.getParameter<InputTag>("simLabel" );
-  recoLabel_ = pset.getParameter<InputTag>("recoLabel");
+  trkMuLabel_ = pset.getParameter<InputTag>("trkMuLabel");
+  staMuLabel_ = pset.getParameter<InputTag>("staMuLabel");
+  glbMuLabel_ = pset.getParameter<InputTag>("glbMuLabel");
   muonLabel_ = pset.getParameter<InputTag>("muonLabel");
 
   // Labels for sim-reco association
   doAssoc_ = pset.getUntrackedParameter<bool>("doAssoc", true);
-  assocLabel_ = pset.getParameter<InputTag>("assocLabel");
+  trkMuAssocLabel_ = pset.getParameter<InputTag>("trkMuAssocLabel");
+  staMuAssocLabel_ = pset.getParameter<InputTag>("staMuAssocLabel");
+  glbMuAssocLabel_ = pset.getParameter<InputTag>("glbMuAssocLabel");
 
 //  seedPropagatorName_ = pset.getParameter<string>("SeedPropagator");
 
@@ -142,182 +417,36 @@ RecoMuonValidator::RecoMuonValidator(const ParameterSet& pset)
 
   subDir_ = pset.getUntrackedParameter<string>("subDir");
 
+  // book histograms
+  theDQM->cd();
+
+  theDQM->setCurrentFolder(subDir_+"/Muons/");
+
+  commonME_ = new CommonME;
+  trkMuME_ = new MuonME;
+  staMuME_ = new MuonME;
+  glbMuME_ = new MuonME;
+
+  commonME_->hSimP_   = theDQM->book1D("SimP"  , "p of simTracks"    , hDim.nBinP  , hDim.minP  , hDim.maxP  );
+  commonME_->hSimPt_  = theDQM->book1D("SimPt" , "p_{T} of simTracks", hDim.nBinPt , hDim.minPt , hDim.maxPt );
+  commonME_->hSimEta_ = theDQM->book1D("SimEta", "#eta of simTracks" , hDim.nBinEta, hDim.minEta, hDim.maxEta);
+  commonME_->hSimPhi_ = theDQM->book1D("SimPhi", "#phi of simTracks" , hDim.nBinPhi, hDim.minPhi, hDim.maxPhi);
+
+  commonME_->hNSim_  = theDQM->book1D("NSim" , "Number of particles per event", hDim.nTrks, 0, hDim.nTrks);
+  commonME_->hNMuon_ = theDQM->book1D("NMuon", "Number of muons per event"    , hDim.nTrks, 0, hDim.nTrks);
+
+  commonME_->hNSimHits_ = theDQM->book1D("NSimHits", "Number of simHits", hDim.nHits, 0, hDim.nHits);
+
+  commonME_->hTrkToGlbDiffNTrackerHits_ = theDQM->book1D("TrkGlbDiffNTrackerHits", "Difference of number of tracker hits (tkMuon - globalMuon)", hDim.nHits, 0, hDim.nHits);
+  commonME_->hStaToGlbDiffNMuonHits_ = theDQM->book1D("StaGlbDiffNMuonHits", "Difference of number of muon hits (staMuon - globalMuon", hDim.nHits, 0, hDim.nHits);
+
+  // - histograms on tracking variables
+  trkMuME_->bookHistograms(theDQM, subDir_+"/TrackerMuons/", hDim);
+  staMuME_->bookHistograms(theDQM, subDir_+"/StandaloneMuons/", hDim);
+  glbMuME_->bookHistograms(theDQM, subDir_+"/GlobalMuons/", hDim);
+
   theDQM->showDirStructure();
 
-  theDQM->cd();
-  InputTag algo = recoLabel_;
-  string dirName=subDir_;
-  if (algo.process()!="")
-    dirName+=algo.process()+"_";
-  if(algo.label()!="")
-    dirName+=algo.label()+"_";
-  if(algo.instance()!="")
-    dirName+=algo.instance()+"";
-  if (dirName.find("Tracks")<dirName.length()){
-    dirName.replace(dirName.find("Tracks"),6,"");
-  }
-  string assoc= assocLabel_.label();
-  if (assoc.find("Track")<assoc.length()){
-    assoc.replace(assoc.find("Track"),5,"");
-  }
-  dirName+=assoc;
-  std::replace(dirName.begin(), dirName.end(), ':', '_');
-  theDQM->setCurrentFolder(dirName.c_str());
-
-  // book histograms
-  // - 1d histograms on tracking variables
-  // -- histograms for efficiency vs p, pt, eta, phi
-  meMap_[MEIdx::SimP  ] = theDQM->book1D("SimP"  , "p of simTracks"    , nBinP  , minP  , maxP  );
-  meMap_[MEIdx::SimPt ] = theDQM->book1D("SimPt" , "p_{T} of simTracks", nBinPt , minPt , maxPt );
-  meMap_[MEIdx::SimEta] = theDQM->book1D("SimEta", "#eta of simTracks" , nBinEta, minEta, maxEta);
-  meMap_[MEIdx::SimPhi] = theDQM->book1D("SimPhi", "#phi of simTracks" , nBinPhi, minPhi, maxPhi);
-
-  meMap_[MEIdx::RecoP  ] = theDQM->book1D("RecoP"  , "p of recoTracks"    , nBinP  , minP  , maxP  );
-  meMap_[MEIdx::RecoPt ] = theDQM->book1D("RecoPt" , "p_{T} of recoTracks", nBinPt , minPt , maxPt );
-  meMap_[MEIdx::RecoEta] = theDQM->book1D("RecoEta", "#eta of recoTracks" , nBinEta, minEta, maxEta);
-  meMap_[MEIdx::RecoPhi] = theDQM->book1D("RecoPhi", "#phi of recoTracks" , nBinPhi, minPhi, maxPhi);
-
-  // - Resolutions
-  meMap_[MEIdx::ErrP  ] = theDQM->book1D("ErrP"  , "#Delta(p)/p"        , nBinErr, minErrP  , maxErrP  );
-  meMap_[MEIdx::ErrPt ] = theDQM->book1D("ErrPt" , "#Delta(p_{T})/p_{T}", nBinErr, minErrPt , maxErrPt );
-  meMap_[MEIdx::ErrEta] = theDQM->book1D("ErrEta", "#sigma(#eta))"      , nBinErr, minErrEta, maxErrEta);
-  meMap_[MEIdx::ErrPhi] = theDQM->book1D("ErrPhi", "#sigma(#phi)"       , nBinErr, minErrPhi, maxErrPhi);
-  meMap_[MEIdx::ErrDxy] = theDQM->book1D("ErrDxy", "#sigma(d_{xy})"     , nBinErr, minErrDxy, maxErrDxy);
-  meMap_[MEIdx::ErrDz ] = theDQM->book1D("ErrDz" , "#sigma(d_{z})"      , nBinErr, minErrDz , maxErrDz );
-
-  // -- Resolutions vs Eta
-  meMap_[MEIdx::ErrP_vs_Eta  ] = theDQM->book2D("ErrP_vs_Eta", "#Delta(p)/p vs #eta",
-                                           nBinEta, minEta, maxEta, nBinErr, minErrP, maxErrP);
-  meMap_[MEIdx::ErrPt_vs_Eta ] = theDQM->book2D("ErrPt_vs_Eta", "#Delta(p_{T})/p_{T} vs #eta",
-                                           nBinEta, minEta, maxEta, nBinErr, minErrPt, maxErrPt);
-  meMap_[MEIdx::ErrQPt_vs_Eta] = theDQM->book2D("ErrQPt_vs_Eta", "#Delta(q/p_{T})/(q/p_{T}) vs #eta",
-                                            nBinEta, minEta, maxEta, nBinErr, minErrQPt, maxErrQPt);
-  meMap_[MEIdx::ErrEta_vs_Eta] = theDQM->book2D("ErrEta_vs_Eta", "#sigma(#eta) vs #eta", 
-                                           nBinEta, minEta, maxEta, nBinErr, minErrEta, maxErrEta);
-
-  // -- Resolutions vs momentum
-  meMap_[MEIdx::ErrP_vs_P   ] = theDQM->book2D("ErrP_vs_P", "#Delta(p)/p vs p",
-                                          nBinP, minP, maxP, nBinErr, minErrP, maxErrP);
-
-  meMap_[MEIdx::ErrPt_vs_Pt ] = theDQM->book2D("ErrPt_vs_Pt", "#Delta(p_{T})/p_{T} vs p_{T}",
-                                           nBinPt, minPt, maxPt, nBinErr, minErrPt, maxErrPt);
-  meMap_[MEIdx::ErrQPt_vs_Pt] = theDQM->book2D("ErrQPt_vs_Pt", "#Delta(q/p_{T})/(q/p_{T}) vs p_{T}",
-                                           nBinPt, minPt, maxPt, nBinErr, minErrQPt, maxErrQPt);
-
-
-  // - Pulls
-  meMap_[MEIdx::PullPt ] = theDQM->book1D("PullPt" , "Pull(#p_{T})" , nBinPull, -wPull, wPull);
-  meMap_[MEIdx::PullEta] = theDQM->book1D("PullEta", "Pull(#eta)"   , nBinPull, -wPull, wPull);
-  meMap_[MEIdx::PullPhi] = theDQM->book1D("PullPhi", "Pull(#phi)"   , nBinPull, -wPull, wPull);
-  meMap_[MEIdx::PullQPt] = theDQM->book1D("PullQPt", "Pull(q/p_{T})", nBinPull, -wPull, wPull);
-  meMap_[MEIdx::PullDxy] = theDQM->book1D("PullDxy", "Pull(D_{xy})" , nBinPull, -wPull, wPull);
-  meMap_[MEIdx::PullDz ] = theDQM->book1D("PullDz" , "Pull(D_{z})"  , nBinPull, -wPull, wPull);
-
-  // -- Pulls vs Eta
-  meMap_[MEIdx::PullPt_vs_Eta ] = theDQM->book2D("PullPt_vs_Eta", "Pull(p_{T}) vs #eta",
-                                            nBinEta, minEta, maxEta, nBinPull, -wPull, wPull);
-  meMap_[MEIdx::PullEta_vs_Eta] = theDQM->book2D("PullEta_vs_Eta", "Pull(#eta) vs #eta",
-                                            nBinEta, minEta, maxEta, nBinPull, -wPull, wPull);
-  meMap_[MEIdx::PullPhi_vs_Eta] = theDQM->book2D("PullPhi_vs_Eta", "Pull(#phi) vs #eta",
-                                            nBinEta, minEta, maxEta, nBinPull, -wPull, wPull);
-
-  // -- Pulls vs Pt
-  meMap_[MEIdx::PullPt_vs_Pt ] = theDQM->book2D("PullPt_vs_Pt", "Pull(p_{T}) vs p_{T}",
-                                           nBinPt, minPt, maxPt, nBinPull, -wPull, wPull);
-  meMap_[MEIdx::PullEta_vs_Pt ] = theDQM->book2D("PullEta_vs_Pt", "Pull(#eta) vs p_{T}",
-                                            nBinPt, minPt, maxPt, nBinPull, -wPull, wPull);
-
-  // - Misc variables
-  meMap_[MEIdx::NSim]  = theDQM->book1D("NSim" , "Number of particles per event"  , nTrks, 0, nTrks);
-  meMap_[MEIdx::NReco] = theDQM->book1D("NReco", "Number of reco tracks per event", nTrks, 0, nTrks);
-  meMap_[MEIdx::NMuon] = theDQM->book1D("NMuon", "Number of muons per event", nTrks, 0, nTrks);
-
-  meMap_[MEIdx::MisQPt ] = theDQM->book1D("MisQPt" , "Charge mis-id vs Pt" , nBinPt , minPt , maxPt );
-  meMap_[MEIdx::MisQEta] = theDQM->book1D("MisQEta", "Charge mis-id vs Eta", nBinEta, minEta, maxEta);
-
-//  meMap_["SimVtxPos"] = theDQM->book1D("SimVtxPos", "sim vertex position", nBinVtxPos, minVtxPos, maxVtxPos);
-
-  // -- Association map
-  meMap_[MEIdx::NAssocSimToReco] = theDQM->book1D("NAssocSimToReco", "Number of sim to reco associations", nAssoc, 0, nAssoc);
-  meMap_[MEIdx::NAssocRecoToSim] = theDQM->book1D("NAssocRecoToSim", "Number of reco to sim associations", nAssoc, 0, nAssoc);
-
-//  meMap_["NRecoToSim"] = theDQM->book1D("NRecoToSim", "Number of reco to sim associations", nAssoc, 0, nAssoc);
-  meMap_[MEIdx::NSimToReco] = theDQM->book1D("NSimToReco", "Number of sim to reco associations", nAssoc, 0, nAssoc);
-
-  // -- Number of Hits
-  meMap_[MEIdx::SimNHits ] = theDQM->book1D("SimNHits" , "Number of simTracks vs nSimhits" , nHits, 0, nHits);
-  meMap_[MEIdx::RecoNHits] = theDQM->book1D("RecoNHits", "Number of recoTracks vs nSimhits", nHits, 0, nHits);
-
-  meMap_[MEIdx::NSimHits_vs_Pt ] = theDQM->book2D("NSimHits_vs_Pt", "Number of sim Hits vs p_{T}",
-                                              nBinPt, minPt, maxPt, nHits, 0, nHits);
-  meMap_[MEIdx::NSimHits_vs_Eta] = theDQM->book2D("NSimHits_vs_Eta", "Number of sim Hits vs #eta",
-                                              nBinPt, minPt, maxPt, nHits, 0, nHits);
-
-  meMap_[MEIdx::NRecoHits] = theDQM->book1D("NRecoHits", "Number of reco-hits", nHits, 0, nHits);
-  meMap_[MEIdx::NRecoHits_vs_Pt ] = theDQM->book2D("NRecoHits_vs_Pt", "Number of reco Hits vs p_{T}", 
-                                              nBinPt, minPt, maxPt, nHits, 0, nHits);
-  meMap_[MEIdx::NRecoHits_vs_Eta] = theDQM->book2D("NRecoHits_vs_Eta", "Number of reco Hits vs #eta",
-                                              nBinEta, minEta, maxEta, nHits, 0, nHits);
-
-  meMap_[MEIdx::NLostHits] = theDQM->book1D("NLostHits", "Number of Lost hits", nHits, 0, nHits);
-  meMap_[MEIdx::NLostHits_vs_Pt ] = theDQM->book2D("NLostHits_vs_Pt", "Number of lost Hits vs p_{T}", 
-                                              nBinPt, minPt, maxPt, nHits, 0, nHits);
-  meMap_[MEIdx::NLostHits_vs_Eta] = theDQM->book2D("NLostHits_vs_Eta", "Number of lost Hits vs #eta",
-                                              nBinEta, minEta, maxEta, nHits, 0, nHits);
-
-  meMap_[MEIdx::NValidTrackerHits] = theDQM->book1D("NValidTrackerHits", "Number of valid tracker hits", nHits, 0, nHits);
-  meMap_[MEIdx::NValidTrackerHits_vs_Pt] = theDQM->book2D("NValidTrackerHits_vs_Pt", "Number of valid traker hits vs p_{T}",
-                                                          nBinPt, minPt, maxPt, nHits, 0, nHits);
-  meMap_[MEIdx::NValidTrackerHits_vs_Eta] = theDQM->book2D("NValidTrackerHits_vs_Eta", "Number of valid tracker hits vs #eta",
-                                                           nBinEta, minEta, maxEta, nHits, 0, nHits);
-
-  meMap_[MEIdx::NValidMuonHits] = theDQM->book1D("NValidMuonHits", "Number of valid muon hits", nHits, 0, nHits);
-  meMap_[MEIdx::NValidMuonHits_vs_Pt] = theDQM->book2D("NValidMuonHits_vs_Pt", "Number of valid muon hits vs p_{T}",
-                                                       nBinPt, minPt, maxPt, nHits, 0, nHits);
-  meMap_[MEIdx::NValidMuonHits_vs_Eta] = theDQM->book2D("NValidMuonHits_vs_Eta", "Number of valid muon hits vs #eta",
-                                                        nBinEta, minEta, maxEta, nHits, 0, nHits);
-
-  meMap_[MEIdx::NDof] = theDQM->book1D("NDof", "Number of DoF", nDof, 0, nDof);
-  meMap_[MEIdx::Chi2] = theDQM->book1D("Chi2", "#Chi^{2}", 200, 0, 200);
-  meMap_[MEIdx::Chi2Norm] = theDQM->book1D("Chi2Norm", "Normalized #Chi^{2}", nBinErr, 0, 100);
-  meMap_[MEIdx::Chi2Prob] = theDQM->book1D("Chi2Prob", "Prob(#Chi^{2})", nBinErr, 0, 1);
-
-  meMap_[MEIdx::NDof_vs_Eta] = theDQM->book2D("NDof_vs_Eta", "Number of DoF vs #eta",
-                                         nBinEta, minEta, maxEta, nDof, 0, nDof);
-  meMap_[MEIdx::Chi2_vs_Eta] = theDQM->book2D("Chi2_vs_Eta", "#Chi^{2} vs #eta",
-                                         nBinEta, minEta, maxEta, 200, 0, 200);
-  meMap_[MEIdx::Chi2Norm_vs_Eta] = theDQM->book2D("Chi2Norm_vs_Eta", "Normalized #Chi^{2} vs #eta",
-                                             nBinEta, minEta, maxEta, nBinErr, 0, 100);
-  meMap_[MEIdx::Chi2Prob_vs_Eta] = theDQM->book2D("Chi2Prob_vs_Eta", "Prob(#Chi^{2}) vs #eta",
-                                             nBinEta, minEta, maxEta, nBinErr, 0, 1);
-
-  meMap_[MEIdx::TrkNTrackerHits] = theDQM->book1D("TrkNTrackerHits", "Number of tracker hits of tracker muon", nHits, 0, nHits);
-  meMap_[MEIdx::TrkNTrackerHits_vs_Pt] = theDQM->book2D("TrkNTrackerHits_vs_Pt", "Number of tracker hits of tracker muon vs p_{T}",
-                                                        nBinPt, minPt, maxPt, nHits, 0, nHits);
-  meMap_[MEIdx::TrkNTrackerHits_vs_Eta] = theDQM->book2D("TrkNTrackerHits_vs_Eta", "Number of tracker hits of tracker muon vs #eta",
-                                                        nBinEta, minEta, maxEta, nHits, 0, nHits);
-
-  meMap_[MEIdx::GlbNTrackerHits] = theDQM->book1D("GlbNTrackerHits", "Number of tracker hits of global muon", nHits, 0, nHits);
-  meMap_[MEIdx::GlbNTrackerHits_vs_Pt] = theDQM->book2D("GlbNTrackerHits_vs_Pt", "Number of tracker hits of global muon vs p_{T}",
-                                                        nBinPt, minPt, maxPt, nHits, 0, nHits);
-  meMap_[MEIdx::GlbNTrackerHits_vs_Eta] = theDQM->book2D("GlbNTrackerHits_vs_Eta", "Number of tracker hits of global muon vs #eta",
-                                                        nBinPt, minPt, maxPt, nHits, 0, nHits);
-
-  meMap_[MEIdx::TrkGlbDiffNTrackerHits] = theDQM->book1D("TrkGlbDiffNTrackerHits", "Difference of number of tracker hits (tkMuon - globalMuon)", nHits, 0, nHits);
-
-  meMap_[MEIdx::StaNMuonHits] = theDQM->book1D("StaNMuonHits", "Number of muon hits of standalone muon", nHits, 0, nHits);
-  meMap_[MEIdx::StaNMuonHits_vs_Pt] = theDQM->book2D("StaNMuonHits_vs_Pt", "Number of muon hits of standalone muon vs p_{T}",
-                                                        nBinPt, minPt, maxPt, nHits, 0, nHits);
-  meMap_[MEIdx::StaNMuonHits_vs_Eta] = theDQM->book2D("StaNMuonHits_vs_Eta", "Number of muon hits of standalone muon vs #eta",
-                                                        nBinPt, minPt, maxPt, nHits, 0, nHits);
-
-  meMap_[MEIdx::GlbNMuonHits] = theDQM->book1D("GlbNMuonHits", "Number of muon hits of global muon", nHits, 0, nHits);
-  meMap_[MEIdx::GlbNMuonHits_vs_Pt] = theDQM->book2D("GlbNMuonHits_vs_Pt", "Number of muon hits of global muon vs p_{T}",
-                                                        nBinPt, minPt, maxPt, nHits, 0, nHits);
-  meMap_[MEIdx::GlbNMuonHits_vs_Eta] = theDQM->book2D("GlbNMuonHits_vs_Eta", "Number of muon hits of global muon vs #eta",
-                                                        nBinPt, minPt, maxPt, nHits, 0, nHits);
-
-  meMap_[MEIdx::StaGlbDiffNMuonHits] = theDQM->book1D("StaGlbDiffNMuonHits", "Difference of number of muon hits (staMuon - globalMuon", nHits, 0, nHits);
 }
 
 RecoMuonValidator::~RecoMuonValidator()
@@ -329,11 +458,21 @@ void RecoMuonValidator::beginJob(const EventSetup& eventSetup)
 {
   if ( theMuonService ) theMuonService->update(eventSetup);
 
-  theAssociator = 0;
+  trkMuAssociator_ = 0;
+  staMuAssociator_ = 0;
+  glbMuAssociator_ = 0;
   if ( doAssoc_ ) {
-    ESHandle<TrackAssociatorBase> assocHandle;
-    eventSetup.get<TrackAssociatorRecord>().get(assocLabel_.label(), assocHandle);
-    theAssociator = const_cast<TrackAssociatorBase*>(assocHandle.product());
+    ESHandle<TrackAssociatorBase> trkMuAssocHandle;
+    eventSetup.get<TrackAssociatorRecord>().get(trkMuAssocLabel_.label(), trkMuAssocHandle);
+    trkMuAssociator_ = const_cast<TrackAssociatorBase*>(trkMuAssocHandle.product());
+
+    ESHandle<TrackAssociatorBase> staMuAssocHandle;
+    eventSetup.get<TrackAssociatorRecord>().get(staMuAssocLabel_.label(), staMuAssocHandle);
+    staMuAssociator_ = const_cast<TrackAssociatorBase*>(staMuAssocHandle.product());
+
+    ESHandle<TrackAssociatorBase> glbMuAssocHandle;
+    eventSetup.get<TrackAssociatorRecord>().get(glbMuAssocLabel_.label(), glbMuAssocHandle);
+    glbMuAssociator_ = const_cast<TrackAssociatorBase*>(glbMuAssocHandle.product());
   }
 }
 
@@ -354,11 +493,18 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
   event.getByLabel(simLabel_, simHandle);
   const TrackingParticleCollection simColl = *(simHandle.product());
 
-  // Get Tracks
-  Handle<View<Track> > recoHandle;
-  event.getByLabel(recoLabel_, recoHandle);
-  //const TrackCollection recoColl = *(recoHandle.product());
-  View<Track> recoColl = *(recoHandle.product());
+  // Get Muon Tracks
+  Handle<View<Track> > trkMuHandle;
+  event.getByLabel(trkMuLabel_, trkMuHandle);
+  View<Track> trkMuColl = *(trkMuHandle.product());
+
+  Handle<View<Track> > staMuHandle;
+  event.getByLabel(staMuLabel_, staMuHandle);
+  View<Track> staMuColl = *(staMuHandle.product());
+
+  Handle<View<Track> > glbMuHandle;
+  event.getByLabel(glbMuLabel_, glbMuHandle);
+  View<Track> glbMuColl = *(glbMuHandle.product());
 
   // Get Muons
   Handle<View<Muon> > muonHandle;
@@ -366,230 +512,163 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
   View<Muon> muonColl = *(muonHandle.product());
 
   // Get Association maps
-  SimToRecoCollection simToRecoColl;
-  RecoToSimCollection recoToSimColl;
+  SimToRecoCollection simToTrkMuColl;
+  SimToRecoCollection simToStaMuColl;
+  SimToRecoCollection simToGlbMuColl;
+
+  RecoToSimCollection trkMuToSimColl;
+  RecoToSimCollection staMuToSimColl;
+  RecoToSimCollection glbMuToSimColl;
+
   if ( doAssoc_ ) {
-    simToRecoColl = theAssociator->associateSimToReco(recoHandle, simHandle, &event);
-    recoToSimColl = theAssociator->associateRecoToSim(recoHandle, simHandle, &event);
+    // SimToReco associations
+    simToTrkMuColl = trkMuAssociator_->associateSimToReco(trkMuHandle, simHandle, &event);
+    simToStaMuColl = staMuAssociator_->associateSimToReco(staMuHandle, simHandle, &event);
+    simToGlbMuColl = glbMuAssociator_->associateSimToReco(glbMuHandle, simHandle, &event);
+
+    // // RecoToSim associations
+    trkMuToSimColl = trkMuAssociator_->associateRecoToSim(trkMuHandle, simHandle, &event);
+    staMuToSimColl = staMuAssociator_->associateRecoToSim(staMuHandle, simHandle, &event);
+    glbMuToSimColl = glbMuAssociator_->associateRecoToSim(glbMuHandle, simHandle, &event);
   }
   else {
-    Handle<SimToRecoCollection> simToRecoHandle;
-    event.getByLabel(assocLabel_, simToRecoHandle);
-    simToRecoColl = *(simToRecoHandle.product());
+    // SimToReco associations
+    Handle<SimToRecoCollection> simToTrkMuHandle;
+    event.getByLabel(trkMuAssocLabel_, simToTrkMuHandle);
+    simToTrkMuColl = *(simToTrkMuHandle.product());
 
-    Handle<RecoToSimCollection> recoToSimHandle;
-    event.getByLabel(assocLabel_, recoToSimHandle);
-    recoToSimColl = *(recoToSimHandle.product());
+    Handle<SimToRecoCollection> simToStaMuHandle;
+    event.getByLabel(staMuAssocLabel_, simToStaMuHandle);
+    simToStaMuColl = *(simToStaMuHandle.product());
+
+    Handle<SimToRecoCollection> simToGlbMuHandle;
+    event.getByLabel(glbMuAssocLabel_, simToGlbMuHandle);
+    simToGlbMuColl = *(simToGlbMuHandle.product());
+
+    // RecoToSim associations
+    Handle<RecoToSimCollection> trkMuToSimHandle;
+    event.getByLabel(trkMuAssocLabel_, trkMuToSimHandle);
+    trkMuToSimColl = *(trkMuToSimHandle.product());
+
+    Handle<RecoToSimCollection> staMuToSimHandle;
+    event.getByLabel(staMuAssocLabel_, staMuToSimHandle);
+    staMuToSimColl = *(staMuToSimHandle.product());
+
+    Handle<RecoToSimCollection> glbMuToSimHandle;
+    event.getByLabel(glbMuAssocLabel_, glbMuToSimHandle);
+    glbMuToSimColl = *(glbMuToSimHandle.product());
   }
 
   const TrackingParticleCollection::size_type nSim = simColl.size();
-  meMap_[MEIdx::NSim]->Fill(static_cast<double>(nSim));
+  commonME_->hNSim_->Fill(nSim);
 
-  const TrackCollection::size_type nReco = recoColl.size();
-  meMap_[MEIdx::NReco]->Fill(static_cast<double>(nReco));
+  commonME_->hNMuon_->Fill(muonColl.size());
 
-  const MuonCollection::size_type nMuon = muonColl.size();
-  meMap_[MEIdx::NMuon]->Fill(static_cast<double>(nMuon));
-
-  meMap_[MEIdx::NAssocSimToReco]->Fill(simToRecoColl.size());
-  meMap_[MEIdx::NAssocRecoToSim]->Fill(recoToSimColl.size());
+  trkMuME_->hNTrks_->Fill(trkMuColl.size());
+  staMuME_->hNTrks_->Fill(staMuColl.size());
+  glbMuME_->hNTrks_->Fill(glbMuColl.size());
 
   // Analyzer reco::Muon
   for(View<Muon>::const_iterator iMuon = muonColl.begin();
       iMuon != muonColl.end(); ++iMuon) {
-    const TrackRef trkTrack = iMuon->track();
-    const TrackRef staTrack = iMuon->standAloneMuon();
-    const TrackRef glbTrack = iMuon->combinedMuon();
+    int trkNTrackerHits = 0, glbNTrackerHits = 0;
+    int staNMuonHits = 0, glbNMuonHits = 0;
 
-    const int trkNTrackerHits = trkTrack->hitPattern().numberOfValidTrackerHits();
-    const int glbNTrackerHits = glbTrack->hitPattern().numberOfValidTrackerHits();
+    if ( iMuon->isTrackerMuon() ) {
+      const TrackRef trkTrack = iMuon->track();
 
-    const int staNMuonHits = staTrack->hitPattern().numberOfValidMuonHits();
-    const int glbNMuonHits = glbTrack->hitPattern().numberOfValidMuonHits();
+      trkNTrackerHits = trkTrack->hitPattern().numberOfValidTrackerHits();
 
-    meMap_[MEIdx::TrkNTrackerHits]->Fill(trkNTrackerHits);
-    meMap_[MEIdx::TrkNTrackerHits_vs_Pt]->Fill(trkTrack->pt(), trkNTrackerHits);
-    meMap_[MEIdx::TrkNTrackerHits_vs_Eta]->Fill(trkTrack->eta(), trkNTrackerHits);
+      trkMuME_->hNTrackerHits_->Fill(trkNTrackerHits);
+      trkMuME_->hNTrackerHits_vs_Pt_->Fill(trkTrack->pt(), trkNTrackerHits);
+      trkMuME_->hNTrackerHits_vs_Eta_->Fill(trkTrack->eta(), trkNTrackerHits);
+    }
 
-    meMap_[MEIdx::GlbNTrackerHits]->Fill(glbNTrackerHits);
-    meMap_[MEIdx::GlbNTrackerHits_vs_Pt]->Fill(glbTrack->pt(), glbNTrackerHits);
-    meMap_[MEIdx::GlbNTrackerHits_vs_Eta]->Fill(glbTrack->eta(), glbNTrackerHits);
+    if ( iMuon->isStandAloneMuon() ) {
+      const TrackRef staTrack = iMuon->standAloneMuon();
 
-    meMap_[MEIdx::TrkGlbDiffNTrackerHits]->Fill(trkNTrackerHits-glbNTrackerHits);
+      staNMuonHits = staTrack->hitPattern().numberOfValidMuonHits();
 
-    meMap_[MEIdx::StaNMuonHits]->Fill(staNMuonHits);
-    meMap_[MEIdx::StaNMuonHits_vs_Pt]->Fill(staTrack->pt(), staNMuonHits);
-    meMap_[MEIdx::StaNMuonHits_vs_Eta]->Fill(staTrack->eta(), staNMuonHits);
+      staMuME_->hNMuonHits_->Fill(staNMuonHits);
+      staMuME_->hNMuonHits_vs_Pt_->Fill(staTrack->pt(), staNMuonHits);
+      staMuME_->hNMuonHits_vs_Eta_->Fill(staTrack->eta(), staNMuonHits);
+    }
 
-    meMap_[MEIdx::GlbNMuonHits]->Fill(glbNMuonHits);
-    meMap_[MEIdx::GlbNMuonHits_vs_Pt]->Fill(glbTrack->pt(), glbNMuonHits);
-    meMap_[MEIdx::GlbNMuonHits_vs_Eta]->Fill(glbTrack->eta(), glbNMuonHits);
+    if ( iMuon->isGlobalMuon() ) {
+      const TrackRef glbTrack = iMuon->combinedMuon();
 
-    meMap_[MEIdx::StaGlbDiffNMuonHits]->Fill(staNMuonHits-glbNMuonHits);
+      glbNTrackerHits = glbTrack->hitPattern().numberOfValidTrackerHits();
+      glbNMuonHits = glbTrack->hitPattern().numberOfValidMuonHits();
+
+      glbMuME_->hNTrackerHits_->Fill(glbNTrackerHits);
+      glbMuME_->hNTrackerHits_vs_Pt_->Fill(glbTrack->pt(), glbNTrackerHits);
+      glbMuME_->hNTrackerHits_vs_Eta_->Fill(glbTrack->eta(), glbNTrackerHits);
+
+      glbMuME_->hNMuonHits_->Fill(glbNMuonHits);
+      glbMuME_->hNMuonHits_vs_Pt_->Fill(glbTrack->pt(), glbNMuonHits);
+      glbMuME_->hNMuonHits_vs_Eta_->Fill(glbTrack->eta(), glbNMuonHits);
+    }
+
+    commonME_->hTrkToGlbDiffNTrackerHits_->Fill(trkNTrackerHits-glbNTrackerHits);
+    commonME_->hStaToGlbDiffNMuonHits_->Fill(staNMuonHits-glbNMuonHits);
   }
 
   // Analyzer reco::Track
   for(TrackingParticleCollection::size_type i=0; i<nSim; i++) {
     TrackingParticleRef simRef(simHandle, i);
-//    if ( !tpSelector(*simRef) ) continue;
 
     const double simP   = simRef->p();
     const double simPt  = simRef->pt();
     const double simEta = doAbsEta_ ? fabs(simRef->eta()) : simRef->eta();
     const double simPhi = simRef->phi();
-    const double simQ   = simRef->charge();
-    const double simQPt = simQ/simPt;
-
-    GlobalPoint  simVtx(simRef->vertex().x(), simRef->vertex().y(), simRef->vertex().z());
-    GlobalVector simMom(simRef->momentum().x(), simRef->momentum().y(), simRef->momentum().z());
-    const double simDxy = -simVtx.x()*sin(simPhi)+simVtx.y()*cos(simPhi);
-    const double simDz  = simVtx.z() - (simVtx.x()*simMom.x()+simVtx.y()*simMom.y())*simMom.z()/simMom.perp2();
 
     const unsigned int nSimHits = simRef->pSimHit_end() - simRef->pSimHit_begin();
-//    const double simVtxPos = sqrt(simRef->vertex().perp2());
 
-    meMap_[MEIdx::SimP  ]->Fill(simP  );
-    meMap_[MEIdx::SimPt ]->Fill(simPt );
-    meMap_[MEIdx::SimEta]->Fill(simEta);
-    meMap_[MEIdx::SimPhi]->Fill(simPhi);
+    commonME_->hSimP_  ->Fill(simP  );
+    commonME_->hSimPt_ ->Fill(simPt );
+    commonME_->hSimEta_->Fill(simEta);
+    commonME_->hSimPhi_->Fill(simPhi);
 
-    meMap_[MEIdx::SimNHits]->Fill(nSimHits);
-    meMap_[MEIdx::NSimHits_vs_Pt ]->Fill(simPt , nSimHits);
-    meMap_[MEIdx::NSimHits_vs_Eta]->Fill(simEta, nSimHits);
+    commonME_->hNSimHits_->Fill(nSimHits);
+
+    const TrackingParticle* simTP = simRef.get();
 
     // Get sim-reco association for a simRef
-    RefToBase<Track> recoRef;
-    double assocQuality = 0;
-    if ( simToRecoColl.find(simRef) != simToRecoColl.end() ) {
-      vector<pair<RefToBase<Track>, double> > recoRefV(simToRecoColl[simRef]);
+    vector<pair<RefToBase<Track>, double> > trkMuRefV, staMuRefV, glbMuRefV;
+    if ( simToTrkMuColl.find(simRef) != simToTrkMuColl.end() ) {
+      trkMuRefV = simToTrkMuColl[simRef];
 
-      unsigned int nSimToReco = recoRefV.size();
-      meMap_[MEIdx::NSimToReco]->Fill(nSimToReco);
+      trkMuME_->hNSimToReco_->Fill(trkMuRefV.size());
+      if ( ! trkMuRefV.empty() ) {
+        const Track* trkMuTrack = trkMuRefV.begin()->first.get();
+//        const double assocQuality = trkMuRefV.begin()->second;
 
-      if ( ! recoRefV.empty() ) {
-        recoRef = recoRefV.begin()->first;
-        assocQuality = recoRefV.begin()->second;
-        LogVerbatim("RecoMuonValidator") << "TrackingParticle # " << i 
-                                         << " with pT = " << simPt 
-                                         << " associated with Q=" << assocQuality << '\n';
+        trkMuME_->fill(simTP, trkMuTrack);
       }
-      else {
-        LogVerbatim("RecoMuonValidator") << "TrackingParticle # " << i
-                                         << " with pT = " << simPt
-                                         << " not associated to any reco::Track\n";
-        continue;
+    }
+
+    if ( simToStaMuColl.find(simRef) != simToStaMuColl.end() ) {
+      staMuRefV = simToStaMuColl[simRef];
+
+      staMuME_->hNSimToReco_->Fill(staMuRefV.size());
+      if ( ! staMuRefV.empty() ) {
+        const Track* staMuTrack = staMuRefV.begin()->first.get();
+//        const double assocQuality = staMuRefV.begin().second;
+
+        staMuME_->fill(simTP, staMuTrack);
       }
+    }
 
-      // Histograms for efficiency plots
-      meMap_[MEIdx::RecoP  ]->Fill(simP  );
-      meMap_[MEIdx::RecoPt ]->Fill(simPt );
-      meMap_[MEIdx::RecoEta]->Fill(simEta);
-      meMap_[MEIdx::RecoPhi]->Fill(simPhi);
+    if ( simToGlbMuColl.find(simRef) != simToGlbMuColl.end() ) {
+      glbMuRefV = simToGlbMuColl[simRef];
 
-      meMap_[MEIdx::RecoNHits]->Fill(nSimHits);
+      glbMuME_->hNSimToReco_->Fill(glbMuRefV.size());
+      if ( ! glbMuRefV.empty() ) {
+        const Track* glbMuTrack = glbMuRefV.begin()->first.get();
+//        const double assocQuality = glbMuRefV.begin().second;
 
-      // Number of reco-hits
-      const int nRecoHits = recoRef->numberOfValidHits();
-      const int nLostHits = recoRef->numberOfLostHits();
-
-      meMap_[MEIdx::NRecoHits]->Fill(nRecoHits);
-      meMap_[MEIdx::NRecoHits_vs_Pt ]->Fill(simPt , nRecoHits);
-      meMap_[MEIdx::NRecoHits_vs_Eta]->Fill(simEta, nRecoHits);
-
-      meMap_[MEIdx::NLostHits]->Fill(nLostHits);
-      meMap_[MEIdx::NLostHits_vs_Pt ]->Fill(simPt , nLostHits);
-      meMap_[MEIdx::NLostHits_vs_Eta]->Fill(simEta, nLostHits);
-
-      // Number of muon hits
-      const int nValidTrackerHits = recoRef->hitPattern().numberOfValidTrackerHits(); 
-      const int nValidMuonHits = recoRef->hitPattern().numberOfValidMuonHits();
-
-      meMap_[MEIdx::NValidTrackerHits]->Fill(nValidTrackerHits);
-      meMap_[MEIdx::NValidTrackerHits_vs_Pt]->Fill(simPt, nValidTrackerHits);
-      meMap_[MEIdx::NValidTrackerHits_vs_Eta]->Fill(simEta, nValidTrackerHits);
-
-      meMap_[MEIdx::NValidMuonHits]->Fill(nValidMuonHits);
-      meMap_[MEIdx::NValidMuonHits_vs_Pt]->Fill(simPt, nValidMuonHits);
-      meMap_[MEIdx::NValidMuonHits_vs_Eta]->Fill(simEta, nValidMuonHits);
-
-      const double recoNDof = recoRef->ndof();
-      const double recoChi2 = recoRef->chi2();
-      const double recoChi2Norm = recoRef->normalizedChi2();
-      const double recoChi2Prob = TMath::Prob(recoRef->chi2(), static_cast<int>(recoRef->ndof()));
-
-      meMap_[MEIdx::NDof]->Fill(recoNDof);
-      meMap_[MEIdx::Chi2]->Fill(recoChi2);
-      meMap_[MEIdx::Chi2Norm]->Fill(recoChi2Norm);
-      meMap_[MEIdx::Chi2Prob]->Fill(recoChi2Prob);
-
-      meMap_[MEIdx::NDof_vs_Eta]->Fill(simEta, recoNDof);
-      meMap_[MEIdx::Chi2_vs_Eta]->Fill(simEta, recoChi2);
-      meMap_[MEIdx::Chi2Norm_vs_Eta]->Fill(simEta, recoChi2Norm);
-      meMap_[MEIdx::Chi2Prob_vs_Eta]->Fill(simEta, recoChi2Prob);
-
-      const double recoQ   = recoRef->charge();
-      if ( simQ*recoQ < 0 ) {
-        meMap_[MEIdx::MisQPt ]->Fill(simPt );
-        meMap_[MEIdx::MisQEta]->Fill(simEta);
+        glbMuME_->fill(simTP, glbMuTrack);
       }
-
-      const double recoP   = sqrt(recoRef->momentum().mag2());
-      const double recoPt  = sqrt(recoRef->momentum().perp2());
-      const double recoEta = recoRef->momentum().eta();
-      const double recoPhi = recoRef->momentum().phi();
-      const double recoQPt = recoQ/recoPt;
-
-      const double recoDxy = recoRef->dxy();
-      const double recoDz  = recoRef->dz();
-
-      const double errP   = (recoP-simP)/simP;
-      const double errPt  = (recoPt-simPt)/simPt;
-      const double errEta = (recoEta-simEta)/simEta;
-      const double errPhi = (recoPhi-simPhi)/simPhi;
-      const double errQPt = (recoQPt-simQPt)/simQPt;
-
-      const double errDxy = (recoDxy-simDxy)/simDxy;
-      const double errDz  = (recoDz-simDz)/simDz;
-
-      meMap_[MEIdx::ErrP  ]->Fill(errP  );
-      meMap_[MEIdx::ErrPt ]->Fill(errPt );
-      meMap_[MEIdx::ErrEta]->Fill(errEta);
-      meMap_[MEIdx::ErrPhi]->Fill(errPhi);
-      meMap_[MEIdx::ErrDxy]->Fill(errDxy);
-      meMap_[MEIdx::ErrDz ]->Fill(errDz );
-
-      meMap_[MEIdx::ErrP_vs_Eta  ]->Fill(simEta, errP  );
-      meMap_[MEIdx::ErrPt_vs_Eta ]->Fill(simEta, errPt );
-      meMap_[MEIdx::ErrQPt_vs_Eta]->Fill(simEta, errQPt);
-
-      meMap_[MEIdx::ErrP_vs_P   ]->Fill(simP  , errP  );
-      meMap_[MEIdx::ErrPt_vs_Pt ]->Fill(simPt , errPt );
-      meMap_[MEIdx::ErrQPt_vs_Pt]->Fill(simQPt, errQPt);
-
-      meMap_[MEIdx::ErrEta_vs_Eta]->Fill(simEta, errEta);
-
-      const double pullPt  = (recoPt-simPt)/recoRef->ptError();
-      const double pullQPt = (recoQPt-simQPt)/recoRef->qoverpError();
-      const double pullEta = (recoEta-simEta)/recoRef->etaError();
-      const double pullPhi = (recoPhi-simPhi)/recoRef->phiError();
-      const double pullDxy = (recoDxy-simDxy)/recoRef->dxyError();
-      const double pullDz  = (recoDz-simDz)/recoRef->dzError();
-
-      meMap_[MEIdx::PullPt ]->Fill(pullPt );
-      meMap_[MEIdx::PullEta]->Fill(pullEta);
-      meMap_[MEIdx::PullPhi]->Fill(pullPhi);
-      meMap_[MEIdx::PullQPt]->Fill(pullQPt);
-      meMap_[MEIdx::PullDxy]->Fill(pullDxy);
-      meMap_[MEIdx::PullDz ]->Fill(pullDz );
-
-      meMap_[MEIdx::PullPt_vs_Eta]->Fill(simEta, pullPt);
-      meMap_[MEIdx::PullPt_vs_Pt ]->Fill(simPt, pullPt);
-
-      meMap_[MEIdx::PullEta_vs_Eta]->Fill(simEta, pullEta);
-      meMap_[MEIdx::PullPhi_vs_Eta]->Fill(simEta, pullPhi);
-
-      meMap_[MEIdx::PullEta_vs_Pt]->Fill(simPt, pullEta);
-
     }
   }
 }
