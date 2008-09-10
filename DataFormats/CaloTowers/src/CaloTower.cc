@@ -92,7 +92,7 @@ math::PtEtaPhiMLorentzVector CaloTower::hadP4(Point v) const {
     math::XYZVector dir = math::XYZVector(hadPosition_ - p);
     newP4 = math::PtEtaPhiMLorentzVector(hcalTot * sin(dir.theta()), dir.eta(), dir.phi(), 0.0);  
   }
-  
+
   return newP4;
 }
 
@@ -115,8 +115,16 @@ math::PtEtaPhiMLorentzVector CaloTower::p4(double vtxZ) const {
 
   math::PtEtaPhiMLorentzVector newP4(0,0,0,0);
 
-  newP4 += emP4(vtxZ);
-  newP4 += hadP4(vtxZ);
+  if (abs(ieta())<=29) {
+    newP4 += emP4(vtxZ);
+    newP4 += hadP4(vtxZ);
+  }
+  else { // em and had energy in HF are defined in a special way
+    double ctgTheta = (emPosition_.z() - vtxZ)/emPosition_.perp(); // em and had positions in HF are forced to be the same
+    double newEta = asinh(ctgTheta);  
+    double pf = 1.0/cosh(newEta);
+    newP4 = math::PtEtaPhiMLorentzVector(p4().energy() * pf, newEta, emPosition_.phi(), 0.0);   
+  }
 
   return newP4;
 }
@@ -126,8 +134,15 @@ math::PtEtaPhiMLorentzVector CaloTower::p4(Point v) const {
 
   math::PtEtaPhiMLorentzVector newP4(0,0,0,0);
 
-  newP4 += emP4(v);
-  newP4 += hadP4(v);
+  if (abs(ieta())<=29) {
+    newP4 += emP4(v);
+    newP4 += hadP4(v);
+  }
+  else { // em and had energy in HF are defined in a special way
+    GlobalPoint p(v.x(), v.y(), v.z());
+    math::XYZVector dir = math::XYZVector(emPosition_ - p); // em and had positions in HF are forced to be the same
+    newP4 = math::PtEtaPhiMLorentzVector(p4().energy() * sin(dir.theta()), dir.eta(), dir.phi(), 0.0);   
+  }
 
   return newP4;
 }
