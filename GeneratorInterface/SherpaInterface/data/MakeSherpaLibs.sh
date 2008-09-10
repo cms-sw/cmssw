@@ -127,7 +127,7 @@ clean_libs() {
 HDIR=`pwd`
 
 # dummy setup (if all options are missing)
-shr=${HDIR}/SHERPA-MC-1.1.1        # path to SHERPA installation
+shr=${HDIR}/SHERPA-MC-1.1.2        # path to SHERPA installation
 pth="LHC"                          # name of SHERPA data card directory
 prc="XXX"                          # SHERPA process name
 lbo="LBCR"                         # library/cross section option
@@ -377,11 +377,13 @@ if [ "${lbo}" = "LIBS" ] || [ "${lbo}" = "LBCR" ]; then
   cp ${shr}/share/SHERPA-MC/makelibs .
   echo " <I> compiling libraries..."
   ./makelibs 1>${shrun}/${outflbs}_mklib.out 2>${shrun}/${outflbs}_mklib.err
-  lsize=`du -sh  | cut -f 1 -d "."`
+  nf=`du -sh | grep -o "\." | grep -c "\."`
+  lsize=`du -sh  | cut -f 1-${nf} -d "."`
   echo " <I>  -> raw size: "${lsize}
   echo " <I> cleaning libraries..."
   clean_libs 1>${shrun}/${outflbs}_cllib.out 2>${shrun}/${outflbs}_cllib.err
-  lsize=`du -sh  | cut -f 1 -d "."`
+  nf=`du -sh | grep -o "\." | grep -c "\."`
+  lsize=`du -sh  | cut -f 1-${nf} -d "."`
   echo " <I>  -> clean size: "${lsize}
   cd ${shrun}
 fi

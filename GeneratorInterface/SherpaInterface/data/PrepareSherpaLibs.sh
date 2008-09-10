@@ -10,8 +10,8 @@
 #               SetupSherpaInterface.sh
 #
 #  author:      Markus Merschmeyer, RWTH Aachen
-#  date:        2008/05/13
-#  version:     1.5
+#  date:        2008/08/18
+#  version:     1.6
 #
 
 
@@ -22,7 +22,7 @@
 
 function print_help() {
     echo "" && \
-    echo "PrepareSherpaLibs version 1.5" && echo && \
+    echo "PrepareSherpaLibs version 1.6" && echo && \
     echo "options: -i  path       path to SHERPA datacard, library & cross section files" && \
     echo "                         can also be in WWW (http://...) or SE (srm://...)" && \
     echo "                         -> ( "${datadir}" )" && \
@@ -36,6 +36,7 @@ function print_help() {
     echo "         -d  path       path to CMSSW directory" && \
     echo "                         -> ( "${CMSSWDIR}" )" && \
     echo "         -m  mode       CMSSW running mode ['LOCAL','CRAB','cmsGen'] ( "${imode}" )" && \
+    echo "         -a  path       user analysis path inside CMSSW ( "${MYANADIR}" )" && \
     echo "         -n  SRM node   SE node for library transfer for CRAB mode" && \
     echo "                         -> ( "${MYSRMNAME}" )" && \
     echo "         -s  SRM path   SE path for library transfer for CRAB mode" && \
@@ -47,7 +48,58 @@ function print_help() {
 
 
 
-### NEW function for preparing the SHERPA process dependent CMSSW include file
+### function for preparing the SHERPA process dependent CMSSW include file
+function build_cfi_py() {
+# $1 : path to dataset (below CMSSW_X_Y_Z/src level)
+# $2 : dataset name (e.g. "em_ep_0j1incl")
+  pyfile="sherpa_"$2"_cfi.py"
+
+  touch ${pyfile}
+
+  cat > ${pyfile} <<EOF
+import FWCore.ParameterSet.Config as cms
+
+source=cms.Source("SherpaSource",
+
+  firstRun  = cms.untracked.uint32(1),
+  libDir    = cms.untracked.string('SherpaRun'),
+  resultDir = cms.untracked.string('Result'),
+
+  SherpaParameters = cms.PSet(
+
+EOF
+  echo "    parameterSets = cms.vstring(" >> ${pyfile}
+  fcnt=0
+  for file in `ls *.dat`; do
+    let fcnt=${fcnt}+1
+  done
+  echo " <build_cfi_py> "${fcnt}" configuration files found for SHERPA"
+  echo ${file} | sed s/.dat/\',/ | sed s/^/\\t\'/ >> ${pyfile}
+  echo "    )," >> ${pyfile}
+  echo ""       >> ${pyfile}
+
+  for file in `ls *.dat`; do
+    sed '/^$/d' < ${file} > ${file}.tmp        # remove empty lines
+    lastline=`tail -n 1 ${file}.tmp` 
+    datacard=`echo ${file}.tmp | sed -e 's/.dat.tmp//'`
+    echo "    "${datacard}" = cms.vstring(" >> ${pyfile}
+    cat  ${file}.tmp | sed s/\'//g | sed -e 's/$/XXX/' | sed s/XXX/\',/ | sed s/^/\'/ >> ${pyfile}
+    echo "'!',"   >> ${pyfile}
+    echo "    )," >> ${pyfile}
+    echo ""       >> ${pyfile}
+    rm ${file}.tmp
+  done
+
+  cat >> ${pyfile} <<EOF
+  )
+
+)
+EOF
+}
+
+
+
+### function for preparing the SHERPA process dependent CMSSW include file
 function build_cfi() {
 # $1 : path to dataset (below CMSSW_X_Y_Z/src level)
 # $2 : dataset (e.g. "em_ep_0j1incl")
@@ -85,9 +137,9 @@ EOF
   for file in `ls *.dat`; do
     sed '/^$/d' < ${file} > ${file}.tmp        # remove empty lines
     lastline=`tail -n 1 ${file}.tmp` 
-    datacard=`echo ${file}.tmp | sed s/.dat.tmp//`
+    datacard=`echo ${file}.tmp | sed -e 's/.dat.tmp//'`
     echo "vstring "${datacard}" = {" >> ${cfifile}
-    cat  ${file}.tmp | sed s/"'"//g | sed 's/$/XXX/' | sed s/XXX/"',"/ | sed s/^/"'"/ >> ${cfifile}
+    cat  ${file}.tmp | sed s/\'//g | sed -e 's/$/XXX/' | sed s/XXX/\',/ | sed s/^/\'/ >> ${cfifile}
     echo "'!'" >> ${cfifile}
     echo "}" >> ${cfifile}
     echo "" >> ${cfifile}
@@ -194,11 +246,11 @@ dataopt="LBCR"                                       # library/cross section opt
 cfdc=""                                              # custom data card file name
 cflb=""                                              # custom library file name
 cfcr=""                                              # custom cross section file name
-CMSSWVER=2_0_6                                       # CMSSW version
+CMSSWVER=X_Y_Z                                       # CMSSW version
 CMSSWDIR=${HDIR}/CMSSW_${CMSSWVER}                   # CMSSW directory
 #CMSSWDIR=${HOME}/CMSSW_${CMSSWVER}                   # CMSSW directory
 #CMSSWDIR=${HOME}/scratch0/CMSSW_${CMSSWVER}          # CMSSW directory
-CRABVER=2_1_2                                        # CRAB version
+CRABVER=X_Y_Z                                        # CRAB version
 CRABDIR=${HOME}/CRAB_${CRABVER}                      # CRAB directory
 MYSRMNAME="grid-srm.physik.rwth-aachen.de"           # name of SRM node
 MYSRMPATH="/pnfs/physik.rwth-aachen.de/dcms/merschm" # SRM path to SHERPA library & cross section tarballs
@@ -207,9 +259,11 @@ imode="LOCAL"                                        # CMSSW running mode
 MYPATCHES=${HDIR}                                    # local path to SHERPA patches
 MYSCRIPTS=${HDIR}                                    # local path to shell scripts
 ###
+MYANADIR="GeneratorInterface/SherpaInterface"        # user analysis directory inside CMSSW
+#                                                    # -> CMSSW_X_Y_Z/src/${MYANADIR}/
 
 # get & evaluate options
-while getopts :i:p:o:D:L:C:d:c:n:s:m:h OPT
+while getopts :i:p:o:D:L:C:d:c:n:s:m:a:h OPT
 do
   case $OPT in
   i) datadir=$OPTARG ;;
@@ -223,6 +277,7 @@ do
   n) MYSRMNAME=$OPTARG ;;
   s) MYSRMPATH=$OPTARG ;;
   m) imode=$OPTARG ;;
+  a) MYANADIR=$OPTARG ;;
   h) print_help && exit 0 ;;
   \?)
     shift `expr $OPTIND - 1`
@@ -257,6 +312,7 @@ echo "  -> dataset name '"${dataset}"'"
 echo "  -> library & cross section otions '"${dataopt}"'"
 echo "  -> CMSSW directory '"${CMSSWDIR}"'"
 echo "  -> operation mode: '"${imode}"'"
+echo "  -> CMSSW user analysis path: '"${MYANADIR}"'"
 if [ "${imode}" = "CRAB" ]; then
   echo "  -> CRAB directory '"${CRABDIR}"'"
   echo "  -> SRM node: '"${MYSRMNAME}"'"
@@ -265,11 +321,18 @@ fi
 
 
 # set up 
-SHIFPTH="GeneratorInterface/SherpaInterface/data"             # path to 'data' directory of SHERPA interface in CMSSW
-SHIFPTT="GeneratorInterface/SherpaInterface/test"             # path to 'test' directory of SHERPA interface in CMSSW
+if [ ! -e ${CMSSWDIR}/src/${MYANADIR}/test ]; then
+  echo " <W> CMSSW user analysis path "${MYANADIR}/test" does not exist,..."
+  echo " <W> ...creating"
+  mkdir -p ${CMSSWDIR}/src/${MYANADIR}/test
+#  mkdir ${CMSSWDIR}/src/${MYANADIR}/data
+fi
+if [ ! -e ${CMSSWDIR}/src/${MYANADIR}/python ]; then
+  mkdir -p ${CMSSWDIR}/src/${MYANADIR}/python
+fi
+MYCMSSWDATA=${CMSSWDIR}/src/${MYANADIR}/data                  # local path to 'data' directory of SHERPA interface in CMSSW
+MYCMSSWTEST=${CMSSWDIR}/src/${MYANADIR}/test                  # local path to 'test' directory of SHERPA interface in CMSSW
 SHIFRUN="SherpaRun"                                           # directory name for SHERPA process related stuff
-MYCMSSWDATA=${CMSSWDIR}/src/${SHIFPTH}                        # local path to 'data' directory of SHERPA interface in CMSSW
-MYCMSSWTEST=${CMSSWDIR}/src/${SHIFPTT}                        # local path to 'test' directory of SHERPA interface in CMSSW
 SHIFPTH_DAT=${MYCMSSWTEST}/${SHIFRUN}                         # local paths for SHERPA process related stuff (libs, cross s.)
 if [ "${cfdc}" = "" ]; then
   cardfile=sherpa_${dataset}_cards.tgz                        # set SHERPA data file names
@@ -286,8 +349,8 @@ if [ "${cfcr}" = "" ]; then
 else
   crssfile=${cfcr}
 fi
-SHERPATEMPLATE=${MYCMSSWDATA}/Sherpa.cfg_template             # name of template file for SHERPA interface configuration
-SHERPACONFIG="Sherpa.cfg"                                     # name of SHERPA interface configuration file
+SHERPACONFIG="sherpa.cfg"                                     # name of standard SHERPA interface configuration file
+SHERPACFGPYT="sherpa_cfg.py"                                  # name of python SHERPA interface configuration file
 CRABTMPFILE1="crab_1.tmp"                                     # temporary files
 CRABTMPFILE2="crab_2.tmp"
 CRABTEMPLATE=${MYCMSSWDATA}/crab.cfg_template                 # name of template file for CRAB config file
@@ -326,7 +389,6 @@ if [ "${imode}" = "cmsGen" ];then
   MYCMSSWDATA=${CMSSWDIR}/../
   MYCMSSWTEST=${CMSSWDIR}/../
   SHIFPTH_DAT=${MYCMSSWTEST}/${SHIFRUN}
-  SHERPATEMPLATE=${MYCMSSWDATA}/Sherpa.cfg_template
   CRABTEMPLATE=${MYCMSSWDATA}/crab.cfg_template
   mkdir ${MYCMSSWTEST}/${SHIFRUN} 
 fi
@@ -342,13 +404,13 @@ else
 fi
 
 # create dataset directory tree
-cd ${MYCMSSWDATA}
+#cd ${MYCMSSWDATA}
 if [ -e ${SHIFPTH_DAT} ]; then
   echo " <W> dataset directory "${SHIFPTH_DAT}" exists"
   echo " <W> ...removing..."
   rm -rf ${SHIFPTH_DAT}
 fi
-mkdir ${SHIFPTH_DAT}
+mkdir -p ${SHIFPTH_DAT}
 
 # get & unpack dataset files, generate .cff and .cfi files
 cd ${SHIFPTH_DAT}
@@ -356,6 +418,7 @@ cd ${SHIFPTH_DAT}
  file_copy ${datadir} ${cardfile} ${PWD}
  tar -xzf ${cardfile}; rm ${cardfile}
  build_cfi ${MYCMSSWTEST}/${SHIFRUN} ${dataset}
+ build_cfi_py ${MYCMSSWTEST}/${SHIFRUN} ${dataset}
 
  if [ "${imode}" = "LOCAL" ]; then
    dataloc=${PWD}
@@ -381,10 +444,64 @@ cd -
 
 # produce CMSSW .cfg file from template
 cd ${MYCMSSWTEST}
-cp ${MYCMSSWTEST}/${SHIFRUN}/sherpa_${dataset}.cfi ${PWD}
+#cp ${MYCMSSWTEST}/${SHIFRUN}/sherpa_${dataset}.cfi ${PWD}
+mv ${MYCMSSWTEST}/${SHIFRUN}/sherpa_${dataset}.cfi ${PWD}
+mv ${MYCMSSWTEST}/${SHIFRUN}/sherpa_${dataset}_cfi.py ${MYCMSSWTEST}/../python/
 if [ ! "${imode}" = "cmsGen" ]; then
-  sed -e 's:MYSHERPAPROCESS:'${dataset}':' < ${SHERPATEMPLATE} > ${SHERPACONFIG}
+  cat > ${SHERPACONFIG} << EOF
+
+process RunSherpa = {
+
+ untracked PSet maxEvents = {untracked int32 input = 100}
+
+ service = RandomNumberGeneratorService
+   {
+      untracked uint32 sourceSeed = 98765
+   }
+EOF
+  echo " include "\"${MYANADIR}/test/sherpa_${dataset}.cfi\" >> ${SHERPACONFIG}
+  cat >> ${SHERPACONFIG} << EOF
+
+ replace SherpaSource.firstRun = 1
+
+ module GEN = PoolOutputModule
+   {
+      untracked string fileName = "sherpa_GEN.root"
+   }
+ endpath e = { GEN }
+}
+EOF
+
+  cat > ${SHERPACFGPYT} << EOF
+import FWCore.ParameterSet.Config as cms
+
+process = cms.Process("runSherpa")
+
+EOF
+CTEMP=`echo ${MYANADIR}`
+while [ `echo ${CTEMP} | grep -c "/"` -gt 0 ]; do
+  CTEMP=`echo ${CTEMP} | sed -e 's/\//./'`
+done
+echo "process.load(\""${CTEMP}".sherpa_"${dataset}"_cfi\")" >> ${SHERPACFGPYT}
+  cat >> ${SHERPACFGPYT} << EOF
+process.SherpaSource.firstRun = 1
+
+process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
+    sourceSeed = cms.untracked.uint32(98765)
+)
+process.maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32(100)
+)
+process.sherpa_out = cms.OutputModule("PoolOutputModule",
+    fileName = cms.untracked.string('sherpa_GEN.root')
+)
+process.outpath = cms.EndPath(process.sherpa_out)
+EOF
 fi
+
+cd ${MYCMSSWTEST}/../
+scramv1 b
+cd -
 
 # display information
 echo " <I> the SHERPA interface has been set up:"
@@ -394,8 +511,8 @@ echo " <I>   data set (process): "${dataset}
 echo " <I>    -> taken from: "${datadir}
 echo " <I>   data set option: "${dataopt}
 echo " <I>   generated configuration files:"
-echo " <I>    -> "${dataset}".cfi"
-echo " <I>    -> Sherpa.cfg"
+echo " <I>    -> sherpa_"${dataset}".cfi"
+echo " <I>    -> "${SHERPACONFIG}
 
 
 
