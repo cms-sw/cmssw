@@ -28,7 +28,7 @@ HCAL_HLX::HTMLGenerator::HTMLGenerator():ROOTFileReader(){
 
   plotExt_   = "png";     // config file
   outputDir_ = "./";      // config file
-  writeMode  = 0777;
+  writeMode_  = 0777;
   
   previousRunNumber = 0;
 
@@ -100,9 +100,68 @@ HCAL_HLX::HTMLGenerator::HTMLGenerator():ROOTFileReader(){
     iPhi_[iHLX] = iPhi[iHLX];
   }
 
+  // allocate memory for histograms
+
+  c1_ = new TCanvas("c1","c1",700,500);    
+  c1_->SetTicks(1,1);
+
+  NBins_ = 3400;
+  XMin_ = 100;
+  XMax_ = 3500;
+  BinWidth_ = (unsigned int)(XMax_ - XMin_)/NBins_;
+  
+  for( unsigned int iHisto = 0; iHisto < 8; ++iHisto ){
+    HLXHistos_[iHisto] = new TH1F(HistoNames[iHisto].c_str(),"", NBins_, XMin_, XMax_);
+    HLXHistos_[iHisto]->GetXaxis()->SetTitle("Bunch Crossing");
+    HLXHistos_[iHisto]->GetYaxis()->SetTitleOffset(1.3); 
+    HLXHistos_[iHisto]->SetFillColor(kBlue);
+  }
+  
+  HLXHistos_[0]->GetYaxis()->SetTitle("Et Sum (1 LS)");
+  HLXHistos_[7]->GetYaxis()->SetTitle("LHC (1 LS)");
+  for( unsigned int iHisto = 0; iHisto < 6; ++iHisto ){
+    HLXHistos_[iHisto+1]->GetYaxis()->SetTitle("Occupancy (1 LS)");
+  }
+
+  EtSummary_     = new TH2F("EtSummary", "Avg Et Sum Per Wedge", 12, -42, 42, 18, 0, 72);
+  EtSummary_->GetXaxis()->SetTitle("i #eta");
+  EtSummary_->GetYaxis()->SetTitle("i #phi");
+  OccSummary_    = new TH2F("OccSummary", "Avg Occupancy Per Wedge", 12, -42, 42, 18, 0, 72);
+  OccSummary_->GetXaxis()->SetTitle("i #eta");
+  OccSummary_->GetYaxis()->SetTitle("i #phi");
+
+  ETLumiHisto_      = new TH1F("ETLumi",      "E_{T} Lumi",          NBins_, XMin_, XMax_);
+  ETLumiHisto_->GetXaxis()->SetTitle("Bunch Crossing");
+  OccLumiSet1Histo_ = new TH1F("OccLumiSet1", "Occupancy Lumi Set1", NBins_, XMin_, XMax_);
+  OccLumiSet1Histo_->GetXaxis()->SetTitle("Bunch Crossing");
+  OccLumiSet2Histo_ = new TH1F("OccLumiSet2", "Occupancy Lumi Set2", NBins_, XMin_, XMax_);
+  OccLumiSet2Histo_->GetXaxis()->SetTitle("Bunch Crossing");
+
 }
 
-HCAL_HLX::HTMLGenerator::~HTMLGenerator(){}
+HCAL_HLX::HTMLGenerator::~HTMLGenerator(){
+  
+  // deallocate
+
+  delete c1_;
+
+  delete HLXHistos_[0];
+  delete HLXHistos_[1];
+  delete HLXHistos_[2];
+  delete HLXHistos_[3];
+  delete HLXHistos_[4];
+  delete HLXHistos_[5];
+  delete HLXHistos_[6];
+  delete HLXHistos_[7];
+
+  delete ETLumiHisto_;
+  delete OccLumiSet1Histo_;
+  delete OccLumiSet2Histo_;
+
+  delete EtSummary_;
+  delete OccSummary_;
+
+}
 
 // ******** Main function ******
 
@@ -110,14 +169,14 @@ void HCAL_HLX::HTMLGenerator::CreateWebPage(){
 
   GetLumiSection(lumiSection_);
     
-  MakeDir( outputDir_ + GetRunDir(), writeMode );
-  MakeDir( outputDir_ + GetRunDir() + GetLSDir(), writeMode);
+  MakeDir( outputDir_ + GetRunDir(), writeMode_ );
+  MakeDir( outputDir_ + GetRunDir() + GetLSDir(), writeMode_ );
 
-  for(int HLXID = 0; HLXID < 36; HLXID++){
-    MakeDir(outputDir_ + GetRunDir() + GetLSDir() + GetHLXDir(HLXID), writeMode);
-    GenerateHLXPage(HLXID);
-    MakeDir(outputDir_ + GetRunDir() + GetLSDir() + GetHLXDir(HLXID) + GetHLXPicDir(HLXID), writeMode);
-    GenerateHLXPlots(HLXID);
+  for(unsigned int iHLX = 0; iHLX < 36; ++iHLX){
+    MakeDir(outputDir_ + GetRunDir() + GetLSDir() + GetHLXDir(iHLX), writeMode_ );
+    GenerateHLXPage(iHLX);
+    MakeDir(outputDir_ + GetRunDir() + GetLSDir() + GetHLXDir(iHLX) + GetHLXPicDir(iHLX), writeMode_ );
+    GenerateHLXPlots(iHLX);
   }
 
   GenerateAveragePlots();
@@ -126,10 +185,11 @@ void HCAL_HLX::HTMLGenerator::CreateWebPage(){
   GenerateComparePlots();
   GenerateComparePage();
 
-  //  GenerateLumiPage();
+  GenerateLumiPage();
 
-  for(unsigned int iHistos = 0; iHistos < 8; ++iHistos) 
-    GenerateHistoGroupPage(HistoNames[iHistos]);
+  for(unsigned int iHisto = 0; iHisto < 8; ++iHisto){
+    GenerateHistoGroupPage(HistoNames[iHisto]);
+  }
 
   GenerateSectionPage();
   GenerateRunPage();
@@ -182,10 +242,6 @@ std::string HCAL_HLX::HTMLGenerator::GetHLXPicDir( const unsigned short int &HLX
 void HCAL_HLX::HTMLGenerator::GenerateIndexPage(){
 
   std::string fileName;
-  std::stringstream runLine;
-  
-  const unsigned int runNumber = GetRunNumber();
-
   fileName = outputDir_ + "index.html";
 
   if( !fileExists(fileName) ){
@@ -195,7 +251,9 @@ void HCAL_HLX::HTMLGenerator::GenerateIndexPage(){
     InsertLineAfter( fileName, "<H1>\nLuminosity Monitoring System\n</H1>", "<body>");
   }
 
-  if(runNumber != previousRunNumber  ){
+  const unsigned int runNumber = GetRunNumber();
+  if( runNumber != previousRunNumber  ){
+    std::stringstream runLine;
     runLine << "<a href = \"" 
 	    << GetRunDir() 
 	    << "index.html\"> Run - " 
@@ -203,13 +261,12 @@ void HCAL_HLX::HTMLGenerator::GenerateIndexPage(){
 	    << TimeStampLong() 
 	    << "</br>"; 
     previousRunNumber = runNumber;
+    InsertLineBefore( fileName, runLine.str(), "</body>"); 
   }
-  InsertLineBefore( fileName, runLine.str(), "</body>"); 
+
 }
 
 void HCAL_HLX::HTMLGenerator::GenerateRunPage(){
-
-  using std::stringstream;
 
   const unsigned int runNumber = GetRunNumber();
   const unsigned int sectionNumber = GetSectionNumber();
@@ -219,13 +276,13 @@ void HCAL_HLX::HTMLGenerator::GenerateRunPage(){
   fileName = outputDir_ + GetRunDir() + "index.html";  
   
   if(!fileExists(fileName)){
-    stringstream fileTitle;
+    std::stringstream fileTitle;
 
     fileTitle << "Luminosity File Reader - Run " << runNumber;
     MakeEmptyWebPage(fileName, fileTitle.str());
   }
 
-  stringstream sectionLine;
+  std::stringstream sectionLine;
 
   sectionLine << "<a href = \"" 
 	      <<  GetLSDir() 
@@ -251,18 +308,16 @@ void HCAL_HLX::HTMLGenerator::GenerateSectionPage(){
 
   fileStr << "<html>" << std::endl;
   fileStr << "<title>" << std::endl; 
-  fileStr << "Luminosity File Reader - " 
-	  << "Run " << runNumber << " - " 
+  fileStr << "Luminosity File Reader - " << "Run " << runNumber << " - " 
 	  << " Lumi Section - " << sectionNumber << std::endl;
   fileStr << "</title>" << std::endl; 
-
   fileStr << "<body>" << std::endl;
   
-  for(int i = 0; i < 8; i++){
+  for(int unsigned iHisto = 0; iHisto < 8; ++iHisto){
     fileStr << "<a href=\"" 
-	    << HistoNames[i] 
+	    << HistoNames[iHisto] 
 	    << "/index.html\" >" 
-	    << HistoNames[i] <<  "</a></br>" << std::endl;
+	    << HistoNames[iHisto] <<  "</a></br>" << std::endl;
   }
 
   fileStr << "<a href=\"Luminosity/index.html\">Luminosity</a>" << std::endl;
@@ -274,17 +329,11 @@ void HCAL_HLX::HTMLGenerator::GenerateSectionPage(){
   fileStr << "Summary" << std::endl;
   fileStr << "<hr>" << std::endl;
 
-
-
-  TCanvas* c1 = new TCanvas("c1","c1",700,500);
-  c1->SetTicks(1,1);
-
+  // Summary Plots
   // Et Sum Summary
+  c1_->cd();
 
-  TH2F* EtSummary = new TH2F("EtSummary", "Et Sum - Summary", 12, -42, 42, 18, 0, 72);
-  EtSummary->GetXaxis()->SetTitle("i #eta");
-  EtSummary->GetYaxis()->SetTitle("i #phi");
-
+  EtSummary_->Reset();
   float MaxEt = 0.0;
   float MinEt = 1000000000.0;
 
@@ -302,27 +351,21 @@ void HCAL_HLX::HTMLGenerator::GenerateSectionPage(){
     if( AvgEtSum < MinEt ){
       MinEt = AvgEtSum;
     }
-    EtSummary->Fill( iEta_[iHLX], iPhi_[iHLX], AvgEtSum );
-    EtSummary->Fill( iEta_[iHLX] +7, iPhi_[iHLX], AvgEtSum );
-    std::cout << "iEta: " << iEta_[iHLX] << " iPhi: " << iPhi_[iHLX] << " AvgEtSum: " << AvgEtSum << std::endl;
+    EtSummary_->Fill( iEta_[iHLX], iPhi_[iHLX], AvgEtSum );
+    EtSummary_->Fill( iEta_[iHLX] +7, iPhi_[iHLX], AvgEtSum );
+    //    std::cout << "iEta: " << iEta_[iHLX] << " iPhi: " << iPhi_[iHLX] << " AvgEtSum: " << AvgEtSum << std::endl;
   }
 
   std::string picName = outputDir_ + GetRunDir() + GetLSDir() + "EtSummary.png";
   gStyle->SetOptStat(0);
   gStyle->SetPalette(1);
 
-  EtSummary->GetZaxis()->SetRangeUser( MinEt, MaxEt );
-
-  EtSummary->Draw("colz");
-
-  c1->SaveAs(picName.c_str());
+  EtSummary_->GetZaxis()->SetRangeUser( MinEt, MaxEt );
+  EtSummary_->Draw("colz");
+  c1_->SaveAs(picName.c_str());
 
   // Occupancy Summary
-
-  TH2F* OccSummary = new TH2F("OccSummary", "Occupancy - Summary", 12, -42, 42, 18, 0, 72);
-  OccSummary->GetXaxis()->SetTitle("i #eta");
-  OccSummary->GetYaxis()->SetTitle("i #phi");
-
+  OccSummary_->Reset();
   float MaxOcc = 0.0;
   float MinOcc = 1000000000.0;
 
@@ -353,25 +396,22 @@ void HCAL_HLX::HTMLGenerator::GenerateSectionPage(){
     }
 
     if( iEta_[iHLX] > 0 ){
-      OccSummary->Fill( iEta_[iHLX] +7 , iPhi_[iHLX], AvgOccSet1 );
-      OccSummary->Fill( iEta_[iHLX],     iPhi_[iHLX], AvgOccSet2 );
+      OccSummary_->Fill( iEta_[iHLX] +7 , iPhi_[iHLX], AvgOccSet1 );
+      OccSummary_->Fill( iEta_[iHLX],     iPhi_[iHLX], AvgOccSet2 );
     }
 
     if( iEta_[iHLX] < 0 ){
-      OccSummary->Fill( iEta_[iHLX],     iPhi_[iHLX], AvgOccSet1 );
-      OccSummary->Fill( iEta_[iHLX] + 7, iPhi_[iHLX], AvgOccSet2 );
+      OccSummary_->Fill( iEta_[iHLX],     iPhi_[iHLX], AvgOccSet1 );
+      OccSummary_->Fill( iEta_[iHLX] + 7, iPhi_[iHLX], AvgOccSet2 );
     }
 
-    std::cout << "iEta: " << iEta_[iHLX] << " iPhi: " << iPhi_[iHLX] << " AvgOccSet1: " << AvgOccSet1 << " AvgOccSet2: " << AvgOccSet2 << std::endl;
+    //    std::cout << "iEta: " << iEta_[iHLX] << " iPhi: " << iPhi_[iHLX] << " AvgOccSet1: " << AvgOccSet1 << " AvgOccSet2: " << AvgOccSet2 << std::endl;
   }
 
   picName = outputDir_ + GetRunDir() + GetLSDir() + "OccSummary.png";
-  
-  OccSummary->GetZaxis()->SetRangeUser( MinOcc, MaxOcc );
-
-  OccSummary->Draw("colz");
-
-  c1->SaveAs(picName.c_str());
+  OccSummary_->GetZaxis()->SetRangeUser( MinOcc, MaxOcc );
+  OccSummary_->Draw("colz");
+  c1_->SaveAs(picName.c_str());
 
   fileStr << "<a href=\"EtSummary.png\"><img src=\"EtSummary.png\" width=\"45%\"></a>" << std::endl; 
   fileStr << "<a href=\"OccSummary.png\"><img src=\"OccSummary.png\" width=\"45%\"></a>" << std::endl; 
@@ -383,11 +423,11 @@ void HCAL_HLX::HTMLGenerator::GenerateSectionPage(){
   fileStr << "</H2>" << std::endl;
   fileStr << "<H3>" << std::endl;
 
-  for(int HLXID = 0; HLXID < 36; HLXID++){
+  for(unsigned int iHLX = 0; iHLX < 36; ++iHLX){
     fileStr << "<a href=\"HLX" 
-	    << std::setw(2) << std::setfill('0') << HLXID 
+	    << std::setw(2) << std::setfill('0') << iHLX 
 	    << "/index.html\" >" 
-	    << HLXToHFMap_[HLXID]
+	    << HLXToHFMap_[iHLX]
 	    << "</a> </br>" << std::endl;
   }
   
@@ -397,23 +437,16 @@ void HCAL_HLX::HTMLGenerator::GenerateSectionPage(){
 
   fileStr.close();
 
-  delete EtSummary;
-  delete OccSummary;
-
-  delete c1;
 }
 
 void HCAL_HLX::HTMLGenerator::GenerateHLXPage(const unsigned short int &HLXID){
 
   // make HLX directory
 
-  std::stringstream fileName;
-  std::stringstream pictureDir;
-  std::stringstream HLXDir;
-  
   const unsigned int runNumber     = GetRunNumber();
   const unsigned int sectionNumber = GetSectionNumber();
 
+  std::stringstream fileName;
   fileName.str(std::string());
   fileName << outputDir_ << GetRunDir() << GetLSDir() << GetHLXDir(HLXID)  << "index.html";
 
@@ -423,7 +456,7 @@ void HCAL_HLX::HTMLGenerator::GenerateHLXPage(const unsigned short int &HLXID){
   fileStr << "<html>" << std::endl;
   fileStr << "<title>" << std::endl; 
   fileStr << "Luminosity File Reader - " 
-	  << "Run " << runNumber 
+	  << "Run " << runNumber
 	  << " Lumi Section " << sectionNumber 
 	  << HLXToHFMap_[HLXID]
 	  << std::endl;
@@ -453,7 +486,6 @@ void HCAL_HLX::HTMLGenerator::GenerateHLXPage(const unsigned short int &HLXID){
   fileStr << "</body>" << std::endl;
   fileStr << "</html>" << std::endl;  
   fileStr.close();
-
 }
 
 void HCAL_HLX::HTMLGenerator::SetHistoBins(unsigned int NBins, double XMin, double XMax){
@@ -467,6 +499,16 @@ void HCAL_HLX::HTMLGenerator::SetHistoBins(unsigned int NBins, double XMin, doub
     XMax_ = XMax;
     XMin_ = XMin;
   }
+
+  for( unsigned int iHisto = 0; iHisto < 8; ++iHisto){
+    HLXHistos_[iHisto]->SetBins(NBins_, XMin_, XMax_);
+  }
+  ETLumiHisto_->SetBins(NBins_, XMin_, XMax_);
+  OccLumiSet1Histo_->SetBins(NBins_, XMin_, XMax_);
+  OccLumiSet2Histo_->SetBins(NBins_, XMin_, XMax_);
+
+  BinWidth_ = (unsigned int )(XMax_ - XMin_)/NBins_;
+
 }
 
 void HCAL_HLX::HTMLGenerator::GenerateHLXPlots(const unsigned short int & HLXID){
@@ -475,26 +517,12 @@ void HCAL_HLX::HTMLGenerator::GenerateHLXPlots(const unsigned short int & HLXID)
   std::cout << "Begin " << __PRETTY_FUNCTION__ << std::endl;
 #endif
 
-  const unsigned short int NumBX = 3564;
-
-  TH1F* Histos[8];
-
-  for(int histoNum = 0; histoNum < 8; histoNum++){
-    Histos[histoNum] = new TH1F(HistoNames[histoNum].c_str(),"", NBins_, XMin_, XMax_);
-    Histos[histoNum]->GetXaxis()->SetTitle("Bunch Crossing");
-
+  for(unsigned int iHisto = 0; iHisto < 8; ++iHisto ){
+    HLXHistos_[iHisto]->Reset();
     std::stringstream HistoTitle;
-
     HistoTitle.str(std::string());
-    HistoTitle << HistoNames[histoNum] << " - " << HLXToHFMap_[HLXID];
-    Histos[histoNum]->SetTitle(HistoTitle.str().c_str());
-    Histos[histoNum]->GetYaxis()->SetTitleOffset(1.3);
-  }
-  
-  Histos[0]->GetYaxis()->SetTitle("Et Sum (1 LS)");
-  Histos[7]->GetYaxis()->SetTitle("LHC (1 LS)");
-  for(int k = 0; k < 6; k++){
-    Histos[k+1]->GetYaxis()->SetTitle("Occupancy (1 LS)");
+    HistoTitle << HistoNames[iHisto] << " - " << HLXToHFMap_[HLXID];
+    HLXHistos_[iHisto]->SetTitle(HistoTitle.str().c_str());
   }
 
   double EtSumNoise[4];
@@ -503,7 +531,8 @@ void HCAL_HLX::HTMLGenerator::GenerateHLXPlots(const unsigned short int & HLXID)
   EtSumNoise[1] = 0;
   EtSumNoise[2] = 0;
   EtSumNoise[3] = 0;
-  
+
+  // The noise range is arbitrary
   for( unsigned int iBX = 2750; iBX < 3250; ++iBX ){
     EtSumNoise[iBX % 4] += lumiSection_.etSum[HLXID].data[iBX];
   }
@@ -513,40 +542,29 @@ void HCAL_HLX::HTMLGenerator::GenerateHLXPlots(const unsigned short int & HLXID)
   EtSumNoise[2] /= 125.0;
   EtSumNoise[3] /= 125.0;
 
-  
-  for(unsigned int BXNum = 0; BXNum < NumBX; BXNum++){
+  for(unsigned int iBX = 0; iBX < 3564; ++iBX ){
    
-    Histos[7]->Fill(BXNum, lumiSection_.lhc[HLXID].data[BXNum]);
+    HLXHistos_[7]->Fill( iBX, lumiSection_.lhc[HLXID].data[iBX]);
    
     if( lumiSection_.hdr.numOrbits > 0){
-      Histos[0]->Fill(BXNum, (lumiSection_.etSum[HLXID].data[BXNum] - EtSumNoise[BXNum % 4]) / (float)(lumiSection_.hdr.numOrbits));
+      HLXHistos_[0]->Fill( iBX, (lumiSection_.etSum[HLXID].data[iBX] - EtSumNoise[iBX % 4]) / (float)(lumiSection_.hdr.numOrbits));
        
       for(int k = 0; k < 6; k++){
-	Histos[k+1]->Fill(BXNum, ((float)(lumiSection_.occupancy[HLXID].data[k][BXNum]) / (float)(lumiSection_.hdr.numOrbits)));
+	HLXHistos_[k+1]->Fill(iBX, ((float)(lumiSection_.occupancy[HLXID].data[k][iBX]) / (float)(lumiSection_.hdr.numOrbits)));
       }
     }
   }
 
   const std::string HLXPicsDir = outputDir_ + GetRunDir() + GetLSDir() + GetHLXDir(HLXID) + GetHLXPicDir(HLXID); 
-  TCanvas* c1 = new TCanvas("c1","c1",700,500);
+
   //c1->SetLogy();
-  c1->SetTicks(1,1);
-
-  for(int histoNum = 0; histoNum < 8; histoNum++){
-    Histos[histoNum]->Draw();
-    std::string plotFileName =  HLXPicsDir +  HistoNames[histoNum] + "." + plotExt_;
-    c1->SaveAs(plotFileName.c_str());
+  // Draw Histograms and make pngs
+  c1_->cd();
+  for(unsigned int iHisto = 0; iHisto < 8; ++iHisto ){
+    HLXHistos_[iHisto]->Draw();
+    std::string plotFileName =  HLXPicsDir +  HistoNames[ iHisto ] + "." + plotExt_;
+    c1_->SaveAs(plotFileName.c_str());
   }
-
-  delete c1;
-  delete Histos[0];
-  delete Histos[1];
-  delete Histos[2];
-  delete Histos[3];
-  delete Histos[4];
-  delete Histos[5];
-  delete Histos[6];
-  delete Histos[7];
 
 #ifdef DEBUG
   std::cout << "End " << __PRETTY_FUNCTION__ << std::endl;
@@ -603,7 +621,7 @@ void HCAL_HLX::HTMLGenerator::GenerateHistoGroupPage(const std::string &HistoNam
   const unsigned int sectionNumber = GetSectionNumber();
 
   pageDir = outputDir_ + GetRunDir() + GetLSDir() + HistoName;
-  MakeDir(pageDir, writeMode);
+  MakeDir(pageDir, writeMode_);
 
   fileName = pageDir + "/index.html";
 
@@ -649,12 +667,12 @@ void HCAL_HLX::HTMLGenerator::GenerateLumiPage(){
    const unsigned int sectionNumber = GetSectionNumber();
    
    pageDir = outputDir_ + GetRunDir() + GetLSDir() + "Luminosity/";
-   MakeDir(pageDir + "/Pics" , writeMode);
+   MakeDir(pageDir + "/Pics" , writeMode_ );
    
    fileName = pageDir + "index.html";
    std::cout << "********* " << fileName << " **********" << std::endl;
 
-   fstream fileStr;
+   std::ofstream fileStr;
    
    fileStr.open(fileName.c_str());
    
@@ -683,42 +701,32 @@ void HCAL_HLX::HTMLGenerator::GenerateLumiPage(){
    
    fileStr.close();
    
-   TCanvas* c1 = new TCanvas("c1","c1",700,500);
    //c1->SetLogy();
-   c1->SetTicks(1,1);
-   
-   TH1F* ETLumiHisto      = new TH1F("ETLumi",      "E_{T} Lumi",          NBins_, XMin_, XMax_);
-   TH1F* OccLumiSet1Histo = new TH1F("OccLumiSet1", "Occupancy Lumi Set1", NBins_, XMin_, XMax_);
-   TH1F* OccLumiSet2Histo = new TH1F("OccLumiSet2", "Occupancy Lumi Set2", NBins_, XMin_, XMax_);
-   
-   ETLumiHisto->GetXaxis()->SetTitle("Bunch Crossing");
-   OccLumiSet1Histo->GetXaxis()->SetTitle("Bunch Crossing");
-   OccLumiSet2Histo->GetXaxis()->SetTitle("Bunch Crossing");
-   
+   c1_->cd();
+     
    for( unsigned int iBX = 0; iBX < 3564; ++iBX ){
-      ETLumiHisto->     SetBinContent(iBX, lumiSection_.lumiDetail.ETLumi[iBX]);
-      ETLumiHisto->     SetBinError(  iBX, lumiSection_.lumiDetail.ETLumiErr[iBX]);
-      OccLumiSet1Histo->SetBinContent(iBX, lumiSection_.lumiDetail.OccLumi[0][iBX]);
-      OccLumiSet1Histo->SetBinError(  iBX, lumiSection_.lumiDetail.OccLumiErr[0][iBX]);
-      OccLumiSet2Histo->SetBinContent(iBX, lumiSection_.lumiDetail.OccLumi[1][iBX]);
-      OccLumiSet2Histo->SetBinError(  iBX, lumiSection_.lumiDetail.OccLumiErr[1][iBX]);
+     int Bin = (int)(iBX - XMin_)/BinWidth_ + 1;
+     if( Bin < 1 ) Bin = 0;
+     if( Bin > (int)NBins_ ) Bin = NBins_ + 1;
+
+     ETLumiHisto_->    Fill(iBX, lumiSection_.lumiDetail.ETLumi[iBX]);
+     ETLumiHisto_->    SetBinError(  Bin, lumiSection_.lumiDetail.ETLumiErr[iBX]);
+     OccLumiSet1Histo_->Fill(iBX, lumiSection_.lumiDetail.OccLumi[0][iBX]);
+     OccLumiSet1Histo_->SetBinError(  Bin, lumiSection_.lumiDetail.OccLumiErr[0][iBX]);
+     OccLumiSet2Histo_->Fill(iBX, lumiSection_.lumiDetail.OccLumi[1][iBX]);
+     OccLumiSet2Histo_->SetBinError(  Bin, lumiSection_.lumiDetail.OccLumiErr[1][iBX]);
    }
 
-   ETLumiHisto->Draw();
+   ETLumiHisto_->Draw();
    std::cout << "Saving ETLumi Histo" << std::endl;
-   c1->SaveAs( (pageDir + "/Pics/EtSumLumi.png").c_str() );
-   OccLumiSet1Histo->Draw();
+   c1_->SaveAs( (pageDir + "/Pics/EtSumLumi.png").c_str() );
+   OccLumiSet1Histo_->Draw();
    std::cout << "Saving Occ Lumi 1 Histo" << std::endl;
-   c1->SaveAs( (pageDir + "/Pics/OccLumiSet1.png").c_str() ); 
-   OccLumiSet2Histo->Draw();
+   c1_->SaveAs( (pageDir + "/Pics/OccLumiSet1.png").c_str() ); 
+   OccLumiSet2Histo_->Draw();
    std::cout << "Saving Occ Lumi 2 Histo" << std::endl;
-   c1->SaveAs( (pageDir + "/Pics/OccLumiSet2.png").c_str() );
+   c1_->SaveAs( (pageDir + "/Pics/OccLumiSet2.png").c_str() );
 
    std::cout << "Deleting Histograms" << std::endl;
 
-   delete c1;
-   delete ETLumiHisto;
-   delete OccLumiSet1Histo;
-   delete OccLumiSet2Histo;
-   
 }
