@@ -1,6 +1,6 @@
 /** \class HLTEgammaHcalIsolFilter
  *
- * $Id: HLTEgammaHcalIsolFilter.cc,v 1.11 2008/04/25 15:18:51 ghezzi Exp $
+ * $Id: HLTEgammaHcalIsolFilter.cc,v 1.12 2008/09/09 16:22:32 ghezzi Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -97,7 +97,7 @@ HLTEgammaHcalIsolFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
      float HoE = mapi->val / ref->et();
      float HoE2 = HoE / ref->et();
 
-     if(fabs(ref->eta()) < 1.5){//Barrel
+     if(fabs(ref->eta()) < 1.479){//Barrel
        if ( vali < hcalisolbarrelcut_ || HoE < HoverEcut_ || HoE2 < HoverEt2cut_ ) {
 	 n++;
 	 filterproduct->addObject(TriggerCluster, ref);
