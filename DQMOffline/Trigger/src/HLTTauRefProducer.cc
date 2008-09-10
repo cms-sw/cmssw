@@ -150,10 +150,10 @@ HLTTauRefProducer::doElectrons(edm::Event& iEvent,const edm::EventSetup& iES)
   //Retrieve the collections
   edm::Handle<edm::ValueMap<float> > pEleID;
   iEvent.getByLabel(e_idAssocProd_,pEleID);
-    if (!pEleID.isValid()){
-      edm::LogInfo("")<< "Error! Can't get electronID by label. ";
-    }
+  if (!pEleID.isValid()){
+    edm::LogInfo("")<< "Error! Can't get electronID by label. ";
   }
+  
   edm::Handle<reco::TrackCollection> pCtfTracks;
   iEvent.getByLabel(e_ctfTrackCollection_, pCtfTracks);
   if (!pCtfTracks.isValid()) {
