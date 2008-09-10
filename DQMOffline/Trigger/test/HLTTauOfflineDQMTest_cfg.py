@@ -41,7 +41,12 @@ process.source = cms.Source("PoolSource",
                )
 
 
+
 process.load("FWCore.MessageService.MessageLogger_cfi")
+process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
+
+
 #process.DQMStore = cms.Service("DQMStore")
 
 #Load DQM Services
