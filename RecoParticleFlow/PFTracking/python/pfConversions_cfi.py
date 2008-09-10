@@ -10,7 +10,7 @@ pfConversions = cms.EDProducer("PFConversionsProducer",
     # inputs
     conversionProducer = cms.string('conversions'),
     #
-    debug = cms.bool(True),
+    debug = cms.bool(False),
     PFRecTracksFromConversions = cms.string('pfRecTracksFromConversions')
 )
 
