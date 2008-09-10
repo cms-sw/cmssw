@@ -13,7 +13,8 @@
 #            functionality.
 import tempfile as tmp
 import optparse as opt
-import re, os, sys, time, glob, socket, fnmatch, cmsPerfRegress
+import cmsPerfRegress as cpr
+import re, os, sys, time, glob, socket, fnmatch
 from shutil import copy2, copystat
 from stat   import *
 from cmsPerfCommons import CandFname, Step, Candles
@@ -70,7 +71,7 @@ def prettySize(size):
     nega = size < 0
     if nega:
         size = -size
-    suffixes = [("B",2**10), ("K",2**20), ("M",2**30), ("G",2**40), ("T",2**50)]
+    suffixes = [("B",2**10), ("k",2**20), ("M",2**30), ("G",2**40), ("T",2**50)]
     for suf, lim in suffixes:
         if size > lim:
             continue
@@ -126,7 +127,7 @@ class Table(object):
             
         return self.rows[name]
 
-    def getTable(self):
+    def getTable(self,mode=0):
         name = "Total"
         
         for key in self.keys:
@@ -141,12 +142,18 @@ class Table(object):
                     if col == None:
                         pass
                     elif rowdict.has_key(col) and not col == name:
-                        (step_tot1, step_tot2) = rowdict[col]
-                        total1 += step_tot1
-                        total2 += step_tot2
-                rowobj.addEntry(name,(total1,total2))
+                        if mode == 1:
+                            total1 += rowdict[col]
+                        else:
+                            (step_tot1, step_tot2) = rowdict[col]
+                            total1 += step_tot1
+                            total2 += step_tot2
+                if mode == 1:
+                    rowobj.addEntry(name,total1)                    
+                else:
+                    rowobj.addEntry(name,(total1,total2))
                 
-        return (self.keys, self.rows)
+        return (self.keys, self.rows)    
 
     def transpose(self):
         transp = Table()
@@ -842,8 +849,7 @@ def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDat
                                 print "Found %s in %s\n" % (cand,LocalPath)
                                 
                             if not "EdmSize" in cand:
-                                lfileshtml += "<a href=\"./%s/%s\">%s </a>" % (base,cand,cand)
-                                lfileshtml += "<br />\n"
+                                lfileshtml += "<a href=\"./%s/%s\">%s </a><br/>" % (base,cand,cand)
                                     
                         CAND.write("<p><strong>Logfiles for %s</strong></p>\n" % CurDir)    
                         CAND.write(lfileshtml)
@@ -952,20 +958,25 @@ def populateFromTupleRoot(tupname,repdir,rootfile):
                 
 
 def createHTMLtab(INDEX,table_dict,ordered_keys,header,caption,name,mode=0):
-    fslabels = ["fs1","fs2","&#x0394;"]
-    tlabels  = ["t1" ,"t2" ,"&#x0394;"]
-    labels = []
+    cols     = len(ordered_keys)
+    totcols  = (cols * 3) + 1
+    innercol = 3
+    colspan  = totcols - 1
+    labels   = []
     if mode == 1:
-        labels = fslabels
+        labels = ["fs1","fs2","&#x0394;"]
+    elif mode == 2 or mode == 3:
+        colspan = cols
+        innercol = 1
     else:
-        labels = tlabels
-    cols = len(ordered_keys)
-    totcols = (cols * 3) + 1
+        labels = ["t1" ,"t2" ,"&#x0394;"]
+
+
     INDEX.write("<h3>%s</h3>\n" % header)
     #INDEX.write("<p>Table showing previous release CPU times, t1, latest times, t2, and the difference between them &#x0394; in secs.</p>\n")
     INDEX.write("<table>\n")
     INDEX.write("<caption>%s</caption>\n" % caption)
-    INDEX.write("<thead><tr><th></th><th colspan=\"%s\" scope=\"colgroup\">%s</th></tr></thead>" % ((totcols - 1),name)) 
+    INDEX.write("<thead><tr><th></th><th colspan=\"%s\" scope=\"colgroup\">%s</th></tr></thead>" % (colspan,name)) 
     INDEX.write("<tbody>\n")
     for key in ordered_keys:
         INDEX.write("<tr>")
@@ -977,45 +988,63 @@ def createHTMLtab(INDEX,table_dict,ordered_keys,header,caption,name,mode=0):
             INDEX.write("</td>")
         for col in table_dict[None]:
             if key == None:
-                INDEX.write("<th colspan=\"3\" scope=\"col\">")
+                INDEX.write("<th colspan=\"%s\" scope=\"col\">" % innercol)
                 INDEX.write(col)
                 INDEX.write("</th>")                            
             else:
                 rowdict = table_dict[key].getRowDict()
                 if rowdict.has_key(col):
-                    (data1, data2) = rowdict[col]
-                    diff = data2 - data1
-
-                    if mode == 1:
-                        diff  = prettySize(diff)
-                        data1 = prettySize(data1)
-                        data2 = prettySize(data2)
-                        
-                    seq = [ data1, data2, diff ]
-                    for dat in seq:
-                        INDEX.write("<td id=\"data\">")
-                        if mode == 1:
-                            INDEX.write("%s" % dat) # %s if                            
-                        else:
-                            INDEX.write("%6.2f" % dat) # %s if                            
-
+                    if mode == 2:
+                        dat = prettySize(rowdict[col])
+                        INDEX.write("<td>")
+                        INDEX.write("%s" % dat)
                         INDEX.write("</td>")
+                        
+                    elif mode == 3:
+                        dat = rowdict[col]
+                        INDEX.write("<td>")
+                        INDEX.write("%6.2f" % dat)
+                        INDEX.write("</td>")                        
+                    else:
+                        (data1, data2) = rowdict[col]
+                        diff = data2 - data1
+
+                        if mode == 1:
+                            diff  = prettySize(diff)
+                            data1 = prettySize(data1)
+                            data2 = prettySize(data2)
+                        
+                        seq = [ data1, data2, diff ]
+                        for dat in seq:
+                            INDEX.write("<td id=\"data\">")
+                            if mode == 1:
+                                INDEX.write("%s" % dat) # %s if                            
+                            else:
+                                INDEX.write("%6.2f" % dat) # %s if                            
+
+                            INDEX.write("</td>")
                 else:
-                    for i in range(3):
+                    if mode == 2 or mode == 3:
                         INDEX.write("<td>")                                    
                         INDEX.write("N/A")
-                        INDEX.write("</td>")
+                        INDEX.write("</td>")                         
+                    else:
+                        for i in range(3):
+                            INDEX.write("<td>")                                    
+                            INDEX.write("N/A")
+                            INDEX.write("</td>") 
         INDEX.write("</tr>\n")
         # write an additional row if this row is the header row
         # we need to describe the sub columns
-        if key == None:
-            INDEX.write("<tr>")
-            INDEX.write("<th>Candles</th>")
-            for col in table_dict[None]:
-                INDEX.write("<th>%s</th>" % labels[0])
-                INDEX.write("<th>%s</th>" % labels[1])
-                INDEX.write("<th>%s</th>" % labels[2])
-            INDEX.write("</tr>\n")
+        if not (mode == 2 or mode == 3 ):
+            if key == None:
+                INDEX.write("<tr>")
+                INDEX.write("<th>Candles</th>")
+                for col in table_dict[None]:
+                    INDEX.write("<th>%s</th>" % labels[0])
+                    INDEX.write("<th>%s</th>" % labels[1])
+                    INDEX.write("<th>%s</th>" % labels[2])
+                INDEX.write("</tr>\n")
     INDEX.write("</tbody></table>\n")
 
     INDEX.write("<br />")    
@@ -1072,7 +1101,47 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
                 INDEX.write(HOST + "\n")
             elif fsizereg.search(NewFileLine):
                 if prevrev == "":
-                    pass
+                    fsize_tab = Table()
+
+                    #populateFromTupleRoot(fsize_tab,"fsize_tuple",repdir,"timing-regress.root","fsize")
+                    #(ordered_keys,table_dict) = fsize_tab.getTable()
+                    #cols = len(ordered_keys)
+
+                    for cand in Candles:
+                        fname = CandFname[cand]
+                        globpath  = os.path.join(repdir,"%s_TimeSize" % cand,"%s_*.root" % fname)
+                        rootfiles = glob.glob(globpath)
+                        rootfiles.sort(cmp=step_cmp)
+                        stepreg = re.compile("%s_(.*).root" % fname)
+                        createNewRow = True
+                        curRow = None
+                        for rootf in rootfiles:
+                            base  = os.path.basename(rootf)
+                            found = stepreg.search(base)
+                            step  = "Unknown-step"
+                            if found:
+                                step = found.groups()[0]
+
+                            try:
+                                statinfo = os.stat(rootf)
+                                fsize    = statinfo.st_size
+                                if createNewRow:
+                                    createNewRow = False
+                                    curRow = fsize_tab.newRow(cand)
+
+                                curRow.addEntry(step,fsize)       
+                            except IOError, detail:
+                                print detail
+                            except OSError, detail:
+                                print detail
+                    (ordered_keys,table_dict) = fsize_tab.getTable(1)
+                    cols = len(ordered_keys)
+                    
+                    if len(table_dict) > 1 and cols > 0:
+                        createHTMLtab(INDEX,table_dict,ordered_keys,
+                                      "Release ROOT file sizes",
+                                      "Table showing current release ROOT filesizes in (k/M/G) bytes.",
+                                      "Filesizes",2)   
                 else:
 
                     try:
@@ -1137,7 +1206,52 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
                 
             elif cpureg.search(NewFileLine):
                 if prevrev == "":
-                    pass
+                    time_tab = Table()
+
+                    #populateFromTupleRoot(fsize_tab,"fsize_tuple",repdir,"timing-regress.root","fsize")
+                    #(ordered_keys,table_dict) = fsize_tab.getTable()
+                    #cols = len(ordered_keys)
+
+                    for cand in Candles:
+                        fname = CandFname[cand]
+                        globpath  = os.path.join(repdir,"%s_TimeSize" % cand,"%s_*_TimingReport.log" % fname)
+                        logfiles = glob.glob(globpath)
+                        logfiles.sort(cmp=step_cmp)
+                        stepreg = re.compile("%s_(.*)_TimingReport.log" % fname)
+                        createNewRow = True
+                        curRow = None
+                        for log in logfiles:
+                            base  = os.path.basename(log)
+                            found = stepreg.search(base)
+                            step  = "Unknown-step"
+                            if found:
+                                step = found.groups()[0]
+
+                            data = cpr.getTimingLogData(log)
+                            mean = 0
+                            i    = 0
+                            for evtnum, time in data:
+                                mean += time
+                                i += 1
+                            try:
+                                mean = mean / float(i)
+                            except ZeroDivisionError, detail:
+                                print "WARNING: Could not calculate mean CPU time in log", log
+
+                            if createNewRow:
+                                createNewRow = False
+                                curRow = time_tab.newRow(cand)
+
+                            curRow.addEntry(step,mean)    
+
+                    (ordered_keys,table_dict) = time_tab.getTable(1)
+                    cols = len(ordered_keys)
+                    
+                    if len(table_dict) > 1 and cols > 0:
+                        createHTMLtab(INDEX,table_dict,ordered_keys,
+                                      "Release CPU times",
+                                      "Table showing current release CPU in secs.",
+                                      "CPU Times (s)",3)                        
                 else:
 
 
@@ -1174,14 +1288,13 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
                     if _verbose:
                         print "linking log file %s" % log
                     INDEX.write("<a href=\"./%s\"> %s </a>" % (log,log))
-                    INDEX.write("<br /><br />\n")
+                    INDEX.write("<br />\n")
                 #Add the cmsScimark results here:
                 INDEX.write("Results for cmsScimark2 benchmark (running on the other cores) available at:\n")
-                INDEX.write("<br /><br />\n")
                 for cmssci in cmsScimarkResults:
                     cmssci = os.path.basename(cmssci)
                     INDEX.write("<a href=\"%s\"> %s </a>" % (cmssci,cmssci))
-                    INDEX.write("<br /><br />\n")
+                    INDEX.write("<br />\n")
 
 
             elif dirbreg.search(NewFileLine):
@@ -1196,10 +1309,10 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
                     candlHTML = "%s.html" % acandle
                     #INDEX.write("<table><th colspan=\"3\">")
                     INDEX.write("<a href=\"./%s\"> %s </a>" % (candlHTML,acandle))
-                    INDEX.write("<br /><br />\n")
+                    INDEX.write("<br />\n")
                    # INDEX.write("</th><tr><td>")
                     
-                    candlHTML="%s/%s" % (WebArea,candlHTML)
+                    candlHTML=os.path.join(WebArea,candlHTML)
                     createCandlHTML(CandlTmpltHTML,candlHTML,acandle,WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,date,prevrev)
             else:
                 INDEX.write(NewFileLine)
