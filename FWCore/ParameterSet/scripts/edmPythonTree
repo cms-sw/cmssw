@@ -10,7 +10,8 @@ parser = optparse.OptionParser(usage=usage)
 (options, args) = parser.parse_args()
 if len(args) != 1:
     parser.error("wrong number of arguments")
-    filename = args[0]
+
+filename = args[0]
 
 sys.path.append(os.environ["PWD"])
 path = sys.path[:]
