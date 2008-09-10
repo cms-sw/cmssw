@@ -110,6 +110,16 @@ CalorimetryManager::CalorimetryManager(FSimEvent * aSimEvent,
 		     random);
   myHSParameters_ = 
     new HSParameters(fastCalo.getParameter<edm::ParameterSet>("HSParameters"));
+
+  // Check if the preshower is really available
+  if(simulatePreshower_ && !myCalorimeter_->preshowerPresent())
+    {
+      std::cout << " WARNING " << std::endl;
+      std::cout << " The preshower simulation has been turned on; but no preshower geometry is available " << std::endl;
+      std::cout << " Disabling the preshower simulation " << std::endl;
+      simulatePreshower_ = false;
+    }
+
 }
 
 void CalorimetryManager::clean()
@@ -824,7 +834,6 @@ void CalorimetryManager::readParameters(const edm::ParameterSet& fastCalo) {
   RCFactor_ = ECALparameters.getParameter<double>("RCFactor");
   RTFactor_ = ECALparameters.getParameter<double>("RTFactor");
   radiusFactor_ = ECALparameters.getParameter<double>("RadiusFactor");
-  
   simulatePreshower_ = ECALparameters.getParameter<bool>("SimulatePreshower");
 
   if(gridSize_ <1) gridSize_= 7;
