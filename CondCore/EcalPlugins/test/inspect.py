@@ -10,9 +10,9 @@ os.putenv("CORAL_AUTH_PATH","/afs/cern.ch/cms/DB/conddb")
 rdbms = RDBMS()
 
 logName = "sqlite_file:log.db"
-dbName = "sqlite_file:pop_test.db"
+dbName = "sqlite_file:mydb.db"
 
-dbName =  "oracle://cms_orcoff_prod/CMS_COND_20X_ECAL"
+# dbName =  "oracle://cms_orcoff_prod/CMS_COND_20X_ECAL"
 logName = "oracle://cms_orcoff_prod/CMS_COND_21X_POPCONLOG"
 
 rdbms.setLogger(logName)
@@ -26,11 +26,11 @@ vf = VFloat()
 
 for tag in tags.split() :
     try :
-        log = db.lastLogEntry(tag)
-        print log.getState()
+#        log = db.lastLogEntry(tag)
+#        print log.getState()
         iov = inspect.Iov(db,tag)
-        print iov.list()
-#        print iov.summaries()
+#        print iov.list()
+        print iov.summaries()
 #        print iov.trend("",[0,2,12])
     except RuntimeError :
         print " no iov? in", tag

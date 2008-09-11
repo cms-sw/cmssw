@@ -85,6 +85,8 @@ namespace cond {
     
 
     void setRange(cond::Time_t since, cond::Time_t  till) const;
+    void setHead(int head) const;
+    void setTail(int tail) const;
 
     int size() const;
     IOV const & iov() const;
