@@ -22,7 +22,7 @@
  **  
  **
  **  $Id: PhotonAnalyzer
- **  $Date: 2008/09/05 15:37:31 $ 
+ **  $Date: 2008/09/08 17:16:49 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -53,7 +53,7 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   virtual void analyze( const edm::Event&, const edm::EventSetup& ) ;
   virtual void beginJob( const edm::EventSetup& ) ;
   virtual void endJob() ;
-
+ 
  private:
   //
 
@@ -68,30 +68,21 @@ class PhotonAnalyzer : public edm::EDAnalyzer
 
   int nEvt_;
   int nEntry_;
-  int nMCPho_;
-  int nMatched_;
-  edm::ParameterSet parameters_;
-  edm::ESHandle<CaloGeometry> theCaloGeom_;	    
-  edm::ESHandle<CaloTopology> theCaloTopo_;
 
+  edm::ParameterSet parameters_;
            
   std::string photonProducer_;       
   std::string photonCollection_;
- 
-
   
   double minPhoEtCut_;
 
-
-  double lip_;
-
-  double ecalEtaStrip_;
-
-
-
   double cutStep_;
   int numberOfSteps_;
-  
+
+  bool useBinning_;
+
+  int isolationStrength_; 
+
   std::vector<MonitorElement*> h_nTrackIsolSolid_;
   std::vector<MonitorElement*> h_trackPtSumSolid_;
   std::vector<MonitorElement*> h_ecalSum_;
@@ -119,9 +110,29 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   std::vector<std::vector<MonitorElement*> > h_r9_isol_;
   std::vector<std::vector<std::vector<MonitorElement*> > > h_r9_;
 
+  std::vector<MonitorElement*> h_hOverE_part_;
+  std::vector<std::vector<MonitorElement*> > h_hOverE_isol_;
+  std::vector<std::vector<std::vector<MonitorElement*> > > h_hOverE_;
+
   std::vector<MonitorElement*> h_nPho_part_;
   std::vector<std::vector<MonitorElement*> > h_nPho_isol_;
   std::vector<std::vector<std::vector<MonitorElement*> > > h_nPho_;
+
+  std::vector<MonitorElement*> h_nConv_part_;
+  std::vector<std::vector<MonitorElement*> > h_nConv_isol_;
+  std::vector<std::vector<std::vector<MonitorElement*> > > h_nConv_;
+
+  std::vector<MonitorElement*> h_eOverPTracks_part_;
+  std::vector<std::vector<MonitorElement*> > h_eOverPTracks_isol_;
+  std::vector<std::vector<std::vector<MonitorElement*> > > h_eOverPTracks_;
+
+  std::vector<MonitorElement*> h_dCotTracks_part_;
+  std::vector<std::vector<MonitorElement*> > h_dCotTracks_isol_;
+  std::vector<std::vector<std::vector<MonitorElement*> > > h_dCotTracks_;
+
+  std::vector<MonitorElement*> h_dPhiTracksAtVtx_part_;
+  std::vector<std::vector<MonitorElement*> > h_dPhiTracksAtVtx_isol_;
+  std::vector<std::vector<std::vector<MonitorElement*> > > h_dPhiTracksAtVtx_;
 
   std::vector<MonitorElement*> h_phoDistribution_part_;
   std::vector<std::vector<MonitorElement*> > h_phoDistribution_isol_;
@@ -131,6 +142,14 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   std::vector<std::vector<MonitorElement*> > h_phoEta_;
   std::vector<MonitorElement*> h_phoPhi_isol_;
   std::vector<std::vector<MonitorElement*> > h_phoPhi_;
+
+  std::vector<MonitorElement*> h_phoConvEta_isol_;
+  std::vector<std::vector<MonitorElement*> > h_phoConvEta_;
+  std::vector<MonitorElement*> h_phoConvPhi_isol_;
+  std::vector<std::vector<MonitorElement*> > h_phoConvPhi_;
+
+  std::vector<MonitorElement*> h_convVtxRvsZ_isol_;
+  std::vector<std::vector<MonitorElement*> > h_convVtxRvsZ_;
 
   std::vector<MonitorElement*> p_r9VsEt_isol_;
   std::vector<std::vector<MonitorElement*> > p_r9VsEt_;

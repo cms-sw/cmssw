@@ -7,38 +7,15 @@ PhotonAnalysis = cms.EDAnalyzer("PhotonAnalyzer",
     phoProducer = cms.string('photons'),
     photonCollection = cms.string(''),
 
- #   hbheModule = cms.string('hbhereco'),
- #   hbheInstance = cms.string(''),
-                                
- #   trackProducer = cms.InputTag("generalTracks"),
 
- ## for 2_1_4
-#    bcBarrelProducer = cms.string("hybridSuperClusters"),
-#    bcEndcapProducer = cms.string("multi5x5BasicClusters"),                                       
-#    bcBarrelCollection = cms.string("hybridBarrelBasicClusters"),                            
-#    bcEndcapCollection = cms.string("multi5x5EndcapBasicClusters"),
-
- #   scBarrelProducer = cms.InputTag('correctedHybridSuperClusters'),
- #   scEndcapProducer = cms.InputTag('correctedMulti5x5SuperClustersWithPreshower'),
-
- #   barrelEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
- #   endcapEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
-
-
-
-
-    cutStep = cms.double(32.0),
+    cutStep = cms.double(50.0),
     numberOfSteps = cms.int32(2),                          
 
+    useBinning = cms.bool(False),
+                             
 
     minPhoEtCut = cms.double(0.0),
-    minBcEtCut = cms.double(0.0),
-    minTrackPtCut = cms.double(1.5),
-    minHcalHitEtCut = cms.double(0.0),
-
-    lipCut = cms.double(2.0),                            
-
-    ecalEtaStrip = cms.double(0.02),                  
+              
 
     # DBE verbosity
     Verbosity = cms.untracked.int32(0),
@@ -46,6 +23,10 @@ PhotonAnalysis = cms.EDAnalyzer("PhotonAnalyzer",
                                 # 2 provides output of the fill step + 1
                                 # 3 provides output of the store step + 2
                                 
+    isolationStrength = cms.int32(2),
+                                # 1 => Loose EM
+                                # 2 => Loose Photon
+                                # 3 => Tight Photon
 
  
 
@@ -79,7 +60,7 @@ PhotonAnalysis = cms.EDAnalyzer("PhotonAnalyzer",
                                 
 
     OutputMEsInRootFile = cms.bool(True),
-    OutputFileName = cms.string('/afs/cern.ch/user/l/lantonel/scratch0/CMSSW_2_1_4/src/DQMOffline/EGamma/TedsPhotonsTest.root'),
+    OutputFileName = cms.string('/afs/cern.ch/user/l/lantonel/scratch0/CMSSW_2_1_4/src/DQMOffline/EGamma/PhotonsTest.root'),
 
 )
 
