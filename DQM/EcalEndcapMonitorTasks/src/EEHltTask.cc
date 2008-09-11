@@ -1,8 +1,8 @@
 /*
  * \file EEHltTask.cc
  *
- * $Date: 2008/09/08 15:09:28 $
- * $Revision: 1.1 $
+ * $Date: 2008/09/11 07:30:21 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  *
 */
@@ -235,7 +235,7 @@ void EEHltTask::analyze(const Event& e, const EventSetup& c){
 
 
   // Integrity errors
-  int FedsIntegrityErrors[18];
+  float FedsIntegrityErrors[18];
   for ( int i=0; i<18; i++ ) FedsIntegrityErrors[i]=0;
 
   Handle<EEDetIdCollection> ids1;
@@ -248,7 +248,7 @@ void EEHltTask::analyze(const Event& e, const EventSetup& c){
 
       int ism = Numbers::iSM( id );
 
-      FedsIntegrityErrors[ism-1]++;
+      FedsIntegrityErrors[ism-1]+=1.0/1100.;
 
     }
 
@@ -268,7 +268,7 @@ void EEHltTask::analyze(const Event& e, const EventSetup& c){
 
       int ism = Numbers::iSM( id );
 
-      FedsIntegrityErrors[ism-1]++;
+      FedsIntegrityErrors[ism-1]+=1.0/1100.;
 
     }
 
@@ -288,7 +288,7 @@ void EEHltTask::analyze(const Event& e, const EventSetup& c){
 
       int ism = Numbers::iSM( id );
 
-      FedsIntegrityErrors[ism-1]++;
+      FedsIntegrityErrors[ism-1]+=1.0/1100.;
 
     }
 
@@ -310,7 +310,7 @@ void EEHltTask::analyze(const Event& e, const EventSetup& c){
 
       int ismt = Numbers::iSM( id );
 
-      FedsIntegrityErrors[ismt-1]++;
+      FedsIntegrityErrors[ismt-1]+=1.0/44.;
 
     }
 
@@ -332,7 +332,7 @@ void EEHltTask::analyze(const Event& e, const EventSetup& c){
 
       int ismt = Numbers::iSM( id );
 
-      FedsIntegrityErrors[ismt-1]++;
+      FedsIntegrityErrors[ismt-1]+=1.0/1100.;
 
     }
 
@@ -354,7 +354,7 @@ void EEHltTask::analyze(const Event& e, const EventSetup& c){
 
       int ismt = Numbers::iSM( id );
 
-      FedsIntegrityErrors[ismt-1]++;
+      FedsIntegrityErrors[ismt-1]+=1.0/44.;
 
     }
 
@@ -376,7 +376,7 @@ void EEHltTask::analyze(const Event& e, const EventSetup& c){
 
       int ismt = Numbers::iSM( id );
 
-      FedsIntegrityErrors[ismt-1]++;
+      FedsIntegrityErrors[ismt-1]+=1.0/1100.;
 
     }
 
@@ -398,7 +398,7 @@ void EEHltTask::analyze(const Event& e, const EventSetup& c){
 
       int ismt = Numbers::iSM( id );
 
-      FedsIntegrityErrors[ismt-1]++;
+      FedsIntegrityErrors[ismt-1]+=1.0/1100.;
 
     }
 
@@ -420,7 +420,7 @@ void EEHltTask::analyze(const Event& e, const EventSetup& c){
 
       int ismt = Numbers::iSM( id );
 
-      FedsIntegrityErrors[ismt-1]++;
+      FedsIntegrityErrors[ismt-1]+=1.0/1100.;
 
     }
 
