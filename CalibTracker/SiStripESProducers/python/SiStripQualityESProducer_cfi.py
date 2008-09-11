@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-SiStripQualityESProducer = cms.ESProducer("SiStripQualityESProducer",
+siStripQualityESProducer = cms.ESProducer("SiStripQualityESProducer",
     appendToDataLabel = cms.string(''),
     ListOfRecordToMerge = cms.VPSet(cms.PSet(
         record = cms.string('SiStripBadModuleRcd'),
