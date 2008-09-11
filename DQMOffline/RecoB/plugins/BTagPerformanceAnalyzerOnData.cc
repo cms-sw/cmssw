@@ -260,6 +260,15 @@ void BTagPerformanceAnalyzerOnData::analyze(const edm::Event& iEvent, const edm:
   for (unsigned int iJetLabel = 0; iJetLabel != jetTagInputTags.size(); ++iJetLabel) {
     edm::Handle<reco::JetTagCollection> tagHandle;
     iEvent.getByLabel(jetTagInputTags[iJetLabel], tagHandle);
+    //
+    // insert check on the presence of the collections
+    //
+
+    if (tagHandle.isValid() == false){
+      edm::LogWarning("BTagPerformanceAnalyzerOnData")<<" Collection "<<jetTagInputTags[iJetLabel]<<" not present. Skipping it for this event.";
+      continue;
+    }
+    
     const reco::JetTagCollection & tagColl = *(tagHandle.product());
     LogDebug("Info") << "Found " << tagColl.size() << " B candidates in collection " << jetTagInputTags[iJetLabel];
 
