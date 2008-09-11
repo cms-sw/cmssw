@@ -63,45 +63,45 @@ namespace cond {
       }
     }
 
-	typedef boost::function<void(Container const & cont, std::vector<int> const & which,  std::vector<float> & result)> CondExtractor;
+    typedef boost::function<void(Container const & cont, std::vector<int> const & which,  std::vector<float> & result)> CondExtractor;
   }
 
   template<>
-  struct ExtractWhat<Container> {
-
+  struct ExtractWhat<EcalFloatCondObjectContainer> {
+    
     ecalcond::How m_how;
     std::vector<int> m_which;
-
+    
     ecalcond::How const & how() const { return m_how;}
     std::vector<int> const & which() const { return m_which;}
- 
+    
     void set_how(ecalcond::How i) {m_how=i;}
     void set_which(std::vector<int> & i) { m_which.swap(i);}
   };
-
+  
 
 
 
   template<>
   class ValueExtractor<EcalFloatCondObjectContainer>: public  BaseValueExtractor<EcalFloatCondObjectContainer> {
   public:
-
+    
     static ecalcond::CondExtractor & extractor(ecalcond::How how) {
       static  ecalcond::CondExtractor fun[5] = { 
 	ecalcond::CondExtractor(ecalcond::extractSingleChannel),
 	ecalcond::CondExtractor(ecalcond::extractSuperModules),
-	ecalcond::CondExtractor(ecalcond::extractAverage)
-	ecalcond::CondExtractor(ecalcond::extractBarrelAverage)
+	ecalcond::CondExtractor(ecalcond::extractAverage),
+	ecalcond::CondExtractor(ecalcond::extractBarrelAverage),
 	ecalcond::CondExtractor(ecalcond::extractEndcapAverage)
-              };
+      };
       return fun[how];
     }
-
-
+    
+    
     typedef EcalFloatCondObjectContainer Class;
     typedef ExtractWhat<Class> What;
     static What what() { return What();}
-
+    
     ValueExtractor(){}
     ValueExtractor(What const & what)
       : m_what(what)
@@ -109,52 +109,52 @@ namespace cond {
       // here one can make stuff really complicated... 
       // ask to make average on selected channels...
     }
-
+    
     void compute(Class const & it){
       std::vector<float> res;
       extractor(m_what.how())(it,m_what.quantity(),m_what.which(),res);
       swap(res);
     }
-
+    
   private:
     What  m_what;
-
+    
   };
-
-
+  
+  
   template<>
   std::string
   PayLoadInspector<EcalFloatCondObjectContainer>::dump() const {
-   Printer p;
+    Printer p;
     std::for_each(object->barrelItems().begin(),object->barrelItems().end(),boost::bind(&Printer::doit,boost::ref(p),_1));
     p.ss <<"\n";
     std::for_each(object->endcapItems().begin(),object->endcapItems().end(),boost::bind(&Printer::doit,boost::ref(p),_1));
     p.ss << std::endl;
     return p.ss.str();
-   }
+  }
   
   template<>
   std::string PayLoadInspector<EcalFloatCondObjectContainer>::summary() const {
     std::stringstream ss;
     ss << "sizes="
-	<< object->barrelItems().size() <<","
-	<< object->endcapItems().size() <<";";
-     ss << std::endl;
+       << object->barrelItems().size() <<","
+       << object->endcapItems().size() <<";";
+    ss << std::endl;
     return ss.str();
   }
   
 
   template<>
   std::string PayLoadInspector<EcalFloatCondObjectContainer>::plot(std::string const & filename,
-						   std::string const &, 
-						   std::vector<int> const&, 
-						   std::vector<float> const& ) const {
+								   std::string const &, 
+								   std::vector<int> const&, 
+								   std::vector<float> const& ) const {
     std::string fname = filename + ".png";
     std::ofstream f(fname.c_str());
     return fname;
   }
-
-
+  
+  
 }
 
 namespace condPython {
@@ -167,7 +167,7 @@ namespace condPython {
       .value("endcap",cond::ecalcond::endcap)
       .value("all",cond::ecalcond::all)
       ;
-
+    
     typedef cond::ExtractWhat<EcalFloatCondObjectContainer> What;
     class_<What>("What",init<>())
       .def("set_how",&What::set_how)
