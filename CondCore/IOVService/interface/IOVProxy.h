@@ -83,10 +83,12 @@ namespace cond {
 					     IterHelp(*m_iov));
     }
     
-
+    // limit range
     void setRange(cond::Time_t since, cond::Time_t  till) const;
-    void setHead(int head) const;
-    void setTail(int tail) const;
+    // limit to the first n 
+    void head(int n) const;
+    // limit to the last n
+    void tail(int tail) const;
 
     int size() const;
     IOV const & iov() const;

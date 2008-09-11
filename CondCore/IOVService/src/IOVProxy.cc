@@ -62,6 +62,15 @@ namespace cond {
     m_high=std::min(m_high+1,size());
   }
 
+  void IOVProxy::head(int n) const {
+    m_high = std::min(m_low+n,m_high);
+  }
+
+  void  IOVProxy::tail(int tail) const {
+    m_low = std::max(m_high-10,m_low);
+  }
+
+
 
   int IOVProxy::size() const {
     return iov().iov.size();

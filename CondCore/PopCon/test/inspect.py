@@ -1,7 +1,7 @@
 #
 # I should write a decent test of the python binding...
 #
-import sys, DLFCN
+import os,sys, DLFCN
 sys.setdlopenflags(DLFCN.RTLD_GLOBAL+DLFCN.RTLD_LAZY)
 
 from pluginCondDBPyInterface import *
