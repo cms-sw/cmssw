@@ -1,8 +1,8 @@
 /*
  * \file EEHltTask.cc
  *
- * $Date: 2008/05/11 09:35:09 $
- * $Revision: 1.85 $
+ * $Date: 2008/09/08 15:09:28 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  *
 */
@@ -436,7 +436,7 @@ void EEHltTask::analyze(const Event& e, const EventSetup& c){
 
       int fednumber = ( ism < 10 ) ? 600 + ism : 636 + ism;
 
-      if ( meEEFedsIntegrityErrors_ ) meEEFedsIntegrityErrors_->Fill( fednumber );
+      if ( meEEFedsIntegrityErrors_ ) meEEFedsIntegrityErrors_->Fill( fednumber, FedsIntegrityErrors[ism-1] );
 
     }
 

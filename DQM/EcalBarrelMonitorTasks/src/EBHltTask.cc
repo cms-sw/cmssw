@@ -1,8 +1,8 @@
 /*
  * \file EBHltTask.cc
  *
- * $Date: 2008/05/11 09:35:09 $
- * $Revision: 1.85 $
+ * $Date: 2008/09/08 15:07:50 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  *
 */
@@ -423,7 +423,7 @@ void EBHltTask::analyze(const Event& e, const EventSetup& c){
 
     if ( FedsIntegrityErrors[ism-1] != 0 ) {
 
-      if ( meEBFedsIntegrityErrors_ ) meEBFedsIntegrityErrors_->Fill( EBFirstFED + ism - 1 );
+      if ( meEBFedsIntegrityErrors_ ) meEBFedsIntegrityErrors_->Fill( EBFirstFED + ism - 1, FedsIntegrityErrors[ism-1] );
 
     }
 
