@@ -318,6 +318,15 @@ void BTagPerformanceAnalyzerOnData::analyze(const edm::Event& iEvent, const edm:
     for (unsigned int iInputTags = 0; iInputTags < inputTags.size(); ++iInputTags) {
       edm::Handle< View<BaseTagInfo> > & tagInfoHandle = tagInfoHandles[iInputTags];
       iEvent.getByLabel(inputTags[iInputTags], tagInfoHandle);
+      //
+      // protect against missing products
+      //
+    if (tagInfoHandle.isValid() == false){
+      edm::LogWarning("BTagPerformanceAnalyzerOnData")<<" Collection "<<inputTags[iInputTags]<<" not present. Skipping it for this event.";
+      continue;
+    }
+
+
       unsigned int size = tagInfoHandle->size();
       LogDebug("Info") << "Found " << size << " B candidates in collection " << inputTags[iInputTags];
       edm::ProductID thisProductID = (size > 0) ? (*tagInfoHandle)[0].jet().id() : edm::ProductID();
