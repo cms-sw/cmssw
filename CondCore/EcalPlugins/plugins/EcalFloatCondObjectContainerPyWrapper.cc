@@ -161,7 +161,7 @@ namespace cond {
 
 namespace condPython {
   template<>
-  void defineWhat<ecalcond::Container>() {
+  void defineWhat<cond::ecalcond::Container>() {
     enum_<cond::ecalcond::How>("How")
       .value("singleChannel",cond::ecalcond::singleChannel)
       .value("bySuperModule",cond::ecalcond::bySuperModule) 
@@ -170,7 +170,7 @@ namespace condPython {
       .value("all",cond::ecalcond::all)
       ;
     
-    typedef cond::ExtractWhat<ecalcond::Container> What;
+    typedef cond::ExtractWhat<cond::ecalcond::Container> What;
     class_<What>("What",init<>())
       .def("set_how",&What::set_how)
       .def("set_which",&What::set_which)

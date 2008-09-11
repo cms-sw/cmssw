@@ -17,7 +17,7 @@ namespace cond {
     typedef Container::value_type  value_type;
     
     enum How { singleChannel, bySuperModule, barrel, endcap, all};
-
+    
     int bad(Items const & cont) {
       return  std::count_if(cont.begin(),cont.end(),
 			    boost::bind(std::greater<int>(),
@@ -25,7 +25,7 @@ namespace cond {
 			    );
     }
     
-
+    
     void extractBarrel(Container const & cont, std::vector<int> const &,  std::vector<float> & result) {
       result.resize(1);
       result[0] =  bad(cont.barrelItems());
@@ -33,8 +33,8 @@ namespace cond {
     void extractEndcap(Container const & cont, std::vector<int> const &,  std::vector<float> & result) {
       result.resize(1);
       result[0] = bad(cont.endcapItems());
-
-     void extractAll(Container const & cont, std::vector<int> const & which,  std::vector<float> & result) {
+    }
+    void extractAll(Container const & cont, std::vector<int> const &,  std::vector<float> & result) {
       result.resize(1);
       result[0] = bad(cont.barrelItems())+bad(cont.endcapItems());
     }
@@ -42,17 +42,17 @@ namespace cond {
     void extractSuperModules(Container const & cont, std::vector<int> const & which,  std::vector<float> & result) {
       // bho...
     }
-
+    
     void extractSingleChannel(Container const & cont, std::vector<int> const & which,  std::vector<float> & result) {
       result.reserve(which.size());
       for (int i=0; i<which.size();i++) {
-	  result.push_back(cont[which[i]]);
+	result.push_back(cont[which[i]]);
       }
     }
-
+    
     typedef boost::function<void(Container const & cont, std::vector<int> const & which,  std::vector<float> & result)> CondExtractor;
   }
-
+  
   template<>
   struct ExtractWhat<EcalFloatCondObjectContainer> {
     
