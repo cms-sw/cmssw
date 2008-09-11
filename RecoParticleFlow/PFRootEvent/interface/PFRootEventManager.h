@@ -15,6 +15,8 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/GsfPFRecTrack.h"
+#include "DataFormats/ParticleFlowReco/interface/GsfPFRecTrackFwd.h"
 
 #include "DataFormats/ParticleFlowReco/interface/PFSimParticle.h"
 #include "DataFormats/ParticleFlowReco/interface/PFSimParticleFwd.h"
@@ -197,6 +199,7 @@ class PFRootEventManager {
   
   /// preprocess a rectrack vector from a given rectrack branch
   void PreprocessRecTracks( reco::PFRecTrackCollection& rectracks); 
+  void PreprocessRecTracks( reco::GsfPFRecTrackCollection& rectracks); 
   
   /// preprocess a rechit vector from a given rechit branch
   void PreprocessRecHits( reco::PFRecHitCollection& rechits, 
@@ -301,6 +304,8 @@ class PFRootEventManager {
   /// track mask set to true for rechits inside TCutG
   void fillTrackMask( std::vector<bool>& mask, 
                       const reco::PFRecTrackCollection& tracks ) const;
+  void fillTrackMask( std::vector<bool>& mask, 
+                      const reco::GsfPFRecTrackCollection& tracks ) const;
                        
   /// find the closest PFSimParticle to a point (eta,phi) in a given detector
   const reco::PFSimParticle& 
@@ -381,6 +386,9 @@ class PFRootEventManager {
   /// standard reconstructed tracks branch  
   TBranch*   stdTracksBranch_;          
   
+  /// GSF standard reconstructed tracks branch 
+  TBranch*   gsfrecTracksBranch_;
+
   /// true particles branch
   TBranch*   trueParticlesBranch_;          
 
@@ -435,6 +443,9 @@ class PFRootEventManager {
 
   /// reconstructed tracks
   reco::PFRecTrackCollection    recTracks_;
+
+  /// reconstructed GSF tracks
+  reco::GsfPFRecTrackCollection  gsfrecTracks_; 
   
   /// standard reconstructed tracks
   reco::TrackCollection    stdTracks_;

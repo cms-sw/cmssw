@@ -856,6 +856,14 @@ void PFRootEventManager::connect( const char* infilename ) {
         <<stdTracksbranchname<< endl;
   }
   
+  string gsfTracksbranchname; 
+  options_->GetOpt("root","gsfrecTracks_branch",gsfTracksbranchname); 
+  gsfrecTracksBranch_ = tree_->GetBranch(gsfTracksbranchname.c_str()); 
+  if(!gsfrecTracksBranch_) { 
+    cerr<<"PFRootEventManager::ReadOptions : gsfrecTracks_branch not found : " 
+        <<gsfTracksbranchname<< endl; 
+  } 
+
 
   string trueParticlesbranchname;
   options_->GetOpt("root","trueParticles_branch", trueParticlesbranchname);
@@ -963,6 +971,7 @@ void PFRootEventManager::setAddresses() {
     clustersIslandBarrelBranch_->SetAddress(&clustersIslandBarrel_);
   if( recTracksBranch_ ) recTracksBranch_->SetAddress(&recTracks_);
   if( stdTracksBranch_ ) stdTracksBranch_->SetAddress(&stdTracks_);
+  if( gsfrecTracksBranch_ ) gsfrecTracksBranch_->SetAddress(&gsfrecTracks_); 
   if( trueParticlesBranch_ ) trueParticlesBranch_->SetAddress(&trueParticles_);
   if( MCTruthBranch_ ) { 
     MCTruthBranch_->SetAddress(&MCTruth_);
@@ -1027,6 +1036,7 @@ bool PFRootEventManager::processEntry(int entry) {
 
   if(verbosity_ == VERBOSE ) {
     cout<<"number of recTracks      : "<<recTracks_.size()<<endl;
+    cout<<"number of gsfrecTracks   : "<<gsfrecTracks_.size()<<endl;
     cout<<"number of stdTracks      : "<<stdTracks_.size()<<endl;
     cout<<"number of true particles : "<<trueParticles_.size()<<endl;
     cout<<"number of ECAL rechits   : "<<rechitsECAL_.size()<<endl;
@@ -1172,6 +1182,9 @@ bool PFRootEventManager::readFromSimulation(int entry) {
   if(recTracksBranch_) {
     recTracksBranch_->GetEntry(entry);
   }
+  if(gsfrecTracksBranch_) {
+    gsfrecTracksBranch_->GetEntry(entry);
+  }
   if(genParticlesforJetsBranch_) {
     genParticlesforJetsBranch_->GetEntry(entry);
   }
@@ -1236,6 +1249,10 @@ bool PFRootEventManager::readFromSimulation(int entry) {
 
   if ( recTracksBranch_ ) { 
     PreprocessRecTracks( recTracks_);
+  }
+
+  if(gsfrecTracksBranch_) {
+    PreprocessRecTracks( gsfrecTracks_);
   }
    
   //   if(clustersECALBranch_ && !doClustering_) {
@@ -1429,6 +1446,15 @@ PFRootEventManager::PreprocessRecTracks(reco::PFRecTrackCollection& recTracks) {
     recTracks[i].calculatePositionREP();
   }
 }
+
+void 
+PFRootEventManager::PreprocessRecTracks(reco::GsfPFRecTrackCollection& recTracks) {  
+  for( unsigned i=0; i<recTracks.size(); ++i ) {     
+    recTracks[i].calculatePositionREP();
+  }
+}
+
+
  
 void 
 PFRootEventManager::PreprocessRecHits(reco::PFRecHitCollection& rechits, 
@@ -1709,9 +1735,13 @@ void PFRootEventManager::particleFlow() {
   edm::OrphanHandle< reco::PFClusterCollection > psh( clustersPS_.get(), 
                                                       edm::ProductID(4) );   
 
+  edm::OrphanHandle< reco::GsfPFRecTrackCollection > gsftrackh( &gsfrecTracks_, 
+                                                          edm::ProductID(5) );  
 
   vector<bool> trackMask;
   fillTrackMask( trackMask, recTracks_ );
+  vector<bool> gsftrackMask;
+  fillTrackMask( gsftrackMask, gsfrecTracks_ );
   vector<bool> ecalMask;
   fillClusterMask( ecalMask, *clustersECAL_ );
   vector<bool> hcalMask;
@@ -1719,8 +1749,8 @@ void PFRootEventManager::particleFlow() {
   vector<bool> psMask;
   fillClusterMask( psMask, *clustersPS_ );
   
-  pfBlockAlgo_.setInput( trackh, ecalh, hcalh, psh,
-                         trackMask, ecalMask, hcalMask, psMask ); 
+  pfBlockAlgo_.setInput( trackh, gsftrackh, ecalh, hcalh, psh,
+                         trackMask, gsftrackMask,ecalMask, hcalMask, psMask ); 
   pfBlockAlgo_.findBlocks();
   
   if( debug_) cout<<pfBlockAlgo_<<endl;
@@ -2774,6 +2804,24 @@ PFRootEventManager::fillClusterMask(vector<bool>& mask,
 void  
 PFRootEventManager::fillTrackMask(vector<bool>& mask, 
                                   const reco::PFRecTrackCollection& tracks) 
+  const {
+  
+  TCutG* cutg = (TCutG*) gROOT->FindObject("CUTG");
+  if(!cutg) return;
+
+  mask.clear();
+  mask.reserve( tracks.size() );
+  for(unsigned i=0; i<tracks.size(); i++) {
+    if( trackInsideGCut( tracks[i] ) )
+      mask.push_back( true );
+    else 
+      mask.push_back( false );   
+  }
+}
+
+void  
+PFRootEventManager::fillTrackMask(vector<bool>& mask, 
+                                  const reco::GsfPFRecTrackCollection& tracks) 
   const {
   
   TCutG* cutg = (TCutG*) gROOT->FindObject("CUTG");
