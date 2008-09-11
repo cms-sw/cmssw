@@ -29,6 +29,7 @@ namespace {
 
 namespace cond {
 
+  // migrate to a common trait (when fully understood)
   namespace ecalcond {
 
     typedef EcalFloatCondObjectContainer Container;
@@ -37,16 +38,16 @@ namespace cond {
     enum How { singleChannel, bySuperModule, barrel, endcap, all};
 
 
-    void extractBarrelAverage(Container const & cont, std::vector<int> const &,  std::vector<float> & result) {
+    void extractBarrel(Container const & cont, std::vector<int> const &,  std::vector<float> & result) {
       result.resize(1);
       result[0] =  std::accumulate(cont.barrelItems().begin(),cont.barrelItems().end(),0.)/float(cont.barrelItems().size());
     }
-    void extractEndcapAverage(Container const & cont, std::vector<int> const &,  std::vector<float> & result) {
+    void extractEndcap(Container const & cont, std::vector<int> const &,  std::vector<float> & result) {
       result.resize(1);
       result[0] =  std::accumulate(cont.endcapItems().begin(),cont.endcapItems().end(),0.)/float(cont.endcapItems().size());
     }
 
-     void extractAverage(Container const & cont, std::vector<int> const &,  std::vector<float> & result) {
+     void extractAll(Container const & cont, std::vector<int> const &,  std::vector<float> & result) {
       result.resize(1);
       result[0] =  (std::accumulate(cont.barrelItems().begin(),cont.barrelItems().end(),0.)
 		    +std::accumulate(cont.endcapItems().begin(),cont.endcapItems().end(),0.))
@@ -58,6 +59,7 @@ namespace cond {
     }
 
     void extractSingleChannel(Container const & cont, std::vector<int> const & which,  std::vector<float> & result) {
+      result.reserve(which.size());
       for (int i=0; i<which.size();i++) {
 	  result.push_back(cont[which[i]]);
       }
@@ -83,22 +85,22 @@ namespace cond {
 
 
   template<>
-  class ValueExtractor<EcalFloatCondObjectContainer>: public  BaseValueExtractor<EcalFloatCondObjectContainer> {
+  class ValueExtractor<ecalcond::Container>: public  BaseValueExtractor<ecalcond::Container> {
   public:
     
     static ecalcond::CondExtractor & extractor(ecalcond::How how) {
       static  ecalcond::CondExtractor fun[5] = { 
 	ecalcond::CondExtractor(ecalcond::extractSingleChannel),
 	ecalcond::CondExtractor(ecalcond::extractSuperModules),
-	ecalcond::CondExtractor(ecalcond::extractAverage),
-	ecalcond::CondExtractor(ecalcond::extractBarrelAverage),
-	ecalcond::CondExtractor(ecalcond::extractEndcapAverage)
+	ecalcond::CondExtractor(ecalcond::extractBarrel),
+	ecalcond::CondExtractor(ecalcond::extractEndcap),
+	ecalcond::CondExtractor(ecalcond::extractAll)
       };
       return fun[how];
     }
     
     
-    typedef EcalFloatCondObjectContainer Class;
+    typedef ecalcond::Container Class;
     typedef ExtractWhat<Class> What;
     static What what() { return What();}
     
@@ -159,7 +161,7 @@ namespace cond {
 
 namespace condPython {
   template<>
-  void defineWhat<EcalFloatCondObjectContainer>() {
+  void defineWhat<ecalcond::Container>() {
     enum_<cond::ecalcond::How>("How")
       .value("singleChannel",cond::ecalcond::singleChannel)
       .value("bySuperModule",cond::ecalcond::bySuperModule) 
@@ -168,7 +170,7 @@ namespace condPython {
       .value("all",cond::ecalcond::all)
       ;
     
-    typedef cond::ExtractWhat<EcalFloatCondObjectContainer> What;
+    typedef cond::ExtractWhat<ecalcond::Container> What;
     class_<What>("What",init<>())
       .def("set_how",&What::set_how)
       .def("set_which",&What::set_which)
