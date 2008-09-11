@@ -35,13 +35,17 @@ sistripconn = cms.ESProducer("SiStripConnectivity")
 TrackerDigiGeometryESModule.applyAlignment = True
 
 ##add quality info
+#NB in case of usage of GlobalTag, these Fakes will be substituded by the records in the GT (having the esprefer)
+from CalibTracker.SiStripESProducers.SiStripBadModuleFakeESSource_cfi import *
+from CalibTracker.SiStripESProducers.SiStripBadFiberFakeESSource_cfi import *
+from CalibTracker.SiStripESProducers.SiStripBadChannelFakeESSource_cfi import *
+
 from CalibTracker.SiStripESProducers.SiStripQualityESProducer_cfi import *
 siStripQualityESProducer.ListOfRecordToMerge = cms.VPSet(
      cms.PSet( record = cms.string("SiStripFedCablingRcd"), tag    = cms.string("") ),
      cms.PSet( record = cms.string("SiStripBadChannelRcd"), tag    = cms.string("") ),
      cms.PSet( record = cms.string("SiStripBadFiberRcd"),   tag    = cms.string("") ),
      cms.PSet( record = cms.string("SiStripBadModuleRcd"),  tag    = cms.string("") ),
-     cms.PSet( record = cms.string("SiStripBadStripRcd"),   tag    = cms.string("") )
      )
 
 

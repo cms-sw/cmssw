@@ -2,7 +2,3 @@ import FWCore.ParameterSet.Config as cms
 
 from CalibTracker.SiStripESProducers.SiStripQualityFakeESSource_cfi import *
 
-from CalibTracker.SiStripESProducers.SiStripBadStripFakeESSource_cfi import *
-from CalibTracker.SiStripESProducers.SiStripBadModuleFakeESSource_cfi import *
-from CalibTracker.SiStripESProducers.SiStripBadFiberFakeESSource_cfi import *
-from CalibTracker.SiStripESProducers.SiStripBadChannelFakeESSource_cfi import *
