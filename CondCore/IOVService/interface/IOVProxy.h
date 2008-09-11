@@ -88,7 +88,7 @@ namespace cond {
     // limit to the first n 
     void head(int n) const;
     // limit to the last n
-    void tail(int tail) const;
+    void tail(int n) const;
 
     int size() const;
     IOV const & iov() const;

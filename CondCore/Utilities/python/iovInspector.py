@@ -66,7 +66,7 @@ class Iov :
                self.__modName = 0
            self.__me = db.iov(tag)
            if (till) : self.__me.setRange(since,till)
-           if (head) : self.__me.tail(head)
+           if (head) : self.__me.head(head)
            if (tail) : self.__me.tail(tail)
 
        def list(self) :
