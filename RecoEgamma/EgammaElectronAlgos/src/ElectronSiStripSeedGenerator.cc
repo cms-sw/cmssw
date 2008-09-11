@@ -1,0 +1,614 @@
+// -*- C++ -*-
+//
+// Package:    EgammaElectronAlgos
+// Class:      ElectronSiStripSeedGenerator.
+// 
+/**\class ElectronSiStripSeedGenerator EgammaElectronAlgos/ElectronSiStripSeedGenerator
+ 
+Description: SiStrip-driven electron seed finding algorithm.
+ 
+*/
+//
+//
+
+#include <vector>
+#include <utility>
+
+#include "DataFormats/Math/interface/Point3D.h"
+#include "DataFormats/Common/interface/Handle.h"
+
+#include "DataFormats/EgammaReco/interface/ElectronPixelSeedFwd.h" 
+#include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h"  
+
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+
+#include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
+
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "RecoTracker/TkSeedGenerator/interface/FastCircle.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/TSiStripMatchedRecHit.h"
+#include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
+#include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"
+#include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h"
+#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
+
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+#include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
+
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
+// files for retrieving hits using measurement tracker
+
+#include "TrackingTools/DetLayers/interface/DetLayer.h"
+#include "TrackingTools/DetLayers/interface/GeometricSearchDet.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
+#include "TrackingTools/MeasurementDet/interface/MeasurementDet.h"
+#include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
+
+#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
+
+#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronSiStripSeedGenerator.h" 
+
+ElectronSiStripSeedGenerator::ElectronSiStripSeedGenerator()
+  :theUpdator(0),
+   thePropagator(0),
+   theSetup(0),
+   pts_(0),
+   theMatcher_(0)
+{
+
+}
+
+
+ElectronSiStripSeedGenerator::~ElectronSiStripSeedGenerator() {
+	
+  delete thePropagator;
+  delete theUpdator;
+	
+}
+
+
+void ElectronSiStripSeedGenerator::setupES(const edm::EventSetup& setup, const edm::ParameterSet &conf) {
+  using namespace edm;
+	
+  theSetup= &setup;
+	
+  setup.get<IdealMagneticFieldRecord>().get(theMagField);
+
+  measurementTrackerName_ = "";
+  
+  theUpdator = new KFUpdator();
+  thePropagator = new PropagatorWithMaterial(alongMomentum,.1057,&(*theMagField));
+  theEstimator = new Chi2MeasurementEstimator(30,3);
+    
+  setup.get<TrackerDigiGeometryRecord>().get(trackerHandle);
+
+  setup.get<CkfComponentsRecord>().get(measurementTrackerName_,measurementTrackerHandle);
+  
+}
+
+void  ElectronSiStripSeedGenerator::run(edm::Event& e,
+					const edm::Handle<reco::SuperClusterCollection> &clusters,
+					reco::ElectronPixelSeedCollection & out) {
+  measurementTrackerHandle->update(e);
+	
+  for  (unsigned int i=0;i<clusters->size();++i) {
+    edm::Ref<reco::SuperClusterCollection> theClusB(clusters,i);
+    // Find the seeds
+    LogDebug ("run") << "new cluster, calling findSeedsFromCluster";
+    findSeedsFromCluster(theClusB,out);
+  }       
+	
+  LogDebug ("run") << ": For event "<<e.id();
+  LogDebug ("run") <<"Nr of superclusters: "<<clusters->size()
+		   <<", no. of ElectronPixelSeeds found  = " << out.size();
+}
+
+
+// Find seeds using a supercluster
+void ElectronSiStripSeedGenerator::findSeedsFromCluster( edm::Ref<reco::SuperClusterCollection> seedCluster,
+							 reco::ElectronPixelSeedCollection & result) {
+
+  // clear the member vectors of good hits
+  layer1Hits_.clear();
+  layer2Hits_.clear();
+
+  using namespace std;
+	
+  double sCenergy = seedCluster->energy();
+  math::XYZPoint sCposition = seedCluster->position();
+  double scEta = seedCluster->eta();
+  
+  double scz = sCposition.z();
+  double scr = sqrt(pow(sCposition.x(),2)+pow(sCposition.y(),2));
+  
+  double pT = sCenergy * seedCluster->position().rho()/sqrt(seedCluster->x()*seedCluster->x()+seedCluster->y()*seedCluster->y()+seedCluster->z()*seedCluster->z());	
+    
+  double magneticField = 4.0;
+
+  // cf Jackson p. 581-2, a little geometry
+  double phiVsRSlope = -3.00e-3 * magneticField / pT / 2.;
+
+
+  //Need to create TSOS to feed MeasurementTracker
+  reco::BeamSpot* bs = new reco::BeamSpot();
+  GlobalPoint beamSpot(bs->x0(),bs->y0(),bs->z0());
+  GlobalPoint superCluster(sCposition.x(),sCposition.y(),sCposition.z());
+  double r0 = beamSpot.perp();
+  double z0 = beamSpot.z();
+  int chargeHypothesis = 0;
+  if(phiDiff(superCluster.phi(),beamSpot.phi()) > 0) chargeHypothesis = -1;
+  if(phiDiff(superCluster.phi(),beamSpot.phi()) < 0) chargeHypothesis = 1;
+
+  //Use BeamSpot and SC position to estimate 3rd point
+  double rFake = 25.;
+  double phiFake = phiDiff(superCluster.phi(),chargeHypothesis * phiVsRSlope * (scr - rFake));
+  double zFake = (rFake*(scz-z0)-r0*scz+scr*z0)/(scr-r0);
+  double xFake = rFake * cos(phiFake);
+  double yFake = rFake * sin(phiFake);
+  GlobalPoint fakePoint(xFake,yFake,zFake);
+
+  //Use 3 points to make helix
+  FastHelix initialHelix(superCluster,fakePoint,beamSpot,*theSetup);
+
+  //Use helix to get FTS
+  FreeTrajectoryState initialFTS = initialHelix.stateAtVertex();
+
+  //Use FTS and BeamSpot to create TSOS
+  TransverseImpactPointExtrapolator* tipe = new TransverseImpactPointExtrapolator(*thePropagator);
+  TrajectoryStateOnSurface initialTSOS = tipe->extrapolate(initialFTS,beamSpot);
+
+  //Use GST to retrieve hits from various DetLayers using layerMeasurements class
+  const GeometricSearchTracker* gst = measurementTrackerHandle->geometricSearchTracker();
+
+  std::vector<BarrelDetLayer*> tibLayers = gst->tibLayers();
+  DetLayer* tib1 = tibLayers.at(0);
+  DetLayer* tib2 = tibLayers.at(1);
+
+  std::vector<ForwardDetLayer*> tecLayers;
+  std::vector<ForwardDetLayer*> tidLayers;
+  if(scEta < 0){
+    tecLayers = gst->negTecLayers();
+    tidLayers = gst->negTidLayers();
+  }
+  if(scEta > 0){
+    tecLayers = gst->posTecLayers();
+    tidLayers = gst->posTidLayers();
+  }
+
+  DetLayer* tid1 = tidLayers.at(0);
+  DetLayer* tid2 = tidLayers.at(1);
+  DetLayer* tid3 = tidLayers.at(2);
+  DetLayer* tec1 = tecLayers.at(0);
+  DetLayer* tec2 = tecLayers.at(1);
+  DetLayer* tec3 = tecLayers.at(2);
+
+  //Figure out which DetLayers to use based on SC Eta
+  std::vector<bool> useDL = useDetLayer(scEta);
+  bool useTID = false;
+
+  //Use counters to restrict the number of hits in TID and TEC layers
+  //This reduces seed multiplicity
+  int tid1MHC = 0;
+  int tid2MHC = 0;
+  int tid3MHC = 0;
+  int tec1MHC = 0;
+  int tec2MHC = 0;
+  int tec3MHC = 0;
+
+  //Use counter to limit the allowed number of seeds
+  int seedCounter = 0;
+
+  bool hasLay1Hit = false;
+  bool hasLay2Hit = false;
+  
+  LayerMeasurements layerMeasurements(measurementTrackerHandle.product());
+
+  std::vector<TrajectoryMeasurement> tib1measurements;
+  if(useDL.at(0)) tib1measurements = layerMeasurements.measurements(*tib1,initialTSOS,*thePropagator,*theEstimator);
+  std::vector<TrajectoryMeasurement> tib2measurements;
+  if(useDL.at(1)) tib2measurements = layerMeasurements.measurements(*tib2,initialTSOS,*thePropagator,*theEstimator);
+
+  //Basic idea: Retrieve hits from a given DetLayer
+  //Check if it is a Matched Hit and satisfies some cuts
+  //If yes, accept hit for seed making
+
+  for(std::vector<TrajectoryMeasurement>::const_iterator tmIter = tib1measurements.begin(); tmIter != tib1measurements.end(); ++ tmIter){
+    ConstRecHitPointer hit = tmIter->recHit();
+    const SiStripMatchedRecHit2D* matchedHit = matchedHitConverter(hit);
+    if(matchedHit){
+      GlobalPoint position = trackerHandle->idToDet(matchedHit->geographicalId())->surface().toGlobal(matchedHit->localPosition());
+      if(preselection(position, superCluster, phiVsRSlope)){
+	hasLay1Hit = true;
+	layer1Hits_.push_back(matchedHit);
+      }
+    }
+  }
+    
+  for(std::vector<TrajectoryMeasurement>::const_iterator tmIter = tib2measurements.begin(); tmIter != tib2measurements.end(); ++ tmIter){
+    ConstRecHitPointer hit = tmIter->recHit();
+    const SiStripMatchedRecHit2D* matchedHit = matchedHitConverter(hit);
+    if(matchedHit){
+      GlobalPoint position = trackerHandle->idToDet(matchedHit->geographicalId())->surface().toGlobal(matchedHit->localPosition());
+      if(preselection(position, superCluster, phiVsRSlope)){
+	hasLay2Hit = true;
+	layer2Hits_.push_back(matchedHit);
+      }
+    }
+  }
+
+  if(!(hasLay1Hit && hasLay2Hit)) useTID = true;
+  if(fabs(scEta) > 1.2) useTID = true;
+  std::vector<TrajectoryMeasurement> tid1measurements;
+  if(useDL.at(2) && useTID) tid1measurements = layerMeasurements.measurements(*tid1,initialTSOS,*thePropagator,*theEstimator);
+  std::vector<TrajectoryMeasurement> tid2measurements;
+  if(useDL.at(3) && useTID) tid2measurements = layerMeasurements.measurements(*tid2,initialTSOS,*thePropagator,*theEstimator);
+  std::vector<TrajectoryMeasurement> tid3measurements;
+  if(useDL.at(4) && useTID) tid3measurements = layerMeasurements.measurements(*tid3,initialTSOS,*thePropagator,*theEstimator);
+
+  for(std::vector<TrajectoryMeasurement>::const_iterator tmIter = tid1measurements.begin(); tmIter != tid1measurements.end(); ++ tmIter){
+    if(tid1MHC < 4){
+    ConstRecHitPointer hit = tmIter->recHit();
+    const SiStripMatchedRecHit2D* matchedHit = matchedHitConverter(hit);
+    if(matchedHit){
+      GlobalPoint position = trackerHandle->idToDet(matchedHit->geographicalId())->surface().toGlobal(matchedHit->localPosition());
+      if(preselection(position, superCluster, phiVsRSlope)){
+	tid1MHC++;
+	hasLay1Hit = true;
+	layer1Hits_.push_back(matchedHit);
+	hasLay2Hit = true;
+	layer2Hits_.push_back(matchedHit);
+      }
+    }
+    }
+  }
+
+  for(std::vector<TrajectoryMeasurement>::const_iterator tmIter = tid2measurements.begin(); tmIter != tid2measurements.end(); ++ tmIter){
+    if(tid2MHC < 4){
+    ConstRecHitPointer hit = tmIter->recHit();
+    const SiStripMatchedRecHit2D* matchedHit = matchedHitConverter(hit);
+    if(matchedHit){
+      GlobalPoint position = trackerHandle->idToDet(matchedHit->geographicalId())->surface().toGlobal(matchedHit->localPosition());
+      if(preselection(position, superCluster, phiVsRSlope)){
+	tid2MHC++;
+	hasLay1Hit = true;
+	layer1Hits_.push_back(matchedHit);
+	hasLay2Hit = true;
+	layer2Hits_.push_back(matchedHit);
+      }
+    }
+    }
+  }
+
+  for(std::vector<TrajectoryMeasurement>::const_iterator tmIter = tid3measurements.begin(); tmIter != tid3measurements.end(); ++ tmIter){
+    if(tid3MHC < 4){
+    ConstRecHitPointer hit = tmIter->recHit();
+    const SiStripMatchedRecHit2D* matchedHit = matchedHitConverter(hit);
+    if(matchedHit){
+      GlobalPoint position = trackerHandle->idToDet(matchedHit->geographicalId())->surface().toGlobal(matchedHit->localPosition());
+      if(preselection(position, superCluster, phiVsRSlope)){
+	tid3MHC++;
+	hasLay1Hit = true;
+	layer1Hits_.push_back(matchedHit);
+	hasLay2Hit = true;
+	layer2Hits_.push_back(matchedHit);
+      }
+    }
+    }
+  }
+
+  std::vector<TrajectoryMeasurement> tec1measurements;
+  if(useDL.at(5)) tec1measurements = layerMeasurements.measurements(*tec1,initialTSOS,*thePropagator,*theEstimator);
+  std::vector<TrajectoryMeasurement> tec2measurements;
+  if(useDL.at(6)) tec2measurements = layerMeasurements.measurements(*tec2,initialTSOS,*thePropagator,*theEstimator);
+  std::vector<TrajectoryMeasurement> tec3measurements;
+  if(useDL.at(7)) tec3measurements = layerMeasurements.measurements(*tec3,initialTSOS,*thePropagator,*theEstimator); 
+
+  for(std::vector<TrajectoryMeasurement>::const_iterator tmIter = tec1measurements.begin(); tmIter != tec1measurements.end(); ++ tmIter){
+    if(tec1MHC < 2){
+    ConstRecHitPointer hit = tmIter->recHit();
+    const SiStripMatchedRecHit2D* matchedHit = matchedHitConverter(hit);
+    if(matchedHit){
+      GlobalPoint position = trackerHandle->idToDet(matchedHit->geographicalId())->surface().toGlobal(matchedHit->localPosition());
+      if(preselection(position, superCluster, phiVsRSlope)){
+	tec1MHC++;
+	hasLay1Hit = true;
+	layer1Hits_.push_back(matchedHit);
+	hasLay2Hit = true;
+	layer2Hits_.push_back(matchedHit);
+      }
+    }
+    }
+  }
+
+  for(std::vector<TrajectoryMeasurement>::const_iterator tmIter = tec2measurements.begin(); tmIter != tec2measurements.end(); ++ tmIter){
+    if(tec2MHC < 2){
+    ConstRecHitPointer hit = tmIter->recHit();
+    const SiStripMatchedRecHit2D* matchedHit = matchedHitConverter(hit);
+    if(matchedHit){
+      GlobalPoint position = trackerHandle->idToDet(matchedHit->geographicalId())->surface().toGlobal(matchedHit->localPosition());
+      if(preselection(position, superCluster, phiVsRSlope)){
+	tec2MHC++;
+	hasLay1Hit = true;
+	layer1Hits_.push_back(matchedHit);
+	hasLay2Hit = true;
+	layer2Hits_.push_back(matchedHit);
+      }
+    }
+    }
+  }
+
+  for(std::vector<TrajectoryMeasurement>::const_iterator tmIter = tec3measurements.begin(); tmIter != tec3measurements.end(); ++ tmIter){
+    if(tec3MHC < 2){
+    ConstRecHitPointer hit = tmIter->recHit();
+    const SiStripMatchedRecHit2D* matchedHit = matchedHitConverter(hit);
+    if(matchedHit){
+      GlobalPoint position = trackerHandle->idToDet(matchedHit->geographicalId())->surface().toGlobal(matchedHit->localPosition());
+      if(preselection(position, superCluster, phiVsRSlope)){
+	tec3MHC++;
+	hasLay2Hit = true;
+	layer2Hits_.push_back(matchedHit);
+      }
+    }
+    }
+  }
+
+  // We have 2 arrays of hits, combine them to form seeds
+  if( hasLay1Hit && hasLay2Hit ){	
+      
+    for (std::vector<const SiStripMatchedRecHit2D*>::const_iterator hit1 = layer1Hits_.begin() ; hit1!= layer1Hits_.end(); ++hit1) { 	    
+      for (std::vector<const SiStripMatchedRecHit2D*>::const_iterator hit2 = layer2Hits_.begin() ; hit2!= layer2Hits_.end(); ++hit2) { 
+
+	if(seedCounter < 5){
+	  
+	  if(checkHitsAndTSOS(hit1,hit2,scr,scz,pT,scEta)) {
+
+	    seedCounter++;
+
+	    recHits_.clear();
+	  
+	    SiStripMatchedRecHit2D *hit;
+	    hit=new SiStripMatchedRecHit2D(*(dynamic_cast <const SiStripMatchedRecHit2D *> (*hit1) ) );
+	    recHits_.push_back(hit);
+	    hit=new SiStripMatchedRecHit2D(*(dynamic_cast <const SiStripMatchedRecHit2D *> (*hit2) ) );
+	    recHits_.push_back(hit);
+	    
+	    PropagationDirection dir = alongMomentum;	    
+	  
+	    result.push_back( reco::ElectronPixelSeed (seedCluster,*pts_,recHits_,dir) );
+	    
+	    delete pts_;
+	    pts_=0;
+	  }	 
+
+	} 
+      
+      }// end of hit 2 loop
+    
+    }// end of hit 1 loop 
+
+  }//end of seed making
+  
+} // end of findSeedsFromCluster
+
+
+	
+bool ElectronSiStripSeedGenerator::checkHitsAndTSOS(std::vector<const SiStripMatchedRecHit2D*>::const_iterator hit1,
+						    std::vector<const SiStripMatchedRecHit2D*>::const_iterator hit2,
+						    double rc,double zc,double pT,double scEta) {
+
+  bool seedCutsSatisfied = false;
+
+  using namespace std;
+
+  // define our hit cut parameters
+  double zCut = .35;
+  double rCut = .3;
+  double phiCut = 0.;
+
+  GlobalPoint hit1Pos = trackerHandle->idToDet((*hit1)->geographicalId())->surface().toGlobal((*hit1)->localPosition());
+  double r1 = sqrt(hit1Pos.x()*hit1Pos.x() + hit1Pos.y()*hit1Pos.y());
+  double phi1 = hit1Pos.phi();
+  double z1=hit1Pos.z();
+
+  GlobalPoint hit2Pos = trackerHandle->idToDet((*hit2)->geographicalId())->surface().toGlobal((*hit2)->localPosition());
+  double r2 = sqrt(hit2Pos.x()*hit2Pos.x() + hit2Pos.y()*hit2Pos.y());
+  double phi2 = hit2Pos.phi();
+  double z2 = hit2Pos.z();
+
+  if(r2 > r1 && (fabs(z2) > fabs(z1) || fabs(scEta) < 0.25)) {	
+			
+    //Consider the circle made of IP and Hit 1; Calculate it's radius using pT
+			
+    double curv = pT*100/1.2;
+			
+    //Predict phi of hit 2	      
+    double a = (r2-r1)/(2*curv);
+    double b = phiDiff(phi2,phi1);
+    //UB added '=0' to avoid compiler warning
+    double phiMissHit2=0;
+    if(fabs(b - a)<fabs(b + a)) phiMissHit2 = b - a;
+    if(fabs(b - a)>fabs(b + a)) phiMissHit2 = b + a;			      
+	      
+    double zMissHit2 = z2 - (r2*(zc-z1)-r1*zc+rc*z1)/(rc-r1);
+
+    double rPredHit2 = r1 + (rc-r1)/(zc-z1)*(z2-z1);
+    double rMissHit2 = r2 - rPredHit2;
+
+    int subdetector = whichSubdetector(hit2);
+
+    
+    if(subdetector == 1){
+      phiCut = .006;
+    }else if(subdetector == 2){
+      phiCut = .006;
+    }else if(subdetector == 3){
+      phiCut = .007;
+    }
+    
+
+    if(fabs(scEta) > 1.2 && fabs(scEta) < 1.5){
+      zCut = .8;
+      rCut = .8;
+      phiCut = .015;
+    }
+
+    bool zDiff = true;
+    if(z1 > 75 && z1 < 95 && ((z2-z1) > 18 || (z2-z1) < 5)) zDiff = false;
+    if(z1 > 100 && z1 < 110 && ((z2-z1) > 35 || (z2-z1) < 5)) zDiff = false;
+    if(z1 > 125 && z1 < 150 && ((z2-z1) > 18 || (z2-z1) < 5)) zDiff = false;
+
+    if(subdetector == 1){
+      int tibExtraCut = 0;
+      if(r1 > 23 && r1 < 28 && r2 > 31 && r2 < 37) tibExtraCut = 1;
+      if(fabs(phiMissHit2) < phiCut && fabs(zMissHit2) < zCut && tibExtraCut == 1) seedCutsSatisfied = true;
+    }else if(subdetector == 2){
+      int tidExtraCut = 0;
+      if(r1 > 23 && r1 < 34 && r2 > 26 && r2 < 42) tidExtraCut = 1;
+      if(fabs(phiMissHit2) < phiCut && fabs(rMissHit2) < rCut && tidExtraCut == 1 && zDiff) seedCutsSatisfied = true;
+    }else if(subdetector == 3){
+      int tecExtraCut = 0;
+      if(r1 > 23 && r1 < 32 && r2 > 26 && r2 < 42) tecExtraCut = 1;
+      if(fabs(phiMissHit2) < phiCut && fabs(rMissHit2) < rCut && tecExtraCut == 1 && zDiff) seedCutsSatisfied = true;
+    }
+    
+  }
+
+  if(!seedCutsSatisfied) return false;
+	
+  // seed checks borrowed from pixel-based algoritm
+	
+  pts_=0;
+		
+  /* Some of this code could be better optimized.  The Pixel algorithm natively
+     takes Transient rec hits, so to recycle code we have to build them.
+  */
+
+  RecHitPointer hit1Trans = TSiStripMatchedRecHit::build(trackerHandle->idToDet((*hit1)->geographicalId()), *hit1, theMatcher_);
+  RecHitPointer hit2Trans = TSiStripMatchedRecHit::build(trackerHandle->idToDet((*hit2)->geographicalId()), *hit2, theMatcher_);
+		
+  typedef TrajectoryStateOnSurface TSOS;
+
+  double vertexZ = z1 - (r1 * (zc - z1) ) / (rc - r1);
+  GlobalPoint eleVertex(0.,0.,vertexZ);
+
+  // make a spiral
+  FastHelix helix(hit2Pos,hit1Pos,eleVertex,*theSetup);
+  if (!helix.isValid()) return false;
+  
+  FreeTrajectoryState fts = helix.stateAtVertex();
+  TSOS propagatedState = thePropagator->propagate(fts,hit1Trans->det()->surface());
+
+  if (!propagatedState.isValid()) return false;
+
+  TSOS updatedState = theUpdator->update(propagatedState, *hit1Trans);		
+  TSOS propagatedState_out = thePropagator->propagate(fts,hit2Trans->det()->surface()) ;
+
+  if (!propagatedState_out.isValid()) return false;
+
+  // the seed has now passed all the cuts
+
+  TSOS updatedState_out = theUpdator->update(propagatedState_out, *hit2Trans);
+
+  pts_ =  transformer_.persistentState(updatedState_out, hit2Trans->geographicalId().rawId());
+		
+  return true;
+}
+
+bool ElectronSiStripSeedGenerator::preselection(GlobalPoint position,GlobalPoint superCluster,double phiVsRSlope){
+  double r = position.perp();
+  double phi = position.phi();
+  double z = position.z();
+  double scr = superCluster.perp();
+  double scphi = superCluster.phi();
+  double scz = superCluster.z();
+  double psi = phiDiff(phi,scphi);
+  double deltaPsi = psi - (scr-r)*phiVsRSlope;
+  double antiDeltaPsi = psi - (r-scr)*phiVsRSlope;
+  double dP;
+  if (fabs(deltaPsi)<fabs(antiDeltaPsi)){
+    dP = deltaPsi;
+  }else{
+    dP = antiDeltaPsi;
+  }
+  double originZ = (scr*z - r*scz)/(scr-r);
+  bool result = false;
+  if(fabs(originZ) < 20 && fabs(dP) < .1) result = true;
+  return result;
+}
+
+// Helper algorithms
+
+int ElectronSiStripSeedGenerator::whichSubdetector(std::vector<const SiStripMatchedRecHit2D*>::const_iterator hit){
+  int result = 0;
+  if(((*hit)->geographicalId()).subdetId() == StripSubdetector::TIB){
+    result = 1;
+  }else if(((*hit)->geographicalId()).subdetId() == StripSubdetector::TID){
+    result = 2;
+  }else if(((*hit)->geographicalId()).subdetId() == StripSubdetector::TEC){
+    result = 3;
+  }
+  return result;
+}
+
+const SiStripMatchedRecHit2D* ElectronSiStripSeedGenerator::matchedHitConverter(ConstRecHitPointer crhp){
+  const TrackingRecHit* trh = crhp->hit();
+  const SiStripMatchedRecHit2D* matchedHit = dynamic_cast<const SiStripMatchedRecHit2D*>(trh);
+  return matchedHit;
+}
+
+std::vector<bool> ElectronSiStripSeedGenerator::useDetLayer(double scEta){
+  std::vector<bool> useDetLayer;
+  double variable = fabs(scEta);
+  if(variable > 0 && variable < 1.8){
+    useDetLayer.push_back(true);
+  }else{
+    useDetLayer.push_back(false);
+  }
+  if(variable > 0 && variable < 1.5){
+    useDetLayer.push_back(true);
+  }else{
+    useDetLayer.push_back(false);
+  }
+  if(variable > 1 && variable < 2.1){
+    useDetLayer.push_back(true);
+  }else{
+    useDetLayer.push_back(false);
+  }
+  if(variable > 1 && variable < 2.2){
+    useDetLayer.push_back(true);
+  }else{
+    useDetLayer.push_back(false);
+  }
+  if(variable > 1 && variable < 2.3){
+    useDetLayer.push_back(true);
+  }else{
+    useDetLayer.push_back(false);
+  }
+  if(variable > 1.8 && variable < 2.5){
+    useDetLayer.push_back(true);
+  }else{
+    useDetLayer.push_back(false);
+  }
+  if(variable > 1.8 && variable < 2.5){
+    useDetLayer.push_back(true);
+  }else{
+    useDetLayer.push_back(false);
+  }
+  if(variable > 1.8 && variable < 2.5){
+    useDetLayer.push_back(true);
+  }else{
+    useDetLayer.push_back(false);
+  }
+  return useDetLayer;
+}
+
+
+
