@@ -55,6 +55,81 @@ class tagTree(object):
         except Exception, er:
             transaction.rollback()
             raise Exception, str(er)
+
+    def importFromTree( self, sourcetreename ):
+        """fill up this tree by cloning from the given source tree 
+        """
+        sourcetagTreeTableName = 'TAGTREE_TABLE_'+str.upper(sourcetreename)
+        sourcetagTreeIDs = 'TAGTREE_'+str.upper(sourcetreename)+'_IDS'
+        
+        transaction=self.__session.transaction()
+        transaction.start(True)
+        schema = self.__session.nominalSchema()
+        r1=schema.existsTable(sourcetagTreeTableName)
+        r2=schema.existsTable(sourcetagTreeIDs)
+        r3=schema.existsTable(self.__tagTreeTableName)
+        r4=schema.existsTable(self.__tagTreeIDs)
+        transaction.commit()
+        if r1 and r2 is False:
+            raise "source tag tree doesn't exist "+str(sourcetreename) 
+        if r3 and r4 is True:
+            transaction.start(False)
+            schema.truncateTable(self.__tagTreeTableName)
+            schema.truncateTable(self.__tagTreeIDs)
+            transaction.commit()
+        else:
+            self.createTagTreeTable()
+            schema.truncateTable(self.__tagTreeIDs)
+        nresult=0
+        try:
+            transaction.start(False)
+            insertwtQuery=schema.tableHandle(self.__tagTreeTableName).dataEditor().insertWithQuery()
+            insertwtQuery.query().addToTableList(sourcetagTreeTableName)
+            nresult=insertwtQuery.execute()
+            transaction.commit()
+            del insertwtQuery
+        except Exception, er:
+            transaction.rollback()
+            raise Exception, str(er)
+        print nresult,' rows copied from ',sourcetagTreeTableName
+        
+        try:
+            transaction.start(False)
+            insertwtQuery=schema.tableHandle(self.__tagTreeIDs).dataEditor().insertWithQuery()
+            insertwtQuery.query().addToTableList(sourcetagTreeIDs)
+            nresult=insertwtQuery.execute()
+            transaction.commit()
+            del insertwtQuery
+        except Exception, er:
+            transaction.rollback()
+            raise Exception, str(er)
+        print nresult,' rows copied from ',sourcetagTreeIDs
+        
+    def replaceLeafLinks(self, leafnodelinks ):
+        """modify the tagid link in leafnodes
+        Input: [{leaflabel:newtagid}]
+        """
+        transaction=self.__session.transaction()
+        try:
+            updateAction="tagid = :newtagid"
+            updateCondition="tagname = :tagname"
+            updateData=coral.AttributeList()
+            updateData.extend('newtagid','unsigned long')
+            updateData.extend('tagname','string')
+            transaction.start(False)
+            mybulkOperation=schema.tableHandle(self.__tagTreeTableName).dataEditor().bulkUpdateRows("tagid=:newtagid","tagname=:tagname",updateData,1000)
+            for leafnodelink in leafnodelinks:
+                updateData['newtagid'].setData(leafnodelink[tagname])
+                updateData['tagname'].setData(tagname)
+                nresult=mybulkOperation.processNextIteration()
+                if nresult != 1:
+                    raise "updated number of row is not one"
+            mybulkOperation.flush()
+            transaction.commit()
+            del mybulkOperation
+        except Exception, er:
+            transaction.rollback()
+            raise Exception, str(er)
         
     def insertNode( self, node, parentLabel='ROOT' ):
         """Append a new node to specified parent. \n
@@ -506,6 +581,8 @@ if __name__ == "__main__":
         print 'number of children ',mytree.nChildren('ROOT')
         result=mytree.getSubtree('A')
         print 'subtree of A ',result
+        newtree=tagTree(session,'mynewtest')
+        newtree.importFromTree('mytest2')
         del session
     except Exception, e:
         print "Failed in unit test"

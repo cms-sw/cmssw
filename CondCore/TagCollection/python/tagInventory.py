@@ -95,6 +95,42 @@ class  tagInventory(object):
         except Exception, er:
             transaction.rollback()
             raise Exception, str(er)
+    def cloneEntry( self, sourcetagid, pfn ):
+        """ clone an existing entry with different pfn parameter
+        Input: sourcetagid, pfn.
+        Output: tagid of the new entry. Return 0 in case no new entry created or required entry already exists. 
+        """
+        newtagid=0
+        if len(pfn)==0:
+            return newtagid
+        if sourcetagid==0:
+            return newtagid
+        try:
+            nd=self.getEntryById(sourcetagid)
+            if nd.tagid==0:
+                return newtagid
+            oldpfn=nd.pfn
+            if oldpfn==pfn:
+                # 'old equal new nothing to do'
+                return nd.tagid
+            transaction=self.__session.transaction()
+            transaction.start(False)
+            schema = self.__session.nominalSchema()
+            generator=IdGenerator.IdGenerator(schema)
+            newtagid=generator.getNewID(self.__tagInventoryIDName)
+            tabrowValueDict={'tagid':newtagid,'tagname':nd.tagname,'objectname':nd.objectname,'pfn':pfn,'labelname':nd.labelname,'recordname':nd.recordname}
+            dbop=DBImpl.DBImpl(schema)
+            dbop.insertOneRow(self.__tagInventoryTableName,
+                              self.__tagInventoryTableColumns,
+                              tabrowValueDict)
+            generator.incrementNextID(self.__tagInventoryIDName)
+            transaction.commit()
+            return newtagid
+        except Exception, er:
+            transaction.rollback()
+            raise Exception, str(er)
+        return newtagid
+        
     def getEntryByName( self, tagName, pfn ):
         """Get basic tag from inventory by tagName+pfn. pfn can be empty\n
         Input: tagname,pfn
