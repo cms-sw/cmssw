@@ -66,7 +66,8 @@ namespace cond {
     }
 
     typedef boost::function<void(Container const & cont, std::vector<int> const & which,  std::vector<float> & result)> CondExtractor;
-  }
+
+  } // ecalcond
 
   template<>
   struct ExtractWhat<ecalcond::Container> {
