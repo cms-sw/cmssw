@@ -18,18 +18,17 @@
 #=============BEGIN CONFIGURATION=================
 
 #Input root trees for the two cases to be compared 
-setenv NEWFILE ~/scratch0/CMSSW_2_1_2/src/RecoEgamma/Examples/test/gsfElectronHistos_fake_RelVal212QCD_Pt_80_120_ideal.root 
-#setenv OLDFILE ~/scratch0/CMSSW_2_1_2/src/RecoEgamma/Examples/test/gsfElectronHistos_RelVal212SingleElectronPt35_ideal_V6_10TeV_v1.root 
-setenv OLDFILE ~/scratch0/CMSSW_2_1_0/src/RecoEgamma/Examples/test/gsfElectronHistos_fake_RelVal210QCD_Pt_80_120_ideal.root
+setenv NEWFILE ~/scratch0/CMSSW_2_1_7/src/RecoEgamma/Examples/test/gsf-Pt35IdealV9v1-ElectronHistos.root
+setenv OLDFILE ~/scratch0/CMSSW_2_1_2/src/RecoEgamma/Examples/test/gsf-Pt35Ideal-ElectronHistos.root
 
 
 #Release versions to be compared (affects output directory name and html description only)
-setenv NEWRELEASE 212IDEAL
-setenv OLDRELEASE 210
+setenv NEWRELEASE 217IDEAL
+setenv OLDRELEASE 212IDEAL
 #Name of sample (affects output directory name and html description only)
-setenv SAMPLE RelValQCD_Pt_80_120
+setenv SAMPLE RelValSingleElectronPt35
 #TYPE must be one of GsfElectron, GsfElectronFake, Photon or ConvertedPhoton
-setenv TYPE GsfElectronFake
+setenv TYPE GsfElectron
 
 #==============END BASIC CONFIGURATION==================
 
