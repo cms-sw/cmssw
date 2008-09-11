@@ -33,6 +33,7 @@ namespace cond {
   std::string
   PayLoadInspector<EcalADCToGeVConstant>::dump() const {
     std::stringstream ss;
+    (*object).print(ss);
     return ss.str();
     
   }
@@ -40,6 +41,7 @@ namespace cond {
   template<>
   std::string PayLoadInspector<EcalADCToGeVConstant>::summary() const {
     std::stringstream ss;
+    (*object).print(ss);
     return ss.str();
   }
   
