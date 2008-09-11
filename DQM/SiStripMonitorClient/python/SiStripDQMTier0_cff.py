@@ -11,19 +11,6 @@ from DQMServices.Core.DQM_cfg import *
 # REPLACE YourSubsystemName by the name of your source ###
 # use include file for dqmEnv dqmSaver
 from DQMServices.Components.DQMEnvironment_cfi import *
-# will add switch to select histograms to be saved soon
-#
-# END ################################################
-#
-# FIX YOUR  PATH TO INCLUDE dqmEnv and dqmSaver
-#--------------------------
-# STRIP DQM Source and Client
-#--------------------------
-from DQM.SiStripMonitorClient.SiStripSourceConfigTier0_cff import *
-SiStripDQMTest_cosmicTk = cms.Sequence(SiStripDQMTier0_cosmicTk*dqmEnv*dqmSaver)
-SiStripDQMTest_ckf = cms.Sequence(SiStripDQMTier0_ckf*dqmEnv*dqmSaver)
-SiStripDQMTest_rs = cms.Sequence(SiStripDQMTier0_rs*dqmEnv*dqmSaver)
-SiStripDQMTest = cms.Sequence(SiStripDQMTier0*dqmEnv*dqmSaver)
 # Possible conventions are "Online", "Offline" and "RelVal".
 # Default is "Offline"
 dqmSaver.convention = 'Online'
@@ -40,4 +27,17 @@ dqmEnv.subSystemFolder = 'SiStrip'
 # replace dqmSaver.saveByMinute = -1
 dqmSaver.saveByRun = 1
 dqmSaver.saveAtJobEnd = True
+# will add switch to select histograms to be saved soon
+#
+# END ################################################
+#
+# FIX YOUR  PATH TO INCLUDE dqmEnv and dqmSaver
+#--------------------------
+# STRIP DQM Source and Client
+#--------------------------
+from DQM.SiStripMonitorClient.SiStripSourceConfigTier0_Cosmic_cff import *
+SiStripDQMTest_cosmicTk = cms.Sequence(SiStripDQMTier0_cosmicTk*dqmEnv*dqmSaver)
+SiStripDQMTest_ckf = cms.Sequence(SiStripDQMTier0_ckf*dqmEnv*dqmSaver)
+SiStripDQMTest_rs = cms.Sequence(SiStripDQMTier0_rs*dqmEnv*dqmSaver)
+SiStripDQMTest = cms.Sequence(SiStripDQMTier0*dqmEnv*dqmSaver)
 

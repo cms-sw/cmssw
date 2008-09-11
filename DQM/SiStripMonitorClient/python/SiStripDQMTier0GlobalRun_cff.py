@@ -11,7 +11,7 @@ from DQMServices.Components.MEtoEDMConverter_cfi import *
 # SiStrip DQM Source and Client
 #-------------------------------------------------
 # source
-from DQM.SiStripMonitorClient.SiStripSourceConfigTier0_cff import *
+from DQM.SiStripMonitorClient.SiStripSourceConfigTier0_Cosmic_cff import *
 #-------------------------------------------------
 # Scheduling
 #-------------------------------------------------
