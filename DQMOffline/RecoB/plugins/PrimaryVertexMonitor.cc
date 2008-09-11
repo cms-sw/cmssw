@@ -5,6 +5,8 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"     
+
 using namespace reco;
 using namespace edm;
 
@@ -98,6 +100,20 @@ void PrimaryVertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSet
 
   edm::Handle<reco::BeamSpot> beamSpotHandle;
   iEvent.getByLabel(beamSpotLabel,beamSpotHandle);
+
+  //
+  // check for absent products and simply "return" in that case
+  //
+  if (recVtxs.isValid() == false || beamSpotHandle.isValid()== false){
+    edm::LogWarning("PrimaryVertexMonitor")
+      <<" Some products not available in the event: VertexCollection "
+      <<moduleLabel<<" " 
+      <<recVtxs.isValid() <<" BeamSpot "
+      <<beamSpotLabel<<" "
+      <<beamSpotHandle.isValid()<<". Skipping plots for this event";
+    return;
+  }
+
   BeamSpot beamSpot = *beamSpotHandle;
 
   nbvtx->Fill(recVtxs->size()*1.);
