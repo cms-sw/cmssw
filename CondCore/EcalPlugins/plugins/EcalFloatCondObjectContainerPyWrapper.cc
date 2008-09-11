@@ -69,7 +69,7 @@ namespace cond {
   }
 
   template<>
-  struct ExtractWhat<EcalFloatCondObjectContainer> {
+  struct ExtractWhat<ecalcond::Container> {
     
     ecalcond::How m_how;
     std::vector<int> m_which;

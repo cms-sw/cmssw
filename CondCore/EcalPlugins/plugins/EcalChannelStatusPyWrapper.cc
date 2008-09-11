@@ -6,6 +6,13 @@
 
 #include <string>
 #include <fstream>
+#include <algorithm>
+#include <numeric>
+#include <iterator>
+#include <boost/ref.hpp>
+#include <boost/bind.hpp>
+#include <boost/function.hpp>
+#include <boost/iterator/transform_iterator.hpp>
 
 namespace cond {
 
@@ -46,15 +53,16 @@ namespace cond {
     void extractSingleChannel(Container const & cont, std::vector<int> const & which,  std::vector<float> & result) {
       result.reserve(which.size());
       for (int i=0; i<which.size();i++) {
-	result.push_back(cont[which[i]]);
+	result.push_back(cont[which[i]].getStatusCode());
       }
     }
     
     typedef boost::function<void(Container const & cont, std::vector<int> const & which,  std::vector<float> & result)> CondExtractor;
-  }
+    
+  } // ecalcond
   
   template<>
-  struct ExtractWhat<EcalFloatCondObjectContainer> {
+  struct ExtractWhat<ecalcond::Container> {
     
     ecalcond::How m_how;
     std::vector<int> m_which;
