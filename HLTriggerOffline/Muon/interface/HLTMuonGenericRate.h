@@ -32,6 +32,7 @@
 
 
 class HLTMuonGenericRate {
+
 public:
   /// Constructor
   HLTMuonGenericRate(const edm::ParameterSet& pset, int triggerIndex);
@@ -41,73 +42,78 @@ public:
 
   // Operations
 
-  void analyze(const edm::Event & event);
-  void endJob();
-
-  void BookHistograms() ;
-  void WriteHistograms() ;
-  void SetCurrentFolder( TString folder );
+  void analyze          ( const edm::Event & event );
+  void BookHistograms   ();
+  void WriteHistograms  ();
+  void SetCurrentFolder ( TString folder );
   MonitorElement* BookIt( TString name, TString title, 
 			  int Nbins, float Min, float Max);
 
 private:
 
   // Input from cfg file
-  std::string folderName;
-  edm::InputTag theL1CollectionLabel, theGenLabel, theRecoLabel;
-  std::vector<edm::InputTag> theHLTCollectionLabels;
+  std::string   theFolderName;
+  edm::InputTag theL1CollectionLabel;
+  edm::InputTag theGenLabel;
+  edm::InputTag theRecoLabel;
+  std::vector <edm::InputTag> theHLTCollectionLabels;
+
   double theL1ReferenceThreshold;
   double theHLTReferenceThreshold;
-  std::vector<double> theNSigmas;
-  unsigned int theNumberOfObjects;
-  bool useMuonFromGenerator,useMuonFromReco;
   double theCrossSection;
   double theLuminosity;
   double thePtMin;
   double thePtMax;
   double theMinPtCut;
   double theMaxEtaCut;
+
+  std::vector<double> theNSigmas;
+  unsigned int theNumberOfObjects;
   unsigned int theNbins;
   int thisEventWeight;
   int motherParticleId;
+  bool useMuonFromGenerator;
+  bool useMuonFromReco;
 
   // Struct for matching
   struct MatchStruct {
     HepMC::GenParticle* genCand;
     const reco::Track*  recCand;
-    l1extra::L1MuonParticleRef                 l1Cand;
-    std::vector<reco::RecoChargedCandidateRef> hltCands;
+    const l1extra::L1MuonParticle* l1Cand;
+    std::vector<const reco::RecoChargedCandidate*> hltCands;
   };
   std::vector<MatchStruct> genMatches;
   std::vector<MatchStruct> recMatches;
+  int nL1Orphans ;
+  int nHltOrphans;
 
   // Histograms
   DQMStore* dbe_;
 
-  std::vector <MonitorElement*> hPtPassGen;
+  std::vector <MonitorElement*> hPtPassGen ;
   std::vector <MonitorElement*> hEtaPassGen;
   std::vector <MonitorElement*> hPhiPassGen;
-  std::vector <MonitorElement*> hPtPassRec;
+  std::vector <MonitorElement*> hPtPassRec ;
   std::vector <MonitorElement*> hEtaPassRec;
   std::vector <MonitorElement*> hPhiPassRec;
 
-  //  HepMC::GenEvent::particle_const_iterator theAssociatedGenPart;
-  //  reco::TrackCollection::const_iterator theAssociatedRecoPart;
+  MonitorElement *NumberOfEvents  ;
+  MonitorElement *NumberOfL1Events;
+  int theNumberOfEvents ;
+  int theNumberOfL1Events;
+  std::string theRootFileName;
+
   const HepMC::GenEvent* theGenEvent;
-  std::vector<const HepMC::GenParticle*> theGenMuons;
-  std::vector<const reco::Track*> theRecMuons;
 
   int findGenMatch( double eta, double phi, double maxDeltaR );
   int findRecMatch( double eta, double phi, double maxdeltaR );
 
-  MonitorElement *NumberOfEvents, *NumberOfL1Events;
-  int theNumberOfEvents,theNumberOfL1Events;
-  std::string theRootFileName;
 
   // ntuple
-  TNtuple *nt;
-  TFile *file;
-  float params[18];
+  bool    makeNtuple;
+  TNtuple *theNtuple;
+  TFile   *theFile;
+  float   ntParams[18];
 
 };
 #endif

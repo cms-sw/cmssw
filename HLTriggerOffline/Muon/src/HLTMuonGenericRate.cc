@@ -31,34 +31,38 @@ typedef std::vector< edm::ParameterSet > Parameters;
 
 /// Constructor
 HLTMuonGenericRate::HLTMuonGenericRate( const ParameterSet& pset, 
-					int triggerIndex )
+					int triggerIndex          )
 {
+
+  theFolderName        = pset.getUntrackedParameter<std::string>
+                         ("FolderName","HLT/Muon/");
   useMuonFromGenerator = pset.getParameter<bool>("UseMuonFromGenerator");
-  useMuonFromReco = pset.getParameter<bool>("UseMuonFromReco");
+  useMuonFromReco      = pset.getParameter<bool>("UseMuonFromReco");
   if ( useMuonFromGenerator ) 
-    theGenLabel = pset.getUntrackedParameter<InputTag>("GenLabel");
+    theGenLabel  = pset.getUntrackedParameter<InputTag>("GenLabel");
   if ( useMuonFromReco )
     theRecoLabel = pset.getUntrackedParameter<InputTag>("RecoLabel");
-  
-  folderName = pset.getUntrackedParameter<string>("FolderName", "HLT/Muon/");
 
-  Parameters TriggerLists  = pset.getParameter<Parameters>("TriggerCollection");
+  Parameters TriggerLists  = pset.getParameter<Parameters>
+                             ("TriggerCollection");
   ParameterSet thisTrigger = TriggerLists[triggerIndex];
-  theL1CollectionLabel     = thisTrigger.getParameter<InputTag>("L1CollectionLabel");
-  theHLTCollectionLabels   = thisTrigger.getParameter< std::vector<InputTag> >("HLTCollectionLabels");
-  theL1ReferenceThreshold  = thisTrigger.getParameter<double>("L1ReferenceThreshold");    
-  theHLTReferenceThreshold = thisTrigger.getParameter<double>("HLTReferenceThreshold");    
-  theNumberOfObjects       = thisTrigger.getParameter<unsigned int>("NumberOfObjects");
+  theL1CollectionLabel     = thisTrigger.getParameter<InputTag>
+                             ("L1CollectionLabel");
+  theHLTCollectionLabels   = thisTrigger.getParameter< std::vector<InputTag> >
+                             ("HLTCollectionLabels");
+  theL1ReferenceThreshold  = thisTrigger.getParameter<double>
+                             ("L1ReferenceThreshold");    
+  theHLTReferenceThreshold = thisTrigger.getParameter<double>
+                             ("HLTReferenceThreshold");    
+  theNumberOfObjects       = thisTrigger.getParameter<unsigned int>
+                             ("NumberOfObjects");
 
-  theNSigmas      = pset.getUntrackedParameter<std::vector<double> >("NSigmas90");
+  theNSigmas   = pset.getUntrackedParameter<std::vector<double> >("NSigmas90");
   theCrossSection = pset.getParameter<double>("CrossSection");
 
-  // Luminosity converted to nb^-1 * s^-1
-  theLuminosity = pset.getUntrackedParameter<double>("Luminosity",1.e+32)*1.e-33;
-
-  thePtMin = pset.getUntrackedParameter<double>      ("PtMin", 0.);
-  thePtMax = pset.getUntrackedParameter<double>      ("PtMax",40.);
-  theNbins = pset.getUntrackedParameter<unsigned int>("Nbins",40 );
+  thePtMin = pset.getUntrackedParameter<double>      ("PtMin",  0.);
+  thePtMax = pset.getUntrackedParameter<double>      ("PtMax", 40.);
+  theNbins = pset.getUntrackedParameter<unsigned int>("Nbins", 40 );
 
   theMinPtCut =  pset.getUntrackedParameter<double>  ("MinPtCut",  5.0);
   theMaxEtaCut = pset.getUntrackedParameter<double>  ("MaxEtaCut", 2.1);
@@ -80,14 +84,24 @@ HLTMuonGenericRate::HLTMuonGenericRate( const ParameterSet& pset,
     theRootFileName = pset.getUntrackedParameter<std::string>("RootFileName");
 
   if ( dbe_ != NULL ) {
+    TString folderName = theFolderName;
     dbe_->cd();
-    dbe_->setCurrentFolder( folderName );
-    dbe_->setCurrentFolder( std::string( folderName + "RateEfficiencies" ) );
-    dbe_->setCurrentFolder( std::string( folderName + "Distributions" ) );
+    dbe_->setCurrentFolder( (folderName                     ).Data() );
+    dbe_->setCurrentFolder( (folderName + "RateEfficiencies").Data() );
+    dbe_->setCurrentFolder( (folderName + "Distributions"   ).Data() );
   }
 
-  nt =   new TNtuple("nt","data","genPt:genEta:genPhi:pt1:eta1:phi1:pt2:eta2:phi2:pt3:eta3:phi3:pt4:eta4:phi4:pt5:eta5:phi5");
-  file = new TFile("file.root","RECREATE");
+  nL1Orphans  = 0;
+  nHltOrphans = 0;
+
+  if ( theL1CollectionLabel.label() == "hltSingleMuIsoL1Filtered" )
+    makeNtuple = true;
+  else makeNtuple = false;
+
+  if ( makeNtuple ) {
+    theFile    = new TFile  ("file.root","RECREATE");
+    theNtuple  = new TNtuple("nt","data","genPt:genEta:genPhi:pt1:eta1:phi1:pt2:eta2:phi2:pt3:eta3:phi3:pt4:eta4:phi4:pt5:eta5:phi5");
+  }
 
 }
 
@@ -96,6 +110,18 @@ HLTMuonGenericRate::HLTMuonGenericRate( const ParameterSet& pset,
 /// Destructor
 HLTMuonGenericRate::~HLTMuonGenericRate()
 {
+  if ( makeNtuple ) {
+    cout << "theFile->cd()" << endl;
+    theFile->cd();
+    cout << "Write" << endl;
+    theNtuple->Write();
+    theFile->Write();
+    cout << "Close" << endl;
+    theFile->Close();
+    
+    cout << "nL1Orphans: "  << nL1Orphans  << 
+          ", nHltOrphans: " << nHltOrphans << endl;
+  }
 }
 
 
@@ -130,10 +156,10 @@ void HLTMuonGenericRate::analyze( const Event & event )
       for ( genIterator = theGenEvent->particles_begin(); 
 	    genIterator != theGenEvent->particles_end(); ++genIterator ) {
 	int id     = (*genIterator)->pdg_id();
-	HepMC::GenParticle *mother = &*(*(*genIterator)->production_vertex()->
-				      particles_begin(HepMC::parents));
-	int momId = mother->pdg_id();
-	cout << momId << endl;
+// 	HepMC::GenParticle *mother = &*(*(*genIterator)->production_vertex()->
+// 				      particles_begin(HepMC::parents));
+// 	int momId = mother->pdg_id();
+	int momId = 0;
 	int status = (*genIterator)->status();
 	double pt  = (*genIterator)->momentum().perp();
 	double eta = (*genIterator)->momentum().eta();
@@ -142,7 +168,6 @@ void HLTMuonGenericRate::analyze( const Event & event )
 	     ( motherParticleId == 0 || abs(momId) == motherParticleId ) &&
 	     pt > theMinPtCut && fabs(eta) < theMaxEtaCut ) 
 	{
-	  theGenMuons.push_back(*genIterator);
 	  MatchStruct newMatchStruct;
 	  newMatchStruct.genCand = *genIterator;
 	  genMatches.push_back(newMatchStruct);
@@ -160,7 +185,6 @@ void HLTMuonGenericRate::analyze( const Event & event )
       for ( muon = muTracks->begin(); muon != muTracks->end(); ++muon ) {
 	if ( muon->pt() > theMinPtCut  && fabs(muon->eta()) < theMaxEtaCut ) {
 	  float pt = muon->pt();
-	  theRecMuons.push_back(&(*muon));
 	  MatchStruct newMatchStruct;
 	  newMatchStruct.recCand = &*muon;
 	  recMatches.push_back(newMatchStruct);
@@ -169,8 +193,6 @@ void HLTMuonGenericRate::analyze( const Event & event )
   
   if ( genMuonPt > 0 ) hPtPassGen[0]->Fill(genMuonPt, thisEventWeight);
   if ( recMuonPt > 0 ) hPtPassRec[0]->Fill(recMuonPt, thisEventWeight);
-
-  cout << "Num genMatches: " << genMatches.size() << endl;
 
   LogTrace("HLTMuonVal") << "genMuonPt: " << genMuonPt << ", "  
                          << "recMuonPt: " << recMuonPt;
@@ -211,21 +233,31 @@ void HLTMuonGenericRate::analyze( const Event & event )
   // Get the HLT candidates //
   unsigned int numHltLabels = theHLTCollectionLabels.size();
   vector< vector<RecoChargedCandidateRef> > hltCands(numHltLabels);
-  unsigned int numHltModules = 0;
   for ( unsigned int i = 0; i < numHltLabels; i++ ) {
     label = theHLTCollectionLabels[i];
     if ( triggerObj->filterIndex(label) >= triggerObj->size() )
-      LogTrace("HLTMuonVal") << "No HLT Collection with label " << label.label();
-    else {
-      triggerObj->getObjects( triggerObj->filterIndex(label), 93, hltCands[i] );
-      numHltModules++;
-    }
+      LogTrace("HLTMuonVal") <<"No HLT Collection with label "<< label.label();
+    else
+      triggerObj->getObjects(triggerObj->filterIndex(label),93,hltCands[i]);
   }
 
+  for ( size_t i = 0; i < genMatches.size(); i++ ) {
+    genMatches[i].l1Cand = NULL;
+    genMatches[i].hltCands.resize(numHltLabels);
+    for ( size_t j = 0; j < numHltLabels; j++ ) 
+      genMatches[i].hltCands[j] = NULL;
+  }
+  for ( size_t i = 0; i < recMatches.size(); i++ ) {
+    recMatches[i].l1Cand = NULL;
+    recMatches[i].hltCands.resize(numHltLabels);
+    for ( size_t j = 0; j < numHltLabels; j++ )
+      recMatches[i].hltCands[j] = NULL;
+  }
 
   //////////////////////////////////////////////////////////////////////////
-  // Find L1 candidates passing a pt threshold, fill histograms, and match
-  // them to generated and reconstructed muons
+  // Loop through L1 candidates, matching to gen particles 
+
+  // cout << "Looking at L1" << endl;
 
   unsigned int numL1Cands = 0;
 
@@ -243,12 +275,12 @@ void HLTMuonGenericRate::analyze( const Event & event )
       numL1Cands++;
       if ( useMuonFromGenerator ){
 	int match = findGenMatch( eta, phi, maxDeltaR );
-	cout << "Gen match = " << match << endl;
-	if ( match != -1 ) genMatches[match].l1Cand = l1Cand;
+	if ( match != -1 ) genMatches[match].l1Cand = &*l1Cand;
+	else nL1Orphans++;
       }
       if ( useMuonFromReco ){
 	int match = findRecMatch( eta, phi, maxDeltaR );
-	if ( match != -1 ) recMatches[match].l1Cand = l1Cand;
+	if ( match != -1 ) recMatches[match].l1Cand = &*l1Cand;
       }
     }
   }
@@ -264,16 +296,13 @@ void HLTMuonGenericRate::analyze( const Event & event )
   // Find HLT candidates for each module passing a pt threshold, fill
   // histograms, and match them to generated and reconstructed muons
 
-  for ( size_t i = 0; i < genMatches.size(); i++ ) 
-    genMatches[i].hltCands.resize(numHltModules);
-  for ( size_t i = 0; i < recMatches.size(); i++ ) 
-    recMatches[i].hltCands.resize(numHltModules);
+  // cout << "Looking at HLT" << endl;
 
-  for ( size_t  i = 0; i < numHltModules; i++ ) { 
+  for ( size_t  i = 0; i < numHltLabels; i++ ) { 
     unsigned int numFound = 0;
     for ( size_t candNum = 0; candNum < hltCands[i].size(); candNum++ ) {
 
-      int triggerLevel = ( i < ( numHltModules / 2 ) ) ? 2 : 3;
+      int triggerLevel = ( i < ( numHltLabels / 2 ) ) ? 2 : 3;
       double maxDeltaR = ( triggerLevel == 2 ) ? 0.05 : 0.015;
 
       RecoChargedCandidateRef hltCand = hltCands[i][candNum];
@@ -285,11 +314,12 @@ void HLTMuonGenericRate::analyze( const Event & event )
 	numFound++;
 	if ( useMuonFromGenerator ){
 	  int match = findGenMatch( eta, phi, maxDeltaR );
-	  if ( match != -1 ) genMatches[match].hltCands[i] = hltCand;
+	  if ( match != -1 ) genMatches[match].hltCands[i] = &*hltCand;
+	  else nHltOrphans++;
 	}
 	if ( useMuonFromReco ){
 	  int match  = findRecMatch( eta, phi, maxDeltaR );
-	  if ( match != -1 ) recMatches[match].hltCands[i] = hltCand;
+	  if ( match != -1 ) recMatches[match].hltCands[i] = &*hltCand;
 	}
       }
     }
@@ -305,52 +335,58 @@ void HLTMuonGenericRate::analyze( const Event & event )
   //////////////////////////////////////////////////////////////////////////
   // Fill histograms
 
-  for ( size_t i = 0; i < genMatches.size(); i++  ) {
-    cout << "genMatch " << i << ": " << genMatches[i].l1Cand.isNonnull();
-    for ( size_t j = 0; j < numHltLabels; j++ )
-      cout << ", " << genMatches[i].hltCands[j].isNonnull();
-    cout << endl;
-  }
+  // cout << "Filling ntuple" << endl;
   
-  if ( theL1CollectionLabel.label() == "hltSingleMuIsoL1Filtered" ) {
-  cout << theL1CollectionLabel.label() << endl;
-  cout << "numLabels: " << numHltLabels << endl;
+  if ( makeNtuple ) {
+    // cout << "Looking at hltSingleMuIso" << endl;
+    for ( size_t i = 0; i < genMatches.size(); i++ ) {
+      for ( int k = 0; k < 18; k++ ) ntParams[k] = -1;
+      ntParams[0] =  genMatches[i].genCand->momentum().perp();
+      ntParams[1] =  genMatches[i].genCand->momentum().eta();
+      ntParams[2] =  genMatches[i].genCand->momentum().phi();
+      if ( genMatches[i].l1Cand ) {
+	ntParams[3] = genMatches[i].l1Cand->pt();
+	ntParams[4] = genMatches[i].l1Cand->eta();
+	ntParams[5] = genMatches[i].l1Cand->phi();
+      }
+      // cout << numHltLabels << endl;
+      for ( size_t j = 0; j < genMatches[i].hltCands.size(); j++ ) {
+	if ( genMatches[i].hltCands[j] ) {
+	  // cout << (j*3+8) << ": " << genMatches[i].hltCands[j] << endl;
+	  ntParams[(j*3+6)] = genMatches[i].hltCands[j]->pt();
+	  ntParams[(j*3+7)] = genMatches[i].hltCands[j]->eta();
+	  ntParams[(j*3+8)] = genMatches[i].hltCands[j]->phi();
+	}
+      }
+      // cout << "About to fill the ntuple" << endl;
+      theNtuple->Fill(ntParams);
+    }
+  }
+
+  // cout << "Filling histograms" << endl;
+
   for ( size_t i = 0; i < genMatches.size(); i++  ) {
-    for ( int k = 0; k < 18; k++ ) params[k] = -1;
     hEtaPassGen[0]->Fill( genMatches[i].genCand->momentum().eta()  );
     hPhiPassGen[0]->Fill( genMatches[i].genCand->momentum().phi()  );
-    params[0] =  genMatches[i].genCand->momentum().perp();
-    params[1] =  genMatches[i].genCand->momentum().eta();
-    params[2] =  genMatches[i].genCand->momentum().phi();
-    if ( genMatches[i].l1Cand.isNonnull() ) {
+    if ( genMatches[i].l1Cand ) {
       hEtaPassGen[1]->Fill( genMatches[i].genCand->momentum().eta()  );
       hPhiPassGen[1]->Fill( genMatches[i].genCand->momentum().phi()  );
-      params[3] = genMatches[i].l1Cand->pt();
-      params[4] = genMatches[i].l1Cand->eta();
-      params[5] = genMatches[i].l1Cand->phi();
     }
-    for ( size_t j = 0; j < numHltLabels; j++ ) {
-      if ( genMatches[i].hltCands[j].isNonnull() ) {
+    for ( size_t j = 0; j < genMatches[i].hltCands.size(); j++ ) {
+      if ( genMatches[i].hltCands[j] ) {
 	hEtaPassGen[j+2]->Fill( genMatches[i].genCand->momentum().eta()  );
 	hPhiPassGen[j+2]->Fill( genMatches[i].genCand->momentum().phi()  );
-	params[(j*3+6)] = genMatches[i].hltCands[j]->pt();
-	params[(j*3+7)] = genMatches[i].hltCands[j]->eta();
-	params[(j*3+8)] = genMatches[i].hltCands[j]->phi();
-      }
-    }
-    nt->Fill(params);
-  }
-  }
+  } } }
 
   for ( size_t i = 0; i < recMatches.size(); i++  ) {
     hEtaPassRec[0]->Fill( recMatches[i].recCand->eta()  );
     hPhiPassRec[0]->Fill( recMatches[i].recCand->phi()  );
-    if ( recMatches[i].l1Cand.isNonnull() ) {
+    if ( recMatches[i].l1Cand ) {
       hEtaPassRec[1]->Fill( recMatches[i].recCand->eta()  );
       hPhiPassRec[1]->Fill( recMatches[i].recCand->phi()  );
     }
-    for ( size_t j = 0; j < numHltLabels; j++ ) {
-      if ( recMatches[i].hltCands[j].isNonnull() ) {
+    for ( size_t j = 0; j < genMatches[i].hltCands.size(); j++ ) {
+      if ( recMatches[i].hltCands[j] ) {
 	hEtaPassRec[j+2]->Fill( recMatches[i].recCand->eta()  );
 	hPhiPassRec[j+2]->Fill( recMatches[i].recCand->phi()  );
   } } }
@@ -450,14 +486,6 @@ HLTMuonGenericRate::BookHistograms()
       }
     }
   }
-}
-
-
-void
-HLTMuonGenericRate::endJob() {
-  file->cd();
-  file->Write();
-  file->Close();
 }
 
 
