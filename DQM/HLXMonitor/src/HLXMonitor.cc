@@ -17,6 +17,7 @@ HLXMonitor::HLXMonitor(const edm::ParameterSet& iConfig)
 
    NUM_HLX          = iConfig.getUntrackedParameter< unsigned int >("numHlx",     36);
    NUM_BUNCHES      = iConfig.getUntrackedParameter< unsigned int >("numBunches", 3564);
+   MAX_LS           = iConfig.getUntrackedParameter< unsigned int >("maximumNumLS", 1920);
    listenPort       = iConfig.getUntrackedParameter< unsigned int >("SourcePort", 51001);
    OutputFilePrefix = iConfig.getUntrackedParameter< std::string  >("outputFile", "lumi");
    OutputDir        = iConfig.getUntrackedParameter< std::string  >("outputDir","  data");
@@ -35,6 +36,9 @@ HLXMonitor::HLXMonitor(const edm::ParameterSet& iConfig)
 
    eventInfoFolder_ = iConfig.getUntrackedParameter<std::string   >("eventInfoFolder", "EventInfo") ;
    subSystemName_   = iConfig.getUntrackedParameter<std::string   >("subSystemName", "HLX") ;
+
+   // Set the lumi section counter
+   lumiSectionCount = 0;
 
    // HLX Config info
    set1BelowIndex   = 0;
@@ -374,6 +378,102 @@ HLXMonitor::SetupHists()
    SumAllOccSet2 = dbe_->bookProfile("SumAllOccSet2","Occupancy Check - Set 2",NUM_HLX, 0, NUM_HLX, OccBins, OccMax, OccMin );
    SumAllOccSet2->setAxisTitle( sumXTitle, 1 );
    SumAllOccSet2->setAxisTitle( sumYTitle, 2 );
+
+   // History histograms
+   dbe_->setCurrentFolder(monitorName_+"/History");
+
+   std::string HistXTitle = "Time (0.25 LS)";
+   std::string HistEtSumYTitle = "Average E_{T} Sum";
+   std::string HistOccYTitle = "Average Occupancy";
+   std::string HistLumiYTitle = "Luminosity";
+
+   // Et Sum histories
+   HistAvgEtSumHFP        = dbe_->bookProfile( "HistAvgEtSumHFP", "Average Et Sum: HF+",          
+   MAX_LS, 0, MAX_LS, EtSumBins, EtSumMin, EtSumMax);
+   HistAvgEtSumHFP->setAxisTitle( HistXTitle, 1 );
+   HistAvgEtSumHFP->setAxisTitle( HistEtSumYTitle, 2 );
+
+   HistAvgEtSumHFM        = dbe_->bookProfile( "HistAvgEtSumHFM", "Average Et Sum: HF-",          
+   MAX_LS, 0, MAX_LS, EtSumBins, EtSumMin, EtSumMax);
+   HistAvgEtSumHFM->setAxisTitle( HistXTitle, 1 );
+   HistAvgEtSumHFM->setAxisTitle( HistEtSumYTitle, 2 );
+
+   // Tower Occupancy Histories
+   HistAvgOccBelowSet1HFP = dbe_->bookProfile( "HistAvgOccBelowSet1HFP", "Average Occ Set1Below: HF+",
+   MAX_LS, 0, MAX_LS, OccBins, OccMin, OccMax );
+   HistAvgOccBelowSet1HFP->setAxisTitle( HistXTitle, 1 );
+   HistAvgOccBelowSet1HFP->setAxisTitle( HistOccYTitle, 2 );
+
+   HistAvgOccBelowSet1HFM = dbe_->bookProfile( "HistAvgOccBelowSet1HFM", "Average Occ Set1Below: HF-",
+   MAX_LS, 0, MAX_LS, OccBins, OccMin, OccMax );
+   HistAvgOccBelowSet1HFM->setAxisTitle( HistXTitle, 1 );
+   HistAvgOccBelowSet1HFM->setAxisTitle( HistOccYTitle, 2 );
+
+   HistAvgOccBetweenSet1HFP = dbe_->bookProfile( "HistAvgOccBetweenSet1HFP", "Average Occ Set1Between: HF+",
+   MAX_LS, 0, MAX_LS, OccBins, OccMin, OccMax );
+   HistAvgOccBetweenSet1HFP->setAxisTitle( HistXTitle, 1 );
+   HistAvgOccBetweenSet1HFP->setAxisTitle( HistOccYTitle, 2 );
+
+   HistAvgOccBetweenSet1HFM = dbe_->bookProfile( "HistAvgOccBetweenSet1HFM", "Average Occ Set1Between: HF-",
+   MAX_LS, 0, MAX_LS, OccBins, OccMin, OccMax );
+   HistAvgOccBetweenSet1HFM->setAxisTitle( HistXTitle, 1 );
+   HistAvgOccBetweenSet1HFM->setAxisTitle( HistOccYTitle, 2 );
+
+   HistAvgOccAboveSet1HFP = dbe_->bookProfile( "HistAvgOccAboveSet1HFP", "Average Occ Set1Above: HF+",
+   MAX_LS, 0, MAX_LS, OccBins, OccMin, OccMax );
+   HistAvgOccAboveSet1HFP->setAxisTitle( HistXTitle, 1 );
+   HistAvgOccAboveSet1HFP->setAxisTitle( HistOccYTitle, 2 );
+
+   HistAvgOccAboveSet1HFM = dbe_->bookProfile( "HistAvgOccAboveSet1HFM", "Average Occ Set1Above: HF-",
+   MAX_LS, 0, MAX_LS, OccBins, OccMin, OccMax );
+   HistAvgOccAboveSet1HFM->setAxisTitle( HistXTitle, 1 );
+   HistAvgOccAboveSet1HFM->setAxisTitle( HistOccYTitle, 2 );
+
+   HistAvgOccBelowSet2HFP = dbe_->bookProfile( "HistAvgOccBelowSet2HFP", "Average Occ Set2Below: HF+",
+   MAX_LS, 0, MAX_LS, OccBins, OccMin, OccMax );
+   HistAvgOccBelowSet2HFP->setAxisTitle( HistXTitle, 1 );
+   HistAvgOccBelowSet2HFP->setAxisTitle( HistOccYTitle, 2 );
+
+   HistAvgOccBelowSet2HFM = dbe_->bookProfile( "HistAvgOccBelowSet2HFM", "Average Occ Set2Below: HF-",
+   MAX_LS, 0, MAX_LS, OccBins, OccMin, OccMax );
+   HistAvgOccBelowSet2HFM->setAxisTitle( HistXTitle, 1 );
+   HistAvgOccBelowSet2HFM->setAxisTitle( HistOccYTitle, 2 );
+
+   HistAvgOccBetweenSet2HFP = dbe_->bookProfile( "HistAvgOccBetweenSet2HFP", "Average Occ Set2Between: HF+",
+   MAX_LS, 0, MAX_LS, OccBins, OccMin, OccMax );
+   HistAvgOccBetweenSet2HFP->setAxisTitle( HistXTitle, 1 );
+   HistAvgOccBetweenSet2HFP->setAxisTitle( HistOccYTitle, 2 );
+
+   HistAvgOccBetweenSet2HFM = dbe_->bookProfile( "HistAvgOccBetweenSet2HFM", "Average Occ Set2Between: HF-",
+   MAX_LS, 0, MAX_LS, OccBins, OccMin, OccMax );
+   HistAvgOccBetweenSet2HFM->setAxisTitle( HistXTitle, 1 );
+   HistAvgOccBetweenSet2HFM->setAxisTitle( HistOccYTitle, 2 );
+
+   HistAvgOccAboveSet2HFP = dbe_->bookProfile( "HistAvgOccAboveSet2HFP", "Average Occ Set2Above: HF+",
+   MAX_LS, 0, MAX_LS, OccBins, OccMin, OccMax );
+   HistAvgOccAboveSet2HFP->setAxisTitle( HistXTitle, 1 );
+   HistAvgOccAboveSet2HFP->setAxisTitle( HistOccYTitle, 2 );
+
+   HistAvgOccAboveSet2HFM = dbe_->bookProfile( "HistAvgOccAboveSet2HFM", "Average Occ Set2Above: HF-",
+   MAX_LS, 0, MAX_LS, OccBins, OccMin, OccMax );
+   HistAvgOccAboveSet2HFM->setAxisTitle( HistXTitle, 1 );
+   HistAvgOccAboveSet2HFM->setAxisTitle( HistOccYTitle, 2 );
+
+   // Lumi Histories
+   HistLumiEtSum   = dbe_->bookProfile( "HistLumiEtSum", "Average Instant Luminosity: Et Sum",
+   MAX_LS, 0, MAX_LS, EtSumBins, EtSumMin, EtSumMax);
+   HistLumiEtSum->setAxisTitle( HistXTitle, 1 );
+   HistLumiEtSum->setAxisTitle( HistLumiYTitle, 2 );
+
+   HistLumiOccSet1 = dbe_->bookProfile( "HistLumiOccSet1", "Average Instant Luminosity: Occ Set1",
+   MAX_LS, 0, MAX_LS, OccBins, OccMin, OccMax);
+   HistLumiOccSet1->setAxisTitle( HistXTitle, 1 );
+   HistLumiOccSet1->setAxisTitle( HistLumiYTitle, 2 );
+
+   HistLumiOccSet2 = dbe_->bookProfile( "HistLumiOccSet2", "Average Instant Luminosity: Occ Set2",
+   MAX_LS, 0, MAX_LS, OccBins, OccMin, OccMax);
+   HistLumiOccSet2->setAxisTitle( HistXTitle, 1 );
+   HistLumiOccSet2->setAxisTitle( HistLumiYTitle, 2 );
  
    dbe_->showDirStructure();
 }
@@ -385,7 +485,7 @@ void HLXMonitor::SetupEventInfo( )
    using std::string;
 
    string currentfolder = subSystemName_ + "/" +  eventInfoFolder_;
-   cout << "currentfolder " << currentfolder << endl;
+   //cout << "currentfolder " << currentfolder << endl;
 
    dbe_->setCurrentFolder(currentfolder) ;
 
@@ -415,22 +515,26 @@ HLXMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
 
+   int attemptCounter = 0;
    int errorCode = 0;
    do
    {
       errorCode = HLXTCP.ReceiveLumiSection(lumiSection);
-      //cout << "ReceiveLumiSection: " << errorCode << endl;
 
       while(errorCode !=1)
       {
 	 HLXTCP.Disconnect();
 	 //cout << "Connecting to TCPDistributor" << endl;
 	 errorCode = HLXTCP.Connect();
-	 if(errorCode != 1)
+	 if(errorCode != 1) 
 	 {
-	    cout << "*** Connection Failed: " << errorCode 
-		 << " Attempting reconnect in " << reconnTime << " seconds." << endl;
-	    sleep(reconnTime);
+ 	   if( (attemptCounter%10)==0 ){  
+	     cout << "*** Connection Failed: " << errorCode 
+		  << " Will attempt to reconnect in " << reconnTime << " seconds." << endl;
+	     cout << "This message will be printed once every 10 attempts." << endl;
+ 	   }
+ 	   ++attemptCounter;
+	   sleep(reconnTime);
 	 }
       }    
    } while( errorCode != 1 );
@@ -440,29 +544,16 @@ HLXMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    //std::cout << "Run number is: " << runNumber_ << std::endl;
   
    // Fill the monitoring histograms 
-   if(Style.compare("BX") == 0)
-   {
-      FillHistoBX(lumiSection);
-   }
-   else if(Style.compare("Dist")==0)
-   {
-      FillHistoDist(lumiSection);
-   }
-
+   FillHistograms(lumiSection);
    FillHistoHFCompare(lumiSection);
-   FillHistoAvg(lumiSection);
-   FillHistoLumi(lumiSection);
-   FillHistoSum(lumiSection);
    FillEventInfo(lumiSection);
 
-//    cout << "Run: " << lumiSection.hdr.runNumber 
-// 	<< " Section: " << lumiSection.hdr.sectionNumber 
-// 	<< " Orbit: " << lumiSection.hdr.startOrbit << endl;
-//    cout << "Et Lumi: " << lumiSection.lumiSummary.InstantETLumi << endl;
-//    cout << "Occ Lumi 1: " << lumiSection.lumiSummary.InstantOccLumi[0] << endl;
-//    cout << "Occ Lumi 2: " << lumiSection.lumiSummary.InstantOccLumi[1] << endl;
-//    cout << "Noise[0]: " << lumiSection.lumiSummary.lumiNoise[0] << endl;
-//    cout << "Noise[1]: " << lumiSection.lumiSummary.lumiNoise[1] << endl;
+//     cout << "Run: " << lumiSection.hdr.runNumber 
+//  	<< " Section: " << lumiSection.hdr.sectionNumber 
+//  	<< " Orbit: " << lumiSection.hdr.startOrbit << endl;
+//     cout << "Et Lumi: " << lumiSection.lumiSummary.InstantETLumi << endl;
+//     cout << "Occ Lumi 1: " << lumiSection.lumiSummary.InstantOccLumi[0] << endl;
+//     cout << "Occ Lumi 2: " << lumiSection.lumiSummary.InstantOccLumi[1] << endl;
 
 }
 
@@ -484,19 +575,25 @@ void HLXMonitor::beginJob(const edm::EventSetup&)
 { 
    HLXTCP.SetIP(DistribIP);
 
+   int attemptCounter = 0;
    int errorCode = HLXTCP.SetPort(listenPort);
-   cout << "SetPort: " << errorCode << endl;
+   cout << "SetPort: " << listenPort << " Success: " << errorCode << endl;
    errorCode = HLXTCP.SetMode(AquireMode);
-   cout << "AquireMode: " << errorCode << endl;
+   cout << "AquireMode: " << AquireMode << " Success: " << errorCode << endl;
   
    do
    {
-      cout << "Connecting to TCPDistributor" << endl;
+      //cout << "BEGINJOB: Connecting to TCPDistributor" << endl;
       errorCode = HLXTCP.Connect();
+      //cout << "ErrorCode " << errorCode << endl;
       if(errorCode != 1)
       {
-	 cout << "Attempting to reconnect in " << reconnTime << " seconds." << endl;
-	 sleep(reconnTime);
+ 	if( (attemptCounter%10)==0 ){
+	  cout << "BeginJob: Attempting to reconnect in " << reconnTime << " seconds." << endl;
+	  cout << "This message will be printed once every 10 attempts." << endl;
+ 	}
+ 	++attemptCounter;
+	sleep(reconnTime);
       }
    } while(errorCode != 1);
 }
@@ -530,61 +627,107 @@ void HLXMonitor::endJob()
 }
 
 
-void HLXMonitor::FillHistoAvg(const LUMI_SECTION & section)
+void HLXMonitor::FillHistograms(const LUMI_SECTION & section)
 {
+   int lsBin = int(lumiSectionCount/16);
+   HistLumiEtSum->Fill(lsBin, section.lumiSummary.InstantETLumi);
+   HistLumiOccSet1->Fill(lsBin, section.lumiSummary.InstantOccLumi[0]);
+   HistLumiOccSet2->Fill(lsBin, section.lumiSummary.InstantOccLumi[1]);
 
    for( int iHLX = 0; iHLX < (int)NUM_HLX; ++iHLX )
    {
+      float total1 = 0;
+      float total2 = 0;
       unsigned int iWedge = HLXHFMap[iHLX];
       if(section.occupancy[iHLX].hdr.numNibbles != 0)
       {
-	 for( unsigned int iBX = 0; iBX < (NUM_BUNCHES - 100); ++iBX )  // Don't include the last one hundred BX in the average.
+	 for( unsigned int iBX = 0; iBX < NUM_BUNCHES; ++iBX )  // Don't include the last one hundred BX in the average.
 	 {
-	    AvgEtSum->Fill( iWedge,section.etSum[iHLX].data[iBX]);
+	    // Normalize to number of towers
+	    unsigned int norm[2] = {0,0};
+	    norm[0] += section.occupancy[iHLX].data[set1BelowIndex   ][iBX];
+	    norm[0] += section.occupancy[iHLX].data[set1BetweenIndex ][iBX];
+	    norm[0] += section.occupancy[iHLX].data[set1AboveIndex   ][iBX];
+	    if( norm[0] == 0 ) continue;
+	    norm[1] += section.occupancy[iHLX].data[set2BelowIndex   ][iBX];
+	    norm[1] += section.occupancy[iHLX].data[set2BetweenIndex ][iBX];
+	    norm[1] += section.occupancy[iHLX].data[set2AboveIndex   ][iBX];
+	    if( norm[1] == 0 ) continue;
+
+	    double normEt = section.etSum[iHLX].data[iBX]/(double)(norm[0]+norm[1]);
+	    double normOccSet1Below   = (double)section.occupancy[iHLX].data[set1BelowIndex][iBX]/(double)norm[0];
+	    double normOccSet1Between = (double)section.occupancy[iHLX].data[set1BetweenIndex][iBX]/(double)norm[0];
+	    double normOccSet1Above   = (double)section.occupancy[iHLX].data[set1AboveIndex][iBX]/(double)norm[0];
+	    double normOccSet2Below   = (double)section.occupancy[iHLX].data[set2BelowIndex][iBX]/(double)norm[1];
+	    double normOccSet2Between = (double)section.occupancy[iHLX].data[set2BetweenIndex][iBX]/(double)norm[1];
+	    double normOccSet2Above   = (double)section.occupancy[iHLX].data[set2AboveIndex][iBX]/(double)norm[1];
+
+	    // Averages & check sum
+	    if( iBX < NUM_BUNCHES-100 )
+	    {
+	       AvgEtSum->Fill( iWedge,normEt);
 	
-	    AvgOccBelowSet1->  Fill( iWedge, section.occupancy[iHLX].data[set1BelowIndex  ][iBX] );
-	    AvgOccBetweenSet1->Fill( iWedge, section.occupancy[iHLX].data[set1BetweenIndex][iBX] );
-	    AvgOccAboveSet1->  Fill( iWedge, section.occupancy[iHLX].data[set1AboveIndex  ][iBX] );
+	       AvgOccBelowSet1->  Fill( iWedge, normOccSet1Below   );
+	       AvgOccBetweenSet1->Fill( iWedge, normOccSet1Between );
+	       AvgOccAboveSet1->  Fill( iWedge, normOccSet1Above   );
 	   
-	    AvgOccBelowSet2->  Fill( iWedge, section.occupancy[iHLX].data[set2BelowIndex  ][iBX] );
-	    AvgOccBetweenSet2->Fill( iWedge, section.occupancy[iHLX].data[set2BetweenIndex][iBX] );
-	    AvgOccAboveSet2->  Fill( iWedge, section.occupancy[iHLX].data[set2AboveIndex  ][iBX] );
-	
-	 }
-      }
-   }
-}
+	       AvgOccBelowSet2->  Fill( iWedge, normOccSet2Below    );
+	       AvgOccBetweenSet2->Fill( iWedge, normOccSet2Between  );
+	       AvgOccAboveSet2->  Fill( iWedge, normOccSet2Above    );
 
-void HLXMonitor::FillHistoBX(const LUMI_SECTION & section)
-{
-   for( int iHLX = 0; iHLX < NUM_HLX; ++iHLX )
-   {
-      unsigned int iWedge = HLXHFMap[iHLX];
-      if(section.occupancy[iHLX].hdr.numNibbles != 0)
-      {
-	 for( unsigned int iBX = 0; iBX < NUM_BUNCHES; ++iBX)
-	 { 
-	    Set1Below[iWedge]->  Fill(iBX, section.occupancy[iHLX].data[set1BelowIndex  ][iBX]);
-	    Set1Between[iWedge]->Fill(iBX, section.occupancy[iHLX].data[set1BetweenIndex][iBX]);
-	    Set1Above[iWedge]->  Fill(iBX, section.occupancy[iHLX].data[set1AboveIndex  ][iBX]);
-	    Set2Below[iWedge]->  Fill(iBX, section.occupancy[iHLX].data[set2BelowIndex  ][iBX]);
-	    Set2Between[iWedge]->Fill(iBX, section.occupancy[iHLX].data[set2BetweenIndex][iBX]);
-	    Set2Above[iWedge]->  Fill(iBX, section.occupancy[iHLX].data[set2AboveIndex  ][iBX]);
-	    ETSum[iWedge]->      Fill(iBX, section.etSum[iHLX].data[iBX]);
-	 }
-      }
-   }
-}
+	       if( iWedge < 18 )
+	       {
+		  HistAvgEtSumHFP->Fill( lsBin,normEt);
+		  HistAvgOccBelowSet1HFP->Fill( lsBin,   normOccSet1Below    );
+		  HistAvgOccBetweenSet1HFP->Fill( lsBin, normOccSet1Between  );
+		  HistAvgOccAboveSet1HFP->Fill( lsBin,   normOccSet1Above    );
+		  HistAvgOccBelowSet2HFP->Fill( lsBin,   normOccSet2Below    );
+		  HistAvgOccBetweenSet2HFP->Fill( lsBin, normOccSet2Between  );
+		  HistAvgOccAboveSet2HFP->Fill( lsBin,   normOccSet2Above    );
+	       }
+	       else
+	       {
+		  HistAvgEtSumHFM->Fill( lsBin,normEt);
+		  HistAvgOccBelowSet1HFM->Fill( lsBin,   normOccSet1Below    );
+		  HistAvgOccBetweenSet1HFM->Fill( lsBin, normOccSet1Between  );
+		  HistAvgOccAboveSet1HFM->Fill( lsBin,   normOccSet1Above    );
+		  HistAvgOccBelowSet2HFM->Fill( lsBin,   normOccSet2Below    );
+		  HistAvgOccBetweenSet2HFM->Fill( lsBin, normOccSet2Between  );
+		  HistAvgOccAboveSet2HFM->Fill( lsBin,   normOccSet2Above    );
+	       }
 
-void HLXMonitor::FillHistoLumi(const LUMI_SECTION & section)
-{
+	       total1 += (float)section.occupancy[iHLX].data[set1BelowIndex  ][iBX];
+	       total1 += (float)section.occupancy[iHLX].data[set1BetweenIndex][iBX];
+	       total1 += (float)section.occupancy[iHLX].data[set1AboveIndex  ][iBX];
 
-   for( unsigned int iHLX = 0; iHLX < NUM_HLX; ++iHLX )
-   {
-      if(section.occupancy[iHLX].hdr.numNibbles != 0)
-      {
-	 for( unsigned int iBX = 0; iBX < NUM_BUNCHES; ++iBX)
-	 { 
+	       total2 += (float)section.occupancy[iHLX].data[set2BelowIndex  ][iBX];
+	       total2 += (float)section.occupancy[iHLX].data[set2BetweenIndex][iBX];
+	       total2 += (float)section.occupancy[iHLX].data[set2AboveIndex  ][iBX];
+
+	    }
+
+	    if(Style.compare("BX") == 0)
+	    {
+	       Set1Below[iWedge]->  Fill(iBX, normOccSet1Below   );
+	       Set1Between[iWedge]->Fill(iBX, normOccSet1Between );
+	       Set1Above[iWedge]->  Fill(iBX, normOccSet1Above   );
+	       Set2Below[iWedge]->  Fill(iBX, normOccSet2Below   );
+	       Set2Between[iWedge]->Fill(iBX, normOccSet2Between );
+	       Set2Above[iWedge]->  Fill(iBX, normOccSet2Above   );
+	       ETSum[iWedge]->      Fill(iBX, normEt);
+	    }
+	    else if(Style.compare("Dist")==0)
+	    {
+	       Set1Below[iWedge]->  Fill( normOccSet1Below    );
+	       Set1Between[iWedge]->Fill( normOccSet1Between  );
+	       Set1Above[iWedge]->  Fill( normOccSet1Above    );
+	       Set2Below[iWedge]->  Fill( normOccSet2Below    );
+	       Set2Between[iWedge]->Fill( normOccSet2Between  );
+	       Set2Above[iWedge]->  Fill( normOccSet2Above    );
+	       ETSum[iWedge]->      Fill( normEt );
+	    }
+
+
 	    LumiEtSum->Fill(iBX, section.lumiDetail.ETLumi[iBX]);
 	    LumiOccSet1->Fill(iBX, section.lumiDetail.OccLumi[0][iBX]);
 	    LumiOccSet2->Fill(iBX, section.lumiDetail.OccLumi[1][iBX]);
@@ -592,30 +735,7 @@ void HLXMonitor::FillHistoLumi(const LUMI_SECTION & section)
 	    LumiDiffEtSumOcc1->Fill(iBX, (section.lumiDetail.ETLumi[iBX]-section.lumiDetail.OccLumi[0][iBX]));
 	    LumiDiffEtSumOcc2->Fill(iBX, (section.lumiDetail.ETLumi[iBX]-section.lumiDetail.OccLumi[1][iBX]));
 	    LumiDiffOcc1Occ2->Fill(iBX, (section.lumiDetail.ETLumi[iBX]-section.lumiDetail.OccLumi[1][iBX]));
-	 }
-      }
-   }
-}
 
-
-void HLXMonitor::FillHistoSum(const LUMI_SECTION & section)
-{
-   for( unsigned int iHLX = 0; iHLX < NUM_HLX; ++iHLX )
-   {
-      if(section.occupancy[iHLX].hdr.numNibbles != 0)
-      {
-	 unsigned int iWedge = HLXHFMap[iHLX];  
-	 float total1 = 0;
-	 float total2 = 0;
-	 for( unsigned int iBX = 0; iBX < (NUM_BUNCHES - 100); ++iBX )  // Don't include the last one hundred BX in the average.
-	 {
-	    total1 += (float)section.occupancy[iHLX].data[set1BelowIndex  ][iBX];
-	    total1 += (float)section.occupancy[iHLX].data[set1BetweenIndex][iBX];
-	    total1 += (float)section.occupancy[iHLX].data[set1AboveIndex  ][iBX];
-
-	    total2 += (float)section.occupancy[iHLX].data[set2BelowIndex  ][iBX];
-	    total2 += (float)section.occupancy[iHLX].data[set2BetweenIndex][iBX];
-	    total2 += (float)section.occupancy[iHLX].data[set2AboveIndex  ][iBX];
 	 }
 
 	 // Get the number of towers per wedge per BX (assuming non-zero numbers)
@@ -632,33 +752,15 @@ void HLXMonitor::FillHistoSum(const LUMI_SECTION & section)
 
 	 SumAllOccSet1->  Fill( iWedge, total1 );
 	 SumAllOccSet2->  Fill( iWedge, total2 );
+
       }
    }
+
+   // Add one to the section count (usually short sections)
+   ++lumiSectionCount;
+
 }
 
-
-void HLXMonitor::FillHistoDist(const LUMI_SECTION & section)
-{
-   for( unsigned int iHLX = 0; iHLX < NUM_HLX; ++iHLX )
-   {
-      if(section.occupancy[iHLX].hdr.numNibbles != 0)
-      {
-	 for( unsigned int iBX = 0; iBX < NUM_BUNCHES; ++iBX )
-	 { 
-
-	   unsigned int iWedge = HLXHFMap[iHLX];
-
-	    Set1Below[iWedge]->  Fill( section.occupancy[iHLX].data[set1BelowIndex  ][iBX] );
-	    Set1Between[iWedge]->Fill( section.occupancy[iHLX].data[set1BetweenIndex][iBX] );
-	    Set1Above[iWedge]->  Fill( section.occupancy[iHLX].data[set1AboveIndex  ][iBX] );
-	    Set2Below[iWedge]->  Fill( section.occupancy[iHLX].data[set2BelowIndex  ][iBX] );
-	    Set2Between[iWedge]->Fill( section.occupancy[iHLX].data[set2BetweenIndex][iBX] );
-	    Set2Above[iWedge]->  Fill( section.occupancy[iHLX].data[set2AboveIndex  ][iBX] );
-	    ETSum[iWedge]->      Fill( section.etSum[iHLX].data[iBX] );
-	 }
-      }
-   }
-}
 
 void HLXMonitor::FillHistoHFCompare(const LUMI_SECTION & section)
 {
@@ -796,6 +898,29 @@ void HLXMonitor::ResetAll()
    // Sanity Check for Occupancy
    dbe_->softReset(SumAllOccSet1);
    dbe_->softReset(SumAllOccSet2);
+
+   // History 
+   lumiSectionCount = 0;
+   dbe_->softReset(HistAvgEtSumHFP);
+   dbe_->softReset(HistAvgEtSumHFM);
+
+   dbe_->softReset(HistAvgOccBelowSet1HFP);
+   dbe_->softReset(HistAvgOccBelowSet1HFM);
+   dbe_->softReset(HistAvgOccBetweenSet1HFP);
+   dbe_->softReset(HistAvgOccBetweenSet1HFM);
+   dbe_->softReset(HistAvgOccAboveSet1HFP);
+   dbe_->softReset(HistAvgOccAboveSet1HFM);
+
+   dbe_->softReset(HistAvgOccBelowSet2HFP);
+   dbe_->softReset(HistAvgOccBelowSet2HFM);
+   dbe_->softReset(HistAvgOccBetweenSet2HFP);
+   dbe_->softReset(HistAvgOccBetweenSet2HFM);
+   dbe_->softReset(HistAvgOccAboveSet2HFP);
+   dbe_->softReset(HistAvgOccAboveSet2HFM);
+
+   dbe_->softReset(HistLumiEtSum);
+   dbe_->softReset(HistLumiOccSet1);
+   dbe_->softReset(HistLumiOccSet2);
 
 }
 

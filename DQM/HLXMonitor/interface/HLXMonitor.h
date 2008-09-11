@@ -14,7 +14,7 @@ Implementation:
 // Original Author:  Adam Hunt - Princeton University
 //           email:  ahunt@princeton.edu
 //         Created:  Thu Jul 19 02:29:59 EDT 2007
-// $Id: HLXMonitor.h,v 1.6 2008/07/10 21:47:54 neadam Exp $
+// $Id: HLXMonitor.h,v 1.7 2008/07/14 16:19:59 neadam Exp $
 //
 //
 
@@ -70,12 +70,8 @@ class HLXMonitor : public edm::EDAnalyzer
       void SetupHists();
       void SetupEventInfo();
 
-      void FillHistoBX(const LUMI_SECTION&);
-      void FillHistoDist(const LUMI_SECTION&);
+      void FillHistograms(const LUMI_SECTION&);
       void FillHistoHFCompare(const LUMI_SECTION&);
-      void FillHistoAvg(const LUMI_SECTION&);
-      void FillHistoLumi(const LUMI_SECTION&);
-      void FillHistoSum(const LUMI_SECTION&);
       void FillEventInfo(const LUMI_SECTION&);
 
       void ResetAll();
@@ -121,6 +117,25 @@ class HLXMonitor : public edm::EDAnalyzer
       MonitorElement * SumAllOccSet1;
       MonitorElement * SumAllOccSet2;
 
+      // History plots - fill once per LS
+      MonitorElement * HistAvgEtSumHFP;
+      MonitorElement * HistAvgEtSumHFM;
+      MonitorElement * HistAvgOccBelowSet1HFP;
+      MonitorElement * HistAvgOccBelowSet1HFM;
+      MonitorElement * HistAvgOccBetweenSet1HFP;
+      MonitorElement * HistAvgOccBetweenSet1HFM;
+      MonitorElement * HistAvgOccAboveSet1HFP;
+      MonitorElement * HistAvgOccAboveSet1HFM;
+      MonitorElement * HistAvgOccBelowSet2HFP;
+      MonitorElement * HistAvgOccBelowSet2HFM;
+      MonitorElement * HistAvgOccBetweenSet2HFP;
+      MonitorElement * HistAvgOccBetweenSet2HFM;
+      MonitorElement * HistAvgOccAboveSet2HFP;
+      MonitorElement * HistAvgOccAboveSet2HFM;
+      MonitorElement * HistLumiEtSum;
+      MonitorElement * HistLumiOccSet1;
+      MonitorElement * HistLumiOccSet2;
+
       //EventInfo Clone
       //////////////////////////////////////////////////////////////////
       ///These MEs are filled with the info from the most recent event 
@@ -154,6 +169,7 @@ class HLXMonitor : public edm::EDAnalyzer
       int SavePeriod;
       unsigned int NUM_HLX;
       unsigned int NUM_BUNCHES;
+      unsigned int MAX_LS;
       unsigned int AquireMode;
       unsigned int TriggerBX;
 
@@ -191,6 +207,8 @@ class HLXMonitor : public edm::EDAnalyzer
       unsigned int totalNibbles_[36];
 
       unsigned int HLXHFMap[36];
+
+      unsigned int lumiSectionCount;
 
 };
 
