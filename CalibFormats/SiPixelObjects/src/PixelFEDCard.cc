@@ -771,6 +771,10 @@ PixelFEDCard::PixelFEDCard(string fileName):
    
   fclose(infile);
 
+  Ccntrl_original=Ccntrl;
+  modeRegister_original=modeRegister;
+
+
   Ncntrl_original=Ncntrl;
   NCcntrl_original=NCcntrl;
   SCcntrl_original=SCcntrl;
@@ -1393,6 +1397,13 @@ void PixelFEDCard::restoreBaselinAndChannelMasks(){
 
 }
 
+
+void PixelFEDCard::restoreControlAndModeRegister(){
+
+  Ccntrl=Ccntrl_original;
+  modeRegister=modeRegister_original;
+
+}
 
 /* Emacs specific customization
    ;;; Local Variables:     ***
