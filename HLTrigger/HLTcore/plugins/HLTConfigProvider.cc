@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2008/09/05 17:05:32 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/09/06 12:01:52 $
+ *  $Revision: 1.2 $
  *
  *  \author Martin Grunewald
  *
@@ -67,7 +67,7 @@ bool HLTConfigProvider::init(const std::string& processName)
    pathNames_   = ProcessPSet_.getParameter<vector<string> >("@paths");
 
    // Obtain module labels of all modules on all trigger paths
-   const unsigned n(size());
+   const unsigned int n(size());
    moduleLabels_.reserve(n);
    for (unsigned int i=0;i!=n; ++i) {
      moduleLabels_.push_back(ProcessPSet_.getParameter<vector<string> >(triggerNames_[i]));
@@ -106,7 +106,7 @@ void HLTConfigProvider::dump (const std::string& what) const {
      const unsigned int n(size());
      for (unsigned int i=0; i!=n; ++i) {
        cout << i << " " << triggerNames_[i] << endl;
-       const unsigned m(size(i));
+       const unsigned int m(size(i));
        cout << " - Modules: ";
        unsigned int nHLTPrescalers(0);
        unsigned int nHLTLevel1GTSeed(0);
