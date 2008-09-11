@@ -1,16 +1,35 @@
+<use name="DataFormats/DetId">
+<use name="DataFormats/GeometrySurface">
+<use name="DataFormats/GeometryVector">
+<use name="DataFormats/MuonDetId">
+<use name="FWCore/Framework">
+<use name="FWCore/MessageLogger">
+<use name="FWCore/Utilities">
+<use name="Geometry/CSCGeometry">
+<use name="Geometry/CommonDetUnit">
+<use name="Geometry/DTGeometry">
+<use name="Geometry/RPCGeometry">
+<use name="TrackingTools/DetLayers">
+<use name="TrackingTools/GeomPropagators">
+<use name="TrackingTools/PatternTools">
+<use name="Utilities/BinningTools">
+<use name="Utilities/General">
 <export>
- <lib name=RecoMuonDetLayers>
- <use name=TrackingTools/DetLayers>
+  <use name="DataFormats/DetId">
+  <use name="DataFormats/GeometrySurface">
+  <use name="DataFormats/GeometryVector">
+  <use name="DataFormats/MuonDetId">
+  <use name="FWCore/Framework">
+  <use name="FWCore/MessageLogger">
+  <use name="FWCore/Utilities">
+  <use name="Geometry/CSCGeometry">
+  <use name="Geometry/CommonDetUnit">
+  <use name="Geometry/DTGeometry">
+  <use name="Geometry/RPCGeometry">
+  <use name="TrackingTools/DetLayers">
+  <use name="TrackingTools/GeomPropagators">
+  <use name="TrackingTools/PatternTools">
+  <use name="Utilities/BinningTools">
+  <use name="Utilities/General">
+  <lib name="RecoMuonDetLayers">
 </export>
-
-<use name=TrackingTools/DetLayers>
-
-#needed for the ESProducer
-<use name=RecoMuon/Records>
-<use name=Geometry/Records>
-<use name=Geometry/DTGeometry>
-<use name=Geometry/CSCGeometry>
-<use name=Geometry/RPCGeometry>
-
-#needed for patch of MuonRPCDetLayerGeometryBuilder
-<use name=Utilities/BinningTools> 
