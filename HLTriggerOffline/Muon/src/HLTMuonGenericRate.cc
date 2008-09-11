@@ -83,14 +83,6 @@ HLTMuonGenericRate::HLTMuonGenericRate( const ParameterSet& pset,
   else 
     theRootFileName = pset.getUntrackedParameter<std::string>("RootFileName");
 
-  if ( dbe_ != NULL ) {
-    TString folderName = theFolderName;
-    dbe_->cd();
-    dbe_->setCurrentFolder( (folderName                     ).Data() );
-    dbe_->setCurrentFolder( (folderName + "RateEfficiencies").Data() );
-    dbe_->setCurrentFolder( (folderName + "Distributions"   ).Data() );
-  }
-
   nL1Orphans  = 0;
   nHltOrphans = 0;
 
@@ -165,13 +157,13 @@ void HLTMuonGenericRate::analyze( const Event & event )
 	double eta = (*genIterator)->momentum().eta();
 	// double phi = (*genIterator)->momentum().phi();
 	if ( abs(id) == 13  && status == 1 && 
-	     ( motherParticleId == 0 || abs(momId) == motherParticleId ) &&
-	     pt > theMinPtCut && fabs(eta) < theMaxEtaCut ) 
+	     ( motherParticleId == 0 || abs(momId) == motherParticleId ) )
 	{
 	  MatchStruct newMatchStruct;
 	  newMatchStruct.genCand = *genIterator;
 	  genMatches.push_back(newMatchStruct);
-	  if ( pt > genMuonPt) genMuonPt = pt;
+	  if (pt > theMinPtCut &&  pt > genMuonPt && fabs(eta) < theMaxEtaCut)
+	    genMuonPt = pt;
   } } } }
 
   Handle<reco::TrackCollection> muTracks;
@@ -403,7 +395,10 @@ int HLTMuonGenericRate::findGenMatch( double eta, double phi, double maxDeltaR )
     double dR = kinem::delta_R( eta, phi, 
 			 genMatches[i].genCand->momentum().eta(), 
 			 genMatches[i].genCand->momentum().phi() );
-    if ( dR  < bestDeltaR ) bestMatch = i;
+    if ( dR  < bestDeltaR ) {
+      bestMatch  =  i;
+      bestDeltaR = dR;
+    }
   }
   return bestMatch;
 }
@@ -418,7 +413,10 @@ int HLTMuonGenericRate::findRecMatch( double eta, double phi,  double maxDeltaR 
     double dR = kinem::delta_R( eta, phi, 
 			        recMatches[i].recCand->eta(), 
 				recMatches[i].recCand->phi() );
-    if ( dR < bestDeltaR ) bestMatch = i;
+    if ( dR  < bestDeltaR ) {
+      bestMatch  =  i;
+      bestDeltaR = dR;
+    }
   }
   return bestMatch;
 }
