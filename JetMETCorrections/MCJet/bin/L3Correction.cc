@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 #include <string.h>
 #include <fstream>
 #include <cmath>
@@ -12,7 +13,7 @@
 #include <TVirtualFitter.h>
 #include <TMatrixD.h>
 #include "Utilities.cc"
-#include "CommandLine.cc"
+#include "JetMETAnalysis/JetUtilities/interface/CommandLine.h"
 using namespace std;
 
 int main(int argc, char**argv)

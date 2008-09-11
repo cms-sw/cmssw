@@ -7,7 +7,7 @@
 #include <TMath.h>
 #include <TTree.h>
 #include "Utilities.cc"
-#include "CommandLine.cc"
+#include "JetMETAnalysis/JetUtilities/interface/CommandLine.h"
 
 using namespace std;
 

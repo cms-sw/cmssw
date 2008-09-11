@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 #include <string.h>
 #include <fstream>
 #include <cmath>
@@ -11,7 +12,7 @@
 #include <TKey.h>
 #include <TList.h>
 #include "Utilities.cc"
-#include "CommandLine.cc"
+#include "JetMETAnalysis/JetUtilities/interface/CommandLine.h"
 using namespace std;
 
 int main(int argc, char**argv)
@@ -183,7 +184,7 @@ int main(int argc, char**argv)
    {
      for(i=0;i<6;i++)
        L2_cor[i] = L2Correction[etabin]->GetParameter(i);
-     L2File    << setw(11) << eta_vec[etabin]
+        L2File << setw(11) << eta_vec[etabin]
                << setw(11) << eta_vec[etabin+1]
                << setw(11) << (int)8
                << setw(12) << MinCaloPt[etabin]
