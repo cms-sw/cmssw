@@ -112,7 +112,7 @@ namespace cond {
     
     void compute(Class const & it){
       std::vector<float> res;
-      extractor(m_what.how())(it,m_what.quantity(),m_what.which(),res);
+      extractor(m_what.how())(it,m_what.which(),res);
       swap(res);
     }
     
