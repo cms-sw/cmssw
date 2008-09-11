@@ -1,15 +1,15 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "MCTruthTreeProducer.h"
-#include "PFJetsCorExample.h"
-#include "CaloJetsCorExample.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/JetReco/interface/PFJet.h"
+#include "JetMETCorrections/MCJet/plugins/MCTruthTreeProducer.h"
 
 using cms::MCTruthTreeProducer;
-using cms::PFJetsCorExample;
-using cms::CaloJetsCorExample;
 
 DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(MCTruthTreeProducer);
-DEFINE_ANOTHER_FWK_MODULE(PFJetsCorExample);
-DEFINE_ANOTHER_FWK_MODULE(CaloJetsCorExample);
+typedef MCTruthTreeProducer<CaloJet> CaloMCTruthTreeProducer;
+DEFINE_ANOTHER_FWK_MODULE(CaloMCTruthTreeProducer);
+
+typedef MCTruthTreeProducer<PFJet> PFMCTruthTreeProducer;
+DEFINE_ANOTHER_FWK_MODULE(PFMCTruthTreeProducer);
