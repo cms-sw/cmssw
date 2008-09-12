@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sat Mar  1 05:06:43 CET 2008
-// $Id: L1TriggerConfigOnlineProd.h,v 1.4 2008/07/08 14:42:40 wsun Exp $
+// $Id: L1TriggerConfigOnlineProd.h,v 1.5 2008/07/23 23:11:20 wsun Exp $
 //
 
 // system include files
@@ -24,6 +24,8 @@
 #include "boost/shared_ptr.hpp"
 
 // user include files
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -107,10 +109,10 @@ bool L1TriggerConfigOnlineProd::getSubsystemKey( const TRcd& record,
 
    subsystemKey = key->get( recordName, dataType ) ;
 
-   std::cout << "L1TriggerConfigOnlineProd record " << recordName
-	     << " type " << dataType
-	     << " sub key " << subsystemKey
-	     << std::endl ;
+   edm::LogVerbatim( "L1-O2O" )
+     << "L1TriggerConfigOnlineProd record " << recordName
+     << " type " << dataType
+     << " sub key " << subsystemKey ;
 
    // Get L1TriggerKeyList
    const L1TriggerKeyListRcd& keyListRcd =
