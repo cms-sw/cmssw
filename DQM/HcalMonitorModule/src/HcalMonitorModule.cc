@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2008/09/05 22:07:25 $
- * $Revision: 1.74 $
+ * $Date: 2008/09/09 12:13:52 $
+ * $Revision: 1.75 $
  * \author W Fisher
  *
 */
@@ -768,7 +768,7 @@ void HcalMonitorModule::CheckSubdetectorStatus(const FEDRawDataCollection& rawra
 	if (!dccHeader->getSpigotPresent(spigot)) continue;
 	
 	// Load the given decoder with the pointer and length from this spigot.
-	dccHeader->getSpigotData(spigot,htr,fed.size()); 
+	dccHeader->getSpigotData(spigot,htr, fed.size()); 
 	
 	// check min length, correct wordcount, empty event, or total length if histo event.
 	if (!htr.check()) continue;
