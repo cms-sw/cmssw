@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Mar  2 01:46:46 CET 2008
-// $Id: OMDSReader.cc,v 1.3 2008/07/10 20:58:02 wsun Exp $
+// $Id: OMDSReader.cc,v 1.4 2008/07/23 16:38:08 wsun Exp $
 //
 
 // system include files
@@ -102,8 +102,14 @@ OMDSReader::~OMDSReader()
       {
 	if( !conditionRHSName.empty() )
 	  {
+	    coral::AttributeList attList ;
+	    attList.extend( conditionRHSName, typeid( std::string ) ) ;
+	    attList[ conditionRHSName ].data< std::string >() =
+	      conditionRHS.second.front()[ conditionRHSName ].data< std::string >() ;
+
 	    query->setCondition( conditionLHS + " = :" + conditionRHSName,
-				 conditionRHS.second.front() ) ;
+				 attList ) ;
+	    //				 conditionRHS.second.front() ) ;
 	  }
 	else if( conditionRHS.first.size() == 1 ) // check for only one column
 	  {
