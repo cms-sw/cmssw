@@ -12,8 +12,8 @@
 #include <iomanip>
 
 
-MuonOverlapSeedFromRecHits::MuonOverlapSeedFromRecHits(const edm::EventSetup & eSetup)
-: MuonSeedFromRecHits(eSetup)
+MuonOverlapSeedFromRecHits::MuonOverlapSeedFromRecHits()
+: MuonSeedFromRecHits()
 {
   //FIXME make configurable
   // parameters for the fit of dphi between chambers vs. eta

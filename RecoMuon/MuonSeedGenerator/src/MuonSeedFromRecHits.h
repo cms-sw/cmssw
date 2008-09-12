@@ -24,14 +24,16 @@ namespace edm {class EventSetup;}
 class MuonSeedFromRecHits 
 {
 public:
-  MuonSeedFromRecHits(const edm::EventSetup & eSetup);
+  MuonSeedFromRecHits();
   virtual ~MuonSeedFromRecHits() {}
 
+  void setBField(const MagneticField * field) {theField = field;}
   void setPtExtractor(const MuonSeedPtExtractor * extractor) {thePtExtractor = extractor;}
 
   void add(MuonTransientTrackingRecHit::MuonRecHitPointer hit) { theRhits.push_back(hit); }
   MuonTransientTrackingRecHit::ConstMuonRecHitPointer firstRecHit() const { return theRhits.front(); }
   unsigned int nrhit() const { return  theRhits.size(); }
+  void clear() {theRhits.clear();}
 
   TrajectorySeed createSeed(float ptmean, float sptmean,
 			    MuonTransientTrackingRecHit::ConstMuonRecHitPointer last) const;

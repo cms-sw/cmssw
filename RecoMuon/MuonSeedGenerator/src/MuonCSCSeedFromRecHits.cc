@@ -1,4 +1,5 @@
 #include "RecoMuon/MuonSeedGenerator/src/MuonCSCSeedFromRecHits.h"
+#include "RecoMuon/MuonSeedGenerator/src/MuonSeedPtExtractor.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "Geometry/CSCGeometry/interface/CSCChamberSpecs.h"
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
@@ -10,8 +11,8 @@
 #include <iomanip>
 
 
-MuonCSCSeedFromRecHits::MuonCSCSeedFromRecHits(const edm::EventSetup & eSetup)
-: MuonSeedFromRecHits(eSetup)
+MuonCSCSeedFromRecHits::MuonCSCSeedFromRecHits()
+: MuonSeedFromRecHits()
 {
   //FIXME make configurable
   // parameters for the fit of dphi between chambers vs. eta
@@ -128,29 +129,16 @@ bool MuonCSCSeedFromRecHits::makeSeed(const MuonRecHitContainer & hits1, const M
       CSCDetId cscId2((*itr2)->geographicalId().rawId());
       int type2 = CSCChamberSpecs::whatChamberType(cscId2.station(), cscId2.ring());
 
-      // find the parametrization constants
-      std::pair<int, int> key(type1, type2);
-      ConstantsMap::const_iterator mapItr = theConstantsMap.find(key);
-      if(mapItr != theConstantsMap.end())
-      {
         // take the first pair that comes along.  Probably want to rank them later
-        double dphi = (**itr1).globalPosition().phi() - (**itr2).globalPosition().phi();
-        if(dphi > M_PI) dphi -= 2*M_PI;
-        if(dphi < -M_PI) dphi += 2*M_PI;
-        double eta = (**itr1).globalPosition().eta();
-
-        double c1 = mapItr->second.first;
-        double c2 = mapItr->second.second;
-        // the parametrization
-        if(fabs(dphi) < 0.0001) dphi = 0.00001;
-        double pt = (c1 + c2 * fabs(eta) ) / dphi;
+      std::vector<double> pts = thePtExtractor->pT_extract(*itr1, *itr2);
+        
+        double pt = pts[0];
+        double sigmapt = pts[1];
         double minpt = 3.;
 
         // if too small, probably an error.  Keep trying.
         if(fabs(pt) > minpt)
         {
-          float sigmapt = 25.;
-
           double maxpt = 2000.;
           if(pt > maxpt) {
             pt = maxpt;
@@ -169,7 +157,6 @@ bool MuonCSCSeedFromRecHits::makeSeed(const MuonRecHitContainer & hits1, const M
           return true;
         }
 
-      }
     }
   }
 

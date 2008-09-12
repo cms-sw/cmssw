@@ -17,12 +17,10 @@
 #include <vector>
 
 
-namespace edm {class EventSetup;}
-
 class MuonDTSeedFromRecHits : public MuonSeedFromRecHits
 {
   public:
-  MuonDTSeedFromRecHits(const edm::EventSetup& eSetup);
+  MuonDTSeedFromRecHits();
 
   virtual TrajectorySeed seed() const;
 

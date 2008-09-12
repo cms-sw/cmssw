@@ -2,8 +2,8 @@
  *  See header file for a description of this class.
  *
  *
- *  $Date: 2007/09/14 05:17:54 $
- *  $Revision: 1.9 $
+ *  $Date: 2007/09/14 18:57:06 $
+ *  $Revision: 1.10 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author porting  R. Bellan
  *
@@ -23,8 +23,6 @@
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "gsl/gsl_statistics.h"
@@ -34,8 +32,8 @@ using namespace std;
 
 template <class T> T sqr(const T& t) {return t*t;}
 
-MuonDTSeedFromRecHits::MuonDTSeedFromRecHits(const edm::EventSetup& eSetup)
-: MuonSeedFromRecHits(eSetup)
+MuonDTSeedFromRecHits::MuonDTSeedFromRecHits()
+: MuonSeedFromRecHits()
 {
 }
 

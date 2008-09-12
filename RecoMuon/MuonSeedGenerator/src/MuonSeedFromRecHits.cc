@@ -2,8 +2,8 @@
  *  See header file for a description of this class.
  *
  *
- *  $Date: 2007/04/03 04:22:03 $
- *  $Revision: 1.20 $
+ *  $Date: 2007/12/10 19:32:47 $
+ *  $Revision: 1.21 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author porting  R. Bellan
  *
@@ -32,11 +32,9 @@ using namespace std;
 
 template <class T> T sqr(const T& t) {return t*t;}
 
-MuonSeedFromRecHits::MuonSeedFromRecHits(const edm::EventSetup & eSetup)
+MuonSeedFromRecHits::MuonSeedFromRecHits()
+: theField(0)
 {
-  edm::ESHandle<MagneticField> field;
-  eSetup.get<IdealMagneticFieldRecord>().get(field);
-  theField = &*field;
 }
 
 

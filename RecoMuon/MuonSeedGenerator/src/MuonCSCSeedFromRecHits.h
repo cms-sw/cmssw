@@ -1,9 +1,6 @@
 #ifndef MuonSeedGenerator_MuonCSCSeedFromRecHits_h
 #define MuonSeedGenerator_MuonCSCSeedFromRecHits_h
 
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "RecoMuon/MuonSeedGenerator/src/MuonSeedFromRecHits.h"
 #include <map>
 
@@ -11,7 +8,7 @@ class MuonCSCSeedFromRecHits : public MuonSeedFromRecHits
 {
 public:
 
-  MuonCSCSeedFromRecHits(const edm::EventSetup & eSetup);
+  MuonCSCSeedFromRecHits();
   virtual ~MuonCSCSeedFromRecHits() {}
 
   virtual TrajectorySeed seed() const;

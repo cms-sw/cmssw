@@ -1,9 +1,6 @@
 #ifndef MuonSeedGenerator_MuonOverlapSeedFromRecHits_h
 #define MuonSeedGenerator_MuonOverlapSeedFromRecHits_h
 
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "RecoMuon/MuonSeedGenerator/src/MuonSeedFromRecHits.h"
 #include <map>
 
@@ -11,7 +8,7 @@ class MuonOverlapSeedFromRecHits : public MuonSeedFromRecHits
 {
 public:
 
-  MuonOverlapSeedFromRecHits(const edm::EventSetup & eSetup);
+  MuonOverlapSeedFromRecHits();
   virtual ~MuonOverlapSeedFromRecHits() {}
 
   std::vector<TrajectorySeed> seeds() const;
