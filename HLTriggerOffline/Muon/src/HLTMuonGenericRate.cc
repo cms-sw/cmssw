@@ -37,7 +37,6 @@ HLTMuonGenericRate::HLTMuonGenericRate(const ParameterSet& pset,
   Parameters triggerLists  = pset.getParameter<Parameters>
                              ("TriggerCollection");
   ParameterSet thisTrigger = triggerLists[triggerIndex];
-
   theL1CollectionLabel     = thisTrigger.getParameter<InputTag>
                              ("L1CollectionLabel");
   theHLTCollectionLabels   = thisTrigger.getParameter< std::vector<InputTag> >
@@ -49,9 +48,9 @@ HLTMuonGenericRate::HLTMuonGenericRate(const ParameterSet& pset,
   theNumberOfObjects       = thisTrigger.getParameter<unsigned int>
                              ("NumberOfObjects");
   if ( useMuonFromGenerator ) 
-    theGenLabel            = pset.getUntrackedParameter<InputTag>("GenLabel");
+    theGenLabel            = pset.getUntrackedParameter<string>("GenLabel");
   if ( useMuonFromReco )
-    theRecoLabel           = pset.getUntrackedParameter<InputTag>("RecoLabel");
+    theRecoLabel           = pset.getUntrackedParameter<string>("RecoLabel");
 
   useMuonFromGenerator = pset.getParameter<bool>("UseMuonFromGenerator");
   useMuonFromReco      = pset.getParameter<bool>("UseMuonFromReco");
@@ -62,8 +61,10 @@ HLTMuonGenericRate::HLTMuonGenericRate(const ParameterSet& pset,
   theMinPtCut  = pset.getUntrackedParameter<double>      ("MinPtCut",  5.0);
   theMaxEtaCut = pset.getUntrackedParameter<double>      ("MaxEtaCut", 2.1);
 
-  motherParticleId = pset.getUntrackedParameter<int> ("MotherParticleId", 0);
-  theNSigmas = pset.getUntrackedParameter<std::vector<double> >("NSigmas90");
+  theMotherParticleId = pset.getUntrackedParameter<unsigned int> 
+                        ("MotherParticleId", 0);
+  theNSigmas          = pset.getUntrackedParameter< std::vector<double> >
+                        ("NSigmas90");
 
   theNumberOfEvents   = 0;
   theNumberOfL1Events = 0;
@@ -74,10 +75,7 @@ HLTMuonGenericRate::HLTMuonGenericRate(const ParameterSet& pset,
     dbe_->setVerbose(0);
   }
 
-  if ( pset.getUntrackedParameter<bool>("disableROOToutput", false) ) 
-    theRootFileName="";
-  else 
-    theRootFileName = pset.getUntrackedParameter<std::string>("RootFileName");
+  theRootFileName = pset.getUntrackedParameter<std::string>("RootFileName","");
 
   nL1Orphans  = 0;
   nHltOrphans = 0;
@@ -129,7 +127,7 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
 
   if (useMuonFromGenerator) {
     Handle<GenParticleCollection> genParticles;
-    iEvent.getByLabel("genParticles", genParticles);
+    iEvent.getByLabel(theGenLabel, genParticles);
     for ( size_t i = 0; i < genParticles->size(); i++ ) {
       const reco::GenParticle *genParticle = &(*genParticles)[i];
       const Candidate *mother = findMother(genParticle);
@@ -139,7 +137,7 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
       double pt     = genParticle->pt();
       double eta    = genParticle->eta();
       if ( abs(id) == 13  && status == 1 && 
-	   ( motherParticleId == 0 || abs(momId) == motherParticleId ) )
+	   ( theMotherParticleId == 0 || abs(momId) == theMotherParticleId ) )
       {
 	MatchStruct newMatchStruct;
 	newMatchStruct.genCand = genParticle;
@@ -152,7 +150,7 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
 
   Handle<reco::TrackCollection> muTracks;
   if (useMuonFromReco) {
-    iEvent.getByLabel(theRecoLabel.label(), muTracks);    
+    iEvent.getByLabel(theRecoLabel, muTracks);    
     reco::TrackCollection::const_iterator muon;
     if  ( muTracks.failedToGet() ) {
       LogDebug("HLTMuonVal") << "No reco tracks to compare to";

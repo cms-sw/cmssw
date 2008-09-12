@@ -53,8 +53,8 @@ private:
 
   // Input from cfg file
   edm::InputTag theL1CollectionLabel;
-  edm::InputTag theGenLabel;
-  edm::InputTag theRecoLabel;
+  std::string   theGenLabel;
+  std::string   theRecoLabel;
   std::vector <edm::InputTag> theHLTCollectionLabels;
 
   double theL1ReferenceThreshold;
@@ -68,8 +68,8 @@ private:
   std::vector<double> theNSigmas;
   unsigned int theNumberOfObjects;
   unsigned int theNbins;
-  int thisEventWeight;
-  int motherParticleId;
+  int  thisEventWeight;
+  int  theMotherParticleId;
   bool useMuonFromGenerator;
   bool useMuonFromReco;
 
