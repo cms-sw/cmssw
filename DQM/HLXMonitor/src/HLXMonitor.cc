@@ -386,6 +386,8 @@ HLXMonitor::SetupHists()
    std::string HistEtSumYTitle = "Average E_{T} Sum";
    std::string HistOccYTitle = "Average Occupancy";
    std::string HistLumiYTitle = "Luminosity";
+   std::string BXvsTimeXTitle = "Time (LS)";
+   std::string BXvsTimeYTitle = "BX";
 
    // Et Sum histories
    HistAvgEtSumHFP        = dbe_->bookProfile( "HistAvgEtSumHFP", "Average Et Sum: HF+",          
@@ -474,6 +476,17 @@ HLXMonitor::SetupHists()
    MAX_LS, 0, MAX_LS, OccBins, OccMin, OccMax);
    HistLumiOccSet2->setAxisTitle( HistXTitle, 1 );
    HistLumiOccSet2->setAxisTitle( HistLumiYTitle, 2 );
+
+   // Et Sum histories
+   BXvsTimeAvgEtSumHFP  = dbe_->book2D( "BXvsTimeAvgEtSumHFP", "Average Et Sum: HF+",          
+   MAX_LS/4, (double)0, (double)(MAX_LS/4), NBINS, (double)XMIN, (double)XMAX);
+   BXvsTimeAvgEtSumHFP->setAxisTitle( BXvsTimeXTitle, 1 );
+   BXvsTimeAvgEtSumHFP->setAxisTitle( BXvsTimeYTitle, 2 );
+
+   BXvsTimeAvgEtSumHFM  = dbe_->book2D( "BXvsTimeAvgEtSumHFM", "Average Et Sum: HF+",          
+   (MAX_LS/4), (double)0, (double)(MAX_LS/4), NBINS, (double)XMIN, (double)XMAX);
+   BXvsTimeAvgEtSumHFM->setAxisTitle( BXvsTimeXTitle, 1 );
+   BXvsTimeAvgEtSumHFM->setAxisTitle( BXvsTimeYTitle, 2 );
  
    dbe_->showDirStructure();
 }
@@ -548,12 +561,12 @@ HLXMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    FillHistoHFCompare(lumiSection);
    FillEventInfo(lumiSection);
 
-//     cout << "Run: " << lumiSection.hdr.runNumber 
-//  	<< " Section: " << lumiSection.hdr.sectionNumber 
-//  	<< " Orbit: " << lumiSection.hdr.startOrbit << endl;
-//     cout << "Et Lumi: " << lumiSection.lumiSummary.InstantETLumi << endl;
-//     cout << "Occ Lumi 1: " << lumiSection.lumiSummary.InstantOccLumi[0] << endl;
-//     cout << "Occ Lumi 2: " << lumiSection.lumiSummary.InstantOccLumi[1] << endl;
+   cout << "Run: " << lumiSection.hdr.runNumber 
+  	<< " Section: " << lumiSection.hdr.sectionNumber 
+  	<< " Orbit: " << lumiSection.hdr.startOrbit << endl;
+   cout << "Et Lumi: " << lumiSection.lumiSummary.InstantETLumi << endl;
+   cout << "Occ Lumi 1: " << lumiSection.lumiSummary.InstantOccLumi[0] << endl;
+   cout << "Occ Lumi 2: " << lumiSection.lumiSummary.InstantOccLumi[1] << endl;
 
 }
 
@@ -630,14 +643,15 @@ void HLXMonitor::endJob()
 void HLXMonitor::FillHistograms(const LUMI_SECTION & section)
 {
    int lsBin = int(lumiSectionCount/16);
+   int lsBinBX = int(lumiSectionCount/64);
    HistLumiEtSum->Fill(lsBin, section.lumiSummary.InstantETLumi);
    HistLumiOccSet1->Fill(lsBin, section.lumiSummary.InstantOccLumi[0]);
    HistLumiOccSet2->Fill(lsBin, section.lumiSummary.InstantOccLumi[1]);
 
    for( int iHLX = 0; iHLX < (int)NUM_HLX; ++iHLX )
    {
-      float total1 = 0;
-      float total2 = 0;
+      unsigned int utotal1= 0;
+      unsigned int utotal2 = 0;
       unsigned int iWedge = HLXHFMap[iHLX];
       if(section.occupancy[iHLX].hdr.numNibbles != 0)
       {
@@ -684,6 +698,8 @@ void HLXMonitor::FillHistograms(const LUMI_SECTION & section)
 		  HistAvgOccBelowSet2HFP->Fill( lsBin,   normOccSet2Below    );
 		  HistAvgOccBetweenSet2HFP->Fill( lsBin, normOccSet2Between  );
 		  HistAvgOccAboveSet2HFP->Fill( lsBin,   normOccSet2Above    );
+
+		  if( iBX >= XMIN && iBX <= XMAX ) BXvsTimeAvgEtSumHFP->Fill(lsBinBX,iBX,normEt/(64.0*18.0*12.0));
 	       }
 	       else
 	       {
@@ -694,15 +710,17 @@ void HLXMonitor::FillHistograms(const LUMI_SECTION & section)
 		  HistAvgOccBelowSet2HFM->Fill( lsBin,   normOccSet2Below    );
 		  HistAvgOccBetweenSet2HFM->Fill( lsBin, normOccSet2Between  );
 		  HistAvgOccAboveSet2HFM->Fill( lsBin,   normOccSet2Above    );
+
+		  if( iBX >= XMIN && iBX <= XMAX ) BXvsTimeAvgEtSumHFM->Fill(lsBinBX,iBX,normEt/(64.0*18.0*12.0));
 	       }
 
-	       total1 += (float)section.occupancy[iHLX].data[set1BelowIndex  ][iBX];
-	       total1 += (float)section.occupancy[iHLX].data[set1BetweenIndex][iBX];
-	       total1 += (float)section.occupancy[iHLX].data[set1AboveIndex  ][iBX];
+	       utotal1 += section.occupancy[iHLX].data[set1BelowIndex  ][iBX];
+	       utotal1 += section.occupancy[iHLX].data[set1BetweenIndex][iBX];
+	       utotal1 += section.occupancy[iHLX].data[set1AboveIndex  ][iBX];
 
-	       total2 += (float)section.occupancy[iHLX].data[set2BelowIndex  ][iBX];
-	       total2 += (float)section.occupancy[iHLX].data[set2BetweenIndex][iBX];
-	       total2 += (float)section.occupancy[iHLX].data[set2AboveIndex  ][iBX];
+	       utotal2 += section.occupancy[iHLX].data[set2BelowIndex  ][iBX];
+	       utotal2 += section.occupancy[iHLX].data[set2BetweenIndex][iBX];
+	       utotal2 += section.occupancy[iHLX].data[set2AboveIndex  ][iBX];
 
 	    }
 
@@ -739,15 +757,17 @@ void HLXMonitor::FillHistograms(const LUMI_SECTION & section)
 	 }
 
 	 // Get the number of towers per wedge per BX (assuming non-zero numbers)
+	 double total1 = 0;
+	 double total2 = 0;
 	 if( (NUM_BUNCHES-100)>0 )
 	 {
-	    total1 = total1/(float)(NUM_BUNCHES-100);
-	    total2 = total2/(float)(NUM_BUNCHES-100);
+	    total1 = (double)utotal1/(double)(NUM_BUNCHES-100);
+	    total2 = (double)utotal2/(double)(NUM_BUNCHES-100);
 	 }
 	 if( section.hdr.numOrbits > 0 ) 
 	 {
-	    total1 = total1/(float)section.hdr.numOrbits;
-	    total2 = total2/(float)section.hdr.numOrbits;
+	    total1 = total1/(double)section.hdr.numOrbits;
+	    total2 = total2/(double)section.hdr.numOrbits;
 	 }
 
 	 SumAllOccSet1->  Fill( iWedge, total1 );
@@ -922,6 +942,8 @@ void HLXMonitor::ResetAll()
    dbe_->softReset(HistLumiOccSet1);
    dbe_->softReset(HistLumiOccSet2);
 
+   dbe_->softReset(BXvsTimeAvgEtSumHFP);
+   dbe_->softReset(BXvsTimeAvgEtSumHFM);
 }
 
 
