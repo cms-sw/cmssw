@@ -8,11 +8,12 @@ DQM.collectorHost = ''
 
 #  DQM File Saving and Environment
 from DQMServices.Components.DQMEnvironment_cfi import *
-dqmSaver.convention   = 'Online'
-dqmSaver.dirName      = '.'
-dqmSaver.producer     = 'DQM'
-dqmSaver.saveByRun    = 1
-dqmSaver.saveAtJobEnd = True
+dqmSaver.convention        = 'Online'
+dqmSaver.dirName           = '/afs/cern.ch/user/v/vadler/scratch0/cms/SiStripDQM/CMSSW_2_1_7/output'
+dqmSaver.producer          = 'DQM'
+dqmSaver.saveByRun         = 1
+dqmSaver.saveAtJobEnd      = True
+dqmSaver.referenceHandling = 'qtests'
 dqmEnv.subSystemFolder = 'SiStrip'
 
 # Quality Tester 
@@ -24,6 +25,6 @@ qTester = cms.EDAnalyzer("QualityTester",
 
 # DQM MODULES
 
-from DQM.SiStripMonitorClient.SiStripDQMRecoConfigOfflineGlobalRunCAF_cfi import *
+from DQM.SiStripMonitorClient.SiStripDQMRecoConfigOfflineGlobalRunCAF_cfi   import *
 from DQM.SiStripMonitorClient.SiStripDQMSourceConfigOfflineGlobalRunCAF_cfi import *
 from DQM.SiStripMonitorClient.SiStripDQMClientConfigOfflineGlobalRunCAF_cfi import *

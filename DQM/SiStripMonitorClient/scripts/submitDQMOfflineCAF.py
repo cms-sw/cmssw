@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 #
-# $Id: submitDQMOfflineCAF.py,v 1.17 2008/09/09 10:41:11 vadler Exp $
+# $Id$
 #
 
 ## CMSSW/DQM/SiStripMonitorClient/scripts/submitDQMOfflineCAF.py
@@ -85,8 +85,8 @@ STR_textUsage            = """ CMSSW/DQM/SiStripMonitorClient/scripts/submitDQMO
    
      -S, --server CRAB_SERVER
          CRAB server to use;
-         available: None
-                    caf  (default)
+         available: None (default)
+                    caf  (works, but slow)
                     bari (CRAB version >= 2.3.2,
                           s. https://twiki.cern.ch/twiki/bin/view/CMS/CrabServer#Server_available_for_users)
                     lnl2 (CRAB version <= 2.3.1,
@@ -128,8 +128,8 @@ LSTR_wordArgument = sys.argv[1:]
 # default arguments
 BOOL_Python    = True
 BOOL_CRAB      = True
-LSTR_server    = [STR_none,'bari','caf','lnl2'] # FIXME: add test of CRAB version
-STR_server     = LSTR_server[2]
+LSTR_server    = [STR_none,'caf','bari','lnl2'] # FIXME: add test of CRAB version
+STR_server     = LSTR_server[0]
 STR_email      = 'volker.adler@cern.ch'
 INT_jobs       = 10
 BOOL_filter    = False
@@ -830,9 +830,9 @@ if Dict_arguments.has_key(LSTR_functionLetters[0]):
     os.system('bjobs -q cmscaf')
   os.chmod(str_nameRun + '/' + str_nameMergeScript,OCT_rwx_r_r)
 
-# Send reminder email to submitter
+# Send reminder email to submitter (not needed for CRAB)
     
-if Dict_arguments.has_key(LSTR_functionLetters[0]):
+if Dict_arguments.has_key(LSTR_functionLetters[0]) and not Bool_CRAB:
   str_mailFrom    = os.getenv('USER') + STR_mailServer
   str_mailTo      = [str_mailFrom,
                      'volker.adler@cern.ch',
