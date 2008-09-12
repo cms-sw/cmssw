@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 #
-# produce stGenEvent with all necessary ingredients
+# produce ttGenEvent with all necessary ingredients
 #
 from TopQuarkAnalysis.TopEventProducers.producers.TopInitSubset_cfi import *
 from TopQuarkAnalysis.TopEventProducers.producers.TopDecaySubset_cfi import *
