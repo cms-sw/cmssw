@@ -57,7 +57,8 @@ class tagTree(object):
             raise Exception, str(er)
 
     def importFromTree( self, sourcetreename ):
-        """fill up this tree by cloning from the given source tree 
+        """fill up this tree by cloning from the given source tree
+        in the same database
         """
         sourcetagTreeTableName = 'TAGTREE_TABLE_'+str.upper(sourcetreename)
         sourcetagTreeIDs = 'TAGTREE_'+str.upper(sourcetreename)+'_IDS'
@@ -106,6 +107,32 @@ class tagTree(object):
             transaction.rollback()
             raise Exception, str(er)
         #print nresult,' rows copied from ',sourcetagTreeIDs
+
+     def importFromExternalTree( self, sourcetreename, sourcesession ):
+        """fill up this tree by cloning from the given source tree
+        in an external schema. External join
+        """
+        sourcetree=tagTree(sourcesession,sourcetreename)
+        if !sourcetree.existTagTreeTable():
+            raise "external source tree ",sourcetreename," doesn't exist "
+        transaction=self.__session.transaction()
+        transaction.start(True)
+        schema = self.__session.nominalSchema()
+        r3=schema.existsTable(self.__tagTreeTableName)
+        r4=schema.existsTable(self.__tagTreeIDs)
+        transaction.commit()
+        if r3 and r4 is True:
+            transaction.start(False)
+            schema.truncateTable(self.__tagTreeTableName)
+            schema.truncateTable(self.__tagTreeIDs)
+            transaction.commit()
+        else:
+            self.createTagTreeTable()
+            transaction.start(False)
+            schema.truncateTable(self.__tagTreeIDs)
+            transaction.commit()
+        #sourcesession select * from source tree table
+        #select * from source tree id table
         
     def replaceLeafLinks(self, leafnodelinks ):
         """modify the tagid link in leafnodes
