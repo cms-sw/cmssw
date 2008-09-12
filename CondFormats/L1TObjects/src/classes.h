@@ -41,6 +41,8 @@
 namespace {
   namespace {
     std::map< std::string, std::map< std::string, std::string > > dummy0 ;
+    std::pair< std::string, std::map< std::string, std::string > > dummy0a ;
+    std::pair< std::string, std::string > dummy0b ;
     std::vector<L1MuDTExtLut::LUT> dummy3 ;
     std::vector<L1GtMuonTemplate> dummy4 ;
     std::vector<L1GtCaloTemplate> dummy5 ;
