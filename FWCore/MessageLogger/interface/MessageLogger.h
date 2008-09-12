@@ -15,7 +15,7 @@
 //         Created:  Fri Nov 11 16:38:19 CST 2005
 //     Major Split:  Tue Feb 14 11:00:00 CST 2006
 //		     See MessageService/interface/MessageLogger.h
-// $Id: MessageLogger.h,v 1.28 2008/06/20 20:55:46 fischler Exp $
+// $Id: MessageLogger.h,v 1.29 2008/06/24 20:31:40 fischler Exp $
 //
 // =================================================
 // Change log
@@ -56,6 +56,9 @@
 //		    which "obviously" ought to emerge, but allowing specific
 //		    suppression as if it were at the LogError level, rather
 //		    than the non-suppressible LogAbsolute.
+// 12 ge 12/09/08   MessageLogger now works even when compiled with -DNDEBUG.
+//                  The problem was that Suppress_LogDebug_ was missing the operator<<
+//                  needed for streaming `std::iomaip`s.
 //
 // =================================================
 
@@ -385,8 +388,9 @@ class Suppress_LogDebug_
   // will produce absolutely no executable code.
 public:
   template< class T >
-    Suppress_LogDebug_ & 
-    operator<< (T const & t)  { return *this; }
+    Suppress_LogDebug_ &operator<< (T const & t) { return *this; }
+    Suppress_LogDebug_ &operator<< (std::ostream&(*)(std::ostream&)) { return *this; }
+    Suppress_LogDebug_ &operator<< (std::ios_base&(*)(std::ios_base&)) { return *this; }
 };  // Suppress_LogDebug_
 
   bool isDebugEnabled();
