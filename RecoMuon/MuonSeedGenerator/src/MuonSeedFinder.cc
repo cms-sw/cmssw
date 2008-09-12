@@ -1,8 +1,8 @@
 /**
  *  See header file for a description of this class.
  *
- *  $Date: 2008/08/25 22:00:06 $
- *  $Revision: 1.24 $
+ *  $Date: 2008/08/26 21:30:15 $
+ *  $Revision: 1.25 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author porting  R. Bellan
  *
@@ -10,11 +10,6 @@
 
 
 #include "RecoMuon/MuonSeedGenerator/src/MuonSeedFinder.h"
-#include "RecoMuon/MuonSeedGenerator/src/MuonCSCSeedFromRecHits.h"
-#include "RecoMuon/MuonSeedGenerator/src/MuonDTSeedFromRecHits.h"
-#include "RecoMuon/MuonSeedGenerator/src/MuonOverlapSeedFromRecHits.h"
-#include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
-#include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
@@ -24,32 +19,46 @@ typedef MuonTransientTrackingRecHit::ConstMuonRecHitPointer ConstMuonRecHitPoint
 typedef MuonTransientTrackingRecHit::MuonRecHitContainer MuonRecHitContainer;
 
 MuonSeedFinder::MuonSeedFinder(const edm::ParameterSet & pset):
-  thePtExtractor(pset)
+  thePtExtractor(pset),
+  theBarrel(),
+  theOverlap(),
+  theEndcap()
 {
   
   // FIXME put it in a pSet
   // theMinMomentum = pset.getParameter<double>("EndCapSeedMinPt");  //3.0
   theMinMomentum = 3.0;
+  theBarrel.setPtExtractor(&thePtExtractor);
+  theOverlap.setPtExtractor(&thePtExtractor);
+  theEndcap.setPtExtractor(&thePtExtractor);
+
 }
 
 
-vector<TrajectorySeed> MuonSeedFinder::seeds(const edm::EventSetup& eSetup) const {
+void MuonSeedFinder::setBField(const MagneticField * field)
+{
+  theField = field;
+  theBarrel.setBField(field);
+  theOverlap.setBField(field);
+  theEndcap.setBField(field);
+}
 
+
+void MuonSeedFinder::seeds(const MuonTransientTrackingRecHit::MuonRecHitContainer & hits,
+                           std::vector<TrajectorySeed> & result)
+{
   const std::string metname = "Muon|RecoMuon|MuonSeedFinder";
 
   //  MuonDumper debug;
-  vector<TrajectorySeed> theSeeds;
-
-  MuonDTSeedFromRecHits barrel(eSetup);
-  barrel.setPtExtractor(&thePtExtractor);
-  MuonOverlapSeedFromRecHits overlap(eSetup);
-  overlap.setPtExtractor(&thePtExtractor);
+  theBarrel.clear();
+  theOverlap.clear();
+  theEndcap.clear();
 
   int num_bar = 0;
-  for ( MuonRecHitContainer::const_iterator iter = theRhits.begin(); iter!= theRhits.end(); iter++ ){
+  for ( MuonRecHitContainer::const_iterator iter = hits.begin(); iter!= hits.end(); iter++ ){
     if ( (*iter)->isDT() ) {
-      barrel.add(*iter);
-      overlap.add(*iter);
+      theBarrel.add(*iter);
+      theOverlap.add(*iter);
       num_bar++;
     }
   }
@@ -57,25 +66,23 @@ vector<TrajectorySeed> MuonSeedFinder::seeds(const edm::EventSetup& eSetup) cons
   if ( num_bar ) {
     LogDebug(metname)
       << "Barrel Seeds " << num_bar << endl;
-    theSeeds.push_back(barrel.seed());
+    result.push_back(theBarrel.seed());
  
     //if ( debug ) //2
-      // cout << theSeeds.back().startingState() << endl;
+      // cout << result.back().startingState() << endl;
       // was
-      // cout << theSeeds.back().freeTrajectoryState() << endl;
+      // cout << result.back().freeTrajectoryState() << endl;
   }
   
   
-  MuonCSCSeedFromRecHits endcap(eSetup);
-  endcap.setPtExtractor(&thePtExtractor);
 
   int num_endcap = 0;
-  for ( MuonRecHitContainer::const_iterator iter = theRhits.begin(); iter!= theRhits.end(); iter++ ){
+  for ( MuonRecHitContainer::const_iterator iter = hits.begin(); iter!= hits.end(); iter++ ){
     if ( (*iter)->isCSC() )
     {
 //std::cout << **iter << std::endl;
-      endcap.add(*iter);
-      overlap.add(*iter);
+      theEndcap.add(*iter);
+      theOverlap.add(*iter);
       ++num_endcap;
     }
   }
@@ -84,17 +91,15 @@ vector<TrajectorySeed> MuonSeedFinder::seeds(const edm::EventSetup& eSetup) cons
   {
     LogDebug(metname)
       << "Endcap Seeds " << num_endcap << endl;
-    theSeeds.push_back(endcap.seed());
+    result.push_back(theEndcap.seed());
   }
 
   if(num_bar > 0 && num_endcap > 0)
   {
     LogTrace(metname) << "Overlap Seed" << endl;
-    std::vector<TrajectorySeed> overlapSeeds = overlap.seeds();
-    theSeeds.insert(theSeeds.end(), overlapSeeds.begin(), overlapSeeds.end());
+    std::vector<TrajectorySeed> overlapSeeds = theOverlap.seeds();
+    result.insert(result.end(), overlapSeeds.begin(), overlapSeeds.end());
   }
 
-
-  return theSeeds;
 }
 
