@@ -2,7 +2,7 @@
  <lib name=SimG4CoreNotification>
 </export>
 
-<use name=geant4>
+<use name=geant4core>
 <use name=DetectorDescription/Core>
 <use name=FWCore/MessageLogger>
 
