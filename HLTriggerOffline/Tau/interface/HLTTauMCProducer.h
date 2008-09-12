@@ -21,6 +21,9 @@ in Offline Trigger DQM etc
 #include <vector>
 #include <string>
 
+typedef math::XYZTLorentzVectorD LorentzVector;
+typedef std::vector<LorentzVector> LorentzVectorCollection;
+
 class HLTTauMCProducer : public edm::EDProducer {
   
 public:
@@ -30,9 +33,14 @@ public:
   virtual void produce(edm::Event&, const edm::EventSetup&);
   
  private:
-  typedef math::XYZTLorentzVectorD LorentzVector;
-  typedef std::vector<LorentzVector> LorentzVectorCollection;
-  
+
+  std::vector<HepMC::GenParticle*> getGenStableDecayProducts(const HepMC::GenParticle* particle);
+
+  enum tauDecayModes {kElectron, kMuon, 
+		      kOneProng0pi0, kOneProng1pi0, kOneProng2pi0,
+		      kThreeProng0pi0, kThreeProng1pi0,
+		      kOther, kUndefined};
+
   edm::InputTag MC_;
   double ptMinMCTau_;
   double ptMinMCElectron_;
