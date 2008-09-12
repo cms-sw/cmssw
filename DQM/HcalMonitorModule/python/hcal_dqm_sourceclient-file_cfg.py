@@ -142,7 +142,7 @@ process.load("DQM.HcalMonitorClient.HcalMonitorClient_cfi")
 process.hcalClient.plotPedRAW = True
 process.hcalClient.DoPerChanTests = False
 # suppresses html output from HCalClient  
-process.hcalClient.baseHtmlDir = '.'
+process.hcalClient.baseHtmlDir = ''
 
 # Turn on/off individual hcalClient modules -------------
 # by default, set them equal to the hcalMonitor values.
@@ -151,7 +151,7 @@ process.hcalClient.baseHtmlDir = '.'
 # just set the appropriate client value to False)
 
 process.hcalClient.SummaryClient        = True
-process.hcalClient.DataFormatClient     = process.hcalMonitor.DataMonitor
+process.hcalClient.DataFormatClient     = process.hcalMonitor.DataFormatMonitor
 process.hcalClient.DigiClient           = process.hcalMonitor.DigiMonitor
 process.hcalClient.RecHitClient         = process.hcalMonitor.RecHitMonitor
 process.hcalClient.TrigPrimClient       = process.hcalMonitor.TrigPrimMonitor
