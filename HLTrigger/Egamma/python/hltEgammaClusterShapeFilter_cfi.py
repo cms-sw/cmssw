@@ -1,3 +1,5 @@
+import FWCore.ParameterSet.Config as cms
+
 hltEgammaClusterShapeFilter = cms.EDFilter( "HLTEgammaClusterShapeFilter",
     candTag = cms.InputTag( "hltEgammaEtFilter" ),
     ecalRechitEB = cms.InputTag( 'hltEcalRegionalEgammaRecHit','EcalRecHitsEB' ),                                     
