@@ -125,7 +125,7 @@ void SoftConversionProducer::produce(edm::Event& theEvent, const edm::EventSetup
   }
 
   int nTracksIO = (int) inOutTrkHandle->size();
-  //  std::cout << "  nTracksIO " <<  nTracksIO << std::endl;
+  // std::cout << "  nTracksIO " <<  nTracksIO << std::endl;
   for(int itrk=0; itrk<nTracksIO; itrk++){
     reco::TrackRef tRef(inOutTrkHandle,itrk);
     if(!trackQualityCut(tRef)) continue;
@@ -151,19 +151,25 @@ void SoftConversionProducer::produce(edm::Event& theEvent, const edm::EventSetup
   for( ; iter1 != iter_end; iter1++) {
     //    std::cout << " back to start of loop 1 " << std::endl;
     const reco::TrackRef trk1 = iter1->first;
-    const reco::CaloClusterPtr cls1 = iter1->second;
-    reco::TransientTrack tsk1 = theTransientTrackBuilder->build(*trk1);
-    //std::cout << " after transient " << std::endl;
 
     for(iter2 = iter1+1; iter2 != iter_end; iter2++) {
       //      std::cout << " back to start of loop 2 " << std::endl;
       const reco::TrackRef trk2 = iter2->first;
       if(trk1 == trk2) continue;
 
+
+      const reco::CaloClusterPtr cls1 = iter1->second;
+      reco::TransientTrack tsk1 = theTransientTrackBuilder->build(*trk1);
+
       const reco::CaloClusterPtr cls2 = iter2->second;
       reco::TransientTrack tsk2 = theTransientTrackBuilder->build(*trk2);
+
       //      std::cout << " after transient " << std::endl;
       // std::cout << " eta1 " << cls1->position().Eta() << " eta2 " << cls2->position().Eta() << std::endl;
+
+      if ( ( tsk1.innermostMeasurementState().globalParameters().position() - tsk2.innermostMeasurementState().globalParameters().position() ).mag() < 1e-7 &&
+	   ( tsk1.innermostMeasurementState().globalParameters().momentum() - tsk2.innermostMeasurementState().globalParameters().momentum() ).mag() < 1e-7 ) continue;
+
 
       double dEta = std::abs(cls1->position().Eta() - cls2->position().Eta());
       if(dEta > clustersMaxDeltaEta_) continue;
@@ -176,7 +182,7 @@ void SoftConversionProducer::produce(edm::Event& theEvent, const edm::EventSetup
 
       //      std::cout << " Before vertex " << std::endl;
       reco::Vertex theConversionVertex = (reco::Vertex) theVertexFinder_->run(toBeFitted);
-      // std::cout << " After vertex " << std::endl;
+      //std::cout << " After vertex " << std::endl;
 
       if(theConversionVertex.isValid()){
 	//	std::cout << " valid vertex " << std::endl;
@@ -195,7 +201,7 @@ void SoftConversionProducer::produce(edm::Event& theEvent, const edm::EventSetup
 
 	//	std::cout << " Before impact finder " << std::endl;
 	std::vector<math::XYZPoint> trkPositionAtEcal = theEcalImpactPositionFinder_->find(toBeFitted,clusterBarrelHandle);
-	//std::cout << " After impact finder " << std::endl;
+	//	std::cout << " After impact finder " << std::endl;
 	if((clusterType_ == "BasicCluster") && (std::abs(cls2->position().Eta()) > 1.5)){
 	  trkPositionAtEcal.clear();
 	  trkPositionAtEcal = theEcalImpactPositionFinder_->find(toBeFitted,clusterEndcapHandle);
