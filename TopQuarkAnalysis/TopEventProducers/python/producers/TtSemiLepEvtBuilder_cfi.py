@@ -42,8 +42,8 @@ ttSemiLepEvent = cms.EDProducer("TtSemiLepEvtBuilder",
 
     ## add extra information on kinFit
     kinFit = cms.PSet(
-        chi2 = cms.InputTag("kinFitTtSemiLepEvent","Chi2"),
-        prob = cms.InputTag("kinFitTtSemiLepEvent","Prob"),
+        chi2 = cms.InputTag("kinFitTtSemiLepEventHypothesis","Chi2"),
+        prob = cms.InputTag("kinFitTtSemiLepEventHypothesis","Prob"),
     ),
 
     ## add extra information on genMatch
