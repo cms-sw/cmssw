@@ -21,8 +21,8 @@
 
 /** \class Hcaldataformatmonitor
  *
- * $Date: 2008/08/28 17:03:51 $
- * $Revision: 1.30 $
+ * $Date: 2008/09/03 13:43:29 $
+ * $Revision: 1.31 $
  * \author W. Fisher - FNAL
  */
 class HcalDataFormatMonitor: public HcalBaseMonitor {
@@ -44,13 +44,13 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
 
  public: //Electronics map -> geographic channel map
   void smuggleMaps(std::map<uint32_t, std::vector<HcalDetId> >& givenDCCtoCell,
-		  std::map<pair <int,int> , std::vector<HcalDetId> >& givenHTRtoCell);
+		   std::map<pair <int,int> , std::vector<HcalDetId> >& givenHTRtoCell);
   std::map<uint32_t, std::vector<HcalDetId> > DCCtoCell;
   std::map<uint32_t, std::vector<HcalDetId> > ::iterator thisDCC;
   std::map<pair <int,int> , std::vector<HcalDetId> > HTRtoCell;
   std::map<pair <int,int> , std::vector<HcalDetId> > ::iterator thisHTR;
 
-  private: 
+ private: 
   //backstage accounting mechanisms for the ProblemMap
   static size_t iphirange; // = IPHIMAX - IPHIMIN;
   static size_t ietarange; // = IETAMAX - IETAMIN;
@@ -63,10 +63,10 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
   void mapDCCproblem(int dcc) ;
   void fillzoos(int bin, int dccid);
   std::vector<std::vector<uint64_t> > phatmap;  // iphi/ieta projection of all hcal cells
-  std::vector<std::vector<uint64_t> > HBmap;  // iphi/ieta projection of hb
-  std::vector<std::vector<uint64_t> > HEmap;  // iphi/ieta projection of he
-  std::vector<std::vector<uint64_t> > HFmap;  // iphi/ieta projection of hf
-  std::vector<std::vector<uint64_t> > HOmap;  // iphi/ieta projection of ho
+  std::vector<std::vector<uint64_t> > HBmap;    // iphi/ieta projection of hb
+  std::vector<std::vector<uint64_t> > HEmap;    // iphi/ieta projection of he
+  std::vector<std::vector<uint64_t> > HFmap;    // iphi/ieta projection of hf
+  std::vector<std::vector<uint64_t> > HOmap;    // iphi/ieta projection of ho
   void UpdateMap();
 
   // Data accessors
@@ -79,9 +79,9 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
   int lastBCN_;
   //   int dccnum_;
   //int cratenum_;
-  
+
   int prtlvl_;
-  
+
  private:  //Monitoring elements
    
   MonitorElement* meEVT_;
@@ -95,88 +95,113 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
   MonitorElement* HO_DATAFORMAT_PROBLEM_MAP;
   MonitorElement* HO_DATAFORMAT_PROBLEM_ZOO;
    
-   //MEs for hcalunpacker report info
-   MonitorElement* meSpigotFormatErrors_;
-   MonitorElement* meBadQualityDigis_;
-   MonitorElement* meUnmappedDigis_;
-   MonitorElement* meUnmappedTPDigis_;
-   MonitorElement* meFEDerrorMap_;
+  //MEs for hcalunpacker report info
+  MonitorElement* meSpigotFormatErrors_;
+  MonitorElement* meBadQualityDigis_;
+  MonitorElement* meUnmappedDigis_;
+  MonitorElement* meUnmappedTPDigis_;
+  MonitorElement* meFEDerrorMap_;
 
-   MonitorElement* meFEDRawDataSizes_;
-   //Check that evt numbers are synchronized across all HTRs
-   MonitorElement* meEvtNumberSynch_;
-   MonitorElement* meBCNSynch_;
-   MonitorElement* meBCN_;
-   MonitorElement* medccBCN_;
+  MonitorElement* meFEDRawDataSizes_;
+  //Check that evt numbers are synchronized across all HTRs
+  MonitorElement* meEvtNumberSynch_;
+  MonitorElement* meBCNSynch_;
+  MonitorElement* meBCN_;
+  MonitorElement* medccBCN_;
 
-   MonitorElement* meInvHTRData_;
-   MonitorElement* meBCNCheck_; // htr BCN compared to dcc BCN
-   MonitorElement* meEvtNCheck_; // htr Evt # compared to dcc Evt #
-   MonitorElement* meFibBCN_;
+  MonitorElement* meDCC_DataIntegrityCheck_;
+  MonitorElement* meHalfHTR_DataIntegrityCheck_;
 
-   MonitorElement* meFWVersion_;
-   MonitorElement* meEvFragSize_;
-   MonitorElement* meEvFragSize2_;
+  MonitorElement* meInvHTRData_;
+  MonitorElement* meBCNCheck_; // htr BCN compared to dcc BCN
+  MonitorElement* meEvtNCheck_; // htr Evt # compared to dcc Evt #
+  MonitorElement* meFibBCN_;
 
-   MonitorElement* meErrWdCrate_;  //HTR error bits by crate
+  MonitorElement* meFWVersion_;
+  MonitorElement* meEvFragSize_;
+  MonitorElement* meEvFragSize2_;
 
-   // The following MEs map specific conditons from the EventFragment headers as specified in
-   //   http://cmsdoc.cern.ch/cms/HCAL/document/CountingHouse/DCC/DCC_1Jul06.pdf
+  MonitorElement* meErrWdCrate_;  //HTR error bits by crate
 
-   MonitorElement* meFEDId_;               //All of HCAL, as a stupidcheck.
-   MonitorElement* meCDFErrorFound_;       //Summary histo of Common Data Format violations by FED ID
-   MonitorElement* meDCCEventFormatError_; //Summary histo of DCC Event Format violations by FED ID 
-   //Summary histo for HTR Status bits, DCC Error&Warn Counters Flagged Nonzero
-   MonitorElement* meDCCErrorAndWarnConditions_;  
-   MonitorElement* meDCCStatusFlags_;
-   MonitorElement* meDCCSummariesOfHTRs_;  //Summary histo of HTR Summaries from DCC
+  // The following MEs map specific conditons from the EventFragment headers as specified in
+  //   http://cmsdoc.cern.ch/cms/HCAL/document/CountingHouse/DCC/DCC_1Jul06.pdf
 
-   // The following MEs map specific conditons from the HTR/DCC headers as specified in
-   //   http://cmsdoc.cern.ch/cms/HCAL/document/CountingHouse/HTR/design/Rev4MainFPGA.pdf
+  MonitorElement* meFEDId_;               //All of HCAL, as a stupidcheck.
+  MonitorElement* meCDFErrorFound_;       //Summary histo of Common Data Format violations by FED ID
+  MonitorElement* meDCCEventFormatError_; //Summary histo of DCC Event Format violations by FED ID 
+  //Summary histo for HTR Status bits, DCC Error&Warn Counters Flagged Nonzero
+  MonitorElement* meDCCErrorAndWarnConditions_;  
+  MonitorElement* meDCCStatusFlags_;
+  MonitorElement* meDCCSummariesOfHTRs_;  //Summary histo of HTR Summaries from DCC
 
-     MonitorElement* meCrate0HTRErr_;   //Map of HTR errors into Crate 0
-     MonitorElement* meCrate1HTRErr_;   //Map of HTR errors into Crate 1
-     MonitorElement* meCrate2HTRErr_;   //Map of HTR errors into Crate 2
-     MonitorElement* meCrate3HTRErr_;   //Map of HTR errors into Crate 3
-     MonitorElement* meCrate4HTRErr_;   //Map of HTR errors into Crate 4
-     MonitorElement* meCrate5HTRErr_;   //Map of HTR errors into Crate 5
-     MonitorElement* meCrate6HTRErr_;   //Map of HTR errors into Crate 6
-     MonitorElement* meCrate7HTRErr_;   //Map of HTR errors into Crate 7
-     MonitorElement* meCrate8HTRErr_;   //Map of HTR errors into Crate 8
-     MonitorElement* meCrate9HTRErr_;   //Map of HTR errors into Crate 9
-     MonitorElement* meCrate10HTRErr_;   //Map of HTR errors into Crate 10
-     MonitorElement* meCrate11HTRErr_;   //Map of HTR errors into Crate 11
-     MonitorElement* meCrate12HTRErr_;   //Map of HTR errors into Crate 12
-     MonitorElement* meCrate13HTRErr_;   //Map of HTR errors into Crate 13
-     MonitorElement* meCrate14HTRErr_;   //Map of HTR errors into Crate 14
-     MonitorElement* meCrate15HTRErr_;   //Map of HTR errors into Crate 15
-     MonitorElement* meCrate16HTRErr_;   //Map of HTR errors into Crate 16
-     MonitorElement* meCrate17HTRErr_;   //Map of HTR errors into Crate 17
+  // The following MEs map specific conditons from the HTR/DCC headers as specified in
+  //   http://cmsdoc.cern.ch/cms/HCAL/document/CountingHouse/HTR/design/Rev4MainFPGA.pdf
 
-     MonitorElement* meFib1OrbMsgBCN_;  //BCN of Fiber 1 Orb Msg
-     MonitorElement* meFib2OrbMsgBCN_;  //BCN of Fiber 2 Orb Msg
-     MonitorElement* meFib3OrbMsgBCN_;  //BCN of Fiber 3 Orb Msg
-     MonitorElement* meFib4OrbMsgBCN_;  //BCN of Fiber 4 Orb Msg
-     MonitorElement* meFib5OrbMsgBCN_;  //BCN of Fiber 5 Orb Msg
-     MonitorElement* meFib6OrbMsgBCN_;  //BCN of Fiber 6 Orb Msg
-     MonitorElement* meFib7OrbMsgBCN_;  //BCN of Fiber 7 Orb Msg
-     MonitorElement* meFib8OrbMsgBCN_;  //BCN of Fiber 8 Orb Msg
+  MonitorElement* meCrate0HTRErr_;   //Map of HTR errors into Crate 0
+  MonitorElement* meCrate1HTRErr_;   //Map of HTR errors into Crate 1
+  MonitorElement* meCrate2HTRErr_;   //Map of HTR errors into Crate 2
+  MonitorElement* meCrate3HTRErr_;   //Map of HTR errors into Crate 3
+  MonitorElement* meCrate4HTRErr_;   //Map of HTR errors into Crate 4
+  MonitorElement* meCrate5HTRErr_;   //Map of HTR errors into Crate 5
+  MonitorElement* meCrate6HTRErr_;   //Map of HTR errors into Crate 6
+  MonitorElement* meCrate7HTRErr_;   //Map of HTR errors into Crate 7
+  MonitorElement* meCrate8HTRErr_;   //Map of HTR errors into Crate 8
+  MonitorElement* meCrate9HTRErr_;   //Map of HTR errors into Crate 9
+  MonitorElement* meCrate10HTRErr_;   //Map of HTR errors into Crate 10
+  MonitorElement* meCrate11HTRErr_;   //Map of HTR errors into Crate 11
+  MonitorElement* meCrate12HTRErr_;   //Map of HTR errors into Crate 12
+  MonitorElement* meCrate13HTRErr_;   //Map of HTR errors into Crate 13
+  MonitorElement* meCrate14HTRErr_;   //Map of HTR errors into Crate 14
+  MonitorElement* meCrate15HTRErr_;   //Map of HTR errors into Crate 15
+  MonitorElement* meCrate16HTRErr_;   //Map of HTR errors into Crate 16
+  MonitorElement* meCrate17HTRErr_;   //Map of HTR errors into Crate 17
 
-     MonitorElement* DCC_ErrWd_HBHE;
-     MonitorElement* DCC_ErrWd_HF;
-     MonitorElement* DCC_ErrWd_HO;
+  MonitorElement* meFib1OrbMsgBCN_;  //BCN of Fiber 1 Orb Msg
+  MonitorElement* meFib2OrbMsgBCN_;  //BCN of Fiber 2 Orb Msg
+  MonitorElement* meFib3OrbMsgBCN_;  //BCN of Fiber 3 Orb Msg
+  MonitorElement* meFib4OrbMsgBCN_;  //BCN of Fiber 4 Orb Msg
+  MonitorElement* meFib5OrbMsgBCN_;  //BCN of Fiber 5 Orb Msg
+  MonitorElement* meFib6OrbMsgBCN_;  //BCN of Fiber 6 Orb Msg
+  MonitorElement* meFib7OrbMsgBCN_;  //BCN of Fiber 7 Orb Msg
+  MonitorElement* meFib8OrbMsgBCN_;  //BCN of Fiber 8 Orb Msg
 
-     //Member variables for reference values to be used in consistency checks.
-     std::map<int, short> CDFversionNumber_list;
-     std::map<int, short>::iterator CDFvers_it;
-     std::map<int, short> CDFEventType_list;
-     std::map<int, short>::iterator CDFEvT_it;
-     std::map<int, short> CDFReservedBits_list;
-     std::map<int, short>::iterator CDFReservedBits_it;
-     std::map<int, short> DCCEvtFormat_list;
-     std::map<int, short>::iterator DCCEvtFormat_it;
-     std::map<int, short> DCCRsvdBits_list;
-     std::map<int, short>::iterator DCCRsvdBits_it;
+  MonitorElement* DCC_ErrWd_HBHE;
+  MonitorElement* DCC_ErrWd_HF;
+  MonitorElement* DCC_ErrWd_HO;
+
+  //Member variables for reference values to be used in consistency checks.
+  std::map<int, short> CDFversionNumber_list;
+  std::map<int, short>::iterator CDFvers_it;
+  std::map<int, short> CDFEventType_list;
+  std::map<int, short>::iterator CDFEvT_it;
+  std::map<int, short> CDFReservedBits_list;
+  std::map<int, short>::iterator CDFReservedBits_it;
+  std::map<int, short> DCCEvtFormat_list;
+  std::map<int, short>::iterator DCCEvtFormat_it;
+  std::map<int, short> DCCRsvdBits_list;
+  std::map<int, short>::iterator DCCRsvdBits_it;
+  
+  //static member variables 
+  static float DIMbin[32];
+};
+
+// For crate numbers:
+float HcalDataFormatMonitor::DIMbin[]={ 4, 4.5, // FED 700, 701
+		       0, 0.5, // FED 702, 703
+		       1, 1.5, // FED 704, 705
+		       5, 5.5, // FED 706, 707
+		       11, 11.5, // FED 708, 709
+		       15, 15.5, // FED 710, 711
+		       17, 17.5, // FED 712, 713
+		       14, 14.5, // FED 714, 715
+		       10, 10.5, // FED 716, 717
+		       2, 2.5, // FED 718, 719
+		       9, 9.5, // FED 720, 721
+		       12, 12.5, // FED 722, 723
+		       3, 3.5, // FED 724, 725
+		       7, 7.5, // FED 726, 727
+		       6, 6.5, // FED 728, 729
+		       13, 13.5 // FED 730, 731
 };
 
 #endif
