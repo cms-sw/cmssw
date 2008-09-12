@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/09/10 04:01:07 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/09/10 16:12:42 $
+ *  $Revision: 1.7 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -35,15 +35,15 @@ JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& pSet) {
   // Calo Jet Collection Label
   theSCJetCollectionLabel   = parameters.getParameter<edm::InputTag>("SCJetsCollectionLabel");
   theICJetCollectionLabel   = parameters.getParameter<edm::InputTag>("ICJetsCollectionLabel");
-  //  theCaloJetCollectionLabel = parameters.getParameter<edm::InputTag>("CaloJetsCollectionLabel");
+//theCaloJetCollectionLabel = parameters.getParameter<edm::InputTag>("CaloJetsCollectionLabel");
 
   thePFJetCollectionLabel   = parameters.getParameter<edm::InputTag>("PFJetsCollectionLabel");
 
   theCaloMETCollectionLabel     = parameters.getParameter<edm::InputTag>("CaloMETCollectionLabel");
   theCaloMETNoHFCollectionLabel = parameters.getParameter<edm::InputTag>("CaloMETNoHFCollectionLabel");
   
-  //  theSCJetAnalyzerFlag      = parameters.getUntrackedParameter<bool>("DoSCJetAnalysis",true);
-  //  theICJetAnalyzerFlag      = parameters.getUntrackedParameter<bool>("DoICJetAnalysis",true);
+//theSCJetAnalyzerFlag      = parameters.getUntrackedParameter<bool>("DoSCJetAnalysis",true);
+//theICJetAnalyzerFlag      = parameters.getUntrackedParameter<bool>("DoICJetAnalysis",true);
   theJetAnalyzerFlag        = parameters.getUntrackedParameter<bool>("DoJetAnalysis",true);
 
   thePFJetAnalyzerFlag      = parameters.getUntrackedParameter<bool>("DoPFJetAnalysis",true);
@@ -104,6 +104,10 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
   LogTrace(metname)<<"[JetMETAnalyzer] Analysis of event # ";
   
+  // **** Get the TriggerResults container
+  edm::Handle<TriggerResults> triggerResults;
+  iEvent.getByLabel(theTriggerResultsLabel,triggerResults);
+
   // **** Get the Calo Jet container
   edm::Handle<reco::CaloJetCollection> caloJets;
 
@@ -185,7 +189,9 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
     if(theCaloMETAnalyzerFlag){
       LogTrace(metname)<<"[JetMETAnalyzer] Call to the CaloMET analyzer";
-      theCaloMETAnalyzer->analyze(iEvent, iSetup, *calomet, *calometNoHF);
+      theCaloMETAnalyzer->analyze(iEvent, iSetup,
+				  *calomet, *calometNoHF,
+				  *triggerResults);
     }
   }
 
