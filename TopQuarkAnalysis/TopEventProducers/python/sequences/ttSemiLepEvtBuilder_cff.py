@@ -9,7 +9,7 @@ import FWCore.ParameterSet.Config as cms
 from TopQuarkAnalysis.TopEventProducers.sequences.ttGenEventFilters_cff import *
 
 ## std sequence to produce the ttsemiEventHypotheses
-from TopQuarkAnalysis.TopEventProducers.sequences.ttSemiEventHypotheses_cff import *
+from TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepEvtHypotheses_cff import *
 
 ## configure ttSemiEventBuilder
 from TopQuarkAnalysis.TopEventProducers.producers.TtSemiLepEvtBuilder_cfi import *

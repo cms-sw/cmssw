@@ -6,12 +6,13 @@ import FWCore.ParameterSet.Config as cms
 #
 
 ## std sequence to perform kinematic fit
-from TopQuarkAnalysis.TopKinFitter.TtSemiLepKinFitProducer_Muons_cfi import *
+import TopQuarkAnalysis.TopKinFitter.TtSemiLepKinFitProducer_Muons_cfi
+kinFitTtSemiLepEventHypothesis = TopQuarkAnalysis.TopKinFitter.TtSemiLepKinFitProducer_Muons_cfi.kinFitTtSemiLepEvent.clone()
 
 ## configure kinFit hypothesis
 from TopQuarkAnalysis.TopJetCombination.TtSemiLepHypKinFit_cfi import *
 
 ## make hypothesis
-makeHypothesis_kinFit = cms.Sequence(kinFitTtSemiLepEvent *
+makeHypothesis_kinFit = cms.Sequence(kinFitTtSemiLepEventHypothesis *
                                      ttSemiLepHypKinFit)
 

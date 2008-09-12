@@ -11,7 +11,7 @@ from PhysicsTools.PatAlgos.patLayer0_cff import *
 
 ## define the tqafLayer0 input
 from TopQuarkAnalysis.TopObjectProducers.full.tqafLayer0_objectCleaning_cff import *
-from TopQuarkAnalysis.TopObjectProducers.full.tqafLayer0_mcMatching_cff import *
+from TopQuarkAnalysis.TopObjectProducers.full.tqafLayer0_mcMatching_cff     import *
 
 
 #-----------------------------------------------------------------
@@ -21,7 +21,7 @@ from PhysicsTools.PatAlgos.patLayer1_cff import *
 
 ## define the tqafLayer1 input
 from TopQuarkAnalysis.TopObjectProducers.full.tqafLayer1_objectProduction_cff import *
-from TopQuarkAnalysis.TopObjectProducers.full.tqafLayer1_objectSelection_cff import *
+from TopQuarkAnalysis.TopObjectProducers.full.tqafLayer1_objectSelection_cff  import *
 
 ## std sequence for tqafLayer1 production
 tqafLayer1 = cms.Sequence(patLayer0*patLayer1)

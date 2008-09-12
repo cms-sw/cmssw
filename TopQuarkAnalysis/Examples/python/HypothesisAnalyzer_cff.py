@@ -9,8 +9,6 @@ import FWCore.ParameterSet.Config as cms
 # initialize analyzers
 import TopQuarkAnalysis.Examples.HypothesisAnalyzer_cfi
 analyzeMaxSumPtWMass = TopQuarkAnalysis.Examples.HypothesisAnalyzer_cfi.analyzeHypothesis.clone()
-
-import TopQuarkAnalysis.Examples.HypothesisAnalyzer_cfi
 analyzeGenMatch      = TopQuarkAnalysis.Examples.HypothesisAnalyzer_cfi.analyzeHypothesis.clone()
 
 # configure analyzers
