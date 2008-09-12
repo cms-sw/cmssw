@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Sun Mar  2 20:09:46 CET 2008
-// $Id: L1CondDBIOVWriter.cc,v 1.1 2008/03/03 21:52:17 wsun Exp $
+// $Id: L1CondDBIOVWriter.cc,v 1.2 2008/03/05 04:21:35 wsun Exp $
 //
 //
 
@@ -98,9 +98,6 @@ L1CondDBIOVWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
    // Use TSC key and L1TriggerKeyList to find next run's L1TriggerKey token
    std::string keyToken = keyList->token( dummyKey->getTSCKey() ) ;
 
-   std::cout << "IOVWriter L1TriggerKey " << dummyKey->getTSCKey()
-	     << " " << keyToken << " " << std::endl ;
-
    // Update IOV sequence for this token with since-time = new run 
    m_writer.updateIOV( m_keyTag, keyToken, run ) ;
 
@@ -126,9 +123,6 @@ L1CondDBIOVWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	  throw cond::Exception( "L1CondDBIOVWriter: empty payload token" ) ;
 	}
       // assert( !payloadToken.empty() ) ;
-
-      std::cout << "IOVWriter " << recordType << " " << subsystemKey
-		<< " " << payloadToken << " " << std::endl ;
 
       // Extract record name from recordType
       std::string recordName( recordType, 0, recordType.find_first_of("@") ) ;
