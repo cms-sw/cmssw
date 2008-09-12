@@ -13,7 +13,7 @@
 //
 // Original Author:  Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronAnalyzer.cc,v 1.2 2008/05/22 12:53:44 nancy Exp $
+// $Id: ElectronAnalyzer.cc,v 1.3 2008/05/28 09:44:11 uberthon Exp $
 //
 //
 
@@ -146,51 +146,59 @@ void ElectronAnalyzer::beginJob(edm::EventSetup const&iSetup){
     h_ele_vertexY      = dbe_->book1D( "h_ele_vertexY",      "ele y at vertex",    nbinxyz,-0.1,0.1 );
     h_ele_vertexZ      = dbe_->book1D( "h_ele_vertexZ",      "ele z at vertex",    nbinxyz,-25, 25 );
     h_ele_matchingObjectPt_matched   = dbe_->book1D( "h_ele_matchingObjectPt_matched",       "matching SC p_{T}",  nbinpteff,5.,ptmax);
-    h_ele_ptEff  = dbe_->book1D( "h_ele_ptEff",       "matching SC p_{T}",  nbinpteff,5.,ptmax);
+    h_ele_ptEff  = dbe_->book1D( "h_ele_ptEff",       "fraction of reco ele matching a reco SC",  nbinpteff,5.,ptmax);
 
     h_ele_matchingObjectEta_matched  = dbe_->book1D( "h_ele_matchingObjectEta_matched",      "matching SC #eta",    nbineta,etamin,etamax);
-    h_ele_etaEff  = dbe_->book1D( "h_ele_etaEff",      "matching SC #eta",    nbineta,etamin,etamax);
+    h_ele_etaEff     = dbe_->book1D( "h_ele_etaEff", "fraction of reco ele matching a reco SC",    nbineta,etamin,etamax);
 
     h_ele_matchingObjectPhi_matched  = dbe_->book1D( "h_ele_matchingObjectPhi_matched", "matching SC phi",        nbinphi,phimin,phimax); 
-    h_ele_phiEff  = dbe_->book1D( "h_ele_phiEff", "matching SC phi",        nbinphi,phimin,phimax); 
+    h_ele_phiEff     = dbe_->book1D( "h_ele_phiEff", "fraction of reco ele matching a reco SC",  nbinphi,phimin,phimax);
 
     h_ele_matchingObjectZ_matched    = dbe_->book1D( "h_ele_matchingObjectZ_matched",      "matching SC z",    nbinxyz,-25,25);
-    h_ele_zEff    = dbe_->book1D( "h_ele_zEff",      "matching SC z",    nbinxyz,-25,25);
+    h_ele_zEff    = dbe_->book1D( "h_ele_zEff",      "fraction of reco ele matching a reco SC",    nbinxyz,-25,25);
 
     // matched electron, gsf tracks
     h_ele_foundHits      = dbe_->book1D( "h_ele_foundHits",      "ele track # found hits",      nbinfhits,0.,fhitsmax);
-    h_ele_chi2           = dbe_->book1D( "h_ele_chi2",           "ele track #chi^{2}",         100,0.,15.);   
+    h_ele_chi2           = dbe_->book1D( "h_ele_chi2",           "ele track #chi^{2}/ndf",         100,0.,15.);   
     h_ele_PinMnPout_mode      = dbe_->book1D( "h_ele_PinMnPout_mode",      "ele track inner p - outer p, mode"   ,nbinp,0.,100.);
   
     // matched electrons, matching 
-    h_ele_EoP            = dbe_->book1D( "h_ele_EoP",            "ele E/P_{vertex}",        nbineop,0.,eopmax);
-    h_ele_EoPout         = dbe_->book1D( "h_ele_EoPout",         "ele E/P_{out}",           nbineop,0.,eopmax);
-    h_ele_dEtaSc_propVtx = dbe_->book1D( "h_ele_dEtaSc_propVtx", "ele #eta_{sc} - #eta_{tr} - prop from vertex",      nbindetamatch,detamatchmin,detamatchmax);
-    h_ele_dPhiSc_propVtx = dbe_->book1D( "h_ele_dPhiSc_propVtx", "ele #phi_{sc} - #phi_{tr} - prop from vertex",      nbindphimatch,dphimatchmin,dphimatchmax);
-    h_ele_dPhiCl_propOut = dbe_->book1D( "h_ele_dPhiCl_propOut", "ele #phi_{cl} - #phi_{tr} - prop from outermost",   nbindphimatch,dphimatchmin,dphimatchmax);
+
+  //    h_ele_EoP            = dbe_->book1D( "h_ele_EoP",            "ele E/P_{vertex}",        nbineop,0.,eopmax);
+    h_ele_EoP            = dbe_->book1D( "h_ele_EoP",            "ele E_{sc}/P_{vertex}" ,        nbineop,0.,eopmax);
+    //    h_ele_EoPout         = dbe_->book1D( "h_ele_EoPout",         "ele E/P_{out}",           nbineop,0.,eopmax);
+    h_ele_EoPout         = dbe_->book1D( "h_ele_EoPout",         "ele E_{seed}/P_{out}",           nbineop,0.,eopmax);
+    h_ele_dEtaSc_propVtx = dbe_->book1D( "h_ele_dEtaSc_propVtx", "ele #eta_{sc} - #eta_{tr},prop from vertex",      nbindetamatch,detamatchmin,detamatchmax);
+    h_ele_dPhiSc_propVtx = dbe_->book1D( "h_ele_dPhiSc_propVtx", "ele #phi_{sc} - #phi_{tr},prop from vertex",      nbindphimatch,dphimatchmin,dphimatchmax);
+    h_ele_dPhiCl_propOut = dbe_->book1D( "h_ele_dPhiCl_propOut", "ele #phi_{cl} - #phi_{tr},prop from outermost",   nbindphimatch,dphimatchmin,dphimatchmax);
     h_ele_HoE = dbe_->book1D("h_ele_HoE", "ele H/E", 55,-0.05,0.5) ;
  
     // classes  
     h_ele_classes = dbe_->book1D( "h_ele_classes", "ele electron classes",      150,0.0,150.);
     h_ele_eta = dbe_->book1D( "h_ele_eta", "ele electron eta",  nbineta/2,0.0,etamax);
     h_ele_eta_golden = dbe_->book1D( "h_ele_eta_golden", "ele electron eta golden",  nbineta/2,0.0,etamax);
-    h_ele_eta_goldenFrac = dbe_->book1D( "h_ele_eta_goldenFrac", "ele electron eta golden",  nbineta/2,0.0,etamax);
+    h_ele_eta_goldenFrac = dbe_->book1D( "h_ele_eta_goldenFrac", "fraction of golden electrons",  nbineta/2,0.0,etamax);
     h_ele_eta_shower = dbe_->book1D( "h_ele_eta_show", "ele electron eta showering",  nbineta/2,0.0,etamax);
-    h_ele_eta_showerFrac = dbe_->book1D( "h_ele_eta_showerFrac", "ele electron eta showering",  nbineta/2,0.0,etamax);
+    h_ele_eta_showerFrac = dbe_->book1D( "h_ele_eta_showerFrac", "fraction of showering electrons",  nbineta/2,0.0,etamax);
+    h_ele_zEff       = dbe_->book1D( "h_ele_zEff",   "matching SC z",    nbinxyz,-25,25);  }
+
     // histos titles
     h_ele_matchingObjectEta             -> setAxisTitle("SC #eta",1);
-    h_ele_chi2           -> setAxisTitle("#Chi^{2}",1);   
-    h_ele_charge         -> setAxisTitle("charge",1);   
-    h_ele_vertexP        -> setAxisTitle("p_{vertex} (GeV/c)",1);
-    h_ele_vertexPt       -> setAxisTitle("p_{T vertex} (GeV/c)",1);
-    h_ele_vertexEta      -> setAxisTitle("#eta",1);  
-    h_ele_vertexPhi      -> setAxisTitle("#phi",1);   
-    h_ele_PinMnPout_mode      -> setAxisTitle("p_{vertex} - p_{out}, mode (GeV)",1);
-    h_ele_EoP            -> setAxisTitle("E/p_{vertex}",1);
-    h_ele_etaEff     = dbe_->book1D( "h_ele_etaEff", "matching SC #eta",    nbineta,etamin,etamax);
-    h_ele_ptEff      = dbe_->book1D( "h_ele_ptEff",  "matching SC p_{T}",  nbinpteff,5.,ptmax); 
-    h_ele_phiEff     = dbe_->book1D( "h_ele_phiEff", "matching SC phi",  nbinphi,phimin,phimax);
-    h_ele_zEff       = dbe_->book1D( "h_ele_zEff",   "matching SC z",    nbinxyz,-25,25);  }
+    h_ele_vertexP        -> setAxisTitle("GeV/c",1);
+    h_ele_vertexPt       -> setAxisTitle("GeV/c",1);
+    h_ele_vertexX        -> setAxisTitle("cm",1);
+    h_ele_vertexY        -> setAxisTitle("cm",1);
+    h_ele_vertexZ        -> setAxisTitle("cm",1);
+    h_ele_vertexPhi      -> setAxisTitle("rad",1);   
+    h_ele_PinMnPout_mode      -> setAxisTitle("GeV/c",1);
+    h_ele_dPhiCl_propOut ->setAxisTitle("rad",1);
+    h_ele_dPhiSc_propVtx ->setAxisTitle("rad",1);
+    h_ele_etaEff         ->setAxisTitle("#eta",1);
+    h_ele_eta_goldenFrac ->setAxisTitle("#eta",1);
+    h_ele_eta_showerFrac ->setAxisTitle("#eta",1);
+    h_ele_phiEff         ->setAxisTitle("#phi (rad)",1);
+    h_ele_ptEff          ->setAxisTitle("p_{T} (GeV/c)",1);
+    h_ele_zEff           ->setAxisTitle("cm",1);
 }     
 
 void
@@ -256,7 +264,6 @@ ElectronAnalyzer::endJob(){
 void
 ElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  std::cout << "analyzing new event " << std::endl;
 
   // get reco electrons  
   edm::Handle<reco::GsfElectronCollection> gsfElectrons;
