@@ -14,12 +14,11 @@ pfConversions = cms.EDProducer("PFConversionsProducer",
     debug = cms.bool(False),
     PFRecTracksFromConversions = cms.string('pfRecTracksFromConversions'),
 
-    OtherConversionCollection =           cms.VInputTag(cms.InputTag("softConversions:softConversionCollection")),
-    OtherOutInCollection      =           cms.VInputTag(cms.InputTag("softConversionOITracks")),                    
-    OtherInOutCollection      =           cms.VInputTag(cms.InputTag("softConversionIOTracks"))                            
-=======
-    debug = cms.bool(False),
-    PFRecTracksFromConversions = cms.string('pfRecTracksFromConversions')
+    OtherConversionCollection =           cms.VInputTag(),
+    OtherOutInCollection      =           cms.VInputTag(), 
+    OtherInOutCollection      =           cms.VInputTag()
+
+ 
 )
 
 

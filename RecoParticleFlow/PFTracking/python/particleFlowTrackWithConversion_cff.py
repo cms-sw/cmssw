@@ -18,6 +18,11 @@ from RecoParticleFlow.PFTracking.pfConversions_cfi import *
 softConversionIOTracks.TrajectoryInEvent = cms.bool(True)
 softConversionOITracks.TrajectoryInEvent = cms.bool(True)
 
+#UNCOMMENT THE LINES THAT START WITH #UN# IN ORDER TO ADD CONVERSION FROM PF CLUSTERS
+
+#UN#pfConversions.OtherConversionCollection =cms.VInputTag(cms.InputTag("softConversions:softConversionCollection"))
+#UN#pfConversions.OtherOutInCollection      =           cms.VInputTag(cms.InputTag("softConversionOITracks"))
+#UN#pfConversions.OtherInOutCollection      =           cms.VInputTag(cms.InputTag("softConversionIOTracks"))
 
 particleFlowTrackWithConversion =cms.Sequence(
     elecPreId*
@@ -25,7 +30,7 @@ particleFlowTrackWithConversion =cms.Sequence(
     gsfElCandidates*
     gsfPFtracks*
     pfTrackElec*
-    softConversionSequence*
+#UN#    softConversionSequence*
     pfConversions
     )
 

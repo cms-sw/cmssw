@@ -76,7 +76,6 @@ void PFConversionsProducer::produce( edm::Event& e, const edm::EventSetup& )
   using namespace edm;
   if (debug_) std::cout <<" PFConversionsProducer Produce event: "<<e.id().event() <<" in run "<<e.id().run()<< std::endl;
  
-  cout<<"EVENT "<<e.id()<<endl;
   nEvt_++;  
   
   ///// Get the externally reconstructed  conversions
@@ -188,7 +187,7 @@ void PFConversionsProducer::produce( edm::Event& e, const edm::EventSetup& )
     if (debug_) std::cout<< " Best conv " << iBestConv << std::endl;
     reco::ConversionRef cpRef = conversions[iBestConv];
     std::vector<reco::TrackRef> tracks = conversions[iBestConv]->tracks();
-    cout<<"SQDA"<<endl;
+
     fillPFConversions ( cpRef, outInTrkHandle, inOutTrkHandle, outInTrajectoryHandle, inOutTrajectoryHandle, iPfTk,  pfTrackRefProd, outputConversionCollection,  pfConversionRecTrackCollection);
     
     
@@ -220,12 +219,7 @@ void PFConversionsProducer::produce( edm::Event& e, const edm::EventSetup& )
   
       ///vector of bool of the same size of new conversion collection
     
-      uint AlreadySaved=  outputConversionCollection.size();
- 
-      cout<<"TRACCE GIA' PRESE "<<AlreadySaved<<endl;  
-      
-      cout<<"COLL "<<OtherConvLabels_[icol]<<" SIZ "<<newColl->size()
-	  <<" "<<outInTrk->size()<<" "<<inOutTrk->size()<<endl;
+
       for( unsigned int icp = 0;  icp < newColl->size(); icp++) {
 	reco::ConversionRef cpRef(reco::ConversionRef(newColl,icp));
 	std::vector<reco::TrackRef> tracks = cpRef->tracks();
@@ -233,7 +227,6 @@ void PFConversionsProducer::produce( edm::Event& e, const edm::EventSetup& )
 	if ( tracks.size() < 2 ) continue;
 	
 	if (isNotUsed(cpRef,outputConversionCollection)){
-	  cout<<"QQ "<<endl;
 
 	  fillPFConversions ( cpRef, outInTrk, inOutTrk, outInTraj, inOutTraj, 
 			      iPfTk,  pfTrackRefProd, outputConversionCollection,  
@@ -391,6 +384,5 @@ bool PFConversionsProducer::SameTrack(reco::TrackRef t1, reco::TrackRef t2){
       if ((*i1b)->sharesInput(&(**i2b), TrackingRecHit::all )) isha++;
     }
   }
-  cout<<"REC "<<irec<<" "<<isha<<" "<<isha/irec<<endl;
   return ((isha/irec)>0.5);
 }
