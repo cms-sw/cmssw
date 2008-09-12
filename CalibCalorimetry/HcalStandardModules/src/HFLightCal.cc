@@ -2,7 +2,7 @@
 // SPE calibration for low light intensity or raw SPE calibration for high light intensity
 // and HF performance based on this analysis
 //
-// Igor Vodopiyanov. Oct-2007
+// Igor Vodopiyanov. Oct-2007 .... update Sept-2008
 // Thanks G.Safronov, M.Mohammadi, F.Ratnikov
 //
 #include <memory>
@@ -187,11 +187,12 @@ Double_t FitFun(Double_t *x, Double_t *par) {
 
   Double_t sum,xx,A0,C0,r0,sigma0,mean1,sigma1,A1,C1,r1,mean2,sigma2,A2,C2,r2,mean3,sigma3,A3,C3,r3;
 
-  const Double_t k0=2.0,k1=1.5, k2=2.0;
+  const Double_t k0=2.0, k1=1.6, k2=2.0;
 
   xx=x[0];
   sigma0 = par[2];
-  A0 = 2*Nev/(2+2*par[0]+par[0]*par[0]+par[0]*par[0]*par[0]/3);
+  A0 = 2*Nev/(2+2*par[0]+par[0]*par[0]+pow(par[0],3)/3+pow(par[0],4)/12+
+	      pow(par[0],5)/60+pow(par[0],6)/360);
   r0 = ((xx-par[1])/sigma0);
   C0 = 1/(sigma0* TMath::Exp(-k0*k0/2)/k0 +
 	  sigma0*sqrt(2*3.14159)*0.5*(1+TMath::Erf(k0/1.41421)));
@@ -200,9 +201,9 @@ Double_t FitFun(Double_t *x, Double_t *par) {
   else sum = C0*A0*TMath::Exp(0.5*k0*k0-k0*r0);
 
   mean1 = par[1]+par[3];
-  //sigma1 = par[4];
-  sigma1 = 1.547+0.125*par[3]+0.004042*par[3]*par[3];
-  sigma1 = (sigma1+(9.1347e-3+3.845e-2*par[3])*par[4]*2.0)*par[2];
+  sigma1 = par[4];
+  //sigma1 = 1.547+0.125*par[3]+0.004042*par[3]*par[3];
+  //sigma1 = (sigma1+(9.1347e-3+3.845e-2*par[3])*par[4]*2.0)*par[2];
   A1 = A0*par[0];
   C1 = 1/(sigma1* TMath::Exp(-k1*k1/2)/k1 +
 	  sigma1*sqrt(2*3.14159)*0.5*(1+TMath::Erf(k1/1.41421)));
@@ -297,7 +298,8 @@ void HFLightCal::endJob(void)
 	  fTot->SetParLimits(1,par[1]-1,par[1]+1);
 	  fTot->FixParameter(2,par[2]);
 	  fTot->SetParLimits(3,1.2,100);
-	  fTot->SetParLimits(4,-1.64,1.64);
+	  //fTot->SetParLimits(4,-1.64,1.64);
+	  //fTot->SetParLimits(5,0.5,3);
 	  hspe[i][j][k]->Fit(fTot,"BLEQ","");
 	  fTot->GetParameters(par);
 	  hspe[i][j][k]->Fit(fTot,"BLEQ","",-10,par[1]+par[3]*5);
@@ -426,7 +428,8 @@ void HFLightCal::analyze(const edm::Event& fEvent, const edm::EventSetup& fSetup
   edm::Handle<HcalCalibDigiCollection> calib;  
   fEvent.getByType(calib);
   if (verbose) std::cout<<"Analysis-> total CAL digis= "<<calib->size()<<std::endl;
-  /* COMMENTED OUT by J. Mans (7-28-2008) as major changes needed with new Calib DetId 
+
+  /* COMMENTED OUT by J. Mans (7-28-2008) as major changes needed with new Calib DetId */ 
   for (unsigned j = 0; j < calib->size (); ++j) {
     const HcalCalibDataFrame digi = (*calib)[j];
     HcalElectronicsId elecId = digi.elecId();
@@ -472,7 +475,8 @@ void HFLightCal::analyze(const edm::Event& fEvent, const edm::EventSetup& fSetup
       htsmpin[isector+iside][ipin]->Fill(meant);
     }
   }
-  */  
+  //*/  
+
   // HF
   edm::Handle<HFDigiCollection> hf_digi;
   fEvent.getByType(hf_digi);
@@ -526,8 +530,8 @@ void HFLightCal::analyze(const edm::Event& fEvent, const edm::EventSetup& fSetup
 	maxisample=ii;
       }
     }
-    maxisample=itsmax[ieta][(iphi-1)/2][depth-1]-1;
-    //if (abs(maxisample-itsmax[ieta][(iphi-1)/2][depth-1]+1)>1)  maxisample=itsmax[ieta][(iphi-1)/2][depth-1]-1;
+    //maxisample=itsmax[ieta][(iphi-1)/2][depth-1]-1;
+    if (abs(maxisample-itsmax[ieta][(iphi-1)/2][depth-1]+1)>1)  maxisample=itsmax[ieta][(iphi-1)/2][depth-1]-1;
     if (verbose) std::cout<<eventNumber<<"/"<<ihit<<": maxTS="<<maxisample<<endl;
 
     // Signal = four capIDs found by PreAnal, Pedestal = four capIDs off the signal
@@ -536,6 +540,9 @@ void HFLightCal::analyze(const edm::Event& fEvent, const edm::EventSetup& fSetup
     i2=maxisample+2;
     if (i1<0) {i1=0;i2=3;}
     else if (i2>9) {i1=6;i2=9;} 
+    else if (i2<9 && maxisample<=itsmax[ieta][(iphi-1)/2][depth-1]-1) {
+      if (buf[i1]<buf[i2+1]) {i1=i1+1;i2=i2+1;}
+    }
     signal=buf[i1]+buf[i1+1]+buf[i1+2]+buf[i1+3];
     hsp[ieta][(iphi-1)/2][depth-1]->Fill(signal);
     hspe[ieta][(iphi-1)/2][depth-1]->Fill(signal);
@@ -551,7 +558,7 @@ void HFLightCal::analyze(const edm::Event& fEvent, const edm::EventSetup& fSetup
     
     if      (i1<2) ped=buf[8]+buf[9]+buf[6]+buf[7];
     else if (i1==2) ped=buf[6]+buf[9]+buf[7]+buf[0];
-    else if (i1==3) ped=buf[0]+buf[1]+buf[7]+buf[2];
+    else if (i1==3) ped=buf[0]+buf[1]+buf[2]+buf[7];
     else if (i1>=4) ped=buf[0]+buf[1]+buf[2]+buf[3];
     
     hped[ieta][(iphi-1)/2][depth-1]->Fill(ped);

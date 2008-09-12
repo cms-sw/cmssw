@@ -3,7 +3,7 @@
 // SPE calibration for low light intensity or raw SPE calibration for high light intensity
 // and HF performance based on this analysis
 //
-// Igor Vodopiyanov. Oct-2007
+// Igor Vodopiyanov. Oct-2007 .... update Sept-2008
 // Thanks G.Safronov, M.Mohammadi, F.Ratnikov
 //
 #include <memory>
@@ -144,7 +144,7 @@ Double_t Fit3Peak(Double_t *x, Double_t *par) {
 
   Double_t sum,xx,A0,C0,r0,sigma0,mean1,sigma1,A1,C1,r1,mean2,sigma2,A2,C2,r2,mean3,sigma3,A3,C3,r3;
 
-  const Double_t k0=2.0,k1=1.5, k2=2.0;
+  const Double_t k0=2.0,k1=1.6, k2=2.0;
 
   xx=x[0];
   sigma0 = par[2];
@@ -233,7 +233,7 @@ void HFLightCalRand::endJob(void)
       HistSpec(hspe[i][j][k],mean,rms);
       if (hspe[i][j][k]->Integral(1,(int) (meanped+3*rmsped+12))/NEvents>0.1) {
 	//if (hspe[i][j][k]->Integral()>100 && mean-meanped<100) {
-	if (mean+rms*3-meanped-rmsped*3>2 && rmsped>0) { // SPE fit if low intensity>0
+	if (mean+rms*3-meanped-rmsped*3>1 && rmsped>0) { // SPE fit if low intensity>0
 	  par[1] = meanped;
 	  par[2] = rmsped;
 	  par[0] = hped[i][j][k]->GetMaximum();
@@ -386,7 +386,7 @@ void HFLightCalRand::analyze(const edm::Event& fEvent, const edm::EventSetup& fS
   edm::Handle<HcalCalibDigiCollection> calib;  
   fEvent.getByType(calib);
   if (verbose) std::cout<<"Analysis-> total CAL digis= "<<calib->size()<<std::endl;
-  /* COMMENTED OUT by J. Mans (7-28-2008) as major changes needed with new Calib DetId 
+  ///* COMMENTED OUT by J. Mans (7-28-2008) as major changes needed with new Calib DetId 
 
   for (unsigned j = 0; j < calib->size (); ++j) {
     const HcalCalibDataFrame digi = (*calib)[j];
@@ -437,7 +437,7 @@ void HFLightCalRand::analyze(const edm::Event& fEvent, const edm::EventSetup& fS
       htsmpin[isector+iside][ipin]->Fill(meant);
     }
   }
-  */  
+  //*/  
   // HF
   edm::Handle<HFDigiCollection> hf_digi;
   fEvent.getByType(hf_digi);
@@ -500,6 +500,9 @@ void HFLightCalRand::analyze(const edm::Event& fEvent, const edm::EventSetup& fS
     i2=maxisample+2;
     if (i1<0) {i1=0;i2=3;}
     else if (i2>9) {i1=6;i2=9;} 
+    else if (i2<9) {
+      if (buf[i1]<buf[i2+1]) {i1=i1+1;i2=i2+1;}
+    }
     signal=buf[i1]+buf[i1+1]+buf[i1+2]+buf[i1+3];
     hsp[ieta][(iphi-1)/2][depth-1]->Fill(signal);
     hspe[ieta][(iphi-1)/2][depth-1]->Fill(signal);
