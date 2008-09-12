@@ -27,6 +27,14 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+
+#include "DataFormats/ParticleFlowReco/interface/PFNuclearInteraction.h"
+
+#include "DataFormats/ParticleFlowReco/interface/PFConversion.h"
+#include "DataFormats/ParticleFlowReco/interface/PFConversionFwd.h"
+
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
@@ -389,6 +397,16 @@ class PFRootEventManager {
   /// GSF standard reconstructed tracks branch 
   TBranch*   gsfrecTracksBranch_;
 
+  ///Muons branch
+  TBranch*   muonsBranch_; 
+  
+  ///Nuclear interaction branch
+  TBranch*   nuclearBranch_; 
+
+  ///Conversions branch
+  TBranch*   conversionBranch_; 
+
+
   /// true particles branch
   TBranch*   trueParticlesBranch_;          
 
@@ -450,6 +468,15 @@ class PFRootEventManager {
   /// standard reconstructed tracks
   reco::TrackCollection    stdTracks_;
   
+  /// muons
+    reco::MuonCollection  muons_;
+
+  /// nuclear interactions
+  reco::PFNuclearInteractionCollection nuclear_;
+
+  /// conversions
+  reco::PFConversionCollection conversion_;
+
   /// true particles
   reco::PFSimParticleCollection trueParticles_;
 

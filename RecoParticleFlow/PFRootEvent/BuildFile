@@ -6,6 +6,7 @@
 <use name=DataFormats/ParticleFlowReco>
 <use name=DataFormats/EgammaReco>
 <use name=DataFormats/Math>
+<use name=DataFormats/MuonReco>
 <use name=RecoParticleFlow/PFClusterAlgo>
 <use name=RecoParticleFlow/PFBlockAlgo>
 <use name=RecoParticleFlow/PFAlgo>

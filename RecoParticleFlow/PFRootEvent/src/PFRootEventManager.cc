@@ -864,6 +864,30 @@ void PFRootEventManager::connect( const char* infilename ) {
         <<gsfTracksbranchname<< endl; 
   } 
 
+  //muons
+  string muonbranchname;
+  options_->GetOpt("root","muon_branch",muonbranchname); 
+  muonsBranch_= tree_->GetBranch(muonbranchname.c_str());
+  if(!muonsBranch_) { 
+    cerr<<"PFRootEventManager::ReadOptions : gsfrecTracks_branch not found : " 
+        <<muonbranchname<< endl; 
+  } 
+  //nuclear
+  string nuclearbranchname;
+  options_->GetOpt("root","nuclear_branch",nuclearbranchname); 
+  nuclearBranch_= tree_->GetBranch(nuclearbranchname.c_str());
+  if(!nuclearBranch_) { 
+    cerr<<"PFRootEventManager::ReadOptions : nuclear_branch not found : " 
+        <<nuclearbranchname<< endl; 
+  } 
+  //conversion
+  string conversionbranchname;
+  options_->GetOpt("root","conversion_branch",conversionbranchname); 
+  conversionBranch_= tree_->GetBranch(conversionbranchname.c_str());
+  if(!conversionBranch_) { 
+    cerr<<"PFRootEventManager::ReadOptions : conversion_branch not found : " 
+        <<conversionbranchname<< endl; 
+  } 
 
   string trueParticlesbranchname;
   options_->GetOpt("root","trueParticles_branch", trueParticlesbranchname);
@@ -972,6 +996,10 @@ void PFRootEventManager::setAddresses() {
   if( recTracksBranch_ ) recTracksBranch_->SetAddress(&recTracks_);
   if( stdTracksBranch_ ) stdTracksBranch_->SetAddress(&stdTracks_);
   if( gsfrecTracksBranch_ ) gsfrecTracksBranch_->SetAddress(&gsfrecTracks_); 
+  if( muonsBranch_ ) muonsBranch_->SetAddress(&muons_); 
+  if( nuclearBranch_ ) nuclearBranch_->SetAddress(&nuclear_); 
+  if( conversionBranch_ ) conversionBranch_->SetAddress(&conversion_); 
+
   if( trueParticlesBranch_ ) trueParticlesBranch_->SetAddress(&trueParticles_);
   if( MCTruthBranch_ ) { 
     MCTruthBranch_->SetAddress(&MCTruth_);
@@ -1037,6 +1065,9 @@ bool PFRootEventManager::processEntry(int entry) {
   if(verbosity_ == VERBOSE ) {
     cout<<"number of recTracks      : "<<recTracks_.size()<<endl;
     cout<<"number of gsfrecTracks   : "<<gsfrecTracks_.size()<<endl;
+    cout<<"number of muons          : "<<muons_.size()<<endl;
+    cout<<"number of nuclear ints   : "<<nuclear_.size()<<endl;
+    cout<<"number of conversions    : "<<conversion_.size()<<endl;
     cout<<"number of stdTracks      : "<<stdTracks_.size()<<endl;
     cout<<"number of true particles : "<<trueParticles_.size()<<endl;
     cout<<"number of ECAL rechits   : "<<rechitsECAL_.size()<<endl;
@@ -1185,6 +1216,17 @@ bool PFRootEventManager::readFromSimulation(int entry) {
   if(gsfrecTracksBranch_) {
     gsfrecTracksBranch_->GetEntry(entry);
   }
+  if(muonsBranch_) {
+    muonsBranch_->GetEntry(entry);
+  }
+  if(nuclearBranch_) {
+    nuclearBranch_->GetEntry(entry);
+  }
+  if(conversionBranch_) {
+    conversionBranch_->GetEntry(entry);
+  }
+
+
   if(genParticlesforJetsBranch_) {
     genParticlesforJetsBranch_->GetEntry(entry);
   }
@@ -1738,6 +1780,17 @@ void PFRootEventManager::particleFlow() {
   edm::OrphanHandle< reco::GsfPFRecTrackCollection > gsftrackh( &gsfrecTracks_, 
                                                           edm::ProductID(5) );  
 
+  edm::OrphanHandle< reco::MuonCollection > muonh( &muons_, 
+						   edm::ProductID(6) );
+
+  edm::OrphanHandle< reco::PFNuclearInteractionCollection > nuclh( &nuclear_, 
+                                                          edm::ProductID(7) );
+
+  edm::OrphanHandle< reco::PFConversionCollection > convh( &conversion_, 
+							   edm::ProductID(8) );
+
+ 
+
   vector<bool> trackMask;
   fillTrackMask( trackMask, recTracks_ );
   vector<bool> gsftrackMask;
@@ -1749,8 +1802,15 @@ void PFRootEventManager::particleFlow() {
   vector<bool> psMask;
   fillClusterMask( psMask, *clustersPS_ );
   
-  pfBlockAlgo_.setInput( trackh, gsftrackh, ecalh, hcalh, psh,
-                         trackMask, gsftrackMask,ecalMask, hcalMask, psMask ); 
+  pfBlockAlgo_.setInput( trackh, gsftrackh, 
+			 muonh,nuclh,convh,
+			 ecalh, hcalh, psh,
+			 trackMask,gsftrackMask,
+			 ecalMask, hcalMask, psMask );
+  //  pfBlockAlgo_.setInput( trackh, 
+  // 			 //			 gsftrackh, 
+  // 			 ecalh, hcalh, psh,
+  //                          trackMask, gsftrackMask,ecalMask, hcalMask, psMask ); 
   pfBlockAlgo_.findBlocks();
   
   if( debug_) cout<<pfBlockAlgo_<<endl;
