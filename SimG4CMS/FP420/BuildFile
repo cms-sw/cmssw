@@ -13,7 +13,7 @@
 <use name=FWCore/MessageLogger>
 <use name=SimGeneral/HepPDTRecord>
 <use name=boost>
-<use name=geant4>
+<use name=geant4core>
 <use name=root>
 <export>
  <lib name=SimG4CMSFP420>
@@ -32,7 +32,7 @@
  <use name=FWCore/MessageLogger>
  <use name=SimGeneral/HepPDTRecord>
  <use name=boost>
- <use name=geant4>
+ <use name=geant4core>
  <use name=root>
 </export>
 

@@ -4,7 +4,7 @@
 <use name=SimG4Core/Notification> 
 <use name=Geometry/TrackerNumberingBuilder>
 <use name=boost>
-<use name=geant4>
+<use name=geant4core>
 <use name=SimDataFormats/SimHitMaker>
 <use name=SimG4Core/Application>
 

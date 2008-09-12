@@ -15,7 +15,7 @@
 <use name=TBDataFormats/EcalTBObjects>
 <use name=clhep>
 <use name=rootmath>
-<use name=geant4>
+<use name=geant4core>
 
 <export>
   <use name=DataFormats/Common>

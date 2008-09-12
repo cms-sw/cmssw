@@ -1,7 +1,7 @@
 <use name=SimG4Core/SensitiveDetector>
 <use name=SimG4Core/Notification> 
 <use name=boost>
-<use name=geant4>
+<use name=geant4core>
 <use name=SimDataFormats/SimHitMaker>
 <use name=SimG4Core/Application>
 <use name=Geometry/MuonNumbering>
