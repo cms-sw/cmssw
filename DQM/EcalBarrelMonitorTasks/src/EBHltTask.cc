@@ -1,8 +1,8 @@
 /*
  * \file EBHltTask.cc
  *
- * $Date: 2008/09/11 09:35:30 $
- * $Revision: 1.3 $
+ * $Date: 2008/09/12 13:38:15 $
+ * $Revision: 1.4 $
  * \author G. Della Ricca
  *
 */
@@ -296,7 +296,7 @@ void EBHltTask::analyze(const Event& e, const EventSetup& c){
 
       int ismt = Numbers::iSM( id );
 
-      meEBFedsIntegrityErrors_->Fill( EBFirstFED + ismt - 1, 1./25.);
+      meEBFedsIntegrityErrors_->Fill( EBFirstFED + ismt - 1, 1./68.);
 
     }
 
@@ -340,7 +340,7 @@ void EBHltTask::analyze(const Event& e, const EventSetup& c){
 
       int ismt = Numbers::iSM( id );
 
-      meEBFedsIntegrityErrors_->Fill( EBFirstFED + ismt - 1, 1./25.);
+      meEBFedsIntegrityErrors_->Fill( EBFirstFED + ismt - 1, 1./68.);
 
     }
 
