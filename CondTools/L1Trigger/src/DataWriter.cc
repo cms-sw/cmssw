@@ -1,10 +1,12 @@
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "CondTools/L1Trigger/interface/DataWriter.h"
 
 #include "CondCore/DBCommon/interface/CoralTransaction.h"
 
-
 #include "CondCore/IOVService/interface/IOVService.h"
 #include "CondCore/IOVService/interface/IOVEditor.h"
+#include "CondCore/IOVService/interface/IOVIterator.h"
 
 #include <utility>
 
@@ -80,18 +82,19 @@ void DataWriter::writeKey (L1TriggerKey * key,
 	cond::Time_t globalTill = cond::timeTypeSpecs[timetype].endValue; 
 	editor->insert (globalTill, ref.token ());
 	tagToken = editor->token ();
-	std::cout << "L1TriggerKey IOV TOKEN " << tagToken << std::endl ;
+	edm::LogVerbatim( "L1-O2O" ) << "L1TriggerKey IOV TOKEN " << tagToken ;
       }
     else
       {
 	if( iov.payloadToken( tagToken, sinceRun ) != ref.token() )
 	  {
 	    editor->append( sinceRun, ref.token() ) ;
-	    std::cout << tag << "L1TriggerKey IOV TOKEN " << tagToken << std::endl ;
+	    edm::LogVerbatim( "L1-O2O" ) << tag << "L1TriggerKey IOV TOKEN "
+					 << tagToken ;
 	  }
 	else
 	  {
-	    std::cout << "IOV already up to date." << std::endl ;
+	    edm::LogVerbatim( "L1-O2O" ) << "IOV already up to date." ;
 	  }
       }
     delete editor;
@@ -149,7 +152,7 @@ void DataWriter::writePayload (L1TriggerKey & key, const edm::EventSetup & setup
 
     // update key to have new payload registered for record-type pair.
     std::string payloadToken = writer->save(setup, pool);
-    std::cout << "TOKEN " << payloadToken << std::endl ;
+    edm::LogVerbatim( "L1-O2O" ) << "TOKEN " << payloadToken ;
     if( payloadToken.empty() )
       {
 	throw cond::Exception( "DataWriter: failure to write payload in "
@@ -184,7 +187,8 @@ DataWriter::writePayload( const edm::EventSetup& setup,
 
     // update key to have new payload registered for record-type pair.
     std::string payloadToken = writer->save( setup, pool ) ;
-    std::cout << recordType << " PAYLOAD TOKEN " << payloadToken << std::endl ;
+    edm::LogVerbatim( "L1-O2O" ) << recordType << " PAYLOAD TOKEN "
+				 << payloadToken ;
 
     delete writer;
     pool.commit ();
@@ -195,7 +199,7 @@ DataWriter::writePayload( const edm::EventSetup& setup,
 void
 DataWriter::writeKeyList( L1TriggerKeyList* keyList,
 			  const std::string& tag,
-			  const edm::RunNumber_t sinceRun )
+			  edm::RunNumber_t sinceRun )
 {
    // Get IOVToken for given tag
    std::string tagToken = findTokenForTag( tag ) ;
@@ -219,14 +223,24 @@ DataWriter::writeKeyList( L1TriggerKeyList* keyList,
 
     if( requireMapping )
       {
-	std::cout << "GLOBAL SINCE " << globalSince
-		  << " SINCE " << sinceRun 
-		  << std::endl ;
+	edm::LogVerbatim( "L1-O2O" ) << "GLOBAL SINCE " << globalSince
+				     << " SINCE " << sinceRun ;
 
 	editor->create( globalSince, timetype ) ;
+	sinceRun = globalSince ;
+      }
+    else if( sinceRun == 0 ) // find last since and add 1
+      {
+	cond::IOVIterator* itr = iov.newIOVIterator( tagToken ) ;
+	while( itr->next() )
+	  {
+	    sinceRun = itr->validity().first ;
+	  }
+	++sinceRun ;
+	delete itr ;
       }
 
-    if( sinceRun == globalSince || requireMapping )
+    if( sinceRun == globalSince )
       {
 	cond::Time_t globalTill = cond::timeTypeSpecs[timetype].endValue; 
 	editor->insert (globalTill, ref.token ());
@@ -252,8 +266,8 @@ DataWriter::writeKeyList( L1TriggerKeyList* keyList,
        addMappings( tag, tagToken ) ;
     }
 
-    std::cout << "L1TriggerKeyList IOV TOKEN " << tagToken
-	      << " TAG " << tag << std::endl ;
+    edm::LogVerbatim( "L1-O2O" ) << "L1TriggerKeyList IOV TOKEN " << tagToken
+				 << " TAG " << tag << " SINCE " << sinceRun ;
 }
 
 void
@@ -261,7 +275,7 @@ DataWriter::updateIOV( const std::string& tag,
 		       const std::string& payloadToken,
 		       const edm::RunNumber_t sinceRun )
 {
-    std::cout << tag << " PAYLOAD TOKEN " << payloadToken << std::endl ;
+  edm::LogVerbatim( "L1-O2O" )<< tag << " PAYLOAD TOKEN " << payloadToken ;
 
    // Get IOVToken for given tag
    std::string tagToken = findTokenForTag( tag ) ;
@@ -291,18 +305,20 @@ DataWriter::updateIOV( const std::string& tag,
 	cond::Time_t globalTill = cond::timeTypeSpecs[timetype].endValue; 
 	editor->insert (globalTill, payloadToken );
 	tagToken = editor->token() ;
-	std::cout << tag << " IOV TOKEN " << tagToken << std::endl ;
+	edm::LogVerbatim( "L1-O2O" ) << tag << " IOV TOKEN " << tagToken
+				     << " SINCE " << globalSince ;
       }
     else
       {
 	if( iov.payloadToken( tagToken, sinceRun ) != payloadToken )
 	  {
 	    editor->append( sinceRun, payloadToken ) ;
-	    std::cout << tag << " IOV TOKEN " << tagToken << std::endl ;
+	    edm::LogVerbatim( "L1-O2O" ) << tag << " IOV TOKEN " << tagToken
+					 << " SINCE " << sinceRun ;
 	  }
 	else
 	  {
-	    std::cout << "IOV already up to date." << std::endl ;
+	    edm::LogVerbatim( "L1-O2O" ) << "IOV already up to date." ;
 	  }
       }
     delete editor ;

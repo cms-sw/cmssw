@@ -85,7 +85,7 @@ class DataWriter : public DataManager
       // Write L1TriggerKeyList to DB
       void writeKeyList( L1TriggerKeyList* keyList,
 			 const std::string& tag, // tag for IOV sequence
-			 const edm::RunNumber_t sinceRun ) ;
+			 edm::RunNumber_t sinceRun = 0 ) ;
 
       // Append IOV with sinceRun to IOV sequence with given tag
       void updateIOV( const std::string& tag,
