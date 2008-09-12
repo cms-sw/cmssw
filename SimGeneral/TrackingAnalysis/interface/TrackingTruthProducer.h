@@ -52,66 +52,57 @@ private:
   std::string MessageCategory_;
 
   // Related to production
-  
-  edm::Handle<edm::HepMCProduct>            hepmc_;
 
-  std::auto_ptr<MixCollection<PSimHit> >    pSimHits_;
+  // Encoded SimTrack to encoded source vertex
+  map<EncodedTruthId,EncodedTruthId> simTrack_sourceV; 
 
-  std::auto_ptr<MixCollection<SimTrack> >   simTracks_;
-  std::auto_ptr<MixCollection<SimVertex> >  simVertexes_;
+  // Encoded SimTrack to PSimHit
+  multimap<EncodedTruthId,PSimHit> simTrack_hit;
 
-  std::auto_ptr<TrackingParticleCollection> trackingParticles_;
-  std::auto_ptr<TrackingVertexCollection>   trackingVertexes_;
+  // Encoded SimTrack to TrackingParticle index
+  map<EncodedTruthId,int> simTrack_tP;
 
-  TrackingParticleRefProd refTrackingParticles_;
-  TrackingVertexRefProd   refTrackingVertexes_;
-
-  typedef map<EncodedEventId, unsigned int> EncodedEventIdToIndex;
-  typedef map<EncodedTruthId, unsigned int> EncodedTruthIdToIndex;
-  typedef multimap<EncodedTruthId, unsigned int> EncodedTruthIdToIndexes;
-
-  EncodedEventIdToIndex   eventIdCounter_;
-  EncodedTruthIdToIndexes trackIdToHits_;
-  EncodedTruthIdToIndex   trackIdToIndex_;
-  
-  template<typename Object, typename Associator>
-  void associator(
-    std::auto_ptr<MixCollection<Object> > const &,
-    Associator &
+  //! Create a one to many association between simtracks and hits
+  void simTrackHitsAssociator(
+    std::auto_ptr<MixCollection<PSimHit> > &
   );
 
-  void createTrackingTruth();
-  
-  bool setTrackingParticle(
-    SimTrack const &,
-    TrackingParticle &
+  //! Assemble the tracking particles in function of the simtrack collection    
+  void trackingParticleAssembler(
+    auto_ptr<TrackingParticleCollection> &,
+    auto_ptr<MixCollection<SimTrack> > &,
+    Handle<edm::HepMCProduct> const &
   );
 
-  int setTrackingVertex(
-    SimVertex const &,
-    TrackingVertex &
+  //! Assemble the tracking vertexes including parents-daughters relations
+  void trackingVertexAssembler(
+    auto_ptr<TrackingParticleCollection> &,
+    auto_ptr<TrackingVertexCollection> &,
+    auto_ptr<MixCollection<SimTrack> > &,  
+    auto_ptr<MixCollection<SimVertex> > &,
+    TrackingParticleRefProd &,
+    TrackingVertexRefProd &,
+    Handle<edm::HepMCProduct> const &
   );
 
-  void addCloseGenVertexes(TrackingVertex &);
+  //! Merged Bremsstrahlung and copy the new collection into mergedTPC and mergedTVC
+  void mergeBremsstrahlung(
+    auto_ptr<TrackingParticleCollection> &,
+    auto_ptr<TrackingVertexCollection>   &,
+    auto_ptr<TrackingParticleCollection> &,
+    auto_ptr<TrackingVertexCollection>   &,
+    TrackingParticleRefProd &,
+    TrackingVertexRefProd &
+  );
+
+
+
+   //! Verify is a given vertex is a Bremsstrahlung vertex
+  bool isBremsstrahlungVertex(
+    TrackingVertex const &,
+    auto_ptr<TrackingParticleCollection> &
+  );
+
 };
-
-
-template<typename Object, typename Associator>
-void TrackingTruthProducer::associator(
-  std::auto_ptr<MixCollection<Object> > const & mixCollection,
-  Associator & association
-)
-{
-  // Clear the association map
-  association.clear();
-  // Create a association from simtracks to overall index in the mix collection   
-  for (int index = 0; index != mixCollection->size(); ++index)
-  {
-  	Object const & object = mixCollection->getObject(index);
-    typename Associator::key_type objectId = typename Associator::key_type(object.eventId(), object.trackId());
-    association.insert( make_pair(objectId, index) );
-  }
-}
-
 
 #endif

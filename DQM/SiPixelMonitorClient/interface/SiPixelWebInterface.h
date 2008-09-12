@@ -28,8 +28,7 @@ public:
 			 CreatePlots              = 10,
 			 ComputeGlobalQualityFlag = 11,
 			 dumpModIds               = 12,
-			 Occupancy    	          = 13,
-			 NoisyPixels              = 14};
+			 Occupancy    	          = 13};
 			 
   SiPixelWebInterface(DQMStore* bei);
   ~SiPixelWebInterface();

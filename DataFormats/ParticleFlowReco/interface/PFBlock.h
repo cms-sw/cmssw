@@ -61,8 +61,7 @@ namespace reco {
     /// set a link between elements of indices i1 and i2, of "distance" chi2
     /// the link is set in the linkData vector provided as an argument.
     /// As indicated by the 'const' statement, 'this' is not modified.
-    void setLink(unsigned i1, unsigned i2, 
-		 double chi2, double dist, 
+    void setLink(unsigned i1, unsigned i2, double chi2, 
                  LinkData& linkData, 
 		 LinkTest  test=LINKTEST_CHI2 ) const;
 
@@ -85,11 +84,6 @@ namespace reco {
 
     /// \return chi2 of link
     double chi2( unsigned ie1, unsigned ie2, 
-                 const LinkData& linkData, 
-		 LinkTest  test=LINKTEST_CHI2 ) const;
-
-    /// \return distance of link
-    double dist( unsigned ie1, unsigned ie2, 
                  const LinkData& linkData, 
 		 LinkTest  test=LINKTEST_CHI2 ) const;
 

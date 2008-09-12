@@ -70,7 +70,6 @@ int HCAL_HLX::ROOTFileReader::ReplaceFile(const std::string& fileName){
   Detail_  = &(lumiSection_->lumiDetail);
 
   mChain_->SetBranchAddress("Header.",  &Header_,  &b_Header);
-
   mChain_->SetBranchAddress("Summary.", &Summary_, &b_Summary);
   mChain_->SetBranchAddress("Detail.",  &Detail_,  &b_Detail);
 
@@ -84,14 +83,12 @@ int HCAL_HLX::ROOTFileReader::ReplaceFile(const std::string& fileName){
     branchName.str(std::string());
     branchName << "Occupancy" << std::setw(2) << std::setfill('0') << HLXnum << ".";
     mChain_->SetBranchAddress(branchName.str().c_str(), &OccupancyPtr[HLXnum], &b_Occupancy[HLXnum]);
-    
+
     LHCPtr[HLXnum] = &(lumiSection_->lhc[HLXnum]);
     branchName.str(std::string());
     branchName << "LHC" << std::setw(2) << std::setfill('0') << HLXnum << ".";
     mChain_->SetBranchAddress(branchName.str().c_str(), &LHCPtr[HLXnum], &b_LHC[HLXnum]);
-    
   }
-
 
   // OTHER
   mChain_->SetBranchAddress("Threshold.",        &Threshold_,       &b_Threshold);
@@ -99,8 +96,7 @@ int HCAL_HLX::ROOTFileReader::ReplaceFile(const std::string& fileName){
   mChain_->SetBranchAddress("HLT.",              &HLT_,             &b_HLT);
   mChain_->SetBranchAddress("Trigger_Deadtime.", &TriggerDeadtime_, &b_TriggerDeadtime);
   mChain_->SetBranchAddress("HF_Ring_Set.",      &RingSet_,         &b_RingSet);
-
-
+  
   // Get run and section number.
   mChain_->GetEntry(0);
     

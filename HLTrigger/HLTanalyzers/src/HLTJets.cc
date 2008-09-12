@@ -39,11 +39,13 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   jcalpt = new float[kMaxJetCal];
   jcalphi = new float[kMaxJetCal];
   jcaleta = new float[kMaxJetCal];
+  jcalet = new float[kMaxJetCal];
   jcale = new float[kMaxJetCal];
   const int kMaxJetgen = 10000;
   jgenpt = new float[kMaxJetgen];
   jgenphi = new float[kMaxJetgen];
   jgeneta = new float[kMaxJetgen];
+  jgenet = new float[kMaxJetgen];
   jgene = new float[kMaxJetgen];
   const int kMaxTower = 10000;
   towet = new float[kMaxTower];
@@ -53,17 +55,7 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   towem = new float[kMaxTower];
   towhd = new float[kMaxTower];
   towoe = new float[kMaxTower];
-  const int kMaxTau = 500;
-  l2tauemiso = new float[kMaxTau];
-  l25tauPt = new float[kMaxTau];
-  l25tautckiso = new int[kMaxTau];
-  l3tauPt = new float[kMaxTau];
-  l3tautckiso = new int[kMaxTau];
-  tauEta = new float[kMaxTau];
-  tauPt = new float[kMaxTau];
-  tauPhi = new float[kMaxTau];
 
-  
   // Jet- MEt-specific branches of the tree 
   HltTree->Branch("NrecoJetCal",&njetcal,"NrecoJetCal/I");
   HltTree->Branch("NrecoJetGen",&njetgen,"NrecoJetGen/I");
@@ -71,10 +63,12 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   HltTree->Branch("recoJetCalPt",jcalpt,"recoJetCalPt[NrecoJetCal]/F");
   HltTree->Branch("recoJetCalPhi",jcalphi,"recoJetCalPhi[NrecoJetCal]/F");
   HltTree->Branch("recoJetCalEta",jcaleta,"recoJetCalEta[NrecoJetCal]/F");
+  HltTree->Branch("recoJetCalEt",jcalet,"recoJetCalEt[NrecoJetCal]/F");
   HltTree->Branch("recoJetCalE",jcale,"recoJetCalE[NrecoJetCal]/F");
   HltTree->Branch("recoJetGenPt",jgenpt,"recoJetGenPt[NrecoJetGen]/F");
   HltTree->Branch("recoJetGenPhi",jgenphi,"recoJetGenPhi[NrecoJetGen]/F");
   HltTree->Branch("recoJetGenEta",jgeneta,"recoJetGenEta[NrecoJetGen]/F");
+  HltTree->Branch("recoJetGenEt",jgenet,"recoJetGenEt[NrecoJetGen]/F");
   HltTree->Branch("recoJetGenE",jgene,"recoJetGenE[NrecoJetGen]/F");
   HltTree->Branch("recoTowEt",towet,"recoTowEt[NrecoTowCal]/F");
   HltTree->Branch("recoTowEta",toweta,"recoTowEta[NrecoTowCal]/F");
@@ -94,18 +88,6 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   HltTree->Branch("recoHTCalSum",&htcalsum,"recoHTCalSum/F");
   //for(int ieta=0;ieta<NETA;ieta++){cout << " ieta " << ieta << " eta min " << CaloTowerEtaBoundries[ieta] <<endl;}
 
-
-  // Taus
-  HltTree->Branch("NohTau",&nohtau,"NohTau/I");
-  HltTree->Branch("ohTauEta",tauEta,"ohTauEta[NohTau]/F");
-  HltTree->Branch("ohTauPhi",tauPhi,"ohTauPhi[NohTau]/F");
-  HltTree->Branch("ohTauPt",tauPt,"ohTauPt[NohTau]/F");
-  HltTree->Branch("ohTauEiso",l2tauemiso,"ohTauEiso[NohTau]/F");
-  HltTree->Branch("ohTauL25Tpt",l25tauPt,"ohTauL25Tpt[NohTau]/F");
-  HltTree->Branch("ohTauL25Tiso",l25tautckiso,"ohTauL25Tiso[NohTau]/I");
-  HltTree->Branch("ohTauL3Tpt",l3tauPt,"ohTauL3Tpt[NohTau]/F");
-  HltTree->Branch("ohTauL3Tiso",l3tautckiso,"ohTauL3Tiso[NohTau]/I");
-
 }
 
 /* **Analyze the event** */
@@ -114,7 +96,6 @@ void HLTJets::analyze(const CaloJetCollection& calojets,
 		      const CaloMETCollection& recmets,
 		      const GenMETCollection& genmets,
 		      const METCollection& ht,
-		      const reco::HLTTauCollection& myHLTTau,
 		      const CaloTowerCollection& caloTowers,
 		      TTree* HltTree) {
 
@@ -130,6 +111,7 @@ void HLTJets::analyze(const CaloJetCollection& calojets,
     CaloJetCollection mycalojets;
     mycalojets=calojets;
     std::sort(mycalojets.begin(),mycalojets.end(),PtGreater());
+//     njetcal = mycalojets.size();
     typedef CaloJetCollection::const_iterator cjiter;
     int jcal=0;
     for ( cjiter i=mycalojets.begin(); i!=mycalojets.end(); i++) {
@@ -138,6 +120,7 @@ void HLTJets::analyze(const CaloJetCollection& calojets,
 	jcalpt[jcal] = i->pt();
 	jcalphi[jcal] = i->phi();
 	jcaleta[jcal] = i->eta();
+	jcalet[jcal] = i->et();
 	jcale[jcal] = i->energy();
 	jcal++;
       }
@@ -187,6 +170,7 @@ void HLTJets::analyze(const CaloJetCollection& calojets,
       GenJetCollection mygenjets;
       mygenjets=genjets;
       std::sort(mygenjets.begin(),mygenjets.end(),PtGreater());
+//       njetgen = mygenjets.size();
       typedef GenJetCollection::const_iterator gjiter;
       int jgen=0;
       for ( gjiter i=mygenjets.begin(); i!=mygenjets.end(); i++) {
@@ -195,6 +179,7 @@ void HLTJets::analyze(const CaloJetCollection& calojets,
 	  jgenpt[jgen] = i->pt();
 	  jgenphi[jgen] = i->phi();
 	  jgeneta[jgen] = i->eta();
+	  jgenet[jgen] = i->et();
 	  jgene[jgen] = i->energy();
 	  jgen++;
 	}
@@ -215,35 +200,5 @@ void HLTJets::analyze(const CaloJetCollection& calojets,
 
   }
 
-  
-  /////////////////////////////// Open-HLT Taus ///////////////////////////////
-
-    if (&myHLTTau){      
-      nohtau = myHLTTau.size();
-      HLTTauCollection mytaujets;
-      mytaujets=myHLTTau;
-      std::sort(mytaujets.begin(),mytaujets.end(),GetPtGreater());
-      typedef HLTTauCollection::const_iterator tauit;
-      int itau=0;
-      for(tauit i=mytaujets.begin(); i!=mytaujets.end(); i++){
-	//Ask for Eta,Phi and Et of the tau:
-	tauEta[itau] = i->getEta();
-	tauPhi[itau] = i->getPhi();
-	tauPt[itau] = i->getPt();
-	//Ask for L2 EMIsolation cut: Nominal cut : < 5
-	l2tauemiso[itau] = i->getEMIsolationValue();
-	//Get L25 LeadTrackPt : Nominal cut : > 20 GeV
-	l25tauPt[itau] = i->getL25LeadTrackPtValue();
-	//Get TrackIsolation response (returns 0 = failed or 1= passed)
-	l25tautckiso[itau] = i->getL25TrackIsolationResponse();
-	//Get L3 LeadTrackPt : Nominal cut : > 20 GeV
-	l3tauPt[itau] = i->getL3LeadTrackPtValue();
-	//Get TrackIsolation response (returns 0 = failed or 1= passed)
-	l3tautckiso[itau] = i->getL3TrackIsolationResponse();
-	//MET : > 65
-	itau++;
-      }      
-    }
-    else {nohtau = 0;}
 
 }

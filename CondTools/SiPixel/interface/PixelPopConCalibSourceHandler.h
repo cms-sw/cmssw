@@ -14,7 +14,7 @@ objects from OMDS to ORCON.
 //
 // Original Author:  Michael Eads
 //         Created:  8 Feb 2008
-// $Id: PixelPopConCalibSourceHandler.h,v 1.2 2008/04/21 13:37:43 meads Exp $
+// $Id: PixelPopConCalibSourceHandler.h,v 1.1 2008/02/29 19:13:19 meads Exp $
 //
 //
 
@@ -31,6 +31,7 @@ objects from OMDS to ORCON.
 class PixelPopConCalibSourceHandler : public PixelPopConSourceHandler<SiPixelCalibConfiguration> {
   
  public:
+  void getNewObjects();
   // specific implementations of getNewObjects
   void getNewObjects_coral();
   void getNewObjects_file();
@@ -39,6 +40,12 @@ class PixelPopConCalibSourceHandler : public PixelPopConSourceHandler<SiPixelCal
   virtual std::string id() const;
 
  private:
+  std::string _connectString;
+  std::string _schemaName;
+  std::string _viewName;
+  std::string _configKeyName;
+  int _runNumber;
+  unsigned int _sinceIOV;
 
 };
 

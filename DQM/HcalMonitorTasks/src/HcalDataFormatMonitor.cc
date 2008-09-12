@@ -765,7 +765,7 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
     if (!dccHeader->getSpigotPresent(spigot)) continue;
 
     // Load the given decoder with the pointer and length from this spigot.
-    dccHeader->getSpigotData(spigot,htr); 
+    dccHeader->getSpigotData(spigot,htr,raw.size()); 
     
     // check min length, correct wordcount, empty event, or total length if histo event.
     if (!htr.check()) {

@@ -20,8 +20,8 @@ class CDFEventInfo;
 
    \note Notice that there is a hack to renumber events from runs where the first event number was zero.
     
-   $Date: 2007/05/02 20:56:05 $
-   $Revision: 1.5 $
+   $Date: 2006/02/25 13:43:51 $
+   $Revision: 1.4 $
    \author J. Mans - Minnesota
 */
 class HcalTBSource : public edm::ExternalInputSource {
@@ -36,7 +36,7 @@ private:
   TTree* m_tree;
   TFile* m_file;
   int m_i, m_fileCounter;
-  bool m_quiet, m_onlyRemapped;
+  bool m_quiet;
   int n_chunks;
   static const int CHUNK_COUNT=64; // MAX Chunks
   CDFChunk* m_chunks[CHUNK_COUNT];

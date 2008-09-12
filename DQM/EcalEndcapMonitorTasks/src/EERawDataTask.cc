@@ -1,8 +1,8 @@
 /*
  * \file EERawDataTask.cc
  *
- * $Date: 2008/08/07 10:06:16 $
- * $Revision: 1.5 $
+ * $Date: 2008/07/28 19:07:14 $
+ * $Revision: 1.4 $
  * \author E. Di Marco
  *
 */
@@ -13,7 +13,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
-
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"

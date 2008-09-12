@@ -91,6 +91,7 @@ class CtfSpecialSeedGenerator : public edm::EDProducer
   bool useScintillatorsConstraint;
   BoundPlane::BoundPlanePointer upperScintillator;
   BoundPlane::BoundPlanePointer lowerScintillator;
+  bool requireBOFF;
 };
 #endif
 

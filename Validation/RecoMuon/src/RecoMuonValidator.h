@@ -29,7 +29,6 @@ class RecoMuonValidator : public edm::EDAnalyzer
  protected:
   edm::InputTag simLabel_;
   edm::InputTag recoLabel_;
-  edm::InputTag muonLabel_;
 
   edm::InputTag assocLabel_;
   
@@ -39,7 +38,7 @@ class RecoMuonValidator : public edm::EDAnalyzer
   MuonServiceProxy * theMuonService;
   DQMStore * theDQM;
   
-  std::map<int, MonitorElement*> meMap_;
+  std::map<std::string, MonitorElement*> meMap_;
 
   bool doAbsEta_;
   bool doAssoc_;
@@ -48,4 +47,4 @@ class RecoMuonValidator : public edm::EDAnalyzer
 };
 
 #endif
-/* vim:set ts=2 sts=2 sw=2 expandtab: */
+

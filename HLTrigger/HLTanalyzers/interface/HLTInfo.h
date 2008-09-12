@@ -76,7 +76,7 @@ public:
 //	       const l1extra::L1ParticleMapCollection& l1mapcoll,
 	       const L1GlobalTriggerReadoutRecord& l1GTRR,
 	       const L1GlobalTriggerObjectMapRecord& l1GTOMRec,
-	       const L1GctJetCountsCollection& L1GctCounts,
+	       const L1GctJetCounts& l1GctCounts,
 	       TTree* tree);
 
 private:

@@ -14,20 +14,16 @@
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementError.h"
 #include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"
-#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
 using namespace std;
-using namespace edm;
 
   //Constructor
 
 SiPixelLorentzAngleDB::SiPixelLorentzAngleDB(edm::ParameterSet const& conf) : 
   conf_(conf){
   	magneticField_ = conf_.getParameter<double>("magneticField");
-		bPixLorentzAnglePerTesla_ = (float)conf_.getParameter<double>("bPixLorentzAnglePerTesla");
-		fPixLorentzAnglePerTesla_ = (float)conf_.getParameter<double>("fPixLorentzAnglePerTesla");
-		useFile_ = conf_.getParameter<bool>("useFile");		
-		fileName_ = conf_.getParameter<string>("fileName");
+//   if(conf_.getParameter<bool>("DoCalibration")) siStripLorentzAngleAlgorithm_=new SiStripLorentzAngleAlgorithm(conf);
+//   else siStripLorentzAngleAlgorithm_=0;
 }
 
   //BeginJob
@@ -41,40 +37,23 @@ void SiPixelLorentzAngleDB::beginJob(const edm::EventSetup& c){
 	c.get<TrackerDigiGeometryRecord>().get( pDD );
 	edm::LogInfo("SiPixelLorentzAngle") <<" There are "<<pDD->detUnits().size() <<" detectors"<<std::endl;
 	
-// 	float langle;
+	float langle;
 	
-// 	if(magneticField_ != 0) langle = (0.106*4) / magneticField_;
+	if(magneticField_ != 0) langle = (0.106*4) / magneticField_;
 	
-// 	else langle = 0.;
+	else langle = 0.;
 	
 	for(TrackerGeometry::DetUnitContainer::const_iterator it = pDD->detUnits().begin(); it != pDD->detUnits().end(); it++){
     
 		if( dynamic_cast<PixelGeomDetUnit*>((*it))!=0){
-			DetId detid=(*it)->geographicalId();
-			
-			// fill bpix values for LA 
-			if(detid.subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) {
-				
-				if(!useFile_){
-					if ( ! LorentzAngle->putLorentzAngle(detid.rawId(),bPixLorentzAnglePerTesla_) )
+			uint32_t detid=((*it)->geographicalId()).rawId();
+			if ( ! LorentzAngle->putLorentzAngle(detid,langle ) )
+// 			if ( ! LorentzAngle->putLorentzAngle(detid,langle) )
 					edm::LogError("SiPixelLorentzAngleDB")<<"[SiPixelLorentzAngleDB::analyze] detid already exists"<<std::endl;
-				} else {
-					cout << "method for reading file not implemented yet" << endl;
-				}
-				
-			
-			// fill bpix values for LA 
-			} else if(detid.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) {
-				
-				if ( ! LorentzAngle->putLorentzAngle(detid.rawId(),fPixLorentzAnglePerTesla_) )
-					edm::LogError("SiPixelLorentzAngleDB")<<"[SiPixelLorentzAngleDB::analyze] detid already exists"<<std::endl;
-			} else {
-				edm::LogError("SiPixelLorentzAngleDB")<<"[SiPixelLorentzAngleDB::analyze] detid is Pixel but neither bpix nor fpix"<<std::endl;
-			}
 		
-		}
+			}
 			
-	}      
+		}      
   	
 
 	edm::Service<cond::service::PoolDBOutputService> mydbservice;

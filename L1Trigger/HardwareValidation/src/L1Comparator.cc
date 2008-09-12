@@ -600,38 +600,38 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   }
   
   //reset flags...
-  //for(int i=0; i<DEnsys; i++) isValid[i]=true;
+  for(int i=0; i<DEnsys; i++) isValid[i]=true;
 
   if(verbose())
     std::cout << "L1Comparator start processing the collections.\n" << std::flush;
 
   ///processing : compare the pairs of collections 
-  if(m_doSys[ETP]&&isValid[ETP]) process<EcalTrigPrimDigiCollection>     (    ecal_tp_data,     ecal_tp_emul, ETP,ECALtp);
-  if(m_doSys[HTP]&&isValid[HTP]) process<HcalTrigPrimDigiCollection>     (    hcal_tp_data,     hcal_tp_emul, HTP,HCALtp);
-  if(m_doSys[RCT]&&isValid[RCT]) process<L1CaloEmCollection>             (     rct_em_data,      rct_em_emul, RCT,RCTem);
-  if(m_doSys[RCT]&&isValid[RCT]) process<L1CaloRegionCollection>         (    rct_rgn_data,     rct_rgn_emul, RCT,RCTrgn);
-  if(m_doSys[GCT]&&isValid[GCT]) process<L1GctEmCandCollection>          (gct_isolaem_data, gct_isolaem_emul, GCT,GCTisolaem);
-  if(m_doSys[GCT]&&isValid[GCT]) process<L1GctEmCandCollection>          (gct_noisoem_data, gct_noisoem_emul, GCT,GCTnoisoem);
-  if(m_doSys[GCT]&&isValid[GCT]) process<L1GctJetCandCollection>         (gct_cenjets_data, gct_cenjets_emul, GCT,GCTcenjets);
-  if(m_doSys[GCT]&&isValid[GCT]) process<L1GctJetCandCollection>         (gct_forjets_data, gct_forjets_emul, GCT,GCTforjets);
-  if(m_doSys[GCT]&&isValid[GCT]) process<L1GctJetCandCollection>         (gct_taujets_data, gct_taujets_emul, GCT,GCTtaujets);
-  if(m_doSys[DTP]&&isValid[DTP]) process<L1MuDTChambPhDigiCollection>    (     dtp_ph_data,      dtp_ph_emul, DTP,DTtpPh);
-  if(m_doSys[DTP]&&isValid[DTP]) process<L1MuDTChambThDigiCollection>    (     dtp_th_data,      dtp_th_emul, DTP,DTtpTh);
-  if(m_doSys[DTF]&&isValid[DTF]) process<L1MuRegionalCandCollection>     (        dtf_data,         dtf_emul, DTF,DTtf);
-  if(m_doSys[DTF]&&isValid[DTF]) process<L1MuRegionalCandCollection>     (    dtf_trk_data,     dtf_trk_emul, DTF,DTtftrk);
-  if(m_doSys[CTP]&&isValid[CTP]) process<CSCALCTDigiCollection_>         (    ctp_ano_data,     ctp_ano_emul, CTP,CSCtpa);
-  if(m_doSys[CTP]&&isValid[CTP]) process<CSCCLCTDigiCollection_>         (    ctp_cat_data,     ctp_cat_emul, CTP,CSCtpc);
-  if(m_doSys[CTP]&&isValid[CTP]) process<CSCCorrelatedLCTDigiCollection_>(    ctp_lct_data,     ctp_lct_emul, CTP,CSCtpl);
-  if(m_doSys[CTF]&&isValid[CTF]) process<L1MuRegionalCandCollection>     (        ctf_data,         ctf_emul, CTF,CSCtf);
-  if(m_doSys[CTF]&&isValid[CTF]) process<CSCCorrelatedLCTDigiCollection_>(    ctf_trk_data,     ctf_trk_emul, CTF,CSCtftrk);
-  if(m_doSys[CTF]&&isValid[CTF]) process<L1MuRegionalCandCollection>     (    ctf_trc_data,     ctf_trc_emul, CTF,CSCtftrc);
-  if(m_doSys[CTF]&&isValid[CTF]) process<L1CSCSPStatusDigiCollection_>   (    ctf_sta_data,     ctf_sta_emul, CTF,CSCtfsta);
-  if(m_doSys[RPC]&&isValid[RPC]) process<L1MuRegionalCandCollection>     (    rpc_cen_data,     rpc_cen_emul, RPC,RPCcen);
-  if(m_doSys[RPC]&&isValid[RPC]) process<L1MuRegionalCandCollection>     (    rpc_for_data,     rpc_for_emul, RPC,RPCfor);
-  if(m_doSys[LTC]&&isValid[LTC]) process<LTCDigiCollection>              (        ltc_data,         ltc_emul, LTC,LTCi);
-  if(m_doSys[GMT]&&isValid[GMT]) process<L1MuGMTCandCollection>          (        gmt_data,         gmt_emul, GMT,GMTmain);
-  if(m_doSys[GMT]&&isValid[GMT]) process<L1MuRegionalCandCollection>     (    gmt_rdt_data,     gmt_rdt_emul, GMT,GMTrdt);
-  if(m_doSys[GMT]&&isValid[GMT]) process<L1MuGMTCandCollection>          (    gmt_can_data,     gmt_can_emul, GMT,GMTcnd);
+  if(m_doSys[ETP]&&isValid[ETP]) process<EcalTrigPrimDigiCollection>     (    ecal_tp_data,     ecal_tp_emul, ETP);
+  if(m_doSys[HTP]&&isValid[HTP]) process<HcalTrigPrimDigiCollection>     (    hcal_tp_data,     hcal_tp_emul, HTP);
+  if(m_doSys[RCT]&&isValid[RCT]) process<L1CaloEmCollection>             (     rct_em_data,      rct_em_emul, RCT);
+  if(m_doSys[RCT]&&isValid[RCT]) process<L1CaloRegionCollection>         (    rct_rgn_data,     rct_rgn_emul, RCT);
+  if(m_doSys[GCT]&&isValid[GCT]) process<L1GctEmCandCollection>          (gct_isolaem_data, gct_isolaem_emul, GCT);
+  if(m_doSys[GCT]&&isValid[GCT]) process<L1GctEmCandCollection>          (gct_noisoem_data, gct_noisoem_emul, GCT);
+  if(m_doSys[GCT]&&isValid[GCT]) process<L1GctJetCandCollection>         (gct_cenjets_data, gct_cenjets_emul, GCT);
+  if(m_doSys[GCT]&&isValid[GCT]) process<L1GctJetCandCollection>         (gct_forjets_data, gct_forjets_emul, GCT);
+  if(m_doSys[GCT]&&isValid[GCT]) process<L1GctJetCandCollection>         (gct_taujets_data, gct_taujets_emul, GCT);
+  if(m_doSys[DTP]&&isValid[DTP]) process<L1MuDTChambPhDigiCollection>    (     dtp_ph_data,      dtp_ph_emul, DTP);
+  if(m_doSys[DTP]&&isValid[DTP]) process<L1MuDTChambThDigiCollection>    (     dtp_th_data,      dtp_th_emul, DTP);
+  if(m_doSys[DTF]&&isValid[DTF]) process<L1MuRegionalCandCollection>     (        dtf_data,         dtf_emul, DTF);
+  if(m_doSys[DTF]&&isValid[DTF]) process<L1MuRegionalCandCollection>     (    dtf_trk_data,     dtf_trk_emul, DTF);
+  if(m_doSys[CTP]&&isValid[CTP]) process<CSCALCTDigiCollection_>         (    ctp_ano_data,     ctp_ano_emul, CTP);
+  if(m_doSys[CTP]&&isValid[CTP]) process<CSCCLCTDigiCollection_>         (    ctp_cat_data,     ctp_cat_emul, CTP);
+  if(m_doSys[CTP]&&isValid[CTP]) process<CSCCorrelatedLCTDigiCollection_>(    ctp_lct_data,     ctp_lct_emul, CTP);
+  if(m_doSys[CTF]&&isValid[CTF]) process<L1MuRegionalCandCollection>     (        ctf_data,         ctf_emul, CTF);
+  if(m_doSys[CTF]&&isValid[CTF]) process<CSCCorrelatedLCTDigiCollection_>(    ctf_trk_data,     ctf_trk_emul, CTF);
+  if(m_doSys[CTF]&&isValid[CTF]) process<L1MuRegionalCandCollection>     (    ctf_trc_data,     ctf_trc_emul, CTF);
+  if(m_doSys[CTF]&&isValid[CTF]) process<L1CSCSPStatusDigiCollection_>   (    ctf_sta_data,     ctf_sta_emul, CTF);
+  if(m_doSys[RPC]&&isValid[RPC]) process<L1MuRegionalCandCollection>     (    rpc_cen_data,     rpc_cen_emul, RPC);
+  if(m_doSys[RPC]&&isValid[RPC]) process<L1MuRegionalCandCollection>     (    rpc_for_data,     rpc_for_emul, RPC);
+  if(m_doSys[LTC]&&isValid[LTC]) process<LTCDigiCollection>              (        ltc_data,         ltc_emul, LTC);
+  if(m_doSys[GMT]&&isValid[GMT]) process<L1MuGMTCandCollection>          (        gmt_data,         gmt_emul, GMT);
+  if(m_doSys[GMT]&&isValid[GMT]) process<L1MuRegionalCandCollection>     (    gmt_rdt_data,     gmt_rdt_emul, GMT);
+  if(m_doSys[GMT]&&isValid[GMT]) process<L1MuGMTCandCollection>          (    gmt_can_data,     gmt_can_emul, GMT);
 
   // >>---- GLT ---- <<  
   GltDEDigi gltdigimon;
@@ -760,12 +760,11 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
 
 template <class T> 
-void L1Comparator::process(T const* data, T const* emul, const int sys, const int cid) {
+void L1Comparator::process(T const* data, T const* emul, const int sys) {
 
   if(verbose())
     std::cout << "L1Comparator::process -ing system:" << sys 
-	      << " (" << SystLabel[sys] << "), data type " << cid 
-	      << "...\n" << std::flush;
+	      << " (" << SystLabel[sys] << ")...\n" << std::flush;
   if(verbose())
   std::cout << "L1Comparator::process debug "
 	    << " (size "  << data->size() << "," <<emul->size() << ")"   
@@ -822,8 +821,7 @@ void L1Comparator::process(T const* data, T const* emul, const int sys, const in
   
   if(prt)
     m_dumpFile << "\n  sys:" << SystLabel[sys] 
-	       << " (" << sys << "), type:" << cid //cmp.GetName() 
-      	       << " ...\n";
+	       << " (" << sys << "), type:" << cmp.GetName() << " ...\n";
   
   if(verbose())
     std::cout << "L1Comparator::process print:\n" << std::flush
@@ -843,9 +841,6 @@ void L1Comparator::process(T const* data, T const* emul, const int sys, const in
   ///over-write system-id: needed eg for GMT input, CSC tf reg cand, CTP&CTF
   for(L1DEDigiCollection::iterator it=dg.begin(); it!=dg.end();it++)
     it->setSid(sys);
-  ///over-write data type: needed eg for GCT jet types, regional muon sources
-  for(L1DEDigiCollection::iterator it=dg.begin(); it!=dg.end();it++)
-    it->setCid(cid);
 
   ///append d|e digis to the record's collection
   m_dedigis.insert(m_dedigis.end(), dg.begin(), dg.end()); 

@@ -20,15 +20,6 @@ public:
 		return result;
 	}
 
-	// Faster analog of the previous function:
-    std::vector<const CSCSPEvent*> SPs_fast(void) const throw() {
-        std::vector<const CSCSPEvent*> retval;
-        retval.clear();
-        retval.reserve(nRecords);
-        for(int spNum=0; spNum<nRecords; spNum++) retval.push_back(sp+spNum);
-        return retval;
-    }
-
 	unsigned int unpack(const unsigned short *buf, unsigned int length) throw() ;
 
 	CSCTFEvent(void){}

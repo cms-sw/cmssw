@@ -537,14 +537,10 @@ float CSCHitFromStripOnly::findHitOnStripPosition( const std::vector<CSCStripHit
 
 bool CSCHitFromStripOnly::isNearDeadStrip(const CSCDetId& id, int centralStrip){
 
-  //  const std::bitset<80> & deadStrips = recoConditions_->badStripWord( id );
-  //  bool isDead = false;
-  //  if(centralStrip>0 && centralStrip<79){
-  //    isDead = (deadStrips.test(centralStrip+1) || deadStrips.test(centralStrip-1));
-  //  }
-  //  return isDead;
-
-  //@@ Tim says: not sure I understand this properly...
-  return recoConditions_->nearBadStrip( id, centralStrip );
-
+  const std::bitset<80> & deadStrips = recoConditions_->badStripWord( id );
+  bool isDead = false;
+  if(centralStrip>0 && centralStrip<79){
+    isDead = (deadStrips.test(centralStrip+1) || deadStrips.test(centralStrip-1));
+  }
+  return isDead;
 } 

@@ -15,14 +15,12 @@
 #include "CoralBase/Attribute.h"
 #include "RelationalAccess/SchemaException.h"
 #include "CondCore/DBCommon/interface/CoralTransaction.h"
-//#include "CondCore/DBCommon/interface/Exception.h"
+#include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/ESSources/interface/Exception.h"
 
-//#include <iostream>
 cond::TagCollectionRetriever::TagCollectionRetriever( cond::CoralTransaction& coraldb ):m_coraldb(&coraldb){
 }
 cond::TagCollectionRetriever::~TagCollectionRetriever(){}
-
 void 
 cond::TagCollectionRetriever::getTagCollection( const std::string& globaltag,
 						std::set<cond::TagMetadata >& result){
@@ -42,7 +40,7 @@ cond::TagCollectionRetriever::getTagCollection( const std::string& globaltag,
     treetablename+="_";
     treetablename+=treename;
   }
-  if( !m_coraldb->nominalSchema().existsTable(treetablename) ){
+  if(!m_coraldb->nominalSchema().existsTable(treetablename)){
     throw cond::nonExistentGlobalTagException("TagCollectionRetriever::getTagCollection",globaltag);
   }
   coral::IQuery* query=m_coraldb->nominalSchema().newQuery();
@@ -124,4 +122,3 @@ cond::TagCollectionRetriever::parseglobaltag(const std::string& globaltag){
   }
   return result;
 }
-

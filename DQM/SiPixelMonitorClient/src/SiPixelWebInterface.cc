@@ -280,11 +280,6 @@ void SiPixelWebInterface::performAction() {
       infoExtractor_->computeGlobalQualityFlag(bei_,init);
       break;
     }
-  case SiPixelWebInterface::NoisyPixels  :
-    {
-      infoExtractor_->findNoisyPixels(bei_);
-      break;
-    }
   case SiPixelWebInterface::dumpModIds  :
     {
       actionExecutor_->dumpModIds(bei_);

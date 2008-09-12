@@ -1,12 +1,27 @@
+<use name="DataFormats/CSCRecHit">
+<use name="DataFormats/DTRecHit">
+<use name="DataFormats/RPCRecHit">
+<use name="FWCore/Framework">
+<use name="FWCore/MessageLogger">
+<use name="FWCore/ParameterSet">
+<use name="RecoMuon/TransientTrackingRecHit">
+<use name="TrackingTools/DetLayers">
+<use name="TrackingTools/GeomPropagators">
+<use name="TrackingTools/MeasurementDet">
+<use name="TrackingTools/PatternTools">
+<use name="TrackingTools/TrajectoryState">
 <export>
- <lib name=RecoMuonMeasurementDet>
- <use name=TrackingTools/MeasurementDet>
- <use name=TrackingTools/TrajectoryState>
- <use name=RecoMuon/TransientTrackingRecHit>
+  <use name="DataFormats/CSCRecHit">
+  <use name="DataFormats/DTRecHit">
+  <use name="DataFormats/RPCRecHit">
+  <use name="FWCore/Framework">
+  <use name="FWCore/MessageLogger">
+  <use name="FWCore/ParameterSet">
+  <use name="RecoMuon/TransientTrackingRecHit">
+  <use name="TrackingTools/DetLayers">
+  <use name="TrackingTools/GeomPropagators">
+  <use name="TrackingTools/MeasurementDet">
+  <use name="TrackingTools/PatternTools">
+  <use name="TrackingTools/TrajectoryState">
+  <lib name="RecoMuonMeasurementDet">
 </export>
-
-<use name=TrackingTools/MeasurementDet>
-<use name=TrackingTools/TrajectoryState>
-<use name=RecoMuon/TransientTrackingRecHit>
-<use name=Geometry/CommonDetUnit>
-<use name=DataFormats/MuonDetId>

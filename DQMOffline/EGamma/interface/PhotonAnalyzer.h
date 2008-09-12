@@ -22,11 +22,10 @@
  **  
  **
  **  $Id: PhotonAnalyzer
- **  $Date: 2008/08/08 17:47:22 $ 
- **  authors: 
- **   Nancy Marinelli, U. of Notre Dame, US  
- **   Jamie Antonelli, U. of Notre Dame, US
- **     
+ **  $Date: 2008/07/23 17:47:22 $ 
+ **  $Revision: 1.9 $
+ **  \author Nancy Marinelli, U. of Notre Dame, US
+ **
  ***/
 
 
@@ -58,9 +57,6 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   //
 
   float  phiNormalization( float& a);
-  void doProfileX(TH2 * th2, MonitorElement* me);
-  void doProfileX(MonitorElement * th2m, MonitorElement* me);
-
       
   std::string fName_;
   DQMStore *dbe_;
@@ -75,13 +71,12 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   edm::ESHandle<CaloTopology> theCaloTopo_;
 
            
-  std::string photonProducer_;       
+  std::string photonCollectionProducer_;       
   std::string photonCollection_;
 
-  std::string  bcBarrelProducer_;
-  std::string  bcEndcapProducer_;
-  std::string  bcBarrelCollection_;
-  std::string  bcEndcapCollection_;
+
+  edm::InputTag  bcBarrelCollection_;
+  edm::InputTag  bcEndcapCollection_;
   std::string hbheLabel_;
   std::string hbheInstanceName_;
  
@@ -102,6 +97,7 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   double lip_;
   double ecalIsolRadius_;
   double ecalEtaStrip_;
+  double minEtEcalRecHit_;
   double bcEtLow_;
   double hcalIsolExtRadius_;
   double hcalIsolInnRadius_;
@@ -111,47 +107,43 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   double ecalEtSumCut_;
   double hcalEtSumCut_;
 
-  double cutStep_;
-  int numberOfSteps_;
+  MonitorElement* p_nTrackIsol_;
+  MonitorElement* p_trackPtSum_;
+  MonitorElement* p_ecalSum_;
+  MonitorElement* p_hcalSum_;
   
-  std::vector<MonitorElement*> h_nTrackIsol_;
-  std::vector<MonitorElement*> h_trackPtSum_;
-  std::vector<MonitorElement*> h_ecalSum_;
-  std::vector<MonitorElement*> h_hcalSum_;
 
-  std::vector<MonitorElement*> p_nTrackIsol_;
-  std::vector<MonitorElement*> p_trackPtSum_;
-  std::vector<MonitorElement*> p_ecalSum_;
-  std::vector<MonitorElement*> p_hcalSum_;
+  MonitorElement* h_nPho_[2][3];
+  MonitorElement* h_scEta_[2];
+  MonitorElement* h_scPhi_[2];
+  MonitorElement* h_scEtaPhi_[2];
+ 
+  MonitorElement* h_scE_[2][3];
+  MonitorElement* h_scEt_[2][3];
 
+  MonitorElement* h_r9_[2][3];  
+  MonitorElement* h_phoE_[2][3];
+  MonitorElement* h_phoEt_[2][3];
+  MonitorElement* h_phoEta_[2];
+  MonitorElement* h_phoPhi_[2];
 
-  std::vector<MonitorElement*> h_phoE_part_;
-  std::vector<std::vector<MonitorElement*> > h_phoE_isol_;
-  std::vector<std::vector<std::vector<MonitorElement*> > > h_phoE_;
+  /// conversion infos
+  MonitorElement* h_nConv_[2][3];
+  MonitorElement* h_convEta_[2];
+  MonitorElement* h_convPhi_[2];
+  MonitorElement* h_r9VsNofTracks_[2][3];
+  MonitorElement* h_EoverPTracks_[2][3];
+  MonitorElement* h_ptPairOverEt_[2][3];
+  MonitorElement* p_tk_nHitsVsEta_[2]; 
+  MonitorElement* h_tkChi2_[2];
+  MonitorElement* h_DPhiTracksAtVtx_[2][3];
+  MonitorElement* h_DCotTracks_[2][3];
+  MonitorElement* h_invMass_[2][3];
+  MonitorElement* h_DPhiTracksAtEcal_[2][3];
+  MonitorElement* h_DEtaTracksAtEcal_[2][3];
 
-  std::vector<MonitorElement*> h_phoEt_part_;
-  std::vector<std::vector<MonitorElement*> > h_phoEt_isol_;
-  std::vector<std::vector<std::vector<MonitorElement*> > > h_phoEt_;
-
-  std::vector<MonitorElement*> h_r9_part_;
-  std::vector<std::vector<MonitorElement*> > h_r9_isol_;
-  std::vector<std::vector<std::vector<MonitorElement*> > > h_r9_;
-
-  std::vector<MonitorElement*> h_nPho_part_;
-  std::vector<std::vector<MonitorElement*> > h_nPho_isol_;
-  std::vector<std::vector<std::vector<MonitorElement*> > > h_nPho_;
-
-  std::vector<MonitorElement*> h_phoDistribution_part_;
-  std::vector<std::vector<MonitorElement*> > h_phoDistribution_isol_;
-  std::vector<std::vector<std::vector<MonitorElement*> > > h_phoDistribution_;
-
-  std::vector<MonitorElement*> h_phoEta_isol_;
-  std::vector<std::vector<MonitorElement*> > h_phoEta_;
-  std::vector<MonitorElement*> h_phoPhi_isol_;
-  std::vector<std::vector<MonitorElement*> > h_phoPhi_;
-
-  std::vector<MonitorElement*> p_r9VsEt_isol_;
-  std::vector<std::vector<MonitorElement*> > p_r9VsEt_;
+  MonitorElement* h_convVtxRvsZ_[2]; 
+  MonitorElement* h_zPVFromTracks_[2]; 
 
   //
   //

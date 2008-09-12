@@ -75,17 +75,6 @@ class PFJetBenchmark {
 	
   // delta Pt or E quantities for Barrel
   TH1F *hBRPt;
-  TH1F *hBRPt20_40;
-  TH1F *hBRPt40_60;
-  TH1F *hBRPt60_80;
-  TH1F *hBRPt80_100;
-  TH1F *hBRPt100_150;
-  TH1F *hBRPt150_200;
-  TH1F *hBRPt200_250;
-  TH1F *hBRPt250_300;
-  TH1F *hBRPt300_400;
-  TH1F *hBRPt400_500;
-  TH1F *hBRPt500_750;
   TH1F *hBRCHE;
   TH1F *hBRNHE;
   TH1F *hBRNEE;
@@ -98,17 +87,6 @@ class PFJetBenchmark {
 	
   // delta Pt or E quantities for Endcap
   TH1F *hERPt ;
-  TH1F *hERPt20_40;
-  TH1F *hERPt40_60;
-  TH1F *hERPt60_80;
-  TH1F *hERPt80_100;
-  TH1F *hERPt100_150;
-  TH1F *hERPt150_200;
-  TH1F *hERPt200_250;
-  TH1F *hERPt250_300;
-  TH1F *hERPt300_400;
-  TH1F *hERPt400_500;
-  TH1F *hERPt500_750;
   TH1F *hERCHE;
   TH1F *hERNHE;
   TH1F *hERNEE;

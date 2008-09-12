@@ -14,8 +14,6 @@ HCAL_HLX::ROOTFileMerger::ROOTFileMerger(){
 
     minSectionNumber = 99999999;
 
-    outputFileName_ = "";
-
 #ifdef DEBUG
     std::cout << "End " << __PRETTY_FUNCTION__ << std::endl;
 #endif
@@ -53,7 +51,6 @@ void HCAL_HLX::ROOTFileMerger::Merge(const unsigned int runNumber, bool bCMSLive
       if( minSectionNumber > lumiSection.hdr.sectionNumber ){
 	std::cout << minSectionNumber << ":" << lumiSection.hdr.sectionNumber << std::endl;
 	minSectionNumber = lumiSection.hdr.sectionNumber;
-	std::cout << minSectionNumber << ":" << lumiSection.hdr.sectionNumber << std::endl;
       }    
 
       // Must fill Threshold eventually  right now it contains fake data.
@@ -65,26 +62,9 @@ void HCAL_HLX::ROOTFileMerger::Merge(const unsigned int runNumber, bool bCMSLive
     // Rename file so that it includes the minimum lumi section number.
     rename( CreateRunFileName(runNumber, 0).c_str(), CreateRunFileName(runNumber, minSectionNumber).c_str() ); 
 
-    outputFileName_ = CreateRunFileName(runNumber, minSectionNumber).c_str();
-
 #ifdef DEBUG
     std::cout << "End " << __PRETTY_FUNCTION__ << std::endl;
 #endif
-}
-
-std::string HCAL_HLX::ROOTFileMerger::GetFileName(){
-
-  return outputFileName_;
-}
-
-std::string HCAL_HLX::ROOTFileMerger::GetJustFileName(){
-
-  std::string justOutputFileName = outputFileName_.substr( outputFileName_.rfind("/") + 1, 
-							   outputFileName_.length() - outputFileName_.rfind("/") - 1);
-
-  std::cout << "GetJustOutputFileName: " << justOutputFileName << std::endl;
-
-  return justOutputFileName;
 }
 
 std::string HCAL_HLX::ROOTFileMerger::CreateInputFileName(const unsigned int runNumber){

@@ -6,8 +6,8 @@
  *
  *  DQM histogram post processor
  *
- *  $Date: 2008/07/16 20:23:58 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/05/27 14:12:35 $
+ *  $Revision: 1.1 $
  *
  *  \author Junghwan Goh - SungKyunKwan University
  */
@@ -42,7 +42,6 @@ class PostProcessor : public edm::EDAnalyzer
 
  private:
   void processLoop( const std::string& dir, std::vector<boost::tokenizer<elsc>::value_type> args) ;
-  void computeFunction( const std::string& dir, std::vector<boost::tokenizer<elsc>::value_type> args) ;
 
  private:
   DQMStore* theDQM;

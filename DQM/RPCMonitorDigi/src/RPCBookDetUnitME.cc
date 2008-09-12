@@ -142,7 +142,7 @@ map<string, MonitorElement*> RPCMonitorDigi::bookDetUnitME(RPCDetId & detId, con
       else
 	meMap[os.str()] = dbe->book2D(os.str(), os.str(), 96, 0.5,  96.5, 17, 0.5, 17.5);
     }else{//Endcap
-	meMap[os.str()] = dbe->book2D(os.str(), os.str(), 32, 0.5,32.5, 54, 0.5, 54.5);
+	meMap[os.str()] = dbe->book2D(os.str(), os.str(), 96, 0.5,96.5, 54, 0.5, 54.5);
     }
   }
   

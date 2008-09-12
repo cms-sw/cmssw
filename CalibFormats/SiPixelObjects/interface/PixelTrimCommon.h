@@ -1,12 +1,16 @@
 #ifndef PixelTrimACommon_h
 #define PixelTrimACommon_h
-/**
-* \file CalibFormats/SiPixelObjects/interface/PixelTrimCommon.h
-* \brief This class implements..
-*
-*   A longer explanation will be placed here later
-*
-*/
+//
+// This class provide an implementation for
+// pixel trim data here you use the same trim
+// values for each pixel on a roc
+//
+// Need to figure out what is 'VMEcommand' below! 
+//
+// All applications should just use this 
+// interface and not care about the specific
+// implementation
+//
 
 #include <string>
 #include <vector>
@@ -16,17 +20,6 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelNameTranslation.h"
 
 namespace pos{
-/*!  \ingroup TrimObjects "Trim Objects"
-*    \ingroup ConfigurationObjects "Configuration Objects"
-*    
-*  @{
-*
-*  \class PixelTrimCommon PixelTrimCommon.h
-*  \brief This class implements..
-*
-*   A longer explanation will be placed here later
-*
-*/
   class PixelTrimCommon: public PixelTrimBase {
 
   public:
@@ -42,11 +35,7 @@ namespace pos{
 
     void writeBinary(std::string filename) const;
 
-    void         writeASCII(std::string filename)                                                           const  ;
-    void         writeXML(      pos::PixelConfigKey key, int version, std::string path)                     const {;}
-    virtual void writeXMLHeader(pos::PixelConfigKey key, int version, std::string path, std::ofstream *out) const {;}
-    virtual void writeXML(                                                              std::ofstream *out) const {;}
-    virtual void writeXMLTrailer(                                                       std::ofstream *out) const {;}
+    void writeASCII(std::string filename) const;
 
 
   private:

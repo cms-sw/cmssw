@@ -22,12 +22,10 @@ class CosmicTIFTrigFilter : public edm::EDFilter {
 
  private:
   edm::ParameterSet conf_;
-
   bool inTK;
   int trigconf;
   int tottrig;
   int trig1, trig2, trig3;
-  std::vector<double> trigS1, trigS2, trigS3, trigS4;
   };
 }
 #endif 

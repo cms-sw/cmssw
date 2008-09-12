@@ -9,9 +9,6 @@
  *
  * CSCConditions encapsulates the conditions data (e.g. calibration data) from the database.
  *
- * All functions in public interface accept CSCDetId for ME1A (i.e. ring 4) with channel
- * number 1-16 (and not the raw ME11 channel 65-80).
- *
  * \author Tim Cox
  */
 
@@ -32,44 +29,46 @@ class CSCRecoConditions
   void initializeEvent(const edm::EventSetup & es);
 
   /// channels count from 1
-  float gain(const CSCDetId & id, int channel) const;
+  float gain(const CSCDetId & id, int channel) const { 
+     return theConditions.gain(id, channel);}
 
   /// return average gain over entire CSC system
   float averageGain() const { 
      return theConditions.averageGain(); }
 
+  /// return gain weight for given strip channel
+  ///
+  /// WARNING - expects ME11 detId for both ME1b (channels 1-64) AND for ME1a (channels 65-80)
+  float stripWeight( const CSCDetId& id, int channel ) const;
+
   ///  calculate gain weights for all strips in a CSC layer 
   /// - filled into C-array which caller must have allocated.
   void stripWeights( const CSCDetId& id, float* weights ) const;
 
-  /// static pedestal in ADC counts
-  float pedestal(const CSCDetId & id, int channel) const;
+  /// in ADC counts
+  float pedestal(const CSCDetId & id, int channel) const { 
+     return theConditions.pedestal(id, channel);}
 
-  /// sigma of static pedestal in ADC counts
-  float pedestalSigma(const CSCDetId & id, int channel) const;
+  float pedestalSigma(const CSCDetId & id, int channel) const { 
+     return theConditions.pedestalSigma(id, channel);}
 
-  /// fill expanded noise matrix for 3 neighbouring strips as linear vector (must be allocated by caller)
-  /// Note that centralStrip is a 'geomStrip' and ranges 1-48 in ME1a.
-  void noiseMatrix( const CSCDetId& id, int centralStrip, std::vector<float>& nme ) const;
+  /// fill expanded noise matrix for 3 neighbouring strip channels as linear vector (must be allocated by caller)
+  void noiseMatrix( const CSCDetId& id, int channel, std::vector<float>& nme ) const;
 
-  /// fill crosstalk information for 3 neighbouring strips as linear vector (must be allocated by caller)
-  /// Note that centralStrip is a 'geomStrip' and ranges 1-48 in ME1a.
+  /// fill crosstalk information for 3 neighbouring strip channels as linear vector (must be allocated by caller)
   void crossTalk( const CSCDetId& id, int centralStrip, std::vector<float>& xtalks) const;
 
-  /// Is a neighbour bad?
-  bool nearBadStrip( const CSCDetId& id, int geomStrip ) const;
+  /// Get bad strip word
+  const std::bitset<80>& badStripWord( const CSCDetId& id ) const {
+    return theConditions.badStripWord( id );
+  }
 
   /// Get bad wiregroup word
-  const std::bitset<112>& badWireWord( const CSCDetId& id ) const;
+  const std::bitset<112>& badWireWord( const CSCDetId& id ) const {
+    return theConditions.badWireWord( id );
+  }
 
  private:
-
-  /// return gain weight for given strip channel
-  ///
-  /// WARNING - expects ME11 detId for both ME1b (channels 1-64) AND for ME1a (channels 65-80)
-  /// so this requires 'raw' channel interface.
-  float stripWeight( const CSCDetId& id, int channel ) const;
-
 
   CSCConditions theConditions;
 };

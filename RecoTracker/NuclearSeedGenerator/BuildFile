@@ -26,7 +26,6 @@
 <use name=TrackingTools/TrackFitters>
 <use name=TrackingTools/TrajectoryState>
 <use name=TrackingTools/TransientTrackingRecHit>
-<use name=DataFormats/VertexReco>
 <use name=boost>
 <use name=rootrflx>
 <export>
@@ -50,7 +49,6 @@
   <use name=TrackingTools/PatternTools>
   <use name=TrackingTools/TrajectoryState>
   <use name=TrackingTools/TransientTrackingRecHit>
-  <use name=DataFormats/VertexReco>
   <use name=boost>
   <lib name=RecoTrackerNuclearSeedGenerator>
 </export>

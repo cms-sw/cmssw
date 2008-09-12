@@ -31,3 +31,14 @@ DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(SiStripThresholdFakeESSource);
 #include "CalibTracker/SiStripESProducers/plugins/fake/SiStripThresholdFakeOnDB.h"
 DEFINE_ANOTHER_FWK_MODULE(SiStripThresholdFakeOnDB);
 
+#include "CalibTracker/SiStripESProducers/plugins/fake/SiStripBadStripFakeESSource.h"
+DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(SiStripBadStripFakeESSource);
+
+#include "CalibTracker/SiStripESProducers/plugins/fake/SiStripBadChannelFakeESSource.h"
+DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(SiStripBadChannelFakeESSource);
+
+#include "CalibTracker/SiStripESProducers/plugins/fake/SiStripBadFiberFakeESSource.h"
+DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(SiStripBadFiberFakeESSource);
+
+#include "CalibTracker/SiStripESProducers/plugins/fake/SiStripBadModuleFakeESSource.h"
+DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(SiStripBadModuleFakeESSource);

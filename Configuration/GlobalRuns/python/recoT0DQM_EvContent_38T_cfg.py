@@ -80,15 +80,6 @@ process.load("L1Trigger.Configuration.L1Config_cff")
 process.load("L1TriggerConfig.CSCTFConfigProducers.CSCTFConfigProducer_cfi")
 process.load("L1TriggerConfig.CSCTFConfigProducers.L1MuCSCTFConfigurationRcdSrc_cfi")
 
-## workaround for tracker
-process.load("CalibTracker.SiStripESProducers.SiStripQualityESProducer_cfi")
-process.SiStripQualityESProducer.ListOfRecordToMerge = cms.VPSet(
-     cms.PSet( record = cms.string("SiStripFedCablingRcd"), tag    = cms.string("") ),
-     cms.PSet( record = cms.string("SiStripBadChannelRcd"), tag    = cms.string("") ),
-     cms.PSet( record = cms.string("SiStripBadFiberRcd"),   tag    = cms.string("") )
-)
-process.prefer("SiStripQualityESProducer")
-
 #Paths
 process.allPath = cms.Path( process.RawToDigi_woGCT * process.reconstructionCosmics *  process.DQMOfflineCosmics * process.MEtoEDMConverter)
 

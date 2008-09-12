@@ -15,13 +15,13 @@ ODFEDelaysInfo::ODFEDelaysInfo()
   m_writeStmt = NULL;
   m_readStmt = NULL;
   m_config_tag="";
-  m_version=0;
-  m_ID=0;
-  clear();   
+   m_ID=0;
+   clear();   
 }
 
 
 void ODFEDelaysInfo::clear(){
+   m_version=0;
 
 }
 
@@ -47,7 +47,6 @@ int ODFEDelaysInfo::fetchNextId()  throw(std::runtime_error) {
     }
     result++;
     m_conn->terminateStatement(m_readStmt);
-    std::cout << " the id is going to be : "<< result<< endl;
     return result; 
 
   } catch (SQLException &e) {
@@ -113,47 +112,33 @@ void ODFEDelaysInfo::writeDB()
   } catch (SQLException &e) {
     throw(runtime_error("ODFEDelaysInfo::writeDB():  "+e.getMessage()));
   }
-
   // Now get the ID
   if (!this->fetchID()) {
     throw(runtime_error("ODFEDelaysInfo::writeDB:  Failed to write"));
-  } else {
-    int old_version=this->getVersion();
-    m_readStmt = m_conn->createStatement(); 
-    this->fetchData (this);
-    m_conn->terminateStatement(m_readStmt);
-    if(this->getVersion()!=old_version) std::cout << "ODFEDelaysInfo>>WARNING version is "<< getVersion()<< endl; 
   }
+
+
 }
 
 
 void ODFEDelaysInfo::fetchData(ODFEDelaysInfo * result)
   throw(runtime_error)
 {
-
   this->checkConnection();
-
   result->clear();
   if(result->getId()==0 && (result->getConfigTag()=="") ){
     throw(runtime_error("ODFEDelaysInfo::fetchData(): no Id defined for this ODFEDelaysInfo "));
   }
 
   try {
-    if(result->getId()!=0) { 
-      m_readStmt->setSQL("SELECT * FROM " + getTable() +   
-			 " where  rec_id = :1 ");
-      m_readStmt->setInt(1, result->getId());
-    } else if (result->getConfigTag()!="") {
-      m_readStmt->setSQL("SELECT * FROM " + getTable() +   
-			 " where  tag=:1 AND version=:2 " );
-      m_readStmt->setString(1, result->getConfigTag());
-      m_readStmt->setInt(2, result->getVersion());
-    } else {
-      // we should never pass here 
-      throw(runtime_error("ODFEDelaysInfo::fetchData(): no Id defined for this ODFEDelaysInfo "));
-    }
 
+    m_readStmt->setSQL("SELECT * FROM " + getTable() +   
+                       " where ( rec_id = :1 or (tag=:2 AND version=:3 ) )" );
+    m_readStmt->setInt(1, result->getId());
+    m_readStmt->setString(2, result->getConfigTag());
+    m_readStmt->setInt(3, result->getVersion());
     ResultSet* rset = m_readStmt->executeQuery();
+
     rset->next();
 
     // 1 is the id and 2 is the config tag and 3 is the version

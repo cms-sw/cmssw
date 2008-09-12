@@ -6,10 +6,6 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-
 using namespace std;
 using namespace edm;
 LightPFTrackProducer::LightPFTrackProducer(const ParameterSet& iConfig):
@@ -66,9 +62,7 @@ LightPFTrackProducer::produce(Event& iEvent, const EventSetup& iSetup)
 void 
 LightPFTrackProducer::beginJob(const EventSetup& iSetup)
 {
-  ESHandle<MagneticField> magneticField;
-  iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
-  pfTransformer_= new PFTrackTransformer(math::XYZVector(magneticField->inTesla(GlobalPoint(0,0,0))));
+  pfTransformer_= new PFTrackTransformer();
   pfTransformer_->OnlyProp();
 }
 

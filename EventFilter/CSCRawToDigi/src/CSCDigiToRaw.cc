@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/08/07 23:27:45 $
- *  $Revision: 1.31 $
+ *  $Date: 2008/06/27 03:19:50 $
+ *  $Revision: 1.26 $
  *  \author A. Tumanov - Rice
  */
 
@@ -19,8 +19,6 @@
 #include <DataFormats/FEDRawData/interface/FEDTrailer.h>
 #include "EventFilter/Utilities/interface/Crc.h"
 #include "CondFormats/CSCObjects/interface/CSCChamberMap.h"
-#include "FWCore/Utilities/interface/Exception.h"
-
 #include <algorithm>
 
 
@@ -40,11 +38,6 @@ void CSCDigiToRaw::beginEvent(const CSCChamberMap* electronicsMap)
 CSCEventData & CSCDigiToRaw::findEventData(const CSCDetId & cscDetId) 
 {
   CSCDetId chamberID = cscDetId.chamberId();
-  // translate ME1A to ME11
-  if(chamberID.ring() ==4)
-  {
-    chamberID = CSCDetId(chamberID.endcap(), chamberID.station(), 1, chamberID.chamber(), 0);
-  }
   //std::cout<<"wire id"<<cscDetId<<std::endl;
   // find the entry into the map
   map<CSCDetId, CSCEventData>::iterator chamberMapItr = theChamberDataMap.find(chamberID);
@@ -177,61 +170,83 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
   add(clctDigis);
   add(correlatedLCTDigis);
   
-  int l1a=e.id().event(); //need to add increments or get it from lct digis 
+  int l1a=1; //need to add increments or get it from lct digis 
   int bx = 0;//same as above
   //int startingFED = FEDNumbering::getCSCFEDIds().first;
 
-  std::map<int, CSCDCCEventData> dccMap;
   for (int idcc=FEDNumbering::getCSCFEDIds().first;
        idcc<=FEDNumbering::getCSCFEDIds().second;++idcc) 
-  {
-    //idcc goes from startingFed to startingFED+7
-    // @@ if ReadoutMapping changes, this'll have to change
-    // DCCs 1, 2,4,5have 5 DDUs.  Otherwise, 4
-    //int nDDUs = (idcc < 2) || (idcc ==4) || (idcc ==5)
-    //          ? 5 : 4; 
-    //@@ WARNING some DCCs only have 4 DDUs, but I'm giving them all 5, for now
-    int nDDUs = 5;
-    dccMap.insert(std::pair<int, CSCDCCEventData>(idcc, CSCDCCEventData(idcc, nDDUs, bx, l1a) ) );
-
-    // for every chamber with data, add to a DDU in this DCC Event
-    for(map<CSCDetId, CSCEventData>::iterator chamberItr = theChamberDataMap.begin();
-        chamberItr != theChamberDataMap.end(); ++chamberItr)
     {
-      //std::cout<<"inside the pack loop" <<std::endl;
-      int indexDCC = mapping->slink(chamberItr->first);
-      if(indexDCC == idcc)
-      {
-        //FIXME
-        std::map<int, CSCDCCEventData>::iterator dccMapItr = dccMap.find(indexDCC);
-        if(dccMapItr == dccMap.end())
-        {
-          throw cms::Exception("CSCDigiToRaw") << "Bad DCC number:" << indexDCC;
-        } 
-        // get ddu id based on ChamberId from mapping
+      //idcc goes from startingFed to startingFED+7
+      // @@ if ReadoutMapping changes, this'll have to change
+      // DCCs 1, 2,4,5have 5 DDUs.  Otherwise, 4
+      //int nDDUs = (idcc < 2) || (idcc ==4) || (idcc ==5)
+      //          ? 5 : 4; 
+      //@@ WARNING some DCCs only have 4 DDUs, but I'm giving them all 5, for now
+      int nDDUs = 5;
+      // this is a vector of which ddu IDs correspond to the ones in the DCC
+      vector<int> dduIds;
+      dduIds.reserve(nDDUs);
 
-        int dduId = mapping->ddu(chamberItr->first);
-        int dduSlot = mapping->dduSlot(chamberItr->first);
-        int dmbId = mapping->dmb(chamberItr->first);
-        dccMapItr->second.addChamber(chamberItr->second, dduId, dduSlot, dmbId);
+      CSCDCCEventData dccEvent(idcc, nDDUs, bx, l1a);
+      // for every chamber with data, add to a DDU in this DCC Event
+      for(map<CSCDetId, CSCEventData>::iterator chamberItr = theChamberDataMap.begin();
+            chamberItr != theChamberDataMap.end(); ++chamberItr)
+        {
+
+           //std::cout<<"inside the pack loop" <<std::endl;
+           int indexDCC = mapping->slink(chamberItr->first);
+
+           //std::cout<<" indexDCC=" << indexDCC <<std::endl;
+           //std::cout<<" idcc = " <<idcc<<std::endl;
+           //fill the right dcc
+           if (idcc==indexDCC) 
+             {
+                // get ddu id based on ChamberId from mapping
+                int dduId = mapping->ddu(chamberItr->first);
+                vector<int>::iterator dduIdItr = find(dduIds.begin(), dduIds.end(), dduId);
+                // if it's not found, it'll point at end(), so the distance should work out right.
+                int indexDDU = distance(dduIds.begin(), dduIdItr);
+                if(dduIdItr == dduIds.end()) 
+                {
+                  dduIds.push_back(dduId);
+                }
+                // just to make sure we're using STL right
+                assert(dduIds.at(indexDDU) == dduId);
+
+                dccEvent.dduData()[indexDDU].add(chamberItr->second);
+                boost::dynamic_bitset<> dccBits = dccEvent.pack();
+                FEDRawData & fedRawData = fed_buffers.FEDData(idcc);
+                fedRawData.resize(dccBits.size());
+                //fill data with dccEvent
+                bitset_utilities::bitsetToChar(dccBits, fedRawData.data());
+                FEDHeader cscFEDHeader(fedRawData.data());
+                cscFEDHeader.set(fedRawData.data(), 0, e.id().event(), 0, idcc);
+                FEDTrailer cscFEDTrailer(fedRawData.data()+(fedRawData.size()-8));
+                cscFEDTrailer.set(fedRawData.data()+(fedRawData.size()-8), 
+                                  fedRawData.size()/8, 
+                                  evf::compute_crc(fedRawData.data(),fedRawData.size()), 0, 0);
+             }
+         }
+      
+    }
+
+  // FIXME: FEDRawData size set to 2*64 to add FED header and trailer
+  for (int idcc=FEDNumbering::getCSCFEDIds().first;
+       idcc<=FEDNumbering::getCSCFEDIds().second;++idcc) 
+    {
+      FEDRawData & fedRawData = fed_buffers.FEDData(idcc);
+      if(fedRawData.size()==0){
+        fedRawData.resize(16);
+        FEDHeader cscFEDHeader(fedRawData.data());
+        cscFEDHeader.set(fedRawData.data(), 0, e.id().event(), 0, idcc);
+        FEDTrailer cscFEDTrailer(fedRawData.data()+(fedRawData.size()-8));
+        cscFEDTrailer.set(fedRawData.data()+(fedRawData.size()-8), 
+                          fedRawData.size()/8, 
+                          evf::compute_crc(fedRawData.data(),fedRawData.size()), 0, 0);
       }
     }
-  }
-      
-  // FIXME: FEDRawData size set to 2*64 to add FED header and trailer
-  for(std::map<int, CSCDCCEventData>::iterator dccMapItr = dccMap.begin(); 
-      dccMapItr != dccMap.end(); ++dccMapItr)
-  {
-     boost::dynamic_bitset<> dccBits = dccMapItr->second.pack();
-     FEDRawData & fedRawData = fed_buffers.FEDData(dccMapItr->first);
-     fedRawData.resize(dccBits.size());
-     //fill data with dccEvent
-     bitset_utilities::bitsetToChar(dccBits, fedRawData.data());
-     FEDTrailer cscFEDTrailer(fedRawData.data()+(fedRawData.size()-8));
-     cscFEDTrailer.set(fedRawData.data()+(fedRawData.size()-8), 
-                       fedRawData.size()/8, 
-                       evf::compute_crc(fedRawData.data(),fedRawData.size()), 0, 0);
-  }
+
 }
 
 

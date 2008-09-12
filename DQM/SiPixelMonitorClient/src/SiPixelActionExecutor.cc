@@ -1017,27 +1017,15 @@ MonitorElement* SiPixelActionExecutor::getFEDSummaryME(DQMStore* bei,
   //cout<<"...leaving SiPixelActionExecutor::getFEDSummaryME!"<<endl;
 }
 //=============================================================================================================
-void SiPixelActionExecutor::bookOccupancyPlots(DQMStore* bei, bool hiRes) {
+void SiPixelActionExecutor::bookOccupancyPlots(DQMStore* bei) {
 //std::cout<<"entering SiPixelActionExecutor::bookOccupancyPlots..."<<std::endl;
   bei->cd();
   bei->setCurrentFolder("Pixel/Barrel");
-  if(!hiRes){
-  //cout<<"booking low res barrel occ plot now!"<<endl;
-    BarrelOccupancyMap = bei->book2D("barrelOccupancyMap","Barrel Digi Occupancy Map (4 pix per bin)",208,0.,416.,80,0.,160.);
-  }else{
-  //cout<<"booking high res barrel occ plot now!"<<endl;
-    BarrelOccupancyMap = bei->book2D("barrelOccupancyMap","Barrel Digi Occupancy Map (1 pix per bin)",416,0.,416.,160,0.,160.);
-  }
+  BarrelOccupancyMap = bei->book2D("barrelOccupancyMap","Barrel Digi Occupancy Map",208,0.,416.,80,0.,160.);
   BarrelOccupancyMap->setAxisTitle("Columns",1);
   BarrelOccupancyMap->setAxisTitle("Rows",2);
   bei->setCurrentFolder("Pixel/Endcap");
-  if(!hiRes){
-  //cout<<"booking low res endcap occ plot now!"<<endl;
-    EndcapOccupancyMap = bei->book2D("endcapOccupancyMap","Endcap Digi Occupancy Map (4 pix per bin)",130,0.,260.,80,0.,160.);
-  }else{
-  //cout<<"booking high res endcap occ plot now!"<<endl;
-    EndcapOccupancyMap = bei->book2D("endcapOccupancyMap","Endcap Digi Occupancy Map (1 pix per bin)",260,0.,260.,160,0.,160.);
-  }
+  EndcapOccupancyMap = bei->book2D("endcapOccupancyMap","Endcap Digi Occupancy Map",130,0.,260.,80,0.,160.);
   EndcapOccupancyMap->setAxisTitle("Columns",1);
   EndcapOccupancyMap->setAxisTitle("Rows",2);
   //bei->setCurrentFolder("Pixel");
@@ -1091,14 +1079,12 @@ void SiPixelActionExecutor::fillBarrelOccupancy(DQMStore* bei) {
       vector<string> subdirs = bei->getSubdirs();
       for (vector<string>::const_iterator it = subdirs.begin(); it != subdirs.end(); it++) {
         if((bei->pwd()).find("Endcap")!=string::npos ||
-           (bei->pwd()).find("AdditionalPixelErrors")!=string::npos ||
-	   (bei->pwd()).find("EventInfo")!=string::npos) bei->goUp();
+           (bei->pwd()).find("AdditionalPixelErrors")!=string::npos) bei->goUp();
         bei->cd(*it);
 	//ls -ltr 
 	//std::cout<<"now I am in "<<bei->pwd()<<std::endl;
         if((*it).find("Endcap")!=string::npos ||
-           (*it).find("AdditionalPixelErrors")!=string::npos ||
-	   (*it).find("EventInfo")!=string::npos) continue;
+           (*it).find("AdditionalPixelErrors")!=string::npos) continue;
         //std::cout<<"calling myself again "<<std::endl;
 	fillBarrelOccupancy(bei);
         bei->goUp();
@@ -1110,7 +1096,7 @@ void SiPixelActionExecutor::fillBarrelOccupancy(DQMStore* bei) {
 }
 
 void SiPixelActionExecutor::fillEndcapOccupancy(DQMStore* bei) {
-//std::cout<<"entering SiPixelActionExecutor::fillEndcapOccupancy in: "<<bei->pwd()<<std::endl;
+//std::cout<<"entering SiPixelActionExecutor::fillEndcapOccupancy..."<<std::endl;
   string currDir = bei->pwd();
   string dname = currDir.substr(currDir.find_last_of("/")+1);
   QRegExp rx("Module_");
@@ -1129,10 +1115,8 @@ void SiPixelActionExecutor::fillEndcapOccupancy(DQMStore* bei) {
           if (!me) continue;
           EndcapOccupancyMap = bei->get("Pixel/Endcap/endcapOccupancyMap");
           if(EndcapOccupancyMap){ 
-	  //if((bei->pwd()).find("HalfCylinder_mI/Disk_1/Blade_12/Panel_1/Module_4")!=string::npos)
 	  //std::cout<<"I found the occupancy map!"<<std::endl;
-            //cout<<"I am here now: "<<bei->pwd()<<endl;
-	    for(int i=1; i!=me->getNbinsX()+1; i++){
+            for(int i=1; i!=me->getNbinsX()+1; i++){
 	      for(int j=1; j!=me->getNbinsY()+1; j++){
 	        if(currDir.find("Pixel/Endcap/HalfCylinder_pI/Disk_1/Blade_10/Panel_2/Module_1")!=string::npos &&
 		   i>26 && i<=52 && j>0 && j<=40) continue;
@@ -1143,13 +1127,7 @@ void SiPixelActionExecutor::fillEndcapOccupancy(DQMStore* bei) {
 	        float before = EndcapOccupancyMap->getBinContent(i,j);
 	        float now = me->getBinContent(i,j);
 	        float newcontent = before + now;
-	        //if((bei->pwd()).find("HalfCylinder_mI/Disk_1/Blade_12/Panel_1/Module_4")!=string::npos
-		//    && i<20 && j<3) 
-		//  cout<<"HERE: "<<i<<","<<j<<","<<before<<","<<now<<","<<newcontent<<endl;
 	        EndcapOccupancyMap->setBinContent(i,j,newcontent);
-	        //if((bei->pwd()).find("HalfCylinder_mI/Disk_1/Blade_12/Panel_1/Module_4")!=string::npos
-		  // if(i==5 && j==1) 
-		  //cout<<"filled: "<<i<<","<<j<<", with: "<<EndcapOccupancyMap->getBinContent(i,j)<<endl;
 	      }
 	    }
 	  }       
@@ -1161,22 +1139,19 @@ void SiPixelActionExecutor::fillEndcapOccupancy(DQMStore* bei) {
       vector<string> subdirs = bei->getSubdirs();
       for (vector<string>::const_iterator it = subdirs.begin(); it != subdirs.end(); it++) {
         if((bei->pwd()).find("Barrel")!=string::npos ||
-           (bei->pwd()).find("AdditionalPixelErrors")!=string::npos ||
-	   (bei->pwd()).find("EventInfo")!=string::npos) bei->goUp();
+           (bei->pwd()).find("AdditionalPixelErrors")!=string::npos) bei->goUp();
         bei->cd(*it);
 	//ls -ltr 
-	//if((bei->pwd()).find("HalfCylinder_mI/Disk_1/Blade_12/Panel_1/Module_4")!=string::npos) 
-	//  std::cout<<"now I am in "<<bei->pwd()<<std::endl;
+	//std::cout<<"now I am in "<<bei->pwd()<<std::endl;
         if((*it).find("Barrel")!=string::npos ||
-           (*it).find("AdditionalPixelErrors")!=string::npos ||
-	   (*it).find("EventInfo")!=string::npos) continue;
+           (*it).find("AdditionalPixelErrors")!=string::npos) continue;
         //std::cout<<"calling myself again "<<std::endl;
 	fillEndcapOccupancy(bei);
         bei->goUp();
       }
     }
       
-//std::cout<<"leaving SiPixelActionExecutor::fillEndcapOccupancy in: "<<bei->pwd()<<std::endl;
+//std::cout<<"leaving SiPixelActionExecutor::fillEndcapOccupancy..."<<std::endl;
    
 }
 //=============================================================================================================

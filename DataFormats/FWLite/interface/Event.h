@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:01:20 EDT 2007
-// $Id: Event.h,v 1.13 2008/07/24 20:38:45 dsr Exp $
+// $Id: Event.h,v 1.10 2008/06/03 17:36:10 dsr Exp $
 //
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
@@ -47,7 +47,6 @@ namespace edm {
   class BranchDescription;
   class EDProductGetter;
   class EventAux;
-  class Timestamp;
 }
 
 namespace fwlite {
@@ -137,8 +136,6 @@ class Event
       const Event& toBegin();
       
       // ---------- const member functions ---------------------
-      const std::string getBranchNameFor(const std::type_info&, const char*, const char*, const char*) const;
-
       /** This function should only be called by fwlite::Handle<>*/
       void getByLabel(const std::type_info&, const char*, const char*, const char*, void*) const;
       //void getByBranchName(const std::type_info&, const char*, void*&) const;
@@ -150,12 +147,10 @@ class Event
       Long64_t size() const;
 
       edm::EventID id() const;
-      const edm::Timestamp& time() const;
-   
+
       const std::vector<edm::BranchDescription>& getBranchDescriptions() const { 
         return branchMap_.getBranchDescriptions();
       }
-      const std::vector<std::string>& getProcessHistory() const;
 
       // ---------- static member functions --------------------
       static void throwProductNotFoundException(const std::type_info&, const char*, const char*, const char*);
@@ -172,8 +167,6 @@ class Event
       const edm::ProcessHistory& history() const;
       void updateAux(Long_t eventIndex) const;
       void fillFileIndex() const;
-
-      internal::Data& getBranchDataFor(const std::type_info&, const char*, const char*, const char*) const;
       
       edm::EDProduct const* getByProductID(edm::ProductID const&) const;
       // ---------- member data --------------------------------
@@ -190,7 +183,6 @@ class Event
       mutable std::vector<const char*> labels_;
       mutable edm::ProcessHistoryMap historyMap_;
       mutable std::vector<edm::EventProcessHistoryID> eventProcessHistoryIDs_;
-      mutable std::vector<std::string> procHistoryNames_;
       mutable edm::EventAuxiliary aux_;
       mutable edm::FileIndex fileIndex_;
       edm::EventAuxiliary* pAux_;

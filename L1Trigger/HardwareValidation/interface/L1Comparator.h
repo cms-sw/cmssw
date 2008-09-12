@@ -48,12 +48,12 @@ private:
   virtual void endJob();
 
   template <class T> 
-    void process( T const*, T const*, const int, const int);
+    void process( T const*, T const*, const int);
   template <class T> 
     void process(const edm::Handle<T> data, const edm::Handle<T> emul, 
-		 const int sys, const int cid) {
+		 const int sys) {
     if(data.isValid()&&emul.isValid())
-      process(data.product(),emul.product(),sys, cid);
+      process(data.product(),emul.product(),sys);
   }
 
   // gt, fedraw, extra

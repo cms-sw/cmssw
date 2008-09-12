@@ -1,14 +1,14 @@
 /**
  * \class L1GtTriggerMenuXmlParser
- *
- *
- * Description: Xerces-C XML parser for the L1 Trigger menu.
+ * 
+ * 
+ * Description: Xerces-C XML parser for the L1 Trigger menu.  
  *
  * Implementation:
  *    <TODO: enter implementation details>
- *
+ *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
- *
+ * 
  * $Date$
  * $Revision$
  *
@@ -113,37 +113,37 @@ void L1GtTriggerMenuXmlParser::setGtTriggerMenuName(const std::string& menuName)
 // get / set the vectors containing the conditions
 void L1GtTriggerMenuXmlParser::setVecMuonTemplate(
         const std::vector<std::vector<L1GtMuonTemplate> >& vecMuonTempl) {
-
+    
     m_vecMuonTemplate = vecMuonTempl;
 }
 
 void L1GtTriggerMenuXmlParser::setVecCaloTemplate(
         const std::vector<std::vector<L1GtCaloTemplate> >& vecCaloTempl) {
-
+    
     m_vecCaloTemplate = vecCaloTempl;
 }
 
 void L1GtTriggerMenuXmlParser::setVecEnergySumTemplate(
         const std::vector<std::vector<L1GtEnergySumTemplate> >& vecEnergySumTempl) {
-
+    
     m_vecEnergySumTemplate = vecEnergySumTempl;
 }
 
 void L1GtTriggerMenuXmlParser::setVecJetCountsTemplate(
         const std::vector<std::vector<L1GtJetCountsTemplate> >& vecJetCountsTempl) {
-
+    
     m_vecJetCountsTemplate = vecJetCountsTempl;
 }
 
 void L1GtTriggerMenuXmlParser::setVecCastorTemplate(
         const std::vector<std::vector<L1GtCastorTemplate> >& vecCastorTempl) {
-
+    
     m_vecCastorTemplate = vecCastorTempl;
 }
 
 void L1GtTriggerMenuXmlParser::setVecCorrelationTemplate(
         const std::vector<std::vector<L1GtCorrelationTemplate> >& vecCorrelationTempl) {
-
+    
     m_vecCorrelationTemplate = vecCorrelationTempl;
 }
 
@@ -151,19 +151,19 @@ void L1GtTriggerMenuXmlParser::setVecCorrelationTemplate(
 //
 void L1GtTriggerMenuXmlParser::setCorMuonTemplate(
         const std::vector<std::vector<L1GtMuonTemplate> >& corMuonTempl) {
-
+    
     m_corMuonTemplate = corMuonTempl;
 }
 
 void L1GtTriggerMenuXmlParser::setCorCaloTemplate(
         const std::vector<std::vector<L1GtCaloTemplate> >& corCaloTempl) {
-
+    
     m_corCaloTemplate = corCaloTempl;
 }
 
 void L1GtTriggerMenuXmlParser::setCorEnergySumTemplate(
         const std::vector<std::vector<L1GtEnergySumTemplate> >& corEnergySumTempl) {
-
+    
     m_corEnergySumTemplate = corEnergySumTempl;
 }
 
@@ -192,27 +192,27 @@ void L1GtTriggerMenuXmlParser::parseXmlFile(const std::string& defXmlFile,
     // resize the vector of condition maps
     // the number of condition chips should be correctly set before calling parseXmlFile
     m_conditionMap.resize(m_numberConditionChips);
-
+    
     m_vecMuonTemplate.resize(m_numberConditionChips);
     m_vecCaloTemplate.resize(m_numberConditionChips);
     m_vecEnergySumTemplate.resize(m_numberConditionChips);
     m_vecJetCountsTemplate.resize(m_numberConditionChips);
     m_vecCastorTemplate.resize(m_numberConditionChips);
-
+    
     m_vecCorrelationTemplate.resize(m_numberConditionChips);
     m_corMuonTemplate.resize(m_numberConditionChips);
     m_corCaloTemplate.resize(m_numberConditionChips);
     m_corEnergySumTemplate.resize(m_numberConditionChips);
-
+    
     // set the name of the trigger menu: defXmlFile, stripped of absolute path and .xml
     std::string::iterator itString;
     m_triggerMenuName = defXmlFile;
     size_t xmlPos = m_triggerMenuName.find_last_of("/");
     m_triggerMenuName.erase(m_triggerMenuName.begin(), m_triggerMenuName.begin()+ xmlPos+1);
-
+    
     xmlPos = m_triggerMenuName.find_last_of(".");
     m_triggerMenuName.erase(m_triggerMenuName.begin()+ xmlPos, m_triggerMenuName.end());
-
+    
     // error handler for xml-parser
     m_xmlErrHandler = 0;
 
@@ -534,7 +534,7 @@ bool L1GtTriggerMenuXmlParser::hexString2UInt128(const std::string& hexString,
 }
 
 /**
- * getXMLHexTextValue128 Get the integer representation of a xml-node
+ * getXMLHexTextValue128 Get the integer representation of a xml-node 
  *     containing a hexadecimal value. The value may contain up to 128 bits.
  *
  * node - The reference to the node to get the value from.
@@ -567,7 +567,7 @@ bool L1GtTriggerMenuXmlParser::getXMLHexTextValue128(XERCES_CPP_NAMESPACE::DOMNo
 }
 
 /**
- * getXMLHexTextValue Get the integer representation of a xml text child
+ * getXMLHexTextValue Get the integer representation of a xml text child 
  *     representing a hex value
  *
  * @param node The xml node to get the value from.
@@ -598,11 +598,11 @@ bool L1GtTriggerMenuXmlParser::getXMLHexTextValue(XERCES_CPP_NAMESPACE::DOMNode*
 }
 
 /**
- * countConditionChildMaxBits Count the set bits in the max attribute.
+ * countConditionChildMaxBits Count the set bits in the max attribute. 
  *     Needed for the wsc-values to determine 180 degree.
  *
  * @param node The xml node of the condition.
- * @param childName The name of the child
+ * @param childName The name of the child 
  * @param dst The destination to write the number of bits.
  *
  * @return true if the bits could be determined, otherwise false.
@@ -721,13 +721,13 @@ bool L1GtTriggerMenuXmlParser::countConditionChildMaxBits(XERCES_CPP_NAMESPACE::
 
 /**
  * getConditionChildValues - Get values from a child of a condition.
- *
+ * 
  * @param node The xml node of the condition.
  * @param childName The name of the child the values should be extracted from.
  * @param num The number of values needed.
  * @param dst A pointer to a vector of boost::uint64_t where the results are written.
  *
- * @return true if suceeded. false if an error occured or not enough values found.
+ * @return true if suceeded. false if an error occured or not enough values found. 
  */
 
 bool L1GtTriggerMenuXmlParser::getConditionChildValues(XERCES_CPP_NAMESPACE::DOMNode* node,
@@ -823,11 +823,11 @@ boost::uint64_t L1GtTriggerMenuXmlParser::mirror(const boost::uint64_t oldLUT,
 
     boost::uint64_t newLUT = 0ULL;
     int newBit = -1;
-
+    
     int firstBin = 0;
     int diffScale = maxBitsLUT - maxBitsReal;
     //int bits16 = maxBitsLUT/4; // hex size
-
+    
     if (diffScale != 0) {
         firstBin = 1;
     }
@@ -855,18 +855,18 @@ boost::uint64_t L1GtTriggerMenuXmlParser::mirror(const boost::uint64_t oldLUT,
 
         newLUT = newLUT | (bitValue << newBit);
 
-        //LogTrace("L1GtTriggerMenuXmlParser") << "  old bit number -> new bit number: "
+        //LogTrace("L1GtTriggerMenuXmlParser") << "  old bit number -> new bit number: " 
         //        << oldBit
         //        << "\t ---> " << newBit << ";\t  bit value = "
         //        << bitValue << std::endl;
     }
 
     //LogTrace("L1GtTriggerMenuXmlParser") << "\n Converting old LUT  (hex) "
-    //        << "\n    GTgui.XML:    "
-    //        << std::hex << std::setw(bits16) << std::setfill('0')
+    //        << "\n    GTgui.XML:    " 
+    //        << std::hex << std::setw(bits16) << std::setfill('0') 
     //        << oldLUT
-    //        << "\n    Mirror:       "
-    //        << std::hex << std::setw(bits16) << std::setfill('0')
+    //        << "\n    Mirror:       " 
+    //        << std::hex << std::setw(bits16) << std::setfill('0') 
     //        << newLUT << std::dec
     //        << std::endl;
 
@@ -878,7 +878,7 @@ boost::uint64_t L1GtTriggerMenuXmlParser::mirror(const boost::uint64_t oldLUT,
 
 /**
  * parseVmeXML parse a xml file
- *
+ * 
  * @param parser The parser to use for parsing the file.
  *
  * @return true if succeeded, false if an error occured.
@@ -923,7 +923,7 @@ bool L1GtTriggerMenuXmlParser::parseVmeXML(XERCES_CPP_NAMESPACE::XercesDOMParser
         //DOMNode* particleNode = n1->getFirstChild(); // FIXME un-comment
 
         // FIXME parse vme.xml, modify the menu
-
+        
         n1 = n1->getNextSibling();
         chipCounter++;
     } // end while chipCounter
@@ -993,7 +993,7 @@ bool L1GtTriggerMenuXmlParser::insertAlgorithmIntoMap(const L1GtAlgorithm& alg) 
         return false;
     }
 
-    // bit number less than zero or greater than maximum number of algorithms
+    // bit number less than zero or greater than maximum number of algorithms 
     int bitNumber = alg.algoBitNumber();
     if ((bitNumber < 0) || (bitNumber >= static_cast<int>(m_numberPhysTriggers))) {
         LogTrace("L1GtTriggerMenuXmlParser") << "      Bit number " << bitNumber
@@ -1067,7 +1067,7 @@ bool L1GtTriggerMenuXmlParser::insertTechTriggerIntoMap(const L1GtAlgorithm& alg
 
     std::string algName = alg.algoName();
     //LogTrace("L1GtTriggerMenuXmlParser")
-    //<< "    Trying to insert technical trigger \"" << algName
+    //<< "    Trying to insert technical trigger \"" << algName 
     //<< "\" in the technical trigger map." ;
 
     // no technical trigger name has to appear twice!
@@ -1079,7 +1079,7 @@ bool L1GtTriggerMenuXmlParser::insertTechTriggerIntoMap(const L1GtAlgorithm& alg
         return false;
     }
 
-    // bit number less than zero or greater than maximum number of technical triggers
+    // bit number less than zero or greater than maximum number of technical triggers 
     int bitNumber = alg.algoBitNumber();
     if ((bitNumber < 0)
             || (bitNumber >= static_cast<int>(m_numberTechTriggers))) {
@@ -1161,7 +1161,7 @@ L1GtConditionType L1GtTriggerMenuXmlParser::getTypeFromType(const std::string& t
 }
 
 /**
- * getNumFromType - get the number of particles from a specified type name
+ * getNumFromType - get the number of particles from a specified type name 
  * (for calorimeter objects and muons)
  *
  * @param type The name of the type
@@ -1200,7 +1200,7 @@ int L1GtTriggerMenuXmlParser::getNumFromType(const std::string &type) {
 
 /**
  * getBitFromNode Get a bit from a specified bitvalue node.
- *
+ * 
  * @param node The xml node.
  *
  * @return The value of the bit or -1 if an error occured.
@@ -1279,7 +1279,7 @@ int L1GtTriggerMenuXmlParser::getGEqFlag(XERCES_CPP_NAMESPACE::DOMNode* node,
 /**
  * getMuonMipIsoBits - get MIP and Isolation bits from a muon.
  *
- * @param node The node of the condition.
+ * @param node The node of the condition. 
  * @param num The number of bits required.
  * @param mipDst A pointer to the vector of the MIP bits.
  * @param isoEnDst A pointer to the vector of the "enable isolation" bits.
@@ -1489,16 +1489,16 @@ bool L1GtTriggerMenuXmlParser::parseMuon(XERCES_CPP_NAMESPACE::DOMNode* node,
     // FIXME write it correctly in the new GTgui and remove this conversion block
 
     int maxBitsReal = 64;
-
+    
     // maximum number of bits for eta range
     int maxBitsLUT = 64;
 
     /// >>>>>>
-
+    
     for (int i = 0; i < nrObj; i++) {
-
-        //objParameter[i].etaRange = mirror(tmpValues[i], maxBitsLUT, maxBitsReal);
-        objParameter[i].etaRange = tmpValues[i];
+        
+        objParameter[i].etaRange = mirror(tmpValues[i], maxBitsLUT, maxBitsReal);
+        //objParameter[i].etaRange = tmpValues[i];
 
         //LogTrace("L1GtTriggerMenuXmlParser")
         //<< "      etaRange (hex) for muon " << i << " = "
@@ -1646,7 +1646,7 @@ bool L1GtTriggerMenuXmlParser::parseMuon(XERCES_CPP_NAMESPACE::DOMNode* node,
 
     // insert condition into the map and into muon template vector
     if ( !insertConditionIntoMap(muonCond, chipNr)) {
-
+        
         edm::LogError("L1GtTriggerMenuXmlParser")
                 << "    Error: duplicate condition (" << name << ")"
                 << std::endl;
@@ -1763,7 +1763,7 @@ bool L1GtTriggerMenuXmlParser::parseCalo(XERCES_CPP_NAMESPACE::DOMNode* node,
     // FIXME write it correctly in the new GTgui and remove this conversion block
 
     int maxBitsReal = 14;
-
+    
     if (caloObjType == ForJet) {
         maxBitsReal = 8;
     }
@@ -1772,11 +1772,11 @@ bool L1GtTriggerMenuXmlParser::parseCalo(XERCES_CPP_NAMESPACE::DOMNode* node,
     int maxBitsLUT = 16;
 
     /// >>>>>>
-
+    
     for (int i = 0; i < nrObj; i++) {
-
-        //objParameter[i].etaRange = static_cast<unsigned int> (mirror(tmpValues[i], maxBitsLUT, maxBitsReal));
-        objParameter[i].etaRange = tmpValues[i];
+        
+        objParameter[i].etaRange = static_cast<unsigned int> (mirror(tmpValues[i], maxBitsLUT, maxBitsReal));
+        //objParameter[i].etaRange = tmpValues[i];
 
         //LogTrace("L1GtTriggerMenuXmlParser")
         //<< "      etaRange (hex) for calo object " << i << " = "
@@ -2086,7 +2086,7 @@ bool L1GtTriggerMenuXmlParser::parseEnergySum(
 }
 
 /**
- * parseJetCounts Parse a "jet counts" condition and
+ * parseJetCounts Parse a "jet counts" condition and 
  * insert an entry to the conditions map
  *
  * @param node The corresponding node.
@@ -2249,9 +2249,9 @@ bool L1GtTriggerMenuXmlParser::parseJetCounts(XERCES_CPP_NAMESPACE::DOMNode* nod
 
         return false;
     } else {
-
+        
         (m_vecJetCountsTemplate[chipNr]).push_back(jetCountsCond);
-
+        
     }
 
 
@@ -2260,7 +2260,7 @@ bool L1GtTriggerMenuXmlParser::parseJetCounts(XERCES_CPP_NAMESPACE::DOMNode* nod
 }
 
 /**
- * parseCastor Parse a CASTOR condition and
+ * parseCastor Parse a CASTOR condition and 
  * insert an entry to the conditions map
  *
  * @param node The corresponding node.
@@ -2282,7 +2282,7 @@ bool L1GtTriggerMenuXmlParser::parseCastor(XERCES_CPP_NAMESPACE::DOMNode* node,
     std::string type = getXMLAttribute(node, m_xmlConditionAttrType);
 
     if (particle != m_xmlConditionAttrObjectCastor) {
-        edm::LogError("L1GtTriggerMenuXmlParser")
+        edm::LogError("L1GtTriggerMenuXmlParser") 
             << "\nError: wrong particle for Castor condition ("
             << particle << ")" << std::endl;
         return false;
@@ -2317,15 +2317,15 @@ bool L1GtTriggerMenuXmlParser::parseCastor(XERCES_CPP_NAMESPACE::DOMNode* node,
     // insert condition into the map
     if ( !insertConditionIntoMap(castorCond, chipNr)) {
 
-        edm::LogError("L1GtTriggerMenuXmlParser")
+        edm::LogError("L1GtTriggerMenuXmlParser") 
             << "    Error: duplicate condition (" << name
             << ")" << std::endl;
 
         return false;
     } else {
-
+        
         (m_vecCastorTemplate[chipNr]).push_back(castorCond);
-
+        
     }
 
 
@@ -2334,7 +2334,7 @@ bool L1GtTriggerMenuXmlParser::parseCastor(XERCES_CPP_NAMESPACE::DOMNode* node,
 }
 
 /**
- * parseCorrelation Parse a correlation condition and
+ * parseCorrelation Parse a correlation condition and 
  * insert an entry to the conditions map
  *
  * @param node The corresponding node.
@@ -2363,7 +2363,7 @@ bool L1GtTriggerMenuXmlParser::parseCorrelation(
 
         return false;
     }
-
+    
     // get condition, particle name and type name
     std::string condition = getXMLAttribute(node, m_xmlConditionAttrCondition);
     std::string particle = getXMLAttribute(node, m_xmlConditionAttrObject);
@@ -2383,7 +2383,7 @@ bool L1GtTriggerMenuXmlParser::parseCorrelation(
     int intGEq[nrObj] = { -1, -1 };
     std::vector<L1GtObject> objType(nrObj);
     std::vector<L1GtConditionCategory> condCateg(nrObj);
-
+    
     // correlation flag and index in the cor*vector
     const bool corrFlag = true;
     int corrIndexVal[nrObj] = { -1, -1 };
@@ -2407,7 +2407,7 @@ bool L1GtTriggerMenuXmlParser::parseCorrelation(
                 << condition << ", particle: " << particle << ", type: "
                 << type << ", name: " << conditionNameNodeName << "\n"
                 << std::endl;
-
+        
         // call the appropiate function for this condition
         if (condition == m_xmlConditionAttrConditionMuon) {
             if (!parseMuon(conditionsNode, conditionNameNodeName, chipNr,
@@ -2597,7 +2597,7 @@ bool L1GtTriggerMenuXmlParser::parseCorrelation(
 //    }
 //
 //    corrParameter.deltaPhiRange = tmpValues[0];
-
+    
    node1 = findXMLChild(node->getFirstChild(), m_xmlTagDeltaPhi);
 
     if (node1 == 0) {
@@ -2611,7 +2611,7 @@ bool L1GtTriggerMenuXmlParser::parseCorrelation(
     }
 
     corrParameter.deltaPhiRange = valString;
-
+    
     // get maximum number of bits for delta phi
     //LogTrace("L1GtTriggerMenuXmlParser")
     //<< "      Counting deltaPhiMaxbits"
@@ -2628,7 +2628,7 @@ bool L1GtTriggerMenuXmlParser::parseCorrelation(
     //<< "        deltaPhiMaxbits (dec) = " << maxbits
     //<< std::endl;
 
-
+    
     // fill the correlation condition
     correlationCond.setCondType(cType);
     correlationCond.setObjectType(objType);
@@ -2640,7 +2640,7 @@ bool L1GtTriggerMenuXmlParser::parseCorrelation(
 
     correlationCond.setCond0Index(corrIndexVal[0]);
     correlationCond.setCond1Index(corrIndexVal[1]);
-
+    
     correlationCond.setCorrelationParameter(corrParameter);
 
     if (edm::isDebugEnabled() ) {
@@ -2652,7 +2652,7 @@ bool L1GtTriggerMenuXmlParser::parseCorrelation(
 
     }
 
-    // insert condition into the map
+    // insert condition into the map 
     // condition is not duplicate, check was done at the beginning
 
     (m_vecCorrelationTemplate[chipNr]).push_back(correlationCond);
@@ -2716,7 +2716,7 @@ bool L1GtTriggerMenuXmlParser::workCondition(XERCES_CPP_NAMESPACE::DOMNode* node
         return parseCorrelation(node, name, chipNr);
     }
     else {
-        edm::LogError("L1GtTriggerMenuXmlParser")
+        edm::LogError("L1GtTriggerMenuXmlParser") 
             << "\n Error: unknown condition (" << condition << ")"
             << std::endl;
 
@@ -2728,7 +2728,7 @@ bool L1GtTriggerMenuXmlParser::workCondition(XERCES_CPP_NAMESPACE::DOMNode* node
 }
 
 /**
- * parseConditions - look for conditions and call the workCondition
+ * parseConditions - look for conditions and call the workCondition 
  *                   function for each node
  *
  * @param parser The parser to parse the XML file with.
@@ -2921,13 +2921,13 @@ bool L1GtTriggerMenuXmlParser::workAlgorithm(XERCES_CPP_NAMESPACE::DOMNode* node
 
 /*
  * parseAlgorithms Parse the algorithms
- * NOTE: the algorithms used here are equivalent to "prealgo" from XML file
+ * NOTE: the algorithms used here are equivalent to "prealgo" from XML file 
  *       for the VERSION_FINAL
  *       The "VERSION_PROTOTYPE algo" will be phased out later in the XML file
  *       See L1GlobalTriggerConfig.h (in the attic)
- *
+ * 
  * @param parser A reference to the XercesDOMParser to use.
- *
+ * 
  * @return "true" if succeeded, "false" if an error occured.
  *
  */
@@ -3057,7 +3057,7 @@ bool L1GtTriggerMenuXmlParser::workTechTrigger(XERCES_CPP_NAMESPACE::DOMNode* no
     }
 
     if (pinNode == 0) {
-        LogTrace("L1GtTriggerMenuXmlParser")
+        LogTrace("L1GtTriggerMenuXmlParser") 
             << "    Warning: No pin number found for technical trigger: "
             << algName << std::endl;
 
@@ -3094,9 +3094,9 @@ bool L1GtTriggerMenuXmlParser::workTechTrigger(XERCES_CPP_NAMESPACE::DOMNode* no
 
 /*
  * parseTechTriggers Parse the technical triggers
- *
+ * 
  * @param parser A reference to the XercesDOMParser to use.
- *
+ * 
  * @return "true" if succeeded, "false" if an error occured.
  *
  */

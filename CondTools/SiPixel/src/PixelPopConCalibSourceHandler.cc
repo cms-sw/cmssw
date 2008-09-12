@@ -13,7 +13,7 @@
 //
 // Original Author:  Michael Eads
 //         Created:  8 Feb 2008
-// $Id: PixelPopConCalibSourceHandler.cc,v 1.1 2008/02/29 19:13:24 meads Exp $
+// $Id$
 //
 //
 
@@ -37,8 +37,6 @@
 #include "CoralBase/AttributeList.h"
 #include "CoralBase/Attribute.h"
 
-#include "CalibFormats/SiPixelObjects/interface/PixelCalibConfiguration.h"
-
 // test poolDBOutput
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -52,6 +50,21 @@ PixelPopConCalibSourceHandler::PixelPopConCalibSourceHandler(edm::ParameterSet c
   // try to get a parameter
   _connectString = pset.getParameter<string>("connectString");
   //cout << "  connectString: " << _connectString << endl;
+
+  string coral_auth_path = pset.getUntrackedParameter<string>("CORAL_AUTH_PATH", "");
+  string tns_admin = pset.getUntrackedParameter<string>("TNS_ADMIN", "");
+  //cout << "  CORAL_AUTH_PATH = " << coral_auth_path << endl;
+  //cout << "  TNS_ADMIN = " << tns_admin << endl;
+
+  // set environment variables. If already set, don't change
+  if (coral_auth_path != "") {
+    // don't change it if it is already defined
+    setenv("CORAL_AUTH_PATH", coral_auth_path.c_str(), 0);
+  }
+  if (tns_admin != "") {
+    // don't change it if it is already defined
+    setenv("TNS_ADMIN", tns_admin.c_str(), 0);
+  }
 
   // get the schema and view name to use from the config file
   _viewName = pset.getParameter<string>("viewName");
@@ -78,12 +91,21 @@ string PixelPopConCalibSourceHandler::id() const {
 } // string PixelPopConCalibSourceHandler::id()
 
 
+// method to get new objects
+void PixelPopConCalibSourceHandler::getNewObjects() {
+  
+  // look at _connectString to see which method to call
+  if (_connectString.find("oracle") == 0)
+    getNewObjects_coral();
+  else if (_connectString.find("file") == 0)
+    getNewObjects_file();
+  else
+    cout << "  PixelPopConCalibSourceHandler::getNewObjects() - unknown connect string" << endl;
+
+} // getNewObjects()
+
 // getNewObjects method using coral 
 void PixelPopConCalibSourceHandler::getNewObjects_coral() {
-	cout << "I'm sorry, the PixelPopConCalibSourceHandler::getNewObjects_coral() is not currently working." << endl;
-	cout << "I am not able to build calibration configuration objects from the database" << endl;
-	return;
-	
   // create the empty SiPixelCalibConfiguration object
   SiPixelCalibConfiguration* calibConfig = new SiPixelCalibConfiguration();
   
@@ -110,11 +132,12 @@ void PixelPopConCalibSourceHandler::getNewObjects_coral() {
   coral::IQuery* query = coraldb.coralSessionProxy().schema(_schemaName).newQuery();
   query->addToTableList(_viewName);
   query->addToOutputList("CONFG_KEY");
-  query->addToOutputList("VERSION");
-  query->addToOutputList("RUN_TYPE");
   query->addToOutputList("RUN_NUMBER");
-  query->addToOutputList("CALIB_OBJ_DATA_FILE");
-  query->addToOutputList("CALIB_OBJ_DATA_CLOB");
+  query->addToOutputList("CALIB_MODE");
+  query->addToOutputList("CALIB_FUNCTION");
+  query->addToOutputList("CALIB_OBJECT");
+  query->addToOutputList("PARAMETER");
+  query->addToOutputList("VALUE");
 
   // if _runNumber is -1, query by config key name
   if (_runNumber == -1)
@@ -130,12 +153,8 @@ void PixelPopConCalibSourceHandler::getNewObjects_coral() {
   bool found_fVCalValues = false;
   bool found_fMode = false;
   while ( cursor.next() ) {
-	  cout << "Inside cursor.next() loop" << endl;
     //cursor.currentRow().toOutputStream( std::cout ) << std::endl;
     coral::AttributeList row = cursor.currentRow();
-    
-    string mystring = row["CALIB_OBJ_DATA_CLOB"].data<string>();
-    cout << "mystring: " << mystring << endl;
 
     // get fMode
     if (!found_fMode) {
@@ -280,22 +299,6 @@ void PixelPopConCalibSourceHandler::getNewObjects_coral() {
 
 // getNewObjects method using a text file
 void PixelPopConCalibSourceHandler::getNewObjects_file() {
-	// check to make sure the _connectString begins with "file//"
-	if (_connectString.find("file://") != 0) {
-		cout << "Invalid connectString: " << _connectString << endl;
-		cout << "It should begin with \"file://\"" << endl;
-		return;
-	}
-	// strip the "file://" from the connect string
-	string inputFilename = _connectString.erase(0, 7);
-	
-	cout << "PopCon-ing the calibration configuration file located at " << inputFilename << endl;
-
-	// use online code to parse the file
-	pos::PixelCalibConfiguration fancyCalib(inputFilename);
-	SiPixelCalibConfiguration *calibConfig = new SiPixelCalibConfiguration(fancyCalib);
-	
-	m_to_transfer.push_back(std::make_pair(calibConfig, _sinceIOV));
-  
+  cout << "Sorry, PixelPopConCalibSourceHandler::getNewObjects_file() is not yet implemented" << endl;
 } // void PixelPopConCalibSourceHandler::getNewObjects_file()
 

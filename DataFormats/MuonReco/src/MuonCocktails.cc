@@ -34,7 +34,7 @@ reco::TrackRef muon::tevOptimized( const reco::TrackRef& combinedTrack,
   if (ok[3]) refit[3] = (*pmrTrack).val;
   
   for (unsigned int i=0; i<4; i++)
-    prob[i] = (ok[i] && refit[i]->recHitsSize())
+    prob[i] = (ok[i] && refit[i]->numberOfValidHits())
       ? trackProbability(refit[i]) : 0.0; 
 
 //  std::cout << "Probabilities: " << prob[0] << " " << prob[1] << " " << prob[2] << " " << prob[3] << std::endl;
@@ -81,7 +81,7 @@ reco::TrackRef muon::tevOptimizedOld( const reco::TrackRef& combinedTrack,
   if (ok[3]) refit[3] = (*pmrTrack).val;
   
   for (unsigned int i=0; i<4; i++)
-    prob[i] = (ok[i] && refit[i]->recHitsSize())
+    prob[i] = (ok[i] && refit[i]->numberOfValidHits())
       ? trackProbability(refit[i]) : 0.0; 
 
 //  std::cout << "Probabilities: " << prob[0] << " " << prob[1] << " " << prob[2] << " " << prob[3] << std::endl;

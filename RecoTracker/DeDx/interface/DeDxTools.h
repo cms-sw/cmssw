@@ -15,12 +15,10 @@ namespace DeDxTools  {
     double charge;
     double angleCosine;
     DetId detId;
-    const TrajectoryMeasurement* trajectoryMeasurement;
    
   };
-
-  void trajectoryRawHits(const edm::Ref<std::vector<Trajectory> >& trajectory, std::vector<RawHits>& hits, bool usePixel, bool useStrip);
-//  std::vector<RawHits> trajectoryRawHits(const Trajectory & trajectory);
+  
+  std::vector<RawHits> trajectoryRawHits(const Trajectory & trajectory);
  
 ///////// some helper function maybe they are useless 
  
@@ -43,6 +41,6 @@ namespace DeDxTools  {
    */
    float betaFromInvertedBetheBloch(float dedx);
  
-}
+ }
 
 #endif

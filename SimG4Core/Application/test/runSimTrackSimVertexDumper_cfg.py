@@ -10,6 +10,10 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring('file:myfile.root')
 )
 
+process.TFileService = cms.Service("TFileService",
+    fileName = cms.string("pippo.root")
+)
+
 process.prod = cms.EDFilter("SimTrackSimVertexDumper",
     moduleLabelTk = cms.untracked.string('g4SimHits'),
     moduleLabelVtx = cms.untracked.string('g4SimHits'),

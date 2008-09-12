@@ -178,6 +178,8 @@ namespace edm {
   void RootOutputFile::beginInputFile(FileBlock const& fb, bool fastClone) {
 
     currentlyFastCloning_ = om_->fastCloning() && fb.fastClonable() && fastClone;
+    if (currentlyFastCloning_) currentlyFastCloning_ = eventTree_.checkSplitLevelAndBasketSize(fb.tree());
+
     eventTree_.beginInputFile(currentlyFastCloning_);
     eventTree_.fastCloneTree(fb.tree());
   }
@@ -341,7 +343,7 @@ namespace edm {
     ProductList & pList  = const_cast<ProductList &>(pReg.productList());
     std::set<BranchID>::iterator end = om_->registryItems().end();
     for (ProductList::iterator it = pList.begin(); it != pList.end(); ) {
-      if (om_->registryItems().find(it->second.branchID()) == end) {
+      if (branchesWithStoredHistory_.find(it->second.branchID()) == end) {
 	// avoid invalidating iterator on deletion
 	ProductList::iterator itCopy = it;
 	++it;
@@ -408,4 +410,21 @@ namespace edm {
       }
     }
   }
+   
+   void RootOutputFile::insertAncestors(const EventEntryInfo& iGetParents,
+                                        const BranchMapper& iMapper,
+                                        std::set<EventEntryInfo>& oToFill) {
+      const std::vector<BranchID>& parentIDs = iGetParents.entryDescription().parents();
+      for(std::vector<BranchID>::const_iterator it=parentIDs.begin(), itEnd = parentIDs.end();
+          it != itEnd; ++it) {
+         branchesWithStoredHistory_.insert(*it);
+         boost::shared_ptr<EventEntryInfo> info = iMapper.branchToEntryInfo(*it);
+         if(info) {
+            if(oToFill.insert(*info).second) {
+               //haven't seen this one yet
+               insertAncestors(*info, iMapper, oToFill);
+            }
+         }
+      }
+   }
 }

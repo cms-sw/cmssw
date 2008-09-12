@@ -2,9 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 photonValidation = cms.EDAnalyzer("PhotonValidator",
     OutputMEsInRootFile = cms.bool(True),
-    dEtaTracksMin = cms.double(-0.2),
     eMin = cms.double(0.0),
     hcalIsolExtR = cms.double(0.3),
+    dEtaTracksMin = cms.double(-0.2),
     dEtaTracksMax = cms.double(0.2),
     hcalIsolInnR = cms.double(0.0),
     scEndcapProducer = cms.string('correctedMulti5x5SuperClustersWithPreshower'),
@@ -45,12 +45,12 @@ photonValidation = cms.EDAnalyzer("PhotonValidator",
     eBin = cms.int32(100),
     maxNumOfTracksInCone = cms.int32(3),
     etMax = cms.double(100.0),
-#                                   etMax = cms.double(1100.0),
+                          #         etMax = cms.double(1100.0),
     hcalEtSumCut = cms.double(6.0),
     phoProducer = cms.string('photons'),
     minHcalHitEtCut = cms.double(0.0),
     etaMin = cms.double(-2.5),
-    minPhoEtCut = cms.double(10.0),
+    minPhoEtCut = cms.double(35.0),
 #    minPhoEtCut = cms.double(1000.0),
     dPhiTracksBin = cms.int32(100),
     scBarrelProducer = cms.string('correctedHybridSuperClusters'),
@@ -72,7 +72,12 @@ photonValidation = cms.EDAnalyzer("PhotonValidator",
     resMin = cms.double(0.7),
 #                                   resMin = cms.double(0.),
     resMax = cms.double(1.2),
-    resBin = cms.int32(100)
+    resBin = cms.int32(100),
+    dCotCutOn =cms.bool(False),
+    dCotCutValue=cms.double(0.05),
+    dCotHardCutValue=cms.double(0.02)                              
+  
+ 
 )
 
 

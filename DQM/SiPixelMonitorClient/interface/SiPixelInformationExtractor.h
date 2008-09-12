@@ -103,8 +103,6 @@ class SiPixelInformationExtractor {
                                  bool                                     init,
                                  edm::EventSetup const                  & eSetup);
   
-  void findNoisyPixels (         DQMStore                               * bei);
-  
   void createImages             (DQMStore                               * bei);
   
  private:
@@ -202,10 +200,6 @@ class SiPixelInformationExtractor {
   MonitorElement * SummaryHCmO;
   MonitorElement * SummaryHCpI;
   MonitorElement * SummaryHCpO;
-  
-  MonitorElement * EndcapNdigisFREQProjection;
-  MonitorElement * BarrelNdigisFREQProjection;
-  
   
   SiPixelHistoPlotter* histoPlotter_;
 };

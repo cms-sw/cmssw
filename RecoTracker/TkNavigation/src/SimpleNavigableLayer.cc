@@ -18,21 +18,21 @@ bool SimpleNavigableLayer::wellInside( const FreeTrajectoryState& fts,
 
   if (bl==detLayer()){
     //self propagating. step one: go close to the center
-    GlobalPoint initialPoint = fts.position();
+    double dotIn = fts.position().basicVector().dot(fts.momentum().basicVector());
     TransverseImpactPointExtrapolator middle;
     GlobalPoint center(0,0,0);
     propState = middle.extrapolate(fts, center, propagator(dir));
     if ( !propState.isValid()) return false;
     FreeTrajectoryState & dest = *propState.freeState();
-    GlobalPoint middlePoint = dest.position();
+    double dot = dest.position().basicVector().dot(dest.momentum().basicVector());
     std::string dirS;
     if (dir==alongMomentum) dirS = "alongMomentum";
     else if (dir==oppositeToMomentum) dirS = "oppositeToMomentum";
     else dirS = "anyDirection";
 
     LogDebug("SimpleNavigableLayer")<<"self propagating("<< dir <<") from:\n"
-				    <<fts<<"\n"
-				    <<dest<<"\n"
+				    <<fts<<"\n with dot product: "<< dotIn  <<" to \n"
+				    <<dest<<" with dot product: "<< dot<<"\n"
 				    <<" and the direction is: "<<dir<<" = "<<dirS;
     
     //second propagation to go on the other side of the barrel
@@ -40,11 +40,12 @@ bool SimpleNavigableLayer::wellInside( const FreeTrajectoryState& fts,
     if ( !propState.isValid()) return false;
 
     FreeTrajectoryState & dest2 = *propState.freeState();
-    GlobalPoint finalPoint = dest2.position();
+    double dot2 = dest2.position().basicVector().dot(dest2.momentum().basicVector());
     LogDebug("SimpleNavigableLayer")<<"second propagation("<< dir <<") to: \n"
-				    <<dest2;
-    double finalDot = (middlePoint - initialPoint).basicVector().dot((finalPoint-middlePoint).basicVector());
-    if (finalDot<0){ // check that before and after are in different side.
+                   <<dest2<<" with dot product: "<< dot2;
+    //    if (dot*dot2<0){
+    //    if (dot*dotIn>0 || dot*dot2<0){
+    if (dot2*dotIn>0){ // check that before and after are in different side.
       LogDebug("SimpleNavigableLayer")<<"switch side back: ABORT.";
       return false;
     }

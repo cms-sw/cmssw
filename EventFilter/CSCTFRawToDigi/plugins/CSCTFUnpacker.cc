@@ -104,10 +104,9 @@ void CSCTFUnpacker::produce(edm::Event& e, const edm::EventSetup& c){
 		unsigned int unpacking_status = tfEvent.unpack((unsigned short*)fedData.data(),fedData.size()/2);
 		if( unpacking_status==0 ){
 			// There may be several SPs in event
-			std::vector<const CSCSPEvent*> SPs = tfEvent.SPs_fast();
+			std::vector<CSCSPEvent> SPs = tfEvent.SPs();
 			// Cycle over all of them
-			for(std::vector<const CSCSPEvent *>::const_iterator spItr=SPs.begin(); spItr!=SPs.end(); spItr++){
-				const CSCSPEvent *sp = *spItr;
+			for(std::vector<CSCSPEvent>::const_iterator sp=SPs.begin(); sp!=SPs.end(); sp++){
 
 				L1CSCSPStatusDigi status; ///
 				status.sp_slot    = sp->header().slot();

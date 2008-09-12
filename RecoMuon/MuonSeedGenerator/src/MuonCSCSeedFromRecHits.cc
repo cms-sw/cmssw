@@ -46,7 +46,7 @@ TrajectorySeed MuonCSCSeedFromRecHits::seed() const
   TrajectorySeed result;
   //@@ doesn't handle overlap between ME11 and ME12 correctly
   // sort by station
-  MuonRecHitContainer station1Hits, station2Hits, station3Hits, station4Hits;
+  MuonRecHitContainer station1Hits, station2Hits, station3Hits;
   for ( MuonRecHitContainer::const_iterator iter = theRhits.begin(), end = theRhits.end();
         iter != end; ++iter)
   {
@@ -63,35 +63,18 @@ TrajectorySeed MuonCSCSeedFromRecHits::seed() const
     {
       station3Hits.push_back(*iter);
     }
-    else if(station == 4)
-    {
-      station4Hits.push_back(*iter);
-    }
   }
 
   //std::cout << "Station hits " << station1Hits.size() << " " 
   //                             << station2Hits.size() << " "
   //                             << station3Hits.size() << std::endl;
 
-  // see whether station 2 or station 3 is better
-  MuonRecHitContainer * betterSecondHits = &station2Hits; 
-  MuonRecHitContainer * notAsGoodSecondHits = &station3Hits;
-  if(!station2Hits.empty() && !station3Hits.empty())
-  { 
-    // swap if station 3 has better quailty
-    if(segmentQuality(station3Hits[0]) < segmentQuality(station2Hits[0]))
-    {
-      betterSecondHits = &station3Hits;
-      notAsGoodSecondHits = &station2Hits; 
-    }
-  }
-
   // now try to make pairs
-  if(makeSeed(station1Hits, *betterSecondHits, result))
+  if(makeSeed(station1Hits, station2Hits, result))
   {
     return result;
   }
-  if(makeSeed(station1Hits, *notAsGoodSecondHits, result))
+  if(makeSeed(station1Hits, station3Hits, result))
   {
     return result;
   }
@@ -99,11 +82,6 @@ TrajectorySeed MuonCSCSeedFromRecHits::seed() const
   {
     return result;
   }
-  if(makeSeed(station1Hits, station4Hits, result))
-  {
-    return result;
-  }
-
 
 
   // no luck

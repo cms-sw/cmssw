@@ -7,7 +7,7 @@ import sys
 import os
 import Configuration.PyReleaseValidation
 from Configuration.PyReleaseValidation.ConfigBuilder import ConfigBuilder, defaultOptions
-import traceback
+
 # Prepare a parser to read the options
 usage=\
 """%prog <TYPE> [options].
@@ -35,8 +35,8 @@ parser.add_option("--conditions",
                   dest="conditions")
 
 parser.add_option("--eventcontent",
-                  help="What event content to write out. Default=FEVTDEBUG, or FEVT (for cosmics)",
-                  default=None,
+                  help="What event content to write out. Default=FEVTDEBUG",
+                  default="FEVTDEBUG",
                   dest="eventcontent")
 
 parser.add_option("--filein",
@@ -54,20 +54,10 @@ parser.add_option("-n", "--number",
                   default="1",
                   dest="number")
 
-parser.add_option("--mc",
-                  help="Specify that simulation is to be processed (default = guess based on options",
-                  default=False,
-                  dest="isMC")
-parser.add_option("--data",
-                  help="Specify that data is to be processed (default = guess based on options",
-                  default=False,
-                  dest="isData")
-
-
 # expert settings
 expertSettings.add_option("--beamspot",
-                          help="What beam spot to use (from Configuration/StandardSequences). Default depends on scenario",
-                          default=None,
+                          help="What beam spot to use (from Configuration/StandardSequences). Default=Early10TeVCollision",
+                          default=defaultOptions.beamspot,
                           dest="beamspot")
 
 expertSettings.add_option("--customise",
@@ -163,12 +153,6 @@ expertSettings.add_option("--writeraw",
                           action="store_true",
                           default=False,
                           dest="writeraw")
-
-expertSettings.add_option("--scenario",
-                          help="Select scenario overriding standard settings (available:"+str(defaultOptions.scenarioOptions)+")",
-                          default='pp',
-                          dest="scenario")
-
 
 parser.add_option("--no_exec",
                   help="Do not exec cmsRun. Just prepare the python config file.",
@@ -294,27 +278,5 @@ if options.name in ('POSTRECO,ALCA,DQM') and 'RECO' in trimmedStep:
 if 'HLT' in trimmedStep:
     options.name = 'HLT'
 
-# sanity check options specifying data or mc
-if options.isData and options.isMC:
-    print "You may specify only --data or --mc, not both"
-    sys.exit(1)
-
-# if not specified by user try to guess
-if not options.isData and not options.isMC:
-    if 'SIM' in trimmedStep:
-        options.isMC=True
-    try:
-        if 'SIM' in options.eventcontent:
-            options.isMC=True
-    except:
-        print traceback.format_exc()
-        
-    if 'SIM' in options.datatier:
-        options.isMC=True
-    if options.isMC:
-        print 'We have determined that this is simulation (if not, rerun cmsDriver.py with --data)'
-    else:
-        print 'We have determined that this is real data (if not, rerun cmsDriver.py with --mc)'
-    
 options.outfile_name = options.dirout+options.fileout
 
