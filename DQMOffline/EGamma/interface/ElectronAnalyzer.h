@@ -9,7 +9,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronAnalyzer.h,v 1.1 2008/04/21 13:44:57 uberthon Exp $
+// $Id: ElectronAnalyzer.h,v 1.1 2008/05/16 11:39:01 uberthon Exp $
 //
 //
   
@@ -64,211 +64,51 @@ class ElectronAnalyzer : public edm::EDAnalyzer
   float superclusterEnergy[10], superclusterEta[10], superclusterPhi[10], superclusterEt[10];
   float seedMomentum[10], seedEta[10], seedPhi[10], seedPt[10], seedQ[10];
 
-/*   TH1F *h_matchingObjectNum; */
+  MonitorElement   *h_ele_matchingObjectEta;
+  MonitorElement   *h_ele_matchingObjectPt;
+  MonitorElement   *h_ele_matchingObjectPhi;
+  MonitorElement   *h_ele_matchingObjectZ;
   
-/*   TH1F *h_matchingObjectEta; */
-/*   TH1F *h_matchingObjectAbsEta; */
-/*   TH1F *h_matchingObjectP; */
-/*   TH1F *h_matchingObjectPt; */
-/*   TH1F *h_matchingObjectPhi; */
-/*   TH1F *h_matchingObjectZ; */
-  
-/*   TH1F *h_ele_matchingObjectEta_matched; */
-/*   TH1F *h_ele_matchingObjectAbsEta_matched; */
-/*   TH1F *h_ele_matchingObjectPt_matched; */
-/*   TH1F *h_ele_matchingObjectPhi_matched; */
-/*   TH1F *h_ele_matchingObjectZ_matched; */
+  MonitorElement   *h_ele_matchingObjectEta_matched;
+  MonitorElement   *h_ele_matchingObjectPt_matched;
+  MonitorElement   *h_ele_matchingObjectPhi_matched;
+  MonitorElement   *h_ele_matchingObjectZ_matched;
 
-/*   TH1F *h_ele_TIP_all; */
-/*   TH1F *h_ele_EoverP_all; */
-/*   TH1F *h_ele_vertexEta_all; */
-/*   TH1F *h_ele_vertexPt_all; */
+  // electron basic quantities
+  MonitorElement* h_ele_vertexP;
+  MonitorElement* h_ele_vertexPt;
+  MonitorElement* h_ele_vertexEta;
+  MonitorElement* h_ele_vertexPhi;
+  MonitorElement* h_ele_vertexX;
+  MonitorElement* h_ele_vertexY;
+  MonitorElement* h_ele_vertexZ;
+  MonitorElement* h_ele_charge;
 
-/*   TH1F *h_ele_charge; */
-/*   TH2F *h_ele_chargeVsEta; */
-/*   TH2F *h_ele_chargeVsPhi; */
-/*   TH2F *h_ele_chargeVsPt; */
-/*   TH1F *h_ele_vertexP; */
-/*   TH1F *h_ele_vertexPt; */
-/*   TH2F *h_ele_vertexPtVsEta; */
-/*   TH2F *h_ele_vertexPtVsPhi; */
-/*   TH1F *h_ele_vertexPt_5100; */
-/*   TH1F *h_ele_vertexEta; */
-/*   TH2F *h_ele_vertexEtaVsPhi; */
-/*   TH1F *h_ele_vertexAbsEta; */
-/*   TH1F *h_ele_vertexPhi; */
-/*   TH1F *h_ele_vertexX; */
-/*   TH1F *h_ele_vertexY; */
-/*   TH1F *h_ele_vertexZ; */
-/*   TH1F *h_ele_vertexTIP;   */
-/*   TH2F *h_ele_vertexTIPVsEta;   */
-/*   TH2F *h_ele_vertexTIPVsPhi;   */
-/*   TH2F *h_ele_vertexTIPVsPt;   */
-  
+  // electron matching and ID
+  MonitorElement* h_ele_EoP;
+  MonitorElement* h_ele_EoPout;
+  MonitorElement* h_ele_dEtaSc_propVtx;
+  MonitorElement* h_ele_dPhiSc_propVtx;
+  MonitorElement* h_ele_dPhiCl_propOut;
+  MonitorElement* h_ele_HoE;
+  MonitorElement* h_ele_PinMnPout_mode;
+  MonitorElement* h_ele_classes;
+  MonitorElement* h_ele_eta_golden;
+  MonitorElement* h_ele_eta_shower;
+  MonitorElement* h_ele_eta_goldenFrac;
+  MonitorElement* h_ele_eta_showerFrac;
 
-/*   TH1F *histSclEn_ ; */
-/*   TH1F *histSclEoEmatchingObject_barrel; */
-/*   TH1F *histSclEoEmatchingObject_endcaps; */
-/*   TH1F *histSclEt_ ; */
-/*   TH2F *histSclEtVsEta_ ; */
-/*   TH2F *histSclEtVsPhi_ ; */
-/*   TH2F *histSclEtaVsPhi_ ; */
-/*   TH1F *histSclEta_ ; */
-/*   TH1F *histSclPhi_ ; */
+  MonitorElement *h_ele_eta;
 
-/*   TH1F *h_ctf_foundHits; */
-/*   TH2F *h_ctf_foundHitsVsEta; */
-/*   TH2F *h_ctf_lostHitsVsEta; */
+  // electron track
+  MonitorElement* h_ele_foundHits;
+  MonitorElement* h_ele_chi2;
 
-/*   TH1F *h_ele_foundHits; */
-/*   TH2F *h_ele_foundHitsVsEta; */
-/*   TH2F *h_ele_foundHitsVsPhi; */
-/*   TH2F *h_ele_foundHitsVsPt; */
-/*   TH1F *h_ele_lostHits; */
-/*   TH2F *h_ele_lostHitsVsEta; */
-/*   TH2F *h_ele_lostHitsVsPhi; */
-/*   TH2F *h_ele_lostHitsVsPt; */
-/*   TH1F *h_ele_chi2; */
-/*   TH2F *h_ele_chi2VsEta; */
-/*   TH2F *h_ele_chi2VsPhi; */
-/*   TH2F *h_ele_chi2VsPt; */
-  
-/*   TH1F *h_ele_PoPmatchingObject; */
-/*   TH2F *h_ele_PoPmatchingObjectVsEta; */
-/*   TH2F *h_ele_PoPmatchingObjectVsPhi; */
-/*   TH2F *h_ele_PoPmatchingObjectVsPt; */
-/*   TH1F *h_ele_PoPmatchingObject_barrel; */
-/*   TH1F *h_ele_PoPmatchingObject_endcaps; */
-/*   TH1F *h_ele_EtaMnEtamatchingObject; */
-/*   TH2F *h_ele_EtaMnEtamatchingObjectVsEta; */
-/*   TH2F *h_ele_EtaMnEtamatchingObjectVsPhi; */
-/*   TH2F *h_ele_EtaMnEtamatchingObjectVsPt; */
-/*   TH1F *h_ele_PhiMnPhimatchingObject; */
-/*   TH1F *h_ele_PhiMnPhimatchingObject2; */
-/*   TH2F *h_ele_PhiMnPhimatchingObjectVsEta; */
-/*   TH2F *h_ele_PhiMnPhimatchingObjectVsPhi; */
-/*   TH2F *h_ele_PhiMnPhimatchingObjectVsPt; */
-/*   TH1F *h_ele_PinMnPout; */
-/*   TH1F *h_ele_PinMnPout_mode; */
-/*   TH2F *h_ele_PinMnPoutVsEta_mode; */
-/*   TH2F *h_ele_PinMnPoutVsPhi_mode; */
-/*   TH2F *h_ele_PinMnPoutVsPt_mode; */
-/*   TH2F *h_ele_PinMnPoutVsE_mode; */
-/*   TH2F *h_ele_PinMnPoutVsChi2_mode; */
-  
-/*   TH1F *h_ele_outerP; */
-/*   TH1F *h_ele_outerP_mode; */
-/*   TH2F *h_ele_outerPVsEta_mode; */
-/*   TH1F *h_ele_outerPt; */
-/*   TH1F *h_ele_outerPt_mode; */
-/*   TH2F *h_ele_outerPtVsEta_mode; */
-/*   TH2F *h_ele_outerPtVsPhi_mode; */
-/*   TH2F *h_ele_outerPtVsPt_mode; */
-/*   TH1F *h_ele_EoP; */
-/*   TH2F *h_ele_EoPVsEta; */
-/*   TH2F *h_ele_EoPVsPhi; */
-/*   TH2F *h_ele_EoPVsE; */
-/*   TH1F *h_ele_EoPout; */
-/*   TH2F *h_ele_EoPoutVsEta; */
-/*   TH2F *h_ele_EoPoutVsPhi; */
-/*   TH2F *h_ele_EoPoutVsE; */
-  
-/*   TH1F *h_ele_dEtaSc_propVtx; */
-/*   TH2F *h_ele_dEtaScVsEta_propVtx; */
-/*   TH2F *h_ele_dEtaScVsPhi_propVtx; */
-/*   TH2F *h_ele_dEtaScVsPt_propVtx; */
-/*   TH1F *h_ele_dPhiSc_propVtx; */
-/*   TH2F *h_ele_dPhiScVsEta_propVtx; */
-/*   TH2F *h_ele_dPhiScVsPhi_propVtx; */
-/*   TH2F *h_ele_dPhiScVsPt_propVtx; */
-/*   TH1F *h_ele_dEtaCl_propOut; */
-/*   TH2F *h_ele_dEtaClVsEta_propOut; */
-/*   TH2F *h_ele_dEtaClVsPhi_propOut; */
-/*   TH2F *h_ele_dEtaClVsPt_propOut; */
-/*   TH1F *h_ele_dPhiCl_propOut; */
-/*   TH2F *h_ele_dPhiClVsEta_propOut; */
-/*   TH2F *h_ele_dPhiClVsPhi_propOut; */
-/*   TH2F *h_ele_dPhiClVsPt_propOut; */
-  
-/*   TH1F *h_ele_classes; */
-/*   TH1F *h_ele_eta; */
-/*   TH1F *h_ele_eta_golden; */
-/*   TH1F *h_ele_eta_bbrem; */
-/*   TH1F *h_ele_eta_narrow; */
-/*   TH1F *h_ele_eta_shower; */
-  
-/*   TH1F *h_ele_HoE; */
-/*   TH2F *h_ele_HoEVsEta; */
-/*   TH2F *h_ele_HoEVsPhi; */
-/*   TH2F *h_ele_HoEVsE; */
-  
-/*   TProfile *h_ele_fbremVsEta_mode; */
-/*   TProfile *h_ele_fbremVsEta_mean; */
-  
-/*   TH2F *h_ele_PinVsPoutGolden_mode; */
-/*   TH2F *h_ele_PinVsPoutShowering0_mode; */
-/*   TH2F *h_ele_PinVsPoutShowering1234_mode; */
-/*   TH2F *h_ele_PinVsPoutGolden_mean; */
-/*   TH2F *h_ele_PinVsPoutShowering0_mean; */
-/*   TH2F *h_ele_PinVsPoutShowering1234_mean; */
-/*   TH2F *h_ele_PtinVsPtoutGolden_mode; */
-/*   TH2F *h_ele_PtinVsPtoutShowering0_mode; */
-/*   TH2F *h_ele_PtinVsPtoutShowering1234_mode; */
-/*   TH2F *h_ele_PtinVsPtoutGolden_mean; */
-/*   TH2F *h_ele_PtinVsPtoutShowering0_mean; */
-/*   TH2F *h_ele_PtinVsPtoutShowering1234_mean; */
-/*   TH1F *histSclEoEmatchingObjectGolden_barrel; */
-/*   TH1F *histSclEoEmatchingObjectGolden_endcaps; */
-/*   TH1F *histSclEoEmatchingObjectShowering0_barrel; */
-/*   TH1F *histSclEoEmatchingObjectShowering0_endcaps; */
-/*   TH1F *histSclEoEmatchingObjectShowering1234_barrel; */
-/*   TH1F *histSclEoEmatchingObjectShowering1234_endcaps; */
-
-MonitorElement   *h_ele_matchingObjectEta;
-MonitorElement   *h_ele_matchingObjectPt;
-MonitorElement   *h_ele_matchingObjectPhi;
-MonitorElement   *h_ele_matchingObjectZ;
-  
-MonitorElement   *h_ele_matchingObjectEta_matched;
-MonitorElement   *h_ele_matchingObjectPt_matched;
-MonitorElement   *h_ele_matchingObjectPhi_matched;
-MonitorElement   *h_ele_matchingObjectZ_matched;
-
-// electron basic quantities
-MonitorElement* h_ele_vertexP;
-MonitorElement* h_ele_vertexPt;
-MonitorElement* h_ele_vertexEta;
-MonitorElement* h_ele_vertexPhi;
-MonitorElement* h_ele_vertexX;
-MonitorElement* h_ele_vertexY;
-MonitorElement* h_ele_vertexZ;
-MonitorElement* h_ele_charge;
-
-// electron matching and ID
-MonitorElement* h_ele_EoP;
-MonitorElement* h_ele_EoPout;
-MonitorElement* h_ele_dEtaSc_propVtx;
-MonitorElement* h_ele_dPhiSc_propVtx;
-MonitorElement* h_ele_dPhiCl_propOut;
-MonitorElement* h_ele_HoE;
-MonitorElement* h_ele_PinMnPout_mode;
-MonitorElement* h_ele_classes;
-MonitorElement* h_ele_eta_golden;
-MonitorElement* h_ele_eta_shower;
-MonitorElement* h_ele_eta_goldenFrac;
-MonitorElement* h_ele_eta_showerFrac;
-
-MonitorElement *h_ele_eta;
-
-// electron track
-MonitorElement* h_ele_foundHits;
-MonitorElement* h_ele_chi2;
-
-// efficiencies
-MonitorElement* h_ele_etaEff;
-MonitorElement* h_ele_ptEff;
-MonitorElement* h_ele_phiEff;
-MonitorElement* h_ele_zEff;
+  // efficiencies
+  MonitorElement* h_ele_etaEff;
+  MonitorElement* h_ele_ptEff;
+  MonitorElement* h_ele_phiEff;
+  MonitorElement* h_ele_zEff;
 
   DQMStore *dbe_;
   int verbosity_;
@@ -322,7 +162,7 @@ MonitorElement* h_ele_zEff;
   int nbindetamatch2D;
   int nbindphimatch2D;
   
- };
+};
   
 #endif
  

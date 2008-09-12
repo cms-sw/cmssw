@@ -13,7 +13,7 @@
 //
 // Original Author:  Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronAnalyzer.cc,v 1.3 2008/05/28 09:44:11 uberthon Exp $
+// $Id: ElectronAnalyzer.cc,v 1.4 2008/09/12 11:27:15 uberthon Exp $
 //
 //
 
@@ -41,7 +41,6 @@ ElectronAnalyzer::ElectronAnalyzer(const edm::ParameterSet& conf)
 
   outputFile_ = conf.getParameter<std::string>("outputFile");
   verbosity_ = conf.getUntrackedParameter<int>("Verbosity");
-  //  histfile_ = new TFile(outputFile_.c_str(),"RECREATE");
   electronCollection_=conf.getParameter<edm::InputTag>("electronCollection");
   matchingObjectCollection_ = conf.getParameter<edm::InputTag>("matchingObjectCollection");
   maxPt_ = conf.getParameter<double>("MaxPt");
