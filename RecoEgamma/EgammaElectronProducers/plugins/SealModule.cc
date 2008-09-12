@@ -9,7 +9,6 @@
 #include "GlobalSeedProducer.h"
 #include "GsfElectronProducer.h"
 #include "GlobalGsfElectronProducer.h"
-#include "ElectronSiStripSeedProducer.h"
 
 DEFINE_SEAL_MODULE();
 
@@ -19,4 +18,3 @@ DEFINE_ANOTHER_FWK_MODULE(ElectronPixelSeedProducer);
 DEFINE_ANOTHER_FWK_MODULE(GlobalSeedProducer);
 DEFINE_ANOTHER_FWK_MODULE(GsfElectronProducer);
 DEFINE_ANOTHER_FWK_MODULE(GlobalGsfElectronProducer);
-DEFINE_ANOTHER_FWK_MODULE(ElectronSiStripSeedProducer);
