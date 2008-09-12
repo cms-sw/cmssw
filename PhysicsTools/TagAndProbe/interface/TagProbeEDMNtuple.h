@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Mon May  5 09:05:35 CDT 2008
-// $Id: TagProbeEDMNtuple.h,v 1.1.2.1 2008/07/30 13:29:24 srappocc Exp $
+// $Id: TagProbeEDMNtuple.h,v 1.2 2008/07/30 13:38:24 srappocc Exp $
 //
 
 // system include files
@@ -105,7 +105,6 @@ class TagProbeEDMNtuple : public edm::EDProducer
 
       // Trigger parameters
       edm::InputTag triggerEventTag_;
-      edm::InputTag hltL1Tag_;
       edm::InputTag hltTag_;
 
       // Matching parameters

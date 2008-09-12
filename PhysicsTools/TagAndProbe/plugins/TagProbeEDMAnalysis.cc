@@ -850,7 +850,8 @@ void TagProbeEDMAnalysis::SideBandSubtraction( const TH1F& Total, TH1F& Result,
    const Double_t xmin = Total.GetXaxis()->GetXmin();
 
    const Int_t PeakBin = (Int_t)((Peak - xmin)/BinWidth + 1); // Peak
-   const Int_t SDBin = (Int_t)(SD/BinWidth); // Standard deviation
+   Int_t SDBin = (Int_t)(SD/BinWidth); // Standard deviation
+   if (SDBin == 0) SDBin = 1; // Protection
    const Int_t I = 3*SDBin; // Interval
    const Int_t D = 10*SDBin;  // Distance from peak
 

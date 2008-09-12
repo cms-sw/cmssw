@@ -5,11 +5,6 @@ import FWCore.ParameterSet.Config as cms
 # 
 from PhysicsTools.HepMCCandAlgos.genParticles_cfi import *
 # 
-# Cut-based Robust electron ID  ######
-# 
-from EgammaAnalysis.ElectronIDProducers.electronId_cfi import *
-import EgammaAnalysis.ElectronIDProducers.electronId_cfi
-cutbasedRobustElectron = EgammaAnalysis.ElectronIDProducers.electronId_cfi.electronId.clone()
 #  Calculate efficiency for *SuperClusters passing as GsfElectron* 
 #
 #  Tag           =  isolated GsfElectron with Robust ID, passing HLT, and  
@@ -25,8 +20,9 @@ HybridSuperClusters = cms.EDProducer("ConcreteEcalCandidateProducer",
     particleType = cms.string('gamma')
 )
 
+
 EndcapSuperClusters = cms.EDProducer("ConcreteEcalCandidateProducer",
-    src = cms.InputTag("correctedEndcapSuperClustersWithPreshower"),
+    src = cms.InputTag("correctedMulti5x5SuperClustersWithPreshower"),
     particleType = cms.string('gamma')
 )
 
@@ -68,19 +64,34 @@ isolatedElectronCands = cms.EDProducer("IsolatedElectronCandProducer",
     maxVtxDist = cms.double(0.1)
 )
 
-cutbasedRobustElectronCands = cms.EDProducer("eidCandProducer",
-    ElectronIDAssociationProducer = cms.string('cutbasedRobustElectron'),
-    InputProducer = cms.string('isolatedElectronCands')
+
+# Cut-based Robust electron ID  ######
+#
+
+from RecoEgamma.ElectronIdentification.electronIdCutBasedExt_cfi import *
+
+import RecoEgamma.ElectronIdentification.electronIdCutBasedExt_cfi
+
+eidRobustLoose = RecoEgamma.ElectronIdentification.electronIdCutBasedExt_cfi.eidCutBasedExt.clone()
+
+
+
+RobustElectronCands = cms.EDProducer("eidCandProducer",
+   # electronCollection = cms.untracked.string('isolatedElectronCands'),  
+    electronLabelLoose = cms.untracked.string('eidRobustLoose')
 )
+
 
 # 
 # Trigger  ##################
 # 
 HLTRobustElectronCands = cms.EDProducer("eTriggerCandProducer",
+    InputProducer = cms.string('pixelMatchGsfElectrons'),
     triggerEventTag = cms.untracked.InputTag("hltTriggerSummaryAOD"),
-    triggerDelRMatch = cms.untracked.double(0.3),
-    hltTag = cms.untracked.InputTag("hltL1NonIsoHLTNonIsoSingleElectronEt15TrackIsolFilter"),
-    InputProducer = cms.string('cutbasedRobustElectronCands')
+    hltTag = cms.untracked.InputTag("hltL1NonIsoHLTNonIsoSingleElectronEt10TrackIsolFilter")
+    #hltTag = cms.untracked.InputTag("hltL1NonIsoHLTNonIsoSingleElectronEt10TrackIsolFilter","","")
+    #hltTag = cms.untracked.InputTag("hltL1IsoSingleElectronPixelMatchFilter","","HLT")   
+   # InputProducer = cms.string('RobustElectronCands')
 )
 
 # 
@@ -114,7 +125,7 @@ theIsolation = cms.EDProducer("GsfElectronShallowCloneProducer",
 
 #  id 
 idSelection = cms.EDFilter("GsfElectronSelector",
-    src = cms.InputTag("cutbasedRobustElectronCands"),
+    src = cms.InputTag("RobustElectronCands"),
     cut = cms.string('et > 0.0')
 )
 
@@ -124,8 +135,9 @@ theId = cms.EDProducer("GsfElectronShallowCloneProducer",
 
 #  trigger
 hltSelection = cms.EDFilter("GsfElectronSelector",
-    src = cms.InputTag("HLTRobustElectronCands"),
+    src = cms.InputTag('pixelMatchGsfElectrons'),                   
     cut = cms.string('et > 0.0')
+    #src = cms.InputTag('HLTRobustElectronCands')                           
 )
 
 theHLT = cms.EDProducer("GsfElectronShallowCloneProducer",
@@ -145,28 +157,28 @@ theHLT = cms.EDProducer("GsfElectronShallowCloneProducer",
 #
 tpMapSuperClusters = cms.EDProducer("TagProbeProducer",
     MassMaxCut = cms.untracked.double(100.0),
-    TagCollection = cms.InputTag("theHLT"),
+    TagCollection = cms.InputTag("theId"),
     MassMinCut = cms.untracked.double(80.0),
     ProbeCollection = cms.InputTag("theSuperClusters")
 )
 
 tpMapGsfElectrons = cms.EDProducer("TagProbeProducer",
     MassMaxCut = cms.untracked.double(100.0),
-    TagCollection = cms.InputTag("theHLT"),
+    TagCollection = cms.InputTag("theId"),
     MassMinCut = cms.untracked.double(80.0),
     ProbeCollection = cms.InputTag("theGsfElectrons")
 )
 
 tpMapIsolation = cms.EDProducer("TagProbeProducer",
     MassMaxCut = cms.untracked.double(100.0),
-    TagCollection = cms.InputTag("theHLT"),
+    TagCollection = cms.InputTag("theId"),
     MassMinCut = cms.untracked.double(80.0),
     ProbeCollection = cms.InputTag("theIsolation")
 )
 
 tpMapId = cms.EDProducer("TagProbeProducer",
     MassMaxCut = cms.untracked.double(100.0),
-    TagCollection = cms.InputTag("theHLT"),
+    TagCollection = cms.InputTag("theId"),
     MassMinCut = cms.untracked.double(80.0),
     ProbeCollection = cms.InputTag("theId")
 )
@@ -210,11 +222,5 @@ HLTMatch = cms.EDFilter("MCTruthDeltaRMatcherNew",
     matched = cms.InputTag("genParticles")
 )
 
-lepton_cands = cms.Sequence(genParticles+HybridSuperClusters+EndcapSuperClusters+EBSuperClusters+EESuperClusters+allSuperClusters+gsfElectrons+isolatedElectronCands+electronId+cutbasedRobustElectron+cutbasedRobustElectronCands+HLTRobustElectronCands+theSuperClusters+gsfSelection+theGsfElectrons+isoSelection+theIsolation+idSelection+theId+hltSelection+theHLT+tpMapSuperClusters+tpMapGsfElectrons+tpMapIsolation+tpMapId+SuperClustersMatch+GsfElectronsMatch+IsolationMatch+IdMatch+HLTMatch)
-cutbasedRobustElectron.electronProducer = 'isolatedElectronCands'
-cutbasedRobustElectron.doPtdrId = False
-cutbasedRobustElectron.doCutBased = True
-cutbasedRobustElectron.algo_psets.append(cms.PSet(
-    electronQuality = cms.string('robust')
-))
+lepton_cands = cms.Sequence(genParticles+HybridSuperClusters+EndcapSuperClusters+EBSuperClusters+EESuperClusters+allSuperClusters+gsfElectrons+isolatedElectronCands+eidRobustLoose+RobustElectronCands+HLTRobustElectronCands+theSuperClusters+gsfSelection+theGsfElectrons+isoSelection+theIsolation+idSelection+theId+hltSelection+theHLT+tpMapSuperClusters+tpMapGsfElectrons+tpMapIsolation+tpMapId+SuperClustersMatch+GsfElectronsMatch+IsolationMatch+IdMatch+HLTMatch)
 

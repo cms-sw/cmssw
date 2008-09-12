@@ -25,9 +25,9 @@ class eidCandProducer : public edm::EDProducer
   virtual void endJob() ;
       
   // ----------member data ---------------------------
-      
-  std::string _inputProducer;
-  std::string _electronIDAssocProducer;
+
+  std::string electronCollection_;
+  std::string electronLabelLoose_;
 };
 
 #endif

@@ -1,30 +1,31 @@
 import FWCore.ParameterSet.Config as cms
 
-from EgammaAnalysis.ElectronIDProducers.electronId_cfi import *
-import EgammaAnalysis.ElectronIDProducers.electronId_cfi
-# PTDR: Loose
-ptdrLooseElectron = EgammaAnalysis.ElectronIDProducers.electronId_cfi.electronId.clone()
-import EgammaAnalysis.ElectronIDProducers.electronId_cfi
-# PTDR: Medium
-ptdrMediumElectron = EgammaAnalysis.ElectronIDProducers.electronId_cfi.electronId.clone()
-import EgammaAnalysis.ElectronIDProducers.electronId_cfi
-# PTDR: Tight
-ptdrTightElectron = EgammaAnalysis.ElectronIDProducers.electronId_cfi.electronId.clone()
-import EgammaAnalysis.ElectronIDProducers.electronId_cfi
+from RecoEgamma.ElectronIdentification.electronIdCutBasedExt_cfi import *
+import RecoEgamma.ElectronIdentification.electronIdCutBasedExt_cfi
+
+
 # CutBased: Robust
-cutbasedRobustElectron = EgammaAnalysis.ElectronIDProducers.electronId_cfi.electronId.clone()
-import EgammaAnalysis.ElectronIDProducers.electronId_cfi
+cutbasedRobustElectron = RecoEgamma.ElectronIdentification.electronIdCutBasedExt_cfi.eidCutBasedExt.clone()
+cutbasedRobustElectron.electronQuality = cms.string('robust')
+
 # CutBased: Loose
-cutbasedLooseElectron = EgammaAnalysis.ElectronIDProducers.electronId_cfi.electronId.clone()
-import EgammaAnalysis.ElectronIDProducers.electronId_cfi
+cutbasedLooseElectron = RecoEgamma.ElectronIdentification.electronIdCutBasedExt_cfi.eidCutBasedExt.clone()
+cutbasedLooseElectron.electronQuality = cms.string('loose')
+
 # CutBased: Tight
-cutbasedTightElectron = EgammaAnalysis.ElectronIDProducers.electronId_cfi.electronId.clone()
-import EgammaAnalysis.ElectronIDProducers.electronId_cfi
+cutbasedTightElectron = RecoEgamma.ElectronIdentification.electronIdCutBasedExt_cfi.eidCutBasedExt.clone()
+cutbasedTightElectron.electronQuality = cms.string('tight')
+
 # Likelihood
-lhElectron = EgammaAnalysis.ElectronIDProducers.electronId_cfi.electronId.clone()
-import EgammaAnalysis.ElectronIDProducers.electronId_cfi
+from RecoEgamma.ElectronIdentification.electronIdLikelihoodExt_cfi import *
+lhElectron = RecoEgamma.ElectronIdentification.electronIdLikelihoodExt_cfi.eidLikelihoodExt.clone()
+
 # Neural Net
-nnElectron = EgammaAnalysis.ElectronIDProducers.electronId_cfi.electronId.clone()
+from RecoEgamma.ElectronIdentification.electronIdNeuralNetExt_cfi import *
+nnElectron = RecoEgamma.ElectronIdentification.electronIdNeuralNetExt_cfi.eidNeuralNetExt.clone()
+
+
+
 # No Id
 noIdElectronCands = cms.EDProducer("GsfElectronShallowCloneProducer",
     src = cms.InputTag("pixelMatchGsfElectrons")
@@ -37,41 +38,6 @@ noIdElectronMatch = cms.EDFilter("MCTruthDeltaRMatcher",
     matched = cms.InputTag("genParticleCandidates")
 )
 
-ptdrLooseElectronCands = cms.EDProducer("eidCandProducer",
-    ElectronIDAssociationProducer = cms.string('ptdrLooseElectron'),
-    InputProducer = cms.string('pixelMatchGsfElectrons')
-)
-
-ptdrLooseElectronMatch = cms.EDFilter("MCTruthDeltaRMatcher",
-    pdgId = cms.vint32(11),
-    src = cms.InputTag("ptdrLooseElectronCands"),
-    distMin = cms.double(0.25),
-    matched = cms.InputTag("genParticleCandidates")
-)
-
-ptdrMediumElectronCands = cms.EDProducer("eidCandProducer",
-    ElectronIDAssociationProducer = cms.string('ptdrMediumElectron'),
-    InputProducer = cms.string('pixelMatchGsfElectrons')
-)
-
-ptdrMediumElectronMatch = cms.EDFilter("MCTruthDeltaRMatcher",
-    pdgId = cms.vint32(11),
-    src = cms.InputTag("ptdrMediumElectronCands"),
-    distMin = cms.double(0.25),
-    matched = cms.InputTag("genParticleCandidates")
-)
-
-ptdrTightElectronCands = cms.EDProducer("eidCandProducer",
-    ElectronIDAssociationProducer = cms.string('ptdrTightElectron'),
-    InputProducer = cms.string('pixelMatchGsfElectrons')
-)
-
-ptdrTightElectronMatch = cms.EDFilter("MCTruthDeltaRMatcher",
-    pdgId = cms.vint32(11),
-    src = cms.InputTag("ptdrTightElectronCands"),
-    distMin = cms.double(0.25),
-    matched = cms.InputTag("genParticleCandidates")
-)
 
 cutbasedRobustElectronCands = cms.EDProducer("eidCandProducer",
     ElectronIDAssociationProducer = cms.string('cutbasedRobustElectron'),
@@ -230,38 +196,11 @@ showeringElectronMatch = cms.EDFilter("MCTruthDeltaRMatcher",
 #
 #
 #
-electronIdSequence = cms.Sequence(electronId+noIdElectronCands+noIdElectronMatch+cms.SequencePlaceholder("ptdrLooseElectronId")+ptdrLooseElectronCands+ptdrLooseElectronMatch+cms.SequencePlaceholder("ptdrMediumElectronId")+ptdrMediumElectronCands+ptdrMediumElectronMatch+cms.SequencePlaceholder("ptdrTightElectronId")+ptdrTightElectronCands+ptdrTightElectronMatch+cms.SequencePlaceholder("cutbasedRobustElectronId")+cutbasedRobustElectronCands+cutbasedRobustElectronMatch+cms.SequencePlaceholder("cutbasedLooseElectronId")+cutbasedLooseElectronCands+cutbasedLooseElectronMatch+cms.SequencePlaceholder("cutbasedTightElectronId")+cutbasedTightElectronCands+cutbasedTightElectronMatch+cms.SequencePlaceholder("lhElectronId")+lhElectronCands+lhElectronMatch+cms.SequencePlaceholder("nnElectronId")+nnElectronCands+nnElectronMatch)
+electronIdSequence = cms.Sequence(noIdElectronCands+noIdElectronMatch+cutbasedRobustElectron+cutbasedRobustElectronCands+cutbasedRobustElectronMatch+cutbasedLooseElectron+cutbasedLooseElectronCands+cutbasedLooseElectronMatch+cutbasedTightElectron+cutbasedTightElectronCands+cutbasedTightElectronMatch+lhElectron+lhElectronCands+lhElectronMatch+nnElectron+nnElectronCands+nnElectronMatch)
 #
 #
 #
 #
 electronClassificationSequence = cms.Sequence(goldenElectron+goldenElectronCands+goldenElectronMatch+bigbremElectron+bigbremElectronCands+bigbremElectronMatch+narrowElectron+narrowElectronCands+narrowElectronMatch+showeringElectron+showeringElectronCands+showeringElectronMatch)
-ptdrLooseElectron.algo_psets.append(cms.PSet(
-    electronQuality = cms.string('loose')
-))
-ptdrMediumElectron.algo_psets.append(cms.PSet(
-    electronQuality = cms.string('medium')
-))
-ptdrTightElectron.algo_psets.append(cms.PSet(
-    electronQuality = cms.string('tight')
-))
-cutbasedRobustElectron.doPtdrId = False
-cutbasedRobustElectron.doCutBased = True
-cutbasedRobustElectron.algo_psets.append(cms.PSet(
-    electronQuality = cms.string('robust')
-))
-cutbasedLooseElectron.doPtdrId = False
-cutbasedLooseElectron.doCutBased = True
-cutbasedLooseElectron.algo_psets.append(cms.PSet(
-    electronQuality = cms.string('loose')
-))
-cutbasedTightElectron.doPtdrId = False
-cutbasedTightElectron.doCutBased = True
-cutbasedTightElectron.algo_psets.append(cms.PSet(
-    electronQuality = cms.string('tight')
-))
-lhElectron.doPtdrId = False
-lhElectron.doLikelihood = True
-nnElectron.doPtdrId = False
-nnElectron.doNeuralNet = True
+
 

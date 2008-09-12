@@ -9,10 +9,7 @@ import FWCore.ParameterSet.Config as cms
 #  Passing Probe =  GsfElectron with fiducial cuts
 #
 from PhysicsTools.HepMCCandAlgos.genParticles_cfi import *
-from EgammaAnalysis.ElectronIDProducers.electronId_cfi import *
-import EgammaAnalysis.ElectronIDProducers.electronId_cfi
-# CutBased: Robust electron ID
-cutbasedRobustElectron = EgammaAnalysis.ElectronIDProducers.electronId_cfi.electronId.clone()
+
 # Duplicate Removal 
 uniqueElectrons = cms.EDFilter("ElectronDuplicateRemover",
     src = cms.string('pixelMatchGsfElectrons')
@@ -30,11 +27,20 @@ isolatedElectronCands = cms.EDProducer("IsolatedElectronCandProducer",
     maxVtxDist = cms.double(0.1)
 )
 
-# electron ID Candidate collection ############
+
+# Cut-based Robust electron ID  ######
+# 
+from RecoEgamma.ElectronIdentification.electronIdCutBased_cfi import *
+import RecoEgamma.ElectronIdentification.electronIdCutBased_cfi 
+cutbasedRobustElectron = RecoEgamma.ElectronIdentification.electronIdCutBased_cfi.eidCutBased.clone()
+cutbasedRobustElectron.src = cms.InputTag('isolatedElectronCands')
+cutbasedRobustElectron.electronQuality = cms.string('robust')
+
 cutbasedRobustElectronCands = cms.EDProducer("eidCandProducer",
     ElectronIDAssociationProducer = cms.string('cutbasedRobustElectron'),
     InputProducer = cms.string('isolatedElectronCands')
 )
+
 
 # HLT ################
 HLTRobustElectronCands = cms.EDProducer("eTriggerCandProducer",
@@ -116,11 +122,5 @@ passProbeMatch = cms.EDFilter("MCTruthDeltaRMatcherNew",
     matched = cms.InputTag("genParticles")
 )
 
-lepton_cands = cms.Sequence(genParticles+uniqueElectrons+isolatedElectronCands+electronId+cutbasedRobustElectron+cutbasedRobustElectronCands+HLTRobustElectronCands+tagElectrons+tagCands+allProbeEBSuperClusters+allProbeEESuperClusters+allProbeSuperClusters+allProbeCands+passProbeElectrons+passProbeCands+tagProbeMap+tagMatch+allProbeMatch+passProbeMatch)
-cutbasedRobustElectron.electronProducer = 'isolatedElectronCands'
-cutbasedRobustElectron.doPtdrId = False
-cutbasedRobustElectron.doCutBased = True
-cutbasedRobustElectron.algo_psets.append(cms.PSet(
-    electronQuality = cms.string('robust')
-))
+lepton_cands = cms.Sequence(genParticles+uniqueElectrons+isolatedElectronCands+eidCutBased+cutbasedRobustElectron+cutbasedRobustElectronCands+HLTRobustElectronCands+tagElectrons+tagCands+allProbeEBSuperClusters+allProbeEESuperClusters+allProbeSuperClusters+allProbeCands+passProbeElectrons+passProbeCands+tagProbeMap+tagMatch+allProbeMatch+passProbeMatch)
 

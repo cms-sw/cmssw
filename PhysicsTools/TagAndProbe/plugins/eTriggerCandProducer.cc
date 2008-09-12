@@ -5,8 +5,10 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include <string>
-#include "HLTrigger/HLTcore/interface/TriggerSummaryAnalyzerAOD.h"
-#include "HLTrigger/HLTcore/interface/TriggerSummaryAnalyzerRAW.h"
+
+#include "DataFormats/HLTReco/interface/TriggerObject.h"
+#include "FWCore/Framework/interface/TriggerNames.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 
 
@@ -25,7 +27,7 @@ eTriggerCandProducer::eTriggerCandProducer(const edm::ParameterSet& iConfig )
    hltTag_ = iConfig.getUntrackedParameter<edm::InputTag>("hltTag",dHLTTag);
 
    delRMatchingCut_ = iConfig.getUntrackedParameter<double>("triggerDelRMatch",
-							    0.15);
+							    0.30);
    // ******************************************** //
 
 
@@ -78,6 +80,52 @@ void eTriggerCandProducer::produce(edm::Event &event,
       throw ex;
    }
 
+
+
+
+
+   // ############# Trigger Path Debug #################
+
+//    const edm::InputTag dTriggerResultTag("TriggerResults","","HLT");
+//    edm::Handle<TriggerResults> hltResults;
+//    bool b = event.getByLabel(dTriggerResultTag, hltResults);
+//    TriggerNames names(*hltResults);
+//    int q =0;
+//    for ( TriggerNames::Strings::const_iterator 
+//            j = names.triggerNames().begin();
+//          j !=names.triggerNames().end(); ++j ) {
+     
+//      std::cout << q << ": " << *j << std::endl;
+//      q++;
+//    }
+ 
+
+   // ############# TriggerEvent Debug #################
+
+//    edm::ParameterSet ps;
+//    const std::string processName = "HLT";
+//    if (event.getProcessParameterSet(processName,ps))
+//      {
+//        cout << ps << endl;
+//        vector< std::string> paths;
+//        const std::string pathspar = "@paths";
+//        paths = ps.getParameter<vector< std::string> >(pathspar);
+//        for (std::vector<string>::const_iterator path = paths.begin(); path
+// 	      !=paths.end(); ++path ) {
+
+// 	 cout << *path << endl;
+// 	 vector< std::string> modules;
+// 	 modules = ps.getParameter<vector< std::string> >(*path);
+// 	 for (std::vector<string>::const_iterator module = modules.begin();
+// 	      module !=modules.end(); ++module ) {     
+// 	   cout << *module << endl;
+// 	 }
+//        }
+//      }
+
+
+
+
    
    // Trigger Info
    edm::Handle<trigger::TriggerEvent> trgEvent;
@@ -85,16 +133,21 @@ void eTriggerCandProducer::produce(edm::Event &event,
 
    // Some sanity checks
    if (not trgEvent.isValid()) {
-     edm::LogInfo("info")<< "********NO TRIGGER INFO*********** ";
+     edm::LogInfo("info")<< "******** The following Trigger Summary Object Not Found: " << 
+       triggerEventTag_;
      return;
    }
 
    // find how many relevant
-   const size_type index = trgEvent->filterIndex(hltTag_.label());
-   if( !(index < trgEvent->sizeFilters())) {
-     edm::LogInfo("info")<< "********NO TRIGGER INFO*********** ";
+   const size_type index = trgEvent->filterIndex( hltTag_.label() );
+
+
+   if( index >= trgEvent->sizeFilters() ) {
+     edm::LogInfo("info")<< "******** The following TRIGGER Name Not in Dataset: " << 
+       hltTag_.label();
      return;
    }
+
 
    // find how many objects there are
    const trigger::Keys& KEYS(trgEvent->filterKeys(index));
@@ -102,30 +155,6 @@ void eTriggerCandProducer::produce(edm::Event &event,
    // loop over these objects to see whether they match
    const trigger::TriggerObjectCollection& TOC = trgEvent->getObjects();
      
-
-   ///// /////// For debugging /////////////////////
-//    const size_type nF(trgEvent->sizeFilters());
-//    if(nF < index)
-//      edm::LogInfo("info")<< "**** TRIGGER index is larger than MAX *****";
-//      cout << "Number of TriggerFilters: " << nF << endl;
-//      cout << "The Filters: #, label, #ids/#keys, the id/key pairs" << endl;
-//      for (size_type iF=0; iF!=nF; ++iF) {
-//        const Vids& VIDS (trgEvent->filterIds(iF));
-//        const Keys& KEYS(trgEvent->filterKeys(iF));
-//        const size_type nI(VIDS.size());
-//        const size_type nK(KEYS.size());
-//        cout << iF << " " << trgEvent->filterLabel(iF)
-// 	    << " " << nI << "/" << nK
-// 	    << " the pairs: ";
-//        const size_type n(max(nI,nK));
-//        for (size_type i=0; i!=n; ++i) {
-// 	 cout << " " << VIDS[i] << "/" << KEYS[i];
-//        }
-//        cout << endl;
-//        assert (nI==nK);
-//      }
-   ///// //////////////////////////////////////////////////
-
 
 
    // Loop over electrons
