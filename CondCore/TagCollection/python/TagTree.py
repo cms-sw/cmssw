@@ -79,7 +79,9 @@ class tagTree(object):
             transaction.commit()
         else:
             self.createTagTreeTable()
+            transaction.start(False)
             schema.truncateTable(self.__tagTreeIDs)
+            transaction.commit()
         nresult=0
         try:
             transaction.start(False)
@@ -91,7 +93,7 @@ class tagTree(object):
         except Exception, er:
             transaction.rollback()
             raise Exception, str(er)
-        print nresult,' rows copied from ',sourcetagTreeTableName
+        #print nresult,' rows copied from ',sourcetagTreeTableName
         
         try:
             transaction.start(False)
@@ -103,27 +105,30 @@ class tagTree(object):
         except Exception, er:
             transaction.rollback()
             raise Exception, str(er)
-        print nresult,' rows copied from ',sourcetagTreeIDs
+        #print nresult,' rows copied from ',sourcetagTreeIDs
         
     def replaceLeafLinks(self, leafnodelinks ):
         """modify the tagid link in leafnodes
-        Input: [{leaflabel:newtagid}]
+        Input: {leaflabel:newtagid , leaflabel:newtagid}
+        This function does not check if the nodes are all really leafs. User has to check before passing the input argument
         """
+        if len(leafnodelinks.keys())==0:
+            return
+        
         transaction=self.__session.transaction()
+        transaction.start(False)
+        schema = self.__session.nominalSchema()
         try:
             updateAction="tagid = :newtagid"
-            updateCondition="tagname = :tagname"
+            updateCondition="nodelabel = :nodelabel"
             updateData=coral.AttributeList()
             updateData.extend('newtagid','unsigned long')
-            updateData.extend('tagname','string')
-            transaction.start(False)
-            mybulkOperation=schema.tableHandle(self.__tagTreeTableName).dataEditor().bulkUpdateRows("tagid=:newtagid","tagname=:tagname",updateData,1000)
-            for leafnodelink in leafnodelinks:
-                updateData['newtagid'].setData(leafnodelink[tagname])
-                updateData['tagname'].setData(tagname)
-                nresult=mybulkOperation.processNextIteration()
-                if nresult != 1:
-                    raise "updated number of row is not one"
+            updateData.extend('nodelabel','string')
+            mybulkOperation=schema.tableHandle(self.__tagTreeTableName).dataEditor().bulkUpdateRows("tagid = :newtagid","nodelabel = :nodelabel",updateData,1000)
+            for nodelabel in leafnodelinks.keys():
+                updateData['newtagid'].setData(leafnodelinks[nodelabel])
+                updateData['nodelabel'].setData(nodelabel)
+                mybulkOperation.processNextIteration()
             mybulkOperation.flush()
             transaction.commit()
             del mybulkOperation
@@ -575,14 +580,18 @@ if __name__ == "__main__":
         print 'Node AB2 ',result
         result=mytree.getPath('AB2')
         print 'Path to AB2 ',result
-        result=mytree.getAllLeaves()
-        print 'all leaves again',result
+        allleafs=mytree.getAllLeaves()
+        print 'all leaves again',allleafs
         print 'number of children ',mytree.nChildren('A')
         print 'number of children ',mytree.nChildren('ROOT')
         result=mytree.getSubtree('A')
         print 'subtree of A ',result
         newtree=tagTree(session,'mynewtest')
         newtree.importFromTree('mytest2')
+        newlinks={}
+        for l in allleafs:
+            newlinks[l.nodelabel]=1234
+        newtree.replaceLeafLinks(newlinks)
         del session
     except Exception, e:
         print "Failed in unit test"
