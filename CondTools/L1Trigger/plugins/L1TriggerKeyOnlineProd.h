@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sun Mar  2 03:04:19 CET 2008
-// $Id$
+// $Id: L1TriggerKeyOnlineProd.h,v 1.1 2008/03/03 21:52:19 wsun Exp $
 //
 
 // system include files
@@ -47,7 +47,9 @@ class L1TriggerKeyOnlineProd : public edm::ESProducer {
       // ----------member data ---------------------------
       std::string m_tscKey ;
       l1t::OMDSReader m_omdsReader ;
-      bool m_forceGeneration ;
+      std::map< std::string, bool > m_recordsToInclude ; // rec name, was included?
+
+      bool listContains( const std::string& ) ;
 };
 
 #endif
