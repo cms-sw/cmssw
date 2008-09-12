@@ -26,7 +26,10 @@ class PFConversionsProducer : public edm::EDProducer
       virtual void beginJob(const edm::EventSetup & c);
       
       virtual void endJob ();
-
+      
+      bool isNotUsed(reco::ConversionRef newPf,reco::PFConversionCollection PFC);
+      
+      bool SameTrack(reco::TrackRef t1, reco::TrackRef t2);
    private:
 
       void fillPFConversions ( reco::ConversionRef& ,
@@ -46,6 +49,10 @@ class PFConversionsProducer : public edm::EDProducer
 
      std::string PFConversionCollection_;
      std::string PFConversionRecTracks_;
+     
+     std::vector< edm::InputTag > OtherConvLabels_;
+     std::vector< edm::InputTag > OtherOutInLabels_;
+     std::vector< edm::InputTag > OtherInOutLabels_;
 
      ///PFTrackTransformer
      PFTrackTransformer *pfTransformer_; 

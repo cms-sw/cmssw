@@ -24,14 +24,16 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include <vector>
 
-
+using namespace std;
 PFConversionsProducer::PFConversionsProducer( const edm::ParameterSet& pset ) : pfTransformer_(0) {
   // input collection names
   conversionCollectionProducer_ = pset.getParameter<std::string>("conversionProducer");
   conversionCollection_ = pset.getParameter<std::string>("conversionCollection");
   debug_ = pset.getParameter<bool>("debug");
 
-
+  OtherConvLabels_ =pset.getParameter<std::vector< edm::InputTag > >("OtherConversionCollection");
+  OtherOutInLabels_ =pset.getParameter<std::vector< edm::InputTag > >("OtherOutInCollection");
+  OtherInOutLabels_ =pset.getParameter<std::vector< edm::InputTag > >("OtherInOutCollection");
   // output collection names
   PFConversionCollection_     = pset.getParameter<std::string>("PFConversionCollection");
   PFConversionRecTracks_      = pset.getParameter<std::string>("PFRecTracksFromConversions");  
@@ -74,7 +76,7 @@ void PFConversionsProducer::produce( edm::Event& e, const edm::EventSetup& )
   using namespace edm;
   if (debug_) std::cout <<" PFConversionsProducer Produce event: "<<e.id().event() <<" in run "<<e.id().run()<< std::endl;
  
-
+  cout<<"EVENT "<<e.id()<<endl;
   nEvt_++;  
   
   ///// Get the externally reconstructed  conversions
@@ -123,10 +125,11 @@ void PFConversionsProducer::produce( edm::Event& e, const edm::EventSetup& )
   std::map<reco::CaloClusterPtr, std::vector<reco::ConversionRef> > aMap;
   
   
-  
+
   for( unsigned int icp = 0;  icp < conversionHandle->size(); icp++) {
     reco::ConversionRef cpRef(reco::ConversionRef(conversionHandle,icp));
     std::vector<reco::TrackRef> tracks = cpRef->tracks();
+ 
     if ( tracks.size() < 2 ) continue;
     reco::CaloClusterPtr aClu = cpRef->caloCluster()[0];
      
@@ -135,7 +138,7 @@ void PFConversionsProducer::produce( edm::Event& e, const edm::EventSetup& )
       reco::ConversionRef cp2Ref(reco::ConversionRef(conversionHandle,jcp));
       std::vector<reco::TrackRef> tracks2 = cp2Ref->tracks();
       if ( tracks.size() < 2 ) continue;
- 
+
       
       if ( cpRef->caloCluster()[0] == cp2Ref ->caloCluster()[0] ) {
 	if (debug_) std::cout << " PFConversionProducer Pushing back SC Energy " << aClu->energy() << " eta " << aClu->eta() << " phi " << aClu->phi() << " E/P " << cp2Ref->EoverP() << std::endl;     	
@@ -185,13 +188,64 @@ void PFConversionsProducer::produce( edm::Event& e, const edm::EventSetup& )
     if (debug_) std::cout<< " Best conv " << iBestConv << std::endl;
     reco::ConversionRef cpRef = conversions[iBestConv];
     std::vector<reco::TrackRef> tracks = conversions[iBestConv]->tracks();
-
+    cout<<"SQDA"<<endl;
     fillPFConversions ( cpRef, outInTrkHandle, inOutTrkHandle, outInTrajectoryHandle, inOutTrajectoryHandle, iPfTk,  pfTrackRefProd, outputConversionCollection,  pfConversionRecTrackCollection);
     
     
   }  /// loop over photons
+ 
+  ///MICHELE  
+  ///other conversion collections added in order of purity
+   
+  if ((OtherConvLabels_.size()==OtherOutInLabels_.size()) &&(OtherConvLabels_.size()==OtherInOutLabels_.size())){
+    for (uint icol=0; icol<  OtherConvLabels_.size();icol++){
+      Handle<reco::ConversionCollection> newColl;
+      e.getByLabel(OtherConvLabels_[icol],newColl);
+      
+      //read collections of trajectories
+      Handle<std::vector<Trajectory> > outInTraj;
+      e.getByLabel(OtherOutInLabels_[icol],outInTraj); 
+      //  
+      
+      Handle<std::vector<Trajectory> > inOutTraj; 
+      e.getByLabel(OtherInOutLabels_[icol],inOutTraj); 
+
+      
+      // read collections of tracks
+      Handle<reco::TrackCollection> outInTrk; 
+      e.getByLabel(OtherOutInLabels_[icol],outInTrk); 
+      
+      Handle<reco::TrackCollection> inOutTrk; 
+      e.getByLabel(OtherInOutLabels_[icol],inOutTrk); 
   
-  
+      ///vector of bool of the same size of new conversion collection
+    
+      uint AlreadySaved=  outputConversionCollection.size();
+ 
+      cout<<"TRACCE GIA' PRESE "<<AlreadySaved<<endl;  
+      
+      cout<<"COLL "<<OtherConvLabels_[icol]<<" SIZ "<<newColl->size()
+	  <<" "<<outInTrk->size()<<" "<<inOutTrk->size()<<endl;
+      for( unsigned int icp = 0;  icp < newColl->size(); icp++) {
+	reco::ConversionRef cpRef(reco::ConversionRef(newColl,icp));
+	std::vector<reco::TrackRef> tracks = cpRef->tracks();
+	
+	if ( tracks.size() < 2 ) continue;
+	
+	if (isNotUsed(cpRef,outputConversionCollection)){
+	  cout<<"QQ "<<endl;
+
+	  fillPFConversions ( cpRef, outInTrk, inOutTrk, outInTraj, inOutTraj, 
+			      iPfTk,  pfTrackRefProd, outputConversionCollection,  
+			      pfConversionRecTrackCollection);
+	}
+	
+	
+
+      }//end loop on the conversion
+    }
+  }
+
   
   // put the products in the event
   if (debug_) std::cout << " PFConversionProducer putting PFConversions in the event " << outputConversionCollection.size() <<  std::endl; 
@@ -307,5 +361,36 @@ void PFConversionsProducer::endJob()
    return ;
 }
  
+bool PFConversionsProducer::isNotUsed(reco::ConversionRef newPf,reco::PFConversionCollection PFC){
+  std::vector<reco::TrackRef> tracks = newPf->tracks();
+  if (tracks.size()!=2) return false;
+  for (uint ip=0; ip<PFC.size();ip++){
+    std::vector<reco::TrackRef> oldTracks = PFC[ip].originalConversion()->tracks();
+    for (uint it=0; it<2; it++){
+      for (uint it2=0; it2<oldTracks.size(); it2++){
+	if (SameTrack(tracks[it],oldTracks[it2])) return false;
+      }
+    }
+    
+  }
+  return true;
+}
 
-
+bool PFConversionsProducer::SameTrack(reco::TrackRef t1, reco::TrackRef t2){
+  float irec=0;
+  float isha=0;
+  trackingRecHit_iterator i1b= t1->recHitsBegin();
+  trackingRecHit_iterator i1e= t1->recHitsEnd();
+  for(;i1b!=i1e;++i1b){
+    if (!((*i1b)->isValid())) continue;
+    irec++;
+    trackingRecHit_iterator i2b= t2->recHitsBegin();
+    trackingRecHit_iterator i2e= t2->recHitsEnd();
+    for(;i2b!=i2e;++i2b){
+      if (!((*i2b)->isValid())) continue;
+      if ((*i1b)->sharesInput(&(**i2b), TrackingRecHit::all )) isha++;
+    }
+  }
+  cout<<"REC "<<irec<<" "<<isha<<" "<<isha/irec<<endl;
+  return ((isha/irec)>0.5);
+}

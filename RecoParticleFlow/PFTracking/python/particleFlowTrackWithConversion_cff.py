@@ -14,6 +14,10 @@ from RecoParticleFlow.PFTracking.pfTrackElec_cfi import *
 from RecoEgamma.EgammaPhotonProducers.softConversionSequence_cff import *
 from RecoParticleFlow.PFTracking.pfConversions_cfi import *
 
+#TRAJECTORIES IN THE EVENT
+softConversionIOTracks.TrajectoryInEvent = cms.bool(True)
+softConversionOITracks.TrajectoryInEvent = cms.bool(True)
+
 
 particleFlowTrackWithConversion =cms.Sequence(
     elecPreId*
