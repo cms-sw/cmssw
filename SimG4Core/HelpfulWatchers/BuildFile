@@ -8,4 +8,4 @@
 <use name=SimG4Core/Watcher>
 <use name=SimG4Core/Notification>
 <use name=boost>
-<use name=geant4>
+<use name=geant4core>

@@ -6,7 +6,7 @@
 <use name=SimG4Core/PhysicsLists>
 <use name=SimG4Core/Notification>
 <use name=SimG4Core/Watcher>
-<use name=geant4>
+<use name=geant4core>
 <use name=clhep>
 <use name=boost>
 <use name=root>

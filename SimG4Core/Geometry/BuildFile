@@ -1,7 +1,7 @@
 <use name=FWCore/Framework>
 <use name=DetectorDescription/Core>
 <use name=DetectorDescription/Parser>
-<use name=geant4>
+<use name=geant4core>
 <use name=Collection>
 <use name=ImplicitCollection>
 <use name=Geometry/Records>
