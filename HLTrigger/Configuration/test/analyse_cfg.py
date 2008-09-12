@@ -48,6 +48,8 @@ process.anal1 = cms.EDFilter("HLTAnalFilt",
 process.eca = cms.EDAnalyzer("EventContentAnalyzer")
 
 import HLTrigger.HLTcore.hltEventAnalyzerAOD_cfi
-process.hltAnalyzer = HLTrigger.HLTcore.hltEventAnalyzerAOD_cfi.hltEventAnalyzerAOD.clone()
+process.hltAnalyzerAOD = HLTrigger.HLTcore.hltEventAnalyzerAOD_cfi.hltEventAnalyzerAOD.clone()
+import HLTrigger.HLTcore.hltEventAnalyzerRAW_cfi
+process.hltAnalyzerRAW = HLTrigger.HLTcore.hltEventAnalyzerRAW_cfi.hltEventAnalyzerRAW.clone()
 
-process.final = cms.EndPath(process.hltAnalyzer+process.aom+process.anal1+process.eca)
+process.final = cms.EndPath(process.hltAnalyzerAOD+process.hltAnalyzerRAW+process.aom+process.anal1+process.eca)
