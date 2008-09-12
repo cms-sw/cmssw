@@ -22,11 +22,11 @@
 #include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
-#include <vector>
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
+#include <vector>
 #include "TFile.h"
 #include "TNtuple.h"
 
@@ -42,17 +42,16 @@ public:
 
   // Operations
 
-  void analyze          ( const edm::Event & event );
+  void analyze          (const edm::Event & iEvent);
   void BookHistograms   ();
   void WriteHistograms  ();
-  void SetCurrentFolder ( TString folder );
-  MonitorElement* BookIt( TString name, TString title, 
-			  int Nbins, float Min, float Max);
+  void SetCurrentFolder (TString folder );
+  MonitorElement* BookIt(TString name, TString title, 
+			 int Nbins, float Min, float Max);
 
 private:
 
   // Input from cfg file
-  std::string   theFolderName;
   edm::InputTag theL1CollectionLabel;
   edm::InputTag theGenLabel;
   edm::InputTag theRecoLabel;
@@ -60,7 +59,6 @@ private:
 
   double theL1ReferenceThreshold;
   double theHLTReferenceThreshold;
-  double theCrossSection;
   double theLuminosity;
   double thePtMin;
   double thePtMax;
@@ -77,8 +75,8 @@ private:
 
   // Struct for matching
   struct MatchStruct {
-    HepMC::GenParticle* genCand;
-    const reco::Track*  recCand;
+    const reco::GenParticle *genCand;
+    const reco::Track*       recCand;
     const l1extra::L1MuonParticle* l1Cand;
     std::vector<const reco::RecoChargedCandidate*> hltCands;
   };
@@ -86,6 +84,8 @@ private:
   std::vector<MatchStruct> recMatches;
   int nL1Orphans ;
   int nHltOrphans;
+  
+  const reco::Candidate* findMother(const reco::Candidate*);
 
   // Histograms
   DQMStore* dbe_;
@@ -102,8 +102,6 @@ private:
   int theNumberOfEvents ;
   int theNumberOfL1Events;
   std::string theRootFileName;
-
-  const HepMC::GenEvent* theGenEvent;
 
   int findGenMatch( double eta, double phi, double maxDeltaR );
   int findRecMatch( double eta, double phi, double maxdeltaR );
