@@ -126,9 +126,8 @@ def regressReports(olddir,newdir,oldRelName = "",newRelName=""):
                                             print "**"
                                             oldRelName = getOldRelName(oldRelName,olddir)
                                             
-                                            cpr.cmpTimingReport(rootf, outd, oldlog, log, 1, batch = True, prevrev = oldRelName)                                                    \
+                                            cpr.cmpTimingReport(rootf, outd, oldlog, log, 1, batch = True, prevrev = oldRelName)
                                         elif prof == "valgrind":
-                                            
                                             cpr.cmpCallgrindReport(outpath,oldlog,log)
                                         elif prof == "IgProfMemTotal" or prof == "IgProfMemSize":
                                             
