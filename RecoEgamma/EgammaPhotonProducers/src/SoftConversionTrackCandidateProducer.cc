@@ -112,6 +112,8 @@ void SoftConversionTrackCandidateProducer::produce(edm::Event& theEvent, const e
   using namespace edm;
   nEvt_++;
   edm::LogInfo("SoftConversionTrackCandidateProducer") << "SoftConversionTrackCandidateProducer Analyzing event number: " << theEvent.id() << " Global Counter " << nEvt_ << "\n";
+
+  std::cout << "SoftConversionTrackCandidateProducer Analyzing event number: " << theEvent.id() << " Global Counter " << nEvt_ << "\n";
   
   setEventSetup( theEventSetup );
   theOutInSeedFinder_->setEvent(theEvent);
@@ -134,20 +136,21 @@ void SoftConversionTrackCandidateProducer::produce(edm::Event& theEvent, const e
   // Get the basic cluster collection in the Barrel 
   edm::Handle<edm::View<reco::CaloCluster> > clusterBarrelHandle;
   theEvent.getByLabel(clusterBarrelCollection_, clusterBarrelHandle);
+
   if (!clusterBarrelHandle.isValid()) {
-    edm::LogError("SoftConverionTrackCandidateProducer") << "Error! Can't get the product "<<clusterBarrelCollection_;
+    edm::LogError("SoftConverionTrackCandidateProducer") << "Error! Can't get the product "<<clusterBarrelCollection_.label();
     return;
   }
   
   buildCollections(clusterBarrelHandle, *outInTrackCandidate_p, *inOutTrackCandidate_p, vecOfClusterRefForOutIn, vecOfClusterRefForInOut);
 
-  if(clusterType_ == "BasicCluster") {
+  if(clusterType_ == "BasicCluster" ) {
     // Get the basic cluster collection in the Endcap 
     edm::Handle<edm::View<reco::CaloCluster> > clusterEndcapHandle;
-    //theEvent.getByLabel(clusterEndcapProducer_, clusterEndcapCollection_, clusterEndcapHandle);
     theEvent.getByLabel(clusterEndcapCollection_, clusterEndcapHandle);
+
     if (!clusterEndcapHandle.isValid()) {
-      edm::LogError("SoftConversionTrackCandidateProducer") << "Error! Can't get the product "<<clusterEndcapCollection_;
+      edm::LogError("SoftConversionTrackCandidateProducer") << "Error! Can't get the product "<<clusterEndcapCollection_.label();
       return;
     }
 
@@ -178,14 +181,23 @@ void SoftConversionTrackCandidateProducer::buildCollections(const edm::Handle<ed
 							    std::vector<edm::Ptr<reco::CaloCluster> >& vecRecIO) {
 
   int nClusters = (int) clusterHandle->size();
+
+  //  std::cout << " SoftConversionTrackCandidateProduce cluster size " << nClusters << std::endl;
   for(int iCluster=0; iCluster<nClusters; iCluster++){
     reco::CaloClusterPtr clusterRefOutIn = clusterHandle->ptrAt(iCluster);
     math::XYZPoint position = clusterRefOutIn->position();
     GlobalPoint gp(position.x(),position.y(),position.z());
+
+    if ( clusterRefOutIn->energy()/cosh(clusterRefOutIn->eta() ) < 1.5 ) continue;
+
     theOutInSeedFinder_->setCandidate(clusterRefOutIn->energy(),gp);
     theOutInSeedFinder_->makeSeeds(clusterRefOutIn);
 
+    //    std::cout << " SoftConversionTrackCandidateProducer::buildCollections OI seed size " << theOutInSeedFinder_->seeds().size() << std::endl;
+
     std::vector<Trajectory> theOutInTracks= theOutInTrackFinder_->tracks(theOutInSeedFinder_->seeds(), outInTrackCandidates);
+
+    //    std::cout << " SoftConversionTrackCandidateProducer::buildCollections OI track size " << theOutInTracks.size() << std::endl;
 
     int nOITrj = (int) theOutInTracks.size();
     for(int itrj=0; itrj < nOITrj; itrj++) vecRecOI.push_back( clusterRefOutIn );
@@ -193,10 +205,14 @@ void SoftConversionTrackCandidateProducer::buildCollections(const edm::Handle<ed
     for(int jCluster=iCluster; jCluster<nClusters; jCluster++){
       reco::CaloClusterPtr clusterRefInOut = clusterHandle->ptrAt(jCluster);
 
+      if ( clusterRefInOut->energy()/cosh(clusterRefInOut->eta() ) < 1.5 ) continue;
+
+
       math::XYZPoint position2 = clusterRefInOut->position();
       GlobalPoint gp2(position2.x(),position2.y(),position2.z());
       double dEta = std::abs(position.Eta() - position2.Eta());
-      if(dEta > 0.2) continue;
+      if(dEta > 0.05) continue;
+      //if(dEta > 0.2) continue;
 
       double dPhi = std::abs(ROOT::Math::VectorUtil::DeltaPhi(position, position2));
       if(dPhi > 0.5) continue;
@@ -204,8 +220,12 @@ void SoftConversionTrackCandidateProducer::buildCollections(const edm::Handle<ed
       theInOutSeedFinder_->setCandidate(clusterRefInOut->energy(),gp2);
       theInOutSeedFinder_->setTracks(theOutInTracks);   
       theInOutSeedFinder_->makeSeeds(clusterHandle);
+
+      //      std::cout << " SoftConversionTrackCandidateProducer::buildCollections IO seed size " << theInOutSeedFinder_->seeds().size() << std::endl;
     
       std::vector<Trajectory> theInOutTracks= theInOutTrackFinder_->tracks(theInOutSeedFinder_->seeds(), inOutTrackCandidates); 
+
+      //      std::cout << " SoftConversionTrackCandidateProducer::buildCollections IO track size " << theInOutTracks.size() << std::endl;
 
       int nIOTrj = (int) theInOutTracks.size();
       for(int itrj=0; itrj < nIOTrj; itrj++) vecRecIO.push_back( clusterRefInOut );
