@@ -59,8 +59,8 @@ PhotonAnalysis = cms.EDAnalyzer("PhotonAnalyzer",
     dPhiTracksMax = cms.double(0.5),
                                 
 
-    OutputMEsInRootFile = cms.bool(True),
-    OutputFileName = cms.string('/afs/cern.ch/user/l/lantonel/scratch0/CMSSW_2_1_4/src/DQMOffline/EGamma/PhotonsTest.root'),
+    OutputMEsInRootFile = cms.bool(False),
+    OutputFileName = cms.string('DQMOfflinePhotons.root'),
 
 )
 
