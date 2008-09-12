@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Sun Mar  2 07:05:15 CET 2008
-// $Id: L1CondDBPayloadWriter.cc,v 1.2 2008/03/05 04:21:36 wsun Exp $
+// $Id: L1CondDBPayloadWriter.cc,v 1.3 2008/09/12 04:52:28 wsun Exp $
 //
 //
 
@@ -21,6 +21,8 @@
 // system include files
 
 // user include files
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "CondTools/L1Trigger/plugins/L1CondDBPayloadWriter.h"
 
 #include "CondFormats/L1TObjects/interface/L1TriggerKey.h"
@@ -80,16 +82,27 @@ L1CondDBPayloadWriter::analyze(const edm::Event& iEvent,
    iSetup.get< L1TriggerKeyListRcd >().get( oldKeyList ) ;
    L1TriggerKeyList* keyList = 0 ;
 
-   // Get L1TriggerKey
-   ESHandle< L1TriggerKey > key ;
-   iSetup.get< L1TriggerKeyRcd >().get( key ) ;
-
    // Write L1TriggerKey to ORCON with no IOV
    std::string token ;
+   ESHandle< L1TriggerKey > key ;
 
-   // Check key is new before writing
-   if( m_writeL1TriggerKey &&
-       oldKeyList->token( key->getTSCKey() ) == "" )
+   // Before calling writePayload(), check if TSC key is already in
+   // L1TriggerKeyList.  writePayload() will not catch this situation in
+   // the case of dummy configurations.
+   bool triggerKeyOK = true ;
+   try
+     {
+       // Get L1TriggerKey
+       iSetup.get< L1TriggerKeyRcd >().get( key ) ;
+       triggerKeyOK = oldKeyList->token( key->getTSCKey() ) == "" ;
+     }
+   catch( l1t::DataAlreadyPresentException& ex )
+     {
+       triggerKeyOK = false ;
+       edm::LogVerbatim( "L1-O2O" ) << ex.what() ;
+     }
+
+   if( triggerKeyOK && m_writeL1TriggerKey )
      {
        token = m_writer.writePayload( iSetup,
 				      "L1TriggerKeyRcd@L1TriggerKey" ) ;
@@ -137,12 +150,21 @@ L1CondDBPayloadWriter::analyze(const edm::Event& iEvent,
 		      if( !( keyList->addKey( it->first, it->second,
 					      token ) ) )
 			{
+			  // This should never happen because of the check
+			  // above, but just in case....
 			  throw cond::Exception(
 			    "L1CondDBPayloadWriter: subsystem key "
 			    + it->second + " for " + it->first
 			    + " already in L1TriggerKeyList" ) ;
 			}
 		    }
+		}
+	      else
+		{
+		  edm::LogVerbatim( "L1-O2O" )
+		    << "L1CondDBPayloadWriter: subsystem key "
+		    << it->second << " for " << it->first
+		    << " already in L1TriggerKeyList" ;
 		}
 	    }
 	}
@@ -151,9 +173,7 @@ L1CondDBPayloadWriter::analyze(const edm::Event& iEvent,
    if( keyList )
    {
       // Write L1TriggerKeyList to ORCON with IOV since-time = previous run
-      m_writer.writeKeyList( keyList,
-			     m_tag ) ;
-      //			     iEvent.id().run() ) ; // since time
+      m_writer.writeKeyList( keyList, m_tag ) ;
    }
 }
 
