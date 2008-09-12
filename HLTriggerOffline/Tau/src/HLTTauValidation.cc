@@ -317,7 +317,7 @@ HLTTauValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     //L1Analysis Seed
       size_t L1ID=0;
       L1ID =trigEv->filterIndex(l1seedFilter_);
-      LogDebug("HLTTauValidation") << "L1id = " << L1ID << std::endl;
+    
       if(L1ID!=trigEv->size())
 	{
 	  //Get L1Objects
@@ -358,7 +358,7 @@ HLTTauValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     //L2Analysis Seed
       size_t L2ID=0;
       L2ID =trigEv->filterIndex(l2filter_);
-      LogDebug("HLTTauValidation") << "L2id = " << L2ID << std::endl;
+   
    
       if(L2ID!=trigEv->size())
 	{
