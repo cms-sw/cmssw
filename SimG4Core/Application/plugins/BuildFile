@@ -1,7 +1,7 @@
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=SimG4Core/Application>
-<use name=geant4>
+<use name=geant4core>
 <use name=hepmc>
 
 <library file=OscarProducer.cc name=SimG4CoreApplicationPlugins>

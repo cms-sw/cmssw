@@ -6,6 +6,6 @@
 <use name=SimDataFormats/HepMCProduct>
 <use name=DataFormats/Math>
 <use name=boost>
-<use name=geant4>
+<use name=geant4core>
 <use name=hepmc>
 <use name=rootmath>

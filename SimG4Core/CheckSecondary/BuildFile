@@ -5,7 +5,7 @@
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/MessageLogger>
-<use name=geant4>
+<use name=geant4core>
 <use name=boost>
 <use name=root>
 <use name=SimG4Core/Notification>
