@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Sun Mar  2 07:05:15 CET 2008
-// $Id: L1CondDBPayloadWriter.cc,v 1.1 2008/03/03 21:52:18 wsun Exp $
+// $Id: L1CondDBPayloadWriter.cc,v 1.2 2008/03/05 04:21:36 wsun Exp $
 //
 //
 
@@ -46,7 +46,9 @@
 L1CondDBPayloadWriter::L1CondDBPayloadWriter(const edm::ParameterSet& iConfig)
    : m_writer( iConfig.getParameter< std::string >( "offlineDB" ),
 	       iConfig.getParameter< std::string >( "offlineAuthentication" )),
-     m_tag( iConfig.getParameter< std::string >( "L1TriggerKeyListTag" ) )
+     m_tag( iConfig.getParameter< std::string >( "L1TriggerKeyListTag" ) ),
+     m_writeL1TriggerKey( iConfig.getParameter< bool >( "writeL1TriggerKey" )),
+     m_writeConfigData( iConfig.getParameter< bool >( "writeConfigData" ) )
 {
    //now do what ever initialization is needed
 
@@ -77,62 +79,81 @@ L1CondDBPayloadWriter::analyze(const edm::Event& iEvent,
    ESHandle< L1TriggerKeyList > oldKeyList ;
    iSetup.get< L1TriggerKeyListRcd >().get( oldKeyList ) ;
    L1TriggerKeyList* keyList = 0 ;
-   //bool keyListUpdated = false ;
+
+   // Get L1TriggerKey
+   ESHandle< L1TriggerKey > key ;
+   iSetup.get< L1TriggerKeyRcd >().get( key ) ;
 
    // Write L1TriggerKey to ORCON with no IOV
-   std::string token =
-     m_writer.writePayload( iSetup, "L1TriggerKeyRcd@L1TriggerKey" ) ;
+   std::string token ;
+
+   // Check key is new before writing
+   if( m_writeL1TriggerKey &&
+       oldKeyList->token( key->getTSCKey() ) == "" )
+     {
+       token = m_writer.writePayload( iSetup,
+				      "L1TriggerKeyRcd@L1TriggerKey" ) ;
+     }
 
    // If L1TriggerKey is invalid, then all configuration data is already in DB
-   if( !token.empty() )
+   if( !token.empty() || !m_writeL1TriggerKey )
    {
-      // Get L1TriggerKey
-      ESHandle< L1TriggerKey > key ;
-      iSetup.get< L1TriggerKeyRcd >().get( key ) ;
-
       // Record token in L1TriggerKeyList
-      keyList = new L1TriggerKeyList( *oldKeyList ) ;
-      if( !( keyList->addKey( key->getTSCKey(), token ) ) )
+      if( m_writeL1TriggerKey )
 	{
-	  throw cond::Exception( "L1CondDBPayloadWriter: TSC key "
-				 + key->getTSCKey()
-				 + " already in L1TriggerKeyList" ) ;
+	  keyList = new L1TriggerKeyList( *oldKeyList ) ;
+	  if( !( keyList->addKey( key->getTSCKey(), token ) ) )
+	    {
+	      throw cond::Exception( "L1CondDBPayloadWriter: TSC key "
+				     + key->getTSCKey()
+				     + " already in L1TriggerKeyList" ) ;
+	    }
 	}
-      //assert( keyList->addKey( key->getTSCKey(), token ) ) ;
-      //keyListUpdated = true ;
 
-      // Loop over record@type in L1TriggerKey
-      L1TriggerKey::RecordToKey::const_iterator it =
-	 key->recordToKeyMap().begin() ;
-      L1TriggerKey::RecordToKey::const_iterator end =
-	 key->recordToKeyMap().end() ;
+      if( m_writeConfigData )
+	{
+	  // Loop over record@type in L1TriggerKey
+	  L1TriggerKey::RecordToKey::const_iterator it =
+	    key->recordToKeyMap().begin() ;
+	  L1TriggerKey::RecordToKey::const_iterator end =
+	    key->recordToKeyMap().end() ;
 
-      for( ; it != end ; ++it )
-      {
-	 // Write data to ORCON with no IOV
-	 token = m_writer.writePayload( iSetup, it->first ) ;
+	  for( ; it != end ; ++it )
+	    {
+	      // Check key is new before writing
+	      if( oldKeyList->token( it->first, it->second ) == "" )
+		{
+		  // Write data to ORCON with no IOV
+		  token = m_writer.writePayload( iSetup, it->first ) ;
 
-	 if( !token.empty() )
-	 {
-	    // Record token in L1TriggerKeyList
-	   if( !( keyList->addKey( it->first, it->second, token ) ) )
-	     {
-	       throw cond::Exception( "L1CondDBPayloadWriter: subsystem key "
-				      + it->first
-				      + " already in L1TriggerKeyList" ) ;
-	     }
-	   //assert( keyList->addKey( it->first, it->second, token ) ) ;
-	 }
-      }
+		  if( !token.empty() )
+		    {
+		      // Record token in L1TriggerKeyList
+		      if( !keyList )
+			{
+			  keyList = new L1TriggerKeyList( *oldKeyList ) ;
+			}
+
+		      if( !( keyList->addKey( it->first, it->second,
+					      token ) ) )
+			{
+			  throw cond::Exception(
+			    "L1CondDBPayloadWriter: subsystem key "
+			    + it->second + " for " + it->first
+			    + " already in L1TriggerKeyList" ) ;
+			}
+		    }
+		}
+	    }
+	}
    }
 
-   //   if( keyListUpdated )
    if( keyList )
    {
       // Write L1TriggerKeyList to ORCON with IOV since-time = previous run
       m_writer.writeKeyList( keyList,
-			     m_tag,
-			     iEvent.id().run() ) ; // since time
+			     m_tag ) ;
+      //			     iEvent.id().run() ) ; // since time
    }
 }
 

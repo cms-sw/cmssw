@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sun Mar  2 07:06:56 CET 2008
-// $Id$
+// $Id: L1CondDBPayloadWriter.h,v 1.1 2008/03/03 21:52:18 wsun Exp $
 //
 
 // system include files
@@ -49,6 +49,12 @@ class L1CondDBPayloadWriter : public edm::EDAnalyzer {
       // ----------member data ---------------------------
       l1t::DataWriter m_writer ;
       std::string m_tag ;
+
+      // set to false to write config data without valid TSC key
+      bool m_writeL1TriggerKey ;
+
+      // set to false to write config data only
+      bool m_writeConfigData ;
 };
 
 #endif
