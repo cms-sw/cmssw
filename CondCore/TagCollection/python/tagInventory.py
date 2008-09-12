@@ -319,6 +319,8 @@ if __name__ == "__main__":
         print 'get ecalpedestalsfromonline##\t',result
         result=inv.getEntryByName('crap','oracle://devdb10/CMS_COND_ME')
         print 'get crap##\t',result
+        newid=inv.cloneEntry(result.tagid,'fontier://crap/crap')
+        print 'newid ',newid
         del session
     except Exception, e:
         print "Failed in unit test"
