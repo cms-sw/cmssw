@@ -1,0 +1,147 @@
+#!/usr/bin/env python
+import os
+from ConfigParser import ConfigParser
+#from copy import copy
+from optparse import OptionParser, Option, OptionValueError
+import coral
+from CondCore.TagCollection import Node,TagTree,tagInventory
+def stripws(myinput):
+    result=('').join(myinput.split(' '))
+    result=('').join(result.split('\n')) 
+    return result
+
+class tagTreeClone:
+    def __init__(self):
+        """
+        Class clone an existing tree to a new one only changing pfn in leaf nodes.
+        usage: %prog [options]
+        -f, --file=filename: configuration file (required). The connect parameter will be overwritten by option -c if present.
+        -c, --connect=connectstring: connection string to the tag DB. If -c, -f both given -c value will overwrite the connect parameter in the config file.
+        -u, --user=user: user name
+        -p, --password=password: password
+        -P, --path=path: path to authentication.xml
+        -v, --verbose: switch on verbose mode
+        -h, --help: print usage
+        """
+        self.__parser=OptionParser()
+        self.__connectstring=''
+        self.__user=''
+        self.__password=''
+        self.__authpath=''
+        self.__filename=''
+        self.__sourcetreename=''
+        self.__targettreename=''
+        self.__realclone=False
+        self.__service_replace=''
+        self.__schema_replace=''
+        self.__connect_replace=''
+        self.__verbose=False        
+    def parsecmdln(self):
+        """
+        Parse commandline
+        """
+        usage = "usage: \%prog [options] \n "
+        self.__parser.add_option("-f","--file",action="store",dest="filename",help="configuration file for input(required). The connect parameter will be overwritten by option -c if present.")
+        self.__parser.add_option("-c","--connect",action="store",dest="connectstring",type="string",help="connection string to the tag DB. If -c, -f both given -c value will overwrite the connect parameter in the config file.")
+        self.__parser.add_option("-u","--user",action="store",dest="user",type="string",help="user name")
+        self.__parser.add_option("-p","--password",action="store",dest="password",type="string",help="password")
+        self.__parser.add_option("-P","--path",action="store",dest="authpath",type="string",help="path to authentication.xml")
+        self.__parser.add_option("-v","--verbose",action="store_true",dest="verbose",help="verbose mode")
+        self.__parser.set_defaults(filename='')
+        self.__parser.set_defaults(connectstring='')
+        self.__parser.set_defaults(user='')
+        self.__parser.set_defaults(password='')
+        self.__parser.set_defaults(authpath='.')
+        self.__parser.set_defaults(verbose=False)
+        (options, args) = self.__parser.parse_args()
+
+        if not self.__parser.values.filename:
+            raise OptionValueError("option -%s --%s is required "%('f','file'))
+        self.__filename=self.__parser.values.filename
+        if os.path.exists(self.__filename)==False:
+            print 'non-existing input file ',self.__filename
+            return
+        if options.filename and options.connectstring:
+            #raise OptionValueError("option -%s and -%s are exclusive"%('f','c'))
+            print 'Warning: -c option ',options.connectstring, 'overwrites the connection string in ',options.filename
+        if len(self.__parser.values.authpath)!=0:
+            self.__authpath=self.__parser.values.authpath
+        else:
+            self.__user=self.__parser.values.user
+            self.__password=self.__parser.values.password
+        self.__verbose=self.__parser.values.verbose
+        
+        configparser=ConfigParser()
+        configparser.read(self.__filename)
+        if options.connectstring:
+            self.__connectstring=self.__parser.values.connectstring
+        else:
+            self.__connectstring=configparser.get("COMMON","connect")
+        sections=configparser.sections()
+        print sections
+        if not 'CLONE' in sections:
+            print 'section [CLONE] not found in file ',self.__filename
+            print 'do nothing'
+            return
+        self.__sourcetreename=stripws(configparser.get('CLONE','source'))
+        self.__targettreename=stripws(configparser.get('CLONE','target'))
+        service_replace_all=''
+        schema_replace=''
+        fullconnect_replace=''
+        try:
+            service_replace_all=stripws(configparser.get('CLONE','service_replace_all'))
+        except NoOptionError:
+            pass
+
+        try:
+           schema_replace=stripws(configparser.get('CLONE','schema_replace'))
+        except NoOptionError:
+            pass
+
+        try:
+           connect_replace=stripws(configparser.get('CLONE','connect_replace'))
+        except NoOptionError:
+            pass
+        
+        if self.__parser.values.verbose is True:
+            print 'config file: ',self.__filename
+            print 'connect: ',self.__connectstring
+            print 'sourcetree: ',self.__sourcetreename
+            print 'targettree: ',self.__targettreename
+            print 'service_replace_all: ',self.__servicereplace
+            print 'schema_replace: ',self.__schemareplace
+            print 'connect_replace: ',self.__connectreplace
+        if len(self.__service_replace)==0 and len(self.__schema_replace)==0 and len(self.__connect_replace)==0:
+            self.__realclone=True
+
+    def clonetree(self):
+        """
+        Create a clone tree 
+        """
+        context = coral.Context()
+        if self.__verbose is True:
+            context.setVerbosityLevel( 'DEBUG' )
+        else:
+            context.setVerbosityLevel( 'ERROR' )
+        
+        svc = coral.ConnectionService( context )
+        config=svc.configuration()
+        os.environ['CORAL_AUTH_PATH']=self.__authpath
+        config.setDefaultAuthenticationService('CORAL/Services/XMLAuthenticationService')
+        session = svc.connect( self.__connectstring,accessMode = coral.access_Update )
+        if self.__realclone is True:
+            try:
+                newtree=TagTree.tagTree(session,self.__targettreename)
+                newtree.importFromTree(self.__sourcetreename)
+            except Exception, e:
+                print str(e)
+                del session
+        else:
+            print 'not yet implemented'
+
+if __name__ == "__main__":
+    tagtreeclone=tagTreeClone() 
+    tagtreeclone.parsecmdln()
+    tagtreeclone.clonetree()
+    
+
