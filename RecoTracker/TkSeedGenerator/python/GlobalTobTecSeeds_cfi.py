@@ -13,6 +13,7 @@ globalTobTecSeeds = cms.EDProducer("SeedGeneratorFromRegionHitsEDProducer",
         RegionPSetBlock,
         ComponentName = cms.string('GlobalRegionProducer')
     ),
+    SeedMomentumForBOFF = cms.double(1.0), 
     TTRHBuilder = cms.string('WithTrackAngle')
 )
 
