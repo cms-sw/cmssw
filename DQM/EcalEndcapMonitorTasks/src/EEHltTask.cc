@@ -1,8 +1,8 @@
 /*
  * \file EEHltTask.cc
  *
- * $Date: 2008/09/11 07:30:21 $
- * $Revision: 1.2 $
+ * $Date: 2008/09/11 09:35:30 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  *
 */
@@ -235,9 +235,6 @@ void EEHltTask::analyze(const Event& e, const EventSetup& c){
 
 
   // Integrity errors
-  float FedsIntegrityErrors[18];
-  for ( int i=0; i<18; i++ ) FedsIntegrityErrors[i]=0;
-
   Handle<EEDetIdCollection> ids1;
 
   if ( e.getByLabel(EEDetIdCollection1_, ids1) ) {
@@ -247,8 +244,9 @@ void EEHltTask::analyze(const Event& e, const EventSetup& c){
       EEDetId id = (*idItr);
 
       int ism = Numbers::iSM( id );
-
-      FedsIntegrityErrors[ism-1]+=1.0/1100.;
+      int fednumber = ( ism < 10 ) ? 600 + ism : 636 + ism;
+      
+      meEEFedsIntegrityErrors_->Fill( fednumber, 1./850.);
 
     }
 
@@ -267,8 +265,9 @@ void EEHltTask::analyze(const Event& e, const EventSetup& c){
       EEDetId id = (*idItr);
 
       int ism = Numbers::iSM( id );
+      int fednumber = ( ism < 10 ) ? 600 + ism : 636 + ism;
 
-      FedsIntegrityErrors[ism-1]+=1.0/1100.;
+      meEEFedsIntegrityErrors_->Fill( fednumber, 1./850.);
 
     }
 
@@ -287,8 +286,9 @@ void EEHltTask::analyze(const Event& e, const EventSetup& c){
       EEDetId id = (*idItr);
 
       int ism = Numbers::iSM( id );
+      int fednumber = ( ism < 10 ) ? 600 + ism : 636 + ism;
 
-      FedsIntegrityErrors[ism-1]+=1.0/1100.;
+      meEEFedsIntegrityErrors_->Fill( fednumber, 1./850.);
 
     }
 
@@ -309,8 +309,9 @@ void EEHltTask::analyze(const Event& e, const EventSetup& c){
       if ( Numbers::subDet( id ) != EcalEndcap ) continue;
 
       int ismt = Numbers::iSM( id );
+      int fednumber = ( ismt < 10 ) ? 600 + ismt : 636 + ismt;
 
-      FedsIntegrityErrors[ismt-1]+=1.0/44.;
+      meEEFedsIntegrityErrors_->Fill( fednumber, 1./25.);
 
     }
 
@@ -330,9 +331,10 @@ void EEHltTask::analyze(const Event& e, const EventSetup& c){
 
       if ( Numbers::subDet( id ) != EcalEndcap ) continue;
 
-      int ismt = Numbers::iSM( id );
+      int ism = Numbers::iSM( id );
+      int fednumber = ( ism < 10 ) ? 600 + ism : 636 + ism;
 
-      FedsIntegrityErrors[ismt-1]+=1.0/1100.;
+      meEEFedsIntegrityErrors_->Fill( fednumber, 1./850.);
 
     }
 
@@ -353,8 +355,9 @@ void EEHltTask::analyze(const Event& e, const EventSetup& c){
       if ( Numbers::subDet( id ) != EcalEndcap ) continue;
 
       int ismt = Numbers::iSM( id );
+      int fednumber = ( ismt < 10 ) ? 600 + ismt : 636 + ismt;
 
-      FedsIntegrityErrors[ismt-1]+=1.0/44.;
+      meEEFedsIntegrityErrors_->Fill( fednumber, 1./25.);
 
     }
 
@@ -374,9 +377,10 @@ void EEHltTask::analyze(const Event& e, const EventSetup& c){
 
       if ( Numbers::subDet( id ) != EcalEndcap ) continue;
 
-      int ismt = Numbers::iSM( id );
+      int ism = Numbers::iSM( id );
+      int fednumber = ( ism < 10 ) ? 600 + ism : 636 + ism;
 
-      FedsIntegrityErrors[ismt-1]+=1.0/1100.;
+      meEEFedsIntegrityErrors_->Fill( fednumber, 1./850.);
 
     }
 
@@ -396,9 +400,10 @@ void EEHltTask::analyze(const Event& e, const EventSetup& c){
 
       if ( Numbers::subDet( id ) != EcalEndcap ) continue;
 
-      int ismt = Numbers::iSM( id );
+      int ism = Numbers::iSM( id );
+      int fednumber = ( ism < 10 ) ? 600 + ism : 636 + ism;
 
-      FedsIntegrityErrors[ismt-1]+=1.0/1100.;
+      meEEFedsIntegrityErrors_->Fill( fednumber, 1./850.);
 
     }
 
@@ -418,27 +423,16 @@ void EEHltTask::analyze(const Event& e, const EventSetup& c){
 
       if ( Numbers::subDet( id ) != EcalEndcap ) continue;
 
-      int ismt = Numbers::iSM( id );
+      int ism = Numbers::iSM( id );
+      int fednumber = ( ism < 10 ) ? 600 + ism : 636 + ism;
 
-      FedsIntegrityErrors[ismt-1]+=1.0/1100.;
+      meEEFedsIntegrityErrors_->Fill( fednumber, 1./850.);
 
     }
 
   } else {
 
     LogWarning("EEHltTask") << EcalElectronicsIdCollection6_ << " not available";
-
-  }
-
-  for( int ism=1; ism<=18; ism++ ) {
-
-    if ( FedsIntegrityErrors[ism-1] != 0 ) {
-
-      int fednumber = ( ism < 10 ) ? 600 + ism : 636 + ism;
-
-      if ( meEEFedsIntegrityErrors_ ) meEEFedsIntegrityErrors_->Fill( fednumber, FedsIntegrityErrors[ism-1] );
-
-    }
 
   }
 

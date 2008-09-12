@@ -1,8 +1,8 @@
 /*
  * \file EBHltTask.cc
  *
- * $Date: 2008/09/11 07:30:21 $
- * $Revision: 1.2 $
+ * $Date: 2008/09/11 09:35:30 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  *
 */
@@ -224,9 +224,6 @@ void EBHltTask::analyze(const Event& e, const EventSetup& c){
 
 
   // Integrity errors
-  float FedsIntegrityErrors[36];
-  for ( int i=0; i<36; i++ ) FedsIntegrityErrors[i]=0;
-
   Handle<EBDetIdCollection> ids1;
 
   if ( e.getByLabel(EBDetIdCollection1_, ids1) ) {
@@ -237,7 +234,7 @@ void EBHltTask::analyze(const Event& e, const EventSetup& c){
 
       int ism = Numbers::iSM( id );
 
-      FedsIntegrityErrors[ism-1]+=1.0/1700.;
+      meEBFedsIntegrityErrors_->Fill( EBFirstFED + ism - 1, 1./1700.);
 
     }
 
@@ -257,7 +254,7 @@ void EBHltTask::analyze(const Event& e, const EventSetup& c){
 
       int ism = Numbers::iSM( id );
 
-      FedsIntegrityErrors[ism-1]+=1.0/1700.;
+      meEBFedsIntegrityErrors_->Fill( EBFirstFED + ism - 1, 1./1700.);
 
     }
 
@@ -277,7 +274,7 @@ void EBHltTask::analyze(const Event& e, const EventSetup& c){
 
       int ism = Numbers::iSM( id );
 
-      FedsIntegrityErrors[ism-1]+=1.0/1700.;
+      meEBFedsIntegrityErrors_->Fill( EBFirstFED + ism - 1, 1./1700.);
 
     }
 
@@ -299,7 +296,7 @@ void EBHltTask::analyze(const Event& e, const EventSetup& c){
 
       int ismt = Numbers::iSM( id );
 
-      FedsIntegrityErrors[ismt-1]+=1.0/68.;
+      meEBFedsIntegrityErrors_->Fill( EBFirstFED + ismt - 1, 1./25.);
 
     }
 
@@ -319,9 +316,9 @@ void EBHltTask::analyze(const Event& e, const EventSetup& c){
 
       if ( Numbers::subDet( id ) != EcalBarrel ) continue;
 
-      int ismt = Numbers::iSM( id );
+      int ism = Numbers::iSM( id );
 
-      FedsIntegrityErrors[ismt-1]+=1.0/1700.;
+      meEBFedsIntegrityErrors_->Fill( EBFirstFED + ism - 1, 1./1700.);
 
     }
 
@@ -343,7 +340,7 @@ void EBHltTask::analyze(const Event& e, const EventSetup& c){
 
       int ismt = Numbers::iSM( id );
 
-      FedsIntegrityErrors[ismt-1]+=1.0/68.;
+      meEBFedsIntegrityErrors_->Fill( EBFirstFED + ismt - 1, 1./25.);
 
     }
 
@@ -363,9 +360,9 @@ void EBHltTask::analyze(const Event& e, const EventSetup& c){
 
       if ( Numbers::subDet( id ) != EcalBarrel ) continue;
 
-      int ismt = Numbers::iSM( id );
+      int ism = Numbers::iSM( id );
 
-      FedsIntegrityErrors[ismt-1]+=1.0/1700.;
+      meEBFedsIntegrityErrors_->Fill( EBFirstFED + ism - 1, 1./1700.);
 
     }
 
@@ -385,9 +382,9 @@ void EBHltTask::analyze(const Event& e, const EventSetup& c){
 
       if ( Numbers::subDet( id ) != EcalBarrel ) continue;
 
-      int ismt = Numbers::iSM( id );
+      int ism = Numbers::iSM( id );
 
-      FedsIntegrityErrors[ismt-1]+=1.0/1700.;
+      meEBFedsIntegrityErrors_->Fill( EBFirstFED + ism - 1, 1./1700.);
 
     }
 
@@ -407,25 +404,15 @@ void EBHltTask::analyze(const Event& e, const EventSetup& c){
 
       if ( Numbers::subDet( id ) != EcalBarrel ) continue;
 
-      int ismt = Numbers::iSM( id );
+      int ism = Numbers::iSM( id );
 
-      FedsIntegrityErrors[ismt-1]+=1.0/1700.;
+      meEBFedsIntegrityErrors_->Fill( EBFirstFED + ism - 1, 1./1700.);
 
     }
 
   } else {
 
     LogWarning("EBHltTask") << EcalElectronicsIdCollection6_ << " not available";
-
-  }
-
-  for( int ism=1; ism<=36; ism++ ) {
-
-    if ( FedsIntegrityErrors[ism-1] != 0 ) {
-
-      if ( meEBFedsIntegrityErrors_ ) meEBFedsIntegrityErrors_->Fill( EBFirstFED + ism - 1, FedsIntegrityErrors[ism-1] );
-
-    }
 
   }
 
