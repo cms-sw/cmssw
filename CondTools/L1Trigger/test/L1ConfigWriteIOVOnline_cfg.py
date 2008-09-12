@@ -7,7 +7,7 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
 
 # Generate TSC key
-process.load("CondTools.L1Trigger.L1TriggerKeyOnline_cfi")
+process.load("CondTools.L1Trigger.L1TriggerKeyDummy_cff")
 
 # writer modules
 process.load("CondTools.L1Trigger.L1CondDBIOVWriter_cfi")
@@ -33,7 +33,6 @@ process.orcon = cms.ESSource("PoolDBESSource",
 process.p = cms.Path(process.L1CondDBIOVWriter)
 process.orcon.connect = cms.string('oracle://cms_orcon_prod/CMS_COND_21X_L1T')
 process.orcon.DBParameters.authenticationPath = '/nfshome0/onlinedbadm/conddb'
-process.L1TriggerKeyOnline.forceGeneration = True
 process.L1CondDBIOVWriter.offlineDB = cms.string('oracle://cms_orcon_prod/CMS_COND_21X_L1T')
 process.L1CondDBIOVWriter.offlineAuthentication = '/nfshome0/onlinedbadm/conddb'
 
