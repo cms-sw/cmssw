@@ -49,6 +49,8 @@ namespace pos{
     void setNegative() { negative_=true; }
     bool negative() const { return negative_; }
 
+    std::vector<unsigned int> values() const { return values_; }
+
   private:
 
     void setDACChannel(std::string name);

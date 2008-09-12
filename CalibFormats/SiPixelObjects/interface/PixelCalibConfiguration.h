@@ -137,6 +137,7 @@ namespace pos{
     bool containsScan(std::string name) const;
 
     std::string scanName(unsigned int iscan) const {return dacs_[iscan].name();}
+    std::vector<unsigned int> scanValues(std::string dac) const {return scanValues(iScan(dac));}
 
     double scanValueMin(std::string dac) const {return scanValueMin(iScan(dac));}
     double scanValueMax(std::string dac) const {return scanValueMax(iScan(dac));}
@@ -191,6 +192,8 @@ namespace pos{
 
     unsigned int scanValue(unsigned int iscan, unsigned int state, unsigned int ROCNumber, unsigned int ROCsOnChannel) const;
     unsigned int scanValue(unsigned int iscan, unsigned int state, PixelROCName roc) const;
+
+    std::vector<unsigned int> scanValues(unsigned int iscan) const {return dacs_[iscan].values();}
 
     double scanValueMin(unsigned int iscan) const {return dacs_[iscan].first();}
     double scanValueMax(unsigned int iscan) const {return dacs_[iscan].first()+
