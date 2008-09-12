@@ -89,32 +89,46 @@ void HcalDDDGeometryLoader::fill(HcalSubdetector          subdet,
     if (hcalCells[i].unitPhi() == 4) iphi = 3;
     double  dphi = (hcalCells[i].phiBinWidth())*deg;
     double   phi =-(hcalCells[i].phiOffset())*deg + 0.5*dphi;
+    std::vector<int>missPlus  = hcalCells[i].missingPhiPlus();
+    std::vector<int>missMinus = hcalCells[i].missingPhiMinus();
 #ifdef DebugLog
     LogDebug("HCalGeom") << "HcalDDDGeometryLoader: Subdet " << subdet
-			 << " eta " << etaRing << " depth " << depthBin
-			 << " modules " << hcalCells[i].nPhiModule() << " "
-			 << phiInc << " phi " << phi/deg << " " << dphi/deg;
+                         << " eta " << etaRing << " depth " << depthBin
+                         << " modules " << hcalCells[i].nPhiModule() << " "
+                         << phiInc << " phi " << phi/deg << " " << dphi/deg
+                         << " Missing " << missPlus.size() << "/"
+                         << missMinus.size();
 #endif
     for (int k = 0; k < hcalCells[i].nPhiBins(); k++) {
+      bool ok = true;
+      for (unsigned int kk = 0; kk < missPlus.size(); kk++)
+        if (iphi == (unsigned int)(missPlus[kk])) ok = false;
+      if (ok) {
 #ifdef DebugLog
-      LogDebug("HCalGeom") << "HcalDDDGeometryLoader::fill Cell " << i
-			   << " eta " << etaRing << " phi " << iphi << "("
-			   << phi/deg << ", " << dphi/deg << ") depth "
-			   << depthBin;
+        LogDebug("HCalGeom") << "HcalDDDGeometryLoader::fill Cell " << i
+                             << " eta " << etaRing << " phi " << iphi << "("
+                             << phi/deg << ", " << dphi/deg << ") depth "
+                             << depthBin;
 #endif
-      HcalDetId id(subdet, etaRing, iphi, depthBin);
-      hcalIds.push_back(id);
-      geom->addCell( id, makeCell(id,hcalCells[i],phi,dphi,geom) );
+        HcalDetId id(subdet, etaRing, iphi, depthBin);
+        hcalIds.push_back(id);
+        geom->addCell( id, makeCell(id,hcalCells[i],phi,dphi,geom) );
+      }
       if (hcalCells[i].nHalves() > 1) {
+        ok = true;
+        for (unsigned int kk = 0; kk < missMinus.size(); kk++)
+          if (iphi == (unsigned int)(missMinus[kk])) ok = false;
+        if (ok) {
 #ifdef DebugLog
-	LogDebug("HCalGeom") << "HcalDDDGeometryLoader::fill Cell " << i
-			     << " eta " << -etaRing << " phi " << iphi << " ("
-			     << phi/deg << ", " << dphi/deg << ") depth "
-			     << depthBin;
+          LogDebug("HCalGeom") << "HcalDDDGeometryLoader::fill Cell " << i
+                               << " eta " << -etaRing << " phi " << iphi <<" ("
+                               << phi/deg << ", " << dphi/deg << ") depth "
+                               << depthBin;
 #endif
-	HcalDetId id(subdet, -etaRing, iphi, depthBin);
-	hcalIds.push_back(id);
-	geom->addCell( id, makeCell(id,hcalCells[i],phi,dphi,geom) );
+          HcalDetId id(subdet, -etaRing, iphi, depthBin);
+          hcalIds.push_back(id);
+  	  geom->addCell( id, makeCell(id,hcalCells[i],phi,dphi,geom) );
+        }
       }
       iphi += phiInc;
       phi  += dphi;
