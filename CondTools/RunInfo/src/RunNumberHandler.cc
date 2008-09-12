@@ -24,7 +24,7 @@ RunNumberHandler::RunNumberHandler(const edm::ParameterSet& pset) :
   m_sid(pset.getUntrackedParameter<std::string>("OnlineDBSID","omds")),
   
   m_user(pset.getUntrackedParameter<std::string>("OnlineDBUser","CMS_RUNINFO")), 
-  m_pass(pset.getUntrackedParameter<std::string>("OnlineDBPass","MICKEY2MOUSE")),
+  m_pass(pset.getUntrackedParameter<std::string>("OnlineDBPass","XXXXXX")),
   m_port(pset.getUntrackedParameter<int>("OnlineDBPort",10121))
 {
   m_connectionString= "oracle://cms_omds_lb/CMS_RUNINFO";
