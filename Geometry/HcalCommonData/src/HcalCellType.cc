@@ -48,9 +48,22 @@ HcalCellType::HcalCellType(const HcalCellType &right) {
   theDepthMax               = right.theDepthMax;
   theHalfSize               = right.theHalfSize;
   theSamplingFactor         = right.theSamplingFactor;
+  theMissingPhiPlus         = right.theMissingPhiPlus;
+  theMissingPhiMinus        = right.theMissingPhiMinus;
 }
 
 HcalCellType::~HcalCellType() {}
+
+void HcalCellType::setMissingPhi(std::vector<int> v1, std::vector<int> v2) {
+  theMissingPhiPlus         = v1;
+  theMissingPhiMinus        = v2;
+}
+
+int HcalCellType::nPhiMissingBins() const {
+  int tmp = (int)(theMissingPhiPlus.size());
+  if (theNumberOfZ > 1)  tmp += (int)(theMissingPhiMinus.size());
+  return tmp;
+}
 
 std::ostream& operator<<(std::ostream& os, const HcalCellType& cell) {
   os << "Detector " << cell.detType() << " Eta " << cell.etaBin() << " (" 
@@ -61,6 +74,7 @@ std::ostream& operator<<(std::ostream& os, const HcalCellType& cell) {
      << cell.phiBinWidth() << ", " << cell.nPhiModule() << ", "
      << cell.unitPhi() << ") Halves " << cell.nHalves() << " Direction " 
      << cell.actualReadoutDirection() << " Half size " << cell.halfSize() 
-     << " Sampling Factor " << cell.samplingFactor();
+     << " Sampling Factor " << cell.samplingFactor() << " # of missing cells "
+     << cell.missingPhiPlus().size() << "/" << cell.missingPhiMinus().size();
   return os;
 }

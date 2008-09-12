@@ -87,6 +87,7 @@ private:
   std::vector<double> zHE, dzHE;    // Z-positions of HE layers
   int                 nzHB, nmodHB; // Number of halves and modules in HB
   int                 nzHE, nmodHE; // Number of halves and modules in HE
+  double              etaHO[4];     // eta in HO ring boundaries
 };
 
 #endif

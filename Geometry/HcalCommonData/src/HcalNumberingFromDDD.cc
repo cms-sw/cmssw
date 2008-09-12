@@ -126,6 +126,9 @@ HcalNumberingFromDDD::HcalID HcalNumberingFromDDD::unitID(int det,
     if (det == static_cast<int>(HcalBarrel)) {
       fioff   = phioff[0];
       if (ieta > etaMax[0])  ieta = etaMax[0];
+      if (lay == 18 && nOff.size() > 13) {
+	if (hetaR > etaHO[1] && ieta == nOff[13]) ieta++;
+      }
     } else {
       fioff   = phioff[1];
       if (ieta <= etaMin[1]) ieta = etaMin[1];
@@ -308,6 +311,9 @@ HcalCellType::HcalCell HcalNumberingFromDDD::cell(int det, int zside,
 	laymin = depth3[etaR-1]+1;
 	laymax = maxlay;
       }
+      if (idet == static_cast<int>(HcalOuter) && nOff.size() > 13) {
+	if (etaR > nOff[13] && laymin <= laymax) laymin = laymax;
+      }
       double d1=0, d2=0;
       if (laymin <= maxlay && laymax <= maxlay && laymin <= laymax) {
 	if (idet == static_cast<int>(HcalEndcap)) {
@@ -372,6 +378,7 @@ unsigned int HcalNumberingFromDDD::numberOfCells(HcalSubdetector subdet) const{
     num += (unsigned int)(cellTypes[i].nPhiBins());
     if (cellTypes[i].nHalves() > 1) 
       num += (unsigned int)(cellTypes[i].nPhiBins());
+    num -= (unsigned int)(cellTypes[i].nPhiMissingBins());
   }
 #ifdef DebugLog
   LogDebug ("HCalGeom") << "HcalNumberingFromDDD:numberOfCells " 
@@ -463,6 +470,21 @@ std::vector<HcalCellType::HcalCellType> HcalNumberingFromDDD::HcalCellTypes(Hcal
 	int units = unitPhi (subdet0, eta);
 	HcalCellType::HcalCellType temp2(subdet, eta, phi, depth, temp1,
 					 shift, gain, nz, nmod, hsize, units);
+	if (subdet == HcalOuter && nOff.size() > 17) {
+	  if (eta == nOff[15]) {
+	    std::vector<int> missPlus, missMinus;
+	    int kk = 18;
+	    for (int miss=0; miss<nOff[16]; miss++) {
+	      missPlus.push_back(nOff[kk]);
+	      kk++;
+	    }
+	    for (int miss=0; miss<nOff[17]; miss++) {
+	      missMinus.push_back(nOff[kk]);
+	      kk++;
+	    }
+	    temp2.setMissingPhi(missPlus, missMinus);
+	  }
+	}
 	cellTypes.push_back(temp2);
       }
     }
@@ -485,6 +507,18 @@ double HcalNumberingFromDDD::getEta(int det, int etaR, int zside,
     if (etaR > 0 && etaR < nEta) {
       if (etaR == nOff[1]-1 && depth > 2) {
 	tmp = 0.5*(etaTable[etaR+1]+etaTable[etaR-1]);
+      } else if (det == static_cast<int>(HcalOuter) && nOff.size() > 13) {
+	if (etaR == nOff[13]) {
+	  tmp = 0.5*(etaHO[0]+etaTable[etaR-1]);
+	} else if (etaR == nOff[13]+1) {
+	  tmp = 0.5*(etaTable[etaR]+etaHO[1]);
+	} else if (etaR == nOff[14]) {
+	  tmp = 0.5*(etaHO[2]+etaTable[etaR-1]);
+	} else if (etaR == nOff[14]+1) {
+	  tmp = 0.5*(etaTable[etaR]+etaHO[3]);
+	} else {
+	  tmp = 0.5*(etaTable[etaR]+etaTable[etaR-1]);
+	}
       } else {
 	tmp = 0.5*(etaTable[etaR]+etaTable[etaR-1]);
       }
@@ -523,6 +557,18 @@ double HcalNumberingFromDDD::deltaEta(int det, int etaR, int depth) const {
     if (etaR > 0 && etaR < nEta) {
       if (etaR == nOff[1]-1 && depth > 2) {
 	tmp = 0.5*(etaTable[etaR+1]-etaTable[etaR-1]);
+      } else if (det == static_cast<int>(HcalOuter) && nOff.size() > 13) {
+	if (etaR == nOff[13]) {
+	  tmp = 0.5*(etaHO[0]-etaTable[etaR-1]);
+	} else if (etaR == nOff[13]+1) {
+	  tmp = 0.5*(etaTable[etaR]-etaHO[1]);
+	} else if (etaR == nOff[14]) {
+	  tmp = 0.5*(etaHO[2]-etaTable[etaR-1]);
+	} else if (etaR == nOff[14]+1) {
+	  tmp = 0.5*(etaTable[etaR]-etaHO[3]);
+	} else {
+	  tmp = 0.5*(etaTable[etaR]-etaTable[etaR-1]);
+	}
       } else {
 	tmp = 0.5*(etaTable[etaR]-etaTable[etaR-1]);
       }
@@ -747,6 +793,7 @@ void HcalNumberingFromDDD::loadGeometry(DDFilteredView fv) {
 
   bool dodet=true, hf=false;
   std::vector<double> rb(20,0.0), ze(20,0.0), thkb(20,-1.0), thke(20,-1.0);
+  std::vector<double> zho;
   std::vector<int>    ib(20,0),   ie(20,0);
   std::vector<int>    izb, phib, ize, phie, izf, phif;
   double zf = 0;
@@ -788,7 +835,7 @@ void HcalNumberingFromDDD::loadGeometry(DDFilteredView fv) {
 	rb[lay] += t.Rho();
 	if (thkb[lay] <= 0) {
 	  if (lay < 17) thkb[lay] = dx;
-	  else          thkb[lay] = dy;
+	  else          thkb[lay] = std::min(dx,dy);
 	}
       }
       if (lay == 2) {
@@ -798,6 +845,43 @@ void HcalNumberingFromDDD::loadGeometry(DDFilteredView fv) {
 	if (it1 == izb.size())  izb.push_back(iz);
 	unsigned int it2 = find(fi, phib);
 	if (it2 == phib.size()) phib.push_back(fi);
+      }
+      if (lay == 18) {
+	int ifi=-1, ich=-1;
+	if (nsiz>2) ifi = copy[nsiz-3];
+	if (nsiz>3) ich = copy[nsiz-4];
+	double z1 = std::abs((t.z()) + dz);
+	double z2 = std::abs((t.z()) - dz);
+	if (std::abs(z1-z2) < 0.01) z1 = 0;
+        if (ifi == 1 && ich == 4) {
+	  if (z1 > z2) {
+	    double tmp = z1;
+	    z1 = z2;
+	    z2 = tmp;
+	  }
+	  bool sok = true;
+	  for (unsigned int kk=0; kk<zho.size(); kk++) {
+	    if (std::abs(z2-zho[kk]) < 0.01) {
+	      sok = false;
+	      break;
+	    }	else if (z2 < zho[kk]) {
+	      zho.resize(zho.size()+2);
+	      for (unsigned int kz=zho.size()-1; kz>kk+1; kz=kz-2) {
+		zho[kz]   = zho[kz-2];
+		zho[kz-1] = zho[kz-3];
+	      }
+	      zho[kk+1] = z2;
+	      zho[kk]   = z1;
+	      sok = false;
+	      break;
+	    }
+	  }
+	  if (sok) {
+	    zho.push_back(z1);
+	    zho.push_back(z2);
+	  }
+	  LogDebug("HCalGeom") << "Detector " << idet << " Lay " << lay << " fi " << ifi << " " << ich << " z " << z1 << " " << z2;
+	}
       }
     } else if (idet == 4) {
       // HE
@@ -931,6 +1015,23 @@ void HcalNumberingFromDDD::loadGeometry(DDFilteredView fv) {
   for (int i=0; i<nmodHE; i++)
     LogDebug("HCalGeom") << "Module " << i << " Copy number " << phie[i];
 #endif
+
+  LogDebug("HCalGeom") << "HO has Z of size " << zho.size();
+  for (unsigned int kk=0; kk<zho.size(); kk++)
+    LogDebug("HCalGeom") << "ZHO[" << kk << "] = " << zho[kk];
+  if (ibmx > 17 && zho.size() > 2) {
+    etaHO[0] = getEta(0.5*(rHB[17]+rHB[18]), zho[1]);
+    etaHO[1] = getEta(rHB[18]+drHB[18], zho[2]);
+    etaHO[2] = getEta(rHB[18]-drHB[18], zho[3]);
+    etaHO[3] = getEta(rHB[18]+drHB[18], zho[4]);
+  } else {
+    etaHO[0] = etaTable[4];
+    etaHO[1] = etaTable[4];
+    etaHO[2] = etaTable[10];
+    etaHO[3] = etaTable[10];
+  }
+  LogDebug("HCalGeom") << "HO Eta boundaries " << etaHO[0] << " " << etaHO[1]
+		       << " " << etaHO[2] << " " << etaHO[3];
 }
 
 std::vector<double> HcalNumberingFromDDD::getDDDArray(const std::string & str, 

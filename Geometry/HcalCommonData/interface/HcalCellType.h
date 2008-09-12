@@ -5,6 +5,7 @@
 #ifndef HcalCellType_h
 #define HcalCellType_h
 
+#include <vector>
 #include <iostream>
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
@@ -28,6 +29,8 @@ public:
 	       double halfSize, int units);
   HcalCellType(const HcalCellType&);
   ~HcalCellType();
+
+  void setMissingPhi(std::vector<int>, std::vector<int>);
 
   /// 1=HB, 2=HE, 3=HO, 4=HF (sub detector type)
   /// as in DataFormats/HcalDetId/interface/HcalSubdetector.h
@@ -76,30 +79,38 @@ public:
   /// ratio of real particle energy to deposited energy in the SimHi
   double samplingFactor() const {return theSamplingFactor;}
 
+  /// missing phi rings
+  std::vector<int> missingPhiPlus()  const {return theMissingPhiPlus;}
+  std::vector<int> missingPhiMinus() const {return theMissingPhiMinus;}
+  int nPhiMissingBins() const;
+
 protected:
  
   HcalCellType();
                                                                                
 private:
 
-  HcalSubdetector theDetType;
-  int             theEtaBin;
-  int             theDepthSegment;
-  int             theNumberOfPhiBins;
-  int             theNumberOfZ;
-  int             theActualReadoutDirection;
-  int             theUnitPhi;
+  HcalSubdetector  theDetType;
+  int              theEtaBin;
+  int              theDepthSegment;
+  int              theNumberOfPhiBins;
+  int              theNumberOfZ;
+  int              theActualReadoutDirection;
+  int              theUnitPhi;
 
-  bool            theRzFlag;
+  bool             theRzFlag;
                                                                                
-  double          theEtaMin;
-  double          theEtaMax;
-  double          thePhiOffset;
-  double          thePhiBinWidth;
-  double          theDepthMin;
-  double          theDepthMax;
-  double          theHalfSize;
-  double          theSamplingFactor;
+  double           theEtaMin;
+  double           theEtaMax;
+  double           thePhiOffset;
+  double           thePhiBinWidth;
+  double           theDepthMin;
+  double           theDepthMax;
+  double           theHalfSize;
+  double           theSamplingFactor;
+
+  std::vector<int> theMissingPhiPlus;
+  std::vector<int> theMissingPhiMinus;
 };
                                                                                
 std::ostream& operator<<(std::ostream&, const HcalCellType&);
