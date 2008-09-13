@@ -16,7 +16,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "PluginManager/ModuleDef.h"
+/* #include "PluginManager/ModuleDef.h" */
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
