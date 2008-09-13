@@ -6,8 +6,8 @@
  *   Description:  Build GMT Tree
 */
 //                
-//   $Date: 2007/03/21 00:23:36 $
-//   $Revision: 1.5 $
+//   $Date: 2007/07/06 15:35:38 $
+//   $Revision: 1.6 $
 //
 //   I. Mikulec            HEPHY Vienna
 //
@@ -50,11 +50,11 @@ class TTree;
 //              ---------------------
 
     const int MAXGEN = 20;
-    const int MAXRPC = 20;
-    const int MAXDTBX = 20;
-    const int MAXCSC = 20;    
-    const int MAXGMT = 20;
- 
+    const int MAXRPC = 12;
+    const int MAXDTBX = 12;
+    const int MAXCSC = 12;    
+    const int MAXGMT = 12;
+    const int MAXGT = 12;
 
 class L1MuGMTTree : public edm::EDAnalyzer {
 
@@ -77,10 +77,16 @@ class L1MuGMTTree : public edm::EDAnalyzer {
     //GENERAL block
     int             runn;
     int             eventn;
+    int             lumi;
+    int             bx;
+    boost::uint64_t orbitn;
+    boost::uint64_t timest;
+    
+    // Generator info
     float           weight;
     float           pthat;
  
-    //generator block
+    // simulation block
     int             ngen;
     float           pxgen[MAXGEN];
     float           pygen[MAXGEN];
@@ -94,6 +100,9 @@ class L1MuGMTTree : public edm::EDAnalyzer {
     float           vzgen[MAXGEN];
     int             pargen[MAXGEN];
     
+    // GMT data
+    int             bxgmt;
+    
     //DTBX Trigger block
     int             ndt;
     int             bxd[MAXDTBX];
@@ -103,8 +112,8 @@ class L1MuGMTTree : public edm::EDAnalyzer {
     int             etafined[MAXDTBX];
     float           phid[MAXDTBX];
     int             quald[MAXDTBX];
-    int             tclassd[MAXDTBX];
-    int             ntsd[MAXDTBX];
+    int             dwd[MAXDTBX];
+    int             chd[MAXDTBX];
 
     //CSC Trigger block
     int             ncsc;
@@ -114,8 +123,7 @@ class L1MuGMTTree : public edm::EDAnalyzer {
     float           etac[MAXCSC];
     float           phic[MAXCSC];
     int             qualc[MAXCSC];
-    int             ntsc[MAXCSC];
-    int             rankc[MAXCSC];
+    int             dwc[MAXCSC];
 
     //RPCb Trigger
     int             nrpcb ;
@@ -125,6 +133,7 @@ class L1MuGMTTree : public edm::EDAnalyzer {
     float           etarb[MAXRPC];
     float           phirb[MAXRPC];
     int             qualrb[MAXRPC];
+    int             dwrb[MAXRPC];
 
     //RPCf Trigger
     int             nrpcf ;
@@ -134,6 +143,7 @@ class L1MuGMTTree : public edm::EDAnalyzer {
     float           etarf[MAXRPC];
     float           phirf[MAXRPC];
     int             qualrf[MAXRPC];
+    int             dwrf[MAXRPC];
 
     //Global Muon Trigger
     int             ngmt;
@@ -147,16 +157,43 @@ class L1MuGMTTree : public edm::EDAnalyzer {
     int             rankg[MAXGMT];
     int             isolg[MAXGMT];
     int             mipg[MAXGMT];
-    int             datawordg[MAXGMT];
+    int             dwg[MAXGMT];
     int             idxRPCb[MAXGMT];
     int             idxRPCf[MAXGMT];
     int             idxDTBX[MAXGMT];
     int             idxCSC[MAXGMT];
+    
+    // GT info
+    boost::uint64_t gttw1[3];
+    boost::uint64_t gttw2[3];
+    boost::uint64_t gttt[3];
+
+    
+    //PSB info
+    int             nele;
+    int             bxel[MAXGT];
+    float           rankel[MAXGT];
+    float           phiel[MAXGT];
+    float           etael[MAXGT];
+    
+    int             njet;
+    int             bxjet[MAXGT];
+    float           rankjet[MAXGT];
+    float           phijet[MAXGT];
+    float           etajet[MAXGT];
+
 
     TFile* m_file;
     TTree* m_tree;
 
-    edm::InputTag m_inputTag;
+    edm::InputTag m_GMTInputTag;
+    edm::InputTag m_GTEvmInputTag;
+    edm::InputTag m_GTInputTag;
+    edm::InputTag m_GeneratorInputTag;
+    edm::InputTag m_SimulationInputTag;
+    
+    bool m_PhysVal;
+    
     std::string m_outfilename;
       
 };
