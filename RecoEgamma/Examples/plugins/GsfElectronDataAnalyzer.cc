@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronDataAnalyzer.cc,v 1.2 2008/05/14 13:09:43 charlot Exp $
+// $Id: GsfElectronDataAnalyzer.cc,v 1.3 2008/06/17 10:49:18 ferriff Exp $
 //
 //
 
@@ -149,6 +149,7 @@ void GsfElectronDataAnalyzer::beginJob(edm::EventSetup const&iSetup){
   h_ele_TIP_all       = new TH1F( "h_ele_TIP_all",       "all reco ele, tip at vertex",  100,0.,0.2);
   h_ele_vertexPt_all       = new TH1F( "h_ele_vertexPt_all",       "all reco ele, p_{T} at vertex",  nbinpteff,5.,ptmax);
   h_ele_vertexEta_all      = new TH1F( "h_ele_vertexEta_all",      "all reco ele, #eta at vertex",    nbineta,etamin,etamax);
+  h_ele_mee_all      = new TH1F( "h_ele_mee_all", "all ele pairs invariant mass", 100, 0., 150. );
 
   // matched electrons
   h_ele_charge         = new TH1F( "h_ele_charge",         "ele charge",             5,-2.,2.);   
@@ -461,6 +462,7 @@ GsfElectronDataAnalyzer::endJob(){
   h_ele_TIP_all->Write();
   h_ele_vertexPt_all->Write();
   h_ele_vertexEta_all->Write();
+  h_ele_mee_all->Write();
 
   // matched electrons
   h_ele_charge->Write();
@@ -644,6 +646,13 @@ GsfElectronDataAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
     h_ele_EoverP_all     -> Fill( gsfIter->eSuperClusterOverP() );
     h_ele_vertexEta_all     -> Fill( gsfIter->eta() );
     h_ele_vertexPt_all      -> Fill( gsfIter->pt() );
+    // mee
+    for (reco::GsfElectronCollection::const_iterator gsfIter2=gsfIter+1;
+     gsfIter2!=gsfElectrons->end(); gsfIter2++){
+             math::XYZTLorentzVector p12 = (*gsfIter).p4()+(*gsfIter2).p4();
+        float mee2 = p12.Dot(p12);
+	h_ele_mee_all -> Fill(sqrt(mee2));       
+    }
   }
    
   // association matching object-reco electrons

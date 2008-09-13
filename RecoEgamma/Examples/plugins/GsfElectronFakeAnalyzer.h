@@ -9,7 +9,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronFakeAnalyzer.h,v 1.3 2008/03/15 01:05:52 charlot Exp $
+// $Id: GsfElectronFakeAnalyzer.h,v 1.1 2008/04/21 13:44:57 uberthon Exp $
 //
 //
   
@@ -77,6 +77,7 @@ class GsfElectronFakeAnalyzer : public edm::EDAnalyzer
   TH1F *h_ele_EoverP_all;
   TH1F *h_ele_vertexEta_all;
   TH1F *h_ele_vertexPt_all;
+  TH1F *h_ele_mee_all;
 
   TH1F *h_ele_charge;
   TH2F *h_ele_chargeVsEta;

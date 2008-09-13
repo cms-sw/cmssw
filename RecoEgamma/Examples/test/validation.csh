@@ -21,12 +21,13 @@
 setenv NEWFILE ~/scratch0/CMSSW_2_1_7/src/RecoEgamma/Examples/test/gsf-Pt35IdealV9v1-ElectronHistos.root
 setenv OLDFILE ~/scratch0/CMSSW_2_1_2/src/RecoEgamma/Examples/test/gsf-Pt35Ideal-ElectronHistos.root
 
-
 #Release versions to be compared (affects output directory name and html description only)
 setenv NEWRELEASE 217IDEAL
 setenv OLDRELEASE 212IDEAL
+
 #Name of sample (affects output directory name and html description only)
 setenv SAMPLE RelValSingleElectronPt35
+
 #TYPE must be one of GsfElectron, GsfElectronFake, Photon or ConvertedPhoton
 setenv TYPE GsfElectron
 
@@ -86,6 +87,7 @@ cat > scaledhistos <<EOF
   h_ele_classes 
   h_ele_charge
   h_ele_EoverP_all
+  h_ele_mee_all
   h_recEleNum
 EOF
 
@@ -137,6 +139,7 @@ cat > scaledhistos <<EOF
   h_ele_lostHits 
   h_ele_classes 
   h_ele_charge
+  h_ele_mee_all
   h_recEleNum
 EOF
 
