@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id:$
+# $Id: mk_satamap.pl,v 1.2 2008/06/10 14:22:01 loizides Exp $
 #
 # Make sata mapping of volume serial numbers, suitable for intput to "makeall" script
 #
@@ -10,7 +10,8 @@ use strict;
 my @satabeasts = (
 		  "SATAB-C2C07-03-00",
 		  "SATAB-C2C07-04-00",
-		  "SATAB-C2C07-05-00");
+		  "SATAB-C2C07-05-00"
+                  );
 
 #nominal node mapping to satabeasts (ordering tied to that in @satabeasts):
 my @nodeAssign = (
@@ -18,8 +19,21 @@ my @nodeAssign = (
 		  "srv-C2C07-20",
 		  "srv-C2C07-13",
 		  "srv-C2C07-14",
-		  "srv-C2C07-15",
-		  "srv-C2C07-16");
+		  "srv-C2C07-18",
+		  "srv-C2C07-16"
+                  );
+
+# wwpn for each node (can be obtained with getwwpn.sh)
+my %nodeWWPN = ( 
+                 "srv-c2c07-13" => "21-00-00-E0-8B-9D-A9-F4",
+                 "srv-c2c07-14" => "21-00-00-E0-8B-9D-37-F1",
+                 "srv-c2c07-15" => "unknown",
+                 "srv-c2c07-16" => "21-00-00-E0-8B-9E-68-0C",
+                 "srv-c2c07-17" => "21-00-00-E0-8B-9D-BA-F3",
+                 "srv-c2c07-18" => "21-00-00-E0-8B-9D-C3-F3",
+                 "srv-c2c07-19" => "21-00-00-E0-8B-9D-A5-F1",
+                 "srv-c2c07-20" => "21-00-00-E0-8B-9D-0C-F2",
+                 );
 
 my $nbeast=0;
 my $VolPerSata;
@@ -70,9 +84,10 @@ foreach my $ibeast ( @satabeasts ) {
         # ASSUME half of all volumes go to each PC
 	my $mod;   {use integer;   $mod = (2*$i)/$VolPerSata; }
 	my $pcIndx = 2*($nbeast-1)+$mod;
+        my $nodename = "$nodeAssign[$pcIndx]";
         # switch to lower case:    
 	$VolumeID[$i] =~ s/([a-zA-Z]*)([0-9][0-9])([a-zA-Z]+)([0-9]+)(.*)/$1$2 $3$4 $5/;
-	print "$VolumeID[$i]  $VolumeSerial[$i]  $nodeAssign[$pcIndx] \n"; 
+	print "$VolumeID[$i]  $VolumeSerial[$i]  $nodename  $nodeWWPN{$nodename}\n"; 
     }
 }
 

@@ -1,9 +1,10 @@
 #!/bin/bash
-# $Id:$
-
+# $Id: getwwpn.sh,v 1.1 2008/09/13 01:01:54 loizides Exp $
+#
 # run this script to get a mapping between hostname and wwpn
 # the mapping has the syntax of a perl hash and can be put
 # into the mk_satamap.pl script.
+#
 
 for i in 13 14 15 16 17 18 19 20; do
     ping -c1 -q -W3 srv-c2c07-$i > /dev/null
