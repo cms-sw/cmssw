@@ -4,6 +4,6 @@
 
 <use name=SimG4Core/Geometry>
 <use name=FWCore/ParameterSet>
-<use name=geant4>
+<use name=geant4core>
 <use name=boost>
 <use name=sigcpp>
