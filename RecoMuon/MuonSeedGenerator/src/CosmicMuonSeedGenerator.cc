@@ -2,8 +2,8 @@
 /**
  *  CosmicMuonSeedGenerator
  *
- *  $Date: 2008/02/19 18:05:08 $
- *  $Revision: 1.21 $
+ *  $Date: 2008/03/10 15:40:50 $
+ *  $Revision: 1.22 $
  *
  *  \author Chang Liu - Purdue University 
  *
@@ -31,6 +31,8 @@
 
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+#include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
+
 #include "DataFormats/Math/interface/deltaR.h"
 
 #include <vector>
@@ -259,8 +261,12 @@ std::vector<TrajectorySeed> CosmicMuonSeedGenerator::createSeed(const MuonRecHit
                                              hit->globalDirection().phi(),
                                              1.));
   // Force all track downward for cosmic, not beam-halo
-  if (hit->globalDirection().eta() < 4.5 && hit->globalDirection().phi() > 0 ) 
+  if (hit->geographicalId().subdetId() == MuonSubdetId::DT && fabs(hit->globalDirection().eta()) < 4.0 && hit->globalDirection().phi() > 0 ) 
     polar = - polar;
+
+  if (hit->geographicalId().subdetId() == MuonSubdetId::CSC && fabs(hit->globalDirection().eta()) > 2.3 ) {
+    polar = - polar;
+  }
 
   polar *=fabs(pt)/polar.perp();
 
