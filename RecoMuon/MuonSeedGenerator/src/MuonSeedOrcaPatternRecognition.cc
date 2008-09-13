@@ -3,8 +3,8 @@
  *  
  *  All the code is under revision
  *
- *  $Date: 2008/08/25 22:04:28 $
- *  $Revision: 1.24 $
+ *  $Date: 2008/09/12 23:07:32 $
+ *  $Revision: 1.1 $
  *
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author ported by: R. Bellan - INFN Torino
@@ -21,7 +21,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 // Geometry
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
