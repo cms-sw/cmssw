@@ -7,7 +7,7 @@
 //
 // Original Author:  Dong Ho Moon
 //         Created:  Wed May  9 06:22:36 CEST 2007
-// $Id: HITrackVertexMaker.cc,v 1.5 2008/07/14 16:55:33 kodolova Exp $
+// $Id: HITrackVertexMaker.cc,v 1.6 2008/09/14 12:25:20 kodolova Exp $
 //
 //
  
@@ -247,8 +247,8 @@ for(gmt_iter1 = exc1.begin(); gmt_iter1!=exc1.end(); gmt_iter1++)
 
 */
 
-   //edm::Handle<RecoChargedCandidateCollection> L2mucands;
-   edm::Handle<TrackCollection> L2mucands;
+   edm::Handle<RecoChargedCandidateCollection> L2mucands;
+   //edm::Handle<TrackCollection> L2mucands;
    e1.getByLabel (L2candTag_,L2mucands);
    RecoChargedCandidateCollection::const_iterator L2cand1;
    RecoChargedCandidateCollection::const_iterator L2cand2;

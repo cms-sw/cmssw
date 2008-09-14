@@ -47,6 +47,7 @@ class HICFTSfromL1orL2
     std::vector<FreeTrajectoryState> createFTSfromL1(std::vector<L1MuGMTExtendedCand>&);
     std::vector<FreeTrajectoryState> createFTSfromL2(const reco::RecoChargedCandidateCollection& rc);
     std::vector<FreeTrajectoryState> createFTSfromStandAlone(const reco::TrackCollection& rc);
+    std::vector<FreeTrajectoryState> createFTSfromL2(const reco::TrackCollection& rc);
     std::vector<FreeTrajectoryState> createFTSfromL1orL2(std::vector<L1MuGMTExtendedCand>& gmt, const reco::RecoChargedCandidateCollection& recmuons);
     
   private:

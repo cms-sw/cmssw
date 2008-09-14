@@ -17,8 +17,10 @@ DiMuonSeedGeneratorHIC::DiMuonSeedGeneratorHIC(edm::InputTag rphirecHitsTag0,
                                                const MagneticField* magfield0, 
                                                const GeometricSearchTracker* theTracker0, 
                                                const HICConst* hh,
+                                               const string bb,
 					       int aMult = 1):
 					       TTRHbuilder(0),
+                                               builderName(bb), 
 					       rphirecHitsTag(rphirecHitsTag0),
 					       magfield(magfield0),
 					       theTracker(theTracker0),
@@ -57,7 +59,8 @@ map<DetLayer*,DiMuonSeedGeneratorHIC::SeedContainer> DiMuonSeedGeneratorHIC::pro
 
   if(TTRHbuilder == 0){
     edm::ESHandle<TransientTrackingRecHitBuilder> theBuilderHandle;
-    iSetup.get<TransientRecHitRecord>().get("WithoutRefit",theBuilderHandle);
+//    iSetup.get<TransientRecHitRecord>().get("WithoutRefit",theBuilderHandle);
+    iSetup.get<TransientRecHitRecord>().get(builderName,theBuilderHandle);
     TTRHbuilder = theBuilderHandle.product();
   }
   //  cout<<" Point 1 "<<endl;   
