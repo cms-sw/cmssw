@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: injectFileIntoTransferSystem.pl,v 1.29 2008/08/15 14:23:03 loizides Exp $
+# $Id: injectFileIntoTransferSystem.pl,v 1.30 2008/08/21 08:04:41 loizides Exp $
 
 use strict;
 use DBI;
@@ -258,7 +258,7 @@ if($check) {
         "where CMS_STOMGR.FILES_CREATED.FILENAME='$filename'";
 
     #
-    sleep(1);
+    sleep(2);
     #
 
     # setup DB connection
