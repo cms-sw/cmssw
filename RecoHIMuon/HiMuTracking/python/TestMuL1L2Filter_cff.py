@@ -20,6 +20,7 @@ process.load("Configuration.StandardSequences.DigiToRaw_cff")
 process.load("Configuration.StandardSequences.RawToDigi_cff")
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
 process.load("RecoHIMuon.HiMuTracking.HiMuL3_cff")
+process.load("RecoPixelVertexing.PixelVertexFinding.PixelVertexes_cff")
 
 process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('cout',
@@ -57,7 +58,7 @@ process.output = cms.OutputModule("PoolOutputModule",
 
     fileName = cms.untracked.string('__OUTPUT__')
 )
-process.p1 = cms.Path(process.mix*process.doAllDigi*process.L1Emulator*process.DigiToRaw*process.RawToDigi*process.trackerlocalreco*process.muonlocalreco*process.offlineBeamSpot*process.MuonSeed*process.standAloneMuons*process.muonFilter)
+process.p1 = cms.Path(process.mix*process.doAllDigi*process.L1Emulator*process.DigiToRaw*process.RawToDigi*process.trackerlocalreco*process.muonlocalreco*process.offlineBeamSpot*process.MuonSeed*process.standAloneMuons*process.recopixelvertexing*process.muonFilter)
 
 process.outpath = cms.EndPath(process.myTimer*process.output)
 

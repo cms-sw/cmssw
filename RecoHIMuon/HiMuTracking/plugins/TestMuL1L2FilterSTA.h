@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
-// Package:    TestMuL1L2.h
-// Class:      TestMuL1L2
+// Package:    TestMuL1L2STA.h
+// Class:      TestMuL1L2STA
 /*/
 
  Description: <one line class summary>
@@ -16,8 +16,8 @@
 //
 //
 
-#ifndef TESTMU_L1L2_FILTER_H
-#define TESTMU_L1L2_FILTER_H
+#ifndef TESTMU_L1L2_FILTER_STA_H
+#define TESTMU_L1L2_FILTER_STA_H
 
 
 // system include files
@@ -54,7 +54,7 @@
 // class declaration
 //
 namespace cms{
-class TestMuL1L2Filter : public edm::EDFilter {
+class TestMuL1L2FilterSTA : public edm::EDFilter {
 
    private:
 
@@ -67,8 +67,8 @@ class TestMuL1L2Filter : public edm::EDFilter {
 
   //constructor
 
-      explicit TestMuL1L2Filter(const edm::ParameterSet&);
-      ~TestMuL1L2Filter();
+      explicit TestMuL1L2FilterSTA(const edm::ParameterSet&);
+      ~TestMuL1L2FilterSTA();
       virtual bool filter(edm ::Event&, const edm::EventSetup&);
       virtual void beginJob(const edm::EventSetup& es1);
       virtual void endJob();
