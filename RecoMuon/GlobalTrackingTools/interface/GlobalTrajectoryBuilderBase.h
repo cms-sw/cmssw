@@ -14,8 +14,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2008/02/14 20:35:07 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/03/20 20:52:05 $
+ *  $Revision: 1.5 $
  *
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University
@@ -82,7 +82,6 @@ class GlobalTrajectoryBuilderBase : public MuonTrajectoryBuilder {
     MuonTrajectoryBuilder::CandidateContainer build(const TrackCand&,
                                                     MuonTrajectoryBuilder::CandidateContainer&) const;
 
-
     /// make a TrackCand collection using tracker Track, Trajectory information
     virtual std::vector<TrackCand> makeTkCandCollection(const TrackCand&) = 0;
 
@@ -102,6 +101,9 @@ class GlobalTrajectoryBuilderBase : public MuonTrajectoryBuilder {
     /// select muon hits compatible with trajectory; check hits in chambers with showers
     ConstRecHitContainer selectMuonHits(const Trajectory&, 
                                         const std::vector<int>&) const;
+
+    /// select tracker hits; exclude some tracker hits in the global trajectory 
+    ConstRecHitContainer selectTrackerHits(const ConstRecHitContainer&) const;
  
     /// choose final trajectory
     const Trajectory* chooseTrajectory(const std::vector<Trajectory*>&, int) const;
@@ -125,7 +127,7 @@ class GlobalTrajectoryBuilderBase : public MuonTrajectoryBuilder {
     std::vector<Trajectory> glbTrajectory(const TrajectorySeed& seed,
                                           const ConstRecHitContainer& trackerhits,
                                           const ConstRecHitContainer& muonhits,
-                                          const TrajectoryStateOnSurface& firstPredTsos) const ;
+                                          const TrajectoryStateOnSurface& firstPredTsos) const;
 
     ///
     GlobalMuonTrackMatcher* trackMatcher() const { return theTrackMatcher; }
