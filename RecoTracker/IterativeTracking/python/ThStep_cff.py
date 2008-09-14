@@ -5,25 +5,61 @@ import RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi
 thPixelRecHits = RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi.siPixelRecHits.clone()
 import RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi
 thStripRecHits = RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi.siStripMatchedRecHits.clone()
+thPixelRecHits.src = 'thClusters'
+thStripRecHits.ClusterProducer = 'thClusters'
+
+
+
 import RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cfi
 #SEEDS
 thPLSeeds = RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cfi.globalMixedSeeds.clone()
 import RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi
+thPLSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'ThLayerPairs'
+thPLSeeds.RegionFactoryPSet.RegionPSet.ptMin = 0.3
+thPLSeeds.RegionFactoryPSet.RegionPSet.originHalfLength = 17.5
+
+
+
 #TRAJECTORY MEASUREMENT
 thMeasurementTracker = RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi.MeasurementTracker.clone()
 import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
+thMeasurementTracker.ComponentName = 'thMeasurementTracker'
+thMeasurementTracker.pixelClusterProducer = 'thClusters'
+thMeasurementTracker.stripClusterProducer = 'thClusters'
+
 #TRAJECTORY FILTER
 thCkfTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone()
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi
+thCkfTrajectoryFilter.ComponentName = 'thCkfTrajectoryFilter'
+thCkfTrajectoryFilter.filterPset.maxLostHits = 0
+thCkfTrajectoryFilter.filterPset.minimumNumberOfHits = 3
+thCkfTrajectoryFilter.filterPset.minPt = 0.3
+
 #TRAJECTORY BUILDER
 thCkfTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi.GroupedCkfTrajectoryBuilder.clone()
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
+thCkfTrajectoryBuilder.ComponentName = 'thCkfTrajectoryBuilder'
+thCkfTrajectoryBuilder.MeasurementTrackerName = 'thMeasurementTracker'
+thCkfTrajectoryBuilder.trajectoryFilterName = 'thCkfTrajectoryFilter'
+
+
 #TRACK CANDIDATES
 thTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone()
 import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
+thTrackCandidates.SeedProducer = 'thPLSeeds'
+thTrackCandidates.TrajectoryBuilder = 'thCkfTrajectoryBuilder'
+thTrackCandidates.doSeedingRegionRebuilding = True
+thTrackCandidates.useHitsSplitting = True
+
+
 #TRACKS
 thWithMaterialTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
 from RecoTracker.IterativeTracking.ThVxFilter_cff import *
+thWithMaterialTracks.src = 'thTrackCandidates'
+thWithMaterialTracks.clusterRemovalInfo = 'thClusters'
+
+
+
 #HIT REMOVAL
 thClusters = cms.EDFilter("TrackClusterRemover",
     oldClusterRemovalInfo = cms.InputTag("secClusters"),
@@ -82,26 +118,17 @@ thlayerpairs = cms.ESProducer("MixedLayerPairsESProducer",
     )
 )
 
-thirdStep = cms.Sequence(thClusters*thPixelRecHits*thStripRecHits*thPLSeeds*thTrackCandidates*thWithMaterialTracks*thStep)
-thPixelRecHits.src = 'thClusters'
-thStripRecHits.ClusterProducer = 'thClusters'
-thPLSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'ThLayerPairs'
-thPLSeeds.RegionFactoryPSet.RegionPSet.ptMin = 0.3
-thPLSeeds.RegionFactoryPSet.RegionPSet.originHalfLength = 17.5
-thMeasurementTracker.ComponentName = 'thMeasurementTracker'
-thMeasurementTracker.pixelClusterProducer = 'thClusters'
-thMeasurementTracker.stripClusterProducer = 'thClusters'
-thCkfTrajectoryFilter.ComponentName = 'thCkfTrajectoryFilter'
-thCkfTrajectoryFilter.filterPset.maxLostHits = 0
-thCkfTrajectoryFilter.filterPset.minimumNumberOfHits = 3
-thCkfTrajectoryFilter.filterPset.minPt = 0.3
-thCkfTrajectoryBuilder.ComponentName = 'thCkfTrajectoryBuilder'
-thCkfTrajectoryBuilder.MeasurementTrackerName = 'thMeasurementTracker'
-thCkfTrajectoryBuilder.trajectoryFilterName = 'thCkfTrajectoryFilter'
-thTrackCandidates.SeedProducer = 'thPLSeeds'
-thTrackCandidates.TrajectoryBuilder = 'thCkfTrajectoryBuilder'
-thTrackCandidates.doSeedingRegionRebuilding = True
-thTrackCandidates.useHitsSplitting = True
-thWithMaterialTracks.src = 'thTrackCandidates'
-thWithMaterialTracks.clusterRemovalInfo = 'thClusters'
+
+thirdStep = cms.Sequence(thClusters*
+                         thPixelRecHits*thStripRecHits*
+                         thPLSeeds*
+                         thTrackCandidates*
+                         thWithMaterialTracks*
+                         thStep)
+
+
+
+
+
+
 
