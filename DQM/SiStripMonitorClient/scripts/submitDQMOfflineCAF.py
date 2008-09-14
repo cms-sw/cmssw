@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 #
-# $Id$
+# $Id: submitDQMOfflineCAF.py,v 1.19 2008/09/12 20:08:43 vadler Exp $
 #
 
 ## CMSSW/DQM/SiStripMonitorClient/scripts/submitDQMOfflineCAF.py
@@ -71,6 +71,10 @@ STR_textUsage            = """ CMSSW/DQM/SiStripMonitorClient/scripts/submitDQMO
      -r, --run RUNNUMBER
          number of run to process;
          required by funtion letters '-s' and '-c'
+      
+     -d, --dataset PRIMARY_DATASET
+         specify dataset for DBS query;
+         default: /Cosmics/Commissioning08-EW35_3T_v1/RECO
    
      -P, --Python TRUE/FALSE
          use or use not Python configuration of CMSSW jobs;
@@ -105,10 +109,6 @@ STR_textUsage            = """ CMSSW/DQM/SiStripMonitorClient/scripts/submitDQMO
      -f, --filter TRUE/FALSE
          use or use not HLT filters to select events to process;
          default: FALSE
-      
-     -d, --dataset PRIMARY_DATASET
-         specify dataset for DBS query;
-         default: /Cosmics/Commissioning08-EW35_3T_v1/RECO
                     
      -o, --outpath PATH
          path to copy job output *.root files to;
@@ -133,7 +133,6 @@ STR_server     = LSTR_server[0]
 STR_email      = 'volker.adler@cern.ch'
 INT_jobs       = 10
 BOOL_filter    = False
-STR_dataset    = '/Cosmics/Commissioning08-EW35_3T_v1/RECO'
 STR_outpath    = '/castor/cern.ch/user/c/cctrack/DQM'
 BOOL_useCastor = True
 STR_mergepath  = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_TRACKER/DQM/SiStrip/jobs/merged'
@@ -203,7 +202,6 @@ Str_server     = STR_server
 Str_email      = STR_email
 Int_jobs       = INT_jobs
 Bool_filter    = BOOL_filter
-Str_dataset    = STR_dataset
 Str_outpath    = STR_outpath
 Bool_useCastor = BOOL_useCastor
 Str_mergepath  = STR_mergepath
@@ -411,6 +409,9 @@ if Dict_arguments.has_key(LSTR_optionLetters[6])        and\
 if Dict_arguments.has_key(LSTR_optionLetters[7])        and\
    Dict_arguments[LSTR_optionLetters[7]] != STR_default    :
   Str_dataset = Dict_arguments[LSTR_optionLetters[7]]
+else:   
+  print '> submitDQMOfflineCAF.py > no primary dataset given'
+  Func_Exit()
 # path for job output
 if Dict_arguments.has_key(LSTR_optionLetters[8])        and\
    Dict_arguments[LSTR_optionLetters[8]] != STR_default    :
