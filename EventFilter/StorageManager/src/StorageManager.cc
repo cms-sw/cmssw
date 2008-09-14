@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.79 2008/09/03 23:18:35 hcheung Exp $
+// $Id: StorageManager.cc,v 1.80 2008/09/04 17:48:17 biery Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -3983,6 +3983,7 @@ void StorageManager::setupFlashList()
   is->fireItemAvailable("receivedFrames",       &receivedFrames_);
   // should this be here also??
   is->fireItemAvailable("storedEvents",         &storedEvents_);
+  is->fireItemAvailable("closedFiles",          &closedFiles_);
   is->fireItemAvailable("receivedEvents",       &receivedEvents_);
   is->fireItemAvailable("receivedErrorEvents",  &receivedErrorEvents_);
   is->fireItemAvailable("namesOfStream",      &namesOfStream_);
