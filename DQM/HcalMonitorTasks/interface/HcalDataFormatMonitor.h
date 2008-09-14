@@ -21,8 +21,8 @@
 
 /** \class Hcaldataformatmonitor
  *
- * $Date: 2008/09/03 13:43:29 $
- * $Revision: 1.31 $
+ * $Date: 2008/09/12 15:58:56 $
+ * $Revision: 1.32 $
  * \author W. Fisher - FNAL
  */
 class HcalDataFormatMonitor: public HcalBaseMonitor {
@@ -103,6 +103,10 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
   MonitorElement* meFEDerrorMap_;
 
   MonitorElement* meFEDRawDataSizes_;
+
+  MonitorElement* fedEntries_;
+  MonitorElement* fedFatal_;
+
   //Check that evt numbers are synchronized across all HTRs
   MonitorElement* meEvtNumberSynch_;
   MonitorElement* meBCNSynch_;

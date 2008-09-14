@@ -106,6 +106,12 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     HO_DATAFORMAT_PROBLEM_ZOO = m_dbe->book1D(type, type, 16, 0, 16);   
     labelthezoo(HO_DATAFORMAT_PROBLEM_ZOO);
     
+    m_dbe->setCurrentFolder(baseFolder_ + "/FEDIntegrity");
+    type="FEDEntries";
+    fedEntries_ = m_dbe->book1D(type,type,32,699.5,731.5);
+    type="FEDFatal";
+    fedFatal_ = m_dbe->book1D(type,type,32,699.5,731.5);
+
     m_dbe->setCurrentFolder(baseFolder_ + "/DCC Plots");
 
     type="DCC DataIntegrity Check";
@@ -172,6 +178,7 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     medccBCN_ = m_dbe->book1D(type,type,3564,-0.5,3563.5);
     medccBCN_->setAxisTitle("BCN",1);
     medccBCN_->setAxisTitle("# of Entries",2);
+
 
     type = "DCC Error and Warning";
     meDCCErrorAndWarnConditions_ = m_dbe->book2D(type,type,32,699.5,731.5, 25,0.5,25.5);
@@ -467,6 +474,7 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
 
     m_dbe->setCurrentFolder(baseFolder_ + "/ZZ DQM Diagnostics");
 
+
     meEVT_ = m_dbe->bookInt("Data Format Task Event Number");
     meEVT_->Fill(ievt_);
 
@@ -680,6 +688,10 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
     //Set the problem flag for the ieta, iphi of any channel in this DCC
     mapDCCproblem(dccid);
   }
+  if (CDFProbThisDCC)
+    fedFatal_->Fill(dccid);
+  fedEntries_->Fill(dccid);
+
   CDFProbThisDCC = false;  // reset for the next go-round.
   
   char CRC_err;
