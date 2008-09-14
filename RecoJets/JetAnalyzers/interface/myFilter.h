@@ -17,8 +17,12 @@ public:
   virtual void endJob();
 
 private:
-  int _rejectedEvt;
   int _nEvent;
+
+  int _acceptedEvt;
+  int _passPt;
+  int _passEMF;
+
   std::string CaloJetAlgorithm;
 
 };

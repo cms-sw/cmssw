@@ -1,6 +1,7 @@
 #ifndef RecoExamples_myJetAna_h
 #define RecoExamples_myJetAna_h
 #include <TH1.h>
+#include <TH2.h>
 #include <TProfile.h>
 #include <TFile.h>
 
@@ -30,12 +31,20 @@ private:
   std::string CaloJetAlgorithm;
   std::string GenJetAlgorithm;
   std::string JetCorrectionService;
+
+
+  // --- Passed selection cuts
+  TH1F *h_pt;
+  TH1F *h_et;
+  TH1F *h_eta;
+  TH1F *h_phi;
+  // ---
   
   TH1F *hf_sumTowerAllEx; 
   TH1F *hf_sumTowerAllEy;
-  TH1F *SumEt1;
-  TH1F *MET1;
-  TH1F *hf_TowerJetEt1;
+  TH1F *SumEt;
+  TH1F *MET;
+  TH1F *hf_TowerJetEt;
 
   TH1F *nTowers1; 
   TH1F *nTowers2; 
@@ -62,30 +71,43 @@ private:
 
   TH1F *tMassGen;
 
-  TH1F *dijetMass1;
+  TH1F *dijetMass;
 
-  TH1F *h_nCalJets1;
-  TH1F *h_nGenJets1;
+  TH1F *h_nCalJets;
+  TH1F *h_nGenJets;
 
-  TH1F *h_ptCal1;
-  TH1F *h_etaCal1;
-  TH1F *h_phiCal1;
+  TH1F *h_ptCal;
+  TH1F *h_etaCal;
+  TH1F *h_phiCal;
 
-  TH1F *h_ptGen1; 
-  TH1F *h_etaGen1; 
-  TH1F *h_phiGen1;
+  TH1F *h_ptGen; 
+  TH1F *h_etaGen; 
+  TH1F *h_phiGen;
 
-  TH1F *h_ptGenL1;
-  TH1F *h_etaGenL1;
-  TH1F *h_phiGenL1;
+  TH1F *h_ptGenL;
+  TH1F *h_etaGenL;
+  TH1F *h_phiGenL;
 
-  TH1F *h_jetEt1;
-  TH1F *h_missEt1s;
-  TH1F *h_missEt1;
-  TH1F *h_totMissEt1;
+  TH1F *h_jetEt;
 
-  TH1F *h_jet1Pt1;
-  TH1F *h_jet2Pt1;
+  TH1F *h_UnclusteredEt;
+  TH1F *h_UnclusteredEts;
+  TH1F *h_TotalUnclusteredEt;
+
+  TH1F *h_UnclusteredE;
+  TH1F *h_TotalUnclusteredE;
+
+  TH1F *h_ClusteredE;
+  TH1F *h_TotalClusteredE;
+
+  TH1F *h_jet1Pt;
+  TH1F *h_jet2Pt;
+
+  TH1F *EMFraction;
+  TH1F *NTowers;
+
+  TH2F *h_EmEnergy;
+  TH2F *h_HadEnergy;
 
 };
 

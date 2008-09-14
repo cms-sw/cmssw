@@ -49,7 +49,15 @@ void myJetAna::beginJob( const EventSetup & ) {
 
   edm::Service<TFileService> fs;
 
-  dijetMass1  =  fs->make<TH1F>("dijetMass1","DiJet Mass 1",100,0,4000);
+
+  // --- passed selection cuts 
+  h_pt     = fs->make<TH1F>( "pt",  "Jet p_{T}", 50, 0, 1000 );
+  h_et     = fs->make<TH1F>( "et",  "Jet E_{T}", 50, 0, 1000 );
+  h_eta    = fs->make<TH1F>( "eta", "Jet #eta", 100, -4, 4 );
+  h_phi    = fs->make<TH1F>( "phi", "Jet #phi", 50, -M_PI, M_PI );
+  // ---
+
+  dijetMass  =  fs->make<TH1F>("dijetMass","DiJet Mass",100,0,4000);
 
   totEneLeadJetEta1 = fs->make<TH1F>("totEneLeadJetEta1","Total Energy Lead Jet Eta1 1",100,0,1500);
   totEneLeadJetEta2 = fs->make<TH1F>("totEneLeadJetEta2","Total Energy Lead Jet Eta2 1",100,0,1500);
@@ -66,13 +74,13 @@ void myJetAna::beginJob( const EventSetup & ) {
   hadFracEta2 = fs->make<TH1F>("hadFracEta21","Hadronic Fraction Eta2 Jet 1",100,0,1);
   hadFracEta3 = fs->make<TH1F>("hadFracEta31","Hadronic Fraction Eta3 Jet 1",100,0,1);
 
-  SumEt1  = fs->make<TH1F>("SumEt1","SumEt 1",100,0,1000);
-  MET1    = fs->make<TH1F>("MET1",  "MET 1",100,0,200);
+  SumEt  = fs->make<TH1F>("SumEt","SumEt",100,0,1000);
+  MET    = fs->make<TH1F>("MET",  "MET",100,0,200);
 
   hf_sumTowerAllEx = fs->make<TH1F>("sumTowerAllEx","Tower Ex",100,-1000,1000);
   hf_sumTowerAllEy = fs->make<TH1F>("sumTowerAllEy","Tower Ey",100,-1000,1000);
 
-  hf_TowerJetEt1   = fs->make<TH1F>("TowerJetEt1","Tower/Jet Et 1",50,0,1);
+  hf_TowerJetEt   = fs->make<TH1F>("TowerJetEt","Tower/Jet Et 1",50,0,1);
 
   nTowers1  = fs->make<TH1F>("nTowers1","Number of Towers pt 0.5",100,0,500);
   nTowers2  = fs->make<TH1F>("nTowers2","Number of Towers pt 1.0",100,0,500);
@@ -84,30 +92,43 @@ void myJetAna::beginJob( const EventSetup & ) {
   nTowersLeadJetPt3  = fs->make<TH1F>("nTowersLeadJetPt3","Number of Towers in Lead Jet pt 1.5",100,0,200);
   nTowersLeadJetPt4  = fs->make<TH1F>("nTowersLeadJetPt4","Number of Towers in Lead Jet pt 2.0",100,0,200);
 
-  h_nCalJets1  =  fs->make<TH1F>( "nCalJets1",  "Number of CalJets1", 20, 0, 20 );
+  h_nCalJets  =  fs->make<TH1F>( "nCalJets",  "Number of CalJets", 20, 0, 20 );
 
-  h_ptCal1     = fs->make<TH1F>( "ptCal1",  "p_{T} of CalJet1", 50, 0, 1000 );
-  h_etaCal1    = fs->make<TH1F>( "etaCal1", "#eta of  CalJet1", 100, -4, 4 );
-  h_phiCal1    = fs->make<TH1F>( "phiCal1", "#phi of  CalJet1", 50, -M_PI, M_PI );
 
-  h_nGenJets1  =  fs->make<TH1F>( "nGenJets1",  "Number of GenJets1", 20, 0, 20 );
+  h_ptCal     = fs->make<TH1F>( "ptCal",  "p_{T} of CalJet", 50, 0, 1000 );
+  h_etaCal    = fs->make<TH1F>( "etaCal", "#eta of  CalJet", 100, -4, 4 );
+  h_phiCal    = fs->make<TH1F>( "phiCal", "#phi of  CalJet", 50, -M_PI, M_PI );
 
-  h_ptGen1     =  fs->make<TH1F>( "ptGen1",  "p_{T} of GenJet1", 50, 0, 1000 );
-  h_etaGen1    =  fs->make<TH1F>( "etaGen1", "#eta of GenJet1", 100, -4, 4 );
-  h_phiGen1    =  fs->make<TH1F>( "phiGen1", "#phi of GenJet1", 50, -M_PI, M_PI );
+  h_nGenJets  =  fs->make<TH1F>( "nGenJets",  "Number of GenJets", 20, 0, 20 );
 
-  h_ptGenL1    =  fs->make<TH1F>( "ptGenL1",  "p_{T} of GenJetL1", 50, 0, 300 );
-  h_etaGenL1   =  fs->make<TH1F>( "etaGenL1", "#eta of GenJetL1", 100, -4, 4 );
-  h_phiGenL1   =  fs->make<TH1F>( "phiGenL1", "#phi of GenJetL1", 50, -M_PI, M_PI );
+  h_ptGen     =  fs->make<TH1F>( "ptGen",  "p_{T} of GenJet", 50, 0, 1000 );
+  h_etaGen    =  fs->make<TH1F>( "etaGen", "#eta of GenJet", 100, -4, 4 );
+  h_phiGen    =  fs->make<TH1F>( "phiGen", "#phi of GenJet", 50, -M_PI, M_PI );
 
-  h_jetEt1     = fs->make<TH1F>( "jetEt1", "Total Jet Et", 100, 0, 3000 );
+  h_ptGenL    =  fs->make<TH1F>( "ptGenL",  "p_{T} of GenJetL", 50, 0, 300 );
+  h_etaGenL   =  fs->make<TH1F>( "etaGenL", "#eta of GenJetL", 100, -4, 4 );
+  h_phiGenL   =  fs->make<TH1F>( "phiGenL", "#phi of GenJetL", 50, -M_PI, M_PI );
 
-  h_jet1Pt1    = fs->make<TH1F>( "jet1Pt1", "Jet Pt", 100, 0, 3000 );
-  h_jet2Pt1    = fs->make<TH1F>( "jet2Pt1", "Jet Pt", 100, 0, 3000 );
-  h_totMissEt1 = fs->make<TH1F>( "totMissEt1", "Total Unclustered Et", 100, 0, 500 );
-  h_missEt1    = fs->make<TH1F>( "missEt1", "Unclustered Et", 100, 0, 50 );
-  h_missEt1s   = fs->make<TH1F>( "missEt1s", "Unclustered Et", 100, 0, 2 );
+  h_jetEt      = fs->make<TH1F>( "jetEt", "Total Jet Et", 100, 0, 3000 );
 
+  h_jet1Pt    = fs->make<TH1F>( "jet1Pt", "Jet1 Pt", 100, 0, 3000 );
+  h_jet2Pt    = fs->make<TH1F>( "jet2Pt", "Jet2 Pt", 100, 0, 3000 );
+
+  h_TotalUnclusteredEt = fs->make<TH1F>( "TotalUnclusteredEt", "Total Unclustered Et", 100, 0, 500 );
+  h_UnclusteredEt      = fs->make<TH1F>( "UnclusteredEt", "Unclustered Et", 100, 0, 50 );
+  h_UnclusteredEts     = fs->make<TH1F>( "UnclusteredEts", "Unclustered Et", 100, 0, 2 );
+
+  h_ClusteredE         = fs->make<TH1F>( "ClusteredE", "Clustered E", 200, 0, 20 );
+  h_TotalClusteredE    = fs->make<TH1F>( "TotalClusteredE", "Total Clustered E", 200, 0, 100 );
+  h_UnclusteredE       = fs->make<TH1F>( "UnclusteredE", "Unclustered E", 200, 0, 20 );
+  h_TotalUnclusteredE  = fs->make<TH1F>( "TotalUnclusteredE", "Total Unclustered E", 200, 0, 100 );
+
+  EMFraction           = fs->make<TH1F>( "EMFraction", "Jet EM Fraction", 100, 0, 1 );
+  NTowers              = fs->make<TH1F>( "NTowers", "Number of Towers", 100, 0, 100 );
+
+
+  h_EmEnergy   = fs->make<TH2F>( "EmEnergy",  "Em Energy",  90, -45, 45, 73, 0, 73 );
+  h_HadEnergy  = fs->make<TH2F>( "HadEnergy", "Had Energy", 90, -45, 45, 73, 0, 73 );
 
 }
 
@@ -117,7 +138,7 @@ void myJetAna::analyze( const Event& evt, const EventSetup& es ) {
  
   int EtaOk10, EtaOk13, EtaOk40;
 
-  double LeadMass1;
+  double LeadMass;
 
   float pt1;
 
@@ -125,9 +146,13 @@ void myJetAna::analyze( const Event& evt, const EventSetup& es ) {
   float minJetPt10 = 10.;
   int jetInd, allJetInd;
 
-  LeadMass1 = -1;
+  LeadMass = -1;
 
   math::XYZTLorentzVector p4tmp[2], p4cortmp[2];
+
+  // --------------------------------------------------------------
+  // --------------------------------------------------------------
+
 
   // **************************************************************
   // ** Loop over the two leading CaloJets and fill some histograms
@@ -171,7 +196,7 @@ void myJetAna::analyze( const Event& evt, const EventSetup& es ) {
 
     allJetInd++;
     if (allJetInd == 1) {
-      h_jet1Pt1->Fill( cal->pt() );
+      h_jet1Pt->Fill( cal->pt() );
       pt1 = cal->pt();
       p4tmp[0] = cal->p4();
       if ( fabs(cal->eta()) < 1.0) EtaOk10++;
@@ -179,7 +204,7 @@ void myJetAna::analyze( const Event& evt, const EventSetup& es ) {
       if ( fabs(cal->eta()) < 4.0) EtaOk40++;
     }
     if (allJetInd == 2) {
-      h_jet2Pt1->Fill( cal->pt() );
+      h_jet2Pt->Fill( cal->pt() );
       p4tmp[1] = cal->p4();
       if ( fabs(cal->eta()) < 1.0) EtaOk10++;
       if ( fabs(cal->eta()) < 1.3) EtaOk13++;
@@ -187,33 +212,33 @@ void myJetAna::analyze( const Event& evt, const EventSetup& es ) {
     }
 
     if ( cal->pt() > minJetPt) {
-      h_ptCal1->Fill( cal->pt() );   
-      h_etaCal1->Fill( cal->eta() );
-      h_phiCal1->Fill( cal->phi() );
+      h_ptCal->Fill( cal->pt() );   
+      h_etaCal->Fill( cal->eta() );
+      h_phiCal->Fill( cal->phi() );
       jetInd++;
     }
   }
 
-  h_nCalJets1->Fill( jetInd ); 
+  h_nCalJets->Fill( jetInd ); 
 
   if (jetInd > 1) {
-    LeadMass1 = (p4tmp[0]+p4tmp[1]).mass();
-    dijetMass1->Fill( LeadMass1 );    
+    LeadMass = (p4tmp[0]+p4tmp[1]).mass();
+    dijetMass->Fill( LeadMass );    
   }
 
 
-  // *********************
-  // Jet Properties
-  // *********************
+  // ******************
+  // *** Jet Properties
+  // ******************
 
   int nTow1, nTow2, nTow3, nTow4;
-  Handle<CaloJetCollection> jets;
+  //  Handle<CaloJetCollection> jets;
+  //  evt.getByLabel( CaloJetAlgorithm, jets );
 
   // *********************************************************
   // --- Loop over jets and make a list of all the used towers
-  evt.getByLabel( CaloJetAlgorithm, jets );
   int jjet = 0;
-  for ( CaloJetCollection::const_iterator ijet=jets->begin(); ijet!=jets->end(); ijet++) {
+  for ( CaloJetCollection::const_iterator ijet=caloJets->begin(); ijet!=caloJets->end(); ijet++) {
     jjet++;
 
     float hadEne  = ijet->hadEnergyInHB() + ijet->hadEnergyInHO() + 
@@ -221,8 +246,11 @@ void myJetAna::analyze( const Event& evt, const EventSetup& es ) {
     float emEne   = ijet->emEnergyInEB() + ijet->emEnergyInEE() + ijet->emEnergyInHF();
     float had     = ijet->energyFractionHadronic();    
 
+    EMFraction->Fill(ijet->emEnergyFraction());    
+
     float j_et = ijet->et();
 
+    // *** Barrel
     if (fabs(ijet->eta()) < 1.3) {
       totEneLeadJetEta1->Fill(hadEne+emEne); 
       hadEneLeadJetEta1->Fill(hadEne); 
@@ -231,6 +259,8 @@ void myJetAna::analyze( const Event& evt, const EventSetup& es ) {
       if (ijet->pt() > minJetPt10) 
 	hadFracEta1->Fill(had);
     }
+
+    // *** EndCap
     if ((fabs(ijet->eta()) > 1.3) && (fabs(ijet->eta()) < 3.) ) {
 
       totEneLeadJetEta2->Fill(hadEne+emEne); 
@@ -240,6 +270,8 @@ void myJetAna::analyze( const Event& evt, const EventSetup& es ) {
       if (ijet->pt() > minJetPt10) 
 	hadFracEta2->Fill(had);
     }
+
+    // *** Forward
     if (fabs(ijet->eta()) > 3.) {
 
       totEneLeadJetEta3->Fill(hadEne+emEne); 
@@ -250,9 +282,10 @@ void myJetAna::analyze( const Event& evt, const EventSetup& es ) {
 	hadFracEta3->Fill(had);
     }
 
-
+    // *** CaloTowers in Jet
     const std::vector<CaloTowerPtr> jetCaloRefs = ijet->getCaloConstituents();
     int nConstituents = jetCaloRefs.size();
+    NTowers->Fill(nConstituents);
 
     if (jjet == 1) {
 
@@ -266,7 +299,7 @@ void myJetAna::analyze( const Event& evt, const EventSetup& es ) {
 	if (et > 1.5) nTow3++;
 	if (et > 2.0) nTow4++;
 	
-	hf_TowerJetEt1->Fill(et/j_et);
+	hf_TowerJetEt->Fill(et/j_et);
 
       }
 
@@ -280,15 +313,17 @@ void myJetAna::analyze( const Event& evt, const EventSetup& es ) {
   }
 
 
-  // *********************
-  // Unclustered Energy
-  // *********************
+  // **********************
+  // *** Unclustered Energy
+  // **********************
 
   double SumPtJet(0);
 
   double SumEtNotJets(0);
   double SumEtJets(0);
   double SumEtTowers(0);
+  double TotalClusteredE(0);
+  double TotalUnclusteredE(0);
 
   double sumJetPx(0);
   double sumJetPy(0);
@@ -305,7 +340,7 @@ void myJetAna::analyze( const Event& evt, const EventSetup& es ) {
 
 
   // *********************
-  // *** Towers
+  // *** CaloTowers
   // *********************
   Handle<CaloTowerCollection> caloTowers;
   evt.getByLabel( "towerMaker", caloTowers );
@@ -328,7 +363,19 @@ void myJetAna::analyze( const Event& evt, const EventSetup& es ) {
     if (et > 1.5) nTow3++;
     if (et > 2.0) nTow4++;
 
-    if(et>0.5) {
+    //    if ( (fabs(tower->ieta() > 42)) ||  (fabs(tower->iphi()) > 72) ) {
+    //      std::cout << "ieta/iphi = " <<  tower->ieta() << " / "  << tower->iphi() << std::endl;
+    //    }
+
+    if (tower->emEnergy() > 2.0) {
+      h_EmEnergy->Fill (tower->ieta(), tower->iphi(), tower->emEnergy());
+    }
+    if (tower->hadEnergy() > 2.0) {
+      h_HadEnergy->Fill (tower->ieta(), tower->iphi(), tower->hadEnergy());
+    }
+
+
+    if (et>0.5) {
 
       // ********
       double phix   = tower->phi();
@@ -354,8 +401,9 @@ void myJetAna::analyze( const Event& evt, const EventSetup& es ) {
 
   }
 
-  SumEt1->Fill(sum_et);
-  MET1->Fill(sqrt( sum_ex*sum_ex + sum_ey*sum_ey));
+  SumEt->Fill(sum_et);
+  MET->Fill(sqrt( sum_ex*sum_ex + sum_ey*sum_ey));
+
   hf_sumTowerAllEx->Fill(sumTowerAllEx);
   hf_sumTowerAllEy->Fill(sumTowerAllEy);
 
@@ -373,8 +421,8 @@ void myJetAna::analyze( const Event& evt, const EventSetup& es ) {
   TowerNotUsedInJets.clear();
 
   // --- Loop over jets and make a list of all the used towers
-  evt.getByLabel( CaloJetAlgorithm, jets );
-  for ( CaloJetCollection::const_iterator ijet=jets->begin(); ijet!=jets->end(); ijet++) {
+  //  evt.getByLabel( CaloJetAlgorithm, jets );
+  for ( CaloJetCollection::const_iterator ijet=caloJets->begin(); ijet!=caloJets->end(); ijet++) {
 
     Double_t jetPt  = ijet->pt();
     Double_t jetPhi = ijet->phi();
@@ -394,6 +442,7 @@ void myJetAna::analyze( const Event& evt, const EventSetup& es ) {
       }
 
       SumPtJet +=jetPt;
+
     //    }
 
   }
@@ -429,36 +478,67 @@ void myJetAna::analyze( const Event& evt, const EventSetup& es ) {
       } else {
         TowerNotUsedInJets.push_back(t);
       }
-
     }
-
   }
-
-
 
   int nUsed    = TowerUsedInJets.size();
   int nNotUsed = TowerNotUsedInJets.size();
 
   SumEtJets    = 0;
   SumEtNotJets = 0;
+  TotalClusteredE   = 0;
+  TotalUnclusteredE = 0;
 
   for(int i=0;i<nUsed;i++){
     SumEtJets += TowerUsedInJets[i].et();
+    h_ClusteredE->Fill(TowerUsedInJets[i].energy());
+    if (TowerUsedInJets[i].energy() > 1.0) 
+      TotalClusteredE += TowerUsedInJets[i].energy();
   }
-  h_jetEt1->Fill(SumEtJets);
+  h_jetEt->Fill(SumEtJets);
 
   for(int i=0;i<nNotUsed;i++){
     if (TowerNotUsedInJets[i].et() > 0.5)
       SumEtNotJets += TowerNotUsedInJets[i].et();
-    h_missEt1->Fill(TowerNotUsedInJets[i].et());
-    h_missEt1s->Fill(TowerNotUsedInJets[i].et());
+    h_UnclusteredEt->Fill(TowerNotUsedInJets[i].et());
+    h_UnclusteredEts->Fill(TowerNotUsedInJets[i].et());
+    h_UnclusteredE->Fill(TowerNotUsedInJets[i].energy());
+    if (TowerNotUsedInJets[i].energy() > 1.0)  
+      TotalUnclusteredE += TowerNotUsedInJets[i].energy();
   }
-  h_totMissEt1->Fill(SumEtNotJets);
+
+  h_TotalClusteredE->Fill(TotalClusteredE);
+  h_TotalUnclusteredE->Fill(TotalUnclusteredE);
+  h_TotalUnclusteredEt->Fill(SumEtNotJets);
 
 
-  //**********************************
-  //**** Get the GenJet1 collection
-  //**********************************
+  // ********************************
+  // *** Events passing seletion cuts
+  // ********************************
+
+  // --- Cosmic Cleanup
+  // --- Vertex
+  // --- Eta 
+
+  for( CaloJetCollection::const_iterator ijet = caloJets->begin(); ijet != caloJets->end(); ++ ijet ) {
+    
+    if ( (fabs(ijet->eta()) < 1.3) && 
+	 (fabs(ijet->pt())  > 20.) &&
+	 (ijet->emEnergyFraction() > 0.01) &&
+	 (ijet->emEnergyFraction() > 0.99) ) {
+      h_pt->Fill(ijet->pt());
+      h_et->Fill(ijet->et());
+      h_eta->Fill(ijet->eta());
+      h_phi->Fill(ijet->phi());
+      
+    }    
+  }
+
+
+
+  //*****************************
+  //*** Get the GenJet collection
+  //*****************************
 
       /**************
   Handle<GenJetCollection> genJets;
@@ -477,22 +557,23 @@ void myJetAna::analyze( const Event& evt, const EventSetup& es ) {
     }
 
     if ( (allJetInd == 1) || (allJetInd == 2) ) {
-      h_ptGenL1->Fill( gen->pt() );
-      h_etaGenL1->Fill( gen->eta() );
-      h_phiGenL1->Fill( gen->phi() );
+      h_ptGenL->Fill( gen->pt() );
+      h_etaGenL->Fill( gen->eta() );
+      h_phiGenL->Fill( gen->phi() );
     }
 
     if ( gen->pt() > minJetPt) {
       // std::cout << "GEN JET1 #" << jetInd << std::endl << gen->print() << std::endl;
-      h_ptGen1->Fill( gen->pt() );
-      h_etaGen1->Fill( gen->eta() );
-      h_phiGen1->Fill( gen->phi() );
+      h_ptGen->Fill( gen->pt() );
+      h_etaGen->Fill( gen->eta() );
+      h_phiGen->Fill( gen->phi() );
       jetInd++;
     }
   }
 
-  h_nGenJets1->Fill( jetInd );
+  h_nGenJets->Fill( jetInd );
       *******/
+
 
 }
 
