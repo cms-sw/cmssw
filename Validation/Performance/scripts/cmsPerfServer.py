@@ -16,7 +16,7 @@ def optionparse():
                       dest='port',
                       default=-1,
                       help='Run server on a particular port',
-                      #metavar='<STEPS>',
+                      metavar='<PORT>',
                       )
 
     (options, args) = parser.parse_args()

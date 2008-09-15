@@ -983,7 +983,7 @@ def perfreport(perftype,file1,file2,outdir):
 
     xmlfile = os.path.join(cmssw_base,"src","Validation","Performance","doc","regress.xml")
 
-    prRoot = "/build/nicolson/perfreport/2.0.1"
+    prRoot = "/afs/cern.ch/user/g/gbenelli/public/PerfReport2"
 
     # this might be useful at some point
     #cd %s ; eval `scramv1 runtime -csh`  ; source $CMSSW_DATA_PATH/perfreport/2.0.0/etc/profile.d/init.csh; cd - ; %s\"" % (loc,perfcmd)

@@ -22,7 +22,7 @@ def optionparse():
                       dest='port',
                       default=-1,
                       help='Connect to server on a particular port',
-                      #metavar='<STEPS>',
+                      metavar='<PORT>',
                       )
 
     (options, args) = parser.parse_args()
