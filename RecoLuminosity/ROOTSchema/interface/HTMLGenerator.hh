@@ -80,6 +80,8 @@ namespace HCAL_HLX{
      
      TH2F* EtSummary_;
      TH2F* OccSummary_;
+     TH2F* MaxEtSummary_;
+     TH2F* MaxLHCSummary_;
 
      TH1F* ETLumiHisto_;
      TH1F* OccLumiSet1Histo_;

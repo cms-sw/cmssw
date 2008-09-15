@@ -233,8 +233,6 @@ void HCAL_HLX::ROOTFileBase::FillTree(const HCAL_HLX::LUMI_SECTION& localSection
   memcpy(Summary, &localSection.lumiSummary, sizeof(HCAL_HLX::LUMI_SUMMARY));
   memcpy(Detail,  &localSection.lumiDetail,  sizeof(HCAL_HLX::LUMI_DETAIL));
 
-  Header->sectionNumber++;
-
   InsertInformation(); // To be modified later.
 
   m_tree->Fill();

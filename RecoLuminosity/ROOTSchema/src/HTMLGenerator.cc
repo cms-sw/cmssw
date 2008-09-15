@@ -130,6 +130,13 @@ HCAL_HLX::HTMLGenerator::HTMLGenerator():ROOTFileReader(){
   OccSummary_->GetXaxis()->SetTitle("i #eta");
   OccSummary_->GetYaxis()->SetTitle("i #phi");
 
+  MaxEtSummary_     = new TH2F("MaxEtSummary", "BX with Max Et Sum Per Wedge", 12, -42, 42, 18, 0, 72);
+  MaxEtSummary_->GetXaxis()->SetTitle("i #eta");
+  MaxEtSummary_->GetYaxis()->SetTitle("i #phi");
+  MaxLHCSummary_    = new TH2F("MaxLHCSummary", "BX with Max LHC Occupancy  Per Wedge", 12, -42, 42, 18, 0, 72);
+  MaxLHCSummary_->GetXaxis()->SetTitle("i #eta");
+  MaxLHCSummary_->GetYaxis()->SetTitle("i #phi");
+
   ETLumiHisto_      = new TH1F("ETLumi",      "E_{T} Lumi",          NBins_, XMin_, XMax_);
   ETLumiHisto_->GetXaxis()->SetTitle("Bunch Crossing");
   OccLumiSet1Histo_ = new TH1F("OccLumiSet1", "Occupancy Lumi Set1", NBins_, XMin_, XMax_);
@@ -141,8 +148,6 @@ HCAL_HLX::HTMLGenerator::HTMLGenerator():ROOTFileReader(){
 
 HCAL_HLX::HTMLGenerator::~HTMLGenerator(){
   
-  // deallocate
-
   delete c1_;
 
   delete HLXHistos_[0];
@@ -160,6 +165,9 @@ HCAL_HLX::HTMLGenerator::~HTMLGenerator(){
 
   delete EtSummary_;
   delete OccSummary_;
+
+  delete MaxEtSummary_;
+  delete MaxLHCSummary_;
 
 }
 
@@ -334,34 +342,67 @@ void HCAL_HLX::HTMLGenerator::GenerateSectionPage(){
   c1_->cd();
 
   EtSummary_->Reset();
-  float MaxEt = 0.0;
-  float MinEt = 1000000000.0;
+  MaxEtSummary_->Reset();
+  MaxLHCSummary_->Reset();
+  float MaxAvgEt = 0.0;
+  float MinAvgEt = 1000000000.0;
 
   for( int iHLX = 0; iHLX < 36; ++iHLX){
+    float MaxEt = -1;
+    unsigned int MaxEtBX = 0;
+    float MaxLHC = -1;
+    unsigned int MaxLHCBX = 0;
     float AvgEtSum = 0.0;
-    for( int iBX = 100; iBX < 3500; ++iBX){ 
+    for( int iBX = 100; iBX < 3500; ++iBX){
       AvgEtSum += lumiSection_.etSum[iHLX].data[iBX];
+      if( lumiSection_.etSum[iHLX].data[iBX] > MaxEt ){
+	MaxEt = lumiSection_.etSum[iHLX].data[iBX];
+	MaxEtBX = iBX;
+      }
+      
+      if( lumiSection_.lhc[iHLX].data[iBX] > MaxLHC ){
+	MaxLHC = lumiSection_.lhc[iHLX].data[iBX];
+	MaxLHCBX = iBX;
+      }
+
     }
 
     AvgEtSum /= (3400.0*lumiSection_.hdr.numOrbits);
 
-    if( AvgEtSum > MaxEt ){
-      MaxEt = AvgEtSum;
+    if( AvgEtSum > MaxAvgEt ){
+      MaxAvgEt = AvgEtSum;
     }
-    if( AvgEtSum < MinEt ){
-      MinEt = AvgEtSum;
+    if( AvgEtSum < MinAvgEt ){
+      MinAvgEt = AvgEtSum;
     }
     EtSummary_->Fill( iEta_[iHLX], iPhi_[iHLX], AvgEtSum );
     EtSummary_->Fill( iEta_[iHLX] +7, iPhi_[iHLX], AvgEtSum );
+    
+    MaxEtSummary_->Fill( iEta_[iHLX],    iPhi_[iHLX], MaxEtBX );
+    MaxEtSummary_->Fill( iEta_[iHLX] +7, iPhi_[iHLX], MaxEtBX );
+    
+    MaxLHCSummary_->Fill( iEta_[iHLX],    iPhi_[iHLX], MaxLHCBX );
+    MaxLHCSummary_->Fill( iEta_[iHLX] +7, iPhi_[iHLX], MaxLHCBX );
+
     //    std::cout << "iEta: " << iEta_[iHLX] << " iPhi: " << iPhi_[iHLX] << " AvgEtSum: " << AvgEtSum << std::endl;
   }
 
-  std::string picName = outputDir_ + GetRunDir() + GetLSDir() + "EtSummary.png";
   gStyle->SetOptStat(0);
   gStyle->SetPalette(1);
 
-  EtSummary_->GetZaxis()->SetRangeUser( MinEt, MaxEt );
+  std::string picName = outputDir_ + GetRunDir() + GetLSDir() + "EtSummary." + plotExt_;
+  EtSummary_->GetZaxis()->SetRangeUser( MinAvgEt - 0.0000001, MaxAvgEt + 0.0000001 );
   EtSummary_->Draw("colz");
+  c1_->SaveAs(picName.c_str());
+
+  picName = outputDir_ + GetRunDir() + GetLSDir() + "MaxEtSummary." + plotExt_;
+  MaxEtSummary_->GetZaxis()->SetRangeUser( 0, 3564 );
+  MaxEtSummary_->Draw("colz");
+  c1_->SaveAs(picName.c_str());
+
+  picName = outputDir_ + GetRunDir() + GetLSDir() + "MaxLHCSummary." + plotExt_;
+  MaxLHCSummary_->GetZaxis()->SetRangeUser( 0, 3564 );
+  MaxLHCSummary_->Draw("colz");
   c1_->SaveAs(picName.c_str());
 
   // Occupancy Summary
@@ -395,6 +436,8 @@ void HCAL_HLX::HTMLGenerator::GenerateSectionPage(){
       MinOcc = AvgOccSet1;
     }
 
+    // Reset then fill.
+
     if( iEta_[iHLX] > 0 ){
       OccSummary_->Fill( iEta_[iHLX] +7 , iPhi_[iHLX], AvgOccSet1 );
       OccSummary_->Fill( iEta_[iHLX],     iPhi_[iHLX], AvgOccSet2 );
@@ -409,12 +452,14 @@ void HCAL_HLX::HTMLGenerator::GenerateSectionPage(){
   }
 
   picName = outputDir_ + GetRunDir() + GetLSDir() + "OccSummary.png";
-  OccSummary_->GetZaxis()->SetRangeUser( MinOcc, MaxOcc );
+  OccSummary_->GetZaxis()->SetRangeUser( MinOcc - 0.0000001, MaxOcc + 0.0000001 );
   OccSummary_->Draw("colz");
   c1_->SaveAs(picName.c_str());
 
   fileStr << "<a href=\"EtSummary.png\"><img src=\"EtSummary.png\" width=\"45%\"></a>" << std::endl; 
-  fileStr << "<a href=\"OccSummary.png\"><img src=\"OccSummary.png\" width=\"45%\"></a>" << std::endl; 
+  fileStr << "<a href=\"OccSummary.png\"><img src=\"OccSummary.png\" width=\"45%\"></a></br>" << std::endl; 
+  fileStr << "<a href=\"MaxEtSummary.png\"><img src=\"MaxEtSummary.png\" width=\"45%\"></a>" << std::endl; 
+  fileStr << "<a href=\"MaxLHCSummary.png\"><img src=\"MaxLHCSummary.png\" width=\"45%\"></a></br>" << std::endl; 
 
   fileStr << "<hr>" << std::endl;  
   fileStr << "<H2>" << std::endl;
