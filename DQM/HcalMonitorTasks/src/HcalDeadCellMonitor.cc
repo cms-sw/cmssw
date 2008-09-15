@@ -488,7 +488,13 @@ void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
   hoHists.check=hoHists.origcheck;
   hfHists.check=hfHists.origcheck;
   hcalHists.check=(hbHists.check || heHists.check || hoHists.check || hfHists.check);  
- 
+
+  // Each subdetector gets checked every N events; let each subdetector have its own value for N
+  hcalHists.checkNevents = checkNevents_; // this doesn't get used anywhere?
+  hbHists.checkNevents = ps.getUntrackedParameter<int>("HBcheckNevents",checkNevents_);
+  heHists.checkNevents = ps.getUntrackedParameter<int>("HEcheckNevents",checkNevents_);
+  hoHists.checkNevents = ps.getUntrackedParameter<int>("HOcheckNevents",checkNevents_);
+  hfHists.checkNevents = ps.getUntrackedParameter<int>("HFcheckNevents",checkNevents_);
 
   hcalHists.makeDiagnostics=ps.getUntrackedParameter<bool>("MakeDeadCellDiagnosticPlots",makeDiagnostics);
   hbHists.makeDiagnostics=hcalHists.makeDiagnostics;
@@ -507,7 +513,17 @@ void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
 
       meCheckN_ = m_dbe->bookInt("CheckNevents");
       meCheckN_ -> Fill(checkNevents_);
-          
+      
+      MonitorElement* meHBCheckN = m_dbe->bookInt("HBCheckNevents");
+      meHBCheckN->Fill(hbHists.checkNevents);
+      MonitorElement* meHECheckN = m_dbe->bookInt("HECheckNevents");
+      meHECheckN->Fill(heHists.checkNevents);
+      MonitorElement* meHOCheckN = m_dbe->bookInt("HOCheckNevents");
+      meHOCheckN->Fill(hoHists.checkNevents);
+      MonitorElement* meHFCheckN = m_dbe->bookInt("HFCheckNevents");
+      meHFCheckN->Fill(hfHists.checkNevents);
+      
+
       hbHists.type=1;
       setupHists(hbHists,m_dbe);
       heHists.type=2;
@@ -563,7 +579,7 @@ void HcalDeadCellMonitor::setupHists(DeadCellHists& hist,  DQMStore* dbe)
   Nsig=out.str();
   string consec;
   stringstream out2;
-  out2<<checkNevents_;
+  out2<<hist.checkNevents;
   consec=out2.str();
 
 
@@ -607,7 +623,7 @@ void HcalDeadCellMonitor::setupHists(DeadCellHists& hist,  DQMStore* dbe)
 					  phiBins_,phiMin_,phiMax_);
   
   hist.coolcell_below_pedestal = m_dbe->book2D(hist.subdet+"_OccupancyMap_belowPedestal",
-					       hist.subdet+" cells below (pedestal+"+Nsig+"sigma) for "+consec+" consecutive events",
+					       hist.subdet+" cells below pedestal+("+Nsig+"sigma) for "+consec+" consecutive events",
 					       etaBins_,etaMin_,etaMax_,
 					       phiBins_,phiMin_,phiMax_);
 
@@ -780,13 +796,17 @@ void HcalDeadCellMonitor::processEvent(const HBHERecHitCollection& hbHits,
 
   // Look for cells that have been "cool" for (checkNevents_) consecutive events
 
-  if (checkAbovePed_ && (ievt_%checkNevents_)==0)
+  if (checkAbovePed_)// && (ievt_%checkNevents_)==0)
     {
-      reset_Nevents(hbHists);
-      reset_Nevents(heHists);
-      reset_Nevents(hoHists);
-      reset_Nevents(hfHists);
-
+      if ((ievt_%hbHists.checkNevents)==0)
+	reset_Nevents(hbHists);
+      if ((ievt_%heHists.checkNevents)==0)
+	reset_Nevents(heHists);
+      if ((ievt_%hoHists.checkNevents)==0)
+	reset_Nevents(hoHists);
+      if ((ievt_%hfHists.checkNevents)==0)
+	reset_Nevents(hfHists);
+      
       // fill HcalHists only every N events
       //fill_Nevents(hcalHists, hbHists, heHists, hoHists, hfHists);
     }
@@ -1080,17 +1100,17 @@ void HcalDeadCellMonitor::reset_Nevents(DeadCellHists &h)
 		  //if (h.cellCheck_depth[d-1]->getBinContent(ieta,iphi)!=0) // no longer require a rechit for the cell -- zero suppression means not all cells will have hits
 		    
 		    {
-		      h.coolcell_below_pedestal->Fill(eta,phi,checkNevents_);
-		      /////hcalHists.coolcell_below_pedestal->Fill(eta,phi,checkNevents_);
-		      h.coolcell_below_pedestal_depth[d-1]->Fill(eta,phi,checkNevents_);
-		      /////hcalHists.coolcell_below_pedestal_depth[d-1]->Fill(eta,phi,checkNevents_);
+		      h.coolcell_below_pedestal->Fill(eta,phi,h.checkNevents);
+		      /////hcalHists.coolcell_below_pedestal->Fill(eta,phi,h.checkNevents);
+		      h.coolcell_below_pedestal_depth[d-1]->Fill(eta,phi,h.checkNevents);
+		      /////hcalHists.coolcell_below_pedestal_depth[d-1]->Fill(eta,phi,h.checkNevents);
 		      // Cells consistently below pedestal go to combined "problem cell" histogram
-		      hcalHists.problemDeadCells->Fill(eta,phi,checkNevents_);
-		      h.problemDeadCells->Fill(eta,phi,checkNevents_);
+		      hcalHists.problemDeadCells->Fill(eta,phi,h.checkNevents);
+		      h.problemDeadCells->Fill(eta,phi,h.checkNevents);
 
 
-		      /////hcalHists.problemDeadCells_depth[d-1]->Fill(eta,phi,checkNevents_);
-		      h.problemDeadCells_depth[d-1]->Fill(eta,phi,checkNevents_);
+		      /////hcalHists.problemDeadCells_depth[d-1]->Fill(eta,phi,h.checkNevents);
+		      h.problemDeadCells_depth[d-1]->Fill(eta,phi,h.checkNevents);
 
 
 		    }
@@ -1114,7 +1134,7 @@ void HcalDeadCellMonitor::fill_Nevents(DeadCellHists& hcal,
 				       DeadCellHists& hb, DeadCellHists& he,
 				       DeadCellHists& ho, DeadCellHists& hf)
 {
-  // Idea is to fill overall HcalPlots only ever N events.  However, this seems to take a lot of time, so I'm disabling the hcal fills for now. -- 4 July 2008
+  // Idea is to fill overall HcalPlots only every N events.  However, this seems to take a lot of time, so I'm disabling the hcal fills for now. -- 4 July 2008
 
   int eta,phi;
   float newval;

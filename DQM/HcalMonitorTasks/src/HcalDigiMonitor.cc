@@ -145,7 +145,8 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
   baseFolder_ = rootFolder_+"DigiMonitor";
 
   occThresh_ = ps.getUntrackedParameter<int>("DigiOccThresh", -9999);
-  cout << "Digi occupancy threshold set to " << occThresh_ << endl;
+  if (fVerbosity)
+    cout << "Digi occupancy threshold set to " << occThresh_ << endl;
 
   doFCpeds_ = ps.getUntrackedParameter<bool>("PedestalsInFC", true);
 
@@ -161,17 +162,22 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
   etaMax_ = ps.getUntrackedParameter<double>("MaxEta", 42.5);
   etaMin_ = ps.getUntrackedParameter<double>("MinEta", -42.5);
   etaBins_ = (int)(etaMax_ - etaMin_);
-  cout << "Digi eta min/max set to " << etaMin_ << "/" <<etaMax_ << endl;
+  if (fVerbosity)
+    cout << "Digi eta min/max set to " << etaMin_ << "/" <<etaMax_ << endl;
 
   phiMax_ = ps.getUntrackedParameter<double>("MaxPhi", 73.5);
   phiMin_ = ps.getUntrackedParameter<double>("MinPhi", -0.5);
   phiBins_ = (int)(phiMax_ - phiMin_);
-  cout << "Digi phi min/max set to " << phiMin_ << "/" <<phiMax_ << endl;
+  if (fVerbosity)
+    cout << "Digi phi min/max set to " << phiMin_ << "/" <<phiMax_ << endl;
 
    // The number of consecutive events for which a cell must not have a digi in order to be considered dead
 
   checkNevents_ = ps.getUntrackedParameter<int>("checkNevents",100); 
-
+  hbHists.checkNevents = ps.getUntrackedParameter<int>("HBcheckNevents",checkNevents_); 
+  heHists.checkNevents = ps.getUntrackedParameter<int>("HEcheckNevents",checkNevents_); 
+  hoHists.checkNevents = ps.getUntrackedParameter<int>("HOcheckNevents",checkNevents_); 
+  hfHists.checkNevents = ps.getUntrackedParameter<int>("HFcheckNevents",checkNevents_); 
   ievt_=0;
 
 
@@ -228,23 +234,23 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
     meEVT_->Fill(ievt_);
     
     OCC_L1 = m_dbe->book2D("Digi Depth 1 Occupancy Map","Digi Depth 1 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    OCC_L1 -> setAxisTitle("ieta",1);  OCC_L1 -> setAxisTitle("iphi",2);
+    OCC_L1 -> setAxisTitle("i#eta",1);  OCC_L1 -> setAxisTitle("i#phi",2);
 
     OCC_L2 = m_dbe->book2D("Digi Depth 2 Occupancy Map","Digi Depth 2 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    OCC_L2 -> setAxisTitle("ieta",1);  OCC_L2 -> setAxisTitle("iphi",2);
+    OCC_L2 -> setAxisTitle("i#eta",1);  OCC_L2 -> setAxisTitle("i#phi",2);
 
     OCC_L3 = m_dbe->book2D("Digi Depth 3 Occupancy Map","Digi Depth 3 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    OCC_L3 -> setAxisTitle("ieta",1);  OCC_L3 -> setAxisTitle("iphi",2);
+    OCC_L3 -> setAxisTitle("i#eta",1);  OCC_L3 -> setAxisTitle("i#phi",2);
 
     OCC_L4 = m_dbe->book2D("Digi Depth 4 Occupancy Map","Digi Depth 4 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    OCC_L4 -> setAxisTitle("ieta",1);  OCC_L4 -> setAxisTitle("iphi",2);
+    OCC_L4 -> setAxisTitle("i#eta",1);  OCC_L4 -> setAxisTitle("i#phi",2);
 
     OCC_ETA = m_dbe->book1D("Digi Eta Occupancy Map","Digi Eta Occupancy Map",etaBins_,etaMin_,etaMax_);
-    OCC_ETA -> setAxisTitle("ieta",1);  
+    OCC_ETA -> setAxisTitle("i#eta",1);  
     OCC_ETA -> setAxisTitle("# of Events",2);
 
     OCC_PHI = m_dbe->book1D("Digi Phi Occupancy Map","Digi Phi Occupancy Map",phiBins_,phiMin_,phiMax_);
-    OCC_PHI -> setAxisTitle("iphi",1);  
+    OCC_PHI -> setAxisTitle("i#phi",1);  
     OCC_PHI -> setAxisTitle("# of Events",2);
 
     OCC_ELEC_VME = m_dbe->book2D("Digi VME Occupancy Map","Digi VME Occupancy Map",40,-0.25,19.75,18,-0.5,17.5);
@@ -258,8 +264,8 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
     OCC_ELEC_DCC -> setAxisTitle("DCC Id",2);
 
     ERR_MAP_GEO = m_dbe->book2D("Digi Geo Error Map","Digi Geo Error Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    ERR_MAP_GEO -> setAxisTitle("ieta",1);  
-    ERR_MAP_GEO -> setAxisTitle("iphi",2);
+    ERR_MAP_GEO -> setAxisTitle("i#eta",1);  
+    ERR_MAP_GEO -> setAxisTitle("i#phi",2);
 
     ERR_MAP_VME = m_dbe->book2D("Digi VME Error Map","Digi VME Error Map",40,-0.25,19.75,18,-0.5,17.5);
     ERR_MAP_VME -> setAxisTitle("HTR Slot",1);  
@@ -293,6 +299,7 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
 
     hbHists.origcheck=ps.getUntrackedParameter<bool>("checkHB","true");
     hbHists.check=hbHists.origcheck;
+    hbHists.type=1;
 
     hbHists.SHAPE_tot =  m_dbe->book1D("HB Digi Shape","HB Digi Shape",10,-0.5,9.5);
     hbHists.SHAPE_THR_tot =  m_dbe->book1D("HB Digi Shape - over thresh","HB Digi Shape - over thresh",10,-0.5,9.5);
@@ -324,8 +331,8 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
     hbHists.QIE_DV ->setBinLabel(4,"Err=1, DV=1",1);
     
     hbHists.ERR_MAP_GEO = m_dbe->book2D("HB Digi Geo Error Map","HB Digi Geo Error Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    hbHists.ERR_MAP_GEO -> setAxisTitle("ieta",1);  
-    hbHists.ERR_MAP_GEO -> setAxisTitle("iphi",2);
+    hbHists.ERR_MAP_GEO -> setAxisTitle("i#eta",1);  
+    hbHists.ERR_MAP_GEO -> setAxisTitle("i#phi",2);
 
 
     hbHists.ERR_MAP_VME = m_dbe->book2D("HB Digi VME Error Map","HB Digi VME Error Map",40,-0.25,19.75,18,-0.5,17.5);
@@ -340,27 +347,27 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
     hbHists.ERR_MAP_DCC -> setAxisTitle("DCC Id",2);
 
     hbHists.OCC_MAP_GEO1 = m_dbe->book2D("HB Digi Depth 1 Occupancy Map","HB Digi Depth 1 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    hbHists.OCC_MAP_GEO1 -> setAxisTitle("ieta",1);  
-    hbHists.OCC_MAP_GEO1 -> setAxisTitle("iphi",2);
+    hbHists.OCC_MAP_GEO1 -> setAxisTitle("i#eta",1);  
+    hbHists.OCC_MAP_GEO1 -> setAxisTitle("i#phi",2);
 
     hbHists.OCC_MAP_GEO2 = m_dbe->book2D("HB Digi Depth 2 Occupancy Map","HB Digi Depth 2 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    hbHists.OCC_MAP_GEO2 -> setAxisTitle("ieta",1);  
-    hbHists.OCC_MAP_GEO2 -> setAxisTitle("iphi",2);
+    hbHists.OCC_MAP_GEO2 -> setAxisTitle("i#eta",1);  
+    hbHists.OCC_MAP_GEO2 -> setAxisTitle("i#phi",2);
 
     hbHists.OCC_MAP_GEO3 = m_dbe->book2D("HB Digi Depth 3 Occupancy Map","HB Digi Depth 3 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    hbHists.OCC_MAP_GEO3 -> setAxisTitle("ieta",1);  
-    hbHists.OCC_MAP_GEO3 -> setAxisTitle("iphi",2);
+    hbHists.OCC_MAP_GEO3 -> setAxisTitle("i#eta",1);  
+    hbHists.OCC_MAP_GEO3 -> setAxisTitle("i#phi",2);
 
     hbHists.OCC_MAP_GEO4 = m_dbe->book2D("HB Digi Depth 4 Occupancy Map","HB Digi Depth 4 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    hbHists.OCC_MAP_GEO4 -> setAxisTitle("ieta",1);  
-    hbHists.OCC_MAP_GEO4 -> setAxisTitle("iphi",2);
+    hbHists.OCC_MAP_GEO4 -> setAxisTitle("i#eta",1);  
+    hbHists.OCC_MAP_GEO4 -> setAxisTitle("i#phi",2);
 
     hbHists.OCC_ETA = m_dbe->book1D("HB Digi Eta Occupancy Map","HB Digi Eta Occupancy Map",etaBins_,etaMin_,etaMax_);
-    hbHists.OCC_ETA -> setAxisTitle("ieta",1);  
+    hbHists.OCC_ETA -> setAxisTitle("i#eta",1);  
     hbHists.OCC_ETA -> setAxisTitle("# of Events",2);
 
     hbHists.OCC_PHI = m_dbe->book1D("HB Digi Phi Occupancy Map","HB Digi Phi Occupancy Map",phiBins_,phiMin_,phiMax_);
-    hbHists.OCC_PHI -> setAxisTitle("iphi",1);  
+    hbHists.OCC_PHI -> setAxisTitle("i#phi",1);  
     hbHists.OCC_PHI -> setAxisTitle("# of Events",2);
 
     hbHists.OCC_MAP_VME = m_dbe->book2D("HB Digi VME Occupancy Map","HB Digi VME Occupancy Map",40,-0.25,19.75,18,-0.5,17.5);
@@ -388,6 +395,7 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
     m_dbe->setCurrentFolder(baseFolder_+"/HE");
     heHists.origcheck=ps.getUntrackedParameter<bool>("checkHE","true");
     heHists.check=heHists.origcheck;
+    heHists.type=2;
 
     heHists.SHAPE_tot =  m_dbe->book1D("HE Digi Shape","HE Digi Shape",10,-0.5,9.5);
     heHists.SHAPE_THR_tot =  m_dbe->book1D("HE Digi Shape - over thresh","HE Digi Shape - over thresh",10,-0.5,9.5);
@@ -418,8 +426,8 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
     heHists.CAPID_T0 -> setAxisTitle("# of Events",2);
 
     heHists.ERR_MAP_GEO = m_dbe->book2D("HE Digi Geo Error Map","HE Digi Geo Error Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    heHists.ERR_MAP_GEO -> setAxisTitle("ieta",1);  
-    heHists.ERR_MAP_GEO -> setAxisTitle("iphi",2);
+    heHists.ERR_MAP_GEO -> setAxisTitle("i#eta",1);  
+    heHists.ERR_MAP_GEO -> setAxisTitle("i#phi",2);
 
     heHists.ERR_MAP_VME = m_dbe->book2D("HE Digi VME Error Map","HE Digi VME Error Map",40,-0.25,19.75,18,-0.5,17.5);
     heHists.ERR_MAP_VME -> setAxisTitle("HTR Slot",1);  
@@ -432,27 +440,27 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
     heHists.ERR_MAP_DCC -> setAxisTitle("DCC Id",2);
 
     heHists.OCC_MAP_GEO1 = m_dbe->book2D("HE Digi Depth 1 Occupancy Map","HE Digi Depth 1 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    heHists.OCC_MAP_GEO1 -> setAxisTitle("ieta",1);  
-    heHists.OCC_MAP_GEO1 -> setAxisTitle("iphi",2);
+    heHists.OCC_MAP_GEO1 -> setAxisTitle("i#eta",1);  
+    heHists.OCC_MAP_GEO1 -> setAxisTitle("i#phi",2);
 
     heHists.OCC_MAP_GEO2 = m_dbe->book2D("HE Digi Depth 2 Occupancy Map","HE Digi Depth 2 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    heHists.OCC_MAP_GEO2 -> setAxisTitle("ieta",1);  
-    heHists.OCC_MAP_GEO2 -> setAxisTitle("iphi",2);
+    heHists.OCC_MAP_GEO2 -> setAxisTitle("i#eta",1);  
+    heHists.OCC_MAP_GEO2 -> setAxisTitle("i#phi",2);
 
     heHists.OCC_MAP_GEO3 = m_dbe->book2D("HE Digi Depth 3 Occupancy Map","HE Digi Depth 3 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    heHists.OCC_MAP_GEO3 -> setAxisTitle("ieta",1);  
-    heHists.OCC_MAP_GEO3 -> setAxisTitle("iphi",2);
+    heHists.OCC_MAP_GEO3 -> setAxisTitle("i#eta",1);  
+    heHists.OCC_MAP_GEO3 -> setAxisTitle("i#phi",2);
 
     heHists.OCC_MAP_GEO4 = m_dbe->book2D("HE Digi Depth 4 Occupancy Map","HE Digi Depth 4 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    heHists.OCC_MAP_GEO4 -> setAxisTitle("ieta",1);  
-    heHists.OCC_MAP_GEO4 -> setAxisTitle("iphi",2);
+    heHists.OCC_MAP_GEO4 -> setAxisTitle("i#eta",1);  
+    heHists.OCC_MAP_GEO4 -> setAxisTitle("i#phi",2);
 
     heHists.OCC_ETA = m_dbe->book1D("HE Digi Eta Occupancy Map","HE Digi Eta Occupancy Map",etaBins_,etaMin_,etaMax_);
-    heHists.OCC_ETA -> setAxisTitle("ieta",1);  
+    heHists.OCC_ETA -> setAxisTitle("i#eta",1);  
     heHists.OCC_ETA -> setAxisTitle("# of Events",2);
 
     heHists.OCC_PHI = m_dbe->book1D("HE Digi Phi Occupancy Map","HE Digi Phi Occupancy Map",phiBins_,phiMin_,phiMax_);
-    heHists.OCC_PHI -> setAxisTitle("iphi",1);  
+    heHists.OCC_PHI -> setAxisTitle("i#phi",1);  
     heHists.OCC_PHI -> setAxisTitle("# of Events",2);
 
     heHists.OCC_MAP_VME = m_dbe->book2D("HE Digi VME Occupancy Map","HE Digi VME Occupancy Map",40,-0.25,19.75,18,-0.5,17.5);
@@ -480,6 +488,7 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
     m_dbe->setCurrentFolder(baseFolder_+"/HF");
     hfHists.origcheck=ps.getUntrackedParameter<bool>("checkHF","true");
     hfHists.check=hfHists.origcheck;
+    hfHists.type=4;
 
     hfHists.SHAPE_tot =  m_dbe->book1D("HF Digi Shape","HF Digi Shape",10,-0.5,9.5);
     hfHists.SHAPE_THR_tot =  m_dbe->book1D("HF Digi Shape - over thresh","HF Digi Shape - over thresh",10,-0.5,9.5);
@@ -510,8 +519,8 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
     hfHists.CAPID_T0 -> setAxisTitle("# of Events",2);
 
     hfHists.ERR_MAP_GEO = m_dbe->book2D("HF Digi Geo Error Map","HF Digi Geo Error Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    hfHists.ERR_MAP_GEO -> setAxisTitle("ieta",1);  
-    hfHists.ERR_MAP_GEO -> setAxisTitle("iphi",2);
+    hfHists.ERR_MAP_GEO -> setAxisTitle("i#eta",1);  
+    hfHists.ERR_MAP_GEO -> setAxisTitle("i#phi",2);
 
     hfHists.ERR_MAP_VME = m_dbe->book2D("HF Digi VME Error Map","HF Digi VME Error Map",40,-0.25,19.75,18,-0.5,17.5);
     hfHists.ERR_MAP_VME -> setAxisTitle("HTR Slot",1);  
@@ -524,27 +533,27 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
     hfHists.ERR_MAP_DCC -> setAxisTitle("DCC Id",2);
 
     hfHists.OCC_MAP_GEO1 = m_dbe->book2D("HF Digi Depth 1 Occupancy Map","HF Digi Depth 1 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    hfHists.OCC_MAP_GEO1 -> setAxisTitle("ieta",1);  
-    hfHists.OCC_MAP_GEO1 -> setAxisTitle("iphi",2);
+    hfHists.OCC_MAP_GEO1 -> setAxisTitle("i#eta",1);  
+    hfHists.OCC_MAP_GEO1 -> setAxisTitle("i#phi",2);
 
     hfHists.OCC_MAP_GEO2 = m_dbe->book2D("HF Digi Depth 2 Occupancy Map","HF Digi Depth 2 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    hfHists.OCC_MAP_GEO2 -> setAxisTitle("ieta",1);  
-    hfHists.OCC_MAP_GEO2 -> setAxisTitle("iphi",2);
+    hfHists.OCC_MAP_GEO2 -> setAxisTitle("i#eta",1);  
+    hfHists.OCC_MAP_GEO2 -> setAxisTitle("i#phi",2);
 
     hfHists.OCC_MAP_GEO3 = m_dbe->book2D("HF Digi Depth 3 Occupancy Map","HF Digi Depth 3 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    hfHists.OCC_MAP_GEO3 -> setAxisTitle("ieta",1);  
-    hfHists.OCC_MAP_GEO3 -> setAxisTitle("iphi",2);
+    hfHists.OCC_MAP_GEO3 -> setAxisTitle("i#eta",1);  
+    hfHists.OCC_MAP_GEO3 -> setAxisTitle("i#phi",2);
 
     hfHists.OCC_MAP_GEO4 = m_dbe->book2D("HF Digi Depth 4 Occupancy Map","HF Digi Depth 4 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    hfHists.OCC_MAP_GEO4 -> setAxisTitle("ieta",1);  
-    hfHists.OCC_MAP_GEO4 -> setAxisTitle("iphi",2);
+    hfHists.OCC_MAP_GEO4 -> setAxisTitle("i#eta",1);  
+    hfHists.OCC_MAP_GEO4 -> setAxisTitle("i#phi",2);
 
     hfHists.OCC_ETA = m_dbe->book1D("HF Digi Eta Occupancy Map","HF Digi Eta Occupancy Map",etaBins_,etaMin_,etaMax_);
-    hfHists.OCC_ETA -> setAxisTitle("ieta",1);  
+    hfHists.OCC_ETA -> setAxisTitle("i#eta",1);  
     hfHists.OCC_ETA -> setAxisTitle("# of Events",2);
 
     hfHists.OCC_PHI = m_dbe->book1D("HF Digi Phi Occupancy Map","HF Digi Phi Occupancy Map",phiBins_,phiMin_,phiMax_);
-    hfHists.OCC_PHI -> setAxisTitle("iphi",1);  
+    hfHists.OCC_PHI -> setAxisTitle("i#phi",1);  
     hfHists.OCC_PHI -> setAxisTitle("# of Events",2);
 
 
@@ -573,6 +582,8 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
     m_dbe->setCurrentFolder(baseFolder_+"/HO");
     hoHists.origcheck=ps.getUntrackedParameter<bool>("checkHO","true");
     hoHists.check=hoHists.origcheck;
+    hoHists.type=3;
+
     hoHists.SHAPE_tot =  m_dbe->book1D("HO Digi Shape","HO Digi Shape",10,-0.5,9.5);
     hoHists.SHAPE_THR_tot =  m_dbe->book1D("HO Digi Shape - over thresh","HO Digi Shape - over thresh",10,-0.5,9.5);
     hoHists.DIGI_NUM =  m_dbe->book1D("HO # of Digis","HO # of Digis",2200,-0.5,2199.5);
@@ -602,8 +613,8 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
     hoHists.CAPID_T0 -> setAxisTitle("# of Events",2);
 
     hoHists.ERR_MAP_GEO = m_dbe->book2D("HO Digi Geo Error Map","HO Digi Geo Error Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    hoHists.ERR_MAP_GEO -> setAxisTitle("ieta",1);  
-    hoHists.ERR_MAP_GEO -> setAxisTitle("iphi",2);
+    hoHists.ERR_MAP_GEO -> setAxisTitle("i#eta",1);  
+    hoHists.ERR_MAP_GEO -> setAxisTitle("i#phi",2);
 
     hoHists.ERR_MAP_VME = m_dbe->book2D("HO Digi VME Error Map","HO Digi VME Error Map",40,-0.25,19.75,18,-0.5,17.5);
     hoHists.ERR_MAP_VME -> setAxisTitle("HTR Slot",1);  
@@ -616,27 +627,27 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
     hoHists.ERR_MAP_DCC -> setAxisTitle("DCC Id",2);
 
     hoHists.OCC_MAP_GEO1 = m_dbe->book2D("HO Digi Depth 1 Occupancy Map","HO Digi Depth 1 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    hoHists.OCC_MAP_GEO1 -> setAxisTitle("ieta",1);  
-    hoHists.OCC_MAP_GEO1 -> setAxisTitle("iphi",2);
+    hoHists.OCC_MAP_GEO1 -> setAxisTitle("i#eta",1);  
+    hoHists.OCC_MAP_GEO1 -> setAxisTitle("i#phi",2);
 
     hoHists.OCC_MAP_GEO2 = m_dbe->book2D("HO Digi Depth 2 Occupancy Map","HO Digi Depth 2 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    hoHists.OCC_MAP_GEO2 -> setAxisTitle("ieta",1);  
-    hoHists.OCC_MAP_GEO2 -> setAxisTitle("iphi",2);
+    hoHists.OCC_MAP_GEO2 -> setAxisTitle("i#eta",1);  
+    hoHists.OCC_MAP_GEO2 -> setAxisTitle("i#phi",2);
 
     hoHists.OCC_MAP_GEO3 = m_dbe->book2D("HO Digi Depth 3 Occupancy Map","HO Digi Depth 3 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    hoHists.OCC_MAP_GEO3 -> setAxisTitle("ieta",1);  
-    hoHists.OCC_MAP_GEO3 -> setAxisTitle("iphi",2);
+    hoHists.OCC_MAP_GEO3 -> setAxisTitle("i#eta",1);  
+    hoHists.OCC_MAP_GEO3 -> setAxisTitle("i#phi",2);
 
     hoHists.OCC_MAP_GEO4 = m_dbe->book2D("HO Digi Depth 4 Occupancy Map","HO Digi Depth 4 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    hoHists.OCC_MAP_GEO4 -> setAxisTitle("ieta",1);  
-    hoHists.OCC_MAP_GEO4 -> setAxisTitle("iphi",2);
+    hoHists.OCC_MAP_GEO4 -> setAxisTitle("i#eta",1);  
+    hoHists.OCC_MAP_GEO4 -> setAxisTitle("i#phi",2);
 
     hoHists.OCC_ETA = m_dbe->book1D("HO Digi Eta Occupancy Map","HO Digi Eta Occupancy Map",etaBins_,etaMin_,etaMax_);
-    hoHists.OCC_ETA -> setAxisTitle("ieta",1);  
+    hoHists.OCC_ETA -> setAxisTitle("i#eta",1);  
     hoHists.OCC_ETA -> setAxisTitle("# of Events",2);
 
     hoHists.OCC_PHI = m_dbe->book1D("HO Digi Phi Occupancy Map","HO Digi Phi Occupancy Map",phiBins_,phiMin_,phiMax_);
-    hoHists.OCC_PHI -> setAxisTitle("iphi",1);  
+    hoHists.OCC_PHI -> setAxisTitle("i#phi",1);  
     hoHists.OCC_PHI -> setAxisTitle("# of Events",2);
 
 
@@ -1065,40 +1076,40 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
 								      phiBins_,phiMin_,phiMax_)); 
       }
 
-    hcalHists.PROBLEMDIGICELLS -> setAxisTitle("ieta",1);  
-    hcalHists.PROBLEMDIGICELLS -> setAxisTitle("iphi",2);
-    hbHists.PROBLEMDIGICELLS -> setAxisTitle("ieta",1);  
-    hbHists.PROBLEMDIGICELLS -> setAxisTitle("iphi",2);
-    heHists.PROBLEMDIGICELLS -> setAxisTitle("ieta",1);  
-    heHists.PROBLEMDIGICELLS -> setAxisTitle("iphi",2);
-    hoHists.PROBLEMDIGICELLS -> setAxisTitle("ieta",1);  
-    hoHists.PROBLEMDIGICELLS -> setAxisTitle("iphi",2);
-    hfHists.PROBLEMDIGICELLS -> setAxisTitle("ieta",1);  
-    hfHists.PROBLEMDIGICELLS -> setAxisTitle("iphi",2);
+    hcalHists.PROBLEMDIGICELLS -> setAxisTitle("i#eta",1);  
+    hcalHists.PROBLEMDIGICELLS -> setAxisTitle("i#phi",2);
+    hbHists.PROBLEMDIGICELLS -> setAxisTitle("i#eta",1);  
+    hbHists.PROBLEMDIGICELLS -> setAxisTitle("i#phi",2);
+    heHists.PROBLEMDIGICELLS -> setAxisTitle("i#eta",1);  
+    heHists.PROBLEMDIGICELLS -> setAxisTitle("i#phi",2);
+    hoHists.PROBLEMDIGICELLS -> setAxisTitle("i#eta",1);  
+    hoHists.PROBLEMDIGICELLS -> setAxisTitle("i#phi",2);
+    hfHists.PROBLEMDIGICELLS -> setAxisTitle("i#eta",1);  
+    hfHists.PROBLEMDIGICELLS -> setAxisTitle("i#phi",2);
    
     for (int d=0;d<4;++d)
       {
-	hcalHists.PROBLEMDIGICELLS_DEPTH[d] -> setAxisTitle("ieta",1);  
-	hcalHists.PROBLEMDIGICELLS_DEPTH[d] -> setAxisTitle("iphi",2);
+	hcalHists.PROBLEMDIGICELLS_DEPTH[d] -> setAxisTitle("i#eta",1);  
+	hcalHists.PROBLEMDIGICELLS_DEPTH[d] -> setAxisTitle("i#phi",2);
 	if (d<2)
 	  {
-	    hbHists.PROBLEMDIGICELLS_DEPTH[d] -> setAxisTitle("ieta",1);  
-	    hbHists.PROBLEMDIGICELLS_DEPTH[d] -> setAxisTitle("iphi",2);
+	    hbHists.PROBLEMDIGICELLS_DEPTH[d] -> setAxisTitle("i#eta",1);  
+	    hbHists.PROBLEMDIGICELLS_DEPTH[d] -> setAxisTitle("i#phi",2);
 	  }
 	if (d<3)
 	  {
-	    heHists.PROBLEMDIGICELLS_DEPTH[d] -> setAxisTitle("ieta",1);  
-	    heHists.PROBLEMDIGICELLS_DEPTH[d] -> setAxisTitle("iphi",2);
+	    heHists.PROBLEMDIGICELLS_DEPTH[d] -> setAxisTitle("i#eta",1);  
+	    heHists.PROBLEMDIGICELLS_DEPTH[d] -> setAxisTitle("i#phi",2);
 	  }
 	if (d==3)
 	  {
-	    hoHists.PROBLEMDIGICELLS_DEPTH[d] -> setAxisTitle("ieta",1);  
-	    hoHists.PROBLEMDIGICELLS_DEPTH[d] -> setAxisTitle("iphi",2);
+	    hoHists.PROBLEMDIGICELLS_DEPTH[d] -> setAxisTitle("i#eta",1);  
+	    hoHists.PROBLEMDIGICELLS_DEPTH[d] -> setAxisTitle("i#phi",2);
 	  }
 	if (d<2)
 	  {
-	    hfHists.PROBLEMDIGICELLS_DEPTH[d] -> setAxisTitle("ieta",1);  
-	    hfHists.PROBLEMDIGICELLS_DEPTH[d] -> setAxisTitle("iphi",2);
+	    hfHists.PROBLEMDIGICELLS_DEPTH[d] -> setAxisTitle("i#eta",1);  
+	    hfHists.PROBLEMDIGICELLS_DEPTH[d] -> setAxisTitle("i#phi",2);
 	  }
       }
 
@@ -1114,7 +1125,8 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 				   const HcalUnpackerReport& report)
 { 
   if(!m_dbe) { 
-    if(fVerbosity) printf("HcalDigiMonitor::processEvent   DQMStore not instantiated!!!\n");  
+    if(fVerbosity) 
+      cout <<"HcalDigiMonitor::processEvent   DQMStore not instantiated!!!"<<endl; 
     return; 
   }
   
@@ -1184,30 +1196,20 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
   }
 
   // Check for consistently missing digis
-  if (ievt_>0 && ievt_%(checkNevents_)==0)
+  if (ievt_>0)
+
     {
-      if (showTiming) 
-	{
-	  cpu_timer.reset(); cpu_timer.start();
-	}
-      reset_Nevents();
-      if (showTiming)
-	{
-	  cpu_timer.stop();
-	  cout <<"TIMER:: HcalDigiMonitor DIGI CheckNevents -> "<<cpu_timer.cpuTime()<<endl;
-	  cpu_timer.reset(); cpu_timer.start();
-	}
-      
-      // Fill some diagnostic histograms only every N events
-      fill_Nevents(hbHists);
-      fill_Nevents(heHists);
-      fill_Nevents(hoHists);
-      fill_Nevents(hfHists);
-      if (showTiming)
-	{
-	  cpu_timer.stop();
-	  cout <<"TIMER:: HcalDigiMonitor DIGI fill_Nevents -> "<<cpu_timer.cpuTime()<<endl;
-	}
+      if (ievt_%hbHists.checkNevents==0)
+	reset_Nevents(hbHists);
+      if (ievt_%heHists.checkNevents==0)
+	reset_Nevents(heHists);
+      if (ievt_%hoHists.checkNevents==0)
+	reset_Nevents(hoHists);
+      if (ievt_%hfHists.checkNevents==0)
+	reset_Nevents(hfHists);
+	      
+      // Fill pedestal histograms;
+      if (ievt_%checkNevents_ ==0) fillPedestalHistos();
     }
 
   return;
@@ -1256,12 +1258,12 @@ void HcalDigiMonitor::fill_Nevents(DigiHists& h)
 }// void fill_Nevents(DigiHists& h)
 
 
-void HcalDigiMonitor::reset_Nevents(void)
+void HcalDigiMonitor::fillPedestalHistos(void)
 {
-  if (fVerbosity)
-    cout <<"<HcalDigiMonitor> Entered reset_Nevents routine"<<endl;
+  // Fills pedestal histograms
+  if (fVerbosity) 
+    cout <<"<HcalDigiMonitor> Entered fillPedestalHistos routine"<<endl;
   
-  // Fill Pedestal Histograms
   int mydepth=0;
 
   for (int eta=0;eta<83;++eta)
@@ -1378,7 +1380,20 @@ void HcalDigiMonitor::reset_Nevents(void)
 	    } // for (int depth)
 	} // for (int phi)
     } // for (int eta)
+  return;
+} // void HcalDigiMonitor::fillPedestalHistos(void)
 
+
+void HcalDigiMonitor::reset_Nevents(DigiHists& h)
+{
+  if (fVerbosity)
+    cout <<"<HcalDigiMonitor> Entered reset_Nevents routine"<<endl;
+  
+  if (showTiming)
+    {
+      cpu_timer.stop();
+      cpu_timer.reset(); cpu_timer.start();
+    }
   double temp;
   int eta,phi;
 
@@ -1396,188 +1411,195 @@ void HcalDigiMonitor::reset_Nevents(void)
 	  if (eta==0) continue; 
 	  if (abs(eta)>41) continue;
 
-	  // HB first
-	  if (abs(eta)<17)
+	  if (h.type==1) // HB
 	    {
-
-	      
-	      if (hbHists.check) temp=hbHists.PROBLEMDIGICELLS_TEMP_DEPTH[0]->GetBinContent(ieta,iphi);
-	      if (hbHists.check && temp==0) // no digis found for an interval of (checkNevents_)
+	      if (abs(eta)<17)
 		{
-		  hbHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
-		  hbHists.PROBLEMDIGICELLS_DEPTH[0]->Fill(eta,phi,checkNevents_);
-		  hbHists.problemCell_noDigi[0]->Fill(eta,phi,checkNevents_);
-		  hcalHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
-		  hcalHists.PROBLEMDIGICELLS_DEPTH[0]->Fill(eta,phi,checkNevents_);
 		  
-		}
-
-	      if (abs(eta)>14) // last two rows of HB have two depths
-		{
-		  if (hbHists.check) temp=hbHists.PROBLEMDIGICELLS_TEMP_DEPTH[1]->GetBinContent(ieta,iphi);
-		  if (hbHists.check && temp==0)
-		    {
-		      hbHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
-		      hbHists.PROBLEMDIGICELLS_DEPTH[1]->Fill(eta,phi,checkNevents_);
-		      hbHists.problemCell_noDigi[1]->Fill(eta,phi,checkNevents_);
-		      hcalHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
-		      hcalHists.PROBLEMDIGICELLS_DEPTH[1]->Fill(eta,phi,checkNevents_);
-		    }
-		}
-	    } // if (abs(eta)<17)  // HB Block
-
-	  // HO loop -- depth = 4
-	  if (abs(eta)<16)
-	    {
-	      if (hoHists.check) temp=hoHists.PROBLEMDIGICELLS_TEMP_DEPTH[3]->GetBinContent(ieta,iphi);
-	      if (hoHists.check && temp==0)
-		{
-		  hoHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
-		  hoHists.PROBLEMDIGICELLS_DEPTH[3]->Fill(eta,phi,checkNevents_);
-		  hoHists.problemCell_noDigi[3]->Fill(eta,phi,checkNevents_);
-		  hcalHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
-		  hcalHists.PROBLEMDIGICELLS_DEPTH[3]->Fill(eta,phi,checkNevents_);
 		  
-		}
-	    } // if (abs(eta)<16)
-	  
-	  // HE loop (careful; phi values are odd only for eta>20)
-
-	  if (abs(eta)==16) // at eta=16, HE depth=3
-	    {
-	      if (heHists.check) temp=heHists.PROBLEMDIGICELLS_TEMP_DEPTH[2]->GetBinContent(ieta,iphi);
-	      if (heHists.check && temp==0)
-		{
-		  heHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
-		  heHists.PROBLEMDIGICELLS_DEPTH[2]->Fill(eta,phi,checkNevents_);
-		  heHists.problemCell_noDigi[2]->Fill(eta,phi,checkNevents_);
-		  hcalHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
-		  hcalHists.PROBLEMDIGICELLS_DEPTH[2]->Fill(eta,phi,checkNevents_);
-		}
-	    }
-
-	  if (abs(eta)>16 && abs(eta)<30) // HE has depth = 1-2 for eta=18-29; 27-28 also depth=3
-	    // This differs from documentation, which claimed that depth=3 for eta=28-29
-	    {
-	      if (abs(eta)<21 ||(abs(eta)>20 && (phi%2)==1)) // decreased phi segementation above eta=20
-		{
-		  if ( heHists.check) temp=heHists.PROBLEMDIGICELLS_TEMP_DEPTH[0]->GetBinContent(ieta,iphi);
-		  if (heHists.check && temp==0)
+		  if (h.check) temp=h.PROBLEMDIGICELLS_TEMP_DEPTH[0]->GetBinContent(ieta,iphi);
+		  if (h.check && temp==0) // no digis found for an interval of (checkNevents_)
 		    {
-		      heHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
-		      heHists.PROBLEMDIGICELLS_DEPTH[0]->Fill(eta,phi,checkNevents_);
-		      heHists.problemCell_noDigi[0]->Fill(eta,phi,checkNevents_);
-		      hcalHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
+		      h.PROBLEMDIGICELLS->Fill(eta,phi,h.checkNevents);
+		      h.PROBLEMDIGICELLS_DEPTH[0]->Fill(eta,phi,h.checkNevents);
+		      h.problemCell_noDigi[0]->Fill(eta,phi,h.checkNevents);
+		      hcalHists.PROBLEMDIGICELLS->Fill(eta,phi,h.checkNevents);
 		      hcalHists.PROBLEMDIGICELLS_DEPTH[0]->Fill(eta,phi,checkNevents_);
+		      
 		    }
-		}  
-	      if (abs(eta)>17) // only one layer for HE in eta=17 -- skip it when filling depth=2
-		{
-		  if (abs(eta)>20 && (phi%2)==0)
-		    continue;
-		  if (heHists.check) temp=heHists.PROBLEMDIGICELLS_TEMP_DEPTH[1]->GetBinContent(ieta,iphi);
-	
-		  if (heHists.check && temp==0)
-		    {
-		      heHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
-		      heHists.PROBLEMDIGICELLS_DEPTH[1]->Fill(eta,phi,checkNevents_);
-		      heHists.problemCell_noDigi[1]->Fill(eta,phi,checkNevents_);
-		      hcalHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
-		      hcalHists.PROBLEMDIGICELLS_DEPTH[1]->Fill(eta,phi,checkNevents_);
-		    }
-		}
-
-	      if (abs(eta)>26 && abs(eta)<29 && (phi%2)==1) // depth 3
-		{
-		  if (heHists.check) temp=heHists.PROBLEMDIGICELLS_TEMP_DEPTH[2]->GetBinContent(ieta,iphi);
 		  
-		  if (heHists.check && temp==0)
+		  if (abs(eta)>14) // last two rows of HB have two depths
 		    {
-		      heHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
-		      heHists.PROBLEMDIGICELLS_DEPTH[2]->Fill(eta,phi,checkNevents_);
-		      heHists.problemCell_noDigi[2]->Fill(eta,phi,checkNevents_);
-		      hcalHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
-		      hcalHists.PROBLEMDIGICELLS_DEPTH[2]->Fill(eta,phi,checkNevents_);
+		      if (h.check) temp=h.PROBLEMDIGICELLS_TEMP_DEPTH[1]->GetBinContent(ieta,iphi);
+		      if (h.check && temp==0)
+			{
+			  h.PROBLEMDIGICELLS->Fill(eta,phi,h.checkNevents);
+			  h.PROBLEMDIGICELLS_DEPTH[1]->Fill(eta,phi,h.checkNevents);
+			  h.problemCell_noDigi[1]->Fill(eta,phi,h.checkNevents);
+			  hcalHists.PROBLEMDIGICELLS->Fill(eta,phi,h.checkNevents);
+			  hcalHists.PROBLEMDIGICELLS_DEPTH[1]->Fill(eta,phi,h.checkNevents);
+			}
 		    }
-		} // if (abs(eta)>26 && abs(eta)<29 ...)
-	    } //  if (abs(eta)>15 && abs(eta)<30) // ends HE loop
-	  
+		} // if (abs(eta)<17)  // HB Block
+	    } // if (h.type==1)
 
-
-	  // HF Loop
-	  if (abs(eta)>28 && abs(eta)<40 && (phi%2)==1)
+	  else if (h.type==3) // HO loop
 	    {
-	      // depth 1
-	      if (hfHists.check) temp=hfHists.PROBLEMDIGICELLS_TEMP_DEPTH[0]->GetBinContent(ieta,iphi);
-	
-	      if (hfHists.check && temp==0)
+	      // HO loop -- depth = 4
+	      if (abs(eta)<16)
 		{
-		  hfHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
-		  hfHists.PROBLEMDIGICELLS_DEPTH[0]->Fill(eta,phi,checkNevents_);
-		  hfHists.problemCell_noDigi[0]->Fill(eta,phi,checkNevents_);
-		  hcalHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
-		  hcalHists.PROBLEMDIGICELLS_DEPTH[0]->Fill(eta,phi,checkNevents_);
-		}
-	      //depth2
-	      if (hfHists.check) temp=hfHists.PROBLEMDIGICELLS_TEMP_DEPTH[1]->GetBinContent(ieta,iphi);
-	
-	      if (hfHists.check && temp==0)
-		{
-		  hfHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
-		  hfHists.PROBLEMDIGICELLS_DEPTH[1]->Fill(eta,phi,checkNevents_);
-		  hfHists.problemCell_noDigi[1]->Fill(eta,phi,checkNevents_);
-		  hcalHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
-		  hcalHists.PROBLEMDIGICELLS_DEPTH[1]->Fill(eta,phi,checkNevents_);
-		}
-	    }
+		  if (h.check) temp=h.PROBLEMDIGICELLS_TEMP_DEPTH[3]->GetBinContent(ieta,iphi);
+		  if (h.check && temp==0)
+		    {
+		      h.PROBLEMDIGICELLS->Fill(eta,phi,h.checkNevents);
+		      h.PROBLEMDIGICELLS_DEPTH[3]->Fill(eta,phi,h.checkNevents);
+		      h.problemCell_noDigi[3]->Fill(eta,phi,h.checkNevents);
+		      hcalHists.PROBLEMDIGICELLS->Fill(eta,phi,h.checkNevents);
+		      hcalHists.PROBLEMDIGICELLS_DEPTH[3]->Fill(eta,phi,h.checkNevents);
+		      
+		    }
+		} // if (abs(eta)<16)
+	    } // else if (h.type==3)
 
-	  else if (abs(eta)>39 && (phi%4)==3)
+	  else if (h.type==2) // HE loop (careful; phi values are odd only for eta>20)
 	    {
-	      // depth 1
-	      if (hfHists.check) temp=hfHists.PROBLEMDIGICELLS_TEMP_DEPTH[0]->GetBinContent(ieta,iphi);
-	      
-	      if (hfHists.check && temp==0)
+	      if (abs(eta)==16) // at eta=16, HE depth=3
 		{
+		  if (h.check) temp=h.PROBLEMDIGICELLS_TEMP_DEPTH[2]->GetBinContent(ieta,iphi);
+		  if (h.check && temp==0)
+		    {
+		      h.PROBLEMDIGICELLS->Fill(eta,phi,h.checkNevents);
+		      h.PROBLEMDIGICELLS_DEPTH[2]->Fill(eta,phi,h.checkNevents);
+		      h.problemCell_noDigi[2]->Fill(eta,phi,h.checkNevents);
+		      hcalHists.PROBLEMDIGICELLS->Fill(eta,phi,h.checkNevents);
+		      hcalHists.PROBLEMDIGICELLS_DEPTH[2]->Fill(eta,phi,h.checkNevents);
+		    }
+		} // if (abs(eta)==16)
 
-		  hfHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
-		  hfHists.PROBLEMDIGICELLS_DEPTH[0]->Fill(eta,phi,checkNevents_);
-		  hfHists.problemCell_noDigi[0]->Fill(eta,phi,checkNevents_);
-		  hcalHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
-		  hcalHists.PROBLEMDIGICELLS_DEPTH[0]->Fill(eta,phi,checkNevents_);
+	      if (abs(eta)>16 && abs(eta)<30) // HE has depth = 1-2 for eta=18-29; 27-28 also depth=3
+		// This differs from documentation, which claimed that depth=3 for eta=28-29
+		{
+		  if (abs(eta)<21 ||(abs(eta)>20 && (phi%2)==1)) // decreased phi segementation above eta=20
+		    {
+		      if ( h.check) temp=h.PROBLEMDIGICELLS_TEMP_DEPTH[0]->GetBinContent(ieta,iphi);
+		      if (h.check && temp==0)
+			{
+			  h.PROBLEMDIGICELLS->Fill(eta,phi,h.checkNevents);
+			  h.PROBLEMDIGICELLS_DEPTH[0]->Fill(eta,phi,h.checkNevents);
+			  h.problemCell_noDigi[0]->Fill(eta,phi,h.checkNevents);
+			  hcalHists.PROBLEMDIGICELLS->Fill(eta,phi,h.checkNevents);
+			  hcalHists.PROBLEMDIGICELLS_DEPTH[0]->Fill(eta,phi,h.checkNevents);
+			}
+		    }  
+		  if (abs(eta)>17) // only one layer for HE in eta=17 -- skip it when filling depth=2
+		    {
+		      if (abs(eta)>20 && (phi%2)==0)
+			continue;
+		      if (h.check) temp=h.PROBLEMDIGICELLS_TEMP_DEPTH[1]->GetBinContent(ieta,iphi);
+		      
+		      if (h.check && temp==0)
+			{
+			  h.PROBLEMDIGICELLS->Fill(eta,phi,h.checkNevents);
+			  h.PROBLEMDIGICELLS_DEPTH[1]->Fill(eta,phi,h.checkNevents);
+			  h.problemCell_noDigi[1]->Fill(eta,phi,h.checkNevents);
+			  hcalHists.PROBLEMDIGICELLS->Fill(eta,phi,h.checkNevents);
+			  hcalHists.PROBLEMDIGICELLS_DEPTH[1]->Fill(eta,phi,h.checkNevents);
+			}
+		    }
+		  
+		  if (abs(eta)>26 && abs(eta)<29 && (phi%2)==1) // depth 3
+		    {
+		      if (h.check) temp=h.PROBLEMDIGICELLS_TEMP_DEPTH[2]->GetBinContent(ieta,iphi);
+		      
+		      if (h.check && temp==0)
+			{
+			  h.PROBLEMDIGICELLS->Fill(eta,phi,h.checkNevents);
+			  h.PROBLEMDIGICELLS_DEPTH[2]->Fill(eta,phi,h.checkNevents);
+			  h.problemCell_noDigi[2]->Fill(eta,phi,h.checkNevents);
+			  hcalHists.PROBLEMDIGICELLS->Fill(eta,phi,h.checkNevents);
+			  hcalHists.PROBLEMDIGICELLS_DEPTH[2]->Fill(eta,phi,h.checkNevents);
+			}
+		    } // if (abs(eta)>26 && abs(eta)<29 ...)
+		} //  if (abs(eta)>15 && abs(eta)<30) // ends HE loop
+	    } // else if (h.type==2)
+
+	  else if (h.type==4) // HF Loop
+	    {
+	      if (abs(eta)>28 && abs(eta)<40 && (phi%2)==1)
+		{
+		  // depth 1
+		  if (h.check) temp=h.PROBLEMDIGICELLS_TEMP_DEPTH[0]->GetBinContent(ieta,iphi);
+		  
+		  if (h.check && temp==0)
+		    {
+		      h.PROBLEMDIGICELLS->Fill(eta,phi,h.checkNevents);
+		      h.PROBLEMDIGICELLS_DEPTH[0]->Fill(eta,phi,h.checkNevents);
+		      h.problemCell_noDigi[0]->Fill(eta,phi,h.checkNevents);
+		      hcalHists.PROBLEMDIGICELLS->Fill(eta,phi,h.checkNevents);
+		      hcalHists.PROBLEMDIGICELLS_DEPTH[0]->Fill(eta,phi,h.checkNevents);
+		    }
+		  //depth2
+		  if (h.check) temp=h.PROBLEMDIGICELLS_TEMP_DEPTH[1]->GetBinContent(ieta,iphi);
+		  
+		  if (h.check && temp==0)
+		    {
+		      h.PROBLEMDIGICELLS->Fill(eta,phi,h.checkNevents);
+		      h.PROBLEMDIGICELLS_DEPTH[1]->Fill(eta,phi,h.checkNevents);
+		      h.problemCell_noDigi[1]->Fill(eta,phi,h.checkNevents);
+		      hcalHists.PROBLEMDIGICELLS->Fill(eta,phi,h.checkNevents);
+		      hcalHists.PROBLEMDIGICELLS_DEPTH[1]->Fill(eta,phi,h.checkNevents);
+		    }
 		}
 	      
-	      //depth2
-	      if (hfHists.check) temp=hfHists.PROBLEMDIGICELLS_TEMP_DEPTH[1]->GetBinContent(ieta,iphi);
-	      
-	      if (hfHists.check && temp==0)
+	      else if (abs(eta)>39 && (phi%4)==3)
 		{
-	      hfHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
-	      hfHists.PROBLEMDIGICELLS_DEPTH[1]->Fill(eta,phi,checkNevents_);
-	      hfHists.problemCell_noDigi[1]->Fill(eta,phi,checkNevents_);
-	      hcalHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
-	      hcalHists.PROBLEMDIGICELLS_DEPTH[1]->Fill(eta,phi,checkNevents_);
-		}
-	    } // end HF loop
-
+		  // depth 1
+		  if (h.check) temp=h.PROBLEMDIGICELLS_TEMP_DEPTH[0]->GetBinContent(ieta,iphi);
+		  
+		  if (h.check && temp==0)
+		    {
+		      
+		      h.PROBLEMDIGICELLS->Fill(eta,phi,h.checkNevents);
+		      h.PROBLEMDIGICELLS_DEPTH[0]->Fill(eta,phi,h.checkNevents);
+		      h.problemCell_noDigi[0]->Fill(eta,phi,h.checkNevents);
+		      hcalHists.PROBLEMDIGICELLS->Fill(eta,phi,h.checkNevents);
+		      hcalHists.PROBLEMDIGICELLS_DEPTH[0]->Fill(eta,phi,h.checkNevents);
+		    }
+		  
+		  //depth2
+		  if (h.check) temp=h.PROBLEMDIGICELLS_TEMP_DEPTH[1]->GetBinContent(ieta,iphi);
+		  
+		  if (h.check && temp==0)
+		    {
+		      h.PROBLEMDIGICELLS->Fill(eta,phi,h.checkNevents);
+		      h.PROBLEMDIGICELLS_DEPTH[1]->Fill(eta,phi,h.checkNevents);
+		      h.problemCell_noDigi[1]->Fill(eta,phi,h.checkNevents);
+		      hcalHists.PROBLEMDIGICELLS->Fill(eta,phi,h.checkNevents);
+		      hcalHists.PROBLEMDIGICELLS_DEPTH[1]->Fill(eta,phi,h.checkNevents);
+		    }
+		} // end HF loop
+	    } // else if (h.type==4)
 	} //for (int iphi=1; ...)
     } // for (int ieta=1; ...)
   
   // Reset temporary histograms
-  hcalHists.PROBLEMDIGICELLS_TEMP->Reset();
-  if (hbHists.check) hbHists.PROBLEMDIGICELLS_TEMP->Reset();
-  if (heHists.check) heHists.PROBLEMDIGICELLS_TEMP->Reset();
-  if (hoHists.check) hoHists.PROBLEMDIGICELLS_TEMP->Reset();
-  if (hfHists.check) hfHists.PROBLEMDIGICELLS_TEMP->Reset();
-  
+  if (h.check) h.PROBLEMDIGICELLS_TEMP->Reset();
+    
   for (int d=0;d<4;++d)
     {
-      hcalHists.PROBLEMDIGICELLS_TEMP_DEPTH[d]->Reset();
-      if (hbHists.check) hbHists.PROBLEMDIGICELLS_TEMP_DEPTH[d]->Reset();
-      if (heHists.check) heHists.PROBLEMDIGICELLS_TEMP_DEPTH[d]->Reset();
-      if (hoHists.check) hoHists.PROBLEMDIGICELLS_TEMP_DEPTH[d]->Reset();
-      if (hfHists.check) hfHists.PROBLEMDIGICELLS_TEMP_DEPTH[d]->Reset();
+      if (h.check) h.PROBLEMDIGICELLS_TEMP_DEPTH[d]->Reset();
     }
 
+  // Fill diagnostic histograms every N events
+  fill_Nevents(h);
+
+  if (showTiming)
+    {
+      cpu_timer.stop();
+      cout <<"TIMER:: HcalDigiMonitor DIGI Check_Nevents for subdetector "<<h.type<<" -> "<<cpu_timer.cpuTime()<<endl;
+    }
+
+  return;
 } //void HcalDigiMonitor::reset_Nevents(void)
 
 

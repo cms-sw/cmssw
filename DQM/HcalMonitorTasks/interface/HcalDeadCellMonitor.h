@@ -8,8 +8,8 @@
 
 /** \class HcalDeadCellMonitor
   *  
-  * $Date: 2008/07/21 22:55:06 $
-  * $Revision: 1.14 $
+  * $Date: 2008/09/05 21:10:49 $
+  * $Revision: 1.15 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -17,6 +17,7 @@ struct DeadCellHists{
 
   bool origcheck;
   bool check; // determine whether to run DeadCell checks on this subdetector
+  int checkNevents; // specifies "N" when looking for cells that have been dead for N consecutive events
   int fVerbosity; // not yet implemented for subdetectors -- use later?
   bool makeDiagnostics; // determine whether or not to make diagnostic plots
 
