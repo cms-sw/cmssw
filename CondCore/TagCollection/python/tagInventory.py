@@ -63,8 +63,8 @@ class  tagInventory(object):
         Output: tagid
         """
         tagid=0
+        transaction=self.__session.transaction()
         try:
-            transaction=self.__session.transaction()
             transaction.start(False)
             schema = self.__session.nominalSchema()
             generator=IdGenerator.IdGenerator(schema)
@@ -95,6 +95,93 @@ class  tagInventory(object):
         except Exception, er:
             transaction.rollback()
             raise Exception, str(er)
+    def addEntriesReplaceService( self, newservicename ):
+        """ clone all existing entries only servicename in pfn are different
+        return collection of new tagids[] 
+        """
+        newtagids=[]
+        transaction=self.__session.transaction()
+        try:
+            results=[]
+            transaction.start(True)
+            query = self.__session.nominalSchema().tableHandle(self.__tagInventoryTableName).newQuery()
+            for columnName in self.__tagInventoryTableColumns:
+                query.addToOutputList(columnName)
+            cursor=query.execute()
+            while cursor.next():
+                tagname=cursor.currentRow()['tagname'].data()
+                pfn=cursor.currentRow()['pfn'].data()
+                (servicename,schemaname)=pfn.rsplit('/',1)
+                newpfn=('/').join([newservicename,schemaname])
+                k=(' ').join([tagname,newpfn])
+                r={}
+                r[k]=[]
+                #assuming python silently replace the old if duplicate key..
+                r[k].append(cursor.currentRow()['objectname'].data())
+                r[k].append(cursor.currentRow()['recordname'].data())
+                r[k].append(cursor.currentRow()['labelname'].data())
+                results.append(r)
+            transaction.commit()
+            del query
+        except Exception, er:
+            transaction.rollback()
+            del query
+            raise Exception, str(er)
+        
+        inv=tagInventory(self.__session)
+        try:
+            for r in results:
+                nd=Node.LeafNode()
+                tagpfn=r.items()[0][0]
+                content=r.items()[0][1]
+                (nd.tagname,nd.pfn)=tagpfn.split(' ')
+                nd.objectname=content[0]
+                nd.recordname=content[1]
+                #if not r.items()[1][2] is None:
+                nd.labelname= content[2]
+                n=inv.addEntry(nd)
+                newtagids.append(n)
+        except Exception, e:
+            print str(e)
+            raise Exception, str(e)
+        return newtagids
+    
+    def modifyEntriesReplaceService( self, newservicename ):
+        """ replace all existing entries replace service name in pfn
+        no change in other parameters
+        """
+        transaction=self.__session.transaction()
+        try:
+            allpfns=[]
+            transaction.start(True)
+            query = self.__session.nominalSchema().tableHandle(self.__tagInventoryTableName).newQuery()
+            query.addToOutputList('pfn')
+            cursor=query.execute()
+            while cursor.next():
+                pfn=cursor.currentRow()['pfn'].data()
+                allpfns.append(pfn)
+            transaction.commit()
+            del query
+        except Exception, er:
+            transaction.rollback()
+            raise Exception, str(er)
+        try:
+            transaction.start(False)
+            editor = self.__session.nominalSchema().tableHandle(self.__tagInventoryTableName).dataEditor()
+            inputData = coral.AttributeList()
+            inputData.extend('newpfn','string')
+            inputData.extend('oldpfn','string')
+            for pfn in allpfns:
+                (servicename,schemaname)=pfn.rsplit('/',1)
+                newpfn=('/').join([newservicename,schemaname])
+                inputData['newpfn'].setData(newpfn)
+                inputData['oldpfn'].setData(pfn)
+                editor.updateRows( "pfn = :newpfn", "pfn = :oldpfn", inputData )
+            transaction.commit()
+        except Exception, e:
+            transaction.rollback()
+            raise Exception, str(e)
+
     def cloneEntry( self, sourcetagid, pfn ):
         """ clone an existing entry with different pfn parameter
         Input: sourcetagid, pfn.
@@ -170,6 +257,7 @@ class  tagInventory(object):
             return leafnode
         except Exception, e:
             transaction.rollback()
+            del query
             raise Exception, str(e)
     def getEntryById( self, tagId ):
         """Get basic tag from inventory by id.\n
@@ -319,9 +407,16 @@ if __name__ == "__main__":
         print 'get ecalpedestalsfromonline##\t',result
         result=inv.getEntryByName('crap','oracle://devdb10/CMS_COND_ME')
         print 'get crap##\t',result
+        print 'TESTING cloneEntry'
         newid=inv.cloneEntry(result.tagid,'fontier://crap/crap')
         print 'newid ',newid
+        print 'TESTING addEntriesReplaceService'
+        newtagids=inv.addEntriesReplaceService('oracle://cms_orcoff_int')
+        print 'new tag ids ',newtagids
+        print 'TESTING modifyEntriesReplaceService'
+        inv.modifyEntriesReplaceService('oracle://cms_orcoff_int9r')
         del session
+        
     except Exception, e:
         print "Failed in unit test"
         print str(e)
