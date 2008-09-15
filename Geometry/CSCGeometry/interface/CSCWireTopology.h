@@ -166,7 +166,7 @@ class CSCWireTopology : public WireTopology {
   float yResolution( int wireGroup=1 ) const;
 
   /** 
-   * Extent of wire plane i.e. width normal to wire direction. <BR>
+   * Extent of wire plane (width normal to wire direction). <BR>
    * Note that for ME11 this distance is not along local y! <BR>
    * cf. lengthOfPlane() which should be the same for all chambers but ME11.
    */
