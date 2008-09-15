@@ -9,8 +9,8 @@ from TopQuarkAnalysis.TopEventProducers.sequences.stGenEvent_cff import *
 from TopQuarkAnalysis.TopEventProducers.sequences.ttGenEventFilters_cff import *
 
 ## apply objects count selection
-from TopQuarkAnalysis.TopEventProducers.sequences.numJetFilter_ttDiLeptonic_cff import *
-from TopQuarkAnalysis.TopEventProducers.sequences.numLeptonFilter_ttDiLeptonic_cff import *
+from TopQuarkAnalysis.TopEventProducers.sequences.numJetFilter_ttFullLeptonic_cff import *
+from TopQuarkAnalysis.TopEventProducers.sequences.numLepFilter_ttFullLeptonic_cff import *
 
 ## produce event hypotheses
 from TopQuarkAnalysis.TopEventProducers.producers.TtDilepEvtSolProducer_cfi import *
