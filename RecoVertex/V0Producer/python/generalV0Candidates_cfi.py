@@ -20,7 +20,7 @@ generalV0Candidates = cms.EDProducer("V0Producer",
     #   Normalized track Chi2:
     tkChi2Cut = cms.double(5.0),
     #   Number of valid hits on track:
-    tkNhitsCut = cms.int32(6)
+    tkNhitsCut = cms.int32(6),
 
     # Vertex cuts
     vtxChi2Cut = cms.double(7.0),
@@ -37,7 +37,7 @@ generalV0Candidates = cms.EDProducer("V0Producer",
     selectKshorts = cms.bool(True),
     selectLambdas = cms.bool(True),
 
-    vertexFitter = cms.untracked.string('kvf'),
+    vertexFitter = cms.untracked.string('kvf')
 
 )
 
