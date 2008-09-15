@@ -88,36 +88,36 @@ void CosmicNavigationSchool::build(const GeometricSearchTracker* theInputTracker
     const std::vector< BarrelDetLayer * > &  tobL = theInputTracker->tobLayers();
     if (tobL.size()>=1){
       if (conf.allSelf){
-	edm::LogError("CosmicNavigationSchool")<<" adding all TOB self search.";
+	LogDebug("CosmicNavigationSchool")<<" adding all TOB self search.";
 	for (std::vector< BarrelDetLayer * >::const_iterator lIt = tobL.begin(); lIt!=tobL.end(); ++lIt)
 	  dynamic_cast<SimpleNavigableLayer*>((*lIt)->navigableLayer())->theSelfSearch = true;
       }else{
 	SimpleNavigableLayer* navigableLayer = dynamic_cast<SimpleNavigableLayer*>(tobL.front()->navigableLayer());
-	edm::LogError("CosmicNavigationSchool")<<" adding TOB1 to TOB1.";
+	LogDebug("CosmicNavigationSchool")<<" adding TOB1 to TOB1.";
 	navigableLayer->theSelfSearch = true;
       }
     }
     const std::vector< BarrelDetLayer * > &  tibL = theInputTracker->tibLayers();
     if (tibL.size()>=1){
       if (conf.allSelf){
-	edm::LogError("CosmicNavigationSchool")<<" adding all TIB self search.";
+	LogDebug("CosmicNavigationSchool")<<" adding all TIB self search.";
 	for (std::vector< BarrelDetLayer * >::const_iterator lIt = tibL.begin(); lIt!=tibL.end(); ++lIt)
 	  dynamic_cast<SimpleNavigableLayer*>((*lIt)->navigableLayer())->theSelfSearch = true;
       }else{
 	SimpleNavigableLayer* navigableLayer = dynamic_cast<SimpleNavigableLayer*>(tibL.front()->navigableLayer());
-	edm::LogError("CosmicNavigationSchool")<<" adding tib1 to tib1.";
+	LogDebug("CosmicNavigationSchool")<<" adding tib1 to tib1.";
 	navigableLayer->theSelfSearch = true;
       }
     }
     const std::vector< BarrelDetLayer * > &  pxbL = theInputTracker->pixelBarrelLayers();
     if (pxbL.size()>=1){
       if (conf.allSelf){
-	edm::LogError("CosmicNavigationSchool")<<" adding all PXB self search.";
+	LogDebug("CosmicNavigationSchool")<<" adding all PXB self search.";
         for (std::vector< BarrelDetLayer * >::const_iterator lIt = pxbL.begin(); lIt!=pxbL.end(); ++lIt)
           dynamic_cast<SimpleNavigableLayer*>((*lIt)->navigableLayer())->theSelfSearch = true;
       }else{
 	SimpleNavigableLayer* navigableLayer = dynamic_cast<SimpleNavigableLayer*>(pxbL.front()->navigableLayer());
-	edm::LogError("CosmicNavigationSchool")<<" adding pxb1 to pxb1.";
+	LogDebug("CosmicNavigationSchool")<<" adding pxb1 to pxb1.";
 	navigableLayer->theSelfSearch = true;
       }
     }
