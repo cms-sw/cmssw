@@ -177,6 +177,10 @@ void DeDxDiscriminatorProducer::produce(edm::Event& iEvent, const edm::EventSetu
  
    std::vector<DeDxData> dEdxDiscrims( TrajToTrackMap.size() );
 
+
+   cout << "DDP  TEST1\n";
+
+
    unsigned track_index = 0;
    for(TrajTrackAssociationCollection::const_iterator it = TrajToTrackMap.begin(); it!=TrajToTrackMap.end(); ++it, track_index++) {
       dEdxDiscrims[track_index] = DeDxData(-1, -1, 0 );
@@ -198,6 +202,9 @@ void DeDxDiscriminatorProducer::produce(edm::Event& iEvent, const edm::EventSetu
         if(!GoodTrack){printf("HSCPCut\n");continue;}
       }
 */
+
+   cout << "DDP  TEST2\n";
+
 
       if(track.eta()<MinTrackEta || track.eta()>MaxTrackEta){printf("Eta Cut\n");continue;}
       if(track.p()<MinTrackMomentum || track.p()>MaxTrackMomentum){printf("Pt Cut\n");continue;}
@@ -227,6 +234,9 @@ void DeDxDiscriminatorProducer::produce(edm::Event& iEvent, const edm::EventSetu
          }
       }
 
+   cout << "DDP  TEST3\n";
+
+
       if(DiscriminatorMode){
          int size = MeasurementProbabilities.size();
 
@@ -239,24 +249,31 @@ void DeDxDiscriminatorProducer::produce(edm::Event& iEvent, const edm::EventSetu
             }
             estimator = P;
          }else if(Formula==1){
-            std::sort(MeasurementProbabilities.begin(), MeasurementProbabilities.end(), std::less<double>() );
-            for(int i=0;i<size;i++){if(MeasurementProbabilities[i]<=0.001)MeasurementProbabilities[i] = 0.001f;    }
 
-            double SumJet = 0.;
-            for(int i=0;i<size;i++){ SumJet+= log(MeasurementProbabilities[i]); }
+            if(MeasurementProbabilities.size()>0){
 
-            double Loginvlog=log(-SumJet);
-            double Prob =1.;
-            double lfact=1.;
+              std::sort(MeasurementProbabilities.begin(), MeasurementProbabilities.end(), std::less<double>() );
+              for(int i=0;i<size;i++){if(MeasurementProbabilities[i]<=0.001)MeasurementProbabilities[i] = 0.001f;    }
 
-            for(int l=1; l!=size; l++){
-                lfact*=l;
-                Prob+=exp(l*Loginvlog-log(1.*lfact));
+               double SumJet = 0.;
+               for(int i=0;i<size;i++){ SumJet+= log(MeasurementProbabilities[i]); }
+
+              double Loginvlog=log(-SumJet);
+              double Prob =1.;
+              double lfact=1.;
+
+              for(int l=1; l!=size; l++){
+                   lfact*=l;
+                   Prob+=exp(l*Loginvlog-log(1.*lfact));
+               }
+
+               double LogProb=log(Prob);
+               double ProbJet=std::min(exp(std::max(LogProb+SumJet,-30.)),1.);
+               estimator = -log10(ProbJet)/4.;
+               estimator = 1-estimator;
+            }else{
+               estimator = -1;
             }
-            double LogProb=log(Prob);
-            double ProbJet=std::min(exp(std::max(LogProb+SumJet,-30.)),1.);
-            estimator = -log10(ProbJet)/4.;
-            estimator = 1-estimator;
          }else if(Formula==2){
            estimator = -2;
            if(size>0){
