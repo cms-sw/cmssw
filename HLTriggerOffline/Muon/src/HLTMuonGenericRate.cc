@@ -66,8 +66,10 @@ HLTMuonGenericRate::HLTMuonGenericRate(const ParameterSet& pset,
   theNSigmas          = pset.getUntrackedParameter< std::vector<double> >
                         ("NSigmas90");
 
-  theNumberOfEvents   = 0;
-  theNumberOfL1Events = 0;
+  theNumberOfEvents     = 0;
+  theNumberOfL1Events   = 0;
+  theNumberOfL1Orphans  = 0;
+  theNumberOfHltOrphans = 0;
 
   dbe_ = 0 ;
   if ( pset.getUntrackedParameter<bool>("DQMStore", false) ) {
@@ -76,9 +78,6 @@ HLTMuonGenericRate::HLTMuonGenericRate(const ParameterSet& pset,
   }
 
   theRootFileName = pset.getUntrackedParameter<std::string>("RootFileName","");
-
-  nL1Orphans  = 0;
-  nHltOrphans = 0;
 
   if ( theL1CollectionLabel.label() == "hltSingleMuIsoL1Filtered" )
     makeNtuple = true;
@@ -95,9 +94,12 @@ HLTMuonGenericRate::HLTMuonGenericRate(const ParameterSet& pset,
 /// Destructor
 HLTMuonGenericRate::~HLTMuonGenericRate()
 {
+  NumberOfEvents    ->Fill(theNumberOfEvents    );
+  NumberOfL1Events  ->Fill(theNumberOfL1Events  );
+  NumberOfL1Orphans ->Fill(theNumberOfL1Orphans );
+  NumberOfHltOrphans->Fill(theNumberOfHltOrphans); 
+
   if ( makeNtuple ) {
-    cout << "nL1Orphans: "  << nL1Orphans  << 
-          ", nHltOrphans: " << nHltOrphans << endl;
     theFile->cd();
     theNtuple->Write();
     theFile->Write();
@@ -109,8 +111,9 @@ HLTMuonGenericRate::~HLTMuonGenericRate()
 
 void HLTMuonGenericRate::analyze( const Event & iEvent )
 {
+
   thisEventWeight = 1;
-  NumberOfEvents->Fill(++theNumberOfEvents); // Sets ME<int> NumberOfEvents
+  theNumberOfEvents++;
   LogTrace( "HLTMuonVal" ) << "In analyze for L1 trigger " << 
     theL1CollectionLabel << " Event:" << theNumberOfEvents;  
 
@@ -122,8 +125,8 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
   double genMuonPt = -1;
   double recMuonPt = -1;
 
-  genMatches.clear();
-  recMatches.clear();  
+  std::vector<MatchStruct> genMatches;
+  std::vector<MatchStruct> recMatches;
 
   if (useMuonFromGenerator) {
     Handle<GenParticleCollection> genParticles;
@@ -202,7 +205,7 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
     return;
   }
   triggerObj->getObjects( triggerObj->filterIndex(label), 81, l1Cands );
-  NumberOfL1Events->Fill( ++theNumberOfL1Events );
+  theNumberOfL1Events++;
 
   // Get the HLT candidates //
   unsigned int numHltLabels = theHLTCollectionLabels.size();
@@ -216,16 +219,16 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
   }
 
   for ( size_t i = 0; i < genMatches.size(); i++ ) {
-    genMatches[i].l1Cand = 0;
+    genMatches[i].l1Cand = false;
     genMatches[i].hltCands.resize(numHltLabels);
     for ( size_t j = 0; j < numHltLabels; j++ ) 
-      genMatches[i].hltCands[j] = 0;
+      genMatches[i].hltCands[j] = false;
   }
   for ( size_t i = 0; i < recMatches.size(); i++ ) {
-    recMatches[i].l1Cand = 0;
+    recMatches[i].l1Cand = false;
     recMatches[i].hltCands.resize(numHltLabels);
     for ( size_t j = 0; j < numHltLabels; j++ )
-      recMatches[i].hltCands[j] = 0;
+      recMatches[i].hltCands[j] = false;
   }
 
   //////////////////////////////////////////////////////////////////////////
@@ -248,13 +251,15 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
       double maxDeltaR = 0.4;
       numL1Cands++;
       if ( useMuonFromGenerator ){
-	int match = findGenMatch( eta, phi, maxDeltaR );
-	if ( match != -1 ) genMatches[match].l1Cand = &*l1Cand;
-	else nL1Orphans++;
+	int match = findGenMatch( eta, phi, maxDeltaR, genMatches );
+	if ( match != -1 ) 
+	  genMatches[match].l1Cand = &*l1Cand;
+	else theNumberOfL1Orphans++;
       }
       if ( useMuonFromReco ){
-	int match = findRecMatch( eta, phi, maxDeltaR );
-	if ( match != -1 ) recMatches[match].l1Cand = &*l1Cand;
+	int match = findRecMatch( eta, phi, maxDeltaR, recMatches );
+	if ( match != -1 ) 
+	  recMatches[match].l1Cand = &*l1Cand;
       }
     }
   }
@@ -262,7 +267,6 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
   if ( numL1Cands >= theNumberOfObjects ){
     if ( genMuonPt > 0 ) hPtPassGen[1]->Fill(genMuonPt, thisEventWeight);
     if ( recMuonPt > 0 ) hPtPassRec[1]->Fill(recMuonPt, thisEventWeight);
-    //    hSteps->Fill(1.);  
   }
 
 
@@ -287,20 +291,21 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
       if ( pt > theHLTReferenceThreshold ) {
 	numFound++;
 	if ( useMuonFromGenerator ){
-	  int match = findGenMatch( eta, phi, maxDeltaR );
-	  if ( match != -1 ) genMatches[match].hltCands[i] = &*hltCand;
-	  else nHltOrphans++;
+	  int match = findGenMatch( eta, phi, maxDeltaR, genMatches );
+	  if ( match != -1 ) 
+	    genMatches[match].hltCands[i] = &*hltCand;
+	  else theNumberOfHltOrphans++;
 	}
 	if ( useMuonFromReco ){
-	  int match  = findRecMatch( eta, phi, maxDeltaR );
-	  if ( match != -1 ) recMatches[match].hltCands[i] = &*hltCand;
+	  int match  = findRecMatch( eta, phi, maxDeltaR, recMatches );
+	  if ( match != -1 ) 
+	    recMatches[match].hltCands[i] = &*hltCand;
 	}
       }
     }
     if ( numFound >= theNumberOfObjects ){
       if ( genMuonPt > 0 ) hPtPassGen[i+2]->Fill(genMuonPt, thisEventWeight);
       if ( recMuonPt > 0 ) hPtPassRec[i+2]->Fill(recMuonPt, thisEventWeight);
-      //    hSteps->Fill(1.);  
     }
 
   }
@@ -308,9 +313,8 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
 
   //////////////////////////////////////////////////////////////////////////
   // Fill histograms
-
+  
   if ( makeNtuple ) {
-    // cout << "Looking at hltSingleMuIso" << endl;
     for ( size_t i = 0; i < genMatches.size(); i++ ) {
       for ( int k = 0; k < 18; k++ ) ntParams[k] = -1;
       ntParams[0] =  genMatches[i].genCand->pt();
@@ -321,22 +325,17 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
 	ntParams[4] = genMatches[i].l1Cand->eta();
 	ntParams[5] = genMatches[i].l1Cand->phi();
       }
-      // cout << numHltLabels << endl;
       for ( size_t j = 0; j < genMatches[i].hltCands.size(); j++ ) {
 	if ( genMatches[i].hltCands[j] ) {
-	  // cout << (j*3+8) << ": " << genMatches[i].hltCands[j] << endl;
 	  ntParams[(j*3+6)] = genMatches[i].hltCands[j]->pt();
 	  ntParams[(j*3+7)] = genMatches[i].hltCands[j]->eta();
 	  ntParams[(j*3+8)] = genMatches[i].hltCands[j]->phi();
 	}
       }
-      // cout << "About to fill the ntuple" << endl;
       theNtuple->Fill(ntParams);
     }
   }
-
-  // cout << "Filling histograms" << endl;
-
+  
   for ( size_t i = 0; i < genMatches.size(); i++  ) {
     hEtaPassGen[0]->Fill(genMatches[i].genCand->eta());
     hPhiPassGen[0]->Fill(genMatches[i].genCand->phi());
@@ -344,14 +343,11 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
       hEtaPassGen[1]->Fill(genMatches[i].genCand->eta());
       hPhiPassGen[1]->Fill(genMatches[i].genCand->phi());
     }
-    // cout << "Before hltCands" << endl;
     for ( size_t j = 0; j < genMatches[i].hltCands.size(); j++ ) {
       if ( genMatches[i].hltCands[j] ) {
 	hEtaPassGen[j+2]->Fill(genMatches[i].genCand->eta());
 	hPhiPassGen[j+2]->Fill(genMatches[i].genCand->phi());
   } } }
-
-  // cout << "Filling rec histos" << endl;
 
   for ( size_t i = 0; i < recMatches.size(); i++  ) {
     hEtaPassRec[0]->Fill(recMatches[i].recCand->eta());
@@ -360,13 +356,11 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
       hEtaPassRec[1]->Fill(recMatches[i].recCand->eta());
       hPhiPassRec[1]->Fill(recMatches[i].recCand->phi());
     }
-    for ( size_t j = 0; j < genMatches[i].hltCands.size(); j++ ) {
+    for ( size_t j = 0; j < recMatches[i].hltCands.size(); j++ ) {
       if ( recMatches[i].hltCands[j] ) {
 	hEtaPassRec[j+2]->Fill(recMatches[i].recCand->eta());
 	hPhiPassRec[j+2]->Fill(recMatches[i].recCand->phi());
   } } }
-
-  // cout << "Done filling histograms" << endl;
 
 }
 
@@ -383,14 +377,15 @@ const reco::Candidate* HLTMuonGenericRate::findMother( const reco::Candidate* p 
 
 
 
-int HLTMuonGenericRate::findGenMatch(double eta, double phi, double maxDeltaR )
+int HLTMuonGenericRate::findGenMatch(double eta, double phi, double maxDeltaR,
+				     std::vector<MatchStruct> matches )
 {
   double bestDeltaR = maxDeltaR;
   int bestMatch = -1;
-  for ( size_t i = 0; i < genMatches.size(); i++ ) {
+  for ( size_t i = 0; i < matches.size(); i++ ) {
     double dR = kinem::delta_R( eta, phi, 
-				genMatches[i].genCand->eta(), 
-				genMatches[i].genCand->phi() );
+				matches[i].genCand->eta(), 
+				matches[i].genCand->phi() );
     if ( dR  < bestDeltaR ) {
       bestMatch  =  i;
       bestDeltaR = dR;
@@ -401,14 +396,15 @@ int HLTMuonGenericRate::findGenMatch(double eta, double phi, double maxDeltaR )
 
 
 
-int HLTMuonGenericRate::findRecMatch(double eta, double phi,  double maxDeltaR )
+int HLTMuonGenericRate::findRecMatch(double eta, double phi,  double maxDeltaR,
+				     std::vector<MatchStruct> matches )
 {
   double bestDeltaR = maxDeltaR;
   int bestMatch = -1;
-  for ( size_t i = 0; i < recMatches.size(); i++ ) {
+  for ( size_t i = 0; i < matches.size(); i++ ) {
     double dR = kinem::delta_R( eta, phi, 
-			        recMatches[i].recCand->eta(), 
-				recMatches[i].recCand->phi() );
+			        matches[i].recCand->eta(), 
+				matches[i].recCand->phi() );
     if ( dR  < bestDeltaR ) {
       bestMatch  =  i;
       bestDeltaR = dR;
@@ -438,8 +434,10 @@ HLTMuonGenericRate::BookHistograms()
     newFolder = "HLT/Muon/RateEfficiencies/" + dirLabel;
     dbe_->setCurrentFolder( newFolder.Data() );
 
-    NumberOfEvents   = dbe_->bookInt("NumberOfEvents");
-    NumberOfL1Events = dbe_->bookInt("NumberOfL1Events");
+    NumberOfEvents     = dbe_->bookInt("NumberOfEvents");
+    NumberOfL1Events   = dbe_->bookInt("NumberOfL1Events");
+    NumberOfL1Orphans  = dbe_->bookInt("NumberOfL1Orphans");
+    NumberOfHltOrphans = dbe_->bookInt("NumberOfHltOrphans");
 
     dbe_->cd();
     newFolder = "HLT/Muon/Distributions/" + dirLabel;
