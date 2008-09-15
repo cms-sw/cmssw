@@ -1,8 +1,8 @@
 /*
  * \file EEHltTask.cc
  *
- * $Date: 2008/09/12 13:38:15 $
- * $Revision: 1.4 $
+ * $Date: 2008/09/12 13:51:14 $
+ * $Revision: 1.5 $
  * \author G. Della Ricca
  *
 */
@@ -73,8 +73,8 @@ void EEHltTask::beginJob(const EventSetup& c){
   ievt_ = 0;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder(prefixME_ + "/EEHltTask");
-    dqmStore_->rmdir(prefixME_ + "/EEHltTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "/FEDIntegrity");
+    dqmStore_->rmdir(prefixME_ + "/FEDIntegrity");
   }
 
   Numbers::initGeometry(c, false);
@@ -106,15 +106,15 @@ void EEHltTask::setup(void){
   char histo[200];
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder(prefixME_ + "/EEHltTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "/FEDIntegrity");
 
-    sprintf(histo, "EEHLTT FED occupancy");
+    sprintf(histo, "FEDEntries");
     meEEFedsOccupancy_ = dqmStore_->book1D(histo, histo, 54, 601, 655);
 
-    sprintf(histo, "EEHLTT FED size errors");
+    sprintf(histo, "FEDFatal");
     meEEFedsSizeErrors_ = dqmStore_->book1D(histo, histo, 54, 601, 655);
 
-    sprintf(histo, "EEHLTT FED integrity errors");
+    sprintf(histo, "FEDNonFatal");
     meEEFedsIntegrityErrors_ = dqmStore_->book1D(histo, histo, 54, 601, 655);
 
   }
@@ -126,7 +126,7 @@ void EEHltTask::cleanup(void){
   if ( ! init_ ) return;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder(prefixME_ + "/EEHltTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "/FEDIntegrity");
 
     if ( meEEFedsOccupancy_ ) dqmStore_->removeElement( meEEFedsOccupancy_->getName() );
     meEEFedsOccupancy_ = 0;
