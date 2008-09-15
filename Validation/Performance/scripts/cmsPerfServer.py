@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+import cmsSimPerfPublish as cspp
+import cmsPerfSuite as cps
 import socket, os, sys, SimpleXMLRPCServer
 import optparse as opt
 
@@ -37,13 +39,17 @@ def runserv(sport):
 # 'localhost'.    
     try:
         server = SimpleXMLRPCServer.SimpleXMLRPCServer(('localhost',sport))
-        server.register_function(somefn)
+        server.register_function(testfn)
         server.serve_forever()        
     except socket.error, detail:
         print "ERROR: Could not communicate with server:", detail
 
-def somefn():
-    return "bob"
+def getBenchmarkNumbers():
+    cps.main("")
+    cspp.main()
+
+def testfn():
+    return "test"
 
 def _main():
     (options, sport) = optionparse()

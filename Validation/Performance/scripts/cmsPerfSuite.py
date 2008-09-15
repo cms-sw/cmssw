@@ -310,6 +310,9 @@ def displayErrors(file):
             if "cerr" in line:
                 print "ERROR: %s" % line
                 ERRORS += 1
+    except OSError, detail:
+        print "WARNING: %s" % detail
+        ERRORS += 1        
     except IOError, detail:
         print "WARNING: %s" % detail
         ERRORS += 1
@@ -406,7 +409,12 @@ def simpleGenReport(NumEvents,candles,cmsdriverOptions,stepOptions,cmssw_version
                 pass
                 
             for proflog in proflogs:
-                displayErrors("%s/%s_%s.log" % (adir,candle,proflog))
+                globpath = os.path.join(adir,"%s_*_%s.log" % (CandFname[candle],proflog))
+                print "Looking for logs that match", globpath
+                logs     = glob.glob(globpath)
+                for log in logs:
+                    print "Found log", log
+                    displayErrors(log)
 
 def main(argv):
     #Some default values:

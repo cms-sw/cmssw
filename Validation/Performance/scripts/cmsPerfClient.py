@@ -45,7 +45,7 @@ def optionparse():
 def runclient(shost,sport):
     try:
         server = xmlrpclib.ServerProxy("http://%s:%s" % (shost,sport))    
-        print server.somefn()
+        print server.testfn()
     except socket.error, detail:
         print "ERROR: Could not communicate with server:", detail
     except xml.parsers.expat.ExpatError, detail:

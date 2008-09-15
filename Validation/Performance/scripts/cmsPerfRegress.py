@@ -75,7 +75,7 @@ def getParameters():
                       choices= ("timing", "simplememory","edmsize","igprof","callgrind",""),
                       #store = "store_choices",#["Timing","SimpleMemory"],
                       help='Type of report to perform regrssion on. Default is TimingReport.' ,
-                      default="Timing",
+                      default="timing",
                       dest='reporttype')      
     (options,args) = parser.parse_args()
     if not len(args) == 2:
@@ -983,7 +983,7 @@ def perfreport(perftype,file1,file2,outdir):
 
     xmlfile = os.path.join(cmssw_base,"src","Validation","Performance","doc","regress.xml")
 
-    prRoot = "/afs/cern.ch/user/g/gbenelli/public/PerfReport2"
+    prRoot = "/afs/cern.ch/user/g/gbenelli/public/PerfReport2/2.0.1"
 
     # this might be useful at some point
     #cd %s ; eval `scramv1 runtime -csh`  ; source $CMSSW_DATA_PATH/perfreport/2.0.0/etc/profile.d/init.csh; cd - ; %s\"" % (loc,perfcmd)
