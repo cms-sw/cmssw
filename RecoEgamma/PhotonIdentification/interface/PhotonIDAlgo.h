@@ -82,6 +82,7 @@ public:
   edm::InputTag trackInputTag_;
   edm::InputTag gsfRecoInputTag_;
 
+  double modulePhiBoundary_;
   std::vector<double> moduleEtaBoundary_;
 
   };

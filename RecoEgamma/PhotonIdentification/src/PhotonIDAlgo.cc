@@ -48,6 +48,7 @@ void PhotonIDAlgo::baseSetup(const edm::ParameterSet& conf) {
 
   gsfRecoInputTag_ = conf.getParameter<edm::InputTag>("GsfRecoCollection");
 
+  modulePhiBoundary_ = conf.getParameter<double>("modulePhiBoundary");
   moduleEtaBoundary_ = conf.getParameter<std::vector<double> >("moduleEtaBoundary");
 
 }
@@ -72,21 +73,19 @@ void PhotonIDAlgo::classify(const reco::Photon* photon,
   else 
     isEBPho = true;
 
+  // Set fiducial flags (isEBGap, isEEGap...
+
   //Are you in the gap between EE and Ecal Barrel (EB)?
   if (fabs(feta-1.479)<.1) isEBEEGap=true; 
-  
-  
-  //fiducial cuts, currently only for EB, since I don't know
-  //EE yet.
 
-  //Module boundaries in phi (supermodule boundaries):
+  // Set isEBGap if photon is closer than "modulePhiBoundary_" (set in cfg)
+  // to a phi module/supermodule boundary (same thing)
   if (phi < 0) phi += TMath::Pi()*2.;
-  Int_t modnum =  int(phi * (18 / (TMath::Pi()*2.)));
-  Float_t modmod = (phi * (18/ (TMath::Pi()*2.)) - modnum);
-  if (modmod<.55 && modmod > .45)
-    isEBGap=true;
+  Float_t phiRelative = fmod( phi , 20*TMath::Pi()/180 ) - 10*TMath::Pi()/180;
+  if ( fabs(phiRelative) < modulePhiBoundary_ ) isEBGap=true;
 
-  //Supermodule boundaries in eta:  
+  // Set isEBGap if photon is between specific eta values 
+  // in the "moduleEtaBoundary_" variable.
   // Loop over the vector of Eta boundaries given in the config file
   bool nearEtaBoundary = false;
   for (unsigned int i=0; i <= moduleEtaBoundary_.size(); i+=2) {
