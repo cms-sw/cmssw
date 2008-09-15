@@ -1,7 +1,7 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: CaloJetTester.cc,v 1.5 2008/08/19 13:28:28 chlebana Exp $
+// $Id: CaloJetTester.cc,v 1.6 2008/09/02 20:41:31 chlebana Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -52,7 +52,8 @@ CaloJetTester::CaloJetTester(const edm::ParameterSet& iConfig)
     mReverseEnergyFractionThreshold (iConfig.getParameter<double>("reverseEnergyFractionThreshold")),
     mRThreshold (iConfig.getParameter<double>("RThreshold"))
 {
-  mEta = mEtaFineBin = mPhi = mPhiFineBin = mE = mE_80 = mE_3000
+    numberofevents
+    = mEta = mEtaFineBin = mPhi = mPhiFineBin = mE = mE_80 = mE_3000
     = mP = mP_80 = mP_3000 = mPt = mPt_80 = mPt_3000
     = mMass = mMass_80 = mMass_3000 = mConstituents = mConstituents_80
     = mEtaFirst = mPhiFirst = mEFirst = mEFirst_80 = mEFirst_3000 = mPtFirst 
@@ -80,6 +81,7 @@ CaloJetTester::CaloJetTester(const edm::ParameterSet& iConfig)
   DQMStore* dbe = &*edm::Service<DQMStore>();
   if (dbe) {
     dbe->setCurrentFolder("RecoJetsV/CaloJetTask_" + mInputCollection.label());
+    numberofevents    = dbe->book1D("numberofevents","numberofevents", 3, 0 , 2);
     mEta              = dbe->book1D("Eta", "Eta", 100, -5, 5); 
     mEtaFineBin       = dbe->book1D("EtaFineBin_Pt10", "EtaFineBin_Pt10", 500, -5, 5); 
     mEtaFineBin1p     = dbe->book1D("EtaFineBin1p_Pt10", "EtaFineBin1p_Pt10", 100, 0, 1.3); 
@@ -131,20 +133,20 @@ CaloJetTester::CaloJetTester(const edm::ParameterSet& iConfig)
     mHadEnergyInHF    = dbe->book1D("HadEnergyInHF", "HadEnergyInHF", 100, 0, 50); 
     mHadEnergyInHE    = dbe->book1D("HadEnergyInHE", "HadEnergyInHE", 100, 0, 100); 
 
-    mHadEnergyInHO_80    = dbe->book1D("HadEnergyInHO_80", "HadEnergyInHO_80", 100, 0, 200); 
-    mHadEnergyInHB_80    = dbe->book1D("HadEnergyInHB_80", "HadEnergyInHB_80", 100, 0, 1000); 
+    mHadEnergyInHO_80    = dbe->book1D("HadEnergyInHO_80", "HadEnergyInHO_80", 100, 0, 50); 
+    mHadEnergyInHB_80    = dbe->book1D("HadEnergyInHB_80", "HadEnergyInHB_80", 100, 0, 200); 
     mHadEnergyInHE_80    = dbe->book1D("HadEnergyInHE_80", "HadEnergyInHE_80", 100, 0, 1000); 
     mHadEnergyInHO_3000  = dbe->book1D("HadEnergyInHO_3000", "HadEnergyInHO_3000", 100, 0, 500); 
     mHadEnergyInHB_3000  = dbe->book1D("HadEnergyInHB_3000", "HadEnergyInHB_3000", 100, 0, 3000); 
-    mHadEnergyInHE_3000  = dbe->book1D("HadEnergyInHE_3000", "HadEnergyInHE_3000", 100, 0, 3000); 
+    mHadEnergyInHE_3000  = dbe->book1D("HadEnergyInHE_3000", "HadEnergyInHE_3000", 100, 0, 2000); 
 
     mEmEnergyInEB     = dbe->book1D("EmEnergyInEB", "EmEnergyInEB", 100, 0, 50); 
     mEmEnergyInEE     = dbe->book1D("EmEnergyInEE", "EmEnergyInEE", 100, 0, 50); 
     mEmEnergyInHF     = dbe->book1D("EmEnergyInHF", "EmEnergyInHF", 120, -20, 100); 
-    mEmEnergyInEB_80  = dbe->book1D("EmEnergyInEB_80", "EmEnergyInEB_80", 100, 0, 1000); 
+    mEmEnergyInEB_80  = dbe->book1D("EmEnergyInEB_80", "EmEnergyInEB_80", 100, 0, 200); 
     mEmEnergyInEE_80  = dbe->book1D("EmEnergyInEE_80", "EmEnergyInEE_80", 100, 0, 1000); 
     mEmEnergyInEB_3000= dbe->book1D("EmEnergyInEB_3000", "EmEnergyInEB_3000", 100, 0, 3000); 
-    mEmEnergyInEE_3000= dbe->book1D("EmEnergyInEE_3000", "EmEnergyInEE_3000", 100, 0, 3000); 
+    mEmEnergyInEE_3000= dbe->book1D("EmEnergyInEE_3000", "EmEnergyInEE_3000", 100, 0, 2000); 
     mEnergyFractionHadronic = dbe->book1D("EnergyFractionHadronic", "EnergyFractionHadronic", 120, -0.1, 1.1); 
     mEnergyFractionEm = dbe->book1D("EnergyFractionEm", "EnergyFractionEm", 120, -0.1, 1.1); 
     mHFTotal          = dbe->book1D("HFTotal", "HFTotal", 100, 0, 500);
@@ -247,6 +249,9 @@ void CaloJetTester::endJob() {
 
 void CaloJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
 {
+  double countsfornumberofevents = 1;
+  numberofevents->Fill(countsfornumberofevents);
+
    const CaloMET *calomet;
       // Get CaloMET
       edm::Handle<CaloMETCollection> calo;
