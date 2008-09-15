@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Nov 14 15:02:06 CET 2007
-// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.32 2008/09/10 12:58:27 fblekman Exp $
+// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.33 2008/09/15 14:05:22 fblekman Exp $
 //
 //
 
@@ -164,6 +164,8 @@ void SiPixelGainCalibrationAnalysis::fillDatabase(){
 bool
 SiPixelGainCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixelCalibDigi>::const_iterator ipix)
 {
+  float lowmeanval=255;
+  float highmeanval=0;
   bool makehistopersistent = saveALLHistograms_;
   std::vector<uint32_t>::const_iterator detidfinder=find(listofdetids_.begin(),listofdetids_.end(),detid);
   if(detidfinder!=listofdetids_.end())
@@ -178,7 +180,7 @@ SiPixelGainCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixelCalibD
   int npoints=0;
   int nallpoints=0;
   bool use_point=true;
-  bookkeeper_[detid]["status_2d"]->setBinContent(ipix->col()+1,ipix->row()+1,-1);
+  bookkeeper_[detid]["status_2d"]->setBinContent(ipix->col()+1,ipix->row()+1,0);
   for(uint32_t ii=0; ii< ipix->getnpoints() && ii<200; ii++){
     //    std::cout << ipix->getsum(ii) << " " << ipix->getnentries(ii) << " " << ipix->getsumsquares(ii) << std::endl;
     nallpoints++;
@@ -188,15 +190,21 @@ SiPixelGainCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixelCalibD
     }
     else
       xvalsall[ii]=vCalValues_[ii];
-    yerrvalsall[ii]=yvalsall[ii]=0;
+    yerrvalsall[ii]=yvalsall[ii]=0; 
+  
     if(ipix->getnentries(ii)>min_nentries_){
       yvalsall[ii]=ipix->getsum(ii)/(float)ipix->getnentries(ii);
       yerrvalsall[ii]=ipix->getsumsquares(ii)/(float)(ipix->getnentries(ii));
       yerrvalsall[ii]-=pow(yvalsall[ii],2);
       yerrvalsall[ii]=sqrt(yerrvalsall[ii])*sqrt(ipix->getnentries(ii));
+      
+      if(yvalsall[ii]<lowmeanval)
+	lowmeanval=yvalsall[ii];
+      if(yvalsall[ii]>highmeanval)
+	highmeanval=yvalsall[ii];
     }
   }
-    
+  
   
   // calculate plateau value from last 3 full entries
   double plateauval=0;
@@ -212,6 +220,7 @@ SiPixelGainCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixelCalibD
     maxgoodvalinfit=255*(1.-reject_badpoints_frac_);
   npoints=0;
   for(int ii=0; ii<nallpoints; ++ii){
+   
     // now selecting the appropriate points for the fit.
     use_point=true;
     if(reject_first_point_ && xvalsall[ii]<0.1)
@@ -232,7 +241,6 @@ SiPixelGainCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixelCalibD
       npoints++;
     }
   }
-  int result=-1;
   int status=0;
   float chi2,slope,intercept,prob;
   prob=chi2=-1;
@@ -255,6 +263,7 @@ SiPixelGainCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixelCalibD
     }
   }
   if(npoints<2){
+    bookkeeper_[detid]["status_2d"]->setBinContent(ipix->col()+1,ipix->row()+1,-2);
     return false;
   }
     
@@ -288,14 +297,12 @@ SiPixelGainCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixelCalibD
     prob= TMath::Prob(func_->GetChisquare(),npoints-func_->GetNpar());
 
   }
-  if(tempresult=0)
+  if(tempresult==0)
     status=1;
   else
-    status=0;
+    status=-2;
   if(slope!=0)
     slope = 1./slope;
-  else
-    status=-1;
   if(isnan(slope) || isnan(intercept)){
     bookkeeper_[detid]["status_2d"]->setBinContent(ipix->col()+1,ipix->row()+1,-2);
     return 0;
@@ -322,6 +329,8 @@ SiPixelGainCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixelCalibD
     makehistopersistent=true;
     edm::LogWarning("SiPixelGainCalibration") << "For DETID " << detid << "pixel row,col " << ipix->row() << "," << ipix->col() << " Gain was measured to be " << slope << " which is outside the range of the summary plot (" <<maxGainInHist_ << ") !!!! " << std::endl;
   }
+  bookkeeper_[detid]["dynamicrange_2d"]->setBinContent(ipix->col()+1,ipix->row()+1,highmeanval-lowmeanval);
+  bookkeeper_[detid]["plateau_2d"]->setBinContent(ipix->col()+1,ipix->row()+1,highmeanval);
   bookkeeper_[detid]["gain_2d"]->setBinContent(ipix->col()+1,ipix->row()+1,slope);
   bookkeeper_[detid]["ped_1d"]->Fill(intercept);
   bookkeeper_[detid]["ped_2d"]->setBinContent(ipix->col()+1,ipix->row()+1,intercept);
@@ -333,7 +342,7 @@ SiPixelGainCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixelCalibD
   bookkeeper_[detid]["highpoint_1d"]->Fill(xvals[npoints-1]);
   bookkeeper_[detid]["nfitpoints_1d"]->Fill(npoints);
   bookkeeper_[detid]["endpoint_1d"]->Fill((255 - intercept)*slope);
-  bookkeeper_[detid]["status_2d"]->setBinContent(ipix->col()+1,ipix->row()+1,result);
+  bookkeeper_[detid]["status_2d"]->setBinContent(ipix->col()+1,ipix->row()+1,status);
   
   if(!savePixelHists_)
     return true;
@@ -349,7 +358,7 @@ SiPixelGainCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixelCalibD
     setDQMDirectory(detid);
     bookkeeper_pixels_[detid][pixelinfo.str()] =  bookDQMHistogram1D(detid,pixelinfo.str(),tempname,105*nallpoints,xvalsall[0],xvalsall[nallpoints-1]*1.05);
     
-    edm::LogInfo("SiPixelGainCalibrationAnalysis") << "now saving histogram for pixel " << tempname << ", gain = " << slope << ", pedestal = " << intercept << ", chi2/NDF=" << chi2 << "(prob:" << prob << "), fit status " << result;
+    edm::LogInfo("SiPixelGainCalibrationAnalysis") << "now saving histogram for pixel " << tempname << ", gain = " << slope << ", pedestal = " << intercept << ", chi2/NDF=" << chi2 << "(prob:" << prob << "), fit status " << status;
     for(int ii=0; ii<nallpoints; ++ii){
       //      std::cout << xvalsall[ii]<<","<<yvalsall[ii]<< " " << tempfloats[ii] << std::endl;
       bookkeeper_pixels_[detid][pixelinfo.str()]->Fill(xvalsall[ii],yvalsall[ii]);
@@ -378,6 +387,8 @@ SiPixelGainCalibrationAnalysis::newDetID(uint32_t detid)
   bookkeeper_[detid]["lowpoint_1d"]= bookDQMHistogram1D(detid,"GainLowPoint1d","lowest fit point for "+tempname,256,0.,256.*scalarVcalHigh_VcalLow_);
   bookkeeper_[detid]["highpoint_1d"]= bookDQMHistogram1D(detid,"GainHighPoint1d","highest fit point for "+tempname,256,0.,256.*scalarVcalHigh_VcalLow_);
   bookkeeper_[detid]["nfitpoints_1d"]= bookDQMHistogram1D(detid,"GainNPoints1d","number of fit point for "+tempname,20,0.,20);
+  bookkeeper_[detid]["dynamicrange_2d"]=bookDQMHistoPlaquetteSummary2D(detid,"GainDynamicRange2d","Difference lowest and highest points on gain curve for "+tempname);
+  bookkeeper_[detid]["plateau_2d"]=bookDQMHistoPlaquetteSummary2D(detid,"GainSaturate2d","Highest points on gain curve for "+tempname);
 
 }
 //define this as a plug-in
