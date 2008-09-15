@@ -18,6 +18,15 @@ KFSmootherForMuonTrackLoader = cms.ESProducer("KFTrajectorySmootherESProducer",
     Propagator = cms.string('SmartPropagatorAnyRK')
 )
 
+KFSmootherForMuonTrackLoaderL3 = cms.ESProducer("KFTrajectorySmootherESProducer",
+    errorRescaling = cms.double(10.0),
+    minHits = cms.int32(3),
+    ComponentName = cms.string('KFSmootherForMuonTrackLoaderL3'),
+    Estimator = cms.string('Chi2EstimatorForMuonTrackLoader'),
+    Updator = cms.string('KFUpdator'),
+    Propagator = cms.string('SmartPropagatorAnyOpposite')
+)
+
 MuonTrackLoaderForSTA = cms.PSet(
     TrackLoaderParameters = cms.PSet(
         MuonUpdatorAtVertex,
@@ -38,7 +47,7 @@ MuonTrackLoaderForL3 = cms.PSet(
     TrackLoaderParameters = cms.PSet(
         MuonUpdatorAtVertex,
         PutTkTrackIntoEvent = cms.untracked.bool(True),
-        Smoother = cms.string('KFSmootherForMuonTrackLoader'),
+        Smoother = cms.string('KFSmootherForMuonTrackLoaderL3'),
         SmoothTkTrack = cms.untracked.bool(False),
         MuonSeededTracksInstance = cms.untracked.string('L2Seeded'),
         VertexConstraint = cms.bool(False),
@@ -55,5 +64,4 @@ MuonTrackLoaderForCosmic = cms.PSet(
         DoSmoothing = cms.bool(False)
     )
 )
-
 
