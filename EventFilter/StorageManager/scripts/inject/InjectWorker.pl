@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: InjectWorker.pl,v 1.24 2008/09/15 18:02:23 loizides Exp $
+# $Id: InjectWorker.pl,v 1.25 2008/09/15 20:33:15 loizides Exp $
 
 use strict;
 use DBI;
@@ -145,7 +145,7 @@ sub inject($$)
     my $hltkey      = $ENV{'SM_HLTKEY'};
     my $producer    = 'StorageManager';
     my $destination = 'Global';
-    my $commentstr  = 'HLTKEY=$hltkey';
+    my $commentstr  = 'HLTKEY=' . $hltkey;
 
     # index file name and size
     my $indfile     = $filename;
@@ -234,7 +234,7 @@ sub inject($$)
     my $rows = $sth->execute() or $errflag=1;
 
     if ($errflag>0) {
-        print "Error in DB access when executing , DB returned $sth->errstr\n";
+        print "Error in DB access when executing, DB returned $sth->errstr\n";
         return -1;
     }
 
@@ -403,7 +403,6 @@ my $dbhlt;        #my DB handle for HLT key
 my $dbihlt = "DBI:Oracle:cms_omds_lb";
 my $hltHandle;    #for HLT key queries
 my $SQLh;
-my $runnumq;      #runnumber to be used for queries
 my %hltkeys;      #cache hlt keys
 
 if (!defined $ENV{'SM_DONTACCESSDB'}) { 
@@ -451,8 +450,8 @@ if (!defined $ENV{'SM_DONTACCESSDB'}) {
     print "$timestr: Setup DB connection for HLT key retrieval\n";
  
     $SQLh = "SELECT STRING_VALUE FROM CMS_RUNINFO.RUNSESSION_PARAMETER " . 
-        "WHERE RUNNUMBER=$runnumq and NAME='CMS.LVL0:HLT_KEY_DESCRIPTION'";
-    my $hltHandle = $dbhlt->prepare($SQLh) or mydie("Error: Prepare failed for $SQLh: $dbh->errstr \n",$lockfile);
+        "WHERE RUNNUMBER=? and NAME='CMS.LVL0:HLT_KEY_DESCRIPTION'";
+    $hltHandle = $dbhlt->prepare($SQLh) or mydie("Error: Prepare failed for $SQLh: $dbh->errstr \n",$lockfile);
 
 } else { 
     print "Don't access DB flag set \n".
@@ -512,13 +511,14 @@ while(!$endflag) {
 
         # query hlt db if hlt was not already obtained
         $ENV{'SM_HLTKEY'} = "UNKNOWN";
-        $runnumq = $ENV{'SM_RUNNUMBER'};
+        my $runnumq = $ENV{'SM_RUNNUMBER'};
         my $hltkey = $hltkeys{$runnumq};
         if (defined $hltkey) {
             $ENV{'SM_HLTKEY'}=$hltkey;
         } else {
             my $errflag = 0;
-            $hltHandle->execute() or $errflag=1;
+            if ($debug) {print "Quering DB for runnumber $runnumq\n";}
+            $hltHandle->execute($runnumq) or $errflag=1;
             if ($errflag>0) {
                 print "Error in DB for HLT KEY when executing, DB returned $hltHandle->errstr\n";
             } else {
@@ -530,6 +530,7 @@ while(!$endflag) {
                         $hltkey = $row[0];
                         $ENV{'SM_HLTKEY'}=$hltkey;
                         $hltkeys{$runnumq} = $hltkey;
+                        if ($debug) {print "Obtained $hltkey for run $runnumq\n";}
                     }
                 }
             }
