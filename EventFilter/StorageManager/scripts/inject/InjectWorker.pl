@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: InjectWorker.pl,v 1.22 2008/08/15 16:29:43 loizides Exp $
+# $Id: InjectWorker.pl,v 1.23 2008/08/16 10:02:20 loizides Exp $
 
 use strict;
 use DBI;
@@ -399,11 +399,20 @@ if (!defined $ENV{'SM_DONTACCESSDB'}) {
     $dbi    = "DBI:Oracle:cms_rcms";
     $reader = "CMS_STOMGR_W";
     if ($debug) {print "Setting up DB connection for $dbi and $reader\n";}
-    $dbh = DBI->connect($dbi,$reader,"qwerty") or 
-        mydie("Error: Connection to Oracle failed: $DBI::errstr\n",$lockfile);
+
+    my $retry = 0;
+    while (!$retry) {
+        $retry=1;
+        $dbh = DBI->connect($dbi,$reader,"qwerty") or $retry=0;
+        if ($retry == 0) {
+            print("Error: Connection to Oracle failed: $DBI::errstr\n",$lockfile);
+            sleep(10);
+        }
+    }
 
     my $timestr = gettimestr();
     print "$timestr: Setup DB connection\n";
+
     $SQL = "INSERT INTO CMS_STOMGR.FILES_CREATED (" .
 	"FILENAME,CPATH,HOSTNAME,SETUPLABEL,STREAM,TYPE,PRODUCER,APP_NAME,APP_VERSION," .
 	"RUNNUMBER,LUMISECTION,COUNT,INSTANCE,CTIME) " .
@@ -431,7 +440,7 @@ if (1) {
     print "$timestr: Entering main while loop now\n";
 }
 
-while( !$endflag ) {
+while(!$endflag) {
 
     while($line=<INDATA>) {
 
@@ -461,17 +470,16 @@ while( !$endflag ) {
             my $field = "$exports[$count]=$exports[$count+1]";
             if ($field =~ m/^\-\-(.*)=(.*)/i) {    
                 my $fname = "SM_$1";
-                if    ($1 eq "COUNT")      { $fname = "SM_FILECOUNTER";}
-                elsif ($1 eq "DATASET") { $fname = "SM_SETUPLABEL";}
-                elsif ($1 eq "START_TIME") { $fname = "SM_STARTTIME";}
-                elsif ($1 eq "STOP_TIME")  { $fname = "SM_STOPTIME";}
+                if    ($1 eq "COUNT")       { $fname = "SM_FILECOUNTER";}
+                elsif ($1 eq "DATASET")     { $fname = "SM_SETUPLABEL";}
+                elsif ($1 eq "START_TIME")  { $fname = "SM_STARTTIME";}
+                elsif ($1 eq "STOP_TIME")   { $fname = "SM_STOPTIME";}
                 elsif ($1 eq "APP_VERSION") { $fname = "SM_APPVERSION";}
-                elsif ($1 eq "APP_NAME") { $fname = "SM_APPNAME";}
+                elsif ($1 eq "APP_NAME")    { $fname = "SM_APPNAME";}
                 $ENV{$fname}=$2;
                 if ($debug) {print "$fname = $ENV{$fname}\n";}
                 $count++;
             }
-
         } 
 	
         my $ret=inject($useHandle,$type);
