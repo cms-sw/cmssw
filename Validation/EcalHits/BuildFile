@@ -2,7 +2,7 @@
  <lib name=ValidationEcalHits>
  <use name=DataFormats/Common>
  <use name=root>
- <use name=geant4>
+ <use name=geant4core>
  <use name=boost>
  <use name=FWCore/ParameterSet>
  <use name=SimG4Core/Notification>
@@ -15,7 +15,7 @@
 
 <use name=DataFormats/Common>
 <use name=root>
-<use name=geant4>
+<use name=geant4core>
 <use name=boost>
 <use name=FWCore/ParameterSet>
 <use name=SimG4Core/Notification>

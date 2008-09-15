@@ -7,7 +7,7 @@
 <use name=boost>
 <use name=root>
 <use name=clhep>
-<use name=geant4>
+<use name=geant4core>
 
 <library file="*.cc" name=ValidationTrackingMCTruthPlugins>
   <flags EDM_PLUGIN=1>
