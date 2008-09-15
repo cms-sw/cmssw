@@ -1,33 +1,19 @@
 import FWCore.ParameterSet.Config as cms
-
 import DQM.TrackingMonitor.TrackingMonitor_cfi
+
 #Below all DQM modules for TrackerAlignment AlCaRecos are instanciated.
 #TkAlZMuMu
 ALCARECOTkAlZMuMuDQM = DQM.TrackingMonitor.TrackingMonitor_cfi.TrackMon.clone()
-import DQM.TrackingMonitor.TrackingMonitor_cfi
 #TkAlJpsiMuMu
 ALCARECOTkAlJpsiMuMuDQM = DQM.TrackingMonitor.TrackingMonitor_cfi.TrackMon.clone()
-import DQM.TrackingMonitor.TrackingMonitor_cfi
 #TkAlUpsilonMuMu
 ALCARECOTkAlUpsilonMuMuDQM = DQM.TrackingMonitor.TrackingMonitor_cfi.TrackMon.clone()
-import DQM.TrackingMonitor.TrackingMonitor_cfi
 #TkAlBeamHalo
 ALCARECOTkAlBeamHaloDQM = DQM.TrackingMonitor.TrackingMonitor_cfi.TrackMon.clone()
-import DQM.TrackingMonitor.TrackingMonitor_cfi
 #TkAlMinBias
 ALCARECOTkAlMinBiasDQM = DQM.TrackingMonitor.TrackingMonitor_cfi.TrackMon.clone()
-import DQM.TrackingMonitor.TrackingMonitor_cfi
 #TkAlMuonIsolated
 ALCARECOTkAlMuonIsolatedDQM = DQM.TrackingMonitor.TrackingMonitor_cfi.TrackMon.clone()
-import DQM.TrackingMonitor.TrackingMonitor_cfi
-#TkAlCosmicsCTF0T
-ALCARECOTkAlCosmicsCTF0TDQM = DQM.TrackingMonitor.TrackingMonitor_cfi.TrackMon.clone()
-import DQM.TrackingMonitor.TrackingMonitor_cfi
-#TkAlCosmicsCosmicTF0T
-ALCARECOTkAlCosmicsCosmicTF0TDQM = DQM.TrackingMonitor.TrackingMonitor_cfi.TrackMon.clone()
-import DQM.TrackingMonitor.TrackingMonitor_cfi
-#TkAlCosmicsRS0T
-ALCARECOTkAlCosmicsRS0TDQM = DQM.TrackingMonitor.TrackingMonitor_cfi.TrackMon.clone()
 #names & designations  
 ALCARECOTkAlZMuMuDQM.TrackProducer = 'ALCARECOTkAlZMuMu'
 ALCARECOTkAlZMuMuDQM.AlgoName = 'ALCARECOTkAlZMuMu'
@@ -91,37 +77,37 @@ ALCARECOTkAlMuonIsolatedDQM.TkSizeMax = 5
 ALCARECOTkAlMuonIsolatedDQM.TrackPtBin = 100
 ALCARECOTkAlMuonIsolatedDQM.TrackPtMin = 0
 ALCARECOTkAlMuonIsolatedDQM.TrackPtMax = 100
-#names & designations  
+###### DQM modules for cosmic data taking ######
+### TkAlCosmicsCTF0T ###
+ALCARECOTkAlCosmicsCTF0TDQM = DQM.TrackingMonitor.TrackingMonitor_cfi.TrackMon.clone()
+# names & designations  
 ALCARECOTkAlCosmicsCTF0TDQM.TrackProducer = 'ALCARECOTkAlCosmicsCTF0T'
 ALCARECOTkAlCosmicsCTF0TDQM.AlgoName = 'ALCARECOTkAlCosmicsCTF0T'
 ALCARECOTkAlCosmicsCTF0TDQM.FolderName = 'TkAlCosmics'
-#sizes			    
+# sizes			    
 ALCARECOTkAlCosmicsCTF0TDQM.TkSizeBin = 100
 ALCARECOTkAlCosmicsCTF0TDQM.TkSizeMin = 0
 ALCARECOTkAlCosmicsCTF0TDQM.TkSizeMax = 100
 ALCARECOTkAlCosmicsCTF0TDQM.TrackPtBin = 500
 ALCARECOTkAlCosmicsCTF0TDQM.TrackPtMin = 0
 ALCARECOTkAlCosmicsCTF0TDQM.TrackPtMax = 500
-#names & designations  
+### TkAlCosmicsCosmicTF0T ###
+ALCARECOTkAlCosmicsCosmicTF0TDQM = ALCARECOTkAlCosmicsCTF0TDQM.clone()
 ALCARECOTkAlCosmicsCosmicTF0TDQM.TrackProducer = 'ALCARECOTkAlCosmicsCosmicTF0T'
 ALCARECOTkAlCosmicsCosmicTF0TDQM.AlgoName = 'ALCARECOTkAlCosmicsCosmicTF0T'
-ALCARECOTkAlCosmicsCosmicTF0TDQM.FolderName = 'TkAlCosmics'
-#sizes			    
-ALCARECOTkAlCosmicsCosmicTF0TDQM.TkSizeBin = 100
-ALCARECOTkAlCosmicsCosmicTF0TDQM.TkSizeMin = 0
-ALCARECOTkAlCosmicsCosmicTF0TDQM.TkSizeMax = 100
-ALCARECOTkAlCosmicsCosmicTF0TDQM.TrackPtBin = 500
-ALCARECOTkAlCosmicsCosmicTF0TDQM.TrackPtMin = 0
-ALCARECOTkAlCosmicsCosmicTF0TDQM.TrackPtMax = 500
-#names & designations  
+#TkAlCosmicsRS0T
+ALCARECOTkAlCosmicsRS0TDQM = ALCARECOTkAlCosmicsCTF0TDQM.clone()
 ALCARECOTkAlCosmicsRS0TDQM.TrackProducer = 'ALCARECOTkAlCosmicsRS0T'
 ALCARECOTkAlCosmicsRS0TDQM.AlgoName = 'ALCARECOTkAlCosmicsRS0T'
-ALCARECOTkAlCosmicsRS0TDQM.FolderName = 'TkAlCosmics'
-#sizes			    
-ALCARECOTkAlCosmicsRS0TDQM.TkSizeBin = 100
-ALCARECOTkAlCosmicsRS0TDQM.TkSizeMin = 0
-ALCARECOTkAlCosmicsRS0TDQM.TkSizeMax = 100
-ALCARECOTkAlCosmicsRS0TDQM.TrackPtBin = 500
-ALCARECOTkAlCosmicsRS0TDQM.TrackPtMin = 0
-ALCARECOTkAlCosmicsRS0TDQM.TrackPtMax = 500
-
+### TkAlCosmicsCTF ###
+ALCARECOTkAlCosmicsCTFDQM = ALCARECOTkAlCosmicsCTF0TDQM.clone()
+ALCARECOTkAlCosmicsCTFDQM.TrackProducer = 'ALCARECOTkAlCosmicsCTF'
+ALCARECOTkAlCosmicsCTFDQM.AlgoName = 'ALCARECOTkAlCosmicsCTF'
+### TkAlCosmicsCosmicTF ###
+ALCARECOTkAlCosmicsCosmicTFDQM = ALCARECOTkAlCosmicsCTFDQM.clone()
+ALCARECOTkAlCosmicsCosmicTFDQM.TrackProducer = 'ALCARECOTkAlCosmicsCosmicTF'
+ALCARECOTkAlCosmicsCosmicTFDQM.AlgoName = 'ALCARECOTkAlCosmicsCosmicTF'
+#TkAlCosmicsRS
+ALCARECOTkAlCosmicsRSDQM = ALCARECOTkAlCosmicsCTFDQM.clone()
+ALCARECOTkAlCosmicsRSDQM.TrackProducer = 'ALCARECOTkAlCosmicsRS'
+ALCARECOTkAlCosmicsRSDQM.AlgoName = 'ALCARECOTkAlCosmicsRS'
