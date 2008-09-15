@@ -25,7 +25,7 @@ namespace pos{
 
     PixelCalibBase();
     virtual ~PixelCalibBase();
-    virtual std::string mode() = 0;
+    virtual std::string mode() const {return mode_;}
 
   protected:
 

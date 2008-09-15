@@ -16,8 +16,5 @@ PixelCalibBase::PixelCalibBase() {
 PixelCalibBase::~PixelCalibBase() {
 }
 
-std::string PixelCalibBase::mode() {
-  return mode_;
-}
 
 
