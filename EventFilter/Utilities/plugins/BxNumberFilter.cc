@@ -18,6 +18,7 @@
 #include "EventFilter/Utilities/interface/GlobalEventNumber.h"
 #include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
 
+#include <vector>
 
 class BxNumberFilter : public edm::EDFilter {
 public:
@@ -30,15 +31,19 @@ private:
   virtual void endJob() ;
   
   edm::InputTag inputLabel;
-  unsigned int goldenBXId;
+  std::vector<int> goldenBXIds;
+  unsigned int range; 
+  bool debug;
+  
 
 };
 
 BxNumberFilter::BxNumberFilter(const edm::ParameterSet& iConfig) {
 
   inputLabel = iConfig.getUntrackedParameter<edm::InputTag>("inputLabel",edm::InputTag("source"));
-  goldenBXId = iConfig.getParameter<unsigned int>("BXId");
-  
+  goldenBXIds = iConfig.getParameter<std::vector<int> >("goldenBXIds");
+  range = iConfig.getUntrackedParameter<unsigned int>("range", 1);
+  debug = iConfig.getUntrackedParameter<unsigned int>("debug", false);
 }
 
 
@@ -47,6 +52,7 @@ BxNumberFilter::~BxNumberFilter() { }
 
 bool BxNumberFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
    using namespace edm;
+   using namespace std;
 
    bool result = false;
 
@@ -56,10 +62,26 @@ bool BxNumberFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
    iEvent.getByLabel(inputLabel, rawdata);  
    const FEDRawData& data = rawdata->FEDData(GTEVMId);
 
-   // Select the BX
-   if ( evf::evtn::getfdlbx(data.data()) == goldenBXId ) result = true;
+   // loop over the predefined BX's
+   for (vector<int>::const_iterator i = goldenBXIds.begin(); i != goldenBXIds.end(); i++) {
 
-   
+     // Select the BX
+     if ( evf::evtn::getfdlbx(data.data()) <= (*i) + range
+	  &&
+	  evf::evtn::getfdlbx(data.data()) >= (*i) - range ) {
+       result = true;
+       
+       if (debug) {
+	 cout << "Event # " << evf::evtn::get(data.data(),true) << endl;
+	 cout << "LS # " << evf::evtn::getlbn(data.data()) << endl;
+	 cout << "ORBIT # " << evf::evtn::getorbit(data.data()) << endl;
+	 cout << "GPS LOW # " << evf::evtn::getgpslow(data.data()) << endl;
+	 cout << "GPS HI # " << evf::evtn::getgpshigh(data.data()) << endl;
+	 cout << "BX FROM FDL 0-xing # " << evf::evtn::getfdlbx(data.data()) << endl;
+       }
+       
+     } 
+   }
    return result;
 }
 
