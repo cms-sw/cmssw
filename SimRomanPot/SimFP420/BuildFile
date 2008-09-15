@@ -22,7 +22,7 @@
 <use name=FWCore/ParameterSet>
 <use name=FWCore/MessageLogger>
 <use name=boost>
-<use name=geant4>
+<use name=geant4core>
 <use name=root>
 <use name=clhep>
 <use name=hepmc>
@@ -56,7 +56,7 @@
  <use name=FWCore/ParameterSet>
  <use name=FWCore/MessageLogger>
  <use name=boost>
- <use name=geant4>
+ <use name=geant4core>
  <use name=root>
  <use name=clhep>
  <use name=hepmc>
