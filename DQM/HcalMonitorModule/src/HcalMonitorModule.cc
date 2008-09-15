@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2008/09/09 12:13:52 $
- * $Revision: 1.75 $
+ * $Date: 2008/09/12 16:12:48 $
+ * $Revision: 1.76 $
  * \author W Fisher
  *
 */
@@ -285,7 +285,6 @@ void HcalMonitorModule::beginJob(const edm::EventSetup& c){
     } // fi (!detid_.null()) 
   } 
   if (dfMon_) {
-    cout << "About to smuggle from beginJob()" << endl;
     dfMon_->smuggleMaps(DCCtoCell, HTRtoCell);
   }
   //get conditions
