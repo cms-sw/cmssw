@@ -14,7 +14,8 @@ PERFREPORT3_PATH=PR3_BASE+'/share/perfreport' #path to xmls
 #PR3_PRODUCER_PLUGIN=PR3_BASE+'/lib/libcmssw_by_producer.so' #plugin for fpage
 PR3_PRODUCER_PLUGIN='/afs/cern.ch/user/d/dpiparo/w0/pr3/perfreport/plugins/cmssw_by_producer/libcmssw_by_producer.so'
 
-PR2_BASE='/afs/cern.ch/user/d/dpiparo/w0/perfreport2.1installation/'
+#PR2_BASE='/afs/cern.ch/user/d/dpiparo/w0/perfreport2.1installation/'
+PR2_BASE='/afs/cern.ch/user/g/gbenelli/public/PerfReport2/2.0.1/'
 PR2='%s' %(PR2_BASE+'/bin/perfreport')# executable
 PERFREPORT2_PATH=PR2_BASE+'/share/perfreport' #path to xmls
 
