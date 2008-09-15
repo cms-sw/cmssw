@@ -66,6 +66,15 @@ towerMaker.hbheInput = 'caloRecHits'
 towerMaker.hfInput = 'caloRecHits'
 towerMaker.hoInput = 'caloRecHits'
 
+towerMakerWithHO.ecalInputs = cms.VInputTag(
+    cms.InputTag("caloRecHits","EcalRecHitsEB"),
+    cms.InputTag("caloRecHits","EcalRecHitsEE")
+)
+towerMakerWithHO.hbheInput = 'caloRecHits'
+towerMakerWithHO.hfInput = 'caloRecHits'
+towerMakerWithHO.hoInput = 'caloRecHits'
+
+
 # Particle Flow
 from RecoParticleFlow.PFClusterProducer.towerMakerPF_cff import *
 from RecoParticleFlow.PFClusterProducer.particleFlowCluster_cff import *
@@ -119,6 +128,14 @@ calotoweroptmaker.hbheInput = 'caloRecHits'
 calotoweroptmaker.hoInput = 'caloRecHits'
 calotoweroptmaker.hfInput = 'caloRecHits'
 calotoweroptmaker.ecalInputs = cms.VInputTag(
+    cms.InputTag("caloRecHits","EcalRecHitsEB"),
+    cms.InputTag("caloRecHits","EcalRecHitsEE")
+)
+
+calotoweroptmakerWithHO.hbheInput = 'caloRecHits'
+calotoweroptmakerWithHO.hoInput = 'caloRecHits'
+calotoweroptmakerWithHO.hfInput = 'caloRecHits'
+calotoweroptmakerWithHO.ecalInputs = cms.VInputTag(
     cms.InputTag("caloRecHits","EcalRecHitsEB"),
     cms.InputTag("caloRecHits","EcalRecHitsEE")
 )
