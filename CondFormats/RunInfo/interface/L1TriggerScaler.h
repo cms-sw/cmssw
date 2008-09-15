@@ -16,19 +16,28 @@
 
 class L1TriggerScaler {
 public:
-  // a struct with the information for each lumisection
+  // a struct with the information for each lumi
 
   struct Lumi{
     Lumi(){}
     ~Lumi(){}
     int m_runnumber;
     long long m_lumi_id;
+    std::string m_start_time; 
+    // std::string m_date_str;
+    //std::string  m_string_value;
     std::string  m_string_format;
     long m_rn;
     int m_lumisegment;
+    // std::string m_version;
+    //std::string m_context;
     std::string m_date; 
+   
+    
+   
     
     std::vector<int> m_GTAlgoCounts;   
+    // m_GTAlgoCounts.reserve(128);
     
     std::vector<float> m_GTAlgoRates;
     
@@ -56,7 +65,8 @@ public:
   // fondamental object   
   std::vector<Lumi> m_run;
     
-    // printing everything
+ 
+   // printing everything
   void printAllValues() const;
   void printRunValue()const;
   void printLumiSegmentValues() const;
@@ -70,14 +80,28 @@ public:
   void printGTPartition0TriggerCounts() const;
   void printGTPartition0TriggerRates() const;
   void printGTPartition0DeadTime() const;
-  void printGTPartition0DeadTimeRatio() const;
+  void printGTPartition0DeadTimeRatio() const;  
 
-typedef std::vector<Lumi>::const_iterator LumiIterator;
+  typedef std::vector<Lumi>::const_iterator LumiIterator;
  
+
+
+ 
+ 
+
+
+ 
+
+void SetRunNumber(int n) {
+    m_runnumber= n;
+  }
+
+
  private:
  int  m_lumisegment; 
  int m_runnumber;
-
+ // std::string  m_string_value;
+ //std::vector<int>  m_GTAlgoCounts;
 };
 
 #endif

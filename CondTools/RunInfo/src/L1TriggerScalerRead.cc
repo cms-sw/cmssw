@@ -157,6 +157,9 @@ std::cout<< "table handling " << std::endl;
   // implemating the query here....... 
   //  queryI->addToOutputList("RUNSESSION_PARAMETER.STRING_VALUE" , "STRING_VALUE");  
  queryI->addToOutputList("RUNSESSION_PARAMETER.ID" , "ID");
+ // to add the starting time of the lumisection
+ queryI->addToOutputList("RUNSESSION_PARAMETER.TIME" , "TIME");
+
   //  condition 
   std::string  condition =  "RUNSESSION_PARAMETER.RUNNUMBER=:n_run  AND  RUNSESSION_PARAMETER.NAME LIKE 'CMS.TRG:GTLumiSegInfo%' ORDER BY TIME "; //AND RUNSESSION_PARAMETER.STRING_VALUE LIKE '%[%'  ORDER BY TIME"; 
   // controllare...................
@@ -179,6 +182,8 @@ std::cout<< "table handling " << std::endl;
       L1TriggerScaler::Lumi Itemp;
   // if cursor is null  setting null values  
       Itemp.m_runnumber = r_number;
+      // initializing the date string ...
+      Itemp.m_date="0";
       Itemp.m_string_format= string_format;
        const coral::AttributeList& row = cursorI.currentRow();
        std::cout<< " entering the query == " << std::endl;
@@ -186,9 +191,32 @@ std::cout<< "table handling " << std::endl;
        
        //  std::cout<< " string value extracted == " << Itemp.m_string_value  << std::endl;
        Itemp.m_lumi_id=row["ID"].data<long long>();
-       std::cout<< " id value extracted == " << Itemp.m_lumi_id  << std::endl;
-       // now we have the id and we  can search and fill the lumi odject 
+        std::cout<< " id value extracted == " << Itemp.m_lumi_id  << std::endl;       // now we have the id and we  can search and fill the lumi odject 
        // retrieving all the value_id one for each member of the lumi scaler 
+
+     coral::TimeStamp st=row["TIME"].data<coral::TimeStamp>();
+	       int  year= st.year();
+	       int  month= st.month();
+	       int  day= st.day();
+	       int  hour= st.hour();
+	       
+	       int  minute= st.minute();
+	       int  second = st.second();
+	       long nanosecond =  st.nanosecond();
+	       std::cout<< "  start time time extracted == " << "-->year " << year
+			<< "-- month " << month
+			<< "-- day " << day
+			<< "-- hour " << hour 
+			<< "-- minute " << minute 
+			<< "-- second " << second <<std::endl;
+	       boost::gregorian::date dt(year,month,day);
+	       boost::posix_time::time_duration td(hour,minute,second,nanosecond/1000);  
+	       boost::posix_time::ptime pt( dt, td); 
+	       Itemp.m_start_time =  boost::posix_time::to_iso_extended_string(pt);
+	       std::cout<< " time extracted == " << Itemp.m_start_time << std::endl;
+
+
+
        coral::IQuery* queryII = schema.newQuery();
        queryII->addToOutputList("RUNSESSION_VECTOR.VALUE_ID" , "VALUE_ID");
        queryII->addToOutputList("RUNSESSION_VECTOR.VALUE_INDEX" , "VALUE_INDEX");
@@ -227,7 +255,7 @@ std::cout<< "table handling " << std::endl;
 	     
 	     while ( cursorIII.next()!=0 ) {
 	       const coral::AttributeList& row = cursorIII.currentRow();
-	       std::cout<< " entering the queryIII  " << std::endl;
+	       //   std::cout<< " entering the queryIII  " << std::endl;
 	       Itemp.m_rn = row["VALUE"].data<long long>();
 	       std::cout<< " run extracted == " << Itemp.m_rn << std::endl;
 	     }
@@ -299,7 +327,7 @@ std::cout<< "table handling " << std::endl;
 	     std::string  condition3 =  "RUNSESSION_DATE.PARENT_ID=:n_vid_val";
 	     queryIII->setCondition( condition3, conditionData3 );
 	     coral::ICursor& cursorIII = queryIII->execute();
-	     while ( cursorIII.next()!=0 ) {
+	     if ( cursorIII.next()!=0 ) {
 	       const coral::AttributeList& row = cursorIII.currentRow();
 	       std::cout<< " entering the queryIII  " << std::endl;
 	       coral::TimeStamp ts = row["VALUE"].data<coral::TimeStamp>();
@@ -321,8 +349,11 @@ std::cout<< "table handling " << std::endl;
 	       boost::posix_time::time_duration td(hour,minute,second,nanosecond/1000);  
 	       boost::posix_time::ptime pt( dt, td); 
 	       Itemp.m_date =  boost::posix_time::to_iso_extended_string(pt);
-	       std::cout<< " context extracted == " << Itemp.m_date << std::endl; 
-	     }
+	       std::cout<< " date extracted == " << Itemp.m_date << std::endl; 
+	     } else {
+	     Itemp.m_date=="NULL";
+	       std::cout<< "date  extracted == " << Itemp.m_date<<std::endl;
+             }
 	     delete queryIII;
 	   }
 	     break;
@@ -341,7 +372,7 @@ std::cout<< "table handling " << std::endl;
 	       std::cout<< " entering the queryIII  " << std::endl;
 	       int v = (int)row["VALUE"].data<long long>();
 	       Itemp.m_GTAlgoCounts.push_back(v); 
-	       std::cout<< " m_GTAlgoCounts["<< i << "]" << " extracted == " << v << std::endl;
+	       // std::cout<< " m_GTAlgoCounts["<< i << "]" << " extracted == " << v << std::endl;
 	       i++;
              }
 	     
@@ -365,7 +396,7 @@ std::cout<< "table handling " << std::endl;
 	       std::cout<< " entering the queryIII  " << std::endl;
 	       float v = (float)row["VALUE"].data<double>();
 	       Itemp.m_GTAlgoRates.push_back(v); 
-	       std::cout<< " m_GTAlgoRates["<< i << "]" << " extracted == " << v << std::endl;
+	       // std::cout<< " m_GTAlgoRates["<< i << "]" << " extracted == " << v << std::endl;
 	       i++;
 	       }
 	       
@@ -390,7 +421,7 @@ std::cout<< "table handling " << std::endl;
 	       std::cout<< " entering the queryIII  " << std::endl;
 	       int v = (int)row["VALUE"].data<long long>();
 	       Itemp.m_GTAlgoPrescaling.push_back(v); 
-	       std::cout<< " m_GTAlgoPrescaling["<< i << "]" << " extracted == " << v << std::endl;
+	       // std::cout<< " m_GTAlgoPrescaling["<< i << "]" << " extracted == " << v << std::endl;
 	       i++;
 	       }
               
@@ -414,7 +445,7 @@ std::cout<< "table handling " << std::endl;
 	       std::cout<< " entering the queryIII  " << std::endl;
 	       int v = (int)row["VALUE"].data<long long>();
 	       Itemp.m_GTTechCounts.push_back(v); 
-	       std::cout<< " m_GTTechCounts["<< i << "]" << " extracted == " << v << std::endl;
+	       // std::cout<< " m_GTTechCounts["<< i << "]" << " extracted == " << v << std::endl;
 	       i++;
 	       }
 	       
@@ -438,7 +469,7 @@ std::cout<< "table handling " << std::endl;
 	       std::cout<< " entering the queryIII  " << std::endl;
 	       float v = (float)row["VALUE"].data<double>();
 	       Itemp.m_GTTechRates.push_back(v); 
-	       std::cout<< " m_GTTechRates["<< i << "]" << " extracted == " << v << std::endl;
+	       // std::cout<< " m_GTTechRates["<< i << "]" << " extracted == " << v << std::endl;
 	       i++;
 	       }
 	       
@@ -462,7 +493,7 @@ std::cout<< "table handling " << std::endl;
 	       std::cout<< " entering the queryIII  " << std::endl;
 	       int v = (int)row["VALUE"].data<long long>();
 	       Itemp.m_GTTechPrescaling.push_back(v); 
-	       std::cout<< " m_GTTechPrescaling["<< i << "]" << " extracted == " << v << std::endl;
+	       //  std::cout<< " m_GTTechPrescaling["<< i << "]" << " extracted == " << v << std::endl;
 	       i++;
 	       }
 	       
@@ -486,7 +517,7 @@ std::cout<< "table handling " << std::endl;
 	       std::cout<< " entering the queryIII  " << std::endl;
 	       int v = (int)row["VALUE"].data<long long>();
 	       Itemp.m_GTPartition0TriggerCounts.push_back(v); 
-	       std::cout<< " m_GTPartition0TriggerCounts"<< i << "]" << " extracted == " << v << std::endl;
+	       //   std::cout<< " m_GTPartition0TriggerCounts"<< i << "]" << " extracted == " << v << std::endl;
 	       i++;
 	       }
 	       
@@ -510,7 +541,7 @@ std::cout<< "table handling " << std::endl;
 	       std::cout<< " entering the queryIII  " << std::endl;
 	       float v = (float)row["VALUE"].data<double>();
 	       Itemp.m_GTPartition0TriggerRates.push_back(v); 
-	       std::cout<< " m_GTPartition0TriggerRates["<< i << "]" << " extracted == " << v << std::endl;
+	       // std::cout<< " m_GTPartition0TriggerRates["<< i << "]" << " extracted == " << v << std::endl;
 	       i++;
 	       }
 	       
@@ -534,7 +565,7 @@ std::cout<< "table handling " << std::endl;
 	       std::cout<< " entering the queryIII  " << std::endl;
 	       int v = (int)row["VALUE"].data<long long>();
 		 Itemp.m_GTPartition0DeadTime.push_back(v); 
-		 std::cout<< "  m_GTPartition0DeadTime"<< i << "]" << " extracted == " << v << std::endl;
+		 // std::cout<< "  m_GTPartition0DeadTime"<< i << "]" << " extracted == " << v << std::endl;
 		 i++;
 		 }
 		 
@@ -558,7 +589,7 @@ std::cout<< "table handling " << std::endl;
 	       std::cout<< " entering the queryIII  " << std::endl;
 	       float v = (float)row["VALUE"].data<double>();
 	       Itemp.m_GTPartition0DeadTimeRatio.push_back(v); 
-                std::cout<< " m_GTPartition0DeadTimeRatio["<< i << "]" << " extracted == " << v << std::endl;
+               // std::cout<< " m_GTPartition0DeadTimeRatio["<< i << "]" << " extracted == " << v << std::endl;
 		i++;
 		}
 		
@@ -576,14 +607,14 @@ std::cout<< "table handling " << std::endl;
 	   
 	   // l1triggerscaler_array.push_back(Itemp);   
 	   
-	 }
+	 } 
        delete queryII;
        
        
        
        l1triggerscaler_array.push_back(Itemp);
        
-     }  
+     } 
    
    delete queryI;
    
