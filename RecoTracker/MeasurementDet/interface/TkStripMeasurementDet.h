@@ -129,9 +129,18 @@ private:
   // regional unpacking ---
 
   inline bool isMasked(const SiStripCluster &cluster) const {
-    return maskBad128StripBlocks_ && 
-            ( bad128Strip_[cluster.firstStrip() >> 7] ||
-            bad128Strip_[(cluster.firstStrip()+cluster.amplitudes().size()) >> 7] );
+      if ( bad128Strip_[cluster.firstStrip() >> 7] ) {
+          if ( bad128Strip_[(cluster.firstStrip()+cluster.amplitudes().size())  >> 7] ||
+               bad128Strip_[static_cast<int32_t>(cluster.barycenter()-0.499999) >> 7] ) {
+              return true;
+          }
+      } else {
+          if ( bad128Strip_[(cluster.firstStrip()+cluster.amplitudes().size())  >> 7] &&
+               bad128Strip_[static_cast<int32_t>(cluster.barycenter()-0.499999) >> 7] ) {
+              return true;
+          }
+      }
+      return false;
   }
 };
 
