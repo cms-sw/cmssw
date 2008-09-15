@@ -23,13 +23,14 @@ class TopElecAnalyzer : public edm::EDAnalyzer {
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
 
-  edm::InputTag input_;
+  edm::InputTag elecs_;
   
-  TH1I *Num_Elecs;
-  TH1F *pt_Elecs;
-  TH1F *energy_Elecs;
-  TH1F *eta_Elecs;
-  TH1F *phi_Elecs;
+  TH1I *NrElec_;
+  TH1F *ptElec_;
+  TH1F *enElec_;
+  TH1F *etaElec_;
+  TH1F *phiElec_;
+  TH1F *trigMatchElec_;
 };  
 
 #endif  
