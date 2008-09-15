@@ -55,7 +55,7 @@ private:
   edm::InputTag theL1CollectionLabel;
   std::string   theGenLabel;
   std::string   theRecoLabel;
-  std::vector <edm::InputTag> theHLTCollectionLabels;
+  std::vector<edm::InputTag> theHLTCollectionLabels;
 
   double theL1ReferenceThreshold;
   double theHLTReferenceThreshold;
@@ -75,15 +75,11 @@ private:
 
   // Struct for matching
   struct MatchStruct {
-    const reco::GenParticle *genCand;
-    const reco::Track*       recCand;
+    const reco::GenParticle*       genCand;
+    const reco::Track*             recCand;
     const l1extra::L1MuonParticle* l1Cand;
     std::vector<const reco::RecoChargedCandidate*> hltCands;
   };
-  std::vector<MatchStruct> genMatches;
-  std::vector<MatchStruct> recMatches;
-  int nL1Orphans ;
-  int nHltOrphans;
   
   const reco::Candidate* findMother(const reco::Candidate*);
 
@@ -97,14 +93,20 @@ private:
   std::vector <MonitorElement*> hEtaPassRec;
   std::vector <MonitorElement*> hPhiPassRec;
 
-  MonitorElement *NumberOfEvents  ;
+  MonitorElement *NumberOfEvents;
   MonitorElement *NumberOfL1Events;
-  int theNumberOfEvents ;
+  MonitorElement *NumberOfL1Orphans;
+  MonitorElement *NumberOfHltOrphans;
+  int theNumberOfEvents;
   int theNumberOfL1Events;
+  int theNumberOfL1Orphans;
+  int theNumberOfHltOrphans;
   std::string theRootFileName;
 
-  int findGenMatch( double eta, double phi, double maxDeltaR );
-  int findRecMatch( double eta, double phi, double maxdeltaR );
+  int findGenMatch( double eta, double phi, double maxDeltaR,
+		    std::vector<MatchStruct> matches );
+  int findRecMatch( double eta, double phi, double maxdeltaR,
+		    std::vector<MatchStruct> matches );
 
 
   // ntuple
