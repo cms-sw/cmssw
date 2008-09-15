@@ -15,7 +15,7 @@ KFSmootherForMuonTrackLoader = cms.ESProducer("KFTrajectorySmootherESProducer",
     ComponentName = cms.string('KFSmootherForMuonTrackLoader'),
     Estimator = cms.string('Chi2EstimatorForMuonTrackLoader'),
     Updator = cms.string('KFUpdator'),
-    Propagator = cms.string('SmartPropagatorAnyOpposite')
+    Propagator = cms.string('SmartPropagatorAnyRK')
 )
 
 MuonTrackLoaderForSTA = cms.PSet(
