@@ -451,7 +451,7 @@ def main(argv):
         if candleoption == "":
             candleoption = "MinBias"
         if stepOptions == "":
-            stepOptions = "GEN-SIM,DIGI,L1,DIGI2RAW,HLT,RAW2DIGI,RECO"
+            stepOptions = "GEN-SIM,DIGI,L1,DIGI2RAW,HLT,RAW2DIGI-RECO"
         cmsScimark      = 0
         cmsScimarkLarge = 0
         ValgrindEvents  = 0
