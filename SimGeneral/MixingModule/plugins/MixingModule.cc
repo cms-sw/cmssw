@@ -194,7 +194,7 @@ namespace edm
       delete workers_[ii];
   }  
 
-  void MixingModule::addSignals(const edm::Event &e) { 
+  void MixingModule::addSignals(const edm::Event &e, const edm::EventSetup& setup) { 
     // fill in signal part of CrossingFrame
 
     LogDebug("MixingModule")<<"===============> adding signals for "<<e.id();
@@ -204,7 +204,7 @@ namespace edm
 
   }
 
-  void MixingModule::doPileUp(edm::Event &e)
+  void MixingModule::doPileUp(edm::Event &e, const edm::EventSetup& setup)
   {//     we first loop over workers
     // in order not to keep all CrossingFrames in memory simultaneously
     //
@@ -217,7 +217,7 @@ namespace edm
 	for (unsigned int isource=0;isource<maxNbSources_;++isource) {
 	  workers_[ii]->setSourceOffset(isource);
 	  if (doit_[isource])   {
-	    merge(bunchCrossing, (pileup_[isource])[bunchCrossing-minBunch_],ii);
+	    merge(bunchCrossing, (pileup_[isource])[bunchCrossing-minBunch_],ii,setup);
 	  }	
 	}
       }
@@ -225,7 +225,7 @@ namespace edm
     }
   }
 
-  void MixingModule::addPileups(const int bcr, Event *e, unsigned int eventNr,unsigned int worker) {    // fill in pileup part of CrossingFrame
+  void MixingModule::addPileups(const int bcr, Event *e, unsigned int eventNr,unsigned int worker, const edm::EventSetup& setup) {    // fill in pileup part of CrossingFrame
 
   
     LogDebug("MixingModule") <<"\n===============> adding objects from event  "<<e->id()<<" for bunchcrossing "<<bcr;

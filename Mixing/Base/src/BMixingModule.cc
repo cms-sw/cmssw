@@ -110,13 +110,13 @@ namespace edm {
   BMixingModule::~BMixingModule() {;}
 
   // Functions that get called by framework every event
-  void BMixingModule::produce(edm::Event& e, const edm::EventSetup&) { 
+  void BMixingModule::produce(edm::Event& e, const edm::EventSetup& setup) { 
 
     // Create EDProduct
     createnewEDProduct();
 
     // Add signals 
-    addSignals(e);
+    addSignals(e,setup);
 
     // Read the PileUp 
     //    std::vector<EventPrincipalVector> pileup[maxNbSources_];
@@ -196,14 +196,14 @@ namespace edm {
       }  
     }
 
-    doPileUp(e);
+    doPileUp(e,setup);
 
     // Put output into event (here only playback info)
     put(e);
   }
 
  
-  void BMixingModule::merge(const int bcr, const EventPrincipalVector& vec, unsigned int worker) {
+  void BMixingModule::merge(const int bcr, const EventPrincipalVector& vec, unsigned int worker, const edm::EventSetup& setup) {
     //
     // main loop: loop over events and merge 
     //
@@ -213,7 +213,7 @@ namespace edm {
     for (EventPrincipalVector::const_iterator it = vec.begin(); it != vec.end(); ++it) {
       Event e(**it, md_);
       LogDebug("MixingModule") <<" merging Event:  id " << e.id();
-      addPileups(bcr, &e, ++eventId_,worker);
+      addPileups(bcr, &e, ++eventId_,worker,setup);
     }// end main loop
   }
 
