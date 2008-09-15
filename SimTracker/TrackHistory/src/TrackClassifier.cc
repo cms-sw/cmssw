@@ -157,7 +157,7 @@ void TrackClassifier::reconstructionInformation(edm::RefToBase<reco::Track> cons
     double d0Sim = - (-v.x()*sin(p.phi())+v.y()*cos(p.phi()));
 
     // Calculate the d0 pull
-    double d0Pull = ( track->d0() - d0Sim ) / track->d0Error();
+    double d0Pull = fabs( track->d0() - d0Sim ) / track->d0Error();
 
     // Return true if d0Pull > badD0Pull sigmas
     flags_[TrackCategories::Bad] = (d0Pull > badD0Pull_);

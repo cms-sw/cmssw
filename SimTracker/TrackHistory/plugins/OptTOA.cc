@@ -291,7 +291,7 @@ OptTOA::analyze(const edm::Event& event, const edm::EventSetup& setup)
 void
 OptTOA::beginJob(const edm::EventSetup& setup)
 {
-    histogram_data_.resize(5);
+    histogram_data_.resize(6);
 }
 
 
@@ -303,16 +303,18 @@ OptTOA::endJob()
     file.cd();
 
     // saving the histograms
-    for (std::size_t i=0; i<5; i++)
+    for (std::size_t i=0; i<6; i++)
     {
         std::string particle;
         if (i == 0)
             particle = std::string("B_tracks");
         else if (i == 1)
-            particle = std::string("nonB_tracks");
+            particle = std::string("C_tracks");
         else if (i == 2)
-            particle = std::string("displaced_tracks");
+            particle = std::string("nonB_tracks");
         else if (i == 3)
+            particle = std::string("displaced_tracks");
+        else if (i == 4)
             particle = std::string("bad_tracks");
         else
             particle = std::string("fake_tracks");
@@ -402,18 +404,20 @@ OptTOA::LoopOverJetTracksAssociation(
 
             // Check for the different categories
             if ( classifier_.is(TrackCategories::Fake) )
-                histogram_data_[4].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits, pixelHits));
+                histogram_data_[5].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits, pixelHits));
             else if ( classifier_.is(TrackCategories::BWeakDecay) )
                 histogram_data_[0].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits, pixelHits));
             else if ( classifier_.is(TrackCategories::Bad) )
-                histogram_data_[3].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits, pixelHits));
+                histogram_data_[4].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits, pixelHits));
             else if (
                 !classifier_.is(TrackCategories::CWeakDecay) &&
                 !classifier_.is(TrackCategories::PrimaryVertex)
             )
-                histogram_data_[2].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits, pixelHits));
+                histogram_data_[3].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits, pixelHits));
+            else if ( classifier_.is(TrackCategories::CWeakDecay) )
+                histogram_data_[1].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits, pixelHits));            
             else
-                histogram_data_[1].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits, pixelHits));
+                histogram_data_[2].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits, pixelHits));
 
         }
     }
