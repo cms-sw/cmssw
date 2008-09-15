@@ -1,8 +1,8 @@
 /*
  * \file EEHltTask.cc
  *
- * $Date: 2008/09/12 13:51:14 $
- * $Revision: 1.5 $
+ * $Date: 2008/09/15 11:02:49 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
  *
 */
@@ -311,8 +311,7 @@ void EEHltTask::analyze(const Event& e, const EventSetup& c){
       int ismt = Numbers::iSM( id );
       int fednumber = ( ismt < 10 ) ? 600 + ismt : 636 + ismt;
 
-      meEEFedsIntegrityErrors_->Fill( fednumber, 1./44.);
-
+      meEEFedsIntegrityErrors_->Fill( fednumber, 1./34.);
 
     }
 
@@ -358,7 +357,7 @@ void EEHltTask::analyze(const Event& e, const EventSetup& c){
       int ismt = Numbers::iSM( id );
       int fednumber = ( ismt < 10 ) ? 600 + ismt : 636 + ismt;
 
-      meEEFedsIntegrityErrors_->Fill( fednumber, 1./44.);
+      meEEFedsIntegrityErrors_->Fill( fednumber, 1./34.);
 
     }
 
