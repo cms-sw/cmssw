@@ -56,8 +56,18 @@ class SiStripRecHitConverterAlgorithm
   edm::ParameterSet conf_;
 
     inline bool isMasked(const SiStripCluster &cluster, bool bad128StripBlocks[6]) const {
-        return bad128StripBlocks[cluster.firstStrip() >> 7] ||
-               bad128StripBlocks[(cluster.firstStrip()+cluster.amplitudes().size()) >> 7];
+        if ( bad128StripBlocks[cluster.firstStrip() >> 7] ) {
+            if ( bad128StripBlocks[(cluster.firstStrip()+cluster.amplitudes().size())  >> 7] ||
+                 bad128StripBlocks[static_cast<int32_t>(cluster.barycenter()-0.499999) >> 7] ) {
+                return true;
+            }
+        } else {
+            if ( bad128StripBlocks[(cluster.firstStrip()+cluster.amplitudes().size())  >> 7] &&
+                 bad128StripBlocks[static_cast<int32_t>(cluster.barycenter()-0.499999) >> 7] ) {
+                return true;
+            }
+        }
+        return false;
     }
     void   fillBad128StripBlocks(const SiStripQuality &quality, const uint32_t &detid, bool bad128StripBlocks[6]) const ;
     
