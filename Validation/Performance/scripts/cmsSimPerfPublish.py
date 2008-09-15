@@ -375,7 +375,7 @@ def optionparse():
         #metavar='DEBUG',
         )
 
-    repdirdef = "./"
+    repdirdef = os.getcwd()
     parser.set_defaults(debug=0,simulation=False,relval=False,port=873,pretend=False,repdir=repdirdef,verbose=False)
     parser.add_option_group(devel)
 

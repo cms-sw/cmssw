@@ -7,7 +7,11 @@ from cmsPerfCommons import Candles, CandFname, getVerFromLog
 
 def getParameters():
     global _debug
-    parser = opt.OptionParser()
+    global PROG_NAME
+    PROG_NAME = os.path.basename(sys.argv[0])
+    parser = opt.OptionParser(usage="""%s [OLD_REL_DIR] [NEW_REL_DIR]
+
+To compare 2 cmsPerfSuite.py directories pass the previous release as the first argument and the latest release as the second argument """ % PROG_NAME)
     #
     # Options
     #

@@ -120,6 +120,8 @@ def optionparse():
         explanation += "%-*s %s\n" % (30, explanations[x],CandDesc[x])
     parser = opt.OptionParser(usage=("""%s NUM_EVENTS_PER_CFG CANDLES PROFILE [--cmsdriver=cmsDriverOptions] [--usersteps=processingStepsOption]
 
+    Description - This program creates a configuration file for cmsRelvalreport.py that describes the order in which cmsDriver.py should be run with which candles, steps and profiling so that time spent running cmsDriver.py is minimised. Without this correct ordering we would have to re-run parts of the profiling steps.
+
     Arguments:
         NUM_EVENTS_PER_CFG - The number of events per config file
 
