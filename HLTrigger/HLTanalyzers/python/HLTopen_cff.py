@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 from HLTrigger.Configuration.HLT_2E30_cff import *
 
 # create the muon HLT reco path
-DoHltMuon = cms.Path( HLTL1muonrecoSequence + HLTL2muonrecoSequence + HLTL2muonisorecoSequence + HLTL3muonrecoSequence + HLTL3muonisorecoSequence )
+DoHltMuon = cms.Path( HLTL2muonrecoSequence + HLTL2muonisorecoSequence + HLTL3muonrecoSequence + HLTL3muonisorecoSequence )
 
 # create the Egamma HLT reco paths
 DoHLTPhoton = cms.Path( HLTBeginSequence + HLTDoRegionalEgammaEcalSequence + HLTL1IsolatedEcalClustersSequence + HLTL1NonIsolatedEcalClustersSequence + hltL1IsoRecoEcalCandidate + hltL1NonIsoRecoEcalCandidate + hltL1IsolatedPhotonEcalIsol + hltL1NonIsolatedPhotonEcalIsol + HLTDoLocalHcalWithoutHOSequence + hltL1IsolatedPhotonHcalIsol + hltL1NonIsolatedPhotonHcalIsol + HLTDoLocalTrackerSequence + HLTL1IsoEgammaRegionalRecoTrackerSequence + HLTL1NonIsoEgammaRegionalRecoTrackerSequence + hltL1IsoPhotonTrackIsol + hltL1NonIsoPhotonTrackIsol )

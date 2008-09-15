@@ -16,7 +16,7 @@ process.source = cms.Source("PoolSource",
 )
 )
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32( 100 )
+    input = cms.untracked.int32( 500 )
 )
 
 process.load("Configuration.StandardSequences.GeometryPilot2_cff")
