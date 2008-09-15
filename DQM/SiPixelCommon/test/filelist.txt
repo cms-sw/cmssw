@@ -1,2 +1,1 @@
-/castor/cern.ch/cms/store/TAC/PIXEL/P5/SCurve_33_53903.root
-/castor/cern.ch/cms/store/TAC/PIXEL/P5/GainCalibration_10_61454.root
+/castor/cern.ch/cms/store/TAC/PIXEL/P5/GainCalibration_32_62002.root
