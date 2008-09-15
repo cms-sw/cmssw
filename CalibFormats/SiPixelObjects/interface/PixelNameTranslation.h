@@ -91,6 +91,9 @@ namespace pos{
     bool ROCexists(PixelROCName theROC) ; // Added by Dario
     const PixelChannel& getChannelFromHdwAddress(const PixelHdwAddress& aHdwAddress) const;
 
+
+    std::map <unsigned int, std::set<unsigned int> > getFEDsAndChannels() const;
+
   private:
   
         

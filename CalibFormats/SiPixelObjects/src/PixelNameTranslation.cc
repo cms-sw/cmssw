@@ -652,3 +652,25 @@ bool PixelNameTranslation::ROCexists(PixelROCName theROC)
   if (translationtable_.find(theROC)==translationtable_.end()) {return false ;}
   return true ;
 }
+
+
+std::map <unsigned int, std::set<unsigned int> > PixelNameTranslation::getFEDsAndChannels() const {
+
+  std::map <unsigned int, std::set<unsigned int> > tmp;
+
+std::map<PixelChannel, PixelHdwAddress >::const_iterator 
+  channelTranslationTable_itr = channelTranslationTable_.begin();
+
+  for ( ; channelTranslationTable_itr != channelTranslationTable_.end(); 
+          channelTranslationTable_itr++ ) {
+
+    unsigned int fednumber=channelTranslationTable_itr->second.fednumber();
+    unsigned int fedchannel=channelTranslationTable_itr->second.fedchannel();
+
+    tmp[fednumber].insert(fedchannel);
+
+  }
+
+  return tmp;
+  
+}
