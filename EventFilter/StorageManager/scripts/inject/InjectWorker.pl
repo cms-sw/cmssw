@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: InjectWorker.pl,v 1.23 2008/08/16 10:02:20 loizides Exp $
+# $Id: InjectWorker.pl,v 1.24 2008/09/15 18:02:23 loizides Exp $
 
 use strict;
 use DBI;
@@ -142,8 +142,10 @@ sub inject($$)
     my $appname     = $ENV{'SM_APPNAME'};
     my $type        = $ENV{'SM_TYPE'};
     my $checksum    = $ENV{'SM_CHECKSUM'};
+    my $hltkey      = $ENV{'SM_HLTKEY'};
     my $producer    = 'StorageManager';
     my $destination = 'Global';
+    my $commentstr  = 'HLTKEY=$hltkey';
 
     # index file name and size
     my $indfile     = $filename;
@@ -199,6 +201,7 @@ sub inject($$)
 	$sth->bind_param(7,$stime);
 	$sth->bind_param(8,$indfile);
 	$sth->bind_param(9,$indfilesize);
+	$sth->bind_param(10,$commentstr);
     }
 
     my $notscript = $ENV{'SM_NOTIFYSCRIPT'};
@@ -210,7 +213,8 @@ sub inject($$)
         "--LUMISECTION $lumisection --INSTANCE $instance --COUNT $count --START_TIME $starttime " . 
         "--STOP_TIME $stoptime --FILENAME $filename --PATHNAME $pathname --HOSTNAME $hostname " .
         "--DESTINATION $destination --SETUPLABEL $setuplabel --STREAM $stream --STATUS $status " .
-        " --TYPE $type --SAFETY $safety --NEVENTS $nevents --FILESIZE $filesize --CHECKSUM $checksum";
+        " --TYPE $type --SAFETY $safety --NEVENTS $nevents --FILESIZE $filesize --CHECKSUM $checksum"; 
+        #"--HLTKEY $hltkey";
 
     if ($indfile ne '') {
       $TIERZERO .= " --INDEX $indfile"; # --INDEXFILESIZE $indfilesize"
@@ -248,7 +252,6 @@ sub inject($$)
     }
     return 0;
 }
-
 
 ############################################################################################################
 # Main starts here                                                                                         #
@@ -392,14 +395,20 @@ $ENV{'TNS_ADMIN'} = '/etc/tnsnames.ora';
 my $dbh;          #my DB handle
 my $newHandle;    #for new files
 my $injectHandle; #for injections
-my $SQL;
-my $dbi;
-my $reader;
-if (!defined $ENV{'SM_DONTACCESSDB'}) { 
-    $dbi    = "DBI:Oracle:cms_rcms";
-    $reader = "CMS_STOMGR_W";
-    if ($debug) {print "Setting up DB connection for $dbi and $reader\n";}
+my $SQLn;
+my $SQLi;
+my $dbi    = "DBI:Oracle:cms_rcms";
+my $reader = "CMS_STOMGR_W";
+my $dbhlt;        #my DB handle for HLT key
+my $dbihlt = "DBI:Oracle:cms_omds_lb";
+my $hltHandle;    #for HLT key queries
+my $SQLh;
+my $runnumq;      #runnumber to be used for queries
+my %hltkeys;      #cache hlt keys
 
+if (!defined $ENV{'SM_DONTACCESSDB'}) { 
+
+    if ($debug) {print "Setting up DB connection for $dbi and $reader\n";}
     my $retry = 0;
     while (!$retry) {
         $retry=1;
@@ -411,25 +420,44 @@ if (!defined $ENV{'SM_DONTACCESSDB'}) {
     }
 
     my $timestr = gettimestr();
-    print "$timestr: Setup DB connection\n";
+    print "$timestr: Setup main DB connection\n";
 
-    $SQL = "INSERT INTO CMS_STOMGR.FILES_CREATED (" .
+    $SQLn = "INSERT INTO CMS_STOMGR.FILES_CREATED (" .
 	"FILENAME,CPATH,HOSTNAME,SETUPLABEL,STREAM,TYPE,PRODUCER,APP_NAME,APP_VERSION," .
 	"RUNNUMBER,LUMISECTION,COUNT,INSTANCE,CTIME) " .
 	"VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?," .
 	"TO_DATE(?,'YYYY-MM-DD HH24:MI:SS'))";
-    $newHandle = $dbh->prepare($SQL) or mydie("Error: Prepare failed for $SQL: $dbh->errstr \n",$lockfile);
+    $newHandle = $dbh->prepare($SQLn) or mydie("Error: Prepare failed for $SQLn: $dbh->errstr \n",$lockfile);
 
-    $SQL = "INSERT INTO CMS_STOMGR.FILES_INJECTED (" .
-	"FILENAME,PATHNAME,DESTINATION,NEVENTS,FILESIZE,CHECKSUM,ITIME,INDFILENAME,INDFILESIZE) " .
+    $SQLi = "INSERT INTO CMS_STOMGR.FILES_INJECTED (" .
+	"FILENAME,PATHNAME,DESTINATION,NEVENTS,FILESIZE,CHECKSUM,ITIME,INDFILENAME,INDFILESIZE,COMMENT_STR) " .
 	"VALUES (?,?,?,?,?,?," . 
-	"TO_DATE(?,'YYYY-MM-DD HH24:MI:SS'),?,?)";
-    $injectHandle = $dbh->prepare($SQL) or mydie("Error: Prepare failed for $SQL: $dbh->errstr \n",$lockfile);
+	"TO_DATE(?,'YYYY-MM-DD HH24:MI:SS'),?,?,?)";
+    $injectHandle = $dbh->prepare($SQLi) or mydie("Error: Prepare failed for $SQLi: $dbh->errstr \n",$lockfile);
+
+    # this is for HLT key queries
+    if ($debug) {print "Setting up DB connection for $dbihlt and $reader\n";}
+    $retry = 0;
+    while (!$retry) {
+        $retry=1;
+        $dbhlt = DBI->connect($dbihlt,$reader,"qwerty") or $retry=0;
+        if ($retry == 0) {
+            print("Error: Connection to Oracle failed: $DBI::errstr\n",$lockfile);
+            sleep(10);
+        }
+    }
+
+    $timestr = gettimestr();
+    print "$timestr: Setup DB connection for HLT key retrieval\n";
+ 
+    $SQLh = "SELECT STRING_VALUE FROM CMS_RUNINFO.RUNSESSION_PARAMETER " . 
+        "WHERE RUNNUMBER=$runnumq and NAME='CMS.LVL0:HLT_KEY_DESCRIPTION'";
+    my $hltHandle = $dbhlt->prepare($SQLh) or mydie("Error: Prepare failed for $SQLh: $dbh->errstr \n",$lockfile);
+
 } else { 
     print "Don't access DB flag set \n".
           "Following commands would have been processed: \n";
 }
-
 
 #loop over input files: sleep and try to reread file once end is reached
 my $lnum=0;
@@ -481,7 +509,33 @@ while(!$endflag) {
                 $count++;
             }
         } 
+
+        # query hlt db if hlt was not already obtained
+        $ENV{'SM_HLTKEY'} = "UNKNOWN";
+        $runnumq = $ENV{'SM_RUNNUMBER'};
+        my $hltkey = $hltkeys{$runnumq};
+        if (defined $hltkey) {
+            $ENV{'SM_HLTKEY'}=$hltkey;
+        } else {
+            my $errflag = 0;
+            $hltHandle->execute() or $errflag=1;
+            if ($errflag>0) {
+                print "Error in DB for HLT KEY when executing, DB returned $hltHandle->errstr\n";
+            } else {
+                my @row = $hltHandle->fetchrow_array or $errflag=1;
+                if ($errflag>0) {
+                    print "Error in DB for HLT KEY when fetching, DB returned $hltHandle->errstr\n";
+                } else {
+                    if (defined $row[0]) {
+                        $hltkey = $row[0];
+                        $ENV{'SM_HLTKEY'}=$hltkey;
+                        $hltkeys{$runnumq} = $hltkey;
+                    }
+                }
+            }
+        }
 	
+        # inject and possibly notify
         my $ret=inject($useHandle,$type);
 	    
         if ($ret == 0) {
@@ -531,21 +585,30 @@ while(!$endflag) {
 
     #If can't ping the db will reconnect and re-prepare statements
     unless(defined($dbh) && $dbh->ping()) {
-	$dbh = DBI->connect($dbi,$reader,"qwerty") or 
-	    mydie("Error: Connection to Oracle failed: $DBI::errstr\n",$lockfile);
-        $SQL = "INSERT INTO CMS_STOMGR.FILES_CREATED (" .
-            "FILENAME,CPATH,HOSTNAME,SETUPLABEL,STREAM,TYPE,PRODUCER,APP_NAME,APP_VERSION," .
-            "RUNNUMBER,LUMISECTION,COUNT,INSTANCE,CTIME) " .
-            "VALUES (?,?,?,?,?,?,?," .
-            "?,?,?,?,?,?," .
-            "TO_DATE(?,'YYYY-MM-DD HH24:MI:SS'))";
-	$newHandle = $dbh->prepare($SQL) or mydie("Error: Prepare failed for $SQL: $dbh->errstr \n",$lockfile);
+        my $retry = 0;
+        while (!$retry) {
+            $retry=1;
+            $dbh = DBI->connect($dbi,$reader,"qwerty") or $retry=0;
+            if ($retry == 0) {
+                print("Error: Re-Connection to Oracle failed: $DBI::errstr\n",$lockfile);
+                sleep(10);
+            }
+        }
+	$newHandle = $dbh->prepare($SQLn) or mydie("Error: Prepare failed for $SQLn: $dbh->errstr \n",$lockfile);
+	$injectHandle = $dbh->prepare($SQLi) or mydie("Error: Prepare failed for $SQLi: $dbh->errstr \n",$lockfile);
+    }
 
-        $SQL = "INSERT INTO CMS_STOMGR.FILES_INJECTED (" .
-               "FILENAME,PATHNAME,DESTINATION,NEVENTS,FILESIZE,CHECKSUM,ITIME) " .
-               "VALUES (?,?,?,?,?,?," . 
-               "TO_DATE(?,'YYYY-MM-DD HH24:MI:SS'))";
-	$injectHandle = $dbh->prepare($SQL) or mydie("Error: Prepare failed for $SQL: $dbh->errstr \n",$lockfile);
+    unless(defined($dbhlt) && $dbhlt->ping()) {
+        my $retry = 0;
+        while (!$retry) {
+            $retry=1;
+            $dbhlt = DBI->connect($dbihlt,$reader,"qwerty") or $retry=0;
+            if ($retry == 0) {
+                print("Error: Re-Connection to Oracle failed: $DBI::errstr\n",$lockfile);
+                sleep(10);
+            }
+        }
+        $hltHandle = $dbhlt->prepare($SQLh) or mydie("Error: Prepare failed for $SQLh: $dbh->errstr \n",$lockfile);
     }
 
     # check live counter
