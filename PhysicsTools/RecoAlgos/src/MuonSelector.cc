@@ -223,13 +223,12 @@ namespace helper
                   lastRef = it->clusterRef();
                   // clone cluster
                   if(lastRef.isAvailable()){
-		  setClustersOK(false);
-		  edm::LogError("MuonSelector")<<"Missing reference from clusters!!!";
-		  edm::LogError("MuonSelector")<<"No objects will be produced!!!";
                   filler.push_back( *lastRef );  
                   // make new ref
                   newRef = typename HitType::ClusterRef( refprod, clusters++ );
 		  }
+		  else setClustersOK(false);
+		 // to avoid problem with missing clusters refs in 21X 
               } 
               // then fixup the reference
               it->rekey( newRef );
@@ -265,6 +264,11 @@ namespace helper
           evt.put( selPixelClusters_ );
       }
      }      
+     else{
+        edm::LogError("MuonSelector")<<"Missing reference from clusters!!!";
+        edm::LogError("MuonSelector")<<"No objects will be produced!!!";
+     }
+
       return h; 
      
     }
