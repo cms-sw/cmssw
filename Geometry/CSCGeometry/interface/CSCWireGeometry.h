@@ -86,9 +86,9 @@ class CSCWireGeometry {
   
   /** Return 2-dim local coords of the two ends of a wire
    *
-   *  The returned value is a pair of pairs. Each of those pairs is local x, local y.
+   *  The returned value is a pair of LocalPoints. 
    */
-  std::pair< std::pair<float, float>, std::pair<float,float> > wireEnds( float wire ) const;
+  std::pair< LocalPoint, LocalPoint > wireEnds( float wire ) const;
 
   /** Return mid-point of a wire in local coordinates, and its length
    *  across the chamber volume, in a vector as x, y, length

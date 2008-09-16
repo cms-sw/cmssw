@@ -20,19 +20,19 @@ std::vector<float> CSCWireGeometry::wireValues( float wire ) const {
   // return x and y of mid-point of wire, and length of wire, as 3-dim vector.
   // If wire does not intersect active area the returned vector is filled with 0's.
 
-  std::pair< std::pair<float,float>, std::pair<float,float> > ends = wireEnds( wire );
+  std::pair< LocalPoint, LocalPoint > ends = wireEnds( wire );
 
   std::vector<float> buf(3); // note all elem init to 0
   
-  buf[0] = (ends.first.first  + ends.second.first)/2.; // x is first elem of first & second pairs
-  buf[1] = (ends.first.second + ends.second.second)/2.; // y is second elem of first & second pairs
-  float d2 = (ends.first.first  - ends.second.first)  * (ends.first.first  - ends.second.first) +
-             (ends.first.second - ends.second.second) * (ends.first.second - ends.second.second);
+  buf[0] = (ends.first.x() + ends.second.x())/2.; // x is first elem of first & second pairs
+  buf[1] = (ends.first.y() + ends.second.y())/2.; // y is second elem of first & second pairs
+  float d2 = (ends.first.x() - ends.second.x()) * (ends.first.x() - ends.second.x()) +
+             (ends.first.y() - ends.second.y()) * (ends.first.y() - ends.second.y());
   buf[2] = sqrt(d2) ;
   return buf;
 }
 
-std::pair< std::pair<float,float>, std::pair<float,float> > CSCWireGeometry::wireEnds( float wire ) const {
+std::pair< LocalPoint, LocalPoint > CSCWireGeometry::wireEnds( float wire ) const {
 
   // return local (x, y) of each end of wire.
   // If wire does not intersect active area set all values to 0.
@@ -90,8 +90,7 @@ std::pair< std::pair<float,float>, std::pair<float,float> > CSCWireGeometry::wir
   if ( fabs(wangle) < fprec ) {
 
     LogTrace("CSCWireGeometry|CSC") << "CSCWireGeometry: wires are not tilted ";
-    return std::pair< std::pair<float,float>, std::pair<float,float> >
-      ( std::pair<float,float>(x1,y1), std::pair<float,float>(x2,y2) );  
+    return std::pair< LocalPoint, LocalPoint >( LocalPoint(x1,y1), LocalPoint(x2,y2) );  
   }
   
   // WIRES ARE TILTED
@@ -160,8 +159,7 @@ std::pair< std::pair<float,float>, std::pair<float,float> > CSCWireGeometry::wir
     //     throw cms::Exception("BadCSCGeometry") << "the wire has " << i <<
     //       " ends!" << "\n";
 
-    return std::pair< std::pair<float,float>, std::pair<float,float> >
-    ( std::pair<float,float>(0.,0.),std::pair<float,float>(0.,0.) ); 
+    return std::pair< LocalPoint, LocalPoint >( LocalPoint(0.,0.), LocalPoint(0.,0.) ); 
   }
   
   LogTrace("CSCWireGeometry|CSC") << "CSCWireGeometry: ME11 wire ends ";
@@ -169,8 +167,8 @@ std::pair< std::pair<float,float>, std::pair<float,float> > CSCWireGeometry::wir
     LogTrace("CSCWireGeometry|CSC") << "  x = " << xWireEnd[j] << " y = " << yWireEnd[j];
   }
 
-  return std::pair< std::pair<float,float>, std::pair<float,float> >
-   ( std::pair<float,float>(xWireEnd[0],yWireEnd[0]), std::pair<float,float>(xWireEnd[1],yWireEnd[1]) );  
+  return std::pair< LocalPoint, LocalPoint >
+   ( LocalPoint(xWireEnd[0],yWireEnd[0]), LocalPoint(xWireEnd[1],yWireEnd[1]) );  
 }
 
 //@@ COULD/SHOULD BE IMPLEMENTED IN Slanted & Nonslanted DERIVED CLASSES

@@ -432,17 +432,17 @@ void
 	std::cout << "y extent     of wire plane = " << geom->wireTopology()->lengthOfPlane() << std::endl;
 	std::cout << "perp extent  of wire plane = " << geom->wireTopology()->extentOfWirePlane() << std::endl;
 
-	std::pair< std::pair<float,float>, std::pair<float,float> > lw1 =
+	std::pair< LocalPoint, LocalPoint > lw1 =
 	  geom->wireTopology()->wireEnds( geom->middleWireOfGroup( 1 ) );
 	std::cout << "local coords of ends of central wire of wire group 1 = " <<
-	  "(" << lw1.first.first << ", " << lw1.first.second << "), " <<
-	  "(" << lw1.second.first << ", " << lw1.second.second << ")" << std::endl;
+	  "(" << lw1.first.x() << ", " << lw1.first.y() << "), " <<
+	  "(" << lw1.second.x() << ", " << lw1.second.y() << ")" << std::endl;
 
-	std::pair< std::pair<float,float>, std::pair<float,float> > lw2 =
+	std::pair< LocalPoint, LocalPoint > lw2 =
   	  geom->wireTopology()->wireEnds( geom->middleWireOfGroup( nwg ) );
 	std::cout << "local coords of ends of central wire of wire group " << nwg << " = " <<
-	  "(" << lw2.first.first << ", " << lw2.first.second << "), " <<
-	  "(" << lw2.second.first << ", " << lw2.second.second << ")" << std::endl;
+	  "(" << lw2.first.x() << ", " << lw2.first.y() << "), " <<
+	  "(" << lw2.second.x() << ", " << lw2.second.y() << ")" << std::endl;
 
 
 	// Check idToDetUnit

@@ -176,9 +176,9 @@ class CSCWireTopology : public WireTopology {
   /**
    * Return local (x,y) coordinates of the two ends of a wire
    * across the extent of the wire plane.
-   * The returned value is a pair of pairs (x,y).
+   * The returned value is a pair of LocalPoints.
    */
-  std::pair< std::pair<float,float>, std::pair<float,float> > wireEnds( float wire ) const {
+  std::pair< LocalPoint, LocalPoint > wireEnds( float wire ) const {
     return theWireGeometry->wireEnds( wire ); }
 
   /** Return mid-point of a wire in local coordinates, and its length
