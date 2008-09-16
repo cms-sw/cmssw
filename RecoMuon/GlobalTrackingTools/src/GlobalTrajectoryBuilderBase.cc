@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2008/09/04 10:02:26 $
- *  $Revision: 1.19 $
+ *  $Date: 2008/09/14 16:29:04 $
+ *  $Revision: 1.20 $
  *
  *  \author N. Neumeister        Purdue University
  *  \author C. Liu               Purdue University
@@ -912,6 +912,7 @@ GlobalTrajectoryBuilderBase::selectTrackerHits(const ConstRecHitContainer& all) 
 
   ConstRecHitContainer hits;
   for (ConstRecHitContainer::const_iterator i = all.begin(); i != all.end(); i++) {
+    if( !(*i)->isValid() ) continue;
     if ( (*i)->det()->geographicalId().det() == DetId::Tracker &&
          (*i)->det()->geographicalId().subdetId() == StripSubdetector::TEC) {
       nTEC++;
