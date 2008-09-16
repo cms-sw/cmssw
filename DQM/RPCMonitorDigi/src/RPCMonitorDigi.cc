@@ -1,8 +1,8 @@
- /************************************************
+ /***********************************************
  *						*
  *  implementation of RPCMonitorDigi class	*
  *						*
- ************************************************/
+ ***********************************************/
 #include <TRandom.h>
 #include <string>
 #include <sstream>
@@ -62,6 +62,7 @@ void RPCMonitorDigi::beginJob(EventSetup const&){
   SameBxDigisMe_ = dbe->book1D("SameBXDigis", "Digis with same bx", 20, 0.5, 20.5);  
 
   BarrelOccupancy = dbe -> book2D("BarrelOccupancy", "Barrel Occupancy Wheel vs Sector", 12, 0.5, 12.5, 5, -2.5, 2.5);
+  EndcapOccupancy = dbe -> book2D("EndcapOccupancy", "Endcap Ocupancy Ring vs Disk", 6, 0.6, 6.5, 6, 0.5, 6.5);
 
   stringstream binLabel;
   for (int i = 1; i<13; i++){
@@ -73,9 +74,18 @@ void RPCMonitorDigi::beginJob(EventSetup const&){
       binLabel<<"Wheel"<<i-3;
       BarrelOccupancy -> setBinLabel(i, binLabel.str(), 2);
     }
+    
+    if(i<7) {
+      binLabel.str("");
+      if (i<4) binLabel<<"Disk"<<i-4; else  binLabel<<"Disk"<<i-3;
+      EndcapOccupancy -> setBinLabel(i, binLabel.str(), 1);
+      
+      binLabel.str("");
+      binLabel<<"Sect"<<i;
+      EndcapOccupancy -> setBinLabel(i, binLabel.str(), 2);
+    }
   }
 }
-
 
 void RPCMonitorDigi::beginRun(const Run& r, const EventSetup& c){
   //if mergeRuns_ skip reset
@@ -189,7 +199,6 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
       ringType =  "Disk";
       ring = detId.station();
     }
-    
     std::pair<int,int> regionRing(region,ring);
     std::map<std::pair<int,int>, std::map<std::string,MonitorElement*> >::iterator meRingItr = meWheelDisk.find(regionRing);
     if (meRingItr == meWheelDisk.end() || (meWheelDisk.size()==0)) {
@@ -246,13 +255,13 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
       os<<"BxDistribution_"<<ringType<<"_"<<ring;
       meRingMap[os.str()]->Fill(bx);
    
-      if(detId.region()==0)
-	BarrelOccupancy -> Fill(detId.sector(), ring);
-   
+      if(detId.region()==0) BarrelOccupancy -> Fill(detId.sector(), ring); //BarrelOcucpancy
+      else EndcapOccupancy -> Fill(ring+3, detId.sector());                //EndcappOccupancy 
+      
       os.str("");
       os<<"Occupancy_"<<ringType<<"_"<<ring<<"_Sector_"<<detId.sector();
       meMap[os.str()]->Fill(strip, nr);
-    
+          
       string Yaxis=nameRoll;
       if (detId.region()==0){
 	Yaxis.erase (1,1);
@@ -262,8 +271,8 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
       }else{
 	Yaxis.erase(0,8);
       }
-        meMap[os.str()]->setBinLabel(nr, Yaxis, 2);
-  
+      meMap[os.str()]->setBinLabel(nr, Yaxis, 2);
+      
       os.str("");
       os<<"Occupancy_"<<nameRoll;
       meMap[os.str()]->Fill(strip);
@@ -294,7 +303,7 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
 	  os<<"CrossTalkLow_"<<nameRoll;
 	      meMap[os.str()]->Fill(strips[stripIter]);	
 	}
-	  }
+      }
       
       os.str("");
       os<<"NumberOfDigi_"<<nameRoll;
