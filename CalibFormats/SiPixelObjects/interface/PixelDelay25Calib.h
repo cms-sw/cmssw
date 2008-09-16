@@ -35,8 +35,6 @@ namespace pos{
     virtual void writeXML(                                                              std::ofstream *out) const {;}
     virtual void writeXMLTrailer(                                                       std::ofstream *out) const {;}
 
-
-    virtual std::string mode() {return mode_;}
     std::set<std::string>& portcardList() {return portcardNames_;}
     bool allPortcards() {return allPortcards_;}
     bool allModules() {return allModules_;}
@@ -55,7 +53,7 @@ namespace pos{
     void closeFiles();
 
   private:
-    std::string mode_;
+
     std::set<std::string> portcardNames_;
     bool allPortcards_, allModules_;
     int origSDa_, origRDa_, range_, gridSize_, gridSteps_, numTests_, commands_;

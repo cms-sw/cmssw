@@ -138,7 +138,7 @@ PixelDelay25Calib::PixelDelay25Calib(std::string filename) :
   PixelCalibBase(),
   PixelConfigBase("","",""){
 
-  std::cout<<"PixelDelay25Calib::PixelDelay25Calib"<<std::endl;
+  //std::cout<<"PixelDelay25Calib::PixelDelay25Calib"<<std::endl;
   
   std::ifstream in(filename.c_str());
   
@@ -159,6 +159,8 @@ PixelDelay25Calib::PixelDelay25Calib(std::string filename) :
 
   assert(tmp=="Mode:");
   in >> mode_;
+
+  //cout << "[PixelDelay25Calib::PixelDelay25Calib]:mode_="<<mode_<<endl;
 
   in >> tmp;
 
