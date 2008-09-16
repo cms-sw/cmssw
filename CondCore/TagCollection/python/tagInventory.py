@@ -9,7 +9,7 @@ class  tagInventory(object):
         self.__session = session
         self.__tagInventoryTableName = 'TAGINVENTORY_TABLE'
         self.__tagInventoryIDName = 'TAGINVENTORY_IDS'
-        self.__tagInventoryTableColumns = {'tagid':'unsigned int', 'tagname':'string', 'pfn':'string','recordname':'string', 'objectname':'string', 'labelname':'string'}
+        self.__tagInventoryTableColumns = {'tagid':'unsigned long', 'tagname':'string', 'pfn':'string','recordname':'string', 'objectname':'string', 'labelname':'string'}
         self.__tagInventoryTableNotNullColumns = ['tagname','pfn','recordname','objectname']
         #self.__tagInventoryTableUniqueColumns = ['tagname']
         self.__tagInventoryTablePK = ('tagid')
@@ -97,9 +97,9 @@ class  tagInventory(object):
             raise Exception, str(er)
     def addEntriesReplaceService( self, newservicename ):
         """ clone all existing entries only servicename in pfn are different
-        return collection of new tagids[] 
+        return collection of new (oldtagid,newtagid) pair 
         """
-        newtagids=[]
+        newtaglinks=[]
         transaction=self.__session.transaction()
         try:
             results=[]
@@ -109,17 +109,17 @@ class  tagInventory(object):
                 query.addToOutputList(columnName)
             cursor=query.execute()
             while cursor.next():
+                tagid=cursor.currentRow()['tagid'].data()
                 tagname=cursor.currentRow()['tagname'].data()
                 pfn=cursor.currentRow()['pfn'].data()
                 (servicename,schemaname)=pfn.rsplit('/',1)
                 newpfn=('/').join([newservicename,schemaname])
-                k=(' ').join([tagname,newpfn])
-                r={}
-                r[k]=[]
-                #assuming python silently replace the old if duplicate key..
-                r[k].append(cursor.currentRow()['objectname'].data())
-                r[k].append(cursor.currentRow()['recordname'].data())
-                r[k].append(cursor.currentRow()['labelname'].data())
+                #k=(' ').join([tagname,newpfn])
+                objname=cursor.currentRow()['objectname'].data()
+                redname=cursor.currentRow()['recordname'].data()
+                labname=cursor.currentRow()['labelname'].data()
+                #return a tuple
+                r=(tagid,tagname,newpfn,objname,redname,labname)
                 results.append(r)
             transaction.commit()
             del query
@@ -132,19 +132,19 @@ class  tagInventory(object):
         try:
             for r in results:
                 nd=Node.LeafNode()
-                tagpfn=r.items()[0][0]
-                content=r.items()[0][1]
-                (nd.tagname,nd.pfn)=tagpfn.split(' ')
-                nd.objectname=content[0]
-                nd.recordname=content[1]
+                oldtagid=r[0]
+                nd.tagname=r[1]
+                nd.pfn=r[2]
+                nd.objectname=r[3]
+                nd.recordname=r[4]
                 #if not r.items()[1][2] is None:
-                nd.labelname= content[2]
+                nd.labelname=r[5]
                 n=inv.addEntry(nd)
-                newtagids.append(n)
+                newtaglinks.append((oldtagid,n))
         except Exception, e:
             print str(e)
             raise Exception, str(e)
-        return newtagids
+        return newtaglinks
     
     def modifyEntriesReplaceService( self, newservicename ):
         """ replace all existing entries replace service name in pfn
@@ -403,6 +403,7 @@ if __name__ == "__main__":
         result=inv.getEntryById(0)
         print 'get by id 0##\t',result
         inv.deleteEntryByName('ecalpedestalsfromonline')
+        print 'TESTING getEntryByName'
         result=inv.getEntryByName('ecalpedestalsfromonline','oracle://devdb10/CMS_COND_ECAL')
         print 'get ecalpedestalsfromonline##\t',result
         result=inv.getEntryByName('crap','oracle://devdb10/CMS_COND_ME')

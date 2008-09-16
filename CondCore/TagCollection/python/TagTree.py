@@ -108,53 +108,27 @@ class tagTree(object):
             raise Exception, str(er)
         #print nresult,' rows copied from ',sourcetagTreeIDs
 
-     def importFromExternalTree( self, sourcetreename, sourcesession ):
-        """fill up this tree by cloning from the given source tree
-        in an external schema. External join
-        """
-        sourcetree=tagTree(sourcesession,sourcetreename)
-        if !sourcetree.existTagTreeTable():
-            raise "external source tree ",sourcetreename," doesn't exist "
-        transaction=self.__session.transaction()
-        transaction.start(True)
-        schema = self.__session.nominalSchema()
-        r3=schema.existsTable(self.__tagTreeTableName)
-        r4=schema.existsTable(self.__tagTreeIDs)
-        transaction.commit()
-        if r3 and r4 is True:
-            transaction.start(False)
-            schema.truncateTable(self.__tagTreeTableName)
-            schema.truncateTable(self.__tagTreeIDs)
-            transaction.commit()
-        else:
-            self.createTagTreeTable()
-            transaction.start(False)
-            schema.truncateTable(self.__tagTreeIDs)
-            transaction.commit()
-        #sourcesession select * from source tree table
-        #select * from source tree id table
-        
     def replaceLeafLinks(self, leafnodelinks ):
         """modify the tagid link in leafnodes
-        Input: {leaflabel:newtagid , leaflabel:newtagid}
+        Input: {oldtagid:newtagid , oldtagid:newtagid}
         This function does not check if the nodes are all really leafs. User has to check before passing the input argument
         """
         if len(leafnodelinks.keys())==0:
-            return
+            raise 'TagTree::replaceLeafLinks: empty input '
         
         transaction=self.__session.transaction()
         transaction.start(False)
         schema = self.__session.nominalSchema()
         try:
             updateAction="tagid = :newtagid"
-            updateCondition="nodelabel = :nodelabel"
+            updateCondition="tagid = :oldtagid"
             updateData=coral.AttributeList()
             updateData.extend('newtagid','unsigned long')
-            updateData.extend('nodelabel','string')
-            mybulkOperation=schema.tableHandle(self.__tagTreeTableName).dataEditor().bulkUpdateRows("tagid = :newtagid","nodelabel = :nodelabel",updateData,1000)
-            for nodelabel in leafnodelinks.keys():
-                updateData['newtagid'].setData(leafnodelinks[nodelabel])
-                updateData['nodelabel'].setData(nodelabel)
+            updateData.extend('oldtagid','unsigned long')
+            mybulkOperation=schema.tableHandle(self.__tagTreeTableName).dataEditor().bulkUpdateRows("tagid = :newtagid","tagid = :oldtagid",updateData,1000)
+            for oldtagid in leafnodelinks.keys():
+                updateData['newtagid'].setData(leafnodelinks[oldtagid])
+                updateData['oldtagid'].setData(oldtagid)
                 mybulkOperation.processNextIteration()
             mybulkOperation.flush()
             transaction.commit()
@@ -617,7 +591,7 @@ if __name__ == "__main__":
         newtree.importFromTree('mytest2')
         newlinks={}
         for l in allleafs:
-            newlinks[l.nodelabel]=1234
+            newlinks[l.tagid]=1234
         newtree.replaceLeafLinks(newlinks)
         del session
     except Exception, e:
