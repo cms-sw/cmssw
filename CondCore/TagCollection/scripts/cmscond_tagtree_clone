@@ -20,6 +20,7 @@ class tagTreeClone:
         -u, --user=user: user name
         -p, --password=password: password
         -P, --path=path: path to authentication.xml
+        -T, --tree=treename:  name of the tree to clone(required)
         -v, --verbose: switch on verbose mode
         -h, --help: print usage
         """
@@ -46,17 +47,19 @@ class tagTreeClone:
         self.__parser.add_option("-u","--user",action="store",dest="user",type="string",help="user name")
         self.__parser.add_option("-p","--password",action="store",dest="password",type="string",help="password")
         self.__parser.add_option("-P","--path",action="store",dest="authpath",type="string",help="path to authentication.xml")
+        self.__parser.add_option("-T","--tree",action="store",dest="treename",type="string",help="name of the tree to create(required). Note: the tree name is case insensitive, it is internally converted to uppercase")
         self.__parser.add_option("-v","--verbose",action="store_true",dest="verbose",help="verbose mode")
-        self.__parser.set_defaults(filename='')
         self.__parser.set_defaults(connectstring='')
         self.__parser.set_defaults(user='')
         self.__parser.set_defaults(password='')
         self.__parser.set_defaults(authpath='.')
         self.__parser.set_defaults(verbose=False)
         (options, args) = self.__parser.parse_args()
-
+        if not self.__parser.values.treename:
+            raise OptionValueError("option -%s --%s is required "%('T','tree'))
         if not self.__parser.values.filename:
             raise OptionValueError("option -%s --%s is required "%('f','file'))
+        self.__sourcetreename=self.__parser.values.treename.upper()
         self.__filename=self.__parser.values.filename
         if os.path.exists(self.__filename)==False:
             print 'non-existing input file ',self.__filename
@@ -71,6 +74,7 @@ class tagTreeClone:
             self.__password=self.__parser.values.password
         self.__verbose=self.__parser.values.verbose
         
+        clonesection=' '.join(['CLONE',self.__sourcetreename])
         configparser=ConfigParser()
         configparser.read(self.__filename)
         if options.connectstring:
@@ -78,28 +82,23 @@ class tagTreeClone:
         else:
             self.__connectstring=configparser.get("COMMON","connect")
         sections=configparser.sections()
-        print sections
-        if not 'CLONE' in sections:
-            print 'section [CLONE] not found in file ',self.__filename
+        if not clonesection in sections:
+            print 'section ', clonesection, 'not found in ',self.__filename
             print 'do nothing'
             return
-        self.__sourcetreename=stripws(configparser.get('CLONE','source'))
-        self.__targettreename=stripws(configparser.get('CLONE','target'))
-        service_replace_all=''
-        schema_replace=''
-        fullconnect_replace=''
+        self.__targettreename=stripws(configparser.get(clonesection,'target'))
         try:
-            service_replace_all=stripws(configparser.get('CLONE','service_replace_all'))
+            self.__service_replace=stripws(configparser.get(clonesection,'service_replace'))
         except NoOptionError:
             pass
 
         try:
-           schema_replace=stripws(configparser.get('CLONE','schema_replace'))
+           self.__schema_replace=stripws(configparser.get(clonesection,'schema_replace'))
         except NoOptionError:
             pass
 
         try:
-           connect_replace=stripws(configparser.get('CLONE','connect_replace'))
+           self.__connect_replace=stripws(configparser.get(clonesection,'connect_replace'))
         except NoOptionError:
             pass
         
@@ -108,9 +107,9 @@ class tagTreeClone:
             print 'connect: ',self.__connectstring
             print 'sourcetree: ',self.__sourcetreename
             print 'targettree: ',self.__targettreename
-            print 'service_replace_all: ',self.__servicereplace
-            print 'schema_replace: ',self.__schemareplace
-            print 'connect_replace: ',self.__connectreplace
+            print 'service_replace: ',self.__service_replace
+            print 'schema_replace: ',self.__schema_replace
+            print 'connect_replace: ',self.__connect_replace
         if len(self.__service_replace)==0 and len(self.__schema_replace)==0 and len(self.__connect_replace)==0:
             self.__realclone=True
 
@@ -128,16 +127,33 @@ class tagTreeClone:
         config=svc.configuration()
         os.environ['CORAL_AUTH_PATH']=self.__authpath
         config.setDefaultAuthenticationService('CORAL/Services/XMLAuthenticationService')
-        session = svc.connect( self.__connectstring,accessMode = coral.access_Update )
-        if self.__realclone is True:
-            try:
-                newtree=TagTree.tagTree(session,self.__targettreename)
-                newtree.importFromTree(self.__sourcetreename)
-            except Exception, e:
-                print str(e)
+        session=svc.connect( self.__connectstring,accessMode = coral.access_Update )
+        allLeafs=[]
+        try:
+            newtree=TagTree.tagTree(session,self.__targettreename)
+            newtree.importFromTree(self.__sourcetreename)
+            allLeafs=newtree.getAllLeaves()
+            if self.__realclone is True:
                 del session
-        else:
-            print 'not yet implemented'
+                return
+            if len(self.__service_replace) != 0:
+                inv=tagInventory.tagInventory(session)
+                newtaglinks=inv.addEntriesReplaceService(self.__service_replace)
+                leafreplacement={}
+                for leaf in allLeafs:
+                    oldtagid=leaf.tagid
+                    newtagid=0
+                    for item in newtaglinks:
+                        if item[0]==oldtagid:
+                            newtagid=item[1]
+                    if newtagid == 0:
+                        raise "no replacement tagid found for tagid ",oldtagid
+                    leafreplacement[oldtagid]=newtagid
+                newtree.replaceLeafLinks(leafreplacement)
+            del session
+        except Exception, e:
+            print str(e)
+            del session
 
 if __name__ == "__main__":
     tagtreeclone=tagTreeClone() 
