@@ -1,9 +1,11 @@
 #include "RecoLuminosity/ROOTSchema/interface/ROOTFileReader.h"
 #include <TROOT.h>
 #include <TFile.h>
+#include <TChain.h>
 
 #include <iomanip>
 #include <sstream>
+#include <algorithm>
 
 HCAL_HLX::ROOTFileReader::ROOTFileReader(){
 #ifdef DEBUG
@@ -20,7 +22,6 @@ HCAL_HLX::ROOTFileReader::ROOTFileReader(){
   HLT_             = new HCAL_HLX::HLT;
   TriggerDeadtime_ = new HCAL_HLX::TRIGGER_DEADTIME;
   RingSet_         = new HCAL_HLX::LUMI_HF_RING_SET;
-
 
 #ifdef DEBUG
   std::cout << "End " << __PRETTY_FUNCTION__ << std::endl;
@@ -42,12 +43,24 @@ HCAL_HLX::ROOTFileReader::~ROOTFileReader(){
 
   delete lumiSection_;
 
+  
+
 #ifdef DEBUG
   std::cout << "End " << __PRETTY_FUNCTION__ << std::endl;
 #endif
 }
 
-int HCAL_HLX::ROOTFileReader::ReplaceFile(const std::string& fileName){
+int HCAL_HLX::ROOTFileReader::ReplaceFile(const std::string &fileName){
+  
+  std::vector< std::string > tempVecOfStrings;
+
+  tempVecOfStrings.clear();
+  tempVecOfStrings.push_back(fileName);
+  return ReplaceFile( tempVecOfStrings );
+
+}
+
+int HCAL_HLX::ROOTFileReader::ReplaceFile(const std::vector< std::string> &fileNames){
   // replacing a file changes the run number and section number automatically.
 
 #ifdef DEBUG
@@ -57,11 +70,12 @@ int HCAL_HLX::ROOTFileReader::ReplaceFile(const std::string& fileName){
   std::stringstream branchName;
   
   delete mChain_;
-
+  
   mChain_ = new TChain("LumiTree");
 
-  mChain_->Add(fileName.c_str());
-  
+  for(   std::vector< std::string >::const_iterator VoS = fileNames.begin(); VoS != fileNames.end(); ++VoS){
+    mChain_->Add((*VoS).c_str());
+  }
 
   // HCAL_HLX::LUMI_SECTION 
   
@@ -92,7 +106,6 @@ int HCAL_HLX::ROOTFileReader::ReplaceFile(const std::string& fileName){
     
   }
 
-
   // OTHER
   mChain_->SetBranchAddress("Threshold.",        &Threshold_,       &b_Threshold);
   mChain_->SetBranchAddress("Level1_Trigger.",   &L1Trigger_,       &b_L1Trigger);
@@ -100,38 +113,30 @@ int HCAL_HLX::ROOTFileReader::ReplaceFile(const std::string& fileName){
   mChain_->SetBranchAddress("Trigger_Deadtime.", &TriggerDeadtime_, &b_TriggerDeadtime);
   mChain_->SetBranchAddress("HF_Ring_Set.",      &RingSet_,         &b_RingSet);
 
-
-  // Get run and section number.
-  mChain_->GetEntry(0);
-    
-  runNumber_     = lumiSection_->hdr.runNumber;
-  sectionNumber_ = lumiSection_->hdr.sectionNumber;
+  numEntries_ = mChain_->GetEntries();
 
 #ifdef DEBUG
-  std::cout << "***** Run Number: " << runNumber_ << " *****" << std::endl;
-  std::cout << "***** Section Number: " << sectionNumber_ << " *****" << std::endl;
   std::cout << "End " << __PRETTY_FUNCTION__ << std::endl;
 #endif
 
   return 0;
 }
 
-int HCAL_HLX::ROOTFileReader::GetEntry(int entry){
-
-  return mChain_->GetEntry(entry);
-}
-
 int HCAL_HLX::ROOTFileReader::GetNumEntries(){
 
-  return mChain_->GetEntries();
+  return numEntries_;
 }
 
-int HCAL_HLX::ROOTFileReader::GetLumiSection(HCAL_HLX::LUMI_SECTION& localSection){
+bool HCAL_HLX::ROOTFileReader::GetEntry(int entry, HCAL_HLX::LUMI_SECTION& localSection){
+
+  int result =  mChain_->GetEntry(entry);
 
   memcpy(&localSection, lumiSection_, sizeof(HCAL_HLX::LUMI_SECTION));
-
-  return 0;
+  
+  return ( result != 0 );
+  
 }
+
 
 int HCAL_HLX::ROOTFileReader::GetThreshold(HCAL_HLX::LUMI_THRESHOLD&  localThreshold){
 

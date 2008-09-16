@@ -17,7 +17,7 @@ void HCAL_HLX::ROOTFileTransfer::SetFileName(std::string fileName ){
 
    fileName_ = fileName;
 
-   dirName_ = "/cms/mon/data/dqm/lumi/root/store/lumi/200807";  // FIX
+   dirName_ = "/cms/mon/data/dqm/lumi/root/store/lumi/" + TimeStampYYYYMM();  // FIX
 
 }
 

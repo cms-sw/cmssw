@@ -14,7 +14,7 @@
 //
 // Original Author:  Adam Hunt
 //         Created:  Sun May 11 14:21:30 EDT 2008
-// $Id: LumiFileWriter.cc,v 1.2 2008/08/01 16:30:27 ahunt Exp $
+// $Id: LumiFileWriter.cc,v 1.3 2008/08/19 13:38:22 ahunt Exp $
 //
 //
 
@@ -119,7 +119,6 @@ void LumiFileWriter::analyze(const edm::Event& iEvent,
     if( bWBM_ ){
       std::cout << "Create Web page" << std::endl; 
       webPage.ReplaceFile(lumiSchema.GetFileName());
-      webPage.GetEntry(0);
       webPage.CreateWebPage();
     }
     

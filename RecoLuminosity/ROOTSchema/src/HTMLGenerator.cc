@@ -175,7 +175,7 @@ HCAL_HLX::HTMLGenerator::~HTMLGenerator(){
 
 void HCAL_HLX::HTMLGenerator::CreateWebPage(){
 
-  GetLumiSection(lumiSection_);
+  GetEntry(0,lumiSection_);
     
   MakeDir( outputDir_ + GetRunDir(), writeMode_ );
   MakeDir( outputDir_ + GetRunDir() + GetLSDir(), writeMode_ );
@@ -211,12 +211,11 @@ std::string HCAL_HLX::HTMLGenerator::GetRunDir(){
   // convert from up to 9 digit integer to XXX/YYY/ZZZ 
 
   std::stringstream dirName;
-  const unsigned int runNumber = GetRunNumber();
   
   dirName.str(std::string());
-  dirName << std::setw(3) << std::setfill('0') << (runNumber / 1000000)
-	  << "/" << std::setw(3) << std::setfill('0') << (runNumber % 1000000) / 1000
-	  << "/" << std::setw(3) << std::setfill('0') << (runNumber % 1000)
+  dirName << std::setw(3) << std::setfill('0') << (lumiSection_.hdr.runNumber / 1000000)
+	  << "/" << std::setw(3) << std::setfill('0') << (lumiSection_.hdr.runNumber % 1000000) / 1000
+	  << "/" << std::setw(3) << std::setfill('0') << (lumiSection_.hdr.runNumber % 1000)
 	  << "/";
 
   return dirName.str();
@@ -226,7 +225,7 @@ std::string HCAL_HLX::HTMLGenerator::GetLSDir(){
 
   std::stringstream dirName;
   dirName.str(std::string());    
-  dirName << std::setw(4) << std::setfill('0') << GetSectionNumber() << "/";
+  dirName << std::setw(4) << std::setfill('0') << lumiSection_.hdr.sectionNumber << "/";
 
   return dirName.str();
 }
@@ -259,16 +258,16 @@ void HCAL_HLX::HTMLGenerator::GenerateIndexPage(){
     InsertLineAfter( fileName, "<H1>\nLuminosity Monitoring System\n</H1>", "<body>");
   }
 
-  const unsigned int runNumber = GetRunNumber();
-  if( runNumber != previousRunNumber  ){
+
+  if( lumiSection_.hdr.runNumber != previousRunNumber  ){
     std::stringstream runLine;
     runLine << "<a href = \"" 
 	    << GetRunDir() 
 	    << "index.html\"> Run - " 
-	    << runNumber << "</a>  " 
+	    << lumiSection_.hdr.runNumber << "</a>  " 
 	    << TimeStampLong() 
 	    << "</br>"; 
-    previousRunNumber = runNumber;
+    previousRunNumber = lumiSection_.hdr.runNumber;
     InsertLineBefore( fileName, runLine.str(), "</body>"); 
   }
 
@@ -276,9 +275,6 @@ void HCAL_HLX::HTMLGenerator::GenerateIndexPage(){
 
 void HCAL_HLX::HTMLGenerator::GenerateRunPage(){
 
-  const unsigned int runNumber = GetRunNumber();
-  const unsigned int sectionNumber = GetSectionNumber();
-  
   std::string fileName;
 
   fileName = outputDir_ + GetRunDir() + "index.html";  
@@ -286,7 +282,7 @@ void HCAL_HLX::HTMLGenerator::GenerateRunPage(){
   if(!fileExists(fileName)){
     std::stringstream fileTitle;
 
-    fileTitle << "Luminosity File Reader - Run " << runNumber;
+    fileTitle << "Luminosity File Reader - Run " << lumiSection_.hdr.runNumber;
     MakeEmptyWebPage(fileName, fileTitle.str());
   }
 
@@ -295,8 +291,8 @@ void HCAL_HLX::HTMLGenerator::GenerateRunPage(){
   sectionLine << "<a href = \"" 
 	      <<  GetLSDir() 
 	      <<  "index.html\"> Run - " 
-	      << runNumber << " Section " 
-	      << sectionNumber << "</a>  " 
+	      << lumiSection_.hdr.runNumber << " Section " 
+	      << lumiSection_.hdr.sectionNumber << "</a>  " 
 	      << TimeStampLong() << "</br>";
 
   InsertLineBefore( fileName, sectionLine.str(), "</body>");
@@ -307,8 +303,6 @@ void HCAL_HLX::HTMLGenerator::GenerateSectionPage(){
   // make section directory
 
   std::ofstream fileStr;
-  const unsigned int runNumber     = GetRunNumber();
-  const unsigned int sectionNumber = GetSectionNumber();
   std::string fileName;
   
   fileName = outputDir_ + GetRunDir() + GetLSDir() + "index.html";  
@@ -316,8 +310,8 @@ void HCAL_HLX::HTMLGenerator::GenerateSectionPage(){
 
   fileStr << "<html>" << std::endl;
   fileStr << "<title>" << std::endl; 
-  fileStr << "Luminosity File Reader - " << "Run " << runNumber << " - " 
-	  << " Lumi Section - " << sectionNumber << std::endl;
+  fileStr << "Luminosity File Reader - " << "Run " << lumiSection_.hdr.runNumber << " - " 
+	  << " Lumi Section - " << lumiSection_.hdr.sectionNumber << std::endl;
   fileStr << "</title>" << std::endl; 
   fileStr << "<body>" << std::endl;
   
@@ -488,9 +482,6 @@ void HCAL_HLX::HTMLGenerator::GenerateHLXPage(const unsigned short int &HLXID){
 
   // make HLX directory
 
-  const unsigned int runNumber     = GetRunNumber();
-  const unsigned int sectionNumber = GetSectionNumber();
-
   std::stringstream fileName;
   fileName.str(std::string());
   fileName << outputDir_ << GetRunDir() << GetLSDir() << GetHLXDir(HLXID)  << "index.html";
@@ -501,8 +492,8 @@ void HCAL_HLX::HTMLGenerator::GenerateHLXPage(const unsigned short int &HLXID){
   fileStr << "<html>" << std::endl;
   fileStr << "<title>" << std::endl; 
   fileStr << "Luminosity File Reader - " 
-	  << "Run " << runNumber
-	  << " Lumi Section " << sectionNumber 
+	  << "Run " << lumiSection_.hdr.runNumber
+	  << " Lumi Section " << lumiSection_.hdr.sectionNumber 
 	  << HLXToHFMap_[HLXID]
 	  << std::endl;
   fileStr << "</title>" << std::endl; 
@@ -510,8 +501,8 @@ void HCAL_HLX::HTMLGenerator::GenerateHLXPage(const unsigned short int &HLXID){
 
   fileStr << "<H1>" << std::endl;
   fileStr << "Luminosity File Reader - " 
-	  << "Run " << runNumber << " - " 
-	  << " Lumi Section " << sectionNumber << " - " 
+	  << "Run " << lumiSection_.hdr.runNumber << " - " 
+	  << " Lumi Section " << lumiSection_.hdr.sectionNumber << " - " 
 	  << HLXToHFMap_[HLXID]
 	  << std::endl;
   fileStr << "</H1>" << std::endl;
@@ -662,9 +653,6 @@ void HCAL_HLX::HTMLGenerator::GenerateHistoGroupPage(const std::string &HistoNam
   std::string fileName;
   std::string  pageDir;
   
-  const unsigned int runNumber     = GetRunNumber();
-  const unsigned int sectionNumber = GetSectionNumber();
-
   pageDir = outputDir_ + GetRunDir() + GetLSDir() + HistoName;
   MakeDir(pageDir, writeMode_);
 
@@ -676,8 +664,8 @@ void HCAL_HLX::HTMLGenerator::GenerateHistoGroupPage(const std::string &HistoNam
   fileStr << "<html>" << std::endl;
   fileStr << "<title>" << std::endl; 
   fileStr << "Luminosity File Reader - " 
-	  << "Run " << runNumber 
-	  << " Lumi Section " << sectionNumber 
+	  << "Run " << lumiSection_.hdr.runNumber 
+	  << " Lumi Section " << lumiSection_.hdr.sectionNumber 
 	  << " - " << HistoName
 	  << std::endl;
   fileStr << "</title>" << std::endl; 
@@ -685,8 +673,8 @@ void HCAL_HLX::HTMLGenerator::GenerateHistoGroupPage(const std::string &HistoNam
 
   fileStr << "<H1>" << std::endl;
   fileStr << "Luminosity File Reader - " 
-	  << "Run " << runNumber 
-	  << " Lumi Section " << sectionNumber 
+	  << "Run " << lumiSection_.hdr.runNumber 
+	  << " Lumi Section " << lumiSection_.hdr.sectionNumber 
 	  << " - " << HistoName
 	  << std::endl;
   fileStr << "</H1>" << std::endl;
@@ -708,9 +696,6 @@ void HCAL_HLX::HTMLGenerator::GenerateLumiPage(){
    std::string fileName;
    std::string  pageDir;
    
-   const unsigned int runNumber     = GetRunNumber();
-   const unsigned int sectionNumber = GetSectionNumber();
-   
    pageDir = outputDir_ + GetRunDir() + GetLSDir() + "Luminosity/";
    MakeDir(pageDir + "/Pics" , writeMode_ );
    
@@ -724,8 +709,8 @@ void HCAL_HLX::HTMLGenerator::GenerateLumiPage(){
    fileStr << "<html>" << std::endl;
    fileStr << "<title>" << std::endl; 
    fileStr << "Luminosity File Reader - " 
-	   << "Run " << runNumber 
-	   << " Lumi Section " << sectionNumber 
+	   << "Run " << lumiSection_.hdr.runNumber 
+	   << " Lumi Section " << lumiSection_.hdr.sectionNumber 
 	   << " Luminosity" 
 	   << std::endl;
    fileStr << "</title>" << std::endl; 
@@ -733,8 +718,8 @@ void HCAL_HLX::HTMLGenerator::GenerateLumiPage(){
    
    fileStr << "<H1>" << std::endl;
    fileStr << "Luminosity File Reader - " 
-	   << "Run " << runNumber 
-	   << " Lumi Section " << sectionNumber 
+	   << "Run " << lumiSection_.hdr.runNumber 
+	   << " Lumi Section " << lumiSection_.hdr.sectionNumber 
 	   << " - Luminosity "
 	   << std::endl;
    fileStr << "</H1>" << std::endl;

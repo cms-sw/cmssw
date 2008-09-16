@@ -2,10 +2,11 @@
 #define _HCAL_HLX_ROOTFILETRANSFER_H_
 
 #include <string>
+#include "RecoLuminosity/TCPReceiver/interface/TimeStamp.h"
 
 namespace HCAL_HLX{
 
-  class ROOTFileTransfer{
+  class ROOTFileTransfer: public TimeStamp{
   public:
     ROOTFileTransfer();
     ~ROOTFileTransfer();

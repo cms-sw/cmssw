@@ -48,8 +48,8 @@ void HCAL_HLX::ROOTFileMerger::Merge(const unsigned int runNumber, bool bCMSLive
     int nentries = RFR.GetNumEntries();
   
     for(int i = 0; i < nentries; i++){
-      RFR.GetEntry(i);
-      RFR.GetLumiSection(lumiSection);
+      RFR.GetEntry(i, lumiSection);
+
       if( minSectionNumber > lumiSection.hdr.sectionNumber ){
 	std::cout << minSectionNumber << ":" << lumiSection.hdr.sectionNumber << std::endl;
 	minSectionNumber = lumiSection.hdr.sectionNumber;

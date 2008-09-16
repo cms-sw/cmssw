@@ -6,13 +6,14 @@
 #include <string>
 #include <sstream>
 #include <iomanip>
-
-// ROOT Headers
-#include <TChain.h>
+#include <vector>
 
 // Lumi Headers
 #include "RecoLuminosity/TCPReceiver/interface/ICTypeDefs.hh"
 #include "RecoLuminosity/TCPReceiver/interface/LumiStructures.hh"
+
+class TChain;
+class TBranch;
 
 namespace HCAL_HLX{
 
@@ -22,26 +23,21 @@ namespace HCAL_HLX{
     ~ROOTFileReader();
     
     int ReplaceFile(const std::string &fileName);
+    int ReplaceFile(const std::vector< std::string > &fileNames);
         
-    unsigned int GetRunNumber(){ return runNumber_;}
-    unsigned int GetSectionNumber(){ return sectionNumber_;}
-
-    int GetLumiSection(HCAL_HLX::LUMI_SECTION& section);
-    
     int GetThreshold(HCAL_HLX::LUMI_THRESHOLD&   threshold);
     int GetHFRingSet(HCAL_HLX::LUMI_HF_RING_SET& ringSet);
     int GetL1Trigger(HCAL_HLX::LEVEL1_TRIGGER&   l1trigger);
     int GetHLT(HCAL_HLX::HLT& hlt);
     int GetTriggerDeadtime(HCAL_HLX::TRIGGER_DEADTIME& TD);
-    
-    int GetEntry(int entry);
+
+    bool GetEntry(int entry, HCAL_HLX::LUMI_SECTION& section);
     int GetNumEntries();
 
-  private:
-    
-    unsigned int runNumber_;
-    unsigned int sectionNumber_;
-    
+  private:    
+
+    unsigned int numEntries_;
+
     std::string mFileName_;
     TChain* mChain_;
 
