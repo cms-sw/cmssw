@@ -58,11 +58,6 @@ namespace edm {
     void selectProducts();
     std::string const& processName() const {return process_name_;}
     SelectionsArray const& keptProducts() const {return keptProducts_;}
-    SelectionsArray const& droppedProducts() const {return droppedProducts_;}
-    SelectionsArray const& keptProducedProducts() const {return keptProducedProducts_;}
-    SelectionsArray const& droppedProducedProducts() const {return droppedProducedProducts_;}
-    SelectionsArray const& keptPriorProducts() const {return keptPriorProducts_;}
-    SelectionsArray const& droppedPriorProducts() const {return droppedPriorProducts_;}
     boost::array<bool, NumBranchTypes> const& hasNewlyDroppedBranch() const {return hasNewlyDroppedBranch_;}
 
     static void fillDescription(edm::ParameterSetDescription&);
@@ -104,33 +99,13 @@ namespace edm {
     // change is made, we'll have a one-time-only task of modifying
     // clients (classes derived from OutputModule) to use the
     // newly-introduced interface.
-    // ditto for droppedProducts_.
     // TODO: Consider using shared pointers here?
 
     // keptProducts_ are pointers to the BranchDescription objects describing
     // the branches we are to write.
-    // droppedProducts_ are pointers to the BranchDescription objects describing
-    // the branches we are NOT to write.
     // 
     // We do not own the BranchDescriptions to which we point.
     SelectionsArray keptProducts_;
-    SelectionsArray droppedProducts_;
-
-    // keptProducedProducts_ is the subset of keptProducts_ describing only the branches
-    // newly produced in the current process.
-    // droppedProducedProducts_ is the subset of droppedProducts_ describing only the branches
-    // newly produced in the current process.
-    //
-    SelectionsArray keptProducedProducts_;
-    SelectionsArray droppedProducedProducts_;
-
-    // keptPriorProducts_ is the subset of keptProducts_ describing only the branches
-    // produced in prior processes.
-    // droppedPriorProducts_ is the subset of droppedProducts_ describing only the branches
-    // produced in prior processes.
-    //
-    SelectionsArray keptPriorProducts_;
-    SelectionsArray droppedPriorProducts_;
 
     boost::array<bool, NumBranchTypes> hasNewlyDroppedBranch_;
 
