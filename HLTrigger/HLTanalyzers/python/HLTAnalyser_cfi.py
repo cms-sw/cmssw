@@ -67,15 +67,16 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     ## Tau HLT related objects
     HLTTau              = cms.InputTag("TauOpenHLT"),
     ### b-jet HLT related objects
-    LifetimeBJetsL2     = cms.InputTag("hltBLifetimeL25Jets"),              # or "hltBLifetimeL25JetsRelaxed"
-    LifetimeBJetsL25    = cms.InputTag("hltBLifetimeL25BJetTags"),          # or "hltBLifetimeL25BJetTagsRelaxed"
-    LifetimeBJetsL3     = cms.InputTag("openHltBLifetimeL3BJetTags"),       # or "openHltBLifetimeL3BJetTagsRelaxed"
-    SoftmuonBJetsL2     = cms.InputTag("hltBSoftmuonL25Jets"),
-    SoftmuonBJetsL25    = cms.InputTag("hltBSoftmuonL25BJetTags"),
-    SoftmuonBJetsL3     = cms.InputTag("hltBSoftmuonL3BJetTags"),
-    PerformanceBJetsL2  = cms.InputTag("hltBSoftmuonL25Jets"),              # L2 and L2.5 share the same collections as soft muon
-    PerformanceBJetsL25 = cms.InputTag("hltBSoftmuonL25BJetTags"),          # L2 and L2.5 share the same collections as soft muon
-    PerformanceBJetsL3  = cms.InputTag("hltBSoftmuonL3BJetTagsByDR"),
+    CommonBJetsL2                   = cms.InputTag("hltIterativeCone5CaloJets"),
+    CorrectedBJetsL2                = cms.InputTag("hltMCJetCorJetIcone5"),
+    LifetimeBJetsL25                = cms.InputTag("openHltBLifetimeL25BJetTags"),
+    LifetimeBJetsL3                 = cms.InputTag("openHltBLifetimeL3BJetTags"),
+    LifetimeBJetsL25Relaxed         = cms.InputTag("openHltBLifetimeL25BJetTags"),
+    LifetimeBJetsL3Relaxed          = cms.InputTag("openHltBLifetimeL3BJetTagsRelaxed"),
+    SoftmuonBJetsL25                = cms.InputTag("openHltBSoftmuonL25BJetTags"),
+    SoftmuonBJetsL3                 = cms.InputTag("openHltBSoftmuonL3BJetTags"),
+    PerformanceBJetsL25             = cms.InputTag("openHltBSoftmuonL25BJetTags"),
+    PerformanceBJetsL3              = cms.InputTag("openHltBPerfMeasL3BJetTags"),
     ### Run parameters
     RunParameters = cms.PSet(
         GenJetMin = cms.double(0.0),
