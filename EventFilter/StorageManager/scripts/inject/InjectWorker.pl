@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: InjectWorker.pl,v 1.25 2008/09/15 20:33:15 loizides Exp $
+# $Id: InjectWorker.pl,v 1.26 2008/09/15 21:47:52 loizides Exp $
 
 use strict;
 use DBI;
@@ -213,8 +213,8 @@ sub inject($$)
         "--LUMISECTION $lumisection --INSTANCE $instance --COUNT $count --START_TIME $starttime " . 
         "--STOP_TIME $stoptime --FILENAME $filename --PATHNAME $pathname --HOSTNAME $hostname " .
         "--DESTINATION $destination --SETUPLABEL $setuplabel --STREAM $stream --STATUS $status " .
-        " --TYPE $type --SAFETY $safety --NEVENTS $nevents --FILESIZE $filesize --CHECKSUM $checksum"; 
-        #"--HLTKEY $hltkey";
+        "--TYPE $type --SAFETY $safety --NEVENTS $nevents --FILESIZE $filesize --CHECKSUM $checksum " . 
+        "--HLTKEY $hltkey";
 
     if ($indfile ne '') {
       $TIERZERO .= " --INDEX $indfile"; # --INDEXFILESIZE $indfilesize"
