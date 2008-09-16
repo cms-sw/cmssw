@@ -1,40 +1,25 @@
-# The following comments couldn't be translated into the new config version:
-
-#for oracle access at cern uncomment
-
-#--------------------------
-# DQM Services
-#--------------------------
-
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("DQMOnlineSimData")
-#-------------------------------------------------
-# MAGNETIC FIELD
-#-------------------------------------------------
-# Magnetic fiuld: force mag field to be 0.0 tesla
-#    include "Configuration/GlobalRuns/data/ForceZeroTeslaField.cff"
-# tracker geometry
-process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
-
-# tracker numbering
-process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
-
-# cms geometry
-process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
-
-import CalibTracker.Configuration.Common.PoolDBESSource_cfi
-process.siStripCond = CalibTracker.Configuration.Common.PoolDBESSource_cfi.poolDBESSource.clone()
-#-----------------------
-#  Reconstruction Modules
-#-----------------------
-process.load("EventFilter.SiStripRawToDigi.SiStripDigis_cfi")
+process = cms.Process("MonitorDigiRealData")
 
 #--------------------------
-# SiStrip MonitorDigi
+# Event Source
 #--------------------------
-process.load("DQM.SiStripMonitorDigi.SiStripMonitorDigi_cfi")
+process.source = cms.Source("PoolSource",
+    fileNames = cms.untracked.vstring('/store/data/Commissioning08/Cosmics/RAW/CRUZET4_v1/000/058/630/0029CA89-9B71-DD11-8B56-001617C3B6FE.root',
+                                      '/store/data/Commissioning08/Cosmics/RAW/CRUZET4_v1/000/058/630/02162C6D-9E71-DD11-B740-0016177CA7A0.root',
+                                      '/store/data/Commissioning08/Cosmics/RAW/CRUZET4_v1/000/058/630/0279F81F-B771-DD11-AD2D-000423D99EEE.root',
+                                      '/store/data/Commissioning08/Cosmics/RAW/CRUZET4_v1/000/058/630/0287A430-B071-DD11-9A02-001617E30CD4.root')
 
+)
+
+process.maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32(5000)
+)
+
+#-------------------------------------------------
+# Message Logger
+#-------------------------------------------------
 process.MessageLogger = cms.Service("MessageLogger",
     debugModules = cms.untracked.vstring('siStripDigis'),
     cout = cms.untracked.PSet(
@@ -43,44 +28,57 @@ process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('cout')
 )
 
-process.sistripconn = cms.ESProducer("SiStripConnectivity")
+#-------------------------------------------------
+# Magnetic Field
+#-------------------------------------------------
+process.load("Configuration.GlobalRuns.ForceZeroTeslaField_cff")
 
+#-------------------------------------------------
+# Geometry
+#-------------------------------------------------
+process.load("Configuration.StandardSequences.Geometry_cff")
+
+#-------------------------------------------------
+# Calibration
+#-------------------------------------------------
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.GlobalTag.connect = "frontier://FrontierProd/CMS_COND_21X_GLOBALTAG"
+process.GlobalTag.globaltag = "CRUZET4_V2P::All"
+process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
+
+#-----------------------
+#  Reconstruction Modules
+#-----------------------
+process.load("EventFilter.SiStripRawToDigi.SiStripDigis_cfi")
+process.siStripDigis.ProductLabel = 'source'
+
+#--------------------------
+# DQM Services
+#--------------------------
 process.DQMStore = cms.Service("DQMStore",
     referenceFileName = cms.untracked.string(''),
     verbose = cms.untracked.int32(0)
 )
 
-process.outP = cms.OutputModule("AsciiOutputModule")
-
-process.AdaptorConfig = cms.Service("AdaptorConfig")
-
-process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('/store/data/CRUZET3/Cosmics/RAW/v1/000/051/490/02D59D05-4151-DD11-9E79-001617DBD5AC.root')
-)
-
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(200)
-)
-process.RecoForDQM = cms.Sequence(process.siStripDigis)
-process.p = cms.Path(process.RecoForDQM*process.SiStripMonitorDigi)
-process.ep = cms.EndPath(process.outP)
-process.siStripCond.toGet = cms.VPSet(cms.PSet(
-    record = cms.string('SiStripPedestalsRcd'),
-    tag = cms.string('SiStripPedestals_TKCC_20X_v3_hlt')
-), 
-    cms.PSet(
-        record = cms.string('SiStripNoisesRcd'),
-        tag = cms.string('SiStripNoise_TKCC_20X_v3_hlt')
-    ), 
-    cms.PSet(
-        record = cms.string('SiStripFedCablingRcd'),
-        tag = cms.string('SiStripFedCabling_TKCC_20X_v3_hlt')
-    ))
-process.siStripCond.connect = 'oracle://cms_orcoff_prod/CMS_COND_20X_STRIP'
-process.siStripCond.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb'
-process.siStripDigis.ProductLabel = 'source'
+#--------------------------
+# SiStrip MonitorDigi
+#--------------------------
+process.load("DQM.SiStripMonitorDigi.SiStripMonitorDigi_cfi")
 process.SiStripMonitorDigi.CreateTrendMEs = True
 process.SiStripMonitorDigi.OutputMEsInRootFile = True
 process.SiStripMonitorDigi.OutputFileName = 'SiStripMonitorDigi_RealData.root'
 process.SiStripMonitorDigi.SelectAllDetectors = True
+
+process.outP = cms.OutputModule("AsciiOutputModule")
+process.AdaptorConfig = cms.Service("AdaptorConfig")
+
+#--------------------------
+# Sequences 
+#--------------------------
+
+process.RecoForDQM = cms.Sequence(process.siStripDigis)
+
+process.p = cms.Path(process.RecoForDQM*process.SiStripMonitorDigi)
+process.ep = cms.EndPath(process.outP)
+
 
