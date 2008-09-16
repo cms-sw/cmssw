@@ -173,10 +173,17 @@ class CSCWireTopology : public WireTopology {
   double extentOfWirePlane() const {
     return wireSpacing() * (numberOfWires() - 1) ; }
 
-   /** Return mid-point of a wire in local coordinates, and its length
+  /**
+   * Return local (x,y) coordinates of the two ends of a wire
+   * across the extent of the wire plane.
+   * The returned value is a pair of pairs (x,y).
+   */
+  std::pair< std::pair<float,float>, std::pair<float,float> > wireEnds( float wire ) const {
+    return theWireGeometry->wireEnds( wire ); }
+
+  /** Return mid-point of a wire in local coordinates, and its length
    *  across the chamber volume, in a vector as x, y, length
    */
-
   std::vector<float> wireValues( float wire ) const {
     return theWireGeometry->wireValues( wire ); }
 
