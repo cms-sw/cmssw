@@ -90,62 +90,65 @@ void UEAnalysisOnRootple::MultiAnalysis(char* filelist,char* outname,vector<floa
       cout<<"I'm analyzing file "<< fileName << " (" 
 	  << fileName.size() << " characters)" << endl;
      
+
+      // no binning of datasets
+      pThatMax = 14000.;
+
       //----------------------------------------------------------
       // CSA08: set upper limit on pT of hard interaction to avoid 
       // double-counting when merging datasets
       //
-      if ( fileName.size() < 45 )   // too few characters
-	{
-	  cout << "!!! WARNING !!! Cannot determine dataset range (expect MinBias, JetET20, JetET30, ...)" << endl;
-	  cout << "!!! WARNING !!! Will accept all pthat values" << endl;
-	  pThatMax = 14000.;
-	}
-      else if ( fileName.compare( 38, 7, "MinBias"  )==0 ) 
-	{
-	  cout << "choose pthat for minbias range" << endl;
-	  pThatMax = 30.;
-	}
-      else if ( fileName.compare( 38, 7, "JetET20"  )==0 ) 
-	{
-	  cout << "choose pthat for jetET20 range" << endl;
-	  pThatMax = 45.;
-	}
-      else if ( fileName.compare( 38, 7, "JetET30"  )==0 ) 
-	{
-	  cout << "choose pthat for jetET30 range" << endl;
-	  pThatMax = 75.;
-	}
-      else if ( fileName.compare( 38, 7, "JetET50"  )==0 ) 
-	{
-	  cout << "choose pthat for jetET50 range" << endl;
-	  pThatMax = 120.;
-	}
-      else if ( fileName.compare( 38, 7, "JetET80"  )==0 ) 
-	{
-	  cout << "choose pthat for jetET80 range" << endl;
-	  pThatMax = 160.;
-	}
-      else if ( fileName.compare( 38, 8, "JetET110" )==0 ) 
-	{
-	  cout << "choose pthat for jetET110 range" << endl;
-	  // uncomment if JetET150 is available:
-	  // pThatMax = 220.;
-	}
-      else if ( fileName.compare( 38, 8, "JetET150" )==0 ) 
-	{
-	  // highest pThat bin: no restriction
-	  cout << "choose pthat for jetET150 range" << endl;
-	  pThatMax = 14000.;
-	}
-      else 
-	{
-	  cout << "!!! WARNING !!! Cannot determine dataset range (expect MinBias, JetET20, JetET30, ...)" << endl;
-	  cout << "!!! WARNING !!! Will accept all pthat values" << endl;
-	  pThatMax = 14000.;
-	}
+      //       if ( fileName.size() < 45 )   // too few characters
+      // 	{
+      // 	  cout << "!!! WARNING !!! Cannot determine dataset range (expect MinBias, JetET20, JetET30, ...)" << endl;
+      // 	  cout << "!!! WARNING !!! Will accept all pthat values" << endl;
+      // 	  pThatMax = 14000.;
+      // 	}
+      //       else if ( fileName.compare( 38, 7, "MinBias"  )==0 ) 
+      // 	{
+      // 	  cout << "choose pthat for minbias range" << endl;
+      // 	  pThatMax = 30.;
+      // 	}
+      //       else if ( fileName.compare( 38, 7, "JetET20"  )==0 ) 
+      // 	{
+      // 	  cout << "choose pthat for jetET20 range" << endl;
+      // 	  pThatMax = 45.;
+      // 	}
+      //       else if ( fileName.compare( 38, 7, "JetET30"  )==0 ) 
+      // 	{
+      // 	  cout << "choose pthat for jetET30 range" << endl;
+      // 	  pThatMax = 75.;
+      // 	}
+      //       else if ( fileName.compare( 38, 7, "JetET50"  )==0 ) 
+      // 	{
+      // 	  cout << "choose pthat for jetET50 range" << endl;
+      // 	  pThatMax = 120.;
+      // 	}
+      //       else if ( fileName.compare( 38, 7, "JetET80"  )==0 ) 
+      // 	{
+      // 	  cout << "choose pthat for jetET80 range" << endl;
+      // 	  pThatMax = 160.;
+      // 	}
+      //       else if ( fileName.compare( 38, 8, "JetET110" )==0 ) 
+      // 	{
+      // 	  cout << "choose pthat for jetET110 range" << endl;
+      // 	  // uncomment if JetET150 is available:
+      // 	  // pThatMax = 220.;
+      // 	}
+      //       else if ( fileName.compare( 38, 8, "JetET150" )==0 ) 
+      // 	{
+      // 	  // highest pThat bin: no restriction
+      // 	  cout << "choose pthat for jetET150 range" << endl;
+      // 	  pThatMax = 14000.;
+      // 	}
+      //       else 
+      // 	{
+      // 	  cout << "!!! WARNING !!! Cannot determine dataset range (expect MinBias, JetET20, JetET30, ...)" << endl;
+      // 	  cout << "!!! WARNING !!! Will accept all pthat values" << endl;
+      // 	  pThatMax = 14000.;
+      // 	}
       //----------------------------------------------------------
 
-      //TFile *f =  new TFile(RootTupleName);
       f = TFile::Open(RootTupleName);
 
       // TFileService puts UEAnalysisTree in a directory named after the module
