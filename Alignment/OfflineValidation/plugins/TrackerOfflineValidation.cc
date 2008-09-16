@@ -13,7 +13,7 @@
 //
 // Original Author:  Erik Butz
 //         Created:  Tue Dec 11 14:03:05 CET 2007
-// $Id: TrackerOfflineValidation.cc,v 1.13 2008/09/04 12:42:10 ebutz Exp $
+// $Id: TrackerOfflineValidation.cc,v 1.14 2008/09/05 15:17:23 ebutz Exp $
 //
 //
 
@@ -107,17 +107,22 @@ private:
   };
   
   struct TreeVariables{
-    TreeVariables(): meanLocalX_(), meanNormLocalX_(), meanX_(), meanNormX_(), 
+    TreeVariables(): meanLocalX_(), meanNormLocalX_(), meanX_(), meanNormX_(),
+		     meanY_(), meanNormY_(),
 		     rmsLocalX_(), rmsNormLocalX_(), rmsX_(), rmsNormX_(), 
+		     rmsY_(), rmsNormY_(), 
 		     posR_(), posPhi_(), posEta_(),
 		     posX_(), posY_(), posZ_(),
 		     entries_(), moduleId_(), subDetId_(),
 		     layer_(), side_(), rod_(),ring_(), 
 		     petal_(),blade_(), panel_(), outerInner_(),
 		     isDoubleSide_(),
-		     histNameLocalX_(), histNameNormLocalX_(), histNameX_(), histNameNormX_()  {} 
+		     histNameLocalX_(), histNameNormLocalX_(), histNameX_(), histNameNormX_(), 
+                     histNameY_(), histNameNormY_() {} 
     Float_t meanLocalX_, meanNormLocalX_, meanX_,meanNormX_,    //mean value read out from modul histograms
+      meanY_,meanNormY_, 
       rmsLocalX_, rmsNormLocalX_, rmsX_, rmsNormX_,      //rms value read out from modul histograms
+      rmsY_, rmsNormY_,
       posR_, posPhi_, posEta_,                     //global coordiantes    
       posX_, posY_, posZ_;             //global coordiantes 
     UInt_t  entries_, moduleId_, subDetId_,          //number of entries for each modul //modul Id = detId and subdetector Id
@@ -126,7 +131,8 @@ private:
       blade_, panel_, 
       outerInner_; //orientation of modules in TIB:1/2= int/ext string, TID:1/2=back/front ring, TEC 1/2=back/front petal 
     Bool_t isDoubleSide_;
-    std::string histNameLocalX_, histNameNormLocalX_, histNameX_, histNameNormX_;
+    std::string histNameLocalX_, histNameNormLocalX_, histNameX_, histNameNormX_,
+       histNameY_, histNameNormY_;    
   };
 
 
@@ -1099,8 +1105,12 @@ TrackerOfflineValidation::bookTree(TTree &tree, struct TrackerOfflineValidation:
   tree.Branch("entries",&treeMem.entries_,"entries/i");
   tree.Branch("meanX",&treeMem.meanX_,"meanX/F");
   tree.Branch("rmsX",&treeMem.rmsX_,"rmsX/F");
+  tree.Branch("meanY",&treeMem.meanY_,"meanY/F");
+  tree.Branch("rmsY",&treeMem.rmsY_,"rmsY/F");
   tree.Branch("meanNormX",&treeMem.meanNormX_,"meanNormX/F");
   tree.Branch("rmsNormX",&treeMem.rmsNormX_,"rmsNormX/F");
+ 
+
   //histogram names 
   tree.Branch("histNameX",&treeMem.histNameX_,"histNameX/b");
   tree.Branch("histNameNormX",&treeMem.histNameNormX_,"histNameNormX/b");
@@ -1116,6 +1126,13 @@ TrackerOfflineValidation::bookTree(TTree &tree, struct TrackerOfflineValidation:
        tree.Branch("histNameNormLocalX",&treeMem.histNameNormLocalX_,"histNameNormLocalX/b");
 
     }
+    if (stripYResiduals_){
+       tree.Branch("meanNormY",&treeMem.meanNormY_,"meanNormY/F");
+       tree.Branch("rmsNormY",&treeMem.rmsNormY_,"rmsNormY/F");
+       tree.Branch("histNameY",&treeMem.histNameY_,"histNameY/b");
+       tree.Branch("histNameNormY",&treeMem.histNameNormY_,"histNameNormY/b");
+    }
+
 }
 
 void 
@@ -1183,25 +1200,45 @@ TrackerOfflineValidation::fillTree(TTree &tree,const std::map<int, TrackerOfflin
     treeMem.posY_   = gPModule.y();
     treeMem.posZ_   = gPModule.z();
 
-    //mean and RMS values (extracted from histograms(Xprime) on module level)
+    //mean and RMS values (extracted from histograms(Xprime on module level)
     treeMem.entries_ = static_cast<UInt_t>(it->second.ResXprimeHisto->GetEntries());
     treeMem.meanX_ = it->second.ResXprimeHisto->GetMean();
     treeMem.rmsX_ = it->second.ResXprimeHisto->GetRMS();
+    treeMem.meanY_ = it->second.ResYprimeHisto->GetMean();
+    treeMem.rmsY_ = it->second.ResYprimeHisto->GetRMS();
+
+    //mean and RMS values (extracted from histograms(normalized Xprime on module level)
     treeMem.meanNormX_ = it->second.NormResXprimeHisto->GetMean();
     treeMem.rmsNormX_ = it->second.NormResXprimeHisto->GetRMS();
+    
+    
     treeMem.histNameX_=it->second.ResXprimeHisto->GetName();
     treeMem.histNameNormX_=it->second.NormResXprimeHisto->GetName();
+    
 
-    // fill tree variables in local coordinates if set in cf
+    // fill tree variables in local coordinates if set in cfg
     if(lCoorHistOn_) {
 
       treeMem.meanLocalX_ = it->second.ResHisto->GetMean();
       treeMem.rmsLocalX_ = it->second.ResHisto->GetRMS();
       treeMem.meanNormLocalX_ = it->second.NormResHisto->GetMean();
       treeMem.rmsNormLocalX_ = it->second.NormResHisto->GetRMS();
+
       treeMem.histNameLocalX_ = it->second.ResHisto->GetName();
       treeMem.histNameNormLocalX_=it->second.NormResHisto->GetName();
     }
+
+    if (stripYResiduals_){
+      //mean and RMS values (extracted from histograms(normalized Yprime in strip detectoron module level)
+	treeMem.meanY_ = it->second.ResYprimeHisto->GetMean();
+	treeMem.rmsY_ = it->second.ResYprimeHisto->GetRMS();
+	treeMem.meanNormY_ = it->second.NormResYprimeHisto->GetMean();
+	treeMem.rmsNormY_ = it->second.NormResYprimeHisto->GetRMS();
+	treeMem.histNameY_= it->second.ResYprimeHisto->GetName();
+	treeMem.histNameNormY_= it->second.ResYprimeHisto->GetName();
+      
+    }
+
     tree.Fill();
   }
 }

@@ -1,18 +1,18 @@
 /*
 
-  NOTE: This macro is based on the hadd macro provided by root.
-  The merging of a TTree is different from what hadd does to merge trees.
-  The Tree is once read out for entries which are the same in all input
-  variables - like global position variables for each module - and the values
-  are copied into a new Ttree.
-  The mean and RMS values for the different residuals are taken from the merged 
-  histograms and filled into the tree after the merging procedure.
+NOTE: This macro is based on the hadd macro provided by root.
+The merging of a TTree is different from what hadd does to merge trees.
+The Tree is once read out for entries which are the same in all input
+variables - like global position variables for each module - and the values
+are copied into a new Ttree.
+The mean and RMS values for the different residuals are taken from the merged 
+histograms and filled into the tree after the merging procedure.
 
-  To use the tool, the file name should have the same name+i where i is a number 
-  starting at 1. The tool automatically counts up the filenumber to the limit 
-  set by the user.
+To use the tool, the file name should have the same name+i where i is a number 
+starting at 1. The tool automatically counts up the filenumber to the limit 
+set by the user.
 
- */
+*/
 
 
 #include <string.h>
@@ -31,31 +31,38 @@
 TString histPathName;
 bool copiedTree = false;
 Bool_t moduleLevelHistsTransient = false;
-Bool_t lCoorHistOn =false;
+Bool_t lCoorHistOn = false;
+Bool_t yCoorHistOn = false;
 
 struct TreeVariables{
   TreeVariables(): meanLocalX_(), meanNormLocalX_(), meanX_(), meanNormX_(),
+		   meanY_(), meanNormY_(),
 		   rmsLocalX_(), rmsNormLocalX_(), rmsX_(), rmsNormX_(), 
-		   posR_(), posPhi_(), 
+		   rmsY_(), rmsNormY_(), 
+		   posR_(), posPhi_(), posEta_(),
 		   posX_(), posY_(), posZ_(),
 		   entries_(), moduleId_(), subDetId_(),
 		   layer_(), side_(), rod_(),ring_(), 
 		   petal_(),blade_(), panel_(), outerInner_(),
-		   isDoubleSide_(), histNameLocalX_(), histNameNormLocalX_(), histNameX_(), histNameNormX_(),
-		   histPathLocalX_(), histPathNormLocalX_(), histPathX_(), histPathNormX_(){} 
-  Float_t meanLocalX_, meanNormLocalX_, meanX_, meanNormX_,    //mean value read out from modul histograms
-          rmsLocalX_, rmsNormLocalX_, rmsX_,  rmsNormX_,      //rms value read out from modul histograms
-          posR_, posPhi_, posEta_,                     //global coordiantes    
-          posX_, posY_, posZ_;               //global coordiantes 
-  
-  UInt_t   entries_,                         //number of entries for each modul
-           moduleId_, subDetId_,             //modul Id = detId and subdetector Id
-           layer_, side_, rod_, 
-           ring_, petal_, 
-           blade_, panel_, outerInner_;      //innerOuter = orientation of modules on mounting unit
+		   isDoubleSide_(),
+		   histNameLocalX_(), histNameNormLocalX_(), histNameX_(), histNameNormX_(), 
+		   histNameY_(), histNameNormY_() {} 
+  Float_t meanLocalX_, meanNormLocalX_, meanX_,meanNormX_,    //mean value read out from modul histograms
+    meanY_,meanNormY_, 
+    rmsLocalX_, rmsNormLocalX_, rmsX_, rmsNormX_,      //rms value read out from modul histograms
+    rmsY_, rmsNormY_,
+    posR_, posPhi_, posEta_,                     //global coordiantes    
+    posX_, posY_, posZ_;             //global coordiantes 
+  UInt_t  entries_, moduleId_, subDetId_,          //number of entries for each modul //modul Id = detId and subdetector Id
+    layer_, side_, rod_, 
+    ring_, petal_, 
+    blade_, panel_, 
+    outerInner_; //orientation of modules in TIB:1/2= int/ext string, TID:1/2=back/front ring, TEC 1/2=back/front petal 
   Bool_t isDoubleSide_;
-  std::string histNameLocalX_, histNameNormLocalX_, histNameX_, histNameNormX_;
-  TString  histPathLocalX_, histPathNormLocalX_, histPathX_, histPathNormX_;
+  std::string histNameLocalX_, histNameNormLocalX_, histNameX_, histNameNormX_,
+    histNameY_, histNameNormY_; 
+
+  TString  histPathLocalX_, histPathNormLocalX_, histPathX_, histPathNormX_,  histPathY_, histPathNormY_;
 };
 
 std::map<unsigned int,TreeVariables> map_;
@@ -67,12 +74,13 @@ void hadd() {
   
   TList *FileList;
   TFile *Target;
-  Target = TFile::Open( "private_CRUZET3Cosmics_MPAlignObj.root", "RECREATE" );
+  Target = TFile::Open( "merge_output.root", "RECREATE" );
   TString inputFileName="";
   Int_t nEvt;
   Bool_t fileOk_=true;
   //get file name
   std::cout<<"Type in general file name (ending is added automatically)."<<std::endl;
+  std::cout<<"i.e. Validation_CRUZET_data as name, code adds 1,2,3 + .root"<<std::endl;
   std::cin>>inputFileName;
   
   if (inputFileName!=""){
@@ -89,7 +97,7 @@ void hadd() {
       
       if(TFile::Open(fileName)) {
 	FileList->Add( TFile::Open(fileName) );
-	 std::cout<<fileName<<std::endl;
+	std::cout<<fileName<<std::endl;
       }else{ 
 	cout<<"The file name "<<fileName<<" does not exists!"<<endl;
 	cout<<"The filelist could not be load properly."<<endl;
@@ -150,6 +158,9 @@ void MergeRootfile( TDirectory *target, TList *sourcelist ) {
 	if(histPathName.Contains("h_normresiduals"))map_[moduleId].histPathNormLocalX_= histPathName;
 	if(histPathName.Contains("h_xprime_residuals"))map_[moduleId].histPathX_= histPathName;
 	if(histPathName.Contains("h_normxprimeresiduals"))map_[moduleId].histPathNormX_= histPathName;
+	if(histPathName.Contains("h_yprime_residuals"))map_[moduleId].histPathY_= histPathName;
+	if(histPathName.Contains("h_normyprimeresiduals"))map_[moduleId].histPathNormY_= histPathName;
+
 	moduleLevelHistsTransient=true;
       }
       
@@ -199,6 +210,14 @@ void MergeRootfile( TDirectory *target, TList *sourcelist ) {
 	tree->SetBranchAddress("isDoubleSide",&treeMem_.isDoubleSide_);
 	tree->SetBranchAddress("histNameX",&treeMem_.histNameX_);
 	tree->SetBranchAddress("histNameNormX",&treeMem_.histNameX_);
+
+	//if residuals for y coordiantarte are present in file
+	if (tree->GetBranch("histNameLocalY"))
+	  {
+	    tree->SetBranchAddress("histNameLocalX",&treeMem_.histNameLocalX_);
+	    tree->SetBranchAddress("histNameNormLocalX",&treeMem_.histNameNormLocalX_);
+	    yCoorHistOn=true;
+	  }
 	
 	//if residuals for local coordiantartes are present in file
 	if (tree->GetBranch("histNameLocalX"))
@@ -235,8 +254,8 @@ void MergeRootfile( TDirectory *target, TList *sourcelist ) {
 	  //if residuals for local coordinates are present in file
 	  if (tree->GetBranch("histNameLocalX"))
 	    {
-	      map_[treeMem_.moduleId_].histNameLocalX_= treeMem_.histNameLocalX_;
-	      map_[treeMem_.moduleId_].histNameNormLocalX_= treeMem_.histNameNormLocalX_;
+	      map_[treeMem_.moduleId_].histNameY_= treeMem_.histNameY_;
+	      map_[treeMem_.moduleId_].histNameNormY_= treeMem_.histNameY_;
 	    }
 	  
 	}
@@ -292,14 +311,29 @@ void RewriteTree( TDirectory *target, TTree *tree, std::map<unsigned int,TreeVar
     tree->Branch("moduleId",&treeVar_.moduleId_,"modulId/i");
     tree->Branch("subDetId",&treeVar_.subDetId_,"subDetId/i");
     tree->Branch("entries",&treeVar_.entries_,"entries/i");
-    tree->Branch("meanLocalX",&treeVar_.meanLocalX_,"meanLocalX/F");
-    tree->Branch("rmsLocalX",&treeVar_.rmsLocalX_,"rmsLocalX/F");
-    tree->Branch("meanNormLocalX",&treeVar_.meanNormLocalX_,"meanNormLocalX/F");
-    tree->Branch("rmsNormLocalX",&treeVar_.rmsNormLocalX_,"rmsNormLocalX/F");
+    
     tree->Branch("meanX",&treeVar_.meanX_,"meanX/F");
     tree->Branch("rmsX",&treeVar_.rmsX_,"rmsX/F");
     tree->Branch("meanNormX",&treeVar_.meanNormX_,"meanNormX/F");
     tree->Branch("rmsNormX",&treeVar_.rmsNormX_,"rmsNormX/F");
+
+    if ( lCoorHistOn ){
+      tree->Branch("meanLocalX",&treeVar_.meanLocalX_,"meanLocalX/F");
+      tree->Branch("rmsLocalX",&treeVar_.rmsLocalX_,"rmsLocalX/F");
+      tree->Branch("meanNormLocalX",&treeVar_.meanNormLocalX_,"meanNormLocalX/F");
+      tree->Branch("rmsNormLocalX",&treeVar_.rmsNormLocalX_,"rmsNormLocalX/F");
+      tree->Branch("histNameLocalX",&treeVar_.histNameLocalX_,"histNameLocalX/b");
+      tree->Branch("histNameNormLocalX",&treeVar_.histNameNormLocalX_,"histNameNormLocalX/b");
+    }
+
+    if ( yCoorHistOn ){
+      tree->Branch("meanY",&treeVar_.meanY_,"meanY/F");
+      tree->Branch("rmsY",&treeVar_.rmsY_,"rmsY/F");
+      tree->Branch("meanNormY",&treeVar_.meanNormY_,"meanNormY/F");
+      tree->Branch("rmsNormY",&treeVar_.rmsNormY_,"rmsNormY/F");
+      tree->Branch("histNameY",&treeVar_.histNameY_,"histNameY/b");
+      tree->Branch("histNameNormY",&treeVar_.histNameNormY_,"histNameNormY/b");
+    }
 
 
     tree->Branch("posPhi",&treeVar_.posPhi_,"posPhi/F");
@@ -318,8 +352,7 @@ void RewriteTree( TDirectory *target, TTree *tree, std::map<unsigned int,TreeVar
     tree->Branch("panel",&treeVar_.panel_,"panel/i");
     tree->Branch("outerInner",&treeVar_.outerInner_,"outerInner/i");
     tree->Branch("isDoubleSide",&treeVar_.isDoubleSide_,"isDoubleSide/O");
-    tree->Branch("histNameLocalX",&treeVar_.histNameLocalX_,"histNameLocalX/b");
-    tree->Branch("histNameNormLocalX",&treeVar_.histNameNormLocalX_,"histNameNormLocalX/b");
+   
     tree->Branch("histNameX",&treeVar_.histNameX_,"histNameX/b");
     tree->Branch("histNameNormX",&treeVar_.histNameNormX_,"histNameNormX/b");
 
@@ -353,6 +386,19 @@ void RewriteTree( TDirectory *target, TTree *tree, std::map<unsigned int,TreeVar
 	treeVar_.rmsNormLocalX_ = h->GetRMS(); //get RMS value from histogram
    
       }
+
+      //if y coordinate is present in the file
+      if ( yCoorHistOn ){
+	target->GetObject(it->second.histPathY_, h);  //get  histogram path for ordinary residuum from map
+	treeVar_.meanY_ = h->GetMean();      //get mean value from histogram
+	treeVar_.rmsY_ = h->GetRMS();        //get RMS value from histogram
+    
+	target->GetObject(it->second.histPathNormY_,h); //get histogram path for normalized residuum from map
+	treeVar_.meanNormY_ = h->GetMean();//get mean value from histogram
+	treeVar_.rmsNormY_ = h->GetRMS(); //get RMS value from histogram
+   
+      }
+
     
       //get 'constant' values from map ('constant' means not effected by merging)
       treeVar_.moduleId_=it->first;             //get module Id 
