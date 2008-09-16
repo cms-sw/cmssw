@@ -159,7 +159,7 @@ def main(argv):
         #if mkdirstdout:
         #    print mkdirstdout,
         #print "Here we'd launch cmsPerfSuite.py!"
-        PerfSuitecmd="cmsPerfSuite.py"+cpu+cores+numevts+igprofevts+valgrindevts+candle+step+">& cmsPerfSuiteRun"+str(repetition+1)+".log"
+        PerfSuitecmd="cmsPerfSuite.py" + cpu + cores + numevts + igprofevts + valgrindevts + candle + step + ">& cmsPerfSuiteRun" + str(repetition + 1) + ".log"
         launchcmd=mkdircdcmd+";"+PerfSuitecmd
         print launchcmd
         sys.stdout.flush()

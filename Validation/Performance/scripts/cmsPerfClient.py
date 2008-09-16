@@ -1,20 +1,12 @@
 #!/usr/bin/env python
-import socket, xml, xmlrpclib, os, sys
+import socket, xml, xmlrpclib, os, sys, threading, Queue, time, random
 import optparse as opt
-
-#
-# Forward ports (Crtl-a d : to detach screen session)
-# screen ssh -v -L 8000:localhost:8000 nicolson@lxbuild066
-# screen -list (to list screen sessions)
-# screen -r XXX (to reattach screen session num XXX)
-# type exit in screen session to kill it
 
 PROG_NAME = os.path.basename(sys.argv[0])
 
 def optionparse():
-    #global PROG_NAME, _debug, _dryrun, _verbose
 
-    parser = opt.OptionParser(usage=("""%s [HOST] [Options]""" % PROG_NAME))
+    parser = opt.OptionParser(usage=("""%s [Options]""" % PROG_NAME))
 
     parser.add_option('-p',
                       '--port',
@@ -25,62 +17,148 @@ def optionparse():
                       metavar='<PORT>',
                       )
 
-    (options, args) = parser.parse_args()
+    parser.add_option('-m',
+                      '--machines',
+                      type="string",
+                      dest='machines',
+                      default="",
+                      help='A comma separated list of the machines to run the benchmarking on',
+                      metavar='<MACHINES>',
+                      )
 
-    port = 0
+    parser.add_option('-c',
+                      '--cps-cmd',
+                      type="string",
+                      dest='cmsperfcmd',
+                      default="",
+                      help='The cmsPerfSuite.py command to run',
+                      metavar='<COMMAND>',
+                      )
+
+    parser.add_option('-f',
+                      '--cmd-file',
+                      type="string",
+                      dest='cmscmdfile',
+                      default="",
+                      help='A file of cmsPerfSuite.py commands to execute on the machines',
+                      metavar='<PATH>',
+                      )      
+
+    (options, args) = parser.parse_args()
+    
+
+    if not options.cmsperfcmd == "" and not options.cmscmdfile == "":
+        parser.error("ERROR: You can not specify a command file and command string")
+        sys.exit()
+
+    cmsperf_cmds = []
+
+    if options.cmscmdfile == "":
+        if options.cmsperfcmd == "":
+            cmsperf_cmds = [ "date" ]
+        else:
+            cmsperf_cmds = [ options.cmsperfcmd ]
+
+
+    cmdfile = options.cmscmdfile
+    if not cmdfile == "":
+        cmdfile = os.path.abspath(cmdfile)
+        if os.path.isfile(cmdfile):
+            try:
+                for line in open(cmdfile):
+                    line = line.strip()
+                    if not line == "":
+                        cmsperf_cmds.append(line)
+            except OSError, detail:
+                print detail
+                sys.exit()
+            except IOError, detail:
+                print detail
+                sys.exit()
+        else:
+            parser.error("ERROR: %s is not a file" % cmdfile)
+            sys.exit()
+
+    port = 0        
     if options.port == -1:
         port = 8000
     else:
         port = options.port
 
-    if len(args) == 0:
-        args.append("localhost")
+    machines = []
+    
+    if "," in options.machines:
+        machines = options.machines.split(",")
+        machines = map(lambda x: x.strip(),machines)
+    else:
+        machines = [ options.machines.strip() ]
 
-    if not len(args) == 1:
-        parser.error("You must specify only one server")
-        sys.exit()
+    if len(machines) <= 0:
+        parser.error("you must specify at least one machine to benchmark")
 
-    return (options, args[0], port)
+    for machine in machines:
+        try:
+            output = socket.getaddrinfo(machine,port)
+        except socket.gaierror:
+            parser.error("ERROR: Can not resolve machine address %s (must be ip{4,6} or hostname)" % machine)
 
-def runcmd(cmd):
-    process  = os.popen(cmd)
-    cmdout   = process.read()
-    exitstat = process.close()
+    return (cmsperf_cmds, port, machines)
 
-    if True:
-        print cmd
-        print cmdout
-
-    if not exitstat == None:
-        sig     = exitstat >> 16    # Get the top 16 bits
-        xstatus = exitstat & 0xffff # Mask out all bits except the bottom 16
-        raise
-    return cmdout
-
-def runclient(shost,sport):
+def request_benchmark(perfcmds,shost,sport):
     try:
         server = xmlrpclib.ServerProxy("http://%s:%s" % (shost,sport))    
-        (id, cmds) = server.req_benchmark_run(socket.gethostname())
-        outs = []
-        for cmd in cmds:
-            outs.append(runcmd(cmd))
-        server.store_benchmarking_data(id,outs)
+        return server.request_benchmark(perfcmds)
     except socket.error, detail:
-        print "ERROR: Could not communicate with server:", detail
+        print "ERROR: Could not communicate with server %s:%s:" % (shost,sport), detail
     except xml.parsers.expat.ExpatError, detail:
         print "ERROR: XML-RPC could not be parsed:", detail
     except xmlrpclib.ProtocolError, detail:
         print "ERROR: XML-RPC protocol error", detail, "try using -L xxx:localhost:xxx if using ssh to forward"
 
-def _main():
-    (options, shost, sport) = optionparse()
-    runclient(shost,sport)
+class Worker(threading.Thread):
 
-# Remember that localhost is the loopback network: it does not provide
-# or require any connection to the outside world. As such it is useful
-# for testing purposes. If you want your server to be seen on other
-# machines, you must use your real network address in stead of
-# 'localhost'.
+    def __init__(self, host, port, perfcmds, queue):
+        self.__perfcmds = perfcmds
+        self.__host  = host
+        self.__port  = port
+        self.__queue = queue
+        threading.Thread.__init__(self)
+
+    def run(self):
+        data = request_benchmark(self.__perfcmds, self.__host, self.__port)
+        self.__queue.put((self.__host, data))
+
+def runclient(perfcmds, hosts, port):
+    queue = Queue.Queue()
+    # start all threads
+    workers = []
+    for host in hosts:
+        w = Worker(host, port, perfcmds, queue)
+        w.start()                
+        workers.append(w)
+        
+    # run until all servers have returned data
+    while reduce(lambda x,y: x or y, map(lambda x: x.isAlive(),workers)):
+        try:            
+            time.sleep(2.0)
+        except (KeyboardInterrupt, SystemExit):
+            #cleanup
+            presentBenchmarkData(queue)            
+            raise
+        except:
+            #cleanup
+            presentBenchmarkData(queue)
+            raise
+    presentBenchmarkData(queue)    
+
+def _main():
+    (cmsperf_cmds, port, hosts) = optionparse()
+    runclient(cmsperf_cmds, hosts, port)
+
+def presentBenchmarkData(q):
+    while not q.empty():
+        item = q.get()
+        print item
 
 if __name__ == "__main__":
     _main()
