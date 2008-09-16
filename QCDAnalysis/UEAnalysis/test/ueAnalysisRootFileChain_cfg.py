@@ -2,11 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("MBUEAnalysisRootFile")
 process.load("QCDAnalysis.UEAnalysis.UEAnalysisParticles_cfi")
-
 process.load("QCDAnalysis.UEAnalysis.UEAnalysisTracks_cfi")
-
 process.load("QCDAnalysis.UEAnalysis.UEAnalysisJets_cfi")
-
 process.load("QCDAnalysis.UEAnalysis.UEAnalysisRootple_cfi")
 
 process.TFileService = cms.Service("TFileService",
@@ -14,25 +11,28 @@ process.TFileService = cms.Service("TFileService",
 )
 
 process.MessageLogger = cms.Service("MessageLogger",
-    cerr = cms.untracked.PSet(
-        default = cms.untracked.PSet(
-            limit = cms.untracked.int32(10)
-        )
+                                    cerr = cms.untracked.PSet(
+    default = cms.untracked.PSet(
+    limit = cms.untracked.int32(10)
+    )
     ),
-    cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('ERROR')
+                                    cout = cms.untracked.PSet(
+    threshold = cms.untracked.string('ERROR')
+    #    threshold = cms.untracked.string('DEBUG')
     ),
-    destinations = cms.untracked.vstring('cout')
-)
+                                    destinations = cms.untracked.vstring('cout')
+                                    )
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
-)
+    )
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('/store/mc/CSA08/JetET80/GEN-SIM-RECO/CSA08_S156_v1/0066/1A0E344B-4D2C-DD11-91E7-001731AF686B.root')
-)
+                            fileNames = cms.untracked.vstring('/store/relval/CMSSW_2_1_8/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/STARTUP_V7_v1/0002/221DE0C5-5E82-DD11-A199-000423D98BC4.root')
+                            )
 
-process.p1 = cms.Path(process.UEAnalysisParticles*process.UEAnalysisTracks*process.UEAnalysisJets*process.UEAnalysis)
+#process.EventAnalyzer = cms.EDAnalyzer("EventContentAnalyzer")
+
+process.p1 = cms.Path(process.UEAnalysisParticles*process.UEAnalysisTracks+process.UEAnalysisJets+process.UEAnalysis)
 process.UEAnalysisRootple.OnlyRECO = False
 process.UEAnalysisRootple500.OnlyRECO = False
 

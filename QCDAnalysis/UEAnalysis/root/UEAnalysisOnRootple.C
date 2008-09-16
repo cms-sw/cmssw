@@ -85,15 +85,22 @@ void UEAnalysisOnRootple::MultiAnalysis(char* filelist,char* outname,vector<floa
   int filenumber = 0;
   while(inFile.getline(RootTupleName,255)) {
     if (RootTupleName[0] != '#') {
-      cout<<"I'm analyzing file "<<RootTupleName<<endl;
-
+ 
       string fileName( RootTupleName );
-
-      //
-      // set upper limit on pT of hard interaction to avoid 
+      cout<<"I'm analyzing file "<< fileName << " (" 
+	  << fileName.size() << " characters)" << endl;
+     
+      //----------------------------------------------------------
+      // CSA08: set upper limit on pT of hard interaction to avoid 
       // double-counting when merging datasets
       //
-      if ( fileName.compare( 38, 7, "MinBias"  )==0 ) 
+      if ( fileName.size() < 45 )   // too few characters
+	{
+	  cout << "!!! WARNING !!! Cannot determine dataset range (expect MinBias, JetET20, JetET30, ...)" << endl;
+	  cout << "!!! WARNING !!! Will accept all pthat values" << endl;
+	  pThatMax = 14000.;
+	}
+      else if ( fileName.compare( 38, 7, "MinBias"  )==0 ) 
 	{
 	  cout << "choose pthat for minbias range" << endl;
 	  pThatMax = 30.;
@@ -136,6 +143,7 @@ void UEAnalysisOnRootple::MultiAnalysis(char* filelist,char* outname,vector<floa
 	  cout << "!!! WARNING !!! Will accept all pthat values" << endl;
 	  pThatMax = 14000.;
 	}
+      //----------------------------------------------------------
 
       //TFile *f =  new TFile(RootTupleName);
       f = TFile::Open(RootTupleName);
@@ -219,22 +227,23 @@ void UEAnalysisOnRootple::Loop(Float_t we,Float_t ptThreshold,string type,string
 	for ( int iAcceptedTrigger(0); iAcceptedTrigger<nAcceptedTriggers; ++iAcceptedTrigger )
 	  {
 	    std::string filterName( acceptedTriggers->At(iAcceptedTrigger)->GetName() );
+	    //cout << "Trigger: " << filterName << endl;
 	    
-	    if      ( filterName=="HLTMinBiasPixel" ) h_acceptedTriggers->Fill( 0 );
-	    else if ( filterName=="HLTMinBiasHcal"  ) h_acceptedTriggers->Fill( 1 );
-	    else if ( filterName=="HLTMinBiasEcal"  ) h_acceptedTriggers->Fill( 2 );
-	    else if ( filterName=="HLTMinBias"      ) h_acceptedTriggers->Fill( 3 );
-	    else if ( filterName=="HLTZeroBias"     ) h_acceptedTriggers->Fill( 4 );
-	    else if ( filterName=="HLT1jet30"       ) h_acceptedTriggers->Fill( 5 );
-	    else if ( filterName=="HLT1jet50"       ) h_acceptedTriggers->Fill( 6 );
-	    else if ( filterName=="HLT1jet80"       ) h_acceptedTriggers->Fill( 7 );
-	    else if ( filterName=="HLT1jet110"      ) h_acceptedTriggers->Fill( 8 );
-	    else if ( filterName=="HLT1jet180"      ) h_acceptedTriggers->Fill( 9 );
-	    else if ( filterName=="HLT1jet250"      ) h_acceptedTriggers->Fill( 10 );
+	    if      ( filterName=="HLT_MinBiasPixel" ) h_acceptedTriggers->Fill( 0 );
+	    else if ( filterName=="HLT_MinBiasHcal"  ) h_acceptedTriggers->Fill( 1 );
+	    else if ( filterName=="HLT_MinBiasEcal"  ) h_acceptedTriggers->Fill( 2 );
+	    else if ( filterName=="HLT_MinBias"      ) h_acceptedTriggers->Fill( 3 );
+	    else if ( filterName=="HLT_ZeroBias"     ) h_acceptedTriggers->Fill( 4 );
+	    else if ( filterName=="HLT_Jet30"       ) h_acceptedTriggers->Fill( 5 );
+	    else if ( filterName=="HLT_Jet50"       ) h_acceptedTriggers->Fill( 6 );
+	    else if ( filterName=="HLT_Jet80"       ) h_acceptedTriggers->Fill( 7 );
+	    else if ( filterName=="HLT_Jet110"      ) h_acceptedTriggers->Fill( 8 );
+	    else if ( filterName=="HLT_Jet180"      ) h_acceptedTriggers->Fill( 9 );
+	    else if ( filterName=="HLT_Jet250"      ) h_acceptedTriggers->Fill( 10 );
 	    else                                      h_acceptedTriggers->Fill( 11 );
 	    
 	    // fill histos for each HLT bit separately
-	    if ( filterName=="HLTMinBiasPixel" )
+	    if ( filterName=="HLT_MinBiasPixel" )
 	      {
 		if (type=="Jet") jetsHLTMinBiasPixel->jetCalibAnalysis(we,etaRegion,InclusiveJet,ChargedJet,
 								       TracksJet,CalorimeterJet, acceptedTriggers, 
@@ -250,7 +259,7 @@ void UEAnalysisOnRootple::Loop(Float_t we,Float_t ptThreshold,string type,string
 		    antiKtJetsHLTMinBiasPixel->jetAnalysis(we, etaRegion, ptThreshold, Track, hFile, "HLTMinBiasPixel" );
 		  }
 	      }
-	    else if ( filterName=="HLTMinBiasHcal"  )
+	    else if ( filterName=="HLT_MinBiasHcal"  )
 	      {
 		if(type=="Jet") jetsHLTMinBiasHcal->jetCalibAnalysis(we,etaRegion,InclusiveJet,ChargedJet,
 								     TracksJet,CalorimeterJet, acceptedTriggers, 
@@ -263,7 +272,7 @@ void UEAnalysisOnRootple::Loop(Float_t we,Float_t ptThreshold,string type,string
 		
 		if (type=="AntiKtJet") antiKtJetsHLTMinBiasHcal->jetAnalysis(we, etaRegion, ptThreshold, Track, hFile, "HLTMinBiasHcal" );
 	      }
-	    else if ( filterName=="HLTMinBiasEcal"  )
+	    else if ( filterName=="HLT_MinBiasEcal"  )
 	      {
 		if(type=="Jet") jetsHLTMinBiasEcal->jetCalibAnalysis(we,etaRegion,InclusiveJet,ChargedJet,
 								     TracksJet,CalorimeterJet, acceptedTriggers, 
@@ -276,7 +285,7 @@ void UEAnalysisOnRootple::Loop(Float_t we,Float_t ptThreshold,string type,string
 		
 		if (type=="AntiKtJet") antiKtJetsHLTMinBiasEcal->jetAnalysis(we, etaRegion, ptThreshold, Track, hFile, "HLTMinBiasEcal" );
 	      }
-	    else if ( filterName=="HLTMinBias"      )
+	    else if ( filterName=="HLT_MinBias"      )
 	      {
 		if(type=="Jet") jetsHLTMinBias->jetCalibAnalysis(we,etaRegion,InclusiveJet,ChargedJet,
 								 TracksJet,CalorimeterJet, acceptedTriggers, 
@@ -289,7 +298,7 @@ void UEAnalysisOnRootple::Loop(Float_t we,Float_t ptThreshold,string type,string
 		
 		if (type=="AntiKtJet") antiKtJetsHLTMinBias->jetAnalysis(we, etaRegion, ptThreshold, Track, hFile, "HLTMinBias" );
 	      }
-	    else if ( filterName=="HLTZeroBias"     )
+	    else if ( filterName=="HLT_ZeroBias"     )
 	      {
 		if(type=="Jet") jetsHLTZeroBias->jetCalibAnalysis(we,etaRegion,InclusiveJet,ChargedJet,
 								  TracksJet,CalorimeterJet, acceptedTriggers, 
@@ -302,7 +311,7 @@ void UEAnalysisOnRootple::Loop(Float_t we,Float_t ptThreshold,string type,string
 		
 		if (type=="AntiKtJet") antiKtJetsHLTZeroBias->jetAnalysis(we, etaRegion, ptThreshold, Track, hFile, "HLTZeroBias" );
 	      }
-	    else if ( filterName=="HLT1jet30"       )
+	    else if ( filterName=="HLT_Jet30"       )
 	      {
 		if(type=="Jet") jetsHLT1jet30->jetCalibAnalysis(we,etaRegion,InclusiveJet,ChargedJet,
 								TracksJet,CalorimeterJet, acceptedTriggers, 
@@ -315,7 +324,7 @@ void UEAnalysisOnRootple::Loop(Float_t we,Float_t ptThreshold,string type,string
 		
 		if (type=="AntiKtJet") antiKtJetsHLT1jet30->jetAnalysis(we, etaRegion, ptThreshold, Track, hFile, "HLT1jet30" );
 	      }
-	    else if ( filterName=="HLT1jet50"       )
+	    else if ( filterName=="HLT_Jet50"       )
 	      {
 		if(type=="Jet") jetsHLT1jet50->jetCalibAnalysis(we,etaRegion,InclusiveJet,ChargedJet,
 								TracksJet,CalorimeterJet, acceptedTriggers, 
@@ -328,7 +337,7 @@ void UEAnalysisOnRootple::Loop(Float_t we,Float_t ptThreshold,string type,string
 		
 		if (type=="AntiKtJet") antiKtJetsHLT1jet50->jetAnalysis(we, etaRegion, ptThreshold, Track, hFile, "HLT1jet50" );
 	      }
-	    else if ( filterName=="HLT1jet80"       )
+	    else if ( filterName=="HLT_Jet80"       )
 	      {
 		if(type=="Jet") jetsHLT1jet80->jetCalibAnalysis(we,etaRegion,InclusiveJet,ChargedJet,
 								TracksJet,CalorimeterJet, acceptedTriggers, 
@@ -341,7 +350,7 @@ void UEAnalysisOnRootple::Loop(Float_t we,Float_t ptThreshold,string type,string
 		
 		if (type=="AntiKtJet") antiKtJetsHLT1jet80->jetAnalysis(we, etaRegion, ptThreshold, Track, hFile, "HLT1jet80" );
 	      }
-	    else if ( filterName=="HLT1jet110"      )
+	    else if ( filterName=="HLT_Jet110"      )
 	      {
 		if(type=="Jet") jetsHLT1jet110->jetCalibAnalysis(we,etaRegion,InclusiveJet,ChargedJet,
 								 TracksJet,CalorimeterJet, acceptedTriggers, 
@@ -354,7 +363,7 @@ void UEAnalysisOnRootple::Loop(Float_t we,Float_t ptThreshold,string type,string
 		
 		if (type=="AntiKtJet") antiKtJetsHLT1jet110->jetAnalysis(we, etaRegion, ptThreshold, Track, hFile, "HLT1jet110" );
 	      }
-	    else if ( filterName=="HLT1jet180"      )
+	    else if ( filterName=="HLT_Jet180"      )
 	      {
 		if(type=="Jet") jetsHLT1jet180->jetCalibAnalysis(we,etaRegion,InclusiveJet,ChargedJet,
 								 TracksJet,CalorimeterJet, acceptedTriggers, 
@@ -367,7 +376,7 @@ void UEAnalysisOnRootple::Loop(Float_t we,Float_t ptThreshold,string type,string
 		
 		if (type=="AntiKtJet") antiKtJetsHLT1jet180->jetAnalysis(we, etaRegion, ptThreshold, Track, hFile, "HLT1jet180" );
 	      }
-	    else if ( filterName=="HLT1jet250"      )
+	    else if ( filterName=="HLT_Jet250"      )
 	      {
 		if(type=="Jet") jetsHLT1jet250->jetCalibAnalysis(we,etaRegion,InclusiveJet,ChargedJet,
 								 TracksJet,CalorimeterJet, acceptedTriggers, 

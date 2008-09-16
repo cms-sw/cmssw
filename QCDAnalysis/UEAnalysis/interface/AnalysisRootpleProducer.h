@@ -79,7 +79,8 @@ private:
   Handle< vector<GenParticle> > CandHandleMC ;
   Handle< GenJetCollection    > GenJetsHandle ;
   Handle< GenJetCollection    > ChgGenJetsHandle ;
-  Handle< CandidateCollection > CandHandleRECO ;
+  //  Handle< CandidateCollection > CandHandleRECO ;
+  Handle< edm::View<reco::Candidate> > CandHandleRECO ;
   Handle< BasicJetCollection  > TracksJetsHandle ;
   Handle< CaloJetCollection   > RecoCaloJetsHandle ;
   Handle< TriggerResults      > triggerResults;

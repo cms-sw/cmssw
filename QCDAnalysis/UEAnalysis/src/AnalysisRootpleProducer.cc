@@ -358,7 +358,8 @@ void AnalysisRootpleProducer::analyze( const Event& e, const EventSetup& )
     {
       if(CandHandleRECO->size())
 	{
-	  for(CandidateCollection::const_iterator it(CandHandleRECO->begin()), itEnd(CandHandleRECO->end());
+	  //for(CandidateCollection::const_iterator it(CandHandleRECO->begin()), itEnd(CandHandleRECO->end());
+	  for(edm::View<reco::Candidate>::const_iterator it(CandHandleRECO->begin()), itEnd(CandHandleRECO->end());
 	      it!=itEnd;++it)
 	    {
 	      Tracks.push_back(it->p4());
