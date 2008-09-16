@@ -15,9 +15,9 @@ process.load("Geometry.MuonCommonData.muonIdealGeometryXML_cfi")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
-process.GlobalTag.connect = "frontier://(proxyurl=http://localhost:3128)(serverurl=http://frontier1.cms:8000/FrontierOnProd)(serverurl=http://frontier2.cms:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_21X_GLOBALTAG"
-process.GlobalTag.globaltag = 'CRZT210_V1H::All'
-process.prefer("GlobalTag")
+#process.GlobalTag.connect = "frontier://(proxyurl=http://localhost:3128)(serverurl=http://frontier1.cms:8000/FrontierOnProd)(serverurl=http://frontier2.cms:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_21X_GLOBALTAG"
+#process.GlobalTag.globaltag = 'CRZT210_V1H::All'
+#process.prefer("GlobalTag")
 
 
 
@@ -32,41 +32,43 @@ process.load("DQMServices.Core.DQM_cfg")
 
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 
-process.source = cms.Source("PoolSource",
-#process.source = cms.Source("NewEventStreamFileReader",
-    debugVerbosity = cms.untracked.uint32(1),
-    debugVebosity = cms.untracked.bool(True),
-    fileNames = cms.untracked.vstring(
-	#'file:/cms/mon/data/lookarea_SM/GlobalCruzet3.00051218.0001.DQM.storageManager.0.0000.dat'
-	'file:/tmp/wteo/28E1D7F9-214C-DD11-B42C-000423D9880C.root',
-        'file:/tmp/wteo/AC5529A1-D754-DD11-9362-000423D9863C.root',
-        'file:/tmp/wteo/28E1D7F9-214C-DD11-B42C-000423D9880C.root',
-        'file:/tmp/wteo/AC5529A1-D754-DD11-9362-000423D9863C.root',
-        'file:/tmp/wteo/28E1D7F9-214C-DD11-B42C-000423D9880C.root',
-        'file:/tmp/wteo/AC5529A1-D754-DD11-9362-000423D9863C.root',
-        'file:/tmp/wteo/28E1D7F9-214C-DD11-B42C-000423D9880C.root',
-        'file:/tmp/wteo/AC5529A1-D754-DD11-9362-000423D9863C.root'
-        #'file:/cms/mon/data/lookarea_SM/GlobalCruzet3MW33.00056489.0001.HLTDEBUG.storageManager.2.0000.dat'
-        #'file:/tmp/wteo/28E1D7F9-214C-DD11-B42C-000423D9880C.root', 
-        #'file:/tmp/wteo/28E1D7F9-214C-DD11-B42C-000423D9880C.root', 
-        #'file:/tmp/wteo/28E1D7F9-214C-DD11-B42C-000423D9880C.root', 
-        #'file:/tmp/wteo/28E1D7F9-214C-DD11-B42C-000423D9880C.root', 
-        #'file:/tmp/wteo/28E1D7F9-214C-DD11-B42C-000423D9880C.root', 
-        #'file:/tmp/wteo/28E1D7F9-214C-DD11-B42C-000423D9880C.root', 
-        #'file:/tmp/wteo/28E1D7F9-214C-DD11-B42C-000423D9880C.root', 
-        #'file:/tmp/wteo/28E1D7F9-214C-DD11-B42C-000423D9880C.root', 
-        #'file:/tmp/wteo/28E1D7F9-214C-DD11-B42C-000423D9880C.root', 
-        #'file:/tmp/wteo/28E1D7F9-214C-DD11-B42C-000423D9880C.root', 
-        #'file:/tmp/wteo/28E1D7F9-214C-DD11-B42C-000423D9880C.root', 
-        #'file:/tmp/wteo/28E1D7F9-214C-DD11-B42C-000423D9880C.root'
-        )
-)
+process.load("DQM.TrigXMonitor.run58738")
 
-process.maxEvents = cms.untracked.PSet(
-    #input = cms.untracked.int32(1000)
-    #input = cms.untracked.int32(10)
-    input = cms.untracked.int32(-1)
-)
+# process.source = cms.Source("PoolSource",
+# #process.source = cms.Source("NewEventStreamFileReader",
+#     debugVerbosity = cms.untracked.uint32(1),
+#     debugVebosity = cms.untracked.bool(True),
+#     fileNames = cms.untracked.vstring(
+# 	#'file:/cms/mon/data/lookarea_SM/GlobalCruzet3.00051218.0001.DQM.storageManager.0.0000.dat'
+# 	'file:/tmp/wteo/28E1D7F9-214C-DD11-B42C-000423D9880C.root',
+#         'file:/tmp/wteo/AC5529A1-D754-DD11-9362-000423D9863C.root',
+#         'file:/tmp/wteo/28E1D7F9-214C-DD11-B42C-000423D9880C.root',
+#         'file:/tmp/wteo/AC5529A1-D754-DD11-9362-000423D9863C.root',
+#         'file:/tmp/wteo/28E1D7F9-214C-DD11-B42C-000423D9880C.root',
+#         'file:/tmp/wteo/AC5529A1-D754-DD11-9362-000423D9863C.root',
+#         'file:/tmp/wteo/28E1D7F9-214C-DD11-B42C-000423D9880C.root',
+#         'file:/tmp/wteo/AC5529A1-D754-DD11-9362-000423D9863C.root'
+#         #'file:/cms/mon/data/lookarea_SM/GlobalCruzet3MW33.00056489.0001.HLTDEBUG.storageManager.2.0000.dat'
+#         #'file:/tmp/wteo/28E1D7F9-214C-DD11-B42C-000423D9880C.root', 
+#         #'file:/tmp/wteo/28E1D7F9-214C-DD11-B42C-000423D9880C.root', 
+#         #'file:/tmp/wteo/28E1D7F9-214C-DD11-B42C-000423D9880C.root', 
+#         #'file:/tmp/wteo/28E1D7F9-214C-DD11-B42C-000423D9880C.root', 
+#         #'file:/tmp/wteo/28E1D7F9-214C-DD11-B42C-000423D9880C.root', 
+#         #'file:/tmp/wteo/28E1D7F9-214C-DD11-B42C-000423D9880C.root', 
+#         #'file:/tmp/wteo/28E1D7F9-214C-DD11-B42C-000423D9880C.root', 
+#         #'file:/tmp/wteo/28E1D7F9-214C-DD11-B42C-000423D9880C.root', 
+#         #'file:/tmp/wteo/28E1D7F9-214C-DD11-B42C-000423D9880C.root', 
+#         #'file:/tmp/wteo/28E1D7F9-214C-DD11-B42C-000423D9880C.root', 
+#         #'file:/tmp/wteo/28E1D7F9-214C-DD11-B42C-000423D9880C.root', 
+#         #'file:/tmp/wteo/28E1D7F9-214C-DD11-B42C-000423D9880C.root'
+#         )
+# )
+
+# process.maxEvents = cms.untracked.PSet(
+#     #input = cms.untracked.int32(1000)
+#     #input = cms.untracked.int32(10)
+#     input = cms.untracked.int32(-1)
+# )
 process.ModuleWebRegistry = cms.Service("ModuleWebRegistry")
 
 process.LockService = cms.Service("LockService",

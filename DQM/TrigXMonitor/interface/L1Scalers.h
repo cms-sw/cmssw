@@ -1,7 +1,7 @@
 // -*-c++-*-
 #ifndef L1Scalers_H
 #define L1Scalers_H
-// $Id: L1Scalers.h,v 1.6 2008/09/02 02:35:32 wittich Exp $
+// $Id: L1Scalers.h,v 1.7 2008/09/03 02:13:47 wittich Exp $
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -54,12 +54,25 @@ private:
   MonitorElement *l1Correlations_;
   MonitorElement *bxNum_;
 
+
   // 2d versions
   MonitorElement *l1scalersBx_;
   MonitorElement *l1techScalersBx_;
 
   // Int
   MonitorElement *nLumiBlock_;
+
+  // Hacks for early running
+  MonitorElement *pixFedSize_;
+  MonitorElement *hfEnergy_;
+  // steal from HLTrigger/special
+  unsigned int threshold_;
+  unsigned int fedStart_, fedStop_ ;
+  edm::InputTag fedRawCollection_;
+
+  std::vector<int> maskedList_;
+  edm::InputTag HcalRecHitCollection_;
+  // END HACK
 
 
 };
