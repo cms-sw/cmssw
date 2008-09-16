@@ -196,18 +196,22 @@ void CSCDDUEventData::unpack_data(unsigned short *buf, CSCDCCExaminer* examiner)
 
       for (csc_itr=cscs.begin(); csc_itr != cscs.end(); ++csc_itr) {
 	short cscid = csc_itr->first;
-	unsigned short* pos = (unsigned short*)csc_itr->second;
+
+        if(cscid != -1)
+        {
+	  unsigned short* pos = (unsigned short*)csc_itr->second;
 	
 	
-        long errors = examiner->errorsForChamber(cscid);
-        if ((errors & examiner->getMask()) > 0 ) {	
+          long errors = examiner->errorsForChamber(cscid);
+          if ((errors & examiner->getMask()) > 0 ) {	
          	if (debug) 
 		LogTrace ("CSCDDUEventData|CSCRawToDigi" )
                        << "skip unpacking of CSC " << cscid << " due format errors: 0x" << std::hex << errors << std::dec;
-	  continue;
-        } 
+	    continue;
+          } 
 	
-	theData.push_back(CSCEventData(pos));
+	  theData.push_back(CSCEventData(pos));
+        }
       }
 
       if (debug)
