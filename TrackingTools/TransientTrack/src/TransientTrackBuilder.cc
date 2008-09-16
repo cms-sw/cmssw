@@ -71,7 +71,7 @@ TransientTrackBuilder::build (const edm::Handle<edm::View<Track> > & trkColl) co
   for (unsigned int i = 0; i < (*trkColl).size() ; i++) {
     const Track * trk = &(*trkColl)[i];
     const GsfTrack * gsfTrack = dynamic_cast<const GsfTrack *>(trk);
-    if (!gsfTrack) {
+    if (gsfTrack) {
       ttVect.push_back( TransientTrack(
 	  new GsfTransientTrack(RefToBase<Track>(trkColl, i).castTo<GsfTrackRef>(), theField, theTrackingGeometry)) );
     } else { // gsf
