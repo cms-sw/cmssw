@@ -14,7 +14,7 @@ PROG_NAME = os.path.basename(sys.argv[0])
 def optionparse():
     #global PROG_NAME, _debug, _dryrun, _verbose
 
-    parser = opt.OptionParser(usage=("""%s [HOST] [Options]"""))
+    parser = opt.OptionParser(usage=("""%s [HOST] [Options]""" % PROG_NAME))
 
     parser.add_option('-p',
                       '--port',
@@ -42,16 +42,35 @@ def optionparse():
 
     return (options, args[0], port)
 
+def runcmd(cmd):
+    process  = os.popen(cmd)
+    cmdout   = process.read()
+    exitstat = process.close()
+
+    if True:
+        print cmd
+        print cmdout
+
+    if not exitstat == None:
+        sig     = exitstat >> 16    # Get the top 16 bits
+        xstatus = exitstat & 0xffff # Mask out all bits except the bottom 16
+        raise
+    return cmdout
+
 def runclient(shost,sport):
     try:
         server = xmlrpclib.ServerProxy("http://%s:%s" % (shost,sport))    
-        print server.testfn()
+        (id, cmds) = server.req_benchmark_run(socket.gethostname())
+        outs = []
+        for cmd in cmds:
+            outs.append(runcmd(cmd))
+        server.store_benchmarking_data(id,outs)
     except socket.error, detail:
         print "ERROR: Could not communicate with server:", detail
     except xml.parsers.expat.ExpatError, detail:
         print "ERROR: XML-RPC could not be parsed:", detail
     except xmlrpclib.ProtocolError, detail:
-        print "ERROR: XML-RPC protocol error", detail, "possibly try using -L xxx:localhost:xxx if using ssh to forward"
+        print "ERROR: XML-RPC protocol error", detail, "try using -L xxx:localhost:xxx if using ssh to forward"
 
 def _main():
     (options, shost, sport) = optionparse()
