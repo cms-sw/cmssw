@@ -330,6 +330,11 @@ TagProbeEDMAnalysis::~TagProbeEDMAnalysis()
    if( var2Pass_ ) delete var2Pass_;
    if( var2All_  ) delete var2All_;
 
+   if(outRootFile_) {
+     outRootFile_->Close();
+     delete outRootFile_;
+   }
+
    if(Histograms_)
    {
       delete [] Histograms_; 
@@ -549,7 +554,7 @@ int TagProbeEDMAnalysis::SaveHistogram(TH1F& Histo, std::string outFileName, Int
   
    c1->SaveAs(outFileName.c_str());
   
-   delete c1;
+   if(c1) delete c1;
 
    return 0;
 }
@@ -579,11 +584,11 @@ void TagProbeEDMAnalysis::ZllEffSBS( string &fileName, string &bvar, vector< dou
    TH1F effhist(hname.c_str(),htitle.c_str(),bnbins,&bins[0]);
    for( int bin=0; bin<bnbins; ++bin ) cout << "Bin low edge " << effhist.GetBinLowEdge(bin+1) << endl;
 
-   TH1F* PassProbes;
-   TH1F* FailProbes;
+   TH1F* PassProbes(0);
+   TH1F* FailProbes(0);
 
-   TH1F* SBSPassProbes;
-   TH1F* SBSFailProbes;
+   TH1F* SBSPassProbes(0);
+   TH1F* SBSFailProbes(0);
 
    const int XBinsSBS = massNbins_;
    double XMinSBS = massLow_;
@@ -688,6 +693,12 @@ void TagProbeEDMAnalysis::ZllEffSBS( string &fileName, string &bvar, vector< dou
    outRootFile_->cd();
    effhist.Write();
 
+
+   if(PassProbes)    delete PassProbes;
+   if(FailProbes)    delete FailProbes;
+   if(SBSPassProbes) delete SBSPassProbes;
+   if(SBSFailProbes) delete SBSFailProbes;
+
    return;
 
 }
@@ -717,11 +728,11 @@ void TagProbeEDMAnalysis::ZllEffSBS2D( string &fileName, string &bvar1, vector< 
 
    TH2F effhist(hname.c_str(),htitle.c_str(),bnbins1,&bins1[0],bnbins2,&bins2[0]);
 
-   TH1F* PassProbes;
-   TH1F* FailProbes;
+   TH1F* PassProbes(0);
+   TH1F* FailProbes(0);
 
-   TH1F* SBSPassProbes;
-   TH1F* SBSFailProbes;
+   TH1F* SBSPassProbes(0);
+   TH1F* SBSFailProbes(0);
 
    const int XBinsSBS = massNbins_;
    const double XMinSBS = massLow_;
@@ -835,6 +846,11 @@ void TagProbeEDMAnalysis::ZllEffSBS2D( string &fileName, string &bvar1, vector< 
    outRootFile_->cd();
    effhist.Write();
 
+   if(PassProbes)    delete PassProbes;
+   if(FailProbes)    delete FailProbes;
+   if(SBSPassProbes) delete SBSPassProbes;
+   if(SBSFailProbes) delete SBSFailProbes;
+
    return;
 
 }
@@ -926,12 +942,12 @@ void TagProbeEDMAnalysis::ZllEffFitter( string &fileName, string &bvar, vector< 
 
       // Add the TTree as our data set ... with the weight in case 
       // we are using chained MC
-      //RooDataSet* data = new RooDataSet("fitData","fitData",(TTree*)fitTree_->Clone(),
-      //				RooArgSet(ProbePass,Mass,Var1,Weight),"","");
+      RooDataSet* data = new RooDataSet("fitData","fitData", fitTree_,
+      				RooArgSet(ProbePass,Mass,Var1,Var2,Weight),"","");
       // Above command doesn't work in root 5.18 (lovely) so we have this
       // silly workaround with TChain for now
-      RooDataSet* data = new RooDataSet("fitData","fitData",(TTree*)nFitTree,
-					RooArgSet(ProbePass,Mass,Var1,Var2,Weight));
+      // RooDataSet* data = new RooDataSet("fitData","fitData",(TTree*)nFitTree,
+      //					RooArgSet(ProbePass,Mass,Var1,Var2,Weight));
       //RooDataSet* data = new RooDataSet("fitData",fileName.c_str(),"fitter_tree",
       //				RooArgSet(ProbePass,Mass,Var1,Weight));
 
@@ -1252,13 +1268,14 @@ void TagProbeEDMAnalysis::ZllEffFitter( string &fileName, string &bvar, vector< 
 
       std::cout << "Finished with fitter - fit results saved to " << fileName << std::endl;
 
-      delete data;
-      delete bdata;
+      if(data) delete data;
+      if(bdata) delete bdata;
+      if(c) delete c;
    }
 
    outRootFile_->cd();
    effhist.Write();
-
+   if(nFitTree) delete nFitTree;
    return;
 }
 // ************************************** //
@@ -1315,12 +1332,13 @@ void TagProbeEDMAnalysis::ZllEffFitter2D( string &fileName, string &bvar1, vecto
 
 	 // Add the TTree as our data set ... with the weight in case 
 	 // we are using chained MC
-	 //RooDataSet* data = new RooDataSet("fitData","fitData",fitTree,
-	 //				RooArgSet(ProbePass,Mass,Pt,Weight),"","");
+	 RooDataSet* data = new RooDataSet("fitData","fitData",fitTree_,
+					   RooArgSet(ProbePass,Mass,Var1,Var2,Weight),"","");
+
 	 // Above command doesn't work in root 5.18 (lovely) so we have this
 	 // silly workaround with TChain for now
-	 RooDataSet* data = new RooDataSet("fitData","fitData",(TTree*)nFitTree,
-					   RooArgSet(ProbePass,Mass,Var1,Var2,Weight));
+	 // RooDataSet* data = new RooDataSet("fitData","fitData",(TTree*)nFitTree,
+	 //				   RooArgSet(ProbePass,Mass,Var1,Var2,Weight));
 
 
 	 //data->get()->Print();
@@ -1642,8 +1660,9 @@ void TagProbeEDMAnalysis::ZllEffFitter2D( string &fileName, string &bvar1, vecto
 
 	 std::cout << "Finished with fitter - fit results saved to " << fileName << std::endl;
 
-	 delete data;
-	 delete bdata;
+	 if(data) delete data;
+	 if(bdata) delete bdata;
+	 if(c) delete c;
       }
 
    }
@@ -1651,6 +1670,7 @@ void TagProbeEDMAnalysis::ZllEffFitter2D( string &fileName, string &bvar1, vecto
    outRootFile_->cd();
    effhist.Write();
 
+   if(nFitTree) delete nFitTree;
    return;
 }
 // ************************************** //

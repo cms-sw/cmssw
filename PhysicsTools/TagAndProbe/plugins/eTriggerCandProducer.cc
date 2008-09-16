@@ -18,12 +18,13 @@ eTriggerCandProducer::eTriggerCandProducer(const edm::ParameterSet& iConfig )
   _inputProducer = iConfig.getParameter<std::string>("InputProducer");
 
    // **************** Trigger ******************* //
-   const edm::InputTag dTriggerEventTag("hltTriggerSummaryAOD");
+   const edm::InputTag dTriggerEventTag("hltTriggerSummaryAOD","","HLT");
    triggerEventTag_ = 
       iConfig.getUntrackedParameter<edm::InputTag>("triggerEventTag",
 						   dTriggerEventTag);
 
-   const edm::InputTag dHLTTag("hltL1NonIsoHLTNonIsoSingleElectronEt15TrackIsolFilter");
+   const edm::InputTag dHLTTag("hltL1NonIsoHLTNonIsoSingleElectronEt15TrackIsolFilter",
+			       "","HLT");
    hltTag_ = iConfig.getUntrackedParameter<edm::InputTag>("hltTag",dHLTTag);
 
    delRMatchingCut_ = iConfig.getUntrackedParameter<double>("triggerDelRMatch",
@@ -125,26 +126,40 @@ void eTriggerCandProducer::produce(edm::Event &event,
 
 
 
-
-   
    // Trigger Info
    edm::Handle<trigger::TriggerEvent> trgEvent;
    event.getByLabel(triggerEventTag_,trgEvent);
 
    // Some sanity checks
    if (not trgEvent.isValid()) {
-     edm::LogInfo("info")<< "******** The following Trigger Summary Object Not Found: " << 
+     edm::LogInfo("info")<< "******** Following Trigger Summary Object Not Found: " << 
        triggerEventTag_;
      return;
    }
 
+
+   // loop over these objects to see whether they match
+   const trigger::TriggerObjectCollection& TOC = trgEvent->getObjects();
+     
+
+
    // find how many relevant
-   const size_type index = trgEvent->filterIndex( hltTag_.label() );
+   // const size_type index = trgEvent->filterIndex( hltTag_ );
+
+   int index  = trgEvent->sizeFilters();
+
+
+   //  workaround for the time-being for the Relval_2_1_2 samples
+   for(int i=0; i != trgEvent->sizeFilters(); ++i) {
+     std::string label(trgEvent->filterTag(i).label());
+     if( label == hltTag_.label() ) index = i;
+   }
+    
 
 
    if( index >= trgEvent->sizeFilters() ) {
-     edm::LogInfo("info")<< "******** The following TRIGGER Name Not in Dataset: " << 
-       hltTag_.label();
+     // edm::LogInfo("info")<< "******** Following TRIGGER Name Not in Dataset: " << 
+     //  hltTag_.label();
      return;
    }
 
@@ -152,9 +167,7 @@ void eTriggerCandProducer::produce(edm::Event &event,
    // find how many objects there are
    const trigger::Keys& KEYS(trgEvent->filterKeys(index));
    const size_type nK(KEYS.size());
-   // loop over these objects to see whether they match
-   const trigger::TriggerObjectCollection& TOC = trgEvent->getObjects();
-     
+
 
 
    // Loop over electrons

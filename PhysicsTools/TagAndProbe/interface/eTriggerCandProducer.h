@@ -30,6 +30,8 @@ class eTriggerCandProducer : public edm::EDProducer
   edm::InputTag triggerEventTag_;
   edm::InputTag hltTag_;
   double delRMatchingCut_;
+
+
 };
 
 #endif
