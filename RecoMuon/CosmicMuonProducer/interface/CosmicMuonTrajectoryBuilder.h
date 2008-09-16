@@ -2,8 +2,8 @@
 #define CosmicMuonTrajectoryBuilder_H
 /** \file CosmicMuonTrajectoryBuilder
  *
- *  $Date: 2008/06/17 18:11:31 $
- *  $Revision: 1.18 $
+ *  $Date: 2008/06/24 23:50:52 $
+ *  $Revision: 1.19 $
  *  \author Chang Liu  -  Purdue University
  */
 
@@ -100,7 +100,7 @@ private:
 
   void updateTrajectory(Trajectory&, const MuonTransientTrackingRecHit::MuonRecHitContainer&);
 
-  std::vector<TrajectoryMeasurement> findBestMeasurements(const DetLayer*, const TrajectoryStateOnSurface&, const MeasurementEstimator*);
+  std::vector<TrajectoryMeasurement> findBestMeasurements(const DetLayer*, const TrajectoryStateOnSurface&, const Propagator*, const MeasurementEstimator*);
 
   void incrementChamberCounters(const DetLayer *layer, int& dtChambers, int& cscChambers, int& rpcChambers, int& totalChambers);
 
@@ -115,6 +115,7 @@ private:
   CosmicMuonSmoother* theSmoother;
 
   std::string thePropagatorName;
+
   bool theTraversingMuonFlag;
 
   std::string category_;
