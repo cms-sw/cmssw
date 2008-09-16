@@ -59,7 +59,7 @@ namespace helper
       rSATracks_(), rSATrackExtras_(), rSAHits_(),
       id_(0), igbd_(0), isad_(0), idx_(0), igbdx_(0),
       isadx_(0), hidx_(0), higbdx_(0), hisadx_(0),
-      cloneClusters_ (true)
+      cloneClusters_ (true),clustersOK_ (true)
     {
     }
 
@@ -141,10 +141,10 @@ namespace helper
 	trk.setExtra( TrackExtraRef( rSATrackExtras_, isadx_ ++ ) );
 
 	} // SA trkRef.isNonnull()
-      }// end of track, and function
+  }// end of track, and function
 
   //------------------------------------------------------------------
-  //!  Process a single muon.  
+  //!  Process a single hit.  
   //------------------------------------------------------------------
   void
   MuonCollectionStoreManager::
@@ -223,6 +223,9 @@ namespace helper
                   lastRef = it->clusterRef();
                   // clone cluster
                   if(lastRef.isAvailable()){
+		  setClustersOK(false);
+		  edm::LogError("MuonSelector")<<"Missing reference from clusters!!!";
+		  edm::LogError("MuonSelector")<<"No objects will be produced!!!";
                   filler.push_back( *lastRef );  
                   // make new ref
                   newRef = typename HitType::ClusterRef( refprod, clusters++ );
@@ -239,14 +242,14 @@ namespace helper
   } // end of the function
 
 
-
   //------------------------------------------------------------------
   //!  Put Muons, tracks, track extras and hits+clusters into the event.
   //------------------------------------------------------------------
     edm::OrphanHandle<reco::MuonCollection> 
     MuonCollectionStoreManager::
     put( edm::Event & evt ) {
-      edm::OrphanHandle<reco::MuonCollection> 
+	edm::OrphanHandle<reco::MuonCollection> h;
+    if(clustersOK()){
       h = evt.put( selMuons_ , "SelectedMuons");
       evt.put( selTracks_ , "TrackerOnly");
       evt.put( selTracksExtras_ , "TrackerOnly");
@@ -261,7 +264,9 @@ namespace helper
           evt.put( selStripClusters_ );
           evt.put( selPixelClusters_ );
       }
+     }      
       return h; 
+     
     }
 
 
