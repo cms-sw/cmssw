@@ -34,7 +34,7 @@ HypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
   const reco::Candidate* hadW   = semiLepEvt->hadronicW  (hypoKey);
   const reco::Candidate* lepTop = semiLepEvt->leptonicTop(hypoKey);
   const reco::Candidate* lepW   = semiLepEvt->leptonicW  (hypoKey);
-  
+
   if(hadTop && hadW && lepTop && lepW){
     hadWPt_    ->Fill( hadW->pt()    );
     hadWMass_  ->Fill( hadW->mass()  );

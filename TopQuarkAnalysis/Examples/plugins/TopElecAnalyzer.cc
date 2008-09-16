@@ -1,4 +1,5 @@
 #include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/PatCandidates/interface/Flags.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "TopQuarkAnalysis/Examples/plugins/TopElecAnalyzer.h"
@@ -38,8 +39,19 @@ TopElecAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
     etaElec_->Fill( elec->eta()   );
     phiElec_->Fill( elec->phi()   );
 
+
     // --------------------------------------------------
-    // ask for common tigger bits to be set
+    // request isolation tag
+    // --------------------------------------------------
+    if (pat::Flags::test(*elec, pat::Flags::Isolation::Tracker)) {
+      std::cout << "Electron is not Tracker Isolated" << std::endl;
+    } 
+    else {
+      std::cout << "Electron is Tracker Isolated" << std::endl;
+    }
+
+    // --------------------------------------------------
+    // check tigger bits
     // --------------------------------------------------
     edm::Handle<edm::TriggerResults> triggerBits;
     evt.getByLabel("TriggerResults",triggerBits);
@@ -51,12 +63,10 @@ TopElecAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
     }
 
     // --------------------------------------------------
-    // get matched trigger primitive and fill best match 
+    // get matched trigger primitives and fill best match 
     // --------------------------------------------------
-    int trigIdx=-1;
+    int trigIdx =-1 ;
     double minDR=-1.;
-
-    std::cout << "size=" << elec->triggerMatches().size() << std::endl;
     const std::vector<pat::TriggerPrimitive> trig = elec->triggerMatches();
     for(unsigned idx = 0; idx<trig.size(); ++idx){
       std::cout << "found trigger match from HLT filter: " 

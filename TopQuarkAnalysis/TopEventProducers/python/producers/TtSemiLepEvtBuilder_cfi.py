@@ -17,8 +17,8 @@ ttSemiLepEvent = cms.EDProducer("TtSemiLepEvtBuilder",
     hyps = cms.VInputTag(cms.InputTag("ttSemiLepHypGeom"),
                          cms.InputTag("ttSemiLepHypWMassMaxSumPt"),
                          cms.InputTag("ttSemiLepHypMaxSumPtWMass"),
-                         cms.InputTag("ttSemiLepHypKinFit"),
                          cms.InputTag("ttSemiLepHypGenMatch"),
+                         cms.InputTag("ttSemiLepHypKinFit"),
                          cms.InputTag("ttSemiLepHypMVADisc")
                          ),
 
@@ -35,8 +35,8 @@ ttSemiLepEvent = cms.EDProducer("TtSemiLepEvtBuilder",
     matches = cms.VInputTag(cms.InputTag("ttSemiLepHypGeom","Match"),
                             cms.InputTag("ttSemiLepHypWMassMaxSumPt","Match"),
                             cms.InputTag("ttSemiLepHypMaxSumPtWMass","Match"),
-                            cms.InputTag("ttSemiLepHypKinFit","Match"),
                             cms.InputTag("ttSemiLepHypGenMatch","Match"),
+                            cms.InputTag("ttSemiLepHypKinFit","Match"),
                             cms.InputTag("ttSemiLepHypMVADisc","Match")
                             ),
 

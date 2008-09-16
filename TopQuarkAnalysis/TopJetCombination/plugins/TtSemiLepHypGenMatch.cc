@@ -40,7 +40,7 @@ TtSemiLepHypGenMatch::buildHypo(edm::Event& evt,
     if( iLepton>=0 )
       setCandidate(leps, iLepton, lepton_);
   }
-  
+
   // -----------------------------------------------------
   // add neutrino
   // -----------------------------------------------------
