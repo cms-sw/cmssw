@@ -118,7 +118,11 @@ from CondCore.DBCommon.CondDBCommon_cfi import *
 process.siPixelCalibGlobalTag =  cms.ESSource("PoolDBESSource",
                                               CondDBCommon,
                                               connect = cms.string("oracle://cms_orcoff_prep/CMS_COND_PIXEL_COMM_21X"),
-                                              globaltag = cms.string("PIXELCALIB_01::TypeGLOBALCALIB"),
+                                              
+                                              toGet = cms.VPSet(
+                                                cms.PSet(record = cms.string('SiPixelCalibConfigurationRcd'),
+                                                tag = cms.string('GLOBALCALIB_default'))
+                                                ),
                                               BlobStreamerName = cms.untracked.string("TBufferBlobStreamingService")
                                               )
 process.siPixelCalibGlobalTag.DBParameters.authenticationPath = "/afs/cern.ch/cms/DB/conddb"
@@ -148,7 +152,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 process.MessageLogger = cms.Service("MessageLogger",
     debugModules = cms.untracked.vstring('siPixelDigis',
-        'SiPixelCalibDigiProducer',
+        'siPixelCalibDigis',
         'SiPixelRawDataErrorSource', 
         'SiPixelDigiSource', 
         'SiPixelClusterSource', 
