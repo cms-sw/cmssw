@@ -2,6 +2,10 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoMuon.TrackingTools.MuonServiceProxy_cff import *
 from RecoMuon.TrackingTools.MuonTrackLoader_cff import *
+from TrackingTools.GeomPropagators.StraightLinePropagator_cfi import *
+
+MuonServiceProxy.ServiceParameters.Propagators.append('StraightLinePropagator')
+
 cosmicMuons = cms.EDProducer("CosmicMuonProducer",
     MuonTrackLoaderForCosmic,
     MuonServiceProxy,
@@ -15,7 +19,7 @@ cosmicMuons = cms.EDProducer("CosmicMuonProducer",
         ),
         RPCRecSegmentLabel = cms.InputTag("rpcRecHits"),
         MuonTrajectoryUpdatorParameters = cms.PSet(
-            MaxChi2 = cms.double(30000.0),
+            MaxChi2 = cms.double(3000.0),
             RescaleError = cms.bool(False),
             RescaleErrorFactor = cms.double(1.0),
             Granularity = cms.int32(0)
@@ -37,6 +41,4 @@ cosmicMuons = cms.EDProducer("CosmicMuonProducer",
     ),
     MuonSeedCollectionLabel = cms.untracked.string('CosmicMuonSeed')
 )
-
-
 
