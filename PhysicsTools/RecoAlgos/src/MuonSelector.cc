@@ -59,7 +59,7 @@ namespace helper
       rSATracks_(), rSATrackExtras_(), rSAHits_(),
       id_(0), igbd_(0), isad_(0), idx_(0), igbdx_(0),
       isadx_(0), hidx_(0), higbdx_(0), hisadx_(0),
-      cloneClusters_ (true),clustersOK_ (true)
+      cloneClusters_ (true)
     {
     }
 
@@ -71,6 +71,21 @@ namespace helper
   MuonCollectionStoreManager::
   processMuon( const Muon & mu ) 
   {
+        if (this->cloneClusters() 
+            && (   (mu.globalTrack().isNonnull() && !this->clusterRefsOK(*mu.globalTrack()))
+                || (mu.innerTrack() .isNonnull() && !this->clusterRefsOK(*mu.innerTrack() ))
+                   // || (mu.outerTrack(). isNonnull() && !this->clusterRefsOK(*mu.outerTrack() ))
+                   )) { // outer track is muon only and has no strip clusters...
+          // At least until CMSSW_2_1_8, global muon track reconstruction assigns wrong hits in
+          // case of a track from iterative tracking. These hits are fetched from Trajectories
+          // instead of from Tracks and therefore reference temporary cluster collections.
+          // As a hack we skip these muons here - they can anyway not be refitted. 
+          edm::LogError("BadRef") << "@SUB=MuonCollectionStoreManager::processMuon"
+                                  << "Skip muon: One of its tracks references "
+                                  << "non-available clusters!";
+          return;
+        }
+        
 	selMuons_->push_back( Muon( mu ) );
 	// only tracker Muon Track	
 	selMuons_->back().setInnerTrack( TrackRef( rTracks_, id_ ++ ) );
@@ -222,13 +237,9 @@ namespace helper
               if (it->clusterRef() != lastRef) { 
                   lastRef = it->clusterRef();
                   // clone cluster
-                  if(lastRef.isAvailable()){
-                  filler.push_back( *lastRef );  
+                  filler.push_back( *lastRef ); // this might throw if !clusterRefsOK(..) above...
                   // make new ref
                   newRef = typename HitType::ClusterRef( refprod, clusters++ );
-		  }
-		  else setClustersOK(false);
-		 // to avoid problem with missing clusters refs in 21X 
               } 
               // then fixup the reference
               it->rekey( newRef );
@@ -241,14 +252,48 @@ namespace helper
   } // end of the function
 
 
+  //-------------------------------------------------------------------------
+  //!  Check if all references to silicon strip/pixel clusters are available.
+  //-------------------------------------------------------------------------
+  bool
+  MuonCollectionStoreManager::
+  clusterRefsOK(const reco::Track &track) const
+  {
+
+    for (trackingRecHit_iterator hitIt = track.recHitsBegin(); hitIt != track.recHitsEnd(); ++hitIt) {
+      const TrackingRecHit &hit = **hitIt;
+      if (!hit.isValid() || hit.geographicalId().det() != DetId::Tracker) continue;
+
+      // So we are in the tracker - now check hit types and availability of cluster refs:
+      const std::type_info &hit_type = typeid(hit);
+      if (hit_type == typeid(SiPixelRecHit)) {
+        if (!static_cast<const SiPixelRecHit &>(hit).cluster().isAvailable()) return false;
+      } else if (hit_type == typeid(SiStripRecHit2D)) {
+        if (!static_cast<const SiStripRecHit2D &>(hit).cluster().isAvailable()) return false;
+      } else if (hit_type == typeid(SiStripMatchedRecHit2D)) {      
+        const SiStripMatchedRecHit2D &mHit = static_cast<const SiStripMatchedRecHit2D &>(hit);
+        if (!mHit.monoHit()->cluster().isAvailable()) return false;
+        if (!mHit.stereoHit()->cluster().isAvailable()) return false;
+      } else if (hit_type == typeid(ProjectedSiStripRecHit2D)) {
+        const ProjectedSiStripRecHit2D &pHit = static_cast<const ProjectedSiStripRecHit2D &>(hit);
+        if (!pHit.originalHit().cluster().isAvailable()) return false;
+      } else {
+        // std::cout << "|   It is a " << hit_type.name() << " hit !?" << std::endl;
+        // Do nothing. We might end up here for FastSim hits.
+      } // end 'switch' on hit type
+    }
+	
+    // No tracker hit with bad cluster found, so all fine:
+    return true;
+  }
+
   //------------------------------------------------------------------
   //!  Put Muons, tracks, track extras and hits+clusters into the event.
   //------------------------------------------------------------------
     edm::OrphanHandle<reco::MuonCollection> 
     MuonCollectionStoreManager::
     put( edm::Event & evt ) {
-	edm::OrphanHandle<reco::MuonCollection> h;
-    if(clustersOK()){
+      edm::OrphanHandle<reco::MuonCollection> h;
       h = evt.put( selMuons_ , "SelectedMuons");
       evt.put( selTracks_ , "TrackerOnly");
       evt.put( selTracksExtras_ , "TrackerOnly");
@@ -263,18 +308,9 @@ namespace helper
           evt.put( selStripClusters_ );
           evt.put( selPixelClusters_ );
       }
-     }      
-     else{
-        edm::LogError("MuonSelector")<<"Missing reference from clusters!!!";
-        edm::LogError("MuonSelector")<<"No objects will be produced!!!";
-     }
-
       return h; 
      
     }
 
 
 } // end of namespace helper
-
-      
- 

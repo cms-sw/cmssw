@@ -10,7 +10,7 @@
  *
  * \version $Revision: 1.10 $
  *
- * $Id: MuonSelector.h,v 1.10 2008/09/15 00:09:19 jfernan2 Exp $
+ * $Id: MuonSelector.h,v 1.10 2008/09/16 08:56:24 jfernan2 Exp $
  *
  */
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -45,16 +45,7 @@ namespace helper {
     inline bool cloneClusters() {return cloneClusters_ ; } 
     inline void setCloneClusters(bool w) { cloneClusters_ = w; }
 
-     //------------------------------------------------------------------
-    //!  Use these to abort the producer in the event.  The default
-    //!  is to proceed, but if clusters are missing some reference
-    //!  this producer will not save objects at the end  
-    //! 	Added to fix problem in 21X clusters from tracking
     //------------------------------------------------------------------
-    inline bool clustersOK() {return clustersOK_ ; } 
-    inline void setClustersOK(bool w) { clustersOK_ = w; }
-
-   //------------------------------------------------------------------
     //!  Put tracks, track extras and hits+clusters into the event.
     //------------------------------------------------------------------
     edm::OrphanHandle<reco::MuonCollection> put( edm::Event & evt );
@@ -144,7 +135,6 @@ namespace helper {
 
     //--- Switches 
     bool   cloneClusters_ ;  //!< Clone clusters, or not?  Default: true.
-    bool   clustersOK_;      //! To avoid problem with clusters in 21X Default: true
     
     //--- Methods
     //------------------------------------------------------------------
@@ -172,7 +162,9 @@ namespace helper {
     void processClusters( std::vector<ClusterHitRecord<HitType> > & clusterRecords,
               edmNew::DetSetVector<ClusterType>                   & dsv,
               edm::RefProd< edmNew::DetSetVector<ClusterType> >   & refprod ) ;
-   };
+
+    bool clusterRefsOK(const reco::Track &track) const;
+  };
   // (end of struct MuonCollectionStoreManager)
  
   template<typename I>
