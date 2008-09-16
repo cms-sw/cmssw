@@ -1,4 +1,4 @@
-// LAST UPDATED 13.04.2007 ptc
+// LAST UPDATED 16.09.2009 ptc
 
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include <FWCore/Framework/interface/EventSetup.h>
@@ -184,7 +184,7 @@ void
 
         if ( fabs( stripoff ) < 1.e-06 ) stripoff = 0.;
 
-        // Layer geometry:  layer corner phi's...
+        // Layer geometry:  layer corner phi's... OF ALUMINUM FRAME
 
 	std::vector<float> parameters = geom->parameters();
         // these parameters are half-lengths, due to GEANT
@@ -216,16 +216,42 @@ void
         float lRGp = lowerRightGlobal.phi().degrees();
         float lLGp = lowerLeftGlobal.phi().degrees();
 
+
+	std::cout << "\nCHAMBER FRAME corners in local coordinates: \n UR " <<
+	  upperRightLocal << "\n UL " << upperLeftLocal << "\n LR " <<
+	  lowerRightLocal << "\n LL " << lowerLeftLocal << std::endl;
+
+	std::cout << "CHAMBER FRAME corners in global coords: \n UR " << 
+	  upperRightGlobal << "\n UL " << upperLeftGlobal << "\n LR " <<
+	  lowerRightGlobal << "\n LL " << lowerLeftGlobal << 
+	  "\n   phi: UR " << uRGp << " UL " << uLGp << " LR " <<
+	  lRGp << " LL " << lLGp << std::endl;
+
+
 	float ang = nStrips * phiwid;
 	float ctoi = cst->centreToIntersection();
 
-	std::cout << "\nStrip plane:" << std::endl;
+	std::cout << "\nSTRIP PLANE:" << std::endl;
 	std::cout << "============" << std::endl;
 	std::cout << "centreToIntersection, R = " << ctoi << std::endl;
 	std::cout << "local y of centre of strip plane, yOff = " << cst->yCentreOfStripPlane() << std::endl;
 	std::cout << "originToIntersection, R-yOff = " << cst->originToIntersection() << std::endl;
 	std::cout << "extent of strip plane in local y = " << cst->yExtentOfStripPlane() << std::endl;
 	std::cout << "no. of strips = " << nStrips << std::endl;
+
+	// Local coordinates of ends of strips
+        MeasurementPoint mp1m(0.5, -0.5); // strip 1, -y
+	MeasurementPoint mp1p(0.5,  0.5); // strip 1, +y
+	MeasurementPoint mp2m(static_cast<float>(nStrips)-0.5, -0.5); // strip N, -y
+	MeasurementPoint mp2p(static_cast<float>(nStrips)-0.5,  0.5); // strip N, +y
+	LocalPoint lp1m = geom->topology()->localPosition(mp1m);
+	LocalPoint lp1p = geom->topology()->localPosition(mp1p);
+	LocalPoint lp2m = geom->topology()->localPosition(mp2m);
+	LocalPoint lp2p = geom->topology()->localPosition(mp2p);
+
+	std::cout << "Strip 1 local coords " << lp1m << " " << lp1p << std::endl;
+	std::cout << "Strip " << nStrips <<" local coords " << lp2m << " " << lp2p << std::endl;
+
 	std::cout << "angular width of one strip = " << phiwid << " rads " << std::endl;
 	std::cout << "angle subtended by layer, A = nstrips x stripPhiPitch = " << ang << " rads = " <<
 	  ang * radToDeg  << " deg" << std::endl;
@@ -258,15 +284,6 @@ void
 	std::cout << "local(0,0)    = global " << gCentre << std::endl;
 	std::cout << "local(0,0,+1) = global " << gCentre2 << std::endl;
    
-	std::cout << "\nChamber frame corners in local coordinates: \n UR " <<
-	  upperRightLocal << "\n UL " << upperLeftLocal << "\n LR " <<
-	  lowerRightLocal << "\n LL " << lowerLeftLocal << std::endl;
-
-	std::cout << "Chamber frame corners in global coords: \n UR " << 
-	  upperRightGlobal << "\n UL " << upperLeftGlobal << "\n LR " <<
-	  lowerRightGlobal << "\n LL " << lowerLeftGlobal << 
-	  "\n   phi: UR " << uRGp << " UL " << uLGp << " LR " <<
-	  lRGp << " LL " << lLGp << std::endl;
 
 	// CSCLG::stripAngle(int strip)
 	std::cout << "CSCLG Angle of strip 1 = " << 
@@ -369,12 +386,12 @@ void
 	float x_n_b = geom->xOfStrip(nStrips, -hApothem); // x of strip n at bottom edge
 	float x_c_t = geom->xOfStrip(nStrips/2, hApothem); // x of strip n/2 at top edge
 	float x_c_b = geom->xOfStrip(nStrips/2, -hApothem); // x of strip n/2 at bottom edge
-	GlobalPoint g_1_t = layer->surface().toGlobal( LocalPoint(x_1_t, hApothem, 0.) );
-	GlobalPoint g_1_b = layer->surface().toGlobal( LocalPoint(x_1_b, -hApothem, 0.) );
-	GlobalPoint g_n_t = layer->surface().toGlobal( LocalPoint(x_n_t, hApothem, 0.) );
-	GlobalPoint g_n_b = layer->surface().toGlobal( LocalPoint(x_n_b, -hApothem, 0.) );
-	GlobalPoint g_c_t = layer->surface().toGlobal( LocalPoint(x_c_t, 0., 0.) );
-	GlobalPoint g_c_b = layer->surface().toGlobal( LocalPoint(x_c_b, 0., 0.) );
+	GlobalPoint g_1_t = layer->toGlobal( LocalPoint(x_1_t, hApothem, 0.) );
+	GlobalPoint g_1_b = layer->toGlobal( LocalPoint(x_1_b, -hApothem, 0.) );
+	GlobalPoint g_n_t = layer->toGlobal( LocalPoint(x_n_t, hApothem, 0.) );
+	GlobalPoint g_n_b = layer->toGlobal( LocalPoint(x_n_b, -hApothem, 0.) );
+	GlobalPoint g_c_t = layer->toGlobal( LocalPoint(x_c_t, 0., 0.) );
+	GlobalPoint g_c_b = layer->toGlobal( LocalPoint(x_c_b, 0., 0.) );
 	float phi_1_t = g_1_t.phi();
 	float phi_1_b = g_1_b.phi();
 	float phi_n_t = g_n_t.phi();
@@ -385,14 +402,15 @@ void
 	std::cout << " strip " << nStrips/2 << " top: " << phi_c_t << " centre: " << phi_c_c << " bottom: " << phi_c_b << " top-bottom: " << phi_c_t-phi_c_b << std::endl;
 	std::cout << " strip " << nStrips << " top: " << phi_n_t << " centre: " << phi_n_c << " bottom: " << phi_n_b << " top-bottom: " << phi_n_t-phi_n_b << std::endl;
 
+
 	int nwg = geom->numberOfWireGroups();
 	int nw = geom->numberOfWires();
 
-	std::cout << "\nWire plane:" << std::endl;
+	std::cout << "\nWIRE PLANE:" << std::endl;
 	std::cout << "===========" << std::endl;
 	std::cout << "wireSpacing = " << geom->wirePitch() << " cm " << std::endl;
     	std::cout << "wireAngle = " << geom->wireAngle() << " rads " << std::endl;
-	std::cout << "no. of wires = " << geom->numberOfWires() << std::endl;
+	std::cout << "no. of wires = " << nw << std::endl;
 	std::cout << "no. of wire groups = " << nwg << std::endl;
 	std::cout << "no. of wires in wg 1 = " << geom->numberOfWiresPerGroup( 1 ) << std::endl;
 	std::cout << "no. of wires in wg " << nwg << " = " << geom->numberOfWiresPerGroup( nwg ) << std::endl;
@@ -406,6 +424,26 @@ void
 	std::cout << "y of wg " << nwg << " at x=0 is " << geom->yOfWireGroup( nwg ) << std::endl;
 	std::cout << "centre of wg 1 is " << geom->localCenterOfWireGroup( 1 ) << std::endl;
 	std::cout << "centre of wg " << nwg << " is " << geom->localCenterOfWireGroup( nwg ) << std::endl;
+    	std::cout << "y of wire 1 at x=0 = " << geom->wireTopology()->yOfWire(1., 0.) << std::endl;
+    	std::cout << "y of wire " << nw << " at x=0 = " << geom->wireTopology()->yOfWire(static_cast<float>(nw), 0.) << std::endl;
+
+	std::cout << "narrow width of wire plane = " << geom->wireTopology()->narrowWidthOfPlane() << std::endl;
+	std::cout << "wide width   of wire plane = " << geom->wireTopology()->wideWidthOfPlane() << std::endl;
+	std::cout << "y extent     of wire plane = " << geom->wireTopology()->lengthOfPlane() << std::endl;
+	std::cout << "perp extent  of wire plane = " << geom->wireTopology()->extentOfWirePlane() << std::endl;
+
+	std::pair< std::pair<float,float>, std::pair<float,float> > lw1 =
+	  geom->wireTopology()->wireEnds( geom->middleWireOfGroup( 1 ) );
+	std::cout << "local coords of ends of central wire of wire group 1 = " <<
+	  "(" << lw1.first.first << ", " << lw1.first.second << "), " <<
+	  "(" << lw1.second.first << ", " << lw1.second.second << ")" << std::endl;
+
+	std::pair< std::pair<float,float>, std::pair<float,float> > lw2 =
+  	  geom->wireTopology()->wireEnds( geom->middleWireOfGroup( nwg ) );
+	std::cout << "local coords of ends of central wire of wire group " << nwg << " = " <<
+	  "(" << lw2.first.first << ", " << lw2.first.second << "), " <<
+	  "(" << lw2.second.first << ", " << lw2.second.second << ")" << std::endl;
+
 
 	// Check idToDetUnit
 	const GeomDetUnit * gdu = pDD->idToDetUnit(detId);
