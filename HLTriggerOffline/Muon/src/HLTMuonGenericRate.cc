@@ -1,7 +1,7 @@
  /** \class HLTMuonGenericRate
  *  Get L1/HLT efficiency/rate plots
  *
- *  \author M. Vander Donckt, J. Klukas  (copied from J. Alcaraz)
+ *  \author J. Klukas, M. Vander Donckt (copied from J. Alcaraz)
  */
 
 #include "HLTriggerOffline/Muon/interface/HLTMuonGenericRate.h"
@@ -10,15 +10,12 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-// Collaborating Class Header
-#include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 
-#include "TFile.h"
-#include "TDirectory.h"
-#include "TH1F.h"
+// #include "TDirectory.h"
+// #include "TH1F.h"
 #include <iostream>
 
 using namespace std;
@@ -47,17 +44,17 @@ HLTMuonGenericRate::HLTMuonGenericRate(const ParameterSet& pset,
                              ("HLTReferenceThreshold");    
   theNumberOfObjects       = thisTrigger.getParameter<unsigned int>
                              ("NumberOfObjects");
-  if ( useMuonFromGenerator ) 
-    theGenLabel            = pset.getUntrackedParameter<string>("GenLabel");
-  if ( useMuonFromReco )
-    theRecoLabel           = pset.getUntrackedParameter<string>("RecoLabel");
 
-  useMuonFromGenerator = pset.getParameter<bool>("UseMuonFromGenerator");
-  useMuonFromReco      = pset.getParameter<bool>("UseMuonFromReco");
+  m_useMuonFromGenerator = pset.getParameter<bool>("UseMuonFromGenerator");
+  m_useMuonFromReco      = pset.getParameter<bool>("UseMuonFromReco");
+  if ( m_useMuonFromGenerator ) 
+    theGenLabel          = pset.getUntrackedParameter<string>("GenLabel");
+  if ( m_useMuonFromReco )
+    theRecoLabel         = pset.getUntrackedParameter<string>("RecoLabel");
 
-  thePtMin     = pset.getUntrackedParameter<double>      ("PtMin",  0.);
-  thePtMax     = pset.getUntrackedParameter<double>      ("PtMax", 40.);
-  theNbins     = pset.getUntrackedParameter<unsigned int>("Nbins", 40 );
+  thePtMin     = pset.getUntrackedParameter<double>      ("PtMin",      0.);
+  thePtMax     = pset.getUntrackedParameter<double>      ("PtMax",     40.);
+  theNbins     = pset.getUntrackedParameter<unsigned int>("Nbins",     40 );
   theMinPtCut  = pset.getUntrackedParameter<double>      ("MinPtCut",  5.0);
   theMaxEtaCut = pset.getUntrackedParameter<double>      ("MaxEtaCut", 2.1);
 
@@ -79,12 +76,14 @@ HLTMuonGenericRate::HLTMuonGenericRate(const ParameterSet& pset,
 
   theRootFileName = pset.getUntrackedParameter<std::string>("RootFileName","");
 
-  if ( theL1CollectionLabel.label() == "hltSingleMuIsoL1Filtered" )
-    makeNtuple = true;
-  else makeNtuple = false;
-  if ( makeNtuple ) {
-    theFile    = new TFile  ("file.root","RECREATE");
-    theNtuple  = new TNtuple("nt","data","genPt:genEta:genPhi:pt1:eta1:phi1:pt2:eta2:phi2:pt3:eta3:phi3:pt4:eta4:phi4:pt5:eta5:phi5");
+  m_makeNtuple = pset.getUntrackedParameter<bool>( "MakeNtuple", false );
+  if ( theL1CollectionLabel.label() != "hltSingleMuIsoL1Filtered" )
+    m_makeNtuple = false;
+  if ( m_makeNtuple ) {
+    theFile      = new TFile  ("file.root","RECREATE");
+    TString vars = "genPt:genEta:genPhi:pt1:eta1:phi1:pt2:eta2:phi2:";
+    vars        += "pt3:eta3:phi3:pt4:eta4:phi4:pt5:eta5:phi5";
+    theNtuple    = new TNtuple("nt","data",vars);
   }
 
 }
@@ -99,7 +98,7 @@ HLTMuonGenericRate::~HLTMuonGenericRate()
   NumberOfL1Orphans ->Fill(theNumberOfL1Orphans );
   NumberOfHltOrphans->Fill(theNumberOfHltOrphans); 
 
-  if ( makeNtuple ) {
+  if ( m_makeNtuple ) {
     theFile->cd();
     theNtuple->Write();
     theFile->Write();
@@ -119,8 +118,8 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
 
 
   //////////////////////////////////////////////////////////////////////////
-  // Get all generated and reconstructed muons, fill eta and phi histograms,
-  // and save the highest pt from each collection
+  // Get all generated and reconstructed muons and create structs to hold  
+  // matches to trigger candidates 
 
   double genMuonPt = -1;
   double recMuonPt = -1;
@@ -128,7 +127,7 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
   std::vector<MatchStruct> genMatches;
   std::vector<MatchStruct> recMatches;
 
-  if (useMuonFromGenerator) {
+  if ( m_useMuonFromGenerator ) {
     Handle<GenParticleCollection> genParticles;
     iEvent.getByLabel(theGenLabel, genParticles);
     for ( size_t i = 0; i < genParticles->size(); i++ ) {
@@ -147,17 +146,15 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
 	genMatches.push_back(newMatchStruct);
 	if (pt > theMinPtCut &&  pt > genMuonPt && fabs(eta) < theMaxEtaCut)
 	  genMuonPt = pt;
-      }
-    }
-  }
+  } } }
 
   Handle<reco::TrackCollection> muTracks;
-  if (useMuonFromReco) {
+  if ( m_useMuonFromReco ) {
     iEvent.getByLabel(theRecoLabel, muTracks);    
     reco::TrackCollection::const_iterator muon;
     if  ( muTracks.failedToGet() ) {
       LogDebug("HLTMuonVal") << "No reco tracks to compare to";
-      useMuonFromReco = false;
+      m_useMuonFromReco = false;
     } else {
       for ( muon = muTracks->begin(); muon != muTracks->end(); ++muon ) {
 	if ( muon->pt() > theMinPtCut  && fabs(muon->eta()) < theMaxEtaCut ) {
@@ -232,9 +229,7 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
   }
 
   //////////////////////////////////////////////////////////////////////////
-  // Loop through L1 candidates, matching to gen particles 
-
-  // cout << "Looking at L1" << endl;
+  // Loop through L1 candidates, matching to gen/reco muons 
 
   unsigned int numL1Cands = 0;
 
@@ -250,13 +245,13 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
     if ( pt > theL1ReferenceThreshold ) {
       double maxDeltaR = 0.4;
       numL1Cands++;
-      if ( useMuonFromGenerator ){
+      if ( m_useMuonFromGenerator ){
 	int match = findGenMatch( eta, phi, maxDeltaR, genMatches );
 	if ( match != -1 ) 
 	  genMatches[match].l1Cand = &*l1Cand;
 	else theNumberOfL1Orphans++;
       }
-      if ( useMuonFromReco ){
+      if ( m_useMuonFromReco ){
 	int match = findRecMatch( eta, phi, maxDeltaR, recMatches );
 	if ( match != -1 ) 
 	  recMatches[match].l1Cand = &*l1Cand;
@@ -271,10 +266,7 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
 
 
   //////////////////////////////////////////////////////////////////////////
-  // Find HLT candidates for each module passing a pt threshold, fill
-  // histograms, and match them to generated and reconstructed muons
-
-  // cout << "Looking at HLT" << endl;
+  // Loop through HLT candidates, matching to gen/reco muons
 
   for ( size_t  i = 0; i < numHltLabels; i++ ) { 
     unsigned int numFound = 0;
@@ -290,13 +282,13 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
 
       if ( pt > theHLTReferenceThreshold ) {
 	numFound++;
-	if ( useMuonFromGenerator ){
+	if ( m_useMuonFromGenerator ){
 	  int match = findGenMatch( eta, phi, maxDeltaR, genMatches );
 	  if ( match != -1 ) 
 	    genMatches[match].hltCands[i] = &*hltCand;
 	  else theNumberOfHltOrphans++;
 	}
-	if ( useMuonFromReco ){
+	if ( m_useMuonFromReco ){
 	  int match  = findRecMatch( eta, phi, maxDeltaR, recMatches );
 	  if ( match != -1 ) 
 	    recMatches[match].hltCands[i] = &*hltCand;
@@ -312,9 +304,9 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
 
 
   //////////////////////////////////////////////////////////////////////////
-  // Fill histograms
+  // Fill ntuple & histograms
   
-  if ( makeNtuple ) {
+  if ( m_makeNtuple ) {
     for ( size_t i = 0; i < genMatches.size(); i++ ) {
       for ( int k = 0; k < 18; k++ ) ntParams[k] = -1;
       ntParams[0] =  genMatches[i].genCand->pt();
@@ -415,8 +407,7 @@ int HLTMuonGenericRate::findRecMatch(double eta, double phi,  double maxDeltaR,
 
 
 
-void 
-HLTMuonGenericRate::BookHistograms() 
+void HLTMuonGenericRate::BookHistograms() 
 {
   TString dirLabel, myLabel, newFolder, histName, histTitle;
   vector<TH1F*> h;
@@ -443,7 +434,7 @@ HLTMuonGenericRate::BookHistograms()
     newFolder = "HLT/Muon/Distributions/" + dirLabel;
     dbe_->setCurrentFolder( newFolder.Data() );
 
-    if (useMuonFromGenerator){
+    if (m_useMuonFromGenerator){
       hPtPassGen.push_back( BookIt( "genPtPass_All", "Highest Gen Muon Pt" + myLabel,  theNbins, thePtMin, thePtMax) );
       hPtPassGen.push_back( BookIt( "genPtPass_" + myLabel, "Highest Gen Muon pt >= 1 L1 Candidate, label=" + myLabel,  theNbins, thePtMin, thePtMax) );
       hEtaPassGen.push_back( BookIt( "genEtaPass_All", "#eta of Gen Muons",  50, -2.1, 2.1) );
@@ -451,7 +442,7 @@ HLTMuonGenericRate::BookHistograms()
       hPhiPassGen.push_back( BookIt( "genPhiPass_All", "#phi of Gen Muons",  50, -3.15, 3.15) );
       hPhiPassGen.push_back( BookIt( "genPhiPass_" + myLabel, "#phi of Gen Muons Matched to L1, label=" + myLabel,  50, -3.15, 3.15) );
     }
-    if (useMuonFromReco){
+    if (m_useMuonFromReco){
       hPtPassRec.push_back( BookIt( "recPtPass_All", "pt of Reco Muons" + myLabel,  theNbins, thePtMin, thePtMax) );
       hPtPassRec.push_back( BookIt( "recPtPass_" + myLabel, "pt of Reco Muons Matched to L1, label=" + myLabel,  theNbins, thePtMin, thePtMax) );
       hEtaPassRec.push_back( BookIt( "recEtaPass_All", "#eta of Reco Muons",  50, -2.1, 2.1) );
@@ -466,12 +457,12 @@ HLTMuonGenericRate::BookHistograms()
       dbe_->setCurrentFolder( newFolder.Data() );
       myLabel = theHLTCollectionLabels[i].encode().c_str();
       myLabel.Resize( myLabel.Index(":") );
-      if (useMuonFromGenerator) {
+      if (m_useMuonFromGenerator) {
 	hPtPassGen.push_back( BookIt( "genPtPass_" + myLabel, "Highest Gen Muon pt with >= 1 Candidate, label=" + myLabel, theNbins, thePtMin, thePtMax) );   
 	hEtaPassGen.push_back( BookIt( "genEtaPass_" + myLabel, "#eta of Gen Muons Matched to HLT, label=" + myLabel,  50, -2.1, 2.1) );
 	hPhiPassGen.push_back( BookIt( "genPhiPass_" + myLabel, "#phi of Gen Muons Matched to HLT, label=" + myLabel,  50, -3.15, 3.15) );
       }
-      if (useMuonFromReco) {
+      if (m_useMuonFromReco) {
 	hPtPassRec.push_back( BookIt( "recPtPass_" + myLabel, "pt of Reco Muons Matched to HLT, label=" + myLabel, theNbins, thePtMin, thePtMax) );     
 	hEtaPassRec.push_back( BookIt( "recEtaPass_" + myLabel, "#eta of Reco Muons Matched to HLT, label=" + myLabel,  50, -2.1, 2.1) );
 	hPhiPassRec.push_back( BookIt( "recPhiPass_" + myLabel, "#phi of Reco Muons Matched to HLT, label=" + myLabel,  50, -3.15, 3.15) );
@@ -482,9 +473,8 @@ HLTMuonGenericRate::BookHistograms()
 
 
 
-MonitorElement* 
-HLTMuonGenericRate::BookIt( TString name, TString title, 
-			    int Nbins, float Min, float Max) 
+MonitorElement* HLTMuonGenericRate::BookIt( TString name, TString title, 
+					    int Nbins, float Min, float Max) 
 {
   LogDebug("HLTMuonVal") << "Directory " << dbe_->pwd() << " Name " << 
                             name << " Title:" << title;
@@ -492,14 +482,5 @@ HLTMuonGenericRate::BookIt( TString name, TString title,
   h->Sumw2();
   return dbe_->book1D( name.Data(), h );
   delete h;
-}
-
-
-
-void 
-HLTMuonGenericRate::WriteHistograms() 
-{
-  if ( theRootFileName.size() != 0 && dbe_ ) dbe_->save(theRootFileName);
-   return;
 }
 

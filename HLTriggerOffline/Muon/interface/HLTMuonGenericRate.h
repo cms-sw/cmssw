@@ -34,6 +34,7 @@
 class HLTMuonGenericRate {
 
 public:
+
   /// Constructor
   HLTMuonGenericRate(const edm::ParameterSet& pset, int triggerIndex);
 
@@ -41,13 +42,10 @@ public:
   virtual ~HLTMuonGenericRate();
 
   // Operations
-
-  void analyze          (const edm::Event & iEvent);
-  void BookHistograms   ();
-  void WriteHistograms  ();
-  void SetCurrentFolder (TString folder );
-  MonitorElement* BookIt(TString name, TString title, 
-			 int Nbins, float Min, float Max);
+  void analyze          ( const edm::Event & iEvent );
+  void BookHistograms   ( );
+  MonitorElement* BookIt( TString name, TString title, 
+			  int Nbins, float Min, float Max );
 
 private:
 
@@ -70,8 +68,9 @@ private:
   unsigned int theNbins;
   int  thisEventWeight;
   int  theMotherParticleId;
-  bool useMuonFromGenerator;
-  bool useMuonFromReco;
+  bool m_useMuonFromGenerator;
+  bool m_useMuonFromReco;
+  bool m_makeNtuple;
 
   // Struct for matching
   struct MatchStruct {
@@ -80,10 +79,14 @@ private:
     const l1extra::L1MuonParticle* l1Cand;
     std::vector<const reco::RecoChargedCandidate*> hltCands;
   };
-  
-  const reco::Candidate* findMother(const reco::Candidate*);
 
-  // Histograms
+  const reco::Candidate* findMother( const reco::Candidate* );
+  int findGenMatch( double eta, double phi, double maxDeltaR,
+		    std::vector<MatchStruct> matches );
+  int findRecMatch( double eta, double phi, double maxdeltaR,
+		    std::vector<MatchStruct> matches );
+  
+  // Monitor Elements (Histograms and ints)
   DQMStore* dbe_;
 
   std::vector <MonitorElement*> hPtPassGen ;
@@ -103,13 +106,8 @@ private:
   int theNumberOfHltOrphans;
   std::string theRootFileName;
 
-  int findGenMatch( double eta, double phi, double maxDeltaR,
-		    std::vector<MatchStruct> matches );
-  int findRecMatch( double eta, double phi, double maxdeltaR,
-		    std::vector<MatchStruct> matches );
 
-
-  // ntuple
+  // Facilities for writing a match ntuple
   bool    makeNtuple;
   TNtuple *theNtuple;
   TFile   *theFile;
