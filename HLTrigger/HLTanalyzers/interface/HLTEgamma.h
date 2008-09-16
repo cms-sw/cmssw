@@ -67,8 +67,8 @@ public:
 
   /** Analyze the Data */
   void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup,
-	       const reco::PixelMatchGsfElectronCollection& electron,
-	       const reco::PhotonCollection& photon,
+	       const reco::GsfElectronCollection * electrons,
+	       const reco::PhotonCollection * photons,
 	       TTree* tree);
 
   void MakeL1IsolatedPhotons(edm::Event const& e, edm::EventSetup const& iSetup);

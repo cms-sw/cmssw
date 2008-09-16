@@ -55,14 +55,14 @@ public:
   void setup(const edm::ParameterSet& pSet, TTree* tree);
 
   /** Analyze the Data */
-  void analyze(const CaloJetCollection& rjets,
-	       const GenJetCollection& gjets,
-	       const CaloMETCollection& rmets,
-	       const GenMETCollection& gmets,
-	       const METCollection& ht,
-	       const reco::HLTTauCollection& myHLTTau,
-	       const CaloTowerCollection& caloTowers,
-	       TTree* tree);
+  void analyze(const CaloJetCollection * rjets,
+	       const GenJetCollection * gjets,
+	       const CaloMETCollection * rmets,
+	       const GenMETCollection * gmets,
+	       const METCollection * ht,
+	       const reco::HLTTauCollection * myHLTTau,
+	       const CaloTowerCollection * caloTowers,
+	       TTree * tree);
 
 private:
 

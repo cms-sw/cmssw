@@ -65,18 +65,18 @@ public:
 
   /** Analyze the Data */
   void analyze(/*const HLTFilterObjectWithRefs& hltobj,*/
-	       const edm::TriggerResults& hltresults,
-	       const l1extra::L1EmParticleCollection& l1extemi,
-	       const l1extra::L1EmParticleCollection& l1extemn,
-	       const l1extra::L1MuonParticleCollection& l1extmu,
-	       const l1extra::L1JetParticleCollection& l1extjetc,
-	       const l1extra::L1JetParticleCollection& l1extjetf,
-	       const l1extra::L1JetParticleCollection& l1exttaujet,
-	       const l1extra::L1EtMissParticleCollection& l1extmet,
-//	       const l1extra::L1ParticleMapCollection& l1mapcoll,
-	       const L1GlobalTriggerReadoutRecord& l1GTRR,
-	       const L1GlobalTriggerObjectMapRecord& l1GTOMRec,
-	       const L1GctJetCountsCollection& L1GctCounts,
+	       const edm::TriggerResults * hltresults,
+	       const l1extra::L1EmParticleCollection * l1extemi,
+	       const l1extra::L1EmParticleCollection * l1extemn,
+	       const l1extra::L1MuonParticleCollection * l1extmu,
+	       const l1extra::L1JetParticleCollection * l1extjetc,
+	       const l1extra::L1JetParticleCollection * l1extjetf,
+	       const l1extra::L1JetParticleCollection * l1exttaujet,
+	       const l1extra::L1EtMissParticleCollection * l1extmet,
+//	       const l1extra::L1ParticleMapCollection * l1mapcoll,
+	       const L1GlobalTriggerReadoutRecord * l1GTRR,
+	       const L1GlobalTriggerObjectMapRecord * l1GTOMRec,
+	       const L1GctJetCountsCollection * L1GctCounts,
 	       TTree* tree);
 
 private:

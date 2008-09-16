@@ -100,9 +100,9 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   edm::Handle<GenMETCollection> genmet,genmetDummy;
   edm::Handle<METCollection> ht,htDummy;
   edm::Handle<CandidateView> mctruth,mctruthDummy;
-  edm::Handle< double > genEventScale,genEventScaleDummy;
-  edm::Handle<PixelMatchGsfElectronCollection> Electron, ElectronDummy;
-  edm::Handle<PhotonCollection> Photon, PhotonDummy;
+  edm::Handle<double> genEventScale,genEventScaleDummy;
+  edm::Handle<GsfElectronCollection> electrons, electronsDummy;
+  edm::Handle<PhotonCollection> photons, photonsDummy;
   edm::Handle<MuonCollection> muon,muonDummy;
   edm::Handle<edm::TriggerResults> hltresults,hltresultsDummy;
   edm::Handle<l1extra::L1EmParticleCollection> l1extemi,l1extemn,l1extemiDummy,l1extemnDummy;
@@ -130,8 +130,8 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   // Reco Muons
   iEvent.getByLabel(muon_,muon);
   // Reco Egamma
-  iEvent.getByLabel(Electron_,Electron);
-  iEvent.getByLabel(Photon_,Photon);
+  iEvent.getByLabel(Electron_,electrons);
+  iEvent.getByLabel(Photon_,photons);
   // HLT results
   iEvent.getByLabel(hltresults_,hltresults);
   //  L1 Extra Info
@@ -166,8 +166,8 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   if (! genmet.isValid()     ) { errMsg += "  -- No GenMet"; genmet=genmetDummy;}
   if (! caloTowers.isValid() ) { errMsg += "  -- No CaloTowers"; caloTowers=caloTowersDummy;}
   if (! ht.isValid()         ) { errMsg += "  -- No HT"; ht = htDummy;}
-  if (! Electron.isValid()   ) { errMsg += "  -- No Candidate Electrons"; Electron=ElectronDummy;}
-  if (! Photon.isValid()     ) { errMsg += "  -- No Candidate Photons"; Photon=PhotonDummy;}
+  if (! electrons.isValid()  ) { errMsg += "  -- No Candidate Electrons"; electrons=electronsDummy;}
+  if (! photons.isValid()    ) { errMsg += "  -- No Candidate Photons"; photons=photonsDummy;}
   if (! muon.isValid()       ) { errMsg += "  -- No Candidate Muons"; muon=muonDummy;}
 
   if (! hltresults.isValid() ) { errMsg += "  -- No HLTRESULTS"; hltresults=hltresultsDummy;}
@@ -204,14 +204,13 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   }
 
   // run the analysis, passing required event fragments
-  jet_analysis_.analyze(*recjets,*genjets, *recmet,*genmet, *ht, *myHLTTau, *caloTowers, HltTree);
-  muon_analysis_.analyze(*muon, *mucands2, *isoMap2, *mucands3, *isoMap3, *mulinks, HltTree);
-  elm_analysis_.analyze(iEvent, iSetup, *Electron, *Photon, HltTree);
-  mct_analysis_.analyze(*mctruth,*genEventScale,HltTree);
-  hlt_analysis_.analyze(*hltresults,*l1extemi,*l1extemn,*l1extmu,*l1extjetc,*l1extjetf,*l1exttaujet,*l1extmet,
-			*l1GtRR.product(),*l1GtOMRec.product(),*l1GctCounts,HltTree);
+  jet_analysis_.analyze(recjets.product(), genjets.product(), recmet.product(), genmet.product(), ht.product(), myHLTTau.product(), caloTowers.product(), HltTree);
+  muon_analysis_.analyze(muon.product(), mucands2.product(), isoMap2.product(), mucands3.product(), isoMap3.product(), mulinks.product(), HltTree);
+  elm_analysis_.analyze(iEvent, iSetup, electrons.product(), photons.product(), HltTree);
+  mct_analysis_.analyze(mctruth.product(), genEventScale.product(), HltTree);
+  hlt_analysis_.analyze(hltresults.product(), l1extemi.product(), l1extemn.product(), l1extmu.product(), l1extjetc.product(), l1extjetf.product(), l1exttaujet.product(), l1extmet.product(), 
+			l1GtRR.product(), l1GtOMRec.product(), l1GctCounts.product(), HltTree);
   bjet_analysis_.analyze(iEvent, iSetup, HltTree);
-
   evt_header_.analyze(iEvent, HltTree);
 
   // std::cout << " Ending Event Analysis" << std::endl;
