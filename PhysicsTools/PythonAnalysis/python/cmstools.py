@@ -116,7 +116,8 @@ class EventTree(object):
               raise IndexError
           self._index = key
           self.__setBranchIndicies()
-          return self
+          self._tree.GetEntry(self._index,0)
+          return Event(self)
       def __iter__(self):
           # flushing/initializing the root buffers 
           entry = 0
