@@ -86,6 +86,13 @@ void UEAnalysisUE::Begin(TFile * f, string hltBit)
   pdPt_vs_ptCJTowardRECO  = new TH2D("dPt_vs_ptCJTowardRECO","#frac{dP_{T}^{sum}}{d#phid#eta} vs P_{T}^{Chg Jet MC} ''Toward''",100,0.,200,100,0.,20.);
   pdPt_vs_ptCJAwayRECO    = new TH2D("dPt_vs_ptCJAwayRECO","#frac{dP_{T}^{sum}}{d#phid#eta} vs P_{T}^{Chg Jet MC} ''Away''",100,0.,200,100,0.,20.);
 
+  h2d_averageParticlePt_vs_numParticles = 
+    new TH2D("h2d_averageParticlePt_vs_numParticles",
+	     "h2d_averageParticlePt_vs_numParticles;N(particles);<p_{T}(particle)> (GeV/c)",100,0.5,100.5,100,0.,50.);
+  h2d_averageTrackPt_vs_numTracks = 
+    new TH2D("h2d_averageTrackPt_vs_numTracks",
+	     "h2d_averageTrackPt_vs_numTracks;N(tracks);<p_{T}(track)> (GeV/c)",100,0.5,100.5,100,0.,50.);
+  
   temp1RECO = new TH1F("temp1RECO","temp",100,-180.,180.);
   temp2RECO = new TH1F("temp2RECO","temp",100,-180.,180.);
   temp3RECO = new TH1F("temp3RECO","temp",100,0.,5.);
@@ -109,6 +116,26 @@ void UEAnalysisUE::ueAnalysisMC(float weight,string tkpt,float etaRegion, float 
       break;
     }
   }
+
+  // save <pT> vs particle multiplicity
+  int numParticles( 0 );
+  double particlePtSum( 0. );
+  double averageParticlePt( 0. );
+  for(int i=0;i<MonteCarlo->GetSize();++i)
+    {
+      TLorentzVector *v = (TLorentzVector*)MonteCarlo->At(i);
+      if(v->Pt()>ptThreshold)
+        {
+          ++numParticles;
+          particlePtSum += v->Pt();
+        }
+    }
+  if ( numParticles > 0 ) 
+    {
+      averageParticlePt = particlePtSum/numParticles;
+      //  cout << "[MC] N(chg. part's)=" << numParticles << ", <pT>(chg. part's)=" << averageParticlePt << endl;
+      h2d_averageParticlePt_vs_numParticles->Fill( numParticles, averageParticlePt, weight );
+    }
 
 
   //cout << "PTLeadingCJ " << PTLeadingCJ << endl;
@@ -286,7 +313,8 @@ void UEAnalysisUE::ueAnalysisMC(float weight,string tkpt,float etaRegion, float 
 void UEAnalysisUE::ueAnalysisRECO(float weight,string tkpt,float etaRegion,float ptThreshold, TClonesArray* Track, TClonesArray* TracksJet, TFile* f, string hltBit)
 {
   f->cd( hltBit.c_str() );
-  
+
+  // find leading jet in visible phase space
   TLorentzVector* leadingJet;
   Float_t PTLeadingTJ = -10;
   for(int j=0;j<TracksJet->GetSize();++j){
@@ -297,6 +325,26 @@ void UEAnalysisUE::ueAnalysisRECO(float weight,string tkpt,float etaRegion,float
       break;
     }
   }
+
+  // save <pT> vs track multiplicity
+  int numTracks( 0 );
+  double trackPtSum( 0. );
+  double averageTrackPt( 0. );
+  for(int i=0;i<Track->GetSize();++i)
+    {
+      TLorentzVector *v = (TLorentzVector*)Track->At(i);
+      if(v->Pt()>ptThreshold) 
+	{
+	  ++numTracks;
+	  trackPtSum += v->Pt();
+	}
+    }
+  if ( numTracks > 0 ) 
+    {
+      averageTrackPt = trackPtSum/numTracks;
+      //cout << "[RECO] N(tracks)=" << numTracks << ", <pT>(tracks)=" << averageTrackPt << endl;
+      h2d_averageTrackPt_vs_numTracks->Fill( numTracks, averageTrackPt, weight );
+    }
 
   // catch events where no charged jet is found in the central region
   if ( PTLeadingTJ == -10 ) return;

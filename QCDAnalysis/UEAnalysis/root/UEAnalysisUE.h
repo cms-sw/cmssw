@@ -137,6 +137,9 @@ class UEAnalysisUE {
   TH1D* h_dN_TransRECO;
   TH1D* h_dPt_TransRECO;
 
+  TH2D* h2d_averageParticlePt_vs_numParticles;
+  TH2D* h2d_averageTrackPt_vs_numTracks;
+
   float piG;
 
   UEAnalysisCorrCali* cc;
