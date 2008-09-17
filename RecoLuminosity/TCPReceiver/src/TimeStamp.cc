@@ -14,9 +14,16 @@ std::string HCAL_HLX::TimeStamp::TimeStampLong(){
 std::string HCAL_HLX::TimeStamp::TimeStampYYYYMMDD(){
 
   time_t rawtime;
-  struct tm* timeinfo;
 
   rawtime = time(NULL);
+
+  return TimeStampYYYYMMDD( rawtime );
+
+}
+
+std::string HCAL_HLX::TimeStamp::TimeStampYYYYMMDD( time_t rawtime ){
+
+  struct tm* timeinfo;
   timeinfo = localtime(&rawtime);
 
   std::ostringstream out;
@@ -27,6 +34,7 @@ std::string HCAL_HLX::TimeStamp::TimeStampYYYYMMDD(){
 
   return out.str();
 }
+
 
 std::string HCAL_HLX::TimeStamp::TimeStampYYYYMM(){
 

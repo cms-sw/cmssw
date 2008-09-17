@@ -7,7 +7,9 @@
 
 #include "RecoLuminosity/TCPReceiver/interface/TCPReceiver.h"
 #include <iostream>
+
 #include <unistd.h>
+#include <sys/time.h>
 
 namespace HCAL_HLX{
 
@@ -307,6 +309,11 @@ void SetupFDSets(fd_set& ReadFDs, fd_set& WriteFDs,
     localSection.hdr.bCMSLive      = true;
     localSection.hdr.sectionNumber = 120;
     
+    timeval tvTemp;
+    gettimeofday(&tvTemp, NULL);
+    localSection.hdr.timestamp = tvTemp.tv_sec;
+    localSection.hdr.timestamp_micros = tvTemp.tv_usec;
+
     localSection.lumiSummary.DeadtimeNormalization = 0.7;
     localSection.lumiSummary.LHCNormalization      = 0.75;
     localSection.lumiSummary.OccNormalization[0]   = 0.8;

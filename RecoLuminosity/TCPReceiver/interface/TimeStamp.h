@@ -2,6 +2,7 @@
 #define __HLX_TIMESTAMP_H__
 
 #include <string>
+#include <ctime>
 
 namespace HCAL_HLX{
   
@@ -10,8 +11,8 @@ namespace HCAL_HLX{
     std::string TimeStampLong();
     std::string TimeStampYYYYMMDD();
     std::string TimeStampYYYYMM();    
+    std::string TimeStampYYYYMMDD( time_t  rawtime);
   };
-  
 }
 
 #endif

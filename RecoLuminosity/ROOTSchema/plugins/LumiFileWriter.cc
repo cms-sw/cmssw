@@ -14,7 +14,7 @@
 //
 // Original Author:  Adam Hunt
 //         Created:  Sun May 11 14:21:30 EDT 2008
-// $Id: LumiFileWriter.cc,v 1.3 2008/08/19 13:38:22 ahunt Exp $
+// $Id: LumiFileWriter.cc,v 1.4 2008/09/16 22:10:24 ahunt Exp $
 //
 //
 
@@ -63,7 +63,7 @@ LumiFileWriter::LumiFileWriter(const edm::ParameterSet& iConfig){
    bool         EtSumOnly       = iConfig.getUntrackedParameter< bool >("EtSumOnly", false);
    std::string lumiFileDir = iConfig.getUntrackedParameter< std::string  >("LumiFileDir","./");
 
-   lumiSchema.SetOutputDir( lumiFileDir );
+   lumiSchema.SetDir( lumiFileDir );
    lumiSchema.SetEtSumOnly( EtSumOnly );
 
    //ROOTFileMerger configuration
@@ -135,7 +135,7 @@ void LumiFileWriter::analyze(const edm::Event& iEvent,
 	
 	if( bTransfer_ ){
 	  std::cout << "Transfer files" << std::endl;    
-	  RFT.SetFileName( RFM.GetJustFileName() );
+	  RFT.SetFileName( RFM.GetOutputFileName() );
 	  RFT.TransferFile( );
 	}
 	lastRun_ = 0;
@@ -159,7 +159,7 @@ LumiFileWriter::endJob() {
     
     if( bTransfer_ ){
       std::cout << "Transfer files" << std::endl;    
-      RFT.SetFileName( RFM.GetJustFileName() );
+      RFT.SetFileName( RFM.GetOutputFileName() );
       RFT.TransferFile( );
     }
   }

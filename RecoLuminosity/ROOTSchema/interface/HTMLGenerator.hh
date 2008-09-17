@@ -14,7 +14,7 @@ class TH2F;
 
 namespace HCAL_HLX{
 
-   class HTMLGenerator: public ROOTFileReader, private TimeStamp, public FileToolKit{
+   class HTMLGenerator: public ROOTFileReader{
    public:
      HTMLGenerator();
      

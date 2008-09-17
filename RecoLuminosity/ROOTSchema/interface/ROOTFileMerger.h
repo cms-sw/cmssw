@@ -4,29 +4,38 @@
 // STL Headers
 #include <string>
 
-#include "RecoLuminosity/TCPReceiver/interface/TimeStamp.h"
-#include "RecoLuminosity/ROOTSchema/interface/ROOTFileReader.h"
-#include "RecoLuminosity/ROOTSchema/interface/ROOTFileBase.h"
 
 namespace HCAL_HLX{
-  
-  class ROOTFileMerger: public ROOTFileReader, public ROOTFileBase{
+
+  class ROOTFileReader;
+  class ROOTFileWriter;
+  struct LUMI_SECTION;
+
+  class ROOTFileMerger{
   public:
     ROOTFileMerger();
     ~ROOTFileMerger();
     
+    void SetInputDir( const std::string &inputDir);
+    void SetOutputDir( const std::string &outputDir);
+    void SetEtSumOnly( bool bEtSumOnly);
+
+    std::string GetInputFileName();
+    std::string GetOutputFileName();
+    
     void Merge(const unsigned int runNumber, bool bCMSLive);
     
-    std::string GetFileName();
-    std::string GetJustFileName();
-
   private:
 
-    std::string CreateInputFileName(const unsigned int runNumber);
+    void Init();
+    void CleanUp();
+
+    unsigned int minSectionNumber_;
     
-    unsigned int minSectionNumber;
-    
-    std::string outputFileName_;
+    ROOTFileWriter *RFWriter_;
+    ROOTFileReader *RFReader_;
+
+    LUMI_SECTION *lumiSection_;
 
   };
 }

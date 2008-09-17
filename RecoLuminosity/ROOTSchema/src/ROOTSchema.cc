@@ -12,24 +12,25 @@ Date: 2007-10-05
 //
 
 HCAL_HLX::ROOTSchema::ROOTSchema(){  
-  #ifdef DEBUG
-  cout << "In " << __PRETTY_FUNCTION__ << endl;
-  #endif
+#ifdef DEBUG
+  std::cout << "In " << __PRETTY_FUNCTION__ << std::endl;
+#endif
 }
 
 HCAL_HLX::ROOTSchema::~ROOTSchema(){   
 
-  #ifdef DEBUG
-  cout << "In " << __PRETTY_FUNCTION__ << endl;
-  #endif
+#ifdef DEBUG
+  std::cout << "In " << __PRETTY_FUNCTION__ << std::endl;
+#endif
 
 }
 
-void HCAL_HLX::ROOTSchema::ProcessSection(const HCAL_HLX::LUMI_SECTION &lumiSection){
+bool HCAL_HLX::ROOTSchema::ProcessSection(const HCAL_HLX::LUMI_SECTION &lumiSection){
 
-  SetFileName(CreateLSFileName(lumiSection.hdr.runNumber, lumiSection.hdr.sectionNumber));
-  CreateTree(lumiSection);  
+  SetFileName(lumiSection);
   FillTree(lumiSection);
   CloseTree();
+
+  return true;
 
 }

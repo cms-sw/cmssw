@@ -8,21 +8,19 @@ Date: 2007-10-05
 
 */
 
-#include "RecoLuminosity/ROOTSchema/interface/ROOTFileBase.h"
-
-using std::cout;
-using std::endl;
+#include "RecoLuminosity/ROOTSchema/interface/ROOTFileWriter.h"
 
 namespace HCAL_HLX{
 
-  class ROOTSchema: public ROOTFileBase{
+  class ROOTSchema: public ROOTFileWriter{
     
   public:
     
     ROOTSchema();
     ~ROOTSchema();
     
-    void ProcessSection(const HCAL_HLX::LUMI_SECTION & lumiSection);
+    bool ProcessSection(const HCAL_HLX::LUMI_SECTION & lumiSection);
+
   };
 }
 

@@ -11,36 +11,45 @@
 // Lumi Headers
 #include "RecoLuminosity/TCPReceiver/interface/ICTypeDefs.hh"
 #include "RecoLuminosity/TCPReceiver/interface/LumiStructures.hh"
+#include "RecoLuminosity/ROOTSchema/interface/ROOTFileBase.h"
 
 class TChain;
 class TBranch;
 
 namespace HCAL_HLX{
 
-  class ROOTFileReader{
+  class ROOTFileReader: public ROOTFileBase{
   public:
     ROOTFileReader();
     ~ROOTFileReader();
-    
+
+    // For automatic replacement of files.
+    bool SetRunNumber( const unsigned int runNumber, const std::string &month = "");
+    // For manual replacment of files.
     int ReplaceFile(const std::string &fileName);
     int ReplaceFile(const std::vector< std::string > &fileNames);
-        
+
     int GetThreshold(HCAL_HLX::LUMI_THRESHOLD&   threshold);
     int GetHFRingSet(HCAL_HLX::LUMI_HF_RING_SET& ringSet);
     int GetL1Trigger(HCAL_HLX::LEVEL1_TRIGGER&   l1trigger);
     int GetHLT(HCAL_HLX::HLT& hlt);
     int GetTriggerDeadtime(HCAL_HLX::TRIGGER_DEADTIME& TD);
 
-    bool GetEntry(int entry, HCAL_HLX::LUMI_SECTION& section);
+    int GetEntry(int entry, HCAL_HLX::LUMI_SECTION& section);
     int GetNumEntries();
-
+    int GetFirstSectionNumber(){ return firstSecNum_; }
+    
   private:    
 
-    unsigned int numEntries_;
+    int CreateFileNameList( const std::string &runDir);
+    void CreateTree();
 
-    std::string mFileName_;
+    unsigned int numEntries_;
+    unsigned int firstSecNum_;
+
     TChain* mChain_;
 
+    // Branches
     // LUMI_SECTION
     TBranch *b_Header;
     TBranch *b_Summary;
@@ -57,23 +66,6 @@ namespace HCAL_HLX{
     TBranch *b_TriggerDeadtime;
     TBranch *b_RingSet;
 
-    HCAL_HLX::LUMI_SECTION* lumiSection_;
-
-    // LUMI_SECTION
-    HCAL_HLX::LUMI_SECTION_HEADER* Header_;
-    HCAL_HLX::LUMI_SUMMARY*        Summary_;
-    HCAL_HLX::LUMI_DETAIL*         Detail_;
-
-    HCAL_HLX::ET_SUM_SECTION      *EtSumPtr[HCAL_HLX_MAX_HLXS];
-    HCAL_HLX::OCCUPANCY_SECTION   *OccupancyPtr[HCAL_HLX_MAX_HLXS];
-    HCAL_HLX::LHC_SECTION         *LHCPtr[HCAL_HLX_MAX_HLXS];
-
-    // Other
-    HCAL_HLX::LUMI_THRESHOLD*   Threshold_;
-    HCAL_HLX::LEVEL1_TRIGGER*   L1Trigger_;
-    HCAL_HLX::HLT*              HLT_;
-    HCAL_HLX::TRIGGER_DEADTIME* TriggerDeadtime_;
-    HCAL_HLX::LUMI_HF_RING_SET* RingSet_;
 
   };
 }
