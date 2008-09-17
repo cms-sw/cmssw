@@ -125,8 +125,6 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
   double recMuonPt = -1;
 
   std::vector<MatchStruct> genMatches;
-  std::vector<MatchStruct> recMatches;
-
   if ( m_useMuonFromGenerator ) {
     Handle<GenParticleCollection> genParticles;
     iEvent.getByLabel(theGenLabel, genParticles);
@@ -148,8 +146,9 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
 	  genMuonPt = pt;
   } } }
 
-  Handle<reco::TrackCollection> muTracks;
+  std::vector<MatchStruct> recMatches;
   if ( m_useMuonFromReco ) {
+    Handle<reco::TrackCollection> muTracks;
     iEvent.getByLabel(theRecoLabel, muTracks);    
     reco::TrackCollection::const_iterator muon;
     if  ( muTracks.failedToGet() ) {
@@ -157,13 +156,14 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
       m_useMuonFromReco = false;
     } else {
       for ( muon = muTracks->begin(); muon != muTracks->end(); ++muon ) {
-	if ( muon->pt() > theMinPtCut  && fabs(muon->eta()) < theMaxEtaCut ) {
-	  float pt = muon->pt();
-	  MatchStruct newMatchStruct;
-	  newMatchStruct.recCand = &*muon;
-	  recMatches.push_back(newMatchStruct);
-	  if ( pt > recMuonPt ) recMuonPt = pt;
-  } } } }
+	float pt  = muon->pt();
+	float eta = muon->eta();
+	MatchStruct newMatchStruct;
+	newMatchStruct.recCand = &*muon;
+	recMatches.push_back(newMatchStruct);
+	if ( pt > theMinPtCut && pt > recMuonPt && fabs(eta) < theMaxEtaCut ) 
+	  recMuonPt = pt;
+  } } } 
   
   if ( genMuonPt > 0 ) hPtPassGen[0]->Fill(genMuonPt, thisEventWeight);
   if ( recMuonPt > 0 ) hPtPassRec[0]->Fill(recMuonPt, thisEventWeight);
@@ -328,30 +328,40 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
     }
   }
   
-  for ( size_t i = 0; i < genMatches.size(); i++  ) {
-    hEtaPassGen[0]->Fill(genMatches[i].genCand->eta());
-    hPhiPassGen[0]->Fill(genMatches[i].genCand->phi());
+  for ( size_t i = 0; i < genMatches.size(); i++ ) {
+    double pt  = genMatches[i].genCand->pt();
+    double eta = genMatches[i].genCand->eta();
+    double phi = genMatches[i].genCand->phi();
+    if ( pt > theMinPtCut &&  fabs(eta) < theMaxEtaCut ) {
+      hEtaPassGen[0]->Fill(eta);
+      hPhiPassGen[0]->Fill(phi);
+    }
     if ( genMatches[i].l1Cand ) {
-      hEtaPassGen[1]->Fill(genMatches[i].genCand->eta());
-      hPhiPassGen[1]->Fill(genMatches[i].genCand->phi());
+      hEtaPassGen[1]->Fill(eta);
+      hPhiPassGen[1]->Fill(phi);
     }
     for ( size_t j = 0; j < genMatches[i].hltCands.size(); j++ ) {
       if ( genMatches[i].hltCands[j] ) {
-	hEtaPassGen[j+2]->Fill(genMatches[i].genCand->eta());
-	hPhiPassGen[j+2]->Fill(genMatches[i].genCand->phi());
+	hEtaPassGen[j+2]->Fill(eta);
+	hPhiPassGen[j+2]->Fill(phi);
   } } }
 
-  for ( size_t i = 0; i < recMatches.size(); i++  ) {
-    hEtaPassRec[0]->Fill(recMatches[i].recCand->eta());
-    hPhiPassRec[0]->Fill(recMatches[i].recCand->phi());
+  for ( size_t i = 0; i < recMatches.size(); i++ ) {
+    double pt  = recMatches[i].recCand->pt();
+    double eta = recMatches[i].recCand->eta();
+    double phi = recMatches[i].recCand->phi();
+    if ( pt > theMinPtCut &&  fabs(eta) < theMaxEtaCut ) {
+      hEtaPassRec[0]->Fill(eta);
+      hPhiPassRec[0]->Fill(phi);
+    }
     if ( recMatches[i].l1Cand ) {
-      hEtaPassRec[1]->Fill(recMatches[i].recCand->eta());
-      hPhiPassRec[1]->Fill(recMatches[i].recCand->phi());
+      hEtaPassRec[1]->Fill(eta);
+      hPhiPassRec[1]->Fill(phi);
     }
     for ( size_t j = 0; j < recMatches[i].hltCands.size(); j++ ) {
       if ( recMatches[i].hltCands[j] ) {
-	hEtaPassRec[j+2]->Fill(recMatches[i].recCand->eta());
-	hPhiPassRec[j+2]->Fill(recMatches[i].recCand->phi());
+	hEtaPassRec[j+2]->Fill(eta);
+	hPhiPassRec[j+2]->Fill(phi);
   } } }
 
 }
