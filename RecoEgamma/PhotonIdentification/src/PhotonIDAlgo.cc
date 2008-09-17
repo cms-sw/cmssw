@@ -116,9 +116,12 @@ void PhotonIDAlgo::calculateTrackIso(const reco::Photon* photon,
   //get the tracks
   edm::Handle<reco::TrackCollection> tracks;
   e.getByLabel(trackInputTag_,tracks);
+  if(!tracks.isValid()) {
+    return;
+  }
   const reco::TrackCollection* trackCollection = tracks.product();
   //Photon Eta and Phi.  Hope these are correct.
-  
+
   
   PhotonTkIsolation phoIso(RCone, RinnerCone, pTThresh, 2., trackCollection);
   counter = phoIso.getNumberTracks(photon);
