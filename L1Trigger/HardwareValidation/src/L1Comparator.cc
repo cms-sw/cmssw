@@ -282,7 +282,7 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   dtf_trk_data =&dtf_trk_data_v;
   dtf_trk_emul =&dtf_trk_emul_v;
   
-  // -- CTP [cathod strip chamber trigger primitive]
+  // -- CTP [cathode strip chamber trigger primitive]
   edm::Handle<CSCALCTDigiCollection>          ctp_ano_data_;
   edm::Handle<CSCALCTDigiCollection>          ctp_ano_emul_;
   edm::Handle<CSCCLCTDigiCollection>          ctp_cat_data_;
@@ -296,17 +296,34 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   CSCCorrelatedLCTDigiCollection_ const* ctp_lct_data = 0;
   CSCCorrelatedLCTDigiCollection_ const* ctp_lct_emul = 0;
   if(m_doSys[CTP]) {
-    iEvent.getByLabel(m_DEsource[CTP][0]                    ,ctp_ano_data_);
+    if(m_DEsource[CTP][0].label().find("tf")!=std::string::npos) {
+      //if correlated LCTs from TF, read needed info from TP data digis
+      iEvent.getByLabel("muonCSCDigis", "MuonCSCALCTDigi"     ,ctp_ano_data_);
+      iEvent.getByLabel("muonCSCDigis", "MuonCSCCLCTDigi"     ,ctp_cat_data_);
+    } else {
+      iEvent.getByLabel(m_DEsource[CTP][0]                    ,ctp_ano_data_);
+      iEvent.getByLabel(m_DEsource[CTP][0]                    ,ctp_cat_data_);
+    }
     iEvent.getByLabel(m_DEsource[CTP][1]                    ,ctp_ano_emul_);
-    iEvent.getByLabel(m_DEsource[CTP][0]                    ,ctp_cat_data_);
     iEvent.getByLabel(m_DEsource[CTP][1]                    ,ctp_cat_emul_);
     iEvent.getByLabel(m_DEsource[CTP][0]                    ,ctp_lct_data_);
     iEvent.getByLabel(m_DEsource[CTP][1]                    ,ctp_lct_emul_);
   }
   ///place candidates into vectors
+  //Anode LCT
   CSCALCTDigiCollection_ ctp_ano_data_v, ctp_ano_emul_v;
   ctp_ano_data_v.clear(); ctp_ano_emul_v.clear();
   if(ctp_ano_data_.isValid() && ctp_ano_emul_.isValid()) {
+    // The following numbers should come from config. database eventually...
+    int fifo_pretrig     = 10;
+    int fpga_latency     =  6;
+    int l1a_window_width =  7;
+    // Time offset of raw hits w.r.t. the full 12-bit BXN.
+    int rawhit_tbin_offset =
+      (fifo_pretrig - fpga_latency) + (l1a_window_width-1)/2;
+    // Extra difference due to additional register stages; determined
+    // empirically.
+    int register_delay =  2;
     typedef CSCALCTDigiCollection::DigiRangeIterator mapIt;
     typedef CSCALCTDigiCollection::const_iterator    vecIt;
     for (mapIt mit = ctp_ano_data_->begin(); mit != ctp_ano_data_->end(); mit++)
@@ -315,30 +332,66 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	ctp_ano_data_v.push_back(*vit);
     for (mapIt mit = ctp_ano_emul_->begin(); mit != ctp_ano_emul_->end(); mit++)
       for (vecIt vit = ctp_ano_emul_->get((*mit).first).first; 
-	   vit != ctp_ano_emul_->get((*mit).first).second; vit++)
-	ctp_ano_emul_v.push_back(*vit);
+	   vit != ctp_ano_emul_->get((*mit).first).second; vit++) {
+	int emul_bx_corr =
+	  (*vit).getBX() - rawhit_tbin_offset + register_delay;
+	CSCALCTDigi alct((*vit).isValid(),        (*vit).getQuality(),
+			 (*vit).getAccelerator(), (*vit).getCollisionB(),
+			 (*vit).getKeyWG(),       emul_bx_corr,
+			 (*vit).getTrknmb()); 
+	ctp_ano_emul_v.push_back(alct);
+      }
   }
   ctp_ano_data =&ctp_ano_data_v;
   ctp_ano_emul =&ctp_ano_emul_v;
+  //Cathode LCT
   CSCCLCTDigiCollection_ ctp_cat_data_v, ctp_cat_emul_v;
   ctp_cat_data_v.clear(); ctp_cat_emul_v.clear();
   if(ctp_cat_data_.isValid() && ctp_cat_emul_.isValid()) {
+    int tbin_cathode_offset = 7, emul_bx_corr;
     typedef CSCCLCTDigiCollection::DigiRangeIterator mapIt;
     typedef CSCCLCTDigiCollection::const_iterator    vecIt;
     for (mapIt mit = ctp_cat_data_->begin(); mit != ctp_cat_data_->end(); mit++)
       for (vecIt vit = ctp_cat_data_->get((*mit).first).first; 
 	   vit != ctp_cat_data_->get((*mit).first).second; vit++) 
 	ctp_cat_data_v.push_back(*vit);
-    for (mapIt mit = ctp_cat_emul_->begin(); mit != ctp_cat_emul_->end(); mit++)
-      for (vecIt vit = ctp_cat_emul_->get((*mit).first).first; 
-	   vit != ctp_cat_emul_->get((*mit).first).second; vit++)
-	ctp_cat_emul_v.push_back(*vit);
+    for (mapIt mit = ctp_cat_emul_->begin(); mit != ctp_cat_emul_->end(); mit++) {
+      const CSCDetId& detid = (*mit).first;
+
+      // Extract full 12-bit BX word from CLCT data collections.
+      int full_cathode_bx = -999;
+      const CSCCLCTDigiCollection::Range& crange = ctp_cat_data_->get(detid);
+      for (vecIt digiIt = crange.first; digiIt != crange.second; digiIt++) {
+	if ((*digiIt).isValid()) {
+	  full_cathode_bx = (*digiIt).getFullBX();
+	  break;
+	}
+      }
+
+      for (vecIt vit = ctp_cat_emul_->get(detid).first; 
+	   vit != ctp_cat_emul_->get(detid).second; vit++) {
+	int emul_bx = (*vit).getBX();
+	if (full_cathode_bx != -999)
+	  emul_bx_corr =
+	    (full_cathode_bx + emul_bx - tbin_cathode_offset) & 0x03;
+	else
+	  emul_bx_corr = emul_bx & 0x03;
+	CSCCLCTDigi clct((*vit).isValid(),    (*vit).getQuality(),
+			 (*vit).getPattern(), (*vit).getStripType(),
+			 (*vit).getBend(),    (*vit).getStrip(),
+			 (*vit).getCFEB(),    emul_bx_corr,
+			 (*vit).getTrknmb());
+	ctp_cat_emul_v.push_back(clct);
+      }
+    }
   }
   ctp_cat_data =&ctp_cat_data_v;
   ctp_cat_emul =&ctp_cat_emul_v;
+  //Correlated (anode+cathode) LCTs
   CSCCorrelatedLCTDigiCollection_ ctp_lct_data_v, ctp_lct_emul_v;
   ctp_lct_data_v.clear(); ctp_lct_emul_v.clear();
   if(ctp_lct_data_.isValid() && ctp_lct_emul_.isValid()) {
+    int tbin_anode_offset = 5, emul_bx_corr;
     typedef CSCCorrelatedLCTDigiCollection::DigiRangeIterator mapIt;//map iterator
     typedef CSCCorrelatedLCTDigiCollection::const_iterator    vecIt;//vec iterator
     //loop over data (map<idx,vec_digi>)
@@ -350,15 +403,48 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       for (vecIt vit = ctp_lct_data_->get((*mit).first).first; 
 	   vit != ctp_lct_data_->get((*mit).first).second; vit++) 
 	ctp_lct_data_v.push_back(*vit);
-    for (mapIt mit = ctp_lct_emul_->begin(); mit != ctp_lct_emul_->end(); mit++)
-      for (vecIt vit = ctp_lct_emul_->get((*mit).first).first; 
-	   vit != ctp_lct_emul_->get((*mit).first).second; vit++)
-	ctp_lct_emul_v.push_back(*vit);
+    for (mapIt mit = ctp_lct_emul_->begin(); mit != ctp_lct_emul_->end(); mit++) {
+      const CSCDetId& detid = (*mit).first;
+
+      // Extract full 12-bit BX word from ALCT data collections.
+      int full_anode_bx = -999;
+      const CSCALCTDigiCollection::Range& arange = ctp_ano_data_->get(detid);
+      for (CSCALCTDigiCollection::const_iterator digiIt = arange.first;
+       digiIt != arange.second; digiIt++) {
+	if ((*digiIt).isValid()) {
+	  full_anode_bx = (*digiIt).getFullBX();
+	  break;
+	}
+      }
+
+      for (vecIt vit = ctp_lct_emul_->get(detid).first; 
+	   vit != ctp_lct_emul_->get(detid).second; vit++) {
+	int emul_bx = (*vit).getBX();
+	if (full_anode_bx != -999) {
+	  emul_bx_corr = (full_anode_bx + emul_bx - tbin_anode_offset) & 0x01;
+	}
+	else { // This should never happen for default config. settings.
+	  emul_bx_corr = emul_bx & 0x01;
+	}
+
+	// If one compares correlated LCTs after the muon port card, an
+	// additional offset is needed.
+	if (m_DEsource[CTP][1].instance() == "MPCSORTED") emul_bx_corr += 5;
+
+	CSCCorrelatedLCTDigi lct((*vit).getTrknmb(),  (*vit).isValid(),
+				 (*vit).getQuality(), (*vit).getKeyWG(),
+				 (*vit).getStrip(),   (*vit).getPattern(),
+				 (*vit).getBend(),    emul_bx_corr,
+				 (*vit).getMPCLink(), (*vit).getBX0(),
+				 (*vit).getSyncErr(), (*vit).getCSCID());
+	ctp_lct_emul_v.push_back(lct);
+      }
+    }
   }
   ctp_lct_data =&ctp_lct_data_v;
   ctp_lct_emul =&ctp_lct_emul_v;
   
-  // -- CTF [cathod strip chamber track finder]
+  // -- CTF [cathode strip chamber track finder]
   edm::Handle<L1MuRegionalCandCollection> ctf_data, ctf_emul;
   edm::Handle<L1CSCTrackCollection> ctf_trk_data_, ctf_trk_emul_; 
   CSCCorrelatedLCTDigiCollection_ const* ctf_trk_data(new CSCCorrelatedLCTDigiCollection_);
@@ -562,9 +648,9 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   isValidDE[DTP][0]&=      dtp_th_data_.isValid(); isValidDE[DTP][1]&=     dtp_th_emul_.isValid();
   isValidDE[DTF][0] =         dtf_data .isValid(); isValidDE[DTF][1] =        dtf_emul .isValid();
 //isValidDE[DTF][0]&=     dtf_trk_data_.isValid(); isValidDE[DTF][1] =    dtf_trk_emul_.isValid();
-//isValidDE[CTP][0]&=     ctp_ano_data_.isValid(); isValidDE[CTP][1] =    ctp_ano_emul_.isValid();
-//isValidDE[CTP][0]&=     ctp_cat_data_.isValid(); isValidDE[CTP][1] =    ctp_cat_emul_.isValid();
-  isValidDE[CTP][0] =     ctp_lct_data_.isValid(); isValidDE[CTP][1] =    ctp_lct_emul_.isValid();
+  isValidDE[CTP][0] =     ctp_ano_data_.isValid(); isValidDE[CTP][1] =    ctp_ano_emul_.isValid();
+  isValidDE[CTP][0]&=     ctp_cat_data_.isValid(); isValidDE[CTP][1] =    ctp_cat_emul_.isValid();
+  isValidDE[CTP][0]&=     ctp_lct_data_.isValid(); isValidDE[CTP][1] =    ctp_lct_emul_.isValid();
   isValidDE[CTF][0] =         ctf_data .isValid(); isValidDE[CTF][1] =        ctf_emul .isValid();
 //isValidDE[CTF][0]&=    ctf_trk_data_ .isValid(); isValidDE[CTF][1] =   ctf_trk_emul_ .isValid();
 //isValidDE[CTF][0]&=    ctf_sta_data_ .isValid(); isValidDE[CTF][1] =   ctf_sta_emul_ .isValid();
