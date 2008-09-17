@@ -29,8 +29,7 @@ enum L1GtPsbQuad {Free,    TechTr,
                   MQB5,    MQB6,     MQF7,       MQF8,
                   MQB9,    MQB10,    MQF11,      MQF12,
                   CastorQ,
-                  HfBitCountsQ,
-                  HfRingEtSumsQ};
+                  HfQ};
 
 
 /// condition types
