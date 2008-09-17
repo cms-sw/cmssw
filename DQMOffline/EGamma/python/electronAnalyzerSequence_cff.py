@@ -5,3 +5,4 @@ mergedSuperClusters = cms.EDFilter("SuperClusterMerger",
     src = cms.VInputTag(cms.InputTag("correctedHybridSuperClusters"), cms.InputTag("correctedMulti5x5SuperClustersWithPreshower"))
 )
 
+electronAnalyzerSequence = cms.Sequence(mergedSuperClusters*gsfElectronAnalysis)
