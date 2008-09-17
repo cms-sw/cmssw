@@ -753,13 +753,13 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 
       // == Correct TMB_WordsExpected
       //	1) for 2 optional 0x2AAA and 0x5555 Words in the Trailer
-      //    	2) for extra 4 frames in the new RPC-aware format and
+      //    	2) for extra 4 frames in the new TMB trailer and
       //         for RPC raw hit data, if present
       if( buf_1[1]==0x6E0C ) {
         // RPW add 4 for TMB trailer
 	TMB_WordsExpected = TMB_WordsExpected + 4+ 2;	//
 	if( buf_1[0]==0x6E04 )
-	  TMB_WordsExpected = TMB_WordsExpected + 4 + TMB_WordsExpectedCorrection;
+	  TMB_WordsExpected = TMB_WordsExpected + TMB_WordsExpectedCorrection;
       }
 
       if( buf_1[3]==0x6E0C && buf_1[2]==0x6E04 )
