@@ -1,4 +1,5 @@
 #include <sstream>
+#include <iomanip>
 #include <string>
 #include <stdexcept>
 
@@ -9,23 +10,42 @@
 #include <TFrame.h>
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetEnumerators.h"
-#include "TrackingTools/DetLayers/interface/DetLayer.h"
-
+#include "DataFormats/Math/interface/Vector3D.h"
+#include "DetectorDescription/Core/interface/DDFilteredView.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "SimDataFormats/ValidationFormats/interface/MaterialAccountingStep.h"
 #include "SimDataFormats/ValidationFormats/interface/MaterialAccountingDetector.h"
-#include "MaterialAccountingLayer.h"
+#include "MaterialAccountingGroup.h"
 
-MaterialAccountingLayer::MaterialAccountingLayer( const DetLayer & layer, const std::string & name, bool symmetric ) :
-  m_layers( 1, & layer ),
+double MaterialAccountingGroup::s_tolerance = 0.01; // 100um should be small enough that no elements from different layers/groups are so close
+
+MaterialAccountingGroup::MaterialAccountingGroup( const std::string & name, const DDCompactView & geometry ) :
   m_name( name ),
-  m_symmetric( symmetric ),
+  m_elements(),
+  m_boundingbox(),
   m_accounting(),
   m_errors(),
   m_tracks( 0 ),
   m_counted( false ),
   m_file( 0 )
 {
+  // retrieve the elements from DDD
+  DDFilteredView fv( geometry );
+  DDSpecificsFilter filter;
+  filter.setCriteria(DDValue("TrackingMaterialGroup", name), DDSpecificsFilter::equals);
+  fv.addFilter(filter);
+  while (fv.next()) {
+    // DD3Vector and DDTranslation are the same type as math::XYZVector
+    math::XYZVector position = fv.translation() / 10.;  // mm -> cm
+    m_elements.push_back( GlobalPoint(position.x(), position.y(), position.z()) );
+  }
+
+  // grow the bounding box
+  for (unsigned int i = 0; i < m_elements.size(); ++i) {
+    m_boundingbox.grow(m_elements[i].perp(), m_elements[i].z());
+  }
+  m_boundingbox.grow(s_tolerance);
+
   // initialize the histograms 
   m_dedx_spectrum   = new TH1F((m_name + "_dedx_spectrum").c_str(),     "Energy loss spectrum",       1000,    0,   1);
   m_radlen_spectrum = new TH1F((m_name + "_radlen_spectrum").c_str(),   "Radiation lengths spectrum", 1000,    0,   1);
@@ -45,45 +65,7 @@ MaterialAccountingLayer::MaterialAccountingLayer( const DetLayer & layer, const 
   m_radlen_vs_r->SetDirectory( 0 );
 }
 
-MaterialAccountingLayer::MaterialAccountingLayer( const std::vector<const DetLayer *> & layers, const std::string & name, bool symmetric ) :
-  m_layers( layers ),
-  m_name( name ),
-  m_symmetric( symmetric ),
-  m_accounting(),
-  m_errors(),
-  m_tracks( 0 ),
-  m_counted( false ),
-  m_file( 0 )
-{ 
-  // chck that at least one DetLayer has been specified
-  if (m_layers.size() == 0)
-    throw std::invalid_argument("no DetLayers have been given");
-  
-  // check that all the layers are valid
-  for (unsigned int i = 0; i < m_layers.size(); ++i)
-    if (m_layers[i] == 0) 
-      throw std::invalid_argument("NULL pointer to DetLayer detected");
- 
-  // initialize the histograms 
-  m_dedx_spectrum   = new TH1F((m_name + "_dedx_spectrum").c_str(),     "Energy loss spectrum",       1000,    0,   1);
-  m_radlen_spectrum = new TH1F((m_name + "_radlen_spectrum").c_str(),   "Radiation lengths spectrum", 1000,    0,   1);
-  m_dedx_vs_eta     = new TProfile((m_name + "_dedx_vs_eta").c_str(),   "Energy loss vs. eta",         600,   -3,   3);
-  m_dedx_vs_z       = new TProfile((m_name + "_dedx_vs_z").c_str(),     "Energy loss vs. Z",          6000, -300, 300);
-  m_dedx_vs_r       = new TProfile((m_name + "_dedx_vs_r").c_str(),     "Energy loss vs. R",          1200,    0, 120);
-  m_radlen_vs_eta   = new TProfile((m_name + "_radlen_vs_eta").c_str(), "Radiation lengths vs. eta",   600,   -3,   3);
-  m_radlen_vs_z     = new TProfile((m_name + "_radlen_vs_z").c_str(),   "Radiation lengths vs. Z",    6000, -300, 300);
-  m_radlen_vs_r     = new TProfile((m_name + "_radlen_vs_r").c_str(),   "Radiation lengths vs. R",    1200,    0, 120);
-  m_dedx_spectrum->SetDirectory( 0 );
-  m_radlen_spectrum->SetDirectory( 0 );
-  m_dedx_vs_eta->SetDirectory( 0 );
-  m_dedx_vs_z->SetDirectory( 0 );
-  m_dedx_vs_r->SetDirectory( 0 );
-  m_radlen_vs_eta->SetDirectory( 0 );
-  m_radlen_vs_z->SetDirectory( 0 );
-  m_radlen_vs_r->SetDirectory( 0 );
-}
-
-MaterialAccountingLayer::~MaterialAccountingLayer(void)
+MaterialAccountingGroup::~MaterialAccountingGroup(void)
 {
   delete m_dedx_spectrum;
   delete m_dedx_vs_eta;
@@ -95,27 +77,26 @@ MaterialAccountingLayer::~MaterialAccountingLayer(void)
   delete m_radlen_vs_r;
 }
 
-bool MaterialAccountingLayer::inside( const MaterialAccountingDetector& detector ) const
+// TODO the inner check could be sped up in many ways
+// (sorting the m_elements, partitioning the bounding box, ...)
+// but is it worth? 
+// especially with the segmentation of the layers ?
+bool MaterialAccountingGroup::inside( const MaterialAccountingDetector& detector ) const
 {
   const GlobalPoint & position = detector.position();
-
-  // if symmetry is forced, check also if a specular detector is inside the layer
-  if (m_symmetric) {
-    GlobalPoint mirror(position.x(), position.y(), - position.z());
-    for (unsigned int i = 0; i < m_layers.size(); ++i)
-      if (m_layers[i]->surface().bounds().inside( m_layers[i]->surface().toLocal( position ) ) or
-          m_layers[i]->surface().bounds().inside( m_layers[i]->surface().toLocal( mirror   ) ))
-        return true;
+  // first check to see if the point is inside the bounding box
+  if (not m_boundingbox.inside(position.perp(), position.z())) {
+    return false;
   } else {
-    for (unsigned int i = 0; i < m_layers.size(); ++i)
-      if (m_layers[i]->surface().bounds().inside( m_layers[i]->surface().toLocal( position ) ))
+    // now check if the point is actually close enough to any element
+    for (unsigned int i = 0; i < m_elements.size(); ++i)
+      if ((position - m_elements[i]).mag2() < (s_tolerance * s_tolerance))
         return true;
+    return false;
   }
-
-  return false;
 }
 
-bool MaterialAccountingLayer::addDetector( const MaterialAccountingDetector& detector ) 
+bool MaterialAccountingGroup::addDetector( const MaterialAccountingDetector& detector ) 
 {
   if (not inside(detector))
     return false;
@@ -128,7 +109,7 @@ bool MaterialAccountingLayer::addDetector( const MaterialAccountingDetector& det
   return true;
 }
 
-void MaterialAccountingLayer::endOfTrack(void) {
+void MaterialAccountingGroup::endOfTrack(void) {
   // add a detector
   if (m_counted) {
     m_accounting += m_buffer;
@@ -147,30 +128,11 @@ void MaterialAccountingLayer::endOfTrack(void) {
     m_radlen_vs_z->Fill(   average.z(),    m_buffer.radiationLengths(), 1. );
     m_radlen_vs_r->Fill(   average.perp(), m_buffer.radiationLengths(), 1. );
   }
-
-  // if symmetry is forced, also add a specular detector
-  if (m_counted and m_symmetric) {
-    m_accounting += m_buffer;
-    m_errors     += m_buffer * m_buffer;
-    ++m_tracks;
-
-    GlobalPoint average( (m_buffer.in().x() + m_buffer.out().x()) / 2.,
-                         (m_buffer.in().y() + m_buffer.out().y()) / 2., 
-                        -(m_buffer.in().z() + m_buffer.out().z()) / 2. );
-    m_dedx_spectrum->Fill(   m_buffer.energyLoss() );
-    m_radlen_spectrum->Fill( m_buffer.radiationLengths() );
-    m_dedx_vs_eta->Fill(   average.eta(),  m_buffer.energyLoss(),       1. );
-    m_dedx_vs_z->Fill(     average.z(),    m_buffer.energyLoss(),       1. );
-    m_dedx_vs_r->Fill(     average.perp(), m_buffer.energyLoss(),       1. );
-    m_radlen_vs_eta->Fill( average.eta(),  m_buffer.radiationLengths(), 1. );
-    m_radlen_vs_z->Fill(   average.z(),    m_buffer.radiationLengths(), 1. );
-    m_radlen_vs_r->Fill(   average.perp(), m_buffer.radiationLengths(), 1. );
-  }
   m_counted = false;
   m_buffer  = MaterialAccountingStep();
 }
 
-void MaterialAccountingLayer::savePlot(TH1F * plot, const std::string & name)
+void MaterialAccountingGroup::savePlot(TH1F * plot, const std::string & name)
 {
   TCanvas canvas(name.c_str(), plot->GetTitle(), 1280, 1024);
   plot->SetFillColor(15);       // grey
@@ -184,7 +146,7 @@ void MaterialAccountingLayer::savePlot(TH1F * plot, const std::string & name)
   plot->SetDirectory(m_file);
 }
 
-void MaterialAccountingLayer::savePlot(TProfile * plot, float average, const std::string & name)
+void MaterialAccountingGroup::savePlot(TProfile * plot, float average, const std::string & name)
 {
   // Nota Bene:
   // these "line" plots are not deleted explicitly since
@@ -211,7 +173,19 @@ void MaterialAccountingLayer::savePlot(TProfile * plot, float average, const std
   line->SetDirectory(m_file);
 }
 
-void MaterialAccountingLayer::savePlots(void)
+/// get some infos
+std::string MaterialAccountingGroup::info(void) const
+{
+  std::stringstream out;
+  out << std::setw(32) << std::left << m_name << std::right << std::fixed;;
+  out << "BBox: " << std::setprecision(1) << std::setw(6) << m_boundingbox.range_z().first << " < Z < " << std::setprecision(1) << std::setw(6) << m_boundingbox.range_z().second;
+  out << ", "     << std::setprecision(1) << std::setw(5) << m_boundingbox.range_r().first << " < R < " << std::setprecision(1) << std::setw(5) << m_boundingbox.range_r().second;
+  out << "   Elements: " << std::setw(6) << m_elements.size();
+  return out.str();
+}
+
+
+void MaterialAccountingGroup::savePlots(void)
 {
   m_file = new TFile((m_name + ".root").c_str(), "RECREATE");
   savePlot(m_dedx_spectrum,   m_name + "_dedx_spectrum");

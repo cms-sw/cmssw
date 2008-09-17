@@ -10,7 +10,7 @@
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
 #include "SimDataFormats/ValidationFormats/interface/MaterialAccountingTrack.h"
-#include "MaterialAccountingLayer.h"
+#include "MaterialAccountingGroup.h"
 #include "TrackingMaterialPlotter.h"
 
 class TrackingMaterialAnalyser : public edm::EDAnalyzer
@@ -31,9 +31,6 @@ private:
   void beginJob(const edm::EventSetup &);
   void endJob();
 
-  void parseBarrelLayers( const std::vector<BarrelDetLayer*> & layers );
-  void parseForwardLayers( const std::vector<ForwardDetLayer*> & neg_layers, const std::vector<ForwardDetLayer*> & pos_layers );
-  
   void split( MaterialAccountingTrack & track );
   int  findLayer( const MaterialAccountingDetector & detector );
 
@@ -44,11 +41,11 @@ private:
   SplitMode                                 m_splitMode;
   bool                                      m_skipAfterLastDetector;
   bool                                      m_skipBeforeFirstDetector;
-  bool                                      m_symmetricForwardLayers;
   bool                                      m_saveSummaryPlot;
   bool                                      m_saveDetailedPlots;
   bool                                      m_saveParameters;
-  std::vector<MaterialAccountingLayer *>    m_layers;
+  std::vector<MaterialAccountingGroup *>    m_groups;
+  std::vector<std::string>                  m_groupNames;
   TrackingMaterialPlotter *                 m_plotter;
 };
 

@@ -23,25 +23,45 @@
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
-static std::string dddGetString(std::string const & s, DDFilteredView & fv) { 
-  DDValue val(s);
-  std::vector<const DDsvalues_type *> result = fv.specifics();
-  //fv.specificsV(result);
-  bool foundIt = false;
+static
+bool dddGetStringRaw(const DDFilteredView & view, const std::string & name, std::string & value) {
+  DDValue parameter(name);
+  std::vector<const DDsvalues_type *> result;
+  view.specificsV(result);
   for (std::vector<const DDsvalues_type *>::iterator it = result.begin(); it != result.end(); ++it) {
-    foundIt = DDfetch(*it, val);
-    if (foundIt) break;
-  }    
-  if (foundIt)   { 
-    if (val.strings().size() != 1)
-      throw cms::Exception("Configuration") << " ERROR: I need 1 " << s << " tags";
-    return val.strings()[0]; 
-  } else
-    return "NotFound";
+    if (DDfetch(*it,parameter)) {
+      if (parameter.strings().size() == 1) {
+        value = parameter.strings().front();
+        return true;
+      } else {
+        return false;
+      }
+    }
+  }
+  return false;
 }
 
-static inline std::ostream & operator<<(std::ostream & out, const math::XYZVector & v) {
-  return out << "(" << v.x() << ", " << v.y() << ", " << v.z() << ")";
+static inline
+double dddGetDouble(const std::string & s, const DDFilteredView & view) {
+  std::string value;
+  if (dddGetStringRaw(view, s, value))
+    return double(::atof(value.c_str()));
+  else
+    return NAN;
+}
+
+static inline
+std::string dddGetString(const std::string & s, const DDFilteredView & view) {
+  std::string value;
+  if (dddGetStringRaw(view, s, value))
+    return value;
+  else
+    return std::string();
+}
+
+static inline 
+std::ostream & operator<<(std::ostream & out, const math::XYZVector & v) {
+  return out << "(" << v.rho() << ", " << v.z() << ", " << v.phi() << ")";
 }
 
 class ListIds : public edm::EDAnalyzer

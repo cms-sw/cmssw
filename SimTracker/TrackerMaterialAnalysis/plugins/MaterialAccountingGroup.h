@@ -1,9 +1,9 @@
-#ifndef MaterialAccountingLayer_h
-#define MaterialAccountingLayer_h
+#ifndef MaterialAccountingGroup_h
+#define MaterialAccountingGroup_h
 
-#include <iostream>
 #include <string>
 #include <stdexcept>
+#include <utility>
 
 #include "Geometry/CommonDetUnit/interface/GeomDetEnumerators.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
@@ -15,23 +15,74 @@ class TH1;
 class TH1F;
 class TProfile;
 class TFile;
-class DetLayer;
 
-class MaterialAccountingLayer {
+class MaterialAccountingGroup {
+private:
+
+  // quick implementation of a bounding cilinder
+  class BoundingBox {
+  public:
+
+    BoundingBox(double min_r, double max_r, double min_z, double max_z) :
+      r_min(min_r),
+      r_max(max_r),
+      z_min(min_z),
+      z_max(max_z)
+    { }
+
+    BoundingBox() :
+      r_min(0.),
+      r_max(0.),
+      z_min(0.),
+      z_max(0.)
+    { }
+
+    void grow(double r, double z) {
+      if (r < r_min) r_min = r;
+      if (r > r_max) r_max = r;
+      if (z < z_min) z_min = z;
+      if (z > z_max) z_max = z;
+    }
+
+    void grow(double skin) {
+      r_min -= skin;    // yes, we allow r_min to go negative
+      r_max += skin;
+      z_min -= skin;
+      z_max += skin;
+    }
+
+    bool inside(double r, double z) const {
+      return (r >= r_min and r <= r_max and z >= z_min and z <= z_max);
+    }
+
+    std::pair<double, double> range_r() const {
+      return std::make_pair(r_min, r_max);
+    }
+
+    std::pair<double, double> range_z() const {
+      return std::make_pair(z_min, z_max);
+    }
+
+  private:
+    double r_min;
+    double r_max;
+    double z_min;
+    double z_max;
+  };
+  
 public:
   /// explicit constructors
-  explicit MaterialAccountingLayer( const DetLayer & layer,                       const std::string & name, bool symmetric = false );
-  explicit MaterialAccountingLayer( const std::vector<const DetLayer *> & layers, const std::string & name, bool symmetric = false );
+  MaterialAccountingGroup( const std::string & name, const DDCompactView & geometry );
     
   /// destructor
-  ~MaterialAccountingLayer( void );
+  ~MaterialAccountingGroup( void );
 
 private:
   /// stop default copy ctor
-  MaterialAccountingLayer(const MaterialAccountingLayer & layer);
+  MaterialAccountingGroup(const MaterialAccountingGroup & layer);
 
   /// stop default assignment operator
-  MaterialAccountingLayer& operator=( const MaterialAccountingLayer & layer);
+  MaterialAccountingGroup& operator=( const MaterialAccountingGroup & layer);
 
 public:
   /// buffer material from a detector, if the detector is inside the DetLayer bounds
@@ -97,42 +148,19 @@ public:
     return m_name;
   }
 
-  /// return the number of DetLayers associated to this layer
-  unsigned int layers(void) const 
-  {
-    return m_layers.size();
-  }
+  /// get some infos
+  std::string info(void) const;
 
-  /// access one DetLayer (defaults to the 1st)
-  const DetLayer * layer(unsigned int i = 0) const 
-  {
-    checkLayer(i);
-    return m_layers[i];
-  }
-
-  /// access one DetLayer material properties (defaults to the 1st DetLayer's)
-  const MediumProperties * material(unsigned int i = 0) const
-  {
-    checkLayer(i);
-    return m_layers[i]->surface().mediumProperties();
-  }
-  
+  /// save the plots
   void savePlots(void);
  
 private:
-  void checkLayer(unsigned int i) const 
-  {
-    if (i >= m_layers.size())
-      throw std::out_of_range("DetLayer index out of range");
-  }
-
   void savePlot(TH1F * plot, const std::string & name);
   void savePlot(TProfile * plot, float average, const std::string & name);
-  
-  // m_layers allow to access subdetector type (not used), access η / Z / R ranges (broken), and to check for inside-ness
-  std::vector<const DetLayer *> m_layers;
+ 
   std::string                   m_name;
-  bool                          m_symmetric;      // layer is symmteric for reflection on the XY plane (Z <--> -Z, η <--> -η)
+  std::vector<GlobalPoint>      m_elements;
+  BoundingBox                   m_boundingbox;
   MaterialAccountingStep        m_accounting;
   MaterialAccountingStep        m_errors;
   unsigned int                  m_tracks;
@@ -152,6 +180,9 @@ private:
 
   // file to store plots into
   mutable TFile * m_file;
+
+  // 100um should be small enough that no elements from different layers/groups are so close
+  static double s_tolerance;
 };
 
-#endif // MaterialAccountingLayer_h
+#endif // MaterialAccountingGroup_h
