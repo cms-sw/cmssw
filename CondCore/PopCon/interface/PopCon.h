@@ -49,6 +49,7 @@ namespace popcon {
      template<typename T>
        void writeOne(T * payload, Time_t time);
 
+   
     
      
   private:
@@ -119,16 +120,8 @@ namespace popcon {
     return ( (i ==1)  ?  s.str(): ss.str() ) ; 
   }            
   
-  const std::string displayUserInfo(){
-    std::ostringstream user_info;
-    char * user= ::getenv("USER");
-    char * hostname= ::getenv("HOSTNAME");
-    char * pwd = ::getenv("PWD");
-    if (user) { user_info<< "\nUSER = " << user <<";" ;} else { user_info<< "\n USER = "<< "??;";}
-    if (hostname) {user_info<< "\nHOSTNAME= " << hostname <<";";} else { user_info<< "\n HOSTNAME = "<< "??;";}
-    if (pwd) {user_info<< "\nPWD= " << pwd <<";";} else  {user_info<< "\n PWD = "<< "??;";}
-    return  user_info.str();
-  }     
+ 
+ 
   
     template<typename Source>
       void PopCon::write(Source const & source) {
@@ -139,10 +132,20 @@ namespace popcon {
       std::pair<Container const *, std::string const> ret = source(&m_dbService->connection(),
 								   m_tagInfo,m_logDBEntry); 
      Container const & payloads = *ret.first;
-     // adding info about the popcon user
-   
+     
+
+  // adding info about the popcon user
+    std::ostringstream user_info;
+    char * user= ::getenv("USER");
+    char * hostname= ::getenv("HOSTNAME");
+    char * pwd = ::getenv("PWD");
+    if (user) { user_info<< "\nUSER = " << user <<";" ;} else { user_info<< "\n USER = "<< "??;";}
+    if (hostname) {user_info<< "\nHOSTNAME= " << hostname <<";";} else { user_info<< "\n HOSTNAME = "<< "??;";}
+    if (pwd) {user_info<< "\nPWD= " << pwd <<";";} else  {user_info<< "\n PWD = "<< "??;";}
     
-    m_dbService->setLogHeaderForRecord(m_record,source.id(),"PopCon v2.1; " + displayUserInfo() + displayIovHelper(payloads,m_since ) +  ret.second);
+       
+
+     m_dbService->setLogHeaderForRecord(m_record,source.id(),"PopCon v2.1; " + user_info.str() + displayIovHelper(payloads,m_since ) +  ret.second);
      
      
      displayHelper(payloads,m_since);
