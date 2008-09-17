@@ -10,12 +10,6 @@
 // Boiler-plate constructor definition of an analyzer module:
 HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
 
-  //set parameter defaults 
-  _EtaMin = -5.2;
-  _EtaMax =  5.2;
-  m_file  = 0;                  // set to null
-  _HistName = "test.root";
-
   // If your module takes parameters, here is where you would define
   // their names and types, and access them to initialize internal
   // variables. Example as follows:
@@ -45,16 +39,14 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
   MuLinkTag_        = conf.getParameter<edm::InputTag> ("MuLinkTag");
   HLTTau_           = conf.getParameter<edm::InputTag> ("HLTTau");
 
+  m_file = 0;                  // set to null
   errCnt = 0;
 
-  edm::ParameterSet myAnaParams = conf.getParameter<edm::ParameterSet> ("RunParameters") ;
-  vector<std::string> parameterNames = myAnaParams.getParameterNames() ;
-  for ( vector<std::string>::iterator iParam = parameterNames.begin();
-        iParam != parameterNames.end(); iParam++ ){
-    if ( (*iParam) == "HistogramFile" ) _HistName =  myAnaParams.getParameter<string>( *iParam );
-    else if ( (*iParam) == "EtaMin" ) _EtaMin =  myAnaParams.getParameter<double>( *iParam );
-    else if ( (*iParam) == "EtaMax" ) _EtaMax =  myAnaParams.getParameter<double>( *iParam );
-  }
+  // read run parameters with a default value 
+  edm::ParameterSet runParameters = conf.getParameter<edm::ParameterSet>("RunParameters");
+  _HistName = runParameters.getUntrackedParameter<std::string>("HistogramFile", "test.root");
+  _EtaMin   = runParameters.getUntrackedParameter<double>("EtaMin", -5.2);
+  _EtaMax   = runParameters.getUntrackedParameter<double>("EtaMax",  5.2);
 
 //   cout << "---------- Input Parameters ---------------------------" << endl;
 //   cout << "  Output histograms written to: " << _HistName << std::endl;
