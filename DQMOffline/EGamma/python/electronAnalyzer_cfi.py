@@ -6,6 +6,7 @@ import FWCore.ParameterSet.Config as cms
 
 gsfElectronAnalysis = cms.EDAnalyzer("ElectronAnalyzer",
     electronCollection = cms.InputTag("pixelMatchGsfElectrons"),
+    OutputMEsInRootFile = cms.bool(False),
     Nbinxyz = cms.int32(50),
     Nbineop2D = cms.int32(30),
     Nbinp = cms.int32(50),
