@@ -14,6 +14,7 @@
 
 class L1GctWheelEnergyFpga;
 class L1GctWheelJetFpga;
+class L1GctGlobalHfSumAlgos;
 
 /*!
  * \class L1GctGlobalEnergyAlgos
@@ -55,11 +56,20 @@ public:
         /// Overload << operator
         friend std::ostream& operator << (std::ostream& os, const L1GctGlobalEnergyAlgos& fpga);
 
-	/// get input data from sources; this is the standard way to provide input
+	/// clear internal buffers
+	void reset();
+
+	/// get input data from sources
 	virtual void fetchInput();
 
 	/// process the data, fill output buffers
 	virtual void process();
+
+	/// define the bunch crossing range to process
+	void setBxRange(const int firstBx, const int numberOfBx);
+
+	/// partially clear buffers
+	void setNextBx(const int bx);
 
 	/// set input Ex value per wheel (0 or 1); not used in normal operation
 	void setInputWheelEx(unsigned wheel, int energy, bool overflow);
@@ -81,6 +91,8 @@ public:
 	L1GctWheelJetFpga* getPlusWheelJetFpga() const { return m_plusWheelJetFpga; }
 	/// provide access to input pointer, Wheel Jet Fpga 0
 	L1GctWheelJetFpga* getMinusWheelJetFpga() const { return m_minusWheelJetFpga; }
+	/// provide access to hf sum processor
+	L1GctGlobalHfSumAlgos* getHfSumProcessor() const { return m_hfSumProcessor; }
 
 	/// return input Ex value wheel 1
        inline std::vector< etComponentType > getInputExValPlusWheel() const { return m_exValPlusPipe.contents; }
@@ -135,6 +147,9 @@ public:
 	L1GctWheelJetFpga* m_plusWheelJetFpga;
 	L1GctWheelJetFpga* m_minusWheelJetFpga;
 
+	// Here's the class that does the Hf sums
+	L1GctGlobalHfSumAlgos* m_hfSumProcessor;
+
 	// Missing Et
 	L1GctMet m_metComponents;
 
@@ -176,7 +191,7 @@ public:
 
         // PRIVATE MEMBER FUNCTION
         // Function to use the jet count bits for Hf Et sums
-        void packHfTowerSumsIntoJetCountBits(std::vector<L1GctJetCount<5> >& jcVector); 
+        //void packHfTowerSumsIntoJetCountBits(std::vector<L1GctJetCount<5> >& jcVector); 
 };
 
 std::ostream& operator << (std::ostream& os, const L1GctGlobalEnergyAlgos& fpga);

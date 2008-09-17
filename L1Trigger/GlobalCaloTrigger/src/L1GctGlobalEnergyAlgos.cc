@@ -2,6 +2,7 @@
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctWheelEnergyFpga.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctWheelJetFpga.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctGlobalHfSumAlgos.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -79,6 +80,9 @@ L1GctGlobalEnergyAlgos::L1GctGlobalEnergyAlgos(vector<L1GctWheelEnergyFpga*> whe
       << "L1GctGlobalEnergyAlgos::L1GctGlobalEnergyAlgos() has been incorrectly constructed!\n"
       << "Minus Wheel Jet Fpga pointer has not been set!\n";
     }
+
+    // Setup to perform the Hf sums
+    m_hfSumProcessor = new L1GctGlobalHfSumAlgos(wheelJetFpga);
 }
 
 L1GctGlobalEnergyAlgos::~L1GctGlobalEnergyAlgos()
@@ -119,8 +123,26 @@ ostream& operator << (ostream& os, const L1GctGlobalEnergyAlgos& fpga)
       } 
     os << endl;
   }
+  os << *fpga.m_hfSumProcessor;
 
   return os;
+}
+
+/// clear buffers
+void L1GctGlobalEnergyAlgos::reset() {
+  L1GctProcessor::reset();
+  m_hfSumProcessor->reset();
+}
+
+/// partially clear buffers
+void L1GctGlobalEnergyAlgos::setBxRange(const int firstBx, const int numberOfBx) {
+  L1GctProcessor::setBxRange(firstBx, numberOfBx);
+  m_hfSumProcessor->setBxRange(firstBx, numberOfBx);
+}
+
+void L1GctGlobalEnergyAlgos::setNextBx(const int bx) {
+  L1GctProcessor::setNextBx(bx);
+  m_hfSumProcessor->setNextBx(bx);
 }
 
 void L1GctGlobalEnergyAlgos::resetProcessor() {
@@ -155,6 +177,7 @@ void L1GctGlobalEnergyAlgos::resetPipelines() {
   m_htVlMinusPipe.reset (numOfBx());
   m_jcValPlusPipe.reset (numOfBx());
   m_jcVlMinusPipe.reset (numOfBx());
+
 }
 
 void L1GctGlobalEnergyAlgos::fetchInput() {
@@ -174,6 +197,8 @@ void L1GctGlobalEnergyAlgos::fetchInput() {
     m_jcValPlusWheel.at(i) = m_plusWheelJetFpga->getOutputJc(i);
     m_jcVlMinusWheel.at(i) = m_minusWheelJetFpga->getOutputJc(i);
   }
+
+  m_hfSumProcessor->fetchInput();
 }
 
 
@@ -223,9 +248,9 @@ void L1GctGlobalEnergyAlgos::process()
       L1GctJetCount<5>(m_jcValPlusWheel.at(i)) +
       L1GctJetCount<5>(m_jcVlMinusWheel.at(i));
   }
-  // BUT ... overwrite some of the jet counts with Hf tower sums!
-  packHfTowerSumsIntoJetCountBits(temp);
   m_outputJetCounts.store(temp, bxRel());
+
+  m_hfSumProcessor->process();
 }
 
 std::vector< std::vector<unsigned> > L1GctGlobalEnergyAlgos::getJetCountValuesColl() const {
@@ -316,27 +341,27 @@ void L1GctGlobalEnergyAlgos::setInputWheelJc(unsigned wheel, unsigned jcnum, uns
   }
 }
 
-//----------------------------------------------------------------------------------
-//
-// The following method contains the bit-slicing
-// of the Hf information for minbias triggers
-// into 5-bit fields so it can be output using the 
-// L1GctJetCounts object (from DataFormats/L1GlobalCaloTrigger).
-//
-// NOTE: the reverse operation of combining the 5-bit fields
-// back into Hf information is carried out in L1GctJetCounts.
-//
-void L1GctGlobalEnergyAlgos::packHfTowerSumsIntoJetCountBits(std::vector<L1GctJetCount<5> >& jcVector)
-{
-  assert (N_JET_COUNTERS_USED<=6 && N_JET_COUNTERS_MAX>11);
-  jcVector.at(6)  = m_plusWheelJetFpga->getOutputHfSums().nOverThreshold;
-  jcVector.at(7)  = m_minusWheelJetFpga->getOutputHfSums().nOverThreshold;
+// //----------------------------------------------------------------------------------
+// //
+// // The following method contains the bit-slicing
+// // of the Hf information for minbias triggers
+// // into 5-bit fields so it can be output using the 
+// // L1GctJetCounts object (from DataFormats/L1GlobalCaloTrigger).
+// //
+// // NOTE: the reverse operation of combining the 5-bit fields
+// // back into Hf information is carried out in L1GctJetCounts.
+// //
+// void L1GctGlobalEnergyAlgos::packHfTowerSumsIntoJetCountBits(std::vector<L1GctJetCount<5> >& jcVector)
+// {
+//   assert (N_JET_COUNTERS_USED<=6 && N_JET_COUNTERS_MAX>11);
+//   jcVector.at(6)  = m_plusWheelJetFpga->getOutputHfSums().nOverThreshold;
+//   jcVector.at(7)  = m_minusWheelJetFpga->getOutputHfSums().nOverThreshold;
 
-  jcVector.at(8)  = m_plusWheelJetFpga->getOutputHfSums().etSum0;
-  jcVector.at(9)  = m_minusWheelJetFpga->getOutputHfSums().etSum0;
+//   jcVector.at(8)  = m_plusWheelJetFpga->getOutputHfSums().etSum0;
+//   jcVector.at(9)  = m_minusWheelJetFpga->getOutputHfSums().etSum0;
 
-  jcVector.at(10) = m_plusWheelJetFpga->getOutputHfSums().etSum1;
-  jcVector.at(11) = m_minusWheelJetFpga->getOutputHfSums().etSum1;
-}
+//   jcVector.at(10) = m_plusWheelJetFpga->getOutputHfSums().etSum1;
+//   jcVector.at(11) = m_minusWheelJetFpga->getOutputHfSums().etSum1;
+// }
 
 

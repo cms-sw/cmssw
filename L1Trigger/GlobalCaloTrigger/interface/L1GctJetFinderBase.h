@@ -1,6 +1,8 @@
 #ifndef L1GCTJETFINDERBASE_H_
 #define L1GCTJETFINDERBASE_H_
 
+#include "CondFormats/L1TObjects/interface/L1GctHfLutSetup.h"
+
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCand.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtTotal.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtHad.h"
@@ -59,6 +61,7 @@ public:
   typedef L1GctUnsignedInt<L1GctEtTotal::kEtTotalNBits> etTotalType;
   typedef L1GctUnsignedInt<  L1GctEtHad::kEtHadNBits  > etHadType;
 
+
   // For HF-based triggers we sum the Etin the two "inner" (large eta) rings;
   // and count towers over threshold based on the "fineGrain" bit from the RCT.
   // Define a data type to transfer the result of all calculations.
@@ -68,31 +71,30 @@ public:
   struct hfTowerSumsType {
 
     enum numberOfBits {
-      kEtHfSumBits     = 8,
-      kEtHfSumOFlowBit = 1 << kEtHfSumBits,
-      kEtHfSumMaxValue = kEtHfSumOFlowBit - 1
+      kHfEtSumBits = L1GctHfLutSetup::kHfEtSumBits,
+      kHfCountBits = L1GctHfLutSetup::kHfCountBits
     };
 
-    L1GctJetCount< kEtHfSumBits > etSum0;
-    L1GctJetCount< kEtHfSumBits > etSum1;
-    L1GctJetCount< 5 > nOverThreshold0;
-    L1GctJetCount< 5 > nOverThreshold1;
+    L1GctJetCount< kHfEtSumBits > etSum0;
+    L1GctJetCount< kHfEtSumBits > etSum1;
+    L1GctJetCount< kHfCountBits > nOverThreshold0;
+    L1GctJetCount< kHfCountBits > nOverThreshold1;
 
     // Define some constructors and an addition operator for our data type
-    hfTowerSumsType() : etSum0(0), etSum1(0), nOverThreshold0(0)), nOverThreshold1(0) {}
+    hfTowerSumsType() : etSum0(0), etSum1(0), nOverThreshold0(0), nOverThreshold1(0) {}
     hfTowerSumsType(unsigned e0, unsigned e1, unsigned n0, unsigned n1) : 
       etSum0(e0), etSum1(e1), nOverThreshold0(n0), nOverThreshold1(n1) {}
-    hfTowerSumsType(L1GctJetCount< kEtHfSumBits > e0,
-                    L1GctJetCount< kEtHfSumBits > e1,
-                    L1GctJetCount< 5 > n0,
-                    L1GctJetCount< 5 > n1) : etSum0(e0), etSum1(e1), nOverThreshold0(n0), nOverThreshold1(n1) {}
+    hfTowerSumsType(L1GctJetCount< kHfEtSumBits > e0,
+                    L1GctJetCount< kHfEtSumBits > e1,
+                    L1GctJetCount< kHfCountBits > n0,
+                    L1GctJetCount< kHfCountBits > n1) : etSum0(e0), etSum1(e1), nOverThreshold0(n0), nOverThreshold1(n1) {}
 
     void reset() { etSum0.reset(); etSum1.reset(); nOverThreshold0.reset(); nOverThreshold1.reset(); }
 
     hfTowerSumsType operator+(const hfTowerSumsType& rhs) const {
       hfTowerSumsType temp( (this->etSum0+rhs.etSum0),
                             (this->etSum1+rhs.etSum1),
-                            (this->nOverThreshold0+rhs.nOverThreshold0) ),
+                            (this->nOverThreshold0+rhs.nOverThreshold0),
                             (this->nOverThreshold1+rhs.nOverThreshold1) );
       return temp;
     } 

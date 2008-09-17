@@ -11,6 +11,7 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctWheelEnergyFpga.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinalStage.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctGlobalEnergyAlgos.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctGlobalHfSumAlgos.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctElectronFinalSort.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetCounter.h"
 
@@ -348,9 +349,26 @@ void L1GlobalCaloTrigger::setupJetCounterLuts(const L1GctJetCounterSetup* jcPosP
   }
 }
 
+  /// setup Hf sum LUTs
+void L1GlobalCaloTrigger::setupHfSumLuts(const L1GctHfLutSetup* iSetup) {
+  if (getHfSumProcessor() != 0) {
+    getHfSumProcessor()->setupLuts(iSetup);
+  }
+}
+
 /// setup the input channel mask
 void L1GlobalCaloTrigger::setChannelMask(const L1GctChannelMask* mask) {
   m_inputChannelMask = mask;
+}
+
+/// provide access to hf sum processor
+L1GctGlobalHfSumAlgos* L1GlobalCaloTrigger::getHfSumProcessor() const
+{
+  L1GctGlobalHfSumAlgos* result = 0;
+  if (theEnergyFinalStage !=0) {
+    result = theEnergyFinalStage->getHfSumProcessor();
+  }
+  return result;
 }
 
 /// setup the bunch crossing range to be processed
@@ -588,7 +606,37 @@ L1GctJetCountsCollection L1GlobalCaloTrigger::getJetCountsCollection() const {
   return result;
 }
 
+L1GctHFBitCountsCollection L1GlobalCaloTrigger::getHFBitCountsCollection() const {
+  L1GctHFBitCountsCollection result(m_numOfBx);
+  if (getHfSumProcessor() != 0) {
+    int bx = m_bxStart;
+    for (int i=0; i<m_numOfBx; i++) {
+      L1GctHFBitCounts temp = L1GctHFBitCounts::fromGctEmulator(static_cast<uint8_t>(bx),
+								getHfSumProcessor()->hfSumsOutput(L1GctHfLutSetup::bitCountPosEtaRing1).at(i),
+								getHfSumProcessor()->hfSumsOutput(L1GctHfLutSetup::bitCountPosEtaRing2).at(i),
+								getHfSumProcessor()->hfSumsOutput(L1GctHfLutSetup::bitCountNegEtaRing1).at(i),
+								getHfSumProcessor()->hfSumsOutput(L1GctHfLutSetup::bitCountNegEtaRing2).at(i));
+      result.at(i) = temp;
+    }
+  }
+  return result;
+}
 
+L1GctHFRingEtSumsCollection L1GlobalCaloTrigger::getHFRingEtSumsCollection() const {
+  L1GctHFRingEtSumsCollection result(m_numOfBx);
+  if (getHfSumProcessor() != 0) {
+    int bx = m_bxStart;
+    for (int i=0; i<m_numOfBx; i++) {
+      L1GctHFRingEtSums temp = L1GctHFRingEtSums::fromGctEmulator(static_cast<uint8_t>(bx),
+								  getHfSumProcessor()->hfSumsOutput(L1GctHfLutSetup::etSumPosEtaRing1).at(i),
+								  getHfSumProcessor()->hfSumsOutput(L1GctHfLutSetup::etSumPosEtaRing2).at(i),
+								  getHfSumProcessor()->hfSumsOutput(L1GctHfLutSetup::etSumNegEtaRing1).at(i),
+								  getHfSumProcessor()->hfSumsOutput(L1GctHfLutSetup::etSumNegEtaRing2).at(i));
+      result.at(i) = temp;
+    }
+  }
+  return result;
+}
 
 
 /* PRIVATE METHODS */

@@ -20,11 +20,13 @@
 #include "CondFormats/L1TObjects/interface/L1GctJetEtCalibrationFunction.h"
 #include "CondFormats/L1TObjects/interface/L1GctJetCounterSetup.h"
 #include "CondFormats/L1TObjects/interface/L1GctChannelMask.h"
+#include "CondFormats/L1TObjects/interface/L1GctHfLutSetup.h"
 #include "CondFormats/DataRecord/interface/L1GctJetFinderParamsRcd.h"
 #include "CondFormats/DataRecord/interface/L1GctJetCalibFunRcd.h"
 #include "CondFormats/DataRecord/interface/L1GctJetCounterPositiveEtaRcd.h"
 #include "CondFormats/DataRecord/interface/L1GctJetCounterNegativeEtaRcd.h"
 #include "CondFormats/DataRecord/interface/L1GctChannelMaskRcd.h"
+#include "CondFormats/DataRecord/interface/L1GctHfLutSetupRcd.h"
 
 // GCT include files
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
@@ -35,10 +37,6 @@
 
 // GCT data includes
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtTotal.h"
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtHad.h"
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtMiss.h"
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCounts.h"
 
 using std::vector;
 
@@ -57,6 +55,8 @@ L1GctEmulator::L1GctEmulator(const edm::ParameterSet& ps) :
   produces<L1GctEtHadCollection>();
   produces<L1GctEtMissCollection>();
   produces<L1GctJetCountsCollection>();
+  produces<L1GctHFBitCountsCollection>();
+  produces<L1GctHFRingEtSumsCollection>();
 
   // get the input label
   edm::InputTag inputTag  = ps.getParameter<edm::InputTag>("inputLabel");
@@ -114,6 +114,8 @@ void L1GctEmulator::configureGct(const edm::EventSetup& c)
   c.get< L1GctJetCounterNegativeEtaRcd >().get( jcNegPars ) ; // which record?
   edm::ESHandle< L1GctJetEtCalibrationFunction > calibFun ;
   c.get< L1GctJetCalibFunRcd >().get( calibFun ) ; // which record?
+  edm::ESHandle< L1GctHfLutSetup > hfLSetup ;
+  c.get< L1GctHfLutSetupRcd >().get( hfLSetup ) ; // which record?
   edm::ESHandle< L1GctChannelMask > chanMask ;
   c.get< L1GctChannelMaskRcd >().get( chanMask ) ; // which record?
   edm::ESHandle< L1CaloEtScale > etScale ;
@@ -131,19 +133,27 @@ void L1GctEmulator::configureGct(const edm::EventSetup& c)
       << "Cannot continue without this function" << std::endl;
   }
 
+  if (hfLSetup.product() == 0) {
+    throw cms::Exception("L1GctConfigError")
+      << "Failed to find a L1GctHfLutSetupRcd:L1GctHfLutSetup in EventSetup!" << std::endl
+      << "Cannot continue without these LUTs" << std::endl;
+  }
+
   if (chanMask.product() == 0) {
     throw cms::Exception("L1GctConfigError")
       << "Failed to find a L1GctChannelMaskRcd:L1GctChannelMask in EventSetup!" << std::endl
       << "Cannot continue without the channel mask" << std::endl;
   }
 
-  m_gct->setJetFinderParams(jfPars.product());
-
   // tell the jet Et Lut about the scales
   m_jetEtCalibLut->setFunction(calibFun.product());
   m_jetEtCalibLut->setOutputEtScale(etScale.product());
+
+  // pass all the setup info to the gct
   m_gct->setJetEtCalibrationLut(m_jetEtCalibLut);
+  m_gct->setJetFinderParams(jfPars.product());
   m_gct->setupJetCounterLuts(jcPosPars.product(), jcNegPars.product());
+  m_gct->setupHfSumLuts(hfLSetup.product());
   m_gct->setChannelMask(chanMask.product());
   
 }
@@ -184,6 +194,10 @@ void L1GctEmulator::produce(edm::Event& e, const edm::EventSetup& c) {
   // create the jet counts digis
   std::auto_ptr<L1GctJetCountsCollection> jetCountResult(new L1GctJetCountsCollection(m_gct->getJetCountsCollection() ) );
 
+  // create the Hf sums digis
+  std::auto_ptr<L1GctHFBitCountsCollection>  hfBitCountResult (new L1GctHFBitCountsCollection (m_gct->getHFBitCountsCollection () ) );
+  std::auto_ptr<L1GctHFRingEtSumsCollection> hfRingEtSumResult(new L1GctHFRingEtSumsCollection(m_gct->getHFRingEtSumsCollection() ) );
+
   // put the collections into the event
   e.put(isoEmResult,"isoEm");
   e.put(nonIsoEmResult,"nonIsoEm");
@@ -194,6 +208,8 @@ void L1GctEmulator::produce(edm::Event& e, const edm::EventSetup& c) {
   e.put(etHadResult);
   e.put(etMissResult);
   e.put(jetCountResult);
+  e.put(hfBitCountResult);
+  e.put(hfRingEtSumResult);
 }
 
 DEFINE_FWK_MODULE(L1GctEmulator);

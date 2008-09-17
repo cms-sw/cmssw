@@ -16,12 +16,17 @@
 #include "CondFormats/DataRecord/interface/L1GctJetCounterPositiveEtaRcd.h"
 #include "CondFormats/DataRecord/interface/L1GctJetCounterNegativeEtaRcd.h"
 #include "CondFormats/DataRecord/interface/L1GctChannelMaskRcd.h"
+#include "CondFormats/DataRecord/interface/L1GctHfLutSetupRcd.h"
 
 // GCT include files
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctWheelJetFpga.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetCounter.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetCounterLut.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctGlobalEnergyAlgos.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctGlobalHfSumAlgos.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctHfBitCountsLut.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctHfEtSumsLut.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GlobalCaloTrigger.h"
 
 #include <iostream>
@@ -92,6 +97,25 @@ L1GctPrintLuts::beginJob(const edm::EventSetup& c)
 	}
       }
 
+      // Print the Hf luts
+      file << "\n\n Hf ring jet bit count luts:" << std::endl;
+      file << "\n Positive eta, ring1" << std::endl;
+      file << *m_gct->getEnergyFinalStage()->getHfSumProcessor()->getBCLut(L1GctHfLutSetup::bitCountPosEtaRing1) << std::endl;
+      file << "\n Positive eta, ring2" << std::endl;
+      file << *m_gct->getEnergyFinalStage()->getHfSumProcessor()->getBCLut(L1GctHfLutSetup::bitCountPosEtaRing2) << std::endl;
+      file << "\n Negative eta, ring1" << std::endl;
+      file << *m_gct->getEnergyFinalStage()->getHfSumProcessor()->getBCLut(L1GctHfLutSetup::bitCountNegEtaRing1) << std::endl;
+      file << "\n Negative eta, ring2" << std::endl;
+      file << *m_gct->getEnergyFinalStage()->getHfSumProcessor()->getBCLut(L1GctHfLutSetup::bitCountNegEtaRing2) << std::endl;
+      file << "\n\n Hf Et sum luts:" << std::endl;
+      file << "\n Positive eta, ring1" << std::endl;
+      file << *m_gct->getEnergyFinalStage()->getHfSumProcessor()->getESLut(L1GctHfLutSetup::etSumPosEtaRing1) << std::endl;
+      file << "\n Positive eta, ring2" << std::endl;
+      file << *m_gct->getEnergyFinalStage()->getHfSumProcessor()->getESLut(L1GctHfLutSetup::etSumPosEtaRing2) << std::endl;
+      file << "\n Negative eta, ring1" << std::endl;
+      file << *m_gct->getEnergyFinalStage()->getHfSumProcessor()->getESLut(L1GctHfLutSetup::etSumNegEtaRing1) << std::endl;
+      file << "\n Negative eta, ring2" << std::endl;
+      file << *m_gct->getEnergyFinalStage()->getHfSumProcessor()->getESLut(L1GctHfLutSetup::etSumNegEtaRing2) << std::endl;
     } else {
       edm::LogWarning("LutFileError") << "Error opening file " << m_outputFileName << ". No lookup tables written." << std::endl;
     }
@@ -113,6 +137,8 @@ void L1GctPrintLuts::configureGct(const edm::EventSetup& c)
   c.get< L1GctJetCounterNegativeEtaRcd >().get( jcNegPars ) ; // which record?
   edm::ESHandle< L1GctJetEtCalibrationFunction > calibFun ;
   c.get< L1GctJetCalibFunRcd >().get( calibFun ) ; // which record?
+  edm::ESHandle< L1GctHfLutSetup > hfLSetup ;
+  c.get< L1GctHfLutSetupRcd >().get( hfLSetup ) ; // which record?
   edm::ESHandle< L1GctChannelMask > chanMask ;
   c.get< L1GctChannelMaskRcd >().get( chanMask ) ; // which record?
   edm::ESHandle< L1CaloEtScale > etScale ;
@@ -130,19 +156,27 @@ void L1GctPrintLuts::configureGct(const edm::EventSetup& c)
       << "Cannot continue without this function" << std::endl;
   }
 
+  if (hfLSetup.product() == 0) {
+    throw cms::Exception("L1GctConfigError")
+      << "Failed to find a L1GctHfLutSetupRcd:L1GctHfLutSetup in EventSetup!" << std::endl
+      << "Cannot continue without these LUTs" << std::endl;
+  }
+
   if (chanMask.product() == 0) {
     throw cms::Exception("L1GctConfigError")
       << "Failed to find a L1GctChannelMaskRcd:L1GctChannelMask in EventSetup!" << std::endl
       << "Cannot continue without the channel mask" << std::endl;
   }
 
-  m_gct->setJetFinderParams(jfPars.product());
-
   // tell the jet Et Lut about the scales
   m_jetEtCalibLut->setFunction(calibFun.product());
   m_jetEtCalibLut->setOutputEtScale(etScale.product());
+
+  // pass all the setup info to the gct
   m_gct->setJetEtCalibrationLut(m_jetEtCalibLut);
+  m_gct->setJetFinderParams(jfPars.product());
   m_gct->setupJetCounterLuts(jcPosPars.product(), jcNegPars.product());
+  m_gct->setupHfSumLuts(hfLSetup.product());
   m_gct->setChannelMask(chanMask.product());
   
 }

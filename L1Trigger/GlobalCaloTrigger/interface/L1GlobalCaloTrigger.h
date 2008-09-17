@@ -35,6 +35,7 @@ class L1GctWheelJetFpga;
 class L1GctWheelEnergyFpga;
 class L1GctJetFinalStage;
 class L1GctGlobalEnergyAlgos;
+class L1GctGlobalHfSumAlgos;
 class L1GctElectronFinalSort;
 class L1GctJetFinderParams;
 class L1GctJetEtCalibrationLut;
@@ -82,6 +83,9 @@ public:
   /// setup Jet Counter LUTs
   void setupJetCounterLuts(const L1GctJetCounterSetup* jcPosPars,
                            const L1GctJetCounterSetup* jcNegPars);
+
+  /// setup Hf sum LUTs
+  void setupHfSumLuts(const L1GctHfLutSetup* iSetup);
 
   /// setup the input channel mask
   void setChannelMask(const L1GctChannelMask* mask); 
@@ -156,6 +160,10 @@ public:
   // Jet Count output to GT
   L1GctJetCountsCollection getJetCountsCollection() const;
 
+  // Hf sums output to GT
+  L1GctHFBitCountsCollection  getHFBitCountsCollection()  const;
+  L1GctHFRingEtSumsCollection getHFRingEtSumsCollection() const;
+
   ///=================================================================================================
   /// Access to GCT component processors
   ///
@@ -176,6 +184,9 @@ public:
   
   /// get the energy final stage
   L1GctGlobalEnergyAlgos* getEnergyFinalStage() const { return theEnergyFinalStage; }
+
+  /// provide access to hf sum processor
+  L1GctGlobalHfSumAlgos* getHfSumProcessor() const;
   
   /// get the electron final stage sorters
   L1GctElectronFinalSort* getIsoEmFinalStage() const { return theIsoEmFinalStage; }
