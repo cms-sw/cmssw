@@ -29,7 +29,7 @@ l1compare.COMPARE_COLLS = [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1]
 #dqm
 from DQM.L1TMonitor.L1TDEMON_cfi import *
 from DQM.L1TMonitor.L1TdeECAL_cfi import *
-#from DQM.L1TMonitor.L1TdeGCT_cfi import *
+from DQM.L1TMonitor.L1TdeGCT_cfi import *
 from DQM.L1TMonitor.L1TdeRCT_cfi import *
 l1tderct.rctSourceData = 'gctDigis'
 l1tderct.rctSourceEmul = 'valRctDigis'
@@ -39,8 +39,8 @@ p = cms.Path(
     *cms.SequencePlaceholder("L1HardwareValidation")
     *(l1demon
       +l1demonecal
-      #+l1demongct
       +l1tderct
+      +l1demongct
       )
     )
 
