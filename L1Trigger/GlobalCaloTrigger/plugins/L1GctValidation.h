@@ -60,12 +60,15 @@ class L1GctValidation : public edm::EDAnalyzer {
       TH2F* theMissEtVector;
 
       std::vector<TH1F*> theJetCounts;
-      TH1F* theHfRing0EtSumPositiveEta;
-      TH1F* theHfRing0EtSumNegativeEta;
-      TH1F* theHfRing1EtSumPositiveEta;
-      TH1F* theHfRing1EtSumNegativeEta;
-      TH1F* theHfTowerCountPositiveEta;
-      TH1F* theHfTowerCountNegativeEta;
+  // !!!+++
+  // The following needs updating for new Hf sums code
+  // !!!+++
+/*       TH1F* theHfRing0EtSumPositiveEta; */
+/*       TH1F* theHfRing0EtSumNegativeEta; */
+/*       TH1F* theHfRing1EtSumPositiveEta; */
+/*       TH1F* theHfRing1EtSumNegativeEta; */
+/*       TH1F* theHfTowerCountPositiveEta; */
+/*       TH1F* theHfTowerCountNegativeEta; */
 
 };
 #endif

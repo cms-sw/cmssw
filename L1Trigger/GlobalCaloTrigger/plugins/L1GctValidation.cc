@@ -97,12 +97,15 @@ L1GctValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       theJetCounts.at(jc)->Fill(jbx->count(jc));
     }
 
-    theHfRing0EtSumPositiveEta->Fill(jbx->hfRing0EtSumPositiveEta());  
-    theHfRing0EtSumNegativeEta->Fill(jbx->hfRing0EtSumNegativeEta());  
-    theHfRing1EtSumPositiveEta->Fill(jbx->hfRing1EtSumPositiveEta());  
-    theHfRing1EtSumNegativeEta->Fill(jbx->hfRing1EtSumNegativeEta());  
-    theHfTowerCountPositiveEta->Fill(jbx->hfTowerCountPositiveEta());  
-    theHfTowerCountNegativeEta->Fill(jbx->hfTowerCountNegativeEta());  
+  // !!!+++
+  // The following needs updating for new Hf sums code
+  // !!!+++
+//     theHfRing0EtSumPositiveEta->Fill(jbx->hfRing0EtSumPositiveEta());  
+//     theHfRing0EtSumNegativeEta->Fill(jbx->hfRing0EtSumNegativeEta());  
+//     theHfRing1EtSumPositiveEta->Fill(jbx->hfRing1EtSumPositiveEta());  
+//     theHfRing1EtSumNegativeEta->Fill(jbx->hfRing1EtSumNegativeEta());  
+//     theHfTowerCountPositiveEta->Fill(jbx->hfTowerCountPositiveEta());  
+//     theHfTowerCountNegativeEta->Fill(jbx->hfTowerCountNegativeEta());  
   }
 
 }
@@ -148,18 +151,21 @@ L1GctValidation::beginJob(const edm::EventSetup&)
     theJetCounts.push_back(dir1.make<TH1F>(title.c_str(), header.c_str(), 32, 0., 32.));
   }
 
-  theHfRing0EtSumPositiveEta = dir1.make<TH1F>("HfRing0EtSumPositiveEta", "Hf Inner Ring0 Et eta+",
-                                               60, 0., 30.);
-  theHfRing0EtSumNegativeEta = dir1.make<TH1F>("HfRing0EtSumNegativeEta", "Hf Inner Ring0 Et eta-",
-                                               60, 0., 30.);
-  theHfRing1EtSumPositiveEta = dir1.make<TH1F>("HfRing1EtSumPositiveEta", "Hf Inner Ring1 Et eta+",
-                                               60, 0., 30.);
-  theHfRing1EtSumNegativeEta = dir1.make<TH1F>("HfRing1EtSumNegativeEta", "Hf Inner Ring1 Et eta-",
-                                               60, 0., 30.);
-  theHfTowerCountPositiveEta = dir1.make<TH1F>("HfTowerCountPositiveEta", "Hf Threshold bits eta+",
-                                               20, 0., 20.);
-  theHfTowerCountNegativeEta = dir1.make<TH1F>("HfTowerCountNegativeEta", "Hf Threshold bits eta-",
-                                               20, 0., 20.);
+  // !!!+++
+  // The following needs updating for new Hf sums code
+  // !!!+++
+//   theHfRing0EtSumPositiveEta = dir1.make<TH1F>("HfRing0EtSumPositiveEta", "Hf Inner Ring0 Et eta+",
+//                                                60, 0., 30.);
+//   theHfRing0EtSumNegativeEta = dir1.make<TH1F>("HfRing0EtSumNegativeEta", "Hf Inner Ring0 Et eta-",
+//                                                60, 0., 30.);
+//   theHfRing1EtSumPositiveEta = dir1.make<TH1F>("HfRing1EtSumPositiveEta", "Hf Inner Ring1 Et eta+",
+//                                                60, 0., 30.);
+//   theHfRing1EtSumNegativeEta = dir1.make<TH1F>("HfRing1EtSumNegativeEta", "Hf Inner Ring1 Et eta-",
+//                                                60, 0., 30.);
+//   theHfTowerCountPositiveEta = dir1.make<TH1F>("HfTowerCountPositiveEta", "Hf Threshold bits eta+",
+//                                                20, 0., 20.);
+//   theHfTowerCountNegativeEta = dir1.make<TH1F>("HfTowerCountNegativeEta", "Hf Threshold bits eta-",
+//                                                20, 0., 20.);
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
