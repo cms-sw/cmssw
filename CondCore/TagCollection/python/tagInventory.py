@@ -140,7 +140,8 @@ class  tagInventory(object):
                 #if not r.items()[1][2] is None:
                 nd.labelname=r[5]
                 n=inv.addEntry(nd)
-                newtaglinks.append((oldtagid,n))
+                if n!=0:
+                    newtaglinks.append((oldtagid,n))
         except Exception, e:
             print str(e)
             raise Exception, str(e)
