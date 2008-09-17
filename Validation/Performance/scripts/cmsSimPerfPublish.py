@@ -1425,14 +1425,17 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
                 INDEX.write(date + "\n")
             elif candhreg.search(NewFileLine):
                 for acandle in Candle:
-                    candlHTML = "%s.html" % acandle
-                    #INDEX.write("<table><th colspan=\"3\">")
-                    INDEX.write("<a href=\"./%s\"> %s </a>" % (candlHTML,acandle))
-                    INDEX.write("<br />\n")
-                   # INDEX.write("</th><tr><td>")
+                    globpath = os.path.join(repdir,"%s_*" % acandle)
+                    globs = glob.glob(globpath)
+                    if len(globs) > 0:
+                        candlHTML = "%s.html" % acandle
+                        #INDEX.write("<table><th colspan=\"3\">")
+                        INDEX.write("<a href=\"./%s\"> %s </a>" % (candlHTML,acandle))
+                        INDEX.write("<br />\n")
+                        # INDEX.write("</th><tr><td>")
                     
-                    candlHTML=os.path.join(WebArea,candlHTML)
-                    createCandlHTML(CandlTmpltHTML,candlHTML,acandle,WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,date,prevrev)
+                        candlHTML=os.path.join(WebArea,candlHTML)
+                        createCandlHTML(CandlTmpltHTML,candlHTML,acandle,WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,date,prevrev)
             else:
                 INDEX.write(NewFileLine)
 

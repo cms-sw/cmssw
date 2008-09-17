@@ -444,7 +444,7 @@ def writePrerequisteSteps(simcandles,steps,acandle,NumberOfEvents,cmsDriverOptio
     return fstIdx
 
 def setOutputFileOption(acandle,endstep):
-    return "--fileout=%s_%s.root" % ( FileName[acandle],endstep)
+    return "%s_%s.root" % ( FileName[acandle],endstep)
 
 def writeCommands(simcandles,
                  Profile,
@@ -487,8 +487,12 @@ def writeCommands(simcandles,
         steps = AllSteps
             
     unprofiledSteps = []
+    rawreg = re.compile("^RAW2DIGI")
+    
 #   FOR step in steps
 
+    prevPrevOutputFile = ""
+    previousOutputFile = ""
     for x in range(start,stopIndex,1):
 
         if stepIndex >= stopIndex:
@@ -521,11 +525,13 @@ def writeCommands(simcandles,
 
 
             writeStepHead(simcandles,acandle,step)
-            OutputFileOption = setOutputFileOption(acandle,aftStep)
-            
+
+            OutputFile = setOutputFileOption(acandle,stepToWrite)
+            OutputFileOption = "--fileout=" + OutputFile
+
             for prof in Profile:
                 if 'EdmSize' in prof:
-                    EdmFile = "%s_%s.root" % (FileName[acandle],step)
+                    EdmFile = "%s_%s.root" % (FileName[acandle],stepToWrite)
                     
                     if prof == Profile[0] and not os.path.exists("./" + EdmFile):
                         # insert command to generate required state ( need to run one more step
@@ -534,8 +540,11 @@ def writeCommands(simcandles,
                         # as HLT then writePrerequisteSteps() should have got you to the step prior to
                         # HLT, therefore the only thing left to run to profile EDMSIZE is HLT itself
 
-
-                        InputFileOption = setInputFile(steps,befStep,acandle,stepIndex,qcd=qcd)
+                        InputFileOption = "--filein file:" + previousOutputFile
+                        if rawreg.search(step):
+                            InputFileOption = "--filein file:" + prevPrevOutputFile
+                        if previousOutputFile == "":
+                            InputFileOption = setInputFile(steps,stepToWrite,acandle,stepIndex,qcd=qcd)
 
                         Command = ("%s %s -n %s --step=%s %s %s --customise=%s %s"
                                            % (cmsDriver,
@@ -552,12 +561,14 @@ def writeCommands(simcandles,
                     Command = EdmFile
                 else:
 
-                        # Adding a fileout option too to avoid dependence on future convention changes in cmsDriver.py:
+                    # Adding a fileout option too to avoid dependence on future convention changes in cmsDriver.py:
+                    # Use --filein (have to for L1, DIGI2RAW, HLT) to add robustness
 
-            
-                        # Use --filein (have to for L1, DIGI2RAW, HLT) to add robustness
-
-                    InputFileOption = setInputFile(steps,befStep,acandle,stepIndex,qcd)#OutputStep,qcd)
+                    InputFileOption = "--filein file:" + previousOutputFile
+                    if rawreg.search(step):
+                        InputFileOption = "--filein file:" + prevPrevOutputFile                    
+                    if previousOutputFile == "":
+                        InputFileOption = setInputFile(steps,befStep,acandle,stepIndex,qcd)
 
                     Command = ("%s %s -n %s --step=%s %s %s --customise=%s %s" % (
                                cmsDriver,
@@ -576,12 +587,14 @@ def writeCommands(simcandles,
                     simcandles.write("%s @@@ %s @@@ %s_%s_%s\n" % (Command,
                                                                    Profiler[prof],
                                                                    FileName[acandle],
-                                                                   step,
+                                                                   stepToWrite,
                                                                    prof))
 
                 if debug:
-                    print InputFileOption, step, 'GEN,SIM' in step, 'HTL' in steps[stepIndex - 1], steps
+                    print InputFileOption, step, 'GEN,SIM' in step, 'HLT' in steps[stepIndex - 1], steps
                     print "cmsDriveroptions : " + cmsDriverOption
+            prevPrevOutputFile = previousOutputFile          
+            previousOutputFile = OutputFile
         else:
             unprofiledSteps.append(step)
             isNextStepForProfile = False # Just an initialization for scoping. don't worry about it being false

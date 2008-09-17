@@ -381,7 +381,6 @@ def runCmsInput(dir,numevents,candle,cmsdrvopts,stepopt,profiler):
 def simpleGenReport(NumEvents,candles,cmsdriverOptions,stepOptions,cmssw_version,Name):
     valgrind = Name == "Valgrind"
 
-        
     for candle in candles:
         adir = mkCandleDir(candle,Name)
         if valgrind:
@@ -434,7 +433,7 @@ def main(argv):
     cmsdriverOptions = options.cmsdriverOptions
     stepOptions      = options.stepOptions
     quicktest        = options.quicktest
-    candleoption     = options.candleOptions.upper()
+    candleoption     = options.candleOptions
     cpu              = options.cpu
     cores            = options.cores
     _unittest        = options.unittest 
@@ -459,7 +458,7 @@ def main(argv):
         if candleoption == "":
             candleoption = "MinBias"
         if stepOptions == "":
-            stepOptions = "GEN-SIM,DIGI,L1,DIGI2RAW,HLT,RAW2DIGI-RECO"
+            stepOptions = "GEN-SIM,DIGI,L1,DIGI2RAW,HLT,RAW2DIGI,RECO"
         cmsScimark      = 0
         cmsScimarkLarge = 0
         ValgrindEvents  = 0
@@ -562,7 +561,7 @@ def main(argv):
     #Here the real performance suite starts
     #List of Candles
 
-
+    
     AllCandles=Candles
 
     isAllCandles = candleoption == ""

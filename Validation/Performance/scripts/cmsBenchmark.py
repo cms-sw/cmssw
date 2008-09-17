@@ -63,7 +63,7 @@ cmssw_version=os.environ["CMSSW_VERSION"]
 host=os.environ["HOST"]
 user=os.environ["USER"]
 
-#Performance suite script used:
+#Performance suites script used:
 Script="cmsPerfSuite.py"
 
 #Options handling
