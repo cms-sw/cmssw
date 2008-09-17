@@ -1,4 +1,4 @@
-// $Id: L1Scalers.cc,v 1.10 2008/09/07 08:38:41 lorenzo Exp $
+// $Id: L1Scalers.cc,v 1.11 2008/09/16 17:19:13 wittich Exp $
 #include <iostream>
 
 
@@ -44,6 +44,10 @@ L1Scalers::L1Scalers(const edm::ParameterSet &ps):
   l1scalersBx_(0),
   l1techScalersBx_(0),
   nLumiBlock_(0),
+  l1AlgoCounter_(0),
+  l1TtCounter_(0),
+  rateAlgoCounter_(0),					  
+  rateTtCounter_(0),					  
   pixFedSize_(0),
   hfEnergy_(0),
   fedStart_(ps.getUntrackedParameter<unsigned int>("firstFED", 0)),
@@ -89,6 +93,12 @@ void L1Scalers::beginJob(const edm::EventSetup& iSetup)
 
     nLumiBlock_ = dbe_->bookInt("nLumiBlock");
 
+
+//  l1 total rate
+    
+    l1AlgoCounter_ = dbe_->bookInt("l1AlgoCounter");
+    l1TtCounter_ = dbe_->bookInt("l1TtCounter");
+
     // early triggers
     pixFedSize_ = dbe_->book1D("pixFedSize", "Size of Pixel FED data",
 			       200, 0., 20000.);
@@ -132,6 +142,14 @@ void L1Scalers::analyze(const edm::Event &e, const edm::EventSetup &iSetup)
     // vector of bool
     DecisionWord gtDecisionWord = gtRecord->decisionWord();
     if ( ! gtDecisionWord.empty() ) { // if board not there this is zero
+       // loop over dec. bit to get total rate (no overlap)
+       for ( int i = 0; i < 128; ++i ) {
+         if ( gtDecisionWord[i] ) {
+	   rateAlgoCounter_++;
+           l1AlgoCounter_->Fill(rateAlgoCounter_);
+	   break;
+	 }
+       }
       // loop over decision bits
       for ( int i = 0; i < 128; ++i ) {
 	if ( gtDecisionWord[i] ) {
@@ -150,6 +168,14 @@ void L1Scalers::analyze(const edm::Event &e, const edm::EventSetup &iSetup)
     // vector of bool again. 
     TechnicalTriggerWord tw = gtRecord->technicalTriggerWord();
     if ( ! tw.empty() ) {
+       // loop over dec. bit to get total rate (no overlap)
+       for ( int i = 0; i < 64; ++i ) {
+         if ( tw[i] ) {
+	   rateTtCounter_++;
+           l1TtCounter_->Fill(rateTtCounter_);
+	   break;
+	 }
+       }	 
       for ( int i = 0; i < 64; ++i ) {
 	if ( tw[i] ) {
 	  l1techScalers_->Fill(i);

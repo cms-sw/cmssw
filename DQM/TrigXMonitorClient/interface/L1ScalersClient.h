@@ -58,16 +58,21 @@ private:
   int nev_; // Number of events processed
   int nLumi_; // number of lumi blocks
   int currentRun_;
+  
+  float totAlgoPrevCount;
+  float totTtPrevCount;
 
   unsigned long int l1AlgoScalerCounters_[MAX_ALGOS];
   MonitorElement *l1AlgoCurrentRate_;
   MonitorElement *l1AlgoRateHistories_[MAX_ALGOS]; // HARD CODE FOR NOW
   MonitorElement *l1AlgoCurrentRatePerAlgo_[MAX_ALGOS];
-
+  MonitorElement *totalAlgoRate_;
+  
   unsigned long int l1TechTrigScalerCounters_[MAX_TT];
   MonitorElement *l1TechTrigCurrentRate_;
   MonitorElement *l1TechTrigRateHistories_[MAX_TT]; // HARD CODE FOR NOW
   MonitorElement *l1TechTrigCurrentRatePerAlgo_[MAX_TT];
+  MonitorElement *totalTtRate_;
 
   // this is a selected list of guys
   MonitorElement *selected_;

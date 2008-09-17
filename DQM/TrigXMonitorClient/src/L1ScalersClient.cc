@@ -76,6 +76,13 @@ L1ScalersClient::L1ScalersClient(const edm::ParameterSet& ps):
 
 
 // book individual bit rates vs lumi for algo bits.
+  totalAlgoRate_ = dbe_->book1D("totAlgoRate", "Total Algo Rate" , MAX_LUMI_SEG, 
+				     -0.5, MAX_LUMI_SEG-0.5);
+  totalTtRate_ = dbe_->book1D("totTtRate", "Total Tech. Trig Rate" , MAX_LUMI_SEG, 
+				     -0.5, MAX_LUMI_SEG-0.5);
+
+  totAlgoPrevCount=0UL;
+  totTtPrevCount=0UL;
   for (int i = 0; i < MAX_ALGOS; ++i ) {
     l1AlgoScalerCounters_[i] = 0UL;
     l1AlgoRateHistories_[i] = 0; // not really needed but ...
@@ -166,6 +173,8 @@ void L1ScalersClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 
   MonitorElement *algoScalers = dbe_->get(folderName_+std::string("/l1AlgoBits"));
   MonitorElement *ttScalers = dbe_->get(folderName_+std::string("/l1TechAlgoBits"));
+  MonitorElement *l1AlgoCounter = dbe_->get(folderName_+std::string("/l1AlgoCounter"));
+  MonitorElement *l1TtCounter = dbe_->get(folderName_+std::string("/l1TtCounter"));
   
   if ( algoScalers == 0 || ttScalers ==0) {
     LogInfo("Status") << "cannot get l1 scalers histogram, bailing out.";
@@ -255,6 +264,7 @@ void L1ScalersClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
       ++currSlot;
     }
     // selected -------------------- end
+    
 
     float rate = (current_count-l1AlgoScalerCounters_[i-1])/delta_t;
     if ( rate > 1E-3 ) {
@@ -296,6 +306,19 @@ void L1ScalersClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
     l1TechTrigScalerCounters_[i-1] = ulong(current_count);
     l1TechTrigRateHistories_[i-1]->setBinContent(nL, rate);
   }
+  
+  ///  compute total rate
+    float totAlgoCount = l1AlgoCounter->getIntValue();
+    float totTtCount = l1TtCounter->getIntValue();
+    float totAlgRate = (totAlgoCount - totAlgoPrevCount)/delta_t;
+    float totTtRate = (totTtCount - totTtPrevCount)/delta_t;
+    totalAlgoRate_->setBinContent(nL, totAlgRate);
+    totAlgoPrevCount = totAlgoCount;
+    totalTtRate_->setBinContent(nL, totTtRate);
+    totTtPrevCount = totTtCount;
+///
+
+  
   currentLumiBlockNumber_ = nL;
 
 }

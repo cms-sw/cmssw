@@ -1,7 +1,7 @@
 // -*-c++-*-
 #ifndef L1Scalers_H
 #define L1Scalers_H
-// $Id: L1Scalers.h,v 1.7 2008/09/03 02:13:47 wittich Exp $
+// $Id: L1Scalers.h,v 1.8 2008/09/16 17:19:13 wittich Exp $
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -61,13 +61,18 @@ private:
 
   // Int
   MonitorElement *nLumiBlock_;
-
+  MonitorElement *l1AlgoCounter_;  //for total Algo Rate
+  MonitorElement *l1TtCounter_;    //for total TT Rate
   // Hacks for early running
   MonitorElement *pixFedSize_;
   MonitorElement *hfEnergy_;
   // steal from HLTrigger/special
   unsigned int threshold_;
   unsigned int fedStart_, fedStop_ ;
+  //total Rates
+  unsigned int rateAlgoCounter_;  //for total Algo Rate
+  unsigned int rateTtCounter_;     //for total TT Rate
+  
   edm::InputTag fedRawCollection_;
 
   std::vector<int> maskedList_;
