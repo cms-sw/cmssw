@@ -54,5 +54,8 @@ namespace {
     std::vector<L1GtHfBitCountsTemplate> dummy8b ;
     std::vector<L1GtHfRingEtSumsTemplate> dummy8c ;
     std::map< std::string, L1GtAlgorithm > dummy9 ;
+    std::pair<L1GctHfLutSetup::hfLutType,std::vector<uint16_t> > dummy10 ;
+    std::pair<short,L1MuDTEtaPattern> dummy11 ;
+    std::pair<std::pair<short,short>,std::pair<short,std::vector<short> > > dummy12 ;
   }
 }
