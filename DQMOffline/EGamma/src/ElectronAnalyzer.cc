@@ -13,7 +13,7 @@
 //
 // Original Author:  Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronAnalyzer.cc,v 1.4 2008/09/12 11:27:15 uberthon Exp $
+// $Id: ElectronAnalyzer.cc,v 1.5 2008/09/12 11:40:09 uberthon Exp $
 //
 //
 
@@ -203,6 +203,7 @@ void ElectronAnalyzer::beginJob(edm::EventSetup const&iSetup){
 void
 ElectronAnalyzer::endJob(){
 
+  dbe_->setCurrentFolder("Egamma/ElectronAnalyzer");
   int nbins=h_ele_eta->getNbinsX();
   for (int nb=0;nb<nbins;++nb) {
     float content=h_ele_eta->getBinContent(nb);
