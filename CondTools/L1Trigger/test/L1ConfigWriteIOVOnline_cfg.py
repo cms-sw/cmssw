@@ -2,6 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("L1ConfigWriteIOVOnline")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
+process.MessageLogger.cout.placeholder = cms.untracked.bool(False)
+process.MessageLogger.cout.threshold = cms.untracked.string('DEBUG')
+process.MessageLogger.debugModules = cms.untracked.vstring('*')
 
 # Get L1TriggerKeyList from DB
 process.load("CondCore.DBCommon.CondDBCommon_cfi")

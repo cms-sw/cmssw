@@ -2,6 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("L1ConfigWritePayloadOnline")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
+process.MessageLogger.cout.placeholder = cms.untracked.bool(False)
+process.MessageLogger.cout.threshold = cms.untracked.string('DEBUG')
+process.MessageLogger.debugModules = cms.untracked.vstring('*')
 
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
 
