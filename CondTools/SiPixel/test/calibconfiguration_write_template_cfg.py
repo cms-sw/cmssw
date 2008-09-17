@@ -2,12 +2,16 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("PixelCalibTemplate")
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
+process.CondDBCommon.connect = 'oracle://cms_orcoff_prep/CMS_COND_PIXEL_COMM_21X'
+process.CondDBCommon.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb'
+process.CondDBCommon.DBParameters.messageLevel = 0
+
 
 process.source = cms.Source("EmptyIOVSource",
-    firstValue = cms.uint64(PIXELRUNNUMBER),
-    lastValue = cms.uint64(PIXELRUNNUMBER),
+    firstRun = cms.untracked.uint32(PIXELRUNNUMBER),
+    lastRun = cms.untracked.uint32(PIXELRUNNUMBER),
     timetype = cms.string('runnumber'),
-    interval = cms.uint64(1)
+    interval = cms.uint32(1)
 )
 
 process.maxEvents = cms.untracked.PSet(
@@ -26,8 +30,3 @@ process.SiPixelCalibConfigurationObjectMaker = cms.EDFilter("SiPixelCalibConfigu
 )
 
 process.p1 = cms.Path(process.SiPixelCalibConfigurationObjectMaker)
-process.CondDBCommon.connect = 'sqlite_file:siPixelCalibConfiguration.db'
-process.CondDBCommon.DBParameters.authenticationPath = '.'
-process.CondDBCommon.DBParameters.messageLevel = 0
-
-
