@@ -153,16 +153,16 @@ void HLTBJet::analyze(const edm::Event & event, const edm::EventSetup & setup, T
 
   typedef std::pair<const char *, const edm::InputTag *> MissingCollectionInfo;
   std::vector<MissingCollectionInfo> missing;
-  if (not h_jets.isValid())                     missing.push_back(std::make_pair(kJets,                     & m_jets));
-  if (not h_correctedJets.isValid())            missing.push_back(std::make_pair(kCorrectedJets,            & m_correctedJets));
-  if (not h_lifetimeBJetsL25.isValid())         missing.push_back(std::make_pair(kLifetimeBJetsL25,         & m_lifetimeBJetsL25));
-  if (not h_lifetimeBJetsL3.isValid())          missing.push_back(std::make_pair(kLifetimeBJetsL3,          & m_lifetimeBJetsL3));
-  if (not h_lifetimeBJetsL25Relaxed.isValid())  missing.push_back(std::make_pair(kLifetimeBJetsL25Relaxed,  & m_lifetimeBJetsL25Relaxed));
-  if (not h_lifetimeBJetsL3Relaxed.isValid())   missing.push_back(std::make_pair(kLifetimeBJetsL3Relaxed,   & m_lifetimeBJetsL3Relaxed));
-  if (not h_softmuonBJetsL25.isValid())         missing.push_back(std::make_pair(kSoftmuonBJetsL25,         & m_softmuonBJetsL25));
-  if (not h_softmuonBJetsL3.isValid())          missing.push_back(std::make_pair(kSoftmuonBJetsL3,          & m_softmuonBJetsL3));
-  if (not h_performanceBJetsL25.isValid())      missing.push_back(std::make_pair(kPerformanceBJetsL25,      & m_performanceBJetsL25));
-  if (not h_performanceBJetsL3.isValid())       missing.push_back(std::make_pair(kPerformanceBJetsL3,       & m_performanceBJetsL3));
+  if (not h_jets.isValid())                     missing.push_back(std::make_pair(kBTagJets,                     & m_jets));
+  if (not h_correctedJets.isValid())            missing.push_back(std::make_pair(kBTagCorrectedJets,            & m_correctedJets));
+  if (not h_lifetimeBJetsL25.isValid())         missing.push_back(std::make_pair(kBTagLifetimeBJetsL25,         & m_lifetimeBJetsL25));
+  if (not h_lifetimeBJetsL3.isValid())          missing.push_back(std::make_pair(kBTagLifetimeBJetsL3,          & m_lifetimeBJetsL3));
+  if (not h_lifetimeBJetsL25Relaxed.isValid())  missing.push_back(std::make_pair(kBTagLifetimeBJetsL25Relaxed,  & m_lifetimeBJetsL25Relaxed));
+  if (not h_lifetimeBJetsL3Relaxed.isValid())   missing.push_back(std::make_pair(kBTagLifetimeBJetsL3Relaxed,   & m_lifetimeBJetsL3Relaxed));
+  if (not h_softmuonBJetsL25.isValid())         missing.push_back(std::make_pair(kBTagSoftmuonBJetsL25,         & m_softmuonBJetsL25));
+  if (not h_softmuonBJetsL3.isValid())          missing.push_back(std::make_pair(kBTagSoftmuonBJetsL3,          & m_softmuonBJetsL3));
+  if (not h_performanceBJetsL25.isValid())      missing.push_back(std::make_pair(kBTagPerformanceBJetsL25,      & m_performanceBJetsL25));
+  if (not h_performanceBJetsL3.isValid())       missing.push_back(std::make_pair(kBTagPerformanceBJetsL3,       & m_performanceBJetsL3));
   if (not missing.empty()) {
     std::stringstream out;
     out <<  "BJet OpenHLT producer - missing collections:";
@@ -223,11 +223,11 @@ void HLTBJet::analyseLifetime(
     const reco::JetTagCollection & tagsL3)
 {
   if (tagsL25.size() != jets.size()) {
-    edm::LogWarning("OpenHLT") << kLifetimeBJetsL25 << " collection has " << tagsL25.size() << " elements, but " << jets.size() << " where expected from L2" << std::endl;
+    edm::LogWarning("OpenHLT") << kBTagLifetimeBJetsL25 << " collection has " << tagsL25.size() << " elements, but " << jets.size() << " where expected from L2" << std::endl;
     return;
   }
   if (tagsL3.size() != jets.size()) {
-    edm::LogWarning("OpenHLT") << kLifetimeBJetsL3 << " collection has " << tagsL3.size() << " elements, but " << jets.size() << " where expected from L2" << std::endl;
+    edm::LogWarning("OpenHLT") << kBTagLifetimeBJetsL3 << " collection has " << tagsL3.size() << " elements, but " << jets.size() << " where expected from L2" << std::endl;
     return;
   }
   size_t size = std::min(kMaxBJets, jets.size());
@@ -243,11 +243,11 @@ void HLTBJet::analyseLifetimeLoose(
     const reco::JetTagCollection & tagsL3)
 {
   if (tagsL25.size() != jets.size()) {
-    edm::LogWarning("OpenHLT") << kLifetimeBJetsL25Relaxed << " collection has " << tagsL25.size() << " elements, but " << jets.size() << " where expected from L2" << std::endl;
+    edm::LogWarning("OpenHLT") << kBTagLifetimeBJetsL25Relaxed << " collection has " << tagsL25.size() << " elements, but " << jets.size() << " where expected from L2" << std::endl;
     return;
   }
   if (tagsL3.size() != jets.size()) {
-    edm::LogWarning("OpenHLT") << kLifetimeBJetsL3Relaxed << " collection has " << tagsL3.size() << " elements, but " << jets.size() << " where expected from L2" << std::endl;
+    edm::LogWarning("OpenHLT") << kBTagLifetimeBJetsL3Relaxed << " collection has " << tagsL3.size() << " elements, but " << jets.size() << " where expected from L2" << std::endl;
     return;
   }
   size_t size = std::min(kMaxBJets, jets.size());
@@ -263,11 +263,11 @@ void HLTBJet::analyseSoftmuon(
     const reco::JetTagCollection & tagsL3)
 {
   if (tagsL25.size() != jets.size()) {
-    edm::LogWarning("OpenHLT") << kSoftmuonBJetsL25 << " collection has " << tagsL25.size() << " elements, but " << jets.size() << " where expected from L2" << std::endl;
+    edm::LogWarning("OpenHLT") << kBTagSoftmuonBJetsL25 << " collection has " << tagsL25.size() << " elements, but " << jets.size() << " where expected from L2" << std::endl;
     return;
   }
   if (tagsL3.size() != jets.size()) {
-    edm::LogWarning("OpenHLT") << kSoftmuonBJetsL3 << " collection has " << tagsL3.size() << " elements, but " << jets.size() << " where expected from L2" << std::endl;
+    edm::LogWarning("OpenHLT") << kBTagSoftmuonBJetsL3 << " collection has " << tagsL3.size() << " elements, but " << jets.size() << " where expected from L2" << std::endl;
     return;
   }
   size_t size = std::min(kMaxBJets, jets.size());
@@ -283,11 +283,11 @@ void HLTBJet::analysePerformance(
     const reco::JetTagCollection & tagsL3)
 {
   if (tagsL25.size() != jets.size()) {
-    edm::LogWarning("OpenHLT") << kPerformanceBJetsL25 << " collection has " << tagsL25.size() << " elements, but " << jets.size() << " where expected from L2" << std::endl;
+    edm::LogWarning("OpenHLT") << kBTagPerformanceBJetsL25 << " collection has " << tagsL25.size() << " elements, but " << jets.size() << " where expected from L2" << std::endl;
     return;
   }
   if (tagsL3.size() != jets.size()) {
-    edm::LogWarning("OpenHLT") << kPerformanceBJetsL3 << " collection has " << tagsL3.size() << " elements, but " << jets.size() << " where expected from L2" << std::endl;
+    edm::LogWarning("OpenHLT") << kBTagPerformanceBJetsL3 << " collection has " << tagsL3.size() << " elements, but " << jets.size() << " where expected from L2" << std::endl;
     return;
   }
   size_t size = std::min(kMaxBJets, jets.size());
