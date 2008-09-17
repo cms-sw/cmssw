@@ -35,7 +35,8 @@ namespace reco {
     typedef edm::OwnVector< reco::PFBlockElement >::const_iterator IE;
     /*     typedef std::vector< reco::PFBlockLink >::const_iterator IL; */
     
-    typedef std::vector< std::vector<double> > LinkData;
+    // typedef std::vector< std::vector<double> > LinkData;
+    typedef std::vector< std::vector<std::pair<float,float> > > LinkData;
     
     enum LinkTest {
       LINKTEST_CHI2=0,
