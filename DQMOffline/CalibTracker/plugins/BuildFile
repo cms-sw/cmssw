@@ -25,7 +25,7 @@
 <use name=DQMServices/XdaqCollector>
 <use name=DQMServices/WebComponents>
 
-<library file="*.cc" name=pluginsDQMOfflineCalibTracker>
+<library file="*.cc" name=DQMOfflineCalibTracker>
 	<flags EDM_PLUGIN=1>	
 </library>
 
