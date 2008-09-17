@@ -9,10 +9,15 @@ if(-e ../../SiPixelMonitorClient/test/sipixel_monitorelement_skeleton_backup.xml
 
    set all_flag = "false"
     set default_flag = "false"
-    set var_flag = ( 0 0 0 0 0 0 0 0 0 )
+    set physics_flag = "false"
+    set calib_flag = "false"
+    set opt_flag = "true"
+    set var_flag = ( 0 0 0 0 0 0 0 0 0 0 )
 if( !(-d ../../../DQM/SiPixelMonitorClient/test)) then
     echo "Please check out the DQM/SiPixelMonitorClient package"
-else if($#argv > 1) then
+endif
+
+if($#argv > 1) then
     cd ../../../DQM/SiPixelMonitorClient/test
     cp sipixel_monitorelement_config.xml sipixel_monitorelement_backup.xml
     cp sipixel_monitorelement_skeleton.xml sipixel_monitorelement_skeleton_backup.xml
@@ -89,34 +94,33 @@ else if($#argv > 1) then
 		     set var_flag[6] = 1
 		    set var_flag[9] = 1
 		    breaksw
+		case Physics:
+		    set physics_flag = "true"
+		    cp sipixel_monitorelement_config_physicsdata.xml sipixel_monitorelement_config.xml    
+		    breaksw
+		case Calibration:
+		    set calib_flag = "true"
+		    cp sipixel_monitorelement_config_calibrations.xml sipixel_monitorelement_config.xml
+		    breaksw
 		default:
-		    echo "${monlist} is not a valid monitor element choice.  Valid options are: RawData, Digi, Cluster, RecHit, Track, Gain, SCurve, PixelAlive, All.  Choosing All overrides all other options."
+		    echo "${monlist} is not a valid monitor element choice.  Valid options are Physics or Calibration."
 		    breaksw
 		endsw
-	      
-	    sed "/$regspot/ r $reglist" < sipixel_monitorelement_skeleton.xml > temp.xml
+	      if( $physics_flag != "true" && $calib_flag != "true" ) then
+		
+		sed "/$regspot/ r $reglist" < sipixel_monitorelement_skeleton.xml > temp.xml
 		cp temp.xml sipixel_monitorelement_skeleton.xml
 		rm temp.xml
-	    if($grandspot != $regspot) then
-	    sed "/$grandspot/ r $grandlist" < sipixel_monitorelement_skeleton.xml > temp.xml
-		cp temp.xml sipixel_monitorelement_skeleton.xml
-		rm temp.xml
+		if($grandspot != $regspot) then
+		    sed "/$grandspot/ r $grandlist" < sipixel_monitorelement_skeleton.xml > temp.xml
+		    cp temp.xml sipixel_monitorelement_skeleton.xml
+		    rm temp.xml
+		endif
 	    endif
 		@ i = $i + 1
     end
 
-    if( $var_flag[6] == 1 ) then
-	set calib_use = 1
-    else
-	set calib_use = 0
-    endif
-    sed "s/CALIBUSE/$calib_use/" < sipixel_monitorelement_skeleton.xml > temp.xml
-    cp temp.xml sipixel_monitorelement_skeleton.xml
-    rm temp.xml
-
-
-
-    if ($all_flag == "false") then
+    if ($all_flag == "false" && $calib_flag == "false" && $physics_flag == "false" ) then
        cp sipixel_monitorelement_skeleton.xml sipixel_monitorelement_config.xml
        foreach me_name (RAWDATA DIGIS CLUSTERS GRANDTRACKS RECHITS GRANDGAIN GRANDSCURVE GRANDPIXEL REGTRACKS REGGAIN REGSCURVE REGPIXEL)
 	    sed "/$me_name/d" < sipixel_monitorelement_config.xml > temp.xml
@@ -130,12 +134,11 @@ else if($#argv > 1) then
     cd ../../SiPixelCommon/test
 
 else
-
-    echo "No monitor elements specified.  Using default configuration (RawData/Digis/Calibrations)"
-    set default_flag = "true"
+    set opt_flag = "false"
+    echo "No option specified!  Please choose Calibration or Physics"
 endif
 
-
+if ( $opt_flag == "true" ) then
     set xx = 2
     set depth = 0
     while ( $xx < 6 )
@@ -150,22 +153,22 @@ endif
     set file_counter = 1
     foreach filename ( `more $filelist` )
 
-    	if(-e Run_offline_DQM_${file_counter}.cfg) then
-		    rm Run_offline_DQM_${file_counter}.cfg
+    	if(-e Run_offline_DQM_${file_counter}_cfg.py) then
+		    rm Run_offline_DQM_${file_counter}_cfg.py
     	endif
 
 	set rsys = "rfio:"
 	set osys = "file:"
-	set iscastor = `echo $filename | grep -o castor`
-	set calibtype = `echo $filename | grep -o -e "PixelAlive_" -e "SCurve_" -e "GainCalibration_"`
+	set iscastor = `echo $filename | grep -o /castor/cern.ch`
+	set calibtype = `echo $filename | grep -o -e "PixelAlive" -e "SCurve" -e "GainCalibration"`
 	set file_extension = `echo $filename | grep -o -e ".dmp" -e ".root" -e ".dat"`
-	set endrun = `echo $filename | grep -o -e "[0-9]\{2,\}\."`
+	set endrun = `echo $filename | grep -o -e "_[0-9]\{2,\}\."`
 	set runnumber = `echo $endrun | grep -o -e ".*[^\.]"`
-        set rundefault = "default"
-		
+        set rundefault = "_default"
+	
 
 	
-	if($calibtype == "PixelAlive_" || $calibtype == "SCurve_" || $calibtype == "GainCalibration_") then
+	if($calibtype == "PixelAlive" || $calibtype == "SCurve" || $calibtype == "GainCalibration") then
 	    set tagnumber = $calibtype$runnumber	    
 	else
 	    set tagnumber = "PixelAlive_default"
@@ -173,56 +176,56 @@ endif
 	endif
 
 
-	if(  $iscastor == "castor" ) then
+	if(  $iscastor == "/castor/cern.ch" ) then
 	    set filetorun = $rsys$filename
 	else
 	    set filetorun = $osys$filename
 	endif
 
-	if( $default_flag == "false" ) then
-	sed "s#FILENAME#$filetorun#" < client_template.cfg > Run_offline_DQM_${file_counter}.cfg
+	if( $physics_flag == "true" ) then
+	sed "s#FILENAME#$filetorun#" < client_template_physics_cfg.py > Run_offline_DQM_${file_counter}_cfg.py
+	else if ($calib_flag == "true" ) then
+	sed "s#FILENAME#$filetorun#" < client_template_calib_cfg.py > Run_offline_DQM_${file_counter}_cfg.py
 	else
-	sed "s#FILENAME#$filetorun#" < client_template_default.cfg > Run_offline_DQM_${file_counter}.cfg
+	sed "s#FILENAME#$filetorun#" < client_template_cfg.py > Run_offline_DQM_${file_counter}_cfg.py
 	endif
 	
 	if( $all_flag == "true" ) then
-	    rm Run_offline_DQM_${file_counter}.cfg
-	sed "s#FILENAME#$filetorun#" < client_template_all.cfg > Run_offline_DQM_${file_counter}.cfg
-	sed "s#TAG#$tagnumber#" < Run_offline_DQM_${file_counter}.cfg > temp.cfg
-	cp temp.cfg Run_offline_DQM_${file_counter}.cfg
-	rm temp.cfg
+	    rm Run_offline_DQM_${file_counter}_cfg.py
+	sed "s#FILENAME#$filetorun#" < client_template_all_cfg.py > Run_offline_DQM_${file_counter}_cfg.py
+	sed "s#CALIBRATIONTAG#$tagnumber#" < Run_offline_DQM_${file_counter}_cfg.py > temp_cfg.py
+	cp temp_cfg.py Run_offline_DQM_${file_counter}_cfg.py
+	rm temp_cfg.py
 	endif
-
-	
-
        
-        sed "s#TAG#$tagnumber#" < Run_offline_DQM_${file_counter}.cfg > temp.cfg
-	cp temp.cfg Run_offline_DQM_${file_counter}.cfg
-	rm temp.cfg
+        sed "s#CALIBRATIONTAG#$tagnumber#" < Run_offline_DQM_${file_counter}_cfg.py > temp_cfg.py
+	cp temp_cfg.py Run_offline_DQM_${file_counter}_cfg.py
+	rm temp_cfg.py
 
 	if( $file_extension == ".dat" ) then
-	    sed 's/DAT//' < Run_offline_DQM_${file_counter}.cfg > temp.xml
-	    cp temp.xml Run_offline_DQM_${file_counter}.cfg
+	    echo ".dat files are not supported actively by this script, but a config file will be generated anyway"
+	    sed 's/DAT//' < Run_offline_DQM_${file_counter}_cfg.py > temp.xml
+	    cp temp.xml Run_offline_DQM_${file_counter}_cfg.py
 	    rm temp.xml
 	    set source_type = "NewEventStreamFileReader"
-	    set first_param = "int32 max_event_size = 7000000"
-	    set second_param = "int32 max_queue_depth = 5"
+	    set first_param = " max_event_size = cms.int32(7000000),"
+	    set second_param = " max_queue_depth = cms.int32(5),"
 	    set converter = "datconverter,"
-	    sed "/siPixelDigis/ i\ $converter" < Run_offline_DQM_${file_counter}.cfg > temp.xml
-	    cp temp.xml Run_offline_DQM_${file_counter}.cfg 
+	    sed "/siPixelDigis/ i\ $converter" < Run_offline_DQM_${file_counter}_cfg.py > temp.xml
+	    cp temp.xml Run_offline_DQM_${file_counter}_cfg.py 
 	    rm temp.xml
 	    
 	else
-	    sed '/^DAT/d' < Run_offline_DQM_${file_counter}.cfg > temp.xml
-	    cp temp.xml Run_offline_DQM_${file_counter}.cfg 
+	    sed '/^DAT/d' < Run_offline_DQM_${file_counter}_cfg.py > temp.xml
+	    cp temp.xml Run_offline_DQM_${file_counter}_cfg.py 
 	    rm temp.xml
 
 	endif
 
 	if( $file_extension == ".dmp" ) then
 	    set source_type = PixelSLinkDataInputSource
-	    set first_param = "untracked int32 fedid = -1"
-	    set second_param = "untracked int32 runNumber = -1"
+	    set first_param = " fedid = cms.untracked.int32(-1)"
+	    set second_param = "runNumber = cms.untracked.int32(-1)"
 	endif
 	set has_calibdigis = "false"
 	set has_digis = "false"
@@ -268,23 +271,23 @@ endif
 
     if( $all_flag == "true" || $default_flag == "true" ) then
 	if( $has_digis == "true" ) then
-	    sed "/siPixelDigis,/d" < Run_offline_DQM_${file_counter}.cfg > temp.xml
-	    cp temp.xml Run_offline_DQM_${file_counter}.cfg
+	    sed "/siPixelDigis,/d" < Run_offline_DQM_${file_counter}_cfg.py > temp.xml
+	    cp temp.xml Run_offline_DQM_${file_counter}_cfg.py
 	    rm temp.xml
 	endif
 	if( $has_clusters == "true" ) then
-	    sed "/siPixelClusters,/d" < Run_offline_DQM_${file_counter}.cfg > temp.xml
-	    cp temp.xml Run_offline_DQM_${file_counter}.cfg
+	    sed "/siPixelClusters,/d" < Run_offline_DQM_${file_counter}_cfg.py > temp.xml
+	    cp temp.xml Run_offline_DQM_${file_counter}_cfg.py
 	    rm temp.xml
 	endif
 	if( $has_rechits == "true" ) then
-	    sed "/siPixelRecHits,/d" < Run_offline_DQM_${file_counter}.cfg > temp.xml
-	    cp temp.xml Run_offline_DQM_${file_counter}.cfg
+	    sed "/siPixelRecHits,/d" < Run_offline_DQM_${file_counter}_cfg.py > temp.xml
+	    cp temp.xml Run_offline_DQM_${file_counter}_cfg.py
 	    rm temp.xml
 	endif
 	if( $has_calibdigis == "true" ) then
-	    sed "/siPixelCalibDigis,/d" < Run_offline_DQM_${file_counter}.cfg > temp.xml
-	    cp temp.xml Run_offline_DQM_${file_counter}.cfg
+	    sed "/siPixelCalibDigis,/d" < Run_offline_DQM_${file_counter}_cfg.py > temp.xml
+	    cp temp.xml Run_offline_DQM_${file_counter}_cfg.py
 	    rm temp.xml
 	endif
     endif	
@@ -292,72 +295,93 @@ endif
 	    if( $depth > 2 ) then
 		if( $depth > 3) then
 		    if( $has_rechits != "true" ) then
-			sed "s/RECSPOT,/siPixelRecHits,/" < Run_offline_DQM_${file_counter}.cfg > temp.xml
-			cp temp.xml Run_offline_DQM_${file_counter}.cfg 
+			sed "s/RECSPOT/process.siPixelRecHits*/" < Run_offline_DQM_${file_counter}_cfg.py > temp.xml
+			cp temp.xml Run_offline_DQM_${file_counter}_cfg.py 
 			rm temp.xml
 		    endif
 		endif
 		if( $has_clusters != "true" ) then
-			sed "s/CLUSPOT,/siPixelClusters,/" < Run_offline_DQM_${file_counter}.cfg > temp.xml
-			cp temp.xml Run_offline_DQM_${file_counter}.cfg 
+			sed "s/CLUSPOT/process.siPixelClusters*/" < Run_offline_DQM_${file_counter}_cfg.py > temp.xml
+			cp temp.xml Run_offline_DQM_${file_counter}_cfg.py 
 			rm temp.xml
 		endif
 	    endif
 	    if( $has_digis != "true" ) then
-			sed "s/DIGISPOT,/siPixelDigis,/" < Run_offline_DQM_${file_counter}.cfg > temp.xml
-			cp temp.xml Run_offline_DQM_${file_counter}.cfg 
+			sed "s/DIGISPOT/process.siPixelDigis*/" < Run_offline_DQM_${file_counter}_cfg.py > temp.xml
+			cp temp.xml Run_offline_DQM_${file_counter}_cfg.py 
 			rm temp.xml
 	    endif
 	endif
 
 
-	if( $var_flag[6] == 1) then
+	if( $calib_flag == "true") then
 		if( $has_calibdigis != "true" ) then
-	    		sed "s/CDSPOT,/siPixelCalibDigis,/" < Run_offline_DQM_${file_counter}.cfg > temp.xml
-	    		cp temp.xml Run_offline_DQM_${file_counter}.cfg 
+	    		sed "s/CDSPOT/process.siPixelCalibDigis*/" < Run_offline_DQM_${file_counter}_cfg.py > temp.xml
+	    		cp temp.xml Run_offline_DQM_${file_counter}_cfg.py 
 	    		rm temp.xml
+			
 		endif
+		set calibration_tag = "CRZT210_V1P::All"
+			sed "s/GLOBALCALIB/$calibtype/" < Run_offline_DQM_${file_counter}_cfg.py > temp.xml
+		cp temp.xml Run_offline_DQM_${file_counter}_cfg.py
+		rm temp.xml
+		
+	else if( $var_flag[6] != 1 ) then
+	  set calibration_tag = "CRUZET4_V5P::All"
+	   set connect_string = "frontier://FrontierProd/CMS_COND_21X_GLOBALTAG"
+	   sed '/^CALIB/d' < Run_offline_DQM_${file_counter}_cfg.py > temp.xml
+		cp temp.xml Run_offline_DQM_${file_counter}_cfg.py
+		rm temp.xml
+	    sed 's/PHYS//' < Run_offline_DQM_${file_counter}_cfg.py > temp.xml
+	     cp temp.xml Run_offline_DQM_${file_counter}_cfg.py
+	     rm temp.xml
+
 	endif
+	 
+	sed "s/GTAG/$calibration_tag/" < Run_offline_DQM_${file_counter}_cfg.py > temp.xml
+	cp temp.xml Run_offline_DQM_${file_counter}_cfg.py
+	rm temp.xml
+
 
 	if( $var_flag[1] == 1 ) then
-	    sed "s/RAWMONSPOT,/RAWmonitor,/" < Run_offline_DQM_${file_counter}.cfg > temp.xml
-	    cp temp.xml Run_offline_DQM_${file_counter}.cfg 
+	    sed "s/RAWMONSPOT/process.RAWmonitor*/" < Run_offline_DQM_${file_counter}_cfg.py > temp.xml
+	    cp temp.xml Run_offline_DQM_${file_counter}_cfg.py 
 	    rm temp.xml
 	endif
 	if( $var_flag[2] == 1 ) then
-	    sed "s/DIGMONSPOT,/DIGImonitor,/" < Run_offline_DQM_${file_counter}.cfg > temp.xml
-	    cp temp.xml Run_offline_DQM_${file_counter}.cfg 
+	    sed "s/DIGMONSPOT/process.DIGImonitor*/" < Run_offline_DQM_${file_counter}_cfg.py > temp.xml
+	    cp temp.xml Run_offline_DQM_${file_counter}_cfg.py 
 	    rm temp.xml
 	endif
 	if( $var_flag[3] == 1 ) then
-	    sed "s/CLUMONSPOT,/CLUmonitor,/" < Run_offline_DQM_${file_counter}.cfg > temp.xml
-	    cp temp.xml Run_offline_DQM_${file_counter}.cfg 
+	    sed "s/CLUMONSPOT/process.CLUmonitor*/" < Run_offline_DQM_${file_counter}_cfg.py > temp.xml
+	    cp temp.xml Run_offline_DQM_${file_counter}_cfg.py 
 	    rm temp.xml
 	endif
 	if( $var_flag[4] == 1 ) then
-	    sed "s/RECMONSPOT,/RECmonitor,/" < Run_offline_DQM_${file_counter}.cfg > temp.xml
-	    cp temp.xml Run_offline_DQM_${file_counter}.cfg 
+	    sed "s/RECMONSPOT/process.RECmonitor*/" < Run_offline_DQM_${file_counter}_cfg.py > temp.xml
+	    cp temp.xml Run_offline_DQM_${file_counter}_cfg.py 
 	    rm temp.xml
 	endif
 	if( $var_flag[7] == 1 ) then
-	    sed "s/GAINSPOT,/siPixelGainCalibrationAnalysis,/" < Run_offline_DQM_${file_counter}.cfg > temp.xml
-	    cp temp.xml Run_offline_DQM_${file_counter}.cfg 
+	    sed "s/GAINSPOT/process.siPixelGainCalibrationAnalysis*/" < Run_offline_DQM_${file_counter}_cfg.py > temp.xml
+	    cp temp.xml Run_offline_DQM_${file_counter}_cfg.py 
 	    rm temp.xml
 	endif
 	if( $var_flag[8] == 1 ) then
-	    sed "s/SCURVESPOT,/siPixelSCurveAnalysis,/" < Run_offline_DQM_${file_counter}.cfg > temp.xml
-	    cp temp.xml Run_offline_DQM_${file_counter}.cfg 
+	    sed "s/SCURVESPOT/process.siPixelSCurveAnalysis*/" < Run_offline_DQM_${file_counter}_cfg.py > temp.xml
+	    cp temp.xml Run_offline_DQM_${file_counter}_cfg.py 
 	    rm temp.xml
 	endif
 	if( $var_flag[9] == 1 ) then
-	    sed "s/PIXELSPOT,/siPixelIsAliveCalibration,/" < Run_offline_DQM_${file_counter}.cfg > temp.xml
-	    cp temp.xml Run_offline_DQM_${file_counter}.cfg 
+	    sed "s/PIXELSPOT/process.siPixelIsAliveCalibration*/" < Run_offline_DQM_${file_counter}_cfg.py > temp.xml
+	    cp temp.xml Run_offline_DQM_${file_counter}_cfg.py 
 	    rm temp.xml
 	endif
 
 	foreach mon_name (DIGISPOT CLUSPOT RECSPOT CDSPOT SCURVESPOT GAINSPOT PIXELSPOT RAWMONSPOT DIGMONSPOT CLUMONSPOT RECMONSPOT)
-	    sed "/$mon_name/d" < Run_offline_DQM_${file_counter}.cfg > temp.xml
-	    cp temp.xml Run_offline_DQM_${file_counter}.cfg
+	    sed "s/$mon_name//" < Run_offline_DQM_${file_counter}_cfg.py > temp.xml
+	    cp temp.xml Run_offline_DQM_${file_counter}_cfg.py
 	    rm temp.xml
 
        end
@@ -366,53 +390,23 @@ endif
 
 	
 
-	sed "s/SOURCETYPE/$source_type/" < Run_offline_DQM_${file_counter}.cfg > temp.xml
-	cp temp.xml Run_offline_DQM_${file_counter}.cfg 
+	sed "s/SOURCETYPE/$source_type/" < Run_offline_DQM_${file_counter}_cfg.py > temp.xml
+	cp temp.xml Run_offline_DQM_${file_counter}_cfg.py 
 	rm temp.xml
-	sed "s/ONEPARAM/$first_param/" < Run_offline_DQM_${file_counter}.cfg > temp.xml
-	cp temp.xml Run_offline_DQM_${file_counter}.cfg 
+	sed "s/ONEPARAM/$first_param/" < Run_offline_DQM_${file_counter}_cfg.py > temp.xml
+	cp temp.xml Run_offline_DQM_${file_counter}_cfg.py 
 	rm temp.xml
-	sed "s/TWOPARAM/$second_param/" < Run_offline_DQM_${file_counter}.cfg > temp.xml
-	cp temp.xml Run_offline_DQM_${file_counter}.cfg 
+	sed "s/TWOPARAM/$second_param/" < Run_offline_DQM_${file_counter}_cfg.py > temp.xml
+	cp temp.xml Run_offline_DQM_${file_counter}_cfg.py 
 	rm temp.xml
 	set logname = "DQM_text_output_"
 	set logfile = $logname$file_counter
-	sed "s/TEXTFILE/$logfile/" < Run_offline_DQM_${file_counter}.cfg > temp.xml
-	cp temp.xml Run_offline_DQM_${file_counter}.cfg
+	sed "s/TEXTFILE/$logfile/" < Run_offline_DQM_${file_counter}_cfg.py > temp.xml
+	cp temp.xml Run_offline_DQM_${file_counter}_cfg.py
 	rm temp.xml       
-
-	if( $runnumber > 50000 ) then
-	sed 's/NEW//' < Run_offline_DQM_${file_counter}.cfg > temp.xml
-	    cp temp.xml Run_offline_DQM_${file_counter}.cfg
-	    rm temp.xml
-	sed '/^OLD/d' < Run_offline_DQM_${file_counter}.cfg > temp.xml
-	    cp temp.xml Run_offline_DQM_${file_counter}.cfg 
-	    rm temp.xml
-
-	else
-	sed 's/OLD//' < Run_offline_DQM_${file_counter}.cfg > temp.xml
-	    cp temp.xml Run_offline_DQM_${file_counter}.cfg
-	    rm temp.xml
-	sed '/^NEW/d' < Run_offline_DQM_${file_counter}.cfg > temp.xml
-	    cp temp.xml Run_offline_DQM_${file_counter}.cfg 
-	    rm temp.xml
-	endif
-
-	if( $calibtype == "PixelAlive_" ) then
-	    set globalcalibtag = "PixelAlive"
-	else if ( $calibtype == "SCurve_" ) then
-	    set globalcalibtag = "Scurve"
-	else if ( $calibtype == "GainCalibration_" ) then
-	    set globalcalibtag = "Gain"
-	endif
-
-	
-	sed "s/GLOBALCALIB/$globalcalibtag/" < Run_offline_DQM_${file_counter}.cfg > temp.xml
-	    cp temp.xml Run_offline_DQM_${file_counter}.cfg
-	    rm temp.xml
-	echo "created file Run_offline_DQM_${file_counter}.cfg to run on file ${filename}"
+	echo "created file Run_offline_DQM_${file_counter}_cfg.py to run on file ${filename}"
 	@ file_counter = $file_counter + 1
 	
     end
 
-
+endif
