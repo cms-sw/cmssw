@@ -2,7 +2,10 @@
 // Description:  Example of Analysis driver originally from Jeremy Mans, 
 // Date:  13-October-2006
 
+#include <boost/foreach.hpp>
+
 #include "HLTrigger/HLTanalyzers/interface/HLTAnalyzer.h"
+#include "HLTMessages.h"
 
 // Boiler-plate constructor definition of an analyzer module:
 HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
@@ -149,50 +152,53 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   iEvent.getByLabel(MuIsolTag3_, isoMap3);
   iEvent.getByLabel(MuLinkTag_,  mulinks);
   iEvent.getByLabel(HLTTau_, taus);
- 
-  // check the objects...
-  string errMsg("");
-  if (! recjets.isValid()    ) { errMsg += "  -- No RecJets";                recjets.clear(); }
-  if (! genjets.isValid()    ) { errMsg += "  -- No GenJets";                genjets.clear(); }
-  if (! recmet.isValid()     ) { errMsg += "  -- No RecMET";                 recmet.clear(); }
-  if (! genmet.isValid()     ) { errMsg += "  -- No GenMet";                 genmet.clear(); }
-  if (! caloTowers.isValid() ) { errMsg += "  -- No CaloTowers";             caloTowers.clear(); }
-  if (! ht.isValid()         ) { errMsg += "  -- No HT";                     ht.clear(); }
-  if (! electrons.isValid()  ) { errMsg += "  -- No Candidate Electrons";    electrons.clear(); }
-  if (! photons.isValid()    ) { errMsg += "  -- No Candidate Photons";      photons.clear(); }
-  if (! muon.isValid()       ) { errMsg += "  -- No Candidate Muons";        muon.clear(); }
 
-  if (! hltresults.isValid() ) { errMsg += "  -- No HLTRESULTS";             hltresults.clear(); }
-  if (! l1extemi.isValid()   ) { errMsg += "  -- No Isol. L1Em objects";     l1extemi.clear(); }
-  if (! l1extemn.isValid()   ) { errMsg += "  -- No Non-isol. L1Em objects"; l1extemn.clear(); }
-  if (! l1extmu.isValid()    ) { errMsg += "  -- No L1Mu objects";           l1extmu.clear(); }
-  if (! l1extjetc.isValid()  ) { errMsg += "  -- No central L1Jet objects";  l1extjetc.clear(); }
-  if (! l1extjetf.isValid()  ) { errMsg += "  -- No forward L1Jet objects";  l1extjetf.clear(); }
-  if (! l1exttaujet.isValid()) { errMsg += "  -- No L1Jet-Tau objects";      l1exttaujet.clear(); }
-  if (! l1extmet.isValid()   ) { errMsg += "  -- No L1EtMiss object";        l1extmet.clear(); }
-  if (! l1GtRR.isValid()     ) { errMsg += "  -- No L1 GT ReadouRecord";     l1GtRR.clear(); }
-  if (! l1GtOMRec.isValid()  ) { errMsg += "  -- No L1 GT ObjectMap";        l1GtOMRec.clear(); }
-  if (! l1GctCounts.isValid()) { errMsg += "  -- No L1 GCT JetCount Digis";  l1GctCounts.clear(); }
   
-  if (! mctruth.isValid()    ) { errMsg += "  -- No Gen Particles";          mctruth.clear(); }
-  if (! genEventScale.isValid()) { errMsg += "  -- No Event Scale";          genEventScale.clear(); }
+  // check the objects...
+  typedef const char * MissingCollectionInfo;
+  std::vector<MissingCollectionInfo> missing;
 
-  if (! mucands2.isValid()   ) { errMsg += "  -- No L2 muon candidates";     mucands2.clear(); }
-  if (! mucands3.isValid()   ) { errMsg += "  -- No L3 muon candidates";     mucands3.clear(); }
-  if (! isoMap2.isValid()    ) { errMsg += "  -- No L2 muon isolation map";  isoMap2.clear(); }
-  if (! isoMap3.isValid()    ) { errMsg += "  -- No L3 muon isolation map";  isoMap3.clear(); }
-  if (! mulinks.isValid()    ) { errMsg += "  -- No L3 muon link";           mulinks.clear(); }
+  if (not recjets.isValid()      ) { missing.push_back( kRecjets );       recjets.clear(); }
+  if (not genjets.isValid()      ) { missing.push_back( kGenjets );       genjets.clear(); }
+  if (not recmet.isValid()       ) { missing.push_back( kRecmet );        recmet.clear(); }
+  if (not genmet.isValid()       ) { missing.push_back( kGenmet );        genmet.clear(); }
+  if (not caloTowers.isValid()   ) { missing.push_back( kCaloTowers );    caloTowers.clear(); }
+  if (not ht.isValid()           ) { missing.push_back( kHt );            ht.clear(); }
+  if (not electrons.isValid()    ) { missing.push_back( kElectrons );     electrons.clear(); }
+  if (not photons.isValid()      ) { missing.push_back( kPhotons );       photons.clear(); }
+  if (not muon.isValid()         ) { missing.push_back( kMuon );          muon.clear(); }
+  if (not taus.isValid()         ) { missing.push_back( kTaus );          taus.clear(); }
 
-  if (! taus.isValid()       ) { errMsg += "  -- No Tau candidates";         taus.clear(); }
+  if (not hltresults.isValid()   ) { missing.push_back( kHltresults );    hltresults.clear(); }
+  if (not l1extemi.isValid()     ) { missing.push_back( kL1extemi );      l1extemi.clear(); }
+  if (not l1extemn.isValid()     ) { missing.push_back( kL1extemn );      l1extemn.clear(); }
+  if (not l1extmu.isValid()      ) { missing.push_back( kL1extmu );       l1extmu.clear(); }
+  if (not l1extjetc.isValid()    ) { missing.push_back( kL1extjetc );     l1extjetc.clear(); }
+  if (not l1extjetf.isValid()    ) { missing.push_back( kL1extjetf );     l1extjetf.clear(); }
+  if (not l1exttaujet.isValid()  ) { missing.push_back( kL1exttaujet );   l1exttaujet.clear(); }
+  if (not l1extmet.isValid()     ) { missing.push_back( kL1extmet );      l1extmet.clear(); }
+  if (not l1GtRR.isValid()       ) { missing.push_back( kL1GtRR );        l1GtRR.clear(); }
+  if (not l1GtOMRec.isValid()    ) { missing.push_back( kL1GtOMRec );     l1GtOMRec.clear(); }
+  if (not l1GctCounts.isValid()  ) { missing.push_back( kL1GctCounts );   l1GctCounts.clear(); }
+  
+  if (not mctruth.isValid()      ) { missing.push_back( kMctruth );       mctruth.clear(); }
+  if (not genEventScale.isValid()) { missing.push_back( kGenEventScale ); genEventScale.clear(); }
 
-  if ((errMsg != "") && (errCnt < errMax())){
-    errCnt=errCnt+1;
-    errMsg=errMsg + ".";
-    std::cout << "%HLTAnalyzer-Warning" << errMsg << std::endl;
-    if (errCnt == errMax()){
-      errMsg="%HLTAnalyzer-Warning -- Maximum error count reached -- No more messages will be printed.";
-      std::cout << errMsg << std::endl;    
-    }
+  if (not mucands2.isValid()     ) { missing.push_back( kMucands2 );      mucands2.clear(); }
+  if (not mucands3.isValid()     ) { missing.push_back( kMucands3 );      mucands3.clear(); }
+  if (not isoMap2.isValid()      ) { missing.push_back( kIsoMap2 );       isoMap2.clear(); }
+  if (not isoMap3.isValid()      ) { missing.push_back( kIsoMap3 );       isoMap3.clear(); }
+  if (not mulinks.isValid()      ) { missing.push_back( kMulinks );       mulinks.clear(); }
+
+  if (not missing.empty() && (errCnt < errMax())) {
+    errCnt++;
+    std::stringstream out;       
+    out <<  "OpenHLT analyer - missing collections:";
+    BOOST_FOREACH(const MissingCollectionInfo entry, missing)
+      out << "\n\t" << entry;
+    edm::LogPrint("OpenHLT") << out.str() << std::endl; 
+    if (errCnt == errMax())
+      edm::LogWarning("OpenHLT") << "Maximum error count reached -- No more messages will be printed.";
   }
 
   // run the analysis, passing required event fragments
