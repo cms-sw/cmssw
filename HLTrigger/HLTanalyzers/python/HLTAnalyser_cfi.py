@@ -7,13 +7,12 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     
     ### Trigger objects
    #l1GctCounts                     = cms.InputTag("l1GctEmulDigis"),
-    l1GctCounts                     = cms.InputTag("hltGctDigis"),
    #l1GtObjectMapRecord             = cms.InputTag("l1GtEmulDigis"),
-    l1GtObjectMapRecord             = cms.InputTag("hltL1GtObjectMap"),
    #l1GtReadoutRecord               = cms.InputTag("l1GmtEmulDigis"),
+    l1GctCounts                     = cms.InputTag("hltGctDigis"),
+    l1GtObjectMapRecord             = cms.InputTag("hltL1GtObjectMap"),
     l1GtReadoutRecord               = cms.InputTag("hltGtDigis"),
     l1extramc                       = cms.string('hltL1extraParticles'),
-    l1extramu                       = cms.string('hltL1extraParticles'),
     hltresults                      = cms.InputTag("TriggerResults::HLT"),
     
     ### reconstructed objects
