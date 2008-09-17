@@ -85,15 +85,16 @@ void HcalRecHitClient::cleanup(void) {
     
     if(tot_energy_) delete tot_energy_;
 
-    // ZDC plots
-    if (ZDCtanAlpha) delete ZDCtanAlpha;
-    if (ZDCaverageX) delete ZDCaverageX;
-    if (ZDCxplusVSxminus) delete ZDCxplusVSxminus;
-    if (ZDChadVSem_plus) delete ZDChadVSem_plus;
-    if (ZDChadVSem_minus) delete ZDChadVSem_minus;
-    if (ZDCenergy_plusVSminus) delete ZDCenergy_plusVSminus;
-    if (ZDCenergyVSlayer_plus) delete ZDCenergyVSlayer_plus;
-    if (ZDCenergyVSlayer_minus) delete ZDCenergyVSlayer_minus;
+    // ZDC plots // Giving segfault.  Is this taken care of elsewhere,
+                 // yet passing these if() statements?
+    //if (ZDCtanAlpha) delete ZDCtanAlpha;
+    //if (ZDCaverageX) delete ZDCaverageX;
+    //if (ZDCxplusVSxminus) delete ZDCxplusVSxminus;
+    //if (ZDChadVSem_plus) delete ZDChadVSem_plus;
+    //if (ZDChadVSem_minus) delete ZDChadVSem_minus;
+    //if (ZDCenergy_plusVSminus) delete ZDCenergy_plusVSminus;
+    //if (ZDCenergyVSlayer_plus) delete ZDCenergyVSlayer_plus;
+    //if (ZDCenergyVSlayer_minus) delete ZDCenergyVSlayer_minus;
   } // if cloneME_
   
   for(int i=0; i<4; ++i){
