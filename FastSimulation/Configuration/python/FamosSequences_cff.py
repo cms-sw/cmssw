@@ -380,6 +380,7 @@ famosWithTracksAndEcalClusters = cms.Sequence(
 
 famosWithParticleFlow = cms.Sequence(
     famosWithTracksAndCaloHits+
+    vertexreco+
     famosParticleFlowSequence+
     PFJetMet
 )
@@ -468,7 +469,6 @@ famosWithTauTagging = cms.Sequence(
 
 famosWithPFTauTagging = cms.Sequence(
     famosWithCaloTowersAndParticleFlow+
-    vertexreco+
     famosPFTauTaggingSequence
 )
 
