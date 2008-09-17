@@ -15,7 +15,7 @@
 //
 // Original Author:  Gregory Heath
 //         Created:  Thu Mar  1 15:10:47 CET 2007
-// $Id: L1GctConfigProducers.h,v 1.5 2007/09/18 09:51:35 heath Exp $
+// $Id: L1GctConfigProducers.h,v 1.6 2008/05/30 12:42:06 jbrooke Exp $
 //
 //
 
@@ -38,17 +38,20 @@
 class L1GctCalibFunConfigurer;
 class L1GctJctSetupConfigurer;
 class L1GctJfParamsConfigurer;
+class L1GctHfLutSetupConfigurer;
 
 class L1GctJetEtCalibrationFunction;
 class L1GctJetCounterSetup;
 class L1GctJetFinderParams;
 class L1GctChannelMask;
+class L1GctHfLutSetup;
 
 class L1GctJetCalibFunRcd;
 class L1GctJetCounterNegativeEtaRcd;
 class L1GctJetCounterPositiveEtaRcd;
 class L1GctJetFinderParamsRcd;
 class L1GctChannelMaskRcd;
+class L1GctHfLutSetupRcd;
 
 
 //
@@ -63,12 +66,14 @@ class L1GctConfigProducers : public edm::ESProducer {
       typedef boost::shared_ptr<L1GctJetEtCalibrationFunction> CalibFunReturnType;
       typedef boost::shared_ptr<L1GctJetCounterSetup>          JCtSetupReturnType;
       typedef boost::shared_ptr<L1GctJetFinderParams>          JfParamsReturnType;
+      typedef boost::shared_ptr<L1GctHfLutSetup>               HfLSetupReturnType;
       typedef boost::shared_ptr<L1GctChannelMask>          ChanMaskReturnType;
 
       CalibFunReturnType produceCalibFun(const L1GctJetCalibFunRcd&);
       JCtSetupReturnType produceJCNegEta(const L1GctJetCounterNegativeEtaRcd&);
       JCtSetupReturnType produceJCPosEta(const L1GctJetCounterPositiveEtaRcd&);
       JfParamsReturnType produceJfParams(const L1GctJetFinderParamsRcd&);
+      HfLSetupReturnType produceHfLSetup(const L1GctHfLutSetupRcd&);
       ChanMaskReturnType produceChanMask(const L1GctChannelMaskRcd&);
 
 
@@ -80,6 +85,7 @@ class L1GctConfigProducers : public edm::ESProducer {
      L1GctJctSetupConfigurer* m_JctSetupConfNegativeEta;
      L1GctJctSetupConfigurer* m_JctSetupConfPositiveEta;
      L1GctJfParamsConfigurer* m_JfParamsConf;
+     L1GctHfLutSetupConfigurer* m_HfLSetupConf;
 };
 
 #endif

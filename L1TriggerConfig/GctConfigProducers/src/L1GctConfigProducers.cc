@@ -6,11 +6,13 @@
 #include "L1TriggerConfig/GctConfigProducers/interface/L1GctCalibFunConfigurer.h"
 #include "L1TriggerConfig/GctConfigProducers/interface/L1GctJctSetupConfigurer.h"
 #include "L1TriggerConfig/GctConfigProducers/interface/L1GctJfParamsConfigurer.h"
+#include "L1TriggerConfig/GctConfigProducers/interface/L1GctHfLutSetupConfigurer.h"
 
 #include "CondFormats/DataRecord/interface/L1GctJetFinderParamsRcd.h"
 #include "CondFormats/DataRecord/interface/L1GctJetCounterNegativeEtaRcd.h"
 #include "CondFormats/DataRecord/interface/L1GctJetCounterPositiveEtaRcd.h"
 #include "CondFormats/DataRecord/interface/L1GctJetCalibFunRcd.h"
+#include "CondFormats/DataRecord/interface/L1GctHfLutSetupRcd.h"
 #include "CondFormats/DataRecord/interface/L1JetEtScaleRcd.h"
 #include "CondFormats/DataRecord/interface/L1GctChannelMaskRcd.h"
 
@@ -31,7 +33,8 @@ L1GctConfigProducers::L1GctConfigProducers(const edm::ParameterSet& iConfig) :
   m_CalibFunConf(new L1GctCalibFunConfigurer(iConfig)),
   m_JctSetupConfNegativeEta(new L1GctJctSetupConfigurer(iConfig.getParameter<edm::ParameterSet>("jetCounterSetup").getParameter< std::vector<edm::ParameterSet> >("jetCountersNegativeWheel"))),
   m_JctSetupConfPositiveEta(new L1GctJctSetupConfigurer(iConfig.getParameter<edm::ParameterSet>("jetCounterSetup").getParameter< std::vector<edm::ParameterSet> >("jetCountersPositiveWheel"))),
-  m_JfParamsConf(new L1GctJfParamsConfigurer(iConfig))
+  m_JfParamsConf(new L1GctJfParamsConfigurer(iConfig)),
+  m_HfLSetupConf(new L1GctHfLutSetupConfigurer(iConfig))
 {
    //the following lines are needed to tell the framework what
    // data is being produced
@@ -39,6 +42,7 @@ L1GctConfigProducers::L1GctConfigProducers(const edm::ParameterSet& iConfig) :
    setWhatProduced(this,&L1GctConfigProducers::produceJfParams);
    setWhatProduced(this,&L1GctConfigProducers::produceJCNegEta);
    setWhatProduced(this,&L1GctConfigProducers::produceJCPosEta);
+   setWhatProduced(this,&L1GctConfigProducers::produceHfLSetup);
    setWhatProduced(this,&L1GctConfigProducers::produceChanMask);
 
    //now do what ever other initialization is needed
@@ -56,6 +60,7 @@ L1GctConfigProducers::~L1GctConfigProducers()
   if (m_JctSetupConfNegativeEta != 0) { delete m_JctSetupConfNegativeEta; }
   if (m_JctSetupConfPositiveEta != 0) { delete m_JctSetupConfPositiveEta; }
   if (m_JfParamsConf != 0) { delete m_JfParamsConf; }
+  if (m_HfLSetupConf != 0) { delete m_HfLSetupConf; }
 
 }
 
@@ -81,6 +86,10 @@ JCtSetupReturnType L1GctConfigProducers::produceJCPosEta(const L1GctJetCounterPo
 L1GctConfigProducers::
 JfParamsReturnType L1GctConfigProducers::produceJfParams(const L1GctJetFinderParamsRcd&)
         { return m_JfParamsConf->produceJfParams(); }
+
+L1GctConfigProducers::
+HfLSetupReturnType L1GctConfigProducers::produceHfLSetup(const L1GctHfLutSetupRcd&)
+        { return m_HfLSetupConf->produceHfLutSetup(); }
 
 L1GctConfigProducers::
 ChanMaskReturnType L1GctConfigProducers::produceChanMask(const L1GctChannelMaskRcd&) {

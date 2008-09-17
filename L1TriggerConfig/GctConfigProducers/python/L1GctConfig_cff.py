@@ -25,6 +25,12 @@ l1GctJcNegParsRecords = cms.ESSource("EmptyESSource",
     firstValid = cms.vuint32(1)
 )
 
+l1GctConfigRecords = cms.ESSource("EmptyESSource",
+    recordName = cms.string('L1GctHfLutSetupRcd'),
+    iovIsRunNotTime = cms.bool(True),
+    firstValid = cms.vuint32(1)
+)
+
 l1GctChanMaskRecords = cms.ESSource("EmptyESSource",
     recordName = cms.string('L1GctChannelMaskRcd'),
     iovIsRunNotTime = cms.bool(True),

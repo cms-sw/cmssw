@@ -3,6 +3,8 @@ import FWCore.ParameterSet.Config as cms
 from L1TriggerConfig.GctConfigProducers.l1GctJetCounterConfig_cfi import *
 L1GctConfigProducers = cms.ESProducer("L1GctConfigProducers",
     JetFinderCentralJetSeed = cms.uint32(1),
+    L1CaloJetZeroSuppressionThresholdInGeV = cms.double(5.0),
+    HfLutThresholds = cms.vuint32(2,4,6,8,10,12,14),
     # The CalibrationStyle should be either "PowerSeries", "ORCAStyle" or "PiecewiseCubic"
     CalibrationStyle = cms.string('PowerSeries'),
     L1CaloHtScaleLsbInGeV = cms.double(1.0),
@@ -12,7 +14,7 @@ L1GctConfigProducers = cms.ESProducer("L1GctConfigProducers",
         nonTauJetCalib2 = cms.vdouble( 1.0 ),
         nonTauJetCalib3 = cms.vdouble( 1.0 ),
         nonTauJetCalib4 = cms.vdouble( 1.0 ),
-        nonTauJetCalib5 = cms.vdouble( 1.0 )
+        nonTauJetCalib5 = cms.vdouble( 1.0 ),
         nonTauJetCalib6 = cms.vdouble( 1.0 ),
         nonTauJetCalib7 = cms.vdouble( 1.0 ),
         nonTauJetCalib8 = cms.vdouble( 1.0 ),
@@ -107,8 +109,7 @@ L1GctConfigProducers = cms.ESProducer("L1GctConfigProducers",
     jetCounterSetup = cms.PSet(
         jcSetup1
     ),
-    ConvertEtValuesToEnergy = cms.bool(False),
-    L1CaloJetZeroSuppressionThresholdInGeV = cms.double(5.0)
+    ConvertEtValuesToEnergy = cms.bool(False)
 )
 
 
