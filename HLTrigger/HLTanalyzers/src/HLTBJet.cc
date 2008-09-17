@@ -18,16 +18,7 @@
 
 static const size_t kMaxBJets = 10;
 
-static const char * kJets                    = "L2 b-jet collection";
-static const char * kCorrectedJets           = "L2 calibrated b-jet collection";
-static const char * kLifetimeBJetsL25        = "L2.5 b-jet lifetime tagsL";
-static const char * kLifetimeBJetsL3         = "L3 b-jet lifetime tagsL";
-static const char * kLifetimeBJetsL25Relaxed = "L2.5 b-jet lifetime tagsL (relaxed)";
-static const char * kLifetimeBJetsL3Relaxed  = "L3 b-jet lifetime tagsL (relaxed)";
-static const char * kSoftmuonBJetsL25        = "L2.5 b-jet soft muon tagsL";
-static const char * kSoftmuonBJetsL3         = "L3 b-jet soft muon tagsL";
-static const char * kPerformanceBJetsL25     = "L2.5 b-jet perf. meas. tag";
-static const char * kPerformanceBJetsL3      = "L3 b-jet perf. meas. tag";
+#include "HLTMessages.h"
 
 HLTBJet::HLTBJet() 
 {
