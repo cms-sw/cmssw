@@ -35,6 +35,17 @@
 #include "TProfile.h"
 // 
 
+/** \class PhotonAnalyzer
+ **  
+ **
+ **  $Id: PhotonAnalyzer
+ **  $Date:  $ 
+ **  authors: 
+ **   Nancy Marinelli, U. of Notre Dame, US  
+ **   Jamie Antonelli, U. of Notre Dame, US
+ **     
+ ***/
+
 
 
 using namespace std;
@@ -305,13 +316,13 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 
   nEvt_++;  
   LogInfo("PhotonAnalyzer") << "PhotonAnalyzer Analyzing event number: " << e.id() << " Global Counter " << nEvt_ <<"\n";
-  std::cout << "PhotonAnalyzer Analyzing event number: "  << e.id() << " Global Counter " << nEvt_ <<"\n";
+ 
   
   // Get the recontructed  photons
   Handle<reco::PhotonCollection> photonHandle; 
   e.getByLabel(photonProducer_, photonCollection_ , photonHandle);
   const reco::PhotonCollection photonCollection = *(photonHandle.product());
-  std::cout  << "PhotonAnalyzer  Photons with conversions collection size " << photonCollection.size() << "\n";
+ 
 
   // grab PhotonId objects  
   Handle<reco::PhotonIDAssociationCollection> photonIDMapColl;
@@ -593,8 +604,7 @@ void PhotonAnalyzer::endJob()
   }
   
   edm::LogInfo("PhotonAnalyzer") << "Analyzed " << nEvt_  << "\n";
-  std::cout  << "PhotonAnalyzer::endJob Analyzed " << nEvt_ << " events " << "\n";
-  std::cout << " Total number of photons " << nEntry_ << std::endl;
+ 
    
   return ;
 }
