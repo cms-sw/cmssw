@@ -39,7 +39,7 @@
  **  
  **
  **  $Id: PhotonAnalyzer
- **  $Date:  $ 
+ **  $Date: 2008/09/17 16:57:25 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -163,7 +163,7 @@ void PhotonAnalyzer::beginJob( const edm::EventSetup& setup)
       // Isolation Variable infos
      
       stringstream currentFolder;
-      currentFolder << "IsolationVariables/Et above " << cut*cutStep_ << " GeV";
+      currentFolder << "Egamma/PhotonAnalyzer/IsolationVariables/Et above " << cut*cutStep_ << " GeV";
       dbe_->setCurrentFolder(currentFolder.str());
 
       h_nTrackIsolSolid_.push_back(dbe_->book2D("nIsoTracksSolid2D","Avg Number Of Tracks in the Solid Iso Cone",etaBin,etaMin, etaMax,10,-0.5, 9.5));
@@ -185,7 +185,7 @@ void PhotonAnalyzer::beginJob( const edm::EventSetup& setup)
       for(int type=0;type!=3;++type){ //looping over isolation type
 	
 	currentFolder.str("");
-	currentFolder << types[type] << "Photons/Et above " << cut*cutStep_ << " GeV";
+	currentFolder << "Egamma/PhotonAnalyzer/" << types[type] << "Photons/Et above " << cut*cutStep_ << " GeV";
 	dbe_->setCurrentFolder(currentFolder.str());
 
 	for(int part=0;part!=4;++part){ //loop over different parts of the ecal
@@ -256,7 +256,7 @@ void PhotonAnalyzer::beginJob( const edm::EventSetup& setup)
       for(int type=0;type!=3;++type){ //looping over isolation type
 
 	stringstream currentFolder;
-	currentFolder << types[type] << "Photons/Et above " << cut*cutStep_ << " GeV/Conversions";
+	currentFolder << "Egamma/PhotonAnalyzer/" << types[type] << "Photons/Et above " << cut*cutStep_ << " GeV/Conversions";
 	dbe_->setCurrentFolder(currentFolder.str());
 
 	for(int part=0;part!=4;++part){ //loop over different parts of the ecal
@@ -583,8 +583,9 @@ void PhotonAnalyzer::endJob()
      doProfileX( h_hcalSum_[cut], p_hcalSum_[cut]);
 
      stringstream currentFolder;
-     currentFolder << "IsolationVariables/Et above " << cut*cutStep_ << " GeV";
+     currentFolder << "Egamma/PhotonAnalyzer/IsolationVariables/Et above " << cut*cutStep_ << " GeV";
      dbe_->setCurrentFolder(currentFolder.str());
+
 
      dbe_->removeElement("nIsoTracksSolid2D");
      dbe_->removeElement("nIsoTracksHollow2D");
