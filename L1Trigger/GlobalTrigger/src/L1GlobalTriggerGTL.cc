@@ -1,15 +1,15 @@
 /**
  * \class L1GlobalTriggerGTL
- * 
- * 
- * Description: Global Trigger Logic board, see header file for details.  
+ *
+ *
+ * Description: Global Trigger Logic board, see header file for details.
  *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
- * \author: M. Fierro            - HEPHY Vienna - ORCA version 
- * \author: Vasile Mihai Ghete   - HEPHY Vienna - CMSSW version 
- * 
+ *
+ * \author: M. Fierro            - HEPHY Vienna - ORCA version
+ * \author: Vasile Mihai Ghete   - HEPHY Vienna - CMSSW version
+ *
  * $Date$
  * $Revision$
  *
@@ -36,6 +36,8 @@
 #include "CondFormats/L1TObjects/interface/L1GtCaloTemplate.h"
 #include "CondFormats/L1TObjects/interface/L1GtEnergySumTemplate.h"
 #include "CondFormats/L1TObjects/interface/L1GtJetCountsTemplate.h"
+#include "CondFormats/L1TObjects/interface/L1GtHfBitCountsTemplate.h"
+#include "CondFormats/L1TObjects/interface/L1GtHfRingEtSumsTemplate.h"
 #include "CondFormats/L1TObjects/interface/L1GtCastorTemplate.h"
 #include "CondFormats/L1TObjects/interface/L1GtCorrelationTemplate.h"
 
@@ -53,6 +55,8 @@
 #include "L1Trigger/GlobalTrigger/interface/L1GtCaloCondition.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GtEnergySumCondition.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GtJetCountsCondition.h"
+#include "L1Trigger/GlobalTrigger/interface/L1GtHfBitCountsCondition.h"
+#include "L1Trigger/GlobalTrigger/interface/L1GtHfRingEtSumsCondition.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GtCastorCondition.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GtCorrelationCondition.h"
 
@@ -78,10 +82,10 @@ L1GlobalTriggerGTL::L1GlobalTriggerGTL() :
     m_l1GtMenuCacheID = 0ULL;
     m_l1CaloGeometryCacheID = 0ULL;
     m_l1MuTriggerScalesCacheID = 0ULL;
-    
+
     // pointer to conversion - actually done in the event loop (cached)
     m_gtEtaPhiConversions = new L1GtEtaPhiConversions();
- 
+
 }
 
 // destructor
@@ -98,9 +102,9 @@ void L1GlobalTriggerGTL::init(const int nrL1Mu, const int numberPhysTriggers) {
 
     m_candL1Mu->reserve(nrL1Mu);
 
-    // FIXME move from bitset to std::vector<bool> to be able to use 
+    // FIXME move from bitset to std::vector<bool> to be able to use
     // numberPhysTriggers from EventSetup
-    
+
     //m_gtlAlgorithmOR.reserve(numberPhysTriggers);
     //m_gtlAlgorithmOR.assign(numberPhysTriggers, false);
 
@@ -170,26 +174,26 @@ void L1GlobalTriggerGTL::run(edm::Event& iEvent, const edm::EventSetup& evSetup,
     const int nrL1TauJet,
     const int nrL1JetCounts,
     const int ifMuEtaNumberBits,
-    const int ifCaloEtaNumberBits, 
+    const int ifCaloEtaNumberBits,
     const bool receiveCastor,
     const edm::InputTag castorInputTag) {
 
 
-	// get / update the trigger menu from the EventSetup 
+	// get / update the trigger menu from the EventSetup
     // local cache & check on cacheIdentifier
 
     unsigned long long l1GtMenuCacheID = evSetup.get<L1GtTriggerMenuRcd>().cacheIdentifier();
 
     if (m_l1GtMenuCacheID != l1GtMenuCacheID) {
-        
+
         edm::ESHandle< L1GtTriggerMenu> l1GtMenu;
         evSetup.get< L1GtTriggerMenuRcd>().get(l1GtMenu) ;
         m_l1GtMenu =  l1GtMenu.product();
-        
+
         m_l1GtMenuCacheID = l1GtMenuCacheID;
-        
+
     }
-    
+
     const std::vector<ConditionMap>& conditionMap = m_l1GtMenu->gtConditionMap();
     const AlgorithmMap& algorithmMap = m_l1GtMenu->gtAlgorithmMap();
 
@@ -204,27 +208,27 @@ void L1GlobalTriggerGTL::run(edm::Event& iEvent, const edm::EventSetup& evSetup,
 
     // conversion needed for correlation conditions
     // waste time - done also when no correlation template is in the menu
-    // TODO timing against "search the conditionMap for correlation conditions, 
-    //      execute it conditionally?" 
+    // TODO timing against "search the conditionMap for correlation conditions,
+    //      execute it conditionally?"
     bool convertScale = false;
-    
-    // get / update the calorimeter geometry from the EventSetup 
+
+    // get / update the calorimeter geometry from the EventSetup
     // local cache & check on cacheIdentifier
     unsigned long long l1CaloGeometryCacheID =
             evSetup.get<L1CaloGeometryRecord>().cacheIdentifier();
 
     if (m_l1CaloGeometryCacheID != l1CaloGeometryCacheID) {
-        
+
         edm::ESHandle<L1CaloGeometry> l1CaloGeometry;
         evSetup.get<L1CaloGeometryRecord>().get(l1CaloGeometry) ;
         m_l1CaloGeometry =  l1CaloGeometry.product();
-        
+
         m_l1CaloGeometryCacheID = l1CaloGeometryCacheID;
         convertScale = true;
-        
+
     }
 
-    // get / update the eta and phi muon trigger scales from the EventSetup 
+    // get / update the eta and phi muon trigger scales from the EventSetup
     // local cache & check on cacheIdentifier
     unsigned long long l1MuTriggerScalesCacheID =
             evSetup.get<L1MuTriggerScalesRcd>().cacheIdentifier();
@@ -243,15 +247,15 @@ void L1GlobalTriggerGTL::run(edm::Event& iEvent, const edm::EventSetup& evSetup,
         m_gtEtaPhiConversions->convert(m_l1CaloGeometry, m_l1MuTriggerScales,
                 ifCaloEtaNumberBits, ifMuEtaNumberBits);
     }
-    
+
     // get the CASTOR record
-    
+
     //bool castorConditionFlag = true;
     // FIXME remove the following line and uncomment the line above
     //       when the L1CastorRecord is available
     //       until then, all CASTOR conditions are set to false
-    bool castorConditionFlag = false;  
-    
+    bool castorConditionFlag = false;
+
     //edm::Handle<L1CastorRecord > castorData;
     //iEvent.getByLabel(castorInputTag, castorData);
 
@@ -263,42 +267,42 @@ void L1GlobalTriggerGTL::run(edm::Event& iEvent, const edm::EventSetup& evSetup,
     //        << "\nError: CASTOR record with input tag " << castorInputTag
     //        << "\nrequested in configuration, but not found in the event.\n"
     //        << std::endl;
-    //        
+    //
     //        castorConditionFlag = false;
     //    } else {
     //            LogTrace("L1GlobalTriggerGTL") << *(castorData.product()) << std::endl;
     //
     //    }
-    //    
+    //
     //} else {
-    //    
+    //
     //    // channel for CASTOR blocked - set all CASTOR to false
     //    // MUST NEVER BLOCK CASTOR CHANNEL AND USE OPERATOR "NOT" WITH CASTOR CONDITION
     //    //     ==> FALSE RESULTS!
     //    castorConditionResult = false;
-    //    
+    //
     //}
 
-    
+
 
     // loop over condition maps (one map per condition chip)
     // then loop over conditions in the map
     // save the results in temporary maps
 
-    
+
     std::vector<L1GtAlgorithmEvaluation::ConditionEvaluationMap> conditionResultMaps;
     conditionResultMaps.reserve(conditionMap.size());
-    
+
     int iChip = -1;
-    
-    for (std::vector<ConditionMap>::const_iterator 
+
+    for (std::vector<ConditionMap>::const_iterator
     		itCondOnChip = conditionMap.begin(); itCondOnChip != conditionMap.end(); itCondOnChip++) {
 
         iChip++;
-        
+
         //L1GtAlgorithmEvaluation::ConditionEvaluationMap cMapResults;
         L1GtAlgorithmEvaluation::ConditionEvaluationMap cMapResults((*itCondOnChip).size()); // hash map
-        
+
         for (CItCond itCond = itCondOnChip->begin(); itCond != itCondOnChip->end(); itCond++) {
 
             // evaluate condition
@@ -382,14 +386,50 @@ void L1GlobalTriggerGTL::run(edm::Event& iEvent, const edm::EventSetup& evSetup,
 
                 }
                     break;
+                case CondHfBitCounts: {
+                    L1GtHfBitCountsCondition* bcCondition = new L1GtHfBitCountsCondition(
+                            itCond->second, ptrGtPSB);
+                    bcCondition->evaluateConditionStoreResult();
+
+                    cMapResults[itCond->first] = bcCondition;
+
+                    if (edm::isDebugEnabled() ) {
+                        std::ostringstream myCout;
+                        bcCondition->print(myCout);
+
+                        LogTrace("L1GlobalTriggerGTL") << myCout.str() << std::endl;
+                    }
+
+                    //                  delete bcCondition;
+
+                }
+                    break;
+                case CondHfRingEtSums: {
+                    L1GtHfRingEtSumsCondition* etCondition = new L1GtHfRingEtSumsCondition(
+                            itCond->second, ptrGtPSB);
+                    etCondition->evaluateConditionStoreResult();
+
+                    cMapResults[itCond->first] = etCondition;
+
+                    if (edm::isDebugEnabled() ) {
+                        std::ostringstream myCout;
+                        etCondition->print(myCout);
+
+                        LogTrace("L1GlobalTriggerGTL") << myCout.str() << std::endl;
+                    }
+
+                    //                  delete etCondition;
+
+                }
+                    break;
                 case CondCastor: {
                     bool castorCondResult = false;
-                    
+
                     // FIXME un-comment when CASTOR record available
                     //if (castorConditionFlag) {
-                    //    castorCondResult = castorData->conditionResult(itCond->first); 
+                    //    castorCondResult = castorData->conditionResult(itCond->first);
                     //}
-                    
+
                     L1GtCastorCondition* castorCondition = new L1GtCastorCondition(
                             itCond->second, castorCondResult);
                     castorCondition->evaluateConditionStoreResult();
@@ -419,14 +459,14 @@ void L1GlobalTriggerGTL::run(edm::Event& iEvent, const edm::EventSetup& evSetup,
 
                     const L1GtCondition* cond0Condition = 0;
                     const L1GtCondition* cond1Condition = 0;
-                    
+
                     // maximum number of objects received for evaluation of Type1s condition
                     int cond0NrL1Objects = 0;
                     int cond1NrL1Objects = 0;
-                    
+
                     int cond0EtaBits = 0;
                     int cond1EtaBits = 0;
-                    
+
                     switch (cond0Categ) {
                         case CondMuon: {
                             cond0Condition = &((corrMuon[iChip])[cond0Ind]);
@@ -436,7 +476,7 @@ void L1GlobalTriggerGTL::run(edm::Event& iEvent, const edm::EventSetup& evSetup,
                             break;
                         case CondCalo: {
                             cond0Condition = &((corrCalo[iChip])[cond0Ind]);
-                            
+
                             switch ((cond0Condition->objectType())[0]) {
                                 case NoIsoEG:
                                     cond0NrL1Objects= nrL1NoIsoEG;
@@ -457,7 +497,7 @@ void L1GlobalTriggerGTL::run(edm::Event& iEvent, const edm::EventSetup& evSetup,
                                     cond0NrL1Objects = 0;
                                     break;
                             }
-                            
+
                             cond0EtaBits = ifCaloEtaNumberBits;
                         }
                             break;
@@ -468,10 +508,10 @@ void L1GlobalTriggerGTL::run(edm::Event& iEvent, const edm::EventSetup& evSetup,
                             break;
                         default: {
                             // do nothing, should not arrive here
-                        }                            
+                        }
                             break;
                     }
-                    
+
                     switch (cond1Categ) {
                         case CondMuon: {
                             cond1Condition = &((corrMuon[iChip])[cond1Ind]);
@@ -502,7 +542,7 @@ void L1GlobalTriggerGTL::run(edm::Event& iEvent, const edm::EventSetup& evSetup,
                                     cond1NrL1Objects = 0;
                                     break;
                             }
-                            
+
                              cond1EtaBits = ifCaloEtaNumberBits;
                         }
                             break;
@@ -513,14 +553,14 @@ void L1GlobalTriggerGTL::run(edm::Event& iEvent, const edm::EventSetup& evSetup,
                             break;
                         default: {
                             // do nothing, should not arrive here
-                        }                            
+                        }
                             break;
                     }
 
                     L1GtCorrelationCondition* correlationCond =
                         new L1GtCorrelationCondition(itCond->second,
-                            cond0Condition, cond1Condition,  
-                            cond0NrL1Objects, cond1NrL1Objects, 
+                            cond0Condition, cond1Condition,
+                            cond0NrL1Objects, cond1NrL1Objects,
                             cond0EtaBits, cond1EtaBits,
                             this, ptrGtPSB, m_gtEtaPhiConversions);
                     correlationCond->evaluateConditionStoreResult();
@@ -618,8 +658,8 @@ void L1GlobalTriggerGTL::run(edm::Event& iEvent, const edm::EventSetup& evSetup,
     // loop over condition maps (one map per condition chip)
     // then loop over conditions in the map
     // delete the conditions created with new, clear all
-    for (std::vector<L1GtAlgorithmEvaluation::ConditionEvaluationMap>::iterator 
-        itCondOnChip = conditionResultMaps.begin(); itCondOnChip != conditionResultMaps.end(); 
+    for (std::vector<L1GtAlgorithmEvaluation::ConditionEvaluationMap>::iterator
+        itCondOnChip = conditionResultMaps.begin(); itCondOnChip != conditionResultMaps.end();
         itCondOnChip++) {
 
         for (L1GtAlgorithmEvaluation::ItEvalMap itCond =
@@ -656,9 +696,9 @@ void L1GlobalTriggerGTL::printGmtData(const int iBxInEvent) const {
             << "\nL1GlobalTrigger: GMT data received for BxInEvent = "
             << iBxInEvent << std::endl;
 
-    int nrL1Mu = m_candL1Mu->size();    
+    int nrL1Mu = m_candL1Mu->size();
     LogTrace("L1GlobalTriggerGTL")
-            << "Number of GMT muons = " << nrL1Mu << "\n" 
+            << "Number of GMT muons = " << nrL1Mu << "\n"
             << std::endl;
 
     for (std::vector<const L1MuGMTCand*>::const_iterator iter =

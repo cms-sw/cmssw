@@ -1,14 +1,14 @@
 /**
  * \class L1GlobalTrigger
- * 
- * 
- * Description: see header file.  
+ *
+ *
+ * Description: see header file.
  *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
+ *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
- * 
+ *
  * $Date$
  * $Revision$
  *
@@ -41,6 +41,8 @@
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCand.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtSums.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCounts.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctHFBitCounts.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctHFRingEtSums.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -95,11 +97,11 @@ L1GlobalTrigger::L1GlobalTrigger(const edm::ParameterSet& parSet)
     // input tag for calorimeter collection from GCT
     m_caloGctInputTag = parSet.getParameter<edm::InputTag>("GctInputTag");
 
-    // input tag for CASTOR record 
+    // input tag for CASTOR record
     m_castorInputTag= parSet.getParameter<edm::InputTag>("CastorInputTag");
 
     /// input tag for technical triggers
-    m_technicalTriggersInputTag = 
+    m_technicalTriggersInputTag =
         parSet.getParameter<edm::InputTag>("TechnicalTriggersInputTag");
 
     // logical flag to produce the L1 GT DAQ readout record
@@ -120,11 +122,11 @@ L1GlobalTrigger::L1GlobalTrigger(const edm::ParameterSet& parSet)
     // logical flag to write the PSB content in the  L1 GT DAQ record
     //     if true, write the PSB content in the record
     m_writePsbL1GtDaqRecord = parSet.getParameter<bool>("WritePsbL1GtDaqRecord");
- 
+
     // logical flag to read the technical trigger records
     //     if true, it will read via getMany the available records
     m_readTechnicalTriggerRecords = parSet.getParameter<bool>("ReadTechnicalTriggerRecords");
-    
+
     // number of "bunch crossing in the event" (BxInEvent) to be emulated
     // symmetric around L1Accept (BxInEvent = 0):
     //    1 (BxInEvent = 0); 3 (F 0 1) (standard record); 5 (E F 0 1 2) (debug record)
@@ -155,7 +157,7 @@ L1GlobalTrigger::L1GlobalTrigger(const edm::ParameterSet& parSet)
     << m_readTechnicalTriggerRecords << " \n"
     << "\nNumber of BxInEvent to be emulated:             "
     << m_emulateBxInEvent << " \n"
-    << "\nLength of BST message [bytes]:                  " 
+    << "\nLength of BST message [bytes]:                  "
     << m_psBstLengthBytes << "\n"
     << std::endl;
 
@@ -164,7 +166,7 @@ L1GlobalTrigger::L1GlobalTrigger(const edm::ParameterSet& parSet)
 
         edm::LogInfo("L1GlobalTrigger")
         << "\nWARNING: Number of bunch crossing to be emulated rounded to: "
-        << m_emulateBxInEvent 
+        << m_emulateBxInEvent
         << "\n         The number must be an odd number!\n"
         << std::endl;
     }
@@ -194,14 +196,14 @@ L1GlobalTrigger::L1GlobalTrigger(const edm::ParameterSet& parSet)
 
 
     // initialize cached IDs
-    
+
     //
     m_l1GtStableParCacheID = 0ULL;
 
     m_numberPhysTriggers = 0;
     m_numberTechnicalTriggers = 0;
     m_numberDaqPartitions = 0;
-    
+
     m_nrL1Mu = 0;
 
     m_nrL1NoIsoEG = 0;
@@ -210,36 +212,36 @@ L1GlobalTrigger::L1GlobalTrigger(const edm::ParameterSet& parSet)
     m_nrL1CenJet = 0;
     m_nrL1ForJet = 0;
     m_nrL1TauJet = 0;
-    
+
     m_nrL1JetCounts = 0;
 
 
     m_ifMuEtaNumberBits = 0;
     m_ifCaloEtaNumberBits = 0;
-    
+
     //
     m_l1GtParCacheID = 0ULL;
-    
+
     m_totalBxInEvent = 0;
-    
+
     m_activeBoardsGtDaq = 0;
     m_activeBoardsGtEvm = 0;
     m_bstLengthBytes = 0;
-    
+
     //
     m_l1GtBMCacheID = 0ULL;
-    
+
     //
     m_l1GtPfAlgoCacheID = 0ULL;
     m_l1GtPfTechCacheID = 0ULL;
-    
+
     m_l1GtTmAlgoCacheID = 0ULL;
     m_l1GtTmTechCacheID = 0ULL;
-    
+
     m_l1GtTmVetoAlgoCacheID = 0ULL;
     m_l1GtTmVetoTechCacheID = 0ULL;
-    
- 
+
+
 }
 
 // destructor
@@ -259,23 +261,23 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
 
     // process event iEvent
 
-	// get / update the stable parameters from the EventSetup 
+	// get / update the stable parameters from the EventSetup
     // local cache & check on cacheIdentifier
 
     unsigned long long l1GtStableParCacheID = evSetup.get<L1GtStableParametersRcd>().cacheIdentifier();
 
     if (m_l1GtStableParCacheID != l1GtStableParCacheID) {
-        
+
         edm::ESHandle< L1GtStableParameters > l1GtStablePar;
-        evSetup.get< L1GtStableParametersRcd >().get( l1GtStablePar );        
+        evSetup.get< L1GtStableParametersRcd >().get( l1GtStablePar );
         m_l1GtStablePar = l1GtStablePar.product();
-        
+
         // number of physics triggers
         m_numberPhysTriggers = m_l1GtStablePar->gtNumberPhysTriggers();
 
         // number of technical triggers
         m_numberTechnicalTriggers = m_l1GtStablePar->gtNumberTechnicalTriggers();
-        
+
         // number of DAQ partitions
         m_numberDaqPartitions = 8; // FIXME add it to stable parameters
 
@@ -296,34 +298,34 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
 
         m_ifMuEtaNumberBits = static_cast<int> (m_l1GtStablePar->gtIfMuEtaNumberBits());
         m_ifCaloEtaNumberBits = static_cast<int> (m_l1GtStablePar->gtIfCaloEtaNumberBits());
-        
+
         // (re)initialize L1GlobalTriggerGTL
         m_gtGTL->init(m_nrL1Mu, m_numberPhysTriggers);
 
         // (re)initialize L1GlobalTriggerPSB
-        m_gtPSB->init(m_nrL1NoIsoEG, m_nrL1IsoEG, 
+        m_gtPSB->init(m_nrL1NoIsoEG, m_nrL1IsoEG,
                 m_nrL1CenJet, m_nrL1ForJet, m_nrL1TauJet,
                 m_numberTechnicalTriggers);
-        
+
         //
         m_l1GtStableParCacheID = l1GtStableParCacheID;
 
     }
 
-    // get / update the parameters from the EventSetup 
+    // get / update the parameters from the EventSetup
     // local cache & check on cacheIdentifier
 
     unsigned long long l1GtParCacheID = evSetup.get<L1GtParametersRcd>().cacheIdentifier();
 
     if (m_l1GtParCacheID != l1GtParCacheID) {
-        
+
         edm::ESHandle< L1GtParameters > l1GtPar;
-        evSetup.get< L1GtParametersRcd >().get( l1GtPar );        
+        evSetup.get< L1GtParametersRcd >().get( l1GtPar );
         m_l1GtPar = l1GtPar.product();
-       
+
         //    total number of Bx's in the event coming from EventSetup
         m_totalBxInEvent = m_l1GtPar->gtTotalBxInEvent();
- 
+
         //    active boards in L1 GT DAQ record and in L1 GT EVM record
         m_activeBoardsGtDaq = m_l1GtPar->gtDaqActiveBoards();
         m_activeBoardsGtEvm = m_l1GtPar->gtEvmActiveBoards();
@@ -335,8 +337,8 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
         m_l1GtParCacheID = l1GtParCacheID;
 
     }
-    
-    // negative value: emulate TotalBxInEvent as given in EventSetup 
+
+    // negative value: emulate TotalBxInEvent as given in EventSetup
     if (m_emulateBxInEvent < 0) {
         m_emulateBxInEvent = m_totalBxInEvent;
     }
@@ -354,7 +356,7 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
     << std::dec << std::setfill(' ')
     << std::endl;
 
-    // get / update the board maps from the EventSetup 
+    // get / update the board maps from the EventSetup
     // local cache & check on cacheIdentifier
 
     typedef std::vector<L1GtBoard>::const_iterator CItBoardMaps;
@@ -362,11 +364,11 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
     unsigned long long l1GtBMCacheID = evSetup.get<L1GtBoardMapsRcd>().cacheIdentifier();
 
     if (m_l1GtBMCacheID != l1GtBMCacheID) {
-        
+
         edm::ESHandle< L1GtBoardMaps > l1GtBM;
-        evSetup.get< L1GtBoardMapsRcd >().get( l1GtBM );        
+        evSetup.get< L1GtBoardMapsRcd >().get( l1GtBM );
         m_l1GtBM = l1GtBM.product();
-        
+
         m_l1GtBMCacheID = l1GtBMCacheID;
 
     }
@@ -374,105 +376,105 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
     // TODO need changes in CondFormats to cache the maps
     const std::vector<L1GtBoard>& boardMaps = m_l1GtBM->gtBoardMaps();
 
-    // get / update the prescale factors from the EventSetup 
+    // get / update the prescale factors from the EventSetup
     // local cache & check on cacheIdentifier
 
-    unsigned long long l1GtPfAlgoCacheID = 
+    unsigned long long l1GtPfAlgoCacheID =
         evSetup.get<L1GtPrescaleFactorsAlgoTrigRcd>().cacheIdentifier();
 
     if (m_l1GtPfAlgoCacheID != l1GtPfAlgoCacheID) {
-        
+
         edm::ESHandle< L1GtPrescaleFactors > l1GtPfAlgo;
-        evSetup.get< L1GtPrescaleFactorsAlgoTrigRcd >().get( l1GtPfAlgo );        
+        evSetup.get< L1GtPrescaleFactorsAlgoTrigRcd >().get( l1GtPfAlgo );
         m_l1GtPfAlgo = l1GtPfAlgo.product();
-        
+
         m_prescaleFactorsAlgoTrig = &(m_l1GtPfAlgo->gtPrescaleFactors());
-        
+
         m_l1GtPfAlgoCacheID = l1GtPfAlgoCacheID;
 
     }
 
-    unsigned long long l1GtPfTechCacheID = 
+    unsigned long long l1GtPfTechCacheID =
         evSetup.get<L1GtPrescaleFactorsTechTrigRcd>().cacheIdentifier();
 
     if (m_l1GtPfTechCacheID != l1GtPfTechCacheID) {
-        
+
         edm::ESHandle< L1GtPrescaleFactors > l1GtPfTech;
-        evSetup.get< L1GtPrescaleFactorsTechTrigRcd >().get( l1GtPfTech );        
+        evSetup.get< L1GtPrescaleFactorsTechTrigRcd >().get( l1GtPfTech );
         m_l1GtPfTech = l1GtPfTech.product();
-        
+
         m_prescaleFactorsTechTrig = &(m_l1GtPfTech->gtPrescaleFactors());
-        
+
         m_l1GtPfTechCacheID = l1GtPfTechCacheID;
 
     }
 
-    
-    // get / update the trigger mask from the EventSetup 
+
+    // get / update the trigger mask from the EventSetup
     // local cache & check on cacheIdentifier
 
-    unsigned long long l1GtTmAlgoCacheID = 
+    unsigned long long l1GtTmAlgoCacheID =
         evSetup.get<L1GtTriggerMaskAlgoTrigRcd>().cacheIdentifier();
 
     if (m_l1GtTmAlgoCacheID != l1GtTmAlgoCacheID) {
-        
+
         edm::ESHandle< L1GtTriggerMask > l1GtTmAlgo;
-        evSetup.get< L1GtTriggerMaskAlgoTrigRcd >().get( l1GtTmAlgo );        
+        evSetup.get< L1GtTriggerMaskAlgoTrigRcd >().get( l1GtTmAlgo );
         m_l1GtTmAlgo = l1GtTmAlgo.product();
-        
+
         m_triggerMaskAlgoTrig = m_l1GtTmAlgo->gtTriggerMask();
-        
+
         m_l1GtTmAlgoCacheID = l1GtTmAlgoCacheID;
 
     }
-    
 
-    unsigned long long l1GtTmTechCacheID = 
+
+    unsigned long long l1GtTmTechCacheID =
         evSetup.get<L1GtTriggerMaskTechTrigRcd>().cacheIdentifier();
 
     if (m_l1GtTmTechCacheID != l1GtTmTechCacheID) {
-        
+
         edm::ESHandle< L1GtTriggerMask > l1GtTmTech;
-        evSetup.get< L1GtTriggerMaskTechTrigRcd >().get( l1GtTmTech );        
+        evSetup.get< L1GtTriggerMaskTechTrigRcd >().get( l1GtTmTech );
         m_l1GtTmTech = l1GtTmTech.product();
-        
+
         m_triggerMaskTechTrig = m_l1GtTmTech->gtTriggerMask();
-        
+
         m_l1GtTmTechCacheID = l1GtTmTechCacheID;
 
     }
-    
-    unsigned long long l1GtTmVetoAlgoCacheID = 
+
+    unsigned long long l1GtTmVetoAlgoCacheID =
         evSetup.get<L1GtTriggerMaskVetoAlgoTrigRcd>().cacheIdentifier();
 
     if (m_l1GtTmVetoAlgoCacheID != l1GtTmVetoAlgoCacheID) {
-        
+
         edm::ESHandle< L1GtTriggerMask > l1GtTmVetoAlgo;
-        evSetup.get< L1GtTriggerMaskVetoAlgoTrigRcd >().get( l1GtTmVetoAlgo );        
+        evSetup.get< L1GtTriggerMaskVetoAlgoTrigRcd >().get( l1GtTmVetoAlgo );
         m_l1GtTmVetoAlgo = l1GtTmVetoAlgo.product();
-        
+
         m_triggerMaskVetoAlgoTrig = m_l1GtTmVetoAlgo->gtTriggerMask();
-        
+
         m_l1GtTmVetoAlgoCacheID = l1GtTmVetoAlgoCacheID;
 
     }
-    
 
-    unsigned long long l1GtTmVetoTechCacheID = 
+
+    unsigned long long l1GtTmVetoTechCacheID =
         evSetup.get<L1GtTriggerMaskVetoTechTrigRcd>().cacheIdentifier();
 
     if (m_l1GtTmVetoTechCacheID != l1GtTmVetoTechCacheID) {
-        
+
         edm::ESHandle< L1GtTriggerMask > l1GtTmVetoTech;
-        evSetup.get< L1GtTriggerMaskVetoTechTrigRcd >().get( l1GtTmVetoTech );        
+        evSetup.get< L1GtTriggerMaskVetoTechTrigRcd >().get( l1GtTmVetoTech );
         m_l1GtTmVetoTech = l1GtTmVetoTech.product();
-        
+
         m_triggerMaskVetoTechTrig = m_l1GtTmVetoTech->gtTriggerMask();
-        
+
         m_l1GtTmVetoTechCacheID = l1GtTmVetoTechCacheID;
 
     }
-    
+
     // loop over blocks in the GT DAQ record receiving data, count them if they are active
     // all board type are defined in CondFormats/L1TObjects/L1GtFwd
     // enum L1GtBoardType { GTFE, FDL, PSB, GMT, TCS, TIM };
@@ -480,8 +482,6 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
     // set the active flag for each object type received from GMT and GCT
     // all objects in the GT system are defined in enum L1GtObject from
     // DataFormats/L1Trigger/L1GlobalTriggerReadoutSetupFwd
-    // enum L1GtObject
-    //    { Mu, NoIsoEG, IsoEG, CenJet, ForJet, TauJet, ETM, ETT, HTT, JetCounts };
 
     int daqNrGtfeBoards = 0;
 
@@ -502,6 +502,8 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
     bool receiveETT = false;
     bool receiveHTT = false;
     bool receiveJetCounts = false;
+    bool receiveHfBitCounts = false;
+    bool receiveHfRingEtSums = false;
 
     bool receiveCastor = false;
 
@@ -592,6 +594,12 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
                                         break;
                                     case CastorQ: {
                                             receiveCastor = true;
+                                        }
+
+                                        break;
+                                    case HfQ: {
+                                            receiveHfBitCounts = true;
+                                            receiveHfRingEtSums = true;
                                         }
 
                                         break;
@@ -748,17 +756,17 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
     // fill the boards not depending on the BxInEvent in the L1 GT EVM record
 
     int evmNrFdlBoards = 0;
-    
+
     if (m_produceL1GtEvmRecord) {
 
         // get the length of the BST message from parameter set or from event setup
-        
+
         int bstLengthBytes = 0;
-        
+
         if (m_psBstLengthBytes < 0) {
             // length from event setup
             bstLengthBytes = static_cast<int> (m_bstLengthBytes);
-            
+
         } else {
             // length from parameter set
             bstLengthBytes = m_psBstLengthBytes;
@@ -795,10 +803,10 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
 
                                 // cast int to boost::uint16_t
                                 // there are normally 3 or 5 BxInEvent
-                                gtfeWordValue.setRecordLength( 
+                                gtfeWordValue.setRecordLength(
                                     static_cast<boost::uint16_t>(m_emulateBxInEvent));
 
-                                // bunch crossing 
+                                // bunch crossing
                                 gtfeWordValue.setBxNr(bxCrossHw);
 
                                 // set the list of active boards
@@ -807,7 +815,7 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
                                 // set the TOTAL_TRIGNR as read from iEvent
                                 // TODO check again - PTC stuff
 
-                                gtfeWordValue.setTotalTriggerNr( 
+                                gtfeWordValue.setTotalTriggerNr(
                                     static_cast<boost::uint32_t>(iEvent.id().event()));
 
                                 // set the GPS time to the value read from Timestamp
@@ -816,7 +824,7 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
                                 gtfeWordValue.setGpsTime(evTime);
 
                                 //LogDebug("L1GlobalTrigger")
-                                //<< "\nEvent timestamp value [hex] = " << std::hex << evTime 
+                                //<< "\nEvent timestamp value [hex] = " << std::hex << evTime
                                 //<< "\nBST retrieved value [hex]   = " << gtfeWordValue.gpsTime()
                                 //<< std::dec << std::endl;
 
@@ -846,7 +854,7 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
 
                                 boost::uint16_t trigType = 0x5; // 0101 simulated event
                                 tcsWordValue.setTriggerType(trigType);
-                                
+
                                 // luminosity segment number
                                 tcsWordValue.setLuminositySegmentNr(
                                         static_cast<boost::uint16_t>(iEvent.luminosityBlock()));
@@ -884,16 +892,16 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
         }
 
     }
-    
+
     // get the prescale factor set used in the actual luminosity segment
     int pfAlgoSetIndex = 0; // FIXME
-    const std::vector<int>& prescaleFactorsAlgoTrig = 
+    const std::vector<int>& prescaleFactorsAlgoTrig =
         (*m_prescaleFactorsAlgoTrig).at(pfAlgoSetIndex);
 
     int pfTechSetIndex = 0; // FIXME
-    const std::vector<int>& prescaleFactorsTechTrig = 
+    const std::vector<int>& prescaleFactorsTechTrig =
         (*m_prescaleFactorsTechTrig).at(pfTechSetIndex);
-    
+
     //
 
     // loop over BxInEvent
@@ -914,7 +922,9 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
             receiveForJet, m_nrL1ForJet,
             receiveTauJet, m_nrL1TauJet,
             receiveETM, receiveETT, receiveHTT,
-            receiveJetCounts);
+            receiveJetCounts,
+            receiveHfBitCounts,
+            receiveHfRingEtSums);
 
         /// receive technical trigger
         if (m_readTechnicalTriggerRecords) {
@@ -941,8 +951,8 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
         //<< "\nL1GlobalTrigger : running GTL for bx = " << iBxInEvent << "\n"
         //<< std::endl;
 
-        m_gtGTL->run(iEvent, evSetup, m_gtPSB, 
-            m_produceL1GtObjectMapRecord, iBxInEvent, gtObjectMapRecord, 
+        m_gtGTL->run(iEvent, evSetup, m_gtPSB,
+            m_produceL1GtObjectMapRecord, iBxInEvent, gtObjectMapRecord,
             m_numberPhysTriggers,
             m_nrL1Mu,
             m_nrL1NoIsoEG,
@@ -952,8 +962,8 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
             m_nrL1TauJet,
             m_nrL1JetCounts,
             m_ifMuEtaNumberBits,
-            m_ifCaloEtaNumberBits, 
-            receiveCastor, 
+            m_ifCaloEtaNumberBits,
+            receiveCastor,
             m_castorInputTag);
 
         //LogDebug("L1GlobalTrigger")
@@ -965,14 +975,14 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
         //<< "\nL1GlobalTrigger : running FDL for bx = " << iBxInEvent << "\n"
         //<< std::endl;
 
-        m_gtFDL->run(iEvent, 
-                prescaleFactorsAlgoTrig, prescaleFactorsTechTrig, 
-                m_triggerMaskAlgoTrig, m_triggerMaskTechTrig, 
-                m_triggerMaskVetoAlgoTrig, m_triggerMaskVetoTechTrig, 
+        m_gtFDL->run(iEvent,
+                prescaleFactorsAlgoTrig, prescaleFactorsTechTrig,
+                m_triggerMaskAlgoTrig, m_triggerMaskTechTrig,
+                m_triggerMaskVetoAlgoTrig, m_triggerMaskVetoTechTrig,
                 boardMaps, m_emulateBxInEvent, iBxInEvent,
                 m_numberPhysTriggers, m_numberTechnicalTriggers,
                 m_numberDaqPartitions,
-                m_gtGTL, m_gtPSB, 
+                m_gtGTL, m_gtPSB,
                 pfAlgoSetIndex,
                 pfTechSetIndex);
 

@@ -1,14 +1,14 @@
 /**
  * \class L1GtJetCountsCondition
- * 
- * 
+ *
+ *
  * Description: evaluation of a CondJetCounts condition.
- * 
+ *
  * Implementation:
  *    <TODO: enter implementation details>
- *   
- * \author: Vasile Mihai Ghete   - HEPHY Vienna 
- * 
+ *
+ * \author: Vasile Mihai Ghete   - HEPHY Vienna
+ *
  * $Date$
  * $Revision$
  *
@@ -21,21 +21,16 @@
 #include <iostream>
 #include <iomanip>
 
-#include <string>
 #include <vector>
-#include <algorithm>
 
 // user include files
 //   base classes
-#include "CondFormats/L1TObjects/interface/L1GtJetCountsTemplate.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GtConditionEvaluation.h"
 
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
-
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCounts.h"
 
-#include "CondFormats/L1TObjects/interface/L1GtStableParameters.h"
-#include "CondFormats/DataRecord/interface/L1GtStableParametersRcd.h"
+#include "CondFormats/L1TObjects/interface/L1GtJetCountsTemplate.h"
 
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerPSB.h"
 
@@ -58,7 +53,7 @@ L1GtJetCountsCondition::L1GtJetCountsCondition(const L1GtCondition* jcTemplate,
 {
 
     // maximum number of objects received for the evaluation of the condition
-    // energy sums are global quantities - one object per event 
+    // no objects, in fact, just a number
     m_condMaxNumberObjects = 1;
 
 }
@@ -117,7 +112,7 @@ const bool L1GtJetCountsCondition::evaluateCondition() const {
     // in fact, there is only one object
     int iCondition = 0;
 
-    // condition result condResult set to true if the jet counts
+    // condition result condResult will be set to true if the jet counts
     // passes the requirement
     bool condResult = false;
 
@@ -130,13 +125,13 @@ const bool L1GtJetCountsCondition::evaluateCondition() const {
 
     // get the jet counts (event / condition)
     const L1GctJetCounts* jetCounts = m_gtPSB->getCandL1JetCounts();
-    
+
     // protection against missing jet counts collection
     if (jetCounts == 0) {
         return false;
     }
 
-    const L1GtJetCountsTemplate::ObjectParameter objPar = 
+    const L1GtJetCountsTemplate::ObjectParameter objPar =
         ( *(m_gtJetCountsTemplate->objectParameter()) )[iCondition];
 
     unsigned int cIndex = objPar.countIndex;
@@ -164,7 +159,7 @@ const bool L1GtJetCountsCondition::evaluateCondition() const {
     objectsInComb.push_back(indexObj);
     (*m_combinationsInCond).push_back(objectsInComb);
 
-    // if we get here all checks were successfull for this combination
+    // if we get here all checks were successful for this combination
     // set the general result for evaluateCondition to "true"
 
     condResult = true;

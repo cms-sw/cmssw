@@ -3,18 +3,18 @@
 
 /**
  * \class L1GlobalTriggerPSB
- * 
- * 
- * Description: Pipelined Synchronising Buffer.  
+ *
+ *
+ * Description: Pipelined Synchronising Buffer.
  *
  * Implementation:
  *    GT PSB receives data from
  *      - Global Calorimeter Trigger
  *      - Technical Trigger
- *      
- * \author: M. Fierro            - HEPHY Vienna - ORCA version 
- * \author: Vasile Mihai Ghete   - HEPHY Vienna - CMSSW version 
- * 
+ *
+ * \author: M. Fierro            - HEPHY Vienna - ORCA version
+ * \author: Vasile Mihai Ghete   - HEPHY Vienna - CMSSW version
+ *
  * $Date$
  * $Revision$
  *
@@ -52,6 +52,8 @@ class L1GctEtTotal;
 class L1GctEtHad;
 
 class L1GctJetCounts;
+class L1GctHFBitCounts;
+class L1GctHFRingEtSums;
 
 class L1GlobalTriggerReadoutRecord;
 
@@ -73,7 +75,7 @@ public:
 public:
 
     /// initialize the class (mainly reserve)
-    void init(const int nrL1NoIsoEG, const int nrL1IsoEG, 
+    void init(const int nrL1NoIsoEG, const int nrL1IsoEG,
             const int nrL1CenJet, const int nrL1ForJet, const int nrL1TauJet,
             const int numberTechnicalTriggers);
 
@@ -87,7 +89,9 @@ public:
         const bool receiveForJet, const int nrL1ForJet,
         const bool receiveTauJet, const int nrL1TauJet,
         const bool receiveETM, const bool receiveETT, const bool receiveHTT,
-        const bool receiveJetCounts);
+        const bool receiveJetCounts,
+        const bool receiveHfBitCounts,
+        const bool receiveHfRingEtSums);
 
     /// receive technical trigger
     void receiveTechnicalTriggers(edm::Event& iEvent,
@@ -163,7 +167,19 @@ public:
         return m_candJetCounts;
     }
 
-    /// pointer to technical trigger bits 
+    /// pointer to HfBitCounts data list
+    inline const L1GctHFBitCounts* getCandL1HfBitCounts() const
+    {
+        return m_candHfBitCounts;
+    }
+
+    /// pointer to HfRingEtSums data list
+    inline const L1GctHFRingEtSums* getCandL1HfRingEtSums() const
+    {
+        return m_candHfRingEtSums;
+    }
+
+    /// pointer to technical trigger bits
     inline const std::vector<bool>* getGtTechnicalTriggers() const
     {
         return &m_gtTechnicalTriggers;
@@ -182,15 +198,18 @@ private:
     const L1GctEtHad*   m_candHTT;
 
     const L1GctJetCounts* m_candJetCounts;
-    
-    /// technical trigger bits 
+
+    const L1GctHFBitCounts* m_candHfBitCounts;
+    const L1GctHFRingEtSums* m_candHfRingEtSums;
+
+    /// technical trigger bits
     std::vector<bool> m_gtTechnicalTriggers;
-    
+
     /// handles to the technical trigger records
-    std::vector<edm::Handle<L1GtTechnicalTriggerRecord> > m_techTrigRecords; 
-    
+    std::vector<edm::Handle<L1GtTechnicalTriggerRecord> > m_techTrigRecords;
+
     /// selector for getMany methods
-    edm::Selector m_techTrigSelector;    
+    edm::Selector m_techTrigSelector;
 
 };
 
