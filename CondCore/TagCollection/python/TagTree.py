@@ -193,6 +193,49 @@ class tagTree(object):
             transaction.rollback()
             raise Exception, str(er)
         
+    def renameNodes( self, nodenamemap):
+        """
+        rename selected nodes \n
+        Input: {oldnodename:newnodename}
+        Output: [renamednodeid]
+        """
+        transaction=self.__session.transaction()
+        allnodes={}
+        try:
+            transaction.start(True)
+            schema = self.__session.nominalSchema()
+            query = schema.tableHandle(self.__tagTreeTableName).newQuery()
+            query.addToOutputList('nodelabel')
+            cursor = query.execute()
+            while ( cursor.next() ):
+                nodelabel=cursor.currentRow()['nodelabel'].data()
+                if nodenamemap.has_key(nodelabel):
+                    allnodes[nodelabel]=nodenamemap[nodelabel]
+                else:
+                    allnodes[nodelabel]=nodelabel
+            transaction.commit()
+            del query
+            if len(allnodes.values())!=len(set(allnodes.values())):
+                raise "new node labels are not unique in the tree"
+            transaction.start(False)
+            editor = schema.tableHandle(self.__tagTreeTableName).dataEditor()
+            inputData = coral.AttributeList()
+            inputData.extend('oldnodelabel','string')
+            inputData.extend('newnodelabel','string')
+            for nodelabelpair in nodenamemap:
+                inputData['oldnodelabel'].setData(nodelabelpair[0])
+                inputData['newnodelabel'].setData(nodelabelpair[1])
+                editor.updateRows( "nodelabel = :newnodelabel", "nodelabel = :oldnodelabel", inputData )
+            transaction.commit()
+        except coral.Exception, er:
+            transaction.rollback()
+            del query
+            raise Exception, str(er)
+        except Exception, er:
+            transaction.rollback()
+            del query
+            raise Exception, str(er)
+        
     def getNodeById( self, nodeid ):
         """return result of query "select * from treetable where nodeid=:nodeid" in Node structure \n
         Input: id of the node to get.\n
