@@ -13,7 +13,7 @@
 //
 // Original Author:  Bryan DAHMES
 //         Created:  Wed Sep 19 16:21:29 CEST 2007
-// $Id: HcalSimpleRecHitFilter.cc,v 1.2 2008/03/10 19:04:14 mzanetti Exp $
+// $Id: HcalSimpleRecHitFilter.cc,v 1.1 2008/09/15 17:12:32 mzanetti Exp $
 //
 //
 
@@ -95,7 +95,6 @@ HcalSimpleRecHitFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
     
     bool aboveThreshold = false ; 
 
-    std::cout << "Filtering, with " << crudeHits->size() << " recHits to consider" << std::endl ; 
     for ( HFRecHitCollection::const_iterator hitItr = crudeHits->begin(); hitItr != crudeHits->end(); ++hitItr ) {     
        HFRecHit hit = (*hitItr);
      
@@ -109,9 +108,9 @@ HcalSimpleRecHitFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
        
        if ( ampli_ >= threshold_ ) {
            aboveThreshold = true;
-           edm::LogWarning("HcalFilter")  << "at evet: " << iEvent.id().event() 
-                                          << " and run: " << iEvent.id().run() 
-                                          << " signal above threshold found: " << ampli_ ; 
+//            edm::LogInfo("HcalFilter")  << "at evet: " << iEvent.id().event() 
+//                                           << " and run: " << iEvent.id().run() 
+//                                           << " signal above threshold found: " << ampli_ ; 
            break ;
        }
     }

@@ -13,7 +13,7 @@
 //
 // Original Author:  Bryan DAHMES
 //         Created:  Wed Sep 19 16:21:29 CEST 2007
-// $Id: FEDSizeFilter.cc,v 1.2 2008/03/10 19:04:14 mzanetti Exp $
+// $Id: FEDSizeFilter.cc,v 1.1 2008/09/15 17:12:32 mzanetti Exp $
 //
 //
 
@@ -95,12 +95,9 @@ FEDSizeFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     bool aboveThreshold = false ; 
     unsigned int totalFEDsize = 0 ; 
     for (unsigned int i=fedStart_; i<=fedStop_; i++) {
-        std::cout << "Examining fed " << i << " with size "
-                  << theRaw->FEDData(i).size() << std::endl ; 
         totalFEDsize += theRaw->FEDData(i).size() ; 
     }
 
-    std::cout << "Total FED size: " << totalFEDsize << std::endl ; 
     if ( totalFEDsize > threshold_ ) aboveThreshold = true ; 
     
     return aboveThreshold ; 
