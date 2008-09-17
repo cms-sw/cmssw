@@ -151,6 +151,7 @@ namespace evf
     xdata::UnsignedInteger32         timeoutOnStop_; // in seconds
     xdata::Boolean                   hasShMem_;
     xdata::Boolean                   hasPrescaleService_;
+    xdata::Boolean                   hasModuleWebRegistry_;
     xdata::Boolean                   isRunNumberSetter_;
     bool                             outprev_;
     std::vector<edm::ModuleDescription const*> descs_; //module description array
@@ -208,6 +209,8 @@ namespace evf
     std::string                      reasonForFailedState_;
     fuep::TriggerReportHelpers       trh_;
     std::list<std::string>           names_;
+    bool                             wlMonitoringActive_;
+    bool                             wlScalersActive_;
     SquidNet                         squidnet_;
   };
   
