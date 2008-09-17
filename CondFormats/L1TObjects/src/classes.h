@@ -8,6 +8,7 @@
 #include "CondFormats/L1TObjects/interface/L1GctJetCounterSetup.h"
 #include "CondFormats/L1TObjects/interface/L1GctJetEtCalibrationFunction.h"
 #include "CondFormats/L1TObjects/interface/L1GctJetFinderParams.h"
+#include "CondFormats/L1TObjects/interface/L1GctHfLutSetup.h"
 #include "CondFormats/L1TObjects/interface/L1MuDTExtLut.h"
 #include "CondFormats/L1TObjects/interface/L1MuDTPhiLut.h"
 #include "CondFormats/L1TObjects/interface/L1MuDTPtaLut.h"

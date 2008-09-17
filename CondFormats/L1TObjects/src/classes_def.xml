@@ -9,6 +9,7 @@
   <class name="L1MuGMTScales"/>
   <class name="L1CaloEtScale"/>
   <class name="L1GctChannelMask"/>
+  <class name="L1GctHfLutSetup"/>
   <class name="L1GctJetCounterSetup"/>
   <class name="L1GctJetCounterSetup::cutDescription"/>
   <class name="std::vector<L1GctJetCounterSetup::cutDescription>"/>
