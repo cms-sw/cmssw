@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 # SiStrip DQM Reco
 
-from DQM.SiStripMonitorClient.RecoForDQM_cff import *
+from DQM.SiStripMonitorClient.RecoForDQM_Cosmic_cff import *
 
 # Refitting needed due to missing trajectories in RECO
 from RecoTracker.TrackProducer.RefitterWithMaterial_cfi import *
