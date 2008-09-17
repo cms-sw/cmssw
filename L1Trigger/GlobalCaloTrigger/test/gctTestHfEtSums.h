@@ -44,8 +44,13 @@ private:
   std::vector<unsigned> m_expectedRing0EtSumNegativeEta;
   std::vector<unsigned> m_expectedRing1EtSumPositiveEta;
   std::vector<unsigned> m_expectedRing1EtSumNegativeEta;
-  std::vector<unsigned> m_expectedTowerCountPositiveEta;
-  std::vector<unsigned> m_expectedTowerCountNegativeEta;
+  std::vector<unsigned> m_expectedRing0BitCountPositiveEta;
+  std::vector<unsigned> m_expectedRing0BitCountNegativeEta;
+  std::vector<unsigned> m_expectedRing1BitCountPositiveEta;
+  std::vector<unsigned> m_expectedRing1BitCountNegativeEta;
+
+  unsigned etSumLut (const unsigned expectedValue) const;
+  unsigned countLut (const unsigned expectedValue) const;
 
 };
 

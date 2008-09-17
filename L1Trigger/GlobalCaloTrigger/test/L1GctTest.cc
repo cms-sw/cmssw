@@ -10,12 +10,14 @@
 #include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
 #include "CondFormats/L1TObjects/interface/L1GctJetCounterSetup.h"
 #include "CondFormats/L1TObjects/interface/L1GctChannelMask.h"
+#include "CondFormats/L1TObjects/interface/L1GctHfLutSetup.h"
 #include "CondFormats/DataRecord/interface/L1GctJetCalibFunRcd.h"
 #include "CondFormats/DataRecord/interface/L1GctJetFinderParamsRcd.h"
 #include "CondFormats/DataRecord/interface/L1JetEtScaleRcd.h"
 #include "CondFormats/DataRecord/interface/L1GctJetCounterPositiveEtaRcd.h"
 #include "CondFormats/DataRecord/interface/L1GctJetCounterNegativeEtaRcd.h"
 #include "CondFormats/DataRecord/interface/L1GctChannelMaskRcd.h"
+#include "CondFormats/DataRecord/interface/L1GctHfLutSetupRcd.h"
 
 // GCT include files
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
@@ -182,6 +184,8 @@ L1GctTest::configureGct(const edm::EventSetup& c)
   c.get< L1GctJetCounterNegativeEtaRcd >().get( jcNegPars ) ; // which record?
   edm::ESHandle< L1GctJetEtCalibrationFunction > calibFun ;
   c.get< L1GctJetCalibFunRcd >().get( calibFun ) ; // which record?
+  edm::ESHandle< L1GctHfLutSetup > hfLSetup ;
+  c.get< L1GctHfLutSetupRcd >().get( hfLSetup ) ; // which record?
   edm::ESHandle< L1GctChannelMask > chanMask ;
   c.get< L1GctChannelMaskRcd >().get( chanMask ) ; // which record?
   edm::ESHandle< L1CaloEtScale > etScale ;
@@ -198,12 +202,15 @@ L1GctTest::configureGct(const edm::EventSetup& c)
   // make a jet Et Lut and tell it about the scales
   m_jetEtCalibLut = new L1GctJetEtCalibrationLut();
 
+  // tell the jet Et Lut about the scales
   m_jetEtCalibLut->setFunction(calibFun.product());
   m_jetEtCalibLut->setOutputEtScale(etScale.product());
 
+  // pass all the setup info to the gct
   m_gct->setJetEtCalibrationLut(m_jetEtCalibLut);
+  m_gct->setJetFinderParams(jfPars.product());
   m_gct->setupJetCounterLuts(jcPosPars.product(), jcNegPars.product());
+  m_gct->setupHfSumLuts(hfLSetup.product());
   m_gct->setChannelMask(chanMask.product());
-
 }
 
