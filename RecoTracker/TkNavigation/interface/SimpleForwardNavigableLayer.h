@@ -50,7 +50,7 @@ public:
   virtual DetLayer* detLayer() const;
   virtual void   setDetLayer( DetLayer* dl);
 
-  virtual void setInwardLinks( const BDLC&, const FDLC&);
+  virtual void setInwardLinks( const BDLC&, const FDLC&, TkLayerLess sorter = TkLayerLess(outsideIn));
 
 private:
   bool areAllReachableLayersSet;

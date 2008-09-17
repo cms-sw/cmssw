@@ -13,7 +13,7 @@
 //
 // Original Author:  Jean-Roch Vlimant
 //         Created:  Fri Mar 16 13:19:20 CDT 2007
-// $Id$
+// $Id: NavigationSchoolAnalyzer.cc,v 1.1 2007/10/02 17:50:03 vlimant Exp $
 //
 //
 
@@ -110,10 +110,10 @@ std::ostream& operator<<(std::ostream& os,const DetLayer* dl){
   case GeomDetEnumerators::endcap:
     os<<"endcap subDetector: "<<dl->subDetector()<<"\n"
       <<"wheel: "<<LorW<<"\n"
-      <<"side: "<<side<<"\n";
+      <<"side: "<<((side==1)?"Minus":"Plus")<<"\n";
     break;
   }
-
+  os<< (void*)dl <<"\n";
   return os;
 }
 
