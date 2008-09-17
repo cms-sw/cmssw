@@ -19,15 +19,15 @@ edit DTTtrig-mapping-custom.xml
 start DBA procedure:
 build real table in sqlite db
 
-pool_build_object_relational_mapping -f DTMtime-mapping-custom.xml -d CondFormatsDTObjects -c sqlite:testfile.db -u user -p pass -debug>DTMtime.debug
+pool_build_object_relational_mapping -f DTMtime-mapping-custom.xml -d CondFormatsDTObjects -c sqlite_file:testfile.db -u user -p pass -debug>DTMtime.debug
 
-pool_build_object_relational_mapping -f DTReadOutMapping-mapping-custom.xml -d CondFormatsDTObjects -c sqlite:testfile.db -u user -p pass -debug>DTReadOutMapping.debug
+pool_build_object_relational_mapping -f DTReadOutMapping-mapping-custom.xml -d CondFormatsDTObjects -c sqlite_file:testfile.db -u user -p pass -debug>DTReadOutMapping.debug
 
-pool_build_object_relational_mapping -f DTT0-mapping-custom.xml -d CondFormatsDTObjects -c sqlite:testfile.db -u user -p pass -debug>DTT0.debug
+pool_build_object_relational_mapping -f DTT0-mapping-custom.xml -d CondFormatsDTObjects -c sqlite_file:testfile.db -u user -p pass -debug>DTT0.debug
 
-pool_build_object_relational_mapping -f DTTtrig-mapping-custom.xml -d CondFormatsDTObjects -c sqlite:testfile.db -u user -p pass -debug>DTTtrig.debug
+pool_build_object_relational_mapping -f DTTtrig-mapping-custom.xml -d CondFormatsDTObjects -c sqlite_file:testfile.db -u user -p pass -debug>DTTtrig.debug
 
-pool_build_object_relational_mapping -f mapping-template-CondIOV-default.xml -d CondCoreIOVService -c sqlite:testfile.db -u user -p pass -o CondIOV-mapping-default.xml -debug > DTCondIOV.debug
+pool_build_object_relational_mapping -f mapping-template-CondIOV-default.xml -d CondCoreIOVService -c sqlite_file:testfile.db -u user -p pass -o CondIOV-mapping-default.xml -debug > DTCondIOV.debug
 
 to get create statements for DBA record:
 grep CREATE *.debug > DTschema.debug

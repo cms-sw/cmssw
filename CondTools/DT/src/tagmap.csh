@@ -3,7 +3,7 @@
 setenv CELL_MAP_VERSION $1
 setenv  ROB_MAP_VERSION $2
 
-setenv DB_SYS sqlite:testfile.db
+setenv DB_SYS sqlite_file:testfile.db
 setenv POOL_AUTH_USER     user
 setenv POOL_AUTH_PASSWORD pass
 
