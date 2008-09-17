@@ -13,7 +13,7 @@
 //
 // Original Author:  Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronAnalyzer.cc,v 1.5 2008/09/12 11:40:09 uberthon Exp $
+// $Id: ElectronAnalyzer.cc,v 1.6 2008/09/17 18:05:39 nancy Exp $
 //
 //
 
@@ -84,6 +84,7 @@ ElectronAnalyzer::ElectronAnalyzer(const edm::ParameterSet& conf)
   nbindphimatch=conf.getParameter<int>("Nbindphimatch");
   nbindetamatch2D=conf.getParameter<int>("Nbindetamatch2D");
   nbindphimatch2D=conf.getParameter<int>("Nbindphimatch2D");
+  parameters_ = conf;
 }  
   
 ElectronAnalyzer::~ElectronAnalyzer()
@@ -258,7 +259,13 @@ ElectronAnalyzer::endJob(){
   dbe_->removeElement("h_ele_matchingObjectZ_matched");
   dbe_->removeElement("h_SC_z");
 
-  dbe_->save(outputFile_);
+
+  bool outputMEsInRootFile = parameters_.getParameter<bool>("OutputMEsInRootFile");
+  std::string outputFileName = parameters_.getParameter<std::string>("outputFile");
+  
+  if(outputMEsInRootFile){
+    dbe_->save(outputFile_);
+  }
 }
 
 void

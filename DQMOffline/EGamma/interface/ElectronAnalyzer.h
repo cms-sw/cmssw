@@ -9,7 +9,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronAnalyzer.h,v 1.1 2008/05/16 11:39:01 uberthon Exp $
+// $Id: ElectronAnalyzer.h,v 1.2 2008/09/12 11:40:09 uberthon Exp $
 //
 //
   
@@ -54,6 +54,8 @@ class ElectronAnalyzer : public edm::EDAnalyzer
   virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
   
  private:
+
+  edm::ParameterSet parameters_;
 
   TrajectoryStateTransform transformer_;
   edm::ESHandle<TrackerGeometry> pDD;
