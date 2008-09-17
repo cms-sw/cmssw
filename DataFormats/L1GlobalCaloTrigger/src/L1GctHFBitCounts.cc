@@ -1,6 +1,9 @@
 
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctHFBitCounts.h"
 
+/// set static consts
+//static const unsigned L1GctHFBitCounts::N_COUNTS = 4;
+
 /// default constructor (for vector initialisation etc.)
 L1GctHFBitCounts::L1GctHFBitCounts() :
   capBlock_(0),

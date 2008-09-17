@@ -1,6 +1,9 @@
 
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctHFRingEtSums.h"
 
+/// set static consts
+//static const unsigned L1GctHFRingEtSums::N_SUMS = 4;
+
 
 /// default constructor (for vector initialisation etc.)
 L1GctHFRingEtSums::L1GctHFRingEtSums() :

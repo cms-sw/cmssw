@@ -17,6 +17,9 @@
 class L1GctHFBitCounts {
 
  public:
+  static const unsigned N_SUMS=4;
+
+ public:
 
   /// default constructor (for vector initialisation etc.)
   L1GctHFBitCounts();
@@ -45,6 +48,9 @@ class L1GctHFBitCounts {
   
   
   // getters
+
+  // get number of ring sums
+  static unsigned nCounts() { return N_SUMS; }
   
   /// get GCT unpacker capture block
   uint16_t capBlock() const { return capBlock_; }

@@ -17,6 +17,9 @@
 class L1GctHFRingEtSums {
 
  public:
+  static const unsigned N_SUMS=4;
+
+ public:
 
   /// default constructor (for vector initialisation etc.)
   L1GctHFRingEtSums();
@@ -43,6 +46,8 @@ class L1GctHFRingEtSums {
   // arguments to be defined
   // static L1GctHfRingEtSums fromGtPsb()
   
+  // get number of ring sums
+  static unsigned nSums() { return N_SUMS; }
   
   // getters
   
