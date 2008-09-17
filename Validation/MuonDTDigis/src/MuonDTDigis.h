@@ -4,8 +4,8 @@
 /** \class MuonDTDigis
  *  Analyse the the muon-drift-tubes digitizer. 
  *  
- *  $Date: 2007/03/07 14:47:04 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/02/29 20:48:56 $
+ *  $Revision: 1.4 $
  *  \authors: R. Bellan
  */
 #include <FWCore/Framework/interface/Event.h>
@@ -109,7 +109,7 @@ class MuonDTDigis : public edm::EDAnalyzer{
 
   TH1F *hMuonDigis;
 //  TH1F *DigiTimeBox;
-  TFile *file_more_plots;
+//  TFile *file_more_plots;
 
   hDigis *hDigis_global;
   hDigis *hDigis_W0;

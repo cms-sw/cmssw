@@ -1,8 +1,8 @@
 /** \class MuonDTDigis
  *  Analyse the the muon-drift-tubes digitizer. 
  *  
- *  $Date: 2007/04/08 04:33:22 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/02/29 20:48:56 $
+ *  $Revision: 1.5 $
  *  \authors: R. Bellan
  */
 
@@ -46,17 +46,21 @@ MuonDTDigis::MuonDTDigis(const ParameterSet& pset){
   } else {
     outputFile_more_plots_ = " DTDigis_more_plots.root";
   }
-  file_more_plots = new TFile(outputFile_more_plots_.c_str(),"RECREATE");
-  file_more_plots->cd();
-  //DigiTimeBox = new TH1F("DigiTimeBox","Digi Time Box",2048,0,1600);
-  if(file_more_plots->IsOpen()) cout<<"File for additional plots: " << outputFile_more_plots_ << "  open!"<<endl;
-  else cout<<"*** Error in opening file for additional plots ***"<<endl;
+
+ //    Please, uncomment next lines if you want a secong root file with additional histos
+ 
+//  file_more_plots = new TFile(outputFile_more_plots_.c_str(),"RECREATE");
+//  file_more_plots->cd();
+//  if(file_more_plots->IsOpen()) cout<<"File for additional plots: " << outputFile_more_plots_ << "  open!"<<endl;
+//  else cout<<"*** Error in opening file for additional plots ***"<<endl;
 
  hDigis_global = new hDigis("Global");
  hDigis_W0 = new hDigis("Wheel0");
  hDigis_W1 = new hDigis("Wheel1");
  hDigis_W2 = new hDigis("Wheel2");
  hAllHits = new hHits("AllHits");
+
+// End of comment . See more in Destructor (~MuonDTDigis) method
 
   
   // ---------------------- 
@@ -121,27 +125,27 @@ MuonDTDigis::MuonDTDigis(const ParameterSet& pset){
 
     sprintf (histo_n, "DigiTimeBox" );
     sprintf (histo_t, "Digi Time Box" );
-    meDigiTimeBox_ = dbe_->book1D(histo_n, histo_t, 2048,0,1600);
+    meDigiTimeBox_ = dbe_->book1D(histo_n, histo_t, 1536,0,1200);
 
     sprintf (histo_n, "DigiTimeBox_wheel2m" );
     sprintf (histo_t, "Digi Time Box wheel -2" );
-    meDigiTimeBox_wheel2m_ = dbe_->book1D(histo_n, histo_t, 512,0,1600);
+    meDigiTimeBox_wheel2m_ = dbe_->book1D(histo_n, histo_t, 384,0,1200);
 
     sprintf (histo_n, "DigiTimeBox_wheel1m" );
     sprintf (histo_t, "Digi Time Box wheel -1" );
-    meDigiTimeBox_wheel1m_ = dbe_->book1D(histo_n, histo_t, 512,0,1600);
+    meDigiTimeBox_wheel1m_ = dbe_->book1D(histo_n, histo_t, 384,0,1200);
 
     sprintf (histo_n, "DigiTimeBox_wheel0" );
     sprintf (histo_t, "Digi Time Box wheel 0" );
-    meDigiTimeBox_wheel0_ = dbe_->book1D(histo_n, histo_t, 512,0,1600);
+    meDigiTimeBox_wheel0_ = dbe_->book1D(histo_n, histo_t, 384,0,1200);
 
     sprintf (histo_n, "DigiTimeBox_wheel1p" );
     sprintf (histo_t, "Digi Time Box wheel 1" );
-    meDigiTimeBox_wheel1p_ = dbe_->book1D(histo_n, histo_t, 512,0,1600);
+    meDigiTimeBox_wheel1p_ = dbe_->book1D(histo_n, histo_t, 384,0,1200);
 
     sprintf (histo_n, "DigiTimeBox_wheel2p" );
     sprintf (histo_t, "Digi Time Box wheel 2" );
-    meDigiTimeBox_wheel2p_ = dbe_->book1D(histo_n, histo_t, 512,0,1600);
+    meDigiTimeBox_wheel2p_ = dbe_->book1D(histo_n, histo_t, 384,0,1200);
 
     sprintf (histo_n, "DigiEfficiencyMu" );
     sprintf (histo_t, "Ratio (#Digis Mu)/(#SimHits Mu)" );
@@ -157,7 +161,7 @@ MuonDTDigis::MuonDTDigis(const ParameterSet& pset){
 
     sprintf (histo_n, "Number_simhit_vs_digi" );
     sprintf (histo_t, "Number_simhit_vs_digi" );
-    meSimvsDigi_ = dbe_->book2D(histo_n, histo_t, 70, 0., 70., 70, 0., 70.);
+    meSimvsDigi_ = dbe_->book2D(histo_n, histo_t, 100, 0., 140., 100, 0., 140.);
 
     sprintf (histo_n, "Wire_Number_with_double_Digi" );
     sprintf (histo_t, "Wire_Number_with_double_Digi" );
@@ -165,11 +169,11 @@ MuonDTDigis::MuonDTDigis(const ParameterSet& pset){
 
     sprintf (histo_n, "Simhit_occupancy_MB1" );
     sprintf (histo_t, "Simhit_occupancy_MB1" );
-    meMB1_sim_occup_ = dbe_->book1D(histo_n, histo_t, 53, 0., 53. );
+    meMB1_sim_occup_ = dbe_->book1D(histo_n, histo_t, 55, 0., 55. );
 
     sprintf (histo_n, "Digi_occupancy_MB1" );
     sprintf (histo_t, "Digi_occupancy_MB1" );
-    meMB1_digi_occup_ = dbe_->book1D(histo_n, histo_t, 53, 0., 53. );
+    meMB1_digi_occup_ = dbe_->book1D(histo_n, histo_t, 55, 0., 55. );
 
     sprintf (histo_n, "Simhit_occupancy_MB2" );
     sprintf (histo_t, "Simhit_occupancy_MB2" );
@@ -217,7 +221,7 @@ MuonDTDigis::MuonDTDigis(const ParameterSet& pset){
     char stringcham[40];
       for ( int slnum = 1; slnum < 62; ++slnum ) {
         sprintf(stringcham, "DigiTimeBox_slid_%d", slnum) ;
-        meDigiHisto_ =  dbe_->book1D(stringcham, stringcham, 100,0,1600);
+        meDigiHisto_ =  dbe_->book1D(stringcham, stringcham, 100,0,1200);
         meDigiTimeBox_SL_.push_back(meDigiHisto_);
       }
   }
@@ -226,17 +230,20 @@ MuonDTDigis::MuonDTDigis(const ParameterSet& pset){
 
 MuonDTDigis::~MuonDTDigis(){
 
+// Uncomment these next lines if you want additional plots in a second .root file
    
-  file_more_plots->cd();
+//  file_more_plots->cd();
+ 
+// hDigis_global->Write();
 
-  hDigis_global->Write();
+//  hDigis_W0->Write();
+//  hDigis_W1->Write();
+//  hDigis_W2->Write();
+//  hAllHits->Write();
 
-  hDigis_W0->Write();
-  hDigis_W1->Write();
-  hDigis_W2->Write();
-  hAllHits->Write();
+//  file_more_plots->Close();
 
-  file_more_plots->Close();
+// End of comment.
 
   cout << " outputFile_.size() " << outputFile_.size() << " dbe " << dbe_ << endl; 
   if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_); 
@@ -285,13 +292,14 @@ void  MuonDTDigis::analyze(const Event & event, const EventSetup& eventSetup){
   DTWireIdMap wireMap;     
  
    num_simhits = simHits->size();
- //  cout << "num simhits " << num_simhits << endl;
+  //  cout << "num simhits " << num_simhits << endl;
 
   for(vector<PSimHit>::const_iterator hit = simHits->begin();
       hit != simHits->end(); hit++){    
     // Create the id of the wire, the simHits in the DT known also the wireId
      DTWireId wireId(hit->detUnitId());
-   //  cout << " PSimHits wire id " << wireId << " part type " << hit->particleType() << endl;
+ //   cout << " PSimHits wire id " << wireId << " part type " << hit->particleType() << endl;
+
     // Fill the map
     wireMap[wireId].push_back(&(*hit));
 
@@ -309,7 +317,6 @@ void  MuonDTDigis::analyze(const Event & event, const EventSetup& eventSetup){
     float path = (exitP-entryP).mag();
     float path_x = fabs((exitP-entryP).x());
 
-     
     hAllHits->Fill(entryP.x(),exitP.x(),
 		   entryP.y(),exitP.y(),
 		   entryP.z(),exitP.z(),
@@ -319,7 +326,7 @@ void  MuonDTDigis::analyze(const Event & event, const EventSetup& eventSetup){
 
   }
    
-  // cout << "num muon simhits " << num_musimhits << endl;
+ //  cout << "num muon simhits " << num_musimhits << endl;
  
   DTDigiCollection::DigiRangeIterator detUnitIt;
   for (detUnitIt=dtDigis->begin();
@@ -337,8 +344,8 @@ void  MuonDTDigis::analyze(const Event & event, const EventSetup& eventSetup){
     for (DTDigiCollection::const_iterator digiIt = range.first;
 	 digiIt!=range.second;
 	 ++digiIt){
-  //    cout<<" Wire: "<<(*digiIt).wire()<<endl
-  //	  <<" digi time (ns): "<<(*digiIt).time()<<endl;
+  //   cout<<" Wire: "<<(*digiIt).wire()<<endl
+  //  <<" digi time (ns): "<<(*digiIt).time()<<endl;
       
       num_digis++;
       num_digis_layer++;
@@ -366,7 +373,7 @@ void  MuonDTDigis::analyze(const Event & event, const EventSetup& eventSetup){
 
       meDigiTimeBox_SL_[cham_num]->Fill((*digiIt).time());
 
-    //  cout << " size de digis " << (*digiIt).size() << endl;
+ //    cout << " size de digis " << (*digiIt).size() << endl;
       
       DTWireId wireId(id,(*digiIt).wire());
       if (wireId.station() == 1 ) meMB1_digi_occup_->Fill((*digiIt).wire());
@@ -401,10 +408,12 @@ void  MuonDTDigis::analyze(const Event & event, const EventSetup& eventSetup){
 
   }// for layers
 
+ //cout << "num_digis " << num_digis << "mu digis " << num_mudigis << endl;
+
   meDigiEfficiencyMu_->Fill( (float)num_mudigis/(float)num_musimhits );
   meDigiEfficiency_->Fill( (float)num_digis/(float)num_musimhits );
   meSimvsDigi_->Fill( (float)num_musimhits, (float)num_digis ) ;
-//  cout<<"--------------"<<endl;
+ //  cout<<"--------------"<<endl;
 
 }
 
