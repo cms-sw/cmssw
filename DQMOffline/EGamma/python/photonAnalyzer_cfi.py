@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-PhotonAnalysis = cms.EDAnalyzer("PhotonAnalyzer",
+photonAnalysis = cms.EDAnalyzer("PhotonAnalyzer",
 
-    Name = cms.untracked.string('PhotonAnalysis'),
+    Name = cms.untracked.string('photonAnalysis'),
 
     phoProducer = cms.string('photons'),
     photonCollection = cms.string(''),

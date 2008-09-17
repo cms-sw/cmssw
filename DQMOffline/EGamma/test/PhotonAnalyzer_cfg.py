@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-process = cms.Process("PhotonAnalysis")
+process = cms.Process("photonAnalysis")
 
 process.load("RecoEcal.EgammaClusterProducers.geometryForClustering_cff")
 process.load("Configuration.StandardSequences.Geometry_cff")
@@ -33,9 +33,9 @@ process.FEVT = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring("keep *_MEtoEDMConverter_*_*"),
     fileName = cms.untracked.string('photonsMEtoEDMConverter.root')
 )
-#process.p1 = cms.Path(process.MEtoEDMConverter)
 
-#process.p1 = cms.Path(process.PhotonAnalysis*process.MEtoEDMConverter)
-process.p1 = cms.Path(process.PhotonAnalysis)
+#process.p1 = cms.Path(process.MEtoEDMConverter)
+#process.p1 = cms.Path(process.photonAnalysis*process.MEtoEDMConverter)
+process.p1 = cms.Path(process.photonAnalysis)
 process.schedule = cms.Schedule(process.p1)
 
