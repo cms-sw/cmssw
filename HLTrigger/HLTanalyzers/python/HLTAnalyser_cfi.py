@@ -13,6 +13,7 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     l1GtObjectMapRecord             = cms.InputTag("hltL1GtObjectMap"),
     l1GtReadoutRecord               = cms.InputTag("hltGtDigis"),
     l1extramc                       = cms.string('hltL1extraParticles'),
+    l1extramu                       = cms.string('hltL1extraParticles'),
     hltresults                      = cms.InputTag("TriggerResults::HLT"),
     
     ### reconstructed objects

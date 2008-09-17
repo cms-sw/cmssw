@@ -33,6 +33,7 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
   mctruth_          = conf.getParameter<edm::InputTag> ("mctruth");
   genEventScale_    = conf.getParameter<edm::InputTag> ("genEventScale");
   l1extramc_        = conf.getParameter<std::string>   ("l1extramc");
+  l1extramu_        = conf.getParameter<std::string>   ("l1extramu");
   hltresults_       = conf.getParameter<edm::InputTag> ("hltresults");
   gtReadoutRecord_  = conf.getParameter<edm::InputTag> ("l1GtReadoutRecord");
   gtObjectMap_      = conf.getParameter<edm::InputTag> ("l1GtObjectMapRecord");
@@ -133,7 +134,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   //  L1 Extra Info
   iEvent.getByLabel(l1extramc_, "Isolated", l1extemi);
   iEvent.getByLabel(l1extramc_, "NonIsolated", l1extemn);
-  iEvent.getByLabel(l1extramc_, l1extmu);
+  iEvent.getByLabel(l1extramu_, l1extmu);
   iEvent.getByLabel(l1extramc_, "Central", l1extjetc);
   iEvent.getByLabel(l1extramc_, "Forward", l1extjetf);
   iEvent.getByLabel(l1extramc_, "Tau", l1exttaujet);
