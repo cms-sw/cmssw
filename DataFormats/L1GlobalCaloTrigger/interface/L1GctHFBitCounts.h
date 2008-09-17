@@ -32,11 +32,11 @@ class L1GctHFBitCounts {
   /// HF ring Et sums, which are ignored
   static L1GctHFBitCounts fromConcHFBitCounts(const uint16_t capBlock,
 					      const uint16_t capIndex,
-					      const uint8_t bx,
+					      const int16_t bx,
 					      const uint32_t data);
   
   /// named ctor for GCT emulator
-  static L1GctHFBitCounts fromGctEmulator(const uint8_t bx,
+  static L1GctHFBitCounts fromGctEmulator(const int16_t bx,
 					  const uint16_t bitCountPosEtaRing1,
 					  const uint16_t bitCountNegEtaRing1,
 					  const uint16_t bitCountPosEtaRing2,
@@ -85,7 +85,7 @@ class L1GctHFBitCounts {
   void setCapIndex(uint16_t capIndex) { capIndex_ = capIndex; }
 
   /// set bx
-  void setBx(uint16_t bx) { bx_ = bx; }
+  void setBx(int16_t bx) { bx_ = bx; }
 
   /// set a sum
   void setBitCount(unsigned i, uint16_t c);

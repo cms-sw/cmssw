@@ -20,7 +20,7 @@ L1GctHFBitCounts::~L1GctHFBitCounts()
 // named ctor for unpacker
 L1GctHFBitCounts L1GctHFBitCounts::fromConcHFBitCounts(const uint16_t capBlock,
 						       const uint16_t capIndex,
-						       const uint8_t bx,
+						       const int16_t bx,
 						       const uint32_t data)
 {
   L1GctHFBitCounts c;
@@ -33,7 +33,7 @@ L1GctHFBitCounts L1GctHFBitCounts::fromConcHFBitCounts(const uint16_t capBlock,
 
 
 // named ctor for GCT emulator
-L1GctHFBitCounts L1GctHFBitCounts::fromGctEmulator(const uint8_t bx,
+L1GctHFBitCounts L1GctHFBitCounts::fromGctEmulator(const int16_t bx,
 						   const uint16_t bitCountPosEtaRing1,
 						   const uint16_t bitCountNegEtaRing1,
 						   const uint16_t bitCountPosEtaRing2,

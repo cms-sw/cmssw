@@ -22,7 +22,7 @@ L1GctHFRingEtSums::~L1GctHFRingEtSums()
 // named ctor for unpacker
 L1GctHFRingEtSums L1GctHFRingEtSums::fromConcRingSums(const uint16_t capBlock,
 						      const uint16_t capIndex,
-						      const uint8_t bx,
+						      const int16_t bx,
 						      const uint32_t data)
 {
   L1GctHFRingEtSums s;
@@ -37,7 +37,7 @@ L1GctHFRingEtSums L1GctHFRingEtSums::fromConcRingSums(const uint16_t capBlock,
 }
 
 // named ctor for GCT emulator
-L1GctHFRingEtSums L1GctHFRingEtSums::fromGctEmulator(const uint8_t bx,
+L1GctHFRingEtSums L1GctHFRingEtSums::fromGctEmulator(const int16_t bx,
 						     const uint16_t etSumPosEtaRing1,
 						     const uint16_t etSumNegEtaRing1,
 						     const uint16_t etSumPosEtaRing2,

@@ -32,11 +32,11 @@ class L1GctHFRingEtSums {
   /// the HF bit counts, which are ignored
   static L1GctHFRingEtSums fromConcRingSums(const uint16_t capBlock,
 					    const uint16_t capIndex,
-					    const uint8_t bx,
+					    const int16_t bx,
 					    const uint32_t data);
   
   /// named ctor for GCT emulator
-  static L1GctHFRingEtSums fromGctEmulator(const uint8_t bx,
+  static L1GctHFRingEtSums fromGctEmulator(const int16_t bx,
 					   const uint16_t etSumPosEtaRing1,
 					   const uint16_t etSumPosEtaRing2,
 					   const uint16_t etSumNegEtaRing1,
