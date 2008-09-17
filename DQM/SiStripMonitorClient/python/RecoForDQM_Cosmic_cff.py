@@ -9,20 +9,17 @@ from EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi import *
 siPixelDigis.InputLabel = 'source'
 
 # Local Reco ####    
-from RecoLocalTracker.Configuration.RecoLocalTracker_cff import *
+from RecoLocalTracker.Configuration.RecoLocalTracker_Cosmics_cff import *
 siStripClusters.SiStripQualityLabel = ''
 
 # Track Reconstruction ########
-from RecoTracker.Configuration.RecoTracker_cff import *
+from RecoTracker.Configuration.RecoTrackerP5_cff import *
 
 # Beam Spot ########
 from RecoVertex.BeamSpotProducer.BeamSpot_cff import *
 
-# Pixel Vertex
-from RecoPixelVertexing.Configuration.RecoPixelVertexing_cff import *
-
 # Reconstruction Sequence
-RecoForDQM = cms.Sequence(siPixelDigis*siStripDigis*trackerlocalreco*offlineBeamSpot*recopixelvertexing*ckftracks)
+RecoForDQM = cms.Sequence(siPixelDigis*siStripDigis*offlineBeamSpot*trackerlocalreco*ctftracksP5)
 
 
 
