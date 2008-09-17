@@ -20,8 +20,7 @@ class SiPixelActionExecutor {
  ~SiPixelActionExecutor();
 
  void createSummary(    	    DQMStore    		 * bei);
- void bookOccupancyPlots(    	    DQMStore    		 * bei,
-                                    bool                           hiRes);
+ void bookOccupancyPlots(    	    DQMStore    		 * bei);
  void createOccupancy(    	    DQMStore    		 * bei);
  void setupQTests(      	    DQMStore    		 * bei);
  void checkQTestResults(	    DQMStore    		 * bei);

@@ -6,12 +6,6 @@ process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring('file:/afs/cern.ch/cms/CAF/CMSCOMM/COMM_GLOBAL/CRUZET3/CMSSW_2_1_2/src/DPGAnalysis/Skims/python/reco_50908_210_CRZT210_V1P.root')
                             )
 
-process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
-    name = cms.untracked.string('$Source: /local/projects/CMSSW/rep/CMSSW/DPGAnalysis/Skims/python/SuperPointing_cfg.py,v $'),
-    annotation = cms.untracked.string('CRUZET4 SuperPointing skim')
-)
-
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
 
@@ -112,9 +106,6 @@ process.out = cms.OutputModule("PoolOutputModule",
                                                                                             'rsWithMaterialTracksP5Path',
                                                                                             'globalCosmicMuons1LegBarrelOnlyPath',
                                                                                             'ctfWithMaterialTracksP5Path')),                               
-                               dataset = cms.untracked.PSet(
-			                 dataTier = cms.untracked.string('RECO'),
-                                         filterName = cms.untracked.string('SuperPointing')),
                                fileName = cms.untracked.string('superPointing.root')
                                )
 

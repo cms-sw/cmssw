@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2008/09/05 17:05:32 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/09/06 12:01:52 $
+ *  $Revision: 1.2 $
  *
  *  \author Martin Grunewald
  *
@@ -141,7 +141,7 @@ void HLTEventAnalyzerAOD::analyzeTrigger(const std::string& triggerName) {
 
   // Results from TriggerEvent product - Attention: must look only for
   // modules actually run in this path for this event!
-  for (unsigned j=0; j<=moduleIndex; ++j) {
+  for (unsigned int j=0; j<=moduleIndex; ++j) {
     const string& moduleLabel(moduleLabels[j]);
     const string  moduleType(hltConfig_.moduleType(moduleLabel));
     // check whether the module is packed up in TriggerEvent product

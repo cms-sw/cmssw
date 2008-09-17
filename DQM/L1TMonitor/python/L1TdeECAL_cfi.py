@@ -1,12 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
 l1demonecal = cms.EDFilter("L1TdeECAL",
-    HistFolder = cms.untracked.string('L1TEMU/xpert/Ecal/'),
-    verbose = cms.untracked.bool(False),
-    HistFile = cms.untracked.string('./L1TDQM.root'),
     DataEmulCompareSource = cms.InputTag("l1compare"),
+    HistFolder = cms.untracked.string('L1TEMU/ECALexpert/'),
+    HistFile = cms.untracked.string('l1demon.root'),
+    disableROOToutput = cms.untracked.bool(True),
     DQMStore = cms.untracked.bool(True),
-    disableROOToutput = cms.untracked.bool(True)
+    VerboseFlag = cms.untracked.int32(0)
 )
 
 

@@ -34,7 +34,7 @@ cmsDriver = 'cmsDriver.py'                    #cmsDriver.py path
 hypreg = re.compile('-')
 debug = False
 DEF_STEPS = ('GEN,SIM', 'DIGI')
-AllSteps  = ["GEN,SIM", "DIGI", "DIGI2RAW", "L1", "HLT", "RAW2DIGI", "RECO"]
+AllSteps  = ["GEN,SIM", "DIGI", "L1", "DIGI2RAW", "HLT", "RAW2DIGI", "RECO"]
 AfterPileUpSteps = AllSteps[2:]
 
 # Global variables used by writeCommandsToReport and dependents
@@ -119,6 +119,8 @@ def optionparse():
     for x in range(len(explanations)):
         explanation += "%-*s %s\n" % (30, explanations[x],CandDesc[x])
     parser = opt.OptionParser(usage=("""%s NUM_EVENTS_PER_CFG CANDLES PROFILE [--cmsdriver=cmsDriverOptions] [--usersteps=processingStepsOption]
+
+    Description - This program creates a configuration file for cmsRelvalreport.py that describes the order in which cmsDriver.py should be run with which candles, steps and profiling so that time spent running cmsDriver.py is minimised. Without this correct ordering we would have to re-run parts of the profiling steps.
 
     Arguments:
         NUM_EVENTS_PER_CFG - The number of events per config file

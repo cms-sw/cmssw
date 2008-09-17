@@ -2,8 +2,8 @@
  *  Class:PostProcessor 
  *
  *
- *  $Date: 2008/07/16 20:23:58 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/07/15 18:43:44 $
+ *  $Revision: 1.3 $
  * 
  *  \author Junghwan Goh - SungKyunKwan University
  */
@@ -62,12 +62,8 @@ void PostProcessor::endJob()
 
     if ( args.empty() ) continue;
 
-    if (args[1][0] != 'C' ) {
-      processLoop(args[0],args);
-    }
-    else {
-      computeFunction(args[0],args);
-    }
+    processLoop(args[0],args);
+
   }
 
   if ( ! outputFileName_.empty() ) theDQM->save(outputFileName_);
@@ -101,7 +97,6 @@ void PostProcessor::computeEfficiency(const string& startDir, const string& effi
 
   hReco->Sumw2();
   hSim->Sumw2();
-
   //  efficME->getTH1F()->Divide(hReco, hSim, 1., 1., "B");
 
   const int nBin = efficME->getNbinsX();
@@ -152,7 +147,7 @@ void PostProcessor::computeResolution(const string& startDir, const string& name
 void PostProcessor::processLoop( const std::string& startDir, vector<boost::tokenizer<elsc>::value_type> args) 
 {
   if(theDQM->dirExists(startDir)) theDQM->cd(startDir);
-
+  
   std::vector<std::string> subDirs =   theDQM->getSubdirs();
   std::vector<std::string> mes     =  theDQM->getMEs();
 
@@ -187,19 +182,13 @@ void PostProcessor::processLoop( const std::string& startDir, vector<boost::toke
   for(vstring::const_iterator iDir = subDirs.begin(); iDir != subDirs.end();++iDir) {
     const string& theSubDir = *iDir;
     processLoop(theSubDir,args);
-  }
-    computeFunction(startDir,args);
-}
 
-void PostProcessor::computeFunction( const std::string& startDir, vector<boost::tokenizer<elsc>::value_type> args) 
-{
-  if(theDQM->dirExists(startDir)) theDQM->cd(startDir);
-  
+  }
+
   string path1, path2;
+    
   switch ( args[1][0] ) {
     // Efficiency plots
-  case 'C':
-  case 'c':
   case 'E':
   case 'e':
     if ( args.size() != 6 ) break;;

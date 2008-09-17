@@ -14,6 +14,7 @@ globalSeedsFromPairsWithVertices = cms.EDProducer("SeedGeneratorFromRegionHitsED
         RegionPSetWithVerticesBlock,
         ComponentName = cms.string('GlobalTrackingRegionWithVerticesProducer')
     ),
+    SeedMomentumForBOFF = cms.double(5.0), 
     TTRHBuilder = cms.string('WithTrackAngle')
 )
 

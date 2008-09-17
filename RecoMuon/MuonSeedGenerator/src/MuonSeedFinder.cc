@@ -1,8 +1,8 @@
 /**
  *  See header file for a description of this class.
  *
- *  $Date: 2008/08/25 22:00:06 $
- *  $Revision: 1.24 $
+ *  $Date: 2007/11/09 02:04:11 $
+ *  $Revision: 1.22 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author porting  R. Bellan
  *
@@ -23,9 +23,7 @@ typedef MuonTransientTrackingRecHit::MuonRecHitPointer MuonRecHitPointer;
 typedef MuonTransientTrackingRecHit::ConstMuonRecHitPointer ConstMuonRecHitPointer;
 typedef MuonTransientTrackingRecHit::MuonRecHitContainer MuonRecHitContainer;
 
-MuonSeedFinder::MuonSeedFinder(const edm::ParameterSet & pset):
-  thePtExtractor(pset)
-{
+MuonSeedFinder::MuonSeedFinder(){
   
   // FIXME put it in a pSet
   // theMinMomentum = pset.getParameter<double>("EndCapSeedMinPt");  //3.0
@@ -41,9 +39,7 @@ vector<TrajectorySeed> MuonSeedFinder::seeds(const edm::EventSetup& eSetup) cons
   vector<TrajectorySeed> theSeeds;
 
   MuonDTSeedFromRecHits barrel(eSetup);
-  barrel.setPtExtractor(&thePtExtractor);
   MuonOverlapSeedFromRecHits overlap(eSetup);
-  overlap.setPtExtractor(&thePtExtractor);
 
   int num_bar = 0;
   for ( MuonRecHitContainer::const_iterator iter = theRhits.begin(); iter!= theRhits.end(); iter++ ){
@@ -67,8 +63,6 @@ vector<TrajectorySeed> MuonSeedFinder::seeds(const edm::EventSetup& eSetup) cons
   
   
   MuonCSCSeedFromRecHits endcap(eSetup);
-  endcap.setPtExtractor(&thePtExtractor);
-
   int num_endcap = 0;
   for ( MuonRecHitContainer::const_iterator iter = theRhits.begin(); iter!= theRhits.end(); iter++ ){
     if ( (*iter)->isCSC() )

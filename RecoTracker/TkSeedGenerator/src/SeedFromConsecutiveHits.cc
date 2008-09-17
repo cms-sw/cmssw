@@ -29,17 +29,30 @@ SeedFromConsecutiveHits:: SeedFromConsecutiveHits(
     const SeedingHitSet & ordered,
     const GlobalPoint& vertexPos,
     const GlobalError& vertexErr,
-    const edm::EventSetup& es)
+    const edm::EventSetup& es,
+    double theBOFFMomentum)
   : isValid_(false)
 {
   const SeedingHitSet::Hits & hits = ordered.hits(); 
   if ( hits.size() < 2) return;
+
+  edm::ESHandle<MagneticField> bfield;
+  es.get<IdealMagneticFieldRecord>().get(bfield);
+  bool isBOFF = ( std::abs(bfield->inTesla(GlobalPoint(0,0,0)).z()) < 1e-3 );
 
   // build initial helix and FTS
   const TransientTrackingRecHit::ConstRecHitPointer& tth1 = hits[0];
   const TransientTrackingRecHit::ConstRecHitPointer& tth2 = hits[1];
   FastHelix helix(tth2->globalPosition(), tth1->globalPosition(), vertexPos, es);
   GlobalTrajectoryParameters kine = helix.stateAtVertex().parameters();
+
+  if (isBOFF && (theBOFFMomentum > 0)) {
+    kine = GlobalTrajectoryParameters(kine.position(),
+                                      kine.momentum().unit() * theBOFFMomentum,
+                                      kine.charge(),
+                                      &*bfield);
+  }
+
   float sinTheta = sin( kine.momentum().theta() );
   FreeTrajectoryState fts( kine, initialError( vertexPos, vertexErr, sinTheta));
 

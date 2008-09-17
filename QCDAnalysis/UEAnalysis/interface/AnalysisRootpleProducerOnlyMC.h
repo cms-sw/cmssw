@@ -45,6 +45,9 @@ public:
   virtual void endJob() ;
   
   void fillEventInfo(int);
+  void fillMCParticles(float, float, float, float);
+  void fillInclusiveJet(float, float, float, float);
+  void fillChargedJet(float, float, float, float);
   void store();
 
 private:
@@ -66,8 +69,22 @@ private:
 
   TTree* AnalysisTree;
 
-  int EventKind;
+  static const int NMCPMAX = 10000;   
+  static const int NTKMAX = 10000;
+  static const int NIJMAX = 10000;
+  static const int NCJMAX = 10000;
+  static const int NTJMAX = 10000;
+  static const int NEHJMAX = 10000;
+
+  int EventKind,NumberMCParticles,NumberTracks,NumberInclusiveJet,NumberChargedJet,NumberTracksJet,NumberCaloJet;
   
+  float MomentumMC[NMCPMAX],TransverseMomentumMC[NMCPMAX],EtaMC[NMCPMAX],PhiMC[NMCPMAX];
+  float MomentumTK[NTKMAX],TransverseMomentumTK[NTKMAX],EtaTK[NTKMAX],PhiTK[NTKMAX];
+  float MomentumIJ[NIJMAX],TransverseMomentumIJ[NIJMAX],EtaIJ[NIJMAX],PhiIJ[NIJMAX];
+  float MomentumCJ[NCJMAX],TransverseMomentumCJ[NCJMAX],EtaCJ[NCJMAX],PhiCJ[NCJMAX];
+  float MomentumTJ[NTJMAX],TransverseMomentumTJ[NTJMAX],EtaTJ[NTJMAX],PhiTJ[NTJMAX];
+  float MomentumEHJ[NEHJMAX],TransverseMomentumEHJ[NEHJMAX],EtaEHJ[NEHJMAX],PhiEHJ[NEHJMAX];
+
   TClonesArray* MonteCarlo;
   TClonesArray* InclusiveJet;
   TClonesArray* ChargedJet;

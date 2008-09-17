@@ -314,9 +314,7 @@ void CSCEventData::checkALCTClasses() {
     theALCTHeader = new CSCALCTHeader(theChamberType);
     theALCTHeader->setEventInformation(theDMBHeader);
     theAnodeData = new CSCAnodeData(*theALCTHeader);
-    int size = theALCTHeader->sizeInWords() + theAnodeData->sizeInWords() + CSCALCTTrailer::sizeInWords();
-    int firmwareVersion = 2006;
-    theALCTTrailer = new CSCALCTTrailer(size, firmwareVersion);
+    theALCTTrailer = new CSCALCTTrailer();
     // set data available flag
     theDMBHeader.addNALCT();
   }
@@ -349,7 +347,6 @@ void CSCEventData::add(const CSCStripDigi & digi, int layer) {
 void CSCEventData::add(const CSCWireDigi & digi, int layer) {
   checkALCTClasses();
   theAnodeData->add(digi, layer);
-  theALCTHeader->setDAVForChannel(digi.getWireGroup());
 }
 
 void CSCEventData::add(const CSCComparatorDigi & digi, int layer) {
@@ -394,7 +391,8 @@ boost::dynamic_bitset<> CSCEventData::pack() {
 								     theDMBHeader.data());
 
   if(theALCTHeader != NULL)     {
-    boost::dynamic_bitset<> alctHeader = theALCTHeader->pack();
+    boost::dynamic_bitset<> alctHeader = bitset_utilities::ushortToBitset(theALCTHeader->sizeInWords()*16,
+									  theALCTHeader->data());
     result = bitset_utilities::append(result, alctHeader);
   }
   if(theAnodeData != NULL) {
@@ -407,6 +405,7 @@ boost::dynamic_bitset<> CSCEventData::pack() {
 									  theALCTTrailer->data());
     result = bitset_utilities::append(result, alctTrailer);
   }
+
   if(theTMBData != NULL)  {
     result  = bitset_utilities::append(result, theTMBData->pack());
   }
@@ -430,9 +429,7 @@ void CSCEventData::selfTest() {
   CSCEventData chamberData(5);
   CSCDetId detId(1, 3, 2, 1, 3);
   std::vector<CSCCLCTDigi> clctDigis;
-  // Both CLCTs are read-out at the same (pre-trigger) bx, so the last-but-one
-  // arguments in both digis must be the same.
-  clctDigis.push_back(CSCCLCTDigi(1, 1, 4, 1, 0, 30, 3, 2, 1)); // valid for 2007
+  clctDigis.push_back(CSCCLCTDigi(1, 1, 4, 1, 0, 30, 3, 0, 1)); // valid for 2007
   clctDigis.push_back(CSCCLCTDigi(1, 1, 2, 1, 1, 31, 1, 2, 2));
   
   // BX of LCT (8th argument) is 1-bit word (the least-significant bit
@@ -459,44 +456,5 @@ void CSCEventData::selfTest() {
   assert(cscPackerCompare(lcts[0], corrDigis[0]));
   assert(cscPackerCompare(lcts[1], corrDigis[1]));
 
-  // test strip digis
-  CSCDetId me1adet1(1, 1, 1, 4, 1);
-  CSCDetId me1bdet1(1, 1, 4, 4, 6);
-  CSCDetId me1adet2(2, 1, 1, 4, 2);
-  CSCDetId me1bdet2(2, 1, 4, 4, 5);
-
-  std::vector<int> sca(16, 600);
-  std::vector<unsigned short> overflow(16, 0), overlap(16, 0), errorfl(16,0);
-  CSCStripDigi me1a(5, sca, overflow, overlap, errorfl);
-  CSCStripDigi me1b(8, sca, overflow, overlap, errorfl);
-
-  CSCEventData forward(1);
-  CSCEventData backward(1);
-  
-  forward.add(me1a, me1adet1.layer());
-  forward.add(me1b, me1bdet1.layer());
-  backward.add(me1a, me1adet2.layer());
-  backward.add(me1b, me1adet2.layer());
-
-  std::vector<CSCStripDigi> me1afs = forward.stripDigis(me1adet1.layer());
-  std::vector<CSCStripDigi> me1bfs = forward.stripDigis(me1bdet1.layer());
-  std::vector<CSCStripDigi> me1abs = backward.stripDigis(me1adet2.layer());
-  std::vector<CSCStripDigi> me1bbs = backward.stripDigis(me1bdet2.layer());
-
-  //FIXME The current code works under the assumption that ME11 and ME1A
-  // go into separate EventData.  They need to be combined.
-  assert(me1afs.size() == 16);
-  assert(me1bfs.size() == 16);
-  assert(me1abs.size() == 16);
-  assert(me1bbs.size() == 16);
-  assert(me1afs[4].getStrip() == 5);
-  assert(me1bfs[7].getStrip() == 8);
-  assert(me1abs[4].getStrip() == 5);
-  assert(me1bbs[7].getStrip() == 8);
-  assert(me1afs[4].pedestal() == 600);
-  assert(me1bfs[7].pedestal() == 600);
-  assert(me1abs[4].pedestal() == 600);
-  assert(me1bbs[7].pedestal() == 600);
-
-
 }
+ 

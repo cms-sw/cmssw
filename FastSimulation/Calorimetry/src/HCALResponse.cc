@@ -307,8 +307,8 @@ HCALResponse::HCALResponse(const edm::ParameterSet& pset,
   for(int i = 0; i<maxHDeF;  i++) {
     eGridHDF[i] = _eGridHDF[i];
     for(int j = 0; j<maxHDetaF; j++) {
-      meanHDF[i][j]  = 0.7 *  _meanHDF[i][j] / eGridHDF[i];
-      sigmaHDF[i][j] = 0.7 * _sigmaHDF[i][j] / eGridHDF[i];
+      meanHDF[i][j] =  _meanHDF[i][j] / eGridHDF[i];
+      sigmaHDF[i][j] =  _sigmaHDF[i][j] / eGridHDF[i];
     }
   }
 
@@ -317,8 +317,8 @@ HCALResponse::HCALResponse(const edm::ParameterSet& pset,
   for(int i = 0; i<maxEMe;  i++) {
     eGridEM[i] = _eGridEM[i];
     for(int j = 0; j<maxEMeta; j++) {
-      meanEM[i][j]  = 0.7 *  _meanEM[i][j] / eGridEM[i];
-      sigmaEM[i][j] = 0.7 * _sigmaEM[i][j] / eGridEM[i];
+      meanEM[i][j] = _meanEM[i][j] / eGridEM[i];
+      sigmaEM[i][j] = _sigmaEM[i][j] / eGridEM[i];
     }
   }
 

@@ -7,7 +7,11 @@ from cmsPerfCommons import Candles, CandFname, getVerFromLog
 
 def getParameters():
     global _debug
-    parser = opt.OptionParser()
+    global PROG_NAME
+    PROG_NAME = os.path.basename(sys.argv[0])
+    parser = opt.OptionParser(usage="""%s [OLD_REL_DIR] [NEW_REL_DIR]
+
+To compare 2 cmsPerfSuite.py directories pass the previous release as the first argument and the latest release as the second argument """ % PROG_NAME)
     #
     # Options
     #
@@ -58,7 +62,7 @@ def compareSimMemPair(newLog,profdir,curdir,candle,olddir,oldRelName=""):
     else:
         print "Successfully compared %s and %s" % (oldlog,newLog)        
         
-def regressReports(olddir,newdir,oldRelName = ""):
+def regressReports(olddir,newdir,oldRelName = "",newRelName=""):
     profSets = ["Valgrind", "IgProf", "TimeSize"]
     for candle in Candles:
         for profset in profSets:
@@ -75,6 +79,8 @@ def regressReports(olddir,newdir,oldRelName = ""):
                 if profset == "IgProf":
                     Profs = [ "IgProfMemTotal",
                               "IgProfMemLive"]
+
+
                     
                 for prof in Profs:
                     if   prof == "EdmSize" or prof == "valgrind":
@@ -88,9 +94,9 @@ def regressReports(olddir,newdir,oldRelName = ""):
 
                     profdir = os.path.basename(adir)
 
-
                     if prof == "TimingReport" or prof == "EdmSize" or prof == "valgrind" or prof == "IgProfMemTotal" or prof == "IgProfMemLive":
                         stepreg = re.compile("%s_([^_]*)_%s((.log)|(.gz))?" % (CandFname[candle],prof))
+                        
                         for log in stepLogs:
                             base = os.path.basename(log)
                             if prof == "IgProfMemTotal" or prof == "IgProfMemLive":
@@ -114,6 +120,7 @@ def regressReports(olddir,newdir,oldRelName = ""):
 
                                         if   prof == "EdmSize":
                                             cpr.cmpEdmSizeReport(outpath,oldlog,log)
+                                            
                                         elif prof == "TimingReport":
                                             logdir = "%s_%s_%s" % (CandFname[candle],step,prof)
                                             outd   = os.path.join(adir,logdir)
@@ -121,11 +128,13 @@ def regressReports(olddir,newdir,oldRelName = ""):
                                             oldlog = os.path.join(olddir,profdir,base)
                                             print "** Comparing", candle, step, prof, "previous release: %s and latest release: %s" % (oldlog,log)
                                             print "**"
-                                            oldRelName = getOldRelName(oldRelName,olddir)                                                                                            
-                                            cpr.cmpTimingReport(rootf, outd, oldlog, log, 1, batch = True, prevrev = oldRelName)                                                    
+                                            oldRelName = getOldRelName(oldRelName,olddir)
+                                            
+                                            cpr.cmpTimingReport(rootf, outd, oldlog, log, 1, batch = True, prevrev = oldRelName)
                                         elif prof == "valgrind":
                                             cpr.cmpCallgrindReport(outpath,oldlog,log)
                                         elif prof == "IgProfMemTotal" or prof == "IgProfMemSize":
+                                            
                                             cpr.cmpIgProfReport(outpath,oldlog,log)
                                     except cpr.PerfReportErr,detail:
                                         print "WARNING: Perfreport return non-zero exit status when comparing %s and %s. Perfreport output follows" % (oldlog,log)
@@ -146,12 +155,17 @@ def regressReports(olddir,newdir,oldRelName = ""):
                                 continue
                     elif prof == "SimpleMemoryCheck":
                         compareSimMemPair(stepLogs,candle,profdir,adir,olddir,oldRelName= oldRelName)
-
+                    
+    if newRelName == "":
+        newRelName = getVerFromLog(newdir)
+    regress = open("%s/REGRESSION.%s.vs.%s" % (newdir,getVerFromLog(olddir),newRelName),"w")
+    regress.write(olddir)
+    regress.close()
 
 def _main():
     (oldpath,newpath) = getParameters()
     regressReports(oldpath,newpath,oldRelName=getVerFromLog(oldpath))
-    os.system("touch %s/REGRESSION.%s.vs.%s" % (newpath,getVerFromLog(oldpath),getVerFromLog(newpath)))
+
               
 if __name__ == "__main__":
     _main()

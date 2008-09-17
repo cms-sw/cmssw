@@ -35,26 +35,10 @@ namespace edmtest
     virtual ~PedestalsAnalyzer() {  
       std::cout<<"~PedestalsAnalyzer "<<std::endl;
     }
-    virtual void beginJob(const edm::EventSetup& context);
-    virtual void beginRun(const edm::Run&, const edm::EventSetup& context);
     virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
   private:
   };
-  void
-  PedestalsAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& context){
-    std::cout<<"###PedestalsAnalyzer::beginRun"<<std::endl;
-    edm::ESHandle<Pedestals> pPeds;
-    std::cout<<"got eshandle"<<std::endl;
-    context.get<PedestalsRcd>().get(pPeds);
-  }
-  void
-  PedestalsAnalyzer::beginJob(const edm::EventSetup& context){
-    std::cout<<"###PedestalsAnalyzer::beginJob"<<std::endl;
-    /*edm::ESHandle<Pedestals> pPeds;
-    std::cout<<"got eshandle"<<std::endl;
-    context.get<PedestalsRcd>().get(pPeds);
-    */
-  }
+  
   void
    PedestalsAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& context){
     using namespace edm::eventsetup;

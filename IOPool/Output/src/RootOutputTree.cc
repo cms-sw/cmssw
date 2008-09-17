@@ -9,6 +9,7 @@
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "boost/bind.hpp"
 #include <limits>
@@ -34,6 +35,32 @@ namespace edm {
 				    
     return assignTTree(filePtr, tree);
   }
+
+  bool RootOutputTree::checkSplitLevelAndBasketSize(TTree *inputTree) const {
+
+    if (inputTree == 0) return false;
+
+    // Do the split level and basket size match in the input and output?
+    for (std::vector<TBranch *>::const_iterator it = readBranches_.begin(), itEnd = readBranches_.end();
+      it != itEnd; ++it) {
+
+      TBranch* outputBranch = *it;
+      if (outputBranch != 0) {
+        TBranch* inputBranch = inputTree->GetBranch(outputBranch->GetName());
+
+        if (inputBranch != 0) {
+          if (inputBranch->GetSplitLevel() != outputBranch->GetSplitLevel() ||
+              inputBranch->GetBasketSize() != outputBranch->GetBasketSize()) {
+            LogInfo("FastCloning")
+              << "Fast Cloning disabled because split level or basket size do not match";
+            return false;
+          }
+        }
+      }
+    }
+    return true;
+  }
+
 
   void
   RootOutputTree::fastCloneTTree(TTree *in, TTree *out) {

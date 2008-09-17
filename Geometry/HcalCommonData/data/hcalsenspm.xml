@@ -192,14 +192,6 @@
    <Parameter name="noff"     value="15"/>
    <Parameter name="noff"     value="9"/>
    <Parameter name="noff"     value="5"/>
-   <Parameter name="noff"     value="10"/>
-   <Parameter name="noff"     value="17"/>
-   <Parameter name="noff"     value="3"/>
-   <Parameter name="noff"     value="15"/>
-   <Parameter name="noff"     value="18"/>
-   <Parameter name="noff"     value="1"/>
-   <Parameter name="noff"     value="18"/>
-   <Parameter name="noff"     value="19"/>
    <Parameter name="etaMin"   value="1"/>
    <Parameter name="etaMin"   value="16"/>
    <Parameter name="etaMin"   value="29"/>

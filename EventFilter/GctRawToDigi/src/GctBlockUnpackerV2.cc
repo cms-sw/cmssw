@@ -351,8 +351,6 @@ void GctBlockUnpackerV2::blockToGctJetCandsAndCounts(const unsigned char * d, co
   // Re-interpret block payload pointer to 32 bits so it sees six jet counts at a time.
   const uint32_t * p32 = reinterpret_cast<const uint32_t *>(p16);
 
-  // Skip channel 0 for now. Later this may carry MHT would be accessed as p32[0]
-  gctHFBitCounts_->push_back(L1GctHFBitCounts::fromConcHFBitCounts(id,7,0,p32[nSamples])); // Channel 2 carries both HF counts and sums
-  gctHFRingEtSums_->push_back(L1GctHFRingEtSums::fromConcRingSums(id,7,0,p32[nSamples]));  
-
+  // nSamples below gives the offset to the second set of six jet counts in timesample 0.
+  gctJetCounts_->push_back(L1GctJetCounts(p32[0], p32[nSamples]));
 }

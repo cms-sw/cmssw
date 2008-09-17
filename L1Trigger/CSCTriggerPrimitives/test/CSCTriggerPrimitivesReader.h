@@ -8,8 +8,8 @@
  *
  * \author Slava Valuev, UCLA.
  *
- * $Date: 2008/04/29 10:48:06 $
- * $Revision: 1.11 $
+ * $Date: 2007/10/08 14:36:54 $
+ * $Revision: 1.10 $
  *
  */
 
@@ -80,14 +80,12 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
   // The file which will store the histos
   // TFile *theFile;
 
-  enum trig_cscs {MAX_ENDCAPS = 2, MAX_STATIONS = 4, CSC_TYPES = 10};
+  enum trig_cscs {MAX_STATIONS = 4, CSC_TYPES = 10};
   enum {MAXPAGES = 20};      // max. number of pages in postscript files
   static const double TWOPI; // 2.*pi
 
   // Various useful constants
   static const std::string csc_type[CSC_TYPES];
-  static const std::string csc_type_plus[CSC_TYPES];
-  static const std::string csc_type_minus[CSC_TYPES];
   static const int NCHAMBERS[CSC_TYPES];
   static const int MAX_WG[CSC_TYPES];
   static const int MAX_HS[CSC_TYPES];
@@ -170,13 +168,11 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
 
   // Histograms
   // ALCTs
-  TH1F *hAlctPerEvent, *hAlctPerChamber, *hAlctPerCSC;
-  TH1F *hAlctCsc[MAX_ENDCAPS][CSC_TYPES];
+  TH1F *hAlctPerEvent, *hAlctPerChamber, *hAlctPerCSC, *hAlctCsc[CSC_TYPES];
   TH1F *hAlctValid, *hAlctQuality, *hAlctAccel, *hAlctCollis, *hAlctKeyGroup;
   TH1F *hAlctBXN;
   // CLCTs
-  TH1F *hClctPerEvent, *hClctPerChamber, *hClctPerCSC;
-  TH1F *hClctCsc[MAX_ENDCAPS][CSC_TYPES];
+  TH1F *hClctPerEvent, *hClctPerChamber, *hClctPerCSC, *hClctCsc[CSC_TYPES];
   TH1F *hClctValid, *hClctQuality, *hClctStripType, *hClctSign, *hClctCFEB;
   TH1F *hClctBXN;
   TH1F *hClctKeyStrip[2], *hClctPattern[2];
@@ -185,7 +181,7 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
   TH1F *hLctTMBPerEvent, *hLctTMBPerChamber;
   TH1F *hLctTMBPerCSC, *hCorrLctTMBPerCSC;
   TH1F *hLctTMBEndcap, *hLctTMBStation, *hLctTMBSector, *hLctTMBRing;
-  TH1F *hLctTMBChamber[MAX_STATIONS], *hLctTMBCsc[MAX_ENDCAPS][CSC_TYPES];
+  TH1F *hLctTMBChamber[MAX_STATIONS], *hLctTMBCsc[CSC_TYPES];
   TH1F *hLctTMBValid, *hLctTMBQuality, *hLctTMBKeyGroup;
   TH1F *hLctTMBKeyStrip, *hLctTMBStripType;
   TH1F *hLctTMBPattern, *hLctTMBBend, *hLctTMBBXN;
@@ -199,20 +195,14 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
 
   // Histograms for firmware-emulator comparisons
   // ALCTs
-  TH1F *hAlctCompFoundCsc[MAX_ENDCAPS][CSC_TYPES];
-  TH1F *hAlctCompSameNCsc[MAX_ENDCAPS][CSC_TYPES];
-  TH1F *hAlctCompTotalCsc[MAX_ENDCAPS][CSC_TYPES];
-  TH1F *hAlctCompMatchCsc[MAX_ENDCAPS][CSC_TYPES];
+  TH1F *hAlctCompFoundCsc[CSC_TYPES], *hAlctCompSameNCsc[CSC_TYPES];
+  TH1F *hAlctCompTotalCsc[CSC_TYPES], *hAlctCompMatchCsc[CSC_TYPES];
   // CLCTs
-  TH1F *hClctCompFoundCsc[MAX_ENDCAPS][CSC_TYPES];
-  TH1F *hClctCompSameNCsc[MAX_ENDCAPS][CSC_TYPES];
-  TH1F *hClctCompTotalCsc[MAX_ENDCAPS][CSC_TYPES];
-  TH1F *hClctCompMatchCsc[MAX_ENDCAPS][CSC_TYPES];
+  TH1F *hClctCompFoundCsc[CSC_TYPES], *hClctCompSameNCsc[CSC_TYPES];
+  TH1F *hClctCompTotalCsc[CSC_TYPES], *hClctCompMatchCsc[CSC_TYPES];
   // Correlated LCTs
-  TH1F *hLctCompFoundCsc[MAX_ENDCAPS][CSC_TYPES];
-  TH1F *hLctCompSameNCsc[MAX_ENDCAPS][CSC_TYPES];
-  TH1F *hLctCompTotalCsc[MAX_ENDCAPS][CSC_TYPES];
-  TH1F *hLctCompMatchCsc[MAX_ENDCAPS][CSC_TYPES];
+  TH1F *hLctCompFoundCsc[CSC_TYPES], *hLctCompSameNCsc[CSC_TYPES];
+  TH1F *hLctCompTotalCsc[CSC_TYPES], *hLctCompMatchCsc[CSC_TYPES];
 
   // Resolution histograms
   // ALCT

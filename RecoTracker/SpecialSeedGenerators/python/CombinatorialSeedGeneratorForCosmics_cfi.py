@@ -120,7 +120,8 @@ combinatorialcosmicseedfinder = cms.EDFilter("CtfSpecialSeedGenerator",
     doClusterCheck = cms.bool(True),
     CheckHitsAreOnDifferentLayers = cms.bool(False),
     SetMomentum = cms.bool(True),
-    ClusterCollectionLabel = cms.InputTag("siStripClusters")
+    ClusterCollectionLabel = cms.InputTag("siStripClusters"),
+    requireBOFF = cms.bool(False),
 )
 
 

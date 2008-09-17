@@ -219,17 +219,11 @@ public:
    */
   LocalPoint localCenterOfWireGroup( int wireGroup ) const;
 
+  //@@ MUST BE IMPLEMENTED IN CSCLayerGeometry ITSELF
   /** 
    * Length of a wire group (center wire, across chamber face)
    */
   float lengthOfWireGroup( int wireGroup ) const;
-
-  /**
-   * Local y limits of the strip plane
-   */
-  std::pair<float, float> yLimitsOfStripPlane() const {
-    return theStripTopology->yLimitsOfStripPlane();
-  }
 
   /**
    * Return estimate of the 2-dim point of intersection of a strip and a cluster of wires.

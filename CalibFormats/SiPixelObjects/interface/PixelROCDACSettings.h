@@ -1,29 +1,23 @@
 #ifndef PixelROCDACSettings_h
 #define PixelROCDACSettings_h
-/*! \file CalibFormats/SiPixelObjects/interface/PixelROCDACSettings.h
-*   \brief This class provide the data structure for the ROC DAC parameters
-*
-*   At this point I do not see a reason to make an abstract layer for this code.
-*/
+//
+// This class provide the data structure for the
+// ROC DAC parameters
+//
+// At this point I do not see a reason to make an
+// abstract layer for this code.
+//
 
 #include <string>
 #include <iostream>
 #include <vector>
 #include <map>
-#include <fstream>
-#include <sstream>
-#include "CalibFormats/SiPixelObjects/interface/PixelConfigKey.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelROCName.h"
 
 namespace pos{
   typedef unsigned char bits8;
   typedef unsigned char bits4;
 
-/*! \class PixelROCDACSettings PixelROCDACSettings.h "interface/PixelROCDACSettings.h"
-*   \brief This class implements..
-*
-*   A longer explanation will be placed here later
-*/
   class PixelROCDACSettings{
 
   public:
@@ -37,17 +31,12 @@ namespace pos{
     std::string getConfigCommand();
 
     int read(std::ifstream& in, const PixelROCName& rocid);
-    int read(std::istringstream& in, const PixelROCName& rocid);
 
     int readBinary(std::ifstream& in, const PixelROCName& rocid);
 
     void writeBinary(std::ofstream& out) const;
 
     void writeASCII(std::ostream& out) const;
-    void 	 writeXML(      pos::PixelConfigKey key, int version, std::string path)                     const {;}
-    virtual void writeXMLHeader(pos::PixelConfigKey key, int version, std::string path, std::ofstream *out) const {;}
-    virtual void writeXML(                                                              std::ofstream *out) const  ;
-    virtual void writeXMLTrailer(                                                       std::ofstream *out) const {;}
 
     void getDACs(std::vector<unsigned int>& dacs) const;
     void getDACs(std::map<std::string, unsigned int>& dacs) const;
@@ -56,17 +45,11 @@ namespace pos{
     void setDAC(unsigned int dacaddress, unsigned int dacvalue);
     void setDACs(std::map<std::string, unsigned int>& dacs) ;
 
-    void compareDACs(std::map<std::string, unsigned int> & dacs, 
-                     std::map<std::string, bool>         & changes,
-		     std::map<std::string, unsigned int> & previous) ;
-
     void checkTag(std::string tag, 
 		  std::string dacName,
 		  const PixelROCName& rocid);
       
     void setDac(std::string dacName, int value);
-
-    unsigned int getDac(std::string dacName) const;
 
     bits4 getVdd() {return Vdd_;}
     void setVdd(bits4 vdd) {Vdd_=vdd;}
@@ -194,8 +177,6 @@ namespace pos{
     bits8 TempRange_;        //addr 27
     bits8 WBC_;              //addr 254
     bits8 ChipContReg_;      //addr 253
-    
-    std::string ToLower(std::string) ;
     
   };
 }

@@ -6,6 +6,7 @@ class NegativeTrackCountingComputer : public TrackCountingComputer
  public:
   NegativeTrackCountingComputer(const edm::ParameterSet & parameters ) : TrackCountingComputer(parameters)
   {
+    uses("ipTagInfos");
   }
  
   float discriminator(const TagInfoHelper & ti) const 

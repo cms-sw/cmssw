@@ -10,7 +10,7 @@
 
      See CMS EventFilter wiki page for further notes.
 
-   $Id: StorageManager.h,v 1.39 2008/09/03 00:03:58 hcheung Exp $
+   $Id: StorageManager.h,v 1.40 2008/09/04 17:47:21 biery Exp $
 */
 
 #include <string>
@@ -166,6 +166,7 @@ namespace stor {
     xdata::Integer readyTimeDQM_;
     xdata::Boolean useCompressionDQM_;
     xdata::Integer compressionLevelDQM_;
+    xdata::Boolean allowDupAutoBUEvtNums_;
 
     evf::Css css_;
     xdata::UnsignedInteger32 receivedFrames_;

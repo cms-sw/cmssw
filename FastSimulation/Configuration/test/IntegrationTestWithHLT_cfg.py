@@ -17,17 +17,17 @@ process.load("FastSimulation.Configuration.ttbar_cfi")
 process.load("Configuration.StandardSequences.L1TriggerDefaultMenu_cff")
 # Other choices are
 # L1 Menu 2008 2x10E30 - Prescale
-# process.load("L1TriggerConfig/L1GtConfigProducers/data/Luminosity/lumi1030/L1Menu2008_2E30.cff")
+# process.load("L1TriggerConfig/L1GtConfigProducers/Luminosity/lumi1030/L1Menu2008_2E30_cff")
 # L1 Menu 2008 2x10E30 - No Prescale
-# process.load("L1TriggerConfig/L1GtConfigProducers/data/Luminosity/lumi1030/L1Menu2008_2E30_Unprescaled.cff")
+#process.load("L1TriggerConfig/L1GtConfigProducers/Luminosity/lumi1030/L1Menu2008_2E30_Unprescaled_cff")
 # L1 Menu 2008 2x10E31 - Prescale
-# process.load("L1TriggerConfig/L1GtConfigProducers/data/Luminosity/lumi1031/L1Menu2008_2E31.cff")
+# process.load("L1TriggerConfig/L1GtConfigProducers/Luminosity/lumi1031/L1Menu2008_2E31_cff")
 # L1 Menu 2008 2x10E31 - No Prescale
-# process.load("L1TriggerConfig/L1GtConfigProducers/data/Luminosity/lumi1031/L1Menu2008_2E31_Unprescaled.cff")
+# process.load("L1TriggerConfig/L1GtConfigProducers/Luminosity/lumi1031/L1Menu2008_2E31_Unprescaled_cff")
 # L1 Menu 2008 10E32 - Prescale 
-# process.load("L1TriggerConfig/L1GtConfigProducers/data/Luminosity/lumix1032/L1Menu2007.cff")
+# process.load("L1TriggerConfig/L1GtConfigProducers/Luminosity/lumi1x1032/L1Menu2007_cff")
 # L1 Menu 2008 10E32 - No Prescale 
-# process.load("L1TriggerConfig/L1GtConfigProducers/data/Luminosity/lumix1032/L1Menu2007_Unprescaled.cff")
+# process.load("L1TriggerConfig/L1GtConfigProducers/Luminosity/lumi1x1032/L1Menu2007_Unprescaled_cff")
 
 # Common inputs, with fake conditions
 process.load("FastSimulation.Configuration.CommonInputs_cff")
@@ -107,4 +107,6 @@ process.schedule.append(process.outpath)
 # process.load("FWCore/MessageService/MessageLogger_cfi")
 # process.MessageLogger.destinations = cms.untracked.vstring("pyDetailedInfo.txt")
 
+# Make the job crash in case of missing product
+process.options = cms.untracked.PSet( Rethrow = cms.untracked.vstring('ProductNotFound') )
 

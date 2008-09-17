@@ -151,7 +151,7 @@ process.hcalClient.baseHtmlDir = '.'
 # just set the appropriate client value to False)
 
 process.hcalClient.SummaryClient        = True
-process.hcalClient.DataFormatClient     = process.hcalMonitor.DigiMonitor
+process.hcalClient.DataFormatClient     = process.hcalMonitor.DataMonitor
 process.hcalClient.DigiClient           = process.hcalMonitor.DigiMonitor
 process.hcalClient.RecHitClient         = process.hcalMonitor.RecHitMonitor
 process.hcalClient.TrigPrimClient       = process.hcalMonitor.TrigPrimMonitor

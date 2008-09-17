@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerTask.cc
  *
- * $Date: 2008/09/05 16:01:11 $
- * $Revision: 1.41 $
+ * $Date: 2008/07/13 08:49:56 $
+ * $Revision: 1.38 $
  * \author C. Bernet
  * \author G. Della Ricca
  * \author E. Di Marco
@@ -42,11 +42,10 @@ EETriggerTowerTask::EETriggerTowerTask(const ParameterSet& ps) {
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
-  meEtMapReal_ = 0;
-  meEtMapEmul_ = 0;
-
+  reserveArray(meEtMapReal_);
   reserveArray(meVetoReal_);
   reserveArray(meFlagsReal_);
+  reserveArray(meEtMapEmul_);
   reserveArray(meVetoEmul_);
   reserveArray(meFlagsEmul_);
   reserveArray(meEmulError_);
@@ -102,13 +101,12 @@ void EETriggerTowerTask::endRun(const Run& r, const EventSetup& c) {
 
 void EETriggerTowerTask::reset(void) {
 
-  if ( meEtMapReal_ ) meEtMapReal_->Reset();
-  if ( meEtMapEmul_ ) meEtMapEmul_->Reset();
-
   for (int i = 0; i < 18; i++) {
 
+    if ( meEtMapReal_[i] ) meEtMapReal_[i]->Reset();
     if ( meVetoReal_[i] ) meVetoReal_[i]->Reset();
     if ( meFlagsReal_[i] ) meFlagsReal_[i]->Reset();
+    if ( meEtMapEmul_[i] ) meEtMapEmul_[i]->Reset();
     if ( meVetoEmul_[i] ) meVetoEmul_[i]->Reset();
     if ( meFlagsEmul_[i] ) meFlagsEmul_[i]->Reset();
     if ( meEmulError_[i] ) meEmulError_[i]->Reset();
@@ -140,10 +138,12 @@ void EETriggerTowerTask::setup( const char* nameext,
                                 const char* folder,
                                 bool emulated ) {
 
+  array1*  meEtMap = &meEtMapReal_;
   array1*  meVeto = &meVetoReal_;
   array1*  meFlags = &meFlagsReal_;
 
   if( emulated ) {
+    meEtMap = &meEtMapEmul_;
     meVeto = &meVetoEmul_;
     meFlags= &meFlagsEmul_;
   }
@@ -163,23 +163,18 @@ void EETriggerTowerTask::setup( const char* nameext,
   string emulFineGrainVetoErrorName = "EETTT EmulFineGrainVetoError";
   string emulFlagErrorName = "EETTT EmulFlagError";
 
-  if ( !emulated ) {
-    meEtMapReal_ = dqmStore_->book2D(etMapName.c_str(), etMapName.c_str(),
-                                     28*72, 0, 28*72, // 36 TCC/EE with max 28 TT/TCC
-                                     256, 0, 256.);
-    meEtMapReal_->setAxisTitle("iTT", 1);
-    meEtMapReal_->setAxisTitle("compressed E_{T}", 2);
-  }
-
-  if ( emulated ) {
-    meEtMapEmul_ = dqmStore_->book2D(etMapName.c_str(), etMapName.c_str(),
-                                     28*72, 0, 28*72, // 36 TCC/EE with max 28 TT/TCC
-                                     256, 0, 256.);
-    meEtMapEmul_->setAxisTitle("iTT", 1);
-    meEtMapEmul_->setAxisTitle("compressed E_{T}", 2);
-  }
-
   for (int i = 0; i < 18; i++) {
+
+    string etMapNameSM = etMapName;
+    etMapNameSM += " " + Numbers::sEE(i+1);
+
+    (*meEtMap)[i] = dqmStore_->book3D(etMapNameSM.c_str(), etMapNameSM.c_str(),
+                                50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50.,
+                                50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.,
+                                256, 0, 256.);
+    (*meEtMap)[i]->setAxisTitle("jx", 1);
+    (*meEtMap)[i]->setAxisTitle("jy", 2);
+    dqmStore_->tag((*meEtMap)[i], i+1);
 
     string  fineGrainVetoNameSM = fineGrainVetoName;
     fineGrainVetoNameSM += " " + Numbers::sEE(i+1);
@@ -293,7 +288,7 @@ void EETriggerTowerTask::analyze(const Event& e, const EventSetup& c){
                   meFlagsReal_);
 
   } else {
-    LogWarning("EETriggerTowerTask") << realCollection_ << " not available";
+    LogWarning("EETriggerTowerTask") << realCollection_ << " not available"; 
   }
 
   Handle<EcalTrigPrimDigiCollection> emulDigis;
@@ -315,13 +310,13 @@ void EETriggerTowerTask::analyze(const Event& e, const EventSetup& c){
 void
 EETriggerTowerTask::processDigis( const Handle<EcalTrigPrimDigiCollection>&
                                   digis,
-                                  MonitorElement* meEtMap,
+                                  array1& meEtMap,
                                   array1& meVeto,
                                   array1& meFlags,
                                   const Handle<EcalTrigPrimDigiCollection>&
                                   compDigis ) {
 
-  LogDebug("EETriggerTowerTask")<<"processing "<<meEtMap->getName()<<endl;
+  LogDebug("EETriggerTowerTask")<<"processing "<<meEtMap[0]->getName()<<endl;
 
   ostringstream  str;
   for ( EcalTrigPrimDigiCollection::const_iterator tpdigiItr = digis->begin();
@@ -353,18 +348,11 @@ EETriggerTowerTask::processDigis( const Handle<EcalTrigPrimDigiCollection>&
     str<<"det id = "<<id.rawId()<<" "
        <<id<<" sm, tt, x, y "<<ismt<<" "<<itt<<" "<<ix<<" "<<iy<<endl;
 
-    int ttindex = Numbers::iTT(idt);
-    int tccindex = Numbers::TCCid(idt);
-
-    int xttindex = -1;
-    if ( tccindex <= 36 ) xttindex = 28*tccindex+ttindex-1; // EE-
-    else if ( tccindex >= 73 ) xttindex = 28*(tccindex-36)+ttindex-1; // EE+ (skip EB TCCs)
-
     float xval;
 
     xval = data.compressedEt();
-    if ( meEtMap && xttindex > -1 ) {
-      meEtMap->Fill(xttindex, xval);
+    if ( meEtMap[ismt-1] ) {
+      meEtMap[ismt-1]->Fill(xix, xiy, xval);
     }
     else {
       LogError("EETriggerTowerTask")<<"histo does not exist "<<endl;

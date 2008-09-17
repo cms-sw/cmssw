@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.79 2008/09/03 23:18:35 hcheung Exp $
+// $Id: StorageManager.cc,v 1.81 2008/09/14 10:36:32 biery Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -110,6 +110,7 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   readyTimeDQM_(DEFAULT_READY_TIME),
   useCompressionDQM_(true),
   compressionLevelDQM_(1),
+  allowDupAutoBUEvtNums_(false),
   mybuffer_(7000000),
   fairShareES_(false),
   connectedRBs_(0), 
@@ -204,6 +205,7 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   ispace->fireItemAvailable("filePrefixDQM",       &filePrefixDQM_);
   ispace->fireItemAvailable("useCompressionDQM",   &useCompressionDQM_);
   ispace->fireItemAvailable("compressionLevelDQM", &compressionLevelDQM_);
+  ispace->fireItemAvailable("allowDupAutoBUEvtNums",&allowDupAutoBUEvtNums_);
   ispace->fireItemAvailable("nLogicalDisk",        &nLogicalDisk_);
 
   boost::shared_ptr<stor::Parameter> smParameter_ = stor::Configurator::instance()->getParameter();
@@ -528,6 +530,17 @@ void StorageManager::receiveDataMessage(toolbox::mem::Reference *ref)
   
   int len = msg->dataSize;
 
+  // 16-Sep-2008, KAB: when running with multiple AutoBUs, it is possible
+  // to get identical run numbers from different resource brokers.
+  // To avoid getting confused by this, we'll support the possibility
+  // of creating a special secondary ID value from the output module ID
+  // and the sender TID to use in the FragEntry.
+  uint32 modifiedSecondaryId = msg->outModID;
+  if (allowDupAutoBUEvtNums_) {
+    modifiedSecondaryId = ((msg->hltTid & 0x7ff) << 21) |
+      (msg->outModID & 0x1fffff);
+  }
+
   // check the storage Manager is in the Ready state first!
   if(fsm_.stateName()->toString() != "Enabled")
   {
@@ -643,7 +656,7 @@ void StorageManager::receiveDataMessage(toolbox::mem::Reference *ref)
     // must give it the 1 of N for this fragment (starts from 0 in i2o header)
     /* stor::FragEntry* fe = */ new (b.buffer()) stor::FragEntry(ref, (char*)(msg->dataPtr()), len,
                                 msg->frameCount+1, msg->numFrames, Header::EVENT, 
-                                msg->runID, msg->eventID, msg->outModID);
+                                msg->runID, msg->eventID, modifiedSecondaryId);
     b.commit(sizeof(stor::FragEntry));
     // Frame release is done in the deleter.
     receivedFrames_++;
@@ -1588,13 +1601,9 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
   *out << "<hr/>"                                                 << endl;
   std::string url = getApplicationDescriptor()->getContextDescriptor()->getURL();
   std::string urn = getApplicationDescriptor()->getURN();
-/*  problem with RBsenders page but cannot reproduce to debug in test setup
-    so temporarily remove for running
-
   *out << "<a href=\"" << url << "/" << urn << "/rbsenderlist" << "\">" 
        << "RB Sender list web page" << "</a>" << endl;
   *out << "<hr/>"                                                 << endl;
-*/
   *out << "<a href=\"" << url << "/" << urn << "/streameroutput" << "\">" 
        << "Streamer Output Status web page" << "</a>" << endl;
   *out << "<hr/>"                                                 << endl;
@@ -3983,6 +3992,7 @@ void StorageManager::setupFlashList()
   is->fireItemAvailable("receivedFrames",       &receivedFrames_);
   // should this be here also??
   is->fireItemAvailable("storedEvents",         &storedEvents_);
+  is->fireItemAvailable("closedFiles",          &closedFiles_);
   is->fireItemAvailable("receivedEvents",       &receivedEvents_);
   is->fireItemAvailable("receivedErrorEvents",  &receivedErrorEvents_);
   is->fireItemAvailable("namesOfStream",      &namesOfStream_);
@@ -4013,6 +4023,7 @@ void StorageManager::setupFlashList()
   is->fireItemAvailable("filePrefixDQM",        &filePrefixDQM_);
   is->fireItemAvailable("useCompressionDQM",    &useCompressionDQM_);
   is->fireItemAvailable("compressionLevelDQM",  &compressionLevelDQM_);
+  is->fireItemAvailable("allowDupAutoBUEvtNums",&allowDupAutoBUEvtNums_);
   is->fireItemAvailable("nLogicalDisk",         &nLogicalDisk_);
   is->fireItemAvailable("fileCatalog",          &fileCatalog_);
   is->fireItemAvailable("fileName",             &fileName_);
@@ -4070,6 +4081,7 @@ void StorageManager::setupFlashList()
   is->addItemRetrieveListener("filePrefixDQM",        this);
   is->addItemRetrieveListener("useCompressionDQM",    this);
   is->addItemRetrieveListener("compressionLevelDQM",  this);
+  is->addItemRetrieveListener("allowDupAutoBUEvtNums",this);
   is->addItemRetrieveListener("nLogicalDisk",         this);
   is->addItemRetrieveListener("fileCatalog",          this);
   is->addItemRetrieveListener("fileName",             this);

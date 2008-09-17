@@ -13,7 +13,7 @@ class InduceChargeFP420: public IChargeFP420{
   virtual ~InduceChargeFP420() {}
 //
 //
-  IChargeFP420::hit_map_type induce(CDrifterFP420::collection_type, int, double, int, double, int, int);
+  IChargeFP420::hit_map_type induce(CDrifterFP420::collection_type, int, double, int, double, int);
 
 //
 //

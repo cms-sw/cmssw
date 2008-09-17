@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/06/20 09:02:25 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/04/29 10:03:35 $
+ *  $Revision: 1.1 $
  *  \author S. Maselli - INFN Torino
  */
 
@@ -39,20 +39,14 @@ DTTTrigCorrection::~DTTTrigCorrection(){}
 
 
 void DTTTrigCorrection::beginJob(const EventSetup& setup) {
-  //  ESHandle<DTTtrig> tTrig;
-  //setup.get<DTTtrigRcd>().get(tTrig);
-  //tTrigMap = &*tTrig;
-  //cout << "[DTTTrigCorrection]: TTrig version: " << tTrig->version() << endl;
-
-  setup.get<MuonGeometryRecord>().get(muonGeom);
-}
-void DTTTrigCorrection::beginRun( const edm::Run& run, const edm::EventSetup& setup ) {
   ESHandle<DTTtrig> tTrig;
   setup.get<DTTtrigRcd>().get(tTrig);
   tTrigMap = &*tTrig;
   cout << "[DTTTrigCorrection]: TTrig version: " << tTrig->version() << endl;
-  //setup.get<MuonGeometryRecord>().get(muonGeom);
+
+  setup.get<MuonGeometryRecord>().get(muonGeom);
 }
+
 
 void DTTTrigCorrection::endJob() {
   // Create the object to be written to DB

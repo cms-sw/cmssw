@@ -67,8 +67,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2008/08/08 13:53:54 $ 
- **  $Revision: 1.7 $
+ **  $Date: 2008/08/22 16:42:10 $ 
+ **  $Revision: 1.8 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -113,6 +113,10 @@ PhotonValidator::PhotonValidator( const edm::ParameterSet& pset )
     trkPtSumCut_  = pset.getParameter<double>("trkPtSumCut");   
     ecalEtSumCut_ = pset.getParameter<double>("ecalEtSumCut");   
     hcalEtSumCut_ = pset.getParameter<double>("hcalEtSumCut");   
+    dCotCutOn_ = pset.getParameter<bool>("dCotCutOn");   
+    dCotCutValue_ = pset.getParameter<double>("dCotCutValue");   
+    dCotHardCutValue_ = pset.getParameter<double>("dCotHardCutValue");   
+
 
     thePhotonMCTruthFinder_ = new PhotonMCTruthFinder();
    
@@ -1137,8 +1141,12 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       reco::ConversionRef aConv=conversions[iConv];
       std::vector<reco::TrackRef> tracks = aConv->tracks();
       if (tracks.size() < 2 ) continue;
-      //      if ( fabs( aConv->pairCotThetaSeparation() ) > 0.05) continue;
  
+      if ( dCotCutOn_ ) {
+	if (  (fabs(mcEta_) > 1.1 && fabs (mcEta_)  < 1.4  )  &&
+	     fabs( aConv->pairCotThetaSeparation() ) > dCotHardCutValue_ ) continue;
+	if ( fabs( aConv->pairCotThetaSeparation() ) > dCotCutValue_ ) continue;
+      }
 
 
       nRecConv_++;
@@ -1457,7 +1465,6 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
   ///////////////////  Measure fake rate
   for( reco::PhotonCollection::const_iterator  iPho = photonCollection.begin(); iPho != photonCollection.end(); iPho++) {
     reco::Photon aPho = reco::Photon(*iPho);
-
     
     std::vector<reco::ConversionRef> conversions = aPho.conversions();
     for (unsigned int iConv=0; iConv<conversions.size(); iConv++) {
@@ -1467,10 +1474,14 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       std::vector<reco::TrackRef> tracks = aConv->tracks();
 
       if (tracks.size() < 2 ) continue;
-      //      if ( fabs( aConv->pairCotThetaSeparation() ) > 0.05) continue;
+
+      if ( dCotCutOn_ ) {
+	if ( ( fabs(mcEta_) > 1.1 && fabs (mcEta_)  < 1.4  )  &&
+	     fabs( aConv->pairCotThetaSeparation() ) > dCotHardCutValue_ )  continue;
+	if ( fabs( aConv->pairCotThetaSeparation() ) > dCotCutValue_ ) continue;
+      }
 
 
-      
       
       for (unsigned int f=0; f<etaintervalslarge_.size()-1; f++){
 	if (aPho.eta()>etaintervalslarge_[f]&&

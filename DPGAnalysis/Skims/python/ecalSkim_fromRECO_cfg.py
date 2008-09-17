@@ -3,14 +3,8 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("EcalHighEnergyCosmicSkim")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
-#process.load("DPGAnalysis/Skims/ecalSkim_cfi")
-process.skimming = cms.EDFilter("EcalSkim",
-    #cosmic cluster energy threshold in GeV
-    energyCutEB = cms.untracked.double(2.0),
-    energyCutEE = cms.untracked.double(1e99),
-    endcapClusterCollection = cms.InputTag("cosmicSuperClusters","CosmicEndcapSuperClusters"),
-    barrelClusterCollection = cms.InputTag("cosmicSuperClusters","CosmicBarrelSuperClusters")
-)
+#process.load("DPGAnalysis.Skims.ecalSkim_cfi")
+process.load("DPGAnalysis/Skims/ecalSkim_cfi")
 
 process.source = cms.Source("PoolSource",
     debugVerbosity = cms.untracked.uint32(0),
@@ -25,21 +19,13 @@ process.source = cms.Source("PoolSource",
         '/store/data/Commissioning08/Cosmics/RECO/CRUZET3_V2P_MW30_v1/0000/B411F7C1-DF58-DD11-A06F-001617C3B6DC.root')
 )
 
-process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
-    name = cms.untracked.string('$Source: /local/projects/CMSSW/rep/CMSSW/DPGAnalysis/Skims/python/ecalSkim_fromRECO_cfg.py,v $'),
-    annotation = cms.untracked.string('CRUZET4 ecalSkim_fromRECO skim')
-)
-
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
 process.out = cms.OutputModule("PoolOutputModule",
+    filterName = cms.untracked.string('skimming'),
     fileName = cms.untracked.string('testSkim.root'),
     outputCommands = cms.untracked.vstring('keep *'),
-    dataset = cms.untracked.PSet(
-    	      dataTier = cms.untracked.string('RECO'),
-    	      filterName = cms.untracked.string('ecalSkim_fromRECO')),
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('p')
     )

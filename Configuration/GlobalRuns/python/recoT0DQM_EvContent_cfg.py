@@ -45,7 +45,7 @@ process.FEVT.outputCommands.append('keep recoCandidatesOwned_caloTowersOpt_*_*')
 process.FEVT.outputCommands.append('keep RPCDetIdRPCDigiMuonDigiCollection_muonRPCDigis_*_*')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.19 $'),
+    version = cms.untracked.string('$Revision: 1.22 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/GlobalRuns/python/recoT0DQM_EvContent_cfg.py,v $'),
     annotation = cms.untracked.string('CRUZET Prompt Reco with DQM with Mag field at 0T')
 )
@@ -79,15 +79,6 @@ process.load("DQMServices.Components.MEtoEDMConverter_cff")
 process.load("L1Trigger.Configuration.L1Config_cff")
 process.load("L1TriggerConfig.CSCTFConfigProducers.CSCTFConfigProducer_cfi")
 process.load("L1TriggerConfig.CSCTFConfigProducers.L1MuCSCTFConfigurationRcdSrc_cfi")
-
-## workaround for tracker
-process.load("CalibTracker.SiStripESProducers.SiStripQualityESProducer_cfi")
-process.SiStripQualityESProducer.ListOfRecordToMerge = cms.VPSet(
-     cms.PSet( record = cms.string("SiStripFedCablingRcd"), tag    = cms.string("") ),
-     cms.PSet( record = cms.string("SiStripBadChannelRcd"), tag    = cms.string("") ),
-     cms.PSet( record = cms.string("SiStripBadFiberRcd"),   tag    = cms.string("") )
-)
-process.prefer("SiStripQualityESProducer")
 
 #Paths
 process.allPath = cms.Path( process.RawToDigi_woGCT * process.reconstructionCosmics *  process.DQMOfflineCosmics * process.MEtoEDMConverter)

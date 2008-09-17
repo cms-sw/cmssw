@@ -32,11 +32,9 @@ CSCDDUEventData::~CSCDDUEventData()
 }
 
 
-void CSCDDUEventData::add(CSCEventData & cscData, int dmbId) 
+void CSCDDUEventData::add(CSCEventData & cscData) 
 {
-  theDDUHeader.setDMBDAV(dmbId);
-  theDDUTrailer.setDMBDAV(dmbId);
-  cscData.dmbHeader()->setdmbID(dmbId);
+  ++(theDDUHeader.ncsc_);
   cscData.setEventInformation(theDDUHeader.bxnum(), theDDUHeader.lvl1num());
   theData.push_back(cscData);
 }
@@ -196,18 +194,19 @@ void CSCDDUEventData::unpack_data(unsigned short *buf, CSCDCCExaminer* examiner)
 
       for (csc_itr=cscs.begin(); csc_itr != cscs.end(); ++csc_itr) {
 	short cscid = csc_itr->first;
-	unsigned short* pos = (unsigned short*)csc_itr->second;
+        if(cscid != -1) {
+          unsigned short* pos = (unsigned short*)csc_itr->second;
 	
-	
-        long errors = examiner->errorsForChamber(cscid);
-        if ((errors & examiner->getMask()) > 0 ) {	
+          long errors = examiner->errorsForChamber(cscid);
+          if ((errors & examiner->getMask()) > 0 ) {	
          	if (debug) 
 		LogTrace ("CSCDDUEventData|CSCRawToDigi" )
                        << "skip unpacking of CSC " << cscid << " due format errors: 0x" << std::hex << errors << std::dec;
-	  continue;
-        } 
+            continue;
+          } 
 	
-	theData.push_back(CSCEventData(pos));
+	  theData.push_back(CSCEventData(pos));
+        }
       }
 
       if (debug)
@@ -324,13 +323,13 @@ boost::dynamic_bitset<> CSCDDUEventData::pack()
   //std::cout <<"printing out ddu header words via bitset"<<std::endl;
   //bitset_utilities::printWords(result);
  
+    
   for(unsigned int i = 0; i < theData.size(); ++i) 
     {
       result = bitset_utilities::append(result,theData[i].pack());
     }
-  theSizeInWords = result.size()/16 + theDDUTrailer.sizeInWords();
-  // 64-bit word count
-  theDDUTrailer.setWordCount(theSizeInWords/4); 
+  theSizeInWords = result.size()*16 + theDDUTrailer.sizeInWords();
+  theDDUTrailer.setWordCount(theSizeInWords); 
   boost::dynamic_bitset<> dduTrailer = bitset_utilities::ushortToBitset ( theDDUTrailer.sizeInWords()*16, 
 									  theDDUTrailer.data());
   result =  bitset_utilities::append(result,dduTrailer);

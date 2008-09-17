@@ -50,6 +50,7 @@ BeamHaloNavigationSchool::BeamHaloNavigationSchool(const GeometricSearchTracker*
   LogDebug("BeamHaloNavigationSchool")<<"inverse relation";
   establishInverseRelations();
 
+
   //add the necessary inward links to end caps
   LogDebug("BeamHaloNavigationSchool")<<"linkOtherEndLayer";
   linkOtherEndLayers( symFinder);
@@ -104,7 +105,7 @@ void BeamHaloNavigationSchool::establishInverseRelations() {
     SimpleNavigableLayer* navigableLayer =
       dynamic_cast<SimpleNavigableLayer*>((**i).navigableLayer());
     if (!navigableLayer) {edm::LogError("BeamHaloNavigationSchool")<<"a detlayer does not have a navigable layer, which is normal in beam halo navigation.";}
-    if (navigableLayer){navigableLayer->setInwardLinks( reachedBarrelLayersMap[*i],reachedForwardLayersMap[*i] );}
+    if (navigableLayer){navigableLayer->setInwardLinks( reachedBarrelLayersMap[*i],reachedForwardLayersMap[*i], TkLayerLess(outsideIn, (*i)) );}
   }
 
 }
@@ -267,12 +268,19 @@ addInward(DetLayer * det, ForwardDetLayer * newF){
   inwardsForward.push_back(newF);
 
   LogDebug("BeamHaloNavigationSchool")<<"no duplicate please";
+  sort(inwardsForward.begin(),inwardsForward.end()); //if you don't sort, unique will not work
+  //  FDLI read = inwardsForward.begin();
+  //  std::stringstream showMe;
+  //  for (;read !=inwardsForward.end();++read)  showMe<<" layer p: "<<*read<<"\n";
+  //  LogDebug("BeamHaloNavigationSchool")<<"list of layer pointers: \n"<<showMe.str();
+
   FDLI new_end =unique(inwardsForward.begin(),inwardsForward.end());
+  //  if (new_end!=inwardsForward.end()) LogDebug("BeamHaloNavigationSchool")<<"removing duplicates here";
   inwardsForward.erase(new_end,inwardsForward.end());
 
   LogDebug("BeamHaloNavigationSchool")<<"set back the inward links (no duplicate)";
   //  set them back to the navigable layer
-  navigableLayer->setInwardLinks( inwardsBarrel, inwardsForward);
+  navigableLayer->setInwardLinks( inwardsBarrel, inwardsForward, TkLayerLess(outsideIn, det));
 }
 
 void BeamHaloNavigationSchool::
@@ -307,7 +315,7 @@ addInward(DetLayer * det, FDLC news){
 
   LogDebug("BeamHaloNavigationSchool")<<"set back the inward links (no duplicate)";
   //  set them back to the navigable layer
-  navigableLayer->setInwardLinks( inwardsBarrel, inwardsForward);
+  navigableLayer->setInwardLinks( inwardsBarrel, inwardsForward, TkLayerLess(outsideIn, det));
 }
 
 BeamHaloNavigationSchool::FDLC

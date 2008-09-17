@@ -60,17 +60,12 @@ void PixelDataFormatter::setErrorStatus(bool ErrorStatus, bool OrderStatus)
 
 void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const FEDRawData& rawData, Digis& digis, Errors& errors)
 {
-  int nWords = rawData.size()/sizeof(Word64);
-  if (nWords==0) return;
+    int nWords = rawData.size()/sizeof(Word64);
+    if (nWords==0) return;
 
   SiPixelFrameConverter * converter = (theCablingMap) ? 
       new SiPixelFrameConverter(theCablingMap, fedId) : 0;
 
-  // check CRC bit
-  const Word64* trailer = reinterpret_cast<const Word64* >(rawData.data())+(nWords-1); trailer++; trailer--;
-  bool CRC_OK = errorcheck.checkCRC(errorsInEvent, fedId, trailer, errors);
-  
-  if(CRC_OK) {
     // check headers
     const Word64* header = reinterpret_cast<const Word64* >(rawData.data()); header--;
     bool moreHeaders = true;
@@ -82,12 +77,13 @@ void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const 
     }
 
     // check trailers
+    const Word64* trailer = reinterpret_cast<const Word64* >(rawData.data())+(nWords-1); trailer++;
     bool moreTrailers = true;
     while (moreTrailers) {
+      trailer--;
       LogTrace("")<<"TRAILER: " <<  print(*trailer);
       bool trailerStatus = errorcheck.checkTrailer(errorsInEvent, fedId, nWords, trailer, errors);
       moreTrailers = trailerStatus;
-      trailer--;
     }
 
     // data words
@@ -110,7 +106,7 @@ void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const 
                     << "status #" <<status1<<" returned for word1";
           errorsInEvent = true;
 	  errorcheck.conversionError(fedId, converter, status1, w1, errors);
-        }
+	}
       }
       bool notErrorROC2 = errorcheck.checkROC(errorsInEvent, fedId, converter, w2, errors);
       if (notErrorROC2) {
@@ -120,11 +116,10 @@ void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const 
                     << "status #" <<status2<<" returned for word2";
           errorsInEvent = true;
 	  errorcheck.conversionError(fedId, converter, status2, w2, errors);
-        }
+	}
       }
     }
-  }  // end if(CRC_OK)
-  delete converter;
+    delete converter;
 }
 
 

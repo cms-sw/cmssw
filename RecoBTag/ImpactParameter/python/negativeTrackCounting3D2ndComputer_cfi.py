@@ -6,10 +6,9 @@ negativeTrackCounting3D2nd = cms.ESProducer("NegativeTrackCountingESProducer",
 
     maximumDistanceToJetAxis = cms.double(0.07),
     deltaR = cms.double(-1.0), ## use cut from JTA
-    
+
     maximumDecayLength = cms.double(5.0),
-    nthTrack = cms.int32(2),
-    trackQualityClass = cms.string("any")
+    nthTrack = cms.int32(2)
 )
 
 

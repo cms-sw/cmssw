@@ -1,6 +1,6 @@
 // File: BaseJetProducer.cc
 // Author: F.Ratnikov UMd Aug 22, 2006
-// $Id: BaseJetProducer.cc,v 1.35 2008/07/15 17:43:04 elmer Exp $
+// $Id: BaseJetProducer.cc,v 1.34 2008/06/23 14:35:15 oehler Exp $
 //--------------------------------------------
 #include <memory>
 
@@ -83,8 +83,7 @@ namespace cms
       mJetType (conf.getUntrackedParameter<string>( "jetType", "CaloJet")),
       mVerbose (conf.getUntrackedParameter<bool>("verbose", false)),
       mEtInputCut (conf.getParameter<double>("inputEtMin")),
-      mEInputCut (conf.getParameter<double>("inputEMin")),
-      mJetPtMin (conf.getParameter<double>("jetPtMin"))
+      mEInputCut (conf.getParameter<double>("inputEMin"))
   {
     std::string alias = conf.getUntrackedParameter<string>( "alias", conf.getParameter<std::string>("@module_label"));
     if (makeCaloJet (mJetType)) {
@@ -150,7 +149,6 @@ namespace cms
       jets->reserve(output.size());
       for (unsigned iJet = 0; iJet < output.size (); ++iJet) {
 	ProtoJet* protojet = &(output [iJet]);
-	if (protojet->p4().pt()<mJetPtMin) continue;
 	const JetReco::InputCollection& constituents = protojet->getTowerList();
 	CaloJet::Specific specific;
 	JetMaker::makeSpecific (constituents, *towerGeometry, &specific);
@@ -167,7 +165,6 @@ namespace cms
       jets->reserve(output.size());
       for (unsigned iJet = 0; iJet < output.size (); ++iJet) {
 	ProtoJet* protojet = &(output [iJet]);
-	if (protojet->p4().pt()<mJetPtMin) continue;
 	const JetReco::InputCollection& constituents = protojet->getTowerList();
 	PFJet::Specific specific;
 	JetMaker::makeSpecific (constituents, &specific);
@@ -184,7 +181,6 @@ namespace cms
       jets->reserve(output.size());
       for (unsigned iJet = 0; iJet < output.size (); ++iJet) {
 	ProtoJet* protojet = &(output [iJet]);
-	if (protojet->p4().pt()<mJetPtMin) continue;
 	const JetReco::InputCollection& constituents = protojet->getTowerList();
 	GenJet::Specific specific;
 	JetMaker::makeSpecific (constituents, &specific);
@@ -201,7 +197,6 @@ namespace cms
       jets->reserve(output.size());
       for (unsigned iJet = 0; iJet < output.size (); ++iJet) {
 	ProtoJet* protojet = &(output [iJet]);
-	if (protojet->p4().pt()<mJetPtMin) continue;
 	const JetReco::InputCollection& constituents = protojet->getTowerList();
 	jets->push_back (BasicJet (protojet->p4(), vertex));
 	Jet* newJet = &(jets->back());

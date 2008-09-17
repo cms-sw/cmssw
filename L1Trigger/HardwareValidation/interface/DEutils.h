@@ -306,11 +306,15 @@ template<> inline L1DataEmulDigi
 DEutils<CSCCorrelatedLCTDigiCollection_>::DEDigi(col_cit itd,  col_cit itm, int aflag) {
   int cid = de_type();
   int errt = aflag;
-  double x1 = (aflag!=4) ? itd->getTrknmb() : itm->getTrknmb();
-  double x2 = (aflag!=4) ? itd->getKeyWG () : itm->getKeyWG ();
+  double x1 = (aflag!=4) ? itd->getKeyWG() : itm->getKeyWG();
+  double x2 = (aflag!=4) ? itd->getStrip() : itm->getStrip();
+  double x3 = (aflag!=4) ? itd->getTrknmb() : itm->getTrknmb();
   //multiple subsystem ctp,ctf
-  L1DataEmulDigi digi(-1,cid, x1,x2,0, errt);
+  L1DataEmulDigi digi(-1,cid, x1,x2,x3, errt);
   //note: no data word and rank defined for candidate
+  int dq = (aflag==4)?0:itd->getQuality();
+  int eq = (aflag==3)?0:itm->getQuality();
+  digi.setRank((float)dq,(float)eq);
   return digi;
 }
 
@@ -321,16 +325,23 @@ DEutils<CSCALCTDigiCollection_>::DEDigi(col_cit itd,  col_cit itm, int aflag) {
   double x1 = (aflag!=4) ? itd->getTrknmb() : itm->getTrknmb();
   double x2 = (aflag!=4) ? itd->getKeyWG () : itm->getKeyWG ();
   L1DataEmulDigi digi(dedefs::CTP,cid, x1,x2,0, errt);
-  //note: no data word and rank defined for candidate
+  //note: no data word defined for candidate
+  int dq = (aflag==4)?0:itd->getQuality();
+  int eq = (aflag==3)?0:itm->getQuality();
+  digi.setRank((float)dq,(float)eq);
   return digi;
 }
 template<> inline L1DataEmulDigi 
 DEutils<CSCCLCTDigiCollection_>::DEDigi(col_cit itd,  col_cit itm, int aflag) {
   int cid = de_type();
   int errt = aflag;
-  double x1 = (aflag!=4) ? itd->getTrknmb() : itm->getTrknmb();
-  L1DataEmulDigi digi(dedefs::CTP,cid, x1,0,0, errt);
-  //note: no data word and rank defined for candidate
+  double x1 = (aflag!=4) ? itd->getKeyStrip() : itm->getKeyStrip();
+  double x3 = (aflag!=4) ? itd->getTrknmb() : itm->getTrknmb();
+  L1DataEmulDigi digi(dedefs::CTP,cid, x1,0,x3, errt);
+  //note: no data word defined for candidate
+  int dq = (aflag==4)?0:itd->getQuality();
+  int eq = (aflag==3)?0:itm->getQuality();
+  digi.setRank((float)dq,(float)eq);
   return digi;
 }
 
@@ -485,8 +496,10 @@ DEutils<L1MuGMTCandCollection>::de_equal(const cand_type& lhs, const cand_type& 
 
 template <> inline bool 
 DEutils<CSCCorrelatedLCTDigiCollection_>::de_equal(const cand_type& lhs, const cand_type& rhs) {
+  // Exclude track number from comparison since it is only meaningful for
+  // LCTs upstream of the MPC but not downstream (the latter ones are
+  // unpacked by the CSC TF unpacker).
   bool val = true;
-  val &= (lhs.getTrknmb()  == rhs.getTrknmb() );
   val &= (lhs.isValid()    == rhs.isValid()   );
   val &= (lhs.getQuality() == rhs.getQuality());
   val &= (lhs.getKeyWG()   == rhs.getKeyWG()  );
@@ -495,6 +508,7 @@ DEutils<CSCCorrelatedLCTDigiCollection_>::de_equal(const cand_type& lhs, const c
   val &= (lhs.getBend()    == rhs.getBend()   );
   val &= (lhs.getMPCLink() == rhs.getMPCLink()); 
   val &= (lhs.getBX()      == rhs.getBX()     );    
+  val &= (lhs.getCSCID()   == rhs.getCSCID()  );
   return val;
   //return lhs==rhs;
 }
@@ -629,7 +643,8 @@ DEutils<L1MuDTChambThDigiCollection>::de_equal_loc(const cand_type& lhs, const c
 template <> inline bool 
 DEutils<CSCCorrelatedLCTDigiCollection_>::de_equal_loc(const cand_type& lhs, const cand_type& rhs) {
   bool val = true;
-  val &= (lhs.getTrknmb()  == rhs.getTrknmb() );
+  val &= (lhs.getCSCID() == rhs.getCSCID() );
+  val &= (lhs.getStrip() == rhs.getStrip() );
   val &= (lhs.getKeyWG()   == rhs.getKeyWG()  );
   return val;
 }
@@ -644,7 +659,8 @@ DEutils<CSCALCTDigiCollection_>::de_equal_loc(const cand_type& lhs, const cand_t
 template <> inline bool 
 DEutils<CSCCLCTDigiCollection_>::de_equal_loc(const cand_type& lhs, const cand_type& rhs) {
   bool val = true;
-  val &= (lhs.getTrknmb()  == rhs.getTrknmb() );
+  //val &= (lhs.getTrknmb()  == rhs.getTrknmb() );
+  val &= (lhs.getKeyStrip() == rhs.getKeyStrip() );
   return val;
 }
 template <> inline bool 

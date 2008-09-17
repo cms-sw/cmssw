@@ -4,8 +4,8 @@
 /*
  * \file DTNoiseCalibration.h
  *
- * $Date: 2008/02/04 15:48:02 $
- * $Revision: 1.3 $
+ * $Date: 2007/12/04 08:16:10 $
+ * $Revision: 1.2 $
  * \author G. Mila - INFN Torino
  *
 */
@@ -59,6 +59,7 @@ private:
   int counter;
 
   /// variables to set by configuration file
+  int TotEvents;
   int TriggerWidth;
   float upperLimit;
   bool cosmicRun;

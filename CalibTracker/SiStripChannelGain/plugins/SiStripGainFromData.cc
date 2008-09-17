@@ -173,27 +173,27 @@ class SiStripGainFromData : public ConditionDBWriter<SiStripApvGain> {
       TH1F*        MPVs320;
       TH1F*        MPVs500;
 
-//      TH2F*        MPV_vs_10RplusEta;
+      TH2F*        MPV_vs_10RplusEta;
 
 
       TH1F*        NHighStripInCluster;
-//      TH2F*        Charge_Vs_PathLength_CS1;
-//      TH2F*        Charge_Vs_PathLength_CS2;
-//      TH2F*        Charge_Vs_PathLength_CS3;
-//      TH2F*        Charge_Vs_PathLength_CS4;
-//      TH2F*        Charge_Vs_PathLength_CS5;
+      TH2F*        Charge_Vs_PathLength_CS1;
+      TH2F*        Charge_Vs_PathLength_CS2;
+      TH2F*        Charge_Vs_PathLength_CS3;
+      TH2F*        Charge_Vs_PathLength_CS4;
+      TH2F*        Charge_Vs_PathLength_CS5;
 
-//      TH1F*        MPV_Vs_PathLength_CS1;
-//      TH1F*        MPV_Vs_PathLength_CS2;
-//      TH1F*        MPV_Vs_PathLength_CS3;
-//      TH1F*        MPV_Vs_PathLength_CS4;
-//      TH1F*        MPV_Vs_PathLength_CS5;
+      TH1F*        MPV_Vs_PathLength_CS1;
+      TH1F*        MPV_Vs_PathLength_CS2;
+      TH1F*        MPV_Vs_PathLength_CS3;
+      TH1F*        MPV_Vs_PathLength_CS4;
+      TH1F*        MPV_Vs_PathLength_CS5;
 
-//      TH1F*        FWHM_Vs_PathLength_CS1;
-//      TH1F*        FWHM_Vs_PathLength_CS2;
-//      TH1F*        FWHM_Vs_PathLength_CS3;
-//      TH1F*        FWHM_Vs_PathLength_CS4;
-//      TH1F*        FWHM_Vs_PathLength_CS5;
+      TH1F*        FWHM_Vs_PathLength_CS1;
+      TH1F*        FWHM_Vs_PathLength_CS2;
+      TH1F*        FWHM_Vs_PathLength_CS3;
+      TH1F*        FWHM_Vs_PathLength_CS4;
+      TH1F*        FWHM_Vs_PathLength_CS5;
 
 
       TH2F*        Charge_Vs_PathLength;
@@ -318,13 +318,13 @@ SiStripGainFromData::algoBeginJob(const edm::EventSetup& iSetup)
    Charge_Vs_PathTEC          = new TH2F ("Charge_Vs_PathTEC" , "Charge_Vs_PathTEC" ,250,0.2,1.4, 500,0,2000);
    Charge_Vs_PathTEC1         = new TH2F ("Charge_Vs_PathTEC1", "Charge_Vs_PathTEC1",250,0.2,1.4, 500,0,2000);
    Charge_Vs_PathTEC2         = new TH2F ("Charge_Vs_PathTEC2", "Charge_Vs_PathTEC2",250,0.2,1.4, 500,0,2000);
-/*
+
    Charge_Vs_PathLength_CS1   = new TH2F ("Charge_Vs_PathLength_CS1", "Charge_Vs_PathLength_CS1"  , 250,0.2,1.4, 500,0,2000);
    Charge_Vs_PathLength_CS2   = new TH2F ("Charge_Vs_PathLength_CS2", "Charge_Vs_PathLength_CS2"  , 250,0.2,1.4, 500,0,2000);
    Charge_Vs_PathLength_CS3   = new TH2F ("Charge_Vs_PathLength_CS3", "Charge_Vs_PathLength_CS3"  , 250,0.2,1.4, 500,0,2000);
    Charge_Vs_PathLength_CS4   = new TH2F ("Charge_Vs_PathLength_CS4", "Charge_Vs_PathLength_CS4"  , 250,0.2,1.4, 500,0,2000);
    Charge_Vs_PathLength_CS5   = new TH2F ("Charge_Vs_PathLength_CS5", "Charge_Vs_PathLength_CS5"  , 250,0.2,1.4, 500,0,2000);
-*/
+
    Charge_Vs_PathLength       = new TH2F ("Charge_Vs_PathLength"    , "Charge_Vs_PathLength"      , 250,0.2,1.4, 1000,0,2000);
    Charge_Vs_PathLength320    = new TH2F ("Charge_Vs_PathLength320" , "Charge_Vs_PathLength"      , 250,0.2,1.4, 1000,0,2000);
    Charge_Vs_PathLength500    = new TH2F ("Charge_Vs_PathLength500" , "Charge_Vs_PathLength"      , 250,0.2,1.4, 1000,0,2000);
@@ -361,7 +361,7 @@ SiStripGainFromData::algoBeginJob(const edm::EventSetup& iSetup)
 
       MPV_Vs_Eta                 = new TH2F ("MPV_Vs_Eta", "MPV_Vs_Eta", 50, -3.0, 3.0  , 600, 0, 600);
       MPV_Vs_R                   = new TH2F ("MPV_Vs_R"  , "MPV_Vs_R"  , 150, 0.0, 150.0, 600, 0, 600);
-/*   
+   
       MPV_Vs_PathLength_CS1      = new TH1F ("MPV_Vs_PathLength_CS1"   , "MPV_Vs_PathLength_CS1" , 250, 0.2, 1.4);
       MPV_Vs_PathLength_CS2      = new TH1F ("MPV_Vs_PathLength_CS2"   , "MPV_Vs_PathLength_CS2" , 250, 0.2, 1.4);
       MPV_Vs_PathLength_CS3      = new TH1F ("MPV_Vs_PathLength_CS3"   , "MPV_Vs_PathLength_CS3" , 250, 0.2, 1.4);
@@ -373,7 +373,7 @@ SiStripGainFromData::algoBeginJob(const edm::EventSetup& iSetup)
       FWHM_Vs_PathLength_CS3     = new TH1F ("FWHM_Vs_PathLength_CS3"  , "FWHM_Vs_PathLength_CS3", 250, 0.2, 1.4);
       FWHM_Vs_PathLength_CS4     = new TH1F ("FWHM_Vs_PathLength_CS4"  , "FWHM_Vs_PathLength_CS4", 250, 0.2, 1.4);
       FWHM_Vs_PathLength_CS5     = new TH1F ("FWHM_Vs_PathLength_CS5"  , "FWHM_Vs_PathLength_CS5", 250, 0.2, 1.4);
-*/
+
       MPV_Vs_PathLength          = new TH1F ("MPV_Vs_PathLength"       , "MPV_Vs_PathLength"     , 250, 0.2, 1.4);
       MPV_Vs_PathLength320       = new TH1F ("MPV_Vs_PathLength320"    , "MPV_Vs_PathLength"     , 250, 0.2, 1.4);
       MPV_Vs_PathLength500       = new TH1F ("MPV_Vs_PathLength500"    , "MPV_Vs_PathLength"     , 250, 0.2, 1.4);
@@ -396,7 +396,7 @@ SiStripGainFromData::algoBeginJob(const edm::EventSetup& iSetup)
       MPVs320                    = new TH1F ("MPVs320", "MPVs320", 600,0,600);
       MPVs500                    = new TH1F ("MPVs500", "MPVs500", 600,0,600);
  
-//      MPV_vs_10RplusEta          = new TH2F ("MPV_vs_10RplusEta","MPV_vs_10RplusEta", 48000,0,2400, 800,100,500);
+      MPV_vs_10RplusEta          = new TH2F ("MPV_vs_10RplusEta","MPV_vs_10RplusEta", 48000,0,2400, 800,100,500);
    }
 
    gROOT->cd();
@@ -564,8 +564,8 @@ SiStripGainFromData::algoEndJob() {
             if(APV->Thickness>0.04)                 MPV_Vs_EtaTEC2->Fill(APV->Eta,APV->MPV);
             }
 
-//            double Eta_R = (APV->R*20.0)+APV->Eta;
-//            MPV_vs_10RplusEta ->Fill(Eta_R,APV->MPV);           
+            double Eta_R = (APV->R*20.0)+APV->Eta;
+            MPV_vs_10RplusEta ->Fill(Eta_R,APV->MPV);           
          }
 
          if(FitResults[0]!=-0.5){
@@ -585,19 +585,12 @@ SiStripGainFromData::algoEndJob() {
          delete Proj;
       }
 
-      unsigned int GOOD = 0;
-      unsigned int BAD  = 0;
       double MPVmean = MPVs->GetMean();
       for(hash_map<unsigned int, stAPVPairGain*,  hash<unsigned int>, isEqual >::iterator it = APVsColl.begin();it!=APVsColl.end();it++){
 
          stAPVPairGain*   APV = it->second;
-         if(APV->MPV>0){
-	     APV->Gain = APV->MPV / MPVmean; // APV->MPV;
-             GOOD++;
-         }else{        
-             APV->Gain = 1;
-             BAD++;
-         }
+         if(APV->MPV>0)   APV->Gain = APV->MPV / MPVmean; // APV->MPV;
+         else             APV->Gain = 1;    
          if(APV->Gain<=0) APV->Gain = 1;
          APV_Gain->Fill(APV->Index,APV->Gain);
 
@@ -634,7 +627,7 @@ SiStripGainFromData::algoEndJob() {
          FWHM_Vs_PathLength500->SetBinError  (j, FitResults[3]/(FitResults[0]/Charge_Vs_PathLength500->GetXaxis()->GetBinCenter(j) ));
          delete Proj;
       }
-/*
+
       for(int j=0;j<Charge_Vs_PathLength_CS1->GetXaxis()->GetNbins();j++){
          Proj      = Charge_Vs_PathLength_CS1->ProjectionY(" ",j,j,"e");
          getPeakOfLandau(Proj,FitResults); if(FitResults[0] ==-0.5)continue;
@@ -684,7 +677,7 @@ SiStripGainFromData::algoEndJob() {
          FWHM_Vs_PathLength_CS5->SetBinError  (j, FitResults[3]/(FitResults[0]/Charge_Vs_PathLength_CS5->GetXaxis()->GetBinCenter(j) ));
          delete Proj;
       }
-*/
+
 
 
       for(int j=0;j<Charge_Vs_PathTIB->GetXaxis()->GetNbins();j++){
@@ -763,19 +756,18 @@ SiStripGainFromData::algoEndJob() {
       FILE* Gains = fopen(OutputGains.c_str(),"w");
       fprintf(Gains,"NEvents = %i\n",NEvent);
       fprintf(Gains,"Number of APVs = %i\n",APVsColl.size());
-      fprintf(Gains,"GoodFits = %i BadFits = %i ratio = %f\n",GOOD,BAD,(100.0*GOOD)/(GOOD+BAD));
       for(std::vector<stAPVPairGain*>::iterator it = APVsCollOrdered.begin();it!=APVsCollOrdered.end();it++){
          stAPVPairGain* APV = *it;
          fprintf(Gains,"%i | %i | PreviousGain = %7.5f NewGain = %7.5f\n", APV->DetId,APV->APVId,APV->PreviousGain,APV->Gain);
       }
       fclose(Gains);
 
-//      delete [] FitResults;
-//      delete Proj;
+      delete [] FitResults;
+      delete Proj;
    }
 
-   Output->cd();
    Output->SetCompressionLevel(9);
+   Output->cd();
    Output->Write();
    Output->Close();
 }
@@ -953,11 +945,11 @@ SiStripGainFromData::ComputeChargeOverPath(const SiStripRecHit2D* sistripsimpleh
    NStrips_Vs_Beta          ->Fill(beta ,Ampls.size());
 
    NHighStripInCluster->Fill(NHighStrip);
-//   if(NHighStrip==1)   Charge_Vs_PathLength_CS1->Fill(path, Charge );
-//   if(NHighStrip==2)   Charge_Vs_PathLength_CS2->Fill(path, Charge );
-//   if(NHighStrip==3)   Charge_Vs_PathLength_CS3->Fill(path, Charge );
-//   if(NHighStrip==4)   Charge_Vs_PathLength_CS4->Fill(path, Charge );
-//   if(NHighStrip==5)   Charge_Vs_PathLength_CS5->Fill(path, Charge );
+   if(NHighStrip==1)   Charge_Vs_PathLength_CS1->Fill(path, Charge );
+   if(NHighStrip==2)   Charge_Vs_PathLength_CS2->Fill(path, Charge );
+   if(NHighStrip==3)   Charge_Vs_PathLength_CS3->Fill(path, Charge );
+   if(NHighStrip==4)   Charge_Vs_PathLength_CS4->Fill(path, Charge );
+   if(NHighStrip==5)   Charge_Vs_PathLength_CS5->Fill(path, Charge );
 
    HFirstStrip    ->Fill(FirstStrip);
  
@@ -1058,9 +1050,7 @@ void SiStripGainFromData::getPeakOfLandau(TH1* InputHisto, double* FitResults, d
 
 SiStripApvGain* SiStripGainFromData::getNewObject() 
 {
-//  if( !(strcmp(AlgoMode.c_str(),"WriteOnDB")==0 || strcmp(AlgoMode.c_str(),"SingleJob")==0) )return NULL;
-  if( !(strcmp(AlgoMode.c_str(),"WriteOnDB")==0 || strcmp(AlgoMode.c_str(),"SingleJob")==0) )return new SiStripApvGain();
-
+  if( !(strcmp(AlgoMode.c_str(),"WriteOnDB")==0 || strcmp(AlgoMode.c_str(),"SingleJob")==0) )return NULL;
 
    SiStripApvGain * obj = new SiStripApvGain();
    std::vector<float>* theSiStripVector = NULL;

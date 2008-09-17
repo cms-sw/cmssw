@@ -1,27 +1,11 @@
 <use name=DQMServices/Components>
 <use name=DQMServices/Core>
 <use name=DQMServices/WebComponents>
-<use name=Geometry/Records>
-<use name=Geometry/CaloGeometry>
-<use name=DataFormats/Common>
-<use name=DataFormats/DetId>
-<use name=DataFormats/EcalDetId>
-<use name=DataFormats/EcalRecHit>
-<use name=DataFormats/EgammaReco>
-<use name=DataFormats/HLTReco>
-<use name=DataFormats/HcalIsolatedTrack>
-<use name=DataFormats/Math>
-<use name=DataFormats/RecoCandidate>
-<use name=DataFormats/TrackReco>
-<use name=DataFormats/FEDRawData>
 <use name=FWCore/Framework>
-<use name=FWCore/MessageLogger>
-<use name=FWCore/ParameterSet>
+<use name=Geometry/Records>
 <use name=Geometry/CaloEventSetup>
-<use name=Geometry/CaloTopology>
-<use name=HLTrigger/HLTcore>
-<use name=RecoEcal/EgammaCoreTools>
-<use name=Utilities/Timing>
+<use name=Geometry/CaloGeometry>
+<use name=DataFormats/EcalRecHit>
 
 <export>
   <use name=DQMServices/Components>
@@ -32,27 +16,6 @@
   <use name=Geometry/CaloEventSetup>
   <use name=Geometry/CaloGeometry>
   <use name=DataFormats/EcalRecHit>
-<use name=DataFormats/Common>
-<use name=DataFormats/DetId>
-<use name=DataFormats/EcalDetId>
-<use name=DataFormats/EcalRecHit>
-<use name=DataFormats/EgammaReco>
-<use name=DataFormats/HLTReco>
-<use name=DataFormats/HcalIsolatedTrack>
-<use name=DataFormats/Math>
-<use name=DataFormats/RecoCandidate>
-<use name=DataFormats/TrackReco>
-<use name=DataFormats/FEDRawData>
-<use name=FWCore/Framework>
-<use name=FWCore/MessageLogger>
-<use name=FWCore/ParameterSet>
-<use name=Geometry/CaloEventSetup>
-<use name=Geometry/CaloGeometry>
-<use name=Geometry/CaloTopology>
-<use name=Geometry/Records>
-<use name=HLTrigger/HLTcore>
-<use name=RecoEcal/EgammaCoreTools>
-<use name=Utilities/Timing>
   <lib name=DQMOfflineCalibCalo>
 </export>
 

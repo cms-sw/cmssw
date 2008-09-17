@@ -9,7 +9,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: NamedCompositeCandidate.h,v 1.3 2008/05/08 15:45:59 srappocc Exp $
+ * \version $Id: NamedCompositeCandidate.h,v 1.2 2008/04/29 15:55:58 srappocc Exp $
  *
  */
 
@@ -59,14 +59,14 @@ namespace reco {
     // set roles
     void                    setRoles( const NamedCompositeCandidate::role_collection & roles ) { roles_.clear(); roles_ = roles; }
     // Get candidate based on role
-    virtual Candidate *       daughter(const std::string& s );
-    virtual const Candidate * daughter(const std::string& s ) const;
+    virtual Candidate *       daughter( std::string s );
+    virtual const Candidate * daughter( std::string s ) const;
     // Get candidate based on index
     virtual Candidate *       daughter( size_type i ) { return CompositeCandidate::daughter(i); }
     virtual const Candidate * daughter( size_type i ) const  { return CompositeCandidate::daughter(i); }
     // Add daughters
-    void                    addDaughter( const Candidate &, const std::string&s );
-    void                    addDaughter( std::auto_ptr<Candidate>, const std::string& s );
+    void                    addDaughter( const Candidate &, std::string s );
+    void                    addDaughter( std::auto_ptr<Candidate>, std::string s );
     // Clear daughters and roles
     void                    clearDaughters() { CompositeCandidate::clearDaughters(); }
     void                    clearRoles() { roles_.clear(); }

@@ -28,6 +28,13 @@ namespace evf{
       }
     char error[CURL_ERROR_SIZE];
     std::string dummy;
+
+    struct curl_slist *headers=NULL; /* init to NULL is important */
+
+    headers = curl_slist_append(headers, "Pragma:");
+
+    curl_easy_setopt(han, CURLOPT_HTTPHEADER, headers);
+ 
     curl_easy_setopt(han, CURLOPT_PROXY, proxy_.c_str());
     
     curl_easy_setopt(han, CURLOPT_URL, urlToGet_.c_str());
@@ -36,6 +43,8 @@ namespace evf{
     curl_easy_setopt(han, CURLOPT_WRITEDATA, &dummy);
     curl_easy_setopt(han, CURLOPT_ERRORBUFFER, error);
     int success = curl_easy_perform(han);
+
+    curl_slist_free_all(headers); /* free the header list */
 
     curl_easy_cleanup(han);
     if(success != 0)

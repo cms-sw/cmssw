@@ -19,8 +19,7 @@
 #include "DataFormats/ParticleFlowReco/interface/GsfPFRecTrackFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
@@ -245,6 +244,7 @@ PFElecTkProducer::FindPfRef(const reco::PFRecTrackCollection  & PfRTkColl,
 bool 
 PFElecTkProducer::otherElId(const reco::GsfTrackCollection  & GsfColl, 
 			    reco::GsfTrack GsfTk){
+
   int nhits=GsfTk.numberOfValidHits();
   GsfTrackCollection::const_iterator igs=GsfColl.begin();
   GsfTrackCollection::const_iterator igs_end=GsfColl.end();  
@@ -275,9 +275,7 @@ PFElecTkProducer::otherElId(const reco::GsfTrackCollection  & GsfColl,
 void 
 PFElecTkProducer::beginJob(const EventSetup& iSetup)
 {
-  ESHandle<MagneticField> magneticField;
-  iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
-  pfTransformer_= new PFTrackTransformer(math::XYZVector(magneticField->inTesla(GlobalPoint(0,0,0))));
+  pfTransformer_= new PFTrackTransformer();
 }
 
 // ------------ method called once each job just after ending the event loop  ------------

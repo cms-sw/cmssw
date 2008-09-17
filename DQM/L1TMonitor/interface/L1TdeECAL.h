@@ -49,6 +49,7 @@ class L1TdeECAL : public edm::EDAnalyzer {
 
   // input d|e record
   edm::InputTag DEsource_;
+  bool hasRecord_;
 
   // debug verbose level
   int verbose_;

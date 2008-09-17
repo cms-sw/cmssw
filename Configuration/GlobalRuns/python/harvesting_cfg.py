@@ -11,7 +11,7 @@ process.prefer("GlobalTag")
 
 process.load("Configuration.StandardSequences.Geometry_cff")
 
-process.load("DQMOffline.Configuration.DQMOfflineCosmics_SecondStep_cff")
+process.load("DQMOffline.Configuration.DQMOffline_SecondStep_cff")
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
@@ -24,7 +24,7 @@ process.options = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
 #    dropMetaData = cms.untracked.bool(True),
     processingMode = cms.untracked.string("RunsLumisAndEvents"),
-    fileNames = cms.untracked.vstring('file:reco2.root')
+    fileNames = cms.untracked.vstring('file:promptreco.root')
 )
 
 process.maxEvents.input = -1
@@ -39,5 +39,5 @@ process.DQMStore.collateHistograms = False
 process.EDMtoMEConverter.convertOnEndLumi = True
 process.EDMtoMEConverter.convertOnEndRun = False
 
-process.p1 = cms.Path(process.EDMtoMEConverter*process.DQMOfflineCosmics_SecondStep*process.dqmSaver)
+process.p1 = cms.Path(process.EDMtoMEConverter*process.DQMOffline_SecondStep*process.dqmSaver)
 

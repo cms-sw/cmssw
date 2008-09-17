@@ -32,19 +32,11 @@ namespace edm
   StreamSerializer::Arr::Arr(int sz):ptr_((char*)malloc(sz)) { }
   StreamSerializer::Arr::~Arr() { free(ptr_); }
 
-  const int init_size = 1024*1024;
-
   /**
    * Creates a translator instance for the specified product registry.
    */
   StreamSerializer::StreamSerializer(Selections const* selections):
     selections_(selections),
-    //data_(init_size),
-    comp_buf_(init_size),
-    curr_event_size_(),
-    curr_space_used_(),
-    rootbuf_(TBuffer::kWrite,init_size), // ,data_.ptr_,kFALSE),
-    ptr_((unsigned char*)rootbuf_.Buffer()),
     tc_(getTClass(typeid(SendEvent)))
   { }
 
@@ -53,7 +45,7 @@ namespace edm
    * into the specified InitMessage.
    */
 
-  int StreamSerializer::serializeRegistry()
+  int StreamSerializer::serializeRegistry(SerializeDataBuffer &data_buffer)
   {
     FDEBUG(6) << "StreamSerializer::serializeRegistry" << std::endl;
     SendJobHeader sd;
@@ -79,12 +71,12 @@ namespace edm
     }
     sd.setParameterSetMap(psetMap);
 
-    rootbuf_.Reset();
+    data_buffer.rootbuf_.Reset();
 
     RootDebug tracer(10,10);
 
     TClass* tc = getTClass(typeid(SendJobHeader));
-    int bres = rootbuf_.WriteObjectAny((char*)&sd, tc);
+    int bres = data_buffer.rootbuf_.WriteObjectAny((char*)&sd, tc);
 
     switch(bres)
     {
@@ -112,10 +104,10 @@ namespace edm
       }
     }
 
-   curr_event_size_ = rootbuf_.Length();
-   curr_space_used_ = curr_event_size_;
-   ptr_ = (unsigned char*)rootbuf_.Buffer();
-   return curr_space_used_;
+   data_buffer.curr_event_size_ = data_buffer.rootbuf_.Length();
+   data_buffer.curr_space_used_ = data_buffer.curr_event_size_;
+   data_buffer.ptr_ = (unsigned char*)data_buffer.rootbuf_.Buffer();
+   return data_buffer.curr_space_used_;
   }
 
   /**
@@ -139,8 +131,8 @@ namespace edm
 
    */
   int StreamSerializer::serializeEvent(EventPrincipal const& eventPrincipal,
-                                       bool use_compression, 
-				       int compression_level)
+                                       bool use_compression, int compression_level,
+                                       SerializeDataBuffer &data_buffer)
 
   {
     EventEntryDescription entryDesc;
@@ -171,14 +163,11 @@ namespace edm
       }
     }
 
-    //TBuffer rootbuf(TBuffer::kWrite,eventMessage.bufferSize(),
-    //                eventMessage.eventAddr(),kFALSE);
-
-    rootbuf_.Reset();
+    data_buffer.rootbuf_.Reset();
     RootDebug tracer(10,10);
 
     //TClass* tc = getTClass(typeid(SendEvent));
-    int bres = rootbuf_.WriteObjectAny(&se,tc_);
+    int bres = data_buffer.rootbuf_.WriteObjectAny(&se,tc_);
     switch(bres)
       {
       case 0: // failure
@@ -208,14 +197,14 @@ namespace edm
         }
       }
    
-   curr_event_size_ = rootbuf_.Length();
-   curr_space_used_ = curr_event_size_;
-   ptr_ = (unsigned char*)rootbuf_.Buffer();
+   data_buffer.curr_event_size_ = data_buffer.rootbuf_.Length();
+   data_buffer.curr_space_used_ = data_buffer.curr_event_size_;
+   data_buffer.ptr_ = (unsigned char*)data_buffer.rootbuf_.Buffer();
 #if 0
-   if(ptr_ != data_.ptr_)
+   if(data_buffer.ptr_ != data_.ptr_)
 	{
 	std::cerr << "ROOT reset the buffer!!!!\n";
-	data_.ptr_ = ptr_; // ROOT may have reset our data pointer!!!!
+	data_.ptr_ = data_buffer.ptr_; // ROOT may have reset our data pointer!!!!
 	}
 #endif
    // std::copy(rootbuf_.Buffer(),rootbuf_.Buffer()+rootbuf_.Length(),
@@ -228,15 +217,15 @@ namespace edm
     if(use_compression)
     {
       unsigned int dest_size =
-        compressBuffer(ptr_, curr_event_size_, comp_buf_, compression_level);
+        compressBuffer(data_buffer.ptr_, data_buffer.curr_event_size_, data_buffer.comp_buf_, compression_level);
       if(dest_size != 0)
       {
-	ptr_ = &comp_buf_[0]; // reset to point at compressed area
-        curr_space_used_ = dest_size;
+	data_buffer.ptr_ = &data_buffer.comp_buf_[0]; // reset to point at compressed area
+        data_buffer.curr_space_used_ = dest_size;
       }
     }
 
-    return curr_space_used_;
+    return data_buffer.curr_space_used_;
   }
 
   /**

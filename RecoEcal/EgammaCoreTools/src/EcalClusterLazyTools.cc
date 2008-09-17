@@ -159,12 +159,6 @@ float EcalClusterLazyTools::e2x5Bottom( const reco::BasicCluster &cluster )
         return EcalClusterTools::e2x5Bottom( cluster, getEcalRecHitCollection(cluster), topology_ );
 }
 
-// Energy in 2x5 strip containing the max crystal.
-float EcalClusterLazyTools::e2x5Max( const reco::BasicCluster &cluster )
-{
-        return EcalClusterTools::e2x5Max( cluster, getEcalRecHitCollection(cluster), topology_ );
-}
-
 
 float EcalClusterLazyTools::eLeft( const reco::BasicCluster &cluster )
 {
@@ -231,10 +225,7 @@ std::vector<float> EcalClusterLazyTools::covariances(const reco::BasicCluster &c
         return EcalClusterTools::covariances( cluster, getEcalRecHitCollection(cluster), topology_, geometry_, w0 );
 }
 
-std::vector<float> EcalClusterLazyTools::localCovariances(const reco::BasicCluster &cluster, float w0 )
-{
-        return EcalClusterTools::localCovariances( cluster, getEcalRecHitCollection(cluster), topology_, geometry_, w0 );
-}
+
 double EcalClusterLazyTools::zernike20( const reco::BasicCluster &cluster, double R0, bool logW, float w0 )
 {
         return EcalClusterTools::zernike20( cluster, getEcalRecHitCollection(cluster), geometry_, R0, logW, w0 );

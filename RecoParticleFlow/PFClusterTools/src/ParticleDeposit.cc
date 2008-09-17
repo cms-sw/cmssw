@@ -2,7 +2,6 @@
 #include <cassert>
 #include <iostream>
 #include <cmath>
-#include "RecoParticleFlow/PFClusterTools/interface/DetectorElementType.h"
 using namespace pftools;
 
 unsigned ParticleDeposit::count = 0;
@@ -36,31 +35,17 @@ double ParticleDeposit::getRecEnergy(const DetectorElementPtr de) const {
 	for (std::vector<Deposition>::const_iterator cit = myRecDepositions.begin(); cit
 			!= myRecDepositions.end(); ++cit) {
 		Deposition d = *cit;
-
 		if (d.getDetectorElement()->getType() == de->getType()) {
 			energy += de->getCalib(d.getEta(), d.getPhi()) * d.getEnergy();
 		}
-
 	}
 	return energy;
-}
-
-void ParticleDeposit::setRecEnergy(const DetectorElementPtr de, double energy) {
-	for (std::vector<Deposition>::const_iterator cit = myRecDepositions.begin(); cit
-			!= myRecDepositions.end(); ++cit) {
-		Deposition d = *cit;
-
-		if (d.getDetectorElement()->getType() == de->getType()) {
-			d.setEnergy(energy);
-		}
-
-	}
 }
 
 double ParticleDeposit::getTruthEnergy(const DetectorElementPtr de) const {
 	double energy(0);
 	for (std::vector<Deposition>::const_iterator
-			cit = myTruthDepositions.begin(); cit!= myTruthDepositions.end(); ++cit) {
+			cit = myTruthDepositions.begin(); cit != myTruthDepositions.end(); ++cit) {
 		Deposition d = *cit;
 		if (d.getDetectorElement() == de) {
 			energy += d.getEnergy();
@@ -68,7 +53,6 @@ double ParticleDeposit::getTruthEnergy(const DetectorElementPtr de) const {
 	}
 	assert(!(energy > 0));
 	return energy;
-
 }
 
 double ParticleDeposit::getRecEnergy() const {
@@ -76,26 +60,15 @@ double ParticleDeposit::getRecEnergy() const {
 	for (std::vector<Deposition>::const_iterator cit = myRecDepositions.begin(); cit
 			!= myRecDepositions.end(); ++cit) {
 		Deposition d = *cit;
-//		if (d.getDetectorElement()->getType() == OFFSET && d.getDetectorElement()->getCalib() == 1.0) {
-//			//don't add a tiny amount!
-//		} else {
-			energy += d.getDetectorElement()->getCalib(d.getEta(), d.getPhi()) * d.getEnergy();
-//		}
+		energy += d.getDetectorElement()->getCalib(d.getEta(), d.getPhi()) * d.getEnergy();
 	}
-
-	//assert(!(energy < 0));
+	assert(!(energy < 0));
 	return energy;
-
 }
 
 double ParticleDeposit::getEnergyResolution() const {
-	//assert(!(getRecEnergy() / myTruthEnergy < 0.0));
+	assert(!(getRecEnergy() / myTruthEnergy < 0.0));
 	return fabs((getRecEnergy() - myTruthEnergy) / sqrt(myTruthEnergy));
-}
-
-double ParticleDeposit::getTargetFunctionContrib() const {
-	//assert(!(getRecEnergy() / myTruthEnergy < 0.0));
-	return pow((getRecEnergy() - myTruthEnergy), 2);
 }
 
 std::ostream& pftools::operator<<(std::ostream& s, const pftools::ParticleDeposit& p) {
@@ -103,12 +76,12 @@ std::ostream& pftools::operator<<(std::ostream& s, const pftools::ParticleDeposi
 	s.width(3);
 	s << "\tEta:\t" << p.getEta() << ",\tphi:\t" << p.getPhi() << "\n";
 	for (std::vector<Deposition>::const_iterator cit = p.getRecDepositions().begin(); cit
-			!= p.getRecDepositions().end(); ++cit) {
-		Deposition d = *cit;
-		DetectorElementPtr de(d.getDetectorElement());
-		s << "\t" << *de << ": \t=> E_contrib = ";
-		s << de->getCalib(d.getEta(), d.getPhi()) * d.getEnergy() << "\n";
-	}
+				!= p.getRecDepositions().end(); ++cit) {
+			Deposition d = *cit;
+			DetectorElementPtr de(d.getDetectorElement());
+			s << "\t" << *de << ": \t=> E_contrib = ";
+			s << de->getCalib(d.getEta(), d.getPhi()) * d.getEnergy() << "\n";
+		}
 	s << "\tTotalRecEnergy: " << p.getRecEnergy() << ",\t res: " << p.getEnergyResolution() * 100 << "%\n";
 	return s;
 }

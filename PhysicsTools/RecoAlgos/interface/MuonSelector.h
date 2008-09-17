@@ -6,11 +6,11 @@
  * Track, TrackExtra parts and RecHits collection
  * for SA, GB and Tracker Only options
  * 
- * \author Javier Fernandez, IFCA
+ * \author Javier Fernandez, Uniovi
  *
- * \version $Revision: 1.8 $
+ * \version $Revision: 1.10 $
  *
- * $Id: MuonSelector.h,v 1.8 2008/08/27 21:42:34 jfernan2 Exp $
+ * $Id: MuonSelector.h,v 1.10 2008/09/16 08:56:24 jfernan2 Exp $
  *
  */
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -153,7 +153,7 @@ namespace helper {
     //!  (after the tracks have been dealt with)
     //------------------------------------------------------------------
     void processAllClusters() ;
-
+ 
     //------------------------------------------------------------------
     //!  Processes all the clusters of a specific type
     //!  (after the tracks have been dealt with)
@@ -162,7 +162,9 @@ namespace helper {
     void processClusters( std::vector<ClusterHitRecord<HitType> > & clusterRecords,
               edmNew::DetSetVector<ClusterType>                   & dsv,
               edm::RefProd< edmNew::DetSetVector<ClusterType> >   & refprod ) ;
-   };
+
+    bool clusterRefsOK(const reco::Track &track) const;
+  };
   // (end of struct MuonCollectionStoreManager)
  
   template<typename I>

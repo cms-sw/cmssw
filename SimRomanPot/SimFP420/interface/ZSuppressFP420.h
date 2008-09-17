@@ -10,7 +10,7 @@ class ZSuppressFP420{
   typedef  DConverterFP420::DigitalMapType DigitalMapType;
     
   virtual ~ZSuppressFP420() {  }
-  virtual DigitalMapType zeroSuppress(const DigitalMapType&, int) = 0;
+  virtual DigitalMapType zeroSuppress(const DigitalMapType&) = 0;
 };
  
 #endif

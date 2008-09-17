@@ -323,9 +323,7 @@ namespace edm {
       newLumi_ = true;
     }
 
-    EventAuxiliary eventAux(sd->aux().id(),
-      processGUID(), sd->aux().time(), luminosityBlockPrincipal()->luminosityBlock(), true);
-    std::auto_ptr<EventPrincipal> ep(new EventPrincipal(eventAux,
+    std::auto_ptr<EventPrincipal> ep(new EventPrincipal(sd->aux(),
                                                    productRegistry(),
                                                    processConfiguration(),
 						   sd->processHistory().id()));

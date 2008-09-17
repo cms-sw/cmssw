@@ -3,36 +3,6 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
-
-#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-
-// Geometry
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
-#include "Geometry/CaloTopology/interface/CaloTopology.h"
-#include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
-#include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
-
-typedef std::map<DetId, EcalRecHit> RecHitsMap;
-// Less than operator for sorting EcalRecHits according to energy.
-class ecalRecHitLess : public std::binary_function<EcalRecHit, EcalRecHit, bool> 
-{
-public:
-  bool operator()(EcalRecHit x, EcalRecHit y) 
-  { 
-    return (x.energy() > y.energy()); 
-  }
-};
-
-
-
 
 class DQMStore;
 class MonitorElement;
@@ -87,30 +57,6 @@ private:
   /// Distribution of Mean energy per rechit
   MonitorElement * hMeanRecHitEnergyEB_;
 
-  /// Pi0 invariant mass in EB
-  MonitorElement * hMinvPi0EB_;
-
-  /// Pt of the 1st most energetic Pi0 photon in EB
-  MonitorElement *hPt1Pi0EB_;
-
-  
-  /// Pt of the 2nd most energetic Pi0 photon in EB
-  MonitorElement *hPt2Pi0EB_;
-
-  
-  /// Pi0 Pt in EB
-  MonitorElement * hPtPi0EB_;
-
-  /// Pi0 Iso
-  MonitorElement * hIsoPi0EB_;
-
-  /// S4S9 of the 1st most energetic pi0 photon
-  MonitorElement * hS4S91EB_;
-
-  /// S4S9 of the 2nd most energetic pi0 photon
-  MonitorElement * hS4S92EB_;
-  
-
 
   /// Energy Distribution of rechits  
   MonitorElement * hRechitEnergyEE_;
@@ -129,33 +75,6 @@ private:
 
  /// object to monitor
   edm::InputTag productMonitoredEE_;
-
-  int gammaCandEtaSize_;
-  int gammaCandPhiSize_;
-
-  double clusSeedThr_;
-  int clusEtaSize_;
-  int clusPhiSize_;
-
-  double selePtGammaOne_;
-  double selePtGammaTwo_;
-  double selePtPi0_;
-  double seleMinvMaxPi0_;
-  double seleMinvMinPi0_;
-  double seleXtalMinEnergy_;
-  int seleNRHMax_;
-  //New criteria
-  double seleS4S9GammaOne_;
-  double seleS4S9GammaTwo_;
-  double selePi0BeltDR_;
-  double selePi0BeltDeta_;
-  double selePi0Iso_;
-  bool ParameterLogWeighted_;
-  double ParameterX0_;
-  double ParameterT0_barl_;
-  double ParameterW0_;
-
-  std::map<DetId, EcalRecHit> *recHitsEB_map;
 
 
   /// Monitor every prescaleFactor_ events

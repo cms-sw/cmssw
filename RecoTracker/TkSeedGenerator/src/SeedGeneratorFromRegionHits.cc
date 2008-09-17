@@ -2,6 +2,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGenerator.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
@@ -13,12 +14,16 @@
 
 #include <vector>
 
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
 template <class T> T sqr( T t) {return t*t;}
 
 SeedGeneratorFromRegionHits::SeedGeneratorFromRegionHits(
   OrderedHitsGenerator *ohg, const edm::ParameterSet & cfg,
   SeedComparitor * asc)
-  : theHitsGenerator(ohg), theConfig(cfg), theComparitor(asc)
+  : theHitsGenerator(ohg), theConfig(cfg), theComparitor(asc), 
+    theBOFFMomentum(cfg.existsAs<double>("SeedMomentumForBOFF") ? cfg.getParameter<double>("SeedMomentumForBOFF") : -1.0)
 { }
 
 SeedGeneratorFromRegionHits::~SeedGeneratorFromRegionHits()
@@ -41,7 +46,7 @@ void SeedGeneratorFromRegionHits::run(TrajectorySeedCollection & seedCollection,
   for (unsigned int iHits = 0; iHits < nHitss; ++iHits) { 
     const SeedingHitSet & hits =  hitss[iHits];
     if (!theComparitor || theComparitor->compatible( hits, es) ) {
-      SeedFromConsecutiveHits seedfromhits( hits, region.origin(), vtxerr, es);
+      SeedFromConsecutiveHits seedfromhits( hits, region.origin(), vtxerr, es, theBOFFMomentum);
       if(seedfromhits.isValid()) {
         seedCollection.push_back( seedfromhits.TrajSeed() );
       }

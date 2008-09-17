@@ -17,11 +17,21 @@ PFRecoTauProducer::~PFRecoTauProducer(){
 
 void PFRecoTauProducer::produce(Event& iEvent,const EventSetup& iSetup){
   auto_ptr<PFTauCollection> resultPFTau(new PFTauCollection);
-
+  
   ESHandle<TransientTrackBuilder> myTransientTrackBuilder;
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",myTransientTrackBuilder);
   PFRecoTauAlgo_->setTransientTrackBuilder(myTransientTrackBuilder.product());
 
+  //ESHandle<MagneticField> myMF;
+  //iSetup.get<IdealMagneticFieldRecord>().get(myMF);
+  //PFRecoTauAlgo_->setMagneticField(myMF.product());
+
+  // Electron PreID tracks: Temporary until integrated to PFCandidate
+  /*
+  edm::Handle<PFRecTrackCollection> myPFelecTk; 
+  iEvent.getByLabel(ElectronPreIDProducer_,myPFelecTk); 
+  const PFRecTrackCollection theElecTkCollection=*(myPFelecTk.product()); 
+  */
   // query a rec/sim PV
   Handle<VertexCollection> thePVs;
   iEvent.getByLabel(PVProducer_,thePVs);
@@ -45,7 +55,6 @@ void PFRecoTauProducer::produce(Event& iEvent,const EventSetup& iSetup){
   for(PFTauTagInfoCollection::const_iterator i_info=thePFTauTagInfoCollection->begin();i_info!=thePFTauTagInfoCollection->end();i_info++) { 
     if((*i_info).pfjetRef()->pt()>JetMinPt_){
       //        PFTau myPFTau=PFRecoTauAlgo_->buildPFTau(Ref<PFTauTagInfoCollection>(thePFTauTagInfoCollection,iinfo),thePV,theElecTkCollection);
-  
         PFTau myPFTau=PFRecoTauAlgo_->buildPFTau(Ref<PFTauTagInfoCollection>(thePFTauTagInfoCollection,iinfo),thePV);
        resultPFTau->push_back(myPFTau);
     }

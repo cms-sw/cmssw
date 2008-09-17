@@ -12,12 +12,70 @@
 #include <vector>
 #include "DataFormats/CSCDigi/interface/CSCALCTDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCALCTStatusDigi.h"
-#include "EventFilter/CSCRawToDigi/interface/CSCALCTHeader2006.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include <boost/dynamic_bitset.hpp>
 
 class CSCDMBHeader;
+
+///ALCT Header consists of several modular units that are defined as structs below
+struct CSCALCTHeader2006 { ///this struct contains all 2006 ALCT Header words except ALCTs
+  CSCALCTHeader2006()  {
+    bzero(this,  sizeInWords()*2); ///size of header w/o LCTs = 8 bytes
+  }
+
+  short unsigned int sizeInWords() const { ///size of ALCT Header
+    return 4;
+  }
+  short unsigned int sizeForPacking() const { ///returns size of 2006 alct header+alct bits
+    return 16; ///in bytes
+  }
+  /// l1 accept counter
+  unsigned l1Acc         : 4;
+  /// chamber ID number
+  unsigned cscID         : 4;
+  /// ALCT2000 board ID
+  unsigned boardID       : 3;
+  /// should be '01100', so it'll be a 6xxx in the ASCII dump
+  unsigned flag_0 : 5;
+ 
+  /// see the FIFO_MODE enum
+  unsigned fifoMode : 2;
+  /// # of 25 ns time bins in the raw dump
+  unsigned nTBins : 5;
+  /// exteran L1A arrived in L1A window
+  unsigned l1aMatch : 1;
+  /// trigger source was external
+  unsigned extTrig : 1;
+  /// promotion bit for 1st LCT pattern
+  unsigned promote1 : 1;
+  /// promotion bit for 2nd LCT pattern
+  unsigned promote2 : 1;
+  /// reserved, set to 0
+  unsigned reserved_1 : 3;
+  /// DDU+LCT special word flags
+  unsigned flag_1 : 2;
+ 
+  /// full bunch crossing number
+  unsigned bxnCount : 12;
+  /// reserved, set to 0
+  unsigned reserved_2 : 2;
+  ///  DDU+LCT special word flags
+  unsigned flag_2 : 2;
+
+  /// LCT chips read out in raw hit dump
+  unsigned lctChipRead : 7;
+  /// LCT chips with ADB hits
+  unsigned activeFEBs : 7;
+  ///  DDU+LCT special word flags
+  unsigned flag_3 : 2;
+
+  ///below are ALCT filler words needed only for digi->raw packing and not used in unpacking
+  unsigned alct0_dummy_low  : 16;
+  unsigned alct0_dummy_high : 16;
+  unsigned alct1_dummy_low  : 16;
+  unsigned alct1_dummy_high : 16;
+
+};
 
 struct CSCALCT {
   CSCALCT()  {
@@ -44,6 +102,44 @@ struct CSCALCT {
   unsigned pattern : 1;
   unsigned keyWire : 7;
   unsigned reserved: 4;
+};
+
+struct CSCALCTs2006 {
+  CSCALCTs2006() {
+    bzero(this, 8); ///size of ALCT = 2bytes
+  }
+
+  short unsigned int sizeInWords() const { ///size of ALCT
+    return 4;
+  }
+  /// 1st LCT lower 15 bits
+  /// http://www.phys.ufl.edu/cms/emu/dqm/data_formats/ALCT_data_format_notes.pdf
+  unsigned alct0_valid   : 1;
+  unsigned alct0_quality : 2;  
+  unsigned alct0_accel   : 1;
+  unsigned alct0_pattern : 1;
+  unsigned alct0_key_wire: 7;
+  unsigned alct0_bxn_low : 3;
+  ///  DDU+LCT special word flags
+  unsigned flag_4 : 1;
+ 
+  unsigned alct0_bxn_high :2;
+  unsigned alct0_reserved :13;
+  ///  DDU+LCT special word flags
+  unsigned flag_5 : 1;
+
+  /// 2nd LCT lower 15 bits
+  unsigned alct1_valid   : 1;
+  unsigned alct1_quality : 2;  
+  unsigned alct1_accel   : 1;
+  unsigned alct1_pattern : 1;
+  unsigned alct1_key_wire: 7;
+  unsigned alct1_bxn_low : 3;
+  unsigned flag_6 : 1;
+
+  unsigned alct1_bxn_high :2;
+  unsigned alct1_reserved :13;
+  unsigned flag_7 : 1;
 };
 
 
@@ -239,11 +335,6 @@ class CSCALCTHeader {
   unsigned short int Promote2()        const {return header2006.promote2;}
   unsigned short int LCTChipRead()     const {return header2006.lctChipRead;}
   unsigned short int alctFirmwareVersion() const {return firmwareVersion;}
-  void setDAVForChannel(int wireGroup) {
-     if(firmwareVersion == 2006) {
-       header2006.setDAV((wireGroup-1)/16);
-     }
-  }
   CSCALCTHeader2007 alctHeader2007()   const {return header2007;}
   CSCALCTHeader2006 alctHeader2006()   const {return header2006;}
 
@@ -278,9 +369,10 @@ class CSCALCTHeader {
       }
   }
  
+  /// should try to sort, but doesn't for now
   void add(const std::vector<CSCALCTDigi> & digis);
-
-  boost::dynamic_bitset<> pack();
+  void addALCT0(const CSCALCTDigi & digi);
+  void addALCT1(const CSCALCTDigi & digi);
 
   /// tests that we unpack what we packed
   static void selfTest();  

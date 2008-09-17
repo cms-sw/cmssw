@@ -8,7 +8,7 @@
 //     <Notes on implementation>
 //
 // Author:      Zhen Xie
-// $Id: PoolDBESSource.cc,v 1.103 2008/09/03 12:56:42 xiezhen Exp $
+// $Id$
 //
 // system include files
 #include "boost/shared_ptr.hpp"
@@ -271,7 +271,6 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
   }else{
     abtime=(cond::Time_t)iTime.eventID().run();
   }
-  //std::cout<<"abtime "<<abtime<<std::endl;
   cond::Connection* c=cond::ConnectionHandler::Instance().getConnection(pos->second.begin()->pfn);
   //std::cout<<"leading pfn "<< pos->second.front().pfn <<std::endl;
   cond::PoolTransaction& pooldb=c->poolTransaction();
@@ -294,7 +293,6 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
     start=edm::IOVSyncValue( edm::EventID(validity.first,0) );
     stop=edm::IOVSyncValue( edm::EventID(validity.second,edm::EventID::maxEventNumber()) );
   }
-  //std::cout<<"setting validity "<<validity.first<<" "<<validity.second<<" for ibtime "<<abtime<< std::endl;
   oInterval = edm::ValidityInterval( start, stop );
   std::string payloadToken=iovservice.payloadToken(leadingToken,abtime);
   std::string datumName=recordname+"@"+objectname+"@"+leadingLable;

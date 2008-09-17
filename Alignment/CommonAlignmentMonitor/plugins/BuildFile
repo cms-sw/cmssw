@@ -25,15 +25,7 @@
  <use name=TrackingTools/TrackFitters>
  <use name=Alignment/MuonAlignment>
  <use name=DataFormats/MuonDetId>
- <flags EDM_PLUGIN=1>
-</library>
-
-<library name="AlignmentMonitorHIPNtuple" file="AlignmentMonitorHIPNtuple.cc">
- <use name=Alignment/CommonAlignmentMonitor>
- <use name=FWCore/ParameterSet>
- <use name=TrackingTools/TrackFitters>
- <use name=Alignment/CommonAlignment>
- <use name=DataFormats/MuonDetId>
+ <use name=Alignment/MuonAlignment>
  <flags EDM_PLUGIN=1>
 </library>
 
@@ -46,6 +38,13 @@
 
 <library name="AlignmentMonitorSurvey" file="AlignmentMonitorSurvey.cc">
  <use name=Alignment/CommonAlignmentMonitor>
+ <flags EDM_PLUGIN=1>
+</library>
+
+
+<library name="AlignmentMonitorTracksFromTrajectories" file="AlignmentMonitorTracksFromTrajectories.cc">
+ <use name=Alignment/CommonAlignmentMonitor>
+ <use name=RecoMuon/TrackingTools>
  <flags EDM_PLUGIN=1>
 </library>
 

@@ -2,9 +2,9 @@
 import FWCore.ParameterSet.Config as cms
 
 L1TauVal = cms.EDAnalyzer("HLTTauL1DQMOfflineSource",
-    RefTauCollection      = cms.untracked.InputTag("TauMCProducer","Taus"),
-    RefElecCollection   = cms.untracked.InputTag("TauMCProducer","Electrons"),
-    RefMuonCollection   = cms.untracked.InputTag("TauMCProducer","Muons"),
+    RefTauCollection      = cms.untracked.InputTag("TauMCProducer","HadronicTauOneAndThreeProng"),
+    RefElecCollection   = cms.untracked.InputTag("TauMCProducer","LeptonicTauElectrons"),
+    RefMuonCollection   = cms.untracked.InputTag("TauMCProducer","LeptonicTauMuons"),
                           
     # L1extra reading
     L1extraCenJetSource = cms.InputTag("hltL1extraParticles","Central"),

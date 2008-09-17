@@ -1,11 +1,11 @@
-// $Id: Numbers.cc,v 1.63 2008/08/13 13:53:44 dellaric Exp $
+// $Id: Numbers.cc,v 1.62 2008/08/13 13:22:04 dellaric Exp $
 
 /*!
   \file Numbers.cc
   \brief Some "id" conversions
   \author B. Gobbo
-  \version $Revision: 1.63 $
-  \date $Date: 2008/08/13 13:53:44 $
+  \version $Revision: 1.62 $
+  \date $Date: 2008/08/13 13:22:04 $
 */
 
 #include <sstream>
@@ -505,81 +505,6 @@ int Numbers::iTT( const EcalTrigTowerDetId& id ) throw( std::runtime_error ) {
     s << "Invalid subdetector: subdet = " << subdet;
     throw( std::runtime_error( s.str() ) );
 
-  }
-
-}
-
-//-------------------------------------------------------------------------
-
-int Numbers::TCCid( const EcalTrigTowerDetId& id ) throw( std::runtime_error ) {
-
-  EcalSubdetector subdet = Numbers::subDet( id );
-
-  if( subdet == EcalBarrel ) {
-
-    if( Numbers::map ) {
-
-      return( Numbers::map->TCCid(id) );
-
-    } else {
-
-      std::ostringstream s;
-      s << "ECAL Geometry not available";
-      throw( std::runtime_error( s.str() ) );
-
-    }
-
-  } else if( subdet ==  EcalEndcap) {
-
-    if( Numbers::map ) {
-
-      return( Numbers::map->TCCid(id) );
-
-    } else {
-
-      std::ostringstream s;
-      s << "ECAL Geometry not available";
-      throw( std::runtime_error( s.str() ) );
-
-    }
-
-  } else {
-
-    std::ostringstream s;
-    s << "Invalid subdetector: subdet = " << subdet;
-    throw( std::runtime_error( s.str() ) );
-
-  }
-
-}
-
-//-------------------------------------------------------------------------
-
-std::vector<DetId> Numbers::crystals( const EcalSubdetector subdet, int itcc, int itt ) throw( std::runtime_error ) {
-
-
-  if( Numbers::map ) {
-
-    EcalSubdetector sub = Numbers::map->subdet(itcc,1);
-
-    if( subdet == sub ) {
-      
-      return( Numbers::map->ttConstituents( itcc, itt ) );
-      
-    } else {
-
-      std::vector<DetId> empty;
-      empty.clear();
-      return empty;
-
-    }
-    
-  }  else {
-    
-    std::ostringstream s;
-    s << "ECAL Geometry not available";
-    throw( std::runtime_error( s.str() ) );
-    
   }
 
 }
