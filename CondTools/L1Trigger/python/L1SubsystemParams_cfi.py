@@ -128,6 +128,12 @@ L1SubsystemParams = cms.PSet(
             key = cms.string('dummy')
         ), 
         cms.PSet(
+            record = cms.string('L1GctHfLutSetupRcd'),
+            tag = cms.string('L1GctHfLutSetup_IDEAL'),
+            type = cms.string('L1GctHfLutSetup'),
+            key = cms.string('dummy')
+        ), 
+        cms.PSet(
             record = cms.string('L1GctJetFinderParamsRcd'),
             tag = cms.string('L1GctJetFinderParams_IDEAL'),
             type = cms.string('L1GctJetFinderParams'),
