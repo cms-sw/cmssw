@@ -13,6 +13,7 @@
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockFwd.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
@@ -90,7 +91,6 @@ namespace reco {
 
     /// set Particle Type
     void setParticleType( ParticleType type ); 
-
     
     /// add an element to the current PFCandidate
     /*     void addElement( const reco::PFBlockElement* element ); */
@@ -105,6 +105,12 @@ namespace reco {
     /// return a reference to the corresponding track, if charged. 
     /// otherwise, return a null reference
     reco::TrackRef trackRef() const { return trackRef_; }
+
+    /// set reference to a reco::Vertex
+    void setVertexRef(const reco::VertexRef& ref) {vertexRef_ = ref;}
+
+    /// return the reference to the associated reco::Vertex
+    reco::VertexRef vertexRef() const { return vertexRef_; }
 
     /// set muon reference
     void setMuonRef(const reco::MuonRef& ref);
@@ -281,11 +287,15 @@ namespace reco {
     ElementsInBlocks elementsInBlocks_;
 
     /// reference to the source PFCandidate, if any
-/*     PFCandidateRef sourceRef_; */
     PFCandidatePtr sourcePtr_;
 
     reco::TrackRef trackRef_;
     
+    /// reference to reconstructed vertex. the Particle::vertex_ datamember
+    /// is used to store the position of the vertex of the corresponding 
+    /// track (reco::Track::vertex() ), in case the PFCandidate is charged
+    reco::VertexRef vertexRef_;
+
     reco::MuonRef  muonRef_;
 
     reco::NuclearInteractionRef nuclearRef_;
