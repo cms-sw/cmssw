@@ -101,11 +101,13 @@ L1TDEMON::beginJob(const edm::EventSetup&) {
     //assume for 
     for(int i=0; i<DEnsys; i++) {rnkNBins[i]=63;rnkMinim[i]=0.5;rnkMaxim[i]=63.5;}//rank 0x3f->63
     rnkNBins[DTP]=7;rnkMinim[DTP]=-0.5;rnkMaxim[DTP]=6.5; //rank 0-6
+    rnkNBins[CTP]=16;rnkMinim[CTP]=-0.5;rnkMaxim[CTP]=15.5; //quality 0-15
 
     /*--notes 
       RCT: global index ieta (0-21)=[22,-0.5,21.5] , iphi (0-17)=[18,-0.5,17.5]; crate (18) card (7)
       GCT: phi index (0-17); eta = -6 to -0, +0 to +6. Sign is bit 3, 1 means -ve Z, 0 means +ve Z -> 0.17
-      DTP  usc 0..11; uwh -2..2; ust 1..4; 
+      DTP: usc 0..11; uwh -2..2; ust 1..4;
+      CTP: rank is quality 0..15
     */
 
     for(int j=0; j<DEnsys; j++) {
