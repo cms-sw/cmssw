@@ -48,9 +48,12 @@ namespace evf{
 	CURL* han = curl_easy_init();
 	if(han==0)
 	  {
-	    XCEPT_RAISE(evf::Exception,"could not create handle for web ParameterSet");
-	    
+	    XCEPT_RAISE(evf::Exception,"could not create handle for web ParameterSet");	    
 	  }
+
+	struct curl_slist *headers=NULL; /* init to NULL is important */
+	headers = curl_slist_append(headers, "Pragma:");
+	curl_easy_setopt(han, CURLOPT_HTTPHEADER, headers);
 	char error[CURL_ERROR_SIZE];
 	if(sn.check())
 	  curl_easy_setopt(han, CURLOPT_PROXY, "localhost:3128");
@@ -61,8 +64,9 @@ namespace evf{
 	curl_easy_setopt(han, CURLOPT_WRITEDATA, &pset);
 	curl_easy_setopt(han, CURLOPT_ERRORBUFFER, error);
 	int success = curl_easy_perform(han);
-
+	curl_slist_free_all(headers); /* free the header list */
 	curl_easy_cleanup(han);
+
 	if(success != 0)
 	  {
 	    ostringstream msg;
