@@ -45,10 +45,10 @@ ecalEndcapMonitorModule.EcalTrigPrimDigiCollection = 'ecalDigis:EcalTriggerPrimi
 ecalEndcapMonitorModule.verbose = False
 
 ecalBarrelCosmicTask.EcalRawDataCollection = 'ecalDigis:'
-ecalBarrelCosmicTask.EcalUncalibratedRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEB'
+ecalBarrelCosmicTask.EcalUncalibratedRecHitCollection = 'ecalWeightUncalibRecHit:EcalUncalibRecHitsEB'
 
 ecalEndcapCosmicTask.EcalRawDataCollection = 'ecalDigis:'
-ecalEndcapCosmicTask.EcalUncalibratedRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEE'
+ecalEndcapCosmicTask.EcalUncalibratedRecHitCollection = 'ecalWeightUncalibRecHit:EcalUncalibRecHitsEE'
 
 ecalBarrelIntegrityTask.EBDetIdCollection0 = 'ecalDigis:EcalIntegrityDCCSizeErrors'
 ecalBarrelIntegrityTask.EBDetIdCollection1 = 'ecalDigis:EcalIntegrityGainErrors'
@@ -103,10 +103,10 @@ ecalEndcapSelectiveReadoutTask.EESRFlagCollection = 'ecalDigis:'
 ecalEndcapSelectiveReadoutTask.EcalTrigPrimDigiCollection = 'ecalDigis:EcalTriggerPrimitives'
 
 ecalBarrelTimingTask.EcalRawDataCollection = 'ecalDigis:'
-ecalBarrelTimingTask.EcalUncalibratedRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEB'
+ecalBarrelTimingTask.EcalUncalibratedRecHitCollection = 'ecalWeightUncalibRecHit:EcalUncalibRecHitsEB'
 
 ecalEndcapTimingTask.EcalRawDataCollection = 'ecalDigis:'
-ecalEndcapTimingTask.EcalUncalibratedRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEE'
+ecalEndcapTimingTask.EcalUncalibratedRecHitCollection = 'ecalWeightUncalibRecHit:EcalUncalibRecHitsEE'
 
 ecalBarrelTriggerTowerTask.EcalTrigPrimDigiCollectionReal = 'ecalDigis:EcalTriggerPrimitives'
 
@@ -121,10 +121,10 @@ ecalEndcapTriggerTowerTask.EcalTrigPrimDigiCollectionEmul = 'ecalDigis:EcalTrigg
 #ecalEndcapTriggerTowerTask.EcalTrigPrimDigiCollectionEmul = 'valEcalTriggerPrimitiveDigis'
 
 ecalBarrelClusterTask.EcalRawDataCollection = 'ecalDigis:'
-ecalBarrelClusterTask.BasicClusterCollection = 'cosmicBasicClusters:CosmicBarrelBasicClusters'
-ecalBarrelClusterTask.SuperClusterCollection = 'hybridSuperClusters:'
+ecalBarrelClusterTask.BasicClusterCollection = 'hybridSuperClusters:hybridBarrelBasicClusters'
+ecalBarrelClusterTask.SuperClusterCollection = 'correctedHybridSuperClusters:'
 
 ecalEndcapClusterTask.EcalRawDataCollection = 'ecalDigis:'
-ecalEndcapClusterTask.BasicClusterCollection = 'cosmicBasicClusters:CosmicEndcapBasicClusters'
-ecalEndcapClusterTask.SuperClusterCollection = 'hybridSuperClusters:'
+ecalEndcapClusterTask.BasicClusterCollection = 'multi5x5BasicClusters:multi5x5EndcapBasicClusters'
+ecalEndcapClusterTask.SuperClusterCollection = 'multi5x5SuperClusters:multi5x5EndcapSuperClusters'
 
