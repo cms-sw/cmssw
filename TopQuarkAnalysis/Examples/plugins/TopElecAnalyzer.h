@@ -25,12 +25,15 @@ class TopElecAnalyzer : public edm::EDAnalyzer {
 
   edm::InputTag elecs_;
   
-  TH1I *NrElec_;
+  TH1I *nrElec_;
   TH1F *ptElec_;
   TH1F *enElec_;
   TH1F *etaElec_;
   TH1F *phiElec_;
-  TH1F *trigMatchElec_;
+  TH1F *dptElec_;
+  TH1F *denElec_;
+  TH1F *genElec_;
+  TH1F *trgElec_;
 };  
 
 #endif  

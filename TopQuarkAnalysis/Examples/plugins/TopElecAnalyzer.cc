@@ -10,12 +10,15 @@ TopElecAnalyzer::TopElecAnalyzer(const edm::ParameterSet& cfg):
 {
   edm::Service<TFileService> fs;
   
-  NrElec_ = fs->make<TH1I>("NrElec",  "Num_{Elecs}",    10,  0 , 10 );
-  ptElec_ = fs->make<TH1F>("ptElec",  "pt_{Elecs}",    100,  0.,300.);
-  enElec_ = fs->make<TH1F>("enElec",  "energy_{Elecs}",100,  0.,300.);
-  etaElec_= fs->make<TH1F>("etaElec", "eta_{Elecs}",   100, -3.,  3.);
-  phiElec_= fs->make<TH1F>("phiElec", "phi_{Elecs}",   100, -5.,  5.);
-  trigMatchElec_= fs->make<TH1F>("trigMatchElec", "trigMatch_{Elec}", 100, -5.,  5.);
+  nrElec_ = fs->make<TH1I>("NrElec",  "Nr_{Elec}",   10,  0 , 10 );
+  ptElec_ = fs->make<TH1F>("ptElec",  "pt_{Elec}",  100,  0.,300.);
+  enElec_ = fs->make<TH1F>("enElec",  "en_{Elec}",  100,  0.,300.);
+  etaElec_= fs->make<TH1F>("etaElec", "eta_{Elec}", 100, -3.,  3.);
+  phiElec_= fs->make<TH1F>("phiElec", "phi_{Elec}", 100, -5.,  5.);
+  dptElec_= fs->make<TH1F>("dptElec", "dpt_{Elec}", 100, -2.,  2.);
+  denElec_= fs->make<TH1F>("denElec", "den_{Elec}", 100, -2.,  2.);
+  genElec_= fs->make<TH1F>("genElec", "gen_{Elec}", 100, -2.,  2.);
+  trgElec_= fs->make<TH1F>("trgElec", "trg_{Elec}", 100, -1.,  1.);
 }
 
 TopElecAnalyzer::~TopElecAnalyzer()
@@ -28,7 +31,7 @@ TopElecAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
   edm::Handle<std::vector<pat::Electron> > elecs;
   evt.getByLabel(elecs_, elecs); 
 
-  NrElec_->Fill( elecs->size() );
+  nrElec_->Fill( elecs->size() );
   for( std::vector<pat::Electron>::const_iterator elec=elecs->begin();
        elec!=elecs->end(); ++elec){
     // --------------------------------------------------
@@ -39,38 +42,34 @@ TopElecAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
     etaElec_->Fill( elec->eta()   );
     phiElec_->Fill( elec->phi()   );
 
-
     // --------------------------------------------------
-    // request isolation tag
+    // request a bunch of pat tags
     // --------------------------------------------------
-    if (pat::Flags::test(*elec, pat::Flags::Isolation::Tracker)) {
-      std::cout << "Electron is not Tracker Isolated" << std::endl;
-    } 
-    else {
+    if(pat::Flags::test(*elec, pat::Flags::Isolation::Tracker)){
       std::cout << "Electron is Tracker Isolated" << std::endl;
-    }
+    } 
 
     // --------------------------------------------------
     // check tigger bits
     // --------------------------------------------------
+    // still needs to get a sensible implementation 
+    // as soon as the trigger bits become available
     edm::Handle<edm::TriggerResults> triggerBits;
     evt.getByLabel("TriggerResults",triggerBits);
-    if (triggerBits.isValid()){
-      for(unsigned iBit=0; iBit<triggerBits->size(); ++iBit){
-	std::cout << "HLTTrigger bit " << iBit << " : " 
-		  << triggerBits->at(iBit).accept() << std::endl;
-      }
-    }
+
+    unsigned bit = 0;
+    if(triggerBits.isValid()){
+      std::cout << "Trigger Bit [" << bit << "] = " << triggerBits->at(bit).accept() << std::endl;
+    } 
 
     // --------------------------------------------------
-    // get matched trigger primitives and fill best match 
+    // get matched trigger primitives and fill best match
     // --------------------------------------------------
     int trigIdx =-1 ;
     double minDR=-1.;
     const std::vector<pat::TriggerPrimitive> trig = elec->triggerMatches();
     for(unsigned idx = 0; idx<trig.size(); ++idx){
-      std::cout << "found trigger match from HLT filter: " 
-		<< trig[idx].filterName() << std::endl;
+      std::cout << "Trigger Match: " << trig[idx].filterName() << std::endl;
       double dR=deltaR(trig[idx].eta(), trig[idx].phi(), elec->eta(), elec->phi());
       if( minDR<0 || dR<minDR ){
 	minDR=dR;
@@ -78,8 +77,25 @@ TopElecAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
       }
     }
     if(trigIdx>=0){
-      trigMatchElec_->Fill((trig[trigIdx].pt()-elec->pt())/elec->pt());
+      trgElec_->Fill((trig[trigIdx].pt()-elec->pt())/elec->pt());
     }
+    
+    // --------------------------------------------------
+    // get ElectronId 
+    // --------------------------------------------------
+    const std::vector<pat::Electron::IdPair> leptonIDs = elec->leptonIDs();
+    for(unsigned idx=0; idx<leptonIDs.size(); ++idx){
+      std::cout << ::std::setw( 12 ) << ::std::left << leptonIDs[idx].first << leptonIDs[idx].second << std::endl;
+    }
+    
+    // --------------------------------------------------
+    // get embedded objects
+    // --------------------------------------------------
+    // dptElec_->Fill( (elec->track()->pt() - elec->gsfTrack()->pt())/elec->gsfTrack()->pt() );
+    denElec_->Fill( (elec->superCluster()->energy()- elec->gsfTrack()->pt())/elec->gsfTrack()->pt() );
+    //if(elec->genLepton()){
+    //  genElec_->Fill( (elec->gsfTrack()->pt() - elec->genLepton()->pt())/elec->genLepton()->pt() );
+    //}
   }
 }
 
