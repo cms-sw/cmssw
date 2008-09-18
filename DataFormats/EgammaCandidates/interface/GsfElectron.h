@@ -7,7 +7,7 @@
  *
  * \author U.Berthon, ClaudeCharlot,LLR
  *
- * \version $Id: GsfElectron.h,v 1.6 2008/04/10 08:45:06 uberthon Exp $
+ * \version $Id: GsfElectron.h,v 1.7 2008/04/21 14:05:23 llista Exp $
  *
  */
 
@@ -26,6 +26,9 @@
 // Ursula Berthon - LLR Ecole polytechnique
 // 
 // $Log: GsfElectron.h,v $
+// Revision 1.7  2008/04/21 14:05:23  llista
+// added virtual function to identify particle type
+//
 // Revision 1.6  2008/04/10 08:45:06  uberthon
 // remove ClusterShape from GsfElectron, remove obsolete classes PixelMatchElectron, PixelMatchGsfElectron
 //
@@ -84,9 +87,10 @@ class GsfElectron : public RecoCandidate {
    /** The electron classification.
       barrel  :   0: golden,  10: bigbrem,  20: narrow, 30-34: showering, 
                 (30: showering nbrem=0, 31: showering nbrem=1, 32: showering nbrem=2 ,33: showering nbrem=3, 34: showering nbrem>=4)
-                 40: crack
+                 40: crack, 41: eta gaps, 42: phi gaps 
       endcaps : 100: golden, 110: bigbrem, 120: narrow, 130-134: showering
                (130: showering nbrem=0, 131: showering nbrem=1, 132: showering nbrem=2 ,133: showering nbrem=3, 134: showering nbrem>=4)
+                140: crack
    */
   int classification() const {return electronClass_;}
 
