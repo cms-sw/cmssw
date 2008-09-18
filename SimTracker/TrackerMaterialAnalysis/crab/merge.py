@@ -1,4 +1,4 @@
-#! /bin/env cmsRun
+#! /usr/bin/env cmsRun
 
 import FWCore.ParameterSet.Config as cms
 
