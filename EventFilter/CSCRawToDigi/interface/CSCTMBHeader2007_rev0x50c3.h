@@ -99,7 +99,7 @@ struct CSCTMBHeader2007_rev0x50c3 : public CSCVTMBHeaderFormat {
   unsigned MPC_Muon1_halfstrip_clct_pattern:8, MPC_Muon1_bend_:1, MPC_Muon1_SyncErr_:1, MPC_Muon1_bx_:1, MPC_Muon1_bc0_:1, MPC_Muon1_cscid_low:3, flag34:1;
   unsigned MPC_Muon0_vpf_:1, MPC_Muon0_cscid_bit4:1, MPC_Muon1_vpf_:1, MPC_Muon1_cscid_bit4:1, MPCDelay:4, MPCAccept:2, CFEBsEnabled:5, flag35:1;
   // 36
-  unsigned RPCExists:2, RPCList:2, NRPCs:2, RPCEnable:1, RPCMatch:8, flag36:1;
+  unsigned RPCList:2, NRPCs:2, RPCEnable:1, fifo_tbins_rpc:5, fifo_pretrig_rpc:5, flag36:1;
 
   unsigned r_wr_buf_adr:11, r_wr_buf_ready:1, wr_buf_ready:1, buf_q_full:1, buf_q_empty:1, flag37:1;
   unsigned r_buf_fence_dist:11, buf_q_ovf_err:1, buf_q_udf_err:1, buf_q_adr_err:1, buf_stalled:1, flag38:1;

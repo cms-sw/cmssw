@@ -165,8 +165,8 @@ CSCDCCExaminer::CSCDCCExaminer(unsigned long mask):nERRORS(29),nWARNINGS(5),nPAY
   fDMB_Trailer = false;
   fALCT_Header = false;
   fTMB_Header  = false;
-  fALCT_Format2007 = false;
-  fTMB_Format2007  = false;
+  fALCT_Format2007 = true;
+  fTMB_Format2007  = true;
 
   cntDDU_Headers  = 0;
   cntDDU_Trailers = 0;
@@ -184,6 +184,7 @@ CSCDCCExaminer::CSCDCCExaminer(unsigned long mask):nERRORS(29),nWARNINGS(5),nPAY
   DDU_WordsSinceLastTrailer    = 0;
 
   TMB_WordsExpectedCorrection  = 0;
+  TMB_Firmware_Revision = 0;
   zeroCounts();
 
   checkCrcALCT = false; ALCT_CRC=0;
@@ -379,9 +380,9 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
       fDMB_Header   = false;
       fDMB_Trailer  = false;
       fALCT_Header  = false;
-      fALCT_Format2007= false;
+      fALCT_Format2007= true;
       fTMB_Header   = false;
-      fTMB_Format2007= false;
+      fTMB_Format2007= true;
       uniqueALCT    = true;
       uniqueTMB     = true;
       zeroCounts();
@@ -472,9 +473,9 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
       bCHAMB_ERR[currentChamber] |= 0; //Victor's line
 
       fALCT_Header = false;
-      fALCT_Format2007= false;
+      fALCT_Format2007= true;
       fTMB_Header  = false;
-      fTMB_Format2007= false;
+      fTMB_Format2007= true;
       uniqueALCT   = true;
       uniqueTMB    = true;
       zeroCounts();
@@ -623,6 +624,11 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 			cout << " <T";
 		}
 	}
+    // New TMB format => very long header Find Firmware revision
+    if ( fTMB_Header && fTMB_Format2007 && TMB_WordsSinceLastHeader==8 ) {
+	TMB_Firmware_Revision = buf0[3];
+    }
+
     // New TMB format => very long header
     if ( fTMB_Header && fTMB_Format2007 && TMB_WordsSinceLastHeader==20 ) {
         // Full Readout   = 44 + (#Tbins * #CFEBs * 6)
@@ -705,8 +711,10 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
     if( fTMB_Header && ((buf0[2]&0xFFFF)==0x6E0B) )  {
       TMB_WordsExpectedCorrection =  2 +   // header/trailer for block of RPC raw hits
 	//				((buf_1[2]&0x0800)>>11) * ((buf_1[2]&0x0700)>>8) * TMB_Tbins * 2;  // RPC raw hits
-                ( fTMB_Format2007 ?
-                ((buf_1[0]&0x0040)>>6) * ((buf_1[0]&0x0030)>>4) * TMB_Tbins * 2 :   // RPC raw hits
+                ( fTMB_Format2007 ? 
+			( TMB_Firmware_Revision >= 0x50c3 ?
+				((buf_1[0]&0x0010)>>4) * ((buf_1[0]&0x000c)>>2) * TMB_Tbins * 2 :// RPC raw hits TMB2007 rev.0x50c3 
+                		((buf_1[0]&0x0040)>>6) * ((buf_1[0]&0x0030)>>4) * TMB_Tbins * 2):// RPC raw hits TMB2007
                 ((buf_1[2]&0x0040)>>6) * ((buf_1[2]&0x0030)>>4) * TMB_Tbins * 2 );  // RPC raw hits
     }
 

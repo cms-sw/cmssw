@@ -104,6 +104,7 @@ private:
 	long TMB_WordsExpected;
 	long TMB_Tbins;
 	long TMB_WordsExpectedCorrection;
+	unsigned TMB_Firmware_Revision;
 
 	long CFEB_SampleWordCount;
 	long CFEB_SampleCount;
