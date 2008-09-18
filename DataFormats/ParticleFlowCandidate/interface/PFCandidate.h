@@ -13,6 +13,7 @@
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockFwd.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
@@ -105,6 +106,13 @@ namespace reco {
     /// return a reference to the corresponding track, if charged. 
     /// otherwise, return a null reference
     reco::TrackRef trackRef() const { return trackRef_; }
+
+    /// set gsftrack reference 
+    void setGsfTrackRef(const reco::GsfTrackRef& ref);   
+
+    /// return a reference to the corresponding GSF track, if an electron. 
+    /// otherwise, return a null reference 
+    reco::GsfTrackRef gsfTrackRef() const { return gsfTrackRef_; }     
 
     /// set muon reference
     void setMuonRef(const reco::MuonRef& ref);
@@ -286,6 +294,8 @@ namespace reco {
 
     reco::TrackRef trackRef_;
     
+    reco::GsfTrackRef gsfTrackRef_;  
+
     reco::MuonRef  muonRef_;
 
     reco::NuclearInteractionRef nuclearRef_;

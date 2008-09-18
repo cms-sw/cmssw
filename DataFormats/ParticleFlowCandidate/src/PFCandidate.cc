@@ -142,6 +142,19 @@ void PFCandidate::setTrackRef(const reco::TrackRef& ref) {
   trackRef_ = ref;
 }
 
+void PFCandidate::setGsfTrackRef(const reco::GsfTrackRef& ref) {
+  if( particleId_ != e ) {
+    string err;
+    err += "PFCandidate::setGsfTrackRef: this is not an electron ! particleId_=";
+    char num[4];
+    sprintf( num, "%d", particleId_);
+    err += num;
+
+    throw cms::Exception("InconsistentReference",
+                         err.c_str() );
+  }
+  gsfTrackRef_ = ref;
+}
 
 void PFCandidate::setMuonRef(const reco::MuonRef& ref) {
 
