@@ -1313,8 +1313,8 @@ void HcalHotCellMonitor::processEvent_digi(const HBHEDigiCollection& hbhedigi,
     {
       cpu_timer.stop();
       cout <<" TIMER:: HcalHotCell DIGI HBHE-> "<<cpu_timer.cpuTime()<<endl;
-      cpu_timer.reset(); cpu_timer.start();
-    }
+      cpu_timer.reset(); cpu_timer.start(); 
+   }
 
   // Loop over HO
   try
@@ -1356,7 +1356,7 @@ void HcalHotCellMonitor::processEvent_digi(const HBHEDigiCollection& hbhedigi,
   if (showTiming)
     {
       cpu_timer.stop();
-      cout <<"TIMER:  HcalHotCell DIGI HF-> "<<cpu_timer.cpuTime()<<endl;
+      cout <<"TIMER:: HcalHotCell DIGI HF-> "<<cpu_timer.cpuTime()<<endl;
     }
 
   return;
