@@ -635,7 +635,11 @@ class PFRootEventManager {
       
 
   /// Fastsim or fullsim
-    bool  fastsim_;
+  bool  fastsim_;
+
+  ///
+  bool   useNuclear_;
+  bool   useConversions_;  
 
   // MC Truth tools              ---------------------------------------
 

@@ -873,6 +873,10 @@ void PFRootEventManager::connect( const char* infilename ) {
         <<muonbranchname<< endl; 
   } 
   //nuclear
+  useNuclear_=false;
+   options_->GetOpt("particle_flow", "useNuclear", useNuclear_);
+   if( useNuclear_ ) {
+
   string nuclearbranchname;
   options_->GetOpt("root","nuclear_branch",nuclearbranchname); 
   nuclearBranch_= tree_->GetBranch(nuclearbranchname.c_str());
@@ -880,7 +884,13 @@ void PFRootEventManager::connect( const char* infilename ) {
     cerr<<"PFRootEventManager::ReadOptions : nuclear_branch not found : " 
         <<nuclearbranchname<< endl; 
   } 
+  }
   //conversion
+
+  useConversions_=false;
+   options_->GetOpt("particle_flow", "useConversion", useConversions_);
+   if( useConversions_ ) {
+
   string conversionbranchname;
   options_->GetOpt("root","conversion_branch",conversionbranchname); 
   conversionBranch_= tree_->GetBranch(conversionbranchname.c_str());
@@ -888,6 +898,8 @@ void PFRootEventManager::connect( const char* infilename ) {
     cerr<<"PFRootEventManager::ReadOptions : conversion_branch not found : " 
         <<conversionbranchname<< endl; 
   } 
+  }
+
 
   string trueParticlesbranchname;
   options_->GetOpt("root","trueParticles_branch", trueParticlesbranchname);
@@ -897,6 +909,7 @@ void PFRootEventManager::connect( const char* infilename ) {
     cerr<<"PFRootEventManager::ReadOptions : trueParticles_branch not found : "
         <<trueParticlesbranchname<< endl;
   }
+  
 
   string MCTruthbranchname;
   options_->GetOpt("root","MCTruth_branch", MCTruthbranchname);
