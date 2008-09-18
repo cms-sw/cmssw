@@ -104,7 +104,7 @@ from HLTrigger.HLTanalyzers.OpenHLT_Tau_cff import *
 DoHLTTau = cms.Path(HLTBeginSequence + 
     hltTauPrescaler + 
     hltTauL1SeedFilter + 
-    HLTCaloTausCreatorSequence + 
+    OpenHLTCaloTausCreatorSequence + 
     hltMet + 
     hltL2TauJets + 
     hltL2TauIsolationProducer + 
