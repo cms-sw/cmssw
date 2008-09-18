@@ -40,7 +40,7 @@
    <field name="parentLookup_" transient="true"/>
  </class>
  <class name="edm::EventEntryInfo">
-   <field name="ModuleDescriptionID_" transient="true"/>
+   <field name="moduleDescriptionID_" transient="true"/>
    <field name="entryDescriptionPtr_" transient="true"/>
    <field name="noEntryDescription_" transient="true"/>
  </class>
