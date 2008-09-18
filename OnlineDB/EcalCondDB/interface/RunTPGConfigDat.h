@@ -18,7 +18,7 @@ class RunTPGConfigDat : public IDataItem {
   inline std::string getTable() { return "RUN_TPGCONFIG_DAT"; }
 
   inline std::string getConfigTag() const { return m_config; }
-  inline void setConfigId(std::string x) { m_config = x; }
+  inline void setConfigTag(std::string x) { m_config = x; }
 
 
  private:

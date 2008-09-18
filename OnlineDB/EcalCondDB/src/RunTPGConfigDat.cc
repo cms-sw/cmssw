@@ -15,7 +15,7 @@ RunTPGConfigDat::RunTPGConfigDat()
   m_writeStmt = NULL;
   m_readStmt = NULL;
 
-  m_config = 0;
+  m_config = "";
 
 }
 
