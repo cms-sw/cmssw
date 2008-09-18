@@ -54,6 +54,8 @@ class CaloGeometryHelper:public Calorimeter
 
   bool move(DetId& cell, const CaloDirection& dir,bool fast=true) const;
 
+  inline bool preshowerPresent() const {return preshowerPresent_;};
+
  private:
   void buildNeighbourArray();
   void buildCrystalArray();
