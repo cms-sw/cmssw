@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: smCleanupFiles.pl,v 1.5 2008/09/15 17:17:14 loizides Exp $
+# $Id: smCleanupFiles.pl,v 1.6 2008/09/17 23:51:52 loizides Exp $
 
 use strict;
 use DBI;
@@ -62,7 +62,8 @@ $rmexitcode = 0;
 $execute    = 1;
 $maxfiles   = 1;
 $force      = 0;
-$config     = "$ENV{HOME}/db.conf";
+$config     = "/nfshome0/smpro/configuration/db.conf";
+#$config     = "$ENV{HOME}/db.conf";
 
 $hostname   = `hostname -s`;
 chomp($hostname);
