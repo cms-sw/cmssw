@@ -655,14 +655,11 @@ def step_cmp(x,y):
 
 def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,date,prevrev):
     def _stripbase(base, astr):
-        basereg = re.compile("^%s(.*)" % base)
+        basereg = re.compile("^%s/?(.*)" % base)
         out = astr
         found = basereg.search(astr)
         if found:
             out = found.groups()[0]
-        if len(out) > 0:
-            if out[0] == "/":
-                out = out[1:]
         return out
     
     def _getProfileReportLink(repdir,CurrentCandle,CurDir,step,CurrentProfile,Profiler):
