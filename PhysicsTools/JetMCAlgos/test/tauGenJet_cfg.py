@@ -54,6 +54,7 @@ process.particleListDrawer = cms.EDAnalyzer(
 process.tauGenJets = cms.EDProducer(
     "TauGenJetProducer",
     GenParticles =  cms.InputTag('genParticles'),
+    includeNeutrinos = cms.bool( False ),
     verbose = cms.untracked.bool( True )
     )
 
@@ -61,7 +62,7 @@ process.tauGenJets = cms.EDProducer(
 
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(1000)
 )
 
 

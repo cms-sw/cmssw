@@ -15,15 +15,11 @@
 
 
 /**\class TauGenJetProducer 
-\brief builds a GenJet from the visible daughters of a tau
+\brief builds a GenJet from the visible daughters of each status 2 tau in the event.
 
 \author Colin Bernet
 \date   february 2008
 */
-
-
-
-
 class TauGenJetProducer : public edm::EDProducer {
  public:
 
@@ -39,6 +35,9 @@ class TauGenJetProducer : public edm::EDProducer {
    
   /// Input PFCandidates
   edm::InputTag   inputTagGenParticles_;
+
+  /// if yes, neutrinos will be included, for debug purposes
+  bool   includeNeutrinos_;
   
   /// verbose ?
   bool   verbose_;
