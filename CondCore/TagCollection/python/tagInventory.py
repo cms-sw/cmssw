@@ -60,15 +60,16 @@ class  tagInventory(object):
     def addEntry( self, leafNode ):
         """Add entry into the inventory.\n
         Input: base tag info. If identical data found already exists, do nothing
-        Output: tagid
+        Output: tagid. if tagid=0, there's no new entry added, i.e.no new tagid
+        
         """
         tagid=0
         transaction=self.__session.transaction()
+        duplicate=False
         try:
-            transaction.start(False)
+            transaction.start(True)
             schema = self.__session.nominalSchema()
-            generator=IdGenerator.IdGenerator(schema)
-            dbop=DBImpl.DBImpl(schema)
+            query = schema.tableHandle(self.__tagInventoryTableName).newQuery()
             condition='tagname=:tagname'
             conditionbindDict=coral.AttributeList()
             conditionbindDict.extend('tagname','string')
@@ -77,20 +78,27 @@ class  tagInventory(object):
                 condition+=' AND pfn=:pfn'
                 conditionbindDict.extend('pfn','string')
                 conditionbindDict['pfn'].setData(leafNode.pfn)
-            duplicate=False;
-            duplicate=dbop.existRow(self.__tagInventoryTableName,condition,conditionbindDict)
+            query.setCondition(condition,conditionbindDict)
+            #duplicate=dbop.existRow(self.__tagInventoryTableName,condition,conditionbindDict)
+            cursor=query.execute()
+            while( cursor.next() ):
+                duplicate=True
+                tagid=cursor.currentRow()['tagid'].data()
+                cursor.close()
+            transaction.commit()
+            del query
             #transaction.commit()
             if duplicate is False:
+                transaction.start(False)                
+                generator=IdGenerator.IdGenerator(schema)
                 tagid=generator.getNewID(self.__tagInventoryIDName)
-            if duplicate is False:
                 tabrowValueDict={'tagid':tagid,'tagname':leafNode.tagname,'objectname':leafNode.objectname,'pfn':leafNode.pfn,'labelname':leafNode.labelname,'recordname':leafNode.recordname}
-                #transaction.start(False)
+                dbop=DBImpl.DBImpl(schema)
                 dbop.insertOneRow(self.__tagInventoryTableName,
                                   self.__tagInventoryTableColumns,
                                   tabrowValueDict)
-                generator.incrementNextID(self.__tagInventoryIDName)
-                #transaction.commit()
-            transaction.commit()
+                generator.incrementNextID(self.__tagInventoryIDName)           
+                transaction.commit()
             return tagid
         except Exception, er:
             transaction.rollback()
@@ -125,7 +133,6 @@ class  tagInventory(object):
             del query
         except Exception, er:
             transaction.rollback()
-            del query
             raise Exception, str(er)
         
         inv=tagInventory(self.__session)
@@ -140,12 +147,13 @@ class  tagInventory(object):
                 #if not r.items()[1][2] is None:
                 nd.labelname=r[5]
                 n=inv.addEntry(nd)
-                if n!=0:
-                    newtaglinks.append((oldtagid,n))
+                if n==0:
+                    raise "addEntry returns 0"
+                newtaglinks.append((oldtagid,n))
+            return newtaglinks
         except Exception, e:
             print str(e)
             raise Exception, str(e)
-        return newtaglinks
     
     def modifyEntriesReplaceService( self, newservicename ):
         """ replace all existing entries replace service name in pfn
@@ -165,6 +173,7 @@ class  tagInventory(object):
             del query
         except Exception, er:
             transaction.rollback()
+            del query
             raise Exception, str(er)
         try:
             transaction.start(False)
@@ -188,10 +197,8 @@ class  tagInventory(object):
         Input: sourcetagid, pfn.
         Output: tagid of the new entry. Return 0 in case no new entry created or required entry already exists. 
         """
-        newtagid=0
+        newtagid=sourcetagid
         if len(pfn)==0:
-            return newtagid
-        if sourcetagid==0:
             return newtagid
         try:
             nd=self.getEntryById(sourcetagid)
@@ -199,7 +206,6 @@ class  tagInventory(object):
                 return newtagid
             oldpfn=nd.pfn
             if oldpfn==pfn:
-                # 'old equal new nothing to do'
                 return nd.tagid
             transaction=self.__session.transaction()
             transaction.start(False)
@@ -217,7 +223,6 @@ class  tagInventory(object):
         except Exception, er:
             transaction.rollback()
             raise Exception, str(er)
-        return newtagid
         
     def getEntryByName( self, tagName, pfn ):
         """Get basic tag from inventory by tagName+pfn. pfn can be empty\n
@@ -258,7 +263,6 @@ class  tagInventory(object):
             return leafnode
         except Exception, e:
             transaction.rollback()
-            del query
             raise Exception, str(e)
     def getEntryById( self, tagId ):
         """Get basic tag from inventory by id.\n

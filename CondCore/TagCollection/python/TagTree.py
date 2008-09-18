@@ -378,9 +378,11 @@ class tagTree(object):
             return result
         except coral.Exception, er:
             transaction.rollback()
+            del query
             raise Exception, str(er)
         except Exception, er:
             transaction.rollback()
+            del query
             raise Exception, str(er)   
     def getSubtree( self, label='ROOT' ):
         """Get the tree under node(included) with specified label.

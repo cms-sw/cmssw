@@ -158,7 +158,6 @@ class tagTreeBuilder:
         config.setDefaultAuthenticationService('CORAL/Services/XMLAuthenticationService')
         session = svc.connect( self.__connectstring,accessMode = coral.access_Update )
         try:
-            #print 'treename ',self.__treename
             mytree=TagTree.tagTree(session,self.__treename)
             if mytree.existTagTreeTable() is False:
                 raise Exception,'non-existing tag tree table, use cmscond_tagtree_createroot to create the table and tree root first'
