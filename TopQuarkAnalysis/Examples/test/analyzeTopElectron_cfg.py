@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 # test cfg file for tqaflayer1 & 2 production from
 # fullsim for semi-leptonic ttbar events 
 #-------------------------------------------------
-process = cms.Process("TEST")
+process = cms.Process("TEST1")
 
 ## configure message logger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
@@ -55,13 +55,13 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 
 #-------------------------------------------------
 # tqaf configuration; if the TQAF Layer 1 is
-# already in place yuo can comment the following
+# already in place you can comment the following
 # two lines
 #-------------------------------------------------
 
 ## std sequence for tqaf layer1
-process.load("TopQuarkAnalysis.TopObjectProducers.tqafLayer1_full_cff")
-process.p0 = cms.Path(process.tqafLayer1)
+# process.load("TopQuarkAnalysis.TopObjectProducers.tqafLayer1_full_cff")
+# process.p0 = cms.Path(process.tqafLayer1)
 
 #-------------------------------------------------
 # analyze electrons

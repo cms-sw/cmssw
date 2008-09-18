@@ -91,8 +91,32 @@ TopElecAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
     // --------------------------------------------------
     // get embedded objects
     // --------------------------------------------------
-    // dptElec_->Fill( (elec->track()->pt() - elec->gsfTrack()->pt())/elec->gsfTrack()->pt() );
-    denElec_->Fill( (elec->superCluster()->energy()- elec->gsfTrack()->pt())/elec->gsfTrack()->pt() );
+    bool track=true, gsfTrack=true, superClus=true, genMatch=true;
+
+    if(!elec->track()){
+      track=false;
+      std::cout << "TrackRef     : is not valid" << std::endl;
+    }
+    if(!elec->gsfTrack()){
+      gsfTrack=false;
+      std::cout << "gsfTrackRef  : is not valid" << std::endl;
+    }
+    if(!elec->superCluster()){
+      superClus=false;
+      std::cout << "superCluster : is not valid" << std::endl;
+    }
+    //if(!elec->genLepton()){
+    //  genMatch=false;
+    //  std::cout << "genMatchRef  : is not valid" << std::endl;
+    //}
+
+    if(gsfTrack && track    ){
+      dptElec_->Fill( (elec->track()->pt() - elec->gsfTrack()->pt())/elec->gsfTrack()->pt() );
+    }
+    if(gsfTrack && superClus){
+      denElec_->Fill( (elec->superCluster()->energy()- elec->gsfTrack()->pt())/elec->gsfTrack()->pt() );
+    }
+    //needs fix in PAT
     //if(elec->genLepton()){
     //  genElec_->Fill( (elec->gsfTrack()->pt() - elec->genLepton()->pt())/elec->genLepton()->pt() );
     //}
