@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    FEDSizeFilter
-// Class:      FEDSizeFilter
+// Package:    HLTFEDSizeFilter
+// Class:      HLTFEDSizeFilter
 // 
-/**\class FEDSizeFilter FEDSizeFilter.cc Work/FEDSizeFilter/src/FEDSizeFilter.cc
+/**\class HLTFEDSizeFilter HLTFEDSizeFilter.cc Work/HLTFEDSizeFilter/src/HLTFEDSizeFilter.cc
 
  Description: <one line class summary>
 
@@ -13,7 +13,7 @@
 //
 // Original Author:  Bryan DAHMES
 //         Created:  Wed Sep 19 16:21:29 CEST 2007
-// $Id: FEDSizeFilter.cc,v 1.1 2008/09/15 17:12:32 mzanetti Exp $
+// $Id: HLTFEDSizeFilter.cc,v 1.2 2008/09/17 12:04:35 mzanetti Exp $
 //
 //
 
@@ -36,10 +36,10 @@
 // class declaration
 //
 
-class FEDSizeFilter : public HLTFilter {
+class HLTFEDSizeFilter : public HLTFilter {
 public:
-    explicit FEDSizeFilter(const edm::ParameterSet&);
-    ~FEDSizeFilter();
+    explicit HLTFEDSizeFilter(const edm::ParameterSet&);
+    ~HLTFEDSizeFilter();
     
 private:
     virtual void beginJob(const edm::EventSetup&) ;
@@ -56,7 +56,7 @@ private:
 //
 // constructors and destructor
 //
-FEDSizeFilter::FEDSizeFilter(const edm::ParameterSet& iConfig)
+HLTFEDSizeFilter::HLTFEDSizeFilter(const edm::ParameterSet& iConfig)
 {
     //now do what ever initialization is needed
     threshold_  = iConfig.getUntrackedParameter<unsigned int>("threshold", 0);
@@ -67,7 +67,7 @@ FEDSizeFilter::FEDSizeFilter(const edm::ParameterSet& iConfig)
 }
 
 
-FEDSizeFilter::~FEDSizeFilter()
+HLTFEDSizeFilter::~HLTFEDSizeFilter()
 {
  
    // do anything here that needs to be done at desctruction time
@@ -82,14 +82,14 @@ FEDSizeFilter::~FEDSizeFilter()
 
 // ------------ method called on each new Event  ------------
 bool
-FEDSizeFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+HLTFEDSizeFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
     // getting very basic uncalRH
     edm::Handle<FEDRawDataCollection> theRaw;
     try {
         iEvent.getByLabel(RawCollection_, theRaw);
     } catch ( std::exception& ex) {
-        edm::LogWarning("FEDSizeFilter") << RawCollection_ << " not available";
+        edm::LogWarning("HLTFEDSizeFilter") << RawCollection_ << " not available";
     }
     
     bool aboveThreshold = false ; 
@@ -105,13 +105,13 @@ FEDSizeFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-FEDSizeFilter::beginJob(const edm::EventSetup&) {
+HLTFEDSizeFilter::beginJob(const edm::EventSetup&) {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
-FEDSizeFilter::endJob() {
+HLTFEDSizeFilter::endJob() {
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(FEDSizeFilter);
+DEFINE_FWK_MODULE(HLTFEDSizeFilter);

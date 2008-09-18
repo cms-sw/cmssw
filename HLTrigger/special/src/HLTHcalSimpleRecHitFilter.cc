@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    HcalSimpleRecHitFilter
-// Class:      HcalSimpleRecHitFilter
+// Package:    HLTHcalSimpleRecHitFilter
+// Class:      HLTHcalSimpleRecHitFilter
 // 
-/**\class HcalSimpleRecHitFilter HcalSimpleRecHitFilter.cc Work/HcalSimpleRecHitFilter/src/HcalSimpleRecHitFilter.cc
+/**\class HLTHcalSimpleRecHitFilter HLTHcalSimpleRecHitFilter.cc Work/HLTHcalSimpleRecHitFilter/src/HLTHcalSimpleRecHitFilter.cc
 
  Description: <one line class summary>
 
@@ -13,7 +13,7 @@
 //
 // Original Author:  Bryan DAHMES
 //         Created:  Wed Sep 19 16:21:29 CEST 2007
-// $Id: HcalSimpleRecHitFilter.cc,v 1.1 2008/09/15 17:12:32 mzanetti Exp $
+// $Id: HLTHcalSimpleRecHitFilter.cc,v 1.2 2008/09/17 12:04:35 mzanetti Exp $
 //
 //
 
@@ -37,10 +37,10 @@
 // class declaration
 //
 
-class HcalSimpleRecHitFilter : public HLTFilter {
+class HLTHcalSimpleRecHitFilter : public HLTFilter {
 public:
-    explicit HcalSimpleRecHitFilter(const edm::ParameterSet&);
-    ~HcalSimpleRecHitFilter();
+    explicit HLTHcalSimpleRecHitFilter(const edm::ParameterSet&);
+    ~HLTHcalSimpleRecHitFilter();
     
 private:
     virtual void beginJob(const edm::EventSetup&) ;
@@ -57,7 +57,7 @@ private:
 //
 // constructors and destructor
 //
-HcalSimpleRecHitFilter::HcalSimpleRecHitFilter(const edm::ParameterSet& iConfig)
+HLTHcalSimpleRecHitFilter::HLTHcalSimpleRecHitFilter(const edm::ParameterSet& iConfig)
 {
     //now do what ever initialization is needed
     threshold_     = iConfig.getUntrackedParameter<double>("threshold", 0);
@@ -67,7 +67,7 @@ HcalSimpleRecHitFilter::HcalSimpleRecHitFilter(const edm::ParameterSet& iConfig)
 }
 
 
-HcalSimpleRecHitFilter::~HcalSimpleRecHitFilter()
+HLTHcalSimpleRecHitFilter::~HLTHcalSimpleRecHitFilter()
 {
  
    // do anything here that needs to be done at desctruction time
@@ -82,7 +82,7 @@ HcalSimpleRecHitFilter::~HcalSimpleRecHitFilter()
 
 // ------------ method called on each new Event  ------------
 bool
-HcalSimpleRecHitFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+HLTHcalSimpleRecHitFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     // using namespace edm;
 
     // getting very basic uncalRH
@@ -90,7 +90,7 @@ HcalSimpleRecHitFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
     try {
         iEvent.getByLabel(HcalRecHitCollection_, crudeHits);
     } catch ( std::exception& ex) {
-        edm::LogWarning("HcalSimpleRecHitFilter") << HcalRecHitCollection_ << " not available";
+        edm::LogWarning("HLTHcalSimpleRecHitFilter") << HcalRecHitCollection_ << " not available";
     }
     
     bool aboveThreshold = false ; 
@@ -119,13 +119,13 @@ HcalSimpleRecHitFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-HcalSimpleRecHitFilter::beginJob(const edm::EventSetup&) {
+HLTHcalSimpleRecHitFilter::beginJob(const edm::EventSetup&) {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
-HcalSimpleRecHitFilter::endJob() {
+HLTHcalSimpleRecHitFilter::endJob() {
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(HcalSimpleRecHitFilter);
+DEFINE_FWK_MODULE(HLTHcalSimpleRecHitFilter);
