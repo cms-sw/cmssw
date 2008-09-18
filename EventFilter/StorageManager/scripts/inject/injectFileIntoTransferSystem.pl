@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: injectFileIntoTransferSystem.pl,v 1.30 2008/08/21 08:04:41 loizides Exp $
+# $Id: injectFileIntoTransferSystem.pl,v 1.31 2008/09/14 23:17:02 loizides Exp $
 
 use strict;
 use DBI;
@@ -56,7 +56,7 @@ sub usage
 
   Hostname is the host on which the file is found. By default, this will be set to the name as 
   returned by the `hostname` command. Currently supported hosts for copies are: cms-tier0-stage, 
-  cmsdisk1, cmsmon, csc-daq00, vmepcS2B18-39 (tracker node) and the Storage Manager nodes.
+  cmsdisk1, csc-daq00, vmepcS2B18-39 (tracker node) and the Storage Manager nodes.
  
   --------------------------------------------------------------------------------------------
   If you are not sure about what you are doing please send an inquiry to hn-cms-tier0-operations\@cern.ch.
@@ -65,6 +65,7 @@ sub usage
   Other parameters (leave out if you do not know what they mean):
   --debug           : Print out extra messages
   --test            : Run in test modus to check logic. No DB inserts or T0 notification.
+  --config          : Config file used (for user and password, defaults to ~/.tier0trans.conf)
   --producer        : Producer of file
   --appname         : Application name for file (e.g. CMSSW)
   --appversion      : Application version (e.g. CMSSW_2_0_8)
@@ -142,7 +143,7 @@ sub checkOption($) {
 my ($help, $debug, $hostname, $filename, $pathname, $index, $indexsize, $filesize, $test);
 my ($producer, $stream, $type, $runnumber, $lumisection, $count,$instance);
 my ($createtime, $injecttime, $ctime, $itime, $comment, $destination);
-my ($appname, $appversion, $nevents, $checksum, $setuplabel, $check);
+my ($appname, $appversion, $nevents, $checksum, $setuplabel, $check, $config);
 
 $help        = 0;
 $debug       = 0;
@@ -173,12 +174,14 @@ $destination = 'default';
 $index       = '';
 $indexsize   = -1;
 $comment     = '';
+$config      = "/nfshome0/tier0/.tier0trans.conf";
 
 GetOptions(
            "h|help"                   => \$help,
            "debug"                    => \$debug,
            "test"                     => \$test,
            "check"                    => \$check,
+           "config=s"                 => \$config,
            "hostname=s"               => \$hostname,
 	   "file|filename=s"          => \$filename,
 	   "path|pathname=s"          => \$pathname,
@@ -227,6 +230,16 @@ $checksum    = checkOption($checksum);
 $comment =~ s/\'//g;
 $comment =~ s/\"//g;
 
+my $reader = "CMS_STOMGR_W";
+my $phrase = "qwerty";
+
+if(-e $config) {
+    eval `cat $config`;
+} else {
+    print "Error: Can not read $config file, exiting!\n";
+    usageShort();
+}
+
 unless($filename) {
     print "Error: No filename supplied, exiting!\n";
     usageShort();
@@ -263,9 +276,8 @@ if($check) {
 
     # setup DB connection
     my $dbi    = "DBI:Oracle:cms_rcms";
-    my $reader = "CMS_STOMGR_W";
     $debug && print "Setting up DB connection for $dbi and $reader\n";
-    my $dbh = DBI->connect($dbi,$reader,"qwerty") or die("Error: Connection to Oracle DB failed");
+    my $dbh = DBI->connect($dbi,$reader,$phrase) or die("Error: Connection to Oracle DB failed");
     $debug && print "DB connection set up succesfully \n";
 
     $debug && print "Preparing check query: $SQLcheck \n";
@@ -304,12 +316,10 @@ unless($pathname) {
 $hostname = hostname()         if $hostname eq 'unset';
 $hostname = 'srv-S2C17-01'     if $hostname eq 'cms-tier0-stage';
 $hostname = 'srv-C2D05-02'     if $hostname eq 'cmsdisk1';
-$hostname = 'srv-c2d17-02.cms' if $hostname eq 'cmsmon';
 $hostname = 'csc-C2D07-08'     if $hostname eq 'csc-daq00';
 
 unless($hostname eq 'srv-S2C17-01'      || 
        $hostname eq 'srv-C2D05-02'      || 
-       $hostname eq 'srv-c2d17-02.cms'  || 
        $hostname eq 'csc-C2D07-08'      || 
        $hostname eq 'vmepcS2B18-39'     ||
        $hostname =~ 'srv-C2C07-') { 
@@ -443,7 +453,8 @@ if (!defined $notscript) {
 
 # all these options are enforced by notify script (even if meaningless):
 my $TIERZERO = "$notscript --FILENAME $filename --PATHNAME $pathname --HOSTNAME $hostname --FILESIZE $filesize --TYPE $type " . 
-                          "--START_TIME $ctime --STOP_TIME $itime --SETUPLABEL $setuplabel --DESTINATION $destination";
+    "--START_TIME $ctime --STOP_TIME $itime --SETUPLABEL $setuplabel --DESTINATION $destination " .
+    "--HLTKEY UNKNOWN";
 
 # these options aren't needed but available:
 if($runnumber)         {$TIERZERO .= " --RUNNUMBER $runnumber";}
@@ -464,9 +475,8 @@ sleep(1);
 
 # setup DB connection
 my $dbi    = "DBI:Oracle:cms_rcms";
-my $reader = "CMS_STOMGR_W";
 $debug && print "Setting up DB connection for $dbi and $reader\n";
-my $dbh = DBI->connect($dbi,$reader,"qwerty") or die("Error: Connection to Oracle DB failed");
+my $dbh = DBI->connect($dbi,$reader,$phrase) or die("Error: Connection to Oracle DB failed");
 $debug && print "DB connection set up successfully \n";
 
 # do DB checks
