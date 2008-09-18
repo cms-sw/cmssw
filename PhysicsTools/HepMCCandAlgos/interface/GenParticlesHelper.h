@@ -3,6 +3,8 @@
 
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 
+#include <iostream>
+
 namespace GenParticlesHelper {
   
   typedef reco::GenParticleCollection::const_iterator IG;
@@ -22,6 +24,10 @@ namespace GenParticlesHelper {
   /// find the particles having the same daughter as baseSister
   void findSisters(const reco::GenParticleRef& baseSister, 
 		   reco::GenParticleRefVector& sisterRefs);
+
+
+  std::ostream& operator<<( std::ostream& out, 
+			    const reco::GenParticleRef& genRef );
 
 }
 

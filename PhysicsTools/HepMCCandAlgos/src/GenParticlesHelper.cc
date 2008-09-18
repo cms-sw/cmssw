@@ -76,4 +76,15 @@ namespace GenParticlesHelper {
 	sisterRefs.push_back( *id );
     }
   }
+
+  std::ostream& operator<<( std::ostream& out, 
+			    const reco::GenParticleRef& genRef ) {
+    
+    if(!out) return out;
+    
+    out<<genRef.key()<<" "<<genRef->pt();
+    
+    return out;
+  }
+
 }
