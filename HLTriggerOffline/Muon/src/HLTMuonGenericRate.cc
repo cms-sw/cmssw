@@ -335,16 +335,15 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
     if ( pt > theMinPtCut &&  fabs(eta) < theMaxEtaCut ) {
       hEtaPassGen[0]->Fill(eta);
       hPhiPassGen[0]->Fill(phi);
-    }
-    if ( genMatches[i].l1Cand ) {
-      hEtaPassGen[1]->Fill(eta);
-      hPhiPassGen[1]->Fill(phi);
-    }
-    for ( size_t j = 0; j < genMatches[i].hltCands.size(); j++ ) {
-      if ( genMatches[i].hltCands[j] ) {
-	hEtaPassGen[j+2]->Fill(eta);
-	hPhiPassGen[j+2]->Fill(phi);
-  } } }
+      if ( genMatches[i].l1Cand ) {
+	hEtaPassGen[1]->Fill(eta);
+	hPhiPassGen[1]->Fill(phi);
+      }
+      for ( size_t j = 0; j < genMatches[i].hltCands.size(); j++ ) {
+	if ( genMatches[i].hltCands[j] ) {
+	  hEtaPassGen[j+2]->Fill(eta);
+	  hPhiPassGen[j+2]->Fill(phi);
+  } } } }
 
   for ( size_t i = 0; i < recMatches.size(); i++ ) {
     double pt  = recMatches[i].recCand->pt();
@@ -353,16 +352,15 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
     if ( pt > theMinPtCut &&  fabs(eta) < theMaxEtaCut ) {
       hEtaPassRec[0]->Fill(eta);
       hPhiPassRec[0]->Fill(phi);
-    }
-    if ( recMatches[i].l1Cand ) {
-      hEtaPassRec[1]->Fill(eta);
-      hPhiPassRec[1]->Fill(phi);
-    }
-    for ( size_t j = 0; j < recMatches[i].hltCands.size(); j++ ) {
-      if ( recMatches[i].hltCands[j] ) {
-	hEtaPassRec[j+2]->Fill(eta);
-	hPhiPassRec[j+2]->Fill(phi);
-  } } }
+      if ( recMatches[i].l1Cand ) {
+	hEtaPassRec[1]->Fill(eta);
+	hPhiPassRec[1]->Fill(phi);
+      }
+      for ( size_t j = 0; j < recMatches[i].hltCands.size(); j++ ) {
+	if ( recMatches[i].hltCands[j] ) {
+	  hEtaPassRec[j+2]->Fill(eta);
+	  hPhiPassRec[j+2]->Fill(phi);
+  } } } }
 
 }
 
