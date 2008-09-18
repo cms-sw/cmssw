@@ -79,12 +79,15 @@ allLayer0Muons.bitsToIgnore = cms.vstring('Isolation/All')           ## keep non
 #---------------------------------------
 # Tau
 #---------------------------------------
+from PhysicsTools.PatAlgos.cleaningLayer0.pfTauCleaner_cfi import allLayer0Taus
+
+allLayer0Taus.tauSource                  = 'pfRecoTauProducer'                    ## input source
+allLayer0Taus.tauDiscriminatorSource     = 'pfRecoTauDiscriminationByIsolation'   ## discriminator source
+
 from PhysicsTools.PatAlgos.cleaningLayer0.caloTauCleaner_cfi import allLayer0CaloTaus
 
-## input source
-allLayer0CaloTaus.tauSource = 'pfRecoTauProducer'
-## discriminator source
-allLayer0CaloTaus.tauDiscriminatorSource = 'pfRecoTauDiscriminationByIsolation'
+allLayer0CaloTaus.tauSource              = 'caloRecoTauProducer'                  ## input source
+allLayer0CaloTaus.tauDiscriminatorSource = 'caloRecoTauDiscriminationByIsolation' ## discriminator source
 
 
 #---------------------------------------
