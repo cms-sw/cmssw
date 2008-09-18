@@ -13,7 +13,7 @@
 //
 // Original Author:  Muriel Vander Donckt
 //         Created:  Tue Jul 24 12:17:12 CEST 2007
-// $Id: MuonTriggerRateTimeAnalyzer.cc,v 1.5 2008/07/22 09:36:28 klukas Exp $
+// $Id: MuonTriggerRateTimeAnalyzer.cc,v 1.6 2008/09/16 21:11:46 klukas Exp $
 //
 //
 
@@ -127,6 +127,9 @@ MuonTriggerRateTimeAnalyzer::beginJob(const edm::EventSetup&)
 void 
 MuonTriggerRateTimeAnalyzer::endJob() {
   using namespace edm;
+  for ( std::vector<HLTMuonGenericRate *>::iterator iTrig = muTriggerAnalyzer.begin(); iTrig != muTriggerAnalyzer.end(); ++iTrig){
+    (*iTrig)->endJob();
+  } 
   TimeAnalyzer->WriteHistograms();
   OverlapAnalyzer->getResults();
 }
