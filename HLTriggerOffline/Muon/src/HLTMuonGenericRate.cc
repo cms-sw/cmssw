@@ -96,6 +96,12 @@ HLTMuonGenericRate::HLTMuonGenericRate(const ParameterSet& pset,
 /// Destructor
 HLTMuonGenericRate::~HLTMuonGenericRate()
 {
+}
+
+
+
+void HLTMuonGenericRate::endJob()
+{
   NumberOfEvents    ->Fill(theNumberOfEvents    );
   NumberOfL1Events  ->Fill(theNumberOfL1Events  );
   NumberOfL1Orphans ->Fill(theNumberOfL1Orphans );
