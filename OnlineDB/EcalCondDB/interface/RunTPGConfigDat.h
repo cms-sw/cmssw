@@ -17,8 +17,8 @@ class RunTPGConfigDat : public IDataItem {
   // User data methods
   inline std::string getTable() { return "RUN_TPGCONFIG_DAT"; }
 
-  inline int getConfigId() const { return m_config; }
-  inline void setConfigId(int x) { m_config = x; }
+  inline std::string getConfigTag() const { return m_config; }
+  inline void setConfigId(std::string x) { m_config = x; }
 
 
  private:
@@ -33,7 +33,7 @@ class RunTPGConfigDat : public IDataItem {
 
   // User data
 
-  int m_config;
+  std::string m_config;
 
 };
 
