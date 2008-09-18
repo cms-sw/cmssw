@@ -43,6 +43,7 @@ public:
 
   // Operations
   void analyze          ( const edm::Event & iEvent );
+  void endJob           ( );
   void BookHistograms   ( );
   MonitorElement* BookIt( TString name, TString title, 
 			  int Nbins, float Min, float Max );
