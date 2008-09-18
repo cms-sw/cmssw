@@ -462,9 +462,9 @@ private:
 };
 
 
-class Power : public CachingVariable {
+class VariablePower : public CachingVariable {
  public:
-  Power(CachingVariableFactoryArg arg) :
+  VariablePower(CachingVariableFactoryArg arg) :
     CachingVariable("Power",arg.n,arg.iConfig){
     power_=arg.iConfig.getParameter<double>("power");
     var_=arg.iConfig.getParameter<std::string>("var");

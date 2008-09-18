@@ -15,7 +15,7 @@ DEFINE_FWK_SERVICE( InputTagDistributorService );
 DEFINE_EDM_PLUGIN(EventSelectorFactory, VariableEventSelector, "VariableEventSelector");
 
 #include "PhysicsTools/UtilAlgos/interface/CachingVariable.h"
-DEFINE_EDM_PLUGIN(CachingVariableFactory, Power, "Power");
+DEFINE_EDM_PLUGIN(CachingVariableFactory, VariablePower, "VariablePower");
 DEFINE_EDM_PLUGIN(CachingVariableFactory, VarSplitter, "VarSplitter");
 
 typedef SimpleValueVariable<double> DoubleVar;
