@@ -294,7 +294,7 @@ void SiPixelActionExecutor::fillBarrelSummary(DQMStore* bei,
 	      }else if (sname.find("_FracOfPerfectPix_")!=string::npos){
 	        //cout<<"nbins = "<<me->getNbinsX()<<" , "<<me->getBinContent(me->getNbinsX()-1)<<" , "<<me->getBinContent(me->getNbinsX())<<endl;
 		float nlast = me->getBinContent(me->getNbinsX());
-		float nall = (me->getTH1F())->Integral();
+		float nall = (me->getTH1F())->Integral(1,11);
 		//cout << nall << endl;
 	        (*isum)->Fill(ndet, nlast/nall);
               }else if (sname.find("_NCalibErrors_")!=string::npos ||
@@ -451,8 +451,8 @@ void SiPixelActionExecutor::fillEndcapSummary(DQMStore* bei,
 	      if (sname.find("_RMS_")!=string::npos){
 	        (*isum)->Fill(ndet, me->getRMS());
 	      }else if (sname.find("_FracOfPerfectPix_")!=string::npos){
-		Double_t nlast = me->getBinContent(me->getNbinsX());
-		Double_t nall = (me->getTH1F())->Integral(1,11);
+		float nlast = me->getBinContent(me->getNbinsX());
+		float nall = (me->getTH1F())->Integral(1,11);
 	        (*isum)->Fill(ndet, nlast/nall);
               }else if (sname.find("_NCalibErrors_")!=string::npos ||
 	                sname.find("FREQ_")!=string::npos){
