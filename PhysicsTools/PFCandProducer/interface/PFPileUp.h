@@ -14,6 +14,8 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+
 
 /**\class PFPileUp 
 \brief Identifies pile-up candidates from a collection of PFCandidates, and 
@@ -39,11 +41,17 @@ class PFPileUp : public edm::EDProducer {
 
  private:
   
+  reco::VertexRef 
+    chargedHadronVertex(const edm::Handle<reco::VertexCollection>& vertices, 
+			const reco::PFCandidate& pfcand ) const;
 
   
   /// PFCandidates to be analyzed
   edm::InputTag   inputTagPFCandidates_;
   
+  /// vertices
+  edm::InputTag   inputTagVertices_;
+
   /// verbose ?
   bool   verbose_;
 
