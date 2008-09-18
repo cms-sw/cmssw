@@ -73,7 +73,7 @@ void PFPileUp::produce(Event& iEvent,
   
   for( unsigned i=0; i<pfCandidates->size(); i++ ) {
     
-    const reco::PFCandidate& cand = (*pfCandidates)[i];
+    // const reco::PFCandidate& cand = (*pfCandidates)[i];
     PFCandidatePtr candptr(pfCandidates, i);
 
 //     PFCandidateRef pfcandref(pfCandidates,i); 
