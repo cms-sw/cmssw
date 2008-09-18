@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: injectFileIntoTransferSystem.pl,v 1.31 2008/09/14 23:17:02 loizides Exp $
+# $Id: injectFileIntoTransferSystem.pl,v 1.32 2008/09/18 00:08:03 loizides Exp $
 
 use strict;
 use DBI;
@@ -65,7 +65,7 @@ sub usage
   Other parameters (leave out if you do not know what they mean):
   --debug           : Print out extra messages
   --test            : Run in test modus to check logic. No DB inserts or T0 notification.
-  --config          : Config file used (for user and password, defaults to ~/.tier0trans.conf)
+  --config          : Config file used (for user and password, see example in ~tier0/.tier0trans.conf)
   --producer        : Producer of file
   --appname         : Application name for file (e.g. CMSSW)
   --appversion      : Application version (e.g. CMSSW_2_0_8)
