@@ -13,7 +13,7 @@
 //
 // Original Author:  Bryan DAHMES
 //         Created:  Wed Sep 19 16:21:29 CEST 2007
-// $Id: HLTFEDSizeFilter.cc,v 1.2 2008/09/17 12:04:35 mzanetti Exp $
+// $Id: HLTFEDSizeFilter.cc,v 1.1 2008/09/18 07:32:17 gruen Exp $
 //
 //
 
@@ -59,11 +59,11 @@ private:
 HLTFEDSizeFilter::HLTFEDSizeFilter(const edm::ParameterSet& iConfig)
 {
     //now do what ever initialization is needed
-    threshold_  = iConfig.getUntrackedParameter<unsigned int>("threshold", 0);
-    fedStart_   = iConfig.getUntrackedParameter<unsigned int>("firstFED", 0); 
-    fedStop_    = iConfig.getUntrackedParameter<unsigned int>("lastFED", 931); 
+    threshold_  = iConfig.getParameter<unsigned int>("threshold");
     RawCollection_ = iConfig.getParameter<edm::InputTag>("rawData");
-    
+    // For a list of FEDs by subdetector, see DataFormats/FEDRawData/src/FEDNumbering.cc
+    fedStart_   = iConfig.getParameter<unsigned int>("firstFED"); 
+    fedStop_    = iConfig.getParameter<unsigned int>("lastFED");
 }
 
 

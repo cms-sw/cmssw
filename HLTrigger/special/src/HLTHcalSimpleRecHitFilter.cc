@@ -13,7 +13,7 @@
 //
 // Original Author:  Bryan DAHMES
 //         Created:  Wed Sep 19 16:21:29 CEST 2007
-// $Id: HLTHcalSimpleRecHitFilter.cc,v 1.2 2008/09/17 12:04:35 mzanetti Exp $
+// $Id: HLTHcalSimpleRecHitFilter.cc,v 1.1 2008/09/18 07:32:17 gruen Exp $
 //
 //
 
@@ -60,8 +60,8 @@ private:
 HLTHcalSimpleRecHitFilter::HLTHcalSimpleRecHitFilter(const edm::ParameterSet& iConfig)
 {
     //now do what ever initialization is needed
-    threshold_     = iConfig.getUntrackedParameter<double>("threshold", 0);
-    maskedList_    = iConfig.getUntrackedParameter<std::vector<int> >("maskedChannels", maskedList_); //this is using the ashed index
+    threshold_     = iConfig.getParameter<double>("threshold");
+    maskedList_    = iConfig.getParameter<std::vector<int> >("maskedChannels"); //this is using the hashed index
     HcalRecHitCollection_ = iConfig.getParameter<edm::InputTag>("HFRecHitCollection");
     
 }
