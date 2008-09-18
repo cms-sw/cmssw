@@ -6,8 +6,8 @@
  *  The single EDProduct to be saved for events (RAW case)
  *  describing the details of the (HLT) trigger table
  *
- *  $Date: 2008/05/02 13:35:27 $
- *  $Revision: 1.17 $
+ *  $Date: 2008/09/18 11:55:41 $
+ *  $Revision: 1.18 $
  *
  *  \author Martin Grunewald
  *
@@ -123,138 +123,212 @@ namespace trigger
       return n;
     }
 
+    /// slices of objects for a specific filter: [begin,end[
+
+    std::pair<size_type,size_type> photonSlice(size_type filter) const {
+      const size_type begin(filter==0? 0 : filterObjects_.at(filter-1).photons_);
+      const size_type end(filterObjects_.at(filter).photons_);
+      return std::pair<size_type,size_type>(begin,end);
+    }
+
+    std::pair<size_type,size_type> electronSlice(size_type filter) const {
+      const size_type begin(filter==0? 0 : filterObjects_.at(filter-1).electrons_);
+      const size_type end(filterObjects_.at(filter).electrons_);
+      return std::pair<size_type,size_type>(begin,end);
+    }
+
+    std::pair<size_type,size_type> muonSlice(size_type filter) const {
+      const size_type begin(filter==0? 0 : filterObjects_.at(filter-1).muons_);
+      const size_type end(filterObjects_.at(filter).muons_);
+      return std::pair<size_type,size_type>(begin,end);
+    }
+
+    std::pair<size_type,size_type> jetSlice(size_type filter) const {
+      const size_type begin(filter==0? 0 : filterObjects_.at(filter-1).jets_);
+      const size_type end(filterObjects_.at(filter).jets_);
+      return std::pair<size_type,size_type>(begin,end);
+    }
+
+    std::pair<size_type,size_type> compositeSlice(size_type filter) const {
+      const size_type begin(filter==0? 0 : filterObjects_.at(filter-1).composites_);
+      const size_type end(filterObjects_.at(filter).composites_);
+      return std::pair<size_type,size_type>(begin,end);
+    }
+
+    std::pair<size_type,size_type> metSlice(size_type filter) const {
+      const size_type begin(filter==0? 0 : filterObjects_.at(filter-1).mets_);
+      const size_type end(filterObjects_.at(filter).mets_);
+      return std::pair<size_type,size_type>(begin,end);
+    }
+
+    std::pair<size_type,size_type> htSlice(size_type filter) const {
+      const size_type begin(filter==0? 0 : filterObjects_.at(filter-1).hts_);
+      const size_type end(filterObjects_.at(filter).hts_);
+      return std::pair<size_type,size_type>(begin,end);
+    }
+
+    std::pair<size_type,size_type> pixtrackSlice(size_type filter) const {
+      const size_type begin(filter==0? 0 : filterObjects_.at(filter-1).pixtracks_);
+      const size_type end(filterObjects_.at(filter).pixtracks_);
+      return std::pair<size_type,size_type>(begin,end);
+    }
+
+    std::pair<size_type,size_type> l1emSlice(size_type filter) const {
+      const size_type begin(filter==0? 0 : filterObjects_.at(filter-1).l1em_);
+      const size_type end(filterObjects_.at(filter).l1em_);
+      return std::pair<size_type,size_type>(begin,end);
+    }
+
+    std::pair<size_type,size_type> l1muonSlice(size_type filter) const {
+      const size_type begin(filter==0? 0 : filterObjects_.at(filter-1).l1muon_);
+      const size_type end(filterObjects_.at(filter).l1muon_);
+      return std::pair<size_type,size_type>(begin,end);
+    }
+
+    std::pair<size_type,size_type> l1jetSlice(size_type filter) const {
+      const size_type begin(filter==0? 0 : filterObjects_.at(filter-1).l1jet_);
+      const size_type end(filterObjects_.at(filter).l1jet_);
+      return std::pair<size_type,size_type>(begin,end);
+    }
+
+    std::pair<size_type,size_type> l1etmissSlice(size_type filter) const {
+      const size_type begin(filter==0? 0 : filterObjects_.at(filter-1).l1etmiss_);
+      const size_type end(filterObjects_.at(filter).l1etmiss_);
+      return std::pair<size_type,size_type>(begin,end);
+    }
+
+
     /// extract Ref<C>s for a specific filter and of specific physics type
 
     void getObjects(size_type filter, Vids& ids, VRphoton& photons) const {
-      const size_type begin(filter==0? 0 : filterObjects_.at(filter-1).photons_);
-      const size_type end(filterObjects_.at(filter).photons_);
+      const size_type begin(photonSlice(filter).first);
+      const size_type   end(photonSlice(filter).second);
       TriggerRefsCollections::getObjects(ids,photons,begin,end);
     }
     void getObjects(size_type filter, int id, VRphoton& photons) const {
-      const size_type begin(filter==0? 0 : filterObjects_.at(filter-1).photons_);
-      const size_type end(filterObjects_.at(filter).photons_);
+      const size_type begin(photonSlice(filter).first);
+      const size_type   end(photonSlice(filter).second);
       TriggerRefsCollections::getObjects(id,photons,begin,end);
     }
 
     void getObjects(size_type filter, Vids& ids, VRelectron& electrons) const {
-      const size_type begin(filter==0? 0 : filterObjects_.at(filter-1).electrons_);
-      const size_type end(filterObjects_.at(filter).electrons_);
+      const size_type begin(electronSlice(filter).first);
+      const size_type   end(electronSlice(filter).second);
       TriggerRefsCollections::getObjects(ids,electrons,begin,end);
     }
     void getObjects(size_type filter, int id, VRelectron& electrons) const {
-      const size_type begin(filter==0? 0 : filterObjects_.at(filter-1).electrons_);
-      const size_type end(filterObjects_.at(filter).electrons_);
+      const size_type begin(electronSlice(filter).first);
+      const size_type   end(electronSlice(filter).second);
       TriggerRefsCollections::getObjects(id,electrons,begin,end);
     }
 
     void getObjects(size_type filter, Vids& ids, VRmuon& muons) const {
-      const size_type begin(filter==0? 0 : filterObjects_.at(filter-1).muons_);
-      const size_type end(filterObjects_.at(filter).muons_);
+      const size_type begin(muonSlice(filter).first);
+      const size_type   end(muonSlice(filter).second);
       TriggerRefsCollections::getObjects(ids,muons,begin,end);
     }
     void getObjects(size_type filter, int id, VRmuon& muons) const {
-      const size_type begin(filter==0? 0 : filterObjects_.at(filter-1).muons_);
-      const size_type end(filterObjects_.at(filter).muons_);
+      const size_type begin(muonSlice(filter).first);
+      const size_type   end(muonSlice(filter).second);
       TriggerRefsCollections::getObjects(id,muons,begin,end);
     }
 
     void getObjects(size_type filter, Vids& ids, VRjet& jets) const {
-      const size_type begin(filter==0? 0 : filterObjects_.at(filter-1).jets_);
-      const size_type end(filterObjects_.at(filter).jets_);
+      const size_type begin(jetSlice(filter).first);
+      const size_type   end(jetSlice(filter).second);
       TriggerRefsCollections::getObjects(ids,jets,begin,end);
     }
     void getObjects(size_type filter, int id, VRjet& jets) const {
-      const size_type begin(filter==0? 0 : filterObjects_.at(filter-1).jets_);
-      const size_type end(filterObjects_.at(filter).jets_);
+      const size_type begin(jetSlice(filter).first);
+      const size_type   end(jetSlice(filter).second);
       TriggerRefsCollections::getObjects(id,jets,begin,end);
     }
 
     void getObjects(size_type filter, Vids& ids, VRcomposite& composites) const {
-      const size_type begin(filter==0? 0 : filterObjects_.at(filter-1).composites_);
-      const size_type end(filterObjects_.at(filter).composites_);
+      const size_type begin(compositeSlice(filter).first);
+      const size_type   end(compositeSlice(filter).second);
       TriggerRefsCollections::getObjects(ids,composites,begin,end);
     }
     void getObjects(size_type filter, int id, VRcomposite& composites) const {
-      const size_type begin(filter==0? 0 : filterObjects_.at(filter-1).composites_);
-      const size_type end(filterObjects_.at(filter).composites_);
+      const size_type begin(compositeSlice(filter).first);
+      const size_type   end(compositeSlice(filter).second);
       TriggerRefsCollections::getObjects(id,composites,begin,end);
     }
 
     void getObjects(size_type filter, Vids& ids, VRmet& mets) const {
-      const size_type begin(filter==0? 0 : filterObjects_.at(filter-1).mets_);
-      const size_type end(filterObjects_.at(filter).mets_);
+      const size_type begin(metSlice(filter).first);
+      const size_type   end(metSlice(filter).second);
       TriggerRefsCollections::getObjects(ids,mets,begin,end);
     }
     void getObjects(size_type filter, int id, VRmet& mets) const {
-      const size_type begin(filter==0? 0 : filterObjects_.at(filter-1).mets_);
-      const size_type end(filterObjects_.at(filter).mets_);
+      const size_type begin(metSlice(filter).first);
+      const size_type   end(metSlice(filter).second);
       TriggerRefsCollections::getObjects(id,mets,begin,end);
     }
 
     void getObjects(size_type filter, Vids& ids, VRht& hts) const {
-      const size_type begin(filter==0? 0 : filterObjects_.at(filter-1).hts_);
-      const size_type end(filterObjects_.at(filter).hts_);
+      const size_type begin(htSlice(filter).first);
+      const size_type   end(htSlice(filter).second);
       TriggerRefsCollections::getObjects(ids,hts,begin,end);
     }
     void getObjects(size_type filter, int id, VRht& hts) const {
-      const size_type begin(filter==0? 0 : filterObjects_.at(filter-1).hts_);
-      const size_type end(filterObjects_.at(filter).hts_);
+      const size_type begin(htSlice(filter).first);
+      const size_type   end(htSlice(filter).second);
       TriggerRefsCollections::getObjects(id,hts,begin,end);
     }
 
     void getObjects(size_type filter, Vids& ids, VRpixtrack& pixtracks) const {
-      const size_type begin(filter==0? 0 : filterObjects_.at(filter-1).pixtracks_);
-      const size_type end(filterObjects_.at(filter).pixtracks_);
+      const size_type begin(pixtrackSlice(filter).first);
+      const size_type   end(pixtrackSlice(filter).second);
       TriggerRefsCollections::getObjects(ids,pixtracks,begin,end);
     }
     void getObjects(size_type filter, int id, VRpixtrack& pixtracks) const {
-      const size_type begin(filter==0? 0 : filterObjects_.at(filter-1).pixtracks_);
-      const size_type end(filterObjects_.at(filter).pixtracks_);
+      const size_type begin(pixtrackSlice(filter).first);
+      const size_type   end(pixtrackSlice(filter).second);
       TriggerRefsCollections::getObjects(id,pixtracks,begin,end);
     }
 
     void getObjects(size_type filter, Vids& ids, VRl1em& l1em) const {
-      const size_type begin(filter==0? 0 : filterObjects_.at(filter-1).l1em_);
-      const size_type end(filterObjects_.at(filter).l1em_);
+      const size_type begin(l1emSlice(filter).first);
+      const size_type   end(l1emSlice(filter).second);
       TriggerRefsCollections::getObjects(ids,l1em,begin,end);
     }
     void getObjects(size_type filter, int id, VRl1em& l1em) const {
-      const size_type begin(filter==0? 0 : filterObjects_.at(filter-1).l1em_);
-      const size_type end(filterObjects_.at(filter).l1em_);
+      const size_type begin(l1emSlice(filter).first);
+      const size_type   end(l1emSlice(filter).second);
       TriggerRefsCollections::getObjects(id,l1em,begin,end);
     }
 
     void getObjects(size_type filter, Vids& ids, VRl1muon& l1muon) const {
-      const size_type begin(filter==0? 0 : filterObjects_.at(filter-1).l1muon_);
-      const size_type end(filterObjects_.at(filter).l1muon_);
+      const size_type begin(l1muonSlice(filter).first);
+      const size_type   end(l1muonSlice(filter).second);
       TriggerRefsCollections::getObjects(ids,l1muon,begin,end);
     }
     void getObjects(size_type filter, int id, VRl1muon& l1muon) const {
-      const size_type begin(filter==0? 0 : filterObjects_.at(filter-1).l1muon_);
-      const size_type end(filterObjects_.at(filter).l1muon_);
+      const size_type begin(l1muonSlice(filter).first);
+      const size_type   end(l1muonSlice(filter).second);
       TriggerRefsCollections::getObjects(id,l1muon,begin,end);
     }
 
     void getObjects(size_type filter, Vids& ids, VRl1jet& l1jet) const {
-      const size_type begin(filter==0? 0 : filterObjects_.at(filter-1).l1jet_);
-      const size_type end(filterObjects_.at(filter).l1jet_);
+      const size_type begin(l1jetSlice(filter).first);
+      const size_type   end(l1jetSlice(filter).second);
       TriggerRefsCollections::getObjects(ids,l1jet,begin,end);
     }
     void getObjects(size_type filter, int id, VRl1jet& l1jet) const {
-      const size_type begin(filter==0? 0 : filterObjects_.at(filter-1).l1jet_);
-      const size_type end(filterObjects_.at(filter).l1jet_);
+      const size_type begin(l1jetSlice(filter).first);
+      const size_type   end(l1jetSlice(filter).second);
       TriggerRefsCollections::getObjects(id,l1jet,begin,end);
     }
 
     void getObjects(size_type filter, Vids& ids, VRl1etmiss& l1etmiss) const {
-      const size_type begin(filter==0? 0 : filterObjects_.at(filter-1).l1etmiss_);
-      const size_type end(filterObjects_.at(filter).l1etmiss_);
-      std::cout << "L1EtMiss: " << filter << " " << begin << "/" << end << std::endl;
+      const size_type begin(l1etmissSlice(filter).first);
+      const size_type   end(l1etmissSlice(filter).second);
       TriggerRefsCollections::getObjects(ids,l1etmiss,begin,end);
     }
     void getObjects(size_type filter, int id, VRl1etmiss& l1etmiss) const {
-      const size_type begin(filter==0? 0 : filterObjects_.at(filter-1).l1etmiss_);
-      const size_type end(filterObjects_.at(filter).l1etmiss_);
+      const size_type begin(l1etmissSlice(filter).first);
+      const size_type   end(l1etmissSlice(filter).second);
       TriggerRefsCollections::getObjects(id,l1etmiss,begin,end);
     }
 

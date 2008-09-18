@@ -12,8 +12,8 @@
  *  possible HLT filters. Hence we accept the reasonably small
  *  overhead of empty containers.
  *
- *  $Date: 2008/05/08 15:18:00 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/09/18 11:55:41 $
+ *  $Revision: 1.9 $
  *
  *  \author Martin Grunewald
  *
@@ -233,7 +233,7 @@ namespace trigger
       assert(ids.size()==refs.size());
       l1etmissIds_.insert(l1etmissIds_.end(),ids.begin(),ids.end());
       l1etmissRefs_.insert(l1etmissRefs_.end(),refs.begin(),refs.end());
-      return l1emIds_.size();
+      return l1etmissIds_.size();
     }
 
 
@@ -624,29 +624,51 @@ namespace trigger
 
 
     /// low-level getters for data members
+    size_type          photonSize()    const {return photonIds_.size();}
     const Vids&        photonIds()     const {return photonIds_;}
     const VRphoton&    photonRefs()    const {return photonRefs_;}
+
+    size_type          electronSize()  const {return electronIds_.size();}
     const Vids&        electronIds()   const {return electronIds_;}
     const VRelectron&  electronRefs()  const {return electronRefs_;}
+
+    size_type          muonSize()      const {return muonIds_.size();}
     const Vids&        muonIds()       const {return muonIds_;}
     const VRmuon&      muonRefs()      const {return muonRefs_;}
+
+    size_type          jetSize()       const {return jetIds_.size();}
     const Vids&        jetIds()        const {return jetIds_;}
     const VRjet&       jetRefs()       const {return jetRefs_;}
+
+    size_type          compositeSize() const {return compositeIds_.size();}
     const Vids&        compositeIds()  const {return compositeIds_;}
     const VRcomposite& compositeRefs() const {return compositeRefs_;}
+
+    size_type          metSize()       const {return metIds_.size();}
     const Vids&        metIds()        const {return metIds_;}
     const VRmet&       metRefs()       const {return metRefs_;}
+
+    size_type          htSize()        const {return htIds_.size();}
     const Vids&        htIds()         const {return htIds_;}
     const VRht&        htRefs()        const {return htRefs_;}
+
+    size_type          pixtrackSize()  const {return pixtrackIds_.size();}
     const Vids&        pixtrackIds()   const {return pixtrackIds_;}
     const VRpixtrack&  pixtrackRefs()  const {return pixtrackRefs_;}
 
+    size_type          l1emSize()      const {return l1emIds_.size();}
     const Vids&        l1emIds()       const {return l1emIds_;}
     const VRl1em&      l1emRefs()      const {return l1emRefs_;}
+
+    size_type          l1muonSize()    const {return l1muonIds_.size();}
     const Vids&        l1muonIds()     const {return l1muonIds_;}
     const VRl1muon&    l1muonRefs()    const {return l1muonRefs_;}
+
+    size_type          l1jetSize()     const {return l1jetIds_.size();}
     const Vids&        l1jetIds()      const {return l1jetIds_;}
     const VRl1jet&     l1jetRefs()     const {return l1jetRefs_;}
+
+    size_type          l1etmissSize()  const {return l1etmissIds_.size();}
     const Vids&        l1etmissIds()   const {return l1etmissIds_;}
     const VRl1etmiss&  l1etmissRefs()  const {return l1etmissRefs_;}
 
