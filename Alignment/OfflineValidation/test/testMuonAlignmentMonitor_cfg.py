@@ -67,38 +67,10 @@ process.muonAlignment = cms.ESSource("PoolDBESSource",
     connect = cms.string('frontier://FrontierDev/CMS_COND_ALIGNMENT')
 )
 
-process.MuonAlignmentMonitor = cms.EDAnalyzer("MuonAlignmentAnalyzer",
-    GlobalMuonTrackCollectionTag = cms.InputTag("ALCARECOMuAlZMuMu","GlobalMuon"),
-    doResplots = cms.untracked.bool(True),
-    # InputTags for AlCaRecoMuon format
-    doSAplots = cms.untracked.bool(False),
-    RecHits4DCSCCollectionTag = cms.InputTag("cscSegments"),
-    resThetaRange = cms.untracked.double(0.1),
-    invMassRangeMax = cms.untracked.double(200.0),
-    resPhiRange = cms.untracked.double(0.1),
-    min1DTrackRecHitSize = cms.untracked.uint32(1),
-    doGBplots = cms.untracked.bool(False),
-    invMassRangeMin = cms.untracked.double(0.0),
-    #       To do resolution plots:
-    #       untracked string DataType = "SimData"      # needs g4SimHits!!!
-    # range of pt/mass histograms to analyze
-    ptRangeMin = cms.untracked.double(0.0),
-    min4DTrackSegmentSize = cms.untracked.uint32(1),
-    nbins = cms.untracked.uint32(500),
-    DataType = cms.untracked.string('RealData'),
-    resLocalYRangeStation3 = cms.untracked.double(5.0),
-    resLocalYRangeStation2 = cms.untracked.double(0.7),
-    resLocalYRangeStation4 = cms.untracked.double(5.0),
-    RecHits4DDTCollectionTag = cms.InputTag("dt4DSegments"),
-    resLocalYRangeStation1 = cms.untracked.double(0.7),
-    resLocalXRangeStation4 = cms.untracked.double(3.0),
-    resLocalXRangeStation2 = cms.untracked.double(0.3),
-    resLocalXRangeStation3 = cms.untracked.double(3.0),
-    StandAloneTrackCollectionTag = cms.InputTag("ALCARECOMuAlZMuMu","StandAlone"),
-    #residual range limits: cm and rad
-    resLocalXRangeStation1 = cms.untracked.double(0.1),
-    ptRangeMax = cms.untracked.double(300.0)
-)
+process.load("Alignment.OfflineValidation.MuonAlignmentAnalyzer_cfi")
+# InputTags for AlCaRecoMuon format (e.g.)
+process.MuonAlignmentMonitor.StandAloneTrackCollectionTag = "ALCARECOMuAlZMuMu:StandAlone"
+process.MuonAlignmentMonitor.GlobalMuonTrackCollectionTag = "ALCARECOMuAlZMuMu:GlobalMuon"
 
 process.TFileService = cms.Service("TFileService",
     fileName = cms.string('MuonAlignmentMonitor.root')
