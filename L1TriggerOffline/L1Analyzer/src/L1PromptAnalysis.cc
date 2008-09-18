@@ -8,7 +8,7 @@
  *   Description:  This code is designed for l1 prompt analysis
 //                 starting point is a GMTTreeMaker By Ivan Mikulec. 
 */
-//   $Revision: 1.13 $
+//   $Revision: 1.1 $
 //
 //   I. Mikulec            HEPHY Vienna
 //
@@ -408,8 +408,8 @@ void L1PromptAnalysis::analyze(const edm::Event& e, const edm::EventSetup& es) {
       DecisionWord::const_iterator GTdbitItr;
       for(GTdbitItr = gtDecisionWord.begin(); GTdbitItr != gtDecisionWord.end(); GTdbitItr++) {
         if (*GTdbitItr) {
-          if(dbitNumber<64) { gttw1[iebx] |= (1<<dbitNumber); }
-          else { gttw2[iebx] |= (1<<(dbitNumber-64)); }
+          if(dbitNumber<64) { gttw1[iebx] |= (1LL<<dbitNumber); }
+          else { gttw2[iebx] |= (1LL<<(dbitNumber-64)); }
         }
         dbitNumber++; 
       }
@@ -419,7 +419,7 @@ void L1PromptAnalysis::analyze(const edm::Event& e, const edm::EventSetup& es) {
       TechnicalTriggerWord::const_iterator GTtbitItr;
       for(GTtbitItr = gtTTWord.begin(); GTtbitItr != gtTTWord.end(); GTtbitItr++) {
         if (*GTtbitItr) {
-          gttt[iebx] |= (1<<dbitNumber);
+          gttt[iebx] |= (1LL<<dbitNumber);
         }
         dbitNumber++;
       }
