@@ -52,21 +52,31 @@ HLTMuonGenericRate::HLTMuonGenericRate(const ParameterSet& pset,
   if ( m_useMuonFromReco )
     theRecoLabel         = pset.getUntrackedParameter<string>("RecoLabel");
 
-  thePtMin     = pset.getUntrackedParameter<double>      ("PtMin",      0.);
-  thePtMax     = pset.getUntrackedParameter<double>      ("PtMax",     40.);
-  theNbins     = pset.getUntrackedParameter<unsigned int>("Nbins",     40 );
-  theMinPtCut  = pset.getUntrackedParameter<double>      ("MinPtCut",  5.0);
-  theMaxEtaCut = pset.getUntrackedParameter<double>      ("MaxEtaCut", 2.1);
+  thePtMin     = pset.getUntrackedParameter<double>      ("PtMin");
+  thePtMax     = pset.getUntrackedParameter<double>      ("PtMax");
+  theNbins     = pset.getUntrackedParameter<unsigned int>("Nbins");
+  theMinPtCut  = pset.getUntrackedParameter<double>      ("MinPtCut");
+  theMaxEtaCut = pset.getUntrackedParameter<double>      ("MaxEtaCut");
 
   theMotherParticleId = pset.getUntrackedParameter<unsigned int> 
-                        ("MotherParticleId", 0);
+                        ("MotherParticleId");
   theNSigmas          = pset.getUntrackedParameter< std::vector<double> >
                         ("NSigmas90");
 
-  theNumberOfEvents     = 0;
-  theNumberOfL1Events   = 0;
-  theNumberOfL1Orphans  = 0;
-  theNumberOfHltOrphans = 0;
+  theNtupleFileName = pset.getUntrackedParameter<std::string>
+                      ( "NtupleFileName", "" );
+  theNtuplePath     = pset.getUntrackedParameter<std::string>
+                      ( "NtuplePath", "" );
+  m_makeNtuple = false;
+  if ( theL1CollectionLabel.label() == theNtuplePath + "L1Filtered" &&
+       theNtupleFileName != "" ) 
+    m_makeNtuple = true;
+  if ( m_makeNtuple ) {
+    theFile      = new TFile  ("file.root","RECREATE");
+    TString vars = "genPt:genEta:genPhi:pt1:eta1:phi1:pt2:eta2:phi2:";
+    vars        += "pt3:eta3:phi3:pt4:eta4:phi4:pt5:eta5:phi5";
+    theNtuple    = new TNtuple("nt","data",vars);
+  }
 
   dbe_ = 0 ;
   if ( pset.getUntrackedParameter<bool>("DQMStore", false) ) {
@@ -74,17 +84,10 @@ HLTMuonGenericRate::HLTMuonGenericRate(const ParameterSet& pset,
     dbe_->setVerbose(0);
   }
 
-  theRootFileName = pset.getUntrackedParameter<std::string>("RootFileName","");
-
-  m_makeNtuple = pset.getUntrackedParameter<bool>( "MakeNtuple", false );
-  if ( theL1CollectionLabel.label() != "hltSingleMuIsoL1Filtered" )
-    m_makeNtuple = false;
-  if ( m_makeNtuple ) {
-    theFile      = new TFile  ("file.root","RECREATE");
-    TString vars = "genPt:genEta:genPhi:pt1:eta1:phi1:pt2:eta2:phi2:";
-    vars        += "pt3:eta3:phi3:pt4:eta4:phi4:pt5:eta5:phi5";
-    theNtuple    = new TNtuple("nt","data",vars);
-  }
+  theNumberOfEvents     = 0;
+  theNumberOfL1Events   = 0;
+  theNumberOfL1Orphans  = 0;
+  theNumberOfHltOrphans = 0;
 
 }
 
@@ -305,26 +308,26 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
 
   //////////////////////////////////////////////////////////////////////////
   // Fill ntuple & histograms
-  
+    
   if ( m_makeNtuple ) {
     for ( size_t i = 0; i < genMatches.size(); i++ ) {
-      for ( int k = 0; k < 18; k++ ) ntParams[k] = -1;
-      ntParams[0] =  genMatches[i].genCand->pt();
-      ntParams[1] =  genMatches[i].genCand->eta();
-      ntParams[2] =  genMatches[i].genCand->phi();
+      for ( int k = 0; k < 18; k++ ) theNtupleParameters[k] = -1;
+      theNtupleParameters[0] =  genMatches[i].genCand->pt();
+      theNtupleParameters[1] =  genMatches[i].genCand->eta();
+      theNtupleParameters[2] =  genMatches[i].genCand->phi();
       if ( genMatches[i].l1Cand ) {
-	ntParams[3] = genMatches[i].l1Cand->pt();
-	ntParams[4] = genMatches[i].l1Cand->eta();
-	ntParams[5] = genMatches[i].l1Cand->phi();
+	theNtupleParameters[3] = genMatches[i].l1Cand->pt();
+	theNtupleParameters[4] = genMatches[i].l1Cand->eta();
+	theNtupleParameters[5] = genMatches[i].l1Cand->phi();
       }
       for ( size_t j = 0; j < genMatches[i].hltCands.size(); j++ ) {
 	if ( genMatches[i].hltCands[j] ) {
-	  ntParams[(j*3+6)] = genMatches[i].hltCands[j]->pt();
-	  ntParams[(j*3+7)] = genMatches[i].hltCands[j]->eta();
-	  ntParams[(j*3+8)] = genMatches[i].hltCands[j]->phi();
+	  theNtupleParameters[(j*3+6)] = genMatches[i].hltCands[j]->pt();
+	  theNtupleParameters[(j*3+7)] = genMatches[i].hltCands[j]->eta();
+	  theNtupleParameters[(j*3+8)] = genMatches[i].hltCands[j]->phi();
 	}
       }
-      theNtuple->Fill(ntParams);
+      theNtuple->Fill(theNtupleParameters);
     }
   }
   

@@ -50,9 +50,11 @@ public:
 private:
 
   // Input from cfg file
-  edm::InputTag theL1CollectionLabel;
-  std::string   theGenLabel;
-  std::string   theRecoLabel;
+  std::string  theGenLabel;
+  std::string  theRecoLabel;
+  std::string  theNtupleFileName;
+  std::string  theNtuplePath;
+  edm::InputTag              theL1CollectionLabel;
   std::vector<edm::InputTag> theHLTCollectionLabels;
 
   double theL1ReferenceThreshold;
@@ -70,7 +72,6 @@ private:
   int  theMotherParticleId;
   bool m_useMuonFromGenerator;
   bool m_useMuonFromReco;
-  bool m_makeNtuple;
 
   // Struct for matching
   struct MatchStruct {
@@ -108,10 +109,10 @@ private:
 
 
   // Facilities for writing a match ntuple
-  bool    makeNtuple;
+  bool    m_makeNtuple;
+  float   theNtupleParameters[18];
   TNtuple *theNtuple;
   TFile   *theFile;
-  float   ntParams[18];
 
 };
 #endif
