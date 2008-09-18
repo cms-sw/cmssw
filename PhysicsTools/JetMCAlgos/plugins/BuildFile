@@ -1,5 +1,6 @@
 <use name=PhysicsTools/JetMCAlgos>
 <use name=PhysicsTools/JetMCUtils>
+<use name=PhysicsTools/HepMCCandAlgos>
 <use name=SimGeneral/HepPDTRecord>
 <use name=SimDataFormats/JetMatching>
 <use name=DataFormats/HepMCCandidate>
