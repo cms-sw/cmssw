@@ -6,8 +6,8 @@
  *  
  *  This class is an EDAnalyzer analyzing the combined HLT information for RAW
  *
- *  $Date: 2008/09/06 12:01:51 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/09/12 19:11:55 $
+ *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
  *
@@ -45,6 +45,34 @@ class HLTEventAnalyzerRAW : public edm::EDAnalyzer {
   edm::Handle<edm::TriggerResults>           triggerResultsHandle_;
   edm::Handle<trigger::TriggerEventWithRefs> triggerEventWithRefsHandle_;
   HLTConfigProvider hltConfig_;
+
+  /// payload extracted from TriggerEventWithRefs
+
+  trigger::Vids        photonIds_;
+  trigger::VRphoton    photonRefs_;
+  trigger::Vids        electronIds_;
+  trigger::VRelectron  electronRefs_;
+  trigger::Vids        muonIds_;
+  trigger::VRmuon      muonRefs_;
+  trigger::Vids        jetIds_;
+  trigger::VRjet       jetRefs_;
+  trigger::Vids        compositeIds_;
+  trigger::VRcomposite compositeRefs_;
+  trigger::Vids        metIds_;
+  trigger::VRmet       metRefs_;
+  trigger::Vids        htIds_;
+  trigger::VRht        htRefs_;
+  trigger::Vids        pixtrackIds_;
+  trigger::VRpixtrack  pixtrackRefs_;
+
+  trigger::Vids        l1emIds_;
+  trigger::VRl1em      l1emRefs_;
+  trigger::Vids        l1muonIds_;
+  trigger::VRl1muon    l1muonRefs_;
+  trigger::Vids        l1jetIds_;
+  trigger::VRl1jet     l1jetRefs_;
+  trigger::Vids        l1etmissIds_;
+  trigger::VRl1etmiss  l1etmissRefs_;
 
 };
 #endif

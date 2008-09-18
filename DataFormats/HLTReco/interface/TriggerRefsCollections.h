@@ -12,8 +12,8 @@
  *  possible HLT filters. Hence we accept the reasonably small
  *  overhead of empty containers.
  *
- *  $Date: 2008/01/12 16:53:54 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/05/08 15:18:00 $
+ *  $Revision: 1.8 $
  *
  *  \author Martin Grunewald
  *
@@ -237,11 +237,29 @@ namespace trigger
     }
 
 
-    /// physics-level getters: get Ref<C>s for physics type id within a slice
+    /// various physics-level getters:
+    void getObjects(Vids& ids, VRphoton& refs) const {
+      getObjects(ids,refs,0,photonIds_.size());
+    }
+    void getObjects(Vids& ids, VRphoton& refs, size_type begin, size_type end) const {
+      assert (begin<=end);
+      assert (end<=photonIds_.size());
+      const size_type n(end-begin);
+      ids.resize(n);
+      refs.resize(n);
+      size_type j(0);
+      for (size_type i=begin; i!=end; ++i) {
+	ids[j]=photonIds_[i];
+	refs[j]=photonRefs_[i];
+	++j;
+      }
+    }
     void getObjects(int id, VRphoton& refs) const {
       getObjects(id,refs,0,photonIds_.size());
     }
     void getObjects(int id, VRphoton& refs, size_type begin, size_type end) const {
+      assert (begin<=end);
+      assert (end<=photonIds_.size());
       size_type n(0);
       for (size_type i=begin; i!=end; ++i) {if (id==photonIds_[i]) {++n;}}
       refs.resize(n);
@@ -251,10 +269,29 @@ namespace trigger
       }
       return;
     }
+
+    void getObjects(Vids& ids, VRelectron& refs) const {
+      getObjects(ids,refs,0,electronIds_.size());
+    }
+    void getObjects(Vids& ids, VRelectron& refs, size_type begin, size_type end) const {
+      assert (begin<=end);
+      assert (end<=electronIds_.size());
+      const size_type n(end-begin);
+      ids.resize(n);
+      refs.resize(n);
+      size_type j(0);
+      for (size_type i=begin; i!=end; ++i) {
+	ids[j]=electronIds_[i];
+	refs[j]=electronRefs_[i];
+	++j;
+      }
+    }
     void getObjects(int id, VRelectron& refs) const {
       getObjects(id,refs,0,electronIds_.size());
     }
     void getObjects(int id, VRelectron& refs, size_type begin, size_type end) const {
+      assert (begin<=end);
+      assert (end<=electronIds_.size());
       size_type n(0);
       for (size_type i=begin; i!=end; ++i) {if (id==electronIds_[i]) {++n;}}
       refs.resize(n);
@@ -264,10 +301,29 @@ namespace trigger
       }
       return;
     }
+
+    void getObjects(Vids& ids, VRmuon& refs) const {
+      getObjects(ids,refs,0,muonIds_.size());
+    }
+    void getObjects(Vids& ids, VRmuon& refs, size_type begin, size_type end) const {
+      assert (begin<=end);
+      assert (end<=muonIds_.size());
+      const size_type n(end-begin);
+      ids.resize(n);
+      refs.resize(n);
+      size_type j(0);
+      for (size_type i=begin; i!=end; ++i) {
+	ids[j]=muonIds_[i];
+	refs[j]=muonRefs_[i];
+	++j;
+      }
+    }
     void getObjects(int id, VRmuon& refs) const {
       getObjects(id,refs,0,muonIds_.size());
     }
     void getObjects(int id, VRmuon& refs, size_type begin, size_type end) const {
+      assert (begin<=end);
+      assert (end<=muonIds_.size());
       size_type n(0);
       for (size_type i=begin; i!=end; ++i) {if (id==muonIds_[i]) {++n;}}
       refs.resize(n);
@@ -277,10 +333,29 @@ namespace trigger
       }
       return;
     }
+
+    void getObjects(Vids& ids, VRjet& refs) const {
+      getObjects(ids,refs,0,jetIds_.size());
+    }
+    void getObjects(Vids& ids, VRjet& refs, size_type begin, size_type end) const {
+      assert (begin<=end);
+      assert (end<=jetIds_.size());
+      const size_type n(end-begin);
+      ids.resize(n);
+      refs.resize(n);
+      size_type j(0);
+      for (size_type i=begin; i!=end; ++i) {
+	ids[j]=jetIds_[i];
+	refs[j]=jetRefs_[i];
+	++j;
+      }
+    }
     void getObjects(int id, VRjet& refs) const {
       getObjects(id,refs,0,jetIds_.size());
     }
     void getObjects(int id, VRjet& refs, size_type begin, size_type end) const {
+      assert (begin<=end);
+      assert (end<=jetIds_.size());
       size_type n(0);
       for (size_type i=begin; i!=end; ++i) {if (id==jetIds_[i]) {++n;}}
       refs.resize(n);
@@ -290,10 +365,29 @@ namespace trigger
       }
       return;
     }
+
+    void getObjects(Vids& ids, VRcomposite& refs) const {
+      getObjects(ids,refs,0,compositeIds_.size());
+    }
+    void getObjects(Vids& ids, VRcomposite& refs, size_type begin, size_type end) const {
+      assert (begin<=end);
+      assert (end<=compositeIds_.size());
+      const size_type n(end-begin);
+      ids.resize(n);
+      refs.resize(n);
+      size_type j(0);
+      for (size_type i=begin; i!=end; ++i) {
+	ids[j]=compositeIds_[i];
+	refs[j]=compositeRefs_[i];
+	++j;
+      }
+    }
     void getObjects(int id, VRcomposite& refs) const {
       getObjects(id,refs,0,compositeIds_.size());
     }
     void getObjects(int id, VRcomposite& refs, size_type begin, size_type end) const {
+      assert (begin<=end);
+      assert (end<=compositeIds_.size());
       size_type n(0);
       for (size_type i=begin; i!=end; ++i) {if (id==compositeIds_[i]) {++n;}}
       refs.resize(n);
@@ -303,10 +397,29 @@ namespace trigger
       }
       return;
     }
+
+    void getObjects(Vids& ids, VRmet& refs) const {
+      getObjects(ids,refs,0,metIds_.size());
+    }
+    void getObjects(Vids& ids, VRmet& refs, size_type begin, size_type end) const {
+      assert (begin<=end);
+      assert (end<=metIds_.size());
+      const size_type n(end-begin);
+      ids.resize(n);
+      refs.resize(n);
+      size_type j(0);
+      for (size_type i=begin; i!=end; ++i) {
+	ids[j]=metIds_[i];
+	refs[j]=metRefs_[i];
+	++j;
+      }
+    }
     void getObjects(int id, VRmet& refs) const {
       getObjects(id,refs,0,metIds_.size());
     }
     void getObjects(int id, VRmet& refs, size_type begin, size_type end) const {
+      assert (begin<=end);
+      assert (end<=metIds_.size());
       size_type n(0);
       for (size_type i=begin; i!=end; ++i) {if (id==metIds_[i]) {++n;}}
       refs.resize(n);
@@ -316,10 +429,29 @@ namespace trigger
       }
       return;
     }
+
+    void getObjects(Vids& ids, VRht& refs) const {
+      getObjects(ids,refs,0,htIds_.size());
+    }
+    void getObjects(Vids& ids, VRht& refs, size_type begin, size_type end) const {
+      assert (begin<=end);
+      assert (end<=htIds_.size());
+      const size_type n(end-begin);
+      ids.resize(n);
+      refs.resize(n);
+      size_type j(0);
+      for (size_type i=begin; i!=end; ++i) {
+	ids[j]=htIds_[i];
+	refs[j]=htRefs_[i];
+	++j;
+      }
+    }
     void getObjects(int id, VRht& refs) const {
       getObjects(id,refs,0,htIds_.size());
     } 
     void getObjects(int id, VRht& refs, size_type begin, size_type end) const {
+      assert (begin<=end);
+      assert (end<=htIds_.size());
       size_type n(0);
       for (size_type i=begin; i!=end; ++i) {if (id==htIds_[i]) {++n;}}
       refs.resize(n);
@@ -329,10 +461,29 @@ namespace trigger
       }
       return;
     }
+
+    void getObjects(Vids& ids, VRpixtrack& refs) const {
+      getObjects(ids,refs,0,pixtrackIds_.size());
+    }
+    void getObjects(Vids& ids, VRpixtrack& refs, size_type begin, size_type end) const {
+      assert (begin<=end);
+      assert (end<=pixtrackIds_.size());
+      const size_type n(end-begin);
+      ids.resize(n);
+      refs.resize(n);
+      size_type j(0);
+      for (size_type i=begin; i!=end; ++i) {
+	ids[j]=pixtrackIds_[i];
+	refs[j]=pixtrackRefs_[i];
+	++j;
+      }
+    }
     void getObjects(int id, VRpixtrack& refs) const {
       getObjects(id,refs,0,pixtrackIds_.size());
     } 
     void getObjects(int id, VRpixtrack& refs, size_type begin, size_type end) const {
+      assert (begin<=end);
+      assert (end<=pixtrackIds_.size());
       size_type n(0);
       for (size_type i=begin; i!=end; ++i) {if (id==pixtrackIds_[i]) {++n;}}
       refs.resize(n);
@@ -343,10 +494,28 @@ namespace trigger
       return;
     }
 
+    void getObjects(Vids& ids, VRl1em& refs) const {
+      getObjects(ids,refs,0,l1emIds_.size());
+    }
+    void getObjects(Vids& ids, VRl1em& refs, size_type begin, size_type end) const {
+      assert (begin<=end);
+      assert (end<=l1emIds_.size());
+      const size_type n(end-begin);
+      ids.resize(n);
+      refs.resize(n);
+      size_type j(0);
+      for (size_type i=begin; i!=end; ++i) {
+	ids[j]=l1emIds_[i];
+	refs[j]=l1emRefs_[i];
+	++j;
+      }
+    }
     void getObjects(int id, VRl1em& refs) const {
       getObjects(id,refs,0,l1emIds_.size());
     } 
     void getObjects(int id, VRl1em& refs, size_type begin, size_type end) const {
+      assert (begin<=end);
+      assert (end<=l1emIds_.size());
       size_type n(0);
       for (size_type i=begin; i!=end; ++i) {if (id==l1emIds_[i]) {++n;}}
       refs.resize(n);
@@ -356,10 +525,29 @@ namespace trigger
       }
       return;
     }
+
+    void getObjects(Vids& ids, VRl1muon& refs) const {
+      getObjects(ids,refs,0,l1muonIds_.size());
+    }
+    void getObjects(Vids& ids, VRl1muon& refs, size_type begin, size_type end) const {
+      assert (begin<=end);
+      assert (end<=l1muonIds_.size());
+      const size_type n(end-begin);
+      ids.resize(n);
+      refs.resize(n);
+      size_type j(0);
+      for (size_type i=begin; i!=end; ++i) {
+	ids[j]=l1muonIds_[i];
+	refs[j]=l1muonRefs_[i];
+	++j;
+      }
+    }
     void getObjects(int id, VRl1muon& refs) const {
       getObjects(id,refs,0,l1muonIds_.size());
     } 
     void getObjects(int id, VRl1muon& refs, size_type begin, size_type end) const {
+      assert (begin<=end);
+      assert (end<=l1muonIds_.size());
       size_type n(0);
       for (size_type i=begin; i!=end; ++i) {if (id==l1muonIds_[i]) {++n;}}
       refs.resize(n);
@@ -369,10 +557,29 @@ namespace trigger
       }
       return;
     }
+
+    void getObjects(Vids& ids, VRl1jet& refs) const {
+      getObjects(ids,refs,0,l1jetIds_.size());
+    }
+    void getObjects(Vids& ids, VRl1jet& refs, size_type begin, size_type end) const {
+      assert (begin<=end);
+      assert (end<=l1jetIds_.size());
+      const size_type n(end-begin);
+      ids.resize(n);
+      refs.resize(n);
+      size_type j(0);
+      for (size_type i=begin; i!=end; ++i) {
+	ids[j]=l1jetIds_[i];
+	refs[j]=l1jetRefs_[i];
+	++j;
+      }
+    }
     void getObjects(int id, VRl1jet& refs) const {
       getObjects(id,refs,0,l1jetIds_.size());
     } 
     void getObjects(int id, VRl1jet& refs, size_type begin, size_type end) const {
+      assert (begin<=end);
+      assert (end<=l1jetIds_.size());
       size_type n(0);
       for (size_type i=begin; i!=end; ++i) {if (id==l1jetIds_[i]) {++n;}}
       refs.resize(n);
@@ -382,10 +589,29 @@ namespace trigger
       }
       return;
     }
+
+    void getObjects(Vids& ids, VRl1etmiss& refs) const {
+      getObjects(ids,refs,0,l1etmissIds_.size());
+    }
+    void getObjects(Vids& ids, VRl1etmiss& refs, size_type begin, size_type end) const {
+      assert (begin<=end);
+      assert (end<=l1etmissIds_.size());
+      const size_type n(end-begin);
+      ids.resize(n);
+      refs.resize(n);
+      size_type j(0);
+      for (size_type i=begin; i!=end; ++i) {
+	ids[j]=l1etmissIds_[i];
+	refs[j]=l1etmissRefs_[i];
+	++j;
+      }
+    }
     void getObjects(int id, VRl1etmiss& refs) const {
       getObjects(id,refs,0,l1etmissIds_.size());
     } 
     void getObjects(int id, VRl1etmiss& refs, size_type begin, size_type end) const {
+      assert (begin<=end);
+      assert (end<=l1etmissIds_.size());
       size_type n(0);
       for (size_type i=begin; i!=end; ++i) {if (id==l1etmissIds_[i]) {++n;}}
       refs.resize(n);

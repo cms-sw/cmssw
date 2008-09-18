@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2008/09/11 13:19:18 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/09/12 19:11:55 $
+ *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
  *
@@ -139,8 +139,34 @@ void HLTEventAnalyzerRAW::analyzeTrigger(const std::string& triggerName) {
        << endl;
   assert (moduleIndex<m);
 
-  // Results from TriggerEventWithRefs product - Attention: must look only for
-  // modules actually run in this path for this event!
+  // Results from TriggerEventWithRefs product
+  photonIds_.clear();
+  photonRefs_.clear();
+  electronIds_.clear();
+  electronRefs_.clear();
+  muonIds_.clear();
+  muonRefs_.clear();
+  jetIds_.clear();
+  jetRefs_.clear();
+  compositeIds_.clear();
+  compositeRefs_.clear();
+  metIds_.clear();
+  metRefs_.clear();
+  htIds_.clear();
+  htRefs_.clear();
+  pixtrackIds_.clear();
+  pixtrackRefs_.clear();
+  l1emIds_.clear();
+  l1emRefs_.clear();
+  l1muonIds_.clear();
+  l1muonRefs_.clear();
+  l1jetIds_.clear();
+  l1jetRefs_.clear();
+  l1etmissIds_.clear();
+  l1etmissRefs_.clear();
+
+  // Attention: must look only for modules actually run in this path
+  // for this event!
   for (unsigned int j=0; j<=moduleIndex; ++j) {
     const string& moduleLabel(moduleLabels[j]);
     const string  moduleType(hltConfig_.moduleType(moduleLabel));
@@ -150,86 +176,74 @@ void HLTEventAnalyzerRAW::analyzeTrigger(const std::string& triggerName) {
       cout << " Filter in slot " << j << " - label/type " << moduleLabel << "/" << moduleType << endl;
       cout << "   Accepted objects:";
 
-      VRphoton photons;
-      triggerEventWithRefsHandle_->getObjects(filterIndex,0,photons);
-      const unsigned int nPhotons(photons.size());
+      triggerEventWithRefsHandle_->getObjects(filterIndex,photonIds_,photonRefs_);
+      const unsigned int nPhotons(photonIds_.size());
       if (nPhotons>0) {
 	cout << "  Photons: " << nPhotons;
       }
 
-      VRelectron electrons;
-      triggerEventWithRefsHandle_->getObjects(filterIndex,0,electrons);
-      const unsigned int nElectrons(electrons.size());
+      triggerEventWithRefsHandle_->getObjects(filterIndex,electronIds_,electronRefs_);
+      const unsigned int nElectrons(electronIds_.size());
       if (nElectrons>0) {
 	cout << "  Electrons: " << nElectrons;
       }
 
-      VRmuon muons;
-      triggerEventWithRefsHandle_->getObjects(filterIndex,0,muons);
-      const unsigned int nMuons(muons.size());
+      triggerEventWithRefsHandle_->getObjects(filterIndex,muonIds_,muonRefs_);
+      const unsigned int nMuons(muonIds_.size());
       if (nMuons>0) {
 	cout << "  Muons: " << nMuons;
       }
 
-      VRjet jets;
-      triggerEventWithRefsHandle_->getObjects(filterIndex,0,jets);
-      const unsigned int nJets(jets.size());
+      triggerEventWithRefsHandle_->getObjects(filterIndex,jetIds_,jetRefs_);
+      const unsigned int nJets(jetIds_.size());
       if (nJets>0) {
 	cout << "  Jets: " << nJets;
       }
 
-      VRcomposite composites;
-      triggerEventWithRefsHandle_->getObjects(filterIndex,0,composites);
-      const unsigned int nComposites(composites.size());
+      triggerEventWithRefsHandle_->getObjects(filterIndex,compositeIds_,compositeRefs_);
+      const unsigned int nComposites(compositeIds_.size());
       if (nComposites>0) {
 	cout << "  Composites: " << nComposites;
       }
 
-      VRmet mets;
-      triggerEventWithRefsHandle_->getObjects(filterIndex,0,mets);
-      const unsigned int nMETs(mets.size());
+      triggerEventWithRefsHandle_->getObjects(filterIndex,metIds_,metRefs_);
+      const unsigned int nMETs(metIds_.size());
       if (nMETs>0) {
 	cout << "  METs: " << nMETs;
       }
 
-      VRht hts;
-      triggerEventWithRefsHandle_->getObjects(filterIndex,0,hts);
-      const unsigned int nHTs(hts.size());
+      triggerEventWithRefsHandle_->getObjects(filterIndex,htIds_,htRefs_);
+      const unsigned int nHTs(htIds_.size());
       if (nHTs>0) {
 	cout << "  HTs: " << nHTs;
       }
 
-      VRpixtrack pixtracks;
-      triggerEventWithRefsHandle_->getObjects(filterIndex,0,pixtracks);
-      const unsigned int nPixTracks(pixtracks.size());
+      triggerEventWithRefsHandle_->getObjects(filterIndex,pixtrackIds_,pixtrackRefs_);
+      const unsigned int nPixTracks(pixtrackIds_.size());
       if (nPixTracks>0) {
 	cout << "  PixTracks: " << nPixTracks;
       }
 
-      VRl1em l1em;
-      triggerEventWithRefsHandle_->getObjects(filterIndex,0,l1em);
-      const unsigned int nL1EM(l1em.size());
+      triggerEventWithRefsHandle_->getObjects(filterIndex,l1emIds_,l1emRefs_);
+      const unsigned int nL1EM(l1emIds_.size());
       if (nL1EM>0) {
 	cout << "  L1EM: " << nL1EM;
       }
 
-      VRl1muon l1muon;
-      triggerEventWithRefsHandle_->getObjects(filterIndex,0,l1muon);
-      const unsigned int nL1Muon(l1muon.size());
+      triggerEventWithRefsHandle_->getObjects(filterIndex,l1muonIds_,l1muonRefs_);
+      const unsigned int nL1Muon(l1muonIds_.size());
       if (nL1Muon>0) {
 	cout << "  L1Muon: " << nL1Muon;
       }
 
-      VRl1jet l1jet;
-      triggerEventWithRefsHandle_->getObjects(filterIndex,0,l1jet);
-      const unsigned int nL1Jet(l1jet.size());
+      triggerEventWithRefsHandle_->getObjects(filterIndex,l1jetIds_,l1jetRefs_);
+      const unsigned int nL1Jet(l1jetIds_.size());
       if (nL1Jet>0) {
 	cout << "  L1Jet: " << nL1Jet;
       }
 
-      VRl1etmiss l1etmiss;
-      triggerEventWithRefsHandle_->getObjects(filterIndex,0,l1etmiss);
-      const unsigned int nL1EtMiss(l1etmiss.size());
+      triggerEventWithRefsHandle_->getObjects(filterIndex,l1etmissIds_,l1etmissRefs_);
+      const unsigned int nL1EtMiss(l1etmissIds_.size());
       if (nL1EtMiss>0) {
 	cout << "  L1EtMiss: " << nL1EtMiss;
       }
