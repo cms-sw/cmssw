@@ -2,14 +2,29 @@
  *
  * See header file for documentation
  *
- *  $Date: 2008/09/12 19:11:55 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/09/18 11:55:42 $
+ *  $Revision: 1.2 $
  *
  *  \author Martin Grunewald
  *
  */
 
 #include "HLTrigger/HLTcore/interface/HLTEventAnalyzerRAW.h"
+
+// need access to class objects being referenced to get their content!
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
+#include "DataFormats/EgammaCandidates/interface/Electron.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/Candidate/interface/CompositeCandidate.h"
+#include "DataFormats/METReco/interface/CaloMET.h"
+#include "DataFormats/METReco/interface/MET.h"
+#include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidate.h"
+#include "DataFormats/L1Trigger/interface/L1EmParticle.h"
+#include "DataFormats/L1Trigger/interface/L1JetParticle.h"
+#include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
+#include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
+
 #include <cassert>
 
 //
@@ -174,84 +189,141 @@ void HLTEventAnalyzerRAW::analyzeTrigger(const std::string& triggerName) {
     const unsigned int filterIndex(triggerEventWithRefsHandle_->filterIndex(InputTag(moduleLabel,"",processName_)));
     if (filterIndex<triggerEventWithRefsHandle_->size()) {
       cout << " Filter in slot " << j << " - label/type " << moduleLabel << "/" << moduleType << endl;
-      cout << "   Accepted objects:";
+      cout << "   Accepted objects:" << endl;
 
       triggerEventWithRefsHandle_->getObjects(filterIndex,photonIds_,photonRefs_);
       const unsigned int nPhotons(photonIds_.size());
       if (nPhotons>0) {
-	cout << "  Photons: " << nPhotons;
+	cout << "  Photons: " << nPhotons << endl;
+	for (unsigned int i=0; i!=nPhotons; ++i) {
+	  cout << i << " " << photonIds_[i]
+	       << " " << photonRefs_[i]->pt()
+	       << endl;
+	}
       }
 
       triggerEventWithRefsHandle_->getObjects(filterIndex,electronIds_,electronRefs_);
       const unsigned int nElectrons(electronIds_.size());
       if (nElectrons>0) {
-	cout << "  Electrons: " << nElectrons;
+	cout << "  Electrons: " << nElectrons << endl;
+	for (unsigned int i=0; i!=nElectrons; ++i) {
+	  cout << i << " " << electronIds_[i]
+	       << " " << electronRefs_[i]->pt()
+	       << endl;
+	}
       }
 
       triggerEventWithRefsHandle_->getObjects(filterIndex,muonIds_,muonRefs_);
       const unsigned int nMuons(muonIds_.size());
       if (nMuons>0) {
-	cout << "  Muons: " << nMuons;
+	cout << "  Muons: " << nMuons << endl;
+	for (unsigned int i=0; i!=nMuons; ++i) {
+	  cout << i << " " << muonIds_[i]
+	       << " " << muonRefs_[i]->pt()
+	       << endl;
+	}
       }
 
       triggerEventWithRefsHandle_->getObjects(filterIndex,jetIds_,jetRefs_);
       const unsigned int nJets(jetIds_.size());
       if (nJets>0) {
-	cout << "  Jets: " << nJets;
+	cout << "  Jets: " << nJets << endl;
+	for (unsigned int i=0; i!=nJets; ++i) {
+	  cout << i << " " << jetIds_[i]
+	       << " " << jetRefs_[i]->pt()
+	       << endl;
+	}
       }
 
       triggerEventWithRefsHandle_->getObjects(filterIndex,compositeIds_,compositeRefs_);
       const unsigned int nComposites(compositeIds_.size());
       if (nComposites>0) {
-	cout << "  Composites: " << nComposites;
+	cout << "  Composites: " << nComposites << endl;
+	for (unsigned int i=0; i!=nComposites; ++i) {
+	  cout << i << " " << compositeIds_[i]
+	       << " " << compositeRefs_[i]->pt()
+	       << endl;
+	}
       }
 
       triggerEventWithRefsHandle_->getObjects(filterIndex,metIds_,metRefs_);
       const unsigned int nMETs(metIds_.size());
       if (nMETs>0) {
-	cout << "  METs: " << nMETs;
+	cout << "  METs: " << nMETs << endl;
+	for (unsigned int i=0; i!=nMETs; ++i) {
+	  cout << i << " " << metIds_[i]
+	       << " " << metRefs_[i]->pt()
+	       << endl;
+	}
       }
 
       triggerEventWithRefsHandle_->getObjects(filterIndex,htIds_,htRefs_);
       const unsigned int nHTs(htIds_.size());
       if (nHTs>0) {
-	cout << "  HTs: " << nHTs;
+	cout << "  HTs: " << nHTs << endl;
+	for (unsigned int i=0; i!=nHTs; ++i) {
+	  cout << i << " " << htIds_[i]
+	       << " " << htRefs_[i]->pt()
+	       << endl;
+	}
       }
 
       triggerEventWithRefsHandle_->getObjects(filterIndex,pixtrackIds_,pixtrackRefs_);
       const unsigned int nPixTracks(pixtrackIds_.size());
       if (nPixTracks>0) {
-	cout << "  PixTracks: " << nPixTracks;
+	cout << "  PixTracks: " << nPixTracks << endl;
+	for (unsigned int i=0; i!=nPixTracks; ++i) {
+	  cout << i << " " << pixtrackIds_[i]
+	       << " " << pixtrackRefs_[i]->pt()
+	       << endl;
+	}
       }
 
       triggerEventWithRefsHandle_->getObjects(filterIndex,l1emIds_,l1emRefs_);
       const unsigned int nL1EM(l1emIds_.size());
       if (nL1EM>0) {
-	cout << "  L1EM: " << nL1EM;
+	cout << "  L1EM: " << nL1EM << endl;
+	for (unsigned int i=0; i!=nL1EM; ++i) {
+	  cout << i << " " << l1emIds_[i]
+	       << " " << l1emRefs_[i]->pt()
+	       << endl;
+	}
       }
 
       triggerEventWithRefsHandle_->getObjects(filterIndex,l1muonIds_,l1muonRefs_);
       const unsigned int nL1Muon(l1muonIds_.size());
       if (nL1Muon>0) {
-	cout << "  L1Muon: " << nL1Muon;
+	cout << "  L1Muon: " << nL1Muon << endl;
+	for (unsigned int i=0; i!=nL1Muon; ++i) {
+	  cout << i << " " << l1muonIds_[i]
+	       << " " << l1muonRefs_[i]->pt()
+	       << endl;
+	}
       }
 
       triggerEventWithRefsHandle_->getObjects(filterIndex,l1jetIds_,l1jetRefs_);
       const unsigned int nL1Jet(l1jetIds_.size());
       if (nL1Jet>0) {
-	cout << "  L1Jet: " << nL1Jet;
+	cout << "  L1Jet: " << nL1Jet << endl;
+	for (unsigned int i=0; i!=nL1Jet; ++i) {
+	  cout << i << " " << l1jetIds_[i]
+	       << " " << l1jetRefs_[i]->pt()
+	       << endl;
+	}
       }
 
       triggerEventWithRefsHandle_->getObjects(filterIndex,l1etmissIds_,l1etmissRefs_);
       const unsigned int nL1EtMiss(l1etmissIds_.size());
       if (nL1EtMiss>0) {
-	cout << "  L1EtMiss: " << nL1EtMiss;
+	cout << "  L1EtMiss: " << nL1EtMiss << endl;
+	for (unsigned int i=0; i!=nL1EtMiss; ++i) {
+	  cout << i << " " << l1etmissIds_[i]
+	       << " " << l1etmissRefs_[i]->pt()
+	       << endl;
+	}
       }
-
-      cout << endl;
-
     }
   }
 
-   return;
+  return;
 }

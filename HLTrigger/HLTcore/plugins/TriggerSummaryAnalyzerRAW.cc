@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2008/05/02 12:13:28 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/09/18 11:55:42 $
+ *  $Revision: 1.5 $
  *
  *  \author Martin Grunewald
  *
@@ -48,45 +48,47 @@ TriggerSummaryAnalyzerRAW::analyze(const edm::Event& iEvent, const edm::EventSet
      cout << "Number of TriggerFilterObjects: " << nFO << endl;
      cout << "The TriggerFilterObjects: #, tag" << endl;
      for (size_type iFO=0; iFO!=nFO; ++iFO) {
-       cout << iFO << " " << handle->filterTag(iFO).encode() << " " << endl;
+       cout << iFO << " " << handle->filterTag(iFO).encode()
+	    << "  # of objects:" << endl;
+       cout << "  " << handle->photonSlice(iFO).second-
+	               handle->photonSlice(iFO).first
+	    << "  " << handle->electronSlice(iFO).second-
+                       handle->electronSlice(iFO).first
+	    << "  " << handle->muonSlice(iFO).second-
+                       handle->muonSlice(iFO).first
+	    << "  " << handle->jetSlice(iFO).second-
+                       handle->jetSlice(iFO).first
+	    << "  " << handle->compositeSlice(iFO).second-
+                       handle->compositeSlice(iFO).first
+	    << "  " << handle->metSlice(iFO).second-
+                       handle->metSlice(iFO).first
+	    << "  " << handle->htSlice(iFO).second-
+                       handle->htSlice(iFO).first
+	    << "  " << handle->pixtrackSlice(iFO).second-
+                       handle->pixtrackSlice(iFO).first
+	    << "  " << handle->l1emSlice(iFO).second-
+                       handle->l1emSlice(iFO).first
+	    << "  " << handle->l1muonSlice(iFO).second-
+                       handle->l1muonSlice(iFO).first
+	    << "  " << handle->l1jetSlice(iFO).second-
+                       handle->l1jetSlice(iFO).first
+	    << "  " << handle->l1etmissSlice(iFO).second-
+                       handle->l1etmissSlice(iFO).first
+	    << endl;
      }
-     cout << "Linearised collections of Refs: " << endl;
-     cout << "  Photons: "
-	  << handle->photonIds().size() << "/"
-	  << handle->photonRefs().size() << endl;
-     cout << "  Electrons: "
-	  << handle->electronIds().size() << "/"
-	  << handle->electronRefs().size() << endl;
-     cout << "  Muons: "
-	  << handle->muonIds().size() << "/"
-	  << handle->muonRefs().size() << endl;
-     cout << "  Jets: "
-	  << handle->jetIds().size() << "/"
-	  << handle->jetRefs().size() << endl;
-     cout << "  Composites: "
-	  << handle->compositeIds().size() << "/"
-	  << handle->compositeRefs().size() << endl;
-     cout << "  METs: "
-	  << handle->metIds().size() << "/"
-	  << handle->metRefs().size() << endl;
-     cout << "  HTs: "
-	  << handle->htIds().size() << "/"
-	  << handle->htRefs().size() << endl;
-     cout << "  Pixtracks: "
-	  << handle->pixtrackIds().size() << "/"
-	  << handle->pixtrackRefs().size() << endl;
-     cout << "  L1EMs: "
-	  << handle->l1emIds().size() << "/"
-	  << handle->l1emRefs().size() << endl;
-     cout << "  L1Muons: "
-	  << handle->l1muonIds().size() << "/"
-	  << handle->l1muonRefs().size() << endl;
-     cout << "  L1Jets: "
-	  << handle->l1jetIds().size() << "/"
-	  << handle->l1jetRefs().size() << endl;
-     cout << "  L1EtMiss: "
-	  << handle->l1etmissIds().size() << "/"
-	  << handle->l1etmissRefs().size() << endl;
+     cout << "Elements in linearised collections of Refs: " << endl;
+     cout << "  Photons:    " << handle->photonSize()    << endl;
+     cout << "  Electrons:  " << handle->electronSize()  << endl;
+     cout << "  Muons:      " << handle->muonSize()      << endl;
+     cout << "  Jets:       " << handle->jetSize()       << endl;
+     cout << "  Composites: " << handle->compositeSize() << endl;
+     cout << "  METs:       " << handle->metSize()       << endl;
+     cout << "  HTs:        " << handle->htSize()        << endl;
+     cout << "  Pixtracks:  " << handle->pixtrackSize()  << endl;
+     cout << "  L1EMs:      " << handle->l1emSize()      << endl;
+     cout << "  L1Muons:    " << handle->l1muonSize()    << endl;
+     cout << "  L1Jets:     " << handle->l1jetSize()     << endl;
+     cout << "  L1EtMiss:   " << handle->l1etmissSize()  << endl;
    } else {
      cout << "Handle invalid! Check InputTag provided." << endl;
    }
