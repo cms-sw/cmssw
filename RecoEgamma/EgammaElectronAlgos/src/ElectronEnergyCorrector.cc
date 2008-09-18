@@ -9,6 +9,8 @@
 // 12/2005
 // updated f(eta) corrections from Ivica
 // CC 02/2006
+// adapted for crack subdivision
+// 09/2008
 // ported to CMSSW by U. Berthon, dec 2006
 //===================================================================
 
@@ -59,10 +61,17 @@ void ElectronEnergyCorrector::setNewEnergy(const reco::GsfElectron &electron) {
     // endcap, if in crack do nothing, otherwise just correct for eta effect
 
     double ePreshower = electron.superCluster()->preshowerEnergy();
+
     if (int(elClass/10) != 13) {
       newEnergy_ = (scEnergy-ePreshower)/fEtaEndcapGood(scEta)+ePreshower;
+ 
+    } else if (int(elClass/10) != 14) {
+	// cracks, no f(eta) correction;
+        newEnergy_ = scEnergy;
+
     } else { 
       newEnergy_ = (scEnergy-ePreshower)/fEtaEndcapBad(scEta)+ePreshower;
+
     }
 
   }

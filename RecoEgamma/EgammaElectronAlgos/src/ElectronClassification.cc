@@ -21,9 +21,14 @@
 // showering nbrem 2          => 32
 // showering nbrem 3          => 33
 // showering nbrem 4 ou plus  => 34
-// cracks                     => 40
+// EB/EE transition region    => 40
 // endcap                     => barrel + 100
+// EB eta gaps                => 41 
+// EB phi gaps                => 42 
+// EE x gaps                  => 141 
+// EE y gaps                  => 142 
 // CC 08/02/2006
+// CC added crack subdivision 16/09/2008
 //===================================================================
 
 using namespace reco;
@@ -44,10 +49,7 @@ void ElectronClassification::classify(const GsfElectron &electron) {
   // first look whether it's in crack, barrel or endcap
   std::vector<DetId> vecId=sclRef->seed()->getHitsByDetId();
   int detector =vecId[0].subdetId();  
-  if (isInCrack(fabs(electron.eta()))) {
-    electronClass_=40;
-    return;
-  } else if (detector==EcalBarrel) {
+  if (detector==EcalBarrel) {
     electronClass_ = 0;
   } else if (detector==EcalEndcap) {
     electronClass_ = 100;
@@ -57,8 +59,20 @@ void ElectronClassification::classify(const GsfElectron &electron) {
       electron.eta() << "!!!!" ;
     return;
   }
-
-  // then decide to which class it belongs
+  
+  // cracks
+  if (isInCrack(fabs(electron.eta()))) {
+    electronClass_+=40;
+    return;
+  } else if (isInEtaGaps(fabs(electron.eta()))) {
+    electronClass_=41;
+    return;
+  } else if (isInPhiGaps(fabs(electron.phi()))) {
+    electronClass_=42;
+    return;
+  }  
+  
+  // then decide for the others to which class it belongs
   float p0 = 7.20583e-04;
   float p1 = 9.20913e-02;
   float p2 = 8.97269e+00;
@@ -102,10 +116,21 @@ void ElectronClassification::classify(const GsfElectron &electron) {
 
 bool ElectronClassification::isInCrack(float eta) const{
 
+  return (eta>1.460 && eta<1.558);
+
+}
+
+bool ElectronClassification::isInEtaGaps(float eta) const{
+
   return (eta < 0.018 || 
 	  (eta>0.423 && eta<0.461) ||
 	  (eta>0.770 && eta<0.806) ||
-	  (eta>1.127 && eta<1.163) ||
-	  (eta>1.460 && eta<1.558));
+	  (eta>1.127 && eta<1.163));
+
+}
+
+bool ElectronClassification::isInPhiGaps(float phi) const{
+
+  return false;
 
 }

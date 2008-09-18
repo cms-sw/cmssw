@@ -17,6 +17,8 @@
 // 12/2005
 // Stephanie's parametrisation
 // 02/2006
+// adapted for crack subdivision
+// 09/2008
 //adapted to CMSSW by U.Berthon,LLR Paliaseau,  dec 2006
 //===================================================================
 
@@ -101,7 +103,7 @@ void ElectronMomentumCorrector::correct(reco::GsfElectron &electron, TrajectoryS
       if(int(elClass/10)==13){  
 	if(scEnergy<13) finalMomentum = trackMomentum;
       }
-      if (elClass==40){
+      if (((elClass%100)/10)==4){
 	if(scEnergy<60) finalMomentum = trackMomentum;
       }
     }
