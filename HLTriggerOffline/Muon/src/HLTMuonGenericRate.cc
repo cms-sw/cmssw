@@ -93,14 +93,7 @@ HLTMuonGenericRate::HLTMuonGenericRate(const ParameterSet& pset,
 
 
 
-/// Destructor
-HLTMuonGenericRate::~HLTMuonGenericRate()
-{
-}
-
-
-
-void HLTMuonGenericRate::endJob()
+void HLTMuonGenericRate::finish()
 {
   NumberOfEvents    ->Fill(theNumberOfEvents    );
   NumberOfL1Events  ->Fill(theNumberOfL1Events  );
@@ -424,7 +417,7 @@ int HLTMuonGenericRate::findRecMatch(double eta, double phi,  double maxDeltaR,
 
 
 
-void HLTMuonGenericRate::BookHistograms() 
+void HLTMuonGenericRate::begin() 
 {
   TString dirLabel, myLabel, newFolder, histName, histTitle;
   vector<TH1F*> h;
@@ -452,20 +445,20 @@ void HLTMuonGenericRate::BookHistograms()
     dbe_->setCurrentFolder( newFolder.Data() );
 
     if (m_useMuonFromGenerator){
-      hPtPassGen.push_back( BookIt( "genPtPass_All", "Highest Gen Muon Pt" + myLabel,  theNbins, thePtMin, thePtMax) );
-      hPtPassGen.push_back( BookIt( "genPtPass_" + myLabel, "Highest Gen Muon pt >= 1 L1 Candidate, label=" + myLabel,  theNbins, thePtMin, thePtMax) );
-      hEtaPassGen.push_back( BookIt( "genEtaPass_All", "#eta of Gen Muons",  50, -2.1, 2.1) );
-      hEtaPassGen.push_back( BookIt( "genEtaPass_" + myLabel, "#eta of Gen Muons Matched to L1, label=" + myLabel,  50, -2.1, 2.1) );
-      hPhiPassGen.push_back( BookIt( "genPhiPass_All", "#phi of Gen Muons",  50, -3.15, 3.15) );
-      hPhiPassGen.push_back( BookIt( "genPhiPass_" + myLabel, "#phi of Gen Muons Matched to L1, label=" + myLabel,  50, -3.15, 3.15) );
+      hPtPassGen.push_back( bookIt( "genPtPass_All", "Highest Gen Muon Pt" + myLabel,  theNbins, thePtMin, thePtMax) );
+      hPtPassGen.push_back( bookIt( "genPtPass_" + myLabel, "Highest Gen Muon pt >= 1 L1 Candidate, label=" + myLabel,  theNbins, thePtMin, thePtMax) );
+      hEtaPassGen.push_back( bookIt( "genEtaPass_All", "#eta of Gen Muons",  50, -2.1, 2.1) );
+      hEtaPassGen.push_back( bookIt( "genEtaPass_" + myLabel, "#eta of Gen Muons Matched to L1, label=" + myLabel,  50, -2.1, 2.1) );
+      hPhiPassGen.push_back( bookIt( "genPhiPass_All", "#phi of Gen Muons",  50, -3.15, 3.15) );
+      hPhiPassGen.push_back( bookIt( "genPhiPass_" + myLabel, "#phi of Gen Muons Matched to L1, label=" + myLabel,  50, -3.15, 3.15) );
     }
     if (m_useMuonFromReco){
-      hPtPassRec.push_back( BookIt( "recPtPass_All", "pt of Reco Muons" + myLabel,  theNbins, thePtMin, thePtMax) );
-      hPtPassRec.push_back( BookIt( "recPtPass_" + myLabel, "pt of Reco Muons Matched to L1, label=" + myLabel,  theNbins, thePtMin, thePtMax) );
-      hEtaPassRec.push_back( BookIt( "recEtaPass_All", "#eta of Reco Muons",  50, -2.1, 2.1) );
-      hEtaPassRec.push_back( BookIt( "recEtaPass_" + myLabel, "#eta of Reco Muons Matched to L1, label=" + myLabel,  50, -2.1, 2.1) );
-      hPhiPassRec.push_back( BookIt( "recPhiPass_All", "#phi of Reco Muons",  50, -3.15, 3.15) );
-      hPhiPassRec.push_back( BookIt( "recPhiPass_" + myLabel, "#phi of Reco Muons Matched to L1, label=" + myLabel,  50, -3.15, 3.15) );
+      hPtPassRec.push_back( bookIt( "recPtPass_All", "pt of Reco Muons" + myLabel,  theNbins, thePtMin, thePtMax) );
+      hPtPassRec.push_back( bookIt( "recPtPass_" + myLabel, "pt of Reco Muons Matched to L1, label=" + myLabel,  theNbins, thePtMin, thePtMax) );
+      hEtaPassRec.push_back( bookIt( "recEtaPass_All", "#eta of Reco Muons",  50, -2.1, 2.1) );
+      hEtaPassRec.push_back( bookIt( "recEtaPass_" + myLabel, "#eta of Reco Muons Matched to L1, label=" + myLabel,  50, -2.1, 2.1) );
+      hPhiPassRec.push_back( bookIt( "recPhiPass_All", "#phi of Reco Muons",  50, -3.15, 3.15) );
+      hPhiPassRec.push_back( bookIt( "recPhiPass_" + myLabel, "#phi of Reco Muons Matched to L1, label=" + myLabel,  50, -3.15, 3.15) );
     }
 
     for (unsigned int i = 0; i < theHLTCollectionLabels.size(); i++) {
@@ -475,14 +468,14 @@ void HLTMuonGenericRate::BookHistograms()
       myLabel = theHLTCollectionLabels[i].encode().c_str();
       myLabel.Resize( myLabel.Index(":") );
       if (m_useMuonFromGenerator) {
-	hPtPassGen.push_back( BookIt( "genPtPass_" + myLabel, "Highest Gen Muon pt with >= 1 Candidate, label=" + myLabel, theNbins, thePtMin, thePtMax) );   
-	hEtaPassGen.push_back( BookIt( "genEtaPass_" + myLabel, "#eta of Gen Muons Matched to HLT, label=" + myLabel,  50, -2.1, 2.1) );
-	hPhiPassGen.push_back( BookIt( "genPhiPass_" + myLabel, "#phi of Gen Muons Matched to HLT, label=" + myLabel,  50, -3.15, 3.15) );
+	hPtPassGen.push_back( bookIt( "genPtPass_" + myLabel, "Highest Gen Muon pt with >= 1 Candidate, label=" + myLabel, theNbins, thePtMin, thePtMax) );   
+	hEtaPassGen.push_back( bookIt( "genEtaPass_" + myLabel, "#eta of Gen Muons Matched to HLT, label=" + myLabel,  50, -2.1, 2.1) );
+	hPhiPassGen.push_back( bookIt( "genPhiPass_" + myLabel, "#phi of Gen Muons Matched to HLT, label=" + myLabel,  50, -3.15, 3.15) );
       }
       if (m_useMuonFromReco) {
-	hPtPassRec.push_back( BookIt( "recPtPass_" + myLabel, "pt of Reco Muons Matched to HLT, label=" + myLabel, theNbins, thePtMin, thePtMax) );     
-	hEtaPassRec.push_back( BookIt( "recEtaPass_" + myLabel, "#eta of Reco Muons Matched to HLT, label=" + myLabel,  50, -2.1, 2.1) );
-	hPhiPassRec.push_back( BookIt( "recPhiPass_" + myLabel, "#phi of Reco Muons Matched to HLT, label=" + myLabel,  50, -3.15, 3.15) );
+	hPtPassRec.push_back( bookIt( "recPtPass_" + myLabel, "pt of Reco Muons Matched to HLT, label=" + myLabel, theNbins, thePtMin, thePtMax) );     
+	hEtaPassRec.push_back( bookIt( "recEtaPass_" + myLabel, "#eta of Reco Muons Matched to HLT, label=" + myLabel,  50, -2.1, 2.1) );
+	hPhiPassRec.push_back( bookIt( "recPhiPass_" + myLabel, "#phi of Reco Muons Matched to HLT, label=" + myLabel,  50, -3.15, 3.15) );
       }
     }
   }
@@ -490,7 +483,7 @@ void HLTMuonGenericRate::BookHistograms()
 
 
 
-MonitorElement* HLTMuonGenericRate::BookIt( TString name, TString title, 
+MonitorElement* HLTMuonGenericRate::bookIt( TString name, TString title, 
 					    int Nbins, float Min, float Max) 
 {
   LogDebug("HLTMuonVal") << "Directory " << dbe_->pwd() << " Name " << 

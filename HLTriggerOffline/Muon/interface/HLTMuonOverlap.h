@@ -16,20 +16,15 @@
 
 #include <vector>
 
-class TH1F;
+#include "TH1F.h"
 
 class HLTMuonOverlap {
+
 public:
-  /// Constructor
   HLTMuonOverlap(const edm::ParameterSet&);
-
-  /// Destructor
-  virtual ~HLTMuonOverlap();
-
-  // Operations
-
+  void begin  ( );
   void analyze(const edm::Event & event);
-  virtual void getResults() ;
+  void finish ( );
 
 private:
   bool TrigResultsIn;

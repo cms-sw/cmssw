@@ -20,7 +20,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
-/// Constructor
 HLTMuonOverlap::HLTMuonOverlap(const edm::ParameterSet& pset)
 {
   TrigResultsIn=true;
@@ -34,10 +33,14 @@ HLTMuonOverlap::HLTMuonOverlap(const edm::ParameterSet& pset)
   size=0;
 }
 
-/// Destructor
-HLTMuonOverlap::~HLTMuonOverlap(){ return; }
 
-void HLTMuonOverlap::analyze(const edm::Event & event ){
+
+void HLTMuonOverlap::begin() {
+}
+
+
+
+void HLTMuonOverlap::analyze(const edm::Event & event ) {
   using namespace edm;  
 
   if (!TrigResultsIn)return;
@@ -104,7 +107,7 @@ void HLTMuonOverlap::analyze(const edm::Event & event ){
 }
 
 
-void HLTMuonOverlap::getResults()
+void HLTMuonOverlap::finish()
 {
   using namespace edm;
   if (!TrigResultsIn || Nevents == 0 )return;

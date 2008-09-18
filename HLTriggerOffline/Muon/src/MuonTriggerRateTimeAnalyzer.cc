@@ -13,7 +13,7 @@
 //
 // Original Author:  Muriel Vander Donckt
 //         Created:  Tue Jul 24 12:17:12 CEST 2007
-// $Id: MuonTriggerRateTimeAnalyzer.cc,v 1.6 2008/09/16 21:11:46 klukas Exp $
+// $Id: MuonTriggerRateTimeAnalyzer.cc,v 1.7 2008/09/18 18:52:08 klukas Exp $
 //
 //
 
@@ -34,22 +34,22 @@
 #include "HLTriggerOffline/Muon/interface/HLTMuonTime.h"
 #include "TFile.h"
 #include "TDirectory.h"
-//
-// class declaration
-//
+
 
 class MuonTriggerRateTimeAnalyzer : public edm::EDAnalyzer {
-   public:
-      explicit MuonTriggerRateTimeAnalyzer(const edm::ParameterSet&);
-      ~MuonTriggerRateTimeAnalyzer();
-   private:
-      virtual void beginJob(const edm::EventSetup&) ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
-  int NumberOfTriggers;
-  std::vector<HLTMuonGenericRate *> muTriggerAnalyzer;
-  HLTMuonOverlap *OverlapAnalyzer;
-  HLTMuonTime *TimeAnalyzer;
+
+public:
+  explicit MuonTriggerRateTimeAnalyzer(const edm::ParameterSet&);
+  ~MuonTriggerRateTimeAnalyzer();
+
+private:
+  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void endJob() ;
+  int theNumberOfTriggers;
+  std::vector<HLTMuonGenericRate*> theTriggerAnalyzers;
+  HLTMuonOverlap *theOverlapAnalyzer;
+  HLTMuonTime    *theTimeAnalyzer;
       // ----------member data ---------------------------
 };
 
@@ -59,38 +59,35 @@ class MuonTriggerRateTimeAnalyzer : public edm::EDAnalyzer {
 typedef std::vector< edm::ParameterSet > Parameters;
 
 //
-// static data member definitions
-//
-
-//
 // constructors and destructor
 //
+
 MuonTriggerRateTimeAnalyzer::MuonTriggerRateTimeAnalyzer(const edm::ParameterSet& pset)
 {
-   //now do what ever initialization is needed
-  // edm::ParameterSet* SingleMuSet=new edm::ParameterSet(pset);
-    Parameters TriggerLists=pset.getParameter<Parameters>("TriggerCollection");
-    NumberOfTriggers=TriggerLists.size();
-    for( int index=0; index < NumberOfTriggers; index++) {
-      HLTMuonGenericRate *hmg=new HLTMuonGenericRate(pset,index);
-      muTriggerAnalyzer.push_back(hmg);
+    Parameters TriggerLists = pset.getParameter<Parameters>
+                              ("TriggerCollection");
+    theNumberOfTriggers     = TriggerLists.size();
+    for( int i = 0; i < theNumberOfTriggers; i++) {
+      HLTMuonGenericRate *hmg = new HLTMuonGenericRate( pset, i );
+      theTriggerAnalyzers.push_back( hmg );
     }
-    OverlapAnalyzer=new HLTMuonOverlap(pset);    
-    TimeAnalyzer=new HLTMuonTime(pset);    
+    theOverlapAnalyzer = new HLTMuonOverlap(pset);    
+    theTimeAnalyzer    = new HLTMuonTime(pset);    
 }
 
 
 MuonTriggerRateTimeAnalyzer::~MuonTriggerRateTimeAnalyzer()
 {
   using namespace edm;
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-  for (  std::vector<HLTMuonGenericRate *>::iterator iTrig = muTriggerAnalyzer.begin(); iTrig != muTriggerAnalyzer.end(); ++iTrig){
+  std::vector<HLTMuonGenericRate *>::iterator iTrig;
+  for ( iTrig  = theTriggerAnalyzers.begin(); 
+        iTrig != theTriggerAnalyzers.end(); ++iTrig )
+  {
     delete *iTrig;
   } 
-  muTriggerAnalyzer.clear();
-  delete OverlapAnalyzer;
-  delete TimeAnalyzer;
+  theTriggerAnalyzers.clear();
+  delete theOverlapAnalyzer;
+  delete theTimeAnalyzer;
 
 }
 
@@ -99,39 +96,48 @@ MuonTriggerRateTimeAnalyzer::~MuonTriggerRateTimeAnalyzer()
 // member functions
 //
 
-// ------------ method called to for each event  ------------
 void
 MuonTriggerRateTimeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
-   for (  std::vector<HLTMuonGenericRate *>::iterator iTrig = muTriggerAnalyzer.begin(); iTrig != muTriggerAnalyzer.end(); ++iTrig){
+  std::vector<HLTMuonGenericRate *>::iterator iTrig;
+   for ( iTrig  = theTriggerAnalyzers.begin(); 
+	 iTrig != theTriggerAnalyzers.end(); ++iTrig )
+   {
      (*iTrig)->analyze(iEvent);
    } 
-   OverlapAnalyzer->analyze(iEvent);
-   TimeAnalyzer->analyze(iEvent);
+   theTimeAnalyzer   ->analyze(iEvent);
+   theOverlapAnalyzer->analyze(iEvent);
 }
 
 
-// ------------ method called once each job just before starting event loop  ------------
+
 void 
 MuonTriggerRateTimeAnalyzer::beginJob(const edm::EventSetup&)
 {
-
-  for (  std::vector<HLTMuonGenericRate *>::iterator iTrig = muTriggerAnalyzer.begin(); iTrig != muTriggerAnalyzer.end(); ++iTrig){
-    (*iTrig)->BookHistograms();
+  std::vector<HLTMuonGenericRate *>::iterator iTrig;
+  for ( iTrig  = theTriggerAnalyzers.begin(); 
+        iTrig != theTriggerAnalyzers.end(); ++iTrig )
+  {
+    (*iTrig)->begin();
   } 
-  TimeAnalyzer->BookHistograms();
+  theTimeAnalyzer   ->begin();
+  theOverlapAnalyzer->begin();
 }
 
-// ------------ method called once each job just after ending the event loop  ------------
+
+
 void 
 MuonTriggerRateTimeAnalyzer::endJob() {
   using namespace edm;
-  for ( std::vector<HLTMuonGenericRate *>::iterator iTrig = muTriggerAnalyzer.begin(); iTrig != muTriggerAnalyzer.end(); ++iTrig){
-    (*iTrig)->endJob();
-  } 
-  TimeAnalyzer->WriteHistograms();
-  OverlapAnalyzer->getResults();
+  std::vector<HLTMuonGenericRate *>::iterator iTrig;
+  for ( iTrig  = theTriggerAnalyzers.begin(); 
+        iTrig != theTriggerAnalyzers.end(); ++iTrig )
+  {
+    (*iTrig)->finish();
+  }
+  theTimeAnalyzer   ->finish();
+  theOverlapAnalyzer->finish();
 }
 
 //define this as a plug-in

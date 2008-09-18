@@ -38,15 +38,12 @@ public:
   /// Constructor
   HLTMuonGenericRate(const edm::ParameterSet& pset, int triggerIndex);
 
-  /// Destructor
-  virtual ~HLTMuonGenericRate();
-
   // Operations
-  void analyze          ( const edm::Event & iEvent );
-  void endJob           ( );
-  void BookHistograms   ( );
-  MonitorElement* BookIt( TString name, TString title, 
-			  int Nbins, float Min, float Max );
+  void            begin  ( );
+  void            analyze( const edm::Event & iEvent );
+  void            finish ( );
+  MonitorElement* bookIt ( TString name, TString title, 
+			   int Nbins, float Min, float Max );
 
 private:
 

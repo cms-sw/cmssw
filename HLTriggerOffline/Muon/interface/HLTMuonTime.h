@@ -16,29 +16,22 @@
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include <vector>
 
+#include "TH1F.h"
+
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-
-class TH1F;
-
 class HLTMuonTime {
 public:
-  /// Constructor
   HLTMuonTime(const edm::ParameterSet& pset);
 
-  /// Destructor
-  virtual ~HLTMuonTime();
-
-  // Operations
-
+  void begin  ( );
   void analyze(const edm::Event & event);
+  void finish ( );
 
-  void BookHistograms() ;
-  void WriteHistograms() ;
-  void CreateHistograms(std::string type, std::string module) ;
-  void CreateGlobalHistograms(std::string name, std::string title) ;
-
+  void writeHistograms() ;
+  void createHistograms(std::string type, std::string module) ;
+  void createGlobalHistograms(std::string name, std::string title) ;
 
 private:
   DQMStore* dbe;  
@@ -64,11 +57,10 @@ private:
   std::vector <double> ModuleTime;
   std::vector <int> NumberOfModules;
   std::vector <std::string> TDirs;
-  int theNbins;
+  int    theNbins;
   double theTMax;
   edm::InputTag theTimerLabel;
   std::string theRootFileName;
-
   
 };
 #endif

@@ -30,7 +30,7 @@ using namespace std;
 using namespace edm;
 
 
-/// Constructor
+
 HLTMuonTime::HLTMuonTime(const ParameterSet& pset)
 {
   TimerIn=true;
@@ -59,11 +59,14 @@ HLTMuonTime::HLTMuonTime(const ParameterSet& pset)
   
 }
 
-/// Destructor
-HLTMuonTime::~HLTMuonTime(){
+
+
+void HLTMuonTime::finish() {
 }
 
-void HLTMuonTime::BookHistograms(){
+
+
+void HLTMuonTime::begin(){
   LogDebug("HLTMuonVal")<<"directory "<<dbe->pwd();
   dbe->setCurrentFolder("HLT/Muon/Timing");
   LogDebug("HLTMuonVal")<<"directory "<<dbe->pwd();
@@ -71,101 +74,101 @@ void HLTMuonTime::BookHistograms(){
     dbe->setCurrentFolder("HLT/Muon/Timing/UnpackingMuon");
     LogDebug("HLTMuonVal")<<"directory "<<dbe->pwd();
     for ( vector<string>::iterator its=theMuonDigiModules.begin();its!=theMuonDigiModules.end();++its)
-      CreateHistograms("MuonDigis",*its);
+      createHistograms("MuonDigis",*its);
     NumberOfModules.push_back(theMuonDigiModules.size());
     TDirs.push_back("HLT/Muon/Timing/UnpackingMuon");
     dbe->setCurrentFolder("HLT/Muon/Timing");
     LogDebug("HLTMuonVal")<<"directory "<<dbe->pwd();
-    CreateGlobalHistograms("MuonDigiTime","Muon Unpacking Time");
+    createGlobalHistograms("MuonDigiTime","Muon Unpacking Time");
   }
   if (theTrackerDigiModules.size()){
     dbe->setCurrentFolder("HLT/Muon/Timing/UnpackingTracker");
     for ( vector<string>::iterator its=theTrackerDigiModules.begin();its!=theTrackerDigiModules.end();++its)
-      CreateHistograms("TrackerDigis",*its);
+      createHistograms("TrackerDigis",*its);
     NumberOfModules.push_back(theTrackerDigiModules.size());
     TDirs.push_back("HLT/Muon/Timing/UnpackingTracker");
     dbe->setCurrentFolder("HLT/Muon/Timing");
-    CreateGlobalHistograms("TrackerDigiTime", "Tracker Unpacking Time");
+    createGlobalHistograms("TrackerDigiTime", "Tracker Unpacking Time");
   }
   if (theTrackerRecModules.size()){
     dbe->setCurrentFolder("HLT/Muon/Timing/RecoTracker");
     for ( vector<string>::iterator its=theTrackerRecModules.begin();its!=theTrackerRecModules.end();++its)
-      CreateHistograms("TrackerRec",*its);
+      createHistograms("TrackerRec",*its);
     NumberOfModules.push_back(theTrackerRecModules.size());
     TDirs.push_back("HLT/Muon/Timing/RecoTracker");
     dbe->setCurrentFolder("HLT/Muon/Timing");
-    CreateGlobalHistograms("TrackerRecTime", "Tracker Reconstruction Time");
+    createGlobalHistograms("TrackerRecTime", "Tracker Reconstruction Time");
   }
   if (theCaloDigiModules.size()){
     dbe->setCurrentFolder("HLT/Muon/Timing/UnpackingCalo");
     for ( vector<string>::iterator its=theCaloDigiModules.begin();its!=theCaloDigiModules.end();++its)
-      CreateHistograms("CaloDigis",*its);
+      createHistograms("CaloDigis",*its);
     NumberOfModules.push_back(theCaloDigiModules.size());
     TDirs.push_back("HLT/Muon/Timing/UnpackingCalo");
     dbe->setCurrentFolder("HLT/Muon/Timing");
-    CreateGlobalHistograms("CaloDigiTime", "Calo Unpacking Time");
+    createGlobalHistograms("CaloDigiTime", "Calo Unpacking Time");
   }
   if ( theCaloRecModules.size() ) {
     dbe->setCurrentFolder("HLT/Muon/Timing/RecCalo");
     for ( vector<string>::iterator its=theCaloRecModules.begin();its!=theCaloRecModules.end();++its)
-      CreateHistograms("CaloRec",*its);
+      createHistograms("CaloRec",*its);
     TDirs.push_back("HLT/Muon/Timing/RecCalo");
     NumberOfModules.push_back(theCaloRecModules.size());
     dbe->setCurrentFolder("HLT/Muon/Timing");
-    CreateGlobalHistograms("CaloRecTime", "Calo Local Reconstruction Time");
+    createGlobalHistograms("CaloRecTime", "Calo Local Reconstruction Time");
   }
   if (theMuonLocalRecModules.size()){
     dbe->setCurrentFolder("HLT/Muon/Timing/RecLocalMuon");
     for ( vector<string>::iterator its=theMuonLocalRecModules.begin();its!=theMuonLocalRecModules.end();++its)
-      CreateHistograms("MuonLocalRec",*its);
+      createHistograms("MuonLocalRec",*its);
     TDirs.push_back("HLT/Muon/Timing/RecLocalMuon");
     NumberOfModules.push_back(theMuonLocalRecModules.size());
     dbe->setCurrentFolder("HLT/Muon/Timing");
-    CreateGlobalHistograms("MuonLocalRecTime", "Muon Local Reconstruction Time");
+    createGlobalHistograms("MuonLocalRecTime", "Muon Local Reconstruction Time");
   }
   if (  theMuonL2RecModules.size() ){
     dbe->setCurrentFolder("HLT/Muon/Timing/RecL2Muon");
     for ( vector<string>::iterator its=theMuonL2RecModules.begin();its!=theMuonL2RecModules.end();++its)
-      CreateHistograms("MuonL2Rec",*its);
+      createHistograms("MuonL2Rec",*its);
     NumberOfModules.push_back(theMuonL2RecModules.size());
     TDirs.push_back("HLT/Muon/Timing/RecL2Muon");
     dbe->setCurrentFolder("HLT/Muon/Timing");
-    CreateGlobalHistograms("MuonL2RecTime", "Muon L2 Reconstruction Time");
+    createGlobalHistograms("MuonL2RecTime", "Muon L2 Reconstruction Time");
   }
   if ( theMuonL3RecModules.size() ) {
     dbe->setCurrentFolder("HLT/Muon/Timing/RecL3Muon");
     for ( vector<string>::iterator its=theMuonL3RecModules.begin();its!=theMuonL3RecModules.end();++its)
-      CreateHistograms("MuonL3Rec",*its);
+      createHistograms("MuonL3Rec",*its);
     NumberOfModules.push_back(theMuonL3RecModules.size());
     TDirs.push_back("HLT/Muon/Timing/RecL3Muon");
     dbe->setCurrentFolder("HLT/Muon/Timing");
-    CreateGlobalHistograms("MuonL3RecTime", "Muon L3 Reconstruction Time");
+    createGlobalHistograms("MuonL3RecTime", "Muon L3 Reconstruction Time");
   }
   if (theMuonL2IsoModules.size()){
   dbe->setCurrentFolder("HLT/Muon/Timing/RecL2Iso");
   for ( vector<string>::iterator its=theMuonL2IsoModules.begin();its!=theMuonL2IsoModules.end();++its)
-    CreateHistograms("MuonL2Iso",*its);
+    createHistograms("MuonL2Iso",*its);
   NumberOfModules.push_back(theMuonL2IsoModules.size());
   TDirs.push_back("HLT/Muon/Timing/RecL2Iso");
   dbe->setCurrentFolder("HLT/Muon/Timing");
-  CreateGlobalHistograms("MuonL2IsoTime", "Muon L2 Isolation Time");
+  createGlobalHistograms("MuonL2IsoTime", "Muon L2 Isolation Time");
   }
   if(theMuonL3IsoModules.size()){
     dbe->setCurrentFolder("HLT/Muon/Timing/RecL3Iso");
     for ( vector<string>::iterator its=theMuonL3IsoModules.begin();its!=theMuonL3IsoModules.end();++its)
-      CreateHistograms("MuonL3Iso",*its);
+      createHistograms("MuonL3Iso",*its);
     TDirs.push_back("HLT/Muon/Timing/RecL3Iso");
     NumberOfModules.push_back(theMuonL3IsoModules.size());
     dbe->setCurrentFolder("HLT/Muon/Timing");
-    CreateGlobalHistograms("MuonL3IsoTime", "Muon L3 Isolation Time");
+    createGlobalHistograms("MuonL3IsoTime", "Muon L3 Isolation Time");
   }
   dbe->setCurrentFolder("HLT/Muon/Timing");
-  CreateGlobalHistograms("HLTTime", "Global Time Requested Modules");
+  createGlobalHistograms("HLTTime", "Global Time Requested Modules");
   return;
 }
 
 
-void HLTMuonTime::WriteHistograms(){
+void HLTMuonTime::writeHistograms(){
   if (!TimerIn) return;
   unsigned int globalbin=0;
   unsigned int next=NumberOfModules[0];
@@ -251,7 +254,7 @@ void HLTMuonTime::analyze(const Event & event ){
   return;
 }
 
-void HLTMuonTime::CreateHistograms(string Type, string Module)
+void HLTMuonTime::createHistograms(string Type, string Module)
 {
   
   char chname[256];
@@ -277,7 +280,10 @@ void HLTMuonTime::CreateHistograms(string Type, string Module)
   ModuleTime.push_back(0.);
   return;
 }
-void HLTMuonTime::CreateGlobalHistograms(string Name, string Title)
+
+
+
+void HLTMuonTime::createGlobalHistograms(string Name, string Title)
 {
   
   char chname[256];
