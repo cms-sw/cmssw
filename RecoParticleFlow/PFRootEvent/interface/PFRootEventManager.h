@@ -637,8 +637,10 @@ class PFRootEventManager {
   /// Fastsim or fullsim
   bool  fastsim_;
 
-  ///
+  /// Use of nuclear interaction in PFAlgo
   bool   useNuclear_;
+
+  /// Use of conversions in PFAlgo 
   bool   useConversions_;  
 
   // MC Truth tools              ---------------------------------------
