@@ -83,13 +83,13 @@ L1TDEMON::beginJob(const edm::EventSetup&) {
     //const double amax=tpi+0.5;
 
     //                           ETP,  HTP,  RCT, GCT, DTP, DTF,  CTP, CTF, RPC,LTC, GMT,GLT
-    int    phiNBins[DEnsys] = { 71  , 71  , 18  ,18  ,  12, 255,   12, 255, 255,  0, 255,0};
-    double phiMinim[DEnsys] = {  0.5,  0.5,- 0.5,-0.5,-0.5,   0, -0.5,   0,   0,  0,   0,0};
-    double phiMaxim[DEnsys] = { 71.5, 71.5, 17.5,17.5,11.5, 255, 11.5, 255, 255,  0, 255,0};
+    int    phiNBins[DEnsys] = { 71  , 71  , 18  ,18  ,  12, 255,  160, 255, 255,  0, 255,0};
+    double phiMinim[DEnsys] = {  0.5,  0.5, -0.5,-0.5,-0.5,   0, -0.5,   0,   0,  0,   0,0};
+    double phiMaxim[DEnsys] = { 71.5, 71.5, 17.5,17.5,11.5, 255,159.5, 255, 255,  0, 255,0};
 				     	       	      		    
-    int    etaNBins[DEnsys] = { 35  , 35  , 22  ,22  ,   5,  20,    4,  20,  20,  0, 20,0};
-    double etaMinim[DEnsys] = {-17.5,-17.5,- 0.5,-0.5,-2.5,   0, -0.5,   0,   0,  0,  0,0};
-    double etaMaxim[DEnsys] = { 17.5, 17.5, 21.5,21.5, 2.5,  63,  3.5,  63,  63,  0, 63,0};
+    int    etaNBins[DEnsys] = { 35  , 35  , 22  ,22  ,   5,  20,  120,  20,  20,  0, 20,0};
+    double etaMinim[DEnsys] = {-17.5,-17.5, -0.5,-0.5,-2.5,   0, -0.5,   0,   0,  0,  0,0};
+    double etaMaxim[DEnsys] = { 17.5, 17.5, 21.5,21.5, 2.5,  63,119.5,  63,  63,  0, 63,0};
 					       	   
     int    x3NBins [DEnsys] = {    0,    0,    0,   0,   4,   0,    0,   0,   0,  0,   0,0};
     double x3Minim [DEnsys] = {    0,    0,    0,   0, 0.5,   0,    0,   0,   0,  0,   0,0};
@@ -100,7 +100,7 @@ L1TDEMON::beginJob(const edm::EventSetup&) {
     double rnkMaxim[DEnsys] = {    0,    0,    0,   0,   0,   0,    0,   0,   0,  0,   0,0};
     //assume for 
     for(int i=0; i<DEnsys; i++) {rnkNBins[i]=63;rnkMinim[i]=0.5;rnkMaxim[i]=63.5;}//rank 0x3f->63
-    rnkNBins[DTP]=7;rnkMinim[DTP]=-0.5;rnkMaxim[DTP]=6.5; //rank 0-6
+    rnkNBins[DTP]=7; rnkMinim[DTP]=-0.5;rnkMaxim[DTP]=6.5;  //rank 0-6
     rnkNBins[CTP]=16;rnkMinim[CTP]=-0.5;rnkMaxim[CTP]=15.5; //quality 0-15
 
     /*--notes 
