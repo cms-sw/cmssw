@@ -3,8 +3,8 @@
  *  Makes histograms of high level Muon objects/quantities
  *  for Alignment Scenarios/DB comparison
  *
- *  $Date: 2008/09/09 08:56:47 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/09/17 14:52:17 $
+ *  $Revision: 1.6 $
  *  \author J. Fernandez - Univ. Oviedo <Javier.Fernandez@cern.ch>
  */
 
@@ -594,22 +594,22 @@ void MuonAlignmentAnalyzer::beginJob(const EventSetup& eventSetup){
         hResidualGlobalRCSC_ME[17] = fs->make<TH1F>("hResidualGlobalRCSC_ME4/2","hResidualGlobalRCSC_ME4/2",200,-10,10);
 
         //DQM plots: mean residual with RMS as error
-        hprofLocalXDT=fs->make<TH1F>("hprofLocalXDT","Local X DT", 280,0, 280);
-        hprofLocalPhiDT=fs->make<TH1F>("hprofLocalPhiDT","Local Phi DT", 280,0, 280);
-        hprofLocalThetaDT=fs->make<TH1F>("hprofLocalThetaDT","Local Theta DT", 280,0, 280);
-        hprofLocalYDT=fs->make<TH1F>("hprofLocalYDT","Local Y DT", 280,0, 280);
-        hprofLocalXCSC=fs->make<TH1F>("hprofLocalXCSC","Local X CSC", 540,0, 540);
-        hprofLocalPhiCSC=fs->make<TH1F>("hprofLocalPhiCSC","Local Phi CSC", 540,0, 540);
-        hprofLocalThetaCSC=fs->make<TH1F>("hprofLocalThetaCSC","Local Theta CSC", 540,0, 540);
-        hprofLocalYCSC=fs->make<TH1F>("hprofLocalYCSC","Local Y CSC", 540,0, 540);
-        hprofGlobalRPhiDT=fs->make<TH1F>("hprofGlobalRPhiDT","Global RPhi DT", 280,0, 280);
-        hprofGlobalPhiDT=fs->make<TH1F>("hprofGlobalPhiDT","Global Phi DT", 280,0, 280);
-        hprofGlobalThetaDT=fs->make<TH1F>("hprofGlobalThetaDT","Global Theta DT", 280,0, 280);
-        hprofGlobalZDT=fs->make<TH1F>("hprofGlobalZDT","Global Z DT", 280,0, 280);
-        hprofGlobalRPhiCSC=fs->make<TH1F>("hprofGlobalRPhiCSC","Global RPhi CSC", 540,0, 540);
-        hprofGlobalPhiCSC=fs->make<TH1F>("hprofGlobalPhiCSC","Global Phi CSC", 540,0, 540);
-        hprofGlobalThetaCSC=fs->make<TH1F>("hprofGlobalThetaCSC","Global Theta CSC", 540,0, 540);
-        hprofGlobalRCSC=fs->make<TH1F>("hprofGlobalRCSC","Global R CSC", 540,0, 540);
+        hprofLocalXDT=fs->make<TH1F>("hprofLocalXDT","Local X DT;;X (cm)", 280,0, 280);
+        hprofLocalPhiDT=fs->make<TH1F>("hprofLocalPhiDT","Local Phi DT;;Phi (rad)", 280,0, 280);
+        hprofLocalThetaDT=fs->make<TH1F>("hprofLocalThetaDT","Local Theta DT;;Theta (rad)", 280,0, 280);
+        hprofLocalYDT=fs->make<TH1F>("hprofLocalYDT","Local Y DT;;Y (cm)", 280,0, 280);
+        hprofLocalXCSC=fs->make<TH1F>("hprofLocalXCSC","Local X CSC;;X (cm)", 540,0, 540);
+        hprofLocalPhiCSC=fs->make<TH1F>("hprofLocalPhiCSC","Local Phi CSC;;Phi (rad)", 540,0, 540);
+        hprofLocalThetaCSC=fs->make<TH1F>("hprofLocalThetaCSC","Local Theta CSC;;Theta (rad)", 540,0, 540);
+        hprofLocalYCSC=fs->make<TH1F>("hprofLocalYCSC","Local Y CSC;;Y (cm)", 540,0, 540);
+        hprofGlobalRPhiDT=fs->make<TH1F>("hprofGlobalRPhiDT","Global RPhi DT;;RPhi (cm)", 280,0, 280);
+        hprofGlobalPhiDT=fs->make<TH1F>("hprofGlobalPhiDT","Global Phi DT;;Phi (rad)", 280,0, 280);
+        hprofGlobalThetaDT=fs->make<TH1F>("hprofGlobalThetaDT","Global Theta DT;;Theta (rad)", 280,0, 280);
+        hprofGlobalZDT=fs->make<TH1F>("hprofGlobalZDT","Global Z DT;;Z (cm)", 280,0, 280);
+        hprofGlobalRPhiCSC=fs->make<TH1F>("hprofGlobalRPhiCSC","Global RPhi CSC;;RPhi (cm)", 540,0, 540);
+        hprofGlobalPhiCSC=fs->make<TH1F>("hprofGlobalPhiCSC","Global Phi CSC;;Phi (cm)", 540,0, 540);
+        hprofGlobalThetaCSC=fs->make<TH1F>("hprofGlobalThetaCSC","Global Theta CSC;;Theta (rad)", 540,0, 540);
+        hprofGlobalRCSC=fs->make<TH1F>("hprofGlobalRCSC","Global R CSC;;R (cm)", 540,0, 540);
 
         // TH1F options
         hprofLocalXDT->GetXaxis()->SetLabelSize(0.025);
@@ -756,7 +756,6 @@ void MuonAlignmentAnalyzer::endJob(){
 
                 sprintf(binLabel, "MB%d/%dS%d", wheel, station, sector );
 
-                hprofLocalXDT->GetYaxis()->SetTitle("X (cm)");
                 hprofLocalXDT->SetMarkerStyle(21);
                 hprofLocalXDT->SetMarkerColor(kRed);
                 hprofLocalXDT->SetBinContent(xbin,MeanRPhi);
@@ -795,7 +794,6 @@ void MuonAlignmentAnalyzer::endJob(){
 
                 sprintf(binLabel, "ME%d/%dC%d", station, ring, chamber );
 
-                hprofLocalXCSC->GetYaxis()->SetTitle("X (cm)");
                 hprofLocalXCSC->SetMarkerStyle(21);
                 hprofLocalXCSC->SetMarkerColor(kRed);
                 hprofLocalXCSC->SetBinContent(xbin,MeanRPhi);
@@ -832,7 +830,6 @@ void MuonAlignmentAnalyzer::endJob(){
 
                     sprintf(binLabel, "MB%d/%dS%d", wheel, station, sector );
 
-                    hprofLocalThetaDT->GetYaxis()->SetTitle("Theta (rad)");
                     hprofLocalThetaDT->SetBinContent(xbin,MeanTheta);
                     hprofLocalThetaDT->SetBinError(xbin, ErrorTheta);
                     hprofLocalThetaDT->SetMarkerStyle(21);
@@ -866,7 +863,6 @@ void MuonAlignmentAnalyzer::endJob(){
 
                 sprintf(binLabel, "MB%d/%dS%d", wheel, station, sector );
 
-                hprofLocalPhiDT->GetYaxis()->SetTitle("Phi (rad)");
                 hprofLocalPhiDT->SetBinContent(xbin,MeanPhi);
                 hprofLocalPhiDT->SetBinError(xbin, ErrorPhi);
                 hprofLocalPhiDT->SetMarkerStyle(21);
@@ -905,7 +901,6 @@ void MuonAlignmentAnalyzer::endJob(){
 
                 sprintf(binLabel, "ME%d/%dC%d", station, ring, chamber );
 
-                hprofLocalPhiCSC->GetYaxis()->SetTitle("Phi (rad)");
                 hprofLocalPhiCSC->SetMarkerStyle(21);
                 hprofLocalPhiCSC->SetMarkerColor(kRed);
                 hprofLocalPhiCSC->SetBinContent(xbin,MeanPhi);
@@ -948,7 +943,6 @@ void MuonAlignmentAnalyzer::endJob(){
 
                 sprintf(binLabel, "ME%d/%dC%d", station, ring, chamber );
 
-                hprofLocalThetaCSC->GetYaxis()->SetTitle("Theta (rad)");
                 hprofLocalThetaCSC->SetMarkerStyle(21);
                 hprofLocalThetaCSC->SetMarkerColor(kRed);
                 hprofLocalThetaCSC->SetBinContent(xbin,MeanTheta);
@@ -985,7 +979,6 @@ void MuonAlignmentAnalyzer::endJob(){
 
                     sprintf(binLabel, "MB%d/%dS%d", wheel, station, sector );
 
-                    hprofLocalYDT->GetYaxis()->SetTitle("Y (cm)");
                     hprofLocalYDT->SetMarkerStyle(21);
                     hprofLocalYDT->SetMarkerColor(kRed);
                     hprofLocalYDT->SetBinContent(xbin,MeanZ);
@@ -1025,7 +1018,6 @@ void MuonAlignmentAnalyzer::endJob(){
 
                 sprintf(binLabel, "ME%d/%dC%d", station, ring, chamber );
 
-                hprofLocalYCSC->GetYaxis()->SetTitle("Y (cm)");
                 hprofLocalYCSC->SetMarkerStyle(21);
                 hprofLocalYCSC->SetMarkerColor(kRed);
                 hprofLocalYCSC->SetBinContent(xbin,MeanR);
@@ -1060,7 +1052,6 @@ void MuonAlignmentAnalyzer::endJob(){
 
                 sprintf(binLabel, "MB%d/%dS%d", wheel, station, sector );
 
-                hprofGlobalRPhiDT->GetYaxis()->SetTitle("RPhi (cm)");
                 hprofGlobalRPhiDT->SetMarkerStyle(21);
                 hprofGlobalRPhiDT->SetMarkerColor(kRed);
                 hprofGlobalRPhiDT->SetBinContent(xbin,MeanRPhi);
@@ -1099,7 +1090,6 @@ void MuonAlignmentAnalyzer::endJob(){
 
                 sprintf(binLabel, "ME%d/%dC%d", station, ring, chamber );
 
-                hprofGlobalRPhiCSC->GetYaxis()->SetTitle("RPhi (cm)");
                 hprofGlobalRPhiCSC->SetMarkerStyle(21);
                 hprofGlobalRPhiCSC->SetMarkerColor(kRed);
                 hprofGlobalRPhiCSC->SetBinContent(xbin,MeanRPhi);
@@ -1136,7 +1126,6 @@ void MuonAlignmentAnalyzer::endJob(){
 
                     sprintf(binLabel, "MB%d/%dS%d", wheel, station, sector );
 
-                    hprofGlobalThetaDT->GetYaxis()->SetTitle("Theta (rad)");
                     hprofGlobalThetaDT->SetBinContent(xbin,MeanTheta);
                     hprofGlobalThetaDT->SetBinError(xbin, ErrorTheta);
                     hprofGlobalThetaDT->SetMarkerStyle(21);
@@ -1169,7 +1158,6 @@ void MuonAlignmentAnalyzer::endJob(){
 
                 sprintf(binLabel, "MB%d/%dS%d", wheel, station, sector );
 
-                hprofGlobalPhiDT->GetYaxis()->SetTitle("Phi (rad)");
                 hprofGlobalPhiDT->SetBinContent(xbin,MeanPhi);
                 hprofGlobalPhiDT->SetBinError(xbin, ErrorPhi);
                 hprofGlobalPhiDT->SetMarkerStyle(21);
@@ -1208,7 +1196,6 @@ void MuonAlignmentAnalyzer::endJob(){
 
                 sprintf(binLabel, "ME%d/%dC%d", station, ring, chamber );
 
-                hprofGlobalPhiCSC->GetYaxis()->SetTitle("Phi (rad)");
                 hprofGlobalPhiCSC->SetMarkerStyle(21);
                 hprofGlobalPhiCSC->SetMarkerColor(kRed);
                 hprofGlobalPhiCSC->SetBinContent(xbin,MeanPhi);
@@ -1251,7 +1238,6 @@ void MuonAlignmentAnalyzer::endJob(){
 
                 sprintf(binLabel, "ME%d/%dC%d", station, ring, chamber );
 
-                hprofGlobalThetaCSC->GetYaxis()->SetTitle("Theta (rad)");
                 hprofGlobalThetaCSC->SetMarkerStyle(21);
                 hprofGlobalThetaCSC->SetMarkerColor(kRed);
                 hprofGlobalThetaCSC->SetBinContent(xbin,MeanTheta);
@@ -1288,7 +1274,6 @@ void MuonAlignmentAnalyzer::endJob(){
 
                     sprintf(binLabel, "MB%d/%dS%d", wheel, station, sector );
 
-                    hprofGlobalZDT->GetYaxis()->SetTitle("Z (cm)");
                     hprofGlobalZDT->SetMarkerStyle(21);
                     hprofGlobalZDT->SetMarkerColor(kRed);
 
@@ -1329,7 +1314,6 @@ void MuonAlignmentAnalyzer::endJob(){
 
                 sprintf(binLabel, "ME%d/%dC%d", station, ring, chamber );
 
-                hprofGlobalRCSC->GetYaxis()->SetTitle("R (cm)");
                 hprofGlobalRCSC->SetMarkerStyle(21);
                 hprofGlobalRCSC->SetMarkerColor(kRed);
                 hprofGlobalRCSC->SetBinContent(xbin,MeanR);
