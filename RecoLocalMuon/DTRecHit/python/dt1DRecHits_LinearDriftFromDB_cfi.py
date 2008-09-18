@@ -9,7 +9,7 @@ dt1DRecHits = cms.EDProducer("DTRecHitProducer",
     DTLinearDriftFromDBAlgo,
     debug = cms.untracked.bool(True),
     # The label to retrieve digis from the event
-    dtDigiLabel = cms.InputTag("muonDTDigis")
+    dtDigiLabel = cms.InputTag("simMuonDTDigis")
 )
 
 
