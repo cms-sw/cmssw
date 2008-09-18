@@ -576,6 +576,22 @@ void PFRootEventManager::readOptions(const char* file,
     exit(1);
   }
 
+
+  bool usePFConversions = false;   // set true to use PFConversions
+  options_->GetOpt("particle_flow", "usePFConversions", usePFConversions);
+
+  try { 
+    std::cout << " Setting conversions " << std::endl;
+    pfAlgo_.setPFConversionParameters(usePFConversions);
+  }
+  catch( std::exception& err ) {
+    cerr<<"exception setting PFAlgo Conversions parameters: "
+        <<err.what()<<". terminating."<<endl;
+    exit(1);
+  }
+
+
+
   int    algo = 2;
   options_->GetOpt("particle_flow", "algorithm", algo);
 
