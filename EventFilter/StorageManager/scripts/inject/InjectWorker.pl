@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: InjectWorker.pl,v 1.26 2008/09/15 21:47:52 loizides Exp $
+# $Id: InjectWorker.pl,v 1.27 2008/09/16 14:08:44 loizides Exp $
 
 use strict;
 use DBI;
@@ -268,7 +268,7 @@ $SIG{TERM} = \&TERMINATE;
 my $mycall = abs_path($0);
 
 # check arguments
-if (!defined $ARGV[2]) {
+if (!defined $ARGV[3]) {
     printsyntax();
 }
 
@@ -278,10 +278,10 @@ my $fileflag=0;
 my $sminstance;
 if (-d $ARGV[0]) {
     $inpath="$ARGV[0]";
-    if (!defined $ARGV[3]) {
+    if (!defined $ARGV[4]) {
         printsyntax();
     }
-    $sminstance=$ARGV[3];
+    $sminstance=$ARGV[4];
 } elsif (-e $ARGV[0] ) {
     $infile="$ARGV[0]";
     $fileflag=1;
@@ -297,6 +297,20 @@ my $errpath="$ARGV[2]";
 if (!-d $errpath) {
     mydie("Error: Specified output path \"$errpath\" does not exist","");
 }
+my $config="$ARGV[3]";
+if (!-e $config) {
+    mydie("Error: Specified config file \"$config\" does not exist","");
+}
+
+my $reader = "xxx";
+my $phrase = "xxx";
+if(-e $config) {
+    eval `cat $config`;
+} else {
+    mydie("Error: Can not read config file \"$config\" does not exist","");
+    usageShort();
+}
+
 
 my $errfile;
 my $outfile;
@@ -398,7 +412,6 @@ my $injectHandle; #for injections
 my $SQLn;
 my $SQLi;
 my $dbi    = "DBI:Oracle:cms_rcms";
-my $reader = "CMS_STOMGR_W";
 my $dbhlt;        #my DB handle for HLT key
 my $dbihlt = "DBI:Oracle:cms_omds_lb";
 my $hltHandle;    #for HLT key queries
@@ -411,7 +424,7 @@ if (!defined $ENV{'SM_DONTACCESSDB'}) {
     my $retry = 0;
     while (!$retry) {
         $retry=1;
-        $dbh = DBI->connect($dbi,$reader,"qwerty") or $retry=0;
+        $dbh = DBI->connect($dbi,$reader,$phrase) or $retry=0;
         if ($retry == 0) {
             print("Error: Connection to Oracle failed: $DBI::errstr\n",$lockfile);
             sleep(10);
@@ -439,7 +452,7 @@ if (!defined $ENV{'SM_DONTACCESSDB'}) {
     $retry = 0;
     while (!$retry) {
         $retry=1;
-        $dbhlt = DBI->connect($dbihlt,$reader,"qwerty") or $retry=0;
+        $dbhlt = DBI->connect($dbihlt,$reader,$phrase) or $retry=0;
         if ($retry == 0) {
             print("Error: Connection to Oracle failed: $DBI::errstr\n",$lockfile);
             sleep(10);
@@ -589,7 +602,7 @@ while(!$endflag) {
         my $retry = 0;
         while (!$retry) {
             $retry=1;
-            $dbh = DBI->connect($dbi,$reader,"qwerty") or $retry=0;
+            $dbh = DBI->connect($dbi,$reader,$phrase) or $retry=0;
             if ($retry == 0) {
                 print("Error: Re-Connection to Oracle failed: $DBI::errstr\n",$lockfile);
                 sleep(10);
@@ -603,7 +616,7 @@ while(!$endflag) {
         my $retry = 0;
         while (!$retry) {
             $retry=1;
-            $dbhlt = DBI->connect($dbihlt,$reader,"qwerty") or $retry=0;
+            $dbhlt = DBI->connect($dbihlt,$reader,$phrase) or $retry=0;
             if ($retry == 0) {
                 print("Error: Re-Connection to Oracle failed: $DBI::errstr\n",$lockfile);
                 sleep(10);

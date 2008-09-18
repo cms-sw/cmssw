@@ -1,5 +1,5 @@
 #!/bin/sh
-#$Id: t0inject.sh,v 1.9 2008/06/12 13:56:05 loizides Exp $
+#$Id: t0inject.sh,v 1.10 2008/09/15 21:46:06 loizides Exp $
 
 . /etc/init.d/functions
 
@@ -23,6 +23,9 @@ if [ ! -d $SMT0_MONDIR ]; then
     echo "SMT0_MONDIR does not exist or is no directory"
     exit
 fi
+
+# db config file
+export SMT0_CONFIG=/nfshome0/smpro/configuration/db.conf
 
 #local run dir
 export SMT0_LOCAL_RUN_DIR=/nfshome0/smpro/t0inject
@@ -51,7 +54,7 @@ start(){
         export SMIW_RUNNUM=$inst
         echo "Starting $SMT0_IW instance $inst"
         nohup ${SMT0_IW} ${SMT0_MONDIR} ${SMT0_LOCAL_RUN_DIR}/done \
-            ${SMT0_LOCAL_RUN_DIR}/logs $inst > `hostname`.$$ 2>&1 &
+            ${SMT0_LOCAL_RUN_DIR}/logs ${SMT0_CONFIG} $inst > `hostname`.$$ 2>&1 &
         sleep 1
     done
     echo
@@ -63,13 +66,13 @@ stop(){
 	kill -s 15 $pid
     done
     rm -f ${SMT0_LOCAL_RUN_DIR}/workdir/`hostname`.*
+    ls /tmp/.2*-`hostname`-*.log.lock 2>/dev/null
 }
 
 status(){
     for pid in `ps ax | grep ${SMT0_IW} | grep -v grep | cut -b1-6 | tr -d " "`; do
 	echo `/bin/ps $pid | grep $pid`
     done
-    ls /tmp/.2*-`hostname`-*.log.lock 2>/dev/null
 }
 
 cleanup(){
