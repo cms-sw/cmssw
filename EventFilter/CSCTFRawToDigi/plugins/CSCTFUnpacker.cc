@@ -165,7 +165,7 @@ void CSCTFUnpacker::produce(edm::Event& e, const edm::EventSetup& c){
 										(swapME1strips && cscid<=3 && station==1 && endcap==2 && lct[0].strip()<65 ? 65 - lct[0].strip() : lct[0].strip() ),
 										lct[0].pattern(),lct[0].l_r(),
 										(lct[0].tbin()+(central_lct_bx-central_sp_bx)),
-										lct[0].link(), 0, 0, cscid )
+										lct[0].link(), lct[0].BXN(), 0, cscid )
 									);
 
 // LogDebug("CSCUnpacker|produce") << "Unpacked digi: "<< aFB.frontDigiData(FPGA,MPClink);
@@ -225,7 +225,7 @@ void CSCTFUnpacker::produce(edm::Event& e, const edm::EventSetup& c){
 										(swapME1strips && lct->csc()<=3 && station==1 && track.first.m_endcap==2 && lct[0].strip()<65 ? 65 - lct[0].strip() : lct[0].strip() ),
 										lct->pattern(),lct->l_r(),
 										(lct->tbin()+(central_lct_bx-central_sp_bx)),
-										lct->link(), 0, 0, lct->csc() )
+										lct->link(), lct->BXN(), 0, lct->csc() )
 									);
 							} catch(cms::Exception &e) {
 								edm::LogInfo("CSCTFUnpacker|produce") << e.what() << "Not adding track digi to collection in event"
