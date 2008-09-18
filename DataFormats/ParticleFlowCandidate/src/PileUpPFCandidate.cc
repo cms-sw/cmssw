@@ -6,8 +6,9 @@ using namespace reco;
 PileUpPFCandidate::PileUpPFCandidate() : PFCandidate() {}
 
 
-PileUpPFCandidate::PileUpPFCandidate( const PFCandidatePtr & candidatePtr ) : 
-  PFCandidate(candidatePtr) {
+PileUpPFCandidate::PileUpPFCandidate( const PFCandidatePtr & candidatePtr,
+				      const VertexRef& vertexRef ) : 
+  PFCandidate(candidatePtr), vertexRef_(vertexRef) {
 }
 
 PileUpPFCandidate * PileUpPFCandidate::clone() const {
