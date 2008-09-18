@@ -654,6 +654,17 @@ def step_cmp(x,y):
 # Create HTML pages for candles
 
 def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,date,prevrev):
+    def _stripbase(base, astr):
+        basereg = re.compile("^%s(.*)" % base)
+        out = astr
+        found = basereg.search(astr)
+        if found:
+            out = found.groups()[0]
+        if len(out) > 0:
+            if out[0] == "/":
+                out = out[1:]
+        return out
+    
     def _getProfileReportLink(repdir,CurrentCandle,CurDir,step,CurrentProfile,Profiler):
 
         ProfileTemplate=os.path.join(repdir, "%s_%s" % (CurrentCandle,CurDir), "*_%s_%s*" % (step,CurrentProfile),Profiler)
@@ -669,6 +680,7 @@ def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDat
             #ProfileReportLink=getcmd("ls %s 2>/dev/null" % ProfileTemplateLowCaps)
         else:
             ProfileReportLink = glob.glob(ProfileTemplateLowCaps)
+        ProfileReportLink = map(lambda x: _stripbase(repdir,x),ProfileReportLink)
         return ProfileReportLink
 
     def _writeReportLink(INDEX,ProfileReportLink,CurrentProfile,step,NumOfEvents,Profiler=""):
