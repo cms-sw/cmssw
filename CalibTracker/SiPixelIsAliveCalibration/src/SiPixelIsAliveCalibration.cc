@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Mon Dec  3 14:07:42 CET 2007
-// $Id: SiPixelIsAliveCalibration.cc,v 1.19 2008/04/15 19:10:10 krose Exp $
+// $Id: SiPixelIsAliveCalibration.cc,v 1.20 2008/04/17 11:47:05 fblekman Exp $
 //
 //
 
@@ -94,7 +94,11 @@ SiPixelIsAliveCalibration::newDetID(uint32_t detid){
   setDQMDirectory(detid);
   std::string tempname=translateDetIdToString(detid);
   bookkeeper_[detid]= bookDQMHistoPlaquetteSummary2D(detid,"pixelAlive","pixel alive for "+tempname); 
-  summaries_[detid]= bookDQMHistogram1D(detid,"pixelAliveSummary",bookkeeper_[detid]->getTitle(),calib_->getNTriggers()+1,0.,1+(1./(float)calib_->getNTriggers()));
+  int xpix = bookkeeper_[detid]->getNbinsX();
+  int ypix = bookkeeper_[detid]->getNbinsY();
+  int tpix = xpix*ypix;
+  summaries_[detid]= bookDQMHistogram1D(detid,"pixelAliveSummary",bookkeeper_[detid]->getTitle(),calib_->getNTriggers()+1,-.05,.95+(1./(float)calib_->getNTriggers()));
+  summaries_[detid]->setBinContent(1, tpix);
 }
 bool
 SiPixelIsAliveCalibration::checkCorrectCalibrationType(){
@@ -136,6 +140,8 @@ SiPixelIsAliveCalibration::doFits(uint32_t detid, std::vector<SiPixelCalibDigi>:
   if(bookkeeper_[detid]->getBinContent(ipix->col()+1,ipix->row()+1)==0){
     bookkeeper_[detid]->Fill(ipix->col(), ipix->row(), eff);
     summaries_[detid]->Fill(eff);
+    float zerobin = summaries_[detid]->getBinContent(1);
+    summaries_[detid]->setBinContent(1, zerobin-1);
   }
   else
     bookkeeper_[detid]->setBinContent(ipix->col()+1,ipix->row()+1,-2);
