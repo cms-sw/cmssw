@@ -5,8 +5,8 @@
  *
  *  base class for all DQM monitor sources
  *
- *  $Date: 2008/04/30 02:14:43 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/08/26 19:17:30 $
+ *  $Revision: 1.2 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -22,6 +22,12 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
+//
+#include "DataFormats/HLTReco/interface/TriggerObject.h"
+#include "FWCore/Framework/interface/TriggerNames.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
+#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 
 class CaloMETAnalyzerBase {
  public:
@@ -36,8 +42,9 @@ class CaloMETAnalyzerBase {
   virtual void beginJob(edm::EventSetup const& iSetup,  DQMStore* dbe)= 0;
 
   /// Get the analysis of the muon properties
-  void analyze(const edm::Event&, const edm::EventSetup&, 
-	       reco::CaloMET& caloMET, reco::CaloMET& caloMETNoHF){}
+    void analyze(const edm::Event&, const edm::EventSetup&, 
+		 const edm::TriggerResults&,
+                 reco::CaloMET& caloMET, reco::CaloMET& caloMETNoHF){}
 
  private:
   // ----------member data ---------------------------
