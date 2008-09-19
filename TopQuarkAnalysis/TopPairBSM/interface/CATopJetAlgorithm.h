@@ -34,6 +34,8 @@
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "FWCore/Framework/interface/Event.h"
 
+#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
+
 #include <fastjet/JetDefinition.hh>
 #include <fastjet/PseudoJet.hh>
 #include <fastjet/ClusterSequence.hh>
@@ -49,22 +51,26 @@ class CATopJetAlgorithm{
 		    double centralEtaCut,            
 		    double sumEtEtaCut,              
 		    double ptMin,                    
-		    double etFrac,                   
+		    double etFrac,            
+		    bool   useAdjacency,
+		    bool   useMaxTower,
 		    const std::vector<double> & ptBins,      
 		    const std::vector<double> & rBins,       
 		    const std::vector<double> & ptFracBins,  
 		    const std::vector<int> & nCellBins) :
-    mSrc_         (mSrc         ),
-    algorithm_    (algorithm    ),
-    seedThreshold_(seedThreshold), 
-    centralEtaCut_(centralEtaCut), 
-    sumEtEtaCut_  (sumEtEtaCut  ),   
-    ptMin_        (ptMin        ),         
-    etFrac_       (etFrac       ),        
-    ptBins_       (ptBins       ),        
-    rBins_        (rBins        ),         
-    ptFracBins_   (ptFracBins   ),    
-    nCellBins_    (nCellBins    )
+    mSrc_          (mSrc          ),
+    algorithm_     (algorithm     ),
+    seedThreshold_ (seedThreshold ), 
+    centralEtaCut_ (centralEtaCut ), 
+    sumEtEtaCut_   (sumEtEtaCut   ),   
+    ptMin_         (ptMin         ),         
+    etFrac_        (etFrac        ),
+    useAdjacency_  (useAdjacency  ),
+    useMaxTower_   (useMaxTower   ),
+    ptBins_        (ptBins        ),        
+    rBins_         (rBins         ),         
+    ptFracBins_    (ptFracBins    ),    
+    nCellBins_     (nCellBins     )
       { }
 
     /// Find the ProtoJets from the collection of input Candidates.
@@ -78,7 +84,9 @@ class CATopJetAlgorithm{
   double              centralEtaCut_; //<! eta for defining "central" jets                                     
   double              sumEtEtaCut_;   //<! eta for event SumEt                                                 
   double              ptMin_;	      //<! lower pt cut on which jets to reco                                  
-  double              etFrac_;	      //<! fraction of event sumEt / 2 for a jet to be considered "hard"       
+  double              etFrac_;	      //<! fraction of event sumEt / 2 for a jet to be considered "hard"  
+  bool                useAdjacency_;  //<! veto adjacent subjets
+  bool                useMaxTower_;   //<! use max tower for jet adjacency criterion, false is to use the centroid
   std::vector<double> ptBins_;	      //<! pt bins over which cuts vary                                        
   std::vector<double> rBins_;	      //<! cone size bins                                                      
   std::vector<double> ptFracBins_;    //<! fraction of full jet pt for a subjet to be consider "hard"          
@@ -88,14 +96,40 @@ class CATopJetAlgorithm{
   // Decide if the two jets are in adjacent cells
   bool adjacentCells(const fastjet::PseudoJet & jet1, const fastjet::PseudoJet & jet2, 
 		     const CaloTowerCollection & fInput,
+		     const CaloSubdetectorGeometry  * fTowerGeometry,
+		     const fastjet::ClusterSequence & theClusterSequence,
 		     int nCellMin) const;
   
+  // Get maximum pt tower
+  fastjet::PseudoJet getMaxTower( const fastjet::PseudoJet & jet,
+				  const CaloTowerCollection & fInput,
+				  const fastjet::ClusterSequence & theClusterSequence
+				  ) const;
+
+
+  // Find the calo tower associated with the jet
+   CaloTowerDetId getCaloTower( const fastjet::PseudoJet & jet,
+				const CaloTowerCollection & fInput,
+				const CaloSubdetectorGeometry  * fTowerGeometry,
+				const fastjet::ClusterSequence & theClusterSequence ) const;
+
+  // Get number of calo towers away that the two calo towers are
+  int getDistance ( CaloTowerDetId const & t1, CaloTowerDetId const & t2, 
+		    const CaloSubdetectorGeometry  * fTowerGeometry ) const;
+    
   // Attempt to break up one "hard" jet into two "soft" jets
   bool decomposeJet(const fastjet::PseudoJet & theJet, const fastjet::ClusterSequence & theClusterSequence, 
 		    const CaloTowerCollection & fInput, 
+		    const CaloSubdetectorGeometry  * fTowerGeometry,
 		    double ptHard,  int nCellMin, 
 		    fastjet::PseudoJet & ja, fastjet::PseudoJet & jb, 
 		    std::vector<fastjet::PseudoJet> & leftovers) const;
+
+
+  fastjet::PseudoJet findMaxTower( const fastjet::PseudoJet & jet,
+				   const CaloTowerCollection & fInput,
+				   const fastjet::ClusterSequence & theClusterSequence
+				   ) const;
 };
 
 #endif

@@ -22,6 +22,8 @@ CATopJetProducer::CATopJetProducer(edm::ParameterSet const& conf):
        conf.getParameter<double>("sumEtEtaCut"),               // eta for event SumEt
        conf.getParameter<double>("ptMin"),                     // lower pt cut on which jets to reco
        conf.getParameter<double>("etFrac"),                    // fraction of event sumEt / 2 for a jet to be considered "hard"
+       conf.getParameter<bool>  ("useAdjacency"),              // veto adjacent subjets
+       conf.getParameter<bool>  ("useMaxTower"),               // use max tower as adjacency criterion, otherwise use centroid
        conf.getParameter<std::vector<double> >("ptBins"),      // pt bins over which cuts vary
        conf.getParameter<std::vector<double> >("rBins"),       // cone size bins,
        conf.getParameter<std::vector<double> >("ptFracBins"),  // fraction of hard jet that subjet must have

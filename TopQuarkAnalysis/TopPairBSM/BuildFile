@@ -11,6 +11,8 @@
 <use name=DataFormats/HepMCCandidate>
 <use name=Geometry/CaloTopology>
 <use name=Geometry/CaloGeometry>
+<use name=Geometry/CaloEventSetup>
+<use name=Geometry/Records>
 <use name=AnalysisDataFormats/TopObjects>
 <export>
  <lib name=TopQuarkAnalysisTopPairBSM>
@@ -24,5 +26,6 @@
  <use name=DataFormats/HepMCCandidate>
  <use name=Geometry/CaloTopology>
  <use name=Geometry/CaloGeometry>
+ <use name=Geometry/Records>
  <use name=AnalysisDataFormats/TopObjects>
 </export>

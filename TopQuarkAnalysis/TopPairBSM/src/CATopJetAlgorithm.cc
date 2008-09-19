@@ -1,8 +1,16 @@
 // Original author: Brock Tweedie (JHU)
 // Ported to CMSSW by: Sal Rappoccio (JHU)
-// $Id: CATopJetAlgorithm.cc,v 1.1 2008/07/15 19:43:39 srappocc Exp $
+// $Id: CATopJetAlgorithm.cc,v 1.1 2008/09/05 15:03:32 srappocc Exp $
 
 #include "TopQuarkAnalysis/TopPairBSM/interface/CATopJetAlgorithm.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
+
 
 using namespace std;
 using namespace reco;
@@ -42,7 +50,15 @@ public:
 //  ------------------
 void CATopJetAlgorithm::run( edm::Event & e, const edm::EventSetup & c )  
 {
+
+  // Get the calo geometry
+  edm::ESHandle<CaloGeometry> geometry;
+  c.get<CaloGeometryRecord>().get(geometry);
+  const CaloSubdetectorGeometry* towerGeometry = 
+    geometry->getSubdetectorGeometry(DetId::Calo, CaloTowerDetId::SubdetId);  
+
   
+
 
   // get a list of output subjets
   std::auto_ptr<CaloJetCollection>  subjetCollection( new CaloJetCollection() );
@@ -180,7 +196,7 @@ void CATopJetAlgorithm::run( edm::Event & e, const edm::EventSetup & c )
     if ( verbose ) cout << "Doing decomposition 1" << endl;
     fastjet::PseudoJet ja, jb;
     vector<fastjet::PseudoJet> leftovers1;
-    bool hardBreak1 = decomposeJet(localJet,clusterSeq,fInput,ptHard,nCellMin,ja,jb,leftovers1);
+    bool hardBreak1 = decomposeJet(localJet,clusterSeq,fInput,towerGeometry,ptHard,nCellMin,ja,jb,leftovers1);
     leftoversAll.insert(leftoversAll.end(),leftovers1.begin(),leftovers1.end());
 	
     // stage 2:  secondary decomposition.  look for when the hard subjets found above further decluster into two hard sub-subjets
@@ -190,13 +206,13 @@ void CATopJetAlgorithm::run( edm::Event & e, const edm::EventSetup & c )
     fastjet::PseudoJet jaa, jab;
     vector<fastjet::PseudoJet> leftovers2a;
     bool hardBreak2a = false;
-    if (hardBreak1)  hardBreak2a = decomposeJet(ja,clusterSeq,fInput,ptHard,nCellMin,jaa,jab,leftovers2a);
+    if (hardBreak1)  hardBreak2a = decomposeJet(ja,clusterSeq,fInput,towerGeometry,ptHard,nCellMin,jaa,jab,leftovers2a);
     leftoversAll.insert(leftoversAll.end(),leftovers2a.begin(),leftovers2a.end());
     // jb -> jba+jbb ?
     fastjet::PseudoJet jba, jbb;
     vector<fastjet::PseudoJet> leftovers2b;
     bool hardBreak2b = false;
-    if (hardBreak1)  hardBreak2b = decomposeJet(jb,clusterSeq,fInput,ptHard,nCellMin,jba,jbb,leftovers2b);
+    if (hardBreak1)  hardBreak2b = decomposeJet(jb,clusterSeq,fInput,towerGeometry,ptHard,nCellMin,jba,jbb,leftovers2b);
     leftoversAll.insert(leftoversAll.end(),leftovers2b.begin(),leftovers2b.end());
 
     // NOTE:  it might be good to consider some checks for whether these subjets can be further decomposed.  e.g., the above procedure leaves
@@ -322,27 +338,101 @@ void CATopJetAlgorithm::run( edm::Event & e, const edm::EventSetup & c )
 //
 bool CATopJetAlgorithm::adjacentCells(const fastjet::PseudoJet & jet1, const fastjet::PseudoJet & jet2, 
 				      const CaloTowerCollection & fInput,
+				      const CaloSubdetectorGeometry  * fTowerGeometry,
+				      const fastjet::ClusterSequence & theClusterSequence,
 				      int nCellMin ) const {
 
+  // Get each tower (depending on user input, can be either max pt tower, or centroid).
+  CaloTowerDetId tower1 = getCaloTower( jet1, fInput, fTowerGeometry, theClusterSequence );
+  CaloTowerDetId tower2 = getCaloTower( jet2, fInput, fTowerGeometry, theClusterSequence );
 
-  // Reworked by Sal:
-  // Only work on "adjacent" cells in the physical calo towers case
-  if (jet1.user_index() == jet2.user_index() ) return true;
+  // Get the number of calo towers away that the two towers are.
+  // Can be non-integral fraction if "centroid" case is chosen.
+  int distance = getDistance( tower1, tower2, fTowerGeometry );
 
-  const CaloTower & tower1 = fInput[ jet1.user_index() ];
-  const CaloTower & tower2 = fInput[ jet2.user_index() ];
-  
-  // Find out if the two calo towers are adjacent
-
-  int ieta1 = tower1.ieta();
-  int ieta2 = tower2.ieta();
-  int iphi1 = tower1.iphi();
-  int iphi2 = tower2.iphi();
-
-  if ( abs(ieta1 - ieta2) <= nCellMin && abs(iphi1 - iphi2) <= nCellMin ) return true;
+  if ( distance <= nCellMin ) return true;
   else return false;
 }
 
+//-------------------------------------------------------------------------
+// Find the highest pt tower inside the jet
+fastjet::PseudoJet CATopJetAlgorithm::getMaxTower( const fastjet::PseudoJet & jet,
+						   const CaloTowerCollection & fInput,
+						   const fastjet::ClusterSequence & theClusterSequence
+						   ) const
+{
+  // If this jet is a calo tower itself, return it
+  if ( jet.user_index() > 0 ) return jet;
+  // Check for the bug in fastjet where it sets the user_index to 0 instead of -1
+  // in the clustering, since it might actually BE zero. 
+  else if (  jet.user_index() == 0 && jet.perp() > 0 && jet.perp() == fInput[0].pt() ) {
+    return jet;
+  }
+  // Otherwise, search through the constituents and find the highest pt tower, return it.
+  else {
+    vector<fastjet::PseudoJet> constituents = theClusterSequence.constituents( jet );
+    GreaterByEtPseudoJet compEt;
+    sort( constituents.begin(), constituents.end(), compEt );
+    return constituents[0];
+  }
+}
+
+
+//-------------------------------------------------------------------------
+// Find the calo tower associated with the jet
+CaloTowerDetId CATopJetAlgorithm::getCaloTower( const fastjet::PseudoJet & jet,
+						const CaloTowerCollection & fInput,
+						const CaloSubdetectorGeometry  * fTowerGeometry,
+						const fastjet::ClusterSequence & theClusterSequence ) const
+{
+
+  // If the jet is just a single calo tower, this is trivial
+  bool isTower = jet.user_index() > 0;
+  // This is where it really IS index 0.
+  // There's a bug in fastjet. They set the user_index to 0 instead of -1 for the previous output. 
+  // Need to check if it's "really" index 0 in input, or it's a reconstructed jet.
+  if ( jet.user_index() == 0 && jet.perp() > 0 && jet.perp() == fInput[0].pt() ) isTower = true;
+
+  if ( isTower ) {
+    return fInput[jet.user_index()].id();
+  }
+
+  // If the user requested to get the max tower, return the max tower
+  if ( useMaxTower_ ) {
+    return fInput[getMaxTower( jet, fInput, theClusterSequence ).user_index()].id();
+  }
+
+
+  // Otherwise, we find the closest calorimetery tower to the jet centroid
+  reco::Particle::LorentzVector v( jet.px(), jet.py(), jet.pz(), jet.e() );
+  GlobalPoint centroid( v.x(), v.y(), v.z() );
+
+  // Find the closest calo det id
+  CaloTowerDetId detId ( fTowerGeometry->getClosestCell( centroid ) );
+
+  // Return closest calo det id
+  return detId;
+}
+
+//-------------------------------------------------------------------------
+// Get number of calo towers away that the two calo towers are
+int CATopJetAlgorithm::getDistance ( CaloTowerDetId const & t1, CaloTowerDetId const & t2, 
+				     const CaloSubdetectorGeometry  * fTowerGeometry ) const
+{
+
+  int ieta1 = t1.ieta();
+  int iphi1 = t1.iphi();
+  int ieta2 = t2.ieta();
+  int iphi2 = t2.iphi();
+
+  int deta = abs(ieta2 - ieta1);
+  int dphi = abs(iphi2 - iphi1);
+  
+  while ( dphi >= CaloTowerDetId::kMaxIEta ) dphi -= CaloTowerDetId::kMaxIEta;
+  while ( dphi <= 0 ) dphi += CaloTowerDetId::kMaxIEta;
+
+  return deta + dphi;
+}
 
 //-------------------------------------------------------------------------
 // attempt to decompose a jet into "hard" subjets, where hardness is set by ptHard
@@ -350,6 +440,7 @@ bool CATopJetAlgorithm::adjacentCells(const fastjet::PseudoJet & jet1, const fas
 bool CATopJetAlgorithm::decomposeJet(const fastjet::PseudoJet & theJet, 
 				     const fastjet::ClusterSequence & theClusterSequence, 
 				     const CaloTowerCollection & fInput,
+				     const CaloSubdetectorGeometry  * fTowerGeometry,
 				     double ptHard, int nCellMin,
 				     fastjet::PseudoJet & ja, fastjet::PseudoJet & jb, 
 				     vector<fastjet::PseudoJet> & leftovers) const {
@@ -362,19 +453,11 @@ bool CATopJetAlgorithm::decomposeJet(const fastjet::PseudoJet & theJet,
     goodBreak = theClusterSequence.has_parents(j,ja,jb);
     if (!goodBreak)                                 break;         // this is one cell, can't decluster anymore
 
-
-    // There's a bug in fastjet. They set the user_index to 0 instead of -1 for the previous output. 
-    // Need to check if it's "really" index 0 in input, or it's a reconstructed jet
-
-    bool isTowerA = ja.user_index() > 0;
-    // This is where it really IS index 0
-    if ( ja.user_index() == 0 && ja.perp() > 0 && ja.perp() == fInput[0].pt() ) isTowerA = true;
-
-    bool isTowerB = jb.user_index() > 0;
-    // This is where it really IS index 0
-    if ( jb.user_index() == 0 && jb.perp() > 0 && jb.perp() == fInput[0].pt() ) isTowerB = true;
-
-    if (isTowerA && isTowerB && adjacentCells(ja,jb,fInput,nCellMin)) break;         // the clusters are "adjacent" in the calorimeter => shouldn't have decomposed
+    if ( useAdjacency_ &&
+	 adjacentCells(ja,jb,fInput,
+		       fTowerGeometry,
+		       theClusterSequence,
+		       nCellMin) )                  break;         // the clusters are "adjacent" in the calorimeter => shouldn't have decomposed
     if (ja.perp() < ptHard && jb.perp() < ptHard)   break;         // broke into two soft clusters, dead end
     if (ja.perp() > ptHard && jb.perp() > ptHard)   return true;   // broke into two hard clusters, we're done!
     else if (ja.perp() > jb.perp()) {                              // broke into one hard and one soft, ditch the soft one and try again
