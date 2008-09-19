@@ -39,7 +39,7 @@
  **  
  **
  **  $Id: PhotonAnalyzer
- **  $Date: 2008/09/17 18:06:44 $ 
+ **  $Date: 2008/09/19 14:42:10 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -318,8 +318,6 @@ void PhotonAnalyzer::beginJob( const edm::EventSetup& setup)
       p_nHitsVsEta_isol_.clear();
   
     }
-
-    return ;
     
   }
   
