@@ -15,7 +15,7 @@
 //
 // Original Author:  G. Bruno
 //         Created:  Mon Nov 20 10:04:31 CET 2006
-// $Id: SiStripDetInfoFileReader.h,v 1.2 2007/10/18 08:45:23 giordano Exp $
+// $Id: SiStripDetInfoFileReader.h,v 1.3 2007/10/24 08:36:37 giordano Exp $
 //
 //
 
@@ -25,6 +25,8 @@
 #include <iostream>
 #include <fstream>
 #include <boost/cstdint.hpp>
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class SiStripDetInfoFileReader  {
 
@@ -42,6 +44,9 @@ public:
   };
 
   explicit SiStripDetInfoFileReader(){};
+  explicit SiStripDetInfoFileReader(const edm::ParameterSet&,
+				    const edm::ActivityRegistry&);
+
   explicit SiStripDetInfoFileReader(std::string filePath);
   explicit SiStripDetInfoFileReader(const SiStripDetInfoFileReader&);
 
@@ -60,6 +65,7 @@ public:
 
 private:
 
+  void reader(std::string filePath);
 
   std::ifstream inputFile_; 
   //  std::string filePath_;
