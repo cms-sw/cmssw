@@ -99,6 +99,9 @@ namespace edm {
       if (secondaryPrincipal.get() != 0) {
         checkConsistency(*primaryPrincipal, *secondaryPrincipal);      
         primaryPrincipal->recombine(*secondaryPrincipal, branchIDsToReplace_);
+      } else {
+        throw edm::Exception(errors::NotFound, "PoolSource::readEvent_") <<
+          primaryPrincipal->id() << " is not found in the secondary input file\n";
       }
       return primaryPrincipal;
     }
@@ -113,6 +116,9 @@ namespace edm {
       if (secondaryPrincipal.get() != 0) {
         checkConsistency(*primaryPrincipal, *secondaryPrincipal);      
         primaryPrincipal->recombine(*secondaryPrincipal, branchIDsToReplace_);
+      } else {
+        throw edm::Exception(errors::NotFound, "PoolSource::readIt") <<
+          primaryPrincipal->id() << " is not found in the secondary input file\n";
       }
       return primaryPrincipal;
     }
