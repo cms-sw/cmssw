@@ -269,7 +269,7 @@ int main( int argc, char** argv ){
     //append it
     std::auto_ptr<cond::IOVEditor> editor(iovmanager.newIOVEditor());
     destdb.start(false);
-    editor.append(since,payload);
+    editor->append(since,payload);
     destdb.commit();
  
 
