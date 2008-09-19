@@ -4,11 +4,30 @@ import cmsPerfSuite as cps
 import optparse as opt
 import socket, os, sys, SimpleXMLRPCServer, threading
 
-PROG_NAME = os.path.basename(sys.argv[0])
+_PROG_NAME = os.path.basename(sys.argv[0])
+_CASTOR_DIR = "/castor/cern.ch/cms/store/relval/performance/"
+_DEFAULTS  = {"castordir"        : _CASTOR_DIR,
+              "perfsuitedir"     : os.getcwd(),
+              "TimeSizeEvents"   : 100        ,
+              "IgProfEvents"     : 5          ,
+              "ValgrindEvents"   : 1          ,
+              "cmsScimark"       : 10         ,
+              "cmsScimarkLarge"  : 10         ,
+              "cmsdriverOptions" : ""         ,
+              "stepOptions"      : ""         ,
+              "quicktest"        : False      ,
+              "profilers"        : ""         ,
+              "cpus"             : [1]        ,
+              "cores"            : 4          ,
+              "prevrel"          : ""         ,
+              "isAllCandles"     : True       ,
+              "candles"          : Candles    ,
+              "bypasshlt"        : False      ,
+              "runonspare"       : True       }
 
 def optionparse():
 
-    parser = opt.OptionParser(usage=("""%s [Options]""" % PROG_NAME))
+    parser = opt.OptionParser(usage=("""%s [Options]""" % _PROG_NAME))
 
     parser.add_option('-p',
                       '--port',
@@ -17,9 +36,28 @@ def optionparse():
                       default=-1,
                       help='Run server on a particular port',
                       metavar='<PORT>',
-                      )    
+                      )
+    
+    parser.add_option('-o',
+                      '--output',
+                      type="string",
+                      dest='outputdir',
+                      default="",
+                      help='The output directory for all the cmsPerfSuite runs',
+                      metavar='<DIR>',
+                      )
+
+
 
     (options, args) = parser.parse_args()
+
+    outputdir = options.outputdir
+    if not outputdir == "":
+        outputdir = os.path.abspath(outputdir)
+        if not os.path.exists(outputdir):
+            parser.error("the specified output directory %s does not exist" % outputdir)
+            sys.exit()
+        _DEFAULTS["perfsuitedir"] = outputdir
         
     port = 0        
     if options.port == -1:
@@ -27,7 +65,7 @@ def optionparse():
     else:
         port = options.port
 
-    return port
+    return (port,outputdir)
 
 def runserv(sport):
     # Remember that localhost is the loopback network: it does not provide
@@ -72,10 +110,22 @@ def runcmd(cmd):
         raise
     return cmdout
 
+def getCPSkeyword(key,dict):
+    if dict.has_key(key):
+        return dict[key]
+    else:
+        
+
 def request_benchmark(cmds):
+    # input is a list of dictionaries each defining the
+    #   keywords to cmsperfsuite
     outs = []
     for cmd in cmds:
+        cps.runPerfSuite(castordir = getCPSkeyword("castordir",cmds),
         outs.append(runcmd(cmd))
+    
+    
+
     return outs
 
 def _main():

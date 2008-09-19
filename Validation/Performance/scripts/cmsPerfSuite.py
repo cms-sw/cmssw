@@ -559,6 +559,7 @@ def runPerfSuite(castordir        = _CASTOR_DIR,
                 #cmsScimarkLaunch.csh is an infinite loop to spawn cmsScimark2 on the other
                 #cpus so it makes no sense to try reading its stdout/err 
                 os.popen4(command)
+    sys.stdout.flush()
             
     #dont do benchmarking if in debug mode... saves time
     benching = not _debug
@@ -590,12 +591,14 @@ def runPerfSuite(castordir        = _CASTOR_DIR,
     if TimeSizeEvents > 0:
         print "Launching the TimeSize tests (TimingReport, TimeReport, SimpleMemoryCheck, EdmSize) with %s events each" % TimeSizeEvents
         printDate()
+        sys.stdout.flush()
         simpleGenReport(cpus,perfsuitedir,TimeSizeEvents,candles,cmsdriverOptions,stepOptions,cmssw_version,"TimeSize",profilers,bypasshlt)
 
     #IgProf tests:
     if IgProfEvents > 0:
         print "Launching the IgProf tests (IgProfPerf, IgProfMemTotal, IgProfMemLive, IgProfMemAnalyse) with %s events each" % IgProfEvents
         printDate()
+        sys.stdout.flush()
         IgCandles = candles
         #By default run IgProf only on QCD_80_120 candle
         if isAllCandles:
@@ -605,7 +608,8 @@ def runPerfSuite(castordir        = _CASTOR_DIR,
     #Valgrind tests:
     if ValgrindEvents > 0:
         print "Launching the Valgrind tests (callgrind_FCE, memcheck) with %s events each" % ValgrindEvents
-        printDate()   
+        printDate()
+        sys.stdout.flush()
         valCandles = candles
 
         if isAllCandles:

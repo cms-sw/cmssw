@@ -232,7 +232,7 @@ def main():
     print "\n Creating HTML files..."
     # create HTML files
     createWebReports(stage,repdir,ExecutionDate,LogFiles,cmsScimarkResults,date,prevrev)
-    sys.exit()
+
     print "\n Copy profiling logs to staging directory..."
     # Copy over profiling logs...
     getDirnameDirs(repdir,stage)
@@ -996,6 +996,7 @@ def populateFromTupleRoot(tupname,repdir,rootfile,pureg):
             
             if os.path.exists(rootf):
                 f = ROOT.TFile(rootf)
+
                 cpu_time_tree = ROOT.TTree()
                 f.GetObject("cpu_time_tuple;1",cpu_time_tree)
                 if cpu_time_tree:
@@ -1010,6 +1011,7 @@ def populateFromTupleRoot(tupname,repdir,rootfile,pureg):
                                 createNewRow = False
                                 curRow = table.newRow(cand)
                             data_tuple = (data1,data2)
+
                             if "PILEUP" in step:
                                 puRow.addEntry(realstep,data_tuple)
                             else:
@@ -1385,7 +1387,7 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
                                       "Table showing current release CPU times in secs.",
                                       "CPU Times (s)",3)                        
                 else:
-                    print "Regression"
+
 
                     ####
                     #
@@ -1400,7 +1402,7 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
                     #
 
                     (ordered_keys,table_dict) = cpu_time_tab.getTable()
-                    print table_dict
+
                     cols = len(ordered_keys)
                     if len(table_dict) > 1 and cols > 0:
                         createHTMLtab(INDEX,table_dict,ordered_keys,
