@@ -359,6 +359,7 @@ class  tagInventory(object):
         except Exception, e:
             transaction.rollback()
             raise Exception, str(e)
+        
     def replaceTagLabel( self, tagname, label ):
         """Replace the run time label of the given tag
         """
@@ -377,6 +378,123 @@ class  tagInventory(object):
         except Exception, e:
             transaction.rollback()
             raise Exception, str(e)
+
+    def copyInventory( self, sourceconnect, rowcachesize=1024):
+        """copy entire inventory from an external source.
+        The destination inventory must be empty. If not so, it will be cleaned implicitly 
+        """
+        my_transaction=self.__session.transaction()
+        source_session=svc.connect( sourceconnect,accessMode = coral.access_ReadOnly )
+        source_transaction=source_session.transaction()
+        
+        try:
+            self.createInventoryTable()
+            my_transaction.start(False)
+            #copy inventory table
+            data=coral.AttributeList()
+            my_editor=self.__session.nominalSchema().tableHandle(self.__tagInventoryTableName).dataEditor()
+            source_transaction.start(True)
+            source_query=source_session.nominalSchema().tableHandle(self.__tagInventoryTableName).newQuery()
+            conditionData=coral.AttributeList()
+            source_query.setCondition('',conditionData)
+            source_query.setRowCacheSize(rowcachesize)
+            source_query.defineOutput(data)
+            bulkOperation=my_editor.bulkInsert(data,rowcachesize)
+            cursor=source_query.execute()
+            for row in cursor:
+                bulkOperation.processNextIteration()
+            bulkOperation.flush()
+            del bulkOperation
+            del source_query
+            #copy inventory id table
+            source_query=source_session.nominalSchema().tableHandle(self.__tagInventoryIDName).newQuery()
+            iddata=coral.AttributeList()
+            source_query.setCondition('',conditionData)
+            source_query.setRowCacheSize(rowcachesize)
+            source_query.defineOutput(iddata)
+            bulkOperation=my_editor.bulkInsert(iddata,rowcachesize)
+
+            cursor=source_query.execute()
+            for row in cursor:
+                bulkOperation.processNextIteration()
+            bulkOperation.flush()
+            del bulkOperation
+            del source_query
+            
+            source_transaction.commit()
+            my_transaction.commit()
+        except Exception, e:
+            source_transaction.rollback()
+            my_transaction.rollback()
+            del source_session
+            raise Exception, str(e)
+        del source_session
+
+    def bulkInsertEntries( self, entries ): 
+        """insert a chunk of entries.
+        Input: entries [{tagname:string , pfn:string , recordname:string , objectname:string, labelname:string }]
+        Output: tagids of the inserted entries. If tag already exists, old tagid is returned
+        """
+        transaction=self.__session.transaction()
+        results=[]
+        ihad=[]
+        try:
+            if self.existInventoryTable():
+                ihad=self.getAllEntries()
+            else:    
+                self.createInventoryTable()
+            #clean input list removing duplicates
+            for e in entries:
+                for n in ihad:
+                    if n.tagname==e['tagname'] and n.pfn==e['pfn']:
+                        results.append(n.tagid)
+                        entries.remove(e)
+            transaction.start(False)
+            query = self.__schema.tableHandle(self.__tagInventoryIDName).newQuery()
+            query.addToOutputList('nextID')
+            query.setForUpdate()
+            cursor = query.execute()
+            nextid=0
+            while cursor.next():
+                nextid=cursor.currentRow()[0].data()
+            idEditor = self.__schema.tableHandle(self.__tagInventoryIDName).dataEditor()
+            inputData = coral.AttributeList()
+            inputData.extend( 'delta', 'unsigned long' )
+
+            delta=len(entries)
+            if nextid==0:
+                nextid=1
+                delta=1
+
+            inputData['delta'].setData(delta)
+            idEditor.updateRows('nextID = nextID + :delta','',inputData)
+
+            dataEditor = self.__schema.tableHandle(self.__tagInventoryTableName).dataEditor()
+            insertdata=coral.AttributeList()
+            insertdata.extend('tagid','unsigned long')
+            insertdata.extend('tagname','string')
+            insertdata.extend('pfn','string')
+            insertdata.extend('recordname','string')
+            insertdata.extend('objectname','string')
+            insertdata.extend('labelname','string')
+            bulkOperation=dataEditor.bulkInsert(insertdata,delta)
+            for entry in entries:
+                insertdata['tagid'].setData(nextid)
+                insertdata['tagname'].setData(entry['tagname'])
+                insertdata['pfn'].setData(entry['pfn'])
+                insertdata['recordname'].setData(entry['recordname'])
+                insertdata['objectname'].setData(entry['objectname'])
+                insertdata['labelname'].setData(entry['labelname'])
+                bulkOperation.processNextIteration()
+                nextid++
+            bulkOperation.flush()
+            transaction.commit()
+            del bulkOperation
+            del query
+        except Exception, e:
+            transaction.rollback()
+            raise Exception, str(e)
+        
 if __name__ == "__main__":
     context = coral.Context()
     context.setVerbosityLevel( 'ERROR' )
