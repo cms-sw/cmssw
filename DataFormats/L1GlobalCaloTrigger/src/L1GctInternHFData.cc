@@ -14,26 +14,30 @@ L1GctInternHFData::~L1GctInternHFData() { }
 
 L1GctInternHFData L1GctInternHFData::fromConcRingSums(const uint16_t capBlock,
 						      const uint16_t capIndex,
-						      const uint8_t bx,
+						      const int16_t bx,
 						      const uint32_t data) {
   L1GctInternHFData d;
   d.setType(conc_hf_ring_et_sums);
   d.setCapIndex(capIndex);
   d.setCapBlock(capBlock);
+  d.setBx(bx);
   d.setData(data);
+  return d;
 }
 
 L1GctInternHFData L1GctInternHFData::fromConcBitCounts(const uint16_t capBlock,
 						       const uint16_t capIndex,
-						       const uint8_t bx,
+						       const int16_t bx,
 						       const uint32_t data) {
   L1GctInternHFData d;
   d.setType(conc_hf_bit_counts);
   d.setCapIndex(capIndex);
   d.setCapBlock(capBlock);
+  d.setBx(bx);
   for (unsigned i=0; i<4; ++i) {
     d.setCount(i, (data>>(6*i))&0x3f);
   }
+  return d;
 }
 
 

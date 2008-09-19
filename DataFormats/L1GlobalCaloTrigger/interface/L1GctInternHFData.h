@@ -32,12 +32,12 @@ class L1GctInternHFData {
 
   static L1GctInternHFData fromConcRingSums(const uint16_t capBlock,
 					    const uint16_t capIndex,
-					    const uint8_t bx,
+					    const int16_t bx,
 					    const uint32_t data);
   
   static L1GctInternHFData fromConcBitCounts(const uint16_t capBlock,
 					     const uint16_t capIndex,
-					     const uint8_t bx,
+					     const int16_t bx,
 					     const uint32_t data);
   
   /// metadata
@@ -85,7 +85,7 @@ class L1GctInternHFData {
   void setCapIndex(uint16_t const capIndex) { capIndex_ = capIndex; }
 
   /// set bx
-  void setBx(uint16_t const bx) { bx_ = bx; }
+  void setBx(int16_t const bx) { bx_ = bx; }
 
   /// set type
   void setType(L1GctInternHFDataType type) { type_ = type; }
