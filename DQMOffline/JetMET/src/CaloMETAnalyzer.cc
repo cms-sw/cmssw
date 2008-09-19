@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/09/09 18:35:57 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/09/12 18:50:44 $
+ *  $Revision: 1.4 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -90,8 +90,8 @@ void CaloMETAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
 }
 
 void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, 
-			      const reco::CaloMET& calomet, const reco::CaloMET& calometNoHF,
-			      const edm::TriggerResults& triggerResults) {
+			      const edm::TriggerResults& triggerResults,
+			      const reco::CaloMET& calomet, const reco::CaloMET& calometNoHF) {
 
   LogTrace(metname)<<"[CaloMETAnalyzer] Analyze CaloMET";
 

@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for CaloMET
  *
- *  $Date: 2008/08/26 19:17:30 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/09/12 18:49:46 $
+ *  $Revision: 1.3 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -45,8 +45,8 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
 
   /// Get the analysis
   void analyze(const edm::Event&, const edm::EventSetup&, 
-	       const reco::CaloMET& caloMET, const reco::CaloMET& caloMETNoHF,
-	       const edm::TriggerResults& triggerResults);
+               const edm::TriggerResults&,
+	       const reco::CaloMET& caloMET, const reco::CaloMET& caloMETNoHF);
 
   int evtCounter;
 

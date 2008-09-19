@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/09/10 16:12:42 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/09/12 19:13:26 $
+ *  $Revision: 1.8 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -190,8 +190,8 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     if(theCaloMETAnalyzerFlag){
       LogTrace(metname)<<"[JetMETAnalyzer] Call to the CaloMET analyzer";
       theCaloMETAnalyzer->analyze(iEvent, iSetup,
-				  *calomet, *calometNoHF,
-				  *triggerResults);
+				  *triggerResults,
+				  *calomet, *calometNoHF);
     }
   }
 
