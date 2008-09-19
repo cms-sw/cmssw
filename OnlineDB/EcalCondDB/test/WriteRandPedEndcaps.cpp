@@ -81,7 +81,6 @@ public:
 
     // The objects necessary to define a dataset
     EcalLogicID ecid;
-    MonPedestalsDat ped;
     map<EcalLogicID, MonPedestalsDat> dataset;
 
     // Set the properties of the tag
@@ -99,24 +98,34 @@ public:
 
     moniov.setMonRunTag(montag);
 
+
+
+
     // Get a set of channels to use
-    cout << "Getting channel set..." << flush;
+    cout << "Getting EB channel set..." << flush;
+    vector<EcalLogicID> channels_barrel;
+    channels_barrel = econn->getEcalLogicIDSet("EB_crystal_number",
+					1, 36,   // SM
+					1, 1700 // crystal
+					,EcalLogicID::NULLID, EcalLogicID::NULLID, "EB_crystal_number");
+    cout << "Done size is:"<< channels_barrel.size() << endl;
+
+
+
+    // Get a set of channels to use
+    cout << "Getting EE channel set..." << flush;
     vector<EcalLogicID> channels;
     channels = econn->getEcalLogicIDSet("EE_crystal_number",
 					-1, 1,   // z 
-					1, 100, // crystal x
-					1,100); // crystal y
+					-110, 100, // crystal x
+					-110 ,100, "EE_crystal_number"); // crystal y
     cout << "Done." << endl;
 
-
-    vector<EcalLogicID> ecid_vec;
-    ecid_vec = econn->getEcalLogicIDSet("EE_crystal_hashed", 1, 15479 );
-    std::cout << ecid_vec.size() << std::endl;
-    for (int ich=0; ich<15479; ich++){
-      std::cout << ecid_vec[ich].getID1() << std::endl;
-    }
-
-    cout << "Done 2." << endl;
+    // Get a set of channels to use
+    cout << "Getting ECAL channel..." << flush;
+    EcalLogicID channel_ecal;
+    channel_ecal = econn->getEcalLogicID("ECAL");
+    cout << "Done." << endl;
 
 
     cout << "Writing " << numruns << " sets of pedestals..." << endl;
@@ -131,15 +140,28 @@ public:
       // Write runiov
       econn->insertRunIOV(&runiov);
 
+      map<EcalLogicID, RunTPGConfigDat> dataset_tpg;
+      RunTPGConfigDat rtpg;
+      rtpg.setConfigTag("TPGTrivial_config");
+      dataset_tpg[channel_ecal]=rtpg;
+      // Insert the dataset, identifying by moniov
+      cout << "Writing IOV " << i << " of " << numruns 
+	   << " (run " << run << ")..." << flush;
+      econn->insertDataSet(&dataset_tpg, &runiov );
+      cout << "Done." << endl;
+
+
       // Set the properties of the moniov
       moniov.setRunIOV(runiov);
       moniov.setSubRunNumber(0);
       moniov.setSubRunStart(startTm);
       moniov.setSubRunEnd(endTm);
 
-      for (vector<EcalLogicID>::const_iterator p = channels.begin();
-	   p != channels.end();
-	   ++p) {
+
+
+      for (int j=0; j<channels.size(); j++) {
+
+	MonPedestalsDat ped;
       
 	// Set the data
 	float val = 1 + rand();
@@ -152,13 +174,38 @@ public:
 	ped.setTaskStatus(1);
 	
 	// Fill the dataset
-	dataset[*p] = ped;
+	dataset[channels[j]] = ped;
       }
 
       // Insert the dataset, identifying by moniov
       cout << "Writing IOV " << i << " of " << numruns 
 	   << " (run " << run << ")..." << flush;
       econn->insertDataArraySet(&dataset, &moniov );
+      cout << "Done." << endl;
+
+    map<EcalLogicID, MonPedestalsDat> dataset_bar;
+
+      for (int j=0; j<channels_barrel.size(); j++) {
+      
+	// Set the data
+	MonPedestalsDat ped;
+	float val = 1 + rand();
+	ped.setPedMeanG1(val);
+	ped.setPedMeanG6(val);
+	ped.setPedMeanG12(val);
+	ped.setPedRMSG1(val);
+	ped.setPedRMSG6(val);
+	ped.setPedRMSG12(val);
+	ped.setTaskStatus(1);
+	
+	// Fill the dataset
+	dataset_bar[channels_barrel[j]] = ped;
+      }
+
+      // Insert the dataset, identifying by moniov
+      cout << "Writing IOV " << i << " of " << numruns 
+	   << " (run " << run << ")..." << flush;
+      econn->insertDataArraySet(&dataset_bar, &moniov );
       cout << "Done." << endl;
 
       // Increment IOV run, start_time
