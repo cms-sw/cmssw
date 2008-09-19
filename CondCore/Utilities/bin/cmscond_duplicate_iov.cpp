@@ -50,7 +50,7 @@ int main( int argc, char** argv ){
     ("dictionary,D",boost::program_options::value<std::string>(),"data dictionary(required if no plugin available)")
     ("tag,t",boost::program_options::value<std::string>(),"tag (required)")
     ("fromTime,f",boost::program_options::value<cond::Time_t>(),"a valid time of payload to append (required)")
-    ("sinceTime,",boost::program_options::value<cond::Time_t>(),"since time of new iov(required)")
+    ("sinceTime,s",boost::program_options::value<cond::Time_t>(),"since time of new iov(required)")
     ("authPath,P",boost::program_options::value<std::string>(),"path to authentication xml(default .)")
     ("configFile,f",boost::program_options::value<std::string>(),"configuration file(optional)")
     ("blobStreamer,B",boost::program_options::value<std::string>(),"BlobStreamerName(default to COND/Services/TBufferBlobStreamingService)")
