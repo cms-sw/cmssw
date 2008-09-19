@@ -16,6 +16,7 @@
 #include "CalibMuon/DTCalibration/plugins/DTNoiseCalibration.h"
 #include "CalibMuon/DTCalibration/plugins/DTFakeTTrigESProducer.h"
 #include "CalibMuon/DTCalibration/plugins/DTFakeT0ESProducer.h"
+#include "CalibMuon/DTCalibration/plugins/DTFakeVDriftESProducer.h"
 
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(DTMapGenerator);
@@ -31,3 +32,5 @@ DEFINE_ANOTHER_FWK_MODULE(DTNoiseComputation);
 DEFINE_ANOTHER_FWK_MODULE(DTNoiseCalibration);
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(DTFakeTTrigESProducer);
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(DTFakeT0ESProducer);
+DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(DTFakeVDriftESProducer);
+
