@@ -11,6 +11,7 @@ process.load("CondCore.DBCommon.CondDBCommon_cfi")
 
 # Generate TSC key
 process.load("CondTools.L1Trigger.L1TriggerKeyDummy_cff")
+process.L1TriggerKeyDummy.tscKey = cms.string( 'TSC_CRUZET2_080613_GTmuon_GMTDTRPC5CSC5_CSCclosedwindow_DTTFtopbot_RPC_LUM_GCT_RCTH' )
 
 # writer modules
 process.load("CondTools.L1Trigger.L1CondDBIOVWriter_cfi")
@@ -20,8 +21,8 @@ process.maxEvents = cms.untracked.PSet(
 )
 process.source = cms.Source("EmptyIOVSource",
     timetype = cms.string('runnumber'),
-    firstRun = cms.untracked.uint32(1),
-    lastRun = cms.untracked.uint32(1),
+    firstRun = cms.untracked.uint32(10),
+    lastRun = cms.untracked.uint32(10),
     interval = cms.uint32(1)
 )
 
@@ -34,9 +35,11 @@ process.orcon = cms.ESSource("PoolDBESSource",
 )
 
 process.p = cms.Path(process.L1CondDBIOVWriter)
-process.orcon.connect = cms.string('oracle://cms_orcon_prod/CMS_COND_21X_L1T')
-process.orcon.DBParameters.authenticationPath = '/nfshome0/onlinedbadm/conddb'
-process.L1CondDBIOVWriter.offlineDB = cms.string('oracle://cms_orcon_prod/CMS_COND_21X_L1T')
-process.L1CondDBIOVWriter.offlineAuthentication = '/nfshome0/onlinedbadm/conddb'
+process.orcon.connect = cms.string('sqlite_file:l1config.db')
+#process.orcon.connect = cms.string('oracle://cms_orcon_prod/CMS_COND_21X_L1T')
+#process.orcon.DBParameters.authenticationPath = '/nfshome0/onlinedbadm/conddb'
+process.L1CondDBIOVWriter.offlineDB = cms.string('sqlite_file:l1config.db')
+#process.L1CondDBIOVWriter.offlineDB = cms.string('oracle://cms_orcon_prod/CMS_COND_21X_L1T')
+#process.L1CondDBIOVWriter.offlineAuthentication = '/nfshome0/onlinedbadm/conddb'
 
 
