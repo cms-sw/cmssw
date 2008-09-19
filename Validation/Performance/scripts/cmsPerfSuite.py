@@ -571,7 +571,19 @@ def runPerfSuite(castordir        = _CASTOR_DIR,
         if cmsScimarkLarge > 0:
             print "Following with %s cmsScimarkLarge on cpu%s"%(cmsScimarkLarge,cpu)
             benchmarks(cpu,perfsuitedir,scimarklarge.name,cmsScimarkLarge)
-        
+
+    if not profilers == "":
+        # which profile sets should we go into if custom profiles have been selected
+        runTime     = reduce(lambda x,y: x or y, map(lambda x: x in profilers, ["0", "1", "2", "3"]))
+        runIgProf   = reduce(lambda x,y: x or y, map(lambda x: x in profilers, ["4", "5", "6", "7"]))
+        runValgrind = reduce(lambda x,y: x or y, map(lambda x: x in profilers, ["8", "9"]))
+        if not runTime:
+            TimeSizeEvents = 0
+        if not runIgProf:
+            IgProfEvents   = 0
+        if not runValgrind:
+            ValgrindEvents = 0
+
     #TimeSize tests:
     if TimeSizeEvents > 0:
         print "Launching the TimeSize tests (TimingReport, TimeReport, SimpleMemoryCheck, EdmSize) with %s events each" % TimeSizeEvents
