@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2008/09/12 09:23:05 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/09/19 07:18:45 $
+ *  $Revision: 1.2 $
  *
  *  \author Martin Grunewald
  *
@@ -24,7 +24,7 @@ bool HLTConfigProvider::init(const std::string& processName)
    registry_    = pset::Registry::instance();
 
    ProcessPSet_ = ParameterSet();
-   tableName_   = "@@Unknown@@";
+   tableName_   = "/dev/null";
 
    triggerNames_.clear();
    moduleLabels_.clear();
@@ -54,6 +54,7 @@ bool HLTConfigProvider::init(const std::string& processName)
        tableName_=HLTPSet.getParameter<string>("tableName");
      }
    }
+   cout << "HLTConfigProvider::init() HLT-ConfDB TableName = " << tableName_ << endl;
 
    // Extract trigger paths, which are paths but with endpaths to be
    // removed, from ParameterSet
