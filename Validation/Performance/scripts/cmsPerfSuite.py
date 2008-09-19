@@ -7,6 +7,7 @@ from cmsPerfCommons import Candles, MIN_REQ_TS_EVENTS, CandFname, getVerFromLog
 global ERRORS 
 ERRORS = 0
 _CASTOR_DIR = "/castor/cern.ch/cms/store/relval/performance/"
+_dryrun = False
 
 try:
     #Get some environment variables to use
@@ -27,6 +28,7 @@ AuxiliaryScripts=["cmsScimarkLaunch.csh","cmsScimarkParser.py","cmsScimarkStop.p
 
 #Options handling
 def optionParse():
+    global _dryrun, _debug, _unittest, _verbose    
     parser = opt.OptionParser(usage='''./cmsPerfSuite.py [options]
        
 Examples:
@@ -58,10 +60,12 @@ Legal entries for individual candles (--candle option):
                         stepOptions      = ""         ,
                         candleOptions    = ""         ,
                         profilers        = ""         ,
+                        outputdir        = ""         ,
                         runonspare       = True       ,
                         bypasshlt        = False      ,
                         quicktest        = False      ,
                         unittest         = False      ,
+                        dryrun           = False      ,
                         verbose          = True       ,
                         previousrel      = ""         ,
                         castordir        = _CASTOR_DIR,
@@ -74,29 +78,31 @@ Legal entries for individual candles (--candle option):
         help = 'Bypass HLT root file as input to RAW2DIGI')
     parser.add_option('-n', '--notrunspare', action="store_false", dest='runonspare',
         help = 'Do not run cmsScimark on spare cores')        
-    parser.add_option('-t', '--timesize' , type='int'   , dest='TimeSizeEvents'  , metavar='<#EVENTS>'   ,
+    parser.add_option('-t', '--timesize'  , type='int'   , dest='TimeSizeEvents'  , metavar='<#EVENTS>'   ,
         help = 'specify the number of events for the TimeSize tests'                   )
-    parser.add_option('-i', '--igprof'   , type='int'   , dest='IgProfEvents'    , metavar='<#EVENTS>'   ,
+    parser.add_option('-i', '--igprof'    , type='int'   , dest='IgProfEvents'    , metavar='<#EVENTS>'   ,
         help = 'specify the number of events for the IgProf tests'                     )
-    parser.add_option('-v', '--valgrind' , type='int'   , dest='ValgrindEvents'  , metavar='<#EVENTS>'   ,
+    parser.add_option('-v', '--valgrind'  , type='int'   , dest='ValgrindEvents'  , metavar='<#EVENTS>'   ,
         help = 'specify the number of events for the Valgrind tests'                   )
-    parser.add_option('--cmsScimark'     , type='int'   , dest='cmsScimark'      , metavar=''            ,
+    parser.add_option('--cmsScimark'      , type='int'   , dest='cmsScimark'      , metavar=''            ,
         help = 'specify the number of times the cmsScimark benchmark is run before and after the performance suite on cpu1'         )
-    parser.add_option('--cmsScimarkLarge', type='int'   , dest='cmsScimarkLarge' , metavar=''            ,
+    parser.add_option('--cmsScimarkLarge' , type='int'   , dest='cmsScimarkLarge' , metavar=''            ,
         help = 'specify the number of times the cmsScimarkLarge benchmark is run before and after the performance suite on cpu1'    )
-    parser.add_option('--cores'          , type='int', dest='cores'              , metavar='<CORES>'     ,
+    parser.add_option('--cores'           , type='int', dest='cores'              , metavar='<CORES>'     ,
         help = 'specify the number of cores of the machine (can be used with 0 to stop cmsScimark from running on the other cores)' )        
-    parser.add_option('-c', '--cmsdriver', type='string', dest='cmsdriverOptions', metavar='<OPTION_STR>',
+    parser.add_option('-c', '--cmsdriver' , type='string', dest='cmsdriverOptions', metavar='<OPTION_STR>',
         help = 'specify special options to use with the cmsDriver.py commands (designed for integration build use'                  )        
-    parser.add_option('-o', '--output'   , type='string', dest='castordir'       , metavar='<DIR>'       ,
+    parser.add_option('-a', '--archive'   , type='string', dest='castordir'       , metavar='<DIR>'       ,
         help = 'specify the wanted CASTOR directory where to store the results tarball'                                             )
-    parser.add_option('-r', '--prevrel'  , type='string', dest='previousrel'     , metavar='<DIR>'       ,
+    parser.add_option('-o', '--output'    , type='string', dest='outputdir'       , metavar='<DIR>'       ,
+        help = 'specify the directory where to store the output of the script'                                                      )        
+    parser.add_option('-r', '--prevrel'   , type='string', dest='previousrel'     , metavar='<DIR>'       ,
         help = 'Top level dir of previous release for regression analysis'                                                          )        
-    parser.add_option('--step'           , type='string', dest='stepOptions'     , metavar='<STEPS>'     ,
+    parser.add_option('--step'            , type='string', dest='stepOptions'     , metavar='<STEPS>'     ,
         help = 'specify the processing steps intended (instead of the default ones)'                                                )
-    parser.add_option('--candle'         , type='string', dest='candleOptions'   , metavar='<CANDLES>'   ,
+    parser.add_option('--candle'          , type='string', dest='candleOptions'   , metavar='<CANDLES>'   ,
         help = 'specify the candle(s) to run (instead of all 7 default candles)'                                                    )
-    parser.add_option('--cpu'            , type='string', dest='cpu'             , metavar='<CPU>'       ,
+    parser.add_option('--cpu'             , type='string', dest='cpu'             , metavar='<CPU>'       ,
         help = 'specify the core on which to run the performance suite'                                                             )
 
 
@@ -109,20 +115,25 @@ Legal entries for individual candles (--candle option):
                                      "Caution: use these options at your own risk."
                                      "It is believed that some of them bite.\n")
 
-    devel.add_option('-p', '--profile', type="str" , dest='profilers', metavar="<PROFILERS>" ,
+    devel.add_option('-p', '--profile'  , type="str" , dest='profilers', metavar="<PROFILERS>" ,
         help = 'Profile codes to use for cmsRelvalInput' )
-    devel.add_option('-d', '--debug'  , action='store_true', dest='debug'    ,
+    devel.add_option('-f', '--false-run', action="store_true", dest='dryrun'   ,
+        help = 'Dry run'                                                                                           )            
+    devel.add_option('-d', '--debug'    , action='store_true', dest='debug'    ,
         help = 'Debug'                                                                                             )
-    devel.add_option('--quicktest'    , action="store_true", dest='quicktest',
+    devel.add_option('--quicktest'      , action="store_true", dest='quicktest',
         help = 'Quick overwrite all the defaults to small numbers so that we can run a quick test of our chosing.' )  
-    devel.add_option('--test'         , action="store_true", dest='unittest' ,
+    devel.add_option('--test'           , action="store_true", dest='unittest' ,
         help = 'Perform a simple test, overrides other options. Overrides verbosity and sets it to false.'         )            
 
     parser.add_option_group(devel)
     (options, args) = parser.parse_args()
 
-    global _debug, _unittest, _verbose
+
     _debug           = options.debug
+    _unittest        = options.unittest 
+    _verbose         = options.verbose
+    _dryrun          = options.dryrun    
     castordir        = options.castordir
     TimeSizeEvents   = options.TimeSizeEvents
     IgProfEvents     = options.IgProfEvents
@@ -138,9 +149,8 @@ Legal entries for individual candles (--candle option):
     cpu              = options.cpu.strip()
     bypasshlt        = options.bypasshlt
     cores            = options.cores
-    _unittest        = options.unittest 
-    _verbose         = options.verbose
     prevrel          = options.previousrel
+    outputdir        = options.outputdir
 
     if "GEN,SIM" in stepOptions:
         print "WARNING: Please use GEN-SIM with a hypen not a \",\"!"
@@ -152,6 +162,11 @@ Legal entries for individual candles (--candle option):
         sys.exit()
 
     numetcomreg = re.compile("^[0-9,]*")
+
+    if outputdir == "":
+        outputdir = os.getcwd()
+    else:
+        outputdir = os.path.abspath(outputdir)
 
     if not numetcomreg.search(cpu):
         parser.error("cpu option needs to be a comma separted list of ints or a single int")
@@ -236,7 +251,8 @@ Legal entries for individual candles (--candle option):
             isAllCandles    ,
             candles         ,
             bypasshlt       ,
-            runonspare      )
+            runonspare      ,
+            outputdir       )
 
 def usage():
     return __doc__
@@ -337,18 +353,17 @@ def valFilterReport(dir,cmsver):
             "mv tmp SimulationCandles_%s.txt"                         % (cmssw_version))
     runCmdSet(cmds)
 
-def benchmarks(cpu,pfdir,name,bencher):
+def benchmarks(cpu,pfdir,name,bencher,large=False):
     cmd = Commands[cpu][3]
     redirect = ""
-    if name == "cmsScimark2.log":
-        redirect = " >& "
+    if large:
+        redirect = " -large >& "    
     else:
-        redirect = " -large >& "
-        
-    numofbenchs = int(bencher)
-    for i in range(numofbenchs):
+        redirect = " >& "
+
+    for i in range(bencher):
         command= cmd + redirect + os.path.join(pfdir,name)
-        printFlush(command+" [%s/%s]"%(i+1,numofbenchs))
+        printFlush(command + " [%s/%s]" % (i+1,bencher))
         runcmd(command)
         sys.stdout.flush()
 
@@ -382,12 +397,15 @@ def testCmsDriver(cpu,dir,cmsver,candle):
                 print cmdonline
                 cmds = ("cd %s"      % (dir),
                         "%s  >& ../cmsdriver_unit_test_%s_%s.log"    % (cmdonline,candle,stepbeingrun))
-                out = runCmdSet(cmds) 
-                if not out == None:
-                    sig     = out >> 16    # Get the top 16 bits
-                    xstatus = out & 0xffff # Mask out all bits except the first 16 
-                    print "FATAL ERROR: CMS Driver returned a non-zero exit status (which is %s) when running %s for candle %s. Signal interrupt was %s" % (xstatus,stepbeingrun,candle,sig)
-                    sys.exit()
+                if _dryrun:
+                    print cmds
+                else:
+                    out = runCmdSet(cmds)                    
+                    if not out == None:
+                        sig     = out >> 16    # Get the top 16 bits
+                        xstatus = out & 0xffff # Mask out all bits except the first 16 
+                        print "FATAL ERROR: CMS Driver returned a non-zero exit status (which is %s) when running %s for candle %s. Signal interrupt was %s" % (xstatus,stepbeingrun,candle,sig)
+                        sys.exit()
     
 
 def runCmsInput(cpu,dir,numevents,candle,cmsdrvopts,stepopt,profiles,bypasshlt):
@@ -510,7 +528,6 @@ def runPerfSuite(castordir        = _CASTOR_DIR,
             
     
     Commands = {}
-#    AuxiliaryCommands=[]
     AllScripts = Scripts + AuxiliaryScripts
 
     for cpu in cpus:
@@ -547,11 +564,13 @@ def runPerfSuite(castordir        = _CASTOR_DIR,
         #Submit the cmsScimark benchmarks on the cpu where the suite will be run:        
         scimark      = open(os.path.join(perfsuitedir,"cmsScimark2.log")      ,"w")        
         scimarklarge = open(os.path.join(perfsuitedir,"cmsScimark2_large.log"),"w")
-        print "Starting with %s cmsScimark on cpu%s"%(cmsScimark,cpu)
-        benchmarks(cpu,perfsuitedir,scimark.name,cmsScimark)
-    
-        print "Following with %s cmsScimarkLarge on cpu%s"%(cmsScimarkLarge,cpu)
-        benchmarks(cpu,perfsuitedir,scimarklarge.name,cmsScimarkLarge)
+        if cmsScimark > 0:
+            print "Starting with %s cmsScimark on cpu%s"%(cmsScimark,cpu)
+            benchmarks(cpu,perfsuitedir,scimark.name,cmsScimark)
+
+        if cmsScimarkLarge > 0:
+            print "Following with %s cmsScimarkLarge on cpu%s"%(cmsScimarkLarge,cpu)
+            benchmarks(cpu,perfsuitedir,scimarklarge.name,cmsScimarkLarge)
         
     #TimeSize tests:
     if TimeSizeEvents > 0:
@@ -587,30 +606,34 @@ def runPerfSuite(castordir        = _CASTOR_DIR,
         simpleGenReport(cpus,perfsuitedir,ValgrindEvents,valCandles,cmsdriverOptions,stepOptions,cmssw_version,"Valgrind",profilers,bypasshlt)
 
     if benching and not _unittest:
-    #Ending the performance suite with the cmsScimark benchmarks again: 
-        print "Ending with %s cmsScimark on cpu%s" % (cmsScimark,cpu)
-        benchmarks(cpu,perfsuitedir,scimark.name,cmsScimark)
+        #Ending the performance suite with the cmsScimark benchmarks again:
+        if cmsScimark > 0:
+            print "Ending with %s cmsScimark on cpu%s" % (cmsScimark,cpu)
+            benchmarks(cpu,perfsuitedir,scimark.name,cmsScimark)
     
-        print "Following with %s cmsScimarkLarge on cpu%s" % (cmsScimarkLarge,cpu)
-        benchmarks(cpu,perfsuitedir,scimarklarge.name,cmsScimarkLarge)
+        if cmsScimarkLarge > 0:
+            print "Following with %s cmsScimarkLarge on cpu%s" % (cmsScimarkLarge,cpu)
+            benchmarks(cpu,perfsuitedir,scimarklarge.name,cmsScimarkLarge)
     
     #Stopping all cmsScimark jobs and analysing automatically the logfiles
     print "Stopping all cmsScimark jobs"
-    printFlush(AuxiliaryScripts[2])
-    printFlush(os.popen4(AuxiliaryScripts[2])[1].read())
+    stopcmd = "cd %s ; %s" % (perfsuitedir,AuxiliaryScripts[2])
+    printFlush(stopcmd)
+    printFlush(os.popen4(stopcmd)[1].read())
 
     if not prevrel == "":
         crr.regressReports(prevrel,os.path.abspath(perfsuitedir),oldRelName = getVerFromLog(prevrel),newRelName=cmssw_version)
 
     #Create a tarball of the work directory
-    TarFile = cmssw_version + "_"     +     host    + "_"     + user + ".tar"
-    tarcmd  = "tar -cvf "   + os.path.join(perfsuitedir,TarFile) + " *; gzip " + os.path.join(perfsuitedir,TarFile)
+    TarFile = "%s_%s_%s.tar" % (cmssw_version, host, user)
+    AbsTarFile = os.path.join(perfsuitedir,TarFile)
+    tarcmd  = "tar -cvf %s %s; gzip %s" % (AbsTarFile,os.path.join(perfsuitedir,"*"),AbsTarFile)
     printFlush(tarcmd)
     printFlush(os.popen4(tarcmd)[1].read())
     
     #Archive it on CASTOR
-    castorcmd="rfcp %s.gz %s.gz" % (os.path.join(perfsuitedir,TarFile),os.path.join(castordir,TarFile))
-    
+    castorcmd="rfcp %s.gz %s.gz" % (AbsTarFile,os.path.join(castordir,TarFile))
+
     printFlush(castorcmd)
     printFlush(os.popen4(castorcmd)[1].read())
 
@@ -642,9 +665,11 @@ if __name__ == "__main__":
      isAllCandles    ,
      candles         ,
      bypasshlt       ,
-     runonspare      ) = optionParse()
+     runonspare      ,
+     outputdir       ) = optionParse()
    
     runPerfSuite(castordir        = castordir       ,
+                 perfsuitedir     = outputdir       ,
                  TimeSizeEvents   = TimeSizeEvents  ,
                  IgProfEvents     = IgProfEvents    ,
                  ValgrindEvents   = ValgrindEvents  ,
