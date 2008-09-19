@@ -18,6 +18,7 @@
 
 // Data Formats
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
+#include "FastSimDataFormats/External/interface/FastTrackerClusterCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSMatchedRecHit2DCollection.h"
 #include "DataFormats/GeometryVector/interface/Point3DBase.h"
@@ -56,7 +57,8 @@ class SiTrackerGaussianSmearingRecHitConverter : public edm::EDProducer
   virtual void beginRun(edm::Run & run, const edm::EventSetup & es);
   
   void smearHits(MixCollection<PSimHit>& input,
-		 std::map<unsigned, edm::OwnVector<SiTrackerGSRecHit2D> >& theRecHits);
+                 std::map<unsigned, edm::OwnVector<SiTrackerGSRecHit2D> >& theRecHits,
+                 std::map<unsigned, edm::OwnVector<FastTrackerCluster> >& theClusters);
 
  void  matchHits( std::map<unsigned, edm::OwnVector<SiTrackerGSRecHit2D> >& theRecHits, 
 		  std::map<unsigned, edm::OwnVector<SiTrackerGSMatchedRecHit2D> >& matchedMap,
@@ -68,7 +70,12 @@ class SiTrackerGaussianSmearingRecHitConverter : public edm::EDProducer
   void loadMatchedRecHits(std::map<unsigned,edm::OwnVector<SiTrackerGSMatchedRecHit2D> >& theRecHits, 
 		   SiTrackerGSMatchedRecHit2DCollection& theRecHitCollection) const;
 
- private:
+  void loadClusters(std::map<unsigned,edm::OwnVector<FastTrackerCluster> >& theClusterMap, 
+                    FastTrackerClusterCollection& theClusterCollection) const;
+  
+  
+  
+  private:
   //
   bool gaussianSmearing(const PSimHit& simHit, 
 			Local3DPoint& position , 
@@ -217,6 +224,11 @@ class SiTrackerGaussianSmearingRecHitConverter : public edm::EDProducer
 
   // The random engine
   const RandomEngine* random;
+  
+  typedef SiTrackerGSRecHit2D::ClusterRef ClusterRef;
+  typedef SiTrackerGSRecHit2D::ClusterRefProd ClusterRefProd;
+  // Added for cluster reference
+  ClusterRefProd FastTrackerClusterRefProd;
 
 };
 

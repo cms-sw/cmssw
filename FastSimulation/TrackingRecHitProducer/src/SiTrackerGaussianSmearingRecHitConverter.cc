@@ -1,3 +1,4 @@
+
 /** SiTrackerGaussianSmearingRecHitConverter.cc
  * --------------------------------------------------------------
  * Description:  see SiTrackerGaussianSmearingRecHitConverter.h
@@ -5,6 +6,9 @@
  * History: Sep 27, 2006 -  initial version
  * --------------------------------------------------------------
  */
+//PAT
+//FastTrackerCluster
+#include "FastSimDataFormats/External/interface/FastTrackerCluster.h"
 
 // SiTracker Gaussian Smearing
 #include "FastSimulation/TrackingRecHitProducer/interface/SiTrackerGaussianSmearingRecHitConverter.h"
@@ -87,6 +91,8 @@ SiTrackerGaussianSmearingRecHitConverter::SiTrackerGaussianSmearingRecHitConvert
   }
 
   random = new RandomEngine(&(*rng));
+  //PAT
+  produces<FastTrackerClusterCollection>("TrackerClusters");
 
   produces<SiTrackerGSRecHit2DCollection>("TrackerGSRecHits");
   produces<SiTrackerGSMatchedRecHit2DCollection>("TrackerGSMatchedRecHits");
@@ -570,6 +576,9 @@ SiTrackerGaussianSmearingRecHitConverter::beginRun(edm::Run & run, const edm::Ev
 void SiTrackerGaussianSmearingRecHitConverter::produce(edm::Event& e, const edm::EventSetup& es) 
 {
 
+  // Step 0: Declare Ref and RefProd
+  FastTrackerClusterRefProd = e.getRefBeforePut<FastTrackerClusterCollection>("TrackerClusters");
+  
   // Step A: Get Inputs (PSimHit's)
   edm::Handle<CrossingFrame<PSimHit> > cf_simhit; 
   std::vector<const CrossingFrame<PSimHit> *> cf_simhitvec;
@@ -580,8 +589,11 @@ void SiTrackerGaussianSmearingRecHitConverter::produce(edm::Event& e, const edm:
   std::auto_ptr<MixCollection<PSimHit> > allTrackerHits(new MixCollection<PSimHit>(cf_simhitvec));
 
   // Step B: create temporary RecHit collection and fill it with Gaussian smeared RecHit's
+  
+  //NEW!!!CREATE CLUSTERS AT THE SAME TIME
   std::map<unsigned, edm::OwnVector<SiTrackerGSRecHit2D> > temporaryRecHits;
-  smearHits( *allTrackerHits, temporaryRecHits);
+  std::map<unsigned, edm::OwnVector<FastTrackerCluster> > theClusters ;
+  smearHits( *allTrackerHits, temporaryRecHits, theClusters);
 
  // Step C: match rechits on stereo layers
   std::map<unsigned, edm::OwnVector<SiTrackerGSMatchedRecHit2D> > temporaryMatchedRecHits ;
@@ -604,13 +616,19 @@ void SiTrackerGaussianSmearingRecHitConverter::produce(edm::Event& e, const edm:
   // Step E: write output to file
   e.put(recHitCollection,"TrackerGSRecHits");
   e.put(recHitCollectionMatched,"TrackerGSMatchedRecHits");
+  
+  //STEP F: write clusters
+  std::auto_ptr<FastTrackerClusterCollection> clusterCollection(new FastTrackerClusterCollection);
+  loadClusters(theClusters, *clusterCollection);
+  e.put(clusterCollection,"TrackerClusters");
 }
 
 
 
 void SiTrackerGaussianSmearingRecHitConverter::smearHits(
-							 MixCollection<PSimHit>& input,
-							 std::map<unsigned, edm::OwnVector<SiTrackerGSRecHit2D> >& temporaryRecHits)
+							 MixCollection<PSimHit>& input, 
+                                                         std::map<unsigned, edm::OwnVector<SiTrackerGSRecHit2D> >& temporaryRecHits,
+                                                         std::map<unsigned, edm::OwnVector<FastTrackerCluster> >& theClusters)
 {
   
   int numberOfPSimHits = 0;
@@ -712,6 +730,17 @@ void SiTrackerGaussianSmearingRecHitConverter::smearHits(
 			     error.xy()+lape.xy(),
 			     error.yy()+lape.yy() );
       }
+      
+      //create cluster
+      theClusters[trackID].push_back(
+                                       new FastTrackerCluster(position, error, det,
+                                                              simHitCounter, trackID,
+                                                              eeID,
+                                                              (*isim).energyLoss())
+                                    );
+      
+      // std::cout << "CLUSTER for simhit " << simHitCounter << "\t energy loss = " << (*isim).energyLoss() << std::endl;
+      
       // std::cout << "Error as reconstructed " << error.xx() << " " << error.xy() << " " << error.yy() << std::endl;
 
       // create rechit
@@ -719,6 +748,7 @@ void SiTrackerGaussianSmearingRecHitConverter::smearHits(
 		 new SiTrackerGSRecHit2D(position, error, det, 
 					 simHitCounter, trackID, 
 					 eeID, 
+                                         ClusterRef(FastTrackerClusterRefProd, simHitCounter),
 					 alphaMult, betaMult)
 		 );
       
@@ -1096,6 +1126,24 @@ bool SiTrackerGaussianSmearingRecHitConverter::gaussianSmearing(const PSimHit& s
 }   
 
 
+
+void 
+    SiTrackerGaussianSmearingRecHitConverter::loadClusters(
+    std::map<unsigned,edm::OwnVector<FastTrackerCluster> >& theClusterMap, 
+    FastTrackerClusterCollection& theClusterCollection) const
+{
+  std::map<unsigned,edm::OwnVector<FastTrackerCluster> >::const_iterator 
+      it = theClusterMap.begin();
+  std::map<unsigned,edm::OwnVector<FastTrackerCluster> >::const_iterator 
+      lastCluster = theClusterMap.end();
+  
+  for( ; it != lastCluster ; ++it ) { 
+    theClusterCollection.put(it->first,(it->second).begin(),(it->second).end());
+  }
+}
+
+
+
 void 
 SiTrackerGaussianSmearingRecHitConverter::loadRecHits(
      std::map<unsigned,edm::OwnVector<SiTrackerGSRecHit2D> >& theRecHits, 
@@ -1266,7 +1314,8 @@ SiTrackerGaussianSmearingRecHitConverter::matchHits(
 	  SiTrackerGSMatchedRecHit2D* rit_copy = new SiTrackerGSMatchedRecHit2D(rit->localPosition(), rit->localPositionError(),
 										rit->geographicalId(), 
 										rit->simhitId(), rit->simtrackId(), rit->eeId(),
-										rit->simMultX(), rit->simMultY()); 
+                                                                                rit->cluster(),
+                                                                                rit->simMultX(), rit->simMultY()); 
 	  //std::cout << "Simple hit  hit: isMatched =\t" << rit_copy->isMatched() << ", "
 	  //    <<  rit_copy->monoHit() << ", " <<  rit_copy->stereoHit() << std::endl;
 	  
@@ -1280,6 +1329,7 @@ SiTrackerGaussianSmearingRecHitConverter::matchHits(
 	SiTrackerGSMatchedRecHit2D* rit_copy = new SiTrackerGSMatchedRecHit2D(rit->localPosition(), rit->localPositionError(),
 									      rit->geographicalId(), 
 									      rit->simhitId(), rit->simtrackId(), rit->eeId(), 
+                                                                              rit->cluster(),
 									      rit->simMultX(), rit->simMultY());	
 	
 	//std::cout << "Simple hit  hit: isMatched =\t" << rit_copy->isMatched() << ", "

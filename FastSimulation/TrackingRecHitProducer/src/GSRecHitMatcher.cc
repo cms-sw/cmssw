@@ -99,8 +99,8 @@ SiTrackerGSMatchedRecHit2D * GSRecHitMatcher::match( const SiTrackerGSRecHit2D *
 //   }
   
   return new SiTrackerGSMatchedRecHit2D(position, error,gluedDet->geographicalId(), monoRH->simhitId(), 
-				 monoRH->simtrackId(), monoRH->eeId(), monoRH->simMultX(), monoRH->simMultY(), 
-				 true, monoRH, stereoRH);
+                                        monoRH->simtrackId(), monoRH->eeId(), monoRH->cluster(), monoRH->simMultX(), monoRH->simMultY(), 
+                                        true, monoRH, stereoRH);
 }
 
 
@@ -154,6 +154,7 @@ SiTrackerGSMatchedRecHit2D * GSRecHitMatcher::projectOnly( const SiTrackerGSRecH
   LocalError rotatedError = hitErr.rotate( hitXAxis.x(), hitXAxis.y());
  
   return new SiTrackerGSMatchedRecHit2D(projectedHitPos, rotatedError, gluedDet->geographicalId(), 
-				 monoRH->simhitId(),  monoRH->simtrackId(), monoRH->eeId(), monoRH->simMultX(), monoRH->simMultY());
+                                        monoRH->simhitId(),  monoRH->simtrackId(), monoRH->eeId(), monoRH->cluster(),
+                                        monoRH->simMultX(), monoRH->simMultY());
 }
 
