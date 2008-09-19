@@ -1,29 +1,32 @@
 #!/usr/bin/env python
 import cmsSimPerfPublish as cspp
 import cmsPerfSuite as cps
+import cmsPerfHarvest as cph
 import optparse as opt
 import socket, os, sys, SimpleXMLRPCServer, threading
 
-_PROG_NAME = os.path.basename(sys.argv[0])
+_logreturn  = True
+_PROG_NAME  = os.path.basename(sys.argv[0])
 _CASTOR_DIR = "/castor/cern.ch/cms/store/relval/performance/"
-_DEFAULTS  = {"castordir"        : _CASTOR_DIR,
-              "perfsuitedir"     : os.getcwd(),
-              "TimeSizeEvents"   : 100        ,
-              "IgProfEvents"     : 5          ,
-              "ValgrindEvents"   : 1          ,
-              "cmsScimark"       : 10         ,
-              "cmsScimarkLarge"  : 10         ,
-              "cmsdriverOptions" : ""         ,
-              "stepOptions"      : ""         ,
-              "quicktest"        : False      ,
-              "profilers"        : ""         ,
-              "cpus"             : [1]        ,
-              "cores"            : 4          ,
-              "prevrel"          : ""         ,
-              "isAllCandles"     : True       ,
-              "candles"          : Candles    ,
-              "bypasshlt"        : False      ,
-              "runonspare"       : True       }
+_DEFAULTS   = {"castordir"        : _CASTOR_DIR,
+               "perfsuitedir"     : os.getcwd(),
+               "TimeSizeEvents"   : 100        ,
+               "IgProfEvents"     : 5          ,
+               "ValgrindEvents"   : 1          ,
+               "cmsScimark"       : 10         ,
+               "cmsScimarkLarge"  : 10         ,
+               "cmsdriverOptions" : ""         ,
+               "stepOptions"      : ""         ,
+               "quicktest"        : False      ,
+               "profilers"        : ""         ,
+               "cpus"             : [1]        ,
+               "cores"            : 4          ,
+               "prevrel"          : ""         ,
+               "isAllCandles"     : True       ,
+               "candles"          : Candles    ,
+               "bypasshlt"        : False      ,
+               "runonspare"       : True       ,
+               "logfile"          : os.path.join(os.getcwd(),"cmsPerfSuite.log")}
 
 def optionparse():
 
@@ -110,21 +113,60 @@ def runcmd(cmd):
         raise
     return cmdout
 
+def readlog(logfile):
+    astr = ""    
+    try:
+        for line in open(logfile,"r"):
+            astr += line
+    except (OSError, IOError) , detail:
+        print detail
+    return astr
+
 def getCPSkeyword(key,dict):
     if dict.has_key(key):
         return dict[key]
     else:
-        
+        return _DEFAULTS[key]
+
 
 def request_benchmark(cmds):
     # input is a list of dictionaries each defining the
     #   keywords to cmsperfsuite
     outs = []
+    i = 0
     for cmd in cmds:
-        cps.runPerfSuite(castordir = getCPSkeyword("castordir",cmds),
-        outs.append(runcmd(cmd))
-    
-    
+        curperfdir = os.path.join(getCPSkeyword("perfsuitedir"    , cmds),str(i))
+        if not os.path.exists(curperfdir):
+            os.mkdir(curperfdir)
+        logfile = os.path.join(getCPSkeyword("perfsuitedir"         , cmds), str(i), "cmsPerfSuite.log")
+        if cmds.has_key("logfile"):
+            logfile = os.path.join(getCPSkeyword("logfile"          , cmds), "cmsPerfSuite.log")
+            if os.path.exists(logfile):
+                logfile = logfile + str(i)
+        cps.runPerfSuite(castordir        = getCPSkeyword("castordir"       , cmds),
+                         perfsuitedir     = curperfdir                             ,
+                         TimeSizeEvents   = getCPSkeyword("TimeSizeEvents"  , cmds),
+                         IgProfEvents     = getCPSkeyword("IgProfEvents"    , cmds),
+                         ValgrindEvents   = getCPSkeyword("ValgrindEvents"  , cmds),
+                         cmsScimark       = getCPSkeyword("cmsScimark"      , cmds),
+                         cmsScimarkLarge  = getCPSkeyword("cmsScimarkLarge" , cmds),
+                         cmsdriverOptions = getCPSkeyword("cmsdriverOptions", cmds),
+                         stepOptions      = getCPSkeyword("stepOptions"     , cmds),
+                         quicktest        = getCPSkeyword("quicktest"       , cmds),
+                         profilers        = getCPSkeyword("profilers"       , cmds),
+                         cpus             = getCPSkeyword("cpus"            , cmds),
+                         cores            = getCPSkeyword("cores"           , cmds),
+                         prevrel          = getCPSkeyword("prevrel"         , cmds),
+                         isAllCandles     = getCPSkeyword("isAllCandles"    , cmds),
+                         candles          = getCPSkeyword("candles"         , cmds),
+                         bypasshlt        = getCPSkeyword("bypasshlt"       , cmds),
+                         runonspare       = getCPSkeyword("runonspare"      , cmds),
+                         logfile          = logfile                                )
+        if _returnlog:
+            outs.append(readlog(logfile))
+        else:
+            outs.append(cph.harvest(curperfdir))
+        i += 1
 
     return outs
 

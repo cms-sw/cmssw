@@ -8,6 +8,7 @@ global ERRORS
 ERRORS = 0
 _CASTOR_DIR = "/castor/cern.ch/cms/store/relval/performance/"
 _dryrun = False
+logh = sys.stdout
 
 try:
     #Get some environment variables to use
@@ -61,6 +62,7 @@ Legal entries for individual candles (--candle option):
                         candleOptions    = ""         ,
                         profilers        = ""         ,
                         outputdir        = ""         ,
+                        logfile          = None       ,
                         runonspare       = True       ,
                         bypasshlt        = False      ,
                         quicktest        = False      ,
@@ -94,6 +96,8 @@ Legal entries for individual candles (--candle option):
         help = 'specify special options to use with the cmsDriver.py commands (designed for integration build use'                  )        
     parser.add_option('-a', '--archive'   , type='string', dest='castordir'       , metavar='<DIR>'       ,
         help = 'specify the wanted CASTOR directory where to store the results tarball'                                             )
+    parser.add_option('-L', '--logfile'   , type='string', dest='logfile'         , metavar='<FILE>'      ,
+        help = 'file to store log output of the script'                                                                             )                
     parser.add_option('-o', '--output'    , type='string', dest='outputdir'       , metavar='<DIR>'       ,
         help = 'specify the directory where to store the output of the script'                                                      )        
     parser.add_option('-r', '--prevrel'   , type='string', dest='previousrel'     , metavar='<DIR>'       ,
@@ -149,8 +153,16 @@ Legal entries for individual candles (--candle option):
     cpu              = options.cpu.strip()
     bypasshlt        = options.bypasshlt
     cores            = options.cores
+    logfile          = options.logfile
     prevrel          = options.previousrel
     outputdir        = options.outputdir
+
+    if not logfile == None:
+        logdir = os.path.dirname(logfile)
+        if not os.path.exists(logdir):
+            parser.error("Directory to output logfile does not exist")
+            sys.exit()
+        logfile = os.path.abspath(logfile)
 
     if "GEN,SIM" in stepOptions:
         print "WARNING: Please use GEN-SIM with a hypen not a \",\"!"
@@ -252,7 +264,8 @@ Legal entries for individual candles (--candle option):
             candles         ,
             bypasshlt       ,
             runonspare      ,
-            outputdir       )
+            outputdir       ,
+            logfile         )
 
 def usage():
     return __doc__
@@ -274,49 +287,49 @@ def runCmdSet(cmd):
 
 def printFlush(command):
     if _verbose:
-        print command
-    sys.stdout.flush()
+        logh.write(command)
+    logh.flush()
 
 def runcmd(command):
     process  = os.popen(command)
     cmdout   = process.read()
     exitstat = process.close()
     if _verbose:
-        print cmdout
+        logh.write(cmdout)
     return exitstat
 
 def getDate():
     return time.ctime()
 
 def printDate():
-    print getDate()
+    logh.write(getDate())
 
 def getPrereqRoot(rootdir,rootfile):
-    print "WARNING: %s file required to run QCD profiling does not exist. Now running cmsDriver.py to get Required Minbias root file"   % (rootdir + "/" +rootfile)
+    logh.write("WARNING: %s file required to run QCD profiling does not exist. Now running cmsDriver.py to get Required Minbias root file"   % (rootdir + "/" +rootfile))
 
     if not os.path.exists(rootdir):
         os.system("mkdir -p %s" % rootdir)
     if not _debug:
         cmd = "cd %s ; cmsDriver.py MinBias_cfi -s GEN,SIM -n %s >& ../minbias_for_pileup_generate.log" % (rootdir,str(10))
-        print cmd
+        log.write(cmd)
         os.system(cmd)
     if not os.path.exists(rootdir + "/" + rootfile):
-        print "ERROR: We can not run QCD profiling please create root file %s to run QCD profiling." % (rootdir + "/" + rootfile)
+        logh.write("ERROR: We can not run QCD profiling please create root file %s to run QCD profiling." % (rootdir + "/" + rootfile))
 
 
 def checkQcdConditions(candles,TimeSizeEvents,rootdir,rootfile):
     if TimeSizeEvents < MIN_REQ_TS_EVENTS :
-        print "WARNING: TimeSizeEvents is less than %s but QCD needs at least that to run. PILE-UP will be ignored" % MIN_REQ_TS_EVENTS
+        logh.write("WARNING: TimeSizeEvents is less than %s but QCD needs at least that to run. PILE-UP will be ignored" % MIN_REQ_TS_EVENTS)
         
         
     rootfilepath = rootdir + "/" + rootfile
     if not os.path.exists(rootfilepath):
         getPrereqRoot(rootdir,rootfile)
         if not os.path.exists(rootfilepath) and not _debug:
-            print "ERROR: Could not create or find a rootfile %s with enough TimeSize events for QCD exiting..." % rootfilepath
+            logh.write("ERROR: Could not create or find a rootfile %s with enough TimeSize events for QCD exiting..." % rootfilepath)
             sys.exit()
     else:
-        print "%s Root file for QCD exists. Good!!!" % (rootdir + "/" + rootfile)
+        logh.write("%s Root file for QCD exists. Good!!!" % (rootdir + "/" + rootfile))
     return candles
 
 def mkCandleDir(pfdir,candle,profiler):
@@ -337,13 +350,13 @@ def displayErrors(file):
     try:
         for line in open(file,"r"):
             if "cerr" in line:
-                print "ERROR: %s" % line
+                logh.write("ERROR: %s" % line)
                 ERRORS += 1
     except OSError, detail:
-        print "WARNING: %s" % detail
+        logh.write("WARNING: %s" % detail)
         ERRORS += 1        
     except IOError, detail:
-        print "WARNING: %s" % detail
+        logh.write("WARNING: %s" % detail)
         ERRORS += 1
     
 
@@ -365,7 +378,7 @@ def benchmarks(cpu,pfdir,name,bencher,large=False):
         command= cmd + redirect + os.path.join(pfdir,name)
         printFlush(command + " [%s/%s]" % (i+1,bencher))
         runcmd(command)
-        sys.stdout.flush()
+        logh.flush()
 
 def runCmsReport(cpu,dir,cmsver,candle):
     cmd  = Commands[cpu][1]
@@ -376,7 +389,7 @@ def runCmsReport(cpu,dir,cmsver,candle):
         exitstat = runCmdSet(cmds)
         
     if _unittest and (not exitstat == None):
-        print "ERROR: CMS Report returned a non-zero exit status "
+        logh.write("ERROR: CMS Report returned a non-zero exit status ")
         sys.exit()
 
 def testCmsDriver(cpu,dir,cmsver,candle):
@@ -395,17 +408,17 @@ def testCmsDriver(cpu,dir,cmsver,candle):
                     stepbeingrun = matches.groups()[0]
                 if "PILEUP" in cmdonline:
                     stepbeingrun += "_PILEUP"
-                print cmdonline
+                logh.write(cmdonline)
                 cmds = ("cd %s"      % (dir),
                         "%s  >& ../cmsdriver_unit_test_%s_%s.log"    % (cmdonline,candle,stepbeingrun))
                 if _dryrun:
-                    print cmds
+                    logh.write(cmds)
                 else:
                     out = runCmdSet(cmds)                    
                     if not out == None:
                         sig     = out >> 16    # Get the top 16 bits
                         xstatus = out & 0xffff # Mask out all bits except the first 16 
-                        print "FATAL ERROR: CMS Driver returned a non-zero exit status (which is %s) when running %s for candle %s. Signal interrupt was %s" % (xstatus,stepbeingrun,candle,sig)
+                        logh.write("FATAL ERROR: CMS Driver returned a non-zero exit status (which is %s) when running %s for candle %s. Signal interrupt was %s" % (xstatus,stepbeingrun,candle,sig))
                         sys.exit()
             previousCmdOnline = cmdonline
     
@@ -426,7 +439,7 @@ def runCmsInput(cpu,dir,numevents,candle,cmsdrvopts,stepopt,profiles,bypasshlt):
                                           bypass))
     exitstat = runCmdSet(cmds)
     if _unittest and (not exitstat == None):
-        print "ERROR: CMS Report Input returned a non-zero exit status " 
+        logh.write("ERROR: CMS Report Input returned a non-zero exit status " )
 
 def simpleGenReport(cpus,perfdir,NumEvents,candles,cmsdriverOptions,stepOptions,cmssw_version,Name,profilers,bypasshlt):
     valgrind = Name == "Valgrind"
@@ -449,9 +462,9 @@ def simpleGenReport(cpus,perfdir,NumEvents,candles,cmsdriverOptions,stepOptions,
 
             if valgrind:
                 if candle == "SingleMuMinusPt10" : 
-                    print "Valgrind tests **GEN,SIM ONLY** on %s candle" % candle                
+                    logh.write("Valgrind tests **GEN,SIM ONLY** on %s candle" % candle    )
                 else:
-                    print "Valgrind tests **SKIPPING GEN,SIM** on %s candle" % candle                
+                    logh.write("Valgrind tests **SKIPPING GEN,SIM** on %s candle" % candle)
                     cpIgProfGenSim(adir,candle)                
 
             if _unittest:
@@ -473,10 +486,10 @@ def simpleGenReport(cpus,perfdir,NumEvents,candles,cmsdriverOptions,stepOptions,
 
                 for proflog in proflogs:
                     globpath = os.path.join(adir,"%s_*_%s.log" % (CandFname[candle],proflog))
-                    print "Looking for logs that match", globpath
+                    logh.write("Looking for logs that match %s" % globpath)
                     logs     = glob.glob(globpath)
                     for log in logs:
-                        print "Found log", log
+                        logh.write("Found log" % log)
                         displayErrors(log)
 
 def runPerfSuite(castordir        = _CASTOR_DIR,
@@ -496,23 +509,31 @@ def runPerfSuite(castordir        = _CASTOR_DIR,
                  isAllCandles     = True       ,
                  candles          = Candles    ,
                  bypasshlt        = False      ,
-                 runonspare       = True       ):
+                 runonspare       = True       ,
+                 logfile          = os.path.join(os.getcwd(),"cmsPerfSuite.log")):
 
+    global Commands, logh
     #Print a time stamp at the beginning:
 
+    if not logfile == None:
+        try:
+            logh = open(logfile,"a")
+        except (OSError, IOError), detail:
+            logh.write(detail)
+
     path=os.path.abspath(".")
-    print "Performance Suite started running at %s on %s in directory %s, run by user %s" % (getDate(),host,path,user)
+    logh.write("Performance Suite started running at %s on %s in directory %s, run by user %s" % (getDate(),host,path,user))
     showtags=os.popen4("showtags -r")[1].read()
-    print showtags
+    logh.write(showtags)
     
     #For the log:
     if _verbose:
-        print "The performance suite results tarball will be stored in CASTOR at %s" % castordir
-        print "%s TimeSize events" % TimeSizeEvents
-        print "%s IgProf events"   % IgProfEvents
-        print "%s Valgrind events" % ValgrindEvents
-        print "%s cmsScimark benchmarks before starting the tests"      % cmsScimark
-        print "%s cmsScimarkLarge benchmarks before starting the tests" % cmsScimarkLarge
+        logh.write("The performance suite results tarball will be stored in CASTOR at %s" % castordir)
+        logh.write("%s TimeSize events" % TimeSizeEvents)
+        logh.write("%s IgProf events"   % IgProfEvents)
+        logh.write("%s Valgrind events" % ValgrindEvents)
+        logh.write("%s cmsScimark benchmarks before starting the tests"      % cmsScimark)
+        logh.write("%s cmsScimarkLarge benchmarks before starting the tests" % cmsScimarkLarge)
         
     #Actual script actions!
     #Will have to fix the issue with the matplotlib pie-charts:
@@ -520,7 +541,7 @@ def runPerfSuite(castordir        = _CASTOR_DIR,
     #Need an alternative in the release
 
     #Command Handling:
-    global Commands
+
 
     if len(cpus) > 1:
         for cpu in cpus:
@@ -540,7 +561,7 @@ def runPerfSuite(castordir        = _CASTOR_DIR,
         
         #Logging the actual version of cmsDriver.py, cmsRelvalreport.py, cmsSimPyRelVal.pl
         whichstdout=os.popen4(which)[1].read()
-        print whichstdout
+        logh.write(whichstdout)
         if script in Scripts:
             for cpu in cpus:
                 command="taskset -c %s %s" % (cpu,script)
@@ -552,14 +573,14 @@ def runPerfSuite(castordir        = _CASTOR_DIR,
     if not _unittest:    
         for core in range(cores):
             if (not core in cpus) and runonspare:
-                print "Submitting cmsScimarkLaunch.csh to run on core cpu"+str(core)
+                logh.write("Submitting cmsScimarkLaunch.csh to run on core cpu"+str(core))
                 command="taskset -c %s cmsScimarkLaunch.csh %s &" % (str(core), str(core))
-                print command
+                logh.write(command)
             
                 #cmsScimarkLaunch.csh is an infinite loop to spawn cmsScimark2 on the other
                 #cpus so it makes no sense to try reading its stdout/err 
                 os.popen4(command)
-    sys.stdout.flush()
+    logh.flush()
             
     #dont do benchmarking if in debug mode... saves time
     benching = not _debug
@@ -568,11 +589,11 @@ def runPerfSuite(castordir        = _CASTOR_DIR,
         scimark      = open(os.path.join(perfsuitedir,"cmsScimark2.log")      ,"w")        
         scimarklarge = open(os.path.join(perfsuitedir,"cmsScimark2_large.log"),"w")
         if cmsScimark > 0:
-            print "Starting with %s cmsScimark on cpu%s"%(cmsScimark,cpu)
+            logh.write("Starting with %s cmsScimark on cpu%s"%(cmsScimark,cpu))
             benchmarks(cpu,perfsuitedir,scimark.name,cmsScimark)
 
         if cmsScimarkLarge > 0:
-            print "Following with %s cmsScimarkLarge on cpu%s"%(cmsScimarkLarge,cpu)
+            logh.write("Following with %s cmsScimarkLarge on cpu%s"%(cmsScimarkLarge,cpu))
             benchmarks(cpu,perfsuitedir,scimarklarge.name,cmsScimarkLarge)
 
     if not profilers == "":
@@ -589,16 +610,16 @@ def runPerfSuite(castordir        = _CASTOR_DIR,
 
     #TimeSize tests:
     if TimeSizeEvents > 0:
-        print "Launching the TimeSize tests (TimingReport, TimeReport, SimpleMemoryCheck, EdmSize) with %s events each" % TimeSizeEvents
+        logh.write("Launching the TimeSize tests (TimingReport, TimeReport, SimpleMemoryCheck, EdmSize) with %s events each" % TimeSizeEvents)
         printDate()
-        sys.stdout.flush()
+        logh.flush()
         simpleGenReport(cpus,perfsuitedir,TimeSizeEvents,candles,cmsdriverOptions,stepOptions,cmssw_version,"TimeSize",profilers,bypasshlt)
 
     #IgProf tests:
     if IgProfEvents > 0:
-        print "Launching the IgProf tests (IgProfPerf, IgProfMemTotal, IgProfMemLive, IgProfMemAnalyse) with %s events each" % IgProfEvents
+        logh.write("Launching the IgProf tests (IgProfPerf, IgProfMemTotal, IgProfMemLive, IgProfMemAnalyse) with %s events each" % IgProfEvents)
         printDate()
-        sys.stdout.flush()
+        logh.flush()
         IgCandles = candles
         #By default run IgProf only on QCD_80_120 candle
         if isAllCandles:
@@ -607,9 +628,9 @@ def runPerfSuite(castordir        = _CASTOR_DIR,
 
     #Valgrind tests:
     if ValgrindEvents > 0:
-        print "Launching the Valgrind tests (callgrind_FCE, memcheck) with %s events each" % ValgrindEvents
+        logh.write("Launching the Valgrind tests (callgrind_FCE, memcheck) with %s events each" % ValgrindEvents)
         printDate()
-        sys.stdout.flush()
+        logh.flush()
         valCandles = candles
 
         if isAllCandles:
@@ -626,15 +647,15 @@ def runPerfSuite(castordir        = _CASTOR_DIR,
     if benching and not _unittest:
         #Ending the performance suite with the cmsScimark benchmarks again:
         if cmsScimark > 0:
-            print "Ending with %s cmsScimark on cpu%s" % (cmsScimark,cpu)
+            logh.write("Ending with %s cmsScimark on cpu%s" % (cmsScimark,cpu))
             benchmarks(cpu,perfsuitedir,scimark.name,cmsScimark)
     
         if cmsScimarkLarge > 0:
-            print "Following with %s cmsScimarkLarge on cpu%s" % (cmsScimarkLarge,cpu)
+            logh.write("Following with %s cmsScimarkLarge on cpu%s" % (cmsScimarkLarge,cpu))
             benchmarks(cpu,perfsuitedir,scimarklarge.name,cmsScimarkLarge)
     
     #Stopping all cmsScimark jobs and analysing automatically the logfiles
-    print "Stopping all cmsScimark jobs"
+    logh.write("Stopping all cmsScimark jobs")
     stopcmd = "cd %s ; %s" % (perfsuitedir,AuxiliaryScripts[2])
     printFlush(stopcmd)
     printFlush(os.popen4(stopcmd)[1].read())
@@ -659,11 +680,11 @@ def runPerfSuite(castordir        = _CASTOR_DIR,
 
     #Print a time stamp at the end:
     date=time.ctime(time.time())
-    print "Performance Suite finished running at %s on %s in directory %s" % (date,host,path)
+    logh.write("Performance Suite finished running at %s on %s in directory %s" % (date,host,path))
     if ERRORS == 0:
-        print "There were no errors detected in any of the log files!"
+        logh.write("There were no errors detected in any of the log files!")
     else:
-        print "ERROR: There were %s errors detected in the log files, please revise!" % ERRORS
+        logh.write("ERROR: There were %s errors detected in the log files, please revise!" % ERRORS)
 
 if __name__ == "__main__":
     #Let's check the command line arguments
@@ -684,7 +705,8 @@ if __name__ == "__main__":
      candles         ,
      bypasshlt       ,
      runonspare      ,
-     outputdir       ) = optionParse()
+     outputdir       ,
+     logfile         ) = optionParse()
    
     runPerfSuite(castordir        = castordir       ,
                  perfsuitedir     = outputdir       ,
@@ -703,5 +725,6 @@ if __name__ == "__main__":
                  isAllCandles     = isAllCandles    ,
                  candles          = candles         ,
                  bypasshlt        = bypasshlt       ,
-                 runonspare       = runonspare      )     
+                 runonspare       = runonspare      ,
+                 logfile          = logfile         )     
 

@@ -22,8 +22,8 @@
 #
 
 import sys, os, re, operator
-import optparse as opt 
-from cmsPerfCommons import Candles, MIN_REQ_TS_EVENTS, CandDesc, FileName, KeywordToCfi
+import optparse as opt
+from cmsPerfCommons import Candles, MIN_REQ_TS_EVENTS, CandDesc, FileName, KeywordToCfi, CandFname
 
 ################
 # Global variables
@@ -34,7 +34,7 @@ cmsDriver = 'cmsDriver.py'                    #cmsDriver.py path
 hypreg = re.compile('-')
 debug = False
 DEF_STEPS = ('GEN,SIM', 'DIGI')
-AllSteps  = ["GEN,SIM", "DIGI", "L1", "DIGI2RAW", "HLT", "RAW2DIGI", "RECO"]
+AllSteps  = ["GEN,SIM", "DIGI", "L1", "DIGI2RAW", "HLT", "RAW2DIGI","RECO"]
 AfterPileUpSteps = AllSteps[2:]
 
 # Global variables used by writeCommandsToReport and dependents
@@ -474,7 +474,13 @@ def writeCommands(simcandles,
     userSteps = steps
     SavedProfile = []
 
-    if not qcd :
+    if qcd :
+        steps.pop()
+        steps.pop()
+        steps.append(AllSteps[-2] + "-" + AllSteps[-1] + "_PILE-UP")
+        stopIndex = len(steps)
+        userSteps = steps
+    else:
         if not (steps[0] == AllSteps[0]):
             stepIndex = writePrerequisteSteps(simcandles,steps,acandle,NumberOfEvents,cmsDriverOptions)
             start = -1
@@ -504,6 +510,8 @@ def writeCommands(simcandles,
 
     prevPrevOutputFile = ""
     previousOutputFile = ""
+    if qcd:
+        previousOutputFile = "%s_DIGI_PILEUP.root" % CandFname[acandle]
     for x in range(start,stopIndex,1):
 
         if stepIndex >= stopIndex:
@@ -513,11 +521,19 @@ def writeCommands(simcandles,
         befStep     = step
         aftStep     = step
         # We need this in case we are running one-shot profiling or for DIGI-PILEUP
-        stepToWrite = step 
+        stepToWrite = step
+        qcdStep = ""
         if qcd:
+
             pureg = re.compile("(.*)_PILEUP")
-            groups = pureg.search(step).groups()
-            stepToWrite = pureg.sub(groups[0],step)
+            found = pureg.search(step)
+            if found:
+                match = found.groups()[0]
+                qcdStep = pureg.sub(match,step)
+            else:
+                if "RAW2DIGI" in step:
+                    qcdStep = "RAW2DIGI,RECO"   
+                
         
         #(Profile , SavedProfile) = determineNewProfile(step,Profile,SavedProfile)
         CustomisePythonFragment = pythonFragment(step)
@@ -534,8 +550,7 @@ def writeCommands(simcandles,
                 aftStep     = hypsteps[-1]
                 oneShotProf = True
 
-
-            writeStepHead(simcandles,acandle,step)
+            writeStepHead(simcandles,acandle,stepToWrite)
 
             OutputFile = setOutputFileOption(acandle,stepToWrite)
             OutputFileOption = "--fileout=" + OutputFile
@@ -557,6 +572,8 @@ def writeCommands(simcandles,
                         if previousOutputFile == "":
                             InputFileOption = setInputFile(steps,stepToWrite,acandle,stepIndex,qcd=qcd)
 
+                        if qcd:
+                            stepToWrite = qcdStep
                         Command = ("%s %s -n %s --step=%s %s %s --customise=%s %s"
                                            % (cmsDriver,
                                               KeywordToCfi[acandle],
@@ -577,10 +594,13 @@ def writeCommands(simcandles,
 
                     InputFileOption = "--filein file:" + previousOutputFile
                     if rawreg.search(step) and bypasshlt:
-                        InputFileOption = "--filein file:" + prevPrevOutputFile                    
+                        InputFileOption = "--filein file:" + prevPrevOutputFile
+
                     if previousOutputFile == "":
                         InputFileOption = setInputFile(steps,befStep,acandle,stepIndex,qcd)
 
+                    if qcd:
+                        stepToWrite = qcdStep
                     Command = ("%s %s -n %s --step=%s %s %s --customise=%s %s" % (
                                cmsDriver,
                                KeywordToCfi[acandle],
