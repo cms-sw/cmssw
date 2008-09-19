@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Sun Mar  2 20:09:46 CET 2008
-// $Id: L1CondDBIOVWriter.cc,v 1.2 2008/03/05 04:21:35 wsun Exp $
+// $Id: L1CondDBIOVWriter.cc,v 1.3 2008/09/12 04:53:10 wsun Exp $
 //
 //
 
@@ -89,14 +89,14 @@ L1CondDBIOVWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
    ESHandle< L1TriggerKeyList > keyList ;
    iSetup.get< L1TriggerKeyListRcd >().get( keyList ) ;
 
-   // Get dummy L1TriggerKey -- only has TSC key, not subsystem keys
+   // Get dummy L1TriggerKey -- only has TSC key, not object keys
    ESHandle< L1TriggerKey > dummyKey ;
    iSetup.get< L1TriggerKeyRcd >().get( dummyKey ) ;
 
    unsigned long long run = iEvent.id().run() ;
 
    // Use TSC key and L1TriggerKeyList to find next run's L1TriggerKey token
-   std::string keyToken = keyList->token( dummyKey->getTSCKey() ) ;
+   std::string keyToken = keyList->token( dummyKey->tscKey() ) ;
 
    // Update IOV sequence for this token with since-time = new run 
    m_writer.updateIOV( m_keyTag, keyToken, run ) ;
@@ -116,8 +116,8 @@ L1CondDBIOVWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
    {
       // Find payload token
       std::string recordType = itr->first ;
-      std::string subsystemKey = itr->second ;
-      std::string payloadToken = keyList->token( recordType, subsystemKey ) ;
+      std::string objectKey = itr->second ;
+      std::string payloadToken = keyList->token( recordType, objectKey ) ;
       if( payloadToken.empty() )
 	{
 	  throw cond::Exception( "L1CondDBIOVWriter: empty payload token" ) ;
