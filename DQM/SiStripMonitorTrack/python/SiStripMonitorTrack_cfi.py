@@ -48,27 +48,27 @@ SiStripMonitorTrack = cms.EDFilter(
     
     TH1ClusterCharge = cms.PSet( Nbinx = cms.int32(200),
                                  xmin  = cms.double(-0.5),
-                                 xmax  = cms.double(800.0)
+                                 xmax  = cms.double(799.5)
                                  ),
     
-    TH1ClusterStoN = cms.PSet( Nbinx = cms.int32(150),
+    TH1ClusterStoN = cms.PSet( Nbinx = cms.int32(100),
                                xmin  = cms.double(-0.5),
-                               xmax  = cms.double(600.0)
+                               xmax  = cms.double(299.5)
                                ),
     
     TH1ClusterChargeCorr = cms.PSet( Nbinx = cms.int32(100),
                                      xmin  = cms.double(-0.5),
-                                     xmax  = cms.double(400.0)
+                                     xmax  = cms.double(399.5)
                                      ),
     
     TH1ClusterStoNCorr = cms.PSet( Nbinx = cms.int32(50),
                                    xmin  = cms.double(-0.5),
-                                   xmax  = cms.double(200.0)
+                                   xmax  = cms.double(199.5)
                                    ),
     
     TH1ClusterNoise = cms.PSet( Nbinx = cms.int32(20),
                                 xmin  = cms.double(-0.5),
-                                xmax  = cms.double(10.0)
+                                xmax  = cms.double(9.5)
                                 ),
     
     TH1ClusterWidth = cms.PSet( Nbinx = cms.int32(20),

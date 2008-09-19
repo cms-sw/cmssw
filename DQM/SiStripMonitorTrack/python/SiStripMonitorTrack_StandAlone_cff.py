@@ -11,7 +11,7 @@ SiStripMonitorTrack.Mod_On        = True
 SiStripMonitorTrack.OffHisto_On   = True
 SiStripMonitorTrack.Trend_On      = False
 SiStripMonitorTrack.CCAnalysis_On = False
-SiStripMonitorTrack.RingFlag_On   = True
+SiStripMonitorTrack.RingFlag_On   = False
 
 #TrackRefitter With Material
 from RecoTracker.TrackProducer.RefitterWithMaterial_cff import *
