@@ -12,10 +12,10 @@
   <monitorable name="SiStrip/MechanicalView/TID/Summary_ClusterStoNCorr_OnTrack_in_TID"></monitorable>
 </layout>
 <layout name="OffTrackCluster">
-  <monitorable name="SiStrip/MechanicalView/TOB/Summary_ClusterStoN_OffTrack_in_TOB"></monitorable>
-  <monitorable name="SiStrip/MechanicalView/TIB/Summary_ClusterStoN_OffTrack_in_TIB"></monitorable>
-  <monitorable name="SiStrip/MechanicalView/TEC/Summary_ClusterStoN_OffTrack_in_TEC"></monitorable>
-  <monitorable name="SiStrip/MechanicalView/TID/Summary_ClusterStoN_OffTrack_in_TID"></monitorable>
+  <monitorable name="SiStrip/MechanicalView/TOB/Summary_ClusterCharge_OffTrack_in_TOB"></monitorable>
+  <monitorable name="SiStrip/MechanicalView/TIB/Summary_ClusterCharge_OffTrack_in_TIB"></monitorable>
+  <monitorable name="SiStrip/MechanicalView/TEC/Summary_ClusterCharge_OffTrack_in_TEC"></monitorable>
+  <monitorable name="SiStrip/MechanicalView/TID/Summary_ClusterCharge_OffTrack_in_TID"></monitorable>
 </layout>
 <layout name="TOBSummary">
   <monitorable name="SiStrip/MechanicalView/TOB/Summary_MeanNumberOfDigis__TOB"></monitorable>

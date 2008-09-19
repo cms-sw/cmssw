@@ -38,13 +38,13 @@ class SiStripActionExecutor {
  void bookGlobalStatus(DQMStore* dqm_store);     
  void fillGlobalStatus(const edm::ESHandle<SiStripDetCabling>& detcabling, DQMStore* dqm_store);
  void resetGlobalStatus();
+ void fillDummyGlobalStatus();
 
  private:
 
  void fillSubDetStatus(DQMStore* dqm_store, std::string& dname, int& tot_me_subdet,
 		       int& error_me_subdet, unsigned int xbin);
  void fillSubDetStatus(DQMStore* dqm_store, std::string& dname, unsigned int xbin);
- void fillDummyGlobalStatus();
  bool goToDir(DQMStore * dqm_store, std::string name);
 
 

@@ -1,8 +1,8 @@
 /*
  * \file SiStripAnalyser.cc
  * 
- * $Date: 2008/07/12 22:36:56 $
- * $Revision: 1.37 $
+ * $Date: 2008/08/03 15:14:37 $
+ * $Revision: 1.38 $
  * \author  S. Dutta INFN-Pisa
  *
  */
@@ -18,6 +18,8 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
@@ -26,6 +28,10 @@
 #include "DataFormats/SiStripDetId/interface/TIBDetId.h"
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h"
 #include "DataFormats/SiStripDetId/interface/TIDDetId.h"
+
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "DataFormats/FEDRawData/interface/FEDRawData.h"
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
 #include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
@@ -85,6 +91,7 @@ SiStripAnalyser::SiStripAnalyser(edm::ParameterSet const& ps) :
   tkMapFrequency_        = ps.getUntrackedParameter<int>("TkMapCreationFrequency",50); 
   staticUpdateFrequency_ = ps.getUntrackedParameter<int>("StaticUpdateFrequency",10);
   globalStatusFilling_   = ps.getUntrackedParameter<bool>("GlobalStatusFilling", true);
+  rawDataTag_            = ps.getUntrackedParameter<edm::InputTag>("RawDataTag"); 
   // get back-end interface
   dqmStore_ = Service<DQMStore>().operator->();
 
@@ -92,7 +99,8 @@ SiStripAnalyser::SiStripAnalyser(edm::ParameterSet const& ps) :
   // instantiate web interface
   sistripWebInterface_ = new SiStripWebInterface(dqmStore_);
   actionExecutor_ = new SiStripActionExecutor();
-  
+
+  trackerFEDsFound_ = true;
 }
 //
 // -- Destructor
@@ -157,7 +165,9 @@ void SiStripAnalyser::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, 
 void SiStripAnalyser::analyze(edm::Event const& e, edm::EventSetup const& eSetup){
   nEvents_++;  
   if (nEvents_ == 1 && globalStatusFilling_) {
-    actionExecutor_->fillGlobalStatus(detCabling_, dqmStore_);
+    checkTrackerFEDs(e);
+    if (trackerFEDsFound_) actionExecutor_->fillGlobalStatus(detCabling_, dqmStore_);
+    else                   actionExecutor_->fillDummyGlobalStatus();
   }
 
   unsigned int nval = sistripWebInterface_->getNumberOfConDBPlotRequest();
@@ -207,7 +217,7 @@ void SiStripAnalyser::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, ed
     sistripWebInterface_->setActionFlag(SiStripWebInterface::PlotHistogramFromLayout);
     sistripWebInterface_->performAction();
   }
-  if (globalStatusFilling_) {
+  if (globalStatusFilling_ && trackerFEDsFound_) {
     actionExecutor_->fillGlobalStatus(detCabling_, dqmStore_);
   }
 }
@@ -224,6 +234,26 @@ void SiStripAnalyser::endRun(edm::Run const& run, edm::EventSetup const& eSetup)
 void SiStripAnalyser::endJob(){
   edm::LogInfo("SiStripAnalyser") <<"SiStripAnalyser:: endjob called!";
 
+}
+//
+// Check Tracker FEDs
+//
+void SiStripAnalyser::checkTrackerFEDs(edm::Event const& e) {
+  edm::Handle<FEDRawDataCollection> rawDataHandle;
+  e.getByLabel(rawDataTag_, rawDataHandle);
+  const FEDRawDataCollection& rawDataCollection = *rawDataHandle;
+  const FEDNumbering numbering;
+  const int siStripFedIdMin = numbering.getSiStripFEDIds().first;
+  const int siStripFedIdMax = numbering.getSiStripFEDIds().second; 
+    
+  unsigned int nFed = 0;
+  for (int i=siStripFedIdMin; i <= siStripFedIdMax; i++) {
+    if (rawDataCollection.FEDData(i).size() && rawDataCollection.FEDData(i).data()) {
+      nFed++;
+    }
+  }
+  if (nFed > 0) trackerFEDsFound_ = true;
+  else trackerFEDsFound_ = false;
 }
 //
 // -- Create default web page

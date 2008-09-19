@@ -15,7 +15,7 @@ MonitorTrackResiduals.Mod_On = False
 # TrackingMonitor ####
 from DQM.TrackingMonitor.TrackingMonitor_cfi import *
 TrackMon.TrackProducer = 'generalTracks'
-TrackMon.AlgoName = 'GenTk'
+TrackMon.AlgoName = 'CKFTk'
 TrackMon.FolderName = 'SiStrip/Tracks'
 
 # Sequence

@@ -1,3 +1,5 @@
+
+
 import FWCore.ParameterSet.Config as cms
 
 # Digitiser ####
@@ -8,18 +10,20 @@ siStripDigis.ProductLabel = 'source'
 from EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi import *
 siPixelDigis.InputLabel = 'source'
 
-# Local Reco ####    
+
+# Local Reco Cosmic ####    
 from RecoLocalTracker.Configuration.RecoLocalTracker_Cosmics_cff import *
 siStripClusters.SiStripQualityLabel = ''
 
-# Track Reconstruction ########
+
+# Track Reconstruction Cosmic ########
 from RecoTracker.Configuration.RecoTrackerP5_cff import *
 
 # Beam Spot ########
 from RecoVertex.BeamSpotProducer.BeamSpot_cff import *
 
 # Reconstruction Sequence
-RecoForDQM = cms.Sequence(siPixelDigis*siStripDigis*offlineBeamSpot*trackerlocalreco*ctftracksP5)
+RecoForDQMCosmic =  cms.Sequence(siPixelDigis*siStripDigis*offlineBeamSpot*trackerlocalreco*ctftracksP5)
 
 
 

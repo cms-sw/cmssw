@@ -17,7 +17,8 @@ process.MessageLogger = cms.Service("MessageLogger",
 #-------------------------------------------------
 # Magnetic Field
 #-------------------------------------------------
-process.load("Configuration.GlobalRuns.ForceZeroTeslaField_cff")
+process.load("Configuration.StandardSequences.MagneticField_0T_cff")
+process.prefer("VolumeBasedMagneticFieldESProducer")
 
 #-------------------------------------------------
 # Geometry
@@ -35,14 +36,14 @@ process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 #-----------------------
 # Reconstruction Modules
 #-----------------------
-process.load("DQM.SiStripMonitorClient.RecoForDQM_cff")
+process.load("DQM.SiStripMonitorClient.RecoForDQM_Cosmic_cff")
 
 #--------------------------
 # DQM
 #--------------------------
 process.load("DQM.SiStripMonitorClient.SiStripDQMOnline_cff")
 
-process.p = cms.Path(process.RecoForDQM*process.SiStripDQMOnRealData)
+process.p = cms.Path(process.RecoForDQMCosmic*process.SiStripDQMOnRealData)
 
 process.AdaptorConfig = cms.Service("AdaptorConfig")
 

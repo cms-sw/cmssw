@@ -33,3 +33,4 @@ from DQM.SiStripMonitorClient.SiStripClientConfig_cff import *
 SiStripDQMOnSimData = cms.Sequence(SiStripSourcesSimData*qTester*SiStripOnlineDQMClient*dqmEnv*dqmSaver)
 SiStripDQMOnRealData = cms.Sequence(SiStripSourcesRealData*qTester*SiStripOnlineDQMClient*dqmEnv*dqmSaver)
 
+SiStripDQMOnRealDataCollision = cms.Sequence(SiStripSourcesRealDataCollision*qTester*SiStripOnlineDQMClient*dqmEnv*dqmSaver)

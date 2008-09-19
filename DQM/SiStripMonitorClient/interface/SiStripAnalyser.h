@@ -4,8 +4,8 @@
 /** \class SiStripAnalyser
  * *
  *  SiStrip SiStripAnalyser
- *  $Date: 2008/05/07 19:22:09 $
- *  $Revision: 1.22 $
+ *  $Date: 2008/05/21 21:35:26 $
+ *  $Revision: 1.23 $
  *  \author  S. Dutta INFN-Pisa
  *   
  */
@@ -72,6 +72,7 @@ protected:
 
 private:
 
+  void checkTrackerFEDs(edm::Event const& e);
 
   DQMStore* dqmStore_;
 
@@ -82,6 +83,7 @@ private:
   int tkMapFrequency_;
   int staticUpdateFrequency_;
   bool globalStatusFilling_;
+  edm::InputTag rawDataTag_;
 
   std::string outputFilePath_;
   std::string outputFileName_;
@@ -94,6 +96,7 @@ private:
   unsigned long long m_cacheID_;
   int nLumiSecs_;
   int nEvents_;
+  bool trackerFEDsFound_;
 
   std::ostringstream html_out_;
 

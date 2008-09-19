@@ -1,3 +1,5 @@
+
+
 import FWCore.ParameterSet.Config as cms
 
 # Digitiser ####
@@ -12,6 +14,7 @@ siPixelDigis.InputLabel = 'source'
 from RecoLocalTracker.Configuration.RecoLocalTracker_cff import *
 siStripClusters.SiStripQualityLabel = ''
 
+
 # Track Reconstruction ########
 from RecoTracker.Configuration.RecoTracker_cff import *
 
@@ -22,7 +25,7 @@ from RecoVertex.BeamSpotProducer.BeamSpot_cff import *
 from RecoPixelVertexing.Configuration.RecoPixelVertexing_cff import *
 
 # Reconstruction Sequence
-RecoForDQM = cms.Sequence(siPixelDigis*siStripDigis*trackerlocalreco*offlineBeamSpot*recopixelvertexing*ckftracks)
+RecoForDQMCollision = cms.Sequence(siPixelDigis*siStripDigis*trackerlocalreco*offlineBeamSpot*recopixelvertexing*ckftracks)
 
 
 
