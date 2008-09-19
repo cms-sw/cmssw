@@ -180,6 +180,8 @@ private:
   bool OffHisto_On_;
   bool RawDigis_On_;
   bool CCAnalysis_On_;
+  bool ring_flag;
+
   int off_Flag;
   std::vector<uint32_t> ModulesToBeExcluded_;
   std::vector<const SiStripCluster*> vPSiStripCluster;
@@ -187,6 +189,7 @@ private:
   SiStripFolderOrganizer folder_organizer;
   bool tracksCollection_in_EventTree;
   bool trackAssociatorCollection_in_EventTree;
+  bool flag_ring;
   int runNb, eventNb;
   int firstEvent;
   int countOn, countOff, countAll, NClus[4][3];

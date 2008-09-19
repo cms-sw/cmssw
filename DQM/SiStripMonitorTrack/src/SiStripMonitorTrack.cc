@@ -34,6 +34,7 @@ SiStripMonitorTrack::SiStripMonitorTrack(const edm::ParameterSet& conf):
   RawDigis_On_(conf.getParameter<bool>("RawDigis_On")),
   CCAnalysis_On_(conf.getParameter<bool>("CCAnalysis_On")),
   folder_organizer(), tracksCollection_in_EventTree(true),
+  flag_ring(conf.getParameter<bool>("RingFlag_On")),
   firstEvent(-1)
 {
   for(int i=0;i<4;++i) for(int j=0;j<2;++j) NClus[i][j]=0;
@@ -217,13 +218,14 @@ void SiStripMonitorTrack::book()
     //					<< " SubDet " << GetSubDetAndLayer(*detid).first 
     //					<< " Layer "  << GetSubDetAndLayer(*detid).second;
 
-    // book Layer plots      
-    if (DetectedLayers.find(folder_organizer.GetSubDetAndLayer(detid)) == DetectedLayers.end()){
+     
+    // book Layer and RING plots      
+    if (DetectedLayers.find(folder_organizer.GetSubDetAndLayer(detid,flag_ring)) == DetectedLayers.end()){
       
-      DetectedLayers[folder_organizer.GetSubDetAndLayer(detid)]=true;
+      DetectedLayers[folder_organizer.GetSubDetAndLayer(detid,flag_ring)]=true;
       for (int j=0;j<off_Flag;j++){     
-	folder_organizer.setLayerFolder(*detid_iter,folder_organizer.GetSubDetAndLayer(*detid_iter).second); 
-	bookTrendMEs("layer",folder_organizer.GetSubDetAndLayer(*detid_iter).second,*detid_iter,flags[j]);
+	folder_organizer.setLayerFolder(*detid_iter,folder_organizer.GetSubDetAndLayer(*detid_iter,flag_ring).second,flag_ring);
+	bookTrendMEs("layer",(folder_organizer.GetSubDetAndLayer(*detid_iter,flag_ring)).second,*detid_iter,flags[j]);
       }
     }
     
@@ -232,8 +234,8 @@ void SiStripMonitorTrack::book()
       folder_organizer.setDetectorFolder(*detid_iter);
       bookModMEs("det",*detid_iter);
     }
-    DetectedLayers[folder_organizer.GetSubDetAndLayer(*detid_iter)] |= (DetectedLayers.find(folder_organizer.GetSubDetAndLayer(*detid_iter)) == DetectedLayers.end());
-    //      }
+
+    DetectedLayers[folder_organizer.GetSubDetAndLayer(*detid_iter,flag_ring)] |= (DetectedLayers.find(folder_organizer.GetSubDetAndLayer(*detid_iter,flag_ring)) == DetectedLayers.end());
   }//end loop on detectors detid
   
   //  book SubDet plots
@@ -311,6 +313,19 @@ void SiStripMonitorTrack::bookTrendMEs(TString name,int32_t layer,uint32_t id,st
     edm::LogError("SiStripTkDQM|WrongInput")<<"no such subdetector type :"<<subdetid<<" no folder set!"<<std::endl;
     return;
   }
+  
+  if(flag_ring){
+    if( subdetid==4){
+      // ---------------------------  TID  --------------------------- //
+      TIDDetId tid1 = TIDDetId(id);
+      sprintf(rest,"TID__side__%d__ring__%d",tid1.side(),tid1.ring());
+    }else if( subdetid==6){
+      // ---------------------------  TEC  --------------------------- //
+      TECDetId tec1 = TECDetId(id);
+      sprintf(rest,"TEC__side__%d__ring__%d",tec1.side(),tec1.ring());
+    }
+  }
+
 
   SiStripHistoId hidmanager;
   std::string hid = hidmanager.createHistoLayer("",name.Data(),rest,flag);
@@ -318,7 +333,6 @@ void SiStripMonitorTrack::bookTrendMEs(TString name,int32_t layer,uint32_t id,st
   if(iLayerME==LayerMEsMap.end()){
     LayerMEs theLayerMEs; 
  
-    LogDebug("SiStripMonitorTrack") << "Booking " << rest << flag << std::endl;   
     // Cluster Width
     theLayerMEs.ClusterWidth=bookME1D("TH1ClusterWidth", hidmanager.createHistoLayer("Summary_ClusterWidth",name.Data(),rest,flag).c_str()); 
     dbe->tag(theLayerMEs.ClusterWidth,layer); 
@@ -770,7 +784,7 @@ bool SiStripMonitorTrack::clusterInfos(SiStripClusterInfo* cluster, const uint32
   std::string name;
   
   // Filling SubDet Plots (on Track + off Track)
-  std::pair<std::string,int32_t> SubDetAndLayer = folder_organizer.GetSubDetAndLayer(detid);
+  std::pair<std::string,int32_t> SubDetAndLayer = folder_organizer.GetSubDetAndLayer(detid,flag_ring);
   name=flag+"_in_"+SubDetAndLayer.first;
   fillTrendMEs(cluster,name,cosRZ,flag);
   fillCapacitiveCouplingMEs(cluster,name,cosRZ,flag);
@@ -780,42 +794,55 @@ bool SiStripMonitorTrack::clusterInfos(SiStripClusterInfo* cluster, const uint32
   if(       subdetid==3 ){
     // ---------------------------  TIB  --------------------------- //
     TIBDetId tib1 = TIBDetId(detid);
-     sprintf(rest,"TIB__layer__%d",tib1.layer());
-   }else if( subdetid==4){
-     // ---------------------------  TID  --------------------------- //
-     TIDDetId tid1 = TIDDetId(detid);
-     sprintf(rest,"TID__side__%d__wheel__%d",tid1.side(),tid1.wheel());
-   }else if( subdetid==5){
-     // ---------------------------  TOB  --------------------------- //
-     TOBDetId tob1 = TOBDetId(detid);
-     sprintf(rest,"TOB__layer__%d",tob1.layer());
-   }else if( subdetid==6){
-     // ---------------------------  TEC  --------------------------- //
-     TECDetId tec1 = TECDetId(detid);
-     sprintf(rest,"TEC__side__%d__wheel__%d",tec1.side(),tec1.wheel());
-   }else{
-     // ---------------------------  ???  --------------------------- //
-     edm::LogError("SiStripTkDQM|WrongInput")<<"no such subdetector type :"<<subdetid<<" no folder set!"<<std::endl;
-     return 0;
-   }
-   
-   SiStripHistoId hidmanager1;
-   
-   // Filling Layer Plots
-   name= hidmanager1.createHistoLayer("","layer",rest,flag);
-   fillTrendMEs(cluster,name,cosRZ,flag);
-   fillCapacitiveCouplingMEs(cluster,name,cosRZ,flag);
-   
-   // Module plots filled only for onTrack Clusters
-   if(Mod_On_){
-     if(flag=="OnTrack"){
-       SiStripHistoId hidmanager2;
-       name =hidmanager2.createHistoId("","det",detid);
-       fillModMEs(cluster,name,cosRZ); 
-     }
-   }
-     return true;
-   }
+    sprintf(rest,"TIB__layer__%d",tib1.layer());
+  }else if( subdetid==4){
+    // ---------------------------  TID  --------------------------- //
+    TIDDetId tid1 = TIDDetId(detid);
+    sprintf(rest,"TID__side__%d__wheel__%d",tid1.side(),tid1.wheel());
+  }else if( subdetid==5){
+    // ---------------------------  TOB  --------------------------- //
+    TOBDetId tob1 = TOBDetId(detid);
+    sprintf(rest,"TOB__layer__%d",tob1.layer());
+  }else if( subdetid==6){
+    // ---------------------------  TEC  --------------------------- //
+    TECDetId tec1 = TECDetId(detid);
+    sprintf(rest,"TEC__side__%d__wheel__%d",tec1.side(),tec1.wheel());
+  }else{
+    // ---------------------------  ???  --------------------------- //
+    edm::LogError("SiStripTkDQM|WrongInput")<<"no such subdetector type :"<<subdetid<<" no folder set!"<<std::endl;
+    return 0;
+  }
+
+  if(flag_ring){
+    if( subdetid==4){
+      // ---------------------------  TID  --------------------------- //
+      TIDDetId tid1 = TIDDetId(detid);
+      sprintf(rest,"TID__side__%d__ring__%d",tid1.side(),tid1.ring());
+    }else if( subdetid==6){
+      // ---------------------------  TEC  --------------------------- //
+      TECDetId tec1 = TECDetId(detid);
+      sprintf(rest,"TEC__side__%d__ring__%d",tec1.side(),tec1.ring());
+    }
+  }
+
+  // Filling Layer Plots
+
+  SiStripHistoId hidmanager1;
+  
+  name= hidmanager1.createHistoLayer("","layer",rest,flag);
+  fillTrendMEs(cluster,name,cosRZ,flag);
+  fillCapacitiveCouplingMEs(cluster,name,cosRZ,flag);
+  
+  // Module plots filled only for onTrack Clusters
+  if(Mod_On_){
+    if(flag=="OnTrack"){
+      SiStripHistoId hidmanager2;
+      name =hidmanager2.createHistoId("","det",detid);
+      fillModMEs(cluster,name,cosRZ); 
+    }
+  }
+  return true;
+}
 
 //--------------------------------------------------------------------------------
 void SiStripMonitorTrack::fillTrend(MonitorElement* me ,float value)

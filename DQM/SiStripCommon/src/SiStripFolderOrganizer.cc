@@ -9,7 +9,7 @@
 // Original Author:  dkcira
 //         Created:  Thu Jan 26 23:52:43 CET 2006
 
-// $Id: SiStripFolderOrganizer.cc,v 1.19 2008/05/24 13:04:32 dutta Exp $
+// $Id: SiStripFolderOrganizer.cc,v 1.20 2008/05/26 18:13:39 dutta Exp $
 //
 
 #include <iostream>
@@ -117,7 +117,7 @@ void SiStripFolderOrganizer::setSiStripControlFolder(
  return;
 }
 
-std::pair<std::string,int32_t> SiStripFolderOrganizer::GetSubDetAndLayer(const uint32_t& detid){
+std::pair<std::string,int32_t> SiStripFolderOrganizer::GetSubDetAndLayer(const uint32_t& detid, bool ring_flag){
   std::string cSubDet;
   int32_t layer=0;
   switch(StripSubdetector::SubDetector(StripSubdetector(detid).subdetId()))
@@ -132,11 +132,17 @@ std::pair<std::string,int32_t> SiStripFolderOrganizer::GetSubDetAndLayer(const u
       break;
     case StripSubdetector::TID:
       cSubDet="TID";
-      layer=TIDDetId(detid).wheel() * ( TIDDetId(detid).side()==1 ? -1 : +1);
+      if(ring_flag)
+	layer=TIDDetId(detid).ring() * ( TIDDetId(detid).side()==1 ? -1 : +1);
+      else
+	layer=TIDDetId(detid).wheel() * ( TIDDetId(detid).side()==1 ? -1 : +1);
       break;
     case StripSubdetector::TEC:
       cSubDet="TEC";
-      layer=TECDetId(detid).wheel() * ( TECDetId(detid).side()==1 ? -1 : +1);
+      if(ring_flag)
+	layer=TECDetId(detid).ring() * ( TECDetId(detid).side()==1 ? -1 : +1);
+      else
+	layer=TECDetId(detid).wheel() * ( TECDetId(detid).side()==1 ? -1 : +1);
       break;
     default:
       edm::LogWarning("SiStripMonitorTrack") << "WARNING!!! this detid does not belong to tracker" << std::endl;
@@ -211,7 +217,7 @@ rest<<sep<<"TEC"<<sep<<"side_"<<tec.side()<<sep<<"wheel_"<<tec.wheel()<<sep;
 
 }
 
-void SiStripFolderOrganizer::setLayerFolder(uint32_t rawdetid, int32_t layer){
+void SiStripFolderOrganizer::setLayerFolder(uint32_t rawdetid, int32_t layer, bool ring_flag){
   std::string lokal_folder = TopFolderName + sep + MechanicalFolderName;
   if(rawdetid == 0 ){ // just top MechanicalFolder if rawdetid==0;
     dbe_->setCurrentFolder(lokal_folder);
@@ -231,11 +237,19 @@ void SiStripFolderOrganizer::setLayerFolder(uint32_t rawdetid, int32_t layer){
   }else if(stripdet.subDetector() == SiStripDetId::TID){
   // ---------------------------  TID  --------------------------- //
     TIDDetId tid1 = TIDDetId(rawdetid);
-    if (abs(layer)  != tid1.wheel()) {
-      LogWarning("SiStripTkDQM|Layer mismatch!!!")<< " expect "<<  abs(layer) << " but getting " << tid1.wheel() <<endl;
-      return;
+    if(ring_flag){
+      if(abs(layer) != tid1.ring()) {
+	LogWarning("SiStripTkDQM|Layer mismatch!!!")<< " expect "<<  abs(layer) << " but getting " << tid1.ring() <<endl;
+	return;
+      }
+      rest<<sep<<"TID"<<sep<<"side_"<<tid1.side()<<sep<<"ring_"<<tid1.ring();
+    }else{
+      if (abs(layer)  != tid1.wheel()) {
+	LogWarning("SiStripTkDQM|Layer mismatch!!!")<< " expect "<<  abs(layer) << " but getting " << tid1.wheel() <<endl;
+	return;
+      }
+      rest<<sep<<"TID"<<sep<<"side_"<<tid1.side()<<sep<<"wheel_"<<tid1.wheel();
     }
-    rest<<sep<<"TID"<<sep<<"side_"<<tid1.side()<<sep<<"wheel_"<<tid1.wheel();
   }else if(stripdet.subDetector() == SiStripDetId::TOB){
   // ---------------------------  TOB  --------------------------- //
     TOBDetId tob1 = TOBDetId(rawdetid);
@@ -247,11 +261,19 @@ void SiStripFolderOrganizer::setLayerFolder(uint32_t rawdetid, int32_t layer){
   }else if( stripdet.subDetector() == SiStripDetId::TEC){
   // ---------------------------  TEC  --------------------------- //
     TECDetId tec1 = TECDetId(rawdetid);
-    if (abs(layer)  != tec1.wheel()) {
-      LogWarning("SiStripTkDQM|Layer mismatch!!!")<< " expect "<<  abs(layer) << " but getting " << tec1.wheel() <<endl;
-      return;
+    if(ring_flag){
+      if (abs(layer)  != tec1.ring()) {
+	LogWarning("SiStripTkDQM|Layer mismatch!!!")<< " expect "<<  abs(layer) << " but getting " << tec1.ring() <<endl;
+	return;
+      }
+      rest<<sep<<"TEC"<<sep<<"side_"<<tec1.side()<<sep<<"ring_"<<tec1.ring();
+    }else{
+      if (abs(layer)  != tec1.wheel()) {
+	LogWarning("SiStripTkDQM|Layer mismatch!!!")<< " expect "<<  abs(layer) << " but getting " << tec1.wheel() <<endl;
+	return;
+      }
+      rest<<sep<<"TEC"<<sep<<"side_"<<tec1.side()<<sep<<"wheel_"<<tec1.wheel();
     }
-    rest<<sep<<"TEC"<<sep<<"side_"<<tec1.side()<<sep<<"wheel_"<<tec1.wheel();
   }else{
   // ---------------------------  ???  --------------------------- //
     LogWarning("SiStripTkDQM|WrongInput")<<"no such subdetector type :"<<stripdet.subDetector()<<" no folder set!"<<endl;
