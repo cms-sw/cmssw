@@ -79,6 +79,7 @@ def checkSteps(steps):
         if "-" in step:
             split = astep.split("-")
             astep = split[0]
+
         idx = AllSteps.index(astep)
         if not ( idx == -2 ):
             if lstidx > idx:
@@ -158,6 +159,15 @@ def optionparse():
                                      "Caution: use these options at your own risk."
                                      "It is believed that some of them bite.\n")
     #parser.set_defaults(debug=False)
+
+    parser.add_option(
+        '-b',
+        '--bypass-hlt',
+        action="store_true",
+        dest='bypasshlt',
+        default=False,
+        help='Should we bypass using the HLT root file?'
+        )
 
     parser.add_option(
         '-u',
@@ -284,7 +294,7 @@ def setupProgramParameters(options,args):
     for astep in steps:
         print astep
 
-    return (NumberOfEvents, ProfileCode, cmsDriverOptions, steps, Candle)
+    return (NumberOfEvents, ProfileCode, cmsDriverOptions, steps, Candle, options.bypasshlt)
 
 def init_vars():
 
@@ -452,6 +462,7 @@ def writeCommands(simcandles,
                  steps,
                  NumberOfEvents,
                  cmsDriverOptions,
+                 bypasshlt,                  
                  stepIndex = 0,
                  qcd = False):
 
@@ -541,7 +552,7 @@ def writeCommands(simcandles,
                         # HLT, therefore the only thing left to run to profile EDMSIZE is HLT itself
 
                         InputFileOption = "--filein file:" + previousOutputFile
-                        if rawreg.search(step):
+                        if rawreg.search(step) and bypasshlt:
                             InputFileOption = "--filein file:" + prevPrevOutputFile
                         if previousOutputFile == "":
                             InputFileOption = setInputFile(steps,stepToWrite,acandle,stepIndex,qcd=qcd)
@@ -565,7 +576,7 @@ def writeCommands(simcandles,
                     # Use --filein (have to for L1, DIGI2RAW, HLT) to add robustness
 
                     InputFileOption = "--filein file:" + previousOutputFile
-                    if rawreg.search(step):
+                    if rawreg.search(step) and bypasshlt:
                         InputFileOption = "--filein file:" + prevPrevOutputFile                    
                     if previousOutputFile == "":
                         InputFileOption = setInputFile(steps,befStep,acandle,stepIndex,qcd)
@@ -630,7 +641,7 @@ def prepareQcdCommand(thecandle,NumberOfEvents,cmsDriverOptions):
          OutputFileOption,
          cmsDriverOptions))
 
-def writeCommandsToReport(simcandles,Candle,Profile,debug,NumberOfEvents,cmsDriverOptions,steps):
+def writeCommandsToReport(simcandles,Candle,Profile,debug,NumberOfEvents,cmsDriverOptions,steps,bypasshlt):
 
     OutputStep = ''
 
@@ -651,7 +662,8 @@ def writeCommandsToReport(simcandles,Candle,Profile,debug,NumberOfEvents,cmsDriv
                       acandle,
                       steps,
                       NumberOfEvents,
-                      cmsDriverOptions)
+                      cmsDriverOptions,
+                      bypasshlt)
 
     # Add the extra "step" DIGI with PILE UP only for QCD_80_120:
     # After digi pileup steps:
@@ -689,6 +701,7 @@ def writeCommandsToReport(simcandles,Candle,Profile,debug,NumberOfEvents,cmsDriv
                       map(lambda x: x + "_PILEUP",AfterPileUpSteps),
                       NumberOfEvents,
                       cmsDriverOptions,
+                      bypasshlt,
                       0, # start at step index 2, RECO Step
                       True)
     elif NumberOfEvents < MIN_REQ_TS_EVENTS:
@@ -707,7 +720,7 @@ def main(argv=sys.argv):
     # Set up arguments and option handling
     #
 
-    (NumberOfEvents, ProfileCode, cmsDriverOptions, steps, Candle ) = setupProgramParameters(options,args)
+    (NumberOfEvents, ProfileCode, cmsDriverOptions, steps, Candle, bypasshlt ) = setupProgramParameters(options,args)
 
     ######################
     # Initialize a few variables
@@ -731,7 +744,7 @@ def main(argv=sys.argv):
     # Write the commands for the report to the file
     #
 
-    writeCommandsToReport(simcandles,Candle,Profile,debug,NumberOfEvents,cmsDriverOptions,steps)
+    writeCommandsToReport(simcandles,Candle,Profile,debug,NumberOfEvents,cmsDriverOptions,steps,bypasshlt)
                 
     simcandles.close()
 
