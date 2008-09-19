@@ -13,7 +13,7 @@
 //
 // Original Author:  Erik Butz
 //         Created:  Tue Dec 11 14:03:05 CET 2007
-// $Id: TrackerOfflineValidation.cc,v 1.14 2008/09/05 15:17:23 ebutz Exp $
+// $Id: TrackerOfflineValidation.cc,v 1.15 2008/09/16 15:04:18 jdraeger Exp $
 //
 //
 
@@ -119,6 +119,7 @@ private:
 		     isDoubleSide_(),
 		     histNameLocalX_(), histNameNormLocalX_(), histNameX_(), histNameNormX_(), 
                      histNameY_(), histNameNormY_() {} 
+    void clear() { *this = TreeVariables(); }
     Float_t meanLocalX_, meanNormLocalX_, meanX_,meanNormX_,    //mean value read out from modul histograms
       meanY_,meanNormY_, 
       rmsLocalX_, rmsNormLocalX_, rmsX_, rmsNormX_,      //rms value read out from modul histograms
@@ -1109,29 +1110,27 @@ TrackerOfflineValidation::bookTree(TTree &tree, struct TrackerOfflineValidation:
   tree.Branch("rmsY",&treeMem.rmsY_,"rmsY/F");
   tree.Branch("meanNormX",&treeMem.meanNormX_,"meanNormX/F");
   tree.Branch("rmsNormX",&treeMem.rmsNormX_,"rmsNormX/F");
- 
-
+  // if (stripYResiduals_==false), these stay empty for strip, but we need it in tree for pixel
+  tree.Branch("meanNormY",&treeMem.meanNormY_,"meanNormY/F");
+  tree.Branch("rmsNormY",&treeMem.rmsNormY_,"rmsNormY/F");
+  
   //histogram names 
   tree.Branch("histNameX",&treeMem.histNameX_,"histNameX/b");
   tree.Branch("histNameNormX",&treeMem.histNameNormX_,"histNameNormX/b");
+  // if (stripYResiduals_==false), these stay empty for strip, but we need it in tree for pixel
+  tree.Branch("histNameY",&treeMem.histNameY_,"histNameY/b");
+  tree.Branch("histNameNormY",&treeMem.histNameNormY_,"histNameNormY/b");
 
   // book tree variables in local coordinates if set in cf
-    if(lCoorHistOn_) {
-      //mean and RMS values (extracted from histograms(X) on module level)
-       tree.Branch("meanLocalX",&treeMem.meanLocalX_,"meanLocalX/F");
-       tree.Branch("rmsLocalX",&treeMem.rmsLocalX_,"rmsLocalX/F");
-       tree.Branch("meanNormLocalX",&treeMem.meanNormLocalX_,"meanNormLocalX/F");
-       tree.Branch("rmsNormLocalX",&treeMem.rmsNormLocalX_,"rmsNormLocalX/F");
-       tree.Branch("histNameLocalX",&treeMem.histNameLocalX_,"histNameLocalX/b");
-       tree.Branch("histNameNormLocalX",&treeMem.histNameNormLocalX_,"histNameNormLocalX/b");
-
-    }
-    if (stripYResiduals_){
-       tree.Branch("meanNormY",&treeMem.meanNormY_,"meanNormY/F");
-       tree.Branch("rmsNormY",&treeMem.rmsNormY_,"rmsNormY/F");
-       tree.Branch("histNameY",&treeMem.histNameY_,"histNameY/b");
-       tree.Branch("histNameNormY",&treeMem.histNameNormY_,"histNameNormY/b");
-    }
+  if(lCoorHistOn_) {
+    //mean and RMS values (extracted from histograms(X) on module level)
+    tree.Branch("meanLocalX",&treeMem.meanLocalX_,"meanLocalX/F");
+    tree.Branch("rmsLocalX",&treeMem.rmsLocalX_,"rmsLocalX/F");
+    tree.Branch("meanNormLocalX",&treeMem.meanNormLocalX_,"meanNormLocalX/F");
+    tree.Branch("rmsNormLocalX",&treeMem.rmsNormLocalX_,"rmsNormLocalX/F");
+    tree.Branch("histNameLocalX",&treeMem.histNameLocalX_,"histNameLocalX/b");
+    tree.Branch("histNameNormLocalX",&treeMem.histNameNormLocalX_,"histNameNormLocalX/b");
+  }
 
 }
 
@@ -1141,7 +1140,7 @@ TrackerOfflineValidation::fillTree(TTree &tree,const std::map<int, TrackerOfflin
  
   for(std::map<int, TrackerOfflineValidation::ModuleHistos>::const_iterator it = moduleHist_.begin(), 
 	itEnd= moduleHist_.end(); it != itEnd;++it ) { 
-    
+    treeMem.clear(); // make empty/default
     //variables concerning the tracker components/hierarchy levels
     DetId detId_ = it->first;
     treeMem.moduleId_ = detId_;
@@ -1204,13 +1203,10 @@ TrackerOfflineValidation::fillTree(TTree &tree,const std::map<int, TrackerOfflin
     treeMem.entries_ = static_cast<UInt_t>(it->second.ResXprimeHisto->GetEntries());
     treeMem.meanX_ = it->second.ResXprimeHisto->GetMean();
     treeMem.rmsX_ = it->second.ResXprimeHisto->GetRMS();
-    treeMem.meanY_ = it->second.ResYprimeHisto->GetMean();
-    treeMem.rmsY_ = it->second.ResYprimeHisto->GetRMS();
 
     //mean and RMS values (extracted from histograms(normalized Xprime on module level)
     treeMem.meanNormX_ = it->second.NormResXprimeHisto->GetMean();
     treeMem.rmsNormX_ = it->second.NormResXprimeHisto->GetRMS();
-    
     
     treeMem.histNameX_=it->second.ResXprimeHisto->GetName();
     treeMem.histNameNormX_=it->second.NormResXprimeHisto->GetName();
@@ -1218,7 +1214,6 @@ TrackerOfflineValidation::fillTree(TTree &tree,const std::map<int, TrackerOfflin
 
     // fill tree variables in local coordinates if set in cfg
     if(lCoorHistOn_) {
-
       treeMem.meanLocalX_ = it->second.ResHisto->GetMean();
       treeMem.rmsLocalX_ = it->second.ResHisto->GetRMS();
       treeMem.meanNormLocalX_ = it->second.NormResHisto->GetMean();
@@ -1228,15 +1223,17 @@ TrackerOfflineValidation::fillTree(TTree &tree,const std::map<int, TrackerOfflin
       treeMem.histNameNormLocalX_=it->second.NormResHisto->GetName();
     }
 
-    if (stripYResiduals_){
-      //mean and RMS values (extracted from histograms(normalized Yprime in strip detectoron module level)
-	treeMem.meanY_ = it->second.ResYprimeHisto->GetMean();
-	treeMem.rmsY_ = it->second.ResYprimeHisto->GetRMS();
-	treeMem.meanNormY_ = it->second.NormResYprimeHisto->GetMean();
-	treeMem.rmsNormY_ = it->second.NormResYprimeHisto->GetRMS();
-	treeMem.histNameY_= it->second.ResYprimeHisto->GetName();
-	treeMem.histNameNormY_= it->second.ResYprimeHisto->GetName();
-      
+    // mean and RMS values in local y (extracted from histograms(normalized Yprime on module level)
+    // might exist in pixel only
+    if (it->second.ResYprimeHisto) {//(stripYResiduals_){
+      treeMem.meanY_ = it->second.ResYprimeHisto->GetMean();
+      treeMem.rmsY_ = it->second.ResYprimeHisto->GetRMS();
+      treeMem.histNameY_= it->second.ResYprimeHisto->GetName();
+    }
+    if (it->second.NormResYprimeHisto) {
+      treeMem.meanNormY_ = it->second.NormResYprimeHisto->GetMean();
+      treeMem.rmsNormY_ = it->second.NormResYprimeHisto->GetRMS();
+      treeMem.histNameNormY_= it->second.ResYprimeHisto->GetName();
     }
 
     tree.Fill();
