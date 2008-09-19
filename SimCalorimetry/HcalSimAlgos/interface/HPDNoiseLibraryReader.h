@@ -11,7 +11,7 @@
 //
 // Project: HPD noise library reader
 // Author: T.Yetkin University of Iowa, Feb. 7, 2008
-// $Id: HPDNoiseLibraryReader.h,v 1.1 2008/02/22 03:36:13 tyetkin Exp $
+// $Id: HPDNoiseLibraryReader.h,v 1.2 2008/07/21 18:30:03 tyetkin Exp $
 // --------------------------------------------------------
 
 #ifndef HcalSimAlgos_HPDNoiseLibraryReader_h
@@ -51,6 +51,11 @@ class HPDNoiseLibraryReader{
     std::vector<std::pair <HcalDetId, const float* > > getNoisyHcalDetIds();
     // collection of noisy detIds. At least one HcalDetId is alwasy noiosy
     std::vector<std::pair <HcalDetId, const float* > > getBiasedNoisyHcalDetIds();
+
+
+    std::vector<std::pair <HcalDetId, const float* > > getNoisyHcalDetIds(int timeSliceId);
+    // collection of noisy detIds. At least one HcalDetId is alwasy noiosy
+    std::vector < std::pair < HcalDetId, const float *> >getBiasedNoisyHcalDetIds(int timeSliceId);
     /** 
     HPD Ion feedback simulation based on LED data. A simple simulation
     which uses gaussian fit to data.
@@ -85,6 +90,8 @@ class HPDNoiseLibraryReader{
     void clearPhi();
     // use int iphi to create HPD names
     std::string itos(int i);    // convert int to string
+    
+    void shuffleData(int timeSliceId, float* &data);
   
   public: 
     HcalTopology  theTopology;

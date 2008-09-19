@@ -11,7 +11,7 @@
 //
 // Project: HPD noise library reader
 // Author: T.Yetkin University of Iowa, Feb. 7, 2008
-// $Id: HPDNoiseLibraryReader.cc,v 1.1 2008/02/22 03:36:14 tyetkin Exp $
+// $Id: HPDNoiseLibraryReader.cc,v 1.2 2008/07/21 18:30:03 tyetkin Exp $
 // --------------------------------------------------------
 
 #include "SimCalorimetry/HcalSimAlgos/interface/HPDNoiseLibraryReader.h"
@@ -190,6 +190,52 @@ vector <pair<HcalDetId, const float *> >HPDNoiseLibraryReader::getNoisyHcalDetId
     return result;
 }
 
+vector <pair<HcalDetId, const float *> >HPDNoiseLibraryReader::getNoisyHcalDetIds(int timeSliceId) 
+{
+    vector <pair< HcalDetId, const float *> >result;
+    // decide which phi are noisy by using noise rates 
+    // and random numbers (to be called for each event)
+    getNoisyPhis();
+    for (int i = 0; i < int (theNoisyPhi.size()); ++i) {
+        int iphi = theNoisyPhi[i];
+        HPDNoiseData *data;
+
+        data = getNoiseData(iphi);
+        for (unsigned int i = 0; i < data->size(); ++i) {
+	    float* data_ = const_cast<float*>(data->getDataFrame(i).getFrame());
+	    shuffleData(timeSliceId, data_);
+	    const float* _data_ =const_cast<const float*>(data_);
+            pair < HcalDetId, const float *>tmp_pair(data->getDataFrame(i).id(), _data_);
+            result.push_back(tmp_pair);
+        }
+    }
+    return result;
+
+}
+vector < pair < HcalDetId, const float *> >HPDNoiseLibraryReader::getBiasedNoisyHcalDetIds(int timeSliceId) {
+
+    vector < pair < HcalDetId, const float *> >result;
+
+    // decide which phi are noisy by using noise rates 
+    // and random numbers (to be called for each event)
+    // at least one Phi is always noisy.
+    getBiasedNoisyPhis();
+    for (int i = 0; i < int (theNoisyPhi.size()); ++i) {
+        int iphi = theNoisyPhi[i];
+        HPDNoiseData *data;
+
+        data = getNoiseData(iphi);
+        for (unsigned int i = 0; i < data->size(); ++i) {
+	    float* data_ = const_cast<float*>(data->getDataFrame(i).getFrame());
+	    shuffleData(timeSliceId, data_);
+	    const float* _data_ =const_cast<const float*>(data_);
+            pair < HcalDetId, const float *>tmp_pair(data->getDataFrame(i).id(), _data_);
+            result.push_back(tmp_pair);
+        }
+    }
+    return result;
+}
+
 vector < pair < HcalDetId, const float *> >HPDNoiseLibraryReader::getBiasedNoisyHcalDetIds() {
 
     vector < pair < HcalDetId, const float *> >result;
@@ -289,6 +335,43 @@ bool HPDNoiseLibraryReader::IsNoiseApplicable(int iphi) {
         isAccepted = true;
     }
     return isAccepted;
+}
+void HPDNoiseLibraryReader::shuffleData(int timeSliceId, float* &data)
+{
+   if(timeSliceId == -1 || (timeSliceId>=10)) return;
+   //make a local copy of input data
+   float Data[10] = {0.,0.,0.,0.,0.,0.,0.,0.,0.,0.};
+   for(int i=0;i<10;++i){
+       Data[i] = data[i];
+   }
+   int ts_max = -1;
+   float max = -999.;
+   for(int i=0;i<10;++i){
+       if(Data[i]>max){
+           max = data[i];
+	   ts_max = i;
+       }
+   }
+   if((ts_max == -1)){//couldn't find ts_max, return the same value.
+       return;
+   }else{
+       // always shift the noise to the right by putting zeroes to the previous slices.
+       // the noise is pedestal subtracted. 0 value is acceptable.
+       int k = -1;
+       for(int i=0;i<10;++i){
+	   data[i] = 0.;
+	   int newIdx = timeSliceId+k;
+	   float dd = 0.;
+	   if(newIdx < 10){
+	       data[newIdx] = Data[ts_max+k];
+	       dd = Data[ts_max+k];
+	       i = newIdx;
+	   }
+	   data[i] = dd;
+	   ++k;
+       }
+													   
+   }
 }
 
 //I couldn't find Rannor in CLHEP/Random. For now, use it from ROOT (copy/paste) by little modification.
