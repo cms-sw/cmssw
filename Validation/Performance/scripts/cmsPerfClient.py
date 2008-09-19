@@ -67,6 +67,7 @@ def optionparse():
 
     (options, args) = parser.parse_args()
 
+    outfile = options.outfile
     if not outfile == "": 
         outfile = os.path.abspath(options.outfile)
         outdir = os.path.dirname(outfile)
@@ -86,13 +87,13 @@ def optionparse():
 
     cmsperf_cmds = []
 
-    cmdfile = options.cmscmdfile
+    cmscmdfile = options.cmscmdfile
     if cmscmdfile == "":
         parser.error("A valid python file defining a list of dictionaries that represents a list of cmsPerfSuite keyword arguments must be passed to this program")
         sys.exit()
     else:
         
-        cmdfile = os.path.abspath(cmdfile)
+        cmdfile = os.path.abspath(cmscmdfile)
         if os.path.isfile(cmdfile):
             try:
                 execfile(cmdfile)
@@ -220,9 +221,9 @@ def presentBenchmarkData(perfcmds,q,outfile):
             if i < len(perfcmds): 
                 keywdict = perfcmds[i]
             else:
-                keywdict = {"Could not match up commands passed in via config file with cmds returned"}  
+                keywdict = {None: "Could not match up commands passed in via config file with cmds returned"}  
             if len(keywdict) == 0:
-                keywdict = {"Defaults in cmsPerfServer were used"}
+                keywdict = {None: "Defaults in cmsPerfServer were used"}
             
             newdata.append((keywdict,dat))
             i += 1

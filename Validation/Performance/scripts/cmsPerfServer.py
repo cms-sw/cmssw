@@ -2,6 +2,7 @@
 import cmsSimPerfPublish as cspp
 import cmsPerfSuite as cps
 import cmsPerfHarvest as cph
+from cmsPerfCommons import Candles
 import optparse as opt
 import socket, os, sys, SimpleXMLRPCServer, threading
 
