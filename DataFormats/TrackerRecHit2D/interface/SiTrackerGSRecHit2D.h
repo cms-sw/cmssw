@@ -1,27 +1,34 @@
 #ifndef SiTrackerGSRecHit2D_H
 #define SiTrackerGSRecHit2D_H
 
-#include "DataFormats/TrackerRecHit2D/interface/GSSiTrackerRecHit2DLocalPos.h"
+#include "DataFormats/TrackerRecHit2D/interface/BaseSiTrackerRecHit2DLocalPos.h"
+#include "DataFormats/Common/interface/Ref.h"
+#include "FastSimDataFormats/External/interface/FastTrackerClusterCollection.h"
 
-class SiTrackerGSRecHit2D : public GSSiTrackerRecHit2DLocalPos{
+class SiTrackerGSRecHit2D : public BaseSiTrackerRecHit2DLocalPos{
   
 public:
   
-  SiTrackerGSRecHit2D(): GSSiTrackerRecHit2DLocalPos(),
+  SiTrackerGSRecHit2D(): BaseSiTrackerRecHit2DLocalPos(),
 			 simhitId_(),
 			 simtrackId_(),
 			 eeId_(),
-			 pixelMultiplicityAlpha_(), 
+                         cluster_(),  
+                         pixelMultiplicityAlpha_(), 
 			 pixelMultiplicityBeta_() {}
   
   ~SiTrackerGSRecHit2D() {}
+
+  typedef edm::Ref<FastTrackerClusterCollection, FastTrackerCluster> ClusterRef;
+  typedef edm::RefProd<FastTrackerClusterCollection> ClusterRefProd;
   
   SiTrackerGSRecHit2D( const LocalPoint&, const LocalError&,
 		       const DetId&,
 		       const int simhitId,
 		       const int simtrackId,
 		       const uint32_t eeId,
-		       const int pixelMultiplicityX,
+                       ClusterRef const&  cluster,
+                       const int pixelMultiplicityX,
 		       const int pixelMultiplicityY );  
   
   virtual SiTrackerGSRecHit2D * clone() const {return new SiTrackerGSRecHit2D( * this); }
@@ -31,6 +38,9 @@ public:
   const uint32_t& eeId()    const { return eeId_;}
   const int& simMultX()    const { return pixelMultiplicityAlpha_;}
   const int& simMultY()    const { return pixelMultiplicityBeta_;}
+  
+  ClusterRef const& cluster() const { return cluster_;}
+  void setClusterRef(const ClusterRef &ref) { cluster_  = ref; }
 
   virtual bool sharesInput( const TrackingRecHit* other, SharedInputType what) const {return false;}
   
@@ -38,6 +48,7 @@ private:
   int const simhitId_;
   int const simtrackId_;
   uint32_t const eeId_;
+  ClusterRef cluster_;
   int const pixelMultiplicityAlpha_;
   int const pixelMultiplicityBeta_;
 };

@@ -6,11 +6,13 @@ SiTrackerGSRecHit2D::SiTrackerGSRecHit2D( const LocalPoint& pos, const LocalErro
 					  const int simhitId         ,
 					  const int simtrackId       ,
 					  const uint32_t eeId,
-					  const int pixelMultiplicityX = -1,
+                                          ClusterRef const&  cluster ,
+                                          const int pixelMultiplicityX = -1,
 					  const int pixelMultiplicityY = -1 ):
-  GSSiTrackerRecHit2DLocalPos(pos,err,id) ,
+  BaseSiTrackerRecHit2DLocalPos(pos,err,id) ,
   simhitId_(simhitId) ,
   simtrackId_(simtrackId) ,
   eeId_(eeId) ,
+  cluster_(cluster),
   pixelMultiplicityAlpha_(pixelMultiplicityX), 
   pixelMultiplicityBeta_(pixelMultiplicityY) {}
