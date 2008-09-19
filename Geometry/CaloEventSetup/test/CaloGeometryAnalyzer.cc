@@ -125,9 +125,10 @@ CaloGeometryAnalyzer::cmpset( const CaloSubdetectorGeometry* geom ,
    const DetSet base ( geom->CaloSubdetectorGeometry::getCells( gp, dR ) ) ;
    const DetSet over ( geom->getCells( gp, dR ) ) ;
    assert( over == base ) ;
-/*
+
    if( over == base )
    {
+/*
       std::cout << "getCells Test dR="
 		<< dR
 		<< ", gp=" << gp 
@@ -135,6 +136,7 @@ CaloGeometryAnalyzer::cmpset( const CaloSubdetectorGeometry* geom ,
 		<< ", gp.phi=" << gp.phi() 
 		<< ": base and over are equal!\n ***************************\n " 
 		<< std::endl ;
+*/
    }
    else
    {
@@ -170,8 +172,11 @@ CaloGeometryAnalyzer::cmpset( const CaloSubdetectorGeometry* geom ,
 		     <<dR
 		     << ", gp=" << gp 
 		     << ": cell in base but not overload = " ;
-	    if( iS->subdetId() == EcalBarrel ) std::cout << EBDetId( *iS ) ;
-	    if( iS->subdetId() == EcalEndcap ) std::cout << EEDetId( *iS ) ;
+	    if( iS->det() == DetId::Ecal &&
+		iS->subdetId() == EcalBarrel ) std::cout << EBDetId( *iS ) ;
+	    if( iS->det() == DetId::Ecal &&
+		iS->subdetId() == EcalEndcap ) std::cout << EEDetId( *iS ) ;
+	    if( iS->det() == DetId::Hcal ) std::cout << HcalDetId( *iS ) ;
 	    std::cout<< std::endl ;
 	 }
       }
@@ -206,13 +211,16 @@ CaloGeometryAnalyzer::cmpset( const CaloSubdetectorGeometry* geom ,
 		     <<dR
 		     << ", gp=" << gp 
 		     << ": cell in overload but not base = " ;
-	    if( iS->subdetId() == EcalBarrel ) std::cout << EBDetId( *iS ) ;
-	    if( iS->subdetId() == EcalEndcap ) std::cout << EEDetId( *iS ) ;
+	    if( iS->det() == DetId::Ecal &&
+		iS->subdetId() == EcalBarrel ) std::cout << EBDetId( *iS ) ;
+	    if( iS->det() == DetId::Ecal &&
+		iS->subdetId() == EcalEndcap ) std::cout << EEDetId( *iS ) ;
+	    if( iS->det() == DetId::Hcal ) std::cout << HcalDetId( *iS ) ;
 	    std::cout << std::endl ;
 	 }
       }
+      std::cout<<"------------- done with mismatch printout ---------------"<<std::endl ;
    }
-*/
 }
 
 EEDetId
@@ -454,6 +462,7 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg      ,
 	    // test getCells against base class version every so often
 	    if( 0 == closestCell.hashedIndex()%100 )
 	    {
+	       cmpset( geom, gp,  2*deg ) ;
 	       cmpset( geom, gp,  5*deg ) ;
 	       cmpset( geom, gp, 25*deg ) ;
 	       cmpset( geom, gp, 45*deg ) ;
@@ -575,6 +584,34 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg      ,
       else if (det == DetId::Hcal)
       {
 	 f << "  // " << HcalDetId(*i) << std::endl;
+	    
+	 const GlobalPoint gp ( cell->getPosition() ) ;
+
+	 f << "  // Checking getClosestCell for position " 
+	   << gp
+	   << std::endl;
+
+	 const HcalDetId closestCell ( geom->getClosestCell( gp ) ) ;
+
+	 f << "  // Return position is " << closestCell << std::endl;
+	 if( closestCell != HcalDetId(*i) )
+	 {
+//	    std::cout<<"**help** for id="<<HcalDetId(*i)<< "; closest is "<<closestCell<<std::endl ;
+	    const double rr ( reco::deltaR( gp.eta(), gp.phi(), 
+					    geom->getGeometry( closestCell )->getPosition().eta(),
+					    geom->getGeometry( closestCell )->getPosition().phi()   ) ) ; 
+	    if( rr> 1.e-5 ) std::cout<<"For "<<HcalDetId(*i)<<" closest is "<<closestCell
+				     << " HCAL dR=" << rr <<std::endl ;
+	 }
+	 // test getCells against base class version every so often
+	 if( 0 == closestCell.denseIndex()%30 )
+	 {
+	    cmpset( geom, gp,  2*deg ) ;
+	    cmpset( geom, gp,  5*deg ) ;
+	    cmpset( geom, gp,  7*deg ) ;
+	    cmpset( geom, gp, 25*deg ) ;
+	    cmpset( geom, gp, 45*deg ) ;
+	 }
       }
     
       if (det == DetId::Hcal && subdetn==HcalForward) 
