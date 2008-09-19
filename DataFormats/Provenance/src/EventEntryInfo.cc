@@ -126,6 +126,8 @@ namespace edm {
   EventEntryInfo::setNotPresent() {
     if (productstatus::neverCreated(productStatus())) return;
     if (productstatus::dropped(productStatus())) return;
+
+    // BEGIN KLUDGE
     if (!productstatus::unknown(productStatus())) {
 
       // Unless there is a problem the code in this block is
@@ -154,6 +156,11 @@ namespace edm {
         assert(productstatus::unknown(productStatus()));
       }
     }
+    // END KLUDGE
+
+    // Put this back in when the KLUDGE is removed
+    // assert(productstatus::unknown(productStatus()));
+ 
     setStatus(productstatus::neverCreated());
   }
 
@@ -161,8 +168,7 @@ namespace edm {
   EventEntryInfo::write(std::ostream& os) const {
     os << "branch ID = " << branchID() << '\n';
     os << "product ID = " << productID() << '\n';
-    int i = productStatus();
-    os << "product status = " << i << '\n';
+    os << "product status = " << static_cast<int>(productStatus()) << '\n';
     if (noEntryDescription()) {
       os << "module description ID = " << moduleDescriptionID() << '\n';
     } else {
