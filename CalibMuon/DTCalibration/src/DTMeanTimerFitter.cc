@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/08/04 16:22:18 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/09/19 14:23:26 $
+ *  $Revision: 1.6 $
  *  \author S. Bolognesi - INFN Torino
  */
 
@@ -101,7 +101,7 @@ vector<float> DTMeanTimerFitter::evaluateVDriftAndReso (TString N) {
       // << " weight: " << (count[i]/(sigma[i]*sigma[i])) << endl; 
     }
     if((!wTMaxSum)||(!wSigmaSum)){
-      edm::LogError("DTMeanTimerFitter") << "Error zero sum of weights";
+      edm::LogError("DTMeanTimerFitter") << "Error zero sum of weights..returning default";
       vector<float> defvec(6,-1);
       return defvec;	
     }
@@ -198,7 +198,7 @@ TF1* DTMeanTimerFitter::fitTMax(TH1F* histo){
       Double_t peak = (((((histo->GetXaxis())->GetXmax())-((histo->GetXaxis())->GetXmin()))/histo->GetNbinsX())*
 		       (histo->GetMaximumBin()))+((histo->GetXaxis())->GetXmin());
       //if(theVerbosityLevel >= 1)
-      edm::LogVerbatim("DTMeanTimerFitter") <<"Peak "<<peak<<" : "<<"xmax "<<((histo->GetXaxis())->GetXmax())
+      LogDebug("DTMeanTimerFitter") <<"Peak "<<peak<<" : "<<"xmax "<<((histo->GetXaxis())->GetXmax())
 	    <<"            xmin "<<((histo->GetXaxis())->GetXmin())
 	    <<"            nbin "<<histo->GetNbinsX()
 	    <<"            bin with max "<<(histo->GetMaximumBin());
