@@ -65,8 +65,8 @@ namespace {
 
   // ----------> HB <-----------
   std::vector <HBHOCellParameters> makeHBCells () {
-    const float HBRMIN = 181.225;
-    const float HBRMAX = 289.009;
+    const float HBRMIN = 181.1;
+    const float HBRMAX = 288.8;
     
     HBHOCellParameters cells [] = {
       // eta, depth, firstPhi, stepPhi, deltaPhi, rMin, rMax, etaMin, etaMax
@@ -84,10 +84,10 @@ namespace {
       HBHOCellParameters (12, 1, 1, 1, 5, HBRMIN, HBRMAX, 0.087*11, 0.087*12),
       HBHOCellParameters (13, 1, 1, 1, 5, HBRMIN, HBRMAX, 0.087*12, 0.087*13),
       HBHOCellParameters (14, 1, 1, 1, 5, HBRMIN, HBRMAX, 0.087*13, 0.087*14),
-      HBHOCellParameters (15, 1, 1, 1, 5, HBRMIN,258.635, 0.087*14, 0.087*15),
-      HBHOCellParameters (15, 2, 1, 1, 5,258.635,289.009, 0.087*14, 0.087*15),
-      HBHOCellParameters (16, 1, 1, 1, 5, HBRMIN,190.595, 0.087*15, 0.087*16),
-      HBHOCellParameters (16, 2, 1, 1, 5,190.595,232.837, 0.087*15, 0.087*16)
+      HBHOCellParameters (15, 1, 1, 1, 5, HBRMIN, 258.4,  0.087*14, 0.087*15),
+      HBHOCellParameters (15, 2, 1, 1, 5, 258.4,  HBRMAX, 0.087*14, 0.087*15),
+      HBHOCellParameters (16, 1, 1, 1, 5, HBRMIN, 190.4,  0.087*15, 0.087*16),
+      HBHOCellParameters (16, 2, 1, 1, 5, 190.4,  232.6,  0.087*15, 0.087*16)
     };
     int nCells = sizeof(cells)/sizeof(HBHOCellParameters);
     std::vector <HBHOCellParameters> result;
@@ -98,26 +98,27 @@ namespace {
 
   // ----------> HO <-----------
   std::vector <HBHOCellParameters> makeHOCells () {
-    const float HORMIN = 390.342;
-    const float HORMAX = 413.959;
+    const float HORMIN0 = 390.0;
+    const float HORMIN1 = 412.6;
+    const float HORMAX = 413.6;
     
     HBHOCellParameters cells [] = {
       // eta, depth, firstPhi, stepPhi, deltaPhi, rMin, rMax, etaMin, etaMax
-      HBHOCellParameters ( 1, 4, 1, 1, 5, HORMIN, HORMAX, 0.087*0, 0.087*1),
-      HBHOCellParameters ( 2, 4, 1, 1, 5, HORMIN, HORMAX, 0.087*1, 0.087*2),
-      HBHOCellParameters ( 3, 4, 1, 1, 5, HORMIN, HORMAX, 0.087*2, 0.087*3),
-      HBHOCellParameters ( 4, 4, 1, 1, 5, HORMIN, HORMAX, 0.087*3, 0.087*4),
-      HBHOCellParameters ( 5, 4, 1, 1, 5, HORMIN, HORMAX, 0.087*4, 0.087*5),
-      HBHOCellParameters ( 6, 4, 1, 1, 5, HORMIN, HORMAX, 0.087*5, 0.087*6),
-      HBHOCellParameters ( 7, 4, 1, 1, 5, HORMIN, HORMAX, 0.087*6, 0.087*7),
-      HBHOCellParameters ( 8, 4, 1, 1, 5, HORMIN, HORMAX, 0.087*7, 0.087*8),
-      HBHOCellParameters ( 9, 4, 1, 1, 5, HORMIN, HORMAX, 0.087*8, 0.087*9),
-      HBHOCellParameters (10, 4, 1, 1, 5, HORMIN, HORMAX, 0.087*9, 0.087*10),
-      HBHOCellParameters (11, 4, 1, 1, 5, HORMIN, HORMAX, 0.087*10, 0.087*11),
-      HBHOCellParameters (12, 4, 1, 1, 5, HORMIN, HORMAX, 0.087*11, 0.087*12),
-      HBHOCellParameters (13, 4, 1, 1, 5, HORMIN, HORMAX, 0.087*12, 0.087*13),
-      HBHOCellParameters (14, 4, 1, 1, 5, HORMIN, HORMAX, 0.087*13, 0.087*14),
-      HBHOCellParameters (15, 4, 1, 1, 5, HORMIN, HORMAX, 0.087*14, 0.087*15)
+      HBHOCellParameters ( 1, 4, 1, 1, 5, HORMIN0, HORMAX, 0.087*0, 0.087*1),
+      HBHOCellParameters ( 2, 4, 1, 1, 5, HORMIN0, HORMAX, 0.087*1, 0.087*2),
+      HBHOCellParameters ( 3, 4, 1, 1, 5, HORMIN0, HORMAX, 0.087*2, 0.087*3),
+      HBHOCellParameters ( 4, 4, 1, 1, 5, HORMIN0, HORMAX, 0.087*3, 0.3075),
+      HBHOCellParameters ( 5, 4, 1, 1, 5, HORMIN1, HORMAX, 0.3395,  0.087*5),
+      HBHOCellParameters ( 6, 4, 1, 1, 5, HORMIN1, HORMAX, 0.087*5, 0.087*6),
+      HBHOCellParameters ( 7, 4, 1, 1, 5, HORMIN1, HORMAX, 0.087*6, 0.087*7),
+      HBHOCellParameters ( 8, 4, 1, 1, 5, HORMIN1, HORMAX, 0.087*7, 0.087*8),
+      HBHOCellParameters ( 9, 4, 1, 1, 5, HORMIN1, HORMAX, 0.087*8, 0.087*9),
+      HBHOCellParameters (10, 4, 1, 1, 5, HORMIN1, HORMAX, 0.087*9,  0.8494),
+      HBHOCellParameters (11, 4, 1, 1, 5, HORMIN1, HORMAX, 0.873, 0.087*11),
+      HBHOCellParameters (12, 4, 1, 1, 5, HORMIN1, HORMAX, 0.087*11, 0.087*12),
+      HBHOCellParameters (13, 4, 1, 1, 5, HORMIN1, HORMAX, 0.087*12, 0.087*13),
+      HBHOCellParameters (14, 4, 1, 1, 5, HORMIN1, HORMAX, 0.087*13, 0.087*14),
+      HBHOCellParameters (15, 4, 1, 1, 5, HORMIN1, HORMAX, 0.087*14, 0.087*15)
     };
     int nCells = sizeof(cells)/sizeof(HBHOCellParameters);
     std::vector <HBHOCellParameters> result;
@@ -293,10 +294,10 @@ namespace {
 	  double phiCenter = ((iPhi-1)*360./MAX_HCAL_PHI + 0.5*param.dphi) * DEGREE2RAD; // middle of the cell
 	  double etaCenter = 0.5 * (param.etaMin + param.etaMax);
 
-	  double z = iside * param.zMin;
-	  double perp = z / sinh (etaCenter);
+	  double perp = param.zMin / sinh (etaCenter);
 	  double x = perp * cos (phiCenter);
 	  double y = perp * sin (phiCenter);
+	  double z = iside * param.zMin;
 	  // make cell geometry
 	  GlobalPoint refPoint (x,y,z); // center of the cell's face
 	  std::vector<float> cellParams; cellParams.reserve (3);
@@ -327,10 +328,10 @@ namespace {
 	  GlobalPoint outer (param.rMax, 0, param.zMin);
 	  double etaCenter = 0.5 * (inner.eta() + outer.eta());
 
-	  double z = iside * param.zMin;
-	  double perp = z / sinh (etaCenter);
+	  double perp = param.zMin / sinh (etaCenter);
 	  double x = perp * cos (phiCenter);
 	  double y = perp * sin (phiCenter);
+	  double z = iside * param.zMin;
 	  // make cell geometry
 	  GlobalPoint refPoint (x,y,z); // center of the cell's face
 	  std::vector<float> cellParams; cellParams.reserve (3);
@@ -371,6 +372,7 @@ CaloSubdetectorGeometry* HcalFlexiHardcodeGeometryLoader::load(const HcalTopolog
   }
   else { // TB geometry
     fillHBHO (hcalGeometry, makeHBCells(), true);
+    fillHBHO (hcalGeometry, makeHOCells(), false);
     fillHE (hcalGeometry, makeHECells_H2());
   }
   return hcalGeometry;
