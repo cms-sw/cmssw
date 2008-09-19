@@ -1,6 +1,10 @@
 #include "DataFormats/Provenance/interface/EventEntryInfo.h"
 #include "DataFormats/Provenance/interface/EntryDescriptionRegistry.h"
+#include "DataFormats/Provenance/interface/ModuleDescriptionRegistry.h"
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include <string>
 #include <ostream>
+#include <memory>
 
 /*----------------------------------------------------------------------
 
@@ -122,7 +126,34 @@ namespace edm {
   EventEntryInfo::setNotPresent() {
     if (productstatus::neverCreated(productStatus())) return;
     if (productstatus::dropped(productStatus())) return;
-    assert(productstatus::unknown(productStatus()));
+    if (!productstatus::unknown(productStatus())) {
+
+      // Unless there is a problem the code in this block is
+      // never executed.
+      if (noEntryDescription()) {
+        std::auto_ptr<ModuleDescription> moduleDescriptionPtr(new ModuleDescription);
+        ModuleDescriptionRegistry::instance()->getMapped(moduleDescriptionID(), *moduleDescriptionPtr);
+
+        if ( moduleDescriptionPtr->releaseVersion() == std::string("\"CMSSW_2_1_4\"") ||  
+             moduleDescriptionPtr->releaseVersion() == std::string("\"CMSSW_2_1_5\"") ||
+             moduleDescriptionPtr->releaseVersion() == std::string("\"CMSSW_2_1_6\"") ||  
+             moduleDescriptionPtr->releaseVersion() == std::string("\"CMSSW_2_1_7\"") ) {
+          // Do nothing if the product was created in a release with known bugs
+          // Actually this presumes the subsequent processing steps use releases
+          // later than the one used to create the product.  The bug occurs
+          // when a product is created in a lumi or run (not event), then
+          // in a later process dropped, then in a later process recovered erroneously
+          // via secondary file input, then read in yet another process ....
+          // Maybe eventually we can delete this ugly code ...
+        }
+        else {
+          assert(productstatus::unknown(productStatus()));
+        }
+      }
+      else {
+        assert(productstatus::unknown(productStatus()));
+      }
+    }
     setStatus(productstatus::neverCreated());
   }
 
@@ -130,7 +161,8 @@ namespace edm {
   EventEntryInfo::write(std::ostream& os) const {
     os << "branch ID = " << branchID() << '\n';
     os << "product ID = " << productID() << '\n';
-    os << "product status = " << productStatus() << '\n';
+    int i = productStatus();
+    os << "product status = " << i << '\n';
     if (noEntryDescription()) {
       os << "module description ID = " << moduleDescriptionID() << '\n';
     } else {
