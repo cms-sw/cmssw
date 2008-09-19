@@ -1,8 +1,9 @@
 //
-// $Id: Tau.cc,v 1.8 2008/06/13 09:54:32 gpetrucc Exp $
+// $Id: Tau.cc,v 1.9 2008/06/23 22:22:18 gpetrucc Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Tau.h"
+#include "DataFormats/JetReco/interface/GenJet.h"
 
 
 using namespace pat;
@@ -133,6 +134,20 @@ void Tau::embedSignalTracks(){
   }
   embeddedSignalTracks_ = true;
 }
+
+
+
+/// method to set the matched generated jet
+void Tau::setGenJet(const reco::GenJetRef& gj) {
+  genJet_.clear();
+  genJet_.push_back(*gj);
+}
+
+/// return the matched generated jet
+const reco::GenJet * Tau::genJet() const {
+  return (genJet_.size() > 0 ? &genJet_.front() : 0);
+}
+
 
 const pat::tau::TauPFSpecific & Tau::pfSpecific() const {
   if (!isPFTau()) throw cms::Exception("Type Error") << "Requesting a PFTau-specific information from a pat::Tau which wasn't made from a PFTau.\n";
