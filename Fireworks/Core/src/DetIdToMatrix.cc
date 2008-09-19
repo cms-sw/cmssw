@@ -1,6 +1,8 @@
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 #include "DataFormats/DetId/interface/DetId.h"
+// hope not... #include "Geometry/MuonNumbering/interface/RPCNumberingScheme.h"
+#include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "TGeoManager.h"
 #include "TFile.h"
 #include "TTree.h"
@@ -79,8 +81,23 @@ const TGeoHMatrix* DetIdToMatrix::getMatrix( unsigned int id ) const
       if ( m.GetTranslation()[2]<0 ) m.ReflectX(kFALSE);
       idToMatrix_[id] = m;
       return &idToMatrix_[id];
-   }
-      
+   } else if ( detId.subdetId() == MuonSubdetId::RPC ) {
+     RPCDetId rpcid(detId);
+     std::cout << "id: " << detId.rawId() << std::endl;
+     if ( rpcid.region() == -1 || rpcid.region() == 1 ) {
+       std::cout << "before: " << std::endl;
+       (*(manager_->GetCurrentMatrix())).Print();
+       TGeoHMatrix m = (*(manager_->GetCurrentMatrix()))*inverseCscRotation;
+       if ( rpcid.region() == 1 ) m.ReflectY(kFALSE);
+       idToMatrix_[id] = m;
+       std::cout << "after: " << std::endl;
+       m.Print();
+       return &idToMatrix_[id];
+     } else {
+       std::cout << "BARREL station: " << rpcid.station() << std::endl;
+       (*(manager_->GetCurrentMatrix())).Print();
+     }
+   }      
    TGeoHMatrix m = *(manager_->GetCurrentMatrix());
    
    // some ECAL crystall are reflected
