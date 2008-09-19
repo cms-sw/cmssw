@@ -5,7 +5,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <vector>
-using namespace std;
 
 namespace edm { class Event; class EventSetup; }
 
@@ -17,7 +16,7 @@ public:
   virtual void produce(edm::Event& ev, const edm::EventSetup& es);
 
 private:
-  vector<string> trackProducers;
+  std::vector<std::string> trackProducers;
 };
 #endif
 

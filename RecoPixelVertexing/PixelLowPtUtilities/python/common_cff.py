@@ -25,8 +25,7 @@ FPixError = cms.PSet(
     hitErrorRPhi = cms.double(0.0051),
     hitErrorRZ = cms.double(0.0036)
 )
-#myBuilder.StripCPE = 'Fake'
-#myBuilder.ComponentName = 'TTRHBuilderWithoutAngle4PixelTriplets'
+
 GroupedCkfTrajectoryBuilder.maxCand = 5
 GroupedCkfTrajectoryBuilder.intermediateCleaning = False
 GroupedCkfTrajectoryBuilder.alwaysUseInvalidHits = False
