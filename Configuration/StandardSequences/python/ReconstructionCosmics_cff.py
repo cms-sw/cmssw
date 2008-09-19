@@ -43,5 +43,5 @@ metrecoCosmics = cms.Sequence(metreco)
 egammaCosmics = cms.Sequence(egammarecoCosmics_woElectrons)
 
 
-reconstructionCosmics = cms.Sequence(localReconstructionCosmics*muonsCosmics*jetsCosmics*metrecoCosmics*egammaCosmics*tracksBeamHaloMuon)
+reconstructionCosmics = cms.Sequence(localReconstructionCosmics*tracksBeamHaloMuon*muonsCosmics*jetsCosmics*metrecoCosmics*egammaCosmics)
 reconstructionCosmics_woTkBHM = cms.Sequence(localReconstructionCosmics*muonsCosmics*jetsCosmics*metrecoCosmics*egammaCosmics)
